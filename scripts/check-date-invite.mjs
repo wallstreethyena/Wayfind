@@ -196,32 +196,56 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   ok(widths.size <= 3, `the grids are ragged: ${[...widths].join(",")} — every row of a sprite must be the same width or the drawing shears`);
 }
 
-// ── 7. THE SHARE FLOW ACTUALLY ASKS ────────────────────────────────────────
-// The invite is worth nothing if nothing generates the link. This pins the
-// entry point, and pins the two properties that make asking acceptable at all:
-// the plain share must still be one tap, and the invite must not demand a form.
+// ── 7. EVERY SHARE BUTTON ASKS ─────────────────────────────────────────────
+// The invite is worth nothing if nothing generates the link, and it is worth
+// almost nothing if only one of seven share buttons does. This pins the entry
+// points and the two properties that make asking acceptable at all: the plain
+// share must still be one tap, and the invite must never demand a form.
 {
-  const si = readFileSync(path.join(REPO, "app/components/ShareIntent.js"), "utf8");
-  ok(/encodeInvite/.test(si) && /invitePath/.test(si),
-     "ShareIntent must build the link through lib/dateInvite.js rather than assembling a URL of its own");
-  ok(/onPlain/.test(si) && /onInvite/.test(si), "ShareIntent must offer BOTH paths");
-  ok(!/<input|<textarea/.test(si),
+  const sheet = readFileSync(path.join(REPO, "app/components/shareIntentSheet.js"), "utf8");
+  ok(/encodeInvite/.test(sheet) && /invitePath/.test(sheet),
+     "the sheet must build the link through lib/dateInvite.js rather than assembling a URL of its own");
+  ok(/onPlain/.test(sheet) && /onInvite/.test(sheet), "the sheet must offer BOTH paths");
+  ok(!/createElement\("input"|createElement\("textarea"/.test(sheet),
      "the invite must not ask the sender to fill anything in — a form in front of a share is how a share stops happening");
-  const plainFirst = si.indexOf("onPlain && onPlain()");
-  const inviteFirst = si.indexOf("const invite =");
-  ok(plainFirst > 0 && inviteFirst > 0,
-     "ShareIntent lost one of its two actions");
+  ok(/typeof document === "undefined"/.test(sheet),
+     "with no DOM the sheet must fall through to the plain share rather than swallowing it");
+  // THE ACTIVATION CHAIN. navigator.share() is refused on iOS unless it runs
+  // inside a user gesture. The sheet's own button tap is that gesture — so
+  // nothing async may sit between the tap and the handler.
+  const actBody = sheet.slice(sheet.indexOf("const act ="), sheet.indexOf("const button ="));
+  ok(!/await|setTimeout|fetch\(|\.then\(/.test(actBody),
+     "something async sits between the tap and the share — iOS will refuse navigator.share()");
 
-  const d = readFileSync(path.join(REPO, "app/components/sheets/Detail.js"), "utf8");
-  ok(/<ShareIntent/.test(d), "the place sheet must render the question");
-  ok(/setShareAsk\(true\)/.test(d), "the share button must open the question rather than sharing immediately");
-  ok(/onInvite=\{/.test(d) && /kind: "invite"/.test(d),
-     "the invite path must be wired and logged distinctly from a plain share, or we can never tell whether anyone uses it");
-  // The share sheet has to open inside the tap. Anything async in between
-  // consumes iOS's transient user activation and navigator.share() is refused —
-  // the defect already documented on shareLink() in app/home.js.
-  ok(!/setTimeout[^)]*onPlain|setTimeout[^)]*onInvite/.test(d),
-     "a timer between the tap and the share sheet will kill it on iOS");
+  // EVERY CALLER. A list, because the whole point of this pass was that one
+  // wired button and six unwired ones is not a feature.
+  const CALLERS = [
+    ["app/components/sheets/Detail.js", "the place detail sheet"],
+    ["app/home.js", "the home shell (place cards, rails, hero hook)"],
+    ["app/components/IntentPageClient.js", "the intent pages"],
+    ["app/components/TrendingNowClient.js", "trending now"],
+  ];
+  for (const [rel, what] of CALLERS) {
+    const src = readFileSync(path.join(REPO, rel), "utf8");
+    ok(/askShareIntent\(/.test(src), `${what} (${rel}) shares without asking who it is for`);
+    ok(/onInvite\s*:/.test(src), `${what} passes no invite handler, so its question has only one real answer`);
+  }
+  const home = readFileSync(path.join(REPO, "app/home.js"), "utf8");
+  ok((home.match(/askShareIntent\(/g) || []).length >= 4,
+     "the home shell has more than one share button — every one of them must ask");
+
+  // A place share that cannot become an invite is a bug, not a preference.
+  for (const [rel] of CALLERS) {
+    const src = readFileSync(path.join(REPO, rel), "utf8");
+    const asks = (src.match(/askShareIntent\(/g) || []).length;
+    const invites = (src.match(/onInvite\s*:/g) || []).length;
+    ok(asks === invites, `${rel}: ${asks} asks but ${invites} invite handlers — one of them is a dead end`);
+  }
+  // The old one-off React sheet must stay deleted; two implementations of one
+  // question is exactly the drift the single share card was built to end.
+  let dup = true;
+  try { statSync(path.join(REPO, "app/components/ShareIntent.js")); } catch (e) { dup = false; }
+  ok(!dup, "app/components/ShareIntent.js is back — there must be exactly one implementation of the question");
 }
 
 if (fails.length) {
