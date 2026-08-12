@@ -691,8 +691,12 @@ export default function BestNearby({
     // one ranked for the town the reader has left.
     const centerKey = (center ? center.lat.toFixed(3) + "," + center.lng.toFixed(3) : "") + "|" + gateKey;
     if (fetchedFor.current !== centerKey) { fetchedFor.current = centerKey; setRows({}); }
+    // Set by the updater, read after it: "was this slot already taken?" The
+    // updater stays pure — it only reports what it saw.
+    let claimed = true;
     setRows((r) => {
       if (r[id]) return r;
+      claimed = false;
       // THE GATE, applied to whichever rail loaded. The "eat" rail is
       // unaffected in practice (restaurants read indoor), so this is one
       // call site rather than two branches that can drift apart.
@@ -705,15 +709,25 @@ export default function BestNearby({
       // express it: every row on that rail is coarse-category Food, so the
       // quota has nothing to cap. See lib/todaysBest.js for why this is a
       // selection over the sorted rows and not a fourth score term.
-      (async () => {
-        const data = await load(id);
-        if (!Array.isArray(data)) { setRows((r2) => ({ ...r2, [id]: data })); return; }
-        const n = nowCtx();
-        const composed = daypartCompose(gateOutdoor(data, n), n);
-        setRows((r2) => ({ ...r2, [id]: id === "eat" ? mealCompose(composed, n) : composed }));
-      })();
+      // The FETCH used to be launched from inside this updater. React updaters
+      // must be pure — under StrictMode, or any concurrent re-render that
+      // discards and replays an update, every rail would fetch twice, because
+      // the replay sees the same base state and the `if (r[id]) return r` guard
+      // above passes again. It is latent only because reactStrictMode is off in
+      // next.config.js, which is not a guarantee, it is a setting.
+      //
+      // The updater now only claims the slot; the effect below does the work.
       return { ...r, [id]: "loading" };
     });
+    if (claimed) return;
+    claimed = true;
+    (async () => {
+      const data = await load(id);
+      if (!Array.isArray(data)) { setRows((r2) => ({ ...r2, [id]: data })); return; }
+      const n = nowCtx();
+      const composed = daypartCompose(gateOutdoor(data, n), n);
+      setRows((r2) => ({ ...r2, [id]: id === "eat" ? mealCompose(composed, n) : composed }));
+    })();
   };
 
   // The default-open section cannot fetch until there is a location to rank

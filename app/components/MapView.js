@@ -112,8 +112,15 @@ function ensureOriginPinCss() {
   if (typeof document === "undefined" || document.getElementById("wf-origin-pin-css")) return;
   const st = document.createElement("style");
   st.id = "wf-origin-pin-css";
-  st.textContent = "@keyframes wfOriginGlow{0%,100%{filter:drop-shadow(0 0 3px rgba(252,95,6,.55)) drop-shadow(0 2px 3px rgba(15,23,35,.35))}50%{filter:drop-shadow(0 0 7px rgba(252,95,6,.95)) drop-shadow(0 2px 3px rgba(15,23,35,.35))}}"
-    + ".wf-origin-pin{animation:wfOriginGlow 2.6s ease-in-out infinite}"
+  // OPACITY, NOT FILTER. The glow used to animate drop-shadow, which repaints
+  // the marker forever — including while the map is idle — and drop-shadow is
+  // one of the most expensive filters there is. A pulsing halo behind a static
+  // shadow gets the same read for a compositor-only opacity animation.
+  st.textContent = "@keyframes wfOriginGlow{0%,100%{opacity:.35}50%{opacity:.9}}"
+    + ".wf-origin-pin{filter:drop-shadow(0 2px 3px rgba(15,23,35,.35))}"
+    + ".wf-origin-pin:before{content:\"\";position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;"
+    + "border-radius:50%;background:radial-gradient(circle,rgba(252,95,6,.85) 0%,rgba(252,95,6,0) 70%);"
+    + "animation:wfOriginGlow 2.6s ease-in-out infinite;pointer-events:none;will-change:opacity}"
     + "@media (prefers-reduced-motion: reduce){.wf-origin-pin{animation:none}}";
   document.head.appendChild(st);
 }
@@ -131,7 +138,18 @@ function ensureOriginPinCss() {
 // map.addImage (pixelRatio 2), so the pins stay ONE cheap symbol layer that
 // clusters natively — never N DOM markers (the perf rule this file has
 // always kept for places).
-const PIN_W = 28, PIN_H = 38, PIN_DPR = 2;
+// THE PIN WAS AUTHORED AT 2x AND DRAWN AT UP TO 1.77x THAT. On a DPR-3 phone
+// the SELECTED pin renders at 28 x 1.18 x 3 = 99 device pixels from a 56px
+// source — a bilinear upscale, which is the blur and the doubled-looking edge
+// the owner photographed (the 2.4px white stroke smeared over the offset drop
+// shadow). Author at the real device ratio instead of assuming 2.
+const PIN_W = 28, PIN_H = 38;
+const PIN_DPR = (() => {
+  try {
+    const d = typeof window !== "undefined" ? window.devicePixelRatio : 2;
+    return Math.max(2, Math.min(3, Math.ceil(d || 2)));
+  } catch (e) { return 2; }
+})();
 function drawPinImageData(color, { selected = false } = {}) {
   const W = PIN_W * PIN_DPR, H = PIN_H * PIN_DPR;
   const canvas = document.createElement("canvas");
@@ -300,7 +318,20 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       // shipped with rather than defaulting everyone into rotate gestures.
       dragRotate: styleMode === "3d",
       pitchWithRotate: styleMode === "3d",
-      cooperativeGestures: true,
+      // NO COOPERATIVE GESTURES ON THE FULL-SCREEN MAP. Owner: "the map
+      // continues to be glitchy… moving around the screen is laggy."
+      //
+      // It was not lag. cooperativeGestures is a hard gate, not a hint: with
+      // it on, maplibre refuses any drag with fewer than two touch points AND
+      // its stylesheet relaxes the canvas to touch-action:pan-x pan-y, so the
+      // browser takes a one-finger drag as a page scroll. The map does not
+      // move, and a full-screen black scrim flashes up reading "Use two
+      // fingers to move the map". Drag, nothing, flash, drag harder.
+      //
+      // It exists to stop a map embedded mid-article from eating the page
+      // scroll. That is the `compact` preview's problem, not this one's — the
+      // Map tab is the whole screen and has no page scroll to protect.
+      cooperativeGestures: !!compact,
     });
     mapRef.current = map;
     if (!compact) map.addControl(new NavigationControl({ showCompass: false }), "bottom-right");
@@ -508,7 +539,12 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
   // crisply on OLED phone screens, same reasoning as before, opposite
   // direction.
   return <div style={{ position: "absolute", inset: 0, overflow: "hidden", background: "#F3F0E8" }}>
-    <div ref={containerRef} style={{ position: "absolute", inset: 0, filter: "contrast(1.04) saturate(1.05)" }} />
+    {/* NO CSS FILTER ON THE CANVAS. A filter over a continuously repainting
+        WebGL surface forces its own compositing layer and a full-viewport
+        filter pass EVERY FRAME, and iOS commonly rasterizes filtered layers
+        below device pixel ratio — which softened every pin as well as costing
+        the frame budget. The 4% contrast lift is not worth either. */}
+    <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
     <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", border: "1px solid rgba(15,23,42,.08)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.4)" }} />
   </div>;
 }

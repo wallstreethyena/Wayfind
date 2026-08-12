@@ -146,7 +146,7 @@ const ThumbIcon = ({ down = false }) => (
   </svg>
 );
 
-export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, onSave, onLike, onDislike, onBadge, onOpen }) {
+export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, onSave, onLike, onDislike, onOpen }) {
   if (!place) return null;
   // THE GOVERNING LAW, shown == sorted (2026-08-07): a row ranked through
   // byVisibleScore carries governed_score (base +0.2 video −0.2 far +0.6
@@ -251,7 +251,7 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
                 below): the outer <li> navigates to the detail page on click,
                 and a chip tap must not also trigger that. Falls back to the
                 same ?exp=<key> deep link ThingsToDoList/HookDetail already use
-                when no onBadge callback is wired, since this card is portable
+                since this card is portable
                 and cannot assume an in-app navigation handler exists. */}
             {/* v7.15 (owner, 2026-08-11): the experience-tag chip buttons are
                 GONE — "i told you i don't like the bubbles either". The

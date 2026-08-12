@@ -762,6 +762,118 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
      `the action row needs ${worstLine}px of irreducible width in 338px of phone and cannot wrap`);
 }
 
+// ── 7d. THE MAP, AND THE SHARE SHEET'S FOCUS ──────────────────────────────
+// Owner on an iPhone: "the map continues to be glitchy… moving around the
+// screen is laggy… to open up the maps takes a long time to load", and "when
+// you click share the screen does not automatically centre to where you need to
+// write the name — for someone who does not know it is as if the share button
+// did nothing."
+{
+  const mv = stripComments(readFileSync(path.join(REPO, "app/components/MapView.js"), "utf8"));
+  const ms = stripComments(readFileSync(path.join(REPO, "app/components/screens/Map.js"), "utf8"));
+  const lay = stripComments(readFileSync(path.join(REPO, "app/layout.js"), "utf8"));
+  const sheet2 = stripComments(readFileSync(path.join(REPO, "app/components/shareIntentSheet.js"), "utf8"));
+
+  // THE BIG ONE. cooperativeGestures is a hard gate: with it on, maplibre
+  // refuses any drag under two touch points and flashes a full-screen "use two
+  // fingers" scrim. On a full-screen map tab there is no page scroll to protect.
+  ok(!/cooperativeGestures:\s*true/.test(mv),
+     "cooperativeGestures is unconditionally on again — one-finger pan is blocked and every drag flashes a black overlay");
+  ok(/cooperativeGestures:\s*!!compact/.test(mv),
+     "the embedded preview still needs cooperative gestures; only the full-screen map may opt out");
+
+  // A CSS filter over a continuously repainting WebGL canvas is a full-viewport
+  // filter pass every frame, and it softens the pins on top of that.
+  ok(!/filter: "contrast/.test(mv),
+     "a CSS filter is back over the map canvas — that is a full-viewport pass every frame plus sub-DPR rasterization");
+  ok(!/ackdropFilter/.test(ms),
+     "a backdrop-filter is back over the moving map; each one re-blurs the canvas behind it every frame");
+  ok(!/@keyframes wfOriginGlow\{[^}]*filter:/.test(mv),
+     "the origin marker is animating a drop-shadow again — that repaints forever, including while idle");
+
+  // The sprite must be authored at the device's real ratio or every pin is an
+  // upscale; the selected one worst.
+  ok(/devicePixelRatio/.test(mv),
+     "PIN_DPR is a constant again, so on a DPR-3 phone the selected pin is a 1.77x bilinear upscale — the blur in the owner's screenshot");
+
+  ok(/preconnect[^>]*tiles\.openfreemap\.org/.test(lay),
+     "the tile host is not preconnected, so its DNS and TLS handshake starts cold after ~1MB of maplibre");
+
+  // The share sheet.
+  ok(!/input\.focus\(\{\s*preventScroll/.test(sheet2),
+     "the name field focuses with preventScroll again — iOS then raises the keyboard over the field it just focused");
+  ok(/input\.focus\(\)/.test(sheet2), "the name field is not focused at all, so the keyboard never opens");
+  ok(/visualViewport/.test(sheet2),
+     "nothing measures the keyboard, so the field can sit underneath it — window.innerHeight does not change when it opens");
+  ok(/animation:wfSiUp/.test(sheet2),
+     "the sheet appears with no motion; at the bottom of a scrolled page that reads as the button having done nothing");
+}
+
+// ── 7e. ONE REQUEST PER QUERY ──────────────────────────────────────────────
+// Proven by CALLING the deduped function against a counting stub, because the
+// property is "how many times did it hit the network", which no regex can see.
+{
+  const src = readFileSync(path.join(REPO, "lib/sources.js"), "utf8");
+  const body = src.slice(src.indexOf("const _outdoorsInFlight"), src.indexOf("async function fsqSearch"));
+  ok(body.length > 200, "the outdoors dedupe moved or was renamed — this section is asserting nothing");
+  let hits = 0;
+  const stubFetch = () => { hits++; return new Promise((r) => setTimeout(() => r({ ok: true, json: async () => ({ places: [] }) }), 5)); };
+  class AC { constructor() { this.signal = {}; } abort() {} }
+  const outdoorsSearch = new Function("URLSearchParams", "fetch", "AbortController", "setTimeout", "window",
+    body + "\nreturn outdoorsSearch;")(URLSearchParams, stubFetch, AC, setTimeout, {});
+  const c = { lat: 27.95, lng: -82.4572 };
+  await Promise.all(Array.from({ length: 8 }, () => outdoorsSearch(c, 27359)));
+  ok(hits === 1, `one category tap fanned out into ${hits} identical /api/outdoors requests; it must be 1`);
+  hits = 0;
+  await Promise.all([outdoorsSearch(c, 27359), outdoorsSearch(c, 40000)]);
+  ok(hits === 2, `two DIFFERENT radii collapsed into ${hits} request(s) — the dedupe key is too coarse`);
+  hits = 0;
+  await outdoorsSearch(c, 27359);
+  await outdoorsSearch(c, 27359);
+  ok(hits === 2, "a settled query is never retried again — the in-flight map is caching results, not sharing a promise");
+}
+
+// ── 7f. NO FETCH INSIDE A STATE UPDATER ────────────────────────────────────
+// React updaters must be pure. This one launched the rail's fetch, so a replay
+// under StrictMode or any discarded concurrent render fetches every rail twice.
+{
+  const bn = stripComments(readFileSync(path.join(REPO, "app/components/BestNearby.js"), "utf8"));
+  const updater = bn.slice(bn.indexOf("setRows((r) => {"), bn.indexOf("if (claimed) return;"));
+  ok(updater.length > 40, "the BestNearby claim updater moved — this slice asserts nothing");
+  ok(!/await |load\(id\)/.test(updater),
+     "the rail fetch is back inside the setRows updater; a replayed update then fetches the same rail twice");
+  ok(/let claimed = true;/.test(bn) && /claimed = false;/.test(bn),
+     "the pure claim flag is gone, so the fetch can fire for a slot that was already taken");
+}
+
+// ── 7g. THE MEAL WINDOW READS THE VENUE'S CLOCK ────────────────────────────
+{
+  const home2 = stripComments(readFileSync(path.join(REPO, "app/home.js"), "utf8"));
+  ok(!/mealForHour\(siteHourFloat\(\)\)/.test(home2),
+     "the category tap reads the meal window in Eastern again — a Seattle reader at 18:30 gets dessert instead of dinner");
+  const { siteHourFloat: sh, tzForPoint: tz } = await import("../lib/nowContext.js");
+  const at = new Date("2026-08-13T01:30:00Z");
+  const { mealForHour: meal } = await import("../lib/nowContext.js");
+  ok(meal(sh(at, tz(47.6062, -122.3321))) === "dinner",
+     "18:30 in Seattle must be dinner; it reads " + meal(sh(at, tz(47.6062, -122.3321))));
+  ok(meal(sh(at, tz(27.9506, -82.4572))) !== "dinner",
+     "the Tampa reading changed, so this is not a timezone fix, it is a different bug");
+}
+
+// ── 7h. THE MAP'S OWN MARK ─────────────────────────────────────────────────
+// Owner: "a great icon would be our wayfind icon for current location."
+{
+  const ms2 = readFileSync(path.join(REPO, "app/components/screens/Map.js"), "utf8");
+  const at = ms2.indexOf('aria-label="Near me');
+  ok(at > 0, "the recenter button was renamed — this section is asserting nothing");
+  const btn = ms2.slice(at, ms2.indexOf("</button>", at));
+  ok(/M12 2\.6c-4\.1 0-7\.4 3\.3-7\.4 7\.4/.test(btn),
+     "the recenter control is not wearing the Wayfind pin — it is the one button on the map that means 'me'");
+  const card = readFileSync(path.join(REPO, "app/api/og/card.jsx"), "utf8");
+  ok(/M12 2\.6c-4\.1 0-7\.4 3\.3-7\.4 7\.4/.test(card),
+     "the share card's mark changed without the map's — one shape, two surfaces, or it is not a brand");
+}
+
 // ── 8. THE SEND SAYS SOMETHING, PROVEN BY DRIVING IT ───────────────────────
 // Owner, 2026-08-12: "i hit send invite and nothing happens."
 //
@@ -792,12 +904,16 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
 
   const mount = () => {
     const body = new N("body");
+    // head is part of a document. Approximating it away is how a guard reports
+    // a crash the browser would never have.
+    const head = new N("head");
     globalThis.document = {
-      body,
+      body, head,
       createElement: (t) => new N(t),
-      getElementById: (id) => body.walk((x) => x.id === id),
+      getElementById: (id) => head.walk((x) => x.id === id) || body.walk((x) => x.id === id),
       addEventListener() {}, removeEventListener() {},
     };
+    globalThis.Event = class { constructor(t) { this.type = t; } };
     // location.href is a SETTER here, because the sms: handoff is a write to it
     // and a plain object would swallow the one call this section exists to see.
     const nav = [];
