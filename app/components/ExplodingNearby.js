@@ -182,34 +182,55 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
     loadProvidedTrendList({ center, city, signal: ctrl.signal })
       .then((body) => {
         if (ctrl.signal.aborted) return;
-        // THE WEATHER/TIME GATE (owner, 2026-08-11: "the result should be based
-        // on the time of the day and weather also — use common sense"). The
-        // same gateOutdoor every other rail passes through: an outdoor trend
-        // match (a rucking route, a forest-bathing trail) is SUPPRESSED when
-        // the hour and the weather make it wrong, and a trend whose matches
-        // are all gated renders no module rather than a wrong one.
-        let trends = Array.isArray(body.trends) ? body.trends : [];
-        try {
-          const ctx = nowContext({ lat: center.lat, lng: center.lng, city: city || null, weather: weather || null });
-          trends = trends
-            .map((t) => ({ ...t, matches: gateOutdoor(t.matches, ctx) }))
-            .filter((t) => t.matches.length);
-        } catch (e) {}
-        // Every match gated away is an honest empty state, not an error.
-        const status = body.status === "ok" && !trends.length ? "no_verified_inventory" : (body.status || "trend_data_error");
-        setResult({ status, trends, error: body.error || null });
+        // v7.24 — THE GATE MOVED TO RENDER (see `gatedTrends` below). The
+        // owner's rule is unchanged — "the result should be based on the time
+        // of the day and weather also, use common sense", 2026-08-11 — but it
+        // used to be applied HERE, inside the fetch callback, and this effect
+        // has no `weather` dependency.
+        //
+        // Measured on a cold production load: this rail's searches fire at
+        // t≈1.24s and /api/weather does not answer until t≈1.66s. So the gate
+        // ran against `weather === null` — which `outdoorGate` correctly reads
+        // as "unknown weather, leave everything in" — and then nothing ever
+        // re-ran it. This is the ONE rail open by default, so it lost that race
+        // on essentially every visit and stayed ungated for the whole session.
+        //
+        // Deriving it during render instead costs nothing (gateOutdoor is a
+        // pure filter over rows already in memory), needs no refetch, and fixes
+        // the hour boundary too: a rail opened at 11:29 is re-gated at 11:31
+        // when the bucket flips from morning to afternoon.
+        const trends = Array.isArray(body.trends) ? body.trends : [];
+        setResult({ status: body.status || "trend_data_error", trends, error: body.error || null });
       })
       .catch(() => { if (!ctrl.signal.aborted) setResult({ status: "trend_data_error", trends: [], error: "Trend recommendations are temporarily unavailable." }); });
     return () => ctrl.abort();
   }, [active, retry, city, center && center.lat, center && center.lng]);
 
-  const visibleIdKey = result.status === "ok"
-    ? result.trends.flatMap((trend) => trend.matches || []).map((p) => p && p.id).filter(Boolean).join("|")
+  // v7.24 — THE GATE, derived on every render from the CURRENT weather and the
+  // CURRENT hour. An outdoor trend match (a rucking route, a forest-bathing
+  // trail, a pickleball court) is suppressed when the two make it wrong, and a
+  // trend whose matches are all gated renders no module rather than a wrong
+  // one. Fails open exactly as before: unreadable weather leaves every row in.
+  const gatedTrends = (() => {
+    const list = Array.isArray(result.trends) ? result.trends : [];
+    if (!list.length || !center || !isFinite(center.lat)) return list;
+    try {
+      const ctx = nowContext({ lat: center.lat, lng: center.lng, city: city || null, weather: weather || null });
+      return list
+        .map((t) => ({ ...t, matches: gateOutdoor(t.matches, ctx) }))
+        .filter((t) => t.matches.length);
+    } catch (e) { return list; }
+  })();
+  // Every match gated away is an honest empty state, not an error.
+  const status = result.status === "ok" && !gatedTrends.length ? "no_verified_inventory" : result.status;
+
+  const visibleIdKey = status === "ok"
+    ? gatedTrends.flatMap((trend) => trend.matches || []).map((p) => p && p.id).filter(Boolean).join("|")
     : "";
   const photoRefFor = useMissingPlacePhotos(
-    result.status === "ok" ? result.trends.flatMap((trend) => trend.matches || []) : [],
+    status === "ok" ? gatedTrends.flatMap((trend) => trend.matches || []) : [],
     center,
-    active && result.status === "ok"
+    active && status === "ok"
   );
   useEffect(() => {
     if (onVisibleIds) onVisibleIds(visibleIdKey ? visibleIdKey.split("|") : []);
@@ -219,11 +240,11 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
   }, [visibleIdKey]);
 
   useEffect(() => {
-    if (result.status !== "ok" || !result.trends.length || impressed.current) return;
+    if (status !== "ok" || !gatedTrends.length || impressed.current) return;
     const node = rootRef.current;
     if (!node || typeof IntersectionObserver === "undefined") {
       impressed.current = true;
-      try { onLog && onLog("exploding_section_impression", null, { surface: "home", count: result.trends.length }); } catch (e) {}
+      try { onLog && onLog("exploding_section_impression", null, { surface: "home", count: gatedTrends.length }); } catch (e) {}
       return;
     }
     const seenTrends = new Set();
@@ -237,8 +258,8 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
         }
         if (entry.target === node && !impressed.current) {
           impressed.current = true;
-          try { onLog && onLog("exploding_section_impression", null, { surface: "home", count: result.trends.length }); } catch (e) {}
-          try { onLog && onLog("trend_expand", null, { surface: "home", trigger: "default", count: result.trends.length }); } catch (e) {}
+          try { onLog && onLog("exploding_section_impression", null, { surface: "home", count: gatedTrends.length }); } catch (e) {}
+          try { onLog && onLog("trend_expand", null, { surface: "home", trigger: "default", count: gatedTrends.length }); } catch (e) {}
           try { noteExplodingReturn(onLog); } catch (e) {}
         }
       }
@@ -246,7 +267,7 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
     io.observe(node);
     node.querySelectorAll("[data-exploding-trend]").forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, [result.status, result.trends.length, onLog]);
+  }, [status, gatedTrends.length, onLog]);
 
   const meaningful = (event, place, extra) => {
     const elapsed = Math.max(0, Date.now() - mountedAt.current);
@@ -260,20 +281,20 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
   };
 
   if (!active) return null;
-  if (result.status === "loading") {
+  if (status === "loading") {
     return (
       <div role="status" aria-busy="true" aria-label="Finding verified trends near you" style={{ padding: "4px 0 8px" }}>
         {[0, 1, 2].map((i) => <div key={i} className="wf-sk" style={{ height: 224, borderRadius: 17, marginTop: i ? 16 : 0 }} />)}
       </div>
     );
   }
-  if (result.status === "unsupported_location") {
+  if (status === "unsupported_location") {
     return <div style={{ color: C.muted, fontSize: 13, lineHeight: 1.5, padding: "7px 2px 13px" }}>Exploding Trends Near You is not available in this area yet.</div>;
   }
-  if (result.status === "no_verified_inventory") {
+  if (status === "no_verified_inventory") {
     return <div style={{ color: C.muted, fontSize: 13, lineHeight: 1.5, padding: "7px 2px 13px" }}>No trend has enough verified local inventory to recommend right now.</div>;
   }
-  if (result.status !== "ok" || !result.trends.length) {
+  if (status !== "ok" || !gatedTrends.length) {
     return (
       <div role="alert" style={{ padding: "8px 2px 14px" }}>
         <div style={{ color: "#F8C6B8", fontSize: 13, lineHeight: 1.5 }}>{result.error || "Trend recommendations are temporarily unavailable."}</div>
@@ -283,7 +304,7 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
   }
   return (
     <div ref={rootRef}>
-      {result.trends.map((trend, i) => (
+      {gatedTrends.map((trend, i) => (
         <TrendBlock
           key={trend.conceptKey}
           trend={trend}

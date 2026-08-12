@@ -15,7 +15,7 @@
 //
 // So this guard EXECUTES the law rather than grepping for it, on the pool that
 // actually produced the failure.
-import { INTENT_PAGES, rankRows, capBySection, composeQueries, sectionAllowed, sectionOfRow } from "../lib/intentPages.js";
+import { INTENT_PAGES, rankRows, capBySection, composeQueries, sectionAllowed, sectionOfRow, resolvePlanAhead } from "../lib/intentPages.js";
 import { nowContext } from "../lib/nowContext.js";
 import { readFileSync } from "fs";
 import path from "path";
@@ -194,10 +194,31 @@ for (const intent of ["hidden-gems"]) {
   ok(distanceRows.length === 1 && distanceRows[0].name === "Far landmark",
     "worth-the-drive renders only qualifying places strictly beyond 17 miles");
   {
+    // v7.22 SUPERSEDES the literal `planAhead: !!def.planAhead` this used to
+    // pin. `tonight` now resolves planAhead PER DAYPART, so a bare `!!` would
+    // read its predicate function as a permanent true. The assertion is
+    // stricter than the one it replaces: both surfaces must route through the
+    // ONE shared resolver, which is what actually makes them agree — two
+    // independent copies of a ternary would satisfy the old regex and could
+    // still drift.
     const rail = read("app/components/IntentRail.js");
     const page = read("app/components/IntentPageClient.js");
-    ok(/planAhead: !!def\.planAhead/.test(rail) && /planAhead: !!def\.planAhead/.test(page),
-      "…and both surfaces pass it, so the rail and the page cannot order the same list differently");
+    ok(/planAhead: resolvePlanAhead\(def,/.test(rail) && /planAhead: resolvePlanAhead\(def,/.test(page),
+      "…and both surfaces resolve it through the shared resolvePlanAhead, so the rail and the page cannot order the same list differently");
+    ok(/resolvePlanAhead/.test(read("lib/intentPages.js")),
+      "…and that resolver is exported from the one module that owns the intent definitions");
+    // The behaviour itself, executed rather than pattern-matched.
+    const tn = INTENT_PAGES.tonight;
+    ok(resolvePlanAhead(tn, { timeBucket: "morning" }) === true,
+      "Tonight's Move plans ahead before dark — six of seven cards printed 'Closed' at 10:30am when it did not");
+    ok(resolvePlanAhead(tn, { timeBucket: "afternoon" }) === true,
+      "…and through the afternoon, when the reader is still planning rather than leaving");
+    ok(resolvePlanAhead(tn, { timeBucket: "night" }) === false,
+      "…but NOT after dark: at 11pm a shut bar is real evidence again and openWeight must bite");
+    ok(resolvePlanAhead(wtd, { timeBucket: "night" }) === true,
+      "worth-the-drive stays plan-ahead at every hour — a landmark is tomorrow's plan whatever the clock says");
+    ok(resolvePlanAhead({}, null) === false,
+      "…and an intent that never opted in is not silently made plan-ahead");
   }
 }
 

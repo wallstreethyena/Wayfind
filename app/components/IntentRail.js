@@ -34,7 +34,7 @@
 // RANKING_AND_FEATURING_SPEC.md §4 already applies to the creator row.
 import { useCallback, useEffect, useRef, useState } from "react";
 import RailCard, { RailNav, RailDots } from "./RailCard";
-import { INTENT_PAGES, toRow, rankRows, composeQueries } from "../../lib/intentPages";
+import { INTENT_PAGES, toRow, rankRows, composeQueries, resolvePlanAhead } from "../../lib/intentPages";
 import { placeAllowed } from "../../lib/placeFilter";
 import { resolveMarqueeDayTrips } from "../../lib/marqueeDayTrips";
 import { nowContext } from "../../lib/nowContext";
@@ -99,7 +99,23 @@ const WIDEN_M = Math.round(25 * M_PER_MI);
 // browse category and comes back, and re-running three Places searches for that
 // is real money.
 const POOL = new Map();
-const poolKey = (intent, lat, lng, bucket) => intent + "|" + lat.toFixed(2) + "," + lng.toFixed(2) + "|" + bucket;
+// v7.24 — THE GATE IS PART OF THE KEY. Measured on a cold production load: the
+// rails fire at t≈1.24s and /api/weather answers at t≈1.66s, so a rail that
+// resolves inside that window builds its list with `weather === null` — which
+// reads as "unknown weather, leave everything in". Nothing re-ran it: this pool
+// was keyed by (intent, centre, daypart) with no weather term, and the approach
+// gate bails on `rows !== null`, so a rail that lost the race stayed wrong for
+// the whole session.
+//
+// A refetch is genuinely required here rather than a render-time filter,
+// because the QUERY BANK ITSELF branches on the gate (lib/intentPages.js:
+// `x.outdoorOK ? "state park springs" : "museum indoor attraction"`). Filtering
+// afterwards would leave an indoor-weather rail choosing from outdoor queries.
+//
+// It costs a second fetch only when the gate actually FLIPS — in fair weather,
+// which is most of the time, the key never changes and nothing re-runs.
+const poolKey = (intent, lat, lng, bucket, gate) =>
+  intent + "|" + lat.toFixed(2) + "," + lng.toFixed(2) + "|" + bucket + "|" + (gate ? "out" : "in");
 
 const photoUrl = (r) => (r && r.photoRef ? "/api/photo?ref=" + encodeURIComponent(r.photoRef) + "&w=480" : null);
 const compactReviews = (n) => (Number(n) >= 1000 ? Math.round(Number(n) / 100) / 10 + "k" : String(Number(n) || 0));
@@ -147,6 +163,32 @@ export default function IntentRailBody({
     setRows(null);
   }, [centerKey]);
 
+  // v7.24 — THE SAME RE-ARM, for the weather gate. Exactly the stale-town bug in
+  // a different variable: the approach gate below bails on `rows !== null`, so
+  // once this rail has ANY answer it keeps it for the life of the mount — and
+  // on a cold load that answer was built before /api/weather returned, with the
+  // gate open by default. A list ranked for weather we did not have yet is not
+  // stale data, it is a wrong answer under a confident heading.
+  //
+  // Only a FLIP re-arms it, not every weather tick: the key is the boolean gate,
+  // so a temperature drifting 96° -> 97° changes nothing and a 94° -> 96° heat
+  // advisory rebuilds the list. POOL is keyed the same way, so the first list is
+  // still cached if the gate flips back.
+  const gateKey = (() => {
+    if (!center || !isFinite(center.lat) || !isFinite(center.lng)) return "";
+    try {
+      const c = nowContext({ lat: Number(center.lat), lng: Number(center.lng), city: city || null, weather: weather || null });
+      return c.timeBucket + "|" + (c.outdoorOK ? "out" : "in");
+    } catch (e) { return ""; }
+  })();
+  const seenGate = useRef(gateKey);
+  useEffect(() => {
+    if (seenGate.current === gateKey) return;
+    seenGate.current = gateKey;
+    inFlight.current = null;
+    setRows(null);
+  }, [gateKey]);
+
   const load = useCallback(() => {
     if (!def) return;
     if (!center || !isFinite(center.lat) || !isFinite(center.lng)) return;
@@ -157,7 +199,7 @@ export default function IntentRailBody({
     // different clock than its own sort makes a claim about what was ranked
     // that is not true.
     const ctx = nowContext({ lat, lng, city: city || null, weather: weather || null });
-    const key = poolKey(intent, lat, lng, ctx.timeBucket);
+    const key = poolKey(intent, lat, lng, ctx.timeBucket, ctx.outdoorOK);
     const cached = POOL.get(key);
     if (cached) { setRows(cached); return; }
     if (inFlight.current === key) return;
@@ -217,7 +259,7 @@ export default function IntentRailBody({
             // a kind of place admits only that kind, and one that names a mood
             // may mix but may not be one category in disguise.
             compose: def.compose || null,
-            planAhead: !!def.planAhead,
+            planAhead: resolvePlanAhead(def, ctx),
             minDistanceMi: def.minDistanceMi,
           }).filter((r) => Number.isFinite(r.distMi)
             && r.distMi <= capMi)
@@ -271,17 +313,67 @@ export default function IntentRailBody({
         // own ranker's order; scores are never altered (order-only rule, see
         // lib/marqueeDayTrips.js). Fails soft: no marquee, the local lane
         // stands alone exactly as before.
+        // v7.23 — the resolved marquee rows are held so the deepening pass below
+        // can re-apply the SAME lane to its wider list. Without this, deepening
+        // worth-the-drive would hand back a local-only list and silently delete
+        // Disney Springs and the parks from the rail the owner asked for them on.
+        let marqueeRows = [];
+        const withMarquee = (list) => {
+          if (!marqueeRows.length) return list;
+          const mIds = new Set(marqueeRows.map((r) => r.id));
+          return marqueeRows.concat(list.filter((r) => !mIds.has(r.id)));
+        };
         if (intent === "worth-the-drive") {
           try {
-            const marquee = await resolveMarqueeDayTrips({ origin: { lat, lng }, minDistanceMi: def.minDistanceMi });
-            if (marquee.length) {
-              const mIds = new Set(marquee.map((r) => r.id));
-              ranked = marquee.concat(ranked.filter((r) => !mIds.has(r.id)));
-            }
+            marqueeRows = await resolveMarqueeDayTrips({ origin: { lat, lng }, minDistanceMi: def.minDistanceMi });
+            ranked = withMarquee(ranked);
           } catch (e) {}
         }
         POOL.set(key, ranked);
         setRows(ranked);
+
+        // ── THE DEEPENING PASS (v7.23) ───────────────────────────────────────
+        // The ladder above only ever climbed from a THIN result: a rail that
+        // scraped together five rows from its first two queries never spent the
+        // rest of its own bank, so "Places You'd Never Find" ran 2 of its 5
+        // queries and "Tonight's Move" 2 of its 4. The visible twelve were the
+        // only twelve found rather than the best twelve of a real pool — which
+        // is the whole complaint: the category is the RULE SET that decides who
+        // may compete, and we were not letting them compete.
+        //
+        // WHY IT IS A SECOND PASS AND NOT A BIGGER FIRST ONE. Every query is a
+        // paid Places search and the homepage is already slow (measured: 136
+        // API calls, 8.2s to `load`). Widening RAIL_QUERIES would put all of it
+        // in front of first paint on every rail. This runs AFTER the rail has
+        // already rendered, so the reader sees cards at exactly the same moment
+        // as before and the pool deepens underneath them.
+        //
+        // WHAT KEEPS IT AFFORDABLE:
+        //   · Only rails the reader OPENED get here (all are collapsed by
+        //     default and nothing loads until approach), so this is intent, not
+        //     speculation.
+        //   · /api/places/search is cache-first on the shared pool, so re-running
+        //     the whole bank re-pays only for the queries the first pass did not
+        //     already run.
+        //   · It is skipped entirely when the ladder above already spent the
+        //     whole bank, and when the bank has nothing left to spend.
+        //   · POOL is keyed by (intent, centre, daypart), so this happens once
+        //     per rail per daypart, not once per scroll.
+        //
+        // A worse result is discarded. The deepening may only ever ADD choice.
+        if (whole.length > first.length && ranked.length >= 3) {
+          try {
+            const deeper = withMarquee(await sweep(near, whole, def.floor));
+            // Same centre, same daypart, still the list we started? The reader
+            // may have moved towns while this was in flight — inFlight/POOL are
+            // keyed on that, and writing a stale town's answer here is exactly
+            // the defect the centre guard above exists to prevent.
+            if (deeper.length > ranked.length && POOL.get(key) === ranked) {
+              POOL.set(key, deeper);
+              setRows(deeper);
+            }
+          } catch (e) {}
+        }
       } catch (e) {
         setRows([]);
       } finally {

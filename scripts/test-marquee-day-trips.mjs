@@ -8,6 +8,7 @@
 import { readFileSync } from "node:fs";
 import {
   MARQUEE_DAY_TRIPS, DRIVE_MAX_MI, IDENTITY_RADIUS_MI, MARQUEE_RAIL_MAX, MARQUEE_FLOOR,
+  MARQUEE_MAX_PER_OPERATOR,
   marqueeCandidates, marqueeDistMi, verifiedMarqueeRow, resolveMarqueeDayTrips,
 } from "../lib/marqueeDayTrips.js";
 
@@ -35,7 +36,23 @@ const parrish = { lat: 27.5689, lng: -82.4393 };
 const cands = marqueeCandidates(parrish);
 ok(cands.length === MARQUEE_RAIL_MAX, "the resolution budget is capped");
 ok(cands.every((a) => a.distMi > 17 && a.distMi <= DRIVE_MAX_MI), "every candidate sits inside (minDistanceMi, 2h]");
-ok(cands.every((a) => a.tier === 1), "tier 1 fills the budget first when more anchors are in range than seats");
+// v7.24 SUPERSEDES "tier 1 fills the budget first". That was true and it was
+// the bug: all eight tier-1 anchors are Disney or Universal, so the whole
+// lookup budget was spent on two operators and the live rail came back 7-of-10
+// Disney/Universal — with Busch Gardens, 31 miles away and the CLOSEST marquee
+// destination, never looked up at all. Tier still orders WITHIN an operator;
+// the operator cap now decides how many seats each one may claim. Stricter
+// than the line it replaces: it pins the diversity outcome, not the mechanism.
+ok(cands.filter((a) => a.operator === "disney").length <= MARQUEE_MAX_PER_OPERATOR,
+  "no more than two Disney anchors take lookup budget");
+ok(cands.filter((a) => a.operator === "universal").length <= MARQUEE_MAX_PER_OPERATOR,
+  "…nor two Universal");
+ok(cands.filter((a) => !a.operator).length >= 3,
+  "…so the independents are reached at all — they never were before");
+ok(cands.some((a) => a.key === "busch_gardens"),
+  "…including Busch Gardens, the nearest marquee destination to this origin");
+ok(cands.filter((a) => a.operator === "disney").every((a) => a.ownerNamed),
+  "…and the two Disney seats go to the two the owner named by name");
 ok(!marqueeCandidates(parrish, { max: 13 }).some((a) => a.key === "kennedy_space_center"),
   "Kennedy Space Center is beyond two hours of Bradenton and is excluded by the cap");
 const tampa = { lat: 27.9506, lng: -82.4572 };
@@ -94,9 +111,29 @@ for (const u of calls) {
 const rail = read("app/components/IntentRail.js");
 ok(rail.includes('resolveMarqueeDayTrips({ origin: { lat, lng }, minDistanceMi: def.minDistanceMi })'),
   "the home rail resolves the marquee lane with the rail's own near edge");
-ok(/intent === "worth-the-drive"[\s\S]{0,700}ranked = marquee\.concat\(ranked\.filter/.test(rail),
-  "the marquee lane LEADS the home rail and the local lane backfills, deduped");
-ok(rail.indexOf('POOL.set(key, ranked)') > rail.indexOf('ranked = marquee.concat'),
+// v7.23 SUPERSEDES the literal `ranked = marquee.concat(ranked.filter(...)`.
+// The concat is now a named helper because the deepening pass has to apply the
+// SAME lane a second time — without that, deepening worth-the-drive returns a
+// local-only list and silently deletes Disney Springs and the parks. The
+// assertions below are stricter than the line they replace: they pin the lane's
+// ORDER (marquee first), its DEDUPE, and that BOTH pass sites use the one
+// helper rather than two hand-rolled concats that can drift.
+ok(/const withMarquee = \(list\) =>[\s\S]{0,260}marqueeRows\.concat\(list\.filter\(\(r\) => !mIds\.has\(r\.id\)\)\)/.test(rail),
+  "the marquee lane LEADS and the local lane backfills, deduped — in one helper");
+ok(/intent === "worth-the-drive"[\s\S]{0,400}ranked = withMarquee\(ranked\)/.test(rail),
+  "…applied to the first pass");
+ok(/withMarquee\(await sweep\(near, whole, def\.floor\)\)/.test(rail),
+  "…and re-applied to the deepening pass, or the wider fetch would drop the marquee anchors");
+{
+  // Execute the ordering rule rather than trusting the regex.
+  const marqueeRows = [{ id: "m1" }, { id: "m2" }];
+  const local = [{ id: "m2" }, { id: "L1" }, { id: "L2" }];
+  const mIds = new Set(marqueeRows.map((r) => r.id));
+  const out = marqueeRows.concat(local.filter((r) => !mIds.has(r.id))).map((r) => r.id);
+  ok(out.join() === "m1,m2,L1,L2",
+    "…marquee first, local after, and a venue in both lanes appears once");
+}
+ok(rail.indexOf('POOL.set(key, ranked)') > rail.indexOf('ranked = withMarquee(ranked)'),
   "the merged rail is what gets cached — a reopened section keeps the marquee lane");
 const page = read("app/components/IntentPageClient.js");
 ok(page.includes('resolveMarqueeDayTrips({ origin: { lat: loc.lat, lng: loc.lng }, minDistanceMi: def.minDistanceMi })'),

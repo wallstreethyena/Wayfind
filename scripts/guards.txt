@@ -358,3 +358,10 @@ node scripts/check-rail-dots.mjs
 node scripts/check-awin-links.mjs
 node scripts/check-no-sideways-scroll.mjs
 node scripts/check-share-card-art.mjs
+node scripts/check-place-classification.mjs
+
+node scripts/check-candidate-pools.mjs
+
+node scripts/check-no-monoculture.mjs
+
+node scripts/check-weather-race.mjs
