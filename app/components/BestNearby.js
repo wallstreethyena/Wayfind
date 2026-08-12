@@ -19,7 +19,7 @@
 import { cloneElement, isValidElement, useCallback, useState, useRef, useEffect } from "react";
 import { reasonLine } from "../../lib/reasonLine";
 import { C, CHAMPAGNE, TYPE, RADII, SHADOW, FOCUS, TARGET, Icon, NavIcon, directionsUrl, PlaceScoreChip } from "./kit";
-import { fetchTodaysBest, fetchThingsToDo, tbPhotoUrl, byVisibleScore, daypartCompose, NEAR_RADIUS_MI, WIDEN_RADIUS_MI } from "../../lib/todaysBest.js";
+import { fetchTodaysBest, fetchThingsToDo, tbPhotoUrl, byVisibleScore, daypartCompose, mealCompose, NEAR_RADIUS_MI, WIDEN_RADIUS_MI } from "../../lib/todaysBest.js";
 import { SERVICE_RX } from "../../lib/placeFilter.js";
 // v7.04 — the Top 40 rail renders the SAME card every other rail renders.
 import RailCard, { RailNav, RailDots } from "./RailCard";
@@ -193,8 +193,24 @@ const STATUS_LABEL = { great: "Great beach day", great_uv_caution: "Great beach 
 // salons, spas — which are not answers to "what should I do near me right now".
 // Fixing the input is the honest fix; fixing the sort would have been a lie
 // about the score.
-const TOP40_CATEGORIES = ["food", "attractions", "nightlife"];
-const TOP40_PER_CATEGORY = 10; // broad enough to fill ten after category overlap and vetting
+// v7.23 — `beach` joins the fan-out, and it is worth saying why it could not
+// before. A beach is one of the best answers this app has on a fair Florida
+// day and one of the worst under a heat advisory or a storm — and until v7.22
+// the gate could not SEE a beach row at all (venueLean read no type and no
+// name on it). Adding beaches to a pool whose weather gate did not work would
+// have put Siesta Beach at #1 in a thunderstorm. Now that gateOutdoor removes
+// them correctly, the upside is available without the downside.
+//
+// `hotels` and `shopping` stay out, both deliberately: hotels are a trip
+// decision rather than a "near me right now" pick, and shopping is the removal
+// recorded above (a beauty salon at #1 on a Saturday night).
+const TOP40_CATEGORIES = ["food", "attractions", "nightlife", "beach"];
+// v7.23 — 10 → 16. wf_best_picks is our own RPC, so a deeper per-category read
+// costs a row scan rather than a metered call, and the composition, the
+// open-now filter, the errand exclusions and the cross-rail dedupe all take
+// their cut BEFORE the visible ten are chosen. Ten in meant ten survivors at
+// best and usually fewer.
+const TOP40_PER_CATEGORY = 16;
 const TOP40_MAX = 10;
 // ERRANDS ARE NOT THINGS TO DO (owner, 2026-08-09, from the live rail:
 // "Detwiler's showing up in the top 40 is a joke"). Detwiler's Farm Market is a
@@ -629,8 +645,16 @@ export default function BestNearby({
     // "nothing better nearby", which the engine probe disproved. Fetch 18 so
     // the rail still fills AFTER cross-rail claiming; the visible cap stays 10
     // in uniqueRecommendations, and the RPC is our own DB (no metered cost).
-    id === "eat" ? fetchTodaysBest({ ...baseArgs(), category: "food", limit: 18, events, radiusMi })
-    : id === "todo" ? fetchThingsToDo({ ...baseArgs(), limit: 18, events, radiusMi })
+    // v7.23 — 18 → 40. Both of these read wf_best_picks / wf_things_to_do, which
+    // are OUR Supabase RPCs: a wider limit costs one row scan, not a metered
+    // Google call, so there is no reason for the pool to be the binding
+    // constraint on which cards the composition can choose from. (The Google
+    // fallback inside each fetcher still fires only when the owned inventory is
+    // too thin, and still asks for `limit`, so the paid path is unchanged.)
+    // Verified at 17mi of Parrish: the food pool has 60 rows to offer, of which
+    // the old limit saw 18 — and only one of those 18 was a breakfast place.
+    id === "eat" ? fetchTodaysBest({ ...baseArgs(), category: "food", limit: 40, events, radiusMi })
+    : id === "todo" ? fetchThingsToDo({ ...baseArgs(), limit: 40, events, radiusMi })
     : Promise.resolve([]);
   // THE WIDEN (owner, 2026-08-09). 17 miles first, always. Only when that comes
   // back with too little to render does it ask again at 25 — one extra read, on
@@ -661,7 +685,19 @@ export default function BestNearby({
       // The weather gate is a FILTER over rows. The trends section's payload is
       // an object, not a list, so it is stored as-is — the second half of the
       // same crash above, and the reason this is a branch and not a cast.
-      (async () => { const data = await load(id); setRows((r2) => ({ ...r2, [id]: Array.isArray(data) ? daypartCompose(gateOutdoor(data, nowCtx()), nowCtx()) : data })); })();
+      // v7.23 — mealCompose runs ONLY on the food rail, and after the daypart
+      // quota. "Actually Worth Eating" is the one list whose promise is a MEAL
+      // ("ranked for this hour"), and the three-bucket daypart quota cannot
+      // express it: every row on that rail is coarse-category Food, so the
+      // quota has nothing to cap. See lib/todaysBest.js for why this is a
+      // selection over the sorted rows and not a fourth score term.
+      (async () => {
+        const data = await load(id);
+        if (!Array.isArray(data)) { setRows((r2) => ({ ...r2, [id]: data })); return; }
+        const n = nowCtx();
+        const composed = daypartCompose(gateOutdoor(data, n), n);
+        setRows((r2) => ({ ...r2, [id]: id === "eat" ? mealCompose(composed, n) : composed }));
+      })();
       return { ...r, [id]: "loading" };
     });
   };

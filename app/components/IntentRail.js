@@ -271,17 +271,67 @@ export default function IntentRailBody({
         // own ranker's order; scores are never altered (order-only rule, see
         // lib/marqueeDayTrips.js). Fails soft: no marquee, the local lane
         // stands alone exactly as before.
+        // v7.23 — the resolved marquee rows are held so the deepening pass below
+        // can re-apply the SAME lane to its wider list. Without this, deepening
+        // worth-the-drive would hand back a local-only list and silently delete
+        // Disney Springs and the parks from the rail the owner asked for them on.
+        let marqueeRows = [];
+        const withMarquee = (list) => {
+          if (!marqueeRows.length) return list;
+          const mIds = new Set(marqueeRows.map((r) => r.id));
+          return marqueeRows.concat(list.filter((r) => !mIds.has(r.id)));
+        };
         if (intent === "worth-the-drive") {
           try {
-            const marquee = await resolveMarqueeDayTrips({ origin: { lat, lng }, minDistanceMi: def.minDistanceMi });
-            if (marquee.length) {
-              const mIds = new Set(marquee.map((r) => r.id));
-              ranked = marquee.concat(ranked.filter((r) => !mIds.has(r.id)));
-            }
+            marqueeRows = await resolveMarqueeDayTrips({ origin: { lat, lng }, minDistanceMi: def.minDistanceMi });
+            ranked = withMarquee(ranked);
           } catch (e) {}
         }
         POOL.set(key, ranked);
         setRows(ranked);
+
+        // ── THE DEEPENING PASS (v7.23) ───────────────────────────────────────
+        // The ladder above only ever climbed from a THIN result: a rail that
+        // scraped together five rows from its first two queries never spent the
+        // rest of its own bank, so "Places You'd Never Find" ran 2 of its 5
+        // queries and "Tonight's Move" 2 of its 4. The visible twelve were the
+        // only twelve found rather than the best twelve of a real pool — which
+        // is the whole complaint: the category is the RULE SET that decides who
+        // may compete, and we were not letting them compete.
+        //
+        // WHY IT IS A SECOND PASS AND NOT A BIGGER FIRST ONE. Every query is a
+        // paid Places search and the homepage is already slow (measured: 136
+        // API calls, 8.2s to `load`). Widening RAIL_QUERIES would put all of it
+        // in front of first paint on every rail. This runs AFTER the rail has
+        // already rendered, so the reader sees cards at exactly the same moment
+        // as before and the pool deepens underneath them.
+        //
+        // WHAT KEEPS IT AFFORDABLE:
+        //   · Only rails the reader OPENED get here (all are collapsed by
+        //     default and nothing loads until approach), so this is intent, not
+        //     speculation.
+        //   · /api/places/search is cache-first on the shared pool, so re-running
+        //     the whole bank re-pays only for the queries the first pass did not
+        //     already run.
+        //   · It is skipped entirely when the ladder above already spent the
+        //     whole bank, and when the bank has nothing left to spend.
+        //   · POOL is keyed by (intent, centre, daypart), so this happens once
+        //     per rail per daypart, not once per scroll.
+        //
+        // A worse result is discarded. The deepening may only ever ADD choice.
+        if (whole.length > first.length && ranked.length >= 3) {
+          try {
+            const deeper = withMarquee(await sweep(near, whole, def.floor));
+            // Same centre, same daypart, still the list we started? The reader
+            // may have moved towns while this was in flight — inFlight/POOL are
+            // keyed on that, and writing a stale town's answer here is exactly
+            // the defect the centre guard above exists to prevent.
+            if (deeper.length > ranked.length && POOL.get(key) === ranked) {
+              POOL.set(key, deeper);
+              setRows(deeper);
+            }
+          } catch (e) {}
+        }
       } catch (e) {
         setRows([]);
       } finally {
