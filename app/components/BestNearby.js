@@ -36,7 +36,7 @@ import { nowSubline } from "../../lib/intentPages.js";
 import { LOAD_FAILED, LOAD_PENDING, canClaim, isFailed, settleLoad } from "../../lib/loadState.js";
 import { couponForPlace } from "../../lib/coupons.js";
 
-// THE CHIP HAS TO STATE THE OFFER (v7.40). Owner, 2026-08-12: "we dont offer
+// THE CHIP HAS TO STATE THE OFFER (v7.41). Owner, 2026-08-12: "we dont offer
 // the coupon on the place card or tell the user there is a coupon or
 // promotion." It rendered the literal word "Deal", which is a label for a
 // category, not an offer — nothing about it tells a reader they can halve the
@@ -753,7 +753,7 @@ export default function BestNearby({
     });
     if (claimed) return;
     claimed = true;
-    // THE REJECTION THAT STRANDED THE RAIL (v7.40). This IIFE used to carry no
+    // THE REJECTION THAT STRANDED THE RAIL (v7.41). This IIFE used to carry no
     // catch at all: `await load(id)` rejecting left rows[id] on "loading"
     // forever, and because the claim guard above is idempotent NOTHING could
     // retry it — not the observer, not the 2.5s backstop, not re-opening the

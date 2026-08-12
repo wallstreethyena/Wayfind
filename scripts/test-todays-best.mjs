@@ -40,7 +40,7 @@ ok(ui.includes("PlaceScoreChip"), "accordion rows show the Wayfind Score, not th
 ok(!/rating\.toFixed/.test(ui) && !/reviews\.toLocaleString/.test(ui), "no google-star composition");
 ok(ui.includes('aria-expanded'), "accordion rows are real disclosure buttons");
 ok(ui.includes("Nothing strong in this category right now"), "empty sections say so honestly");
-// v7.39 — this asserted the literal string `data === "loading"`. The sentinel
+// v7.41 — this asserted the literal string `data === "loading"`. The sentinel
 // moved to LOAD_PENDING in lib/loadState.js (one spelling, so a stuck slot
 // cannot hide behind a second one) and this went red although the invariant it
 // protects — a loading row RESERVES ITS GEOMETRY so the swap cannot shift the
