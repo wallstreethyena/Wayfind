@@ -273,8 +273,24 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   ok(!/setSent\("sent"\)[\s\S]{0,80}navigator\.share/.test(client),
      "the sent state is set before the share is attempted");
   ok(/aria-live/.test(client), "the result of sending has to be announced, not just coloured");
-  ok(/sms:/.test(client) && /iPad\|iPhone\|iPod/.test(client),
-     "the reply arrived as a text and should be able to go back as one — and the sms: body separator differs on iOS");
+  // The burst and the resume both have to respect the person on the other end.
+  ok(/prefers-reduced-motion/.test(client),
+     "the heart burst must not fire for someone who asked the OS for less motion");
+  ok(/localStorage/.test(client) && /wf_ask_/.test(client),
+     "progress must survive them closing the page — the worst thing here is losing a yes halfway through");
+  ok(/m\.step !== "yay"/.test(client),
+     "coming back must not land on the 2.6s celebration frame, which auto-advances and reads as a glitch cold");
+  // REVERSED, one commit after it was written. It required an "Open Messages"
+  // sms: link; the owner killed that on sight and he was right. This page spends
+  // five frames building something and a raw sms: link throws the person out of
+  // it into a grey compose window mid-moment. The share sheet appears OVER the
+  // page rather than replacing it, and it also covers the half of the world that
+  // answers in WhatsApp. A guard that pins the wrong decision is worse than no
+  // guard, so it pins the right one instead of being deleted.
+  ok(!/sms:/.test(client),
+     "an sms: link throws the person out of the page mid-moment — the share sheet opens over it and covers more apps");
+  ok((client.match(/navigator\.share/g) || []).length >= 1,
+     "there must still be exactly one way to send the answer, and it must be the native sheet");
   ok(!/\brequired\b/.test(client),
      "nothing on this page may be required — a mandatory field between a yes and telling them is a place to lose the yes");
 }
