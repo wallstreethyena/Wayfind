@@ -129,8 +129,16 @@ ok(!/src: "search_sparkle"/.test(home),
   'the search_sparkle open path is gone with the button that fired it');
 ok(/src: "discovery_menu"/.test(home),
   'the mood sheet must be openable from the discovery menu, or it has no door at all');
-ok(/"What are you feeling\?", onMood/.test(home),
-  'the discovery menu row must be wired to the mood handler');
+// SUPERSEDED SHAPE, SAME DECISION (v7.18, owner 2026-08-12: "I need a witty,
+// clever ONE WORD to describe what the user will get"). The chip's VISIBLE label
+// is now "Mood"; this used to pin the literal "What are you feeling?" as the
+// label, which is exactly the pin-the-string fragility this repo keeps getting
+// bitten by. The claim was never about that sentence — it is that the mood sheet
+// has a DOOR in the discovery menu. So: assert the handler is wired to a chip,
+// and that the full sentence survives as the chip's ACCESSIBLE NAME, which is
+// where the rename moved it. Strictly stronger than the old assertion.
+ok(/, onMood, "What are you feeling\?/.test(home),
+  'the discovery menu row must be wired to the mood handler, and the chip must still say "What are you feeling?" to a screen reader after the one-word rename');
 ok(/wf_return_to/.test(home) && /sessionStorage.getItem\("wf_return_to"\)/.test(home), 'closing a detail returns to the referring Wayfind page (global fix)');
 const sr = readFileSync(new URL("../app/ShareRedirect.js", import.meta.url), "utf8");
 ok(/u.origin === window.location.origin/.test(sr) && /wf_return_to/.test(sr), 'ShareRedirect records ONLY same-origin non-home referrers — back can never eject off-site');
