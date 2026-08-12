@@ -34,7 +34,7 @@
 // RANKING_AND_FEATURING_SPEC.md §4 already applies to the creator row.
 import { useCallback, useEffect, useRef, useState } from "react";
 import RailCard, { RailNav, RailDots } from "./RailCard";
-import { INTENT_PAGES, toRow, rankRows, composeQueries } from "../../lib/intentPages";
+import { INTENT_PAGES, toRow, rankRows, composeQueries, resolvePlanAhead } from "../../lib/intentPages";
 import { placeAllowed } from "../../lib/placeFilter";
 import { resolveMarqueeDayTrips } from "../../lib/marqueeDayTrips";
 import { nowContext } from "../../lib/nowContext";
@@ -217,7 +217,7 @@ export default function IntentRailBody({
             // a kind of place admits only that kind, and one that names a mood
             // may mix but may not be one category in disguise.
             compose: def.compose || null,
-            planAhead: !!def.planAhead,
+            planAhead: resolvePlanAhead(def, ctx),
             minDistanceMi: def.minDistanceMi,
           }).filter((r) => Number.isFinite(r.distMi)
             && r.distMi <= capMi)
