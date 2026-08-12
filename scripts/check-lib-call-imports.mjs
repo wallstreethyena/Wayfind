@@ -145,6 +145,17 @@ for (const f of sources) {
       if (nm) inScope.add(nm);
     }
   }
+  // ARRAY destructuring — `const [note, setNote] = useState("")`. Every setter
+  // in every React component on the site arrives this way, so omitting it meant
+  // the guard fired the moment a component's state setter happened to share a
+  // name with a lib export (setNote is also exported by lib/trips.js). A guard
+  // that fires on correct code gets switched off, which is worse than no guard.
+  for (const m of src.matchAll(/(?:const|let|var)\s*\[([^\]]*)\]\s*=/g)) {
+    for (const piece of m[1].split(",")) {
+      const nm = piece.trim().replace(/^\.\.\./, "").split("=")[0].trim();
+      if (/^[A-Za-z_$][\w$]*$/.test(nm)) inScope.add(nm);
+    }
+  }
 
   for (const [name, modules] of exportedBy) {
     if (inScope.has(name)) continue;

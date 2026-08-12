@@ -142,6 +142,12 @@ export const ASK_CSS = `
 .wfx-day[disabled]{background:transparent;color:#DCA9C6;cursor:default}
 .wfx-day[aria-pressed="true"]{background:#E8236E;color:#FFF6FB;box-shadow:inset 0 0 0 2px #FFF6FB}
 
+.wfx-field{display:block;width:100%;margin-top:12px;padding:13px 14px;font-family:inherit;
+  font-size:16px;letter-spacing:.5px;color:#5E0A2C;background:#FFF6FB;border:0;outline:none;
+  box-shadow:inset 0 0 0 4px #E8236E}
+.wfx-field::placeholder{color:#C4658F}
+.wfx-field:focus{box-shadow:inset 0 0 0 4px #B01F4A}
+
 .wfx-go{margin-top:22px;border:0;cursor:pointer;font-family:inherit;font-weight:700;color:#FFFFFF;
   background:#E8236E;padding:14px 28px;font-size:19px;letter-spacing:2px;
   clip-path:polygon(9px 0,calc(100% - 9px) 0,100% 9px,100% calc(100% - 9px),

@@ -4,7 +4,7 @@ import { Cat, Heart, Portrait, Couple } from "./pixel.js";
 import { ASK_CSS } from "./style.js";
 import {
   ACTIVITIES, activityFor, activityHref, activityLinkLabel, askHeadline, yayLine,
-  pleaAt, moodAt, yesScale, noScale, yesText,
+  pleaAt, moodAt, yesScale, noScale, yesText, needsName,
 } from "../../lib/dateInvite.js";
 
 // app/ask/AskClient.js — the five frames (v7.27).
@@ -128,7 +128,15 @@ export default function AskClient({ inv }) {
   const [activity, setActivity] = useState("");
   const [dayIso, setDayIso] = useState("");
   const [dayLabel, setDayLabel] = useState("");
-  const [told, setTold] = useState(false);
+  // "" | "sent" | "copied" | "messages" | "failed" — what really happened.
+  const [sent, setSent] = useState("");
+  // WHO IS ANSWERING. The sender may have asked several people, and a reply
+  // reading 'Yes! Dinner out on Friday' tells them a date is happening without
+  // telling them with whom. If the sender named them at share time we already
+  // know; if not, the last screen asks — optionally, because a required field
+  // between a yes and telling them is a place to lose the yes.
+  const [who, setWho] = useState("");
+  const [note, setNote] = useState("");
 
   // A share that lands here with no payload still works: it becomes a plain ask
   // rather than an error page. Someone forwarding the link to a third person is
@@ -140,13 +148,58 @@ export default function AskClient({ inv }) {
     if (step === "yay") { const t = setTimeout(() => setStep("activity"), 2600); return () => clearTimeout(t); }
   }, [step]);
 
-  const tellThem = () => {
-    const text = yesText(inv, activity, dayLabel);
-    setTold(true);
+  // OWNER: "when the user clicks sent it needs to show that it hit sent."
+  //
+  // It did not. The first version flipped to SENT the instant the button was
+  // pressed — before the share sheet had even appeared, and it stayed SENT if
+  // they cancelled it. That is the worst possible lie to tell on this screen:
+  // the person believes their yes has gone and it has not, and they will not
+  // check, because the button said so.
+  //
+  // So the state is only set by what ACTUALLY happened. navigator.share()
+  // resolves when the message went, rejects with AbortError when they backed
+  // out, and rejects otherwise when it failed — three different truths, told
+  // three different ways.
+  const replyText = () => yesText(inv, activity, dayLabel, { name: who, note });
+
+  const copyIt = (text) => {
     try {
-      if (typeof navigator !== "undefined" && navigator.share) { navigator.share({ text }).catch(() => {}); return; }
-      if (typeof navigator !== "undefined" && navigator.clipboard) navigator.clipboard.writeText(text).catch(() => {});
+      navigator.clipboard.writeText(text).then(() => setSent("copied"), () => setSent("failed"));
+    } catch (e) { setSent("failed"); }
+  };
+
+  const tellThem = () => {
+    const text = replyText();
+    setSent("");
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        const pr = navigator.share({ text });
+        if (pr && pr.then) {
+          pr.then(() => setSent("sent"), (e) => {
+            // Backing out of the sheet is not a failure and must not be dressed
+            // up as one — they are still on the screen and can press it again.
+            if (e && e.name === "AbortError") return;
+            copyIt(text);
+          });
+        } else { setSent("sent"); }
+        return;
+      }
     } catch (e) {}
+    copyIt(text);
+  };
+
+  // A DIRECT LINE TO MESSAGES. The invite arrived as a text, so the reply almost
+  // always wants to go back as one — and the share sheet makes them hunt for it.
+  // sms: opens the Messages app with the reply already written; they pick the
+  // thread. The separator is genuinely different per platform: iOS wants
+  // `sms:&body=`, everything else wants `sms:?body=`, and using the wrong one
+  // opens Messages with an empty draft.
+  const openMessages = () => {
+    const text = replyText();
+    const ua = (typeof navigator !== "undefined" && navigator.userAgent) || "";
+    const ios = /iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && typeof document !== "undefined" && "ontouchend" in document);
+    try { window.location.href = "sms:" + (ios ? "&" : "?") + "body=" + encodeURIComponent(text); } catch (e) { copyIt(text); }
+    setSent("messages");
   };
 
   return (
@@ -158,7 +211,7 @@ export default function AskClient({ inv }) {
         {step === "ask" && (
           <>
             <Portrait><Cat tone="cream" mood={moodAt(nos)} size={104} key={nos} /></Portrait>
-            <h1 className="wfx-h1" key={step}>{askHeadline()}</h1>
+            <h1 className="wfx-h1" key={step}>{askHeadline(inv)}</h1>
             {from ? <p className="wfx-sub">from {from}</p> : null}
             <div className="wfx-row">
               <button className="wfx-yes" style={{ "--s": yesScale(nos) }}
@@ -219,8 +272,34 @@ export default function AskClient({ inv }) {
               <div><b>What</b> · {(activityFor(activity) || {}).label}</div>
               {inv && inv.place ? <div><b>{from ? from + "'s idea" : "Their idea"}</b> · {inv.place}</div> : null}
               {from ? <div><b>With</b> · {from}</div> : null}
+              {(who || (inv && inv.to)) ? <div><b>From</b> · {who || inv.to}</div> : null}
             </div>
-            <button className="wfx-go" onClick={tellThem}>{told ? "SENT ♥" : "TELL " + (from ? from.toUpperCase() : "THEM")}</button>
+            {/* Their half of the conversation. Both optional, both one line —
+                the point is that the answer arrives sounding like a person and
+                the sender can tell which person it is. */}
+            {needsName(inv) ? (
+              <input className="wfx-field" value={who} maxLength={24} enterKeyHint="done"
+                onChange={(e) => setWho(e.target.value)}
+                aria-label="Your name, so they know who said yes"
+                placeholder="Your name" />
+            ) : null}
+            <input className="wfx-field" value={note} maxLength={120} enterKeyHint="done"
+              onChange={(e) => setNote(e.target.value)}
+              aria-label="Add a message, optional"
+              placeholder="Say something back (optional)" />
+
+            <button className="wfx-go" onClick={tellThem}>
+              {sent === "sent" ? "SENT ♥" : "TELL " + (from ? from.toUpperCase() : "THEM")}
+            </button>
+            <button className="wfx-quiet" onClick={openMessages}>Open Messages instead</button>
+            {sent ? (
+              <p className="wfx-sub" role="status" aria-live="polite">
+                {sent === "sent" ? "Sent — they know." :
+                 sent === "messages" ? "Messages is open, with it written for you." :
+                 sent === "copied" ? "Copied. Paste it into your chat with " + (from || "them") + "." :
+                 "Could not send it — copy the plan above and text it to " + (from || "them") + "."}
+              </p>
+            ) : null}
             {/* Only here, after the yes and the plan, does Wayfind say anything.
                 Two people who have just agreed on a night are the best possible
                 audience for a ranking — and the worst possible audience for one

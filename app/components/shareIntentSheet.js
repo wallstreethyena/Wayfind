@@ -78,7 +78,7 @@ export function askShareIntent(o) {
     close();
   };
 
-  const button = (primary, title, sub, onTap) => {
+  const button = (primary, title, sub, onTap, keepOpen) => {
     const b = el("button",
       "display:block;width:100%;text-align:left;cursor:pointer;padding:13px 15px;margin-bottom:9px;" +
       "border-radius:12px;font-size:14.5px;font-weight:800;line-height:1.25;" +
@@ -87,7 +87,12 @@ export function askShareIntent(o) {
         : "background:rgba(255,255,255,.045);border:1px solid #30363D;color:#E6EDF3"));
     b.appendChild(el("span", "display:block", title));
     if (sub) b.appendChild(el("span", "display:block;font-size:12.5px;font-weight:600;color:#8B98A9;margin-top:2px", sub));
-    b.addEventListener("click", act(onTap));
+    // `keepOpen` REPLACES the sheet's contents rather than closing it, so the
+    // second step is not a second dialog stacked on the first.
+    b.addEventListener("click", keepOpen ? (e) => {
+      e.preventDefault(); e.stopPropagation();
+      try { onTap(); } catch (err) {}
+    } : act(onTap));
     return b;
   };
 
@@ -95,16 +100,63 @@ export function askShareIntent(o) {
   // a question in front of it makes the common case worse to serve the rare one.
   card.appendChild(button(true, "Just share it", "", () => { opt.onPlain && opt.onPlain(); }));
 
-  card.appendChild(button(false, "I’m asking someone out",
-    "We’ll send a little invite instead — and help them say yes", () => {
-      const code = encodeInvite({ place: name, city: opt.city, id: opt.id });
+  // A ONE-FIELD SECOND STEP, and it had to earn its place. A form in front of a
+  // share is how a share stops happening — but the owner hit the reason it is
+  // worth it: send one link to three people and he cannot tell who accepted.
+  // The name is what makes the reply legible, and it also puts their name on the
+  // first screen they see, which is the difference between an invitation and a
+  // link that could have gone to anyone.
+  //
+  // It is skippable in one tap, it never blocks, and pressing Enter sends.
+  const askWho = () => {
+    card.textContent = "";
+    card.appendChild(el("div", "font-size:16px;font-weight:800;color:#E6EDF3;margin-bottom:3px", "Who are you asking?"));
+    card.appendChild(el("div", "font-size:13px;color:#8B98A9;margin-bottom:14px",
+      "Just a first name. It goes on their invite, and it comes back with their answer."));
+
+    const input = el("input",
+      "display:block;width:100%;padding:13px 15px;margin-bottom:10px;border-radius:12px;" +
+      "background:rgba(255,255,255,.045);border:1px solid #30363D;color:#E6EDF3;" +
+      "font-size:16px;font-weight:700;outline:none");
+    input.setAttribute("type", "text");
+    input.setAttribute("autocomplete", "given-name");
+    input.setAttribute("enterkeyhint", "send");
+    input.setAttribute("maxlength", "24");
+    // A format hint, not a guess at who they know. The first draft used "Sam",
+    // which reads as though we had picked somebody out of their contacts.
+    input.setAttribute("placeholder", "Their first name");
+    input.setAttribute("aria-label", "Their first name, optional");
+    card.appendChild(input);
+
+    const send = (who) => {
+      const code = encodeInvite({ place: name, city: opt.city, id: opt.id, to: who });
       if (!code) { opt.onPlain && opt.onPlain(); return; }
       // The LIVE origin, not a constant: a preview deployment then shares a link
       // that opens on the preview instead of bouncing to production.
       const origin = (typeof window !== "undefined" && window.location && window.location.origin)
         || "https://www.gowayfind.com";
-      opt.onInvite && opt.onInvite(origin + invitePath(code), inviteShareText());
-    }));
+      opt.onInvite && opt.onInvite(origin + invitePath(code), inviteShareText(), { to: who, key: code });
+    };
+
+    card.appendChild(button(true, "Send the invite", "", () => send(input.value)));
+    const skip = el("button",
+      "display:block;width:100%;padding:11px;background:transparent;border:none;color:#8B98A9;" +
+      "font-size:13px;font-weight:700;cursor:pointer", "Skip — I’ll keep it a mystery");
+    skip.addEventListener("click", act(() => send("")));
+    card.appendChild(skip);
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+      const who = input.value;
+      try { send(who); } catch (err) {}
+      close();
+    });
+    try { input.focus({ preventScroll: true }); } catch (e) {}
+  };
+
+  card.appendChild(button(false, "I’m asking someone out",
+    "We’ll send a little invite instead — and help them say yes", askWho, true));
 
   const cancel = el("button",
     "display:block;width:100%;padding:11px;background:transparent;border:none;color:#8B98A9;" +
