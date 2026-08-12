@@ -250,6 +250,8 @@ node scripts/check-editorial-retry-state.mjs
 node scripts/test-atlas-reclassify.mjs
 node scripts/check-art-assets.mjs
 node scripts/check-brand-derivatives.mjs
+node scripts/check-coupon-place-match.mjs
+node scripts/check-no-stuck-loading.mjs
 node scripts/test-atlas-retry.mjs
 node scripts/test-atlas-verify-timefmt.mjs
 node scripts/check-cuisine-never-queried.mjs

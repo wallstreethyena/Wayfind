@@ -33,7 +33,25 @@ import { applyCollapsedAttr, DEFAULT_COLLAPSED_RAILS, isCollapsed, markRailsRead
 import { toDisplayScore } from "../../lib/score.js";
 import { placePartnerPick } from "../../lib/placePartnerPicks.js";
 import { nowSubline } from "../../lib/intentPages.js";
-import { couponForPlaceName } from "../../lib/coupons.js";
+import { LOAD_FAILED, LOAD_PENDING, canClaim, isFailed, settleLoad } from "../../lib/loadState.js";
+import { couponForPlace } from "../../lib/coupons.js";
+
+// THE CHIP HAS TO STATE THE OFFER (v7.41). Owner, 2026-08-12: "we dont offer
+// the coupon on the place card or tell the user there is a coupon or
+// promotion." It rendered the literal word "Deal", which is a label for a
+// category, not an offer — nothing about it tells a reader they can halve the
+// bill, so nothing about it earns the tap that opens the sheet where the
+// certificate actually is.
+//
+// `badge` is the coupon's OWN stated value, written into the registry from the
+// verified source ("50% off", "65% off", "Bundle"). It is never derived and
+// never inferred: the 12 live coupons that state no value fall back to "Deal",
+// because an invented discount on a monetized surface is the one failure worse
+// than a dull chip.
+export function couponChipLabel(c) {
+  const b = c && typeof c.badge === "string" ? c.badge.trim() : "";
+  return b || "Deal";
+}
 import { priceLabel } from "../../lib/price.js";
 import { businessStatus } from "../../lib/businessStatus.js";
 import { commerceHref, emitCommerce, mintClickId } from "../../lib/commerce.js";
@@ -705,7 +723,11 @@ export default function BestNearby({
     // updater stays pure — it only reports what it saw.
     let claimed = true;
     setRows((r) => {
-      if (r[id]) return r;
+      // canClaim, not `if (r[id])`. A slot holding LOAD_FAILED must be
+      // re-claimable or the retry button is decorative; a slot holding
+      // LOAD_PENDING must not be, which is the double-fetch guard this line has
+      // always been. See lib/loadState.js.
+      if (!canClaim(r[id])) return r;
       claimed = false;
       // THE GATE, applied to whichever rail loaded. The "eat" rail is
       // unaffected in practice (restaurants read indoor), so this is one
@@ -727,12 +749,25 @@ export default function BestNearby({
       // next.config.js, which is not a guarantee, it is a setting.
       //
       // The updater now only claims the slot; the effect below does the work.
-      return { ...r, [id]: "loading" };
+      return { ...r, [id]: LOAD_PENDING };
     });
     if (claimed) return;
     claimed = true;
+    // THE REJECTION THAT STRANDED THE RAIL (v7.41). This IIFE used to carry no
+    // catch at all: `await load(id)` rejecting left rows[id] on "loading"
+    // forever, and because the claim guard above is idempotent NOTHING could
+    // retry it — not the observer, not the 2.5s backstop, not re-opening the
+    // section. The reader got a permanent grey box that is indistinguishable
+    // from a slow network. settleLoad cannot reject and cannot hang, so the
+    // slot is always overwritten. See lib/loadState.js.
     (async () => {
-      const data = await load(id);
+      const res = await settleLoad(() => load(id));
+      if (!res.ok) { setRows((r2) => ({ ...r2, [id]: LOAD_FAILED })); return; }
+      const data = res.data;
+      // A non-array payload is the trends object, which is stored as-is. Null
+      // and undefined are NOT that — they are a fetcher that returned nothing,
+      // and storing them would render an empty section with no way to retry.
+      if (data == null) { setRows((r2) => ({ ...r2, [id]: LOAD_FAILED })); return; }
       if (!Array.isArray(data)) { setRows((r2) => ({ ...r2, [id]: data })); return; }
       const n = nowCtx();
       const composed = daypartCompose(gateOutdoor(data, n), n);
@@ -978,7 +1013,7 @@ export default function BestNearby({
                 // so this is null on almost every card and never a guessed
                 // ticket link for a venue we have not confirmed sells one.
                 const partner = placePartnerPick(p);
-                const coupon = couponForPlaceName(p.name);
+                const coupon = couponForPlace(p);
                 // The SAME facts row the food cards carry (owner, 2026-08-09:
                 // "we don't have much information like the ones from the
                 // food"). Reviews, price, open/closed and distance — the four
@@ -1020,7 +1055,7 @@ export default function BestNearby({
                   // byVisibleScore stamps creator_video when it applied the
                   // +0.2, so this label and the score can never disagree.
                   p.creator_video ? { key: "creatorvideo", icon: "🎬", label: "Creator video" } : null,
-                  coupon ? { key: "deal", icon: "🏷️", label: "Deal" } : null,
+                  coupon ? { key: "deal", icon: "🏷️", label: couponChipLabel(coupon) } : null,
                 ].filter(Boolean).slice(0, 4);
                 return (
                   <RailCard
@@ -1093,7 +1128,18 @@ export default function BestNearby({
                         onVisibleIds: (ids) => reportVisibleIds("creators", ids),
                       })
                     : creatorSlot || null
-                ) : data === "loading" ? (
+                ) : isFailed(data) ? (
+                  // TERMINAL, AND THE READER CAN ACT ON IT. The old code had no
+                  // such branch: a failed load was indistinguishable from a slow
+                  // one, forever. Same reserved height as the skeleton so this
+                  // swap cannot shift the sections below it either.
+                  <div role="status" style={{ minHeight: TOP40_CARD_H, display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "center", gap: 8, padding: "0 2px" }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: C.light }}>This list did not load.</div>
+                    <button type="button" className="wf-railsec-more" onClick={() => { setRows((r2) => { const nx = { ...r2 }; delete nx[sdef.id]; return nx; }); ensureLoaded(sdef.id); try { onLog && onLog("rail_retry", null, { section: sdef.id }); } catch (e) {} }}>
+                      {"Try again \u2192"}
+                    </button>
+                  </div>
+                ) : data === LOAD_PENDING ? (
                   // Rail-shaped, and the SAME height the live rail reserves, so
                   // the swap cannot shift the eight sections below it.
                   <div className="wf-rail" aria-hidden="true" style={{ minHeight: TOP40_CARD_H }}>
@@ -1130,7 +1176,7 @@ export default function BestNearby({
                     {sdef.id === "eat"
                       ? list.map((p, i) => {
                           const tagged = { ...p, types: Array.isArray(p.types) ? p.types : (p.primary_type ? [p.primary_type] : []), priceLevel: p.price_level != null ? p.price_level : p.priceLevel };
-                          const coupon = couponForPlaceName(p.name);
+                          const coupon = couponForPlace(p);
                           return (
                           <RailCard key={p.place_id} rank={i + 1}
                             photo={cardPhoto(p, 480)} title={p.name} eyebrow={prettyType(p.primary_type)}
@@ -1144,7 +1190,7 @@ export default function BestNearby({
                             ].filter(Boolean)}
                             chips={[
                               // v7.15: no tag bubbles; Deal only.
-                              coupon ? { key: "deal", icon: "\u{1F3F7}\u{FE0F}", label: "Deal" } : null,
+                              coupon ? { key: "deal", icon: "\u{1F3F7}\u{FE0F}", label: couponChipLabel(coupon) } : null,
                             ].filter(Boolean).slice(0, 3)}
                             ariaLabel={"Open " + p.name}
                             saved={!!(isSaved && isSaved({ id: p.place_id }))}

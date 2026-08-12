@@ -6,6 +6,7 @@
 // Every number is the Wayfind Score (never the raw Google star); reserved-
 // height loading rows; an empty section says so honestly.
 import { useState, useRef } from "react";
+import { LOAD_FAILED, LOAD_PENDING, canClaim, isFailed, settleLoad } from "../../lib/loadState.js";
 import { C, TYPE, RADII, SHADOW, FOCUS, TARGET, NavIcon, Icon, directionsUrl, PlaceScoreChip } from "./kit";
 import { TB_SECTIONS, fetchTodaysBest, tbPhotoUrl } from "../../lib/todaysBest.js";
 // v6.72: the hour and the outdoor gate come from ONE source. This file used to
@@ -53,25 +54,40 @@ export default function TodaysBest({ center, weather, onLog }) {
     try { onLog && onLog("todays_best_open", null, { section: id }); } catch (e) {}
     const centerKey = center ? center.lat.toFixed(3) + "," + center.lng.toFixed(3) : "";
     if (fetchedFor.current !== centerKey) { fetchedFor.current = centerKey; setRows({}); }
+    // v7.41 — TWO BUGS, BOTH OF THEM THE SAME ONE BestNearby CARRIED.
+    //
+    //  1. THE FETCH RAN INSIDE THE UPDATER. React updaters must be pure; under
+    //     StrictMode or any replayed render this fired twice, because the replay
+    //     sees the same base state and the `if (r[id])` guard passes again.
+    //     BestNearby fixed this months ago and the comment there says so — this
+    //     copy never got it. The updater now only claims the slot.
+    //  2. THE AWAIT HAD NO CATCH. fetchTodaysBest rejecting left rows[id] on
+    //     "loading" forever, and the claim guard meant nothing could ever retry
+    //     it. That is the permanent grey box the owner screenshotted on the home
+    //     feed, in a second component. See lib/loadState.js.
+    let claimed = true;
     setRows((r) => {
-      if (r[id]) return r; // cached for this center
-      (async () => {
-        const now = nowContext({ lat: center && center.lat, lng: center && center.lng, weather });
-        const picks = await fetchTodaysBest({
-          lat: center && center.lat, lng: center && center.lng,
-          localHour: now.hour,
-          tempF: weather && weather.temp != null ? weather.temp : null,
-          condition: weather && weather.label ? weather.label : null,
-          category: id,
-        });
-        // THE GATE. The RPC ranks on hour + temp + condition, but it has no
-        // concept of "suppress outdoor entirely" — it demotes. On a four-card
-        // rail a demoted beach is still on screen during a thunderstorm, which
-        // is the recommendation this exists to stop.
-        setRows((r2) => ({ ...r2, [id]: gateOutdoor(picks, now) }));
-      })();
-      return { ...r, [id]: "loading" };
+      if (!canClaim(r[id])) return r; // cached for this center, or still in flight
+      claimed = false;
+      return { ...r, [id]: LOAD_PENDING };
     });
+    if (claimed) return;
+    (async () => {
+      const now = nowContext({ lat: center && center.lat, lng: center && center.lng, weather });
+      const res = await settleLoad(() => fetchTodaysBest({
+        lat: center && center.lat, lng: center && center.lng,
+        localHour: now.hour,
+        tempF: weather && weather.temp != null ? weather.temp : null,
+        condition: weather && weather.label ? weather.label : null,
+        category: id,
+      }));
+      if (!res.ok || res.data == null) { setRows((r2) => ({ ...r2, [id]: LOAD_FAILED })); return; }
+      // THE GATE. The RPC ranks on hour + temp + condition, but it has no
+      // concept of "suppress outdoor entirely" — it demotes. On a four-card
+      // rail a demoted beach is still on screen during a thunderstorm, which
+      // is the recommendation this exists to stop.
+      setRows((r2) => ({ ...r2, [id]: gateOutdoor(res.data, now) }));
+    })();
   };
 
   const go = (p) => {
@@ -103,7 +119,9 @@ export default function TodaysBest({ center, weather, onLog }) {
             </button>
             <div style={{ overflow: "hidden", maxHeight: isOpen ? 4 * 64 + 40 : 0, opacity: isOpen ? 1 : 0, transition: "max-height .3s cubic-bezier(.4,0,.2,1), opacity .22s ease" }}>
               <div style={{ padding: "0 0 10px 41px" }}>
-                {data === "loading" ? (
+                {isFailed(data) ? (
+                  <div role="status" style={{ padding: "10px 2px", fontSize: 12.5, fontWeight: 700, color: "#94A3B8" }}>This list did not load.</div>
+                ) : data === LOAD_PENDING ? (
                   <>
                     <div className="wf-sk" style={{ height: 46, borderRadius: 9, margin: "8px 0" }} />
                     <div className="wf-sk" style={{ height: 46, borderRadius: 9, margin: "8px 0" }} />
