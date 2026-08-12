@@ -883,6 +883,10 @@ function offerRedeemable(o) {
 // partner/affiliate pages NEVER replace the app. Delegates so every window.open
 // path in the app goes through one validated function.
 function openExternal(url) { return safeOpenExternal(url); }
+// RETURNS TRUE IF A NATIVE SHARE SHEET WAS OPENED, false if the link was only
+// copied. askShareIntent() needs that answer to decide whether the screen just
+// changed for the user or whether it has to say so itself — see showReady() in
+// app/components/shareIntentSheet.js. Every caller may ignore it; none may lie.
 function shareLink(title, url, onCopied, text, onShared) {
   // v4.07: the native sheet must be the FIRST activation-consuming API in the tap.
   // v4.06 copied to the clipboard first; on iOS the clipboard write consumes the
@@ -923,7 +927,7 @@ function shareLink(title, url, onCopied, text, onShared) {
       }
       else { _sharePath("native_capacitor_fail"); doCopy(); }
     });
-    return;
+    return true;
   }
   if (touchDevice && typeof navigator !== "undefined" && navigator.share) {
     try {
@@ -936,8 +940,11 @@ function shareLink(title, url, onCopied, text, onShared) {
           _sharePath("native_reject"); doCopy();
         });
       }
-    } catch (e) { _sharePath("native_throw"); doCopy(); }
-  } else { _sharePath(touchDevice ? "nonative" : "desktop_copy"); doCopy(); }
+      return true;
+    } catch (e) { _sharePath("native_throw"); doCopy(); return false; }
+  }
+  _sharePath(touchDevice ? "nonative" : "desktop_copy"); doCopy();
+  return false;
 }
 // Short random code for shareable list links (no ambiguous chars).
 function randCode() {
@@ -8991,7 +8998,7 @@ function PageInner({ initialEvents = null }) {
                   where a visitor most needs something to look at.
               
                   Position asserted by scripts/check-home-answer-first.mjs. */}
-              {!browseCat && <BestNearby center={center} weather={weather} events={foryouEvents || []} videoPlaces={videoPlaces} onFindSimilar={(q) => { try { submitSearch(q); } catch (e) {} }} city={locName} onOpenPlace={(p) => openDetail(p, "bestnearby")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} isSaved={isSaved} liked={liked} disliked={disliked} onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(p) => { try { addShared(p); giveawayMark(p.id); askShareIntent({ name: p.name, city: locName, id: p.id, kind: activityForPlace(p), onPlain: () => shareLink(p.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(p.id)), () => showToast("Link copied")), onInvite: (u, t) => shareLink("A question for you", u, () => showToast("Invite copied"), t, () => { try { logEvent("share", p, { kind: "invite", from: "rail" }); } catch (e2) {} }) }); } catch (er) {} }} onExperience={(key, p) => { try { key === "creatorvideo" ? openDetail(p, "creatorfinds") : openExperience(key); } catch (er) {} }} eventsSlot={eventsRailSlot} creatorSlot={<CreatorFinds items={videoPlaces} byCity={socialFindByCity} center={center} bare onOpenPlace={(p) => openDetail(p, "creatorfinds")} onBrowse={() => setSocialFind({ browse: true })} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} isSaved={isSaved} liked={liked} disliked={disliked} onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(p) => { try { addShared(p); giveawayMark(p.id); askShareIntent({ name: p.name, city: locName, id: p.id, kind: activityForPlace(p), onPlain: () => shareLink(p.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(p.id)), () => showToast("Link copied")), onInvite: (u, t) => shareLink("A question for you", u, () => showToast("Invite copied"), t, () => { try { logEvent("share", p, { kind: "invite", from: "rail" }); } catch (e2) {} }) }); } catch (er) {} }} onExperience={(key, p) => { try { key === "creatorvideo" ? openDetail(p, "creatorfinds") : openExperience(key); } catch (er) {} }} />} />}
+              {!browseCat && <BestNearby center={center} weather={weather} events={foryouEvents || []} videoPlaces={videoPlaces} onFindSimilar={(q) => { try { submitSearch(q); } catch (e) {} }} city={locName} onOpenPlace={(p) => openDetail(p, "bestnearby")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} isSaved={isSaved} liked={liked} disliked={disliked} onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(p) => { try { addShared(p); giveawayMark(p.id); askShareIntent({ name: p.name, city: locName, id: p.id, kind: activityForPlace(p), onPlain: () => shareLink(p.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(p.id)), () => showToast("Link copied")), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", p, { kind: "invite", from: "rail" }); } catch (e2) {} }) }); } catch (er) {} }} onExperience={(key, p) => { try { key === "creatorvideo" ? openDetail(p, "creatorfinds") : openExperience(key); } catch (er) {} }} eventsSlot={eventsRailSlot} creatorSlot={<CreatorFinds items={videoPlaces} byCity={socialFindByCity} center={center} bare onOpenPlace={(p) => openDetail(p, "creatorfinds")} onBrowse={() => setSocialFind({ browse: true })} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} isSaved={isSaved} liked={liked} disliked={disliked} onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(p) => { try { addShared(p); giveawayMark(p.id); askShareIntent({ name: p.name, city: locName, id: p.id, kind: activityForPlace(p), onPlain: () => shareLink(p.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(p.id)), () => showToast("Link copied")), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", p, { kind: "invite", from: "rail" }); } catch (e2) {} }) }); } catch (er) {} }} onExperience={(key, p) => { try { key === "creatorvideo" ? openDetail(p, "creatorfinds") : openExperience(key); } catch (er) {} }} />} />}
               {/* v7.05 — the creator row MOVED INSIDE the menu (owner, 2026-08-09:
                   "we would pretty much be adding to the existing menu we have and just
                   reorganizing"). It is section 5 of eight, so it is now passed to
@@ -9414,7 +9421,7 @@ function PageInner({ initialEvents = null }) {
               {/* Wayfind Picks now renders as the first hook card inside the "Worth a look" section below, matching the editorial cards. */}
               {/* "Worth a look near you": Wayfind Picks first, editorial hooks in the middle, Roll the Dice last. Same hook-card shape, different accent colors, so they blend. */}
               {!browseCat && (suggested && suggested.length > 0) && (() => {
-                const shareHook = (hk, pl) => { if (!pl) return; askShareIntent({ name: pl.name, city: locName, id: pl.id, kind: activityForPlace(pl), onPlain: () => shareLink(pl.name, placeShareUrl(pl, locName, blurbLine(blurbs[pl.id])), () => showToast("Link copied"), "Check out " + pl.name + " on Wayfind", () => { try { logEvent("share", pl, { kind: "hook" }); } catch (e) {} giveawayMark(pl.id); addShared(pl); }), onInvite: (u, t) => shareLink("A question for you", u, () => showToast("Invite copied"), t, () => { try { logEvent("share", pl, { kind: "invite", from: "hook" }); } catch (e) {} giveawayMark(pl.id); addShared(pl); }) }); };
+                const shareHook = (hk, pl) => { if (!pl) return; askShareIntent({ name: pl.name, city: locName, id: pl.id, kind: activityForPlace(pl), onPlain: () => shareLink(pl.name, placeShareUrl(pl, locName, blurbLine(blurbs[pl.id])), () => showToast("Link copied"), "Check out " + pl.name + " on Wayfind", () => { try { logEvent("share", pl, { kind: "hook" }); } catch (e) {} giveawayMark(pl.id); addShared(pl); }), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", pl, { kind: "invite", from: "hook" }); } catch (e) {} giveawayMark(pl.id); addShared(pl); }) }); };
                 // v5.11: the dice card rotates the TAKE A CHANCE bank; the
                 // classic line "I want to take a chance." stays as variant zero
                 // and the fallback (PROTECTED copy, check-ux).
