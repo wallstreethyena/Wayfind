@@ -64,17 +64,40 @@ export function askShareIntent(o) {
   wrap.setAttribute("aria-modal", "true");
   wrap.setAttribute("aria-label", "How do you want to share this?");
 
-  const scrim = el("div", "position:absolute;inset:0;background:rgba(3,6,10,.62)");
+  // IT HAS TO LOOK LIKE SOMETHING HAPPENED. Owner: "when you click share the
+  // screen does not automatically centre to the place where you need to write
+  // the name — for someone who does not know, it is as if the share button did
+  // nothing." A panel that appears with no motion, at the bottom edge of a long
+  // scrolled page, on a phone whose thumb is halfway up the screen, reads as no
+  // response at all. One 220ms slide is the whole difference.
+  // Wrapped, because a share must never fail over a decoration.
+  const anim = "wf-share-intent-anim";
+  try {
+    if (!document.getElementById(anim)) {
+      const st = document.createElement("style");
+      st.id = anim;
+      st.textContent = "@keyframes wfSiUp{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}"
+        + "@keyframes wfSiFade{from{opacity:0}to{opacity:1}}"
+        + "@media (prefers-reduced-motion: reduce){#" + ID + " *{animation:none!important}}";
+      (document.head || document.body).appendChild(st);
+    }
+  } catch (e) {}
+
+  const scrim = el("div", "position:absolute;inset:0;background:rgba(3,6,10,.62);animation:wfSiFade .18s ease-out");
   const card = el("div",
     "position:relative;width:100%;max-width:520px;background:#0D1218;border-top:1px solid #30363D;" +
     "border-radius:16px 16px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));" +
-    "box-shadow:0 -18px 48px rgba(0,0,0,.55)");
+    "box-shadow:0 -18px 48px rgba(0,0,0,.55);animation:wfSiUp .22s cubic-bezier(.22,.61,.36,1)");
 
   card.appendChild(el("div", "font-size:16px;font-weight:800;color:#E6EDF3;margin-bottom:3px",
     name ? "Share " + name : "Share this"));
   card.appendChild(el("div", "font-size:13px;color:#8B98A9;margin-bottom:14px", "Who is this for?"));
 
-  const close = () => { try { wrap.remove(); } catch (e) {} document.removeEventListener("keydown", onKey); };
+  const close = () => {
+    try { wrap.dispatchEvent(new Event("wf-si-close")); } catch (e) {}
+    try { wrap.remove(); } catch (e) {}
+    document.removeEventListener("keydown", onKey);
+  };
   const onKey = (e) => { if (e.key === "Escape") close(); };
 
   // NOTHING ASYNC BETWEEN THE TAP AND THE SHARE.
@@ -259,7 +282,35 @@ export function askShareIntent(o) {
       e.preventDefault();
       try { send(input.value); } catch (err) {}
     });
-    try { input.focus({ preventScroll: true }); } catch (e) {}
+    // preventScroll:true was the bug. It tells the browser NOT to bring the
+    // focused element into view — which is right for a panel that is already on
+    // screen and wrong the moment iOS raises the keyboard over the bottom of
+    // the viewport, because the field it just focused is now underneath it. The
+    // caret blinks somewhere the person cannot see, and the sheet reads as
+    // dead.
+    //
+    // visualViewport is the only thing that knows how tall the keyboard is:
+    // window.innerHeight does not change when it opens. We lift the sheet by
+    // the difference so the field lands above it, and put it back on close.
+    const lift = () => {
+      try {
+        const vv = window.visualViewport;
+        if (!vv) return;
+        const under = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+        card.style.transform = under > 24 ? "translateY(-" + Math.round(under) + "px)" : "";
+      } catch (e) {}
+    };
+    try {
+      input.focus();
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", lift);
+        wrap.addEventListener("wf-si-close", () => {
+          try { window.visualViewport.removeEventListener("resize", lift); } catch (e) {}
+        });
+      }
+      // One frame later, because the keyboard has not started animating yet.
+      window.requestAnimationFrame(() => { lift(); try { card.scrollIntoView({ block: "end" }); } catch (e) {} });
+    } catch (e) {}
   };
 
   card.appendChild(button(false, "I’m asking someone out",

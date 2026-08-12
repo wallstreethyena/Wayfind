@@ -136,7 +136,7 @@ import ViatorRail from "./components/ViatorRail";
 // differently from each other on the same screen (11/15/21 for food,
 // 11/17 for the picks header, 12/17 for the greeting, 15/4 for date night).
 // All of them are gone; the hour, the bucket and the labels come from here.
-import { nowContext, siteHourFloat, bucketForHour, mealForHour, greetingForHour, BUCKET_PHRASE } from "../lib/nowContext";
+import { nowContext, siteHourFloat, tzForPoint, bucketForHour, mealForHour, greetingForHour, BUCKET_PHRASE } from "../lib/nowContext";
 import { condCtxFromNow } from "../lib/ranking";
 import * as Tags from "../lib/tags";
 import * as Culture from "../lib/culture";
@@ -6292,7 +6292,14 @@ function PageInner({ initialEvents = null }) {
         const _fetchAt = async (m) => {
           if (sub === "all" && _subs.length) {
             let _second;
-            if (cat === "food") { const _m = mealForHour(siteHourFloat()); const _w = _m === "late-night" ? "dessert" : _m; _second = (_subs.find((x) => x.id === _w) || _subs[0]).id; }
+            if (cat === "food") {
+              // THE VENUE'S CLOCK, not Eastern. v7.27 moved every nowContext()
+              // caller onto the searched place's timezone and missed this one,
+              // which is the main category path: a Seattle reader at 18:30 PT
+              // reads hour 21.5 ET, mealForHour returns late-night, and the
+              // second query becomes "dessert" instead of "dinner".
+              const _m = mealForHour(siteHourFloat(new Date(), tzForPoint(ctr && ctr.lat, ctr && ctr.lng)));
+              const _w = _m === "late-night" ? "dessert" : _m; _second = (_subs.find((x) => x.id === _w) || _subs[0]).id; }
             // v6.15: Shopping "All" pairs the broad query with the markets/flea
             // query so real destinations like Red Barn Flea Market are fetched.
             else if (cat === "shopping") { _second = (_subs.find((x) => x.id === "markets") || _subs[0]).id; }

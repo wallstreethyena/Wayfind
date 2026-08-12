@@ -193,6 +193,11 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://lh3.googleusercontent.com" />
         <link rel="preconnect" href="https://places.googleapis.com" />
         <link rel="preconnect" href="https://api.open-meteo.com" />
+        {/* The map tiles. Without this the DNS + TLS handshake for the tile host
+            starts cold, AFTER ~1MB of maplibre has downloaded and mounted —
+            five serial hops before a single tile is requested. Owner: "to open
+            up the maps it takes a long time to load." */}
+        <link rel="preconnect" href="https://tiles.openfreemap.org" crossOrigin="" />
         <link rel="preconnect" href="https://scripts.stay22.com" />
         {/* v5.79: Impact.com publisher site-ownership verification for the
             Ticketmaster affiliate program. Impact crawls the homepage <head> for
