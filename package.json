@@ -11,6 +11,7 @@
     "check:env": "node scripts/check-env.mjs",
     "sync:maplibre": "node scripts/sync-maplibre-worker.mjs",
     "prebuild": "node scripts/run-guards.mjs",
+  "postbuild": "node scripts/check-bundle.mjs",
     "build": "next build",
     "start": "next start",
     "check:version": "node scripts/check-version.mjs",

@@ -46,7 +46,27 @@ import { Fraunces, Inter } from "next/font/google";
 export const displayFont = Fraunces({
   subsets: ["latin"],
   display: "swap",
-  style: ["normal", "italic"],
+  // v7.29 PERF. Two measurements on production 2026-08-12 drove both keys below.
+  //
+  // `preload: false` — next/font preloads every face declared in a module that
+  // is in the route's tree, and this module is imported by app/layout.js, so
+  // EVERY route shipped `<link rel="preload" as="font">` for Fraunces. The
+  // homepage was therefore fetching 148KB of Fraunces at highest priority on
+  // first paint and painting exactly none of it: `--wf-display` is referenced
+  // in precisely three places (ExploreBridge, /culture/[metro], /guides/[slug])
+  // and the home shell is not one of them — <body> names --wf-sans and the
+  // whole app inherits it. Turning preload off does NOT drop the face: the
+  // @font-face still ships, and the browser fetches it when a glyph that needs
+  // it is actually laid out, which on those three surfaces is immediately.
+  // `display: "swap"` above is what makes that lazy fetch safe — the headline
+  // paints in Georgia and upgrades, exactly as it did before.
+  //
+  // The italic style is gone because nothing renders it. Every `font-style:
+  // italic` in this repo resolves to Inter (via --wf-sans inheritance) or to a
+  // literal Georgia stack on the /eat surfaces; none of them names
+  // --wf-display. So the italic file was a 67KB face with no glyph on screen.
+  // If an italic display headline is ever designed, add "italic" back here.
+  preload: false,
   variable: "--wf-display",
   // NO `weight` key on purpose. Passing an explicit weight list makes next/font
   // fetch STATIC instances, which (a) costs one file per weight and (b) makes

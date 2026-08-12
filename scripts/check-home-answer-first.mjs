@@ -425,13 +425,23 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   // ── the bridge ──
   ok(/<LocalEdit center=\{center\}/.test(HOME), "the home screen links to the guides — they pull traffic from Google and dead-end without this");
   const LE = readFileSync(path.join(REPO, "app/components/LocalEdit.js"), "utf8");
+  // v7.29: the pure half (radius, read time, the geo filter) moved to
+  // lib/localEdit.js so the SERVER can build the index and the guide corpus
+  // stops shipping in the homepage bundle. Same properties, asserted where the
+  // code that owns them now lives — plus one new assertion that the corpus
+  // cannot creep back into the client component.
+  const LEL = readFileSync(path.join(REPO, "lib/localEdit.js"), "utf8");
+  // Line-anchored so a PROSE mention of lib/guides.js in a comment (there are
+  // several, and they are load-bearing documentation) is not read as an import.
+  ok(!/^import[^\n]*from ["'][^"']*\/guides(Summer2026)?(\.js)?["']/m.test(LE + "\n" + LEL),
+     "neither the client component nor its pure half imports the guide CORPUS — the homepage renders three titles and must not ship every intro, blurb, tip and FAQ answer to do it");
   ok(/if \(!rows\.length\) return null;/.test(LE),
      "LocalEdit renders NOTHING when no guide covers the reader's area — a 'local edit' heading over guides from three hours away is a false claim");
-  const radius = Number((LE.match(/LOCAL_EDIT_RADIUS_MI = (\d+)/) || [])[1]);
+  const radius = Number((LEL.match(/LOCAL_EDIT_RADIUS_MI = (\d+)/) || [])[1]);
   ok(radius > 0 && radius <= 120, `the local radius is real and bounded (${radius} mi)`);
-  ok(/export function readMinutes/.test(LE) && /WORDS_PER_MIN/.test(LE),
+  ok(/export function readMinutes/.test(LEL) && /WORDS_PER_MIN/.test(LEL),
      "read time is COMPUTED from the guide's own body — a hand-typed '5 min' is a number nobody ever updates");
-  ok(/g\.teaser/.test(LE) && !/teaser:\s*"/.test(LE),
+  ok(/g\.teaser/.test(LEL) && !/teaser:\s*"/.test(LE + LEL),
      "the teaser is the guide's OWN teaser, not new copy written here that can drift from what the article delivers");
 
   // ── the creator row ──

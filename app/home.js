@@ -107,8 +107,16 @@ const loadSocialFind = () => import("./components/sheets/SocialFind");
 const loadMap = () => import("./components/screens/Map");
 const loadExperience = () => import("./components/screens/Experience");
 const loadIntro = () => import("./components/sheets/Intro");
+// v7.29 PERF: ThingsToDoList renders ONLY under `browseCat === "attractions"`,
+// which is a category tap — it can never be on the first paint, so it has no
+// business in the eager route chunk. Same ssr:false-is-safe argument as the
+// screens above: the state that reveals it starts false and only a user action
+// flips it, so there is no server render to mismatch. It joins SCREEN_LOADERS
+// below, so the chunk is already warm by the time a tap needs it.
+const loadThingsToDo = () => import("./components/ThingsToDoList");
+const ThingsToDoList = nextDynamic(loadThingsToDo, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const SHEET_LOADERS = [loadHookDetail, loadAccount, loadMenu, loadAuth, loadDetail, loadIntro, loadSocialFind];
-const SCREEN_LOADERS = [loadSurprise, loadCoupons, loadSaved, loadItinerary, loadShared, loadEventsScreen, loadMap, loadExperience, ...SHEET_LOADERS];
+const SCREEN_LOADERS = [loadSurprise, loadCoupons, loadSaved, loadItinerary, loadShared, loadEventsScreen, loadMap, loadExperience, loadThingsToDo, ...SHEET_LOADERS];
 const SurpriseScreen = nextDynamic(loadSurprise, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const CouponsScreen = nextDynamic(loadCoupons, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const SavedScreen = nextDynamic(loadSaved, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
@@ -182,7 +190,6 @@ import BestNearby from "./components/BestNearby";
 import RailCard, { RailNav, RailDots } from "./components/RailCard";
 import CreatorFinds from "./components/CreatorFinds";
 import LocalEdit from "./components/LocalEdit";
-import ThingsToDoList from "./components/ThingsToDoList";
 import CityGate from "./components/CityGate";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor, PLATFORM, regionsWithFinds, spotsByCity, libraryStats } from "../lib/creatorVideos";
@@ -2572,6 +2579,14 @@ function renderHookText(text, highlightWord, color) {
 //
 // role/tabIndex/onKeyDown match the other interactive cards so the keyboard path
 // is identical (test-card-a11y asserts the keyboard route to open a place).
+// The hero card is 93% of the main column, and the column has three tiers (see
+// WF_DESKTOP_BP / WF_WIDE_BP / WF_WIDE_COL in app/components/css.js): 480px on
+// phones, 800px from 900px up, 1060px from 1180px up. Stated in CSS pixels at
+// the SAME breakpoints so the browser picks the right srcSet candidate from the
+// preload scanner, before layout — a `sizes` that disagrees with the CSS is how
+// a responsive image quietly downloads the wrong file on every visit.
+const HERO_IMG_SIZES = "(min-width: 1180px) 986px, (min-width: 900px) 744px, 93vw";
+
 function DiscoveryHeroCard({ onOpen }) {
   return (
     <article
@@ -2583,7 +2598,32 @@ function DiscoveryHeroCard({ onOpen }) {
       onKeyDown={onOpen ? KB_CLICK : undefined}
       style={{ position: "relative", flexShrink: 0, width: "93%", height: EV_HERO_H, minHeight: EV_HERO_H, scrollSnapAlign: "start", cursor: onOpen ? "pointer" : undefined }}
     >
-      <img src="/brand/wayfind-default-hero-adobestock-289023289.jpeg" alt="" loading="eager" fetchPriority="high" />
+      {/* v7.29 LCP: this is the largest element on the mobile first screen and
+          it is preloaded at fetchPriority="high", so its bytes ARE the LCP.
+          It used to ship the 1600x1066 / 473KB source JPEG into a card that is
+          93% of a <=480px column — measured 2026-08-12 on production. The AVIF
+          and WebP derivatives (scripts/build-brand-derivatives.mjs, committed
+          under public/brand/opt/) are the same picture at the widths this card
+          actually paints: 16.5KB at phone width instead of 473KB.
+          The <img> keeps the WebP set rather than the JPEG so the preload React
+          hoists for fetchPriority="high" can never be the 473KB original, and
+          the original stays in the repo as the last-resort src. */}
+      <picture>
+        <source
+          type="image/avif"
+          srcSet="/brand/opt/wayfind-default-hero-480.avif 480w, /brand/opt/wayfind-default-hero-768.avif 768w, /brand/opt/wayfind-default-hero-1152.avif 1152w, /brand/opt/wayfind-default-hero-1600.avif 1600w"
+          sizes={HERO_IMG_SIZES}
+        />
+        <img
+          src="/brand/opt/wayfind-default-hero-480.webp"
+          srcSet="/brand/opt/wayfind-default-hero-480.webp 480w, /brand/opt/wayfind-default-hero-768.webp 768w, /brand/opt/wayfind-default-hero-1152.webp 1152w, /brand/opt/wayfind-default-hero-1600.webp 1600w"
+          sizes={HERO_IMG_SIZES}
+          alt=""
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
+        />
+      </picture>
       <div className="wf-discovery-copy" style={{ height: EV_HERO_H, maxWidth: 360, boxSizing: "border-box", padding: "18px 20px 48px" }}>
         <div className="wf-discovery-kicker">WAYFIND, MADE FOR RIGHT NOW</div>
         <div className="wf-discovery-title">Know what is around you.</div>
@@ -3583,7 +3623,7 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
 // when the user came from a "Worth the drive?" hook. Captures yes/no, then
 // reveals the live community tally.
 
-function PageInner({ initialEvents = null }) {
+function PageInner({ initialEvents = null, localEditGuides = null }) {
   const [screen, setScreen] = useState("suggested");
   const [cat, setCat] = useState(MAP_DEFAULT_CATEGORY);
   const [wxOpen, setWxOpen] = useState(false); // header weather forecast wheel
@@ -5391,7 +5431,7 @@ function PageInner({ initialEvents = null }) {
                       <div onClick={() => openHoliday(_w)} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ cursor: "pointer", borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _wc.grad, border: `1px solid ${_wc.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
                       <style dangerouslySetInnerHTML={{ __html: "@keyframes wcJuggle{0%{transform:translateY(0) rotate(0deg);animation-timing-function:cubic-bezier(.17,.84,.44,1)}45%{transform:translateY(-26px) rotate(180deg);animation-timing-function:cubic-bezier(.55,0,.85,.36)}90%{transform:translateY(0) rotate(360deg)}100%{transform:translateY(0) rotate(360deg)}}@keyframes wcBob{0%,86%,100%{transform:translateY(0)}93%{transform:translateY(2px)}}@keyframes wcGlow{0%,100%{opacity:.5}50%{opacity:1}}" }} />
                       <span style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,.03) 26px, transparent 26px, transparent 52px)", pointerEvents: "none" }} />
-                      <span aria-hidden="true" style={{ position: "absolute", right: 12, bottom: 6, width: 64, height: 116, pointerEvents: "none", opacity: .97 }}><span style={{ position: "absolute", left: 35, bottom: 72, fontSize: 15, animation: "wcJuggle 1.5s infinite" }}>⚽</span><img src="/wf-player.png" alt="" draggable={false} style={{ position: "absolute", left: 32, bottom: 0, height: 74, width: "auto", animation: "wcBob 1.5s infinite", filter: "drop-shadow(0 3px 8px rgba(0,0,0,.5))" }} /></span>
+                      <span aria-hidden="true" style={{ position: "absolute", right: 12, bottom: 6, width: 64, height: 116, pointerEvents: "none", opacity: .97 }}><span style={{ position: "absolute", left: 35, bottom: 72, fontSize: 15, animation: "wcJuggle 1.5s infinite" }}>⚽</span><picture><source type="image/avif" srcSet="/opt/wf-player-142.avif" /><source type="image/webp" srcSet="/opt/wf-player-142.webp" /><img src="/wf-player.png" alt="" draggable={false} loading="lazy" decoding="async" style={{ position: "absolute", left: 32, bottom: 0, height: 74, width: "auto", animation: "wcBob 1.5s infinite", filter: "drop-shadow(0 3px 8px rgba(0,0,0,.5))" }} /></picture></span>
                       
                       <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: _wc.stripe, animation: "wcGlow 2.8s ease-in-out infinite" }} />
                       <button onClick={(e) => { e.stopPropagation(); const _rot = Math.floor(Math.random() * 10); const _wr = wcRotation(_rot); const _url = listShareUrl("worldcup", _wr.title, 0, locName, "worldcup") + "&rot=" + _rot; shareLink(_wr.title, _url, () => showToast("Link copied"), _wr.title + " — " + _wr.desc + "\nWorld Cup watch spots on Wayfind:", () => { try { logEvent("share", null, { kind: "list", theme: "hol-worldcup", rot: _rot }); } catch (er) {} }); }} aria-label="Share" title="Share" style={{ position: "absolute", top: 10, right: 10, width: 34, height: 34, borderRadius: "50%", background: "rgba(0,0,0,.35)", border: "1px solid rgba(255,255,255,.3)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", zIndex: 2 }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
@@ -9312,7 +9352,7 @@ function PageInner({ initialEvents = null }) {
                   dead-ends there, because nothing on the home screen has ever linked
                   to one. Renders only where a guide genuinely covers the reader's
                   area — see LOCAL_EDIT_RADIUS_MI — so "local" stays a fact. */}
-              {!browseCat && <LocalEdit center={center} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
+              {!browseCat && <LocalEdit center={center} guides={localEditGuides} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
               {a2hs && (
                 <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 12px" }}>
                   <img src="/icon-192.png" alt="" width={34} height={34} style={{ borderRadius: 8 }} />
@@ -10715,10 +10755,10 @@ const HOME_EXP_TITLE_MIN_H = HOME_EXP_TITLE_FS * HOME_EXP_TITLE_LH * 2; // exact
 const shell = { background: C.bg, height: "100dvh", minHeight: "100dvh", display: "flex", justifyContent: "center" };
 const wrap = { background: C.bg, color: C.text, height: "100dvh", width: "100%", maxWidth: 480, fontFamily: "var(--wf-sans)", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative", touchAction: "pan-y", overscrollBehavior: "none" };
 
-export default function Page({ initialEvents = null }) {
+export default function Page({ initialEvents = null, localEditGuides = null }) {
   return (
     <ErrorBoundary>
-      <PageInner initialEvents={initialEvents} />
+      <PageInner initialEvents={initialEvents} localEditGuides={localEditGuides} />
     </ErrorBoundary>
   );
 }
