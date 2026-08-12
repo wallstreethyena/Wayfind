@@ -20,14 +20,6 @@ function decode(raw) {
   } catch (e) { return null; }
 }
 
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-function fmtExpires(x) {
-  if (!x) return "";
-  const m = String(x).slice(0, 10).match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (!m) return "";
-  return MONTHS[+m[2] - 1] + " " + +m[3] + ", " + m[1];
-}
-
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const c = decode(searchParams.get("d")) || {};
@@ -36,6 +28,8 @@ export async function GET(req) {
     // message outsell any adjective. Otherwise the described deal leads.
     pay: c.p, get: c.g, pct: c.pct,
     biz: c.b, what: c.w, area: c.a, code: c.c,
-    deal: c.t, exp: fmtExpires(c.x),
+    // The expiry is formatted by humanDate() in lib/shareCardCopy.js so this
+    // route and /api/og?kind=coupon cannot print the same date two ways.
+    deal: c.t, exp: c.x,
   }));
 }

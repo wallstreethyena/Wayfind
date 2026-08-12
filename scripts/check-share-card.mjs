@@ -39,7 +39,7 @@ import {
 } from "../lib/shareCard.js";
 import {
   placeModel, listModel, weatherModel, couponModel, intentModel,
-  beachesModel, snapshotModel, experienceModel, defaultModel, footFits,
+  beachesModel, snapshotModel, experienceModel, defaultModel, footFits, humanDate,
 } from "../lib/shareCardCopy.js";
 import { SHARE_CARDS, shareCardFor } from "../lib/shareCards.js";
 import { INTENT_PAGES } from "../lib/intentPages.js";
@@ -171,6 +171,22 @@ for (const [label, m] of Object.entries(models)) {
   ok(!/[★☆⭐]/.test([m.eyebrow, m.foot, m.cta, ...m.lines].join(" ")),
      `${label}: a star glyph would render as a tofu box — the font has no U+2605`);
 }
+
+// A FOOT THAT ENDS IN AN ELLIPSIS DID NOT FIT. footFits() only proves it stays
+// clear of the CTA; it says nothing about whether it got there by being cut off
+// mid-word. The beach card shipped "…no ads, no v…" past a green build.
+for (const [label, m] of Object.entries(models)) {
+  ok(!/…$/.test(m.foot), `${label}: the foot was truncated to fit ("${m.foot}") — shorten the copy instead`);
+  ok(!/…$/.test(m.eyebrow), `${label}: the eyebrow was truncated to fit ("${m.eyebrow}")`);
+}
+// AN ISO DATE IS NOT A SENTENCE. "good through 2026-08-31" is a database field
+// wearing a coupon, and it reached a real render before this assertion existed.
+ok(/good through Aug 31/.test(models["coupon: priced"].foot),
+   `a coupon expiry must be written for a human, got "${models["coupon: priced"].foot}"`);
+ok(!/\d{4}-\d{2}-\d{2}/.test(Object.values(models).map((m) => m.foot + m.eyebrow + m.lines.join(" ")).join(" ")),
+   "a raw ISO date reached a share card");
+ok(humanDate("not-a-date") === "not-a-date" && humanDate() === "",
+   "humanDate must pass through what it cannot parse rather than blanking it");
 
 // ── 5b. EVERY REAL EXPERIENCE CARD AND INTENT PAGE, NOT A SAMPLE ────────────
 for (const key of Object.keys(SHARE_CARDS)) {
