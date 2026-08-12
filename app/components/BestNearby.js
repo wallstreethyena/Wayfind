@@ -454,6 +454,17 @@ export default function BestNearby({
   // `now()` is a function, not a memo, so a rail opened at 17:29 and again at
   // 17:31 gets the two different buckets it should.
   const nowCtx = () => nowContext({ lat: center && center.lat, lng: center && center.lng, weather });
+  // v7.24 — the gate + daypart as a dependency VALUE. Measured on a cold
+  // production load: these rails fetch at t≈1.24s and /api/weather answers at
+  // t≈1.66s, so a rail that resolves inside that window ranks against
+  // `weather === null` — read as "unknown weather, leave everything in" — and
+  // nothing re-ran it, because no effect here had `weather` in its dependency
+  // array. Now a FLIP of the boolean gate (or of the daypart) re-derives; a
+  // temperature drifting 96° → 97° changes nothing.
+  const gateKey = (() => {
+    try { const n = nowCtx(); return n.timeBucket + "|" + n.meal + "|" + (n.outdoorOK ? "out" : "in"); }
+    catch (e) { return ""; }
+  })();
   const baseArgs = () => {
     const n = nowCtx();
     return {
@@ -514,7 +525,7 @@ export default function BestNearby({
   useEffect(() => {
     if (!sectionOpen("best")) return;
     if (!center || !isFinite(center.lat) || !isFinite(center.lng)) return;
-    const key = center.lat.toFixed(3) + "," + center.lng.toFixed(3);
+    const key = center.lat.toFixed(3) + "," + center.lng.toFixed(3) + "|" + gateKey;
     if (top40For.current === key) return;
     top40For.current = key;
     setTop40("loading");
@@ -563,7 +574,7 @@ export default function BestNearby({
     })();
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [closed, center && center.lat, center && center.lng]);
+  }, [closed, gateKey, center && center.lat, center && center.lng]);
 
   const claimed = (...groups) => [...new Set(groups.flat().filter(Boolean))];
   const explodingClaimed = visibleIds.exploding || [];
@@ -675,7 +686,10 @@ export default function BestNearby({
   // now the one almost every visitor takes.
   const ensureLoaded = (id) => {
     if (!id) return;
-    const centerKey = center ? center.lat.toFixed(3) + "," + center.lng.toFixed(3) : "";
+    // v7.24 — the gate joins the centre in this rail's fetch identity. A list
+    // ranked before /api/weather answered is the same class of wrong answer as
+    // one ranked for the town the reader has left.
+    const centerKey = (center ? center.lat.toFixed(3) + "," + center.lng.toFixed(3) : "") + "|" + gateKey;
     if (fetchedFor.current !== centerKey) { fetchedFor.current = centerKey; setRows({}); }
     setRows((r) => {
       if (r[id]) return r;
@@ -713,7 +727,7 @@ export default function BestNearby({
     if (!center || !isFinite(center.lat) || !isFinite(center.lng)) return;
     ensureLoaded(open);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, center && center.lat, center && center.lng]);
+  }, [open, gateKey, center && center.lat, center && center.lng]);
 
   // EVERY OTHER OPEN SECTION LOADS ON APPROACH, not on mount. Eight sections
   // open by default must not become eight requests fired at once on the first
@@ -750,7 +764,7 @@ export default function BestNearby({
     }, 2500);
     return () => { clearTimeout(backstop); io.disconnect(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [closed, center && center.lat, center && center.lng]);
+  }, [closed, gateKey, center && center.lat, center && center.lng]);
 
   const toggle = (id) => {
     const base = closedRef.current || readCollapsed();

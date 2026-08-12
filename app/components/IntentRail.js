@@ -99,7 +99,23 @@ const WIDEN_M = Math.round(25 * M_PER_MI);
 // browse category and comes back, and re-running three Places searches for that
 // is real money.
 const POOL = new Map();
-const poolKey = (intent, lat, lng, bucket) => intent + "|" + lat.toFixed(2) + "," + lng.toFixed(2) + "|" + bucket;
+// v7.24 — THE GATE IS PART OF THE KEY. Measured on a cold production load: the
+// rails fire at t≈1.24s and /api/weather answers at t≈1.66s, so a rail that
+// resolves inside that window builds its list with `weather === null` — which
+// reads as "unknown weather, leave everything in". Nothing re-ran it: this pool
+// was keyed by (intent, centre, daypart) with no weather term, and the approach
+// gate bails on `rows !== null`, so a rail that lost the race stayed wrong for
+// the whole session.
+//
+// A refetch is genuinely required here rather than a render-time filter,
+// because the QUERY BANK ITSELF branches on the gate (lib/intentPages.js:
+// `x.outdoorOK ? "state park springs" : "museum indoor attraction"`). Filtering
+// afterwards would leave an indoor-weather rail choosing from outdoor queries.
+//
+// It costs a second fetch only when the gate actually FLIPS — in fair weather,
+// which is most of the time, the key never changes and nothing re-runs.
+const poolKey = (intent, lat, lng, bucket, gate) =>
+  intent + "|" + lat.toFixed(2) + "," + lng.toFixed(2) + "|" + bucket + "|" + (gate ? "out" : "in");
 
 const photoUrl = (r) => (r && r.photoRef ? "/api/photo?ref=" + encodeURIComponent(r.photoRef) + "&w=480" : null);
 const compactReviews = (n) => (Number(n) >= 1000 ? Math.round(Number(n) / 100) / 10 + "k" : String(Number(n) || 0));
@@ -147,6 +163,32 @@ export default function IntentRailBody({
     setRows(null);
   }, [centerKey]);
 
+  // v7.24 — THE SAME RE-ARM, for the weather gate. Exactly the stale-town bug in
+  // a different variable: the approach gate below bails on `rows !== null`, so
+  // once this rail has ANY answer it keeps it for the life of the mount — and
+  // on a cold load that answer was built before /api/weather returned, with the
+  // gate open by default. A list ranked for weather we did not have yet is not
+  // stale data, it is a wrong answer under a confident heading.
+  //
+  // Only a FLIP re-arms it, not every weather tick: the key is the boolean gate,
+  // so a temperature drifting 96° -> 97° changes nothing and a 94° -> 96° heat
+  // advisory rebuilds the list. POOL is keyed the same way, so the first list is
+  // still cached if the gate flips back.
+  const gateKey = (() => {
+    if (!center || !isFinite(center.lat) || !isFinite(center.lng)) return "";
+    try {
+      const c = nowContext({ lat: Number(center.lat), lng: Number(center.lng), city: city || null, weather: weather || null });
+      return c.timeBucket + "|" + (c.outdoorOK ? "out" : "in");
+    } catch (e) { return ""; }
+  })();
+  const seenGate = useRef(gateKey);
+  useEffect(() => {
+    if (seenGate.current === gateKey) return;
+    seenGate.current = gateKey;
+    inFlight.current = null;
+    setRows(null);
+  }, [gateKey]);
+
   const load = useCallback(() => {
     if (!def) return;
     if (!center || !isFinite(center.lat) || !isFinite(center.lng)) return;
@@ -157,7 +199,7 @@ export default function IntentRailBody({
     // different clock than its own sort makes a claim about what was ranked
     // that is not true.
     const ctx = nowContext({ lat, lng, city: city || null, weather: weather || null });
-    const key = poolKey(intent, lat, lng, ctx.timeBucket);
+    const key = poolKey(intent, lat, lng, ctx.timeBucket, ctx.outdoorOK);
     const cached = POOL.get(key);
     if (cached) { setRows(cached); return; }
     if (inFlight.current === key) return;
