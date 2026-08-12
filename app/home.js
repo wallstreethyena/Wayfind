@@ -289,8 +289,50 @@ function mapfpArrowKeys(node) {
   });
 }
 
+// v7.17 (owner, 2026-08-12, relaying repeated user feedback): "users are saying
+// they do not know [the six-icon row] is an actual menu — make anyone and
+// everyone know those are a menu and that they can engage with the buttons and
+// it will take them somewhere."
+//
+// WHAT IS *NOT* CHANGING, AND WHY. The obvious fix — give the tiles a fill, a
+// border and a radius so they read as buttons — has already been tried and
+// rejected on this exact row: v6.60 shipped it on the owner's "the menu needs
+// to look more like buttons", and v6.62 reverted it on the owner's live
+// screenshot ("remove the button feel because it does not look good"). Two
+// guards also pin the current render (check-design requires the literal
+// `on ? C.accent : "#FFFFFF"` idle lettering; check-ux bans the retired
+// borderRadius:22 chip strip). So the tiles themselves are byte-identical.
+//
+// WHAT DOES THE WORK INSTEAD, in the order a first-time visitor meets it:
+//   1. A LABEL. The row shipped with nothing above it naming it. "BROWSE" plus
+//      "Tap a category to see it near you ›" says what it is and what happens
+//      — the two things the feedback says are missing — in one 18px line.
+//   2. A ONE-TIME COACH. Copy alone does not beat a row that looks inert, so
+//      until the FIRST category tap on this device a soft orange sweep runs
+//      across the row three times and the hint glows. It is not a tooltip and
+//      it blocks nothing; it dies permanently on first tap (localStorage) and
+//      honours prefers-reduced-motion (see .wf-catrow.is-coach in css.js).
+//   3. A GROUP LABEL for assistive tech (role="group" + aria-label). Deliberately
+//      NOT role="tablist": that contract requires role="tab" on every child and
+//      would silently restyle three other screens' semantics — the compact map
+//      branch below already owns the real tablist.
+const CAT_COACH_KEY = "wf_cat_menu_tapped";
+
 function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true, compact }) {
   const subs = showSubs && activeCat ? (SUBFILTERS[activeCat] || []) : [];
+  // Hooks run BEFORE the compact early-return below — a conditional hook here
+  // would break the map screen the moment a sub-filter opened.
+  const [coach, setCoach] = useState(false);
+  useEffect(() => {
+    let seen = true;
+    try { seen = !!localStorage.getItem(CAT_COACH_KEY); } catch (e) {}
+    if (!seen) setCoach(true);
+  }, []);
+  const tapCat = (id, label) => {
+    setCoach(false);
+    try { localStorage.setItem(CAT_COACH_KEY, "1"); } catch (e) {}
+    onCat(id, label);
+  };
   // COMPACT — the MAP variant only (work order 2026-08-06, ticket 2).
   //
   // A SEPARATE BRANCH, NOT A CHANGE TO THE SHARED ONE. CategoryMenu has four
@@ -342,7 +384,7 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
           <div className="wf-mapfp-scroll" role="tablist" aria-label="Map categories" ref={mapfpArrowKeys}>
             {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
               <button key={m.id} role="tab" aria-selected={on ? "true" : "false"} className="wf-mapfp-tap"
-                onClick={() => onCat(m.id, m.label)}>
+                onClick={() => tapCat(m.id, m.label)}>
                 <span className="wf-mapfp-pill">
                   <NavIcon name={m.id} color={on ? "#0B0F14" : "#FFFFFF"} size={15} strokeWidth={1.6} />
                   <span>{m.label}</span>
@@ -384,6 +426,18 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
           <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.4px", lineHeight: 1.1, color: C.text }}>{heading}</div>
         </div>
       )}
+      {/* v7.17 — the row's NAME and its promise. Rendered only when the caller
+          did not already supply a heading, so the explore/itinerary variants
+          never get two titles stacked. Two jobs, deliberately split: the
+          eyebrow says WHAT this is, the hint says WHAT HAPPENS when you touch
+          it. `coach` only recolours the hint — the animation lives in css.js so
+          prefers-reduced-motion can switch it off. */}
+      {!heading && (
+        <div className="wf-catlead" style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 10, padding: "0 4px 7px" }}>
+          <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1.15px", color: "#FB923C" }}>BROWSE</span>
+          <span className={coach ? "wf-catlead-hint is-coach" : "wf-catlead-hint"} style={{ fontSize: 11.5, fontWeight: 700, color: coach ? "#FB923C" : "#8C97A8", whiteSpace: "nowrap" }}>Tap a category to see it near you ›</span>
+        </div>
+      )}
       <div style={{ position: "relative" }}>
       {/* wf-catrow / wf-cattile (2026-08-07) exist ONLY so the wide-desktop
           tier in css.js can reach this row. There is no mobile rule for either
@@ -400,7 +454,7 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
           (owner, live screenshot: "remove the button feel because it does
           not look good"). Back to the original transparent/flat tiles — the
           v6.90 halo + underline below remain the only idle/active affordance. */}
-      <div className="wf-catrow" style={{ display: "flex", gap: 4, paddingBottom: 2 }}>
+      <div className={coach ? "wf-catrow is-coach" : "wf-catrow"} role="group" aria-label="Browse categories" style={{ display: "flex", gap: 4, paddingBottom: 2 }}>
         {/* v6.90 — owner review of the category row asked for "anything you can
             do" to make it feel less flat. Two additive, guard-safe touches:
             (a) a soft circular halo behind the active icon (background only,
@@ -413,7 +467,7 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
             literal "#FFFFFF" check-design.mjs asserts (owner call
             2026-07-21) — untouched. */}
         {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
-          <button key={m.id} className="wf-cattile" onClick={() => onCat(m.id, m.label)} aria-current={on ? "page" : undefined} style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 0, background: "transparent", border: "none", cursor: "pointer", flex: 1, minWidth: 0, WebkitTapHighlightColor: "transparent", transition: `opacity ${MOTION.base} ${MOTION.ease}` }}>
+          <button key={m.id} className="wf-cattile" onClick={() => tapCat(m.id, m.label)} aria-current={on ? "page" : undefined} style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 0, background: "transparent", border: "none", cursor: "pointer", flex: 1, minWidth: 0, WebkitTapHighlightColor: "transparent", transition: `opacity ${MOTION.base} ${MOTION.ease}` }}>
             <span style={{ position: "relative", display: "grid", placeItems: "center" }}>
               {on && <span aria-hidden="true" style={{ position: "absolute", inset: -7, borderRadius: "50%", background: "radial-gradient(circle, rgba(249,115,22,.18) 0%, rgba(249,115,22,0) 72%)" }} />}
               <NavIcon name={m.id} color={on ? C.accent : "#FFFFFF"} size={31.2} strokeWidth={1.4} />
@@ -2797,7 +2851,32 @@ function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onS
 // at every width, phone through wide desktop.
 function DiscoveryMenu({ locName, onBest, onGems, onFamily, onMood, onTonight, onDrive, onBudget, onSurprise, eatMetro, onEat }) {
   return (
-    <div className="wf-discovery-grid" style={{ display: "flex", gap: 9, overflowX: "auto", scrollSnapType: "x proximity", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", paddingBottom: 4, marginBottom: 12 }}>
+    <div style={{ marginBottom: 12 }}>
+      {/* v7.17 (owner, 2026-08-12): "give it a more appropriate name for the
+          list — make it like a one-word hook that is engaging, explains what it
+          is, and sells the reason why the user should go into it."
+
+          The rail shipped NAMELESS. Eight unlabelled pills sitting directly
+          under the six-category icon row read as a second, redundant taxonomy
+          strip — the same shape, one row down — rather than as eight
+          hand-built lists that each answer a different question. A name is the
+          cheapest thing that tells them apart.
+
+          "Shortcuts" is the mechanism, stated plainly: a fast path PAST the
+          feed, not another way to filter it. The subline carries the payoff
+          ("ready-made") because a one-word title cannot sell on its own.
+
+          COPY AND A HEADING ONLY. The eight tiles, all nine handlers, the
+          eatMetro fallback branch, the wf-discovery-grid/wf-discovery-link
+          class hooks and the v6.65 mood-pill styling are byte-identical, and
+          the render site in the feed ({!browseCat && discoveryMenu}) is
+          untouched — that literal, and its single-call-site count, is what
+          check-home-answer-first pins. */}
+      <div style={{ padding: "0 4px 8px" }}>
+        <div style={{ fontSize: 15.5, fontWeight: 800, letterSpacing: "-.2px", lineHeight: 1.15, color: C.text }}>Shortcuts</div>
+        <div style={{ marginTop: 3, fontSize: 12, fontWeight: 600, lineHeight: 1.4, color: "#8C97A8" }}>Tap one and skip straight to a ready-made list near you.</div>
+      </div>
+      <div className="wf-discovery-grid" style={{ display: "flex", gap: 9, overflowX: "auto", scrollSnapType: "x proximity", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", paddingBottom: 4 }}>
       {[
         ["sparkles", "Best of " + (locName ? locName.split(",")[0] : "your area"), onBest],
         ["gem", "Hidden gems", onGems],
@@ -2841,6 +2920,7 @@ function DiscoveryMenu({ locName, onBest, onGems, onFamily, onMood, onTonight, o
           {lbl}
         </button>
       ))}
+      </div>
     </div>
   );
 }

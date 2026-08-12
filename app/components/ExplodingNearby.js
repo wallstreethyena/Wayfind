@@ -145,7 +145,7 @@ function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlac
           match, best governed score first; the primary card keeps its award
           band inside the rail, and RailDots is the there-is-more bubble. */}
       {more.length ? (
-        <RailNav railId={"exploding-" + trend.conceptKey} count={trend.matches.length} unit={trend.label.toLowerCase() + " matches"} />
+        <RailNav railId={"exploding-" + trend.conceptKey} count={trend.matches.length} unit={"spots for " + trend.label.toLowerCase()} />
       ) : null}
       <div
         className="wf-rail wf-rail-exploding"
