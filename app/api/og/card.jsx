@@ -16,7 +16,7 @@
 // photo. The direction the owner chose is typographic, and the moment one
 // surface reintroduces an <img> the set stops being one card again.
 import { ImageResponse } from "next/og";
-import { CARD } from "../../../lib/shareCard.js";
+import { CARD, toneFor } from "../../../lib/shareCard.js";
 
 const arch600 = fetch(new URL("./fonts/Archivo-600-Latin.ttf", import.meta.url)).then((r) => r.arrayBuffer());
 const arch700 = fetch(new URL("./fonts/Archivo-700-Latin.ttf", import.meta.url)).then((r) => r.arrayBuffer());
@@ -52,28 +52,63 @@ function Mark({ size }) {
   );
 }
 
+// A pixel heart, drawn from the same 16x16 grid the /ask page uses so the text
+// card and the page it opens are visibly the same object. It is SVG rects, not
+// an image: nothing to fetch, nothing to 404, and it survives the no-photograph
+// rule because it is drawn rather than referenced.
+const HEART_ROWS = [
+  [3, 2], [8, 2], [2, 4], [8, 4], [1, 12], [1, 12], [1, 12], [2, 10], [3, 8], [4, 6], [5, 4], [6, 2],
+];
+const HEART_Y = [3, 3, 4, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+function PixelHeart({ x, y, px, fill, opacity }) {
+  return (
+    <svg width={16 * px} height={16 * px} viewBox={"0 0 " + 16 * px + " " + 16 * px}
+      style={{ position: "absolute", left: x, top: y, opacity: opacity == null ? 1 : opacity }}>
+      {HEART_ROWS.map((r, i) => (
+        <rect key={i} x={r[0] * px} y={HEART_Y[i] * px} width={r[1] * px} height={px} fill={fill} />
+      ))}
+    </svg>
+  );
+}
+
 export function WayfindCard({ model }) {
   const m = model || {};
   const lines = Array.isArray(m.lines) ? m.lines : [];
   const accent = Array.isArray(m.accent) ? m.accent : [];
   const size = m.size || 96;
+  const T = toneFor(m.tone);
+  const blush = m.tone === "blush";
   return (
     <div style={{ width: CARD.w, height: CARD.h, display: "flex", position: "relative",
-      overflow: "hidden", backgroundColor: INK, fontFamily: "Archivo" }}>
+      overflow: "hidden", background: T.bg, backgroundColor: blush ? "#E1A0E6" : T.bg, fontFamily: "Archivo" }}>
 
-      {/* Two warm fields, no photograph. They give the flat ink some depth at
+      {/* Two soft fields, no photograph. They give the flat plate some depth at
           full size and vanish harmlessly at thumbnail size. */}
       <div style={{ position: "absolute", left: -240, top: 290, width: 940, height: 940, display: "flex",
-        background: "radial-gradient(circle, rgba(249,115,22,0.20) 0%, rgba(249,115,22,0) 68%)" }} />
+        background: "radial-gradient(circle, " + T.glow + "0.20) 0%, " + T.glow + "0) 68%)" }} />
       <div style={{ position: "absolute", left: 830, top: -280, width: 780, height: 780, display: "flex",
-        background: "radial-gradient(circle, rgba(249,115,22,0.09) 0%, rgba(249,115,22,0) 68%)" }} />
+        background: "radial-gradient(circle, " + T.glow + "0.09) 0%, " + T.glow + "0) 68%)" }} />
 
-      <div style={{ position: "absolute", left: CARD.padX, top: 52, display: "flex" }}><Mark size={33} /></div>
+      {/* The invite card floats hearts instead of carrying the wordmark up top.
+          It is opened by someone who was texted a question, not by a customer:
+          leading with a brand mark answers "who is this from" with the wrong
+          name. Wayfind signs the bottom instead. */}
+      {blush ? (
+        <div style={{ position: "absolute", left: 0, top: 0, width: CARD.w, height: CARD.h, display: "flex" }}>
+          <PixelHeart x={928} y={92} px={7} fill="#FFFFFF" opacity={0.9} />
+          <PixelHeart x={1064} y={214} px={5} fill="#FFFFFF" opacity={0.6} />
+          <PixelHeart x={986} y={392} px={4} fill="#FFFFFF" opacity={0.45} />
+          <PixelHeart x={1092} y={468} px={6} fill="#FFFFFF" opacity={0.75} />
+        </div>
+      ) : <div style={{ display: "flex" }} />}
+
+      {blush ? <div style={{ display: "flex" }} />
+             : <div style={{ position: "absolute", left: CARD.padX, top: 52, display: "flex" }}><Mark size={33} /></div>}
 
       {m.eyebrow ? (
         <div style={{ position: "absolute", right: 60, top: 56, display: "flex", alignItems: "center",
-          padding: "10px 20px", borderRadius: 999, backgroundColor: "rgba(255,255,255,0.07)", border: "1px solid " + HAIR }}>
-          <div style={{ display: "flex", fontSize: 21, fontWeight: 600, color: "#D7E0EA", letterSpacing: 1.4 }}>{m.eyebrow}</div>
+          padding: "10px 20px", borderRadius: 999, backgroundColor: T.pill, border: "1px solid " + T.pillBorder }}>
+          <div style={{ display: "flex", fontSize: 21, fontWeight: 600, color: T.pillText, letterSpacing: 1.4 }}>{m.eyebrow}</div>
         </div>
       ) : <div style={{ display: "flex" }} />}
 
@@ -86,22 +121,31 @@ export function WayfindCard({ model }) {
         {lines.map((l, i) => (
           <div key={i} style={{ display: "flex", fontSize: size, fontWeight: 900,
             lineHeight: CARD.lead, letterSpacing: -Math.round(size * 0.037 * 10) / 10,
-            color: accent.indexOf(i) >= 0 ? ORANGE_TEXT : WHITE }}>{l}</div>
+            color: accent.indexOf(i) >= 0 ? T.accent : T.head }}>{l}</div>
         ))}
       </div>
 
       <div style={{ position: "absolute", left: CARD.padX + 2, top: CARD.ruleY, width: 96, height: 8,
-        borderRadius: 999, display: "flex", backgroundColor: ORANGE }} />
+        borderRadius: 999, display: "flex", backgroundColor: T.rule }} />
 
       {m.foot ? (
         <div style={{ position: "absolute", left: CARD.padX, top: CARD.footY, display: "flex",
-          fontSize: 23, fontWeight: 600, color: MUTED }}>{m.foot}</div>
+          fontSize: 23, fontWeight: 600, color: T.foot }}>{m.foot}</div>
       ) : <div style={{ display: "flex" }} />}
 
       <div style={{ position: "absolute", right: 60, top: CARD.ctaY, display: "flex", alignItems: "center",
-        backgroundColor: ORANGE, borderRadius: 999, padding: "15px 30px" }}>
-        <div style={{ display: "flex", fontSize: 23, fontWeight: 900, color: "#0A0A0B", letterSpacing: 1.2 }}>{m.cta}</div>
+        backgroundColor: T.cta, borderRadius: 999, padding: "15px 30px" }}>
+        <div style={{ display: "flex", fontSize: 23, fontWeight: 900, color: T.ctaInk, letterSpacing: 1.2 }}>{m.cta}</div>
       </div>
+
+      {/* The invite signs itself down here, quietly, once the question has
+          already been asked. */}
+      {blush ? (
+        <div style={{ position: "absolute", left: CARD.padX, top: 52, display: "flex", alignItems: "center" }}>
+          <PixelHeart x={0} y={-2} px={2.4} fill="#FFFFFF" />
+          <div style={{ display: "flex", fontSize: 22, fontWeight: 700, color: "rgba(126,47,110,0.62)", marginLeft: 46 }}>an invitation</div>
+        </div>
+      ) : <div style={{ display: "flex" }} />}
     </div>
   );
 }

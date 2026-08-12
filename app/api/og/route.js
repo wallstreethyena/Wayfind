@@ -1,8 +1,9 @@
 import { shareCardResponse, SHARE_CACHE } from "./card.jsx";
 import { shareCardFor, wcRotation } from "../../../lib/shareCards";
 import {
-  placeModel, listModel, weatherModel, couponModel, experienceModel, defaultModel,
+  placeModel, listModel, weatherModel, couponModel, experienceModel, defaultModel, inviteModel,
 } from "../../../lib/shareCardCopy.js";
+import { decodeInvite, curiousLine, curiousFoot } from "../../../lib/dateInvite.js";
 
 export const runtime = "edge";
 
@@ -35,6 +36,17 @@ export async function GET(req) {
         pay: get("pay", 8), get: get("get", 8), pct: get("pct", 5),
         biz: get("biz", 48), what: get("what", 36),
         exp: get("exp", 10).replace(/[^0-9-]/g, ""), area: get("loc", 30),
+      }));
+    }
+
+    // AN INVITATION. Everything it is allowed to say comes from lib/dateInvite.js
+    // so the card, the page title and the /ask page cannot drift into revealing
+    // different amounts.
+    if (kind === "invite") {
+      const inv = decodeInvite(searchParams.get("d"));
+      const line = curiousLine(inv);
+      return shareCardResponse(inviteModel(inv, {
+        head: line.head, accent: line.accent, foot: curiousFoot(inv),
       }));
     }
 

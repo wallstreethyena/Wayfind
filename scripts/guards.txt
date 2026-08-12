@@ -155,6 +155,7 @@ node scripts/check-weather-code-plumbed.mjs
 node scripts/test-composition-render.mjs
 node scripts/check-intent-cards.mjs
 node scripts/check-share-card.mjs
+node scripts/check-date-invite.mjs
 node scripts/test-og-bodies.mjs
 node scripts/check-soft-404.mjs
 node scripts/check-og-absolute.mjs
