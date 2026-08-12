@@ -10222,7 +10222,13 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // boost"; a quality floor now makes the boosted set a subset. The invariant
   // this line exists to protect is one-directional and still holds: a boosted
   // place is always labeled, so the ranking thumb is never silent.
-  const badges = [...(hasCreatorVideo(p) ? [{ key: "creatorvideo", icon: "🎬", label: "Creator video" }] : []), ...(featuredBoost(p) > 0 ? [{ key: "featured", icon: "🏅", label: "Featured" }] : []), ...experienceBadges(p, selectedBadge, 3)];
+  // v7.15 (owner, 2026-08-11: "i told you i don't like the bubbles either"):
+  // the decorative experience-tag bubbles are GONE from every place card.
+  // experienceBadges stays the engine behind ?exp= collections, "known for"
+  // lines, similarity and telemetry — it just never renders as chip pills
+  // anymore. The two chips that remain are RANKING DISCLOSURES (creator
+  // video +0.2, featured), which the score law requires to stay visible.
+  const badges = [...(hasCreatorVideo(p) ? [{ key: "creatorvideo", icon: "🎬", label: "Creator video" }] : []), ...(featuredBoost(p) > 0 ? [{ key: "featured", icon: "🏅", label: "Featured" }] : [])];
   const pcat = primaryCategory(p);
   const m = rank ? medal(rank) : null;
   // v6.87 (owner): the rank-summary sentence ("Our #1 pick — 4.8★ · 1.4k

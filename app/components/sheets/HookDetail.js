@@ -106,7 +106,8 @@ export default function HookDetailSheet({ ctx }) {
                 const rankColor = rankColours[i] || C.accent;
                 const _isWC = !!(hookDetail && hookDetail.hol === "worldcup");
                 const _wcb = _isWC ? WCC.wcBadge(p, themePlaces) : null;
-                const badges = _isWC ? (_wcb ? [{ key: "wc", icon: _wcb.icon, label: _wcb.label }] : []) : experienceBadges(p, null, 2);
+                // v7.15 (owner, 2026-08-11): experience-tag bubbles are gone site-wide; the World Cup badge is thematic information and stays.
+                const badges = _isWC ? (_wcb ? [{ key: "wc", icon: _wcb.icon, label: _wcb.label }] : []) : [];
                 return (
                   <Fragment key={p.id}>
                     {hookDetail.sections && (() => { let acc = 0; for (const sec of hookDetail.sections) { if (i === acc) return <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "0.9px", textTransform: "uppercase", color: C.light, margin: i === 0 ? "2px 2px 10px" : "18px 2px 10px" }}>{sec.label}</div>; acc += sec.count; } return null; })()}

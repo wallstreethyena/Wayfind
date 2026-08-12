@@ -93,13 +93,12 @@ ok(/affiliate links; Wayfind may earn a commission/.test(bn),
   "the rail carries the affiliate disclosure, proximate to the ticket CTA it can render");
 ok(/p\.creator_video \?/.test(code),
   "the creator-video badge is driven by the flag byVisibleScore stamps when it applied the bonus, so label and score cannot disagree");
-// The card must carry REAL tags, not just the two rare ones. Measured live on
-// 2026-08-09: with only the creator-video and coupon chips, 3 of the first 4
-// cards rendered zero chips and the card had a visible hole in it.
-ok(/experienceTags\(tagged, 4\)/.test(code),
-  "the card's tags come from experienceTags — the same evidence-bound engine the reference /best-of card uses");
-ok(/types: Array\.isArray\(p\.types\)/.test(code),
-  "…adapted from wf_best_picks' single primary_type rather than fabricating a types array");
+// v7.15 (owner, 2026-08-11: "i told you i don't like the bubbles either") —
+// SUPERSEDES the 2026-08-09 "visible hole" rule above: the decorative
+// experience-tag bubbles are gone from every card. Only disclosures and
+// money may fill the chip row: creator video (score disclosure) and Deal.
+ok(!/experienceTags\(tagged/.test(code),
+  "the top40 card passes NO experience-tag bubbles — Deal and creator-video only (v7.15)");
 ok(/\.wf-rail-top40 \.wf-place-card-highlights\{flex-wrap:wrap/.test(readFileSync("app/components/css.js", "utf8")),
   "…and the tag row is allowed to wrap, so a full tag set is shown rather than clipped to one line");
 

@@ -34,7 +34,6 @@
 // RANKING_AND_FEATURING_SPEC.md §4 already applies to the creator row.
 import { useCallback, useEffect, useRef, useState } from "react";
 import RailCard, { RailNav, RailDots } from "./RailCard";
-import { experienceTags } from "./IconicPlaceCard";
 import { INTENT_PAGES, toRow, rankRows, composeQueries } from "../../lib/intentPages";
 import { placeAllowed } from "../../lib/placeFilter";
 import { resolveMarqueeDayTrips } from "../../lib/marqueeDayTrips";
@@ -397,16 +396,12 @@ export default function IntentRailBody({
                 // rule the Top 40 rail and the ranked rows follow.
                 r.trending && r.trend_reason ? "🔥 " + r.trend_reason : null,
               ].filter(Boolean);
-              // experienceTags is IconicPlaceCard's portable, evidence-bound tag
-              // engine — the same one the reference card uses. Nothing here is
-              // invented: it derives only from rating, review volume, price and
-              // the place's real Google types, all of which toRow carries.
+              // v7.15 (owner, 2026-08-11, Worth the Drive screenshot: "i told
+              // you i don't like the bubbles either"): the decorative
+              // experience-tag bubbles are gone. Deal stays — it is money and
+              // information, not decoration.
               const chips = [
                 coupon ? { key: "deal", icon: "🏷️", label: "Deal" } : null,
-                ...experienceTags(r, 4).map((t) => ({
-                  key: t.key, icon: t.icon, label: t.label,
-                  onClick: onExperience ? () => onExperience(t.key, r) : undefined,
-                })),
               ].filter(Boolean).slice(0, 4);
               const place = {
                 id: r.id, name: r.name, lat: r.lat, lng: r.lng, rating: r.rating, reviews: r.reviews,

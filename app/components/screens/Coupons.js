@@ -109,7 +109,12 @@ function CouponCard({ c, position, ctx }) {
   // host); otherwise the row's explicit category icon. Data-driven both ways —
   // nothing here is inferred from intents, same rule as dealArtwork.
   const thumbPhoto = typeof c.venuePhotoRef === "string" && /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(c.venuePhotoRef)
-    ? "/api/photo?ref=" + encodeURIComponent(c.venuePhotoRef) + "&w=160" : null;
+    ? // v7.15 (owner: "the images for the coupons look very pixalated") —
+      // the tile renders ~250px wide at full card height, object-fit cover,
+      // so a 160px source was upscaled ~3x on retina. 560 covers 2x DPR of
+      // the rendered box; /api/photo caches per (ref,w) so cost is one
+      // upstream fetch per venue, same as before.
+      "/api/photo?ref=" + encodeURIComponent(c.venuePhotoRef) + "&w=560" : null;
   const thumbIcon = !thumbPhoto && typeof c.icon === "string" && c.icon ? c.icon : null;
   // Market-level fallback (v1.00, 2026-08-08): only asked for when this row
   // has neither a venue photo nor an icon — see useMarketPhoto above.

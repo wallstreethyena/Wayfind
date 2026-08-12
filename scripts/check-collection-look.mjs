@@ -144,93 +144,54 @@ for (const f of ["app/components/TrendingNowClient.js", "app/components/IntentPa
 }
 
 // ------------------------------------------------------------- the chips
-// 8) The chips are LINKS, not inert spans wearing a "›".
-ok(ttd.includes('href={"/?exp=" + expKey}'), 'ThingsToDoList chips are real links into ?exp= collections (they rendered a "›" and did nothing before v6.47)');
-ok(hookDetail.includes('href={"/?exp=" + b.key}'), "HookDetail badges are real links into ?exp= collections");
+// v7.15 (owner, 2026-08-11: "i told you i don't like the bubbles either").
+// The decorative experience-tag chip bubbles are GONE from every card and
+// sheet. What survives is the ENGINE (experienceBadges / experienceTags):
+// it still powers the ?exp= collections, "known for" lines, the similarity
+// matcher and telemetry — so every key it can emit must still resolve —
+// but no surface may render it as chip pills again.
 
-// 9) …and every chip key resolves. app/home.js's ?exp= handler falls through to
-// openExperience(k), which no-ops on an unknown key — a dead link that LOOKS
-// alive is worse than the inert span we replaced.
+// 8) No surface renders the tag bubbles.
+ok(!/<Chip linkable/.test(ttd), "ThingsToDoList renders no category/Crowd-favorite chip bubbles (v7.15) — the trending and water notes that remain are disclosures, not decoration");
+ok(!/experienceBadges\(p, null, 2\)/.test(hookDetail), "HookDetail builds no experience-tag badges — only the thematic World Cup badge may fill that slot");
+ok(!/expTags\.map/.test(iconic), "IconicPlaceCard renders no experience-tag chip buttons");
+ok(!/experienceTags\(tagged/.test(read("app/components/BestNearby.js")), "BestNearby rails pass no tag bubbles to RailCard — Deal and the creator-video score disclosure only");
+ok(!/experienceTags\(r, \d/.test(read("app/components/IntentRail.js")), "the home intent rails pass no tag bubbles — Deal only");
+ok(!/experienceBadges\(detail, null, 4\)\.map/.test(read("app/components/sheets/Detail.js")), "the detail sheet renders no tag-bubble row");
+ok(!/experienceBadges\(p\)\.slice/.test(read("app/components/screens/Surprise.js")), "the Surprise screen renders no tag bubbles");
+ok(!/experienceTags\(p, 1\)/.test(read("app/components/CreatorFinds.js")), "creator cards carry only the creator-video chip (row identity + score disclosure), never a tag bubble");
+
+// 9) THE ENGINE SURVIVES, and every key it can emit still resolves through
+// the ?exp= deep-link map — collections, similarity and "known for" depend
+// on it even though no chip renders it.
 {
   const home = read("app/home.js");
-  // BOUND the window to the handler's own if/else chain, which terminates at the
-  // `else { openExperience(k); }` fallthrough. An unbounded slice-to-EOF would
-  // let an unrelated `k === "…"` anywhere later in home.js satisfy the lookup —
-  // a false PASS, which is the dangerous direction (cf. the after(marker, 800)
-  // window that let check-geo-gated-boosts drift in wave 2).
+  // BOUND the windows exactly as before v7.15: the ?exp= handler's own
+  // if/else chain and the EXPERIENCES map literal — never all of home.js.
   const expStart = home.indexOf('const k = sp.get("exp");');
   ok(expStart >= 0, "the ?exp= deep-link handler is still in app/home.js");
   const expEnd = home.indexOf("openExperience(k);", expStart);
   ok(expEnd > expStart, "the ?exp= handler still falls through to openExperience(k) for unrecognized keys");
   const expBlock = home.slice(expStart, expEnd);
-  // Same bounding discipline for the EXPERIENCES lookup: `^\s*foo: {` matched
-  // against all of home.js would hit any object literal in 8k lines.
   const expMapStart = home.indexOf("const EXPERIENCES = {");
   ok(expMapStart >= 0, "the EXPERIENCES map is still declared in app/home.js");
   const expMap = home.slice(expMapStart, home.indexOf("\n};", expMapStart));
-
-  const keys = [...ttd.matchAll(/expKey="([a-z]+)"/g)].map((m) => m[1]);
-  const catExp = ttd.match(/^const CAT_EXP = \{([^}]*)\}/m);
-  ok(!!catExp, "ThingsToDoList still declares CAT_EXP — the category→collection mapping the chips link through");
-  const mapped = [...catExp[1].matchAll(/"([a-z]+)"/g)].map((m) => m[1]);
-  ok(keys.length + mapped.length > 0, "the chip keys are still discoverable — if this parses to nothing the loop below asserts nothing");
-  // HookDetail links b.key straight through, and b.key comes from
-  // experienceBadges() in home.js — so every key that function can emit is now a
-  // user-visible destination and has to resolve too.
   const ebStart = home.indexOf("function experienceBadges(");
-  ok(ebStart >= 0, "experienceBadges is still in app/home.js — HookDetail's badge links are built from its keys");
+  ok(ebStart >= 0, "experienceBadges is still in app/home.js — the collections/similarity/telemetry engine");
   const ebBody = home.slice(ebStart, home.indexOf("\n}", ebStart));
   const badgeKeys = [...ebBody.matchAll(/q\.add\("([a-z]+)"\)/g)].map((m) => m[1]);
   ok(badgeKeys.length >= 15, "experienceBadges still emits its badge keys through q.add — if this parses to nothing the loop below asserts nothing");
-
-  for (const k of [...new Set([...keys, ...mapped, ...badgeKeys])]) {
+  for (const k of new Set(badgeKeys)) {
     ok(new RegExp(`^\\s*${k}:\\s*\\{`, "m").test(expMap) || new RegExp(`\\bk === "${k}"`).test(expBlock), `?exp=${k} resolves — it is either an EXPERIENCES key or explicitly handled by the deep-link switch`);
   }
-
-  // 9b) IconicPlaceCard (the /best-of, /tonight and other intent-page card —
-  // 2026-08-02, owner: "I need the cards to look like the cards from the main
-  // menu") gets the SAME chip-key-resolves protection, mirroring 9) above
-  // rather than importing from it: IconicPlaceCard owns its own
-  // experienceTags() adaptation of experienceBadges() for the same reason
-  // ThingsToDoList and HookDetail own theirs (see that function's header
-  // comment in IconicPlaceCard.js). Its q.add() keys must resolve exactly like
-  // every other surface's, and its EXP_META table (the icon/label it can
-  // actually render) must not silently drift ahead of what q.add() can emit —
-  // a key with no metadata would render "undefined undefined ›".
   const iconicEbStart = iconic.indexOf("export function experienceTags(");
-  ok(iconicEbStart >= 0, "IconicPlaceCard.js still declares experienceTags() — the intent-page cards' chip source");
+  ok(iconicEbStart >= 0, "IconicPlaceCard.js still declares experienceTags() — the portable engine BestNearby/IntentRail import for signals");
   const iconicEbBody = iconic.slice(iconicEbStart, iconic.indexOf("\nexport default", iconicEbStart));
   const iconicKeys = [...iconicEbBody.matchAll(/q\.add\("([a-z]+)"\)/g)].map((m) => m[1]);
-  ok(iconicKeys.length >= 10, "IconicPlaceCard.js's experienceTags still emits keys through q.add — if this parses to nothing the loops below assert nothing");
+  ok(iconicKeys.length >= 10, "IconicPlaceCard.js's experienceTags still emits keys through q.add");
   for (const k of new Set(iconicKeys)) {
-    ok(new RegExp(`^\\s*${k}:\\s*\\{`, "m").test(expMap) || new RegExp(`\\bk === "${k}"`).test(expBlock), `IconicPlaceCard ?exp=${k} resolves — it is either an EXPERIENCES key or explicitly handled by the deep-link switch`);
-  }
-  const metaStart = iconic.indexOf("const EXP_META = {");
-  ok(metaStart >= 0, "IconicPlaceCard.js still declares EXP_META — the icon/label table its chips render from");
-  const metaBlock = iconic.slice(metaStart, iconic.indexOf("\n};", metaStart));
-  for (const k of new Set(iconicKeys)) {
-    ok(new RegExp(`^\\s*${k}:\\s*\\{`, "m").test(metaBlock), `IconicPlaceCard's EXP_META carries an entry for "${k}" — every key experienceTags can emit must have a real icon/label or the chip renders blank`);
+    ok(new RegExp(`^\\s*${k}:\\s*\\{`, "m").test(expMap) || new RegExp(`\\bk === "${k}"`).test(expBlock), `experienceTags ?exp=${k} resolves — the engine's keys stay live destinations`);
   }
 }
 
-// 9c) THE NESTED-INTERACTIVE CONSTRAINT for IconicPlaceCard: the whole <li> is
-// onClick={openCard} (navigate to the detail page), same shape as
-// ThingsToDoList's <div role="button">. A chip tap must stopPropagation or it
-// both fires the chip's own navigation AND falls through to openCard.
-ok(/onClick=\{\(e\) => \{\s*\n\s*e\.stopPropagation\(\);\s*\n\s*e\.preventDefault\(\);\s*\n\s*if \(onBadge\)/.test(iconic), "IconicPlaceCard's experience-tag chips stopPropagate + preventDefault before navigating, same pattern as its Save/Like/Dislike/Share buttons");
-
-// 10) THE NESTED-ANCHOR CONSTRAINT. A tour row is itself an <a href> to the
-// booking URL. An <a> inside an <a> is invalid HTML: browsers reparent it, the
-// booking link breaks, and nothing errors. So the linkable chip must be gated
-// on the row NOT being a tour.
-ok(/isTour\s*\n?\s*\?\s*<span style=\{chipDead\}>Tour/.test(ttd), "the tour row's category chip stays a plain <span> — the tour card IS an anchor, so a link-chip there would nest anchors");
-ok(/linkable=\{!isTour\}/.test(ttd), "the Crowd-favorite chip is only linkable on non-tour rows, same nested-anchor reason");
-ok(/if \(!linkable \|\| !expKey\) return <span/.test(ttd), "Chip degrades to an inert span rather than emitting an anchor when it is not allowed to link");
-
-// 11) Both chip links stop propagation. The place row is a <div role="button">
-// whose onClick opens the detail sheet; without this the tap navigates AND
-// opens a sheet behind it.
-ok(/onClick=\{\(e\) => \{ e\.stopPropagation\(\);/.test(ttd), "ThingsToDoList chip links stopPropagation so the card's own onClick does not also fire");
-ok(/onClick=\{\(e\) => e\.stopPropagation\(\)\}/.test(hookDetail), "HookDetail badge links stopPropagation for the same reason");
-
-console.log(`check-collection-look: OK — ${pass} assertions (one hero everywhere; the experience chips are live links that cannot nest anchors)`);
+console.log(`check-collection-look: OK — ${pass} assertions (one hero everywhere; no tag bubbles anywhere; the tag ENGINE and its ?exp= destinations stay live)`);

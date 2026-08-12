@@ -32,7 +32,6 @@ import ViatorCommerceLink from "./ViatorCommerceLink";
 // The standard-card medal ring (home.js medal(): gold / silver / bronze 3-5).
 const medalColor = (rank) => (rank === 1 ? "#FBBF24" : rank === 2 ? "#CBD5E1" : rank <= 5 ? "#CD7F32" : null);
 
-const CAT_LABEL = { beach: "Beach day", attractions: "Things to do", food: "Food" };
 // v6.47 (owner: "the little experience chip are also not workign i used to be
 // able to click on them and open a page"). The chips rendered as inert <span>s
 // with a "›" glyph — they LOOKED like links and did nothing. They are now real
@@ -43,16 +42,9 @@ const CAT_LABEL = { beach: "Beach day", attractions: "Things to do", food: "Food
 //   • a PLACE card is a <div role="button">, so an <a> inside it is legal, but
 //     it must stopPropagation or the card's own onClick fires the detail sheet
 //     underneath the navigation.
-const CAT_EXP = { beach: "outdoors", attractions: "entertainment", food: "eatnow" };
-const CHIP_BASE = { display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, borderRadius: 999, padding: "3px 10px", textDecoration: "none" };
-const chipDead = { ...CHIP_BASE, color: C.light, background: C.adim, border: `1px solid ${C.border}55` };
-const chipLink = { ...CHIP_BASE, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, cursor: "pointer" };
 
-// One chip. `expKey` present + not inside a tour anchor => a real link.
-function Chip({ expKey, label, linkable, onLog }) {
-  if (!linkable || !expKey) return <span style={chipDead}>{label}</span>;
-  return <a href={"/?exp=" + expKey} style={chipLink} onClick={(e) => { e.stopPropagation(); try { onLog && onLog("ttd_chip", { exp: expKey }); } catch (err) {} }}>{label} ›</a>;
-}
+// v7.15 (owner, 2026-08-11): the chip-bubble machinery (Chip, CAT_EXP,
+// chip styles) is deleted — no card renders decorative tag bubbles anymore.
 const fmtDur = (m) => (m == null ? null : m >= 60 ? (m % 60 ? Math.floor(m / 60) + "h " + (m % 60) + "m" : m / 60 + "h") : m + "m");
 
 // Standard-card trust dot (home.js confidenceOf thresholds, verbatim).
@@ -148,12 +140,10 @@ function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, onLog, on
           )}
         </div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 7 }}>
-          {isTour
-            ? <span style={chipDead}>Tour ›</span>
-            : <Chip linkable expKey={CAT_EXP[r.category] || "entertainment"} label={CAT_LABEL[r.category] || "Things to do"} onLog={onLog} />}
-          {r.reviews >= 1000 && r.rating >= 4.5
-            ? <Chip linkable={!isTour} expKey="localfav" label="⭐ Crowd favorite" onLog={onLog} />
-            : null}
+          {/* v7.15 (owner, 2026-08-11): the category and "Crowd favorite"
+              chip bubbles are gone. What remains in this row is DISCLOSURE,
+              not decoration: the trending bump note and the beach water
+              signal. */}
           {/* 2026-08-07: the 🔥 is the UNIFIED trend signal (lib/trendSignal.js
               — real foot traffic + major-event proximity, attached before the
               sort) and doubles as the mandatory disclosure for the +0.6

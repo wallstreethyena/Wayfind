@@ -1104,11 +1104,12 @@ export default function DetailSheet({ ctx }) {
                   )}
                 </div>
               )}
+              {/* v7.15 (owner, 2026-08-11): the experience-tag bubble row is
+                  gone from the detail sheet too — same law as every card.
+                  experienceBadges still powers the audit telemetry and the
+                  similarity engine below. */}
               <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 16 }}>
                 <FeaturedTag p={detail} />
-                {experienceBadges(detail, null, 4).map((b) => (
-                  <button key={b.key} onClick={() => { setDetail(null); openExperience(b.key); }} style={{ fontSize: 12, fontWeight: 700, color: C.light, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 11px", cursor: "pointer" }}>{b.label}</button>
-                ))}
               </div>
 
               {detail._event && (() => {

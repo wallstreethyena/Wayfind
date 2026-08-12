@@ -34,7 +34,6 @@ import { toDisplayScore } from "../../lib/score.js";
 import { placePartnerPick } from "../../lib/placePartnerPicks.js";
 import { nowSubline } from "../../lib/intentPages.js";
 import { couponForPlaceName } from "../../lib/coupons.js";
-import { experienceTags } from "./IconicPlaceCard";
 import { priceLabel } from "../../lib/price.js";
 import { businessStatus } from "../../lib/businessStatus.js";
 import { commerceHref, emitCommerce, mintClickId } from "../../lib/commerce.js";
@@ -928,12 +927,14 @@ export default function BestNearby({
                 // the row is adapted, never fabricated — a row with no type
                 // simply yields fewer tags.
                 const tagged = { ...p, types: Array.isArray(p.types) ? p.types : (p.primary_type ? [p.primary_type] : []), priceLevel: p.price_level != null ? p.price_level : p.priceLevel };
+                // v7.15 (owner, 2026-08-11): decorative experience-tag
+                // bubbles are gone site-wide. Only disclosures and money
+                // remain: creator video (score disclosure) and Deal.
                 const chips = [
                   // byVisibleScore stamps creator_video when it applied the
                   // +0.2, so this label and the score can never disagree.
                   p.creator_video ? { key: "creatorvideo", icon: "🎬", label: "Creator video" } : null,
                   coupon ? { key: "deal", icon: "🏷️", label: "Deal" } : null,
-                  ...experienceTags(tagged, 4).map((t) => ({ key: t.key, icon: t.icon, label: t.label })),
                 ].filter(Boolean).slice(0, 4);
                 return (
                   <RailCard
@@ -1056,8 +1057,8 @@ export default function BestNearby({
                               isFinite(p.distance_mi) ? (p.distance_mi < 10 ? p.distance_mi.toFixed(1) : Math.round(p.distance_mi)) + " mi" : null,
                             ].filter(Boolean)}
                             chips={[
+                              // v7.15: no tag bubbles; Deal only.
                               coupon ? { key: "deal", icon: "\u{1F3F7}\u{FE0F}", label: "Deal" } : null,
-                              ...experienceTags(tagged, 3).map((t) => ({ key: t.key, icon: t.icon, label: t.label, onClick: onExperience ? () => onExperience(t.key, tagged) : undefined })),
                             ].filter(Boolean).slice(0, 3)}
                             ariaLabel={"Open " + p.name}
                             saved={!!(isSaved && isSaved({ id: p.place_id }))}

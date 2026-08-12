@@ -43,7 +43,7 @@ export default function SurpriseScreen({ ctx }) {
   const { surprisePick, surprisePool, surpriseLoading, setSurprisePick, rerollSurprise, setScreen, openDetail, openExperience, quickSaveFavorite, isSaved, blurbs, blurbLine, experienceBadges, cityFixM, liveOpen, iconForPlace, Loader, FallbackImg, surpriseWhy, logEvent, clipCoupon, setWalletOpen } = ctx;
           const p = surprisePick;
           const sl = p ? scoreLabel(p.wfScore) : null;
-          const badges = p ? experienceBadges(p).slice(0, 2) : [];
+          const badges = []; // v7.15 (owner, 2026-08-11): no tag bubbles anywhere.
           const cuisineLabel = p ? (() => { const t = (p.types || []).find((x) => /_(restaurant|store|bar)$/.test(x)); return t ? t.replace(/_(restaurant|store|bar)$/, "").replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : null; })() : null;
           // v4.6: capitalized identity + state-aware subtitle so a closed pick is never framed as "right now".
           // v6.72: was a FOURTH independent bucketing (12/17). Now the one
