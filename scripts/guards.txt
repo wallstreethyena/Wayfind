@@ -81,8 +81,6 @@ node scripts/check-anchors.mjs
 node scripts/check-radius.mjs
 node scripts/check-meals.mjs
 node scripts/check-hours.mjs
-node scripts/test-share-card-v2.mjs
-node scripts/check-share-assets.mjs
 node scripts/check-cost-gate.mjs
 node scripts/test-links.mjs
 node scripts/check-links.mjs
@@ -156,6 +154,8 @@ node scripts/test-now-context.mjs
 node scripts/check-weather-code-plumbed.mjs
 node scripts/test-composition-render.mjs
 node scripts/check-intent-cards.mjs
+node scripts/check-share-card.mjs
+node scripts/check-date-invite.mjs
 node scripts/test-og-bodies.mjs
 node scripts/check-soft-404.mjs
 node scripts/check-og-absolute.mjs
@@ -251,7 +251,6 @@ node scripts/test-atlas-reclassify.mjs
 node scripts/check-art-assets.mjs
 node scripts/test-atlas-retry.mjs
 node scripts/test-atlas-verify-timefmt.mjs
-node scripts/check-share-art-source.mjs
 node scripts/check-cuisine-never-queried.mjs
 node scripts/test-cuisine-classify.mjs
 node scripts/test-cuisine-write.mjs
@@ -357,7 +356,6 @@ node scripts/test-map-render-smoke.mjs
 node scripts/check-rail-dots.mjs
 node scripts/check-awin-links.mjs
 node scripts/check-no-sideways-scroll.mjs
-node scripts/check-share-card-art.mjs
 node scripts/check-place-classification.mjs
 
 node scripts/check-candidate-pools.mjs
