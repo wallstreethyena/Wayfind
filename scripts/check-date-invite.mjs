@@ -277,6 +277,19 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
      "the sent state is set before the share is attempted");
   ok(/aria-live/.test(client), "the result of sending has to be announced, not just coloured");
   // The burst and the resume both have to respect the person on the other end.
+  // THE CAT WATCHES THEM DECIDE. Owner: "make the little guy track the mouse,
+  // anxious about the decision, shaking, bouncing off the walls, but cute."
+  ok(/mousemove/.test(client) && /touchmove/.test(client),
+     "the cat must track a finger as well as a pointer — this page is opened on a phone, so the touch path cannot be the broken one");
+  ok(/requestAnimationFrame/.test(client),
+     "pointer tracking must be throttled to one state update per frame; setting state on every mousemove re-renders the whole pixel scene dozens of times a second");
+  ok(/setEager\(0\)/.test(client),
+     "the fidget must RESET when the step changes — a cat still frantic after the decision is a broken animation, not a character");
+  ok(/fidget=\{eager\}/.test(client), "the deliberation clock must actually reach the cat");
+  const px = readFileSync(path.join(REPO, "app/ask/pixel.js"), "utf8");
+  ok(/eyesOpen/.test(px), "a cat with its eyes squeezed shut has no pupils to move");
+  ok(/lx > 0\.25 \? 1 : 0/.test(px),
+     "the pupil must SNAP to a whole grid cell — a smooth sub-pixel slide in a pixel scene is what gives the illusion away");
   ok(/prefers-reduced-motion/.test(client),
      "the heart burst must not fire for someone who asked the OS for less motion");
   ok(/localStorage/.test(client) && /wf_ask_/.test(client),

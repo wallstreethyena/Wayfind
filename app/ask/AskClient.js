@@ -132,6 +132,48 @@ export default function AskClient({ inv }) {
   // "" | "sent" | "copied" | "failed" — what really happened.
   const [sent, setSent] = useState("");
 
+  // WHERE THEY ARE LOOKING, AND HOW LONG THEY HAVE BEEN THINKING.
+  //
+  // The cat tracks the pointer on a desktop and the last touch on a phone. The
+  // phone case is not a fallback to be sad about — it is where this page is
+  // actually opened, so the fidget has to carry the performance on its own
+  // there, and it does.
+  const [look, setLook] = useState({ x: 0, y: 0 });
+  const [eager, setEager] = useState(0);
+  useEffect(() => {
+    if (step !== "activity" && step !== "when") { setEager(0); return; }
+    // Anxiety builds while they deliberate, and RESETS when they move on — a cat
+    // that stays frantic after the decision is just a broken animation.
+    setEager(0);
+    const t = setInterval(() => setEager((e) => Math.min(1, e + 0.08)), 900);
+    return () => clearInterval(t);
+  }, [step]);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    let raf = 0, next = null;
+    const apply = () => { raf = 0; if (next) setLook(next); };
+    const at = (cx, cy) => {
+      const w = window.innerWidth || 1, h = window.innerHeight || 1;
+      // Relative to the middle of the screen, which is roughly where the cat is.
+      next = { x: (cx / w) * 2 - 1, y: (cy / h) * 2 - 1 };
+      // One state update per frame. Setting state on every mousemove re-renders
+      // the whole pixel scene dozens of times a second and the page starts to
+      // stutter — on the screen where we are asking someone to feel something.
+      if (!raf) raf = window.requestAnimationFrame(apply);
+    };
+    const onMove = (e) => at(e.clientX, e.clientY);
+    const onTouch = (e) => { const t = e.touches && e.touches[0]; if (t) at(t.clientX, t.clientY); };
+    window.addEventListener("mousemove", onMove, { passive: true });
+    window.addEventListener("touchmove", onTouch, { passive: true });
+    window.addEventListener("touchstart", onTouch, { passive: true });
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("touchmove", onTouch);
+      window.removeEventListener("touchstart", onTouch);
+      if (raf) window.cancelAnimationFrame(raf);
+    };
+  }, []);
+
   // WHO IS ANSWERING. The sender may have asked several people, and a reply
   // reading 'Yes! Dinner out on Friday' tells them a date is happening without
   // telling them with whom. If the sender named them at share time we already
@@ -309,7 +351,7 @@ export default function AskClient({ inv }) {
 
         {step === "ask" && (
           <>
-            <Portrait><Cat tone="cream" mood={moodAt(nos)} size={104} key={nos} /></Portrait>
+            <Portrait><Cat tone="cream" mood={moodAt(nos)} size={104} key={nos} look={look} /></Portrait>
             <h1 className="wfx-h1" key={step}>{askHeadline(inv)}</h1>
             {from ? <p className="wfx-sub">from {from}</p> : null}
             <div className="wfx-row">
@@ -332,7 +374,7 @@ export default function AskClient({ inv }) {
 
         {step === "activity" && (
           <>
-            <Portrait><Cat tone="cream" mood="love" size={104} /></Portrait>
+            <Portrait><Cat tone="cream" mood="love" size={104} look={look} fidget={eager} /></Portrait>
             <h1 className="wfx-h1" key={step}>What would you like to do?</h1>
             {/* The sender's own suggestion goes FIRST and is labelled. It is the
                 only option on this screen that somebody actually chose, and
@@ -356,7 +398,7 @@ export default function AskClient({ inv }) {
 
         {step === "when" && (
           <>
-            <Portrait><Cat tone="panda" mood="happy" size={104} /></Portrait>
+            <Portrait><Cat tone="panda" mood="happy" size={104} look={look} fidget={eager} /></Portrait>
             <h1 className="wfx-h1" key={step}>Pick a date</h1>
             <p className="wfx-sub">Choose the day for our cute little plans</p>
             <Calendar value={dayIso} onPick={(iso, d) => {
