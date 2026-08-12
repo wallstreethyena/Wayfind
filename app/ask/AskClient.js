@@ -4,7 +4,7 @@ import { Cat, Heart, Portrait, Couple } from "./pixel.js";
 import { ASK_CSS } from "./style.js";
 import {
   ACTIVITIES, activityFor, activityHref, activityLinkLabel, askHeadline, yayLine,
-  pleaAt, moodAt, yesScale, noScale, yesText, needsName, planFitsPlace,
+  pleaAt, moodAt, yesScale, noScale, yesText, needsName, planFitsPlace, datedCardPath,
 } from "../../lib/dateInvite.js";
 
 // app/ask/AskClient.js — the five frames (v7.27).
@@ -240,6 +240,34 @@ export default function AskClient({ inv }) {
     return hit.length ? hit.concat(ACTIVITIES.filter((a) => a.id !== k)) : ACTIVITIES;
   })();
 
+  // SAVE THE CARD. Web Share Level 2 hands the PNG itself to the share sheet,
+  // which is what puts it on a story rather than in a chat as a link. If files
+  // are unsupported we open the image instead — a long-press saves it, which is
+  // how most people save an image anyway.
+  const [saving, setSaving] = useState(false);
+  const cardUrl = () => datedCardPath(activity, dayLabel,
+    inv && inv.place && planFitsPlace(inv, activity) ? inv.place : "");
+
+  const saveCard = async () => {
+    if (saving) return;
+    const url = cardUrl();
+    // The fetch has to happen BEFORE the share, and that costs the tap's
+    // activation on iOS — so the fallback is a plain open, never a silent fail.
+    setSaving(true);
+    try {
+      const r = await fetch(url);
+      const blob = await r.blob();
+      const file = new File([blob], "its-a-date.png", { type: "image/png" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file] });
+        setSaving(false);
+        return;
+      }
+    } catch (e) {}
+    setSaving(false);
+    try { window.open(url, "_blank", "noopener"); } catch (e) {}
+  };
+
   const tellThem = () => {
     const text = replyText();
     setSent("");
@@ -388,6 +416,9 @@ export default function AskClient({ inv }) {
                 Two people who have just agreed on a night are the best possible
                 audience for a ranking — and the worst possible audience for one
                 thirty seconds ago. */}
+            <button className="wfx-go wfx-go2" onClick={saveCard} disabled={saving}>
+              {saving ? "MAKING IT…" : "SAVE THE CARD"}
+            </button>
             <a className="wfx-quiet" href={activityHref(activity, city)}>{activityLinkLabel(activity, city)}</a>
             <div className="wfx-mark">
               <span>arranged with</span>
