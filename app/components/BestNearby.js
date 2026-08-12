@@ -29,7 +29,7 @@ import ExplodingNearby from "./ExplodingNearby";
 // destination pages use. See IntentRail.js for why this is the real list and
 // not a cheap filter over the pool already in memory.
 import IntentRailBody from "./IntentRail";
-import { applyCollapsedAttr, DEFAULT_COLLAPSED_RAILS, isCollapsed, nextCollapsed, readCollapsed, writeCollapsed } from "../../lib/railCollapse";
+import { applyCollapsedAttr, DEFAULT_COLLAPSED_RAILS, isCollapsed, markRailsReady, nextCollapsed, readCollapsed, writeCollapsed } from "../../lib/railCollapse";
 import { toDisplayScore } from "../../lib/score.js";
 import { placePartnerPick } from "../../lib/placePartnerPicks.js";
 import { nowSubline } from "../../lib/intentPages.js";
@@ -410,6 +410,7 @@ export default function BestNearby({
   // theorised: collapsing two sections in the same tick persisted only one.
   // The ref is updated synchronously, so it cannot go stale between taps.
   const closedRef = useRef(DEFAULT_COLLAPSED_RAILS);
+  const [railsInited, setRailsInited] = useState(false);
   useEffect(() => {
     let list = [];
     try { list = readCollapsed(); } catch (e) { list = []; }
@@ -419,7 +420,16 @@ export default function BestNearby({
     // storage; re-applying keeps <html> honest if another tab changed it
     // between that script and this effect.
     applyCollapsedAttr(list);
+    setRailsInited(true);
   }, []);
+  // A SECOND EFFECT ON PURPOSE (v7.29). The pre-paint OPEN rule in
+  // WF_RAIL_COLLAPSED_CSS is !important and has to stay in force until the
+  // inline styles below are correct. `setClosed` above only queues that state,
+  // so raising the marker in the same effect would drop the rule one commit
+  // early and flash every open section shut. Keyed on railsInited, this runs
+  // after the commit that applied the real set — which is the definition of
+  // "ready" the marker is claiming.
+  useEffect(() => { if (railsInited) markRailsReady(); }, [railsInited]);
   const sectionOpen = (id) => !isCollapsed(closed, id);
   // v7.06 (owner, 2026-08-09): "no longer place the 10 restriction on these
   // lists… the top 10 should be sufficient." The head-of-three and its

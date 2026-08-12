@@ -37,6 +37,11 @@ export function shellFiles() {
   // shell for hero copy, the wordmark asset path, or the scrim would go blind
   // the moment the markup left screens/Experience.js.
   if (existsSync(new URL("app/components/CollectionHero.js", root))) files.push("app/components/CollectionHero.js");
+  // v7.29: the desktop second column. It renders reader-facing copy and a
+  // commerce hand-off inside the home shell — exactly the content every copy,
+  // CTA and disclosure guardrail greps this concatenation for. Unregistered, a
+  // claim could be written there that no guard would ever read.
+  if (existsSync(new URL("app/components/HomeAside.js", root))) files.push("app/components/HomeAside.js");
   // NOTE: app/components/BookingCTA.js is deliberately NOT in this set. The
   // booking CTA was extracted there so check-booking-cta.mjs can assert the raw
   // construction (Aff.ticketsUrl / experienceGoUrl) lives ONLY in that component

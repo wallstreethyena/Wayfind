@@ -55,10 +55,16 @@ ok(css.includes("@media(min-width:900px)"), "the media query must use the 900px 
 
 // 3. Every layout class the JSX references must be defined in the CSS, and vice
 //    versa — a class that exists in only one place is a silently-broken layout.
-const classes = ["wf-shell", "wf-col-main", "wf-hooks", "wf-hook-card", "wf-explore", "wf-cols"];
+const classes = ["wf-shell", "wf-col-main", "wf-hooks", "wf-hook-card", "wf-explore", "wf-cols", "wf-col-side"];
+// v7.29: the USAGE half reads the whole shell, not home.js alone. .wf-col-side
+// is applied by app/components/HomeAside.js, which is registered shell content
+// (scripts/lib/shellSrc.mjs) — the same decomposition contract that already let
+// the CSS literal move to app/components/css.js. The pairing this asserts is
+// "every layout class is both defined and applied somewhere in the shell", and
+// that is unchanged. The isDesktop scan in §5 stays pinned to home.js.
 for (const c of classes) {
   ok(css.includes("." + c + "{"), `CSS rule for .${c} is missing`);
-  ok(src.includes(`className="${c}"`), `no JSX element uses .${c} — dead layout class`);
+  ok(shell.includes(`className="${c}"`), `no JSX element in the home shell uses .${c} — dead layout class`);
 }
 
 // 4. Both sides of the breakpoint must be specified for the size-critical
@@ -89,6 +95,23 @@ passed++;
 //    which would beat the CSS class (inline styles win over stylesheets).
 ok(/className="wf-shell" style=\{\{ \.\.\.wrap, maxWidth: undefined \}\}/.test(src),
   "the shell must spread wrap with maxWidth explicitly cleared — an inline max-width overrides the media query");
+
+// ─── 6b. THE DESKTOP RAIL DEFAULT IS ALSO A MEDIA QUERY (v7.29) ─────────────
+// lib/railCollapse.js has to name the desktop breakpoint as a media-query
+// STRING, because app/components/css.js already imports RAIL_IDS from it and
+// importing WF_DESKTOP_BP back would close the cycle. A restated number is a
+// number that drifts, so assert the two agree — and that the choice is made by
+// matchMedia before paint rather than by state after mount, which is §5's rule
+// applied to content instead of geometry.
+const collapseSrc = readFileSync(new URL("../lib/railCollapse.js", import.meta.url), "utf8");
+const mqM = collapseSrc.match(/RAILS_DESKTOP_MQ = "\(min-width:(\d+)px\)"/);
+ok(!!mqM, "RAILS_DESKTOP_MQ must stay a (min-width:Npx) literal so this assertion can read it");
+ok(mqM[1] === bpM[1], `RAILS_DESKTOP_MQ is ${mqM[1]}px but WF_DESKTOP_BP is ${bpM[1]}px — the rails would open at a different width than the desktop layout arrives at`);
+const layoutSrc = readFileSync(new URL("../app/layout.js", import.meta.url), "utf8");
+ok(/window\.matchMedia\('\$\{RAILS_DESKTOP_MQ\}'\)\.matches/.test(layoutSrc),
+  "the desktop rail default must be chosen by matchMedia in the pre-paint script, at the true width, before anything paints");
+ok(!/isDesktop[^\n]*DEFAULT_COLLAPSED_RAILS/.test(src),
+  "the collapsed default must never be selected from JS state — same rule as §5, one layer up: it decides how tall the feed is on first paint");
 
 // ─── 7. THE IDLE JUMP (v6.43) ────────────────────────────────────────────────
 // A SECOND, unrelated incident on the same page. Owner report: "you're

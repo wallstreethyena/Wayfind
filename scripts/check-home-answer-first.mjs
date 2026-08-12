@@ -285,12 +285,37 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   try { collapsedDefaults = collapsedDecl ? JSON.parse(collapsedDecl[1]) : []; } catch (e) {}
   ok(!collapsedDefaults.includes("exploding") && ["best", "eat", "quickbite", "todo", "gems", "creators", "events", "tonight", "drive"].every((id) => collapsedDefaults.includes(id)),
      "Exploding is the only primary discovery section expanded for a new visitor; every section below starts collapsed");
+  // v7.29 — THIS USED TO PARSE A HAND-COPIED ARRAY LITERAL out of the inline
+  // script and compare it to lib/railCollapse.js. That is a drift DETECTOR for a
+  // duplication that did not need to exist. app/layout.js now interpolates the
+  // constants directly, so the two cannot disagree, and what is worth asserting
+  // is that it still does — a future edit that pastes a literal back in would
+  // restore the drift silently, and the old assertion would have passed on it.
   const layout = readFileSync(path.join(REPO, "app/layout.js"), "utf8");
-  const prepaintDecl = layout.match(/var v=r\?JSON\.parse\(r\):(\[[^;]+\]);/);
-  let prepaintDefaults = [];
-  try { prepaintDefaults = prepaintDecl ? JSON.parse(prepaintDecl[1].replace(/'/g, '"')) : []; } catch (e) {}
-  ok(JSON.stringify(prepaintDefaults) === JSON.stringify(collapsedDefaults),
-     "the pre-paint default exactly matches React's collapsed set, so no closed section flashes open before hydration");
+  const prepaint = (layout.match(/<script dangerouslySetInnerHTML=\{\{ __html: `\(function\(\)\{try\{var r=localStorage[^`]*`/) || [""])[0];
+  ok(!!prepaint, "the pre-paint rail-collapse script is still an inline template literal in app/layout.js");
+  for (const name of ["RAILS_COLLAPSED_KEY", "RAILS_COLLAPSED_ATTR", "DEFAULT_COLLAPSED_RAILS", "DEFAULT_COLLAPSED_RAILS_DESKTOP", "RAILS_DESKTOP_MQ"]) {
+    ok(prepaint.includes("${" + name + (name === "DEFAULT_COLLAPSED_RAILS" ? "" : "") + "}") || prepaint.includes("${JSON.stringify(" + name + ")}"),
+       `the pre-paint script reads ${name} from lib/railCollapse.js instead of restating it — a pasted literal is how the pre-paint default and React's default drift apart`);
+  }
+  ok(/import \{[^}]*DEFAULT_COLLAPSED_RAILS_DESKTOP[^}]*\} from "\.\.\/lib\/railCollapse"/.test(layout),
+     "app/layout.js imports the collapse constants it interpolates");
+  // The desktop default is DERIVED from the phone default, so the only thing a
+  // reader on a wide screen can get that a phone reader cannot is a rail that
+  // was explicitly named as open. Exploding must still never be in either.
+  const desktopOpenDecl = COLLAPSE.match(/RAILS_OPEN_ON_DESKTOP\s*=\s*(\[[^;]+\])/);
+  let desktopOpen = [];
+  try { desktopOpen = desktopOpenDecl ? JSON.parse(desktopOpenDecl[1]) : []; } catch (e) {}
+  ok(desktopOpen.length > 0 && desktopOpen.every((id) => collapsedDefaults.includes(id)),
+     "every rail opened by default on desktop is one the phone default closes — otherwise the desktop list is not a derivation of the phone list, it is a second hand-maintained one");
+  ok(/DEFAULT_COLLAPSED_RAILS_DESKTOP = DEFAULT_COLLAPSED_RAILS\.filter/.test(COLLAPSE),
+     "the desktop collapsed set is derived from the phone set by filter, so a rail shipped next month is closed by default on both");
+  // The open direction of the pre-paint has to expire, or the accordion loses
+  // its transition forever after hydration. See WF_RAIL_COLLAPSED_CSS.
+  ok(/:not\(\[data-wf-rails-ready\]\)/.test(readFileSync(path.join(REPO, "app/components/css.js"), "utf8")),
+     "the pre-paint OPEN rule is scoped to :not([data-wf-rails-ready]) so it stops overriding React's inline max-height once the real state is committed");
+  ok(/markRailsReady\(\)/.test(readFileSync(path.join(REPO, "app/components/BestNearby.js"), "utf8")),
+     "something raises the ready marker — without it the !important open rule never expires");
   ok(!/Nearby, right now/.test(BN),
      "the old eyebrow is gone — it described the section instead of answering the question");
 
