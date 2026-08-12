@@ -42,6 +42,7 @@ import { FAR_MILES } from "../../lib/wayfindScore";
 import { attachTrendSignals } from "../../lib/trendSignal";
 import { TRENDING_POPULARITY_THRESHOLD } from "./kit";
 import { canonicalShareUrl } from "../../lib/site";
+import { askShareIntent } from "./shareIntentSheet";
 
 const PHOTO_REF = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
 
@@ -468,13 +469,22 @@ export default function IntentPageClient({ intent }) {
     try { if (navigator.share) { await navigator.share({ title: intentEyebrow(def, variant) + " — " + loc.city, url }); return; } } catch (e) { if (e && e.name === "AbortError") return; }
     try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (e) {}
   };
-  const sharePlace = async (p) => {
+  const sharePlace = (p) => {
     const url = canonicalShareUrl("/p/" + encodeURIComponent(p.id));
     try { track("place_card_share", { place_id: p.id, intent }); } catch (e) {}
     try { recordLikeEvent("share", p, { supabase, user }); } catch (e) {}
     try { recordTasteSignal("share", p, { supabase, user }); } catch (e) {}
-    try { if (navigator.share) { await navigator.share({ title: p.name, url }); return; } } catch (e) { if (e && e.name === "AbortError") return; }
-    try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (e) {}
+    const doShare = (u, title) => {
+      // NOT async, and not awaited. navigator.share() has to run inside the tap
+      // that called it — the sheet button's own click — or iOS refuses it.
+      try { if (navigator.share) { const pr = navigator.share({ title, url: u }); if (pr && pr.catch) pr.catch(() => {}); return; } } catch (e) {}
+      try { navigator.clipboard.writeText(u); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (e) {}
+    };
+    askShareIntent({
+      name: p.name, city: loc.city, id: p.id,
+      onPlain: () => doShare(url, p.name),
+      onInvite: (u, t) => { try { track("place_card_share", { place_id: p.id, kind: "invite" }); } catch (e) {} doShare(u, t); },
+    });
   };
 
   return (
