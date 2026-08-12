@@ -2581,6 +2581,7 @@ function renderHookText(text, highlightWord, color) {
 //
 // role/tabIndex/onKeyDown match the other interactive cards so the keyboard path
 // is identical (test-card-a11y asserts the keyboard route to open a place).
+const HERO_ART_SIZES = "(max-width:899px) 93vw, (max-width:1179px) 744px, 893px";
 function DiscoveryHeroCard({ onOpen }) {
   return (
     <article
@@ -2592,7 +2593,29 @@ function DiscoveryHeroCard({ onOpen }) {
       onKeyDown={onOpen ? KB_CLICK : undefined}
       style={{ position: "relative", flexShrink: 0, width: "93%", height: EV_HERO_H, minHeight: EV_HERO_H, scrollSnapAlign: "start", cursor: onOpen ? "pointer" : undefined }}
     >
-      <img src="/brand/wayfind-default-hero-adobestock-289023289.jpeg" alt="" loading="eager" fetchPriority="high" />
+      {/* v7.29 — THIS ELEMENT WAS THE LCP, AND IT WAS 473KB. A 1600x1066 raw
+          JPEG with no srcSet, painted into a card that is 93% of a column that
+          is at most 960px wide, fetched at TOP priority on every first visit.
+          Measured on production, it is the single largest thing standing
+          between a stranger and the first paint.
+
+          THE <img> CARRIES THE WEBP SET, NOT THE JPEG, AND THAT IS THE WHOLE
+          TRICK. React hoists a <link rel=preload> for an eager/fetchPriority
+          image by reading the <img> element — not the <source> siblings. If the
+          img still named the .jpeg, the preload would fetch all 473KB at top
+          priority no matter what the <picture> resolved to, and the AVIF work
+          would be pure additional bytes. So the img names webp, the AVIF rides
+          on the <source>, and the original is unreachable from here.
+
+          `sizes` names the same widths the CSS does: 93vw on a phone, the
+          800px column in the 900 tier, and the wide tier's 960px feed column.
+          Derivatives are committed, built by scripts/build-brand-derivatives.mjs
+          — static brand art must not cost a billable image request per visit
+          (the v6.41 rule). */}
+      <picture>
+        <source type="image/avif" sizes={HERO_ART_SIZES} srcSet="/brand/opt/hero-460.avif 460w, /brand/opt/hero-760.avif 760w, /brand/opt/hero-1120.avif 1120w, /brand/opt/hero-1600.avif 1600w" />
+        <img src="/brand/opt/hero-760.webp" sizes={HERO_ART_SIZES} srcSet="/brand/opt/hero-460.webp 460w, /brand/opt/hero-760.webp 760w, /brand/opt/hero-1120.webp 1120w, /brand/opt/hero-1600.webp 1600w" width={1600} height={1066} alt="" loading="eager" fetchPriority="high" />
+      </picture>
       <div className="wf-discovery-copy" style={{ height: EV_HERO_H, maxWidth: 360, boxSizing: "border-box", padding: "18px 20px 48px" }}>
         <div className="wf-discovery-kicker">WAYFIND, MADE FOR RIGHT NOW</div>
         <div className="wf-discovery-title">Know what is around you.</div>
