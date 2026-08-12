@@ -148,7 +148,6 @@ const ThumbIcon = ({ down = false }) => (
 
 export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, onSave, onLike, onDislike, onBadge }) {
   if (!place) return null;
-  const expTags = experienceTags(place, 3);
   // THE GOVERNING LAW, shown == sorted (2026-08-07): a row ranked through
   // byVisibleScore carries governed_score (base +0.2 video −0.2 far +0.6
   // trending, disclosed below) — prefer it so the badge can never disagree
@@ -250,18 +249,12 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
                 same ?exp=<key> deep link ThingsToDoList/HookDetail already use
                 when no onBadge callback is wired, since this card is portable
                 and cannot assume an in-app navigation handler exists. */}
-            {expTags.map((tag) => (
-              <button
-                key={tag.key}
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  if (onBadge) onBadge(tag.key, place);
-                  else if (typeof window !== "undefined") window.location.href = "/?exp=" + tag.key;
-                }}
-              >{tag.icon} {tag.label} ›</button>
-            ))}
+            {/* v7.15 (owner, 2026-08-11): the experience-tag chip buttons are
+                GONE — "i told you i don't like the bubbles either". The
+                experienceTags() engine above is unchanged and still exported:
+                IntentRail/BestNearby/CreatorFinds import it for signals and
+                the ?exp= collections still resolve every key. This row now
+                carries only real content: caller badges and the partner link. */}
             {badge || null}
             {partnerHref ? (
               <a

@@ -39,7 +39,6 @@ import { C, TYPE } from "./kit";
 // adaptation of home.js's experienceBadges that check-collection-look.mjs
 // already pins — rather than a fourth copy of the same badge logic.
 import RailCard, { RailNav, RailDots } from "./RailCard";
-import { experienceTags } from "./IconicPlaceCard";
 import { coarseCat } from "../../lib/ranking";
 import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
@@ -77,11 +76,11 @@ function cardFacts(p) {
 // Two chips, because a 318px card fits two. The creator video leads (it is why
 // this row exists), then the strongest evidence-bound experience tag.
 function creatorChips(p, onExperience) {
-  const tags = experienceTags(p, 1);
+  // v7.15 (owner, 2026-08-11): the experience-tag bubble is gone; the creator
+  // video chip stays because it is the row's identity and a score disclosure.
   return [
     { key: "creatorvideo", icon: "🎬", label: "Creator video", onClick: onExperience ? () => onExperience("creatorvideo", p) : null },
-    ...tags.map((t) => ({ key: t.key, icon: t.icon, label: t.label, onClick: onExperience ? () => onExperience(t.key, p) : null })),
-  ].slice(0, 2);
+  ];
 }
 
 // Cross-render cache so a scouted spot's resolved photo survives re-renders and
