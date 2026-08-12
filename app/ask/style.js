@@ -63,9 +63,16 @@ export const ASK_CSS = `
 @keyframes wfxFloat{0%{transform:translateY(0) scale(.9);opacity:0}
   14%{opacity:.95}86%{opacity:.95}100%{transform:translateY(-300px) scale(1.05);opacity:0}}
 
+/* ONE HEIGHT AUTHORITY, NOT TWO. This was max-height:100dvh inside a parent
+   that is position:fixed;inset:0. On iOS those are different numbers — the
+   fixed box is pinned while dvh tracks the toolbar collapsing as you scroll —
+   so the scroll container resized underneath the thumb mid-scroll and the
+   content jumped. 100% of the fixed parent is the same number all the way
+   down. overscroll-behavior stops the scroll chaining out to the page and
+   dragging the whole thing with it. */
 .wfx-stage{position:relative;z-index:3;width:100%;max-width:430px;padding:20px 20px 28px;
   display:flex;flex-direction:column;align-items:center;text-align:center;
-  max-height:100dvh;overflow-y:auto}
+  max-height:100%;overflow-y:auto;overscroll-behavior:contain}
 
 /* THE FRAME. Two chunky pixel rings around a near-black plate, with a notched
    corner on each side — the reference's frame, rebuilt in box-shadow so it
@@ -119,9 +126,13 @@ export const ASK_CSS = `
   animation:wfxPop .24s steps(3,end)}
 
 .wfx-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;margin-top:24px}
+/* COLUMN, NOT ROW. The chip was display:flex with the default row direction,
+   which turns the "their idea" tag from a block underneath the label into a
+   flex ITEM beside it — the sender's suggestion rendered as "DinnerTHEIR IDEA",
+   two typefaces jammed together on the one chip that has to read as chosen. */
 .wfx-chip{border:0;cursor:pointer;font-family:inherit;font-weight:400;color:#6E0B33;background:#FFF6FB;
   padding:14px 8px;font-size:14px;letter-spacing:1px;line-height:1.3;min-height:54px;
-  display:flex;align-items:center;justify-content:center;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
   box-shadow:inset 0 0 0 4px #E8236E,0 5px 0 rgba(140,20,70,.3);
   transition:transform .1s steps(2,end)}
 .wfx-chip:active{transform:translateY(3px)}
@@ -224,18 +235,31 @@ export const ASK_CSS = `
    excitement, but cute."
 
    Three layers, deliberately: the mood's own loop keeps running underneath, a
-   fidget vibrates on top at a speed the page sets from how long they have been
-   deliberating (--fid, .5s calm down to .18s frantic), and --lean tips the whole
-   body a single pixel cell after the pointer. Capped at one cell on purpose —
-   a smooth 12px slide in a pixel scene is what gives the illusion away, and
-   "cute" and "seizure" are about four pixels apart. */
-.wfc-eager{will-change:transform}
-.wfc-eager .wfc-lean{transform:translate(var(--lean,0),var(--liftv,0))}
-.wfc-eager{animation:wfcEager var(--fid,.4s) steps(2,end) infinite}
+   fidget vibrates on top at a speed set by how long they have been deliberating,
+   and the lean tips the whole body a single pixel cell after the pointer. Capped
+   at one cell on purpose — a smooth 12px slide in a pixel scene is what gives
+   the illusion away, and "cute" and "seizure" are about four pixels apart.
+
+   THE JUMPING LIVED HERE. The duration used to come from a custom property the
+   page rewrote every 900ms, and the lean was interpolated INSIDE the keyframes.
+   Both mutate a running animation, which the engine answers by restarting it —
+   so the cat snapped about thirteen times on the activity screen, which is what
+   the owner saw as "jumping all over the place".
+
+   Now: the lean is the standalone 'translate' property on the wrapper, which
+   composes with the animated 'transform' instead of being part of it, so a
+   pointer move is a composited nudge and touches no animation. The speed is
+   three static classes, so it changes at most twice — and the SVG underneath
+   keeps its own mood loop, which the old single-element version silently
+   overrode. */
+.wfc-lean{display:inline-flex;translate:var(--lean,0) var(--liftv,0)}
+.wfc-eager{will-change:transform;animation:wfcEager .44s steps(2,end) infinite}
+.wfc-fid2{animation-duration:.3s}
+.wfc-fid3{animation-duration:.2s}
 @keyframes wfcEager{
-  0%{transform:translate(calc(var(--lean,0px) - 1px),var(--liftv,0px))}
-  50%{transform:translate(calc(var(--lean,0px) + 1px),calc(var(--liftv,0px) - 2px))}
-  100%{transform:translate(calc(var(--lean,0px) - 1px),var(--liftv,0px))}}
+  0%{transform:translate(-1px,0)}
+  50%{transform:translate(1px,-2px)}
+  100%{transform:translate(-1px,0)}}
 
 /* THE HUG. They lean in, squeeze, and a heart pops between them — on a loop,
    because a hug that happens once is a picture. */

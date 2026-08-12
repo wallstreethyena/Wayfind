@@ -31,7 +31,18 @@ export const CAT_COLOR = {
 export const CAT_LABEL_COLOR = { Food: "#A8B3C4", Nightlife: "#F472B6", Activities: "#94A3B8", Beach: "#2DD4BF", Hotels: "#38BDF8", Shopping: "#22C55E" };
 export const SHEET_EASE = "transform .34s cubic-bezier(.22,.61,.36,1)";
 export const sheetBg = { position: "fixed", inset: 0, background: "rgba(0,0,0,.7)", zIndex: 900, display: "flex", alignItems: "flex-end", justifyContent: "center" };
-export const sheet = { background: C.panel, borderRadius: "20px 20px 0 0", width: "100%", maxWidth: 480, maxHeight: "92dvh", overflowY: "auto" };
+// overflowX IS LOAD-BEARING, not tidiness. This was `overflowY: "auto"` alone,
+// and CSS computes the other axis to `auto` the moment one axis is not
+// `visible` — so ONE child a few pixels too wide made the WHOLE sheet scroll
+// sideways. Owner-reported with a photo, 2026-08-12: a place detail where the
+// title read "y's Jamaican Grill" and both ends of the action row were off
+// screen, because the sheet had been dragged 60px left by a flex row whose
+// minimum widths did not fit a phone.
+//
+// Clipping is the structural backstop; the row itself is fixed where it lives
+// (sheets/Detail.js). Inner rails keep their own overflowX:auto and are
+// unaffected — a nested scroller is independent of its parent's clipping.
+export const sheet = { background: C.panel, borderRadius: "20px 20px 0 0", width: "100%", maxWidth: 480, maxHeight: "92dvh", overflowY: "auto", overflowX: "hidden" };
 export const EMOJIS = ["❤️","⭐","🍴","🍸","🏖️","✈️","🎉","☕","🏨","🛍️","🎯","🌮","🍜","🎸","🏞️","📍"];
 
 // ─── Design tokens (premium redesign, v5.55) ────────────────────────────────
