@@ -196,6 +196,34 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   ok(widths.size <= 3, `the grids are ragged: ${[...widths].join(",")} — every row of a sprite must be the same width or the drawing shears`);
 }
 
+// ── 7. THE SHARE FLOW ACTUALLY ASKS ────────────────────────────────────────
+// The invite is worth nothing if nothing generates the link. This pins the
+// entry point, and pins the two properties that make asking acceptable at all:
+// the plain share must still be one tap, and the invite must not demand a form.
+{
+  const si = readFileSync(path.join(REPO, "app/components/ShareIntent.js"), "utf8");
+  ok(/encodeInvite/.test(si) && /invitePath/.test(si),
+     "ShareIntent must build the link through lib/dateInvite.js rather than assembling a URL of its own");
+  ok(/onPlain/.test(si) && /onInvite/.test(si), "ShareIntent must offer BOTH paths");
+  ok(!/<input|<textarea/.test(si),
+     "the invite must not ask the sender to fill anything in — a form in front of a share is how a share stops happening");
+  const plainFirst = si.indexOf("onPlain && onPlain()");
+  const inviteFirst = si.indexOf("const invite =");
+  ok(plainFirst > 0 && inviteFirst > 0,
+     "ShareIntent lost one of its two actions");
+
+  const d = readFileSync(path.join(REPO, "app/components/sheets/Detail.js"), "utf8");
+  ok(/<ShareIntent/.test(d), "the place sheet must render the question");
+  ok(/setShareAsk\(true\)/.test(d), "the share button must open the question rather than sharing immediately");
+  ok(/onInvite=\{/.test(d) && /kind: "invite"/.test(d),
+     "the invite path must be wired and logged distinctly from a plain share, or we can never tell whether anyone uses it");
+  // The share sheet has to open inside the tap. Anything async in between
+  // consumes iOS's transient user activation and navigator.share() is refused —
+  // the defect already documented on shareLink() in app/home.js.
+  ok(!/setTimeout[^)]*onPlain|setTimeout[^)]*onInvite/.test(d),
+     "a timer between the tap and the share sheet will kill it on iOS");
+}
+
 if (fails.length) {
   console.error(`check-date-invite: FAIL — ${fails.length}/${n}`);
   for (const f of fails) console.error("  · " + f);
