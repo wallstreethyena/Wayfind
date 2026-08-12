@@ -128,8 +128,9 @@ export default function AskClient({ inv }) {
   const [activity, setActivity] = useState("");
   const [dayIso, setDayIso] = useState("");
   const [dayLabel, setDayLabel] = useState("");
-  // "" | "sent" | "copied" | "messages" | "failed" — what really happened.
+  // "" | "sent" | "copied" | "failed" — what really happened.
   const [sent, setSent] = useState("");
+
   // WHO IS ANSWERING. The sender may have asked several people, and a reply
   // reading 'Yes! Dinner out on Friday' tells them a date is happening without
   // telling them with whom. If the sender named them at share time we already
@@ -137,6 +138,39 @@ export default function AskClient({ inv }) {
   // between a yes and telling them is a place to lose the yes.
   const [who, setWho] = useState("");
   const [note, setNote] = useState("");
+
+  // MOVED BELOW THE STATE IT READS. This block sat above `who` and `note`, and
+  // a dependency array is evaluated DURING render — so it touched two consts
+  // in their temporal dead zone and threw a ReferenceError that took the whole
+  // page down the instant anyone pressed YES. Guards cannot see this; opening
+  // the page did.
+  // COMING BACK. The worst thing this page can do is lose a yes: they say yes,
+  // get distracted halfway through picking a night, come back, and are asked to
+  // go out with someone all over again from a blank screen. The progress is kept
+  // on THEIR device against this invite's key — nothing leaves the phone, and a
+  // different invite is a different key, so two invites never collide.
+  const memKey = inv && inv.key ? "wf_ask_" + inv.key : "";
+  useEffect(() => {
+    if (!memKey) return;
+    try {
+      const raw = window.localStorage.getItem(memKey);
+      if (!raw) return;
+      const m = JSON.parse(raw);
+      if (!m || typeof m !== "object") return;
+      // Never restore straight back into the celebration — it is a 2.6s frame
+      // that auto-advances, and landing on it cold is confusing.
+      if (m.step && m.step !== "ask" && m.step !== "yay") setStep(m.step);
+      if (m.activity) setActivity(m.activity);
+      if (m.dayIso) setDayIso(m.dayIso);
+      if (m.dayLabel) setDayLabel(m.dayLabel);
+      if (m.who) setWho(m.who);
+      if (m.note) setNote(m.note);
+    } catch (e) {}
+  }, [memKey]);
+  useEffect(() => {
+    if (!memKey || step === "ask") return;
+    try { window.localStorage.setItem(memKey, JSON.stringify({ step, activity, dayIso, dayLabel, who, note })); } catch (e) {}
+  }, [memKey, step, activity, dayIso, dayLabel, who, note]);
 
   // A share that lands here with no payload still works: it becomes a plain ask
   // rather than an error page. Someone forwarding the link to a third person is
@@ -160,6 +194,36 @@ export default function AskClient({ inv }) {
   // resolves when the message went, rejects with AbortError when they backed
   // out, and rejects otherwise when it failed — three different truths, told
   // three different ways.
+  // Fired from the button's real position so the hearts come out of the thing
+  // they pressed, not out of the middle of the screen.
+  const burst = (e) => {
+    if (typeof document === "undefined") return;
+    try {
+      if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const r = e.currentTarget.getBoundingClientRect();
+      const x = r.left + r.width / 2, y = r.top + r.height / 2;
+      const host = document.createElement("div");
+      host.className = "wfx-burst";
+      host.style.transform = "translate(" + x + "px," + y + "px)";
+      for (let i = 0; i < 14; i++) {
+        const a = (Math.PI * 2 * i) / 14 + (i % 2 ? 0.22 : 0);
+        const d = 90 + (i % 4) * 34;
+        const h = document.createElement("i");
+        h.style.setProperty("--dx", Math.round(Math.cos(a) * d) + "px");
+        h.style.setProperty("--dy", Math.round(Math.sin(a) * d - 40) + "px");
+        h.style.setProperty("--rot", (i % 2 ? 1 : -1) * (20 + i * 7) + "deg");
+        h.style.animationDelay = (i % 5) * 22 + "ms";
+        h.innerHTML = '<svg width="' + (12 + (i % 3) * 6) + '" height="' + (12 + (i % 3) * 6) + '" viewBox="0 0 10 6" shape-rendering="crispEdges">'
+          + '<rect x="2" y="0" width="2" height="1" fill="#FF4E96"/><rect x="6" y="0" width="2" height="1" fill="#FF4E96"/>'
+          + '<rect x="1" y="1" width="8" height="2" fill="#FF4E96"/><rect x="2" y="3" width="6" height="1" fill="#FF4E96"/>'
+          + '<rect x="3" y="4" width="4" height="1" fill="#FF4E96"/><rect x="4" y="5" width="2" height="1" fill="#FF4E96"/></svg>';
+        host.appendChild(h);
+      }
+      document.body.appendChild(host);
+      setTimeout(() => { try { host.remove(); } catch (er) {} }, 1100);
+    } catch (er) {}
+  };
+
   const replyText = () => yesText(inv, activity, dayLabel, { name: who, note });
 
   const copyIt = (text) => {
@@ -188,19 +252,13 @@ export default function AskClient({ inv }) {
     copyIt(text);
   };
 
-  // A DIRECT LINE TO MESSAGES. The invite arrived as a text, so the reply almost
-  // always wants to go back as one — and the share sheet makes them hunt for it.
-  // sms: opens the Messages app with the reply already written; they pick the
-  // thread. The separator is genuinely different per platform: iOS wants
-  // `sms:&body=`, everything else wants `sms:?body=`, and using the wrong one
-  // opens Messages with an empty draft.
-  const openMessages = () => {
-    const text = replyText();
-    const ua = (typeof navigator !== "undefined" && navigator.userAgent) || "";
-    const ios = /iPad|iPhone|iPod/.test(ua) || (/Macintosh/.test(ua) && typeof document !== "undefined" && "ontouchend" in document);
-    try { window.location.href = "sms:" + (ios ? "&" : "?") + "body=" + encodeURIComponent(text); } catch (e) { copyIt(text); }
-    setSent("messages");
-  };
+  // NO sms: ESCAPE HATCH. A previous pass added an "Open Messages instead"
+  // button, and the owner killed it on sight — correctly. This page spends five
+  // frames building something, and a raw sms: link throws the person out of it
+  // into a grey compose window mid-moment. The native share sheet already lists
+  // Messages, it appears OVER this page instead of replacing it, and it also
+  // covers the half of the world that answers in WhatsApp or Instagram. One
+  // button, one path.
 
   return (
     <div className="wfx">
@@ -215,7 +273,7 @@ export default function AskClient({ inv }) {
             {from ? <p className="wfx-sub">from {from}</p> : null}
             <div className="wfx-row">
               <button className="wfx-yes" style={{ "--s": yesScale(nos) }}
-                onClick={() => setStep("yay")}>YES</button>
+                onClick={(e) => { burst(e); setStep("yay"); }}>YES</button>
               <button className="wfx-no" style={{ "--n": noScale(nos) }}
                 onClick={() => setNos((n) => n + 1)}>No</button>
             </div>
@@ -291,11 +349,9 @@ export default function AskClient({ inv }) {
             <button className="wfx-go" onClick={tellThem}>
               {sent === "sent" ? "SENT ♥" : "TELL " + (from ? from.toUpperCase() : "THEM")}
             </button>
-            <button className="wfx-quiet" onClick={openMessages}>Open Messages instead</button>
             {sent ? (
               <p className="wfx-sub" role="status" aria-live="polite">
                 {sent === "sent" ? "Sent — they know." :
-                 sent === "messages" ? "Messages is open, with it written for you." :
                  sent === "copied" ? "Copied. Paste it into your chat with " + (from || "them") + "." :
                  "Could not send it — copy the plan above and text it to " + (from || "them") + "."}
               </p>
