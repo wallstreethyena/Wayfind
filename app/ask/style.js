@@ -166,6 +166,19 @@ export const ASK_CSS = `
 .wfx-mark{margin-top:22px;display:flex;align-items:center;justify-content:center;gap:8px;
   color:#FFF0F8;font-size:13px;letter-spacing:1.4px;text-shadow:0 2px 0 #7E1038}
 
+/* THE BURST. Pressing YES is the whole point of the page, and until now it was
+   the least eventful tap on it — the frame simply changed. Fourteen hearts fly
+   out of the button. It costs nothing, it lasts 700ms, and it is the moment
+   people screenshot. Each heart gets its angle and distance from a custom
+   property so one keyframe serves all of them. */
+.wfx-burst{position:fixed;left:0;top:0;width:0;height:0;z-index:99999;pointer-events:none}
+.wfx-burst i{position:absolute;left:0;top:0;display:block;
+  animation:wfxBurst .72s cubic-bezier(.16,.9,.36,1) forwards}
+@keyframes wfxBurst{
+  0%{transform:translate(-50%,-50%) rotate(0) scale(.4);opacity:0}
+  18%{opacity:1}
+  100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) rotate(var(--rot)) scale(1);opacity:0}}
+
 /* ── THE CAST ─────────────────────────────────────────────────────────────
    Fast and looping, per the owner. Sub-second cycles on purpose: at 1.5s a
    kawaii idle reads as a slow shrug, and this page has about two seconds to be
