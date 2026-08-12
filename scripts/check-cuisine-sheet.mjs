@@ -234,11 +234,22 @@ ok(/\.wf-eat-featured\{grid-template-columns:1fr 1fr\}/.test(sheet.replace(/\s+/
 ok(/columns:2/.test(sheet), "the index drops to 2 columns on mobile");
 
 // ── the tile swap ─────────────────────────────────────────────────────────
-ok(/eatMetro \? \["utensils", "Pick your mood", onEat\] : \["users", "Family favorites", onFamily\]/.test(home),
+// SUPERSEDED SHAPE, SAME DECISION (v7.18, owner 2026-08-12 one-word chip
+// rename): the visible labels are now "Cravings" / "Family". This assertion was
+// never about those two sentences — it is about the CONDITIONAL: the cuisine
+// chooser takes the slot when a sheet serves this location, and Family
+// favorites takes it back when one does not. Pinned on the ternary and its two
+// handlers, with the old sentences still required as the accessible names so a
+// screen reader (and the next reader of this file) keeps the full meaning.
+ok(/eatMetro \? \["utensils", "[^"]+", onEat, "Pick your mood[^"]*"\] : \["users", "[^"]+", onFamily, "Family favorites[^"]*"\]/.test(home),
   "the chooser replaces Family favorites in the quick-link grid, falling back to it when no sheet serves the location");
 ok(/cuisineMetroFor\(center\.lat, center\.lng\)/.test(home), "the metro comes from the app's persisted center");
 ok(/goIntent\("\/eat\/" \+ eatMetro\)/.test(home), "the tile routes to the metro's own sheet");
-ok(/tile: "Pick your mood", metro: eatMetro/.test(home), "the tap is instrumented with the metro");
+// The `tile` telemetry key deliberately KEPT its original string across the
+// v7.18 rename so the discovery_tile funnels do not split; the new visible word
+// rides along as `chip`. Assert both, so a future rename cannot quietly break
+// the dashboards this key feeds.
+ok(/tile: "Pick your mood", chip: "[^"]+", metro: eatMetro/.test(home), "the tap is instrumented with the metro, and keeps its original telemetry key across the one-word rename");
 
 // ── the resolver refuses to guess ─────────────────────────────────────────
 for (const [name, lat, lng, want] of [

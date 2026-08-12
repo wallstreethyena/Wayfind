@@ -454,7 +454,35 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
           (owner, live screenshot: "remove the button feel because it does
           not look good"). Back to the original transparent/flat tiles — the
           v6.90 halo + underline below remain the only idle/active affordance. */}
-      <div className={coach ? "wf-catrow is-coach" : "wf-catrow"} role="group" aria-label="Browse categories" style={{ display: "flex", gap: 4, paddingBottom: 2 }}>
+      {/* v7.18 (owner, 2026-08-12, THIRD time on this row): "the menu still does
+          not look like it can be clicked, it looks static… people don't know
+          those are buttons, I need it fixed."
+
+          v7.17 shipped the two WEAKEST affordance signals — a label and a
+          one-time sweep. Text gets skipped and motion is gone after a second.
+          A control reads as pressable when it has a bounded SURFACE, depth, or
+          a familiar convention; six white line-icons on flat black had none of
+          the three, which is the visual grammar of a legend, not a control.
+
+          The owner was shown four options built at real phone width against the
+          real background (pills / raised tiles / a pulsing glow behind the row /
+          this) and chose the SEGMENTED BAR: one grouped, raised control with
+          hairline dividers — the iOS segmented-control convention, which is the
+          "familiar convention" leg of the affordance test and the one thing the
+          previous three attempts never supplied.
+
+          This does NOT reopen v6.62 ("remove the button feel because it does not
+          look good"). v6.60's rejected shape was SIX separate button-looking
+          tiles; here the surface belongs to the ROW and the tiles stay flat
+          inside it, so nothing reads as six pills switched on at once. The idle
+          lettering is still the literal "#FFFFFF" check-design pins, and this is
+          not the bordered borderRadius:22 chip strip check-ux bans.
+
+          The pulsing-glow idea was built and shown too. It draws the eye to a
+          REGION, not to six buttons, permanent motion on the first screen reads
+          as an alert, and reduced-motion users would see nothing — so the glow
+          stays where it earns its keep: on the tile you actually press. */}
+      <div className={coach ? "wf-catrow is-coach" : "wf-catrow"} role="group" aria-label="Browse categories" style={{ display: "flex", gap: 0, padding: 4, borderRadius: 16, background: "linear-gradient(180deg,#111A27,#0B131E)", border: "1px solid #24303F", boxShadow: "inset 0 1px 0 rgba(255,255,255,.045), 0 10px 26px rgba(0,0,0,.42)" }}>
         {/* v6.90 — owner review of the category row asked for "anything you can
             do" to make it feel less flat. Two additive, guard-safe touches:
             (a) a soft circular halo behind the active icon (background only,
@@ -467,13 +495,23 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
             literal "#FFFFFF" check-design.mjs asserts (owner call
             2026-07-21) — untouched. */}
         {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
-          <button key={m.id} className="wf-cattile" onClick={() => tapCat(m.id, m.label)} aria-current={on ? "page" : undefined} style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 0, background: "transparent", border: "none", cursor: "pointer", flex: 1, minWidth: 0, WebkitTapHighlightColor: "transparent", transition: `opacity ${MOTION.base} ${MOTION.ease}` }}>
+          <button key={m.id} className={on ? "wf-cattile is-on" : "wf-cattile"} onClick={() => tapCat(m.id, m.label)} aria-current={on ? "page" : undefined} style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 2px 8px", borderRadius: 12, background: on ? "linear-gradient(180deg,rgba(249,115,22,.18),rgba(249,115,22,.06))" : "transparent", boxShadow: on ? "inset 0 0 0 1px rgba(249,115,22,.42)" : "none", border: "none", cursor: "pointer", flex: 1, minWidth: 0, WebkitTapHighlightColor: "transparent", transition: `background ${MOTION.base} ${MOTION.ease}, box-shadow ${MOTION.base} ${MOTION.ease}, transform .12s ${MOTION.ease}` }}>
             <span style={{ position: "relative", display: "grid", placeItems: "center" }}>
               {on && <span aria-hidden="true" style={{ position: "absolute", inset: -7, borderRadius: "50%", background: "radial-gradient(circle, rgba(249,115,22,.18) 0%, rgba(249,115,22,0) 72%)" }} />}
               <NavIcon name={m.id} color={on ? C.accent : "#FFFFFF"} size={31.2} strokeWidth={1.4} />
             </span>
-            <span style={{ fontSize: 13.2, fontWeight: on ? 700 : 500, color: on ? C.accent : "#FFFFFF", textAlign: "center", lineHeight: 1.15, letterSpacing: "0.25px" }}>{m.label}</span>
-            {on && <span aria-hidden="true" style={{ position: "absolute", left: "28%", right: "28%", bottom: 1, height: 2.5, borderRadius: 2, background: C.accent }} />}
+            {/* v7.18 — 13.2px/.25px tracking made "Night out" ~63px wide in a
+                ~57px column, so it wrapped to two lines and dragged the whole
+                row 20px taller. On flat black that just looked airy; inside a
+                bordered segmented bar it reads as a broken cell. 12.4px with
+                tighter tracking fits every one of the six labels on ONE line at
+                390px (measured, not estimated), which is what lets the bar hold
+                a single clean baseline. */}
+            <span style={{ fontSize: 12.4, fontWeight: on ? 700 : 500, color: on ? C.accent : "#FFFFFF", textAlign: "center", lineHeight: 1.15, letterSpacing: "0.05px", whiteSpace: "nowrap" }}>{m.label}</span>
+            {/* v7.18 — the v6.90 underline is GONE, not lost. Inside a segment
+                that is already tinted and ringed, a third active marker under
+                the label was one signal too many; the halo + the segment fill
+                carry the state now. */}
           </button>
         ); })}
         {trailing || null}
@@ -2877,9 +2915,33 @@ function DiscoveryMenu({ locName, onBest, onGems, onFamily, onMood, onTonight, o
         <div style={{ marginTop: 3, fontSize: 12, fontWeight: 600, lineHeight: 1.4, color: "#8C97A8" }}>Tap one and skip straight to a ready-made list near you.</div>
       </div>
       <div className="wf-discovery-grid" style={{ display: "flex", gap: 9, overflowX: "auto", scrollSnapType: "x proximity", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", paddingBottom: 4 }}>
+      {/* v7.18 (owner, 2026-08-12): "on the name of these buttons we have not
+          updated them — I need a witty, clever ONE WORD to describe what the
+          user will get."
+
+          Every old label named the MECHANISM ("Pick your mood", "What are you
+          feeling?", "Big fun, small budget"). Eight of those, all sentence
+          length, in a horizontal scroller is a wall of text you skim past — and
+          two of them ("Pick your mood" / "What are you feeling?") were close
+          enough to read as the same chip twice. One word each names the PAYOFF,
+          fits ~6 chips on screen at 390px instead of 3, and makes the rail
+          scannable in one pass. Owner picked this set from three.
+
+          THE FOURTH ELEMENT IS THE ARIA LABEL, not decoration. A one-word
+          visible label is thin for a screen reader ("Top" — top what?), so each
+          chip carries the full descriptive phrase as aria-label, including the
+          resolved city on the first one. That is also why `locName` is still a
+          prop: the personalisation moved from the visible label to the
+          accessible name, it was not dropped.
+
+          TELEMETRY IS DELIBERATELY UNCHANGED. logEvent still sends the ORIGINAL
+          `tile` strings so the existing discovery_tile funnels keep their
+          history across this rename; the new visible word rides along as
+          `chip`. Renaming the event key to match the UI would have silently
+          split every dashboard at this commit. */}
       {[
-        ["sparkles", "Best of " + (locName ? locName.split(",")[0] : "your area"), onBest],
-        ["gem", "Hidden gems", onGems],
+        ["sparkles", "Top", onBest, "Best of " + (locName ? locName.split(",")[0] : "your area")],
+        ["gem", "Hidden", onGems, "Hidden gems near you"],
         // v6.70 — the cuisine chooser replaces "Family favorites" here, per spec.
         // It falls back to Family favorites when no cuisine sheet serves this
         // location: the sheet exists only for the three metros with real food
@@ -2887,16 +2949,16 @@ function DiscoveryMenu({ locName, onBest, onGems, onFamily, onMood, onTonight, o
         // metro is at exactly 40, which is a seed). Routing a Miami user to
         // Orlando's chip list would show them counts for restaurants 200 miles
         // away — the same category of lie as widening a radius to pad a list.
-        eatMetro ? ["utensils", "Pick your mood", onEat] : ["users", "Family favorites", onFamily],
+        eatMetro ? ["utensils", "Cravings", onEat, "Pick your mood — food by craving"] : ["users", "Family", onFamily, "Family favorites near you"],
         // "What are you feeling?" lives here now instead of auto-opening over the
         // page. Date night is not lost: it is already a hero card on this very
         // screen (datenight_hero_open), so the menu slot was doubling up while
         // the mood sheet had no home but an interruption.
-        ["sparkles", "What are you feeling?", onMood],
-        ["ticket", "Perfect for tonight", onTonight],
-        ["car", "Worth the drive", onDrive],
-        ["wallet", "Big fun, small budget", onBudget],
-        ["dice", "Surprise me", onSurprise],
+        ["sparkles", "Mood", onMood, "What are you feeling? Pick a mood"],
+        ["ticket", "Tonight", onTonight, "Perfect for tonight"],
+        ["car", "Drive", onDrive, "Worth the drive"],
+        ["wallet", "Bargains", onBudget, "Big fun, small budget"],
+        ["dice", "Surprise", onSurprise, "Surprise me"],
   // v6.65 (owner, 2026-08-08: "i asked for image one menu to be
   // combined with image 2 — i want it to be the same style as image 2").
   // Image 2 is BestNearby's mood row ("Right now / Date night / Family /
@@ -2915,8 +2977,8 @@ function DiscoveryMenu({ locName, onBest, onGems, onFamily, onMood, onTonight, o
   // The gradient stays reserved for SELECTED state on the mood row,
   // which is the one thing that must not become ambient: eight tiles
   // wearing the active treatment would read as eight things switched on.
-      ].map(([ic, lbl, go]) => (
-        <button className="wf-discovery-link" key={lbl} onClick={go} style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", minHeight: 40, padding: "0 16px", borderRadius: 11, background: "#121A23", border: "1px solid rgba(203,213,225,.14)", color: "#C9D4DF", fontSize: 13.5, fontWeight: 700, whiteSpace: "nowrap", cursor: "pointer", scrollSnapAlign: "start" }}>
+      ].map(([ic, lbl, go, full]) => (
+        <button className="wf-discovery-link" key={lbl} onClick={go} aria-label={full || lbl} title={full || lbl} style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", minHeight: 40, padding: "0 16px", borderRadius: 11, background: "#121A23", border: "1px solid rgba(203,213,225,.14)", color: "#C9D4DF", fontSize: 13.5, fontWeight: 700, whiteSpace: "nowrap", cursor: "pointer", scrollSnapAlign: "start" }}>
           {lbl}
         </button>
       ))}
@@ -8818,16 +8880,16 @@ function PageInner({ initialEvents = null }) {
           const discoveryMenu = (
             <DiscoveryMenu
               locName={locName}
-              onBest={() => { try { logEvent("discovery_tile", null, { tile: "Best of " + (locName ? locName.split(",")[0] : "your area") }); } catch (e) {} goIntent("/best-of"); }}
-              onGems={() => { try { logEvent("discovery_tile", null, { tile: "Hidden gems" }); } catch (e) {} goIntent("/hidden-gems"); }}
-              onFamily={() => { try { logEvent("discovery_tile", null, { tile: "Family favorites" }); } catch (e) {} goIntent("/family"); }}
+              onBest={() => { try { logEvent("discovery_tile", null, { tile: "Best of " + (locName ? locName.split(",")[0] : "your area"), chip: "Top" }); } catch (e) {} goIntent("/best-of"); }}
+              onGems={() => { try { logEvent("discovery_tile", null, { tile: "Hidden gems", chip: "Hidden" }); } catch (e) {} goIntent("/hidden-gems"); }}
+              onFamily={() => { try { logEvent("discovery_tile", null, { tile: "Family favorites", chip: "Family" }); } catch (e) {} goIntent("/family"); }}
               eatMetro={eatMetro}
-              onEat={() => { try { logEvent("discovery_tile", null, { tile: "Pick your mood", metro: eatMetro }); } catch (e) {} goIntent("/eat/" + eatMetro); }}
-              onMood={() => { try { logEvent("discovery_tile", null, { tile: "What are you feeling?" }); } catch (e) {} setIntroSel([]); introTriggerRef.current = { trigger: "menu", visible_ms: null, attempt: 0 }; setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "discovery_menu" }); } catch (e) {} }}
-              onTonight={() => { try { logEvent("discovery_tile", null, { tile: "Perfect for tonight" }); } catch (e) {} goIntent("/tonight"); }}
-              onDrive={() => { try { logEvent("discovery_tile", null, { tile: "Worth the drive" }); } catch (e) {} goIntent("/worth-the-drive"); }}
-              onBudget={() => { try { logEvent("discovery_tile", null, { tile: "Big fun, small budget" }); } catch (e) {} goIntent("/budget"); }}
-              onSurprise={() => { try { logEvent("discovery_tile", null, { tile: "Surprise me" }); } catch (e) {} setMenuSheet("pick"); }}
+              onEat={() => { try { logEvent("discovery_tile", null, { tile: "Pick your mood", chip: "Cravings", metro: eatMetro }); } catch (e) {} goIntent("/eat/" + eatMetro); }}
+              onMood={() => { try { logEvent("discovery_tile", null, { tile: "What are you feeling?", chip: "Mood" }); } catch (e) {} setIntroSel([]); introTriggerRef.current = { trigger: "menu", visible_ms: null, attempt: 0 }; setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "discovery_menu" }); } catch (e) {} }}
+              onTonight={() => { try { logEvent("discovery_tile", null, { tile: "Perfect for tonight", chip: "Tonight" }); } catch (e) {} goIntent("/tonight"); }}
+              onDrive={() => { try { logEvent("discovery_tile", null, { tile: "Worth the drive", chip: "Drive" }); } catch (e) {} goIntent("/worth-the-drive"); }}
+              onBudget={() => { try { logEvent("discovery_tile", null, { tile: "Big fun, small budget", chip: "Bargains" }); } catch (e) {} goIntent("/budget"); }}
+              onSurprise={() => { try { logEvent("discovery_tile", null, { tile: "Surprise me", chip: "Surprise" }); } catch (e) {} setMenuSheet("pick"); }}
             />
           );
           return (

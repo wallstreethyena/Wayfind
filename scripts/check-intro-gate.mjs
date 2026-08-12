@@ -229,7 +229,12 @@ const WINDOW = OPEN_AT > -1 ? home.slice(Math.max(0, OPEN_AT - 600), OPEN_AT) : 
 // exact failure mode this file was written to avoid, one level up.
 ok(/onMood=\{\s*\(\)\s*=>/.test(WINDOW) || /onClick=\{/.test(WINDOW),
   "B: the only setIntroOpen(true) must sit in a user-gesture handler (the menu's onMood arrow), not a timer or an effect");
-ok(/\]\.map\(\(\[ic, lbl, go\]\)[\s\S]{0,400}?onClick=\{go\}/.test(home),
+// v7.18: the tuple gained a 4th element (the accessible name), so the
+// destructure is now [ic, lbl, go, full]. The claim is unchanged and is about
+// the HANDLER BINDING, not the arity — a row that fires on anything other than
+// a click is how setIntroOpen escapes a user gesture. Matched on the leading
+// elements so adding a 5th field later cannot fail this either.
+ok(/\]\.map\(\(\[ic, lbl, go[^\]]*\]\)[\s\S]{0,400}?onClick=\{go\}/.test(home),
   "B: the discovery menu must render its rows as onClick — otherwise onMood is never a gesture");
 ok(!/useEffect\(/.test(WINDOW.slice(-400)),
   "B: setIntroOpen(true) must not be reachable from inside a useEffect — that is an auto-open by another name");
@@ -250,8 +255,14 @@ ok(!/get\(\s*["']intro["']\s*\)/.test(rawHome),
  * repo has shipped that exact bug (MenuSheet's five dead sub-states). The
  * sheet moved, so prove the new door exists and is user-visible.
  */
-ok(/"What are you feeling\?", onMood/.test(rawHome),
-  "C: the discovery menu must carry the mood row");
+// v7.18: the chip's visible label is now the one-word "Mood" (owner rename), so
+// pinning the sentence as the LABEL would fail on a change that did not touch
+// the door at all. The door is `onMood` being wired to a chip in that array;
+// the sentence survives as the chip's accessible name, which this still
+// requires — so the assertion now proves both reachability AND that the sheet
+// is still announced by its real question.
+ok(/, onMood, "What are you feeling\?/.test(rawHome),
+  "C: the discovery menu must carry the mood row, and it must still announce itself as \"What are you feeling?\"");
 ok(!/"Date night ideas"/.test(rawHome),
   "C: the Date night ideas row must be gone — it duplicated the date-night hero slide on the same screen");
 ok(/onMood=\{/.test(home),
