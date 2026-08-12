@@ -54,6 +54,31 @@ const outdoorish = (r) => { const v = venueLean(r); return v.water || v.lean ===
   ok(venueLean(P("Ca' d'Zan", "museum")).lean === "indoor",
     "…it is INDOOR, not merely 'not outdoor' — the indoor read is what earns the bad-weather boost in weatherFit");
 
+  // ── v7.26: the RAINY-DAY TYPES, and why they are the expensive ones ──────
+  // Found by diffing this classifier against 80 real DB rows before and after
+  // v7.22, not by reading it. `amusement` was a SUBSTRING in the outdoor list
+  // and it caught `amusement_center` — the arcade / escape-room / family-
+  // entertainment type. So "The Great Escape Room St Pete" and "Dare 2 Escape"
+  // were SUPPRESSED on a thunderstorm day, which is the exact moment they are
+  // the best answer this app has. The mirror error rode along: `roller_coaster`
+  // matched nothing and an outdoor coaster survived the same storm.
+  //
+  // These get their own block because they are the types a reader wants
+  // BECAUSE the weather is bad, so an error here costs twice — the right answer
+  // is deleted and the wrong one is kept.
+  ok(!outdoorish(P("The Great Escape Room St Pete", "amusement_center")),
+    "an ESCAPE ROOM is not outdoor — it is the canonical rainy-afternoon answer");
+  ok(venueLean(P("Dare 2 Escape", "amusement_center")).lean === "indoor",
+    "…and it reads INDOOR, so weatherFit boosts it when the gate shuts rather than merely sparing it");
+  ok(venueLean(P("AMF Bowling", "bowling_alley")).lean === "indoor", "…as does a bowling alley");
+  ok(outdoorish(P("Mako", "roller_coaster")), "a roller coaster IS outdoor — it matched nothing before");
+  ok(outdoorish({ name: "Magic Kingdom Park", types: ["amusement_park", "theme_park"] }),
+    "…and a THEME PARK is still outdoor: the fix must separate amusement_center from amusement_park, not delete the token");
+  ok(venueLean({ name: "Adventure Island", types: ["water_park"] }).water === true,
+    "…and a water park is still water");
+  ok(!outdoorish(P("Terra Siesta Co-Op", "mobile_home_park")) && !outdoorish(P("Fisherman's Cove RV Resort", "rv_park")),
+    "lodging is not an outing — `mobile_home_park` and `rv_park` both substring-matched `park` and read as outdoor recreation");
+
   // A name with no keyword and no type is still allowed through: absence of
   // evidence is not evidence of outdoors. This is the fail-open half.
   ok(!outdoorish({ name: "Somewhere Unknown", category: "attractions", primary_type: null }),
