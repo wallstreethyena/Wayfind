@@ -874,6 +874,48 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
      "the share card's mark changed without the map's — one shape, two surfaces, or it is not a brand");
 }
 
+// ── 7i. THE MAP'S MISSING IMAGERY ─────────────────────────────────────────
+// Owner, with a screenshot of a map card reading "RP" where a photo should be:
+// "some places with no images."
+//
+// Not a map-specific bug in the photo lookup — IconicPlaceCard resolves imagery
+// exactly the way the home cards do. The asymmetry was the HEALING: owned
+// inventory rows arrive with no photo when they carry no photo_ref, home's
+// rails repair that at runtime through useMissingPlacePhotos, and the map
+// screen was never a caller. It bit the map hardest because opening the Map tab
+// forces `attractions`, the most inventory-served category of them all.
+{
+  const map = stripComments(readFileSync(path.join(REPO, "app/components/screens/Map.js"), "utf8"));
+  ok(/useMissingPlacePhotos\(/.test(map),
+     "the map screen no longer heals missing imagery, so an inventory row with no photo_ref renders as a monogram");
+  // Gated, not sprayed: healing all sixty pins would undo the load-time work.
+  ok(/view\.slice\(0, 12\)/.test(map) && /mapDrawer &&/.test(map),
+     "the heal is not gated to what is on screen — sixty places would turn opening the map into a request burst");
+  ok(/mapMode === "places"/.test(map.slice(map.indexOf("useMissingPlacePhotos("), map.indexOf("useMissingPlacePhotos(") + 220)),
+     "the heal runs in events mode too, where there are no place cards to heal");
+
+  // THE TRAP. The two cards on this screen read DIFFERENT fields —
+  // IconicPlaceCard takes `photoRef` and builds the URL itself, PlaceCard takes
+  // `photo`, an already-built URL. Filling one heals one surface and looks
+  // finished. Both call sites must go through the same helper, and that helper
+  // must set both.
+  const helper = map.slice(map.indexOf("const withPhoto ="), map.indexOf("const withPhoto =") + 420);
+  ok(helper.length > 80, "withPhoto moved or was renamed — this section asserts nothing");
+  ok(/photoRef: ref/.test(helper) && /photo: url/.test(helper),
+     "withPhoto fills only one of the two fields the map's two card types read, so one surface stays a monogram");
+  ok(/place=\{withPhoto\(mp\)\}/.test(map), "the pin-tap card does not go through the heal");
+  ok(/p=\{withPhoto\(p\)\}/.test(map), "the drawer rows do not go through the heal");
+
+  // A place that already has imagery must come back BY IDENTITY, or every row
+  // re-renders on every pass for nothing.
+  const { tbPhotoUrl: tb } = await import("../lib/todaysBest.js");
+  const { hasPlacePhotoRef: hasRef } = await import("../lib/placePhoto.js");
+  const REF = "places/ChIJN1t_tDeuEmsRUsoyG83frY4/photos/AelY_Cs9Xq2b";
+  ok(hasRef(REF) && tb(REF, 480) !== null,
+     "the two modules disagree about what a photo ref looks like — a healed ref would be accepted by one card and dropped by the other");
+  ok(tb("not-a-ref", 480) === null, "tbPhotoUrl accepts a malformed ref, so a junk lookup would render a broken image");
+}
+
 // ── 8. THE SEND SAYS SOMETHING, PROVEN BY DRIVING IT ───────────────────────
 // Owner, 2026-08-12: "i hit send invite and nothing happens."
 //
