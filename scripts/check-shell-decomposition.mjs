@@ -59,7 +59,7 @@ for (const sym of ["function inCuratedRegion(", "function faveTier(", "function 
 
 // 5) The data itself is still reachable through the shell grep, which is the whole
 // point of registering the file. One representative row from each moved constant.
-for (const [needle, what] of [["Selva Grill", "BEST_OF_NAMES"], ["Se7en Bites", "LOCAL_FAVE_EXTRA"], ["wf-parcsoleil-1.jpg", "WAYFIND_PHOTOS"], ["boggy creek airboat", "WAYFIND_NOTES"], ["\"gatorland\": 12", "WAYFIND_FEATURED"], ["hiltonorlando: {", "CURATED_NOTES"]]) {
+for (const [needle, what] of [["Selva Grill", "BEST_OF_NAMES"], ["Se7en Bites", "LOCAL_FAVE_EXTRA"], ["wf-parcsoleil-1", "WAYFIND_PHOTOS"], ["boggy creek airboat", "WAYFIND_NOTES"], ["\"gatorland\": 12", "WAYFIND_FEATURED"], ["hiltonorlando: {", "CURATED_NOTES"]]) {
   ok(src.includes(needle), `${what} is still visible to shell-wide greps (looked for ${JSON.stringify(needle)})`);
 }
 

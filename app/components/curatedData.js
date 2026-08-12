@@ -46,7 +46,10 @@ export const K_BOB_NOTE = [
 // Owner-shot photos (Gabe's own, licensing clean). Keys are lowercase name
 // fragments matched with includes(); photos prepend to the Google gallery.
 export const WAYFIND_PHOTOS = {
-  "parc soleil": ["/wf-parcsoleil-1.jpg", "/wf-parcsoleil-2.jpg", "/wf-parcsoleil-3.jpg"],
+  // v7.29 PERF — 1.09MB of owner-shot JPEGs became 424KB of WebP at the width
+  // the gallery actually paints. WAYFIND_PHOTOS feeds bare <img src> strings, so
+  // there is no <picture> to fall back from and WebP is the safe format here.
+  "parc soleil": ["/opt/wf-parcsoleil-1-1000.webp", "/opt/wf-parcsoleil-2-1000.webp", "/opt/wf-parcsoleil-3-1000.webp"],
 };
 export const WAYFIND_NOTES = {
   "boggy creek airboat": [

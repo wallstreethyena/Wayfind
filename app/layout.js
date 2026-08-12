@@ -3,6 +3,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { fontVariables } from "./fonts";
 import { SITE_URL } from "../lib/site";
 import { GUIDES } from "../lib/guides";
+import { RAILS_COLLAPSED_KEY, RAILS_COLLAPSED_ATTR, DEFAULT_COLLAPSED_RAILS, DEFAULT_COLLAPSED_RAILS_DESKTOP, RAILS_DESKTOP_MQ } from "../lib/railCollapse";
 import { CULTURE } from "../lib/culture";
 import PostHogProvider from "./components/PostHogProvider";
 import SentryClient from "./components/SentryClient";
@@ -141,7 +142,16 @@ export default function RootLayout({ children }) {
             Blocking on purpose — it must run before the first paint, and it is
             a small attribute-setting script with no network. lib/railCollapse.js
             keeps the attribute in sync from then on. */}
-        <script dangerouslySetInnerHTML={{ __html: "(function(){try{var r=localStorage.getItem('wf_rails_collapsed');var v=r?JSON.parse(r):['best','eat','quickbite','todo','gems','creators','tonight','drive','budget','events','trends'];if(!Array.isArray(v))return;var out=[];for(var i=0;i<v.length;i++){var s=typeof v[i]==='string'?v[i].trim():'';if(s&&s.length<=40&&out.indexOf(s)===-1)out.push(s)}if(out.length)document.documentElement.setAttribute('data-wf-rails',out.join(' '));else document.documentElement.removeAttribute('data-wf-rails')}catch(e){}})();" }} />
+        {/* v7.29 — INTERPOLATED FROM lib/railCollapse.js, not retyped. The two
+            default lists and the storage key used to be hand-copied into this
+            string, and check-home-answer-first existed to notice when the copy
+            drifted from the original. Reading the constants makes the drift
+            impossible instead of detectable, and that guard now asserts this
+            script REFERENCES them rather than string-matching a literal.
+            The desktop branch is decided by matchMedia here, before paint, at
+            the true width — never by JS state after mount, which is the
+            0.4938-CLS pattern app/components/css.js opens with. */}
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var r=localStorage.getItem('${RAILS_COLLAPSED_KEY}');var d=${JSON.stringify(DEFAULT_COLLAPSED_RAILS)};var w=${JSON.stringify(DEFAULT_COLLAPSED_RAILS_DESKTOP)};var v=r?JSON.parse(r):((window.matchMedia&&window.matchMedia('${RAILS_DESKTOP_MQ}').matches)?w:d);if(!Array.isArray(v))v=d;var out=[];for(var i=0;i<v.length;i++){var s=typeof v[i]==='string'?v[i].trim():'';if(s&&s.length<=40&&out.indexOf(s)===-1)out.push(s)}document.documentElement.setAttribute('${RAILS_COLLAPSED_ATTR}',out.join(' '))}catch(e){}})();` }} />
         <script dangerouslySetInnerHTML={{ __html: "(function(){try{var c=null;try{var r=localStorage.getItem('wf_center');if(r){var o=JSON.parse(r);if(o&&isFinite(o.lat)&&isFinite(o.lng))c={lat:o.lat,lng:o.lng,loc:o.loc||''}}}catch(e){}if(!c)c={lat:27.5689,lng:-82.4393,loc:'Parrish, FL'};window.__wfEvPrime={lat:c.lat,lng:c.lng,p:fetch('/api/events?lat='+c.lat.toFixed(2)+'&lng='+c.lng.toFixed(2)+'&radius=25&city='+encodeURIComponent(c.loc||'')).then(function(r){return r.ok?r.json():null}).then(function(d){try{if(d&&d.events){for(var i=0;i<d.events.length;i++){var im=d.events[i]&&d.events[i].image;if(im){var pi=new Image();pi.fetchPriority='high';pi.src=im;break}}}}catch(e){}return d}).catch(function(){return null})}}catch(e){}})();" }} />
         {/* Sentry early-error buffer (<1KB, first-party inline — CSP script-src
             'self' 'unsafe-inline'). Captures errors that fire BEFORE the lazy

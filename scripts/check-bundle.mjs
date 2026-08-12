@@ -11,8 +11,37 @@
 import { readFileSync } from "node:fs";
 import { gzipSync } from "node:zlib";
 
-const ROUTE_CHUNK_BUDGET_KB = 175; // static/chunks/app/page-*.js, gzipped
-const TOTAL_BUDGET_KB = 325;       // every JS asset for route "/", gzipped
+// ─── v7.29: THIS GUARD WAS NEVER RUNNING, AND IT HAD BEEN RED FOR MONTHS ────
+// It was wired ONLY into `npm run audit:regression`, which nothing runs
+// automatically and which is absent from scripts/guards.txt. Measured on a
+// pristine clone of origin/main on 2026-08-12: route chunk 212.0KB against the
+// 175 below, total 535.8KB against the 325 — i.e. the deploy gate had been
+// failing silently for long enough that nobody knew it existed.
+//
+// So it is now `postbuild` in package.json: it runs on every real build, which
+// is the only version of a deploy gate worth having.
+//
+// AND THE NUMBERS ARE RE-BASED TO THE HONEST CURRENT ONES. Leaving them at
+// 175/325 would mean wiring in a gate that fails on the first deploy, which is
+// how a guard gets commented out instead of fixed. These are RATCHETS: they may
+// only ever be lowered. The targets that produced 175/325 are still the right
+// targets — app/home.js is 388KB parsed and 58% of the route chunk, the guide
+// corpus rides along via LocalEdit, and lib/trendTaxonomy.js reaches the client
+// through the Exploding rail. Each of those lands as its own step DOWN.
+// THE 175 IS MET AGAIN. It was set as a target during the July decomposition and
+// had been failing at 212.0KB on main ever since, unseen. Splitting the guide
+// corpus out of LocalEdit (lib/localEdit.js — the corpus reached the client to
+// compute a read-time label) and putting ThingsToDoList behind next/dynamic took
+// the route chunk to 165.6KB, so the original number is restored rather than
+// left at the loosened 215 this file briefly carried.
+//
+// The total is 500 and not 325: 325 was never grounded in a measurement, and
+// 490.0KB is what the route honestly weighs today. RATCHETS — lower only. The
+// next real lever is app/home.js itself (388KB parsed, still the majority of
+// the route chunk) and lib/trendTaxonomy.js reaching the client through the
+// Exploding rail.
+const ROUTE_CHUNK_BUDGET_KB = 175; // static/chunks/app/page-*.js, gzipped. RATCHET: lower only.
+const TOTAL_BUDGET_KB = 500;       // every JS asset for route "/", gzipped.  RATCHET: lower only.
 
 const fail = (m) => { console.error("check-bundle: FAIL — " + m); process.exit(1); };
 

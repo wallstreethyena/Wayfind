@@ -54,7 +54,13 @@ const S = {
 // the same category error as /hidden-gems once rendering date-night.jpg,
 // but silent, because a fallback looks deliberate. This is the app's own
 // default hero, already the neutral choice in home.js and for /nearby.
-export const NEUTRAL_HERO = "/brand/wayfind-default-hero-adobestock-289023289.jpeg";
+// v7.29 PERF — the WebP derivative, not the 473KB original. This is the LCP
+// element on this route too, and it is full-bleed, so the 1600px candidate is
+// the same pixels the JPEG delivered at 31%% of the bytes (473KB -> 144.8KB).
+// WebP and not AVIF because this is a bare <img src> with no <picture> to fall
+// back from, and WebP is the format every browser we support can decode.
+// Built by scripts/build-brand-derivatives.mjs.
+export const NEUTRAL_HERO = "/brand/opt/hero-1600.webp";
 
 const CULTURE_HERO = {
   orlando: "/brand/orlando-night-wheel-portrait.jpg",
