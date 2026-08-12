@@ -27,7 +27,22 @@ ok(others.length >= 2, `home.js renders ${others.length} CategoryMenu call sites
 ok(others.every((t) => !/\bcompact\b/.test(t)), "a home.js call site opted into the compact layout — that reshapes the home feed");
 
 // ── the shared render the other three screens depend on is untouched ──────
-ok((home.match(/on \? C\.accent : "#FFFFFF"/g) || []).length >= 2, "the shared tiles lost their #FFFFFF idle lettering on the icon or the label (check-design owns this too)");
+// SUPERSEDED SHAPE, SAME DECISION (v7.20, owner 2026-08-12: "i actually like the
+// pills better… can we make it the same style as this as far as height and
+// color", pointing at the Shortcuts row). The shared row's resting lettering
+// moved from the literal "#FFFFFF" to the shared CHIP.text (#C9D4DF) so the two
+// home rows are one style by construction; check-design owns that rule and now
+// asserts it structurally.
+//
+// What THIS file protects is unchanged, and is re-pointed at it: (a) the glyph
+// and the word must share ONE resting colour — a row where the icon and the
+// label disagree is exactly the drift this line caught before — and (b) the
+// compact MAP branch must keep its own #FFFFFF, which is the real claim in this
+// section: the two branches have not leaked into each other.
+ok(/color=\{on \? "#0B0F14" : CHIP\.text\}/.test(home) && /color: on \? "#0B0F14" : CHIP\.text/.test(home),
+   "the shared pill's icon and label must share ONE resting colour from the CHIP style (check-design owns which colour)");
+ok(/color=\{on \? "#0B0F14" : "#FFFFFF"\}/.test(home),
+   "the compact map branch lost its own #FFFFFF idle glyph — the shared home row must never reshape the map panel");
 ok(/CATEGORY_TILES\.map/.test(home), "the shared category tiles are gone");
 
 // ── the compact layout's own rules ───────────────────────────────────────

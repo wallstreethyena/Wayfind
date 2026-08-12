@@ -318,6 +318,27 @@ function mapfpArrowKeys(node) {
 //      branch below already owns the real tablist.
 const CAT_COACH_KEY = "wf_cat_menu_tapped";
 
+// v7.20 (owner, 2026-08-12, pointing at the Shortcuts row): "can we make it the
+// same style as this as far as height and color."
+//
+// ONE RESTING CHIP STYLE, SHARED BY CONSTRUCTION. Both rows used to carry their
+// own copy of these six values, which is exactly how two rows that are supposed
+// to look identical drift apart one tweak at a time — this file has already done
+// that twice (v6.62 "borrow its colour", v6.65 "matching the style means
+// matching it, not quoting it"). Now there is nothing to keep in sync.
+//
+// The ACTIVE treatment is deliberately NOT in here: the Shortcuts chips have no
+// selected state, so the orange inversion is the category row's own business.
+const CHIP = {
+  h: 40,
+  radius: 11,
+  bg: "#121A23",
+  border: "1px solid rgba(203,213,225,.14)",
+  text: "#C9D4DF",
+  size: 13.5,
+  weight: 700,
+};
+
 function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true, compact }) {
   const subs = showSubs && activeCat ? (SUBFILTERS[activeCat] || []) : [];
   // Hooks run BEFORE the compact early-return below — a conditional hook here
@@ -438,7 +459,7 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
           <span className={coach ? "wf-catlead-hint is-coach" : "wf-catlead-hint"} style={{ fontSize: 11.5, fontWeight: 700, color: coach ? "#FB923C" : "#8C97A8", whiteSpace: "nowrap" }}>Tap a category to see it near you ›</span>
         </div>
       )}
-      <div style={{ position: "relative" }}>
+      <div className={coach ? "wf-catwrap is-coach" : "wf-catwrap"} style={{ position: "relative" }}>
       {/* wf-catrow / wf-cattile (2026-08-07) exist ONLY so the wide-desktop
           tier in css.js can reach this row. There is no mobile rule for either
           class — at phone width the inline styles below are the whole story and
@@ -482,7 +503,7 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
           REGION, not to six buttons, permanent motion on the first screen reads
           as an alert, and reduced-motion users would see nothing — so the glow
           stays where it earns its keep: on the tile you actually press. */}
-      <div className={coach ? "wf-catrow is-coach" : "wf-catrow"} role="group" aria-label="Browse categories" style={{ display: "flex", gap: 0, padding: 4, borderRadius: 16, background: "linear-gradient(180deg,#111A27,#0B131E)", border: "1px solid #24303F", boxShadow: "inset 0 1px 0 rgba(255,255,255,.045), 0 10px 26px rgba(0,0,0,.42)" }}>
+      <div className="wf-catrow" role="group" aria-label="Browse categories" style={{ display: "flex", gap: 7, overflowX: "auto", scrollSnapType: "x proximity", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", padding: "2px 0 6px" }}>
         {/* v6.90 — owner review of the category row asked for "anything you can
             do" to make it feel less flat. Two additive, guard-safe touches:
             (a) a soft circular halo behind the active icon (background only,
@@ -495,19 +516,9 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
             literal "#FFFFFF" check-design.mjs asserts (owner call
             2026-07-21) — untouched. */}
         {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
-          <button key={m.id} className={on ? "wf-cattile is-on" : "wf-cattile"} onClick={() => tapCat(m.id, m.label)} aria-current={on ? "page" : undefined} style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 2px 8px", borderRadius: 12, background: on ? "linear-gradient(180deg,rgba(249,115,22,.18),rgba(249,115,22,.06))" : "transparent", boxShadow: on ? "inset 0 0 0 1px rgba(249,115,22,.42)" : "none", border: "none", cursor: "pointer", flex: 1, minWidth: 0, WebkitTapHighlightColor: "transparent", transition: `background ${MOTION.base} ${MOTION.ease}, box-shadow ${MOTION.base} ${MOTION.ease}, transform .12s ${MOTION.ease}` }}>
-            <span style={{ position: "relative", display: "grid", placeItems: "center" }}>
-              {on && <span aria-hidden="true" style={{ position: "absolute", inset: -7, borderRadius: "50%", background: "radial-gradient(circle, rgba(249,115,22,.18) 0%, rgba(249,115,22,0) 72%)" }} />}
-              <NavIcon name={m.id} color={on ? C.accent : "#FFFFFF"} size={31.2} strokeWidth={1.4} />
-            </span>
-            {/* v7.18 — 13.2px/.25px tracking made "Night out" ~63px wide in a
-                ~57px column, so it wrapped to two lines and dragged the whole
-                row 20px taller. On flat black that just looked airy; inside a
-                bordered segmented bar it reads as a broken cell. 12.4px with
-                tighter tracking fits every one of the six labels on ONE line at
-                390px (measured, not estimated), which is what lets the bar hold
-                a single clean baseline. */}
-            <span style={{ fontSize: 12.4, fontWeight: on ? 700 : 500, color: on ? C.accent : "#FFFFFF", textAlign: "center", lineHeight: 1.15, letterSpacing: "0.05px", whiteSpace: "nowrap" }}>{m.label}</span>
+          <button key={m.id} className={on ? "wf-cattile is-on" : "wf-cattile"} onClick={() => tapCat(m.id, m.label)} aria-current={on ? "page" : undefined} style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 7, height: CHIP.h, padding: "0 14px", borderRadius: CHIP.radius, background: on ? C.accent : CHIP.bg, border: on ? `1px solid ${C.accent}` : CHIP.border, boxShadow: on ? "0 0 0 4px rgba(249,115,22,.15), 0 7px 18px rgba(249,115,22,.30)" : "none", cursor: "pointer", whiteSpace: "nowrap", scrollSnapAlign: "start", WebkitTapHighlightColor: "transparent", transition: `background ${MOTION.base} ${MOTION.ease}, border-color ${MOTION.base} ${MOTION.ease}, box-shadow ${MOTION.base} ${MOTION.ease}, transform .12s ${MOTION.ease}` }}>
+            <NavIcon name={m.id} color={on ? "#0B0F14" : CHIP.text} size={17} strokeWidth={1.7} />
+            <span style={{ fontSize: CHIP.size, fontWeight: on ? 850 : CHIP.weight, color: on ? "#0B0F14" : CHIP.text, lineHeight: 1, letterSpacing: "0.05px" }}>{m.label}</span>
             {/* v7.18 — the v6.90 underline is GONE, not lost. Inside a segment
                 that is already tinted and ringed, a third active marker under
                 the label was one signal too many; the halo + the segment fill
@@ -517,10 +528,19 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
         {trailing || null}
       </div>
       </div>
-      <div style={{ overflow: "hidden", maxHeight: (activeCat && subs.length > 1) ? 96 : 0, opacity: (activeCat && subs.length > 1) ? 1 : 0, transition: "max-height 0.34s cubic-bezier(.4,0,.2,1), opacity 0.26s ease" }}>
+      {/* v7.20 (owner, same message): "i want an animation for the submenu to
+          drop down from it." It used to only grow its max-height, which reads as
+          the page reflowing rather than as a menu opening. Now the tray SLIDES
+          down from under the pill row and fades in, and the sub-chips stagger in
+          behind it (26ms apart) so the eye is led across instead of the whole row
+          popping. Motion lives in css.js (.wf-subwrap / .wf-subchip) because a
+          keyframe and a prefers-reduced-motion escape hatch cannot be expressed
+          as a style object — and this one MUST have that hatch: it is the first
+          thing that moves after a deliberate tap. */}
+      <div className={(activeCat && subs.length > 1) ? "wf-subwrap is-open" : "wf-subwrap"}>
         <div style={{ borderTop: `1px solid ${C.border}`, marginTop: 12, paddingTop: 12, display: "flex", gap: 6, flexWrap: "nowrap", overflowX: "auto", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", paddingBottom: 2 }}>
-          {subs.map((sf) => { const son = sub === sf.id; return (
-            <button key={sf.id} onClick={() => { onSub(sf.id); }} style={{ flexShrink: 0, padding: "8px 11px 10px", border: "none", background: "transparent", color: son ? C.accent : "#A9B4C7", fontSize: 12.5, fontWeight: son ? 800 : 600, letterSpacing: "0.1px", cursor: "pointer", whiteSpace: "nowrap", position: "relative" }}>
+          {subs.map((sf, si) => { const son = sub === sf.id; return (
+            <button key={sf.id} className="wf-subchip" onClick={() => { onSub(sf.id); }} style={{ animationDelay: (si * 26) + "ms", flexShrink: 0, padding: "8px 11px 10px", border: "none", background: "transparent", color: son ? C.accent : "#A9B4C7", fontSize: 12.5, fontWeight: son ? 800 : 600, letterSpacing: "0.1px", cursor: "pointer", whiteSpace: "nowrap", position: "relative" }}>
               {sf.label}
               {son ? <span style={{ position: "absolute", left: 11, right: 11, bottom: 4, height: 2.5, borderRadius: 2, background: C.accent }} /> : null}
             </button>
@@ -2978,7 +2998,7 @@ function DiscoveryMenu({ locName, onBest, onGems, onFamily, onMood, onTonight, o
   // which is the one thing that must not become ambient: eight tiles
   // wearing the active treatment would read as eight things switched on.
       ].map(([ic, lbl, go, full]) => (
-        <button className="wf-discovery-link" key={lbl} onClick={go} aria-label={full || lbl} title={full || lbl} style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", minHeight: 40, padding: "0 16px", borderRadius: 11, background: "#121A23", border: "1px solid rgba(203,213,225,.14)", color: "#C9D4DF", fontSize: 13.5, fontWeight: 700, whiteSpace: "nowrap", cursor: "pointer", scrollSnapAlign: "start" }}>
+        <button className="wf-discovery-link" key={lbl} onClick={go} aria-label={full || lbl} title={full || lbl} style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", minHeight: CHIP.h, padding: "0 16px", borderRadius: CHIP.radius, background: CHIP.bg, border: CHIP.border, color: CHIP.text, fontSize: CHIP.size, fontWeight: CHIP.weight, whiteSpace: "nowrap", cursor: "pointer", scrollSnapAlign: "start" }}>
           {lbl}
         </button>
       ))}
