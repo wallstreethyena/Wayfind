@@ -240,7 +240,7 @@ function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logE
 
   if (primaryCta.type === DETAIL_CTA_TYPES.conditions) {
     return (
-      <a ref={ctaRef} href="#beach-conditions" onClick={(e) => { e.preventDefault(); try { document.getElementById("beach-conditions")?.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) {} onClick(); }} style={style}>
+      <a ref={ctaRef} href="#beach-conditions" onClick={(e) => { e.preventDefault(); try { document.getElementById("beach-conditions")?.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" }); } catch (e) {} onClick(); }} style={style}>
         <span>{primaryCta.label}</span><span aria-hidden="true">↗</span>
       </a>
     );
@@ -934,9 +934,9 @@ export default function DetailSheet({ ctx }) {
               {!detail._event && (
                 <button
                   onClick={() => {
-                    try { noteRef.current && noteRef.current.scrollIntoView({ behavior: "smooth", block: "center" }); } catch (e) {}
+                    try { noteRef.current && noteRef.current.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" }); } catch (e) {}
                     try { setCommentType("Review"); } catch (e) {}
-                    try { noteRef.current && noteRef.current.focus(); } catch (e) {}
+                    try { noteRef.current && noteRef.current.focus({ preventScroll: true }); } catch (e) {}
                     try { logEvent("review_prompt_tap", detail, {}); } catch (e) {}
                   }}
                   style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, width: "100%", marginBottom: 16, padding: "12px 14px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, cursor: "pointer", textAlign: "left" }}
@@ -1081,7 +1081,7 @@ export default function DetailSheet({ ctx }) {
                         <span style={{ fontSize: 9, fontWeight: 800, color: C.light, background: C.adim, border: `1px solid ${C.border}44`, borderRadius: 999, padding: "2px 8px", textTransform: "uppercase", letterSpacing: "0.4px" }}>{cp.type}</span>
                         {user && cp.user_id === user.id && (
                           <span style={{ marginLeft: "auto", display: "inline-flex", gap: 10 }}>
-                            <button onClick={() => { setCommentType(cp.type || "Tip"); if (noteRef.current) { noteRef.current.value = cp.body || ""; noteRef.current.focus(); } setNoteLen((cp.body || "").length); }} style={{ background: "transparent", border: "none", color: C.muted, fontSize: 10.5, fontWeight: 700, cursor: "pointer", padding: 0 }}>Edit</button>
+                            <button onClick={() => { setCommentType(cp.type || "Tip"); if (noteRef.current) { noteRef.current.value = cp.body || ""; noteRef.current.focus({ preventScroll: true }); } setNoteLen((cp.body || "").length); }} style={{ background: "transparent", border: "none", color: C.muted, fontSize: 10.5, fontWeight: 700, cursor: "pointer", padding: 0 }}>Edit</button>
                             {confirmDel ? (
                               <button onClick={handleDeleteComment} style={{ background: "transparent", border: "none", color: "#F26D6D", fontSize: 10.5, fontWeight: 800, cursor: "pointer", padding: 0 }}>Confirm delete</button>
                             ) : (

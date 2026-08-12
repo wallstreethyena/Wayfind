@@ -61,7 +61,7 @@ export async function listCardResponse(card, opts = {}) {
         {/* The live snapshot remains a data-led card. This subdued universal
             scene makes the share visually desirable without baking copy or a
             stale place photo into a versioned list. */}
-        <img src={(opts.assetOrigin || "https://www.gowayfind.com") + "/cards/nearby-v1.png"} width="1200" height="630" style={{ position: "absolute", inset: 0, width: "1200px", height: "630px", objectFit: "cover", opacity: 0.16 }} />
+        <img src={(opts.assetOrigin || "https://www.gowayfind.com") + null} width="1200" height="630" style={{ position: "absolute", inset: 0, width: "1200px", height: "630px", objectFit: "cover", opacity: 0.16 }} />
         <div style={{ position: "absolute", inset: 0, display: "flex", background: "linear-gradient(90deg, rgba(10,11,13,.96), rgba(10,11,13,.88) 55%, rgba(10,11,13,.96))" }} />
         <div style={{ position: "relative", display: "flex", flexDirection: "column", height: "100%" }}>
         <div style={{ display: "flex", flexShrink: 0, alignItems: "center", fontSize: 12, fontWeight: 700, letterSpacing: 2.3, color: MUTE }}>

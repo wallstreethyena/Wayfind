@@ -19,7 +19,7 @@ export const runtime = "edge";
 // duplication is exactly what made /hidden-gems unfurl a photo the page never
 // showed. It does not get a second chance (owner ruling, 2026-07-31).
 const SHARE_ONLY = {
-  trending: { eyebrow: "Trending near you", line1: "What is drawing people", promise: "The places getting the most attention right now.", accent: "#FF6B6B", art: "/cards/trending-near-you-adobestock-434128766.jpeg" },
+  trending: { eyebrow: "Trending near you", line1: "What is drawing people", promise: "The places getting the most attention right now.", accent: "#FF6B6B", art: null },
 };
 
 // The ONE lookup. Returns the card or null; null is a hard 404 below, never a

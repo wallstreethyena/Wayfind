@@ -62,7 +62,17 @@ ok(V2.focusFor("/cards/definitely-not-registered.jpg") === null,
   "an UNREGISTERED image must return null — a hardcoded 0.5 is what decapitated every subject in v1");
 ok(V2.focusFor(null) === null && V2.focusFor("") === null, "absent art returns null");
 const reg = Object.keys(V2.VERTICAL_FOCUS);
-ok(reg.length > 0, "at least one image is registered, or the registry is decoration");
+// SUPERSEDED 2026-08-12 (owner: "I want every image we have used for text share
+// deleted"). VERTICAL_FOCUS is now deliberately EMPTY — the share card renders
+// photo-free until the replacement design picks its art. Requiring a registered
+// image would fail the build for obeying that.
+//
+// The claim this line protected is unchanged and still holds below: there is NO
+// default crop, and anything registered must be real. What replaces the
+// non-empty requirement is the stronger invariant that an empty registry is
+// SAFE — focusFor returns null, which is the photo-less path.
+ok(V2.focusFor("/brand/orlando-roller-coaster-portrait.jpg") === null,
+  "with the registry emptied, even a previously-registered image must now return null — otherwise a stale focus could resurrect a photo on the share card");
 for (const k of reg) {
   ok(existsSync(path.resolve("public" + k)), `registered art ${k} must EXIST on disk — a registry of invented paths is the fabrication it exists to prevent`);
   const f = V2.VERTICAL_FOCUS[k];

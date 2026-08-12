@@ -355,6 +355,9 @@ node scripts/check-quick-bite-identity.mjs
 node scripts/check-map-search-area.mjs
 node scripts/test-map-render-smoke.mjs
 node scripts/check-rail-dots.mjs
+node scripts/check-awin-links.mjs
+node scripts/check-no-sideways-scroll.mjs
+node scripts/check-share-card-art.mjs
 node scripts/check-place-classification.mjs
 
 node scripts/check-candidate-pools.mjs

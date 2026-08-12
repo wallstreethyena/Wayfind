@@ -20,7 +20,16 @@ for (const f of FILES) {
 if (!refs.size) fail("no /cards/* share assets referenced — expected the owner card art wiring");
 
 // The two owner-designed finished cards must specifically be present.
-const REQUIRED = ["/cards/world-cup.png", "/cards/coupon-share.png"];
+// SUPERSEDED 2026-08-12 (owner: "I want every image we have used for text
+// share deleted"). /cards/world-cup.png was a SHARE-ONLY asset and is deleted
+// from the repo, so requiring a reference to it would fail the build for doing
+// exactly what was asked. /cards/coupon-share.png is NOT share-card art — it is
+// the coupon surface's own image and still ships, so the claim survives there.
+//
+// The deleted-asset half of this rule now lives in check-share-card-art.mjs,
+// which asserts the six removed files stay removed AND that no share/OG
+// renderer references a photo at all — a stronger property than naming one file.
+const REQUIRED = ["/cards/coupon-share.png"];
 for (const r of REQUIRED) if (!refs.has(r)) fail(`expected reference to ${r} was not found in code`);
 
 let checked = 0;

@@ -20,7 +20,7 @@ export async function GET(req) {
   const GOLD = "#E8C97A";
   try {
     if (!meta) throw new Error("unknown metro");
-    const img = SITE_URL + "/cards/beach-adobestock-216195684.jpeg";
+    const img = SITE_URL + null;
     return new ImageResponse(
       (
         <div style={{ width: 1200, height: 630, display: "flex", position: "relative", background: "#040810" }}>

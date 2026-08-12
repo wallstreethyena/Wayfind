@@ -414,6 +414,15 @@ export const WF_PLACE_CARD_CSS = `
   gap:10px;
   overflow-x:auto;
   overflow-y:hidden;
+  /* 2026-08-12 — SCROLL CHAINING IS THE OTHER HALF OF THE SIDEWAYS-SHIFT BUG.
+     Without this, a flick that runs past the last card does not stop at the
+     rail's edge: the momentum CHAINS to the ancestor, and on iOS the ancestor
+     that ends up moving is the viewport itself. The layout then sits shifted
+     with every element clipped by the same amount, which is what the owner
+     screenshotted. "contain" stops the gesture at the rail. (No backticks in
+     this comment — it lives inside a JS template literal.) Pinned by
+     scripts/check-no-sideways-scroll.mjs. */
+  overscroll-behavior-inline:contain;
   padding-bottom:4px;
   scroll-snap-type:x mandatory;
   -webkit-overflow-scrolling:touch;

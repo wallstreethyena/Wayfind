@@ -144,3 +144,27 @@ ok(placePartnerPick({ name: "Zoo Miami Gift Shop" }) === null,
 
 const registryIds = Object.keys(PARTNER_OFFER_REGISTRY).length;
 console.log(`check-partner-hook-collisions: OK — ${pass} assertions (${PLACE_PARTNER_PICKS.length} un-gated place hooks with ${aliasOwner.size} aliases, all resolved BY CALL; ${VENUE_OFFERS.length} geo-gated venues; ${multiMarket.length} multi-market brands proven separated by market; ${registryIds} registry destinations checked for host + placeholders)`);
+
+// ── TICKETNETWORK PATH LAW (added 2026-08-12) ─────────────────────────────
+// TicketNetwork serves TWO paths. `/venues/<slug>-tickets` is legacy and
+// STALE: on 2026-08-12 our wired Amalie Arena link returned a page titled
+// "Amalie Arena Tickets 2026" whose every listing row read "Benchmark
+// International Arena" — the venue had been renamed and the legacy record was
+// never updated. `/e/venues/...` is the live path.
+//
+// Worse, this vendor FUZZY-MATCHES an unrecognised slug to its nearest venue
+// and echoes the requested slug into <title> and <h1>. "The Sound at Coachman
+// Park" (Clearwater FL) rendered a perfect title over Del Mar, CALIFORNIA
+// listings. A link can therefore look right in every automated check and still
+// sell a venue 2,500 miles away.
+//
+// So: no TicketNetwork destination may ship on the legacy path, and every one
+// that ships must have been verified against the LISTING ROWS, not the title.
+{
+  const reg = (await import("node:fs")).readFileSync(new URL("../lib/partnerOfferRegistry.js", import.meta.url), "utf8");
+  const legacy = [...reg.matchAll(/"([a-z0-9-]+)": offer\("ticketnetwork", "https:\/\/www\.ticketnetwork\.com\/venues\//g)].map((m) => m[1]);
+  if (legacy.length) {
+    console.error("check-partner-hook-collisions: FAIL — TicketNetwork offers on the STALE legacy path (use /e/venues/, and verify against the listing rows not the title): " + legacy.join(", "));
+    process.exit(1);
+  }
+}
