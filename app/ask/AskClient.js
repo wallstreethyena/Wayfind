@@ -32,28 +32,55 @@ const DAYS = ["S", "M", "T", "W", "T", "F", "S"];
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July",
   "August", "September", "October", "November", "December"];
 
+// The world: a dithered magenta sky, three banks of stepped pixel cloud, a
+// skyline on the horizon, sparkles and floating hearts. Not one image — the
+// owner's note was "no AI generated image, it looks fake", and a scene built
+// from boxes is also what lets this page paint instantly in a text thread.
+//
+// Every position is FIXED, not random. A random scatter re-rolls on each render,
+// so the sparkles visibly jumped every time the person pressed No.
+const CLOUDS = [
+  // [class, left%, bottom%, width%, height, rows of the stepped silhouette]
+  ["wfx-sky3", -6, 46, 46, 3], ["wfx-sky3", 44, 52, 52, 3],
+  ["wfx-sky2", 8, 26, 44, 4], ["wfx-sky2", 56, 30, 50, 4],
+  ["wfx-sky1", -10, 8, 52, 5], ["wfx-sky1", 40, 4, 62, 5],
+];
+function Cloud({ cls, left, bottom, width, rows }) {
+  // A stepped mound: each row is narrower and higher than the one below it.
+  const bars = [];
+  for (let i = 0; i < rows; i++) {
+    const inset = i * 12;
+    bars.push(
+      <i key={i} style={{ left: inset + "%", right: inset + "%", bottom: (i * 9) + "px", height: "10px" }} />
+    );
+  }
+  return (
+    <div className={"wfx-cloud " + cls}
+      style={{ left: left + "%", bottom: bottom + "%", width: width + "%", height: (rows * 9 + 10) + "px" }}>
+      {bars}
+    </div>
+  );
+}
+
 function Decor() {
-  // Deterministic positions: a random scatter re-rolls on every re-render and
-  // the sparkles visibly jump every time the person taps No.
-  const sparkles = [[8, 14], [22, 62], [78, 20], [90, 54], [40, 8], [62, 78], [14, 84], [86, 88]];
-  const hearts = [[12, 5.2], [30, 7.8], [58, 6.4], [76, 9.1], [46, 11.5]];
+  const sparkles = [[7, 16], [24, 58], [80, 22], [91, 50], [42, 9], [64, 74], [13, 80], [88, 86]];
+  const hearts = [[14, 5.2], [32, 7.8], [60, 6.4], [78, 9.1], [47, 11.5]];
   return (
     <>
-      <div className="wfx-clouds" aria-hidden="true">
-        <div className="wfx-cloud wfx-c1" style={{ left: "-14%", bottom: "-16%", width: "62%", height: "58%" }} />
-        <div className="wfx-cloud wfx-c1" style={{ left: "42%", bottom: "-20%", width: "72%", height: "62%" }} />
-        <div className="wfx-cloud wfx-c2" style={{ left: "8%", bottom: "-24%", width: "56%", height: "50%" }} />
-        <div className="wfx-cloud wfx-c2" style={{ left: "58%", bottom: "-26%", width: "58%", height: "46%" }} />
-        <div className="wfx-cloud wfx-c3" style={{ left: "26%", bottom: "-30%", width: "60%", height: "40%" }} />
+      <div className="wfx-dither" aria-hidden="true" />
+      <div className="wfx-scene" aria-hidden="true">
+        {CLOUDS.map((c, i) => <Cloud key={i} cls={c[0]} left={c[1]} bottom={c[2]} width={c[3]} rows={c[4]} />)}
+        <div className="wfx-skyline" />
+        <div className="wfx-ground" />
       </div>
       {sparkles.map(([l, t], i) => (
         <div key={"s" + i} className="wfx-sparkle" aria-hidden="true"
-          style={{ left: l + "%", top: t + "%", animationDelay: (i * 0.34) + "s" }} />
+          style={{ left: l + "%", top: t + "%", animationDelay: (i * 0.21) + "s" }} />
       ))}
       {hearts.map(([l, d], i) => (
         <div key={"h" + i} className="wfx-heart" aria-hidden="true"
-          style={{ left: l + "%", bottom: "12%", animationDelay: d + "s" }}>
-          <Heart size={20} fill="#F784C6" />
+          style={{ left: l + "%", bottom: "16%", animationDelay: d + "s" }}>
+          <Heart size={18} tone="cream" />
         </div>
       ))}
     </>
@@ -130,7 +157,7 @@ export default function AskClient({ inv }) {
 
         {step === "ask" && (
           <>
-            <Portrait><Cat tone="cream" mood={moodAt(nos)} size={100} key={nos} /></Portrait>
+            <Portrait><Cat tone="cream" mood={moodAt(nos)} size={104} key={nos} /></Portrait>
             <h1 className="wfx-h1" key={step}>{askHeadline()}</h1>
             {from ? <p className="wfx-sub">from {from}</p> : null}
             <div className="wfx-row">
@@ -153,7 +180,7 @@ export default function AskClient({ inv }) {
 
         {step === "activity" && (
           <>
-            <Portrait><Cat tone="grey" mood="love" size={100} /></Portrait>
+            <Portrait><Cat tone="cream" mood="love" size={104} /></Portrait>
             <h1 className="wfx-h1" key={step}>What would you like to do?</h1>
             <div className="wfx-grid">
               {ACTIVITIES.map((a) => (
@@ -167,7 +194,7 @@ export default function AskClient({ inv }) {
 
         {step === "when" && (
           <>
-            <Portrait><Cat tone="peach" mood="happy" size={100} /></Portrait>
+            <Portrait><Cat tone="panda" mood="happy" size={104} /></Portrait>
             <h1 className="wfx-h1" key={step}>Pick a date</h1>
             <p className="wfx-sub">Choose the day for our cute little plans</p>
             <Calendar value={dayIso} onPick={(iso, d) => {
