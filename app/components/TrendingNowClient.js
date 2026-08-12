@@ -23,6 +23,7 @@ import { canonicalShareUrl } from "../../lib/site";
 import { track } from "../../lib/track";
 import { readLocalLikeState, readLocalSavedState, persistLike, persistDislike, persistSave, recordLikeEvent, recordTasteSignal } from "../../lib/likeSignal";
 import { askShareIntent } from "./shareIntentSheet";
+import { activityForPlace } from "../../lib/dateInvite";
 
 const PHOTO_REF = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
 
@@ -156,7 +157,7 @@ export default function TrendingNowClient() {
       try { navigator.clipboard.writeText(u); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (e) {}
     };
     askShareIntent({
-      name: place.name, city: loc.city, id: place.id,
+      name: place.name, city: loc.city, id: place.id, kind: activityForPlace(place),
       onPlain: () => doShare(url, place.name),
       onInvite: (u, t) => { try { track("place_card_share", { place_id: place.id, kind: "invite" }); } catch (e) {} doShare(u, t); },
     });

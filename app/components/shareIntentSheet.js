@@ -1,5 +1,5 @@
 "use client";
-import { encodeInvite, invitePath, inviteShareText } from "../../lib/dateInvite";
+import { encodeInvite, invitePath, inviteShareText, activityForPlace } from "../../lib/dateInvite";
 
 // app/components/shareIntentSheet.js — the question, callable from anywhere (v7.28).
 //
@@ -40,6 +40,8 @@ function el(tag, style, text) {
  * @param {string}   o.name      the place being shared
  * @param {string}   o.city      so the ranking at the end points at the right city
  * @param {string}   o.id        place id, carried through the invite
+ * @param {string}   o.kind      which of the six the place IS, so the plan the
+ *                               recipient builds cannot contradict it later
  * @param {Function} o.onPlain   share exactly as before
  * @param {Function} o.onInvite  (absoluteUrl, text) => share the invite
  */
@@ -129,7 +131,9 @@ export function askShareIntent(o) {
     card.appendChild(input);
 
     const send = (who) => {
-      const code = encodeInvite({ place: name, city: opt.city, id: opt.id, to: who });
+      // Classified HERE, where the full place object still exists — Google's
+      // type array never reaches the /ask page, which only gets a name.
+      const code = encodeInvite({ place: name, city: opt.city, id: opt.id, to: who, kind: opt.kind });
       if (!code) { opt.onPlain && opt.onPlain(); return; }
       // The LIVE origin, not a constant: a preview deployment then shares a link
       // that opens on the preview instead of bouncing to production.
