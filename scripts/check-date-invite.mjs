@@ -27,6 +27,7 @@ import {
   ACTIVITIES, activityFor, activityHref, activityLinkLabel, encodeInvite, decodeInvite,
   curiousLine, curiousFoot, MOOD_LADDER, moodAt, PLEAS, pleaAt, yesScale, noScale, SCALE,
   yesText, noText, invitePath, inviteSeed, CURIOUS_LINES, newInviteKey, askHeadline, needsName,
+  activityForPlace, kindsForPlace, planFitsPlace,
 } from "../lib/dateInvite.js";
 import { inviteModel } from "../lib/shareCardCopy.js";
 import { textWidth, CARD } from "../lib/shareCard.js";
@@ -293,6 +294,94 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
      "there must still be exactly one way to send the answer, and it must be the native sheet");
   ok(!/\brequired\b/.test(client),
      "nothing on this page may be required — a mandatory field between a yes and telling them is a place to lose the yes");
+}
+
+// ── 6d. THE PLAN MAY NOT CONTRADICT THE PLACE ──────────────────────────────
+// Owner, looking at a real invite: "Drinks tonight and the place card is a
+// fucking breakfast place."
+//
+// It was worse than a cosmetic mismatch. The sender picked a place and the
+// recipient picked a KIND of evening, and nothing reconciled them — so the final
+// card would pair "Drinks tonight" with Keke's Breakfast Cafe and call it a
+// plan. Two people arriving at a closed cafe at 9pm holding a screenshot from
+// us is the single worst thing this feature could produce.
+{
+  const CASES = [
+    ["Keke's Breakfast Cafe", "bite"],
+    ["The Dog House Bar", "tonight"],
+    ["Good Liquid Brewing Company", "tonight"],
+    ["Bern's Steak House", "dinner"],
+    ["Ringling Museum", "hidden"],
+    ["Cafe Ybor", "bite"],
+    ["Ulele", ""],
+  ];
+  for (const [name, want] of CASES) {
+    ok(activityForPlace({ name }) === want,
+       `"${name}" classified as "${activityForPlace({ name })}", expected "${want}"`);
+  }
+  // A PLACE CAN BE MORE THAN ONE THING. The first classifier returned a single
+  // winner, so "Perq Coffee Bar" came back as DRINKS TONIGHT because the bar
+  // rule happened to run before the cafe rule, and a bar-and-grill could not be
+  // dinner. An audit over 735 real place names in the repo found both; the seven
+  // names I picked myself never would have.
+  const DUAL = [
+    ["Perq Coffee Bar", ["bite", "tonight"]],
+    ["O'Leary's Tiki Bar & Grill", ["tonight", "dinner"]],
+    ["Gecko's Grill & Pub", ["tonight", "dinner"]],
+    ["Alessi Bakeries", ["bite"]],
+    ["Adventure Island", ["hidden"]],
+  ];
+  for (const [name, want] of DUAL) {
+    const got = kindsForPlace({ name });
+    ok(want.every((w) => got.indexOf(w) >= 0),
+       `"${name}" kept ${JSON.stringify(got)} but must carry ${JSON.stringify(want)} — losing one turns a real plan into a false clash`);
+  }
+  {
+    const perq = decodeInvite(encodeInvite({ place: "Perq Coffee Bar" }));
+    ok(planFitsPlace(perq, "bite") && planFitsPlace(perq, "tonight"),
+       "a coffee bar has to fit BOTH a quick bite and drinks");
+    ok(!planFitsPlace(perq, "dinner"), "a coffee bar is still not dinner");
+  }
+  ok(kindsForPlace({ name: "Ulele" }).length === 0, "an unrecognised name claims nothing");
+  ok(kindsForPlace({ name: "x" }).length <= 3, "a place may not claim more than three identities");
+  // Types are the fallback when the name says nothing, and must not override a
+  // name that does: a place CALLED a breakfast cafe is a breakfast place even
+  // when Google also tags it `restaurant`.
+  ok(activityForPlace({ name: "Keke's Breakfast Cafe", types: ["restaurant", "bar"] }) === "bite",
+     "the name has to beat a types array that says something else");
+  ok(activityForPlace({ name: "Somewhere", types: ["night_club"] }) === "tonight", "types are used when the name is silent");
+  ok(activityForPlace(null) === "" && activityForPlace({}) === "", "an unknown place classifies to nothing, never a guess");
+
+  // THE ACTUAL BUG.
+  const cafe = decodeInvite(encodeInvite({ place: "Keke's Breakfast Cafe", from: "Gabe" }));
+  ok(cafe.kind === "bite", `the kind must survive the round trip, got "${cafe.kind}"`);
+  ok(planFitsPlace(cafe, "tonight") === false,
+     "drinks tonight at a breakfast cafe must NOT be printed as a plan — this is the owner's bug");
+  ok(planFitsPlace(cafe, "bite") === true, "a plan that matches the place must still show it");
+  ok(planFitsPlace(cafe, "surprise") === true,
+     "'surprise me' is an explicit request to be taken anywhere, so it fits everything");
+  // Unknown is COMPATIBLE. Deleting somebody's suggestion because our regex did
+  // not recognise "Ulele" is a worse failure than showing it.
+  const unknown = decodeInvite(encodeInvite({ place: "Ulele" }));
+  ok(planFitsPlace(unknown, "tonight") === true, "an unclassified place must not be silently dropped");
+  ok(planFitsPlace(cafe, "") === true, "with no activity chosen yet there is nothing to contradict");
+
+  // The page has to USE it, in both places.
+  const askSrc = readFileSync(path.join(REPO, "app/ask/AskClient.js"), "utf8");
+  ok(/planFitsPlace\(inv, activity\)/.test(askSrc),
+     "the plan card must check the fit before printing the sender's place");
+  ok(/inv\.kind === a\.id/.test(askSrc),
+     "the sender's own suggestion must be marked in the list they choose from");
+
+  // And every share button has to classify the place, or the payload never
+  // carries a kind and the whole check silently passes on nothing.
+  for (const rel of ["app/components/sheets/Detail.js", "app/home.js",
+                     "app/components/IntentPageClient.js", "app/components/TrendingNowClient.js"]) {
+    const src = readFileSync(path.join(REPO, rel), "utf8");
+    const asks = (src.match(/askShareIntent\(/g) || []).length;
+    const kinds = (src.match(/kind: activityForPlace\(/g) || []).length;
+    ok(asks === kinds, `${rel}: ${asks} share asks but ${kinds} classify the place — the rest cannot detect a clash`);
+  }
 }
 
 // ── 7. EVERY SHARE BUTTON ASKS ─────────────────────────────────────────────

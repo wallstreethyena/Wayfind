@@ -4,7 +4,7 @@ import { Cat, Heart, Portrait, Couple } from "./pixel.js";
 import { ASK_CSS } from "./style.js";
 import {
   ACTIVITIES, activityFor, activityHref, activityLinkLabel, askHeadline, yayLine,
-  pleaAt, moodAt, yesScale, noScale, yesText, needsName,
+  pleaAt, moodAt, yesScale, noScale, yesText, needsName, planFitsPlace,
 } from "../../lib/dateInvite.js";
 
 // app/ask/AskClient.js — the five frames (v7.27).
@@ -232,6 +232,14 @@ export default function AskClient({ inv }) {
     } catch (e) { setSent("failed"); }
   };
 
+  // Their suggestion first, everything else in its usual order.
+  const ordered = (() => {
+    const k = inv && inv.kind;
+    if (!k) return ACTIVITIES;
+    const hit = ACTIVITIES.filter((a) => a.id === k);
+    return hit.length ? hit.concat(ACTIVITIES.filter((a) => a.id !== k)) : ACTIVITIES;
+  })();
+
   const tellThem = () => {
     const text = replyText();
     setSent("");
@@ -293,10 +301,20 @@ export default function AskClient({ inv }) {
           <>
             <Portrait><Cat tone="cream" mood="love" size={104} /></Portrait>
             <h1 className="wfx-h1" key={step}>What would you like to do?</h1>
+            {/* The sender's own suggestion goes FIRST and is labelled. It is the
+                only option on this screen that somebody actually chose, and
+                burying it in reading order made the two halves of the plan feel
+                unrelated — which is how "Drinks tonight" ended up paired with a
+                breakfast cafe. */}
             <div className="wfx-grid">
-              {ACTIVITIES.map((a) => (
+              {ordered.map((a) => (
                 <button key={a.id} className="wfx-chip" aria-pressed={activity === a.id}
-                  onClick={() => setActivity(a.id)}>{a.label}</button>
+                  onClick={() => setActivity(a.id)}>
+                  {a.label}
+                  {inv && inv.kind === a.id
+                    ? <span className="wfx-tag">{from ? from + "’s idea" : "their idea"}</span>
+                    : null}
+                </button>
               ))}
             </div>
             <button className="wfx-go" disabled={!activity} onClick={() => setStep("when")}>LOCK IT IN</button>
@@ -328,7 +346,17 @@ export default function AskClient({ inv }) {
             <div className="wfx-card">
               <div><b>When</b> · {dayLabel}</div>
               <div><b>What</b> · {(activityFor(activity) || {}).label}</div>
-              {inv && inv.place ? <div><b>{from ? from + "'s idea" : "Their idea"}</b> · {inv.place}</div> : null}
+              {/* ONLY WHEN IT STILL FITS. This printed the sender's place
+                  unconditionally, so a plan reading "Drinks tonight" would sit
+                  directly above "Their idea · Keke's Breakfast Cafe" — two
+                  people arriving at a closed cafe at 9pm holding our screenshot.
+                  When the plan has moved on, the card says so and points at the
+                  ranking instead of at a contradiction. */}
+              {inv && inv.place && planFitsPlace(inv, activity)
+                ? <div><b>{from ? from + "'s idea" : "Their idea"}</b> · {inv.place}</div>
+                : (inv && inv.place
+                    ? <div><b>New plan</b> · not {inv.place} then — pick the spot below</div>
+                    : null)}
               {from ? <div><b>With</b> · {from}</div> : null}
               {(who || (inv && inv.to)) ? <div><b>From</b> · {who || inv.to}</div> : null}
             </div>

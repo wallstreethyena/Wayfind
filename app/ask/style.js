@@ -128,6 +128,10 @@ export const ASK_CSS = `
 .wfx-chip[aria-pressed="true"]{background:#E8236E;color:#FFF6FB;
   box-shadow:inset 0 0 0 4px #FFF6FB,inset 0 0 0 7px #C0165A,0 5px 0 #8E0F3E}
 
+.wfx-tag{display:block;margin-top:4px;font-size:10px;letter-spacing:1px;color:#E8236E;
+  text-transform:uppercase}
+.wfx-chip[aria-pressed="true"] .wfx-tag{color:#FFD9EC}
+
 .wfx-cal{width:100%;margin-top:20px;background:#FFF6FB;padding:14px 12px 16px;
   box-shadow:inset 0 0 0 4px #E8236E,0 8px 0 rgba(140,20,70,.3)}
 .wfx-calhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;
