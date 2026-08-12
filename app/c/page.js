@@ -33,16 +33,20 @@ export async function generateMetadata({ searchParams }) {
   const expires = fmtExpires(c.x);
   const title = `${business}: ${deal} — Wayfind coupon`;
   const desc = `${deal} at ${business}${c.a ? " (" + c.a + ")" : ""}.` + (expires ? ` Valid through ${expires}.` : "") + " Open on Wayfind to claim.";
-  // v6.32 — owner-designed "Share the savings" card is the share visual; the
-  // specific business / deal / expiry stay in the preview title + description
-  // (and on the landing page), so the art is on-brand and the details are honest.
-  const og = SITE_URL + "/cards/coupon-share.png";
+  // THE PREVIEW IS THE COUPON, not a poster of a coupon (2026-08-12). This used
+  // to be one baked 1758x895 PNG — the same image for every coupon ever texted,
+  // with the business, the amount and the expiry living only in the description
+  // that iMessage renders in 11px grey under the picture. The dynamic route
+  // already existed and already reads the same ?d= payload, so the image now
+  // says the numbers out loud. Passing ?d= straight through is safe: the route
+  // re-decodes and re-clamps every field itself.
+  const og = SITE_URL + "/api/og/coupon" + (d ? "?d=" + encodeURIComponent(d) : "");
   return {
     robots: { index: false, follow: true },
     metadataBase: new URL(SITE),
     title: title.slice(0, 90) + " — Wayfind",
     description: desc,
-    openGraph: { title, description: desc, images: [{ url: og, width: 1758, height: 895 }] },
+    openGraph: { title, description: desc, images: [{ url: og, width: 1200, height: 630 }] },
     twitter: { card: "summary_large_image", title, description: desc, images: [og] },
   };
 }

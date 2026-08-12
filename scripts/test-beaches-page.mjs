@@ -94,13 +94,21 @@ const og = readFileSync(new URL("../app/api/og/beaches/route.js", import.meta.ur
 // it — it is only the SHARE render that went photo-free.
 //
 // The claim underneath was "the share card and the page do not drift apart".
-// That is now held one level up by check-share-card-art.mjs, which asserts NO
+// That is now held one level up by check-share-card.mjs, which asserts NO
 // share/OG renderer references any photo — a stronger invariant than matching
 // one filename. What is left to assert here is that this route did not quietly
 // grow its own art while the rest went bare.
 ok(!/\/cards\/[a-zA-Z0-9._-]+\.(png|jpe?g|webp)/.test(og.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "")),
    "the beaches share card must stay photo-free until the new design lands (owner, 2026-08-12)");
-ok(og.includes("ImageResponse"), "real OG image, not a static fallback");
+// SUPERSEDED 2026-08-12 — the route no longer constructs its own ImageResponse
+// because there is one share card now (app/api/og/card.jsx) and every surface
+// calls shareCardResponse(). The claim underneath was "this is a real dynamic
+// image, not a static file", and going through the shared renderer proves that
+// more strongly than owning a constructor: the model this route hands over
+// carries the live beach count and review total.
+ok(og.includes("shareCardResponse") && og.includes("beachesModel"),
+   "the beaches share card must render through the one renderer with the live ranking's own numbers");
+ok(!/["'`][^"'`]*\.(png|jpe?g|webp)["'`]/.test(og), "no static file may stand in for the beaches share card");
 
 
 // RE-POINTED (commit 3b9005b "fix(revenue): render tours CLIENT-SIDE so they

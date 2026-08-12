@@ -3,11 +3,10 @@
 // refused), and the hard-rule output validator (no dashes in copy, exactly 10,
 // one contrarian, char limits, sequential ranks). The LLM copy itself is not
 // testable here; these are the rules that decide what may ship.
-import { statSync } from "fs";
+import { statSync, readFileSync } from "fs";
 import {
   LIST_TYPES, LIST_TYPE_BY_ID, qualifyingPlaces, selectListTypes,
   buildListInput, validateListOutput, minutesUntilClose, localHourOf,
-  headlineSize, truncName, fitTickerItems, splitAccent,
   buildCardFromList, stripFromContext,
 } from "../lib/listEngine.js";
 import { slugify, listSlug, versionOf, isStale, buildSnapshot } from "../lib/listStore.js";
@@ -174,30 +173,11 @@ function goodList() {
   ok(!validateListOutput(dashHook, "eat").ok, "a dash inside a hook line is flagged");
 }
 
-// ── card helpers (Part 3/4) ──
-{
-  ok(headlineSize(["short", "line"]) === 101, "headlineSize: <=20 chars -> 101");
-  ok(headlineSize(["Sarasota's number one hot dog spot", "x"]) === 62, "headlineSize: >30 chars -> 62");
-  ok(headlineSize(["twenty two chars here!", "x"]) === 88, "headlineSize: 21-24 chars -> 88");
-  ok(headlineSize(["twenty seven characters here", "x"]) === 74, "headlineSize: 25-30 chars -> 74");
-
-  ok(truncName("Georgie's Dogs") === "Georgie's Dogs", "truncName: short name unchanged");
-  ok(truncName("The Very Long Restaurant Name Co").length === 18, "truncName: long name capped to 18");
-  ok(truncName("The Very Long Restaurant Name Co").endsWith("…"), "truncName: capped name ends with ellipsis");
-
-  const many = fitTickerItems([
-    { rank: 2, name: "Aaaaaaaaaaaaaaaaaaaaaaaa", rating: 4.7 },
-    { rank: 3, name: "Bbbbbbbbbbbbbbbbbbbbbbbb", rating: 4.6 },
-    { rank: 4, name: "Cccccccccccccccccccccccc", rating: 4.5 },
-    { rank: 5, name: "Dddddddddddddddddddddddd", rating: 4.4 },
-  ]);
-  ok(many.every((it) => it.name.length <= 18), "fitTickerItems: all names truncated to <=18");
-  ok(many.length >= 2 && many.length <= 4, "fitTickerItems: keeps 2-4, drops from the end to avoid overflow");
-
-  const segs = splitAccent("is at a gas station.", "gas station");
-  ok(segs.length === 3 && segs[1].accent === true && segs[1].text === "gas station", "splitAccent: isolates the accent phrase with the plain text around it");
-  ok(splitAccent("no accent here", "missing").length === 1, "splitAccent: a non-substring accent yields one plain segment");
-}
+// ── card helpers ── SUPERSEDED 2026-08-12 ───────────────────────
+// headlineSize / truncName / fitTickerItems / splitAccent are deleted with the
+// per-route card layouts they served. Fitting, wrapping and accenting are now
+// scripts/check-share-card.mjs, which executes lib/shareCard.js against the
+// real Archivo advance widths instead of counting characters.
 
 // ── snapshot store: slugs, versions, staleness, snapshot shape (Part 0) ──
 {
@@ -240,12 +220,18 @@ function goodList() {
 
 // ── the share card's fonts must exist (Satori has no fallback for a missing
 // face; a deleted font silently wrecks the card). Guard the subset .ttf files.
+// The list is READ OUT OF THE RENDERER rather than typed here. A hardcoded list
+// goes stale the moment a weight is added or a directory moves — which is
+// exactly what happened when the fonts moved from list/fonts to og/fonts.
 {
-  const fontDir = new URL("../app/api/og/list/fonts/", import.meta.url);
-  for (const f of ["Anton-Latin.ttf", "Archivo-600-Latin.ttf", "Archivo-700-Latin.ttf", "Archivo-900-Latin.ttf"]) {
+  const cardSrc = readFileSync(new URL("../app/api/og/card.jsx", import.meta.url), "utf8");
+  const wanted = [...cardSrc.matchAll(/\.\/fonts\/([A-Za-z0-9-]+\.ttf)/g)].map((m) => m[1]);
+  ok(wanted.length >= 3, `the share card must load its faces from ./fonts/ — found ${wanted.length}`);
+  const fontDir = new URL("../app/api/og/fonts/", import.meta.url);
+  for (const f of wanted) {
     let sz = 0;
     try { sz = statSync(new URL(f, fontDir)).size; } catch (e) {}
-    ok(sz > 5000, `share-card font ${f} must exist and be a real subset (>5KB), got ${sz} bytes`);
+    ok(sz > 5000, `share-card font ${f} is loaded by card.jsx but is ${sz} bytes on disk`);
   }
 }
 
