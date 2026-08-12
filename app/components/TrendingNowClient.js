@@ -22,6 +22,7 @@ import { nowContext } from "../../lib/nowContext.js";
 import { canonicalShareUrl } from "../../lib/site";
 import { track } from "../../lib/track";
 import { readLocalLikeState, readLocalSavedState, persistLike, persistDislike, persistSave, recordLikeEvent, recordTasteSignal } from "../../lib/likeSignal";
+import { askShareIntent } from "./shareIntentSheet";
 
 const PHOTO_REF = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
 
@@ -143,13 +144,22 @@ export default function TrendingNowClient() {
     try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (e) {}
   };
 
-  const sharePlace = async (place) => {
+  const sharePlace = (place) => {
     const url = canonicalShareUrl("/p/" + encodeURIComponent(place.id));
     try { track("place_card_share", { place_id: place.id, surface: "trending_now" }); } catch (e) {}
     try { recordLikeEvent("share", place, { supabase, user }); } catch (e) {}
     try { recordTasteSignal("share", place, { supabase, user }); } catch (e) {}
-    try { if (navigator.share) { await navigator.share({ title: place.name, url }); return; } } catch (e) { if (e && e.name === "AbortError") return; }
-    try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (e) {}
+    const doShare = (u, title) => {
+      // NOT async, and not awaited. navigator.share() has to run inside the tap
+      // that called it — the sheet button's own click — or iOS refuses it.
+      try { if (navigator.share) { const pr = navigator.share({ title, url: u }); if (pr && pr.catch) pr.catch(() => {}); return; } } catch (e) {}
+      try { navigator.clipboard.writeText(u); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (e) {}
+    };
+    askShareIntent({
+      name: place.name, city: loc.city, id: place.id,
+      onPlain: () => doShare(url, place.name),
+      onInvite: (u, t) => { try { track("place_card_share", { place_id: place.id, kind: "invite" }); } catch (e) {} doShare(u, t); },
+    });
   };
 
   // "Top rated" sorts on the GOVERNED score — the same number the badge
