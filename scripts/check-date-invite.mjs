@@ -28,6 +28,7 @@ import {
   curiousLine, curiousFoot, MOOD_LADDER, moodAt, PLEAS, pleaAt, yesScale, noScale, SCALE,
   yesText, noText, invitePath, inviteSeed, CURIOUS_LINES, newInviteKey, askHeadline, needsName,
   activityForPlace, kindsForPlace, planFitsPlace, datedCardPath, inviteKinds,
+  INVITE_TEXTS, smsHref, inviteShareText,
 } from "../lib/dateInvite.js";
 import { inviteModel, dateModel, footFits } from "../lib/shareCardCopy.js";
 import { textWidth, CARD } from "../lib/shareCard.js";
@@ -38,6 +39,22 @@ const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 let n = 0;
 const fails = [];
 const ok = (c, m) => { n++; if (!c) fails.push(m); };
+
+// COUNTING CALL SITES MEANS COUNTING CODE, NOT PROSE. This is the sixth time
+// this repo has been bitten by a guard matching a comment: the moment
+// shareIntentSheet's own contract was documented in home.js ("askShareIntent()
+// needs that answer"), home.js read as having five share buttons instead of
+// four and two correct counts went red. Same strip as check-cache-epoch, and
+// the same self-test below — a strip that eats real string literals would make
+// every count here quietly wrong instead of loudly wrong.
+const stripComments = (s) => s
+  .replace(/\/\*[\s\S]*?\*\//g, " ")
+  .replace(/(^|[^:])\/\/[^\n]*/g, "$1 ");
+const codeOf = (rel) => stripComments(readFileSync(path.join(REPO, rel), "utf8"));
+ok(stripComments('const c = f("askShareIntent(");').includes('askShareIntent('),
+   "self-test: stripComments ate a real string literal, so every call-site count below is unsound");
+ok(!stripComments("// calls askShareIntent( here\nconst x = 1;").includes("askShareIntent("),
+   "self-test: stripComments left a commented-out call behind, so the counts below are counting prose");
 
 // ── 1. THE PAYLOAD SURVIVES THE ROUND TRIP, AND BAD INPUT NEVER THROWS ─────
 const FIXTURES = [
@@ -70,7 +87,7 @@ const s2 = inviteSeed({ place: "Ulele", city: "Tampa", when: "Fri", from: "Gabe"
 ok(s1 === s2, "the same invite must seed the same line every time");
 
 // ── 2. NOTHING THE CARD SAYS MAY GIVE THE ANSWER AWAY ──────────────────────
-const SECRETS = ["Ulele", "Café Ybor & Co.", "dinner", "Dinner out"];
+const SECRETS = ["Ulele", "Café Ybor & Co.", "dinner", "Dinner", "Drinks"];
 for (const f of FIXTURES) {
   const inv = decodeInvite(encodeInvite(f));
   if (!inv) continue;
@@ -88,6 +105,34 @@ for (const f of FIXTURES) {
   for (const l of m.lines) ok(textWidth(l, m.size, 900) <= CARD.maxWidth + 0.5, `"${l}" overflows the plate`);
   ok(!/\bundefined\b|\bnull\b|\bNaN\b/.test(said), `a missing value leaked into the invite copy: ${said}`);
 }
+// ── 2b. THE WORDS BESIDE THE LINK ──────────────────────────────────────────
+// Owner: "i need the message to be witty and cute and charming." It used to be
+// "Open this". The rule is the same one the card obeys — it may flirt, it may
+// not tell — plus a length ceiling, because iMessage stacks the preview UNDER
+// the text and a paragraph pushes the card out of sight.
+{
+  ok(INVITE_TEXTS.length >= 4, "one line means every invite anyone ever sends reads identically");
+  for (const t of INVITE_TEXTS) {
+    ok(t.length <= 62, `"${t}" is long enough to push the preview card out of the bubble`);
+    ok(!/\b(dinner|drinks|lunch|breakfast|brunch|tonight|tomorrow|friday|saturday|sunday|pm|am)\b/i.test(t),
+       `the message names the plan or the time: "${t}"`);
+    ok(!/^open this$/i.test(t), "the flat placeholder is back");
+    ok(/[a-z]/.test(t) && t.trim() === t, `"${t}" is malformed`);
+  }
+  ok(new Set(INVITE_TEXTS).size === INVITE_TEXTS.length, "the message pool repeats itself");
+  // Seeded, not random: the sender and the recipient must never see it change.
+  const inv = { place: "Ulele", city: "Tampa", from: "Cindy" };
+  ok(inviteShareText(inv, "Cindy") === inviteShareText(inv, "Cindy"), "the message is random, so it changes under the people reading it");
+  ok(inviteShareText(inv, "Cindy").indexOf("Cindy \u2014 ") === 0, "the message does not open with their name");
+  ok(INVITE_TEXTS.indexOf(inviteShareText(inv)) >= 0, "an unnamed invite got a message that is not in the pool");
+  ok(!inviteShareText(inv, "Cindy").includes("Ulele"), "the message named the place — the card exists to withhold it");
+  // The composed text is a real sms: URL with the link inside it.
+  const href = smsHref("https://www.gowayfind.com/ask?d=abc", inviteShareText(inv, "Cindy"));
+  ok(href.indexOf("sms:?&body=") === 0, `smsHref must use the one spelling both iOS and Android accept: ${href.slice(0, 20)}`);
+  ok(decodeURIComponent(href.slice(11)).includes("https://www.gowayfind.com/ask?d=abc"), "the composed text lost the link");
+  ok(smsHref("", "").indexOf("sms:") === 0, "smsHref threw or returned junk on empty input");
+}
+
 // Every line in the pool, not just the one this seed happens to pick.
 for (const l of CURIOUS_LINES) {
   ok(!/\bat\b|\bdinner\b|\bdrinks\b/i.test(l.head), `a curiosity line describes the plan: "${l.head}"`);
@@ -434,7 +479,7 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   // carries a kind and the whole check silently passes on nothing.
   for (const rel of ["app/components/sheets/Detail.js", "app/home.js",
                      "app/components/IntentPageClient.js", "app/components/TrendingNowClient.js"]) {
-    const src = readFileSync(path.join(REPO, rel), "utf8");
+    const src = codeOf(rel);
     const asks = (src.match(/askShareIntent\(/g) || []).length;
     const kinds = (src.match(/kind: activityForPlace\(/g) || []).length;
     ok(asks === kinds, `${rel}: ${asks} share asks but ${kinds} classify the place — the rest cannot detect a clash`);
@@ -466,7 +511,16 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   // The path is built from the same vocabulary as everything else.
   const url = datedCardPath("dinner", "Fri, August 14", "Ulele");
   ok(/^\/api\/og\?kind=date/.test(url), `the card path is wrong: ${url}`);
-  ok(/what=Dinner(%20|\+)out/.test(url), `the activity label must be on the card path: ${url}`);
+  // Asserted against the LIVE label rather than a frozen string: the labels lost
+  // their time of day on 2026-08-12 ("Drinks tonight" -> "Drinks") and a literal
+  // here would have to be edited by hand every time, which is how a guard ends
+  // up pinning a label nobody ships.
+  ok(url.indexOf("what=" + encodeURIComponent(activityFor("dinner").label)) > 0,
+     `the activity label must be on the card path: ${url}`);
+  for (const a of ACTIVITIES) {
+    ok(!/\b(tonight|morning|afternoon|evening|noon|midnight|am|pm)\b/i.test(a.label),
+       `activity "${a.label}" carries a time of day, and the recipient picks the night on the very next screen`);
+  }
   ok(datedCardPath("", "", "") === "/api/og?kind=date", "an empty plan still resolves to a card, never a broken URL");
 
   const askSrc2 = readFileSync(path.join(REPO, "app/ask/AskClient.js"), "utf8");
@@ -516,17 +570,17 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
     ["app/components/TrendingNowClient.js", "trending now"],
   ];
   for (const [rel, what] of CALLERS) {
-    const src = readFileSync(path.join(REPO, rel), "utf8");
+    const src = codeOf(rel);
     ok(/askShareIntent\(/.test(src), `${what} (${rel}) shares without asking who it is for`);
     ok(/onInvite\s*:/.test(src), `${what} passes no invite handler, so its question has only one real answer`);
   }
-  const home = readFileSync(path.join(REPO, "app/home.js"), "utf8");
+  const home = codeOf("app/home.js");
   ok((home.match(/askShareIntent\(/g) || []).length >= 4,
      "the home shell has more than one share button — every one of them must ask");
 
   // A place share that cannot become an invite is a bug, not a preference.
   for (const [rel] of CALLERS) {
-    const src = readFileSync(path.join(REPO, rel), "utf8");
+    const src = codeOf(rel);
     const asks = (src.match(/askShareIntent\(/g) || []).length;
     const invites = (src.match(/onInvite\s*:/g) || []).length;
     ok(asks === invites, `${rel}: ${asks} asks but ${invites} invite handlers — one of them is a dead end`);
@@ -536,6 +590,199 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   let dup = true;
   try { statSync(path.join(REPO, "app/components/ShareIntent.js")); } catch (e) { dup = false; }
   ok(!dup, "app/components/ShareIntent.js is back — there must be exactly one implementation of the question");
+
+  // THE SEND MUST ALSO BE SYNCHRONOUS. The act() slice above only covers the
+  // wrapper; the invite now goes out through send(), which is where the tap
+  // actually reaches navigator.share.
+  const sendBody = sheet.slice(sheet.indexOf("const send = (who)"), sheet.indexOf("card.appendChild(button(true, \"Send the invite\""));
+  ok(sendBody.length > 100, "send() moved or was renamed — this slice is now asserting nothing");
+  ok(!/await|setTimeout\(|fetch\(|\.then\(/.test(sendBody),
+     "something async sits between the tap and onInvite — iOS will refuse navigator.share()");
+
+  // EVERY CALLER MUST REPORT BACK. onInvite's return value is what tells the
+  // sheet whether the screen changed; a caller whose arrow swallows it makes
+  // the sheet guess, and the safe guess (confirm) then fires behind a real OS
+  // share sheet on mobile.
+  const RETURNERS = [
+    ["app/components/sheets/Detail.js", /onInvite:\s*\(u, t\)\s*=>\s*shareLink\(/],
+    ["app/home.js", /onInvite:\s*\(u, t\)\s*=>\s*shareLink\(/],
+    ["app/components/IntentPageClient.js", /onInvite:[^\n]*return doShare\(u, t, true\)/],
+    ["app/components/TrendingNowClient.js", /onInvite:[^\n]*return doShare\(u, t, true\)/],
+  ];
+  for (const [rel, re] of RETURNERS) {
+    const src = codeOf(rel);
+    ok(re.test(src), `${rel}: its onInvite throws away whether a share sheet opened, so the sheet cannot tell silence from success`);
+  }
+  // shareLink is the one that has to be honest, and it is asserted by CALLING
+  // it below. Here we only pin that the invite paths stopped passing their own
+  // "Invite copied" toast — the sheet's panel says it now, and two
+  // confirmations for one tap is how the panel gets deleted as noise later.
+  const homeSrc = codeOf("app/home.js");
+  ok(!/shareLink\("A question for you", u, \(\) =>/.test(homeSrc),
+     "an invite share still passes its own copied-toast — the sheet already confirms, so that is a double message");
+}
+
+// ── 8. THE SEND SAYS SOMETHING, PROVEN BY DRIVING IT ───────────────────────
+// Owner, 2026-08-12: "i hit send invite and nothing happens."
+//
+// It was true, and every one of the 325 guards was green while it was true. On
+// a laptop there is no OS share sheet, so shareLink() copies quietly and the
+// overlay closes: a tap, then nothing. No string in this file could have caught
+// that, because the bug was the ABSENCE of a call. So this section mounts the
+// real sheet against a stub DOM, clicks the real buttons, and reads what is on
+// screen afterwards.
+{
+  const { loadComponent } = await import("./lib/jsxLoad.mjs");
+
+  class N {
+    constructor(tag) { this.tag = tag; this.children = []; this.attrs = {}; this.h = {}; this._t = ""; this.value = ""; this.parent = null; this.id = ""; }
+    set textContent(v) { this._t = String(v); this.children = []; }
+    get textContent() { return this._t + this.children.map((c) => c.textContent).join(" "); }
+    setAttribute(k, v) { this.attrs[k] = String(v); if (k === "id") this.id = String(v); }
+    getAttribute(k) { return this.attrs[k]; }
+    appendChild(c) { this.children.push(c); c.parent = this; return c; }
+    addEventListener(t, f) { (this.h[t] = this.h[t] || []).push(f); }
+    removeEventListener() {}
+    remove() { if (this.parent) { this.parent.children = this.parent.children.filter((c) => c !== this); this.parent = null; } }
+    focus() {}
+    fire(t) { for (const f of (this.h[t] || []).slice()) f({ preventDefault() {}, stopPropagation() {} }); }
+    walk(fn) { for (const c of this.children) { if (fn(c)) return c; const r = c.walk(fn); if (r) return r; } return null; }
+    querySelector(sel) { const tag = String(sel).replace(/[^a-z]/g, ""); return this.walk((x) => x.tag === tag); }
+  }
+
+  const mount = () => {
+    const body = new N("body");
+    globalThis.document = {
+      body,
+      createElement: (t) => new N(t),
+      getElementById: (id) => body.walk((x) => x.id === id),
+      addEventListener() {}, removeEventListener() {},
+    };
+    // location.href is a SETTER here, because the sms: handoff is a write to it
+    // and a plain object would swallow the one call this section exists to see.
+    const nav = [];
+    const loc = { origin: "https://preview.gowayfind.com" };
+    Object.defineProperty(loc, "href", { get: () => nav[nav.length - 1] || "", set: (v) => { nav.push(String(v)); } });
+    globalThis.window = { location: loc };
+    body.nav = nav;
+    return body;
+  };
+  const btn = (body, txt) => body.walk((x) => x.tag === "button" && x.textContent.indexOf(txt) >= 0);
+  const SHEET_ID = "wf-share-intent";
+
+  const { askShareIntent } = await loadComponent(path.join(REPO, "app/components/shareIntentSheet.js"), REPO);
+  ok(typeof askShareIntent === "function", "the sheet did not load — everything below this line is vacuous");
+
+  // (a) A LAPTOP. Nothing native opened, so the sheet owes the user a sentence.
+  {
+    const body = mount();
+    let handed = null;
+    askShareIntent({
+      name: "Ulele", city: "Tampa", id: "x1", kind: "dinner",
+      onPlain() { handed = "plain"; },
+      onInvite(u, t, m) { handed = { u, t, m }; return false; }, // a copy, not a sheet
+    });
+    btn(body, "asking someone out").fire("click");
+    const input = body.walk((x) => x.tag === "input");
+    ok(!!input, "the who-are-you-asking step never rendered its field");
+    input.value = "Cindy";
+    btn(body, "Send the invite").fire("click");
+
+    ok(handed && typeof handed === "object", "Send the invite did not hand the caller anything at all");
+    ok(handed && /\/ask\?d=/.test(handed.u), `the invite URL never reached the caller: ${handed && handed.u}`);
+    ok(handed && handed.u.indexOf("https://preview.gowayfind.com") === 0,
+       "the link was built from a hard-coded origin, so a preview deploy shares production links");
+    ok(handed && handed.m && handed.m.to === "Cindy", "the name did not travel with the invite");
+
+    // THE BUG ITSELF: this is the assertion that was missing.
+    ok(!!document.getElementById(SHEET_ID),
+       "the sheet closed after a send that opened nothing — that is the owner's 'i hit send invite and nothing happens'");
+    const seen = body.textContent.replace(/\s+/g, " ");
+    ok(/Off to Cindy/.test(seen), `the confirmation does not name who it is for: ${seen.slice(0, 120)}`);
+    ok(/copied/i.test(seen), "the confirmation never says the link was copied, which is the one fact the user needs");
+
+    // THE SECOND HALF OF THE OWNER'S REPORT: "it still said invite copied
+    // instead of automatically sending the text." A copy is not a send.
+    ok(body.nav.length === 1, `the send made ${body.nav.length} navigations — it must compose exactly one text`);
+    const sms = body.nav[0] || "";
+    ok(sms.indexOf("sms:") === 0, `the send did not open a message composer: ${sms.slice(0, 40)}`);
+    const composed = decodeURIComponent(sms.slice(sms.indexOf("body=") + 5));
+    ok(composed.indexOf(handed.u) >= 0, "the composed text does not contain the invite link, so the message is useless");
+    ok(composed.indexOf("Cindy") === 0, `the composed text does not open with their name: ${composed.slice(0, 40)}`);
+    ok(composed.length > handed.u.length + 8, "the composed text is a bare link — the owner asked for witty, cute and charming");
+    ok(seen.indexOf(handed.u) >= 0, "the link is not on screen, so a failed clipboard write leaves nothing to grab");
+    ok(!!btn(body, "Copy the link again"), "no way to retry the copy — clipboard writes fail silently");
+    ok(!!btn(body, "Done"), "the confirmation has no way out");
+  }
+
+  // (b) A PHONE. The OS sheet took the screen, so ours must get out of the way.
+  {
+    const body = mount();
+    askShareIntent({
+      name: "Ulele", city: "Tampa", id: "x1", kind: "dinner",
+      onPlain() {}, onInvite() { return true; }, // the native sheet is up
+    });
+    btn(body, "asking someone out").fire("click");
+    body.walk((x) => x.tag === "input").value = "Cindy";
+    btn(body, "Send the invite").fire("click");
+    ok(!document.getElementById(SHEET_ID),
+       "our overlay is still up behind the OS share sheet — the user comes back to a dead panel");
+    ok(!/Off to/.test(body.textContent), "the copy confirmation rendered while a real share sheet was open — it is a lie there");
+    ok(body.nav.length === 0, "a text composer was opened UNDERNEATH the OS share sheet — the user gets two send flows for one tap");
+  }
+
+  // (c) SKIPPING THE NAME still sends, and still confirms.
+  {
+    const body = mount();
+    let handed = null;
+    askShareIntent({ name: "Ulele", city: "Tampa", id: "x1", kind: "dinner",
+      onPlain() {}, onInvite(u, t, m) { handed = { u, m }; return false; } });
+    btn(body, "asking someone out").fire("click");
+    btn(body, "Skip").fire("click");
+    ok(handed && /\/ask\?d=/.test(handed.u), "skipping the name abandoned the share instead of sending a mystery invite");
+    ok(/Your invite is written/.test(body.textContent.replace(/\s+/g, " ")),
+       "an unnamed invite gets no confirmation at all");
+    ok((body.nav[0] || "").indexOf("sms:") === 0, "an unnamed invite does not get its text written for it");
+  }
+
+  // (d) A CALLER THAT RETURNS NOTHING gets the confirmation. Being wrong in the
+  // direction of saying too much is recoverable; being wrong the other way is
+  // the bug we just shipped.
+  {
+    const body = mount();
+    askShareIntent({ name: "Ulele", city: "Tampa", id: "x1", kind: "dinner",
+      onPlain() {}, onInvite() { /* forgets to return */ } });
+    btn(body, "asking someone out").fire("click");
+    btn(body, "Skip").fire("click");
+    ok(!!document.getElementById(SHEET_ID),
+       "a caller that returns nothing must still leave the user with a confirmation, not silence");
+  }
+
+  // (e) NOTHING TO SHARE. An unencodable invite must fall back to the plain
+  // share and close, never strand the user on a panel with no link.
+  {
+    const body = mount();
+    let plain = 0;
+    askShareIntent({ name: "", city: "", id: "", kind: "",
+      onPlain() { plain++; }, onInvite() { return false; } });
+    btn(body, "asking someone out").fire("click");
+    btn(body, "Skip").fire("click");
+    ok(plain === 1, "an invite that cannot be encoded swallowed the share instead of falling back to it");
+    ok(body.nav.length === 0, "a text was composed for an invite that does not exist");
+    ok(!document.getElementById(SHEET_ID), "the sheet stayed open with nothing to show after falling back");
+  }
+
+  // (f) THE CANCEL AND THE SCRIM still close. Regressing an escape hatch while
+  // fixing a confirmation is exactly the kind of trade nobody notices.
+  {
+    const body = mount();
+    askShareIntent({ name: "Ulele", city: "Tampa", id: "x1", onPlain() {}, onInvite() { return false; } });
+    btn(body, "Cancel").fire("click");
+    ok(!document.getElementById(SHEET_ID), "Cancel no longer closes the sheet");
+  }
+
+  delete globalThis.document;
+  delete globalThis.window;
 }
 
 if (fails.length) {
