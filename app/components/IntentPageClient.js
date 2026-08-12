@@ -43,7 +43,7 @@ import { attachTrendSignals } from "../../lib/trendSignal";
 import { TRENDING_POPULARITY_THRESHOLD } from "./kit";
 import { canonicalShareUrl } from "../../lib/site";
 import { askShareIntent } from "./shareIntentSheet";
-import { activityForPlace } from "../../lib/dateInvite";
+import { placeKinds } from "../../lib/dateInvite";
 
 const PHOTO_REF = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
 
@@ -486,7 +486,7 @@ export default function IntentPageClient({ intent }) {
       return false;
     };
     askShareIntent({
-      name: p.name, city: loc.city, id: p.id, kind: activityForPlace(p),
+      name: p.name, city: loc.city, id: p.id, kind: placeKinds(p),
       onPlain: () => doShare(url, p.name),
       onInvite: (u, t) => { try { track("place_card_share", { place_id: p.id, kind: "invite" }); } catch (e) {} return doShare(u, t, true); },
     });

@@ -28,7 +28,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   activityForPlace, kindsForPlace, ACTIVITIES, planFitsPlace, inviteKinds,
-  encodeInvite, decodeInvite,
+  encodeInvite, decodeInvite, placeKinds,
 } from "../lib/dateInvite.js";
 
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -105,7 +105,7 @@ export function pairings(names) {
   for (const n of names.keys()) {
     const kinds = kindsForPlace({ name: n });
     if (!kinds.length) continue;                    // genuinely unknown: nothing to contradict
-    const fresh = decodeInvite(encodeInvite({ place: n }));
+    const fresh = decodeInvite(encodeInvite({ place: n, kind: placeKinds({ name: n }) }));
     const bare = { place: n, kinds: [], kind: "" };  // an old link
     for (const a of ACTIVITIES) {
       const should = kinds.indexOf(a.id) >= 0 || a.id === "surprise";

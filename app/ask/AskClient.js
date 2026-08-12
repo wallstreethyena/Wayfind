@@ -318,16 +318,26 @@ export default function AskClient({ inv }) {
     // The fetch has to happen BEFORE the share, and that costs the tap's
     // activation on iOS — so the fallback is a plain open, never a silent fail.
     setSaving(true);
+    let file = null;
     try {
       const r = await fetch(url);
       const blob = await r.blob();
-      const file = new File([blob], "its-a-date.png", { type: "image/png" });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file] });
-        setSaving(false);
-        return;
-      }
+      file = new File([blob], "its-a-date.png", { type: "image/png" });
     } catch (e) {}
+    // BACKING OUT IS NOT A FAILURE. The share and the fetch used to sit in one
+    // try, so cancelling the sheet threw AbortError into the same catch as a
+    // network error and the fallback fired — dumping the bare 1200x630 OG image
+    // into a new tab, seconds after they chose not to share it. tellThem() has
+    // always known the difference; this did not.
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file] });
+      } catch (e) {
+        if (!(e && e.name === "AbortError")) { setSaving(false); try { window.open(url, "_blank", "noopener"); } catch (er) {} return; }
+      }
+      setSaving(false);
+      return;
+    }
     setSaving(false);
     try { window.open(url, "_blank", "noopener"); } catch (e) {}
   };
@@ -483,7 +493,7 @@ export default function AskClient({ inv }) {
             <button className="wfx-go wfx-go2" onClick={saveCard} disabled={saving}>
               {saving ? "MAKING IT…" : "SAVE THE CARD"}
             </button>
-            <a className="wfx-quiet" href={activityHref(activity, city)}>{activityLinkLabel(activity, city)}</a>
+            <a className="wfx-quiet" href={activityHref(activity, city, inv && inv.geo)}>{activityLinkLabel(activity, city)}</a>
             <div className="wfx-mark">
               <span>arranged with</span>
               <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">

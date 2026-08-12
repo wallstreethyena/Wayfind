@@ -28,7 +28,7 @@ import {
   curiousLine, curiousFoot, MOOD_LADDER, moodAt, PLEAS, pleaAt, yesScale, noScale, SCALE,
   yesText, noText, invitePath, inviteSeed, CURIOUS_LINES, newInviteKey, askHeadline, needsName,
   activityForPlace, kindsForPlace, planFitsPlace, datedCardPath, inviteKinds,
-  INVITE_TEXTS, smsHref, inviteShareText,
+  INVITE_TEXTS, smsHref, inviteShareText, geoPoint, placeKinds,
 } from "../lib/dateInvite.js";
 import { inviteModel, dateModel, footFits } from "../lib/shareCardCopy.js";
 import { textWidth, CARD } from "../lib/shareCard.js";
@@ -71,6 +71,22 @@ for (const f of FIXTURES) {
   ok(back.place === f.place.slice(0, 60), `place did not survive: ${back.place}`);
   ok(back.city.length <= 32 && back.from.length <= 24, "a field came back over its clamp");
   ok(!/[^A-Za-z0-9\-_]/.test(code), `the code is not URL-safe: ${code.slice(0, 20)}`);
+}
+// WHERE, PROVEN BY ROUND-TRIPPING IT. The wiring assertions further down check
+// that the sheet reads a centre and that the link consumes one; only this one
+// checks the payload in between actually carries it. Dropping `payload.g` left
+// both of those green while every recipient still landed on an empty page.
+{
+  const withGeo = decodeInvite(encodeInvite({ place: "Dry Dock", city: "Longboat Key", geo: { lat: 27.4108, lng: -82.6837 } }));
+  ok(withGeo && withGeo.geo === "27.4108,-82.6837", `the invite lost its coordinates in transit: ${withGeo && withGeo.geo}`);
+  const href = activityHref("dinner", withGeo.city, withGeo.geo);
+  ok(/[?&]lat=27\.4108(&|$)/.test(href) && /[?&]lng=-82\.6837(&|$)/.test(href),
+     `the ranked link carries no coordinates, so it resolves its centre from a localStorage the recipient has never had: ${href}`);
+  // Junk must degrade to "no point", never to a link pointing at null island.
+  for (const junk of ["", "abc", "1,", {}, { lat: 0, lng: 0 }, { lat: 999, lng: 1 }, null]) {
+    ok(geoPoint(junk) === "", `geoPoint accepted junk: ${JSON.stringify(junk)} -> ${geoPoint(junk)}`);
+  }
+  ok(!/lat=/.test(activityHref("dinner", "Tampa", "")), "a geo-less invite must still produce a clean link, not lat=undefined");
 }
 ok(encodeInvite({}) === "", "an invite with no place must produce no link — there is nothing to reveal");
 ok(encodeInvite() === "", "encodeInvite() with no argument must not throw");
@@ -497,8 +513,15 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
                      "app/components/IntentPageClient.js", "app/components/TrendingNowClient.js"]) {
     const src = codeOf(rel);
     const asks = (src.match(/askShareIntent\(/g) || []).length;
-    const kinds = (src.match(/kind: activityForPlace\(/g) || []).length;
+    // placeKinds, NOT activityForPlace. The single-identity form is what
+    // re-opened the false clash: kindsForPlace("O'Leary's Tiki Bar & Grill") is
+    // ["tonight","dinner"], the payload carried only "tonight", and a recipient
+    // who picked Dinner was told "not O'Leary's then" about a place that serves
+    // dinner. Every dual-identity place on the production path lost one.
+    const kinds = (src.match(/kind: placeKinds\(/g) || []).length;
     ok(asks === kinds, `${rel}: ${asks} share asks but ${kinds} classify the place — the rest cannot detect a clash`);
+    ok(!/kind: activityForPlace\(/.test(src),
+       `${rel}: a share button is back to carrying ONE identity, so a bar that also serves dinner will contradict a dinner plan`);
   }
 }
 
@@ -636,6 +659,16 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   const homeSrc = codeOf("app/home.js");
   ok(!/shareLink\("A question for you", u, \(\) =>/.test(homeSrc),
      "an invite share still passes its own copied-toast — the sheet already confirms, so that is a double message");
+
+  // WHERE, CARRIED. Without a point in the payload the recipient's one link out
+  // of this flow lands on a ranked page that resolves its centre from ?lat/?lng
+  // and then from THEIR localStorage — which a person who has just been texted
+  // a link has never had. Every recipient got "Nothing near you clears the bar".
+  ok(/wf_center/.test(sheet) && /geo/.test(sheet),
+     "the sheet no longer reads the sender's centre, so the invite carries no coordinates and the last tap lands on an empty page");
+  const ask2 = stripComments(readFileSync(path.join(REPO, "app/ask/AskClient.js"), "utf8"));
+  ok(/activityHref\(activity, city, inv && inv\.geo\)/.test(ask2),
+     "the see-the-spots link drops the coordinates it was given, which is the same empty page by a different route");
 }
 
 // ── 7b. THE PAGE MUST HOLD STILL ───────────────────────────────────────────
