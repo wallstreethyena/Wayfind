@@ -21,7 +21,32 @@ const bp = read("lib/bestPhoto.js");
 ok(/const primaryRef = refOf\(primary\);\s*\n\s*if \(!primaryRef\) return;/.test(bp), "no stable ref → leave the primary (live-SDK urls untouched)");
 ok(/if \(!pv\.people && pv\.aesthetic >= 0\.45\) return;/.test(bp), "PRIMARY-FIRST: a clean primary stops scoring (bounds cost to ~1 call/card)");
 ok(/if \(winner && !winner\.people && winner\.url !== primary\) setBest\(winner\.url\)/.test(bp), "only swaps to a genuinely better, PEOPLE-FREE alternate");
-ok(/const MAX = 3;/.test(bp), "vision calls are throttled (concurrency cap)");
+// SUPERSEDED SHAPE, STRICTER CLAIM (v7.21). This pinned `const MAX = 3` — a
+// client-side cap on concurrent REQUESTS. That cap was the bottleneck, not the
+// safeguard: a category tap asked for 85 verdicts, 3 at a time, and the last one
+// landed 13.3s after the tap (measured on production). It also never actually
+// bounded spend — 85 metered vision calls still went out, just three abreast.
+//
+// The throttle now sits where the money is. The client COALESCES refs into one
+// batched request, and the ROUTE caps how many of a batch's misses may reach the
+// vision model at all; the rest come back absent and the card keeps its primary
+// photo, exactly as it does today when scoring is unavailable. Both halves are
+// asserted, so neither the batching nor the spend cap can be removed alone.
+const rt = read("app/api/image-score/route.js");
+ok(/const BATCH_MS = \d+;/.test(bp) && /const BATCH_MAX = \d+;/.test(bp),
+   "the client coalesces verdict requests into a batch (a per-photo request is the 13-second bug)");
+ok(/body: JSON\.stringify\(\{ refs: take \}\)/.test(bp),
+   "the batched request actually sends the ref LIST — a batch that still posts one ref is not a batch");
+ok(/const MAX_SCORE_PER_BATCH = (\d+);/.test(rt) && Number(RegExp.$1) > 0 && Number(RegExp.$1) <= 16,
+   "the route caps how many metered vision calls one batch may make (this is the real spend throttle)");
+ok(/misses\.slice\(0, MAX_SCORE_PER_BATCH\)/.test(rt),
+   "the cap is APPLIED to the miss list, not merely declared");
+ok(/cgetMany\(/.test(rt),
+   "cached verdicts are read in ONE query — 85 single-row reads is the server half of the same bug");
+// An absent score must never be persisted as the neutral default, or a card is
+// pinned forever to a photo nothing ever rated.
+ok(/waiters\[i\]\.forEach\(\(fn\) => fn\(\{ people: false, aesthetic: 0\.5 \}\)\)/.test(bp),
+   "a missing verdict resolves neutral for this render WITHOUT being cached — the ref must stay scoreable later");
 ok(/mem\.has\(ref\)/.test(bp), "in-session cache so a photo is fetched once per session too");
 
 // ── PlaceCard integration ──
