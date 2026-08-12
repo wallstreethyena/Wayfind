@@ -29,7 +29,25 @@ const layout = readFileSync(join(root, "app/layout.js"), "utf8");
 // lettering is WHITE. Both shipped as explicit owner direction — do not drift.
 if (!kit.includes('bg: "#040810"')) fail("C.bg must stay the logo master black #040810 (owner call 2026-07-21)");
 if (!layout.includes('background: "#040810"')) fail("layout body must stay the logo master black #040810 (owner call 2026-07-21)");
-if (!home.includes('on ? C.accent : "#FFFFFF"')) fail("CategoryMenu idle lettering must stay white (owner call 2026-07-21)");
+// SUPERSEDED BY A LATER OWNER CALL, AND REPLACED BY A STRICTER ONE.
+// The 2026-07-21 rule was `on ? C.accent : "#FFFFFF"` — orange when selected,
+// white at rest — and it existed to stop the category row's lettering drifting
+// on somebody's whim. On 2026-08-12 the owner replaced the row itself: "i
+// actually like the pills better… can we make it the same style as this as far
+// as height and color", pointing at the Shortcuts chips (#C9D4DF on #121A23).
+// Keeping the old literal would now mean failing the build for obeying him.
+//
+// What replaces it is not weaker. The old rule protected ONE row's colour; this
+// protects the owner's ACTUAL requirement — that the two rows are one style —
+// and it does it structurally: both must render from the shared CHIP object, so
+// they cannot drift apart the way v6.62 and v6.65 both did by hand-copying.
+if (!/const CHIP = \{/.test(home)) fail("the shared resting-chip style (CHIP) is gone — the category pills and the Shortcuts chips must be one style by construction, not by copy-paste (owner call 2026-08-12)");
+if (!/color: CHIP\.text/.test(home)) fail("the Shortcuts chips no longer read their lettering from the shared CHIP style");
+if (!/color: on \? "#0B0F14" : CHIP\.text/.test(home)) fail("CategoryMenu pill lettering must come from the shared CHIP style at rest (owner: same colour as the Shortcuts row)");
+if (!/background: on \? C\.accent : CHIP\.bg/.test(home)) fail("the selected category pill must invert to the Wayfind accent — that inversion IS the 'you pressed this' signal");
+for (const k of ["h: 40", "radius: 11", 'bg: "#121A23"', 'text: "#C9D4DF"']) {
+  if (!home.includes(k)) fail(`the shared chip style lost \`${k}\` — height/colour must keep matching the Shortcuts row the owner pointed at`);
+}
 
 if (!layout.includes("prefers-reduced-motion")) fail("layout.js lost the global prefers-reduced-motion guard");
 if (!layout.includes("wf-skeleton")) fail("layout.js lost the image-loading skeleton style (Phase 3)");
