@@ -9,7 +9,7 @@
 import { useEffect, useRef, useState } from "react";
 import { C, sheetBg, sheet, SHEET_EASE, Grabber, directionsUrl, offerLabel, scoreLabel, stars, PlaceScoreChip, PriceBadge, TRENDING_POPULARITY_THRESHOLD } from "../kit";
 import { priceLevelOf } from "../../../lib/price";
-import { couponForPlaceName, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
+import { couponForPlace, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 import { eventWhenLabel } from "../../../lib/eventTime";
 import * as Dining from "../../../lib/dining";
 import * as Ranking from "../../../lib/ranking";
@@ -1303,7 +1303,7 @@ export default function DetailSheet({ ctx }) {
                   Renders only when no Supabase offer covers this place
                   (offers win the slot, same rule as the card pill). */}
               {detail && !detail._event && !offers[detail.id] && (() => {
-                const cpn = couponForPlaceName(detail.name);
+                const cpn = couponForPlace(detail);
                 if (!cpn || !couponIsLive(cpn)) return null;
                 const ends = couponEndsLabel(cpn);
                 return (

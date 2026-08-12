@@ -40,7 +40,14 @@ ok(ui.includes("PlaceScoreChip"), "accordion rows show the Wayfind Score, not th
 ok(!/rating\.toFixed/.test(ui) && !/reviews\.toLocaleString/.test(ui), "no google-star composition");
 ok(ui.includes('aria-expanded'), "accordion rows are real disclosure buttons");
 ok(ui.includes("Nothing strong in this category right now"), "empty sections say so honestly");
-ok(ui.includes('data === "loading"') && ui.includes("wf-sk"), "reserved-geometry loading rows");
+// v7.39 — this asserted the literal string `data === "loading"`. The sentinel
+// moved to LOAD_PENDING in lib/loadState.js (one spelling, so a stuck slot
+// cannot hide behind a second one) and this went red although the invariant it
+// protects — a loading row RESERVES ITS GEOMETRY so the swap cannot shift the
+// feed — never moved. Assert the invariant: there is a pending branch, it paints
+// a wf-sk skeleton, and it now reads the shared constant.
+ok(/data === (LOAD_PENDING|"loading")/.test(ui) && ui.includes("wf-sk"), "reserved-geometry loading rows");
+ok(ui.includes("LOAD_PENDING"), "TodaysBest reads the shared pending sentinel");
 
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 // Owner call (2026-07-21, later): the accordion is RETIRED from the page —
@@ -58,7 +65,8 @@ ok(/r\.selling_out \? <SellingFast \/> : null/.test(bn), "Selling-fast badge ren
 ok(bn.includes("affiliate links; Wayfind may earn a commission"), "affiliate disclosure renders with the tours");
 ok(bn.includes("PlaceScoreChip"), "numbers are the Wayfind Score chip");
 ok(!/rating\.toFixed/.test(bn) && !/reviews\.toLocaleString/.test(bn), "no google-star composition");
-ok(bn.includes('data === "loading"') && bn.includes("wf-sk"), "reserved-geometry loading rows");
+ok(/data === (LOAD_PENDING|"loading")/.test(bn) && bn.includes("wf-sk"), "reserved-geometry loading rows");
+ok(bn.includes("LOAD_PENDING"), "BestNearby reads the shared pending sentinel");
 ok(bn.includes("Nothing strong here right now"), "honest empty state");
 const lib2 = readFileSync(new URL("../lib/todaysBest.js", import.meta.url), "utf8");
 ok(lib2.includes('supabase.rpc("wf_things_to_do"'), "lib calls the real merge engine");

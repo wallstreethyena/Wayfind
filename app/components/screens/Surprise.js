@@ -31,13 +31,13 @@ import { siteHourFloat, bucketForHour } from "../../../lib/nowContext.js";
 // written — there is no ranked list to put under a "Perfect right now" header.
 // It gets the same system in one row:
 //   · the coupon strip still applies, but keyed to THIS PLACE rather than to an
-//     intent. couponForPlaceName is a stronger and more honest claim for a
+//     intent. couponForPlace is a stronger and more honest claim for a
 //     single result — "this place has a deal" instead of "deals for this mood",
 //     which on a one-result screen would be a promise about something not shown.
 //   · the full card with the score IS the hero + the evidence block below it.
 //   · the momentPicks `why` becomes the reason THIS place was picked.
 //   · no ranked list, and no tour rail unless this one result has tours.
-import { couponForPlaceName, couponEndsLabel } from "../../../lib/coupons";
+import { couponForPlace, couponEndsLabel } from "../../../lib/coupons";
 
 export default function SurpriseScreen({ ctx }) {
   const { surprisePick, surprisePool, surpriseLoading, setSurprisePick, rerollSurprise, setScreen, openDetail, openExperience, quickSaveFavorite, isSaved, blurbs, blurbLine, experienceBadges, cityFixM, liveOpen, iconForPlace, Loader, FallbackImg, surpriseWhy, logEvent, clipCoupon, setWalletOpen } = ctx;
@@ -139,7 +139,7 @@ export default function SurpriseScreen({ ctx }) {
                       never a generic "deals nearby" row, which on a one-result
                       screen would advertise something the screen is not showing. */}
                   {(() => {
-                    const c = couponForPlaceName(p.name);
+                    const c = couponForPlace(p);
                     if (!c) return null;
                     return (
                       <div role="button" tabIndex={0}
