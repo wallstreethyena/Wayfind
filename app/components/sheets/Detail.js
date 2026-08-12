@@ -27,7 +27,7 @@ import { useCommerceImpression } from "../useCommerceImpression";
 import { placePartnerPick } from "../../../lib/placePartnerPicks";
 import { pairsWellWith } from "../../../lib/pairsWellWith";
 import { askShareIntent } from "../shareIntentSheet";
-import { activityForPlace } from "../../../lib/dateInvite";
+import { placeKinds } from "../../../lib/dateInvite";
 
 // Community takes (v6.54, owner: "the review is capped on characters we
 // should be able to allow the user to have more characters and write it
@@ -745,10 +745,25 @@ export default function DetailSheet({ ctx }) {
                     by itself above reactions, which made the dock look like two
                     unrelated button systems. Keep every secondary action on the
                     same baseline; the earning/decision CTA remains the sole
-                    full-width primary above. */}
-                <div data-detail-secondary-actions style={{ display: "flex", alignItems: "stretch", gap: 8, marginTop: 8 }}>
+                    full-width primary above.
+
+                    IT WRAPS, AND IT HAS TO. Five children with hard minimum
+                    widths on one non-wrapping line came to 92+44+44+104+88 plus
+                    four 8px gaps = 404px of irreducible width, inside about
+                    338px of content on a 390px phone. Flex cannot shrink past a
+                    min-width, so the row simply hung 66px out of the sheet and
+                    took the sheet's scroll position with it — the owner's photo
+                    of a title reading "y's Jamaican Grill".
+
+                    The three labelled buttons are now 46% each, which is the
+                    number that makes the wrap point independent of the viewport:
+                    two of them plus the pair of 44px icons can never share a
+                    line at any width this sheet reaches, so it always lands as
+                    [Directions][+][-] / [Add][Share] instead of overflowing at
+                    some widths and not others. */}
+                <div data-detail-secondary-actions style={{ display: "flex", flexWrap: "wrap", alignItems: "stretch", gap: 8, marginTop: 8 }}>
                   {primaryCta.type !== "directions" && (
-                    <a data-detail-directions href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: "1 1 104px", minWidth: 92, height: 44, padding: "0 10px", background: "rgba(255,255,255,.035)", border: `1px solid ${C.border}`, borderRadius: 12, color: C.accent, fontSize: 12.5, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, whiteSpace: "nowrap" }} aria-label="Directions">
+                    <a data-detail-directions href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: "1 1 46%", minWidth: 92, height: 44, padding: "0 10px", background: "rgba(255,255,255,.035)", border: `1px solid ${C.border}`, borderRadius: 12, color: C.accent, fontSize: 12.5, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, whiteSpace: "nowrap" }} aria-label="Directions">
                       <span>Directions</span><span aria-hidden="true">↗</span>
                     </a>
                   )}
@@ -756,8 +771,8 @@ export default function DetailSheet({ ctx }) {
                     <button onClick={(e) => toggleLike(e, detail)} aria-label="Like" style={{ flexShrink: 0, width: 44, height: 44, background: liked[detail.id] ? C.adim : "rgba(255,255,255,.035)", border: `1px solid ${liked[detail.id] ? C.light : C.border}`, borderRadius: 12, color: liked[detail.id] ? C.light : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg></button>
                     <button onClick={(e) => toggleDislike(e, detail)} aria-label="Not for me" style={{ flexShrink: 0, width: 44, height: 44, background: "rgba(255,255,255,.035)", border: `1px solid ${disliked[detail.id] ? C.red : C.border}`, borderRadius: 12, color: disliked[detail.id] ? C.red : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "rotate(180deg)" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg></button>
                   </>)}
-                  <button data-add-to-trip onClick={addToPlan} aria-label={isSaved(detail.id) ? "In your trip" : "Add to my trip"} style={{ flex: "1 1 118px", minWidth: 104, height: 44, padding: "0 10px", background: isSaved(detail.id) ? C.adim : "rgba(255,255,255,.035)", border: `1px solid ${isSaved(detail.id) ? C.light : C.border}`, borderRadius: 12, color: isSaved(detail.id) ? C.light : C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap" }}>{isSaved(detail.id) ? "\u2713 In my trip" : "\u2661 Add to my trip"}</button>
-                  <button onClick={() => { try { logEvent("share_intent_open", detail, { kind: "place" }); } catch (e) {} askShareIntent({ name: detail.name, city: locName, id: detail.id, kind: activityForPlace(detail), onPlain: () => shareLink(detail.name, placeShareUrl(detail, locName, blurbLine(blurbs[detail.id])), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`, () => { try { logEvent("share", detail, { kind: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", detail, { kind: "invite", from: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }) }); }} aria-label="Share" style={{ flex: "1 1 104px", minWidth: 88, height: 44, padding: "0 10px", background: "rgba(255,255,255,.035)", border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 750, whiteSpace: "nowrap" }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg><span>Share</span></button>
+                  <button data-add-to-trip onClick={addToPlan} aria-label={isSaved(detail.id) ? "In your trip" : "Add to my trip"} style={{ flex: "1 1 46%", minWidth: 104, height: 44, padding: "0 10px", background: isSaved(detail.id) ? C.adim : "rgba(255,255,255,.035)", border: `1px solid ${isSaved(detail.id) ? C.light : C.border}`, borderRadius: 12, color: isSaved(detail.id) ? C.light : C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap" }}>{isSaved(detail.id) ? "\u2713 In my trip" : "\u2661 Add to my trip"}</button>
+                  <button onClick={() => { try { logEvent("share_intent_open", detail, { kind: "place" }); } catch (e) {} askShareIntent({ name: detail.name, city: locName, id: detail.id, kind: placeKinds(detail), onPlain: () => shareLink(detail.name, placeShareUrl(detail, locName, blurbLine(blurbs[detail.id])), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`, () => { try { logEvent("share", detail, { kind: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", detail, { kind: "invite", from: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }) }); }} aria-label="Share" style={{ flex: "1 1 46%", minWidth: 88, height: 44, padding: "0 10px", background: "rgba(255,255,255,.035)", border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 750, whiteSpace: "nowrap" }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg><span>Share</span></button>
                 </div>
               </div>
               {(() => { /* v6.37 — VRBO whole-home alternative for lodging places (Expedia affiliate; template in lib/affiliates, plain link until set). */

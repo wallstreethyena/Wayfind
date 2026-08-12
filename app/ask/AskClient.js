@@ -134,42 +134,59 @@ export default function AskClient({ inv }) {
 
   // WHERE THEY ARE LOOKING, AND HOW LONG THEY HAVE BEEN THINKING.
   //
-  // The cat tracks the pointer on a desktop and the last touch on a phone. The
-  // phone case is not a fallback to be sad about — it is where this page is
-  // actually opened, so the fidget has to carry the performance on its own
-  // there, and it does.
+  // OWNER, 2026-08-12: "the menu part is very jumpy, it's jumping all over the
+  // place… I asked you to have the little character look, but then I realized
+  // it's a phone. There's no way the character can look at where the finger is
+  // hovering from. Maybe that's something it's looking for and it just can't."
+  //
+  // That diagnosis was right, and the cost was worse than a missing effect.
+  // touchstart and touchmove were wired to the same handler as mousemove, so:
+  //   · every tap LURCHED the cat toward wherever the thumb landed, and the eye
+  //     highlights popped into existence on first touch and never before it;
+  //   · every scroll of this container re-rendered the entire page at 60Hz —
+  //     nineteen animated decoration nodes and ~150 run-length-encoded SVG
+  //     rects rebuilt per frame, on a phone.
+  //
+  // A pointer is a desktop object. There is nothing to track here, so we do not
+  // pretend: no listeners at all on a coarse pointer, and the fidget carries the
+  // performance on its own.
   const [look, setLook] = useState({ x: 0, y: 0 });
+
+  // THREE RUNGS, NOT A FLOAT — and this is the other half of the jumping.
+  // This used to tick every 900ms and feed the result into animation-duration
+  // through a custom property. Changing a RUNNING animation's duration makes the
+  // engine restart it, so the cat snapped roughly thirteen times per screen, and
+  // every one of those ticks also re-rendered the whole page. Three rungs means
+  // at most two changes, at the moments the speed genuinely changes.
   const [eager, setEager] = useState(0);
   useEffect(() => {
-    if (step !== "activity" && step !== "when") { setEager(0); return; }
     // Anxiety builds while they deliberate, and RESETS when they move on — a cat
     // that stays frantic after the decision is just a broken animation.
-    setEager(0);
-    const t = setInterval(() => setEager((e) => Math.min(1, e + 0.08)), 900);
-    return () => clearInterval(t);
+    if (step !== "activity" && step !== "when") { setEager(0); return; }
+    setEager(1);
+    const a = setTimeout(() => setEager(2), 4200);
+    const b = setTimeout(() => setEager(3), 9000);
+    return () => { clearTimeout(a); clearTimeout(b); };
   }, [step]);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
+    const fine = !!(window.matchMedia && window.matchMedia("(pointer: fine)").matches);
+    if (!fine) return; // a phone: nothing to follow, and no listeners to pay for
     let raf = 0, next = null;
     const apply = () => { raf = 0; if (next) setLook(next); };
-    const at = (cx, cy) => {
+    const onMove = (e) => {
       const w = window.innerWidth || 1, h = window.innerHeight || 1;
       // Relative to the middle of the screen, which is roughly where the cat is.
-      next = { x: (cx / w) * 2 - 1, y: (cy / h) * 2 - 1 };
+      next = { x: (e.clientX / w) * 2 - 1, y: (e.clientY / h) * 2 - 1 };
       // One state update per frame. Setting state on every mousemove re-renders
       // the whole pixel scene dozens of times a second and the page starts to
       // stutter — on the screen where we are asking someone to feel something.
       if (!raf) raf = window.requestAnimationFrame(apply);
     };
-    const onMove = (e) => at(e.clientX, e.clientY);
-    const onTouch = (e) => { const t = e.touches && e.touches[0]; if (t) at(t.clientX, t.clientY); };
     window.addEventListener("mousemove", onMove, { passive: true });
-    window.addEventListener("touchmove", onTouch, { passive: true });
-    window.addEventListener("touchstart", onTouch, { passive: true });
     return () => {
       window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("touchmove", onTouch);
-      window.removeEventListener("touchstart", onTouch);
       if (raf) window.cancelAnimationFrame(raf);
     };
   }, []);
@@ -301,16 +318,26 @@ export default function AskClient({ inv }) {
     // The fetch has to happen BEFORE the share, and that costs the tap's
     // activation on iOS — so the fallback is a plain open, never a silent fail.
     setSaving(true);
+    let file = null;
     try {
       const r = await fetch(url);
       const blob = await r.blob();
-      const file = new File([blob], "its-a-date.png", { type: "image/png" });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file] });
-        setSaving(false);
-        return;
-      }
+      file = new File([blob], "its-a-date.png", { type: "image/png" });
     } catch (e) {}
+    // BACKING OUT IS NOT A FAILURE. The share and the fetch used to sit in one
+    // try, so cancelling the sheet threw AbortError into the same catch as a
+    // network error and the fallback fired — dumping the bare 1200x630 OG image
+    // into a new tab, seconds after they chose not to share it. tellThem() has
+    // always known the difference; this did not.
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file] });
+      } catch (e) {
+        if (!(e && e.name === "AbortError")) { setSaving(false); try { window.open(url, "_blank", "noopener"); } catch (er) {} return; }
+      }
+      setSaving(false);
+      return;
+    }
     setSaving(false);
     try { window.open(url, "_blank", "noopener"); } catch (e) {}
   };
@@ -466,7 +493,7 @@ export default function AskClient({ inv }) {
             <button className="wfx-go wfx-go2" onClick={saveCard} disabled={saving}>
               {saving ? "MAKING IT…" : "SAVE THE CARD"}
             </button>
-            <a className="wfx-quiet" href={activityHref(activity, city)}>{activityLinkLabel(activity, city)}</a>
+            <a className="wfx-quiet" href={activityHref(activity, city, inv && inv.geo)}>{activityLinkLabel(activity, city)}</a>
             <div className="wfx-mark">
               <span>arranged with</span>
               <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">

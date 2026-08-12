@@ -147,19 +147,27 @@ export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false,
   const px = Math.max(2, Math.round(size / 22));
   const box = px * 22;
   const top = px * 6;                          // the cat sits below the floating extra
+  // TWO ELEMENTS, AND THE SPLIT IS THE FIX.
+  //
+  // The lean and the fidget both used to live on the <svg>, which meant two
+  // things that each caused visible jumping. The lean was written INSIDE the
+  // fidget's keyframes, so every pointer move re-evaluated a running animation;
+  // and `.wfc-eager{animation:…}` overrode `.wfc-hop{animation:…}` outright, so
+  // the mood's own loop was replaced rather than layered under it, despite the
+  // comment claiming otherwise.
+  //
+  // Now the wrapper leans and fidgets, the svg keeps its mood. The lean uses the
+  // standalone `translate` PROPERTY, not `transform`, so it composes with the
+  // wrapper's animated transform instead of fighting it — a pointer move becomes
+  // a cheap composited nudge that never touches the animation.
+  const rung = Math.max(0, Math.min(3, Math.round(fidget || 0)));
   return (
+    <span className={"wfc-lean" + (rung > 0 ? " wfc-eager wfc-fid" + rung : "")}
+      style={{ "--lean": Math.round(lx * px) + "px", "--liftv": Math.round(ly * px * 0.6) + "px" }}>
     <svg width={box} height={box} viewBox={"0 0 " + box + " " + box} shapeRendering="crispEdges"
-      className={"wfc " + m.anim + (fidget > 0 ? " wfc-eager" : "")}
+      className={"wfc " + m.anim}
       style={{
         animationDelay: delay + "s",
-        // Whole-body lean, capped at one pixel cell so it never stops looking
-        // drawn — a smooth 12px slide in a pixel scene is the thing that gives
-        // the illusion away.
-        "--lean": Math.round(lx * px) + "px",
-        "--liftv": Math.round(ly * px * 0.6) + "px",
-        // The fidget gets FASTER the longer they take, from a calm .5s down to a
-        // frantic .18s. Cute, not a seizure: the travel stays under two pixels.
-        "--fid": (0.5 - 0.32 * Math.max(0, Math.min(1, fidget))).toFixed(2) + "s",
         transform: flip ? "scaleX(-1)" : "none",
       }} aria-hidden="true">
       {m.extra === "heart" ? <Grid rows={HEART_GRID} pal={pal} px={px} x={px * 3} className="wfc-xheart" /> : null}
@@ -176,7 +184,12 @@ export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false,
           grid: that is the whole trick, and it is why it still looks drawn. A
           smooth sub-pixel slide in a pixel scene is what gives the illusion away.
           Eye cells are columns 2-3 and 12-13 on rows 7-8 of BASE. */}
-      {m.eyesOpen !== false && (lx || ly) ? (
+      {/* ALWAYS DRAWN, not only once a pointer has moved. The old condition was
+          `(lx || ly)`, so on a phone — where lx and ly stay 0 forever — the cat
+          had no catchlights at all until the first touch, and then they appeared
+          from nowhere mid-tap. Centred is a perfectly good gaze; tracking is the
+          bonus a mouse earns. */}
+      {m.eyesOpen !== false ? (
         <g>
           <rect width={px} height={px} fill={pal.w}
             x={(2 + (lx > 0.25 ? 1 : 0)) * px} y={top + (7 + (ly > 0.25 ? 1 : 0)) * px} />
@@ -185,6 +198,7 @@ export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false,
         </g>
       ) : null}
     </svg>
+    </span>
   );
 }
 

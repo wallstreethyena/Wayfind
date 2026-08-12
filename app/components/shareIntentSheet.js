@@ -217,7 +217,18 @@ export function askShareIntent(o) {
     const send = (who) => {
       // Classified HERE, where the full place object still exists — Google's
       // type array never reaches the /ask page, which only gets a name.
-      const code = encodeInvite({ place: name, city: opt.city, id: opt.id, to: who, kind: opt.kind });
+      // WHERE THEY ARE, READ HERE. The sender's own app has already resolved a
+      // centre and persisted it; the recipient never has one, because they have
+      // never been to Wayfind. Reading it at share time is what makes the last
+      // tap of the whole flow land on real places instead of "Nothing near you
+      // clears the bar" — and it costs the callers nothing, so a share button
+      // added later cannot forget it.
+      let geo = "";
+      try {
+        const c = JSON.parse(window.localStorage.getItem("wf_center") || "null");
+        if (c && isFinite(c.lat) && isFinite(c.lng)) geo = c.lat + "," + c.lng;
+      } catch (e) {}
+      const code = encodeInvite({ place: name, city: opt.city, id: opt.id, to: who, kind: opt.kind, geo });
       if (!code) { opt.onPlain && opt.onPlain(); close(); return; }
       // The LIVE origin, not a constant: a preview deployment then shares a link
       // that opens on the preview instead of bouncing to production.

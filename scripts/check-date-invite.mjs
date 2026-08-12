@@ -28,7 +28,7 @@ import {
   curiousLine, curiousFoot, MOOD_LADDER, moodAt, PLEAS, pleaAt, yesScale, noScale, SCALE,
   yesText, noText, invitePath, inviteSeed, CURIOUS_LINES, newInviteKey, askHeadline, needsName,
   activityForPlace, kindsForPlace, planFitsPlace, datedCardPath, inviteKinds,
-  INVITE_TEXTS, smsHref, inviteShareText,
+  INVITE_TEXTS, smsHref, inviteShareText, geoPoint, placeKinds,
 } from "../lib/dateInvite.js";
 import { inviteModel, dateModel, footFits } from "../lib/shareCardCopy.js";
 import { textWidth, CARD } from "../lib/shareCard.js";
@@ -71,6 +71,22 @@ for (const f of FIXTURES) {
   ok(back.place === f.place.slice(0, 60), `place did not survive: ${back.place}`);
   ok(back.city.length <= 32 && back.from.length <= 24, "a field came back over its clamp");
   ok(!/[^A-Za-z0-9\-_]/.test(code), `the code is not URL-safe: ${code.slice(0, 20)}`);
+}
+// WHERE, PROVEN BY ROUND-TRIPPING IT. The wiring assertions further down check
+// that the sheet reads a centre and that the link consumes one; only this one
+// checks the payload in between actually carries it. Dropping `payload.g` left
+// both of those green while every recipient still landed on an empty page.
+{
+  const withGeo = decodeInvite(encodeInvite({ place: "Dry Dock", city: "Longboat Key", geo: { lat: 27.4108, lng: -82.6837 } }));
+  ok(withGeo && withGeo.geo === "27.4108,-82.6837", `the invite lost its coordinates in transit: ${withGeo && withGeo.geo}`);
+  const href = activityHref("dinner", withGeo.city, withGeo.geo);
+  ok(/[?&]lat=27\.4108(&|$)/.test(href) && /[?&]lng=-82\.6837(&|$)/.test(href),
+     `the ranked link carries no coordinates, so it resolves its centre from a localStorage the recipient has never had: ${href}`);
+  // Junk must degrade to "no point", never to a link pointing at null island.
+  for (const junk of ["", "abc", "1,", {}, { lat: 0, lng: 0 }, { lat: 999, lng: 1 }, null]) {
+    ok(geoPoint(junk) === "", `geoPoint accepted junk: ${JSON.stringify(junk)} -> ${geoPoint(junk)}`);
+  }
+  ok(!/lat=/.test(activityHref("dinner", "Tampa", "")), "a geo-less invite must still produce a clean link, not lat=undefined");
 }
 ok(encodeInvite({}) === "", "an invite with no place must produce no link — there is nothing to reveal");
 ok(encodeInvite() === "", "encodeInvite() with no argument must not throw");
@@ -324,8 +340,24 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   // The burst and the resume both have to respect the person on the other end.
   // THE CAT WATCHES THEM DECIDE. Owner: "make the little guy track the mouse,
   // anxious about the decision, shaking, bouncing off the walls, but cute."
-  ok(/mousemove/.test(client) && /touchmove/.test(client),
-     "the cat must track a finger as well as a pointer — this page is opened on a phone, so the touch path cannot be the broken one");
+  //
+  // RE-AIMED 2026-08-12, because the original demanded the bug. It read
+  // `mousemove && touchmove` — "the touch path cannot be the broken one" — and
+  // the owner then hit the reason there is no touch path to get right: "it's a
+  // phone, there's no way the character can look at where the finger is hovering
+  // from." A finger is not a pointer; it is only anywhere at all while it is
+  // pressing something. Tracking it produced a lurch per tap and a full
+  // re-render per scroll frame, which is what "jumping all over the place" was.
+  //
+  // The property that actually matters survives the correction: on the screens
+  // where they are deciding, the cat must be ALIVE. On a mouse that is tracking;
+  // on a phone it is the fidget, and the fidget must be wired to the deliberating
+  // steps or the phone case is just a still drawing.
+  ok(/mousemove/.test(client), "the cat no longer tracks a pointer at all");
+  ok(/fidget=\{eager\}/.test(client),
+     "the fidget is not wired to the cat, so on a phone — where there is no pointer to follow — nothing moves while they decide");
+  ok(/step !== "activity" && step !== "when"/.test(client),
+     "the fidget is no longer scoped to the deliberating screens; a cat still frantic after the decision is a broken animation");
   ok(/requestAnimationFrame/.test(client),
      "pointer tracking must be throttled to one state update per frame; setting state on every mousemove re-renders the whole pixel scene dozens of times a second");
   ok(/setEager\(0\)/.test(client),
@@ -481,8 +513,15 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
                      "app/components/IntentPageClient.js", "app/components/TrendingNowClient.js"]) {
     const src = codeOf(rel);
     const asks = (src.match(/askShareIntent\(/g) || []).length;
-    const kinds = (src.match(/kind: activityForPlace\(/g) || []).length;
+    // placeKinds, NOT activityForPlace. The single-identity form is what
+    // re-opened the false clash: kindsForPlace("O'Leary's Tiki Bar & Grill") is
+    // ["tonight","dinner"], the payload carried only "tonight", and a recipient
+    // who picked Dinner was told "not O'Leary's then" about a place that serves
+    // dinner. Every dual-identity place on the production path lost one.
+    const kinds = (src.match(/kind: placeKinds\(/g) || []).length;
     ok(asks === kinds, `${rel}: ${asks} share asks but ${kinds} classify the place — the rest cannot detect a clash`);
+    ok(!/kind: activityForPlace\(/.test(src),
+       `${rel}: a share button is back to carrying ONE identity, so a bar that also serves dinner will contradict a dinner plan`);
   }
 }
 
@@ -620,6 +659,107 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   const homeSrc = codeOf("app/home.js");
   ok(!/shareLink\("A question for you", u, \(\) =>/.test(homeSrc),
      "an invite share still passes its own copied-toast — the sheet already confirms, so that is a double message");
+
+  // WHERE, CARRIED. Without a point in the payload the recipient's one link out
+  // of this flow lands on a ranked page that resolves its centre from ?lat/?lng
+  // and then from THEIR localStorage — which a person who has just been texted
+  // a link has never had. Every recipient got "Nothing near you clears the bar".
+  ok(/wf_center/.test(sheet) && /geo/.test(sheet),
+     "the sheet no longer reads the sender's centre, so the invite carries no coordinates and the last tap lands on an empty page");
+  const ask2 = stripComments(readFileSync(path.join(REPO, "app/ask/AskClient.js"), "utf8"));
+  ok(/activityHref\(activity, city, inv && inv\.geo\)/.test(ask2),
+     "the see-the-spots link drops the coordinates it was given, which is the same empty page by a different route");
+}
+
+// ── 7b. THE PAGE MUST HOLD STILL ───────────────────────────────────────────
+// Owner, 2026-08-12, on a phone: "the menu part is very jumpy, it's jumping all
+// over the place… I asked you to have the little character look, but then I
+// realized it's a phone. There's no way the character can look at where the
+// finger is hovering from."
+//
+// Three separate causes, all on the two screens he named, and each one is a
+// property that can silently come back:
+//
+//   1. touchstart/touchmove drove the same pointer state as mousemove, so every
+//      tap lurched the cat and every scroll re-rendered ~19 animated decoration
+//      nodes and ~150 SVG rects at 60Hz.
+//   2. The fidget's animation-duration came from a custom property rewritten
+//      every 900ms. Changing a RUNNING animation's duration restarts it — about
+//      thirteen visible snaps per screen.
+//   3. The scroll container was max-height:100dvh inside a position:fixed
+//      inset:0 parent. On iOS those are different numbers, so the container
+//      resized under the thumb as the toolbar collapsed.
+{
+  const ask = stripComments(readFileSync(path.join(REPO, "app/ask/AskClient.js"), "utf8"));
+  const css = stripComments(readFileSync(path.join(REPO, "app/ask/style.js"), "utf8"));
+  const pix = stripComments(readFileSync(path.join(REPO, "app/ask/pixel.js"), "utf8"));
+
+  ok(/matchMedia\("\(pointer: fine\)"\)/.test(ask),
+     "pointer tracking is not gated on a fine pointer — a phone has nothing to follow and pays for the listeners anyway");
+  ok(!/addEventListener\("touch/.test(ask),
+     "a touch listener is back on the ask page: every tap lurches the cat and every scroll re-renders the whole pixel scene");
+  ok(!/setInterval/.test(ask),
+     "an interval is back on the ask page — the 900ms fidget tick re-rendered everything and restarted the animation each time");
+
+  ok(!/--fid/.test(css) && !/--fid/.test(pix),
+     "the fidget speed is being written into a custom property again; a running animation restarts when its duration changes");
+  ok(/\.wfc-fid2\{animation-duration/.test(css) && /\.wfc-fid3\{animation-duration/.test(css),
+     "the discrete fidget rungs are gone, so the speed has nowhere to live but a mutated property");
+  // The lean must compose with the animation, never be interpolated inside it.
+  const eagerFrames = css.slice(css.indexOf("@keyframes wfcEager"), css.indexOf("@keyframes wfcEager") + 260);
+  ok(eagerFrames.length > 40, "the wfcEager keyframes moved — this slice asserts nothing now");
+  ok(!/var\(--lean/.test(eagerFrames),
+     "the pointer lean is inside the running keyframes again — every mouse move then re-evaluates the animation");
+  ok(/\.wfc-lean\{[^}]*translate:var\(--lean/.test(css),
+     "the lean must ride on the standalone translate property so it composes with the animated transform instead of fighting it");
+
+  ok(!/max-height:100dvh/.test(css),
+     "the ask stage is chasing the dynamic viewport again inside a fixed parent — that is the iOS scroll jump");
+  ok(/\.wfx-stage\{[^}]*overscroll-behavior:contain/.test(css),
+     "without overscroll containment the stage's scroll chains out and drags the page with it");
+
+  // The catchlights must not depend on the pointer having moved, or a phone gets
+  // a cat with no eye highlights until the first touch, then a pop.
+  ok(!/eyesOpen !== false && \(lx \|\| ly\)/.test(pix),
+     "the eye highlights only render once a pointer has moved — on a phone that means they appear from nowhere mid-tap");
+
+  // The suggested chip carries a second line. A flex ROW makes that line a
+  // sibling of the label instead of sitting under it, and the sender's own
+  // suggestion — the one chip that must read as chosen — rendered as
+  // "DinnerTHEIR IDEA". Found by screenshotting the page at 390px, not by
+  // reading it.
+  const chip = css.slice(css.indexOf(".wfx-chip{"), css.indexOf(".wfx-chip:active"));
+  ok(chip.length > 60, "the .wfx-chip rule moved — this slice asserts nothing");
+  ok(/flex-direction:column/.test(chip),
+     "the activity chip lays out as a row, so the sender's tag collides with the label instead of stacking under it");
+}
+
+// ── 7c. NOTHING IN A SHEET MAY DRAG THE SHEET SIDEWAYS ─────────────────────
+// Owner-reported with a photo: a place detail whose title read "y's Jamaican
+// Grill" with both ends of the action row off screen. The sheet had been
+// scrolled 60px left, because `overflowY:"auto"` alone computes overflow-x to
+// `auto` as well, and the secondary action row's five minimum widths came to
+// 404px inside about 338px of phone.
+{
+  const kit = stripComments(readFileSync(path.join(REPO, "app/components/kit.js"), "utf8"));
+  ok(/export const sheet = \{[^}]*overflowX: "hidden"/.test(kit),
+     "the shared sheet no longer clips horizontally — one oversized child can drag every sheet in the app sideways");
+
+  const det = stripComments(readFileSync(path.join(REPO, "app/components/sheets/Detail.js"), "utf8"));
+  const rowAt = det.indexOf("data-detail-secondary-actions");
+  ok(rowAt > 0, "the detail secondary action row was renamed — this section is asserting nothing");
+  const row = det.slice(rowAt, det.indexOf("</div>", rowAt));
+  ok(/flexWrap: "wrap"/.test(det.slice(rowAt, rowAt + 200)),
+     "the detail action row cannot wrap, so its minimum widths must fit a phone in one line — they do not");
+  // The real invariant: the irreducible width of one line must fit a 390px
+  // phone. Measured, not eyeballed — the mins are what flex refuses to shrink.
+  const mins = (row.match(/minWidth: (\d+)/g) || []).map((m) => Number(m.replace(/\D/g, "")));
+  const fixed = (row.match(/width: 44, height: 44/g) || []).length * 44;
+  ok(mins.length >= 3, `expected the labelled buttons to declare minimums, found ${mins.length}`);
+  const worstLine = mins.reduce((a, b) => a + b, 0) + fixed + (mins.length + 1) * 8;
+  // 390px phone - 2x16 sheet padding - 2x10 dock padding = 338.
+  ok(worstLine > 338 ? /flexWrap: "wrap"/.test(det.slice(rowAt, rowAt + 200)) : true,
+     `the action row needs ${worstLine}px of irreducible width in 338px of phone and cannot wrap`);
 }
 
 // ── 8. THE SEND SAYS SOMETHING, PROVEN BY DRIVING IT ───────────────────────
