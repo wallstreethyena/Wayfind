@@ -27,10 +27,12 @@ import {
   ACTIVITIES, activityFor, activityHref, activityLinkLabel, encodeInvite, decodeInvite,
   curiousLine, curiousFoot, MOOD_LADDER, moodAt, PLEAS, pleaAt, yesScale, noScale, SCALE,
   yesText, noText, invitePath, inviteSeed, CURIOUS_LINES, newInviteKey, askHeadline, needsName,
-  activityForPlace, kindsForPlace, planFitsPlace,
+  activityForPlace, kindsForPlace, planFitsPlace, datedCardPath,
 } from "../lib/dateInvite.js";
-import { inviteModel } from "../lib/shareCardCopy.js";
+import { inviteModel, dateModel, footFits } from "../lib/shareCardCopy.js";
 import { textWidth, CARD } from "../lib/shareCard.js";
+// The audit is imported, not just shipped alongside — its verdict gates the build.
+import { harvest, contradictions } from "./audit-invite-place-kinds.mjs";
 
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 let n = 0;
@@ -344,6 +346,20 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   }
   ok(kindsForPlace({ name: "Ulele" }).length === 0, "an unrecognised name claims nothing");
   ok(kindsForPlace({ name: "x" }).length <= 3, "a place may not claim more than three identities");
+
+  // ── THE WHOLE REAL CORPUS, NOT A SAMPLE ──────────────────────────────────
+  // Owner, after the first bug: "audit that and make sure this does not
+  // happen." A report nobody runs is how "Drinks tonight at a breakfast cafe"
+  // reached a real invite, so the audit is imported here and its verdict is a
+  // BUILD GATE. Every place name in the repo's data modules is classified, and
+  // any name whose own words carry two identities must keep both.
+  const corpus = harvest();
+  ok(corpus.size > 400,
+     `the audit harvested only ${corpus.size} place names — the corpus moved and this gate is now checking almost nothing`);
+  const clashes = contradictions(corpus);
+  ok(clashes.length === 0,
+     `${clashes.length} real place name(s) lose an identity their name carries, which is how a plan contradicts its place: ` +
+     clashes.slice(0, 5).map((c) => `"${c.name}" is ${c.should.join("+")} but kept ${JSON.stringify(c.got)}`).join(" | "));
   // Types are the fallback when the name says nothing, and must not override a
   // name that does: a place CALLED a breakfast cafe is a breakfast place even
   // when Google also tags it `restaurant`.
@@ -382,6 +398,43 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
     const kinds = (src.match(/kind: activityForPlace\(/g) || []).length;
     ok(asks === kinds, `${rel}: ${asks} share asks but ${kinds} classify the place — the rest cannot detect a clash`);
   }
+}
+
+// ── 6e. THE CARD THEY CAN POST ─────────────────────────────────────────────
+// The one part of this flow that can spread on its own: a finished plan is worth
+// showing someone, and a screenshot of it carries our mark for free. It is the
+// OPPOSITE of the invite card — the question has been answered, so this one is
+// allowed to say everything.
+{
+  const m = dateModel({ when: "Fri, August 14", what: "Dinner out", where: "Ulele" });
+  ok(m.tone === "blush", "the saveable card must belong to the invite's world, not the product's");
+  ok(/It's a date/i.test(m.lines.join(" ")), `the headline must be the moment: ${JSON.stringify(m.lines)}`);
+  ok(/Fri, August 14/.test(m.foot) && /Dinner out/.test(m.foot) && /Ulele/.test(m.foot),
+     `the plan must actually be on the card: "${m.foot}"`);
+  ok(m.fitted, "the saveable card must fit its own plate");
+  ok(footFits(m.foot), "the plan line runs under the CTA");
+  // No name on it by default. A date is two people's business and whoever posts
+  // it decides how much to reveal; we hand them the plan, not their private life.
+  const named = dateModel({ when: "Sat", what: "Drinks tonight", where: "The Dog House" });
+  ok(!/\bSam\b|\bGabe\b/.test([named.foot, ...named.lines].join(" ")),
+     "the saveable card must not carry either person's name");
+  for (const bad of [dateModel({}), dateModel(null), dateModel({ when: "x".repeat(200) })]) {
+    ok(bad.lines.length >= 1 && bad.fitted, "the card has to survive a missing or absurd plan");
+    ok(!/undefined|null|NaN/.test([bad.foot, ...bad.lines].join(" ")), "a hole leaked into the saveable card");
+  }
+  // The path is built from the same vocabulary as everything else.
+  const url = datedCardPath("dinner", "Fri, August 14", "Ulele");
+  ok(/^\/api\/og\?kind=date/.test(url), `the card path is wrong: ${url}`);
+  ok(/what=Dinner(%20|\+)out/.test(url), `the activity label must be on the card path: ${url}`);
+  ok(datedCardPath("", "", "") === "/api/og?kind=date", "an empty plan still resolves to a card, never a broken URL");
+
+  const askSrc2 = readFileSync(path.join(REPO, "app/ask/AskClient.js"), "utf8");
+  ok(/navigator\.canShare/.test(askSrc2) && /files: \[file\]/.test(askSrc2),
+     "the card must be handed to the share sheet as a FILE — that is what puts it on a story instead of in a chat as a link");
+  ok(/window\.open\(url/.test(askSrc2),
+     "when files are unsupported the image must still open, because a long-press is how most people save one");
+  ok(/planFitsPlace\(inv, activity\) \? inv\.place/.test(askSrc2),
+     "the saveable card must not print a place the plan already moved away from — the same clash, one surface over");
 }
 
 // ── 7. EVERY SHARE BUTTON ASKS ─────────────────────────────────────────────

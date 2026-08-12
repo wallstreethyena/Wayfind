@@ -2,6 +2,7 @@ import { shareCardResponse, SHARE_CACHE } from "./card.jsx";
 import { shareCardFor, wcRotation } from "../../../lib/shareCards";
 import {
   placeModel, listModel, weatherModel, couponModel, experienceModel, defaultModel, inviteModel,
+  dateModel,
 } from "../../../lib/shareCardCopy.js";
 import { decodeInvite, curiousLine, curiousFoot } from "../../../lib/dateInvite.js";
 
@@ -47,6 +48,15 @@ export async function GET(req) {
       const line = curiousLine(inv);
       return shareCardResponse(inviteModel(inv, {
         head: line.head, accent: line.accent, foot: curiousFoot(inv),
+      }));
+    }
+
+    // THE SAVEABLE CARD. Once the plan is set the recipient can post this, so
+    // unlike the invite card it is allowed to say everything — the question has
+    // already been answered.
+    if (kind === "date") {
+      return shareCardResponse(dateModel({
+        when: get("when", 40), what: get("what", 40), where: get("where", 48),
       }));
     }
 

@@ -140,10 +140,10 @@ export function WayfindCard({ model }) {
 
       {/* The invite signs itself down here, quietly, once the question has
           already been asked. */}
-      {blush ? (
+      {blush && m.sign !== "" ? (
         <div style={{ position: "absolute", left: CARD.padX, top: 52, display: "flex", alignItems: "center" }}>
           <PixelHeart x={0} y={-2} px={2.4} fill="#FFFFFF" />
-          <div style={{ display: "flex", fontSize: 22, fontWeight: 700, color: "rgba(126,47,110,0.62)", marginLeft: 46 }}>an invitation</div>
+          <div style={{ display: "flex", fontSize: 22, fontWeight: 700, color: "rgba(126,47,110,0.62)", marginLeft: 46 }}>{m.sign || "an invitation"}</div>
         </div>
       ) : <div style={{ display: "flex" }} />}
     </div>

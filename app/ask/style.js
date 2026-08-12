@@ -158,6 +158,9 @@ export const ASK_CSS = `
     calc(100% - 9px) 100%,9px 100%,0 calc(100% - 9px),0 9px);
   box-shadow:inset 0 0 0 4px #FFF6FB,inset 0 0 0 7px #C0165A,0 7px 0 #8E0F3E}
 .wfx-go[disabled]{background:#C88BB0;box-shadow:inset 0 0 0 4px #FFF6FB,inset 0 0 0 7px #A87696,0 7px 0 #8E6480;cursor:default}
+.wfx-go2{margin-top:12px;background:#FFF6FB;color:#B01F4A;
+  box-shadow:inset 0 0 0 4px #E8236E,0 7px 0 rgba(140,20,70,.35)}
+
 .wfx-quiet{margin-top:18px;border:0;background:transparent;color:#FFF6FB;font-family:inherit;
   font-size:15px;letter-spacing:.6px;cursor:pointer;text-decoration:underline;
   text-shadow:0 2px 0 #7E1038}

@@ -113,6 +113,15 @@ ok(accentLines(["The 12 best", "dinners near you"], "nothing").length === 0, "an
 ok(accentLines(["Get $40 of food", "for $20 at Ulele"], "$20").join() === "1", "a later line can hold the accent");
 ok(accentLines(["one", "two"], "one two").length === 0, "an accent covering every line colours none — that is not an accent");
 ok(accentLines([], "x").length === 0, "no lines, no accents");
+// AN ACCENT IS A CONTRAST WITHIN A HEADLINE, so a set covering every line is not
+// an accent — it is a recolour. The rule existed for the word-fallback branch
+// and was missing from the whole-phrase one, so the single-line headline "It's a
+// date" came back fully accented and rendered entirely white on the blush tone.
+// Caught by looking at the rendered card, not by a test.
+ok(accentLines(["It's a date"], "date").length === 0,
+   "a one-line headline cannot be entirely accent — that is a recolour, not an accent");
+ok(accentLines(["Get $40 of food", "for $20"], "for $20").join() === "1",
+   "a phrase on one of several lines still accents that line");
 for (const h of HEADLINES) {
   const L = layoutHeadline(h);
   const a = accentLines(L.lines, "9.1");
