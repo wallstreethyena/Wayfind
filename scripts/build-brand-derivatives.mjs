@@ -34,6 +34,16 @@ const p = (rel) => fileURLToPath(new URL(rel, root));
 const JOBS = [
   { src: "public/brand/wayfind-default-hero-adobestock-289023289.jpeg", out: "public/brand/opt/hero", widths: [460, 760, 1120, 1600] },
   { src: "public/brand/wayfind-wordmark-transparent-v2.png", out: "public/brand/opt/wordmark", widths: [400] },
+  // The World Cup card's player art — 85KB PNG painted at 64x116.
+  { src: "public/wf-player.png", out: "public/opt/wf-player", widths: [142] },
+  // The detail-sheet gallery. 1.09MB of owner-shot photos across three files,
+  // fed to bare <img src> strings by WAYFIND_PHOTOS. Not first paint — this is
+  // a sheet the reader has to open — but it is the largest image payload left
+  // on the site, and it lands the moment somebody taps the one place we shot
+  // ourselves. 1000px covers the sheet at 2x.
+  { src: "public/wf-parcsoleil-1.jpg", out: "public/opt/wf-parcsoleil-1", widths: [1000] },
+  { src: "public/wf-parcsoleil-2.jpg", out: "public/opt/wf-parcsoleil-2", widths: [1000] },
+  { src: "public/wf-parcsoleil-3.jpg", out: "public/opt/wf-parcsoleil-3", widths: [1000] },
 ];
 
 // AVIF first because it wins on photographs by a wide margin; WebP is the
@@ -47,6 +57,7 @@ const FORMATS = [
 ];
 
 mkdirSync(p("public/brand/opt"), { recursive: true });
+mkdirSync(p("public/opt"), { recursive: true });
 
 let before = 0;
 let after = 0;

@@ -64,7 +64,11 @@ ok(pick([{ ratio: "1_1", width: 100, url: "ONLY" }]) === "ONLY", "must fall back
 // and client agree on one location and one featured event (issue #219).
 ok(/const initialEvents = null;/.test(page),
   "the SSR events seed is back on — it makes Happening-near-you swap content under the reader. Re-enable only once server and client agree on one location (#219).");
-ok(/<Home initialEvents=\{initialEvents\} \/>/.test(page), "the initialEvents prop must stay wired so re-enabling is a one-line change");
+// v7.29: matched as a PREFIX, not the whole element. <Home> now also carries
+// localEditGuides (the server-built "Read the local edit" index — see
+// lib/localEdit.js), and this assertion is about initialEvents staying wired,
+// not about <Home> never gaining another prop.
+ok(/<Home initialEvents=\{initialEvents\}[ />]/.test(page), "the initialEvents prop must stay wired so re-enabling is a one-line change");
 ok(/useState\(initialEvents\)/.test(home), "foryouEvents must still accept the prop");
 
 // TTFB protection: deriving the origin from headers() opts the route into

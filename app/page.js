@@ -11,6 +11,13 @@ import Home from "./home";
 import ProofVeil from "./components/ProofVeil";
 import { rankedFor, whyLine } from "../lib/landing";
 import { TOWN_HUBS, TOWN_PROFILES } from "../lib/culture";
+// v7.29 PERF: the "Read the local edit" index is built HERE, on the server,
+// once per revalidation. app/components/LocalEdit.js used to import the whole
+// GUIDES corpus to compute each guide's read time, which put 52.8KB of guide
+// prose into the homepage's client bundle to render three titles. See
+// lib/localEdit.js for why the split is safe.
+import { GUIDES } from "../lib/guides";
+import { localEditIndex } from "../lib/localEdit";
 
 export const revalidate = 3600;
 
@@ -115,7 +122,7 @@ export default async function Page() {
       <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>
         Wayfind — find the best things to do near you, right now
       </h1>
-      <Home initialEvents={initialEvents} />
+      <Home initialEvents={initialEvents} localEditGuides={localEditIndex(GUIDES)} />
       {/* Suspense so the app shell streams immediately; the proof block
           follows without adding a byte to time-to-first-paint. ProofVeil keeps
           it in the DOM for crawlers but removes it from the interactive view

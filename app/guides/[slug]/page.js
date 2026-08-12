@@ -129,7 +129,13 @@ const S = {
   pick: { margin: "0 0 16px", padding: "22px", borderRadius: 20, background: "linear-gradient(145deg,#101C2B,#0A1421)", border: "1px solid #26384B", boxShadow: "0 18px 45px rgba(0,0,0,.2)" },
 };
 
-const NEUTRAL_HERO = "/brand/wayfind-default-hero-adobestock-289023289.jpeg";
+// v7.29 PERF — the WebP derivative, not the 473KB original. This is the LCP
+// element on this route too, and it is full-bleed, so the 1600px candidate is
+// the same pixels the JPEG delivered at 31%% of the bytes (473KB -> 144.8KB).
+// WebP and not AVIF because this is a bare <img src> with no <picture> to fall
+// back from, and WebP is the format every browser we support can decode.
+// Built by scripts/build-brand-derivatives.mjs.
+const NEUTRAL_HERO = "/brand/opt/hero-1600.webp";
 
 function guideHero(g) {
   const haystack = `${g.title} ${g.keyword || ""}`.toLowerCase();

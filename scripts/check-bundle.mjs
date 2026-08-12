@@ -28,8 +28,20 @@ import { gzipSync } from "node:zlib";
 // targets — app/home.js is 388KB parsed and 58% of the route chunk, the guide
 // corpus rides along via LocalEdit, and lib/trendTaxonomy.js reaches the client
 // through the Exploding rail. Each of those lands as its own step DOWN.
-const ROUTE_CHUNK_BUDGET_KB = 215; // static/chunks/app/page-*.js, gzipped. RATCHET: lower only. Target 175.
-const TOTAL_BUDGET_KB = 545;       // every JS asset for route "/", gzipped.  RATCHET: lower only. Target 325.
+// THE 175 IS MET AGAIN. It was set as a target during the July decomposition and
+// had been failing at 212.0KB on main ever since, unseen. Splitting the guide
+// corpus out of LocalEdit (lib/localEdit.js — the corpus reached the client to
+// compute a read-time label) and putting ThingsToDoList behind next/dynamic took
+// the route chunk to 165.6KB, so the original number is restored rather than
+// left at the loosened 215 this file briefly carried.
+//
+// The total is 500 and not 325: 325 was never grounded in a measurement, and
+// 490.0KB is what the route honestly weighs today. RATCHETS — lower only. The
+// next real lever is app/home.js itself (388KB parsed, still the majority of
+// the route chunk) and lib/trendTaxonomy.js reaching the client through the
+// Exploding rail.
+const ROUTE_CHUNK_BUDGET_KB = 175; // static/chunks/app/page-*.js, gzipped. RATCHET: lower only.
+const TOTAL_BUDGET_KB = 500;       // every JS asset for route "/", gzipped.  RATCHET: lower only.
 
 const fail = (m) => { console.error("check-bundle: FAIL — " + m); process.exit(1); };
 
