@@ -218,7 +218,12 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   // The key survives the round trip and is readable aloud.
   const inv = decodeInvite(encodeInvite({ place: "Ulele", to: "Sam" }));
   ok(inv && inv.key && inv.key.length === 7, `the invite key did not survive: ${inv && inv.key}`);
-  ok(!/[ilo01]/.test(inv.key), `the key contains a character people misread: ${inv.key}`);
+  // Checked across ALL 400 draws, not one. The first version tested a single
+  // random key, so it passed twice by luck before it caught an alphabet that
+  // still contained "i" — the worst of the confusable set on a phone screen.
+  const badKeys = [...seen].map((c) => decodeInvite(c).key).filter((k) => /[ilo01]/.test(k));
+  ok(badKeys.length === 0,
+     `${badKeys.length}/400 keys contain a character people misread: ${badKeys.slice(0, 3).join(", ")}`);
   ok(newInviteKey(() => 0) === newInviteKey(() => 0), "newInviteKey must be a pure function of its randomness");
   ok(newInviteKey(() => 0) !== newInviteKey(() => 0.999), "newInviteKey ignores its randomness");
 
@@ -259,6 +264,17 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
      "the invited person must be able to send a message back — the owner asked for it by name");
   ok(/yesText\(inv, activity, dayLabel, \{ name: who, note \}\)/.test(client),
      "the reply must be built from what they actually typed");
+  // THE SEND STATE MUST BE EARNED. The first version flipped to SENT the instant
+  // the button was pressed and stayed there if the person cancelled the share
+  // sheet — telling them their yes had gone when it had not, on the one screen
+  // where they will never think to check.
+  ok(/setSent\("sent"\)/.test(client) && /AbortError/.test(client),
+     "the sent state must come from what the share actually did, not from the tap");
+  ok(!/setSent\("sent"\)[\s\S]{0,80}navigator\.share/.test(client),
+     "the sent state is set before the share is attempted");
+  ok(/aria-live/.test(client), "the result of sending has to be announced, not just coloured");
+  ok(/sms:/.test(client) && /iPad\|iPhone\|iPod/.test(client),
+     "the reply arrived as a text and should be able to go back as one — and the sms: body separator differs on iOS");
   ok(!/\brequired\b/.test(client),
      "nothing on this page may be required — a mandatory field between a yes and telling them is a place to lose the yes");
 }

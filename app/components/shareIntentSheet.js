@@ -122,7 +122,9 @@ export function askShareIntent(o) {
     input.setAttribute("autocomplete", "given-name");
     input.setAttribute("enterkeyhint", "send");
     input.setAttribute("maxlength", "24");
-    input.setAttribute("placeholder", "Sam");
+    // A format hint, not a guess at who they know. The first draft used "Sam",
+    // which reads as though we had picked somebody out of their contacts.
+    input.setAttribute("placeholder", "Their first name");
     input.setAttribute("aria-label", "Their first name, optional");
     card.appendChild(input);
 
