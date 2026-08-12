@@ -4,6 +4,7 @@
 // merely grep for provider names.
 
 import { readFileSync } from "node:fs";
+import { isAwinLive } from "../lib/awin.js";
 import { allIntentPartnerPicks, intentPartnerPick, intentPartnerPicks, inventoryPartnerPick, localPartnerQuery, mergePartnerInventory, normalizePartnerCity, partnerInventoryRequest, partnerRailInventory, resolvedIntentPartnerPick, resolvedIntentPartnerPicks } from "../lib/intentPartnerPicks.js";
 import { PARTNER_OFFER_REGISTRY } from "../lib/partnerOfferRegistry.js";
 import { PLACE_PARTNER_PICKS, placePartnerPick } from "../lib/placePartnerPicks.js";
@@ -196,6 +197,22 @@ for (const p of picks) {
     const resolved = await resolveOffer("citypass", p.offerId);
     ok(!resolved.error && /^https:\/\/www\.anrdoezrs\.net\/links\//.test(resolved.dest || ""), `${p.offerId} resolves through the verified CJ wrapper (got ${resolved.error || resolved.dest})`);
     ok(/\/sid\/intent_partner\/https:\/\/www\.citypass\.com\//.test(resolved.dest || ""), `${p.offerId} preserves the verified CityPASS destination behind the tracked redirect`);
+  } else if (String(p.provider).startsWith("awin_")) {
+    // AWIN NEEDS ITS OWN PATH, and the reason is specific: awin1.com/cread.php
+    // redirects correctly whether or not we are approved, so an Awin pick that
+    // is merely "not broken" can still earn nothing forever with no runtime
+    // symptom. Resolving it end-to-end is the only way to prove the tracked
+    // wrapper is actually built rather than fallen through to the raw URL.
+    const key = String(p.provider).slice("awin_".length);
+    ok(!!PARTNER_OFFER_REGISTRY[p.offerId], `${p.offerId} must have a hand-verified registry row — Awin destinations are never templated`);
+    const resolved = await resolveOffer(p.provider, p.offerId);
+    ok(!resolved.error && /^https:\/\/www\.awin1\.com\/cread\.php\?/.test(resolved.dest || ""),
+       `${p.offerId} resolves through the tracked Awin wrapper (got ${resolved.error || resolved.dest})`);
+    ok(/[?&]awinmid=\d+/.test(resolved.dest || ""), `${p.offerId} carries an awinmid — without it the click is unattributed and pays nothing`);
+    ok(/[?&]awinaffid=\d+/.test(resolved.dest || ""), `${p.offerId} carries our awinaffid`);
+    ok(/[?&]ued=https%3A%2F%2F/.test(resolved.dest || ""), `${p.offerId} preserves the verified destination behind the tracked redirect`);
+    ok(!/samboat\.com/.test(String(resolved.dest || "").split("ued=")[0]), `${p.offerId} must not hand out the RAW advertiser URL — that is the silent no-commission failure`);
+    ok(isAwinLive(key), `${p.offerId} is wired to awin_${key}, which must be an APPROVED programme`);
   } else {
     ok(false, `${p.offerId} uses provider "${p.provider}", which this guard has no validation path for yet`);
   }
