@@ -30,44 +30,44 @@ const P = {
 // ── the base cat: big head, small body, two paws, sitting ──────────────────
 const BASE = [
   "................",
-  "..oo........oo..",
-  ".owwo......owwo.",
-  ".owwwoooooowwwo.",
+  "...oo......oo...",
+  "..owwo....owwo..",
+  "..owwwoooowwwo..",
   ".owwwwwwwwwwwwo.",
-  ".owwwwwwwwwwwwo.",
-  ".owEEwwwwwwEEwo.",
-  ".owEEwwwwwwEEwo.",
-  ".owwwwwwwwwwwwo.",
-  ".owpwwwMMwwwpwo.",
+  "owwwwwwwwwwwwwwo",
+  "owwwwwwwwwwwwwwo",
+  "owEEwwwwwwwwEEwo",
+  "owEEwwwwwwwwEEwo",
+  "owwwwwwwwwwwwwwo",
+  "owpwwwwMMwwwwpwo",
+  "owwwwwwwwwwwwwwo",
   ".owwwwwwwwwwwwo.",
   "..owwwwwwwwwwo..",
-  "...owwwwwwwwo...",
-  "..oswwwwwwwwso..",
-  "..osswoooowsso..",
-  "...oooo..oooo...",
+  "...osswwwwsso...",
+  "....oooooooo....",
 ];
 
 // A rung is the base with rows swapped in. Writing them as PATCHES rather than
 // six full grids means a change to the body shape reaches every mood, and the
 // diff between two moods is exactly the difference you can see.
 const EARS = {
-  up:    [[1, "..oo........oo.."], [2, ".owwo......owwo."], [3, ".owwwoooooowwwo."]],
-  droop: [[1, "................"], [2, "oo............oo"], [3, ".owwoooooooowwo."]],
-  flat:  [[1, "................"], [2, "................"], [3, "ooowwoooooowwooo"]],
+  up:    [[1, "...oo......oo..."], [2, "..owwo....owwo.."], [3, "..owwwoooowwwo.."]],
+  droop: [[1, "................"], [2, ".oo..........oo."], [3, ".owwoooooooowwo."]],
+  flat:  [[1, "................"], [2, "................"], [3, "oowwwoooooowwwoo"]],
 };
 const EYES = {
-  dot:   [[6, ".owEEwwwwwwEEwo."], [7, ".owEEwwwwwwEEwo."]],
-  big:   [[6, ".oEEEwwwwwwEEEo."], [7, ".oEEEwwwwwwEEEo."]],
-  wet:   [[6, ".oEEEwwwwwwEEEo."], [7, ".oEwEwwwwwwEwEo."]],
-  shut:  [[6, ".owwwwwwwwwwwwo."], [7, ".owoowwwwwwoowo."]],
-  arc:   [[6, ".owowwwwwwwwowo."], [7, ".owwowwwwwwowwo."]],
+  dot:   [[7, "owEEwwwwwwwwEEwo"], [8, "owEEwwwwwwwwEEwo"]],
+  big:   [[7, "oEEEwwwwwwwwEEEo"], [8, "oEEEwwwwwwwwEEEo"]],
+  wet:   [[7, "oEEEwwwwwwwwEEEo"], [8, "oEwEwwwwwwwwEwEo"]],
+  shut:  [[7, "owwwwwwwwwwwwwwo"], [8, "owoowwwwwwwwoowo"]],
+  arc:   [[7, "owowwwwwwwwwwowo"], [8, "owwowwwwwwwwowwo"]],
 };
 const MOUTH = {
-  smile: [[9, ".owpwwwMMwwwpwo."]],
-  small: [[9, ".owpwwwoMwwwpwo."]],
-  wobble:[[9, ".owpwwoMowwwpwo."]],
-  open:  [[9, ".owpwwoMMowwpwo."]],
-  flat:  [[9, ".owpwwwooowwpwo."]],
+  smile: [[10, "owpwwwwMMwwwwpwo"]],
+  small: [[10, "owpwwwwoMwwwwpwo"]],
+  wobble:[[10, "owpwwwoMowwwwpwo"]],
+  open:  [[10, "owpwwwoMMowwwpwo"]],
+  flat:  [[10, "owpwwwwooowwwpwo"]],
 };
 
 function build(ears, eyes, mouth) {
@@ -145,9 +145,9 @@ export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false,
       {m.extra === "broken" ? <Grid rows={BREAK_GRID} pal={pal} px={px} x={px * 3} className="wfc-xbreak" /> : null}
       {m.extra === "sweat" ? <Grid rows={DROP_GRID} pal={pal} px={px} x={px * 13} y={px * 2} className="wfc-xsweat" /> : null}
       {m.extra === "tear" || m.extra === "tears"
-        ? <Grid rows={DROP_GRID} pal={pal} px={px} x={px * 2} y={top + px * 8} className="wfc-tear1" /> : null}
+        ? <Grid rows={DROP_GRID} pal={pal} px={px} x={px} y={top + px * 9} className="wfc-tear1" /> : null}
       {m.extra === "tears"
-        ? <Grid rows={DROP_GRID} pal={pal} px={px} x={px * 12} y={top + px * 8} className="wfc-tear2" /> : null}
+        ? <Grid rows={DROP_GRID} pal={pal} px={px} x={px * 11} y={top + px * 9} className="wfc-tear2" /> : null}
       <Grid rows={m.grid} pal={pal} px={px} y={top} />
     </svg>
   );

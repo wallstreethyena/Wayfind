@@ -32,7 +32,7 @@ export const ASK_CSS = `
 /* The dither. The reference fades a checkerboard out of the top of the sky —
    two pixels of a lighter magenta on a 8px grid, masked to the upper third. It
    is what makes a flat CSS gradient read as a 16-bit sky instead of a gradient. */
-.wfx-dither{position:absolute;left:0;right:0;top:0;height:46%;pointer-events:none;opacity:.5;
+.wfx-dither{position:absolute;left:0;right:0;top:0;height:34%;pointer-events:none;opacity:.34;
   background-image:linear-gradient(45deg,rgba(255,255,255,.18) 25%,transparent 25%,transparent 75%,rgba(255,255,255,.18) 75%),
     linear-gradient(45deg,rgba(255,255,255,.18) 25%,transparent 25%,transparent 75%,rgba(255,255,255,.18) 75%);
   background-size:10px 10px;background-position:0 0,5px 5px;
@@ -82,16 +82,16 @@ export const ASK_CSS = `
 /* TYPE. Crimson with a hard white outline and a deep shadow under it — the
    reference's exact treatment. The outline is four offsets rather than a blur,
    because a blurred pixel letter is a smudge. */
-.wfx-h1{margin:26px 0 0;font-weight:700;line-height:1.28;color:#B01F4A;letter-spacing:2px;
-  font-size:clamp(26px,7.4vw,34px);
-  text-shadow:2px 0 0 #FFF6FB,-2px 0 0 #FFF6FB,0 2px 0 #FFF6FB,0 -2px 0 #FFF6FB,
-    2px 2px 0 #FFF6FB,-2px 2px 0 #FFF6FB,2px -2px 0 #FFF6FB,-2px -2px 0 #FFF6FB,
-    0 6px 0 rgba(140,20,70,.30);
+.wfx-h1{margin:26px 0 0;font-weight:700;line-height:1.3;color:#5E0A2C;letter-spacing:2px;
+  font-size:clamp(27px,7.6vw,35px);
+  text-shadow:3px 0 0 #FFF6FB,-3px 0 0 #FFF6FB,0 3px 0 #FFF6FB,0 -3px 0 #FFF6FB,
+    3px 3px 0 #FFF6FB,-3px 3px 0 #FFF6FB,3px -3px 0 #FFF6FB,-3px -3px 0 #FFF6FB,
+    0 8px 0 rgba(94,10,44,.34);
   animation:wfxPop .38s steps(4,end)}
 @keyframes wfxPop{0%{transform:scale(.7);opacity:0}100%{transform:scale(1);opacity:1}}
 
-.wfx-sub{margin:14px 0 0;color:#8E1240;font-size:15px;letter-spacing:.8px;
-  text-shadow:1px 1px 0 #FFF6FB,-1px -1px 0 #FFF6FB,1px -1px 0 #FFF6FB,-1px 1px 0 #FFF6FB}
+.wfx-sub{margin:14px 0 0;color:#FFF6FB;font-size:16px;letter-spacing:1px;
+  text-shadow:0 2px 0 #7E1038,2px 0 0 rgba(94,10,44,.45),-2px 0 0 rgba(94,10,44,.45)}
 
 .wfx-row{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:26px;min-height:108px}
 
@@ -114,12 +114,12 @@ export const ASK_CSS = `
   padding:calc(9px * var(--n,1)) calc(18px * var(--n,1));font-size:calc(16px * var(--n,1));
   box-shadow:inset 0 0 0 3px #E27BB8,0 5px 0 rgba(140,20,70,.3);
   transition:font-size .3s steps(5,end),padding .3s steps(5,end)}
-.wfx-plea{margin-top:18px;color:#8E1240;font-size:15px;letter-spacing:.6px;min-height:20px;
-  text-shadow:1px 1px 0 #FFF6FB,-1px -1px 0 #FFF6FB,1px -1px 0 #FFF6FB,-1px 1px 0 #FFF6FB;
+.wfx-plea{margin-top:18px;color:#FFF6FB;font-size:16px;letter-spacing:.8px;min-height:22px;
+  text-shadow:0 2px 0 #7E1038,2px 0 0 rgba(94,10,44,.45),-2px 0 0 rgba(94,10,44,.45);
   animation:wfxPop .24s steps(3,end)}
 
 .wfx-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;margin-top:24px}
-.wfx-chip{border:0;cursor:pointer;font-family:inherit;font-weight:400;color:#B01F4A;background:#FFF6FB;
+.wfx-chip{border:0;cursor:pointer;font-family:inherit;font-weight:400;color:#6E0B33;background:#FFF6FB;
   padding:14px 8px;font-size:14px;letter-spacing:1px;line-height:1.3;min-height:54px;
   display:flex;align-items:center;justify-content:center;
   box-shadow:inset 0 0 0 4px #E8236E,0 5px 0 rgba(140,20,70,.3);
@@ -131,13 +131,13 @@ export const ASK_CSS = `
 .wfx-cal{width:100%;margin-top:20px;background:#FFF6FB;padding:14px 12px 16px;
   box-shadow:inset 0 0 0 4px #E8236E,0 8px 0 rgba(140,20,70,.3)}
 .wfx-calhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;
-  color:#B01F4A;font-weight:700;font-size:16px;letter-spacing:1px}
+  color:#6E0B33;font-weight:700;font-size:16px;letter-spacing:1px}
 .wfx-calnav{border:0;background:transparent;color:#B01F4A;font-family:inherit;font-size:20px;
   cursor:pointer;padding:0 12px;line-height:1}
 .wfx-calnav[disabled]{opacity:.25;cursor:default}
 .wfx-caldays,.wfx-calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .wfx-caldays div{color:#C4658F;font-size:11px;padding-bottom:4px}
-.wfx-day{border:0;background:#FBE6F3;color:#8E1240;font-family:inherit;font-size:14px;
+.wfx-day{border:0;background:#FBE6F3;color:#5E0A2C;font-family:inherit;font-size:14px;
   padding:8px 0;cursor:pointer}
 .wfx-day[disabled]{background:transparent;color:#DCA9C6;cursor:default}
 .wfx-day[aria-pressed="true"]{background:#E8236E;color:#FFF6FB;box-shadow:inset 0 0 0 2px #FFF6FB}
@@ -148,17 +148,17 @@ export const ASK_CSS = `
     calc(100% - 9px) 100%,9px 100%,0 calc(100% - 9px),0 9px);
   box-shadow:inset 0 0 0 4px #FFF6FB,inset 0 0 0 7px #C0165A,0 7px 0 #8E0F3E}
 .wfx-go[disabled]{background:#C88BB0;box-shadow:inset 0 0 0 4px #FFF6FB,inset 0 0 0 7px #A87696,0 7px 0 #8E6480;cursor:default}
-.wfx-quiet{margin-top:18px;border:0;background:transparent;color:#8E1240;font-family:inherit;
-  font-size:14px;letter-spacing:.6px;cursor:pointer;text-decoration:underline;
-  text-shadow:1px 1px 0 #FFF6FB,-1px -1px 0 #FFF6FB}
+.wfx-quiet{margin-top:18px;border:0;background:transparent;color:#FFF6FB;font-family:inherit;
+  font-size:15px;letter-spacing:.6px;cursor:pointer;text-decoration:underline;
+  text-shadow:0 2px 0 #7E1038}
 
-.wfx-card{width:100%;margin-top:22px;background:#FFF6FB;padding:16px 18px;color:#8E1240;
+.wfx-card{width:100%;margin-top:22px;background:#FFF6FB;padding:16px 18px;color:#5E0A2C;
   font-size:15px;line-height:1.9;letter-spacing:.6px;text-align:left;
   box-shadow:inset 0 0 0 4px #E8236E,0 8px 0 rgba(140,20,70,.3)}
-.wfx-card b{color:#B01F4A;font-weight:700}
+.wfx-card b{color:#C0165A;font-weight:700}
 
 .wfx-mark{margin-top:22px;display:flex;align-items:center;justify-content:center;gap:8px;
-  color:#FFF0F8;font-size:12px;letter-spacing:1.4px;text-shadow:0 2px 0 rgba(140,20,70,.4)}
+  color:#FFF0F8;font-size:13px;letter-spacing:1.4px;text-shadow:0 2px 0 #7E1038}
 
 /* ── THE CAST ─────────────────────────────────────────────────────────────
    Fast and looping, per the owner. Sub-second cycles on purpose: at 1.5s a
