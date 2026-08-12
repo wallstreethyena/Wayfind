@@ -54,7 +54,7 @@ export default function TodaysBest({ center, weather, onLog }) {
     try { onLog && onLog("todays_best_open", null, { section: id }); } catch (e) {}
     const centerKey = center ? center.lat.toFixed(3) + "," + center.lng.toFixed(3) : "";
     if (fetchedFor.current !== centerKey) { fetchedFor.current = centerKey; setRows({}); }
-    // v7.39 — TWO BUGS, BOTH OF THEM THE SAME ONE BestNearby CARRIED.
+    // v7.40 — TWO BUGS, BOTH OF THEM THE SAME ONE BestNearby CARRIED.
     //
     //  1. THE FETCH RAN INSIDE THE UPDATER. React updaters must be pure; under
     //     StrictMode or any replayed render this fired twice, because the replay
