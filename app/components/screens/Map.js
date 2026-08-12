@@ -6,6 +6,8 @@ import { C, scoreLabel, PlaceScoreChip } from "../kit";
 import { MAP_DEFAULT_CATEGORY } from "../../../lib/mapExplorer";
 import { TRENDING_BONUS } from "../../../lib/wayfindScore";
 import IconicPlaceCard from "../IconicPlaceCard";
+import useMissingPlacePhotos from "../useMissingPlacePhotos";
+import { tbPhotoUrl } from "../../../lib/todaysBest";
 
 function tasteBoost(place) {
   try { const k = String((place && place.type) || ""); if (!k) return 0; const t = JSON.parse(localStorage.getItem("wf_taste_v1") || "{}"); return Math.min(3, (t[k] || 0) * 0.5); } catch (e) { return 0; }
@@ -46,6 +48,46 @@ export default function MapScreen({ ctx }) {
   // via ctx.searchMapArea — the same manual-recenter path area search uses.
   const [areaOffer, setAreaOffer] = useState(null);
   const { searchMapArea, mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, map3D, setMap3D, mapRetryKey, setMapRetryKey, cat, setCat, sub, setSub, setVibe, sortBy, center, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, events, eventsLoading, eventsUnavailable, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, suggested, places, liked, disliked, view, featuredBoost, MapView, CategoryMenu, FallbackImg, iconForPlace, liveOpen, logEvent, loadEvents, openDetail, openVenue, ticketUrl, Hol, recenterToMe, isBeach, beachSignals, PlaceCard, isSaved, toggleLike, toggleDislike, quickSaveFavorite, addShared, giveawayMark, blurbs, openExperience, openCuisine, cityNow, mapDefaultAppliedRef } = ctx;
+  // THE MONOGRAM. Owner, with a screenshot of a card reading "RP" where a photo
+  // should be: "some places with no images."
+  //
+  // It is not a map-specific field-name bug — IconicPlaceCard resolves a photo
+  // exactly the way the home cards do. The asymmetry is the HEALING. Owned
+  // inventory rows arrive with no photo at all when they have no photo_ref
+  // (lib/inventoryServe.js), and home's rails repair that at runtime through
+  // useMissingPlacePhotos — a name+geo lookup against the already-cached
+  // /api/places/search. The map screen was never a caller. It bites here
+  // hardest because opening the Map tab forces the `attractions` category,
+  // which is the most inventory-served of them all.
+  //
+  // GATED TO WHAT IS ON SCREEN, not to all sixty pins. The card the person is
+  // looking at, plus the drawer's first rows only while the drawer is open.
+  // The hook already caps itself at two requests in flight, caches per page,
+  // and never re-asks for a place it has resolved — but handing it sixty
+  // places would still turn opening the map into a request burst, which is the
+  // opposite of the load-time work in v7.39.
+  const photoWants = [];
+  if (mapPreview) photoWants.push(mapPreview);
+  if (mapDrawer && Array.isArray(view)) for (const p of view.slice(0, 12)) photoWants.push(p);
+  const photoRefFor = useMissingPlacePhotos(photoWants, center, mapMode === "places");
+  // TWO CONSUMERS, TWO FIELDS — and that difference is exactly the kind of
+  // thing that makes a fix look applied while doing nothing. IconicPlaceCard
+  // (the pin-tap card) reads `photoRef` and builds the URL itself;
+  // PlaceCard (the drawer rows, shared with the home rails) reads `photo`, an
+  // already-built URL. Filling only one of them heals only one surface.
+  //
+  // Returns the place UNCHANGED when nothing was healed, so a place that
+  // already has its own imagery keeps its object identity and React does not
+  // re-render the row for nothing.
+  const withPhoto = (p) => {
+    if (!p) return p;
+    if (p.photoRef || (typeof p.photo === "string" && p.photo)) return p;
+    const ref = photoRefFor(p);
+    if (!ref) return p;
+    const url = tbPhotoUrl(ref, 480);
+    return url ? { ...p, photoRef: ref, photo: url } : p;
+  };
+
   // Owner ask (2026-08-03): "we should open the map defaulted to activities
   // showing the activities near the user" -- `cat` is shared, single-source-
   // of-truth state across Home/Map/Itinerary (see CategoryMenu's own header
@@ -232,7 +274,7 @@ export default function MapScreen({ ctx }) {
                         <button onClick={() => setMapPreview(null)} aria-label="Close" style={{ position: "absolute", top: 4, right: 4, width: 44, height: 44, border: "none", background: "transparent", color: "#fff", fontSize: 15, cursor: "pointer", zIndex: 3 }}>&#10005;</button>
                         <ul style={{ listStyle: "none", margin: 0, padding: "0 8px" }}>
                           <IconicPlaceCard
-                            place={mp}
+                            place={withPhoto(mp)}
                             rank={pos || 1}
                             href={"/p/" + encodeURIComponent(mp.id)}
                             editorial={typeof blurb === "string" ? blurb : null}
@@ -320,7 +362,7 @@ export default function MapScreen({ ctx }) {
                               PlaceCard, so the numbers on a card here now match the
                               numbers on that same place everywhere else in this session. */}
                           {view.map((p, i) => (
-                            <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!(liked && liked[p.id])} disliked={!!(disliked && disliked[p.id])} onDetail={() => { setMapPreview(p); setMapFocus({ lat: p.lat, lng: p.lng, ts: Date.now() }); setMapDrawer(false); }} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals && beachSignals[p.id]} city={cityNow} />
+                            <PlaceCard key={p.id} p={withPhoto(p)} rank={i + 1} saved={isSaved(p.id)} liked={!!(liked && liked[p.id])} disliked={!!(disliked && disliked[p.id])} onDetail={() => { setMapPreview(p); setMapFocus({ lat: p.lat, lng: p.lng, ts: Date.now() }); setMapDrawer(false); }} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals && beachSignals[p.id]} city={cityNow} />
                           ))}
                         </div>
                       )}
