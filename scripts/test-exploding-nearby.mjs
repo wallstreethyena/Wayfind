@@ -8,7 +8,8 @@ import { governedTrendPlace, hasSpecificTrendEvidence, matchAvailabilityAllows, 
 import { matchConcept, MATCH_CODES } from "../lib/trendMatch.js";
 import { TREND_EVENTS, SUCCESS_METRICS } from "../lib/trendTelemetry.js";
 import { recommendationIds, uniqueRecommendations } from "../lib/recommendationDedupe.js";
-import { loadProvidedTrendList, placeFromGoogle, SCHEDULE_REQUIRED } from "../lib/explodingLaunchSearch.js";
+import { loadProvidedTrendList, placeFromGoogle, SCHEDULE_REQUIRED, launchTrendsForBucket, LAUNCH_MAX_TRENDS } from "../lib/explodingLaunchSearch.js";
+import { TIME_BUCKETS } from "../lib/nowContext.js";
 
 let pass = 0;
 const fail = (m) => { console.error("test-exploding-nearby: FAIL — " + m); process.exit(1); };
@@ -16,13 +17,28 @@ const ok = (c, m) => { if (!c) fail(m); pass++; };
 const read = (p) => readFileSync(new URL("../" + p, import.meta.url), "utf8");
 
 const EXPECTED = [
-  "Smash burgers", "Soft clubbing", "Cold-plunge saunas", "Social wellness clubs", "Puppy yoga",
-  "Hojicha lattes", "Candlelight concerts", "Immersive Gamebox", "Dubai chocolate", "Black-sesame lattes",
-  "Hwachae", "Tanghulu", "Kunafa", "Protein ice cream", "Immersive dining", "Pilates reformer",
-  "Rucking", "Breathwork", "Forest bathing", "Kintsugi",
+  "Smash burgers", "Elevated ramen and noodle bowls", "Caribbean curry bowls", "Miso and umami seafood",
+  "Functional smoothies and a\u00e7a\u00ed bowls", "High-protein grab-and-go", "Fiber and gut-health food",
+  "Fermented and pickled flavors", "Matcha and specialty coffee", "Zero-proof and low-ABV cocktails",
+  "Savory cocktails", "Food halls", "Experiential dining", "Reformer Pilates and Lagree",
+  "Cold plunge and sauna recovery", "Social wellness clubs", "Soft clubbing and coffee raves",
+  "Listening bars", "Pickleball and padel", "Golf simulators and social play",
 ];
 ok(EXPLODING_NEARBY_UNIVERSE.length === 20, `the launch universe has exactly 20 trends, got ${EXPLODING_NEARBY_UNIVERSE.length}`);
-ok(JSON.stringify(EXPLODING_NEARBY_UNIVERSE.map((t) => t.label)) === JSON.stringify(EXPECTED), "the 20 labels and their supplied order are exact");
+ok(JSON.stringify(EXPLODING_NEARBY_UNIVERSE.map((t) => t.label)) === JSON.stringify(EXPECTED), "the 20 labels and the owner's rank order are exact");
+const ranks = EXPLODING_NEARBY_UNIVERSE.map((t) => t.rank);
+ok(ranks.length === new Set(ranks).size && Math.min(...ranks) === 1 && Math.max(...ranks) === 20, "owner ranks are 1..20 and unique");
+for (const t of EXPLODING_NEARBY_UNIVERSE) {
+  ok(TIME_BUCKETS.includes(t.primaryBucket), `${t.key} declares a real primary daypart`);
+  ok(Array.isArray(t.alsoBuckets) && t.alsoBuckets.every((b) => TIME_BUCKETS.includes(b)) && !t.alsoBuckets.includes(t.primaryBucket),
+    `${t.key} also-works windows are real buckets and never repeat the primary`);
+}
+ok(JSON.stringify(launchTrendsForBucket("night").map((t) => t.rank)) === JSON.stringify([1, 2, 4, 8, 10, 11, 13, 18, 20, 3, 12, 19]),
+  "night eligibility is primary-night trends by owner rank, then also-works trends by owner rank");
+ok(JSON.stringify(launchTrendsForBucket("morning").map((t) => t.rank)) === JSON.stringify([5, 6, 7, 9, 14, 15, 16, 17, 19]),
+  "morning eligibility follows the owner's daypart table");
+ok(JSON.stringify(launchTrendsForBucket("afternoon").map((t) => t.rank)) === JSON.stringify([3, 12, 19, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 20]),
+  "afternoon leads with its primary trends and then admits every also-works trend by rank");
 ok(EXPLODING_NEARBY_KEYS.length === new Set(EXPLODING_NEARBY_KEYS).size, "every launch concept key is unique");
 ok(SCHEDULE_REQUIRED.has("soft_clubbing") && SCHEDULE_REQUIRED.has("puppy_yoga") && SCHEDULE_REQUIRED.has("candlelight_concerts"),
   "event-shaped trends cannot be inferred from a place search without a dated occurrence");
@@ -62,11 +78,28 @@ ok(placeFromGoogle(googlePlace("plain-cafe", "Main Street Coffee", ["cafe", "cof
   "an exact Google query still cannot turn a generic cafe into a hojicha match");
 ok(placeFromGoogle(googlePlace("smash-live", "Smashburger", ["hamburger_restaurant", "restaurant"]), "smash_burgers", center)?.governedScore > 0,
   "a correctly typed Google result whose own identity proves the offering receives the governed score");
+// Proof cases for the new top-20 concepts: type proof and name proof.
+ok(placeFromGoogle(googlePlace("ramen-type", "Kazu Kitchen", ["ramen_restaurant", "restaurant"]), "elevated_ramen", center)?.governedScore > 0,
+  "a dedicated Google type proves the offering even when the name says nothing (types are truth)");
+ok(placeFromGoogle(googlePlace("ramen-none", "Joe's Diner", ["restaurant"]), "elevated_ramen", center) == null,
+  "a generic restaurant with no ramen identity is refused for the ramen trend");
+ok(placeFromGoogle(googlePlace("matcha-name", "Blossom Matcha Bar", ["cafe"]), "matcha_specialty_coffee", center)?.governedScore > 0,
+  "a cafe whose own identity names matcha is admitted by name proof");
+ok(placeFromGoogle(googlePlace("matcha-chain", "Starbucks", ["coffee_shop", "cafe"]), "matcha_specialty_coffee", center) == null,
+  "a generic coffee chain is not a matcha or specialty answer without proof");
+ok(placeFromGoogle(googlePlace("golf-shop", "Golf Galaxy", ["sporting_goods_store", "store"]), "golf_simulators", center) == null,
+  "a golf shop selling clubs is vetoed by type: names lie");
+ok(placeFromGoogle(googlePlace("curry-wrong", "Curry Palace Indian Cuisine", ["indian_restaurant", "restaurant"]), "caribbean_curry_bowls", center) == null,
+  "an Indian curry house is not a Caribbean curry answer: the word curry alone is not identity");
+
 const searchCalls = [];
 const liveByQuery = [
   [/smash burger/i, googlePlace("live-smash", "Smashburger", ["hamburger_restaurant", "restaurant"])],
+  [/ramen/i, googlePlace("live-ramen", "Kazu Kitchen", ["ramen_restaurant", "restaurant"])],
+  [/golf simulator/i, googlePlace("live-golf", "Five Iron Golf", ["amusement_center", "bar"])],
+  // Morning trends: present in the fixture so a leak would be caught, below.
   [/cold plunge|sauna/i, googlePlace("live-sauna", "Perspire Sauna Studio", ["spa", "wellness_center"])],
-  [/social wellness/i, googlePlace("live-wellness", "Reset Social Wellness Club", ["wellness_center", "social_club"])],
+  [/pilates/i, googlePlace("live-pilates", "Club Pilates Sarasota", ["pilates_studio", "gym"])],
 ];
 const fakeFetch = async (url) => {
   searchCalls.push(String(url));
@@ -74,14 +107,70 @@ const fakeFetch = async (url) => {
   const row = liveByQuery.find(([re]) => re.test(q));
   return { ok: true, status: 200, json: async () => ({ places: row ? [row[1]] : [] }) };
 };
-const liveList = await loadProvidedTrendList({ center, city: "Sarasota", fetchImpl: fakeFetch });
-ok(liveList.status === "ok" && liveList.source === "provided-20-trend-list", "the launch feed reads the supplied list rather than a Semrush API");
-ok(JSON.stringify(liveList.trends.map((t) => t.conceptKey)) === JSON.stringify(["smash_burgers", "cold_plunge_sauna", "social_wellness_clubs"]),
-  "every locally proven supplied concept becomes a launch answer, in supplied order");
-ok(searchCalls.length === 17 && searchCalls.every((u) => u.startsWith("/api/places/search?")),
-  "the WHOLE searchable universe (20 minus 3 schedule-required) is swept through the shared Google-search cache, never through a trend-provider API — owner 2026-08-11: every trend category gets its chance at a card");
+const liveList = await loadProvidedTrendList({ center, city: "Sarasota", bucket: "night", fetchImpl: fakeFetch });
+ok(liveList.status === "ok" && liveList.source === "provided-20-trend-list" && liveList.bucket === "night",
+  "the launch feed reads the supplied list rather than a Semrush API and names the daypart it served");
+ok(JSON.stringify(liveList.trends.map((t) => t.conceptKey)) === JSON.stringify(["smash_burgers", "elevated_ramen", "golf_simulators"]),
+  "night answers surface in the owner's rank order");
+ok(searchCalls.length === 12 && searchCalls.every((u) => u.startsWith("/api/places/search?")),
+  "exactly the 12 night-eligible trends are searched through the shared Google-search cache, never a trend-provider API");
+ok(!searchCalls.some((u) => /pilates|sauna|matcha|acai/i.test(decodeURIComponent(u))),
+  "a morning trend is never searched at night: the daypart trigger is also the cost gate");
 ok(typeof liveList.trends[0].stat === "string" && /650%/.test(liveList.trends[0].stat),
-  "each launch trend carries its owner-supplied search-data stat, so the card can share the evidence");
+  "a launch trend still carries its owner-supplied search-data stat when one exists");
+
+const morningCalls = [];
+const morningFetch = async (url) => {
+  morningCalls.push(String(url));
+  const q = new URL(String(url), "https://wayfind.test").searchParams.get("q") || "";
+  const row = liveByQuery.find(([re]) => re.test(q));
+  return { ok: true, status: 200, json: async () => ({ places: row ? [row[1]] : [] }) };
+};
+const morningList = await loadProvidedTrendList({ center, city: "Sarasota", bucket: "morning", fetchImpl: morningFetch });
+ok(JSON.stringify(morningList.trends.map((t) => t.conceptKey)) === JSON.stringify(["pilates_reformer", "cold_plunge_sauna"]),
+  "morning serves the morning trends in owner rank order (#14 before #15)");
+ok(morningCalls.length === 8, "8 searchable morning trends: 9 eligible minus schedule-required soft clubbing");
+ok(!morningCalls.some((u) => /smash|golf|martini/i.test(decodeURIComponent(u))), "a night trend is never searched in the morning");
+
+// The ranked walk stops at ten modules (owner: "top 10 ideally, work our way down").
+const PROOF_PLACE = {
+  smash_burgers: ["Smashburger", ["hamburger_restaurant"]],
+  elevated_ramen: ["Kazu Kitchen", ["ramen_restaurant"]],
+  caribbean_curry_bowls: ["Island Spice Jamaican Kitchen", ["restaurant"]],
+  miso_umami_seafood: ["Sora Sushi", ["sushi_restaurant"]],
+  functional_smoothie_acai: ["Beach Bowls Acai", ["acai_shop"]],
+  high_protein_grab_and_go: ["Fuel Nutrition", ["juice_shop"]],
+  gut_health_food: ["Culture Kombucha Taproom", ["cafe"]],
+  fermented_pickled: ["Seoul Garden", ["korean_restaurant"]],
+  matcha_specialty_coffee: ["Blossom Matcha Bar", ["cafe"]],
+  mocktail_bar: ["The Dry Bar", ["bar"]],
+  savory_cocktails: ["Velvet Martini Lounge", ["bar"]],
+  food_hall: ["Sarasota Public Market", ["food_court"]],
+  immersive_dining: ["Ember Immersive Dining", ["restaurant", "event_venue"]],
+  pilates_reformer: ["Club Pilates Sarasota", ["pilates_studio"]],
+  cold_plunge_sauna: ["Perspire Sauna Studio", ["spa", "wellness_center"]],
+  social_wellness_clubs: ["Reset Social Wellness Club", ["wellness_center", "social_club"]],
+  listening_bar: ["Analog Listening Room", ["bar"]],
+  pickleball: ["The Pickle Yard", ["sports_complex"]],
+  golf_simulators: ["Five Iron Golf", ["amusement_center", "bar"]],
+};
+const queryToKey = Object.fromEntries(Object.keys(PROOF_PLACE).map((k) => [CONCEPTS[k].query.replace("{metro}", "Sarasota"), k]));
+const capCalls = [];
+const capFetch = async (url) => {
+  capCalls.push(String(url));
+  const q = new URL(String(url), "https://wayfind.test").searchParams.get("q") || "";
+  const key = queryToKey[q];
+  const spec = key && PROOF_PLACE[key];
+  return { ok: true, status: 200, json: async () => ({ places: spec ? [googlePlace("cap-" + key, spec[0], spec[1])] : [] }) };
+};
+const capList = await loadProvidedTrendList({ center, city: "Sarasota", bucket: "afternoon", fetchImpl: capFetch });
+ok(capList.trends.length === LAUNCH_MAX_TRENDS,
+  "the afternoon walk stops at ten modules, the TOP of the owner's list");
+ok(JSON.stringify(capList.trends.map((t) => t.conceptKey)) === JSON.stringify([
+  "caribbean_curry_bowls", "food_hall", "pickleball", "smash_burgers", "elevated_ramen",
+  "miso_umami_seafood", "functional_smoothie_acai", "high_protein_grab_and_go", "gut_health_food", "fermented_pickled",
+]), "the ten winners are the primary-afternoon trends and then the highest-ranked also-works trends");
+ok(capCalls.length === 12, "the ranked walk stops searching once the display budget is met, never sweeping all nineteen");
 const inv = (id, name, category, rating, reviews, lat, primaryType) => ({
   place_id: id, name, category, metro: "manatee-sarasota", lat, lng: -82.531,
   status: "OPERATIONAL", needs_review: false, primary_type: primaryType,
@@ -108,9 +197,11 @@ const matches = [
   match_evidence: [{ kind: "officialSource" }], public_explanation: "Verified offering", manual_state: "allow",
 }));
 const selected = selectExplodingNearby({ topics, matches, inventory, center });
-ok(selected.length === 4, `every locally actionable trend surfaces (no head-of-3 cap), got ${selected.length}`);
-ok(JSON.stringify(selected.map((g) => g.conceptKey)) === JSON.stringify(["smash_burgers", "cold_plunge_sauna", "pilates_reformer", "hojicha_lattes"]),
-  "topic momentum plus verified inventory orders the modules; every verified concept appears");
+ok(selected.length === 3, `every locally actionable RANKED trend surfaces, got ${selected.length}`);
+ok(JSON.stringify(selected.map((g) => g.conceptKey)) === JSON.stringify(["smash_burgers", "cold_plunge_sauna", "pilates_reformer"]),
+  "topic momentum plus verified inventory orders the modules");
+ok(!selected.some((g) => g.conceptKey === "hojicha_lattes"),
+  "a concept outside the owner's ranked top-20 universe never renders a module, even with a verified match");
 ok(selected[0].matches[0].name === "Better Smash", "inside a trend, the higher governed Wayfind Score leads");
 ok(!Object.prototype.hasOwnProperty.call(selected[0], "trendStrength"), "raw strength is used server-side and never returned to the card");
 
@@ -158,7 +249,7 @@ ok(ui.includes("Trend momentum selects experiences. Wayfind Score ranks places. 
 
 const home = read("app/components/BestNearby.js");
 ok(home.indexOf("<ExplodingNearby") < home.indexOf('data-rail="top40"'), "Exploding Near You is the first answer in the existing discovery accordion");
-ok(/label: "Exploding Near You"[^}]*emoji: "🔥"/.test(home) && !/label: "🔥 Exploding Near You"/.test(home),
+ok(/label: "Exploding Trends Near You"[^}]*emoji: "🔥"/.test(home) && !/label: "🔥 Exploding Trends Near You"/.test(home),
   "the Exploding header tile renders one real fire emoji without duplicating it in the title");
 ok(/uniqueRecommendations\(top40, explodingClaimed, TOP40_MAX\)/.test(home) &&
   /uniqueRecommendations\(rows\.eat, eatClaimedBefore, 10\)/.test(home) &&

@@ -344,6 +344,8 @@ node scripts/test-trend-rights.mjs
 node scripts/test-trend-ingest.mjs
 node scripts/test-trend-classify.mjs
 node scripts/test-exploding-nearby.mjs
+node scripts/test-marquee-day-trips.mjs
+node scripts/test-pairs-well-with.mjs
 node scripts/test-trend-order.mjs
 node scripts/check-trend-integrity.mjs
 

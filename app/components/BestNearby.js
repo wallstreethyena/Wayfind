@@ -328,7 +328,7 @@ function SectionShell({ sdef, isOpen, first, onToggle, nodeRef, children }) {
 // The Top 40's own header. Not a member of SECTIONS because its rail JSX has to
 // stay ABOVE the {SECTIONS.map( call (scripts/check-top40-rail.mjs pins that
 // order, and the rail is what the whole panel is named after).
-const EXPLODING_SECTION = { id: "exploding", label: "Exploding Near You", sub: "Everyone's searching these. Wayfind found where to try them near you.", emoji: "🔥", heading: true, maxHeight: 24000 };
+const EXPLODING_SECTION = { id: "exploding", label: "Exploding Trends Near You", sub: "Everyone's searching these. Wayfind found where to try them near you.", emoji: "🔥", heading: true, maxHeight: 24000 };
 const TOP40_SECTION = { id: "best", label: "The Best Around You", sub: "Ten answers, zero tabs: the highest Wayfind Scores near you. No paid placement.", icon: "award" };
 
 // The sections whose data `load()` below knows how to fetch. Everything else in

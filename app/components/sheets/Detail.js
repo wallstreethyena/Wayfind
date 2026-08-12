@@ -25,6 +25,7 @@ import { emitCommerce, commerceHref, mintClickId } from "../../../lib/commerce";
 import { funnelProps } from "../../../lib/funnel";
 import { useCommerceImpression } from "../useCommerceImpression";
 import { placePartnerPick } from "../../../lib/placePartnerPicks";
+import { pairsWellWith } from "../../../lib/pairsWellWith";
 
 // Community takes (v6.54, owner: "the review is capped on characters we
 // should be able to allow the user to have more characters and write it
@@ -1414,6 +1415,43 @@ export default function DetailSheet({ ctx }) {
                             <PlaceScoreChip p={p} size={12} />
                             {(() => { const lo = typeof liveOpen === "function" ? liveOpen(p) : p.openNow; return lo === true ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>· Open</span> : lo === false ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.red }}>· Closed</span> : null; })()}
                             {p.distMi != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
+                          </div>
+                        </div>
+                        <span style={{ fontSize: 18, color: C.muted, flexShrink: 0 }}>›</span>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+
+              {/* "Pairs well with" (owner voice note, 2026-08-11) — the
+                  DISCOVERY LOOP. Complements, never the same kind: dinner
+                  leads to dessert leads to a nightcap; a museum leads to a
+                  cafe. Distance is from THIS place (the next stop on the same
+                  outing), the daypart comes from the one clock, the pool is
+                  the already-loaded places (zero fetches), and tapping a
+                  pairing opens ITS detail sheet — where its own pairings
+                  continue the loop. lib/pairsWellWith.js owns the law:
+                  role fit, then distance, then score. Commission is never
+                  an input. */}
+              {!detail._event && (() => {
+                const pairPool = dedupePlaces([...(suggested || []), ...places]);
+                const pairs = pairsWellWith(detail, pairPool, {});
+                if (!pairs.length) return null;
+                return (
+                  <div style={{ marginBottom: 16 }} data-pairs-well-with>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 3 }}>Pairs well with {detail.name}</div>
+                    <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Make it a plan: the stops nearby that go with this one at this hour.</div>
+                    {pairs.map(({ p, reason, pairDistMi }) => (
+                      <div key={"pair-" + p.id} onClick={() => openDetail(p)} style={{ display: "flex", gap: 11, alignItems: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 10, marginBottom: 8, cursor: "pointer" }}>
+                        <FallbackImg src={p.photo} icon="📍" style={{ width: 58, height: 58, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
+                          <div style={{ fontSize: 12, color: C.light, fontWeight: 600, lineHeight: 1.4, marginTop: 2 }}>{reason}</div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 2 }}>
+                            <PlaceScoreChip p={p} size={12} />
+                            {(() => { const lo = typeof liveOpen === "function" ? liveOpen(p) : p.openNow; return lo === true ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>· Open</span> : lo === false ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.red }}>· Closed</span> : null; })()}
+                            <span style={{ fontSize: 11.5, color: C.muted }}>· {pairDistMi} mi from here</span>
                           </div>
                         </div>
                         <span style={{ fontSize: 18, color: C.muted, flexShrink: 0 }}>›</span>

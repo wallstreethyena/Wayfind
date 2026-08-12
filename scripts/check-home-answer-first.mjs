@@ -257,7 +257,7 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   // ── the answer and exact hierarchy ──
   ok(/sdef\.heading[\s\S]{0,100}<h2[^>]*>[\s\S]{0,80}\{sdef\.label\}<\/h2>/.test(BN),
      "the Exploding answer renders as an h2 — it is the page's real heading, not decorative text");
-  ok(/const EXPLODING_SECTION = \{ id: "exploding", label: "Exploding Near You", sub: "Everyone's searching these\. Wayfind found where to try them near you\.", emoji: "🔥", heading: true, maxHeight: 24000 \}/.test(BN),
+  ok(/const EXPLODING_SECTION = \{ id: "exploding", label: "Exploding Trends Near You", sub: "Everyone's searching these\. Wayfind found where to try them near you\.", emoji: "🔥", heading: true, maxHeight: 24000 \}/.test(BN),
      "the first section carries one fire emoji, the approved support line, heading semantics and a height budget sized for the full 20-trend universe (2026-08-11)");
   const iExplodingRender = BN.indexOf("<SectionShell sdef={EXPLODING_SECTION}");
   const iBestRender = BN.indexOf("<SectionShell sdef={TOP40_SECTION}");

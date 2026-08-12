@@ -16,6 +16,7 @@ import { areaSeasonalContext } from "../../lib/areaSeasonalContext";
 import { currentSeason } from "../../lib/seasons";
 import { INTENT_PAGES, toRow, rankRows, intentEyebrow, intentVariantCount, INTENT_COUPON_BADGE, INTENT_MOMENT_ID } from "../../lib/intentPages";
 import { placeAllowed } from "../../lib/placeFilter";
+import { resolveMarqueeDayTrips } from "../../lib/marqueeDayTrips";
 import { editorialIntentHeader } from "../../lib/collectionHeader";
 // v6.72 THE COMPOSITION (owner, 2026-07-31). The five blocks — coupon strip,
 // tour rail, "Perfect right now", the list, and the glass-box disclosure — are
@@ -242,7 +243,7 @@ export default function IntentPageClient({ intent }) {
       // soft — no popularity rows, no term.
       const flatRows = results.flat();
       try { await attachTrendSignals(flatRows, {}); } catch (e) {}
-      const ranked = rankRows(flatRows, def.floor, {
+      let ranked = rankRows(flatRows, def.floor, {
         origin: { lat: loc.lat, lng: loc.lng },
         penalty: def.distancePenalty || null,
         ctx: def.timeless ? null : now,
@@ -254,6 +255,19 @@ export default function IntentPageClient({ intent }) {
         planAhead: !!def.planAhead,
         minDistanceMi: def.minDistanceMi,
       });
+      // THE MARQUEE LANE — same rule as the home rail (IntentRail.js), same
+      // module, so the card you tapped and the page you landed on agree.
+      // Owner, 2026-08-11: the parks, Disney Springs, the best of the best,
+      // 2-hour drive max. Order-only; fails soft.
+      if (intent === "worth-the-drive") {
+        try {
+          const marquee = await resolveMarqueeDayTrips({ origin: { lat: loc.lat, lng: loc.lng }, minDistanceMi: def.minDistanceMi });
+          if (marquee.length) {
+            const mIds = new Set(marquee.map((r) => r.id));
+            ranked = marquee.concat(ranked.filter((r) => !mIds.has(r.id)));
+          }
+        } catch (e) {}
+      }
       // v6.56 (owner): the line under each row is WAYFIND editorial (verified
       // wf_editorial hooks, one anon in() call) — never Google's summary text.
       try {
