@@ -360,3 +360,5 @@ node scripts/check-place-classification.mjs
 node scripts/check-candidate-pools.mjs
 
 node scripts/check-no-monoculture.mjs
+
+node scripts/check-weather-race.mjs
