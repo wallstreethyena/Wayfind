@@ -48,7 +48,12 @@ ok(/prefers-reduced-motion: reduce/.test(view), "the pulse is not disabled under
 ok(/@keyframes wfOriginGlow\{[^}]*filter:drop-shadow/.test(view.replace(/\s+/g, " ")) || /wfOriginGlow[\s\S]{0,200}drop-shadow/.test(view),
   "the pulse animates something other than the glow — scaling the mark would move its tip off the coordinate every frame");
 // The two vocabularies stay apart: places are still circles with ranks.
-ok(/"wf-place-pins", type: "circle"/.test(view), "places stopped being filled circles — they would collide with the user pin's vocabulary");
+// v7.16 (owner): places are now FILLED teardrop pin sprites (Google-style,
+// tip on the coordinate). The two-vocabulary law survives in its real form:
+// filled colored sprite = somewhere we recommend; the neon OUTLINE brand
+// mark = you. What must never happen is places rendering with the brand pin.
+ok(/"wf-place-pins", type: "symbol"/.test(view) && /drawPinImageData/.test(view), "places stopped being filled pin sprites — they would collide with the user pin's vocabulary");
+ok(!/wayfind-pin-neon\.svg[\s\S]{0,200}wf-place-pins/.test(view), "a place must never wear the brand pin — that mark means YOU");
 ok(/\["get", "rank"\]/.test(view), "place markers lost their rank labels");
 ok(!/wayfind-pin(-neon)?\.svg[\s\S]{0,400}wf-place/.test(view), "the brand pin leaked into the place-marker path — the user would read as a search result");
 ok(view.length > 3000, "MapView did not load — every assertion above would pass vacuously");

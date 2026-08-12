@@ -2,8 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { LngLatBounds, Map as MapLibreMap, Marker, NavigationControl, setWorkerUrl } from "maplibre-gl";
-import { areaMoved, distanceRingData, MAP_RING_MILES, MAP_RING_MILES_ZOOMED_OUT, pinScoreLabel } from "../../lib/mapExplorer";
-import { toDisplayScore } from "../../lib/score";
+import { areaMoved, distanceRingData, MAP_RING_MILES, MAP_RING_MILES_ZOOMED_OUT } from "../../lib/mapExplorer";
 
 // Below this zoom level the map is showing enough area that the 15mi ring
 // is basically hugging the edge of the viewport, so the outer ring expands
@@ -119,6 +118,45 @@ function ensureOriginPinCss() {
   document.head.appendChild(st);
 }
 
+// v7.16 (owner, 2026-08-11, with a Google Maps reference screenshot: "can
+// the location be more precise perhaps just a pin icon like the emoji
+// because the circle covers too much… i want it to look more like image 3
+// identically"). Place results are now PIN-shaped sprites — a small
+// teardrop whose TIP sits on the exact coordinate (icon-anchor: bottom),
+// like Google's saved-place pins — instead of 29-33px score circles whose
+// body covered a neighborhood block. The score moved to the bottom card
+// where it renders as the full Wayfind badge; the map's job is WHERE.
+//
+// Sprites are drawn once per color on a 2x canvas and registered with
+// map.addImage (pixelRatio 2), so the pins stay ONE cheap symbol layer that
+// clusters natively — never N DOM markers (the perf rule this file has
+// always kept for places).
+const PIN_W = 28, PIN_H = 38, PIN_DPR = 2;
+function drawPinImageData(color, { selected = false } = {}) {
+  const W = PIN_W * PIN_DPR, H = PIN_H * PIN_DPR;
+  const canvas = document.createElement("canvas");
+  canvas.width = W; canvas.height = H;
+  const g = canvas.getContext("2d");
+  g.scale(PIN_DPR, PIN_DPR);
+  // Teardrop: head circle r≈10 centred at (14,12), tip at (14,36).
+  const path = new Path2D("M14 36 C 9.2 27.5 4 21.5 4 12.6 A 10 10 0 1 1 24 12.6 C 24 21.5 18.8 27.5 14 36 Z");
+  g.shadowColor = "rgba(15,23,35,.38)"; g.shadowBlur = 3.5; g.shadowOffsetY = 1.5;
+  g.fillStyle = selected ? "#F97316" : color;
+  g.fill(path);
+  g.shadowColor = "transparent";
+  g.lineWidth = selected ? 2.4 : 2;
+  g.strokeStyle = "#FFFFFF";
+  g.stroke(path);
+  g.beginPath(); g.arc(14, 12.6, selected ? 4.6 : 3.9, 0, Math.PI * 2);
+  g.fillStyle = "#FFFFFF"; g.fill();
+  return g.getImageData(0, 0, W, H);
+}
+function ensurePinImage(map, key, color, opts) {
+  try {
+    if (!map.hasImage(key)) map.addImage(key, drawPinImageData(color, opts), { pixelRatio: PIN_DPR });
+  } catch (e) {}
+}
+
 function markerNode({ label, color, kind, selected }) {
   ensureOriginPinCss();
   const el = document.createElement("div");
@@ -192,7 +230,10 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     if (!map || !map.isStyleLoaded()) return;
     clearMarkers();
     const bounds = new LngLatBounds();
-    const ranked = (places || []).filter((p) => p && p.lat != null && p.lng != null).slice(0, 24);
+    // v7.16 — the owner called the old top-10/24 cap "thin… a lazy get
+    // strategy". The pool is ALREADY fetched and ranked (no new API cost);
+    // small pins can carry real density, so the map now shows up to 60.
+    const ranked = (places || []).filter((p) => p && p.lat != null && p.lng != null).slice(0, 60);
     const eventList = (events || []).filter((e) => e && e.lat != null && e.lng != null);
 
     const placeFeatures = [];
@@ -202,9 +243,13 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       const color = place.openNow === false ? "#64748B" : index === 0 ? "#FBBF24" : categoryColor;
       const id = String(place.id || `map-place-${index}`);
       placesByIdRef.current.set(id, place);
-      placeFeatures.push({ type: "Feature", properties: { id, rank: index + 1, scoreLabel: pinScoreLabel(place.wfScore, index + 1, toDisplayScore), color, name: place.name || "Place", sel: selectedId != null && String(id) === String(selectedId) ? 1 : 0, anySel: selectedId != null ? 1 : 0 }, geometry: { type: "Point", coordinates: [place.lng, place.lat] } });
+      placeFeatures.push({ type: "Feature", properties: { id, rank: index + 1, color, name: place.name || "Place", sel: selectedId != null && String(id) === String(selectedId) ? 1 : 0, anySel: selectedId != null ? 1 : 0 }, geometry: { type: "Point", coordinates: [place.lng, place.lat] } });
       bounds.extend([place.lng, place.lat]);
     });
+    // Register a pin sprite for every color this frame uses (idempotent),
+    // plus the selected sprite, BEFORE the data lands so no icon is missing.
+    for (const f of placeFeatures) ensurePinImage(map, "wf-pin-" + f.properties.color, f.properties.color);
+    ensurePinImage(map, "wf-pin-sel", "#F97316", { selected: true });
     const placeSource = map.getSource("wf-places");
     if (placeSource) placeSource.setData({ type: "FeatureCollection", features: placeFeatures });
     if (map.getLayer("wf-place-clusters")) {
@@ -334,44 +379,23 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
           },
         });
       } catch (e) {}
-      map.addSource("wf-places", { type: "geojson", cluster: true, clusterMaxZoom: 14, clusterRadius: 38, data: { type: "FeatureCollection", features: [] } });
+      map.addSource("wf-places", { type: "geojson", cluster: true, clusterMaxZoom: 14, clusterRadius: 30, data: { type: "FeatureCollection", features: [] } });
       map.addLayer({ id: "wf-place-clusters", type: "circle", source: "wf-places", filter: ["has", "point_count"], paint: { "circle-color": "rgba(255,255,255,.97)", "circle-radius": ["step", ["get", "point_count"], 19, 10, 23, 20, 27], "circle-stroke-width": 3, "circle-stroke-color": "#F97316", "circle-opacity": .97 } });
       map.addLayer({ id: "wf-place-cluster-count", type: "symbol", source: "wf-places", filter: ["has", "point_count"], layout: { "text-field": ["concat", ["get", "point_count_abbreviated"], " spots"], "text-size": 10.5, "text-allow-overlap": true }, paint: { "text-color": "#0B0F14" } });
-      // TICKET 4c + 3 — the Wayfind marker vocabulary, and the selected state.
-      //
-      // Places are a CIRCLE layer, not DOM markers, so every part of this is a
-      // data-driven paint expression rather than CSS. That is also why 3's pin
-      // selection and 4c's redesign had to ship together: they are the same
-      // expressions, and doing them separately meant writing one twice.
-      //
-      // THE OUTER RING is the piece that makes this read as ours rather than
-      // Google's — 1.5px orange at 45%, standing ~4.5px clear of the chip. It is
-      // a second circle underneath with a transparent fill, because a circle
-      // layer has exactly one stroke.
-      const R_BASE = ["case", ["==", ["get", "rank"], 1], 16.5, 14.5];
-      const R_SEL = ["case", ["==", ["get", "sel"], 1], ["*", R_BASE, 1.4], R_BASE];
-      // Unselected pins drop back so the card reads as anchored to ONE place —
-      // but only once something is actually selected.
-      const OPACITY = ["case", ["==", ["get", "sel"], 1], 1, ["==", ["get", "anySel"], 1], .42, .96];
-      map.addLayer({ id: "wf-place-halo", type: "circle", source: "wf-places", filter: ["!", ["has", "point_count"]], paint: {
-        "circle-color": "rgba(0,0,0,0)",
-        "circle-radius": ["+", R_SEL, 4.5],
-        "circle-stroke-width": ["case", ["==", ["get", "rank"], 1], 2, 1.5],
-        "circle-stroke-color": "#F97316",
-        "circle-stroke-opacity": ["*", 0.45, OPACITY],
-      } });
-      map.addLayer({ id: "wf-place-pins", type: "circle", source: "wf-places", filter: ["!", ["has", "point_count"]], paint: {
-        // Selected turns the body WHITE so the rank still reads against it.
-        "circle-color": ["case", ["==", ["get", "sel"], 1], "#FFFFFF", ["get", "color"]],
-        "circle-radius": R_SEL,
-        "circle-stroke-width": 2.5,
-        "circle-stroke-color": "rgba(255,255,255,.96)",
-        "circle-opacity": OPACITY,
-      } });
-      map.addLayer({ id: "wf-place-ranks", type: "symbol", source: "wf-places", filter: ["!", ["has", "point_count"]], layout: { "text-field": ["get", "scoreLabel"], "text-size": ["case", ["==", ["get", "rank"], 1], 12.5, 11], "text-allow-overlap": true }, paint: { "text-color": ["case", ["==", ["get", "sel"], 1], "#0B0F14", "#FFFFFF"], "text-opacity": OPACITY } });
-      // The downward pointer, drawn as a glyph because a circle layer cannot
-      // make a triangle. Filtered to the selection so exactly one can exist.
-      map.addLayer({ id: "wf-place-pointer", type: "symbol", source: "wf-places", filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "sel"], 1]], layout: { "text-field": "\u25BC", "text-size": 14, "text-offset": [0, 1.5], "text-allow-overlap": true }, paint: { "text-color": "#FFFFFF", "text-halo-color": "rgba(0,0,0,.35)", "text-halo-width": 1 } });
+      // v7.16 — GOOGLE-STYLE PIN SPRITES (see drawPinImageData above).
+      // One symbol layer, tip-on-coordinate, small footprint, native
+      // clustering. Score text/halo/pointer layers are gone: the score
+      // renders in the bottom card as the full Wayfind badge. Selected pin
+      // swaps to the orange sprite and grows; when anything is selected the
+      // rest drop back so the card reads as anchored to ONE place.
+      const OPACITY = ["case", ["==", ["get", "sel"], 1], 1, ["==", ["get", "anySel"], 1], .5, .97];
+      map.addLayer({ id: "wf-place-pins", type: "symbol", source: "wf-places", filter: ["!", ["has", "point_count"]], layout: {
+        "icon-image": ["case", ["==", ["get", "sel"], 1], "wf-pin-sel", ["concat", "wf-pin-", ["get", "color"]]],
+        "icon-anchor": "bottom",
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": true,
+        "icon-size": ["case", ["==", ["get", "sel"], 1], 1.18, ["==", ["get", "rank"], 1], 1, 0.86],
+      }, paint: { "icon-opacity": OPACITY } });
       map.addSource("wf-rings", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
       map.addLayer({ id: "wf-rings-glow", type: "line", source: "wf-rings", filter: ["==", ["get", "kind"], "ring"], paint: { "line-color": "#F97316", "line-width": 6, "line-opacity": .18 } });
       map.addLayer({ id: "wf-rings-line", type: "line", source: "wf-rings", filter: ["==", ["get", "kind"], "ring"], paint: { "line-color": "#FDBA74", "line-width": 1.6, "line-opacity": .82 } });

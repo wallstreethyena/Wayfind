@@ -146,7 +146,7 @@ const ThumbIcon = ({ down = false }) => (
   </svg>
 );
 
-export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, onSave, onLike, onDislike, onBadge }) {
+export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, onSave, onLike, onDislike, onBadge, onOpen }) {
   if (!place) return null;
   // THE GOVERNING LAW, shown == sorted (2026-08-07): a row ranked through
   // byVisibleScore carries governed_score (base +0.2 video −0.2 far +0.6
@@ -196,6 +196,10 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   const openCard = (event) => {
     const target = event && event.target;
     if (target && typeof target.closest === "function" && target.closest("a,button,input,select,textarea,[role='button']")) return;
+    // v7.16 (map): an in-app caller (the map's bottom card) opens the detail
+    // SHEET instead of navigating away and losing the map. href remains the
+    // fallback and the crawlable link.
+    if (onOpen) { onOpen(place); return; }
     if (href && typeof window !== "undefined") window.location.assign(href);
   };
 
@@ -210,7 +214,7 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
             <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span>
             <div className="wf-place-card-heading">
               <span className="wf-place-card-category">{category}</span>
-              <a className="wf-place-card-name" href={href} style={{ display: "block", color: "#F8F5EE", textDecoration: "none" }}>{place.name}</a>
+              <a className="wf-place-card-name" href={href} onClick={onOpen ? (e) => { e.preventDefault(); e.stopPropagation(); onOpen(place); } : undefined} style={{ display: "block", color: "#F8F5EE", textDecoration: "none" }}>{place.name}</a>
             </div>
             {score != null ? <div className="wf-place-card-score"><WayfindScoreBadge score={score} /></div> : null}
           </div>

@@ -24,8 +24,12 @@ const view = readFileSync("app/components/MapView.js", "utf8");
 ok(/map\.on\("moveend"/.test(view), "MapView listens on moveend");
 ok(/areaMoved\(searchOriginRef\.current/.test(view), "…and asks the PURE areaMoved, not an inline copy");
 ok(/cb\(areaMoved\([^)]*\) \? here : null\)/.test(view), "the offer RETRACTS (null) when the map returns near the origin");
-ok(/"text-field": \["get", "scoreLabel"\]/.test(view), "pin labels read the scoreLabel property");
-ok(/pinScoreLabel\(place\.wfScore, index \+ 1, toDisplayScore\)/.test(view), "scoreLabel is built by the shared helper with the governed display conversion");
+// v7.16 (owner): pins carry NO score text — they are tip-anchored teardrop
+// sprites, and the score renders in the bottom card as the full Wayfind
+// badge. What must hold now is the inverse: no score-text layer sneaks back
+// onto the map where it cannot carry the governed display conversion.
+ok(!/scoreLabel/.test(view), "no pin score-text path remains — the score belongs to the bottom card (v7.16)");
+ok(/"icon-anchor": "bottom"/.test(view), "pins stay tip-anchored on the exact coordinate");
 ok(!/"text-field": \["to-string", \["get", "rank"\]\]/.test(view), "the old rank text-field is gone (rank still sizes and pages)");
 
 const screen = readFileSync("app/components/screens/Map.js", "utf8");
