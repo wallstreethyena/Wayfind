@@ -1,0 +1,55 @@
+feat(inventory): the drain tool, and the dead key that was hiding behind a present one
+
+FIRST LIVE RUN OF THE PIPELINE, and it stopped on its first call:
+
+  rpc wf_promotion_claim -> 401
+  {"message":"Legacy API keys are disabled",
+   "hint":"...disabled on 2026-07-16T02:45:53+00:00"}
+
+.env.local still carried the legacy JWT service_role key. Supabase disabled those
+account-wide four weeks ago. NEXT_PUBLIC_SUPABASE_ANON_KEY had already been
+rotated to sb_publishable_; SUPABASE_SERVICE_ROLE_KEY had not, and nothing in the
+repo said so. Production is healthy (578 index writes in the last hour), so the
+live env in Vercel is fine — it is the working copy that went stale.
+
+THE SHAPE IS THE ONE THIS CODEBASE KEEPS PAYING FOR. sbEnv() returns null only
+when the key is ABSENT. A present-but-disabled key passes everything: check-env
+asserts length > 20, cacheConfigured() says true, and every server write then
+401s. Same class as the Anthropic key in #438, which hid a 100% failure rate for
+five days behind HTTP 200s.
+
+  scripts/check-supabase-key-live.mjs  fails the build on a retired legacy key.
+    Reads the dotenv FILES, never process.env — check-guard-hermeticity is right
+    that a guard whose verdict depends on the shell is not a guard. Red/green
+    verified against a synthetic file and confirmed against the real one.
+  scripts/promote-worker.mjs           refuses to start on a legacy key and says
+    exactly what to run, before spending anything at Google.
+
+promote-worker.mjs is /api/cron/promote-index run from a terminal, importing the
+same lib/promoteIndex.js — the cron drains ~600/day and only after a deploy; the
+backlog is 4,732. Claims under a 15-minute lease with SKIP LOCKED, so Ctrl-C is
+safe and a rerun resumes.
+
+WHAT THE FIRST DRY RUN AGAINST REAL GOOGLE DATA FOUND. 40 highest-priority queued
+Sarasota places, live Place Details, real classification: 39 promoted cleanly —
+Siesta Beach as `beach`, Anna Maria Island and Mote's neighbours as `attractions`,
+25 restaurants, 5 shopping. Distribution and needs_review flags all correct.
+
+The one rejection was Mote Marine Laboratory, a 4.7 / 9,846-review paid
+attraction that Google types ["research_institute","point_of_interest",
+"establishment"] — no aquarium type, no aquarium token in the name.
+
+I first "fixed" that with a name regex (marine lab / science center / nature
+center). scripts/test-taxonomy.mjs went red and was RIGHT: it pins that exact
+input to null with the note "a marquee place like this MUST be an anchor."
+test-seed went red with it. Reverted. A name regex is a guess applied to every
+future place; an anchor is one owner assertion about one place — and the queue
+makes the miss visible instead of silent, which is the whole point of a ledger
+that keeps its rejects. test-promote-decision now PINS the rejection and names
+the fix (add an anchor) so the next person does not widen the classifier.
+
+Guards: 331 run, 4 fail — two are the uberEats exemption fixed on
+claude/ubereats-park-2026-08-13, two need node_modules in a worktree.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01PZthGyoPEiuJtQvEfCxjUW

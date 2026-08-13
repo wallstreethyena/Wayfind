@@ -49,6 +49,14 @@ for (const [k, v] of [["SUPABASE_URL", SB_URL], ["SUPABASE_SERVICE_ROLE_KEY", SB
 // bare 401 whose cause is not obvious from the stack trace. Say it here, once,
 // before spending anything at Google. (scripts/check-supabase-key-live.mjs is
 // the build-time half of the same check.)
+if (/^\[?SENSITIVE\]?$/i.test(SB_KEY.trim())) {
+  console.error('SUPABASE_SERVICE_ROLE_KEY is the literal string "[SENSITIVE]", not a key.');
+  console.error("The var is flagged Sensitive in Vercel, so `vercel env pull` cannot read it back");
+  console.error("and writes that placeholder instead — pulling again will never fix it.");
+  console.error("Fix: Supabase -> Settings -> API Keys -> create an sb_secret_ key, then set");
+  console.error("SUPABASE_SERVICE_ROLE_KEY locally and in Vercel (all environments).");
+  process.exit(1);
+}
 if (/^eyJ[A-Za-z0-9_-]/.test(SB_KEY)) {
   console.error("SUPABASE_SERVICE_ROLE_KEY is a LEGACY JWT key. Legacy anon/service_role keys were");
   console.error("disabled on this Supabase project on 2026-07-16 — every request will 401.");
