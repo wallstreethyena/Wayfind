@@ -90,6 +90,7 @@ export async function GET(req) {
       try {
         const ins = await fetch(sbUrl + "/rest/v1/cwv_runs", {
           method: "POST",
+          cache: "no-store",
           headers: { apikey: sbKey, Authorization: "Bearer " + sbKey, "Content-Type": "application/json", Prefer: "return=minimal" },
           body: JSON.stringify(row),
         });

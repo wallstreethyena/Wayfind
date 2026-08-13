@@ -51,6 +51,11 @@ import { decidePromotion, dedupeById, PROMOTE_METROS } from "../../../../lib/pro
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+// force-no-store, AND cache:"no-store" on every fetch below. Belt AND braces,
+// because the first production run without them cost a whole cycle — see the
+// note above rpc(). lib/inventoryServe.js already sets no-store on every call
+// for the same reason; this route just failed to copy that.
+export const fetchCache = "force-no-store";
 export const maxDuration = 60;
 
 // EXACTLY the fields buildInventoryRow consumes — same mask as
@@ -75,6 +80,7 @@ function isTerminalStatus(status) {
 async function details(key, placeId) {
   for (let attempt = 0; attempt < 3; attempt++) {
     const r = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`, {
+      cache: "no-store", // a cached 200 here would mean promoting a place from a stale snapshot
       headers: { "X-Goog-Api-Key": key, "X-Goog-FieldMask": DETAILS_MASK },
     });
     if (r.ok) return { ok: true, place: await r.json() };
@@ -86,9 +92,32 @@ async function details(key, placeId) {
   return { ok: false, terminal: false, error: "details: exhausted retries" };
 }
 
+// cache: "no-store" IS LOAD-BEARING, not hygiene. MEASURED IN PRODUCTION on the
+// first two runs, 18:50 and 19:05 UTC on 2026-08-13:
+//
+//   pulse 18:50  attempted 25  succeeded 24     <- real
+//   pulse 19:05  attempted 25  succeeded 24     <- identical, and a lie
+//
+// The queue was untouched by the second run: max(last_attempt_at) stayed 18:50
+// and all 1,628 pending rows still had attempts = 0. But wf_inventory.refreshed_at
+// on the same 24 rows moved to 19:05. So the second invocation re-ran, re-wrote
+// the SAME places, and reported success — while promoting nothing.
+//
+// The cause is request-body identity. wf_promotion_claim is POSTed with the exact
+// same body every run — {p_metro:null, p_limit:25, p_lease_minutes:15} — and so is
+// every wf_promotion_complete for a given place. Those responses were served from
+// cache, so the claim handed back the PREVIOUS run's 25 rows and the completes
+// never executed. The upsert alone actually ran, because its body carries a fresh
+// refreshed_at timestamp and is therefore unique per run.
+//
+// This is the atlas-build failure (#438) reproduced exactly: a job that attempts
+// work, accomplishes none, and reports HTTP 200 with healthy-looking numbers. It
+// would have spun forever on the same 25 places. scripts/check-cron-post-nostore.mjs
+// now makes it impossible to ship again.
 async function rpc(s, fn, body) {
   const r = await fetch(`${s.url}/rest/v1/rpc/${fn}`, {
     method: "POST",
+    cache: "no-store",
     headers: { apikey: s.key, Authorization: `Bearer ${s.key}`, "Content-Type": "application/json" },
     body: JSON.stringify(body || {}),
   });
@@ -172,6 +201,7 @@ export async function GET(req) {
     try {
       const r = await fetch(`${s.url}/rest/v1/wf_inventory`, {
         method: "POST",
+        cache: "no-store",
         headers: {
           apikey: s.key, Authorization: `Bearer ${s.key}`, "Content-Type": "application/json",
           Prefer: "resolution=merge-duplicates,return=minimal",

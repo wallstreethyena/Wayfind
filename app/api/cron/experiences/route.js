@@ -23,7 +23,8 @@ async function searchDestTag(destId, tag) {
   const timer = setTimeout(() => ctrl.abort(), 9000);
   try {
     const r = await fetch("https://api.viator.com/partner/products/search", {
-      method: "POST", signal: ctrl.signal, headers: VH(),
+      method: "POST",
+      cache: "no-store", signal: ctrl.signal, headers: VH(),
       body: JSON.stringify({ filtering: { destination: String(destId), tags: [tag] }, sorting: { sort: "TRAVELER_RATING", order: "DESCENDING" }, pagination: { start: 1, count: PER_CATEGORY }, currency: "USD" }),
     });
     if (!r.ok) return { status: r.status, products: [] };

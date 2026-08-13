@@ -68,6 +68,7 @@ export async function GET(req) {
   try {
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
+      cache: "no-store",
       headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         from, to: [to],

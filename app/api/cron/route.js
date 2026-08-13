@@ -133,6 +133,7 @@ export async function GET(req) {
       const to = process.env.DIGEST_EMAIL || "gabrielpereira@me.com";
       const r = await fetch("https://api.resend.com/emails", {
         method: "POST",
+        cache: "no-store",
         headers: { Authorization: "Bearer " + rk, "Content-Type": "application/json" },
         body: JSON.stringify({ from: "Wayfind <onboarding@resend.dev>", to: [to], subject: "Wayfind digest \u2014 " + dateKey + (failing.length ? " \u26a0\ufe0f" : " \u2713"), text: body }),
       });

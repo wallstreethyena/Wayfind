@@ -47,6 +47,7 @@ async function settingsGet(s, key) {
 async function settingsPut(s, key, value) {
   const r = await fetch(`${s.url}/rest/v1/wf_cc_settings?on_conflict=k`, {
     method: "POST",
+    cache: "no-store",
     headers: { apikey: s.key, Authorization: `Bearer ${s.key}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" },
     body: JSON.stringify({ k: key, v: value }),
   }).catch((e) => { try { console.error(JSON.stringify({ tag: "cc_alerts_cron", ok: false, stage: "settings_put_exception", key, error: String(e && e.message || e).slice(0, 200) })); } catch (e2) {} return null; });
@@ -122,6 +123,7 @@ export async function GET(req) {
   const from = String(process.env.WF_ALERT_FROM || "Wayfind Alerts <onboarding@resend.dev>").trim();
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST",
+    cache: "no-store",
     headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       from, to: [to],

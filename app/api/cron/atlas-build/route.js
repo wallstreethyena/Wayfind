@@ -289,6 +289,7 @@ async function writeEditorial(place, d, key, sources, stats, timeoutMs = 20000) 
   try {
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
+      cache: "no-store",
       signal: ctrl.signal,
       headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({

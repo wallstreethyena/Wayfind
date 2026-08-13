@@ -25,6 +25,7 @@ async function searchFreetext(term) {
   try {
     const res = await fetch("https://api.viator.com/partner/search/freetext", {
       method: "POST",
+      cache: "no-store",
       signal: ctrl.signal,
       headers: { "exp-api-key": KEY, "Accept": "application/json;version=2.0", "Accept-Language": "en-US", "Content-Type": "application/json" },
       body: JSON.stringify({ searchTerm: term, currency: "USD", searchTypes: [{ searchType: "PRODUCTS", pagination: { start: 1, count: 5 } }] }),

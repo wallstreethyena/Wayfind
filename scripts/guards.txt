@@ -89,6 +89,10 @@ node scripts/check-metered-matcher.mjs
 node scripts/test-autocomplete-proxy.mjs
 node scripts/test-city-search.mjs
 node scripts/check-cron-failclosed.mjs
+# A cron POST served from cache is a write that never happened. Measured in
+# production 2026-08-13: promote-index reported "succeeded 24" twice while
+# promoting 24 places once. Found 8 more call sites with the same latent bug.
+node scripts/check-cron-post-nostore.mjs
 node scripts/test-sentry-lazy.mjs
 node scripts/check-cache-refresh.mjs
 node scripts/test-cache-refresh.mjs
