@@ -5,6 +5,11 @@
 // the guide index for the middleman internal-link structure.
 import { notFound } from "next/navigation";
 import { GUIDES } from "../../../lib/guides";
+// v7.44 PLACE CARDS IN EDITORIAL. A pick carrying `placeId` renders a real
+// Wayfind card from wf_inventory — photo, hours, and the "Right now" line —
+// server-rendered so crawlers read it without running JS. Picks without a
+// placeId keep the existing link-only rendering, so nothing regresses.
+import { fetchPlaceCards, placeIdsForGuide, photoUrl } from "../../../lib/blogPlaceCards";
 import { SITE_URL } from "../../../lib/site";
 import { experienceSearchUrl, viatorProductGoUrl } from "../../../lib/affiliates";
 import { resolveGuideProduct, productCtaLabel } from "../../../lib/guideProductResolve";
@@ -217,6 +222,10 @@ export default async function GuidePage({ params }) {
   // nothing at all, leaving the guide exactly as it is today.
   const wx = await guideWeather(g.region);
   const nowCtx = nowContext({ city: g.region, weather: wx });
+
+  // ONE query for every card on the page, not one per card. Fails soft to {}
+  // so a Supabase hiccup degrades to the existing rendering rather than 500s.
+  const placeCards = await fetchPlaceCards(placeIdsForGuide(g));
   const nowResult = guidePicksForNow(g.picks, nowCtx);
   const nowHeadline = guideNowHeadline(nowCtx, g.region, nowResult);
   const nowExplainer = guideNowExplainer(nowResult, (g.picks || []).length);
@@ -559,6 +568,7 @@ export default async function GuidePage({ params }) {
         </section>
       ) : null}
       {g.picks.map((pick, i) => {
+        const card = pick.placeId ? placeCards[pick.placeId] : null;
         return (
           <section key={i} className="wf-guide-pick">
             <div className="wf-guide-number">{String(i + 1).padStart(2, "0")}</div>
@@ -567,6 +577,24 @@ export default async function GuidePage({ params }) {
               <h2 style={{ ...S.h2, marginTop: 5, fontFamily: "var(--wf-display)", fontSize: 28 }}>{pick.name}</h2>
               <p style={S.p}>{pick.blurb}</p>
               {pick.tip ? <p className="wf-guide-tip" style={S.tip}>Insider note — {pick.tip}</p> : null}
+              {card ? (
+                <aside className="wf-guide-placecard" data-place-id={card.placeId} itemScope itemType="https://schema.org/Place">
+                  {card.photoRef ? (
+                    <img src={photoUrl(card.photoRef, 960)} alt={card.name + (card.address ? " — " + card.address : "")} width={960} height={540} loading="lazy" decoding="async" itemProp="photo" />
+                  ) : null}
+                  <div className="wf-guide-placecard-body">
+                    {card.weather ? (
+                      <p className={"wf-guide-placecard-badge wf-guide-placecard-badge--" + card.weather.key}>
+                        <strong>{card.weather.label}</strong> · {card.weather.hint}
+                      </p>
+                    ) : null}
+                    {card.address ? <p className="wf-guide-placecard-addr" itemProp="address">{card.address}</p> : null}
+                    {card.hours ? <p className="wf-guide-placecard-hours" itemProp="openingHours">{card.hours}</p> : null}
+                    {card.currentDetail ? (<p className="wf-guide-placecard-now"><strong>Right now:</strong> {card.currentDetail}</p>) : null}
+                    {card.photoRef ? <p className="wf-guide-placecard-attr">Photo via Google</p> : null}
+                  </div>
+                </aside>
+              ) : null}
               <div className="wf-guide-actions">
                 {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name)} style={{ ...S.btnGhost, marginLeft: 0 }}>Open in Wayfind</a> : null}
               </div>
