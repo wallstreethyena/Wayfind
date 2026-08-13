@@ -368,3 +368,8 @@ node scripts/check-no-monoculture.mjs
 node scripts/check-weather-race.mjs
 
 node scripts/check-venue-timezone.mjs
+# Promotion pipeline (wf_promotion_queue). The geography is decided in two places
+# — PROMOTE_METROS in JS and wf_promote_metros in Postgres — and drift between
+# them burns Place Details calls on places the worker will then reject.
+node scripts/check-promote-metros-parity.mjs
+node scripts/test-promote-decision.mjs
