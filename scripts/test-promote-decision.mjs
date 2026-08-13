@@ -91,6 +91,35 @@ t("self-test: the fixture set can actually fail", () => {
   assert.equal(v.action, "reject", "a temporarily-closed place must not promote either");
 });
 
+// Mote Marine Laboratory — a 4.7 / 9,846-review paid Sarasota attraction — was
+// the ONE rejection in the first live dry run over 40 real queued places.
+// Google types it ["research_institute","point_of_interest","establishment"],
+// which carries no discovery identity, and the name has no "aquarium" token.
+//
+// That rejection is CORRECT and deliberate: scripts/test-taxonomy.mjs pins
+// `classifyPlace(["research_institute",...], null, "Mote Marine Laboratory")`
+// to null with the note "a marquee place like this MUST be an anchor." A name
+// regex broad enough to catch it (marine lab / science center / nature center)
+// is a guess applied to every future place; an anchor is one owner assertion
+// about one place. The queue makes the miss VISIBLE — it sits in
+// wf_promotion_queue as rejected with its reason — which is the point.
+//
+// This test exists so the next person to see Mote rejected finds the answer
+// (add an anchor) instead of widening the classifier.
+t("a marquee place with no type or name signal is rejected, not guessed into a category", () => {
+  const v = decidePromotion({
+    id: "ChIJ765WHrxqw4gRtfYzutQE_b8",
+    displayName: { text: "Mote Marine Laboratory" },
+    location: { latitude: 27.3150, longitude: -82.5770 },
+    types: ["research_institute", "point_of_interest", "establishment"],
+    primaryType: "research_institute",
+    rating: 4.7, userRatingCount: 9846, businessStatus: "OPERATIONAL",
+  }, "manatee-sarasota", NOW);
+  assert.equal(v.action, "reject");
+  assert.match(v.error, /unclassified/i);
+  // The fix is an anchor (scripts/seed-anchors.mjs), NOT a wider name regex.
+});
+
 t("the metro used by the test is a real promotion metro", () => {
   assert.ok(PROMOTE_METROS["manatee-sarasota"], "manatee-sarasota missing from PROMOTE_METROS");
   assert.ok(PROMOTE_METROS.orlando, "orlando missing from PROMOTE_METROS");
