@@ -35,8 +35,16 @@
 //     /api/cron/job-watch sees "attempted 10, succeeded 0" instead of a green 200,
 //   * the response body reports rejects by reason, not just a count.
 //
-// COST. Place Details (New) at ~$0.017/record. ?limit is hard-capped at 25, so a
-// single invocation can never spend more than ~$0.43 no matter what calls it.
+// COST AND CADENCE. Place Details (New) at ~$0.017/record. ?limit is hard-capped
+// at 25, so a single invocation can never spend more than ~$0.43 no matter what
+// calls it. vercel.json fires this four times an hour (:05 :20 :35 :50) rather
+// than hourly: the initial backlog is 4,732 places, and at 25/hour that is eight
+// days of a visibly thin map. At 100/hour the home market clears in about 16
+// hours and the whole backlog in two days, then the queue is only ever the
+// trickle the enqueue trigger adds — a handful an hour — so the steady-state
+// spend collapses to near zero on its own. The ceiling is bounded either way:
+// four fires x $0.43 = $1.72/hour worst case, and the job idles at $0 the moment
+// the queue is empty.
 import { sbEnv } from "../../../../lib/serverCache";
 import { recordPulse } from "../../../../lib/jobPulse";
 import { decidePromotion, dedupeById, PROMOTE_METROS } from "../../../../lib/promoteIndex";
