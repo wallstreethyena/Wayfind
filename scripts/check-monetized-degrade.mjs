@@ -69,12 +69,13 @@ const BUILDERS = [
   {
     fn: "uberEatsUrl", args: ["Columbia Restaurant", "Sarasota"],
     env: "NEXT_PUBLIC_UBEREATS_TEMPLATE", set: "https://track.example/x?u={url}", attributed: "track.example",
-    // NAMED, DATED EXEMPTION — owner ruling 2026-07-30. Keep the row rendering:
-    // suppressing it costs no revenue (unattributed either way) and costs users
-    // real utility across ~800 food places; KIMI has the template as a
-    // ship-this-week item. The deadline is what stops "we chose to send
-    // unattributed traffic" from becoming permanent.
-    mustFailClosed: false, expires: "2026-08-13",
+    // EXEMPTION CLOSED 2026-08-13, on its own deadline. The template never
+    // arrived and the Uber Eats project is parked pending affiliate approval, so
+    // the exemption expired into its intended end state rather than being
+    // extended. uberEatsUrl now returns null with the template unset, and the
+    // two call sites fall through to the Maps CTA, so a restaurant card still
+    // has a working action. Re-arming is an env change, not a code change.
+    mustFailClosed: true,
   },
 ];
 

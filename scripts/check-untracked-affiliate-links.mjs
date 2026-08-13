@@ -44,7 +44,12 @@ const BUILDERS = [
   // ("still firing eats_out") until a template exists. That is a deliberate
   // decision to send unattributed traffic, not an oversight — flagged back to
   // the owner 2026-07-30. Flip mustFailClosed to true the moment that changes.
-  { fn: "uberEatsUrl", env: "NEXT_PUBLIC_UBEREATS_TEMPLATE", mustFailClosed: false, expires: "2026-08-13" },
+  // EXEMPTION CLOSED 2026-08-13, on its own deadline. The template never
+  // arrived, the Uber Eats project is parked pending affiliate approval, and the
+  // guard's own instruction was "wire the env, or set mustFailClosed:true to
+  // suppress the row." We suppressed the row. The date did its job: it converted
+  // a temporary decision into a forced, visible one instead of letting it drift.
+  { fn: "uberEatsUrl", env: "NEXT_PUBLIC_UBEREATS_TEMPLATE", mustFailClosed: true },
 ];
 
 // ── THE EXEMPTION EXPIRES. A DATE, NOT A FLAG. ──────────────────────────────
