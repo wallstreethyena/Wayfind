@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+<title>Wayfind — menu lab</title>
+<link rel="icon" href="wayfind-white.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════════════════
+   WAYFIND — menu lab.
+   The accordion menu is KEPT, with full expand/collapse and its place-card
+   rails. The Amazon promo rail sits ABOVE it as an additional entry point.
+   Real logo, real card art. Nothing here touches gowayfind.com.
+   ══════════════════════════════════════════════════════════════════════ */
+:root{
+  --ink:#05070E; --shell:#080B14; --band:#0A0E1A; --card:#101725;
+  --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
+  --tx:#F4F7FF; --mut:#A9B5CD; --dim:#7A87A0;
+  --acc:#FF6A2B; --acc2:#FF8A3D; --hot:#FF3D81;
+  --score:#35D07F; --gold:#F5C451;
+  --sans:'Amazon Ember','Lato',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,Helvetica,sans-serif;
+  --disp:'Amazon Ember','Lato',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,Helvetica,sans-serif;
+  --pad:22px; --maxw:1720px; --ratio:.5625; --tw:clamp(300px,34vw,440px);
+  --catvis:4.6; --catgap:9px;   /* category chips visible */
+  --pcvis:3.4;  --pcgap:13px;   /* place cards visible */
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{height:100%;scroll-behavior:smooth}
+body{margin:0;min-height:100%;background:var(--shell);color:var(--tx);font-family:var(--sans);
+  overflow-x:hidden;-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--pad)}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+
+/* ── header ───────────────────────────────────────────────── */
+.hdr{position:sticky;top:0;z-index:120;background:rgba(8,11,20,.93);backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.hrow{display:flex;align-items:center;gap:18px;padding-top:11px}
+.loc{display:flex;align-items:center;gap:8px;flex:0 0 auto;padding:4px 8px 5px;border-radius:8px;
+  color:#C8D2E6;transition:background .15s}
+.loc:hover{background:rgba(255,255,255,.06)}
+.loc svg{width:18px;height:18px;flex:0 0 auto}
+.loc span{display:flex;flex-direction:column;line-height:1.15;text-align:left}
+.loc i{font-style:normal;font-size:11.5px;color:var(--mut)}
+.loc b{font-size:14px;font-weight:700;white-space:nowrap}
+@media(max-width:900px){.loc i{display:none}.loc b{font-size:13px}}
+.logo{height:26px;width:auto;flex:0 0 auto;display:block}
+.tabs{display:flex;gap:19px;overflow-x:auto;flex:1;scrollbar-width:none;
+  -webkit-mask-image:linear-gradient(90deg,#000 0,#000 88%,transparent);
+  mask-image:linear-gradient(90deg,#000 0,#000 88%,transparent)}
+.tabs::-webkit-scrollbar{display:none}
+.tab{display:flex;align-items:center;gap:7px;font-size:15px;font-weight:400;color:#7C89A6;white-space:nowrap;
+  padding:5px 0 10px;position:relative;flex:0 0 auto}
+.tab svg{width:17px;height:17px;flex:0 0 auto}
+.tab:hover{color:#CBD4E8}
+.tab.on{color:#fff;font-weight:700}
+.tab.on::after{content:'';position:absolute;left:0;right:0;bottom:4px;height:2.5px;
+  border-radius:2px;background:var(--acc)}
+.signin{flex:0 0 auto;height:32px;padding:0 14px;border-radius:17px;border:1px solid var(--line2);
+  font-size:13px;font-weight:700;white-space:nowrap}
+.signin:hover{background:rgba(255,255,255,.06)}
+.search{display:flex;align-items:stretch;height:42px;border-radius:8px;background:#161C2B;margin-bottom:9px;
+  border:1px solid rgba(255,255,255,.09);overflow:hidden;min-width:0}
+.search:focus-within{box-shadow:0 0 0 2px var(--acc2)}
+.scope{display:flex;align-items:center;gap:5px;flex:0 0 auto;padding:0 12px;font-size:13px;font-weight:400;
+  color:#B7C2D8;background:#1D2536;border-right:1px solid rgba(255,255,255,.09)}
+.scope:hover{background:#242D40}
+.scope svg{width:12px;height:12px}
+.search input{flex:1;min-width:0;background:none;border:0;outline:0;font-size:15px;padding:0 13px}
+.search input::placeholder{color:#5E6A85}
+.search .go{flex:0 0 auto;width:52px;display:grid;place-items:center;background:var(--acc);color:#fff;border-radius:0}
+.search .go svg{width:19px;height:19px}
+.search .go:hover{filter:brightness(1.08)}
+/* the real Shortcuts row, in the slot the old pill strip occupied */
+/* Shortcuts live behind a nav item now, and dress like the destinations row */
+.scpanel{display:none;border-top:1px solid var(--line);background:rgba(9,12,20,.98)}
+body.scopen .scpanel{display:block;animation:scIn .18s ease-out}
+@keyframes scIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){body.scopen .scpanel{animation:none}}
+.scrow{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;
+  margin:0 calc(var(--pad) * -1);padding:0 var(--pad)}
+.scrow::-webkit-scrollbar{display:none}
+.sc{position:relative;display:flex;align-items:center;gap:7px;white-space:nowrap;flex:0 0 auto;
+  padding:11px 12px 12px;font-size:14px;font-weight:400;color:#94A1BC;transition:color .16s}
+.sc svg{width:17px;height:17px;flex:0 0 auto}
+.sc:hover{color:#E4EAF7}
+.sc.on{color:#fff;font-weight:700}
+.sc.on::after{content:'';position:absolute;left:12px;right:12px;bottom:4px;height:2.5px;border-radius:2px;
+  background:var(--acc)}
+.bn.opener.on{color:var(--acc2)}
+.bn.opener.on::after{background:var(--acc2)}
+@media(max-width:560px){.sc{padding:10px 10px 11px;font-size:13px;gap:6px}.sc svg{width:16px;height:16px}}
+
+/* the bottom tab bar */
+/* the destinations, as a sub-nav under the search — Amazon's second bar */
+.dests{display:flex;align-items:stretch;gap:2px;margin:0 calc(var(--pad) * -1) -1px;padding:0 var(--pad);
+  overflow-x:auto;scrollbar-width:none;border-top:1px solid var(--line)}
+.dests::-webkit-scrollbar{display:none}
+.bn{position:relative;display:flex;align-items:center;gap:7px;white-space:nowrap;flex:0 0 auto;
+  padding:9px 12px 10px;font-size:14px;font-weight:400;color:#94A1BC;transition:color .16s}
+.bn:hover{color:#E4EAF7}
+.bn svg{width:17px;height:17px}
+.bn.on{color:#fff;font-weight:700}
+.bn.on::after{content:'';position:absolute;left:12px;right:12px;bottom:3px;height:2.5px;border-radius:2px;
+  background:var(--acc)}
+@media(max-width:560px){.bn{padding:9px 10px 10px;font-size:13px;gap:6px}.bn svg{width:16px;height:16px}}
+
+/* ── the Amazon promo rail (added, not a replacement) ─────── */
+.railsec{padding:16px 0 10px;background:#0C111C}
+.rhead{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px;flex-wrap:wrap}
+.rhead h2{margin:0;font-size:14px;font-weight:700;color:#9AA7C0}
+.rtools{display:flex;align-items:center;gap:10px}
+.ratio{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:16px;padding:3px}
+.ratio button{height:24px;padding:0 11px;border-radius:13px;font-size:11px;font-weight:700;color:#9BA7C2;white-space:nowrap}
+.ratio button.on{background:rgba(255,106,43,.16);color:#FFC2A2}
+.seeall{height:30px;padding:0 13px;border-radius:16px;border:1px solid var(--line2);font-size:12.5px;font-weight:700}
+.seeall:hover{background:rgba(255,255,255,.06)}
+.railwrap{position:relative}
+.track{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;
+  scroll-padding-left:var(--pad);margin:0 calc(var(--pad) * -1);padding:2px var(--pad) 14px}
+.track::-webkit-scrollbar{display:none}
+.tile{position:relative;flex:0 0 auto;width:var(--tw);height:calc(var(--tw) / var(--ratio));border-radius:16px;
+  overflow:hidden;scroll-snap-align:start;display:block;text-decoration:none;color:inherit;
+  cursor:pointer;box-shadow:0 8px 22px -12px rgba(0,0,0,.9);
+  transition:transform .22s cubic-bezier(.2,.7,.3,1),box-shadow .22s,opacity .22s}
+.tile:hover{transform:translateY(-4px);box-shadow:0 24px 44px -18px rgba(0,0,0,.95)}
+.tile:active{transform:scale(.985)}
+.tim{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 0%;
+  display:block;border:0}
+.tile .ov{position:absolute;inset:0;z-index:1;padding:22px 20px;display:flex;flex-direction:column}
+.tile.art .ov,.tile.art .vig{display:none}
+.eye{font-size:12px;font-weight:700;margin-bottom:12px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.th{font-size:30px;line-height:1.04;font-weight:700;letter-spacing:normal;margin:0}
+.tsub{font-size:14px;font-weight:400;margin:12px 0 0;line-height:1.38;opacity:.92}
+.tcta{margin-top:auto;font-size:14px;font-weight:700}
+.nav{position:absolute;top:calc(50% - 8px);transform:translateY(-50%);width:46px;height:92px;z-index:5;
+  background:rgba(9,12,20,.92);border:1px solid var(--line2);display:grid;place-items:center;
+  box-shadow:0 8px 24px rgba(0,0,0,.7);transition:opacity .2s}
+.nav[disabled]{opacity:0;pointer-events:none}
+.nav.l{left:0;border-radius:0 10px 10px 0}
+.nav.r{right:0;border-radius:10px 0 0 10px}
+@media(hover:none){.nav{display:none}}
+
+/* ══ DAYPART — the page dresses for the hour ══ */
+.dpbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 0 2px}
+.dpnow{display:flex;align-items:center;gap:8px;height:30px;padding:0 12px;border-radius:16px;
+  background:rgba(255,255,255,.05);border:1px solid var(--line);font-size:12px;font-weight:700;color:#C3CBDD}
+.dpnow i{width:7px;height:7px;border-radius:50%;background:var(--acc);display:block}
+.dpnow b{color:#fff;font-weight:700}
+.rgseg{margin-left:2px}
+.dpseg{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid var(--line);
+  border-radius:16px;padding:3px}
+.dpseg button{height:24px;padding:0 11px;border-radius:13px;font-size:11px;font-weight:700;
+  color:#9BA7C2;white-space:nowrap}
+.dpseg button.on{background:rgba(255,106,43,.16);color:#FFC2A2}
+.dpwhy{font-size:11.5px;color:var(--dim);font-weight:400;flex:1;min-width:200px}
+
+/* morning — cool, bright, forward-looking */
+body.dp-morning{--acc:#FF8A3D;--acc2:#FFB25E;--hot:#FF6A2B;--band:#0B1119}
+body.dp-morning .hero{background:radial-gradient(760px 420px at 20% -10%,rgba(255,178,94,.14),transparent 62%),
+  radial-gradient(700px 420px at 88% 108%,rgba(56,189,248,.12),transparent 62%),var(--band)}
+/* lunch — clean and quick */
+body.dp-lunch{--acc:#FF6A2B;--acc2:#FF8A3D;--hot:#F0413A;--band:#0A0E17}
+/* afternoon — warm, open-ended */
+body.dp-afternoon{--acc:#FF7A2B;--acc2:#FFA23A;--hot:#FF4D3D;--band:#0C0D16}
+/* night — deep, amber and pink, the room after dark */
+body.dp-night{--shell:#06070E;--band:#0A0711;--card:#12101F;--acc:#FBBF24;--acc2:#FCD34D;--hot:#EC4899;
+  --line:rgba(255,255,255,.09);--line2:rgba(255,255,255,.16)}
+body.dp-night .hero{background:radial-gradient(820px 460px at 18% -12%,rgba(251,191,36,.16),transparent 62%),
+  radial-gradient(760px 440px at 88% 108%,rgba(236,72,153,.18),transparent 62%),var(--band)}
+body.dp-night .hdr{background:rgba(6,7,14,.94)}
+body.dp-night .chip.k{background:rgba(251,191,36,.14);border-color:rgba(251,191,36,.32);color:#FCD34D}
+
+/* ══ THE MENU — hidden until a card is selected ══ */
+.railhint{font-size:12px;font-weight:400;color:var(--dim);padding:0 0 6px}
+body.menuopen .railhint{display:none}
+body.menuopen .tile{opacity:.45;transform:scale(.97)}
+body.menuopen .tile:hover{opacity:.8}
+body.menuopen .tile.sel,.tile.sel{opacity:1;transform:translateY(-6px) scale(1);
+  box-shadow:0 30px 52px -18px rgba(0,0,0,1)}
+.menusec{display:none;background:linear-gradient(180deg,rgba(255,106,43,.05),transparent 46%),var(--band);
+  border-bottom:1px solid var(--line)}
+#menusec .wrap{padding:18px var(--pad) 26px;position:relative;z-index:2;text-align:left}
+body.menuopen .menusec{display:block;animation:menuIn .46s cubic-bezier(.19,1.06,.34,1) both}
+@keyframes menuIn{
+  0%{opacity:0;transform:translateY(-30px) scaleY(.97);transform-origin:top}
+  58%{opacity:1;transform:translateY(5px) scaleY(1.006);transform-origin:top}
+  100%{opacity:1;transform:none}}
+
+/* the categories — a rail, never a stack */
+.catwrap{margin:0 calc(var(--pad) * -1);padding:0 var(--pad)}
+.catrail{display:flex;gap:var(--catgap);overflow-x:auto;scrollbar-width:none;padding:1px 0 13px;
+  scroll-snap-type:x proximity}
+.catrail::-webkit-scrollbar{display:none}
+.cat{flex:0 0 calc((100% - (var(--catvis) - 1) * var(--catgap)) / var(--catvis));
+  scroll-snap-align:start;display:flex;align-items:center;gap:10px;height:52px;min-width:0;
+  padding:0 15px 0 8px;border-radius:12px;background:var(--card);border:1px solid var(--line);
+  text-align:left;transition:border-color .16s,background .16s,transform .16s}
+.cat:hover{background:#141C2C;border-color:var(--line2);transform:translateY(-1px)}
+.cat.on{border-color:var(--acc);background:rgba(255,106,43,.1)}
+.cico{width:36px;height:36px;border-radius:9px;flex:0 0 auto;background-size:cover;background-position:50% 30%;
+  background-color:#0D1421}
+.ctx{display:flex;align-items:center;min-width:0}
+.ctx b{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cat.on .ctx b{color:#fff}
+
+/* the place cards — one horizontal rail, no wrapping */
+.pcwrap{position:relative;margin:0 calc(var(--pad) * -1)}
+.pcrail{display:flex;gap:var(--pcgap);overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;
+  padding:4px var(--pad) 6px;scroll-padding-left:var(--pad)}
+.pcrail::-webkit-scrollbar{display:none}
+.pcrail .ipc{flex:0 0 calc((100% - (var(--pcvis) - 1) * var(--pcgap)) / var(--pcvis));
+  scroll-snap-align:start;
+  animation:cardDrop .5s cubic-bezier(.18,1.08,.34,1) both;animation-delay:calc(var(--i) * 58ms)}
+@keyframes cardDrop{
+  0%{opacity:0;transform:translateY(-30px) scale(.955)}
+  62%{opacity:1;transform:translateY(6px) scale(1.008)}
+  100%{opacity:1;transform:none}}
+.pnav{position:absolute;top:calc(50% - 3px);transform:translateY(-50%);width:40px;height:76px;z-index:5;
+  background:rgba(9,12,20,.94);border:1px solid var(--line2);display:grid;place-items:center;
+  box-shadow:0 8px 24px rgba(0,0,0,.7);transition:opacity .2s}
+.pnav[disabled]{opacity:0;pointer-events:none}
+.pnav.l{left:0;border-radius:0 10px 10px 0}
+.pnav.r{right:0;border-radius:10px 0 0 10px}
+@media(hover:none){.pnav{display:none}}
+@media (prefers-reduced-motion:reduce){
+  body.menuopen .menusec{animation:none}
+  .pcrail .ipc{animation:none}}
+.mbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px}
+.mhd{font-size:14px;font-weight:700;color:#9AA7C0;margin:0}
+.mhd b{color:var(--acc2)}
+.mclose{display:flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:16px;
+  border:1px solid var(--line2);font-size:12px;font-weight:700;color:#C3CBDD;flex:0 0 auto}
+.mclose:hover{background:rgba(255,255,255,.06);color:#fff}
+
+/* ── hero + sections ──────────────────────────────────────── */
+.hero{margin-top:12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);position:relative;
+  overflow:hidden;background:radial-gradient(760px 420px at 20% -10%,rgba(255,106,43,.13),transparent 62%),
+  radial-gradient(700px 420px at 88% 108%,rgba(139,92,246,.14),transparent 62%),var(--band)}
+.hero::after{content:'';position:absolute;inset:0;background:var(--grain);opacity:.05;pointer-events:none}
+.hero .wrap{padding:34px var(--pad);position:relative;z-index:2;text-align:center}
+.hlogo{height:44px;width:auto;display:block;margin:0 auto 18px}
+.kick{font-size:14px;font-weight:700;color:var(--acc2);margin-bottom:12px}
+.hero h1{font-family:var(--sans);font-size:clamp(26px,3.4vw,36px);line-height:1.18;font-weight:700;
+  letter-spacing:normal;margin:0 0 12px}
+.hero p{font-size:17px;line-height:1.4;color:var(--mut);font-weight:400;margin:0 auto;max-width:560px;line-height:1.55}
+section{padding:32px 0 6px}
+.shead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:15px}
+.shead h2{font-size:21px;line-height:1.255;font-weight:700;letter-spacing:normal;margin:0 0 5px}
+.shead p{margin:0;font-size:14px;color:var(--mut);font-weight:400;max-width:620px;line-height:1.45}
+.hrail{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;margin:0 calc(var(--pad) * -1);padding:2px var(--pad) 8px}
+.hrail::-webkit-scrollbar{display:none}
+
+.dtile{position:relative;flex:0 0 auto;width:194px;border-radius:12px;overflow:hidden;background:var(--card);
+  border:1px solid var(--line);transition:transform .18s}
+.dtile:hover{transform:translateY(-3px)}
+.dtile .dim{height:132px;position:relative;background-size:cover;background-position:50% 30%}
+.dtile .doff{position:absolute;left:9px;top:9px;height:23px;padding:0 10px;border-radius:6px;font-size:11px;
+  font-weight:700;background:var(--acc);color:#fff;display:flex;align-items:center}
+.dtile .dtx{padding:11px 12px 13px}
+.dtile .dtx b{display:block;font-size:13.5px;font-weight:700;line-height:1.25;margin-bottom:4px}
+.dtile .dtx span{font-size:11.5px;color:var(--mut);font-weight:400;display:block}
+.dexp{font-size:10.5px;color:var(--acc2);font-weight:700;margin-top:7px}
+.dmore{flex:0 0 auto;width:140px;border-radius:12px;border:1px dashed var(--line2);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:7px;font-size:13px;font-weight:700;color:#B7C1D8}
+
+
+/* ── the guides library — what the Local Guides card opens onto ────────── */
+.glib{display:none}
+body.blogopen .glib{display:block}
+body.blogopen .pcwrap{display:none}
+.gbar{display:flex;align-items:center;gap:9px;overflow-x:auto;scrollbar-width:none;
+  margin:0 calc(var(--pad) * -1) 14px;padding:0 var(--pad)}
+.gbar::-webkit-scrollbar{display:none}
+.gfil{flex:0 0 auto;height:34px;padding:0 15px;border-radius:17px;background:var(--card);
+  border:1px solid var(--line);font-size:13px;font-weight:400;color:#AAB6CE;transition:.16s}
+.gfil:hover{border-color:var(--line2);color:#fff}
+.gfil.on{background:rgba(255,106,43,.12);border-color:var(--acc);color:#FFC2A2;font-weight:700}
+.gfil b{font-weight:700;color:inherit;opacity:.6;margin-left:5px}
+.ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:13px}
+@media(max-width:760px){.ggrid{grid-template-columns:1fr}}
+.gcard{position:relative;display:flex;flex-direction:column;gap:8px;padding:17px 18px 16px;
+  background:var(--card);border:1px solid var(--line);border-radius:14px;text-align:left;
+  transition:transform .16s,border-color .16s,background .16s;
+  animation:cardDrop .45s cubic-bezier(.18,1.08,.34,1) both;animation-delay:calc(var(--i) * 32ms)}
+.gcard:hover{transform:translateY(-2px);border-color:var(--line2);background:#141C2C}
+.gtop{display:flex;align-items:center;gap:9px;font-size:11.5px;font-weight:700}
+.greg{color:var(--acc2)}
+.gdot{width:3px;height:3px;border-radius:50%;background:var(--dim)}
+.gupd{color:var(--dim);font-weight:400}
+.gtit{margin:0;font-size:16.5px;font-weight:700;line-height:1.28;color:var(--tx)}
+.gtea{margin:0;font-size:13.5px;line-height:1.5;color:var(--mut);font-weight:400}
+.gread{margin-top:3px;font-size:12.5px;font-weight:700;color:var(--acc2)}
+.gcard:hover .gread{color:var(--acc)}
+.gnone{padding:26px 2px;color:var(--mut);font-size:14px}
+@media (prefers-reduced-motion:reduce){.gcard{animation:none}}
+/* ── the iconic Wayfind place card ──────────────────────────── */
+.nlist{display:flex;gap:var(--pcgap);overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;
+  margin:0 calc(var(--pad) * -1);padding:4px var(--pad) 8px;scroll-padding-left:var(--pad)}
+.nlist::-webkit-scrollbar{display:none}
+.nlist .ipc{flex:0 0 calc((100% - (var(--pcvis) - 1) * var(--pcgap)) / var(--pcvis));scroll-snap-align:start}
+.ipc{position:relative;display:flex;align-items:stretch;background:var(--card);border:1px solid var(--line2);
+  border-radius:18px;overflow:hidden;transition:transform .18s,border-color .18s,box-shadow .18s;
+  box-shadow:0 18px 34px -26px rgba(0,0,0,.9)}
+.ipc:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.22);
+  box-shadow:0 26px 46px -26px rgba(0,0,0,.95)}
+.ipc:focus{outline:none}
+.ipc:focus-visible{box-shadow:inset 0 0 0 2px var(--acc)}
+.ipc.gold::before{content:'';position:absolute;left:0;right:0;top:0;height:2px;z-index:3;
+  background:linear-gradient(90deg,var(--gold),var(--acc2) 60%,transparent)}
+
+.ipcim{flex:0 0 132px;background-repeat:no-repeat;position:relative;
+  border-right:1px solid var(--line)}
+.ipcim::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,7,14,.5),transparent 55%)}
+.ipcrk{position:absolute;top:9px;left:9px;z-index:2;width:30px;height:30px;border-radius:9px;display:grid;
+  place-items:center;font-size:13.5px;font-weight:700;color:#fff;background:rgba(8,11,20,.86);
+  border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(6px)}
+.ipc.gold .ipcrk{background:linear-gradient(135deg,#F7CE5E,#D08F12);color:#241A02;border-color:rgba(255,255,255,.35)}
+
+.ipcb{flex:1;min-width:0;padding:13px 14px 12px;display:flex;flex-direction:column;gap:10px}
+.ipchead{display:flex;align-items:flex-start;gap:12px}
+.ipctx{flex:1;min-width:0}
+.ipccat{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;
+  color:var(--acc2);margin-bottom:5px}
+.ipccat i{width:11px;height:2.5px;border-radius:2px;background:var(--acc);flex:0 0 auto}
+.ipccat span{color:var(--dim);letter-spacing:normal}
+.ipcn{margin:0 0 6px;font-size:17px;font-weight:700;letter-spacing:normal;line-height:1.16}
+.ipcmeta{display:flex;align-items:center;flex-wrap:wrap;gap:5px 6px;font-size:13px;font-weight:400;color:var(--mut)}
+.ipcmeta em{font-style:normal;color:var(--dim)}
+.ipcmeta b{font-weight:700}
+.idot{width:8px;height:8px;border-radius:50%;background:var(--score);box-shadow:0 0 0 3px rgba(53,208,127,.16)}
+.idot.cl{background:#F0526B;box-shadow:0 0 0 3px rgba(240,82,107,.16)}
+.ipr{color:var(--score)}
+.iop{color:var(--score)}
+.icl{color:#FF6B7F}
+
+.ipcpills{display:flex;flex-wrap:wrap;gap:9px;margin-top:10px}
+.ideal,.iaw{display:inline-flex;align-items:center;gap:7px;height:31px;padding:0 13px;border-radius:16px;
+  font-size:12px;font-weight:700;letter-spacing:normal;flex:0 0 auto}
+.ideal{background:linear-gradient(135deg,var(--acc),#E04E13);color:#fff;padding-left:10px}
+.ideal svg{width:13px;height:13px}
+.iaw{background:rgba(255,255,255,.05);border:1px solid var(--line2);color:#D8DFEF;padding-left:5px}
+.iaw .num{width:21px;height:21px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;
+  background:rgba(255,255,255,.1);border:1px solid var(--line2);font-style:normal}
+.iaw.g{background:linear-gradient(135deg,rgba(245,196,81,.2),rgba(214,154,24,.09));
+  border-color:rgba(245,196,81,.5);color:var(--gold)}
+.iaw.g .tro{font-style:normal;font-size:13px;width:21px;height:21px;display:grid;place-items:center;
+  border-radius:50%;background:rgba(0,0,0,.35)}
+
+.wf{flex:0 0 auto;display:flex;align-items:stretch;height:52px;border-radius:11px;overflow:hidden;
+  border:1.5px solid var(--score);background:#0C1320}
+.wfp{width:36px;display:grid;place-items:center;background:var(--score);color:#fff}
+.wfp svg{width:19px;height:19px}
+.wfn{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 12px;line-height:1}
+.wfn i{font-style:normal;font-size:10px;font-weight:700;color:#A9BECE;margin-bottom:2px}
+.wfn b{font-size:21px;line-height:1.1;font-weight:700;letter-spacing:normal}
+.wfn u{text-decoration:none;font-size:9.5px;font-weight:700;color:var(--dim);margin-top:2px}
+
+.itag{display:inline-flex;align-items:center;height:31px;padding:0 13px;border-radius:16px;font-size:12px;
+  font-weight:700;letter-spacing:normal;background:rgba(255,255,255,.05);
+  border:1px solid var(--line);color:#9FAAC4;flex:0 0 auto}
+.ipccta{display:block;width:100%;height:44px;border-radius:8px;font-size:14px;font-weight:700;
+  letter-spacing:normal;color:#fff;background:linear-gradient(135deg,var(--acc2),var(--acc) 55%,#E0480F);
+  box-shadow:0 12px 24px -14px rgba(255,106,43,.9);transition:filter .16s,transform .16s}
+.ipccta:hover{filter:brightness(1.07);transform:translateY(-1px)}
+.ipccta span{opacity:.85}
+.ipcnote{margin:0;padding-left:12px;border-left:3px solid var(--gold);font-size:13px;line-height:1.46;
+  font-weight:400;color:#C6D0E4}
+.ipcacts{display:flex;gap:9px;margin-top:auto;flex-wrap:nowrap}
+.ia{display:flex;align-items:center;justify-content:center;gap:8px;height:42px;border-radius:8px;
+  border:1px solid var(--line2);font-size:13px;font-weight:700;color:#D3DAEA;flex:1 1 0;min-width:0;
+  max-width:190px;transition:.16s}
+.ia.ic{flex:0 0 62px}
+.ia svg{width:17px;height:17px;flex:0 0 auto}
+.ia:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.24)}
+.ia.on{border-color:var(--acc);color:var(--acc2);background:rgba(255,106,43,.1)}
+
+@media(max-width:640px){
+  .ipcim{flex:0 0 104px}
+  .ipcb{padding:11px 12px 11px;gap:9px}
+  .ipchead{gap:9px}
+  .wf{height:44px;border-radius:9px}
+  .wfp{width:28px}.wfp svg{width:15px;height:15px}
+  .wfn{padding:0 9px}.wfn b{font-size:17px}
+  .ia{height:38px;font-size:12.5px;gap:6px}
+  .ia.ic{flex:0 0 48px}
+  .ipcmeta{font-size:11.5px;gap:4px 5px}
+  .iprl{display:none}
+  .ipcpills{gap:7px}
+  .ideal,.iaw,.itag{height:28px;font-size:11px;padding:0 10px}
+  .ipccta{height:41px;font-size:13.5px}
+}
+
+.gtile{flex:0 0 auto;width:224px;border-radius:14px;overflow:hidden;background:var(--card);border:1px solid var(--line);
+  transition:transform .18s}
+.gtile:hover{transform:translateY(-3px)}
+.gtile .gim{height:120px;background-size:cover;background-position:50% 25%}
+.gtile .gb{padding:11px 12px 13px}
+.gtile .gb b{display:block;font-size:13.5px;font-weight:700;margin-bottom:3px}
+.gtile .gb span{font-size:11px;color:var(--mut);font-weight:400}
+
+footer{margin-top:38px;border-top:1px solid var(--line);background:var(--ink);padding:32px 0 26px}
+.fgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:20px}
+@media(max-width:860px){.fgrid{grid-template-columns:1fr 1fr 1fr}}
+@media(max-width:1400px){:root{--catvis:3.8; --pcvis:2.4}}
+@media(max-width:1100px){:root{--catvis:3.0; --pcvis:1.9}}
+@media(max-width:900px){:root{--tw:min(76vw,340px); --catvis:2.4; --pcvis:1.35; --pcgap:11px}}
+@media(max-width:560px){:root{--catvis:2.0; --pcvis:1.08; --catgap:8px}}
+@media(max-width:560px){.fgrid{grid-template-columns:1fr 1fr}}
+.fgrid h4{font-size:14px;color:#8A97B0;margin:0 0 11px;font-weight:700}
+.fgrid a{display:block;font-size:12.5px;color:#A9B4CB;font-weight:400;margin-bottom:8px}
+.fgrid a:hover{color:#fff}
+.fbot{margin-top:22px;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px;
+  justify-content:space-between;font-size:11.5px;color:var(--dim);font-weight:400}
+@media(max-width:640px){.shead{flex-direction:column;align-items:flex-start;gap:10px}}
+</style>
+</head>
+<body>
+
+<header class="hdr"><div class="wrap">
+  <div class="hrow">
+    <button class="loc">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.5s7-6.3 7-11.2A7 7 0 1 0 5 10.3c0 4.9 7 11.2 7 11.2z"/><circle cx="12" cy="10.1" r="2.5"/></svg>
+      <span><i>Showing places near</i><b>Sarasota, FL</b></span>
+    </button>
+    <div class="tabs" id="tabs"></div>
+    <button class="signin">Sign in</button>
+  </div>
+  <div class="search">
+    <button class="scope">All <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M6 9l6 6 6-6"/></svg></button>
+    <input placeholder="smash burger near me" aria-label="Search">
+    <button class="go" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.4-3.4"/></svg></button>
+  </div>
+  <nav class="dests" id="btmnav"></nav>
+</div>
+<div class="scpanel" id="scpanel"><div class="wrap"><div class="scrow" id="scrow"></div></div></div>
+</header>
+
+<!-- Amazon promo rail — added above the menu -->
+<div class="railsec"><div class="wrap">
+  <div class="dpbar">
+    <span class="dpnow"><i></i> <span id="dpClock">—</span> · <b id="dpName">—</b></span>
+    <div class="dpseg" id="dpSeg">
+      <button data-d="morning">Morning</button>
+      <button data-d="lunch">Lunch</button>
+      <button data-d="afternoon">Afternoon</button>
+      <button data-d="night">Night</button>
+      <button data-d="auto" class="on">Auto</button>
+    </div>
+    <div class="dpseg rgseg" id="rgSeg" title="Regional card art">
+      <button data-r="orlando">Orlando</button>
+      <button data-r="fl">Florida</button>
+      <button data-r="other">Elsewhere</button>
+    </div>
+    <span class="dpwhy" id="dpWhy"></span>
+  </div>
+  <div class="rhead">
+    <h2 id="rlabel">Browse Wayfind</h2>
+    <div class="rtools">
+      <div class="ratio" id="ratio">
+        <button data-r=".5625" class="on">Full card</button>
+        <button data-r=".667">Amazon 2:3</button>
+      </div>
+      <button class="seeall">See all ›</button>
+    </div>
+  </div>
+  <div class="railwrap">
+    <div class="track" id="track"></div>
+    <button class="nav l" id="navL" aria-label="Left"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E6EBF7" stroke-width="2.6"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button class="nav r" id="navR" aria-label="Right"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E6EBF7" stroke-width="2.6"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
+  <div class="railhint">Pick a card to open the menu.</div>
+</div></div>
+
+<!-- THE BAND — the pitch lives here, and the cards drop in here when one is picked -->
+<div class="hero" id="hero">
+  <div class="wrap herobrand">
+    <img class="hlogo" src="wayfind-white.png" alt="Wayfind">
+    <h1>Where to go, right now.</h1>
+    <p>The best places near you, already ranked.</p>
+  </div>
+</div>
+<div class="menusec" id="menusec"><div class="wrap">
+  <div class="mbar">
+    <h2 class="mhd">The menu · <b id="mSel">—</b></h2>
+    <button class="mclose" id="mClose">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      Close
+    </button>
+  </div>
+  <div class="catwrap">
+    <div class="catrail" id="catrail"></div>
+  </div>
+  <div class="glib" id="glib"></div>
+  <div class="pcwrap">
+    <div class="pcrail" id="pcrail"></div>
+    <button class="pnav l" id="pnavL" aria-label="Previous"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button class="pnav r" id="pnavR" aria-label="Next"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
+</div></div>
+
+<main>
+  <section><div class="wrap">
+    <div class="shead"><div><h2>Deals near you</h2><p>Each one is checked at its source and disappears the day it expires.</p></div><button class="seeall">See all deals ›</button></div>
+    <div class="hrail" id="deals"></div>
+  </div></section>
+  <section><div class="wrap">
+    <div class="shead"><div><h2>Near Sarasota right now</h2><p>The short answer, not fifty options.</p></div><button class="seeall">See all ›</button></div>
+    <div class="nlist" id="nlist"></div>
+  </div></section>
+  <section><div class="wrap">
+    <div class="shead"><div><h2>Local guides</h2><p>Written for one place, kept current.</p></div><button class="seeall">See all ›</button></div>
+    <div class="hrail" id="guides"></div>
+  </div></section>
+</main>
+
+<footer><div class="wrap">
+  <div class="fgrid" id="foot"></div>
+  <div class="fbot"><span>© 2026 Wayfind</span><span>Private test build — not the live site</span></div>
+</div></footer>
+
+
+<script>
+(function(){
+'use strict';
+var $=function(s){return document.querySelector(s)};
+var REDUCED=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* the ten rails — headings and subtitles verbatim from the live menu */
+var RAILS=[
+ /* Every rail owns ONE axis nothing else on the page claims. `axis` is the brief:
+    if two cards could carry the same axis, one of them should not exist. */
+ {id:'trending',icon:'\u{1F525}',t:'Exploding Trends Near You',axis:'demand — what people are searching for',
+  s:"The dishes and places whose searches are spiking. We found where to try them near you.",
+  short:"Everyone's searching this",sub:'We found where to try it',cta:"See what's spiking",n:9},
+ {id:'best',icon:'\u{1F3C6}',t:'The Best Around You',axis:'score — the highest Wayfind Score, any category',
+  s:'The highest Wayfind Scores near you, in any category. No paid placement, ever.',
+  short:'The highest score near you',sub:'Any category. No paid placement.',cta:'See the top scores',ink:'#0B1B3A',n:10},
+ {id:'eat',icon:'\u{1F374}',t:'Actually Worth Eating',axis:'the meal — food quality above all else',
+  s:'Ranked on the food itself, not on how loud the reviews are.',
+  short:'Skip the bad meal',sub:'Ranked on the food, not the noise',cta:"Show me what's good",n:12},
+ {id:'break',icon:'\u{26A1}',t:'The 30-Minute Break',axis:'time budget — it has to fit in 30 minutes',
+  s:'Counter-serve food close enough, and fast enough, to fit inside a real break.',
+  short:'Back at your desk in 30',sub:'Counter-serve, wait times checked',cta:'Lunch picks near you',ink:'#111827',n:6},
+ {id:'today',icon:'\u{1F3A1}',t:'What Should We Do Today?',axis:'the whole day — a sequence, not a single place',
+  s:'Not one place: a day in order, built around the hours you actually have.',
+  short:'Not one place. A whole day.',sub:'A plan in order, built around now',cta:'Plan our day',n:8},
+ {id:'gems',icon:'\u{1F48E}',t:"Places You'd Never Find",axis:'obscurity — excellent but under-reviewed',
+  s:'Rated above 4.6 with under 600 reviews: loved by the few who found them, missed by the big lists.',
+  short:'Great, and nobody found it',sub:'Over 4.6, under 600 reviews',cta:'Show me the gems',n:5},
+ {id:'locals',icon:'\u{1F3AC}',t:'Locals Know',axis:'source — a real person went and posted it',
+  s:'Not a listicle: creators who actually showed up, matched to places near you.',
+  short:'Someone actually went',sub:'Creators who posted it, near you',cta:'See what they found',ink:'#0B1220',n:11},
+ {id:'tonight',icon:'\u{1F39F}',t:"Tonight's Move",axis:'hours — still open when you get there',
+  s:'Places whose hours are verified for tonight, so nothing is shut when you arrive.',
+  short:'Still open when you arrive',sub:'Hours verified for tonight',cta:'Show me tonight',n:8},
+ {id:'drive',icon:'\u{1F697}',t:'Worth the Drive',axis:'distance — worth leaving town for',
+  s:'An hour in the car has to earn itself. These are the ones that do.',
+  short:'45 minutes, worth it',sub:'The ones that earn the tank',cta:"Show me what's worth it",n:6},
+ {id:'events',icon:'\u{1F3AB}',t:'Events Near You',axis:'ticketed and dated — it sells out',
+  s:'Concerts, shows and one-nighters with a date and a ticket, before they are gone.',
+  short:'Dated, ticketed, selling out',sub:'Concerts and one-nighters near you',cta:"See what's on",n:14},
+ /* ── folded in from the hero swipe rail (2026-08-13). Same destinations, one entry point. ── */
+ {id:'beach',icon:'\u{1F3D6}',t:'Beach Day',axis:'the water — which stretch of sand, and when',
+  s:'Which stretch of sand is worth it today, where to park, and when the tide turns.',
+  short:'The beach, decided',sub:'Tide, parking, and the good stretch',cta:'Find my beach',n:7,href:'/best-beaches'},
+ {id:'family',icon:'\u{1F46A}',t:'Family Day, Decided',axis:'kids in tow — it has to work for them',
+  regional:{orlando:'family-orlando',fl:'family-fl'},
+  s:'Kid-approved and pet-friendly, filtered for shade, seating and a short enough queue.',
+  short:'Nobody melts down at 3pm',sub:'Kid-approved, pet-friendly, shade checked',cta:'Plan the day',n:12,href:'/family'},
+ {id:'datenight',icon:'\u{1F377}',t:'Date Night',axis:'the room — atmosphere for two',
+  s:'Rooms quiet enough to hear each other and good enough that you stay for another.',
+  short:'Quiet enough to talk',sub:'The room matters as much as the food',cta:'Book date night',n:9,href:'/date-night'},
+ {id:'blog',icon:'\u{270D}',t:'Local Guides',axis:'the writing — why a place is worth it, not just where it is',
+  s:'Long-form guides written by someone who actually went: the parking, the catch, the hour it is worth.',
+  short:'Written by someone who went',sub:'The catch, the parking, the hour',cta:'Read the guides',n:19,href:'/guides'},
+ {id:'season',icon:'\u{2600}',t:'Summer Picks',axis:'expires — only available this season',
+  s:'Places and events that only work right now, and are gone when the season turns.',
+  short:'Gone when summer goes',sub:'Back next year, not sooner',cta:'See what ends soon',n:11,href:'/seasonal'}
+];
+var byId=function(id){for(var i=0;i<RAILS.length;i++){if(RAILS[i].id===id)return RAILS[i]}return RAILS[0]};
+/* Swapped art kept showing stale in the browser — the filename never changes, so the
+   cached image wins. Version the URL and bump ART_V whenever a card image is replaced. */
+var ART_V='15';
+/* Regional art. Orlando gets the parks, the rest of Florida gets the state card,
+   everywhere else gets the generic one. Real app: derive REGION from the user's
+   coordinates via regionFor(); the lab lets you preview all three. */
+function regionFor(lat,lng){
+  if(lat>=28.20&&lat<=28.85&&lng>=-81.75&&lng<=-80.95) return 'orlando';
+  if(lat>=24.40&&lat<=31.05&&lng>=-87.70&&lng<=-79.90) return 'fl';
+  return 'other';
+}
+var REGIONS={orlando:'Orlando',fl:'Rest of Florida',other:'Everywhere else'};
+try{window.regionFor=regionFor}catch(e){}
+var REGION=(function(){
+  var q=(location.search.match(/[?&]r=([a-z]+)/i)||[])[1];
+  if(q&&REGIONS[q.toLowerCase()]) return q.toLowerCase();
+  return 'fl';                       /* the lab sits in Sarasota */
+})();
+function railById(id){for(var i=0;i<RAILS.length;i++){if(RAILS[i].id===id)return RAILS[i]}return null}
+function artFile(id){
+  var r=railById(id);
+  if(r&&r.regional&&r.regional[REGION]) return r.regional[REGION];
+  return id;
+}
+var art=function(id){return "url('cards-opt/"+artFile(id)+"-760.jpg?v="+ART_V+"')"};
+/* One entry per generated width. sizes mirrors --tw so the browser picks 380w on a
+   phone (19KB) and 760w on desktop instead of shipping the big file to everyone. */
+var TWIDTHS=[380,760];
+function SRCSET(f,ext){return TWIDTHS.map(function(w){
+  return 'cards-opt/'+f+'-'+w+'.'+ext+'?v='+ART_V+' '+w+'w'}).join(', ')}
+var TSIZES='(max-width:900px) 76vw, (max-width:1100px) 34vw, 440px';
+/* Every rail is a real link. /best-beaches has no index route — only [metro] — so the
+   beach card must carry a metro or it 404s. */
+var METRO={orlando:'orlando',fl:'sarasota-bradenton',other:'sarasota-bradenton'};
+function railHref(r){
+  if(!r.href) return '#'+r.id;
+  if(r.href==='/best-beaches') return '/best-beaches/'+(METRO[REGION]||'sarasota-bradenton');
+  return r.href;
+}
+var TG={trending:'linear-gradient(165deg,#3B1350,#1A0B2E 55%,#0B0E1A)',
+ best:'linear-gradient(165deg,#0B3A4A,#0C2036 55%,#0B0E1A)',
+ eat:'linear-gradient(165deg,#4A2109,#26110A 55%,#0B0E1A)',
+ gems:'linear-gradient(165deg,#123B33,#0C2029 55%,#0B0E1A)',
+ tonight:'linear-gradient(165deg,#2A1B08,#161326 55%,#0B0E1A)',
+ events:'linear-gradient(165deg,#4A0E2C,#20102E 55%,#0B0E1A)',
+ today:'linear-gradient(165deg,#123A56,#101C33 55%,#0B0E1A)',
+ locals:'linear-gradient(165deg,#3A1330,#170F2A 55%,#0B0E1A)',
+ drive:'linear-gradient(165deg,#0E2D4E,#0D1830 55%,#0B0E1A)',
+ break:'linear-gradient(165deg,#4A3508,#231A0E 55%,#0B0E1A)',
+ beach:'linear-gradient(165deg,#0B4152,#0C2433 55%,#0B0E1A)',
+ family:'linear-gradient(165deg,#123F27,#0D2320 55%,#0B0E1A)',
+ datenight:'linear-gradient(165deg,#4A0E1E,#210F26 55%,#0B0E1A)',
+ season:'linear-gradient(165deg,#4E3208,#241A10 55%,#0B0E1A)',
+ blog:'linear-gradient(165deg,#0C3C57,#0D2233 55%,#0B0E1A)'};
+var tg=function(id){return TG[id]||'linear-gradient(165deg,#1B2233,#0B0E1A)'};
+
+/* five picks per rail, so every menu row opens onto real cards */
+var PICKS={
+ trending:[['Smashery','Smash burgers · $','0.9 mi · 4 min',95,['$','Open now','Trending'],'Gold · tonight','The dish everyone is searching. <b>Wait under 11 min</b> at this hour.','Order ahead'],
+  ['Bar Nonna','Roman · $$','1.7 mi · 7 min',92,['$$','Open now','Books tonight'],'Silver','Cacio e pepe searches up <b>340% this month</b>.','Reserve a table'],
+  ['Kimchi Ko','Korean · $$','2.4 mi · 9 min',90,['$$','Open now','Walk-in'],'Bronze','Corn dogs and birria, both spiking. <b>Only place near you</b> doing either well.','See the menu'],
+  ['Halcyon Coffee','Coffee · $','0.5 mi · 2 min walk',88,['$','Open now','Fast'],'','Cortado searches doubled locally. <b>Average wait 4 minutes.</b>','Order ahead'],
+  ['Vela','Wine bar · $$$','3.1 mi · 10 min',86,['$$$','Open now','Late'],'','Natural wine is the fastest-rising night-out search in the metro.','Book a seat']],
+ _d:[['Ember & Ash','Wood-fired · $$','1.4 mi · 6 min',94,['$$','Open now','Books tonight'],'Gold · tonight','Ranked <b>#1 for tonight</b> — kitchen open until 11, 22 seats free at 7:30.','Reserve a table'],
+  ['Rosalita','Oaxacan · $$','2.1 mi · 8 min',91,['$$','Open now','Walk-in'],'Silver','Highest repeat-visit rate in the metro. <b>Third-most saved</b> this week.','See the menu'],
+  ['The Blue Hour','Cocktail bar · $$$','0.8 mi · 4 min',89,['$$$','Open now','Late'],'Bronze','Quietest 9pm room within a mile. <b>Verified hours</b> — open until 1am.','Book a seat'],
+  ['Halcyon Coffee','Coffee · $','0.5 mi · 2 min walk',87,['$','Open now','Fast'],'','Counter-serve, <b>average wait 4 minutes</b> — fits inside a 30-minute break.','Order ahead'],
+  ['Marisol Rooftop','Mediterranean · $$$','3.6 mi · 11 min',86,['$$$','Open now','View'],'','Sunset is 8:04pm. <b>West-facing terrace</b> — the only one rated above 4.6 nearby.','Reserve a table']]
+};
+/* What a row opens onto also changes with the hour. At night nothing
+   appears that is shut, and the chips carry closing time rather than
+   a generic "open now". */
+var PICKS_DP={
+ night:[['The Blue Hour','Cocktail bar · $$$','0.8 mi · 4 min',93,['$$$','Open till 1am','Late'],'Gold · tonight','Quietest 9pm room within a mile. <b>Verified open until 1am</b> — 6 seats at the bar.','Book a seat'],
+  ['Vela','Wine bar · $$$','3.1 mi · 10 min',91,['$$$','Open till 12','Walk-in'],'Silver','<b>Last seating 11:15.</b> Natural wine list, no reservation needed after 10.','Reserve a table'],
+  ['Ember & Ash','Wood-fired · $$','1.4 mi · 6 min',90,['$$','Kitchen till 11','Books tonight'],'Bronze','<b>Kitchen closes at 11</b> — 22 seats free at 9:45 if you go now.','Reserve a table'],
+  ['Nine Bar','Listening bar · $$','2.2 mi · 8 min',88,['$$','Open till 2am','Late'],'','<b>Open latest nearby.</b> No cover, and the room stays quiet enough to talk.','See what\'s on'],
+  ['Amalie Arena','Live music · from $34','5.8 mi · 14 min',86,['$34+','Doors 7:00','Tonight'],'','Doors were at 7. <b>Resale under face</b> for the upper bowl right now.','Get tickets']],
+ lunch:[['Halcyon Coffee','Coffee · $','0.5 mi · 2 min walk',92,['$','Open now','4 min wait'],'Gold · today','Counter-serve, <b>average wait 4 minutes</b> — back at your desk inside 25.','Order ahead'],
+  ['Pico Taquería','Tacos · $','0.7 mi · 3 min',90,['$','Open now','Fast'],'Silver','<b>Order-ahead in 6 minutes.</b> Busiest 12:15–12:40, quiet before and after.','Order ahead'],
+  ['Smashery','Smash burgers · $','0.9 mi · 4 min',89,['$','Open now','Trending'],'Bronze','<b>Under 11 min</b> at this hour. Gets to 25 after 12:30.','Order ahead'],
+  ['Little Fig','Salads & bowls · $$','1.1 mi · 5 min',87,['$$','Open now','Seats free'],'','Ten tables open right now — <b>the only sit-down that still fits the hour</b>.','See the menu'],
+  ['Bodhi','Vietnamese · $','1.4 mi · 6 min',86,['$','Open now','Fast'],'','Pho in <b>under 10 minutes</b>, and it travels well if you are eating at your desk.','Order ahead']],
+ morning:[['Halcyon Coffee','Coffee · $','0.5 mi · 2 min walk',93,['$','Open now','Opens 6:30'],'Gold · today','<b>Open since 6:30.</b> Quietest before 8:30 if you want a table to work at.','Order ahead'],
+  ['Riverwalk','Waterfront walk · free','1.9 mi · 7 min',90,['Free','Open now','Outdoors'],'Silver','<b>Low tide until 10:40</b> and clear skies — the good stretch is walkable this morning.','Get directions'],
+  ['Selby Gardens','Gardens · from $26','4.2 mi · 12 min',89,['$26+','Opens 10:00','Outdoors'],'Bronze','Opens at 10. <b>Coolest two hours of the day</b> are the two after that.','Book tickets'],
+  ['Anna Maria Island','Beach day · free','41 mi · 52 min',87,['Free','All day','Worth the drive'],'','<b>You have the whole day</b> — the only hour this drive makes sense is now.','Plan the drive'],
+  ['Little Fig','Brunch · $$','1.1 mi · 5 min',86,['$$','Opens 8:00','Walk-in'],'','Walk-in only. <b>The wait starts at 9:45</b> on a weekend.','See the menu']]
+};
+var picksFor=function(id){return (PICKS_DP[DP]||PICKS[id]||PICKS._d)};
+
+var DEALS=[['$10 for $20 of coffee & more','Orange Blossom Coffee · Bradenton','50% off','break'],
+ ['$20 for $40 of casual dining','El Warike Peruvian Cuisine · Bradenton','50% off','eat'],
+ ['$15 for $30 of Mexican cuisine','Guac Shop Mexican Grill · Bradenton','50% off','best']];
+var NEAR=[
+ {n:"Ember & Ash",cat:"Steakhouse",s:"9.4",rev:"1,240 reviews",pr:"$$$",prl:"Upscale",
+  open:1,mi:"1.4 mi",art:"best",award:"Best Food Pick",gold:1,
+  note:"The bar seats are first-come and run the same fire-grill menu as the dining room"},
+ {n:"Rosalita",cat:"Mexican",s:"9.1",rev:"860 reviews",pr:"$$",prl:"Moderate",
+  open:1,mi:"2.1 mi",art:"eat",award:"Top Mexican Pick",rank:2,deal:1,
+  note:"A hidden door upstairs leads to the tiki bar above the kitchen"},
+ {n:"The Blue Hour",cat:"Cocktail Bar",s:"8.9",rev:"410 reviews",pr:"$$$",prl:"Upscale",
+  open:1,mi:"0.8 mi",art:"tonight",award:"Top Night Pick",rank:3,
+  note:"Last call is 1am and the back room stays quiet enough to talk"},
+ {n:"Halcyon Coffee",cat:"Coffee",s:"8.7",rev:"980 reviews",pr:"$",prl:"Cheap",
+  open:0,mi:"0.5 mi",art:"break"},
+ {n:"Marisol Rooftop",cat:"Rooftop",s:"8.6",rev:"520 reviews",pr:"$$$",prl:"Upscale",
+  open:1,mi:"3.6 mi",art:"drive",deal:1,
+  note:"Go before sunset — the west rail fills up by seven"}];
+var GUIDES=[['Sarasota in a weekend','18 places · updated today','best'],
+ ['Bradenton for a rainy day','12 places · updated today','today'],
+ ['Anna Maria Island','21 places · updated today','drive'],
+ ['Where locals eat in Ybor','15 places · updated today','eat'],
+ ['St. Pete after dark','14 places · updated today','tonight']];
+var TABS=[
+ ['Food','<path d="M6 3v6.6a2 2 0 0 0 4 0V3M8 9.6V21"/><path d="M17.4 3c-1.7 1.1-2.6 3.1-2.6 5.6 0 1.7.9 2.7 2.6 2.7V21"/>'],
+ ['Night out','<path d="M5 4h14l-6.2 7.4V19"/><path d="M9 19h6"/><path d="M7.6 7.4h8.8"/>'],
+ ['Activities','<path d="M12 3.4 14.7 9l6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1L3.2 9.9 9.3 9z"/>'],
+ ['Family','<circle cx="8.4" cy="7.6" r="2.7"/><circle cx="16.6" cy="8.6" r="2.1"/><path d="M3.4 20.4v-1.8a5 5 0 0 1 10 0v1.8"/><path d="M15 20.4v-1.6a4 4 0 0 1 5.6-3.7"/>'],
+ ['Stays','<path d="M3.2 18.4v-7.2a2 2 0 0 1 2-2h13.6a2 2 0 0 1 2 2v7.2"/><path d="M3.2 15h17.6M3.2 18.4V21M20.8 18.4V21"/><path d="M6.6 9.2V6.8a1.8 1.8 0 0 1 1.8-1.8h7.2a1.8 1.8 0 0 1 1.8 1.8v2.4"/>'],
+ ['Shopping','<path d="M4.6 8.4h14.8l-1.2 11a2 2 0 0 1-2 1.8H7.8a2 2 0 0 1-2-1.8z"/><path d="M9 8.4V6.6a3 3 0 0 1 6 0v1.8"/>']
+];
+var SHORTCUTS=[
+ ['Top','<path d="M7 4h10v4.2a5 5 0 0 1-10 0z"/><path d="M7 6H4.6a3 3 0 0 0 3 3M17 6h2.4a3 3 0 0 1-3 3"/><path d="M12 13.2V17M9 20h6"/>'],
+ ['Hidden','<path d="M3 12s3.6-6.2 9-6.2S21 12 21 12s-3.6 6.2-9 6.2S3 12 3 12z"/><circle cx="12" cy="12" r="2.6"/><path d="M4.2 20 19.8 4"/>'],
+ ['Cravings','<path d="M6 3v6.8a2 2 0 0 0 4 0V3M8 9.8V21"/><path d="M17.4 3c-1.7 1.1-2.6 3.1-2.6 5.6 0 1.7.9 2.7 2.6 2.7V21"/>'],
+ ['Mood','<circle cx="12" cy="12" r="8.4"/><path d="M8.7 14.1a4.3 4.3 0 0 0 6.6 0"/><path d="M9.4 9.7h.01M14.6 9.7h.01"/>'],
+ ['Tonight','<path d="M20 14.3A8.5 8.5 0 0 1 9.7 4 8.6 8.6 0 1 0 20 14.3z"/>'],
+ ['Drive','<path d="M3.6 16.4h16.8v-4l-1.6-.5-1.8-3.5a2 2 0 0 0-1.8-1.1H8.8a2 2 0 0 0-1.8 1.1L5.2 11.9l-1.6.5z"/><path d="M5.4 16.4v2.2M18.6 16.4v2.2"/><circle cx="7.6" cy="14.2" r=".85" fill="currentColor" stroke="none"/><circle cx="16.4" cy="14.2" r=".85" fill="currentColor" stroke="none"/>'],
+ ['Bargains','<circle cx="12" cy="12" r="8.5"/><path d="M9 15.2 15 8.8"/><circle cx="9.5" cy="9.5" r="1.15"/><circle cx="14.5" cy="14.5" r="1.15"/>'],
+ ['Surprise','<rect x="3.4" y="9.6" width="17.2" height="11" rx="1.6"/><path d="M2.6 9.6h18.8M12 9.6v11"/><path d="M12 9.6S10.7 4.2 8.3 4.2a2.2 2.2 0 0 0 0 4.4M12 9.6s1.3-5.4 3.7-5.4a2.2 2.2 0 0 1 0 4.4"/>'],
+ ['Hot','<path d="M12 3.2s5.4 4.4 5.4 9A5.4 5.4 0 0 1 6.6 12.2c0-2.2 2-4 2-4s.5 2.2 1.8 2.9C10.9 8.5 12 6 12 3.2z"/>']
+];
+var BOTTOM=[
+ ['Shortcuts','<path d="M4 7h16M4 12h16M4 17h16"/>',0,'opener'],
+ ['Home','<path d="M3 10.6 12 3.5l9 7.1"/><path d="M5.5 9.4V20h13V9.4"/><path d="M9.8 20v-5.4h4.4V20"/>',1],
+ ['Events','<rect x="3.2" y="5" width="17.6" height="16" rx="2.6"/><path d="M3.2 10h17.6M8 3v4M16 3v4"/><circle cx="8.4" cy="14.4" r="1.1" fill="currentColor" stroke="none"/>'],
+ ['Coupons','<path d="M3 11.4V4.6h6.8l11 11-6.8 6.8z"/><circle cx="7.4" cy="8" r="1.35"/>'],
+ ['Map','<path d="M9 4 3.4 6.2v14L9 18l6 2.2 5.6-2.2v-14L15 6.2z"/><path d="M9 4v14M15 6.2v14"/>'],
+ ['Favorites','<path d="M12 20.4S3.8 15.1 3.8 9.6A4.6 4.6 0 0 1 12 7a4.6 4.6 0 0 1 8.2 2.6c0 5.5-8.2 10.8-8.2 10.8z"/>'],
+ ['Itinerary','<circle cx="5.4" cy="18.6" r="2.1"/><circle cx="17.6" cy="7" r="2.9"/><circle cx="17.6" cy="7" r=".9" fill="currentColor" stroke="none"/><path d="M7.4 17.1c2.6-1.6 4.4-2.4 6.2-4.1" stroke-dasharray="2.4 2.4"/>']
+];
+var FOOT=[['Cities',['Sarasota','Bradenton','Tampa','St. Petersburg','Anna Maria Island']],
+ ['Browse',['Food','Night out','Activities','Family','Stays']],
+ ['People use Wayfind to',['Pick a restaurant','Plan tonight','Find hidden gems','Fill a free day']],
+ ['Explore',['Local guides','Deals','Events','How ranking works']],
+ ['Follow',['Instagram','TikTok','YouTube','Newsletter']]];
+
+/* ══════════════════════════════════════════════════════════════
+   DAYPARTS — which cards are worth showing at which hour.
+   A card that cannot be acted on right now is not shown at all:
+   the 30-Minute Break is meaningless at 9am, Worth the Drive is
+   meaningless at 11pm, and Tonight's Move is noise at breakfast.
+   ══════════════════════════════════════════════════════════════ */
+var DAYPARTS={
+  morning:{label:'Morning',from:5,to:11,
+    why:'Immediate intent first: the day, then food. A drive still fits.',
+    order:['season','today','trending','eat','best','beach','family','drive','gems','locals','break','datenight','tonight','events','blog']},
+  lunch:{label:'Lunch',from:11,to:14,
+    why:'Food leads. Nothing that needs an evening.',
+    order:['season','eat','trending','break','best','locals','gems','today','family','beach','tonight','datenight','drive','events','blog']},
+  afternoon:{label:'Afternoon',from:14,to:17,
+    why:'Now first, then tonight becomes the question.',
+    order:['season','today','trending','best','eat','beach','family','locals','gems','drive','tonight','datenight','events','break','blog']},
+  night:{label:'Night',from:17,to:5,
+    why:'Tonight, with dinner right behind it.',
+    order:['season','tonight','trending','eat','datenight','events','best','locals','gems','drive','family','today','beach','break','blog']}
+};
+/* The hour decides what leads. Nothing is hidden — the rest queue up behind it,
+   so a card you want is always reachable, just never in the way. */
+function orderFor(dp){
+  var seen={}, out=[];
+  dp.order.forEach(function(id){ if(!seen[id]){seen[id]=1; out.push(id)} });
+  RAILS.forEach(function(r){ if(!seen[r.id]){seen[r.id]=1; out.push(r.id)} });
+  return out;
+}
+function partForHour(h){
+  if(h>=5&&h<11) return 'morning';
+  if(h>=11&&h<14) return 'lunch';
+  if(h>=14&&h<17) return 'afternoon';
+  return 'night';                 /* 17:00 → 05:00 */
+}
+var forced=(location.hash.replace('#','')||'').toLowerCase();
+if(!DAYPARTS[forced]){
+  var q=(location.search.match(/[?&]t=([a-z]+)/i)||[])[1];
+  forced=(q&&DAYPARTS[q.toLowerCase()])?q.toLowerCase():'';
+}
+var DP=forced||partForHour(new Date().getHours());
+
+/* header */
+$('#tabs').innerHTML=TABS.map(function(t,i){
+  return '<button class="tab'+(i===0?' on':'')+'">'+nvSvg(t[1])+t[0]+'</button>'}).join('');
+function nvSvg(p){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" '+
+  'stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>'}
+$('#scrow').innerHTML=SHORTCUTS.map(function(sc,i){
+  return '<button class="sc'+(i===0?' on':'')+'">'+nvSvg(sc[1])+sc[0]+'</button>'}).join('');
+$('#btmnav').innerHTML=BOTTOM.map(function(b){
+  return '<button class="bn'+(b[2]?' on':'')+(b[3]?' '+b[3]:'')+
+    (b[3]==='opener'?'" aria-expanded="false" aria-controls="scpanel':'')+'">'+
+    nvSvg(b[1])+b[0]+'</button>'}).join('');
+Array.prototype.forEach.call(document.querySelectorAll('#tabs .tab, #scrow .sc, #btmnav .bn'),function(b){
+  if(b.classList.contains('opener')) return;
+  b.addEventListener('click',function(){
+    Array.prototype.forEach.call(b.parentElement.children,function(x){
+      if(!x.classList.contains('opener')) x.classList.remove('on')});
+    b.classList.add('on');
+  })});
+/* Shortcuts is a menu that lives in the nav — open it, pick one, it closes */
+var opener=$('#btmnav .opener');
+function setShortcuts(open){
+  document.body.classList.toggle('scopen',open);
+  opener.classList.toggle('on',open);
+  opener.setAttribute('aria-expanded',open?'true':'false');
+}
+opener.addEventListener('click',function(e){
+  e.stopPropagation(); setShortcuts(!document.body.classList.contains('scopen'));
+});
+Array.prototype.forEach.call(document.querySelectorAll('#scrow .sc'),function(b){
+  b.addEventListener('click',function(){setTimeout(function(){setShortcuts(false)},110)})});
+document.addEventListener('click',function(e){
+  if(document.body.classList.contains('scopen')&&!e.target.closest('#scpanel')) setShortcuts(false);
+});
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') setShortcuts(false); });
+
+/* the Amazon rail */
+var track=$('#track');
+function renderRail(){
+  var dp=DAYPARTS[DP];
+  document.body.className=document.body.className.replace(/\bdp-\w+/g,'').trim();
+  document.body.classList.add('dp-'+DP);
+  var d=new Date(), h=d.getHours(), mm=String(d.getMinutes()).padStart(2,'0');
+  var hr=h%12||12, ap=h<12?'am':'pm';
+  $('#dpClock').textContent=hr+':'+mm+' '+ap+(forced?' (previewing)':'');
+  $('#dpName').textContent=dp.label;
+  $('#dpWhy').textContent=dp.why;
+  $('#rlabel').textContent=dp.label+' first · all '+RAILS.length+' rails';
+  var order=orderFor(dp);
+  track.innerHTML=order.map(function(id,i){
+    var r=byId(id);
+    var f=artFile(r.id), eager=(i<2);
+    return '<a class="tile" data-id="'+r.id+'" href="'+railHref(r)+'" style="background:'+tg(r.id)+'">'+
+      '<picture>'+
+        '<source type="image/avif" srcset="'+SRCSET(f,'avif')+'" sizes="'+TSIZES+'">'+
+        '<source type="image/webp" srcset="'+SRCSET(f,'webp')+'" sizes="'+TSIZES+'">'+
+        '<img class="tim" src="cards-opt/'+f+'-760.jpg?v='+ART_V+'" alt="'+r.t+'" '+
+          'width="760" height="1350" decoding="async" '+
+          (eager?'loading="eager" fetchpriority="high"':'loading="lazy" fetchpriority="low"')+'>'+
+      '</picture>'+
+      '<div class="ov"><div class="eye">'+r.t+'</div><h3 class="th">'+r.short+'</h3>'+
+      '<p class="tsub">'+r.sub+'</p><div class="tcta">'+r.cta+' →</div></div></a>'}).join('');
+  /* <img> tells us itself when it has painted — no second fetch, no duplicate download */
+  Array.prototype.forEach.call(track.querySelectorAll('.tim'),function(im){
+    var mark=function(){var t=im.closest('.tile'); if(t) t.classList.add('art')};
+    if(im.complete && im.naturalWidth) mark(); else im.addEventListener('load',mark,{once:true});
+  });
+  /* The tile is a real <a> so crawlers follow it and cmd/middle-click opens the page.
+     A plain left click stays in the app and drops the cards instead of navigating. */
+  Array.prototype.forEach.call(track.children,function(t){
+    t.addEventListener('click',function(e){
+      if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button!==0) return;  /* let the browser do its thing */
+      e.preventDefault();
+      if(t.classList.contains('sel')) hideMenu(); else showMenu(t.dataset.id);
+    });
+    t.addEventListener('keydown',function(e){
+      if(e.key==='Enter'||e.key===' '){e.preventDefault();
+        if(t.classList.contains('sel')) hideMenu(); else showMenu(t.dataset.id);}
+    });
+  });
+  /* the menu lists the same rails, in the same order, for the same reason */
+  $('#catrail').innerHTML=order.map(function(id){
+    var r=byId(id);
+    return '<button class="cat" data-id="'+r.id+'">'+
+      '<span class="cico" style="background-image:'+art(r.id)+'"></span>'+
+      '<span class="ctx"><b>'+r.t+'</b></span></button>'}).join('');
+  Array.prototype.forEach.call($('#catrail').children,function(c){
+    c.addEventListener('click',function(){trackRailOpen(c.dataset.id,'chip');selectCat(c.dataset.id,true)})});
+  navState(); requestAnimationFrame(navState);
+}
+function navState(){var max=track.scrollWidth-track.clientWidth-2;
+  $('#navL').disabled=track.scrollLeft<=2; $('#navR').disabled=track.scrollLeft>=max}
+$('#navL').addEventListener('click',function(){track.scrollBy({left:-(track.clientWidth-70),behavior:'smooth'})});
+$('#navR').addEventListener('click',function(){track.scrollBy({left:track.clientWidth-70,behavior:'smooth'})});
+track.addEventListener('scroll',navState,{passive:true});
+addEventListener('resize',navState);
+navState(); requestAnimationFrame(navState); setTimeout(navState,300);
+Array.prototype.forEach.call($('#ratio').children,function(b){b.addEventListener('click',function(){
+  Array.prototype.forEach.call($('#ratio').children,function(x){x.classList.remove('on')});
+  b.classList.add('on'); document.documentElement.style.setProperty('--ratio',b.dataset.r); navState();
+})});
+
+
+
+/* ══ ANALYTICS ══════════════════════════════════════════════════════════════
+   The hero swipe rail these cards replace fires 8 named events that dashboards
+   and funnels already depend on. Removing the heroes silently flatlines them.
+   So every rail open emits BOTH: the new rail_open (with rail_id) and the legacy
+   name, for one release. Delete LEGACY_EVENT once the new series has history. */
+var LEGACY_EVENT={
+  beach:'beach_hero_open', gems:'hidden_gems_hero_open', datenight:'datenight_hero_open',
+  family:'family_hero_open', trending:'buzz_hero_open', season:'seasonal_hero_open',
+  locals:'creator_video_hero_open', today:'discovery_hero_open'
+};
+var WF_EVENTS=[];
+function logEvent(name,props){
+  WF_EVENTS.push({name:name,props:props||{},t:Date.now()});
+  try{ if(window.posthog&&posthog.capture) posthog.capture(name,props||{}); }catch(e){}
+  try{ if(window.__wfLog) window.__wfLog(name,props||{}); }catch(e){}
+}
+function trackRailOpen(id,src){
+  var r=railById(id)||{};
+  logEvent('rail_open',{rail_id:id,rail_title:r.t||'',daypart:DP,region:REGION,
+    position:(DAYPARTS[DP].order.indexOf(id)+1),src:src||'rail'});
+  var legacy=LEGACY_EVENT[id];
+  if(legacy) logEvent(legacy,{src:'rail',rail_id:id});   /* keep the old series alive */
+}
+try{window.WayfindEvents=WF_EVENTS;}catch(e){}
+
+/* The Local Guides card opens the library instead of the place-card rail:
+   the payoff here is reading, not a ranked list. Cards are real <a> links to
+   /guides/<slug> so crawlers follow every one from the homepage. */
+var GREG='All';
+function monthYear(d){
+  var p=String(d||'').split('-'); if(p.length<2) return '';
+  var M=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return M[parseInt(p[1],10)-1]+' '+p[0];
+}
+function renderGuides(){
+  var regions=['All'].concat(GUIDEPOSTS.map(function(g){return g.region})
+    .filter(function(v,i,a){return a.indexOf(v)===i}).sort());
+  var counts={}; GUIDEPOSTS.forEach(function(g){counts[g.region]=(counts[g.region]||0)+1});
+  var list=GUIDEPOSTS.filter(function(g){return GREG==='All'||g.region===GREG});
+  $('#glib').innerHTML=
+    '<div class="gbar">'+regions.map(function(r){
+      return '<button class="gfil'+(r===GREG?' on':'')+'" data-r="'+r+'">'+r+
+        '<b>'+(r==='All'?GUIDEPOSTS.length:counts[r])+'</b></button>'}).join('')+'</div>'+
+    (list.length?'<div class="ggrid">'+list.map(function(g,i){
+      return '<a class="gcard" style="--i:'+i+'" href="/guides/'+g.slug+'">'+
+        '<div class="gtop"><span class="greg">'+g.region+'</span><span class="gdot"></span>'+
+        '<span class="gupd">Updated '+monthYear(g.updated)+'</span></div>'+
+        '<h4 class="gtit">'+g.title+'</h4>'+
+        '<p class="gtea">'+g.teaser+'</p>'+
+        '<div class="gread">Read the guide \u2192</div></a>'}).join('')+'</div>'
+      :'<p class="gnone">No guides for that area yet.</p>');
+  Array.prototype.forEach.call($('#glib').querySelectorAll('.gcard'),function(a){
+    a.addEventListener('click',function(){
+      logEvent('guide_open',{slug:a.getAttribute('href').split('/').pop(),region:GREG,src:'rail_library'})})});
+  Array.prototype.forEach.call($('#glib').querySelectorAll('.gfil'),function(b){
+    b.addEventListener('click',function(){GREG=b.dataset.r;renderGuides()})});
+}
+/* One category at a time, one horizontal rail of cards. Never a grid, never a stack. */
+var curCat=null;
+function selectCat(id,center){
+  var r=byId(id); if(!r) return;
+  curCat=id;
+  $('#mSel').textContent=r.t;
+  Array.prototype.forEach.call($('#catrail').children,function(c){
+    c.classList.toggle('on',c.dataset.id===id)});
+  Array.prototype.forEach.call(track.children,function(t){t.classList.toggle('sel',t.dataset.id===id)});
+  document.body.classList.toggle('blogopen',id==='blog');
+  if(id==='blog'){ GREG='All'; renderGuides(); return; }
+  var rail=$('#pcrail');
+  rail.innerHTML=picksFor(id).map(function(p,k){return ipc(ipcFromPick(p,k,r),k)}).join('');
+  Array.prototype.forEach.call(rail.children,function(c,k){
+    c.style.setProperty('--i',k);
+    Array.prototype.forEach.call(c.querySelectorAll('.ia'),function(b){
+      b.addEventListener('click',function(e){e.stopPropagation();b.classList.toggle('on')})});
+  });
+  rail.scrollLeft=0; pnavState(); requestAnimationFrame(pnavState);
+  if(center){
+    var sel=$('#catrail .cat.on');
+    if(sel&&sel.scrollIntoView) sel.scrollIntoView({block:'nearest',inline:'center',behavior:REDUCED?'auto':'smooth'});
+  }
+}
+function pnavState(){
+  var rail=$('#pcrail'), max=rail.scrollWidth-rail.clientWidth-2;
+  $('#pnavL').disabled=rail.scrollLeft<=2;
+  $('#pnavR').disabled=rail.scrollLeft>=max;
+}
+
+/* The menu is a consequence of choosing a card — it does not exist until then. */
+function showMenu(id){
+  document.body.classList.add('menuopen');
+  trackRailOpen(id,'rail');
+  selectCat(id,false);
+  toBand('#hero');
+}
+/* park a section just under the sticky header, so the drop lands in the eye */
+function toBand(sel){
+  var el=$(sel); if(!el) return;
+  var hd=$('.hdr'), off=(hd?hd.getBoundingClientRect().height:0)+8;
+  var y=window.scrollY+el.getBoundingClientRect().top-off;
+  window.scrollTo({top:Math.max(0,y),behavior:REDUCED?'auto':'smooth'});
+}
+function hideMenu(){
+  document.body.classList.remove('menuopen');
+  document.body.classList.remove('blogopen');
+  curCat=null;
+  Array.prototype.forEach.call(track.children,function(t){t.classList.remove('sel')});
+  toBand('.railsec');
+}
+$('#mClose').addEventListener('click',hideMenu);
+Array.prototype.forEach.call($('#rgSeg').children,function(b){
+  b.classList.toggle('on',b.dataset.r===REGION);
+  b.addEventListener('click',function(){
+    REGION=b.dataset.r;
+    Array.prototype.forEach.call($('#rgSeg').children,function(x){x.classList.toggle('on',x===b)});
+    hideMenu(); renderRail();
+  })});
+$('#pcrail').addEventListener('scroll',pnavState,{passive:true});
+$('#pnavL').addEventListener('click',function(){var r=$('#pcrail');r.scrollBy({left:-(r.clientWidth*0.86),behavior:REDUCED?'auto':'smooth'})});
+$('#pnavR').addEventListener('click',function(){var r=$('#pcrail');r.scrollBy({left:(r.clientWidth*0.86),behavior:REDUCED?'auto':'smooth'})});
+window.addEventListener('resize',pnavState);
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') hideMenu(); });
+
+
+/* the rest of the page */
+$('#deals').innerHTML=DEALS.map(function(d){
+  return '<div class="dtile"><div class="dim" style="background-image:'+art(d[3])+'">'+
+    '<span class="doff">'+d[2]+'</span></div><div class="dtx"><b>'+d[0]+'</b><span>'+d[1]+'</span>'+
+    '<div class="dexp">Checked at source today</div></div></div>'}).join('')+
+  '<button class="dmore"><span style="font-size:20px">→</span>See all deals</button>';
+
+/* PICKS rows → the iconic card. One card shape everywhere places are listed. */
+var PRLAB={'$':'Cheap','$$':'Moderate','$$$':'Upscale'};
+var SMALLW={of:1,the:1,a:1,an:1,and:1,to:1,in:1,on:1,at:1,by:1,for:1};
+function titleCase(t){return String(t).toLowerCase().split(' ').map(function(w,i){
+  return (i&&SMALLW[w])?w:w.charAt(0).toUpperCase()+w.slice(1)}).join(' ')}
+function ipcFromPick(p,k,r){
+  var seg=String(p[1]).split('·');
+  var cat=titleCase((seg[0]||'').trim());
+  var pr=(seg[1]||'$$').trim();
+  var chips=p[4]||[], status=chips[1]||'Open now';
+  var shut=/^(Opens|Doors)/i.test(status);
+  var dist=String(p[2]).split('·'), mi=(dist[0]||'').trim(), eta=(dist[1]||'').trim();
+  var gold=(k===0);
+  return {
+    n:p[0], cat:cat, s:(p[3]/10).toFixed(1), pr:pr, prl:PRLAB[pr]||'',
+    open:!shut, status:status, mi:mi, eta:eta, tag:chips[2]||'',
+    award:p[5]?(gold?'Best '+cat+' Pick':'Top Pick'):'', gold:gold?1:0, rank:k+1,
+    note:p[6], cta:p[7], artId:r.id, i:k
+  };
+}
+
+/* The 19 live guides, straight from lib/guides.js — slug, region, title, teaser, updated. */
+var GUIDEPOSTS=[{"slug":"winter-park-scenic-boat-tour","region":"Orlando","title":"Winter Park Scenic Boat Tour: Is It Worth It? (Local's Review)","teaser":"The ticket window is cash or check only, and which side of the boat you sit on decides your canal photos.","updated":"2026-07-07"},{"slug":"siesta-key-drum-circle","region":"Sarasota","title":"Siesta Key Drum Circle: Times, Parking, and What to Expect","teaser":"The drums start at sunset, but a decent spot on a busy season Sunday means you arrive 90 minutes early.","updated":"2026-07-07"},{"slug":"pinecraft-sarasota-amish-village","region":"Sarasota","title":"Pinecraft: Inside Sarasota's Amish Village (And Yoder's Famous Pie)","teaser":"Yoder's is closed Sundays, and the pie counter next door is the only way to skip the restaurant wait.","updated":"2026-07-07"},{"slug":"siesta-key-vs-lido-key","region":"Sarasota","title":"Siesta Key vs Lido Key: Which Sarasota Beach Is Right for You?","teaser":"One of these has the better sand. The other has the quiet stretch locals keep to themselves.","updated":"2026-07-07"},{"slug":"things-to-do-sarasota","region":"Sarasota","title":"10 Best Things to Do in Sarasota Beyond the Beach","teaser":"The Ringling art museum is free on Mondays, and there is one spot in Myakka where the gators are close to a sure thing.","updated":"2026-07-07"},{"slug":"best-cuban-sandwich-tampa","region":"Tampa","title":"The Best Cuban Sandwich in Tampa: Where the Original Still Lives","teaser":"Three places in Tampa make a real one, and one phrase at the counter gets it pressed the way the city means it.","updated":"2026-07-07"},{"slug":"st-armands-circle-restaurants","region":"Sarasota","title":"The 6 Best Restaurants on St. Armands Circle","teaser":"Sunset window tables go early on the Circle. Two of these six seat walk-ins the dining room cannot.","updated":"2026-07-07"},{"slug":"best-restaurants-disney-springs","region":"Orlando","title":"The 7 Best Restaurants at Disney Springs, Ranked by a Local","teaser":"Reservations are gone weeks out. Three of these have a workaround the reservation page will not mention.","updated":"2026-07-07"},{"slug":"best-hotels-near-magic-kingdom","region":"Orlando","title":"Best Hotels Near Magic Kingdom for Families (2026 Guide)","teaser":"At three of these resorts the room that costs less is the better room. You have to know which wing to ask for.","updated":"2026-07-07"},{"slug":"gatorland-vs-wild-florida","region":"Orlando","title":"Gatorland vs Wild Florida: Which Orlando Gator Park Wins?","teaser":"One has a zip line that sells out before admission does. The other is an airboat, and the hour you ride decides what you see.","updated":"2026-07-07"},{"slug":"things-to-do-orlando-not-theme-parks","region":"Orlando","title":"12 Things to Do in Orlando That Aren't Theme Parks","teaser":"Twelve of these, and one gets you Gideon's cookies without the Disney Springs line.","updated":"2026-07-07"},{"slug":"sarasota-half-price-dining","region":"Sarasota","title":"Sarasota Dinner at Half Price: Where the Certificates Actually Work","teaser":"Which certificate you buy is worth less than whether the restaurant is one you would have chosen anyway.","updated":"2026-07-31"},{"slug":"orlando-in-the-rain","region":"Orlando","title":"Orlando in the Rain: 9 Indoor Places That Aren't a Theme Park","teaser":"Which of these you can reach without going outside is the only thing that matters in a storm.","updated":"2026-07-31"},{"slug":"anna-maria-island-day-trip","region":"Bradenton","title":"Anna Maria Island Day Trip: The Old-Florida Beach Day, Done Right","teaser":"The island's best beach has almost no parking, by design. The free trolley is how you get there anyway.","updated":"2026-07-10"},{"slug":"myakka-river-state-park-guide","region":"Sarasota","title":"Myakka River State Park: Gators, the Canopy Walk, and How to Do It in Half a Day","teaser":"The canopy walkway sways more with a crowd on it, and a summer afternoon storm decides the rest of your day.","updated":"2026-07-10"},{"slug":"ybor-city-tampa-guide","region":"Tampa","title":"Ybor City: Cigars, Roosters, and the Best Afternoon in Tampa","teaser":"There are several Columbias. Only the original Ybor location is the one people actually come for.","updated":"2026-07-10"},{"slug":"tampa-riverwalk-guide","region":"Tampa","title":"Tampa Riverwalk: The 2.6-Mile Walk That Organizes the Whole City","teaser":"Walk it one way and you have seen half of it. The other half is only from the water.","updated":"2026-07-10"},{"slug":"de-soto-national-memorial-bradenton","region":"Bradenton","title":"De Soto National Memorial: Bradenton's Free National Park Site","teaser":"At high tide the shoreline trail is a mangrove tunnel; at low tide, wading birds on the flats. Which one you get is up to when you go.","updated":"2026-07-10"},{"slug":"robinson-preserve-bradenton","region":"Bradenton","title":"Robinson Preserve: Bradenton's 600-Acre Playground of Trails, Towers, and Kayak Tunnels","teaser":"The towers are the reason to come at sunset, and the tide decides whether you paddle at all.","updated":"2026-07-10"}];
+var IPCX=[92,70,86,76,96], IPCY=[92,72,99,80,86];
+var IPCBG=['linear-gradient(160deg,#2A1A12,#0E1420)','linear-gradient(160deg,#12212A,#0E1420)','linear-gradient(160deg,#241426,#0E1420)','linear-gradient(160deg,#1E2411,#0E1420)','linear-gradient(160deg,#2B1420,#0E1420)'];
+/* the iconic Wayfind place card */
+function ipcAct(l,p,cls){return '<button class="ia'+(cls?' '+cls:'')+'"><svg viewBox="0 0 24 24" fill="none" '+
+  'stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>'+l+'</button>'}
+var IA_SAVE='<path d="M12 20.6S3.6 15.2 3.6 9.5A4.7 4.7 0 0 1 12 6.8a4.7 4.7 0 0 1 8.4 2.7c0 5.7-8.4 11.1-8.4 11.1z"/>',
+    IA_UP  ='<path d="M7 21V10.2l4.4-7.2a2 2 0 0 1 2.9 2.5L13 9.4h5.3a2.1 2.1 0 0 1 2 2.6l-1.7 7a2.1 2.1 0 0 1-2 1.6H7z"/><rect x="2.8" y="10.2" width="4.2" height="10.8" rx="1.2"/>',
+    IA_DN  ='<path d="M17 3v10.8l-4.4 7.2a2 2 0 0 1-2.9-2.5L11 14.6H5.7a2.1 2.1 0 0 1-2-2.6l1.7-7a2.1 2.1 0 0 1 2-1.6H17z"/><rect x="17" y="3" width="4.2" height="10.8" rx="1.2"/>',
+    IA_SH  ='<path d="M8.6 21H5a2 2 0 0 1-2-2v-8.4a2 2 0 0 1 2-2h3"/><path d="M13.4 3H19a2 2 0 0 1 2 2v5.6"/><path d="M21 3l-9.4 9.4M21 3h-5.6M21 3v5.6"/>';
+function ipc(n,i){
+  var meta='<span class="idot'+(n.open?'':' cl')+'"></span>'+(n.rev||n.mi)+
+    '<em>·</em><b class="ipr">'+n.pr+'</b> <span class="iprl">'+(n.prl||'')+'</span>'+
+    '<em>·</em><b class="'+(n.open?'iop':'icl')+'">'+(n.status||(n.open?'Open now':'Closed'))+'</b>'+
+    (n.rev?'<em>·</em>'+n.mi:'')+(n.eta?'<em>·</em>'+n.eta:'');
+  var pills='';
+  if(n.deal) pills+='<span class="ideal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '+
+    'stroke-linecap="round"><path d="M3 11.4V4.6h6.8l11 11-6.8 6.8z"/><circle cx="7.4" cy="8" r="1.1"/></svg>Deal</span>';
+  if(n.award) pills+='<span class="iaw'+(n.gold?' g':'')+'">'+
+    (n.gold?'<i class="tro">🏆</i>':'<i class="num">'+n.rank+'</i>')+n.award+'</span>';
+  if(n.tag) pills+='<span class="itag">'+n.tag+'</span>';
+  return '<article class="ipc'+(n.gold?' gold':'')+'" tabindex="0">'+
+    '<div class="ipcim" style="background:'+IPCBG[i%5]+';background-image:'+art(n.art||n.artId)+
+      ','+IPCBG[i%5]+';background-size:315% auto,cover;'+
+      'background-position:'+IPCX[i%5]+'% '+IPCY[i%5]+'%,0 0"><span class="ipcrk">'+(i+1)+'</span></div>'+
+    '<div class="ipcb">'+
+      '<div class="ipchead">'+
+        '<div class="ipctx">'+
+          '<div class="ipccat"><i></i>'+n.cat+' <span>›</span></div>'+
+          '<h4 class="ipcn">'+n.n+'</h4>'+
+          '<div class="ipcmeta">'+meta+'</div>'+
+          (pills?'<div class="ipcpills">'+pills+'</div>':'')+
+        '</div>'+
+        '<div class="wf" aria-label="Wayfind score '+n.s+' out of 10">'+
+          '<span class="wfp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22s7-6.6 7-11.4A7 7 0 1 0 5 10.6C5 15.4 12 22 12 22z"/><circle cx="12" cy="10.2" r="2.6" fill="#0B1220"/></svg></span>'+
+          '<span class="wfn"><i>WAYFIND</i><b>'+n.s+'</b><u>/10</u></span>'+
+        '</div>'+
+      '</div>'+
+      (n.note?'<p class="ipcnote">'+n.note+'</p>':'')+
+      (n.cta?'<button class="ipccta">'+n.cta+' <span>→</span></button>':'')+
+      '<div class="ipcacts">'+ipcAct('Save',IA_SAVE)+ipcAct('',IA_UP,'ic')+ipcAct('',IA_DN,'ic')+ipcAct('Share',IA_SH)+'</div>'+
+    '</div></article>';
+}
+$('#nlist').innerHTML=NEAR.map(ipc).join('');
+Array.prototype.forEach.call(document.querySelectorAll('.ipc .ia'),function(b){
+  b.addEventListener('click',function(e){e.stopPropagation();b.classList.toggle('on')})});
+$('#guides').innerHTML=GUIDES.map(function(g){
+  return '<div class="gtile"><div class="gim" style="background-image:'+art(g[2])+'"></div>'+
+    '<div class="gb"><b>'+g[0]+'</b><span>'+g[1]+'</span></div></div>'}).join('');
+$('#foot').innerHTML=FOOT.map(function(f){
+  return '<div><h4>'+f[0]+'</h4>'+f[1].map(function(l){return '<a href="#">'+l+'</a>'}).join('')+'</div>'}).join('');
+
+/* first row open on arrival, matching the live default */
+renderRail();
+Array.prototype.forEach.call($('#dpSeg').children,function(b){
+  b.addEventListener('click',function(){
+    Array.prototype.forEach.call($('#dpSeg').children,function(x){x.classList.remove('on')});
+    b.classList.add('on');
+    var d=b.dataset.d;
+    forced = (d==='auto') ? '' : d;
+    DP = forced || partForHour(new Date().getHours());
+    if(d==='auto'){ if(location.hash) history.replaceState(null,'',location.pathname+location.search); }
+    else { try{ history.replaceState(null,'','#'+d) }catch(e){} }
+    hideMenu(); renderRail();
+  })});
+if(forced){
+  Array.prototype.forEach.call($('#dpSeg').children,function(b){
+    b.classList.toggle('on', b.dataset.d===forced)});
+}
+/* a hash change is a same-document navigation, so re-render by hand */
+addEventListener('hashchange',function(){
+  var h=(location.hash.replace('#','')||'').toLowerCase();
+  forced = DAYPARTS[h] ? h : '';
+  DP = forced || partForHour(new Date().getHours());
+  Array.prototype.forEach.call($('#dpSeg').children,function(b){
+    b.classList.toggle('on', b.dataset.d===(forced||'auto'))});
+  hideMenu(); renderRail();
+});
+
+/* if the clock crosses a boundary while the page is open, follow it */
+setInterval(function(){
+  if(forced) return;
+  var next=partForHour(new Date().getHours());
+  if(next!==DP){ DP=next; hideMenu(); renderRail(); }
+},60000);
+})();
+</script>
+</body>
+</html>
