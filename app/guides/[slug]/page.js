@@ -9,7 +9,14 @@ import { GUIDES } from "../../../lib/guides";
 // Wayfind card from wf_inventory — photo, hours, and the "Right now" line —
 // server-rendered so crawlers read it without running JS. Picks without a
 // placeId keep the existing link-only rendering, so nothing regresses.
-import { fetchPlaceCards, placeIdsForGuide, photoUrl } from "../../../lib/blogPlaceCards";
+import { fetchPlaceCards, placeIdsForGuide } from "../../../lib/blogPlaceCards";
+// ONE card system. IconicPlaceCard is the portable renderer for the canonical
+// home PlaceCard contract — its own header warns that re-inlining the markup
+// is how surfaces "quietly become a second, taller card system", and
+// check-collection-look.mjs exists to stop exactly that. The guides render it
+// too. It is a client component, but App Router still server-renders it to
+// HTML on the first request, so the crawlable content is unchanged.
+import IconicPlaceCard from "../../components/IconicPlaceCard";
 import { SITE_URL } from "../../../lib/site";
 import { experienceSearchUrl, viatorProductGoUrl } from "../../../lib/affiliates";
 import { resolveGuideProduct, productCtaLabel } from "../../../lib/guideProductResolve";
@@ -578,22 +585,14 @@ export default async function GuidePage({ params }) {
               <p style={S.p}>{pick.blurb}</p>
               {pick.tip ? <p className="wf-guide-tip" style={S.tip}>Insider note — {pick.tip}</p> : null}
               {card ? (
-                <aside className="wf-guide-placecard" data-place-id={card.placeId} itemScope itemType="https://schema.org/Place">
-                  {card.photoRef ? (
-                    <img src={photoUrl(card.photoRef, 960)} alt={card.name + (card.address ? " — " + card.address : "")} width={960} height={540} loading="lazy" decoding="async" itemProp="photo" />
-                  ) : null}
-                  <div className="wf-guide-placecard-body">
-                    {card.weather ? (
-                      <p className={"wf-guide-placecard-badge wf-guide-placecard-badge--" + card.weather.key}>
-                        <strong>{card.weather.label}</strong> · {card.weather.hint}
-                      </p>
-                    ) : null}
-                    {card.address ? <p className="wf-guide-placecard-addr" itemProp="address">{card.address}</p> : null}
-                    {card.hours ? <p className="wf-guide-placecard-hours" itemProp="openingHours">{card.hours}</p> : null}
-                    {card.currentDetail ? (<p className="wf-guide-placecard-now"><strong>Right now:</strong> {card.currentDetail}</p>) : null}
-                    {card.photoRef ? <p className="wf-guide-placecard-attr">Photo via Google</p> : null}
-                  </div>
-                </aside>
+                <ul style={{ listStyle: "none", padding: 0, margin: "14px 0 6px" }}>
+                  <IconicPlaceCard
+                    place={card}
+                    rank={i + 1}
+                    href={"/p/" + encodeURIComponent(card.placeId)}
+                    editorial={card.currentDetail || card.blurb || null}
+                  />
+                </ul>
               ) : null}
               <div className="wf-guide-actions">
                 {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name)} style={{ ...S.btnGhost, marginLeft: 0 }}>Open in Wayfind</a> : null}
