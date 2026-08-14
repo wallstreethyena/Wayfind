@@ -380,3 +380,4 @@ node scripts/check-promote-metros-parity.mjs
 # runtime. Legacy anon/service_role keys were disabled on this project 2026-07-16.
 node scripts/check-supabase-key-live.mjs
 node scripts/test-promote-decision.mjs
+node scripts/check-curated-events.mjs
