@@ -387,3 +387,6 @@ node scripts/test-promote-decision.mjs
 # (b) an hour band that drops a rail instead of parking it on the right.
 node scripts/test-dayparts.mjs
 node scripts/check-rail-routes.mjs
+# (c) every rail must actually SELECT — six of fifteen once led with the same
+#     place because an unfiltered rail is a perfectly valid duplicate.
+node scripts/test-rail-select.mjs

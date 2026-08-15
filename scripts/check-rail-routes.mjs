@@ -15,6 +15,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { RAILS, railArt, railArtSrcSet, railArtFallback, RAIL_TINT } from "../lib/rails.js";
 import { DAYPARTS, DAYPART_IDS, railHref, orderFor } from "../lib/dayparts.js";
+import { RAIL_SELECT } from "../lib/railSelect.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const APP = path.join(ROOT, "app");
@@ -59,13 +60,20 @@ function routeExists(urlPath) {
 const REGIONS = ["orlando", "fl", "other"];
 
 // 1. Structure: one axis each, present in every band, tinted, art on disk.
+// Every selector must belong to a rail, or it is dead product judgement that
+// nothing runs and nobody notices going stale.
+for (const id of Object.keys(RAIL_SELECT)) {
+  if (!RAILS.find((r) => r.id === id)) bad(`lib/railSelect.js has a selector for "${id}", which is not a rail`);
+}
 const axes = new Map();
 for (const r of RAILS) {
   if (axes.has(r.axis)) bad(`two rails claim the same axis: ${r.id} and ${axes.get(r.axis)} — "${r.axis}"`);
   axes.set(r.axis, r.id);
   if (!RAIL_TINT[r.id]) bad(`${r.id}: no tile tint`);
   if (!r.short || !r.sub || !r.cta || !r.title) bad(`${r.id}: missing card copy`);
-  if (!r.guides && !r.source) bad(`${r.id}: no source pool and not the guides rail`);
+  if (!r.guides && !r.list) bad(`${r.id}: neither a ranked list nor the guides rail`);
+  if (r.list && !RAIL_SELECT[r.id]) bad(`${r.id}: shows a list but lib/railSelect.js has no selector for it`);
+  if (r.list && RAIL_SELECT[r.id] && !RAIL_SELECT[r.id].pools.length) bad(`${r.id}: selector reads no pools`);
 }
 for (const dp of DAYPART_IDS) {
   const order = orderFor(dp, RAILS.map((r) => r.id));

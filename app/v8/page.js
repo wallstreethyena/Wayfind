@@ -76,7 +76,7 @@ export default async function Page({ searchParams }) {
   // Fail-soft: if every ranked pool is unavailable the rails still render, each
   // one linking to its own page. A homepage that loses its lists must not lose
   // its navigation too.
-  const data = await loadRailPlaces(citySlug).catch(() => ({ places: {}, thin: RAILS.filter((r) => r.source).map((r) => r.id), citySlug }));
+  const data = await loadRailPlaces(citySlug).catch(() => ({ places: {}, thin: RAILS.filter((r) => r.list).map((r) => r.id), citySlug }));
 
   return (
     <>
