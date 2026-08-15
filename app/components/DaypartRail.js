@@ -32,7 +32,21 @@
 // enforces this; scripts/test-dayparts.mjs proves the four bands never
 // contradict nowContext's three.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import IconicPlaceCard from "./IconicPlaceCard";
+import dynamic from "next/dynamic";
+
+// LAZY, and not for tidiness — for the homepage's JS budget, which this change
+// blew through on Vercel (500.0KB gz against a 500KB gate,
+// scripts/check-bundle.mjs). IconicPlaceCard brings businessStatus, ranking,
+// score, google, price, commerce, placePartnerPicks, dining, placeOverrides and
+// tags with it, and it was entering the eager homepage chunk for the first
+// time — to render cards that are BEHIND A CLICK. The menu is closed at first
+// paint by design ("the menu is a consequence of choosing a card — it does not
+// exist until then"), so none of that belongs on the critical path.
+//
+// ssr:false costs nothing here: the drop renders no HTML until a card is
+// picked, so there was never any server markup to lose, and the crawlable link
+// is the tile's own href.
+const IconicPlaceCard = dynamic(() => import("./IconicPlaceCard"), { ssr: false });
 import { DAYPARTS, partForHour, orderFor, railHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES } from "../../lib/rails.js";
