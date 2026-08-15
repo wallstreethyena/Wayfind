@@ -49,13 +49,33 @@ export const EMOJIS = ["❤️","⭐","🍴","🍸","🏖️","✈️","🎉","�
 // One token system for the whole app. C above stays the color source of
 // truth; these add the editorial scale the redesign builds on. New and
 // touched surfaces MUST consume these instead of ad-hoc literals.
+// ─── Typography: the Amazon system (v8) ─────────────────────────────────────
+// Amazon runs two weights (400/700), letter-spacing normal everywhere, and a
+// fixed 12/13/15/17/21 scale. What made our chrome read as "startup app" next to
+// a retail surface was not the typeface — it was the weight ladder (800/850/900),
+// the -0.4px display tracking, and a 0.7px-tracked UPPERCASE eyebrow. Those three
+// are gone here.
+//
+// THE FACE IS DELIBERATELY UNCHANGED. Inter stays: app/fonts.js documents that it
+// ships TABULAR NUMERALS, which the ranked lists depend on so scores (9.5),
+// distances (19 mi) and prices ($60) hold their columns instead of jittering.
+// Swapping to a closer Ember lookalike would trade a real, load-bearing property
+// for a resemblance almost nobody could name.
+//
+// Imported by 35 files, so these five objects restyle the whole app at once.
+// Sizes moved conservatively: `body` is 15, not Amazon's 13 — this is an
+// editorial surface, not a product grid, and 13px body would cost readability
+// for the sake of imitation.
 export const TYPE = {
-  eyebrow: { fontSize: 11, fontWeight: 800, letterSpacing: "0.7px", textTransform: "uppercase" },
-  display: { fontSize: 22, fontWeight: 800, letterSpacing: "-0.4px", lineHeight: 1.15 },
-  title: { fontSize: 16, fontWeight: 700, lineHeight: 1.3 },
-  body: { fontSize: 16, lineHeight: 1.55 },
-  meta: { fontSize: 14, lineHeight: 1.4 },
+  eyebrow: { fontSize: 12, fontWeight: 700, letterSpacing: "normal" },
+  display: { fontSize: 21, fontWeight: 700, letterSpacing: "normal", lineHeight: 1.255 },
+  title:   { fontSize: 17, fontWeight: 700, letterSpacing: "normal", lineHeight: 1.3 },
+  body:    { fontSize: 15, fontWeight: 400, letterSpacing: "normal", lineHeight: 1.5 },
+  meta:    { fontSize: 13, fontWeight: 400, letterSpacing: "normal", lineHeight: 1.46 },
 };
+// No font stack is exported from this file: app/fonts.js owns the faces via
+// next/font and exposes them as --wf-sans / --wf-display. A literal system stack
+// in a customer-facing surface is a documented build failure.
 export const SPACE = { xs: 4, s: 8, m: 12, l: 16, xl: 24, xxl: 32 };
 export const RADII = { chip: 999, control: 12, card: 14, sheet: 20 };
 export const SHADOW = { card: "0 1px 2px rgba(0,0,0,.35)", raised: "0 10px 34px rgba(0,0,0,.5)" };
