@@ -41,6 +41,8 @@ const pools = {
     mk("g", { name: "Jungle Gardens", _s: 68, types: ["zoo", "botanical_garden"] }),
     mk("h", { name: "Distant Springs", _s: 52, distMi: 25, types: ["natural_feature"] }),
     mk("i", { name: "Little Maritime Museum", _s: 48, rating: 4.7, reviews: 210, types: ["museum"] }),
+    mk("j", { name: "Bayfront Amphitheatre", _s: 66, types: ["amphitheatre"] }),
+    mk("k", { name: "Opera House", _s: 58, types: ["opera_house"] }),
   ],
   restaurants: [
     mk("r1", { name: "Beach House Waterfront", _s: 90, types: ["restaurant"], priceLevel: "PRICE_LEVEL_MODERATE" }),
@@ -60,6 +62,10 @@ const pools = {
     mk("n1", { name: "Bamboo Island Bar", _s: 80, types: ["bar"] }),
     mk("n2", { name: "The Club", _s: 75, types: ["night_club"] }),
     mk("n3", { name: "Comedy Room", _s: 60, types: ["comedy_club"] }),
+    // The exact shape that broke the events axis on real data: a bar & grill
+    // whose Google types include night_club. Open every night — the opposite of
+    // "it has a date on it and then it is gone".
+    mk("n4", { name: "The Mable Bar & Grill", _s: 92, types: ["bar", "night_club", "restaurant"] }),
   ],
 };
 
@@ -79,7 +85,7 @@ const lead = (id) => { const r = selectFor(id, pools); return r.length ? r[0].na
 const namesOf = (id) => selectFor(id, pools).map((p) => p.name);
 
 eq(lead("beach"), "Siesta Key Beach", "beach leads with the top beach");
-eq(lead("tonight"), "Bamboo Island Bar", "tonight leads with the top nightlife room");
+eq(lead("tonight"), "The Mable Bar & Grill", "tonight leads with the top-scoring nightlife room");
 eq(lead("events"), "Van Wezel Hall", "events leads with a ticketed venue, not a museum");
 eq(lead("break"), "Quick Bagel Co", "the 30-minute break leads with counter service");
 // Gems still ranks by score WITHIN the axis — the filter decides membership,
@@ -95,6 +101,8 @@ ok(selectFor("drive", pools).every((p) => p.distMi >= 12), "worth-the-drive only
 ok(selectFor("break", pools).every((p) => p.distMi <= 8), "the 30-minute break stays inside its time budget");
 ok(namesOf("break").every((n) => !/Beach House|Owen Bistro/.test(n)), "no sit-down room in a 30-minute break");
 ok(!namesOf("events").includes("Ca d Zan"), "a museum is not an event");
+ok(!namesOf("events").includes("The Mable Bar & Grill"), "a bar open every night is not a dated, ticketed event");
+ok(namesOf("tonight").includes("The Mable Bar & Grill"), "...but it is absolutely a move for tonight");
 ok(!namesOf("datenight").includes("Corner Taco"), "a taco counter is not date night");
 ok(namesOf("family").includes("Big Cat Habitat"), "family finds the zoo");
 ok(!namesOf("family").includes("Bamboo Island Bar"), "family never reaches nightlife");
