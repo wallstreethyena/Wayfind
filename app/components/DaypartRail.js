@@ -89,17 +89,50 @@ export default function DaypartRail({
   lat = null,
   lng = null,
   initialDaypart = "afternoon",
+  // The reader's real location, once it resolves. app/home.js passes `center`,
+  // the one piece of state both geolocation and the search box write to.
+  center = null,
 }) {
   const [daypart, setDaypart] = useState(initialDaypart);
+  // THE RAIL FOLLOWS THE READER. Server props are the flagship metro's ranking
+  // — a real answer at first paint, and the wrong one for someone in Orlando.
+  // The owner drew this line himself on the beach card (2026-07-28): the rule
+  // must follow the SEARCHED point, not the device, which is why this keys on
+  // `center` rather than on geolocation. Overwritten only by a successful
+  // fetch, so a failure leaves the server's real answer in place.
+  const [live, setLive] = useState(null);
   const [clock, setClock] = useState("");
   const [selected, setSelected] = useState(null);
   const trackRef = useRef(null);
   const pcRef = useRef(null);
   const menuRef = useRef(null);
-  const thinSet = useMemo(() => new Set(thin), [thin]);
+  const shown = live || { places, thin, region, citySlug, cityLabel };
+  const thinSet = useMemo(() => new Set(shown.thin), [shown.thin]);
   const railById = useMemo(() => new Map(rails.map((r) => [r.id, r])), [rails]);
   const order = useMemo(() => orderFor(daypart, rails.map((r) => r.id)), [daypart, rails]);
   const band = DAYPARTS[daypart] || DAYPARTS.afternoon;
+
+  // Re-rank when the reader is meaningfully somewhere else. The threshold is
+  // generous on purpose: a few miles is the same market and refetching on every
+  // GPS jitter would spend a request to return an identical list.
+  useEffect(() => {
+    if (!center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) return undefined;
+    if (Number.isFinite(lat) && Number.isFinite(lng)) {
+      const R = 3958.8, r = (d) => (d * Math.PI) / 180;
+      const s2 = Math.sin(r(center.lat - lat) / 2) ** 2
+        + Math.cos(r(lat)) * Math.cos(r(center.lat)) * Math.sin(r(center.lng - lng) / 2) ** 2;
+      if (R * 2 * Math.asin(Math.sqrt(s2)) < 20) return undefined;
+    }
+    let cancelled = false;
+    fetch(`/api/rails?lat=${encodeURIComponent(center.lat)}&lng=${encodeURIComponent(center.lng)}`)
+      .then((r2) => (r2.ok ? r2.json() : null))
+      .then((j) => {
+        if (cancelled || !j || !j.covered || !j.data) return;   // out of coverage: keep the flagship answer
+        setLive({ places: j.data.places, thin: j.data.thin, region: j.data.region, citySlug: j.data.citySlug, cityLabel: j.data.cityLabel });
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [center && center.lat, center && center.lng, lat, lng]);
 
   // The live hour, after mount, from the ONE clock — read in the timezone of
   // the coordinates being ranked. Re-checkedevery minute so a rail left open across
@@ -146,16 +179,16 @@ export default function DaypartRail({
     if (!rail) return;
     setSelected(id);
     logEvent("rail_open", {
-      rail_id: id, rail_title: rail.title, daypart, region, city: citySlug,
+      rail_id: id, rail_title: rail.title, daypart, region: shown.region, city: shown.citySlug,
       position: order.indexOf(id) + 1, src: src || "rail",
-      has_places: (places[id] || []).length,
+      has_places: (shown.places[id] || []).length,
     });
     // The hero cards these replace fire eight named events that live dashboards
     // depend on. Keep emitting them for one release so nothing flatlines at
     // cutover; delete LEGACY_HERO_EVENT once the new series has history.
     const legacy = LEGACY_HERO_EVENT[id];
     if (legacy) logEvent(legacy, { src: "rail", rail_id: id });
-  }, [railById, daypart, region, citySlug, order, places]);
+  }, [railById, daypart, shown, order]);
 
   const close = useCallback(() => setSelected(null), []);
 
@@ -193,8 +226,8 @@ export default function DaypartRail({
   };
 
   const selRail = selected ? railById.get(selected) : null;
-  const selPlaces = selected ? (places[selected] || []) : [];
-  const near = cityLabel ? ` near ${cityLabel}` : "";
+  const selPlaces = selected ? (shown.places[selected] || []) : [];
+  const near = shown.cityLabel ? ` near ${shown.cityLabel}` : "";
 
   return (
     <div className={`wf8 is-${daypart}${selected ? " is-open" : ""}`} data-daypart={daypart}>
@@ -213,8 +246,8 @@ export default function DaypartRail({
               {order.map((id, i) => {
                 const r = railById.get(id);
                 if (!r) return null;
-                const base = railArt(r, region);
-                const href = railHref(r, region, citySlug) || "#";
+                const base = railArt(r, shown.region);
+                const href = railHref(r, shown.region, shown.citySlug) || "#";
                 const eager = i < 2;
                 return (
                   <a
@@ -282,7 +315,7 @@ export default function DaypartRail({
                     className={`wf8-cat${selected === id ? " is-on" : ""}`}
                     onClick={() => open(id, "chip")}
                   >
-                    <img className="wf8-cico" src={railArtFallback(railArt(r, region))} alt="" width="36" height="36" loading="lazy" decoding="async" />
+                    <img className="wf8-cico" src={railArtFallback(railArt(r, shown.region))} alt="" width="36" height="36" loading="lazy" decoding="async" />
                     <span className="wf8-ctx"><b>{r.title}</b></span>
                   </button>
                 );
@@ -336,7 +369,7 @@ export default function DaypartRail({
                   ? `Nothing${near} clears this bar right now — ${selRail.axis}. Padding it with places that don't belong would make the rail worthless.`
                   : `We're still gathering places for this${near}.`}
               </p>
-              <a href={railHref(selRail, region, citySlug) || "/"}>{selRail.cta} →</a>
+              <a href={railHref(selRail, shown.region, shown.citySlug) || "/"}>{selRail.cta} →</a>
             </div>
           ) : null}
         </div>

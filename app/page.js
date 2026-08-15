@@ -18,6 +18,13 @@ import { TOWN_HUBS, TOWN_PROFILES } from "../lib/culture";
 // lib/localEdit.js for why the split is safe.
 import { GUIDES } from "../lib/guides";
 import { localEditIndex } from "../lib/localEdit";
+// v8 — the rail menu's places are ranked HERE, on the server, at regeneration.
+// lib/railsData.js reaches lib/landing.js, which holds the Places call, the junk
+// filter, the quality floor and the Bayesian rank; none of that may ship to a
+// browser. Four ranked pools per metro answer all fifteen rails, and every one
+// of those calls is Supabase-cached for 30 days, so an hourly revalidate is a
+// cache read and not a bill. See lib/railsData.js for the cost note.
+import { railMenuData } from "../lib/railsData";
 
 export const revalidate = 3600;
 
@@ -105,6 +112,13 @@ async function HomeProof() {
   );
 }
 
+// The homepage is ONE prerendered document for everyone, so its rail data is
+// ranked for the flagship market — the same choice HomeProof above already
+// makes, and the market with the deepest verified coverage. The client
+// re-ranks to the visitor's real metro once geolocation resolves; until then
+// this is a real answer rather than an empty rail.
+const RAIL_CITY = "sarasota";
+
 export default async function Page() {
   // v6.43 REVERT of the #218 seed (owner-reported bug): seeding events for
   // DEFAULT_CENTER made "Happening near you" paint PARRISH's events first, then
@@ -114,6 +128,7 @@ export default async function Page() {
   // Re-enabling this requires the server and client to agree on ONE location and
   // ONE featured event first — see issue #219.
   const initialEvents = null;
+  const railMenu = await railMenuData(RAIL_CITY);
   return (
     <>
       {/* v5.38 a11y/SEO: one descriptive server-rendered H1, always present
@@ -122,7 +137,7 @@ export default async function Page() {
       <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>
         Wayfind — find the best things to do near you, right now
       </h1>
-      <Home initialEvents={initialEvents} localEditGuides={localEditIndex(GUIDES)} />
+      <Home initialEvents={initialEvents} localEditGuides={localEditIndex(GUIDES)} railMenu={railMenu} />
       {/* Suspense so the app shell streams immediately; the proof block
           follows without adding a byte to time-to-first-paint. ProofVeil keeps
           it in the DOM for crawlers but removes it from the interactive view

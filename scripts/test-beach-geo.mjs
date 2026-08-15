@@ -87,13 +87,31 @@ ok(vetBeachDistance(MIXED, PARRISH).some((p) => p.name === "Coquina Beach"), "th
 ok(vetBeachDistance([], ORLANDO).length === 0 && Array.isArray(vetBeachDistance(null, ORLANDO)), "null/empty-safe");
 
 // ── the homepage hero: rendered ONLY when a nearby beach exists ─────────────
-ok(/import \{ rankBeaches, beachesWithin, BEACH_NEAR_MI \} from "\.\.\/lib\/beaches"/.test(home), "home.js imports the ONE rule, it does not re-implement it");
-ok(/const rows = beachesWithin\(fetched, center, BEACH_NEAR_MI\)/.test(home), "the beach hero's pool is filtered by the 23-mile rule BEFORE ranking");
-ok((home.match(/\{bestBeach && \(/g) || []).length === 2, "both beach hero slides are gated on a real nearby beach — no beach, no card");
-ok(!/Beach day, decided/.test(home), "the placeholder copy that used to render with NO beach behind it is gone");
-ok(!/manatee-sarasota/.test(home), "the hardcoded Gulf-metro fallback destination is gone — the hero can only open a metro it actually found");
-ok(/p_radius_mi: 60/.test(home), "the RPC still asks for 60 mi: ONE call, unchanged cost — the rule is applied to data already in memory, not by re-querying");
-ok((home.match(/image="\/cards\/beach-adobestock-216195684\.jpeg"/g) || []).length === 2, "both beach slides still exist in source (gated, not deleted)");
+// v8 (2026-08-15) — THE BEACH HERO SLIDE IS A RAIL NOW, and the owner's rule
+// travelled with it. "NEVER a beach that isn't actually near you" (2026-07-28)
+// is enforced in lib/railSelect.js by the SAME BEACH_NEAR_MI constant this file
+// tests above — imported, not restated, so there is still exactly one rule.
+//
+// Why it needed carrying at all: rankedFor("beaches") widens to roughly 39
+// miles on its second round to give the Bayesian re-rank a real field. That is
+// correct for a beaches LANDING page and wrong for a card on the homepage
+// promising a beach day, which is precisely the defect the 23-mile rule exists
+// for. Without the pick below, v8 would have re-introduced it.
+{
+  const railSelect = readFileSync(new URL("../lib/railSelect.js", import.meta.url), "utf8");
+  ok(/import \{ BEACH_NEAR_MI \} from "\.\/beaches\.js"/.test(railSelect),
+    "lib/railSelect.js imports the ONE rule, it does not re-implement it");
+  ok(/beach: \{ pools: \["beaches"\], pick: \(p\) => p\.distMi != null && p\.distMi <= BEACH_NEAR_MI \}/.test(railSelect),
+    "the beach rail's pool is filtered by the 23-mile rule");
+  ok(/p\.distMi != null/.test(railSelect),
+    "…fail-closed: a beach with no usable distance is dropped, never assumed near");
+  ok(!/Beach day, decided/.test(home), "the placeholder copy that used to render with NO beach behind it is gone");
+  ok(!/manatee-sarasota/.test(home), "no hardcoded Gulf-metro fallback in app/home.js — the rail resolves its metro through lib/dayparts.js, guarded by check-rail-routes");
+  // And the rail must still SHIP a beach card in every daypart even where the
+  // rule empties it: the card is parked, its drop says so. Never hidden.
+  const rails = readFileSync(new URL("../lib/rails.js", import.meta.url), "utf8");
+  ok(/id: "beach"/.test(rails) && /href: "\/best-beaches"/.test(rails), "the beach card still exists on the homepage, as a rail");
+}
 
 // ── the chokepoints: every other beach-shaped surface ───────────────────────
 ok(/import \{ vetBeachDistance, BEACH_NEAR_MI \} from "\.\/beaches"/.test(sources), "lib/sources.js — the one door every venue list walks through — imports the rule");
@@ -128,11 +146,21 @@ ok(/category === "beach" \? beachesWithin\(ranked, \{ lat, lng \}\) : vetBeachDi
 // means a future refactor could pin the hero to geolocation and pass every
 // other assertion in this file while quietly reintroducing the bug: search
 // Orlando from the coast and still get a beach card.
+// v8 (2026-08-15): the rule still follows `center`, through a different path.
+// The homepage is prerendered, so the rail's first paint is the flagship
+// metro's ranking; app/home.js passes `center` into <DaypartRail>, which
+// re-ranks against /api/rails as soon as the reader turns out to be somewhere
+// else. Search Orlando from the coast and the beach rail re-ranks to Orlando's
+// beaches — or, past COVERAGE_MI, ships nothing rather than the coast's.
 {
-  const eff = home.indexOf("setBestBeach(bPool.length");
-  ok(eff > 0, "the beach hero effect is still findable");
-  const deps = home.slice(eff, eff + 700).match(/\}, \[([^\]]*)\]\);/);
-  ok(!!deps && /\bcenter\b/.test(deps[1]), "the beach hero re-runs on `center` — searching a city re-applies the 23-mile rule from the SEARCHED point, not the device");
+  const rail = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
+  ok(/center=\{center\}/.test(home), "app/home.js must hand the rail `center` — the ONE state both geolocation and the search box write");
+  ok(/fetch\(`\/api\/rails\?lat=/.test(rail), "the rail must re-rank from the reader's own point, not stay pinned to the prerendered metro");
+  ok(/\}, \[center && center\.lat, center && center\.lng, lat, lng\]\);/.test(rail),
+    "…and that re-rank must re-run on `center`, so a SEARCHED city is subject to the rule exactly like a located one");
+  const api = readFileSync(new URL("../app/api/rails/route.js", import.meta.url), "utf8");
+  ok(/COVERAGE_MI/.test(api) && /bestMi <= COVERAGE_MI \? best : null/.test(api),
+    "out of coverage must resolve to NOTHING, never to the arithmetically-nearest town hundreds of miles away");
 }
 ok(/const \[center, setCenter\] = useState\(DEFAULT_CENTER\)/.test(home), "`center` is one piece of state — the single source of truth the rule measures from");
 {

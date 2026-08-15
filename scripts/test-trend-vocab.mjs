@@ -44,8 +44,19 @@ ok(/^Popular\b/.test(TREND_REASONS.popularity), "the popularity-source reason is
 for (const re of BANNED) ok(!re.test(Object.values(TREND_REASONS).join(" ")), `no trend reason may claim ${re}`);
 ok(!/^Trending/.test(TREND_REASONS.popularity), "level-only data may not be captioned 'Trending'");
 
-// The buzz fallback lines are honest (level-based), not fabricated velocity.
-ok(home.includes("On readers' radar near you"), "single-source buzz fallback is level-honest ('on the radar')");
-ok(home.includes('"Popular across " + buzzPick.sources_count + " local signals'), "multi-source buzz fallback templates the real source count, no freshness claim");
+// v8 (2026-08-15): the buzz hero slide and its two fallback LINES are gone —
+// see scripts/test-buzz.mjs for what replaced them. The vocabulary rule they
+// enforced applies to the trending RAIL now, and it applies harder: the rail
+// prints no line of its own at all. A card there carries the row's own
+// `trend_reason`, which comes from TREND_REASONS above and is already asserted
+// level-honest three lines up. When nothing clears the threshold the rail is
+// EMPTY, which is the only caption that can never overclaim.
+{
+  const rails = readFileSync(new URL("../lib/rails.js", import.meta.url), "utf8");
+  ok(!/buzzPick/.test(home.replace(/\/\/[^\n]*/g, "")), "the buzz slide's fallback lines are back in app/home.js");
+  const trendingRail = (rails.match(/\{ id: "trending"[\s\S]*?\},/) || [""])[0];
+  ok(trendingRail.length > 0, "PROBE: the trending rail exists");
+  for (const re of BANNED) ok(!re.test(trendingRail), `the trending rail's own copy may not claim ${re}`);
+}
 
 console.log(`test-trend-vocab: OK — ${pass} assertions (no velocity/freshness claim on level-only data)`);

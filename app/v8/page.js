@@ -9,12 +9,8 @@
 // holds the Google Places call, the junk filter, the quality floor and the
 // Bayesian rank. None of that may ever ship to a browser.
 import { RAILS } from "../../lib/rails";
-import { loadRailPlaces } from "../../lib/railsData";
 import { LANDING_CITIES } from "../../lib/landing";
-import { regionFor, partForHour } from "../../lib/dayparts";
-import { siteHourFloat, tzForPoint } from "../../lib/nowContext";
-import { GUIDES } from "../../lib/guides";
-import { readMinutes } from "../../lib/localEdit";
+import { railMenuData } from "../../lib/railsData";
 import DaypartRail from "../components/DaypartRail";
 import { WF_RAIL_MENU_CSS } from "../components/railMenuCss";
 import { WF_PLACE_CARD_CSS } from "../components/css";
@@ -28,55 +24,18 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
+// RAILS is passed straight across the server/client boundary. It can be,
+// because lib/rails.js is metadata only — the `pick` FUNCTIONS that used to
+// live on it moved to lib/railSelect.js, and a function on a prop throws at
+// render. scripts/check-rail-routes.mjs asserts the whole array stays
+// JSON-serialisable so re-adding one fails the build instead of the page.
 const DEFAULT_CITY = "sarasota";
-
-// A rail definition carries a `pick` FUNCTION. Functions cannot cross the
-// server/client boundary — passing RAILS straight to the client component
-// throws at render. Only the fields the UI reads go over the wire.
-function serialisableRail(r) {
-  return {
-    id: r.id, title: r.title, axis: r.axis, short: r.short, sub: r.sub,
-    cta: r.cta, art: r.art, href: r.href,
-    regional: r.regional || null,
-    guides: !!r.guides,
-  };
-}
-
-// Every guide, newest first — "wire it to all of the blogs", not the three
-// nearest. lib/localEdit.js localEditIndex() drops any guide whose region has
-// no coordinates, which is the right call for a proximity rail and the wrong
-// one for a library.
-function guideIndex() {
-  return Object.entries(GUIDES)
-    .map(([slug, g]) => ({
-      slug,
-      title: g.title,
-      teaser: g.teaser || g.description || "",
-      region: g.region || "Florida",
-      updated: g.updated || "",
-      mins: readMinutes(g),
-    }))
-    .sort((a, b) => String(b.updated).localeCompare(String(a.updated)));
-}
-
-// The daypart the CITY is in at regeneration — a deterministic first paint the
-// browser then corrects to the visitor's own clock. Through lib/nowContext.js,
-// the one clock: the server runs in UTC and the city does not, and tzForPoint
-// already knows which zone a coordinate is in (Hawaii included).
-function cityDaypart(city) {
-  return partForHour(siteHourFloat(new Date(), tzForPoint(city.lat, city.lng)));
-}
 
 export default async function Page({ searchParams }) {
   const asked = searchParams && typeof searchParams.city === "string" ? searchParams.city : "";
   const citySlug = LANDING_CITIES[asked] ? asked : DEFAULT_CITY;
   const city = LANDING_CITIES[citySlug];
-  const region = regionFor(city.lat, city.lng);
-
-  // Fail-soft: if every ranked pool is unavailable the rails still render, each
-  // one linking to its own page. A homepage that loses its lists must not lose
-  // its navigation too.
-  const data = await loadRailPlaces(citySlug).catch(() => ({ places: {}, thin: RAILS.filter((r) => r.list).map((r) => r.id), citySlug }));
+  const railMenu = await railMenuData(citySlug);
 
   return (
     <>
@@ -85,16 +44,16 @@ export default async function Page({ searchParams }) {
         Wayfind — find the best things to do near {city.name}, {city.state}, right now
       </h1>
       <DaypartRail
-        rails={RAILS.map(serialisableRail)}
-        places={data.places}
-        thin={data.thin}
-        guides={guideIndex()}
-        region={region}
-        citySlug={data.citySlug || citySlug}
-        cityLabel={city.name}
-        initialDaypart={cityDaypart(city)}
-        lat={city.lat}
-        lng={city.lng}
+        rails={RAILS}
+        places={railMenu.places}
+        thin={railMenu.thin}
+        guides={railMenu.guides}
+        region={railMenu.region}
+        citySlug={railMenu.citySlug}
+        cityLabel={railMenu.cityLabel}
+        lat={railMenu.lat}
+        lng={railMenu.lng}
+        initialDaypart={railMenu.daypart}
       />
     </>
   );

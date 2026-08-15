@@ -57,6 +57,9 @@ const pools = {
     mk("bh1", { name: "Siesta Key Beach", _s: 95, types: ["beach"] }),
     mk("bh2", { name: "Lido Beach", _s: 88, types: ["beach"] }),
     mk("bh3", { name: "Far Beach", _s: 70, distMi: 30, types: ["beach"] }),
+    // Inside BEACH_NEAR_MI, so the beach rail can fill; Far Beach above is
+    // outside it and must NOT appear there (owner's 23-mile rule, 2026-07-28).
+    mk("bh4", { name: "Coquina Beach", _s: 84, distMi: 12, types: ["beach"] }),
   ],
   nightlife: [
     mk("n1", { name: "Bamboo Island Bar", _s: 80, types: ["bar"] }),
@@ -85,6 +88,12 @@ const lead = (id) => { const r = selectFor(id, pools); return r.length ? r[0].na
 const namesOf = (id) => selectFor(id, pools).map((p) => p.name);
 
 eq(lead("beach"), "Siesta Key Beach", "beach leads with the top beach");
+// THE 23-MILE RULE travels onto the rail (scripts/test-beach-geo.mjs owns the
+// full story). rankedFor("beaches") widens to ~39 miles for the re-rank, which
+// is right for a landing page and wrong for a homepage card promising a beach
+// day.
+ok(!namesOf("beach").includes("Far Beach"), "a beach 30 miles out is not a beach day");
+ok(namesOf("drive").includes("Far Beach"), "…it is worth the drive, which is a different rail");
 eq(lead("tonight"), "The Mable Bar & Grill", "tonight leads with the top-scoring nightlife room");
 eq(lead("events"), "Van Wezel Hall", "events leads with a ticketed venue, not a museum");
 eq(lead("break"), "Quick Bagel Co", "the 30-minute break leads with counter service");

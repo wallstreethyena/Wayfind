@@ -59,6 +59,21 @@ function routeExists(urlPath) {
 
 const REGIONS = ["orlando", "fl", "other"];
 
+// 0. RAILS crosses the server/client boundary as a prop. A function anywhere in
+//    it throws at render — "Functions cannot be passed directly to Client
+//    Components" — on the homepage, at request time, after the build went green.
+{
+  const round = JSON.parse(JSON.stringify(RAILS));
+  if (JSON.stringify(round) !== JSON.stringify(RAILS)) {
+    bad("lib/rails.js is not JSON-serialisable — something on it does not survive the server/client boundary");
+  }
+  for (const r of RAILS) {
+    for (const [k, v] of Object.entries(r)) {
+      if (typeof v === "function") bad(`${r.id}.${k} is a function — selection belongs in lib/railSelect.js, not lib/rails.js`);
+    }
+  }
+}
+
 // 1. Structure: one axis each, present in every band, tinted, art on disk.
 // Every selector must belong to a rail, or it is dead product judgement that
 // nothing runs and nobody notices going stale.

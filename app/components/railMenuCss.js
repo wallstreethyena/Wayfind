@@ -13,177 +13,32 @@
 //
 // The type scale is Amazon's, matching app/components/kit.js TYPE: weights 400
 // and 700 only, letter-spacing normal, sizes on 12/13/15/17/21.
-export const WF_RAIL_MENU_CSS = `
-.wf8{
-  --wf8-band:#0A0E1A;--wf8-card:#101725;
-  --wf8-line:rgba(255,255,255,.08);--wf8-line2:rgba(255,255,255,.14);
-  --wf8-tx:#F4F7FF;--wf8-mut:#A9B5CD;--wf8-dim:#7A87A0;
-  --wf8-acc:#FF6A2B;--wf8-acc2:#FF8A3D;
-  --wf8-pad:22px;--wf8-ratio:.5625;--wf8-tw:clamp(300px,34vw,440px);
-  --wf8-catvis:4.6;--wf8-catgap:9px;--wf8-pcvis:3.4;--wf8-pcgap:13px;
-  position:relative;color:var(--wf8-tx);
-  font-family:var(--wf-sans,-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif);
-}
-.wf8 *{box-sizing:border-box}
-.wf8 button{background:none;border:0;cursor:pointer;font:inherit;color:inherit}
-.wf8 a{color:inherit;text-decoration:none}
-.wf8-in{max-width:1720px;margin:0 auto;padding:0 var(--wf8-pad)}
-
-/* the page dresses for the hour — scoped to the root, never to <body> */
-.wf8.is-morning{--wf8-acc:#FF8A3D;--wf8-acc2:#FFB25E;--wf8-band:#0B1119}
-.wf8.is-lunch{--wf8-acc:#FF6A2B;--wf8-acc2:#FF8A3D;--wf8-band:#0A0E17}
-.wf8.is-afternoon{--wf8-acc:#FF7A2B;--wf8-acc2:#FFA23A;--wf8-band:#0C0D16}
-.wf8.is-night{--wf8-band:#0A0711;--wf8-card:#12101F;--wf8-acc:#FBBF24;--wf8-acc2:#FCD34D;
-  --wf8-line:rgba(255,255,255,.09);--wf8-line2:rgba(255,255,255,.16)}
-
-/* ── the daypart bar ─────────────────────────────────────────── */
-.wf8-dpbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 0 2px}
-.wf8-dpnow{display:flex;align-items:center;gap:8px;height:30px;padding:0 12px;border-radius:16px;
-  background:rgba(255,255,255,.05);border:1px solid var(--wf8-line);font-size:12px;font-weight:700;color:#C3CBDD}
-.wf8-dpnow i{width:7px;height:7px;border-radius:50%;background:var(--wf8-acc);display:block}
-.wf8-dpnow b{color:#fff;font-weight:700}
-.wf8-dpwhy{font-size:13px;color:var(--wf8-dim);font-weight:400;flex:1;min-width:200px;line-height:1.46}
-
-/* ── the tile rail ───────────────────────────────────────────── */
-.wf8-railsec{padding:16px 0 10px}
-.wf8-rhead{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px;flex-wrap:wrap}
-.wf8-rhead h2{margin:0;font-size:15px;font-weight:700;color:#9AA7C0}
-.wf8-railwrap{position:relative}
-.wf8-track{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;
-  scroll-padding-left:var(--wf8-pad);margin:0 calc(var(--wf8-pad) * -1);padding:2px var(--wf8-pad) 14px}
-.wf8-track::-webkit-scrollbar{display:none}
-.wf8-tile{position:relative;flex:0 0 auto;width:var(--wf8-tw);height:calc(var(--wf8-tw) / var(--wf8-ratio));
-  border-radius:16px;overflow:hidden;scroll-snap-align:start;display:block;text-decoration:none;color:inherit;
-  cursor:pointer;box-shadow:0 8px 22px -12px rgba(0,0,0,.9);
-  transition:transform .22s cubic-bezier(.2,.7,.3,1),box-shadow .22s,opacity .22s}
-.wf8-tile:hover{transform:translateY(-4px);box-shadow:0 24px 44px -18px rgba(0,0,0,.95)}
-.wf8-tile:active{transform:scale(.985)}
-.wf8-tile:focus-visible{outline:2px solid var(--wf8-acc2);outline-offset:3px}
-.wf8-tim{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 0%;display:block;border:0}
-.wf8-ov{position:absolute;inset:0;z-index:1;padding:22px 20px;display:flex;flex-direction:column}
-.wf8-tile.has-art .wf8-ov{display:none}
-.wf8-eye{font-size:12px;font-weight:700;margin-bottom:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wf8-th{font-size:30px;line-height:1.04;font-weight:700;letter-spacing:normal;margin:0}
-.wf8-tsub{font-size:15px;font-weight:400;margin:12px 0 0;line-height:1.5;opacity:.92}
-.wf8-tcta{margin-top:auto;font-size:15px;font-weight:700}
-.wf8-nav{position:absolute;top:calc(50% - 8px);transform:translateY(-50%);width:46px;height:92px;z-index:5;
-  background:rgba(9,12,20,.92);border:1px solid var(--wf8-line2);display:grid;place-items:center;
-  box-shadow:0 8px 24px rgba(0,0,0,.7);transition:opacity .2s;color:#fff}
-.wf8-nav[disabled]{opacity:0;pointer-events:none}
-.wf8-nav.l{left:0;border-radius:0 10px 10px 0}
-.wf8-nav.r{right:0;border-radius:10px 0 0 10px}
-@media(hover:none){.wf8-nav{display:none}}
-.wf8-railhint{font-size:13px;font-weight:400;color:var(--wf8-dim);padding:0 0 6px}
-.wf8.is-open .wf8-railhint{display:none}
-.wf8.is-open .wf8-tile{opacity:.45;transform:scale(.97)}
-.wf8.is-open .wf8-tile:hover{opacity:.8}
-.wf8-tile.is-sel,.wf8.is-open .wf8-tile.is-sel{opacity:1;transform:translateY(-6px) scale(1);
-  box-shadow:0 30px 52px -18px rgba(0,0,0,1)}
-
-/* ── the menu — it does not exist until a card is chosen ─────── */
-.wf8-menusec{display:none;background:linear-gradient(180deg,rgba(255,106,43,.05),transparent 46%),var(--wf8-band);
-  border-top:1px solid var(--wf8-line);border-bottom:1px solid var(--wf8-line)}
-.wf8.is-open .wf8-menusec{display:block;animation:wf8MenuIn .46s cubic-bezier(.19,1.06,.34,1) both}
-.wf8-menusec .wf8-in{padding:18px var(--wf8-pad) 26px;position:relative;z-index:2;text-align:left}
-@keyframes wf8MenuIn{
-  0%{opacity:0;transform:translateY(-30px) scaleY(.97);transform-origin:top}
-  58%{opacity:1;transform:translateY(5px) scaleY(1.006);transform-origin:top}
-  100%{opacity:1;transform:none}}
-.wf8-mbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px}
-.wf8-mhd{font-size:15px;font-weight:700;color:#9AA7C0;margin:0}
-.wf8-mhd b{color:var(--wf8-acc2)}
-.wf8-mclose{display:flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:16px;
-  border:1px solid var(--wf8-line2);font-size:12px;font-weight:700;color:#C3CBDD;flex:0 0 auto}
-.wf8-mclose:hover{background:rgba(255,255,255,.06);color:#fff}
-
-/* the categories — a rail, never a stack */
-.wf8-catwrap{margin:0 calc(var(--wf8-pad) * -1);padding:0 var(--wf8-pad)}
-.wf8-catrail{display:flex;gap:var(--wf8-catgap);overflow-x:auto;scrollbar-width:none;padding:1px 0 13px;
-  scroll-snap-type:x proximity}
-.wf8-catrail::-webkit-scrollbar{display:none}
-.wf8-cat{flex:0 0 calc((100% - (var(--wf8-catvis) - 1) * var(--wf8-catgap)) / var(--wf8-catvis));
-  scroll-snap-align:start;display:flex;align-items:center;gap:10px;height:52px;min-width:0;
-  padding:0 15px 0 8px;border-radius:12px;background:var(--wf8-card);border:1px solid var(--wf8-line);
-  text-align:left;transition:border-color .16s,background .16s,transform .16s}
-.wf8-cat:hover{background:#141C2C;border-color:var(--wf8-line2);transform:translateY(-1px)}
-.wf8-cat.is-on{border-color:var(--wf8-acc);background:rgba(255,106,43,.1)}
-.wf8-cat:focus-visible{outline:2px solid var(--wf8-acc2);outline-offset:2px}
-.wf8-cico{width:36px;height:36px;border-radius:9px;flex:0 0 auto;object-fit:cover;object-position:50% 30%;
-  background-color:#0D1421;display:block}
-.wf8-ctx{display:flex;align-items:center;min-width:0}
-.wf8-ctx b{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wf8-cat.is-on .wf8-ctx b{color:#fff}
-
-/* the place cards — ONE horizontal rail, below the band, never a stack */
-.wf8-pcwrap{position:relative;margin:0 calc(var(--wf8-pad) * -1)}
-.wf8-pcrail{display:flex;gap:var(--wf8-pcgap);overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;
-  padding:4px var(--wf8-pad) 6px;scroll-padding-left:var(--wf8-pad);margin:0;list-style:none}
-.wf8-pcrail::-webkit-scrollbar{display:none}
-.wf8-pcrail>.wf-place-card{
-  flex:0 0 calc((100% - (var(--wf8-pcvis) - 1) * var(--wf8-pcgap)) / var(--wf8-pcvis));
-  scroll-snap-align:start;margin-bottom:0!important;
-  animation:wf8CardDrop .5s cubic-bezier(.18,1.08,.34,1) both}
-/* The drop stagger. IconicPlaceCard is a shared component with a fixed prop
-   surface and no style pass-through, so the delay is positional, in CSS, rather
-   than a per-card inline variable. MAX_CARDS is 8 (lib/railsData.js). */
-.wf8-pcrail>.wf-place-card:nth-child(1){animation-delay:0ms}
-.wf8-pcrail>.wf-place-card:nth-child(2){animation-delay:58ms}
-.wf8-pcrail>.wf-place-card:nth-child(3){animation-delay:116ms}
-.wf8-pcrail>.wf-place-card:nth-child(4){animation-delay:174ms}
-.wf8-pcrail>.wf-place-card:nth-child(5){animation-delay:232ms}
-.wf8-pcrail>.wf-place-card:nth-child(6){animation-delay:290ms}
-.wf8-pcrail>.wf-place-card:nth-child(7){animation-delay:348ms}
-.wf8-pcrail>.wf-place-card:nth-child(n+8){animation-delay:406ms}
-@keyframes wf8CardDrop{
-  0%{opacity:0;transform:translateY(-30px) scale(.955)}
-  62%{opacity:1;transform:translateY(6px) scale(1.008)}
-  100%{opacity:1;transform:none}}
-.wf8-pnav{position:absolute;top:calc(50% - 3px);transform:translateY(-50%);width:40px;height:76px;z-index:5;
-  background:rgba(9,12,20,.94);border:1px solid var(--wf8-line2);display:grid;place-items:center;
-  box-shadow:0 8px 24px rgba(0,0,0,.7);transition:opacity .2s;color:#fff}
-.wf8-pnav[disabled]{opacity:0;pointer-events:none}
-.wf8-pnav.l{left:0;border-radius:0 10px 10px 0}
-.wf8-pnav.r{right:0;border-radius:10px 0 0 10px}
-@media(hover:none){.wf8-pnav{display:none}}
-
-/* a rail whose axis nothing nearby clears. Honest, not padded. */
-.wf8-thin{display:flex;flex-direction:column;gap:9px;align-items:flex-start;padding:16px 0 8px;
-  border-left:3px solid var(--wf8-acc);padding-left:14px}
-.wf8-thin p{margin:0;font-size:15px;line-height:1.5;color:var(--wf8-mut);max-width:620px}
-.wf8-thin a{font-size:15px;font-weight:700;color:var(--wf8-acc2)}
-
-/* ── the guides library — what Local Guides opens onto ───────── */
-.wf8-grail{display:flex;gap:var(--wf8-pcgap);overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;
-  padding:4px var(--wf8-pad) 6px;scroll-padding-left:var(--wf8-pad);margin:0 calc(var(--wf8-pad) * -1);list-style:none}
-.wf8-grail::-webkit-scrollbar{display:none}
-/* The <li> is the flex ITEM, so the width and the snap point belong to it; the
-   <a> is the card and fills it. With the sizing on the <a> instead, every li
-   shrank to its content and the rail came out ragged — uneven heights, columns
-   too narrow to hold a title on one line. */
-.wf8-grail>li{flex:0 0 clamp(268px,26vw,330px);scroll-snap-align:start;display:flex;min-width:0}
-.wf8-gcard{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;
-  padding:15px 16px 16px;border-radius:14px;background:var(--wf8-card);border:1px solid var(--wf8-line);
-  transition:transform .18s,border-color .18s;
-  animation:wf8CardDrop .5s cubic-bezier(.18,1.08,.34,1) both;animation-delay:calc(var(--wf8-i) * 48ms)}
-.wf8-gcard:hover{transform:translateY(-3px);border-color:var(--wf8-line2)}
-.wf8-gtop{display:flex;align-items:baseline;gap:7px;font-size:12px;font-weight:700;color:var(--wf8-acc2);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wf8-gtop em{font-style:normal;color:var(--wf8-dim);font-weight:400}
-.wf8-gtit{margin:0;font-size:17px;font-weight:700;line-height:1.3;
-  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.wf8-gtea{margin:0;font-size:13px;font-weight:400;line-height:1.46;color:var(--wf8-mut);
-  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.wf8-gread{margin-top:auto;padding-top:4px;font-size:13px;font-weight:700;color:var(--wf8-acc2)}
-
-/* ── responsive: no dead space on either device ──────────────── */
-@media(max-width:1400px){.wf8{--wf8-catvis:3.8;--wf8-pcvis:2.4}}
-@media(max-width:1100px){.wf8{--wf8-catvis:3.0;--wf8-pcvis:1.9}}
-@media(max-width:900px){.wf8{--wf8-tw:min(76vw,340px);--wf8-catvis:2.4;--wf8-pcvis:1.35;--wf8-pcgap:11px;--wf8-pad:16px}
-  .wf8-th{font-size:26px}.wf8-grail>li{flex:0 0 min(78vw,320px)}}
-@media(max-width:560px){.wf8{--wf8-catvis:2.0;--wf8-pcvis:1.08;--wf8-catgap:8px;--wf8-pad:13px}
-  .wf8-th{font-size:23px}.wf8-ov{padding:18px 16px}}
-
-@media (prefers-reduced-motion:reduce){
-  .wf8.is-open .wf8-menusec,.wf8-pcrail>.wf-place-card,.wf8-gcard{animation:none}
-  .wf8-tile,.wf8-cat,.wf8-gcard{transition:none}}
-`;
+export const WF_RAIL_MENU_CSS =
+  `.wf8{--wf8-band:#0A0E1A;--wf8-card:#101725;--wf8-line:rgba(255,255,255,.08);--wf8-line2:rgba(255,255,255,.14);--wf8-tx:#F4F7FF;--wf8-mut:#A9B5CD;--wf8-dim:#7A87A0;--wf8-acc:#FF6A2B;--wf8-acc2:#FF8A3D;--wf8-pad:22px;--wf8-ratio:.5625;--wf8-tw:clamp(300px,34vw,440px);--wf8-catvis:4.6;--wf8-catgap:9px;--wf8-pcvis:3.4;--wf8-pcgap:13px;position:relative;color:var(--wf8-tx);font-family:var(--wf-sans,-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif)}.wf8 *{box-sizing:border-box}.wf8 button{background:none;border:0;cursor:pointer;font:inherit;color:inherit}.wf8 a{color:inherit;text-decoration:none}.wf8-in{max-width:1720px;margin:0 auto;padding:0 var(--wf8-pad)}` +
+  // the page dresses for the hour — scoped to the root, never to <body>
+  `.wf8.is-morning{--wf8-acc:#FF8A3D;--wf8-acc2:#FFB25E;--wf8-band:#0B1119}.wf8.is-lunch{--wf8-acc:#FF6A2B;--wf8-acc2:#FF8A3D;--wf8-band:#0A0E17}.wf8.is-afternoon{--wf8-acc:#FF7A2B;--wf8-acc2:#FFA23A;--wf8-band:#0C0D16}.wf8.is-night{--wf8-band:#0A0711;--wf8-card:#12101F;--wf8-acc:#FBBF24;--wf8-acc2:#FCD34D;--wf8-line:rgba(255,255,255,.09);--wf8-line2:rgba(255,255,255,.16)}` +
+  // the daypart bar
+  `.wf8-dpbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 0 2px}.wf8-dpnow{display:flex;align-items:center;gap:8px;height:30px;padding:0 12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--wf8-line);font-size:12px;font-weight:700;color:#C3CBDD}.wf8-dpnow i{width:7px;height:7px;border-radius:50%;background:var(--wf8-acc);display:block}.wf8-dpnow b{color:#fff;font-weight:700}.wf8-dpwhy{font-size:13px;color:var(--wf8-dim);font-weight:400;flex:1;min-width:200px;line-height:1.46}` +
+  // the tile rail
+  `.wf8-railsec{padding:16px 0 10px}.wf8-rhead{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px;flex-wrap:wrap}.wf8-rhead h2{margin:0;font-size:15px;font-weight:700;color:#9AA7C0}.wf8-railwrap{position:relative}.wf8-track{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;scroll-padding-left:var(--wf8-pad);margin:0 calc(var(--wf8-pad) * -1);padding:2px var(--wf8-pad) 14px}.wf8-track::-webkit-scrollbar{display:none}.wf8-tile{position:relative;flex:0 0 auto;width:var(--wf8-tw);height:calc(var(--wf8-tw) / var(--wf8-ratio));border-radius:16px;overflow:hidden;scroll-snap-align:start;display:block;text-decoration:none;color:inherit;cursor:pointer;box-shadow:0 8px 22px -12px rgba(0,0,0,.9);transition:transform .22s cubic-bezier(.2,.7,.3,1),box-shadow .22s,opacity .22s}.wf8-tile:hover{transform:translateY(-4px);box-shadow:0 24px 44px -18px rgba(0,0,0,.95)}.wf8-tile:active{transform:scale(.985)}.wf8-tile:focus-visible{outline:2px solid var(--wf8-acc2);outline-offset:3px}.wf8-tim{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 0%;display:block;border:0}.wf8-ov{position:absolute;inset:0;z-index:1;padding:22px 20px;display:flex;flex-direction:column}.wf8-tile.has-art .wf8-ov{display:none}.wf8-eye{font-size:12px;font-weight:700;margin-bottom:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wf8-th{font-size:30px;line-height:1.04;font-weight:700;letter-spacing:normal;margin:0}.wf8-tsub{font-size:15px;font-weight:400;margin:12px 0 0;line-height:1.5;opacity:.92}.wf8-tcta{margin-top:auto;font-size:15px;font-weight:700}.wf8-nav,.wf8-pnav{position:absolute;top:calc(50% - 8px);transform:translateY(-50%);z-index:5;background:rgba(9,12,20,.93);border:1px solid var(--wf8-line2);display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,0,0,.7);transition:opacity .2s;color:#fff}.wf8-nav{width:46px;height:92px}.wf8-pnav{width:40px;height:76px}.wf8-nav[disabled],.wf8-nav.l,.wf8-pnav.l{left:0;border-radius:0 10px 10px 0}.wf8-nav.r,.wf8-pnav.r{right:0;border-radius:10px 0 0 10px}@media(hover:none){.wf8-nav,.wf8-pnav{display:none}}.wf8-railhint{font-size:13px;font-weight:400;color:var(--wf8-dim);padding:0 0 6px}.wf8.is-open .wf8-railhint{display:none}.wf8.is-open .wf8-tile{opacity:.45;transform:scale(.97)}.wf8.is-open .wf8-tile:hover{opacity:.8}.wf8-tile.is-sel,.wf8.is-open .wf8-tile.is-sel{opacity:1;transform:translateY(-6px) scale(1);box-shadow:0 30px 52px -18px rgba(0,0,0,1)}` +
+  // the menu — it does not exist until a card is chosen
+  `.wf8-menusec{display:none;background:linear-gradient(180deg,rgba(255,106,43,.05),transparent 46%),var(--wf8-band);border-top:1px solid var(--wf8-line);border-bottom:1px solid var(--wf8-line)}.wf8.is-open .wf8-menusec{display:block;animation:wf8MenuIn .46s cubic-bezier(.19,1.06,.34,1) both}.wf8-menusec .wf8-in{padding:18px var(--wf8-pad) 26px;position:relative;z-index:2;text-align:left}@keyframes wf8MenuIn{0%{opacity:0;transform:translateY(-30px) scaleY(.97);transform-origin:top}58%{opacity:1;transform:translateY(5px) scaleY(1.006);transform-origin:top}100%{opacity:1;transform:none}}.wf8-mbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px}.wf8-mhd{font-size:15px;font-weight:700;color:#9AA7C0;margin:0}.wf8-mhd b{color:var(--wf8-acc2)}.wf8-mclose{display:flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:16px;border:1px solid var(--wf8-line2);font-size:12px;font-weight:700;color:#C3CBDD;flex:0 0 auto}.wf8-mclose:hover{background:rgba(255,255,255,.06);color:#fff}` +
+  // the categories — a rail, never a stack
+  `.wf8-catwrap{margin:0 calc(var(--wf8-pad) * -1);padding:0 var(--wf8-pad)}.wf8-catrail{display:flex;gap:var(--wf8-catgap);overflow-x:auto;scrollbar-width:none;padding:1px 0 13px;scroll-snap-type:x proximity}.wf8-catrail::-webkit-scrollbar{display:none}.wf8-cat{flex:0 0 calc((100% - (var(--wf8-catvis) - 1) * var(--wf8-catgap)) / var(--wf8-catvis));scroll-snap-align:start;display:flex;align-items:center;gap:10px;height:52px;min-width:0;padding:0 15px 0 8px;border-radius:12px;background:var(--wf8-card);border:1px solid var(--wf8-line);text-align:left;transition:border-color .16s,background .16s,transform .16s}.wf8-cat:hover{background:#141C2C;border-color:var(--wf8-line2);transform:translateY(-1px)}.wf8-cat.is-on{border-color:var(--wf8-acc);background:rgba(255,106,43,.1)}.wf8-cat:focus-visible{outline:2px solid var(--wf8-acc2);outline-offset:2px}.wf8-cico{width:36px;height:36px;border-radius:9px;flex:0 0 auto;object-fit:cover;object-position:50% 30%;background-color:#0D1421;display:block}.wf8-ctx{display:flex;align-items:center;min-width:0}.wf8-ctx b{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wf8-cat.is-on .wf8-ctx b{color:#fff}` +
+  // the place cards — ONE horizontal rail, below the band, never a stack
+  `.wf8-pcwrap{position:relative;margin:0 calc(var(--wf8-pad) * -1)}.wf8-pcrail{display:flex;gap:var(--wf8-pcgap);overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;padding:4px var(--wf8-pad) 6px;scroll-padding-left:var(--wf8-pad);margin:0;list-style:none}.wf8-pcrail::-webkit-scrollbar{display:none}.wf8-pcrail>.wf-place-card{flex:0 0 calc((100% - (var(--wf8-pcvis) - 1) * var(--wf8-pcgap)) / var(--wf8-pcvis));scroll-snap-align:start;margin-bottom:0!important;animation:wf8CardDrop .5s cubic-bezier(.18,1.08,.34,1) both}` +
+  // The drop stagger. IconicPlaceCard is a shared component with a fixed prop
+  // surface and no style pass-through, so the delay is positional, in CSS, rather
+  // than a per-card inline variable. MAX_CARDS is 8 (lib/railsData.js).
+  `.wf8-pcrail>.wf-place-card:nth-child(2){animation-delay:58ms}.wf8-pcrail>.wf-place-card:nth-child(3){animation-delay:116ms}.wf8-pcrail>.wf-place-card:nth-child(n+4){animation-delay:174ms}@keyframes wf8CardDrop{0%{opacity:0;transform:translateY(-30px) scale(.955)}62%{opacity:1;transform:translateY(6px) scale(1.008)}100%{opacity:1;transform:none}}` +
+  // a rail whose axis nothing nearby clears. Honest, not padded.
+  `.wf8-thin{display:flex;flex-direction:column;gap:9px;align-items:flex-start;padding:16px 0 8px;border-left:3px solid var(--wf8-acc);padding-left:14px}.wf8-thin p{margin:0;font-size:15px;line-height:1.5;color:var(--wf8-mut);max-width:620px}.wf8-thin a{font-size:15px;font-weight:700;color:var(--wf8-acc2)}` +
+  // the guides library — what Local Guides opens onto
+  `.wf8-grail{display:flex;gap:var(--wf8-pcgap);overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;padding:4px var(--wf8-pad) 6px;scroll-padding-left:var(--wf8-pad);margin:0 calc(var(--wf8-pad) * -1);list-style:none}.wf8-grail::-webkit-scrollbar{display:none}` +
+  // The <li> is the flex ITEM, so the width and the snap point belong to it; the
+  // <a> is the card and fills it. With the sizing on the <a> instead, every li
+  // shrank to its content and the rail came out ragged — uneven heights, columns
+  // too narrow to hold a title on one line.
+  `.wf8-grail>li{flex:0 0 clamp(268px,26vw,330px);scroll-snap-align:start;display:flex;min-width:0}.wf8-gcard{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;padding:15px 16px 16px;border-radius:14px;background:var(--wf8-card);border:1px solid var(--wf8-line);transition:transform .18s,border-color .18s;animation:wf8CardDrop .5s cubic-bezier(.18,1.08,.34,1) both;animation-delay:calc(var(--wf8-i) * 48ms)}.wf8-gcard:hover{transform:translateY(-3px);border-color:var(--wf8-line2)}.wf8-gtop{display:flex;align-items:baseline;gap:7px;font-size:12px;font-weight:700;color:var(--wf8-acc2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wf8-gtop em{font-style:normal;color:var(--wf8-dim);font-weight:400}.wf8-gtit{margin:0;font-size:17px;font-weight:700;line-height:1.3;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.wf8-gtea{margin:0;font-size:13px;font-weight:400;line-height:1.46;color:var(--wf8-mut);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.wf8-gread{margin-top:auto;padding-top:4px;font-size:13px;font-weight:700;color:var(--wf8-acc2)}` +
+  // responsive: no dead space on either device
+  `@media(max-width:1400px){.wf8{--wf8-catvis:3.8;--wf8-pcvis:2.4}}@media(max-width:1100px){.wf8{--wf8-catvis:3.0;--wf8-pcvis:1.9}}@media(max-width:900px){.wf8{--wf8-tw:min(76vw,340px);--wf8-catvis:2.4;--wf8-pcvis:1.35;--wf8-pcgap:11px;--wf8-pad:16px}.wf8-th{font-size:26px}.wf8-grail>li{flex:0 0 min(78vw,320px)}}@media(max-width:560px){.wf8{--wf8-catvis:2.0;--wf8-pcvis:1.08;--wf8-catgap:8px;--wf8-pad:13px}.wf8-th{font-size:23px}.wf8-ov{padding:18px 16px}}@media (prefers-reduced-motion:reduce){.wf8.is-open .wf8-menusec,.wf8-pcrail>.wf-place-card,.wf8-gcard{animation:none}.wf8-tile,.wf8-cat,.wf8-gcard{transition:none}}`;
