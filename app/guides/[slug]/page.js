@@ -126,6 +126,7 @@ async function inventoryPlace(placeName) {
 }
 
 import GuidePlaceCard from "../../components/GuidePlaceCard";
+import DiscoveryPaths from "../../components/DiscoveryPaths";
 import OpenAppCTA from "../../components/OpenAppCTA.js";
 import PremiumIntentHero from "../../components/PremiumIntentHero";
 // The floating pill stays (it catches people who DO read to the end). This adds
@@ -662,6 +663,18 @@ export default async function GuidePage({ params }) {
           2.2% D+1 return — an owned channel is the only realistic comeback
           path for a trip planner reading weeks ahead. Sits after the
           conversion block so the monetized CTA keeps first position. */}
+      {/* citySlug MUST be a real LANDING_CITIES key. bridgeSlug is just the
+          guide's region lowercased, and plenty of regions are not landing
+          cities — "Crystal River" produced /things-to-do/crystal-river, which
+          answers 200 with a "Not found" body: a soft-404, the exact shape
+          scripts/check-rail-routes.mjs exists to forbid. Passing null instead
+          lets railHref fall back through cityFor(region) to a city that is
+          genuinely in the set. */}
+      <DiscoveryPaths
+        region={g.region === "Orlando" ? "orlando" : "fl"}
+        citySlug={bridgeCity ? bridgeSlug : null}
+        cityLabel={bridgeCity ? bridgeCity.name : ""}
+      />
       <GuideEmailCapture slug={params.slug} region={g.region || "Orlando"} />
       <p style={{ ...S.p, marginTop: 30 }}>
         Planning the rest of your trip? <a href="/" style={S.footerLink}>Wayfind</a> ranks every restaurant, attraction, and hotel near you with live hours and honest scores, and our <a href={"/culture/" + (g.region === "Tampa" ? "tampa" : g.region === "Sarasota" ? "sarasota" : "orlando")} style={S.footerLink}>{g.region || "Orlando"} culture guide</a> covers what to eat, say, and never skip.
