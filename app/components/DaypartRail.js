@@ -64,11 +64,6 @@ function logEvent(name, props) {
 
 // Rendered from the SAME float hour the band is chosen from, so the chip can
 // never show a time that disagrees with the ordering beside it.
-const clockLabel = (hourFloat) => {
-  const h = Math.floor(hourFloat) % 24;
-  const m = Math.round((hourFloat - Math.floor(hourFloat)) * 60) % 60;
-  return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${h < 12 ? "am" : "pm"}`;
-};
 
 /** Left/right arrow enablement for a scroller, recomputed on scroll + resize. */
 function useScrollEnds(ref, deps) {
@@ -115,7 +110,6 @@ export default function DaypartRail({
   // `center` rather than on geolocation. Overwritten only by a successful
   // fetch, so a failure leaves the server's real answer in place.
   const [live, setLive] = useState(null);
-  const [clock, setClock] = useState("");
   const [selected, setSelected] = useState(null);
   const trackRef = useRef(null);
   const pcRef = useRef(null);
@@ -156,7 +150,6 @@ export default function DaypartRail({
     const tick = () => {
       const h = siteHourFloat(new Date(), tz);
       setDaypart(partForHour(h));
-      setClock(clockLabel(h));
     };
     tick();
     const id = setInterval(tick, 60000);
@@ -232,14 +225,6 @@ export default function DaypartRail({
     <div className={`wf8 is-${daypart}${selected ? " is-open" : ""}`} data-daypart={daypart}>
       <section className="wf8-railsec" aria-label="What to do right now">
         <div className="wf8-in">
-          <div className="wf8-dpbar">
-            <span className="wf8-dpnow"><i />{band.label}{clock ? <> · <b>{clock}</b></> : null}</span>
-            <span className="wf8-dpwhy">{band.why}</span>
-          </div>
-          <div className="wf8-rhead">
-            <h2>{band.label} first · all {rails.length} ways in</h2>
-          </div>
-          <p className="wf8-railhint">Pick one and the places drop below — nothing is hidden, later cards are parked to the right.</p>
           <div className="wf8-railwrap">
             <div className="wf8-track" ref={trackRef}>
               {order.map((id, i) => {
@@ -280,26 +265,6 @@ export default function DaypartRail({
               onClick={() => { scrollBy(trackRef, -1); syncTrack(); }}><Chevron dir="l" /></button>
             <button type="button" className="wf8-nav r" aria-label="Scroll right" disabled={trackEnds.atEnd}
               onClick={() => { scrollBy(trackRef, 1); syncTrack(); }}><Chevron dir="r" /></button>
-          </div>
-        </div>
-        <div className="wf8-in wf8-heroin">
-          {/* The band. The owner's first ask on this whole surface: take the
-              logo out of the header, put it here, and sell what Wayfind is
-              "as if you were talking over loud music" — one line, no hedging.
-              It is also the housing the place cards drop out of. */}
-          <div className="wf8-hero">
-            {/* The committed derivatives, not the 1707x441 source PNG — the
-                same ladder .wf-wordmark uses in css.js, just rendered as a
-                whole logo instead of a two-part sprite. Intrinsic size is the
-                real 3.871 ratio so the band reserves its own height. */}
-            <picture>
-              <source type="image/avif" srcSet="/brand/opt/wordmark-400.avif" />
-              <source type="image/webp" srcSet="/brand/opt/wordmark-400.webp" />
-              <img className="wf8-hlogo" src="/brand/wayfind-wordmark-transparent-v2.png"
-                alt="Wayfind" width="1707" height="441" decoding="async" fetchPriority="high" />
-            </picture>
-            <h2 className="wf8-h1">Where to go, right now.</h2>
-            <p className="wf8-hsub">The best places near you, already ranked.</p>
           </div>
         </div>
       </section>
