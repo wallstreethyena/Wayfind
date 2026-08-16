@@ -405,7 +405,7 @@ const WF_DESTINATIONS = [
   { id: "itinerary", icon: "itinerary", label: "Itinerary", href: "/itinerary" },
 ];
 
-function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true, compact, nav, navRegion, navCitySlug }) {
+function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true, compact, nav, navRegion, navCitySlug, navOpenCat, onNavOpen, onNavSub }) {
   const subs = showSubs && activeCat ? (SUBFILTERS[activeCat] || []) : [];
   // Hooks run BEFORE the compact early-return below — a conditional hook here
   // would break the map screen the moment a sub-filter opened.
@@ -506,10 +506,31 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
     );
   }
   if (nav) {
+    // v8.4 — OPTION (b), the sub-menu (owner, asked four times).
+    //
+    // Tapping a tab no longer jumps straight to a landing page. It opens that
+    // category's sub-chips IN PLACE, and the reader chooses from there. The
+    // intermediate step is the whole point of the ask.
+    //
+    // COPIED FROM /map, which never lost this row. There, subs FILTER the
+    // visible pins rather than navigating, and that is the honest behaviour
+    // here too: the landing routes (/restaurants/[city] etc.) accept no sub
+    // parameter — verified, they read no searchParams — so a chip that
+    // "navigated" to one would silently drop the filter the reader just chose.
+    // That is the mismatched control AGENTS.md §12 bans. The chips apply the
+    // same browseCat+sub the feed has always understood.
+    //
+    // THE TAB STAYS A REAL <a href>. Only a plain left click is intercepted —
+    // the same pattern the rail tiles use (check-home-answer-first pins
+    // href={href} + preventDefault on DaypartRail). So a crawler still follows
+    // it, cmd/middle-click still opens the page in a tab, and the tray is what
+    // a normal tap gets. Nothing that navigates is a div with a handler.
+    const navSubs = navOpenCat ? (SUBFILTERS[navOpenCat] || []) : [];
     return (
+      <>
       <div className="wf-navtabs" role="group" aria-label="Browse categories">
         {Cats.CATEGORY_TILES.map((m) => {
-          const on = activeCat === m.id;
+          const on = activeCat === m.id || navOpenCat === m.id;
           // railHref resolves the missing city segment through the SAME map the
           // rail tiles use, so a tab can never emit a bare /restaurants and can
           // never emit a slug outside LANDING_CITIES. cityFor() is never null,
@@ -521,7 +542,15 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
           if (href) {
             return (
               <a key={m.id} className={on ? "wf-navtab is-on" : "wf-navtab"} href={href}
-                 onClick={() => { try { onCat && onCat(m.id, m.label, href); } catch (e) {} }}>
+                 aria-expanded={navOpenCat === m.id} aria-controls="wf-navsubs"
+                 onClick={(e) => {
+                   // Modified clicks and non-left buttons fall through to the
+                   // href untouched — that is what keeps cmd/middle-click and
+                   // "open in new tab" working.
+                   if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+                   e.preventDefault();
+                   try { onNavOpen && onNavOpen(navOpenCat === m.id ? null : m.id, m.label); } catch (er) {}
+                 }}>
                 {glyph}<span>{m.label}</span>
               </a>
             );
@@ -532,12 +561,39 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
           // tabs behaving differently has to read as deliberate, not broken.
           return (
             <button key={m.id} type="button" className={on ? "wf-navtab is-filter is-on" : "wf-navtab is-filter"}
-                    aria-pressed={on} title={m.label + " — filters this page"} onClick={() => tapCat(m.id, m.label)}>
+                    aria-pressed={on} aria-expanded={navOpenCat === m.id} aria-controls="wf-navsubs"
+                    title={m.label + " — filters this page"}
+                    onClick={() => { try { onNavOpen && onNavOpen(navOpenCat === m.id ? null : m.id, m.label); } catch (er) {} }}>
               {glyph}<span>{m.label}</span>
             </button>
           );
         })}
       </div>
+      {/* The tray. Same shape as /map's .wf-mapfp-subs: a max-height/opacity
+          transition rather than a mount, so it slides instead of popping, and
+          it carries the reduced-motion escape hatch. */}
+      <div id="wf-navsubs" className={navSubs.length > 1 ? "wf-navsubs is-open" : "wf-navsubs"}>
+        <div className="wf-navsubs-row" role="group" aria-label={(navOpenCat || "") + " filters"}>
+          {navSubs.map((sf, si) => {
+            const son = sub === sf.id && activeCat === navOpenCat;
+            return (
+              <button key={sf.id} type="button" className={son ? "wf-navsub is-on" : "wf-navsub"}
+                      aria-pressed={son} style={{ animationDelay: (si * 26) + "ms" }}
+                      onClick={() => { try { onNavSub && onNavSub(navOpenCat, sf.id, sf.label); } catch (er) {} }}>
+                {sf.label}
+              </button>
+            );
+          })}
+          {/* The full page is still one tap away, and it is a real link — the
+              tray filters, this navigates, and the two are visibly different. */}
+          {navOpenCat && CATEGORY_ROUTE[navOpenCat] ? (
+            <a className="wf-navsub wf-navsub-all" href={railHref({ href: CATEGORY_ROUTE[navOpenCat] }, navRegion, navCitySlug)}>
+              {"See every " + ((Cats.CATEGORY_TILES.find((t) => t.id === navOpenCat) || {}).label || "").toLowerCase() + " \u2192"}
+            </a>
+          ) : null}
+        </div>
+      </div>
+      </>
     );
   }
   return (
@@ -3540,6 +3596,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // else, and a dropdown that claimed to narrow a search it cannot reach would
   // be the mismatched control AGENTS.md §12 bans.
   const [scopeOpen, setScopeOpen] = useState(false);
+  // v8.4 — which nav tab has its sub-chip tray open. Separate from
+  // browseCat on purpose: opening a tray is not yet a filter, and closing
+  // one must not clear a filter the reader already applied.
+  const [navOpenCat, setNavOpenCat] = useState(null);
   const GIVEAWAY = { start: new Date(2026, 6, 3), end: new Date(2026, 9, 31, 23, 59, 59) };
   const [gwPop, setGwPop] = useState(false); // v4.28: giveaway is a timed popup, not a feed card
   // v5.37 prompt coordinator (July 2026 audit, Phase 5). One interruptive
@@ -8428,10 +8488,24 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             take all but 23px, and "St. Petersburg, FL" needs 118px. So row A is
             two lines on a phone and reads as one band on a desk. */}
         {screen !== "map" && (
-          <CategoryMenu nav activeCat={browseCat}
+          <CategoryMenu nav activeCat={browseCat} sub={sub}
             navRegion={railMenu ? railMenu.region : undefined}
             navCitySlug={railMenu ? railMenu.citySlug : undefined}
-            onCat={(id, label, href) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "nav", href: href || null }); } catch (e) {} if (!href) pickBrowse(id); }} />
+            navOpenCat={navOpenCat}
+            onNavOpen={(id, label) => {
+              setNavOpenCat(id);
+              try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "nav_open", opened: !!id }); } catch (e) {}
+            }}
+            onNavSub={(catId, subId, subLabel) => {
+              // THE CHOICE THAT ACTS. Same two setters the feed has always
+              // used, so a place filtered here is the same list the browse
+              // view produced before the tabs moved into the nav.
+              if (browseCat !== catId) pickBrowse(catId);
+              setSub(subId);
+              setNavOpenCat(null);
+              try { logEvent("intent_chip", null, { intent: subLabel, layer: 2, src: "nav_sub", cat: catId }); } catch (e) {}
+              try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) {}
+            }} />
         )}
         {wxOpen && weather && Array.isArray(weather.hourly) && weather.hourly.length > 0 && (
           <div style={{ marginTop: -6, marginBottom: 12, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.panel} 62%)`, border: "none", borderRadius: "0 0 18px 18px", padding: "12px 8px 14px", boxShadow: "0 12px 26px rgba(0,0,0,.4)" }}>
