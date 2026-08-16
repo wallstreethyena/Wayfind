@@ -163,28 +163,13 @@ export default function DaypartRail({
     return () => clearInterval(id);
   }, [lat, lng]);
 
-  // THE OVERLAY IS A PRE-PAINT FALLBACK, and `onLoad` alone cannot retire it.
-  // These tiles are server-rendered, so on a warm cache the browser has already
-  // decoded the art before React hydrates — the load event fired before any
-  // handler existed to hear it, and the fallback text stayed stamped over the
-  // artwork forever. Measured: 0 of 15 tiles marked, desktop and phone.
-  // An <img> reports its own state, so ask it directly on mount and keep the
-  // handler for the ones still in flight.
-  useEffect(() => {
-    const el = trackRef.current;
-    if (!el) return undefined;
-    const mark = (img) => { const t = img.closest(".wf8-tile"); if (t) t.classList.add("has-art"); };
-    const imgs = [...el.querySelectorAll("img.wf8-tim")];
-    const onLoad = (e) => mark(e.currentTarget);
-    for (const img of imgs) {
-      if (img.complete && img.naturalWidth) mark(img);
-      else img.addEventListener("load", onLoad, { once: true });
-    }
-    // A tile scrolled into view later is lazy-loaded and mounts its own handler
-    // through the JSX onLoad; this pass only closes the already-decoded gap.
-    return () => { for (const img of imgs) img.removeEventListener("load", onLoad); };
-  }, [order]);
-
+  // v8.1 (owner, 2026-08-16: "dont write nothign on top of the card just use
+  // the card information"). There is no text overlay any more. Every card's
+  // headline, sub and CTA are IN the artwork — the owner drew them there — so
+  // rendering them again in HTML on top produced the doubled copy in his
+  // screenshot ("Beach Day / The beach, decided" stamped over "WE FOUND THE
+  // BEST BEACHES"). The tile is the picture. Its accessible name comes from
+  // aria-label and the <img> alt, so nothing is lost to a screen reader.
   const [trackEnds, syncTrack] = useScrollEnds(trackRef, [order.length]);
   const [pcEnds, syncPc] = useScrollEnds(pcRef, [selected]);
 
@@ -247,6 +232,24 @@ export default function DaypartRail({
     <div className={`wf8 is-${daypart}${selected ? " is-open" : ""}`} data-daypart={daypart}>
       <section className="wf8-railsec" aria-label="What to do right now">
         <div className="wf8-in">
+          {/* The band. The owner's first ask on this whole surface: take the
+              logo out of the header, put it here, and sell what Wayfind is
+              "as if you were talking over loud music" — one line, no hedging.
+              It is also the housing the place cards drop out of. */}
+          <div className="wf8-hero">
+            {/* The committed derivatives, not the 1707x441 source PNG — the
+                same ladder .wf-wordmark uses in css.js, just rendered as a
+                whole logo instead of a two-part sprite. Intrinsic size is the
+                real 3.871 ratio so the band reserves its own height. */}
+            <picture>
+              <source type="image/avif" srcSet="/brand/opt/wordmark-400.avif" />
+              <source type="image/webp" srcSet="/brand/opt/wordmark-400.webp" />
+              <img className="wf8-hlogo" src="/brand/wayfind-wordmark-transparent-v2.png"
+                alt="Wayfind" width="1707" height="441" decoding="async" fetchPriority="high" />
+            </picture>
+            <h2 className="wf8-h1">Where to go, right now.</h2>
+            <p className="wf8-hsub">The best places near you, already ranked.</p>
+          </div>
           <div className="wf8-dpbar">
             <span className="wf8-dpnow"><i />{band.label}{clock ? <> · <b>{clock}</b></> : null}</span>
             <span className="wf8-dpwhy">{band.why}</span>
@@ -285,17 +288,8 @@ export default function DaypartRail({
                         decoding="async"
                         loading={eager ? "eager" : "lazy"}
                         fetchPriority={eager ? "high" : "low"}
-                        onLoad={(e) => { const t = e.currentTarget.closest(".wf8-tile"); if (t) t.classList.add("has-art"); }}
                       />
                     </picture>
-                    {/* Shown only until the art paints — a card is never a blank
-                        box on a cold cache, and it still reads without images. */}
-                    <div className="wf8-ov">
-                      <div className="wf8-eye">{r.title}</div>
-                      <h3 className="wf8-th">{r.short}</h3>
-                      <p className="wf8-tsub">{r.sub}</p>
-                      <div className="wf8-tcta">{r.cta} →</div>
-                    </div>
                   </a>
                 );
               })}
