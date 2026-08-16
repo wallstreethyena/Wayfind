@@ -154,7 +154,20 @@ for (const f of ["app/components/TrendingNowClient.js", "app/components/IntentPa
 // 8) No surface renders the tag bubbles.
 ok(!/<Chip linkable/.test(ttd), "ThingsToDoList renders no category/Crowd-favorite chip bubbles (v7.15) — the trending and water notes that remain are disclosures, not decoration");
 ok(!/experienceBadges\(p, null, 2\)/.test(hookDetail), "HookDetail builds no experience-tag badges — only the thematic World Cup badge may fill that slot");
-ok(!/expTags\.map/.test(iconic), "IconicPlaceCard renders no experience-tag chip buttons");
+// v8.5 — REVERSED BY THE OWNER, 2026-08-16: "i want the place card to look
+// like it used to, it looked premium and it had experience pills on them...
+// make sure all of the place cards look like the iconic version we had and
+// bring that everywhere."
+//
+// This line asserted the v7.15 removal ("i told you i don't like the bubbles
+// either"). Two owner calls a week apart in opposite directions; this is the
+// later one, so the assertion is INVERTED rather than deleted — the rule still
+// has a guard, it just points the other way now. Deleting it would leave the
+// chips unprotected in either direction.
+//
+// The other two §8 assertions are untouched: ThingsToDoList and HookDetail were
+// separate surfaces with their own decisions, and nothing reversed those.
+ok(/expTags\.map/.test(iconic), "IconicPlaceCard renders its experience-tag chip buttons (owner reversal 2026-08-16 — the pills are wanted back and this is the guard that keeps them)");
 ok(!/experienceTags\(tagged/.test(read("app/components/BestNearby.js")), "BestNearby rails pass no tag bubbles to RailCard — Deal and the creator-video score disclosure only");
 ok(!/experienceTags\(r, \d/.test(read("app/components/IntentRail.js")), "the home intent rails pass no tag bubbles — Deal only");
 ok(!/experienceBadges\(detail, null, 4\)\.map/.test(read("app/components/sheets/Detail.js")), "the detail sheet renders no tag-bubble row");
