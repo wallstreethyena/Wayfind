@@ -21,7 +21,7 @@ export default function PremiumIntentHero({ eyebrow, location, title, descriptio
         .wf-intent-brand{display:block;width:126px;flex:none}
         .wf-intent-back{display:inline-flex;align-items:center;gap:6px;flex:none;padding:7px 12px 7px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);color:#cbd5e1;font-size:13px;font-weight:650;text-decoration:none;line-height:1;transition:border-color .15s ease,color .15s ease}
         .wf-intent-back:hover{border-color:rgba(232,201,122,.5);color:#f4f6f8}
-        .wf-intent-back:focus-visible{outline:2px solid #E8C97A;outline-offset:2px}
+        .wf-intent-back:focus-visible{outline:2px solid #FBBF24;outline-offset:2px}
         .wf-intent-caption{position:absolute;z-index:2;left:38px;right:38px;bottom:36px;color:#fff;font:500 38px/1.03 Georgia,serif;letter-spacing:-.7px}
         .wf-intent-panel{padding:50px 54px 44px;color:#0d1724;display:flex;flex-direction:column;justify-content:center}
         .wf-intent-top{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:30px}

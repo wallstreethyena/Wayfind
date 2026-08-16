@@ -90,7 +90,7 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
               } catch (e) {}
               step("cta", { cta_kind: cta.kind });
             }}
-            style={{ display: "block", marginTop: 10, padding: "14px 18px", borderRadius: 14, background: "#FF8A3D", color: "#0B0F14", fontSize: 16, fontWeight: 800, textAlign: "center", textDecoration: "none" }}
+            style={{ display: "block", marginTop: 10, padding: "14px 18px", borderRadius: 14, background: "#F97316", color: "#0B0F14", fontSize: 16, fontWeight: 800, textAlign: "center", textDecoration: "none" }}
           >
             {cta.label}{cta.sponsored ? " ↗" : ""}
           </a>
@@ -107,7 +107,7 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
           {/* Real deadline only. couponEndsLabel reads the actual expiry from the
               deals data; there is no hardcoded urgency anywhere in this file. */}
           {cta.deal && cta.deal.ends ? (
-            <div style={{ marginTop: 7, fontSize: 12.5, color: "#E8C97A", textAlign: "center", fontWeight: 700 }}>
+            <div style={{ marginTop: 7, fontSize: 12.5, color: "#FBBF24", textAlign: "center", fontWeight: 700 }}>
               {cta.deal.ends}{cta.deal.code ? " · code " + cta.deal.code : ""}
             </div>
           ) : null}
@@ -136,7 +136,7 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
           try { track("guide_saved", { slug, region }); } catch (e) {}
           step("save");
         }}
-        style={{ display: "block", width: "100%", marginTop: 10, padding: "11px 16px", borderRadius: 14, border: "1px dashed #243040", background: "transparent", color: saved ? "#E8C97A" : "#8A97A6", fontSize: 13, fontWeight: 700, cursor: saved ? "default" : "pointer" }}
+        style={{ display: "block", width: "100%", marginTop: 10, padding: "11px 16px", borderRadius: 14, border: "1px dashed #243040", background: "transparent", color: saved ? "#FBBF24" : "#8A97A6", fontSize: 13, fontWeight: 700, cursor: saved ? "default" : "pointer" }}
         disabled={saved}
       >
         {saved ? "Saved — it'll be waiting in Wayfind" : "Save this guide for the trip"}
