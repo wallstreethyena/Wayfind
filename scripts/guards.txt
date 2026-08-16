@@ -388,6 +388,9 @@ node scripts/test-promote-decision.mjs
 node scripts/test-dayparts.mjs
 # EXACTLY ONE NAV PER SCREEN. Never two (the duplication removed 2026-08-16),
 # never zero (/map stranded by that same removal, same day).
+# A badge labelled WAYFIND shows the WAYFIND SCORE. Google's raw 5-star number
+# under our own brand shipped live and indexed on two landing templates.
+node scripts/check-score-badge-honesty.mjs
 node scripts/check-one-nav-per-screen.mjs
 node scripts/check-rail-routes.mjs
 # (c) every rail must actually SELECT — six of fifteen once led with the same

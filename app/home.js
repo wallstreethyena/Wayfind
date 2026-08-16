@@ -10480,7 +10480,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
                 {p._children.slice(0, 6).map((c) => (
                   <span key={c.id || c.name} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.bg, border: `1px solid ${C.border}`, borderRadius: 999, padding: "5px 10px", fontSize: 12, fontWeight: 600, color: C.light, maxWidth: "100%" }}>
                     <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 150 }}>{c.name}</span>
-                    {c.rating != null ? <span style={{ color: C.gold, fontWeight: 800, flexShrink: 0 }}>{c.rating}\u2605</span> : null}
+                    {c.rating != null ? <span style={{ color: C.gold, fontWeight: 800, flexShrink: 0 }}>{c.rating}{"\u2605"}</span> : null}
                   </span>
                 ))}
               </div>
