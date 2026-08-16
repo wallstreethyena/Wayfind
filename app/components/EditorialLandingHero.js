@@ -74,7 +74,7 @@ export function editorialHeroCss(prefix = "wf-beach-premium") {
   transition:border-color .15s ease,color .15s ease,background .15s ease;
 }
 .${P}-back:hover{border-color:rgba(232,201,122,.5);color:#F4F6F8;background:rgba(255,255,255,.09)}
-.${P}-back:focus-visible{outline:2px solid #E8C97A;outline-offset:2px}
+.${P}-back:focus-visible{outline:2px solid #FBBF24;outline-offset:2px}
 .${P}-image-copy{position:absolute;z-index:2;left:42px;right:36px;bottom:42px}
 .${P}-image-kicker{display:flex;align-items:center;gap:9px;color:#FFC08F;font-size:10px;font-weight:850;letter-spacing:.2em;text-transform:uppercase}
 .${P}-image-kicker:before{content:"";width:28px;height:1px;background:#F97316}

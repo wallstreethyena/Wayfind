@@ -162,20 +162,20 @@ export function generateMetadata({ params }) {
 }
 
 const S = {
-  page: { maxWidth: 1080, margin: "0 auto", padding: "0 18px 72px", background: "#050B14", color: "#E6EDF3", fontFamily: "var(--wf-sans)", lineHeight: 1.6 },
-  kicker: { fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#FF8A3D" },
+  page: { maxWidth: 1080, margin: "0 auto", padding: "0 18px 72px", background: "#040810", color: "#F1F5F9", fontFamily: "var(--wf-sans)", lineHeight: 1.6 },
+  kicker: { fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#F97316" },
   h1: { fontSize: 30, lineHeight: 1.2, margin: "10px 0 8px", fontWeight: 800, color: "#FFFFFF" },
-  meta: { fontSize: 13, color: "#8B949E", marginBottom: 18 },
-  p: { fontSize: 16, color: "#C9D1D9", margin: "0 0 18px" },
+  meta: { fontSize: 13, color: "#94A3B8", marginBottom: 18 },
+  p: { fontSize: 16, color: "#CBD5E1", margin: "0 0 18px" },
   h2: { fontSize: 21, fontWeight: 800, color: "#FFFFFF", margin: "26px 0 6px" },
   tip: { fontSize: 14, color: "#8ED6C4", margin: "6px 0 0" },
-  btn: { display: "inline-block", marginTop: 10, padding: "9px 16px", borderRadius: 999, background: "#FF8A3D", color: "#0D1117", fontWeight: 800, fontSize: 14, textDecoration: "none" },
-  btnGhost: { display: "inline-block", marginTop: 10, marginLeft: 8, padding: "9px 16px", borderRadius: 999, border: "1.5px solid #FF8A3D", color: "#FF8A3D", fontWeight: 800, fontSize: 14, textDecoration: "none" },
-  disclosure: { fontSize: 12, color: "#8B949E", margin: "22px 0", padding: "10px 14px", background: "#161B22", borderRadius: 10 },
+  btn: { display: "inline-block", marginTop: 10, padding: "9px 16px", borderRadius: 999, background: "#F97316", color: "#0D1117", fontWeight: 800, fontSize: 14, textDecoration: "none" },
+  btnGhost: { display: "inline-block", marginTop: 10, marginLeft: 8, padding: "9px 16px", borderRadius: 999, border: "1.5px solid #F97316", color: "#F97316", fontWeight: 800, fontSize: 14, textDecoration: "none" },
+  disclosure: { fontSize: 12, color: "#94A3B8", margin: "22px 0", padding: "10px 14px", background: "#161B22", borderRadius: 10 },
   faqQ: { fontSize: 16, fontWeight: 800, color: "#FFFFFF", margin: "14px 0 4px" },
-  faqA: { fontSize: 15, color: "#C9D1D9", margin: 0 },
-  footerLink: { color: "#FF8A3D", textDecoration: "none", fontWeight: 700 },
-  pick: { margin: "0 0 16px", padding: "22px", borderRadius: 20, background: "linear-gradient(145deg,#101C2B,#0A1421)", border: "1px solid #26384B", boxShadow: "0 18px 45px rgba(0,0,0,.2)" },
+  faqA: { fontSize: 15, color: "#CBD5E1", margin: 0 },
+  footerLink: { color: "#F97316", textDecoration: "none", fontWeight: 700 },
+  pick: { margin: "0 0 16px", padding: "22px", borderRadius: 20, background: "linear-gradient(145deg,#101C2B,#0A1421)", border: "1px solid #2D3748", boxShadow: "0 18px 45px rgba(0,0,0,.2)" },
 };
 
 // v7.29 PERF — the WebP derivative, not the 473KB original. This is the LCP
@@ -441,44 +441,44 @@ export default async function GuidePage({ params }) {
     <main style={S.page}>
       <style dangerouslySetInnerHTML={{ __html: `
         .wf-guide-article{max-width:860px;margin:0 auto}
-        .wf-guide-intro{max-width:760px;font-family:Georgia,"Times New Roman",serif;font-size:21px;line-height:1.55;color:#f1ede5}
-        .wf-guide-disclosure{font-size:11px;color:#8f98a5;margin:12px 4px 28px;padding:0 0 12px;border-bottom:1px solid #263445}
+        .wf-guide-intro{max-width:760px;font-family:Georgia,"Times New Roman",serif;font-size:21px;line-height:1.55;color:#F1F5F9}
+        .wf-guide-disclosure{font-size:11px;color:#F1F5F9;margin:12px 4px 28px;padding:0 0 12px;border-bottom:1px solid #2D3748}
         /* RIGHT NOW block — server-rendered, so it is in the indexed HTML. */
         .wf-guide-now{margin:26px 0 8px;padding:18px 20px;border-radius:14px;background:rgba(249,115,22,.07);border:1px solid rgba(249,115,22,.30)}
         .wf-guide-now-head{font-size:13px;font-weight:800;letterSpacing:.6px;text-transform:uppercase;color:#FDBA74;margin-bottom:6px}
-        .wf-guide-now-why{margin:0;font-size:16px;line-height:1.5;color:#eef1f5}
+        .wf-guide-now-why{margin:0;font-size:16px;line-height:1.5;color:#F1F5F9}
         .wf-guide-now-list{margin:12px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
-        .wf-guide-now-list a{color:#f7f2ea;font-weight:650}
+        .wf-guide-now-list a{color:#F1F5F9;font-weight:650}
         .wf-guide-now-handoff{background:rgba(56,189,248,.07);border-color:rgba(56,189,248,.30)}
         .wf-guide-now-handoff a{color:#7DD3FC;font-weight:750}
         .wf-guide-now-live{background:rgba(94,232,180,.07);border-color:rgba(94,232,180,.30)}
         .wf-guide-now-live .wf-guide-now-head{color:#5EE8B4}
-        .wf-guide-pick{display:grid;grid-template-columns:76px minmax(0,1fr);gap:22px;position:relative;margin:0;padding:31px 4px;border-radius:0;background:transparent;border:0;border-top:1px solid #263445;box-shadow:none;color:#eef1f5}
-        .wf-guide-pick:last-of-type{border-bottom:1px solid #263445}
+        .wf-guide-pick{display:grid;grid-template-columns:76px minmax(0,1fr);gap:22px;position:relative;margin:0;padding:31px 4px;border-radius:0;background:transparent;border:0;border-top:1px solid #2D3748;box-shadow:none;color:#F1F5F9}
+        .wf-guide-pick:last-of-type{border-bottom:1px solid #2D3748}
         .wf-guide-number{font:600 49px/1 Georgia,"Times New Roman",serif;color:#68778d;letter-spacing:-2px;padding-top:3px;text-shadow:0 1px 18px rgba(104,119,141,.14)}
-        .wf-guide-pick h2{font-size:31px;color:#f7f2ea!important}
-        .wf-guide-pick>p{color:#aeb8c7!important}
+        .wf-guide-pick h2{font-size:31px;color:#F1F5F9!important}
+        .wf-guide-pick>p{color:#94A3B8!important}
         .wf-guide-pick .wf-guide-tip{color:#a64f1b!important}
         /* Live deal cards. Sized so the whole card is one tap target on a phone,
            and min-width:0 on the text column is what stops a long merchant name
            forcing the grid wider than the viewport — the classic overflow. */
         .wf-gd-wrap{margin:34px 0 0}
-        .wf-gd-h{font-size:22px;color:#f7f2ea;margin:0 2px 12px}
+        .wf-gd-h{font-size:22px;color:#F1F5F9;margin:0 2px 12px}
         .wf-gd-list{list-style:none;margin:0;padding:0}
-        .wf-gd-card{display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;align-items:start;text-decoration:none;color:inherit;background:#141c27;border:1px solid #263445;border-radius:14px;padding:12px;margin:0 0 10px;transition:border-color .15s ease}
-        .wf-gd-card:hover{border-color:#E8C97A}
+        .wf-gd-card{display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;align-items:start;text-decoration:none;color:inherit;background:#141c27;border:1px solid #2D3748;border-radius:14px;padding:12px;margin:0 0 10px;transition:border-color .15s ease}
+        .wf-gd-card:hover{border-color:#FBBF24}
         .wf-gd-img{width:96px;height:96px;object-fit:cover;border-radius:10px;display:block;background:#0d131b}
         .wf-gd-body{min-width:0}
         .wf-gd-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
-        .wf-gd-title{font-size:16px;font-weight:750;color:#f7f2ea;overflow-wrap:anywhere}
-        .wf-gd-badge{flex:none;font-size:11px;font-weight:750;color:#0B0F14;background:#E8C97A;border-radius:999px;padding:2px 8px}
-        .wf-gd-merchant{font-size:12.5px;color:#aeb8c7;margin-top:3px;overflow-wrap:anywhere}
+        .wf-gd-title{font-size:16px;font-weight:750;color:#F1F5F9;overflow-wrap:anywhere}
+        .wf-gd-badge{flex:none;font-size:11px;font-weight:750;color:#0B0F14;background:#FBBF24;border-radius:999px;padding:2px 8px}
+        .wf-gd-merchant{font-size:12.5px;color:#94A3B8;margin-top:3px;overflow-wrap:anywhere}
         .wf-gd-details{font-size:13.5px;color:#c8d1dd;line-height:1.45;margin:7px 0 0;overflow-wrap:anywhere}
         .wf-gd-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px;flex-wrap:wrap}
-        .wf-gd-loc{font-size:12px;color:#8A97A6;min-width:0;overflow-wrap:anywhere}
-        .wf-gd-cta{flex:none;font-size:13px;font-weight:750;color:#E8C97A}
-        .wf-gd-ends{font-size:11.5px;color:#8A97A6;margin-top:5px}
-        .wf-gd-disc{font-size:11px;color:#8A97A6;line-height:1.45;margin:12px 2px 0}
+        .wf-gd-loc{font-size:12px;color:#94A3B8;min-width:0;overflow-wrap:anywhere}
+        .wf-gd-cta{flex:none;font-size:13px;font-weight:750;color:#FBBF24}
+        .wf-gd-ends{font-size:11.5px;color:#94A3B8;margin-top:5px}
+        .wf-gd-disc{font-size:11px;color:#94A3B8;line-height:1.45;margin:12px 2px 0}
         .wf-guide-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
         .wf-guide-actions a{border-radius:4px!important}
         @media(max-width:760px){
@@ -520,7 +520,7 @@ export default async function GuidePage({ params }) {
           grounding, because a teaser promising something the body never delivers
           is the dark pattern the directive rules out. */}
       {g.teaser ? (
-        <p className="wf-guide-teaser" style={{ margin: "0 0 14px", fontSize: 16.5, lineHeight: 1.5, color: "#E8C97A", fontWeight: 650 }}>
+        <p className="wf-guide-teaser" style={{ margin: "0 0 14px", fontSize: 16.5, lineHeight: 1.5, color: "#FBBF24", fontWeight: 650 }}>
           {g.teaser}
         </p>
       ) : null}
@@ -616,7 +616,7 @@ export default async function GuidePage({ params }) {
           <section key={i} className="wf-guide-pick">
             <div className="wf-guide-number">{String(i + 1).padStart(2, "0")}</div>
             <div>
-              <div style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: "1.7px", textTransform: "uppercase", color: "#FF8A3D" }}>{i === 0 ? "The essential" : "The local edit"}</div>
+              <div style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: "1.7px", textTransform: "uppercase", color: "#F97316" }}>{i === 0 ? "The essential" : "The local edit"}</div>
               <h2 style={{ ...S.h2, marginTop: 5, fontFamily: "var(--wf-display)", fontSize: 28 }}>{pick.name}</h2>
               <p style={S.p}>{pick.blurb}</p>
               {pick.tip ? <p className="wf-guide-tip" style={S.tip}>Insider note — {pick.tip}</p> : null}
