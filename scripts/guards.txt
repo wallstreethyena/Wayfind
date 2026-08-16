@@ -380,3 +380,13 @@ node scripts/check-promote-metros-parity.mjs
 # runtime. Legacy anon/service_role keys were disabled on this project 2026-07-16.
 node scripts/check-supabase-key-live.mjs
 node scripts/test-promote-decision.mjs
+
+# V8 rail menu (the homepage's daypart rail). Two failure modes it exists for:
+# (a) a rail card pointing at a segmented route without its segment — 200,
+#     indexable, canonical "/" — shipped from the homepage itself;
+# (b) an hour band that drops a rail instead of parking it on the right.
+node scripts/test-dayparts.mjs
+node scripts/check-rail-routes.mjs
+# (c) every rail must actually SELECT — six of fifteen once led with the same
+#     place because an unfiltered rail is a perfectly valid duplicate.
+node scripts/test-rail-select.mjs

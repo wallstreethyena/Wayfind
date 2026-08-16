@@ -56,7 +56,24 @@ ok(INTENT_PAGES.family.art === "/cards/family-adobestock-794890098.jpeg", "famil
 const ic = readFileSync(new URL("../app/components/IntentPageClient.js", import.meta.url), "utf8");
 ok(ic.includes("ranked lower for the drive"), "penalized rows explain themselves");
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
-ok((home.match(/family-adobestock-794890098\.jpeg/g) || []).length === 2, "family card uses the owned family artwork in both rails");
+// v8 (2026-08-15): the homepage half of this continuity rule moved. The family
+// card is a RAIL now (lib/rails.js), not a hero slide rendered twice in
+// app/home.js, so the old "appears exactly twice in home.js" count would only
+// ever be 0. The rule itself is unchanged — the landing page and the homepage
+// card must show the same owned artwork — and the rail additionally carries
+// REGIONAL variants the hero slide never had (Orlando / rest of Florida /
+// everywhere else, lib/dayparts.js regionFor). check-rail-routes.mjs proves
+// every one of those files exists on disk in all three regions and all three
+// formats, which is a stronger claim than counting a string.
+{
+  const rails = readFileSync(new URL("../lib/rails.js", import.meta.url), "utf8");
+  ok(/id: "family"/.test(rails), "the family card still exists on the homepage, as a rail");
+  ok(/art: "family"/.test(rails), "…with its own owned artwork");
+  ok(/regional: \{ orlando: "family-orlando", fl: "family-fl" \}/.test(rails),
+    "…and the regional variants the owner asked for (castle in Orlando, Florida elsewhere)");
+  ok(!/family-adobestock-794890098\.jpeg/.test(home),
+    "the old family hero slide is back in app/home.js — that is the family card on the page twice");
+}
 ok(!home.includes("setFamilyHeroImg"), "the owned family artwork no longer triggers an unused live-photo fetch");
 
 // Shared references remain validated for metadata, while the visible landing

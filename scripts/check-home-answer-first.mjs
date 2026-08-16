@@ -120,46 +120,54 @@ const HOME = readFileSync(path.join(REPO, "app/home.js"), "utf8")
   .replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
 
 const iBest = HOME.indexOf("<BestNearby center=");
-const iEvents = HOME.indexOf("<EventsRailSkeleton />");
-// The RENDER SITE in the feed, not the component. A bare "<DiscoveryHeroCard "
-// also matches the one inside EventsRailSkeleton, which is DEFINED far earlier
-// in the file — so the naive index comparison failed against a definition
-// rather than a position in the feed. Index order only means something between
-// two things rendered in the same tree.
-const iHero = HOME.indexOf("<DiscoveryHeroCard onOpen=");
+// v8 (2026-08-15) — WHAT THIS SECTION MEASURES NOW.
+//
+// The two CONTENT surfaces the ranked list had to lead were the events rail and
+// the promo hero deck. The deck is gone (its eight cards are eight of the
+// fifteen in <DaypartRail>), and the events rail moved into the menu as section
+// nine of BestNearby back in v7.06 — so it renders INSIDE the answer rather
+// than after it, which is why the old `iBest < iEvents` probe now reads -1.
+//
+// The v6.58 measurement stands and is asserted below in its true form: nothing
+// that ADVERTISES Wayfind may sit above the ranked answer. What sits above it is
+// NAVIGATION — the rail, the six category tiles, the discovery rail — which is
+// the class the owner explicitly hoisted in v6.62 and v6.65. The difference,
+// and the reason the rail belongs in that class rather than the deck's: picking
+// a rail card drops eight ranked place cards in place, so it PRODUCES an answer
+// instead of pointing at one.
+const iRail = HOME.indexOf("<DaypartRail");
+const iCatMenu = HOME.indexOf("<CategoryMenu tight activeCat=");
 const iMenu = HOME.indexOf("const discoveryMenu");
-// v6.65: the discovery rail is hoisted above the ranked list and renders from
-// ONE site (`{!browseCat && discoveryMenu}`) instead of the three mutually
-// exclusive events-state branches it used to live in, so this probe follows it.
 const iMenuUse = HOME.indexOf("{!browseCat && discoveryMenu}");
+const iEventsSlot = HOME.indexOf("const eventsRailSlot = (() => {");
 
 ok(iBest > -1, "app/home.js renders <BestNearby>");
-ok(iEvents > -1, "PROBE: the events rail is still in the feed (if this is -1 the comparisons below prove nothing)");
-ok(iHero > -1, "PROBE: the promo hero card is still in the feed");
+ok(iRail > -1, "PROBE: the rail menu is in the feed (if this is -1 the comparisons below prove nothing)");
 ok(iMenuUse > -1, "PROBE: the discovery grid is still in the feed");
+ok(iEventsSlot > -1, "PROBE: the events rail is still built (it lives inside BestNearby as section nine, v7.06)");
 
-ok(iBest < iEvents, `<BestNearby> renders BEFORE the events rail (${iBest} vs ${iEvents}) — the ranked list leads the feed`);
-ok(iBest < iHero, `<BestNearby> renders BEFORE the promo hero card (${iBest} vs ${iHero}) — a stranger meets an answer, not an advert for us`);
-// v6.65 (owner, twice, the second time bluntly): the discovery rail sits ABOVE
-// the ranked list, alongside the category row that moved in v6.62. Both are
-// NAVIGATION — two skimmable rows of controls — not competing answers, and the
-// ranked list still leads over events, the hero rail and every content surface
-// below, which is what the v6.58 measurement was actually about. The assertion
-// is kept and inverted rather than deleted, so the position stays pinned.
+// THE NAVIGATION BAND, in the owner's order: rail, then the six categories,
+// then the discovery rail — all three above the answer.
+ok(iRail < iCatMenu, `the rail leads the navigation band (${iRail} vs ${iCatMenu})`);
+ok(iCatMenu < iBest, "the six categories sit ABOVE the answer (v6.62, owner: \"add this to the top of the page\")");
 ok(iMenuUse > 0 && iMenuUse < iBest, `the discovery rail renders ABOVE <BestNearby> (${iMenuUse} vs ${iBest}) — owner directive 2026-08-08`);
-ok(iBest < iEvents && iBest < iHero, "…and the ranked list still leads every CONTENT surface (events, hero) — the v6.58 measurement stands");
 ok((HOME.match(/discoveryMenu\}/g) || []).length === 1,
   "the discovery rail renders from exactly ONE site — it used to sit in three mutually exclusive events-state branches, which is how it ended up below the fold in every one of them");
 
-/* It must also sit OUTSIDE the events-present branch. Nested there, a visitor
-   with no events nearby saw no ranked list at all — the case where they most
-   need something to look at. */
-const eventsBranch = HOME.indexOf("foryouEvents && foryouEvents.length > 0");
-ok(eventsBranch > -1, "PROBE: the events-present branch exists");
-ok(
-  iBest < eventsBranch,
-  `<BestNearby> is not nested inside the events-present branch (${iBest} vs ${eventsBranch}) — it must render when there are no events nearby too`
-);
+// AND NOTHING ELSE MAY. This is the v6.58 rule stated as what it always meant:
+// a stranger meets an answer, not an advert for us. The promo deck was the
+// advert, and it must not come back — above the answer or anywhere.
+ok(!/<HeroRail>/.test(HOME), "the promo hero deck is back — a stranger must meet an answer, not an advert for us (v6.58)");
+ok(!/function DiscoveryHeroCard\(/.test(HOME), "…including its orientation card");
+// The rail is navigation only if it OPENS onto ranked places. If it ever
+// becomes a row of pictures that merely navigate away, it has become the deck.
+{
+  const RAIL = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
+  ok(/<IconicPlaceCard/.test(RAIL),
+    "the rail must drop REAL ranked place cards when a card is picked — without that it is the promo deck with better art");
+  ok(/href=\{href\}/.test(RAIL) && /e\.preventDefault\(\)/.test(RAIL),
+    "…and every tile must be a real <a href> that a crawler can follow, intercepted only for a plain left click");
+}
 
 /* ── 7. THE REASON LINE ────────────────────────────────────────────────
    wf_best_picks returns `reasons text[]` and wf_things_to_do returns
