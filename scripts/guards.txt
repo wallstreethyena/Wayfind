@@ -391,6 +391,9 @@ node scripts/test-dayparts.mjs
 # A badge labelled WAYFIND shows the WAYFIND SCORE. Google's raw 5-star number
 # under our own brand shipped live and indexed on two landing templates.
 node scripts/check-score-badge-honesty.mjs
+# No job reports success while doing nothing. Eight crons answered 200 on a
+# total no-op, which is how three days of dead-key silence read as healthy.
+node scripts/check-cron-honesty.mjs
 node scripts/check-one-nav-per-screen.mjs
 node scripts/check-rail-routes.mjs
 # (c) every rail must actually SELECT — six of fifteen once led with the same

@@ -18,6 +18,7 @@
 // Bearer $CRON_SECRET"), which is how it can run today and lift the quarantine.
 import { createClient } from "@supabase/supabase-js";
 import { repairAffiliateUrl, judgeLink, hasCjPid } from "../../../../lib/deals.js";
+import { jobCannotRun, jobFailed } from "../../../../lib/jobFail";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -53,7 +54,7 @@ export async function GET(req) {
   }
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim();
   const svc = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
-  if (!url || !svc) return Response.json({ error: "no service key" }, { status: 200 });
+  if (!url || !svc) return jobCannotRun("deals-health", "SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL is missing");
   const db = createClient(url, svc, { auth: { persistSession: false } });
 
   const job = new URL(req.url).searchParams.get("job") || "all";
@@ -77,7 +78,7 @@ export async function GET(req) {
   const { data: all, error } = await db.from("wf_deals")
     .select("id, affiliate_url, dest_url, fail_count, link_ok, last_checked_at, ends_at")
     .eq("active", true);
-  if (error) return Response.json({ ok: false, expired, error: "deals read failed" }, { status: 200 });
+  if (error) return jobFailed("deals-health", "deals read failed", { expired });
   const nowMs = Date.now();
   const rows = (all || []).filter((r) =>
     r.link_ok !== true ||
