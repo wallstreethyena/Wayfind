@@ -101,6 +101,16 @@ export default function DaypartRail({
   // The reader's real location, once it resolves. app/home.js passes `center`,
   // the one piece of state both geolocation and the search box write to.
   center = null,
+  // v8.4 — SAVE AND ITINERARY. This surface had NEITHER, and it is the one the
+  // owner looks at most: the homepage rail drop. All four come from app/home.js
+  // so the state is the SAME store every other surface reads — a place saved
+  // here shows as saved in Favorites, and one added to a trip shows on the
+  // Itinerary screen. Nullable: the /v8 preview route mounts this component
+  // without them and must keep working.
+  isSaved = null,
+  isOnTrip = null,
+  onSave = null,
+  onItinerary = null,
 }) {
   const [daypart, setDaypart] = useState(initialDaypart);
   // THE RAIL FOLLOWS THE READER. Server props are the flagship metro's ranking
@@ -308,6 +318,10 @@ export default function DaypartRail({
                     place={p}
                     rank={i + 1}
                     href={`/p/${encodeURIComponent(p.id)}`}
+                    saved={isSaved ? isSaved(p.id) : false}
+                    inTrip={isOnTrip ? isOnTrip(p) : false}
+                    onSave={onSave ? (e, pl) => onSave(e, pl) : null}
+                    onItinerary={onItinerary ? (e, pl) => onItinerary(e, pl) : null}
                   />
                 ))}
               </ul>

@@ -85,12 +85,33 @@ ok(/const railMenuBand = railMenu \? \(/.test(code),
     // triggers a LATER re-rank when the reader turns out to be in another metro
     // (the owner's searched-location rule — see scripts/test-beach-geo.mjs).
     // It must stay optional inside the component, which is asserted below.
-    if (name === "center") continue;
+    // v8.4 — THE EXEMPTION IS FOR THINGS THAT CANNOT GATE FIRST PAINT, and it
+    // is deliberately narrow. `center` was already one. Save/itinerary are now
+    // two more: they are HANDLERS and PREDICATES, not content. They are read
+    // only inside the drop, which renders no HTML until a card is picked and is
+    // itself a next/dynamic ssr:false import — so nothing here can make the
+    // first screen wait on anything.
+    //
+    // What is NOT exempt is any prop the rail RENDERS. `places={places}` (the
+    // Places search result) is exactly the 6.4-second regression this file
+    // exists for, and it is still caught: it is not an on* handler and it is
+    // not in this list.
+    const NON_CONTENT = new Set(["center", "isSaved", "isOnTrip"]);
+    if (NON_CONTENT.has(name) || /^on[A-Z]/.test(name)) continue;
     ok(/^railMenu\.\w+$/.test(value) || value === "RAILS",
       `<DaypartRail ${name}={${value}}> — every rail prop must be server data (railMenu.*) or static metadata (RAILS); anything else makes the first screen wait on a fetch`);
   }
   const rail = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
   ok(/center = null,/.test(rail), "center must default to null — the rail has to paint before geolocation resolves");
+  // The premise of the exemption above, asserted rather than assumed: the
+  // drop is lazily imported and not server-rendered, so a handler passed to
+  // it cannot be on the first-paint path.
+  ok(/const IconicPlaceCard = dynamic\(\(\) => import\("\.\/IconicPlaceCard"\), \{ ssr: false \}\)/.test(rail),
+    "the drop's place card must stay a next/dynamic ssr:false import — that is what keeps its props off the first-paint path AND what kept the bundle under the gate");
+  for (const p of ["isSaved", "isOnTrip", "onSave", "onItinerary"]) {
+    ok(new RegExp(p + "\\s*=\\s*null").test(rail),
+      `${p} must default to null — /v8 mounts this component without it and has to keep working`);
+  }
   ok(/if \(!center \|\| !Number\.isFinite\(center\.lat\)/.test(rail), "…and bail out of the re-rank when it has not");
 }
 // And it must be gone from where it used to be: a page carrying BOTH the rail
