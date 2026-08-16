@@ -9046,35 +9046,22 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               
                   Position asserted by scripts/check-home-answer-first.mjs. */}
               {!browseCat && <BestNearby center={center} weather={weather} events={foryouEvents || []} videoPlaces={videoPlaces} onFindSimilar={(q) => { try { submitSearch(q); } catch (e) {} }} city={locName} onOpenPlace={(p) => openDetail(p, "bestnearby")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} isSaved={isSaved} liked={liked} disliked={disliked} onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(p) => { try { addShared(p); giveawayMark(p.id); askShareIntent({ name: p.name, city: locName, id: p.id, kind: placeKinds(p), onPlain: () => shareLink(p.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(p.id)), () => showToast("Link copied")), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", p, { kind: "invite", from: "rail" }); } catch (e2) {} }) }); } catch (er) {} }} onExperience={(key, p) => { try { key === "creatorvideo" ? openDetail(p, "creatorfinds") : openExperience(key); } catch (er) {} }} eventsSlot={eventsRailSlot} creatorSlot={<CreatorFinds items={videoPlaces} byCity={socialFindByCity} center={center} bare onOpenPlace={(p) => openDetail(p, "creatorfinds")} onBrowse={() => setSocialFind({ browse: true })} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} isSaved={isSaved} liked={liked} disliked={disliked} onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(p) => { try { addShared(p); giveawayMark(p.id); askShareIntent({ name: p.name, city: locName, id: p.id, kind: placeKinds(p), onPlain: () => shareLink(p.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(p.id)), () => showToast("Link copied")), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", p, { kind: "invite", from: "rail" }); } catch (e2) {} }) }); } catch (er) {} }} onExperience={(key, p) => { try { key === "creatorvideo" ? openDetail(p, "creatorfinds") : openExperience(key); } catch (er) {} }} />} />}
-              {/* v8.2 — THE ASIDE IS IN THE FEED NOW (owner, 2026-08-15: "it
-                  doesn't have that thing on the right hand side… It looks
-                  horrible", then: weather and deals "move below the rail").
+              {/* v8.4 (owner, 2026-08-16): the weather card ("RIGHT NOW NEAR
+                  YOU") and "DEALS NEAR YOU" come off the homepage — MOBILE AND
+                  DESKTOP, not one breakpoint.
 
-                  NOT DELETED, MOVED. Deals is the money surface on the app's
-                  highest-traffic screen and retiring it to make a column
-                  disappear would have been a revenue change dressed as a layout
-                  one. It renders full width here instead, two cards abreast
-                  once there is room (see .wf-col-side in css.js).
+                  <HomeAside> is NOT deleted. The component, its copy and its
+                  dealTiers wiring are intact in app/components/HomeAside.js;
+                  it simply has no render site on "/" any more. Deals remains
+                  reachable from the nav's Coupons tab, which is its own screen
+                  and owns the vetted card, the proximate disclosure and the
+                  attribution (lib/commerce.js rule 2) — so no affiliate
+                  inventory is orphaned by this, only un-merchandised on "/".
 
-                  BELOW THE ANSWER, not above it. The lab puts Deals first in
-                  <main>, but the lab has no bounce data behind it and v6.58
-                  does: 84% of 373 visitors left "/" in 30 days and the median
-                  single-page session was 10 seconds. A commerce block above the
-                  ranked list is exactly what that measurement ruled against, so
-                  the answer still leads and the deals sit directly under it.
-
-                  STILL UNCONDITIONAL. It keeps .wf-col-side and it is never
-                  `isDesktop && <HomeAside/>` — that is the banned pattern behind
-                  the 0.4938 CLS incident (test-layout-shift §5). All that
-                  changed is that the class now describes a block in the flow
-                  rather than a sticky second column. */}
-              <HomeAside
-                city={locName}
-                weather={weather}
-                take={wayfindWeatherTake(weather)}
-                center={center}
-                onCoupons={(dealId) => { try { logEvent("aside_deal_open", null, { deal: dealId || null }); } catch (e) {} setScreen("coupons"); }}
-              />
+                  Nothing is gated on viewport here: there is no render at all,
+                  at any width, so the banned `isDesktop && <Aside/>` pattern
+                  (test-layout-shift §5, the 0.4938 CLS incident) is not just
+                  avoided but unreachable. */}
               {/* v7.05 — the creator row MOVED INSIDE the menu (owner, 2026-08-09:
                   "we would pretty much be adding to the existing menu we have and just
                   reorganizing"). It is section 5 of eight, so it is now passed to

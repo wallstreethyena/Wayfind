@@ -405,6 +405,16 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   ok(!/Or change the mood/.test(BN),
      "the in-section mood chips are gone — the menu IS the mood switcher now");
 
+  // v8.4 (owner, 2026-08-16): the weather card and "Deals near you" come off
+  // the homepage at EVERY width. HomeAside itself is deliberately kept — the
+  // component and its dealTiers wiring are intact — so the thing to assert is
+  // that "/" does not RENDER it. AGENTS.md §7 is the reason this is pinned at
+  // all: a 3-way merge keeps someone else's newer copy of a block that a
+  // change was meant to remove, which is how the taste editor nearly shipped
+  // back after being explicitly deleted.
+  ok(!/<HomeAside[\s/>]/.test(HOME),
+     "the homepage renders <HomeAside> again — the weather card and Deals were removed from \"/\" at every width (owner, 2026-08-16). Deals stays reachable through the Coupons tab, which owns the vetted card and the attribution.");
+
   // ═════════════════════════════════════════════════════════════════════════
   // v8.2 (owner, 2026-08-15) — A COLLAPSED SECTION IS NOT A MENU ROW.
   //
