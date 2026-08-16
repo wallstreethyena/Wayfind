@@ -31,6 +31,21 @@
 import { readFileSync } from "node:fs";
 import { shellSrc } from "./lib/shellSrc.mjs";
 
+// v8.2: eventsRailSlot is the last const the feed builds before its return,
+// so the return is where its body ends. This used to be "const discoveryMenu
+// = (", which was hoisted ABOVE eventsRailSlot when the Shortcuts row moved
+// into the header — leaving every slice below it empty and every assertion
+// over that slice vacuously true.
+const sliceEventsSlot = (src) => {
+  const a = src.indexOf("const eventsRailSlot = (() => {");
+  // Anchored on the NEWLINE + exactly ten spaces. Without the newline the
+  // search matches the slot's OWN `              return (` at fourteen spaces
+  // (a substring of it), which cut the slice to 77 characters and turned every
+  // assertion below into a vacuous pass — caught by the length probe.
+  const b = src.indexOf("\n          return (\n", a);
+  return a > -1 && b > a ? src.slice(a, b) : "";
+};
+
 let passed = 0;
 const fail = (m) => { console.error("test-first-screen: FAIL — " + m); process.exit(1); };
 const ok = (c, m) => { if (!c) fail(m); passed++; };
@@ -42,11 +57,21 @@ const code = src.split("\n").filter((l) => !l.trimStart().startsWith("//") && !l
 //    is SERVER-rendered from props, so there is nothing to skeleton: if it is
 //    ever gated on client state, the 6.4-second blank screen comes back.
 ok(/<DaypartRail\b/.test(code), "the rail menu is gone — the first screen has nothing to paint while events load");
-ok(/\{railMenu \? \(/.test(code),
+ok(/const railMenuBand = railMenu \? \(/.test(code),
   "the rail must render straight off its server prop; gating it on client state re-opens the blank first screen this file exists for");
 {
-  const railBlock = code.slice(code.indexOf("{railMenu ? ("), code.indexOf("<CategoryMenu tight activeCat="));
-  ok(railBlock.length > 0, "PROBE: the rail render site sits above the category row");
+  const railStart = code.indexOf("const railMenuBand = railMenu ? (");
+  const railEnd = code.indexOf(") : null;", railStart);
+  const railBlock = railStart > -1 && railEnd > railStart ? code.slice(railStart, railEnd) : "";
+  ok(railBlock.length > 200, `PROBE: the rail band block was delimited (${railBlock.length} chars) — a -1 here would have scanned the whole file and proven nothing`);
+  ok(/<DaypartRail\b/.test(railBlock), "PROBE: the delimited block really is the rail");
+  // …and it is actually MOUNTED. A const nothing renders is a first screen
+  // with nothing on it, which is the failure this whole file is about.
+  ok(/\{railMenuBand\}/.test(code), "the rail band is rendered in the feed, not merely declared");
+  ok(code.indexOf("{railMenuBand}") < code.indexOf("<BestNearby "), "the rail still leads the feed");
+  // Full bleed is the point of the move: inside .wf-col-main the band was
+  // capped at the reading measure, which clipped a 15-card deck mid-card.
+  ok(/className="wf-fullbleed"/.test(railBlock), "the band runs edge to edge rather than being re-nested in the feed column");
   // Assert the invariant directly rather than blocklisting names: EVERY prop
   // value must come from the server prop or the static rail metadata. A
   // blocklist of client-state identifiers cannot tell `places={railMenu.places}`
@@ -88,7 +113,8 @@ passed++;
 //    v8: asserted against `eventsRailSlot`, which is the only thing that reads
 //    foryouEvents now — the promo deck's three branches went with the deck.
 {
-  const slot = code.slice(code.indexOf("const eventsRailSlot = (() => {"), code.indexOf("const discoveryMenu = ("));
+  const slot = sliceEventsSlot(code);
+  ok(slot.length > 400, `PROBE: the events-rail slot was delimited (${slot.length} chars)`);
   ok(/if \(foryouEvents === null\)/.test(slot), "loading state (null) not handled by the events rail");
   ok(/if \(!shown\.length\) return null;/.test(slot), "empty state (loaded, nothing showable) not handled by the events rail");
   ok(/<RailNav railId="events"/.test(slot), "populated state not handled by the events rail");
@@ -123,7 +149,8 @@ ok(/const EV_RAIL_MIN_H = \d+/.test(code), "EV_RAIL_MIN_H constant missing");
 {
   const slotStart = code.indexOf("const eventsRailSlot = (() => {");
   ok(slotStart > -1, "the events rail is built once, as eventsRailSlot, and handed to the menu");
-  const slot = code.slice(slotStart, code.indexOf("const discoveryMenu = (", slotStart));
+  const slot = sliceEventsSlot(code);
+  ok(slot.length > 400, `PROBE: the events-rail slot was delimited (${slot.length} chars)`);
   ok(slot.includes("EV_RAIL_MIN_H"), "the events rail's loading box reserves the card-row height from EV_RAIL_MIN_H");
   ok(/foryouEvents === null/.test(slot), "…and it renders that box while the events chain is still in flight, not an empty section");
 }
@@ -151,7 +178,8 @@ ok(!/const EV_SECTION_MIN_H\s*=/.test(code) && !/minHeight: EV_SECTION_MIN_H/.te
 //    (screen readers get a shimmering grey box otherwise). This moved from
 //    EventsRailSkeleton to eventsRailSlot when the deck was removed; the rule
 //    did not move, only the thing it applies to.
-const skel = code.slice(code.indexOf("const eventsRailSlot = (() => {"), code.indexOf("const discoveryMenu = ("));
+const skel = sliceEventsSlot(code);
+ok(skel.length > 400, `PROBE: the events-rail slot was delimited (${skel.length} chars)`);
 ok(/role="status"/.test(skel) && /aria-busy="true"/.test(skel), "the events rail's loading box must expose role=status + aria-busy so assistive tech knows content is loading");
 ok(/aria-hidden="true"/.test(skel), "the decorative shimmer blocks must be aria-hidden");
 // v7.09 — RENAMED (owner, 2026-08-09): "on the last menu the Happening near

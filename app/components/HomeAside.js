@@ -43,7 +43,7 @@
 // display:none below WF_WIDE_BP. It must never become `isDesktop && <Aside/>` —
 // that is the exact pattern that produced the 0.4938 CLS incident documented at
 // the top of app/components/css.js and banned by test-layout-shift §5.
-import { C, Icon } from "./kit";
+import { C } from "./kit";
 import { COUPONS } from "../../lib/coupons";
 import { dealTiers } from "../../lib/dealSheet";
 import { siteTodayStr } from "../../lib/siteTime";
@@ -80,7 +80,7 @@ export function asideDeals(center, todayIso) {
   return [...(tiers.featured || []), ...(tiers.ledger || [])].slice(0, 3);
 }
 
-export default function HomeAside({ city, weather, take, center, onCoupons, onRanking }) {
+export default function HomeAside({ city, weather, take, center, onCoupons }) {
   const today = siteTodayStr();
   const deals = asideDeals(center, today);
   const where = city ? String(city).split(",")[0] : null;
@@ -162,18 +162,15 @@ export default function HomeAside({ city, weather, take, center, onCoupons, onRa
         )}
       </section>
 
-      {/* 3 — the objection a researcher is already forming */}
-      <section style={cardStyle}>
-        <Kicker>No paid placement</Kicker>
-        <p style={{ margin: "0 0 9px", fontSize: 12.5, lineHeight: 1.55, color: C.light }}>
-          No business can buy a spot on this page. Position comes from the Wayfind Score — rating, how many people rated it, how far it is from you, and whether it is open right now.
-        </p>
-        <button type="button" className="wf-aside-link" onClick={() => { if (onRanking) onRanking(); }}>
-          <Icon name="award" size={14} color={C.accent} />
-          {"How Wayfind ranks"}
-        </button>
-      </section>
+      {/* v8.2 — "No paid placement" is NOT rendered on "/" any more (owner
+          brief, 2026-08-15: remove it from the homepage). The claim itself is
+          not retired — /how-wayfind-ranks still carries it in full, the footer
+          still links there, and the Best Around You section still states "No
+          paid placement" in its own support line. What went is the third card
+          in a block that is now two cards wide in the feed.
 
+          ONE LINE TO PUT IT BACK if that reads as too thin: restore the
+          section here and the onRanking prop at the call site in app/home.js. */}
     </aside>
   );
 }

@@ -19,7 +19,19 @@ const home = strip(readFileSync(new URL("../app/home.js", import.meta.url), "utf
 const map = strip(readFileSync(new URL("../app/components/screens/Map.js", import.meta.url), "utf8"));
 
 // ── the compact branch is opt-in, and only the map opts in ────────────────
-ok(/compact\s*\}/.test(home) || /,\s*compact\s*\}/.test(home), "CategoryMenu no longer accepts a `compact` prop");
+// v8.2 — RE-POINTED. This asserted that `compact` was the LAST name in the
+// destructuring block (`compact }`), which is a claim about punctuation, not
+// about the prop. It went red the moment `nav` was appended for the header tab
+// strip — a guard firing on correct code — and it was weak in the other
+// direction too: `compact` in any object literal anywhere in a 10k-line file
+// satisfied the fallback branch.
+//
+// The claim is that CategoryMenu ACCEPTS the prop, so read its own parameter
+// list and look for the name in it, wherever it sits.
+const catParams = (home.match(/function CategoryMenu\(\{([^}]*)\}\)/) || [])[1] || "";
+ok(catParams.length > 40, `PROBE: CategoryMenu's parameter list was read (${catParams.length} chars)`);
+ok(catParams.split(",").map((x) => x.trim().split(/[=\s]/)[0]).includes("compact"),
+   "CategoryMenu no longer accepts a `compact` prop");
 ok(/if \(compact\) \{[\s\S]{0,600}?wf-mapfp/.test(home), "the compact layout is not behind a branch — it would apply to every call site");
 ok(/<CategoryMenu compact/.test(map), "the map does not request the compact panel");
 const others = [...home.matchAll(/<CategoryMenu\b[^>]*/g)].map((m) => m[0]);
