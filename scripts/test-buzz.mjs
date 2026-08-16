@@ -61,10 +61,37 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
   // legitimately on its own page. A guard that fires on its own rationale is a
   // guard someone deletes.
   ok(!/fetch\("\/api\/buzz\/why"/.test(home), "the buzz why-line LLM call is back on the homepage's critical path");
-  ok(/trending: \{[^}]*pick: \(p\) => !!p\.trending/.test(railSelect.replace(/\n\s*/g, " ")),
-    "the trending rail must gate on the REAL trend flag from lib/trendSignal.js, never on rank position");
-  ok(/rank: \(a, b\) => \(b\.trend_score \|\| 0\) - \(a\.trend_score \|\| 0\)/.test(railSelect.replace(/\n\s*/g, " ")),
-    "…and order by the real trend score, so the strongest signal leads");
+  // v8.6 — RE-POINTED TO THE ACTUAL RULE, which is stronger than what was here.
+  //
+  // These two pinned the rail to `pick: (p) => !!p.trending` and to ordering by
+  // trend_score. The INTENT was "never fake velocity" — never let this rail
+  // claim spiking demand on a signal that is not a spike.
+  //
+  // Pinning the implementation turned out to protect the wrong half. The
+  // trend flag is fed by wf_place_popularity, which holds 164 rows, ALL
+  // wikipedia, so restaurants and bars could never qualify and the rail shipped
+  // empty in the flagship metro for three sessions while these assertions
+  // stayed green. A rail that is always empty makes no false claim, so the
+  // guard was satisfied and the product was broken.
+  //
+  // The owner's option (b) moved it to review volume — 100% coverage, real
+  // demand, but CUMULATIVE, not a spike — and renamed it to match. So the rule
+  // that actually matters is a RELATIONSHIP: the headline and the signal must
+  // agree. Spike words are only allowed over the spike flag.
+  {
+    const flat = railSelect.replace(/\n\s*/g, " ");
+    const cfg = (flat.match(/trending: \{.*?\},\s*\/\/|trending: \{.*?\}\s*,/) || [""])[0];
+    const gatesOnSpike = /pick: \(p\) => !!p\.trending/.test(cfg);
+    const railsSrc = readFileSync("lib/rails.js", "utf8");
+    const railRow = (railsSrc.match(/\{ id: "trending",[\s\S]*?\},/) || [""])[0];
+    const SPIKE_WORDS = /exploding|spiking|spike|trending now|everyone'?s searching|blowing up/i;
+    const copy = railRow.replace(/\/\/[^\n]*/g, " ");
+    const claimsSpike = SPIKE_WORDS.test(copy);
+    ok(!claimsSpike || gatesOnSpike,
+      "the trending rail's COPY claims a spike (exploding/spiking/everyone's searching) while its selector does not gate on the real trend flag — that is the one unfalsifiable claim on the page. Either gate on p.trending or rename the rail to what the signal supports.");
+    ok(gatesOnSpike || /reviews/.test(cfg),
+      "the trending rail gates on neither the trend flag nor review volume — whatever it is selecting on, it is not a demand signal this repo can evidence");
+  }
   ok(/MIN_CARDS/.test(railsData) || /MIN_CARDS/.test(railSelect),
     "a rail that cannot fill honestly must ship empty — that floor is what stops a demand claim with no demand behind it");
   ok(/ships EMPTY/.test(railSelect) || /ship the rail with no cards/.test(railsData),

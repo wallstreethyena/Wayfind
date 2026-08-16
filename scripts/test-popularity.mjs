@@ -19,7 +19,26 @@ ok(bestMatch(place, [{ name: "Turtle Beach", lat: 27.22, lng: -82.51 }]) === nul
 ok(CONFIDENCE_FLOOR >= 0.5, "confidence floor is real");
 
 // routing
-ok(sourcesFor("food").includes("yelp") && !sourcesFor("food").includes("wikipedia"), "food -> yelp, not wikipedia");
+// v8.6 — RE-POINTED, NOT RELAXED. This asserted that food NEVER routes to
+// wikipedia. The intent was right — wikipedia does not cover most restaurants,
+// so it must not be food's primary source and must not be allowed to look like
+// coverage. The effect was not: combined with Yelp, Foursquare and TripAdvisor
+// having never written a single row (measured: all 164 rows in
+// wf_place_popularity are wikipedia), it made food and nightlife STRUCTURALLY
+// incapable of any popularity coverage at all, which is why the trending rail
+// could never fill from two of its three pools.
+//
+// wikipedia is now food's LAST source, never its first. It will simply miss on
+// most restaurants — a miss is a null row, not a wrong one — while a landmark
+// restaurant that genuinely has an article can finally be measured. The
+// ordering assertion is what actually encodes the original intent, so that is
+// what is asserted now.
+{
+  const food = sourcesFor("food");
+  ok(food[0] === "yelp", "food's PRIMARY source is still yelp — wikipedia must never lead a category it barely covers");
+  ok(food.indexOf("wikipedia") === food.length - 1, "…and wikipedia is food's LAST resort, not a peer of the real sources");
+  ok(sourcesFor("attractions")[0] === "wikipedia", "attractions still leads with wikipedia, which genuinely covers landmarks");
+}
 ok(sourcesFor("beach").includes("wikipedia") && sourcesFor("attractions").includes("wikipedia"), "attractions/beaches -> wikipedia");
 ok(sourcesFor("shopping").includes("foursquare"), "everything -> foursquare");
 ok(SOURCE_CAPS.tripadvisor <= 25, "tripadvisor per-run cap respects the 5k/month tier");

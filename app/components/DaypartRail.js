@@ -334,7 +334,7 @@ export default function DaypartRail({
             <div className="wf8-thin">
               <p>
                 {thinSet.has(selRail.id)
-                  ? `Nothing${near} clears this bar right now — ${selRail.axis}. Padding it with places that don't belong would make the rail worthless.`
+                  ? `Nothing${near} clears this bar right now — ${selRail.emptyWhy || "nothing nearby clears the bar"}. Padding it with places that don't belong would make the rail worthless.`
                   : `We're still gathering places for this${near}.`}
               </p>
               <a href={railHref(selRail, shown.region, shown.citySlug) || "/"}>{selRail.cta} →</a>

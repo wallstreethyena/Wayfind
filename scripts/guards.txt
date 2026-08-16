@@ -393,6 +393,9 @@ node scripts/test-dayparts.mjs
 node scripts/check-score-badge-honesty.mjs
 # No job reports success while doing nothing. Eight crons answered 200 on a
 # total no-op, which is how three days of dead-key silence read as healthy.
+# A rail empty from a BROKEN CALL must not look like one empty from scarcity.
+# Three rails shipped that way in three sessions.
+node scripts/check-rail-source-reachable.mjs
 node scripts/check-cron-honesty.mjs
 node scripts/check-one-nav-per-screen.mjs
 node scripts/check-rail-routes.mjs

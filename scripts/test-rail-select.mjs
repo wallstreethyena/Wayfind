@@ -117,7 +117,27 @@ ok(namesOf("family").includes("Big Cat Habitat"), "family finds the zoo");
 ok(!namesOf("family").includes("Bamboo Island Bar"), "family never reaches nightlife");
 ok(namesOf("best").includes("Siesta Key Beach") && namesOf("best").includes("Beach House Waterfront"),
   "the best-around-you rail really does see every pool");
-eq(selectFor("trending", pools).length, 0, "nothing is trending in the fixture, so the rail is empty — not padded");
+// v8.6 — THE SIGNAL CHANGED, SO THE FIXTURE EXPECTATION CHANGED WITH IT.
+// This asserted 0 because nothing in the fixture carried the `trending` flag.
+// That assertion was GREEN THROUGHOUT the three sessions the rail shipped empty
+// on the live homepage — it encoded empty-as-correct on synthetic data and
+// could never see that the real source (wf_place_popularity: 164 rows, all
+// wikipedia) made the flag unreachable for two of the rail's three pools.
+//
+// The rail now selects on review VOLUME >= 250 (owner option b, renamed to
+// "Most Talked About Near You" because volume is not velocity). The fixture
+// carries reviews of 90/120/210/320, so exactly the 320-review rows qualify —
+// which is what makes this a real assertion rather than a restated constant.
+// The rules the old line lived beside are untouched: empty-not-padded and
+// thin-reporting are both still asserted below, they just now describe a rail
+// that CAN fill.
+{
+  const picked = selectFor("trending", pools);
+  const under = picked.filter((p) => Number(p.reviews) < 250);
+  eq(under.length, 0, "the most-talked-about rail admits nothing under the 250-review meaningfulness floor");
+  ok(picked.every((p, i, a) => i === 0 || Number(a[i - 1].reviews) >= Number(p.reviews)),
+    "…and orders by review volume, most-talked-about first");
+}
 
 // spread: a DAY, not eight of one thing
 {
@@ -127,7 +147,10 @@ eq(selectFor("trending", pools).length, 0, "nothing is trending in the fixture, 
 
 // ── the fill rules ──────────────────────────────────────────────────────────
 const { places, thin } = fillRails(pools);
-ok(thin.includes("trending"), "a rail that cannot fill honestly is reported thin");
+// Still the rule, just demonstrated on a rail this fixture genuinely cannot
+// fill. `locals` needs a curated creator video keyed on city and the fixture
+// has none, so it is the honest example now that trending can fill.
+ok(thin.includes("locals"), "a rail that cannot fill honestly is reported thin");
 for (const id of thin) eq(places[id].length, 0, `${id}: thin means EMPTY, never padded`);
 for (const [id, rows] of Object.entries(places)) {
   ok(rows.length === 0 || rows.length >= MIN_CARDS, `${id}: at least MIN_CARDS or none`);
@@ -145,11 +168,11 @@ for (const [id, rows] of Object.entries(places)) {
   // exact set means a selector that silently stops matching shows up here as a
   // named rail rather than a count that still clears a bar.
   eq(leads.map(([id]) => id).sort().join(","),
-    "beach,best,break,datenight,drive,eat,events,family,gems,season,today,tonight",
+    "beach,best,break,datenight,drive,eat,events,family,gems,season,today,tonight,trending",
     "exactly the rails this fixture can fill honestly, and no others");
   // locals needs a real creator video and trending needs real demand data.
   // Neither can be faked into a fixture, and neither may be faked onto a page.
-  eq(thin.sort().join(","), "locals,trending",
+  eq(thin.sort().join(","), "locals",
     "and exactly these cannot — each for its own stated reason");
 }
 // Determinism: same pools in, same lists out. The route is ISR-cached, so a
