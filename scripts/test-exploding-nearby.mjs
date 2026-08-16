@@ -248,18 +248,42 @@ ok(ui.includes("Trend momentum selects experiences. Wayfind Score ranks places. 
   "the score/trend boundary and no-paid-placement promise are visible beside the recommendations");
 
 const home = read("app/components/BestNearby.js");
-ok(home.indexOf("<ExplodingNearby") < home.indexOf('data-rail="top40"'), "Exploding Near You is the first answer in the existing discovery accordion");
-ok(/label: "Exploding Trends Near You"[^}]*emoji: "🔥"/.test(home) && !/label: "🔥 Exploding Trends Near You"/.test(home),
-  "the Exploding header tile renders one real fire emoji without duplicating it in the title");
-ok(/uniqueRecommendations\(top40, explodingClaimed, TOP40_MAX\)/.test(home) &&
+// ── RE-POINTED 2026-08-16. WHAT MOVED: the section was REMOVED from the
+// homepage. Everything this file asserts about lib/explodingNearby.js, the
+// API route and the component itself is untouched and still runs — that
+// pipeline is intact and correct. What changed is only that BestNearby.js no
+// longer MOUNTS it, because no trend snapshot has ever been imported
+// (EXPLODING_TOPICS_IMPORT_CADENCE set in no environment; wf_trend_snapshots,
+// wf_trend_topics and wf_trend_place_matches all zero rows), so every render
+// produced "Trend recommendations are temporarily unavailable" in the first
+// slot of the page, opened by default.
+//
+// The three assertions below become CONDITIONAL rather than deleted: if the
+// section is ever mounted again it must still lead, must still carry exactly
+// one fire emoji, and must still head the venue-claim chain. Deleting them
+// would let a future restore reintroduce the duplicated-emoji header and the
+// broken claim order that they were written for.
+const expMounted = /<ExplodingNearby[\s/>]/.test(home);
+ok(!expMounted || home.indexOf("<ExplodingNearby") < home.indexOf('data-rail="top40"'),
+  "if mounted, Exploding Near You is still the first answer in the discovery accordion");
+ok(!expMounted || (/label: "Exploding Trends Near You"[^}]*emoji: "🔥"/.test(home) && !/label: "🔥 Exploding Trends Near You"/.test(home)),
+  "if mounted, the Exploding header tile renders one real fire emoji without duplicating it in the title");
+// The CHAIN itself is not conditional — it must hold either way. Only its head
+// moved: with Exploding gone the Top 40 claims first and nothing precedes it.
+ok(/uniqueRecommendations\(top40, (?:\[\]|[A-Za-z_$][\w$]*), TOP40_MAX\)/.test(home) &&
   /uniqueRecommendations\(rows\.eat, eatClaimedBefore, 10\)/.test(home) &&
   /excludePlaceIds=\{excludeBySection\[sdef\.id\] \|\| \[\]\}/.test(home),
-  "the homepage wires Exploding → Best → later menus as one ordered venue-claim chain");
+  "the homepage still wires the answer → later menus as one ordered venue-claim chain, whatever sits at its head");
 for (const copy of ["The Best Around You", "Actually Worth Eating", "What Should We Do Today?", "Places You'd Never Find", "Locals Know", "Events Near You", "Tonight's Move", "Worth the Drive"]) {
   ok(home.includes(copy), `the renamed hierarchy includes ${copy}`);
 }
 const collapse = read("lib/railCollapse.js");
-ok(/DEFAULT_COLLAPSED_RAILS\s*=\s*\["best", "eat", "quickbite", "todo"/.test(collapse), "everything below Exploding Near You is collapsed for a first-time visitor");
+// RE-POINTED with the same move: "best" LEFT the collapsed list, because with
+// Exploding removed it is the only thing a new visitor lands on already open.
+// Pinning the literal array head would have gone green on a homepage where
+// every single section starts closed.
+ok(/DEFAULT_COLLAPSED_RAILS\s*=\s*\["eat", "quickbite", "todo"/.test(collapse),
+  "everything below the leading answer is collapsed for a first-time visitor, and the answer itself is not in the list");
 ok(!/DEFAULT_COLLAPSED_RAILS[^;]*"exploding"/.test(collapse), "Exploding Near You is expanded by default");
 
 for (const key of ["EXPLODING_SECTION_IMPRESSION", "PRIMARY_TREND_CARD_CLICK", "SIGNUP_AFTER_INTERACTION", "RETURN_VISIT"]) {
