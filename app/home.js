@@ -366,7 +366,16 @@ const CHIP = {
   weight: 700,
 };
 
-function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true, compact }) {
+const WF_DESTINATIONS = [
+  { id: "home", icon: "home", label: "Home", href: "/" },
+  { id: "events", icon: "events", label: "Events", href: "/events" },
+  { id: "coupons", icon: "coupons", label: "Coupons", href: "/coupons" },
+  { id: "map", icon: "map", label: "Map", href: "/map" },
+  { id: "saved", icon: "saved", label: "Favorites", href: "/favorites" },
+  { id: "itinerary", icon: "itinerary", label: "Itinerary", href: "/itinerary" },
+];
+
+function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true, compact, nav }) {
   const subs = showSubs && activeCat ? (SUBFILTERS[activeCat] || []) : [];
   // Hooks run BEFORE the compact early-return below — a conditional hook here
   // would break the map screen the moment a sub-filter opened.
@@ -463,6 +472,18 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
             </div>
           </>
         ) : null}
+      </div>
+    );
+  }
+  if (nav) {
+    return (
+      <div className="wf-navtabs" role="group" aria-label="Browse categories">
+        {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
+          <button key={m.id} type="button" className={on ? "wf-navtab is-on" : "wf-navtab"} aria-current={on ? "page" : undefined} onClick={() => tapCat(m.id, m.label)}>
+            <NavIcon name={m.id} color={on ? "#FFFFFF" : "#8A96AE"} size={17} strokeWidth={1.7} />
+            <span>{m.label}</span>
+          </button>
+        ); })}
       </div>
     );
   }
@@ -3455,6 +3476,17 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const [screen, setScreen] = useState("suggested");
   const [cat, setCat] = useState(MAP_DEFAULT_CATEGORY);
   const [wxOpen, setWxOpen] = useState(false); // header weather forecast wheel
+  // v8.2 — the lab's Shortcuts panel (body.scopen .scpanel). The shortcut row
+  // is the SAME <DiscoveryMenu> that used to sit in the feed; the nav item
+  // just decides whether it is on screen.
+  const [navShortcuts, setNavShortcuts] = useState(false);
+  // The search scope. It selects the BROWSE CATEGORY the page is showing —
+  // the same state the six tabs beside it write — so the control does exactly
+  // what the tabs do, in the compact shape a phone can hold. It is not given a
+  // second, invented meaning: submitSearch takes a query string and nothing
+  // else, and a dropdown that claimed to narrow a search it cannot reach would
+  // be the mismatched control AGENTS.md §12 bans.
+  const [scopeOpen, setScopeOpen] = useState(false);
   const GIVEAWAY = { start: new Date(2026, 6, 3), end: new Date(2026, 9, 31, 23, 59, 59) };
   const [gwPop, setGwPop] = useState(false); // v4.28: giveaway is a timed popup, not a feed card
   // v5.37 prompt coordinator (July 2026 audit, Phase 5). One interruptive
@@ -8203,6 +8235,68 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     introOpen, setIntroOpen, introSel, setIntroSel, introTriggerRef,
   };
 
+  // v8.2 — ONE destination handler for BOTH nav bars. The bottom bar owned this
+  // body inline; the top row needs the identical behaviour, and two copies of
+  // "reset every open sheet, then switch screen, then scroll to top" is how one
+  // of them ends up forgetting a setter and leaving a stale list open behind
+  // the new screen.
+  const goDestination = (id, active) => {
+    if (id === "home" && active) { setBrowseCat(null); setMoodPick(null); setSub("all"); }
+    setActiveList(null); setSysFolder(null); setListMenu(null); setRenamingList(null);
+    setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); setMapListOverride(null);
+    setNavShortcuts(false);
+    if (id === "home") { openSuggested(); } else { setScreen(id); }
+    try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); window.scrollTo(0, 0); } catch (e) {}
+  };
+
+  // v8.2 — THE RAIL BAND, as one named expression, because it no longer renders
+  // inside .wf-col-main and a band that spans the page should not be indented
+  // three levels into a column it has left. Every prop is unchanged and every
+  // prop is still server data — test-first-screen reads exactly this block to
+  // prove it.
+  const railMenuBand = railMenu ? (
+    <div className="wf-fullbleed">
+      <DaypartRail
+        rails={RAILS}
+        places={railMenu.places}
+        thin={railMenu.thin}
+        guides={railMenu.guides}
+        region={railMenu.region}
+        citySlug={railMenu.citySlug}
+        cityLabel={railMenu.cityLabel}
+        lat={railMenu.lat}
+        lng={railMenu.lng}
+        initialDaypart={railMenu.daypart}
+        center={center}
+      />
+    </div>
+  ) : null;
+
+  // Which cuisine sheet serves this location, if any. Null outside ~75mi of
+  // Orlando / Tampa / Sarasota, and null is the right answer there. Hoisted
+  // with discoveryMenu, which is its only reader.
+  const eatMetro = center ? cuisineMetroFor(center.lat, center.lng) : null;
+
+  // v8.2 — DECLARED HERE so the header can render it. The Shortcuts row
+  // moved into the nav (public/lab/menu.html: body.scopen .scpanel), and the
+  // header is built well above the feed. Same component, same handlers, still
+  // exactly one render site — see check-home-answer-first, which counts them.
+  const discoveryMenu = (
+    <DiscoveryMenu
+      locName={locName}
+      onBest={() => { try { logEvent("discovery_tile", null, { tile: "Best of " + (locName ? locName.split(",")[0] : "your area"), chip: "Top" }); } catch (e) {} goIntent("/best-of"); }}
+      onGems={() => { try { logEvent("discovery_tile", null, { tile: "Hidden gems", chip: "Hidden" }); } catch (e) {} goIntent("/hidden-gems"); }}
+      onFamily={() => { try { logEvent("discovery_tile", null, { tile: "Family favorites", chip: "Family" }); } catch (e) {} goIntent("/family"); }}
+      eatMetro={eatMetro}
+      onEat={() => { try { logEvent("discovery_tile", null, { tile: "Pick your mood", chip: "Cravings", metro: eatMetro }); } catch (e) {} goIntent("/eat/" + eatMetro); }}
+      onMood={() => { try { logEvent("discovery_tile", null, { tile: "What are you feeling?", chip: "Mood" }); } catch (e) {} setIntroSel([]); introTriggerRef.current = { trigger: "menu", visible_ms: null, attempt: 0 }; setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "discovery_menu" }); } catch (e) {} }}
+      onTonight={() => { try { logEvent("discovery_tile", null, { tile: "Perfect for tonight", chip: "Tonight" }); } catch (e) {} goIntent("/tonight"); }}
+      onDrive={() => { try { logEvent("discovery_tile", null, { tile: "Worth the drive", chip: "Drive" }); } catch (e) {} goIntent("/worth-the-drive"); }}
+      onBudget={() => { try { logEvent("discovery_tile", null, { tile: "Big fun, small budget", chip: "Bargains" }); } catch (e) {} goIntent("/budget"); }}
+      onSurprise={() => { try { logEvent("discovery_tile", null, { tile: "Surprise me", chip: "Surprise" }); } catch (e) {} setMenuSheet("pick"); }}
+    />
+  );
+
   return (
     <div style={shell}>
     <div className="wf-shell" style={{ ...wrap, maxWidth: undefined }}>
@@ -8268,6 +8362,21 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: ".1px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{locName}</span>
           </div>
         )}
+        {/* v8.2 ROW A — THE SIX CATEGORIES, IN THE HEADER (public/lab/menu.html
+            lines 43–114, the `.tabs` strip). They used to be the BROWSE block in
+            the feed; the lab has no BROWSE block, it has tabs. Same component,
+            same CATEGORY_TILES, same pickBrowse — see the `nav` branch in
+            CategoryMenu.
+
+            THE LAB PUTS THE CITY ON THIS ROW AND WE DO NOT, deliberately. The
+            lab is a 1512px mock; check-home-location pins the location to its
+            own full-width line off a 390px production measurement — the top row
+            has 362px, of which a fixed sprite and two flex-shrink:0 controls
+            take all but 23px, and "St. Petersburg, FL" needs 118px. So row A is
+            two lines on a phone and reads as one band on a desk. */}
+        {screen !== "map" && (
+          <CategoryMenu nav activeCat={browseCat} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "nav" }); } catch (e) {} pickBrowse(id); }} />
+        )}
         {wxOpen && weather && Array.isArray(weather.hourly) && weather.hourly.length > 0 && (
           <div style={{ marginTop: -6, marginBottom: 12, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.panel} 62%)`, border: "none", borderRadius: "0 0 18px 18px", padding: "12px 8px 14px", boxShadow: "0 12px 26px rgba(0,0,0,.4)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 8px 10px" }}>
@@ -8296,7 +8405,32 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         )}
         {/* map search moved onto the map as a floating control (see map overlay) */}
         {(screen !== "map" || mapSearchOpen) && (
-        <div className="wf-search-row" style={{ display: "flex", gap: 0, position: "relative" }}>
+        <div className={"wf-search-row" + (screen !== "map" ? " has-scope" : "")} style={{ display: "flex", gap: 0, position: "relative" }}>
+          {/* v8.2 ROW B — THE SCOPE ("All \u2228" in the lab). It writes
+              browseCat, the SAME state the six tabs beside it write, so it is
+              the tab strip in the shape a phone can hold — never a second
+              category system. It is deliberately NOT sold as narrowing the text
+              search: submitSearch() takes a query string and has no category
+              parameter to receive, and a control that claimed a filter it cannot
+              reach is the mismatched-CTA failure AGENTS.md §12 bans. */}
+          {screen !== "map" && (
+            <div className="wf-scope-wrap">
+              <button type="button" className="wf-scope" aria-haspopup="listbox" aria-expanded={scopeOpen} onClick={() => setScopeOpen((v) => !v)} title="Browse scope">
+                <span>{browseCat ? ((Cats.CATEGORY_TILES.find((t) => t.id === browseCat) || {}).label || "All") : "All"}</span>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+              </button>
+              {scopeOpen && (
+                <ul className="wf-scope-menu" role="listbox" aria-label="Browse scope">
+                  {[{ id: null, label: "All" }, ...Cats.CATEGORY_TILES].map((t) => (
+                    <li key={t.id || "all"} role="option" aria-selected={(browseCat || null) === t.id}
+                        onMouseDown={(e) => { e.preventDefault(); setScopeOpen(false); if (t.id === null) { setBrowseCat(null); setMoodPick(null); setSub("all"); } else if (browseCat !== t.id) { pickBrowse(t.id); } }}>
+                      {t.label}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
           <div style={{ flex: 1, position: "relative" }}>
             <span className="wf-search-icon" style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", opacity: 0.9, display: "inline-flex", zIndex: 1 }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.2 4.2" /></svg></span>
             {/* v5.63 (audit P4): a real combobox — the input owns the listbox
@@ -8375,6 +8509,45 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           {/* The once-ever flag gates the AUTO-show only. This button opens the
               sheet on demand, forever, and must never consult introSeen(). */}
         </div>
+        )}
+        {/* v8.2 ROW C — THE DESTINATIONS, AT THE TOP (public/lab/menu.html
+            `.dests`). The same six targets the bottom bar has always carried,
+            mapped from the one WF_DESTINATIONS list so the two bars cannot
+            disagree, plus the Shortcuts opener that reveals the shortcut row as
+            a panel.
+
+            THE BOTTOM BAR STAYS (owner's call, 2026-08-15). Most Wayfind traffic
+            is mobile and thumb-reach navigation is what those readers already
+            use; a top row that scrolls out of the viewport is not a replacement
+            for it. So this row is additive on a phone and is the primary nav on
+            a desk, where there is no thumb and the bottom bar is a floating pill
+            in the corner of the eye. */}
+        {screen !== "map" && (
+          <nav className="wf-dests" aria-label="Destinations">
+            <button type="button" className={"wf-dest wf-dest-opener" + (navShortcuts ? " is-on" : "")}
+                    aria-expanded={navShortcuts} aria-controls="wf-scpanel"
+                    onClick={() => setNavShortcuts((v) => !v)}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+              <span>Shortcuts</span>
+            </button>
+            {WF_DESTINATIONS.map((d) => {
+              const active = (d.id === "home" && (screen === "suggested" || screen === "explore" || screen === "experience" || screen === "surprise")) || d.id === screen;
+              return (
+                <a key={d.id} className={"wf-dest" + (active ? " is-on" : "")} href={d.href} aria-current={active ? "page" : undefined}
+                   onClick={(e) => { e.preventDefault(); goDestination(d.id, active); }}>
+                  <NavIcon name={d.icon} color="currentColor" size={17} strokeWidth={1.8} />
+                  <span>{d.label}</span>
+                </a>
+              );
+            })}
+          </nav>
+        )}
+        {/* The shortcut row, as a panel (public/lab/menu.html: body.scopen
+            .scpanel). This is the SAME <DiscoveryMenu> that used to sit in the
+            feed under a "Shortcuts" heading — it did not get rebuilt up here,
+            it got a door instead of a permanent seat. */}
+        {screen !== "map" && navShortcuts && (
+          <div className="wf-scpanel" id="wf-scpanel">{discoveryMenu}</div>
         )}
         {/* v6.56 (owner): personalization no longer appears in the home feed.
             The consent prompt, the "taste active" expander and the "turn it
@@ -8584,9 +8757,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           const homeOpenRank = (p) => !p ? 4 : p.openNow === true ? 0 : p.openNow == null ? 1 : (p.nextOpen && p.nextOpen.today) ? 2 : 3;
           const homeBaseSorted = sortBy === "near" ? [...feedList].sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12)) : [...feedList];
           const homeFeed = homeBaseSorted.sort((a, b) => homeOpenRank(a) - homeOpenRank(b));
-          // Which cuisine sheet serves this location, if any. Null outside ~75mi
-          // of Orlando / Tampa / Sarasota, and null is the right answer there.
-          const eatMetro = center ? cuisineMetroFor(center.lat, center.lng) : null;
           // v7.06 — THE EVENTS RAIL, built ONCE and handed to the menu (owner,
           // 2026-08-09: "i also want to add events into this list"). Same
           // pipeline it has always run — dedupeEvents, the owner's
@@ -8643,24 +8813,22 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               </>
             );
           })();
-          const discoveryMenu = (
-            <DiscoveryMenu
-              locName={locName}
-              onBest={() => { try { logEvent("discovery_tile", null, { tile: "Best of " + (locName ? locName.split(",")[0] : "your area"), chip: "Top" }); } catch (e) {} goIntent("/best-of"); }}
-              onGems={() => { try { logEvent("discovery_tile", null, { tile: "Hidden gems", chip: "Hidden" }); } catch (e) {} goIntent("/hidden-gems"); }}
-              onFamily={() => { try { logEvent("discovery_tile", null, { tile: "Family favorites", chip: "Family" }); } catch (e) {} goIntent("/family"); }}
-              eatMetro={eatMetro}
-              onEat={() => { try { logEvent("discovery_tile", null, { tile: "Pick your mood", chip: "Cravings", metro: eatMetro }); } catch (e) {} goIntent("/eat/" + eatMetro); }}
-              onMood={() => { try { logEvent("discovery_tile", null, { tile: "What are you feeling?", chip: "Mood" }); } catch (e) {} setIntroSel([]); introTriggerRef.current = { trigger: "menu", visible_ms: null, attempt: 0 }; setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "discovery_menu" }); } catch (e) {} }}
-              onTonight={() => { try { logEvent("discovery_tile", null, { tile: "Perfect for tonight", chip: "Tonight" }); } catch (e) {} goIntent("/tonight"); }}
-              onDrive={() => { try { logEvent("discovery_tile", null, { tile: "Worth the drive", chip: "Drive" }); } catch (e) {} goIntent("/worth-the-drive"); }}
-              onBudget={() => { try { logEvent("discovery_tile", null, { tile: "Big fun, small budget", chip: "Bargains" }); } catch (e) {} goIntent("/budget"); }}
-              onSurprise={() => { try { logEvent("discovery_tile", null, { tile: "Surprise me", chip: "Surprise" }); } catch (e) {} setMenuSheet("pick"); }}
-            />
-          );
           return (
+            <>
+            {/* v8.2 — THE BAND RUNS EDGE TO EDGE (owner, 2026-08-15; lab:
+                .railsec / .hero / .menusec are all full-bleed while .wrap caps
+                the CONTENT inside them at 1720px).
+
+                It moved OUT of .wf-col-main, which caps at the feed measure —
+                that cap is what clipped the rail mid-card and made a 15-card
+                deck read as a broken row. The rail already had .wf8-in doing
+                exactly the lab's job, so nothing inside it changed: it just
+                stopped being nested in a column narrower than itself.
+
+                Still the FIRST thing in the feed, so the rail leads the page
+                exactly as it did in v8 — see check-home-answer-first. */}
+            {railMenuBand}
             <div className="wf-cols">
-              {/* LEFT column on desktop: intent chips + hooks + feed */}
               <div className="wf-col-main">
               {/* v6.62 (2026-08-08, owner: "add this to the top of the page"),
                   REVERSES v6.97's "MOVED BELOW THE ANSWER" call below. The six
@@ -8695,23 +8863,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   railMenu is server-ranked at regeneration (app/page.js ->
                   lib/railsData.js railMenuData). Renders nothing when the
                   server had no data, so this can never be a blank band. */}
-              {railMenu ? (
-                <DaypartRail
-                  rails={RAILS}
-                  places={railMenu.places}
-                  thin={railMenu.thin}
-                  guides={railMenu.guides}
-                  region={railMenu.region}
-                  citySlug={railMenu.citySlug}
-                  cityLabel={railMenu.cityLabel}
-                  lat={railMenu.lat}
-                  lng={railMenu.lng}
-                  initialDaypart={railMenu.daypart}
-                  center={center}
-                />
-              ) : null}
-
-              <CategoryMenu tight activeCat={browseCat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "home" }); } catch (e) {} pickBrowse(id); }} onSub={(v) => setSub(v)} />
 
               {/* v6.65 (owner, 2026-08-08: "the menu did not go to the top like
                   i asked you to"). THE DISCOVERY RAIL NOW LEADS TOO.
@@ -8738,7 +8889,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   moved above it is navigation — two rows of controls a reader
                   can skip past in one flick — not another surface competing for
                   the answer. Position asserted by check-home-answer-first.mjs. */}
-              {!browseCat && discoveryMenu}
 
               {/* Home feed reorder (owner 2026-07-17): events above the fold, then Explore near you, then everything else. Pure layout move — no ranking/data change. */}
               {/* LOADING: events not back yet. Reserves the rail's exact
@@ -8766,6 +8916,35 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               
                   Position asserted by scripts/check-home-answer-first.mjs. */}
               {!browseCat && <BestNearby center={center} weather={weather} events={foryouEvents || []} videoPlaces={videoPlaces} onFindSimilar={(q) => { try { submitSearch(q); } catch (e) {} }} city={locName} onOpenPlace={(p) => openDetail(p, "bestnearby")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} isSaved={isSaved} liked={liked} disliked={disliked} onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(p) => { try { addShared(p); giveawayMark(p.id); askShareIntent({ name: p.name, city: locName, id: p.id, kind: placeKinds(p), onPlain: () => shareLink(p.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(p.id)), () => showToast("Link copied")), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", p, { kind: "invite", from: "rail" }); } catch (e2) {} }) }); } catch (er) {} }} onExperience={(key, p) => { try { key === "creatorvideo" ? openDetail(p, "creatorfinds") : openExperience(key); } catch (er) {} }} eventsSlot={eventsRailSlot} creatorSlot={<CreatorFinds items={videoPlaces} byCity={socialFindByCity} center={center} bare onOpenPlace={(p) => openDetail(p, "creatorfinds")} onBrowse={() => setSocialFind({ browse: true })} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} isSaved={isSaved} liked={liked} disliked={disliked} onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(p) => { try { addShared(p); giveawayMark(p.id); askShareIntent({ name: p.name, city: locName, id: p.id, kind: placeKinds(p), onPlain: () => shareLink(p.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(p.id)), () => showToast("Link copied")), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", p, { kind: "invite", from: "rail" }); } catch (e2) {} }) }); } catch (er) {} }} onExperience={(key, p) => { try { key === "creatorvideo" ? openDetail(p, "creatorfinds") : openExperience(key); } catch (er) {} }} />} />}
+              {/* v8.2 — THE ASIDE IS IN THE FEED NOW (owner, 2026-08-15: "it
+                  doesn't have that thing on the right hand side… It looks
+                  horrible", then: weather and deals "move below the rail").
+
+                  NOT DELETED, MOVED. Deals is the money surface on the app's
+                  highest-traffic screen and retiring it to make a column
+                  disappear would have been a revenue change dressed as a layout
+                  one. It renders full width here instead, two cards abreast
+                  once there is room (see .wf-col-side in css.js).
+
+                  BELOW THE ANSWER, not above it. The lab puts Deals first in
+                  <main>, but the lab has no bounce data behind it and v6.58
+                  does: 84% of 373 visitors left "/" in 30 days and the median
+                  single-page session was 10 seconds. A commerce block above the
+                  ranked list is exactly what that measurement ruled against, so
+                  the answer still leads and the deals sit directly under it.
+
+                  STILL UNCONDITIONAL. It keeps .wf-col-side and it is never
+                  `isDesktop && <HomeAside/>` — that is the banned pattern behind
+                  the 0.4938 CLS incident (test-layout-shift §5). All that
+                  changed is that the class now describes a block in the flow
+                  rather than a sticky second column. */}
+              <HomeAside
+                city={locName}
+                weather={weather}
+                take={wayfindWeatherTake(weather)}
+                center={center}
+                onCoupons={(dealId) => { try { logEvent("aside_deal_open", null, { deal: dealId || null }); } catch (e) {} setScreen("coupons"); }}
+              />
               {/* v7.05 — the creator row MOVED INSIDE the menu (owner, 2026-08-09:
                   "we would pretty much be adding to the existing menu we have and just
                   reorganizing"). It is section 5 of eight, so it is now passed to
@@ -9168,22 +9347,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               </div>
               <div style={{ height: 20 }} />
               </div>
-              {/* RIGHT column on desktop (v7.29). Rendered ALWAYS and hidden by
-                  CSS below WF_WIDE_BP — never `isDesktop && ...`, which is the
-                  banned pattern that produced the 0.4938 CLS incident
-                  (test-layout-shift §5, and the note at the top of css.js).
-                  Placed after wf-col-main in SOURCE order so every
-                  check-home-answer-first offset assertion still reads the same
-                  feed; the grid decides where it lands on the screen. */}
-              <HomeAside
-                city={locName}
-                weather={weather}
-                take={wayfindWeatherTake(weather)}
-                center={center}
-                onCoupons={(dealId) => { try { logEvent("aside_deal_open", null, { deal: dealId || null }); } catch (e) {} setScreen("coupons"); }}
-                onRanking={() => { try { logEvent("aside_ranking_open", null, {}); } catch (e) {} goIntent("/how-wayfind-ranks"); }}
-              />
             </div>
+            </>
           );
         })()}
 
@@ -9287,10 +9452,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           (maxWidth 480). Only the inner list scrolls; the nav never moves with the
           page. The scroll container below reserves matching bottom padding. */}
       <nav className="wf-bottom-nav" aria-label="Primary navigation" style={{ position: "fixed", bottom: 0, left: 0, right: 0, maxWidth: 480, margin: "0 auto", zIndex: 20, background: C.panel, borderTop: `1px solid ${C.border}`, display: "flex", paddingBottom: "env(safe-area-inset-bottom)" }}>
-        {[{ id: "home", icon: "home", label: "Home" }, { id: "events", icon: "events", label: "Events" }, { id: "coupons", icon: "coupons", label: "Coupons" }, { id: "map", icon: "map", label: "Map" }, { id: "saved", icon: "saved", label: "Favorites" }, { id: "itinerary", icon: "itinerary", label: "Itinerary" }].map((s) => {
+        {/* v8.2: the same WF_DESTINATIONS the top row maps, so the two bars
+            cannot drift. The bar itself is unchanged — owner's call, 2026-08-15:
+            it stays on mobile. */}
+        {WF_DESTINATIONS.map((s) => {
           const active = (s.id === "home" && (screen === "suggested" || screen === "explore" || screen === "experience" || screen === "surprise")) || s.id === screen;
           return (
-          <a className={`wf-bottom-nav-item${active ? " is-active" : ""}`} key={s.id} href={{ home: "/", events: "/events", coupons: "/coupons", map: "/map", saved: "/favorites", itinerary: "/itinerary" }[s.id] || "/"} aria-label={s.label} aria-current={active ? "page" : undefined} onClick={(e) => { e.preventDefault(); if (s.id === "home" && active) { setBrowseCat(null); setMoodPick(null); setSub("all"); } setActiveList(null); setSysFolder(null); setListMenu(null); setRenamingList(null); setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); setMapListOverride(null); if (s.id === "home") { openSuggested(); } else { setScreen(s.id); } try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); window.scrollTo(0, 0); } catch (e) {} }} style={{ flex: 1, padding: "9px 6px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "transparent", border: "none", borderRadius: 0, cursor: "pointer", textDecoration: "none" }}>
+          <a className={`wf-bottom-nav-item${active ? " is-active" : ""}`} key={s.id} href={s.href} aria-label={s.label} aria-current={active ? "page" : undefined} onClick={(e) => { e.preventDefault(); goDestination(s.id, active); }} style={{ flex: 1, padding: "9px 6px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "transparent", border: "none", borderRadius: 0, cursor: "pointer", textDecoration: "none" }}>
             <span className="wf-bottom-nav-icon"><NavIcon name={s.icon} color={active ? C.accent : C.muted} size={25} strokeWidth={active ? 2.3 : 2} /></span>
             <span className="wf-bottom-nav-label" style={{ fontSize: 11.2, fontWeight: active ? 800 : 600, color: active ? C.accent : C.muted }}>{s.label}</span>
           </a>

@@ -135,24 +135,30 @@ const iBest = HOME.indexOf("<BestNearby center=");
 // and the reason the rail belongs in that class rather than the deck's: picking
 // a rail card drops eight ranked place cards in place, so it PRODUCES an answer
 // instead of pointing at one.
-const iRail = HOME.indexOf("<DaypartRail");
-const iCatMenu = HOME.indexOf("<CategoryMenu tight activeCat=");
+const iRail = HOME.indexOf("{railMenuBand}");
+const iCatMenu = HOME.indexOf("<CategoryMenu nav activeCat=");
 const iMenu = HOME.indexOf("const discoveryMenu");
-const iMenuUse = HOME.indexOf("{!browseCat && discoveryMenu}");
+const iMenuUse = HOME.indexOf("{discoveryMenu}");
 const iEventsSlot = HOME.indexOf("const eventsRailSlot = (() => {");
+const iTopbar = HOME.indexOf('className="wf-topbar"');
+const iScrollArea = HOME.indexOf('className="wf-scrollarea"');
 
 ok(iBest > -1, "app/home.js renders <BestNearby>");
-ok(iRail > -1, "PROBE: the rail menu is in the feed (if this is -1 the comparisons below prove nothing)");
-ok(iMenuUse > -1, "PROBE: the discovery grid is still in the feed");
+ok(iRail > -1, "PROBE: the rail band is rendered in the feed (if this is -1 the comparisons below prove nothing)");
+ok(iCatMenu > -1, "the six categories still render — as the header tab strip (<CategoryMenu nav ...>). A -1 here used to SATISFY the ordering assertion below");
+ok(iMenuUse > -1, "the shortcut row still renders — as the header's Shortcuts panel");
 ok(iEventsSlot > -1, "PROBE: the events rail is still built (it lives inside BestNearby as section nine, v7.06)");
+ok(iTopbar > -1 && iScrollArea > iTopbar, `PROBE: the header subtree is delimited (topbar ${iTopbar} < scrollarea ${iScrollArea})`);
 
-// THE NAVIGATION BAND, in the owner's order: rail, then the six categories,
-// then the discovery rail — all three above the answer.
-ok(iRail < iCatMenu, `the rail leads the navigation band (${iRail} vs ${iCatMenu})`);
-ok(iCatMenu < iBest, "the six categories sit ABOVE the answer (v6.62, owner: \"add this to the top of the page\")");
-ok(iMenuUse > 0 && iMenuUse < iBest, `the discovery rail renders ABOVE <BestNearby> (${iMenuUse} vs ${iBest}) — owner directive 2026-08-08`);
+// BOTH CONTROLS LIVE IN THE HEADER, above the entire feed at every width.
+// That is strictly stronger than the old "above <BestNearby> inside the same
+// column": nothing in the feed can now be reordered above them at all.
+ok(iCatMenu > iTopbar && iCatMenu < iScrollArea, `the six categories render inside the header (${iCatMenu}), above the whole feed — owner 2026-08-15, and it still satisfies v6.62's "add this to the top of the page"`);
+ok(iMenuUse > iTopbar && iMenuUse < iScrollArea, `the shortcut row renders inside the header (${iMenuUse}), above the whole feed — owner directive 2026-08-08 is unchanged, only its position is`);
+ok(iRail < iBest, `the rail still LEADS the feed (${iRail} vs ${iBest})`);
+ok(iCatMenu < iBest && iMenuUse < iBest, "…and both navigation controls still precede the ranked answer");
 ok((HOME.match(/discoveryMenu\}/g) || []).length === 1,
-  "the discovery rail renders from exactly ONE site — it used to sit in three mutually exclusive events-state branches, which is how it ended up below the fold in every one of them");
+  "the discovery rail renders from exactly ONE site — it used to sit in three mutually exclusive events-state branches, which is how it ended up below the fold in every one of them. v8.2: that one site is the header panel");
 
 // AND NOTHING ELSE MAY. This is the v6.58 rule stated as what it always meant:
 // a stranger meets an answer, not an advert for us. The promo deck was the
@@ -398,6 +404,65 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
      "event discovery is restored as a primary accordion row and keeps its existing all-events destination");
   ok(!/Or change the mood/.test(BN),
      "the in-section mood chips are gone — the menu IS the mood switcher now");
+
+  // ═════════════════════════════════════════════════════════════════════════
+  // v8.2 (owner, 2026-08-15) — A COLLAPSED SECTION IS NOT A MENU ROW.
+  //
+  // Nine closed rows sat under the rail listing the same nine titles the rail's
+  // own cards carry: lib/rails.js declares trending / best / eat / break /
+  // today / gems / locals / tonight / drive under those exact names. The
+  // accordion had become a second copy of the navigation directly beneath it.
+  //
+  // The SECTIONS stay, the data stays, and the reader's collapse preference
+  // stays (owner, 2026-08-09: "keep only the menus they want expanded… that way
+  // they can research it faster") — a closed section simply renders nothing
+  // instead of rendering a row that says its name.
+  // ═════════════════════════════════════════════════════════════════════════
+  ok(/style=\{\{ display: isOpen \? "block" : "none",/.test(BN),
+     "a collapsed section is display:none — otherwise the nine closed name rows come back as a second copy of the rail's own card titles");
+  // DISPLAY, NOT AN UNMOUNT. "/" is ISR-cached, so one HTML document carrying the
+  // phone default reaches every reader; a section removed from the tree could
+  // only be corrected after hydration, and every section that differed would pop
+  // in or out. That is the 0.4938 CLS shape test-layout-shift §5 exists for.
+  ok(!/\{\s*isOpen\s*&&\s*<SectionShell/.test(BN) && !/if \(!isOpen\) return null/.test(BN),
+     "the section is HIDDEN, never unmounted — an unmounted section cannot be corrected before first paint on an ISR-cached page");
+
+  // The pre-paint half. The attribute can only ever name what is CLOSED, so the
+  // open direction needs its own rule, and it must expire once React's inline
+  // styles are correct or the accordion loses its transition forever.
+  {
+    const CSS = readFileSync(path.join(REPO, "app/components/css.js"), "utf8");
+    ok(/html\[data-wf-rails~="\$\{id\}"\] \[data-wf-section="\$\{id\}"\]\{display:none!important\}/.test(CSS),
+       "the pre-paint rule hides a closed section from FIRST PAINT — without it the row flashes on screen before React can hide it");
+    ok(/:not\(\[data-wf-rails-ready\]\):not\(\[data-wf-rails~="\$\{id\}"\]\) \[data-wf-section="\$\{id\}"\]\{display:block!important\}/.test(CSS),
+       "…and the OPEN direction too, scoped so it expires — the attribute only ever names what is closed");
+    // Every id the reader can collapse needs BOTH rules, or that one section
+    // flashes. quickbite was missing from RAIL_IDS entirely until v8.2.
+    const sectionIds = [...CODE.matchAll(/\{\s*id:\s*"([a-z]+)"\s*,\s*label:/g)].map((m) => m[1]);
+    const railIds = JSON.parse((COLLAPSE.match(/RAIL_IDS = (\[[^\]]+\])/) || [, "[]"])[1]);
+    ok(sectionIds.length >= 8, `PROBE: the section ids were read (${sectionIds.length})`);
+    for (const id of sectionIds) {
+      ok(railIds.includes(id),
+         `section "${id}" is not in RAIL_IDS, so css.js emits no pre-paint rule for it and it is the one section that flashes on every load`);
+    }
+  }
+
+  // THE EMPTY FEED. With closed sections hidden rather than listed, a reader who
+  // has collapsed everything gets the rail and then a blank page. That is a real
+  // stored state, not a corner case — the note above applyCollapsedAttr in
+  // lib/railCollapse.js records the owner's OWN set as every section closed.
+  ok(/const allSectionsClosed = !\[/.test(BN),
+     "the component knows when every section is closed");
+  ok(/\.\.\.SECTIONS\.map\(\(sd\) => sd\.id\)/.test(BN),
+     "…and derives that from the SECTIONS array, so a section added next month is counted without editing a second list");
+  ok(/\{allSectionsClosed \? \(/.test(BN),
+     "…and renders something when it is true — silence under the rail is indistinguishable from a broken build");
+  ok(/You have closed every list\./.test(BN),
+     "…and says so in words rather than leaving an empty column");
+  ok(/onClick=\{restoreSections\}/.test(BN) && /const restoreSections = \(\) => \{/.test(BN),
+     "…and offers the way back. Without it, hiding closed sections makes collapsing a one-way door");
+  ok(/writeCollapsed\(\[\]\)/.test(BN),
+     "restoring PERSISTS — a reset that only touches React state is undone by the next reload, which reads storage");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -430,7 +495,10 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   // that broke four guards this week. The claim is about ORDER, not props.
   const iBestNearby = HOME.indexOf("<BestNearby ");
   const iFinds = HOME.indexOf("<CreatorFinds items=");
-  const iCats = HOME.indexOf("<CategoryMenu tight activeCat=");
+  // v8.2: the category row is the header tab strip. The ORDER claim is
+  // unchanged and still holds — the header is above the feed — so the anchor
+  // follows the code rather than the assertion being dropped.
+  const iCats = HOME.indexOf("<CategoryMenu nav activeCat=");
   ok(iBestNearby > 0 && iFinds > 0 && iCats > 0, "all three home sections render (answer, creator finds, categories)");
   ok(iBestNearby < iFinds, "the ANSWER comes before the creator row");
   ok(iCats > 0 && iCats < iBestNearby, "the six categories sit ABOVE the answer and the creator row (v6.62, owner: \"add this to the top of the page\") — the ranked list below is still unmoved relative to events/hero/discovery, see the v6.58 block above");

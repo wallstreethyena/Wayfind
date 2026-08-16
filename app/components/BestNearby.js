@@ -333,7 +333,7 @@ function SectionShell({ sdef, isOpen, first, onToggle, nodeRef, children }) {
     <div
       ref={nodeRef}
       data-wf-section={sdef.id}
-      style={{ borderTop: first ? "none" : "1px solid rgba(255,255,255,.07)", borderLeft: isOpen ? `2px solid ${C.accent}` : "2px solid transparent", background: isOpen ? "linear-gradient(90deg, rgba(249,115,22,.075), transparent 70%)" : "transparent", transition: "border-color .22s ease, background .22s ease" }}
+      style={{ display: isOpen ? "block" : "none", borderTop: first ? "none" : "1px solid rgba(255,255,255,.07)", borderLeft: isOpen ? `2px solid ${C.accent}` : "2px solid transparent", background: isOpen ? "linear-gradient(90deg, rgba(249,115,22,.075), transparent 70%)" : "transparent", transition: "border-color .22s ease, background .22s ease" }}
     >
       <button onClick={() => onToggle(sdef.id)} aria-expanded={isOpen} aria-controls={"wf-sec-" + sdef.id} className="wf-bn-focus" style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", background: "transparent", border: "none", padding: "13px 2px 13px 10px", cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
         <span style={{ width: 29, height: 29, flexShrink: 0, display: "grid", placeItems: "center", borderRadius: 9, background: isOpen ? "rgba(249,115,22,.1)" : "rgba(255,255,255,.028)" }}>
@@ -449,6 +449,21 @@ export default function BestNearby({
   // "ready" the marker is claiming.
   useEffect(() => { if (railsInited) markRailsReady(); }, [railsInited]);
   const sectionOpen = (id) => !isCollapsed(closed, id);
+  // v8.2 — THE EMPTY FEED. With closed sections hidden rather than listed,
+  // a reader who has collapsed everything gets a rail and then blank page.
+  // That is a real stored state, not a corner case: the note above
+  // applyCollapsedAttr in lib/railCollapse.js records the owner's own set as
+  // every section closed. So say what happened and offer the way back —
+  // silence here is indistinguishable from a broken build.
+  //
+  // Derived from the SECTIONS array plus the two sections that render above
+  // it, so a section added next month is counted without editing a list.
+  const restoreSections = () => {
+    closedRef.current = [];
+    setClosed([]);
+    try { writeCollapsed([]); } catch (e) {}
+    try { onLog && onLog("rails_restore_all", null, {}); } catch (e) {}
+  };
   // v7.06 (owner, 2026-08-09): "no longer place the 10 restriction on these
   // lists… the top 10 should be sufficient." The head-of-three and its
   // see-all button are GONE. They existed because a vertical row of three was
@@ -886,6 +901,10 @@ export default function BestNearby({
     { id: "events", label: "Events Near You", sub: "Stop finding out the day after: concerts, shows and one-nighters near you.", icon: "ticket", line: true, slot: "events" },
   ];
 
+  // Every section this component can render, so the count follows the array
+  // rather than a hand-kept list that goes stale the next time one is added.
+  const allSectionsClosed = !["exploding", "best", ...SECTIONS.map((sd) => sd.id)].some(sectionOpen);
+
   const trendsBody = (d) => (
     <>
       {(videoPlaces || []).length ? (
@@ -1262,6 +1281,15 @@ export default function BestNearby({
           </SectionShell>
         );
       })}
+      {allSectionsClosed ? (
+        <div style={{ padding: "18px 12px 20px", borderTop: "1px solid rgba(255,255,255,.07)" }}>
+          <div style={{ fontSize: 14.5, fontWeight: 780, color: C.text, marginBottom: 6 }}>You have closed every list.</div>
+          <p style={{ margin: "0 0 12px", fontSize: 12.5, lineHeight: 1.5, color: C.muted, maxWidth: 520 }}>
+            Nothing is lost — pick any card in the menu above and its ranked places drop in right there. Or put the lists back here.
+          </p>
+          <button type="button" className="wf-railsec-more" onClick={restoreSections}>{"Show the lists again \u2192"}</button>
+        </div>
+      ) : null}
     </section>
   );
 }
