@@ -386,6 +386,9 @@ node scripts/test-promote-decision.mjs
 #     indexable, canonical "/" — shipped from the homepage itself;
 # (b) an hour band that drops a rail instead of parking it on the right.
 node scripts/test-dayparts.mjs
+# EXACTLY ONE NAV PER SCREEN. Never two (the duplication removed 2026-08-16),
+# never zero (/map stranded by that same removal, same day).
+node scripts/check-one-nav-per-screen.mjs
 node scripts/check-rail-routes.mjs
 # (c) every rail must actually SELECT — six of fifteen once led with the same
 #     place because an unfiltered rail is a perfectly valid duplicate.

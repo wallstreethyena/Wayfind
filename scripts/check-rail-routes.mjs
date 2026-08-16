@@ -121,7 +121,10 @@ for (const r of RAILS) {
       if (!routeExists(href)) { bad(`${r.id} -> ${href}: no such route`); continue; }
       const segs = href.split("/").filter(Boolean);
       if (segs[0] === "best-beaches" && !METROS.has(segs[1])) bad(`${r.id} -> ${href}: "${segs[1]}" is not a BEACH_METROS key (200-indexable soft-404)`);
-      if ((segs[0] === "things-to-do" || segs[0] === "restaurants") && !CITIES.has(segs[1])) bad(`${r.id} -> ${href}: "${segs[1]}" is not a LANDING_CITIES key`);
+      // v8.3: /nightlife joined SEGMENTED when the homepage category tabs
+      // became real links. Same closed key set, same failure mode, so it joins
+      // the same assertion rather than getting an exemption.
+      if (["things-to-do", "restaurants", "nightlife"].includes(segs[0]) && !CITIES.has(segs[1])) bad(`${r.id} -> ${href}: "${segs[1]}" is not a LANDING_CITIES key`);
     }
   }
 }

@@ -96,17 +96,21 @@ await mkdir(OUT, { recursive: true });
       open: document.querySelector('.wf8').classList.contains('is-open'),
       menuVisible: getComputedStyle(document.querySelector('.wf8-menusec')).display !== 'none',
       sel: document.querySelector('.wf8-mhd b') && document.querySelector('.wf8-mhd b').textContent,
-      cats: document.querySelectorAll('.wf8-cat').length,
+      heading: !!document.querySelector('.wf8-mhd'),
+      closable: !!document.querySelector('.wf8-mclose'),
+      chipRow: document.querySelectorAll('.wf8-cat').length, // must stay 0 — the row the rail duplicated
       cards: document.querySelectorAll('.wf8-pcrail > .wf-place-card').length,
       thin: !!document.querySelector('.wf8-thin'),
       thinText: document.querySelector('.wf8-thin p') && document.querySelector('.wf8-thin p').textContent.slice(0, 130),
       overflowX: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
     }));
+    if (drop.chipRow !== 0) console.log('  DROP FAIL: the chip row is back (' + drop.chipRow + ' chips) — it duplicates the rail directly above it');
+    if (!drop.heading || !drop.closable) console.log('  DROP FAIL: the drop must keep its "Showing <rail>" heading and its Close control');
     console.log('  DROP', JSON.stringify(drop));
     await p.screenshot({ path: `${OUT}/v8-${tag}-drop.png` });
 
     // the guides rail
-    const blog = p.locator('.wf8-cat', { hasText: 'Local Guides' }).first();
+    const blog = p.locator('.wf8-tile[data-id="blog"]').first();
     if (await blog.count()) {
       await blog.click();
       await p.waitForTimeout(900);
