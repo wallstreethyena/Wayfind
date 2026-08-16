@@ -186,6 +186,9 @@ import { WF_LAYOUT_CSS, WF_SEARCH_CSS, WF_PLACE_CARD_CSS, WF_TASTE_CSS, WF_RAIL_
 import DaypartRail from "./components/DaypartRail";
 import { WF_RAIL_MENU_CSS } from "./components/railMenuCss";
 import { RAILS } from "../lib/rails";
+// v8.3: the category tabs resolve their city segment through the SAME builder
+// the rail tiles use, so neither can emit a bare segmented route.
+import { railHref } from "../lib/dayparts";
 import HomeAside from "./components/HomeAside";
 // v6.46 — wave 2 of the same decomposition: ~200 lines of pure owner-written
 // curation DATA (best-of / local-fave name lists, the hand-written place notes,
@@ -366,6 +369,33 @@ const CHIP = {
   weight: 700,
 };
 
+// v8.3 (owner, 2026-08-16): "when i click on the food tab the menu should
+// change the page and we should go to the food menu not stay in the same place
+// the amazon rail is on for the main page."
+//
+// THE AMAZON RAIL BELONGS TO THE HOMEPAGE; a category is a different place. So
+// a tab that has a page NAVIGATES to it, as a real crawlable <a href>.
+//
+// FOUR OF SIX HAVE A PAGE. hotels and shopping have no route anywhere in the
+// tree — no app/hotels/**, no app/shopping/**, no rewrite — so they keep the
+// in-place filter they have always had rather than being pointed at a page that
+// does not exist or, worse, at a bare segmented route (an indexable soft-404
+// canonicalised to "/", which is exactly what check-rail-routes.mjs forbids).
+// They are styled as filters, not links, so two behaviours read as deliberate.
+// Tracked for real pages in the follow-up issue; hotels is booking affiliate
+// traffic and wants one.
+//
+// `family` links to a real page that is robots:noindex by its own choice — a
+// legitimate destination for a reader, just not an SEO one. Said out loud here
+// so nobody later "fixes" it by pointing it somewhere indexable but wrong.
+const CATEGORY_ROUTE = {
+  food: "/restaurants",
+  nightlife: "/nightlife",
+  attractions: "/things-to-do",
+  family: "/family",
+  // hotels, shopping: intentionally absent — see above.
+};
+
 const WF_DESTINATIONS = [
   { id: "home", icon: "home", label: "Home", href: "/" },
   { id: "events", icon: "events", label: "Events", href: "/events" },
@@ -375,7 +405,7 @@ const WF_DESTINATIONS = [
   { id: "itinerary", icon: "itinerary", label: "Itinerary", href: "/itinerary" },
 ];
 
-function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true, compact, nav }) {
+function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true, compact, nav, navRegion, navCitySlug }) {
   const subs = showSubs && activeCat ? (SUBFILTERS[activeCat] || []) : [];
   // Hooks run BEFORE the compact early-return below — a conditional hook here
   // would break the map screen the moment a sub-filter opened.
@@ -478,12 +508,35 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
   if (nav) {
     return (
       <div className="wf-navtabs" role="group" aria-label="Browse categories">
-        {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
-          <button key={m.id} type="button" className={on ? "wf-navtab is-on" : "wf-navtab"} aria-current={on ? "page" : undefined} onClick={() => tapCat(m.id, m.label)}>
-            <NavIcon name={m.id} color={on ? "#FFFFFF" : "#8A96AE"} size={17} strokeWidth={1.7} />
-            <span>{m.label}</span>
-          </button>
-        ); })}
+        {Cats.CATEGORY_TILES.map((m) => {
+          const on = activeCat === m.id;
+          // railHref resolves the missing city segment through the SAME map the
+          // rail tiles use, so a tab can never emit a bare /restaurants and can
+          // never emit a slug outside LANDING_CITIES. cityFor() is never null,
+          // so there is no "no city" branch to get wrong.
+          const href = CATEGORY_ROUTE[m.id]
+            ? railHref({ href: CATEGORY_ROUTE[m.id] }, navRegion, navCitySlug)
+            : null;
+          const glyph = <NavIcon name={m.id} color={on ? "#FFFFFF" : "#8A96AE"} size={17} strokeWidth={1.7} />;
+          if (href) {
+            return (
+              <a key={m.id} className={on ? "wf-navtab is-on" : "wf-navtab"} href={href}
+                 onClick={() => { try { onCat && onCat(m.id, m.label, href); } catch (e) {} }}>
+                {glyph}<span>{m.label}</span>
+              </a>
+            );
+          }
+          // A FILTER, AND IT SAYS SO. Same row, same weight, but a pressed-state
+          // control rather than a link: no pointer cursor, aria-pressed instead
+          // of aria-current, and .is-filter carries the dotted underline. Two
+          // tabs behaving differently has to read as deliberate, not broken.
+          return (
+            <button key={m.id} type="button" className={on ? "wf-navtab is-filter is-on" : "wf-navtab is-filter"}
+                    aria-pressed={on} title={m.label + " — filters this page"} onClick={() => tapCat(m.id, m.label)}>
+              {glyph}<span>{m.label}</span>
+            </button>
+          );
+        })}
       </div>
     );
   }
@@ -8375,7 +8428,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             take all but 23px, and "St. Petersburg, FL" needs 118px. So row A is
             two lines on a phone and reads as one band on a desk. */}
         {screen !== "map" && (
-          <CategoryMenu nav activeCat={browseCat} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "nav" }); } catch (e) {} pickBrowse(id); }} />
+          <CategoryMenu nav activeCat={browseCat}
+            navRegion={railMenu ? railMenu.region : undefined}
+            navCitySlug={railMenu ? railMenu.citySlug : undefined}
+            onCat={(id, label, href) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "nav", href: href || null }); } catch (e) {} if (!href) pickBrowse(id); }} />
         )}
         {wxOpen && weather && Array.isArray(weather.hourly) && weather.hourly.length > 0 && (
           <div style={{ marginTop: -6, marginBottom: 12, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.panel} 62%)`, border: "none", borderRadius: "0 0 18px 18px", padding: "12px 8px 14px", boxShadow: "0 12px 26px rgba(0,0,0,.4)" }}>
@@ -8595,7 +8651,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           gets a desktop-only padding-bottom bump in css.js rather than
           raising the flat mobile value, which would add dead space on phones
           that don't need it. */}
-      <div ref={scrollRef} className="wf-scrollarea" style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "7px 12px calc(96px + env(safe-area-inset-bottom))" }}>
+      <div ref={scrollRef} className="wf-scrollarea" style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "7px 12px calc(28px + env(safe-area-inset-bottom))" }}>
         <>
             {screen === "explore" && <div className="wf-explore">{exploreList}</div>}
             {screen === "map" && <MapScreen ctx={ctx} />}
@@ -9447,24 +9503,44 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         </div>
       )}
 
-      {/* Bottom nav — v6.08 (PR-C): pinned to the VIEWPORT bottom with position:fixed
-          (no transformed ancestor exists to break it), centered to the app column
-          (maxWidth 480). Only the inner list scrolls; the nav never moves with the
-          page. The scroll container below reserves matching bottom padding. */}
+      {/* v8.3 — EXACTLY ONE NAV PER SCREEN. NEVER TWO. NEVER ZERO.
+          (owner, 2026-08-16, both halves of the same rule.)
+
+          FIRST HALF: "there is also two menus one on the bottom and one of them
+          top remove the one from the bottom and just keep it on the top… that is
+          duplication we are only keeping one which is the one underneath the
+          search bar." Every screen that renders the top nav had the same six
+          WF_DESTINATIONS twice on one phone screen. Gone.
+
+          SECOND HALF, and it is why this is a CONDITION and not a deletion:
+          "look at this page — how would we go back if we no longer have the
+          bottom menu here?" /map is a full-bleed immersive surface. All four top
+          rows are gated `screen !== "map"` (the map owns the viewport and has
+          its own floating chrome), so deleting the bar outright left that one
+          screen with NO way out at all. Swept every screen in the shell —
+          coupons, events, experience, explore, itinerary, saved, shared,
+          suggested, surprise all render the top nav; map is the only one that
+          renders none, and this is the only exception.
+
+          NOT a viewport condition — `screen` is content state, so this is not
+          the isDesktop-drives-geometry pattern test-layout-shift §5 bans.
+
+          Locked by scripts/check-one-nav-per-screen.mjs, which fails the build
+          if any screen renders zero navigation affordances or two. Nothing
+          checked that before, which is exactly how the stranding shipped. */}
+      {screen === "map" && (
       <nav className="wf-bottom-nav" aria-label="Primary navigation" style={{ position: "fixed", bottom: 0, left: 0, right: 0, maxWidth: 480, margin: "0 auto", zIndex: 20, background: C.panel, borderTop: `1px solid ${C.border}`, display: "flex", paddingBottom: "env(safe-area-inset-bottom)" }}>
-        {/* v8.2: the same WF_DESTINATIONS the top row maps, so the two bars
-            cannot drift. The bar itself is unchanged — owner's call, 2026-08-15:
-            it stays on mobile. */}
-        {WF_DESTINATIONS.map((s) => {
-          const active = (s.id === "home" && (screen === "suggested" || screen === "explore" || screen === "experience" || screen === "surprise")) || s.id === screen;
+        {WF_DESTINATIONS.map((d) => {
+          const active = d.id === screen;
           return (
-          <a className={`wf-bottom-nav-item${active ? " is-active" : ""}`} key={s.id} href={s.href} aria-label={s.label} aria-current={active ? "page" : undefined} onClick={(e) => { e.preventDefault(); goDestination(s.id, active); }} style={{ flex: 1, padding: "9px 6px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "transparent", border: "none", borderRadius: 0, cursor: "pointer", textDecoration: "none" }}>
-            <span className="wf-bottom-nav-icon"><NavIcon name={s.icon} color={active ? C.accent : C.muted} size={25} strokeWidth={active ? 2.3 : 2} /></span>
-            <span className="wf-bottom-nav-label" style={{ fontSize: 11.2, fontWeight: active ? 800 : 600, color: active ? C.accent : C.muted }}>{s.label}</span>
+          <a className={`wf-bottom-nav-item${active ? " is-active" : ""}`} key={d.id} href={d.href} aria-label={d.label} aria-current={active ? "page" : undefined} onClick={(e) => { e.preventDefault(); goDestination(d.id, active); }} style={{ flex: 1, padding: "9px 6px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "transparent", border: "none", borderRadius: 0, cursor: "pointer", textDecoration: "none" }}>
+            <span className="wf-bottom-nav-icon"><NavIcon name={d.icon} color={active ? C.accent : C.muted} size={25} strokeWidth={active ? 2.3 : 2} /></span>
+            <span className="wf-bottom-nav-label" style={{ fontSize: 11.2, fontWeight: active ? 800 : 600, color: active ? C.accent : C.muted }}>{d.label}</span>
           </a>
           );
         })}
       </nav>
+      )}
 
       {/* Detail sheet */}
       {detail && <DetailSheet ctx={ctx} />}

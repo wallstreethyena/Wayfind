@@ -13,7 +13,24 @@ import { readFileSync } from "node:fs";
 
 let n = 0, bad = 0;
 const ok = (c, m) => { n++; if (!c) { bad++; console.error("  - " + m); } };
-const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
+// v8.3 — THE BLANKET BLOCK-COMMENT STRIP WAS EATING A THIRD OF app/home.js.
+//
+// MEASURED, both refs: on origin/main this removed 256,699 of 733,671 chars
+// (35%) and on the next branch 261,080 — because app/home.js contains regex
+// literals and strings holding "/*" and "*/", so a non-greedy /\*...\*/ pairs
+// the wrong delimiters and swallows live code between them. The /* and */
+// counts are balanced (112 each); balance is not the problem, PAIRING is.
+//
+// It passed anyway for as long as `function CategoryMenu({` happened to fall
+// outside a swallowed span. One unrelated edit moved that boundary and six
+// assertions went red at once — all of them reading an empty slice, which is
+// the "ran against nothing, reported success" failure in AGENTS.md §4a, and
+// it had been reporting SUCCESS on this file for months.
+//
+// Narrow JSX-comment strip only, which is what check-home-answer-first uses
+// for exactly this reason. Line comments are safe: they are anchored to the
+// start of a line.
+const strip = (s) => s.replace(/\{\/\*[\s\S]*?\*\/\}/g, " ").replace(/^\s*\/\/.*$/gm, " ");
 
 const home = strip(readFileSync(new URL("../app/home.js", import.meta.url), "utf8"));
 const map = strip(readFileSync(new URL("../app/components/screens/Map.js", import.meta.url), "utf8"));

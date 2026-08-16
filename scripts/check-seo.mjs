@@ -75,8 +75,18 @@ for (const [id, href] of Object.entries({ home: "/", events: "/events", coupons:
 }
 // Both bars, and both must emit anchors. A count alone would pass on one bar
 // rendering twice, so each render site is inspected on its own.
+// v8.3 — RE-POINTED. This required TWO render sites because v8.2 shipped two
+// bars (the lab's top row and the mobile bottom bar) and the risk being guarded
+// was that they drift apart. The owner then removed the bottom bar as
+// duplication ("we are only keeping one which is the one underneath the search
+// bar"), so requiring two now fires on correct code.
+//
+// The drift rationale retired with the second bar; the CRAWLABILITY rationale
+// did not, and it is the one this file exists for. So: at least one nav must
+// render the list, and every site that does must emit real anchors — which is
+// asserted in the loop below and is the half that actually protects the routes.
 const navSites = [...page.matchAll(/WF_DESTINATIONS\.map\(\((\w+)\) =>/g)];
-if (navSites.length < 2) fail(`only ${navSites.length} nav renders WF_DESTINATIONS — the top row and the bottom bar must both map the one list`);
+if (navSites.length < 1) fail("no nav renders WF_DESTINATIONS — the six destinations are unreachable and uncrawlable");
 for (const site of navSites) {
   const body = page.slice(site.index, site.index + 1400);
   const v = site[1];

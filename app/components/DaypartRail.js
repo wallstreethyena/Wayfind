@@ -232,24 +232,6 @@ export default function DaypartRail({
     <div className={`wf8 is-${daypart}${selected ? " is-open" : ""}`} data-daypart={daypart}>
       <section className="wf8-railsec" aria-label="What to do right now">
         <div className="wf8-in">
-          {/* The band. The owner's first ask on this whole surface: take the
-              logo out of the header, put it here, and sell what Wayfind is
-              "as if you were talking over loud music" — one line, no hedging.
-              It is also the housing the place cards drop out of. */}
-          <div className="wf8-hero">
-            {/* The committed derivatives, not the 1707x441 source PNG — the
-                same ladder .wf-wordmark uses in css.js, just rendered as a
-                whole logo instead of a two-part sprite. Intrinsic size is the
-                real 3.871 ratio so the band reserves its own height. */}
-            <picture>
-              <source type="image/avif" srcSet="/brand/opt/wordmark-400.avif" />
-              <source type="image/webp" srcSet="/brand/opt/wordmark-400.webp" />
-              <img className="wf8-hlogo" src="/brand/wayfind-wordmark-transparent-v2.png"
-                alt="Wayfind" width="1707" height="441" decoding="async" fetchPriority="high" />
-            </picture>
-            <h2 className="wf8-h1">Where to go, right now.</h2>
-            <p className="wf8-hsub">The best places near you, already ranked.</p>
-          </div>
           <div className="wf8-dpbar">
             <span className="wf8-dpnow"><i />{band.label}{clock ? <> · <b>{clock}</b></> : null}</span>
             <span className="wf8-dpwhy">{band.why}</span>
@@ -300,6 +282,26 @@ export default function DaypartRail({
               onClick={() => { scrollBy(trackRef, 1); syncTrack(); }}><Chevron dir="r" /></button>
           </div>
         </div>
+        <div className="wf8-in wf8-heroin">
+          {/* The band. The owner's first ask on this whole surface: take the
+              logo out of the header, put it here, and sell what Wayfind is
+              "as if you were talking over loud music" — one line, no hedging.
+              It is also the housing the place cards drop out of. */}
+          <div className="wf8-hero">
+            {/* The committed derivatives, not the 1707x441 source PNG — the
+                same ladder .wf-wordmark uses in css.js, just rendered as a
+                whole logo instead of a two-part sprite. Intrinsic size is the
+                real 3.871 ratio so the band reserves its own height. */}
+            <picture>
+              <source type="image/avif" srcSet="/brand/opt/wordmark-400.avif" />
+              <source type="image/webp" srcSet="/brand/opt/wordmark-400.webp" />
+              <img className="wf8-hlogo" src="/brand/wayfind-wordmark-transparent-v2.png"
+                alt="Wayfind" width="1707" height="441" decoding="async" fetchPriority="high" />
+            </picture>
+            <h2 className="wf8-h1">Where to go, right now.</h2>
+            <p className="wf8-hsub">The best places near you, already ranked.</p>
+          </div>
+        </div>
       </section>
 
       <section className="wf8-menusec" ref={menuRef} aria-label={selRail ? `${selRail.title} — picks` : "Picks"} aria-hidden={!selected}>
@@ -309,27 +311,6 @@ export default function DaypartRail({
             <button type="button" className="wf8-mclose" onClick={close}>✕ Close</button>
           </div>
 
-          {/* the same rails, same order, same reason — a rail, never a stack */}
-          <div className="wf8-catwrap">
-            <div className="wf8-catrail" aria-label="Ways in">
-              {order.map((id) => {
-                const r = railById.get(id);
-                if (!r) return null;
-                return (
-                  <button
-                    key={id}
-                    type="button"
-                    aria-pressed={selected === id}
-                    className={`wf8-cat${selected === id ? " is-on" : ""}`}
-                    onClick={() => open(id, "chip")}
-                  >
-                    <img className="wf8-cico" src={railArtFallback(railArt(r, shown.region))} alt="" width="36" height="36" loading="lazy" decoding="async" />
-                    <span className="wf8-ctx"><b>{r.title}</b></span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
 
           {selRail && selRail.guides ? (
             <ul className="wf8-grail" aria-label="Local guides">

@@ -29,7 +29,15 @@ ok(!/<MapPreview places=\{_pins\}/.test(home), "Visual Release 01 keeps the desk
 // What replaces it names the rule: Map is a declared destination, the shared
 // handler opens the real screen, and every call site of that handler is a click.
 ok(/\{ id: "map",[\s\S]{0,90}label: "Map"/.test(home), "the Map destination is still declared in WF_DESTINATIONS");
-const goDest = home.slice(home.indexOf("const goDestination = ("), home.indexOf("const railMenuBand"));
+// v8.3 — COMMENTS STRIPPED FIRST. The v8.2 form scanned RAW source, so when
+// the bottom bar was removed and a JSX comment was left explaining that
+// "goDestination() is still the one handler", the guard read that prose as a
+// call site outside an onClick and went red on correct code. That is the
+// exact failure CLAUDE.md records five separate guards hitting on 2026-07-30.
+// Narrow JSX-comment strip only: a greedy /* */ sweep over app/home.js once
+// deleted 158KB of live code, because regex literals contain "/*".
+const homeCode = home.replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
+const goDest = homeCode.slice(homeCode.indexOf("const goDestination = ("), homeCode.indexOf("const railMenuBand"));
 ok(goDest.length > 200, `PROBE: goDestination's body was located (${goDest.length} chars) — without this the assertions below read nothing`);
 ok(/setScreen\(id\)/.test(goDest), "the shared nav handler opens the real screen for a non-home destination — explicit user intent still reaches the map");
 // A map that mounts from anything other than a tap is the July bill again.
@@ -41,11 +49,16 @@ ok(/setScreen\(id\)/.test(goDest), "the shared nav handler opens the real screen
 // above the first real call site therefore went GREEN. The declaration is
 // asserted on its own line above; here every match is a call and every call is
 // checked.
-ok(/const goDestination = \(/.test(home), "goDestination is declared exactly where the two bars can share it");
-const goCalls = [...home.matchAll(/goDestination\(/g)];
-ok(goCalls.length >= 2, `goDestination is called from BOTH nav bars (found ${goCalls.length} call sites, expected at least 2)`);
+ok(/const goDestination = \(/.test(homeCode), "goDestination is declared exactly where the two bars can share it");
+const goCalls = [...homeCode.matchAll(/goDestination\(/g)];
+// v8.3: ONE nav bar now. The bottom bar was removed as duplication, so
+// requiring two call sites fires on correct code. What must hold is that the
+// handler is REACHED — from a tap and only from a tap — which the loop below
+// proves for every site that exists. That is the billing rule; the count was
+// only ever a proxy for "both bars go through the shared handler".
+ok(goCalls.length >= 1, `goDestination is reached from the nav (found ${goCalls.length} call sites, expected at least 1)`);
 for (const c of goCalls) {
-  const before = home.slice(Math.max(0, c.index - 240), c.index);
+  const before = homeCode.slice(Math.max(0, c.index - 240), c.index);
   ok(/onClick=\{/.test(before), `a goDestination call at index ${c.index} is not inside an onClick — a nav handler reached from an effect or a render mounts the billed map for a visitor who never asked for one`);
 }
 
