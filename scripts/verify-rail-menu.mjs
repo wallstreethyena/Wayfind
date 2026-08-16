@@ -12,10 +12,22 @@
 // What it asserts, at desktop and phone:
 //   · all 15 rails render (nothing hidden by the hour)
 //   · every tile is a real <a href> to a route that exists
-//   · the tile art actually PAINTS — the `has-art` class retires the pre-paint
-//     overlay. This caught a live bug: server-rendered <img>s finish decoding
-//     before React hydrates, so the JSX onLoad never fires and the fallback
-//     text stayed stamped over the artwork on every tile.
+//   · the tile art actually PAINTS — every tile has an <img> and every <img>
+//     decoded, read off the image's OWN state.
+//
+//     RE-POINTED 2026-08-16. This counted a `has-art` class, and reported 0 on
+//     a page whose artwork renders perfectly. `has-art` and the .wf8-ov overlay
+//     it hid were BOTH deleted in b52f5de (v8.1, owner: "dont write nothign on
+//     top of the card just use the card information") — the tile artwork
+//     already carries its own headline. Nothing applies the class, nothing in
+//     railMenuCss.js keys off it, and the effect this comment used to describe
+//     went with the overlay. So the check was truthfully reporting the absence
+//     of a thing that no longer exists: it ran, and answered a question nobody
+//     was asking (CLAUDE.md §4c).
+//
+//     naturalWidth is strictly stronger than the class ever was — a 404 art URL
+//     leaves naturalWidth 0, which the marker class could never have caught,
+//     and it survives any future overlay decision.
 //   · picking a tile opens the drop, and the place cards land in ONE row
 //   · the guides rail wires every guide to /guides/<slug>
 //   · no horizontal overflow, no console errors, no hydration mismatch
@@ -50,13 +62,30 @@ await mkdir(OUT, { recursive: true });
         tiles: tiles.length,
         tileIds: tiles.map(t => t.dataset.id),
         hrefs: tiles.map(t => t.getAttribute('href')),
-        artPainted: tiles.filter(t => t.classList.contains('has-art')).length,
+        tileImgs: document.querySelectorAll('.wf8-tile img.wf8-tim').length,
+        // ONLY WHAT IS ON SCREEN. The rail carries loading="lazy" on every tile
+        // past the eager head (DaypartRail.js), so an off-screen tile has
+        // naturalWidth 0 because the browser was correctly told not to fetch it
+        // yet — asserting over all 15 fires on correct code, which CLAUDE.md
+        // rates worse than no guard. Measured: 4/15 decoded at 1440 and 2/15 at
+        // 430, exactly the tiles in view.
+        artOnScreen: [...document.querySelectorAll('.wf8-tile img.wf8-tim')]
+          .filter((i) => { const b = i.getBoundingClientRect(); return b.right > 0 && b.left < innerWidth && b.bottom > 0 && b.top < innerHeight; }).length,
+        artPainted: [...document.querySelectorAll('.wf8-tile img.wf8-tim')]
+          .filter((i) => { const b = i.getBoundingClientRect(); return b.right > 0 && b.left < innerWidth && b.bottom > 0 && b.top < innerHeight; })
+          .filter((i) => i.complete && i.naturalWidth > 0).length,
         firstTileBox: tiles[0] && (b => ({ w: Math.round(b.width), h: Math.round(b.height) }))(tiles[0].getBoundingClientRect()),
         overflowX: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
         menuVisible: getComputedStyle(document.querySelector('.wf8-menusec')).display !== 'none',
         clock: document.querySelector('.wf8-dpnow') && document.querySelector('.wf8-dpnow').textContent,
       };
     });
+    // A tile that renders NO <img> would otherwise pass by having zero broken
+    // images, so the count of images is asserted against the count of tiles.
+    if (top.tileImgs !== top.tiles) console.log('  ART FAIL: ' + top.tiles + ' tiles but ' + top.tileImgs + ' <img> — a tile is rendering no artwork at all');
+    else if (top.artOnScreen < 1) console.log('  ART FAIL: no tile image is in the viewport — the probe measured nothing and the line below proves nothing');
+    else if (top.artPainted !== top.artOnScreen) console.log('  ART FAIL: ' + (top.artOnScreen - top.artPainted) + '/' + top.artOnScreen + ' ON-SCREEN tile images did not decode (naturalWidth 0 — a broken art URL)');
+    else console.log('  art ok: ' + top.artPainted + '/' + top.artOnScreen + ' on-screen tiles decoded (' + (top.tiles - top.artOnScreen) + ' off-screen, lazy by design)');
     console.log(tag.toUpperCase(), JSON.stringify(top, null, 0));
     await p.screenshot({ path: `${OUT}/v8-${tag}-top.png` });
 
