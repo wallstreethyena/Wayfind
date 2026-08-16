@@ -77,6 +77,55 @@ async function inventorySocial(placeName) {
     return false;
   }
 }
+// v8.4 (owner: "in the blog we should have our iconic place cards, everyone
+// needs to have those with images"). Resolves a guide pick's NAME to a real
+// wf_inventory row so the card can carry the PLACE'S OWN photo, score and
+// review count.
+//
+// NO placeId EXISTS TO USE. Measured: 0 of 214 picks across all guides carry
+// one, so name matching is the only route, and it is the same ilike stem match
+// inventorySocial() above already relies on — widened, not reinvented.
+//
+// RETURNS null WHEN IT CANNOT CONFIRM A MATCH, and the caller then renders the
+// original text block. That is the whole discipline here: a generic image over
+// a named place is the trust bug from the audit, so a pick we cannot resolve
+// gets no card rather than a stock photo. Same >=15 review floor as the social
+// path — below that a rating is noise.
+async function inventoryPlace(placeName) {
+  const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
+  const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
+  if (!url || !anon) return null;
+  const stem = String(placeName || "").split(/[—,(]/)[0].trim().slice(0, 40);
+  if (!stem) return null;
+  try {
+    const r = await fetch(
+      `${url}/rest/v1/wf_inventory?select=place_id,name,lat,lng,primary_type,google_types,signals,photo_ref,editorial&status=eq.OPERATIONAL&name=ilike.${encodeURIComponent("%" + stem + "%")}&limit=5`,
+      { headers: { apikey: anon, Authorization: "Bearer " + anon }, next: { revalidate: 3600 } }
+    );
+    if (!r.ok) return null;
+    const rows = await r.json();
+    if (!Array.isArray(rows)) return null;
+    for (const row of rows) {
+      const rating = Number(row && row.signals && row.signals.rating);
+      const reviews = Number(row && row.signals && row.signals.reviews);
+      if (!(rating > 0 && reviews >= 15)) continue;
+      return {
+        id: row.place_id,
+        name: row.name,
+        rating,
+        reviews,
+        lat: row.lat,
+        lng: row.lng,
+        photoRef: row.photo_ref || null,
+        types: Array.isArray(row.google_types) ? row.google_types : (row.primary_type ? [row.primary_type] : []),
+        primary_type: row.primary_type || null,
+      };
+    }
+    return null;
+  } catch (e) { return null; }
+}
+
+import GuidePlaceCard from "../../components/GuidePlaceCard";
 import OpenAppCTA from "../../components/OpenAppCTA.js";
 import PremiumIntentHero from "../../components/PremiumIntentHero";
 // The floating pill stays (it catches people who DO read to the end). This adds
@@ -217,6 +266,9 @@ export default async function GuidePage({ params }) {
   // nothing at all, leaving the guide exactly as it is today.
   const wx = await guideWeather(g.region);
   const nowCtx = nowContext({ city: g.region, weather: wx });
+  // Resolved once per render, in parallel — each is an independent ilike and
+  // they all share the 1h revalidate, so this costs one round of cached reads.
+  const pickPlaces = await Promise.all((g.picks || []).map((p) => inventoryPlace(p && p.name)));
   const nowResult = guidePicksForNow(g.picks, nowCtx);
   const nowHeadline = guideNowHeadline(nowCtx, g.region, nowResult);
   const nowExplainer = guideNowExplainer(nowResult, (g.picks || []).length);
@@ -559,6 +611,7 @@ export default async function GuidePage({ params }) {
         </section>
       ) : null}
       {g.picks.map((pick, i) => {
+        const resolved = pickPlaces[i];
         return (
           <section key={i} className="wf-guide-pick">
             <div className="wf-guide-number">{String(i + 1).padStart(2, "0")}</div>
@@ -567,6 +620,16 @@ export default async function GuidePage({ params }) {
               <h2 style={{ ...S.h2, marginTop: 5, fontFamily: "var(--wf-display)", fontSize: 28 }}>{pick.name}</h2>
               <p style={S.p}>{pick.blurb}</p>
               {pick.tip ? <p className="wf-guide-tip" style={S.tip}>Insider note — {pick.tip}</p> : null}
+              {/* THE CARD, only when the place genuinely resolved. The guide's
+                  own blurb rides along as the editorial line, so the card says
+                  something this guide actually wrote rather than generic copy.
+                  A pick that did not resolve keeps the text block above and
+                  gets NO card — never a stock photo under a named place. */}
+              {resolved ? (
+                <div style={{ margin: "14px 0 4px" }}>
+                  <GuidePlaceCard place={resolved} rank={i + 1} editorial={pick.blurb || null} />
+                </div>
+              ) : null}
               <div className="wf-guide-actions">
                 {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name)} style={{ ...S.btnGhost, marginLeft: 0 }}>Open in Wayfind</a> : null}
               </div>
