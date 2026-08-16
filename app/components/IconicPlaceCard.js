@@ -146,7 +146,7 @@ const ThumbIcon = ({ down = false }) => (
   </svg>
 );
 
-export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, onSave, onLike, onDislike, onOpen }) {
+export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, inTrip, onSave, onItinerary, onLike, onDislike, onOpen }) {
   if (!place) return null;
   // THE GOVERNING LAW, shown == sorted (2026-08-07): a row ranked through
   // byVisibleScore carries governed_score (base +0.2 video −0.2 far +0.6
@@ -296,6 +296,25 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
                 aria-pressed={!!saved}
                 onClick={(e) => { e.stopPropagation(); e.preventDefault(); onSave(e, place); }}
               >{saved ? "♥ Saved" : "♡ Save"}</button>
+            ) : null}
+            {/* v8.4 (owner: "allow the user to save for an itinerary or
+                favorite the location. i need you to make sure this is the case
+                everywhere"). ITINERARY IS ITS OWN ACTION.
+                Saving already auto-files a place into its city trip
+                (quickSaveFavorite -> Trips.addPlaceToTrips), but that was
+                implicit and invisible — there was no control and no state, so
+                a reader could not put a place on a plan without also
+                favouriting it, and could not see that it was already on one.
+                Same button grammar as Save: aria-pressed reflects real state,
+                and the click is stopped from opening the card. */}
+            {onItinerary ? (
+              <button
+                type="button"
+                className={"wf-place-card-save wf-place-card-trip" + (inTrip ? " is-active" : "")}
+                aria-label={inTrip ? place.name + " is on your itinerary" : "Add " + place.name + " to your itinerary"}
+                aria-pressed={!!inTrip}
+                onClick={(e) => { e.stopPropagation(); e.preventDefault(); onItinerary(e, place); }}
+              >{inTrip ? "✓ On trip" : "+ Itinerary"}</button>
             ) : (
               <a className="wf-place-card-save" href={actionHref("save")} aria-label={"Save " + place.name}>♡ Save</a>
             )}

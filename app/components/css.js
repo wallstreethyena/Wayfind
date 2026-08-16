@@ -368,7 +368,7 @@ export const WF_PLACE_CARD_CSS = `
   box-shadow:inset 0 1px rgba(255,255,255,.025);
 }
 .wf-place-card-book{color:#FF9B50!important;border-color:rgba(249,115,22,.36)!important;text-decoration:none}
-.wf-place-card-save.is-active{color:#0D1117!important;border-color:#F97316!important;background:#F97316!important}
+.wf-place-card-save.is-active{color:#0D1117!important;border-color:#F97316!important;background:#F97316!important}.wf-place-card-trip.is-active{color:#0D1117!important;border-color:#38BDF8!important;background:#38BDF8!important}
 .wf-place-card-like,.wf-place-card-dislike{
   width:42px!important;
   min-width:42px!important;

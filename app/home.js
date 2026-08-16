@@ -7806,6 +7806,34 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }
     setSaveTarget(null);
   }
+  // v8.4 — ADD TO ITINERARY, as its own verb.
+  //
+  // quickSaveFavorite already auto-files a saved place into its city trip, but
+  // that is a side effect of favouriting: there was no way to put a place on a
+  // plan WITHOUT favouriting it, and no state anywhere showing it was already
+  // on one. This is the explicit action, and it deliberately does not touch
+  // lists.favorites — the trip is an independent, curated plan, which is the
+  // same reason unsaving does not remove a stop.
+  function isOnTrip(p) {
+    if (!p || !p.id) return false;
+    try {
+      const meta = Trips.tripMetaForPlace(p);
+      const t = trips[meta.key];
+      return !!(t && t.items && t.items.some((it) => it.id === p.id));
+    } catch (e) { return false; }
+  }
+  function addToItinerary(p) {
+    if (!p || !p.id) return;
+    if (isOnTrip(p)) { showToast("Already on your itinerary"); return; }
+    try {
+      const meta = Trips.tripMetaForPlace(p);
+      if (!trips[meta.key]) { try { logEvent("trip_create", null, { key: meta.key, city: meta.city, state: meta.state }); } catch (e) {} }
+      try { logEvent("stop_add", p, { key: meta.key, city: meta.city, state: meta.state, src: "card_itinerary" }); } catch (e) {}
+    } catch (e) {}
+    setTrips((prev) => Trips.addPlaceToTrips(prev, p, Date.now()));
+    showToast("🗓️ Added to your itinerary");
+  }
+
   // One-tap save straight to Favorites from a card heart.
   function quickSaveFavorite(p) {
     if (!p) return;
@@ -8381,6 +8409,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         lng={railMenu.lng}
         initialDaypart={railMenu.daypart}
         center={center}
+        isSaved={isSaved}
+        isOnTrip={isOnTrip}
+        onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }}
+        onItinerary={(e, p) => { try { addToItinerary(p); } catch (er) {} }}
       />
     </div>
   ) : null;
