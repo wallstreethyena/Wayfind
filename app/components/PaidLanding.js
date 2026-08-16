@@ -3,6 +3,8 @@
 // into one clear choice, two alternatives, and a lightweight local shortlist.
 // Attribution and the existing analytics event names intentionally stay intact.
 import { useEffect, useMemo, useState } from "react";
+import { wayfindScore, governedWayfindScore } from "../../lib/wayfindScore.js";
+import { toDisplayScore } from "../../lib/score.js";
 import { placeDecision, openStateBonus } from "../../lib/placePolicy.js";
 import { track } from "../../lib/track";
 import { captureAttribution, decorateHref } from "../../lib/attribution";
@@ -27,7 +29,7 @@ const COPY = {
     matchTitle: "Three places. One easy decision.",
     matchIntro: "No filler. Every match earns its place through rating strength, review depth, distance, and what’s open when you need it.",
     best: "BEST MATCH",
-    alternate: "ALTERNATIVE",
+    alternate: "MORE STRONG MATCHES",
     why: "Why it fits",
     details: "See the details",
     add: "Add to my plan",
@@ -423,8 +425,14 @@ export default function PaidLanding({ city, places }) {
                   <article className={`match ${index === 0 ? "best" : ""}`} key={place.id || index}>
                     <div className="photo">
                       <Photo place={place} eager={index === 0} />
-                      <span className="rank">{index === 0 ? t.best : `${t.alternate} 0${index}`}</span>
-                      {place.rating != null ? <span className="score"><b>{place.rating}</b><small>WAYFIND</small></span> : null}
+                      <span className="rank">{index === 0 ? t.best : t.alternate}</span>
+                      {(() => {
+                        const _q = wayfindScore(place.rating, place.reviews);
+                        if (_q == null) return null;
+                        const _mi = place.distMi || 0;
+                        const _shown = toDisplayScore(governedWayfindScore(_q, { hasCreatorVideo: false, distanceMi: isFinite(_mi) && _mi > 0 ? _mi : null, trending: !!place.trending }));
+                        return _shown == null ? null : <span className="score"><b>{_shown}<span style={{ fontSize: "0.62em", fontWeight: 700 }}>/10</span></b><small>WAYFIND</small></span>;
+                      })()}
                     </div>
                     <div className="matchBody">
                       <span className="category">{categoryOf(place)}</span>
