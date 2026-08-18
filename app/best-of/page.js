@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import Client from "./client";
 import { INTENT_PAGES, intentEyebrow, intentSub } from "../../lib/intentPages";
 import { SITE_URL } from "../../lib/site";
+import { bestOfCanonical } from "../../lib/locationHonesty";
 
 export async function generateMetadata({ searchParams }) {
   const city = String((searchParams && searchParams.city) || "").slice(0, 32);
@@ -17,6 +18,7 @@ export async function generateMetadata({ searchParams }) {
   return {
     title, description,
     robots: { index: false, follow: false },
+    alternates: { canonical: bestOfCanonical(city, SITE_URL) },
     openGraph: { title, description, images: [{ url: og, width: 1200, height: 630 }] },
     twitter: { card: "summary_large_image", title, description, images: [og] },
   };

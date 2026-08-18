@@ -1,12 +1,14 @@
-import ShareRedirect from "../../ShareRedirect";
+import Home from "../../home";
 import { SITE_URL } from "../../../lib/site";
+import { placeCanonical } from "../../../lib/locationHonesty";
 
 function s(v) {
   if (Array.isArray(v)) return v[0] || "";
   return v || "";
 }
 
-export async function generateMetadata({ searchParams }) {
+export async function generateMetadata({ params, searchParams }) {
+  const id = s(params.id);
   const t = s(searchParams.t) || "A spot worth your time";
   const loc = s(searchParams.loc);
   const r = s(searchParams.r);
@@ -34,6 +36,7 @@ export async function generateMetadata({ searchParams }) {
   return {
     robots: { index: false, follow: true }, // share/app-state URLs: infinite query space, not for the index (SEO audit July 2026)
     metadataBase: new URL(SITE_URL),
+    alternates: { canonical: placeCanonical(id, SITE_URL) || (SITE_URL + "/p/" + encodeURIComponent(id)) },
     title: t + " \u00b7 Wayfind",
     description: desc,
     openGraph: {
@@ -54,17 +57,8 @@ export async function generateMetadata({ searchParams }) {
 
 export default function PlaceSharePage({ params, searchParams }) {
   const id = s(params.id);
-  const t = s(searchParams.t) || "this spot";
   const requestedAction = s(searchParams.action);
   const action = ["save", "like", "dislike"].includes(requestedAction) ? requestedAction : "";
-  const target = "/?place=" + encodeURIComponent(id) + (action ? "&action=" + action : "");
-  return (
-    <div style={{ minHeight: "100dvh", background: "#0D1117", color: "#F1F5F9", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "var(--wf-sans)", textAlign: "center", padding: "24px" }}>
-      <ShareRedirect to={target} />
-      <div style={{ fontSize: 28, fontWeight: 800, color: "#CBD5E1", letterSpacing: "1px", marginBottom: 14 }}>📍 WAYFIND</div>
-      <div style={{ fontSize: 16, color: "#CBD5E1", marginBottom: 22 }}>Opening {t}…</div>
-      <a href={target} style={{ display: "inline-block", padding: "12px 22px", borderRadius: 999, background: "#F97316", color: "#0D1117", fontWeight: 800, fontSize: 15, textDecoration: "none" }}>Open in Wayfind</a>
-      <div style={{ marginTop: 18, fontSize: 12, color: "#8B949E" }}>Wayfind is an independent guide, not affiliated with the venues listed.</div>
-    </div>
-  );
+  // Overlay may be the presentation; URL + canonical stay /p/{id}.
+  return <Home initialPlaceId={id} initialPlaceAction={action || null} />;
 }

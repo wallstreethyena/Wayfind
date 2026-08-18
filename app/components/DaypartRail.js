@@ -252,9 +252,12 @@ export default function DaypartRail({
 
   const tileClick = (e, id) => {
     // Let the browser do its thing for a new tab / new window / middle click —
-    // the tile is a real link and must keep behaving like one.
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-    e.preventDefault();
+    // a real link must keep behaving like one. A button (no city, no href)
+    // only opens the drop.
+    if (e.currentTarget && e.currentTarget.tagName === "A") {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      e.preventDefault();
+    }
     if (selected === id) close(); else open(id, "rail");
   };
 
@@ -326,18 +329,10 @@ export default function DaypartRail({
                 if (!r) return null;
                 if (r.artStale) return null;
                 const base = railArt(r, shown.region);
-                const href = railHref(r, shown.region, shown.citySlug) || "#";
+                const href = railHref(r, shown.region, shown.citySlug);
                 const eager = i < 2;
-                return (
-                  <a
-                    key={id}
-                    className={`wf8-tile${selected === id ? " is-sel" : ""}`}
-                    href={href}
-                    data-id={id}
-                    aria-label={`${r.title} — ${r.short}`}
-                    style={{ background: railTint(id) }}
-                    onClick={(e) => tileClick(e, id)}
-                  >
+                const tileClass = `wf8-tile${selected === id ? " is-sel" : ""}`;
+                const art = (
                     <picture>
                       <source type="image/avif" srcSet={railArtSrcSet(base, "avif")} sizes={RAIL_ART_SIZES} />
                       <source type="image/webp" srcSet={railArtSrcSet(base, "webp")} sizes={RAIL_ART_SIZES} />
@@ -352,7 +347,30 @@ export default function DaypartRail({
                         fetchPriority={eager ? "high" : "low"}
                       />
                     </picture>
-                  </a>
+                );
+                if (href) {
+                  return (
+                    <a
+                      key={id}
+                      className={tileClass}
+                      href={href}
+                      data-id={id}
+                      aria-label={`${r.title} — ${r.short}`}
+                      style={{ background: railTint(id) }}
+                      onClick={(e) => tileClick(e, id)}
+                    >{art}</a>
+                  );
+                }
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    className={tileClass}
+                    data-id={id}
+                    aria-label={`${r.title} — ${r.short}`}
+                    style={{ background: railTint(id) }}
+                    onClick={(e) => tileClick(e, id)}
+                  >{art}</button>
                 );
               })}
             </div>
@@ -443,7 +461,9 @@ export default function DaypartRail({
                   ? `Nothing${near} clears this bar right now — ${selRail.emptyWhy || "nothing nearby clears the bar"}. Padding it with places that don't belong would make the rail worthless.`
                   : `We're still gathering places for this${near}.`}
               </p>
-              <a href={railHref(selRail, shown.region, shown.citySlug) || "/"}>{selRail.cta} →</a>
+              {railHref(selRail, shown.region, shown.citySlug) ? (
+                <a href={railHref(selRail, shown.region, shown.citySlug)}>{selRail.cta} →</a>
+              ) : null}
             </div>
           ) : null}
         </div>

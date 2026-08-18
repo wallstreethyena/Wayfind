@@ -667,9 +667,8 @@ export default async function GuidePage({ params }) {
           guide's region lowercased, and plenty of regions are not landing
           cities — "Crystal River" produced /things-to-do/crystal-river, which
           answers 200 with a "Not found" body: a soft-404, the exact shape
-          scripts/check-rail-routes.mjs exists to forbid. Passing null instead
-          lets railHref fall back through cityFor(region) to a city that is
-          genuinely in the set. */}
+          scripts/check-rail-routes.mjs exists to forbid. Passing null omits
+          segmented hrefs rather than inventing Sarasota. */}
       <DiscoveryPaths
         region={g.region === "Orlando" ? "orlando" : "fl"}
         citySlug={bridgeCity ? bridgeSlug : null}
