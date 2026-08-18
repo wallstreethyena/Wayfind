@@ -8713,7 +8713,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             a desk, where there is no thumb and the bottom bar is a floating pill
             in the corner of the eye. */}
         {screen !== "map" && (
-          <nav className={"wf-dests" + (suggestions.length ? " is-covered" : "")} aria-label="Destinations" style={suggestions.length ? { pointerEvents: "none" } : undefined}>
+          <nav className="wf-dests" {...(suggestions.length ? { className: "wf-dests is-covered" } : null)} aria-label="Destinations" style={suggestions.length ? { pointerEvents: "none" } : undefined}>
             <button type="button" className={"wf-dest wf-dest-opener" + (navShortcuts ? " is-on" : "")}
                     aria-expanded={navShortcuts} aria-controls="wf-scpanel"
                     onClick={() => setNavShortcuts((v) => !v)}>
