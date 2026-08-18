@@ -4248,6 +4248,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const sugTokenRef = useRef(null);
   const insightCache = useRef({});
   const scrollRef = useRef(null);
+  // v8.11.1 HOTFIX — v8.11 attached this ref and scrolled to it, but never
+  // DECLARED it, so the first submenu pick threw "browseAnchorRef is not
+  // defined" and took the whole page down (owner screenshot, live). tsc with
+  // --noResolve does not see undeclared identifiers and no guard executes
+  // home.js — the browser was the first thing to run this line. The anchor
+  // marks where the browse results start (jump-to-results, v8.11).
+  const browseAnchorRef = useRef(null);
   const scrollRestore = useRef(null); // v6.08 (PR-C): { key, top } captured when a place opens, restored on back
   const sheetDragRef = useRef({});
   const insightFullCache = useRef({});
