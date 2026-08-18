@@ -89,8 +89,13 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
     const claimsSpike = SPIKE_WORDS.test(copy);
     ok(!claimsSpike || gatesOnSpike,
       "the trending rail's COPY claims a spike (exploding/spiking/everyone's searching) while its selector does not gate on the real trend flag — that is the one unfalsifiable claim on the page. Either gate on p.trending or rename the rail to what the signal supports.");
-    ok(gatesOnSpike || /reviews/.test(cfg),
-      "the trending rail gates on neither the trend flag nor review volume — whatever it is selecting on, it is not a demand signal this repo can evidence");
+    // v8.10 — creator evidence joined the accepted signals: a real creator
+    // video (hasCreatorVideoAt / the creators pool's _creatorSourced marker)
+    // is a verifiable "people are talking about this" fact this repo can
+    // evidence, same class as the spike flag. Review VOLUME left the selector
+    // with the v8.7 blend, so it left this list too.
+    ok(gatesOnSpike || /p\.trending/.test(cfg) && /hasCreatorVideoAt|_creatorSourced/.test(cfg),
+      "the trending rail gates on neither the trend flag nor creator evidence — whatever it is selecting on, it is not a demand signal this repo can evidence");
   }
   ok(/MIN_CARDS/.test(railsData) || /MIN_CARDS/.test(railSelect),
     "a rail that cannot fill honestly must ship empty — that floor is what stops a demand claim with no demand behind it");

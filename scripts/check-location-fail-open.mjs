@@ -52,9 +52,9 @@ ok(/setLive\(emptyRailLive\(\)\)/.test(RAIL) || /setLive\(emptyLive\(\)\)/.test(
 ok(!/keep the flagship/.test(RAIL),
   "DaypartRail no longer comments-or-codes a keep-the-flagship fallback");
 ok(/onCoverage/.test(RAIL),
-  "DaypartRail tells the parent when coverage failed so CityGate can open");
-ok(/railsCoverage === "uncovered"/.test(HOME) && /<CityGate/.test(HOME),
-  "home.js mounts CityGate when rails are uncovered — never Sarasota-as-you");
+  "DaypartRail tells the parent when coverage failed");
+ok(!/<CityGate /.test(HOME),
+  "v8.11: CityGate stays off the homepage — honesty is empty rails, not the door");
 ok(/liveFromRailsResponse/.test(RAIL) || /!j \|\| !j\.covered \|\| !j\.data/.test(RAIL),
   "the live fetch still treats covered:false / missing data as a miss");
 ok(/\.catch\(\(\) => \{[\s\S]{0,180}setLive\(emptyRailLive\(\)\)/.test(RAIL)
