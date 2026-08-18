@@ -71,7 +71,20 @@ ok(read("middleware.js").includes('"/api/deals"'), "/api/deals is same-origin gu
 const home = read("app/home.js");
 ok(/function UnifiedBrowseCommerceRail/.test(home), "the mixed-provider browse rail exists");
 ok(/browseCat === "attractions" && center && <UnifiedBrowseCommerceRail[^>]*categories=\{\["attractions",\s*"more"\]\}/.test(home), "Things-to-do renders one geo-scoped mixed-provider rail");
-ok(/browseCat === "hotels" && center && <UnifiedBrowseCommerceRail[^>]*categories=\{\["stays",\s*"travel"\]\}/.test(home), "Stays renders one geo-scoped mixed-provider rail");
+// RE-POINTED v8.13.1 (2026-08-18). #790 (owner-account merge) changed the
+// Stays mount on purpose, and shipped scripts/test-session-map-parity.mjs to
+// pin the NEW shape — but left this line pinning the OLD one, so main could
+// not be green under any tree and four consecutive production deploys ERRORed.
+// The new invariant, which the repo's own doctrine backs (trust before
+// short-term monetization; an off-axis card is a lie): the Stays rail mounts
+// only when organic results exist (`view.length > 0` — no affiliate-only
+// screen), and carries stays ONLY — the national car-rental "travel" rail was
+// a stand-in for empty hotels, which is off-axis for a tab called Stays.
+// WHAT THIS LINE STILL PROTECTS, unchanged: Stays renders exactly one
+// geo-scoped mixed-provider rail — gated, category-true, never absent from
+// the code and never duplicated (check-unified-commerce-rail owns the
+// no-duplicates half).
+ok(/browseCat === "hotels" && center && view\.length > 0 && <UnifiedBrowseCommerceRail[^>]*categories=\{\["stays"\]\}/.test(home), "Stays renders one geo-scoped mixed-provider rail (organic-gated, stays-only — #790's invariant)");
 // TRANSLATED: same anchor, same protection (the link is marked as paid), plus
 // nofollow — which is what was missing when crawlers were following it.
 ok(/href={d\.href}/.test(home) && /rel="sponsored nofollow noopener"/.test(home),
