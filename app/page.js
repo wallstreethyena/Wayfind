@@ -9,8 +9,7 @@
 import { Suspense } from "react";
 import Home from "./home";
 import ProofVeil from "./components/ProofVeil";
-import { rankedFor, whyLine } from "../lib/landing";
-import { TOWN_HUBS, TOWN_PROFILES } from "../lib/culture";
+import { homeProofCopy } from "../lib/locationHonesty";
 // v7.29 PERF: the "Read the local edit" index is built HERE, on the server,
 // once per revalidation. app/components/LocalEdit.js used to import the whole
 // GUIDES corpus to compute each guide's read time, which put 52.8KB of guide
@@ -85,39 +84,23 @@ const S = {
   links: { fontSize: 13.5, color: "#C9D1D9", margin: "12px 0 0" },
 };
 
-async function HomeProof() {
-  // Sarasota is the flagship market with the deepest verified coverage; the
-  // in-app answer personalizes to the visitor's real location and moment.
-  const top = ((await rankedFor("things-to-do", "sarasota").catch(() => null)) || []).slice(0, 5);
-  if (top.length < 3) return null;
+function HomeProof() {
+  // City-neutral on purpose. This route is one ISR document for every URL
+  // (/, /?near=Orlando, /?q=Orlando). Naming Sarasota — or ranking a
+  // Sarasota list — in that document is a lie the moment the request is
+  // for another city. Smallest honest SSR: no city, no ranked list.
+  const copy = homeProofCopy();
   return (
-    <section style={S.wrap} aria-label="Example Wayfind picks">
-      <div style={S.kicker}>What Wayfind answers with</div>
-      <h2 style={S.h2}>Near Sarasota right now — the short answer, not fifty options</h2>
-      <p style={S.sub}>Ranked by rating weighted by review volume, distance, and what&apos;s genuinely worth your time — no ads, no paid placement. Open the app and this answer adapts to your exact location, the weather, and the time of day.</p>
-      {top.map((p, i) => (
-        <div key={p.id || i} style={S.card}>
-          <p style={S.name}>{i + 1}. {p.name}</p>
-          <p style={S.why}>{whyLine(p, "spot")}</p>
-          <a style={S.a} href={"/?q=" + encodeURIComponent(p.name + " Sarasota FL")}>Open in Wayfind ›</a>
-        </div>
-      ))}
-      <p style={S.links}>
-        <b style={{ color: "#FFFFFF" }}>Go deeper:</b>{" "}
-        <a style={S.a} href="/things-to-do/sarasota">Things to do in Sarasota</a> · <a style={S.a} href="/restaurants/sarasota">Restaurants</a> · <a style={S.a} href="/beaches/sarasota">Beaches</a> · <a style={S.a} href="/culture/sarasota">What Sarasota is known for</a>
-        {" "}· <b style={{ color: "#FFFFFF" }}>Nearby towns:</b>{" "}
-        {Object.entries(TOWN_HUBS).slice(0, 5).map(([k, slug], i) => (<span key={slug}><a style={S.a} href={"/florida/" + slug}>{TOWN_PROFILES[k].title}</a>{i < 4 ? " · " : ""}</span>))}
-      </p>
+    <section style={S.wrap} aria-label="How Wayfind ranks">
+      <div style={S.kicker}>{copy.kicker}</div>
+      <h2 style={S.h2}>{copy.heading}</h2>
+      <p style={S.sub}>{copy.sub}</p>
     </section>
   );
 }
 
-// The homepage is ONE prerendered document for everyone, so its rail data is
-// ranked for the flagship market — the same choice HomeProof above already
-// makes, and the market with the deepest verified coverage. The client
-// re-ranks to the visitor's real metro once geolocation resolves; until then
-// this is a real answer rather than an empty rail.
-const RAIL_CITY = "sarasota";
+// Honest empty until the client knows the visitor's city. Passing the
+// flagship slug made every first HTML — and every fail-open — claim Sarasota.
 
 export default async function Page() {
   // v6.43 REVERT of the #218 seed (owner-reported bug): seeding events for
@@ -128,14 +111,14 @@ export default async function Page() {
   // Re-enabling this requires the server and client to agree on ONE location and
   // ONE featured event first — see issue #219.
   const initialEvents = null;
-  const railMenu = await railMenuData(RAIL_CITY);
+  const railMenu = await railMenuData(null);
   return (
     <>
       {/* v5.38 a11y/SEO: one descriptive server-rendered H1, always present
           (the proof block below is conditional on cached data and stays an
           h2 under it). Visually hidden so the app design is untouched. */}
       <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>
-        Wayfind — find the best things to do near you, right now
+        Wayfind — find the best things to do, right now
       </h1>
       <Home initialEvents={initialEvents} localEditGuides={localEditIndex(GUIDES)} railMenu={railMenu} />
       {/* Suspense so the app shell streams immediately; the proof block

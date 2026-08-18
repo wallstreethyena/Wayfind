@@ -50,6 +50,7 @@ const IconicPlaceCard = dynamic(() => import("./IconicPlaceCard"), { ssr: false 
 import { DAYPARTS, partForHour, orderFor, railHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES } from "../../lib/rails.js";
+import { emptyRailLive, liveFromRailsResponse } from "../../lib/locationHonesty.js";
 
 const Chevron = ({ dir }) => (
   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2"
@@ -93,7 +94,7 @@ export default function DaypartRail({
   guides = [],
   thin = [],
   region = "fl",
-  citySlug = "sarasota",
+  citySlug = "",
   cityLabel = "",
   lat = null,
   lng = null,
@@ -120,19 +121,11 @@ export default function DaypartRail({
   // visitor is somewhere else, or that /api/rails failed. covered:false and
   // thrown fetches must empty the flagship, never keep Sarasota as "your" city.
   const [live, setLive] = useState(null);
-  const emptyLive = () => ({
-    covered: false,
-    places: {},
-    thin: rails.filter((r) => r.list).map((r) => r.id),
-    region,
-    citySlug: null,
-    cityLabel: "",
-  });
   const [selected, setSelected] = useState(null);
   const trackRef = useRef(null);
   const pcRef = useRef(null);
   const menuRef = useRef(null);
-  const shown = live || { places, thin, region, citySlug, cityLabel };
+  const shown = live || { places: {}, thin: thin || [], region: region || null, citySlug: citySlug || null, cityLabel: cityLabel || "" };
   const thinSet = useMemo(() => new Set(shown.thin), [shown.thin]);
   const railById = useMemo(() => new Map(rails.map((r) => [r.id, r])), [rails]);
   // NOTE on `artStale`: a rail can be renamed in code while the reader keeps
@@ -147,7 +140,10 @@ export default function DaypartRail({
   // generous on purpose: a few miles is the same market and refetching on every
   // GPS jitter would spend a request to return an identical list.
   useEffect(() => {
-    if (!center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) return undefined;
+    if (!center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) {
+      setLive(emptyRailLive());
+      return undefined;
+    }
     if (Number.isFinite(lat) && Number.isFinite(lng)) {
       const R = 3958.8, r = (d) => (d * Math.PI) / 180;
       const s2 = Math.sin(r(center.lat - lat) / 2) ** 2
@@ -160,6 +156,7 @@ export default function DaypartRail({
       if (R * 2 * Math.asin(Math.sqrt(s2)) < 1.5) return undefined;
     }
     let cancelled = false;
+    setLive(emptyRailLive());
     // Snapped to ~0.7mi so the CDN sees a countable set of URLs per metro, not
     // one per GPS fix. The server re-measures every distance from this point.
     const snap = (v) => Math.round(v * 100) / 100;
@@ -167,17 +164,12 @@ export default function DaypartRail({
       .then((r2) => r2.json().catch(() => null))
       .then((j) => {
         if (cancelled) return;
-        if (!j || !j.covered || !j.data) {
-          setLive(emptyLive());
-          try { onCoverage && onCoverage(j && j.covered === false ? "uncovered" : "error"); } catch (e) {}
-          return;
-        }
-        setLive({ covered: true, places: j.data.places, thin: j.data.thin, region: j.data.region, citySlug: j.data.citySlug, cityLabel: j.data.cityLabel });
-        try { onCoverage && onCoverage("covered"); } catch (e) {}
+        setLive(liveFromRailsResponse(j));
+        try { onCoverage && onCoverage(j && j.covered === true && j.data ? "covered" : "uncovered"); } catch (e) {}
       })
       .catch(() => {
         if (cancelled) return;
-        setLive(emptyLive());
+        setLive(emptyRailLive());
         try { onCoverage && onCoverage("error"); } catch (e) {}
       });
     return () => { cancelled = true; };
@@ -274,6 +266,7 @@ export default function DaypartRail({
               }).map((id, i) => {
                 const r = railById.get(id);
                 if (!r) return null;
+                if (r.artStale) return null;
                 const base = railArt(r, shown.region);
                 const href = railHref(r, shown.region, shown.citySlug) || "#";
                 const eager = i < 2;

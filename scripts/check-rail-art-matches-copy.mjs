@@ -151,6 +151,11 @@ for (const id of withArt) {
   pass++;
 }
 
+
+if (!/if \(r\.artStale\) return null/.test(dayRail) && !/!r\.artStale/.test(dayRail)) {
+  fail.push("DaypartRail must hide artStale tiles — Exploding Trends baked type must not render");
+}
+
 if (fail.length) {
   console.error(`check-rail-art-matches-copy: ${pass} pinned, ${fail.length} NEEDS ATTENTION`);
   for (const f of fail) console.error("  ✗ " + f);

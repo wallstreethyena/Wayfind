@@ -232,6 +232,7 @@ import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlen
 import { canonicalShareUrl } from "../lib/site";
 import { askShareIntent } from "./components/shareIntentSheet";
 import { placeKinds } from "../lib/dateInvite";
+import { isSeedCenter, cityLabel } from "../lib/locationHonesty";
 
 const BUILD = "beta";
 
@@ -812,7 +813,8 @@ function withMemberSignal(list, sig) {
 const DEFAULT_CENTER = { lat: 27.5689, lng: -82.4393, name: "Parrish, FL" };
 // DEFAULT_CENTER is an unresolved seed, not a visitor location. center starts
 // null until GPS, manual search, or /api/geo adopts a real point. Do not claim
-// "near you" / "you" unless locName is a real city.
+// "near you" / "you" unless locName is a real city. Keep the literal here so
+// test-events-prime can lockstep primer coords against home.js.
 const FEATURED_AREAS = [];
 
 // Intent: Wayfind asks WHY you are going out, then reshapes every pick around it.
@@ -3734,13 +3736,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const [center, setCenter] = useState(null);
   const [deviceLoc, setDeviceLoc] = useState(null);
   const [locName, setLocName] = useState("");
+  const [locResolved, setLocResolved] = useState(false);
   // A1: persist the app's resolved location, including whether it came from
   // a manual search, so remounts do not snap back to device GPS.
   useEffect(() => {
     try { if (center && isFinite(center.lat) && isFinite(center.lng) && locName) setLocal("wf_center", JSON.stringify({ lat: center.lat, lng: center.lng, loc: locName, manual: !!manualRef.current, ts: Date.now() })); } catch (e) {}
   }, [center, locName]);
   // PROTECTED (check-cards.mjs): every card label follows the user's location.
-  const cityNow = locName ? locName.split(",")[0] : "";
+  const cityNow = cityLabel(locName);
   CITY_NOW = cityNow;
   const cityFix = cityFixM;
   const [query, setQuery] = useState("");
@@ -3949,9 +3952,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try {
       const raw = localStorage.getItem("wf_center");
       const c = raw ? JSON.parse(raw) : null;
-      if (c && isFinite(c.lat) && isFinite(c.lng) && (!c.ts || Date.now() - c.ts < 6 * 3600 * 1000)) {
-        if (c.manual) manualRef.current = true;
+      if (c && c.manual && isFinite(c.lat) && isFinite(c.lng) && (!c.ts || Date.now() - c.ts < 6 * 3600 * 1000)) {
+        manualRef.current = true;
         setCenter({ lat: c.lat, lng: c.lng });
+        setLocResolved(true);
         if (c.loc) setLocName(c.loc);
       }
     } catch (e) {}
@@ -6160,7 +6164,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         if (d && d.ok && !gotGPS && !manualRef.current) {
           const c = { lat: d.lat, lng: d.lng };
           setDeviceLoc((prev) => prev || c);
-          setCenter(c);
+          setCenter((prev) => (isSeedCenter(prev) ? c : prev));
+          setLocResolved(true);
           if (d.name) setLocName((prev) => prev || d.name);
         }
       } catch (e) {}
@@ -6193,12 +6198,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             if (raw && !savedOk) localStorage.removeItem("wf_center");
             if (savedOk) {
               setCenter({ lat: saved.lat, lng: saved.lng });
+              setLocResolved(true);
               if (saved.loc) setLocName((prev) => prev || saved.loc);
               return;
             }
           } catch (e) {}
           const name = await reverseGeocode(c.lat, c.lng);
           setCenter(c);
+          setLocResolved(true);
           setLocName(name);
         },
         () => { ipFallback(); },
@@ -7513,6 +7520,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // Recenter explore list to this place's area for the "similar spots" context.
         if (typeof lat === "number" && typeof lng === "number") {
           setCenter({ lat, lng });
+          setLocResolved(true);
           manualRef.current = true;
         }
         openDetail(placeObj);
@@ -7534,13 +7542,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       const lng = typeof loc.lng === "number" ? loc.lng : loc.longitude;
       if (typeof lat === "number" && typeof lng === "number") {
         setCenter({ lat, lng });
+        setLocResolved(true);
         const fa = place.formattedAddress || (place.displayName && (place.displayName.text || place.displayName)) || item.text;
         setLocName(String(fa).split(",").slice(0, 2).join(",").trim());
       }
     } catch {
       try {
         const c = await geocodeCity(item.text);
-        if (c) { setCenter(c); setLocName(c.name.split(",").slice(0, 2).join(",").trim()); }
+        if (c) { setCenter(c); setLocResolved(true); setLocName(c.name.split(",").slice(0, 2).join(",").trim()); }
       } catch {}
     } finally {
       setLoading(false);
@@ -7557,6 +7566,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     if (!c || !isFinite(c.lat) || !isFinite(c.lng)) return;
     manualRef.current = true;
     setCenter({ lat: c.lat, lng: c.lng });
+    setLocResolved(true);
     setLocName("this map area");
     try { logEvent("map_search_area", null, { lat: +Number(c.lat).toFixed(3), lng: +Number(c.lng).toFixed(3) }); } catch (e) {}
   }
@@ -7565,6 +7575,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     manualRef.current = true;
     setSearchMode(false);
     setCenter({ lat: a.lat, lng: a.lng, name: a.name });
+    setLocResolved(true);
     setLocName(a.name);
     setSearchRadius(a.radius || 24140);
     setQuery("");
@@ -7574,7 +7585,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
 
   function clearSearchedLocation() {
     manualRef.current = false; try { localStorage.removeItem("wf_center"); } catch (e) {}
-    if (deviceLoc && isFinite(deviceLoc.lat)) { setCenter({ lat: deviceLoc.lat, lng: deviceLoc.lng }); }
+    if (deviceLoc && isFinite(deviceLoc.lat)) { setCenter({ lat: deviceLoc.lat, lng: deviceLoc.lng }); setLocResolved(true); }
     setLocName("");
   }
 
@@ -7594,6 +7605,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try { localStorage.removeItem("wf_center"); } catch (e) {}
     if (deviceLoc && isFinite(deviceLoc.lat)) {
       setCenter({ lat: deviceLoc.lat, lng: deviceLoc.lng });
+      setLocResolved(true);
       setMapFocus({ lat: deviceLoc.lat, lng: deviceLoc.lng, ts: Date.now() });
       try { setLocName(await reverseGeocode(deviceLoc.lat, deviceLoc.lng)); } catch (e) {}
       try { logEvent("recenter_to_me", null, { hadFix: true }); } catch (e) {}
@@ -7606,6 +7618,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         setDeviceLoc(c);
         setLocApprox(false);
         setCenter(c);
+        setLocResolved(true);
         setMapFocus({ ...c, ts: Date.now() });
         try { setLocName(await reverseGeocode(c.lat, c.lng)); } catch (e) {}
         try { logEvent("recenter_to_me", null, { hadFix: false }); } catch (e) {}
@@ -7711,6 +7724,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const geoTry = async (name) => { for (const v of collapse(name)) { try { const g = await geocodeCity(v); if (g) return g; } catch (e) {} } return null; };
     const goTo = (g) => {
       setCenter(g);
+      setLocResolved(true);
       setLocName(g.name.split(",").slice(0, 2).join(",").trim());
       setSearchMode(false);
       setSearchLabel("");
@@ -8421,7 +8435,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         lat={railMenu.lat}
         lng={railMenu.lng}
         initialDaypart={railMenu.daypart}
-        center={center}
+        center={locResolved ? center : null}
         onCoverage={setRailsCoverage}
         isSaved={isSaved}
         isOnTrip={isOnTrip}
@@ -8581,7 +8595,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         )}
         {/* map search moved onto the map as a floating control (see map overlay) */}
         {(screen !== "map" || mapSearchOpen) && (
-        <div className={"wf-search-row" + (screen !== "map" ? " has-scope" : "")} style={{ display: "flex", gap: 0, position: "relative" }}>
+        <div className={"wf-search-row" + (screen !== "map" ? " has-scope" : "") + (suggestions.length ? " is-suggesting" : "")} style={{ display: "flex", gap: 0, position: "relative", zIndex: suggestions.length ? 40 : undefined }}>
           {/* v8.2 ROW B — THE SCOPE ("All \u2228" in the lab). It writes
               browseCat, the SAME state the six tabs beside it write, so it is
               the tab strip in the shape a phone can hold — never a second
@@ -8644,7 +8658,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               className="wf-search-input" style={{ width: "100%", boxSizing: "border-box", height: 48, padding: "0 14px 0 38px", background: C.card, border: `1.5px solid ${C.border}`, borderRight: "none", borderRadius: "14px 0 0 14px", color: C.text, fontSize: 16, outline: "none" }}
             />
             {suggestions.length > 0 && (
-              <ul id="wf-suggestions" role="listbox" aria-label="Search suggestions" style={{ listStyle: "none", margin: 0, padding: 0, position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", boxShadow: "0 10px 30px rgba(0,0,0,.5)", zIndex: 50 }}>
+              <ul id="wf-suggestions" role="listbox" aria-label="Search suggestions" style={{ listStyle: "none", margin: 0, padding: 0, position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", boxShadow: "0 10px 30px rgba(0,0,0,.5)", zIndex: 80 }}>
                 {suggestions.map((s, i) => (
                   <li
                     key={i}
@@ -8699,7 +8713,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             a desk, where there is no thumb and the bottom bar is a floating pill
             in the corner of the eye. */}
         {screen !== "map" && (
-          <nav className="wf-dests" aria-label="Destinations">
+          <nav className={"wf-dests" + (suggestions.length ? " is-covered" : "")} aria-label="Destinations" style={suggestions.length ? { pointerEvents: "none" } : undefined}>
             <button type="button" className={"wf-dest wf-dest-opener" + (navShortcuts ? " is-on" : "")}
                     aria-expanded={navShortcuts} aria-controls="wf-scpanel"
                     onClick={() => setNavShortcuts((v) => !v)}>
@@ -9232,7 +9246,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   dead-ends there, because nothing on the home screen has ever linked
                   to one. Renders only where a guide genuinely covers the reader's
                   area — see LOCAL_EDIT_RADIUS_MI — so "local" stays a fact. */}
-              {!browseCat && <LocalEdit center={center} guides={localEditGuides} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
+              {!browseCat && <LocalEdit center={locResolved ? center : null} guides={localEditGuides} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
               {a2hs && (
                 <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 12px" }}>
                   <img src="/icon-192.png" alt="" width={34} height={34} style={{ borderRadius: 8 }} />

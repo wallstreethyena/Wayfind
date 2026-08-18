@@ -590,7 +590,7 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   }
 
   // ── the bridge ──
-  ok(/<LocalEdit center=\{center\}/.test(HOME), "the home screen links to the guides — they pull traffic from Google and dead-end without this");
+  ok(/<LocalEdit center=\{locResolved \? center : null\}/.test(HOME) || /<LocalEdit center=\{center\}/.test(HOME), "the home screen links to the guides — they pull traffic from Google and dead-end without this");
   const LE = readFileSync(path.join(REPO, "app/components/LocalEdit.js"), "utf8");
   // v7.29: the pure half (radius, read time, the geo filter) moved to
   // lib/localEdit.js so the SERVER can build the index and the guide corpus

@@ -45,9 +45,9 @@ const RAILS_META = strip(read("lib/rails.js"));
 const BEST = strip(read("app/components/BestNearby.js"));
 
 /* ── A. Honest empty when rails uncovered or errored ─────────────────────── */
-ok(/emptyLive\s*=\s*\(/.test(RAIL) || /covered:\s*false/.test(RAIL),
+ok(/emptyRailLive/.test(RAIL) || /emptyLive\s*=\s*\(/.test(RAIL) || /covered:\s*false/.test(RAIL),
   "DaypartRail has an explicit uncovered/empty live payload — not just live || ssr");
-ok(/setLive\(emptyLive\(\)\)/.test(RAIL) || /setLive\(\{[^}]*covered:\s*false/.test(RAIL),
+ok(/setLive\(emptyRailLive\(\)\)/.test(RAIL) || /setLive\(emptyLive\(\)\)/.test(RAIL) || /setLive\(\{[^}]*covered:\s*false/.test(RAIL),
   "DaypartRail writes the empty payload when /api/rails is uncovered or errored");
 ok(!/keep the flagship/.test(RAIL),
   "DaypartRail no longer comments-or-codes a keep-the-flagship fallback");
@@ -55,9 +55,10 @@ ok(/onCoverage/.test(RAIL),
   "DaypartRail tells the parent when coverage failed so CityGate can open");
 ok(/railsCoverage === "uncovered"/.test(HOME) && /<CityGate/.test(HOME),
   "home.js mounts CityGate when rails are uncovered — never Sarasota-as-you");
-ok(/!j \|\| !j\.covered \|\| !j\.data/.test(RAIL),
+ok(/liveFromRailsResponse/.test(RAIL) || /!j \|\| !j\.covered \|\| !j\.data/.test(RAIL),
   "the live fetch still treats covered:false / missing data as a miss");
-ok(/\.catch\(\(\) => \{[\s\S]{0,180}setLive\(emptyLive\(\)\)/.test(RAIL)
+ok(/\.catch\(\(\) => \{[\s\S]{0,180}setLive\(emptyRailLive\(\)\)/.test(RAIL)
+  || /\.catch\(\(\) => \{[\s\S]{0,180}setLive\(emptyLive\(\)\)/.test(RAIL)
   || /\.catch\(\(\) => \{[\s\S]{0,180}covered:\s*false/.test(RAIL),
   "a thrown /api/rails must empty the flagship, not .catch(() => {})");
 ok(/covered:\s*false/.test(RAILS_API) && /COVERAGE_MI/.test(RAILS_API),
@@ -82,7 +83,8 @@ ok(/fetch\("\/api\/geo"/.test(HOME) && /setCenter\(c\)/.test(HOME),
   "/api/geo writes setCenter(c) so a real IP fix replaces the unresolved seed");
 ok(!/const cityNow = locName \? locName\.split\(","\)\[0\] : "you"/.test(HOME),
   "cityNow must not fall back to \"you\" when locName is empty");
-ok(/const cityNow = locName \? locName\.split\(","\)\[0\] : ""/.test(HOME),
+ok(/const cityNow = cityLabel\(locName\)/.test(HOME)
+  || /const cityNow = locName \? locName\.split\(","\)\[0\] : ""/.test(HOME),
   "cityNow is the named city, or empty — never a fake \"you\"");
 ok(!/where=\{locName \? locName\.split\(","\)\[0\] : "you"\}/.test(HOME),
   "SortControl chrome must not say \"you\" without a named city");
@@ -99,4 +101,25 @@ ok(/!r\.artStale/.test(RAIL) && /artStale/.test(RAIL),
 ok(!/<ExplodingNearby[\s/>]/.test(HOME),
   "the homepage does not remount the Exploding Trends accordion");
 
-console.log(`check-location-fail-open: OK — ${pass} assertions (A fail-closed rails, B unknown slug, C unresolved seed, D dark Exploding Trends hero hidden)`);
+/* ── F. After Tampa, leftover Sarasota heading / distances cannot linger ── */
+ok(/setLive\(emptyRailLive\(\)\)/.test(RAIL) || /setLive\(emptyLive\(\)\)/.test(RAIL),
+  "changing center clears live rails before the new fetch — leftover Sarasota distances cannot linger");
+ok(/center=\{locResolved \? center : null\}/.test(HOME),
+  "DaypartRail and LocalEdit only receive a center once the location is resolved");
+ok(!/Near Sarasota right now/.test(strip(read("app/page.js"))),
+  "HomeProof no longer hardcodes \"Near Sarasota right now\" into the ISR document");
+
+/* ── G. nav.wf-dests must not eat the first city suggestion ─────────────── */
+ok(/is-suggesting/.test(HOME) && /is-covered/.test(HOME),
+  "the search row marks itself open and dests as covered while suggestions show");
+ok(/pointerEvents:\s*["']none["']/.test(HOME),
+  "covered dests do not receive pointer events");
+ok(/onMouseDown=\{\(e\) => \{ e\.preventDefault\(\); pickSuggestion\(s\)/.test(HOME),
+  "a suggestion is taken on mousedown so dests cannot steal the click");
+const CSS = read("app/components/css.js");
+ok(/\.wf-search-row\.is-suggesting\{z-index:40\}/.test(CSS),
+  "an open search row stacks above dests");
+ok(/\.wf-dests\.is-covered\{pointer-events:none\}/.test(CSS),
+  "CSS disables pointer-events on a covered dests nav");
+
+console.log(`check-location-fail-open: OK — ${pass} assertions (A fail-closed rails, B unknown slug, C unresolved seed, D dark Exploding Trends hero hidden, F leftover city cleared, G dests do not eat suggestions)`);

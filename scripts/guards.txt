@@ -404,6 +404,7 @@ node scripts/check-trend-section-honesty.mjs
 # slugs must not become Sarasota; DEFAULT_CENTER is unresolved until GPS /
 # search / IP geo; do not advertise Exploding Trends while the accordion is dark.
 node scripts/check-location-fail-open.mjs
+node scripts/check-location-honesty.mjs
 # The rail tile headline is PIXELS. Renaming a rail in code changes nothing
 # the reader sees until the art is redrawn — pin copy and art together.
 node scripts/check-rail-art-matches-copy.mjs
