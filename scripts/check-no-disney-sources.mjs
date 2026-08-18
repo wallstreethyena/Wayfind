@@ -66,7 +66,8 @@ const GOOGLE_SOURCES = ["googleapis.com", "google.com", "goo.gl"];
 const ALLOWED_THIRD_PARTY = [
   // government / public authority
   "myfwc.com", "floridadep.gov", "myfloridahouse.gov", "nps.gov",
-  "floridastateparks.org", "sarasotacountyparks.com", "mymanatee.org", "sarasotafl.gov",
+  "floridastateparks.org", "sarasotacountyparks.com", "scgov.net",
+  "floridahealthybeaches.com", "mymanatee.org", "sarasotafl.gov",
   "cityofnorthport.com", "northportfl.gov", "venicegov.com", "longboatkey.org",
   "myfloridalicense.com",
   // tourism boards / official destination marketing

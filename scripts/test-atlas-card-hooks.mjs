@@ -39,6 +39,12 @@ const SIESTA = "ChIJjfu2YPBBw4gRo41o9hwHfmg";
 const LIDO = "ChIJaW-sUB9rw4gRrQvxVM94nOY";
 const COQUINA = "ChIJzzGPjSkRw4gRfecn6X09ufk";
 const COQUINA_ALIAS = "ChIJPbX5AxsTw4gROkfgzEmV-5M";
+const BROHARD = "ChIJg-xDYNxbw4gRqhiY424rrNI";
+const PALMA_SOLA = "ChIJBbWy1CkRw4gR2nakL2nnFjU";
+const SERVICE_CLUB = "ChIJqXOk48Jbw4gRr3On4Tgi36U";
+const HOLMES_PIN = "ChIJaWeoBbURw4gRDYfwKuwOVW0";
+const MANATEE_PUBLIC = "ChIJh6_HnNcRw4gR2SpbLik_gEk";
+const POINT_OF_ROCKS = "ChIJD3tKOCNCw4gR_-Jbam9Vc24";
 
 // ── 1. published Atlas hooks render ────────────────────────────────────────
 const lines = atlasLinesFor(cards, [SIESTA, LIDO, COQUINA, COQUINA_ALIAS]);
@@ -98,6 +104,16 @@ ok(missing.length > 0, "missing-set helper returned empty — a green test that 
 ok(!missing.some((r) => r.place_id === SIESTA || r.place_id === LIDO || r.place_id === COQUINA),
   "Siesta/Lido/Coquina are listed as missing — they have publish-ready cards");
 ok(resolveAtlasId(COQUINA_ALIAS) === COQUINA, "Coquina alias map drifted from review-same-place.tsv");
+
+// ── 5. Atlas-590 five-beach ingest (3 publish + Holmes alias; Point of Rocks held)
+ok(!!atlasCardFor(index, BROHARD) && atlasCardFor(index, BROHARD).category === "beaches", "Brohard Paw Park card missing");
+ok(!!atlasCardFor(index, PALMA_SOLA) && atlasCardFor(index, PALMA_SOLA).category === "beaches", "Palma Sola Causeway card missing");
+ok(!!atlasCardFor(index, SERVICE_CLUB) && atlasCardFor(index, SERVICE_CLUB).category === "beaches", "Service Club Park card missing");
+ok(atlasCardFor(index, MANATEE_PUBLIC) && atlasCardFor(index, MANATEE_PUBLIC).name === "Manatee Public Beach", "Manatee Public Beach canon card missing — Holmes alias target");
+ok(resolveAtlasId(HOLMES_PIN) === MANATEE_PUBLIC, "Holmes Beach pin must alias to Manatee Public Beach");
+ok(atlasCardFor(index, HOLMES_PIN) && atlasCardFor(index, HOLMES_PIN).placeId === MANATEE_PUBLIC, "Holmes Beach pin did not resolve to the Manatee Public Beach card");
+ok(!cards.some((c) => c.placeId === HOLMES_PIN), "do not publish a second Holmes Beach card");
+ok(!atlasCardFor(index, POINT_OF_ROCKS) && !cards.some((c) => c.placeId === POINT_OF_ROCKS), "Point of Rocks must stay held — no card");
 
 const beachMissing = missing.filter((r) => r.category === "beaches");
 console.log("\nAtlas-590 place_ids with no publish-ready editorial card:");
