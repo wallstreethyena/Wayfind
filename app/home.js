@@ -81,7 +81,7 @@ import { useBestPhoto } from "../lib/bestPhoto";
 import nextDynamic from "next/dynamic";
 // v5.39 (July 2026 audit, Phase 7): the map bundle loads when the map
 // screen (or sidebar map) first renders, not on first paint.
-const MapView = nextDynamic(() => import("./components/MapView"), { ssr: false, loading: () => <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, color: "#CBD5E1", background: "#070C14", fontSize: 13, fontWeight: 700 }}><div aria-hidden="true" style={{ position: "relative", width: 126, height: 126, borderRadius: "50%", border: "1px solid rgba(249,115,22,.42)", boxShadow: "0 0 0 28px rgba(249,115,22,.08),0 0 0 56px rgba(249,115,22,.045)" }}><span style={{ position: "absolute", left: "50%", top: "50%", width: 15, height: 15, margin: "-7.5px", borderRadius: "50%", background: "#F97316", border: "3px solid #FFF7ED", boxShadow: "0 0 0 7px rgba(249,115,22,.18)" }} /></div><span>Setting the map around you…</span></div> });
+const MapView = nextDynamic(() => import("./components/MapView"), { ssr: false, loading: () => <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, color: "#CBD5E1", background: "#070C14", fontSize: 13, fontWeight: 700 }}><div aria-hidden="true" style={{ position: "relative", width: 126, height: 126, borderRadius: "50%", border: "1px solid rgba(249,115,22,.42)", boxShadow: "0 0 0 28px rgba(249,115,22,.08),0 0 0 56px rgba(249,115,22,.045)" }}><span style={{ position: "absolute", left: "50%", top: "50%", width: 15, height: 15, margin: "-7.5px", borderRadius: "50%", background: "#F97316", border: "3px solid #FFF7ED", boxShadow: "0 0 0 7px rgba(249,115,22,.18)" }} /></div><span>Setting the map…</span></div> });
 // G1 (July 2026 decomposition): non-default screens ship in their own chunks.
 // `screen` initializes to "suggested" and these render only on user action, so
 // ssr:false cannot cause a hydration mismatch. Every chunk is prefetched at
@@ -205,7 +205,6 @@ import BestNearby from "./components/BestNearby";
 import RailCard, { RailNav, RailDots } from "./components/RailCard";
 import CreatorFinds from "./components/CreatorFinds";
 import LocalEdit from "./components/LocalEdit";
-import CityGate from "./components/CityGate";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor, PLATFORM, regionsWithFinds, spotsByCity, libraryStats } from "../lib/creatorVideos";
 import { hasCreatorVideoAt, displayedWfScore } from "../lib/creatorBoost";
@@ -232,6 +231,7 @@ import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlen
 import { canonicalShareUrl } from "../lib/site";
 import { askShareIntent } from "./components/shareIntentSheet";
 import { placeKinds } from "../lib/dateInvite";
+import { isSeedCenter, cityLabel, landingSlugFromLoc } from "../lib/locationHonesty";
 
 const BUILD = "beta";
 
@@ -535,7 +535,7 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
           // rail tiles use, so a tab can never emit a bare /restaurants and can
           // never emit a slug outside LANDING_CITIES. cityFor() is never null,
           // so there is no "no city" branch to get wrong.
-          const href = CATEGORY_ROUTE[m.id]
+          const href = CATEGORY_ROUTE[m.id] && navCitySlug
             ? railHref({ href: CATEGORY_ROUTE[m.id] }, navRegion, navCitySlug)
             : null;
           const glyph = <NavIcon name={m.id} color={on ? "#FFFFFF" : "#8A96AE"} size={17} strokeWidth={1.7} />;
@@ -810,6 +810,10 @@ function withMemberSignal(list, sig) {
 // Per-place turn-by-turn stays on each place's explicit Directions button.
 
 const DEFAULT_CENTER = { lat: 27.5689, lng: -82.4393, name: "Parrish, FL" };
+// DEFAULT_CENTER is an unresolved seed, not a visitor location. center starts
+// null until GPS, manual search, or /api/geo adopts a real point. Do not claim
+// "near you" / "you" unless locName is a real city. Keep the literal here so
+// test-events-prime can lockstep primer coords against home.js.
 const FEATURED_AREAS = [];
 
 // Intent: Wayfind asks WHY you are going out, then reshapes every pick around it.
@@ -1540,7 +1544,7 @@ const EXPERIENCES = {
 //      experience screen.
 //  (3) Their lists fetch their own wide-radius results (attractions/hotels an
 //      hour out must appear), independent of the food-heavy local pool.
-let CITY_NOW = "you";
+let CITY_NOW = "";
 function cityFixM(s) { return String(s || "").replace(/Best of Sarasota/g, "Best of " + CITY_NOW); }
 // 2026-08-04 (owner decision) — the welcome/mood gate's auto-show timing.
 //
@@ -3728,16 +3732,17 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const [homeRolling, setHomeRolling] = useState(false); // dice animating in the panel
   const [homeDiceFace, setHomeDiceFace] = useState("🎲");
   const [rollHistory, setRollHistory] = useState([]); // session-only history of dice rolls
-  const [center, setCenter] = useState(DEFAULT_CENTER);
+  const [center, setCenter] = useState(null);
   const [deviceLoc, setDeviceLoc] = useState(null);
   const [locName, setLocName] = useState("");
+  const [locResolved, setLocResolved] = useState(false);
   // A1: persist the app's resolved location, including whether it came from
   // a manual search, so remounts do not snap back to device GPS.
   useEffect(() => {
     try { if (center && isFinite(center.lat) && isFinite(center.lng) && locName) setLocal("wf_center", JSON.stringify({ lat: center.lat, lng: center.lng, loc: locName, manual: !!manualRef.current, ts: Date.now() })); } catch (e) {}
   }, [center, locName]);
   // PROTECTED (check-cards.mjs): every card label follows the user's location.
-  const cityNow = locName ? locName.split(",")[0] : "you";
+  const cityNow = cityLabel(locName);
   CITY_NOW = cityNow;
   const cityFix = cityFixM;
   const [query, setQuery] = useState("");
@@ -3888,6 +3893,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   }, [suggested, places, locName]);
   const [gateStatus, setGateStatus] = useState(null);
   const [gateBump, setGateBump] = useState(0); // bump to re-check coverage after an unlock completes
+  const [railsCoverage, setRailsCoverage] = useState(null);
   const [homeTodo, setHomeTodo] = useState(null);
   const [suggestedLoading, setSuggestedLoading] = useState(false);
   const [intent, setIntent] = useState(null);
@@ -3948,6 +3954,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       if (c && c.manual && isFinite(c.lat) && isFinite(c.lng) && (!c.ts || Date.now() - c.ts < 6 * 3600 * 1000)) {
         manualRef.current = true;
         setCenter({ lat: c.lat, lng: c.lng });
+        setLocResolved(true);
         if (c.loc) setLocName(c.loc);
       }
     } catch (e) {}
@@ -6156,7 +6163,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         if (d && d.ok && !gotGPS && !manualRef.current) {
           const c = { lat: d.lat, lng: d.lng };
           setDeviceLoc((prev) => prev || c);
-          setCenter((prev) => prev || c);
+          setCenter((prev) => (isSeedCenter(prev) ? c : prev));
+          setLocResolved(true);
           if (d.name) setLocName((prev) => prev || d.name);
         }
       } catch (e) {}
@@ -6181,11 +6189,22 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           // returning device (a saved wf_center) keeps that center as the stable
           // anchor, and the locate button recenters explicitly (it clears wf_center
           // first, so it is not affected by this guard).
-          let hasSaved = false;
-          try { hasSaved = !!localStorage.getItem("wf_center"); } catch (e) {}
-          if (hasSaved) return;
+          let savedOk = false;
+          try {
+            const raw = localStorage.getItem("wf_center");
+            const saved = raw ? JSON.parse(raw) : null;
+            savedOk = !!(saved && isFinite(saved.lat) && isFinite(saved.lng) && (!saved.ts || Date.now() - saved.ts < 6 * 3600 * 1000));
+            if (raw && !savedOk) localStorage.removeItem("wf_center");
+            if (savedOk) {
+              setCenter({ lat: saved.lat, lng: saved.lng });
+              setLocResolved(true);
+              if (saved.loc) setLocName((prev) => prev || saved.loc);
+              return;
+            }
+          } catch (e) {}
           const name = await reverseGeocode(c.lat, c.lng);
           setCenter(c);
+          setLocResolved(true);
           setLocName(name);
         },
         () => { ipFallback(); },
@@ -7500,6 +7519,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // Recenter explore list to this place's area for the "similar spots" context.
         if (typeof lat === "number" && typeof lng === "number") {
           setCenter({ lat, lng });
+          setLocResolved(true);
           manualRef.current = true;
         }
         openDetail(placeObj);
@@ -7521,13 +7541,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       const lng = typeof loc.lng === "number" ? loc.lng : loc.longitude;
       if (typeof lat === "number" && typeof lng === "number") {
         setCenter({ lat, lng });
+        setLocResolved(true);
         const fa = place.formattedAddress || (place.displayName && (place.displayName.text || place.displayName)) || item.text;
         setLocName(String(fa).split(",").slice(0, 2).join(",").trim());
       }
     } catch {
       try {
         const c = await geocodeCity(item.text);
-        if (c) { setCenter(c); setLocName(c.name.split(",").slice(0, 2).join(",").trim()); }
+        if (c) { setCenter(c); setLocResolved(true); setLocName(c.name.split(",").slice(0, 2).join(",").trim()); }
       } catch {}
     } finally {
       setLoading(false);
@@ -7544,6 +7565,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     if (!c || !isFinite(c.lat) || !isFinite(c.lng)) return;
     manualRef.current = true;
     setCenter({ lat: c.lat, lng: c.lng });
+    setLocResolved(true);
     setLocName("this map area");
     try { logEvent("map_search_area", null, { lat: +Number(c.lat).toFixed(3), lng: +Number(c.lng).toFixed(3) }); } catch (e) {}
   }
@@ -7552,6 +7574,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     manualRef.current = true;
     setSearchMode(false);
     setCenter({ lat: a.lat, lng: a.lng, name: a.name });
+    setLocResolved(true);
     setLocName(a.name);
     setSearchRadius(a.radius || 24140);
     setQuery("");
@@ -7561,7 +7584,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
 
   function clearSearchedLocation() {
     manualRef.current = false; try { localStorage.removeItem("wf_center"); } catch (e) {}
-    if (deviceLoc && isFinite(deviceLoc.lat)) { setCenter({ lat: deviceLoc.lat, lng: deviceLoc.lng }); }
+    if (deviceLoc && isFinite(deviceLoc.lat)) { setCenter({ lat: deviceLoc.lat, lng: deviceLoc.lng }); setLocResolved(true); }
     setLocName("");
   }
 
@@ -7581,6 +7604,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try { localStorage.removeItem("wf_center"); } catch (e) {}
     if (deviceLoc && isFinite(deviceLoc.lat)) {
       setCenter({ lat: deviceLoc.lat, lng: deviceLoc.lng });
+      setLocResolved(true);
       setMapFocus({ lat: deviceLoc.lat, lng: deviceLoc.lng, ts: Date.now() });
       try { setLocName(await reverseGeocode(deviceLoc.lat, deviceLoc.lng)); } catch (e) {}
       try { logEvent("recenter_to_me", null, { hadFix: true }); } catch (e) {}
@@ -7593,6 +7617,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         setDeviceLoc(c);
         setLocApprox(false);
         setCenter(c);
+        setLocResolved(true);
         setMapFocus({ ...c, ts: Date.now() });
         try { setLocName(await reverseGeocode(c.lat, c.lng)); } catch (e) {}
         try { logEvent("recenter_to_me", null, { hadFix: false }); } catch (e) {}
@@ -7698,6 +7723,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const geoTry = async (name) => { for (const v of collapse(name)) { try { const g = await geocodeCity(v); if (g) return g; } catch (e) {} } return null; };
     const goTo = (g) => {
       setCenter(g);
+      setLocResolved(true);
       setLocName(g.name.split(",").slice(0, 2).join(",").trim());
       setSearchMode(false);
       setSearchLabel("");
@@ -7766,7 +7792,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             // legacy explore screen is retired as a search destination.
             const sorted = nearby.slice().sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
             setLoading(false);
-            setHookDetail({ id: "search-" + Date.now(), theme: "search", title: `Results for "${q}"`, themeTitle: `Results for "${q}"`, label: q, themeBody: "The closest matches near " + (locName ? locName.split(",")[0] : "you") + ", ranked for right now.", emoji: "\uD83D\uDD0E", accent: C.accent, places: sorted, sections: null });
+            setHookDetail({ id: "search-" + Date.now(), theme: "search", title: `Results for "${q}"`, themeTitle: `Results for "${q}"`, label: q, themeBody: "The closest matches near " + (locName ? locName.split(",")[0] : "this area") + ", ranked for right now.", emoji: "\uD83D\uDD0E", accent: C.accent, places: sorted, sections: null });
             try { window.scrollTo(0, 0); } catch (e) {}
           }
           return;
@@ -8239,7 +8265,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       {!loading && (
         <div style={{ padding: "0 2px 10px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, paddingBottom: 4 }}>
-            {browseCat !== "attractions" && <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />}
+            {browseCat !== "attractions" && <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : ""} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />}
           </div>
         </div>
       )}
@@ -8408,7 +8434,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         lat={railMenu.lat}
         lng={railMenu.lng}
         initialDaypart={railMenu.daypart}
-        center={center}
+        center={locResolved ? center : null}
+        onCoverage={setRailsCoverage}
         isSaved={isSaved}
         isOnTrip={isOnTrip}
         onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }}
@@ -8521,8 +8548,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             two lines on a phone and reads as one band on a desk. */}
         {screen !== "map" && (
           <CategoryMenu nav activeCat={browseCat} sub={sub}
-            navRegion={railMenu ? railMenu.region : undefined}
-            navCitySlug={railMenu ? railMenu.citySlug : undefined}
+            navRegion={landingSlugFromLoc(locName) === "orlando" ? "orlando" : (landingSlugFromLoc(locName) ? "fl" : undefined)}
+            navCitySlug={landingSlugFromLoc(locName) || null}
             navOpenCat={navOpenCat}
             onNavOpen={(id, label) => {
               setNavOpenCat(id);
@@ -8589,7 +8616,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         )}
         {/* map search moved onto the map as a floating control (see map overlay) */}
         {(screen !== "map" || mapSearchOpen) && (
-        <div className={"wf-search-row" + (screen !== "map" ? " has-scope" : "")} style={{ display: "flex", gap: 0, position: "relative" }}>
+        <div className={"wf-search-row" + (screen !== "map" ? " has-scope" : "") + (suggestions.length ? " is-suggesting" : "")} style={{ display: "flex", gap: 0, position: "relative", zIndex: suggestions.length ? 40 : undefined }}>
           {/* v8.2 ROW B — THE SCOPE ("All \u2228" in the lab). It writes
               browseCat, the SAME state the six tabs beside it write, so it is
               the tab strip in the shape a phone can hold — never a second
@@ -8652,7 +8679,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               className="wf-search-input" style={{ width: "100%", boxSizing: "border-box", height: 48, padding: "0 14px 0 38px", background: C.card, border: `1.5px solid ${C.border}`, borderRight: "none", borderRadius: "14px 0 0 14px", color: C.text, fontSize: 16, outline: "none" }}
             />
             {suggestions.length > 0 && (
-              <ul id="wf-suggestions" role="listbox" aria-label="Search suggestions" style={{ listStyle: "none", margin: 0, padding: 0, position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", boxShadow: "0 10px 30px rgba(0,0,0,.5)", zIndex: 50 }}>
+              <ul id="wf-suggestions" role="listbox" aria-label="Search suggestions" style={{ listStyle: "none", margin: 0, padding: 0, position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", boxShadow: "0 10px 30px rgba(0,0,0,.5)", zIndex: 80 }}>
                 {suggestions.map((s, i) => (
                   <li
                     key={i}
@@ -8707,7 +8734,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             a desk, where there is no thumb and the bottom bar is a floating pill
             in the corner of the eye. */}
         {screen !== "map" && (
-          <nav className="wf-dests" aria-label="Destinations">
+          <nav className="wf-dests" {...(suggestions.length ? { className: "wf-dests is-covered" } : null)} aria-label="Destinations" style={suggestions.length ? { pointerEvents: "none" } : undefined}>
             <button type="button" className={"wf-dest wf-dest-opener" + (navShortcuts ? " is-on" : "")}
                     aria-expanded={navShortcuts} aria-controls="wf-scpanel"
                     onClick={() => setNavShortcuts((v) => !v)}>
@@ -8893,7 +8920,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           const picksHook = (() => {
             const bs = [...displayList].filter(Boolean).sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
             if (bs.length < 5) return null;
-            const cityN = locName ? locName.split(",")[0] : "you";
+            const cityN = locName ? locName.split(",")[0] : "this area";
             return {
               id: "top5", accent: C.accent, emoji: "🧭", label: "Wayfind Picks",
               theme: "best", placeId: bs[0].id, highlightWord: "top 10",
@@ -9243,7 +9270,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   dead-ends there, because nothing on the home screen has ever linked
                   to one. Renders only where a guide genuinely covers the reader's
                   area — see LOCAL_EDIT_RADIUS_MI — so "local" stays a fact. */}
-              {!browseCat && <LocalEdit center={center} guides={localEditGuides} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
+              {!browseCat && <LocalEdit center={locResolved ? center : null} guides={localEditGuides} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
               {a2hs && (
                 <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 12px" }}>
                   <img src="/icon-192.png" alt="" width={34} height={34} style={{ borderRadius: 8 }} />
@@ -9260,7 +9287,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                 <div ref={browseAnchorRef} style={{ marginBottom: 16 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
                     <div onClick={() => { setBrowseCat(null); setMoodPick(null); setSub("all"); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
-                    {browseCat !== "attractions" && <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />}
+                    {browseCat !== "attractions" && <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : ""} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />}
                   </div>
                   {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <AreaInsight metro={_cm} cat={browseCat} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /> : null; })()}
                   {/* v6.47 (owner via Cowork spec): the attractions browse is ONE ranked
@@ -9318,7 +9345,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                           relax the sub-filter if one is on, else widen the search radius. */}
                       {(() => {
                         const _lbl = ((Cats.CATEGORY_TILES.find((t) => t.id === browseCat) || {}).label || "").toLowerCase();
-                        const _city = locName ? locName.split(",")[0] : "you";
+                        const _city = locName ? locName.split(",")[0] : "this area";
                         const _canRelax = sub && sub !== "all";
                         const _mi = Math.min(Math.round((sliderMi || DEFAULT_RADIUS_MI) + 15), 75);
                         const _widen = () => { autoRadiusRef.current = false; setSliderMi(_mi); setSearchRadius(Math.round(_mi * 1609.34)); };
@@ -9380,7 +9407,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                 const heroCandidates = heroPhotoPool.filter((p) => p.openNow !== false);
                 const condRanked = Ranking.rankByConditions(heroCandidates.length ? heroCandidates : heroPhotoPool, condCtx);
                 const heroPlace = condRanked[0] || null;
-                const cityHero = locName ? locName.split(",")[0] : "you";
+                const cityHero = locName ? locName.split(",")[0] : "this area";
                 const heroHook = heroPlace ? {
                   id: "top10now", accent: C.accent, emoji: "🧭", label: "Your Next Move",
                   theme: "best", placeId: heroPlace.id, highlightWord: "top 10", _ctx: condCtx,
@@ -9530,7 +9557,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   old (ISR), so computing it at render made server and client
                   disagree (this was the live React 418/423). Both sides render
                   the generic line first; the moment arrives one paint later. */}
-              {!browseCat && suggested === null && <div style={{ minHeight: "62vh" }}><Loader label={bootMoment ? `Finding the best options for ${bootMoment} near ${locName ? locName.split(",")[0] : "you"}…` : "Finding the best options near you…"} sub={`open now first · within ${DEFAULT_RADIUS_MI} miles · ranked by real reviews, not ads`} pad="8px 2px" /></div>}
+              {!browseCat && suggested === null && <div style={{ minHeight: "62vh" }}><Loader label={bootMoment ? `Finding the best options for ${bootMoment} near ${locName ? locName.split(",")[0] : "this area"}…` : "Finding the best options…"} sub={`open now first · within ${DEFAULT_RADIUS_MI} miles · ranked by real reviews, not ads`} pad="8px 2px" /></div>}
               {/* Wayfind Picks list removed from home: the ranked list now lives behind the Wayfind Picks hero card above, which opens the curated top 10 sheet. */}
               {/* Roll the Dice now renders as the last hook card inside the "Worth a look" section above, matching the editorial cards. */}
               {/* Inline ranked feed removed from home: browsing the full ranked list now happens inside the Wayfind Picks sheet, the Nearby tile, search, and categories. */}

@@ -104,12 +104,10 @@ for (const id of withArt) {
   const pinned = PAIRS[id];
 
   if (stale) {
-    // artStale does NOT suppress the tile. The owner uses these tiles and asked
-    // for the trending one working (2026-08-16), so hiding it is not the call
-    // to make on their behalf. What the flag buys is that the mismatch is
-    // TRACKED — named on every single guard run, below — instead of being
-    // rediscovered on a screenshot months later. It is outstanding art debt,
-    // deliberately visible, and it clears when the art is redrawn.
+    // artStale HIDES the tile (DaypartRail filters r.artStale). The trending
+    // art still reads EXPLODING TRENDS NEAR YOU and the accordion is dark, so
+    // shipping the tile would advertise a surface that cannot open. The flag
+    // still tracks the mismatch until the art is redrawn.
     if (pinned) {
       fail.push(`rail "${id}" is BOTH pinned and marked artStale. Pick one: if the art now matches, drop artStale; if it does not, drop the pin.`);
       continue;
@@ -151,6 +149,11 @@ for (const id of withArt) {
     continue;
   }
   pass++;
+}
+
+
+if (!/if \(r\.artStale\) return null/.test(dayRail) && !/!r\.artStale/.test(dayRail)) {
+  fail.push("DaypartRail must hide artStale tiles — Exploding Trends baked type must not render");
 }
 
 if (fail.length) {

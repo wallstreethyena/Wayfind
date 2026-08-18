@@ -50,6 +50,7 @@ const IconicPlaceCard = dynamic(() => import("./IconicPlaceCard"), { ssr: false 
 import { DAYPARTS, partForHour, orderFor, railHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES } from "../../lib/rails.js";
+import { emptyRailLive, liveFromRailsResponse } from "../../lib/locationHonesty.js";
 // v8.10 (owner, 2026-08-18: "there is no explanation of what the place is").
 // The ONE editorial resolver every place surface uses (#687 pattern) — known-for
 // research first, pool-cached blurb second, both fail-soft, no model in the
@@ -100,14 +101,16 @@ export default function DaypartRail({
   guides = [],
   thin = [],
   region = "fl",
-  citySlug = "sarasota",
+  citySlug = "",
   cityLabel = "",
   lat = null,
   lng = null,
   initialDaypart = "afternoon",
   // The reader's real location, once it resolves. app/home.js passes `center`,
   // the one piece of state both geolocation and the search box write to.
+  // Unresolved seed (DEFAULT_CENTER / null) is NOT a visitor location.
   center = null,
+  onCoverage = null,
   // v8.4 — SAVE AND ITINERARY. This surface had NEITHER, and it is the one the
   // owner looks at most: the homepage rail drop. All four come from app/home.js
   // so the state is the SAME store every other surface reads — a place saved
@@ -121,26 +124,22 @@ export default function DaypartRail({
 }) {
   const [daypart, setDaypart] = useState(initialDaypart);
   // THE RAIL FOLLOWS THE READER. Server props are the flagship metro's ranking
-  // — a real answer at first paint, and the wrong one for someone in Orlando.
-  // The owner drew this line himself on the beach card (2026-07-28): the rule
-  // must follow the SEARCHED point, not the device, which is why this keys on
-  // `center` rather than on geolocation. Overwritten only by a successful
-  // fetch, so a failure leaves the server's real answer in place.
+  // — a real answer at first paint, and the WRONG one the moment we know the
+  // visitor is somewhere else, or that /api/rails failed. covered:false and
+  // thrown fetches must empty the flagship, never keep Sarasota as "your" city.
   const [live, setLive] = useState(null);
   const [selected, setSelected] = useState(null);
   const trackRef = useRef(null);
   const pcRef = useRef(null);
   const menuRef = useRef(null);
-  const shown = live || { places, thin, region, citySlug, cityLabel };
+  const shown = live || { places: {}, thin: thin || [], region: region || null, citySlug: citySlug || null, cityLabel: cityLabel || "" };
   const thinSet = useMemo(() => new Set(shown.thin), [shown.thin]);
   const railById = useMemo(() => new Map(rails.map((r) => [r.id, r])), [rails]);
-  // NOTE on `artStale` (owner, 2026-08-16): a rail can be renamed in code while
-  // the reader keeps seeing the old claim, because the headline on these tiles
-  // is part of the IMAGE. `trending` is in that state — its art still reads
-  // "EXPLODING TRENDS NEAR YOU". The tile is NOT suppressed: the owner uses it
-  // and asked for it working. The flag exists so the mismatch is TRACKED in
-  // scripts/check-rail-art-matches-copy.mjs rather than discovered again on a
-  // screenshot, and it clears the day the art is redrawn.
+  // NOTE on `artStale`: a rail can be renamed in code while the reader keeps
+  // seeing the old claim, because the headline on these tiles is PIXELS.
+  // `trending` still reads "EXPLODING TRENDS NEAR YOU" in the artwork, and the
+  // Exploding Trends accordion is dark (removed 2026-08-16). The stale tile is
+  // hidden — do not remount the accordion; do not advertise a dark surface.
   const order = useMemo(() => orderFor(daypart, rails.map((r) => r.id)), [daypart, rails]);
   const band = DAYPARTS[daypart] || DAYPARTS.afternoon;
 
@@ -148,7 +147,10 @@ export default function DaypartRail({
   // generous on purpose: a few miles is the same market and refetching on every
   // GPS jitter would spend a request to return an identical list.
   useEffect(() => {
-    if (!center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) return undefined;
+    if (!center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) {
+      setLive(emptyRailLive());
+      return undefined;
+    }
     if (Number.isFinite(lat) && Number.isFinite(lng)) {
       const R = 3958.8, r = (d) => (d * Math.PI) / 180;
       const s2 = Math.sin(r(center.lat - lat) / 2) ** 2
@@ -161,16 +163,22 @@ export default function DaypartRail({
       if (R * 2 * Math.asin(Math.sqrt(s2)) < 1.5) return undefined;
     }
     let cancelled = false;
+    setLive(emptyRailLive());
     // Snapped to ~0.7mi so the CDN sees a countable set of URLs per metro, not
     // one per GPS fix. The server re-measures every distance from this point.
     const snap = (v) => Math.round(v * 100) / 100;
     fetch(`/api/rails?lat=${encodeURIComponent(snap(center.lat))}&lng=${encodeURIComponent(snap(center.lng))}`)
-      .then((r2) => (r2.ok ? r2.json() : null))
+      .then((r2) => r2.json().catch(() => null))
       .then((j) => {
-        if (cancelled || !j || !j.covered || !j.data) return;   // out of coverage: keep the flagship answer
-        setLive({ places: j.data.places, thin: j.data.thin, region: j.data.region, citySlug: j.data.citySlug, cityLabel: j.data.cityLabel });
+        if (cancelled) return;
+        setLive(liveFromRailsResponse(j));
+        try { onCoverage && onCoverage(j && j.covered === true && j.data ? "covered" : "uncovered"); } catch (e) {}
       })
-      .catch(() => {});
+      .catch(() => {
+        if (cancelled) return;
+        setLive(emptyRailLive());
+        try { onCoverage && onCoverage("error"); } catch (e) {}
+      });
     return () => { cancelled = true; };
   }, [center && center.lat, center && center.lng, lat, lng]);
 
@@ -294,7 +302,7 @@ export default function DaypartRail({
     if (!bits.length) return null;
     return <span style={{ color: "#7DD3FC", fontWeight: 700 }}>🌊 {bits.join(" · ")}</span>;
   };
-  const near = shown.cityLabel ? ` near ${shown.cityLabel}` : "";
+  const near = (live && live.cityLabel) ? ` near ${live.cityLabel}` : "";
 
   return (
     <div className={`wf8 is-${daypart}${selected ? " is-open" : ""}`} data-daypart={daypart}>
@@ -302,9 +310,13 @@ export default function DaypartRail({
         <div className="wf8-in">
           <div className="wf8-railwrap">
             <div className="wf8-track" ref={trackRef}>
-              {order.map((id, i) => {
+              {order.filter((id) => {
+                const r = railById.get(id);
+                return r && !r.artStale;
+              }).map((id, i) => {
                 const r = railById.get(id);
                 if (!r) return null;
+                if (r.artStale) return null;
                 const base = railArt(r, shown.region);
                 const href = railHref(r, shown.region, shown.citySlug) || "#";
                 const eager = i < 2;

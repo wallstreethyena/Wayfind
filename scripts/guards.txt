@@ -400,6 +400,11 @@ node scripts/check-rail-source-reachable.mjs
 # A section whose data source has never been populated must not mount.
 # Exploding Trends shipped its own error message as the first thing on the page.
 node scripts/check-trend-section-honesty.mjs
+# P0 location fail-open: uncovered rails must not keep SSR Sarasota; unknown
+# slugs must not become Sarasota; DEFAULT_CENTER is unresolved until GPS /
+# search / IP geo; do not advertise Exploding Trends while the accordion is dark.
+node scripts/check-location-fail-open.mjs
+node scripts/check-location-honesty.mjs
 # The rail tile headline is PIXELS. Renaming a rail in code changes nothing
 # the reader sees until the art is redrawn — pin copy and art together.
 node scripts/check-rail-art-matches-copy.mjs

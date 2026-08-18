@@ -54,7 +54,10 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 ok(/const \[cat, setCat\] = useState\(MAP_DEFAULT_CATEGORY\)/.test(home), "Food is the app-wide selected category on first render");
 ok(/useState\(true\);\s*\/\/ Map opens on Food/.test(home), "map category browsing is active on first render");
 ok(!/Promise\.all\(CATEGORIES\.map\(\(c\) => searchPlaces/.test(home), "opening the map no longer launches every category search");
-ok(/Setting the map around you/.test(home), "the first paint shows an intentional local-ring preview instead of an empty map");
+// P0 location honesty: do not require "around you" before a city is known.
+// Lock the ring-preview chrome (concentric orange rings + "Setting the map") instead.
+ok(/Setting the map/.test(home) && /boxShadow: "0 0 0 28px rgba\(249,115,22/.test(home), "the first paint shows an intentional local-ring preview instead of an empty map");
+ok(!/Setting the map around you/.test(home), "map loading chrome must not claim \"around you\" before a city is known");
 ok(/mapDefaultAppliedRef/.test(home), "a one-time-per-session guard exists so the map defaults to Activities on first open without fighting a later deliberate category choice");
 ok(/mapRetryKey/.test(home), "a retry key exists so a failed map can be remounted from scratch instead of being a dead end");
 
