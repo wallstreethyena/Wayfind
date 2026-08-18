@@ -36,7 +36,15 @@ ok((partner.match(/never changes our scores or rankings/g) || []).length === 1, 
 // check, declares the SAME category as its cat= prop, and no category is
 // mounted twice. That still catches a stray or duplicated rail — which is what
 // the count was really for — without forbidding coverage.
-const mountLines = (home.match(/\{browseCat === "[a-z]+" && center && <UnifiedBrowseCommerceRail[^\n]*/g) || []);
+// RE-POINTED v8.13.1 (2026-08-18): #790 gated the Stays and Shopping mounts
+// on organic results (`view.length > 0` — no affiliate-only screen; its own
+// scripts/test-session-map-parity.mjs pins that), but this pattern only
+// recognised the bare `center &&` shape, so guarded < total and main went
+// red with no tree able to satisfy both guards. The optional gate is now part
+// of the recognised GUARDED shape — everything this check protects (every
+// mount behind a browseCat check, cat= matches the guard, no category twice,
+// no stray bare mounts) is unchanged.
+const mountLines = (home.match(/\{browseCat === "[a-z]+" && center && (?:view\.length > 0 && )?<UnifiedBrowseCommerceRail[^\n]*/g) || []);
 const bare = (home.match(/<UnifiedBrowseCommerceRail\b/g) || []).length;
 ok(mountLines.length === bare, `every unified rail mount is guarded by a browseCat check (guarded ${mountLines.length}, total ${bare})`);
 ok(mountLines.length >= 3, `the unified rail is actually mounted (got ${mountLines.length})`);

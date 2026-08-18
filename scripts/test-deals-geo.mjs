@@ -104,9 +104,22 @@ const route = read("app/api/deals/route.js");
 ok(/serveDeals\(category, parseFloat\(sp\.get\("lat"\)\), parseFloat\(sp\.get\("lng"\)\)\)/.test(route), "the /api/deals route forwards lat/lng");
 const home = read("app/home.js");
 ok(/function UnifiedBrowseCommerceRail/.test(home) && /"&lat=" \+ lat\.toFixed\(3\)/.test(home), "the unified rail passes the user's location to /api/deals");
-for (const c of ["attractions", "stays", "travel", "more"]) {
+// RE-POINTED v8.13.1 (2026-08-18): "travel" is deliberately OFF the home
+// browse mounts — #790 (owner-account merge, pinned by its
+// test-session-map-parity.mjs) evicted the national car-rental rail that was
+// standing in for empty hotel results under a tab called Stays. Off-axis
+// cards are the same lie the rails refuse ("a bar is not an event"), and the
+// category held exactly ONE network deal when this was re-pointed (measured,
+// wf_deals_ranked 2026-08-18). This guard kept demanding the old shape while
+// #790's guard demanded the new one, which made main red under EVERY tree —
+// four production deploys ERRORed on the contradiction. If travel inventory
+// grows enough to deserve a surface again, give it an HONESTLY-LABELLED rail
+// and re-point this line to it — never fold it back under Stays.
+for (const c of ["attractions", "stays", "more"]) {
   ok(home.includes(`"${c}"`), `the ${c} deal category is represented in a geo-scoped mixed rail`);
 }
+ok(!/categories=\{\[[^\]]*"travel"/.test(home),
+  "…and travel stays OFF the home browse mounts (#790's invariant) until it earns an honestly-labelled surface");
 
 console.log(`test-deals-geo: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);
