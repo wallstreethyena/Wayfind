@@ -17,7 +17,7 @@ const S = {
 
 export default function Page() {
   return (
-    <main style={S.page}>
+    <article style={S.page}>
       <div style={S.kicker}>Wayfind editorial policy</div>
       <h1 style={S.h1}>How our recommendations are made — and corrected</h1>
       <h2 style={S.h2}>Research</h2>
@@ -32,6 +32,6 @@ export default function Page() {
       <p style={S.p}>Errors get fixed, not defended. Email <a style={S.a} href="mailto:hello@gowayfind.com">hello@gowayfind.com</a> with anything wrong — hours, closures, a pick that disappointed — and we&apos;ll verify and correct it promptly.</p>
       <h2 style={S.h2}>Who is responsible</h2>
       <p style={S.p}>Wayfind content is produced by the Wayfind team and reviewed under the direction of founder <b>Gabriel Pereira</b>, a Sarasota–Bradenton-area resident. More on <a style={S.a} href="/about">the about page</a>.</p>
-    </main>
+    </article>
   );
 }

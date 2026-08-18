@@ -67,5 +67,10 @@ if (placeAllowed("family", "kids", club)) fail("a nightclub must NOT appear in F
 if (!placeAllowed("family", "all", P(["zoo"], "Sarasota Jungle Gardens"))) fail("a zoo SHOULD pass Family > All");
 if (!placeAllowed("attractions", "outdoors", P(["beach"], "Coquina Beach"))) fail("a beach SHOULD pass Things to do > Outdoors");
 
+// WF-008: One World Observatory carries cafe/restaurant types (dining on site)
+// and was classified Food / coffee. Observation identity wins.
+cls(["cafe", "restaurant", "tourist_attraction", "observation_deck"], "Activities", "One World Observatory (types)");
+if (primaryCategory(P(["cafe", "restaurant", "tourist_attraction"], "One World Observatory")) === "Food") fail("One World Observatory (name) must not classify as Food");
+
 if (failed) process.exit(1);
-console.log("check-categories: OK — classifier + gate agree; no food/service/outdoor leaks across sections (11 classifier + 10 gate fixtures)");
+console.log("check-categories: OK — classifier + gate agree; no food/service/outdoor leaks across sections (One World Observatory is not Food)");

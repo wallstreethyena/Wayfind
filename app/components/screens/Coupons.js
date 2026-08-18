@@ -248,7 +248,7 @@ export default function CouponsScreen({ ctx }) {
   const visibleCount = featured.length + ledger.length;
 
   return (
-    <main style={{ width: "100%", maxWidth: "100%", minWidth: 0, overflowX: "clip", boxSizing: "border-box" }}>
+    <div style={{ width: "100%", maxWidth: "100%", minWidth: 0, overflowX: "clip", boxSizing: "border-box" }}>
       <header style={{ padding: "12px 4px 3px", textAlign: "left" }}>
         <div style={{ color: T.orange, fontSize: 10, fontWeight: 900, letterSpacing: ".2em", textTransform: "uppercase" }}>Wayfind coupons</div>
         <h1 style={{ margin: "7px 0 0", color: T.text, fontSize: 30, lineHeight: 1.06, letterSpacing: "-.8px", fontWeight: 900 }}>Clip it now.<br />Find it later.</h1>
@@ -320,6 +320,6 @@ export default function CouponsScreen({ ctx }) {
       {visibleCount > 0 ? (
         <p style={{ color: T.hint, fontSize: 10.5, textAlign: "center", margin: "24px 10px 0", lineHeight: 1.6 }}>Every offer is checked at its source and removed when it expires. Partner cards are labeled; commissions never change your price or Wayfind rankings.</p>
       ) : null}
-    </main>
+    </div>
   );
 }

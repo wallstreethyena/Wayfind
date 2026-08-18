@@ -92,7 +92,7 @@ export default function RankedExperiencePage({
 }) {
   const title = titleBottom ? <>{titleTop}<br />{titleBottom}</> : titleTop;
   return (
-    <main style={{ background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "var(--wf-sans)" }}>
+    <article style={{ background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "var(--wf-sans)" }}>
       <style dangerouslySetInnerHTML={{ __html: editorialHeroCss("wf-intent-editorial") + WF_PLACE_CARD_CSS }} />
       <EditorialLandingHero
         prefix="wf-intent-editorial"
@@ -114,6 +114,6 @@ export default function RankedExperiencePage({
         {footNote ? <p style={{ fontSize: 11, color: C.muted, marginTop: 26, lineHeight: 1.5 }}>{footNote}</p> : null}
         {footerSlot}
       </div>
-    </main>
+    </article>
   );
 }
