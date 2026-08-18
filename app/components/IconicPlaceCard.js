@@ -311,19 +311,14 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
           {rankingNote ? <div style={{ color: "#8791A4", fontSize: 9.5, marginTop: 4 }}>{rankingNote}</div> : null}
 
           <div className="wf-place-card-actions wf-sheet-card-actions">
-            {/* v8.5 — DIRECTIONS. The canonical card has it and this one did
-                not, which is half of why the drop's card read as a lesser thing.
-                A real <a href> to Google Maps, keyed on place_id when we have
-                one so it resolves the exact venue rather than a name search.
-                stopPropagation so it does not also open the card. */}
-            <a
-              className="wf-place-card-save wf-place-card-directions"
-              href={directionsHref(place)}
-              target="_blank"
-              rel="noopener"
-              aria-label={"Directions to " + (place.name || "this place")}
-              onClick={(e) => { e.stopPropagation(); }}
-            >Directions ↗</a>
+            {/* v8.11 (owner, 2026-08-18): DIRECTIONS IS OFF THE CARD FACE —
+                "remove the directions from the place cards; only when the user
+                goes into the card details will they [see] the directions
+                button, so everything fits in one row." Save / Like / Dislike /
+                Share is the row, one line. The capability is unchanged where
+                it belongs: the detail sheet (Detail.js) keeps its Directions
+                terminal, and directionsHref() below still powers it. Same
+                shape as v8.5's "+ Itinerary off the card face" call. */}
             {/* v8.5 (owner): "+ Itinerary" is OFF THE CARD FACE — a fifth
                 control crowded the row. Save / Like / Dislike / Share is the row.
 
