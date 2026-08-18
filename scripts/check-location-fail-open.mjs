@@ -109,6 +109,14 @@ ok(/center=\{locResolved \? center : null\}/.test(HOME),
 ok(!/Near Sarasota right now/.test(strip(read("app/page.js"))),
   "HomeProof no longer hardcodes \"Near Sarasota right now\" into the ISR document");
 
+
+ok(/landingSlugFromLoc\(locName\)/.test(HOME),
+  "category tabs take their city from the named location, not the SSR railMenu slug");
+ok(!/navCitySlug=\{railMenu \? railMenu\.citySlug : undefined\}/.test(HOME),
+  "Food / Night out / Activities must not stay on the SSR railMenu city after the visitor picks another");
+ok(/CATEGORY_ROUTE\[m\.id\] && navCitySlug/.test(HOME),
+  "category tab hrefs are omitted until a landing slug is known — never cityFor() → Sarasota");
+
 /* ── G. nav.wf-dests must not eat the first city suggestion ─────────────── */
 ok(/is-suggesting/.test(HOME) && /is-covered/.test(HOME),
   "the search row marks itself open and dests as covered while suggestions show");

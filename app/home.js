@@ -232,7 +232,7 @@ import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlen
 import { canonicalShareUrl } from "../lib/site";
 import { askShareIntent } from "./components/shareIntentSheet";
 import { placeKinds } from "../lib/dateInvite";
-import { isSeedCenter, cityLabel } from "../lib/locationHonesty";
+import { isSeedCenter, cityLabel, landingSlugFromLoc } from "../lib/locationHonesty";
 
 const BUILD = "beta";
 
@@ -536,7 +536,7 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
           // rail tiles use, so a tab can never emit a bare /restaurants and can
           // never emit a slug outside LANDING_CITIES. cityFor() is never null,
           // so there is no "no city" branch to get wrong.
-          const href = CATEGORY_ROUTE[m.id]
+          const href = CATEGORY_ROUTE[m.id] && navCitySlug
             ? railHref({ href: CATEGORY_ROUTE[m.id] }, navRegion, navCitySlug)
             : null;
           const glyph = <NavIcon name={m.id} color={on ? "#FFFFFF" : "#8A96AE"} size={17} strokeWidth={1.7} />;
@@ -8549,8 +8549,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             two lines on a phone and reads as one band on a desk. */}
         {screen !== "map" && (
           <CategoryMenu nav activeCat={browseCat} sub={sub}
-            navRegion={railMenu ? railMenu.region : undefined}
-            navCitySlug={railMenu ? railMenu.citySlug : undefined}
+            navRegion={landingSlugFromLoc(locName) === "orlando" ? "orlando" : (landingSlugFromLoc(locName) ? "fl" : undefined)}
+            navCitySlug={landingSlugFromLoc(locName) || null}
             navOpenCat={navOpenCat}
             onNavOpen={(id, label) => {
               setNavOpenCat(id);

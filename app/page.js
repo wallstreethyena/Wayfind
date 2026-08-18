@@ -101,7 +101,7 @@ async function HomeProof() {
       {top.map((place, i) => (
         <div key={place.id || i} style={S.card}>
           <p style={S.name}>{i + 1}. {place.name}</p>
-          <p style={S.why}>{whyLine(place, "spot")}</p>
+          <p style={S.why}>{whyLine({ ...place, distMi: null }, "spot")}</p>
           <a style={S.a} href={"/?q=" + encodeURIComponent(place.name)}>Open in Wayfind ›</a>
         </div>
       ))}

@@ -14,6 +14,9 @@ export default function ProofVeil({ children }) {
     const el = ref.current;
     if (!el) return;
     el.setAttribute("aria-hidden", "true");
+    el.setAttribute("hidden", "");
+    el.setAttribute("inert", "");
+    el.hidden = true;
     const s = el.style;
     s.position = "absolute";
     s.width = "1px";

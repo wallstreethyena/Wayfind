@@ -33,6 +33,7 @@ import {
   liveFromRailsResponse,
   homeProofCopy,
   homeProofNamesCity,
+  landingSlugFromLoc,
 } from "../lib/locationHonesty.js";
 
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -57,6 +58,10 @@ ok(cityLabel("") === "" && cityLabel("you") === "", "cityLabel never returns \"y
 ok(cityLabel("Tampa, FL") === "Tampa", "cityLabel takes the town token");
 ok(nearPhrase("") === "" && nearPhrase("you") === "", "nearPhrase is empty without a named city");
 ok(nearPhrase("Tampa, FL") === " near Tampa", "nearPhrase names the city when it has one");
+ok(landingSlugFromLoc("Orlando, FL") === "orlando", "Orlando maps to the orlando landing slug");
+ok(landingSlugFromLoc("Tampa, FL") === "tampa", "Tampa maps to the tampa landing slug");
+ok(landingSlugFromLoc("Gulfport, FL") === null, "an unknown town is not silently Sarasota");
+ok(landingSlugFromLoc("") === null && landingSlugFromLoc("you") === null, "no named city → no landing slug");
 
 ok(resolveRailCity("orlando", { orlando: {}, sarasota: {} }) === "orlando", "a known slug stays itself");
 ok(resolveRailCity("nope", { orlando: {}, sarasota: {} }) === null, "unknown slug is null, not sarasota");
