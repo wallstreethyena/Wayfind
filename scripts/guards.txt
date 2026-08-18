@@ -420,3 +420,8 @@ node scripts/test-location-context.mjs
 # WF-007 / WF-004 — map teardown + home/map inventory parity
 node scripts/test-map-teardown.mjs
 node scripts/test-session-map-parity.mjs
+
+# WF-006 / WF-008 / WF-009 / WF-010 / WF-011 — partner geo, sitemap membership, landmarks, nested interactives
+node scripts/test-partner-geo.mjs
+node scripts/check-sitemap.mjs
+node scripts/check-one-main.mjs

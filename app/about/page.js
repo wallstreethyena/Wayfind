@@ -49,7 +49,7 @@ const DIFFERENTIATORS = [
 
 export default function Page() {
   return (
-    <main style={S.page}>
+    <article style={S.page}>
       <a style={S.back} href="/">‹ Back to Wayfind</a>
       <div style={S.kicker}>About Wayfind</div>
       <h1 style={S.h1}>Built to answer one question honestly: what&apos;s actually worth your time, right now?</h1>
@@ -82,6 +82,6 @@ export default function Page() {
 
       <h2 style={S.h2}>Corrections and contact</h2>
       <p style={S.p}>Found something wrong — hours, a closed venue, a bad pick? Email <a style={S.a} href="mailto:hello@gowayfind.com">hello@gowayfind.com</a> and we&apos;ll fix it promptly. We&apos;d rather lose a listing than mislead a reader.</p>
-    </main>
+    </article>
   );
 }

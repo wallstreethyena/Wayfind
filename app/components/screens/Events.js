@@ -193,7 +193,7 @@ export default function EventsScreen({ ctx }) {
   return (
     <div>
       <div style={{ paddingTop: 4, marginBottom: 12 }}>
-        <div style={{ fontSize: 20, fontWeight: 800, color: C.text }}>Events near you</div>
+        <h1 style={{ fontSize: 20, fontWeight: 800, color: C.text, margin: 0 }}>Events near you</h1>
         {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <div style={{ marginTop: 10 }}><AreaInsight metro={_cm} cat={"events"} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /></div> : null; })()}
         <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>Bookable tours, concerts, comedy, theater, sports, and local happenings near you</div>
       </div>

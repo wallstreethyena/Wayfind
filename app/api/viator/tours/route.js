@@ -17,6 +17,7 @@ export const runtime = "nodejs";
 
 import { resolveVerifiedMany } from "../../../../lib/bookingResolver.js";
 import { getFanoutCount, persistOffer } from "../../../../lib/verifiedOfferStore.js";
+import { offerBelongsToRequestedCity } from "../../../../lib/partnerGeo.js";
 
 const getKey = () => ((process.env["VIATOR_API_KEY"] || "").trim());
 
@@ -53,14 +54,21 @@ export async function GET(req) {
   // v6.34 — CITY MODE for the rails. The old rails passed no region at all and
   // trusted freetext relevance ("the query itself is the region") — Viator's
   // freetext returned Hanoi/Naxos/Antigua products into a Florida feed. City
-  // mode verifies by the market's Viator destination id (lib/destinations)
-  // and/or region tokens instead of the per-place entity resolver (whose
+  // mode verifies by the market's Viator destination id and/or coordinates
+  // (lib/partnerGeo) instead of the per-place entity resolver (whose
   // entity floor rejects city-generic queries by design).
   const mode = (searchParams.get("mode") || "").trim();
   const destId = (searchParams.get("destId") || "").trim().replace(/^d/i, "");
+  const destLat = Number(searchParams.get("lat"));
+  const destLng = Number(searchParams.get("lng"));
+  const cityReq = {
+    destId,
+    lat: Number.isFinite(destLat) ? destLat : null,
+    lng: Number.isFinite(destLng) ? destLng : null,
+  };
   if (!q) return Response.json({ items: [] });
 
-  const ck = q.toLowerCase() + "|" + name.toLowerCase() + "|" + (kind || "") + "|" + count + "|" + regionTokens.join("+") + "|" + mode + "|" + destId;
+  const ck = q.toLowerCase() + "|" + name.toLowerCase() + "|" + (kind || "") + "|" + count + "|" + regionTokens.join("+") + "|" + mode + "|" + destId + "|" + (Number.isFinite(destLat) ? destLat : "") + "|" + (Number.isFinite(destLng) ? destLng : "");
   const hit = mem.get(ck);
   if (hit && hit.exp > Date.now()) {
     return Response.json({ items: hit.items }, { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } });
@@ -129,15 +137,7 @@ export async function GET(req) {
     }));
 
     const verified = mode === "city"
-      ? candidates.filter((r) => {
-          // A product survives city mode only on POSITIVE regional evidence:
-          // its Viator destination refs include the market's verified id, or
-          // its title names the region. No evidence -> not in the feed.
-          const title = String(r.title || "").toLowerCase();
-          const destOk = !!destId && Array.isArray(r.destinations) && r.destinations.some((d) => d && String(d.ref || d.destinationId || "").replace(/^d/i, "").toLowerCase() === destId.toLowerCase());
-          const nameOk = regionTokens.length > 0 && regionTokens.some((t) => title.includes(t));
-          return destOk || nameOk;
-        })
+      ? candidates.filter((r) => offerBelongsToRequestedCity(r, cityReq))
       : resolveVerifiedMany({ id: placeId, name }, candidates, { region, kind, fanoutByCode, placeId });
     const byCode = {};
     for (const r of candidates) byCode[r.productCode || r.productUrl] = r;

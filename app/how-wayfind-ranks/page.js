@@ -30,7 +30,7 @@ const S = {
 
 export default function Page() {
   return (
-    <main style={S.page}>
+    <article style={S.page}>
       <div style={S.kicker}>How Wayfind ranks</div>
       <h1 style={S.h1}>The method behind every list — published, not hidden</h1>
       <p style={S.lede}>Most apps keep their ranking a secret and blur the line between what earned a spot and what paid for one. We do the opposite. Every ranked list on Wayfind comes from one documented method, and the number at its center — the <b>Wayfind Score</b> — is our editorial opinion, shown in full below.</p>
@@ -65,6 +65,6 @@ export default function Page() {
 
       <h2 style={S.h2}>Our opinion, held openly</h2>
       <p style={S.p}>We publish our method because a recommendation you can inspect is one you can trust — and because we&apos;d rather show our work than ask you to take it on faith. The Wayfind Score is our editorial judgment, and like any honest opinion it can be wrong. If a pick disappoints or a fact is off, tell us at <a style={S.a} href="mailto:hello@gowayfind.com">hello@gowayfind.com</a> and we&apos;ll verify and correct it.</p>
-    </main>
+    </article>
   );
 }

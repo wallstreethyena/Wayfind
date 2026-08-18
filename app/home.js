@@ -243,8 +243,22 @@ const BUILD = "beta";
 // never show Hanoi/Naxos tours again, and correct local products keep flowing.
 function _viatorCityParams(cityQ, center) {
   let dest = "";
-  try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
-  return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
+  let lat = null, lng = null;
+  try {
+    const mk = center ? marketForLocation(center.lat, center.lng) : null;
+    const market = mk && MARKETS[mk.key];
+    if (market) {
+      if (market.viator && market.viator.id) dest = market.viator.id;
+      lat = market.lat;
+      lng = market.lng;
+    } else if (center && typeof center.lat === "number" && typeof center.lng === "number") {
+      lat = center.lat;
+      lng = center.lng;
+    }
+  } catch (e) {}
+  return "&mode=city&region=" + encodeURIComponent(cityQ || "")
+    + (dest ? "&destId=" + encodeURIComponent(dest) : "")
+    + (lat != null && lng != null ? "&lat=" + encodeURIComponent(lat) + "&lng=" + encodeURIComponent(lng) : "");
 }
 const BUILD_ID = "v6.71";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
@@ -5394,7 +5408,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // World Cup hero card. topSlot=true renders only on match days (fixed
   // knockout calendar); topSlot=false renders mid-feed on off days.
   const renderWorldCupCard = (topSlot) => { const _w = Hol.worldCup(new Date()); if (!_w) return null; if (Hol.worldCupDaysToNext(new Date()) > 2) return null; if (!!topSlot !== Hol.worldCupMatchToday(new Date())) return null; const _wc = Hol.themeFor(_w.key); const _wct = Hol.contentFor(_w.key, _w.name); return (
-                      <div onClick={() => openHoliday(_w)} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ cursor: "pointer", borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _wc.grad, border: `1px solid ${_wc.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
+                      <div style={{ borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _wc.grad, border: `1px solid ${_wc.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
+                      <button type="button" className="wf-holiday-open" onClick={() => openHoliday(_w)} aria-label={_wct.headline(locName)} style={{ position: "absolute", inset: 0, zIndex: 1, opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
                       <style dangerouslySetInnerHTML={{ __html: "@keyframes wcJuggle{0%{transform:translateY(0) rotate(0deg);animation-timing-function:cubic-bezier(.17,.84,.44,1)}45%{transform:translateY(-26px) rotate(180deg);animation-timing-function:cubic-bezier(.55,0,.85,.36)}90%{transform:translateY(0) rotate(360deg)}100%{transform:translateY(0) rotate(360deg)}}@keyframes wcBob{0%,86%,100%{transform:translateY(0)}93%{transform:translateY(2px)}}@keyframes wcGlow{0%,100%{opacity:.5}50%{opacity:1}}" }} />
                       <span style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,.03) 26px, transparent 26px, transparent 52px)", pointerEvents: "none" }} />
                       <span aria-hidden="true" style={{ position: "absolute", right: 12, bottom: 6, width: 64, height: 116, pointerEvents: "none", opacity: .97 }}><span style={{ position: "absolute", left: 35, bottom: 72, fontSize: 15, animation: "wcJuggle 1.5s infinite" }}>⚽</span><picture><source type="image/avif" srcSet="/opt/wf-player-142.avif" /><source type="image/webp" srcSet="/opt/wf-player-142.webp" /><img src="/wf-player.png" alt="" draggable={false} loading="lazy" decoding="async" style={{ position: "absolute", left: 32, bottom: 0, height: 74, width: "auto", animation: "wcBob 1.5s infinite", filter: "drop-shadow(0 3px 8px rgba(0,0,0,.5))" }} /></picture></span>
@@ -5409,8 +5424,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                       <div style={{ fontSize: 12.5, color: _wc.text, marginTop: 5, lineHeight: 1.4 }}>{_wct.sub}</div>
                       <div style={{ display: "inline-flex", alignItems: "center", marginTop: 12, padding: "8px 16px", borderRadius: 999, background: _wc.accent, color: "#0D1117", fontSize: 12.5, fontWeight: 800 }}>See the watch parties ›</div>
                       <div style={{ display: "flex", gap: 18, marginTop: 12, flexWrap: "wrap", paddingRight: 56 }}>
-                      <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ fontSize: 11.5, fontWeight: 700, color: _wc.text, textDecoration: "underline" }}>Schedule and tickets ↗</a>
-                      <a href="https://watchwc.com" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ fontSize: 11.5, fontWeight: 700, color: _wc.text, textDecoration: "underline" }}>Find tonight's game ↗</a>
+                      <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ position: "relative", zIndex: 2, fontSize: 11.5, fontWeight: 700, color: _wc.text, textDecoration: "underline" }}>Schedule and tickets ↗</a>
+                      <a href="https://watchwc.com" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ position: "relative", zIndex: 2, fontSize: 11.5, fontWeight: 700, color: _wc.text, textDecoration: "underline" }}>Find tonight's game ↗</a>
                       </div>
                       </div>
                       ); };
@@ -6779,6 +6794,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // Left a standalone screen for the feed/detail -> restore "/".
         window.history.pushState({ wf: "screen" }, "", "/");
       }
+    } catch (e) {}
+    try {
+      const titles = {
+        events: "Events near you · Wayfind",
+        coupons: "Local coupons & deals · Wayfind",
+        map: "Map · Wayfind",
+      };
+      document.title = titles[screen] || "Wayfind — Find the Best Things to Do Near You, Right Now";
     } catch (e) {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, eventDate, eventCat]);
@@ -9548,7 +9571,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                       )}
                       {renderWorldCupCard(true)}
                       {(() => { const _h = Hol.activeHoliday(new Date()); if (!_h) return null; const _c = Hol.themeFor(_h.key); const _ct = Hol.contentFor(_h.key, _h.name); return (
-                        <div onClick={() => openHoliday(_h)} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ cursor: "pointer", borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _c.grad, border: `1px solid ${_c.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
+                        <div style={{ borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _c.grad, border: `1px solid ${_c.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
+                          <button type="button" className="wf-holiday-open" onClick={() => openHoliday(_h)} aria-label={_ct.headline(locName)} style={{ position: "absolute", inset: 0, zIndex: 1, opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
                           <style dangerouslySetInnerHTML={{ __html: "@keyframes wfBurst{0%{transform:scale(.15);opacity:.95}70%{opacity:.4}100%{transform:scale(1);opacity:0}}@keyframes wfGlow{0%,100%{opacity:.55}50%{opacity:1}}@keyframes wfTwinkle{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:1;transform:scale(1.2)}}@keyframes wfSweep{0%{transform:translateX(-140%) skewX(-18deg)}100%{transform:translateX(240%) skewX(-18deg)}}" }} />
                           <span style={{ position: "absolute", top: -18, right: 26, width: 120, height: 120, borderRadius: "50%", border: "2px solid #FFD166", opacity: 0, animation: "wfBurst 2.4s ease-out infinite", pointerEvents: "none" }} />
                           <span style={{ position: "absolute", top: 14, right: 96, width: 76, height: 76, borderRadius: "50%", border: "2px solid #FF6B6B", opacity: 0, animation: "wfBurst 2.4s ease-out .8s infinite", pointerEvents: "none" }} />
@@ -10489,7 +10513,8 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
       }
     : null;
   return (
-    <div onClick={onDetail} role="button" tabIndex={0} onKeyDown={KB_CLICK} className={`wf-place-card${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}`} aria-label={`Open ${p.name}`} style={{ position: "relative", background: C.card, border: `1px solid ${liked ? "rgba(34,197,94,.45)" : disliked ? "rgba(239,68,68,.3)" : C.border}`, borderRadius: 14, marginBottom: 12, overflow: "hidden", cursor: "pointer" }}>
+    <div className={`wf-place-card${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}`} style={{ position: "relative", background: C.card, border: `1px solid ${liked ? "rgba(34,197,94,.45)" : disliked ? "rgba(239,68,68,.3)" : C.border}`, borderRadius: 14, marginBottom: 12, overflow: "hidden" }}>
+      <button type="button" className="wf-place-card-open" onClick={onDetail} aria-label={`Open ${p.name}`} style={{ position: "absolute", inset: 0, zIndex: 0, width: "100%", height: "100%", opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
       {/* v6.34: the badge lives IN the title row (flex), not floated over it.
           The old absolute top-right overlay cleared long titles with a magic
           paddingRight (88px) that was ~17px narrower than the badge, so titles
@@ -10526,7 +10551,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           <span aria-hidden="true" style={{ fontSize: 6.5, fontWeight: 900, letterSpacing: ".09em", lineHeight: 1 }}>PICK</span>
         </span>
       )}
-      <div className="wf-place-card-layout" style={{ display: "flex" }}>
+      <div className="wf-place-card-layout" style={{ display: "flex", position: "relative", zIndex: 1, pointerEvents: "none" }}>
         {p.photo
           ? <FallbackImg src={cardPhoto || p.photo} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
           : <div className="wf-place-card-monogram" aria-hidden="true">{cardInitials}</div>}
@@ -10538,7 +10563,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
             )}
             <div className="wf-place-card-heading">
               {cardPrimaryLabel && (cardCuisineCanTap
-                ? <button type="button" className="wf-place-card-category is-tappable" onClick={(e) => { e.stopPropagation(); onCuisineTap(cardCuisine, p); }}>{cardPrimaryLabel} ›</button>
+                ? <button type="button" className="wf-place-card-category is-tappable" style={{ pointerEvents: "auto" }} onClick={(e) => { e.stopPropagation(); onCuisineTap(cardCuisine, p); }}>{cardPrimaryLabel} ›</button>
                 : <span className="wf-place-card-category">{cardPrimaryLabel}</span>
               )}
               <div className="wf-place-card-name" style={{ fontSize: 15, fontWeight: 700, color: C.text, lineHeight: 1.3, flex: 1, minWidth: 0, paddingRight: 4 }}>{p.name}</div>
@@ -10606,7 +10631,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           )}
           <div className="wf-place-card-highlights" style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 7 }}>
             {badges.map((b) => (
-              <button key={b.key} onClick={(e) => { e.stopPropagation(); if (onBadge) onBadge(b.key); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {cityFixM(b.label)} ›</button>
+              <button key={b.key} onClick={(e) => { e.stopPropagation(); if (onBadge) onBadge(b.key); }} style={{ pointerEvents: "auto", display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {cityFixM(b.label)} ›</button>
             ))}
           </div>
           {curatedHook ? (
@@ -10632,7 +10657,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               (Book on Viator) that the sheet cards never do; css.js adds a
               :has(.wf-place-card-book) 5-column variant so that case stays
               consistent too, rather than breaking under the 4-column grid. */}
-          <div className="wf-place-card-actions wf-sheet-card-actions" style={{ marginTop: 9 }}>
+          <div className="wf-place-card-actions wf-sheet-card-actions" style={{ marginTop: 9, pointerEvents: "auto" }}>
             {cardProduct && cardProduct.url && (
               <ViatorCommerceLink
                 className="wf-place-card-book"
