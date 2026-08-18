@@ -68,7 +68,7 @@ ok(/revalidate = 3600/.test(readFileSync(new URL("../app/page.js", import.meta.u
   "the homepage must regenerate hourly, or the rail's places freeze with the page");
 ok(/rankedFor\(/.test(railsData), "the rail's places come from the live ranking engine, not a stored list");
 // 3) and no rail may be a frozen single pick
-ok(/MAX_CARDS = 8/.test(readFileSync(new URL("../lib/railSelect.js", import.meta.url), "utf8")),
+ok(/MAX_CARDS = 12/.test(readFileSync(new URL("../lib/railSelect.js", import.meta.url), "utf8")),
   "each rail shows a ranked ROW, never one frozen pick");
 // 4) the old frozen-hero shapes must not come back
 ok(!/const pick = cand\[0\]/.test(home), "a frozen cand[0] hero is back");

@@ -101,8 +101,10 @@ ok(vetBeachDistance([], ORLANDO).length === 0 && Array.isArray(vetBeachDistance(
   const railSelect = readFileSync(new URL("../lib/railSelect.js", import.meta.url), "utf8");
   ok(/import \{ BEACH_NEAR_MI \} from "\.\/beaches\.js"/.test(railSelect),
     "lib/railSelect.js imports the ONE rule, it does not re-implement it");
-  ok(/beach: \{ pools: \["beaches"\], pick: \(p\) => p\.distMi != null && p\.distMi <= BEACH_NEAR_MI \}/.test(railSelect),
-    "the beach rail's pool is filtered by the 23-mile rule");
+  ok(/beach: \{ pools: \["beaches", "summer"\]/.test(railSelect)
+    && /distMi <= BEACH_NEAR_MI/.test(railSelect)
+    && /p\.distMi != null/.test(railSelect),
+    "the beach rail is still filtered by the 23-mile rule (summer pool joins; the radius does not widen)");
   ok(/p\.distMi != null/.test(railSelect),
     "…fail-closed: a beach with no usable distance is dropped, never assumed near");
   ok(!/Beach day, decided/.test(home), "the placeholder copy that used to render with NO beach behind it is gone");

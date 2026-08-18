@@ -91,9 +91,12 @@ const pools = {
   // rail can fill; the beaches pool above stays UNMARKED, which is what lets
   // the axis assertion below prove the all-beaches bug stays dead.
   summer: [
-    Object.assign(mk("su1", { name: "Weeki Wachee Springs", _s: 88, distMi: 74, types: ["state_park", "tourist_attraction"] }), { _summerSourced: true, _summerWhy: "Mermaid shows and a clear 74° spring run." }),
-    Object.assign(mk("su2", { name: "Bioluminescence Night Paddle", _s: 82, distMi: 110, types: ["tourist_attraction"] }), { _summerSourced: true, _summerWhy: "Summer-only: the lagoon glows on dark nights." }),
-    Object.assign(mk("su3", { name: "Scallop Charter Marina", _s: 76, distMi: 90, types: ["marina"] }), { _summerSourced: true, _summerWhy: "Scallop season is open through Sept 24." }),
+    Object.assign(mk("su1", { name: "Weeki Wachee Springs", _s: 88, distMi: 74, types: ["state_park", "tourist_attraction"] }), { _summerSourced: true, _summerRails: ["beach", "family"], _summerWhy: "Mermaid shows and a clear 74° spring run." }),
+    Object.assign(mk("su2", { name: "Bioluminescence Night Paddle", _s: 82, distMi: 110, types: ["tourist_attraction"] }), { _summerSourced: true, _summerRails: ["today"], _summerWhy: "Summer-only: the lagoon glows on dark nights." }),
+    Object.assign(mk("su3", { name: "Scallop Charter Marina", _s: 76, distMi: 90, types: ["marina"] }), { _summerSourced: true, _summerRails: ["today"], _summerWhy: "Scallop season is open through Sept 24." }),
+    Object.assign(mk("su4", { name: "Summer Cuban Lunch", _s: 71, distMi: 8, types: ["restaurant"] }), { _summerSourced: true, _summerRails: ["eat"], _summerWhy: "A long Cuban lunch in the AC is the classic summer midday." }),
+    Object.assign(mk("su5", { name: "Near Summer Beach", _s: 69, distMi: 6, types: ["beach"] }), { _summerSourced: true, _summerRails: ["beach"], _summerWhy: "A near gulf beach — mornings, not noon." }),
+    Object.assign(mk("su6", { name: "Far Keys Cuban", _s: 90, distMi: 220, types: ["restaurant"] }), { _summerSourced: true, _summerRails: ["eat"], _summerWhy: "A 220-mile Cuban lunch is a statewide icon, not a meal near you." }),
   ],
 };
 
@@ -158,6 +161,18 @@ ok(!namesOf("season").includes("Siesta Key Beach") && !namesOf("season").include
   "the all-beaches summer rail stays dead — an unmarked beach never rides the season rail again");
 ok(namesOf("season").includes("Bioluminescence Night Paddle"),
   "…and the things the old regex could never surface are exactly what serves now");
+ok(namesOf("eat").includes("Summer Cuban Lunch"),
+  "a summer food entry lands on eat — the owner's list is not dumped onto one beach rail");
+ok(!namesOf("eat").includes("Weeki Wachee Springs") && !namesOf("eat").includes("Far Keys Cuban"),
+  "springs stay off eat, and a 220-mile icon is not a meal near you");
+ok(namesOf("today").includes("Bioluminescence Night Paddle"),
+  "a summer activity lands on today");
+ok(namesOf("beach").includes("Near Summer Beach"),
+  "a near summer beach lands on Beach Day");
+ok(!namesOf("beach").includes("Weeki Wachee Springs"),
+  "a 74-mile spring is not a beach day — BEACH_NEAR_MI still holds");
+ok(namesOf("family").includes("Weeki Wachee Springs"),
+  "Weeki is a family summer pick inside the day-trip radius");
 ok(!namesOf("family").includes("Bamboo Island Bar"), "family never reaches nightlife");
 ok(namesOf("best").includes("Siesta Key Beach") && namesOf("best").includes("Beach House Waterfront"),
   "the best-around-you rail really does see every pool");
