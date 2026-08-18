@@ -614,7 +614,13 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
     ok(/onInvite\s*:/.test(src), `${what} passes no invite handler, so its question has only one real answer`);
   }
   const home = codeOf("app/home.js");
-  ok((home.match(/askShareIntent\(/g) || []).length >= 4,
+  // RE-COUNTED v8.8: the BestNearby accordion left "/" (owner, 2026-08-18),
+  // taking its two onShare wirings with it. The invariant is unchanged —
+  // EVERY share button on the shell asks — and the two that remain (the hero
+  // hook's shareHook and the place card's Share) are asserted individually
+  // above/below. The floor tracks the real button count so a third share
+  // button added without asking still fails, which is what this was for.
+  ok((home.match(/askShareIntent\(/g) || []).length >= 2,
      "the home shell has more than one share button — every one of them must ask");
 
   // A place share that cannot become an invite is a bug, not a preference.

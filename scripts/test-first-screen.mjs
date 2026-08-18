@@ -68,7 +68,13 @@ ok(/const railMenuBand = railMenu \? \(/.test(code),
   // …and it is actually MOUNTED. A const nothing renders is a first screen
   // with nothing on it, which is the failure this whole file is about.
   ok(/\{railMenuBand\}/.test(code), "the rail band is rendered in the feed, not merely declared");
-  ok(code.indexOf("{railMenuBand}") < code.indexOf("<BestNearby "), "the rail still leads the feed");
+  // RE-POINTED v8.8 (owner, 2026-08-18): this asserted the rail rendered ABOVE
+  // <BestNearby>. The accordion menu no longer renders on "/" at all — the
+  // rail's fifteen tiles ARE the menu and its drop is the one-tap ranked
+  // answer — so "leads the feed" is now the stronger claim that the rail is
+  // the ONLY menu: mounted (above), and the accordion not mounted (below).
+  ok(!/\{!browseCat && <BestNearby /.test(code) && !/<BestNearby center=/.test(code),
+    "the BestNearby accordion is mounted on the homepage again — it is a second, stacked copy of the rail menu (owner removed it 2026-08-18: 'the menus should only show when the cards is clicked')");
   // Full bleed is the point of the move: inside .wf-col-main the band was
   // capped at the reading measure, which clipped a 15-card deck mid-card.
   ok(/className="wf-fullbleed"/.test(railBlock), "the band runs edge to edge rather than being re-nested in the feed column");
