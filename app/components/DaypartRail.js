@@ -50,6 +50,13 @@ const IconicPlaceCard = dynamic(() => import("./IconicPlaceCard"), { ssr: false 
 import { DAYPARTS, partForHour, orderFor, railHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES } from "../../lib/rails.js";
+// v8.10 (owner, 2026-08-18: "there is no explanation of what the place is").
+// The ONE editorial resolver every place surface uses (#687 pattern) — known-for
+// research first, pool-cached blurb second, both fail-soft, no model in the
+// render path — and the ONE compressor. The drop's cards were the only place
+// cards on the site rendering without their editorial line.
+import useEditorialHooks from "./useEditorialHooks";
+import { toHookLine } from "../../lib/editorialHook";
 
 const Chevron = ({ dir }) => (
   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2"
@@ -244,6 +251,49 @@ export default function DaypartRail({
 
   const selRail = selected ? railById.get(selected) : null;
   const selPlaces = selected ? (shown.places[selected] || []) : [];
+  // Resolves ONLY the open drop's places (empty list while closed, so the
+  // closed menu costs zero requests). Fail-soft: no hook, no line, no loss.
+  const hooks = useEditorialHooks(selPlaces);
+  // v8.10 (owner, 2026-08-18: "the beach cards have no water conditions and
+  // water temperature"). Lite marine conditions per beach card, fetched only
+  // while the BEACH drop is open, per place, from the same
+  // /api/beach/conditions?mode=lite the hero's beach card uses (open-meteo,
+  // CDN-cached 900s). Fail-soft everywhere: no data, no chip — never a guess.
+  // redTide rides the lite payload but is deliberately NOT rendered here; its
+  // severity vocabulary belongs to the full beach card, not a one-line chip.
+  const [beachCond, setBeachCond] = useState({});
+  useEffect(() => {
+    if (selected !== "beach") return undefined;
+    let cancelled = false;
+    for (const p of selPlaces) {
+      if (!p || !p.id || !Number.isFinite(p.lat) || !Number.isFinite(p.lng)) continue;
+      if (beachCond[p.id] !== undefined) continue;
+      fetch(`/api/beach/conditions?mode=lite&lat=${p.lat}&lng=${p.lng}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((c) => {
+          if (cancelled) return;
+          const usable = c && !c.none && c.show !== false && (c.waterTempF != null || c.waveHeightFt != null || c.windMph != null);
+          setBeachCond((m) => ({ ...m, [p.id]: usable ? c : null }));
+        })
+        .catch(() => { if (!cancelled) setBeachCond((m) => ({ ...m, [p.id]: null })); });
+    }
+    return () => { cancelled = true; };
+    // beachCond is read for the already-fetched check only; adding it would
+    // refire the effect on every arrival for nothing new to fetch.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected, selPlaces]);
+  const beachChip = (p) => {
+    if (!selRail || selRail.id !== "beach") return null;
+    const c = beachCond[p.id];
+    if (!c) return null;
+    const bits = [
+      c.waterTempF != null ? `water ${Math.round(c.waterTempF)}°` : null,
+      c.waveHeightFt != null ? `waves ${c.waveHeightFt} ft` : null,
+      c.windMph != null ? `wind ${c.windMph} mph${c.windDir ? " " + c.windDir : ""}` : null,
+    ].filter(Boolean);
+    if (!bits.length) return null;
+    return <span style={{ color: "#7DD3FC", fontWeight: 700 }}>🌊 {bits.join(" · ")}</span>;
+  };
   const near = shown.cityLabel ? ` near ${shown.cityLabel}` : "";
 
   return (
@@ -333,6 +383,8 @@ export default function DaypartRail({
                     place={p}
                     rank={i + 1}
                     href={`/p/${encodeURIComponent(p.id)}`}
+                    editorial={toHookLine(hooks[p.id], p.name)}
+                    badge={beachChip(p)}
                     saved={isSaved ? isSaved(p.id) : false}
                     inTrip={isOnTrip ? isOnTrip(p) : false}
                     onSave={onSave ? (e, pl) => onSave(e, pl) : null}

@@ -8534,7 +8534,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               // view produced before the tabs moved into the nav.
               if (browseCat !== catId) pickBrowse(catId);
               setSub(subId);
-              setNavOpenCat(null);
+              // v8.10 (owner, 2026-08-18: "the submenu also goes away — i want
+              // the submenu to remain open"). The tray STAYS: the pick
+              // highlights in place (aria-pressed) and the reader can hop
+              // between sub-filters without reopening the row. Escape-hatch
+              // unchanged — tapping the category tab again closes it.
               try { logEvent("intent_chip", null, { intent: subLabel, layer: 2, src: "nav_sub", cat: catId }); } catch (e) {}
               try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) {}
             }} />

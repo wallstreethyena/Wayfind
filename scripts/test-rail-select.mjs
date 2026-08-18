@@ -29,6 +29,11 @@ const mk = (id, o) => ({
   id, name: o.name, rating: o.rating ?? 4.5, reviews: o.reviews ?? 1200,
   types: o.types || ["tourist_attraction"], distMi: o.distMi ?? 3, _s: o._s ?? 50,
   priceLevel: o.priceLevel || null, trending: !!o.trending, trend_score: o.trend_score || 0,
+  // v8.10 — rows arrive STAMPED, like real ranked rows do, because the rails
+  // now order on the displayed governed score (the global rule), never on the
+  // internal `_s`. The fixture reuses _s as the stamped value so every
+  // ordering expectation below is expressed in the number the chip prints.
+  governed_score: o._s ?? 50,
 });
 const pools = {
   "things-to-do": [
@@ -151,14 +156,19 @@ ok(namesOf("best").includes("Siesta Key Beach") && namesOf("best").includes("Bea
   ok(picked.length >= MIN_CARDS, "the fixture's spike-flagged rows fill the rail");
   ok(picked.every((p) => !!p.trending),
     "with no creator registry match in the fixture, every pick must carry the real spike flag — anything else is the volume leaderboard sneaking back");
-  ok(picked.every((p, i, a) => i === 0 || Number(!!a[i - 1].trending) >= Number(!!p.trending)),
-    "…and spike-flagged rows lead the rail");
+  // v8.10 — order is the displayed score, same as every rail (the +0.6
+  // TRENDING_BONUS lives IN that score, so a real spike rises on its own);
+  // asserted for all rails in the global-rule sweep below.
 }
 
-// spread: a DAY, not eight of one thing
-{
-  const cats = selectFor("today", pools).slice(0, 4).map((p) => p.types[0]);
-  ok(new Set(cats).size >= 2, `today spreads across categories (got ${JSON.stringify(cats)})`);
+// v8.10 — THE GLOBAL RULE replaces the spread interleave (owner, 2026-08-18:
+// "everything on wayfind is ranked by the wayfind score from highest to
+// lowest always … a global rule everywhere"). Every rail, including today,
+// reads in strictly non-increasing displayed score.
+for (const id of ["today", "best", "eat", "gems", "trending", "tonight", "beach", "break", "datenight", "drive", "events", "family", "season"]) {
+  const rows = selectFor(id, pools, { cityLabel: "Sarasota" });
+  ok(rows.every((p, i, a) => i === 0 || (a[i - 1].governed_score ?? -Infinity) >= (p.governed_score ?? -Infinity)),
+    `${id}: the rail reads highest displayed score first — the global rule (got ${JSON.stringify(rows.map((p) => p.governed_score))})`);
 }
 
 // ── the fill rules ──────────────────────────────────────────────────────────
@@ -174,12 +184,19 @@ for (const [id, rows] of Object.entries(places)) {
   eq(rows.length - new Set(rows.map((p) => p.id)).size, 0, `${id}: no place twice in one rail`);
 }
 // THE headline assertion.
+// v8.10 — RE-POINTED. This asserted no place leads two rails, enforced by a
+// lead swap in fillRails. The owner's global rule (2026-08-18) is absolute —
+// highest displayed score first, every rail — so the swap is gone and the
+// same place MAY lead two rails when it genuinely tops both axes. What is
+// now asserted: every filled rail leads with its own highest-scored pick.
 {
   const leads = Object.entries(places).filter(([, r]) => r.length).map(([id, r]) => [id, r[0].id]);
-  const byPlace = {};
-  for (const [rail, pid] of leads) (byPlace[pid] ||= []).push(rail);
-  const shared = Object.entries(byPlace).filter(([, v]) => v.length > 1);
-  ok(shared.length === 0, `no place leads two rails (shared: ${JSON.stringify(shared)})`);
+  for (const [id, rows] of Object.entries(places)) {
+    if (!rows.length) continue;
+    const top = Math.max(...rows.map((p) => Number.isFinite(p.governed_score) ? p.governed_score : -Infinity));
+    ok((rows[0].governed_score ?? -Infinity) === top,
+      `${id}: the lead card carries the rail's highest displayed score (got ${rows[0].governed_score}, max ${top})`);
+  }
   // Pinned, not a floor: an 18-row fixture is thin on purpose, and naming the
   // exact set means a selector that silently stops matching shows up here as a
   // named rail rather than a count that still clears a bar.
