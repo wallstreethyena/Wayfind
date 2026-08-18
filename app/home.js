@@ -3623,6 +3623,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // else, and a dropdown that claimed to narrow a search it cannot reach would
   // be the mismatched control AGENTS.md §12 bans.
   const [scopeOpen, setScopeOpen] = useState(false);
+  // v8.14 — the location control's recency list (see the wf_recent_locs
+  // writer beside wf_center). Hydrated once from storage; the writer keeps it
+  // current afterwards.
+  const [recentLocs, setRecentLocs] = useState([]);
+  useEffect(() => {
+    try { const raw = localStorage.getItem("wf_recent_locs"); if (raw) setRecentLocs(JSON.parse(raw) || []); } catch (e) {}
+  }, []);
   // v8.4 — which nav tab has its sub-chip tray open. Separate from
   // browseCat on purpose: opening a tray is not yet a filter, and closing
   // one must not clear a filter the reader already applied.
@@ -3763,6 +3770,21 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // a manual search, so remounts do not snap back to device GPS.
   useEffect(() => {
     try { if (center && isFinite(center.lat) && isFinite(center.lng) && locName) setLocal("wf_center", JSON.stringify({ lat: center.lat, lng: center.lng, loc: locName, manual: !!manualRef.current, ts: Date.now() })); } catch (e) {}
+    // v8.14 (owner: the search bar's left slot "should show the previous
+    // location"). Every NAMED center the reader has actually used joins a
+    // small recency list the location control serves back. Deduped by city
+    // label so "Parrish, FL" appears once however many exact points it had;
+    // capped at 6 (current + 5 previous shown).
+    try {
+      if (center && isFinite(center.lat) && isFinite(center.lng) && locName) {
+        const raw = localStorage.getItem("wf_recent_locs");
+        const prev = raw ? JSON.parse(raw) : [];
+        const next = [{ lat: center.lat, lng: center.lng, loc: locName, ts: Date.now() },
+          ...(Array.isArray(prev) ? prev : []).filter((r) => r && r.loc && r.loc.split(",")[0] !== locName.split(",")[0])].slice(0, 6);
+        localStorage.setItem("wf_recent_locs", JSON.stringify(next));
+        setRecentLocs(next);
+      }
+    } catch (e) {}
   }, [center, locName]);
   // PROTECTED (check-cards.mjs): every card label follows the user's location.
   const cityNow = cityLabel(locName);
@@ -7647,7 +7669,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   async function recenterToMe() {
     manualRef.current = false;
     try { localStorage.removeItem("wf_center"); } catch (e) {}
-    if (deviceLoc && isFinite(deviceLoc.lat)) {
+    // v8.14 (owner, 2026-08-18: "I need the current location to be precise —
+    // leverage the map function so it shows exactly what is around the user").
+    // An IP-derived deviceLoc (locApprox) can sit MILES from the reader —
+    // shortcutting to it here made "current location" precise-looking and
+    // wrong. Approximate fixes no longer shortcut: they fall through to a
+    // fresh enableHighAccuracy GPS fix, the same precision the map pin runs
+    // on. A real GPS deviceLoc still shortcuts — it IS the precise answer.
+    if (!locApprox && deviceLoc && isFinite(deviceLoc.lat)) {
       setCenter({ lat: deviceLoc.lat, lng: deviceLoc.lng });
       setLocResolved(true);
       setMapFocus({ lat: deviceLoc.lat, lng: deviceLoc.lng, ts: Date.now() });
@@ -7668,7 +7697,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         try { logEvent("recenter_to_me", null, { hadFix: false }); } catch (e) {}
       },
       () => { try { logEvent("recenter_to_me_denied", null, {}); } catch (e) {} },
-      { timeout: 8000 }
+      // v8.14 — map-grade precision (see the note above): a fresh
+      // high-accuracy fix, never a cached coarse one.
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   }
 
@@ -8666,25 +8697,50 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         {/* map search moved onto the map as a floating control (see map overlay) */}
         {(screen !== "map" || mapSearchOpen) && (
         <div className={"wf-search-row" + (screen !== "map" ? " has-scope" : "") + (suggestions.length ? " is-suggesting" : "")} style={{ display: "flex", gap: 0, position: "relative", zIndex: suggestions.length ? 40 : undefined }}>
-          {/* v8.2 ROW B — THE SCOPE ("All \u2228" in the lab). It writes
-              browseCat, the SAME state the six tabs beside it write, so it is
-              the tab strip in the shape a phone can hold — never a second
-              category system. It is deliberately NOT sold as narrowing the text
-              search: submitSearch() takes a query string and has no category
-              parameter to receive, and a control that claimed a filter it cannot
-              reach is the mismatched-CTA failure AGENTS.md §12 bans. */}
+          {/* v8.14 — THE LOCATION CONTROL (owner, 2026-08-18: "instead of
+              those categories there, which is weird, I want that place to show
+              the previous location and to house the current-location feature
+              … I need the current location to be precise — leverage the map
+              function so it shows exactly what is around the user").
+              The category dropdown that stood here duplicated the six tabs
+              directly above it (it wrote the same browseCat state) — the tabs
+              remain the ONE category control. This slot now owns WHERE:
+              · the button names the place the feed is currently ranked around
+              · "Use current location" runs the SAME precise recenter the map's
+                crosshair runs (recenterToMe — high-accuracy GPS, never an
+                IP-approximate shortcut; see its v8.14 note)
+              · below it, the reader's previous locations (wf_recent_locs),
+                one tap to re-rank the whole feed around any of them —
+                best-to-worst ordering is the global score rule, unchanged.
+              Styling reuses .wf-scope / .wf-scope-menu wholesale: same slot,
+              same premium chrome, different — and now honest — job. */}
           {screen !== "map" && (
             <div className="wf-scope-wrap">
-              <button type="button" className="wf-scope" aria-haspopup="listbox" aria-expanded={scopeOpen} onClick={() => setScopeOpen((v) => !v)} title="Browse scope">
-                <span>{browseCat ? ((Cats.CATEGORY_TILES.find((t) => t.id === browseCat) || {}).label || "All") : "All"}</span>
+              <button type="button" className="wf-scope" aria-haspopup="listbox" aria-expanded={scopeOpen} onClick={() => setScopeOpen((v) => !v)} title="Location — ranked around this point" aria-label={"Location: " + (cityNow || "not set") + ". Open to use your precise current location or a previous one."}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 21s-6.6-5.4-6.6-10.2A6.6 6.6 0 0 1 12 4.2a6.6 6.6 0 0 1 6.6 6.6C18.6 15.6 12 21 12 21Z" /><circle cx="12" cy="10.8" r="2.3" /></svg>
+                <span style={{ maxWidth: 92, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{cityNow || "Location"}</span>
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
               </button>
               {scopeOpen && (
-                <ul className="wf-scope-menu" role="listbox" aria-label="Browse scope">
-                  {[{ id: null, label: "All" }, ...Cats.CATEGORY_TILES].map((t) => (
-                    <li key={t.id || "all"} role="option" aria-selected={(browseCat || null) === t.id}
-                        onMouseDown={(e) => { e.preventDefault(); setScopeOpen(false); if (t.id === null) { setBrowseCat(null); setMoodPick(null); setSub("all"); } else if (browseCat !== t.id) { pickBrowse(t.id); } }}>
-                      {t.label}
+                <ul className="wf-scope-menu" role="listbox" aria-label="Choose the location to rank around">
+                  <li role="option" aria-selected={false} style={{ color: "#FFC58F", fontWeight: 800 }}
+                      onMouseDown={(e) => { e.preventDefault(); setScopeOpen(false); recenterToMe(); }}>
+                    ◎ Use current location
+                  </li>
+                  {recentLocs.filter((r) => r && r.loc && isFinite(r.lat) && isFinite(r.lng) && (!locName || r.loc.split(",")[0] !== locName.split(",")[0])).slice(0, 5).map((r) => (
+                    <li key={r.loc + r.ts} role="option" aria-selected={false}
+                        onMouseDown={(e) => {
+                          e.preventDefault(); setScopeOpen(false);
+                          // A previous location is a MANUAL pick: it must
+                          // survive the next auto-geo pass exactly like a
+                          // searched pin does.
+                          manualRef.current = true;
+                          setCenter({ lat: r.lat, lng: r.lng });
+                          setLocName(r.loc);
+                          setLocResolved(true);
+                          setMapFocus({ lat: r.lat, lng: r.lng, ts: Date.now() });
+                        }}>
+                      {r.loc.split(",")[0]}
                     </li>
                   ))}
                 </ul>

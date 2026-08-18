@@ -56,8 +56,26 @@ ok(nearMeQuery({ cat: "", center: tampa }) === null, "no category → no query")
 
 /* ── documented difference: home All is discovery, not a seventh category ─ */
 ok(HOME_ALL_IS_DISCOVERY === true, "home All is the mixed discovery feed by contract");
-ok(/browseCat \? \(\(Cats\.CATEGORY_TILES/.test(HOME) && /id: null, label: "All"/.test(HOME),
-  "home's scope All clears browseCat (discovery), it does not invent a cat='all' search");
+// RE-POINTED v8.14 (owner, 2026-08-18: "instead of those categories there,
+// which is weird, I want that place to show the previous location and to
+// house the current-location feature"). The scope DROPDOWN this line matched
+// is gone by owner directive — the search bar's left slot is now the location
+// control, and the six tabs remain the one category writer. The INVARIANT
+// this line protected is unchanged and still asserted: nothing anywhere
+// invents a cat="all" search — All/discovery is the ABSENCE of a category,
+// never a seventh one.
+// Scoped to the NEAR-ME query this file is about: /api/experiences takes a
+// legitimate cat=all param of its own (the Viator products API), so a bare
+// substring sweep would fire on correct code. The invariant is that the
+// ORGANIC near-me search never receives "all" as a category.
+{
+  const nmCalls = HOME.match(/nearMeQuery\(\{[\s\S]{0,200}?\}\)/g) || [];
+  ok(nmCalls.length > 0, "positive control — home really calls nearMeQuery, so the ban below can fail");
+  ok(nmCalls.every((c) => !/["']all["']/.test(c)),
+    "no nearMeQuery call invents a cat='all' search — discovery is browseCat null, not a seventh category");
+}
+ok(/Use current location/.test(HOME) && /wf_recent_locs/.test(HOME),
+  "…and the slot that held the duplicate category dropdown now houses the owner's location control (precise current fix + previous locations)");
 ok(!/CATEGORY_TILES[\s\S]{0,200}id: "all"/.test(readFileSync(new URL("../lib/categories.js", import.meta.url), "utf8")),
   "the map's category tiles have no All — map always searches a real category");
 
