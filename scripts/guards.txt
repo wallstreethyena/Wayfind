@@ -416,3 +416,7 @@ node scripts/check-rail-routes.mjs
 node scripts/test-rail-select.mjs
 node scripts/test-summer-universe.mjs
 node scripts/test-location-context.mjs
+
+# WF-007 / WF-004 — map teardown + home/map inventory parity
+node scripts/test-map-teardown.mjs
+node scripts/test-session-map-parity.mjs

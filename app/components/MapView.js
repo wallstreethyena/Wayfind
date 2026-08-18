@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { LngLatBounds, Map as MapLibreMap, Marker, NavigationControl, setWorkerUrl } from "maplibre-gl";
 import { areaMoved, distanceRingData, MAP_RING_MILES, MAP_RING_MILES_ZOOMED_OUT } from "../../lib/mapExplorer";
+import { safeRemoveMap } from "../../lib/mapTeardown";
 
 // Below this zoom level the map is showing enough area that the 15mi ring
 // is basically hugging the edge of the viewport, so the outer ring expands
@@ -305,8 +306,14 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return undefined;
-    const startingPoint = center || { lat: 27.5689, lng: -82.4393 };
-    const map = new MapLibreMap({
+    // Fail-closed: no visitor center → no map instance (and no Parrish/Sarasota
+    // seed fill). hasCenter in the dep list re-runs this once a real center
+    // arrives; later center refinements do not remount (hasCenter stays true).
+    const startingPoint = center;
+    if (!startingPoint || !Number.isFinite(Number(startingPoint.lat)) || !Number.isFinite(Number(startingPoint.lng))) return undefined;
+    let map;
+    try {
+    map = new MapLibreMap({
       container: containerRef.current,
       style: MAP_STYLES[styleMode] || MAP_STYLES.bright,
       center: [startingPoint.lng, startingPoint.lat],
@@ -333,6 +340,10 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       // Map tab is the whole screen and has no page scroll to protect.
       cooperativeGestures: !!compact,
     });
+    } catch (e) {
+      setFailed(true);
+      return undefined;
+    }
     mapRef.current = map;
     if (!compact) map.addControl(new NavigationControl({ showCompass: false }), "bottom-right");
     // Watchdog: the blank-map bug above produced NO error event, so `failed`
@@ -464,10 +475,12 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     // normal map operation, not "the map could not load" -- only a failure
     // before the map's first successful load should ever trip the fallback.
     map.on("error", (event) => { if (event && event.error && !map.loaded() && /style|tile|network/i.test(String(event.error.message || event.error))) { clearWatchdog(); setFailed(true); } });
-    return () => { clearWatchdog(); if (typeof document !== "undefined") document.removeEventListener("visibilitychange", onVisibility); clearMarkers(); map.remove(); mapRef.current = null; };
-    // The map is intentionally created only once; state is projected in redraw.
+    return () => { clearWatchdog(); if (typeof document !== "undefined") document.removeEventListener("visibilitychange", onVisibility); clearMarkers(); safeRemoveMap(map); mapRef.current = null; };
+    // Created once a real center exists; hasCenter stays true so GPS refine
+    // does not remount. Cleanup is idempotent — a half-init WebGL map cannot
+    // throw on the way to /events.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [!!(center && Number.isFinite(Number(center.lat)) && Number.isFinite(Number(center.lng)))]);
 
   useEffect(() => { redraw(); }, [places, center, category, deviceLoc, events, fit, rings, selectedId]); // eslint-disable-line react-hooks/exhaustive-deps
 
