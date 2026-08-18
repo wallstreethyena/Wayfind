@@ -15,6 +15,7 @@ import { cuisineLabel } from "../../lib/dining";
 import { overrideFor } from "../../lib/placeOverrides";
 import * as Tags from "../../lib/tags";
 import { directionsHref } from "../../lib/directions.js";
+import { useMarketPhotoFallback, marketPhotoQuery } from "./marketPhoto.js";
 import { hasPlacePhotoRef } from "../../lib/placePhoto.js";
 
 // ---------------------------------------------------------------------------
@@ -158,6 +159,12 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   // with the row's position. Un-ranked callers keep the canonical base.
   const score = toDisplayScore(Number.isFinite(place.governed_score) ? place.governed_score : place.wfScore != null ? place.wfScore : wayfindScore(place.rating, place.reviews));
   const category = coarseCat(place) || place.primaryType || place.type || "Local pick";
+  // v8.13.3 (owner: "I don't want any of the place cards not to have an
+  // image"). Rung 3 of the photo ladder — a city+category stock scene via the
+  // cached /api/market-photo route — fetched ONLY when the venue-truthful
+  // rungs (photoRef / photo) are absent. See app/components/marketPhoto.js
+  // for the ladder and the honesty line (query is never the venue name).
+  const marketFallback = useMarketPhotoFallback(photoUrl(place) ? null : marketPhotoQuery(category, place.city));
   const status = businessStatus({
     ...place,
     oh: place.oh || place.regularOpeningHours || null,
@@ -211,8 +218,8 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   return (
     <li data-iconic-place-card data-card-opens-detail onClick={openCard} className={`wf-place-card${isCuratorPick ? " is-curator-pick" : ""}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}`} style={{ listStyle: "none", cursor: href ? "pointer" : "default" }}>
       <div className="wf-place-card-layout">
-        {photoUrl(place)
-          ? <img src={photoUrl(place)} alt="" loading="lazy" style={{ objectFit: "cover" }} />
+        {photoUrl(place) || marketFallback
+          ? <img src={photoUrl(place) || marketFallback} alt="" loading="lazy" style={{ objectFit: "cover" }} />
           : <div className="wf-place-card-monogram" aria-hidden="true">{initials}</div>}
         <div className="wf-place-card-content" style={{ position: "relative" }}>
           <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start" }}>

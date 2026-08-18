@@ -57,8 +57,14 @@ const home = read("app/home.js");
 // assertions below still prove it runs before the early return and feeds the
 // card's src.
 ok(/import \{ useBestPhoto \} from "\.\.\/lib\/bestPhoto"/.test(home), "PlaceCard imports the picker");
-ok(/const cardPhoto = useBestPhoto\(p && p\.photo, p && p\.photos\);\s*\n\s*(?:\/\/[^\n]*\n\s*)*(?:const cardProduct = usePlaceProduct\([^;]*\);\s*\n\s*)?if \(!cardComplete\(p\)\) return null;/.test(home), "the hook runs BEFORE the early return (rules of hooks)");
-ok(/src=\{cardPhoto \|\| p\.photo\}/.test(home), "the card renders the best photo, falling back to the primary");
+// RE-POINTED v8.13.3 (owner: "I don't want any of the place cards not to have
+// an image"): useMarketPhotoFallback joins the pre-gate hook block (it too
+// must run on every render), and the src ladder gains the stock-scene LAST
+// rung — cardPhoto || p.photo || cardMarketFallback. Both invariants this
+// file proves are unchanged: the picker runs before the early return, and the
+// venue-truthful photo always outranks every fallback.
+ok(/const cardPhoto = useBestPhoto\(p && p\.photo, p && p\.photos\);\s*\n\s*(?:\/\/[^\n]*\n\s*)*(?:const cardMarketFallback = useMarketPhotoFallback\([\s\S]{0,300}?\);\s*\n\s*)*(?:\/\/[^\n]*\n\s*)*(?:const cardProduct = usePlaceProduct\([^;]*\);\s*\n\s*)?if \(!cardComplete\(p\)\) return null;/.test(home), "the hook runs BEFORE the early return (rules of hooks)");
+ok(/src=\{cardPhoto \|\| p\.photo \|\| cardMarketFallback\}/.test(home), "the card renders the best photo, then the primary, then the stock-scene last rung — venue-truth always first");
 
 console.log(`test-image-score: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);

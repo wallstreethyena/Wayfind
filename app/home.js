@@ -185,6 +185,7 @@ import { WF_LAYOUT_CSS, WF_SEARCH_CSS, WF_PLACE_CARD_CSS, WF_TASTE_CSS, WF_RAIL_
 // the selection logic and never leaves the server), so importing it here costs
 // the bundle the card copy and nothing else.
 import DaypartRail from "./components/DaypartRail";
+import { useMarketPhotoFallback, marketPhotoQuery } from "./components/marketPhoto";
 import { WF_RAIL_MENU_CSS } from "./components/railMenuCss";
 import { RAILS } from "../lib/rails";
 // v8.3: the category tabs resolve their city segment through the SAME builder
@@ -10399,6 +10400,14 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // cardComplete early return below (rules of hooks: this hook must run on
   // every render, even for a card that ultimately renders nothing).
   const cardPhoto = useBestPhoto(p && p.photo, p && p.photos);
+  // v8.13.3 (owner: "I don't want any of the place cards not to have an
+  // image"). Rung 3 of the photo ladder — a city+category stock scene via the
+  // cached /api/market-photo route, fetched ONLY when the venue-truthful
+  // rungs (photo / photos / Google-twin heal below) came up empty. Must run
+  // before the early return (rules of hooks). See components/marketPhoto.js.
+  const cardMarketFallback = useMarketPhotoFallback(
+    (p && (p.photo || p.photos)) ? null : marketPhotoQuery(p && (p.primaryCategory || p.category), (p && p.city) || city)
+  );
   if (!cardComplete(p)) return null; // v6.39 GLOBAL guardrail: an incomplete card renders NOTHING (scripts/test-card-gate.mjs)
   // v4.89 — photo fix. Non-Google (Foursquare) entries often arrive without a
   // photo reference, so cards fell back to the logo. When a card renders
@@ -10552,8 +10561,8 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
         </span>
       )}
       <div className="wf-place-card-layout" style={{ display: "flex", position: "relative", zIndex: 1, pointerEvents: "none" }}>
-        {p.photo
-          ? <FallbackImg src={cardPhoto || p.photo} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
+        {(p.photo || cardMarketFallback)
+          ? <FallbackImg src={cardPhoto || p.photo || cardMarketFallback} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
           : <div className="wf-place-card-monogram" aria-hidden="true">{cardInitials}</div>}
         <div className="wf-place-card-content" style={{ padding: "12px 12px", flex: 1, minWidth: 0, position: "relative" }}>
           <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>

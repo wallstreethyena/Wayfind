@@ -42,8 +42,13 @@ ok(typeof served[0].rating === "number" && served[0].rating > 0, "a served inven
 
 // ── the components actually enforce the contract ────────────────────────────
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
-ok(/function PlaceCard\(\{[^}]*\}\) \{\s*\n\s*(?:\/\/[^\n]*\n\s*)*(?:const cardPhoto = useBestPhoto\([^;]*\);\s*\n\s*)?(?:\/\/[^\n]*\n\s*)*(?:const cardProduct = usePlaceProduct\([^;]*\);\s*\n\s*)?if \(!cardComplete\(p\)\) return null;/.test(home),
-  "PlaceCard's completeness gate is its first RETURN (only the useBestPhoto + usePlaceProduct hooks may precede it — rules of hooks; an incomplete card still renders nothing)");
+// RE-POINTED v8.13.3 (owner, 2026-08-18: "I don't want any of the place cards
+// not to have an image"): useMarketPhotoFallback joins the allowed pre-gate
+// hooks — like useBestPhoto it MUST run on every render (rules of hooks), so
+// it can only live above the early return. The invariant is unchanged: the
+// completeness gate is the first RETURN, and only hooks may precede it.
+ok(/function PlaceCard\(\{[^}]*\}\) \{\s*\n\s*(?:\/\/[^\n]*\n\s*)*(?:const cardPhoto = useBestPhoto\([^;]*\);\s*\n\s*)?(?:\/\/[^\n]*\n\s*)*(?:const cardMarketFallback = useMarketPhotoFallback\([\s\S]{0,300}?\);\s*\n\s*)?(?:\/\/[^\n]*\n\s*)*(?:const cardProduct = usePlaceProduct\([^;]*\);\s*\n\s*)?if \(!cardComplete\(p\)\) return null;/.test(home),
+  "PlaceCard's completeness gate is its first RETURN (only the useBestPhoto + useMarketPhotoFallback + usePlaceProduct hooks may precede it — rules of hooks; an incomplete card still renders nothing)");
 ok(/import \{[^}]*cardComplete[^}]*\} from "\.\.\/lib\/score"/.test(home), "home.js imports cardComplete from lib/score");
 ok(/if \(p\.wfScore == null && Number\(p\.rating\) > 0\) p\.wfScore = wayfindScore\(/.test(home),
   "PlaceCard self-heals a missing wfScore from rating signals (a rated card ALWAYS shows the Score badge)");
