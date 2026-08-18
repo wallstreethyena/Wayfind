@@ -301,8 +301,14 @@ ok(governedWayfindScore(90, { hasCreatorVideo: true, trending: true, distanceMi:
 {
   const land = readFileSync(path.resolve("lib/landing.js"), "utf8");
   ok(/await attachTrendSignals\(pool, \{\}\);/.test(land), "rankedFor attaches the unified signal BEFORE scoring");
-  ok(/governedWayfindScore\(q, \{ hasCreatorVideo: hasCreatorVideoAt\(p\), distanceMi: [^}]*trending: !!p\.trending \}\)/.test(land),
-    "rankedFor's governed call carries the trending flag");
+  // RE-POINTED 2026-08-16: the pattern hard-coded the BARE `hasCreatorVideoAt(p)`
+  // while asserting something else entirely (that the trending flag reaches the
+  // governed call). The bare form returns false for every place — the registry
+  // keys on city — so this assertion was quietly holding the creator term dead
+  // as a precondition of checking the trending term. The city argument is now
+  // required; the trending-flag assertion itself is unchanged and still binds.
+  ok(/governedWayfindScore\(q, \{ hasCreatorVideo: hasCreatorVideoAt\(p, [A-Za-z_$][\w$.]*\), distanceMi: [^}]*trending: !!p\.trending \}\)/.test(land),
+    "rankedFor's governed call carries the trending flag AND passes the city to hasCreatorVideoAt");
   ok(/if \(p\.trending && p\.trend_reason\) bits\.push\("🔥 " \+ p\.trend_reason\);/.test(land),
     "whyLine leads with the 🔥 reason — the disclosure that rides every consumer of these rows");
   ok(/const trending = !!\(p\.trending && p\.trend_reason\);/.test(land),

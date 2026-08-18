@@ -80,8 +80,15 @@ ok(!!mountEffect && /ensureLoaded\(open\)/.test(mountEffect[1]),
   "that effect calls ensureLoaded(open) — otherwise an opened legacy section can stay empty");
 ok(!!mountEffect && /isFinite\(center\.lat\)/.test(mountEffect[1]),
   "it waits for a real centre before fetching — an unconditional mount fetch would fire one request per visitor with lat=undefined");
-ok(/<ExplodingNearby[\s\S]{0,180}active=\{sectionOpen\("exploding"\)\}/.test(CODE),
-  "the first section activates the Exploding Nearby loader when it is open");
+// RE-POINTED 2026-08-16. This asserted that the mounted <ExplodingNearby>
+// only loads while its section is open — a real rule about not firing a
+// third-party-backed request for a collapsed section. The component is no
+// longer mounted (see the removal note in app/components/BestNearby.js), so
+// there is nothing to gate. What must NOT happen is the component coming back
+// WITHOUT that gate, so the rule is kept in its conditional form: if it is
+// mounted at all, it is still gated on the section being open.
+ok(!/<ExplodingNearby[\s/>]/.test(CODE) || /<ExplodingNearby[\s\S]{0,180}active=\{sectionOpen\("exploding"\)\}/.test(CODE),
+  "if the Exploding Nearby loader is mounted at all, it still only activates while its section is open");
 ok(/if \(!active \|\| !center \|\| !Number\.isFinite\(center\.lat\) \|\| !Number\.isFinite\(center\.lng\)\) return;/.test(EXP),
   "the Exploding request waits for both an open section and a real location");
 ok(/loadProvidedTrendList\(\{ center, city, signal: ctrl\.signal \}\)/.test(EXP),
@@ -269,15 +276,33 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   // describing its removal.
 
   // ── the answer and exact hierarchy ──
+  // ── RE-POINTED 2026-08-16, and this is what moved. ──────────────────────
+  //
+  // These three used to pin Exploding Trends Near You as the first section:
+  // its exact descriptor literal, its h2, and its position ahead of the Top
+  // 40. The section is GONE — not demoted, removed — because it could only
+  // ever render its own error. EXPLODING_TOPICS_IMPORT_CADENCE was set in no
+  // environment and all three wf_trend_* tables held zero rows, so
+  // /api/trends/nearby answered 503 on every request and every visitor in
+  // every metro read "Trend recommendations are temporarily unavailable" in
+  // the first slot of the homepage, opened by default.
+  //
+  // THE INVARIANT THESE WERE WRITTEN FOR SURVIVES INTACT: the reader gets ONE
+  // immediate answer at the top, as a real heading, before any optional path.
+  // Only the identity of that answer changed — The Best Around You inherits
+  // the slot, the h2 and the open-by-default state. So these are re-aimed at
+  // the answer section rather than deleted, and a new assertion below makes
+  // the removal itself explicit so nobody restores the old order by reflex.
   ok(/sdef\.heading[\s\S]{0,100}<h2[^>]*>[\s\S]{0,80}\{sdef\.label\}<\/h2>/.test(BN),
-     "the Exploding answer renders as an h2 — it is the page's real heading, not decorative text");
-  ok(/const EXPLODING_SECTION = \{ id: "exploding", label: "Exploding Trends Near You", sub: "Everyone's searching these\. Wayfind found where to try them near you\.", emoji: "🔥", heading: true, maxHeight: 24000 \}/.test(BN),
-     "the first section carries one fire emoji, the approved support line, heading semantics and a height budget sized for the full 20-trend universe (2026-08-11)");
-  const iExplodingRender = BN.indexOf("<SectionShell sdef={EXPLODING_SECTION}");
+     "the leading answer renders as an h2 — it is the page's real heading, not decorative text");
+  ok(/const TOP40_SECTION = \{[^}]*\bheading: true\b/.test(BN),
+     "The Best Around You carries heading: true — otherwise the h2 branch above is dead code and the page's leading section has no heading element at all");
+  ok(!/<SectionShell sdef=\{EXPLODING_SECTION\}/.test(BN) && !/<ExplodingNearby[\s/>]/.test(BN),
+     "the Exploding Trends section is still absent — it may only come back with a real snapshot behind it (scripts/check-trend-section-honesty.mjs holds that gate)");
   const iBestRender = BN.indexOf("<SectionShell sdef={TOP40_SECTION}");
   const iMappedRender = BN.indexOf("{SECTIONS.map((sdef)");
-  ok(iExplodingRender > -1 && iExplodingRender < iBestRender && iBestRender < iMappedRender,
-     "Exploding Near You renders first, The Best Around You second, and the mapped discovery rows follow");
+  ok(iBestRender > -1 && iBestRender < iMappedRender,
+     "The Best Around You renders first and the mapped discovery rows follow");
   ok(/const TOP40_SECTION = \{ id: "best", label: "The Best Around You", sub: "Ten answers, zero tabs: the highest Wayfind Scores near you\. No paid placement\."/.test(BN),
      "the existing Top 40 behavior is preserved under the approved Best Around You name");
   const sectionBlock = BN.slice(BN.indexOf("const SECTIONS = ["), BN.indexOf("const trendsBody"));
@@ -297,8 +322,16 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   const collapsedDecl = COLLAPSE.match(/DEFAULT_COLLAPSED_RAILS\s*=\s*(\[[^;]+\])/);
   let collapsedDefaults = [];
   try { collapsedDefaults = collapsedDecl ? JSON.parse(collapsedDecl[1]) : []; } catch (e) {}
-  ok(!collapsedDefaults.includes("exploding") && ["best", "eat", "quickbite", "todo", "gems", "creators", "events", "tonight", "drive"].every((id) => collapsedDefaults.includes(id)),
-     "Exploding is the only primary discovery section expanded for a new visitor; every section below starts collapsed");
+  // RE-POINTED with the same move. The rule was never "exploding is open" —
+  // it was "EXACTLY ONE primary section is open for a new visitor, and it is
+  // the answer". Written as a named exclusion, it would have gone GREEN the
+  // moment exploding was removed while every remaining id stayed in the list,
+  // which is a homepage of nothing but closed headers. So it now asserts the
+  // property directly: the answer is open, everything below it is closed.
+  ok(!collapsedDefaults.includes("best"),
+     "The Best Around You must be open for a new visitor — it is the one immediate answer, and with Exploding removed it is the only thing standing between the reader and a page of closed accordion headers");
+  ok(["eat", "quickbite", "todo", "gems", "creators", "events", "tonight", "drive"].every((id) => collapsedDefaults.includes(id)),
+     "every optional discovery path below the answer still starts collapsed");
   // v7.29 — THIS USED TO PARSE A HAND-COPIED ARRAY LITERAL out of the inline
   // script and compare it to lib/railCollapse.js. That is a drift DETECTOR for a
   // duplication that did not need to exist. app/layout.js now interpolates the
@@ -316,7 +349,8 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
      "app/layout.js imports the collapse constants it interpolates");
   // The desktop default is DERIVED from the phone default, so the only thing a
   // reader on a wide screen can get that a phone reader cannot is a rail that
-  // was explicitly named as open. Exploding must still never be in either.
+  // was explicitly named as open. Exploding must still never be in either —
+  // and since 2026-08-16 it is in neither because it does not exist.
   const desktopOpenDecl = COLLAPSE.match(/RAILS_OPEN_ON_DESKTOP\s*=\s*(\[[^;]+\])/);
   let desktopOpen = [];
   try { desktopOpen = desktopOpenDecl ? JSON.parse(desktopOpenDecl[1]) : []; } catch (e) {}

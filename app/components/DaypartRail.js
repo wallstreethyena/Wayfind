@@ -127,6 +127,13 @@ export default function DaypartRail({
   const shown = live || { places, thin, region, citySlug, cityLabel };
   const thinSet = useMemo(() => new Set(shown.thin), [shown.thin]);
   const railById = useMemo(() => new Map(rails.map((r) => [r.id, r])), [rails]);
+  // NOTE on `artStale` (owner, 2026-08-16): a rail can be renamed in code while
+  // the reader keeps seeing the old claim, because the headline on these tiles
+  // is part of the IMAGE. `trending` is in that state — its art still reads
+  // "EXPLODING TRENDS NEAR YOU". The tile is NOT suppressed: the owner uses it
+  // and asked for it working. The flag exists so the mismatch is TRACKED in
+  // scripts/check-rail-art-matches-copy.mjs rather than discovered again on a
+  // screenshot, and it clears the day the art is redrawn.
   const order = useMemo(() => orderFor(daypart, rails.map((r) => r.id)), [daypart, rails]);
   const band = DAYPARTS[daypart] || DAYPARTS.afternoon;
 
@@ -334,7 +341,7 @@ export default function DaypartRail({
             <div className="wf8-thin">
               <p>
                 {thinSet.has(selRail.id)
-                  ? `Nothing${near} clears this bar right now — ${selRail.axis}. Padding it with places that don't belong would make the rail worthless.`
+                  ? `Nothing${near} clears this bar right now — ${selRail.emptyWhy || "nothing nearby clears the bar"}. Padding it with places that don't belong would make the rail worthless.`
                   : `We're still gathering places for this${near}.`}
               </p>
               <a href={railHref(selRail, shown.region, shown.citySlug) || "/"}>{selRail.cta} →</a>

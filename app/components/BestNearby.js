@@ -23,7 +23,6 @@ import { fetchTodaysBest, fetchThingsToDo, tbPhotoUrl, byVisibleScore, daypartCo
 import { SERVICE_RX } from "../../lib/placeFilter.js";
 // v7.04 — the Top 40 rail renders the SAME card every other rail renders.
 import RailCard, { RailNav, RailDots } from "./RailCard";
-import ExplodingNearby from "./ExplodingNearby";
 // v7.05 — the four intent rails (hidden gems / tonight / worth the drive /
 // big fun small budget) render the SAME card from the SAME engine their
 // destination pages use. See IntentRail.js for why this is the real list and
@@ -368,8 +367,12 @@ function SectionShell({ sdef, isOpen, first, onToggle, nodeRef, children }) {
 // The Top 40's own header. Not a member of SECTIONS because its rail JSX has to
 // stay ABOVE the {SECTIONS.map( call (scripts/check-top40-rail.mjs pins that
 // order, and the rail is what the whole panel is named after).
-const EXPLODING_SECTION = { id: "exploding", label: "Exploding Trends Near You", sub: "Everyone's searching these. Wayfind found where to try them near you.", emoji: "🔥", heading: true, maxHeight: 24000 };
-const TOP40_SECTION = { id: "best", label: "The Best Around You", sub: "Ten answers, zero tabs: the highest Wayfind Scores near you. No paid placement.", icon: "award" };
+// `heading: true` moved here from EXPLODING_SECTION when that section was
+// removed. It is what renders the label as a real <h2> rather than a styled
+// span — without it the panel would have had no heading element at all, and
+// the page's leading section would be invisible to a screen reader's heading
+// list. This section is the answer now, so it carries the heading.
+const TOP40_SECTION = { id: "best", label: "The Best Around You", sub: "Ten answers, zero tabs: the highest Wayfind Scores near you. No paid placement.", icon: "award", heading: true };
 
 // The sections whose data `load()` below knows how to fetch. Everything else in
 // the menu resolves its own rail.
@@ -379,7 +382,7 @@ const LOADABLE = { eat: 1, todo: 1, trends: 1 };
 // creator row and the intent rails use to decide a list is too thin to stand.
 const MIN_RAIL_ROWS = 3;
 
-export const DEFAULT_SECTION = "exploding";
+export const DEFAULT_SECTION = "best";
 
 // v7.05 (owner, 2026-08-09): "we would pretty much be adding to the existing
 // menu we have and just reorganizing and adding the horizontal rails to them."
@@ -620,9 +623,11 @@ export default function BestNearby({
   }, [closed, gateKey, center && center.lat, center && center.lng]);
 
   const claimed = (...groups) => [...new Set(groups.flat().filter(Boolean))];
-  const explodingClaimed = visibleIds.exploding || [];
-  const top10 = uniqueRecommendations(top40, explodingClaimed, TOP40_MAX);
-  const eatClaimedBefore = claimed(explodingClaimed, recommendationIds(top10));
+  // The dedup chain used to start at the Exploding Trends section, which
+  // claimed IDs before anything else rendered. That section is gone, so the
+  // Top 40 is now the head of the chain and nothing is claimed ahead of it.
+  const top10 = uniqueRecommendations(top40, [], TOP40_MAX);
+  const eatClaimedBefore = claimed(recommendationIds(top10));
   const eatUnique = uniqueRecommendations(rows.eat, eatClaimedBefore, 10);
   const todoClaimedBefore = claimed(eatClaimedBefore, recommendationIds(eatUnique));
   const todoUnique = uniqueRecommendations(rows.todo, todoClaimedBefore, 10);
@@ -855,7 +860,6 @@ export default function BestNearby({
     // best_nearby_open and make the before/after read on this change
     // uninterpretable — which is the only reason the change is being made.
     try { onLog && onLog("best_nearby_open", null, { section: id, trigger: "tap" }); } catch (e) {}
-    if (id === "exploding") { try { onLog && onLog("trend_expand", null, { surface: "home", trigger: "tap" }); } catch (e) {} }
     // Only the sections whose data this component fetches. An intent rail and
     // the creator slot resolve their own content and must never be routed
     // through ensureLoaded — see the comment on `load` for what that cost.
@@ -903,7 +907,7 @@ export default function BestNearby({
 
   // Every section this component can render, so the count follows the array
   // rather than a hand-kept list that goes stale the next time one is added.
-  const allSectionsClosed = !["exploding", "best", ...SECTIONS.map((sd) => sd.id)].some(sectionOpen);
+  const allSectionsClosed = !["best", ...SECTIONS.map((sd) => sd.id)].some(sectionOpen);
 
   const trendsBody = (d) => (
     <>
@@ -968,25 +972,31 @@ export default function BestNearby({
   return (
     <section aria-label="Best nearby" style={{ position: "relative", overflow: "hidden", background: "linear-gradient(145deg, #101722 0%, #0A0E15 72%)", border: "1px solid #293442", borderRadius: 19, padding: "4px 14px", marginBottom: 12, boxShadow: "inset 0 1px 0 rgba(255,255,255,.045), 0 12px 30px rgba(0,0,0,.2)" }}>
       <style dangerouslySetInnerHTML={{ __html: `.wf-bn-focus:focus-visible{outline:${FOCUS.outline};outline-offset:${FOCUS.outlineOffset}}` }} />
-      <SectionShell sdef={EXPLODING_SECTION} isOpen={sectionOpen("exploding")} first onToggle={toggle} nodeRef={(el) => { secRefs.current.exploding = el; }}>
-        <ExplodingNearby
-          center={center}
-          city={city}
-          weather={weather}
-          active={sectionOpen("exploding")}
-          onVisibleIds={(ids) => reportVisibleIds("exploding", ids)}
-          onOpenPlace={onOpenPlace}
-          onLog={onLog}
-          isSaved={isSaved}
-          liked={liked}
-          disliked={disliked}
-          onSave={onSave}
-          onLike={onLike}
-          onDislike={onDislike}
-          onShare={onShare}
-          onFindSimilar={onFindSimilar}
-        />
-      </SectionShell>
+      {/* ── "Exploding Trends Near You" REMOVED (owner, 2026-08-16: "FIX IT
+          OR REMOVE IT"). It could not be fixed from code. Measured the same
+          day, on the live page and against the database:
+
+            EXPLODING_TOPICS_IMPORT_CADENCE   set in NO environment — not
+                                              local, not preview, not prod
+            wf_trend_snapshots                0 rows
+            wf_trend_topics                   0 rows
+            wf_trend_place_matches            0 rows
+
+          So /api/trends/nearby answered 503 trend_configuration_error on
+          every request, and this section rendered "Trend recommendations are
+          temporarily unavailable" to every visitor, in the FIRST slot, opened
+          BY DEFAULT. Exploding Topics is a paid product exported by hand;
+          with no snapshot ever imported there is nothing for any code change
+          to select from.
+
+          The pipeline is INTACT and deliberately not deleted —
+          /api/trends/nearby, app/components/ExplodingNearby.js,
+          lib/explodingNearby.js and the wf_trend_* tables all still exist.
+          To bring the section back: import a snapshot, set the cadence var,
+          then restore this block. docs/HANDOFF-NEXT.md carries the steps.
+
+          Do NOT re-add it "to be ready" before a snapshot exists. That is
+          exactly how it shipped an error message as a headline. */}
       {/* ── THE TOP 40 (owner, 2026-08-08) ────────────────────────────────
           "i want the same cards inside this... place 40 cards there... allow
           the user scroll right and left", and "make sure it is housed under
