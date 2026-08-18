@@ -146,10 +146,18 @@ export default function DaypartRail({
       const R = 3958.8, r = (d) => (d * Math.PI) / 180;
       const s2 = Math.sin(r(center.lat - lat) / 2) ** 2
         + Math.cos(r(lat)) * Math.cos(r(center.lat)) * Math.sin(r(center.lng - lng) / 2) ** 2;
-      if (R * 2 * Math.asin(Math.sqrt(s2)) < 20) return undefined;
+      // v8.7 (owner, 2026-08-18: "leverage the exact user location … show
+      // everything that is the best near the user"). Was 20 miles — inside the
+      // same metro the rail kept the city-hall ranking while the map measured
+      // from the reader, and a Parrish reader saw Sarasota-centre miles on
+      // every card. 1.5mi still absorbs GPS jitter; a real move re-asks.
+      if (R * 2 * Math.asin(Math.sqrt(s2)) < 1.5) return undefined;
     }
     let cancelled = false;
-    fetch(`/api/rails?lat=${encodeURIComponent(center.lat)}&lng=${encodeURIComponent(center.lng)}`)
+    // Snapped to ~0.7mi so the CDN sees a countable set of URLs per metro, not
+    // one per GPS fix. The server re-measures every distance from this point.
+    const snap = (v) => Math.round(v * 100) / 100;
+    fetch(`/api/rails?lat=${encodeURIComponent(snap(center.lat))}&lng=${encodeURIComponent(snap(center.lng))}`)
       .then((r2) => (r2.ok ? r2.json() : null))
       .then((j) => {
         if (cancelled || !j || !j.covered || !j.data) return;   // out of coverage: keep the flagship answer

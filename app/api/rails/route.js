@@ -60,7 +60,20 @@ export async function GET(req) {
     });
   }
   try {
-    const data = await railMenuData(slug);
+    // v8.7 — the reader's REAL point, when given. Pools stay per-metro cached;
+    // only distances, distance gates and the creators pool re-origin on it.
+    // The client snaps coordinates to a coarse grid before asking, so the CDN
+    // cache keys stay countable (see DaypartRail's fetch).
+    //
+    // ABSENT MEANS ABSENT: Number(null) is 0, not NaN, so a bare ?city=
+    // request coerced to origin (0,0) — a point 5,715 miles off the coast of
+    // Africa — and every distance-gated rail (beach ≤23, break ≤8) shipped
+    // thin. Caught on the preview deploy before merge. Parse only params that
+    // are actually present.
+    const parseCoord = (k) => { const v = sp.get(k); return v == null || v === "" ? NaN : Number(v); };
+    const la = parseCoord("lat"), ln = parseCoord("lng");
+    const origin = Number.isFinite(la) && Number.isFinite(ln) ? { lat: la, lng: ln } : null;
+    const data = await railMenuData(slug, { origin });
     return NextResponse.json({ covered: true, data }, {
       headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" },
     });

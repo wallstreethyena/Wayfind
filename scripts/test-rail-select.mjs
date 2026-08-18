@@ -36,11 +36,13 @@ const pools = {
     mk("b", { name: "Manatee Springs", _s: 80, types: ["natural_feature", "park"] }),
     mk("c", { name: "Van Wezel Hall", _s: 78, types: ["performing_arts_theater"] }),
     mk("d", { name: "Far Preserve", _s: 60, distMi: 22, types: ["park"] }),
-    mk("e", { name: "Tiny Gallery", _s: 55, rating: 4.7, reviews: 120, types: ["art_gallery"] }),
+    // v8.7 — two rows carry the REAL spike flag so the trending blend has
+    // something honest to select in a fixture with no creator registry match.
+    mk("e", { name: "Tiny Gallery", _s: 55, rating: 4.7, reviews: 120, types: ["art_gallery"], trending: true }),
     mk("f", { name: "Big Cat Habitat", _s: 70, types: ["zoo"] }),
     mk("g", { name: "Jungle Gardens", _s: 68, types: ["zoo", "botanical_garden"] }),
     mk("h", { name: "Distant Springs", _s: 52, distMi: 25, types: ["natural_feature"] }),
-    mk("i", { name: "Little Maritime Museum", _s: 48, rating: 4.7, reviews: 210, types: ["museum"] }),
+    mk("i", { name: "Little Maritime Museum", _s: 48, rating: 4.7, reviews: 210, types: ["museum"], trending: true }),
     mk("j", { name: "Bayfront Amphitheatre", _s: 66, types: ["amphitheatre"] }),
     mk("k", { name: "Opera House", _s: 58, types: ["opera_house"] }),
   ],
@@ -51,7 +53,7 @@ const pools = {
     mk("r4", { name: "Corner Taco", _s: 60, types: ["fast_food_restaurant"], distMi: 1 }),
     mk("r5", { name: "Hidden Deli", _s: 58, rating: 4.8, reviews: 90, types: ["deli"], distMi: 2 }),
     mk("r6", { name: "Sunset Chophouse", _s: 72, types: ["restaurant"], priceLevel: "PRICE_LEVEL_VERY_EXPENSIVE" }),
-    mk("r7", { name: "Nonna Trattoria", _s: 64, rating: 4.7, reviews: 320, types: ["restaurant"], priceLevel: "PRICE_LEVEL_MODERATE" }),
+    mk("r7", { name: "Nonna Trattoria", _s: 64, rating: 4.7, reviews: 320, types: ["restaurant"], priceLevel: "PRICE_LEVEL_MODERATE", trending: true }),
   ],
   beaches: [
     mk("bh1", { name: "Siesta Key Beach", _s: 95, types: ["beach"] }),
@@ -70,6 +72,11 @@ const pools = {
     // "it has a date on it and then it is gone".
     mk("n4", { name: "The Mable Bar & Grill", _s: 92, types: ["bar", "night_club", "restaurant"] }),
   ],
+  // v8.7 — the creators pool is SYNTHETIC: lib/railsData.js builds it from the
+  // creator registry (buildCreatorsPool), it is not a rankedFor category. The
+  // fixture has no registry, so it is empty here — which is exactly what makes
+  // `locals` the honest thin example below.
+  creators: [],
 };
 
 // ── structure ───────────────────────────────────────────────────────────────
@@ -131,12 +138,21 @@ ok(namesOf("best").includes("Siesta Key Beach") && namesOf("best").includes("Bea
 // The rules the old line lived beside are untouched: empty-not-padded and
 // thin-reporting are both still asserted below, they just now describe a rail
 // that CAN fill.
+// v8.7 — THE SIGNAL CHANGED AGAIN, BACK TO A LIVE ONE (owner, 2026-08-18, on
+// a screenshot of the volume rail leading with Siesta Beach and the Ringling:
+// "it is not working"). Volume was a leaderboard of the famous. The rail now
+// blends the two live signals the rows genuinely carry: the TREND_THRESHOLD
+// spike flag, and a real creator video (two-argument hasCreatorVideoAt — the
+// call form scripts/check-rail-source-reachable.mjs pins). The fixture has no
+// creator registry match, so what it can prove is the spike half: only
+// flagged rows are admitted, and flagged rows lead.
 {
-  const picked = selectFor("trending", pools);
-  const under = picked.filter((p) => Number(p.reviews) < 250);
-  eq(under.length, 0, "the most-talked-about rail admits nothing under the 250-review meaningfulness floor");
-  ok(picked.every((p, i, a) => i === 0 || Number(a[i - 1].reviews) >= Number(p.reviews)),
-    "…and orders by review volume, most-talked-about first");
+  const picked = selectFor("trending", pools, { cityLabel: "Sarasota" });
+  ok(picked.length >= MIN_CARDS, "the fixture's spike-flagged rows fill the rail");
+  ok(picked.every((p) => !!p.trending),
+    "with no creator registry match in the fixture, every pick must carry the real spike flag — anything else is the volume leaderboard sneaking back");
+  ok(picked.every((p, i, a) => i === 0 || Number(!!a[i - 1].trending) >= Number(!!p.trending)),
+    "…and spike-flagged rows lead the rail");
 }
 
 // spread: a DAY, not eight of one thing
