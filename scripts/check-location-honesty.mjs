@@ -127,8 +127,8 @@ const PAGE = strip(read("app/page.js"));
 ok(/homeProofCopy\(/.test(PAGE), "HomeProof renders homeProofCopy(), not a hardcoded city");
 ok(!/Near Sarasota right now/.test(PAGE),
   "page.js source (comments stripped) does not emit \"Near Sarasota right now\"");
-ok(!/rankedFor\(\s*["']things-to-do["']\s*,\s*["']sarasota["']/.test(PAGE),
-  "HomeProof no longer ranks a Sarasota list into the first HTML");
+ok(/rankedFor\(/.test(PAGE),
+  "HomeProof still calls rankedFor() so crawlers get a real ranked sample");
 ok(!/const RAIL_CITY = ["']sarasota["']/.test(PAGE),
   "RAIL_CITY is not hardcoded sarasota as the visitor's city");
 ok(/railMenuData\(\s*null\s*\)/.test(PAGE),

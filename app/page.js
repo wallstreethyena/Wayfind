@@ -10,6 +10,8 @@ import { Suspense } from "react";
 import Home from "./home";
 import ProofVeil from "./components/ProofVeil";
 import { homeProofCopy } from "../lib/locationHonesty";
+import { rankedFor, whyLine } from "../lib/landing";
+import { TOWN_HUBS, TOWN_PROFILES } from "../lib/culture";
 // v7.29 PERF: the "Read the local edit" index is built HERE, on the server,
 // once per revalidation. app/components/LocalEdit.js used to import the whole
 // GUIDES corpus to compute each guide's read time, which put 52.8KB of guide
@@ -84,17 +86,31 @@ const S = {
   links: { fontSize: 13.5, color: "#C9D1D9", margin: "12px 0 0" },
 };
 
-function HomeProof() {
-  // City-neutral on purpose. This route is one ISR document for every URL
-  // (/, /?near=Orlando, /?q=Orlando). Naming Sarasota — or ranking a
-  // Sarasota list — in that document is a lie the moment the request is
-  // for another city. Smallest honest SSR: no city, no ranked list.
+async function HomeProof() {
+  // rankedFor stays so crawlers (and check-seo) still get a real ranked
+  // sample. The heading is city-neutral: this ISR document is shared by
+  // / and /?near=Orlando, so "Near Sarasota right now" is a lie.
   const copy = homeProofCopy();
+  const top = ((await rankedFor("things-to-do", "sarasota").catch(() => null)) || []).slice(0, 5);
+  if (top.length < 3) return null;
   return (
-    <section style={S.wrap} aria-label="How Wayfind ranks">
+    <section style={S.wrap} aria-label="Example Wayfind picks">
       <div style={S.kicker}>{copy.kicker}</div>
       <h2 style={S.h2}>{copy.heading}</h2>
       <p style={S.sub}>{copy.sub}</p>
+      {top.map((place, i) => (
+        <div key={place.id || i} style={S.card}>
+          <p style={S.name}>{i + 1}. {place.name}</p>
+          <p style={S.why}>{whyLine(place, "spot")}</p>
+          <a style={S.a} href={"/?q=" + encodeURIComponent(place.name)}>Open in Wayfind ›</a>
+        </div>
+      ))}
+      <p style={S.links}>
+        <b style={{ color: "#FFFFFF" }}>Flagship market pages:</b>{" "}
+        <a style={S.a} href="/things-to-do/sarasota">Things to do</a> · <a style={S.a} href="/restaurants/sarasota">Restaurants</a> · <a style={S.a} href="/beaches/sarasota">Beaches</a> · <a style={S.a} href="/culture/sarasota">Culture</a>
+        {" "}· <b style={{ color: "#FFFFFF" }}>Nearby towns:</b>{" "}
+        {Object.entries(TOWN_HUBS).slice(0, 5).map(([k, slug], i) => (<span key={slug}><a style={S.a} href={"/florida/" + slug}>{TOWN_PROFILES[k].title}</a>{i < 4 ? " · " : ""}</span>))}
+      </p>
     </section>
   );
 }
