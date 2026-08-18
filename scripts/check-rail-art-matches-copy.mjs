@@ -63,6 +63,12 @@ const PAIRS = {
   // and renders no tile until it is redrawn.
   beach: { copy: "bc2e671d898c25b0", art: "10af9b34c86feb0b" },
   best: { copy: "2bc35a61dc8196e8", art: "b43ed06222224c16" },
+  // v8.15 (2026-08-18) — pixels verified by eye at pin time: the birthday tile
+  // reads "BIRTHDAY PLANS, SOLVED. / Make their birthday worth remembering.",
+  // the breakfast tile "BEST BREAKFAST PICKS. / HANDPICKED. LOCAL. WORTH
+  // WAKING UP FOR." — both match the rail copy they were drawn for.
+  birthday: { copy: "e30656dbabf938e6", art: "f815a560907c024c" },
+  breakfast: { copy: "357ed5dfa8609429", art: "f353ccf42a91c772" },
   blog: { copy: "390c7f9cbf645d12", art: "3af2ada7cdef7446" },
   break: { copy: "8da3d9103f225a40", art: "23219929258396e1" },
   datenight: { copy: "0aca4828b3f1fdfd", art: "022cf3872de7c9a9" },
