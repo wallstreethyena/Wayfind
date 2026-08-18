@@ -19,6 +19,7 @@ const ok = (c, m) => { if (!c) fail(m); pass += 1; };
 
 const { AWIN_PROGRAMMES, AWIN_CONFLICTS, AWIN_AFFID, awinDeepLink, isAwinLive, liveAwinKeys } =
   await import("../lib/awin.js");
+const { PROVIDERS, resolveOffer } = await import("../lib/commerceProviders.js");
 
 // ── 1. THE SHIPS-DARK CONTRACT, EXECUTED ──────────────────────────────────
 const keys = Object.keys(AWIN_PROGRAMMES);
@@ -87,6 +88,37 @@ for (const h of ["tiqets.com", "viator.com", "gocity.com", "klook.com", "ticketn
   ok(!liveHosts.has(h), `${h} is live on another network — it must not also emit Awin links`);
 }
 
+// ── 3b. THE APPROVED SET IS EXPLICIT — nobody "also" lights a conflict ───
+{
+  const approved = keys.filter((k) => AWIN_PROGRAMMES[k].status === "approved").sort();
+  ok(approved.join(",") === "caesarsshows,rentcars,samboat,usghostadventures",
+     `approved programmes must be exactly the founder-approved set (got ${approved.join(",")})`);
+  ok(AWIN_PROGRAMMES.samboat.approvedOn === "2026-08-12", "SamBoat keeps its 2026-08-12 approval date");
+  for (const k of ["usghostadventures", "rentcars", "caesarsshows"]) {
+    ok(AWIN_PROGRAMMES[k].approvedOn === "2026-08-18", `${k} records the 2026-08-18 founder approval date`);
+  }
+  ok(AWIN_PROGRAMMES.getyourguide_awin.status === "pending", "GetYourGuide-on-Awin stays dark — we already earn that brand on a direct path");
+  ok(!isAwinLive("getyourguide_awin"), "GetYourGuide-on-Awin cannot emit");
+}
+
+// ── 3c. EACH LIVE PROGRAMME HAS ITS OWN COMMERCE PROVIDER ────────────────
+// A shared "awin" provider would union the host allowlist and let a mis-tagged
+// row pay the wrong advertiser. Per-programme providers make that fail closed.
+for (const k of live) {
+  const provKey = "awin_" + k;
+  const cfg = PROVIDERS[provKey];
+  ok(!!cfg, `${k}: live programme must have commerce provider ${provKey}`);
+  ok(cfg && cfg.requireTracking === true, `${k}: requireTracking must be on — an untracked fallthrough pays nothing`);
+  ok(cfg && typeof cfg.track === "function", `${k}: track must wrap through the Awin builder`);
+  const own = "https://www." + AWIN_PROGRAMMES[k].host + "/verified-page";
+  ok(awinDeepLink(k, own) !== null, `${k}: own-host destination emits`);
+  const others = live.filter((x) => x !== k);
+  for (const other of others) {
+    const foreign = "https://www." + AWIN_PROGRAMMES[other].host + "/verified-page";
+    ok(awinDeepLink(k, foreign) === null, `${k}: refused a destination on ${other}'s host`);
+  }
+}
+
 // ── 4. EVERY WIRED AWIN OFFER POINTS AT AN APPROVED PROGRAMME ────────────
 // A destination row for a pending programme is the exact silent-loss case.
 const reg = readFileSync(new URL("../lib/partnerOfferRegistry.js", import.meta.url), "utf8");
@@ -104,6 +136,22 @@ ok(rows.length >= 1, "no awin_* offer rows were found in partnerOfferRegistry �
 {
   const declared = (reg.match(/offer\("awin_/g) || []).length;
   ok(declared === rows.length, `found ${declared} awin_ offer( occurrences but only parsed ${rows.length} — the registry row shape drifted from what this guard reads`);
+}
+
+// ── 5. REGISTRY ROWS RESOLVE THROUGH /api/commerce/go PROVIDERS ──────────
+for (const [, id, key] of rows) {
+  const resolved = await resolveOffer("awin_" + key, id);
+  ok(!resolved.error && /^https:\/\/www\.awin1\.com\/cread\.php\?/.test(resolved.dest || ""),
+     `offer ${id} resolves through the tracked Awin wrapper (got ${resolved.error || "no dest"})`);
+  const beforeUed = String(resolved.dest || "").split("ued=")[0];
+  ok(!new RegExp(AWIN_PROGRAMMES[key].host.replace(/\./g, "\\.")).test(beforeUed),
+     `offer ${id} must not hand out the RAW advertiser URL before ued=`);
+}
+{
+  const crossed = await resolveOffer("awin_samboat", "staug-ghost-usghostadventures");
+  ok(crossed.error === "offer-not-found", "a Ghost offer cannot resolve through the SamBoat provider");
+  const crossedHost = await resolveOffer("awin_rentcars", "tampa-boat-samboat");
+  ok(crossedHost.error === "offer-not-found", "a SamBoat offer cannot resolve through the Rentcars provider");
 }
 
 console.log(`check-awin-links: OK — ${pass} assertions; ${keys.length} programmes (${live.length} live, ${keys.length - live.length} dark), host gate and ships-dark contract both proven BY CALL`);

@@ -24,6 +24,14 @@ ok(normalizePartnerCity("Orlando, FL") === "orlando", "Orlando, FL normalizes to
 ok(normalizePartnerCity("New York City") === "new-york", "New York City normalizes to the New York catalogue");
 ok(normalizePartnerCity("Bradenton") === "sarasota", "Bradenton shares the Sarasota market catalogue");
 ok(normalizePartnerCity("Parrish") === "parrish", "Parrish keeps its own editorial partner catalogue");
+ok(normalizePartnerCity("St. Augustine") === "st-augustine", "St. Augustine is its own partner city");
+ok(normalizePartnerCity("st augustine") === "st-augustine", "st augustine (no period) aliases to St. Augustine");
+ok(normalizePartnerCity("Key West") === "key-west", "Key West is its own partner city");
+ok(normalizePartnerCity("Miami") === "miami", "Miami is its own partner city");
+ok(normalizePartnerCity("Clearwater") === "clearwater", "Clearwater is its own partner city so SamBoat can sit on that city");
+ok(normalizePartnerCity("Tampa") === "tampa", "Tampa keeps its own catalogue after Clearwater split out");
+ok(normalizePartnerCity("Las Vegas") === "las-vegas", "Las Vegas is its own partner city");
+ok(normalizePartnerCity("Vegas") === "las-vegas", "Vegas aliases only to the Las Vegas catalogue");
 ok(intentPartnerPick("Boise", "family") === null, "an unverified city renders no partner pick rather than a generic homepage");
 ok(intentPartnerPick("Orlando", "unknown") === null, "an unverified intent renders no partner pick");
 ok(localPartnerQuery("Boise, ID", "family") === "Boise family experience", "an uncurated US city produces an intent-specific local inventory query");
@@ -33,6 +41,44 @@ ok(partnerInventoryRequest("Parrish", "best-of")?.region === "Sarasota Bradenton
 ok(partnerInventoryRequest("Parrish", "best-of")?.destId === "25738", "Parrish uses the verified Sarasota/Bradenton Viator destination id");
 ok(partnerInventoryRequest("Boise, ID", "family")?.destId === null, "an unseeded city never borrows another market's destination id");
 ok(intentPartnerPick("Parrish", "best-of")?.offerId === "412732P1", "Parrish receives an exact Manatee County product rather than Sarasota's generic pilot pick");
+ok(intentPartnerPick("Parrish", "worth-the-drive")?.offerId === "tampa-boat-samboat" && intentPartnerPick("Parrish", "worth-the-drive")?.image,
+  "Parrish SamBoat is still the featured worth-the-drive pick and now carries artwork so the card can render");
+ok(intentPartnerPick("Orlando", "worth-the-drive")?.offerId === "orlando-drive-kennedy-explore",
+  "Orlando featured worth-the-drive stays Kennedy — Rentcars is a complement, not a replacement");
+ok(intentPartnerPicks("Orlando", "worth-the-drive").some((row) => row.offerId === "orlando-airport-rentcars"),
+  "Orlando worth-the-drive rail adds airport car rental at MCO");
+ok(intentPartnerPick("Tampa", "tonight")?.offerId === "tampa-tonight-sunset-cruise",
+  "Tampa featured tonight pick stays the sunset cruise");
+ok(intentPartnerPicks("Tampa", "tonight").some((row) => row.offerId === "tampa-ghost-usghostadventures"),
+  "Tampa tonight rail adds Ghost as an extra pick");
+ok(intentPartnerPick("Tampa", "worth-the-drive")?.offerId === "tampa-drive-clearwater-aquarium",
+  "Tampa featured worth-the-drive stays Clearwater Marine Aquarium");
+ok(intentPartnerPicks("Tampa", "worth-the-drive").some((row) => row.offerId === "tampa-airport-rentcars"),
+  "Tampa worth-the-drive rail adds airport car rental at TPA");
+ok(intentPartnerPick("Sarasota", "worth-the-drive")?.offerId === "sarasota-drive-dali-museum",
+  "Sarasota featured worth-the-drive stays the Dalí");
+ok(intentPartnerPicks("Sarasota", "worth-the-drive").some((row) => row.offerId === "sarasota-airport-rentcars"),
+  "Sarasota worth-the-drive rail adds airport car rental at SRQ");
+ok(intentPartnerPick("St. Augustine", "tonight")?.offerId === "staug-ghost-usghostadventures",
+  "St. Augustine tonight features the verified ghost tour");
+ok(intentPartnerPick("Key West", "tonight")?.offerId === "keywest-ghost-usghostadventures",
+  "Key West tonight features the verified ghost tour");
+ok(intentPartnerPick("Key West", "worth-the-drive")?.offerId === "keywest-boat-samboat",
+  "Key West worth-the-drive places the unused SamBoat registry row");
+ok(intentPartnerPick("Miami", "worth-the-drive")?.offerId === "miami-boat-samboat",
+  "Miami worth-the-drive places the unused SamBoat registry row");
+ok(intentPartnerPick("Clearwater", "worth-the-drive")?.offerId === "clearwater-boat-samboat",
+  "Clearwater worth-the-drive places the unused SamBoat registry row");
+ok(intentPartnerPick("Las Vegas", "tonight")?.offerId === "vegas-shows-caesarsshows",
+  "Las Vegas tonight features the verified Caesars shows listing");
+ok(!picks.some((row) => row.provider === "awin_caesarsshows" && row.city !== "las-vegas"),
+  "Caesars has zero Florida (or other non-Vegas) placements");
+{
+  const guidesSrc = readFileSync("lib/guides.js", "utf8") + readFileSync("lib/guideCta.js", "utf8");
+  ok(!/awin_/.test(guidesSrc), "guides.js / guideCta.js carry no Awin providers — Winter Park Viator proof stays untouched");
+  ok(/winter-park-scenic-boat-tour/.test(readFileSync("lib/guides.js", "utf8")),
+     "the Winter Park guide slug is still present (probe can find a known positive before trusting the Awin absence)");
+}
 const parrishRail = intentPartnerPicks("Parrish", "best-of");
 ok(parrishRail?.map((row) => row.offerId).join(",") === "412732P1,454941P1,parrish-best-dali-museum,5502818P1", "Parrish receives one compact rail with four distinct exact products");
 ok(new Set(parrishRail.map((row) => row.provider)).size >= 2, "the Parrish rail mixes verified providers instead of presenting a Viator-only catalogue");
@@ -72,6 +118,8 @@ const intentPageSrc = readFileSync("app/components/IntentPageClient.js", "utf8")
 const curatedRouteSrc = readFileSync("app/api/viator/curated/route.js", "utf8");
 const clientSrc = readFileSync("lib/intentPartnerPicks.js", "utf8") + partnerComponentSrc;
 ok(!/(?:www\.)?(?:viator\.com|tiqets\.com|ticketnetwork\.com|klook\.com)|tp\.media\/r\?/.test(clientSrc), "client placement code contains no raw affiliate destination URL");
+ok(!/https?:\/\/(?:www\.)?(?:usghostadventures\.com|samboat\.com|rentcars\.com|caesars\.com|awin1\.com)\//.test(clientSrc),
+  "client pick catalogue contains no raw Awin advertiser or redirect-network destination URL (asset CDNs are not destinations)");
 ok(/commerceHref\(/.test(clientSrc), "the client links through Wayfind's commerce redirect");
 ok(/rel="sponsored noopener nofollow"/.test(clientSrc), "every rendered link is explicitly sponsored and nofollow");
 ok(/never changes our scores or rankings/.test(clientSrc), "the point-of-action disclosure protects ranking integrity");
@@ -211,8 +259,17 @@ for (const p of picks) {
     ok(/[?&]awinmid=\d+/.test(resolved.dest || ""), `${p.offerId} carries an awinmid — without it the click is unattributed and pays nothing`);
     ok(/[?&]awinaffid=\d+/.test(resolved.dest || ""), `${p.offerId} carries our awinaffid`);
     ok(/[?&]ued=https%3A%2F%2F/.test(resolved.dest || ""), `${p.offerId} preserves the verified destination behind the tracked redirect`);
-    ok(!/samboat\.com/.test(String(resolved.dest || "").split("ued=")[0]), `${p.offerId} must not hand out the RAW advertiser URL — that is the silent no-commission failure`);
+    {
+      let host = "";
+      try { host = new URL(PARTNER_OFFER_REGISTRY[p.offerId].destination).hostname.replace(/^www\./, ""); } catch { host = ""; }
+      ok(!!host && !new RegExp(host.replace(/\./g, "\\.")).test(String(resolved.dest || "").split("ued=")[0]),
+         `${p.offerId} must not hand out the RAW advertiser URL — that is the silent no-commission failure`);
+    }
+    ok(!!p.image, `${p.offerId} Awin pick has artwork — IntentPartnerPick drops image-less cards`);
     ok(isAwinLive(key), `${p.offerId} is wired to awin_${key}, which must be an APPROVED programme`);
+    if (p.provider === "awin_caesarsshows") {
+      ok(p.city === "las-vegas", `${p.offerId} Caesars placement is Vegas-only (got ${p.city})`);
+    }
   } else {
     ok(false, `${p.offerId} uses provider "${p.provider}", which this guard has no validation path for yet`);
   }
