@@ -40,6 +40,7 @@
 // the `when` badge in the same box, which is a fact it really carries. That is
 // the same never-fabricate rule the rest of this codebase runs on.
 import { useEffect, useState } from "react";
+import { useMarketPhotoFallback } from "./marketPhoto.js";
 import { railDotWindow, railDotIsEdge } from "../../lib/railDots.js";
 import { KB_CLICK, WayfindScoreBadge } from "./kit";
 
@@ -213,6 +214,11 @@ export default function RailCard({
   onOpen, href, external, ariaLabel, className,
   saved, liked, disliked, onSave, onLike, onDislike, onShare,
 }) {
+  // v8.13.3 (owner: "I don't want any of the place cards not to have an
+  // image"). Rung 3 of the photo ladder — a category/eyebrow-matched stock
+  // scene, fetched only when the caller resolved no photo. Runs before the
+  // early return (rules of hooks). See ./marketPhoto.js for the ladder.
+  const railMarketFallback = useMarketPhotoFallback(photo ? null : (eyebrow || null));
   if (!title) return null;
   const list = Array.isArray(facts) ? facts.filter(Boolean) : [];
   const pills = Array.isArray(chips) ? chips.filter(Boolean) : [];
@@ -240,9 +246,9 @@ export default function RailCard({
       aria-label={ariaLabel || title}
     >
       <div className="wf-place-card-layout">
-        {photo
+        {(photo || railMarketFallback)
           ? <img
-              src={photo}
+              src={photo || railMarketFallback}
               data-fallback={photoFallback || ""}
               alt=""
               loading="lazy"

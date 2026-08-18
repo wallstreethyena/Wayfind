@@ -116,9 +116,15 @@ ok(layoutBlock.length > 0 && !layoutBlock.includes("wf-place-card-content"), "th
     .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")   // JSX comments
     .replace(/\/\*[\s\S]*?\*\//g, "")        // block comments
     .trimStart();
-  ok(firstChild.startsWith("{p.photo"),
+  // RE-POINTED v8.13.3 (owner: "I don't want any of the place cards not to
+  // have an image"): the branch condition widened to
+  // {(p.photo || cardMarketFallback) ? <FallbackImg …} — the stock-scene last
+  // rung of the photo ladder (components/marketPhoto.js). The WRAPPER BAN this
+  // block exists for is unchanged: the branch is still the first child, and
+  // FallbackImg is still unwrapped, so '.wf-place-card-layout>img' matches.
+  ok(firstChild.startsWith("{(p.photo || cardMarketFallback)"),
     `the thumbnail branch is the FIRST child of .wf-place-card-layout — found ${JSON.stringify(firstChild.slice(0, 60))} instead. Any wrapper element orphans the '.wf-place-card-layout>img' sizing rules and the photo collapses at all three breakpoints`);
-  ok(/^\{p\.photo\s*\n?\s*\?\s*<FallbackImg /.test(firstChild),
+  ok(/^\{\(p\.photo \|\| cardMarketFallback\)\s*\n?\s*\?\s*<FallbackImg /.test(firstChild),
     "…and that branch renders an UNWRAPPED <FallbackImg>, so the direct-child selector still matches the real <img>");
 }
 ok(!/<div className="wf-place-card-thumb"/.test(card),
