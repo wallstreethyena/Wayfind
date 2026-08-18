@@ -3,6 +3,7 @@ import { Component, useEffect, useMemo, useRef, useState , Fragment} from "react
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, getLoader, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, wayfindScore } from "../lib/google";
 import { intentRadiusMi, intentScopeLabel } from "../lib/momentIntents";
 import { MAP_DEFAULT_CATEGORY } from "../lib/mapExplorer";
+import { nearMeQuery } from "../lib/nearMeQuery";
 // PURE metro resolver for the cuisine sheet. lib/cuisine.js never fetches and
 // never composes a query — check-cuisine-never-queried.mjs enforces both, and
 // verifies that no QUERY BUILDER imports it. home.js is not one.
@@ -2535,6 +2536,13 @@ function Critter({ size = 26 }) {
       <rect x="56" y="50" width="6" height="6" rx="1.5" fill="#F97316" />
     </svg>
   );
+}
+
+class MapErrorBoundary extends Component {
+  constructor(props) { super(props); this.state = { hit: false }; }
+  static getDerivedStateFromError() { return { hit: true }; }
+  componentDidCatch() {}
+  render() { return this.state.hit ? null : this.props.children; }
 }
 
 class ErrorBoundary extends Component {
@@ -6228,7 +6236,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   }, []);
 
   useEffect(() => {
-    if (keyMissing || !center || searchMode) return;
+    const q = nearMeQuery({ cat, sub, vibe, center, radiusM: searchRadius || DEFAULT_RADIUS_M });
+    if (keyMissing || !q || searchMode) return;
     let cancelled = false;
     // Debounce: rapid category/filter switching fires searches that still bill even
     // when abandoned. Wait 300ms so only the final selection actually searches.
@@ -6241,7 +6250,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // every subcategory query and merge, so the feed surfaces far more of what actually exists
         // locally instead of a single 20-result page. Costs one Google call per subcategory; results
         // are deduped here and again by name in the view.
-        const ctr = { lat: center.lat, lng: center.lng };
+        const ctr = { lat: q.lat, lng: q.lng };
         // Cost fix: at most TWO Google searches per screen (was 6+). Browsing a whole
         // category runs the broad search plus ONE context-relevant subfilter (meal by
         // time of day for food, first subfilter otherwise) and merges. Any specific
@@ -6324,7 +6333,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // and auto-widen 30 → 45 → 60 while the category has fewer than 8
         // places. Auto-widen only moves the STARTING point — once the user
         // touches the slider, their choice is law.
-        const _startM = searchRadius || DEFAULT_RADIUS_M;
+        const _startM = q.radiusM;
         let results = await _fetchAt(_startM);
         let _usedM = _startM;
         if (autoRadiusRef.current || _startM <= DEFAULT_RADIUS_M) {
@@ -8565,6 +8574,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             navOpenCat={navOpenCat}
             onNavOpen={(id, label) => {
               setNavOpenCat(id);
+              // Same near-me search the map starts on category tap. Opening the
+              // tray used to leave browseCat/cat untouched, so Shopping → All
+              // on home showed empty organic while the map listed 15 places.
+              if (id && browseCat !== id) { setMoodPick(id); setBrowseCat(id); setCat(id); setSub("all"); setVibe("all"); }
               try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "nav_open", opened: !!id }); } catch (e) {}
             }}
             onNavSub={(catId, subId, subLabel) => {
@@ -8821,7 +8834,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       <div ref={scrollRef} className="wf-scrollarea" style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "7px 12px calc(28px + env(safe-area-inset-bottom))" }}>
         <>
             {screen === "explore" && <div className="wf-explore">{exploreList}</div>}
-            {screen === "map" && <MapScreen ctx={ctx} />}
+            <MapErrorBoundary>{screen === "map" && <MapScreen ctx={ctx} />}</MapErrorBoundary>
           </>
 
         {/* v6.56 (owner, screenshot + "remove the item on image 2 ... put the
@@ -9308,7 +9321,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                       earn their rank. Family keeps its bookable rail. */}
                   {browseCat === "family" && center && <UnifiedBrowseCommerceRail cat="family" sub="all" initialExperiences={browseTours} categories={["attractions"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
                   {browseCat === "attractions" && center && <UnifiedBrowseCommerceRail cat="attractions" sub={sub} includeExperiences={!!(sub && sub !== "all")} categories={["attractions", "more"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
-                  {browseCat === "hotels" && center && <UnifiedBrowseCommerceRail cat="hotels" sub="all" categories={["stays", "travel"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
+                  {browseCat === "hotels" && center && view.length > 0 && <UnifiedBrowseCommerceRail cat="hotels" sub="all" categories={["stays"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
                   {/* 2026-08-04 (owner: "I want every single Viator deeplink option showing up
                       on my sheets... if it's for food give me food tours... I want this done
                       everywhere"). Food, Nightlife, Shopping and Beach had NO bookable rail at
@@ -9322,7 +9335,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                       category. Ranking is unchanged: rankExperiences, highest score first. */}
                   {browseCat === "food" && center && <UnifiedBrowseCommerceRail cat="food" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
                   {browseCat === "nightlife" && center && <UnifiedBrowseCommerceRail cat="nightlife" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
-                  {browseCat === "shopping" && center && <UnifiedBrowseCommerceRail cat="shopping" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
+                  {browseCat === "shopping" && center && view.length > 0 && <UnifiedBrowseCommerceRail cat="shopping" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
                   {browseCat === "beach" && center && <UnifiedBrowseCommerceRail cat="beach" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
                   {/* The two NATIONAL categories. They had no render path at all, so both
                       rows sat dark since 2026-07-22 despite being live attributed CJ links —
