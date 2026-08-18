@@ -162,7 +162,7 @@ ok(/category === "beach" \? beachesWithin\(ranked, \{ lat, lng \}\) : vetBeachDi
   ok(/COVERAGE_MI/.test(api) && /bestMi <= COVERAGE_MI \? best : null/.test(api),
     "out of coverage must resolve to NOTHING, never to the arithmetically-nearest town hundreds of miles away");
 }
-ok(/const \[center, setCenter\] = useState\(DEFAULT_CENTER\)/.test(home), "`center` is one piece of state — the single source of truth the rule measures from");
+ok(/const \[center, setCenter\] = useState\((null|DEFAULT_CENTER)\)/.test(home), "`center` is one piece of state — the single source of truth the rule measures from");
 {
   // Every path a user can take to name a place must land on the same `center`:
   // picking a suggestion, submitting a freetext search that geocodes, and

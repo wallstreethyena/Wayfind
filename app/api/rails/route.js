@@ -52,9 +52,9 @@ export async function GET(req) {
   const asked = String(sp.get("city") || "");
   const slug = LANDING_CITIES[asked] ? asked : nearestCity(sp.get("lat"), sp.get("lng"));
   if (!slug) {
-    // Out of coverage. 200 with a null payload, not a 404: the client keeps the
-    // server-rendered flagship rails, which is a real answer, and a 404 in the
-    // console reads as a broken page when nothing is broken.
+    // Out of coverage. 200 with a null payload, not a 404: the client must
+    // empty the flagship rails (honest empty / CityGate), never keep Sarasota
+    // as the visitor's city. A 404 in the console would read as a broken page.
     return NextResponse.json({ covered: false, data: null }, {
       headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" },
     });
@@ -78,8 +78,8 @@ export async function GET(req) {
       headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" },
     });
   } catch (e) {
-    // Fail-soft, always: the client falls back to what the server already gave
-    // it. A rail that cannot re-rank must not become an empty rail.
+    // Fail-closed: the client must NOT keep the SSR flagship as the visitor's
+    // city. An empty rail is honest; Sarasota-as-you is not.
     return NextResponse.json({ covered: false, data: null }, { status: 200 });
   }
 }
