@@ -54,6 +54,7 @@ node scripts/test-viator-fanout.mjs
 node scripts/test-events-contract.mjs
 node scripts/check-design.mjs
 node scripts/test-image-fallback.mjs
+node scripts/test-detail-hero.mjs
 node scripts/test-moment-contract.mjs
 node scripts/test-price.mjs
 node scripts/test-classification.mjs

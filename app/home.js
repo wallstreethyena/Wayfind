@@ -1,6 +1,7 @@
 "use client";
 import { Component, useEffect, useMemo, useRef, useState , Fragment} from "react";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, getLoader, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, wayfindScore } from "../lib/google";
+import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { intentRadiusMi, intentScopeLabel } from "../lib/momentIntents";
 import { MAP_DEFAULT_CATEGORY } from "../lib/mapExplorer";
 import { nearMeQuery } from "../lib/nearMeQuery";
@@ -5881,6 +5882,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       if (extra.ok) detailCache.current[p.id] = extra;
     }
     setDetailExtra(extra);
+    if (extra && extra.ok) {
+      setDetail((cur) => {
+        if (!cur || cur.id !== p.id) return cur;
+        return mergeHealedPlacePhotos(cur, extra);
+      });
+    }
     if (extra) { const rt = Array.isArray(extra.reviews) ? extra.reviews.slice(0, 4).map((r) => (r.text || "").slice(0, 300)).filter(Boolean) : []; HINTS[p.id] = ((extra.editorial || "") + " " + rt.join(" ")).toLowerCase(); }
     loadInsight(p, extra);
   }
