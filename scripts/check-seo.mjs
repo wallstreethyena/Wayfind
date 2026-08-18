@@ -184,4 +184,18 @@ if (!bbPage.includes("application/ld+json") || !bbPage.includes('"@type": "ItemL
 if (!bbPage.includes('"@type": "FAQPage"')) fail("/best-beaches lost its FAQ structured data");
 if (!lay.includes("SearchAction")) fail("layout WebSite JSON-LD lost its SearchAction (sitelinks searchbox)");
 
+// 11. /best-of and /p/{id} must self-canonical — they inherited "/" and
+//     told Google they were the homepage (live 2026-08-18). /events /coupons
+//     /map already self-canonical; do not break those.
+const bestOf = readFileSync(join(root, "app", "best-of", "page.js"), "utf8");
+if (!bestOf.includes("bestOfCanonical(") || !bestOf.includes("alternates:")) fail("/best-of lost its city-aware self-canonical");
+if (!bestOf.includes("index: false")) fail("/best-of must stay noindex");
+const placePage = readFileSync(join(root, "app", "p", "[id]", "page.js"), "utf8");
+if (!placePage.includes("placeCanonical(") && !placePage.includes('canonical:')) fail("/p/[id] lost its self-canonical");
+if (!placePage.includes("/p/") || placePage.includes("ShareRedirect") || placePage.includes("/?place=")) fail("/p/[id] must stay on /p/{id} — no redirect to /?place=");
+for (const r of ["events", "coupons", "map"]) {
+  const s = readFileSync(join(root, "app", r, "page.js"), "utf8");
+  if (!s.includes('canonical: "https://www.gowayfind.com/' + r + '"')) fail("/" + r + " lost its self-canonical");
+}
+
 console.log("check-seo: OK — canonical-or-noindex on " + pages.length + " routes, single H1, honest CTAs, named attribution, share-card rule, sitemap clean");

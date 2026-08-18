@@ -117,7 +117,11 @@ for (const r of RAILS) {
   for (const region of REGIONS) {
     for (const city of [undefined, "parrish", "orlando", "tampa"]) {
       const href = railHref(r, region, city);
-      if (!href) { bad(`${r.id}: railHref returned nothing`); continue; }
+      if (!href) {
+        if (!city && r.href && ["/best-beaches", "/things-to-do", "/restaurants", "/nightlife"].includes(r.href)) continue;
+        bad(`${r.id}: railHref returned nothing`);
+        continue;
+      }
       if (!routeExists(href)) { bad(`${r.id} -> ${href}: no such route`); continue; }
       const segs = href.split("/").filter(Boolean);
       if (segs[0] === "best-beaches" && !METROS.has(segs[1])) bad(`${r.id} -> ${href}: "${segs[1]}" is not a BEACH_METROS key (200-indexable soft-404)`);

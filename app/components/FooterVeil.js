@@ -56,7 +56,7 @@ export default function FooterVeil({ children }) {
     // "/" is the ONLY route that renders the app shell; /events, /map,
     // /coupons, /favorites and /itinerary are plain documents that redirect
     // into it (app/components/GoScreen.js).
-    if (pathname === "/") {
+    if (pathname === "/" || (pathname && pathname.startsWith("/p/"))) {
       el.setAttribute("aria-hidden", "true");
       for (const k of Object.keys(VEIL)) el.style[k] = VEIL[k];
     } else {

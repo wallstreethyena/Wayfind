@@ -586,7 +586,7 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
           })}
           {/* The full page is still one tap away, and it is a real link — the
               tray filters, this navigates, and the two are visibly different. */}
-          {navOpenCat && CATEGORY_ROUTE[navOpenCat] ? (
+          {navOpenCat && CATEGORY_ROUTE[navOpenCat] && railHref({ href: CATEGORY_ROUTE[navOpenCat] }, navRegion, navCitySlug) ? (
             <a className="wf-navsub wf-navsub-all" href={railHref({ href: CATEGORY_ROUTE[navOpenCat] }, navRegion, navCitySlug)}>
               {"See every " + ((Cats.CATEGORY_TILES.find((t) => t.id === navOpenCat) || {}).label || "").toLowerCase() + " \u2192"}
             </a>
@@ -3585,7 +3585,7 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
 // when the user came from a "Worth the drive?" hook. Captures yes/no, then
 // reveals the live community tally.
 
-function PageInner({ initialEvents = null, localEditGuides = null, railMenu = null }) {
+function PageInner({ initialEvents = null, localEditGuides = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null }) {
   const [screen, setScreen] = useState("suggested");
   const [cat, setCat] = useState(MAP_DEFAULT_CATEGORY);
   const [wxOpen, setWxOpen] = useState(false); // header weather forecast wheel
@@ -6110,9 +6110,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     let params;
     try { params = new URLSearchParams(window.location.search); } catch { return; }
     const listStr = params.get("list");
-    const placeId = params.get("place");
-    const placeAction = ["save", "like", "dislike"].includes(params.get("action")) ? params.get("action") : null;
-    if (placeId) { try { const _sp = new URLSearchParams(window.location.search); _sp.delete("place"); _sp.delete("action"); const _qs = _sp.toString(); window.history.replaceState({}, "", window.location.pathname + (_qs ? "?" + _qs : "")); } catch (e) {} }
+    const pathId = (window.location.pathname.match(/^\/p\/([^/]+)/) || [])[1];
+    const placeId = params.get("place") || initialPlaceId || (pathId ? decodeURIComponent(pathId) : null);
+    const requestedAction = params.get("action") || initialPlaceAction;
+    const placeAction = ["save", "like", "dislike"].includes(requestedAction) ? requestedAction : null;
+    // Strip ?place= from the query. Never collapse /p/{id} to "/".
+    if (params.get("place")) { try { const _sp = new URLSearchParams(window.location.search); _sp.delete("place"); _sp.delete("action"); const _qs = _sp.toString(); window.history.replaceState({}, "", window.location.pathname + (_qs ? "?" + _qs : "")); } catch (e) {} }
     if (listStr) {
       const pl = decodeList(listStr);
       if (pl && pl.length) { setSharedList(pl); setScreen("shared"); logEvent("share_open", null, { kind: "list", n: pl.length }); markShareOpen(); }
@@ -7218,6 +7221,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // close paths call history.back(), which fires popstate and closes it cleanly.
   useEffect(() => {
     if (!detail) return;
+    // Same path is kept (including /p/{id}). Back closes the overlay; the
+    // address bar does not collapse to "/".
     window.history.pushState({ wf: "detail" }, "");
     const onPop = () => setDetail(null);
     window.addEventListener("popstate", onPop);
@@ -10703,10 +10708,10 @@ const HOME_EXP_TITLE_MIN_H = HOME_EXP_TITLE_FS * HOME_EXP_TITLE_LH * 2; // exact
 const shell = { background: C.bg, height: "100dvh", minHeight: "100dvh", display: "flex", justifyContent: "center" };
 const wrap = { background: C.bg, color: C.text, height: "100dvh", width: "100%", maxWidth: 480, fontFamily: "var(--wf-sans)", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative", touchAction: "pan-y", overscrollBehavior: "none" };
 
-export default function Page({ initialEvents = null, localEditGuides = null, railMenu = null }) {
+export default function Page({ initialEvents = null, localEditGuides = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null }) {
   return (
     <ErrorBoundary>
-      <PageInner initialEvents={initialEvents} localEditGuides={localEditGuides} railMenu={railMenu} />
+      <PageInner initialEvents={initialEvents} localEditGuides={localEditGuides} railMenu={railMenu} initialPlaceId={initialPlaceId} initialPlaceAction={initialPlaceAction} />
     </ErrorBoundary>
   );
 }

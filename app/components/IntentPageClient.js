@@ -44,6 +44,7 @@ import { TRENDING_POPULARITY_THRESHOLD } from "./kit";
 import { canonicalShareUrl } from "../../lib/site";
 import { askShareIntent } from "./shareIntentSheet";
 import { placeKinds } from "../../lib/dateInvite";
+import { resolveLocationContext, locationSurface } from "../../lib/locationHonesty";
 
 const PHOTO_REF = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
 
@@ -127,12 +128,19 @@ export default function IntentPageClient({ intent }) {
   }, []);
 
   const loc = useMemo(() => {
-    let lat = parseFloat(sp.get("lat")), lng = parseFloat(sp.get("lng"));
-    let city = (sp.get("city") || "").slice(0, 40);
-    if (!isFinite(lat) || !isFinite(lng)) {
-      try { const c = JSON.parse(localStorage.getItem("wf_center") || "null"); if (c && isFinite(c.lat)) { lat = c.lat; lng = c.lng; city = city || (c.loc || "").split(",")[0]; } } catch (e) {}
-    }
-    return { lat, lng, city: city || "your town" };
+    let stored = null;
+    try {
+      const c = JSON.parse(localStorage.getItem("wf_center") || "null");
+      if (c && isFinite(c.lat) && isFinite(c.lng)) stored = { lat: c.lat, lng: c.lng, loc: c.loc };
+    } catch (e) {}
+    const ctx = resolveLocationContext({
+      urlCity: (sp.get("city") || "").slice(0, 40),
+      urlLat: parseFloat(sp.get("lat")),
+      urlLng: parseFloat(sp.get("lng")),
+      stored,
+    });
+    const surface = locationSurface(ctx);
+    return { lat: ctx.lat, lng: ctx.lng, city: surface.headingCity, offersCity: surface.offersCity, links: surface.links };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -346,11 +354,11 @@ export default function IntentPageClient({ intent }) {
     let dead = false;
     (async () => {
       try {
-        const request = partnerInventoryRequest(loc.city, intent);
+        const request = partnerInventoryRequest(loc.offersCity || loc.city, intent);
         if (!request) return; // no city, no honest query — skip rather than guess
         const params = new URLSearchParams({ q: request.query, region: request.region, mode: "city", count: "12" });
         if (request.destId) params.set("destId", request.destId);
-        const curatedParams = new URLSearchParams({ city: loc.city, intent });
+        const curatedParams = new URLSearchParams({ city: loc.offersCity || loc.city, intent });
         // Exact-product enrichment is additive: a provider/cache outage must
         // never erase the broad city rail that already loaded successfully.
         const exactPromise = fetch("/api/viator/curated?" + curatedParams.toString())

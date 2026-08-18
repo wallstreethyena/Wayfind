@@ -293,17 +293,6 @@ export default function RootLayout({ children }) {
                 ))}
               </div>
               <div>
-                {/* Premium redesign, Phase 6: crawlable category links on the
-                    homepage (and every page) — direct paths into the
-                    /{category}/{city} landing pages, which the client category
-                    chips can't expose to a crawler. All verified 200. */}
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Browse</div>
-                <a href="/restaurants/sarasota" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Restaurants in Sarasota</a>
-                <a href="/things-to-do/orlando" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Things to do in Orlando</a>
-                <a href="/beaches/sarasota" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Beaches near Sarasota</a>
-                <a href="/nightlife/tampa" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Nightlife in Tampa</a>
-              </div>
-              <div>
                 <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>People use Wayfind to</div>
                 <a href="/?go=events" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Find something to do tonight</a>
                 <a href="/guides/things-to-do-orlando-not-theme-parks" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Plan a family day out</a>

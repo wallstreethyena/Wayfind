@@ -69,17 +69,21 @@ eq(regionFor('x','y'),'other','junk coords -> other');
 // ── hrefs: the 404 that started this
 // /best-beaches has NO index route. The segment must be a real BEACH_METROS
 // key or the page answers 200-indexable with the homepage's canonical.
-eq(railHref({href:'/best-beaches'},'fl'),'/best-beaches/manatee-sarasota','beach gets a metro (fl)');
-eq(railHref({href:'/best-beaches'},'orlando'),'/best-beaches/orlando','beach gets a metro (orlando)');
-eq(railHref({href:'/best-beaches'},'other'),'/best-beaches/manatee-sarasota','beach falls back');
+eq(railHref({href:'/best-beaches'},'fl'),null,'beach without a city is not invented');
+eq(railHref({href:'/best-beaches'},'orlando'),null,'region alone is not a beach metro');
+eq(railHref({href:'/best-beaches'},'other'),null,'other + no city is not Sarasota');
+eq(railHref({href:'/best-beaches'},'fl','sarasota'),'/best-beaches/manatee-sarasota','gulf city maps to manatee-sarasota');
+eq(railHref({href:'/best-beaches'},'orlando','orlando'),'/best-beaches/orlando','orlando city maps to orlando metro');
+eq(railHref({href:'/best-beaches'},'fl','tampa'),'/best-beaches/tampa','tampa city maps to tampa metro');
 for (const r of ['orlando','fl','other','bogus']) {
   ok(Object.prototype.hasOwnProperty.call(BEACH_METROS, metroFor(r)), `metroFor(${r}) is a real BEACH_METROS key`);
 }
-// /things-to-do and /restaurants are [city]-only too.
-eq(railHref({href:'/things-to-do'},'fl'),'/things-to-do/sarasota','things-to-do gets a city');
-eq(railHref({href:'/things-to-do'},'orlando'),'/things-to-do/orlando','things-to-do follows the region');
+// /things-to-do and /restaurants are [city]-only too. No city → no href.
+eq(railHref({href:'/things-to-do'},'fl'),null,'things-to-do without a city is not invented');
+eq(railHref({href:'/things-to-do'},'orlando'),null,'region alone is not a city');
 eq(railHref({href:'/things-to-do'},'fl','parrish'),'/things-to-do/parrish','an explicit city wins');
 eq(railHref({href:'/restaurants'},'fl','bradenton'),'/restaurants/bradenton','restaurants take the city');
+eq(railHref({href:'/restaurants'},'other',null),null,'Boston/NY region must not emit /restaurants/sarasota');
 eq(railHref({href:'/family'},'fl'),'/family','plain routes pass through');
 eq(railHref({href:'/family'},'fl','parrish'),'/family','a city never leaks into a plain route');
 eq(railHref({},'fl'),null,'no href -> null');

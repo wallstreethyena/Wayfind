@@ -106,9 +106,7 @@ async function HomeProof() {
         </div>
       ))}
       <p style={S.links}>
-        <b style={{ color: "#FFFFFF" }}>Flagship market pages:</b>{" "}
-        <a style={S.a} href="/things-to-do/sarasota">Things to do</a> · <a style={S.a} href="/restaurants/sarasota">Restaurants</a> · <a style={S.a} href="/beaches/sarasota">Beaches</a> · <a style={S.a} href="/culture/sarasota">Culture</a>
-        {" "}· <b style={{ color: "#FFFFFF" }}>Nearby towns:</b>{" "}
+        <b style={{ color: "#FFFFFF" }}>Nearby towns:</b>{" "}
         {Object.entries(TOWN_HUBS).slice(0, 5).map(([k, slug], i) => (<span key={slug}><a style={S.a} href={"/florida/" + slug}>{TOWN_PROFILES[k].title}</a>{i < 4 ? " · " : ""}</span>))}
       </p>
     </section>

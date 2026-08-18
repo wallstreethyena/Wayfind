@@ -34,6 +34,9 @@ import {
   homeProofCopy,
   homeProofNamesCity,
   landingSlugFromLoc,
+  resolveLocationContext,
+  locationSurface,
+  categoryNavHrefs,
 } from "../lib/locationHonesty.js";
 
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -174,6 +177,27 @@ ok(/onMouseDown=\{\(e\) => \{ e\.preventDefault\(\); pickSuggestion\(s\)/.test(H
 /* ── LocalEdit does not render the seed as "local" ─────────────────────── */
 ok(/<LocalEdit center=\{locResolved \? center : null\}/.test(HOME),
   "LocalEdit is not given the Parrish seed — Anna Maria/Bradenton cannot render as local before a city is known");
+
+/* ── WF-001 / WF-002 leftover city honesty ─────────────────────────────── */
+{
+  const ctx = resolveLocationContext({
+    urlCity: "New York",
+    stored: { lat: 42.3601, lng: -71.0589, loc: "Boston, MA" },
+  });
+  const surface = locationSurface(ctx);
+  ok(ctx.city === "New York" && surface.headingCity === "New York",
+    "stored Boston cannot override a New York URL city");
+  ok(Math.abs(surface.resultsOrigin.lat - 40.7128) < 0.02,
+    "organic origin follows New York, not Boston");
+  ok(surface.offersCity === "New York" && surface.links.bestOf.includes("New%20York"),
+    "offers and generated links agree on New York");
+}
+ok(categoryNavHrefs("New York").length === 0 && categoryNavHrefs("Boston").length === 0,
+  "NY/Boston dynamic nav emits no category hrefs");
+ok(!categoryNavHrefs("Orlando").some((h) => /sarasota/i.test(h)),
+  "Orlando nav does not emit /restaurants/sarasota");
+ok(!/href="\/restaurants\/sarasota"/.test(PAGE) && !/href="\/restaurants\/sarasota"/.test(strip(read("app/layout.js"))),
+  "shared homepage/footer HTML does not hardcode /restaurants/sarasota");
 
 if (fail.length) {
   console.error(`check-location-honesty: ${pass} passed, ${fail.length} FAILED`);
