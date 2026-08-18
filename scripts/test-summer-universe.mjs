@@ -57,6 +57,9 @@ for (const e of SUMMER_UNIVERSE) {
     ok(/^2026-\d{2}-\d{2}$/.test(e.window.start) && /^2026-\d{2}-\d{2}$/.test(e.window.end) && e.window.start <= e.window.end,
       `${e.key}: window is a valid 2026 range — a dated season claim must carry its dates (${JSON.stringify(e.window)})`);
   }
+  const ALLOWED_RAILS = new Set(["eat", "beach", "today", "family", "datenight", "tonight", "events"]);
+  ok(Array.isArray(e.rails) && e.rails.length > 0 && e.rails.every((r) => ALLOWED_RAILS.has(r)),
+    `${e.key}: rails maps onto existing DaypartRail axes, never a new ranking term (got ${JSON.stringify(e.rails)})`);
 }
 
 /* ── the wired call can say yes (check-rail-source-reachable's question) ── */
@@ -77,6 +80,28 @@ for (const e of SUMMER_UNIVERSE) {
   ok(aug, "Aug 18: scallop season (Jul 1–Sep 24, FWC 2026) is open and the entry serves");
   const june = summerEntriesNow(new Date("2026-06-20T12:00:00-04:00")).some((e) => e.key === "scallop_homosassa");
   ok(!june, "June 20: the season hasn't opened — the entry must NOT serve a closed harvest");
+}
+
+/* ── owner-50 dated festivals: serve inside the window, silent outside ──── */
+{
+  const AUG = new Date("2026-08-18T12:00:00-04:00");
+  const now = new Set(summerEntriesNow(AUG).map((e) => e.key));
+  ok(now.has("hogwarts_universal"), "Aug 18: Back to Hogwarts (Aug 1–Sep 1) is open and serves");
+  ok(now.has("ft_myers_music_walk"), "Aug 18: Fort Myers Music Walk (Aug 21) is still upcoming and serves");
+  ok(!now.has("kw_lobsterfest"), "Aug 18: Lobsterfest (Aug 5–9) has closed — the window keeps it off the rail");
+  ok(!now.has("key_lime_festival"), "Aug 18: Key Lime Festival (July 1–5) does not serve after its window");
+  ok(!now.has("hemingway_days"), "Aug 18: Hemingway Days (July 22–26) does not serve after its window");
+  ok(!now.has("mango_festival"), "Aug 18: Fairchild Mango Festival (June 13–14) does not serve after its window");
+  ok(!now.has("summer_fruit_fest"), "Aug 18: Summer Fruit Festival (June 20–21) does not serve after its window");
+  ok(!now.has("sarasota_music_fest"), "Aug 18: Sarasota Music Festival (June 1–13) does not serve after its window");
+  ok(!now.has("goombay"), "Aug 18: Goombay (June 5–7) does not serve after its window");
+  ok(!now.has("orlando_seafood_fest"), "Aug 18: Orlando Seafood Festival (June 6–7) does not serve after its window");
+  ok(!now.has("supercon"), "Aug 18: Supercon (July 10–12) does not serve after its window");
+  ok(!now.has("turtle_archie_carr"), "Aug 18: Archie Carr walks (June 1–July 30) have closed");
+  ok(now.has("st_armands_circle") && now.has("mallory_square") && now.has("versailles_little_havana"),
+    "Aug 18: still-servable owner venues (Circle, Mallory, Versailles) are in the serving set");
+  const juneLime = summerEntriesNow(new Date("2026-07-03T12:00:00-04:00")).some((e) => e.key === "key_lime_festival");
+  ok(juneLime, "July 3: Key Lime Festival is inside its window and serves");
 }
 
 /* ── near-Bradenton coverage (the owner's own acceptance case) ──────────── */
