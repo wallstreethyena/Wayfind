@@ -53,10 +53,25 @@ ok(/q == null/.test(landing) && /q == null/.test(parity),
 // ── 2. the distance penalty inside the _s expression ──────────────────────
 // THE GOVERNING LAW (2026-08-07): both sides rank through
 // governedWayfindScore — the flat law terms replaced the 1.3/mi model.
-ok(/governedWayfindScore\(q, \{ hasCreatorVideo: hasCreatorVideoAt\(p\)/.test(landing),
-  "lib/landing.js ranks through governedWayfindScore (the law: +7 video, −2 past 17mi)");
-ok(/governedWayfindScore\(q, \{ hasCreatorVideo: hasCreatorVideoAt\(p\)/.test(parity),
-  "scripts/census-parity.mjs mirrors the same governed call");
+// RE-POINTED 2026-08-16 — STRENGTHENED, not relaxed. These pinned the BARE
+// call `hasCreatorVideoAt(p)`, on both sides. That is the one-argument form,
+// and it returns FALSE FOR EVERY PLACE, because the curated registry keys on
+// city. So the creator term was dead in the shipped ranker — the function that
+// picks which 15 places per category reach every rail — and this guard was
+// pinning the dead form as correct on both sides.
+//
+// It "passed" the whole time for a reason worth keeping in mind: parity was
+// genuinely held. Both sides were identically wrong, which is exactly the
+// failure a mirror-check cannot see. Measured the day it was found: Tampa has
+// 65 curated creator spots, 42 of them in inventory, and Locals Know rendered
+// zero cards.
+//
+// The city argument is now REQUIRED on both sides, so parity still binds AND
+// the thing it holds constant is the ranker the site actually runs.
+ok(/governedWayfindScore\(q, \{ hasCreatorVideo: hasCreatorVideoAt\(p, [A-Za-z_$][\w$.]*\)/.test(landing),
+  "lib/landing.js ranks through governedWayfindScore AND passes the city to hasCreatorVideoAt — bare, it is false for every place and the creator term does nothing");
+ok(/governedWayfindScore\(q, \{ hasCreatorVideo: hasCreatorVideoAt\(p, [A-Za-z_$][\w$.]*\)/.test(parity),
+  "scripts/census-parity.mjs mirrors the same governed call, city argument included — otherwise parity is held on a ranker the site does not run");
 ok(!/\(mi - 4\) \* 1\.3/.test(landing) && !/\(p\.distMi \|\| 0\) - 4\) \* 1\.3/.test(parity),
   "neither side still carries the retired 1.3/mi model");
 

@@ -51,7 +51,12 @@ ok(/mem\.has\(ref\)/.test(bp), "in-session cache so a photo is fetched once per 
 
 // ── PlaceCard integration ──
 const home = read("app/home.js");
-ok(/import \{ useBestPhoto, heroRefFromPlaces \} from "\.\.\/lib\/bestPhoto"/.test(home), "PlaceCard imports the picker");
+// v8 (2026-08-15): heroRefFromPlaces left this import with the promo deck's
+// hero-photo effects (see scripts/test-hero-people-free.mjs). useBestPhoto —
+// the PER-CARD picker this file is actually about — is untouched, and the two
+// assertions below still prove it runs before the early return and feeds the
+// card's src.
+ok(/import \{ useBestPhoto \} from "\.\.\/lib\/bestPhoto"/.test(home), "PlaceCard imports the picker");
 ok(/const cardPhoto = useBestPhoto\(p && p\.photo, p && p\.photos\);\s*\n\s*(?:\/\/[^\n]*\n\s*)*(?:const cardProduct = usePlaceProduct\([^;]*\);\s*\n\s*)?if \(!cardComplete\(p\)\) return null;/.test(home), "the hook runs BEFORE the early return (rules of hooks)");
 ok(/src=\{cardPhoto \|\| p\.photo\}/.test(home), "the card renders the best photo, falling back to the primary");
 

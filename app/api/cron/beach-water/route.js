@@ -11,6 +11,7 @@ export const dynamic = "force-dynamic";
 // nothing is ever guessed.
 import { createClient } from "@supabase/supabase-js";
 import { fetchDohCounty, normStation } from "../../../../lib/beachWater";
+import { jobCannotRun } from "../../../../lib/jobFail";
 
 export async function GET(req) {
   const secret = process.env.CRON_SECRET;
@@ -18,7 +19,7 @@ export async function GET(req) {
   if (!secret || auth !== "Bearer " + secret) return Response.json({ error: "unauthorized" }, { status: 401 });
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim();
   const svc = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
-  if (!url || !svc) return Response.json({ error: "no service key" }, { status: 200 });
+  if (!url || !svc) return jobCannotRun("beach-water", "SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL is missing");
   const db = createClient(url, svc, { auth: { persistSession: false } });
 
   const { data } = await db.from("wf_editorial").select("place_id,beach_extras").not("beach_extras", "is", null);

@@ -107,6 +107,7 @@ import { editorialRow } from "../../../../lib/atlasEditorial";
 import { extractModelJson } from "../../../../lib/atlasExtract";
 import { hostOfUrl, isDeniedHost } from "../../../../lib/nightlifeRail";
 import { isInsidePark } from "../../../../lib/parkZones";
+import { jobCannotRun } from "../../../../lib/jobFail";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -356,8 +357,8 @@ export async function GET(req) {
   const s = sbEnv();
   const gkey = GKEY();
   const akey = aiKey();
-  if (!s) return Response.json({ ok: false, error: "no supabase service env" }, { status: 200 });
-  if (!gkey || !akey) return Response.json({ ok: false, error: "missing GOOGLE_MAPS_SERVER_KEY or ANTHROPIC key" }, { status: 200 });
+  if (!s) return jobCannotRun("atlas-build", "SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL is missing");
+  if (!gkey || !akey) return jobCannotRun("atlas-build", "GOOGLE_MAPS_SERVER_KEY or ANTHROPIC_API_KEY is missing");
   const svcH = { apikey: s.key, Authorization: `Bearer ${s.key}`, "Content-Type": "application/json" };
 
   const limit = Math.max(1, Math.min(parseInt(url.searchParams.get("limit") || "10", 10) || 10, 25));

@@ -34,21 +34,47 @@ ok((await heroRefFromPlaces(places, opt(1))) === r1, "same day → same pick (no
 ok((await heroRefFromPlaces(places, { minRating: 4.5, minReviews: 500 })) === "places/A/photos/1", "no seed → top place (unchanged)");
 
 // PERMANENT RULE: EVERY hero card must rotate daily — a new frozen one fails here.
+// The rule is the owner's ("same card every day"), and it survives v8 intact.
+// What changed is WHAT rotates.
+//
+// The promo hero deck showed ONE place per slide, so a frozen slide meant a
+// frozen recommendation, and each slide needed its own day-seed. The rail shows
+// a CURATION per card and eight ranked places behind it, and it rotates on two
+// axes that are both stronger than a day seed:
+//
+//   the ORDER of the fifteen cards changes with the DAYPART — four times a day,
+//   not once (lib/dayparts.js; scripts/test-dayparts.mjs proves all four bands
+//   order differently and that no card is ever dropped, only parked right)
+//
+//   the PLACES behind each card are re-ranked at every regeneration, hourly
+//   (app/page.js revalidate = 3600 -> lib/railsData.js), against live ratings,
+//   review counts and trend signals
+//
+// A frozen homepage is now structurally impossible in a way one seed never
+// made it: it would take the clock AND the ranking engine both standing still.
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
+const rails = readFileSync(new URL("../lib/rails.js", import.meta.url), "utf8");
+const dayparts = readFileSync(new URL("../lib/dayparts.js", import.meta.url), "utf8");
+const railsData = readFileSync(new URL("../lib/railsData.js", import.meta.url), "utf8");
 
-// 1) trending / buzz hero
-ok(/p_max: 12/.test(home) && /pool\[\(\(daySeed % pool\.length\)/.test(home), "trending hero rotates a real pool by the day seed");
-ok(!/const pick = cand\[0\]/.test(home), "trending hero is NOT the frozen cand[0]");
+// 1) the ORDER rotates with the hour, and differently in each band
+{
+  const orders = [...dayparts.matchAll(/order: \[([^\]]+)\]/g)].map((m) => m[1].replace(/\s/g, ""));
+  ok(orders.length === 4, `all four bands declare an order (found ${orders.length})`);
+  ok(new Set(orders).size === 4, "every band orders the rail differently — four bands with one order is a frozen homepage");
+}
+// 2) the PLACES rotate, because they are re-ranked every regeneration
+ok(/revalidate = 3600/.test(readFileSync(new URL("../app/page.js", import.meta.url), "utf8")),
+  "the homepage must regenerate hourly, or the rail's places freeze with the page");
+ok(/rankedFor\(/.test(railsData), "the rail's places come from the live ranking engine, not a stored list");
+// 3) and no rail may be a frozen single pick
+ok(/MAX_CARDS = 8/.test(readFileSync(new URL("../lib/railSelect.js", import.meta.url), "utf8")),
+  "each rail shows a ranked ROW, never one frozen pick");
+// 4) the old frozen-hero shapes must not come back
+ok(!/const pick = cand\[0\]/.test(home), "a frozen cand[0] hero is back");
+ok(!/setBestBeach\(rankBeaches\(rows\)\[0\]/.test(home), "a frozen beach hero is back");
+ok(!/heroRefFromPlaces\(/.test(home), "a live photo hero is back — if it is deliberate, it must carry dayRotate (see this file's git history)");
+ok(!/wf-hero-swipe/.test(home), "the promo hero deck is back alongside the rail");
+ok(/id: "season"/.test(rails) && /id: "trending"/.test(rails), "PROBE: the rail metadata is what these assertions read");
 
-// 2) EVERY heroRefFromPlaces call (date/gem + any future photo hero) is
-// day-rotated. (Family is intentionally NOT one of these — 3aafc14 moved it to
-// owned artwork, locked by test-intent-pages; see test-hero-people-free.)
-const heroLines = home.split("\n").filter((l) => l.includes("heroRefFromPlaces("));
-ok(heroLines.length >= 2, "the photo heroes are present");
-ok(heroLines.every((l) => l.includes("dayRotate")), "EVERY heroRefFromPlaces call is day-rotated — no frozen photo hero can ship");
-
-// 3) beach hero
-ok(/rankBeaches\(rows\)/.test(home) && /bPool\[/.test(home) && /bSeed/.test(home), "the beach hero is day-rotated");
-ok(!/setBestBeach\(rankBeaches\(rows\)\[0\]/.test(home), "the beach hero is NOT the frozen top pick");
-
-console.log(`test-dynamic-daily: OK — ${pass} assertions (hero + trending picks rotate daily, honest, stable-within-day)`);
+console.log(`test-dynamic-daily: OK — ${pass} assertions (the rail rotates on two axes — daypart order and hourly re-ranking — and no frozen hero shape can return)`);

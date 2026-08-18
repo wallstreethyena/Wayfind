@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 // current logic — no row, no behavior change. CRON_SECRET-gated.
 import { createClient } from "@supabase/supabase-js";
 import { pickBestPhoto } from "../../../../lib/heroImage";
+import { jobCannotRun } from "../../../../lib/jobFail";
 
 const CENTROIDS = { "manatee-sarasota": { lat: 27.4, lng: -82.55 }, tampa: { lat: 27.85, lng: -82.6 }, orlando: { lat: 28.54, lng: -81.38 } };
 
@@ -29,7 +30,7 @@ export async function GET(req) {
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim();
   const svc = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
   const gkey = (process.env.GOOGLE_MAPS_SERVER_KEY || "").trim();
-  if (!url || !svc || !gkey) return Response.json({ error: "missing env" }, { status: 200 });
+  if (!url || !svc || !gkey) return jobCannotRun("hero-images", "SUPABASE_SERVICE_ROLE_KEY, NEXT_PUBLIC_SUPABASE_URL or GOOGLE_MAPS_SERVER_KEY is missing");
   const db = createClient(url, svc, { auth: { persistSession: false } });
 
   const out = { surfaces: 0, updated: 0, skipped_no_better: 0 };

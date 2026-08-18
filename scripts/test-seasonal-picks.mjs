@@ -147,96 +147,88 @@ ok(/heroImage: heroImageOverride \|\| heroImage \|\| \(sm && sm\.heroImage\) \|\
 // Re-pointed, NOT removed. This assertion was the only thing keeping the hero
 // and its destination in sync, so it now locks the new one just as tightly.
 // The PLACEMENT decision above (top + end, v6.55) is untouched.
-ok(/window\.location\.assign\("\/seasonal"/.test(home),
-  "the hero slide routes to the /seasonal LIST PAGE (the /family + /date-night template)");
-ok(!home.includes('openExpSheet("seasonal")'),
-  "…and the old sheet path is gone, not merely bypassed — one destination, no dead branch");
-// The destination must exist and be wired to the shared template, or the hero
+// v8 (2026-08-15) — THE SEASONAL SLIDE IS THE SEASONAL RAIL.
+//
+// Everything this block pinned survives, in a form that needs less pinning:
+//
+//   was: one seasonalHeroSlide(srcTag) helper, called exactly twice (once per
+//        hero rail) and never at the end, with its JSX defined once so four
+//        call sites could not drift apart
+//   now: ONE rail definition in lib/rails.js. There is no placement count to
+//        police and no copy to drift, because there is one card and one
+//        definition of it. check-rail-routes.mjs proves no two rails claim the
+//        same axis, which is the general form of "do not duplicate this card".
+//
+//   was: window.location.assign("/seasonal") — invisible to a crawler
+//   now: href: "/seasonal" on a real <a>, and check-rail-routes.mjs proves the
+//        route exists (the assign() never did)
+//
+// The DESTINATION assertions below are unchanged: /seasonal must still exist,
+// still render on the shared INTENT_PAGES template, and still agree with
+// EXPERIENCES.seasonal about its rating floor.
+{
+  const rails = readFileSync(new URL("../lib/rails.js", import.meta.url), "utf8");
+  const season = (rails.match(/\{ id: "season"[\s\S]*?\},/) || [""])[0];
+  ok(season.length > 0, "the seasonal card still exists on the homepage, as a rail");
+  ok(/href: "\/seasonal"/.test(season), "the seasonal rail routes to the /seasonal LIST PAGE (the /family + /date-night template)");
+  ok(!home.includes('openExpSheet("seasonal")'), "…and the old sheet path is gone, not merely bypassed — one destination, no dead branch");
+  ok(!/window\.location\.assign\("\/seasonal"/.test(home), "the old assign()-based seasonal hero is back — a crawler cannot follow it");
+  ok(!/function seasonalHeroSlide/.test(home), "the seasonal hero slide helper is back alongside the rail — that is the seasonal card on the page twice");
+  ok((rails.match(/id: "season"/g) || []).length === 1, "…and the rail itself is defined exactly once");
+  // The selector must still gate on REAL seasonality, or "gone when summer
+  // goes" is a claim about places that are there all year.
+  const railSelect = readFileSync(new URL("../lib/railSelect.js", import.meta.url), "utf8");
+  ok(/season: \{[^}]*pick: \(p\) => seasonalFit\(p, currentSeason\(\)\) > 0/.test(railSelect.replace(/\n\s*/g, " ")),
+    "the seasonal rail must select on lib/seasons.js seasonalFit — the same helper this file tests above");
+}
+// The destination must exist and be wired to the shared template, or the rail
 // navigates into a 404.
 const intentPagesSrc = readFileSync(new URL("../lib/intentPages.js", import.meta.url), "utf8");
 ok(/\n\s{2}seasonal:\s*\{/.test(intentPagesSrc),
   "INTENT_PAGES carries a seasonal entry, so /seasonal renders on the shared template");
 ok(/floor:\s*\{\s*rating:\s*4(\.0)?\s*,/.test(intentPagesSrc),
   "the page's rating floor matches EXPERIENCES.seasonal (4.0) — page and sheet cannot disagree about what qualifies");
-ok(/function seasonalHeroSlide\(srcTag\)/.test(home), "one seasonalHeroSlide(srcTag) helper renders every placement — no duplicated inline slides to drift out of sync");
-const topCalls = (home.match(/\{seasonalHeroSlide\("top"\)\}/g) || []).length;
-const endCalls = (home.match(/\{seasonalHeroSlide\("end"\)\}/g) || []).length;
-ok(topCalls === 2, `the seasonal slide appears once per hero rail (found ${topCalls} "top" call sites)`);
-// v6.61 (owner, on the record): "there should not be another hero seasonal card
-// at the end it is duplicated only one seasonal hero card."
-//
-// This REVERSES the v6.55 decision ("at the end will be the reminder, so we
-// engage with them technically twice"), which this same assertion used to lock
-// at endCalls === 2. Re-pointed, not deleted: it now pins the opposite number,
-// so a re-added end slide fails just as loudly as a removed one used to.
-ok(endCalls === 0, `the seasonal slide does NOT repeat at the end of either rail — one seasonal card per rail (found ${endCalls} "end" call sites)`);
-const heroOccurrences = home.split('badge={_s.label + " Picks"}').length - 1;
-ok(heroOccurrences === 1, `the seasonal slide's JSX is defined exactly ONCE, inside seasonalHeroSlide, and reused at all 4 call sites rather than copy-pasted per rail (found ${heroOccurrences} definitions)`);
 
-// Position: seasonal must be the very FIRST child of each <HeroRail> — ahead
-// of DiscoveryHeroCard, the orientation card — AND the very LAST child,
-// right before that rail's own closing </HeroRail>, in BOTH real rails. The
-// loading EventsRailSkeleton also renders <DiscoveryHeroCard />, deliberately
-// without a seasonal slide (it's a skeleton with no data yet) — anchored on
-// each real rail's own distinguishing context instead of position, so the
-// skeleton can never be mistaken for a missed insertion.
-const noEventsRailAt = home.indexOf("THE 23-MILE RULE (owner, 2026-07-28)");
-const eventsRailAt = home.indexOf("LEADS this rail too");
-ok(noEventsRailAt >= 0 && eventsRailAt >= 0, "both real hero-rail anchors are present");
-// v6.59 (owner, on the record): "THE EXPLAINER CARD GOES FIRST IN THE RAIL,
-// DETERMINISTICALLY, and it opens its own page. I told you earlier to lift
-// DiscoveryHeroCard out of the rail — that was my misreading of the instruction
-// and it's reversed."
+// v8 (2026-08-15) — POSITION. This block pinned the seasonal slide's exact
+// adjacency inside two hand-built <HeroRail>s: which card led, which followed,
+// that seasonal never repeated at the end, and that both rails agreed. It was
+// re-pointed four times as the owner changed his mind about the order (v6.55,
+// v6.59, v6.61, v6.94), and every one of those reversals was a hand edit in two
+// places that had to be kept in sync by a regex.
 //
-// The ORDER therefore flips: the orientation card leads, Seasonal Picks second.
-// Re-pointed, NOT weakened — it still pins an exact adjacency, just the other
-// way round, and it now additionally requires the orientation card to carry an
-// onOpen (it opened nothing before). Seasonal must still CLOSE the rail, which
-// is asserted below, so the v6.55 "engage them technically twice" decision is
-// intact.
+// That whole class of problem is gone. There is ONE ordered list of rails now,
+// per daypart, in lib/dayparts.js — data, not JSX — and the seasonal card's
+// position is a string in an array. scripts/test-dayparts.mjs proves every band
+// declares a complete order and that no card is ever dropped from one; the
+// assertions below pin what actually matters about seasonal's placement.
 //
-// v6.94 (owner, on the record): "i want te social hero card to be the second
-// hero card in the order of hero card" — the consolidated SocialFindHeroCard
-// (see home.js / lib/creatorVideos.js spotsByCity) now sits BETWEEN the
-// orientation card and Seasonal Picks, pushing seasonal to third. Re-pointed
-// again, same as every prior reversal in this block: LEAD_RX now requires
-// DiscoveryHeroCard -> (its own optional comment +) SocialFindHeroCard ->
-// seasonalHeroSlide("top"), and the anchor-distance budget grows to fit the
-// extra card + comment in the no-events rail (whose own preceding comment is
-// also the longest of the two).
-const LEAD_RX = /<HeroRail>\s*(\{\/\*[\s\S]{0,900}?\*\/\}\s*)?<DiscoveryHeroCard onOpen=\{[\s\S]{0,400}?\/>\s*(\{\/\*[\s\S]{0,600}?\*\/\}\s*)?<SocialFindHeroCard[\s\S]{0,500}?\/>\s*\{seasonalHeroSlide\("top"\)\}/;
-for (const [name, anchor] of [["no-events rail", noEventsRailAt], ["featured-event rail", eventsRailAt]]) {
-  const heroRailAt = home.lastIndexOf("<HeroRail>", anchor);
-  ok(heroRailAt >= 0 && anchor - heroRailAt < 1400, `the ${name}'s own <HeroRail> opening tag is found near its anchor`);
-  ok(LEAD_RX.test(home.slice(heroRailAt, heroRailAt + 1400)), `the orientation card leads the ${name} and OPENS a page, with Seasonal Picks immediately after — deterministic JSX order, no rotation`);
-  const closeAt = home.indexOf("</HeroRail>", heroRailAt);
-  ok(closeAt >= 0, `the ${name}'s closing </HeroRail> is found`);
-  // v6.61: the end-slide is gone (owner: "only one seasonal hero card"), so this
-  // now asserts the ABSENCE within this rail's own span rather than its
-  // presence. Scoped to heroRailAt..closeAt so it cannot be satisfied by the
-  // other rail happening to be clean.
-  const railBody = home.slice(heroRailAt, closeAt);
-  ok(!railBody.includes('{seasonalHeroSlide("end")}'), `the ${name} does not repeat Seasonal Picks at its end — one seasonal card in this rail`);
-  ok((railBody.match(/\{seasonalHeroSlide\("(top|end)"\)\}/g) || []).length === 1, `the ${name} renders EXACTLY ONE seasonal slide`);
+// LocalPlanHeroCard went with the slide it existed to render (its photo-less
+// gradient fallback, added in v6.52 for exactly this card, has no caller now).
+{
+  const dayparts = readFileSync(new URL("../lib/dayparts.js", import.meta.url), "utf8");
+  const orders = [...dayparts.matchAll(/order: \[([^\]]+)\]/g)].map((m) => m[1].replace(/['\s]/g, "").split(","));
+  ok(orders.length === 4, `all four bands declare an order (found ${orders.length})`);
+  for (const o of orders) {
+    ok(o.filter((id) => id === "season").length === 1, "seasonal appears exactly once per band — never twice, never missing");
+    ok(o[0] === "season", "seasonal LEADS every band (owner, v6.55: \"place it at the top... where the user sees it right away\")");
+  }
+  ok(!/function LocalPlanHeroCard\(/.test(home), "LocalPlanHeroCard is back without the slide it rendered");
+  ok(!/<HeroRail>/.test(home), "the hero rail is back alongside the daypart rail");
 }
-// In the featured-event rail specifically, the concert card still follows
-// (event/beach/date-night/family/trending keep their own order — only the
-// rail's own start and end gained a seasonal slide).
-const eventCardAt = home.indexOf('src: "foryou_hero"');
-ok(eventCardAt > eventsRailAt, "in the featured-event rail, the concert/event slide still follows Seasonal Picks and the orientation card, unmoved");
-
-// 5. LocalPlanHeroCard's image is optional now (gradient fallback), and
-//    every PRE-EXISTING caller still passes a real photo — the fallback is
-//    additive, not a silent quality regression for slides that have one.
-const cardAt = home.indexOf("function LocalPlanHeroCard(");
-const cardBody = cardAt >= 0 ? home.slice(cardAt, home.indexOf("\n}", cardAt)) : "";
-ok(/background: image \? C\.card : `linear-gradient\(/.test(cardBody), "LocalPlanHeroCard falls back to a themed gradient when no photo is supplied");
-ok(/\{image\s*$|image\s*\?\s*<img/.test(cardBody) || /image\s*\n\s*\?\s*<img/.test(cardBody), "the <img> only renders when a real image is supplied — no broken-image icon for photo-less slides");
-for (const badge of ["Beach day", "Hidden gems", "Date night", "Family", "Trending near you"]) {
-  const bAt = home.indexOf(`badge="${badge}"`);
-  ok(bAt >= 0, `existing hero slide "${badge}" is still present`);
-  const nearbyImage = home.slice(Math.max(0, bAt - 200), bAt).includes("image=\"/cards/");
-  ok(nearbyImage, `existing hero slide "${badge}" still supplies a real photo — the new optional-image fallback did not remove it`);
+// v8: the five sibling slides this checked for are five RAILS now, each with
+// its own owned artwork. The assertion it was making — "adding the seasonal
+// gradient fallback must not have quietly dropped a real photo from any
+// existing slide" — is asserted at the source instead: every rail's art files
+// must exist on disk, in every region, in every format, which
+// scripts/check-rail-routes.mjs proves for all fifteen. Naming the five here
+// keeps the original intent: none of them may vanish.
+{
+  const rails = readFileSync(new URL("../lib/rails.js", import.meta.url), "utf8");
+  for (const id of ["beach", "gems", "datenight", "family", "trending"]) {
+    ok(new RegExp(`id: "${id}"`).test(rails), `the "${id}" card is still on the homepage, as a rail`);
+    const def = (rails.match(new RegExp(`\\{ id: "${id}"[\\s\\S]*?\\},`)) || [""])[0];
+    ok(/art: "/.test(def), `the "${id}" rail still supplies real owned artwork`);
+  }
 }
 
 // v6.97 — the DEFAULT currentSeason() reads the ET-anchored calendar day, so
@@ -253,4 +245,4 @@ for (const badge of ["Beach day", "Hidden gems", "Date night", "Family", "Trendi
   ok(currentSeason() === currentSeason(siteAnchorDate()), "default agrees with the ET-anchored day right now");
 }
 
-console.log(`test-seasonal-picks: OK — ${pass} assertions (season logic pure + tested; hero-rail wiring leads AND closes both rails; ranking is rating + a bounded seasonal nudge, never a replacement)`);
+console.log(`test-seasonal-picks: OK — ${pass} assertions (season logic pure + tested; seasonal leads every daypart band exactly once; ranking is rating + a bounded seasonal nudge, never a replacement)`);

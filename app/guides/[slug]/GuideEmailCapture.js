@@ -72,7 +72,7 @@ export default function GuideEmailCapture({ slug, region }) {
 
   return (
     <section ref={ref} aria-label="Guide by email" style={{ margin: "26px 0 0", padding: "18px", borderRadius: 14, border: "1px dashed #243040", background: "rgba(255,255,255,.02)" }}>
-      <div style={{ fontSize: 10.5, fontWeight: 900, letterSpacing: "1.7px", textTransform: "uppercase", color: "#FF8A3D" }}>Take this guide with you</div>
+      <div style={{ fontSize: 10.5, fontWeight: 900, letterSpacing: "1.7px", textTransform: "uppercase", color: "#F97316" }}>Take this guide with you</div>
       <p style={{ margin: "7px 0 12px", fontSize: 13.5, lineHeight: 1.55, color: "#8A97A6" }}>
         One email with these picks, plus what changes in {region || "Orlando"} — new openings, closures, and what locals are actually doing. No spam, unsubscribe anytime.
       </p>
@@ -89,7 +89,7 @@ export default function GuideEmailCapture({ slug, region }) {
         <button
           type="submit"
           disabled={state === "sending"}
-          style={{ flexShrink: 0, height: 44, padding: "0 18px", borderRadius: 12, border: "none", background: "#FF8A3D", color: "#0D1117", fontSize: 13.5, fontWeight: 800, cursor: "pointer", opacity: state === "sending" ? 0.6 : 1 }}
+          style={{ flexShrink: 0, height: 44, padding: "0 18px", borderRadius: 12, border: "none", background: "#F97316", color: "#0D1117", fontSize: 13.5, fontWeight: 800, cursor: "pointer", opacity: state === "sending" ? 0.6 : 1 }}
         >
           {state === "sending" ? "Sending…" : "Send me the guide"}
         </button>

@@ -10,6 +10,7 @@ export const dynamic = "force-dynamic";
 // CRON_SECRET-gated. Writes anomalies to wf_booking_audit; never throws.
 import { createClient } from "@supabase/supabase-js";
 import { isTicketyPlace } from "../../../../lib/affiliates";
+import { jobCannotRun } from "../../../../lib/jobFail";
 
 export async function GET(req) {
   const secret = process.env.CRON_SECRET;
@@ -17,7 +18,7 @@ export async function GET(req) {
   if (!secret || auth !== "Bearer " + secret) return Response.json({ error: "unauthorized" }, { status: 401 });
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim();
   const svc = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
-  if (!url || !svc) return Response.json({ error: "no service key" }, { status: 200 });
+  if (!url || !svc) return jobCannotRun("booking-audit", "SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL is missing");
   const db = createClient(url, svc, { auth: { persistSession: false } });
 
   // The at-risk set: beaches + natural features. A CTA must NEVER render here.

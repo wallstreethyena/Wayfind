@@ -41,14 +41,22 @@ ok((await heroRefFromPlaces([{ photos: [{ name: "places/AAA/photos/BBB" }], rati
 ok((await heroRefFromPlaces([{ photos: [{ name: "places/AAA/photos/BBB" }], rating: 4.9, reviews: 5000 }], { minRating: 4.6, minReviews: 60, maxReviews: 3000 })) === null,
   "the gem review CEILING excludes over-famous places");
 
-// home.js wiring: the date-night and hidden-gem heroes select via the shared
-// helper; no blind photos[0]. (The family hero is intentionally NOT here — it
-// uses owned artwork, locked separately by test-intent-pages.)
+// v8 (2026-08-15) — home.js wiring. The date-night and hidden-gem hero photo
+// effects are GONE with the promo deck they fed, and so is the class of bug
+// this file guards: the homepage no longer live-picks a hero photo AT ALL.
+//
+//   the rail's 15 tiles  -> owned artwork in /public/cards-v8
+//   the place cards      -> each place's own photoRef, through IconicPlaceCard
+//
+// Owned art is the same answer the family hero already reached in 3aafc14 (see
+// the note at the top), applied to the whole surface. The helper stays exported
+// and its unit assertions above are UNTOUCHED — heroRefFromPlaces is the right
+// tool the moment any surface live-picks a hero again, and deleting its tests
+// with its last caller is how the next one re-introduces photos[0].
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
-ok((home.match(/heroRefFromPlaces\(j\.places/g) || []).length >= 2, "the date-night and hidden-gem hero effects select via heroRefFromPlaces");
-ok(/setDateHeroImg\(ref\)/.test(home) && /setGemHeroImg\(ref\)/.test(home),
-  "date-night and hidden-gem heroes are set from the people-free ref");
+ok(!/heroRefFromPlaces\(/.test(home), "a live hero-photo pick is back on the homepage — see this file's header before adding one");
+ok(!/setDateHeroImg|setGemHeroImg/.test(home), "the date-night / hidden-gem hero photo state is back");
 ok(!/ref: pp\.photos && pp\.photos\[0\] && pp\.photos\[0\]\.name/.test(home), "the old blind photos[0] hero pick is gone from every surface");
-ok(/import \{ useBestPhoto, heroRefFromPlaces \}/.test(home), "home.js imports the helper");
+ok(/import \{ useBestPhoto \}/.test(home), "home.js still imports the per-card photo helper it does use");
 
-console.log(`test-hero-people-free: OK — ${pass} assertions (date-night/gem heroes are people-free, fail-soft to top photo)`);
+console.log(`test-hero-people-free: OK — ${pass} assertions (the helper is people-free and fail-soft; the homepage no longer live-picks a hero photo at all)`);

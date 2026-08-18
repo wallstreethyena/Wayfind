@@ -45,3 +45,4 @@ tmp/
 *exploding_topics*.csv
 trend-export*.csv
 !scripts/fixtures/trends/*.csv
+.rail-shots/

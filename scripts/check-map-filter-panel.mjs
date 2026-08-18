@@ -13,13 +13,42 @@ import { readFileSync } from "node:fs";
 
 let n = 0, bad = 0;
 const ok = (c, m) => { n++; if (!c) { bad++; console.error("  - " + m); } };
-const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
+// v8.3 — THE BLANKET BLOCK-COMMENT STRIP WAS EATING A THIRD OF app/home.js.
+//
+// MEASURED, both refs: on origin/main this removed 256,699 of 733,671 chars
+// (35%) and on the next branch 261,080 — because app/home.js contains regex
+// literals and strings holding "/*" and "*/", so a non-greedy /\*...\*/ pairs
+// the wrong delimiters and swallows live code between them. The /* and */
+// counts are balanced (112 each); balance is not the problem, PAIRING is.
+//
+// It passed anyway for as long as `function CategoryMenu({` happened to fall
+// outside a swallowed span. One unrelated edit moved that boundary and six
+// assertions went red at once — all of them reading an empty slice, which is
+// the "ran against nothing, reported success" failure in AGENTS.md §4a, and
+// it had been reporting SUCCESS on this file for months.
+//
+// Narrow JSX-comment strip only, which is what check-home-answer-first uses
+// for exactly this reason. Line comments are safe: they are anchored to the
+// start of a line.
+const strip = (s) => s.replace(/\{\/\*[\s\S]*?\*\/\}/g, " ").replace(/^\s*\/\/.*$/gm, " ");
 
 const home = strip(readFileSync(new URL("../app/home.js", import.meta.url), "utf8"));
 const map = strip(readFileSync(new URL("../app/components/screens/Map.js", import.meta.url), "utf8"));
 
 // ── the compact branch is opt-in, and only the map opts in ────────────────
-ok(/compact\s*\}/.test(home) || /,\s*compact\s*\}/.test(home), "CategoryMenu no longer accepts a `compact` prop");
+// v8.2 — RE-POINTED. This asserted that `compact` was the LAST name in the
+// destructuring block (`compact }`), which is a claim about punctuation, not
+// about the prop. It went red the moment `nav` was appended for the header tab
+// strip — a guard firing on correct code — and it was weak in the other
+// direction too: `compact` in any object literal anywhere in a 10k-line file
+// satisfied the fallback branch.
+//
+// The claim is that CategoryMenu ACCEPTS the prop, so read its own parameter
+// list and look for the name in it, wherever it sits.
+const catParams = (home.match(/function CategoryMenu\(\{([^}]*)\}\)/) || [])[1] || "";
+ok(catParams.length > 40, `PROBE: CategoryMenu's parameter list was read (${catParams.length} chars)`);
+ok(catParams.split(",").map((x) => x.trim().split(/[=\s]/)[0]).includes("compact"),
+   "CategoryMenu no longer accepts a `compact` prop");
 ok(/if \(compact\) \{[\s\S]{0,600}?wf-mapfp/.test(home), "the compact layout is not behind a branch — it would apply to every call site");
 ok(/<CategoryMenu compact/.test(map), "the map does not request the compact panel");
 const others = [...home.matchAll(/<CategoryMenu\b[^>]*/g)].map((m) => m[0]);

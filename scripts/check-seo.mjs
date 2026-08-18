@@ -54,7 +54,46 @@ if (!lay.includes("Things to Do Near You")) fail("homepage title keywords missin
 
 // 3. app shell: nav anchors + go-param handoff survive.
 const page = readFileSync(join(root, "app", "home.js"), "utf8");
-if (!page.includes('href={{ home: "/", events: "/events", coupons: "/coupons", map: "/map", saved: "/favorites", itinerary: "/itinerary" }[s.id]')) fail("bottom nav anchors missing hrefs");
+// v8.2 — RE-POINTED, NOT RELAXED. The six routes moved into one
+// WF_DESTINATIONS list in app/home.js because the destinations now render
+// TWICE: the lab's top nav row and the mobile bottom bar the owner kept. Two
+// hand-kept copies of a nav is how one of them quietly loses an href.
+//
+// The old line pinned the inline object literal inside the bottom bar, and its
+// dangerous half was the inverse: it would have gone GREEN the moment those
+// anchors moved anywhere else — including into <button onClick> elements with
+// no href at all, which is precisely the crawlability regression it exists to
+// stop. What follows asserts the invariant instead, and covers strictly more:
+// every destination resolves to its real route, AND every nav that renders the
+// list emits a real <a href> a crawler can follow.
+const destDecl = page.match(/const WF_DESTINATIONS = \[([\s\S]*?)\n\];/);
+if (!destDecl) fail("WF_DESTINATIONS is gone — the nav routes have no single source, so nothing can prove the two bars agree");
+const declared = new Map([...destDecl[1].matchAll(/id: "([a-z]+)"[\s\S]{0,120}?href: "([^"]+)"/g)].map((m) => [m[1], m[2]]));
+for (const [id, href] of Object.entries({ home: "/", events: "/events", coupons: "/coupons", map: "/map", saved: "/favorites", itinerary: "/itinerary" })) {
+  if (!declared.has(id)) fail(`WF_DESTINATIONS lost "${id}" — a nav destination no crawler can reach any more`);
+  else if (declared.get(id) !== href) fail(`WF_DESTINATIONS."${id}" points at ${declared.get(id)}, expected ${href}`);
+}
+// Both bars, and both must emit anchors. A count alone would pass on one bar
+// rendering twice, so each render site is inspected on its own.
+// v8.3 — RE-POINTED. This required TWO render sites because v8.2 shipped two
+// bars (the lab's top row and the mobile bottom bar) and the risk being guarded
+// was that they drift apart. The owner then removed the bottom bar as
+// duplication ("we are only keeping one which is the one underneath the search
+// bar"), so requiring two now fires on correct code.
+//
+// The drift rationale retired with the second bar; the CRAWLABILITY rationale
+// did not, and it is the one this file exists for. So: at least one nav must
+// render the list, and every site that does must emit real anchors — which is
+// asserted in the loop below and is the half that actually protects the routes.
+const navSites = [...page.matchAll(/WF_DESTINATIONS\.map\(\((\w+)\) =>/g)];
+if (navSites.length < 1) fail("no nav renders WF_DESTINATIONS — the six destinations are unreachable and uncrawlable");
+for (const site of navSites) {
+  const body = page.slice(site.index, site.index + 1400);
+  const v = site[1];
+  if (!new RegExp("<a\\b[^>]{0,400}href=\\{" + v + "\\.href\\}").test(body.replace(/\n/g, " "))) {
+    fail(`a WF_DESTINATIONS nav at index ${site.index} does not render <a href={${v}.href}> — a button navigates for a human and is invisible to a crawler`);
+  }
+}
 if (!page.includes('get("go")')) fail("go-param handoff missing");
 
 // 4. indexing rules per route class.

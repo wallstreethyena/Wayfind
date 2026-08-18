@@ -25,7 +25,9 @@ import { eventCategoryArt } from "../lib/eventCategoryArt";
 import { markSessionStart, markShareOpen, checkShareReturn } from "../lib/shareMetrics";
 import { priceWord } from "../lib/price";
 // v6.51 PERF: defers decorative hero-photo fetches off the critical path.
-import { onIdle } from "../lib/idleTask";
+// v8: onIdle's last callers were the two decorative hero photo fetches, which
+// were removed rather than deferred (lib/idleTask.js and its contract tests
+// stay — it is the right tool the moment another decorative fetch appears).
 // Google bridge. PostHog remains the source of truth — forwardToGoogle only
 // MIRRORS an already-captured event to GA4/Ads and never captures to PostHog
 // itself, so existing event names and history stay exactly as they are.
@@ -72,7 +74,10 @@ import { isTrueLodging } from "../lib/lodging";
 import * as Fam from "../lib/family";
 import { supabase } from "../lib/supabase";
 import { usePlaceProduct } from "../lib/placeProduct";
-import { useBestPhoto, heroRefFromPlaces } from "../lib/bestPhoto";
+// v8: heroRefFromPlaces went with the date-night and hidden-gem hero photo
+// effects — the rail uses owned artwork and the place cards carry their own
+// photoRef, so nothing on this page live-picks a hero photo any more.
+import { useBestPhoto } from "../lib/bestPhoto";
 import nextDynamic from "next/dynamic";
 // v5.39 (July 2026 audit, Phase 7): the map bundle loads when the map
 // screen (or sidebar map) first renders, not on first paint.
@@ -175,6 +180,15 @@ import { pickHomeExp } from "../lib/homeExpPick";
 // app/components/css.js is registered in scripts/lib/shellSrc.mjs so every
 // content guardrail still greps them.
 import { WF_LAYOUT_CSS, WF_SEARCH_CSS, WF_PLACE_CARD_CSS, WF_TASTE_CSS, WF_RAIL_SECTION_CSS, WF_RAIL_COLLAPSED_CSS, WF_ASIDE_CSS } from "./components/css";
+// v8 — the rail menu. lib/rails.js is metadata only (lib/railSelect.js holds
+// the selection logic and never leaves the server), so importing it here costs
+// the bundle the card copy and nothing else.
+import DaypartRail from "./components/DaypartRail";
+import { WF_RAIL_MENU_CSS } from "./components/railMenuCss";
+import { RAILS } from "../lib/rails";
+// v8.3: the category tabs resolve their city segment through the SAME builder
+// the rail tiles use, so neither can emit a bare segmented route.
+import { railHref } from "../lib/dayparts";
 import HomeAside from "./components/HomeAside";
 // v6.46 — wave 2 of the same decomposition: ~200 lines of pure owner-written
 // curation DATA (best-of / local-fave name lists, the hand-written place notes,
@@ -355,7 +369,43 @@ const CHIP = {
   weight: 700,
 };
 
-function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true, compact }) {
+// v8.3 (owner, 2026-08-16): "when i click on the food tab the menu should
+// change the page and we should go to the food menu not stay in the same place
+// the amazon rail is on for the main page."
+//
+// THE AMAZON RAIL BELONGS TO THE HOMEPAGE; a category is a different place. So
+// a tab that has a page NAVIGATES to it, as a real crawlable <a href>.
+//
+// FOUR OF SIX HAVE A PAGE. hotels and shopping have no route anywhere in the
+// tree — no app/hotels/**, no app/shopping/**, no rewrite — so they keep the
+// in-place filter they have always had rather than being pointed at a page that
+// does not exist or, worse, at a bare segmented route (an indexable soft-404
+// canonicalised to "/", which is exactly what check-rail-routes.mjs forbids).
+// They are styled as filters, not links, so two behaviours read as deliberate.
+// Tracked for real pages in the follow-up issue; hotels is booking affiliate
+// traffic and wants one.
+//
+// `family` links to a real page that is robots:noindex by its own choice — a
+// legitimate destination for a reader, just not an SEO one. Said out loud here
+// so nobody later "fixes" it by pointing it somewhere indexable but wrong.
+const CATEGORY_ROUTE = {
+  food: "/restaurants",
+  nightlife: "/nightlife",
+  attractions: "/things-to-do",
+  family: "/family",
+  // hotels, shopping: intentionally absent — see above.
+};
+
+const WF_DESTINATIONS = [
+  { id: "home", icon: "home", label: "Home", href: "/" },
+  { id: "events", icon: "events", label: "Events", href: "/events" },
+  { id: "coupons", icon: "coupons", label: "Coupons", href: "/coupons" },
+  { id: "map", icon: "map", label: "Map", href: "/map" },
+  { id: "saved", icon: "saved", label: "Favorites", href: "/favorites" },
+  { id: "itinerary", icon: "itinerary", label: "Itinerary", href: "/itinerary" },
+];
+
+function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true, compact, nav, navRegion, navCitySlug, navOpenCat, onNavOpen, onNavSub }) {
   const subs = showSubs && activeCat ? (SUBFILTERS[activeCat] || []) : [];
   // Hooks run BEFORE the compact early-return below — a conditional hook here
   // would break the map screen the moment a sub-filter opened.
@@ -453,6 +503,97 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
           </>
         ) : null}
       </div>
+    );
+  }
+  if (nav) {
+    // v8.4 — OPTION (b), the sub-menu (owner, asked four times).
+    //
+    // Tapping a tab no longer jumps straight to a landing page. It opens that
+    // category's sub-chips IN PLACE, and the reader chooses from there. The
+    // intermediate step is the whole point of the ask.
+    //
+    // COPIED FROM /map, which never lost this row. There, subs FILTER the
+    // visible pins rather than navigating, and that is the honest behaviour
+    // here too: the landing routes (/restaurants/[city] etc.) accept no sub
+    // parameter — verified, they read no searchParams — so a chip that
+    // "navigated" to one would silently drop the filter the reader just chose.
+    // That is the mismatched control AGENTS.md §12 bans. The chips apply the
+    // same browseCat+sub the feed has always understood.
+    //
+    // THE TAB STAYS A REAL <a href>. Only a plain left click is intercepted —
+    // the same pattern the rail tiles use (check-home-answer-first pins
+    // href={href} + preventDefault on DaypartRail). So a crawler still follows
+    // it, cmd/middle-click still opens the page in a tab, and the tray is what
+    // a normal tap gets. Nothing that navigates is a div with a handler.
+    const navSubs = navOpenCat ? (SUBFILTERS[navOpenCat] || []) : [];
+    return (
+      <>
+      <div className="wf-navtabs" role="group" aria-label="Browse categories">
+        {Cats.CATEGORY_TILES.map((m) => {
+          const on = activeCat === m.id || navOpenCat === m.id;
+          // railHref resolves the missing city segment through the SAME map the
+          // rail tiles use, so a tab can never emit a bare /restaurants and can
+          // never emit a slug outside LANDING_CITIES. cityFor() is never null,
+          // so there is no "no city" branch to get wrong.
+          const href = CATEGORY_ROUTE[m.id]
+            ? railHref({ href: CATEGORY_ROUTE[m.id] }, navRegion, navCitySlug)
+            : null;
+          const glyph = <NavIcon name={m.id} color={on ? "#FFFFFF" : "#8A96AE"} size={17} strokeWidth={1.7} />;
+          if (href) {
+            return (
+              <a key={m.id} className={on ? "wf-navtab is-on" : "wf-navtab"} href={href}
+                 aria-expanded={navOpenCat === m.id} aria-controls="wf-navsubs"
+                 onClick={(e) => {
+                   // Modified clicks and non-left buttons fall through to the
+                   // href untouched — that is what keeps cmd/middle-click and
+                   // "open in new tab" working.
+                   if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+                   e.preventDefault();
+                   try { onNavOpen && onNavOpen(navOpenCat === m.id ? null : m.id, m.label); } catch (er) {}
+                 }}>
+                {glyph}<span>{m.label}</span>
+              </a>
+            );
+          }
+          // A FILTER, AND IT SAYS SO. Same row, same weight, but a pressed-state
+          // control rather than a link: no pointer cursor, aria-pressed instead
+          // of aria-current, and .is-filter carries the dotted underline. Two
+          // tabs behaving differently has to read as deliberate, not broken.
+          return (
+            <button key={m.id} type="button" className={on ? "wf-navtab is-filter is-on" : "wf-navtab is-filter"}
+                    aria-pressed={on} aria-expanded={navOpenCat === m.id} aria-controls="wf-navsubs"
+                    title={m.label + " — filters this page"}
+                    onClick={() => { try { onNavOpen && onNavOpen(navOpenCat === m.id ? null : m.id, m.label); } catch (er) {} }}>
+              {glyph}<span>{m.label}</span>
+            </button>
+          );
+        })}
+      </div>
+      {/* The tray. Same shape as /map's .wf-mapfp-subs: a max-height/opacity
+          transition rather than a mount, so it slides instead of popping, and
+          it carries the reduced-motion escape hatch. */}
+      <div id="wf-navsubs" className={navSubs.length > 1 ? "wf-navsubs is-open" : "wf-navsubs"}>
+        <div className="wf-navsubs-row" role="group" aria-label={(navOpenCat || "") + " filters"}>
+          {navSubs.map((sf, si) => {
+            const son = sub === sf.id && activeCat === navOpenCat;
+            return (
+              <button key={sf.id} type="button" className={son ? "wf-navsub is-on" : "wf-navsub"}
+                      aria-pressed={son} style={{ animationDelay: (si * 26) + "ms" }}
+                      onClick={() => { try { onNavSub && onNavSub(navOpenCat, sf.id, sf.label); } catch (er) {} }}>
+                {sf.label}
+              </button>
+            );
+          })}
+          {/* The full page is still one tap away, and it is a real link — the
+              tray filters, this navigates, and the two are visibly different. */}
+          {navOpenCat && CATEGORY_ROUTE[navOpenCat] ? (
+            <a className="wf-navsub wf-navsub-all" href={railHref({ href: CATEGORY_ROUTE[navOpenCat] }, navRegion, navCitySlug)}>
+              {"See every " + ((Cats.CATEGORY_TILES.find((t) => t.id === navOpenCat) || {}).label || "").toLowerCase() + " \u2192"}
+            </a>
+          ) : null}
+        </div>
+      </div>
+      </>
     );
   }
   return (
@@ -2588,98 +2729,12 @@ function renderHookText(text, highlightWord, color) {
 //
 // role/tabIndex/onKeyDown match the other interactive cards so the keyboard path
 // is identical (test-card-a11y asserts the keyboard route to open a place).
-const HERO_ART_SIZES = "(max-width:899px) 93vw, (max-width:1179px) 744px, 893px";
-function DiscoveryHeroCard({ onOpen }) {
-  return (
-    <article
-      className="wf-discovery-visual wf-discovery-hero-card"
-      aria-label="Know what is around you"
-      role={onOpen ? "button" : undefined}
-      tabIndex={onOpen ? 0 : undefined}
-      onClick={onOpen}
-      onKeyDown={onOpen ? KB_CLICK : undefined}
-      style={{ position: "relative", flexShrink: 0, width: "93%", height: EV_HERO_H, minHeight: EV_HERO_H, scrollSnapAlign: "start", cursor: onOpen ? "pointer" : undefined }}
-    >
-      {/* v7.29 — THIS ELEMENT WAS THE LCP, AND IT WAS 473KB. A 1600x1066 raw
-          JPEG with no srcSet, painted into a card that is 93% of a column that
-          is at most 960px wide, fetched at TOP priority on every first visit.
-          Measured on production, it is the single largest thing standing
-          between a stranger and the first paint.
+// v8: HERO_ART_SIZES went with DiscoveryHeroCard. The rail tile carries its own
+// sizes (lib/rails.js RAIL_ART_SIZES), mirroring --wf8-tw the same way this
+// mirrored the hero width. The /brand/opt/hero-* derivatives are still used by
+// the guides, culture and intent pages as their neutral hero.
 
-          THE <img> CARRIES THE WEBP SET, NOT THE JPEG, AND THAT IS THE WHOLE
-          TRICK. React hoists a <link rel=preload> for an eager/fetchPriority
-          image by reading the <img> element — not the <source> siblings. If the
-          img still named the .jpeg, the preload would fetch all 473KB at top
-          priority no matter what the <picture> resolved to, and the AVIF work
-          would be pure additional bytes. So the img names webp, the AVIF rides
-          on the <source>, and the original is unreachable from here.
 
-          `sizes` names the same widths the CSS does: 93vw on a phone, the
-          800px column in the 900 tier, and the wide tier's 960px feed column.
-          Derivatives are committed, built by scripts/build-brand-derivatives.mjs
-          — static brand art must not cost a billable image request per visit
-          (the v6.41 rule). */}
-      <picture>
-        <source type="image/avif" sizes={HERO_ART_SIZES} srcSet="/brand/opt/hero-460.avif 460w, /brand/opt/hero-760.avif 760w, /brand/opt/hero-1120.avif 1120w, /brand/opt/hero-1600.avif 1600w" />
-        <img src="/brand/opt/hero-760.webp" sizes={HERO_ART_SIZES} srcSet="/brand/opt/hero-460.webp 460w, /brand/opt/hero-760.webp 760w, /brand/opt/hero-1120.webp 1120w, /brand/opt/hero-1600.webp 1600w" width={1600} height={1066} alt="" loading="eager" fetchPriority="high" />
-      </picture>
-      <div className="wf-discovery-copy" style={{ height: EV_HERO_H, maxWidth: 360, boxSizing: "border-box", padding: "18px 20px 48px" }}>
-        <div className="wf-discovery-kicker">WAYFIND, MADE FOR RIGHT NOW</div>
-        <div className="wf-discovery-title">Know what is around you.</div>
-        <div className="wf-discovery-text">Wayfind ranks the local places worth your time, so you can spend less time searching and more time out there.</div>
-      </div>
-    </article>
-  );
-}
-
-function HeroRail({ children }) {
-  const railRef = useRef(null);
-  const slide = (direction) => {
-    const rail = railRef.current;
-    if (!rail) return;
-    rail.scrollBy({ left: direction * Math.max(260, rail.clientWidth * 0.93), behavior: "smooth" });
-  };
-  return (
-    <div style={{ position: "relative", marginBottom: 10 }}>
-      <div ref={railRef} className="wf-hero-swipe" style={{ display: "flex", gap: 10, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
-        {children}
-      </div>
-      <div style={{ position: "absolute", right: 11, bottom: 11, zIndex: 5, display: "flex", gap: 7 }}>
-        <button type="button" onClick={() => slide(-1)} aria-label="Previous featured card" style={{ width: 34, height: 34, borderRadius: 999, border: "1px solid rgba(255,255,255,.35)", background: "rgba(5,10,18,.72)", color: "#fff", fontSize: 18, fontWeight: 800, lineHeight: 1, cursor: "pointer", backdropFilter: "blur(6px)" }}>‹</button>
-        <button type="button" onClick={() => slide(1)} aria-label="Next featured card" style={{ width: 34, height: 34, borderRadius: 999, border: "1px solid rgba(255,255,255,.35)", background: "rgba(5,10,18,.72)", color: "#fff", fontSize: 18, fontWeight: 800, lineHeight: 1, cursor: "pointer", backdropFilter: "blur(6px)" }}>›</button>
-      </div>
-    </div>
-  );
-}
-
-function LocalPlanHeroCard({ image, badge, badgeColor, icon, navIcon = false, title, subtitle, ariaLabel, onOpen }) {
-  // v6.52 (Seasonal Picks): no dedicated stock photo exists for this slide yet
-  // (see lib/seasons.js) and inventing/reusing an unrelated one would be
-  // dishonest about what the card is showing — same "never fabricate" rule
-  // this codebase already applies to editorial and curated data. `image` is
-  // now optional: a themed gradient + a large watermark of the badge icon
-  // stands in until real seasonal photography exists, every existing caller
-  // is unaffected since they all still pass a real photo.
-  // v6.93: a pulsing glow (.wf-social-glow) was tried on this card for the
-  // Social Media Find hero slides and reverted (owner: "the home hero does
-  // not need the pulsing glow") — the glow stays scoped to the Detail sheet
-  // card and the Social Find sheet's creator card, where it originated.
-  return (
-    <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={onOpen} aria-label={ariaLabel} style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: image ? C.card : `linear-gradient(135deg, ${badgeColor}3D 0%, #171C26 55%, #0B0E14 100%)` }}>
-      {image
-        ? <img src={image} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-        : <Icon name={icon} size={150} color={badgeColor} style={{ position: "absolute", right: -20, bottom: -20, opacity: 0.16 }} />}
-      <div style={{ position: "absolute", inset: 0, background: image ? "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" : "linear-gradient(180deg, rgba(0,0,0,.05) 0%, rgba(0,0,0,.3) 55%, rgba(0,0,0,.82) 100%)" }} />
-      <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: `1px solid ${badgeColor}99`, borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
-        {navIcon ? <NavIcon name={icon} size={12} strokeWidth={2} color={badgeColor} /> : <Icon name={icon} size={12} color={badgeColor} />}<span style={{ fontSize: 10.5, fontWeight: 800, color: badgeColor, letterSpacing: "0.4px", textTransform: "uppercase" }}>{badge}</span>
-      </div>
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 92px 14px 14px" }}>
-        <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>{title}</div>
-        <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>{subtitle}</div>
-      </div>
-    </div>
-  );
-}
 
 // v6.94 — the Social Media Find hero slide, CONSOLIDATED (owner: "the social
 // hero card [should be] the second hero card in the order... my problem
@@ -2695,91 +2750,12 @@ function LocalPlanHeroCard({ image, badge, badgeColor, icon, navIcon = false, ti
 // the location-organized browse view (setSocialFind({browse:true})) instead
 // of one specific video — see lib/creatorVideos.js's spotsByCity().
 // v6.95 (owner, with a photo): decorative background for the "not near you
-// yet" state — see the `photo` comment inside SocialFindHeroCard for why
+// yet" state (the SocialFindHeroCard that carried it was removed in v8 — see
 // this one asset doesn't carry the never-fabricate rule the FEATURED
 // PLACE's own photo does. Licensed stock (Unsplash, Vitaly Gariev),
 // supplied by the owner; see public/cards/README.md's naming convention.
 const SOCIAL_FIND_TEASER_PHOTO = "/cards/social-find-teaser-vitaly-gariev-unsplash.jpg";
 
-function SocialFindHeroCard({ videoHeroPlaces, socialFindRegions, socialFindStats, setSocialFind, logEvent }) {
-  if (!videoHeroPlaces.length && !socialFindRegions.length) return null;
-  const near = videoHeroPlaces.length > 0;
-  const lead = near ? videoHeroPlaces[0] : null;
-  const leadPlat = lead ? (PLATFORM[lead.video.platform] || PLATFORM.tiktok) : PLATFORM.tiktok;
-  // v6.95 (owner, with a screenshot: "the hero card you added the cindy
-  // portion when you should have added the image i provided you with") —
-  // this used to fall back to socialFindStats.topCreator, naming and
-  // photographing whichever real creator has the most spots ANYWHERE and
-  // presenting them as the face of "coming to YOUR area" — a specific claim
-  // about a specific real person in a region she has never actually posted
-  // about. Same shape of bug as the Aqua Tequila mismatch and the Orlando-
-  // deals-in-Parrish miss earlier this session: a true fact (she IS a real,
-  // verified creator) attached to a context it doesn't belong in. Fixed the
-  // same way — the pill only ever names a creator when `near` is true and
-  // it is genuinely their own local find. Not-near shows the honest
-  // aggregate stat with no single face or handle attached to it.
-  const pillHandle = near ? lead.video.creator : null;
-  const pillPlatKey = near ? lead.video.platform : null;
-  const pillPlat = PLATFORM[pillPlatKey] || PLATFORM.tiktok;
-  const moreCreators = Math.max(0, socialFindStats.creatorCount - 1);
-  // v6.94 (owner: "make the hero card more of the visual and sell it") — the
-  // title now leads with the real place's own name (the specific hook, not
-  // generic copy repeated on every card) since the background photo is
-  // already that place's real photo; the sub carries the value prop.
-  const title = near ? lead.place.name : "Creator finds, coming to your area";
-  const sub = near ? "A creator found it first — watch why ›" : `Live now in ${socialFindRegions.length} other spot${socialFindRegions.length === 1 ? "" : "s"} ›`;
-  // v6.94: the card's own photo is the FEATURED PLACE's real photo (same
-  // never-re-host-the-creator's-thumbnail rule as Detail.js and the old
-  // per-place cards this replaces) — never a stock "influencer" photo posing
-  // as a specific place or person. v6.95: the "not near you yet" state used
-  // to fall back to a flat gradient with no photo at all — swapped for
-  // SOCIAL_FIND_TEASER_PHOTO, real decorative stock art with no name/handle
-  // overlaid on it, so it never claims to BE anyone or anywhere specific
-  // (same category as the Trending/date-night slides' own stock photos).
-  const photo = lead ? (lead.place.photos && lead.place.photos[0]) || lead.place.photo || null : SOCIAL_FIND_TEASER_PHOTO;
-  const hasPill = pillHandle || (!near && socialFindStats.spotCount > 0);
-  return (
-    <div
-      role="button" tabIndex={0} onKeyDown={KB_CLICK}
-      onClick={() => { try { logEvent("creator_video_hero_open", null, { id: lead ? lead.place.id : null, platform: lead ? lead.video.platform : null, near, src: "hero_swipe_consolidated" }); } catch (e) {} setSocialFind({ browse: true }); }}
-      aria-label="Social media find"
-      style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: photo ? C.card : `linear-gradient(135deg, ${leadPlat.color}3D 0%, #171C26 55%, #0B0E14 100%)` }}
-    >
-      {photo && <img src={photo} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.15) 0%, rgba(0,0,0,.4) 42%, rgba(5,7,11,.95) 100%)" }} />
-      <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: `1px solid ${leadPlat.color}99`, borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
-        <Icon name="sparkles" size={12} color={leadPlat.color} /><span style={{ fontSize: 10.5, fontWeight: 800, color: leadPlat.color, letterSpacing: "0.4px", textTransform: "uppercase" }}>Social media find</span>
-      </div>
-      <div style={{ position: "absolute", left: 14, right: 14, bottom: hasPill ? 40 : 14 }}>
-        <div style={{ fontSize: 16.5, fontWeight: 800, color: "#fff", lineHeight: 1.2, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.2px" }}>{title}</div>
-        <div style={{ fontSize: 12.5, fontWeight: 600, color: "rgba(255,255,255,.9)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>{sub}</div>
-      </div>
-      {pillHandle && (
-        <div style={{ position: "absolute", left: 12, right: 12, bottom: 12, background: "rgba(13,17,23,.82)", border: `1.5px solid ${pillPlat.color}`, borderRadius: 14, padding: "9px 11px", display: "flex", alignItems: "center", gap: 10, backdropFilter: "blur(6px)" }}>
-          <CreatorAvatar handle={pillHandle} platform={pillPlatKey} size={38} color={pillPlat.color} />
-          <div style={{ minWidth: 0, flex: 1 }}>
-            <div style={{ fontSize: 13, fontWeight: 800, color: "#fff" }}>@{pillHandle}</div>
-            <div style={{ fontSize: 10.5, color: "rgba(255,255,255,.7)", marginTop: 1 }}>{moreCreators > 0 ? `+ ${moreCreators} more creator${moreCreators === 1 ? "" : "s"} · ${socialFindStats.spotCount} spots scouted` : `${socialFindStats.spotCount} spots scouted on Wayfind`}</div>
-          </div>
-        </div>
-      )}
-      {/* v6.97 (owner: "remove the banner, i want the word but not that
-          rectangular box") — the not-near state used to render this as a
-          boxed pill (background, border, icon avatar) same visual weight as
-          the real-creator pill above. That chrome is gone; this is just the
-          words sitting on the photo, same treatment as the title/subtitle
-          above it. Aggregate stat only, still no specific creator's
-          name/photo attached to a region they haven't found anything in
-          (see the pillHandle comment above) — only what changed is HOW it's
-          drawn, not what it claims. */}
-      {!pillHandle && hasPill && (
-        <div style={{ position: "absolute", left: 14, right: 14, bottom: 14, fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.75)" }}>
-          {socialFindStats.creatorCount} creator{socialFindStats.creatorCount === 1 ? "" : "s"}, {socialFindStats.spotCount} spots scouted on Wayfind so far
-        </div>
-      )}
-    </div>
-  );
-}
 
 // v7.02 — THE EVENT CARD IS NOW THE PLACE CARD (owner, 2026-08-08, with a
 // screenshot of the /best-of card: "this image is where the money is at...
@@ -2942,7 +2918,7 @@ function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onS
 //
 // v6.60 (owner, live desktop screenshot review): converted the 2-column grid
 // to a horizontal rail — same 8 tiles, same handlers, same card look (border,
-// radius, background all unchanged), just laid out like HeroRail /
+// radius, background all unchanged), just laid out like the removed HeroRail /
 // CreatorFinds instead of wrapping into rows. Position is UNCHANGED — this
 // stays below BestNearby/CreatorFinds, per the v6.58 measured-bounce-rate
 // decision a few hundred lines down (259 sessions, 84% bounce when taxonomy
@@ -3053,23 +3029,6 @@ function DiscoveryMenu({ locName, onBest, onGems, onFamily, onMood, onTonight, o
   );
 }
 
-function EventsRailSkeleton() {
-  return (
-    <div style={{ marginBottom: 10, minHeight: EV_SECTION_MIN_H }} role="status" aria-live="polite" aria-busy="true" aria-label="Loading more things near you">
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-        <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Events near you</div>
-        <span style={{ fontSize: 12.5, fontWeight: 700, color: C.muted }}>Finding events…</span>
-      </div>
-      <HeroRail>
-        <DiscoveryHeroCard />
-        <div className="wf-sk" aria-hidden="true" style={{ flexShrink: 0, width: "93%", height: EV_HERO_H, borderRadius: 18, scrollSnapAlign: "start" }} />
-      </HeroRail>
-      {/* v7.06 — the RAIL's reserve moved with the rail, into the menu's
-          events section (EventsRailReserve below). This block now reserves the
-          hero deck only, which is all it renders. */}
-    </div>
-  );
-}
 function HooksBanner({ hooks, likedIds, totalLiked, onOpen, onLike, allPlaces, isDesktop }) {
   if (!hooks || hooks.length === 0) return null;
   const shown = hooks.slice(0, 5); // show the spread of hooks, stacked full-width on mobile
@@ -3622,10 +3581,25 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
 // when the user came from a "Worth the drive?" hook. Captures yes/no, then
 // reveals the live community tally.
 
-function PageInner({ initialEvents = null, localEditGuides = null }) {
+function PageInner({ initialEvents = null, localEditGuides = null, railMenu = null }) {
   const [screen, setScreen] = useState("suggested");
   const [cat, setCat] = useState(MAP_DEFAULT_CATEGORY);
   const [wxOpen, setWxOpen] = useState(false); // header weather forecast wheel
+  // v8.2 — the lab's Shortcuts panel (body.scopen .scpanel). The shortcut row
+  // is the SAME <DiscoveryMenu> that used to sit in the feed; the nav item
+  // just decides whether it is on screen.
+  const [navShortcuts, setNavShortcuts] = useState(false);
+  // The search scope. It selects the BROWSE CATEGORY the page is showing —
+  // the same state the six tabs beside it write — so the control does exactly
+  // what the tabs do, in the compact shape a phone can hold. It is not given a
+  // second, invented meaning: submitSearch takes a query string and nothing
+  // else, and a dropdown that claimed to narrow a search it cannot reach would
+  // be the mismatched control AGENTS.md §12 bans.
+  const [scopeOpen, setScopeOpen] = useState(false);
+  // v8.4 — which nav tab has its sub-chip tray open. Separate from
+  // browseCat on purpose: opening a tray is not yet a filter, and closing
+  // one must not clear a filter the reader already applied.
+  const [navOpenCat, setNavOpenCat] = useState(null);
   const GIVEAWAY = { start: new Date(2026, 6, 3), end: new Date(2026, 9, 31, 23, 59, 59) };
   const [gwPop, setGwPop] = useState(false); // v4.28: giveaway is a timed popup, not a feed card
   // v5.37 prompt coordinator (July 2026 audit, Phase 5). One interruptive
@@ -3848,17 +3822,7 @@ function PageInner({ initialEvents = null, localEditGuides = null }) {
   // blurbs) every time the weather object resolves. It reads wetness from
   // this ref and only rebuilds when the wet/dry VERDICT actually flips.
   const wetRef = useRef(false);
-  const [wetTick, setWetTick] = useState(0);
-  // v6.50: the hero swiper's beach slide — the best-rated beach within 20 mi
-  // (owner's 'near'). null = none in range; the swiper then has one slide.
-  const [bestBeach, setBestBeach] = useState(null);
-  // v6.86: people-free hero photos for the date-night / hidden-gem hero
-  // slides — raw photoRef (heroRefFromPlaces), the render builds the
-  // /api/photo URL and the click passes it on for continuity. (The family
-  // hero deliberately uses OWNED artwork as of 3aafc14 — no live fetch; see
-  // test-intent-pages. Do not re-add a familyHeroImg state here.)
-  const [dateHeroImg, setDateHeroImg] = useState(null);
-  const [gemHeroImg, setGemHeroImg] = useState(null); // hidden-gems hero photo
+  const [wetTick, setWetTick] = useState(0); // hidden-gems hero photo
   // v6.61 (owner #3): ONE bookable card near the homepage top — the highest-
   // traffic surface had no bookable inventory. Hour-aware pick (lib/homeExpPick);
   // product_url rendered VERBATIM (pid) — never hand-built or resolver-routed.
@@ -3904,10 +3868,6 @@ function PageInner({ initialEvents = null, localEditGuides = null }) {
       } catch (e) {}
     }
   }, [detail]);
-  // v6.56 Buzz hero (owner): trending near you from REAL tier-2 popularity.
-  // No popularity rows yet -> buzzPick stays null -> the slide simply absent.
-  const [buzzPick, setBuzzPick] = useState(null);
-  const [buzzWhy, setBuzzWhy] = useState(null);
   const [suggested, setSuggested] = useState(null);
 
   // v6.97 — ONE creator-finds list, read by BOTH the ranked-list section and the
@@ -5272,21 +5232,6 @@ function PageInner({ initialEvents = null, localEditGuides = null }) {
       const q = locName ? "?city=" + encodeURIComponent(locName.split(",")[0]) : "";
       window.location.assign(path + q);
     } catch (e) {}
-  }
-  function seasonalHeroSlide(srcTag) {
-    const _s = SEASON_META[currentSeason()];
-    return (
-      <LocalPlanHeroCard
-        image={_s.heroImage}
-        badge={_s.label + " Picks"}
-        badgeColor={_s.color}
-        icon="leaf"
-        title={_s.label + " picks near you"}
-        subtitle={"Open now, close by, and ranked for " + _s.label.toLowerCase() + " ›"}
-        ariaLabel={_s.label + " picks near you"}
-        onOpen={() => { try { logEvent("seasonal_hero_open", null, { season: currentSeason(), src: "hero_" + srcTag }); } catch (e2) {} try { window.location.assign("/seasonal" + (locName ? "?city=" + encodeURIComponent(locName.split(",")[0]) : "")); } catch (e2) {} }}
-      />
-    );
   }
   function openMoment(sel) {
     markIntroSeen(); // durable, once per device — see lib/introGate.js
@@ -6963,69 +6908,7 @@ function PageInner({ initialEvents = null, localEditGuides = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, center]);
 
-  // v6.58 (owner): the date-night card wears the area's best date-worthy
-  // photo — same floor the date-night list rides on (4.4/150+), art only as
-  // fallback. (The family hero deliberately uses owned artwork instead — see
-  // test-intent-pages — so only date-night and hidden-gem fetch live photos.)
-  // v6.51 PERF: deferred to idle. This is a DECORATIVE hero photo — the card
-  // renders owned art until it arrives — but on load it fired a metered Places
-  // search AND a vision-model /api/image-score, competing with the feed the
-  // user is actually looking at. onIdle changes when, never whether.
-  useEffect(() => {
-    if (screen !== "suggested" || !center) return;
-    let cancelled = false;
-    const cancelIdle = onIdle(() => {
-    (async () => {
-      try {
-        const r = await fetch("/api/places/search?q=" + encodeURIComponent("romantic dinner intimate") + "&lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=27000&n=8&cat=food");
-        const j = r.ok ? await r.json() : null;
-        if (cancelled || !j || !Array.isArray(j.places)) return;
-        // people-free hero (owner: no human faces on cards) — heroRefFromPlaces
-        // ranks by our quality floor then vision-picks the best face-free shot.
-        // DAY-ROTATE (owner: no frozen hero cards) — offset staggered vs. the
-        // hidden-gem hero so they don't rotate in lockstep.
-        const ref = await heroRefFromPlaces(j.places, { minRating: 4.4, minReviews: 150, dayRotate: Math.floor(Date.now() / 864e5) });
-        if (!cancelled && ref) setDateHeroImg(ref);
-      } catch (e) {}
-    })();
-    });
-    return () => { cancelled = true; cancelIdle(); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center]);
 
-  // v6.56 Buzz: one RPC for the trending pick + one cached why-line. Honest
-  // gating: only renders with >=1 real signal source and a photo.
-  useEffect(() => {
-    if (screen !== "suggested" || !center || !supabase) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const { data } = await supabase.rpc("wf_buzz_picks", { p_lat: center.lat, p_lng: center.lng, p_radius_mi: 25, p_max: 12 });
-        const cand = (Array.isArray(data) ? data : []).filter((r) => r.photo_ref && (r.sources_count || 0) >= 1);
-        // The owner's drive rule applies here too: rank order only.
-        cand.sort((a, b) => ((b.popularity * 10 - (b.distance_mi > 17 ? Math.ceil((b.distance_mi - 17) / 5) * 0.2 : 0)) - (a.popularity * 10 - (a.distance_mi > 17 ? Math.ceil((a.distance_mi - 17) / 5) * 0.2 : 0))));
-        // DAY-ROTATE among the genuine top trending places — popularity levels
-        // barely move day to day, so picking cand[0] every day looked frozen
-        // (owner: "same card every day"). Every place in the pool is really
-        // trending; the date just decides which one leads today.
-        const pool = cand.slice(0, 8);
-        const daySeed = Math.floor(Date.now() / 864e5) + Math.round((center.lat + center.lng) * 7);
-        const pick = pool.length ? pool[((daySeed % pool.length) + pool.length) % pool.length] : null;
-        if (cancelled) return;
-        setBuzzPick(pick);
-        setBuzzWhy(null);
-        if (pick) {
-          try {
-            const r = await fetch("/api/buzz/why", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ place_id: pick.place_id, name: pick.name, category: pick.category, city: locName ? locName.split(",")[0] : "", rating: pick.rating, reviews: pick.reviews, popularity: pick.popularity, sources_count: pick.sources_count, by_source: pick.by_source, freshest: pick.freshest }) });
-            const j = r.ok ? await r.json() : null;
-            if (!cancelled && j && j.line) setBuzzWhy(j.line);
-          } catch (e) {}
-        }
-      } catch (e) {}
-    })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center]);
 
   // v6.92 (owner, 2026-08-02): "i want to feature all of the cards that has a
   // link to an influencer video inside of the trending near you" — a
@@ -7073,70 +6956,25 @@ function PageInner({ initialEvents = null, localEditGuides = null }) {
   const socialFindByCity = useMemo(() => spotsByCity(center), [center]);
   // Static over the curated library, same one-time-memo reasoning as
   // socialFindRegions above.
+
+  // v8 (2026-08-15) — FIVE PIECES OF STATE AND FOUR EFFECTS REMOVED WITH THE
+  // PROMO HERO DECK: bestBeach, dateHeroImg, gemHeroImg, buzzPick, buzzWhy.
+  // Nothing read them any more, but they were still FETCHING on every single
+  // homepage load, for cards that no longer render:
+  //
+  //     wf_nearest_beaches       Supabase RPC   (the beach slide)
+  //     wf_buzz_picks            Supabase RPC   (the trending slide)
+  //     /api/buzz/why            LLM call       (its why-line)
+  //     date-night hero photo    Places search  (metered)
+  //     hidden-gems hero photo   Places search + a vision-model call (metered)
+  //
+  // Dead code that costs money on every visit is worse than dead code. The
+  // rail's own places come from ONE server-side ranking pass at regeneration
+  // (lib/railsData.js), so none of this moved — it went.
+
   const socialFindStats = useMemo(() => libraryStats(), []);
 
-  // v6.50 beach hero slide: wf_nearest_beaches (already granted), best rated
-  // of the three nearest inside 20 mi. Fails soft to no slide.
-  // v6.44 (owner, 2026-07-28): and NEVER a beach that isn't actually near you.
-  // See beachesWithin()/BEACH_NEAR_MI in lib/beaches.js — the RPC still asks for
-  // 60 mi (one call, unchanged cost) so the Bayesian re-rank has a real field to
-  // pick from, then the 23-mile rule is applied client-side on data we already
-  // hold. No beach inside 23 mi => bestBeach stays null => the hero does not
-  // render at all (see the two gates in the JSX below).
-  useEffect(() => {
-    if (screen !== "suggested" || !center || !supabase) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const { data } = await supabase.rpc("wf_nearest_beaches", { p_lat: center.lat, p_lng: center.lng, p_radius_mi: 60, p_max: 40 }); // p_max caps by DISTANCE upstream — keep it wide so the Bayesian re-rank below truly ignores proximity (verified live: 8 hid Coquina from Parrish)
-        if (cancelled) return;
-        const fetched = (Array.isArray(data) ? data : []).map((b) => ({
-          id: b.place_id, name: b.name, lat: b.lat, lng: b.lng, distance_mi: b.distance_mi, photo_ref: b.photo_ref, metro: b.metro,
-          rating: b.signals && Number(b.signals.rating) > 0 ? Number(b.signals.rating) : null,
-          reviews: b.signals && Number(b.signals.reviews) > 0 ? Number(b.signals.reviews) : null,
-        })).filter((b) => b.name);
-        // THE 23-MILE RULE. Distance is recomputed from the user's live center
-        // against each beach's own coordinates (not trusted from the RPC, which
-        // measured from whatever point it was asked about), and anything beyond
-        // BEACH_NEAR_MI is gone before ranking. Fail-closed: a row with no
-        // usable coordinates is dropped, never assumed near.
-        const rows = beachesWithin(fetched, center, BEACH_NEAR_MI);
-        // owner: the BEST beach among those genuinely within reach — the ONE shared
-        // ranking (lib/beaches rankBeaches), identical to /best-beaches. DAY-ROTATE
-        // among the top few so the beach hero changes daily (owner: no frozen
-        // hero cards) — all are top-ranked beaches, so it's variety, not a drop.
-        const rankedB = rankBeaches(rows);
-        const bPool = rankedB.slice(0, 5);
-        const bSeed = Math.floor(Date.now() / 864e5) + Math.round((center.lat + center.lng) * 7);
-        setBestBeach(bPool.length ? bPool[((bSeed % bPool.length) + bPool.length) % bPool.length] : null);
-      } catch (e) { if (!cancelled) setBestBeach(null); }
-    })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center]);
 
-  // v6.60: one lazy fetch for the Hidden Gems card photo — a genuinely loved
-  // (4.6+) but NOT famous place (review CEILING 3000, the gem rule).
-  // v6.51 PERF: deferred to idle for the same reason as the date-night hero
-  // above — decorative photo, art fallback already on screen, but it cost a
-  // metered Places search plus a vision-model call on the critical path.
-  useEffect(() => {
-    if (screen !== "suggested" || !center) return;
-    let cancelled = false;
-    const cancelIdle = onIdle(() => {
-    (async () => {
-      try {
-        const r = await fetch("/api/places/search?q=" + encodeURIComponent("hidden gem restaurant local favorite tucked away") + "&lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=27000&n=12&cat=food");
-        const j = r.ok ? await r.json() : null;
-        if (cancelled || !j || !Array.isArray(j.places)) return;
-        const ref = await heroRefFromPlaces(j.places, { minRating: 4.6, minReviews: 60, maxReviews: 3000, dayRotate: Math.floor(Date.now() / 864e5) + 2 });
-        if (!cancelled && ref) setGemHeroImg(ref);
-      } catch (e) {}
-    })();
-    });
-    return () => { cancelled = true; cancelIdle(); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center]);
 
   // v6.61 (owner #3) / v6.92 hour-aware refresh: the homepage bookable pick.
   // Fetch /api/experiences, keep only items carrying a real Viator pid= so
@@ -7968,6 +7806,34 @@ function PageInner({ initialEvents = null, localEditGuides = null }) {
     }
     setSaveTarget(null);
   }
+  // v8.4 — ADD TO ITINERARY, as its own verb.
+  //
+  // quickSaveFavorite already auto-files a saved place into its city trip, but
+  // that is a side effect of favouriting: there was no way to put a place on a
+  // plan WITHOUT favouriting it, and no state anywhere showing it was already
+  // on one. This is the explicit action, and it deliberately does not touch
+  // lists.favorites — the trip is an independent, curated plan, which is the
+  // same reason unsaving does not remove a stop.
+  function isOnTrip(p) {
+    if (!p || !p.id) return false;
+    try {
+      const meta = Trips.tripMetaForPlace(p);
+      const t = trips[meta.key];
+      return !!(t && t.items && t.items.some((it) => it.id === p.id));
+    } catch (e) { return false; }
+  }
+  function addToItinerary(p) {
+    if (!p || !p.id) return;
+    if (isOnTrip(p)) { showToast("Already on your itinerary"); return; }
+    try {
+      const meta = Trips.tripMetaForPlace(p);
+      if (!trips[meta.key]) { try { logEvent("trip_create", null, { key: meta.key, city: meta.city, state: meta.state }); } catch (e) {} }
+      try { logEvent("stop_add", p, { key: meta.key, city: meta.city, state: meta.state, src: "card_itinerary" }); } catch (e) {}
+    } catch (e) {}
+    setTrips((prev) => Trips.addPlaceToTrips(prev, p, Date.now()));
+    showToast("🗓️ Added to your itinerary");
+  }
+
   // One-tap save straight to Favorites from a card heart.
   function quickSaveFavorite(p) {
     if (!p) return;
@@ -8510,10 +8376,76 @@ function PageInner({ initialEvents = null, localEditGuides = null }) {
     introOpen, setIntroOpen, introSel, setIntroSel, introTriggerRef,
   };
 
+  // v8.2 — ONE destination handler for BOTH nav bars. The bottom bar owned this
+  // body inline; the top row needs the identical behaviour, and two copies of
+  // "reset every open sheet, then switch screen, then scroll to top" is how one
+  // of them ends up forgetting a setter and leaving a stale list open behind
+  // the new screen.
+  const goDestination = (id, active) => {
+    if (id === "home" && active) { setBrowseCat(null); setMoodPick(null); setSub("all"); }
+    setActiveList(null); setSysFolder(null); setListMenu(null); setRenamingList(null);
+    setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); setMapListOverride(null);
+    setNavShortcuts(false);
+    if (id === "home") { openSuggested(); } else { setScreen(id); }
+    try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); window.scrollTo(0, 0); } catch (e) {}
+  };
+
+  // v8.2 — THE RAIL BAND, as one named expression, because it no longer renders
+  // inside .wf-col-main and a band that spans the page should not be indented
+  // three levels into a column it has left. Every prop is unchanged and every
+  // prop is still server data — test-first-screen reads exactly this block to
+  // prove it.
+  const railMenuBand = railMenu ? (
+    <div className="wf-fullbleed">
+      <DaypartRail
+        rails={RAILS}
+        places={railMenu.places}
+        thin={railMenu.thin}
+        guides={railMenu.guides}
+        region={railMenu.region}
+        citySlug={railMenu.citySlug}
+        cityLabel={railMenu.cityLabel}
+        lat={railMenu.lat}
+        lng={railMenu.lng}
+        initialDaypart={railMenu.daypart}
+        center={center}
+        isSaved={isSaved}
+        isOnTrip={isOnTrip}
+        onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }}
+        onItinerary={(e, p) => { try { addToItinerary(p); } catch (er) {} }}
+      />
+    </div>
+  ) : null;
+
+  // Which cuisine sheet serves this location, if any. Null outside ~75mi of
+  // Orlando / Tampa / Sarasota, and null is the right answer there. Hoisted
+  // with discoveryMenu, which is its only reader.
+  const eatMetro = center ? cuisineMetroFor(center.lat, center.lng) : null;
+
+  // v8.2 — DECLARED HERE so the header can render it. The Shortcuts row
+  // moved into the nav (public/lab/menu.html: body.scopen .scpanel), and the
+  // header is built well above the feed. Same component, same handlers, still
+  // exactly one render site — see check-home-answer-first, which counts them.
+  const discoveryMenu = (
+    <DiscoveryMenu
+      locName={locName}
+      onBest={() => { try { logEvent("discovery_tile", null, { tile: "Best of " + (locName ? locName.split(",")[0] : "your area"), chip: "Top" }); } catch (e) {} goIntent("/best-of"); }}
+      onGems={() => { try { logEvent("discovery_tile", null, { tile: "Hidden gems", chip: "Hidden" }); } catch (e) {} goIntent("/hidden-gems"); }}
+      onFamily={() => { try { logEvent("discovery_tile", null, { tile: "Family favorites", chip: "Family" }); } catch (e) {} goIntent("/family"); }}
+      eatMetro={eatMetro}
+      onEat={() => { try { logEvent("discovery_tile", null, { tile: "Pick your mood", chip: "Cravings", metro: eatMetro }); } catch (e) {} goIntent("/eat/" + eatMetro); }}
+      onMood={() => { try { logEvent("discovery_tile", null, { tile: "What are you feeling?", chip: "Mood" }); } catch (e) {} setIntroSel([]); introTriggerRef.current = { trigger: "menu", visible_ms: null, attempt: 0 }; setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "discovery_menu" }); } catch (e) {} }}
+      onTonight={() => { try { logEvent("discovery_tile", null, { tile: "Perfect for tonight", chip: "Tonight" }); } catch (e) {} goIntent("/tonight"); }}
+      onDrive={() => { try { logEvent("discovery_tile", null, { tile: "Worth the drive", chip: "Drive" }); } catch (e) {} goIntent("/worth-the-drive"); }}
+      onBudget={() => { try { logEvent("discovery_tile", null, { tile: "Big fun, small budget", chip: "Bargains" }); } catch (e) {} goIntent("/budget"); }}
+      onSurprise={() => { try { logEvent("discovery_tile", null, { tile: "Surprise me", chip: "Surprise" }); } catch (e) {} setMenuSheet("pick"); }}
+    />
+  );
+
   return (
     <div style={shell}>
     <div className="wf-shell" style={{ ...wrap, maxWidth: undefined }}>
-      <style dangerouslySetInnerHTML={{ __html: `@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}${WF_LAYOUT_CSS}${WF_SEARCH_CSS}${WF_PLACE_CARD_CSS}${WF_TASTE_CSS}${WF_RAIL_SECTION_CSS}${WF_RAIL_COLLAPSED_CSS}${WF_ASIDE_CSS}` }} />
+      <style dangerouslySetInnerHTML={{ __html: `@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}${WF_LAYOUT_CSS}${WF_SEARCH_CSS}${WF_PLACE_CARD_CSS}${WF_TASTE_CSS}${WF_RAIL_SECTION_CSS}${WF_RAIL_COLLAPSED_CSS}${WF_ASIDE_CSS}${WF_RAIL_MENU_CSS}` }} />
       {/* Header */}
       <div className="wf-topbar" style={{ background: "#040810", borderBottom: `1px solid ${C.border}`, padding: screen === "map" ? "8px 12px" : "12px 14px", paddingTop: screen === "map" ? "max(8px, env(safe-area-inset-top))" : "max(12px, env(safe-area-inset-top))", flexShrink: 0, position: "relative", zIndex: 20 }}>
         {screen !== "map" && (
@@ -8575,6 +8507,38 @@ function PageInner({ initialEvents = null, localEditGuides = null }) {
             <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: ".1px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{locName}</span>
           </div>
         )}
+        {/* v8.2 ROW A — THE SIX CATEGORIES, IN THE HEADER (public/lab/menu.html
+            lines 43–114, the `.tabs` strip). They used to be the BROWSE block in
+            the feed; the lab has no BROWSE block, it has tabs. Same component,
+            same CATEGORY_TILES, same pickBrowse — see the `nav` branch in
+            CategoryMenu.
+
+            THE LAB PUTS THE CITY ON THIS ROW AND WE DO NOT, deliberately. The
+            lab is a 1512px mock; check-home-location pins the location to its
+            own full-width line off a 390px production measurement — the top row
+            has 362px, of which a fixed sprite and two flex-shrink:0 controls
+            take all but 23px, and "St. Petersburg, FL" needs 118px. So row A is
+            two lines on a phone and reads as one band on a desk. */}
+        {screen !== "map" && (
+          <CategoryMenu nav activeCat={browseCat} sub={sub}
+            navRegion={railMenu ? railMenu.region : undefined}
+            navCitySlug={railMenu ? railMenu.citySlug : undefined}
+            navOpenCat={navOpenCat}
+            onNavOpen={(id, label) => {
+              setNavOpenCat(id);
+              try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "nav_open", opened: !!id }); } catch (e) {}
+            }}
+            onNavSub={(catId, subId, subLabel) => {
+              // THE CHOICE THAT ACTS. Same two setters the feed has always
+              // used, so a place filtered here is the same list the browse
+              // view produced before the tabs moved into the nav.
+              if (browseCat !== catId) pickBrowse(catId);
+              setSub(subId);
+              setNavOpenCat(null);
+              try { logEvent("intent_chip", null, { intent: subLabel, layer: 2, src: "nav_sub", cat: catId }); } catch (e) {}
+              try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) {}
+            }} />
+        )}
         {wxOpen && weather && Array.isArray(weather.hourly) && weather.hourly.length > 0 && (
           <div style={{ marginTop: -6, marginBottom: 12, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.panel} 62%)`, border: "none", borderRadius: "0 0 18px 18px", padding: "12px 8px 14px", boxShadow: "0 12px 26px rgba(0,0,0,.4)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 8px 10px" }}>
@@ -8603,7 +8567,32 @@ function PageInner({ initialEvents = null, localEditGuides = null }) {
         )}
         {/* map search moved onto the map as a floating control (see map overlay) */}
         {(screen !== "map" || mapSearchOpen) && (
-        <div className="wf-search-row" style={{ display: "flex", gap: 0, position: "relative" }}>
+        <div className={"wf-search-row" + (screen !== "map" ? " has-scope" : "")} style={{ display: "flex", gap: 0, position: "relative" }}>
+          {/* v8.2 ROW B — THE SCOPE ("All \u2228" in the lab). It writes
+              browseCat, the SAME state the six tabs beside it write, so it is
+              the tab strip in the shape a phone can hold — never a second
+              category system. It is deliberately NOT sold as narrowing the text
+              search: submitSearch() takes a query string and has no category
+              parameter to receive, and a control that claimed a filter it cannot
+              reach is the mismatched-CTA failure AGENTS.md §12 bans. */}
+          {screen !== "map" && (
+            <div className="wf-scope-wrap">
+              <button type="button" className="wf-scope" aria-haspopup="listbox" aria-expanded={scopeOpen} onClick={() => setScopeOpen((v) => !v)} title="Browse scope">
+                <span>{browseCat ? ((Cats.CATEGORY_TILES.find((t) => t.id === browseCat) || {}).label || "All") : "All"}</span>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+              </button>
+              {scopeOpen && (
+                <ul className="wf-scope-menu" role="listbox" aria-label="Browse scope">
+                  {[{ id: null, label: "All" }, ...Cats.CATEGORY_TILES].map((t) => (
+                    <li key={t.id || "all"} role="option" aria-selected={(browseCat || null) === t.id}
+                        onMouseDown={(e) => { e.preventDefault(); setScopeOpen(false); if (t.id === null) { setBrowseCat(null); setMoodPick(null); setSub("all"); } else if (browseCat !== t.id) { pickBrowse(t.id); } }}>
+                      {t.label}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
           <div style={{ flex: 1, position: "relative" }}>
             <span className="wf-search-icon" style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", opacity: 0.9, display: "inline-flex", zIndex: 1 }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.2 4.2" /></svg></span>
             {/* v5.63 (audit P4): a real combobox — the input owns the listbox
@@ -8683,6 +8672,45 @@ function PageInner({ initialEvents = null, localEditGuides = null }) {
               sheet on demand, forever, and must never consult introSeen(). */}
         </div>
         )}
+        {/* v8.2 ROW C — THE DESTINATIONS, AT THE TOP (public/lab/menu.html
+            `.dests`). The same six targets the bottom bar has always carried,
+            mapped from the one WF_DESTINATIONS list so the two bars cannot
+            disagree, plus the Shortcuts opener that reveals the shortcut row as
+            a panel.
+
+            THE BOTTOM BAR STAYS (owner's call, 2026-08-15). Most Wayfind traffic
+            is mobile and thumb-reach navigation is what those readers already
+            use; a top row that scrolls out of the viewport is not a replacement
+            for it. So this row is additive on a phone and is the primary nav on
+            a desk, where there is no thumb and the bottom bar is a floating pill
+            in the corner of the eye. */}
+        {screen !== "map" && (
+          <nav className="wf-dests" aria-label="Destinations">
+            <button type="button" className={"wf-dest wf-dest-opener" + (navShortcuts ? " is-on" : "")}
+                    aria-expanded={navShortcuts} aria-controls="wf-scpanel"
+                    onClick={() => setNavShortcuts((v) => !v)}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+              <span>Shortcuts</span>
+            </button>
+            {WF_DESTINATIONS.map((d) => {
+              const active = (d.id === "home" && (screen === "suggested" || screen === "explore" || screen === "experience" || screen === "surprise")) || d.id === screen;
+              return (
+                <a key={d.id} className={"wf-dest" + (active ? " is-on" : "")} href={d.href} aria-current={active ? "page" : undefined}
+                   onClick={(e) => { e.preventDefault(); goDestination(d.id, active); }}>
+                  <NavIcon name={d.icon} color="currentColor" size={17} strokeWidth={1.8} />
+                  <span>{d.label}</span>
+                </a>
+              );
+            })}
+          </nav>
+        )}
+        {/* The shortcut row, as a panel (public/lab/menu.html: body.scopen
+            .scpanel). This is the SAME <DiscoveryMenu> that used to sit in the
+            feed under a "Shortcuts" heading — it did not get rebuilt up here,
+            it got a door instead of a permanent seat. */}
+        {screen !== "map" && navShortcuts && (
+          <div className="wf-scpanel" id="wf-scpanel">{discoveryMenu}</div>
+        )}
         {/* v6.56 (owner): personalization no longer appears in the home feed.
             The consent prompt, the "taste active" expander and the "turn it
             back on" nudge all lived here and all interrupted the same scroll —
@@ -8729,7 +8757,7 @@ function PageInner({ initialEvents = null, localEditGuides = null }) {
           gets a desktop-only padding-bottom bump in css.js rather than
           raising the flat mobile value, which would add dead space on phones
           that don't need it. */}
-      <div ref={scrollRef} className="wf-scrollarea" style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "7px 12px calc(96px + env(safe-area-inset-bottom))" }}>
+      <div ref={scrollRef} className="wf-scrollarea" style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "7px 12px calc(28px + env(safe-area-inset-bottom))" }}>
         <>
             {screen === "explore" && <div className="wf-explore">{exploreList}</div>}
             {screen === "map" && <MapScreen ctx={ctx} />}
@@ -8891,9 +8919,6 @@ function PageInner({ initialEvents = null, localEditGuides = null }) {
           const homeOpenRank = (p) => !p ? 4 : p.openNow === true ? 0 : p.openNow == null ? 1 : (p.nextOpen && p.nextOpen.today) ? 2 : 3;
           const homeBaseSorted = sortBy === "near" ? [...feedList].sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12)) : [...feedList];
           const homeFeed = homeBaseSorted.sort((a, b) => homeOpenRank(a) - homeOpenRank(b));
-          // Which cuisine sheet serves this location, if any. Null outside ~75mi
-          // of Orlando / Tampa / Sarasota, and null is the right answer there.
-          const eatMetro = center ? cuisineMetroFor(center.lat, center.lng) : null;
           // v7.06 — THE EVENTS RAIL, built ONCE and handed to the menu (owner,
           // 2026-08-09: "i also want to add events into this list"). Same
           // pipeline it has always run — dedupeEvents, the owner's
@@ -8950,24 +8975,22 @@ function PageInner({ initialEvents = null, localEditGuides = null }) {
               </>
             );
           })();
-          const discoveryMenu = (
-            <DiscoveryMenu
-              locName={locName}
-              onBest={() => { try { logEvent("discovery_tile", null, { tile: "Best of " + (locName ? locName.split(",")[0] : "your area"), chip: "Top" }); } catch (e) {} goIntent("/best-of"); }}
-              onGems={() => { try { logEvent("discovery_tile", null, { tile: "Hidden gems", chip: "Hidden" }); } catch (e) {} goIntent("/hidden-gems"); }}
-              onFamily={() => { try { logEvent("discovery_tile", null, { tile: "Family favorites", chip: "Family" }); } catch (e) {} goIntent("/family"); }}
-              eatMetro={eatMetro}
-              onEat={() => { try { logEvent("discovery_tile", null, { tile: "Pick your mood", chip: "Cravings", metro: eatMetro }); } catch (e) {} goIntent("/eat/" + eatMetro); }}
-              onMood={() => { try { logEvent("discovery_tile", null, { tile: "What are you feeling?", chip: "Mood" }); } catch (e) {} setIntroSel([]); introTriggerRef.current = { trigger: "menu", visible_ms: null, attempt: 0 }; setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "discovery_menu" }); } catch (e) {} }}
-              onTonight={() => { try { logEvent("discovery_tile", null, { tile: "Perfect for tonight", chip: "Tonight" }); } catch (e) {} goIntent("/tonight"); }}
-              onDrive={() => { try { logEvent("discovery_tile", null, { tile: "Worth the drive", chip: "Drive" }); } catch (e) {} goIntent("/worth-the-drive"); }}
-              onBudget={() => { try { logEvent("discovery_tile", null, { tile: "Big fun, small budget", chip: "Bargains" }); } catch (e) {} goIntent("/budget"); }}
-              onSurprise={() => { try { logEvent("discovery_tile", null, { tile: "Surprise me", chip: "Surprise" }); } catch (e) {} setMenuSheet("pick"); }}
-            />
-          );
           return (
+            <>
+            {/* v8.2 — THE BAND RUNS EDGE TO EDGE (owner, 2026-08-15; lab:
+                .railsec / .hero / .menusec are all full-bleed while .wrap caps
+                the CONTENT inside them at 1720px).
+
+                It moved OUT of .wf-col-main, which caps at the feed measure —
+                that cap is what clipped the rail mid-card and made a 15-card
+                deck read as a broken row. The rail already had .wf8-in doing
+                exactly the lab's job, so nothing inside it changed: it just
+                stopped being nested in a column narrower than itself.
+
+                Still the FIRST thing in the feed, so the rail leads the page
+                exactly as it did in v8 — see check-home-answer-first. */}
+            {railMenuBand}
             <div className="wf-cols">
-              {/* LEFT column on desktop: intent chips + hooks + feed */}
               <div className="wf-col-main">
               {/* v6.62 (2026-08-08, owner: "add this to the top of the page"),
                   REVERSES v6.97's "MOVED BELOW THE ANSWER" call below. The six
@@ -8982,7 +9005,26 @@ function PageInner({ initialEvents = null, localEditGuides = null }) {
                   comment a few lines down for the superseded reasoning.
                   Position asserted by scripts/check-home-answer-first.mjs
                   (iCats < iBestNearby < iFinds). */}
-              <CategoryMenu tight activeCat={browseCat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "home" }); } catch (e) {} pickBrowse(id); }} onSub={(v) => setSub(v)} />
+              {/* v8 (2026-08-15) — THE RAIL MENU LEADS. It replaces the promo
+                  hero deck that used to sit inside the events section and
+                  consolidates its eight cards into fifteen.
+
+                  It is NAVIGATION, in the same class as the six category tiles
+                  below it and the discovery rail under those — not a competing
+                  answer, which is what the v6.58 measurement behind
+                  "<BestNearby> leads every CONTENT surface" was about. The
+                  difference from the deck it replaces: picking a card drops
+                  eight real ranked place cards right here, so a visitor gets an
+                  answer in one tap instead of a page load — and every tile is a
+                  real <a href>, so a crawler finally sees the fifteen pages
+                  this homepage has always been about. The old cards navigated
+                  with window.location.assign() inside onClick, which is why
+                  view-source contained no link to /best-beaches, /hidden-gems,
+                  /date-night, /family or /trending-now at all.
+
+                  railMenu is server-ranked at regeneration (app/page.js ->
+                  lib/railsData.js railMenuData). Renders nothing when the
+                  server had no data, so this can never be a blank band. */}
 
               {/* v6.65 (owner, 2026-08-08: "the menu did not go to the top like
                   i asked you to"). THE DISCOVERY RAIL NOW LEADS TOO.
@@ -9009,7 +9051,6 @@ function PageInner({ initialEvents = null, localEditGuides = null }) {
                   moved above it is navigation — two rows of controls a reader
                   can skip past in one flick — not another surface competing for
                   the answer. Position asserted by check-home-answer-first.mjs. */}
-              {!browseCat && discoveryMenu}
 
               {/* Home feed reorder (owner 2026-07-17): events above the fold, then Explore near you, then everything else. Pure layout move — no ranking/data change. */}
               {/* LOADING: events not back yet. Reserves the rail's exact
@@ -9037,6 +9078,22 @@ function PageInner({ initialEvents = null, localEditGuides = null }) {
               
                   Position asserted by scripts/check-home-answer-first.mjs. */}
               {!browseCat && <BestNearby center={center} weather={weather} events={foryouEvents || []} videoPlaces={videoPlaces} onFindSimilar={(q) => { try { submitSearch(q); } catch (e) {} }} city={locName} onOpenPlace={(p) => openDetail(p, "bestnearby")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} isSaved={isSaved} liked={liked} disliked={disliked} onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(p) => { try { addShared(p); giveawayMark(p.id); askShareIntent({ name: p.name, city: locName, id: p.id, kind: placeKinds(p), onPlain: () => shareLink(p.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(p.id)), () => showToast("Link copied")), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", p, { kind: "invite", from: "rail" }); } catch (e2) {} }) }); } catch (er) {} }} onExperience={(key, p) => { try { key === "creatorvideo" ? openDetail(p, "creatorfinds") : openExperience(key); } catch (er) {} }} eventsSlot={eventsRailSlot} creatorSlot={<CreatorFinds items={videoPlaces} byCity={socialFindByCity} center={center} bare onOpenPlace={(p) => openDetail(p, "creatorfinds")} onBrowse={() => setSocialFind({ browse: true })} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} isSaved={isSaved} liked={liked} disliked={disliked} onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(p) => { try { addShared(p); giveawayMark(p.id); askShareIntent({ name: p.name, city: locName, id: p.id, kind: placeKinds(p), onPlain: () => shareLink(p.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(p.id)), () => showToast("Link copied")), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", p, { kind: "invite", from: "rail" }); } catch (e2) {} }) }); } catch (er) {} }} onExperience={(key, p) => { try { key === "creatorvideo" ? openDetail(p, "creatorfinds") : openExperience(key); } catch (er) {} }} />} />}
+              {/* v8.4 (owner, 2026-08-16): the weather card ("RIGHT NOW NEAR
+                  YOU") and "DEALS NEAR YOU" come off the homepage — MOBILE AND
+                  DESKTOP, not one breakpoint.
+
+                  <HomeAside> is NOT deleted. The component, its copy and its
+                  dealTiers wiring are intact in app/components/HomeAside.js;
+                  it simply has no render site on "/" any more. Deals remains
+                  reachable from the nav's Coupons tab, which is its own screen
+                  and owns the vetted card, the proximate disclosure and the
+                  attribution (lib/commerce.js rule 2) — so no affiliate
+                  inventory is orphaned by this, only un-merchandised on "/".
+
+                  Nothing is gated on viewport here: there is no render at all,
+                  at any width, so the banned `isDesktop && <Aside/>` pattern
+                  (test-layout-shift §5, the 0.4938 CLS incident) is not just
+                  avoided but unreachable. */}
               {/* v7.05 — the creator row MOVED INSIDE the menu (owner, 2026-08-09:
                   "we would pretty much be adding to the existing menu we have and just
                   reorganizing"). It is section 5 of eight, so it is now passed to
@@ -9055,91 +9112,39 @@ function PageInner({ initialEvents = null, localEditGuides = null }) {
                   of wf-col-main, where <CategoryMenu> now renders). Left this comment in
                   place as the historical record of why it was here for ~2 days. */}
 
-              {!browseCat && foryouEvents === null && <EventsRailSkeleton />}
+              {/* v8 (2026-08-15) — THE HERO PROMO DECK IS GONE. Its eight cards
+                  (discovery, social find, beach, hidden gems, date night,
+                  family, buzz, seasonal) are eight of the fifteen in
+                  <DaypartRail> at the top of this column now.
+
+                  WHY THE WHOLE THREE-STATE SECTION WENT WITH IT: those three
+                  branches existed ONLY to house the deck and reserve its
+                  248px. The real events rail is `eventsRailSlot` — section
+                  nine of BestNearby, with its own EV_RAIL_MIN_H reserve — and
+                  is untouched. Keeping a 284px reserve for a deck that no
+                  longer renders would have been a NEW layout shift in the
+                  opposite direction, which is the same defect
+                  scripts/test-first-screen.mjs was written for.
+
+                  What survives is the honest zero-events fallback below: it
+                  was never the deck, and it offers something the rail cannot —
+                  an alternative intent when tonight is empty.
+
+                  Every legacy *_hero_open event still fires from the rail
+                  (lib/dayparts.js LEGACY_HERO_EVENT) for one release, so no
+                  dashboard flatlines at cutover. */}
               {!browseCat && Array.isArray(foryouEvents) && foryouEvents.length === 0 && (
-                <div style={{ marginBottom: 10, minHeight: EV_SECTION_MIN_H, boxSizing: "border-box" }}>
+                <div style={{ marginBottom: 10, boxSizing: "border-box" }}>
+                  {/* v8: no minHeight here any more. EV_SECTION_MIN_H reserved
+                      248px for the promo deck this block used to sit above;
+                      with the deck gone that reserve is 248px of empty column —
+                      the same class of defect (a reserve that does not match
+                      what renders) that scripts/test-first-screen.mjs exists to
+                      catch, just pointing the other way. This block is a card
+                      and three chips, and it reserves itself. */}
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                     <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Events near you</div>
                   </div>
-                  <HeroRail>
-                    {/* v6.59 (owner): explainer FIRST, deterministically, and it
-                        opens its own page. Reverses the v6.55 lead order;
-                        seasonal still closes the rail. Literal JSX order — no
-                        rotation. */}
-                    <DiscoveryHeroCard onOpen={() => { try { logEvent("discovery_hero_open", null, { src: "hero_top" }); } catch (e) {} goIntent("/nearby"); }} />
-                    {/* v6.94 (owner): Social Media Find is now the SECOND hero
-                        card, always — one consolidated card instead of one
-                        per place, so it never "defaults to one user." It opens
-                        the location-organized Browse sheet by default. */}
-                    <SocialFindHeroCard videoHeroPlaces={videoHeroPlaces} socialFindRegions={socialFindRegions} socialFindStats={socialFindStats} setSocialFind={setSocialFind} logEvent={logEvent} />
-                    {seasonalHeroSlide("top")}
-                    {/* THE 23-MILE RULE (owner, 2026-07-28). This slide used to
-                        render unconditionally and only swap its COPY when no
-                        beach was found — so an Orlando user got "Beach day,
-                        decided" and a deep link to a hardcoded Gulf metro two
-                        hours away. bestBeach is now null unless a real beach is
-                        within BEACH_NEAR_MI (see the effect above), and the
-                        slide is gated on it: no nearby beach, no beach card. */}
-                    {bestBeach && (
-                      <LocalPlanHeroCard
-                        image="/cards/beach-adobestock-216195684.jpeg"
-                        badge="Beach day"
-                        badgeColor="#2DD4BF"
-                        icon="beach"
-                        navIcon
-                        title={bestBeach.name}
-                        subtitle={`${bestBeach.distance_mi < 10 ? bestBeach.distance_mi.toFixed(1) : Math.round(bestBeach.distance_mi)} mi away ›`}
-                        ariaLabel={"Beach day: " + bestBeach.name}
-                        onOpen={() => { try { logEvent("beach_hero_open", null, { id: bestBeach.id, metro: bestBeach.metro, mi: Math.round(bestBeach.distance_mi) }); } catch (e2) {} try { window.location.assign("/best-beaches/" + encodeURIComponent(bestBeach.metro)); } catch (e2) {} }}
-                      />
-                    )}
-                    <LocalPlanHeroCard
-                      image="/cards/hidden-gems-adobestock-321810820.jpeg"
-                      badge="Hidden gems"
-                      badgeColor="#FF7A1A"
-                      icon="gem"
-                      title="Worth finding. Easy to miss."
-                      subtitle={`Hidden gems around ${locName ? locName.split(",")[0] : "your town"}, picked for you ›`}
-                      ariaLabel="Explore hidden gems"
-                      onOpen={() => { try { logEvent("hidden_gems_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} goIntent("/hidden-gems"); }}
-                    />
-                    <LocalPlanHeroCard
-                      image="/cards/date-night-adobestock-190984224.jpeg"
-                      badge="Date night"
-                      badgeColor="#F472B6"
-                      icon="heart"
-                      title="Tonight, decided"
-                      subtitle={`The best of ${locName ? locName.split(",")[0] : "your town"}, picked for two ›`}
-                      ariaLabel="Date night, decided"
-                      onOpen={() => { try { logEvent("datenight_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/date-night?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "")); } catch (e2) {} }}
-                    />
-                    <LocalPlanHeroCard
-                      image="/cards/family-adobestock-794890098.jpeg"
-                      badge="Family"
-                      badgeColor="#22C55E"
-                      icon="users"
-                      title="Memories for life, nearby"
-                      subtitle={`The most-loved family spots in ${locName ? locName.split(",")[0] : "your town"} ›`}
-                      ariaLabel="Family day, decided"
-                      onOpen={() => { try { logEvent("family_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/family?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "")); } catch (e2) {} }}
-                    />
-                    <LocalPlanHeroCard
-                      image="/cards/trending-near-you-adobestock-434128766.jpeg"
-                      badge="Trending near you"
-                      badgeColor="#FF6B6B"
-                      icon="sparkles"
-                      title="What everyone's talking about"
-                      subtitle="Popular local picks worth seeing now ›"
-                      ariaLabel="Trending near you"
-                      onOpen={() => { try { logEvent("buzz_hero_open", null, { id: null, src: "hero_swipe" }); } catch (e2) {} goIntent("/trending-now"); }}
-                    />
-                    {/* v6.94: per-place/recommend Social Media Find cards
-                        consolidated into the single SocialFindHeroCard above
-                        (position #2) — see that component's comment. */}
-                    {/* v6.55 (owner): "...at the end will be the reminder, so
-                        we engage with them technically twice" — the same
-                        Seasonal Picks slide repeats as the closing card. */}
-                  </HeroRail>
                   <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "12px 15px" }}>
                     <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Nothing strong tonight nearby. Try one of these instead.</div>
                     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -9150,176 +9155,6 @@ function PageInner({ initialEvents = null, localEditGuides = null }) {
                   </div>
                 </div>
               )}
-              {!browseCat && foryouEvents && foryouEvents.length > 0 && (() => {
-                const evs = dedupeEvents(foryouEvents, true);
-                const relLabel = (e) => eventWhenLabel(e); // v6.13: time-aware — a 9:30 AM event is "This morning", never "Tonight"
-                const usable = evs.filter((e) => e && e.dest);
-                // v6.42 (owner, PERMANENT): hero = the soonest CONCERT; the rail
-                // runs the owner's chain (lib/frontEvents, locked by
-                // test-front-events). v7.02 added the leftover CONCERTS to that
-                // chain — see RAIL_CHAIN's comment for why they were the one
-                // category the home surface silently dropped.
-                const fp = frontPageEvents(usable, eventBucket);
-                const featured = fp.featured;
-                // "Not for me" removes the card for real. A thumbs-down that
-                // leaves the row exactly where it was is a button that lies.
-                const rest = fp.rest.filter((e) => e && eventSignals.disliked[e.id] !== true).slice(0, 24);
-                return (
-                  <div style={{ marginBottom: 10, minHeight: EV_SECTION_MIN_H }}>
-                    {/* v7.08 — NO HEADING HERE. v7.06 moved the events rail into
-                        the menu as section nine and correctly left the promo
-                        carousel behind, but it left the SECTION FURNITURE too:
-                        an events heading and an events "See all" sitting above
-                        a deck of discovery hero cards, with the real events
-                        heading a few hundred pixels below it. Measured on
-                        production: two "Happening near you" labels on one page,
-                        only one of them over any events. The heading and the
-                        see-all belong to whichever block owns the rail, and
-                        that is section nine — which carries both, including its
-                        own "See every event →". What is left here is the hero
-                        deck, which was never the events section and should
-                        never have claimed its title. */}
-                    {featured && featured.dest && (() => {
-                      const f = formatEventDate(featured.date, featured.time);
-                      const seg = eventSegmentMeta(featured.segment, featured.genre, featured.name);
-                      const rel = relLabel(featured);
-                      const acc = C.purple;
-                      const internal = featured.destKind === "internal";
-                      const href = internal ? featured.dest : ticketUrl(featured.dest);
-                      const tix = internal && featured.url ? ticketUrl(featured.url) : null;
-                      // Phase 2 card semantics: the hero is ONE semantic link to
-                      // the event's resolved destination; the tickets action is a
-                      // separate sibling control layered on top, never nested.
-                      return (
-                        <HeroRail>
-                        {/* v6.55 (owner): "place it at the top... where the
-                            user sees it right away" — Seasonal Picks now
-                            LEADS this rail too, ahead of the orientation
-                            card; the event, beach, date-night, family, and
-                            trending cards keep their existing destinations
-                            and behavior as the following slides. */}
-                        <DiscoveryHeroCard onOpen={() => { try { logEvent("discovery_hero_open", null, { src: "hero_top" }); } catch (e) {} goIntent("/nearby"); }} />
-                        {/* v6.94 (owner): Social Media Find — consolidated,
-                            always the SECOND card. See branch above / the
-                            component's own comment for the full rationale. */}
-                        <SocialFindHeroCard videoHeroPlaces={videoHeroPlaces} socialFindRegions={socialFindRegions} socialFindStats={socialFindStats} setSocialFind={setSocialFind} logEvent={logEvent} />
-                        {seasonalHeroSlide("top")}
-                        <div style={{ position: "relative", flexShrink: 0, width: "93%" /* date-night + family slides always follow */, scrollSnapAlign: "start" }}>
-                          <a href={href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: featured.id, kind: featured.destKind, src: "foryou_hero" }); } catch (e2) {} }} style={{ display: "block", position: "relative", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", textDecoration: "none" }}>
-                            <EventHeroBg image={eventCategoryArt(eventBucket(featured), featured) || featured.image} acc={acc} venue={cleanVenueName(featured.venue) || featured.venue} near={center} />
-                            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.12) 0%, rgba(0,0,0,.5) 45%, rgba(0,0,0,.9) 100%)" }} />
-                            <div style={{ position: "absolute", bottom: 0, right: 0, width: 140, height: 140, background: `radial-gradient(circle at bottom right, ${acc}30 0%, transparent 65%)`, pointerEvents: "none" }} />
-                            <div style={{ position: "absolute", top: 12, left: 12, right: 12, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                              <div style={{ display: "inline-flex", alignItems: "center", background: rel ? acc : "rgba(0,0,0,.6)", border: `1px solid ${rel ? acc : "rgba(255,255,255,.25)"}`, borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
-                                <span style={{ fontSize: 10.5, fontWeight: 800, color: rel ? "#0D1117" : "#fff", letterSpacing: "0.4px", textTransform: "uppercase" }}>{rel || (f.wd + " " + f.mo + " " + f.day)}{f.time ? " · " + f.time : ""}</span>
-                              </div>
-                              {(featured.segment || featured.genre) && <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(0,0,0,.6)", border: `1px solid ${seg.color}77`, borderRadius: 999, padding: "4px 10px", backdropFilter: "blur(4px)" }}><Icon name={seg.iconName || "ticket"} size={11} color={seg.color} /><span style={{ fontSize: 9, fontWeight: 800, color: seg.color, textTransform: "uppercase", letterSpacing: "0.8px" }}>{seg.short}</span></div>}
-                            </div>
-                            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 52px" }}>
-                              <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{featured.name}</div>
-                              <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {cleanVenueName(featured.venue) || featured.city || "Nearby"}{featured.price ? " · " + featured.price : ""}</div>
-                            </div>
-                          </a>
-                          <div style={{ position: "absolute", bottom: 14, left: 14, display: "flex", gap: 8 }}>
-                            {tix
-                              ? <a href={tix} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "cta" }); } catch (e2) {} }} style={{ display: "inline-flex", alignItems: "center", fontSize: 12.5, fontWeight: 800, color: "#0D1117", background: acc, borderRadius: 999, padding: "7px 16px", textDecoration: "none" }}>Get tickets →</a>
-                              : <span style={{ display: "inline-flex", alignItems: "center", fontSize: 12.5, fontWeight: 800, color: "#0D1117", background: acc, borderRadius: 999, padding: "7px 16px", pointerEvents: "none" }}>See event →</span>}
-                          </div>
-                        </div>
-                        {/* Same 23-mile gate as the empty-events rail above —
-                            the two beach slides are twins and must stay twins. */}
-                        {bestBeach && (
-                          <LocalPlanHeroCard
-                            image="/cards/beach-adobestock-216195684.jpeg"
-                            badge="Beach day"
-                            badgeColor="#2DD4BF"
-                            icon="beach"
-                            navIcon
-                            title={bestBeach.name}
-                            subtitle={`${bestBeach.distance_mi < 10 ? bestBeach.distance_mi.toFixed(1) : Math.round(bestBeach.distance_mi)} mi away ›`}
-                            ariaLabel={"Beach day: " + bestBeach.name}
-                            onOpen={() => { try { logEvent("beach_hero_open", null, { id: bestBeach.id, metro: bestBeach.metro, mi: Math.round(bestBeach.distance_mi) }); } catch (e2) {} try { window.location.assign("/best-beaches/" + encodeURIComponent(bestBeach.metro)); } catch (e2) {} }}
-                          />
-                        )}
-                        <LocalPlanHeroCard
-                          image="/cards/hidden-gems-adobestock-321810820.jpeg"
-                          badge="Hidden gems"
-                          badgeColor="#FF7A1A"
-                          icon="gem"
-                          title="Worth finding. Easy to miss."
-                          subtitle={`Hidden gems around ${locName ? locName.split(",")[0] : "your town"}, picked for you ›`}
-                          ariaLabel="Explore hidden gems"
-                          onOpen={() => { try { logEvent("hidden_gems_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} goIntent("/hidden-gems"); }}
-                        />
-                        {/* v6.52 (owner): slides 3+4 — date night and family, each the
-                            best of the town for that intent, opening the luxury ranked
-                            pages built on the /best-beaches standard. Owned card art. */}
-                        <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("datenight_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/date-night?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "")); } catch (e2) {} }} aria-label="Date night, decided" style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
-                          <img src="/cards/date-night-adobestock-190984224.jpeg" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-                          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
-                          <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: "1px solid rgba(244,114,182,.6)", borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
-                            <Icon name="heart" size={12} color="#F472B6" /><span style={{ fontSize: 10.5, fontWeight: 800, color: "#F472B6", letterSpacing: "0.4px", textTransform: "uppercase" }}>Date night</span>
-                          </div>
-                          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
-                            <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>{(() => { const b = bucketForHour(siteHourFloat()); return b === "morning" ? "Morning date, decided" : b === "afternoon" ? "Afternoon date, decided" : "Tonight, decided"; })()}</div>
-                            <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>The best of {locName ? locName.split(",")[0] : "your town"}, picked for two ›</div>
-                          </div>
-                        </div>
-                        <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("family_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/family?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "")); } catch (e2) {} }} aria-label="Family day, decided" style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
-                          <img src="/cards/family-adobestock-794890098.jpeg" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-                          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
-                          <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: "1px solid rgba(34,197,94,.6)", borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
-                            <NavIcon name="family" size={12} strokeWidth={2} color="#22C55E" /><span style={{ fontSize: 10.5, fontWeight: 800, color: "#22C55E", letterSpacing: "0.4px", textTransform: "uppercase" }}>Family</span>
-                          </div>
-                          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
-                            <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>Memories for life, nearby</div>
-                            <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>The most-loved family spots in {locName ? locName.split(",")[0] : "your town"} ›</div>
-                          </div>
-                        </div>
-                        {/* The Trending slide is always present. Real popularity
-                            data personalizes its copy and destination when ready. */}
-                        <LocalPlanHeroCard
-                          image="/cards/trending-near-you-adobestock-434128766.jpeg"
-                          badge="Trending near you"
-                          badgeColor="#FF6B6B"
-                          icon="sparkles"
-                          title={buzzPick ? buzzPick.name : "What everyone's talking about"}
-                          subtitle={buzzPick ? (buzzWhy || (buzzPick.sources_count > 1 ? "Popular across " + buzzPick.sources_count + " local signals ›" : "On readers' radar near you ›")) : "Popular local picks worth seeing now ›"}
-                          ariaLabel={buzzPick ? "Trending near you: " + buzzPick.name : "Trending near you"}
-                          onOpen={() => {
-                            try { logEvent("buzz_hero_open", null, { id: buzzPick ? buzzPick.place_id : null, src: "hero_swipe" }); } catch (e2) {}
-                            if (buzzPick) {
-                              try { window.location.assign("/trending-now?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "") + (buzzPick.photo_ref ? "&img=" + encodeURIComponent(buzzPick.photo_ref) : "")); } catch (e2) {}
-                            } else {
-                              // v6.62: with no resolved buzz pick this used to
-                              // drop to the experience SHEET while the branch
-                              // above went to a page — the same card had two
-                              // different surfaces depending on data. Both
-                              // branches now land on /trending-now.
-                              goIntent("/trending-now");
-                            }
-                          }}
-                        />
-                        {/* v6.94: per-place/recommend Social Media Find cards
-                            consolidated into the single SocialFindHeroCard
-                            above (position #2) — see that component's
-                            comment. */}
-                        {/* v6.55 (owner): "...at the end will be the reminder, so
-                            we engage with them technically twice" — the same
-                            Seasonal Picks slide repeats as the closing card. */}
-                        </HeroRail>
-                      );
-                    })()}
-                      {/* v7.06 — THE EVENTS RAIL MOVED INTO THE MENU (owner,
-                          2026-08-09: "i also want to add events into this
-                          list"). It is section nine of BestNearby now, built
-                          once as `eventsRailSlot` below and handed in, so there
-                          is exactly one events rail on this page. What stays
-                          here is the promo carousel above, which was never the
-                          events rail — it is the hero deck. */}
-                  </div>
-                );
-              })()}
                       {/* v6.61 (owner #3) / v6.92 hour-aware: ONE tasteful bookable card
                           near the homepage top. homeExp.url is Viator's own product_url,
                           rendered VERBATIM (pid intact) — never hand-built, never routed
@@ -9661,22 +9496,8 @@ function PageInner({ initialEvents = null, localEditGuides = null }) {
               </div>
               <div style={{ height: 20 }} />
               </div>
-              {/* RIGHT column on desktop (v7.29). Rendered ALWAYS and hidden by
-                  CSS below WF_WIDE_BP — never `isDesktop && ...`, which is the
-                  banned pattern that produced the 0.4938 CLS incident
-                  (test-layout-shift §5, and the note at the top of css.js).
-                  Placed after wf-col-main in SOURCE order so every
-                  check-home-answer-first offset assertion still reads the same
-                  feed; the grid decides where it lands on the screen. */}
-              <HomeAside
-                city={locName}
-                weather={weather}
-                take={wayfindWeatherTake(weather)}
-                center={center}
-                onCoupons={(dealId) => { try { logEvent("aside_deal_open", null, { deal: dealId || null }); } catch (e) {} setScreen("coupons"); }}
-                onRanking={() => { try { logEvent("aside_ranking_open", null, {}); } catch (e) {} goIntent("/how-wayfind-ranks"); }}
-              />
             </div>
+            </>
           );
         })()}
 
@@ -9775,21 +9596,44 @@ function PageInner({ initialEvents = null, localEditGuides = null }) {
         </div>
       )}
 
-      {/* Bottom nav — v6.08 (PR-C): pinned to the VIEWPORT bottom with position:fixed
-          (no transformed ancestor exists to break it), centered to the app column
-          (maxWidth 480). Only the inner list scrolls; the nav never moves with the
-          page. The scroll container below reserves matching bottom padding. */}
+      {/* v8.3 — EXACTLY ONE NAV PER SCREEN. NEVER TWO. NEVER ZERO.
+          (owner, 2026-08-16, both halves of the same rule.)
+
+          FIRST HALF: "there is also two menus one on the bottom and one of them
+          top remove the one from the bottom and just keep it on the top… that is
+          duplication we are only keeping one which is the one underneath the
+          search bar." Every screen that renders the top nav had the same six
+          WF_DESTINATIONS twice on one phone screen. Gone.
+
+          SECOND HALF, and it is why this is a CONDITION and not a deletion:
+          "look at this page — how would we go back if we no longer have the
+          bottom menu here?" /map is a full-bleed immersive surface. All four top
+          rows are gated `screen !== "map"` (the map owns the viewport and has
+          its own floating chrome), so deleting the bar outright left that one
+          screen with NO way out at all. Swept every screen in the shell —
+          coupons, events, experience, explore, itinerary, saved, shared,
+          suggested, surprise all render the top nav; map is the only one that
+          renders none, and this is the only exception.
+
+          NOT a viewport condition — `screen` is content state, so this is not
+          the isDesktop-drives-geometry pattern test-layout-shift §5 bans.
+
+          Locked by scripts/check-one-nav-per-screen.mjs, which fails the build
+          if any screen renders zero navigation affordances or two. Nothing
+          checked that before, which is exactly how the stranding shipped. */}
+      {screen === "map" && (
       <nav className="wf-bottom-nav" aria-label="Primary navigation" style={{ position: "fixed", bottom: 0, left: 0, right: 0, maxWidth: 480, margin: "0 auto", zIndex: 20, background: C.panel, borderTop: `1px solid ${C.border}`, display: "flex", paddingBottom: "env(safe-area-inset-bottom)" }}>
-        {[{ id: "home", icon: "home", label: "Home" }, { id: "events", icon: "events", label: "Events" }, { id: "coupons", icon: "coupons", label: "Coupons" }, { id: "map", icon: "map", label: "Map" }, { id: "saved", icon: "saved", label: "Favorites" }, { id: "itinerary", icon: "itinerary", label: "Itinerary" }].map((s) => {
-          const active = (s.id === "home" && (screen === "suggested" || screen === "explore" || screen === "experience" || screen === "surprise")) || s.id === screen;
+        {WF_DESTINATIONS.map((d) => {
+          const active = d.id === screen;
           return (
-          <a className={`wf-bottom-nav-item${active ? " is-active" : ""}`} key={s.id} href={{ home: "/", events: "/events", coupons: "/coupons", map: "/map", saved: "/favorites", itinerary: "/itinerary" }[s.id] || "/"} aria-label={s.label} aria-current={active ? "page" : undefined} onClick={(e) => { e.preventDefault(); if (s.id === "home" && active) { setBrowseCat(null); setMoodPick(null); setSub("all"); } setActiveList(null); setSysFolder(null); setListMenu(null); setRenamingList(null); setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); setMapListOverride(null); if (s.id === "home") { openSuggested(); } else { setScreen(s.id); } try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); window.scrollTo(0, 0); } catch (e) {} }} style={{ flex: 1, padding: "9px 6px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "transparent", border: "none", borderRadius: 0, cursor: "pointer", textDecoration: "none" }}>
-            <span className="wf-bottom-nav-icon"><NavIcon name={s.icon} color={active ? C.accent : C.muted} size={25} strokeWidth={active ? 2.3 : 2} /></span>
-            <span className="wf-bottom-nav-label" style={{ fontSize: 11.2, fontWeight: active ? 800 : 600, color: active ? C.accent : C.muted }}>{s.label}</span>
+          <a className={`wf-bottom-nav-item${active ? " is-active" : ""}`} key={d.id} href={d.href} aria-label={d.label} aria-current={active ? "page" : undefined} onClick={(e) => { e.preventDefault(); goDestination(d.id, active); }} style={{ flex: 1, padding: "9px 6px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "transparent", border: "none", borderRadius: 0, cursor: "pointer", textDecoration: "none" }}>
+            <span className="wf-bottom-nav-icon"><NavIcon name={d.icon} color={active ? C.accent : C.muted} size={25} strokeWidth={active ? 2.3 : 2} /></span>
+            <span className="wf-bottom-nav-label" style={{ fontSize: 11.2, fontWeight: active ? 800 : 600, color: active ? C.accent : C.muted }}>{d.label}</span>
           </a>
           );
         })}
       </nav>
+      )}
 
       {/* Detail sheet */}
       {detail && <DetailSheet ctx={ctx} />}
@@ -10729,7 +10573,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
                 {p._children.slice(0, 6).map((c) => (
                   <span key={c.id || c.name} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.bg, border: `1px solid ${C.border}`, borderRadius: 999, padding: "5px 10px", fontSize: 12, fontWeight: 600, color: C.light, maxWidth: "100%" }}>
                     <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 150 }}>{c.name}</span>
-                    {c.rating != null ? <span style={{ color: C.gold, fontWeight: 800, flexShrink: 0 }}>{c.rating}\u2605</span> : null}
+                    {c.rating != null ? <span style={{ color: C.gold, fontWeight: 800, flexShrink: 0 }}>{c.rating}{"\u2605"}</span> : null}
                   </span>
                 ))}
               </div>
@@ -10754,7 +10598,6 @@ const EV_RAIL_MIN_H = 245; // v7.03: measured on PRODUCTION at 390 and 1024 with
 // 200px upward — one 0.1281 shift, worse than the entire desktop CLS budget.
 // Reserving on the LOADING state alone is not enough; the state it swaps INTO
 // has to agree, or the reservation just relocates the shift.
-const EV_SECTION_MIN_H = EV_HERO_H + 36;
 // v6.43 THE IDLE JUMP, part 3 — the "Make a day of it" bookable card.
 // Its title is clamped to two lines, so a one-line pick rendered a card one
 // line SHORTER than a two-line pick. The hourly refresh swaps that title
@@ -10776,10 +10619,10 @@ const HOME_EXP_TITLE_MIN_H = HOME_EXP_TITLE_FS * HOME_EXP_TITLE_LH * 2; // exact
 const shell = { background: C.bg, height: "100dvh", minHeight: "100dvh", display: "flex", justifyContent: "center" };
 const wrap = { background: C.bg, color: C.text, height: "100dvh", width: "100%", maxWidth: 480, fontFamily: "var(--wf-sans)", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative", touchAction: "pan-y", overscrollBehavior: "none" };
 
-export default function Page({ initialEvents = null, localEditGuides = null }) {
+export default function Page({ initialEvents = null, localEditGuides = null, railMenu = null }) {
   return (
     <ErrorBoundary>
-      <PageInner initialEvents={initialEvents} localEditGuides={localEditGuides} />
+      <PageInner initialEvents={initialEvents} localEditGuides={localEditGuides} railMenu={railMenu} />
     </ErrorBoundary>
   );
 }

@@ -80,8 +80,15 @@ ok(!!mountEffect && /ensureLoaded\(open\)/.test(mountEffect[1]),
   "that effect calls ensureLoaded(open) — otherwise an opened legacy section can stay empty");
 ok(!!mountEffect && /isFinite\(center\.lat\)/.test(mountEffect[1]),
   "it waits for a real centre before fetching — an unconditional mount fetch would fire one request per visitor with lat=undefined");
-ok(/<ExplodingNearby[\s\S]{0,180}active=\{sectionOpen\("exploding"\)\}/.test(CODE),
-  "the first section activates the Exploding Nearby loader when it is open");
+// RE-POINTED 2026-08-16. This asserted that the mounted <ExplodingNearby>
+// only loads while its section is open — a real rule about not firing a
+// third-party-backed request for a collapsed section. The component is no
+// longer mounted (see the removal note in app/components/BestNearby.js), so
+// there is nothing to gate. What must NOT happen is the component coming back
+// WITHOUT that gate, so the rule is kept in its conditional form: if it is
+// mounted at all, it is still gated on the section being open.
+ok(!/<ExplodingNearby[\s/>]/.test(CODE) || /<ExplodingNearby[\s\S]{0,180}active=\{sectionOpen\("exploding"\)\}/.test(CODE),
+  "if the Exploding Nearby loader is mounted at all, it still only activates while its section is open");
 ok(/if \(!active \|\| !center \|\| !Number\.isFinite\(center\.lat\) \|\| !Number\.isFinite\(center\.lng\)\) return;/.test(EXP),
   "the Exploding request waits for both an open section and a real location");
 ok(/loadProvidedTrendList\(\{ center, city, signal: ctrl\.signal \}\)/.test(EXP),
@@ -120,46 +127,60 @@ const HOME = readFileSync(path.join(REPO, "app/home.js"), "utf8")
   .replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
 
 const iBest = HOME.indexOf("<BestNearby center=");
-const iEvents = HOME.indexOf("<EventsRailSkeleton />");
-// The RENDER SITE in the feed, not the component. A bare "<DiscoveryHeroCard "
-// also matches the one inside EventsRailSkeleton, which is DEFINED far earlier
-// in the file — so the naive index comparison failed against a definition
-// rather than a position in the feed. Index order only means something between
-// two things rendered in the same tree.
-const iHero = HOME.indexOf("<DiscoveryHeroCard onOpen=");
+// v8 (2026-08-15) — WHAT THIS SECTION MEASURES NOW.
+//
+// The two CONTENT surfaces the ranked list had to lead were the events rail and
+// the promo hero deck. The deck is gone (its eight cards are eight of the
+// fifteen in <DaypartRail>), and the events rail moved into the menu as section
+// nine of BestNearby back in v7.06 — so it renders INSIDE the answer rather
+// than after it, which is why the old `iBest < iEvents` probe now reads -1.
+//
+// The v6.58 measurement stands and is asserted below in its true form: nothing
+// that ADVERTISES Wayfind may sit above the ranked answer. What sits above it is
+// NAVIGATION — the rail, the six category tiles, the discovery rail — which is
+// the class the owner explicitly hoisted in v6.62 and v6.65. The difference,
+// and the reason the rail belongs in that class rather than the deck's: picking
+// a rail card drops eight ranked place cards in place, so it PRODUCES an answer
+// instead of pointing at one.
+const iRail = HOME.indexOf("{railMenuBand}");
+const iCatMenu = HOME.indexOf("<CategoryMenu nav activeCat=");
 const iMenu = HOME.indexOf("const discoveryMenu");
-// v6.65: the discovery rail is hoisted above the ranked list and renders from
-// ONE site (`{!browseCat && discoveryMenu}`) instead of the three mutually
-// exclusive events-state branches it used to live in, so this probe follows it.
-const iMenuUse = HOME.indexOf("{!browseCat && discoveryMenu}");
+const iMenuUse = HOME.indexOf("{discoveryMenu}");
+const iEventsSlot = HOME.indexOf("const eventsRailSlot = (() => {");
+const iTopbar = HOME.indexOf('className="wf-topbar"');
+const iScrollArea = HOME.indexOf('className="wf-scrollarea"');
 
 ok(iBest > -1, "app/home.js renders <BestNearby>");
-ok(iEvents > -1, "PROBE: the events rail is still in the feed (if this is -1 the comparisons below prove nothing)");
-ok(iHero > -1, "PROBE: the promo hero card is still in the feed");
-ok(iMenuUse > -1, "PROBE: the discovery grid is still in the feed");
+ok(iRail > -1, "PROBE: the rail band is rendered in the feed (if this is -1 the comparisons below prove nothing)");
+ok(iCatMenu > -1, "the six categories still render — as the header tab strip (<CategoryMenu nav ...>). A -1 here used to SATISFY the ordering assertion below");
+ok(iMenuUse > -1, "the shortcut row still renders — as the header's Shortcuts panel");
+ok(iEventsSlot > -1, "PROBE: the events rail is still built (it lives inside BestNearby as section nine, v7.06)");
+ok(iTopbar > -1 && iScrollArea > iTopbar, `PROBE: the header subtree is delimited (topbar ${iTopbar} < scrollarea ${iScrollArea})`);
 
-ok(iBest < iEvents, `<BestNearby> renders BEFORE the events rail (${iBest} vs ${iEvents}) — the ranked list leads the feed`);
-ok(iBest < iHero, `<BestNearby> renders BEFORE the promo hero card (${iBest} vs ${iHero}) — a stranger meets an answer, not an advert for us`);
-// v6.65 (owner, twice, the second time bluntly): the discovery rail sits ABOVE
-// the ranked list, alongside the category row that moved in v6.62. Both are
-// NAVIGATION — two skimmable rows of controls — not competing answers, and the
-// ranked list still leads over events, the hero rail and every content surface
-// below, which is what the v6.58 measurement was actually about. The assertion
-// is kept and inverted rather than deleted, so the position stays pinned.
-ok(iMenuUse > 0 && iMenuUse < iBest, `the discovery rail renders ABOVE <BestNearby> (${iMenuUse} vs ${iBest}) — owner directive 2026-08-08`);
-ok(iBest < iEvents && iBest < iHero, "…and the ranked list still leads every CONTENT surface (events, hero) — the v6.58 measurement stands");
+// BOTH CONTROLS LIVE IN THE HEADER, above the entire feed at every width.
+// That is strictly stronger than the old "above <BestNearby> inside the same
+// column": nothing in the feed can now be reordered above them at all.
+ok(iCatMenu > iTopbar && iCatMenu < iScrollArea, `the six categories render inside the header (${iCatMenu}), above the whole feed — owner 2026-08-15, and it still satisfies v6.62's "add this to the top of the page"`);
+ok(iMenuUse > iTopbar && iMenuUse < iScrollArea, `the shortcut row renders inside the header (${iMenuUse}), above the whole feed — owner directive 2026-08-08 is unchanged, only its position is`);
+ok(iRail < iBest, `the rail still LEADS the feed (${iRail} vs ${iBest})`);
+ok(iCatMenu < iBest && iMenuUse < iBest, "…and both navigation controls still precede the ranked answer");
 ok((HOME.match(/discoveryMenu\}/g) || []).length === 1,
-  "the discovery rail renders from exactly ONE site — it used to sit in three mutually exclusive events-state branches, which is how it ended up below the fold in every one of them");
+  "the discovery rail renders from exactly ONE site — it used to sit in three mutually exclusive events-state branches, which is how it ended up below the fold in every one of them. v8.2: that one site is the header panel");
 
-/* It must also sit OUTSIDE the events-present branch. Nested there, a visitor
-   with no events nearby saw no ranked list at all — the case where they most
-   need something to look at. */
-const eventsBranch = HOME.indexOf("foryouEvents && foryouEvents.length > 0");
-ok(eventsBranch > -1, "PROBE: the events-present branch exists");
-ok(
-  iBest < eventsBranch,
-  `<BestNearby> is not nested inside the events-present branch (${iBest} vs ${eventsBranch}) — it must render when there are no events nearby too`
-);
+// AND NOTHING ELSE MAY. This is the v6.58 rule stated as what it always meant:
+// a stranger meets an answer, not an advert for us. The promo deck was the
+// advert, and it must not come back — above the answer or anywhere.
+ok(!/<HeroRail>/.test(HOME), "the promo hero deck is back — a stranger must meet an answer, not an advert for us (v6.58)");
+ok(!/function DiscoveryHeroCard\(/.test(HOME), "…including its orientation card");
+// The rail is navigation only if it OPENS onto ranked places. If it ever
+// becomes a row of pictures that merely navigate away, it has become the deck.
+{
+  const RAIL = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
+  ok(/<IconicPlaceCard/.test(RAIL),
+    "the rail must drop REAL ranked place cards when a card is picked — without that it is the promo deck with better art");
+  ok(/href=\{href\}/.test(RAIL) && /e\.preventDefault\(\)/.test(RAIL),
+    "…and every tile must be a real <a href> that a crawler can follow, intercepted only for a plain left click");
+}
 
 /* ── 7. THE REASON LINE ────────────────────────────────────────────────
    wf_best_picks returns `reasons text[]` and wf_things_to_do returns
@@ -255,15 +276,33 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   // describing its removal.
 
   // ── the answer and exact hierarchy ──
+  // ── RE-POINTED 2026-08-16, and this is what moved. ──────────────────────
+  //
+  // These three used to pin Exploding Trends Near You as the first section:
+  // its exact descriptor literal, its h2, and its position ahead of the Top
+  // 40. The section is GONE — not demoted, removed — because it could only
+  // ever render its own error. EXPLODING_TOPICS_IMPORT_CADENCE was set in no
+  // environment and all three wf_trend_* tables held zero rows, so
+  // /api/trends/nearby answered 503 on every request and every visitor in
+  // every metro read "Trend recommendations are temporarily unavailable" in
+  // the first slot of the homepage, opened by default.
+  //
+  // THE INVARIANT THESE WERE WRITTEN FOR SURVIVES INTACT: the reader gets ONE
+  // immediate answer at the top, as a real heading, before any optional path.
+  // Only the identity of that answer changed — The Best Around You inherits
+  // the slot, the h2 and the open-by-default state. So these are re-aimed at
+  // the answer section rather than deleted, and a new assertion below makes
+  // the removal itself explicit so nobody restores the old order by reflex.
   ok(/sdef\.heading[\s\S]{0,100}<h2[^>]*>[\s\S]{0,80}\{sdef\.label\}<\/h2>/.test(BN),
-     "the Exploding answer renders as an h2 — it is the page's real heading, not decorative text");
-  ok(/const EXPLODING_SECTION = \{ id: "exploding", label: "Exploding Trends Near You", sub: "Everyone's searching these\. Wayfind found where to try them near you\.", emoji: "🔥", heading: true, maxHeight: 24000 \}/.test(BN),
-     "the first section carries one fire emoji, the approved support line, heading semantics and a height budget sized for the full 20-trend universe (2026-08-11)");
-  const iExplodingRender = BN.indexOf("<SectionShell sdef={EXPLODING_SECTION}");
+     "the leading answer renders as an h2 — it is the page's real heading, not decorative text");
+  ok(/const TOP40_SECTION = \{[^}]*\bheading: true\b/.test(BN),
+     "The Best Around You carries heading: true — otherwise the h2 branch above is dead code and the page's leading section has no heading element at all");
+  ok(!/<SectionShell sdef=\{EXPLODING_SECTION\}/.test(BN) && !/<ExplodingNearby[\s/>]/.test(BN),
+     "the Exploding Trends section is still absent — it may only come back with a real snapshot behind it (scripts/check-trend-section-honesty.mjs holds that gate)");
   const iBestRender = BN.indexOf("<SectionShell sdef={TOP40_SECTION}");
   const iMappedRender = BN.indexOf("{SECTIONS.map((sdef)");
-  ok(iExplodingRender > -1 && iExplodingRender < iBestRender && iBestRender < iMappedRender,
-     "Exploding Near You renders first, The Best Around You second, and the mapped discovery rows follow");
+  ok(iBestRender > -1 && iBestRender < iMappedRender,
+     "The Best Around You renders first and the mapped discovery rows follow");
   ok(/const TOP40_SECTION = \{ id: "best", label: "The Best Around You", sub: "Ten answers, zero tabs: the highest Wayfind Scores near you\. No paid placement\."/.test(BN),
      "the existing Top 40 behavior is preserved under the approved Best Around You name");
   const sectionBlock = BN.slice(BN.indexOf("const SECTIONS = ["), BN.indexOf("const trendsBody"));
@@ -283,8 +322,16 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   const collapsedDecl = COLLAPSE.match(/DEFAULT_COLLAPSED_RAILS\s*=\s*(\[[^;]+\])/);
   let collapsedDefaults = [];
   try { collapsedDefaults = collapsedDecl ? JSON.parse(collapsedDecl[1]) : []; } catch (e) {}
-  ok(!collapsedDefaults.includes("exploding") && ["best", "eat", "quickbite", "todo", "gems", "creators", "events", "tonight", "drive"].every((id) => collapsedDefaults.includes(id)),
-     "Exploding is the only primary discovery section expanded for a new visitor; every section below starts collapsed");
+  // RE-POINTED with the same move. The rule was never "exploding is open" —
+  // it was "EXACTLY ONE primary section is open for a new visitor, and it is
+  // the answer". Written as a named exclusion, it would have gone GREEN the
+  // moment exploding was removed while every remaining id stayed in the list,
+  // which is a homepage of nothing but closed headers. So it now asserts the
+  // property directly: the answer is open, everything below it is closed.
+  ok(!collapsedDefaults.includes("best"),
+     "The Best Around You must be open for a new visitor — it is the one immediate answer, and with Exploding removed it is the only thing standing between the reader and a page of closed accordion headers");
+  ok(["eat", "quickbite", "todo", "gems", "creators", "events", "tonight", "drive"].every((id) => collapsedDefaults.includes(id)),
+     "every optional discovery path below the answer still starts collapsed");
   // v7.29 — THIS USED TO PARSE A HAND-COPIED ARRAY LITERAL out of the inline
   // script and compare it to lib/railCollapse.js. That is a drift DETECTOR for a
   // duplication that did not need to exist. app/layout.js now interpolates the
@@ -302,7 +349,8 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
      "app/layout.js imports the collapse constants it interpolates");
   // The desktop default is DERIVED from the phone default, so the only thing a
   // reader on a wide screen can get that a phone reader cannot is a rail that
-  // was explicitly named as open. Exploding must still never be in either.
+  // was explicitly named as open. Exploding must still never be in either —
+  // and since 2026-08-16 it is in neither because it does not exist.
   const desktopOpenDecl = COLLAPSE.match(/RAILS_OPEN_ON_DESKTOP\s*=\s*(\[[^;]+\])/);
   let desktopOpen = [];
   try { desktopOpen = desktopOpenDecl ? JSON.parse(desktopOpenDecl[1]) : []; } catch (e) {}
@@ -390,6 +438,75 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
      "event discovery is restored as a primary accordion row and keeps its existing all-events destination");
   ok(!/Or change the mood/.test(BN),
      "the in-section mood chips are gone — the menu IS the mood switcher now");
+
+  // v8.4 (owner, 2026-08-16): the weather card and "Deals near you" come off
+  // the homepage at EVERY width. HomeAside itself is deliberately kept — the
+  // component and its dealTiers wiring are intact — so the thing to assert is
+  // that "/" does not RENDER it. AGENTS.md §7 is the reason this is pinned at
+  // all: a 3-way merge keeps someone else's newer copy of a block that a
+  // change was meant to remove, which is how the taste editor nearly shipped
+  // back after being explicitly deleted.
+  ok(!/<HomeAside[\s/>]/.test(HOME),
+     "the homepage renders <HomeAside> again — the weather card and Deals were removed from \"/\" at every width (owner, 2026-08-16). Deals stays reachable through the Coupons tab, which owns the vetted card and the attribution.");
+
+  // ═════════════════════════════════════════════════════════════════════════
+  // v8.2 (owner, 2026-08-15) — A COLLAPSED SECTION IS NOT A MENU ROW.
+  //
+  // Nine closed rows sat under the rail listing the same nine titles the rail's
+  // own cards carry: lib/rails.js declares trending / best / eat / break /
+  // today / gems / locals / tonight / drive under those exact names. The
+  // accordion had become a second copy of the navigation directly beneath it.
+  //
+  // The SECTIONS stay, the data stays, and the reader's collapse preference
+  // stays (owner, 2026-08-09: "keep only the menus they want expanded… that way
+  // they can research it faster") — a closed section simply renders nothing
+  // instead of rendering a row that says its name.
+  // ═════════════════════════════════════════════════════════════════════════
+  ok(/style=\{\{ display: isOpen \? "block" : "none",/.test(BN),
+     "a collapsed section is display:none — otherwise the nine closed name rows come back as a second copy of the rail's own card titles");
+  // DISPLAY, NOT AN UNMOUNT. "/" is ISR-cached, so one HTML document carrying the
+  // phone default reaches every reader; a section removed from the tree could
+  // only be corrected after hydration, and every section that differed would pop
+  // in or out. That is the 0.4938 CLS shape test-layout-shift §5 exists for.
+  ok(!/\{\s*isOpen\s*&&\s*<SectionShell/.test(BN) && !/if \(!isOpen\) return null/.test(BN),
+     "the section is HIDDEN, never unmounted — an unmounted section cannot be corrected before first paint on an ISR-cached page");
+
+  // The pre-paint half. The attribute can only ever name what is CLOSED, so the
+  // open direction needs its own rule, and it must expire once React's inline
+  // styles are correct or the accordion loses its transition forever.
+  {
+    const CSS = readFileSync(path.join(REPO, "app/components/css.js"), "utf8");
+    ok(/html\[data-wf-rails~="\$\{id\}"\] \[data-wf-section="\$\{id\}"\]\{display:none!important\}/.test(CSS),
+       "the pre-paint rule hides a closed section from FIRST PAINT — without it the row flashes on screen before React can hide it");
+    ok(/:not\(\[data-wf-rails-ready\]\):not\(\[data-wf-rails~="\$\{id\}"\]\) \[data-wf-section="\$\{id\}"\]\{display:block!important\}/.test(CSS),
+       "…and the OPEN direction too, scoped so it expires — the attribute only ever names what is closed");
+    // Every id the reader can collapse needs BOTH rules, or that one section
+    // flashes. quickbite was missing from RAIL_IDS entirely until v8.2.
+    const sectionIds = [...CODE.matchAll(/\{\s*id:\s*"([a-z]+)"\s*,\s*label:/g)].map((m) => m[1]);
+    const railIds = JSON.parse((COLLAPSE.match(/RAIL_IDS = (\[[^\]]+\])/) || [, "[]"])[1]);
+    ok(sectionIds.length >= 8, `PROBE: the section ids were read (${sectionIds.length})`);
+    for (const id of sectionIds) {
+      ok(railIds.includes(id),
+         `section "${id}" is not in RAIL_IDS, so css.js emits no pre-paint rule for it and it is the one section that flashes on every load`);
+    }
+  }
+
+  // THE EMPTY FEED. With closed sections hidden rather than listed, a reader who
+  // has collapsed everything gets the rail and then a blank page. That is a real
+  // stored state, not a corner case — the note above applyCollapsedAttr in
+  // lib/railCollapse.js records the owner's OWN set as every section closed.
+  ok(/const allSectionsClosed = !\[/.test(BN),
+     "the component knows when every section is closed");
+  ok(/\.\.\.SECTIONS\.map\(\(sd\) => sd\.id\)/.test(BN),
+     "…and derives that from the SECTIONS array, so a section added next month is counted without editing a second list");
+  ok(/\{allSectionsClosed \? \(/.test(BN),
+     "…and renders something when it is true — silence under the rail is indistinguishable from a broken build");
+  ok(/You have closed every list\./.test(BN),
+     "…and says so in words rather than leaving an empty column");
+  ok(/onClick=\{restoreSections\}/.test(BN) && /const restoreSections = \(\) => \{/.test(BN),
+     "…and offers the way back. Without it, hiding closed sections makes collapsing a one-way door");
+  ok(/writeCollapsed\(\[\]\)/.test(BN),
+     "restoring PERSISTS — a reset that only touches React state is undone by the next reload, which reads storage");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -422,7 +539,10 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   // that broke four guards this week. The claim is about ORDER, not props.
   const iBestNearby = HOME.indexOf("<BestNearby ");
   const iFinds = HOME.indexOf("<CreatorFinds items=");
-  const iCats = HOME.indexOf("<CategoryMenu tight activeCat=");
+  // v8.2: the category row is the header tab strip. The ORDER claim is
+  // unchanged and still holds — the header is above the feed — so the anchor
+  // follows the code rather than the assertion being dropped.
+  const iCats = HOME.indexOf("<CategoryMenu nav activeCat=");
   ok(iBestNearby > 0 && iFinds > 0 && iCats > 0, "all three home sections render (answer, creator finds, categories)");
   ok(iBestNearby < iFinds, "the ANSWER comes before the creator row");
   ok(iCats > 0 && iCats < iBestNearby, "the six categories sit ABOVE the answer and the creator row (v6.62, owner: \"add this to the top of the page\") — the ranked list below is still unmoved relative to events/hero/discovery, see the v6.58 block above");
