@@ -23,45 +23,37 @@ const ok = (cond, msg) => { if (cond) pass++; else fail.push(msg); };
 const home = readFileSync(path.resolve("app/home.js"), "utf8");
 const idle = readFileSync(path.resolve("lib/idleTask.js"), "utf8");
 
-/* ---- home.js: the two decorative hero fetches are idle-gated ---- */
+/* ---- home.js: the two decorative hero fetches are GONE ---- */
+//
+// v8 (2026-08-15). This block used to assert that the date-night and hidden-gem
+// hero photo fetches were wrapped in onIdle(). They are not deferred any more —
+// they were DELETED, along with the promo hero deck they decorated. Deferring a
+// request the page does not need is a mitigation; removing it is the fix, and
+// the measurement this file opens with is what says so: 4 requests and a
+// vision-model call per load, for a photo behind a card that no longer exists.
+//
+// The rail that replaced the deck uses owned artwork from /public/cards-v8, so
+// there is no live hero-photo path left on this page at all
+// (scripts/test-hero-people-free.mjs asserts the same thing from the other
+// direction). onIdle has no caller in home.js now, and its import went with
+// them.
+//
+// THE onIdle CONTRACT BELOW IS UNTOUCHED and still enforced. Its tests must
+// outlive its last caller, or the next decorative fetch arrives ungated —
+// which is exactly the regression this file was written to stop.
 
-ok(/import\s*\{\s*onIdle\s*\}\s*from\s*["']\.\.\/lib\/idleTask["']/.test(home),
-  "home.js must import onIdle from lib/idleTask");
-
-// Anchor on each fetch, then look BACKWARD a bounded distance for the gate.
-// Bounded on purpose: an unbounded search would find some other onIdle far up
-// the file and false-PASS, which is the failure direction that matters here.
-// Anchor on the encodeURIComponent(...) call, NOT the bare phrase: "romantic
-// dinner intimate" also appears at ~line 922 as a datenight keyword config, and
-// anchoring on the phrase matches that unrelated site instead of the fetch.
-const DECORATIVE = [
-  { name: "date-night hero", needle: 'encodeURIComponent("romantic dinner intimate")', setter: "setDateHeroImg" },
-  { name: "hidden-gem hero", needle: 'encodeURIComponent("hidden gem restaurant local favorite tucked away")', setter: "setGemHeroImg" },
-];
-
-for (const d of DECORATIVE) {
-  const first = home.indexOf(d.needle);
-  ok(first !== -1 && home.indexOf(d.needle, first + 1) === -1,
-    `${d.name}: anchor must be unique in home.js, or this guard can check the wrong call site`);
-}
-
-for (const d of DECORATIVE) {
-  const at = home.indexOf(d.needle);
-  ok(at !== -1, `${d.name}: fetch site must still exist (did the query text change?)`);
-  if (at === -1) continue;
-
-  const before = home.slice(Math.max(0, at - 700), at);
-  ok(/const\s+cancelIdle\s*=\s*onIdle\(/.test(before),
-    `${d.name}: its fetch must be wrapped in onIdle() — it is decorative and must not sit on the critical path`);
-
-  // The effect must still cancel the queued work on unmount, or a deferred
-  // fetch outlives the component and setStates an unmounted tree.
-  const after = home.slice(at, at + 1400);
-  ok(/cancelIdle\(\)/.test(after),
-    `${d.name}: effect cleanup must call cancelIdle() so queued work is abortable`);
-  ok(after.includes(d.setter),
-    `${d.name}: must still set its hero (${d.setter}) — deferring changes when, not whether`);
-}
+ok(!/setDateHeroImg|setGemHeroImg/.test(home),
+  "the decorative hero photo state is back in app/home.js — read this file's header before re-adding a hero fetch");
+ok(!/encodeURIComponent\("romantic dinner intimate"\)/.test(home),
+  "the date-night hero's decorative Places search is back on the homepage");
+ok(!/encodeURIComponent\("hidden gem restaurant local favorite tucked away"\)/.test(home),
+  "the hidden-gem hero's decorative Places search is back on the homepage");
+ok(!/fetch\("\/api\/image-score/.test(home),
+  "the vision-model call those searches chained into is back on the homepage's load path");
+// If a decorative fetch ever does land here again it must be idle-gated, so the
+// import and the call must appear together — never one without the other.
+ok(/onIdle\(/.test(home) === /import\s*\{\s*onIdle\s*\}\s*from\s*["']\.\.\/lib\/idleTask["']/.test(home),
+  "app/home.js calls onIdle() without importing it, or imports it without a caller");
 
 /* ---- lib/idleTask.js: the contract that makes deferral safe ---- */
 

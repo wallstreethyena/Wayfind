@@ -32,8 +32,22 @@ const ok = (c, m) => { assertions++; if (!c) failures.push(m); };
 const code = bn.replace(/\/\*[\s\S]*?\*\//g, "").split("\n").filter((l) => !/^\s*\/\//.test(l)).join("\n");
 
 // ── 1. ONE RANKING, and it is the site's ────────────────────────────────────
-ok(/const ranked = byVisibleScore\(pool\)/.test(code) && /uniqueRecommendations\(top40, explodingClaimed, TOP40_MAX\)/.test(code),
+// RE-POINTED 2026-08-16 — WHAT MOVED: the second half pinned the literal
+// `uniqueRecommendations(top40, explodingClaimed, TOP40_MAX)`. The Exploding
+// Trends section was removed (it could only render its own error — no trend
+// snapshot has ever been imported), so `explodingClaimed` no longer exists
+// and the Top 40 is now the HEAD of the dedup chain: nothing is claimed ahead
+// of it, and the argument is `[]`.
+//
+// Both halves of the original rule are kept, and split apart so a future
+// change cannot satisfy one by accident while breaking the other. The dedup
+// call itself is still asserted — dropping uniqueRecommendations entirely is
+// what would let the same place appear twice down the page, and THAT is what
+// the second half was protecting, not the name of the argument.
+ok(/const ranked = byVisibleScore\(pool\)/.test(code),
   "the rail sorts through byVisibleScore — the same governed score every other ranked surface uses");
+ok(/uniqueRecommendations\(top40, (?:\[\]|[A-Za-z_$][\w$]*), TOP40_MAX\)/.test(code),
+  "the Top 40 still runs through uniqueRecommendations — it is the head of the dedup chain now, and without it the same place can repeat in the rows below");
 ok(/const TOP40_MAX = 10/.test(code),
   "The Best Around You is capped at ten decisions, not an endless forty-card search result");
 ok(/byVisibleScore/.test(code) && !/\bpool\.sort\(/.test(code) && !/ranked\.sort\(/.test(code),

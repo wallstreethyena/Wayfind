@@ -18,6 +18,7 @@ export const dynamic = "force-dynamic";
 import { createClient } from "@supabase/supabase-js";
 import { FETCHERS, sourcesFor, SOURCE_CAPS, CONFIDENCE_FLOOR, POP_DIAG, resetPopDiag } from "../../../../lib/popularity";
 import { recordPulse } from "../../../../lib/jobPulse";
+import { jobCannotRun, jobFailed } from "../../../../lib/jobFail";
 
 const BATCH = 100;
 const PARALLEL = 5;
@@ -29,11 +30,11 @@ export async function GET(req) {
 
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim();
   const svc = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
-  if (!url || !svc) return Response.json({ error: "no service key" }, { status: 200 });
+  if (!url || !svc) return jobCannotRun("popularity", "SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL is missing");
   const db = createClient(url, svc, { auth: { persistSession: false } });
 
   const { data: places, error } = await db.rpc("wf_popularity_stale_batch", { p_n: BATCH });
-  if (error || !Array.isArray(places)) return Response.json({ error: "batch failed" }, { status: 200 });
+  if (error || !Array.isArray(places)) return jobFailed("popularity", "wf_popularity_stale_batch returned no batch");
 
   const spent = {}; // per-source call budget used this run
   resetPopDiag(); // per-run outcome tally — see lib/popularity POP_DIAG

@@ -14,6 +14,7 @@ import { placePartnerPick } from "../../lib/placePartnerPicks";
 import { cuisineLabel } from "../../lib/dining";
 import { overrideFor } from "../../lib/placeOverrides";
 import * as Tags from "../../lib/tags";
+import { directionsHref } from "../../lib/directions.js";
 
 // ---------------------------------------------------------------------------
 // Experience-tag chips (owner: "I need the cards to look like the cards from
@@ -146,8 +147,9 @@ const ThumbIcon = ({ down = false }) => (
   </svg>
 );
 
-export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, onSave, onLike, onDislike, onOpen }) {
+export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, inTrip, onSave, onItinerary, onLike, onDislike, onOpen, onBadge }) {
   if (!place) return null;
+  const expTags = experienceTags(place, 3);
   // THE GOVERNING LAW, shown == sorted (2026-08-07): a row ranked through
   // byVisibleScore carries governed_score (base +0.2 video −0.2 far +0.6
   // trending, disclosed below) — prefer it so the badge can never disagree
@@ -253,12 +255,33 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
                 same ?exp=<key> deep link ThingsToDoList/HookDetail already use
                 since this card is portable
                 and cannot assume an in-app navigation handler exists. */}
-            {/* v7.15 (owner, 2026-08-11): the experience-tag chip buttons are
-                GONE — "i told you i don't like the bubbles either". The
-                experienceTags() engine above is unchanged and still exported:
-                IntentRail/BestNearby/CreatorFinds import it for signals and
-                the ?exp= collections still resolve every key. This row now
-                carries only real content: caller badges and the partner link. */}
+            {/* v7.15 (owner, 2026-08-11) removed these — "i told you i don't
+                like the bubbles either".
+
+                v8.5 (owner, 2026-08-16) REVERSES THAT, explicitly: "i want the
+                place card to look like it used to, it looked premium and it had
+                experience pills on them... bring that everywhere."
+
+                DATED NOTE SO NOBODY UNDOES IT AGAIN: v7.15 above is SUPERSEDED,
+                not forgotten. Two owner calls a week apart in opposite
+                directions; this is the later one. check-collection-look §8
+                encoded the v7.15 rule, and has been re-pointed with the same
+                note rather than deleted.
+
+                The engine never went away, so this restores the RENDER only,
+                byte-for-byte from b5c46763^ rather than rewritten. */}
+            {expTags.map((tag) => (
+              <button
+                key={tag.key}
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  if (onBadge) onBadge(tag.key, place);
+                  else if (typeof window !== "undefined") window.location.href = "/?exp=" + tag.key;
+                }}
+              >{tag.icon} {tag.label} ›</button>
+            ))}
             {badge || null}
             {partnerHref ? (
               <a
@@ -288,6 +311,34 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
           {rankingNote ? <div style={{ color: "#8791A4", fontSize: 9.5, marginTop: 4 }}>{rankingNote}</div> : null}
 
           <div className="wf-place-card-actions wf-sheet-card-actions">
+            {/* v8.5 — DIRECTIONS. The canonical card has it and this one did
+                not, which is half of why the drop's card read as a lesser thing.
+                A real <a href> to Google Maps, keyed on place_id when we have
+                one so it resolves the exact venue rather than a name search.
+                stopPropagation so it does not also open the card. */}
+            <a
+              className="wf-place-card-save wf-place-card-directions"
+              href={directionsHref(place)}
+              target="_blank"
+              rel="noopener"
+              aria-label={"Directions to " + (place.name || "this place")}
+              onClick={(e) => { e.stopPropagation(); }}
+            >Directions ↗</a>
+            {/* v8.5 (owner): "+ Itinerary" is OFF THE CARD FACE — a fifth
+                control crowded the row. Save / Like / Dislike / Share is the row.
+
+                THE CAPABILITY AND THE STORE ARE UNTOUCHED: onItinerary is still
+                accepted, addToItinerary() still writes wayfind_trips through
+                Trips.addPlaceToTrips, and quickSaveFavorite still auto-files a
+                saved place into its city trip. Kept as a prop so re-exposing it
+                elsewhere needs no plumbing.
+
+                AND THIS FIXES A REGRESSION I SHIPPED IN #774. The `: (<a>♡ Save</a>)`
+                fallback below belongs to the onSave ternary — it is what an
+                unwired caller renders. #774 inserted the itinerary block between
+                them and re-parented the fallback to onItinerary, so any surface
+                passing onSave but NOT onItinerary drew TWO save controls. It is
+                back where it belongs. */}
             {onSave ? (
               <button
                 type="button"

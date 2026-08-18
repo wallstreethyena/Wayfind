@@ -114,16 +114,45 @@ ok(bn.includes("videoPlaces") && /PLATFORM\[pl\]/.test(bn), "platform chips come
 ok(!/\bviews\b|view count|viral/i.test(bn), "no view-count or virality claims");
 ok(/hasCreatorVideo\(pp\)/.test(home), "trend places are exactly the video-linked ones");
 ok(/No creator videos linked near you yet/.test(bn), "honest empty state for the video block");
-ok(home.includes("const EV_HERO_H = 248"), "hero height is the owner's taller call");
-// v6.50 hero swiper: slide 2 is the best-rated REAL beach within 20 mi
-ok(/wf-hero-swipe/.test(home) && /scrollSnapType: "x mandatory"/.test(home), 'hero is a native scroll-snap swiper');
-ok(/wf_nearest_beaches", \{ p_lat: center.lat, p_lng: center.lng, p_radius_mi: 60/.test(home), 'beach slide: BEST beach regardless of distance (radius 60)');
-ok(/const rankedB = rankBeaches\(rows\)/.test(home) && /bPool = rankedB\.slice/.test(home), 'beach slide uses the ONE shared ranking (lib/beaches) — day-rotated among its top few so the hero is not frozen (see test-dynamic-daily)');
-ok(/window\.location\.assign\("\/best-beaches\/"/.test(home), 'beach slide opens the shareable ranking page');
-ok((home.match(/image="\/cards\/beach-adobestock-216195684\.jpeg"/g) || []).length === 2, 'beach hero is always present in both empty and live event rails');
-ok(/width: "93%" \/\* date-night \+ family slides always follow \*\//.test(home), 'slide 1 always peeks — date-night and family slides always follow');
-ok(/datenight_hero_open/.test(home) && /family_hero_open/.test(home), 'date-night + family hero slides exist');
-ok(/window\.location\.assign\("\/date-night\?lat="/.test(home) && /window\.location\.assign\("\/family\?lat="/.test(home), 'both slides open their destination pages with the live location');
+// ── v8 (2026-08-15): THE HERO SWIPE DECK IS GONE ────────────────────────────
+// Six assertions used to live here pinning that deck's implementation — its
+// scroll-snap swiper, its beach slide, its date-night and family slides, and
+// the peek that promised more slides existed. <DaypartRail> replaces it, and
+// every one of those invariants survives in a STRONGER form, so the assertions
+// were re-pointed rather than deleted:
+//
+//   was: the beach slide calls window.location.assign("/best-beaches/" + metro)
+//   now: the beach RAIL is a real <a href> to the same page. The old form was
+//        invisible to a crawler — view-source contained no link to
+//        /best-beaches, /hidden-gems, /date-night, /family or /trending-now at
+//        all. scripts/check-rail-routes.mjs additionally proves the metro
+//        segment is a real BEACH_METROS key, which the old call never did (it
+//        shipped "sarasota-bradenton", a 200-indexable soft-404).
+//
+//   was: "beach hero is always present in both empty and live event rails"
+//        (asserted by counting one image path twice in the source)
+//   now: EVERY rail renders in EVERY daypart — an off-peak card is parked on
+//        the right, never removed. Proven for all four bands over all fifteen
+//        rails by scripts/test-dayparts.mjs and check-rail-routes.mjs, which is
+//        the actual invariant that string-count was standing in for.
+//
+//   was: date-night + family hero slides exist (via their logEvent names)
+//   now: both are rails, and lib/dayparts.js LEGACY_HERO_EVENT still emits
+//        datenight_hero_open / family_hero_open from them for one release so no
+//        existing dashboard flatlines at cutover. Asserted below.
+{
+  const rails = readFileSync(new URL("../lib/rails.js", import.meta.url), "utf8");
+  const dayparts = readFileSync(new URL("../lib/dayparts.js", import.meta.url), "utf8");
+  const railCss = readFileSync(new URL("../app/components/railMenuCss.js", import.meta.url), "utf8");
+  ok(!/wf-hero-swipe/.test(home), "the hero swipe deck is back — the rail replaced it, and both on one page is the same eight cards twice");
+  ok(/scroll-snap-type:x mandatory/.test(railCss.replace(/\s*:\s*/g, ":")), "the rail must still be a native scroll-snap swiper");
+  ok(/href: "\/best-beaches"/.test(rails), "the beach rail must still open the shareable ranking page");
+  ok(/href: "\/date-night"/.test(rails) && /href: "\/family"/.test(rails), "date-night and family must still be reachable from the home rail");
+  ok(/datenight: 'datenight_hero_open'/.test(dayparts) && /family: 'family_hero_open'/.test(dayparts),
+    "the legacy hero events must keep firing for one release, or live dashboards flatline at cutover");
+  ok(/beach: 'beach_hero_open'/.test(dayparts) && /trending: 'buzz_hero_open'/.test(dayparts) && /gems: 'hidden_gems_hero_open'/.test(dayparts),
+    "…all eight of them, not just the two that were easy to remember");
+}
 // 2026-08-06 (owner decision, SUPERSEDES "the sparkle lives beside search").
 // The search-bar sparkle is gone and "What are you feeling?" moved into the
 // discovery menu, taking the Date night ideas slot — date night is already a

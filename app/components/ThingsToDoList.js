@@ -153,7 +153,7 @@ function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, onLog, on
           ) : null}
           {r.category === "beach" && beachSignal && beachSignal.water ? (() => {
             const w = beachSignal.water;
-            const wq = w.advisory ? { t: "Advisory", c: C.red } : w.result === "Good" ? { t: "Water: Good", c: C.green } : w.result === "Moderate" ? { t: "Water: Moderate", c: "#E8B84B" } : w.result ? { t: "Water: Poor", c: C.red } : null;
+            const wq = w.advisory ? { t: "Advisory", c: C.red } : w.result === "Good" ? { t: "Water: Good", c: C.green } : w.result === "Moderate" ? { t: "Water: Moderate", c: "#FBBF24" } : w.result ? { t: "Water: Poor", c: C.red } : null;
             return wq ? <span style={{ display: "inline-flex", alignItems: "center", fontSize: 11.5, fontWeight: 700, color: wq.c }}>🏖️ {wq.t}</span> : null;
           })() : null}
         </div>
@@ -166,7 +166,7 @@ function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, onLog, on
             neither a verified hook nor a validated AI summary exists this
             block renders nothing rather than generic filler. */}
         {toHookLine(r.editorial_hook, r.title) ? (
-          <div style={{ fontSize: 12.5, fontWeight: 700, color: "#E8C97A", lineHeight: 1.45, marginTop: 7 }}>{toHookLine(r.editorial_hook, r.title)}</div>
+          <div style={{ fontSize: 12.5, fontWeight: 700, color: "#FBBF24", lineHeight: 1.45, marginTop: 7 }}>{toHookLine(r.editorial_hook, r.title)}</div>
         ) : blurb && typeof blurb === "object" && blurb.card_line_1 && blurb.card_line_2 ? (
           <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45, marginTop: 7 }}>
             <div>{blurb.card_line_1}</div>

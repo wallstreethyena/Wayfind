@@ -39,6 +39,7 @@ import { marketReviewFloor, passesMarketFloor } from "../lib/marketFloor.js";
 import { localCategoryBoost } from "../lib/localCategorySignals.js";
 import { wayfindScore, governedWayfindScore } from "../lib/wayfindScore.js";
 import { hasCreatorVideoAt } from "../lib/creatorBoost.js";
+import { LANDING_CITIES } from "../lib/landing.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const arg = (n, d) => { const i = process.argv.indexOf("--" + n); return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : d; };
@@ -56,11 +57,16 @@ const arg = (n, d) => { const i = process.argv.indexOf("--" + n); return i >= 0 
 // mirror that cannot drift is better than a lock that watches one.
 // THE GOVERNING LAW (owner, 2026-08-07): flat −2 strictly past 17 miles, in
 // the displayed score — mirroring lib/landing.js exactly, as this file must.
-function shippedScore(p) {
+// cityName is REQUIRED, and mirrors the shipped ranker's fix of 2026-08-16:
+// hasCreatorVideoAt keys on city, so called bare it returns false for every
+// place and the creator term silently drops out of BOTH sides of this
+// comparison. That would still have "matched" — identically wrong on each
+// side — while measuring a ranker the site does not run.
+function shippedScore(p, cityName) {
   // Same null contract as the shipped ranker: an unrated place does not compete.
   const q = wayfindScore(p.rating, p.reviews);
   if (q == null) return -Infinity;
-  return governedWayfindScore(q, { hasCreatorVideo: hasCreatorVideoAt(p), distanceMi: isFinite(p.distMi) && p.distMi > 0 ? p.distMi : null }) + localCategoryBoost(p);
+  return governedWayfindScore(q, { hasCreatorVideo: hasCreatorVideoAt(p, cityName), distanceMi: isFinite(p.distMi) && p.distMi > 0 ? p.distMi : null }) + localCategoryBoost(p);
   // NOTE: the CURATED_NAMES +15 term is deliberately omitted — CURATED_NAMES is
   // a local Set in landing.js built from lib/sources CURATED. It applies
   // identically to BOTH sides of this comparison, so it cannot change the
@@ -70,11 +76,11 @@ function shippedScore(p) {
 const GATE = { nightlife: "nightlife", restaurants: "food", "things-to-do": "attractions", beaches: "beach" };
 const QUERY = { nightlife: "best bars and nightlife", restaurants: "best restaurants", "things-to-do": "top tourist attractions", beaches: "best beaches" };
 
-function rankShipped(rows) {
+function rankShipped(rows, cityName) {
   const floor = marketReviewFloor(rows);
   const kept = rows.filter((p) => passesMarketFloor(p, floor, false));
   const pool = kept.length >= 5 ? kept : rows;
-  return [...pool].sort((a, b) => (shippedScore(b) - shippedScore(a)) || ((b.reviews || 0) - (a.reviews || 0))).slice(0, 15);
+  return [...pool].sort((a, b) => (shippedScore(b, cityName) - shippedScore(a, cityName)) || ((b.reviews || 0) - (a.reviews || 0))).slice(0, 15);
 }
 
 function loadKey() {
@@ -130,8 +136,11 @@ async function main() {
 
   if (!poolRows.length) { console.error("FATAL: retrieval probe returned nothing the gate admits — cannot compare"); process.exit(1); }
 
-  const fromCensus = rankShipped(censusRows);
-  const fromPool = rankShipped(poolRows);
+  // The city NAME, not the slug — hasCreatorVideoAt matches the registry's
+  // city label ("St. Petersburg", not "st-petersburg").
+  const cityName = (LANDING_CITIES[citySlug] || {}).name || citySlug;
+  const fromCensus = rankShipped(censusRows, cityName);
+  const fromPool = rankShipped(poolRows, cityName);
   const poolIds = new Set(fromPool.map((p) => p.place_id));
   const unreachable = fromCensus.filter((p) => !poolIds.has(p.place_id));
 
@@ -139,7 +148,7 @@ async function main() {
   console.log(`  ranking held constant (shipped governed Wayfind Score (law: +7 video, −2 past 17mi) + localCategoryBoost, marketReviewFloor applied to both)`);
   console.log(`  candidate sets: census ${censusRows.length} rows   vs   rankedFor() retrieval ${poolRows.length} rows\n`);
   console.log(`  the shipped ranker's top 15 FROM THE CENSUS:`);
-  fromCensus.forEach((p, i) => console.log(`    ${String(i + 1).padStart(2)}. ${String(Math.round(shippedScore(p))).padStart(3)}  ${(p.name || "").slice(0, 38).padEnd(38)} ${poolIds.has(p.place_id) ? "" : "<- retrieval never saw it"}`));
+  fromCensus.forEach((p, i) => console.log(`    ${String(i + 1).padStart(2)}. ${String(Math.round(shippedScore(p, cityName))).padStart(3)}  ${(p.name || "").slice(0, 38).padEnd(38)} ${poolIds.has(p.place_id) ? "" : "<- retrieval never saw it"}`));
   console.log(`\n  RETRIEVAL LOSS: ${unreachable.length} of ${fromCensus.length} venues the shipped ranker would have chosen are unreachable by rankedFor()'s single query.`);
   console.log(`  Ranking is identical on both sides, so this delta is retrieval and nothing else.`);
   console.log(`\n  cost: 1 call = $0.035`);

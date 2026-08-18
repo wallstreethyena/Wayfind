@@ -31,6 +31,7 @@ import { sbEnv } from "../../../../lib/serverCache";
 import { classifyCuisine, LOW_CONFIDENCE } from "../../../../lib/cuisine";
 import { recordPulse } from "../../../../lib/jobPulse";
 import { writeCuisineLabels } from "../../../../lib/cuisineWrite";
+import { jobCannotRun, jobFailed } from "../../../../lib/jobFail";
 
 const RECHECK_DAYS = 30;
 const MAX_ROWS = 500;
@@ -49,7 +50,7 @@ export async function GET(req) {
     // a five-day outage.
     console.error("[cuisine] no Supabase service env — cannot classify. This is a config failure, not an empty queue.");
     await recordPulse("cuisine-classify", { attempted: 0, succeeded: 0, note: "no supabase service env" });
-    return Response.json({ ok: false, error: "no supabase service env" }, { status: 200 });
+    return jobCannotRun("cuisine-classify", "SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL is missing");
   }
   const H = { apikey: s.key, authorization: "Bearer " + s.key, "content-type": "application/json" };
   const rest = async (p, init) => {
@@ -78,7 +79,7 @@ export async function GET(req) {
     // the same way.
     console.error(`[cuisine] ${failure}`);
     await recordPulse("cuisine-classify", { attempted: 0, succeeded: 0, note: failure });
-    return Response.json({ ok: false, error: failure }, { status: 200 });
+    return jobFailed("cuisine-classify", failure);
   }
   if (!rows.length) {
     await recordPulse("cuisine-classify", { attempted: 0, succeeded: 0, note: "nothing new and nothing stale" });

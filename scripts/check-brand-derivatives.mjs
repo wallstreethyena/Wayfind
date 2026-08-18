@@ -55,6 +55,7 @@ for (const ext of ["avif", "webp"]) {
 // ─── 2. every candidate is smaller than the original it replaces ────────────
 // A derivative that is BIGGER than the source means the encode settings were
 // changed to something lossless-ish and the whole exercise is now a regression.
+const p2 = (rel) => p(rel);
 const HERO_SRC = statSync(p("public/brand/wayfind-default-hero-adobestock-289023289.jpeg")).size;
 for (const w of HERO_W) {
   for (const ext of ["avif", "webp"]) {
@@ -69,19 +70,44 @@ const SMALLEST = statSync(p("public/brand/opt/hero-460.avif")).size;
 ok(SMALLEST < 60 * 1024, `hero-460.avif is ${(SMALLEST / 1024).toFixed(1)}KB — the phone-width LCP candidate has grown by an order of magnitude`);
 
 // ─── 3. THE MECHANISM: the <img> may never name the original ────────────────
-const card = home.slice(home.indexOf("function DiscoveryHeroCard"), home.indexOf("function HeroRail"));
-ok(card.includes("<picture>"), "the home hero must render a <picture> — a bare <img> cannot offer AVIF");
-const img = (card.match(/<img[^>]*fetchPriority="high"[^>]*\/>/s) || [""])[0];
-ok(!!img, "the home hero's eager <img> moved or changed shape — re-point this assertion before shipping");
-ok(!/\.jpeg|\.jpg/.test(img),
-  "the home hero's <img> names the original JPEG again. React hoists the fetchPriority=\"high\" preload off the <img>, NOT off the <source>s — so this alone re-downloads the full-size original at top priority on every first visit and makes every derivative dead weight.");
-ok(/src="\/brand\/opt\/hero-\d+\.webp"/.test(img), "the hero <img> src must be a committed webp derivative");
-ok(/srcSet="[^"]*hero-460\.webp 460w/.test(img), "the hero <img> must carry the full webp srcSet, so narrow viewports get the narrow file");
-ok(/<source type="image\/avif"/.test(card), "the AVIF set must be offered via <source>, where it cannot become the preload target");
-ok(/sizes=\{HERO_ART_SIZES\}/.test(card) && card.match(/sizes=\{HERO_ART_SIZES\}/g).length === 2,
-  "both the <source> and the <img> must carry the SAME sizes value — one of them guessing differently is how a phone downloads the 1600px candidate");
-ok(/const HERO_ART_SIZES = "\(max-width:899px\) 93vw, \(max-width:1179px\) 744px, \d+px"/.test(home),
-  "HERO_ART_SIZES must keep naming the real breakpoints (899/1179) the CSS uses — a sizes value that disagrees with the layout picks the wrong file at every width");
+//
+// v8 (2026-08-15): the LCP element on the homepage is no longer
+// DiscoveryHeroCard — it is the first tile of <DaypartRail>. The MECHANISM this
+// section exists to protect is unchanged and now applies there, because the
+// failure it catches is subtle and expensive: React hoists the
+// fetchPriority="high" preload off the <img>, NOT off the <source>s, so an
+// <img> that names the full-size original re-downloads it at top priority on
+// every first visit and makes every derivative dead weight.
+//
+// The /brand/opt/hero-* derivatives themselves are NOT dead — the guides,
+// culture and intent pages still use hero-1600.webp as their neutral hero — so
+// sections 1 and 2 above are untouched.
+{
+  const rail = readFileSync(p2("app/components/DaypartRail.js"), "utf8");
+  ok(rail.includes("<picture>"), "the home LCP tile must render a <picture> — a bare <img> cannot offer AVIF");
+  const img = (rail.match(/<img[\s\S]{0,700}?\/>/) || [""])[0];
+  ok(!!img, "the rail tile's <img> moved or changed shape — re-point this assertion before shipping");
+  ok(/fetchPriority=\{eager \? "high" : "low"\}/.test(rail),
+    "only the eager tiles may claim high fetch priority — fifteen high-priority images is the same as none");
+  ok(/loading=\{eager \? "eager" : "lazy"\}/.test(rail),
+    "…and the rest must be lazy, or a horizontal rail downloads fifteen full-size cards on load");
+  ok(/<source type="image\/avif" srcSet=\{railArtSrcSet\(base, "avif"\)\}/.test(rail),
+    "the AVIF set must be offered via <source>, where it cannot become the preload target");
+  ok(/<source type="image\/webp" srcSet=\{railArtSrcSet\(base, "webp"\)\}/.test(rail),
+    "…with WebP behind it for browsers without AVIF");
+  // The <img> fallback IS a jpeg here, deliberately and unlike the brand hero:
+  // it is the last-resort source for a browser that supports neither modern
+  // format, and there is no "original" for it to name — railArtFallback()
+  // returns a 760w derivative, not a source asset. Assert exactly that.
+  ok(/src=\{railArtFallback\(base\)\}/.test(rail), "the tile's <img> src must come from railArtFallback, never a hand-written path");
+  const rails = readFileSync(p2("lib/rails.js"), "utf8");
+  ok(/return `\$\{RAIL_ART_DIR\}\/\$\{base\}-760\.jpg\?v=\$\{RAIL_ART_V\}`/.test(rails),
+    "railArtFallback must return a 760w DERIVATIVE — naming a full-size original here is the exact preload bug this section guards");
+  ok(/sizes=\{RAIL_ART_SIZES\}/.test(rail) && (rail.match(/sizes=\{RAIL_ART_SIZES\}/g) || []).length === 2,
+    "both <source>s must carry the SAME sizes value — one of them guessing differently is how a phone downloads the 760px candidate");
+  ok(/const RAIL_ART_SIZES = "\(max-width:900px\) 76vw, \(max-width:1100px\) 34vw, \d+px"/.test(rails),
+    "RAIL_ART_SIZES must mirror the tile's real CSS width (--wf8-tw), or the browser picks the wrong file");
+}
 
 // ─── 4. the <picture> may not change the card's geometry ───────────────────
 ok(css.includes(".wf-discovery-visual picture{position:absolute;inset:0;display:block}"),

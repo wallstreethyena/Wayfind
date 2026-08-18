@@ -48,6 +48,7 @@
 import { sbEnv } from "../../../../lib/serverCache";
 import { recordPulse } from "../../../../lib/jobPulse";
 import { decidePromotion, dedupeById, PROMOTE_METROS } from "../../../../lib/promoteIndex";
+import { jobFailed } from "../../../../lib/jobFail";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -159,7 +160,7 @@ export async function GET(req) {
     claimed = await rpc(s, "wf_promotion_claim", { p_metro: metro, p_limit: limit, p_lease_minutes: 15 });
   } catch (e) {
     await recordPulse("promote-index", { attempted: 0, succeeded: 0, note: `claim failed: ${String(e.message || e).slice(0, 120)}` });
-    return Response.json({ ok: false, error: String(e.message || e) }, { status: 200 });
+    return jobFailed("promote-index", String(e.message || e));
   }
 
   if (!Array.isArray(claimed) || claimed.length === 0) {
