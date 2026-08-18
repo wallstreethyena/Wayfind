@@ -19,7 +19,9 @@
 // counter, a bar, a comedy club. It is deliberately NOT real data — a test
 // that needs Google to pass is a test that goes quiet the day the key expires.
 import { RAILS } from "../lib/rails.js";
-import { RAIL_SELECT, selectFor, fillRails, MIN_CARDS, MAX_CARDS } from "../lib/railSelect.js";
+import { RAIL_SELECT, selectFor, fillRails, MIN_CARDS, MAX_CARDS, pickNearThenWiden } from "../lib/railSelect.js";
+import { BEACH_NEAR_MI } from "../lib/beaches.js";
+import { readFileSync } from "node:fs";
 
 let pass = 0, fail = 0;
 const ok = (c, m) => { c ? pass++ : (fail++, console.log("  FAIL:", m)); };
@@ -252,6 +254,83 @@ for (const [id, rows] of Object.entries(places)) {
   let threw = null;
   try { fillRails(junk); } catch (e) { threw = e; }
   ok(!threw, `fillRails survives null / typeless rows (${threw && threw.message})`);
+}
+
+// ── visitor-origin radius: 17 first, 25 only when 17 cannot fill ─────────
+{
+  const tb = readFileSync(new URL("../lib/todaysBest.js", import.meta.url), "utf8");
+  ok(/export const NEAR_RADIUS_MI = 17/.test(tb), "NEAR_RADIUS_MI is the existing 17 — do not invent a third radius");
+  ok(/export const WIDEN_RADIUS_MI = 25/.test(tb), "WIDEN_RADIUS_MI is the existing 25");
+}
+eq(BEACH_NEAR_MI, 23, "beach keeps the documented 23-mile exception");
+const NEAR_RADIUS_MI = 17;
+const WIDEN_RADIUS_MI = 25;
+{
+  const near3 = [
+    mk("n1", { name: "Near One", types: ["restaurant"], distMi: 4, _s: 90 }),
+    mk("n2", { name: "Near Two", types: ["restaurant"], distMi: 9, _s: 80 }),
+    mk("n3", { name: "Near Three", types: ["restaurant"], distMi: 16, _s: 70 }),
+    mk("w1", { name: "Widen One", types: ["restaurant"], distMi: 20, _s: 95 }),
+    mk("f1", { name: "Far One", types: ["restaurant"], distMi: 40, _s: 99 }),
+  ];
+  const first = pickNearThenWiden(near3, NEAR_RADIUS_MI, WIDEN_RADIUS_MI, MIN_CARDS);
+  ok(first.every((p) => p.distMi <= 17), "17-first: a full 17mi set does not widen");
+  ok(!first.some((p) => p.id === "w1" || p.id === "f1"), "17-first: 20mi and 40mi stay out when 17 can fill");
+  eq(first.length, 3, "17-first keeps the three near rows");
+}
+{
+  const thinNear = [
+    mk("n1", { name: "Only Near", types: ["restaurant"], distMi: 6, _s: 80 }),
+    mk("w1", { name: "Widen A", types: ["restaurant"], distMi: 20, _s: 90 }),
+    mk("w2", { name: "Widen B", types: ["restaurant"], distMi: 24, _s: 70 }),
+    mk("f1", { name: "Too Far", types: ["restaurant"], distMi: 40, _s: 99 }),
+  ];
+  const wide = pickNearThenWiden(thinNear, NEAR_RADIUS_MI, WIDEN_RADIUS_MI, MIN_CARDS);
+  ok(wide.some((p) => p.id === "w1") && wide.some((p) => p.id === "w2"),
+    "25 only when 17 cannot fill MIN_CARDS");
+  ok(!wide.some((p) => p.id === "f1"), "widen stops at 25 — 40mi is not near me");
+  eq(wide.length, 3, "widen admits the two 20-24mi rows plus the one near row");
+}
+{
+  const none = pickNearThenWiden(pools.restaurants, NaN, 25, MIN_CARDS);
+  eq(none.length, pools.restaurants.length, "no nearMi (no visitor origin) does not invent a radius");
+}
+{
+  const visitor = {
+    restaurants: [
+      mk("r-near", { name: "Near Meal", types: ["restaurant"], distMi: 5, _s: 90, priceLevel: "PRICE_LEVEL_MODERATE" }),
+      mk("r-mid", { name: "Mid Meal", types: ["restaurant"], distMi: 20, _s: 80, priceLevel: "PRICE_LEVEL_MODERATE" }),
+      mk("r-far", { name: "Far Meal", types: ["restaurant"], distMi: 40, _s: 99, priceLevel: "PRICE_LEVEL_MODERATE" }),
+      mk("r-near2", { name: "Near Meal 2", types: ["restaurant"], distMi: 8, _s: 70, priceLevel: "PRICE_LEVEL_MODERATE" }),
+      mk("r-near3", { name: "Near Meal 3", types: ["restaurant"], distMi: 12, _s: 60, priceLevel: "PRICE_LEVEL_MODERATE" }),
+    ],
+    "things-to-do": pools["things-to-do"],
+    beaches: [
+      mk("bh-near", { name: "Near Beach", types: ["beach"], distMi: 10, _s: 90 }),
+      mk("bh-mid", { name: "Mid Beach", types: ["beach"], distMi: 15, _s: 85 }),
+      mk("bh-23", { name: "Edge Beach", types: ["beach"], distMi: 22, _s: 80 }),
+      mk("bh-24", { name: "Past Beach", types: ["beach"], distMi: 24, _s: 95 }),
+    ],
+    nightlife: pools.nightlife,
+    creators: [],
+  };
+  const filled = fillRails(visitor, (p) => p, { nearMi: NEAR_RADIUS_MI, widenMi: WIDEN_RADIUS_MI, cityLabel: "Tampa" });
+  ok(filled.places.eat.every((p) => p.distMi <= 17), "eat (meals) fills from 17 when 17 can");
+  ok(!filled.places.eat.some((p) => p.id === "r-far"), "eat never keeps a 40mi leftover");
+  ok(filled.places.beach.every((p) => p.distMi <= BEACH_NEAR_MI), "beach stays on BEACH_NEAR_MI, not 25");
+  ok(!filled.places.beach.some((p) => p.id === "bh-24"), "beach does not widen to 25");
+}
+{
+  const data = readFileSync(new URL("../lib/railsData.js", import.meta.url), "utf8");
+  const api = readFileSync(new URL("../app/api/rails/route.js", import.meta.url), "utf8");
+  ok(/NEAR_RADIUS_MI/.test(data) && /WIDEN_RADIUS_MI/.test(data),
+    "loadRailPlaces reuses todaysBest 17/25 — no third radius");
+  ok(/if \(!origin\)/.test(api.replace(/\/\*[\s\S]*?\*\//g, " ")) || /if \(!origin\)/.test(api),
+    "api/rails fail-closes when the visitor origin is missing");
+  ok(/requireOrigin/.test(data) && /requireOrigin/.test(api),
+    "near-me rails require the visitor origin — city centroid is not a fallback");
+  ok(!/LANDING_CITIES\.sarasota/.test(api.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ")),
+    "api/rails has no Sarasota leftover fallback");
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);

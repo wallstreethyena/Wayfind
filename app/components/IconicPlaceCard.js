@@ -15,6 +15,7 @@ import { cuisineLabel } from "../../lib/dining";
 import { overrideFor } from "../../lib/placeOverrides";
 import * as Tags from "../../lib/tags";
 import { directionsHref } from "../../lib/directions.js";
+import { hasPlacePhotoRef } from "../../lib/placePhoto.js";
 
 // ---------------------------------------------------------------------------
 // Experience-tag chips (owner: "I need the cards to look like the cards from
@@ -134,8 +135,9 @@ const compactCount = (n) => Number(n) >= 1000
   : String(Number(n) || 0);
 
 const photoUrl = (p) => {
-  if (p && p.photoRef) return "/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&w=640";
-  if (p && typeof p.photo === "string") return p.photo;
+  const ref = p && (p.photoRef || p.photo_ref);
+  if (hasPlacePhotoRef(ref)) return "/api/photo?ref=" + encodeURIComponent(ref) + "&w=640";
+  if (p && typeof p.photo === "string" && p.photo) return p.photo;
   return null;
 };
 
@@ -186,6 +188,7 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   // fragment, or card-data-repeating before this ever reached the client).
   // If NEITHER exists, nothing renders in this slot — no template fallback.
   const validAiSummary = !editorial && aiSummary && typeof aiSummary === "object" && aiSummary.card_line_1 && aiSummary.card_line_2 ? aiSummary : null;
+  const hasTake = !!(editorial || validAiSummary);
   const initials = String(place.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase();
   const actionHref = (action) => "/p/" + encodeURIComponent(place.id) + "?action=" + action;
   const partner = placePartnerPick(place);
@@ -206,7 +209,7 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   };
 
   return (
-    <li data-iconic-place-card data-card-opens-detail onClick={openCard} className={`wf-place-card${isCuratorPick ? " is-curator-pick" : ""}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}`} style={{ listStyle: "none", cursor: href ? "pointer" : "default" }}>
+    <li data-iconic-place-card data-card-opens-detail onClick={openCard} className={`wf-place-card${isCuratorPick ? " is-curator-pick" : ""}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}`} style={{ listStyle: "none", cursor: href ? "pointer" : "default" }}>
       <div className="wf-place-card-layout">
         {photoUrl(place)
           ? <img src={photoUrl(place)} alt="" loading="lazy" style={{ objectFit: "cover" }} />
