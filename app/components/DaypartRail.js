@@ -437,9 +437,11 @@ export default function DaypartRail({
                     // v8.13 — a verified wf_editorial hook still wins; rows
                     // the summer registry sourced fall back to the entry's own
                     // timing/heat guidance (lib/summerUniverse.js `why`,
-                    // carried through slimPlace as summerWhy). Every other row
-                    // keeps rendering nothing rather than filler.
-                    editorial={toHookLine(hooks[p.id], p.name) || p.summerWhy || null}
+                    // carried through slimPlace as summerWhy). v8.15: the
+                    // birthday registry's why line rides the same fallback
+                    // (birthdayWhy). Every other row keeps rendering nothing
+                    // rather than filler.
+                    editorial={toHookLine(hooks[p.id], p.name) || p.summerWhy || p.birthdayWhy || null}
                     badge={beachChip(p)}
                     saved={isSaved ? isSaved(p.id) : false}
                     inTrip={isOnTrip ? isOnTrip(p) : false}

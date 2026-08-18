@@ -61,6 +61,16 @@ const pools = {
     mk("r5", { name: "Hidden Deli", _s: 58, rating: 4.8, reviews: 90, types: ["deli"], distMi: 2 }),
     mk("r6", { name: "Sunset Chophouse", _s: 72, types: ["restaurant"], priceLevel: "PRICE_LEVEL_VERY_EXPENSIVE" }),
     mk("r7", { name: "Nonna Trattoria", _s: 64, rating: 4.7, reviews: 320, types: ["restaurant"], priceLevel: "PRICE_LEVEL_MODERATE", trending: true }),
+    // v8.15 — the breakfast axis's own shapes (owner, 2026-08-18: "the best
+    // breakfast places near the user"). Two qualifying morning rooms so the
+    // rail can fill alongside Quick Bagel Co above (bakery+cafe, 2mi — already
+    // a breakfast place), and two negative controls: a breakfast room OUTSIDE
+    // BREAKFAST_NEAR_MI, and the evening-type veto (a steak_house that also
+    // carries cafe and even "Coffee" in its name must stay off the rail).
+    mk("r8", { name: "Sunrise Pancake House", _s: 66, types: ["breakfast_restaurant"], distMi: 2 }),
+    mk("r9", { name: "Harbor Coffee Roasters", _s: 62, types: ["coffee_shop"], distMi: 3 }),
+    mk("r10", { name: "Far Waffle Barn", _s: 88, types: ["breakfast_restaurant"], distMi: 18 }),
+    mk("r11", { name: "Steakhouse Coffee Bar", _s: 75, types: ["steak_house", "cafe"], distMi: 1 }),
   ],
   beaches: [
     mk("bh1", { name: "Siesta Key Beach", _s: 95, types: ["beach"] }),
@@ -97,6 +107,18 @@ const pools = {
     Object.assign(mk("su4", { name: "Summer Cuban Lunch", _s: 71, distMi: 8, types: ["restaurant"] }), { _summerSourced: true, _summerRails: ["eat"], _summerWhy: "A long Cuban lunch in the AC is the classic summer midday." }),
     Object.assign(mk("su5", { name: "Near Summer Beach", _s: 69, distMi: 6, types: ["beach"] }), { _summerSourced: true, _summerRails: ["beach"], _summerWhy: "A near gulf beach — mornings, not noon." }),
     Object.assign(mk("su6", { name: "Far Keys Cuban", _s: 90, distMi: 220, types: ["restaurant"] }), { _summerSourced: true, _summerRails: ["eat"], _summerWhy: "A 220-mile Cuban lunch is a statewide icon, not a meal near you." }),
+  ],
+  // v8.15 — the birthday pool is synthetic like creators and summer:
+  // lib/railsData.js buildBirthdayPool sources it from the owner's curated
+  // birthday registry (lib/birthdayUniverse.js) and stamps `_birthdaySourced`,
+  // the only thing the selector admits. Three marked rows so the rail can
+  // fill; one UNMARKED high scorer that must never appear — the registry is
+  // the axis, not the pool's contents.
+  birthday: [
+    Object.assign(mk("bd1", { name: "Yacht StarShip Dinner Cruise", _s: 93, distMi: 30, types: ["tourist_attraction"] }), { _birthdaySourced: true, _birthdayWhy: "The one dinner cruise ranked worth a birthday." }),
+    Object.assign(mk("bd2", { name: "LALA Karaoke Lounge", _s: 84, distMi: 25, types: ["restaurant"] }), { _birthdaySourced: true, _birthdayWhy: "Private karaoke rooms built for a group night." }),
+    Object.assign(mk("bd3", { name: "Space 220 Restaurant", _s: 88, distMi: 110, types: ["restaurant"] }), { _birthdaySourced: true, _birthdayWhy: "Dinner 220 miles above Earth — the destination tier." }),
+    mk("bd4", { name: "Unmarked Banquet Hall", _s: 95, types: ["banquet_hall"] }),
   ],
 };
 
@@ -174,6 +196,26 @@ ok(!namesOf("beach").includes("Weeki Wachee Springs"),
 ok(namesOf("family").includes("Weeki Wachee Springs"),
   "Weeki is a family summer pick inside the day-trip radius");
 ok(!namesOf("family").includes("Bamboo Island Bar"), "family never reaches nightlife");
+// v8.15 — the breakfast axis (owner, 2026-08-18: "the best breakfast places
+// near the user … the exact pinpoint from the maps function"). Identity from
+// lib/breakfast.js, radius BREAKFAST_NEAR_MI — both halves get a negative
+// control, because a rail that fills by accident is the six-rails-one-place
+// bug this whole suite exists for.
+eq(lead("breakfast"), "Quick Bagel Co", "breakfast leads with the top-scoring morning room");
+ok(namesOf("breakfast").includes("Sunrise Pancake House") && namesOf("breakfast").includes("Harbor Coffee Roasters"),
+  "breakfast types and coffee rooms qualify on the evidence they carry");
+ok(!namesOf("breakfast").includes("Far Waffle Barn"),
+  "a breakfast room 18 miles out is not breakfast — nobody drives past ten miles before coffee");
+ok(!namesOf("breakfast").includes("Steakhouse Coffee Bar"),
+  "the evening-room veto is absolute — a steak_house with a cafe tag and Coffee in its name stays out");
+ok(!namesOf("breakfast").includes("Corner Taco"),
+  "a taco counter carries no breakfast evidence and does not ride the rail");
+// v8.15 — the birthday axis: the owner's curated registry IS the selection.
+eq(lead("birthday"), "Yacht StarShip Dinner Cruise", "birthday leads with its highest-scored registry pick");
+ok(selectFor("birthday", pools, CTX).every((p) => p._birthdaySourced === true),
+  "every birthday pick is sourced from the owner's registry");
+ok(!namesOf("birthday").includes("Unmarked Banquet Hall"),
+  "an unmarked row in the pool never rides the birthday rail — the marker is the membership");
 ok(namesOf("best").includes("Siesta Key Beach") && namesOf("best").includes("Beach House Waterfront"),
   "the best-around-you rail really does see every pool");
 // v8.6 — THE SIGNAL CHANGED, SO THE FIXTURE EXPECTATION CHANGED WITH IT.
@@ -212,7 +254,7 @@ ok(namesOf("best").includes("Siesta Key Beach") && namesOf("best").includes("Bea
 // "everything on wayfind is ranked by the wayfind score from highest to
 // lowest always … a global rule everywhere"). Every rail, including today,
 // reads in strictly non-increasing displayed score.
-for (const id of ["today", "best", "eat", "gems", "trending", "tonight", "beach", "break", "datenight", "drive", "events", "family", "season"]) {
+for (const id of ["today", "best", "eat", "gems", "trending", "tonight", "beach", "break", "datenight", "drive", "events", "family", "season", "breakfast", "birthday"]) {
   const rows = selectFor(id, pools, CTX);
   ok(rows.every((p, i, a) => i === 0 || (a[i - 1].governed_score ?? -Infinity) >= (p.governed_score ?? -Infinity)),
     `${id}: the rail reads highest displayed score first — the global rule (got ${JSON.stringify(rows.map((p) => p.governed_score))})`);
@@ -247,8 +289,10 @@ for (const [id, rows] of Object.entries(places)) {
   // Pinned, not a floor: an 18-row fixture is thin on purpose, and naming the
   // exact set means a selector that silently stops matching shows up here as a
   // named rail rather than a count that still clears a bar.
+  // v8.15 — birthday and breakfast join the fillable set: the fixture carries
+  // three marked registry rows and three qualifying morning rooms.
   eq(leads.map(([id]) => id).sort().join(","),
-    "beach,best,break,datenight,drive,eat,events,family,gems,season,today,tonight,trending",
+    "beach,best,birthday,break,breakfast,datenight,drive,eat,events,family,gems,season,today,tonight,trending",
     "exactly the rails this fixture can fill honestly, and no others");
   // locals needs a real creator video and trending needs real demand data.
   // Neither can be faked into a fixture, and neither may be faked onto a page.

@@ -416,6 +416,7 @@ node scripts/check-rail-routes.mjs
 #     place because an unfiltered rail is a perfectly valid duplicate.
 node scripts/test-rail-select.mjs
 node scripts/test-summer-universe.mjs
+node scripts/test-birthday-universe.mjs
 node scripts/check-market-photo-honesty.mjs
 node scripts/test-location-context.mjs
 
