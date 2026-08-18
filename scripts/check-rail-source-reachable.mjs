@@ -55,11 +55,32 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
   ok(withoutCity < withCity,
     "hasCreatorVideoAt gives the same answer with and without a city — either the registry stopped keying on city, or this probe no longer distinguishes the bug it was written for");
 
-  // …and the rail must actually pass one.
+  // RE-POINTED v8.7 (owner, 2026-08-18: "Nothing near Sarasota clears this
+  // bar"). The two-argument fix above was real but not sufficient: the pools
+  // are the top-15 anchors per category and creator spots are small counters
+  // that never crack that top, so `locals` filtered a set its venues were
+  // structurally absent from (Tampa: 42 curated spots in inventory, 0 shown).
+  // The rail now reads a dedicated `creators` pool that lib/railsData.js
+  // builds FROM the registry — so the invariant worth pinning moved:
+  //   1. locals reads the creators pool, not a filter over the anchor pools;
+  //   2. railsData actually builds and attaches that pool;
+  //   3. the builder keeps the registry's fail-closed rules (radius from the
+  //      shared origin; a spot with no placeId and no pool match is skipped).
+  // The two-argument hasCreatorVideoAt call this block was written for now
+  // lives in the TRENDING selector, and is asserted there so the one-argument
+  // regression stays impossible on the surface that still makes the call.
   const sel = readFileSync(new URL("../lib/railSelect.js", import.meta.url), "utf8").replace(/\n\s*/g, " ");
   const localsCfg = (sel.match(/locals: \{.*?\},/) || [""])[0];
-  ok(/hasCreatorVideoAt\(\s*p\s*,/.test(localsCfg),
-    "the locals rail calls hasCreatorVideoAt with ONE argument again — it returns false for every place in that form, which is exactly how it shipped empty for three sessions");
+  ok(/pools: \["creators"\]/.test(localsCfg),
+    "the locals rail no longer reads the creators pool — it is back to filtering the anchor pools, which is the empty-by-construction defect (Tampa 42-in-inventory/0-shown)");
+  const trendingCfg = (sel.match(/trending: \{.*?\},/) || [""])[0];
+  ok(/hasCreatorVideoAt\(\s*p\s*,/.test(trendingCfg),
+    "the trending rail calls hasCreatorVideoAt with ONE argument again — it returns false for every place in that form, which is exactly how the locals rail shipped empty for three sessions");
+  const rd = readFileSync(new URL("../lib/railsData.js", import.meta.url), "utf8");
+  ok(/pools\.creators\s*=\s*await buildCreatorsPool/.test(rd),
+    "lib/railsData.js no longer attaches the creators pool — the locals rail is routed to a source that never gets built");
+  ok(/CREATOR_FINDS_RADIUS_MI/.test(rd) && /getPlaceDetails/.test(rd),
+    "buildCreatorsPool lost its registry rules — the radius gate from the shared origin and the placeId-hydration path are what keep it both near and real");
 }
 
 /* ── popularity: no category may be routed only to dead sources ─────────── */

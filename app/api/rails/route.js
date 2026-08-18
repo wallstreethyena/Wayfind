@@ -60,7 +60,13 @@ export async function GET(req) {
     });
   }
   try {
-    const data = await railMenuData(slug);
+    // v8.7 — the reader's REAL point, when given. Pools stay per-metro cached;
+    // only distances, distance gates and the creators pool re-origin on it.
+    // The client snaps coordinates to a coarse grid before asking, so the CDN
+    // cache keys stay countable (see DaypartRail's fetch).
+    const la = Number(sp.get("lat")), ln = Number(sp.get("lng"));
+    const origin = Number.isFinite(la) && Number.isFinite(ln) ? { lat: la, lng: ln } : null;
+    const data = await railMenuData(slug, { origin });
     return NextResponse.json({ covered: true, data }, {
       headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" },
     });
