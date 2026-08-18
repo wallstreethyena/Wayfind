@@ -54,7 +54,13 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 // "Best places to eat nearby" sits under the events card instead. The
 // component, lib, and engines stay in the repo for when it returns.
 ok(!/<TodaysBest /.test(home), "the accordion is unmounted (owner call)");
-ok(/<BestNearby center=\{center\} weather=\{weather\}/.test(home), "the combined BestNearby card is mounted with live center + weather (v6.46)");
+// RE-POINTED v8.8 (owner, 2026-08-18: "the menus should only show when the
+// cards is clicked"): <BestNearby> followed <TodaysBest> off the homepage —
+// the daypart rail's fifteen tiles are the one menu and its drop is the
+// one-tap ranked answer. The component and its engines stay in the repo
+// (below), exactly like TodaysBest before it, and this assertion flips the
+// same way that one did: mounted-again is the regression now.
+ok(!/<BestNearby center=/.test(home), "the BestNearby accordion is mounted on the homepage again — a second, stacked copy of the rail menu (owner removed it 2026-08-18)");
 
 // v6.46: the combined card's own contract
 const bn = readFileSync(new URL("../app/components/BestNearby.js", import.meta.url), "utf8");
@@ -94,7 +100,9 @@ ok(/MEDAL = \[CHAMPAGNE\.base, "#C7CCD6", "#B8804A"\]/.test(bn), "top-3 medals a
 ok(/if \(i > 2\) return/.test(bn), "medals stop at rank 3");
 // rows open OUR detail sheet, never a Google tab
 ok(bn.includes("onOpenPlace") && /onOpenPlace\(p\)/.test(bn), "rows hand the place to the app's own detail opener");
-ok(/onOpenPlace=\{\(p\) => openDetail\(p, "bestnearby"\)\}/.test(home), "home wires BestNearby rows to openDetail (our card, not Google)");
+// RE-POINTED v8.8: with <BestNearby> unmounted from "/" there is no home
+// wiring to assert — the component-level assertion above still pins the
+// our-card-not-Google contract for every surface that mounts it.
 // Local trends: real sources only
 ok(bn.includes("SHOW_TRENDS = false") && bn.includes("Local trends"), "Local trends is flagged OFF (owner) with all machinery kept");
 ok(/p_radius_mi: 20/.test(bn), "beach counts as near only within 20 miles (owner definition)");

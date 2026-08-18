@@ -9077,7 +9077,32 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   where a visitor most needs something to look at.
               
                   Position asserted by scripts/check-home-answer-first.mjs. */}
-              {!browseCat && <BestNearby center={center} weather={weather} events={foryouEvents || []} videoPlaces={videoPlaces} onFindSimilar={(q) => { try { submitSearch(q); } catch (e) {} }} city={locName} onOpenPlace={(p) => openDetail(p, "bestnearby")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} isSaved={isSaved} liked={liked} disliked={disliked} onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(p) => { try { addShared(p); giveawayMark(p.id); askShareIntent({ name: p.name, city: locName, id: p.id, kind: placeKinds(p), onPlain: () => shareLink(p.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(p.id)), () => showToast("Link copied")), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", p, { kind: "invite", from: "rail" }); } catch (e2) {} }) }); } catch (er) {} }} onExperience={(key, p) => { try { key === "creatorvideo" ? openDetail(p, "creatorfinds") : openExperience(key); } catch (er) {} }} eventsSlot={eventsRailSlot} creatorSlot={<CreatorFinds items={videoPlaces} byCity={socialFindByCity} center={center} bare onOpenPlace={(p) => openDetail(p, "creatorfinds")} onBrowse={() => setSocialFind({ browse: true })} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} isSaved={isSaved} liked={liked} disliked={disliked} onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(p) => { try { addShared(p); giveawayMark(p.id); askShareIntent({ name: p.name, city: locName, id: p.id, kind: placeKinds(p), onPlain: () => shareLink(p.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(p.id)), () => showToast("Link copied")), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", p, { kind: "invite", from: "rail" }); } catch (e2) {} }) }); } catch (er) {} }} onExperience={(key, p) => { try { key === "creatorvideo" ? openDetail(p, "creatorfinds") : openExperience(key); } catch (er) {} }} />} />}
+              {/* v8.8 (owner, 2026-08-18, screenshots): "the menus here should all be
+                  moved to the amazon rail cards categories … the menus should only
+                  show when the cards is clicked."
+
+                  <BestNearby> — the Top-40 accordion, the eight section shells, the
+                  CreatorFinds shelf and the events slot — NO LONGER RENDERS ON "/".
+                  The component is intact (other surfaces and its tests still use
+                  it); it simply has no render site on the homepage, the same
+                  treatment <HomeAside> got in v8.4 directly below.
+
+                  WHAT REPLACES IT: nothing needed to. The daypart rail above IS the
+                  menu now — every one of its fifteen tiles opens the same ranked
+                  place cards in one tap (server-ranked, exact-origin distances since
+                  v8.7), and every category the accordion duplicated is a tile:
+                  best -> The Best Around You, eat -> Actually Worth Eating,
+                  break -> The 30-Minute Break, gems, locals (creator-sourced),
+                  tonight, drive, events. The accordion was a SECOND, stacked copy of
+                  that menu — the duplication the owner has been photographing since
+                  v8.2 ("the accordion menu must leave the top of the feed").
+
+                  THE v6.58 ANSWER-FIRST MEASUREMENT (84% bounce when the answer hid
+                  behind a tap, below the fold) is not overruled — it is re-housed:
+                  the rail band is the first screen, its tiles are real <a href>
+                  links, and the drop lands the ranked answer under the band without
+                  a navigation. scripts/check-home-answer-first.mjs was re-pointed at
+                  that invariant the day this render site was removed. */}
               {/* v8.4 (owner, 2026-08-16): the weather card ("RIGHT NOW NEAR
                   YOU") and "DEALS NEAR YOU" come off the homepage — MOBILE AND
                   DESKTOP, not one breakpoint.

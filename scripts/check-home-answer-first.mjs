@@ -150,7 +150,19 @@ const iEventsSlot = HOME.indexOf("const eventsRailSlot = (() => {");
 const iTopbar = HOME.indexOf('className="wf-topbar"');
 const iScrollArea = HOME.indexOf('className="wf-scrollarea"');
 
-ok(iBest > -1, "app/home.js renders <BestNearby>");
+// RE-POINTED v8.8 (owner, 2026-08-18, screenshots: "the menus here should all
+// be moved to the amazon rail cards categories … the menus should only show
+// when the cards is clicked"). <BestNearby> — the Top-40 accordion, the eight
+// section shells, the creator shelf and the events slot — no longer renders on
+// "/". The rail's fifteen tiles are the ONE menu, and picking a card drops the
+// ranked place cards in place, in one tap — which is the v6.58 answer-first
+// rule re-housed, not repealed: the answer is still one gesture from the first
+// screen, and nothing that advertises Wayfind sits above it. What flips is the
+// direction of this assertion: BestNearby mounted again is now the regression
+// (a second, stacked copy of the menu — the duplication the owner has been
+// photographing since v8.2). Same treatment TodaysBest got in v6.46 and
+// ExplodingNearby in v8.6.
+ok(iBest === -1, "the BestNearby accordion is mounted on the homepage again — a second, stacked copy of the rail menu (owner removed it 2026-08-18)");
 ok(iRail > -1, "PROBE: the rail band is rendered in the feed (if this is -1 the comparisons below prove nothing)");
 ok(iCatMenu > -1, "the six categories still render — as the header tab strip (<CategoryMenu nav ...>). A -1 here used to SATISFY the ordering assertion below");
 ok(iMenuUse > -1, "the shortcut row still renders — as the header's Shortcuts panel");
@@ -162,8 +174,11 @@ ok(iTopbar > -1 && iScrollArea > iTopbar, `PROBE: the header subtree is delimite
 // column": nothing in the feed can now be reordered above them at all.
 ok(iCatMenu > iTopbar && iCatMenu < iScrollArea, `the six categories render inside the header (${iCatMenu}), above the whole feed — owner 2026-08-15, and it still satisfies v6.62's "add this to the top of the page"`);
 ok(iMenuUse > iTopbar && iMenuUse < iScrollArea, `the shortcut row renders inside the header (${iMenuUse}), above the whole feed — owner directive 2026-08-08 is unchanged, only its position is`);
-ok(iRail < iBest, `the rail still LEADS the feed (${iRail} vs ${iBest})`);
-ok(iCatMenu < iBest && iMenuUse < iBest, "…and both navigation controls still precede the ranked answer");
+// v8.8: with the accordion unmounted, "leads the feed" means the rail band is
+// the first content element after the header — both header controls precede
+// it, and it precedes the guide bridge that now opens the in-feed column.
+ok(iRail > iScrollArea, `the rail band renders in the feed, below the header (${iRail} vs scrollarea ${iScrollArea})`);
+ok(iCatMenu < iRail && iMenuUse < iRail, "…and both navigation controls still precede the rail (they live in the header)");
 ok((HOME.match(/discoveryMenu\}/g) || []).length === 1,
   "the discovery rail renders from exactly ONE site — it used to sit in three mutually exclusive events-state branches, which is how it ended up below the fold in every one of them. v8.2: that one site is the header panel");
 
@@ -537,21 +552,28 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   // added `category=` to <BestNearby> and this restored assertion went red on
   // the very first run, which is the same pin-the-literal-source fragility
   // that broke four guards this week. The claim is about ORDER, not props.
+  // RE-POINTED v8.8 (owner, 2026-08-18): <BestNearby> and its <CreatorFinds>
+  // slot both left "/" — the rail's fifteen tiles are the one menu, its
+  // `locals` tile is the creator surface (sourced from the registry itself in
+  // lib/railsData.js buildCreatorsPool, which reaches MORE of the library than
+  // the old shelf's pool-filter ever did), and its drop is the one-tap ranked
+  // answer. The order claims below collapse into: neither accordion surface
+  // may remount, and the categories tab strip still leads everything.
   const iBestNearby = HOME.indexOf("<BestNearby ");
   const iFinds = HOME.indexOf("<CreatorFinds items=");
-  // v8.2: the category row is the header tab strip. The ORDER claim is
-  // unchanged and still holds — the header is above the feed — so the anchor
-  // follows the code rather than the assertion being dropped.
   const iCats = HOME.indexOf("<CategoryMenu nav activeCat=");
-  ok(iBestNearby > 0 && iFinds > 0 && iCats > 0, "all three home sections render (answer, creator finds, categories)");
-  ok(iBestNearby < iFinds, "the ANSWER comes before the creator row");
-  ok(iCats > 0 && iCats < iBestNearby, "the six categories sit ABOVE the answer and the creator row (v6.62, owner: \"add this to the top of the page\") — the ranked list below is still unmoved relative to events/hero/discovery, see the v6.58 block above");
-
-  // ── one list, two surfaces ──
-  ok(/<CreatorFinds items=\{videoPlaces\}/.test(HOME) && /<BestNearby[^>]*videoPlaces=\{videoPlaces\}/.test(HOME),
-     "the ranked-list section and the creator row read the SAME videoPlaces array — two derivations of one list is how these surfaces drift apart");
-  ok(!/videoPlaces=\{\(\(\) =>/.test(HOME),
-     "videoPlaces is no longer an IIFE inlined in JSX, recomputed every render for a section that is switched off");
+  ok(iBestNearby === -1, "the BestNearby accordion is mounted on the homepage again (owner removed it 2026-08-18: 'the menus should only show when the cards is clicked')");
+  ok(iFinds === -1, "the CreatorFinds shelf is mounted standalone on the homepage again — the locals rail tile is the creator surface now, and a second shelf is the stacked-menu duplication the owner removed");
+  ok(iCats > 0, "the six categories still render as the header tab strip (v6.62's 'add this to the top of the page' still satisfied)");
+  // …and the creator inventory the shelf carried still reaches the reader:
+  // the locals rail is registry-sourced, asserted where that code lives
+  // (scripts/check-rail-source-reachable.mjs pins pools:["creators"] and
+  // lib/railsData.js buildCreatorsPool).
+  {
+    const RD = readFileSync(path.join(REPO, "lib/railsData.js"), "utf8");
+    ok(/pools\.creators\s*=\s*await buildCreatorsPool/.test(RD),
+       "the creator surface is gone from BOTH homes — the shelf is unmounted AND the rail's creators pool is no longer built. One of them must carry the library.");
+  }
 
   // ── THE TDZ RULE, learned the hard way ──
   // useMemo evaluates its dependency ARRAY on the first render, so a hook that
@@ -782,10 +804,16 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
      "cardFacts() builds this row's meta from reviews / price / open-closed only — no distance string is assembled anywhere in it");
   ok(/Creators in \$\{bridge\.city\}/.test(CF) && /poolCount \|\| registryRows\.length \? "Finds from local creators"/.test(CF),
      "with no local find the heading names the city the finds are ACTUALLY in — 'local' is a claim, and another city's spots are not the reader's");
-  ok(/byCity=\{socialFindByCity\}/.test(HOME),
-     "the row reads the SAME spotsByCity memo the bookshelf hero already uses — a second derivation is how two surfaces start disagreeing about where the finds are");
-  ok(/onBrowse=\{\(\) => setSocialFind\(\{ browse: true \}\)\}/.test(HOME),
-     "the bridge opens the existing library browse view rather than inventing a second destination for the same content");
+  // RE-POINTED v8.8: the CreatorFinds row left "/" with the accordion (owner,
+  // 2026-08-18) — its home wiring (`byCity={socialFindByCity}`, the
+  // setSocialFind browse bridge) went with the render site, so there is no
+  // home-side prop to pin. The invariant that mattered — ONE derivation of the
+  // registry per surface — survives where the surfaces are: the SocialFind
+  // sheet still reads the socialFindByCity memo, and the rail's creators pool
+  // reads spotsByCity(origin) server-side. What must not come back is a
+  // standalone CreatorFinds shelf, asserted in the order block above.
+  ok(/const socialFindByCity = useMemo\(\(\) => spotsByCity\(center\)/.test(HOME),
+     "the spotsByCity memo left home.js — the SocialFind sheet now derives the registry some other way, which is the two-derivations drift this line exists to stop");
 }
 
 // THE REPORT MUST BE THE LAST THING BEFORE THE SUMMARY.
@@ -803,4 +831,4 @@ if (fail.length) {
   for (const f of fail) console.error("  ✗ " + f);
   process.exit(1);
 }
-console.log(`check-home-answer-first: ${pass} assertions passed (default section "${decl[2]}", ${ids.length} sections, ranked list leads the feed at index ${iBest})`);
+console.log(`check-home-answer-first: ${pass} assertions passed (default section "${decl[2]}", ${ids.length} sections, rail is the one menu — accordion unmounted, v8.8)`);
