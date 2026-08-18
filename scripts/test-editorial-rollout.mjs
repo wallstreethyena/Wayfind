@@ -43,13 +43,15 @@ const read = (p) => readFileSync(new URL("../" + p, import.meta.url), "utf8");
   ok(!!m, "atlas-build declares CATS");
   const cats = m[1].split(",").map((s) => s.trim().replace(/^["']|["']$/g, "")).filter(Boolean);
   ok(cats.includes("shopping"), "shopping IS in the rollout — it was absent, which is why it sat at 13.5%");
+  ok(cats.includes("beach"), "beach IS in the rollout — it was absent, so wf_atlas_missing never queued rail beaches");
   ok(cats[0] === "food", `food runs FIRST (got "${cats[0]}") — largest category, lowest coverage`);
   ok(cats[cats.length - 1] === "shopping", `shopping runs LAST (got "${cats[cats.length - 1]}")`);
-  ok(cats.length === 5, `all five categories are scheduled (got ${cats.length}: ${cats.join(",")})`);
+  ok(cats.length === 6, `all six categories are scheduled (got ${cats.length}: ${cats.join(",")})`);
   // The route works CATS front-to-back, so the array IS the schedule. Prove the
-  // order is the owner's, not merely that the members are present.
-  ok(JSON.stringify(cats) === JSON.stringify(["food", "attractions", "nightlife", "hotels", "shopping"]),
-    `the schedule is exactly food->attractions->nightlife->hotels->shopping (got ${cats.join("->")})`);
+  // order is the owner's, not merely that the members are present. `beach` is
+  // the inventory column (singular); Atlas-590 TSV says "beaches".
+  ok(JSON.stringify(cats) === JSON.stringify(["food", "attractions", "beach", "nightlife", "hotels", "shopping"]),
+    `the schedule is exactly food->attractions->beach->nightlife->hotels->shopping (got ${cats.join("->")})`);
 }
 
 // ── 2. Gift Shops is a TYPES contract, not a text query ───────────────────

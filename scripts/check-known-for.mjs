@@ -72,6 +72,15 @@ ok(/knownForMap\(/.test(api), "the route does not use the shared composer, so th
 ok(!/openai|anthropic|aiKey|generate|completion/i.test(api), "the known-for route reaches a model — this text must be research we already hold, never generated");
 ok(/FAILED VERIFICATION/.test(lib), "the failed-verification exclusion is gone from the composer");
 ok(/degraded/.test(api), "the route cannot report a degraded lookup, so a silent blank is indistinguishable from 'no editorial'");
+ok(/verified=is\.true/.test(api), "the route still gates the fleet read on verified=is.true — unpublished rows must not leak onto a card");
+ok(/atlasLinesFor/.test(api), "the route consults Atlas cards — publish-ready copy already held must reach the take");
+ok(!/openai|anthropic|aiKey|generate|completion/i.test(code(readFileSync(new URL("../lib/atlasCards.js", import.meta.url), "utf8"))),
+  "the Atlas mapper reaches a model — Atlas is held research, never generated in this path");
+
+// An unpublished fleet row (verified false, even with a punchy hook) is silent.
+const unpublished = { place_id: "x8", hook: "A twelve-seat listening bar hidden behind an unmarked door.", verified: false, issues: null };
+ok(editorialUsable(unpublished) === false, "a verified:false row is treated as usable");
+ok(knownForLine(unpublished) === null, "a verified:false row produced a card line — unpublished research must not ship");
 
 // The mood prompt: four words, hard cap (owner).
 const intro = readFileSync(new URL("../app/components/sheets/Intro.js", import.meta.url), "utf8");

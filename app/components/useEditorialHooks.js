@@ -6,9 +6,10 @@
 // apart. TWO SOURCES, IN THIS PRECEDENCE — the same precedence the main feed
 // has always used:
 //
-//   1. /api/known-for — researched wf_editorial copy about THIS place (what it
-//      is known for). No model is called; the route returns copy written and
-//      checked for that specific place, or nothing for it. WINS where it exists.
+//   1. /api/known-for — researched copy about THIS place (what it is known
+//      for): the owner's Atlas card first, then a verified wf_editorial hook.
+//      No model is called; the route returns copy written and checked for that
+//      specific place, or nothing for it. WINS where it exists.
 //   2. /api/blurbs with cacheOnly:true — the validated "Known for" line from the
 //      shared 30-day pool. RENDER-SAFE: reads only what the pool already holds
 //      and never generates while the reader waits. This is a hard contract, not

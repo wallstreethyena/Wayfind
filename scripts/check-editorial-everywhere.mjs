@@ -88,6 +88,7 @@ const SURFACES = [
   ["app/components/ThingsToDoList.js", "toHookLine", "the ranked things-to-do list"],
   ["app/components/IntentPageClient.js", "toHookLine", "every intent page, including /best-of"],
   ["app/components/TrendingNowClient.js", "toHookLine", "/trending"],
+  ["app/components/DaypartRail.js", "toHookLine", "the homepage rail drop — IconicPlaceCard take"],
 ];
 for (const [f, fn, what] of SURFACES) {
   const src = code(f);

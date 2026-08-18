@@ -123,7 +123,12 @@ export const maxDuration = 60;
 //     (243 places, 21.8%). The job would have spent weeks on the tail before
 //     reaching the thing users open first.
 // Owner order, 2026-07-29: Food first, Shopping (incl. Gift Shops) last.
-const CATS = ["food", "attractions", "nightlife", "hotels", "shopping"];
+// `beach` (inventory singular — not the Atlas-590 TSV label "beaches") was
+// ABSENT, the same defect that hid shopping. The beach rail is a first-class
+// surface; without this category wf_atlas_missing never hands Siesta / Lido
+// / the rest of the rail to the fleet. Atlas cards still win on the read
+// path where they exist; this only lets the cron pick up the missing set.
+const CATS = ["food", "attractions", "beach", "nightlife", "hotels", "shopping"];
 const METROS = ["tampa", "orlando", "manatee-sarasota"];
 // ATLAS_MODEL is a VALUE override, not a presence flag — absent is correct and
 // means "use the default". The old form was
