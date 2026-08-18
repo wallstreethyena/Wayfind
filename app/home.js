@@ -8808,8 +8808,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             IN) → unlock-this-city. It re-fetches on sign-in (user is in the gate
             effect deps) so the alert card swaps to the unlock card immediately —
             no lingering. */}
-        {screen === "suggested" && center && (gateStatus === "unlock" || gateStatus === "alert" || railsCoverage === "uncovered") && (
-          <CityGate status={(gateStatus === "unlock" || (railsCoverage === "uncovered" && user)) ? "unlock" : "alert"} center={center} city={locName} user={user} onSignUp={() => setAuthOpen(true)} onUnlocked={() => setGateBump((x) => x + 1)} />
+        {screen === "suggested" && (gateStatus === "unlock" || gateStatus === "alert") && (
+          <CityGate status={gateStatus} center={center} city={locName} user={user} onSignUp={() => setAuthOpen(true)} onUnlocked={() => setGateBump((x) => x + 1)} />
+        )}
+        {screen === "suggested" && center && railsCoverage === "uncovered" && gateStatus !== "unlock" && gateStatus !== "alert" && (
+          <CityGate status={user ? "unlock" : "alert"} center={center} city={locName} user={user} onSignUp={() => setAuthOpen(true)} onUnlocked={() => setGateBump((x) => x + 1)} />
         )}
         {/* Signed-in users ALWAYS get the feed — even outside our core area (the
             gate returns 'unlock', and the live-search feed works anywhere). Only
