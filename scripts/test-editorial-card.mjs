@@ -5,23 +5,15 @@
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+import { cardToEditorial } from "../lib/atlasCards.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+
 const cards = JSON.parse(readFileSync(join(root, "data/atlas/editorial-cards.json"), "utf8"));
 
 let pass = 0;
 const fail = (m) => { console.error("test-editorial-card: FAIL — " + m); process.exit(1); };
 const ok = (c, m) => { if (!c) fail(m); pass++; };
-
-// Same mapping the route (app/api/editorial/route.js) applies. Kept in sync by
-// this test: `move` must never be emitted (Atlas cards carry Insider Move).
-const un = (v) => (typeof v === "string" && v.trim() ? v.trim() : null);
-const cardToEditorial = (c) => ({
-  name: c.name, vibe: un(c.vibeCheck), why: un(c.whyGo), knownFor: un(c.knownFor), bestFor: un(c.bestFor),
-  foodMove: un(c.foodMove), drinkMove: un(c.drinkMove), insiderMove: un(c.insiderMove),
-  story: un(c.verifiedStory), proof: un(c.powerhouseProof), goodToKnow: un(c.currentUsefulDetail),
-  funFact: un(c.funFact), watchOut: un(c.watchOut),
-});
 
 ok(Array.isArray(cards) && cards.length >= 90, `at least 90 Atlas cards (got ${Array.isArray(cards) ? cards.length : "not an array"})`);
 

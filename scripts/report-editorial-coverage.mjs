@@ -14,7 +14,7 @@
 import { readFileSync } from "fs";
 
 const metro = process.argv[2] || "orlando";
-const CATS = ["food", "attractions", "nightlife", "hotels", "shopping"]; // rollout order
+const CATS = ["food", "attractions", "beach", "nightlife", "hotels", "shopping"]; // rollout order
 
 function env() {
   let url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";

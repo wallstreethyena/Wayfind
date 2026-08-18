@@ -121,11 +121,16 @@ for (const [file, needle, what] of [
   ["app/best-beaches/[metro]/page.js", "verified=is.true", "the beaches metro page"],
   ["lib/todaysBest.js", '.eq("verified", true)', "Today's Best / things-to-do hooks"],
   ["app/components/IntentPageClient.js", '.eq("verified", true)', "the intent pages"],
+  ["app/api/known-for/route.js", "verified=is.true", "the rail/sheet known-for route"],
 ]) {
   ok(read(file).includes(needle), `${what} still gates on verified (${file}) — the fix for missing editorial is the flag's VALUE, never removing the gate`);
 }
 ok(/if \(!row \|\| row\.verified !== true\) return null;/.test(rule),
   "mapWfEditorial fails CLOSED on a missing or unverified row — it returns null rather than a partly-populated card");
+ok(read("app/api/known-for/route.js").includes("atlasLinesFor"),
+  "known-for consults the owner's Atlas cards — Siesta/Lido empty was a missing READ of publish-ready Atlas copy, not a reason to skip Atlas");
+ok(read("lib/knownFor.js").includes("row.verified === false"),
+  "knownFor.editorialUsable rejects an explicit verified:false — unpublished fleet rows stay off the card");
 
 // ─── 3. The fleet actually runs ─────────────────────────────────────────────
 // Coverage froze at 503/3457 on 2026-07-24 for one reason: nothing scheduled

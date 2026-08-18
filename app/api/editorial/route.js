@@ -17,6 +17,7 @@ import { NextResponse } from "next/server";
 import { editorialFor, EDITORIAL_COUNT } from "../../../lib/editorial";
 import atlasCards from "../../../data/atlas/editorial-cards.json";
 import { mapWfEditorial } from "../../../lib/editorialRule";
+import { cardToEditorial, resolveAtlasId } from "../../../lib/atlasCards";
 
 export const dynamic = "force-dynamic";
 
@@ -24,21 +25,6 @@ const HEADERS = { "Cache-Control": "public, s-maxage=86400, stale-while-revalida
 
 const CARD_BY_ID = new Map();
 for (const c of atlasCards) if (c && c.placeId) CARD_BY_ID.set(c.placeId, c);
-const un = (v) => (typeof v === "string" && v.trim() ? v.trim() : null);
-// Map an Atlas card into the editorial shape the Detail "Wayfind take" block
-// consumes. `move` (the owner's short "Best Move" directive) is intentionally
-// omitted — Atlas cards carry a deeper Insider Move instead — so no rendered
-// row duplicates another.
-function cardToEditorial(c) {
-  return {
-    name: c.name,
-    vibe: un(c.vibeCheck), why: un(c.whyGo), knownFor: un(c.knownFor), bestFor: un(c.bestFor),
-    foodMove: un(c.foodMove), drinkMove: un(c.drinkMove), insiderMove: un(c.insiderMove),
-    proMove: un(c.proMove),
-    story: un(c.verifiedStory), proof: un(c.powerhouseProof), goodToKnow: un(c.currentUsefulDetail),
-    funFact: un(c.funFact), watchOut: un(c.watchOut),
-  };
-}
 
 // v6.54: the fleet writes wf_editorial continuously — cache one hour (was a
 // day), long SWR, so new verified rows surface without a deploy.
@@ -63,7 +49,9 @@ export async function GET(req) {
   const u = new URL(req.url);
   const id = String(u.searchParams.get("id") || "").trim();
   // Tier 1: the owner's Atlas card always wins — hand curation beats machine.
-  if (id && CARD_BY_ID.has(id)) return NextResponse.json({ editorial: cardToEditorial(CARD_BY_ID.get(id)) }, { headers: HEADERS });
+  // Same-place aliases (review-same-place.tsv) resolve to the id that holds the card.
+  const atlasId = id && (CARD_BY_ID.has(id) ? id : resolveAtlasId(id));
+  if (atlasId && CARD_BY_ID.has(atlasId)) return NextResponse.json({ editorial: cardToEditorial(CARD_BY_ID.get(atlasId)) }, { headers: HEADERS });
   // Tier 2: the research fleet's verified card (wf_editorial), same shape.
   if (id) {
     const fleet = await wfEditorialFor(id);
