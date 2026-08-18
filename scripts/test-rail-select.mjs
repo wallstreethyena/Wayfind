@@ -82,7 +82,25 @@ const pools = {
   // fixture has no registry, so it is empty here — which is exactly what makes
   // `locals` the honest thin example below.
   creators: [],
+  // v8.13 — the summer pool is ALSO synthetic-by-construction:
+  // lib/railsData.js buildSummerPool sources it from the owner's curated
+  // summer registry (lib/summerUniverse.js) and stamps `_summerSourced`, the
+  // marker the season selector admits June–August. Three marked rows so the
+  // rail can fill; the beaches pool above stays UNMARKED, which is what lets
+  // the axis assertion below prove the all-beaches bug stays dead.
+  summer: [
+    Object.assign(mk("su1", { name: "Weeki Wachee Springs", _s: 88, distMi: 74, types: ["state_park", "tourist_attraction"] }), { _summerSourced: true, _summerWhy: "Mermaid shows and a clear 74° spring run." }),
+    Object.assign(mk("su2", { name: "Bioluminescence Night Paddle", _s: 82, distMi: 110, types: ["tourist_attraction"] }), { _summerSourced: true, _summerWhy: "Summer-only: the lagoon glows on dark nights." }),
+    Object.assign(mk("su3", { name: "Scallop Charter Marina", _s: 76, distMi: 90, types: ["marina"] }), { _summerSourced: true, _summerWhy: "Scallop season is open through Sept 24." }),
+  ],
 };
+
+// v8.13 — every date-sensitive call below pins the clock through ctx.now
+// (the injectable the season selector accepts for exactly this reason), so
+// this suite gives one answer in July and the same answer in October instead
+// of flipping expectations at the equinox — a latent flake this fixture
+// carried for as long as season selected on the real calendar.
+const CTX = { cityLabel: "Sarasota", now: new Date("2026-07-15T12:00:00-04:00") };
 
 // ── structure ───────────────────────────────────────────────────────────────
 for (const r of RAILS) {
@@ -96,8 +114,8 @@ for (const [id, cfg] of Object.entries(RAIL_SELECT)) {
 }
 
 // ── each axis actually selects ──────────────────────────────────────────────
-const lead = (id) => { const r = selectFor(id, pools); return r.length ? r[0].name : null; };
-const namesOf = (id) => selectFor(id, pools).map((p) => p.name);
+const lead = (id) => { const r = selectFor(id, pools, CTX); return r.length ? r[0].name : null; };
+const namesOf = (id) => selectFor(id, pools, CTX).map((p) => p.name);
 
 eq(lead("beach"), "Siesta Key Beach", "beach leads with the top beach");
 // THE 23-MILE RULE travels onto the rail (scripts/test-beach-geo.mjs owns the
@@ -126,6 +144,18 @@ ok(!namesOf("events").includes("The Mable Bar & Grill"), "a bar open every night
 ok(namesOf("tonight").includes("The Mable Bar & Grill"), "...but it is absolutely a move for tonight");
 ok(!namesOf("datenight").includes("Corner Taco"), "a taco counter is not date night");
 ok(namesOf("family").includes("Big Cat Habitat"), "family finds the zoo");
+// v8.13 — the summer axis (owner, 2026-08-18: "everything is just beaches,
+// and that's not really what I'm looking for"). In summer the rail is the
+// owner's registry, whole and only: every pick carries the registry marker,
+// and the unmarked fixture beaches — which the old seasonalFit regex admitted
+// — stay out. Off-season behaviour is asserted on the call in
+// scripts/test-seasonal-picks.mjs with a pinned October date.
+ok(selectFor("season", pools, CTX).every((p) => p._summerSourced === true),
+  "in summer, every season-rail pick is sourced from the owner's summer registry");
+ok(!namesOf("season").includes("Siesta Key Beach") && !namesOf("season").includes("Lido Beach"),
+  "the all-beaches summer rail stays dead — an unmarked beach never rides the season rail again");
+ok(namesOf("season").includes("Bioluminescence Night Paddle"),
+  "…and the things the old regex could never surface are exactly what serves now");
 ok(!namesOf("family").includes("Bamboo Island Bar"), "family never reaches nightlife");
 ok(namesOf("best").includes("Siesta Key Beach") && namesOf("best").includes("Beach House Waterfront"),
   "the best-around-you rail really does see every pool");
@@ -166,13 +196,13 @@ ok(namesOf("best").includes("Siesta Key Beach") && namesOf("best").includes("Bea
 // lowest always … a global rule everywhere"). Every rail, including today,
 // reads in strictly non-increasing displayed score.
 for (const id of ["today", "best", "eat", "gems", "trending", "tonight", "beach", "break", "datenight", "drive", "events", "family", "season"]) {
-  const rows = selectFor(id, pools, { cityLabel: "Sarasota" });
+  const rows = selectFor(id, pools, CTX);
   ok(rows.every((p, i, a) => i === 0 || (a[i - 1].governed_score ?? -Infinity) >= (p.governed_score ?? -Infinity)),
     `${id}: the rail reads highest displayed score first — the global rule (got ${JSON.stringify(rows.map((p) => p.governed_score))})`);
 }
 
 // ── the fill rules ──────────────────────────────────────────────────────────
-const { places, thin } = fillRails(pools);
+const { places, thin } = fillRails(pools, (p) => p, CTX);
 // Still the rule, just demonstrated on a rail this fixture genuinely cannot
 // fill. `locals` needs a curated creator video keyed on city and the fixture
 // has none, so it is the honest example now that trending can fill.
@@ -212,7 +242,7 @@ for (const [id, rows] of Object.entries(places)) {
 // selector that depended on iteration order would produce a different homepage
 // per regeneration and nothing would ever reproduce a report.
 {
-  const again = fillRails(pools);
+  const again = fillRails(pools, (p) => p, CTX);
   eq(JSON.stringify(again.places), JSON.stringify(places), "fillRails is deterministic");
 }
 // A rail must not crash on a junk row — a live pool carries nulls and rows
