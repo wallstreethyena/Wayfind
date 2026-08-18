@@ -153,6 +153,9 @@ export const WF_PLACE_CARD_CSS = `
 .wf-place-card:focus-visible{outline:2px solid rgba(249,115,22,.72);outline-offset:3px}
 .wf-place-card-layout{--wf-place-card-media:96px;display:grid!important;grid-template-columns:var(--wf-place-card-media) minmax(0,1fr);min-height:176px}
 .wf-place-card-layout>img{width:96px!important;height:100%!important;min-height:176px!important}
+.wf-place-card.is-no-take .wf-place-card-layout,
+.wf-place-card.is-no-take .wf-place-card-layout>img,
+.wf-place-card.is-no-take .wf-place-card-monogram{min-height:0}
 .wf-place-card-monogram{
   position:relative;
   display:grid;

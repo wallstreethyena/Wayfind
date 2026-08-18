@@ -66,6 +66,7 @@ import { emptyRailLive, liveFromRailsResponse } from "../../lib/locationHonesty.
 // cards on the site rendering without their editorial line.
 import useEditorialHooks from "./useEditorialHooks";
 import { toHookLine } from "../../lib/editorialHook";
+import { formatBeachChipBits } from "../../lib/beachChip.js";
 
 const Chevron = ({ dir }) => (
   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2"
@@ -287,11 +288,11 @@ export default function DaypartRail({
     for (const p of selPlaces) {
       if (!p || !p.id || !Number.isFinite(p.lat) || !Number.isFinite(p.lng)) continue;
       if (beachCond[p.id] !== undefined) continue;
-      fetch(`/api/beach/conditions?mode=lite&lat=${p.lat}&lng=${p.lng}`)
+      fetch(`/api/beach/conditions?mode=lite&lat=${p.lat}&lng=${p.lng}&place_id=${encodeURIComponent(p.id)}`)
         .then((r) => (r.ok ? r.json() : null))
         .then((c) => {
           if (cancelled) return;
-          const usable = c && !c.none && c.show !== false && (c.waterTempF != null || c.waveHeightFt != null || c.windMph != null);
+          const usable = c && !c.none && c.show !== false;
           setBeachCond((m) => ({ ...m, [p.id]: usable ? c : null }));
         })
         .catch(() => { if (!cancelled) setBeachCond((m) => ({ ...m, [p.id]: null })); });
@@ -305,11 +306,9 @@ export default function DaypartRail({
     if (!selRail || selRail.id !== "beach") return null;
     const c = beachCond[p.id];
     if (!c) return null;
-    const bits = [
-      c.waterTempF != null ? `water ${Math.round(c.waterTempF)}°` : null,
-      c.waveHeightFt != null ? `waves ${c.waveHeightFt} ft` : null,
-      c.windMph != null ? `wind ${c.windMph} mph${c.windDir ? " " + c.windDir : ""}` : null,
-    ].filter(Boolean);
+    // Quality replaces waves when a wf_beach_water row exists. No row →
+    // omit quality AND omit waves (do not keep advertising waves).
+    const bits = formatBeachChipBits(c, c.water);
     if (!bits.length) return null;
     return <span style={{ color: "#7DD3FC", fontWeight: 700 }}>🌊 {bits.join(" · ")}</span>;
   };

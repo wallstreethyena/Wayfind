@@ -905,10 +905,14 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   // `photo`, an already-built URL. Filling one heals one surface and looks
   // finished. Both call sites must go through the same helper, and that helper
   // must set both.
-  const helper = map.slice(map.indexOf("const withPhoto ="), map.indexOf("const withPhoto =") + 420);
+  const helper = map.slice(map.indexOf("const withPhoto ="), map.indexOf("const withPhoto =") + 900);
   ok(helper.length > 80, "withPhoto moved or was renamed — this section asserts nothing");
   ok(/photoRef: ref/.test(helper) && /photo: url/.test(helper),
      "withPhoto fills only one of the two fields the map's two card types read, so one surface stays a monogram");
+  ok(/hasPlacePhotoRef\(own\)/.test(helper),
+     "withPhoto must not treat a truthy-but-invalid photoRef as already healed — that is the black 176px slot");
+  ok(/if \(mapPreview\) photoWants\.push\(mapPreview\)/.test(map),
+     "the focused/selected pin is not always on the heal list — drawer gating must not skip the open card");
   ok(/place=\{withPhoto\(mp\)\}/.test(map), "the pin-tap card does not go through the heal");
   ok(/p=\{withPhoto\(p\)\}/.test(map), "the drawer rows do not go through the heal");
 
@@ -920,6 +924,9 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   ok(hasRef(REF) && tb(REF, 480) !== null,
      "the two modules disagree about what a photo ref looks like — a healed ref would be accepted by one card and dropped by the other");
   ok(tb("not-a-ref", 480) === null, "tbPhotoUrl accepts a malformed ref, so a junk lookup would render a broken image");
+  const hook = stripComments(readFileSync(path.join(REPO, "app/components/useMissingPlacePhotos.js"), "utf8"));
+  ok(/function healPoint\(/.test(hook) && /place\.lat/.test(hook),
+     "the heal must prefer the focused place's own coordinates — a city-center search misses inventory pins");
 }
 
 // ── 8. THE SEND SAYS SOMETHING, PROVEN BY DRIVING IT ───────────────────────

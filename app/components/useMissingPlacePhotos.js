@@ -9,15 +9,25 @@ import { hasPlacePhotoRef, selectPlacePhotoRef } from "../../lib/placePhoto.js";
 const RESOLVED = new Map();
 const keyOf = (p) => String(p && (p.place_id || p.id) || "");
 
+function healPoint(place, center) {
+  if (place && Number.isFinite(Number(place.lat)) && Number.isFinite(Number(place.lng))) {
+    return { lat: Number(place.lat), lng: Number(place.lng) };
+  }
+  if (center && Number.isFinite(center.lat) && Number.isFinite(center.lng)) return center;
+  return null;
+}
+
 async function fillOne(place, center, signal) {
   const id = keyOf(place);
   if (!id || RESOLVED.has(id)) return;
   const name = String(place.name || place.title || "").trim();
   if (!name) { RESOLVED.set(id, null); return; }
+  const here = healPoint(place, center);
+  if (!here) { RESOLVED.set(id, null); return; }
   const params = new URLSearchParams({
     q: name,
-    lat: String(center.lat),
-    lng: String(center.lng),
+    lat: String(here.lat),
+    lng: String(here.lng),
     radius: "16000",
     n: "5",
   });
@@ -45,7 +55,8 @@ export default function useMissingPlacePhotos(places, center, active = true) {
   const candidateKey = candidates.map(keyOf).join("|");
 
   useEffect(() => {
-    if (!active || !candidateKey || !center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) return;
+    const canHeal = candidates.some((p) => healPoint(p, center));
+    if (!active || !candidateKey || !canHeal) return;
     const ctrl = new AbortController();
     let index = 0;
     const worker = async () => {

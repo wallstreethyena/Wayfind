@@ -8,6 +8,7 @@ import { TRENDING_BONUS } from "../../../lib/wayfindScore";
 import IconicPlaceCard from "../IconicPlaceCard";
 import useMissingPlacePhotos from "../useMissingPlacePhotos";
 import { tbPhotoUrl } from "../../../lib/todaysBest";
+import { hasPlacePhotoRef } from "../../../lib/placePhoto";
 
 function tasteBoost(place) {
   try { const k = String((place && place.type) || ""); if (!k) return 0; const t = JSON.parse(localStorage.getItem("wf_taste_v1") || "{}"); return Math.min(3, (t[k] || 0) * 0.5); } catch (e) { return 0; }
@@ -67,9 +68,15 @@ export default function MapScreen({ ctx }) {
   // places would still turn opening the map into a request burst, which is the
   // opposite of the load-time work in v7.39.
   const photoWants = [];
+  // Focused/selected pin always heals, even when the drawer is closed and
+  // the pin is not in the first 12 drawer rows. Owned inventory often has
+  // no photo_ref; skipping this slot is a black 176px card.
   if (mapPreview) photoWants.push(mapPreview);
   if (mapDrawer && Array.isArray(view)) for (const p of view.slice(0, 12)) photoWants.push(p);
-  const photoRefFor = useMissingPlacePhotos(photoWants, center, mapMode === "places");
+  const healCenter = (mapPreview && Number.isFinite(Number(mapPreview.lat)) && Number.isFinite(Number(mapPreview.lng)))
+    ? { lat: Number(mapPreview.lat), lng: Number(mapPreview.lng) }
+    : center;
+  const photoRefFor = useMissingPlacePhotos(photoWants, healCenter, mapMode === "places");
   // TWO CONSUMERS, TWO FIELDS — and that difference is exactly the kind of
   // thing that makes a fix look applied while doing nothing. IconicPlaceCard
   // (the pin-tap card) reads `photoRef` and builds the URL itself;
@@ -81,7 +88,15 @@ export default function MapScreen({ ctx }) {
   // re-render the row for nothing.
   const withPhoto = (p) => {
     if (!p) return p;
-    if (p.photoRef || (typeof p.photo === "string" && p.photo)) return p;
+    // A truthy-but-invalid photoRef (or a junk photo string) is how the
+    // focused card renders a black 176px slot instead of healing or falling
+    // through to the monogram. Only a real Places photo ref skips the heal.
+    const own = p.photoRef || p.photo_ref;
+    if (hasPlacePhotoRef(own) && typeof p.photo === "string" && p.photo) return p;
+    if (hasPlacePhotoRef(own)) {
+      const url = tbPhotoUrl(own, 480);
+      return url ? { ...p, photoRef: own, photo: url } : p;
+    }
     const ref = photoRefFor(p);
     if (!ref) return p;
     const url = tbPhotoUrl(ref, 480);

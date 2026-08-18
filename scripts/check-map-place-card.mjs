@@ -56,5 +56,17 @@ ok(/\[places, center, category, deviceLoc, events, fit, rings, selectedId\]/.tes
   "selectedId is not a redraw dependency — the pin state would never change");
 ok(map.length > 3000 && view.length > 3000 && iconic.length > 3000, "a source file did not load — assertions above would pass vacuously");
 
+// ── empty take: do not reserve the 176px take gap ────────────────────────
+{
+  const css = readFileSync(new URL("../app/components/css.js", import.meta.url), "utf8");
+  ok(/is-no-take/.test(iconic), "IconicPlaceCard no longer marks cards with no editorial/aiSummary — the 176px take gap stays reserved");
+  ok(/hasTake \? "" : " is-no-take"/.test(iconic) || /hasTake \? '' : " is-no-take"/.test(iconic),
+     "is-no-take is not gated on hasTake (editorial or validated aiSummary)");
+  ok(/\.wf-place-card\.is-no-take .wf-place-card-layout/.test(css) && /min-height:0/.test(css),
+     "is-no-take CSS no longer drops the 176px min-height, so empty-take cards keep the dead gap");
+  ok(/editorial \|\| validAiSummary/.test(iconic),
+     "hasTake must be editorial or validated aiSummary — do not generate a blurb in the render path");
+}
+
 if (bad) { console.error(`\ncheck-map-place-card: FAIL — ${bad}/${n} assertions`); process.exit(1); }
 console.log(`check-map-place-card: OK — ${n} assertions (iconic card in the bottom slot; tip-anchored pin sprites, no score text, 60-pin density; selection shared; camera law intact)`);

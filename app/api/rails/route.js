@@ -49,8 +49,23 @@ export function nearestCity(lat, lng) {
 
 export async function GET(req) {
   const sp = req.nextUrl.searchParams;
+  // ABSENT MEANS ABSENT: Number(null) is 0, not NaN, so a bare ?city=
+  // request coerced to origin (0,0) — a point 5,715 miles off the coast of
+  // Africa — and every distance-gated rail (beach ≤23, break ≤8) shipped
+  // thin. Caught on the preview deploy before merge. Parse only params that
+  // are actually present.
+  const parseCoord = (k) => { const v = sp.get(k); return v == null || v === "" ? NaN : Number(v); };
+  const la = parseCoord("lat"), ln = parseCoord("lng");
+  const origin = Number.isFinite(la) && Number.isFinite(ln) ? { lat: la, lng: ln } : null;
+  // Near-me is the visitor's point. No lat/lng → honest empty, never a
+  // city snap (and never LANDING_CITIES.sarasota) wearing "near me".
+  if (!origin) {
+    return NextResponse.json({ covered: false, data: null }, {
+      headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" },
+    });
+  }
   const asked = String(sp.get("city") || "");
-  const slug = LANDING_CITIES[asked] ? asked : nearestCity(sp.get("lat"), sp.get("lng"));
+  const slug = LANDING_CITIES[asked] ? asked : nearestCity(la, ln);
   if (!slug) {
     // Out of coverage. 200 with a null payload, not a 404: the client must
     // empty the flagship rails (honest empty / CityGate), never keep Sarasota
@@ -60,20 +75,10 @@ export async function GET(req) {
     });
   }
   try {
-    // v8.7 — the reader's REAL point, when given. Pools stay per-metro cached;
-    // only distances, distance gates and the creators pool re-origin on it.
-    // The client snaps coordinates to a coarse grid before asking, so the CDN
-    // cache keys stay countable (see DaypartRail's fetch).
-    //
-    // ABSENT MEANS ABSENT: Number(null) is 0, not NaN, so a bare ?city=
-    // request coerced to origin (0,0) — a point 5,715 miles off the coast of
-    // Africa — and every distance-gated rail (beach ≤23, break ≤8) shipped
-    // thin. Caught on the preview deploy before merge. Parse only params that
-    // are actually present.
-    const parseCoord = (k) => { const v = sp.get(k); return v == null || v === "" ? NaN : Number(v); };
-    const la = parseCoord("lat"), ln = parseCoord("lng");
-    const origin = Number.isFinite(la) && Number.isFinite(ln) ? { lat: la, lng: ln } : null;
-    const data = await railMenuData(slug, { origin });
+    // Pools stay per-metro cached; distances, distance gates and the
+    // creators pool re-origin on the visitor. The client snaps coordinates
+    // to a coarse grid before asking, so the CDN cache keys stay countable.
+    const data = await railMenuData(slug, { origin, requireOrigin: true });
     return NextResponse.json({ covered: true, data }, {
       headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" },
     });

@@ -3,6 +3,7 @@
 // normalization (DOH uses double spaces), and the cron's honesty contract.
 import { readFileSync } from "fs";
 import { bandFor, isoDate, normStation, parseDohCounty, appSessionOf, fetchDohCounty, DOH_CASPIO_URL } from "../lib/beachWater.js";
+import { formatBeachChipBits, waterQualityBit } from "../lib/beachChip.js";
 
 let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
@@ -65,6 +66,28 @@ ok(/if \(!hit\.result \|\| !hit\.sampled_at\)/.test(cron), "no result or no date
 ok(cron.includes('onConflict: "beach_place_id"'), "upsert keyed on the beach");
 ok(DOH_CASPIO_URL.startsWith("https://b3.caspio.com/dp/"), "source is the DOH datapage, keyless + public");
 ok(!cron.includes("Math.random") && !/result:\s*["']Good["']/.test(cron), "no invented results anywhere");
+
+// DaypartRail beach chip: quality replaces waves; no row → no quality AND no waves.
+{
+  const marine = { waterTempF: 78.2, waveHeightFt: 1.4, windMph: 8, windDir: "E" };
+  const fresh = Date.now();
+  const withRow = formatBeachChipBits(marine, { result: "Good", advisory: false, sampled_at: new Date(fresh).toISOString() }, fresh);
+  ok(withRow.includes("water 78°"), "chip keeps water temp");
+  ok(withRow.includes("Good"), "quality renders when a wf_beach_water row exists");
+  ok(!withRow.some((b) => /wave/i.test(b)), "waves are not advertised when quality is the chip's water claim");
+  ok(withRow.includes("wind 8 mph E"), "chip keeps wind");
+  const noRow = formatBeachChipBits(marine, null, fresh);
+  ok(!noRow.some((b) => /Good|Moderate|Poor|Advisory|wave/i.test(b)),
+     "no water row → omit quality AND omit waves");
+  ok(noRow.includes("water 78°") && noRow.includes("wind 8 mph E"), "temp and wind still show without a quality row");
+  ok(waterQualityBit({ result: "Moderate", advisory: false, sampled_at: new Date(fresh - 8 * 86400000).toISOString() }, fresh) === "Moderate (last known)",
+     "stale >7d quality may show last known");
+  ok(waterQualityBit({ result: "Mystery" }) === null, "unknown result is omitted — never invent a score");
+  const rail = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
+  ok(/formatBeachChipBits\(c, c\.water\)/.test(rail), "DaypartRail beachChip uses the shared formatter");
+  ok(!/waves \$\{c\.waveHeightFt\}/.test(rail.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ")),
+     "DaypartRail beachChip no longer interpolates waves");
+}
 
 console.log(`test-beach-water: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);

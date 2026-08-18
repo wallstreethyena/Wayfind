@@ -63,6 +63,14 @@ ok(/\.catch\(\(\) => \{[\s\S]{0,180}setLive\(emptyRailLive\(\)\)/.test(RAIL)
   "a thrown /api/rails must empty the flagship, not .catch(() => {})");
 ok(/covered:\s*false/.test(RAILS_API) && /COVERAGE_MI/.test(RAILS_API),
   "api/rails still fail-closes outside coverage instead of inventing a town");
+ok(/if \(!origin\)/.test(RAILS_API),
+  "api/rails fail-closes when lat/lng is missing — never a city snap as near-me");
+ok(/requireOrigin/.test(RAILS_API) && /requireOrigin/.test(RAILS_DATA),
+  "near-me rails require the visitor origin");
+ok(/NEAR_RADIUS_MI/.test(RAILS_DATA) && /WIDEN_RADIUS_MI/.test(RAILS_DATA),
+  "visitor rails reuse NEAR_RADIUS_MI / WIDEN_RADIUS_MI — no third radius");
+ok(!/LANDING_CITIES\.sarasota/.test(RAILS_API),
+  "api/rails has no LANDING_CITIES.sarasota leftover");
 
 /* ── B. Unknown city slug must not silently become Sarasota ──────────────── */
 ok(!/LANDING_CITIES\[citySlug\]\s*\|\|\s*LANDING_CITIES\.sarasota/.test(RAILS_DATA),

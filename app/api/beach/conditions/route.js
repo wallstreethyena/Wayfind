@@ -21,13 +21,35 @@ export async function GET(req) {
     if (searchParams.get("mode") === "lite") {
       // v6.55: FWC red tide rides along (keyless, 6h-revalidated upstream).
       // null = no sample within the cap → the chip simply doesn't render.
-      const [lite, redTide] = await Promise.all([getBeachLiteConditions(lat, lng), getRedTide(lat, lng)]);
-      return j({ ...(lite || { none: true }), redTide: redTide || null }, 900);
+      const placeId = String(searchParams.get("place_id") || "").trim();
+      const [lite, redTide, water] = await Promise.all([
+        getBeachLiteConditions(lat, lng),
+        getRedTide(lat, lng),
+        placeId ? beachWaterRow(placeId) : Promise.resolve(null),
+      ]);
+      return j({ ...(lite || { none: true }), redTide: redTide || null, water: water || null }, 900);
     }
     const out = await getBeachConditions(lat, lng, Number.isFinite(dist) ? dist : null);
     return j(out, 900);
   } catch {
     return j({ show: false }, 120); // brief shield — upstream blips must not stampede the function
+  }
+}
+
+async function beachWaterRow(placeId) {
+  const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
+  const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
+  if (!url || !anon || !placeId) return null;
+  try {
+    const r = await fetch(
+      url + "/rest/v1/wf_beach_water?select=result,advisory,sampled_at&beach_place_id=eq." + encodeURIComponent(placeId),
+      { headers: { apikey: anon, Authorization: "Bearer " + anon } },
+    );
+    if (!r.ok) return null;
+    const rows = await r.json();
+    return rows && rows[0] ? rows[0] : null;
+  } catch {
+    return null;
   }
 }
 
