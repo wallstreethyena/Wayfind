@@ -8540,7 +8540,25 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               // between sub-filters without reopening the row. Escape-hatch
               // unchanged — tapping the category tab again closes it.
               try { logEvent("intent_chip", null, { intent: subLabel, layer: 2, src: "nav_sub", cat: catId }); } catch (e) {}
-              try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) {}
+              // v8.11 (owner, 2026-08-18: "make the page jump to the area of
+              // the menu when the menu and submenu are selected"). Scroll to
+              // where the FILTERED RESULTS start, not to the top of the page —
+              // top:0 parked the reader on the header band with the answer
+              // below the fold. rAF because pickBrowse just flipped the
+              // branch and the anchor mounts on the next frame. Vertical
+              // scrollTo only — check-no-sideways-scroll bans inline-axis
+              // movement, and this must never cause any.
+              try {
+                requestAnimationFrame(() => {
+                  const sc = scrollRef.current, el = browseAnchorRef.current;
+                  if (sc && el) {
+                    const top = el.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop - 10;
+                    sc.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+                  } else if (sc) {
+                    sc.scrollTo({ top: 0, behavior: "smooth" });
+                  }
+                });
+              } catch (e) {}
             }} />
         )}
         {wxOpen && weather && Array.isArray(weather.hourly) && weather.hourly.length > 0 && (
@@ -8784,13 +8802,16 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             IN) → unlock-this-city. It re-fetches on sign-in (user is in the gate
             effect deps) so the alert card swaps to the unlock card immediately —
             no lingering. */}
-        {screen === "suggested" && (gateStatus === "unlock" || gateStatus === "alert") && (
-          <CityGate status={gateStatus} center={center} city={locName} user={user} onSignUp={() => setAuthOpen(true)} onUnlocked={() => setGateBump((x) => x + 1)} />
-        )}
-        {/* Signed-in users ALWAYS get the feed — even outside our core area (the
-            gate returns 'unlock', and the live-search feed works anywhere). Only
-            'alert' (signed-out + uncovered) walls the feed behind the waitlist. */}
-        {screen === "suggested" && gateStatus !== "alert" && (() => {
+        {/* v8.11 (owner, 2026-08-18, on a screenshot of the collapsed card:
+            "get rid of this"). The CityGate door — "COMING TO YOUR AREA" /
+            unlock / waitlist — no longer renders on the homepage, and the
+            'alert' wall below it is gone with it: EVERYONE gets the feed, in
+            or out of coverage, signed in or not, because the live-search feed
+            works anywhere. The component, the wf_gate_status effect and the
+            unlock RPC are intact (app/components/CityGate.js) for a future
+            deliberate placement; it simply has no render site on "/" — the
+            same treatment HomeAside and BestNearby received. */}
+        {screen === "suggested" && (() => {
           const list = suggested || [];
           const affinities = computeAffinities(signals);
           // Phase 2: fold the DURABLE per-user taste vector into the category
@@ -9236,7 +9257,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               )}
               {/* v6.22: when a category is being browsed from the mood menu, the feed under the weather becomes that category's ranked places. No navigation, the same PlaceCard used everywhere else. */}
               {browseCat && (
-                <div style={{ marginBottom: 16 }}>
+                <div ref={browseAnchorRef} style={{ marginBottom: 16 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
                     <div onClick={() => { setBrowseCat(null); setMoodPick(null); setSub("all"); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
                     {browseCat !== "attractions" && <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />}
