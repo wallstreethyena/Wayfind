@@ -417,7 +417,12 @@ export default function DaypartRail({
                     place={p}
                     rank={i + 1}
                     href={`/p/${encodeURIComponent(p.id)}`}
-                    editorial={toHookLine(hooks[p.id], p.name)}
+                    // v8.13 — a verified wf_editorial hook still wins; rows
+                    // the summer registry sourced fall back to the entry's own
+                    // timing/heat guidance (lib/summerUniverse.js `why`,
+                    // carried through slimPlace as summerWhy). Every other row
+                    // keeps rendering nothing rather than filler.
+                    editorial={toHookLine(hooks[p.id], p.name) || p.summerWhy || null}
                     badge={beachChip(p)}
                     saved={isSaved ? isSaved(p.id) : false}
                     inTrip={isOnTrip ? isOnTrip(p) : false}

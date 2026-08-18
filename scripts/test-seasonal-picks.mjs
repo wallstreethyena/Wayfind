@@ -177,9 +177,30 @@ ok(/heroImage: heroImageOverride \|\| heroImage \|\| \(sm && sm\.heroImage\) \|\
   ok((rails.match(/id: "season"/g) || []).length === 1, "…and the rail itself is defined exactly once");
   // The selector must still gate on REAL seasonality, or "gone when summer
   // goes" is a claim about places that are there all year.
-  const railSelect = readFileSync(new URL("../lib/railSelect.js", import.meta.url), "utf8");
-  ok(/season: \{[^}]*pick: \(p\) => seasonalFit\(p, currentSeason\(\)\) > 0/.test(railSelect.replace(/\n\s*/g, " ")),
-    "the seasonal rail must select on lib/seasons.js seasonalFit — the same helper this file tests above");
+  //
+  // RE-POINTED v8.13 (owner, 2026-08-18: "when I go on a summer list,
+  // everything is just beaches, and that's not really what I'm looking for …
+  // build the summer list based on this list"). June–August the rail now
+  // serves ONLY rows sourced from the owner's curated summer registry
+  // (lib/summerUniverse.js, `_summerSourced` via railsData buildSummerPool);
+  // the other three seasons keep the seasonalFit gate exactly as this file
+  // always asserted. Both halves are asserted ON THE CALL (the stronger form
+  // this repo's guard rules require), with pinned dates so the assertion does
+  // not flip at the equinox.
+  const { RAIL_SELECT } = await import("../lib/railSelect.js");
+  const seasonPick = RAIL_SELECT.season.pick;
+  const JUL = new Date("2026-07-15T12:00:00-04:00");
+  const OCT = new Date("2026-10-15T12:00:00-04:00");
+  ok(seasonPick({ id: "s1", name: "Weeki Wachee Springs State Park", types: [], _summerSourced: true }, { now: JUL }) === true,
+    "in summer, a registry-sourced row is admitted");
+  ok(seasonPick({ id: "s2", name: "Siesta Key Beach", types: ["beach"] }, { now: JUL }) === false,
+    "in summer, a beach WITHOUT registry sourcing is refused — the all-beaches rail is the bug this re-point ships against");
+  ok(seasonPick({ id: "s3", name: "Sunny Hill Pumpkin Patch", types: ["tourist_attraction"] }, { now: OCT }) === true,
+    "in fall, the seasonalFit gate still admits a genuine fall match — the other three seasons are unchanged");
+  ok(seasonPick({ id: "s4", name: "Weeki Wachee Springs State Park", types: [], _summerSourced: true }, { now: OCT }) === false,
+    "in fall, a summer-registry marker alone admits nothing — 'gone when summer goes' stays true");
+  ok(RAIL_SELECT.season.pools.includes("summer"),
+    "the season rail reads the summer registry pool railsData builds");
 }
 // The destination must exist and be wired to the shared template, or the rail
 // navigates into a 404.
