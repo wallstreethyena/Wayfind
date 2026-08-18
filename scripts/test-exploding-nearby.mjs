@@ -227,9 +227,27 @@ ok(scoreAtLowMomentum === scoreAtHighMomentum, "topic momentum cannot change a p
 
 const route = read("app/api/trends/nearby/route.js");
 const getRoute = route.slice(route.indexOf("export async function GET"));
-ok(getRoute.indexOf("const cadence = importCadence()") > -1 && getRoute.indexOf("const cadence = importCadence()") < getRoute.indexOf("const s = serverEnv()"), "freshness configuration is validated before private trend data is read");
+// RE-POINTED v8.12 (owner, 2026-08-18: "the exploding trends do not have the
+// 20 top trending items"). The route now serves TWO lawful bases: the
+// provider snapshot (cadence-gated, exactly as before — but only when a
+// snapshot actually exists) and the OWNER LIST (EXPLODING_NEARBY_UNIVERSE
+// through the same evidence-gated matcher). The old assertion pinned
+// cadence-validation-before-anything, which is precisely what turned an
+// import that never ran into a permanent 503 over the owner's own licensed
+// list. What is pinned now:
+//   1. the snapshot basis still validates cadence BEFORE reading its private
+//      tables;
+//   2. only TrendConfigError falls through to the owner basis — real errors
+//      still throw;
+//   3. the owner basis runs the SAME matcher (matchTopicToInventory), so
+//      nothing serves without evidence;
+//   4. a stale snapshot is still refused loudly (console.error), never used.
+ok(getRoute.indexOf("const cadence = importCadence()") > -1 && getRoute.indexOf("const cadence = importCadence()") < getRoute.indexOf("wf_trend_snapshots"), "the snapshot basis validates freshness configuration before its private trend tables are read");
+ok(/instanceof TrendConfigError\)\) throw e/.test(getRoute), "only an unconfigured provider import falls through to the owner basis — every other error still throws");
+ok(/matchTopicToInventory\(t\.key, inventory, \{ metro \}\)/.test(getRoute), "the owner basis runs the SAME evidence-gated matcher — nothing serves without proof");
+ok(/EXPLODING_NEARBY_UNIVERSE\.map/.test(getRoute), "owner-basis topics come from the owner's licensed universe, in his rank order");
 ok(!/RIGHTS_MODE|RIGHTS_REF|requireCapability|rightsReference/.test(route), "the serving route contains no retired external-approval gate");
-ok(/trend_snapshot_stale/.test(route) && /status: "trend_snapshot_missing"/.test(route), "missing and stale snapshots are loud operator states, never ordinary empty inventory");
+ok(/refused a stale snapshot/.test(route), "a stale snapshot is refused loudly, never served");
 ok(!/canonical_topic/.test(route), "raw source topic names never leave the serving route");
 ok(read("middleware.js").includes('"/api/trends/nearby"'), "the service-role trend-data route is same-origin and rate-limit guarded");
 

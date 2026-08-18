@@ -47,6 +47,14 @@ import dynamic from "next/dynamic";
 // picked, so there was never any server markup to lose, and the crawlable link
 // is the tile's own href.
 const IconicPlaceCard = dynamic(() => import("./IconicPlaceCard"), { ssr: false });
+// v8.12 — the owner's top-20 trends, back on the page (owner, 2026-08-18:
+// "the exploding trends do not have the 20 top trending items"). Mounted
+// INSIDE the trending drop only — behind a click, so it stays off the
+// homepage's critical path (same ssr:false budget rule as the card above).
+// Data comes from /api/trends/nearby, which now serves the owner-licensed
+// EXPLODING_NEARBY_UNIVERSE through the same evidence-gated matcher the cron
+// path uses (see that route's v8.12 note).
+const ExplodingNearby = dynamic(() => import("./ExplodingNearby"), { ssr: false });
 import { DAYPARTS, partForHour, orderFor, railHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES } from "../../lib/rails.js";
@@ -364,6 +372,20 @@ export default function DaypartRail({
           </div>
 
 
+          {/* v8.12 — the owner's 20 trends lead the TRENDING drop, each one
+              matched to verified local places (daypart-gated inside the
+              component). The ranked place cards below stay: trends answer
+              "what's the thing", the cards answer "the best places, period". */}
+          {selRail && selRail.id === "trending" ? (
+            <ExplodingNearby
+              active
+              center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
+              city={shown.cityLabel || ""}
+              onOpenPlace={(p) => { if (p && p.id && typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
+              isSaved={isSaved || undefined}
+              onSave={onSave || undefined}
+            />
+          ) : null}
           {selRail && selRail.guides ? (
             <ul className="wf8-grail" aria-label="Local guides">
               {guides.map((g, i) => (
