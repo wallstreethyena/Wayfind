@@ -2,7 +2,7 @@
 
 Inventory only. No pins. No invented product URLs.
 
-Revenue asked for existing, currently unhooked place cards that could honestly take a Viator tour or ticket (city + activity match possible). This list is the second-pass leftover after **12** place-card pins on PR #843 (`Anna Maria Island Dolphin Tours` is now pinned — see below).
+Revenue asked for existing, currently unhooked place cards that could honestly take a Viator tour or ticket (city + activity match possible). This list is the second-pass leftover after **13** place-card pins on PR #843 (`Anna Maria Island Dolphin Tours` and `John Pennekamp Coral Reef State Park` are now pinned — see below).
 
 Every remaining name below was called through `placePartnerPick({ name })` on 2026-08-19 and returned **null**. None of these names is a beach, drum circle, Mallory Square, Pier 60, Tampa Riverwalk, Crystal River manatee site, or Winter Park scenic boat.
 
@@ -20,10 +20,10 @@ Exact string is what `placePartnerPick` would see. Do not invent a nearby alias.
 | 6 | Yacht StarShip Cruises & Events | Tampa (also a Clearwater birthday-universe pin of the same name) | Dinner / sightseeing cruise (named operator) | Never wired. Curated dinner-cruise card. Confirm city on the live card before opening a product. |
 | 7 | Homosassa Springs Marina | Homosassa | Scallop / snorkel charter from the marina | Never wired. Summer-universe venue. Not Crystal River manatee swim. |
 | 8 | Canoe Outpost-Little Manatee River | Wimauma | Canoe / kayak rental and shuttle | Named in the 2026-08-19 rail audit as verified-but-NOT-wired (no partner inventory that day). Still a real operator card. |
-| 9 | Ray's Canoe Hideaway | Bradenton / Manatee River | Canoe / kayak rental (named outfitter) | Never wired. Atlas editorial card. |
-| 10 | Devil's Den Spring | Williston | Ticketed cave snorkel / dive | Never wired. Summer-universe venue. |
-| 11 | Ginnie Springs Outdoors | High Springs | Private-spring tube / snorkel / dive ticket | Never wired. Summer-universe venue. |
-| 12 | John Pennekamp Coral Reef State Park | Key Largo | Reef snorkel boat + park admission | Never wired. Summer-universe venue. Not the Key West seaport snorkel already pinned. |
+| 9 | Ray's Canoe Hideaway | Bradenton / Manatee River | Canoe / kayak rental (named outfitter) | **NO MATCH** — do not pin. Founder opened pages; no honest product. |
+| 10 | Devil's Den Spring | Williston | Ticketed cave snorkel / dive | **NO MATCH** — do not pin. Founder opened pages; no honest product. |
+| 11 | Ginnie Springs Outdoors | High Springs | Private-spring tube / snorkel / dive ticket | **NO MATCH** — do not pin. Founder opened pages; no honest product. |
+| 12 | ~~John Pennekamp Coral Reef State Park~~ | Key Largo | **PINNED 2026-08-19** — `pennekamp-reef-snorkel` → `d23475-116454P2` (H1: Snorkel Tours to Shallow Coral Reefs at Pennekamp Underwater Park). Exact park name only. Not Key West Historic Seaport. |
 | 13 | Dry Tortugas National Park | Key West | Yankee Freedom ferry / seaplane to Fort Jefferson | Never wired. Summer-universe venue. |
 | 14 | Mote Science Education Aquarium (SEA) | Sarasota | Aquarium admission (new UTC campus) | Named in the 2026-08-19 rail audit as verified-but-NOT-wired. Also live as `Mote Science Education Aquarium` and `Mote SEA` — all three strings are unhooked. |
 | 15 | Mote Marine Laboratory | Sarasota | Aquarium / lab admission (City Island campus) | Never wired. Distinct from Mote SEA (different placeId). Curated + summer-universe card. |

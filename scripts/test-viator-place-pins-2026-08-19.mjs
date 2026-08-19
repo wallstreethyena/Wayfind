@@ -68,6 +68,15 @@ const AMI_PIN = Object.freeze({
 });
 ok(!Object.values(PINS).includes(AMI_PIN.url),
   "AMI sunset boat is a new product, not one of the original 30 leftover SKUs");
+const PENNEKAMP_PIN = Object.freeze({
+  id: "pennekamp-reef-snorkel",
+  url: "https://www.viator.com/tours/Key-Largo/Snorkel-Tours-to-shallow-Coral-Reefs-at-Pennekamp-Underwater-Park/d23475-116454P2",
+  name: "John Pennekamp Coral Reef State Park",
+});
+ok(!Object.values(PINS).includes(PENNEKAMP_PIN.url),
+  "Pennekamp reef snorkel is a new product, not one of the original 30 leftover SKUs");
+ok(PENNEKAMP_PIN.url !== PINS["key-west-reef-snorkel"],
+  "Pennekamp is not the Key West seaport SKU already on that card");
 
 // ── 1. Every KEEP URL is an exact registry destination ──────────────────
 for (const [id, url] of Object.entries(PINS)) {
@@ -82,6 +91,13 @@ for (const [id, url] of Object.entries(PINS)) {
     `AMI pin is the exact founder URL (got ${row && row.destination})`);
   ok(row && row.verifiedOn === "2026-08-19", "AMI pin is dated the verification day");
   ok(row && /d25738-203023P2/.test(row.destination), "AMI pin is product d25738-203023P2");
+}
+{
+  const row = PARTNER_OFFER_REGISTRY[PENNEKAMP_PIN.id];
+  ok(row && row.provider === "viator" && row.destination === PENNEKAMP_PIN.url,
+    `Pennekamp pin is the exact founder URL (got ${row && row.destination})`);
+  ok(row && row.verifiedOn === "2026-08-19", "Pennekamp pin is dated the verification day");
+  ok(row && /d23475-116454P2/.test(row.destination), "Pennekamp pin is product d23475-116454P2");
 }
 
 // ── 2. Place-card hooks, asserted ON THE CALL ───────────────────────────
@@ -100,8 +116,9 @@ const PLACE_HOOKS = [
   ["Keewaydin Island", "naples-keewaydin-shelling"],
   ["Shell Key Preserve", "stpete-shell-key-dolphins"],
   ["Anna Maria Island Dolphin Tours", "ami-dolphin-sunset"],
+  ["John Pennekamp Coral Reef State Park", "pennekamp-reef-snorkel"],
 ];
-ok(PLACE_HOOKS.length >= 12, `place-card hooks are non-empty (got ${PLACE_HOOKS.length})`);
+ok(PLACE_HOOKS.length >= 13, `place-card hooks are non-empty (got ${PLACE_HOOKS.length})`);
 for (const [name, offerId] of PLACE_HOOKS) {
   const hit = placePartnerPick({ name });
   ok(hit && hit.provider === "viator" && hit.offerId === offerId,
@@ -157,6 +174,10 @@ ok(placePartnerPick({ name: "Siesta Beach" }) === null
   && placePartnerPick({ name: "LeBarge Tropical Cruises" }) === null
   && placePartnerPick({ name: "Sarasota" }) === null,
   "AMI sunset boat is not pinned on Siesta Beach, LeBarge, or a generic Sarasota card");
+ok(placePartnerPick({ name: PENNEKAMP_PIN.name })?.offerId === PENNEKAMP_PIN.id,
+  "Pennekamp park card is the only name that inherits the Key Largo reef snorkel");
+ok(placePartnerPick({ name: "Key West Historic Seaport" })?.offerId === "key-west-reef-snorkel",
+  "Key West Historic Seaport keeps d661-2642P8 and does not inherit Pennekamp");
 
 // ── 6. DROP / locked / invented SKUs are absent ─────────────────────────
 const scanned = [
@@ -238,10 +259,12 @@ ok(guideHasProduct("things-to-do-fort-lauderdale-summer-2026", PINS["ftl-family-
 // / UT / Klook hook we must not displace).
 const PLACE_PINNED_IDS = new Set(PLACE_HOOKS.map(([, id]) => id));
 const LEFTOVER_IDS = Object.keys(PINS).filter((id) => !PLACE_PINNED_IDS.has(id));
-ok(PLACE_PINNED_IDS.size === 12, `honest place-card tally is 12 unique SKUs (got ${PLACE_PINNED_IDS.size})`);
-ok(PLACE_PINNED_IDS.has(AMI_PIN.id), "tally 12 includes the AMI operator pin");
+ok(PLACE_PINNED_IDS.size === 13, `honest place-card tally is 13 unique SKUs (got ${PLACE_PINNED_IDS.size})`);
+ok(PLACE_PINNED_IDS.has(AMI_PIN.id) && PLACE_PINNED_IDS.has(PENNEKAMP_PIN.id),
+  "tally 13 includes the AMI operator pin and the Pennekamp park pin");
 ok(LEFTOVER_IDS.length === 19, `19 leftover SKUs from the original 30 remain off place cards (got ${LEFTOVER_IDS.length})`);
-ok(!LEFTOVER_IDS.includes(AMI_PIN.id), "AMI sunset boat is a new pin, not a leftover from the original 30");
+ok(!LEFTOVER_IDS.includes(AMI_PIN.id) && !LEFTOVER_IDS.includes(PENNEKAMP_PIN.id),
+  "AMI and Pennekamp are new pins, not leftovers from the original 30");
 
 function leftoverOn(name) {
   const hit = placePartnerPick({ name });
@@ -381,6 +404,9 @@ for (const name of [
   "LeBarge Tropical Cruises",
   "Silver Springs State Park Glass Bottom Boat Tours",
   "Everglades City Airboat Tours",
+  "Ray's Canoe Hideaway",
+  "Devil's Den Spring",
+  "Ginnie Springs Outdoors",
 ]) {
   ok(placePartnerPick({ name }) === null, `NO MATCH: "${name}" stays unhooked`);
 }
@@ -392,7 +418,7 @@ if (fail.length) {
 }
 console.log(
   `test-viator-place-pins-2026-08-19: OK — ${pass} assertions; ` +
-  `30 leftover-batch URLs + AMI sunset boat; ${PLACE_PINNED_IDS.size} unique place-card SKUs; ` +
+  `30 leftover-batch URLs + AMI + Pennekamp; ${PLACE_PINNED_IDS.size} unique place-card SKUs; ` +
   `${LEFTOVER_IDS.length} leftovers proven off the place graph; ` +
   `Tiqets hooks preserved; DROPs/Crystal River/Winter Park absent`
 );
