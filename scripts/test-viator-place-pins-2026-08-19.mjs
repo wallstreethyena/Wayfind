@@ -60,12 +60,28 @@ const PINS = Object.freeze({
 });
 ok(Object.keys(PINS).length === 30, `the founder batch is 30 exact URLs (got ${Object.keys(PINS).length})`);
 
+// Inventory-hunt pin — founder-opened 2026-08-19, not one of the original 30.
+const AMI_PIN = Object.freeze({
+  id: "ami-dolphin-sunset",
+  url: "https://www.viator.com/tours/Sarasota/Anna-Maria-Island-Dolphin-Sunset-Tour/d25738-203023P2",
+  name: "Anna Maria Island Dolphin Tours",
+});
+ok(!Object.values(PINS).includes(AMI_PIN.url),
+  "AMI sunset boat is a new product, not one of the original 30 leftover SKUs");
+
 // ── 1. Every KEEP URL is an exact registry destination ──────────────────
 for (const [id, url] of Object.entries(PINS)) {
   const row = PARTNER_OFFER_REGISTRY[id];
   ok(row && row.provider === "viator", `${id} is a viator registry row`);
   ok(row && row.destination === url, `${id} destination is the exact founder URL (got ${row && row.destination})`);
   ok(row && row.verifiedOn === "2026-08-19", `${id} is dated the verification day`);
+}
+{
+  const row = PARTNER_OFFER_REGISTRY[AMI_PIN.id];
+  ok(row && row.provider === "viator" && row.destination === AMI_PIN.url,
+    `AMI pin is the exact founder URL (got ${row && row.destination})`);
+  ok(row && row.verifiedOn === "2026-08-19", "AMI pin is dated the verification day");
+  ok(row && /d25738-203023P2/.test(row.destination), "AMI pin is product d25738-203023P2");
 }
 
 // ── 2. Place-card hooks, asserted ON THE CALL ───────────────────────────
@@ -83,8 +99,9 @@ const PLACE_HOOKS = [
   ["Shell Island Panama City Beach", "pcb-shell-island-snorkel"],
   ["Keewaydin Island", "naples-keewaydin-shelling"],
   ["Shell Key Preserve", "stpete-shell-key-dolphins"],
+  ["Anna Maria Island Dolphin Tours", "ami-dolphin-sunset"],
 ];
-ok(PLACE_HOOKS.length >= 11, `place-card hooks are non-empty (got ${PLACE_HOOKS.length})`);
+ok(PLACE_HOOKS.length >= 12, `place-card hooks are non-empty (got ${PLACE_HOOKS.length})`);
 for (const [name, offerId] of PLACE_HOOKS) {
   const hit = placePartnerPick({ name });
   ok(hit && hit.provider === "viator" && hit.offerId === offerId,
@@ -131,9 +148,15 @@ for (const name of TIQETS_KEEP) {
 }
 
 // ── 5. Beaches / drum-circle / wrong-intent cards stay editorial-only ───
-for (const name of ["Siesta Beach", "Fort Lauderdale Beach", "Lido Beach", "Pier 60", "Tampa Riverwalk", "Mallory Square"]) {
+for (const name of ["Siesta Beach", "Fort Lauderdale Beach", "Lido Beach", "Pier 60", "Tampa Riverwalk", "Mallory Square", "Sarasota"]) {
   ok(placePartnerPick({ name }) === null, `"${name}" stays editorial-only — no paid-tour pin`);
 }
+ok(placePartnerPick({ name: "Anna Maria Island Dolphin Tours" })?.offerId === AMI_PIN.id,
+  "AMI operator card is the only name that inherits the AMI sunset boat");
+ok(placePartnerPick({ name: "Siesta Beach" }) === null
+  && placePartnerPick({ name: "LeBarge Tropical Cruises" }) === null
+  && placePartnerPick({ name: "Sarasota" }) === null,
+  "AMI sunset boat is not pinned on Siesta Beach, LeBarge, or a generic Sarasota card");
 
 // ── 6. DROP / locked / invented SKUs are absent ─────────────────────────
 const scanned = [
@@ -215,8 +238,10 @@ ok(guideHasProduct("things-to-do-fort-lauderdale-summer-2026", PINS["ftl-family-
 // / UT / Klook hook we must not displace).
 const PLACE_PINNED_IDS = new Set(PLACE_HOOKS.map(([, id]) => id));
 const LEFTOVER_IDS = Object.keys(PINS).filter((id) => !PLACE_PINNED_IDS.has(id));
-ok(PLACE_PINNED_IDS.size === 11, `honest place-card tally stays 11 unique SKUs (got ${PLACE_PINNED_IDS.size})`);
-ok(LEFTOVER_IDS.length === 19, `19 leftover SKUs remain off place cards (got ${LEFTOVER_IDS.length})`);
+ok(PLACE_PINNED_IDS.size === 12, `honest place-card tally is 12 unique SKUs (got ${PLACE_PINNED_IDS.size})`);
+ok(PLACE_PINNED_IDS.has(AMI_PIN.id), "tally 12 includes the AMI operator pin");
+ok(LEFTOVER_IDS.length === 19, `19 leftover SKUs from the original 30 remain off place cards (got ${LEFTOVER_IDS.length})`);
+ok(!LEFTOVER_IDS.includes(AMI_PIN.id), "AMI sunset boat is a new pin, not a leftover from the original 30");
 
 function leftoverOn(name) {
   const hit = placePartnerPick({ name });
@@ -278,11 +303,14 @@ const MISS = [
   ["Robinson Preserve", "454941P4"],
   ["Get Up and Go Kayaking - Robinson Preserve", "412732P1"],
   // SKU 20 — private Siesta Key dolphin charter. Beach / drum circle
-  // forbidden. LeBarge is a different operator. AMI dolphin tours are
-  // Anna Maria, not Sarasota. Marina Jack is a seafood restaurant.
+  // forbidden. LeBarge is a different operator (NO MATCH — do not pin).
+  // AMI operator card now carries its OWN verified sunset-boat product,
+  // not this leftover Siesta Key charter.
   ["Siesta Beach", null],
   ["LeBarge Tropical Cruises", null],
-  ["Anna Maria Island Dolphin Tours", null],
+  ["Anna Maria Island Dolphin Tours", AMI_PIN.id],
+  ["Silver Springs State Park Glass Bottom Boat Tours", null],
+  ["Everglades City Airboat Tours", null],
   ["Keys Huka Dive", null],
   ["Marina Jack", null],
   ["Turtle Beach", null],
@@ -347,6 +375,16 @@ for (const name of graphNames) {
 ok(leftoverHits.length === 0,
   `no leftover SKU is pinned on a summer/birthday/curated/atlas card (got ${leftoverHits.join("; ") || "none"})`);
 
+// Inventory-hunt NO MATCH — founder opened pages and found no honest
+// product for these three operator cards. They stay unhooked.
+for (const name of [
+  "LeBarge Tropical Cruises",
+  "Silver Springs State Park Glass Bottom Boat Tours",
+  "Everglades City Airboat Tours",
+]) {
+  ok(placePartnerPick({ name }) === null, `NO MATCH: "${name}" stays unhooked`);
+}
+
 if (fail.length) {
   console.error("test-viator-place-pins-2026-08-19: FAILED");
   for (const f of fail) console.error("  - " + f);
@@ -354,7 +392,7 @@ if (fail.length) {
 }
 console.log(
   `test-viator-place-pins-2026-08-19: OK — ${pass} assertions; ` +
-  `30 exact registry URLs; ${PLACE_PINNED_IDS.size} unique place-card SKUs; ` +
+  `30 leftover-batch URLs + AMI sunset boat; ${PLACE_PINNED_IDS.size} unique place-card SKUs; ` +
   `${LEFTOVER_IDS.length} leftovers proven off the place graph; ` +
   `Tiqets hooks preserved; DROPs/Crystal River/Winter Park absent`
 );

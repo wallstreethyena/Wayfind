@@ -2,9 +2,9 @@
 
 Inventory only. No pins. No invented product URLs.
 
-Revenue asked for existing, currently unhooked place cards that could honestly take a Viator tour or ticket (city + activity match possible). This list is the second-pass leftover after 11 place-card pins already shipped on PR #843.
+Revenue asked for existing, currently unhooked place cards that could honestly take a Viator tour or ticket (city + activity match possible). This list is the second-pass leftover after **12** place-card pins on PR #843 (`Anna Maria Island Dolphin Tours` is now pinned — see below).
 
-Every name below was called through `placePartnerPick({ name })` on 2026-08-19 and returned **null**. None of these names is a beach, drum circle, Mallory Square, Pier 60, Tampa Riverwalk, Crystal River manatee site, or Winter Park scenic boat.
+Every remaining name below was called through `placePartnerPick({ name })` on 2026-08-19 and returned **null**. None of these names is a beach, drum circle, Mallory Square, Pier 60, Tampa Riverwalk, Crystal River manatee site, or Winter Park scenic boat.
 
 Exact string is what `placePartnerPick` would see. Do not invent a nearby alias.
 
@@ -12,10 +12,10 @@ Exact string is what `placePartnerPick` would see. Do not invent a nearby alias.
 
 | # | Exact place name | City | Likely activity | Why it is unhooked |
 |---|---|---|---|---|
-| 1 | Anna Maria Island Dolphin Tours | Anna Maria | Dolphin / sunset boat tour (named operator) | Never wired. Distinct operator card in `lib/summerUniverse.js`. Not Siesta Beach. |
-| 2 | LeBarge Tropical Cruises | Sarasota | Sightseeing / sunset boat tour (named operator) | Never wired. Curated boat-tour card (`lib/curated.js`). |
-| 3 | Silver Springs State Park Glass Bottom Boat Tours | Silver Springs | Glass-bottom boat (the card name *is* the product) | Never wired. Summer-universe venue. |
-| 4 | Everglades City Airboat Tours | Everglades City | Airboat (named operator) | Never wired. Summer-universe venue. Not Boggy Creek / Wild Florida. |
+| 1 | ~~Anna Maria Island Dolphin Tours~~ | Anna Maria | **PINNED 2026-08-19** — `ami-dolphin-sunset` → `d25738-203023P2` (H1: Anna Maria Island Dolphin Sunset Boat Tour). Exact operator name only. |
+| 2 | LeBarge Tropical Cruises | Sarasota | Sightseeing / sunset boat tour (named operator) | **NO MATCH** — do not pin. Founder opened pages; no honest product. |
+| 3 | Silver Springs State Park Glass Bottom Boat Tours | Silver Springs | Glass-bottom boat (the card name *is* the product) | **NO MATCH** — do not pin. Founder opened pages; no honest product. |
+| 4 | Everglades City Airboat Tours | Everglades City | Airboat (named operator) | **NO MATCH** — do not pin. Founder opened pages; no honest product. |
 | 5 | BK Adventure | Titusville | Bioluminescence kayak (named operator) | Never wired. Summer-universe venue. City is Titusville, not Cocoa Beach — needs a Titusville / Space Coast product, not the Cocoa Beach SKUs already pinned. |
 | 6 | Yacht StarShip Cruises & Events | Tampa (also a Clearwater birthday-universe pin of the same name) | Dinner / sightseeing cruise (named operator) | Never wired. Curated dinner-cruise card. Confirm city on the live card before opening a product. |
 | 7 | Homosassa Springs Marina | Homosassa | Scallop / snorkel charter from the marina | Never wired. Summer-universe venue. Not Crystal River manatee swim. |
