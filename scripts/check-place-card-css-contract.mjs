@@ -105,5 +105,18 @@ for (const f of files) {
 if (renderSites < 3)
   fail(`sweep found only ${renderSites} render site(s) of the iconic card — the probe is broken (known: home.js, GuidePlaceCard, IntentPageClient, TrendingNowClient, ...)`);
 
+// v8.19 (owner: "cut-off pills are driving me nuts"): the highlights row is a
+// single horizontal swipe lane — every pill reachable, none cropped. The
+// broken shape was wrap + a 30px crop, which shows a sliver of row two.
+{
+  const rule = (cssSrc.match(/\.wf-place-card-highlights\{[^}]*\}/) || [""])[0];
+  if (!(/flex-wrap:nowrap/.test(rule) && /overflow-x:auto/.test(rule)))
+    fail("the highlights row must scroll horizontally instead of wrapping into a crop");
+  if (/flex-wrap:wrap/.test(rule) && /overflow:hidden/.test(rule))
+    fail("the wrap+crop combination (the sliver bug) returned to the base .wf-place-card-highlights rule");
+  if (!/wf-place-card-highlights::-webkit-scrollbar\{display:none\}/.test(cssSrc))
+    fail("the pill lane must hide its scrollbar (premium chrome, not a browser gutter)");
+}
+
 if (failed) process.exit(1);
 console.log(`check-place-card-css-contract: OK — ${renderSites} render sites all reach WF_PLACE_CARD_CSS`);

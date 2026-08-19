@@ -21,6 +21,8 @@
 import { RAILS } from "../lib/rails.js";
 import { RAIL_SELECT, selectFor, fillRails, MIN_CARDS, MAX_CARDS, pickNearThenWiden } from "../lib/railSelect.js";
 import { BEACH_NEAR_MI } from "../lib/beaches.js";
+import { isFamilyPlace, isStrongFamilyPlace } from "../lib/familyPlace.js";
+import { isTicketedVenue, isStrongTicketedVenue } from "../lib/eventVenue.js";
 import { readFileSync } from "node:fs";
 
 let pass = 0, fail = 0;
@@ -116,6 +118,29 @@ const pools = {
     mk("r4", { name: "Corner Taco", _s: 60, types: ["fast_food_restaurant"], distMi: 1 }),
     mk("r5", { name: "Hidden Deli", _s: 58, rating: 4.8, reviews: 90, types: ["deli"], distMi: 2 }),
     mk("inv2", { name: "Widened Taqueria", _s: 57, rating: 4.7, reviews: 130, types: ["fast_food_restaurant"], distMi: 3 }),
+  ],
+  // v8.19 — family and events join the identity pools (the owner's all-rails
+  // order: "make sure that's the case for ALL of the amazon rail cards").
+  // Measured near Parrish before the cure: family served 10 of 204 qualifying
+  // venues in inventory, events served 4 — and three of the four were BARS
+  // riding secondary `event_venue` types. Each fixture pool mirrors
+  // buildIdentityPool's output: the qualifying ranked rows, plus one
+  // inventory-widened row the anchors never carried (the cure-proof), and the
+  // events rows all pass the STRONG identity because the pool build itself
+  // now refuses what the pick refuses.
+  family: [
+    mk("a", { name: "Ca d Zan", _s: 99, types: ["museum", "tourist_attraction"] }),
+    mk("f", { name: "Big Cat Habitat", _s: 70, types: ["zoo"] }),
+    mk("g", { name: "Jungle Gardens", _s: 68, types: ["zoo", "botanical_garden"] }),
+    mk("i", { name: "Little Maritime Museum", _s: 48, rating: 4.7, reviews: 210, types: ["museum"], trending: true }),
+    mk("inv3", { name: "Widened Kids Science Museum", _s: 63, rating: 4.8, reviews: 340, types: ["museum", "tourist_attraction"], distMi: 9 }),
+  ],
+  events: [
+    mk("c", { name: "Van Wezel Hall", _s: 78, types: ["performing_arts_theater"] }),
+    mk("j", { name: "Bayfront Amphitheatre", _s: 66, types: ["amphitheatre"] }),
+    mk("k", { name: "Opera House", _s: 58, types: ["opera_house"] }),
+    mk("n3", { name: "Comedy Room", _s: 60, types: ["comedy_club"] }),
+    mk("inv4", { name: "Widened Riverside Playhouse", _s: 64, rating: 4.7, reviews: 420, types: ["performing_arts_theater"], distMi: 21 }),
   ],
   // v8.13 — the summer pool is ALSO synthetic-by-construction:
   // lib/railsData.js buildSummerPool sources it from the owner's curated
@@ -260,6 +285,76 @@ ok(!namesOf("breakfast").includes("Steakhouse Coffee Bar"),
   "the evening-room veto is absolute — a steak_house with a cafe tag and Coffee in its name stays out");
 ok(!namesOf("breakfast").includes("Corner Taco"),
   "a taco counter carries no breakfast evidence and does not ride the rail");
+// v8.19 — the same cure-proof for family and events: one row each that the
+// anchor pools never carried, reachable only through the widened identity
+// pool. If either disappears, that rail has re-contracted the disease.
+ok(namesOf("family").includes("Widened Kids Science Museum"),
+  "an inventory-widened museum the anchor top-N never carried reaches the family rail (the pool-cap cure)");
+ok(namesOf("events").includes("Widened Riverside Playhouse"),
+  "an inventory-widened playhouse the anchor top-N never carried reaches the events rail (same cure)");
+
+// v8.19 — THE IDENTITIES, asserted on the CALL (never the string), each shape
+// lifted from live Parrish inventory where the plain rule over-admitted it.
+// family, plain form (pre-targeted candidates): museum admits, bar does not.
+ok(isFamilyPlace({ types: ["museum", "tourist_attraction"] }), "familyPlace: a museum is a family stop");
+ok(!isFamilyPlace({ types: ["bar", "restaurant"] }), "familyPlace: a bar and grill is not");
+// family, strong form (raw inventory): the primary-identity veto. Culver's
+// carries `museum`-adjacent family types in its SECONDARY list on real rows;
+// what it IS is a restaurant.
+ok(!isStrongFamilyPlace({ name: "Culver's", primaryType: "american_restaurant", types: ["american_restaurant", "ice_cream_shop"] }),
+  "strong family: a burger chain that also scoops ice cream is still a restaurant (live Parrish over-admission)");
+ok(!isStrongFamilyPlace({ name: "Detwiler's Farm Market", primaryType: "grocery_store", types: ["grocery_store", "ice_cream_shop", "playground"] }),
+  "strong family: a farm market with a play corner is still a grocery store (live Parrish over-admission)");
+ok(isStrongFamilyPlace({ name: "The Ringling", primaryType: null, types: ["museum", "tourist_attraction"] }),
+  "strong family: a primary-null museum row (the Ringling's real shape) stays admitted");
+ok(isStrongFamilyPlace({ name: "Scoops", primaryType: "ice_cream_shop", types: ["ice_cream_shop"] }),
+  "strong family: ice_cream_shop as PRIMARY is in the axis list on purpose");
+// events: the strong identity is the RAIL's pick now, so every shape that
+// leaked on 2026-08-19 is pinned refused, and the rooms the cap hid are
+// pinned admitted.
+ok(!isStrongTicketedVenue({ name: "McCabe's Irish Pub", primaryType: null, types: ["irish_pub", "pub", "bar", "event_venue"] }),
+  "strong events: a pub wearing a secondary event_venue type is refused (the live 2026-08-19 leak)");
+ok(!isStrongTicketedVenue({ name: "Woody's River Roo Pub", primaryType: "restaurant", types: ["restaurant", "bar_and_grill", "banquet_hall"] }),
+  "strong events: a restaurant with a banquet room is refused by the primary-identity veto");
+ok(!isStrongTicketedVenue({ name: "The Ringling Museum of Art", primaryType: null, types: ["museum", "event_venue", "tourist_attraction"] }),
+  "strong events: a museum hosting events is still a museum — the axis note holds");
+ok(!isStrongTicketedVenue({ name: "AMC Regency Theatres", primaryType: "movie_theater", types: ["movie_theater"] }),
+  "strong events: the axis cut movie_theater; the name path must not re-admit a multiplex");
+ok(isStrongTicketedVenue({ name: "Straz Center for the Performing Arts", primaryType: "performing_arts_theater", types: ["performing_arts_theater", "event_venue"] }),
+  "strong events: a ticketed PRIMARY admits");
+ok(isStrongTicketedVenue({ name: "Sarasota Opera House", primaryType: null, types: ["tourist_attraction"] }),
+  "strong events: whole-word name evidence carries the primary-null opera house (its real inventory shape)");
+// v8.19 — THE FACILITY VETO on venue-name reuse (owner screenshot: the
+// summer registry's "Coquina Beach" resolved to the PARKING LOT's pool row
+// and a parking lot wore a 9.5 card). Asserted on the CALL:
+{
+  const { sameVenueName } = await import("../lib/creatorFinds.js");
+  ok(!sameVenueName("Coquina Beach", "Coquina Beach Parking"),
+    "a venue's parking lot is never the venue (the live 2026-08-19 leak)");
+  ok(!sameVenueName("Robinson Preserve", "Robinson Preserve Boat Ramp"),
+    "a sub-facility suffix refuses the match — the class, not the instance");
+  ok(sameVenueName("Marie Selby Botanical Gardens", "Marie Selby Botanical Gardens Downtown Sarasota"),
+    "a locality suffix is NOT a facility — real same-venue matches still hold");
+}
+// …and the registry entry itself is id-pinned now, so the name path never
+// runs for Coquina at all:
+{
+  const su = readFileSync(new URL("../lib/summerUniverse.js", import.meta.url), "utf8");
+  ok(/ami_coquina[\s\S]{0,900}placeId: "ChIJ5eLMVXE9w4gR15l0tMZGkMY"/.test(su),
+    "the summer registry's Coquina entry carries the REAL beach's placeId (6,457-review beach, not the 273-review lot)");
+}
+ok(isTicketedVenue({ types: ["banquet_hall"] }) && !isStrongTicketedVenue({ name: "The Mable Bar & Grill", primaryType: "bar_and_grill", types: ["bar", "night_club", "restaurant", "banquet_hall"] }),
+  "the plain form admits what the strong form refuses — which is exactly why the rail runs the strong form");
+// …and the events PICK runs it too, proven by injection: even if a bar-shaped
+// row somehow reaches the pool (a future pool change, a cache), the pick is a
+// second, independent refusal. This is what makes the pick's identity a ROLE
+// assert — weakening it to the plain form turns this red.
+{
+  const polluted = { ...pools, events: [...pools.events,
+    Object.assign(mk("leak1", { name: "Tiki Banquet Bar", _s: 97, types: ["bar", "banquet_hall"] }), { primaryType: "bar_and_grill" })] };
+  ok(!selectFor("events", polluted, CTX).some((p) => p.id === "leak1"),
+    "the events pick refuses a bar even when one reaches the pool — defense in depth over the strong identity");
+}
 // v8.15 — the birthday axis: the owner's curated registry IS the selection.
 eq(lead("birthday"), "Yacht StarShip Dinner Cruise", "birthday leads with its highest-scored registry pick");
 ok(selectFor("birthday", pools, CTX).every((p) => p._birthdaySourced === true),
@@ -451,8 +546,39 @@ const WIDEN_RADIUS_MI = 25;
     "railsData builds the breakfast identity pool from owned inventory (the pool-cap cure)");
   ok(/pools\.quickeats = await buildIdentityPool\(pools, origin, isQuickService, 8/.test(dcode),
     "railsData builds the quickeats identity pool for the 30-minute break");
+  // v8.19 — family and events wired the same way (the ROLE: the exact call,
+  // predicate and radius the selectors gate on).
+  ok(/pools\.family = await buildIdentityPool\(pools, origin, isFamilyPlace, FAMILY_NEAR_MI, \["things-to-do"\], isStrongFamilyPlace, \{ typeOv: FAMILY_TYPES \}\)/.test(dcode),
+    "railsData builds the family identity pool — plain reuse, strong widen, type-targeted read");
+  ok(/pools\.events = await buildIdentityPool\(pools, origin, isStrongTicketedVenue, EVENTS_NEAR_MI, \["things-to-do", "nightlife"\], null, \{ typeOv: TICKETED_TYPES \}\)/.test(dcode),
+    "railsData builds the events identity pool with the STRONG identity on both sources (the bar-leak fix)");
+  ok(/google_types=ov\.%7B/.test(dcode),
+    "typeOv reaches the REST query as an array-overlap filter — the cap must only ever trim QUALIFYING rows (3-of-54 starvation, measured live)");
+  ok(/primaryType: row\.primary_type \|\| null/.test(dcode),
+    "the widened shape carries primaryType — without it every strong identity degrades to its name fallback");
   ok(/rest\/v1\/wf_inventory/.test(dcode) && /status=eq\.OPERATIONAL/.test(dcode),
     "the widening reads OWNED inventory — never Google in a request path (the architecture rule)");
+}
+
+// ── v8.19: THE EXPOSURE CAP (owner: "the cards are very repetitive") ────────
+// Ca d Zan (museum, _s 99) qualifies for today, best, family and drive in
+// this fixture. Organic rows ride at most RAIL_EXPOSURE_CAP rails — the two
+// where they rank best — while registry rows (summer/birthday/creators) are
+// exempt because the registry riding its tagged rails IS the design.
+{
+  const { RAIL_EXPOSURE_CAP } = await import("../lib/railSelect.js");
+  eq(RAIL_EXPOSURE_CAP, 2, "the cap is 2 — v8.10's 'tops two axes, leads both' still holds, three is repetition");
+  const filled = fillRails(pools, (p) => p, CTX);
+  const railsWith = (name) => Object.keys(filled.places).filter((id) => (filled.places[id] || []).some((p) => p.name === name));
+  ok(railsWith("Ca d Zan").length <= 2,
+    `an organic row rides at most 2 rails (Ca d Zan rode ${railsWith("Ca d Zan").join(",")})`);
+  ok(railsWith("Big Cat Habitat").length <= 2, "the zoo too — the cap is general, not per-place");
+  // Weeki Wachee is summer-registry-sourced and tagged beach+family: exempt.
+  ok(railsWith("Weeki Wachee Springs").length >= 2,
+    "a summer-registry row still rides ALL its tagged rails — owner curation is never capped");
+  // Every rail that filled before the cap still fills after it.
+  ok(Object.keys(filled.places).every((id) => !filled.places[id].length || filled.places[id].length >= MIN_CARDS),
+    "the cap never leaves a rail below MIN_CARDS while it renders");
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);

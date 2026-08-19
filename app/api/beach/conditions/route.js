@@ -7,6 +7,7 @@ export const runtime = "nodejs";
 
 import { getBeachConditions, getBeachLiteConditions } from "../../../../lib/marine";
 import { getRedTide } from "../../../../lib/redTide";
+import { nearestWater } from "../../../../lib/waterStations";
 
 export async function GET(req) {
   try {
@@ -25,7 +26,11 @@ export async function GET(req) {
       const [lite, redTide, water] = await Promise.all([
         getBeachLiteConditions(lat, lng),
         getRedTide(lat, lng),
-        placeId ? beachWaterRow(placeId) : Promise.resolve(null),
+        // v8.19 — exact place_id row first, else the NEAREST sampled station
+        // within 1.5mi (wf_beach_water_geo). One physical beach carries many
+        // Google place_ids; an id-only join left most beach cards waterless
+        // (the owner's fifth report). See lib/waterStations.js.
+        beachWaterFor(placeId, lat, lng),
       ]);
       return j({ ...(lite || { none: true }), redTide: redTide || null, water: water || null }, 900);
     }
@@ -36,18 +41,31 @@ export async function GET(req) {
   }
 }
 
-async function beachWaterRow(placeId) {
+async function beachWaterFor(placeId, lat, lng) {
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
   const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
-  if (!url || !anon || !placeId) return null;
+  if (!url || !anon) return null;
+  const H = { headers: { apikey: anon, Authorization: "Bearer " + anon } };
   try {
-    const r = await fetch(
-      url + "/rest/v1/wf_beach_water?select=result,advisory,sampled_at&beach_place_id=eq." + encodeURIComponent(placeId),
-      { headers: { apikey: anon, Authorization: "Bearer " + anon } },
-    );
-    if (!r.ok) return null;
-    const rows = await r.json();
-    return rows && rows[0] ? rows[0] : null;
+    if (placeId) {
+      const r = await fetch(
+        url + "/rest/v1/wf_beach_water?select=result,advisory,sampled_at&beach_place_id=eq." + encodeURIComponent(placeId),
+        H,
+      );
+      if (r.ok) {
+        const rows = await r.json();
+        if (rows && rows[0]) return rows[0];
+      }
+    }
+    // Nearest sampled station within NEAR_STATION_MI — a DOH station speaks
+    // for its stretch of sand, never for the next town's beach.
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+    const pad = 0.05;
+    const q = `lat=gte.${(lat - pad).toFixed(4)}&lat=lte.${(lat + pad).toFixed(4)}&lng=gte.${(lng - pad).toFixed(4)}&lng=lte.${(lng + pad).toFixed(4)}`;
+    const r2 = await fetch(url + "/rest/v1/wf_beach_water_geo?select=beach_place_id,result,advisory,sampled_at,lat,lng&" + q, H);
+    if (!r2.ok) return null;
+    const rows2 = await r2.json();
+    return nearestWater(Array.isArray(rows2) ? rows2 : [], lat, lng);
   } catch {
     return null;
   }

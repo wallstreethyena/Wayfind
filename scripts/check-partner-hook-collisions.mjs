@@ -28,6 +28,18 @@ import { VENUE_OFFERS, venueOfferFor } from "../lib/venueOffers.js";
 import { PARTNER_OFFER_REGISTRY, partnerOfferById } from "../lib/partnerOfferRegistry.js";
 import { UT_PLACE_DEAL_IDS } from "../lib/deals.js";
 
+// v8.19 — Viator place-hook pin: product_codes confirmed in wf_experiences
+// with link_ok:true, fail_count:0 on 2026-08-19 (the rail-card monetization
+// audit). A code absent here is an unverified hook.
+const VIATOR_PLACE_PRODUCT_CODES = {
+  "412732P1": "Clear Kayak Ecotour at Robinson Preserve",
+  "454941P4": "Robinson Preserve Mangrove Tour",
+  "22211P1": "TreeUmph Adventure Course",
+  "237533P5": "Egmont Key Ferry (Fort De Soto)",
+  "3170P97": "Fun Spot Attractions Theme Parks Admission",
+};
+
+
 let pass = 0;
 const fail = (m) => { console.error("check-partner-hook-collisions: FAIL — " + m); process.exit(1); };
 const ok = (c, m) => { if (!c) fail(m); pass += 1; };
@@ -123,6 +135,12 @@ for (const row of [...PLACE_PARTNER_PICKS, ...VENUE_OFFERS]) {
   // resolution is provider-specific.
   if (row.provider === "undercover_tourist") {
     ok(!!UT_PLACE_DEAL_IDS[row.offerId], `${row.offerId} UT hook is pinned to a hand-verified wf_deals row`);
+    continue;
+  }
+  if (row.provider === "viator") {
+    // v8.19 — table-backed like UT: wf_experiences product_code lookup with
+    // its own link_ok pipeline. Pinned below, verified live 2026-08-19.
+    ok(!!VIATOR_PLACE_PRODUCT_CODES[row.offerId], `${row.offerId} viator hook is pinned to a live-verified wf_experiences product_code`);
     continue;
   }
   const entry = partnerOfferById(row.offerId, row.provider);

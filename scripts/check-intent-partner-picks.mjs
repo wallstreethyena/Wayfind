@@ -14,6 +14,18 @@ import { PROVIDERS, resolveOffer } from "../lib/commerceProviders.js";
 import { rankExperiences } from "../lib/experiencesData.js";
 import { cachedExperienceCard, viatorProductCard } from "../lib/viatorProductCard.js";
 
+// v8.19 — Viator place-hook pin: product_codes confirmed in wf_experiences
+// with link_ok:true, fail_count:0 on 2026-08-19 (the rail-card monetization
+// audit). A code absent here is an unverified hook.
+const VIATOR_PLACE_PRODUCT_CODES = {
+  "412732P1": "Clear Kayak Ecotour at Robinson Preserve",
+  "454941P4": "Robinson Preserve Mangrove Tour",
+  "22211P1": "TreeUmph Adventure Course",
+  "237533P5": "Egmont Key Ferry (Fort De Soto)",
+  "3170P97": "Fun Spot Attractions Theme Parks Admission",
+};
+
+
 let pass = 0;
 const fail = [];
 const ok = (cond, msg) => { if (cond) pass++; else fail.push(msg); };
@@ -148,6 +160,13 @@ for (const row of PLACE_PARTNER_PICKS) {
     // pin in lib/deals.js does — read live from wf_deals 2026-08-11, all
     // active + link_ok. An id absent from the pin is an unverified hook.
     ok(!!UT_PLACE_DEAL_IDS[row.offerId], `${row.offerId} UT place hook is pinned to a hand-verified wf_deals row`);
+  } else if (row.provider === "viator") {
+    // v8.19 — Viator place hooks resolve by product_code against
+    // wf_experiences (PROVIDERS.viator table lookup with link_ok/fail_count
+    // health), the same path intentPartnerPicks' viator rows already use.
+    // The registry cannot vouch for them; this pin does — read live from
+    // wf_experiences 2026-08-19, every code link_ok:true, fail_count:0.
+    ok(!!VIATOR_PLACE_PRODUCT_CODES[row.offerId], `${row.offerId} viator place hook is pinned to a live-verified wf_experiences product_code`);
   } else {
     ok(PARTNER_OFFER_REGISTRY[row.offerId]?.provider === row.provider, `${row.offerId} landmark hook agrees with the server registry`);
   }

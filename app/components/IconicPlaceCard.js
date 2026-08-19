@@ -184,7 +184,12 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
     // (lib/trendSignal.js — real demand data; lib/wayfindScore TRENDING_BONUS).
     place.trending && place.trend_reason ? "🔥 " + place.trend_reason : null,
   ].filter(Boolean);
-  const award = isCuratorPick ? "Wayfind curator's pick" : rank <= 3 ? (rank === 1 ? "Best " : "Top ") + String(category).toLowerCase() + " pick" : null;
+  // v8.19 (owner screenshot: "TOP LOCAL PICK PICK"). When the category
+  // falls back to "Local pick", composing "+ ' pick'" doubled the word.
+  // Strip any trailing "pick" from the category before composing — the
+  // award is the one place that appends it.
+  const awardCat = String(category).toLowerCase().replace(/\s*pick\s*$/, "").trim() || "local";
+  const award = isCuratorPick ? "Wayfind curator's pick" : rank <= 3 ? (rank === 1 ? "Best " : "Top ") + awardCat + " pick" : null;
   // v6.87 (owner): the rank-summary fallback ("Our #1 pick — 4.9★ with 921
   // reviews, and it holds up.") is GONE — rating, reviews, rank, price,
   // status and distance already render above in `facts`/`award`, and
@@ -250,7 +255,13 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
               the page header; removed entirely rather than replaced. This row
               is for real per-card badges only, matching home.js's canonical
               PlaceCard (clickable category chips, never decorative repeats). */}
-          <div className="wf-place-card-highlights" style={{ display: "flex", flexWrap: "wrap" }}>
+          {/* v8.19 (owner: "these cut-off pills are driving me nuts … an
+              intelligent way to present ALL of the experience pills with no
+              cutoffs"). flexWrap:wrap + a 30px crop showed a SLIVER of the
+              second row. The row is now a single horizontal swipe lane:
+              every pill present, none ever cropped — .wf-place-card-highlights
+              in css.js carries the nowrap/scroll/fade treatment. */}
+          <div className="wf-place-card-highlights">
             {/* v6.89 (owner: "I need the cards to look like the cards from the
                 main menu"): real experience-tag chips, computed by
                 experienceTags() above from data this row actually carries —
