@@ -98,13 +98,16 @@ async function HomeProof() {
       <div style={S.kicker}>{copy.kicker}</div>
       <h2 style={S.h2}>{copy.heading}</h2>
       <p style={S.sub}>{copy.sub}</p>
-      {top.map((place, i) => (
-        <div key={place.id || i} style={S.card}>
-          <p style={S.name}>{i + 1}. {place.name}</p>
-          <p style={S.why}>{whyLine({ ...place, distMi: null }, "spot")}</p>
-          <a style={S.a} href={"/?q=" + encodeURIComponent(place.name)}>Open in Wayfind ›</a>
-        </div>
-      ))}
+      {top.map((place, i) => {
+        const why = whyLine({ ...place, distMi: null }, "spot");
+        return (
+          <div key={place.id || i} style={S.card}>
+            <p style={S.name}>{i + 1}. {place.name}</p>
+            {why ? <p style={S.why}>{why}</p> : null}
+            <a style={S.a} href={"/?q=" + encodeURIComponent(place.name)}>Open in Wayfind ›</a>
+          </div>
+        );
+      })}
       <p style={S.links}>
         <b style={{ color: "#FFFFFF" }}>Nearby towns:</b>{" "}
         {Object.entries(TOWN_HUBS).slice(0, 5).map(([k, slug], i) => (<span key={slug}><a style={S.a} href={"/florida/" + slug}>{TOWN_PROFILES[k].title}</a>{i < 4 ? " · " : ""}</span>))}
