@@ -2,28 +2,20 @@
 
 import { useEffect, useRef, useState } from "react";
 import { LngLatBounds, Map as MapLibreMap, Marker, NavigationControl, setWorkerUrl } from "maplibre-gl";
-import { areaMoved, distanceRingData, MAP_RING_MILES, MAP_RING_MILES_ZOOMED_OUT } from "../../lib/mapExplorer";
+import { areaMoved, distanceRingData, MAP_RING_MILES } from "../../lib/mapExplorer";
 import { safeRemoveMap } from "../../lib/mapTeardown";
 
-// Below this zoom level the map is showing enough area that the 15mi ring
-// is basically hugging the edge of the viewport, so the outer ring expands
-// to 30mi (matching the remembered "zoom of 30 miles out... expanded to the
-// last line 30"). 9.5 sits below both fixed init zooms (11 / 11.55) so
-// normal framing never triggers it; it only kicks in once the user
-// deliberately zooms out.
-const RING_EXPAND_ZOOM_THRESHOLD = 9.5;
-
-// Owner ask (2026-08-03): the map should OPEN already framing the full
-// 30-mile radius (5/10/30mi rings), not a tight ~10mi crop that only shows
-// the 5/10/15mi rings -- the tight rings are for once the user zooms in on
-// their immediate area, but the DEFAULT view on opening the Map tab is the
-// zoomed-out tier. Solved empirically: at the old default zoom (11.55) a
-// 10mi ring already spans roughly 40% of a typical phone viewport, so a
-// 30mi RADIUS (60mi across) needs to sit about 2.3 zoom levels further out
-// to fit comfortably on screen -- which lands just below
-// RING_EXPAND_ZOOM_THRESHOLD, so the existing zoom-driven ring-swap logic
-// naturally starts in its "zoomed out" state instead of needing a separate
-// code path.
+// v8.23.3 — RING_EXPAND_ZOOM_THRESHOLD is GONE with the second ring set. See
+// lib/mapExplorer.js: there is one scale now (5/10/15/20) and it does not
+// change under the reader.
+//
+// Owner ask (2026-08-03): the map OPENS already framing its full radius rather
+// than a tight ~10mi crop. Solved empirically then and unchanged now — at zoom
+// 11.55 a 10mi ring spans roughly 40% of a phone viewport, so the full ring set
+// needs about 2.3 levels further out to sit comfortably on screen. 9.15 still
+// frames all four rings with room around the outermost; it was chosen for a
+// 30mi outer ring, so a 20mi outer ring simply sits further inside the frame,
+// which is the safe direction to be wrong in.
 const MAP_DEFAULT_ZOOM = 9.15;
 
 // v6.99 (owner: live Tripsy/Apple-Maps reference screenshots, "it needs to
@@ -197,11 +189,36 @@ function markerNode({ label, color, kind, selected }) {
     // coordinate, so the pin's tip lands on the true position rather than its
     // centre — verified against a known lat/lng, not by eye.
     if (kind === "origin") {
+      // v8.23.3 — THE EMOJI, AT LAST, AND ON THE OWNER'S SECOND ASK.
+      //
+      // v7.16 recorded the request in these exact words — "can the location be
+      // more precise perhaps just a pin icon LIKE THE EMOJI because the circle
+      // covers too much" — and what shipped was a brand-drawn pin, then a neon
+      // variant in v7.19. Owner, 2026-08-19, on the live map: "can we make the
+      // current location the pin emoji". Third time asked, second time as an
+      // explicit instruction; it is the emoji now.
+      //
+      // WHAT MUST SURVIVE THE SWAP, and does:
+      //   · THE TIP ON THE COORDINATE. The Marker is anchor:"bottom", so the
+      //     element's bottom edge sits on the true lat/lng. U+1F4CD points down
+      //     from its own baseline, so its point lands where the SVG's did.
+      //   · THE TWO VOCABULARIES STAY APART. "You" is a single unranked glyph;
+      //     a recommendation is a teardrop sprite carrying a rank. They must
+      //     never converge (check-brand-pin), and an emoji diverges further
+      //     from a ranked sprite than the brand pin ever did.
+      //   · THE PULSE STAYS ON THE GLOW, not the mark. Scaling the glyph would
+      //     walk its tip off the coordinate every frame; .wf-origin-pin:before
+      //     animates opacity only, and reduced-motion still kills it.
+      //
+      // font-size drives the box: 26px of glyph in a 30x34 element, centred, so
+      // the halo behind it stays concentric on every platform's rendering.
       el.style.cssText = "width:30px;height:34px;cursor:pointer;position:relative;";
       el.innerHTML =
         // Ground shadow, so it sits ON the map instead of floating above it.
         '<span aria-hidden="true" style="position:absolute;left:50%;bottom:-2px;transform:translateX(-50%);width:15px;height:5px;border-radius:50%;background:rgba(15,23,35,.34);filter:blur(1.5px)"></span>' +
-        '<img src="/brand/wayfind-pin-neon.svg" alt="" width="30" height="36" class="wf-origin-pin" style="display:block;width:30px;height:36px;position:relative;filter:drop-shadow(0 0 6px rgba(252,95,6,.8)) drop-shadow(0 2px 3px rgba(15,23,35,.3))" />';
+        '<span aria-hidden="true" class="wf-origin-pin" style="display:block;position:relative;width:30px;height:34px;line-height:34px;text-align:center;font-size:26px;' +
+        'font-family:\'Apple Color Emoji\',\'Segoe UI Emoji\',\'Noto Color Emoji\',sans-serif;' +
+        'filter:drop-shadow(0 0 5px rgba(252,95,6,.75)) drop-shadow(0 2px 3px rgba(15,23,35,.35))">\u{1F4CD}</span>';
       return el;
     }
     const w = 26, h = 34;
@@ -230,10 +247,6 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
   const searchOriginRef = useRef(null);
   const onAreaChangeRef = useRef(null);
   const placesByIdRef = useRef(new Map());
-  // Owner ask: the map should default to the zoomed-out 5/10/30mi ring set
-  // (see MAP_DEFAULT_ZOOM above) rather than starting on 5/10/15mi and
-  // waiting for a zoom event to correct it.
-  const ringZoomedOutRef = useRef(!!rings);
   const [failed, setFailed] = useState(false);
 
   const clearMarkers = () => {
@@ -290,8 +303,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     }
 
     const ringSource = map.getSource("wf-rings");
-    const ringMiles = ringZoomedOutRef.current ? MAP_RING_MILES_ZOOMED_OUT : MAP_RING_MILES;
-    const ringData = origin && rings ? distanceRingData(origin, ringMiles) : { type: "FeatureCollection", features: [] };
+    const ringData = origin && rings ? distanceRingData(origin, MAP_RING_MILES) : { type: "FeatureCollection", features: [] };
     if (ringSource) ringSource.setData(ringData);
 
     if (fit && !bounds.isEmpty()) map.fitBounds(bounds, { padding: { top: 64, right: 36, bottom: 92, left: 36 }, maxZoom: ranked.length <= 1 ? 14 : 12, duration: 550 });
@@ -484,36 +496,12 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
 
   useEffect(() => { redraw(); }, [places, center, category, deviceLoc, events, fit, rings, selectedId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Zoom-responsive ring expansion: when the user zooms out past
-  // RING_EXPAND_ZOOM_THRESHOLD, swap the 5/10/15mi rings for 5/10/30mi;
-  // swap back once they zoom back in. `zoom` fires continuously during a
-  // drag-zoom, so the handler itself is cheap (just reads map.getZoom())
-  // and only touches the source — recomputing the ring polygons — via a
-  // trailing debounce, and only when the threshold is actually crossed.
-  useEffect(() => {
-    const map = mapRef.current;
-    const origin = deviceLoc || center;
-    if (!map || !rings || !origin || origin.lat == null || origin.lng == null) return undefined;
-    let debounceId = null;
-    const applyRingsForZoom = () => {
-      const source = map.getSource("wf-rings");
-      if (!source) return;
-      const zoomedOut = map.getZoom() < RING_EXPAND_ZOOM_THRESHOLD;
-      if (zoomedOut === ringZoomedOutRef.current) return;
-      ringZoomedOutRef.current = zoomedOut;
-      source.setData(distanceRingData(origin, zoomedOut ? MAP_RING_MILES_ZOOMED_OUT : MAP_RING_MILES));
-    };
-    const onZoom = () => {
-      if (debounceId) clearTimeout(debounceId);
-      debounceId = setTimeout(applyRingsForZoom, 120);
-    };
-    map.on("zoom", onZoom);
-    if (map.isStyleLoaded()) applyRingsForZoom();
-    return () => {
-      if (debounceId) clearTimeout(debounceId);
-      map.off("zoom", onZoom);
-    };
-  }, [deviceLoc, center, rings]); // eslint-disable-line react-hooks/exhaustive-deps
+  // v8.23.3 — the zoom-responsive ring-expansion effect was REMOVED here. It
+  // listened to every "zoom" event, debounced 120ms, and recomputed all the
+  // ring polygons whenever the reader crossed 9.5 — work that existed only to
+  // swap a 15mi ring for a 30mi one. With one fixed scale the rings are set
+  // once alongside the markers and never recomputed on zoom at all.
+
 
   useEffect(() => {
     const map = mapRef.current;
