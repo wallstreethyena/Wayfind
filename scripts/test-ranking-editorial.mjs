@@ -38,6 +38,29 @@ ok(sourcedRankingWhy({
   name: "Oar & Iron", rating: 4.6, reviews: 800,
 }) === "",
   "Tonight's Move blank (no Atlas whyGo): nothing — do not invent");
+for (const name of ["McCabe's Irish Pub", "The Loa Tavern", "Orange Blossom Coffee", "Riviera French Café"]) {
+  ok(sourcedRankingWhy({ name, rating: 4.7, reviews: 400 }) === "",
+    name + ": no Atlas / curated whyGo — render nothing, do not invent");
+}
+
+// Homepage Tonight's Move hid every sourced hook by omitting `take`.
+const intentRail = readFileSync(new URL("../app/components/IntentRail.js", import.meta.url), "utf8");
+const intentRailCode = intentRail.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+ok(/useEditorialHooks\(list\)/.test(intentRailCode),
+  "IntentRail resolves hooks through the shared useEditorialHooks");
+ok(/take=\{toHookLine\(hooks\[r\.id\], r\.name\)\}/.test(intentRailCode),
+  "IntentRail passes the sourced take on every card, not first-card-only");
+ok(!/(?:why|take)=\{[^}]*toHookLine\([^}]*\|\|/.test(intentRailCode),
+  "IntentRail does not fall back from the sourced take to filler");
+ok(!/take=\{[^}]*r\.editorial/.test(intentRailCode),
+  "IntentRail does not render Google editorialSummary as the take");
+
+// Cafés PlaceCard: cacheOnly CARD_SUMMARY used to ration to the top 3.
+const homeApp = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
+ok(/!seeded\[p\.id\] && !blurbsInFlight\.current\.has\(p\.id\)\)\.slice\(0,\s*40\)/.test(homeApp),
+  "loadBlurbs cacheOnly asks about the same 40 as known-for, not the top 3");
+ok(!/!seeded\[p\.id\] && !blurbsInFlight\.current\.has\(p\.id\)\)\.slice\(0,\s*3\)/.test(homeApp),
+  "loadBlurbs no longer hides cached CARD_SUMMARY behind a top-3 cap");
 
 const siesta = sourcedRankingWhy({
   id: "ChIJjfu2YPBBw4gRo41o9hwHfmg", name: "Siesta Beach", rating: 4.8, reviews: 6058,
