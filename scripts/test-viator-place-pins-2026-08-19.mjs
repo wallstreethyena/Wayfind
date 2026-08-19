@@ -16,6 +16,9 @@ import { resolveOffer } from "../lib/commerceProviders.js";
 import { commerceHref } from "../lib/commerce.js";
 import { viatorProductGoUrl } from "../lib/affiliates.js";
 import { GUIDES } from "../lib/guides.js";
+import { SUMMER_UNIVERSE } from "../lib/summerUniverse.js";
+import { BIRTHDAY_UNIVERSE } from "../lib/birthdayUniverse.js";
+import { CURATED } from "../lib/curated.js";
 
 const REPO = fileURLToPath(new URL("..", import.meta.url));
 let pass = 0;
@@ -204,6 +207,146 @@ ok(guideHasProduct("things-to-do-fort-lauderdale-summer-2026", PINS["ftl-guided-
 ok(guideHasProduct("things-to-do-fort-lauderdale-summer-2026", PINS["ftl-family-boat-swim"]),
   "SKU 26 (FTL family boat) is a leftover on the FTL water-taxi pick");
 
+// ── 10. Second pass (2026-08-19): leftover SKUs have no remaining unhooked
+// matching place card. The founder asked for another hunt on SKUs
+// 2,3,5,7,10,11–17,19–21,24–26,30 only. Every closest existing name was
+// called. A leftover offer landing on any of them is a dishonest pin
+// (wrong city, wrong operator, beach/editorial lock, or a shipped Tiqets
+// / UT / Klook hook we must not displace).
+const PLACE_PINNED_IDS = new Set(PLACE_HOOKS.map(([, id]) => id));
+const LEFTOVER_IDS = Object.keys(PINS).filter((id) => !PLACE_PINNED_IDS.has(id));
+ok(PLACE_PINNED_IDS.size === 11, `honest place-card tally stays 11 unique SKUs (got ${PLACE_PINNED_IDS.size})`);
+ok(LEFTOVER_IDS.length === 19, `19 leftover SKUs remain off place cards (got ${LEFTOVER_IDS.length})`);
+
+function leftoverOn(name) {
+  const hit = placePartnerPick({ name });
+  return hit && LEFTOVER_IDS.includes(hit.offerId) ? hit.offerId : null;
+}
+
+const MISS = [
+  // SKU 2 — second Cocoa Beach bio kayak. Only bio operator card already
+  // carries SKU 1. BK Adventure is a Titusville competitor. Refuge is free
+  // wildlife in Merritt Island, not a Cocoa Beach commercial kayak.
+  ["BK Adventure", null],
+  ["Merritt Island National Wildlife Refuge", null],
+  ["Bioluminescence Tours - Cocoa Beach", "cocoa-beach-clear-kayak-bio"],
+  // SKU 3 — Banana River dolphin boat. No Banana River / dolphin-boat
+  // operator card exists. Pier is prose only. KSC is UT + wrong activity.
+  ["Kennedy Space Center Visitor Complex", "17"],
+  ["Kennedy Space Center", "17"],
+  // SKU 5 — seasonal manatee kayak (Nov 15–Mar 31). Same park as SKU 4.
+  // Shorter rail alias is the summer card ("mermaid shows and a clear
+  // 74° spring run") — pinning the winter SKU is a CTA lie. Homosassa /
+  // Crystal River cards are the locked manatee lane.
+  ["Weeki Wachee Springs State Park", "weeki-wachee-clear-kayak"],
+  ["Weeki Wachee Springs", null],
+  ["Homosassa Springs Marina", null],
+  ["Three Sisters Springs", null],
+  ["Hunter Springs Park", null],
+  // SKU 7 — Wild Florida airboat. Adventure Park already has safari SKU 6.
+  // Bare Wild Florida / Airboats / Drive Thru Safari are shipped Tiqets.
+  ["Wild Florida Adventure Park", "wild-florida-drive-thru-safari"],
+  ["Wild Florida", "kenansville-hook-wild-florida"],
+  ["Wild Florida Airboats", "kenansville-hook-wild-florida"],
+  // SKU 10 — Tampa tiki boat. Riverwalk is editorial-locked. Sparkman
+  // Wharf is a food hall. Aquarium is Klook. Yacht StarShip is a dinner
+  // cruise, different operator.
+  ["Tampa Riverwalk", null],
+  ["Sparkman Wharf", null],
+  ["Sparkman Wharf Tampa", null],
+  ["Water Street Tampa", null],
+  ["Armature Works", null],
+  ["The Florida Aquarium", "tampa-family-florida-aquarium"],
+  ["Yacht StarShip Cruises & Events", null],
+  // SKU 11–15 — ICON-park cluster already ships Tiqets. Do not displace.
+  ["SEA LIFE Orlando Aquarium", "orlando-tonight-sealife"],
+  ["WonderWorks Orlando", "orlando-hook-wonderworks"],
+  ["Crayola Experience Orlando", "orlando-hook-crayola"],
+  ["The Orlando Eye", "orlando-hook-orlando-eye"],
+  ["The Wheel at ICON Park", "orlando-hook-orlando-eye"],
+  ["Madame Tussauds Orlando", "orlando-hook-madame-tussauds"],
+  ["ICON Park", "orlando-hook-icon-park"],
+  // SKU 16–17 — Boggy Creek already ships Tiqets. No sunset-specific card.
+  ["Boggy Creek Airboat Adventures", "orlando-hook-boggy-creek"],
+  ["Boggy Creek Airboat Rides", "orlando-hook-boggy-creek"],
+  // SKU 19 — second mangrove kayak. Ted Sperling already has SKU 18.
+  // Other parks / clubs are the wrong put-in or the wrong activity.
+  ["Ted Sperling Nature Park", "sarasota-mangrove-kayak"],
+  ["Oscar Scherer State Park", null],
+  ["Blackburn Point Park", null],
+  ["Sarasota Sailing Squadron", null],
+  ["Robinson Preserve", "454941P4"],
+  ["Get Up and Go Kayaking - Robinson Preserve", "412732P1"],
+  // SKU 20 — private Siesta Key dolphin charter. Beach / drum circle
+  // forbidden. LeBarge is a different operator. AMI dolphin tours are
+  // Anna Maria, not Sarasota. Marina Jack is a seafood restaurant.
+  ["Siesta Beach", null],
+  ["LeBarge Tropical Cruises", null],
+  ["Anna Maria Island Dolphin Tours", null],
+  ["Keys Huka Dive", null],
+  ["Marina Jack", null],
+  ["Turtle Beach", null],
+  ["Roberts Bay Marina", null],
+  ["Bayfront Park", null],
+  // SKU 21 — Biscayne Bay sightseeing boat. No Miami boat-operator card.
+  // Vizcaya is a palace/garden. Jungle Island / Wynwood are Tiqets.
+  ["Jungle Island", "miami-hook-jungle-island"],
+  ["Wynwood Walls", "miami-hook-wynwood-walls"],
+  ["Lummus Park", null],
+  ["Versailles Restaurant", null],
+  ["Bayside Marketplace", null],
+  // SKU 24 — Key West sunset sail. Mallory Square locked. Seaport already
+  // has the reef-snorkel SKU. Hemingway / Fort Zach are museum/fort+beach.
+  // Atlas "Scenic Boat Tour" is Winter Park — forbidden.
+  ["Mallory Square", null],
+  ["Key West Historic Seaport", "key-west-reef-snorkel"],
+  ["The Ernest Hemingway Home and Museum", null],
+  ["Ernest Hemingway Home and Museum", null],
+  ["Fort Zachary Taylor State Park", null],
+  ["Scenic Boat Tour", null],
+  // SKU 25–26 — FTL snorkel / family boat. Beaches forbidden. Everglades
+  // / Sawgrass are Tiqets airboat parks, not FTL boat products.
+  ["Fort Lauderdale Beach", null],
+  ["Las Olas Beach", null],
+  ["Everglades Holiday Park", "ftl-hook-everglades-holiday-park"],
+  ["Sawgrass Recreation Park", "weston-hook-sawgrass-park"],
+  // SKU 30 — Little Toot dolphin. CMA is Tiqets rehab aquarium. Pier 60
+  // locked. Yacht StarShip Clearwater is a dinner cruise.
+  ["Clearwater Marine Aquarium", "tampa-drive-clearwater-aquarium"],
+  ["Pier 60", null],
+];
+for (const [name, expectId] of MISS) {
+  const hit = placePartnerPick({ name });
+  const got = hit ? hit.offerId : null;
+  ok(got === expectId,
+    `second-pass "${name}" stays ${expectId || "unhooked"} (got ${got})`);
+  ok(!leftoverOn(name),
+    `second-pass "${name}" does not inherit a leftover SKU`);
+}
+
+const atlas = JSON.parse(readFileSync(REPO + "/data/atlas/editorial-cards.json", "utf8"));
+ok(Array.isArray(atlas) && atlas.length > 200,
+  `atlas editorial graph is present before the leftover sweep (got ${Array.isArray(atlas) ? atlas.length : 0})`);
+const graphNames = [
+  ...SUMMER_UNIVERSE.map((row) => row && row.venue && row.venue.name),
+  ...BIRTHDAY_UNIVERSE.map((row) => row && row.venue && row.venue.name),
+  ...CURATED.map((row) => row && row.name),
+  ...atlas.map((row) => row && row.name),
+].filter(Boolean);
+ok(graphNames.length > 300,
+  `place-graph sweep has real names (got ${graphNames.length})`);
+ok(graphNames.includes("Bioluminescence Tours - Cocoa Beach")
+  && graphNames.includes("LeBarge Tropical Cruises")
+  && graphNames.includes("Anna Maria Island Dolphin Tours"),
+  "positive controls: known leftover-adjacent cards are in the same sweep");
+const leftoverHits = [];
+for (const name of graphNames) {
+  const stolen = leftoverOn(name);
+  if (stolen) leftoverHits.push(`${name}→${stolen}`);
+}
+ok(leftoverHits.length === 0,
+  `no leftover SKU is pinned on a summer/birthday/curated/atlas card (got ${leftoverHits.join("; ") || "none"})`);
+
 if (fail.length) {
   console.error("test-viator-place-pins-2026-08-19: FAILED");
   for (const f of fail) console.error("  - " + f);
@@ -211,6 +354,7 @@ if (fail.length) {
 }
 console.log(
   `test-viator-place-pins-2026-08-19: OK — ${pass} assertions; ` +
-  `30 exact registry URLs; ${PLACE_HOOKS.length} place-card hook calls; ` +
+  `30 exact registry URLs; ${PLACE_PINNED_IDS.size} unique place-card SKUs; ` +
+  `${LEFTOVER_IDS.length} leftovers proven off the place graph; ` +
   `Tiqets hooks preserved; DROPs/Crystal River/Winter Park absent`
 );
