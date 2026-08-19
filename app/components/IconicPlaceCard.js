@@ -280,6 +280,16 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
 
                 The engine never went away, so this restores the RENDER only,
                 byte-for-byte from b5c46763^ rather than rewritten. */}
+            {/* v8.17 (owner: "i asked for the water conditions you still did
+                not deliver"). The caller's `badge` — live water conditions on
+                the beach rail, the trending flame — is a DISCLOSURE, and it
+                rendered AFTER the decorative tag pills, so on a card with two
+                pills the one-row clamp (.wf-place-card-highlights, 30px)
+                clipped the water chip clean off. Fort De Soto showed
+                "Nature & trails · Outdoor" and no water; the pier next to it
+                showed water only because it had one pill. Disclosures render
+                FIRST; the clamp trims decoration instead. */}
+            {badge || null}
             {expTags.map((tag) => (
               <button
                 key={tag.key}
@@ -292,7 +302,6 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
                 }}
               >{tag.icon} {tag.label} ›</button>
             ))}
-            {badge || null}
             {partnerHref ? (
               <a
                 href={partnerHref}
