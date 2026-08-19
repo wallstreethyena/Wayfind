@@ -344,15 +344,15 @@
     "num": 40,
     "category": "attractions",
     "hours": "Visitor area daily 9am–4:45pm; grounds dawn–dusk (gate closes 5pm); free",
-    "vibeCheck": "A free, quiet National Park Service site on the water in Bradenton, marking Hernando de Soto's 1539 landing — nature trails through mangroves, waterfront views, and living-history exhibits. Low-key and genuinely historic.",
-    "whyGo": "A free NPS pin at the Manatee River mouth for the 1539 landing, not a paid museum. Summer ranger kayak tours and fishing clinics book on recreation.gov. Camp Uzita is the living-history village. The parking gate locks at 5pm.",
+    "vibeCheck": "A free, quiet National Park Service site on the water in Bradenton, commemorating Hernando de Soto's 1539 expedition — nature trails through mangroves, waterfront views, and living-history exhibits. Low-key and genuinely historic.",
+    "whyGo": "This NPS memorial at the Manatee River and Tampa Bay commemorates Hernando de Soto's 1539 Florida expedition. Ranger kayak tours, fishing clinics, and Escape De Soto book on Recreation.gov. Visitor area 9 a.m.–4:45 p.m.; parking gates lock at 5.",
     "bestFor": "History buffs, families, and walkers who want a free, peaceful waterfront outing. Not a big attraction — it's a compact memorial and nature trail.",
     "knownFor": "A free National Park Service memorial to Hernando de Soto's 1539 expedition, with Camp Uzita living history.",
     "powerhouseProof": "nps.gov/deso: free entry, ranger kayak tours and fishing clinics (ages 7+) on recreation.gov, Escape De Soto for groups of 4 to 8.",
     "foodMove": null,
     "drinkMove": null,
     "insiderMove": "Be out of the lot before 5pm or the car stays overnight and may be ticketed. Call 941-792-0458 ext. 102 — winter living-history is posted as on hold.",
-    "verifiedStory": "Created in 1948 to commemorate the 1539 expedition and its impact on American Indian societies of the Southeast. Visitor welcome area daily 9am–4:45pm. Grounds dawn to dusk; parking gates close at 5pm. Closed New Year's Day, Thanksgiving, and Christmas.",
+    "verifiedStory": "Created in 1948 to commemorate the 1539 expedition and its impact on American Indian societies of the Southeast. The park interprets that contact; the exact landfall point is not treated as settled. Visitor welcome area daily 9am–4:45pm. Grounds dawn to dusk; parking gates close at 5pm. Closed New Year's Day, Thanksgiving, and Christmas.",
     "funFact": null,
     "currentUsefulDetail": "Free to visit; the welcome area is open daily 9am–4:45pm and the grounds dawn to dusk (parking gate closes at 5pm). Winter ranger and living-history programming is currently suspended for staffing — call ext. 102 to confirm programs. Verified 2026-07-18; refresh before display.",
     "watchOut": "The marquee winter living-history season is currently paused (staffing), so call before promising a program; the parking gate locks at 5pm, and the site can close for approaching hurricanes.",
@@ -571,10 +571,10 @@
     "powerhouseProof": "Official about and FAQ: free, daily 5am–11pm, 53 acres of city-owned bayfront, Phase 1 October 2022, Phase 2 funded and under construction.",
     "foodMove": "There's a café on site — The Nest — for a coffee or a light bite.",
     "drinkMove": null,
-    "insiderMove": "Park is free. Lawn, playground, and walkway stay open during Town Square construction; allow extra walk time from the Tamiami lot. Kayak rentals are posted Friday–Sunday 8am–3:30pm.",
+    "insiderMove": "Park is free. Lawn, playground, and walkway stay open during Town Square construction; allow extra walk time from the Tamiami lot. You can bring your own boat or rent on site.",
     "verifiedStory": "The first 10 acres opened in October 2022. Phase 2 is the next 14 acres, funded at $65 million and underway. The full park is estimated at $200 million over four or more phases.",
     "funFact": "The full park is a decade-long, roughly $200-million build across multiple phases — and part of the work restored a living mangrove shoreline as a natural storm buffer.",
-    "currentUsefulDetail": "Only the first phase (about 10 acres) is open now; a 14-acre Phase 2 is under construction, expected around 2027. Free entry, open 5am–11pm. Verified 2026-07-18; refresh before display.",
+    "currentUsefulDetail": "Only the first phase (about 10 acres) is open now; a 14-acre Phase 2 is under construction, funded and underway. Free entry, open 5am–11pm. Verified 2026-07-18; refresh before display.",
     "watchOut": "It's still a work in progress — only the first phase is open, with limited shade and parking on busy days — and it's a bayfront park, not a swimming beach.",
     "phone": null,
     "officialWebsite": "https://www.thebaysarasota.org/",
@@ -811,7 +811,7 @@
     "whyGo": "The city Gulf beach sits next to St. Armands Circle, with free parking at the sand. The pool is closed for maintenance. Restrooms run 7am to 11pm. The EcoRover page says it is down for repair; lifeguards still loan a manual chair.",
     "bestFor": "A family or a couple who want sand, a sunset, and a real lunch within reach — not a remote, rough-it stretch of coast.",
     "knownFor": "A city Gulf beach on Lido Key with free adjacent parking and St. Armands a short walk.",
-    "powerhouseProof": "City Parks: free parking adjacent to the beach; restrooms daily 7am–11pm; pool closed for essential maintenance.",
+    "powerhouseProof": "City Parks: free parking adjacent to the beach; restrooms daily 7am–11pm; pool closed for essential maintenance. County page: park hours 5 a.m. to 11 p.m.; city owns, county maintains the open beach and dune.",
     "foodMove": "The on-site Lido Island Grill (roughly 11am–7pm) covers beach-day hunger without making you leave the sand; for a real sit-down meal, St. Armands Circle is a short walk inland.",
     "drinkMove": null,
     "insiderMove": "Do not plan on the EcoRover. Email or call for a rover only if the city page says it is back. Until then, ask the Lido lifeguards or county (941-861-5000) for a push chair.",
@@ -825,7 +825,8 @@
     "sourceUrls": [
       "https://www.letsplaysarasota.com/facilities/lido-beach-pool-and-pavilion",
       "https://www.sarasotafl.gov/Department-Pages/Human-Resources/Accessibility/EcoRover-Reservation-Information",
-      "https://www.letsplaysarasota.com/Home/Components/FacilityDirectory/FacilityDirectory/156/4842?npage=2"
+      "https://www.letsplaysarasota.com/Home/Components/FacilityDirectory/FacilityDirectory/156/4842?npage=2",
+      "https://www.sarasotacountyparks.com/Home/Components/FacilityDirectory/FacilityDirectory/569/6738"
     ]
   },
   {
@@ -870,7 +871,7 @@
     "drinkMove": null,
     "insiderMove": "Launch before the beach crowd — the ramp never closes. The beach itself opens at 6am.",
     "verifiedStory": "Sarasota County Parks: 100 Casey Key Road, Nokomis. Park hours 6am to 10pm. Boat ramp open 24/7. Loaner life jacket station on site. Listed amenities include lifeguard, fishing pier, motorized and non-motorized ramps, kayak launch, concession, playground.",
-    "funFact": "Its midcentury beach pavilion was designed by Jack West of the Sarasota School of Architecture — conceived in 1954, completed in 1956, and renovated in 2008 — part of why it's called the county's oldest public beach.",
+    "funFact": "Its midcentury beach pavilion was designed by Jack West of the Sarasota School of Architecture — conceived in 1954, completed in 1956, and renovated in 2008.",
     "currentUsefulDetail": "Red tide was clear coast-wide as of the FWC report dated July 17, 2026 — no K. brevis observed. The beach is open 6am–10pm, with the boat ramp accessible 24/7. Verified 2026-07-18; refresh before display.",
     "watchOut": "It's on Casey Key with steady boat-ramp traffic, and parking capacity isn't posted — arrive early on weekends. A working, local beach rather than a resort strip.",
     "phone": null,
@@ -878,7 +879,7 @@
     "address": "100 Casey Key Rd, Nokomis",
     "sourceUrls": [
       "https://www.sarasotacountyparks.com/Home/Components/FacilityDirectory/FacilityDirectory/553/6738",
-      "https://www.visitsarasota.com/beaches-parks/nokomis-beach",
+      "https://www.scgov.net/Home/Components/FacilityDirectory/FacilityDirectory/553/",
       "https://myfwc.com/research/redtide/statewide/"
     ]
   },
