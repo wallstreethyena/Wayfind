@@ -168,6 +168,14 @@ ok(!/experienceBadges\(p, null, 2\)/.test(hookDetail), "HookDetail builds no exp
 // The other two §8 assertions are untouched: ThingsToDoList and HookDetail were
 // separate surfaces with their own decisions, and nothing reversed those.
 ok(/expTags\.map/.test(iconic), "IconicPlaceCard renders its experience-tag chip buttons (owner reversal 2026-08-16 — the pills are wanted back and this is the guard that keeps them)");
+// v8.17 (owner, 2026-08-19: "the experience pills have also been removed … i
+// want the iconic place card everywhere"). The v8.5 restore reached only
+// IconicPlaceCard; the browse feed's canonical PlaceCard silently stayed on
+// the v7.15 state, and the drift shipped. Both cards now carry the pills, and
+// BOTH renders are asserted — on the ROLE (the engine spread into the badges
+// array), not a substring.
+ok(/const badges = \[[\s\S]{0,400}\.\.\.experienceBadges\(p, selectedBadge, 3\)\]/.test(read("app/home.js")),
+  "the browse PlaceCard spreads experienceBadges into its badge row — the v8.5 'bring that everywhere' reversal covers the canonical card, not only IconicPlaceCard");
 ok(!/experienceTags\(tagged/.test(read("app/components/BestNearby.js")), "BestNearby rails pass no tag bubbles to RailCard — Deal and the creator-video score disclosure only");
 ok(!/experienceTags\(r, \d/.test(read("app/components/IntentRail.js")), "the home intent rails pass no tag bubbles — Deal only");
 ok(!/experienceBadges\(detail, null, 4\)\.map/.test(read("app/components/sheets/Detail.js")), "the detail sheet renders no tag-bubble row");

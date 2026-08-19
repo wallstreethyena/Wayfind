@@ -112,12 +112,7 @@ function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, onLog, on
             fits the corner at any thumbnail size and reads as an award rather
             than a label. The words stay in aria-label/title so the meaning is
             still announced and still hoverable. */}
-        {first && !isTour ? (
-          <span role="img" aria-label="Wayfind Pick" title="Wayfind Pick — our top-ranked spot right now" style={{ position: "absolute", top: 6, left: 6, width: 34, height: 34, borderRadius: "50%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1, background: "radial-gradient(circle at 50% 26%, rgba(232,201,122,.3), rgba(8,11,17,.86) 74%)", border: `1.5px solid ${CHAMPAGNE.base}`, boxShadow: MEDALLION_SHADOW, color: CHAMPAGNE.base, backdropFilter: "blur(4px)" }}>
-            <span aria-hidden="true" style={{ fontSize: 12, lineHeight: 1 }}>✦</span>
-            <span aria-hidden="true" style={{ fontSize: 6.5, fontWeight: 900, letterSpacing: ".09em", lineHeight: 1 }}>PICK</span>
-          </span>
-        ) : null}
+        {/* v8.17 — the ✦ PICK medallion is removed (owner reversal, 2026-08-19); rank + award band carry the claim. */}
         {isTour && r.selling_out ? <span style={{ position: "absolute", top: 7, left: 7, background: "#B33A2B", color: "#fff", fontSize: 9, fontWeight: 800, letterSpacing: ".4px", textTransform: "uppercase", borderRadius: 999, padding: "2px 7px" }}>Selling fast</span> : null}
       </div>
       <div style={{ padding: "12px 12px", flex: 1, minWidth: 0, position: "relative" }}>

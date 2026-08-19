@@ -29,6 +29,14 @@ if ((page.match(/searchNearbyPlaces\(([^)]*)\)\.then\(\(l\) => \(l \|\| \[\]\)\.
 
 // Behavior fixtures — junk that must NEVER pass. [categoryId, subId, name, types]
 const MUST_BLOCK = [
+  // v8.17 (owner, live screenshot 2026-08-19: "Adobe Kava is not a cafe, it's
+  // a bar"). Kava/kratom lounges are Google-typed tea_house/coffee_shop/cafe —
+  // these are the EXACT live types measured on the Adobe Kava inventory row —
+  // so only the name carries the truth. Out of Cafés and Breakfast; Food·All
+  // keeps them (asserted in MUST_PASS below).
+  ["food", "cafes", "Adobe Kava", ["tea_house", "coffee_shop", "cafe", "food_store", "store", "food"]],
+  ["food", "breakfast", "Mad Hatter Kava", ["coffee_shop", "cafe", "food_store", "store"]],
+  ["food", "cafes", "Cloud 9 Hookah Lounge", ["cafe", "lounge"]],
   ["attractions", "museums", "La Nails & Spa", ["nail_salon"]],
   ["attractions", "museums", "La Nails & Spa", []],           // even with no types, the name is enough
   ["attractions", "tours", "La Nails & Spa", []],
@@ -95,6 +103,10 @@ for (const [cat, sub, name, types] of MUST_BLOCK) {
 
 // Legit places that must NEVER be killed.
 const MUST_PASS = [
+  // v8.17 — the kava veto is SURGICAL: the lounge stays findable under
+  // Food·All, and a real coffee-forward café is untouched under Cafés.
+  ["food", "all", "Adobe Kava", ["tea_house", "coffee_shop", "cafe", "food_store", "store", "food"]],
+  ["food", "cafes", "Spinning Coffee", ["coffee_shop", "cafe", "food"]],
   ["beach", "all", "Manatee Public Beach", ["beach"]],
   ["beach", "beaches", "Coquina Beach", ["beach"]],
   ["beach", "marinas", "Marina Jack", ["marina"]],

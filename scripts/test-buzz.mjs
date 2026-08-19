@@ -81,14 +81,25 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
   {
     const flat = railSelect.replace(/\n\s*/g, " ");
     const cfg = (flat.match(/trending: \{.*?\},\s*\/\/|trending: \{.*?\}\s*,/) || [""])[0];
-    const gatesOnSpike = /pick: \(p\) => !!p\.trending/.test(cfg);
+    // v8.17 RE-POINT (owner, 2026-08-19: "you also removed the top 20 trends
+    // amazon rail card" — the tile and its Exploding name are restored). The
+    // spike copy is now backed TWO ways, and both are asserted rather than
+    // assumed: (1) the selector's admission still includes the real spike
+    // flag as its first signal, and (2) the trending drop LEADS with the
+    // owner's curated 20-trends module (ExplodingNearby, v8.12 — real demand
+    // data matched to verified local places), so "exploding trends near you"
+    // is literally the content the drop opens with. If either backing goes
+    // away while the copy still claims a spike, this fails again.
+    const gatesOnSpike = /pick: \(p(?:, ctx)?\) => !!p\.trending/.test(cfg);
+    const dpr = readFileSync("app/components/DaypartRail.js", "utf8");
+    const trendsLeadTheDrop = /selRail\.id === "trending" \? \(\s*<ExplodingNearby/.test(dpr.replace(/\/\*[\s\S]*?\*\//g, ""));
     const railsSrc = readFileSync("lib/rails.js", "utf8");
     const railRow = (railsSrc.match(/\{ id: "trending",[\s\S]*?\},/) || [""])[0];
     const SPIKE_WORDS = /exploding|spiking|spike|trending now|everyone'?s searching|blowing up/i;
     const copy = railRow.replace(/\/\/[^\n]*/g, " ");
     const claimsSpike = SPIKE_WORDS.test(copy);
-    ok(!claimsSpike || gatesOnSpike,
-      "the trending rail's COPY claims a spike (exploding/spiking/everyone's searching) while its selector does not gate on the real trend flag — that is the one unfalsifiable claim on the page. Either gate on p.trending or rename the rail to what the signal supports.");
+    ok(!claimsSpike || (gatesOnSpike && trendsLeadTheDrop),
+      "the trending rail's COPY claims a spike while neither backing holds (selector admits the real trend flag AND the drop leads with the owner's curated trends module) — an unfalsifiable claim. Restore a backing or rename the rail.");
     // v8.10 — creator evidence joined the accepted signals: a real creator
     // video (hasCreatorVideoAt / the creators pool's _creatorSourced marker)
     // is a verifiable "people are talking about this" fact this repo can

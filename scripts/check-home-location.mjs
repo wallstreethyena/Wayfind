@@ -85,20 +85,20 @@ ok(/wf-signin-button|aria-label="Account"/.test(ROW),
 ok(!/\blocName\b/.test(ROW),
    "the location label is NOT rendered inside .wf-topbar-row. That row is a fixed 154px sprite plus two flex-shrink:0 controls in 362px at 390px, which left the city 23px of the 72px it needed and rendered it as a bare ellipsis. Moving it back here re-breaks it on every phone");
 
-/* ── 3. …and it does still render, on its own line, gated on having a name ── */
+/* ── 3. …and it does still render, IN THE SEARCH ROW'S SCOPE CONTROL ──────
+   v8.17 RE-POINT (owner, 2026-08-19: "we no longer need to have it displayed
+   here [under the logo] — make sure it is displayed at the search bar drop
+   down for the location"). The v8.14 scope control names the ranked-around
+   place ({cityNow || "Location"}) and owns switching it, so the dedicated
+   full-width line is retired. The invariant this guard protects is unchanged
+   in spirit: the visitor can ALWAYS read where "near you" is, and never from
+   the width-starved top row. */
 const AFTER = CODE.slice(end);
-ok(/\blocName\b/.test(AFTER),
-   "the location still renders somewhere after the top row — asserting only its ABSENCE would be satisfied by deleting it outright, which is the opposite of the fix");
-ok(/screen !== "map" && locName &&/.test(AFTER),
-   'the location line is gated on `locName` being present (no empty pin row before geolocation resolves) and hidden on the map screen, which has its own chrome');
+ok(/className="wf-scope"[\s\S]{0,700}\{cityNow \|\| "Location"\}/.test(AFTER),
+   'the search row\'s scope control renders the current location name ({cityNow || "Location"}) — the ONE place the visitor reads where "near you" is');
+ok(/Use current location/.test(AFTER),
+   "the scope menu still offers the precise current-location action — the location display and the location control live together");
+ok(!/screen !== "map" && locName &&[\s\S]{0,300}wf-topbar/.test(AFTER.slice(0, 4000)),
+   "the retired under-logo location line has not quietly returned above the search row");
 
-/* The whole point is that a long name fits. Anything that re-introduces a
-   shared, shrinking row would need one of these; none may appear on this line. */
-const locLine = (AFTER.match(/screen !== "map" && locName &&[\s\S]{0,900}/) || [""])[0];
-ok(locLine.length > 200, "the location line's JSX was located for inspection");
-ok(!/flexShrink:\s*0[\s\S]{0,120}wordmark/.test(locLine),
-   "the location line does not share a flex row with the fixed-width wordmark sprite");
-ok(/whiteSpace: "nowrap"[\s\S]*textOverflow: "ellipsis"/.test(locLine),
-   "an over-long name still degrades gracefully with an ellipsis rather than wrapping the header to two lines — the line is full-width, so this is now a last resort instead of the normal case");
-
-console.log(`check-home-location: OK — ${pass} assertions; the location renders on its own full-width line and is proven ABSENT from the ${ROW.length}-char top row whose 362px budget is fully consumed by a 154px sprite and two flex-shrink:0 controls (measured on production at 390px, not resized desktop)`);
+console.log(`check-home-location: OK — ${pass} assertions; the location renders in the search row's scope control (v8.17) and is proven ABSENT from the ${ROW.length}-char top row whose 362px budget is fully consumed by a 154px sprite and two flex-shrink:0 controls (measured on production at 390px, not resized desktop)`);

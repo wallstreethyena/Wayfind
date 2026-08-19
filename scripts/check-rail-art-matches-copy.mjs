@@ -74,6 +74,12 @@ const PAIRS = {
   // reads "BIRTHDAY PLANS, SOLVED. / Make their birthday worth remembering.",
   // the breakfast tile "BEST BREAKFAST PICKS. / HANDPICKED. LOCAL. WORTH
   // WAKING UP FOR." — both match the rail copy they were drawn for.
+  // v8.17 (owner: "you also removed the top 20 trends amazon rail card") —
+  // tile restored, VIEWED at pin time: burger art, baked headline "EXPLODING
+  // TRENDS NEAR YOU / Everyone's searching this. You should too. / See
+  // what's trending →" — matches the restored rail copy, and the drop now
+  // leads with the owner's 20 curated trends (v8.12), so the claim is backed.
+  trending: { copy: "687d51781c7e6ddb", art: "61663b523e17f32a" },
   birthday: { copy: "e30656dbabf938e6", art: "c62ecd24477ae8d3" },
   breakfast: { copy: "357ed5dfa8609429", art: "502233352f9fc2aa" },
   blog: { copy: "390c7f9cbf645d12", art: "3af2ada7cdef7446" },
