@@ -32,7 +32,31 @@ for (const [name, s] of [["guides", g], ["culture", c]]) {
   if (name === "guides") {
     // ...and it must be CONDITIONAL on the resolver marking the CTA sponsored, so
     // the non-monetized Directions terminal is not falsely tagged as paid.
-    if (!/cta\.sponsored \? \{ target/.test(relHost)) fail("guides sponsored rel is not gated on cta.sponsored");
+    //
+    // 2026-08-19: earning go-route Book is SAME-TAB (no target=_blank) so a
+    // popup block cannot fire the click with no leave. The FTC rule is
+    // unchanged — monetized links carry rel=sponsored; Directions must not.
+    // Pinning to `cta.sponsored ? { target` went red on the correct shape:
+    //   cta.sponsored ? (earningGo ? { rel: "noreferrer sponsored" }
+    //                              : { target: "_blank", rel: "noreferrer sponsored" })
+    //                 : {}
+    // Assert the GATE and the empty false branch, not the inner target.
+    // Strip comments first — a raw scan would match the explanatory note
+    // and miss an unconditional rel in the code (CLAUDE.md role-vs-substring).
+    const guideConv = relHost
+      .replace(/\/\*[\s\S]*?\*\//g, " ")
+      .split("\n").filter((l) => !/^\s*\/\//.test(l)).join("\n");
+    const relHits = guideConv.match(/rel:\s*"noreferrer sponsored"/g) || [];
+    if (!relHits.length) fail("guides monetized links missing sponsored rel");
+    const gated = /\{\.\.\.\s*\(\s*cta\.sponsored\s*\?([\s\S]*?):\s*\{\s*\}\s*\)/.exec(guideConv);
+    if (!gated) fail("guides sponsored rel is not gated on cta.sponsored");
+    const trueBranch = gated[1];
+    const trueRels = trueBranch.match(/rel:\s*"noreferrer sponsored"/g) || [];
+    if (!trueRels.length) fail("guides sponsored rel is not gated on cta.sponsored");
+    if (trueRels.length !== relHits.length) {
+      fail("guides sponsored rel is not gated on cta.sponsored");
+    }
+
     // ONE primary CTA: the per-pick book/rates wall must stay gone.
     const code = s.replace(/\/\*[\s\S]*?\*\//g, " ").split("\n").filter((l) => !/^\s*\/\//.test(l)).join("\n");
     if (/experienceGoUrl\(|hotelSearchUrl\(/.test(code)) fail("guides still resolve booking hrefs directly — that is the parallel path bookingResolve replaced");
