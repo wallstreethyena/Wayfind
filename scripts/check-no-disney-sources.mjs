@@ -73,6 +73,8 @@ const ALLOWED_THIRD_PARTY = [
   // tourism boards / official destination marketing
   "visitsarasota.com", "visitvenicefl.org", "annamariaisland.com", "enjoyflorida.com",
   "lakewoodranch.com", "mylwr.com", "starmandscircleassoc.com",
+  // Visit Orlando's Magical Dining program site (prix-fixe event listings)
+  "magicaldining.com",
   // conservation / naturalist / trail authorities
   "sarasotaaudubon.org", "manateeaudubon.org", "floridabirdingtrail.com", "ebird.org",
   "floridahikes.com", "asbpa.org", "savingplaces.org", "pdga.com", "circusringoffame.org",
