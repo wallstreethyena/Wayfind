@@ -273,9 +273,15 @@ const NEUTRAL_HERO = "/brand/opt/hero-1600.webp";
 
 function guideHero(g) {
   const haystack = `${g.title} ${g.keyword || ""}`.toLowerCase();
-  if (/restaurant|food|cuban|pie/.test(haystack)) return "/cards/date-night-dining-hero.jpg";
+  // v8.24 (owner, on the Gulf Coast Brunch & Date Night hero: "I never want
+  // to see this image ever again"). Two changes: the AI neon-concert
+  // composite (night-out.jpg) is BANNED site-wide and deleted from the repo
+  // (locked by scripts/check-banned-art.mjs), and brunch/date-night guides
+  // now match the DINING branch — a food guide was falling through to
+  // nightlife art because "brunch" appeared in no branch.
+  if (/restaurant|food|cuban|pie|brunch|dining|date/.test(haystack)) return "/cards/date-night-dining-hero.jpg";
   if (/beach|siesta|lido/.test(haystack)) return "/cards/beach-adobestock-216195684.jpeg";
-  if (/night|bar|cocktail/.test(haystack)) return "/cards/night-out.jpg";
+  if (/night|bar|cocktail/.test(haystack)) return "/cards/tonight-alfonso-scarpa-unsplash.jpg";
   if (/boat|kayak|spring|airboat/.test(haystack)) return "/brand/orlando-paddleboard-portrait.jpg";
   // The keyword branches above assign art that MATCHES the guide. This last
   // line is what a guide gets when none matched, so it must assert no

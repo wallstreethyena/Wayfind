@@ -61,6 +61,13 @@ const EXP_META = {
   waterfront: { icon: "🌊", label: "Waterfront" },
   rooftop: { icon: "🌆", label: "Rooftop" },
   romantic: { icon: "💕", label: "Romantic" },
+  // v8.24 (owner: "we need to be looking for date night — and whatever other
+  // experiences we have; I have seen lots of hidden gems"). Grounded in data
+  // these rows really carry: a restaurant identity + the same price/room
+  // evidence lib/railSelect.js's datenight rail selects on (priceNum >= 2 or
+  // a ROOM_WORDS name), tightened with a 4.4 floor so a pricey tourist trap
+  // never wears it. Clicking it deep-links ?exp=datenight like every chip.
+  datenight: { icon: "🍷", label: "Date night" },
   instagram: { icon: "📸", label: "Instagrammable" },
   outdoor: { icon: "🌳", label: "Outdoor" },
   family: { icon: "👨‍👩‍👧", label: "Best for families" },
@@ -80,7 +87,7 @@ const EXP_META = {
 };
 // Same display precedence as home.js's `order` array in experienceBadges,
 // minus the keys this surface cannot ground in real data (see comment above).
-const EXP_ORDER = ["museum", "nature", "entertainment", "waterfront", "instagram", "rooftop", "romantic", "outdoor", "pizza", "sushi", "steak", "seafood", "burgers", "mexican", "italian", "dessert", "beer", "coffee", "family", "gem", "value", "localfav"];
+const EXP_ORDER = ["museum", "nature", "entertainment", "waterfront", "instagram", "rooftop", "romantic", "datenight", "outdoor", "pizza", "sushi", "steak", "seafood", "burgers", "mexican", "italian", "dessert", "beer", "coffee", "family", "gem", "value", "localfav"];
 
 export function experienceTags(place, max) {
   if (!place) return [];
@@ -108,6 +115,15 @@ export function experienceTags(place, max) {
   if (!noWater && said(["waterfront", "riverfront", "riverwalk", "on the river", "bayfront", "beachfront", "lakefront", "wharf", "dockside", "boathouse", "on the bay", "on the water"])) q.add("waterfront");
   if (said(["rooftop", "roof top", "sky bar", "skybar", "skyline"])) q.add("rooftop");
   if (said(["romantic", "date night", "intimate", "candlelit", "special occasion"])) q.add("romantic");
+  // v8.24 — date night, same evidence class as the datenight rail
+  // (lib/railSelect.js): a real restaurant whose price tier or name says
+  // "the room matters", with a quality floor. Types are the identity gate —
+  // a $$$ mini-golf never qualifies.
+  {
+    const isRestaurant = tokens.some((x) => x === "restaurant" || x.endsWith("_restaurant") || x === "fine_dining_restaurant" || x === "wine_bar");
+    const roomName = said(["waterfront", "rooftop", "romantic", "wine", "cellar", "chophouse", "steak", "bistro", "trattoria", "osteria", "supper", "candle", "sunset", "bayfront", "riverfront"]);
+    if (isRestaurant && rating >= 4.4 && ((priceNum != null && priceNum >= 3) || ((priceNum != null && priceNum >= 2) && roomName))) q.add("datenight");
+  }
   if (said(["instagram", "instagrammable", "photo spot", "photogenic", "aesthetic", "scenic", "great views", "amazing views", "beautiful views", "stunning views", "picturesque", "mural"])) q.add("instagram");
 
   if (["zoo", "aquarium", "amusement_park", "water_park", "theme_park"].some((x) => ts.includes(x))) q.add("family");
