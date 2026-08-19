@@ -130,6 +130,15 @@ export default function DaypartRail({
   isOnTrip = null,
   onSave = null,
   onItinerary = null,
+  // v8.17 (owner, live screenshot: "when i go on a card detail and then try
+  // to go back everything is gone from the main page"). ROOT CAUSE: a rail
+  // card's only open path was its /p/{id} href — a FULL NAVIGATION off the
+  // homepage, so the open rail, scroll position and feed state were destroyed
+  // and Back reloaded the page cold. app/home.js now passes openDetail here;
+  // the card opens the detail SHEET in place (href stays as the crawlable
+  // fallback), exactly like every other in-app card. Nullable for the /v8
+  // preview route, which keeps the navigation behavior.
+  onOpenPlace = null,
 }) {
   const [daypart, setDaypart] = useState(initialDaypart);
   // THE RAIL FOLLOWS THE READER. Server props are the flagship metro's ranking
@@ -398,7 +407,7 @@ export default function DaypartRail({
               active
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
               city={shown.cityLabel || ""}
-              onOpenPlace={(p) => { if (p && p.id && typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
+              onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
               onSave={onSave || undefined}
             />
@@ -434,6 +443,7 @@ export default function DaypartRail({
                     place={p}
                     rank={i + 1}
                     href={`/p/${encodeURIComponent(p.id)}`}
+                    onOpen={onOpenPlace ? (pl) => onOpenPlace(pl) : undefined}
                     // v8.13 — a verified wf_editorial hook still wins; rows
                     // the summer registry sourced fall back to the entry's own
                     // timing/heat guidance (lib/summerUniverse.js `why`,

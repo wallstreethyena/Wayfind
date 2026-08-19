@@ -73,17 +73,12 @@ export default function PremiumIntentHero({ eyebrow, location, title, descriptio
           </div>
           <h1 className="wf-intent-title">{title}</h1>
           <p className="wf-intent-copy">{description}</p>
-          {/* v8.14 (owner: "every text should be an opportunity to sell the
-              user"). Each cell is a REASON TO USE WAYFIND, not a shrug. Mobile
-              collapses these to pills showing only the <strong>, so the bold
-              line must sell on its own; the body earns the claim. Everything
-              here must stay literally true of the product — no invented
-              numbers, no promises a page can't keep. */}
-          <div className="wf-intent-proof">
-            <div><strong>No paid placement, ever</strong>Every rank is earned. No business can buy its way onto your shortlist — when we score something highly, it&apos;s because it deserves it.</div>
-            <div><strong>The answer, not 50 tabs</strong>We rank everything nearby against real reviews, live hours and today&apos;s weather — and hand you the few picks actually worth your time.</div>
-            <div><strong>Sharper every visit</strong>Save one place and Wayfind learns your taste. The next shortlist is built for you, not for everyone.</div>
-          </div>
+          {/* v8.17 (owner, 2026-08-19, on a screenshot of the three-column
+              proof band: "get rid of this — it looks horrible"). The band is
+              GONE, not reworded: v8.14's copy rewrite did not fix what the
+              owner disliked, which was the block itself. The trust claims
+              live on in the one-line wf-intent-trust note below and in the
+              body pages' own disclosures. */}
           <div className="wf-intent-actions">
             <a className="wf-intent-primary" href={primaryHref}>{primaryLabel} →</a>
             <a className="wf-intent-secondary" href={secondaryHref}>{secondaryLabel}</a>

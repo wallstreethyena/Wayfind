@@ -432,3 +432,6 @@ node scripts/check-one-main.mjs
 
 # v8.14 — the card contract CSS must travel with every IconicPlaceCard surface (the unstyled-/guides bug)
 node scripts/check-place-card-css-contract.mjs
+
+# v8.17 — no inline style may paint text in its own background color (the invisible landing score chip)
+node scripts/check-invisible-text.mjs
