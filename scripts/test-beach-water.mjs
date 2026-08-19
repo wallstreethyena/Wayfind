@@ -73,21 +73,58 @@ ok(!cron.includes("Math.random") && !/result:\s*["']Good["']/.test(cron), "no in
   const fresh = Date.now();
   const withRow = formatBeachChipBits(marine, { result: "Good", advisory: false, sampled_at: new Date(fresh).toISOString() }, fresh);
   ok(withRow.includes("water 78°"), "chip keeps water temp");
-  ok(withRow.includes("Good"), "quality renders when a wf_beach_water row exists");
+  // v8.19 — plain-language mapping (owner): the band renders as what it
+  // MEANS for a swim, via WATER_PLAIN, not the bare lab word.
+  ok(withRow.includes("Clear — great for swimming"), "quality renders in plain language when a wf_beach_water row exists");
+  ok(!withRow.includes("Good"), "the bare lab word never reaches the chip");
   ok(!withRow.some((b) => /wave/i.test(b)), "waves are not advertised when quality is the chip's water claim");
   ok(withRow.includes("wind 8 mph E"), "chip keeps wind");
   const noRow = formatBeachChipBits(marine, null, fresh);
-  ok(!noRow.some((b) => /Good|Moderate|Poor|Advisory|wave/i.test(b)),
-     "no water row → omit quality AND omit waves");
+  ok(!noRow.some((b) => /Good|Moderate|Poor|Advisory|swim|wave/i.test(b)),
+     "no water row → omit quality (lab word OR plain phrase) AND omit waves");
   ok(noRow.includes("water 78°") && noRow.includes("wind 8 mph E"), "temp and wind still show without a quality row");
-  ok(waterQualityBit({ result: "Moderate", advisory: false, sampled_at: new Date(fresh - 8 * 86400000).toISOString() }, fresh) === "Moderate (last known)",
-     "stale >7d quality may show last known");
+  ok(waterQualityBit({ result: "Moderate", advisory: false, sampled_at: new Date(fresh - 8 * 86400000).toISOString() }, fresh) === "Fair — fine for a swim (last known)",
+     "stale >7d quality may show last known — in the same plain language");
   ok(waterQualityBit({ result: "Mystery" }) === null, "unknown result is omitted — never invent a score");
   const rail = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
   ok(/formatBeachChipBits\(c, c\.water\)/.test(rail), "DaypartRail beachChip uses the shared formatter");
+  // v8.19 — the water fetch keys on the CARD's identity (beach in Google
+  // types), not on the beach RAIL: a Coquina card in the best drop carries
+  // its water line too. Assert the role: the gate reads isBeachRow, and the
+  // beach-rail-only gate is gone.
+  const railCode = rail.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
+  ok(/const isBeachRow = \(p\) =>/.test(railCode) && /selPlaces\.some\(isBeachRow\)/.test(railCode),
+     "the conditions fetch gates on the card's beach identity in ANY open drop");
+  ok(!/selected !== "beach"/.test(railCode) && !/selRail\.id !== "beach"/.test(railCode),
+     "the beach-RAIL-only gates are gone — the card's identity decides, not the rail id");
   ok(!/waves \$\{c\.waveHeightFt\}/.test(rail.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ")),
      "DaypartRail beachChip no longer interpolates waves");
 }
+
+// ── v8.19: GEO station resolution (lib/waterStations.js) ────────────────────
+// One physical beach, many place_ids: the id-exact join left most beach
+// cards waterless (owner's fifth report). Executed, not grepped.
+{
+  const { nearestWater, waterForBeaches, sampledShort, NEAR_STATION_MI } = await import("../lib/waterStations.js");
+  const stations = [
+    { beach_place_id: "st1", result: "Good", advisory: false, sampled_at: "2026-08-12", lat: 27.27, lng: -82.55 },
+    { beach_place_id: "st2", result: "Poor", advisory: true, sampled_at: "2026-08-10", lat: 27.46, lng: -82.70 },
+  ];
+  ok(NEAR_STATION_MI <= 2, "a station speaks for its stretch of sand, not the coast");
+  const near = nearestWater(stations, 27.272, -82.552);
+  ok(near && near.result === "Good", "an unsampled place_id 0.2mi from a station takes that station's reading");
+  ok(nearestWater(stations, 27.586, -82.425) === null, "an inland point (Parrish control) gets NO water — never a guess");
+  const m2 = waterForBeaches([
+    { id: "st2", lat: 0, lng: 0 },              // exact id wins even with bogus coords
+    { id: "twin", lat: 27.271, lng: -82.551 },  // twin id resolves by geo
+    { id: "inland", lat: 27.586, lng: -82.425 },
+  ], stations);
+  ok(m2.st2 && m2.st2.result === "Poor", "an exact place_id match wins before any geo fallback");
+  ok(m2.twin && m2.twin.result === "Good", "a twin place_id of a sampled beach resolves to the nearest station");
+  ok(!("inland" in m2), "no station in range -> no row at all");
+  ok(sampledShort("2026-08-12") === "Aug 12" && sampledShort(null) === null, "the chip's sample date is honest and optional");
+}
+
 
 console.log(`test-beach-water: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);

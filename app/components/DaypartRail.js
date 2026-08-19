@@ -66,7 +66,7 @@ import { emptyRailLive, liveFromRailsResponse } from "../../lib/locationHonesty.
 // cards on the site rendering without their editorial line.
 import useEditorialHooks from "./useEditorialHooks";
 import { toHookLine } from "../../lib/editorialHook";
-import { formatBeachChipBits } from "../../lib/beachChip.js";
+import { formatBeachChipBits, waterQualityKey, WATER_TONE } from "../../lib/beachChip.js";
 
 const Chevron = ({ dir }) => (
   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2"
@@ -291,10 +291,18 @@ export default function DaypartRail({
   // redTide rides the lite payload but is deliberately NOT rendered here; its
   // severity vocabulary belongs to the full beach card, not a one-line chip.
   const [beachCond, setBeachCond] = useState({});
+  // v8.19 (owner, on a Coquina Beach card in the BEST drop with no water
+  // line: "we don't have the water quality on the beach cards"). The fetch
+  // was gated to the beach RAIL, but a beach card rides best/family/today
+  // too — the card's identity, not the rail's id, decides. Type evidence
+  // only ("beach" in Google types), so a Beach House restaurant never
+  // fetches surf.
+  const isBeachRow = (p) => Array.isArray(p && p.types) && p.types.some((t) => String(t).toLowerCase() === "beach");
   useEffect(() => {
-    if (selected !== "beach") return undefined;
+    if (!selected || !selPlaces.some(isBeachRow)) return undefined;
     let cancelled = false;
     for (const p of selPlaces) {
+      if (!isBeachRow(p)) continue;
       if (!p || !p.id || !Number.isFinite(p.lat) || !Number.isFinite(p.lng)) continue;
       if (beachCond[p.id] !== undefined) continue;
       fetch(`/api/beach/conditions?mode=lite&lat=${p.lat}&lng=${p.lng}&place_id=${encodeURIComponent(p.id)}`)
@@ -312,14 +320,19 @@ export default function DaypartRail({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, selPlaces]);
   const beachChip = (p) => {
-    if (!selRail || selRail.id !== "beach") return null;
+    // v8.19 — any drop, any rail: a beach card carries its water line
+    // wherever it appears (the fetch above is gated the same way).
+    if (!isBeachRow(p)) return null;
     const c = beachCond[p.id];
     if (!c) return null;
     // Quality replaces waves when a wf_beach_water row exists. No row →
     // omit quality AND omit waves (do not keep advertising waves).
     const bits = formatBeachChipBits(c, c.water);
     if (!bits.length) return null;
-    return <span style={{ color: "#7DD3FC", fontWeight: 700 }}>🌊 {bits.join(" · ")}</span>;
+    // Severity colors the line: green claim, amber caution, red warning;
+    // sky-blue when only temp/wind are known (no quality row).
+    const tone = WATER_TONE[waterQualityKey(c.water)] || "#7DD3FC";
+    return <span style={{ color: tone, fontWeight: 700 }}>🌊 {bits.join(" · ")}</span>;
   };
   const near = (live && live.cityLabel) ? ` near ${live.cityLabel}` : "";
 

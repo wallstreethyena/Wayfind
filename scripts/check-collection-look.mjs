@@ -215,4 +215,15 @@ ok(!/experienceTags\(p, 1\)/.test(read("app/components/CreatorFinds.js")), "crea
   }
 }
 
+// v8.19 (owner screenshot: "TOP LOCAL PICK PICK") — both award builders
+// strip a trailing "pick" from the category before appending the word.
+{
+  const iconic = readFileSync(new URL("../app/components/IconicPlaceCard.js", import.meta.url), "utf8");
+  ok(/replace\(\/\\s\*pick\\s\*\$\/.{0,40}\).{0,80}\+ " pick"|awardCat \+ " pick"/.test(iconic.replace(/\n/g, " ")) && /awardCat = String\(category\)\.toLowerCase\(\)\.replace/.test(iconic),
+    "IconicPlaceCard award strips a trailing 'pick' from the category (no 'top local pick pick')");
+  const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
+  ok(/replace\(\/\\s\*pick\\s\*\$\/i, ""\)/.test(home),
+    "home PlaceCard award has the same double-'pick' defense");
+}
+
 console.log(`check-collection-look: OK — ${pass} assertions (one hero everywhere; no tag bubbles anywhere; the tag ENGINE and its ?exp= destinations stay live)`);

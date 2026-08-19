@@ -5,6 +5,8 @@ import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { intentRadiusMi, intentScopeLabel } from "../lib/momentIntents";
 import { MAP_DEFAULT_CATEGORY } from "../lib/mapExplorer";
 import { nearMeQuery } from "../lib/nearMeQuery";
+import { waterForBeaches, sampledShort } from "../lib/waterStations";
+import { WATER_PLAIN, WATER_TONE, waterQualityKey } from "../lib/beachChip";
 // PURE metro resolver for the cuisine sheet. lib/cuisine.js never fetches and
 // never composes a query — check-cuisine-never-queried.mjs enforces both, and
 // verifies that no QUERY BUILDER imports it. home.js is not one.
@@ -266,7 +268,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.18";
+const BUILD_ID = "v8.20";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -8352,19 +8354,37 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // DB-backed (wf_beach_water / wf_place_popularity_scored) and safely
   // batchable via .in(); live wind/wave/red-tide stay in the detail sheet
   // only (those are single-point upstream APIs with no batch mode).
-  const _beachIds = Array.from(new Set(view.filter((p) => p && p.id && isBeach(p)).map((p) => p.id))).slice(0, 80);
+  // v8.19 (owner, fifth report): the water read is GEO-based now. The old
+  // .in(place_id) join only lit the ~32 exact sampled ids while the same
+  // physical beach exists under many Google place_ids — which is why "the
+  // water quality" kept not appearing however fresh the samples were. The
+  // wf_beach_water_geo view carries station coordinates; each on-screen
+  // beach card takes its exact row when one exists, else the nearest
+  // sampled station within 1.5mi (lib/waterStations.js — never a guess,
+  // never a neighbor town's reading).
+  const _beachRows = view.filter((p) => p && p.id && isBeach(p)).slice(0, 80);
+  const _beachIds = Array.from(new Set(_beachRows.map((p) => p.id)));
   useEffect(() => {
     if (!_beachIds.length || !supabase) return;
     let dead = false;
     (async () => {
       try {
+        const lats = _beachRows.map((p) => Number(p.lat)).filter(Number.isFinite);
+        const lngs = _beachRows.map((p) => Number(p.lng)).filter(Number.isFinite);
+        const pad = 0.05; // ~3.5mi — covers NEAR_STATION_MI with margin
+        const wqQ = lats.length
+          ? supabase.from("wf_beach_water_geo").select("beach_place_id,result,advisory,sampled_at,lat,lng")
+              .gte("lat", Math.min(...lats) - pad).lte("lat", Math.max(...lats) + pad)
+              .gte("lng", Math.min(...lngs) - pad).lte("lng", Math.max(...lngs) + pad)
+          : supabase.from("wf_beach_water").select("beach_place_id,result,advisory,sampled_at").in("beach_place_id", _beachIds);
         const [{ data: wq }, { data: pop }] = await Promise.all([
-          supabase.from("wf_beach_water").select("beach_place_id,result,advisory,sampled_at").in("beach_place_id", _beachIds),
+          wqQ,
           supabase.from("wf_place_popularity_scored").select("place_id,tier2_popularity").in("place_id", _beachIds),
         ]);
         if (dead) return;
         const next = {};
-        (wq || []).forEach((r) => { next[r.beach_place_id] = { ...(next[r.beach_place_id] || {}), water: { result: r.result, advisory: r.advisory, sampled_at: r.sampled_at } }; });
+        const matched = waterForBeaches(_beachRows, wq || []);
+        Object.keys(matched).forEach((id) => { next[id] = { ...(next[id] || {}), water: matched[id] }; });
         (pop || []).forEach((r) => { next[r.place_id] = { ...(next[r.place_id] || {}), popularityPct: r.tier2_popularity }; });
         setBeachSignals((prev) => ({ ...prev, ...next }));
       } catch (e) {}
@@ -8763,7 +8783,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             suggestions dropdown raised the search row's stacking context.
             Same mechanism, both dropdowns. */}
         {(screen !== "map" || mapSearchOpen) && (
-        <div className={"wf-search-row" + (screen !== "map" ? " has-scope" : "") + (suggestions.length || scopeOpen ? " is-suggesting" : "")} style={{ display: "flex", gap: 0, position: "relative", zIndex: suggestions.length || scopeOpen ? 40 : undefined }}>
+        <div className={"wf-search-row has-scope" + (suggestions.length || scopeOpen ? " is-suggesting" : "")} style={{ display: "flex", gap: 0, position: "relative", zIndex: suggestions.length || scopeOpen ? 40 : undefined }}>
           {/* v8.14 — THE LOCATION CONTROL (owner, 2026-08-18: "instead of
               those categories there, which is weird, I want that place to show
               the previous location and to house the current-location feature
@@ -8780,8 +8800,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                 one tap to re-rank the whole feed around any of them —
                 best-to-worst ordering is the global score rule, unchanged.
               Styling reuses .wf-scope / .wf-scope-menu wholesale: same slot,
-              same premium chrome, different — and now honest — job. */}
-          {screen !== "map" && (
+              same premium chrome, different — and now honest — job.
+              v8.19 — rendered on EVERY screen, map included: the crosshair
+              is gone (owner), so this control is the one recenter. */}
+          {(
             <div className="wf-scope-wrap">
               <button type="button" className="wf-scope" aria-haspopup="listbox" aria-expanded={scopeOpen} onClick={() => setScopeOpen((v) => !v)} title="Location — ranked around this point" aria-label={"Location: " + (cityNow || "not set") + ". Open to use your precise current location or a previous one."}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 21s-6.6-5.4-6.6-10.2A6.6 6.6 0 0 1 12 4.2a6.6 6.6 0 0 1 6.6 6.6C18.6 15.6 12 21 12 21Z" /><circle cx="12" cy="10.8" r="2.3" /></svg>
@@ -8790,10 +8812,21 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               </button>
               {scopeOpen && (
                 <ul className="wf-scope-menu" role="listbox" aria-label="Choose the location to rank around">
-                  <li role="option" aria-selected={false} style={{ color: "#FFC58F", fontWeight: 800 }}
+                  {/* v8.19 (owner: "I don't like the color of the Use current
+                      location, and I also don't like the little symbol …
+                      make it one line, simplify, make it nice and premium").
+                      One line, two words, a real navigation glyph instead of
+                      the ◎ dingbat, white — and the menu surface itself got
+                      the premium treatment (blur, entrance animation, a
+                      RECENT group label) in .wf-scope-menu. */}
+                  <li className="wf-scope-cur" role="option" aria-selected={false}
                       onMouseDown={(e) => { e.preventDefault(); setScopeOpen(false); recenterToMe(); }}>
-                    ◎ Use current location
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M22 2 11 13" /><path d="M22 2 15 22l-4-9-9-4Z" /></svg>
+                    Current location
                   </li>
+                  {recentLocs.some((r) => r && r.loc && isFinite(r.lat) && isFinite(r.lng) && (!locName || r.loc.split(",")[0] !== locName.split(",")[0])) && (
+                    <li className="wf-scope-label" role="presentation" aria-hidden="true">Recent</li>
+                  )}
                   {recentLocs.filter((r) => r && r.loc && isFinite(r.lat) && isFinite(r.lng) && (!locName || r.loc.split(",")[0] !== locName.split(",")[0])).slice(0, 5).map((r) => (
                     <li key={r.loc + r.ts} role="option" aria-selected={false}
                         onMouseDown={(e) => {
@@ -8886,18 +8919,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               search since that is where the owner asked for it (it also
               shows on the map's own floating search row when opened, via
               the shared `screen !== "map" || mapSearchOpen` gate above). */}
-          {/* v8.17 (owner: "once the current location button in the search
-              field is working, remove the [crosshair] icon"). The scope
-              control's "Use current location" IS this button's job now, so
-              on every non-map screen the crosshair is a duplicate. The MAP's
-              floating search row keeps it: the scope control is hidden there
-              (`screen !== "map"`), so on the map this stays the only
-              recenter — removing it there would orphan the capability. */}
-          {screen === "map" ? (
-          <button className="wf-locate-button" onClick={recenterToMe} aria-label="Near me — recenter to your current location" title="Near me" style={{ flexShrink: 0, width: 40, height: 40, alignSelf: "center", marginLeft: 8, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.accent, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" /></svg>
-          </button>
-          ) : null}
+          {/* v8.19 (owner, on a screenshot of the crosshair beside the search
+              arrow: "get rid of this icon … we already put the location
+              inside of the search field"). The crosshair is GONE on every
+              screen. v8.17 had kept it on the map because the scope control
+              was hidden there; the scope control now renders on the map's
+              floating search row too, so "Current location" is the one
+              recenter everywhere and nothing is orphaned. */}
           {/* The once-ever flag gates the AUTO-show only. This button opens the
               sheet on demand, forever, and must never consult introSeen(). */}
         </div>
@@ -10656,9 +10684,11 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     : cardRank >= 1 && cardRank <= 3
     ? {
         rank: cardRank,
-        label: cardRank === 1
-          ? `Best ${cardPrimaryLabel || "local"} pick`
-          : `Top ${cardPrimaryLabel || "local"} pick`,
+        // v8.19 — same double-"pick" defense as IconicPlaceCard's award: a
+        // label that already ends in "pick" must not compose "…pick pick".
+        label: (cardRank === 1 ? "Best " : "Top ")
+          + (String(cardPrimaryLabel || "local").replace(/\s*pick\s*$/i, "").trim() || "local")
+          + " pick",
       }
     : null;
   return (
@@ -10735,9 +10765,15 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, color: "#FB923C", background: "rgba(251,146,60,.12)", border: "1px solid rgba(251,146,60,.4)", borderRadius: 999, padding: "3px 9px" }} title={"Trending — " + p.trend_reason}>🔥 {p.trend_reason}</span>
               )}
               {isBeach(p) && beachSignal && beachSignal.water && (() => {
+                // v8.19 — plain language + the sample date (owner: "I need
+                // the water quality to be accurate … tell the first-time
+                // user what it means"). One vocabulary, lib/beachChip.js
+                // WATER_PLAIN, everywhere water renders.
                 const w = beachSignal.water;
-                const wq = w.advisory ? { t: "Advisory", c: C.red } : w.result === "Good" ? { t: "Water: Good", c: C.green } : w.result === "Moderate" ? { t: "Water: Moderate", c: "#E8B84B" } : w.result ? { t: "Water: Poor", c: C.red } : null;
-                return wq ? <span style={{ fontSize: 11, fontWeight: 700, color: wq.c }}>🏖️ {wq.t}</span> : null;
+                const key = waterQualityKey(w);
+                if (!key) return null;
+                const when = sampledShort(w.sampled_at);
+                return <span style={{ fontSize: 11, fontWeight: 700, color: WATER_TONE[key] }} title={when ? `FL Healthy Beaches sample, ${when}` : undefined}>🌊 {WATER_PLAIN[key]}{when ? ` · ${when}` : ""}</span>;
               })()}
             </div>
           )}

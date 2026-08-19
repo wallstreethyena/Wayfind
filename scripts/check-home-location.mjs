@@ -96,8 +96,11 @@ ok(!/\blocName\b/.test(ROW),
 const AFTER = CODE.slice(end);
 ok(/className="wf-scope"[\s\S]{0,700}\{cityNow \|\| "Location"\}/.test(AFTER),
    'the search row\'s scope control renders the current location name ({cityNow || "Location"}) — the ONE place the visitor reads where "near you" is');
-ok(/Use current location/.test(AFTER),
-   "the scope menu still offers the precise current-location action — the location display and the location control live together");
+// v8.19 (owner): the action is now the one-line "Current location" — the
+// "Use …" long form and the ◎ dingbat are retired. Assert the new label and
+// that the old two-line form did not quietly return.
+ok(/>\s*Current location\s*</.test(AFTER) && !/Use current location/.test(AFTER),
+   "the scope menu offers the one-line premium \"Current location\" action (v8.19) — and the retired \"Use current location\" long form is gone");
 ok(!/screen !== "map" && locName &&[\s\S]{0,300}wf-topbar/.test(AFTER.slice(0, 4000)),
    "the retired under-logo location line has not quietly returned above the search row");
 

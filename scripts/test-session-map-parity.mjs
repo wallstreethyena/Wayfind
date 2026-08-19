@@ -74,7 +74,7 @@ ok(HOME_ALL_IS_DISCOVERY === true, "home All is the mixed discovery feed by cont
   ok(nmCalls.every((c) => !/["']all["']/.test(c)),
     "no nearMeQuery call invents a cat='all' search — discovery is browseCat null, not a seventh category");
 }
-ok(/Use current location/.test(HOME) && /wf_recent_locs/.test(HOME),
+ok(/>\s*Current location\s*</.test(HOME) && /wf_recent_locs/.test(HOME), // v8.19: one-line label
   "…and the slot that held the duplicate category dropdown now houses the owner's location control (precise current fix + previous locations)");
 ok(!/CATEGORY_TILES[\s\S]{0,200}id: "all"/.test(readFileSync(new URL("../lib/categories.js", import.meta.url), "utf8")),
   "the map's category tiles have no All — map always searches a real category");

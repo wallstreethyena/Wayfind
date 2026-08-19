@@ -178,6 +178,18 @@ ok(/const EV_RAIL_MIN_H = \d+/.test(code), "EV_RAIL_MIN_H constant missing");
   const railJs = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
   ok(/width="760"\s*\n?\s*height="1350"/.test(railJs) || /width="760"[\s\S]{0,60}height="1350"/.test(railJs),
     "the rail's <img> must carry intrinsic width/height so the browser reserves the box itself");
+  // v8.19 (owner: "it requires clicking twice … the other cards get really
+  // dark"). The tile answers the FIRST tap (touch-action:manipulation kills
+  // the double-tap-zoom wait) and an open menu keeps the other tiles alive
+  // (opacity .82, never the .45 dead-dim) while the selected tile wears an
+  // accent ring instead of relying on darkness for contrast.
+  const railCssFlat = railCss.replace(/\n\s*/g, "");
+  ok(/\.wf8-tile\{[^}]*touch-action:manipulation/.test(railCssFlat),
+    "rail tiles carry touch-action:manipulation — first tap must act, not wait for a possible second");
+  ok(!/\.wf8\.is-open \.wf8-tile\{[^}]*opacity:\.4/.test(railCssFlat) && /\.wf8\.is-open \.wf8-tile\{[^}]*opacity:\.8/.test(railCssFlat),
+    "an open rail menu never dims the other tiles to the dead-dark .45 — .8x keeps them alive");
+  ok(/\.wf8-tile\.is-sel[^}]*box-shadow:0 0 0 2\.5px var\(--wf8-acc2\)/.test(railCssFlat),
+    "the selected tile is marked by the accent ring, not by darkness alone");
 }
 // v7.06: the events RAIL moved into the home menu (BestNearby's ninth section),
 // so the card-row reserve moved with it. EventsRailSkeleton reserves the promo

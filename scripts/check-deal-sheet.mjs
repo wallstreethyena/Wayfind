@@ -157,13 +157,24 @@ ok((code.match(/<img\b/g) || []).length === 1 && !/CouponThumb|<Image\b|dealArtw
   for (const c of COUPONS) {
     const art = D.dealArtwork(c);
     ok(art === null || !D.isGeneratedArt(art), `${c.id}: resolves to real photography or to NO image — never generated art (got ${art})`);
-    ok(art === null || art === c.image, `${c.id}: artwork is EXPLICIT on this deal — broad intent tags can never attach an unrelated photo`);
+    // v8.19 — a second EXPLICIT source joined: the deal's own venue photo,
+    // keyed on venuePlaceId (owner: "the coupons were fetching images").
+    // Still never an intent-tag inheritance — the id names the exact venue.
+    const venueArt = c.venuePlaceId ? "/api/photo?place=" + encodeURIComponent(c.venuePlaceId) + "&w=800" : null;
+    ok(art === null || art === c.image || art === venueArt,
+      `${c.id}: artwork is EXPLICIT on this deal (committed image or the venue's own photo) — broad intent tags can never attach an unrelated photo`);
   }
   // Both directions, so this cannot pass by dealArtwork simply returning null always.
   ok(D.dealArtwork({ image: "/cards/family-fun.jpg" }) === null,
     "generated art is refused even when set EXPLICITLY on a deal — otherwise a row could opt back in and the fallback would be the only protection");
   ok(D.dealArtwork({ image: "/cards/coupon-dining-cafe-solo.jpeg" }) === "/cards/coupon-dining-cafe-solo.jpeg",
     "…and a real committed photograph still renders, so the refusal is targeted rather than blanket");
+  ok(D.dealArtwork({ venuePlaceId: "ChIJ6y2dx9g_w4gRWoZIRhLk-JI" }) === "/api/photo?place=ChIJ6y2dx9g_w4gRWoZIRhLk-JI&w=800",
+    "a venuePlaceId resolves to the venue's own photo through our proxy (v8.19)");
+  ok(D.dealArtwork({ venuePlaceId: "https://evil.example/x" }) === null,
+    "a malformed venuePlaceId renders nothing — the proxy only ever sees a real place id shape");
+  ok(D.dealArtwork({ image: "https://remote.example/x.jpg", venuePlaceId: "ChIJ6y2dx9g_w4gRWoZIRhLk-JI" }) === "/api/photo?place=ChIJ6y2dx9g_w4gRWoZIRhLk-JI&w=800",
+    "a remote image URL is still refused; the venue photo carries the card instead");
 
   /* City-market photos are assigned DETERMINISTICALLY and DISTINCTLY.
      A bare hash % 5 gave only two distinct photos across four markets, which is

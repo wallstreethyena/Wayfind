@@ -27,6 +27,8 @@ import { fetchThingsToDo, tbPhotoUrl } from "../../lib/todaysBest.js";
 import { nowContext } from "../../lib/nowContext.js";
 import { rankForNow } from "../../lib/ranking.js";
 import { supabase } from "../../lib/supabase.js";
+import { waterForBeaches, sampledShort } from "../../lib/waterStations.js";
+import { WATER_PLAIN, WATER_TONE, waterQualityKey } from "../../lib/beachChip.js";
 import ViatorCommerceLink from "./ViatorCommerceLink";
 
 // The standard-card medal ring (home.js medal(): gold / silver / bronze 3-5).
@@ -147,9 +149,14 @@ function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, onLog, on
             <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 800, color: "#FB923C", background: "rgba(251,146,60,.12)", border: "1px solid rgba(251,146,60,.4)", borderRadius: 999, padding: "3px 10px" }} title={"Trending — " + r.trend_reason}>🔥 {r.trend_reason}</span>
           ) : null}
           {r.category === "beach" && beachSignal && beachSignal.water ? (() => {
+            // v8.19 — the ONE plain-language water vocabulary
+            // (lib/beachChip.js WATER_PLAIN) + the sample date, so a
+            // first-time reader knows what the band means for a swim.
             const w = beachSignal.water;
-            const wq = w.advisory ? { t: "Advisory", c: C.red } : w.result === "Good" ? { t: "Water: Good", c: C.green } : w.result === "Moderate" ? { t: "Water: Moderate", c: "#FBBF24" } : w.result ? { t: "Water: Poor", c: C.red } : null;
-            return wq ? <span style={{ display: "inline-flex", alignItems: "center", fontSize: 11.5, fontWeight: 700, color: wq.c }}>🏖️ {wq.t}</span> : null;
+            const key = waterQualityKey(w);
+            if (!key) return null;
+            const when = sampledShort(w.sampled_at);
+            return <span style={{ display: "inline-flex", alignItems: "center", fontSize: 11.5, fontWeight: 700, color: WATER_TONE[key] }} title={when ? `FL Healthy Beaches sample, ${when}` : undefined}>🌊 {WATER_PLAIN[key]}{when ? ` · ${when}` : ""}</span>;
           })() : null}
         </div>
         {/* THE EDITORIAL (owner, 2026-07-22): why this spot is great — the
@@ -213,13 +220,29 @@ export default function ThingsToDoList({ center, city, weather, onOpenPlace, onL
     let dead = false;
     (async () => {
       try {
-        const [{ data: water }, { data: pop }] = await Promise.all([
-          supabase.from("wf_beach_water").select("beach_place_id,result,advisory,sampled_at").in("beach_place_id", ids),
+        // v8.19 — GEO-based water resolution (owner, fifth report; see
+        // lib/waterStations.js). wf_things_to_do rows carry no coordinates,
+        // so the beach ids' coords come from wf_inventory in the same batch;
+        // each row then takes its exact station row or the nearest sampled
+        // station within 1.5mi via wf_beach_water_geo.
+        const [{ data: coords }, { data: pop }] = await Promise.all([
+          supabase.from("wf_inventory").select("place_id,lat,lng").in("place_id", ids),
           supabase.from("wf_place_popularity_scored").select("place_id,tier2_popularity").in("place_id", ids),
         ]);
         if (dead) return;
+        const rows = (coords || []).map((c) => ({ id: c.place_id, lat: c.lat, lng: c.lng }));
+        const lats = rows.map((r) => Number(r.lat)).filter(Number.isFinite);
+        const lngs = rows.map((r) => Number(r.lng)).filter(Number.isFinite);
+        const pad = 0.05;
+        const { data: water } = lats.length
+          ? await supabase.from("wf_beach_water_geo").select("beach_place_id,result,advisory,sampled_at,lat,lng")
+              .gte("lat", Math.min(...lats) - pad).lte("lat", Math.max(...lats) + pad)
+              .gte("lng", Math.min(...lngs) - pad).lte("lng", Math.max(...lngs) + pad)
+          : await supabase.from("wf_beach_water").select("beach_place_id,result,advisory,sampled_at").in("beach_place_id", ids);
+        if (dead) return;
         const next = {};
-        (water || []).forEach((r) => { next[r.beach_place_id] = { ...(next[r.beach_place_id] || {}), water: r }; });
+        const matched = waterForBeaches(rows.length ? rows : ids.map((id) => ({ id })), water || []);
+        Object.keys(matched).forEach((id) => { next[id] = { ...(next[id] || {}), water: matched[id] }; });
         (pop || []).forEach((r) => { next[r.place_id] = { ...(next[r.place_id] || {}), popularityPct: r.tier2_popularity }; });
         setBeachSignals(next);
       } catch (e) {}

@@ -21,12 +21,36 @@ const REF_RX = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
 
 const THIRTY_DAYS = 60 * 60 * 24 * 30;
 
+// v8.19 — ?place=<placeId> mode: the CURRENT first photo of a place, no
+// stored ref needed. Deal cards key their artwork on the venue's placeId
+// (stable forever) instead of a photo ref (expires); the details lookup is
+// the same cached call the self-heal below already makes.
+const PLACE_RX = /^[A-Za-z0-9_-]{10,}$/;
+
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
-  const ref = searchParams.get("ref") || "";
+  let ref = searchParams.get("ref") || "";
+  const place = searchParams.get("place") || "";
   let w = parseInt(searchParams.get("w") || "640", 10);
   if (!Number.isFinite(w) || w < 64) w = 640;
   if (w > 1600) w = 1600; // cap billable size
+
+  if (!ref && PLACE_RX.test(place)) {
+    const key0 = process.env.GOOGLE_MAPS_SERVER_KEY;
+    if (!key0) return NextResponse.json({ error: "no server key" }, { status: 502 });
+    try {
+      const d = await fetch(
+        "https://places.googleapis.com/v1/places/" + place + "?fields=photos&key=" + key0,
+        { next: { revalidate: 86400 } }
+      );
+      if (d.ok) {
+        const j = await d.json();
+        const fresh = j && Array.isArray(j.photos) && j.photos[0] && j.photos[0].name;
+        if (fresh && REF_RX.test(fresh)) ref = fresh;
+      }
+    } catch (e) {}
+    if (!ref) return NextResponse.json({ error: "no photo" }, { status: 404, headers: { "Cache-Control": "public, max-age=3600" } });
+  }
 
   if (!REF_RX.test(ref)) {
     return NextResponse.json({ error: "bad ref" }, { status: 400 });
