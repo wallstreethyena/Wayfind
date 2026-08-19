@@ -78,6 +78,23 @@ await testRoute("/api/ticketmaster/go", "../app/api/ticketmaster/go/route.js", (
   headers: { get: () => null },
 }));
 
+// No UA on the request → capture must omit $raw_user_agent. Inventing a
+// browser UA would make every bot-looking event look human; omitting is the
+// correct empty. Existing fixtures above use `get: () => null`.
+const noUaCaptured = captured.slice();
+ok(noUaCaptured.length > 0, "PROBE BROKEN: expected captures from the no-UA fixtures before asserting absence");
+for (const ev of noUaCaptured) {
+  ok(
+    !Object.prototype.hasOwnProperty.call(ev.properties || {}, "$raw_user_agent"),
+    `${ev.event} with no request UA must omit $raw_user_agent (got: ${ev.properties?.$raw_user_agent})`
+  );
+  ok(
+    !Object.prototype.hasOwnProperty.call(ev.properties || {}, "$virt_is_bot"),
+    `${ev.event} must never set $virt_is_bot (PostHog computes it)`
+  );
+  strictEqual(ev.properties?.$lib, "wayfind-server", `${ev.event} keeps $lib=wayfind-server`);
+}
+
 // Sanity: commerce/go failure carries a reason.
 const failed = captured.filter((b) => b.event === "provider_redirect_failed");
 ok(failed.length >= 2, "at least two failure events captured (commerce + viator/eats missing params)");
@@ -139,4 +156,71 @@ for (const ev of captured) {
   );
 }
 
-console.log(`check-provider-redirects: OK — ${captured.length} server-side events captured across all redirect routes, click_id handoff verified`);
+function headersFrom(map) {
+  const norm = Object.fromEntries(
+    Object.entries(map).map(([k, v]) => [String(k).toLowerCase(), v])
+  );
+  return {
+    get(name) {
+      if (name == null) return null;
+      const v = norm[String(name).toLowerCase()];
+      return v === undefined ? null : v;
+    },
+  };
+}
+
+// Visitor identity: a real Chrome UA must land on $raw_user_agent exactly,
+// $lib stays wayfind-server, and we never invent $virt_is_bot. Asserted on
+// the capture BODY (the call), not on source strings. Each route is invoked
+// so a forgotten `headers: req.headers` cannot hide behind commerce/go.
+const CHROME_UA =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
+
+const UA_FIXTURES = [
+  ["/api/commerce/go", "../app/api/commerce/go/route.js", "http://localhost:3000/api/commerce/go?provider=unknown&offer=xyz"],
+  ["/api/viator/go", "../app/api/viator/go/route.js", "http://localhost:3000/api/viator/go"],
+  ["/api/eats/go", "../app/api/eats/go/route.js", "http://localhost:3000/api/eats/go"],
+  ["/api/ticketmaster/go", "../app/api/ticketmaster/go/route.js", "http://localhost:3000/api/ticketmaster/go?url=https://www.ticketmaster.com/event/123"],
+];
+
+for (const [name, importPath, url] of UA_FIXTURES) {
+  const before = captured.length;
+  const { GET } = await import(importPath);
+  const res = await GET({ url, headers: headersFrom({ "user-agent": CHROME_UA }) });
+  ok(res.status >= 300 && res.status < 400, `${name} (chrome UA) returns a redirect`);
+  const ev = captured.slice(before).find((b) =>
+    b.event === "provider_redirect_started" || b.event === "provider_redirect_failed"
+  );
+  ok(ev, `${name} (chrome UA) emitted a redirect event`);
+  strictEqual(
+    ev.properties?.$raw_user_agent,
+    CHROME_UA,
+    `${name} forwards the visitor User-Agent as $raw_user_agent`
+  );
+  strictEqual(ev.properties?.$lib, "wayfind-server", `${name} keeps $lib=wayfind-server`);
+  ok(
+    !Object.prototype.hasOwnProperty.call(ev.properties || {}, "$virt_is_bot"),
+    `${name} must not set $virt_is_bot (PostHog computes it from $raw_user_agent)`
+  );
+}
+
+{
+  const before = captured.length;
+  const { GET } = await import("../app/api/commerce/go/route.js");
+  const res = await GET({
+    url: "http://localhost:3000/api/commerce/go?provider=unknown&offer=xyz",
+    headers: headersFrom({ "x-forwarded-for": "203.0.113.9, 10.0.0.1" }),
+  });
+  ok(res.status >= 300 && res.status < 400, "/api/commerce/go (xff) returns a redirect");
+  const ev = captured.slice(before).find((b) =>
+    b.event === "provider_redirect_started" || b.event === "provider_redirect_failed"
+  );
+  ok(ev, "/api/commerce/go (xff) emitted a redirect event");
+  strictEqual(ev.properties?.$ip, "203.0.113.9", "$ip is the first x-forwarded-for hop only");
+  ok(
+    !Object.prototype.hasOwnProperty.call(ev.properties || {}, "$raw_user_agent"),
+    "xff-only fixture must omit $raw_user_agent (no UA on the request)"
+  );
+}
+
+console.log(`check-provider-redirects: OK — ${captured.length} server-side events captured across all redirect routes, click_id handoff + visitor UA/IP verified`);
