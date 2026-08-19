@@ -214,4 +214,44 @@ ok(String(experienceGoUrl("Manatee swim", "Crystal River", "museum", "p1")).star
 ok(String(viatorProductGoUrl("https://viator.com/tours/Crystal-River/x/d1-2", "Crystal River", "museum", "detail")).startsWith("/api/viator/go"),
   "viatorProductGoUrl accepts apex and still returns /api/viator/go");
 
-console.log(`test-earning-handoff: OK — ${pass} assertions (go-route hrefs, same-tab native leave, click_id stamp on the relative path, no raw viator.com / booking.com / Impact URL on earning Book)`);
+// ── CoS HIGH (same PR): Tripadvisor rating, VRBO alt, BookItLink ──────────
+{
+  const detailRaw = read("app/components/sheets/Detail.js");
+  const detailCode = strip(detailRaw);
+  ok(/_ta\.rating/.test(detailCode) && /on Tripadvisor/.test(detailCode),
+    "positive control — Tripadvisor rating text is still rendered");
+  ok(!/href=\{_ta\.url/.test(detailCode),
+    "Tripadvisor rating must not use _ta.url as an href");
+  ok(!/<a[\s\S]{0,240}tripadvisor\.com/i.test(detailCode) && !/tripadvisor\.com[\s\S]{0,240}<a/i.test(detailCode),
+    "Detail Tripadvisor rating must not be an <a href> containing tripadvisor.com");
+  ok(!/https:\/\/www\.tripadvisor\.com/.test(detailCode),
+    "no raw tripadvisor.com fallback href in Detail");
+  if (/ta_out/.test(detailCode)) {
+    ok(!/ta_out[\s\S]{0,200}openExternal/.test(detailCode) && !/openExternal[\s\S]{0,200}ta_out/.test(detailCode),
+      "ta_out may remain only if it cannot fire a leave");
+  }
+
+  ok(/vrboUrl/.test(detailCode), "positive control — Detail still consults vrboUrl");
+  ok(/isEarningGoHref\s*\(\s*_vu/.test(detailCode),
+    "VRBO alt must gate on isEarningGoHref so a later template cannot render a raw partner href");
+  ok(!/href=["'][^"']*vrbo\.com/i.test(detailCode),
+    "Detail VRBO alt must not be an <a href> containing vrbo.com");
+}
+
+{
+  const bookItRaw = read("app/components/BookItLink.js");
+  const bookIt = strip(bookItRaw);
+  ok(/commerceHref\(/.test(bookIt), "positive control — BookItLink offer still uses commerceHref");
+  ok(!/preventDefault\s*\(/.test(bookIt),
+    "BookItLink offer must not preventDefault — native same-tab leave");
+  ok(!/\bwindow\.open\s*\(/.test(bookIt) && !/\bopenExternal\s*\(/.test(bookIt),
+    "BookItLink offer must not openExternal / window.open");
+  ok(!/tpDeepLink\s*\(/.test(bookIt),
+    "BookItLink search kind must not render tpDeepLink / a raw partner URL");
+  ok(/kind\s*!==\s*["']offer["']/.test(bookIt),
+    "BookItLink fail-closes anything that is not kind offer");
+  ok(/commerceHref\([\s\S]{0,400}clickId/.test(bookItRaw) || /withClickId\(/.test(bookIt),
+    "BookItLink offer href /api/commerce/go must carry click_id (commerceHref clickId or withClickId)");
+}
+
+console.log(`test-earning-handoff: OK — ${pass} assertions (go-route hrefs, same-tab native leave, click_id stamp on the relative path, no raw viator.com / booking.com / Impact / tripadvisor / vrbo URL on earning Book)`);

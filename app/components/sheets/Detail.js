@@ -693,7 +693,7 @@ export default function DetailSheet({ ctx }) {
                   <span style={{ color: C.border }}>·</span>
                   <span onClick={() => { const n = !reviewsOpen; setReviewsOpen(n); if (n) loadFullInsight(detail, detailExtra); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, color: C.muted, fontWeight: 700, fontSize: 11.5, cursor: "pointer" }}>{detail.reviews.toLocaleString()} review{detail.reviews === 1 ? "" : "s"}</span>
                 </>)}
-                {(() => { const _ta = taInfo[detail.id]; if (!_ta || _ta.none || _ta.rating == null) return null; return (<><span style={{ color: C.border }}>·</span><a href={_ta.url || "https://www.tripadvisor.com"} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href); try { logEvent("ta_out", detail); } catch (er) {} openExternal(_live); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, textDecoration: "none", color: C.muted, fontSize: 12.5, fontWeight: 600 }}><span style={{ color: "#34E0A1", fontWeight: 800 }}>●</span>{_ta.rating}{_ta.reviews ? ` (${_ta.reviews.toLocaleString()})` : ""} on Tripadvisor ↗</a></>); })()}
+                {(() => { const _ta = taInfo[detail.id]; if (!_ta || _ta.none || _ta.rating == null) return null; return (<><span style={{ color: C.border }}>·</span><span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: C.muted, fontSize: 12.5, fontWeight: 600 }}><span style={{ color: "#34E0A1", fontWeight: 800 }}>●</span>{_ta.rating}{_ta.reviews ? ` (${_ta.reviews.toLocaleString()})` : ""} on Tripadvisor</span></>); })()}
                 {detail._event ? (() => {
                   const ef = formatEventDate(detail._event.date, detail._event.time);
                   const d = detail._event.date ? new Date(detail._event.date + "T00:00:00") : null;
@@ -821,12 +821,12 @@ export default function DetailSheet({ ctx }) {
                   <button onClick={() => { try { logEvent("share_intent_open", detail, { kind: "place" }); } catch (e) {} askShareIntent({ name: detail.name, city: locName, id: detail.id, kind: placeKinds(detail), onPlain: () => shareLink(detail.name, placeShareUrl(detail, locName, blurbLine(blurbs[detail.id])), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`, () => { try { logEvent("share", detail, { kind: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", detail, { kind: "invite", from: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }) }); }} aria-label="Share" style={{ flex: "1 1 46%", minWidth: 88, height: 44, padding: "0 10px", background: "rgba(255,255,255,.035)", border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 750, whiteSpace: "nowrap" }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg><span>Share</span></button>
                 </div>
               </div>
-              {(() => { /* v6.37 — VRBO whole-home alternative for lodging places (Expedia affiliate; template in lib/affiliates, plain link until set). */
+              {(() => { /* v6.37 — VRBO whole-home alternative for lodging. CoS HIGH (2026-08-19): no VRBO go route exists and we must not invent a PID. Fail-closed — render only if the href is already an existing go route. Keep-dark otherwise. */
                 const _ty = ((detail.types || []).join(" ")).toLowerCase();
                 if (!/lodging|hotel|resort|motel|bed_and_breakfast|guest_house/.test(_ty)) return null;
                 const _vu = Aff.vrboUrl(locName);
-                if (!_vu) return null;
-                return <a href={_vu} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("vrbo_out", detail); } catch (e) {} }} style={{ display: "block", textAlign: "center", fontSize: 12, fontWeight: 800, color: C.light, textDecoration: "none", margin: "8px 2px 0" }}>Prefer a whole place? Vacation rentals on VRBO ↗</a>;
+                if (!_vu || !isEarningGoHref(_vu)) return null;
+                return <a href={_vu} rel="noreferrer sponsored" style={{ display: "block", textAlign: "center", fontSize: 12, fontWeight: 800, color: C.light, textDecoration: "none", margin: "8px 2px 0" }}>Prefer a whole place? Vacation rentals on VRBO ↗</a>;
               })()}
 
               <BookingCTA variant="disclosure" detail={detail} kind={placeKind(detail)} viaTours={viaTours} />
@@ -1059,7 +1059,7 @@ export default function DetailSheet({ ctx }) {
                 return <BookingCTA variant="list" detail={detail} kind={placeKind(detail)} viaTours={viaTours} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} locName={locName} suppressFallback={_hasNoteUrl} placeId={detail.id} city={ctaCity} />;
               })()}
               {/* Travelpayouts "Book it" complement (ships dark; renders nothing until an owner sets program ids + NEXT_PUBLIC_BOOK_IT=on). Never duplicates the Viator CTA above. Scoped to non-events, which have their own ticket flow. */}
-              {!detail._event && <BookItLink detail={detail} city={locName ? locName.split(",")[0] : ""} logEvent={logEvent} openExternal={openExternal} addReservation={addReservation} />}
+              {!detail._event && <BookItLink detail={detail} city={locName ? locName.split(",")[0] : ""} logEvent={logEvent} addReservation={addReservation} />}
 
               {!detail._event && (
                 <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
