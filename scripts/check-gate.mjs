@@ -13,6 +13,10 @@ const fail = (m) => { console.error("check-gate: FAIL — " + m); process.exit(1
 // same way check-libs.mjs runs the culture/guide libs).
 const tmp = mkdtempSync(join(tmpdir(), "wf-gate-"));
 copyFileSync(new URL("../lib/placeCategory.js", import.meta.url), join(tmp, "placeCategory.js"));
+// v8.18 — placeFilter now imports NATIONAL_QUICK_RX from lib/breakfast.js
+// (ONE national-chain veto for the browse Breakfast tab AND the rail).
+// breakfast.js is itself import-free, so the standalone property holds.
+copyFileSync(new URL("../lib/breakfast.js", import.meta.url), join(tmp, "breakfast.js"));
 copyFileSync(new URL("../lib/placeFilter.js", import.meta.url), join(tmp, "placeFilter.mjs"));
 const { placeAllowed } = await import(join(tmp, "placeFilter.mjs"));
 if (typeof placeAllowed !== "function") fail("placeAllowed not exported from lib/placeFilter.js");
