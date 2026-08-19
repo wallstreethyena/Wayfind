@@ -16,7 +16,9 @@ import { cachedExperienceCard, viatorProductCard } from "../lib/viatorProductCar
 
 // v8.19 — Viator place-hook pin: product_codes confirmed in wf_experiences
 // with link_ok:true, fail_count:0 on 2026-08-19 (the rail-card monetization
-// audit). A code absent here is an unverified hook.
+// audit). A code absent here is an unverified hook UNLESS it is a
+// registry-backed named offer (the 2026-08-19 founder pin batch), whose
+// destination is a hand-opened https://www.viator.com/tours/... URL.
 const VIATOR_PLACE_PRODUCT_CODES = {
   "412732P1": "Clear Kayak Ecotour at Robinson Preserve",
   "454941P4": "Robinson Preserve Mangrove Tour",
@@ -24,6 +26,15 @@ const VIATOR_PLACE_PRODUCT_CODES = {
   "237533P5": "Egmont Key Ferry (Fort De Soto)",
   "3170P97": "Fun Spot Attractions Theme Parks Admission",
 };
+
+function isKnownViatorPlaceOffer(offerId) {
+  if (VIATOR_PLACE_PRODUCT_CODES[offerId]) return true;
+  const row = PARTNER_OFFER_REGISTRY[offerId];
+  return !!(row
+    && row.provider === "viator"
+    && typeof row.destination === "string"
+    && /^https:\/\/www\.viator\.com\/tours\//.test(row.destination));
+}
 
 
 let pass = 0;
@@ -170,12 +181,11 @@ for (const row of PLACE_PARTNER_PICKS) {
     // active + link_ok. An id absent from the pin is an unverified hook.
     ok(!!UT_PLACE_DEAL_IDS[row.offerId], `${row.offerId} UT place hook is pinned to a hand-verified wf_deals row`);
   } else if (row.provider === "viator") {
-    // v8.19 — Viator place hooks resolve by product_code against
-    // wf_experiences (PROVIDERS.viator table lookup with link_ok/fail_count
-    // health), the same path intentPartnerPicks' viator rows already use.
-    // The registry cannot vouch for them; this pin does — read live from
-    // wf_experiences 2026-08-19, every code link_ok:true, fail_count:0.
-    ok(!!VIATOR_PLACE_PRODUCT_CODES[row.offerId], `${row.offerId} viator place hook is pinned to a live-verified wf_experiences product_code`);
+    // Product-code hooks still resolve against wf_experiences. Named
+    // registry keys (cocoa-beach-clear-kayak-bio, …) resolve through
+    // partnerOfferById without a Supabase row. Either shape is a pin;
+    // a free-form id that is in neither is an unverified hook.
+    ok(isKnownViatorPlaceOffer(row.offerId), `${row.offerId} viator place hook is a live wf_experiences product_code or a registry-backed https://www.viator.com/tours/ destination`);
   } else {
     ok(PARTNER_OFFER_REGISTRY[row.offerId]?.provider === row.provider, `${row.offerId} landmark hook agrees with the server registry`);
   }
