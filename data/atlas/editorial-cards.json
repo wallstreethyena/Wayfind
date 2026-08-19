@@ -341,15 +341,15 @@
     "num": 40,
     "category": "attractions",
     "hours": "Visitor area daily 9am–4:45pm; grounds dawn–dusk (gate closes 5pm); free",
-    "vibeCheck": "A free, quiet National Park Service site on the water in Bradenton, marking Hernando de Soto's 1539 landing — nature trails through mangroves, waterfront views, and living-history exhibits. Low-key and genuinely historic.",
-    "whyGo": "A free waterfront history stop — walk the mangrove nature trail, take in the Manatee River views, and see period armor and weapons at the visitor center commemorating de Soto's 1539 expedition. An easy, no-cost outing.",
+    "vibeCheck": "A free, quiet National Park Service site on the water in Bradenton, commemorating Hernando de Soto's 1539 expedition — nature trails through mangroves, waterfront views, and living-history exhibits. Low-key and genuinely historic.",
+    "whyGo": "This NPS memorial at the Manatee River and Tampa Bay commemorates Hernando de Soto's 1539 Florida expedition. Ranger kayak tours, fishing clinics, and Escape De Soto book on Recreation.gov. Visitor area 9 a.m.–4:45 p.m.; parking gates lock at 5.",
     "bestFor": "History buffs, families, and walkers who want a free, peaceful waterfront outing. Not a big attraction — it's a compact memorial and nature trail.",
-    "knownFor": "Commemorating Spanish conquistador Hernando de Soto's 1539 expedition, which landed on Florida's Gulf coast — a free National Park Service site with a waterfront trail and living-history area.",
-    "powerhouseProof": "A National Park Service site established when the NPS acquired 30 acres of Shaw's Point in 1948, commemorating de Soto's 1539 landing on Florida's west coast.",
+    "knownFor": "A free National Park Service memorial to Hernando de Soto's 1539 expedition, with Camp Uzita living history.",
+    "powerhouseProof": "nps.gov/deso: free entry, ranger kayak tours and fishing clinics (ages 7+) on recreation.gov, Escape De Soto for groups of 4 to 8.",
     "foodMove": null,
     "drinkMove": null,
-    "insiderMove": "It's completely free, including special events; the grounds are open dawn to dusk but the parking gate locks at 5pm, so plan your exit — and call ahead (ext. 102) to check which ranger programs are running.",
-    "verifiedStory": "In 1948, the National Park Service acquired 30 acres of Shaw's Point near the mouth of the Manatee River to establish the memorial; de Soto's expedition had sailed from Havana and landed on Florida's Gulf coast in May 1539.",
+    "insiderMove": "Be out of the lot before 5pm or the car stays overnight and may be ticketed. Call 941-792-0458 ext. 102 — winter living-history is posted as on hold.",
+    "verifiedStory": "Created in 1948 to commemorate the 1539 expedition and its impact on American Indian societies of the Southeast. The park interprets that contact; the exact landfall point is not treated as settled. Visitor welcome area daily 9am–4:45pm. Grounds dawn to dusk; parking gates close at 5pm. Closed New Year's Day, Thanksgiving, and Christmas.",
     "funFact": null,
     "currentUsefulDetail": "Free to visit; the welcome area is open daily 9am–4:45pm and the grounds dawn to dusk (parking gate closes at 5pm). Winter ranger and living-history programming is currently suspended for staffing — call ext. 102 to confirm programs. Verified 2026-07-18; refresh before display.",
     "watchOut": "The marquee winter living-history season is currently paused (staffing), so call before promising a program; the parking gate locks at 5pm, and the site can close for approaching hurricanes.",
@@ -562,23 +562,25 @@
     "category": "attractions",
     "hours": "Daily 5am–11pm; free entry",
     "vibeCheck": "Sarasota's new free public park on the bayfront — big lawns, a playground, a mangrove boardwalk, a sunset deck over the water, and a paddle launch. A work in progress, but the opened part is already a lovely stroll.",
-    "whyGo": "A free, open-to-all bayfront park with a playground, a half-mile mangrove boardwalk, a sunset deck, and an ADA kayak launch — plus free fitness classes and concerts on the lawn. An easy, no-cost outing on Sarasota Bay.",
+    "whyGo": "The city's bayfront used to be a parking lot. Ten acres opened in 2022, free from 5am to 11pm. Come for the bay, the Ibis Playground, and the half-mile mangrove walk while Phase 2 is still going in.",
     "bestFor": "Families (the Ibis playground), paddlers (the accessible launch), and anyone wanting a free sunset walk or a lawn event. Not a swimming beach, and not fully built yet.",
-    "knownFor": "Being the new 53-acre public park rising along Sarasota Bay — its first phase opened in 2022 with a playground, mangrove boardwalk, sunset deck, and paddle launch.",
-    "powerhouseProof": "A 53-acre bayfront park being built in phases at an estimated $200 million; the first 10-acre phase opened in October 2022, with a 14-acre second phase expected by 2027.",
+    "knownFor": "A 53-acre public park on Sarasota Bay, built in phases on city land that was mostly parking.",
+    "powerhouseProof": "Official about and FAQ: free, daily 5am–11pm, 53 acres of city-owned bayfront, Phase 1 October 2022, Phase 2 funded and under construction.",
     "foodMove": "There's a café on site — The Nest — for a coffee or a light bite.",
     "drinkMove": null,
-    "insiderMove": "It's free and open 5am–11pm, with an ADA-accessible paddle launch and free fitness classes, concerts, and movie nights on The Oval lawn; kayak and paddleboard rentals are available on site.",
-    "verifiedStory": "The first 10 acres opened in October 2022 as the opening piece of a planned 53-acre, roughly $200-million transformation of Sarasota's city-owned bayfront — including a restored mangrove shoreline for storm resilience.",
+    "insiderMove": "Park is free. Lawn, playground, and walkway stay open during Town Square construction; allow extra walk time from the Tamiami lot. You can bring your own boat or rent on site.",
+    "verifiedStory": "The first 10 acres opened in October 2022. Phase 2 is the next 14 acres, funded at $65 million and underway. The full park is estimated at $200 million over four or more phases.",
     "funFact": "The full park is a decade-long, roughly $200-million build across multiple phases — and part of the work restored a living mangrove shoreline as a natural storm buffer.",
-    "currentUsefulDetail": "Only the first phase (about 10 acres) is open now; a 14-acre Phase 2 is under construction, expected around 2027. Free entry, open 5am–11pm. Verified 2026-07-18; refresh before display.",
+    "currentUsefulDetail": "Only the first phase (about 10 acres) is open now; a 14-acre Phase 2 is under construction, funded and underway. Free entry, open 5am–11pm. Verified 2026-07-18; refresh before display.",
     "watchOut": "It's still a work in progress — only the first phase is open, with limited shade and parking on busy days — and it's a bayfront park, not a swimming beach.",
     "phone": null,
     "officialWebsite": "https://www.thebaysarasota.org/",
     "address": "1055 Blvd of the Arts, Sarasota",
     "sourceUrls": [
       "https://www.thebaysarasota.org/",
-      "https://www.thebaysarasota.org/about-us"
+      "https://www.thebaysarasota.org/about-us",
+      "https://www.thebaysarasota.org/faqs/",
+      "https://www.thebaysarasota.org/park-features/"
     ]
   },
   {
@@ -641,14 +643,14 @@
     "category": "attractions",
     "hours": "Box office Mon–Fri 10am–6pm, Sat 10am–4pm (summer Mon–Fri 10am–4pm); opens 2 hours before performances",
     "vibeCheck": "Sarasota's landmark bayfront concert hall — an unmistakable purple, seashell-shaped building on the water hosting Broadway tours, big-name concerts, and comedy. A proper night-out venue, not a daytime attraction.",
-    "whyGo": "The area's marquee performing-arts stage — touring Broadway, concerts, comedy, and dance in a 1,741-seat hall on Sarasota Bay, with a design pedigree straight out of the Frank Lloyd Wright school.",
+    "whyGo": "The official page calls it the world's only purple seashell-shaped theater, on the bay. William Wesley Peters designed it; the color came from a shell Wright's widow found in Japan, now in the lobby. Buy a show, or hit free Friday Fest on the lawn in summer.",
     "bestFor": "Anyone catching a show — Broadway-series subscribers, concert-goers, and architecture buffs who want to see the purple shell up close. Not a walk-through daytime sight.",
-    "knownFor": "Being, in its own words, the world's only purple, seashell-shaped theater — a curvy waterfront landmark on Sarasota Bay hosting touring Broadway and headline concerts.",
-    "powerhouseProof": "Opened January 5, 1970, the 1,741-seat hall was designed by William Wesley Peters of the Frank Lloyd Wright Foundation's Taliesin Associated Architects — Wright's longtime chief architect and son-in-law.",
+    "knownFor": "A 1,741-seat purple seashell hall on Sarasota Bay, designed by William Wesley Peters of Taliesin.",
+    "powerhouseProof": "Van Wezel About Us: 1,741-seat Roskamp Auditorium, city-owned, world's only purple seashell-shaped theater, free summer Friday Fest on the bayfront lawn.",
     "foodMove": null,
     "drinkMove": null,
-    "insiderMove": "In summer, come early for the free Friday Fest outdoor concerts on the bayfront lawn — a no-ticket way to enjoy the setting. The box office opens two hours before each performance.",
-    "verifiedStory": "The hall opened on January 5, 1970; its bayfront Sunset Terrace gained shade sails and landscaping in 2013, and it reopened after Hurricane Milton's 2024 storm surge flooded the building.",
+    "insiderMove": "In summer, come early for free Friday Fest on the lawn — no ticket. The box office opens two hours before each performance.",
+    "verifiedStory": "Built in 1968–1969 with a city bond and a bequest from Lewis and Eugenia Van Wezel. Peters, Wright's son-in-law and a Taliesin chief architect, shaped the roof as a scallop. Olgivanna Wright chose the color from a Sea of Japan shell now displayed in the lobby.",
     "funFact": "That signature purple wasn't a random pick — Frank Lloyd Wright's widow, Olgivanna, chose the shade from a seashell she found near the Sea of Japan, and that very shell sits on display in the lobby.",
     "currentUsefulDetail": "The hall is open and actively programming — touring Broadway, concerts, and comedy — after reopening from Hurricane Milton's 2024 flooding. Check the live calendar and buy ahead for popular shows. Verified 2026-07-18; refresh before display.",
     "watchOut": "It's an aging bayfront hall — Hurricane Milton pushed about 4.5 feet of storm surge inside in October 2024, with roughly $7M in repairs after. A new performing-arts center is planned nearby (as an added campus, not a replacement — the Van Wezel isn't being torn down). Parking is an 850-space lot, or valet for about $15.",
@@ -657,10 +659,8 @@
     "address": "777 N Tamiami Trl, Sarasota",
     "sourceUrls": [
       "https://www.vanwezel.org/about-us/about-us-1",
-      "https://www.vanwezel.org/about-us/contact-us",
-      "https://www.vanwezel.org/events",
-      "https://en.wikipedia.org/wiki/Van_Wezel_Performing_Arts_Hall",
-      "https://www.fox13news.com/news/van-wezel-performing-arts-hall-damaged-during-hurricane-milton-repairs-could-cost-around-7m"
+      "https://www.vanwezel.org",
+      "https://www.vanwezel.org/events"
     ]
   },
   {
@@ -779,14 +779,14 @@
     "category": "beaches",
     "hours": "Daily sunrise–sunset; free entry",
     "vibeCheck": "The wide, shady south end of Anna Maria Island — a long white-sand beach under a canopy of Australian pines, with lifeguards, a café, and a full-service setup. Family-friendly and easy, minus the barefoot-luxury sand of Siesta.",
-    "whyGo": "One of only three lifeguarded beaches in Manatee County, with a big free shaded lot, a beachfront café, restrooms and showers, and the longest continuous stretch of sand on southern Anna Maria Island.",
+    "whyGo": "South-tip Anna Maria, at Longboat Pass. County marine rescue staffs this beach with Cortez and Manatee Public Beach — the only three guarded beaches in the county. Free wheelchairs sit at the concession, first come.",
     "bestFor": "Families and anyone who wants shade, lifeguards, and services close at hand — plus the rare chance to park under trees instead of baking in an open lot.",
-    "knownFor": "Its rare shaded parking beneath a canopy of Australian pines and its full-service setup — lifeguards, concessions, showers, playground, and volleyball courts on Anna Maria Island's south tip.",
-    "powerhouseProof": "One of just three Manatee County beaches with professional lifeguard and medical-rescue service (alongside Cortez and Manatee Public Beach), with guard towers staffed along its length.",
+    "knownFor": "The Longboat Pass end of Anna Maria, one of three Manatee County beaches with professional lifeguards.",
+    "powerhouseProof": "Manatee County Marine Rescue: Coquina, Cortez, and Manatee Public Beach are the only county beaches with professional lifeguard and medical-rescue service.",
     "foodMove": "The beachfront Coquina Café handles breakfast, lunch, snacks, and cold drinks with outdoor deck seating — the easy on-site option so you don't have to leave the sand.",
     "drinkMove": null,
-    "insiderMove": "Park under the Australian pines for rare beach shade, and sign out a free beach wheelchair at the concession stand. There's a boat launch across the street on the Intracoastal side if you're trailering.",
-    "verifiedStory": null,
+    "insiderMove": "Grab a free chair at the concession before the lot fills. Hours are sunrise to sunset, not the 10pm close at Manatee Public Beach.",
+    "verifiedStory": "County location page: 2650 Gulf Drive, Bradenton Beach, sunrise to sunset. Wheelchairs are loaned at the concession at no charge — three chairs and one walker, ID held. Pavilions sit closest to Longboat Key Pass.",
     "funFact": "Those shade trees are Australian pines — beloved for the rare beach shade, but a decades-long headache: the county has been removing them in phases for drainage, taking out 103 in 2019 with 87 more approved in 2020.",
     "currentUsefulDetail": "Red tide was clear coast-wide as of the FWC report dated July 17, 2026 — no K. brevis observed. Lifeguards are on duty daily, with longer hours in summer. Verified 2026-07-18; refresh before display.",
     "watchOut": "The ongoing Australian-pine removal and drainage work has periodically closed sections of the parking lot, so check current access. And this is a busy family beach, not a quiet escape — the sand is pleasant but not the cool quartz powder of Siesta.",
@@ -796,8 +796,7 @@
     "sourceUrls": [
       "https://www.mymanatee.org/connect/locations/location-details/coquina-beach",
       "https://www.mymanatee.org/departments/public_safety/marine_rescue/manatee_county_beaches_with_lifeguards",
-      "https://www.islander.org/2020/06/county-to-remove-87-more-pine-trees-at-coquina-beach/",
-      "https://myfwc.com/research/redtide/statewide/"
+      "https://floridadep.gov/rcp/coastal-access-guide/content/manatee-county"
     ]
   },
   {
@@ -807,14 +806,14 @@
     "category": "beaches",
     "hours": "Beach park 5am–11pm; restrooms 7am–11pm; pool currently closed for maintenance",
     "vibeCheck": "A wide sweep of white Gulf sand with a pavilion, a concession, and St. Armands Circle a few minutes' walk inland — a well-serviced, easy beach day rather than a wild one.",
-    "whyGo": "Free parking right at the sand, restrooms and food on-site, and a twice-restored white-sand shoreline — the low-friction Gulf beach day, with St. Armands a short walk for lunch after.",
+    "whyGo": "The city Gulf beach sits next to St. Armands Circle, with free parking at the sand. The pool is closed for maintenance. Restrooms run 7am to 11pm. The EcoRover page says it is down for repair; lifeguards still loan a manual chair.",
     "bestFor": "A family or a couple who want sand, a sunset, and a real lunch within reach — not a remote, rough-it stretch of coast.",
-    "knownFor": "A broad public Gulf beach on Lido Key with free beachside parking, a pavilion and concession, and St. Armands Circle right next door.",
-    "powerhouseProof": "A two-time American Shore & Beach Preservation Association \"Best Restored Beach\" — honored in both 2009 and 2021.",
+    "knownFor": "A city Gulf beach on Lido Key with free adjacent parking and St. Armands a short walk.",
+    "powerhouseProof": "City Parks: free parking adjacent to the beach; restrooms daily 7am–11pm; pool closed for essential maintenance. County page: park hours 5 a.m. to 11 p.m.; city owns, county maintains the open beach and dune.",
     "foodMove": "The on-site Lido Island Grill (roughly 11am–7pm) covers beach-day hunger without making you leave the sand; for a real sit-down meal, St. Armands Circle is a short walk inland.",
     "drinkMove": null,
-    "insiderMove": "Come early for the free adjacent parking (it's tight January through April), and if beach mobility matters, the free EcoRover beach wheelchair loans out weekdays 9am–4pm.",
-    "verifiedStory": "The WPA-funded Art Deco Lido Beach Casino opened on this site in December 1940 and was torn down in 1969; today's pool and pavilion sit on its footprint.",
+    "insiderMove": "Do not plan on the EcoRover. Email or call for a rover only if the city page says it is back. Until then, ask the Lido lifeguards or county (941-861-5000) for a push chair.",
+    "verifiedStory": "The Lido Beach Pool and Pavilion page posts free adjacent parking, restrooms 7am–11pm, and a closed pool until further notice. The city's EcoRover page says the rover is down and points to manual beach wheelchairs.",
     "funFact": "That vanished casino was designed by Ralph Twitchell — later a founder of the Sarasota School of Architecture — and was known for a signature flourish of cast-concrete seahorses.",
     "currentUsefulDetail": "The Lido Beach pool is closed until further notice for maintenance (verified 2026-07-18), and there's no red tide locally per the FWC's July 17, 2026 report. Refresh before display.",
     "watchOut": "The pool's closed right now, so don't count on it; parking fills up in winter season; red tide is a seasonal Gulf risk (currently clear); and pets aren't allowed on the beach.",
@@ -823,13 +822,9 @@
     "address": "400 Benjamin Franklin Dr",
     "sourceUrls": [
       "https://www.letsplaysarasota.com/facilities/lido-beach-pool-and-pavilion",
-      "https://www.sarasotacountyparks.com/Home/Components/FacilityDirectory/FacilityDirectory/569/6738",
-      "https://asbpa.org/about-us/awards-program/best-restored-beaches-past-winners/",
-      "https://www.hmdb.org/m.asp?m=146244",
-      "https://myfwc.com/research/redtide/statewide/",
-      "https://www.visitsarasota.com/lido-key-st-armands-circle",
-      "https://www.lidoislandgrill.com/",
-      "https://www.sarasotafl.gov/Department-Pages/Human-Resources/Accessibility/EcoRover-Reservation-Information"
+      "https://www.sarasotafl.gov/Department-Pages/Human-Resources/Accessibility/EcoRover-Reservation-Information",
+      "https://www.letsplaysarasota.com/Home/Components/FacilityDirectory/FacilityDirectory/156/4842?npage=2",
+      "https://www.sarasotacountyparks.com/Home/Components/FacilityDirectory/FacilityDirectory/569/6738"
     ]
   },
   {
@@ -839,14 +834,14 @@
     "category": "beaches",
     "hours": "Daily sunrise–10pm",
     "vibeCheck": "Anna Maria Island's busy, family-friendly main beach — wide white sand, calm Gulf water, lifeguards year-round, and a café right there. The reliable, full-service pick on the island's Holmes Beach end.",
-    "whyGo": "A full-service Gulf beach with lifeguards on duty every day of the year, restrooms and showers, an on-site café, and wide white sand — the easy, dependable Anna Maria Island beach day.",
+    "whyGo": "Holmes Beach's guarded Gulf pin stays open until 10. Lifeguards post 365 days. A 100-foot beach mat sits north of the Anna Maria Island Beach Cafe, and free chairs come from the shed by the concession.",
     "bestFor": "Families and anyone who wants services close at hand — lifeguards, food, showers, and beach wheelchairs. Less ideal if you're after a quiet, wild stretch.",
-    "knownFor": "Being one of only two Manatee County beaches with full amenities — year-round lifeguards, restrooms, showers, and the Anna Maria Island Beach Cafe — on the island's wide white-sand Gulf shore.",
-    "powerhouseProof": "Lifeguards are on duty 365 days a year here — one of just two fully-amenitized public beaches in Manatee County, per Florida DEP.",
+    "knownFor": "Year-round lifeguards, a 100-foot beach mat, and the island cafe on the Holmes Beach Gulf pin.",
+    "powerhouseProof": "Manatee County: lifeguards 365 days; free wheelchairs at the staff shed near concessions (941-587-4902) — two chairs and one walker, first come.",
     "foodMove": "The on-site Anna Maria Island Beach Cafe handles the food — it's the beach's own concession, not the separate Sandbar restaurant up-island — so you can eat without leaving the sand.",
     "drinkMove": null,
-    "insiderMove": "Free beach wheelchairs and a roughly 100-foot beach mat make the sand accessible — call the staff shed near the concessions (941-587-4902) to reserve one, first-come, first-served.",
-    "verifiedStory": null,
+    "insiderMove": "Call the shed (941-587-4902) for a free chair before you walk out. The mat is the access, not a rumor — it starts just north of the cafe.",
+    "verifiedStory": "County page: 4000 State Road 64 and Gulf Drive, Holmes Beach. Hours sunrise to 10pm. Lifeguards 9am–5pm Labor Day through Memorial Day, 9am–7pm in summer. Mat is 6 feet wide, 100 feet long, with a 12-foot T-end, just north of the Anna Maria Island Beach Cafe.",
     "funFact": null,
     "currentUsefulDetail": "Red tide was clear coast-wide as of the FWC report dated July 17, 2026 — no K. brevis observed. Note the parking lot floods during summer rains, so time your visit around downpours. Verified 2026-07-18; refresh before display.",
     "watchOut": "The parking lot floods in summer rains, and it's a busy family beach, not a quiet one. Sea-turtle nesting season (May 1–October 31) brings lighting and setback rules, and hours run sunrise to 10pm.",
@@ -856,8 +851,7 @@
     "sourceUrls": [
       "https://www.mymanatee.org/connect/locations/location-details/manatee-public-beach",
       "https://www.mymanatee.org/departments/public_safety/marine_rescue/manatee_county_beaches_with_lifeguards",
-      "https://floridadep.gov/rcp/coastal-access-guide/content/manatee-county",
-      "https://myfwc.com/research/redtide/statewide/"
+      "https://floridadep.gov/rcp/coastal-access-guide/content/manatee-county"
     ]
   },
   {
@@ -867,15 +861,15 @@
     "category": "beaches",
     "hours": "Daily 6am–10pm; boat ramp 24/7",
     "vibeCheck": "A laid-back, old-Florida county beach on Casey Key — lifeguards, a fishing pier, a boat ramp, and an easygoing local crowd. Unpretentious and walkable, with a genuine sense of history.",
-    "whyGo": "A full-service county beach with lifeguards, a fishing pier, a boat ramp, a playground, and picnic pavilions — an easy, well-equipped Gulf beach day just south of Venice on Casey Key.",
+    "whyGo": "Casey Key's county beach, not Venice proper. Gates 6am to 10pm; the boat ramp stays open all night. Lifeguards, a fishing pier, and a loaner life-jacket station sit on the same pin.",
     "bestFor": "Families, anglers, and boaters who want services and a launch in one spot — plus anyone who likes a beach with a bit of old-Florida character.",
-    "knownFor": "Being a well-equipped county beach — lifeguards, a fishing pier, a boat ramp, and picnic pavilions — on Casey Key, and reputedly Sarasota County's oldest public beach.",
-    "powerhouseProof": null,
+    "knownFor": "A Casey Key county beach with a 24/7 boat ramp, a fishing pier, and on-duty lifeguards.",
+    "powerhouseProof": "County facility page lists lifeguard, fishing pier, 24/7 boat ramp, and a loaner life-jacket station at this address.",
     "foodMove": "There's a beachfront concession on site; for more, the restaurants of Nokomis and nearby Venice are a short drive.",
     "drinkMove": null,
-    "insiderMove": "The boat ramp runs 24/7, so early anglers and paddlers can launch any time; the beach itself opens at 6am for a quiet sunrise before the day crowd.",
-    "verifiedStory": null,
-    "funFact": "Its midcentury beach pavilion was designed by Jack West of the Sarasota School of Architecture — conceived in 1954, completed in 1956, and renovated in 2008 — part of why it's called the county's oldest public beach.",
+    "insiderMove": "Launch before the beach crowd — the ramp never closes. The beach itself opens at 6am.",
+    "verifiedStory": "Sarasota County Parks: 100 Casey Key Road, Nokomis. Park hours 6am to 10pm. Boat ramp open 24/7. Loaner life jacket station on site. Listed amenities include lifeguard, fishing pier, motorized and non-motorized ramps, kayak launch, concession, playground.",
+    "funFact": "Its midcentury beach pavilion was designed by Jack West of the Sarasota School of Architecture — conceived in 1954, completed in 1956, and renovated in 2008.",
     "currentUsefulDetail": "Red tide was clear coast-wide as of the FWC report dated July 17, 2026 — no K. brevis observed. The beach is open 6am–10pm, with the boat ramp accessible 24/7. Verified 2026-07-18; refresh before display.",
     "watchOut": "It's on Casey Key with steady boat-ramp traffic, and parking capacity isn't posted — arrive early on weekends. A working, local beach rather than a resort strip.",
     "phone": null,
@@ -883,7 +877,7 @@
     "address": "100 Casey Key Rd, Nokomis",
     "sourceUrls": [
       "https://www.sarasotacountyparks.com/Home/Components/FacilityDirectory/FacilityDirectory/553/6738",
-      "https://www.visitsarasota.com/beaches-parks/nokomis-beach",
+      "https://www.scgov.net/Home/Components/FacilityDirectory/FacilityDirectory/553/",
       "https://myfwc.com/research/redtide/statewide/"
     ]
   },
@@ -1447,14 +1441,14 @@
     "category": "food",
     "hours": "Dinner nightly from 4pm; no reservations",
     "vibeCheck": "A rowdy, beloved old-Florida fish camp tucked into downtown's Burns Court — Southern seafood, oysters, and shrimp and grits served in a 1920s cottage under a banyan tree. Casual, lively, no-reservations.",
-    "whyGo": "Downtown Sarasota's go-to for Old-Florida Southern seafood — whole fish, oysters, low-country boil, and shrimp and grits — in a genuinely charming historic-cottage setting, from the well-known Caragiulo restaurant family.",
+    "whyGo": "The Burns Court room is the original. A banyan out front was a gift from Thomas Edison to Owen Burns. Doors at 4, no reservations, parties cap at eight. Come for the day's bay fish, not the Lakewood Ranch sister.",
     "bestFor": "Seafood lovers and groups up to eight who don't mind a wait and want character over polish. Not for anyone needing reservations, a quiet room, or a lunch stop.",
-    "knownFor": "Old-Florida Southern seafood — whole fish, oysters, shrimp and grits, and low-country boil — in a 1920s cottage under a banyan tree in the Burns Court district.",
-    "powerhouseProof": "Opened in 2009 by the Caragiulo family (behind downtown Sarasota's dining scene since 1989), set in a genuine 1920s Sears & Roebuck catalogue house.",
+    "knownFor": "Downtown Burns Court Southern seafood under the Edison banyan, with a 4pm door and no reservations.",
+    "powerhouseProof": "owensfishcamp.com: no reservations, cap of 8, both locations nightly from 4pm. Sunday brunch is Lakewood Ranch only — not this pin.",
     "foodMove": "The shrimp and grits with smoked sausage is the signature order ($$–$$$); stone crabs are a seasonal draw. (Live menu below.)",
     "drinkMove": null,
-    "insiderMove": "They don't take reservations and cap parties at eight, with doors at 4pm — so arrive right at open or plan on a wait, and split big groups.",
-    "verifiedStory": "The Caragiulo brothers opened Owen's in 2009 as their sixth restaurant, designing it around clam-shack childhood memories.",
+    "insiderMove": "Arrive at 4 or plan to wait. They will not take a reservation and they will not seat more than eight. Do not treat the Lakewood Ranch brunch as this Burns Court card.",
+    "verifiedStory": "Official site: two rooms — the OG at Burns Court and a newer Lakewood Ranch. The banyan was given to Sarasota developer Owen Burns by Thomas Edison. Both rooms open every night at 4pm. No reservations. Parties of up to eight.",
     "funFact": "The dining room is a real 1920s Sears & Roebuck mail-order catalogue house, decked out in authentic salvage — old lobster traps, an Iroquois canoe, a battered Johnson Motors sign.",
     "currentUsefulDetail": "Dinner only, nightly from 4pm; no reservations, and parties are capped at eight. Verified 2026-07-18; refresh before display.",
     "watchOut": "No lunch, no reservations, and an eight-person party cap — plan for a wait in peak season. The online menu is posted as an image, so confirm current dishes and prices at the door or by phone.",
@@ -1463,7 +1457,8 @@
     "address": "516 Burns Court, Sarasota",
     "sourceUrls": [
       "https://owensfishcamp.com/",
-      "https://owensfishcamp.com/menu/"
+      "https://owensfishcamp.com/menu/",
+      "https://owensfishcamp.com/contact-us/"
     ]
   },
   {
@@ -2123,14 +2118,14 @@
     "category": "nightlife",
     "hours": "Open nightly, generally to 2am (live music + weekend DJs)",
     "vibeCheck": "Downtown Sarasota's historic live-music bar — a century-old brick room on Main Street with bands most nights, a DJ upstairs on weekends, and one of the deepest liquor shelves in town. Loud, lively, open till 2am.",
-    "whyGo": "The flagship late-night spot downtown — live music five nights a week, a second-floor DJ on weekends, and 500-plus bottles behind the bar, all in a landmark 1912 building. A genuine stay-all-night bar.",
+    "whyGo": "More than 500 bottles and live bands five nights sit in a downtown room that dates itself to 1913. Second-floor DJ Friday and Saturday. Karaoke Monday and Wednesday. Stay for the pour, not a dinner reservation.",
     "bestFor": "Late nights out, live-music fans, and whiskey drinkers who want options. Not for a quiet drink or an early evening — it gets loud and clubby on weekend nights.",
-    "knownFor": "Live music and a huge spirits selection in a historic downtown building — bands five nights a week, weekend DJs upstairs, plus karaoke, bingo, and burlesque.",
-    "powerhouseProof": "Named one of USA Today's Best Bars in America for 2024, in a two-story 1912 building (the former \"Worth's Block\") that's been on the National Register of Historic Places since 1998.",
+    "knownFor": "A downtown spirits bar with 500-plus bottles, five-night bands, and a second-floor weekend DJ.",
+    "powerhouseProof": "thegatorclub.com states over 500 bottles and that USA Today listed it among 2024's best bars in America. Treat the award as their posted line, not the reason to go.",
     "foodMove": "This is a drinks-first bar — food is limited to small eats (pickles, cheese and crackers, chips), so eat before you come.",
     "drinkMove": "Skip the cocktail list and work the spirits wall — with 500-plus bottles, this is a bourbon-and-whiskey lover's room; ask the bartender for something you can't get elsewhere.",
-    "insiderMove": "Pick your night by the vibe — live bands five nights, DJs upstairs Friday and Saturday, karaoke early week, plus adult bingo and occasional burlesque.",
-    "verifiedStory": "The bar occupies \"Worth's Block,\" a two-story masonry building put up in 1912 by William David Worth — one of Sarasota's first fire-resistant brick structures, which survived a 1915 fire and joined the National Register in 1998. It bills itself \"lifting your spirits since 1913.\"",
+    "insiderMove": "Pick the night by the room: bands most weeknights, DJ upstairs Friday and Saturday, karaoke Monday and Wednesday, bingo Tuesday.",
+    "verifiedStory": "Official site: \"Lifting your spirits since 1913.\" Over 500 bottles, 1oz pours on high-tier spirits, package pickup. Live music five days a week; DJ Friday and Saturday on the second floor; karaoke Mondays and Wednesdays; adult bingo Tuesday.",
     "funFact": "Over a century the building has been a saloon, cigar store, grocery, and newsstand — with local lore of bootlegging, gambling, and a resident ghost or two.",
     "currentUsefulDetail": "Open late every night, generally until 2am, with live music and DJ nights through the week. Verified 2026-07-18; refresh before display.",
     "watchOut": "It's a loud, crowded weekend club scene upstairs — not a spot for a quiet drink — and some live-music or DJ nights may carry a cover charge. Come for the music and the room, not for polish.",
@@ -2139,7 +2134,8 @@
     "address": "1490 Main St, Sarasota",
     "sourceUrls": [
       "https://www.thegatorclub.com/",
-      "https://en.wikipedia.org/wiki/Worth's_Block"
+      "https://www.thegatorclub.com/hojos-to-go",
+      "https://www.thegatorclub.com/about-3"
     ]
   },
   {
@@ -2469,14 +2465,14 @@
     "category": "shopping",
     "hours": "Most shops 10–11am to 6–10pm; restaurants to 10pm–midnight",
     "vibeCheck": "An upscale open-air shopping-and-dining circle on St. Armands Key — boutiques, restaurants, and ice cream ringing a landscaped roundabout dotted with antique statues. A stroll-and-browse destination, not a quick errand.",
-    "whyGo": "The area's marquee shopping-and-dining district — around 150 boutiques, galleries, and restaurants arranged around a statue-lined circle, a short drive from downtown and next to Lido Beach. Good for a browse, a meal, and a walk.",
+    "whyGo": "Ringling platted the shops around a park circle and opened it in 1926 with a parade over a causeway his elephants helped build. Almost 150 merchants still sit on that plan. Use the North Adams garage — first hour is free if you register the plate.",
     "bestFor": "Strollers, gift-shoppers, and diners who want an upscale open-air scene, ideally paired with a Lido Beach visit. Bargain-hunters and errand-runners will find it pricey.",
-    "knownFor": "Its continental, courtyard-lined shopping scene and the Circus Ring of Fame — bronze plaques honoring circus greats set around the circle, alongside antique Italian statuary from John Ringling's own collection.",
-    "powerhouseProof": "The circle was the vision of circus magnate John Ringling, who bought St. Armands Key in 1917 and, with developer Owen Burns, platted the shops around a statue-adorned circle.",
+    "knownFor": "A 1926 Ringling shopping circle: streets radiate from a park, with Italian statuary from his collection.",
+    "powerhouseProof": "St. Armands Circle Association: almost 150 merchants; North Adams garage $1/hour after a complimentary first hour with plate registration.",
     "foodMove": null,
     "drinkMove": null,
-    "insiderMove": "Park in the North Adams garage (47 N. Adams Dr) — the first hour is free if you register your plate, then it's a couple of dollars an hour, far easier than circling for a metered street space. Parking is free only on Sunday mornings and city holidays.",
-    "verifiedStory": "The circle traces to the mid-1920s: work on the John Ringling Causeway began in 1925 — with circus elephants hauling the timbers — and both the causeway and Ringling's development opened to the public in 1926.",
+    "insiderMove": "Skip circling for a street meter. North Adams garage is $1 an hour, first hour free after you register the plate. 186 free spaces sit on North and South Boulevard of the Presidents.",
+    "verifiedStory": "Charles St. Amand bought 131.89 acres here in 1893 for $21.71. John Ringling bought the key in 1917. Causeway work began in 1925; circus elephants hauled the timbers. The causeway and the development opened in 1926.",
     "funFact": "The Circus Ring of Fame rings the circle with bronze wagon-wheel plaques honoring circus legends; the program was approved in 1986, held its first induction in April 1988, and now counts more than 150 inductees.",
     "currentUsefulDetail": "Paid parking is in effect 24 hours a day, every day (free only Sunday mornings and city holidays); most shops open around 10–11am and close between 6 and 10pm. Verified 2026-07-18; refresh before display.",
     "watchOut": "It's upscale, and paid parking runs essentially around the clock — budget for both the shops and the meter. This is a destination for browsing and dining, not a quick practical errand stop.",
@@ -2486,9 +2482,7 @@
     "sourceUrls": [
       "https://starmandscircleassoc.com/about-us",
       "https://starmandscircleassoc.com/circle-history",
-      "https://starmandscircleassoc.com/parking-transportation",
-      "https://www.circusringoffame.org/about-us/",
-      "https://www.visitsarasota.com/shopping/st-armands-circle-association"
+      "https://starmandscircleassoc.com/parking-transportation"
     ]
   },
   {
