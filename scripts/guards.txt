@@ -280,6 +280,9 @@ node scripts/test-partner-rail-render.mjs
 node scripts/check-tour-strip-redirect.mjs
 node scripts/check-food-tour-rail.mjs
 node scripts/test-booking-resolve-extraction.mjs
+# Founder P0 (2026-08-19): Book/commerce clicks same-tab through /api/*/go
+# with a joinable click_id. Never a raw viator.com / booking.com / Impact href.
+node scripts/test-earning-handoff.mjs
 node scripts/check-guide-conversion.mjs
 node scripts/check-guide-teasers.mjs
 node scripts/test-gulf-coast-brunch-date-night.mjs

@@ -57,7 +57,7 @@ const CASES = [
     VT("ChIJx", [{ url: "https://www.viator.com/tours/Orlando/x/d123-456" }]), "Orlando, FL"],
   ["bookable kind, no product -> tracked search", D({ types: ["museum", "tourist_attraction"] }), "museum", null, "Orlando, FL"],
   ["BEACH is never bookable (the Coquina->Mumbai bug)", D({ types: ["beach", "natural_feature", "tourist_attraction"], category: "beach" }), "beach", null, "Sarasota, FL"],
-  ["hotel -> Stay22", D({ types: ["lodging", "hotel"] }), "hotels", null, "Orlando, FL"],
+  ["hotel -> no raw booking.com (founder P0 fail-closed)", D({ types: ["lodging", "hotel"] }), "hotels", null, "Orlando, FL"],
   ["restaurant -> nothing monetized", D({ types: ["restaurant", "food"] }), "food", null, "Tampa, FL"],
   ["no address falls back to locName", D({ address: "", types: ["museum", "tourist_attraction"] }), "museum", null, "Orlando, FL"],
 ];
@@ -65,12 +65,14 @@ const CASES = [
 // side. If these ever disagree the extraction changed behaviour.
 const BEFORE_KINDS = ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"];
 const Aff = await import("../lib/affiliates.js");
-function bookingTargetsBefore(detail, kind, topItem, locName) {
+function bookingTargetsExpected(detail, kind, topItem, locName) {
   const bcity = (() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : (locName ? locName.split(",")[0] : ""); } catch (e) { return ""; } })();
-  const verifiedUrl = (topItem && Aff.ticketsUrl(detail)) ? (Aff.viatorDirectUrl(topItem.url) || topItem.url) : null;
+  // Founder P0 (2026-08-19): earning href is viatorProductGoUrl, never
+  // viatorDirectUrl. Hotel Stay22/booking.com is fail-closed (no durable hop).
+  const verifiedUrl = (topItem && Aff.ticketsUrl(detail)) ? Aff.viatorProductGoUrl(topItem.url, bcity, kind, "detail") : null;
   const goFallback = (!verifiedUrl && BEFORE_KINDS.includes(kind) && Aff.isTicketyPlace(detail)) ? Aff.experienceGoUrl(detail.name, bcity, kind, detail.id) : null;
   const tk = verifiedUrl || goFallback;
-  const tu = tk || Aff.hotelUrl(detail);
+  const tu = tk;
   return { verifiedUrl, goFallback, tk, tu };
 }
 let branchesExercised = 0;
@@ -87,9 +89,13 @@ for (const [label, detail, kind, viaTours, locName] of CASES) {
   const afterFull = bookingTargets(detail, kind, topItem, locName, gateOpen);
   // Only the four keys the pre-extraction implementation returned.
   const after = { verifiedUrl: afterFull.verifiedUrl, goFallback: afterFull.goFallback, tk: afterFull.tk, tu: afterFull.tu };
-  const before = bookingTargetsBefore(detail, kind, topItem, locName);
+  const before = bookingTargetsExpected(detail, kind, topItem, locName);
   ok(JSON.stringify(after) === JSON.stringify(before),
-    `${label}: BYTE-IDENTICAL before/after (gate open)\n      before ${JSON.stringify(before)}\n      after  ${JSON.stringify(after)}`);
+    `${label}: matches P0 earning-href contract (gate open)\n      expected ${JSON.stringify(before)}\n      after    ${JSON.stringify(after)}`);
+  if (after.tu) {
+    ok(!/viator\.com/i.test(String(after.tu)) && !/booking\.com/i.test(String(after.tu)),
+      `${label}: earning tu must not be a raw partner URL (got ${after.tu})`);
+  }
   if (after.tu) branchesExercised++;
 }
 // Both outcomes must occur, or "identical" is a claim about one branch.
@@ -122,8 +128,12 @@ ok(BOOKABLE_KINDS.join(",") === BEFORE_KINDS.join(","), "BOOKABLE_KINDS is uncha
   const conv = read("app/guides/[slug]/GuideConversion.js");
   ok(/rel: "noreferrer sponsored"/.test(conv),
     "the guide's monetized CTA carries rel=noreferrer sponsored");
-  ok(/cta\.sponsored \? \{ target/.test(conv),
-    "...and only when the resolver marked it sponsored, so a non-monetized Directions link is not falsely tagged");
+  // Founder P0 (2026-08-19): earning /api/*/go Book is SAME-TAB. target=_blank
+  // remains only for non-go sponsored hrefs. Directions stays untagged.
+  ok(/cta\.sponsored/.test(conv) && /noreferrer sponsored/.test(conv),
+    "sponsored tagging is still gated on the resolver, so a Directions link is not falsely tagged");
+  ok(/withClickId/.test(conv) && /emitCommerce/.test(conv),
+    "GuideConversion reuses HubConversion withClickId + emitCommerce for the Book click_id join");
 }
 
 // ── THE RELEVANCE GATE (v6.76, owner's Ringling tap) ────────────────────────

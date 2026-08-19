@@ -73,9 +73,16 @@ for (const [file, rx] of Object.entries(migrated)) {
   console.log(`  (raw-window.open sweep: ${scanned} sheets/screens clean)`);
 }
 
-// TicketButton keeps a DIRECT window.open (anti-Stay22) but must validate via safeUrl.
+// Founder P0 (dead money handoffs, 2026-08-19): earning Ticketmaster clicks
+// navigate SAME-TAB through /api/ticketmaster/go. lib/links.js "same-tab banned"
+// still applies to openExternal / window.open — it does NOT apply to a native
+// <a href="/api/*/go">. Do not restore window.open here.
 const tb = read("app/events/[city]/[slug]/TicketButton.js");
 if (!tb.includes("safeUrl(url)") || !tb.includes('from "../../../../lib/links"')) fail("TicketButton.js must validate its url through lib/links safeUrl");
+if (!tb.includes("ticketmasterGoUrl") || !tb.includes("/api/ticketmaster/go")) fail("TicketButton earning href must go through /api/ticketmaster/go (founder P0)");
+if (/\bwindow\.open\s*\(/.test(tb.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/[^\n]*/gm, "$1 "))) {
+  fail("TicketButton must not window.open — same-tab native go route (founder P0). openExternal's same-tab ban still holds for popup openers.");
+}
 
 if (failures) { console.error(`check-links: ${failures} failure(s)`); process.exit(1); }
 console.log("check-links: OK — lib/links is the single validated source of truth; ticketUrl/openExternal + the migrated openers all route through it");

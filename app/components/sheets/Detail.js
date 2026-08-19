@@ -22,6 +22,7 @@ import BookItLink from "../BookItLink";
 import { creatorVideosFor, PLATFORM, PLATFORM_RGB } from "../../../lib/creatorVideos";
 import { resolveDetailCta, detailVerdict, detailCtaLabel, DETAIL_CTA_TYPES } from "../../../lib/detailCta";
 import { emitCommerce, commerceHref, mintClickId } from "../../../lib/commerce";
+import { withClickId, isEarningGoHref } from "../../../lib/hubConversion";
 import { funnelProps } from "../../../lib/funnel";
 import { useCommerceImpression } from "../useCommerceImpression";
 import { placePartnerPick } from "../../../lib/placePartnerPicks";
@@ -220,6 +221,10 @@ function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logE
     fontSize: 14.5, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center",
     justifyContent: "center", gap: 8, whiteSpace: "nowrap", cursor: "pointer", border: "none", flex: 1,
   };
+  const earnClickId = useRef(null);
+  if (earnClickId.current === null) earnClickId.current = mintClickId();
+  const [earnHydrated, setEarnHydrated] = useState(false);
+  useEffect(() => { setEarnHydrated(true); }, []);
 
   if (primaryCta.type === DETAIL_CTA_TYPES.tickets || primaryCta.type === DETAIL_CTA_TYPES.rates) {
     return (
@@ -236,6 +241,36 @@ function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logE
         placeId={detail.id}
         city={locName ? locName.split(",")[0] : ""}
       />
+    );
+  }
+
+  // Founder P0: earning go-route hrefs (deals, etc.) are native same-tab.
+  // Directions / plan / menu / conditions are not Book — they keep the
+  // existing openExternal path and must not look like a commerce click.
+  const earningHref = (primaryCta.monetized && isEarningGoHref(primaryCta.href)) ? primaryCta.href : null;
+  if (earningHref) {
+    const href = earnHydrated ? withClickId(earningHref, earnClickId.current) : earningHref;
+    return (
+      <a
+        ref={ctaRef}
+        href={href}
+        rel="sponsored noreferrer"
+        onClick={() => {
+          try {
+            emitCommerce("commerce_cta_clicked", {
+              surface: "detail_primary",
+              provider: primaryCta.provider || null,
+              offer_id: primaryCta.offerId || detail.id || "unknown",
+              canonical_place_id: detail.id || null,
+              click_id: earnClickId.current,
+            });
+          } catch (e) {}
+          onClick();
+        }}
+        style={style}
+      >
+        <span>{primaryCta.label}</span><span aria-hidden="true">↗</span>
+      </a>
     );
   }
 

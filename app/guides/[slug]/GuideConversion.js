@@ -15,12 +15,20 @@
 //                         suppress this event.
 import { useEffect, useRef, useState } from "react";
 import { track } from "../../../lib/track";
+import { emitCommerce } from "../../../lib/commerce";
+import { mintClickId, withClickId, isEarningGoHref } from "../../../lib/hubConversion";
 
 export default function GuideConversion({ slug, region, cta, next, social, socialStatus }) {
   const ref = useRef(null);
   const seen = useRef(false);
   const [saved, setSaved] = useState(false);
   const acted = useRef(false);
+  const clickId = useRef(null);
+  if (clickId.current === null) clickId.current = mintClickId();
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => { setHydrated(true); }, []);
+  const earningGo = !!(cta && cta.monetized && isEarningGoHref(cta.href));
+  const ctaHref = (hydrated && earningGo) ? withClickId(cta.href, clickId.current) : (cta && cta.href);
 
   // primary_cta_null fires on mount when nothing MONETIZABLE resolved. Directions
   // counts as null for this event by design — it is a real next step but earns
@@ -82,12 +90,34 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
             {cta.monetized ? "Your next step" : "One clear next step"}
           </div>
           <a
-            href={cta.href}
-            {...(cta.sponsored ? { target: "_blank", rel: "noreferrer sponsored" } : {})}
+            href={ctaHref}
+            {...(cta.sponsored
+              ? (earningGo
+                // Founder P0: earning /api/*/go Book is SAME-TAB so a popup
+                // block cannot fire the click with no leave. Reuses
+                // HubConversion withClickId + emitCommerce — do not invent a
+                // third tracker. target=_blank stays only for non-go sponsored
+                // hrefs (coupon clip-to-wallet / maps are not this path).
+                ? { rel: "noreferrer sponsored" }
+                : { target: "_blank", rel: "noreferrer sponsored" })
+              : {})}
             onClick={() => {
               try {
-                track("commerce_cta_clicked", { slug, region, cta_kind: cta.kind, monetized: !!cta.monetized, exact: !!cta.exact, place: cta.place || null });
+                track("commerce_cta_clicked", { slug, region, cta_kind: cta.kind, monetized: !!cta.monetized, exact: !!cta.exact, place: cta.place || null, click_id: clickId.current });
               } catch (e) {}
+              if (cta.monetized) {
+                try {
+                  emitCommerce("commerce_cta_clicked", {
+                    surface: "guide",
+                    provider: cta.kind === "hotel" ? "stay22" : (cta.kind === "deal" ? "deal" : "viator"),
+                    offer_id: cta.place || slug,
+                    content_id: slug,
+                    city_id: region || null,
+                    category: cta.kind || null,
+                    click_id: clickId.current,
+                  });
+                } catch (e) {}
+              }
               step("cta", { cta_kind: cta.kind });
             }}
             style={{ display: "block", marginTop: 10, padding: "14px 18px", borderRadius: 14, background: "#F97316", color: "#0B0F14", fontSize: 16, fontWeight: 800, textAlign: "center", textDecoration: "none" }}
