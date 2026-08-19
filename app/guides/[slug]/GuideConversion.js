@@ -93,7 +93,7 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
             href={ctaHref}
             {...(cta.sponsored
               ? (earningGo
-                // Founder P0: earning /api/*/go Book is SAME-TAB so a popup
+                // Founder P0: earning go-route Book is SAME-TAB so a popup
                 // block cannot fire the click with no leave. Reuses
                 // HubConversion withClickId + emitCommerce — do not invent a
                 // third tracker. target=_blank stays only for non-go sponsored

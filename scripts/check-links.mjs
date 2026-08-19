@@ -76,7 +76,7 @@ for (const [file, rx] of Object.entries(migrated)) {
 // Founder P0 (dead money handoffs, 2026-08-19): earning Ticketmaster clicks
 // navigate SAME-TAB through /api/ticketmaster/go. lib/links.js "same-tab banned"
 // still applies to openExternal / window.open — it does NOT apply to a native
-// <a href="/api/*/go">. Do not restore window.open here.
+// <a href={goRoute}>. Do not restore window.open here.
 const tb = read("app/events/[city]/[slug]/TicketButton.js");
 if (!tb.includes("safeUrl(url)") || !tb.includes('from "../../../../lib/links"')) fail("TicketButton.js must validate its url through lib/links safeUrl");
 if (!tb.includes("ticketmasterGoUrl") || !tb.includes("/api/ticketmaster/go")) fail("TicketButton earning href must go through /api/ticketmaster/go (founder P0)");

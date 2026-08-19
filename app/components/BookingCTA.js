@@ -95,7 +95,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
         href={primaryHref}
         rel="noreferrer sponsored"
         onClick={() => {
-          // Founder P0: native same-tab leave through /api/*/go. Do not
+          // Founder P0: native same-tab leave through the go routes. Do not
           // preventDefault + openExternal — a blocked popup fired the click
           // event and never left. Analytics must not block navigation.
           const clickId = primaryClickId.current;
