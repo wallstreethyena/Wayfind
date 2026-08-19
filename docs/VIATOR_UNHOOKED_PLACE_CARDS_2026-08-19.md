@@ -2,7 +2,7 @@
 
 Inventory only. No pins. No invented product URLs.
 
-Revenue asked for existing, currently unhooked place cards that could honestly take a Viator tour or ticket (city + activity match possible). This list is the second-pass leftover after **13** place-card pins on PR #843 (`Anna Maria Island Dolphin Tours` and `John Pennekamp Coral Reef State Park` are now pinned — see below).
+Revenue asked for existing, currently unhooked place cards that could honestly take a Viator tour or ticket (city + activity match possible). This list is the second-pass leftover after **14** place-card pins on PR #843 (`Anna Maria Island Dolphin Tours`, `John Pennekamp Coral Reef State Park`, and `Dry Tortugas National Park` are now pinned — see below).
 
 Every remaining name below was called through `placePartnerPick({ name })` on 2026-08-19 and returned **null**. None of these names is a beach, drum circle, Mallory Square, Pier 60, Tampa Riverwalk, Crystal River manatee site, or Winter Park scenic boat.
 
@@ -24,10 +24,10 @@ Exact string is what `placePartnerPick` would see. Do not invent a nearby alias.
 | 10 | Devil's Den Spring | Williston | Ticketed cave snorkel / dive | **NO MATCH** — do not pin. Founder opened pages; no honest product. |
 | 11 | Ginnie Springs Outdoors | High Springs | Private-spring tube / snorkel / dive ticket | **NO MATCH** — do not pin. Founder opened pages; no honest product. |
 | 12 | ~~John Pennekamp Coral Reef State Park~~ | Key Largo | **PINNED 2026-08-19** — `pennekamp-reef-snorkel` → `d23475-116454P2` (H1: Snorkel Tours to Shallow Coral Reefs at Pennekamp Underwater Park). Exact park name only. Not Key West Historic Seaport. |
-| 13 | Dry Tortugas National Park | Key West | Yankee Freedom ferry / seaplane to Fort Jefferson | Never wired. Summer-universe venue. |
-| 14 | Mote Science Education Aquarium (SEA) | Sarasota | Aquarium admission (new UTC campus) | Named in the 2026-08-19 rail audit as verified-but-NOT-wired. Also live as `Mote Science Education Aquarium` and `Mote SEA` — all three strings are unhooked. |
-| 15 | Mote Marine Laboratory | Sarasota | Aquarium / lab admission (City Island campus) | Never wired. Distinct from Mote SEA (different placeId). Curated + summer-universe card. |
-| 16 | The Bishop Museum of Science and Nature | Bradenton | Museum / planetarium admission | Named in the 2026-08-19 rail audit as verified-but-NOT-wired. Atlas + summer-universe card. |
+| 13 | ~~Dry Tortugas National Park~~ | Key West | **PINNED 2026-08-19** — `dry-tortugas-catamaran` → `d661-17325KEYYAN` (H1: Dry Tortugas National Park Day Trip by Catamaran from Key West). Exact park name only. Not Yankee Freedom ferry. Not Key West Historic Seaport. Not Mallory Square. |
+| 14 | Mote Science Education Aquarium (SEA) | Sarasota | Aquarium admission (new UTC campus) | **NO MATCH** — do not pin. Founder opened pages; no honest product. Also live as `Mote Science Education Aquarium` and `Mote SEA` — all three strings stay unhooked. |
+| 15 | Mote Marine Laboratory | Sarasota | Aquarium / lab admission (City Island campus) | **NO MATCH** — do not pin. Founder opened pages; no honest product. Distinct from Mote SEA (different placeId). |
+| 16 | The Bishop Museum of Science and Nature | Bradenton | Museum / planetarium admission | **NO MATCH** — do not pin. Founder opened pages; no honest product. |
 | 17 | Sarasota Jungle Gardens | Sarasota | Zoo / garden admission | Named in the 2026-08-19 rail audit as verified-but-NOT-wired. Atlas + curated + summer-universe card. |
 | 18 | Florida Railroad Museum | Parrish | Scenic train-ride ticket | Named in the 2026-08-19 rail audit as verified-but-NOT-wired. Atlas + gulf-coast guide `appQuery`. |
 | 19 | Marie Selby Botanical Gardens | Sarasota | Garden admission | Never wired. Atlas + curated exact name. Summer universe uses the longer alias `Marie Selby Botanical Gardens Downtown Sarasota` — also unhooked. |
@@ -79,7 +79,7 @@ Exact string is what `placePartnerPick` would see. Do not invent a nearby alias.
 
 | Name | Why not |
 |---|---|
-| Any already-hooked card (the 11 Viator pins, plus Tiqets / UT / Klook / TicketNetwork aliases) | Already monetized. |
+| Any already-hooked card (the 14 Viator pins, plus Tiqets / UT / Klook / TicketNetwork aliases) | Already monetized. |
 | Siesta Beach, Lido Beach, Fort Lauderdale Beach, Caladesi / Honeymoon / Fort De Soto as beach days | Beach / drum-circle lock. |
 | Mallory Square, Pier 60, Tampa Riverwalk | Editorial lock. |
 | Three Sisters Springs, Hunter Springs Park | Crystal River manatee lane. |

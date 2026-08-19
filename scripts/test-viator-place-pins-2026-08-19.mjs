@@ -77,6 +77,16 @@ ok(!Object.values(PINS).includes(PENNEKAMP_PIN.url),
   "Pennekamp reef snorkel is a new product, not one of the original 30 leftover SKUs");
 ok(PENNEKAMP_PIN.url !== PINS["key-west-reef-snorkel"],
   "Pennekamp is not the Key West seaport SKU already on that card");
+const DRY_TORTUGAS_PIN = Object.freeze({
+  id: "dry-tortugas-catamaran",
+  url: "https://www.viator.com/tours/Key-West/Dry-Tortugas-National-Park-Day-Trip-by-Catamaran/d661-17325KEYYAN",
+  name: "Dry Tortugas National Park",
+});
+ok(!Object.values(PINS).includes(DRY_TORTUGAS_PIN.url),
+  "Dry Tortugas catamaran is a new product, not one of the original 30 leftover SKUs");
+ok(DRY_TORTUGAS_PIN.url !== PINS["key-west-reef-snorkel"]
+  && DRY_TORTUGAS_PIN.url !== PINS["key-west-sunset-sail"],
+  "Dry Tortugas is not the seaport reef snorkel or the leftover sunset sail");
 
 // ── 1. Every KEEP URL is an exact registry destination ──────────────────
 for (const [id, url] of Object.entries(PINS)) {
@@ -99,6 +109,13 @@ for (const [id, url] of Object.entries(PINS)) {
   ok(row && row.verifiedOn === "2026-08-19", "Pennekamp pin is dated the verification day");
   ok(row && /d23475-116454P2/.test(row.destination), "Pennekamp pin is product d23475-116454P2");
 }
+{
+  const row = PARTNER_OFFER_REGISTRY[DRY_TORTUGAS_PIN.id];
+  ok(row && row.provider === "viator" && row.destination === DRY_TORTUGAS_PIN.url,
+    `Dry Tortugas pin is the exact founder URL (got ${row && row.destination})`);
+  ok(row && row.verifiedOn === "2026-08-19", "Dry Tortugas pin is dated the verification day");
+  ok(row && /d661-17325KEYYAN/.test(row.destination), "Dry Tortugas pin is product d661-17325KEYYAN");
+}
 
 // ── 2. Place-card hooks, asserted ON THE CALL ───────────────────────────
 const PLACE_HOOKS = [
@@ -117,8 +134,9 @@ const PLACE_HOOKS = [
   ["Shell Key Preserve", "stpete-shell-key-dolphins"],
   ["Anna Maria Island Dolphin Tours", "ami-dolphin-sunset"],
   ["John Pennekamp Coral Reef State Park", "pennekamp-reef-snorkel"],
+  ["Dry Tortugas National Park", "dry-tortugas-catamaran"],
 ];
-ok(PLACE_HOOKS.length >= 13, `place-card hooks are non-empty (got ${PLACE_HOOKS.length})`);
+ok(PLACE_HOOKS.length >= 14, `place-card hooks are non-empty (got ${PLACE_HOOKS.length})`);
 for (const [name, offerId] of PLACE_HOOKS) {
   const hit = placePartnerPick({ name });
   ok(hit && hit.provider === "viator" && hit.offerId === offerId,
@@ -178,6 +196,11 @@ ok(placePartnerPick({ name: PENNEKAMP_PIN.name })?.offerId === PENNEKAMP_PIN.id,
   "Pennekamp park card is the only name that inherits the Key Largo reef snorkel");
 ok(placePartnerPick({ name: "Key West Historic Seaport" })?.offerId === "key-west-reef-snorkel",
   "Key West Historic Seaport keeps d661-2642P8 and does not inherit Pennekamp");
+ok(placePartnerPick({ name: DRY_TORTUGAS_PIN.name })?.offerId === DRY_TORTUGAS_PIN.id,
+  "Dry Tortugas park card is the only name that inherits the Key West catamaran day trip");
+ok(placePartnerPick({ name: "Key West Historic Seaport" })?.offerId === "key-west-reef-snorkel"
+  && placePartnerPick({ name: "Mallory Square" }) === null,
+  "Dry Tortugas catamaran is not pinned on Key West Historic Seaport or Mallory Square");
 
 // ── 6. DROP / locked / invented SKUs are absent ─────────────────────────
 const scanned = [
@@ -259,12 +282,16 @@ ok(guideHasProduct("things-to-do-fort-lauderdale-summer-2026", PINS["ftl-family-
 // / UT / Klook hook we must not displace).
 const PLACE_PINNED_IDS = new Set(PLACE_HOOKS.map(([, id]) => id));
 const LEFTOVER_IDS = Object.keys(PINS).filter((id) => !PLACE_PINNED_IDS.has(id));
-ok(PLACE_PINNED_IDS.size === 13, `honest place-card tally is 13 unique SKUs (got ${PLACE_PINNED_IDS.size})`);
-ok(PLACE_PINNED_IDS.has(AMI_PIN.id) && PLACE_PINNED_IDS.has(PENNEKAMP_PIN.id),
-  "tally 13 includes the AMI operator pin and the Pennekamp park pin");
+ok(PLACE_PINNED_IDS.size === 14, `honest place-card tally is 14 unique SKUs (got ${PLACE_PINNED_IDS.size})`);
+ok(PLACE_PINNED_IDS.has(AMI_PIN.id)
+  && PLACE_PINNED_IDS.has(PENNEKAMP_PIN.id)
+  && PLACE_PINNED_IDS.has(DRY_TORTUGAS_PIN.id),
+  "tally 14 includes AMI, Pennekamp, and Dry Tortugas");
 ok(LEFTOVER_IDS.length === 19, `19 leftover SKUs from the original 30 remain off place cards (got ${LEFTOVER_IDS.length})`);
-ok(!LEFTOVER_IDS.includes(AMI_PIN.id) && !LEFTOVER_IDS.includes(PENNEKAMP_PIN.id),
-  "AMI and Pennekamp are new pins, not leftovers from the original 30");
+ok(!LEFTOVER_IDS.includes(AMI_PIN.id)
+  && !LEFTOVER_IDS.includes(PENNEKAMP_PIN.id)
+  && !LEFTOVER_IDS.includes(DRY_TORTUGAS_PIN.id),
+  "AMI, Pennekamp, and Dry Tortugas are new pins, not leftovers from the original 30");
 
 function leftoverOn(name) {
   const hit = placePartnerPick({ name });
@@ -351,6 +378,7 @@ const MISS = [
   // Atlas "Scenic Boat Tour" is Winter Park — forbidden.
   ["Mallory Square", null],
   ["Key West Historic Seaport", "key-west-reef-snorkel"],
+  ["Dry Tortugas National Park", DRY_TORTUGAS_PIN.id],
   ["The Ernest Hemingway Home and Museum", null],
   ["Ernest Hemingway Home and Museum", null],
   ["Fort Zachary Taylor State Park", null],
@@ -407,6 +435,11 @@ for (const name of [
   "Ray's Canoe Hideaway",
   "Devil's Den Spring",
   "Ginnie Springs Outdoors",
+  "Mote Science Education Aquarium (SEA)",
+  "Mote Science Education Aquarium",
+  "Mote SEA",
+  "Mote Marine Laboratory",
+  "The Bishop Museum of Science and Nature",
 ]) {
   ok(placePartnerPick({ name }) === null, `NO MATCH: "${name}" stays unhooked`);
 }
@@ -418,7 +451,7 @@ if (fail.length) {
 }
 console.log(
   `test-viator-place-pins-2026-08-19: OK — ${pass} assertions; ` +
-  `30 leftover-batch URLs + AMI + Pennekamp; ${PLACE_PINNED_IDS.size} unique place-card SKUs; ` +
+  `30 leftover-batch URLs + AMI + Pennekamp + Dry Tortugas; ${PLACE_PINNED_IDS.size} unique place-card SKUs; ` +
   `${LEFTOVER_IDS.length} leftovers proven off the place graph; ` +
   `Tiqets hooks preserved; DROPs/Crystal River/Winter Park absent`
 );
