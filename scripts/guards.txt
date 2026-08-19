@@ -382,6 +382,10 @@ node scripts/check-venue-timezone.mjs
 # — PROMOTE_METROS in JS and wf_promote_metros in Postgres — and drift between
 # them burns Place Details calls on places the worker will then reject.
 node scripts/check-promote-metros-parity.mjs
+# In-box never-queued enqueue: OFF by default, budget-gated, no Google.
+# Category placement from existing type/name signals only (empty types[]
+# reuses primary_type; a stored list name is never a type).
+node scripts/test-promote-backfill.mjs
 # A present-but-RETIRED Supabase key passes every other check and 401s at
 # runtime. Legacy anon/service_role keys were disabled on this project 2026-07-16.
 node scripts/check-supabase-key-live.mjs

@@ -29,6 +29,15 @@ const ok = (n, c) => { c ? pass++ : fail++; if (!c) console.log("FAIL " + n); };
   ok("no photo -> no photos key", !("photos" in p));
   ok("null types -> []", Array.isArray(p.types) && p.types.length === 0);
 }
+{
+  const p = invRowToPlace({ place_id: "cafe1", name: "Parrish Coffee", lat: 27.5, lng: -82.4, signals: { rating: 4.5, reviews: 80 }, google_types: [], primary_type: "cafe" });
+  ok("empty google_types[] reuses primary_type", JSON.stringify(p.types) === JSON.stringify(["cafe"]));
+  ok("primaryType rides along for identity predicates", p.primaryType === "cafe");
+}
+{
+  const p = invRowToPlace({ place_id: "x", name: "No Type Place", lat: 27.3, lng: -82.5, signals: null, google_types: [], primary_type: null, category: "food" });
+  ok("category is not invented into types", Array.isArray(p.types) && p.types.length === 0);
+}
 
 // ── rankInventory: geo-filter + rank + cap ──
 const C = { lat: 27.34, lng: -82.53 };
@@ -65,6 +74,8 @@ const rows = [
   const fam = VIRTUAL_CATS.family;
   ok("family virtual category exists and maps to attractions", !!fam && fam.base === "attractions");
   ok("zoo row passes the family gate", fam.keep({ name: "ZooTampa at Lowry Park", google_types: ["zoo", "tourist_attraction"] }));
+  ok("empty google_types + primary_type=zoo still passes family", fam.keep({ name: "Regional Zoo", google_types: [], primary_type: "zoo" }));
+  ok("stored category food does not pass family without types", !fam.keep({ name: "Acme Holdings", google_types: [], category: "food" }));
   ok("children's museum passes by name alone", fam.keep({ name: "The Children's Museum of Sarasota", google_types: [] }));
   ok("trampoline park passes", fam.keep({ name: "Bounce Kingdom Trampoline Park", google_types: ["amusement_center"] }));
   ok("night club never serves family", !fam.keep({ name: "Neon Nights", google_types: ["night_club"] }));
