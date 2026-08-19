@@ -282,6 +282,7 @@ node scripts/check-food-tour-rail.mjs
 node scripts/test-booking-resolve-extraction.mjs
 node scripts/check-guide-conversion.mjs
 node scripts/check-guide-teasers.mjs
+node scripts/test-gulf-coast-brunch-date-night.mjs
 node scripts/test-detail-render-smoke.mjs
 node scripts/check-lib-call-imports.mjs
 node scripts/check-cuisine-shortlist.mjs
