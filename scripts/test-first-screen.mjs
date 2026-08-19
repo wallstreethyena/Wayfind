@@ -114,10 +114,20 @@ ok(/const railMenuBand = railMenu \? \(/.test(code),
   // it cannot be on the first-paint path.
   ok(/const IconicPlaceCard = dynamic\(\(\) => import\("\.\/IconicPlaceCard"\), \{ ssr: false \}\)/.test(rail),
     "the drop's place card must stay a next/dynamic ssr:false import — that is what keeps its props off the first-paint path AND what kept the bundle under the gate");
-  for (const p of ["isSaved", "isOnTrip", "onSave", "onItinerary"]) {
+  for (const p of ["isSaved", "isOnTrip", "onSave", "onItinerary", "onOpenPlace"]) {
     ok(new RegExp(p + "\\s*=\\s*null").test(rail),
       `${p} must default to null — /v8 mounts this component without it and has to keep working`);
   }
+  // v8.17 (owner: "when i go on a card detail and then try to go back
+  // everything is gone"). A rail card must open the detail sheet IN PLACE
+  // when the app provides the handler — the /p/{id} href alone is a full
+  // navigation that destroys the open rail and the feed state, and Back
+  // reloads the homepage cold. Assert the wiring at both ends: home.js
+  // passes openDetail, the rail forwards it onto the card's onOpen.
+  ok(/onOpenPlace=\{\(p\) => \{ try \{ openDetail\(p, "rail_menu"\)/.test(railBlock),
+    "the rail band passes openDetail as onOpenPlace — without it every card tap is a full navigation and Back wipes the feed");
+  ok(/onOpen=\{onOpenPlace \? \(pl\) => onOpenPlace\(pl\) : undefined\}/.test(rail),
+    "DaypartRail forwards onOpenPlace to IconicPlaceCard's onOpen — the sheet path, with the /p/ href kept as the crawlable fallback");
   ok(/if \(!center \|\| !Number\.isFinite\(center\.lat\)/.test(rail), "…and bail out of the re-rank when it has not");
 }
 // And it must be gone from where it used to be: a page carrying BOTH the rail

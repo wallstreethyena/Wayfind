@@ -102,10 +102,19 @@ ok(!/Setting the map around you/.test(HOME),
 /* ── D. Hero must not advertise Exploding Trends while the accordion is dark */
 ok(!/<ExplodingNearby[\s/>]/.test(BEST),
   "BestNearby must not remount <ExplodingNearby> — the accordion stays dark");
-ok(/artStale:\s*true/.test(RAILS_META),
-  "the trending rail still declares artStale while its art reads EXPLODING TRENDS");
+// v8.17 RE-POINT (owner, 2026-08-19: "you also removed the top 20 trends
+// amazon rail card"). The trending tile is RESTORED and the rail's copy
+// matches the art again — the drop leads with the owner's 20 curated trends
+// (v8.12), so "EXPLODING TRENDS" is the content the tile opens onto, not a
+// stale claim. What this section still guards: the artStale MECHANISM must
+// survive (DaypartRail keeps hiding any tile so flagged) so the next stale
+// tile can be pulled the same way, and the trending rail may not carry the
+// flag while its copy/art pair is pinned (check-rail-art-matches-copy owns
+// the pair).
+ok(!/\{ id: "trending", artStale/.test(RAILS_META),
+  "the trending rail is flagged artStale again — either the art went stale (then unpin it in check-rail-art-matches-copy) or this flag is a mistake");
 ok(/!r\.artStale/.test(RAIL) && /artStale/.test(RAIL),
-  "DaypartRail hides artStale tiles — the stale Exploding Trends hero is not shown");
+  "DaypartRail no longer honors the artStale flag — the mechanism for pulling a stale tile must survive the trending tile's restoration");
 ok(!/<ExplodingNearby[\s/>]/.test(HOME),
   "the homepage does not remount the Exploding Trends accordion");
 

@@ -266,7 +266,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.16";
+const BUILD_ID = "v8.17";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -6279,11 +6279,26 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             const saved = raw ? JSON.parse(raw) : null;
             savedOk = !!(saved && isFinite(saved.lat) && isFinite(saved.lng) && (!saved.ts || Date.now() - saved.ts < 6 * 3600 * 1000));
             if (raw && !savedOk) localStorage.removeItem("wf_center");
+            // v8.17 (owner: "make sure we get the user exact location as soon
+            // as they land on the page") RECONCILED with the 2026-08-07
+            // stability rule ("every refresh I get something different"). The
+            // wobble that rule killed was desktop IP-geo scatter — a few
+            // hundred meters per refresh. A fresh HIGH-ACCURACY fix more than
+            // ~2 miles from the saved anchor is not scatter, it is the user
+            // having MOVED, and pinning them to yesterday's anchor answers
+            // the wrong town. Within 2 miles the saved anchor still wins, so
+            // refresh stability is untouched.
             if (savedOk) {
-              setCenter({ lat: saved.lat, lng: saved.lng });
-              setLocResolved(true);
-              if (saved.loc) setLocName((prev) => prev || saved.loc);
-              return;
+              const dLat = (saved.lat - c.lat) * 69;
+              const dLng = (saved.lng - c.lng) * 69 * Math.cos((c.lat * Math.PI) / 180);
+              const movedMi = Math.sqrt(dLat * dLat + dLng * dLng);
+              if (movedMi <= 2) {
+                setCenter({ lat: saved.lat, lng: saved.lng });
+                setLocResolved(true);
+                if (saved.loc) setLocName((prev) => prev || saved.loc);
+                return;
+              }
+              try { localStorage.removeItem("wf_center"); } catch (e2) {}
             }
           } catch (e) {}
           const name = await reverseGeocode(c.lat, c.lng);
@@ -6292,7 +6307,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           setLocName(name);
         },
         () => { ipFallback(); },
-        { timeout: 8000 }
+        // v8.17 — the landing fix is the EXACT one (owner: "the exact
+        // pinpoint from the maps function"): high accuracy, same grade
+        // recenterToMe() runs. The 8s timeout and IP fallback are unchanged,
+        // so a denied prompt or slow GPS still resolves the page.
+        { enableHighAccuracy: true, timeout: 8000 }
       );
     } else {
       ipFallback();
@@ -8554,6 +8573,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         isOnTrip={isOnTrip}
         onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }}
         onItinerary={(e, p) => { try { addToItinerary(p); } catch (er) {} }}
+        // v8.17 — a rail card opens the detail SHEET in place instead of a
+        // full /p/{id} navigation, so Back closes the sheet and the reader
+        // lands exactly where they were: rail still open, scroll intact.
+        // (The owner's "everything is gone when I go back" bug.)
+        onOpenPlace={(p) => { try { openDetail(p, "rail_menu"); } catch (er) {} }}
       />
     </div>
   ) : null;
@@ -8642,12 +8666,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             search and Near-me are both one row below, and a status line should
             not become a fourth sub-44px tap target. The approximate-location
             caveat already has its own banner and is not duplicated here. */}
-        {screen !== "map" && locName && (
-          <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 8, minWidth: 0, color: C.muted }}>
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0 }}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="2.8" /></svg>
-            <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: ".1px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{locName}</span>
-          </div>
-        )}
+        {/* v8.17 (owner: "we no longer need to have it displayed here — make
+            sure it is displayed at the search bar drop down"). The location
+            line under the wordmark is GONE: the search row's scope control
+            (v8.14) already names the ranked-around place on every non-map
+            screen and owns switching it. One location display, one control.
+            check-home-location is re-pointed at the scope control. */}
         {/* v8.2 ROW A — THE SIX CATEGORIES, IN THE HEADER (public/lab/menu.html
             lines 43–114, the `.tabs` strip). They used to be the BROWSE block in
             the feed; the lab has no BROWSE block, it has tabs. Same component,
@@ -8733,8 +8757,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           </div>
         )}
         {/* map search moved onto the map as a floating control (see map overlay) */}
+        {/* v8.17 — scopeOpen joins is-suggesting below: the location menu
+            rendered UNDER the tab row's text (the "Use current location /
+            Shortcuts" overlap the owner screenshotted) because only the
+            suggestions dropdown raised the search row's stacking context.
+            Same mechanism, both dropdowns. */}
         {(screen !== "map" || mapSearchOpen) && (
-        <div className={"wf-search-row" + (screen !== "map" ? " has-scope" : "") + (suggestions.length ? " is-suggesting" : "")} style={{ display: "flex", gap: 0, position: "relative", zIndex: suggestions.length ? 40 : undefined }}>
+        <div className={"wf-search-row" + (screen !== "map" ? " has-scope" : "") + (suggestions.length || scopeOpen ? " is-suggesting" : "")} style={{ display: "flex", gap: 0, position: "relative", zIndex: suggestions.length || scopeOpen ? 40 : undefined }}>
           {/* v8.14 — THE LOCATION CONTROL (owner, 2026-08-18: "instead of
               those categories there, which is weird, I want that place to show
               the previous location and to house the current-location feature
@@ -8857,9 +8886,18 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               search since that is where the owner asked for it (it also
               shows on the map's own floating search row when opened, via
               the shared `screen !== "map" || mapSearchOpen` gate above). */}
+          {/* v8.17 (owner: "once the current location button in the search
+              field is working, remove the [crosshair] icon"). The scope
+              control's "Use current location" IS this button's job now, so
+              on every non-map screen the crosshair is a duplicate. The MAP's
+              floating search row keeps it: the scope control is hidden there
+              (`screen !== "map"`), so on the map this stays the only
+              recenter — removing it there would orphan the capability. */}
+          {screen === "map" ? (
           <button className="wf-locate-button" onClick={recenterToMe} aria-label="Near me — recenter to your current location" title="Near me" style={{ flexShrink: 0, width: 40, height: 40, alignSelf: "center", marginLeft: 8, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.accent, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" /></svg>
           </button>
+          ) : null}
           {/* The once-ever flag gates the AUTO-show only. This button opens the
               sheet on demand, forever, and must never consult introSeen(). */}
         </div>
@@ -10531,7 +10569,15 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // lines, similarity and telemetry — it just never renders as chip pills
   // anymore. The two chips that remain are RANKING DISCLOSURES (creator
   // video +0.2, featured), which the score law requires to stay visible.
-  const badges = [...(hasCreatorVideo(p) ? [{ key: "creatorvideo", icon: "🎬", label: "Creator video" }] : []), ...(featuredBoost(p) > 0 ? [{ key: "featured", icon: "🏅", label: "Featured" }] : [])];
+  // v8.17 (owner, 2026-08-19: "the experience pills have also been removed …
+  // i want the iconic place card everywhere the way we had it"). This
+  // completes the v8.5 reversal ("bring that everywhere"): the restore only
+  // reached IconicPlaceCard — the BROWSE feed's canonical card (this one)
+  // stayed on the v7.15 no-bubbles state, so the two cards drifted apart and
+  // the owner saw pill-less cards under Breakfast/Cafés. Same engine, same
+  // evidence discipline, capped at 3; the two ranking DISCLOSURES stay first.
+  // check-collection-look §8 now asserts this render too.
+  const badges = [...(hasCreatorVideo(p) ? [{ key: "creatorvideo", icon: "🎬", label: "Creator video" }] : []), ...(featuredBoost(p) > 0 ? [{ key: "featured", icon: "🏅", label: "Featured" }] : []), ...experienceBadges(p, selectedBadge, 3)];
   const pcat = primaryCategory(p);
   const m = rank ? medal(rank) : null;
   // v6.87 (owner): the rank-summary sentence ("Our #1 pick — 4.8★ · 1.4k
@@ -10623,37 +10669,12 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           paddingRight (88px) that was ~17px narrower than the badge, so titles
           and wrapped meta chips rendered under it — "the score sits on top of
           letters". In-flow, nothing can ever overlap it. */}
-      {/* v6.48 — THE WAYFIND PICK MEDALLION. Owner: "we should make it a
-          circular badge so it fits and make it look nice instead of the
-          rectangle."
-
-          It is absolutely positioned against THE CARD ROOT, not against a
-          wrapper around the photo, and that is load-bearing. css.js:63 makes
-          .wf-place-card-layout a `display:grid!important` two-column track and
-          css.js:64/391/399 size the photo through a DIRECT-CHILD selector
-          (`.wf-place-card-layout>img`) at 96/88/108px per breakpoint. Wrapping
-          the <img> in a positioning div orphans all four rules and the photo
-          collapses. The card root already carries position:relative, so it is
-          the correct containing block and costs nothing.
-
-          Safe from the v6.44 "curator logo blocking the save button" bug for a
-          structural reason, not a lucky one: that overlay was pinned
-          bottom-left, on top of .wf-place-card-actions. This one sits top-left
-          over the media column, which holds only the photo (or the monogram) —
-          no controls live there. It also clears .wf-place-card:before (the 2px
-          orange hairline at top:0, z-index:3) by 6px.
-
-          Deliberately NOT pointer-events:none. The card root is the click
-          target and this span carries no handler of its own, so a tap on the
-          medallion bubbles straight to onDetail and opens the sheet exactly as
-          a tap on the photo would — while keeping the hover title, which is
-          the only place a sighted mouse user learns what ✦ PICK means. */}
-      {isWayfindPick && (
-        <span role="img" aria-label="Wayfind Pick" title="Wayfind Pick — editorially curated by Wayfind" style={{ position: "absolute", top: 8, left: 8, zIndex: 2, width: 34, height: 34, borderRadius: "50%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1, background: "radial-gradient(circle at 50% 26%, rgba(232,201,122,.3), rgba(8,11,17,.86) 74%)", border: `1.5px solid ${CHAMPAGNE.base}`, boxShadow: MEDALLION_SHADOW, color: CHAMPAGNE.base, backdropFilter: "blur(4px)" }}>
-          <span aria-hidden="true" style={{ fontSize: 12, lineHeight: 1 }}>✦</span>
-          <span aria-hidden="true" style={{ fontSize: 6.5, fontWeight: 900, letterSpacing: ".09em", lineHeight: 1 }}>PICK</span>
-        </span>
-      )}
+      {/* v8.17 (owner, 2026-08-19, on a screenshot of the ✦ PICK seal:
+          "what is this pick badge on the picture, it looks like a bug").
+          The v6.48 medallion is REMOVED — two owner calls in opposite
+          directions, this is the later one. Curation still shows through the
+          award band and the editorial hook line; nothing overlays the photo.
+          check-pick-medallion.mjs is inverted, not deleted. */}
       <div className="wf-place-card-layout" style={{ display: "flex", position: "relative", zIndex: 1, pointerEvents: "none" }}>
         {(p.photo || cardMarketFallback)
           ? <FallbackImg src={cardPhoto || p.photo || cardMarketFallback} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
@@ -10734,7 +10755,17 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           )}
           <div className="wf-place-card-highlights" style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 7 }}>
             {badges.map((b) => (
-              <button key={b.key} onClick={(e) => { e.stopPropagation(); if (onBadge) onBadge(b.key); }} style={{ pointerEvents: "auto", display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {cityFixM(b.label)} ›</button>
+              <button key={b.key} onClick={(e) => {
+                e.stopPropagation();
+                // v8.17 (owner: "i clicked on the creator video and nothing
+                // happened"). ROOT CAUSE: openExperience() no-ops on any key
+                // absent from EXPERIENCES, and "creatorvideo" is a score
+                // DISCLOSURE, not an experience — so the tap died silently.
+                // The honest destination for that chip is the place's own
+                // detail, where the creator video actually plays.
+                if (b.key === "creatorvideo") { if (onDetail) onDetail(); return; }
+                if (onBadge) onBadge(b.key);
+              }} style={{ pointerEvents: "auto", display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {cityFixM(b.label)} ›</button>
             ))}
           </div>
           {curatedHook ? (

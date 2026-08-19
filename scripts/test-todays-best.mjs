@@ -189,7 +189,11 @@ const sr = readFileSync(new URL("../app/ShareRedirect.js", import.meta.url), "ut
 ok(/u.origin === window.location.origin/.test(sr) && /wf_return_to/.test(sr), 'ShareRedirect records ONLY same-origin non-home referrers — back can never eject off-site');
 // the restructured Things-to-do page
 const ttd = readFileSync(new URL("../app/components/ThingsToDoList.js", import.meta.url), "utf8");
-ok(ttd.includes("Wayfind Pick") && /first && !isTour/.test(ttd), "rank-1 place wears the Wayfind Pick badge");
+// v8.17 INVERTED (owner, 2026-08-19: the ✦ PICK photo overlay "looks like a
+// bug" — removed everywhere; see check-pick-medallion.mjs for the full
+// two-reversal history). The rank-1 claim now rides the rank number and the
+// award band, never an overlay on the photograph.
+ok(!/aria-label="Wayfind Pick"/.test(ttd), "the ✦ PICK photo overlay is back on the rank-1 row — owner removed it 2026-08-19");
 ok(/r\.selling_out \?/.test(ttd), "tour badge rides only the engine flag");
 ok(ttd.includes("affiliate links; it never changes our rankings"), "one disclosure line, list bottom");
 ok(!/TABS\.map/.test(ttd), "the list has NO internal tab row — the menu sub-tabs are the one filter row");

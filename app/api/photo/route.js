@@ -47,7 +47,34 @@ export async function GET(req) {
     "https://places.googleapis.com/v1/" + ref + "/media?maxWidthPx=" + w + "&key=" + key;
 
   try {
-    const r = await fetch(upstream, { redirect: "follow" });
+    let r = await fetch(upstream, { redirect: "follow" });
+    // v8.17 SELF-HEAL (owner, live screenshots 2026-08-19: broken images on
+    // the guide cards AND the beaches pages). Google Places photo resource
+    // names EXPIRE — a ref harvested weeks ago answers 400 forever, and every
+    // surface that stored it (wf_inventory photo_ref, cached rows) renders a
+    // broken image. The placeId is INSIDE the ref (places/{id}/photos/...),
+    // so a stale ref is recoverable right here: one Place Details call for
+    // the CURRENT photo name, then fetch that. Cost is bounded — one details
+    // lookup per stale ref per 30-day cache window, and only on the 400 path.
+    if (!r.ok && (r.status === 400 || r.status === 403 || r.status === 404)) {
+      try {
+        const placeId = ref.split("/")[1];
+        const d = await fetch(
+          "https://places.googleapis.com/v1/places/" + placeId + "?fields=photos&key=" + key,
+          { next: { revalidate: 86400 } }
+        );
+        if (d.ok) {
+          const j = await d.json();
+          const fresh = j && Array.isArray(j.photos) && j.photos[0] && j.photos[0].name;
+          if (fresh && REF_RX.test(fresh) && fresh !== ref) {
+            r = await fetch(
+              "https://places.googleapis.com/v1/" + fresh + "/media?maxWidthPx=" + w + "&key=" + key,
+              { redirect: "follow" }
+            );
+          }
+        }
+      } catch (e) {}
+    }
     if (!r.ok || !r.body) {
       // Cache the miss briefly so a transient upstream error doesn't hammer us.
       return NextResponse.json(
