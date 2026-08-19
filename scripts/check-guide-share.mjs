@@ -129,6 +129,51 @@ ok(canShareNatively() === false, "with no navigator there is no native sheet, an
   ok(!/actions=/.test(culture), "the culture page now passes actions — make that call deliberately before allowing it");
 }
 
+// ── 5. NO DEAD-END CTA ON AN EDITORIAL PAGE ───────────────────────────────
+// The owner reported the same button twice, seven days apart: "our blog's
+// buttons don't work — they throw you to the main page and do nothing"
+// (2026-08-12) and "this button makes no sense ... it went back to the main
+// page" (2026-08-19). Both times it was "/?intent=" + an SEO keyword.
+//
+// v7.13 fixed the PARSER — the homepage now reads ?intent= and runs it as a
+// search — and the button still did nothing, because the input was never
+// answerable: 21 of 39 guide keywords name no place ("birthday freebies
+// bradenton sarasota"), and the effect that runs the search is gated on
+// `center`, so a visitor who has not granted location gets nothing at all.
+//
+// So this does not assert "the parser exists". It asserts that no editorial
+// page hands a reader an action whose destination is the bare homepage.
+{
+  const DEAD = /(?:primaryHref|href)=\{?"?\/\?intent=/;
+  for (const rel of ["app/guides/[slug]/page.js", "app/culture/[metro]/page.js"]) {
+    const src = strip(read(rel));
+    ok(!DEAD.test(src),
+       rel + ': a hero CTA points at "/?intent=<keyword>" again — that feeds an SEO phrase into a place search, which cannot answer it, and drops the reader on the homepage (DEAD-END)');
+  }
+  // And the hero must tolerate having no primary, or removing one leaves the
+  // panel with no action at all.
+  const hero = strip(read("app/components/PremiumIntentHero.js"));
+  ok(/primaryHref = null/.test(hero), "PremiumIntentHero must default primaryHref to null — a default of \"/\" silently restores the dead end for any caller that stops passing one");
+  ok(/\{primaryHref \? <a className="wf-intent-primary"/.test(hero), "the hero must render its primary conditionally");
+  ok(/className=\{primaryHref \? "wf-intent-secondary" : "wf-intent-primary"\}/.test(hero),
+     "with no primary the secondary must BECOME the primary — an editorial page with no visible action is not an improvement on one with a broken action");
+  // The guides' breadcrumb is the one back link. Two "All guides" stacked on
+  // every guide page is what the hero's own copy produced.
+  // ONE LINK PER DESTINATION. "All guides" shipped twice on every guide page —
+  // once in the breadcrumb, once in the hero chrome, stacked. Both back
+  // affordances are guard-required (check-guides pins the "Back to Wayfind"
+  // anchor, check-hero-chrome pins the hero's backHref prop), so the fix is not
+  // to delete one of them: it is to stop them pointing at the same place.
+  const gp = strip(read("app/guides/[slug]/page.js"));
+  // VISIBLE links only: href= and the hero's backHref=. The JSON-LD
+  // BreadcrumbList also contains SITE_URL + "/guides", and counting structured
+  // data as a second link is how this assertion first failed on a correct page.
+  const toIndex = (gp.match(/(?:back)?[Hh]ref="\/guides"/g) || []).length;
+  ok(toIndex === 1, 'the guide page links to /guides ' + toIndex + ' times — it must be exactly once, or "All guides" renders twice on every guide');
+  ok(/Back to Wayfind/.test(gp), "the guide must keep its back-to-the-app anchor (check-guides pins the rendered markup)");
+  ok(/backHref="\/guides"/.test(gp), "the hero chrome is where the index link lives");
+}
+
 if (fails.length) {
   console.error("check-guide-share: FAIL — " + fails.length + "/" + n);
   for (const f of fails) console.error("  · " + f);

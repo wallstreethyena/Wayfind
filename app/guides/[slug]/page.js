@@ -574,7 +574,6 @@ export default async function GuidePage({ params }) {
           visible way back into the app. */}
       <nav aria-label="Breadcrumb" style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 18 }}>
         <a href="/" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 999, background: "#161B22", border: "1px solid #21262D", color: "#FF8A3D", fontSize: 13.5, fontWeight: 800, textDecoration: "none" }}>‹ Back to Wayfind</a>
-        <a href="/guides" style={{ color: "#8B949E", fontSize: 13.5, fontWeight: 700, textDecoration: "none" }}>All guides</a>
       </nav>
       <style dangerouslySetInnerHTML={{ __html: `
         .wf-guide-article{max-width:860px;margin:0 auto}
@@ -644,6 +643,11 @@ export default async function GuidePage({ params }) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: g.title, description: g.description, datePublished: g.updated || "2026-06-01", dateModified: g.updated || "2026-06-01", author: { "@type": "Person", name: "Gabriel Pereira", url: SITE_URL + "/about" }, publisher: { "@type": "Organization", name: "WAYFIND LLC", logo: { "@type": "ImageObject", url: SITE_URL + "/icon-512.png" } }, mainEntityOfPage: SITE_URL + "/guides/" + params.slug }) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL }, { "@type": "ListItem", position: 2, name: "Guides", item: SITE_URL + "/guides" }, { "@type": "ListItem", position: 3, name: g.title, item: SITE_URL + "/guides/" + params.slug }] }) }} />
       <PremiumIntentHero
+        // v8.23 — ONE destination each. "All guides" used to appear twice on
+        // every guide page: here, and again in the breadcrumb above. The
+        // breadcrumb keeps "‹ Back to Wayfind" (check-guides pins that anchor);
+        // the hero chrome keeps "‹ All guides" (check-hero-chrome pins this
+        // prop). Neither guard was wrong — the page was just carrying both.
         backHref="/guides"
         backLabel="All guides"
         eyebrow="Your local decision concierge"
@@ -651,8 +655,21 @@ export default async function GuidePage({ params }) {
         title={g.title}
         description={`${g.title}—distilled into the few choices actually worth your time, with the context a map result leaves out.`}
         image={guideHero(g)}
-        primaryHref={"/?intent=" + encodeURIComponent(g.keyword || g.title)}
-        primaryLabel="Personalize these picks"
+        // v8.23 — "Personalize these picks" is GONE, on the owner's call: "this
+        // button makes no sense, a user clicked on it and it went back to the
+        // main page — lets get rid of these buttons that dont serve a purpose on
+        // the blogs globally."
+        //
+        // It sent "/?intent=" + g.keyword, and g.keyword is an SEO PHRASE. 21 of
+        // 39 of them name no place at all ("birthday freebies bradenton
+        // sarasota", "things to do in orlando besides theme parks"), so the
+        // search the homepage runs for them can only come back empty — and the
+        // effect that runs it is gated on `center`, so a visitor who has not
+        // granted location gets literally nothing. Two independent reasons the
+        // promise could not be kept.
+        //
+        // What is left is what actually works: the guide itself, one tap down.
+        // The money CTA is unchanged and still lives once, in GuideConversion.
         secondaryHref="#guide"
         secondaryLabel="Read the local edit"
         // v8.23 (owner: "why is it that none of these blog has a share button

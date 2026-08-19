@@ -90,6 +90,15 @@ for (const [slug, guide] of Object.entries(GUIDES)) {
   const hub = readFileSync(new URL("../app/guides/page.js", import.meta.url), "utf8");
   if (!/<a href="\/"[^>]*>‹ Back to Wayfind<\/a>/.test(hub)) fail("guides hub: missing the rendered back-to-home anchor");
   if (!/<a href="\/"[^>]*>‹ Back to Wayfind<\/a>/.test(g)) fail("guide detail: missing the rendered back-to-home anchor");
-  if (!/<a href="\/guides"[^>]*>All guides<\/a>/.test(g)) fail("guide detail: missing the up-link to the guides hub");
+  // v8.23 — EITHER FORM COUNTS. The up-link used to be a literal anchor in this
+  // file AND a backHref on the hero, which rendered "All guides" twice on every
+  // guide page, stacked (owner: "lets get rid of these buttons that dont serve a
+  // purpose"). The breadcrumb kept "‹ Back to Wayfind" and the hero chrome kept
+  // the hub link, so the anchor this used to grep for now lives in
+  // PremiumIntentHero. The property is unchanged: a guide can always reach the
+  // hub. Asserting WHERE the markup is written was the mistake.
+  if (!/<a href="\/guides"[^>]*>All guides<\/a>/.test(g) && !/backHref="\/guides"/.test(g)) {
+    fail("guide detail: missing the up-link to the guides hub (no anchor, and the hero is not given backHref)");
+  }
 }
 console.log("check-guides: OK — Article + Breadcrumb schema, canonicals, related links, disclosure on both templates; numbered titles match their pick counts; both templates carry a visible door back to the app");
