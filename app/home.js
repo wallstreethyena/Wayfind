@@ -268,7 +268,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.23";
+const BUILD_ID = "v8.25";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -10891,6 +10891,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
                   back to the generic label when the title names no activity. */}
               {(() => {
                 const t = String((cardProduct && cardProduct.title) || "");
+                if (/jet ?ski|waverunner/i.test(t)) return "🌊 Book a jet ski tour ↗";
                 if (/kayak/i.test(t)) return "🛶 Book a kayak tour ↗";
                 if (/paddle/i.test(t)) return "🏄 Book a paddle tour ↗";
                 if (/cruise|boat/i.test(t)) return "🚤 Book a cruise ↗";

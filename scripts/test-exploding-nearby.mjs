@@ -16,6 +16,10 @@ const fail = (m) => { console.error("test-exploding-nearby: FAIL — " + m); pro
 const ok = (c, m) => { if (!c) fail(m); pass++; };
 const read = (p) => readFileSync(new URL("../" + p, import.meta.url), "utf8");
 
+// v8.25 (owner reversal, 2026-08-19): the 2026-08-11 top-20 grew to 32 when
+// the owner supplied his Florida 40-map ("make sure we are looking for all of
+// these"). Twelve honestly-gateable clusters joined at ranks 21-32; the
+// original 20 keep their exact ranks and labels — re-pointed, not deleted.
 const EXPECTED = [
   "Smash burgers", "Elevated ramen and noodle bowls", "Caribbean curry bowls", "Miso and umami seafood",
   "Functional smoothies and a\u00e7a\u00ed bowls", "High-protein grab-and-go", "Fiber and gut-health food",
@@ -23,21 +27,25 @@ const EXPECTED = [
   "Savory cocktails", "Food halls", "Experiential dining", "Reformer Pilates and Lagree",
   "Cold plunge and sauna recovery", "Social wellness clubs", "Soft clubbing and coffee raves",
   "Listening bars", "Pickleball and padel", "Golf simulators and social play",
+  "Springs swimming and tubing", "Kayak and clear-kayak tours", "Manatee encounters",
+  "Dolphin and sunset cruises", "Fishing charters", "Escape rooms and game bars",
+  "Retro arcades and pinball", "Comedy and small live shows", "Destination bakeries",
+  "Cuban and Latin flavor", "Omakase and sushi counters", "Fresh-catch seafood",
 ];
-ok(EXPLODING_NEARBY_UNIVERSE.length === 20, `the launch universe has exactly 20 trends, got ${EXPLODING_NEARBY_UNIVERSE.length}`);
-ok(JSON.stringify(EXPLODING_NEARBY_UNIVERSE.map((t) => t.label)) === JSON.stringify(EXPECTED), "the 20 labels and the owner's rank order are exact");
+ok(EXPLODING_NEARBY_UNIVERSE.length === 32, `the launch universe has exactly 32 trends, got ${EXPLODING_NEARBY_UNIVERSE.length}`);
+ok(JSON.stringify(EXPLODING_NEARBY_UNIVERSE.map((t) => t.label)) === JSON.stringify(EXPECTED), "the 32 labels and the owner's rank order are exact");
 const ranks = EXPLODING_NEARBY_UNIVERSE.map((t) => t.rank);
-ok(ranks.length === new Set(ranks).size && Math.min(...ranks) === 1 && Math.max(...ranks) === 20, "owner ranks are 1..20 and unique");
+ok(ranks.length === new Set(ranks).size && Math.min(...ranks) === 1 && Math.max(...ranks) === 32, "owner ranks are 1..32 and unique");
 for (const t of EXPLODING_NEARBY_UNIVERSE) {
   ok(TIME_BUCKETS.includes(t.primaryBucket), `${t.key} declares a real primary daypart`);
   ok(Array.isArray(t.alsoBuckets) && t.alsoBuckets.every((b) => TIME_BUCKETS.includes(b)) && !t.alsoBuckets.includes(t.primaryBucket),
     `${t.key} also-works windows are real buckets and never repeat the primary`);
 }
-ok(JSON.stringify(launchTrendsForBucket("night").map((t) => t.rank)) === JSON.stringify([1, 2, 4, 8, 10, 11, 13, 18, 20, 3, 12, 19]),
+ok(JSON.stringify(launchTrendsForBucket("night").map((t) => t.rank)) === JSON.stringify([1, 2, 4, 8, 10, 11, 13, 18, 20, 26, 27, 28, 31, 32, 3, 12, 19, 24, 30]),
   "night eligibility is primary-night trends by owner rank, then also-works trends by owner rank");
-ok(JSON.stringify(launchTrendsForBucket("morning").map((t) => t.rank)) === JSON.stringify([5, 6, 7, 9, 14, 15, 16, 17, 19]),
+ok(JSON.stringify(launchTrendsForBucket("morning").map((t) => t.rank)) === JSON.stringify([5, 6, 7, 9, 14, 15, 16, 17, 21, 22, 23, 25, 29, 19]),
   "morning eligibility follows the owner's daypart table");
-ok(JSON.stringify(launchTrendsForBucket("afternoon").map((t) => t.rank)) === JSON.stringify([3, 12, 19, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 20]),
+ok(JSON.stringify(launchTrendsForBucket("afternoon").map((t) => t.rank)) === JSON.stringify([3, 12, 19, 24, 30, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 25, 26, 27, 28, 29, 32]),
   "afternoon leads with its primary trends and then admits every also-works trend by rank");
 ok(EXPLODING_NEARBY_KEYS.length === new Set(EXPLODING_NEARBY_KEYS).size, "every launch concept key is unique");
 ok(SCHEDULE_REQUIRED.has("soft_clubbing") && SCHEDULE_REQUIRED.has("puppy_yoga") && SCHEDULE_REQUIRED.has("candlelight_concerts"),
@@ -92,6 +100,31 @@ ok(placeFromGoogle(googlePlace("golf-shop", "Golf Galaxy", ["sporting_goods_stor
 ok(placeFromGoogle(googlePlace("curry-wrong", "Curry Palace Indian Cuisine", ["indian_restaurant", "restaurant"]), "caribbean_curry_bowls", center) == null,
   "an Indian curry house is not a Caribbean curry answer: the word curry alone is not identity");
 
+// v8.25 — proof cases for the 40-map concepts, EXECUTED like the originals:
+// each gate admits the real shape and refuses the classic false positive.
+ok(placeFromGoogle(googlePlace("sp-1", "Warm Mineral Springs Park", ["park", "tourist_attraction"]), "springs_swimming", center)?.governedScore > 0,
+  "a springs park with 'springs' in its name qualifies for springs swimming");
+ok(placeFromGoogle(googlePlace("sp-2", "Palm Springs Plaza", ["shopping_mall", "store"]), "springs_swimming", center) == null,
+  "a mall named Springs is refused by the type gate");
+ok(placeFromGoogle(googlePlace("ky-1", "Happy Paddler Kayak Tours", ["tourist_attraction", "travel_agency"]), "kayak_wildlife_tours", center)?.governedScore > 0,
+  "a kayak tour operator qualifies for kayak tours");
+ok(placeFromGoogle(googlePlace("ky-2", "West Marine", ["sporting_goods_store", "store"]), "kayak_wildlife_tours", center) == null,
+  "a paddle-gear store is refused: denyTypes beats a matching word");
+ok(placeFromGoogle(googlePlace("fc-1", "Reel Deal Charters", ["fishing_charter", "marina"]), "fishing_charters", center)?.governedScore > 0,
+  "a fishing_charter-typed operator qualifies on type evidence alone");
+ok(placeFromGoogle(googlePlace("ar-1", "Lowry Pinball Hall", ["amusement_center"]), "retro_arcades", center)?.governedScore > 0,
+  "a pinball hall qualifies by name evidence");
+ok(placeFromGoogle(googlePlace("ar-2", "Fun Center", ["amusement_center"]), "retro_arcades", center) == null,
+  "a generic amusement center with no arcade identity is refused");
+ok(placeFromGoogle(googlePlace("bk-1", "Rise & Flour Bakehouse", ["bakery", "cafe"]), "artisanal_bakeries", center)?.governedScore > 0,
+  "a bakery qualifies on Google's own bakery type");
+ok(placeFromGoogle(googlePlace("om-1", "Sora Omakase", ["sushi_restaurant", "japanese_restaurant"]), "omakase", center)?.governedScore > 0,
+  "an omakase counter qualifies by name evidence");
+ok(placeFromGoogle(googlePlace("om-2", "Tokyo Express Sushi", ["sushi_restaurant"]), "omakase", center) == null,
+  "a takeout sushi shop is not an omakase answer: the sushi type alone is not the claim");
+ok(placeFromGoogle(googlePlace("cu-1", "Havana Cafe", ["cuban_restaurant", "restaurant"]), "cuban_latin_flavor", center)?.governedScore > 0,
+  "a cuban_restaurant qualifies on type evidence");
+
 const searchCalls = [];
 const liveByQuery = [
   [/smash burger/i, googlePlace("live-smash", "Smashburger", ["hamburger_restaurant", "restaurant"])],
@@ -112,8 +145,11 @@ ok(liveList.status === "ok" && liveList.source === "provided-20-trend-list" && l
   "the launch feed reads the supplied list rather than a Semrush API and names the daypart it served");
 ok(JSON.stringify(liveList.trends.map((t) => t.conceptKey)) === JSON.stringify(["smash_burgers", "elevated_ramen", "golf_simulators"]),
   "night answers surface in the owner's rank order");
-ok(searchCalls.length === 12 && searchCalls.every((u) => u.startsWith("/api/places/search?")),
-  "exactly the 12 night-eligible trends are searched through the shared Google-search cache, never a trend-provider API");
+// v8.25 — 12 grew to 19 when the owner's Florida 40-map clusters joined the
+// universe (5 new night-primary + 2 new night-also trends are all searched
+// when nothing upstream fills the ten-trend cap).
+ok(searchCalls.length === 19 && searchCalls.every((u) => u.startsWith("/api/places/search?")),
+  "exactly the 19 night-eligible trends are searched through the shared Google-search cache, never a trend-provider API");
 ok(!searchCalls.some((u) => /pilates|sauna|matcha|acai/i.test(decodeURIComponent(u))),
   "a morning trend is never searched at night: the daypart trigger is also the cost gate");
 ok(typeof liveList.trends[0].stat === "string" && /650%/.test(liveList.trends[0].stat),
@@ -129,7 +165,9 @@ const morningFetch = async (url) => {
 const morningList = await loadProvidedTrendList({ center, city: "Sarasota", bucket: "morning", fetchImpl: morningFetch });
 ok(JSON.stringify(morningList.trends.map((t) => t.conceptKey)) === JSON.stringify(["pilates_reformer", "cold_plunge_sauna"]),
   "morning serves the morning trends in owner rank order (#14 before #15)");
-ok(morningCalls.length === 8, "8 searchable morning trends: 9 eligible minus schedule-required soft clubbing");
+// v8.25 — 8 grew to 13: five 40-map morning trends (springs, kayaks,
+// manatees, charters, bakeries) joined; soft clubbing stays schedule-gated.
+ok(morningCalls.length === 13, "13 searchable morning trends: 14 eligible minus schedule-required soft clubbing");
 ok(!morningCalls.some((u) => /smash|golf|martini/i.test(decodeURIComponent(u))), "a night trend is never searched in the morning");
 
 // The ranked walk stops at ten modules (owner: "top 10 ideally, work our way down").
@@ -311,4 +349,36 @@ for (const metric of ["exploding_to_place_ctr", "interaction_within_12_seconds_r
   ok(SUCCESS_METRICS.some((m) => m.metric === metric && m.denominator), `${metric} has an explicit denominator`);
 }
 
-console.log(`test-exploding-nearby: OK — ${pass} assertions (20-topic taxonomy, evidence gates, lawful place order, UI hierarchy, analytics)`);
+// v8.24 — THE STREAMED WALK, executed (owner: "the exploding trends always
+// take so long to load"). loadProvidedTrendList must surface trends found so
+// far via onPartial BEFORE the promise resolves, each partial a RANKED PREFIX
+// of the final list, so cold metros render batch 1 in ~1.5s instead of
+// sitting on skeletons for the whole 5-batch walk.
+{
+  // Fixtures reuse the SAME archetypes the placeFromGoogle assertions above
+  // already prove pass their concepts' evidence gates (Smashburger /
+  // hamburger_restaurant, ramen_restaurant, matcha name-evidence). Each call
+  // mints fresh ids so the walk's claimed-id dedupe cannot starve later
+  // trends of the shared archetypes.
+  let calls = 0;
+  const mkw = (id, name, types) => ({ id, displayName: { text: name }, location: { latitude: 27.337, longitude: -82.531 }, rating: 4.8, userRatingCount: 700, businessStatus: "OPERATIONAL", types, photos: [{ name: "places/" + id + "/photos/one" }] });
+  const fetchImpl = async () => { calls++; const n = calls; return { ok: true, json: async () => ({ places: [
+    mkw("smash-" + n, "Smashburger", ["hamburger_restaurant", "restaurant"]),
+    mkw("ramen-" + n, "Kazu Ramen Kitchen", ["ramen_restaurant", "restaurant"]),
+    mkw("matcha-" + n, "Blossom Matcha Bar", ["cafe"]),
+  ] }) }; };
+  const partials = [];
+  const finalBody = await loadProvidedTrendList({
+    center: { lat: 27.336, lng: -82.531 }, city: "Sarasota", bucket: "afternoon", fetchImpl,
+    onPartial: (b) => partials.push(b.trends.map((t) => t.conceptKey)),
+  });
+  ok(finalBody.status === "ok" && finalBody.trends.length >= 2, "streamed walk: the fixture walk resolves ok with multiple trends");
+  ok(partials.length >= 2, "streamed walk: onPartial fired across batches BEFORE the promise resolved");
+  const finalKeys = finalBody.trends.map((t) => t.conceptKey);
+  for (const p of partials) {
+    ok(p.length <= finalKeys.length && p.every((k, idx) => finalKeys[idx] === k),
+      "streamed walk: every partial is a ranked PREFIX of the final list — nothing reorders under the reader");
+  }
+}
+
+console.log(`test-exploding-nearby: OK — ${pass} assertions (32-topic taxonomy, evidence gates, lawful place order, UI hierarchy, analytics, streamed walk)`);

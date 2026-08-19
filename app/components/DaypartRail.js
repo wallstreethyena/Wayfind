@@ -439,7 +439,7 @@ export default function DaypartRail({
           </div>
 
 
-          {/* v8.12 — the owner's 20 trends lead the TRENDING drop, each one
+          {/* v8.12 — the owner's ranked trends (32 as of v8.25) lead the TRENDING drop, each one
               matched to verified local places (daypart-gated inside the
               component). The ranked place cards below stay: trends answer
               "what's the thing", the cards answer "the best places, period". */}

@@ -65,7 +65,8 @@ export const NEUTRAL_HERO = "/brand/opt/hero-1600.webp";
 const CULTURE_HERO = {
   orlando: "/brand/orlando-night-wheel-portrait.jpg",
   sarasota: "/cards/beach-adobestock-216195684.jpeg",
-  tampa: "/cards/night-out.jpg",
+  // v8.24 (owner: "I never want to see this image ever again") — the AI neon-concert composite (night-out.jpg) is BANNED and deleted; real concert-crowd photo instead.
+  tampa: "/cards/tonight-alfonso-scarpa-unsplash.jpg",
 };
 
 export default async function CulturePage({ params }) {

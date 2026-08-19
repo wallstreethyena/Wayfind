@@ -91,8 +91,12 @@ ok(!/<ExplodingNearby[\s/>]/.test(CODE) || /<ExplodingNearby[\s\S]{0,180}active=
   "if the Exploding Nearby loader is mounted at all, it still only activates while its section is open");
 ok(/if \(!active \|\| !center \|\| !Number\.isFinite\(center\.lat\) \|\| !Number\.isFinite\(center\.lng\)\) return;/.test(EXP),
   "the Exploding request waits for both an open section and a real location");
-ok(/loadProvidedTrendList\(\{ center, city, signal: ctrl\.signal \}\)/.test(EXP),
-  "the default-open answer resolves the supplied trend list against current local inventory");
+// v8.25 re-point (owner: "the exploding trends always take so long to
+// load"): the call gained an onPartial stream so batch 1 renders in ~1.5s
+// instead of after the whole walk. Same resolver, same inputs — the
+// assertion follows the call shape and now also demands the stream.
+ok(/loadProvidedTrendList\(\{\s*center, city, signal: ctrl\.signal,/.test(EXP) && /onPartial: \(body\) =>/.test(EXP),
+  "the default-open answer resolves the supplied trend list against current local inventory, streamed batch by batch");
 
 /* ── 4. both loading paths are the same path ────────────────────────────── */
 const toggleFn = CODE.slice(CODE.indexOf("const toggle = ("));

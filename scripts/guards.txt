@@ -448,3 +448,12 @@ node scripts/test-place-card-layout.mjs
 # Activities submenu), and place-matched deals show the exact Wayfind score
 # their rank used — never an invented one, never none when we have it.
 node scripts/check-rail-scroll-reset.mjs
+# v8.24 — the Date night experience pill is EXECUTED against fixtures: real
+# restaurant identity + price/room evidence + 4.4 floor, with negative
+# controls (counter-serve, no-room $$, non-restaurant, sub-floor) so the tag
+# diversifies cards without becoming decoration.
+node scripts/test-datenight-tag.mjs
+# v8.24 — owner-banned art stays banned: the asset absent from public/ AND
+# unreferenced by any non-comment source line, with a positive control so an
+# empty scan can never read as clean. Bans are additive-only.
+node scripts/check-banned-art.mjs
