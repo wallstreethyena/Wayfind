@@ -25,6 +25,8 @@ import { guidePrimaryCta, guideIntent, pickVenueLabel } from "../lib/guideCta.js
 import { couponForPlaceName } from "../lib/coupons.js";
 import { siteTodayStr } from "../lib/siteTime.js";
 import { viatorProductGoUrl } from "../lib/affiliates.js";
+import { credentialedEnv } from "./lib/guardEnv.mjs";
+import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
@@ -233,13 +235,32 @@ ok(/See tickets & availability/.test(cta_src),
 ok(/viatorProductGoUrl\s*\(\s*p\.viatorUrl/.test(cta_src),
   "a curated viatorUrl must be handed to viatorProductGoUrl — weaker than the CALL above, stated as weaker");
 
-// THE WRAP, CALLED. Bare, Gatorland is a search and the block above never
-// runs. With a PID it is exact, so this must have fired — otherwise the
-// wrap assertion is decoration on the only pass that can see it.
-if (process.env.NEXT_PUBLIC_VIATOR_PID) {
-  ok(curatedGoWraps >= 1,
-    `PROBE BROKEN: credentialed pass found no curated exact wrap to assert (got ${curatedGoWraps})`);
-}
+// THE WRAP, CALLED in a child with an EXPLICIT stub PID. Bare, this process
+// never enters the exact branch (affiliates reads the PID at module load), so
+// the in-loop wrap assertions would be decoration here. The child forces the
+// stub — the ambient shell never decides the verdict.
+const WRAP_PROBE = `
+import { GUIDES } from "./lib/guides.js";
+import { guidePrimaryCta } from "./lib/guideCta.js";
+import { viatorProductGoUrl } from "./lib/affiliates.js";
+import { siteTodayStr } from "./lib/siteTime.js";
+const PRODUCT = "https://www.viator.com/tours/Orlando/Gatorland-General-Admission-Ticket/d663-3458ENTRY";
+const cta = guidePrimaryCta(GUIDES["gatorland-vs-wild-florida"], siteTodayStr());
+const built = viatorProductGoUrl(PRODUCT, "Orlando", "guide", "guide");
+if (!cta || cta.kind !== "tour" || !cta.exact) { console.log("NOT_EXACT"); process.exit(2); }
+if (typeof cta.href !== "string" || !cta.href.startsWith("/api/viator/go?")) { console.log("HREF=" + cta.href); process.exit(3); }
+const u = new URL("https://x.test" + cta.href);
+if (u.searchParams.get("product") !== PRODUCT) { console.log("PRODUCT=" + u.searchParams.get("product")); process.exit(4); }
+if (cta.href !== built) { console.log("NOT_BUILDER"); process.exit(5); }
+console.log("OK");
+`;
+const wrapChild = spawnSync(process.execPath, ["--input-type=module", "-e", WRAP_PROBE], {
+  cwd: REPO,
+  env: credentialedEnv({ ...process.env }),
+  encoding: "utf8",
+});
+ok(wrapChild.status === 0 && String(wrapChild.stdout || "").trim().split("\n").pop() === "OK",
+  `Gatorland exact CTA must wrap through the go builder with d663-3458ENTRY (status=${wrapChild.status} out=${String(wrapChild.stdout || "").trim()} err=${String(wrapChild.stderr || "").slice(0, 200)})`);
 
 // 7. The events must carry `exact`, or none of this is readable.
 const conv = readFileSync(REPO + "app/guides/[slug]/GuideConversion.js", "utf8")
