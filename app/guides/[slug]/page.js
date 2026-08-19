@@ -148,6 +148,38 @@ async function inventoryPlaceByStem(stem, near) {
 // resolving still means no card — never a stock photo under a named place.
 async function inventoryPlace(pick, near) {
   if (!pick) return null;
+  // v8.17 — a pick that CARRIES a placeId (the Gulf Coast guides embed real
+  // ids) resolves on it directly: exact, no ilike ambiguity, no geo gate
+  // needed (the id IS the identity). The name path below stays the fallback
+  // for the older guides. Same >=15-review floor via the shared row shaper.
+  if (pick.placeId) {
+    const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
+    const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
+    if (url && anon) {
+      try {
+        const r = await fetch(
+          `${url}/rest/v1/wf_inventory?select=place_id,name,lat,lng,primary_type,google_types,signals,photo_ref,editorial&status=eq.OPERATIONAL&place_id=eq.${encodeURIComponent(pick.placeId)}&limit=1`,
+          { headers: { apikey: anon, Authorization: "Bearer " + anon }, next: { revalidate: 3600 } }
+        );
+        if (r.ok) {
+          const rows = await r.json();
+          const row = Array.isArray(rows) && rows[0];
+          if (row) {
+            const rating = Number(row.signals && row.signals.rating);
+            const reviews = Number(row.signals && row.signals.reviews);
+            if (rating > 0 && reviews >= 15) {
+              return {
+                id: row.place_id, name: row.name, rating, reviews,
+                lat: row.lat, lng: row.lng, photoRef: row.photo_ref || null,
+                types: Array.isArray(row.google_types) ? row.google_types : (row.primary_type ? [row.primary_type] : []),
+                primary_type: row.primary_type || null,
+              };
+            }
+          }
+        }
+      } catch (e) {}
+    }
+  }
   const seen = new Set();
   const candidates = [];
   const push = (s) => {

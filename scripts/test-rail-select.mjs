@@ -107,6 +107,12 @@ const pools = {
     Object.assign(mk("su4", { name: "Summer Cuban Lunch", _s: 71, distMi: 8, types: ["restaurant"] }), { _summerSourced: true, _summerRails: ["eat"], _summerWhy: "A long Cuban lunch in the AC is the classic summer midday." }),
     Object.assign(mk("su5", { name: "Near Summer Beach", _s: 69, distMi: 6, types: ["beach"] }), { _summerSourced: true, _summerRails: ["beach"], _summerWhy: "A near gulf beach — mornings, not noon." }),
     Object.assign(mk("su6", { name: "Far Keys Cuban", _s: 90, distMi: 220, types: ["restaurant"] }), { _summerSourced: true, _summerRails: ["eat"], _summerWhy: "A 220-mile Cuban lunch is a statewide icon, not a meal near you." }),
+    // v8.17 — the Emerson Point shape: a datenight-tagged PARK that locks at
+    // dusk, and the Skyway shape: a pier explicitly tagged tonight because it
+    // genuinely operates at night. The pair proves the datenight→tonight
+    // alias stays dead without silencing the legitimate night entry.
+    Object.assign(mk("su7", { name: "Golden Hour Preserve", _s: 96, distMi: 9, types: ["park", "state_park"] }), { _summerSourced: true, _summerRails: ["datenight"], _summerWhy: "The river sunset from the tower — the locals' golden-hour spot." }),
+    Object.assign(mk("su8", { name: "Night Fishing Pier", _s: 72, distMi: 14, types: ["state_park", "tourist_attraction"] }), { _summerSourced: true, _summerRails: ["tonight"], _summerWhy: "Night fishing under the lit span — summer's coolest hours." }),
   ],
   // v8.15 — the birthday pool is synthetic like creators and summer:
   // lib/railsData.js buildBirthdayPool sources it from the owner's curated
@@ -152,6 +158,13 @@ eq(lead("beach"), "Siesta Key Beach", "beach leads with the top beach");
 ok(!namesOf("beach").includes("Far Beach"), "a beach 30 miles out is not a beach day");
 ok(namesOf("drive").includes("Far Beach"), "…it is worth the drive, which is a different rail");
 eq(lead("tonight"), "The Mable Bar & Grill", "tonight leads with the top-scoring nightlife room");
+// v8.17 — the Emerson Point rule, executed. su7 is a 96-scored datenight-only
+// park: without the alias fix it would LEAD Tonight's Move. It must never
+// appear there, while the explicitly tonight-tagged night pier must, and the
+// golden-hour park keeps its curated datenight slot.
+ok(!namesOf("tonight").includes("Golden Hour Preserve"), "a datenight-tagged park that locks at dusk never rides Tonight's Move");
+ok(namesOf("tonight").includes("Night Fishing Pier"), "an explicitly tonight-tagged summer entry still does");
+ok(namesOf("datenight").includes("Golden Hour Preserve"), "…and the golden-hour park keeps its curated datenight slot");
 eq(lead("events"), "Van Wezel Hall", "events leads with a ticketed venue, not a museum");
 eq(lead("break"), "Quick Bagel Co", "the 30-minute break leads with counter service");
 // Gems still ranks by score WITHIN the axis — the filter decides membership,
@@ -160,7 +173,11 @@ eq(lead("gems"), "Nonna Trattoria", "gems ranks by score inside its own axis");
 ok(!namesOf("gems").includes("Ca d Zan"), "the 1,200-review anchor is not a hidden gem");
 ok(selectFor("gems", pools).every((p) => p.rating >= 4.6 && p.reviews >= 40 && p.reviews <= 600),
   "every gem really is over 4.6 and under 600 reviews");
-eq(lead("datenight"), "Beach House Waterfront", "date night leads on the room, not the counter");
+// v8.17 — su7 (curated golden-hour datenight entry, 96) now outscores the
+// waterfront room (90); the global rule is score order, so it leads. The
+// original claim survives one line down: the room still beats every counter.
+eq(lead("datenight"), "Golden Hour Preserve", "date night leads with its highest-scored member (global score rule)");
+ok(namesOf("datenight").includes("Beach House Waterfront"), "the waterfront room is on date night");
 // Assert the invariant, not the name: a fixture row called "Far Beach" proves
 // nothing about the predicate.
 ok(selectFor("drive", pools).every((p) => p.distMi >= 12), "worth-the-drive only carries places 12+ miles out");
