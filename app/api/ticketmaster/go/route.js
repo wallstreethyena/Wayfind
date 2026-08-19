@@ -52,7 +52,7 @@ export async function GET(req) {
   const emit = (event, extra) => {
     try {
       const props = commercePayload(event, { ...base, ...(extra || {}) });
-      captureServer(event, { distinctId, properties: props });
+      captureServer(event, { distinctId, properties: props, headers: req.headers });
     } catch {}
   };
 
