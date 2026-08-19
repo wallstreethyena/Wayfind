@@ -13,9 +13,9 @@
 // Set affiliate placeholders BEFORE any lib import. affiliates.js reads
 // NEXT_PUBLIC_VIATOR_PID at module load; a static import would hoist past this.
 process.env.NEXT_PUBLIC_VIATOR_PID = "P_TEST_000000";
-process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || "e2e-placeholder-not-a-real-key";
-process.env.NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://e2eplaceholder.supabase.co";
-process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "e2e-placeholder-anon-key-not-real";
+process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY = "e2e-placeholder-not-a-real-key";
+process.env.NEXT_PUBLIC_SUPABASE_URL = "https://e2eplaceholder.supabase.co";
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "e2e-placeholder-anon-key-not-real";
 
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
