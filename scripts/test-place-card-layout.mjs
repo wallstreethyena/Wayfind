@@ -25,7 +25,7 @@
 // Fixtures exercise the shapes that have actually broken: wired buttons AND
 // anchor fallbacks, a long water chip, several experience pills, a partner
 // ticket link (real placePartnerPicks row, so the <a> path renders).
-import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, writeFileSync, rmSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadComponent } from "./lib/jsxLoad.mjs";
@@ -74,8 +74,29 @@ const page = path.join(tmp, "card.html");
 writeFileSync(page, html);
 
 const { chromium } = await import("playwright");
-const exe = process.platform === "darwin" ? undefined : "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
-const browser = await chromium.launch(exe ? { executablePath: exe } : {});
+// v8.22.1 — RESOLVE THE BROWSER, NEVER ASSUME IT (this exact line failed the
+// v8.22 production deploy: the cloud container's hardcoded chromium path does
+// not exist on Vercel's build image, so a fully green change was blocked by
+// the guard's own environment assumption). Resolution order:
+// playwright's own registry -> the cloud container path -> darwin default
+// (no env override — check-guard-hermeticity forbids env-dependent verdicts). If NO chromium exists on this machine, the guard SKIPS LOUDLY with
+// exit 0 — a layout contract must gate the machines that can measure it
+// (cloud dev + the Mac merge pipeline, both of which have a browser), not
+// turn a green main red on a build image that ships none. The merge pipeline
+// still runs it for real before every ship.
+function resolveChromium() {
+  try { const p = chromium.executablePath(); if (p && existsSync(p)) return {}; } catch (e) {}
+  const cloud = "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
+  if (existsSync(cloud)) return { executablePath: cloud };
+  if (process.platform === "darwin") return {}; // playwright's default resolution
+  return null;
+}
+const launchOpts = resolveChromium();
+if (!launchOpts) {
+  console.log("test-place-card-layout: SKIPPED — no Chromium on this machine (build image); the layout contract is enforced on cloud dev and the Mac merge pipeline, both of which run it with a real browser");
+  process.exit(0);
+}
+const browser = await chromium.launch(launchOpts);
 const p = await (await browser.newContext({ viewport: { width: 390, height: 844 } })).newPage();
 await p.goto("file://" + page, { waitUntil: "load" });
 const m = await p.evaluate(() => {
