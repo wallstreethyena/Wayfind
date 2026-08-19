@@ -556,6 +556,15 @@ const WIDEN_RADIUS_MI = 25;
     "typeOv reaches the REST query as an array-overlap filter — the cap must only ever trim QUALIFYING rows (3-of-54 starvation, measured live)");
   ok(/primaryType: row\.primary_type \|\| null/.test(dcode),
     "the widened shape carries primaryType — without it every strong identity degrades to its name fallback");
+  // v8.19.1 — REGISTRY FLAGS NEVER LEAK INTO ANCHOR POOLS. buildCreatorsPool
+  // stamped _creatorSourced on pool-REUSED row objects, so a creator-scouted
+  // venue read registry-exempt on every rail (Anna Maria Oyster Bar rode 4
+  // uncapped, measured live 2026-08-19). All three registry builders must
+  // clone before flagging.
+  ok(/\.filter\(Boolean\)\.map\(\(r\) => \(\{ \.\.\.r \}\)\);/.test(dcode),
+    "buildCreatorsPool clones every row before stamping _creatorSourced");
+  eq((dcode.match(/row = \{ \.\.\.row \};/g) || []).length, 2,
+    "summer AND birthday both clone a pool-reused row before stamping their source flag");
   ok(/rest\/v1\/wf_inventory/.test(dcode) && /status=eq\.OPERATIONAL/.test(dcode),
     "the widening reads OWNED inventory — never Google in a request path (the architecture rule)");
 }
