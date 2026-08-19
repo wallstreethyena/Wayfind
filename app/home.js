@@ -5504,12 +5504,123 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // the list identity so switching lists never cross-restores.
   useEffect(() => {
     if (detail != null) return;
-    const s = scrollRestore.current;
-    if (!s || !scrollRef.current || s.key !== screen + "|" + cat + "|" + sub + "|" + vibe) return;
+    // v8.23.4 — FALL BACK TO THE STORED COPY. v6.08 wrote wf_sc_<key> to
+    // sessionStorage next to this ref and nothing ever read it, so the write was
+    // dead the day it shipped: after any reload the ref is empty and the reader
+    // lost their row. Same key, so it still cannot cross-restore between lists.
+    const key = screen + "|" + cat + "|" + sub + "|" + vibe;
+    let s = scrollRestore.current;
+    if ((!s || s.key !== key) && scrollRef.current) {
+      try {
+        const stored = sessionStorage.getItem("wf_sc_" + key);
+        if (stored != null && Number.isFinite(Number(stored))) s = { key, top: Number(stored) };
+      } catch (e) {}
+    }
+    if (!s || !scrollRef.current || s.key !== key) return;
     const top = s.top;
     scrollRestore.current = null;
     requestAnimationFrame(() => requestAnimationFrame(() => { try { if (scrollRef.current) scrollRef.current.scrollTop = top; } catch (e) {} }));
   }, [detail]);
+  // ══ v8.23.4 — DO NOT LOSE THE READER'S PLACE ═══════════════════════════
+  //
+  // Owner, 2026-08-19: "let's say the user click and goes to google maps, when
+  // they go back they go back to the start of the page and they have to go
+  // through the taxonomy all over again... there is nothing more annoying than
+  // losing your place in the site."
+  //
+  // THE MECHANISM THAT WAS SUPPOSED TO STOP THIS WAS HALF-BUILT. v6.08 captured
+  // the list scroll on detail-open into BOTH an in-memory ref and
+  // sessionStorage("wf_sc_<key>") — and only the ref was ever read back. A ref
+  // dies with the page. So the one path it protected was closing the detail
+  // sheet in-session; the moment the reader actually LEFT — Google Maps, a
+  // booking hop, any outbound tap — the surviving copy sat unread in
+  // sessionStorage and they came back to the top of a default tab.
+  //
+  // Scroll alone was never the whole loss either. The taxonomy IS the position:
+  // Night out > Speakeasy scrolled halfway down is four taps to rebuild, and
+  // none of screen/cat/browseCat/sub/vibe survived a reload.
+  //
+  // WHY sessionStorage AND NOT localStorage: this is "where I was a moment
+  // ago", not a preference. It must not resurrect a three-day-old tab state on
+  // a fresh visit, and the 30-minute ceiling below is a second belt on that.
+  const posRestore = useRef(null);
+  const posRead = useRef(false);
+  useEffect(() => {
+    if (posRead.current) return;
+    posRead.current = true;
+    try {
+      const raw = sessionStorage.getItem("wf_pos");
+      if (!raw) return;
+      const p = JSON.parse(raw);
+      if (!p || typeof p !== "object" || !p.ts || Date.now() - p.ts > 30 * 60000) {
+        sessionStorage.removeItem("wf_pos");
+        return;
+      }
+      if (p.screen) setScreen(p.screen);
+      if (p.cat) setCat(p.cat);
+      if (p.browseCat !== undefined) setBrowseCat(p.browseCat);
+      if (p.sub) setSub(p.sub);
+      if (p.vibe) setVibe(p.vibe);
+      posRestore.current = { top: Number(p.top) || 0, win: Number(p.win) || 0, at: Date.now() };
+    } catch (e) {}
+  }, []);
+  // APPLIED AFTER THE STATE SETTLES, and that ordering is the whole trick: the
+  // effect above this block zeroes the scroll on every [cat, sub, vibe, screen,
+  // ...] change, which includes the ones the restore itself just made. So the
+  // position is re-applied on the render those setters produce, behind a double
+  // rAF, and only within four seconds of the read — long enough for the feed to
+  // mount, short enough that a later filter change is never hijacked.
+  useEffect(() => {
+    const r = posRestore.current;
+    if (!r) return undefined;
+    if (Date.now() - r.at > 4000) { posRestore.current = null; return undefined; }
+    let a = 0, b = 0;
+    a = requestAnimationFrame(() => {
+      b = requestAnimationFrame(() => {
+        try {
+          if (scrollRef.current && r.top) scrollRef.current.scrollTop = r.top;
+          if (r.win) window.scrollTo(0, r.win);
+        } catch (e) {}
+        posRestore.current = null;
+      });
+    });
+    return () => { cancelAnimationFrame(a); cancelAnimationFrame(b); };
+  }, [screen, cat, browseCat, sub, vibe]);
+  // The writer. On every taxonomy change, on a throttled scroll, and — the one
+  // that actually saves the Google Maps round trip — on pagehide, which fires
+  // when the browser is leaving THIS document, including for an outbound link.
+  // Both scrollers are recorded because the band and the feed have moved
+  // between the window and .wf-scrollarea before and may again.
+  useEffect(() => {
+    const write = () => {
+      try {
+        sessionStorage.setItem("wf_pos", JSON.stringify({
+          screen, cat, browseCat, sub, vibe,
+          top: scrollRef.current ? scrollRef.current.scrollTop : 0,
+          win: typeof window !== "undefined" ? window.scrollY : 0,
+          ts: Date.now(),
+        }));
+      } catch (e) {}
+    };
+    write();
+    let t = null;
+    const onScroll = () => { if (t) return; t = setTimeout(() => { t = null; write(); }, 400); };
+    const el = scrollRef.current;
+    try { if (el) el.addEventListener("scroll", onScroll, { passive: true }); } catch (e) {}
+    try {
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("pagehide", write);
+    } catch (e) {}
+    return () => {
+      if (t) clearTimeout(t);
+      try { if (el) el.removeEventListener("scroll", onScroll); } catch (e) {}
+      try {
+        window.removeEventListener("scroll", onScroll);
+        window.removeEventListener("pagehide", write);
+      } catch (e) {}
+    };
+  }, [screen, cat, browseCat, sub, vibe]);
+
   // Reset the explore list back to 5 whenever a new result set loads or search mode flips.
   useEffect(() => { setVisibleCount(5); }, [places, searchMode]);
   function pickSub(id) { setSub(id); setVibe("all"); try { logEvent("filter_changed", null, { cat, sub: id }); } catch (e) {} }

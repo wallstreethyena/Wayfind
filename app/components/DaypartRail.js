@@ -303,6 +303,43 @@ export default function DaypartRail({
     setSaid(r.id);
   }, [onShareRail, daypart, shown, selected]);
 
+  // v8.23.4 — OPENING A CARD TAKES YOU TO THE PICKS (owner, 2026-08-19: "when
+  // the user click on the amazon rail cards i want the page to go down to the
+  // place cards so the user can search the place cards").
+  //
+  // Until now a tap did three things the reader could not see: it set the
+  // selection, it centred the TILE inside its own horizontal track, and it
+  // revealed a drop BELOW THE FOLD. On a phone the rail tile is ~1.3 viewport
+  // widths tall, so the picks opened entirely off-screen and the tap read as
+  // "the card lit up and nothing happened".
+  //
+  // scrollIntoView rather than a computed offset: it walks up and scrolls every
+  // scrollable ancestor, so this keeps working whether the band sits inside
+  // .wf-scrollarea (it does today) or the window scrolls it tomorrow. The
+  // clearance under the sticky header is CSS — .wf8-menusec's scroll-margin-top
+  // in railMenuCss.js — because that is the layer that knows how tall the
+  // header is.
+  //
+  // Double rAF: the drop is display:none until .wf8.is-open lands, so the first
+  // frame after setSelected has no box to scroll to. Reduced motion gets the
+  // same destination without the travel.
+  useEffect(() => {
+    if (!selected || typeof document === "undefined") return undefined;
+    let a = 0, b = 0;
+    a = requestAnimationFrame(() => {
+      b = requestAnimationFrame(() => {
+        try {
+          const drop = document.querySelector(".wf8-menusec");
+          if (!drop) return;
+          const still = typeof window !== "undefined" && window.matchMedia
+            && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          drop.scrollIntoView({ behavior: still ? "auto" : "smooth", block: "start", inline: "nearest" });
+        } catch (e) {}
+      });
+    });
+    return () => { cancelAnimationFrame(a); cancelAnimationFrame(b); };
+  }, [selected]);
+
   const openedShared = useRef(false);
   useEffect(() => {
     if (openedShared.current) return;
