@@ -488,3 +488,10 @@ node scripts/check-rail-share.mjs
 # native sheet before touching the clipboard: reversing those two lines is the
 # v4.06 iOS bug, and it only reproduces on a real phone.
 node scripts/check-guide-share.mjs
+
+# v8.23.2 — the rail must LOOK different at different hours. The engine was
+# always correct (clock, bands, 15 of 17 rails moving) and the feature was still
+# invisible, because "season" held index 0 in all four bands and a phone shows
+# ~1.3 tiles. This asserts the perceivable property — the first tile — and that
+# each band's rendered "why" names the card it actually leads with.
+node scripts/check-daypart-rotation.mjs

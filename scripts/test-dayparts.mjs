@@ -1,11 +1,18 @@
 import { DAYPARTS, DAYPART_IDS, BAND_TO_BUCKET, partForHour, orderFor, orderForHour, regionFor, metroFor, cityFor, railHref, LEGACY_HERO_EVENT } from '../lib/dayparts.js';
 import { BEACH_METROS } from '../lib/beaches.js';
+import { RAIL_IDS } from '../lib/rails.js';
 import { bucketForHour, BUCKET_EDGES, siteHourFloat } from '../lib/nowContext.js';
 let pass=0, fail=0;
 const ok=(c,m)=>{c?pass++:(fail++,console.log('  FAIL:',m));};
 const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),`${m}\n    got ${JSON.stringify(a)}\n    want ${JSON.stringify(b)}`);
 
-const ALL=['trending','best','eat','break','today','gems','locals','tonight','drive','events','beach','family','datenight','season','blog'];
+// v8.23.2 — 'breakfast' and 'birthday' JOINED THE RAILS IN v8.15 and were never
+// added to this fixture, so every ordering assertion below spent four days
+// running against a rail set two short of production. The five-item snapshots
+// kept passing precisely BECAUSE the missing rails could not appear in them —
+// the fixture hid the very change it should have caught. Derived from RAILS now,
+// so a new rail can never again be silently excluded from its own test.
+const ALL=RAIL_IDS.slice();
 
 // ── partForHour: every hour of the day, including the wrap
 for(let h=0;h<24;h++){
@@ -34,13 +41,28 @@ for(const p of DAYPART_IDS){
   eq(o.length,ALL.length,`${p}: every rail renders`);
   eq([...new Set(o)].length,o.length,`${p}: no duplicates`);
   eq([...o].sort(),[...ALL].sort(),`${p}: same set as input`);
-  eq(o[0],'season',`${p}: Summer Picks leads`);
+  // v8.23.2 — WAS eq(o[0],'season'). Owner, 2026-08-19: "the placement of the
+  // cards are not getting updated based on the time of day, can you check to see
+  // if it is broken?" It was not broken; it was invisible. Season led all four
+  // bands and a phone shows ~1.3 tiles, so the pinned leader WAS the rail as far
+  // as a phone reader could tell. The band's own axis leads now.
+  eq(o[0],DAYPARTS[p].order[0],`${p}: leads with its own axis, not one pinned card`);
+  ok(o[0]!=='season',`${p}: Summer Picks must not lead — it eats the only tile a phone shows`);
+  eq(o.indexOf('season'),2,`${p}: Summer Picks holds third`);
   ok(o.indexOf('trending')<3,`${p}: Trending in the top 3 (is #${o.indexOf('trending')+1})`);
 }
 // the specific calls Gabe made
-eq(orderFor('morning',ALL).slice(0,5),['season','today','trending','eat','best'],'morning top 5');
-eq(orderFor('lunch',ALL).slice(0,5),['season','eat','trending','break','best'],'lunch: Eat ahead of Break');
-eq(orderFor('night',ALL).slice(0,5),['season','tonight','trending','eat','datenight'],'night: Eat ahead of Events');
+// The owner's standing calls, re-expressed as RELATIONS rather than as five-item
+// snapshots. A positional snapshot is what let v8.15's two new rails slip past
+// this file; a relation survives an insertion.
+eq(orderFor('morning',ALL)[0],'breakfast','morning: breakfast leads (v8.15 — it IS the morning question)');
+eq(orderFor('lunch',ALL)[0],'eat','lunch: food leads');
+eq(orderFor('afternoon',ALL)[0],'today','afternoon: the day leads');
+eq(orderFor('night',ALL)[0],'tonight','night: tonight leads');
+ok(orderFor('lunch',ALL).indexOf('eat')<orderFor('lunch',ALL).indexOf('break'),'lunch: Eat ahead of Break');
+ok(orderFor('night',ALL).indexOf('eat')<orderFor('night',ALL).indexOf('events'),'night: Eat ahead of Events');
+{ const leaders=DAYPART_IDS.map(p=>orderFor(p,ALL)[0]);
+  eq([...new Set(leaders)].length,DAYPART_IDS.length,'every band leads with a DIFFERENT card (the v8.23.2 property)'); }
 ok(orderFor('night',ALL).indexOf('break')>10,'night: Break parked at the back');
 ok(orderFor('morning',ALL).indexOf('events')>10,'morning: Events parked at the back');
 
@@ -50,7 +72,7 @@ eq(orderFor('morning',[]),[],'empty rail set -> empty');
 eq(orderFor('morning',['eat','zzz']),['eat','zzz'],'unknown ids kept, known ones prioritised');
 eq(orderFor('morning',['zzz']),['zzz'],'a rail not in any priority list still renders');
 ok(!orderFor('morning',['eat']).includes('today'),'never invents a rail that does not exist');
-eq(orderForHour(19,ALL)[1],'tonight','orderForHour composes');
+eq(orderForHour(19,ALL)[0],'tonight','orderForHour composes (19:00 is night, and night leads with tonight)');
 
 // ── regionFor
 eq(regionFor(28.5383,-81.3792),'orlando','downtown Orlando');
