@@ -429,3 +429,6 @@ node scripts/test-session-map-parity.mjs
 node scripts/test-partner-geo.mjs
 node scripts/check-sitemap.mjs
 node scripts/check-one-main.mjs
+
+# v8.14 — the card contract CSS must travel with every IconicPlaceCard surface (the unstyled-/guides bug)
+node scripts/check-place-card-css-contract.mjs

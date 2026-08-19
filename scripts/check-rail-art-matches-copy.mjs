@@ -63,12 +63,19 @@ const PAIRS = {
   // and renders no tile until it is redrawn.
   beach: { copy: "bc2e671d898c25b0", art: "10af9b34c86feb0b" },
   best: { copy: "2bc35a61dc8196e8", art: "b43ed06222224c16" },
+  // v8.16 (owner, 2026-08-19: "when I give you a card for the amazon rail use
+  // it EXACTLY as I provided it"): the v8.15 tiles were REDRAWN flat mocks of
+  // the owner's posters. Replaced with the owner's own artwork, byte-derived
+  // from the provided PNGs (941x1672 -> 760x1350, a 1px edge trim, zero
+  // redraw). Pixels re-verified by eye: birthday reads "BIRTHDAY PLANS,
+  // SOLVED." on the celadon T-rex poster, breakfast "BEST BREAKFAST PICKS."
+  // on the yellow coffee poster — both match the rail copy.
   // v8.15 (2026-08-18) — pixels verified by eye at pin time: the birthday tile
   // reads "BIRTHDAY PLANS, SOLVED. / Make their birthday worth remembering.",
   // the breakfast tile "BEST BREAKFAST PICKS. / HANDPICKED. LOCAL. WORTH
   // WAKING UP FOR." — both match the rail copy they were drawn for.
-  birthday: { copy: "e30656dbabf938e6", art: "f815a560907c024c" },
-  breakfast: { copy: "357ed5dfa8609429", art: "f353ccf42a91c772" },
+  birthday: { copy: "e30656dbabf938e6", art: "c62ecd24477ae8d3" },
+  breakfast: { copy: "357ed5dfa8609429", art: "502233352f9fc2aa" },
   blog: { copy: "390c7f9cbf645d12", art: "3af2ada7cdef7446" },
   break: { copy: "8da3d9103f225a40", art: "23219929258396e1" },
   datenight: { copy: "0aca4828b3f1fdfd", art: "022cf3872de7c9a9" },

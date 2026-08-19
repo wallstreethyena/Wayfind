@@ -262,7 +262,11 @@ function _viatorCityParams(cityQ, center) {
     + (dest ? "&destId=" + encodeURIComponent(dest) : "")
     + (lat != null && lng != null ? "&lat=" + encodeURIComponent(lat) + "&lng=" + encodeURIComponent(lng) : "");
 }
-const BUILD_ID = "v6.71";
+// v8.14: BUMP THIS WITH EVERY RELEASE. It sat at v6.71 through all of v7.x
+// and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
+// that either moved — and the owner used the footer label to judge whether
+// production was stale. A version label that never changes is disinformation.
+const BUILD_ID = "v8.16";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -3645,6 +3649,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // (results rendered or a place opened) — the giveaway never fires before
   // it, and never in the same session as onboarding.
   const dialogOpenRef = useRef(false);
+  // v8.14: true only when /p/{id} was entered from a same-origin /guides/
+  // page; consumed by the detail-close popstate handler to return the reader
+  // to the blog. See the deep-link effect for the write.
+  const guideReturnRef = useRef(false);
   const claimInterrupt = (kind) => {
     try {
       if (dialogOpenRef.current) return false;
@@ -6162,6 +6170,19 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   useEffect(() => {
     let params;
     try { params = new URLSearchParams(window.location.search); } catch { return; }
+    // v8.14 (owner: a blog reader who taps a place card must be able to
+    // "close and go back to the blog"). When /p/{id} was entered FROM one of
+    // our own guide pages, remember it — the detail-close popstate handler
+    // below consumes this once and backs the reader out to the guide instead
+    // of stranding them on the app shell they never chose to visit. Referrer
+    // only, same-origin only, guides only: any other entry (share link, SERP,
+    // direct) behaves exactly as before.
+    try {
+      if (initialPlaceId && document.referrer) {
+        const ref = new URL(document.referrer);
+        if (ref.origin === window.location.origin && ref.pathname.startsWith("/guides/")) guideReturnRef.current = true;
+      }
+    } catch (e) {}
     const listStr = params.get("list");
     const pathId = (window.location.pathname.match(/^\/p\/([^/]+)/) || [])[1];
     const placeId = params.get("place") || initialPlaceId || (pathId ? decodeURIComponent(pathId) : null);
@@ -7286,7 +7307,17 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // Same path is kept (including /p/{id}). Back closes the overlay; the
     // address bar does not collapse to "/".
     window.history.pushState({ wf: "detail" }, "");
-    const onPop = () => setDetail(null);
+    const onPop = () => {
+      setDetail(null);
+      // v8.14: the reader arrived from one of our guide pages and this is the
+      // first detail close — take them BACK TO THE BLOG (one more history
+      // step) instead of leaving them on the app shell. Consumed once, so
+      // everything the user does after choosing to stay behaves as before.
+      if (guideReturnRef.current) {
+        guideReturnRef.current = false;
+        try { window.history.back(); } catch (e) {}
+      }
+    };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
     // eslint-disable-next-line react-hooks/exhaustive-deps

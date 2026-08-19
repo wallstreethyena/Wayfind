@@ -91,12 +91,10 @@ async function inventorySocial(placeName) {
 // a named place is the trust bug from the audit, so a pick we cannot resolve
 // gets no card rather than a stock photo. Same >=15 review floor as the social
 // path — below that a rating is noise.
-async function inventoryPlace(placeName) {
+async function inventoryPlaceByStem(stem, near) {
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
   const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
-  if (!url || !anon) return null;
-  const stem = String(placeName || "").split(/[—,(]/)[0].trim().slice(0, 40);
-  if (!stem) return null;
+  if (!url || !anon || !stem) return null;
   try {
     const r = await fetch(
       `${url}/rest/v1/wf_inventory?select=place_id,name,lat,lng,primary_type,google_types,signals,photo_ref,editorial&status=eq.OPERATIONAL&name=ilike.${encodeURIComponent("%" + stem + "%")}&limit=5`,
@@ -109,6 +107,18 @@ async function inventoryPlace(placeName) {
       const rating = Number(row && row.signals && row.signals.rating);
       const reviews = Number(row && row.signals && row.signals.reviews);
       if (!(rating > 0 && reviews >= 15)) continue;
+      // GEO GATE (v8.14). Name-only ilike is how the Columbia trap happens —
+      // "Columbia" matches Sarasota AND Celebration, and a guide caches its
+      // resolution for an hour, so a wrong-city card is served to everyone.
+      // When the guide's region has known coordinates, a match farther than
+      // ~80mi (beyond any day-trip radius a guide would write about) is
+      // rejected rather than rendered. No coords for the region → no gate,
+      // same as before.
+      if (near && Number.isFinite(Number(row.lat)) && Number.isFinite(Number(row.lng))) {
+        const dLat = (Number(row.lat) - near.lat) * 69;
+        const dLng = (Number(row.lng) - near.lng) * 69 * Math.cos((near.lat * Math.PI) / 180);
+        if (Math.sqrt(dLat * dLat + dLng * dLng) > 80) continue;
+      }
       return {
         id: row.place_id,
         name: row.name,
@@ -125,7 +135,49 @@ async function inventoryPlace(placeName) {
   } catch (e) { return null; }
 }
 
+// v8.14 (owner: "i want every single blog to have our iconic place card
+// whenever we are recommending a place"). A pick's `name` is an editorial
+// TITLE ("The mangrove shoreline trail"), so resolving on it alone left whole
+// guides card-less — De Soto rendered zero cards while recommending three
+// real, in-inventory places. The pick's `appQuery` is the actual place name
+// (it exists precisely to name the POI for the app handoff), so it is the
+// stronger candidate. Candidates run in order, most-specific first; the
+// appQuery is progressively shortened from the right (min 2 words, ≥6 chars)
+// because authors suffix regions ("Bean Point Beach Anna Maria") that the
+// inventory row's name does not contain. First confirmed match wins; nothing
+// resolving still means no card — never a stock photo under a named place.
+async function inventoryPlace(pick, near) {
+  if (!pick) return null;
+  const seen = new Set();
+  const candidates = [];
+  const push = (s) => {
+    const v = String(s || "").trim().slice(0, 60);
+    if (v && v.length >= 6 && !seen.has(v.toLowerCase())) { seen.add(v.toLowerCase()); candidates.push(v); }
+  };
+  push(String(pick.name || "").split(/[—,(]/)[0]);
+  const aq = String(pick.appQuery || "").split(/[—,(]/)[0].trim();
+  if (aq) {
+    const words = aq.split(/\s+/);
+    for (let n = words.length; n >= 2; n--) push(words.slice(0, n).join(" "));
+    if (words.length === 1) push(aq);
+  }
+  for (const stem of candidates) {
+    const hit = await inventoryPlaceByStem(stem, near);
+    if (hit) return hit;
+  }
+  return null;
+}
+
 import GuidePlaceCard from "../../components/GuidePlaceCard";
+// v8.14 — THE CARD CONTRACT'S CSS. IconicPlaceCard renders class names
+// (.wf-place-card and friends) whose rules live in WF_PLACE_CARD_CSS, and
+// this page never injected them — so every guide shipped the iconic card as
+// raw unstyled HTML: the like/dislike SVGs (no width attribute; sized by CSS)
+// exploded to viewport width in default link-blue, and the card body rendered
+// as a bare text stack. home.js, /v8 and RankedExperiencePage all inject this
+// alongside the component; guides now do the same. Locked by
+// scripts/check-place-card-css-contract.mjs.
+import { WF_PLACE_CARD_CSS } from "../../components/css";
 import DiscoveryPaths from "../../components/DiscoveryPaths";
 import OpenAppCTA from "../../components/OpenAppCTA.js";
 import PremiumIntentHero from "../../components/PremiumIntentHero";
@@ -269,7 +321,24 @@ export default async function GuidePage({ params }) {
   const nowCtx = nowContext({ city: g.region, weather: wx });
   // Resolved once per render, in parallel — each is an independent ilike and
   // they all share the 1h revalidate, so this costs one round of cached reads.
-  const pickPlaces = await Promise.all((g.picks || []).map((p) => inventoryPlace(p && p.name)));
+  const regionSlugForGeo = String(g.region || "Orlando").toLowerCase().replace(/\s+/g, "-");
+  const regionCoords = LANDING_CITIES[regionSlugForGeo]
+    ? { lat: LANDING_CITIES[regionSlugForGeo].lat, lng: LANDING_CITIES[regionSlugForGeo].lng }
+    : null;
+  const pickPlaces = await Promise.all((g.picks || []).map((p) => inventoryPlace(p, regionCoords)));
+  // DEDUPE (v8.14): two picks in one guide can legitimately resolve to the
+  // same place (De Soto's trail + living-history picks are both the memorial).
+  // The FIRST pick keeps the card; later duplicates keep their text block and
+  // "Open in Wayfind" link — two identical cards on one page reads as a bug.
+  {
+    const rendered = new Set();
+    for (let i = 0; i < pickPlaces.length; i++) {
+      const rp = pickPlaces[i];
+      if (!rp || !rp.id) continue;
+      if (rendered.has(rp.id)) pickPlaces[i] = null;
+      else rendered.add(rp.id);
+    }
+  }
   const nowResult = guidePicksForNow(g.picks, nowCtx);
   const nowHeadline = guideNowHeadline(nowCtx, g.region, nowResult);
   const nowExplainer = guideNowExplainer(nowResult, (g.picks || []).length);
@@ -495,7 +564,14 @@ export default async function GuidePage({ params }) {
           .wf-guide-pick p{font-size:14px!important;line-height:1.5!important;margin-bottom:10px!important}
           .wf-guide-pick .wf-guide-tip{font-size:13px!important;margin:6px 0 2px!important}
           .wf-guide-actions a{margin:7px 0 0!important;padding:8px 13px!important;font-size:12.5px!important}
+          /* v8.14: at phone width the pick grid's number gutter (35px column
+             + 11px gap) squeezes the iconic card until the Share button clips.
+             The slot is NOT a direct grid child (it lives inside the text
+             column's div), so it breaks out with a negative margin equal to
+             the gutter; the text above keeps its indent. */
+          .wf-guide-card-slot{margin-left:-46px!important}
         }
+        ${WF_PLACE_CARD_CSS}
       ` }} />
       {faqLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} /> : null}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: g.title, description: g.description, datePublished: g.updated || "2026-06-01", dateModified: g.updated || "2026-06-01", author: { "@type": "Person", name: "Gabriel Pereira", url: SITE_URL + "/about" }, publisher: { "@type": "Organization", name: "WAYFIND LLC", logo: { "@type": "ImageObject", url: SITE_URL + "/icon-512.png" } }, mainEntityOfPage: SITE_URL + "/guides/" + params.slug }) }} />
@@ -627,9 +703,11 @@ export default async function GuidePage({ params }) {
                   A pick that did not resolve keeps the text block above and
                   gets NO card — never a stock photo under a named place. */}
               {resolved ? (
-                <div style={{ margin: "14px 0 4px" }}>
+                // IconicPlaceCard renders an <li>; give it a real list parent
+                // so the HTML stays valid (crawlers parse these pages raw).
+                <ul className="wf-guide-card-slot" style={{ listStyle: "none", margin: "14px 0 4px", padding: 0 }}>
                   <GuidePlaceCard place={resolved} rank={i + 1} editorial={pick.blurb || null} />
-                </div>
+                </ul>
               ) : null}
               <div className="wf-guide-actions">
                 {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name)} style={{ ...S.btnGhost, marginLeft: 0 }}>Open in Wayfind</a> : null}
