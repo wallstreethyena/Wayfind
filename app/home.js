@@ -3752,6 +3752,30 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       else { openExperience(k); }
     } catch (e) {} }, 400); sp.delete("exp"); const qs = sp.toString(); window.history.replaceState({}, "", window.location.pathname + (qs ? "?" + qs : "")); }
   } catch (e) {} }, []);
+  // v8.23 — A SHARED RAIL CARD LANDS HERE. /r/<rail> unfurls with the card's
+  // own artwork and then hands the reader to /?rail=<id> (app/r/[rail]/page.js
+  // + app/ShareRedirect.js, the same shape /l/[key] already uses). The rail
+  // opens its own drop, and the reader's geolocation re-ranks every card in it
+  // through the path that already exists — DaypartRail's center effect ->
+  // /api/rails?lat&lng. That is the whole of "see the items based on their
+  // current location": no second location stack, no duplicated homepage.
+  //
+  // Validated against RAILS before it is trusted: ?rail= is attacker-writable
+  // and an unknown id must open nothing rather than put the menu in a state no
+  // tile corresponds to.
+  const [initialRail, setInitialRail] = useState(null);
+  const _railLinked = useRef(false);
+  useEffect(() => { try {
+    if (_railLinked.current) return; _railLinked.current = true;
+    const sp = new URLSearchParams(window.location.search);
+    const k = sp.get("rail");
+    if (!k || !RAILS.some((r) => r.id === k)) return;
+    setInitialRail(k);
+    try { logEvent("share_open", null, { kind: "rail", rail_id: k }); } catch (e) {}
+    sp.delete("rail");
+    const qs = sp.toString();
+    window.history.replaceState({}, "", window.location.pathname + (qs ? "?" + qs : ""));
+  } catch (e) {} }, []);
   const [moodPick, setMoodPick] = useState(null);   // last category tapped, drives the orange highlight
   const [browseCat, setBrowseCat] = useState(null); // v6.22: category tapped in the mood menu browses IN PLACE on the home feed. No navigation, the feed updates under the weather and the sub-menu slides down.
   const [sub, setSub] = useState("all");
@@ -8604,6 +8628,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // lands exactly where they were: rail still open, scroll intact.
         // (The owner's "everything is gone when I go back" bug.)
         onOpenPlace={(p) => { try { openDetail(p, "rail_menu"); } catch (er) {} }}
+        initialRail={initialRail}
+        // v8.23 — the rail card's share goes through THE share function, not a
+        // second one. shareLink() already solves the ordering that makes this
+        // work on iOS (the native sheet must be the first activation-consuming
+        // call in the tap — v4.07), prefers the Capacitor sheet inside the app
+        // shell, and falls back to the clipboard everywhere else.
+        //
+        // It returns TRUE when a sheet opened. Deliberately NO onCopied toast
+        // here: the card shows "Link copied" on itself, which is both more
+        // located and stops the two toasts this had in its first draft.
+        onShareRail={(intent) => {
+          try { return shareLink(intent.title, intent.url, null, intent.text); }
+          catch (e) { return false; }
+        }}
       />
     </div>
   ) : null;

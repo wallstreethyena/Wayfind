@@ -59,6 +59,11 @@ import { DAYPARTS, partForHour, orderFor, railHref, LEGACY_HERO_EVENT } from "..
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES } from "../../lib/rails.js";
 import { emptyRailLive, liveFromRailsResponse } from "../../lib/locationHonesty.js";
+// v8.23 — the share intent (url, title, message body) is resolved in one pure
+// module so the tile never builds a link string of its own, and so a share
+// created on a dev server or a preview deploy still carries the production host
+// (lib/site.js canonicalShareUrl — the "it previewed as localhost" bug).
+import { railShareIntent } from "../../lib/railShare.js";
 // v8.10 (owner, 2026-08-18: "there is no explanation of what the place is").
 // The ONE editorial resolver every place surface uses (#687 pattern) — known-for
 // research first, pool-cached blurb second, both fail-soft, no model in the
@@ -67,6 +72,16 @@ import { emptyRailLive, liveFromRailsResponse } from "../../lib/locationHonesty.
 import useEditorialHooks from "./useEditorialHooks";
 import { toHookLine } from "../../lib/editorialHook";
 import { formatBeachChipBits, waterQualityKey, WATER_TONE, WATER_PLAIN_LONG } from "../../lib/beachChip.js";
+
+// Same drawing as the share control everywhere else in the app (app/home.js
+// HookSolo, IconicPlaceCard) so a share is one glyph in this product rather
+// than three that almost match.
+const ShareGlyph = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+    strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" />
+  </svg>
+);
 
 const Chevron = ({ dir }) => (
   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2"
@@ -139,6 +154,21 @@ export default function DaypartRail({
   // fallback), exactly like every other in-app card. Nullable for the /v8
   // preview route, which keeps the navigation behavior.
   onOpenPlace = null,
+  // v8.23 — SHARE. The tile hands an intent up rather than opening a sheet
+  // itself, because app/home.js already owns the hard part: on iOS a clipboard
+  // write consumes the tap's transient user activation, so the native sheet has
+  // to be the FIRST activation-consuming call in the handler (shareLink, v4.07).
+  // A second implementation here would be a second thing to get wrong.
+  //
+  // The handler returns TRUE when a native sheet actually opened. False means
+  // the link was only copied — and that is exactly when this card has to say so
+  // itself, because on a desktop nothing else visibly happens.
+  onShareRail = null,
+  // v8.23 — a shared card lands as /?rail=<id> (see app/r/[rail]/page.js) and
+  // opens its own drop. That is what makes the share honest: the recipient sees
+  // THIS rail's picks, and the center effect above re-ranks every one of them
+  // from their own location the moment geolocation resolves.
+  initialRail = null,
 }) {
   const [daypart, setDaypart] = useState(initialDaypart);
   // THE RAIL FOLLOWS THE READER. Server props are the flagship metro's ranking
@@ -241,6 +271,45 @@ export default function DaypartRail({
   }, [railById, daypart, shown, order]);
 
   const close = useCallback(() => setSelected(null), []);
+
+  // Which tile is currently saying "Link copied". One at a time, cleared on a
+  // timer that matches the wf8Said animation — a toast that outlives its own
+  // fade is a toast that looks stuck.
+  const [said, setSaid] = useState(null);
+  useEffect(() => {
+    if (!said) return undefined;
+    const t = setTimeout(() => setSaid(null), 2400);
+    return () => clearTimeout(t);
+  }, [said]);
+
+  const share = useCallback((r) => {
+    if (!r) return;
+    const intent = railShareIntent(r.id);
+    if (!intent) return;
+    logEvent("rail_share", {
+      rail_id: r.id, rail_title: r.title, daypart,
+      region: shown.region, city: shown.citySlug,
+      open: selected === r.id, src: "rail_tile",
+    });
+    let native = false;
+    try { native = onShareRail ? onShareRail(intent) === true : false; } catch (e) { native = false; }
+    if (native) return;
+    // /v8 mounts this component without the prop. Rather than have the button
+    // do nothing there, copy the link directly — a share that quietly fails is
+    // worse than one that only half-works.
+    if (!onShareRail && typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
+      try { navigator.clipboard.writeText(intent.url); } catch (e) {}
+    }
+    setSaid(r.id);
+  }, [onShareRail, daypart, shown, selected]);
+
+  const openedShared = useRef(false);
+  useEffect(() => {
+    if (openedShared.current) return;
+    if (!initialRail || !railById.has(initialRail)) return;
+    openedShared.current = true;
+    open(initialRail, "share_link");
+  }, [initialRail, railById, open]);
 
   // Park the band under the sticky header so the drop lands in the eye.
   useEffect(() => {
@@ -397,29 +466,39 @@ export default function DaypartRail({
                       />
                     </picture>
                 );
-                if (href) {
-                  return (
-                    <a
-                      key={id}
-                      className={tileClass}
-                      href={href}
-                      data-id={id}
-                      aria-label={`${r.title} — ${r.short}`}
-                      style={{ background: railTint(id) }}
-                      onClick={(e) => tileClick(e, id)}
-                    >{art}</a>
-                  );
-                }
+                const label = `${r.title} — ${r.short}`;
+                // THE TILE IS THE BOX; THE LINK INSIDE IT IS THE DESTINATION.
+                // Split in v8.23 because the share control is a real <button>,
+                // and a <button> inside an <a> is a nested interactive — the
+                // contract test-card-a11y.mjs and check-collection-look.mjs
+                // both pin elsewhere in this codebase.
+                //
+                // .wf8-tile keeps EVERYTHING the rest of the system measures it
+                // by: the reserved box (test-first-screen reads the width/height
+                // rule out of railMenuCss), data-id, .is-sel, the snap point,
+                // and — the one that would have failed silently — its
+                // offsetLeft, which the centering effect below arithmetics on.
+                // Had the link become the flex item, offsetLeft would be 0 and
+                // every selected card would centre on the track's left edge.
                 return (
-                  <button
+                  <div
                     key={id}
-                    type="button"
                     className={tileClass}
                     data-id={id}
-                    aria-label={`${r.title} — ${r.short}`}
                     style={{ background: railTint(id) }}
-                    onClick={(e) => tileClick(e, id)}
-                  >{art}</button>
+                  >
+                    {href
+                      ? <a className="wf8-tlink" href={href} aria-label={label} onClick={(e) => tileClick(e, id)}>{art}</a>
+                      : <button type="button" className="wf8-tlink" aria-label={label} onClick={(e) => tileClick(e, id)}>{art}</button>}
+                    <button
+                      type="button"
+                      className="wf8-tshare"
+                      aria-label={`Share ${r.title}`}
+                      title={`Share ${r.title}`}
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); share(r); }}
+                    ><ShareGlyph /></button>
+                    {said === id ? <span className="wf8-tsaid" role="status">Link copied</span> : null}
+                  </div>
                 );
               })}
             </div>

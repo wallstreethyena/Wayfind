@@ -102,7 +102,15 @@ ok(/const railMenuBand = railMenu \? \(/.test(code),
     // Places search result) is exactly the 6.4-second regression this file
     // exists for, and it is still caught: it is not an on* handler and it is
     // not in this list.
-    const NON_CONTENT = new Set(["center", "isSaved", "isOnTrip"]);
+    // v8.23 — initialRail joins them. It is a rail ID read SYNCHRONOUSLY from
+    // window.location.search in a mount effect (app/home.js, the ?rail= reader
+    // a shared card lands on): it fetches nothing, it renders nothing, and all
+    // it decides is which drop opens. The drop emits no HTML until a card is
+    // picked and is itself a next/dynamic ssr:false import, so this cannot gate
+    // first paint any more than center can. It is NOT content and it is not a
+    // handler, which is why it has to be named here rather than slipping
+    // through the on* pattern.
+    const NON_CONTENT = new Set(["center", "isSaved", "isOnTrip", "initialRail"]);
     if (NON_CONTENT.has(name) || /^on[A-Z]/.test(name)) continue;
     ok(/^railMenu\.\w+$/.test(value) || value === "RAILS",
       `<DaypartRail ${name}={${value}}> — every rail prop must be server data (railMenu.*) or static metadata (RAILS); anything else makes the first screen wait on a fetch`);

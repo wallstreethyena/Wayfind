@@ -61,7 +61,14 @@ await mkdir(OUT, { recursive: true });
         root: !!root, daypart: root && root.dataset.daypart,
         tiles: tiles.length,
         tileIds: tiles.map(t => t.dataset.id),
-        hrefs: tiles.map(t => t.getAttribute('href')),
+        // v8.23: the href moved INSIDE the tile. .wf8-tile is still the box
+        // (and still the flex item the centering effect measures); the
+        // crawlable link is .wf8-tlink, because the share control beside it
+        // is a real <button> and a button inside an anchor is a nested
+        // interactive. Reading href off the tile now returns 17 nulls, which
+        // is a probe answering a question nobody is asking.
+        hrefs: tiles.map(t => { const a = t.querySelector('.wf8-tlink'); return a && a.getAttribute('href'); }),
+        shareButtons: document.querySelectorAll('.wf8-tile .wf8-tshare').length,
         tileImgs: document.querySelectorAll('.wf8-tile img.wf8-tim').length,
         // ONLY WHAT IS ON SCREEN. The rail carries loading="lazy" on every tile
         // past the eager head (DaypartRail.js), so an off-screen tile has

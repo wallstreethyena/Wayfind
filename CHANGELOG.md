@@ -1,3 +1,83 @@
+## v8.23 - The share button that was missing everywhere, and the deal registry 37 guides were never wired to
+- Owner, on the rail cards: "add a share button to these amazon rail cards ... when
+  it goes as a text message are we able to optimize the image to make it look like
+  the actual card? then whoever clicks on will go on the page and see all of the
+  items based on their current location?" Then, on a live guide: "why is it that
+  none of these blog has a share button ... i want a share button on all of them."
+  Then, on the same guide: "we definitely have an opportunity to add clipp coupons
+  in an article like this."
+- THE SHARE IMAGE IS AN EXCEPTION TO THE SHARE-CARD STANDARD, NARROWED RATHER THAN
+  DELETED. docs/share-card-standard.md has banned photography since v7.26, after a
+  "deleted" stock sunset photo turned out to be base64 inside lib/ogbg.js and after
+  two routes built "SITE_URL + null" — a fetch that dies AFTER the 200 headers are
+  streaming, yielding a zero-byte image the CDN then pins for a year. The rail
+  posters are not stock: the owner drew them, their headline is baked into their own
+  pixels, and a preview that redraws that headline in Archivo previews a DIFFERENT
+  object than the one the sender tapped. So exactly one image is now permitted, from
+  /cards-v8, resolved through lib/rails.js, and it reaches Satori as BYTES THE ROUTE
+  ALREADY FETCHED AND SNIFFED (FF D8 FF) rather than a URL Satori resolves
+  mid-render. That last clause is the entire safety argument, and it is asserted:
+  check-rail-share proves the fetch is awaited before any response is constructed
+  and that a miss falls back to the typographic card. Clause 8 of the standard now
+  states the exception; check-share-card still bans an <img> everywhere else and
+  permits exactly one, in one file, whose src is the model field.
+- 1200x630 WITH THE POSTER WHOLE. The posters are 760x1350 and every platform except
+  iMessage centre-crops a preview to about 1.91:1, which would cut the illustration
+  in half. The type beside it never repeats the artwork (the v8.1 rule): the picture
+  says what the collection is, and the one thing it cannot say — "Ranked from where
+  you are." — is the headline. /r/<rail> is what makes that true, handing the reader
+  to /?rail=<id> where the homepage's existing geolocation path re-ranks every card.
+- THE TILE SPLIT, AND THE SILENT FAILURE IT ALMOST CAUSED. A <button> inside an <a>
+  is a nested interactive, so .wf8-tile became the box and the crawlable link moved
+  inside as .wf8-tlink. .wf8-tile keeps its reserved geometry, touch-action, snap
+  point, data-id, .is-sel — and its offsetLeft, which the v8.22 centering effect does
+  arithmetic on. Had the link become the flex item instead, offsetLeft would read 0
+  and every selected card would centre itself on the track's left edge.
+- THE HOVER AND THE BIGGER CARD NEEDED THE TRACK FIXED FIRST. .wf8-track is
+  overflow-x:auto, which makes overflow-y compute to auto: anything that lifts or
+  scales past the padding box is CLIPPED, and 2px of top padding could not hold even
+  the 4px lift that was already there. Now 30/42, preserving the same 6px optical
+  centre the nav buttons are tuned to. The chosen card grows by SCALE, never width —
+  a width change reflows the track and moves every snap point under a scrolling thumb.
+- THE GUIDES HAD NO SHARE CONTROL AT ALL. 39 pages, ~46% of external entries (AUDIT
+  F2), every one a terminal page: a reader who wanted to send "23 Birthday Freebies
+  in Bradenton" to the person whose birthday it is had to select the address bar.
+  Two controls now, on every guide, unconditionally — the hero catches a reader who
+  already knew, the end-of-article one catches the far larger group who only know
+  after reading, and it sits after GuideConversion so the monetized CTA keeps first
+  position. lib/shareOut.js is the behaviour for pages outside the app shell, which
+  cannot reach app/home.js's shareLink(); check-guide-share pins the one thing the
+  two copies must agree on — the native sheet is attempted BEFORE the clipboard,
+  because on iOS a clipboard write consumes the tap's activation and the sheet is
+  then refused (the v4.06 bug).
+- THE CLIPP GAP WAS A WIRING GAP, NOT A MISSING FEATURE. app/guides/[slug]/page.js
+  rendered deal cards from g.dealCards — a hand-typed array of registry ids. Two
+  guides out of thirty-nine had one. So thirty-seven pages showed no local offers
+  over a registry holding twenty-one live rows in the Bradenton market alone,
+  including the Clipp half-price dining certificates for that exact city. An
+  editorial step was standing where a resolver belonged. lib/guideDeals.js resolves
+  a guide's own market and classified intent against the registry: 24 guides now
+  resolve 65 cards with no hand-typed ids, hand-declared lists are returned verbatim
+  and never reordered, an unmapped market (Key West) resolves NOTHING rather than the
+  nearest city's offers, one card per merchant, and expired rows are dropped — most
+  of the Bradenton Clipp certificates lapsed on 2026-08-17, so a stale week renders
+  fewer cards rather than a dead one.
+- ROOT-CAUSE FIX FOUND ON THE WAY: ctaFrom() sized the share-card CTA pill by a
+  22-CHARACTER SLICE with no width awareness. "Show me what's worth it" is 23
+  characters, so the drive rail's pill rendered "SHOW ME WHAT'S WORTH I" — a word cut
+  mid-letter, past a green build. That is the same mistake lib/shareCard.js's own
+  header rails against, never applied to the pill. fitCta() now measures against the
+  real Archivo advances and drops whole words, never an ellipsis (the Latin subset
+  already gave us one tofu box, for U+2605), and check-share-card asserts that no
+  first-party CTA is trimmed at all.
+- AND ONE THE NEW GUARD FOUND: railPosterUrl() checked its directory prefix BEFORE
+  URL normalisation, so "/cards-v8/../../etc/passwd" passed the test and then
+  resolved outside it. Not reachable — every basename comes from RAILS, in this repo
+  — but "the input is trusted" is a property of today's callers, not of the function.
+  It now re-checks the resolved pathname.
+- Guards: check-rail-share (786 assertions), check-guide-share (30), and
+  check-guide-deal-cards extended to the auto-resolved set (617). 362/362 green.
+
 ## v6.66 - The perfect-score flame reaches the surfaces that print a bare number
 - Owner, on seeing the 10.0 chip on a tour card: "i like this, can you find more
   places to put this in the website?"

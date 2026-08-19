@@ -476,3 +476,15 @@ node scripts/test-datenight-tag.mjs
 # unreferenced by any non-comment source line, with a positive control so an
 # empty scan can never read as clean. Bans are additive-only.
 node scripts/check-banned-art.mjs
+
+# v8.23 — the rail card's share loop: every poster exists, the bytes are fetched
+# and sniffed BEFORE any header is written (the "gowayfind.comnull" class of
+# bug), no shared link can carry a dev host, and the share control is a sibling
+# of the tile's link rather than a button nested inside an anchor.
+node scripts/check-rail-share.mjs
+
+# v8.23 — every guide can be shared (39 pages, ~46% of external entries, and
+# not one share control before this), and BOTH share implementations open the
+# native sheet before touching the clipboard: reversing those two lines is the
+# v4.06 iOS bug, and it only reproduces on a real phone.
+node scripts/check-guide-share.mjs

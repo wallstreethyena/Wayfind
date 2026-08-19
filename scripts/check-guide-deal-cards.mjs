@@ -15,6 +15,7 @@ import { GUIDES } from "../lib/guides.js";
 import { COUPONS, couponIsLive } from "../lib/coupons.js";
 import { guidePrimaryCta } from "../lib/guideCta.js";
 import { siteTodayStr } from "../lib/siteTime.js";
+import { GUIDE_DEAL_MAX, areasForRegion, guideDealIds } from "../lib/guideDeals.js";
 
 let n = 0, bad = 0;
 const ok = (cond, msg) => { n++; if (!cond) { bad++; console.error("  - " + msg); } };
@@ -112,6 +113,57 @@ ok(/url:\s*c\.url/.test(pageCode), "page.js does not pass the registry url throu
 ok(/inventorySocial\(/.test(pageCode), "social proof no longer consults our own inventory");
 ok(pageCode.indexOf("inventorySocial(primaryCta.place)") < pageCode.indexOf("rankedFor(\"things-to-do\""),
   "inventory must be consulted BEFORE rankedFor — rankedFor cannot answer during next build");
+
+// ── v8.23: THE SET NOBODY TYPED IN ─────────────────────────────────────────
+// Until v8.23 this guard only ever looked at guides with a hand-declared
+// dealCards array — two of thirty-nine — so the other thirty-seven were not
+// "passing", they were unexamined, and the reason they rendered no offers was
+// invisible to every check in the suite. lib/guideDeals.js now resolves them
+// from the registry, which means the resolver is a money surface and gets the
+// same treatment as the hand-written lists: resolved, executed, asserted.
+{
+  let autoGuides = 0, autoCards = 0;
+  for (const [slug, g] of Object.entries(GUIDES)) {
+    const ids = guideDealIds(g, today);
+    if (!Array.isArray(g.dealCards) || !g.dealCards.length) { if (ids.length) autoGuides++; autoCards += ids.length; }
+    // The cap governs the RESOLVER, not an editor. sarasota-half-price-dining
+    // declares five by hand and is entitled to: a guide whose whole subject is
+    // half-price dining is not "a choice wall" for listing five of them, and a
+    // guard that overruled that would be this file legislating editorial.
+    const auto = !(Array.isArray(g.dealCards) && g.dealCards.length);
+    ok(!auto || ids.length <= GUIDE_DEAL_MAX, `${slug}: the resolver returned ${ids.length} cards, over its ${GUIDE_DEAL_MAX} budget — this block sits above the one monetized CTA and must not become a choice wall`);
+    ok(new Set(ids).size === ids.length, `${slug}: the resolver returned a duplicate id`);
+    // AN EDITOR IS NEVER OVERRULED, in content or in order.
+    if (Array.isArray(g.dealCards) && g.dealCards.length) {
+      ok(ids.join("|") === g.dealCards.join("|"), `${slug}: hand-declared dealCards were reordered or replaced by the resolver`);
+    }
+    const areas = areasForRegion(g.region);
+    const rows = ids.map((id) => COUPONS.find((c) => c && c.id === id));
+    rows.forEach((c, i) => {
+      ok(!!c, `${slug}: resolved "${ids[i]}", which is not in the registry — it would render as nothing`);
+      if (!c) return;
+      ok(couponIsLive(c, today), `${slug}: resolved ${c.id}, which has expired — a promise we cannot keep`);
+      ok(areas.includes(String(c.area || "")), `${slug} (${g.region}): resolved ${c.id} from ${c.area}, outside its own market — "near you" has to stay true`);
+      ok(!!c.title && !!c.business && !!c.details && !!c.url, `${slug}/${c.id}: resolved a row missing a field the card paints`);
+      if (c.commerce) ok(String(c.url).startsWith("/api/commerce/go"), `${slug}/${c.id}: declares commerce but is not tracked — the click would earn nothing`);
+    });
+    const merchants = rows.filter(Boolean).map((c) => String(c.business || "").toLowerCase());
+    ok(new Set(merchants).size === merchants.length, `${slug}: two cards for the same merchant — that reads as an advert, not a shortlist`);
+    // DETERMINISM. Two calls in one build must agree, or a cached page and a
+    // regenerated one would show different offers for no explicable reason.
+    ok(guideDealIds(g, today).join("|") === ids.join("|"), `${slug}: the resolver is not deterministic`);
+  }
+  // GEOGRAPHY IS NOT STRETCHED. An unmapped market resolves NOTHING — showing a
+  // Key West reader a Tampa certificate is the failure this is guarding.
+  ok(guideDealIds({ region: "Key West" }, today).length === 0,
+     "an unmapped market must resolve no offers rather than the nearest city's");
+  ok(guideDealIds({ region: "" }, today).length === 0, "a guide with no region resolves nothing");
+  ok(guideDealIds(null, today).length === 0, "a null guide must not throw inside a page render");
+  // And the wiring is worth having: if this ever drops back to ~0 the resolver
+  // has been disconnected and every guide is silently back to no offers.
+  ok(autoGuides >= 15, `only ${autoGuides} guides resolve offers automatically — the resolver looks disconnected (it was 27 when it shipped)`);
+  console.log(`  · ${autoGuides} guides resolve ${autoCards} cards from the registry with no hand-typed ids`);
+}
 
 if (bad) { console.error(`\ncheck-guide-deal-cards: FAIL — ${bad}/${n} assertions`); process.exit(1); }
 console.log(`check-guide-deal-cards: OK — ${n} assertions (${optedIn.length} guide(s) opted in; every card registry-backed, live-gated, imaged from a real file, and tracked)`);

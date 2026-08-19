@@ -12,11 +12,17 @@
 // and every sentence the card is allowed to say come from lib/shareCard.js and
 // lib/shareCardCopy.js, where a guard can execute them.
 //
-// NO PHOTOGRAPHS. Not stock, not brand art, not a base64 blob, not a real place
-// photo. The direction the owner chose is typographic, and the moment one
-// surface reintroduces an <img> the set stops being one card again.
+// NO PHOTOGRAPHS — with ONE named exception, added v8.23 on the owner's
+// direction ("make it look like the actual card"). No stock, no brand art, no
+// hand-written base64 blob, no place photo. The only <img> this file may render
+// is the rail POSTER on the rail variant: first-party artwork the owner drew,
+// resolved from lib/rails.js, and handed to Satori as bytes the route already
+// fetched and sniffed rather than as a URL Satori resolves mid-stream. That
+// last clause is the whole safety argument — see lib/railShareCard.js for the
+// reasoning and scripts/check-rail-share.mjs for the assertions.
 import { ImageResponse } from "next/og";
 import { CARD, toneFor } from "../../../lib/shareCard.js";
+import { RAIL_CARD } from "../../../lib/railShareCard.js";
 
 const arch600 = fetch(new URL("./fonts/Archivo-600-Latin.ttf", import.meta.url)).then((r) => r.arrayBuffer());
 const arch700 = fetch(new URL("./fonts/Archivo-700-Latin.ttf", import.meta.url)).then((r) => r.arrayBuffer());
@@ -150,6 +156,76 @@ export function WayfindCard({ model }) {
   );
 }
 
+// ══ THE RAIL PLATE ══════════════════════════════════════════════════════════
+//
+// The owner's tile art, WHOLE, beside the one sentence the art cannot say.
+//
+// Portrait poster inside a landscape plate rather than a cropped full-bleed:
+// the posters are 760x1350 and every platform except iMessage centre-crops a
+// preview to about 1.91:1, which would cut the illustration in half. Placed
+// like this, nothing is cropped anywhere and the card reads as an object being
+// handed over.
+//
+// The plate wears the rail's OWN tint (lib/rails.js RAIL_TINT) — the same
+// gradient that paints behind the tile on the homepage before the art decodes —
+// so the preview and the card the sender tapped are visibly the same family.
+export function WayfindRailCard({ model }) {
+  const m = model || {};
+  const lines = Array.isArray(m.lines) ? m.lines : [];
+  const accent = Array.isArray(m.accent) ? m.accent : [];
+  const size = m.size || 64;
+  return (
+    <div style={{ width: RAIL_CARD.w, height: RAIL_CARD.h, display: "flex", position: "relative",
+      overflow: "hidden", backgroundColor: INK, backgroundImage: m.tint || "", fontFamily: "Archivo" }}>
+
+      {/* One warm field, drawn not photographed, so the plate has depth at full
+          size and costs nothing at thumbnail size. */}
+      <div style={{ position: "absolute", left: -180, top: 210, width: 900, height: 900, display: "flex",
+        background: "radial-gradient(circle, rgba(249,115,22,0.18) 0%, rgba(249,115,22,0) 66%)" }} />
+      <div style={{ position: "absolute", left: 0, top: 0, width: RAIL_CARD.w, height: RAIL_CARD.h, display: "flex",
+        background: "linear-gradient(90deg, rgba(4,8,16,0.55) 0%, rgba(4,8,16,0.10) 42%, rgba(4,8,16,0.62) 100%)" }} />
+
+      {/* THE POSTER. Rendered only when the route resolved real bytes — a null
+          here is a fallback that already happened upstream, never a broken
+          image inside a card somebody has already sent. */}
+      {m.poster ? (
+        <div style={{ position: "absolute", left: RAIL_CARD.posterX, top: RAIL_CARD.posterY,
+          width: RAIL_CARD.posterW, height: RAIL_CARD.posterH, display: "flex",
+          borderRadius: RAIL_CARD.posterRadius, overflow: "hidden",
+          border: "1px solid rgba(255,255,255,0.14)" }}>
+          <img src={m.poster} width={RAIL_CARD.posterW} height={RAIL_CARD.posterH}
+            style={{ objectFit: "cover", objectPosition: "50% 0%" }} />
+        </div>
+      ) : <div style={{ display: "flex" }} />}
+
+      <div style={{ position: "absolute", left: RAIL_CARD.colX, top: RAIL_CARD.markY, display: "flex" }}>
+        <Mark size={31} />
+      </div>
+
+      {/* Pre-broken and pre-fitted by railCardModel(); this only paints. */}
+      <div style={{ position: "absolute", left: RAIL_CARD.colX, top: m.top || RAIL_CARD.bandTop,
+        display: "flex", flexDirection: "column" }}>
+        {lines.map((l, i) => (
+          <div key={i} style={{ display: "flex", fontSize: size, fontWeight: 900,
+            lineHeight: RAIL_CARD.lead, letterSpacing: -Math.round(size * 0.037 * 10) / 10,
+            color: accent.indexOf(i) >= 0 ? ORANGE_TEXT : WHITE }}>{l}</div>
+        ))}
+      </div>
+
+      <div style={{ position: "absolute", left: RAIL_CARD.colX + 2, top: RAIL_CARD.ruleY, width: 96, height: 8,
+        borderRadius: 999, display: "flex", backgroundColor: ORANGE }} />
+
+      <div style={{ position: "absolute", left: RAIL_CARD.colX, top: RAIL_CARD.footY, display: "flex",
+        fontSize: 23, fontWeight: 600, color: MUTED }}>{m.foot}</div>
+
+      <div style={{ position: "absolute", left: RAIL_CARD.colX, top: RAIL_CARD.ctaY, display: "flex",
+        alignItems: "center", backgroundColor: ORANGE, borderRadius: 999, padding: "15px 30px" }}>
+        <div style={{ display: "flex", fontSize: 23, fontWeight: 900, color: "#0A0A0B", letterSpacing: 1.2 }}>{m.cta}</div>
+      </div>
+    </div>
+  );
+}
+
 // One response builder so every route gets the same fonts, the same size and
 // the same cache header. next/og appends an options `headers` entry AFTER its
 // own `immutable, max-age=31536000`, and immutable wins — so the header has to
@@ -157,7 +233,13 @@ export function WayfindCard({ model }) {
 export async function shareCardResponse(model, opts) {
   const o = opts || {};
   const [f6, f7, f9] = await Promise.all([arch600, arch700, arch900]);
-  const img = new ImageResponse(<WayfindCard model={model} />, {
+  // STILL EXACTLY ONE ImageResponse. The rail variant is a second PLATE, not a
+  // second renderer: same fonts, same 1200x630, same rebuilt Cache-Control. A
+  // route that constructed its own is how six surfaces drifted apart in v7.25.
+  const plate = model && model.variant === "rail"
+    ? <WayfindRailCard model={model} />
+    : <WayfindCard model={model} />;
+  const img = new ImageResponse(plate, {
     width: CARD.w, height: CARD.h,
     fonts: [
       { name: "Archivo", data: f6, weight: 600, style: "normal" },

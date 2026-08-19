@@ -17,6 +17,11 @@ import { bookingTargets } from "../../../lib/bookingResolve";
 import { guidePrimaryCta, guideContinue, guideIntent } from "../../../lib/guideCta";
 import GuideConversion from "./GuideConversion";
 import GuideDealCards from "./GuideDealCards";
+// v8.23 — the share control every guide was missing, and the resolver that
+// finally connects 39 guides to a 69-row deal registry they were never wired
+// to. See lib/guideDeals.js for why that gap existed.
+import ShareButton from "../../components/ShareButton";
+import { guideDealIds } from "../../../lib/guideDeals";
 import GuideEmailCapture from "./GuideEmailCapture";
 import { COUPONS, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 // Venue-local US Eastern, DST-aware. NEVER new Date().toISOString() — that is UTC
@@ -396,8 +401,24 @@ export default async function GuidePage({ params }) {
   let liveIndoor = [];
 
   const today = siteTodayStr();
+  // The canonical guide URL, built server-side from SITE_URL — the same string
+  // generateMetadata canonicalises to, so what gets shared and what gets
+  // indexed can never disagree.
+  const shareUrl = SITE_URL + "/guides/" + params.slug;
   const INTENT_CATEGORY = { eatnow: "dining", datenight: "dining", nightout: "drinks", familyfun: "games" };
-  const dealCards = (Array.isArray(g.dealCards) ? g.dealCards : [])
+  // v8.23 — WAS `Array.isArray(g.dealCards) ? g.dealCards : []`, which meant a
+  // guide showed local offers only if a human had typed their ids into
+  // lib/guides.js. Two guides out of thirty-nine ever got that treatment, so
+  // thirty-seven pages rendered no deals over a registry that had twenty-one
+  // live rows in the Bradenton market alone (owner: "we definitely have an
+  // opportunity to add clipp coupons in an article like this").
+  //
+  // guideDealIds() returns a hand-declared list VERBATIM when one exists, and
+  // otherwise resolves the guide's own market and intent against the registry.
+  // Everything downstream is unchanged — same rows, same live filter, same
+  // tracked hrefs — so this widens what is eligible without loosening one rule
+  // about what may render.
+  const dealCards = guideDealIds(g, today)
     .map((id) => COUPONS.find((c) => c && c.id === id))
     .filter((c) => c && couponIsLive(c, today))
     .map((c) => ({
@@ -634,6 +655,19 @@ export default async function GuidePage({ params }) {
         primaryLabel="Personalize these picks"
         secondaryHref="#guide"
         secondaryLabel="Read the local edit"
+        // v8.23 (owner: "why is it that none of these blog has a share button
+        // ... i want a share button on all of them"). Third action, quiet tone:
+        // it must not out-shout the CTA that earns. The URL is resolved on the
+        // SERVER from SITE_URL — never from window.location, which on a preview
+        // deploy is a host the recipient cannot open (lib/site.js).
+        actions={<ShareButton
+          url={shareUrl}
+          title={g.title}
+          text={g.title + " — found this on Wayfind."}
+          tone="hero"
+          event="guide_share"
+          meta={{ slug: params.slug, region: g.region || null, placement: "hero" }}
+        />}
       />
       <article id="guide" className="wf-guide-article">
       <div style={S.meta}>Written by the Wayfind team, led by <a href="/about" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>Gabriel Pereira</a> · Last verified {g.updated} · <a href="/how-wayfind-ranks" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>How we rank ›</a></div>
@@ -799,6 +833,25 @@ export default async function GuidePage({ params }) {
         citySlug={bridgeCity ? bridgeSlug : null}
         cityLabel={bridgeCity ? bridgeCity.name : ""}
       />
+      {/* v8.23 — THE SECOND SHARE, and the one that will do the work. The hero
+          control catches a reader who already knew they wanted to send this;
+          this one catches the far larger group who only know it after reading.
+          It sits AFTER GuideConversion so the monetized CTA keeps first
+          position — the rule the email capture below already follows. */}
+      <section style={{ margin: "26px 0 4px", padding: "18px 20px", borderRadius: 16, background: "#0E1520", border: "1px solid #1F2A3A" }}>
+        <p style={{ margin: "0 0 12px", fontSize: 15.5, lineHeight: 1.5, color: "#CBD5E1" }}>
+          Know someone this would help? Send it to them — they'll get the same picks, ranked from where they are.
+        </p>
+        <ShareButton
+          url={shareUrl}
+          title={g.title}
+          text={g.title + " — found this on Wayfind."}
+          label="Share this guide"
+          tone="solid"
+          event="guide_share"
+          meta={{ slug: params.slug, region: g.region || null, placement: "article_end" }}
+        />
+      </section>
       <GuideEmailCapture slug={params.slug} region={g.region || "Orlando"} />
       <p style={{ ...S.p, marginTop: 30 }}>
         Planning the rest of your trip? <a href="/" style={S.footerLink}>Wayfind</a> ranks every restaurant, attraction, and hotel near you with live hours and honest scores, and our <a href={"/culture/" + (g.region === "Tampa" ? "tampa" : g.region === "Sarasota" ? "sarasota" : "orlando")} style={S.footerLink}>{g.region || "Orlando"} culture guide</a> covers what to eat, say, and never skip.

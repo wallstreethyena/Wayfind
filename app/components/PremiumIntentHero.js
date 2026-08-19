@@ -5,6 +5,10 @@
 export default function PremiumIntentHero({ eyebrow, location, title, description, image, primaryHref = "/", primaryLabel = "Build my shortlist", secondaryHref = "#shortlist", secondaryLabel = "See the expert picks",
   // A page that cannot be left is a dead end; default out to the app root.
   backHref = "/", backLabel = "Wayfind",
+  // v8.23 — an optional THIRD action beside the two links (the guides pass a
+  // share control here). A node rather than a set of props, because the caller
+  // owns what it is: /culture passes nothing and renders exactly as before.
+  actions = null,
 }) {
   return (
     <>
@@ -82,6 +86,7 @@ export default function PremiumIntentHero({ eyebrow, location, title, descriptio
           <div className="wf-intent-actions">
             <a className="wf-intent-primary" href={primaryHref}>{primaryLabel} →</a>
             <a className="wf-intent-secondary" href={secondaryHref}>{secondaryLabel}</a>
+            {actions}
           </div>
           <p className="wf-intent-trust">Free to start. Your taste stays yours and is never sold.</p>
         </div>
