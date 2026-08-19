@@ -588,6 +588,30 @@ const WIDEN_RADIUS_MI = 25;
   // Every rail that filled before the cap still fills after it.
   ok(Object.keys(filled.places).every((id) => !filled.places[id].length || filled.places[id].length >= MIN_CARDS),
     "the cap never leaves a rail below MIN_CARDS while it renders");
+  // v8.20.2 — SLIDE-IN CONVERGENCE (instrumented live: Anna Maria entered
+  // today/best only after higher rows were banned, and the 3-pass loop
+  // returned stale windows). Direct call on a crafted shape: three layers of
+  // over-exposed rows, each revealed only by banning the previous layer.
+  {
+    const mkr = (id, s2, types) => ({ id, name: id, rating: 4.5, reviews: 500, types, distMi: 3, _s: s2, governed_score: s2, priceLevel: "PRICE_LEVEL_MODERATE" });
+    // 3 rails sharing candidate lists deep enough that bans cascade:
+    // layerA rows (top) ride all 3, then layerB rows, then layerC —
+    // MAX_CARDS windows only surface the next layer once the prior is banned.
+    const shared = [];
+    for (const [pfx, base] of [["A", 90], ["B", 60], ["C", 30]]) {
+      for (let i = 0; i < 12; i++) shared.push(mkr(pfx + i, base - i, ["restaurant"]));
+    }
+    const deepPools = { r1: shared, r2: shared, r3: shared };
+    // capExposure is internal; exercise it through fillRails with three
+    // restaurant-fed rails: eat + datenight + today all read `shared` here.
+    const deep = { "things-to-do": [], beaches: [], nightlife: [], creators: [], summer: [], birthday: [], breakfast: [], quickeats: [], family: [], events: [], restaurants: shared };
+    const f2 = fillRails(deep, (p) => p, CTX);
+    const byId = {};
+    for (const [rid, rows] of Object.entries(f2.places)) for (const x of rows) (byId[x.id] = byId[x.id] || []).push(rid);
+    const overNow = Object.entries(byId).filter(([, v]) => v.length > 2);
+    ok(overNow.length === 0,
+      `deep shared pools converge — no organic row rides >2 rails (violators: ${overNow.map(([k, v]) => k + ":" + v.join("/")).join(", ") || "none"})`);
+  }
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);
