@@ -268,7 +268,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.21";
+const BUILD_ID = "v8.22";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -8711,6 +8711,17 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             navOpenCat={navOpenCat}
             onNavOpen={(id, label) => {
               setNavOpenCat(id);
+              // v8.22 (owner: "when I click the submenu from another screen it
+              // does not take me to the place cards"). The tabs render on
+              // every non-map screen, but the browse feed only exists on
+              // "suggested" — picking a category from Coupons/Events/Saved
+              // set the state and left the reader staring at the old screen.
+              // Pop back to the feed (and restore "/" in history so Back
+              // still returns to the standalone screen).
+              if (id && screen !== "suggested") {
+                setScreen("suggested");
+                try { if (SCREEN_PATH[screen]) window.history.pushState({ wf: "screen" }, "", "/"); } catch (e) {}
+              }
               // Same near-me search the map starts on category tap. Opening the
               // tray used to leave browseCat/cat untouched, so Shopping → All
               // on home showed empty organic while the map listed 15 places.
@@ -8718,6 +8729,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "nav_open", opened: !!id }); } catch (e) {}
             }}
             onNavSub={(catId, subId, subLabel) => {
+              // v8.22 — same screen-pop as onNavOpen above: a sub-filter tap
+              // from Coupons/Events/Saved must land the reader on the place
+              // cards it just filtered, not leave them on the old screen.
+              if (screen !== "suggested") {
+                setScreen("suggested");
+                try { if (SCREEN_PATH[screen]) window.history.pushState({ wf: "screen" }, "", "/"); } catch (e) {}
+              }
               // THE CHOICE THAT ACTS. Same two setters the feed has always
               // used, so a place filtered here is the same list the browse
               // view produced before the tabs moved into the nav.
@@ -10426,11 +10444,28 @@ function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includ
       // the rail that actually rendered it. Falls back to the server's href if
       // the row somehow lacks a provider, so a re-tag can never lose the link.
       const dealHref = commerceHref({ provider: d.provider, offerId: d.id, surface: "browse_partner_rail", contentId: sub || "all" }) || d.href;
-      rows.push({ key: `${d.provider || "deal"}:${d.id}`, provider: d.provider, merchant: d.providerLabel || "Verified partner", offerId: d.id, title: d.title, image, discount: discountText, score: dScore, href: dealHref, kind: "deal" });
+      // v8.22 (owner: "some of them have no wayfind score"): a deal matched to
+      // a scored place (quality10, the SAME number its rank already uses)
+      // now SHOWS that score; a national deal with no place keeps no chip —
+      // we never invent a score — and still sorts last.
+      rows.push({ key: `${d.provider || "deal"}:${d.id}`, provider: d.provider, merchant: d.providerLabel || "Verified partner", offerId: d.id, title: d.title, image, discount: discountText, score: dScore, quality10: dBase > 0 ? dBase : null, href: dealHref, kind: "deal" });
     }
     const seen = new Set();
     return rows.filter((row) => { const name = String(row.title || "").toLowerCase(); if (seen.has(name)) return false; seen.add(name); return true; }).sort((a, b) => b.score - a.score);
   }, [experiences, deals, nowHour, sub, browseCat]);
+
+  // v8.22 (owner, live screenshots: "the rail starts mid-way … starting at the
+  // cards with no score on all of the submenus"). ROOT CAUSE: the scroller
+  // <div> is the same DOM node across chip/submenu switches — React re-renders
+  // its children but never touches scrollLeft, so one right-swipe in any
+  // submenu leaves EVERY later submenu's rail opened mid-track. That reads as
+  // "unranked first" because unscored deals sort last (rightward). The rail
+  // must open at its own #1 whenever its content identity changes. GLOBAL
+  // RULE for horizontal rails whose content swaps under a persistent node;
+  // locked by scripts/check-rail-scroll-reset.mjs.
+  const laneRef = useRef(null);
+  const laneSig = (cards.length && cards[0].key) || "";
+  useEffect(() => { const el = laneRef.current; if (el) el.scrollLeft = 0; }, [browseCat, sub, laneSig]);
 
   if (!cards.length) return null;
   // The heading NAMES THE FILTER. It used to read "Bookable highlights near
@@ -10451,7 +10486,7 @@ function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includ
         <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>{chipLabel ? `${chipLabel} — bookable near ${city || "you"}` : `Bookable near ${city || "you"}`}</span>
         <span style={{ fontSize: 9.5, color: C.muted }}>Verified partners</span>
       </div>
-      <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4, scrollSnapType: "x proximity" }}>
+      <div ref={laneRef} style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4, scrollSnapType: "x proximity" }}>
         {cards.map((card) => {
           const href = card.kind === "experience" ? commerceHref({ provider: "viator", offerId: card.offerId, surface: "browse_partner_rail", contentId: sub || "all" }) : card.href;
           if (!href) return null;
@@ -10464,7 +10499,8 @@ function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includ
               <div style={{ padding: "8px 10px" }}>
                 <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{card.title}</div>
                 <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 4, flexWrap: "wrap" }}>
-                  {card.rating > 0 && card.reviews > 0 ? <PlaceScoreChip p={{ rating: card.rating, reviews: card.reviews }} size={12} /> : null}
+                  {card.rating > 0 && card.reviews > 0 ? <PlaceScoreChip p={{ rating: card.rating, reviews: card.reviews }} size={12} />
+                    : card.quality10 != null ? <PlaceScoreChip p={{ governed_score: Math.round(card.quality10 * 10) }} size={12} /> : null}
                   <span style={{ fontSize: 11, fontWeight: card.discount ? 800 : 500, color: card.discount ? "#7DD3A8" : C.muted }}>{card.discount || card.price}{card.duration ? ` · ${card.duration}` : ""}</span>
                   <button aria-label={"Save " + card.title} onClick={(e) => { e.preventDefault(); e.stopPropagation(); try { onSave && onSave({ item_type: card.kind, item_id: card.offerId, item_title: card.title, item_image: card.image, item_url: href, provider: card.provider }); } catch (er) {} }} style={{ marginLeft: "auto", border: `1px solid ${C.border}`, background: "transparent", borderRadius: 999, color: C.light, fontSize: 12, padding: "3px 8px", cursor: "pointer" }}>♡</button>
                 </div>
@@ -10523,6 +10559,9 @@ function UTDealsRail({ category, onSave, lat, lng }) {
                 <div style={{ padding: "8px 10px" }}>
                   <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{d.title}</div>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 5, flexWrap: "wrap" }}>
+                    {/* v8.22 — same rule as the browse rail: a place-matched
+                        deal shows the Wayfind score its rank already uses. */}
+                    {d.quality10 != null && Number(d.quality10) > 0 ? <PlaceScoreChip p={{ governed_score: Math.round(Number(d.quality10) * 10) }} size={11} /> : null}
                     {d.discount ? <span style={{ fontSize: 11, fontWeight: 800, color: "#7DD3A8" }}>{d.discount}</span> : null}
                     <span style={{ display: "inline-flex", alignItems: "center", background: C.accent, color: "#0D1117", borderRadius: 999, padding: "3px 9px", fontSize: 11, fontWeight: 800 }}>{cta}</span>
                   </div>

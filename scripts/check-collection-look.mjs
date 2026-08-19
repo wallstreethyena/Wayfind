@@ -226,4 +226,18 @@ ok(!/experienceTags\(p, 1\)/.test(read("app/components/CreatorFinds.js")), "crea
     "home PlaceCard award has the same double-'pick' defense");
 }
 
+// v8.22 (owner: "when I click the submenu from another screen it does not
+// take me to the place cards"). Both nav handlers pop back to the feed
+// screen before applying the category — asserted as the ROLE (the gate and
+// the setter together, in each handler), not a bare substring.
+{
+  const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
+  const navOpen = home.split("onNavOpen={")[1]?.split("onNavSub={")[0] || "";
+  const navSub = home.split("onNavSub={")[1]?.split("aria-")[0]?.slice(0, 4000) || "";
+  ok(/screen !== "suggested"/.test(navOpen) && /setScreen\("suggested"\)/.test(navOpen),
+    "onNavOpen pops a standalone screen back to the feed before applying the category");
+  ok(/screen !== "suggested"/.test(navSub) && /setScreen\("suggested"\)/.test(navSub),
+    "onNavSub pops a standalone screen back to the feed — a sub-filter tap always lands on place cards");
+}
+
 console.log(`check-collection-look: OK — ${pass} assertions (one hero everywhere; no tag bubbles anywhere; the tag ENGINE and its ?exp= destinations stay live)`);

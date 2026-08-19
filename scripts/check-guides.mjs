@@ -58,4 +58,14 @@ for (const [slug, guide] of Object.entries(GUIDES)) {
   const delivered = (guide.picks || []).length;
   if (promised !== delivered) fail(`${slug}: title promises ${promised} items, delivers ${delivered}`);
 }
-console.log("check-guides: OK — Article + Breadcrumb schema, canonicals, related links, disclosure on both templates; numbered titles match their pick counts");
+// v8.22 (owner, live /guides: "there is nothing on this page that makes it
+// easy to go back to the main page"). Both guide templates render OUTSIDE the
+// app shell, so each must carry its own visible door home — asserted as a
+// rendered anchor (an <a> to "/"), never a bare substring.
+{
+  const hub = readFileSync(new URL("../app/guides/page.js", import.meta.url), "utf8");
+  if (!/<a href="\/"[^>]*>‹ Back to Wayfind<\/a>/.test(hub)) fail("guides hub: missing the rendered back-to-home anchor");
+  if (!/<a href="\/"[^>]*>‹ Back to Wayfind<\/a>/.test(g)) fail("guide detail: missing the rendered back-to-home anchor");
+  if (!/<a href="\/guides"[^>]*>All guides<\/a>/.test(g)) fail("guide detail: missing the up-link to the guides hub");
+}
+console.log("check-guides: OK — Article + Breadcrumb schema, canonicals, related links, disclosure on both templates; numbered titles match their pick counts; both templates carry a visible door back to the app");

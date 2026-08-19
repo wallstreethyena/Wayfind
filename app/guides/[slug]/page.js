@@ -541,6 +541,12 @@ export default async function GuidePage({ params }) {
 
   return (
     <main style={S.page}>
+      {/* v8.22 — same rule as the /guides hub: every guide page carries a
+          visible way back into the app. */}
+      <nav aria-label="Breadcrumb" style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 18 }}>
+        <a href="/" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 999, background: "#161B22", border: "1px solid #21262D", color: "#FF8A3D", fontSize: 13.5, fontWeight: 800, textDecoration: "none" }}>‹ Back to Wayfind</a>
+        <a href="/guides" style={{ color: "#8B949E", fontSize: 13.5, fontWeight: 700, textDecoration: "none" }}>All guides</a>
+      </nav>
       <style dangerouslySetInnerHTML={{ __html: `
         .wf-guide-article{max-width:860px;margin:0 auto}
         .wf-guide-intro{max-width:760px;font-family:Georgia,"Times New Roman",serif;font-size:21px;line-height:1.55;color:#F1F5F9}

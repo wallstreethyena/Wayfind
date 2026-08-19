@@ -66,7 +66,7 @@ import { emptyRailLive, liveFromRailsResponse } from "../../lib/locationHonesty.
 // cards on the site rendering without their editorial line.
 import useEditorialHooks from "./useEditorialHooks";
 import { toHookLine } from "../../lib/editorialHook";
-import { formatBeachChipBits, waterQualityKey, WATER_TONE } from "../../lib/beachChip.js";
+import { formatBeachChipBits, waterQualityKey, WATER_TONE, WATER_PLAIN_LONG } from "../../lib/beachChip.js";
 
 const Chevron = ({ dir }) => (
   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2"
@@ -279,6 +279,21 @@ export default function DaypartRail({
   };
 
   const selRail = selected ? railById.get(selected) : null;
+  // v8.22 (owner: "when the amazon rail card is selected make sure it becomes
+  // the main focus on the screen"). The pulsing glow marks the card; this
+  // brings it there — the open tile centers itself in the track, so the
+  // selection is never a half-cropped card at the viewport edge (his
+  // screenshot). scroll-snap is proximity, so a programmatic center sticks.
+  useEffect(() => {
+    if (!selected) return;
+    const track = trackRef.current;
+    if (!track) return;
+    const tile = track.querySelector(".wf8-tile.is-sel");
+    if (!tile) return;
+    const reduced = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const left = tile.offsetLeft - (track.clientWidth - tile.clientWidth) / 2;
+    try { track.scrollTo({ left: Math.max(0, left), behavior: reduced ? "auto" : "smooth" }); } catch (e) { track.scrollLeft = Math.max(0, left); }
+  }, [selected]);
   const selPlaces = selected ? (shown.places[selected] || []) : [];
   // Resolves ONLY the open drop's places (empty list while closed, so the
   // closed menu costs zero requests). Fail-soft: no hook, no line, no loss.
@@ -325,14 +340,27 @@ export default function DaypartRail({
     if (!isBeachRow(p)) return null;
     const c = beachCond[p.id];
     if (!c) return null;
-    // Quality replaces waves when a wf_beach_water row exists. No row →
-    // omit quality AND omit waves (do not keep advertising waves).
+    // v8.22 (owner, on one long chip cut at the card edge: "make it shorter
+    // or make it into multiple pills"). SEPARATE SHORT PILLS now: the
+    // quality verdict (three words, severity-toned), then temp, then wind —
+    // each its own lane child, so nothing long enough to crop exists. The
+    // fragment's spans land as direct children of .wf-place-card-highlights
+    // and inherit the swipe-lane rules. Quality replaces waves when a
+    // wf_beach_water row exists; no row → omit quality AND waves.
     const bits = formatBeachChipBits(c, c.water);
     if (!bits.length) return null;
-    // Severity colors the line: green claim, amber caution, red warning;
-    // sky-blue when only temp/wind are known (no quality row).
-    const tone = WATER_TONE[waterQualityKey(c.water)] || "#7DD3FC";
-    return <span style={{ color: tone, fontWeight: 700 }}>🌊 {bits.join(" · ")}</span>;
+    const key = waterQualityKey(c.water);
+    const tone = WATER_TONE[key] || "#7DD3FC";
+    return (
+      <>
+        {bits.map((b, i) => (
+          <span key={b} style={{ color: i === 0 && key ? tone : "#7DD3FC", fontWeight: 700 }}
+            title={i === 0 && key ? WATER_PLAIN_LONG[key] + (c.water && c.water.sampled_at ? " · FL Healthy Beaches sample " + c.water.sampled_at : "") : undefined}>
+            {i === 0 ? "🌊 " : ""}{b}
+          </span>
+        ))}
+      </>
+    );
   };
   const near = (live && live.cityLabel) ? ` near ${live.cityLabel}` : "";
 

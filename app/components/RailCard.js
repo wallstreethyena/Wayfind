@@ -291,8 +291,12 @@ export default function RailCard({
           {pills.length || badge ? (
             <div className="wf-place-card-highlights" style={{ display: "flex", flexWrap: "wrap" }}>
               {pills.map((chip) => (chip.onClick
-                ? <button key={chip.key} type="button" onClick={(e) => { e.stopPropagation(); e.preventDefault(); chip.onClick(e); }}>{chip.icon} {chip.label} ›</button>
-                : <span key={chip.key}>{chip.icon} {chip.label}</span>
+                /* v8.22: chips may carry a `title` — the long form of a
+                   deliberately short label (e.g. "Trending" whose full trend
+                   text lives in the section header). Hover/AT keep the detail
+                   without the pill ever needing to be long enough to cut. */
+                ? <button key={chip.key} type="button" title={chip.title || undefined} onClick={(e) => { e.stopPropagation(); e.preventDefault(); chip.onClick(e); }}>{chip.icon} {chip.label} ›</button>
+                : <span key={chip.key} title={chip.title || undefined}>{chip.icon} {chip.label}</span>
               ))}
               {/* Caller-owned node, exactly like IconicPlaceCard's `badge`: the
                   trending flame and the "Selling fast" scarcity tag are built by

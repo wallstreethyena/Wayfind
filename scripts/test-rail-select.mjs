@@ -96,6 +96,17 @@ const pools = {
   // fixture has no registry, so it is empty here — which is exactly what makes
   // `locals` the honest thin example below.
   creators: [],
+  // v8.22 — the drive pool is SYNTHETIC like creators/summer: lib/railsData.js
+  // buildDrivePool reads the ranked inventory of every OTHER landing city
+  // within DRIVE_REACH_MI of the reader (the pool-cap cure applied to the
+  // drive rail — Parrish's metro pool ends ~15mi out while Busch Gardens sits
+  // at 25). Two shapes: a marquee attraction inside the [12,27] band that the
+  // metro pools never carried (the row that proves the widening), and the
+  // band edges are exercised in the drive assertions below.
+  drive: [
+    mk("dv1", { name: "Busch Gardens Tampa", _s: 93, reviews: 90000, distMi: 25, types: ["amusement_park", "tourist_attraction"] }),
+    mk("dv2", { name: "Tampa Riverwalk", _s: 74, reviews: 30000, distMi: 26.5, types: ["tourist_attraction"] }),
+  ],
   // v8.18 — the identity pools are SYNTHETIC-BY-CONSTRUCTION, like creators/
   // summer/birthday: lib/railsData.js buildIdentityPool reuses the matching
   // ranked rows and then WIDENS from owned inventory near the reader (the
@@ -229,6 +240,18 @@ ok(namesOf("datenight").includes("Beach House Waterfront"), "the waterfront room
 // Assert the invariant, not the name: a fixture row called "Far Beach" proves
 // nothing about the predicate.
 ok(selectFor("drive", pools).every((p) => p.distMi >= 12), "worth-the-drive only carries places 12+ miles out");
+// v8.22 — the drive rail reads its own pool: a marquee attraction 25mi out
+// that no metro pool carries MUST appear (the whole point of the expansion),
+// ranked by the same governed score as everything else.
+ok(namesOf("drive").includes("Busch Gardens Tampa"), "drive: the dedicated drive pool joins the rail (25mi marquee attraction shown)");
+{
+  // …and it ranks by the governed score, not by pool of origin: the 93-score
+  // marquee row must sit ABOVE the 60-score local Far Preserve (22mi).
+  const dn = namesOf("drive");
+  ok(dn.indexOf("Busch Gardens Tampa") !== -1 && dn.indexOf("Far Preserve") !== -1
+    && dn.indexOf("Busch Gardens Tampa") < dn.indexOf("Far Preserve"),
+    "drive: drive-pool rows merge into the same governed-score order as the metro rows");
+}
 ok(selectFor("break", pools).every((p) => p.distMi <= 8), "the 30-minute break stays inside its time budget");
 ok(namesOf("break").every((n) => !/Beach House|Owen Bistro/.test(n)), "no sit-down room in a 30-minute break");
 ok(!namesOf("events").includes("Ca d Zan"), "a museum is not an event");
@@ -519,12 +542,25 @@ const WIDEN_RADIUS_MI = 25;
     creators: [],
     breakfast: pools.breakfast,
     quickeats: pools.quickeats,
+    // v8.22 — band-edge shapes for the drive rail's OWN horizon: 26.9mi is
+    // inside DRIVE_REACH_MI (27) and must survive the visitor-origin clamp
+    // that caps every other rail at 25; 28.5mi is past it and must not.
+    drive: [
+      mk("dv-in", { name: "Marquee Park 26mi", _s: 92, reviews: 80000, distMi: 26.9, types: ["amusement_park"] }),
+      mk("dv-out", { name: "Too Far Park", _s: 96, reviews: 90000, distMi: 28.5, types: ["amusement_park"] }),
+    ],
   };
   const filled = fillRails(visitor, (p) => p, { nearMi: NEAR_RADIUS_MI, widenMi: WIDEN_RADIUS_MI, cityLabel: "Tampa" });
   ok(filled.places.eat.every((p) => p.distMi <= 17), "eat (meals) fills from 17 when 17 can");
   ok(!filled.places.eat.some((p) => p.id === "r-far"), "eat never keeps a 40mi leftover");
   ok(filled.places.beach.every((p) => p.distMi <= BEACH_NEAR_MI), "beach stays on BEACH_NEAR_MI, not 25");
   ok(!filled.places.beach.some((p) => p.id === "bh-24"), "beach does not widen to 25");
+  // v8.22 — the drive rail's far edge is DRIVE_REACH_MI, not the generic
+  // 17/25 clamp: a 26.9mi marquee row survives, a 28.5mi one never shows,
+  // and nothing under DRIVE_MIN_MI wears the day-trip label.
+  ok(filled.places.drive.some((p) => p.id === "dv-in"), "drive: keeps a 26.9mi row — its horizon is 27, not the 25mi widen");
+  ok(!filled.places.drive.some((p) => p.id === "dv-out"), "drive: refuses a 28.5mi row — 27 is a cap, not a suggestion");
+  ok(filled.places.drive.every((p) => p.distMi >= 12), "drive: near edge holds under visitor origin");
 }
 {
   const data = readFileSync(new URL("../lib/railsData.js", import.meta.url), "utf8");
@@ -546,6 +582,12 @@ const WIDEN_RADIUS_MI = 25;
     "railsData builds the breakfast identity pool from owned inventory (the pool-cap cure)");
   ok(/pools\.quickeats = await buildIdentityPool\(pools, origin, isQuickService, 8/.test(dcode),
     "railsData builds the quickeats identity pool for the 30-minute break");
+  // v8.22 — the drive pool is BUILT (the exact call, on the pools object, from
+  // the pooled-cities list) and bounded by the same band the selector reads.
+  ok(/pools\.drive = await buildDrivePool\(pools, origin, cities\)/.test(dcode),
+    "railsData builds the drive pool (27mi horizon) — without it the fixture above asserts a pipeline that does not exist");
+  ok(/d >= DRIVE_MIN_MI && d <= DRIVE_REACH_MI/.test(dcode),
+    "buildDrivePool admits rows only inside the [DRIVE_MIN_MI, DRIVE_REACH_MI] band measured from the reader");
   // v8.19 — family and events wired the same way (the ROLE: the exact call,
   // predicate and radius the selectors gate on).
   ok(/pools\.family = await buildIdentityPool\(pools, origin, isFamilyPlace, FAMILY_NEAR_MI, \["things-to-do"\], isStrongFamilyPlace, \{ typeOv: FAMILY_TYPES \}\)/.test(dcode),

@@ -15,6 +15,7 @@ import { cuisineLabel } from "../../lib/dining";
 import { overrideFor } from "../../lib/placeOverrides";
 import * as Tags from "../../lib/tags";
 import { directionsHref } from "../../lib/directions.js";
+import { useEffect, useRef, useState } from "react";
 import { useMarketPhotoFallback, marketPhotoQuery } from "./marketPhoto.js";
 import { hasPlacePhotoRef } from "../../lib/placePhoto.js";
 
@@ -203,6 +204,25 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   const hasTake = !!(editorial || validAiSummary);
   const initials = String(place.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase();
   const actionHref = (action) => "/p/" + encodeURIComponent(place.id) + "?action=" + action;
+  // v8.22 (owner: "indicate in the pills that the row is scrollable — someone
+  // looking at it won't know"). After hydration, measure the lane: when it
+  // genuinely overflows, a small pulsing chevron sits at its right edge and
+  // disappears once the reader reaches the end. No overflow → no affordance;
+  // server render carries none (measurement is a client fact).
+  const laneRef = useRef(null);
+  const [laneMore, setLaneMore] = useState(false);
+  useEffect(() => {
+    const el = laneRef.current;
+    if (!el) return undefined;
+    const measure = () => {
+      try { setLaneMore(el.scrollWidth - el.clientWidth > 8 && el.scrollLeft + el.clientWidth < el.scrollWidth - 6); } catch (e) {}
+    };
+    measure();
+    el.addEventListener("scroll", measure, { passive: true });
+    let ro = null;
+    try { ro = new ResizeObserver(measure); ro.observe(el); } catch (e) {}
+    return () => { el.removeEventListener("scroll", measure); try { ro && ro.disconnect(); } catch (e) {} };
+  }, []);
   const partner = placePartnerPick(place);
   const partnerHref = partner ? commerceHref({
     provider: partner.provider,
@@ -261,7 +281,8 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
               second row. The row is now a single horizontal swipe lane:
               every pill present, none ever cropped — .wf-place-card-highlights
               in css.js carries the nowrap/scroll/fade treatment. */}
-          <div className="wf-place-card-highlights">
+          <div className="wf-place-card-highlights-wrap">
+          <div className="wf-place-card-highlights" ref={laneRef}>
             {/* v6.89 (owner: "I need the cards to look like the cards from the
                 main menu"): real experience-tag chips, computed by
                 experienceTags() above from data this row actually carries —
@@ -327,8 +348,15 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
                   try { emitCommerce("commerce_cta_clicked", { surface: "iconic_place_card", provider: partner.provider, merchant: partner.merchant, offer_id: partner.offerId, content_id: place.id, click_id: clickId, disclosure_version: "partner-place-v1" }); } catch {}
                 }}
                 style={{ color: "#FDBA74", textDecoration: "none" }}
-              >🎟️ Partner tickets via {partner.merchant} ↗</a>
+              >{/* v8.22 (owner: "it doesn't have to have so many letters —
+                  be more concise"). Merchant + arrow is the whole message;
+                  the title/aria keep the full disclosure. */}🎟️ Tickets · {partner.merchant} ↗</a>
             ) : null}
+          </div>
+          {/* v8.22 (owner: "indicate that the pills are scrollable — someone
+              looking at it won't know"). Chevron renders only while the lane
+              measurably overflows and the reader is not at its end. */}
+          {laneMore ? <span className="wf-pill-more" aria-hidden="true">›</span> : null}
           </div>
           {editorial ? (
             <div className="wf-place-card-take">{editorial}</div>

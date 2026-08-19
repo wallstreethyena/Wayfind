@@ -64,7 +64,12 @@ function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlac
       // v7.12 (owner): chips are CONTROLS, not decoration — the trend chip
       // runs the app's real search for the trend, which is exactly "identify
       // other place cards similar".
-      { key: "exploding-trend", icon: "🔥", label: "Trending: " + trend.label + " ›", onClick: onFindSimilar ? () => {
+      // v8.22 (owner: "these pills are very long winded — we should just say
+      // trending"). The section header directly above already names the trend
+      // in full ("6 spots for functional smoothies…"), so the pill repeating
+      // it was pure noise and forced a cut-off. One word on the pill; the full
+      // trend stays in the title for hover/screen readers.
+      { key: "exploding-trend", icon: "🔥", label: "Trending", title: "Trending: " + trend.label, onClick: onFindSimilar ? () => {
         onMeaningful("trend_find_similar", place, { concept_key: trend.conceptKey, query: trend.label });
         onFindSimilar(trend.label);
       } : undefined },
