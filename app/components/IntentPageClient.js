@@ -291,14 +291,34 @@ export default function IntentPageClient({ intent }) {
           for (const r of ranked) r.editorial_hook = byId.get(r.id) || null;
         }
       } catch (e) {}
-      if (!dead) setRows(ranked);
-      // v6.60 (owner): every card carries an editorial line. Rows without a
-      // VERIFIED hook get one written by the LLM in the Wayfind voice — the
-      // same evidence-first Atlas prompt /api/blurbs already runs (shared
-      // 30-day pool, so it costs nothing on a warm area). Applied to the top
-      // rows; fail-soft to no line.
+      // Atlas whyGo is not in that wf_editorial read. /api/known-for is Atlas-
+      // first, then the same verified fleet row — fill any hook the direct
+      // read missed so a card that already has research is not blank on /tonight.
       try {
-        const need = ranked.filter((r) => !r.editorial_hook).slice(0, 8);
+        const missing = ranked.filter((r) => r.id && !r.editorial_hook).map((r) => r.id);
+        for (let i = 0; i < missing.length; i += 40) {
+          const batch = missing.slice(i, i + 40);
+          const kr = await fetch("/api/known-for", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ ids: batch }),
+          });
+          const kd = kr.ok ? await kr.json() : null;
+          if (kd && kd.lines && typeof kd.lines === "object") {
+            for (const r of ranked) {
+              if (!r.editorial_hook && kd.lines[r.id]) r.editorial_hook = kd.lines[r.id];
+            }
+          }
+        }
+      } catch (e) {}
+      if (!dead) setRows(ranked);
+      // Rows without a verified / Atlas hook may already hold a CARD_SUMMARY in
+      // the 30-day pool. Ask for every such row, not the first 8 — a café past
+      // that cap with a cached hook was blank while a neighbor showed copy.
+      // cacheOnly: never generate, never invent. No hook → nothing.
+      try {
+        const need = ranked.filter((r) => !r.editorial_hook);
+        const BLURB_BATCH = 20;
         if (need.length) {
           // v6.61: never send r.editorial (Google's editorialSummary.text) into the
           // blurb model — ai_line must be grounded ONLY in curated_fact and
@@ -307,9 +327,13 @@ export default function IntentPageClient({ intent }) {
           // pool and never triggers generation, so a cold area costs the user
           // no latency and the row falls back to NO LINE (honest) instead of
           // waiting on a model. Warming the pool is a scheduled job's problem.
-          const res = await fetch("/api/blurbs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ cacheOnly: true, city: loc.city, places: need.map((r) => ({ id: r.id, name: r.name, type: r.type, rating: r.rating, reviews: r.reviews })) }) });
-          const j = res.ok ? await res.json() : null;
-          if (j && j.blurbs && !dead) { for (const r of ranked) { if (!r.editorial_hook && j.blurbs[r.id]) r.ai_line = j.blurbs[r.id]; } setRows([...ranked]); }
+          for (let i = 0; i < need.length; i += BLURB_BATCH) {
+            const batch = need.slice(i, i + BLURB_BATCH);
+            const res = await fetch("/api/blurbs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ cacheOnly: true, city: loc.city, places: batch.map((r) => ({ id: r.id, name: r.name, type: r.type, rating: r.rating, reviews: r.reviews })) }) });
+            const j = res.ok ? await res.json() : null;
+            if (j && j.blurbs && !dead) { for (const r of ranked) { if (!r.editorial_hook && j.blurbs[r.id]) r.ai_line = j.blurbs[r.id]; } }
+          }
+          if (!dead) setRows([...ranked]);
         }
       } catch (e) {}
     })();

@@ -2,6 +2,7 @@
 // Star count is not the reason sentence (docs/editorial-standard.md).
 import { readFileSync } from "fs";
 import { GOOGLE_NUMBER_PROSE } from "../lib/editorialRule.js";
+import { toHookLine } from "../lib/editorialHook.js";
 import { rankingWhyLine, sourcedRankingWhy } from "../lib/rankingWhy.js";
 
 let n = 0, failn = 0;
@@ -32,12 +33,62 @@ ok(!/\$\{[^}]*rating[^}]*\}★ across/.test(home),
   "the homepage ranked-line renderer does not assemble a star-count sentence");
 
 // EXECUTE — the compressor and the ranking renderer, on real product copy.
+// Empty-slot law is proven on a name we verify is ABSENT from Atlas — never
+// on a live venue. Pinning "Oar & Iron" (etc.) as permanently blank breaks
+// the moment Editorial ships a real card (#850).
+const atlasCards = JSON.parse(readFileSync(new URL("../data/atlas/editorial-cards.json", import.meta.url), "utf8"));
+ok(Array.isArray(atlasCards) && atlasCards.length > 0,
+  "Atlas cards are readable — consume-whyGo and the empty control both need the file");
+const nn = (s) => String(s || "").toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]/g, "");
+const atlasByNormName = new Map();
+for (const c of atlasCards) {
+  const k = nn(c.name);
+  if (k && !atlasByNormName.has(k)) atlasByNormName.set(k, c);
+}
+ok(!atlasByNormName.has(nn("A nameless dock")),
+  "control: 'A nameless dock' is absent from Atlas — the empty assertion is about absence, not a live venue");
 ok(sourcedRankingWhy({ rating: 4.8, reviews: 6058, name: "A nameless dock" }) === "",
   "stats-only place: no sourced why → nothing (never a star sentence)");
-ok(sourcedRankingWhy({
-  name: "Oar & Iron", rating: 4.6, reviews: 800,
-}) === "",
-  "Tonight's Move blank (no Atlas whyGo): nothing — do not invent");
+
+// If Atlas has whyGo, sourcedRankingWhy MUST return that compressed line.
+// Do not invent a fixture sentence — compress the card that is already there.
+let atlasConsumed = 0;
+for (const card of atlasCards) {
+  const expect = toHookLine(card.whyGo, card.name);
+  if (!expect) continue;
+  const got = sourcedRankingWhy({
+    id: card.placeId, name: card.name, rating: 4.8, reviews: 400,
+  });
+  ok(got === expect,
+    (card.name || card.placeId) + ": Atlas whyGo is consumed (compressed), not blanked or invented");
+  atlasConsumed++;
+  // Name-only is the shape #850's new cards hit first (no id on the call).
+  if (atlasByNormName.get(nn(card.name)) === card) {
+    ok(sourcedRankingWhy({ name: card.name, rating: 4.8, reviews: 400 }) === expect,
+      (card.name || card.placeId) + ": name-only lookup consumes Atlas whyGo");
+  }
+}
+ok(atlasConsumed > 0,
+  "at least one Atlas whyGo was consumed — 0 means the loop never saw a usable card");
+
+// Homepage Tonight's Move hid every sourced hook by omitting `take`.
+const intentRail = readFileSync(new URL("../app/components/IntentRail.js", import.meta.url), "utf8");
+const intentRailCode = intentRail.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+ok(/useEditorialHooks\(list\)/.test(intentRailCode),
+  "IntentRail resolves hooks through the shared useEditorialHooks");
+ok(/take=\{toHookLine\(hooks\[r\.id\], r\.name\)\}/.test(intentRailCode),
+  "IntentRail passes the sourced take on every card, not first-card-only");
+ok(!/(?:why|take)=\{[^}]*toHookLine\([^}]*\|\|/.test(intentRailCode),
+  "IntentRail does not fall back from the sourced take to filler");
+ok(!/take=\{[^}]*r\.editorial/.test(intentRailCode),
+  "IntentRail does not render Google editorialSummary as the take");
+
+// Cafés PlaceCard: cacheOnly CARD_SUMMARY used to ration to the top 3.
+const homeApp = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
+ok(/!seeded\[p\.id\] && !blurbsInFlight\.current\.has\(p\.id\)\)\.slice\(0,\s*40\)/.test(homeApp),
+  "loadBlurbs cacheOnly asks about the same 40 as known-for, not the top 3");
+ok(!/!seeded\[p\.id\] && !blurbsInFlight\.current\.has\(p\.id\)\)\.slice\(0,\s*3\)/.test(homeApp),
+  "loadBlurbs no longer hides cached CARD_SUMMARY behind a top-3 cap");
 
 const siesta = sourcedRankingWhy({
   id: "ChIJjfu2YPBBw4gRo41o9hwHfmg", name: "Siesta Beach", rating: 4.8, reviews: 6058,
@@ -62,14 +113,6 @@ ok(/56 rooms|winter house|Ringling/i.test(cadzan), "Ca' d'Zan why names the hous
 const bayfront = sourcedRankingWhy({ name: "Bayfront Park", rating: 4.8, reviews: 6047 });
 ok(bayfront.length >= 20, "Bayfront Park uses the curated hook already in the product");
 ok(/waterfront|walking|marina|art/i.test(bayfront), "Bayfront why names the park, not the star count");
-
-const ringling = sourcedRankingWhy({
-  id: "ChIJ6y2dx9g_w4gRWoZIRhLk-JI",
-  name: "The John and Mable Ringling Museum of Art",
-  rating: 4.8, reviews: 9000,
-});
-ok(ringling === "",
-  "The Ringling has no Atlas whyGo / curated hook — render nothing, do not invent");
 
 ok(sourcedRankingWhy({
   name: "Siesta Beach", why_here: "The quartz sand stays cool underfoot in August.", rating: 4.8, reviews: 900,

@@ -73,7 +73,8 @@ ok(editorialLine("Known for its biscuits and gravy.", "Skyway Jack's") === "Bisc
 // compressor is how they silently drift apart again.
 const OWNERS = ["lib/editorialHook.js"];
 for (const f of ["app/components/BestNearby.js", "app/components/TrendingNowClient.js",
-                 "app/components/ThingsToDoList.js", "app/components/IntentPageClient.js", "app/home.js"]) {
+                 "app/components/ThingsToDoList.js", "app/components/IntentPageClient.js",
+                 "app/components/IntentRail.js", "app/home.js"]) {
   ok(!/function toHookLine\s*\(/.test(code(f)),
     `${f} does not define its own toHookLine — it imports the shared one`);
 }
@@ -89,6 +90,7 @@ const SURFACES = [
   ["app/components/IntentPageClient.js", "toHookLine", "every intent page, including /best-of"],
   ["app/components/TrendingNowClient.js", "toHookLine", "/trending"],
   ["app/components/DaypartRail.js", "toHookLine", "the homepage rail drop — IconicPlaceCard take"],
+  ["app/components/IntentRail.js", "toHookLine", "Tonight's Move / hidden gems / worth-the-drive / budget rails"],
 ];
 for (const [f, fn, what] of SURFACES) {
   const src = code(f);
@@ -117,7 +119,7 @@ for (const [f] of SURFACES) {
 // The `||` the owner banned: a verified hook OR NOTHING. Scoped to the `why=`
 // and `take=` props so an unrelated `||` elsewhere in a 500k-char file is not a
 // false positive — a guard that fires on correct code gets commented out.
-for (const f of ["app/components/BestNearby.js"]) {
+for (const f of ["app/components/BestNearby.js", "app/components/IntentRail.js"]) {
   const src = code(f);
   const bad = [...src.matchAll(/(?:why|take)=\{[^}]*toHookLine\([^}]*\|\|/g)].length;
   ok(bad === 0, `${f}: no place row falls back from the editorial line to generic filler (found ${bad})`);
