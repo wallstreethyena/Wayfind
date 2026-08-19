@@ -6,14 +6,14 @@
     "category": "attractions",
     "hours": "Box office — performance days 10am–showtime; non-performance days Mon–Sat 10am–5pm, Sun 10am–2pm",
     "vibeCheck": "Plush, gilded opera-house grandeur with a working-company hum — you settle into a genuine 1903 Scottish auditorium while a resident troupe juggles several shows at once in true rotating rep.",
-    "whyGo": "One of the country's few true rotating-repertory companies, pairing big musicals with world premieres and fed by the competitive FSU/Asolo Conservatory pipeline — professional-grade work you won't find elsewhere on this coast.",
+    "whyGo": "Florida's first State Theatre (1965) shares the FSU Center with a three-year MFA conservatory, next to The Ringling. The 2026-27 season is straight runs, not rotating repertory — Mertz musicals plus a circus world premiere with the Ringling Museum. Cook Theatre seats 161 and sells its own subscription.",
     "bestFor": "A culture-first date night, or a matinee when you want a real production rather than a community-theatre stand-in — pick the matinee if a long, late evening is a stretch.",
-    "knownFor": "True repertory performance, ambitious musicals, premieres and a close relationship with a competitive professional-theatre conservatory.",
-    "powerhouseProof": "Florida's State Theatre, a founding LORT member and Sarasota Magazine's 2025 Best Performing Arts Group.",
+    "knownFor": "Florida's first State Theatre; FSU/Asolo Conservatory; 2026-27 straight runs",
+    "powerhouseProof": "Official history: first State Theatre (1965), founding LORT member (1966), 500-seat Mertz. Conservatory: 12 MFA actors per cycle; Cook Theatre 161 seats. Sarasota Magazine readers named Asolo Rep Best Performing Arts Group 2025. The same magazine's March 2026 season piece states the company is not producing rotating repertory.",
     "foodMove": "Eat a full meal before curtain; inside, the offering is light refreshments and food cannot enter the theatre.",
     "drinkMove": "Visit the lobby bar when it opens one hour before a Mertz performance, and choose an Asolo cup if you want to take your drink to your seat.",
-    "insiderMove": "Arrive early for the free shared parking; the closest spaces are limited.",
-    "verifiedStory": "Florida State University faculty founded the company as a summer troupe in 1960, and it became Florida's first designated State Theater in 1965; the current FSU-affiliated home opened in 1989.",
+    "insiderMove": "Park free in the shared Ringling / FSU Center lot — the closest spaces go first. For the small room, buy the Cook subscription (161 seats, three 2026-27 plays), not a Mertz musical ticket.",
+    "verifiedStory": "FSU faculty founded a summer company in the Historic Asolo Theatre in 1960. The legislature named it Florida's first State Theatre in 1965; it joined LORT in 1966. The company moved into the new FSU Center in December 1989, reconstructing Scotland's Dunfermline Opera House as the 500-seat Mertz. FSU took the building in 1991. Peter Rothstein became producing artistic director in 2023.",
     "funFact": "The auditorium isn't a replica — it's the actual Dunfermline Opera House, which opened in Scotland in 1903, then was bought and reassembled piece by piece inside the building in 1989. The name is Italian; the room is Scottish.",
     "currentUsefulDetail": "Box-office hours shift with the performance calendar (verified 2026-07-18); refresh before display.",
     "watchOut": "Parking is free but shared with the Ringling Museum and the close spots fill fast, so arrive early; box-office hours shrink on non-show days, so call before a non-performance visit. Food can't come into the theatre.",
@@ -22,12 +22,10 @@
     "address": "5555 N Tamiami Trl",
     "sourceUrls": [
       "https://asolorep.org/",
-      "https://asolorep.org/plan-your-visit-to-asolo-rep/directions-parking/",
-      "https://asolorep.org/contact-us/",
-      "https://tickets.asolorep.org/events",
-      "https://asolorep.org/fsu-asolo-conservatory/",
-      "https://www.myfloridahouse.gov/filestores/Adhoc/FloridaHandbook/People%202013-2014.pdf",
       "https://asolorep.org/about-us/history/",
+      "https://asolorep.org/plan-your-visit-to-asolo-rep/directions-parking/",
+      "https://asolorep.org/fsu-asolo-conservatory/",
+      "https://www.sarasotamagazine.com/arts-and-entertainment/2026/03/asolo-rep-announces-2026-27-season",
       "https://www.sarasotamagazine.com/arts-and-entertainment/2025/05/best-of-sarasota-2025-winners"
     ]
   },
@@ -1031,14 +1029,14 @@
     "category": "food",
     "hours": "Sun–Thurs 11am–9pm; Fri–Sat 11am–10pm",
     "vibeCheck": "A big, easygoing Gulf-seafood room off Cortez Road — raw bar humming, patio open, families and sunburned beachgoers filtering in. Casual and local, not a white-tablecloth production.",
-    "whyGo": "It's the reliable mainland grouper-and-oysters call near the Anna Maria bridge, from a Sarasota-Bradenton institution that started on the Anna Maria City Pier in 1995 — solid Gulf seafood, a generous happy hour, no fuss.",
+    "whyGo": "This Cortez Road room opened in 2002 — the mainland AMOB, not the Bridge Street pier. John Horne started the first bar on the Anna Maria City Pier in 1995. Happy hour prices raw oysters at $1.99 (3–6 p.m. and 9 to close); kids 10 and under pay a penny an inch on school nights.",
     "bestFor": "A hungry group coming off the beach — especially with kids, thanks to the penny-an-inch deal — when you want real Gulf seafood without dressing up.",
-    "knownFor": "Gulf grouper and Gulf oysters — raw on the half shell or baked as \"Oysters Rock\" — plus a Fish & Chips the menu calls its all-time best seller.",
-    "powerhouseProof": "Founded by John Horne, a 2024 National Restaurant Association board member and past Florida Restaurant & Lodging Association board chair; his company tops 425 employees, and its \"Dive into Reading\" literacy program won the NRA's 2018 Restaurant Neighbor Award.",
+    "knownFor": "2002 Cortez mainland AMOB; $1.99 happy-hour oysters, not the pier",
+    "powerhouseProof": "Official Cortez hours Sun–Thu 11–9, Fri–Sat 11–10. Daily deals: $1.99 raw oysters at 3–6 p.m. and 9 p.m.–close; Monday AYCE fish and chips $19. Sarasota Magazine readers named AMOB Best Bradenton Restaurant 2025.",
     "foodMove": "The Gulf Grouper Sandwich ($$$) — a half-pound of Gulf grouper the menu bills as the best you'll find on the mainland; check the live menu for today's price.",
     "drinkMove": "The House 'Rita ($) — the cheap-and-cheerful house margarita, cheaper still at happy hour.",
-    "insiderMove": "Hit the daily happy hour (3–6pm and 9pm–close) for $1.99 raw oysters and $3.99 margaritas; reservations are taken only for parties of eight or more, so otherwise plan to walk in off-peak.",
-    "verifiedStory": "John Horne opened the first Anna Maria Oyster Bar on the Anna Maria City Pier in 1995; this Cortez Road location followed in 2002.",
+    "insiderMove": "Sit the 3–6 p.m. or 9-to-close window for $1.99 raw oysters. Monday is all-you-can-eat fish and chips at $19. Navigate to 6696 Cortez Road — the Bridge Street pier is a different pin.",
+    "verifiedStory": "John and Amanda Horne opened the first Anna Maria Oyster Bar on the Anna Maria City Pier in 1995; that pier room has since closed. This Cortez Road location opened in 2002. Observer (2024) puts Horne in a CEO transition at six rooms and about 400 employees. The operator locations index now also lists Landside, Bridge Street Pier, Ellenton, UTC, and North Port.",
     "funFact": "Kids here are priced by the inch — on \"Penny an Inch\" nights, children 10 and under pay a literal one cent per inch of their height.",
     "currentUsefulDetail": "The \"Penny an Inch\" kids' deal is running nightly through Sept 7, 2026. Verified 2026-07-18; refresh before display.",
     "watchOut": "No reservations except for parties of eight-plus, so expect a wait at peak times and holidays; it's tourist- and beach-adjacent, so it fills when the island empties out.",
@@ -1046,14 +1044,14 @@
     "officialWebsite": "https://www.oysterbar.net/locations/cortez/",
     "address": "6696 Cortez Rd W",
     "sourceUrls": [
-      "https://menu.oysterbar.net/menu/anna-maria-oyster-bar-cortez",
-      "https://order.oysterbar.net/order/anna-maria-oyster-bar-cortez/item-stone-crab-app_5205a205-c111-4f9e-ac2f-b14f735ccc07",
-      "https://www.oysterbar.net/2020/08/04/anna-maria-oyster-bar-wins-2020-tripadvisor-travelers-choice-best-of-the-best-award/",
+      "https://www.oysterbar.net/locations/cortez/",
+      "https://www.oysterbar.net/locations/",
       "https://www.oysterbar.net/2024/05/28/anna-maria-oyster-bar-a-seafood-evolution/",
-      "https://www.oysterbar.net/blog/",
+      "https://www.oysterbar.net/daily-deals/",
       "https://www.oysterbar.net/cocktails/",
-      "https://www.oysterbar.net/contact/",
-      "https://www.oysterbar.net/daily-deals/"
+      "https://www.yourobserver.com/news/2024/may/29/anna-maria-oyster-bar-founder/",
+      "https://www.yourobserver.com/news/2025/mar/22/best-oysters-sarasota/",
+      "https://www.sarasotamagazine.com/arts-and-entertainment/2025/05/best-of-sarasota-2025-winners"
     ]
   },
   {
@@ -1362,14 +1360,14 @@
     "category": "food",
     "hours": "Mon–Thu 11:30am–2:30pm & 4:30–9pm; Fri to 10pm; Sat 12–10pm; Sun 12–9pm",
     "vibeCheck": "A long-running family Mexican restaurant and cantina in Venice — North-Mexican recipes, mole, and margaritas, from one of the area's oldest Mexican kitchens. Casual and family-run.",
-    "whyGo": "Home-style North-Mexican cooking from a family that's been at it since 1999 — mole, fajitas, and combination plates, plus the margaritas they're known for. A dependable, unfussy Mexican meal.",
+    "whyGo": "Cousins Bonifacio Caro and Hugo Nunez opened Mi Pueblo in 1999 on Chihuahua ranch recipes; the Venice room sits at 530 U.S. 41 Bypass. The site bills the group as Sarasota's oldest Mexican restaurant, still family-run, with three rooms. This pin is Brick Yard Plaza — not Bee Ridge or Tuttle.",
     "bestFor": "Families and anyone wanting classic, home-style Mexican in Venice. Not for a late lunch — the kitchen closes midday on weekdays — and not a modern or upscale spot.",
-    "knownFor": "Family North-Mexican cooking since 1999 — mole, fajitas, and combination plates — billed as one of the area's oldest Mexican restaurants.",
-    "powerhouseProof": "Family-owned since 1999 by cousins Bonifacio Caro and Hugo Nunez, and billed as Sarasota's oldest Mexican restaurant.",
+    "knownFor": "1999 Chihuahua-family Mexican; Venice pin at Brick Yard Plaza",
+    "powerhouseProof": "Three printed addresses, including Venice at 530 U.S. 41 Bypass, (941) 486-0005. Operator “since 1999” and “oldest” line is on the homepage; Observer independently dates the first room to 1999.",
     "foodMove": "The Pollo con Mole is the signature — a marinated chicken quarter under a house mole of chiles and Mexican chocolate ($$). (Live menu below.)",
     "drinkMove": "The house margarita is the pour they're known for ($).",
-    "insiderMove": "Mind the hours — on weekdays the kitchen closes from 2:30 to 4:30pm, so a 3pm walk-in finds a locked door; go during the 11:30am–2:30pm lunch block or after 4:30pm.",
-    "verifiedStory": null,
+    "insiderMove": "Call the Venice line (941-486-0005) before you go — the homepage will not print a clock. Maps to Bee Ridge or Tuttle are the other two rooms.",
+    "verifiedStory": "Official copy: Caro and Nunez grew up working summers on ranches in the mountains of Chihuahua and named the rooms “Mi Pueblo” (My Hometown) when they opened in 1999. Observer (2014) repeats the 1999 cousins-and-three-rooms story and filmed carne asada tacos with house salsa verde. The homepage tells you to call each room for hours.",
     "funFact": "Founded in 1999 by two cousins, it bills itself as Sarasota's oldest Mexican restaurant — and this is the Venice location of the small family chain.",
     "currentUsefulDetail": "Open weekdays 11:30am–2:30pm and 4:30–9pm (to 10pm Friday), Saturday noon–10pm, and Sunday noon–9pm; note the midday weekday closure. Verified 2026-07-18; refresh before display.",
     "watchOut": "It closes midday on weekdays (2:30–4:30pm), so time your visit; this is the Venice location (there are also two in Sarasota). Its \"award-winning\" margarita and taco lines are self-described, not certified.",
@@ -1378,6 +1376,7 @@
     "address": "530 US 41 Bypass S, Venice",
     "sourceUrls": [
       "https://www.mipueblomexican.com/",
+      "https://www.yourobserver.com/news/2014/sep/24/kitchen-mi-pueblo/",
       "https://www.visitsarasota.com/dining/mi-pueblo-mexican-restaurants"
     ]
   },
@@ -1655,14 +1654,14 @@
     "category": "food",
     "hours": "Daily 11am–10pm",
     "vibeCheck": "The downtown-Sarasota outpost of the Anna Maria Island Tex-Mex favorite — tacos, power bowls, and margaritas in a colorful, casual room. Lunch and dinner, no reservations.",
-    "whyGo": "Austin-style Tex-Mex on the North Trail — tacos, burritos, and power bowls with a lunchtime margarita happy hour — the mainland sibling of the popular Bradenton Beach original.",
+    "whyGo": "This North Trail Wicked, at 1603 N. Tamiami Trail, is lunch and dinner only (11 a.m.–10 p.m.); the Bradenton Beach sibling is the breakfast room. Happy hour is noon–5 daily and all day Sunday — $7 house margs, free chips and salsa. Live music runs 6–9 p.m. daily here, same clock as the island room.",
     "bestFor": "A casual, no-fuss Tex-Mex lunch or dinner in Sarasota. Not for a quiet or upscale meal — it's lively and first-come, first-served.",
-    "knownFor": "Austin-style Tex-Mex — tacos, burritos, and power bowls — the Sarasota location of the Wicked Cantina brand.",
-    "powerhouseProof": null,
+    "knownFor": "North Trail Wicked: lunch/dinner only; $7 house margs noon–5",
+    "powerhouseProof": "Posted happy hour: house margs $7, flavored $8, 12 oz select beer $1.75, wells and house wine $5, chips and salsa free with purchase, noon–5 daily and all day Sunday. Live music 6–9 p.m. daily on the Sarasota location page.",
     "foodMove": "Order the Wicked Tacos or carnitas street tacos, or the signature Power Bowl ($$). (Live menu below.)",
     "drinkMove": "House margaritas are the draw, with a daily 12–5pm happy hour (all day Sunday) that hits at lunch ($).",
-    "insiderMove": "The noon-to-5pm daily happy hour (and all-day Sunday) makes it a solid lunchtime margarita stop; there are no reservations, so it's first-come, first-served.",
-    "verifiedStory": null,
+    "insiderMove": "Order the vegan or gluten-free tacos here — official copy will not guarantee them at Anna Maria Island. Sunday happy hour does not end at 5.",
+    "verifiedStory": "Official locations copy splits the brand: Bradenton Beach serves breakfast 7:30–10:30 a.m.; Sarasota at 1603 N. Tamiami Trail opens at 11 a.m. for lunch and dinner only, daily to 10 p.m. The lunch-and-dinner menu dates the copyright 2014–2026 and limits guaranteed vegan and gluten-free plates to Sarasota and St. Pete.",
     "funFact": "Unlike the Bradenton Beach original, the Sarasota location skips breakfast and opens at 11am — lunch and dinner only.",
     "currentUsefulDetail": "Open daily 11am–10pm (no breakfast at this location); first-come, first-served. Verified 2026-07-18; refresh before display.",
     "watchOut": "No reservations, and it opens at 11am (no breakfast here). It's casual, lively Tex-Mex, not a quiet dinner spot.",
@@ -1671,7 +1670,9 @@
     "address": "1603 N Tamiami Trl, Sarasota",
     "sourceUrls": [
       "https://wickedcantina.com/",
-      "https://wickedcantina.com/lunch-%26-dinner"
+      "https://wickedcantina.com/locations",
+      "https://wickedcantina.com/lunch-%26-dinner",
+      "https://wickedcantina.com/happy-hour"
     ]
   },
   {
@@ -1986,14 +1987,14 @@
     "category": "nightlife",
     "hours": "Sun–Thu 11:30am–10pm; Fri–Sat 11:30am–11pm",
     "vibeCheck": "The quintessential Gulf-front tiki bar at the base of the Venice Fishing Pier — frozen drinks, fresh seafood, live music, and a front-row sunset. Sandy, loud, and beloved, a proper Florida beach-bar landmark.",
-    "whyGo": "A classic Florida beach-bar experience — near-the-sand seafood and frozen cocktails with live music and one of the best sunset views in Venice, right at the fishing pier. It's been the local landmark for 35 years.",
+    "whyGo": "Sharky's opened February 10, 1987, in a 78-seat concession at the base of the City of Venice Fishing Pier. The pier is city-owned, open 24 hours, and free; Fins next door is the 2013 steak-and-sushi sibling, not this room. Come for the Gulf deck, the grouper wrap, and live music.",
     "bestFor": "Sunset drinks, live music, and a laid-back seafood dinner with your toes near the Gulf. Not for a quiet or upscale meal (that's Fins next door), and not for dogs.",
-    "knownFor": "Gulf-front dining and drinking at the Venice pier — fresh seafood, frozen cocktails, live music, and sunsets — a beach bar voted among Florida's best.",
-    "powerhouseProof": "Voted Florida's Best Beach Bar in 2013, 2018, and 2019, and a Venice-area landmark for over 35 years.",
+    "knownFor": "1987 pier concession at the City of Venice Fishing Pier — not Fins",
+    "powerhouseProof": "City pier: 24/7, free, 1600 S. Harbor Drive, Sharky's named on the city page. Operator dine-in menu prices the grouper wrap at $21. Operator homepage claims Best Beach Bar votes in 2013, 2018, and 2019 (award body not named).",
     "foodMove": "Greg's Grouper Sandwich ($$) — chargrilled, fried, or blackened — is the go-to; the fried Captain Sharky's Platter ($$$) piles on grouper, shrimp, and scallops. (Live menu below.)",
     "drinkMove": "The frozen drinks are the signature — there's a whole frozen-cocktail menu ($$) built for the beach.",
-    "insiderMove": "Come for sunset and stay for the live music at the tiki bar; the site even runs partly on solar, with EV and golf-cart chargers if you're driving electric.",
-    "verifiedStory": "Sharky's has anchored the base of the Venice Fishing Pier for more than 35 years, growing into a local landmark that added the upscale Fins as a next-door sibling in 2013.",
+    "insiderMove": "Use the free 24-hour pier lot, then stay on the Sharky's deck — Fins is the 2013 steak room. The city bans dogs, glass, and tobacco on the pier itself. EV and golf-cart chargers sit by the solar field.",
+    "verifiedStory": "Mike Pachota won the 1986 city bid to turn a beach concession at the Venice Fishing Pier into a restaurant. Sharky's opened February 10, 1987, with 78 seats. His son Justin now runs Venice Pier Group (Sharky's, Fins, Snook Haven). Fins opened next door on December 13, 2013.",
     "funFact": "For a Gulf tiki bar, it's surprisingly green — the site runs partly on solar power and offers four EV charging stations plus two for golf carts.",
     "currentUsefulDetail": "Open Sunday–Thursday 11:30am–10pm and Friday–Saturday to 11pm; several headline seafood items are market-price. Verified 2026-07-18; refresh before display.",
     "watchOut": "It's a busy, loud beach bar by design, not a quiet dinner — and it's not dog-friendly (service dogs only). Some marquee items like the grouper sandwich are market-price, so ask.",
@@ -2002,7 +2003,10 @@
     "address": "1600 Harbor Dr S, Venice",
     "sourceUrls": [
       "https://www.sharkysonthepier.com/",
-      "https://www.sharkysonthepier.com/menu/dine-in"
+      "https://www.sharkysonthepier.com/menu/dine-in",
+      "https://www.finsatsharkys.com/about",
+      "https://www.venicegov.com/visiting/fishing-pier",
+      "https://www.visitvenicefl.org/places/sharkys-on-the-pier/"
     ]
   },
   {
@@ -2065,14 +2069,14 @@
     "category": "nightlife",
     "hours": "Daily 11am–2am (open 365 days)",
     "vibeCheck": "A no-frills downtown Venice Irish pub that never closes — open 11am to 2am every single day, with live entertainment seven nights a week and sidewalk seating. Old-school, late, and unpretentious.",
-    "whyGo": "The late-night play in downtown Venice — an Irish pub and grille with live music or entertainment every night of the year, open until 2am when everything else has shut. A stay-till-close bar.",
+    "whyGo": "T.J. Carney's has been the family-owned Irish pub on West Venice Avenue since 1998. Doors run 11 a.m. to 2 a.m. daily, with a late-night board from 10 p.m. to 1 a.m. Live music is posted Monday and Thursday through Saturday — not every night.",
     "bestFor": "Night owls and live-music fans who want a casual late drink downtown. Not for a refined cocktail or a quiet meal — it's an old-school pub.",
-    "knownFor": "Being downtown Venice's late-night Irish pub — live entertainment seven nights a week and a kitchen open unusually late.",
-    "powerhouseProof": null,
+    "knownFor": "Family-owned Venice Avenue Irish pub since 1998; kitchen to 2 a.m.",
+    "powerhouseProof": "Official clock 11 a.m.–2 a.m. daily; happy hour 3–6 bar only; late-night menu 10 p.m.–1 a.m. Music nights printed as Monday and Thursday–Saturday.",
     "foodMove": null,
     "drinkMove": null,
-    "insiderMove": "This is the one that stays open — 11am to 2am, 365 days a year — so it's the late-night or holiday backup when other spots close; there's live entertainment every night.",
-    "verifiedStory": null,
+    "insiderMove": "Happy hour is 3–6 at the bar only. After 10 p.m. order off the late-night board (flatbreads, skins, wings) until 1 a.m. Do not count on a Sunday band — official music nights skip Tuesday, Wednesday, and Sunday.",
+    "verifiedStory": "The official site dates the room to 1998 on West Venice Avenue and still calls it family-owned. Venice MainStreet's 2020 annual report lists T.J. Carney's among downtown businesses. The live card's /menu URL is dead; the 2026 homepage is the menu.",
     "funFact": "T.J. Carney's doesn't close — it's open 11am to 2am every day of the year, holidays included.",
     "currentUsefulDetail": "Open 11am–2am, seven days a week, all year, with live entertainment nightly. Its menu of Irish pub fare (shepherd's pie, corned beef and cabbage, fish and chips) is posted only as images online, so check current dishes and prices on site. Verified 2026-07-18; refresh before display.",
     "watchOut": "It's an old-school pub, not a polished cocktail bar, and reviews run mixed. The menu is image-only online (no posted prices), and the \"family-owned since 1998\" line you may see isn't confirmed.",
@@ -2081,7 +2085,8 @@
     "address": "231 W Venice Ave, Venice",
     "sourceUrls": [
       "https://tjcarneys.com/",
-      "https://tjcarneys.com/menu"
+      "https://www.visitsarasota.com/blog/downtown-dining-venice-morning-night",
+      "https://www.visitvenicefl.org/wp-content/uploads/2021/01/VMS_2020Annual_Report_FINAL.pdf"
     ]
   },
   {
@@ -2145,14 +2150,14 @@
     "category": "nightlife",
     "hours": "Daily 11am–2am",
     "vibeCheck": "A neighborhood sports-and-live-music bar in Osprey — 20-plus TVs, pool, darts, shuffleboard, a covered patio, and BBQ off the kitchen. Casual, local, open till 2am. (Not the rooftop bar the name might suggest.)",
-    "whyGo": "An easy Osprey hang for the game or live music — sports on every screen, bar games, a patio, and barbecue, open late. A come-as-you-are spot, not a scene.",
+    "whyGo": "The O Bar is Osprey's sports room at 748 South Tamiami Trail: 20-plus HD TVs, three billiard tables, a 22-foot shuffleboard, and two dart boards. The covered patio has TVs; smoking sits in a separate outdoor area. The kitchen stays open late on American bar plates.",
     "bestFor": "Sports fans, live-music nights, and locals who want a casual late drink and some barbecue. Not for a cocktail-forward or upscale evening.",
-    "knownFor": "Being a neighborhood sports bar with live music — 20-plus TVs, pool, darts, and shuffleboard, plus a BBQ kitchen and a covered outdoor patio.",
-    "powerhouseProof": null,
+    "knownFor": "Osprey sports room: 20-plus TVs, 22-foot shuffleboard, three pool tables",
+    "powerhouseProof": "About page lists the table count and 22-foot shuffleboard. Menu page exists as dated image boards (BBQ 6.10.26; cocktails 6.3.25) without extractable text this pass.",
     "foodMove": "Barbecue is the food angle here — there's a dedicated BBQ menu alongside the bar fare ($–$$). (Menu link below.)",
     "drinkMove": null,
-    "insiderMove": "Come for live-music nights — it doubles as a small live-music venue — and the bar games (pool, darts, shuffleboard); the covered patio is the spot in nice weather.",
-    "verifiedStory": null,
+    "insiderMove": "The site does not print a standing band night — use the calendar page or @obarosprey. Take the covered patio if you want TVs without the smoking pad.",
+    "verifiedStory": "Official about copy places the bar in Osprey with 20-plus HD TVs across the major U.S. leagues plus UFC and international soccer, a covered patio with TVs, and a separate outdoor smoking area. The same page names two dart boards, a 22-foot shuffleboard, three billiard tables, and arcade games. No founding year is printed.",
     "funFact": "Despite the name, it's not a rooftop or hotel \"O bar\" — it's a down-to-earth Osprey sports bar that also books live bands.",
     "currentUsefulDetail": "Generally open daily 11am–2am, with live music on select nights. Verified 2026-07-18; refresh before display.",
     "watchOut": "It's a casual Osprey sports bar, not the rooftop cocktail spot the name might imply, and its online menu is image-only — check current offerings on site.",
@@ -2161,7 +2166,9 @@
     "address": "748 S Tamiami Trl, Osprey",
     "sourceUrls": [
       "https://www.theobarosprey.com/",
-      "https://www.theobarosprey.com/menu"
+      "https://www.theobarosprey.com/about-us",
+      "https://www.theobarosprey.com/menu",
+      "https://www.theobarosprey.com/events"
     ]
   },
   {
@@ -2387,14 +2394,14 @@
     "category": "shopping",
     "hours": "Open-air district; hours vary by shop (Music on Main 1st Fri 6–9pm)",
     "vibeCheck": "The original Lakewood Ranch town center — a walkable Main Street of boutiques, cafés, international restaurants, and a six-screen cinema, along a lakeside path. More established and strollable than the newer Waterside.",
-    "whyGo": "A pedestrian town center for an evening out — dinner, a movie at the Lakewood Ranch Cinemas, boutique browsing, and a lakeside walk — plus popular monthly street events. A relaxed, walkable destination.",
+    "whyGo": "Main Street at Lakewood Ranch marked 20 years in 2025. It is the master-planned town center with a six-screen cinema and a walk along Lake Uihlein — not Waterside Place. Music on Main, first Friday 6–9 p.m., draws about 4,500 people.",
     "bestFor": "Evening strolls, dinner-and-a-movie, and monthly community events. Not a historic downtown — it's a master-planned, manicured town center.",
-    "knownFor": "Being Lakewood Ranch's original Main Street town center — 30-plus boutiques, international restaurants, a six-screen cinema, and monthly events like Music on Main.",
-    "powerhouseProof": "Lakewood Ranch's original Main Street, open since December 2005, with more than 30 boutiques, seven international restaurants, and a six-screen cinema — celebrating its 20th anniversary in 2025.",
+    "knownFor": "2005 LWR town center: cinema, Lake Uihlein, first-Friday Music on Main",
+    "powerhouseProof": "Observer: ~4,500 people at Music on Main (LWR events manager). Official directory lists Lakewood Ranch Cinemas on this street. Car show: first Wednesday 5–8 p.m. in season (Observer).",
     "foodMove": null,
     "drinkMove": null,
-    "insiderMove": "Time a visit to a signature event — Music on Main is the first Friday of the month (6–9pm), and the classic car show is the first Wednesday (5–8pm in season); use the Main Street garage and arrive early.",
-    "verifiedStory": null,
+    "insiderMove": "First Friday, bring a chair before 6 p.m. — Observer regulars say a late arrival means circling the lot. Sunday farmers-market hours in the operator deals sit at Waterside Place, not on this Main Street page.",
+    "verifiedStory": "Observer’s 2025 milestone piece treats Main Street as Lakewood Ranch’s stand-in downtown — shops, a six-screen cinema, Lake Uihlein path — on its 20th anniversary. Music on Main began a year after the street opened and is now a first-Friday 6–9 p.m. block party. The operator’s Waterside Place page is a different district.",
     "funFact": "Music on Main, the monthly first-Friday street party, now draws around 4,500 people a night.",
     "currentUsefulDetail": "An open-air district, so hours vary by shop and restaurant; signature events are Music on Main (first Friday, 6–9pm) and the classic car show (first Wednesday, 5–8pm, in season). Verified 2026-07-18; refresh before display.",
     "watchOut": "It's a manicured, master-planned town center rather than a historic downtown, and the tenant mix has turned over across 20 years. The famous Sunday farmers market is now at Waterside Place, not here.",
@@ -2403,7 +2410,8 @@
     "address": "8100 Lakewood Ranch Blvd, Lakewood Ranch",
     "sourceUrls": [
       "https://www.lakewoodranch.com/main-street/",
-      "https://www.yourobserver.com/news/2025/nov/15/lakewood-main-street-milestone/"
+      "https://www.yourobserver.com/news/2025/nov/15/lakewood-main-street-milestone/",
+      "https://www.lakewoodranch.com/waterside-place/"
     ]
   },
   {
@@ -2439,14 +2447,14 @@
     "category": "shopping",
     "hours": "Full market Fri–Sun 9am–4pm (seasonal Wed Nov–Apr); free admission & parking",
     "vibeCheck": "A sprawling Bradenton flea market that's part treasure hunt, part farmers market, part food court — 600-plus booths across 145,000 square feet, with a big air-conditioned indoor section for hot days. Cheap, chaotic, and fun.",
-    "whyGo": "One of the region's biggest flea markets — 600-plus booths of bargains, oddities, and souvenirs, plus a cheap open-air produce market and a food court. Free to get in and park, and a solid rainy-or-hot-day wander.",
+    "whyGo": "The same family has run Red Barn since 1981: 145,000 square feet, more than 600 booths, 80,000 of them air-conditioned. Visit Sarasota posts the full market Friday–Sunday 9 a.m.–4 p.m., with seasonal Wednesdays November–April. Admission and parking are free.",
     "bestFor": "Bargain-hunters, souvenir-seekers, and cheap-produce shoppers. Not for anyone wanting polished boutiques or a quick in-and-out.",
-    "knownFor": "Being a huge family-run flea market since 1981 — 600-plus booths, 80,000 square feet of air-conditioned indoor shopping, an open-air farmers market, and a food court.",
-    "powerhouseProof": "Owned and run by the same family since 1981 — 145,000 square feet with more than 600 booths, including 80,000 square feet of air-conditioned indoor shopping.",
+    "knownFor": "Family-run since 1981; 600-plus booths, 80,000 sq ft of A/C",
+    "powerhouseProof": "Official 1981 / 145,000 / 80,000 / 600-plus figures. Visit Sarasota: free admission and parking; full market Fri–Sun 9–4; seasonal Wednesday November–April. enjoyflorida.com repeats 600-plus vendor spaces.",
     "foodMove": null,
     "drinkMove": null,
-    "insiderMove": "The full market runs Friday–Sunday (plus seasonal Wednesdays November–April), so don't come Monday or Tuesday expecting the whole thing; the 80,000-square-foot A/C hall is the escape on a hot day. Admission and parking are free.",
-    "verifiedStory": null,
+    "insiderMove": "Come Friday–Sunday (or a seasonal Wednesday) if you want the full 600-booth floor. Tuesday the plaza and the north-end produce stand can still be open. Use the 80,000-square-foot A/C hall when the lot is hot.",
+    "verifiedStory": "Official copy: the same family has operated the Bradenton market since 1981, now 145,000 square feet with more than 600 booths and 80,000 square feet of air-conditioned indoor shopping plus an open-air produce stand. The operator splits “Plaza Only” from the “Entire Market.”",
     "funFact": "At 145,000 square feet and 600-plus booths it's one of the area's largest flea markets — and both admission and parking are free.",
     "currentUsefulDetail": "The full flea market runs Friday–Sunday 9am–4pm (with seasonal Wednesdays November–April); the front plaza shops keep some additional weekday hours. Free admission and parking. Verified 2026-07-18; refresh before display.",
     "watchOut": "It's weekend-focused (Fri–Sun), much of it is outdoor (hot in summer), and vendor quality is hit-or-miss — this is a treasure hunt, not a tidy market. Some regulars note more empty booths than in years past.",
@@ -2455,7 +2463,9 @@
     "address": "1707 1st St E, Bradenton",
     "sourceUrls": [
       "https://redbarnfleamarket.com/",
-      "https://redbarnfleamarket.com/hours/"
+      "https://redbarnfleamarket.com/hours/",
+      "https://www.visitsarasota.com/shopping/red-barn-flea-market",
+      "https://www.enjoyflorida.com/shop-with-a-breeze/"
     ]
   },
   {
@@ -5153,14 +5163,14 @@
     "category": "attractions",
     "hours": "Monday–Thursday 4:30 p.m.–midnight; Friday 4:30 p.m.–1 a.m.; Saturday noon–1 a.m.; Sunday noon–11 p.m.",
     "vibeCheck": "A warehouse-scale indoor hall on Clark Center Avenue — neon arcade, a full billiard room, and an indoor kart track. You hear credits tap more than conversation.",
-    "whyGo": "More than 50,000 square feet of indoor arcade, 18 pool tables, go-karts, and SpinZone bumper cars — a Clark Center night when the weather or the hour rules out the beach.",
+    "whyGo": "Livingston's is more than 50,000 square feet of indoor arcade, go-karts, SpinZone, and 18 pool tables on Clark Center Avenue — over 30 years in Sarasota. Weeknights do not open until 4:30 p.m. The Royal Room's ten 9-foot Brunswick Gold Crowns are 21 and over.",
     "bestFor": "Families after 4:30 on a weeknight, or a late pool game. Skip it if you want outdoor mini-golf or a Lido arcade.",
-    "knownFor": "Indoor go-karts, a 21-and-over Royal Room of Brunswick tables, and a Fun Card arcade with more than 2,800 prizes.",
-    "powerhouseProof": "Official about page: more than 50,000 square feet and more than 30 years in Sarasota. Eighteen tables — eight Olhausen Pro 8-foot, ten 9-foot Brunswick Gold Crown in the adult room.",
+    "knownFor": "50,000-sq-ft indoor FEC; 21+ Brunswick Gold Crown room; weeknights 4:30",
+    "powerhouseProof": "Printed clocks: Mon–Thu 4:30 p.m.–midnight; Fri 4:30 p.m.–1 a.m.; Sat noon–1 a.m.; Sun noon–11 p.m. Printed prices: Fun Card packs from $10; unlimited arcade $16/hour excluding ticketed games; billiards $15/table/hour; kart $13/5 min; SpinZone $9/5 min.",
     "foodMove": "The bar and grill lists pizzas, burgers, baskets, salads, and sandwiches with draft, craft, and bottled beer, including local taps.",
     "drinkMove": "Handcrafted cocktails and local beers on tap at the indoor bar. The Royal Room is 21 and over.",
-    "insiderMove": "Weeknights do not open until 4:30 p.m. Load a Fun Card; unlimited arcade is $16 an hour and excludes ticketed games.",
-    "verifiedStory": "The official about page dates the business as more than 30 years in Sarasota, now on Clark Center Avenue with a smoke-free floor and an outdoor smoking area for guests 21 and over.",
+    "insiderMove": "Tuesday through Thursday the door stays locked until 4:30 p.m. Load a Fun Card; the $16 unlimited hour excludes ticketed games. The ten Brunswick Gold Crowns are inside the 21+ Royal Room.",
+    "verifiedStory": "Official about dates more than 30 years in Sarasota and the current Clark Center Avenue hall at more than 50,000 square feet, smoke-free on the floor with an outdoor smoking area for guests 21 and over. Eighteen tables are split: eight Olhausen Pro 8-foot tables and ten 9-foot Brunswick Gold Crowns in the adult Royal Room.",
     "funFact": "The indoor kart track holds up to 14 cars at a time; SpinZone holds up to 12.",
     "currentUsefulDetail": "Printed prices: arcade credit packs from $10; billiards $15 a table an hour; go-kart $13 / 5 minutes or $33 / 15 minutes; SpinZone $9 / 5 minutes. Confirm at the desk. Refresh before display.",
     "watchOut": "This is not Arcade Monsters on Lido and not Smugglers Cove. Indoor only, and the Royal Room is 21 and over.",
@@ -5171,8 +5181,8 @@
       "https://srqlivingstons.com/",
       "https://srqlivingstons.com/about-us/",
       "https://srqlivingstons.com/contact/",
-      "https://srqlivingstons.com/terms-conditions/",
-      "https://srqlivingstons.com/corporate-events/"
+      "https://srqlivingstons.com/corporate-events/",
+      "https://srqlivingstons.com/terms-conditions/"
     ]
   },
   {
