@@ -115,6 +115,13 @@ ok(atlasCardFor(index, HOLMES_PIN) && atlasCardFor(index, HOLMES_PIN).placeId ==
 ok(!cards.some((c) => c.placeId === HOLMES_PIN), "do not publish a second Holmes Beach card");
 ok(!atlasCardFor(index, POINT_OF_ROCKS) && !cards.some((c) => c.placeId === POINT_OF_ROCKS), "Point of Rocks must stay held — no card");
 
+// ── 6. Marina Jack twin (same 2 Marina Plaza listing) aliases; no second card
+const MARINA_JACK = "ChIJx-U-VRFAw4gRUUDwK8ht44s";
+const MARINA_JACK_TWIN = "ChIJx-U-VRFAw4gR7HuX82hYW8w";
+ok(resolveAtlasId(MARINA_JACK_TWIN) === MARINA_JACK, "Marina Jack twin must alias to the existing dining card");
+ok(atlasCardFor(index, MARINA_JACK_TWIN) && atlasCardFor(index, MARINA_JACK_TWIN).placeId === MARINA_JACK, "Marina Jack twin did not resolve to the existing card");
+ok(!cards.some((c) => c.placeId === MARINA_JACK_TWIN), "do not publish a second Marina Jack card");
+
 const beachMissing = missing.filter((r) => r.category === "beaches");
 console.log("\nAtlas-590 place_ids with no publish-ready editorial card:");
 console.log(`  ${missing.length} of ${atlas590.length} Atlas-590 rows`);
