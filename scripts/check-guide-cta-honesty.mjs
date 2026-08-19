@@ -24,6 +24,7 @@ import { GUIDES } from "../lib/guides.js";
 import { guidePrimaryCta, guideIntent, pickVenueLabel } from "../lib/guideCta.js";
 import { couponForPlaceName } from "../lib/coupons.js";
 import { siteTodayStr } from "../lib/siteTime.js";
+import { viatorProductGoUrl } from "../lib/affiliates.js";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
@@ -80,7 +81,22 @@ for (const [cta, want, why] of EXACT_FIXTURES) {
 ok(EXACT_FIXTURES.some(([c]) => exactLabelIsHonest(c)) && EXACT_FIXTURES.some(([c]) => !exactLabelIsHonest(c)),
   "PROBE BROKEN: the exact-label rule must be capable of both answers");
 
-let monetized = 0, tours = 0, deals = 0, searches = 0;
+let monetized = 0, tours = 0, deals = 0, searches = 0, curatedGoWraps = 0;
+
+const GATORLAND_PRODUCT =
+  "https://www.viator.com/tours/Orlando/Gatorland-General-Admission-Ticket/d663-3458ENTRY";
+const gatorPicks = (GUIDES["gatorland-vs-wild-florida"] && GUIDES["gatorland-vs-wild-florida"].picks) || [];
+ok(gatorPicks[0] && gatorPicks[0].viatorUrl === GATORLAND_PRODUCT,
+  "Gatorland landing product must stay d663-3458ENTRY — do not invent a SKU");
+ok(gatorPicks.map((p) => p && p.name).join("|") ===
+  "Gatorland: the classic park|Wild Florida: the airboat experience|The verdict",
+  "Gatorland vs Wild Florida ranking must stay Gatorland, then Wild Florida, then the verdict");
+ok(!((GUIDES["swim-with-manatees-crystal-river"] || {}).picks || []).some((p) => p && p.viatorUrl),
+  "Crystal River manatee guide must not gain a guessed product");
+ok(!((GUIDES["winter-park-scenic-boat-tour"] || {}).picks || []).some((p) => p && p.viatorUrl),
+  "Winter Park scenic boat must not gain a guessed product");
+ok(!/awin/i.test(JSON.stringify(GUIDES["gatorland-vs-wild-florida"] || {})),
+  "Gatorland guide must not grow an Awin path");
 
 for (const slug of slugs) {
   const cta = guidePrimaryCta(GUIDES[slug], today);
@@ -111,6 +127,18 @@ for (const slug of slugs) {
       // way the old label did.
       ok(exactLabelIsHonest(cta),
         `${slug}: an exact CTA must name what it opens — the product title, or the VENUE from the pick, or nothing at all — got "${cta.label}"`);
+      const pick = (GUIDES[slug].picks || []).find((p) => p && p.name === cta.place);
+      if (pick && pick.viatorUrl) {
+        curatedGoWraps++;
+        ok(typeof cta.href === "string" && cta.href.startsWith("/api/viator/go?"),
+          `${slug}: a curated exact product must go through /api/viator/go, not a bare partner URL (got ${cta.href})`);
+        const u = new URL("https://x.test" + cta.href);
+        ok(u.searchParams.get("product") === pick.viatorUrl,
+          `${slug}: /go must carry the curated product, not a different SKU (got ${u.searchParams.get("product")})`);
+        const built = viatorProductGoUrl(pick.viatorUrl, GUIDES[slug].region || "Orlando", "guide", "guide");
+        ok(cta.href === built,
+          `${slug}: href must be the existing go builder output, not a hand-rolled path`);
+      }
     } else {
       const region = GUIDES[slug].region || "Orlando";
       ok(cta.label.includes(region),
@@ -202,6 +230,16 @@ ok(!/See tickets for \$\{p\.name\}/.test(cta_src),
   "the exact label must never interpolate the raw pick name — that is the shipped bug");
 ok(/See tickets & availability/.test(cta_src),
   "an unnameable venue must fall back to a label that names nothing");
+ok(/viatorProductGoUrl\s*\(\s*p\.viatorUrl/.test(cta_src),
+  "a curated viatorUrl must be handed to viatorProductGoUrl — weaker than the CALL above, stated as weaker");
+
+// THE WRAP, CALLED. Bare, Gatorland is a search and the block above never
+// runs. With a PID it is exact, so this must have fired — otherwise the
+// wrap assertion is decoration on the only pass that can see it.
+if (process.env.NEXT_PUBLIC_VIATOR_PID) {
+  ok(curatedGoWraps >= 1,
+    `PROBE BROKEN: credentialed pass found no curated exact wrap to assert (got ${curatedGoWraps})`);
+}
 
 // 7. The events must carry `exact`, or none of this is readable.
 const conv = readFileSync(REPO + "app/guides/[slug]/GuideConversion.js", "utf8")
@@ -221,5 +259,6 @@ console.log(
   `check-guide-cta-honesty: OK — ${pass} assertions across ${slugs.length} guides ` +
   `(${monetized} monetized, ${tours} tour-intent of which ${searches} are searches, ${deals} live deals); ` +
   `every CTA carries a boolean exact, no search is labelled as tickets, ` +
-  `search labels name the region and exact labels name the place, events carry exact`
+  `search labels name the region and exact labels name the place, events carry exact; ` +
+  `curated exact products wrap through /api/viator/go (${curatedGoWraps} wrap(s) this pass)`
 );
