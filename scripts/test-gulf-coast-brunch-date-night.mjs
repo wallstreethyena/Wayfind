@@ -165,8 +165,15 @@ ok(foodById.get("ChIJSZyKtGVaw4gRkKUbiPqvOVI")?.name === "Original Word of Mouth
   "positive control: Venice Word of Mouth card is present");
 ok(foodById.get("ChIJs8HMPKxDw4gR8rXHdqdvpmE")?.name === "Ophelia's on the Bay",
   "positive control: Ophelia's card is present");
-ok(!cards.some((c) => c.category === "food" && /tampa|winter park/i.test(c.address || "")),
-  "yardstick check: there are still no Tampa / Winter Park food cards to invent a chapter from");
+// Winter Park food cards now exist (Magical Dining 2026: ÔMO, AVA). That does
+// not authorize a Winter Park chapter on THIS Gulf Coast guide — the picks
+// and off-coast name checks above still forbid it. Tampa is still empty.
+const wpFood = cards.filter((c) => c.category === "food" && /winter park/i.test(c.address || ""));
+const tampaFood = cards.filter((c) => c.category === "food" && /tampa/i.test(c.address || ""));
+ok(wpFood.length >= 2, `Winter Park food cards exist (${wpFood.map((c) => c.name).join(", ")}) — Magical Dining; this guide still must not grow a chapter from them`);
+ok(tampaFood.length === 0, "there are still no Tampa food cards to invent a chapter from");
+ok(picks.every((p) => !wpFood.some((c) => c.placeId === p.placeId)),
+  "the Gulf Coast brunch guide still does not pick a Winter Park card");
 
 if (fail.length) {
   console.error("test-gulf-coast-brunch-date-night: FAIL");
