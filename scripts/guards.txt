@@ -436,3 +436,12 @@ node scripts/check-place-card-css-contract.mjs
 
 # v8.17 — no inline style may paint text in its own background color (the invisible landing score chip)
 node scripts/check-invisible-text.mjs
+
+# v8.22 — the card layout CONTRACT, measured on real Chromium boxes at 390px
+# with card CSS alone (the embed condition where box-sizing broke /guides/*)
+node scripts/test-place-card-layout.mjs
+# v8.22 — the partner rails open at their own #1: scrollLeft zeroed on every
+# content-identity change (the mid-track open bug, owner screenshots on every
+# Activities submenu), and place-matched deals show the exact Wayfind score
+# their rank used — never an invented one, never none when we have it.
+node scripts/check-rail-scroll-reset.mjs

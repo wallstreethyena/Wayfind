@@ -188,8 +188,17 @@ ok(/const EV_RAIL_MIN_H = \d+/.test(code), "EV_RAIL_MIN_H constant missing");
     "rail tiles carry touch-action:manipulation — first tap must act, not wait for a possible second");
   ok(!/\.wf8\.is-open \.wf8-tile\{[^}]*opacity:\.4/.test(railCssFlat) && /\.wf8\.is-open \.wf8-tile\{[^}]*opacity:\.8/.test(railCssFlat),
     "an open rail menu never dims the other tiles to the dead-dark .45 — .8x keeps them alive");
-  ok(/\.wf8-tile\.is-sel[^}]*box-shadow:0 0 0 2\.5px var\(--wf8-acc2\)/.test(railCssFlat),
-    "the selected tile is marked by the accent ring, not by darkness alone");
+  // v8.22 (owner, hours after the v8.20 ring shipped: "I don't like the
+  // border — a pulsing glow behind the active card would be more subtle and
+  // cool"). Dated reversal: the ring is OUT, the glow is the marker. The
+  // invariant stays the same — selection is signaled affirmatively, never by
+  // darkness alone — and reduced-motion gets a static glow.
+  ok(/wf8SelGlow/.test(railCssFlat) && /\.wf8-tile\.is-sel[^}]*animation:wf8SelGlow/.test(railCssFlat),
+    "the selected tile is marked by the pulsing glow (v8.22 owner call), not by darkness alone");
+  ok(!/\.wf8-tile\.is-sel[^}]*box-shadow:0 0 0 2\.5px/.test(railCssFlat),
+    "…and the v8.20 hard ring has not quietly returned");
+  ok(/prefers-reduced-motion:reduce\)[^@]*\.wf8-tile\.is-sel[^}]*animation:none/.test(railCssFlat),
+    "reduced-motion keeps a static glow instead of the pulse");
 }
 // v7.06: the events RAIL moved into the home menu (BestNearby's ninth section),
 // so the card-row reserve moved with it. EventsRailSkeleton reserves the promo
@@ -245,5 +254,21 @@ ok(!!cssM, "WF_LAYOUT_CSS missing");
 ok(/\.wf-sk\{/.test(cssM[1]), "the .wf-sk shimmer style is missing");
 ok(/prefers-reduced-motion:reduce\)\{\.wf-sk\{animation:none\}/.test(cssM[1].replace(/\s/g, "")),
   "the shimmer must be disabled under prefers-reduced-motion");
+
+// 7. v8.22 (owner: "when the amazon rail card is selected make sure it
+// becomes the main focus on the screen"). The glow (asserted above via
+// wf8SelGlow) marks the selection; DaypartRail must also CENTER it — an
+// effect keyed on the selection that scrolls the .is-sel tile inside the
+// track. Role-asserted: the querySelector, the centering arithmetic and the
+// [selected] dependency, in one effect — not the names scattered anywhere.
+{
+  const dr = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
+  ok(/const tile = track\.querySelector\("\.wf8-tile\.is-sel"\)/.test(dr),
+    "DaypartRail: the selection effect finds the selected tile in the track");
+  ok(/tile\.offsetLeft - \(track\.clientWidth - tile\.clientWidth\) \/ 2/.test(dr),
+    "DaypartRail: the selected tile is CENTERED, not merely nudged into view");
+  ok(/\}, \[selected\]\);\n  const selPlaces/.test(dr),
+    "DaypartRail: the centering effect re-runs on every selection change");
+}
 
 console.log(`test-first-screen: OK — ${passed} assertions (the first screen paints server-rendered content with no fetch; the rail reserves its own box; the events rail is never gated on the Places search; all three states handled; reduced-motion respected)`);

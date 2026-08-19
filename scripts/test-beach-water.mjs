@@ -75,7 +75,7 @@ ok(!cron.includes("Math.random") && !/result:\s*["']Good["']/.test(cron), "no in
   ok(withRow.includes("water 78°"), "chip keeps water temp");
   // v8.19 — plain-language mapping (owner): the band renders as what it
   // MEANS for a swim, via WATER_PLAIN, not the bare lab word.
-  ok(withRow.includes("Clear — great for swimming"), "quality renders in plain language when a wf_beach_water row exists");
+  ok(withRow.includes("Great for a swim"), "quality renders in plain language when a wf_beach_water row exists"); // v8.22: three-word form
   ok(!withRow.includes("Good"), "the bare lab word never reaches the chip");
   ok(!withRow.some((b) => /wave/i.test(b)), "waves are not advertised when quality is the chip's water claim");
   ok(withRow.includes("wind 8 mph E"), "chip keeps wind");
@@ -83,7 +83,7 @@ ok(!cron.includes("Math.random") && !/result:\s*["']Good["']/.test(cron), "no in
   ok(!noRow.some((b) => /Good|Moderate|Poor|Advisory|swim|wave/i.test(b)),
      "no water row → omit quality (lab word OR plain phrase) AND omit waves");
   ok(noRow.includes("water 78°") && noRow.includes("wind 8 mph E"), "temp and wind still show without a quality row");
-  ok(waterQualityBit({ result: "Moderate", advisory: false, sampled_at: new Date(fresh - 8 * 86400000).toISOString() }, fresh) === "Fair — fine for a swim (last known)",
+  ok(waterQualityBit({ result: "Moderate", advisory: false, sampled_at: new Date(fresh - 8 * 86400000).toISOString() }, fresh) === "Fair for a swim · last known", // v8.22 short form
      "stale >7d quality may show last known — in the same plain language");
   ok(waterQualityBit({ result: "Mystery" }) === null, "unknown result is omitted — never invent a score");
   const rail = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");

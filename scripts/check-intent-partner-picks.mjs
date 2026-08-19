@@ -152,7 +152,16 @@ ok(!/https?:\/\//.test(placeClientSrc), "landmark hooks contain no raw destinati
 ok(placePartnerPick({ name: "The Dalí Museum" })?.offerId === "tampa-date-dali-museum", "a cultural place resolves to its exact verified product");
 ok(placePartnerPick({ name: "Tampa Riverwalk" }) === null, "a landmark with no exact product stays editorial-only");
 ok(placePartnerPick({ name: "Florida Aquarium Bar" }) === null, "place matching is exact, not a revenue-seeking substring match");
-ok(/Partner tickets via/.test(placeClientSrc) && /rel="sponsored noopener"/.test(placeClientSrc), "global place cards visibly disclose exact partner ticket links");
+// v8.22 (owner reversal, 2026-08-19: "it doesn't have to have so many letters
+// — be more concise"): the VISIBLE label is now the short "🎟️ Tickets ·
+// {merchant} ↗"; the full partner disclosure moved to the anchor's aria-label
+// and title. Re-pointed, not deleted — the guard now asserts all three parts
+// of the new contract instead of the retired long copy.
+ok(/aria-label=\{`Partner tickets for \$\{place\.name\} via \$\{partner\.merchant\}`\}/.test(placeClientSrc)
+  && /🎟️ Tickets · \{partner\.merchant\} ↗/.test(placeClientSrc)
+  && /Wayfind may earn a commission; rankings never change\./.test(placeClientSrc)
+  && /rel="sponsored noopener"/.test(placeClientSrc),
+  "global place cards disclose exact partner ticket links: concise visible label + full aria/title disclosure + sponsored rel");
 for (const row of PLACE_PARTNER_PICKS) {
   if (row.provider === "undercover_tourist") {
     // UT hooks resolve against wf_deals (table-backed provider, cron

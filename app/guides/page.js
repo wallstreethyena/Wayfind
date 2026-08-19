@@ -36,6 +36,12 @@ export default function GuidesHub() {
   const order = ["Sarasota", "Orlando", "Tampa"];
   return (
     <main style={S.page}>
+      {/* v8.22 (owner, live /guides: "there is nothing on this page that makes
+          it easy to go back to the main page"). This hub renders OUTSIDE the
+          app shell — no nav, no logo — so a reader who landed here from search
+          or a card had no visible door home. Same chip language the app's
+          standalone screens use. */}
+      <a href="/" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 999, background: "#161B22", border: "1px solid #21262D", color: "#FF8A3D", fontSize: 13.5, fontWeight: 800, textDecoration: "none", marginBottom: 18 }}>‹ Back to Wayfind</a>
       <div style={S.kicker}>Wayfind Guides</div>
       <h1 style={S.h1}>Florida Travel Guides</h1>
       <p style={S.sub}>Written like a local would tell you: what earns your time, what to order, and what to skip. Every guide links into the Wayfind app for live hours and directions.</p>
