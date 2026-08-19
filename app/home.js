@@ -268,7 +268,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.22.1";
+const BUILD_ID = "v8.23";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -10876,7 +10876,21 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
                 rank={rank}
                 onClick={(e) => { e.stopPropagation(); try { logEventAnon("tickets_out", p, { src: "place_card" }); } catch (er) {} }}
                 style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.adim, border: `1.5px solid ${C.accent}`, borderRadius: 999, color: C.accent, fontSize: 12, fontWeight: 800, padding: "5px 12px", textDecoration: "none", cursor: "pointer" }}
-              >Book on Viator ↗</ViatorCommerceLink>
+              >{/* v8.23 (owner, on Robinson Preserve: "not sure why robinson
+                  preserve has a book it with viator link"). The product behind
+                  this button IS verified (wf_place_products rn=1) — but on a
+                  free-entry place, "Book on Viator" read like an admission
+                  fee. The label now names WHAT the verified product books,
+                  derived from the product's own title — never invented; falls
+                  back to the generic label when the title names no activity. */}
+              {(() => {
+                const t = String((cardProduct && cardProduct.title) || "");
+                if (/kayak/i.test(t)) return "🛶 Book a kayak tour ↗";
+                if (/paddle/i.test(t)) return "🏄 Book a paddle tour ↗";
+                if (/cruise|boat/i.test(t)) return "🚤 Book a cruise ↗";
+                if (/tour|safari|walk/i.test(t)) return "🎟️ Book a tour ↗";
+                return "Book on Viator ↗";
+              })()}</ViatorCommerceLink>
             )}
             <button className={`wf-place-card-save${saved ? " is-active" : ""}`} onClick={(e) => { e.stopPropagation(); onSave(); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: saved ? C.accent : "transparent", border: `1.5px solid ${saved ? C.accent : C.border}`, borderRadius: 999, color: saved ? "#0D1117" : C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>{saved ? "♥ Saved" : "♡ Save"}</button>
             {onLike && (
