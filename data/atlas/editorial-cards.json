@@ -6701,5 +6701,60 @@
       "https://www.twindolphinmarina.com/",
       "https://www.twindolphinmarina.com/menus/slip-and-electric-rates"
     ]
+  },
+  {
+    "placeId": "ChIJt5P_hCRCw4gRg6Y5hsctM2w",
+    "name": "Siesta Sands Beach Resort",
+    "num": 394,
+    "category": "hotels",
+    "hours": "Check-in not posted; 3-night off-season / 7-night peak minimum",
+    "vibeCheck": "A smaller 1986 condo court on Crescent Beach at Point of Rocks — two seasonally heated pools, full kitchens, and a walkway to the sand with no road to cross.",
+    "whyGo": "You come to cook in a one- to three-bedroom condo and walk straight onto Crescent Beach, then south to Point of Rocks if you want to snorkel. Official about dates the court to 1986 and says no roads sit between the buildings and the sand.",
+    "bestFor": "A family or couple who will stay at least three nights off-season, or seven in peak season. Skip it if you are traveling with a pet — official FAQ does not allow them.",
+    "knownFor": "A 1986 Crescent Beach condo court at Point of Rocks, with two seasonally heated pools and a private walkway to the sand.",
+    "powerhouseProof": null,
+    "foodMove": "Every condo has a full kitchen (refrigerator, stove, oven, microwave, dishwasher, coffee maker, dishes). Gas grills and picnic tables are on the grounds. No restaurant is named.",
+    "drinkMove": "No bar is named. Brew coffee in the condo or take it to the lanai.",
+    "insiderMove": "Units ending in 11 and 12 print direct gulf-front views; 8, 9, and 10 are side lanais with a partial gulf view. Confirm check-in; the clock is not posted. Atlas prints 1010 Point of Rocks Road; official is 1001.",
+    "verifiedStory": "Official about: on the southern end of Siesta Key, where Crescent Beach meets Point of Rocks, the court has welcomed guests since 1986. Destination Florida Rentals & Real Estate LLC manages it.",
+    "funFact": "Official homepage still measures the private Crescent Beach frontage at two hundred feet.",
+    "currentUsefulDetail": "Check-in clock is not posted. Off-season minimum three nights; peak seven. Phone (941) 349-8061. Verified 19 Aug 2026; refresh before display.",
+    "watchOut": "This is a condo court, not a hotel with a restaurant. Pets are not permitted. Official pages are run by Destination Florida Rentals. Atlas 1010 vs official 1001.",
+    "phone": "(941) 349-8061",
+    "officialWebsite": "https://www.siestasandsrentals.com/",
+    "address": "1001 Point of Rocks Rd, Sarasota",
+    "sourceUrls": [
+      "https://www.siestasandsrentals.com/",
+      "https://www.siestasandsrentals.com/about-us/",
+      "https://www.siestasandsrentals.com/amenities/",
+      "https://www.siestasandsrentals.com/frequently-asked-questions/",
+      "https://www.siestasandsrentals.com/contact-us/"
+    ]
+  },
+  {
+    "placeId": "ChIJS14Lh5xbw4gR_v6gQXj951s",
+    "name": "Roberts Bay Marina",
+    "num": 97,
+    "category": "attractions",
+    "hours": "Office clock not posted",
+    "vibeCheck": "A 13-slip Venice Island harbor for 30-to-48-foot boats — protected water, power and parking, and a no-bridge run to the Gulf.",
+    "whyGo": "You come to hold a deep-water slip on Tarpon Center Drive, not a yacht-club membership. Official pages print thirteen slips and no bridge crossings to the Gulf.",
+    "bestFor": "A 30-to-48-foot boat that wants Venice Island water and a no-bridge inlet run. Skip it if you need posted office hours or a printed rate sheet — official pages do not publish either.",
+    "knownFor": "Thirteen deep-water slips on Venice Island, minutes from the Gulf with no bridges, reached from ICW marker 14.",
+    "powerhouseProof": "Official home: 13 deep water slips for 30-to-48-foot vessels; electrical power, water, and parking; no-bridge Gulf access.",
+    "foodMove": null,
+    "drinkMove": null,
+    "insiderMove": "Arrive by water at ICW marker 14, then the marked ten-foot channel past Venice Yacht Club; skip the first inlet (public ramp) and take the next one south. Call (609) 306-0312 — the office clock is not posted.",
+    "verifiedStory": null,
+    "funFact": "Official directions still send you past the Venice Yacht Club and the public boat-ramp inlet before the marina cut.",
+    "currentUsefulDetail": "Office clock not posted. 1103 Tarpon Center Drive, Venice. Phone (609) 306-0312. Verified 19 Aug 2026; refresh before display.",
+    "watchOut": "This is a small 13-slip court, not Twin Dolphin or Fisherman's Wharf. Official https failed this pass; the live page is http. No rates printed.",
+    "phone": "(609) 306-0312",
+    "officialWebsite": "http://www.robertsbaymarina.com/",
+    "address": "1103 Tarpon Center Dr, Venice",
+    "sourceUrls": [
+      "http://www.robertsbaymarina.com/",
+      "http://www.robertsbaymarina.com/directions"
+    ]
   }
 ]
