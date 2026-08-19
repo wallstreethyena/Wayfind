@@ -94,6 +94,29 @@ const pools = {
   // fixture has no registry, so it is empty here — which is exactly what makes
   // `locals` the honest thin example below.
   creators: [],
+  // v8.18 — the identity pools are SYNTHETIC-BY-CONSTRUCTION, like creators/
+  // summer/birthday: lib/railsData.js buildIdentityPool reuses the matching
+  // ranked rows and then WIDENS from owned inventory near the reader (the
+  // pool-cap cure — measured 4 breakfast cards near Parrish while the menu's
+  // targeted search offered dozens). The fixture mirrors that: every
+  // qualifying restaurants row, plus one inventory-widened cafe the anchor
+  // pool never carried — the row that PROVES the widening is what fixes the
+  // count. The out-of-radius and evening-veto shapes ride along so the
+  // pick's gates are exercised against the new pool too.
+  breakfast: [
+    mk("r2", { name: "Quick Bagel Co", _s: 70, types: ["bakery", "cafe"], distMi: 2 }),
+    mk("r8", { name: "Sunrise Pancake House", _s: 66, types: ["breakfast_restaurant"], distMi: 2 }),
+    mk("r9", { name: "Harbor Coffee Roasters", _s: 62, types: ["coffee_shop"], distMi: 3 }),
+    mk("r10", { name: "Far Waffle Barn", _s: 88, types: ["breakfast_restaurant"], distMi: 18 }),
+    mk("r11", { name: "Steakhouse Coffee Bar", _s: 75, types: ["steak_house", "cafe"], distMi: 1 }),
+    mk("inv1", { name: "Widened Corner Cafe", _s: 61, rating: 4.6, reviews: 210, types: ["cafe"], distMi: 4 }),
+  ],
+  quickeats: [
+    mk("r2", { name: "Quick Bagel Co", _s: 70, types: ["bakery", "cafe"], distMi: 2 }),
+    mk("r4", { name: "Corner Taco", _s: 60, types: ["fast_food_restaurant"], distMi: 1 }),
+    mk("r5", { name: "Hidden Deli", _s: 58, rating: 4.8, reviews: 90, types: ["deli"], distMi: 2 }),
+    mk("inv2", { name: "Widened Taqueria", _s: 57, rating: 4.7, reviews: 130, types: ["fast_food_restaurant"], distMi: 3 }),
+  ],
   // v8.13 — the summer pool is ALSO synthetic-by-construction:
   // lib/railsData.js buildSummerPool sources it from the owner's curated
   // summer registry (lib/summerUniverse.js) and stamps `_summerSourced`, the
@@ -223,6 +246,16 @@ ok(namesOf("breakfast").includes("Sunrise Pancake House") && namesOf("breakfast"
   "breakfast types and coffee rooms qualify on the evidence they carry");
 ok(!namesOf("breakfast").includes("Far Waffle Barn"),
   "a breakfast room 18 miles out is not breakfast — nobody drives past ten miles before coffee");
+// v8.18 — THE CURE, asserted on the row that proves it: the inventory-widened
+// café was never in the restaurants anchor pool, so under the old
+// anchors ∩ identity intersection it could not exist on the rail. If either
+// of these disappears, the rail has re-contracted the pool-cap disease.
+ok(namesOf("breakfast").includes("Widened Corner Cafe"),
+  "an inventory-widened café the anchor top-N never carried reaches the breakfast rail (the pool-cap cure)");
+ok(namesOf("break").includes("Widened Taqueria"),
+  "an inventory-widened counter the anchor top-N never carried reaches the 30-minute break (same cure)");
+ok(!namesOf("breakfast").includes("Steakhouse Coffee Bar"),
+  "the evening-room veto still holds against the widened pool — a steak_house wearing cafe stays off breakfast");
 ok(!namesOf("breakfast").includes("Steakhouse Coffee Bar"),
   "the evening-room veto is absolute — a steak_house with a cafe tag and Coffee in its name stays out");
 ok(!namesOf("breakfast").includes("Corner Taco"),
@@ -389,6 +422,8 @@ const WIDEN_RADIUS_MI = 25;
     ],
     nightlife: pools.nightlife,
     creators: [],
+    breakfast: pools.breakfast,
+    quickeats: pools.quickeats,
   };
   const filled = fillRails(visitor, (p) => p, { nearMi: NEAR_RADIUS_MI, widenMi: WIDEN_RADIUS_MI, cityLabel: "Tampa" });
   ok(filled.places.eat.every((p) => p.distMi <= 17), "eat (meals) fills from 17 when 17 can");
@@ -407,6 +442,17 @@ const WIDEN_RADIUS_MI = 25;
     "near-me rails require the visitor origin — city centroid is not a fallback");
   ok(!/LANDING_CITIES\.sarasota/.test(api.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ")),
     "api/rails has no Sarasota leftover fallback");
+  // v8.18 — the identity pools are actually BUILT and wired (the ROLE, not a
+  // name): buildIdentityPool assigned to both pool keys with the predicate
+  // and radius each selector gates on. Without these two lines the fixture
+  // pools above assert a pipeline that does not exist in production.
+  const dcode = data.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
+  ok(/pools\.breakfast = await buildIdentityPool\(pools, origin, isBreakfastPlace, BREAKFAST_NEAR_MI/.test(dcode),
+    "railsData builds the breakfast identity pool from owned inventory (the pool-cap cure)");
+  ok(/pools\.quickeats = await buildIdentityPool\(pools, origin, isQuickService, 8/.test(dcode),
+    "railsData builds the quickeats identity pool for the 30-minute break");
+  ok(/rest\/v1\/wf_inventory/.test(dcode) && /status=eq\.OPERATIONAL/.test(dcode),
+    "the widening reads OWNED inventory — never Google in a request path (the architecture rule)");
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);
