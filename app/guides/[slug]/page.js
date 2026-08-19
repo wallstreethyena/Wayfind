@@ -532,8 +532,8 @@ export default async function GuidePage({ params }) {
       bridgePicks = (Array.isArray(ranked) ? ranked : []).slice(0, 3).map((p) => ({
         id: p.id, name: p.name, rating: p.rating, reviews: p.reviews,
         distMi: p.distMi, openNow: p.openNow, photoRef: p.photoRef || null,
-        // Honest, built only from the place's own numbers — same helper the
-        // ranked landing pages use.
+        // Sourced why only — same helper the ranked landing pages use.
+        // No Atlas/curated/editorial why → empty, never a star sentence.
         reason: whyLine(p, "spot"),
       }));
     } catch (e) { bridgePicks = []; }
