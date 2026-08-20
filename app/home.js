@@ -269,7 +269,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.27";
+const BUILD_ID = "v8.28";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -8753,6 +8753,17 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // It returns TRUE when a sheet opened. Deliberately NO onCopied toast
         // here: the card shows "Link copied" on itself, which is both more
         // located and stops the two toasts this had in its first draft.
+        // v8.28 — every action the card can render is wired here. Without a
+        // handler IconicPlaceCard falls back to <a href="/p/<id>?action=like">,
+        // which is why liking from the rail opened the detail page instead of
+        // registering the like (owner, 2026-08-20). scripts/check-card-actions.mjs
+        // now fails the build if any card surface leaves one dangling.
+        isLiked={(id) => !!liked[id]}
+        isDisliked={(id) => !!disliked[id]}
+        onLike={(e, pl) => toggleLike(e, pl)}
+        onDislike={(e, pl) => toggleDislike(e, pl)}
+        memberSignalsFor={(list) => fetchMemberSignals(supabase, list)}
+        applyMemberSignal={withMemberSignal}
         onShareRail={(intent) => {
           try { return shareLink(intent.title, intent.url, null, intent.text); }
           catch (e) { return false; }

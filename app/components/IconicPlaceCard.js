@@ -193,7 +193,7 @@ const ThumbIcon = ({ down = false }) => (
   </svg>
 );
 
-export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, inTrip, onSave, onItinerary, onLike, onDislike, onOpen, onBadge }) {
+export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, inTrip, onSave, onItinerary, onLike, onDislike, onOpen, onBadge, cardActionsReadOnly = false }) {
   if (!place) return null;
   const expTags = experienceTags(place, 3);
   // THE GOVERNING LAW, shown == sorted (2026-08-07): a row ranked through
@@ -460,7 +460,12 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
                 ever triggered, because liked/disliked was never a prop.
                 Falls back to the original navigate-to-detail link for any
                 caller that has not wired the props — never a dead button. */}
-            {onLike ? (
+            {/* v8.28 — cardActionsReadOnly is the WRITTEN opt-out for a surface
+                with no likes pipeline (a prerendered guide page). It renders
+                NOTHING rather than the actionHref anchor, because a control
+                that navigates when it promises to register a like is the bug
+                scripts/check-card-actions.mjs exists to stop. */}
+            {cardActionsReadOnly ? null : onLike ? (
               <button
                 type="button"
                 className={"wf-place-card-like" + (liked ? " is-active" : "")}
@@ -472,7 +477,7 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
             ) : (
               <a className="wf-place-card-like" href={actionHref("like")} aria-label={"Like " + place.name} title="Like this place"><ThumbIcon /></a>
             )}
-            {onDislike ? (
+            {cardActionsReadOnly ? null : onDislike ? (
               <button
                 type="button"
                 className={"wf-place-card-dislike" + (disliked ? " is-active" : "")}

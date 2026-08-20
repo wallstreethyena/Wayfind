@@ -1,3 +1,48 @@
+## v8.28 - A place card's actions are wired or absent, never a link dressed as a button
+- Owner, 2026-08-20: "when I click the like button in those place cards that are
+  shown by the rails, it opens up the page instead of just registering the like."
+- ROOT CAUSE. IconicPlaceCard renders each action two ways on purpose:
+  `{onLike ? <button onClick=.../> : <a href={actionHref("like")}/>}`. The anchor
+  is real progressive enhancement and it stays. But a caller that omits the
+  handler gets a NAVIGATION wearing a button's clothes. Ten surfaces wired these
+  correctly; DaypartRail — the newest, and now the homepage's main card surface —
+  passed only onSave and did not even accept onLike/onDislike. So every Like in
+  the rail drop was a jump to /p/<id>?action=like.
+- THE GOD BUMP HAD A SECOND, SEPARATE CAUSE. The curator gold is driven by
+  place._members.ownerPick, aggregated server-side (ownerId is server env only,
+  by design). app/home.js applies that decoration to every pool it owns and it
+  was never applied to the rail pool — so even a landed owner like could not
+  mark a rail card. DaypartRail now takes the parent's OWN fetcher and decorator
+  (memberSignalsFor / applyMemberSignal) rather than re-deriving either: one
+  signal source, one aggregation, fetched per open drop, fail-soft.
+- GUIDES OPT OUT IN WRITING. The guard found a second broken surface:
+  GuidePlaceCard rendered the same dead links. toggleLike owns liked/disliked/
+  likedItems, the Supabase upsert and refreshOwnerPick, and re-implementing it
+  on a prerendered guide would fork the one mechanism. Those two controls now
+  render NOTHING there via cardActionsReadOnly — the honest state. Save and
+  Itinerary are untouched and still work.
+- NEW GUARD scripts/check-card-actions.mjs. Keyed on the actionHref fallback
+  itself, not on the shape of the ternary around it: the first cut matched
+  `{onLike ? ... actionHref(` and went silently green the moment that ternary
+  grew a branch — a guard describing punctuation instead of a rule. A MUST_COVER
+  floor closes the other hole, where renaming the fallback shrank the checked set
+  and still passed. Both failure modes are red-proven.
+- test-first-screen was RIGHT to reject liked={liked}: a rail prop must be server
+  data or a callable. Fixed by matching the existing isSaved/isOnTrip convention
+  (isLiked/isDisliked predicates) rather than weakening the rule — the check still
+  catches a real content prop.
+- v8.27.2 rides along: the drop landing is a settlement, not a moment. Picks
+  arrive from /api/rails AFTER the drop opens, so v8.26's single 620ms re-check
+  fired before the page had grown. A ResizeObserver now re-lands on every height
+  change until the picks are on screen, the reader touches the page, or 4s.
+- VERIFIED ON A REAL-CREDENTIAL BUILD, headless at 390x844, geolocated to Parrish:
+  scroller 0 -> 536 with 3 real cards and picks 37% down; 9 like controls in the
+  drop, ALL <button>, zero href, zero ?action= anchors anywhere; tapping Like does
+  not navigate and toggles is-liked on and off; 12 curator-signal calls; an owner
+  like paints is-curator-pick with the "Wayfind curator's pick" award; a guide page
+  renders 0 like controls and keeps its Save. 0 page errors.
+- 377/377 guards green. Build clean, 871/871 static pages.
+
 ## v8.27 - The main page stops fighting the reader
 - Owner, 2026-08-20: "the main page now feels jumpy and glitchy ... everything is
   jittery"; "when I am trying to scroll through the rail it keeps catching the

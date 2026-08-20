@@ -77,6 +77,13 @@ export default function GuidePlaceCard({ place, rank, editorial }) {
   }, []);
 
   if (!place) return null;
+  // v8.28 — cardActionsReadOnly. Save and Itinerary are localStorage-only and
+  // work fine on a prerendered guide. Like and Dislike are NOT: app/home.js's
+  // toggleLike owns liked / disliked / likedItems, the Supabase likes upsert and
+  // refreshOwnerPick (the curator bump), and re-implementing that here would
+  // fork the one mechanism. Until a guide page can register a REAL like, those
+  // two controls do not render at all — which is the honest state, and not the
+  // <a href="/p/<id>?action=like"> the card would otherwise fall back to.
   return (
     <IconicPlaceCard
       place={place}
@@ -87,6 +94,7 @@ export default function GuidePlaceCard({ place, rank, editorial }) {
       inTrip={inTrip}
       onSave={onSave}
       onItinerary={onItinerary}
+      cardActionsReadOnly
     />
   );
 }

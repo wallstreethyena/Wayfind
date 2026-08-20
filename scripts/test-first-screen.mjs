@@ -110,7 +110,18 @@ ok(/const railMenuBand = railMenu \? \(/.test(code),
     // first paint any more than center can. It is NOT content and it is not a
     // handler, which is why it has to be named here rather than slipping
     // through the on* pattern.
-    const NON_CONTENT = new Set(["center", "isSaved", "isOnTrip", "initialRail"]);
+    // v8.28 — isLiked / isDisliked join isSaved and isOnTrip, and they are the
+    // same class for the same reason: PREDICATES, not content. They are called
+    // only inside the drop, which emits no HTML until a card is picked and is
+    // itself a next/dynamic ssr:false import, so neither can gate first paint.
+    // memberSignalsFor / applyMemberSignal are likewise callables read only
+    // inside the open drop — the curator aggregate is fetched per open drop and
+    // fails soft. None of them is a prop the rail RENDERS, which is the line
+    // this check actually draws (see `places={places}` above — still caught).
+    const NON_CONTENT = new Set([
+      "center", "isSaved", "isOnTrip", "initialRail",
+      "isLiked", "isDisliked", "memberSignalsFor", "applyMemberSignal",
+    ]);
     if (NON_CONTENT.has(name) || /^on[A-Z]/.test(name)) continue;
     ok(/^railMenu\.\w+$/.test(value) || value === "RAILS",
       `<DaypartRail ${name}={${value}}> — every rail prop must be server data (railMenu.*) or static metadata (RAILS); anything else makes the first screen wait on a fetch`);

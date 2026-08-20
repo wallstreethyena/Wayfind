@@ -514,3 +514,9 @@ node scripts/check-shell-scroll.mjs
 # this shell), so rail swipes chained out and iOS claimed them as the back
 # gesture. Containment is asserted where scrolling actually happens.
 node scripts/check-overscroll-containment.mjs
+# v8.28 — a place card's actions are WIRED or ABSENT, never a link that looks
+# like a button. IconicPlaceCard falls back to <a href="/p/<id>?action=like">
+# when a caller omits the handler, which is why liking from the rail drop opened
+# the detail page. Keyed on the actionHref fallback itself, with a floor so the
+# guard cannot pass by losing its own subject.
+node scripts/check-card-actions.mjs

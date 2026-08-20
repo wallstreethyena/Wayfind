@@ -159,6 +159,29 @@ export default function DaypartRail({
   isOnTrip = null,
   onSave = null,
   onItinerary = null,
+  // v8.28 (owner, 2026-08-20: "when I click the like button in those place
+  // cards that are shown by the rails, it opens up the page instead of just
+  // registering the like"). IconicPlaceCard renders Like/Dislike as a BUTTON
+  // when the caller wires a handler and as an <a href="/p/<id>?action=like">
+  // when it does not — a navigation dressed as a button. Ten other surfaces
+  // wire these; this one, now the homepage's main card surface, never did.
+  onLike = null,
+  onDislike = null,
+  onShare = null,
+  // Predicates, not raw state — the same shape as isSaved/isOnTrip above.
+  // test-first-screen requires every rail prop to be server data or a callable,
+  // because a prop carrying client state is a prop the first paint can wait on.
+  isLiked = null,
+  isDisliked = null,
+  // The curator gold ("god bump") is driven by place._members.ownerPick, which
+  // lib/memberSignals.js sets for the OWNER's like (ownerId is server env only
+  // and is never derived on the client — that is deliberate). app/home.js
+  // applies this to every pool it owns and it was NEVER applied to the rail
+  // pool, so the mark could not appear on these cards even after a like landed.
+  // The parent hands down ITS fetcher and ITS decorator rather than this file
+  // re-deriving either: one signal source, one aggregation.
+  memberSignalsFor = null,
+  applyMemberSignal = null,
   // v8.17 (owner, live screenshot: "when i go on a card detail and then try
   // to go back everything is gone from the main page"). ROOT CAUSE: a rail
   // card's only open path was its /p/{id} href — a FULL NAVIGATION off the
@@ -345,67 +368,61 @@ export default function DaypartRail({
     open(initialRail, "share_link");
   }, [initialRail, railById, open]);
 
-  // Take the reader TO the picks. Owner, repeatedly, most recently 2026-08-20:
-  // "when the place cards expand the view should go to the place cards ...
-  // otherwise the user might think that nothing happened."
+  // Take the reader TO the picks. Owner, repeatedly.
   //
-  // ROOT CAUSE of why this never worked, through several attempts: the
-  // homepage does NOT scroll the document. app/home.js renders the feed inside
-  // <div className="wf-scrollarea" style={{flex:1,minHeight:0,overflowY:"auto"}}>,
-  // so THAT div is the scrolling box. On this page window.scrollY is always 0
-  // and window.scrollTo() is a NO-OP. The previous implementation computed
-  // `window.scrollY + rect.top - 78` and handed it to window.scrollTo — which
-  // is why the drop opened and the viewport never budged. The code read as if
-  // it worked, and every test that asserted the effect merely ran was happy.
+  // v8.26 ROOT CAUSE: the homepage does NOT scroll the document. app/home.js
+  // renders the feed inside <div className="wf-scrollarea" overflowY:"auto">,
+  // so THAT div is the scrolling box; window.scrollY is always 0 here and
+  // window.scrollTo() is a no-op.
   //
-  // scrollIntoView is the fix, not a different offset: it walks the ancestor
-  // chain and scrolls EVERY scrollable box on it, so it lands correctly whether
-  // the scroller is .wf-scrollarea today or the document tomorrow. The header
-  // offset moves to scroll-margin-top in railMenuCss.js, next to the layout
-  // that causes it, instead of a magic 78 buried in arithmetic here.
+  // v8.27.2 — WHY v8.26 STILL DID NOT FIRE IN PRODUCTION. The drop's picks
+  // arrive from /api/rails AFTER it opens, so at the moment of the landing the
+  // page has not grown and scrollIntoView has almost no runway. v8.26
+  // re-checked exactly ONCE, on a 620ms timer, still earlier than the cards,
+  // then never looked again. It was verified against a build with placeholder
+  // Supabase credentials, where the drop stayed empty and therefore never grew
+  // — the one environment in which this bug cannot appear.
   //
-  // Two rAFs first: the section flips display:none -> block in this commit and
-  // wf8MenuIn starts at translateY(-30px), so a same-frame landing aims at
-  // geometry that is one frame stale.
-  //
-  // Then VERIFY. A smooth scroll can be cancelled — by the place-card images
-  // reflowing under it, by a competing programmatic scroll, by the reader's own
-  // thumb — and a cancelled scroll used to fail silently, which is the exact
-  // failure being fixed. If the picks are still off-screen once the 460ms drop
-  // animation has settled, land them without ceremony. A reader who scrolled
-  // themselves in the meantime is left alone: taking someone's scroll position
-  // away is the other half of this complaint ("nothing more annoying than
-  // losing your place in the site").
+  // So the landing is a SETTLEMENT, not a moment: a ResizeObserver re-lands on
+  // every height change and stops the instant the picks are on screen, on any
+  // touch of the reader's own, or at a hard 4s ceiling. Our own scrolling never
+  // resizes the drop, so this cannot feed itself.
   useEffect(() => {
     if (!selected || typeof window === "undefined") return undefined;
     const sec = menuRef.current;
     if (!sec) return undefined;
     const reduced = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-    let f1 = 0, f2 = 0, timer = 0, userMoved = false;
+    let f1 = 0, f2 = 0, ceiling = 0, ro = null, settled = false, userMoved = false;
     const noteUser = () => { userMoved = true; };
+    const onScreen = () => {
+      const el = pcRef.current || sec;
+      const top = el.getBoundingClientRect().top;
+      return top >= -8 && top <= (window.innerHeight || 0) * 0.72;
+    };
     const land = (behavior) => {
       try { sec.scrollIntoView({ behavior, block: "start", inline: "nearest" }); }
       catch (e) { try { sec.scrollIntoView(true); } catch (e2) {} }
     };
+    const settle = (behavior) => {
+      if (settled || userMoved) return;
+      if (onScreen()) { settled = true; return; }
+      land(behavior);
+    };
+    const stop = () => { settled = true; if (ro) { try { ro.disconnect(); } catch (e) {} ro = null; } };
     f1 = requestAnimationFrame(() => {
       f2 = requestAnimationFrame(() => {
-        land(reduced ? "auto" : "smooth");
-        if (reduced) return;
+        settle(reduced ? "auto" : "smooth");
+        if (reduced) { stop(); return; }
         for (const ev of ["wheel", "touchmove", "keydown"]) window.addEventListener(ev, noteUser, { passive: true, once: true });
-        timer = window.setTimeout(() => {
-          if (userMoved) return;
-          // The picks themselves are the thing that had to arrive on screen.
-          const el = pcRef.current || sec;
-          const top = el.getBoundingClientRect().top;
-          const vh = window.innerHeight || 0;
-          if (top > vh * 0.72 || top < -8) land("auto");
-        }, 620);
+        try { ro = new ResizeObserver(() => settle("auto")); ro.observe(sec); } catch (e) { ro = null; }
+        ceiling = window.setTimeout(stop, 4000);
       });
     });
     if (pcRef.current) pcRef.current.scrollLeft = 0;
     syncPc();
     return () => {
-      cancelAnimationFrame(f1); cancelAnimationFrame(f2); window.clearTimeout(timer);
+      cancelAnimationFrame(f1); cancelAnimationFrame(f2); window.clearTimeout(ceiling);
+      if (ro) { try { ro.disconnect(); } catch (e) {} }
       for (const ev of ["wheel", "touchmove", "keydown"]) window.removeEventListener(ev, noteUser);
     };
   }, [selected, syncPc]);
@@ -458,7 +475,24 @@ export default function DaypartRail({
   // including the ~60 renders per second a rail drag used to produce. Memoised,
   // the drop's places change when the drop or the data changes, and not once
   // more.
-  const selPlaces = useMemo(() => (selected ? (shown.places[selected] || []) : []), [selected, shown]);
+  const _selRaw = useMemo(() => (selected ? (shown.places[selected] || []) : []), [selected, shown]);
+  // v8.28 — the curator's pick can only mark a card that carries _members, and
+  // that aggregate is server-side by design. Fetched per open drop, fail-soft:
+  // no signals, no mark, never a guess and never a blocked render.
+  const [memberSig, setMemberSig] = useState(null);
+  useEffect(() => {
+    if (!memberSignalsFor || !_selRaw.length) { setMemberSig(null); return undefined; }
+    let dead = false;
+    Promise.resolve()
+      .then(() => memberSignalsFor(_selRaw))
+      .then((sig) => { if (!dead) setMemberSig(sig || null); })
+      .catch(() => { if (!dead) setMemberSig(null); });
+    return () => { dead = true; };
+  }, [memberSignalsFor, _selRaw]);
+  const selPlaces = useMemo(
+    () => (memberSig && applyMemberSignal ? applyMemberSignal(_selRaw, memberSig) : _selRaw),
+    [applyMemberSignal, memberSig, _selRaw]
+  );
   // Resolves ONLY the open drop's places (empty list while closed, so the
   // closed menu costs zero requests). Fail-soft: no hook, no line, no loss.
   const hooks = useEditorialHooks(selPlaces);
@@ -676,6 +710,11 @@ export default function DaypartRail({
                     inTrip={isOnTrip ? isOnTrip(p) : false}
                     onSave={onSave ? (e, pl) => onSave(e, pl) : null}
                     onItinerary={onItinerary ? (e, pl) => onItinerary(e, pl) : null}
+                    onLike={onLike ? (e, pl) => onLike(e, pl || p) : null}
+                    onDislike={onDislike ? (e, pl) => onDislike(e, pl || p) : null}
+                    onShare={onShare ? (e, pl) => onShare(e, pl || p) : null}
+                    liked={isLiked ? !!isLiked(p.id) : false}
+                    disliked={isDisliked ? !!isDisliked(p.id) : false}
                   />
                 ))}
               </ul>
