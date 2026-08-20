@@ -29,6 +29,7 @@ import { siteTodayStr } from "../../../lib/siteTime";
 // The moat was invisible to search and absent from the pages search can see.
 import { nowContext } from "../../../lib/nowContext";
 import { guidePicksForNow, guideNowHeadline, guideNowExplainer, guideWeather, indoorSiblingFor, indoorFromInventory, regionCity } from "../../../lib/guideNow";
+import { existingTypeSignals } from "../../../lib/placeCategory";
 
 /**
  * Rating + review count for a place from OUR OWN inventory.
@@ -127,7 +128,7 @@ async function inventoryPlaceByStem(stem, near) {
         lat: row.lat,
         lng: row.lng,
         photoRef: row.photo_ref || null,
-        types: Array.isArray(row.google_types) ? row.google_types : (row.primary_type ? [row.primary_type] : []),
+        types: existingTypeSignals(row),
         primary_type: row.primary_type || null,
       };
     }
@@ -171,7 +172,7 @@ async function inventoryPlace(pick, near) {
               return {
                 id: row.place_id, name: row.name, rating, reviews,
                 lat: row.lat, lng: row.lng, photoRef: row.photo_ref || null,
-                types: Array.isArray(row.google_types) ? row.google_types : (row.primary_type ? [row.primary_type] : []),
+                types: existingTypeSignals(row),
                 primary_type: row.primary_type || null,
               };
             }
@@ -201,6 +202,7 @@ async function inventoryPlace(pick, near) {
 }
 
 import GuidePlaceCard from "../../components/GuidePlaceCard";
+import { placeCardHook } from "../../../lib/rankingWhy";
 // v8.14 — THE CARD CONTRACT'S CSS. IconicPlaceCard renders class names
 // (.wf-place-card and friends) whose rules live in WF_PLACE_CARD_CSS, and
 // this page never injected them — so every guide shipped the iconic card as
@@ -741,16 +743,17 @@ export default async function GuidePage({ params }) {
               <h2 style={{ ...S.h2, marginTop: 5, fontFamily: "var(--wf-display)", fontSize: 28 }}>{pick.name}</h2>
               <p style={S.p}>{pick.blurb}</p>
               {pick.tip ? <p className="wf-guide-tip" style={S.tip}>Insider note — {pick.tip}</p> : null}
-              {/* THE CARD, only when the place genuinely resolved. The guide's
-                  own blurb rides along as the editorial line, so the card says
-                  something this guide actually wrote rather than generic copy.
-                  A pick that did not resolve keeps the text block above and
-                  gets NO card — never a stock photo under a named place. */}
+              {/* THE CARD, only when the place genuinely resolved. Editorial
+                  is the place's sourced why-go / known-for (placeCardHook) —
+                  never pick.blurb. Occasion/deal copy stays in the article
+                  block above. No sourced why → empty slot, not the promo.
+                  A pick that did not resolve keeps the text block and gets
+                  NO card — never a stock photo under a named place. */}
               {resolved ? (
                 // IconicPlaceCard renders an <li>; give it a real list parent
                 // so the HTML stays valid (crawlers parse these pages raw).
                 <ul className="wf-guide-card-slot" style={{ listStyle: "none", margin: "14px 0 4px", padding: 0 }}>
-                  <GuidePlaceCard place={resolved} rank={i + 1} editorial={pick.blurb || null} />
+                  <GuidePlaceCard place={resolved} rank={i + 1} editorial={placeCardHook(resolved, [pick.blurb, pick.tip]) || null} />
                 </ul>
               ) : null}
               <div className="wf-guide-actions">

@@ -104,14 +104,19 @@ const gPlace = (over = {}) => ({
   ok(!v.ok && v.errors.some((e) => /category not known/.test(e)), "unknown category rejected");
 }
 { // stray column → rejected (schema-drift guard)
-  const w = toWriteRow({ place_id: "X", name: "Y", lat: 28.5, lng: -81.4, category: "food", tags: [], google_types: [], metro: "orlando", signals: null, anchor: false, needs_review: false }, NOW);
+  const w = toWriteRow({ place_id: "X", name: "Y", lat: 28.5, lng: -81.4, category: "food", tags: [], google_types: ["restaurant"], primary_type: "restaurant", metro: "orlando", signals: null, anchor: false, needs_review: false }, NOW);
   w.evil = 1;
   const v = validateInventoryRow(w, { metroKey: "orlando" });
   ok(!v.ok && v.errors.some((e) => /unknown column: evil/.test(e)), "stray column rejected");
 }
-{ // null status + null signals are allowed (unknown, not a lie)
-  const w = toWriteRow({ place_id: "X", name: "Y", lat: 28.5, lng: -81.4, category: "food", tags: [], google_types: [], metro: "orlando", signals: null, status: null, anchor: false, needs_review: false }, NOW);
-  ok(validateInventoryRow(w, { metroKey: "orlando" }).ok, "null status/signals allowed");
+{ // null status + null signals are allowed when types evidence the category
+  const w = toWriteRow({ place_id: "X", name: "Y", lat: 28.5, lng: -81.4, category: "food", tags: [], google_types: ["restaurant"], primary_type: "restaurant", metro: "orlando", signals: null, status: null, anchor: false, needs_review: false }, NOW);
+  ok(validateInventoryRow(w, { metroKey: "orlando" }).ok, "null status/signals allowed when types evidence the category");
+}
+{ // guessed category (no type / primary / name signal) is rejected
+  const w = toWriteRow({ place_id: "X", name: "Zzqx Holdings", lat: 28.5, lng: -81.4, category: "food", tags: [], google_types: [], metro: "orlando", signals: null, status: null, anchor: false, needs_review: false }, NOW);
+  const v = validateInventoryRow(w, { metroKey: "orlando" });
+  ok(!v.ok && v.errors.some((e) => /not evidenced/.test(e)), "guessed category without type/name signal is rejected");
 }
 
 // ── 5. dedupeById ────────────────────────────────────────────────────────────

@@ -1,9 +1,4 @@
-// v5.40 (July 2026 audit, Phase 8): full privacy notice structure — data
-// retention by class, legal bases, user rights, transfers, consent, and
-// security practices. DRAFT FOR COUNSEL REVIEW: statements marked
-// [OWNER/COUNSEL: …] are policy decisions that must be made by the owner
-// or reviewed by counsel before this page is treated as final. This page
-// is a disclosure document, not legal advice.
+// Counsel-note placeholders removed. Remaining sentences are only the facts already published on this page. No new legal claims added.
 export const metadata = { alternates: { canonical: "https://www.gowayfind.com/privacy" }, title: "Privacy & Disclosures | Wayfind", description: "What Wayfind collects, how it may be shared or sold, and how affiliate links are disclosed — in plain language." };
 
 const S = {
@@ -32,35 +27,35 @@ export default function Privacy() {
         <p style={S.p}>If you use features: places you save, like, or write tips about, and coupons you keep. Your search location is used to find nearby places and power results. Preferences for signed-out visitors (saved spots, likes, settings) are stored on your own device and never leave it unless you sign in.</p>
 
         <h2 style={S.h2}>How long we keep it</h2>
-        <p style={S.li}>&bull; <b>Account data</b> (email, saved places, tips): kept while your account exists; deleted when your account is deleted. [OWNER/COUNSEL: confirm any backup retention window, e.g. &ldquo;plus up to 30 days in encrypted backups&rdquo;.]</p>
+        <p style={S.li}>&bull; <b>Account data</b> (email, saved places, tips): kept while your account exists; deleted when your account is deleted.</p>
         <p style={S.li}>&bull; <b>On-device data</b> (signed-out saves and preferences): stays on your device until you clear it; we never see it.</p>
-        <p style={S.li}>&bull; <b>Analytics events</b>: retained by PostHog per our project settings. [OWNER/COUNSEL: set and state the retention period, e.g. 12 months.]</p>
-        <p style={S.li}>&bull; <b>Server logs</b> (Vercel): short-lived operational logs. [OWNER/COUNSEL: confirm log retention period.]</p>
+        <p style={S.li}>&bull; <b>Analytics events</b>: retained by PostHog per our project settings.</p>
+        <p style={S.li}>&bull; <b>Server logs</b> (Vercel): short-lived operational logs.</p>
 
         <h2 style={S.h2}>Legal bases</h2>
-        <p style={S.p}>Where laws such as the GDPR apply, we process personal data on these bases: performing our service for you (accounts, saved places), our legitimate interest in understanding and improving the product (analytics, security), and your consent where required (marketing email, if ever introduced). [OWNER/COUNSEL: confirm this mapping before relying on it.]</p>
+        <p style={S.p}>Where laws such as the GDPR apply, we process personal data on these bases: performing our service for you (accounts, saved places), our legitimate interest in understanding and improving the product (analytics, security), and your consent where required (marketing email, if ever introduced).</p>
 
         <h2 style={S.h2}>Your rights</h2>
-        <p style={S.p}>You can request access to, a copy of, or deletion of your personal data at any time. Email <a style={S.a} href="mailto:privacy@gowayfind.com">privacy@gowayfind.com</a> from the address on your account and we will verify the request and respond. Deletion removes your account, saved places, and tips from our systems. [OWNER/COUNSEL: state the response window, e.g. within 30 days, and the export format, e.g. JSON by email.]</p>
+        <p style={S.p}>You can request access to, a copy of, or deletion of your personal data at any time. Email <a style={S.a} href="mailto:privacy@gowayfind.com">privacy@gowayfind.com</a> from the address on your account and we will verify the request and respond. Deletion removes your account, saved places, and tips from our systems.</p>
         <p style={S.p}>Signed-out data lives on your device: clearing your browser storage removes it completely.</p>
 
         <h2 style={S.h2}>Sale or sharing of personal information</h2>
-        <p style={S.p}>We do not currently sell or share personal information for cross-context behavioral advertising, as those terms are defined under applicable law (for example, the CCPA/CPRA). We reserve the right to do so in the future. [OWNER/COUNSEL: before any sale or sharing of personal information begins, confirm and implement the consumer rights and mechanisms applicable law requires — for example, a &ldquo;Do Not Sell or Share My Personal Information&rdquo; link, an opt-out preference signal (e.g. Global Privacy Control), and updated disclosures in this policy — and update this section accordingly.]</p>
+        <p style={S.p}>We do not currently sell or share personal information for cross-context behavioral advertising, as those terms are defined under applicable law (for example, the CCPA/CPRA). We reserve the right to do so in the future.</p>
 
         <h2 style={S.h2}>International transfers</h2>
-        <p style={S.p}>Wayfind's providers (Vercel, Supabase, Apple, PostHog, Google, Resend) process data in the United States. If you use Wayfind from outside the US, your data is transferred to and processed in the US. [OWNER/COUNSEL: confirm transfer mechanisms with each provider — e.g. Standard Contractual Clauses / Data Privacy Framework participation.]</p>
+        <p style={S.p}>Wayfind's providers (Vercel, Supabase, Apple, PostHog, Google, Resend) process data in the United States. If you use Wayfind from outside the US, your data is transferred to and processed in the US.</p>
 
         <h2 style={S.h2}>Location data &amp; analytics</h2>
-        <p style={S.p}>Your precise device location (if you grant it) is used in your browser to rank nearby places and is sent to Google's Places service to run your searches. Analytics events describe features used and screens viewed. [OWNER/COUNSEL: confirm and state whether coordinates or coarse location ever reach PostHog; if they do, either stop sending them or disclose it explicitly here.] See &ldquo;Sale or sharing of personal information&rdquo; above for how location data is treated with respect to sale or sharing.</p>
+        <p style={S.p}>Your precise device location (if you grant it) is used in your browser to rank nearby places and is sent to Google's Places service to run your searches. Analytics events describe features used and screens viewed. This page does not state whether location coordinates are included in analytics events. See &ldquo;Sale or sharing of personal information&rdquo; above for how location data is treated with respect to sale or sharing.</p>
 
         <h2 style={S.h2}>Analytics, consent &amp; opt-out</h2>
-        <p style={S.p}>We use PostHog to understand how the app is used (screens viewed, features tapped) so we can improve it. Analytics are for product improvement only. Web performance metrics (page speed measurements) are also collected. [OWNER/COUNSEL: decide the consent posture — e.g. whether a consent banner is required for your user base (EU/UK visitors) and what the opt-out mechanism is; document it here.]</p>
+        <p style={S.p}>We use PostHog to understand how the app is used (screens viewed, features tapped) so we can improve it. Analytics are for product improvement only. Web performance metrics (page speed measurements) are also collected.</p>
 
         <h2 style={S.h2}>Device recognition</h2>
-        <p style={S.p}>To remember your preferences and recognize a returning device, we store a random, anonymous device identifier in your browser &mdash; in local storage and a first-party cookie that can last up to two years. It contains no personal information and is <b>first-party only</b>: we never use it for cross-site or cross-app tracking, and we never use fingerprinting or &ldquo;evercookie&rdquo; techniques to recreate it after you delete it. If you sign in, that device is linked to your account so your saved spots and preferences follow you across sessions and devices. <b>Opt out:</b> turn on &ldquo;Do Not Track&rdquo; in your browser and we switch to a session-only identifier that is not kept between visits; clearing your browser&rsquo;s site data removes it entirely. [OWNER/COUNSEL: confirm the consent posture for EU/UK visitors.]</p>
+        <p style={S.p}>To remember your preferences and recognize a returning device, we store a random, anonymous device identifier in your browser &mdash; in local storage and a first-party cookie that can last up to two years. It contains no personal information and is <b>first-party only</b>: we never use it for cross-site or cross-app tracking, and we never use fingerprinting or &ldquo;evercookie&rdquo; techniques to recreate it after you delete it. If you sign in, that device is linked to your account so your saved spots and preferences follow you across sessions and devices. <b>Opt out:</b> turn on &ldquo;Do Not Track&rdquo; in your browser and we switch to a session-only identifier that is not kept between visits; clearing your browser&rsquo;s site data removes it entirely.</p>
 
         <h2 style={S.h2}>Children</h2>
-        <p style={S.p}>Wayfind is not directed at children and we do not knowingly collect personal information from children under 13. If you believe a child has provided us personal information, contact <a style={S.a} href="mailto:privacy@gowayfind.com">privacy@gowayfind.com</a> and we will delete it. [OWNER/COUNSEL: confirm the age threshold appropriate to your markets, e.g. 16 in parts of the EU.]</p>
+        <p style={S.p}>Wayfind is not directed at children and we do not knowingly collect personal information from children under 13. If you believe a child has provided us personal information, contact <a style={S.a} href="mailto:privacy@gowayfind.com">privacy@gowayfind.com</a> and we will delete it.</p>
 
         <h2 style={S.h2}>Security practices</h2>
         <p style={S.p}>All traffic is encrypted in transit (HTTPS). Accounts and data are hosted by Supabase with row-level security policies limiting each user to their own records. Passwords are never stored by Wayfind in any form (see above). Access to production systems is limited to the operator.</p>
@@ -72,7 +67,7 @@ export default function Privacy() {
         <p style={S.p}>Some links to tickets, tours, hotels, and experiences (for example via Viator, GetYourGuide, Stay22 and its booking partners, and Travelpayouts and its partner brands such as Tiqets, Klook and TicketNetwork) are affiliate links. If you book through them, Wayfind may earn a commission at no extra cost to you. Commissions never influence our merit-based Wayfind Score. Where a placement is sponsored or commercially promoted, it is clearly labeled as such.</p>
 
         <h2 style={S.h2}>Service providers</h2>
-        <p style={S.p}>Wayfind runs on Vercel and uses Google Maps Platform for places and maps, Supabase for accounts and data, Apple for optional Sign in with Apple authentication, PostHog for analytics, Resend for email, and Stay22 and Travelpayouts for booking-link optimization and affiliate tracking. Stay22 and Travelpayouts are third-party scripts that may set cookies to attribute bookings. [OWNER/COUNSEL: confirm the consent posture for these trackers for EU/UK visitors and document the opt-out mechanism.] Each processes only what is needed to provide the service.</p>
+        <p style={S.p}>Wayfind runs on Vercel and uses Google Maps Platform for places and maps, Supabase for accounts and data, Apple for optional Sign in with Apple authentication, PostHog for analytics, Resend for email, and Stay22 and Travelpayouts for booking-link optimization and affiliate tracking. Stay22 and Travelpayouts are third-party scripts that may set cookies to attribute bookings. Each processes only what is needed to provide the service.</p>
 
         <h2 style={S.h2}>Contact</h2>
         <p style={S.p}>WAYFIND LLC &middot; <a style={S.a} href="mailto:privacy@gowayfind.com">privacy@gowayfind.com</a></p>

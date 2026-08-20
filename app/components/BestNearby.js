@@ -34,6 +34,7 @@ import { placePartnerPick } from "../../lib/placePartnerPicks.js";
 import { nowSubline } from "../../lib/intentPages.js";
 import { LOAD_FAILED, LOAD_PENDING, canClaim, isFailed, settleLoad } from "../../lib/loadState.js";
 import { couponForPlace } from "../../lib/coupons.js";
+import { existingTypeSignals } from "../../lib/placeCategory.js";
 
 // THE CHIP HAS TO STATE THE OFFER (v7.41). Owner, 2026-08-12: "we dont offer
 // the coupon on the place card or tell the user there is a coupon or
@@ -1076,7 +1077,7 @@ export default function BestNearby({
                 // `primary_type` rather than the `types` array it expects, so
                 // the row is adapted, never fabricated — a row with no type
                 // simply yields fewer tags.
-                const tagged = { ...p, types: Array.isArray(p.types) ? p.types : (p.primary_type ? [p.primary_type] : []), priceLevel: p.price_level != null ? p.price_level : p.priceLevel };
+                const tagged = { ...p, types: existingTypeSignals(p), priceLevel: p.price_level != null ? p.price_level : p.priceLevel };
                 // v7.15 (owner, 2026-08-11): decorative experience-tag
                 // bubbles are gone site-wide. Only disclosures and money
                 // remain: creator video (score disclosure) and Deal.
@@ -1204,7 +1205,7 @@ export default function BestNearby({
                     <div className={"wf-rail wf-rail-" + sdef.id} data-rail={sdef.id} tabIndex={0} role="region" aria-label={sdef.label} style={{ minHeight: TOP40_CARD_H }}>
                     {sdef.id === "eat"
                       ? list.map((p, i) => {
-                          const tagged = { ...p, types: Array.isArray(p.types) ? p.types : (p.primary_type ? [p.primary_type] : []), priceLevel: p.price_level != null ? p.price_level : p.priceLevel };
+                          const tagged = { ...p, types: existingTypeSignals(p), priceLevel: p.price_level != null ? p.price_level : p.priceLevel };
                           const coupon = couponForPlace(p);
                           return (
                           <RailCard key={p.place_id} rank={i + 1}
