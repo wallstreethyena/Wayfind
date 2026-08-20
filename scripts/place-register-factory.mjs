@@ -309,6 +309,20 @@ export const NOTABLE_SKIPS = [
   { name: "N Skyway Fishing Pier State Park", why: "The Skyway Tour is an e-bike city tour, not pier fishing at this park" },
   { name: "Big Cat Habitat & Gulf Coast Sanctuary", why: "Tampa Big Cat Rescue SKUs are a different sanctuary — do not alias-steal" },
   { name: "Bayfront Park", why: "The Bay Park kayak H1 names The Bay Park only; Bayfront Park is a different Sarasota card" },
+  { name: "Florida Railroad Museum", why: "no product H1 names this museum; nearby hits are Tampa/Sarasota city trolleys" },
+  { name: "Historic Spanish Point", why: "no product H1 names this site; Osprey hits are St. Augustine Osprey boat or trolley meet points" },
+  { name: "Oscar Scherer State Park", why: "Sarasota kayak SKUs launch at Ted Sperling / Turtle Beach / Lido, not this park" },
+  { name: "De Soto National Memorial", why: "Viator Fort De Soto / Egmont SKUs are a different park already pinned; no Bradenton memorial product" },
+  { name: "Ray's Canoe Hideaway", why: "no Viator product names this outfitter; Bradenton kayaks are Robinson Preserve (already pinned)" },
+  { name: "Smugglers Cove Adventure Golf", why: "Viator Smugglers Cove hits are Alaska/BVI/Fiji — wrong country" },
+  { name: "Lithia Springs Park", why: "no Lithia, FL product; kayak hits are Shell Key (already pinned) or Oregon Lithia Park" },
+  { name: "Hunter Springs Park", why: "Crystal River kayaks name Three Sisters / Crystal River and already pin Three Sisters; H1 does not name Hunter Springs" },
+  { name: "Marina Jack", why: "no product H1 names this marina/operator" },
+  { name: "Perico Preserve", why: "nearby AMI mangrove kayak 25427P2 meets at the Manatee Ave ramp; H1 names Anna Maria, not Perico" },
+  { name: "Neal Preserve", why: "25427P2 body says just down the street from Neal; H1 names Anna Maria — Kings Landing class" },
+  { name: "Sarasota Art Museum", why: "only art-crawl trolley, not museum admission" },
+  { name: "Beer Can Island", why: "only appears in the body of Coquina Beach SKU 454941P3 already pinned — do not steal that hop" },
+  { name: "Emerson Point Preserve", why: "no product H1 names this preserve" },
 ];
 
 export function leftoverMarkdown(inv, skipped = NOTABLE_SKIPS) {

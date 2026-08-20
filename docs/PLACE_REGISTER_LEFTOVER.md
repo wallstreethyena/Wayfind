@@ -47,6 +47,20 @@ These were looked at and left empty on purpose.
 | N Skyway Fishing Pier State Park | The Skyway Tour is an e-bike city tour, not pier fishing at this park |
 | Big Cat Habitat & Gulf Coast Sanctuary | Tampa Big Cat Rescue SKUs are a different sanctuary — do not alias-steal |
 | Bayfront Park | The Bay Park kayak H1 names The Bay Park only; Bayfront Park is a different Sarasota card |
+| Florida Railroad Museum | no product H1 names this museum; nearby hits are Tampa/Sarasota city trolleys |
+| Historic Spanish Point | no product H1 names this site; Osprey hits are St. Augustine Osprey boat or trolley meet points |
+| Oscar Scherer State Park | Sarasota kayak SKUs launch at Ted Sperling / Turtle Beach / Lido, not this park |
+| De Soto National Memorial | Viator Fort De Soto / Egmont SKUs are a different park already pinned; no Bradenton memorial product |
+| Ray's Canoe Hideaway | no Viator product names this outfitter; Bradenton kayaks are Robinson Preserve (already pinned) |
+| Smugglers Cove Adventure Golf | Viator Smugglers Cove hits are Alaska/BVI/Fiji — wrong country |
+| Lithia Springs Park | no Lithia, FL product; kayak hits are Shell Key (already pinned) or Oregon Lithia Park |
+| Hunter Springs Park | Crystal River kayaks name Three Sisters / Crystal River and already pin Three Sisters; H1 does not name Hunter Springs |
+| Marina Jack | no product H1 names this marina/operator |
+| Perico Preserve | nearby AMI mangrove kayak 25427P2 meets at the Manatee Ave ramp; H1 names Anna Maria, not Perico |
+| Neal Preserve | 25427P2 body says just down the street from Neal; H1 names Anna Maria — Kings Landing class |
+| Sarasota Art Museum | only art-crawl trolley, not museum admission |
+| Beer Can Island | only appears in the body of Coquina Beach SKU 454941P3 already pinned — do not steal that hop |
+| Emerson Point Preserve | no product H1 names this preserve |
 
 ## Full unmatched inventory
 
@@ -76,7 +90,7 @@ These were looked at and left empty on purpose.
 | Beach House Waterfront Restaurant | curated | Anna Maria Island | no honest verified product in this batch |
 | Beachcomber In Venice | atlas | 720 Golden Beach Blvd, Venice | no honest verified product in this batch |
 | Bee Ridge Park | atlas | 4430 S Lockwood Ridge Rd, Sarasota | no honest verified product in this batch |
-| Beer Can Island | atlas | 100 Broadway St, Longboat Key | no honest verified product in this batch |
+| Beer Can Island | atlas | 100 Broadway St, Longboat Key | only appears in the body of Coquina Beach SKU 454941P3 already pinned — do not steal that hop |
 | Bella Vita Italian Kitchen | birthday | Sarasota | no honest verified product in this batch |
 | Big Cat Habitat & Gulf Coast Sanctuary | atlas | 7101 Palmer Blvd | Tampa Big Cat Rescue SKUs are a different sanctuary — do not alias-steal |
 | Blackburn Point Park | atlas | 800 Blackburn Point Rd, Osprey | no honest verified product in this batch |
@@ -141,7 +155,7 @@ These were looked at and left empty on purpose.
 | Cybel - French Moroccan Fusion | birthday | St. Petersburg | no honest verified product in this batch |
 | Dakin Dairy Farm | atlas | 30771 Betts Rd, Myakka City | no honest verified product in this batch |
 | Davis Islands | curated | Tampa | no honest verified product in this batch |
-| De Soto National Memorial | atlas, summerUniverse | 8300 De Soto Memorial Hwy, Bradenton | no honest verified product in this batch |
+| De Soto National Memorial | atlas, summerUniverse | 8300 De Soto Memorial Hwy, Bradenton | Viator Fort De Soto / Egmont SKUs are a different park already pinned; no Bradenton memorial product |
 | Deep Lagoon Seafood and Oyster House | atlas | 482 Blackburn Point Rd, Osprey | no honest verified product in this batch |
 | Deer Prairie Creek Preserve | atlas | 7001 Forbes Trail, Venice | no honest verified product in this batch |
 | Der Dutchman | atlas | 3713 Bahia Vista St, Sarasota | no honest verified product in this batch |
@@ -158,7 +172,7 @@ These were looked at and left empty on purpose.
 | Ed's Tavern — Lakewood Ranch | atlas | 10719 Rodeo Drive, Lakewood Ranch | no honest verified product in this batch |
 | Edward Ball Wakulla Springs State Park | summerUniverse | Wakulla Springs | no honest glass-bottom / admission product |
 | El Siboney Restaurant | summerUniverse | Key West | no honest verified product in this batch |
-| Emerson Point Preserve | summerUniverse | Palmetto | no honest verified product in this batch |
+| Emerson Point Preserve | summerUniverse | Palmetto | no product H1 names this preserve |
 | Epiphany Cathedral | atlas | 310 Sarasota St | no honest verified product in this batch |
 | Evie's at Spanish Point | atlas | 135 Bayview Dr, Osprey | no honest verified product in this batch |
 | Exquisite Bistro | birthday | St. Petersburg | no honest verified product in this batch |
@@ -169,7 +183,7 @@ These were looked at and left empty on purpose.
 | Fisherman's Wharf Marina | atlas | 465 N Tamiami Trail, Venice | no honest verified product in this batch |
 | Five Nine Grill & Tavern | atlas | 5718 Cortez Rd W, Bradenton | no honest verified product in this batch |
 | Florida Caverns State Park | summerUniverse | Marianna | nearby kayak paddles past the park; not cavern admission |
-| Florida Railroad Museum | atlas | 12210 83rd Street East, Parrish | no honest verified product in this batch |
+| Florida Railroad Museum | atlas | 12210 83rd Street East, Parrish | no product H1 names this museum; nearby hits are Tampa/Sarasota city trolleys |
 | Florida Studio Theatre | atlas | 1241 N Palm Avenue, Sarasota | no honest verified product in this batch |
 | Floridays Woodfire Grill & Bar | atlas | 12332 Manatee Ave W, Bradenton | no honest verified product in this batch |
 | Food+Beer | atlas | 301 Tamiami Trl S, Venice | no honest verified product in this batch |
@@ -191,10 +205,10 @@ These were looked at and left empty on purpose.
 | Gulf Harbor Marina | atlas | 100 Circuit Road, Nokomis | no honest verified product in this batch |
 | Harry P. Leu Gardens | atlas | 1920 North Forest Avenue, Orlando, Florida 32803 | no honest verified product in this batch |
 | Hidden Harbor Marina | atlas | 7700 South Tamiami Trail, Sarasota | no honest verified product in this batch |
-| Historic Spanish Point | atlas | 401 N Tamiami Trl, Osprey | no honest verified product in this batch |
+| Historic Spanish Point | atlas | 401 N Tamiami Trl, Osprey | no product H1 names this site; Osprey hits are St. Augustine Osprey boat or trolley meet points |
 | Homosassa Springs Marina | summerUniverse | Homosassa | scallop HOLD-SKU 236862P2 is forbidden; other Homosassa SKUs are not this marina |
 | Hunsader Farms | atlas | 5500 County Road 675 E, Bradenton | no honest verified product in this batch |
-| Hunter Springs Park | summerUniverse | Crystal River | no honest verified product in this batch |
+| Hunter Springs Park | summerUniverse | Crystal River | Crystal River kayaks name Three Sisters / Crystal River and already pin Three Sisters; H1 does not name Hunter Springs |
 | Hurricane Hanks | atlas | 5346 Gulf Dr, Holmes Beach | no honest verified product in this batch |
 | Ichetucknee Springs State Park | summerUniverse | Fort White | no honest admission or tube product on Viator |
 | Ideal Classic Cars | atlas | 2224 Tamiami Trl S, Venice | no honest verified product in this batch |
@@ -228,7 +242,7 @@ These were looked at and left empty on purpose.
 | LightHaus Beer Garden | curated | Tampa | no honest verified product in this batch |
 | Linger Lodge Restaurant & Bar | atlas | 7205 85th St. Ct. E | no honest verified product in this batch |
 | Linksters Tap Room South | atlas | 8764 S Tamiami Trl, Sarasota | no honest verified product in this batch |
-| Lithia Springs Park | summerUniverse | Lithia | no honest verified product in this batch |
+| Lithia Springs Park | summerUniverse | Lithia | no Lithia, FL product; kayak hits are Shell Key (already pinned) or Oregon Lithia Park |
 | Livingston's | atlas | 5947 Clark Center Ave, Sarasota | no honest verified product in this batch |
 | Loaded Cannon Distillery | atlas | 3115 Lakewood Ranch Blvd Ste 110, Bradenton | no honest verified product in this batch |
 | Loggerhead Marinelife Center | summerUniverse | Juno Beach | no admission product on Viator |
@@ -242,7 +256,7 @@ These were looked at and left empty on purpose.
 | Mar Vista Dockside Restaurant & Pub | curated | Longboat Key | no honest verified product in this batch |
 | Marie Selby Botanical Gardens | atlas, curated | 811 S Palm Ave | no honest admission product |
 | Marie Selby Botanical Gardens Downtown Sarasota | summerUniverse | Sarasota | no honest admission product |
-| Marina Jack | atlas, curated | 2 Marina Plaza, Sarasota | no honest verified product in this batch |
+| Marina Jack | atlas, curated | 2 Marina Plaza, Sarasota | no product H1 names this marina/operator |
 | Marsh Harbor Marina | atlas | 4103 13th Street Court West, Palmetto | no honest verified product in this batch |
 | Mattison's City Grille | curated | Sarasota | no honest verified product in this batch |
 | Max's Table | atlas | 115 S Tamiami Trail, Osprey | no honest verified product in this batch |
@@ -260,7 +274,7 @@ These were looked at and left empty on purpose.
 | Motorworks Brewing | atlas | 1014 9th St W, Bradenton | no honest verified product in this batch |
 | Myakka Outpost | atlas | 13208 State Road 72, Sarasota | no honest verified product in this batch |
 | N Skyway Fishing Pier State Park | summerUniverse | St. Petersburg | The Skyway Tour is an e-bike city tour, not pier fishing at this park |
-| Neal Preserve | atlas | 12301 Manatee Ave W, Bradenton | no honest verified product in this batch |
+| Neal Preserve | atlas | 12301 Manatee Ave W, Bradenton | 25427P2 body says just down the street from Neal; H1 names Anna Maria — Kings Landing class |
 | Neville Marine Preserve | atlas | Little Sarasota Bay, Osprey | no honest verified product in this batch |
 | Noble Crust of St. Petersburg | curated | St. Petersburg | no honest verified product in this batch |
 | Nokomis Beach Bait & Tackle | atlas | 820 Albee Rd W Ste 1, Nokomis | no honest verified product in this batch |
@@ -280,7 +294,7 @@ These were looked at and left empty on purpose.
 | Orlando Museum of Art | atlas | 2416 N. Mills Ave. | no honest verified product in this batch |
 | Orlando Science Center | atlas | 777 E. Princeton St., Orlando, FL 32803 | no honest verified product in this batch |
 | Orlando Vineland Premium Outlets | atlas |  | no honest verified product in this batch |
-| Oscar Scherer State Park | atlas | 1843 S Tamiami Trl, Osprey | no honest verified product in this batch |
+| Oscar Scherer State Park | atlas | 1843 S Tamiami Trl, Osprey | Sarasota kayak SKUs launch at Ted Sperling / Turtle Beach / Lido, not this park |
 | Owens Fish Camp | atlas | 516 Burns Court, Sarasota | no honest verified product in this batch |
 | Palma Sola Botanical Park | atlas | 9800 17th Ave NW, Bradenton | no honest verified product in this batch |
 | Palma Sola Causeway | atlas | 9500 Manatee Avenue West, Bradenton | no honest verified product in this batch |
@@ -294,7 +308,7 @@ These were looked at and left empty on purpose.
 | Pelican Alley restaurant | atlas | 1009 Albee Rd W, Nokomis | no honest verified product in this batch |
 | Pennie Fabrics | atlas | 8854 S Tamiami Trail, Sarasota | no honest verified product in this batch |
 | Pensacola Beach Boardwalk | summerUniverse | Pensacola Beach | no honest verified product in this batch |
-| Perico Preserve | atlas | 11700 Manatee Ave W, Bradenton | no honest verified product in this batch |
+| Perico Preserve | atlas | 11700 Manatee Ave W, Bradenton | nearby AMI mangrove kayak 25427P2 meets at the Manatee Ave ramp; H1 names Anna Maria, not Perico |
 | Perq Coffee Bar | curated | Sarasota | no honest verified product in this batch |
 | Perspective Rooftop Pool Bar | curated | Sarasota | no honest verified product in this batch |
 | Pia's Trattoria | curated | Bradenton | no honest verified product in this batch |
@@ -304,7 +318,7 @@ These were looked at and left empty on purpose.
 | Plaza Mexico | atlas | 405 US Highway 41 Byp N, Venice | no honest verified product in this batch |
 | Pop's Sunset Grill | atlas | 112 Circuit Road, Nokomis | no honest verified product in this batch |
 | Raffurty's Bar and Grill | curated | Sarasota | no honest verified product in this batch |
-| Ray's Canoe Hideaway | atlas | 1289 Hagle Park Rd, Bradenton | no honest verified product in this batch |
+| Ray's Canoe Hideaway | atlas | 1289 Hagle Park Rd, Bradenton | no Viator product names this outfitter; Bradenton kayaks are Robinson Preserve (already pinned) |
 | Red Barn Flea Market | atlas | 1707 1st St E, Bradenton | no honest verified product in this batch |
 | Red Bug Slough | atlas | 5200 Beneva Road, Sarasota | no honest verified product in this batch |
 | Restore | atlas | 1400 Ogden Road, Venice | no honest verified product in this batch |
@@ -322,7 +336,7 @@ These were looked at and left empty on purpose.
 | Salt Shack on the Bay | curated | Tampa | no honest verified product in this batch |
 | Sand Dollar | atlas | 5302 Marina Drive, Holmes Beach | no honest verified product in this batch |
 | Sandbar Seafood + Spirits | curated | Anna Maria Island | no honest verified product in this batch |
-| Sarasota Art Museum | atlas | 1001 South Tamiami Trail, Sarasota | no honest verified product in this batch |
+| Sarasota Art Museum | atlas | 1001 South Tamiami Trail, Sarasota | only art-crawl trolley, not museum admission |
 | Sarasota Jungle Gardens | atlas, summerUniverse, curated | 3701 Bay Shore Rd, Sarasota | prior audit: no partner inventory |
 | Sarasota Opera House | atlas | 61 N. Pineapple Avenue, Sarasota | no honest verified product in this batch |
 | Sarasota Sailing Squadron | atlas | 1717 Ken Thompson Pkwy, Sarasota | no honest verified product in this batch |
@@ -341,7 +355,7 @@ These were looked at and left empty on purpose.
 | Silver Sands Gulf Beach Resort | atlas | 5841 Gulf of Mexico Drive, Longboat Key | no honest verified product in this batch |
 | Sixty East | atlas | 2219 60th Ave E, Ellenton | no honest verified product in this batch |
 | Skinny's Place | atlas | 3901 Gulf Dr, Holmes Beach | no honest verified product in this batch |
-| Smugglers Cove Adventure Golf | atlas | 2000 Cortez Rd W, Bradenton | no honest verified product in this batch |
+| Smugglers Cove Adventure Golf | atlas | 2000 Cortez Rd W, Bradenton | Viator Smugglers Cove hits are Alaska/BVI/Fiji — wrong country |
 | Sonny's BBQ | atlas | 631 67th St Cir E, Bradenton | no honest verified product in this batch |
 | Space 220 Restaurant | birthday | Orlando | no honest verified product in this batch |
 | Speaks Clam Bar | atlas | 8764 State Road 70 E, Lakewood Ranch | no honest verified product in this batch |
