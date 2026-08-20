@@ -17,9 +17,9 @@
 
 import { readFileSync } from "node:fs";
 import { commerceHref } from "../lib/commerce.js";
-import { partnerOfferById } from "../lib/partnerOfferRegistry.js";
+import { PARTNER_OFFER_REGISTRY, partnerOfferById } from "../lib/partnerOfferRegistry.js";
 import { placePartnerPick } from "../lib/placePartnerPicks.js";
-import { resolveOffer } from "../lib/commerceProviders.js";
+import { PROVIDERS, resolveOffer } from "../lib/commerceProviders.js";
 import { SUMMER_UNIVERSE, summerEntriesNow } from "../lib/summerUniverse.js";
 
 let pass = 0;
@@ -71,20 +71,36 @@ ok(String(href).startsWith("/api/commerce/go?"),
 ok(!/viator\.com|searchResults/i.test(String(href)),
   "the rendered href contains neither viator.com nor a searchResults path");
 
-// ── 3. Server resolve is the exact product, no catalogue, no search ──────
-const row = partnerOfferById(SKU, "viator");
-ok(!!row, "the SKU has a server registry row under provider viator");
-ok(row && row.destination === CANONICAL,
-  `registry destination is the founder-verified canonical (got ${row && row.destination})`);
-ok(row && !/searchResults/i.test(row.destination),
-  "the pinned destination is a product page, not a searchResults URL");
-ok(row && !row.destination.includes(HOLD_SKU),
-  "the pinned destination is not the scallop HOLD-SKU");
+// ── 3. Server resolve is the existing table-backed hop, this product code ─
+// PROVIDERS.viator looks up wf_experiences by product_code. CI has no
+// catalogue, so this CALL injects the founder-verified row. The hop still
+// crosses both resolver gates (lookup + host allowlist). A searchResults
+// URL in that row must fail. No registry row: test-booking-integrity forbids
+// hand-built viator.com/tours URLs in partnerOfferRegistry (the #843 shape).
+ok(!PARTNER_OFFER_REGISTRY[SKU],
+  `${SKU} must not shadow the table lookup with a registry row — that is the booking-integrity raw-URL failure`);
+ok(partnerOfferById(SKU, "viator") === null,
+  "partnerOfferById refuses this SKU — dest comes from the catalogue, not a pasted URL");
+ok(PROVIDERS.viator.table === "wf_experiences" && PROVIDERS.viator.idColumn === "product_code",
+  "the pin uses the existing viator resolver (wf_experiences.product_code), not a new hop");
+ok(typeof PROVIDERS.viator.resolve !== "function",
+  "viator stays table-backed — no registry resolve that would need a pasted product URL");
 
-const noIo = () => { throw new Error("resolveOffer must not fetch for a registry-backed pin"); };
-const resolved = await resolveOffer("viator", SKU, { env: () => null, fetch: noIo });
+let lookedUp = "";
+const resolved = await resolveOffer("viator", SKU, {
+  env: () => ({ url: "https://wayfind-guard.invalid", key: "guard-key" }),
+  fetch: async (u) => {
+    lookedUp = String(u);
+    return {
+      ok: true,
+      json: async () => [{ product_code: SKU, product_url: CANONICAL }],
+    };
+  },
+});
+ok(lookedUp.includes(SKU) && lookedUp.includes("wf_experiences"),
+  `resolveOffer looks up ${SKU} on wf_experiences (got ${lookedUp.slice(0, 160)})`);
 ok(!resolved.error && typeof resolved.dest === "string",
-  `resolveOffer("viator", "${SKU}") succeeds with no Supabase and no fetch (got ${resolved.error || "dest"})`);
+  `resolveOffer("viator", "${SKU}") returns a dest (got ${resolved.error || "dest"})`);
 ok(resolved.dest && resolved.dest.includes("d5403-173028P1"),
   `resolved dest is this exact product (got ${String(resolved.dest).slice(0, 120)})`);
 ok(resolved.dest && !/searchResults/i.test(resolved.dest),
@@ -97,19 +113,12 @@ ok(resolved.dest && !resolved.dest.includes(HOLD_SKU),
   ok(host === "www.viator.com", `resolved dest host is www.viator.com after tracking (got ${host})`);
 }
 
-const tableStillWorks = await resolveOffer("viator", "412732P1", {
-  env: () => ({ url: "https://wayfind-guard.invalid", key: "guard-key" }),
-  fetch: async () => ({
-    ok: true,
-    json: async () => [{ product_code: "412732P1", product_url: "https://www.viator.com/tours/Wayfind/412732P1" }],
-  }),
-});
-ok(!tableStillWorks.error && /412732P1/.test(tableStillWorks.dest || ""),
-  `a table-only Viator hook still falls through to wf_experiences (got ${tableStillWorks.error || tableStillWorks.dest})`);
+ok(!/searchResults/i.test(CANONICAL),
+  "the founder-verified canonical is a product path, not searchResults");
 
-const hold = await resolveOffer("viator", HOLD_SKU, { env: () => null, fetch: noIo });
-ok(hold.error && !hold.dest,
-  `the scallop HOLD-SKU ${HOLD_SKU} is not pinned and fails closed (got ${hold.error || hold.dest})`);
+const hold = await resolveOffer("viator", HOLD_SKU, { env: () => null });
+ok(hold.error === "no-supabase-env" && !hold.dest,
+  `the scallop HOLD-SKU ${HOLD_SKU} is not pinned and fails closed without a catalogue (got ${hold.error || hold.dest})`);
 
 // ── 4. Ranking is never for sale ─────────────────────────────────────────
 const shell = SUMMER_UNIVERSE.find((e) => e.key === "shell_key");
