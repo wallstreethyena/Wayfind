@@ -360,12 +360,14 @@ export default function RailCard({
             >{cta.label}</a>
           ) : null}
 
-          {/* v8.29.2 — A CONTROL THIS CARD CANNOT SERVICE DOES NOT RENDER.
-              A tour card (BestNearby's Viator rail) has no place row and no
-              handlers: it used to draw Save / Like / Dislike / Share anyway,
-              all four wired to `if (onX) onX(e)` — four live buttons over four
-              no-ops. The row now appears only when at least one control can
-              actually do something. */}
+          {/* v8.29.2 / v8.29.6 — A CONTROL THIS CARD CANNOT SERVICE DOES NOT
+              RENDER, and the card says so in writing. A tour card (BestNearby's
+              Viator rail) has no place row and no handlers: it used to draw
+              Save / Like / Dislike / Share anyway, all four wired to
+              `if (onX) onX(e)` — four live buttons over four no-ops. Inferring
+              it from "nothing is wired" was the first attempt and it also hid
+              the control on a card that had simply not hydrated yet, so the
+              opt-out is explicit. */}
           {actionsReadOnly ? null : (
           <div className="wf-place-card-actions wf-sheet-card-actions">
             <button
@@ -409,7 +411,7 @@ export default function RailCard({
               >↗ Share</button>
             ) : null}
           </div>
-          ) : null}
+          )}
         </div>
       </div>
     </article>
