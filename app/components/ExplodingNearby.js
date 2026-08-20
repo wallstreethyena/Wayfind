@@ -12,6 +12,14 @@ import { loadProvidedTrendList } from "../../lib/explodingLaunchSearch.js";
 import { nowContext } from "../../lib/nowContext.js";
 import { gateOutdoor } from "../../lib/ranking.js";
 
+// v8.27 (owner, 2026-08-20, on a screenshot of the ramen card: "these pills are
+// too long"). "One of the best nearby places to try it" is 39 characters — it
+// wrapped the pill to two lines on a 390px phone and pushed the card's real
+// content down. The CLAIM is unchanged and still gated by
+// LAUNCH_LEAD_MIN_REVIEWS / LAUNCH_LEAD_MIN_SCORE; only its wording is shorter.
+// It reads under the trend heading, which already names the thing.
+export const LEAD_AWARD_LABEL = "Best nearby pick";
+
 const compact = (n) => Number(n) >= 1000 ? Math.round(Number(n) / 100) / 10 + "k" : String(Number(n) || 0);
 const prettyType = (t) => {
   const s = String(t || "").replace(/_/g, " ").trim();
@@ -86,7 +94,7 @@ function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlac
         rank={rank}
         score={toDisplayScore(p.governedScore)}
         facts={facts}
-        award={!additional ? { tone: 1, icon: "🏆", label: "One of the best nearby places to try it" } : null}
+        award={!additional ? { tone: 1, icon: "🏆", label: LEAD_AWARD_LABEL } : null}
         chips={chips}
         take={p.editorialHook || null}
         cta={directionHref ? {

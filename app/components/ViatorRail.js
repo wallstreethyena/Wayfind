@@ -40,7 +40,7 @@ export default function ViatorRail({ title, items, theme, onLog, onOpenExternal 
         <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>{title}</span>
         <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
       </div>
-      <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
+      <div style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 4 }}>
         {rankedItems.map((t, i) => (
           /* v6.44: this rail rendered a RAW t.url while its sibling rail used
              an affiliate wrapper. Both now use ViatorCommerceLink so the UI

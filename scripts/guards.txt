@@ -508,3 +508,8 @@ node scripts/check-position-memory.mjs
 # three times: the rail drop must land with scrollIntoView, and the existing
 # window.scroll* debt list may only shrink.
 node scripts/check-shell-scroll.mjs
+# v8.27 — a horizontal rail may not hand the reader's swipe to the browser. The
+# overscroll-behavior on <body> never applied (body is not a scroll container in
+# this shell), so rail swipes chained out and iOS claimed them as the back
+# gesture. Containment is asserted where scrolling actually happens.
+node scripts/check-overscroll-containment.mjs

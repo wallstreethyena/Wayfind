@@ -1,3 +1,51 @@
+## v8.27 - The main page stops fighting the reader
+- Owner, 2026-08-20: "the main page now feels jumpy and glitchy ... everything is
+  jittery"; "when I am trying to scroll through the rail it keeps catching the
+  edge of the screen on my mobile phone and going back to the previous page";
+  "these pills are too long, also we need to add more experience pills that match
+  the vibe."
+- THE JITTER WAS A RE-RENDER STORM, and it is measured, not inferred.
+  useScrollEnds runs on every `scroll` event of a rail under the reader's thumb.
+  It handed setEnds a FRESH OBJECT each time, so the state identity always
+  differed, React never bailed out, and dragging a rail re-rendered the whole of
+  DaypartRail — tile track, open drop, every place card — at frame rate. Worse,
+  `selPlaces` was rebuilt as a new array on each of those renders, and it is a
+  dependency of both useEditorialHooks and the beach-conditions effect, so those
+  re-entered their resolve and fetch-guard loops on every frame too.
+  MEASURED in headless Chromium, 80 scroll events on the rail track:
+  82 re-renders before, 3 after — a 96% reduction. The state is two booleans;
+  it now returns the same object when they have not changed, and selPlaces is
+  memoised on [selected, shown].
+- THE BACK-SWIPE HAD THE SAME SHAPE AS THE v8.26 SCROLL BUG: a declaration on an
+  element that cannot honour it. app/layout.js sets overscroll-behavior-x:none on
+  <body>, but overscroll-behavior only applies to a SCROLL CONTAINER and neither
+  <html> nor <body> is one here — both carry overflow-x:clip and the feed scrolls
+  inside div.wf-scrollarea. So the property has never done anything, a rail that
+  ran out of runway chained its leftover delta to the viewport, and iOS Safari
+  claimed it as the interactive back gesture mid-swipe. Containment now sits
+  where scrolling happens: on .wf-scrollarea, on all 21 inline horizontal
+  scrollers, and on the 9 rail classes, as 'contain' so each rail keeps its own
+  rubber-band and simply stops handing the gesture on.
+- THE LEAD PILL was 39 characters ("One of the best nearby places to try it") and
+  wrapped to two lines on a 390px phone. Now "Best nearby pick". The claim and
+  its gates (LAUNCH_LEAD_MIN_REVIEWS / LAUNCH_LEAD_MIN_SCORE) are unchanged; it
+  reads under a trend heading that already names the thing.
+- SIX MORE EXPERIENCE PILLS, and none of them is a new claim: lib/tags.js has
+  sanctioned livemusic / cocktails / wine / sports / breakfast / dog for their
+  identities since v2.0, and IconicPlaceCard simply never produced them — which
+  is why every bar in town wore the same three pills. Each is grounded exactly
+  like the existing ones, on a Google type or an explicit word in the venue's own
+  name, and the v2.0 identity gate still has the final say.
+- NEW GUARD scripts/check-overscroll-containment.mjs, proven red and green:
+  every horizontal scroller declares containment, and the shell's real scroller
+  does too.
+- GUARD REPAIRED, sixth time for this pattern: test-first-screen asserted
+  /\}, \[selected\]\);\n  const selPlaces/ — it pinned an effect's dependency array
+  to whatever text happened to follow it in the file, so adding a comment above
+  the next statement failed a check about a dependency. It now scopes to the
+  effect containing the centering arithmetic and reads ITS dependency list.
+- 367/367 guards green.
+
 ## v8.26 - Clicking a rail card takes you to the picks (it never could before)
 - Owner, 2026-08-20, for at least the fourth time: "when I click on any of the
   amazon rail cards the place cards expand but the view remains on the amazon

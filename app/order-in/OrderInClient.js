@@ -200,7 +200,7 @@ export default function OrderInClient() {
         <span style={{ fontSize: 13, fontWeight: 900, letterSpacing: "-0.2px" }}>{emoji} {title}</span>
         <span style={{ fontSize: 9.5, color: C.muted }}>Powered by Uber Eats</span>
       </div>
-      <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
+      <div style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
         {items.map((p) => <Card key={p.id} p={p} />)}
       </div>
     </div>

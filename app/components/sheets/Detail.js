@@ -180,7 +180,7 @@ function WayfindTakeRail({ editorial }) {
         </div>
           {multi ? <div style={{ flexShrink: 0, padding: "6px 9px", borderRadius: 999, border: "1px solid rgba(255,255,255,.12)", background: "rgba(8,12,18,.72)", fontSize: 10.5, fontWeight: 800, color: C.muted }}>{active + 1} / {items.length} · <span style={{ color: C.accent }}>Swipe →</span></div> : null}
       </div>
-      <div ref={railRef} onScroll={onScroll} style={{ display: "flex", gap: 12, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", padding: "0 2px 3px" }}>
+      <div ref={railRef} onScroll={onScroll} style={{ display: "flex", gap: 12, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", padding: "0 2px 3px" }}>
         {items.map((it) => (
           <article key={it.label} style={{ position: "relative", overflow: "hidden", flex: multi ? "0 0 86%" : "0 0 100%", scrollSnapAlign: "start", background: "linear-gradient(145deg, rgba(28,34,44,.98), rgba(10,14,21,.96))", border: "1px solid rgba(255,255,255,.12)", borderRadius: 18, padding: "17px 18px 18px", minHeight: 126, boxSizing: "border-box", boxShadow: "0 14px 28px rgba(0,0,0,.22)" }}>
             <span aria-hidden="true" style={{ position: "absolute", inset: "0 auto 0 0", width: 3, background: `linear-gradient(180deg, ${it.color}, transparent 84%)` }} />
@@ -647,7 +647,7 @@ export default function DetailSheet({ ctx }) {
                 <>
               {detail.photos && detail.photos.length > 0 ? (
                 <div style={{ position: "relative" }}>
-                  <div ref={galleryRef} onScroll={onGalleryScroll} style={{ display: "flex", gap: 6, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
+                  <div ref={galleryRef} onScroll={onGalleryScroll} style={{ display: "flex", gap: 6, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
                     {detail.photos.map((src, i) => (
                       <FallbackImg key={i} src={src} icon={detail._event ? "🎟️" : "🍽️"} onClick={() => setLightbox(src)} style={{ width: "100%", flexShrink: 0, height: 250, objectFit: "cover", scrollSnapAlign: "start", cursor: "zoom-in" }} />
                     ))}

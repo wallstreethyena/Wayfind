@@ -174,7 +174,7 @@ export function Frame({ title, def, source, columns, rows, children, right }) {
 
 export function DataTable({ columns, rows, caption }) {
   return (
-    <div style={{ overflowX: "auto", border: `1px solid ${C.border}`, borderRadius: RADII.control }}>
+    <div style={{ overflowX: "auto", overscrollBehaviorX: "contain", border: `1px solid ${C.border}`, borderRadius: RADII.control }}>
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, fontVariantNumeric: "tabular-nums" }}>
         <caption style={{ position: "absolute", left: -9999 }}>{caption}</caption>
         <thead>
@@ -503,7 +503,7 @@ export function CohortGrid({ rows }) {
   const maxOffset = Math.max(...rows.map((r) => weeksSince(r.week_start)), ...rows.map((r) => Math.max(0, ...r.cells.map((c) => c.offset))), 0);
   const shade = (rate) => rate == null || rate === 0 ? "transparent" : `rgba(249,115,22,${0.12 + Math.min(0.75, rate * 0.75)})`; // single-hue sequential
   return (
-    <div style={{ overflowX: "auto" }}>
+    <div style={{ overflowX: "auto", overscrollBehaviorX: "contain" }}>
       <table style={{ borderCollapse: "separate", borderSpacing: 2, fontSize: 11.5, fontVariantNumeric: "tabular-nums" }}>
         <caption style={{ position: "absolute", left: -9999 }}>Weekly signup cohorts — share of each cohort active by weeks since signup</caption>
         <thead>

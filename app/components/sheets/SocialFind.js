@@ -203,7 +203,7 @@ export default function SocialFindSheet({ ctx }) {
           {others.length > 0 && (
             <div style={{ marginBottom: otherSpots.length > 0 ? 20 : 0 }}>
               <div style={{ fontSize: 11, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 10 }}>More finds near {locName ? locName.split(",")[0] : "you"}</div>
-              <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
+              <div style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 4, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
                 {others.map((o) => {
                   const op = PLATFORM[o.video.platform] || PLATFORM.tiktok;
                   const ophoto = (o.place.photos && o.place.photos[0]) || o.place.photo || null;

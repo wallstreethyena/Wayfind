@@ -104,7 +104,17 @@ function useScrollEnds(ref, deps) {
     const el = ref.current;
     if (!el) return;
     const max = el.scrollWidth - el.clientWidth - 2;
-    setEnds({ atStart: el.scrollLeft <= 2, atEnd: el.scrollLeft >= max });
+    const atStart = el.scrollLeft <= 2;
+    const atEnd = el.scrollLeft >= max;
+    // v8.27 — BAIL OUT WHEN NOTHING CHANGED. This runs on every `scroll` event
+    // of a rail the reader is dragging. It used to hand setEnds a FRESH OBJECT
+    // each time, so the state identity always differed, React never bailed, and
+    // dragging a rail re-rendered this whole component — tile track, open drop,
+    // every place card, the beach-conditions effect and the editorial-hook
+    // effect — at roughly 60fps for the length of the gesture. That is the
+    // "jumpy and glitchy" the owner reported (2026-08-20). These are two
+    // booleans: return the SAME object when they are unchanged and React stops.
+    setEnds((prev) => (prev.atStart === atStart && prev.atEnd === atEnd ? prev : { atStart, atEnd }));
   }, [ref]);
   useEffect(() => {
     const el = ref.current;
@@ -417,7 +427,14 @@ export default function DaypartRail({
     const left = tile.offsetLeft - (track.clientWidth - tile.clientWidth) / 2;
     try { track.scrollTo({ left: Math.max(0, left), behavior: reduced ? "auto" : "smooth" }); } catch (e) { track.scrollLeft = Math.max(0, left); }
   }, [selected]);
-  const selPlaces = selected ? (shown.places[selected] || []) : [];
+  // v8.27 — STABLE IDENTITY. A fresh [] on every render made every consumer
+  // that depends on this list think the list had changed: useEditorialHooks
+  // re-ran its resolve pass and the beach-conditions effect (deps
+  // [selected, selPlaces]) re-entered its fetch-guard loop on every render —
+  // including the ~60 renders per second a rail drag used to produce. Memoised,
+  // the drop's places change when the drop or the data changes, and not once
+  // more.
+  const selPlaces = useMemo(() => (selected ? (shown.places[selected] || []) : []), [selected, shown]);
   // Resolves ONLY the open drop's places (empty list while closed, so the
   // closed menu costs zero requests). Fail-soft: no hook, no line, no loss.
   const hooks = useEditorialHooks(selPlaces);

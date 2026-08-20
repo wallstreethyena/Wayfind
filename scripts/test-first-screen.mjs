@@ -275,8 +275,17 @@ ok(/prefers-reduced-motion:reduce\)\{\.wf-sk\{animation:none\}/.test(cssM[1].rep
     "DaypartRail: the selection effect finds the selected tile in the track");
   ok(/tile\.offsetLeft - \(track\.clientWidth - tile\.clientWidth\) \/ 2/.test(dr),
     "DaypartRail: the selected tile is CENTERED, not merely nudged into view");
-  ok(/\}, \[selected\]\);\n  const selPlaces/.test(dr),
-    "DaypartRail: the centering effect re-runs on every selection change");
+  // v8.27 — asserts the PROPERTY, not the file's line order. This used to read
+  // /\}, \[selected\]\);\n  const selPlaces/ — it pinned the effect's closing line
+  // to whatever text happened to follow it, so adding a comment above the next
+  // statement failed a check about a dependency array. Scope to the effect that
+  // contains the centering arithmetic and read ITS dependency list.
+  {
+    const at = dr.indexOf('const tile = track.querySelector(".wf8-tile.is-sel")');
+    const close = at >= 0 ? dr.indexOf("}, [", at) : -1;
+    ok(close > at && /^\}, \[selected\]\);/.test(dr.slice(close)),
+      "DaypartRail: the centering effect re-runs on every selection change");
+  }
 }
 
 console.log(`test-first-screen: OK — ${passed} assertions (the first screen paints server-rendered content with no fetch; the rail reserves its own box; the events rail is never gated on the Places search; all three states handled; reduced-motion respected)`);
