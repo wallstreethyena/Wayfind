@@ -49,6 +49,9 @@ const VIATOR_PLACE_PRODUCT_CODES = {
   "68831P1": "Sarasota Mangrove Tunnel Guided Kayak Adventure",
   "26315P9": "Bioluminescence Night Kayaking Tour of Merritt Island Wildlife Refuge",
   "105290P10": "Paddle Board or Clear Kayak and Swim Adventure at Wekiwa Springs",
+  "386845P1": "Kayak Paddling Experience at The Bay Park",
+  "236733P1": "2 Person Mini Power Boat Rental at Tampa Riverwalk",
+  "431125P5": "St. Johns River Cruise - Blue Spring State Park",
 };
 
 
@@ -176,7 +179,7 @@ ok(/partner\/products\/\$\{encodeURIComponent\(code\)\}/.test(curatedRouteSrc) &
 const placeClientSrc = readFileSync("lib/placePartnerPicks.js", "utf8") + readFileSync("app/components/IconicPlaceCard.js", "utf8");
 ok(!/https?:\/\//.test(placeClientSrc), "landmark hooks contain no raw destination URLs");
 ok(placePartnerPick({ name: "The Dalí Museum" })?.offerId === "tampa-date-dali-museum", "a cultural place resolves to its exact verified product");
-ok(placePartnerPick({ name: "Tampa Riverwalk" }) === null, "a landmark with no exact product stays editorial-only");
+ok(placePartnerPick({ name: "Tampa Riverwalk" })?.offerId === "236733P1", "Tampa Riverwalk resolves to the live mini-boat product that names the Riverwalk");
 ok(placePartnerPick({ name: "Florida Aquarium Bar" }) === null, "place matching is exact, not a revenue-seeking substring match");
 // v8.22 (owner reversal, 2026-08-19: "it doesn't have to have so many letters
 // — be more concise"): the VISIBLE label is now the short "🎟️ Tickets ·

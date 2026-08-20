@@ -288,7 +288,6 @@ export const NOTABLE_SKIPS = [
   { name: "Lido Key Beach", why: "mangrove kayaks do not name this beach card; Lido Beach (not Lido Key Beach) is the exact pinned name" },
   { name: "Clearwater Beach", why: "no exact Atlas/summer/curated card named Clearwater Beach — owner sunset SKU pinned on Pier 60 only" },
   { name: "Mallory Square", why: "free public square; cocktail walk / trolley / schooner pass-by would sell the wrong thing" },
-  { name: "Blue Spring State Park", why: "kayak SKUs meet at a boat ramp and say do not enter the park — Ringling-trolley class" },
   { name: "Florida Caverns State Park", why: "nearby kayak paddles past the park; not cavern admission" },
   { name: "Devil's Den Spring", why: "only Gettysburg Devil's Den products; no Williston snorkel SKU" },
   { name: "Fairchild Tropical Botanic Garden", why: "no admission product on Viator" },
@@ -301,6 +300,15 @@ export const NOTABLE_SKIPS = [
   { name: "Weedon Island Preserve", why: "St Pete mangrove kayak body mentions the preserve but H1/title do not" },
   { name: "Disney's Typhoon Lagoon Water Park", why: "UT Magic Kingdom row aliases do not include water parks — do not steal that hop" },
   { name: "Disney's Blizzard Beach Water Park", why: "UT Magic Kingdom row aliases do not include water parks — do not steal that hop" },
+  { name: "Kelly Park - Rock Springs", why: "kayak SKU H1 names Rock Springs but launch is Kings Landing — do-not-enter-the-park class, same as the Blue Spring kayaks we refused" },
+  { name: "Venice Beach", why: "canal kayak meets at South Venice Beach Ferry; H1 does not name the Venice Beach card" },
+  { name: "Scenic Boat Tour", why: "Winter Park walking/boat SKUs meet nearby but H1 does not name Scenic Boat Tour" },
+  { name: "Canopy Walk", why: "Myakka e-bike is already pinned on Myakka River State Park; H1 does not name Canopy Walk" },
+  { name: "St. Armands Circle", why: "trolley/segway/e-bike pass-by — Ringling-trolley class, not a Circle product" },
+  { name: "Ca' d’Zan", why: "only appears on Ringling-grounds trolley/segway — not mansion admission" },
+  { name: "N Skyway Fishing Pier State Park", why: "The Skyway Tour is an e-bike city tour, not pier fishing at this park" },
+  { name: "Big Cat Habitat & Gulf Coast Sanctuary", why: "Tampa Big Cat Rescue SKUs are a different sanctuary — do not alias-steal" },
+  { name: "Bayfront Park", why: "The Bay Park kayak H1 names The Bay Park only; Bayfront Park is a different Sarasota card" },
 ];
 
 export function leftoverMarkdown(inv, skipped = NOTABLE_SKIPS) {

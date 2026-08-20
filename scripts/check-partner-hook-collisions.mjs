@@ -63,6 +63,9 @@ const VIATOR_PLACE_PRODUCT_CODES = {
   "68831P1": "Sarasota Mangrove Tunnel Guided Kayak Adventure",
   "26315P9": "Bioluminescence Night Kayaking Tour of Merritt Island Wildlife Refuge",
   "105290P10": "Paddle Board or Clear Kayak and Swim Adventure at Wekiwa Springs",
+  "386845P1": "Kayak Paddling Experience at The Bay Park",
+  "236733P1": "2 Person Mini Power Boat Rental at Tampa Riverwalk",
+  "431125P5": "St. Johns River Cruise - Blue Spring State Park",
 };
 
 

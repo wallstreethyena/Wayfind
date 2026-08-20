@@ -35,12 +35,21 @@ for (const name of [
   "Turtle Beach",
   "Weeki Wachee Springs State Park",
   "Silver Springs State Park Glass Bottom Boat Tours",
+  "The Bay Park",
+  "Tampa Riverwalk",
+  "Blue Spring State Park",
 ]) {
   ok(inv.hooked.some((r) => r.name === name),
     `${name} is hooked — an existing card, not an invented one`);
   ok(!inv.unmatched.some((r) => r.name === name),
     `${name} is not leftover after the owner-verified pin`);
 }
+ok(inv.hooked.find((r) => r.name === "The Bay Park")?.offerId === "386845P1",
+  "The Bay Park stays on the Sarasota kayak product that names the park");
+ok(inv.hooked.find((r) => r.name === "Tampa Riverwalk")?.offerId === "236733P1",
+  "Tampa Riverwalk stays on the mini-boat product that names the Riverwalk");
+ok(inv.hooked.find((r) => r.name === "Blue Spring State Park")?.offerId === "431125P5",
+  "Blue Spring stays on the in-park St. Johns River cruise, not a ramp kayak");
 ok(!inv.hooked.some((r) => r.name === "Clearwater Beach"),
   "Clearwater Beach is not hooked — no exact Atlas/summer/curated card, do not invent one");
 
@@ -83,6 +92,14 @@ ok(notProduct.ok === false && notProduct.reason === "url-is-not-a-product-path",
 const leftover = leftoverMarkdown(inv);
 ok(leftover.includes("Shell Key Preserve") === false,
   "leftover markdown does not list Shell Key — a leftover that still asked for this pin would duplicate #858");
+ok(!/\| The Bay Park \|/.test(leftover),
+  "leftover unmatched table does not still list The Bay Park");
+ok(!/\| Tampa Riverwalk \|/.test(leftover),
+  "leftover unmatched table does not still list Tampa Riverwalk");
+ok(!/\| Blue Spring State Park \|/.test(leftover),
+  "leftover unmatched table does not still list Blue Spring — the cruise pin cleared it");
+ok(/\| Kelly Park - Rock Springs \|/.test(leftover),
+  "positive control: leftover still records Kelly Park as unmatched (Kings Landing kayak refused)");
 ok(leftover.includes("# Place-register leftover"),
   "positive control: leftover markdown has its heading, so the Shell Key absence above is not an empty string");
 ok(leftover.includes("## Notable skips this batch"),
