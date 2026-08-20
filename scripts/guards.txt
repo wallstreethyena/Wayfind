@@ -358,6 +358,10 @@ node scripts/test-local-store.mjs
 # actually returned nine restaurants under "day trips and landmarks".
 node scripts/test-intent-composition.mjs
 node scripts/check-editorial-everywhere.mjs
+# 2026-08-20 — place-card editorial is the place's sourced why-go only.
+# Occasion/deal copy (birthday popcorn, summerWhy, pick.blurb) stays in the
+# article. Asserted BY CALL on the live AMC deal string, not a substring.
+node scripts/test-place-card-hook.mjs
 node scripts/test-creator-finds-render-smoke.mjs
 
 # ── Exploding Topics trend intelligence ────────────────────────────────────
