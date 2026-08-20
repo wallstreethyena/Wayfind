@@ -1,3 +1,39 @@
+## v8.29.8 - The apostrophe, and the city that was a dozen cities
+- GUIDE CARDS: THE APOSTROPHE (owner, twice: "another blog that does not have the
+  place cards", with Gecko's Grill & Pub rendering as a bare "Open in Wayfind").
+  Google writes venue names with a CURLY apostrophe; our editors type a STRAIGHT
+  one. The inventory holds 107 names with U+2019 and 638 with U+0027, and
+  `ilike '%Gecko's Grill%'` cannot match "Gecko's Grill & Pub" (curly). Measured
+  against production: the straight-quote pattern returns 0 rows, the fixed one
+  returns 6 — for a restaurant with 3,078 reviews that six guides could name and
+  none could resolve. Yoder's went 3 -> 5.
+  The stem now maps every apostrophe variant to `_`, LIKE's single-character
+  wildcard, so one pattern matches both forms with no extra round trip. It widens
+  the net by exactly one character; the >=15-review floor and the 80-mile geo gate
+  are untouched and are what keep that safe.
+- CITY FRAGMENTATION. app/api/city/unlock's nameless fallback was
+  `city-<lat.toFixed(2)>-<lng.toFixed(2)>`. Two decimals is ~1.1km, so every
+  unnamed location a kilometre apart minted its own metro AND paid for its own
+  six-query Google crawl of the same city. Production already held three:
+  city-47.61--122.33 (Seattle), city-39.74--104.99 (Denver), and
+  city-37.75--97.82 — the well-known IP-geolocation fallback coordinate for
+  "somewhere in the United States", against which 87 places had been crawled for
+  a phantom location in Kansas nobody lives in.
+  Now one decimal (~11km, a metro-sized cell), and before minting anything the
+  route adopts a metro we ALREADY hold within ~24mi. A city covered under its real
+  name can no longer be re-crawled under a coordinate.
+  The three existing coordinate metros are deliberately NOT renamed: the slug is a
+  runtime lookup key, so renaming the rows would orphan them. Code fix only.
+- TASTE: A CHANGE MADE AND REVERTED, ON PURPOSE. The open signal (weight 0.5 since
+  the taste model shipped) reaches recordTaste but stops at
+  `if (user || action !== "open")`, and production holds three users with likes
+  against 2,051 devices — so 1,211 detail opens from 206 devices are learned from
+  by almost nobody. Widening that gate to already-consented visitors was written,
+  and test-taste.mjs rejected it: "explicit reactions learn on-device before
+  sign-in; passive opens remain anonymous-neutral" is a documented privacy
+  commitment, not an oversight. Reverted. Whether to trade it is the owner's call.
+- 382/382 guards green.
+
 ## v8.29.7 - A third-party crash is not a Wayfind error
 - Owner, 2026-08-20, forwarding a Sentry alert (WAYFIND-9): "InvalidNodeTypeError:
   Failed to execute 'selectNode' on 'Range': the given Node has no parent",

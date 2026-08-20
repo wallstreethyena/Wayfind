@@ -44,7 +44,42 @@ const PULLS = [
 const MAX_INSERT = 90;
 const SERVICE_TYPE = /gas_station|^atm$|parking|storage|car_repair|car_wash|electrician|plumber|lawyer|insurance_agency|finance|real_estate_agency|moving_company|post_office/;
 
-const slugify = (s, lat, lng) => (String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40)) || ("city-" + lat.toFixed(2) + "-" + lng.toFixed(2));
+const slugify = (s, lat, lng) => (String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40)) || coordKey(lat, lng);
+
+// v8.29.8 — THE FRAGMENTATION BUG (2026-08-20 taxonomy audit). The nameless
+// fallback used to be `city-<lat.toFixed(2)>-<lng.toFixed(2)>`. Two decimals is
+// ~1.1km, so every unnamed location roughly a kilometre apart minted its OWN
+// metro and paid for its OWN 6-query Google crawl of the same city. Production
+// already held three of them — city-47.61--122.33 (Seattle), city-39.74--104.99
+// (Denver) and city-37.75--97.82, which is the well-known IP-geolocation
+// fallback coordinate for "somewhere in the United States": 87 places crawled
+// for a phantom location in Kansas that no visitor actually lives in.
+//
+// One decimal is ~11km — a metro-sized cell, which is the unit this is meant to
+// be. And before minting anything, reuse a metro we ALREADY hold nearby: a city
+// covered under its real name must never be re-crawled under a coordinate.
+const coordKey = (lat, lng) => "city-" + lat.toFixed(1) + "-" + lng.toFixed(1);
+
+async function nearestExistingMetro(s, h, lat, lng) {
+  // ~0.35 deg latitude ≈ 24 miles: close enough that the existing pool is the
+  // same market, far enough to catch a visitor on its edge.
+  const box = 0.35;
+  const q = `select=metro&status=eq.OPERATIONAL&lat=gte.${(lat - box).toFixed(3)}&lat=lte.${(lat + box).toFixed(3)}&lng=gte.${(lng - box).toFixed(3)}&lng=lte.${(lng + box).toFixed(3)}&limit=400`;
+  try {
+    const r = await fetch(`${s.url}/rest/v1/wf_inventory?${q}`, { headers: h, cache: "no-store" });
+    if (!r.ok) return null;
+    const rows = await r.json();
+    if (!Array.isArray(rows) || !rows.length) return null;
+    const tally = new Map();
+    for (const row of rows) if (row && row.metro) tally.set(row.metro, (tally.get(row.metro) || 0) + 1);
+    let best = null, bestN = 0;
+    for (const [m, n] of tally) if (n > bestN) { best = m; bestN = n; }
+    // A named metro always wins over a coordinate one, even with fewer rows —
+    // otherwise a coordinate pool that got there first keeps winning forever.
+    for (const [m, n] of tally) if (!m.startsWith("city-") && n >= 12) { best = m; break; }
+    return bestN >= 12 ? best : null;
+  } catch (e) { return null; }
+}
 
 async function pool(items, limit, fn) {
   let i = 0;
@@ -98,7 +133,14 @@ export async function POST(req) {
 
   const gkey = (process.env.GOOGLE_MAPS_SERVER_KEY || "").trim();
   await setStatus(s, svcH, lat, lng, "fetching");
-  const metro = slugify(body.city, lat, lng);
+  // A named city from the client is authoritative. Without one, adopt the metro
+  // we already hold within ~24mi before inventing a coordinate key — this is
+  // what stops one city becoming a dozen pools and a dozen Places bills.
+  let metro = slugify(body.city, lat, lng);
+  if (!body.city) {
+    const nearby = await nearestExistingMetro(s, svcH, lat, lng);
+    if (nearby) metro = nearby;
+  }
   const cityNorm = String(body.city || metro).split(",")[0].trim().slice(0, 80);
 
   // 1) Google Places → wf_inventory (opens the gate). Skipped when already
