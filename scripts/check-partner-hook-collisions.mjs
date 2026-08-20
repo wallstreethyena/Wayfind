@@ -34,7 +34,6 @@ import { UT_PLACE_DEAL_IDS } from "../lib/deals.js";
 const VIATOR_PLACE_PRODUCT_CODES = {
   "412732P1": "Clear Kayak Ecotour at Robinson Preserve",
   "454941P4": "Robinson Preserve Mangrove Tour",
-  "22211P1": "TreeUmph Adventure Course",
   "237533P5": "Egmont Key Ferry (Fort De Soto)",
   "3170P97": "Fun Spot Attractions Theme Parks Admission",
   "173028P1": "Clear Kayak Tour of Shell Key Preserve and Tampa Bay Area",
@@ -63,6 +62,11 @@ const VIATOR_PLACE_PRODUCT_CODES = {
   "68831P1": "Sarasota Mangrove Tunnel Guided Kayak Adventure",
   "26315P9": "Bioluminescence Night Kayaking Tour of Merritt Island Wildlife Refuge",
   "105290P10": "Paddle Board or Clear Kayak and Swim Adventure at Wekiwa Springs",
+  "386845P1": "Kayak Paddling Experience at The Bay Park",
+  "236733P1": "2 Person Mini Power Boat Rental at Tampa Riverwalk",
+  "431125P5": "St. Johns River Cruise - Blue Spring State Park",
+  "179637P1": "Little Toot Dolphin Adventure at Clearwater Beach",
+  "5608638P1": "Shark Tooth Snorkeling Adventure and Huka Dive in Venice Florida",
 };
 
 
