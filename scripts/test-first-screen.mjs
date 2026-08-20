@@ -118,9 +118,16 @@ ok(/const railMenuBand = railMenu \? \(/.test(code),
     // inside the open drop — the curator aggregate is fetched per open drop and
     // fails soft. None of them is a prop the rail RENDERS, which is the line
     // this check actually draws (see `places={places}` above — still caught).
+    //
+    // v8.29.6 — `liked` / `disliked` (main PR #888's map shape) join them. They
+    // are client state rather than callables, which is why they need saying out
+    // loud: they are read ONLY inside the drop, never in the rail's own markup,
+    // so they cannot delay or change the first paint either. The moment one is
+    // read outside the drop it stops belonging on this list.
     const NON_CONTENT = new Set([
       "center", "isSaved", "isOnTrip", "initialRail",
-      "isLiked", "isDisliked", "memberSignalsFor", "applyMemberSignal",
+      "liked", "disliked", "isLiked", "isDisliked",
+      "memberSignalsFor", "applyMemberSignal",
     ]);
     if (NON_CONTENT.has(name) || /^on[A-Z]/.test(name)) continue;
     ok(/^railMenu\.\w+$/.test(value) || value === "RAILS",
@@ -135,7 +142,7 @@ ok(/const railMenuBand = railMenu \? \(/.test(code),
     "the drop's place card must stay a next/dynamic ssr:false import — that is what keeps its props off the first-paint path AND what kept the bundle under the gate");
   ok(/loading:\s*\(\)\s*=>\s*<PlaceCardSkeleton/.test(rail),
     "while the lazy card chunk loads the drop paints a place-card-shaped skeleton, not an empty color slab");
-  for (const p of ["isSaved", "isOnTrip", "onSave", "onItinerary", "onOpenPlace"]) {
+  for (const p of ["isSaved", "isOnTrip", "onSave", "onItinerary", "onOpenPlace", "liked", "disliked", "onLike", "onDislike"]) {
     ok(new RegExp(p + "\\s*=\\s*null").test(rail),
       `${p} must default to null — /v8 mounts this component without it and has to keep working`);
   }
@@ -149,6 +156,13 @@ ok(/const railMenuBand = railMenu \? \(/.test(code),
     "the rail band passes openDetail as onOpenPlace — without it every card tap is a full navigation and Back wipes the feed");
   ok(/onOpen=\{onOpenPlace \? \(pl\) => onOpenPlace\(pl\) : undefined\}/.test(rail),
     "DaypartRail forwards onOpenPlace to IconicPlaceCard's onOpen — the sheet path, with the /p/ href kept as the crawlable fallback");
+  // v8.28 — Like/Dislike stay on the rail. The drop used to omit onLike, so
+  // IconicPlaceCard fell back to <a href="/p/{id}?action=like"> and every
+  // thumb left the open Amazon rail. Both ends of the wire:
+  ok(/onLike=\{\(e, p\) => \{ try \{ toggleLike\(e, p\)/.test(railBlock),
+    "the rail band passes home.js toggleLike — a missing handler is the ?action=like navigation");
+  ok(/onLike=\{onLike \? \(e, pl\) => onLike\(e, pl\) : null\}/.test(rail),
+    "DaypartRail forwards onLike onto IconicPlaceCard — the in-place path");
   ok(/if \(!center \|\| !Number\.isFinite\(center\.lat\)/.test(rail), "…and bail out of the re-rank when it has not");
 }
 // And it must be gone from where it used to be: a page carrying BOTH the rail

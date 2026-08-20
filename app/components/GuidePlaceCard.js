@@ -23,6 +23,7 @@
 import { useCallback, useEffect, useState } from "react";
 import IconicPlaceCard from "./IconicPlaceCard";
 import { addPlaceToTrips, tripMetaForPlace } from "../../lib/trips";
+import { readLocalLikeState, persistLike, persistDislike, recordTasteSignal } from "../../lib/likeSignal";
 
 const LISTS_KEY = "wayfind_lists";
 const TRIPS_KEY = "wayfind_trips";
@@ -40,6 +41,8 @@ export default function GuidePlaceCard({ place, rank, editorial }) {
   // hydrate-mismatch, and these pages are prerendered.
   const [saved, setSaved] = useState(false);
   const [inTrip, setInTrip] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const [disliked, setDisliked] = useState(false);
 
   useEffect(() => {
     if (!place || !place.id) return;
@@ -52,6 +55,11 @@ export default function GuidePlaceCard({ place, rank, editorial }) {
       const t = trips[meta.key];
       setInTrip(!!(t && t.items && t.items.some((it) => it.id === place.id)));
     } catch (e) {}
+    try {
+      const s = readLocalLikeState();
+      setLiked(!!(s.liked && s.liked[place.id]));
+      setDisliked(!!(s.disliked && s.disliked[place.id]));
+    } catch (e) {}
   }, [place]);
 
   const onSave = useCallback((e, p) => {
@@ -61,6 +69,28 @@ export default function GuidePlaceCard({ place, rank, editorial }) {
     const next = { ...lists, favorites: { ...fav, places: has ? fav.places.filter((x) => x.id !== p.id) : [...fav.places, p] } };
     write(LISTS_KEY, next);
     setSaved(!has);
+  }, []);
+
+  const onLike = useCallback((e, p) => {
+    // Same four localStorage keys as app/home.js. No Supabase here — the
+    // guide is a standalone client shell and the app reconciles on next load,
+    // matching onSave above. persistLike reads the FULL maps so a tap here
+    // cannot wipe likes recorded from the home rail.
+    const s = readLocalLikeState();
+    const wasLiked = !!(s.liked && s.liked[p.id]);
+    const next = persistLike({ supabase: null, user: null, place: p, wasLiked, liked: s.liked, disliked: s.disliked, likedItems: s.likedItems, dislikedItems: s.dislikedItems });
+    setLiked(!!next.liked[p.id]);
+    setDisliked(!!next.disliked[p.id]);
+    if (!wasLiked) { try { recordTasteSignal("like", p); } catch (er) {} }
+  }, []);
+
+  const onDislike = useCallback((e, p) => {
+    const s = readLocalLikeState();
+    const wasDisliked = !!(s.disliked && s.disliked[p.id]);
+    const next = persistDislike({ supabase: null, user: null, place: p, wasDisliked, liked: s.liked, disliked: s.disliked, likedItems: s.likedItems, dislikedItems: s.dislikedItems });
+    setLiked(!!next.liked[p.id]);
+    setDisliked(!!next.disliked[p.id]);
+    if (!wasDisliked) { try { recordTasteSignal("dislike", p); } catch (er) {} }
   }, []);
 
   const onItinerary = useCallback((e, p) => {
@@ -92,8 +122,12 @@ export default function GuidePlaceCard({ place, rank, editorial }) {
       href={`/p/${encodeURIComponent(place.id)}`}
       editorial={editorial || null}
       saved={saved}
+      liked={liked}
+      disliked={disliked}
       inTrip={inTrip}
       onSave={onSave}
+      onLike={onLike}
+      onDislike={onDislike}
       onItinerary={onItinerary}
       surface="guide"
     />

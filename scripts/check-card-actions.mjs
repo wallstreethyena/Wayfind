@@ -92,7 +92,19 @@ ok(new RegExp("from \"" + "../../lib/cardActions" + "\"").test(cardSrc), `${CARD
 const ACTIONS = [...new Set(
   [...cardSrc.matchAll(/actionHref\(\s*"([a-z]+)"\s*\)/g)].map((m) => m[1])
 )];
-const MUST_COVER = ["save", "like", "dislike"];
+// v8.29.6 — LIKE AND DISLIKE NO LONGER HAVE AN ANCHOR AT ALL. main's PR #888
+// (lib/railReaction.js) deleted them, and this branch's fallback store is what
+// makes that safe: the control is always a <button> and always has a handler
+// after hydration. So `save` is the only action with a no-JS anchor left, and
+// the two thumbs are checked by the rules below instead — an anchor for either
+// is now a FAILURE, not the expected fallback.
+const MUST_COVER = ["save"];
+for (const gone of ["like", "dislike"]) {
+  ok(!ACTIONS.includes(gone), `${CARD}: an actionHref("${gone}") anchor is back. That control must be a <button> — see lib/railReaction.js and lib/cardActions.js.`);
+  const Cap = gone[0].toUpperCase() + gone.slice(1);
+  ok(new RegExp("stayOnRailReaction\\(e, do" + Cap + ", place\\)").test(cardSrc),
+    `${CARD}: ${gone} must call stayOnRailReaction(e, do${Cap}, place) — main's contract (never navigates) with this branch's resolved handler (never a no-op).`);
+}
 for (const a of MUST_COVER) {
   ok(ACTIONS.includes(a), `${CARD}: "${a}" is no longer detected as an actionHref fallback. Either the card stopped rendering it (delete it from MUST_COVER deliberately) or the fallback was renamed and this guard just stopped checking it.`);
 }
@@ -202,8 +214,8 @@ for (const abs of walk(join(ROOT, "app"))) {
 // A control the card cannot service must not render at all. A tour card has
 // no place row and no handlers; it used to draw four live buttons over four
 // no-ops.
-ok(/\{\(doSave \|\| doLike \|\| doDislike \|\| onShare\) \?/.test(railSrc),
-  `${RAIL}: the action row must be gated on having at least one usable control, or a card with no handlers still draws buttons that do nothing`);
+ok(/\{actionsReadOnly \? null : \(/.test(railSrc),
+  `${RAIL}: the action row must honour the written actionsReadOnly opt-out — a card that is not a place (a tour product) must be able to say so rather than draw four controls it cannot service`);
 ok(/\{onShare \? \(/.test(railSrc), `${RAIL}: Share must render only when a share handler exists`);
 
 let railSites = 0;

@@ -203,18 +203,24 @@ ok(!/\|\|\s*p\.summerWhy/.test(code("app/components/DaypartRail.js")),
 ok(!/\|\|\s*p\.birthdayWhy/.test(code("app/components/DaypartRail.js")),
   "DaypartRail does not fall back to birthdayWhy as the card hook");
 
-// ── 6. EVENTS ARE EXCLUDED, PERMANENTLY ─────────────────────────────────────
-// An event is not a place: no wf_editorial row, nothing it is "known for".
+// ── 6. EVENTS ARE EXCLUDED ON LIST SURFACES; DETAIL IS THE EXCEPTION ────────
+// An event is not a place on a LIST: no wf_editorial row, nothing it is
+// "known for". Callers pass places only. DETAIL sheets (owner, 2026-08-20)
+// paint sourced editorial for every opened card, including event-shaped ones.
 ok(/EVENTS ARE EXCLUDED/.test(read("app/components/useEditorialHooks.js")),
   "the shared resolver states the events exclusion where callers will read it");
+ok(/LIST SURFACES/.test(read("app/components/useEditorialHooks.js")),
+  "the shared resolver names the list-surface scope — Detail is the exception");
 ok(/kind !== "experience"/.test(code("app/components/BestNearby.js")),
   "BestNearby excludes bookable experiences from hook resolution — a Viator product has no wf_editorial row");
-ok(/!detail\._event && editorial/.test(code("app/components/sheets/Detail.js")),
-  "the detail sheet renders the Wayfind take for places only, never for an event");
+ok(!/!detail\._event && editorial/.test(code("app/components/sheets/Detail.js")),
+  "the detail sheet no longer skips the Wayfind take when detail._event is set");
+ok(/\{editorial \? <WayfindTakeRail editorial=\{editorial\} \/> : null\}/.test(code("app/components/sheets/Detail.js")),
+  "the detail sheet mounts WayfindTakeRail whenever sourced editorial exists — events included");
 
 if (fails.length) {
   console.error("check-editorial-everywhere: FAIL");
   for (const f of fails) console.error("  ✗ " + f);
   process.exit(1);
 }
-console.log(`check-editorial-everywhere: OK — ${pass} assertions across ${SURFACES.length} place surfaces (one compressor, proven BY CALL on the apostrophe/placeholder/cap/shape defects; no second copy; no fabricated line; no generic fallback; events excluded)`);
+console.log(`check-editorial-everywhere: OK — ${pass} assertions across ${SURFACES.length} place surfaces (one compressor, proven BY CALL on the apostrophe/placeholder/cap/shape defects; no second copy; no fabricated line; no generic fallback; events excluded on list surfaces; detail paints sourced event editorial)`);

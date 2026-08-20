@@ -10,10 +10,23 @@ const keys = Object.keys(E);
 ok(keys.length >= 280, `at least 280 unique places (got ${keys.length})`);
 ok(EDITORIAL_COUNT === keys.length, "EDITORIAL_COUNT matches the data");
 
-// every entry carries the full three-part voice, substantively
+// Sourced-fields-only exception: Sarasota Medieval Fair is a name-keyed
+// event note (knownFor + why only). Do not invent vibe/move to satisfy
+// the three-part place-voice loop — that is the product decision.
+const SOURCED_ONLY = new Set(["sarasota medieval fair"]);
+
+// every place entry carries the full three-part voice, substantively
 for (const k of keys) {
   const e = E[k];
   ok(e && e.name, `entry ${k} has a name`);
+  if (SOURCED_ONLY.has(k)) {
+    ok(typeof e.knownFor === "string" && e.knownFor.trim().length >= 20, `${e.name}: sourced knownFor`);
+    ok(typeof e.why === "string" && e.why.trim().length >= 20, `${e.name}: sourced why`);
+    for (const f of ["vibe", "move", "foodMove", "story"]) {
+      ok(!e[f], `${e.name}: no invented ${f}`);
+    }
+    continue;
+  }
   for (const f of ["vibe", "why", "move"]) {
     ok(typeof e[f] === "string" && e[f].trim().length >= 20, `${e.name}: "${f}" is substantive`);
   }
@@ -49,5 +62,17 @@ ok(oyster && (oyster.foodMove || "").length >= 20, "AMOB carries a Food Move (oy
 // negatives: unknown places return null, never a wrong entry
 ok(editorialFor("Some Nonexistent Diner 9000") === null, "unknown name -> null");
 ok(editorialFor("") === null, "empty name -> null");
+
+// name-keyed event note (owner-approved, 2026-08-20): /api/editorial
+// looks this up by event name. Verbatim sourced fields only.
+const FAIR_KNOWN = "Twice-daily full-armored joust, on the tournament field";
+const FAIR_WHY = "Sarasota Medieval Fair holds Full-Armored Jousting Tournaments twice daily, on the tournament field in the Woods of Mallaranny. Official welcome still dates this 47-acre woodland village Saturday–Sunday, November 7 through December 6.";
+const fair = editorialFor("Sarasota Medieval Fair");
+ok(fair && fair.knownFor === FAIR_KNOWN, "Sarasota Medieval Fair returns the verbatim sourced knownFor");
+ok(fair && fair.why === FAIR_WHY, "Sarasota Medieval Fair returns the verbatim sourced why");
+ok(editorialFor("Sarasota Medieval Fair 2026") === fair,
+  "year-suffixed event name prefix-matches the same note");
+ok(editorialNorm("Sarasota Medieval Fair") === "sarasota medieval fair",
+  "the stored key is editorialNorm of the event name");
 
 console.log(`test-editorial: OK — ${pass} assertions (${keys.length} places incl. enhanced Atlas cards, lookup exact+fuzzy)`);

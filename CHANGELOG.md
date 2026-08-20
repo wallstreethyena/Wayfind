@@ -1,3 +1,37 @@
+## v8.29.6 - Two fixes for one bug, merged so neither undoes the other
+- main's PR #888 ("Keep rail Like/Dislike on the rail", lib/railReaction.js) and this
+  branch's v8.29-v8.29.5 were written in parallel against the same tap. They chose
+  differently, and each one's guard failed the other's code.
+- #888 DELETES the <a href="/p/{id}?action=like"> outright and routes every reaction
+  through one click contract that cannot navigate. v8.29 KEPT the anchor as no-JS
+  progressive enhancement and made it unreachable after hydration, and gave the card
+  a working fallback handler so an unwired surface still registers a real like.
+- MERGED, NOT PICKED. #888's rule wins on the markup: the anchor is gone for like and
+  dislike, and both controls are always <button>s calling stayOnRailReaction. This
+  branch's rule wins on the handler: stayOnRailReaction receives `doLike`, which is
+  the caller's handler when one was wired and lib/cardActions.js's shared store
+  otherwise. #888 alone guaranteed the tap never leaves the rail while leaving every
+  unwired card a live button over a no-op — stayOnRailReaction returns silently when
+  the handler is missing. Together the tap neither navigates nor does nothing.
+- THE MERGE ITSELF SHIPPED TWO BUGS THAT LOOK LIKE NOTHING IN A DIFF. <DaypartRail>
+  ended up carrying onLike and onDislike TWICE, and the IconicPlaceCard render inside
+  it carried liked/onLike twice; JSX silently takes the last, which is how a working
+  handler gets replaced without a line that looks wrong. tsc caught the first
+  (TS17001); the second was found by reading. Both deduped, and the rail now reads
+  whichever shape the parent supplies — #888's `liked`/`disliked` maps or this
+  branch's isLiked/isDisliked predicates.
+- RailCard gains a WRITTEN opt-out (actionsReadOnly) instead of hiding its action row
+  whenever nothing was wired. The first version was too clever: it also hid the
+  control on a card that simply had not hydrated, which is the state
+  test-rail-like-stays probes. The Viator tour rail — a product, not a place — says
+  so in writing; every other card renders its thumbs, disabled while they have no
+  hands.
+- Two of #888's assertions were RE-POINTED, not relaxed: they pinned
+  stayOnRailReaction(e, onLike, place) — the raw prop, which is null on exactly the
+  surfaces the bug lived on. They now pin the resolved handler AND that it resolves
+  from the prop with a hydrated fallback, so both halves of the contract are asserted.
+- 382/382 guards green.
+
 ## v8.29.5 - The next step names the place, and a hero stops holding a gap open
 - Owner, 2026-08-20: "these next steps are really not very clear we need to make it
   clear for the user and make sure that we have deep links for those and we are

@@ -35,14 +35,30 @@ for (const name of [
   "Turtle Beach",
   "Weeki Wachee Springs State Park",
   "Silver Springs State Park Glass Bottom Boat Tours",
+  "The Bay Park",
+  "Tampa Riverwalk",
+  "Blue Spring State Park",
+  "Keys Huka Dive",
 ]) {
   ok(inv.hooked.some((r) => r.name === name),
     `${name} is hooked — an existing card, not an invented one`);
   ok(!inv.unmatched.some((r) => r.name === name),
     `${name} is not leftover after the owner-verified pin`);
 }
+ok(inv.hooked.find((r) => r.name === "The Bay Park")?.offerId === "386845P1",
+  "The Bay Park stays on the Sarasota kayak product that names the park");
+ok(inv.hooked.find((r) => r.name === "Tampa Riverwalk")?.offerId === "236733P1",
+  "Tampa Riverwalk stays on the mini-boat product that names the Riverwalk");
+ok(inv.hooked.find((r) => r.name === "Blue Spring State Park")?.offerId === "431125P5",
+  "Blue Spring stays on the in-park St. Johns River cruise, not a ramp kayak");
+ok(inv.hooked.find((r) => r.name === "Keys Huka Dive")?.offerId === "5608638P1",
+  "Keys Huka Dive stays on the Venice Huka product, not a Keys-reef hop");
 ok(!inv.hooked.some((r) => r.name === "Clearwater Beach"),
   "Clearwater Beach is not hooked — no exact Atlas/summer/curated card, do not invent one");
+ok(!inv.hooked.some((r) => r.name === "TreeUmph! Adventure Course"),
+  "TreeUmph is not hooked — dead SKU 22211P1 was unpinned");
+ok(inv.unmatched.some((r) => r.name === "TreeUmph! Adventure Course"),
+  "TreeUmph remains in leftover until a live product names it");
 
 ok(placePartnerPick({ name: "Shell Key Preserve" })?.offerId === "173028P1",
   "positive control: placePartnerPick still returns the founder Shell Key pin");
@@ -83,6 +99,20 @@ ok(notProduct.ok === false && notProduct.reason === "url-is-not-a-product-path",
 const leftover = leftoverMarkdown(inv);
 ok(leftover.includes("Shell Key Preserve") === false,
   "leftover markdown does not list Shell Key — a leftover that still asked for this pin would duplicate #858");
+ok(!/\| The Bay Park \|/.test(leftover),
+  "leftover unmatched table does not still list The Bay Park");
+ok(!/\| Tampa Riverwalk \|/.test(leftover),
+  "leftover unmatched table does not still list Tampa Riverwalk");
+ok(!/\| Blue Spring State Park \|/.test(leftover),
+  "leftover unmatched table does not still list Blue Spring — the cruise pin cleared it");
+ok(!/\| Keys Huka Dive \|/.test(leftover),
+  "leftover unmatched table does not still list Keys Huka Dive — the Venice Huka pin cleared it");
+ok(/\| Kelly Park - Rock Springs \|/.test(leftover),
+  "positive control: leftover still records Kelly Park as unmatched (Kings Landing kayak refused)");
+ok(/\| TreeUmph! Adventure Course \|/.test(leftover),
+  "leftover records TreeUmph as unmatched — empty-slot, not a similar-SKU replacement");
+ok(/22211P1/.test(leftover) && /unavailable/.test(leftover),
+  "leftover notable skip names the dead SKU so nobody re-pins it from the similar-experiences rail");
 ok(leftover.includes("# Place-register leftover"),
   "positive control: leftover markdown has its heading, so the Shell Key absence above is not an empty string");
 ok(leftover.includes("## Notable skips this batch"),

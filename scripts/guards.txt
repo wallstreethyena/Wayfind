@@ -183,6 +183,7 @@ node scripts/test-saved-items.mjs
 node scripts/test-city-gate.mjs
 node scripts/test-city-fetch.mjs
 node scripts/test-detail-take.mjs
+node scripts/test-detail-event-editorial.mjs
 node scripts/test-detail-cta-ladder.mjs
 node scripts/test-booking-audit.mjs
 node scripts/test-money-honest.mjs
@@ -305,6 +306,7 @@ node scripts/check-intro-instrumentation.mjs
 node scripts/check-intro-gate.mjs
 node scripts/check-hub-conversion.mjs
 node scripts/test-intent-header-clarity.mjs
+node scripts/test-rail-like-stays.mjs
 node scripts/check-viator-redirect-layer.mjs
 node scripts/check-intent-partner-picks.mjs
 node scripts/check-unified-commerce-rail.mjs
@@ -350,6 +352,8 @@ node scripts/test-shell-key-clear-kayak-pin.mjs
 # reminted click_id, never a rank change. ASSERT ON THE CALL.
 node scripts/test-cash-register-factory.mjs
 node scripts/test-cash-register-batch-2026-08-20.mjs
+node scripts/test-cash-register-batch-2026-08-20b.mjs
+node scripts/test-treeumph-empty-slot.mjs
 node scripts/check-top40-rail.mjs
 node scripts/test-home-rails-render-smoke.mjs
 # The reader's storage budget. A cache may never cost them a preference —

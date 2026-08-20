@@ -24,6 +24,17 @@ import { toHookLine } from "../../lib/editorialHook.js";
 // which turned a like into a navigation on every surface that forgot. The card
 // now carries a working fallback instead of a link. See lib/cardActions.js.
 import { useCardActions, toggleLike as fallbackLike, toggleDislike as fallbackDislike, toggleSave as fallbackSave } from "../../lib/cardActions";
+// v8.29.6 — MERGED WITH main's PR #888 (lib/railReaction.js), which fixed the
+// same tap from the other end: it deletes the Like/Dislike anchor outright and
+// routes every reaction through one click contract that cannot navigate.
+//
+// Both fixes are kept, because they solve different halves. #888 guarantees the
+// tap NEVER leaves the rail; it also made every unwired card a live button over
+// a no-op, because stayOnRailReaction silently returns when the handler is
+// missing. lib/cardActions.js is what stops that: the handler is never missing
+// after hydration. So the control is always a <button> (#888's rule) and it
+// always has hands (v8.29's). The anchor is gone for like and dislike.
+import { stayOnRailReaction } from "../../lib/railReaction.js";
 
 // ---------------------------------------------------------------------------
 // Experience-tag chips (owner: "I need the cards to look like the cards from
@@ -272,6 +283,10 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   const validAiSummary = !take && aiSummary && typeof aiSummary === "object" && aiSummary.card_line_1 && aiSummary.card_line_2 ? aiSummary : null;
   const hasTake = !!(take || validAiSummary);
   const initials = String(place.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase();
+  // Save still has a crawlable fallback for callers that have not wired
+  // onSave. Like/Dislike MUST NOT — that href is the 2026-08-20 P0 (Amazon
+  // rail → /p/{id}?action=like → trapped on the place route). Like is a
+  // signal, not a page. See lib/railReaction.js.
   const actionHref = (action) => "/p/" + encodeURIComponent(place.id) + "?action=" + action;
   // v8.29 — WIRED, OR THE CARD WIRES ITSELF. `fb.hydrated` is false on the
   // server and on the hydrating render, so the markup React reconciles against
@@ -502,44 +517,37 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
             ) : (
               <a className="wf-place-card-save" href={actionHref("save")} aria-label={"Save " + place.name}>♡ Save</a>
             )}
-            {/* Like/Dislike: an in-place toggle when the caller wires onLike/
-                onDislike (IntentPageClient.js, TrendingNowClient.js, both
-                2026-08-01) — stopPropagation + preventDefault so the tap
-                never falls through to the surrounding list's own navigation,
-                matching the pattern app/home.js's PlaceCard and
-                ThingsToDoList's Card already use. is-active applies the CSS
-                that has shipped since this card existed but nothing here
-                ever triggered, because liked/disliked was never a prop.
-                Falls back to the original navigate-to-detail link for any
-                caller that has not wired the props — never a dead button. */}
-            {/* v8.28 — cardActionsReadOnly is the WRITTEN opt-out for a surface
-                with no likes pipeline (a prerendered guide page). It renders
-                NOTHING rather than the actionHref anchor, because a control
-                that navigates when it promises to register a like is the bug
-                scripts/check-card-actions.mjs exists to stop. */}
-            {cardActionsReadOnly ? null : doLike ? (
+            {/* v8.29.6 — ALWAYS A BUTTON (main PR #888), ALWAYS WIRED (v8.29).
+                The anchor is gone: a control that promises to register a like
+                and instead loads a route is the bug both fixes exist for. The
+                handler is `doLike`, which is the caller's when the caller wired
+                one and lib/cardActions.js's shared store otherwise — so
+                stayOnRailReaction's "no-op when the handler is missing" branch
+                is unreachable on a hydrated page rather than the normal case.
+                stayOnRailReaction owns stopPropagation + preventDefault, so the
+                tap can never fall through to the surrounding list's navigation.
+
+                cardActionsReadOnly remains the written opt-out for a surface
+                that genuinely must not offer the control at all. */}
+            {cardActionsReadOnly ? null : (
               <button
                 type="button"
                 className={"wf-place-card-like" + (isLikedNow ? " is-active" : "")}
                 aria-label={isLikedNow ? "Remove like: " + place.name : "Like " + place.name}
                 aria-pressed={isLikedNow}
                 title={isLikedNow ? "Remove like" : "Like this place"}
-                onClick={(e) => { e.stopPropagation(); e.preventDefault(); doLike(e, place); }}
+                onClick={(e) => stayOnRailReaction(e, doLike, place)}
               ><ThumbIcon /></button>
-            ) : (
-              <a className="wf-place-card-like" href={actionHref("like")} aria-label={"Like " + place.name} title="Like this place"><ThumbIcon /></a>
             )}
-            {cardActionsReadOnly ? null : doDislike ? (
+            {cardActionsReadOnly ? null : (
               <button
                 type="button"
                 className={"wf-place-card-dislike" + (isDislikedNow ? " is-active" : "")}
                 aria-label={isDislikedNow ? "Remove dislike: " + place.name : "Not for me: " + place.name}
                 aria-pressed={isDislikedNow}
                 title={isDislikedNow ? "Remove dislike" : "Not for me"}
-                onClick={(e) => { e.stopPropagation(); e.preventDefault(); doDislike(e, place); }}
+                onClick={(e) => stayOnRailReaction(e, doDislike, place)}
               ><ThumbIcon down /></button>
-            ) : (
-              <a className="wf-place-card-dislike" href={actionHref("dislike")} aria-label={"Not for me: " + place.name} title="Not for me"><ThumbIcon down /></a>
             )}
             <button className="wf-place-card-share" type="button" aria-label={"Share " + place.name} onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (onShare) onShare(place); }}>↗ Share</button>
           </div>

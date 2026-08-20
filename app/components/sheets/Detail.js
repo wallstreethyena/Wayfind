@@ -30,6 +30,7 @@ import { pairsWellWith } from "../../../lib/pairsWellWith";
 import { askShareIntent } from "../shareIntentSheet";
 import { placeKinds } from "../../../lib/dateInvite";
 import { hasRealPlacePhoto, realPlacePhotoSrc } from "../../../lib/detailHero";
+import { editorialRequestQuery, carriedEditorial, hasSourcedEditorialFields } from "../../../lib/editorialLookup";
 
 // Community takes (v6.54, owner: "the review is capped on characters we
 // should be able to allow the user to have more characters and write it
@@ -397,18 +398,29 @@ export default function DetailSheet({ ctx }) {
   // v6.37 — the owner's editorial voice (Vibe Check / Why Go / Best Move),
   // fetched per opened place from /api/editorial so the 288-place data module
   // stays server-side (zero client-bundle bytes; same pattern as insider).
+  //
+  // Owner lock 2026-08-20: DETAIL is the exception to the list-surface events
+  // exclusion. Event-shaped cards (detail._event from Events Near You /
+  // openVenue) still fetch and still paint when the response has a sourced
+  // field. Unsourced stays empty-slot. No filler, no LLM-on-render.
   const [editorial, setEditorial] = useState(null);
   useEffect(() => {
     let dead = false;
     setEditorial(null);
-    const nm = detail && !detail._event ? detail.name : null;
-    if (!nm) return;
-    fetch("/api/editorial?name=" + encodeURIComponent(nm) + (detail.id ? "&id=" + encodeURIComponent(detail.id) : "")) // v6.42: pass place_id so a richer Atlas card (when one exists) wins over the name-keyed note
+    if (!detail) return;
+    const q = editorialRequestQuery(detail);
+    const apply = (ed) => {
+      if (dead) return;
+      if (ed && hasSourcedEditorialFields(ed)) setEditorial(ed);
+      else setEditorial(carriedEditorial(detail));
+    };
+    if (!q) { apply(null); return; }
+    fetch("/api/editorial?" + q) // v6.42: place_id so a richer Atlas card wins; event/venue aliases ride in `also`
       .then((r) => r.json())
-      .then((j) => { if (!dead && j && j.editorial) setEditorial(j.editorial); })
-      .catch(() => {});
+      .then((j) => apply(j && j.editorial))
+      .catch(() => apply(null));
     return () => { dead = true; };
-  }, [detail && detail.id]);
+  }, [detail && detail.id, detail && detail.name, detail && detail._event && detail._event.name]);
   // v6.31: open/closed must match the list card exactly — compute live from the
   // hours periods (never the stale cached openNow), so "Open" in the list can't
   // become "Closed" in the sheet.
@@ -1069,7 +1081,7 @@ export default function DetailSheet({ ctx }) {
                   is dropped). Body is near-white, 14px, REGULAR weight — larger
                   and lighter than the label, the readability fix the owner asked
                   for. */}
-              {!detail._event && editorial ? <WayfindTakeRail editorial={editorial} /> : null}
+              {editorial ? <WayfindTakeRail editorial={editorial} /> : null}
 
               {(() => { const _ins = insider[detail.id]; if (!_ins || _ins.none) return null; const _cf = curatedFor && curatedFor(detail); const rows = [["🗝️", "Insider tip", _ins.tip], ["🕐", "Best time", _ins.bestTime], ["⭐", "Don't miss", _ins.dontMiss], ["💡", "Fun fact", (_cf && _cf.funFact) || _ins.funFact]].filter((r) => r[2]); if (!rows.length) return null; return (
                 <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>

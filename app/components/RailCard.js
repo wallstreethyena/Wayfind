@@ -53,6 +53,7 @@ import { useMarketPhotoFallback } from "./marketPhoto.js";
 import { useCardActions, toggleLike as fallbackLike, toggleDislike as fallbackDislike, toggleSave as fallbackSave } from "../../lib/cardActions";
 import { railDotWindow, railDotIsEdge } from "../../lib/railDots.js";
 import { KB_CLICK, WayfindScoreBadge } from "./kit";
+import { stayOnRailReaction } from "../../lib/railReaction.js";
 
 // Same glyphs as IconicPlaceCard's action row, so a thumb is one drawing in
 // this app rather than two that almost match.
@@ -229,6 +230,16 @@ export default function RailCard({
   // events rail) keeps the old prop-only behaviour, and its thumbs now render
   // disabled rather than dead.
   place,
+  // v8.29.6 — the WRITTEN opt-out, for a card that is not a place: the Viator
+  // tour rail in BestNearby has no place row, no handlers and nothing to like.
+  // It used to draw Save / Like / Dislike / Share anyway, all four wired to
+  // `if (onX) onX(e)` — four live buttons over four no-ops. Hiding the row
+  // whenever nothing was wired was the first fix and it was too clever: it
+  // also hid the control on a card that simply had not hydrated yet, which is
+  // the state scripts/test-rail-like-stays.mjs probes. So the card says so in
+  // writing instead, and everything else renders its thumbs — disabled while
+  // they have no hands, which is honest and still unpressable.
+  actionsReadOnly = false,
 }) {
   // v8.13.3 (owner: "I don't want any of the place cards not to have an
   // image"). Rung 3 of the photo ladder — a category/eyebrow-matched stock
@@ -355,7 +366,7 @@ export default function RailCard({
               all four wired to `if (onX) onX(e)` — four live buttons over four
               no-ops. The row now appears only when at least one control can
               actually do something. */}
-          {(doSave || doLike || doDislike || onShare) ? (
+          {actionsReadOnly ? null : (
           <div className="wf-place-card-actions wf-sheet-card-actions">
             <button
               type="button"
@@ -371,8 +382,14 @@ export default function RailCard({
               aria-label={isLikedNow ? "Remove like: " + title : "Like " + title}
               aria-pressed={isLikedNow}
               title={isLikedNow ? "Remove like" : "Like this"}
+              // v8.29.6 — main PR #888 routes this through stayOnRailReaction so
+              // the tap can never navigate; v8.29.2 makes sure there is a hand on
+              // the other end of it. `disabled` is what remains honest for a card
+              // that has neither a handler nor a place row (a Viator tour card):
+              // stayOnRailReaction would return silently there, and a pressable
+              // button that returns silently is the thing being fixed.
               disabled={!doLike}
-              onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (doLike) doLike(e); }}
+              onClick={(e) => stayOnRailReaction(e, doLike)}
             ><ThumbIcon /></button>
             <button
               type="button"
@@ -381,7 +398,7 @@ export default function RailCard({
               aria-pressed={isDislikedNow}
               title={isDislikedNow ? "Remove dislike" : "Not for me"}
               disabled={!doDislike}
-              onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (doDislike) doDislike(e); }}
+              onClick={(e) => stayOnRailReaction(e, doDislike)}
             ><ThumbIcon down /></button>
             {onShare ? (
               <button

@@ -159,18 +159,23 @@ export default function DaypartRail({
   isOnTrip = null,
   onSave = null,
   onItinerary = null,
-  // v8.28 (owner, 2026-08-20: "when I click the like button in those place
-  // cards that are shown by the rails, it opens up the page instead of just
-  // registering the like"). IconicPlaceCard renders Like/Dislike as a BUTTON
-  // when the caller wires a handler and as an <a href="/p/<id>?action=like">
-  // when it does not — a navigation dressed as a button. Ten other surfaces
-  // wire these; this one, now the homepage's main card surface, never did.
+  // v8.28 — LIKE/DISLIKE STAY ON THE RAIL, AND THEY REGISTER. The drop used to
+  // omit these entirely, so IconicPlaceCard fell back to
+  // <a href="/p/{id}?action=like"> and every thumb left the open rail. Same
+  // store as onSave: app/home.js toggleLike / toggleDislike.
   onLike = null,
   onDislike = null,
   onShare = null,
-  // Predicates, not raw state — the same shape as isSaved/isOnTrip above.
-  // test-first-screen requires every rail prop to be server data or a callable,
-  // because a prop carrying client state is a prop the first paint can wait on.
+  // v8.29.6 — BOTH SHAPES, because the two fixes that met here chose
+  // differently and both callers exist. `liked` / `disliked` are the maps
+  // main's PR #888 passes; `isLiked` / `isDisliked` are the predicates v8.28
+  // passes, the same shape as isSaved / isOnTrip above. test-first-screen
+  // requires every rail prop to be server data or a callable, and a MAP of
+  // client state would break that rule if the rail rendered from it — it does
+  // not: both are read only inside the drop, which emits no HTML until a card
+  // is picked and is itself a next/dynamic ssr:false import.
+  liked = null,
+  disliked = null,
   isLiked = null,
   isDisliked = null,
   // The curator gold ("god bump") is driven by place._members.ownerPick, which
@@ -664,13 +669,15 @@ export default function DaypartRail({
               city={shown.cityLabel || ""}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
+              liked={liked || undefined}
+              disliked={disliked || undefined}
               onSave={onSave || undefined}
               // v8.29.2 (owner: "this button for the likes still not working
               // under the exploding trends near you"). This block passed
               // isSaved and onSave and NOTHING else, so every thumb inside the
-              // trending drop was a live button over a no-op. The place cards
-              // below it have had these since v8.28; the trend cards now get
-              // the same home-shell state, from the same props.
+              // trending drop was a live button over a no-op. The trend cards
+              // now get the same home-shell state the place cards below them
+              // get, in whichever shape the parent supplies.
               isLiked={isLiked || undefined}
               isDisliked={isDisliked || undefined}
               onLike={onLike || undefined}
@@ -717,14 +724,20 @@ export default function DaypartRail({
                     editorial={toHookLine(hooks[p.id], p.name) || null}
                     badge={beachChip(p)}
                     saved={isSaved ? isSaved(p.id) : false}
+                    // v8.29.6 — ONE set of these, reading whichever shape the
+                    // parent gave. The merge of two independent fixes left the
+                    // element carrying `liked` and `onLike` twice; in JSX the
+                    // last wins silently, which is exactly how a working
+                    // handler gets replaced by a broken one without a diff
+                    // that looks wrong.
+                    liked={isLiked ? !!isLiked(p.id) : liked ? !!liked[p.id] : false}
+                    disliked={isDisliked ? !!isDisliked(p.id) : disliked ? !!disliked[p.id] : false}
                     inTrip={isOnTrip ? isOnTrip(p) : false}
-                    onSave={onSave ? (e, pl) => onSave(e, pl) : null}
-                    onItinerary={onItinerary ? (e, pl) => onItinerary(e, pl) : null}
-                    onLike={onLike ? (e, pl) => onLike(e, pl || p) : null}
-                    onDislike={onDislike ? (e, pl) => onDislike(e, pl || p) : null}
+                    onSave={onSave ? (e, pl) => onSave(e, pl || p) : null}
+                    onItinerary={onItinerary ? (e, pl) => onItinerary(e, pl || p) : null}
+                    onLike={onLike ? (e, pl) => onLike(e, pl) : null}
+                    onDislike={onDislike ? (e, pl) => onDislike(e, pl) : null}
                     onShare={onShare ? (e, pl) => onShare(e, pl || p) : null}
-                    liked={isLiked ? !!isLiked(p.id) : false}
-                    disliked={isDisliked ? !!isDisliked(p.id) : false}
                   />
                 ))}
               </ul>
