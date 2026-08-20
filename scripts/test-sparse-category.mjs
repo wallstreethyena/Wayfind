@@ -15,8 +15,8 @@ const ok = (c, m) => { if (!c) fail(m); pass++; };
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 
 // (b) loading skeletons on the browse feed (not a bare spinner over a shrinking list).
-ok(/aria-busy="true"[^]{0,160}wf-skeleton/.test(home), "browse feed renders loading skeletons (aria-busy + wf-skeleton) while the category query lands");
-ok(/Array\.from\(\{ length: 5 \}\)[^]{0,200}wf-skeleton/.test(home), "the skeleton is a card-shaped grid, not a single spinner");
+ok(/aria-busy="true"[^]{0,200}PlaceCardSkeleton/.test(home), "browse feed renders loading skeletons (aria-busy + PlaceCardSkeleton) while the category query lands");
+ok(/<PlaceCardSkeleton count=\{5\} as="div" \/>/.test(home), "the skeleton is a card-shaped grid (5 place-card skeletons), not a single color slab");
 
 // (a) end-of-feed honesty line + sparse next step.
 ok(home.includes("That's all "), "browse feed shows an end-of-feed 'That's all N …' line so a short list reads as complete");

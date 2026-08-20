@@ -51,6 +51,7 @@ import { commerceHref, emitCommerce, mintClickId } from "../../lib/commerce";
 import { couponForPlace } from "../../lib/coupons";
 import { recommendationIds, uniqueRecommendations } from "../../lib/recommendationDedupe.js";
 import { lawfulSort } from "../../lib/lawfulOrder.js";
+import PlaceCardSkeleton from "./PlaceCardSkeleton";
 
 // Measured against the Top 40 rail, which renders the identical card with the
 // identical chip and action rows. One constant so the skeleton and the live
@@ -465,9 +466,8 @@ export default function IntentRailBody({
     <div ref={rootRef} style={{ minHeight: rows === null || rows === "loading" ? INTENT_RAIL_CARD_H : undefined }}>
       {rows === "loading" || rows === null ? (
         <div role="status" aria-busy="true" aria-label={"Ranking " + (unit || "picks")}>
-          <div className="wf-sk" style={{ height: 16, width: 170, borderRadius: 6, marginBottom: 8 }} />
           <div className="wf-rail" aria-hidden="true" style={{ minHeight: INTENT_RAIL_CARD_H }}>
-            <div className="wf-sk" style={{ width: "100%", height: INTENT_RAIL_CARD_H, borderRadius: 17, flexShrink: 0 }} />
+            <PlaceCardSkeleton count={2} as="div" />
           </div>
         </div>
       ) : thin ? (
