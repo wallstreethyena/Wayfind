@@ -37,6 +37,7 @@ const VIATOR_PLACE_PRODUCT_CODES = {
   "22211P1": "TreeUmph Adventure Course",
   "237533P5": "Egmont Key Ferry (Fort De Soto)",
   "3170P97": "Fun Spot Attractions Theme Parks Admission",
+  "173028P1": "Clear Kayak Tour of Shell Key Preserve and Tampa Bay Area",
 };
 
 
