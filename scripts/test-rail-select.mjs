@@ -23,6 +23,7 @@ import { RAIL_SELECT, selectFor, fillRails, MIN_CARDS, MAX_CARDS, pickNearThenWi
 import { BEACH_NEAR_MI } from "../lib/beaches.js";
 import { isFamilyPlace, isStrongFamilyPlace } from "../lib/familyPlace.js";
 import { isTicketedVenue, isStrongTicketedVenue } from "../lib/eventVenue.js";
+import { isBirthdayPlace, isStrongBirthdayPlace, BIRTHDAY_NEAR_MI } from "../lib/birthdayPlace.js";
 import { readFileSync } from "node:fs";
 
 let pass = 0, fail = 0;
@@ -173,17 +174,19 @@ const pools = {
     Object.assign(mk("su7", { name: "Golden Hour Preserve", _s: 96, distMi: 9, types: ["park", "state_park"] }), { _summerSourced: true, _summerRails: ["datenight"], _summerWhy: "The river sunset from the tower — the locals' golden-hour spot." }),
     Object.assign(mk("su8", { name: "Night Fishing Pier", _s: 72, distMi: 14, types: ["state_park", "tourist_attraction"] }), { _summerSourced: true, _summerRails: ["tonight"], _summerWhy: "Night fishing under the lit span — summer's coolest hours." }),
   ],
-  // v8.15 — the birthday pool is synthetic like creators and summer:
-  // lib/railsData.js buildBirthdayPool sources it from the owner's curated
-  // birthday registry (lib/birthdayUniverse.js) and stamps `_birthdaySourced`,
-  // the only thing the selector admits. Three marked rows so the rail can
-  // fill; one UNMARKED high scorer that must never appear — the registry is
-  // the axis, not the pool's contents.
+  // v8.26 — the birthday pool is an IDENTITY pool: nearby inventory that
+  // passes isBirthdayPlace, plus curated seeds that already sit nearby.
+  // Three nearby occasion rooms so the rail can fill; a 22-mile Tampa
+  // flagship (the live Parrish #1) and a 30-mile dinner cruise that must
+  // NEVER appear — "near you" is BIRTHDAY_NEAR_MI, not the old 45-mile list.
   birthday: [
+    mk("bd-local-1", { name: "Lakewood Ranch Steakhouse", _s: 91, distMi: 4, types: ["steak_house"] }),
+    mk("bd-local-2", { name: "River Bistro", _s: 82, distMi: 3, types: ["restaurant"] }),
+    mk("bd-local-3", { name: "Harbor Wine Bar", _s: 77, distMi: 5, types: ["wine_bar"] }),
+    mk("bd-inv", { name: "Widened Karaoke Lounge", _s: 70, distMi: 6, types: ["night_club"] }),
+    mk("bd4", { name: "Garden Banquet Room", _s: 65, distMi: 4, types: ["banquet_hall"] }),
+    Object.assign(mk("bd-tampa", { name: "Bulla Gastrobar Tampa", _s: 99, distMi: 22, types: ["spanish_restaurant"] }), { _birthdaySourced: true, _birthdayWhy: "Tapas and made-to-order sangria." }),
     Object.assign(mk("bd1", { name: "Yacht StarShip Dinner Cruise", _s: 93, distMi: 30, types: ["tourist_attraction"] }), { _birthdaySourced: true, _birthdayWhy: "The one dinner cruise ranked worth a birthday." }),
-    Object.assign(mk("bd2", { name: "LALA Karaoke Lounge", _s: 84, distMi: 25, types: ["restaurant"] }), { _birthdaySourced: true, _birthdayWhy: "Private karaoke rooms built for a group night." }),
-    Object.assign(mk("bd3", { name: "Space 220 Restaurant", _s: 88, distMi: 110, types: ["restaurant"] }), { _birthdaySourced: true, _birthdayWhy: "Dinner 220 miles above Earth — the destination tier." }),
-    mk("bd4", { name: "Unmarked Banquet Hall", _s: 95, types: ["banquet_hall"] }),
   ],
 };
 
@@ -378,12 +381,26 @@ ok(isTicketedVenue({ types: ["banquet_hall"] }) && !isStrongTicketedVenue({ name
   ok(!selectFor("events", polluted, CTX).some((p) => p.id === "leak1"),
     "the events pick refuses a bar even when one reaches the pool — defense in depth over the strong identity");
 }
-// v8.15 — the birthday axis: the owner's curated registry IS the selection.
-eq(lead("birthday"), "Yacht StarShip Dinner Cruise", "birthday leads with its highest-scored registry pick");
-ok(selectFor("birthday", pools, CTX).every((p) => p._birthdaySourced === true),
-  "every birthday pick is sourced from the owner's registry");
-ok(!namesOf("birthday").includes("Unmarked Banquet Hall"),
-  "an unmarked row in the pool never rides the birthday rail — the marker is the membership");
+// v8.26 — the birthday axis: nearby occasion identity, not the statewide list.
+eq(lead("birthday"), "Lakewood Ranch Steakhouse", "birthday leads with the highest-scored NEARBY occasion room");
+ok(namesOf("birthday").includes("River Bistro") && namesOf("birthday").includes("Harbor Wine Bar"),
+  "nearby bistro / wine-bar evidence fills the rail");
+ok(namesOf("birthday").includes("Widened Karaoke Lounge"),
+  "an inventory-widened karaoke room the anchor top-N never carried reaches the birthday rail");
+ok(!namesOf("birthday").includes("Bulla Gastrobar Tampa"),
+  "a 22-mile Tampa flagship is not a birthday plan near you — the live Parrish defect");
+ok(!namesOf("birthday").includes("Yacht StarShip Dinner Cruise"),
+  "a 30-mile dinner cruise is outside BIRTHDAY_NEAR_MI even when the registry sourced it");
+ok(selectFor("birthday", pools, CTX).every((p) => (p.distMi || 0) <= BIRTHDAY_NEAR_MI),
+  "every birthday pick is inside BIRTHDAY_NEAR_MI");
+ok(isBirthdayPlace({ name: "Lakewood Ranch Steakhouse", types: ["steak_house"] }),
+  "birthdayPlace: a steakhouse is an occasion room");
+ok(isBirthdayPlace({ name: "River Bistro", types: ["restaurant"] }),
+  "birthdayPlace: whole-word bistro in the name is evidence");
+ok(!isBirthdayPlace({ name: "Corner Taco", types: ["fast_food_restaurant"] }),
+  "birthdayPlace: a taco counter is not a birthday plan");
+ok(!isStrongBirthdayPlace({ name: "Publix Super Market", primaryType: "grocery_store", types: ["grocery_store", "banquet_hall"] }),
+  "strong birthday: a grocery that also lists banquet_hall is still a grocery");
 ok(namesOf("best").includes("Siesta Key Beach") && namesOf("best").includes("Beach House Waterfront"),
   "the best-around-you rail really does see every pool");
 // v8.6 — THE SIGNAL CHANGED, SO THE FIXTURE EXPECTATION CHANGED WITH IT.
@@ -549,6 +566,16 @@ const WIDEN_RADIUS_MI = 25;
       mk("dv-in", { name: "Marquee Park 26mi", _s: 92, reviews: 80000, distMi: 26.9, types: ["amusement_park"] }),
       mk("dv-out", { name: "Too Far Park", _s: 96, reviews: 90000, distMi: 28.5, types: ["amusement_park"] }),
     ],
+    // v8.26 — birthday owns BIRTHDAY_NEAR_MI and does not widen to 25.
+    // Three nearby occasion rooms fill the rail; the 22-mile Tampa seed
+    // is the live Parrish #1 and must stay out even though 17 cannot
+    // "need" it — stretching a market to fill is the forbidden move.
+    birthday: [
+      mk("bd-n1", { name: "Near Steakhouse", _s: 88, distMi: 4, types: ["steak_house"] }),
+      mk("bd-n2", { name: "Near Wine Bar", _s: 80, distMi: 6, types: ["wine_bar"] }),
+      mk("bd-n3", { name: "Near Karaoke", _s: 72, distMi: 8, types: ["night_club"] }),
+      Object.assign(mk("bd-tampa", { name: "Bulla Gastrobar Tampa", _s: 99, distMi: 22, types: ["spanish_restaurant"] }), { _birthdaySourced: true }),
+    ],
   };
   const filled = fillRails(visitor, (p) => p, { nearMi: NEAR_RADIUS_MI, widenMi: WIDEN_RADIUS_MI, cityLabel: "Tampa" });
   ok(filled.places.eat.every((p) => p.distMi <= 17), "eat (meals) fills from 17 when 17 can");
@@ -561,6 +588,12 @@ const WIDEN_RADIUS_MI = 25;
   ok(filled.places.drive.some((p) => p.id === "dv-in"), "drive: keeps a 26.9mi row — its horizon is 27, not the 25mi widen");
   ok(!filled.places.drive.some((p) => p.id === "dv-out"), "drive: refuses a 28.5mi row — 27 is a cap, not a suggestion");
   ok(filled.places.drive.every((p) => p.distMi >= 12), "drive: near edge holds under visitor origin");
+  ok(filled.places.birthday && filled.places.birthday.length >= MIN_CARDS,
+    "birthday fills from nearby occasion rooms under visitor origin");
+  ok(filled.places.birthday.every((p) => p.distMi <= BIRTHDAY_NEAR_MI),
+    "birthday stays on BIRTHDAY_NEAR_MI — no 17/25 stretch");
+  ok(!filled.places.birthday.some((p) => p.id === "bd-tampa"),
+    "birthday does not widen to admit a 22-mile Tampa flagship");
 }
 {
   const data = readFileSync(new URL("../lib/railsData.js", import.meta.url), "utf8");
@@ -605,8 +638,18 @@ const WIDEN_RADIUS_MI = 25;
   // clone before flagging.
   ok(/\.filter\(Boolean\)\.map\(\(r\) => \(\{ \.\.\.r \}\)\);/.test(dcode),
     "buildCreatorsPool clones every row before stamping _creatorSourced");
-  eq((dcode.match(/row = \{ \.\.\.row \};/g) || []).length, 2,
-    "summer AND birthday both clone a pool-reused row before stamping their source flag");
+  eq((dcode.match(/row = \{ \.\.\.row \};/g) || []).length, 1,
+    "summer clones a pool-reused row before stamping its source flag");
+  ok(/const clone = \{ \.\.\.row \}/.test(dcode),
+    "birthday clones a pool-reused row before stamping a seed flag");
+  ok(/buildIdentityPool\(\s*pools,\s*origin,\s*isBirthdayPlace,\s*BIRTHDAY_NEAR_MI/.test(dcode),
+    "buildBirthdayPool widens from owned inventory via the identity pool (the pool-cap cure)");
+  {
+    const fn = (dcode.match(/async function buildBirthdayPool[\s\S]*?\nasync function /) || [""])[0];
+    ok(fn.length > 80, "buildBirthdayPool function body was found for the no-Details assert");
+    ok(!/getPlaceDetails/.test(fn),
+      "birthday never hydrates via Place Details — inventory/pool match or skip");
+  }
   ok(/rest\/v1\/wf_inventory/.test(dcode) && /status=eq\.OPERATIONAL/.test(dcode),
     "the widening reads OWNED inventory — never Google in a request path (the architecture rule)");
 }
