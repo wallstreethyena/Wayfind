@@ -80,8 +80,10 @@ ok(knownForLine(pending) === null, "a pending-research placeholder produced a ta
 const iconic = code("app/components/IconicPlaceCard.js");
 ok(!/rankReason|templateBlurb|Our #1 pick/.test(iconic),
   "IconicPlaceCard invents a take when editorial is absent");
-ok(/editorial \? \(/.test(iconic) || /\{editorial \?/.test(iconic),
-  "IconicPlaceCard no longer branches on the editorial prop");
+ok(/take \? \(/.test(iconic) || /\{take \?/.test(iconic),
+  "IconicPlaceCard no longer branches on the take slot");
+ok(/toHookLine\(editorial, place\.name\)/.test(iconic),
+  "IconicPlaceCard CALLS toHookLine on the editorial prop — host-theme copy cannot paint");
 ok(/If NEITHER exists, nothing renders|no template fallback/.test(read("app/components/IconicPlaceCard.js"))
   || /validAiSummary \? \(/.test(iconic),
   "IconicPlaceCard lost the verified-or-nothing take slot");

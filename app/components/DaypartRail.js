@@ -485,14 +485,12 @@ export default function DaypartRail({
                     rank={i + 1}
                     href={`/p/${encodeURIComponent(p.id)}`}
                     onOpen={onOpenPlace ? (pl) => onOpenPlace(pl) : undefined}
-                    // v8.13 — a verified wf_editorial hook still wins; rows
-                    // the summer registry sourced fall back to the entry's own
-                    // timing/heat guidance (lib/summerUniverse.js `why`,
-                    // carried through slimPlace as summerWhy). v8.15: the
-                    // birthday registry's why line rides the same fallback
-                    // (birthdayWhy). Every other row keeps rendering nothing
-                    // rather than filler.
-                    editorial={toHookLine(hooks[p.id], p.name) || p.summerWhy || p.birthdayWhy || null}
+                    // Place-card editorial is the sourced why-go / known-for
+                    // only (useEditorialHooks → Atlas / wf_editorial). Occasion
+                    // fields (summerWhy, birthdayWhy) stay off the card —
+                    // they are page/rail copy, not a place hook. No sourced
+                    // why → empty slot, never a deal or registry promo.
+                    editorial={toHookLine(hooks[p.id], p.name) || null}
                     badge={beachChip(p)}
                     saved={isSaved ? isSaved(p.id) : false}
                     inTrip={isOnTrip ? isOnTrip(p) : false}

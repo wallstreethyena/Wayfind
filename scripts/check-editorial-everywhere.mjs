@@ -30,7 +30,7 @@
  * than pattern-matched in source.
  */
 import { readFileSync } from "fs";
-import { toHookLine, hookTextOf, editorialLine, HOOK_CAP } from "../lib/editorialHook.js";
+import { toHookLine, hookTextOf, editorialLine, isUsableCardHook, HOOK_CAP } from "../lib/editorialHook.js";
 
 let pass = 0;
 const fails = [];
@@ -68,6 +68,48 @@ ok(hookTextOf(null) === "" && hookTextOf(undefined) === "", "…and is total ove
 ok(editorialLine("Known for its biscuits and gravy.", "Skyway Jack's") === "Biscuits and gravy",
   "editorialLine composes both: read the shape, then compress");
 
+// ── 1b. junk knownFor/whyGo is not a card hook (owner, 2026-08-20) ─────────
+// Tonight's Move once showed Oar & Iron's Atlas knownFor as an address/hours
+// line. #861 educated the live row; the PRE-#861 junk is a hardcoded fixture
+// so the blanking rule does not depend on Atlas staying broken.
+ok(/export function isUsableCardHook\s*\(/.test(read("lib/editorialHook.js")),
+  "lib/editorialHook.js DECLARES isUsableCardHook (declaration position)");
+ok(/isUsableCardHook\(line, name\)/.test(code("lib/editorialHook.js")),
+  "toHookLine CALLS isUsableCardHook on the compressed line — a declaration nothing calls is decoration");
+const OAR_KNOWN = "Parrish Raw Bar & Grill at 8710 US 301-N, Unit 120; official hours end 9 / Fri–Sat 10";
+ok(isUsableCardHook(OAR_KNOWN, "Oar & Iron") === false,
+  "the pre-#861 Oar & Iron knownFor fixture is not a usable card hook (address + unit + hours)");
+ok(toHookLine(OAR_KNOWN, "Oar & Iron") === "",
+  "toHookLine blanks the pre-#861 Oar & Iron knownFor fixture — do not invent a replacement");
+ok(isUsableCardHook("8710 US 301-N, Unit 120, Parrish, FL 34219", "Oar & Iron") === false,
+  "a street-address line is not a card hook");
+ok(isUsableCardHook("Official hours end 9 / Fri–Sat 10", "X") === false,
+  "an hours line is not a card hook");
+ok(isUsableCardHook("(941) 280-5598", "X") === false,
+  "a phone number is not a card hook");
+ok(isUsableCardHook("Now open in Parrish too", "X") === false,
+  "\"now open\" is not a card hook");
+ok(isUsableCardHook("Tonight's Move", "X") === false,
+  "a rail title is not a card hook");
+ok(isUsableCardHook("Best for a well-rated sit-down: 4.8★ across 900 reviews. Skip it if you want quiet.", "X") === false,
+  "a pickReason template is not a card hook");
+ok(isUsableCardHook("The quartz sand stays cool underfoot in August.", "Siesta Beach") === true,
+  "a real why-go stays usable — the gate must not fire on correct copy");
+ok(toHookLine("The quartz sand stays cool underfoot in August.", "Siesta Beach")
+   === "The quartz sand stays cool underfoot in August",
+  "toHookLine still ships a real why-go");
+// Host-page THEME — owner screenshots on THE LOCAL EDIT / birthday guide.
+// Not an AMC denylist: Bundtlet, BR scoop, IHOP pancakes, popcorn. The
+// article sentence is never a card hook, on any surface.
+ok(toHookLine("The simplest offer on this page: join Bundtastic Rewards and the birthday reward is a free Bundtlet.", "Nothing Bundt Cakes") === "",
+  "Nothing Bundt article sentence is not a card hook");
+ok(toHookLine("The BR app drops your birthday coupon into your account on your birthday.", "Baskin-Robbins") === "",
+  "Baskin-Robbins article sentence is not a card hook");
+ok(toHookLine("The International Bank of Pancakes lists free birthday pancakes as a member perk, no purchase requirement stated.", "IHOP") === "",
+  "IHOP article sentence is not a card hook — pancakes plural must not leak");
+ok(toHookLine("AMC Stubs Insider — the free tier — gives you a free large popcorn for your birthday.", "AMC Bradenton 20") === "",
+  "AMC popcorn article sentence is not a card hook");
+
 // ── 2. no second copy of the compressor may exist ───────────────────────────
 // Nine surfaces sharing one implementation was the whole point; a re-copied
 // compressor is how they silently drift apart again.
@@ -91,6 +133,7 @@ const SURFACES = [
   ["app/components/TrendingNowClient.js", "toHookLine", "/trending"],
   ["app/components/DaypartRail.js", "toHookLine", "the homepage rail drop — IconicPlaceCard take"],
   ["app/components/IntentRail.js", "toHookLine", "Tonight's Move / hidden gems / worth-the-drive / budget rails"],
+  ["app/components/IconicPlaceCard.js", "toHookLine", "the canonical place card — global lock so a leaked host-page sentence cannot paint"],
 ];
 for (const [f, fn, what] of SURFACES) {
   const src = code(f);
@@ -117,13 +160,21 @@ for (const [f] of SURFACES) {
 
 // ── 5. no place row falls back from the editorial line to filler ────────────
 // The `||` the owner banned: a verified hook OR NOTHING. Scoped to the `why=`
-// and `take=` props so an unrelated `||` elsewhere in a 500k-char file is not a
-// false positive — a guard that fires on correct code gets commented out.
-for (const f of ["app/components/BestNearby.js", "app/components/IntentRail.js"]) {
+// `take=` and `editorial=` props so an unrelated `||` elsewhere in a 500k-char
+// file is not a false positive — a guard that fires on correct code gets
+// commented out. DaypartRail used to fall back to summerWhy/birthdayWhy
+// (owner, 2026-08-20: occasion promo is not a place hook).
+for (const f of ["app/components/BestNearby.js", "app/components/IntentRail.js", "app/components/DaypartRail.js"]) {
   const src = code(f);
-  const bad = [...src.matchAll(/(?:why|take)=\{[^}]*toHookLine\([^}]*\|\|/g)].length;
+  // `|| null` is the empty-slot law ("" → no render). A fallback to another
+  // string (summerWhy, birthdayWhy, reasonLine, …) is the banned filler.
+  const bad = [...src.matchAll(/(?:why|take|editorial)=\{[^}]*toHookLine\([^}]*\|\|(?!\s*null)/g)].length;
   ok(bad === 0, `${f}: no place row falls back from the editorial line to generic filler (found ${bad})`);
 }
+ok(!/\|\|\s*p\.summerWhy/.test(code("app/components/DaypartRail.js")),
+  "DaypartRail does not fall back to summerWhy as the card hook");
+ok(!/\|\|\s*p\.birthdayWhy/.test(code("app/components/DaypartRail.js")),
+  "DaypartRail does not fall back to birthdayWhy as the card hook");
 
 // ── 6. EVENTS ARE EXCLUDED, PERMANENTLY ─────────────────────────────────────
 // An event is not a place: no wf_editorial row, nothing it is "known for".
