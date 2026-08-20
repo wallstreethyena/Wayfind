@@ -110,6 +110,33 @@ ok(toHookLine("The International Bank of Pancakes lists free birthday pancakes a
 ok(toHookLine("AMC Stubs Insider — the free tier — gives you a free large popcorn for your birthday.", "AMC Bradenton 20") === "",
   "AMC popcorn article sentence is not a card hook");
 
+// ── house bar (owner lock, 2026-08-20) — The Cracked Pepper Cafe ──────────
+// Gold line MUST still pass. Plate-list-only is NOT the house bar (editorial
+// law) but isUsableCardHook must NOT auto-blank it. See
+// docs/wayfind/PRODUCT_TRUTH.md and the usable-hook gate comment.
+const CRACKED_PEPPER_GOLD =
+  "Winner of the 2023 Cuban Sandwich Festival's World's Best award, with a patio that overlooks a pond.";
+const CRACKED_PEPPER_GOLD_LINE =
+  "Winner of the 2023 Cuban Sandwich Festival's World's Best award, with a patio that overlooks a pond";
+ok(/Cuban Sandwich Festival's World's Best/.test(read("docs/wayfind/PRODUCT_TRUTH.md")) &&
+   /two-beat/i.test(read("docs/wayfind/PRODUCT_TRUTH.md")),
+  "PRODUCT_TRUTH states the two-beat house bar and the gold example");
+ok(/Cuban Sandwich Festival's World's Best/.test(read("docs/editorial-standard.md")),
+  "the editorial standard states the gold example");
+ok(/Cuban Sandwich Festival's World's Best/.test(read("lib/editorialHook.js")),
+  "the usable-hook gate comment names the gold example");
+ok(isUsableCardHook(CRACKED_PEPPER_GOLD, "The Cracked Pepper Cafe") === true,
+  "the Cracked Pepper gold line PASSES isUsableCardHook — it must still render");
+ok(toHookLine(CRACKED_PEPPER_GOLD, "The Cracked Pepper Cafe") === CRACKED_PEPPER_GOLD_LINE,
+  "toHookLine ships the gold line intact");
+const PLATE_LIST_ONLY = "Center-cut filet, potato-crusted grouper, and oysters";
+ok(/plate-list-only line without a why-sit is not the house bar/i.test(read("docs/wayfind/PRODUCT_TRUTH.md")),
+  "PRODUCT_TRUTH names plate-list-only (no why-sit) as not the house bar — editorial law");
+ok(isUsableCardHook(PLATE_LIST_ONLY, "X") === true,
+  "plate-list-only still PASSES isUsableCardHook — do not auto-blank #861–#874");
+ok(toHookLine(PLATE_LIST_ONLY, "X") === PLATE_LIST_ONLY,
+  "toHookLine still ships a plate-list — tightening is Editorial's job");
+
 // ── 2. no second copy of the compressor may exist ───────────────────────────
 // Nine surfaces sharing one implementation was the whole point; a re-copied
 // compressor is how they silently drift apart again.

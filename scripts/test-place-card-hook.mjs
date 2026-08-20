@@ -165,6 +165,40 @@ ok(toHookLine(AMC_DEAL, "AMC Bradenton 20") === "",
 ok(isUsableCardHook(siestaClean, "Siesta Beach") === true,
   "Siesta's compressed Atlas why stays usable — the gate must not fire on correct copy");
 
+// ── house bar (owner lock, 2026-08-20) — The Cracked Pepper Cafe ──────────
+// GLOBAL. Two-beat: one sourced distinction + one physical why-sit. The gold
+// line is a live card take. Do not invent Cracked Pepper (or any) replacement
+// copy. Do not rewrite Atlas. See docs/wayfind/PRODUCT_TRUTH.md.
+const CRACKED_PEPPER_GOLD =
+  "Winner of the 2023 Cuban Sandwich Festival's World's Best award, with a patio that overlooks a pond.";
+const CRACKED_PEPPER_GOLD_LINE =
+  "Winner of the 2023 Cuban Sandwich Festival's World's Best award, with a patio that overlooks a pond";
+ok(/Cuban Sandwich Festival's World's Best/.test(read("docs/wayfind/PRODUCT_TRUTH.md")) &&
+   /two-beat/i.test(read("docs/wayfind/PRODUCT_TRUTH.md")),
+  "PRODUCT_TRUTH states the two-beat house bar and names the gold example");
+ok(/Cuban Sandwich Festival's World's Best/.test(read("docs/editorial-standard.md")),
+  "the editorial standard states the gold example where writers already look");
+ok(/Cuban Sandwich Festival's World's Best/.test(read("lib/editorialHook.js")),
+  "the usable-hook gate comment names the gold example (writers hit the gate)");
+ok(isUsableCardHook(CRACKED_PEPPER_GOLD, "The Cracked Pepper Cafe") === true,
+  "the Cracked Pepper gold line PASSES isUsableCardHook — it is the house bar and must still render");
+ok(toHookLine(CRACKED_PEPPER_GOLD, "The Cracked Pepper Cafe") === CRACKED_PEPPER_GOLD_LINE,
+  "toHookLine ships the gold line intact — do not blank or invent a replacement");
+ok(placeCardHook({ name: "The Cracked Pepper Cafe", hook: CRACKED_PEPPER_GOLD }) === CRACKED_PEPPER_GOLD_LINE,
+  "placeCardHook ships the gold line — ranking/source path unchanged");
+
+// EDITORIAL LAW: a plate-list-only line WITHOUT a why-sit is NOT the house bar.
+// Documented here and in PRODUCT_TRUTH. Do NOT make isUsableCardHook auto-blank
+// comma-separated plate lists — that would empty #861–#874 overnight with no
+// sourced replacement. Empty-slot for junk stays. Tightening is Editorial's job.
+const PLATE_LIST_ONLY = "Center-cut filet, potato-crusted grouper, and oysters";
+ok(/plate-list-only line without a why-sit is not the house bar/i.test(read("docs/wayfind/PRODUCT_TRUTH.md")),
+  "PRODUCT_TRUTH names plate-list-only (no why-sit) as not the house bar");
+ok(isUsableCardHook(PLATE_LIST_ONLY, "X") === true,
+  "plate-list-only still PASSES isUsableCardHook — do not auto-blank comma plate lists");
+ok(toHookLine(PLATE_LIST_ONLY, "X") === PLATE_LIST_ONLY,
+  "toHookLine still ships a plate-list — tightening is Editorial's job, not a gate");
+
 // ── call sites: article keeps the promo, card does not ─────────────────────
 const guidePage = read("app/guides/[slug]/page.js");
 const guideCode = code("app/guides/[slug]/page.js");
@@ -245,6 +279,17 @@ const siestaHtml = renderToStaticMarkup(React.createElement(Card, {
 }));
 ok(/quartz|sand|cool/i.test(siestaHtml) && siestaHtml.includes("wf-place-card-take"),
   "RENDER positive: a real why-go still paints on IconicPlaceCard — the lock must not blank correct copy");
+
+const goldHtml = renderToStaticMarkup(React.createElement(Card, {
+  place: fixture("The Cracked Pepper Cafe", "ChIJ-cracked-pepper-gold"),
+  rank: 2,
+  href: "/p/gold",
+  editorial: CRACKED_PEPPER_GOLD,
+}));
+ok(goldHtml.includes("wf-place-card"),
+  "positive: Cracked Pepper IconicPlaceCard rendered (a miss must not read as a blank take)");
+ok(goldHtml.includes("wf-place-card-take") && /Cuban Sandwich Festival/.test(goldHtml) && /patio that overlooks a pond/.test(goldHtml),
+  "RENDER: the Cracked Pepper gold line still paints — the house bar must not go empty");
 
 if (failn) {
   console.error(`test-place-card-hook: FAIL — ${failn}/${n} assertions`);
