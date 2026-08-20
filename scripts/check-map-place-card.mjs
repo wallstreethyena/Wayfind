@@ -59,13 +59,15 @@ ok(map.length > 3000 && view.length > 3000 && iconic.length > 3000, "a source fi
 // ── empty take: do not reserve the 176px take gap ────────────────────────
 {
   const css = readFileSync(new URL("../app/components/css.js", import.meta.url), "utf8");
-  ok(/is-no-take/.test(iconic), "IconicPlaceCard no longer marks cards with no editorial/aiSummary — the 176px take gap stays reserved");
+  ok(/is-no-take/.test(iconic), "IconicPlaceCard no longer marks cards with no take/aiSummary — the 176px take gap stays reserved");
   ok(/hasTake \? "" : " is-no-take"/.test(iconic) || /hasTake \? '' : " is-no-take"/.test(iconic),
-     "is-no-take is not gated on hasTake (editorial or validated aiSummary)");
+     "is-no-take is not gated on hasTake (filtered take or validated aiSummary)");
   ok(/\.wf-place-card\.is-no-take .wf-place-card-layout/.test(css) && /min-height:0/.test(css),
      "is-no-take CSS no longer drops the 176px min-height, so empty-take cards keep the dead gap");
-  ok(/editorial \|\| validAiSummary/.test(iconic),
-     "hasTake must be editorial or validated aiSummary — do not generate a blurb in the render path");
+  ok(/take \|\| validAiSummary/.test(iconic),
+     "hasTake must be the filtered take or validated aiSummary — do not generate a blurb in the render path");
+  ok(/toHookLine\(editorial, place\.name\)/.test(iconic),
+     "the take is toHookLine(editorial) — host-theme copy cannot reserve or fill the slot");
 }
 
 if (bad) { console.error(`\ncheck-map-place-card: FAIL — ${bad}/${n} assertions`); process.exit(1); }
