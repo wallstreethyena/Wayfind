@@ -52,4 +52,30 @@ ok(/process\.env\.SENTRY_DSN/.test(read("sentry.server.config.js")), "server con
 const cb = read("scripts/check-bundle.mjs");
 ok(/325/.test(cb), "check-bundle still enforces the 325KB total first-load ceiling (not raised)");
 
-console.log(`test-sentry-lazy: OK — ${pass} assertions (lazy client, ceiling protected, server/edge instrumented, CSP allowlisted)`);
+// 7. THIRD-PARTY FRAMES ARE NOT OUR ERRORS (v8.29.7). The Vercel Toolbar's
+// feedback bundle threw InvalidNodeTypeError in its own text-selection code and
+// filed as a WAYFIND production error at level=error, with no Wayfind frame in
+// the stack. A third-party crash at the top of the inbox is how a real one gets
+// scrolled past.
+//
+// Denied BY URL, never by message: an InvalidNodeTypeError thrown by our own
+// code must still page us, so this asserts both halves — the toolbar's frames
+// are filtered, and an app:///_next/static chunk of ours is NOT.
+const shared = read("lib/sentryShared.js");
+const denyBlock = (shared.match(/export const DENY_URLS = \[([\s\S]*?)\];/) || [])[1] || "";
+const patterns = denyBlock.split("\n").map((l) => l.trim()).filter((l) => l.startsWith("/")).map((l) => l.split(",")[0]);
+const denies = (url) => patterns.some((raw) => {
+  const m = raw.match(/^\/(.*)\/([a-z]*)$/);
+  return m ? new RegExp(m[1], m[2]).test(url) : false;
+});
+ok(denies("app:///_next-live/feedback/913.f924585152f5e22503e7.js"),
+  "the Vercel Toolbar's feedback bundle is denied — its crashes are not Wayfind errors");
+ok(denies("https://vercel.live/_next-live/feedback/feedback.js"),
+  "vercel.live is denied");
+ok(!denies("app:///_next/static/chunks/2420.53868fe9fbfd9bd3.js"),
+  "OUR OWN chunks are still reported — the filter is scoped to third-party frames, not to an error type");
+const ignoreBlock = (shared.match(/export const IGNORE_ERRORS = \[([\s\S]*?)\];/) || [])[1] || "";
+ok(!/InvalidNodeTypeError/.test(ignoreBlock),
+  "the filter is by URL, not by message — InvalidNodeTypeError must NOT be in IGNORE_ERRORS, or the same error from our own code would be silenced too");
+
+console.log(`test-sentry-lazy: OK — ${pass} assertions (lazy client, ceiling protected, server/edge instrumented, CSP allowlisted, third-party frames denied)`);
