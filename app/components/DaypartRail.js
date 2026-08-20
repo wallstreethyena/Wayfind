@@ -159,6 +159,14 @@ export default function DaypartRail({
   isOnTrip = null,
   onSave = null,
   onItinerary = null,
+  // v8.28 — LIKE/DISLIKE STAY ON THE RAIL (2026-08-20 P0). The drop used
+  // to omit these, so IconicPlaceCard fell back to <a href="/p/{id}?action=like">
+  // and every thumb left the open rail. Same store as onSave: app/home.js
+  // toggleLike / toggleDislike. Nullable for the /v8 preview route.
+  liked = null,
+  disliked = null,
+  onLike = null,
+  onDislike = null,
   // v8.17 (owner, live screenshot: "when i go on a card detail and then try
   // to go back everything is gone from the main page"). ROOT CAUSE: a rail
   // card's only open path was its /p/{id} href — a FULL NAVIGATION off the
@@ -630,7 +638,11 @@ export default function DaypartRail({
               city={shown.cityLabel || ""}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
+              liked={liked || undefined}
+              disliked={disliked || undefined}
               onSave={onSave || undefined}
+              onLike={onLike || undefined}
+              onDislike={onDislike || undefined}
             />
           ) : null}
           {selRail && selRail.guides ? (
@@ -673,8 +685,12 @@ export default function DaypartRail({
                     editorial={toHookLine(hooks[p.id], p.name) || null}
                     badge={beachChip(p)}
                     saved={isSaved ? isSaved(p.id) : false}
+                    liked={liked ? !!liked[p.id] : false}
+                    disliked={disliked ? !!disliked[p.id] : false}
                     inTrip={isOnTrip ? isOnTrip(p) : false}
                     onSave={onSave ? (e, pl) => onSave(e, pl) : null}
+                    onLike={onLike ? (e, pl) => onLike(e, pl) : null}
+                    onDislike={onDislike ? (e, pl) => onDislike(e, pl) : null}
                     onItinerary={onItinerary ? (e, pl) => onItinerary(e, pl) : null}
                   />
                 ))}

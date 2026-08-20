@@ -43,6 +43,7 @@ import { useEffect, useState } from "react";
 import { useMarketPhotoFallback } from "./marketPhoto.js";
 import { railDotWindow, railDotIsEdge } from "../../lib/railDots.js";
 import { KB_CLICK, WayfindScoreBadge } from "./kit";
+import { stayOnRailReaction } from "../../lib/railReaction.js";
 
 // Same glyphs as IconicPlaceCard's action row, so a thumb is one drawing in
 // this app rather than two that almost match.
@@ -334,7 +335,7 @@ export default function RailCard({
               aria-label={liked ? "Remove like: " + title : "Like " + title}
               aria-pressed={!!liked}
               title={liked ? "Remove like" : "Like this"}
-              onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (onLike) onLike(e); }}
+              onClick={(e) => stayOnRailReaction(e, onLike)}
             ><ThumbIcon /></button>
             <button
               type="button"
@@ -342,7 +343,7 @@ export default function RailCard({
               aria-label={disliked ? "Remove dislike: " + title : "Not for me: " + title}
               aria-pressed={!!disliked}
               title={disliked ? "Remove dislike" : "Not for me"}
-              onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (onDislike) onDislike(e); }}
+              onClick={(e) => stayOnRailReaction(e, onDislike)}
             ><ThumbIcon down /></button>
             <button
               type="button"

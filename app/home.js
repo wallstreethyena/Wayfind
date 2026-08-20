@@ -65,6 +65,7 @@ import { saveItem as saveMonetized, fetchSavedItems } from "../lib/savedItems";
 // v7.08 — the one writer that knows a cache from a preference, and the sweep
 // that reclaims the budget the caches had already taken. See lib/localStore.js.
 import { setLocal, sweepLocal } from "../lib/localStore";
+import { placeRouteBackPlan } from "../lib/railReaction";
 import { reconcileIds } from "../lib/syncReconcile";
 // v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
 import { placeAllowed } from "../lib/placeFilter";
@@ -3652,10 +3653,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // (results rendered or a place opened) — the giveaway never fires before
   // it, and never in the same session as onboarding.
   const dialogOpenRef = useRef(false);
-  // v8.14: true only when /p/{id} was entered from a same-origin /guides/
-  // page; consumed by the detail-close popstate handler to return the reader
-  // to the blog. See the deep-link effect for the write.
-  const guideReturnRef = useRef(false);
+  // v8.14 / v8.28: when /p/{id} was entered from a same-origin surface
+  // (rail, homepage, guide, intent), the first detail-close Back leaves the
+  // place route entirely instead of trapping the reader on /p/{id} with the
+  // sheet gone. placeActionHomeRef is the leftover ?action=like share with
+  // no same-origin previous page — close replaces onto "/".
+  const placeRouteReturnRef = useRef(false);
+  const placeActionHomeRef = useRef(false);
   const claimInterrupt = (kind) => {
     try {
       if (dialogOpenRef.current) return false;
@@ -6317,26 +6321,37 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   useEffect(() => {
     let params;
     try { params = new URLSearchParams(window.location.search); } catch { return; }
-    // v8.14 (owner: a blog reader who taps a place card must be able to
-    // "close and go back to the blog"). When /p/{id} was entered FROM one of
-    // our own guide pages, remember it — the detail-close popstate handler
-    // below consumes this once and backs the reader out to the guide instead
-    // of stranding them on the app shell they never chose to visit. Referrer
-    // only, same-origin only, guides only: any other entry (share link, SERP,
-    // direct) behaves exactly as before.
-    try {
-      if (initialPlaceId && document.referrer) {
-        const ref = new URL(document.referrer);
-        if (ref.origin === window.location.origin && ref.pathname.startsWith("/guides/")) guideReturnRef.current = true;
-      }
-    } catch (e) {}
+    // v8.14 / v8.28: /p/{id} Back must restore the previous Wayfind surface
+    // (rail / homepage / guide / intent), not trap the reader on the place
+    // route after the sheet closes. placeRouteBackPlan is the callable
+    // contract — same-origin referrer leaves the route; a leftover
+    // ?action=like share with nowhere to go closes onto "/".
+    const backPlan = placeRouteBackPlan({
+      pathname: window.location.pathname,
+      search: window.location.search,
+      referrer: typeof document !== "undefined" ? document.referrer : "",
+      origin: window.location.origin,
+    });
+    placeRouteReturnRef.current = backPlan.leavePlaceRoute;
+    placeActionHomeRef.current = backPlan.replaceHomeOnClose;
     const listStr = params.get("list");
     const pathId = (window.location.pathname.match(/^\/p\/([^/]+)/) || [])[1];
     const placeId = params.get("place") || initialPlaceId || (pathId ? decodeURIComponent(pathId) : null);
     const requestedAction = params.get("action") || initialPlaceAction;
     const placeAction = ["save", "like", "dislike"].includes(requestedAction) ? requestedAction : null;
-    // Strip ?place= from the query. Never collapse /p/{id} to "/".
-    if (params.get("place")) { try { const _sp = new URLSearchParams(window.location.search); _sp.delete("place"); _sp.delete("action"); const _qs = _sp.toString(); window.history.replaceState({}, "", window.location.pathname + (_qs ? "?" + _qs : "")); } catch (e) {} }
+    // Strip ?place= and ?action=like|dislike|save. Like is a signal, not a
+    // page — leaving action=like in the address bar re-opens the sheet as
+    // the only UI on refresh. Never collapse /p/{id} to "/" here; Back does
+    // that via placeRouteBackPlan when it should.
+    if (params.get("place") || backPlan.stripAction || placeAction) {
+      try {
+        const _sp = new URLSearchParams(window.location.search);
+        _sp.delete("place");
+        _sp.delete("action");
+        const _qs = _sp.toString();
+        window.history.replaceState({}, "", window.location.pathname + (_qs ? "?" + _qs : ""));
+      } catch (e) {}
+    }
     if (listStr) {
       const pl = decodeList(listStr);
       if (pl && pl.length) { setSharedList(pl); setScreen("shared"); logEvent("share_open", null, { kind: "list", n: pl.length }); markShareOpen(); }
@@ -7475,13 +7490,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     window.history.pushState({ wf: "detail" }, "");
     const onPop = () => {
       setDetail(null);
-      // v8.14: the reader arrived from one of our guide pages and this is the
-      // first detail close — take them BACK TO THE BLOG (one more history
-      // step) instead of leaving them on the app shell. Consumed once, so
-      // everything the user does after choosing to stay behaves as before.
-      if (guideReturnRef.current) {
-        guideReturnRef.current = false;
+      // v8.14 / v8.28: first close leaves /p/{id} when the reader came from
+      // a same-origin surface (rail, homepage, guide). Consumed once.
+      if (placeRouteReturnRef.current) {
+        placeRouteReturnRef.current = false;
         try { window.history.back(); } catch (e) {}
+      } else if (placeActionHomeRef.current) {
+        placeActionHomeRef.current = false;
+        try { window.history.replaceState({}, "", "/"); } catch (e) {}
       }
     };
     window.addEventListener("popstate", onPop);
@@ -8738,6 +8754,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         isOnTrip={isOnTrip}
         onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }}
         onItinerary={(e, p) => { try { addToItinerary(p); } catch (er) {} }}
+        liked={liked}
+        disliked={disliked}
+        onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }}
+        onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }}
         // v8.17 — a rail card opens the detail SHEET in place instead of a
         // full /p/{id} navigation, so Back closes the sheet and the reader
         // lands exactly where they were: rail still open, scroll intact.
