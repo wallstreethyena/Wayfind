@@ -5579,7 +5579,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       b = requestAnimationFrame(() => {
         try {
           if (scrollRef.current && r.top) scrollRef.current.scrollTop = r.top;
-          if (r.win) window.scrollTo(0, r.win);
         } catch (e) {}
         posRestore.current = null;
       });
@@ -5589,15 +5588,19 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // The writer. On every taxonomy change, on a throttled scroll, and — the one
   // that actually saves the Google Maps round trip — on pagehide, which fires
   // when the browser is leaving THIS document, including for an outbound link.
-  // Both scrollers are recorded because the band and the feed have moved
-  // between the window and .wf-scrollarea before and may again.
+  // ONE scroller is recorded, because there is only one. v8.23.4 also stored a
+  // `win: window.scrollY` alongside it "in case the feed moves back to the
+  // window" — but in this shell window.scrollY is permanently 0 (the feed lives
+  // in div.wf-scrollarea, see v8.26), so that field saved 0 forever and its
+  // restore branch never once ran. A fallback that cannot fire is not
+  // resilience, it is a comment that lies. scripts/check-shell-scroll.mjs now
+  // fails the build on any new window.scroll* in the shell.
   useEffect(() => {
     const write = () => {
       try {
         sessionStorage.setItem("wf_pos", JSON.stringify({
           screen, cat, browseCat, sub, vibe,
           top: scrollRef.current ? scrollRef.current.scrollTop : 0,
-          win: typeof window !== "undefined" ? window.scrollY : 0,
           ts: Date.now(),
         }));
       } catch (e) {}
