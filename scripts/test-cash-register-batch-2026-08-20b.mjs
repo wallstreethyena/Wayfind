@@ -8,6 +8,7 @@
 //   The Bay Park            386845P1  dest 25738  H1: Kayak Paddling Experience at The Bay Park
 //   Tampa Riverwalk         236733P1  dest 666    H1: 2 Person Mini Power Boat Rental at Tampa Riverwalk
 //   Blue Spring State Park  431125P5  dest 25790  H1: St. Johns River Cruise - Blue Spring State Park
+//   Little Toot Dolphin Adventure  179637P1  dest 22457  H1: Little Toot Dolphin Adventure at Clearwater Beach
 //
 // ASSERT ON THE CALL, not a substring. Rank is untouched. Shell Key stays
 // 173028P1. Scallop HOLD-SKU 236862P2 never pins.
@@ -18,6 +19,7 @@ import { PARTNER_OFFER_REGISTRY, partnerOfferById } from "../lib/partnerOfferReg
 import { placePartnerPick } from "../lib/placePartnerPicks.js";
 import { PROVIDERS, resolveOffer } from "../lib/commerceProviders.js";
 import { SUMMER_UNIVERSE } from "../lib/summerUniverse.js";
+import { editorialFor } from "../lib/editorial.js";
 import { pageNamesPlace } from "./place-register-factory.mjs";
 
 let pass = 0;
@@ -50,9 +52,15 @@ const BATCH = [
     rankKey: "blue_spring_swim",
     rank: 10,
   },
+  {
+    name: "Little Toot Dolphin Adventure",
+    sku: "179637P1",
+    destId: "22457",
+    h1: "Little Toot Dolphin Adventure at Clearwater Beach",
+  },
 ];
 
-ok(BATCH.length === 3, `batch 2 table is exactly the three verified hops (got ${BATCH.length}) — an empty table makes every assertion below vacuous`);
+ok(BATCH.length === 4, `batch 2 table is the verified hops (got ${BATCH.length}) — an empty table makes every assertion below vacuous`);
 
 ok(placePartnerPick({ name: "Shell Key Preserve" })?.offerId === SHELL_SKU,
   "Shell Key keeps 173028P1 — this batch did not steal the founder pin");
@@ -74,6 +82,20 @@ ok(placePartnerPick({ name: "Weedon Island Preserve" }) === null,
   "Weedon Island stays empty — St Pete mangrove kayak H1 does not name the preserve");
 ok(!BATCH.some((r) => r.sku === HOLD_SKU),
   "batch 2 excludes the scallop HOLD-SKU");
+ok(editorialFor("Little Toot Dolphin Adventure")?.name === "Little Toot Dolphin Adventure",
+  "Little Toot is an existing editorial card — we did not invent a place");
+ok(placePartnerPick({ name: "Clearwater Beach" }) === null,
+  "Clearwater Beach stays empty — Little Toot is the named operator boat, not a beach pin");
+ok(placePartnerPick({ name: "Anna Maria Island Dolphin Tours" })?.offerId === "203023P2",
+  "AMI Dolphin Tours keeps sunset 203023P2 — no second SKU");
+ok(placePartnerPick({ name: "Anna Maria Island Dolphin Tours" })?.offerId !== "203023P1",
+  "203023P1 is not pinned on AMI Dolphin Tours");
+ok(placePartnerPick({ name: "Oscar Scherer State Park" }) === null,
+  "Oscar Scherer stays empty — 5666112P3 is not pinned");
+ok(placePartnerPick({ name: "TreeUmph! Adventure Course" })?.offerId === "22211P1",
+  "TreeUmph stays 22211P1 — live page still names the Bradenton course");
+ok(placePartnerPick({ name: "TreeUmph Adventure Course" })?.offerId === "22211P1",
+  "TreeUmph alias without bang still resolves to 22211P1");
 
 for (const row of BATCH) {
   ok(pageNamesPlace(row.h1, row.name) === "place",
@@ -119,6 +141,11 @@ for (const row of BATCH) {
 
 ok(pageNamesPlace("Kayak Paddling Experience at The Bay Park", "Bayfront Park") === false,
   "The Bay Park H1 does not name Bayfront Park — the near-miss probe can fail");
+ok(pageNamesPlace("Little Toot Dolphin Adventure at Clearwater Beach", "Clearwater Beach") === "place-tokens"
+  || pageNamesPlace("Little Toot Dolphin Adventure at Clearwater Beach", "Clearwater Beach") === "place",
+  "positive control: the Little Toot H1 does mention Clearwater Beach as a location token");
+ok(placePartnerPick({ name: "Clearwater Beach" }) === null,
+  "naming Clearwater Beach in the H1 does not attach the operator SKU to a beach card");
 ok(pageNamesPlace("2 Person Mini Power Boat Rental at Tampa Riverwalk", "Bayshore Boulevard") === false,
   "Riverwalk mini-boat H1 does not name Bayshore Boulevard");
 
@@ -175,10 +202,16 @@ function stripComments(src) {
 const placeSrc = stripComments(readFileSync(new URL("../lib/placePartnerPicks.js", import.meta.url), "utf8"));
 ok(!/https:\/\/www\.viator\.com/i.test(placeSrc),
   "lib/placePartnerPicks.js has no raw viator.com URL — cards store the opaque offer id");
-ok(/\b386845P1\b/.test(placeSrc) && /\b236733P1\b/.test(placeSrc) && /\b431125P5\b/.test(placeSrc),
+ok(/\b386845P1\b/.test(placeSrc) && /\b236733P1\b/.test(placeSrc) && /\b431125P5\b/.test(placeSrc) && /\b179637P1\b/.test(placeSrc),
   "positive control: batch 2 product codes are declared as placePick offer ids");
-ok(/\b173028P1\b/.test(placeSrc),
-  "positive control: Shell Key product code is still declared");
+ok(/\b173028P1\b/.test(placeSrc) && /\b22211P1\b/.test(placeSrc),
+  "positive control: Shell Key and TreeUmph product codes are still declared");
+ok(!/\b203023P1\b/.test(placeSrc),
+  "203023P1 is absent — AMI keeps the sunset SKU only");
+ok(!/\b5666112P3\b/.test(placeSrc),
+  "5666112P3 is absent — Oscar Scherer stays empty");
+ok(!/\b292464P2\b/.test(placeSrc) && !/\b5560271P1\b/.test(placeSrc),
+  "Mote night kayak and the other forbidden SKU are not place-pinned");
 ok(!new RegExp(`\\b${HOLD_SKU}\\b`).test(placeSrc),
   "the scallop HOLD-SKU is absent from placePartnerPicks");
 
