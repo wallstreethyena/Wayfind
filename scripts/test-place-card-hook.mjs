@@ -135,19 +135,29 @@ for (const pick of birthday.picks) {
 ok(birthdayWalk === birthday.picks.length,
   `birthday walk ran ${birthdayWalk} times against ${birthday.picks.length} picks — a loop that ran 0 is not a walk`);
 
-// ── Atlas junk knownFor is not a hook (Tonight's Move / Oar & Iron) ────────
+// ── address/hours junk is not a hook (Tonight's Move / Oar & Iron) ────────
+// #861 educated the LIVE Atlas row. Pin the PRE-#861 junk as a fixture so
+// this guard stays red if the blanking rule dies, and stays green when
+// Editorial ships a real plate hook. Do not rewrite Atlas in this PR.
 const OAR_ID = "ChIJZW-6RgAjw4gRDVp3TtAFsaM";
+const OAR_JUNK_KNOWN = "Parrish Raw Bar & Grill at 8710 US 301-N, Unit 120; official hours end 9 / Fri–Sat 10";
+const OAR_JUNK_WHY = "Oar & Iron is the Parrish Raw Bar & Grill at 8710 US 301-N, Unit 120 — not the Naples or Fort Myers rooms. Official Parrish hours print Sunday–Thursday 11:30 a.m. to 9:00 p.m. and Friday–Saturday 11:30 a.m. to 10:00 p.m. The allowed Observer of 18 December 2025 is sponsored copy that already says the room is now open in Parrish too.";
+ok(isUsableCardHook(OAR_JUNK_KNOWN, "Oar & Iron") === false,
+  "the pre-#861 Oar & Iron knownFor fixture fails the usable-hook test");
+ok(toHookLine(OAR_JUNK_KNOWN, "Oar & Iron") === "",
+  "toHookLine blanks the pre-#861 knownFor fixture — empty-slot, no invented replacement");
+ok(toHookLine(OAR_JUNK_WHY, "Oar & Iron") === "",
+  "toHookLine blanks the pre-#861 whyGo fixture too (same address/hours research)");
+ok(placeCardHook({ name: "Oar & Iron", whyGo: OAR_JUNK_WHY, hook: OAR_JUNK_KNOWN }) === "",
+  "placeCardHook blanks the pre-#861 address/hours fixture — empty-slot, no invented replacement");
 const oarCard = atlasCards.find((c) => c && c.placeId === OAR_ID);
-ok(oarCard && /Unit 120/.test(oarCard.knownFor || "") && /official hours/i.test(oarCard.knownFor || ""),
-  "control: Oar & Iron Atlas knownFor is still the address/hours line — we blank the hook, we do not rewrite Atlas");
-ok(isUsableCardHook(oarCard.knownFor, oarCard.name) === false,
-  "Oar & Iron knownFor fails the usable-hook test");
-ok(toHookLine(oarCard.knownFor, oarCard.name) === "",
-  "toHookLine blanks Oar & Iron knownFor — empty-slot, no invented replacement");
-ok(toHookLine(oarCard.whyGo, oarCard.name) === "",
-  "toHookLine blanks Oar & Iron whyGo too (same address/hours research)");
-ok(placeCardHook({ id: OAR_ID, name: "Oar & Iron" }) === "",
-  "placeCardHook(Oar & Iron) is empty — Atlas junk does not become the card hook");
+ok(oarCard && /oysters with mignonette/i.test(oarCard.knownFor || ""),
+  "live Atlas Oar & Iron knownFor is the #861 plate hook — do not treat the live row as junk");
+ok(isUsableCardHook(oarCard.knownFor, oarCard.name) === true,
+  "live #861 Oar & Iron knownFor is a usable card hook (it educates)");
+const oarLive = placeCardHook({ id: OAR_ID, name: "Oar & Iron" });
+ok(oarLive.length >= 20 && !/8710|Unit 120|official hours/i.test(oarLive),
+  "placeCardHook(Oar & Iron) ships the sourced #861 hook, not the old address/hours line");
 ok(isUsableCardHook(AMC_DEAL, "AMC Bradenton 20") === false,
   "the birthday popcorn offer sentence is not a usable card hook");
 ok(toHookLine(AMC_DEAL, "AMC Bradenton 20") === "",

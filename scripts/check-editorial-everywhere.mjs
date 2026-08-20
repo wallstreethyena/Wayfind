@@ -69,17 +69,18 @@ ok(editorialLine("Known for its biscuits and gravy.", "Skyway Jack's") === "Bisc
   "editorialLine composes both: read the shape, then compress");
 
 // ── 1b. junk knownFor/whyGo is not a card hook (owner, 2026-08-20) ─────────
-// Tonight's Move showed Oar & Iron's Atlas knownFor — an address/hours line.
-// The compressor is the one gate: if the line fails, every surface renders "".
+// Tonight's Move once showed Oar & Iron's Atlas knownFor as an address/hours
+// line. #861 educated the live row; the PRE-#861 junk is a hardcoded fixture
+// so the blanking rule does not depend on Atlas staying broken.
 ok(/export function isUsableCardHook\s*\(/.test(read("lib/editorialHook.js")),
   "lib/editorialHook.js DECLARES isUsableCardHook (declaration position)");
 ok(/isUsableCardHook\(line, name\)/.test(code("lib/editorialHook.js")),
   "toHookLine CALLS isUsableCardHook on the compressed line — a declaration nothing calls is decoration");
 const OAR_KNOWN = "Parrish Raw Bar & Grill at 8710 US 301-N, Unit 120; official hours end 9 / Fri–Sat 10";
 ok(isUsableCardHook(OAR_KNOWN, "Oar & Iron") === false,
-  "Oar & Iron Atlas knownFor is not a usable card hook (address + unit + hours)");
+  "the pre-#861 Oar & Iron knownFor fixture is not a usable card hook (address + unit + hours)");
 ok(toHookLine(OAR_KNOWN, "Oar & Iron") === "",
-  "toHookLine blanks the live Oar & Iron knownFor — do not invent a replacement");
+  "toHookLine blanks the pre-#861 Oar & Iron knownFor fixture — do not invent a replacement");
 ok(isUsableCardHook("8710 US 301-N, Unit 120, Parrish, FL 34219", "Oar & Iron") === false,
   "a street-address line is not a card hook");
 ok(isUsableCardHook("Official hours end 9 / Fri–Sat 10", "X") === false,
