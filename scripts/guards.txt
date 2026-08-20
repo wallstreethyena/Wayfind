@@ -183,6 +183,7 @@ node scripts/test-saved-items.mjs
 node scripts/test-city-gate.mjs
 node scripts/test-city-fetch.mjs
 node scripts/test-detail-take.mjs
+node scripts/test-detail-event-editorial.mjs
 node scripts/test-detail-cta-ladder.mjs
 node scripts/test-booking-audit.mjs
 node scripts/test-money-honest.mjs
