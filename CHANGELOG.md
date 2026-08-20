@@ -1,3 +1,30 @@
+## v8.29.5 - The next step names the place, and a hero stops holding a gap open
+- Owner, 2026-08-20: "these next steps are really not very clear we need to make it
+  clear for the user and make sure that we have deep links for those and we are
+  going to get paid" - on a guide CTA reading "Get the deal" with, directly beneath
+  it, "4.4 - 573 reviews - The Ringling Grillroom".
+- THE PAGE KNEW THE PLACE AND THE BUTTON DID NOT. Every rung of lib/guideCta.js
+  returns a bare verb, while `place` has been on the returned object all along.
+  namedStepLabel() spends it: "Get the deal at The Ringling Grillroom",
+  "Book tickets - Marie Selby Botanical Gardens", "Check rates - The Ritz-Carlton,
+  Sarasota", "Directions to Siesta Key". A registry CTA that already names its
+  venue ("Save $10 at Yoder's") is left alone.
+- LENGTH IS A CONSTRAINT, NOT A PREFERENCE: the button is one centred line in an
+  18px-padded card at 390px. Names trim at 30 characters on a word boundary, and a
+  composed label over 44 falls back to the bare verb rather than wrapping. The
+  hotel verb shortens to "Check rates" so the hotel's NAME survives - the name is
+  the information. No href, rel, provider or event changes: the deep links and
+  their tracking are exactly as the rungs built them.
+- THE /worth-the-drive HERO (owner: "there is nothing there"). The panel drew a
+  headline, a deck, a rule, then a hand-sized void, then Share. Two empty slots
+  made it. IntentPageClient passed trustLines={[]}, which BLANKED the shield line
+  the hero reserves room for - RankedExperiencePage already ships the right default
+  copy, so the override was deleting content rather than choosing it. The other
+  half is the quick-answer grid, which intent pages have no server data for; the
+  hero now tightens from 620px to 462px when that block is genuinely absent
+  instead of holding the gap open for something that is never coming.
+- 378/378 guards green.
+
 ## v8.29.4 - Every bookable card states what is true about it
 - Owner, 2026-08-20, on the Bookable-highlights rail: "these places still don't have
   the wayfind score."
