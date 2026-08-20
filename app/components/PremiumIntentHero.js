@@ -2,9 +2,13 @@
 // from search. It borrows the visual language of /go/orlando without behaving
 // like a modal: destination photography on the left, a warm editorial panel on
 // the right, an immediate product promise, and a single route into Wayfind.
-export default function PremiumIntentHero({ eyebrow, location, title, description, image, primaryHref = "/", primaryLabel = "Build my shortlist", secondaryHref = "#shortlist", secondaryLabel = "See the expert picks",
+export default function PremiumIntentHero({ eyebrow, location, title, description, image, primaryHref = null, primaryLabel = "Build my shortlist", secondaryHref = "#shortlist", secondaryLabel = "See the expert picks",
   // A page that cannot be left is a dead end; default out to the app root.
-  backHref = "/", backLabel = "Wayfind",
+  backHref = null, backLabel = "Wayfind",
+  // v8.23 — an optional THIRD action beside the two links (the guides pass a
+  // share control here). A node rather than a set of props, because the caller
+  // owns what it is: /culture passes nothing and renders exactly as before.
+  actions = null,
 }) {
   return (
     <>
@@ -54,9 +58,11 @@ export default function PremiumIntentHero({ eyebrow, location, title, descriptio
           overlays the photo, and a visitor from Google now has a path into the app
           from the top of the page as well as the bottom. */}
       <div className="wf-intent-chrome">
-        <a className="wf-intent-back" href={backHref} aria-label={backLabel}>
-          <span aria-hidden="true">&#8249;</span>{backLabel}
-        </a>
+        {backHref ? (
+          <a className="wf-intent-back" href={backHref} aria-label={backLabel}>
+            <span aria-hidden="true">&#8249;</span>{backLabel}
+          </a>
+        ) : <span />}
         <a href="/" aria-label="Wayfind home">
           <img className="wf-intent-brand" src="/brand/wayfind-wordmark-transparent-v2.png" alt="Wayfind" />
         </a>
@@ -79,9 +85,21 @@ export default function PremiumIntentHero({ eyebrow, location, title, descriptio
               owner disliked, which was the block itself. The trust claims
               live on in the one-line wf-intent-trust note below and in the
               body pages' own disclosures. */}
+          {/* v8.23 — THE PRIMARY IS NOW OPTIONAL, and that is a fix rather than a
+              feature. Every editorial page passed "/?intent=<keyword>" here, which
+              feeds an SEO PHRASE into a Google Places search: there is no place
+              called "birthday freebies bradenton sarasota", so the search returned
+              nothing and the reader landed on the bare homepage. Owner, twice —
+              2026-08-12 ("our blog's buttons don't work — they throw you to the
+              main page and do nothing") and again 2026-08-19 on the same button.
+              The v7.13 pass taught the homepage to READ ?intent=; it could not
+              make an unanswerable query answerable.
+              When there is no primary, the secondary becomes it — a page whose
+              only action is a dead one is worse than a page with one honest one. */}
           <div className="wf-intent-actions">
-            <a className="wf-intent-primary" href={primaryHref}>{primaryLabel} →</a>
-            <a className="wf-intent-secondary" href={secondaryHref}>{secondaryLabel}</a>
+            {primaryHref ? <a className="wf-intent-primary" href={primaryHref}>{primaryLabel} →</a> : null}
+            <a className={primaryHref ? "wf-intent-secondary" : "wf-intent-primary"} href={secondaryHref}>{secondaryLabel}{primaryHref ? "" : " →"}</a>
+            {actions}
           </div>
           <p className="wf-intent-trust">Free to start. Your taste stays yours and is never sold.</p>
         </div>

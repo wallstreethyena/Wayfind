@@ -21,7 +21,7 @@
 // than replacing it -- (a) an error is now only fatal if the map has NEVER
 // successfully loaded (post-load noise like a dropped tile while panning no
 // longer kills an already-working map), (b) the map now OPENS already
-// zoomed out to the 5/10/30mi ring tier (MAP_DEFAULT_ZOOM sits just below
+// zoomed out far enough to frame the whole 5/10/15/20mi ring set (MAP_DEFAULT_ZOOM sits below
 // RING_EXPAND_ZOOM_THRESHOLD on purpose) instead of opening tight on
 // 5/10/15mi, (c) the map's category bar now shows its sub-filter row
 // (Museums/Beaches/Family/Tours/etc under Activities) same as Home and
@@ -32,23 +32,29 @@
 // buttons were pushed down (+60px, measured live off the rendered
 // sub-filter row's real height) so they clear the now-taller header.
 import { readFileSync } from "node:fs";
-import { MAP_DEFAULT_CATEGORY, MAP_RING_MILES, MAP_RING_MILES_ZOOMED_OUT, distanceRingData } from "../lib/mapExplorer.js";
+import { MAP_DEFAULT_CATEGORY, MAP_RING_MILES, distanceRingData } from "../lib/mapExplorer.js";
 
 let pass = 0;
 const fail = (message) => { console.error("test-map-explorer: FAIL — " + message); process.exit(1); };
 const ok = (condition, message) => { if (!condition) fail(message); pass += 1; };
 
 ok(MAP_DEFAULT_CATEGORY === "food", "Food is the explicit app-wide default category");
-ok(JSON.stringify(MAP_RING_MILES) === JSON.stringify([5, 10, 15]), "local rings are exactly 5, 10, and 15 miles");
-ok(JSON.stringify(MAP_RING_MILES_ZOOMED_OUT) === JSON.stringify([5, 10, 30]), "zoomed-out rings expand the outer ring to 30 miles");
+// v8.23.3 (owner: "remove the 30 mile ring make it 5 10 15 and 20 mile ring").
+// WAS two sets — [5,10,15] tight and [5,10,30] zoomed out — swapped by a zoom
+// threshold. A distance ring is a MEASUREMENT, and one whose outer value
+// silently changes from 15 to 30 as you pinch is a measurement the reader
+// cannot rely on. One scale now, at every zoom.
+ok(JSON.stringify(MAP_RING_MILES) === JSON.stringify([5, 10, 15, 20]), "rings are exactly 5, 10, 15 and 20 miles");
+ok(MAP_RING_MILES.every((m, i, a) => i === 0 || m > a[i - 1]), "rings ascend, or the labels contradict the circles");
 
 const data = distanceRingData({ lat: 28.5383, lng: -81.3792 });
-ok(data.features.filter((f) => f.properties.kind === "ring").length === 3, "three ring lines are generated");
-ok(data.features.filter((f) => f.properties.kind === "label").map((f) => f.properties.label).join("|") === "5 mi|10 mi|15 mi", "each ring has a readable distance label");
+// Derived from MAP_RING_MILES, not hardcoded: a count literal is exactly how a
+// ring set can change while its own test keeps passing.
+ok(data.features.filter((f) => f.properties.kind === "ring").length === MAP_RING_MILES.length, MAP_RING_MILES.length + " ring lines are generated, one per declared radius");
+ok(data.features.filter((f) => f.properties.kind === "label").map((f) => f.properties.label).join("|") === MAP_RING_MILES.map((m) => m + " mi").join("|"), "each ring has a readable distance label naming its own radius");
 ok(data.features.every((f) => f.geometry && Array.isArray(f.geometry.coordinates)), "ring geometry is valid GeoJSON");
 
-const zoomedOutData = distanceRingData({ lat: 28.5383, lng: -81.3792 }, MAP_RING_MILES_ZOOMED_OUT);
-ok(zoomedOutData.features.filter((f) => f.properties.kind === "label").map((f) => f.properties.label).join("|") === "5 mi|10 mi|30 mi", "zoomed-out ring data swaps the outer label to 30 mi");
+// v8.23.3 — the zoomed-out ring assertions went with the second ring set.
 
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 ok(/const \[cat, setCat\] = useState\(MAP_DEFAULT_CATEGORY\)/.test(home), "Food is the app-wide selected category on first render");
@@ -102,13 +108,22 @@ for (const side of ["left", "right"]) {
 
 const view = readFileSync(new URL("../app/components/MapView.js", import.meta.url), "utf8");
 ok(/distanceRingData\(origin,/.test(view), "MapView renders the shared immediate ring geometry");
-ok(/MAP_RING_MILES_ZOOMED_OUT/.test(view), "MapView expands the outer ring on zoom-out instead of staying static");
+ok(!/MAP_RING_MILES_ZOOMED_OUT/.test(view), "MapView still imports a second ring set — there is one scale now (v8.23.3)");
+ok(!/RING_EXPAND_ZOOM_THRESHOLD\s*=/.test(view), "the zoom-swap threshold is back — it recomputed every ring polygon on pinch to change one number");
+ok(/distanceRingData\(origin, MAP_RING_MILES\)/.test(view), "MapView must draw the one ring set directly");
 ok(/const MAP_DEFAULT_ZOOM = 9\.15/.test(view), "the map opens zoomed out to the 30mi ring tier instead of the tight 5\/10\/15mi crop");
 ok(/zoom: rings \? MAP_DEFAULT_ZOOM : 11/.test(view), "ring mode opens at the 30mi-radius default zoom, both on mount and on recenter");
-ok(/ringZoomedOutRef = useRef\(!!rings\)/.test(view), "the zoomed-out (5\/10\/30mi) ring tier is the starting state, not something that only kicks in after a manual zoom event");
+// v8.23.3 — WAS: the zoomed-out tier must be the starting state, so the map did
+// not open on the tight rings and then visibly correct itself. With one ring set
+// there is no tier to start in and no correction to avoid: the rings are set
+// once, next to the markers. What is still worth pinning is that they are drawn
+// on first paint rather than waiting for an event.
+ok(!/ringZoomedOutRef/.test(view), "the ring-tier ref is back — there is one scale now, so there is nothing to track");
+ok(/const ringData = origin && rings \? distanceRingData\(origin, MAP_RING_MILES\)/.test(view),
+   "rings must be built in the same pass as the markers, not deferred to a zoom handler");
 ok(/cluster:\s*true/.test(view) && /wf-place-cluster-count/.test(view), "dense results collapse into readable count bubbles instead of overlapping pins");
 ok(/onRetry/.test(view) && /Try again/.test(view), "a failed map load offers a retry instead of a permanent dead end for the rest of the page session");
 ok(/\}, 26000\);/.test(view), "the load watchdog gives the heavier bright style a realistic 26s window before giving up");
 ok(/event\.error && !map\.loaded\(\) &&/.test(view), "an error after the map has already rendered once is treated as normal map noise, not a load failure");
 
-console.log(`test-map-explorer: OK — ${pass} assertions (Activities-first map open, zoomed out to the 30mi ring by default, sub-filters visible, resilient remount-based retry)`);
+console.log(`test-map-explorer: OK — ${pass} assertions (Activities-first map open, zoomed out to frame the whole 5/10/15/20mi ring set, sub-filters visible, resilient remount-based retry)`);

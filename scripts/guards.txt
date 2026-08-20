@@ -476,3 +476,40 @@ node scripts/test-datenight-tag.mjs
 # unreferenced by any non-comment source line, with a positive control so an
 # empty scan can never read as clean. Bans are additive-only.
 node scripts/check-banned-art.mjs
+
+# v8.23 — the rail card's share loop: every poster exists, the bytes are fetched
+# and sniffed BEFORE any header is written (the "gowayfind.comnull" class of
+# bug), no shared link can carry a dev host, and the share control is a sibling
+# of the tile's link rather than a button nested inside an anchor.
+node scripts/check-rail-share.mjs
+
+# v8.23 — every guide can be shared (39 pages, ~46% of external entries, and
+# not one share control before this), and BOTH share implementations open the
+# native sheet before touching the clipboard: reversing those two lines is the
+# v4.06 iOS bug, and it only reproduces on a real phone.
+node scripts/check-guide-share.mjs
+
+# v8.23.2 — the rail must LOOK different at different hours. The engine was
+# always correct (clock, bands, 15 of 17 rails moving) and the feature was still
+# invisible, because "season" held index 0 in all four bands and a phone shows
+# ~1.3 tiles. This asserts the perceivable property — the first tile — and that
+# each band's rendered "why" names the card it actually leads with.
+node scripts/check-daypart-rotation.mjs
+
+# v8.23.4 — the reader never loses their place. v6.08 wrote the list scroll to
+# sessionStorage and nothing ever read it back, so leaving for Google Maps and
+# returning dropped you at the top of a default tab. This asserts READERS, not
+# writers: every persisted key must be read, the position must carry the
+# taxonomy and not just a scroll offset, and it must be written on pagehide —
+# an outbound tap runs no React cleanup.
+node scripts/check-position-memory.mjs
+# v8.26 — the shell scrolls .wf-scrollarea, not the document, so window.scrollTo
+# is a silent no-op inside it. This is the rule that broke "take me to the picks"
+# three times: the rail drop must land with scrollIntoView, and the existing
+# window.scroll* debt list may only shrink.
+node scripts/check-shell-scroll.mjs
+# v8.27 — a horizontal rail may not hand the reader's swipe to the browser. The
+# overscroll-behavior on <body> never applied (body is not a scroll container in
+# this shell), so rail swipes chained out and iOS claimed them as the back
+# gesture. Containment is asserted where scrolling actually happens.
+node scripts/check-overscroll-containment.mjs

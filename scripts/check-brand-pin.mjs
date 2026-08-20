@@ -38,7 +38,23 @@ ok(/never a place|NEVER a place|USER, never/i.test(readme), "the README no longe
 
 // ── the map actually uses it, with the tip on the coordinate ─────────────
 const view = readFileSync(at("app/components/MapView.js"), "utf8");
-ok((view.match(/\/brand\/wayfind-pin-neon\.svg/g) || []).length >= 1, "the map does not render the neon brand pin for the user's location (v7.19, owner-supplied look)");
+// v8.23.3 — REVERSAL, dated. WAS: the map must render the neon brand pin for
+// the user's location (v7.19, owner-supplied look).
+//
+// The owner asked for the emoji in v7.16, in these words: "can the location be
+// more precise perhaps just a pin icon LIKE THE EMOJI because the circle covers
+// too much". What shipped was a brand-drawn pin, then a neon variant, and this
+// assertion then pinned the substitute in place. Asked again 2026-08-19 as a
+// plain instruction — "can we make the current location the pin emoji" — so it
+// is U+1F4CD now, and this guard protects the property the brand pin was only
+// ever a means to.
+//
+// THE PROPERTY, which is what actually matters: the reader's own position and a
+// place we recommend must never share a visual vocabulary. One unranked glyph
+// vs a ranked teardrop sprite. That invariant is asserted below and is now
+// stronger than it was, because an emoji cannot be mistaken for our own sprite.
+ok(/\\u\{1F4CD\}|📍/.test(view), "the map does not render the pin emoji for the user's location (v8.23.3, owner's second ask)");
+ok(!/\/brand\/wayfind-pin-neon\.svg/.test(view), "the neon brand pin is back on the map — v8.23.3 replaced it with the emoji");
 // anchor:"bottom" is what puts the TIP on the true coordinate.
 ok(/anchor: "bottom" \}\)\.setLngLat\(\[origin\.lng, origin\.lat\]/.test(view),
   "the ORIGIN marker is not bottom-anchored — the pin's centre would sit on the coordinate instead of its tip (events share this anchor, so an unscoped check proves nothing)");
@@ -59,4 +75,4 @@ ok(!/wayfind-pin(-neon)?\.svg[\s\S]{0,400}wf-place/.test(view), "the brand pin l
 ok(view.length > 3000, "MapView did not load — every assertion above would pass vacuously");
 
 if (bad) { console.error(`\ncheck-brand-pin: FAIL — ${bad}/${n} assertions`); process.exit(1); }
-console.log(`check-brand-pin: OK — ${n} assertions (four vectors out of _to_delete/ and in the README; the user renders as the brand pin, tip-anchored, glow-pulsed, reduced-motion safe; places stay filled ranked circles)`);
+console.log(`check-brand-pin: OK — ${n} assertions (four vectors out of _to_delete/ and in the README; the user renders as the pin emoji, tip-anchored, glow-pulsed, reduced-motion safe; places stay filled ranked circles)`);

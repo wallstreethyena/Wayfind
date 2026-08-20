@@ -17,6 +17,11 @@ import { bookingTargets } from "../../../lib/bookingResolve";
 import { guidePrimaryCta, guideContinue, guideIntent } from "../../../lib/guideCta";
 import GuideConversion from "./GuideConversion";
 import GuideDealCards from "./GuideDealCards";
+// v8.23 — the share control every guide was missing, and the resolver that
+// finally connects 39 guides to a 69-row deal registry they were never wired
+// to. See lib/guideDeals.js for why that gap existed.
+import ShareButton from "../../components/ShareButton";
+import { guideDealIds } from "../../../lib/guideDeals";
 import GuideEmailCapture from "./GuideEmailCapture";
 import { COUPONS, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 // Venue-local US Eastern, DST-aware. NEVER new Date().toISOString() — that is UTC
@@ -396,8 +401,24 @@ export default async function GuidePage({ params }) {
   let liveIndoor = [];
 
   const today = siteTodayStr();
+  // The canonical guide URL, built server-side from SITE_URL — the same string
+  // generateMetadata canonicalises to, so what gets shared and what gets
+  // indexed can never disagree.
+  const shareUrl = SITE_URL + "/guides/" + params.slug;
   const INTENT_CATEGORY = { eatnow: "dining", datenight: "dining", nightout: "drinks", familyfun: "games" };
-  const dealCards = (Array.isArray(g.dealCards) ? g.dealCards : [])
+  // v8.23 — WAS `Array.isArray(g.dealCards) ? g.dealCards : []`, which meant a
+  // guide showed local offers only if a human had typed their ids into
+  // lib/guides.js. Two guides out of thirty-nine ever got that treatment, so
+  // thirty-seven pages rendered no deals over a registry that had twenty-one
+  // live rows in the Bradenton market alone (owner: "we definitely have an
+  // opportunity to add clipp coupons in an article like this").
+  //
+  // guideDealIds() returns a hand-declared list VERBATIM when one exists, and
+  // otherwise resolves the guide's own market and intent against the registry.
+  // Everything downstream is unchanged — same rows, same live filter, same
+  // tracked hrefs — so this widens what is eligible without loosening one rule
+  // about what may render.
+  const dealCards = guideDealIds(g, today)
     .map((id) => COUPONS.find((c) => c && c.id === id))
     .filter((c) => c && couponIsLive(c, today))
     .map((c) => ({
@@ -553,7 +574,6 @@ export default async function GuidePage({ params }) {
           visible way back into the app. */}
       <nav aria-label="Breadcrumb" style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 18 }}>
         <a href="/" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 999, background: "#161B22", border: "1px solid #21262D", color: "#FF8A3D", fontSize: 13.5, fontWeight: 800, textDecoration: "none" }}>‹ Back to Wayfind</a>
-        <a href="/guides" style={{ color: "#8B949E", fontSize: 13.5, fontWeight: 700, textDecoration: "none" }}>All guides</a>
       </nav>
       <style dangerouslySetInnerHTML={{ __html: `
         .wf-guide-article{max-width:860px;margin:0 auto}
@@ -623,6 +643,11 @@ export default async function GuidePage({ params }) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: g.title, description: g.description, datePublished: g.updated || "2026-06-01", dateModified: g.updated || "2026-06-01", author: { "@type": "Person", name: "Gabriel Pereira", url: SITE_URL + "/about" }, publisher: { "@type": "Organization", name: "WAYFIND LLC", logo: { "@type": "ImageObject", url: SITE_URL + "/icon-512.png" } }, mainEntityOfPage: SITE_URL + "/guides/" + params.slug }) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL }, { "@type": "ListItem", position: 2, name: "Guides", item: SITE_URL + "/guides" }, { "@type": "ListItem", position: 3, name: g.title, item: SITE_URL + "/guides/" + params.slug }] }) }} />
       <PremiumIntentHero
+        // v8.23 — ONE destination each. "All guides" used to appear twice on
+        // every guide page: here, and again in the breadcrumb above. The
+        // breadcrumb keeps "‹ Back to Wayfind" (check-guides pins that anchor);
+        // the hero chrome keeps "‹ All guides" (check-hero-chrome pins this
+        // prop). Neither guard was wrong — the page was just carrying both.
         backHref="/guides"
         backLabel="All guides"
         eyebrow="Your local decision concierge"
@@ -630,10 +655,36 @@ export default async function GuidePage({ params }) {
         title={g.title}
         description={`${g.title}—distilled into the few choices actually worth your time, with the context a map result leaves out.`}
         image={guideHero(g)}
-        primaryHref={"/?intent=" + encodeURIComponent(g.keyword || g.title)}
-        primaryLabel="Personalize these picks"
+        // v8.23 — "Personalize these picks" is GONE, on the owner's call: "this
+        // button makes no sense, a user clicked on it and it went back to the
+        // main page — lets get rid of these buttons that dont serve a purpose on
+        // the blogs globally."
+        //
+        // It sent "/?intent=" + g.keyword, and g.keyword is an SEO PHRASE. 21 of
+        // 39 of them name no place at all ("birthday freebies bradenton
+        // sarasota", "things to do in orlando besides theme parks"), so the
+        // search the homepage runs for them can only come back empty — and the
+        // effect that runs it is gated on `center`, so a visitor who has not
+        // granted location gets literally nothing. Two independent reasons the
+        // promise could not be kept.
+        //
+        // What is left is what actually works: the guide itself, one tap down.
+        // The money CTA is unchanged and still lives once, in GuideConversion.
         secondaryHref="#guide"
         secondaryLabel="Read the local edit"
+        // v8.23 (owner: "why is it that none of these blog has a share button
+        // ... i want a share button on all of them"). Third action, quiet tone:
+        // it must not out-shout the CTA that earns. The URL is resolved on the
+        // SERVER from SITE_URL — never from window.location, which on a preview
+        // deploy is a host the recipient cannot open (lib/site.js).
+        actions={<ShareButton
+          url={shareUrl}
+          title={g.title}
+          text={g.title + " — found this on Wayfind."}
+          tone="hero"
+          event="guide_share"
+          meta={{ slug: params.slug, region: g.region || null, placement: "hero" }}
+        />}
       />
       <article id="guide" className="wf-guide-article">
       <div style={S.meta}>Written by the Wayfind team, led by <a href="/about" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>Gabriel Pereira</a> · Last verified {g.updated} · <a href="/how-wayfind-ranks" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>How we rank ›</a></div>
@@ -799,6 +850,25 @@ export default async function GuidePage({ params }) {
         citySlug={bridgeCity ? bridgeSlug : null}
         cityLabel={bridgeCity ? bridgeCity.name : ""}
       />
+      {/* v8.23 — THE SECOND SHARE, and the one that will do the work. The hero
+          control catches a reader who already knew they wanted to send this;
+          this one catches the far larger group who only know it after reading.
+          It sits AFTER GuideConversion so the monetized CTA keeps first
+          position — the rule the email capture below already follows. */}
+      <section style={{ margin: "26px 0 4px", padding: "18px 20px", borderRadius: 16, background: "#0E1520", border: "1px solid #1F2A3A" }}>
+        <p style={{ margin: "0 0 12px", fontSize: 15.5, lineHeight: 1.5, color: "#CBD5E1" }}>
+          Know someone this would help? Send it to them — they'll get the same picks, ranked from where they are.
+        </p>
+        <ShareButton
+          url={shareUrl}
+          title={g.title}
+          text={g.title + " — found this on Wayfind."}
+          label="Share this guide"
+          tone="solid"
+          event="guide_share"
+          meta={{ slug: params.slug, region: g.region || null, placement: "article_end" }}
+        />
+      </section>
       <GuideEmailCapture slug={params.slug} region={g.region || "Orlando"} />
       <p style={{ ...S.p, marginTop: 30 }}>
         Planning the rest of your trip? <a href="/" style={S.footerLink}>Wayfind</a> ranks every restaurant, attraction, and hotel near you with live hours and honest scores, and our <a href={"/culture/" + (g.region === "Tampa" ? "tampa" : g.region === "Sarasota" ? "sarasota" : "orlando")} style={S.footerLink}>{g.region || "Orlando"} culture guide</a> covers what to eat, say, and never skip.

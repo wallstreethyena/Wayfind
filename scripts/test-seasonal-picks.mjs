@@ -231,7 +231,28 @@ ok(/floor:\s*\{\s*rating:\s*4(\.0)?\s*,/.test(intentPagesSrc),
   ok(orders.length === 4, `all four bands declare an order (found ${orders.length})`);
   for (const o of orders) {
     ok(o.filter((id) => id === "season").length === 1, "seasonal appears exactly once per band — never twice, never missing");
-    ok(o[0] === "season", "seasonal LEADS every band (owner, v6.55: \"place it at the top... where the user sees it right away\")");
+    // v8.23.2 — REVERSAL, dated, and the fifth time this order has been revised
+    // (v6.55, v6.59, v6.61, v6.94, now). WAS: ok(o[0] === "season"), from v6.55
+    // — "place it at the top... where the user sees it right away".
+    //
+    // That instruction was given when this was a hand-built HeroRail, before the
+    // daypart engine existed and before the tile grew to --wf8-tw:
+    // min(76vw,340px) — a phone now shows about 1.3 tiles. "At the top where the
+    // user sees it right away" turned into "the only card a phone user ever
+    // sees, at every hour of the day", which silently cancelled the entire
+    // four-band rotation: the engine reordered fifteen of seventeen rails and a
+    // reader could not perceive one of them.
+    //
+    // Owner, 2026-08-19, on the live rail: "the placement of the cards are not
+    // getting updated based on the time of day, can you check to see if it is
+    // broken?" — then, given the trade explicitly, chose the band's own axis to
+    // lead with seasonal holding third.
+    //
+    // The v6.55 intent SURVIVES: third of seventeen is still "right away" on
+    // desktop (~3.4 tiles visible) and one short swipe on a phone. What it no
+    // longer does is spend the one slot that carries the time-of-day signal.
+    ok(o[0] !== "season", "seasonal must NOT lead — it is the only tile a phone shows, and pinning it there cancels the daypart rotation (v8.23.2 reversal of v6.55)");
+    ok(o.indexOf("season") === 2, `seasonal holds THIRD in every band — prominent, predictable, and never in the rotating slot (found ${o.indexOf("season") + 1})`);
   }
   ok(!/function LocalPlanHeroCard\(/.test(home), "LocalPlanHeroCard is back without the slide it rendered");
   ok(!/<HeroRail>/.test(home), "the hero rail is back alongside the daypart rail");
@@ -266,4 +287,4 @@ ok(/floor:\s*\{\s*rating:\s*4(\.0)?\s*,/.test(intentPagesSrc),
   ok(currentSeason() === currentSeason(siteAnchorDate()), "default agrees with the ET-anchored day right now");
 }
 
-console.log(`test-seasonal-picks: OK — ${pass} assertions (season logic pure + tested; seasonal leads every daypart band exactly once; ranking is rating + a bounded seasonal nudge, never a replacement)`);
+console.log(`test-seasonal-picks: OK — ${pass} assertions (season logic pure + tested; seasonal holds third in every daypart band, exactly once; ranking is rating + a bounded seasonal nudge, never a replacement)`);

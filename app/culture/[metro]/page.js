@@ -103,8 +103,10 @@ export default async function CulturePage({ params }) {
         title={`Know ${c.title} like someone sent you.`}
         description="The food locals defend, the experiences worth crossing town for, and the details that turn a visit into a story—not another generic city guide."
         image={CULTURE_HERO[params.metro] || NEUTRAL_HERO}
-        primaryHref={"/?intent=" + encodeURIComponent("local favorites in " + c.title)}
-        primaryLabel="Build my local shortlist"
+        // v8.23 — the primary CTA is removed here with the guides' copy of it, and
+        // for the same reason: "/?intent=local favorites in Tampa" is not a place,
+        // so the search it triggers returns nothing and the reader lands on the
+        // bare homepage. "Globally" in the owner's instruction means here too.
         secondaryHref="#local-edit"
         secondaryLabel="Read the local edit"
       />

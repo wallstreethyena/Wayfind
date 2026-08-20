@@ -85,10 +85,24 @@ const EXP_META = {
   dessert: { icon: "🍰", label: "Bakery & sweets" },
   coffee: { icon: "☕", label: "Coffee" },
   beer: { icon: "🍺", label: "Great beer" },
+  // v8.27 (owner, 2026-08-20: "we need to add more experience pills on it that
+  // match the vibe"). These are not new claims — lib/tags.js's ALLOW map has
+  // sanctioned livemusic / cocktails / wine / sports / breakfast / dog for
+  // their identities since v2.0. The card simply never produced them, so the
+  // vocabulary was narrower than the trust layer permitted and every bar in
+  // town wore the same three pills. Each is grounded the same way the existing
+  // ones are — a Google type, or an explicit word in the venue's own name —
+  // and nothing here infers a vibe from a vibe.
+  livemusic: { icon: "🎶", label: "Live music" },
+  cocktails: { icon: "🍸", label: "Cocktails" },
+  wine: { icon: "🍇", label: "Wine bar" },
+  sports: { icon: "📺", label: "Sports bar" },
+  breakfast: { icon: "🥞", label: "Breakfast" },
+  dog: { icon: "🐾", label: "Dog friendly" },
 };
 // Same display precedence as home.js's `order` array in experienceBadges,
 // minus the keys this surface cannot ground in real data (see comment above).
-const EXP_ORDER = ["museum", "nature", "entertainment", "waterfront", "instagram", "rooftop", "romantic", "datenight", "outdoor", "pizza", "sushi", "steak", "seafood", "burgers", "mexican", "italian", "dessert", "beer", "coffee", "family", "gem", "value", "localfav"];
+const EXP_ORDER = ["museum", "nature", "entertainment", "waterfront", "instagram", "rooftop", "romantic", "datenight", "livemusic", "cocktails", "wine", "breakfast", "sports", "dog", "outdoor", "pizza", "sushi", "steak", "seafood", "burgers", "mexican", "italian", "dessert", "beer", "coffee", "family", "gem", "value", "localfav"];
 
 export function experienceTags(place, max) {
   if (!place) return [];
@@ -140,6 +154,17 @@ export function experienceTags(place, max) {
   if ((tokens.includes("bakery") && !cz) || cz.includes("bakery") || cz.includes("dessert") || /bakery|dessert|donut|doughnut|ice cream|gelato|patisserie|pastry/.test(nm)) q.add("dessert");
   if (tokens.includes("coffee_shop") || (tokens.includes("cafe") && !cz) || cz.includes("coffee") || cz.includes("cafe") || /coffee|café|cafe\b|espresso|roaster/.test(nm)) q.add("coffee");
   if (tokens.some((x) => x.includes("brew")) || /brewery|brewing|brewpub|brew pub|taproom/.test(nm)) q.add("beer");
+
+  // v8.27 — the six sanctioned-but-unused keys. Type evidence first, then the
+  // venue's OWN name; never an inference from another tag. lib/tags.js gates
+  // each to the identities it belongs to, so a state park cannot wear
+  // "Cocktails" even if a word matches.
+  if (tokens.includes("night_club") || tokens.includes("concert_hall") || said(["live music", "music hall", "jazz", "blues bar", "honky tonk", "amphitheater", "amphitheatre", "listening room"])) q.add("livemusic");
+  if (tokens.includes("cocktail_bar") || said(["speakeasy", "cocktail", "mixology", "apothecary bar"])) q.add("cocktails");
+  if (tokens.includes("wine_bar") || tokens.includes("winery") || said(["wine bar", "winery", "vineyard", "enoteca", "wine room"])) q.add("wine");
+  if (tokens.includes("sports_bar") || said(["sports bar", "sportsbar", "sports grill"])) q.add("sports");
+  if (tokens.includes("breakfast_restaurant") || tokens.includes("brunch_restaurant") || said(["breakfast", "brunch", "pancake", "waffle", "omelette", "omelet"])) q.add("breakfast");
+  if (tokens.includes("dog_park") || said(["dog friendly", "dog-friendly", "dog park", "barkery", "paws "])) q.add("dog");
 
   let keys = EXP_ORDER.filter((k) => q.has(k) && EXP_META[k]);
   // Same v2.0 trust gate as home.js: a tag must ALSO be compatible with the

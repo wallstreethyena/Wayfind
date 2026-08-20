@@ -42,6 +42,9 @@ import {
   beachesModel, snapshotModel, experienceModel, defaultModel, footFits, humanDate,
 } from "../lib/shareCardCopy.js";
 import { SHARE_CARDS, shareCardFor } from "../lib/shareCards.js";
+import { RAILS, railById } from "../lib/rails.js";
+import { fitCta } from "../lib/shareCard.js";
+import { railModel } from "../lib/shareCardCopy.js";
 import { INTENT_PAGES } from "../lib/intentPages.js";
 
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -149,6 +152,8 @@ const models = {
   "beaches: bare": beachesModel({}),
   "snapshot": snapshotModel({ strip: ["Sarasota", "7:14 PM Sat"], hook: { lines: ["Sarasota’s #1 hot dog", "is at a gas station."], accent: "gas station" }, note: "Updates hourly.", bar_label: "See which one" }),
   "snapshot: bare": snapshotModel({}),
+  "rail": railModel(railById("birthday")),
+  "rail: bare": railModel({}),
   "default": defaultModel(),
 };
 for (const [label, m] of Object.entries(models)) {
@@ -229,7 +234,26 @@ ok(OG_FILES.length >= 6, `expected the OG routes to be found, got ${OG_FILES.len
 for (const f of OG_FILES) {
   const rel = path.relative(REPO, f);
   const src = strip(readFileSync(f, "utf8"));
-  ok(!/<img\b/.test(src), `${rel} renders an <img> — the chosen direction has no photography, and an image is also the only thing in a card that can fail a fetch mid-response`);
+  // v8.23 — ONE NAMED EXCEPTION, on the owner's direction ("make it look like
+  // the actual card"). The rail poster is not stock photography borrowed to
+  // decorate a claim; it IS the surface being shared, the owner drew it, and
+  // its headline is baked into its own pixels — a preview that redraws that
+  // headline in Archivo is a preview of a different object than the one the
+  // sender tapped.
+  //
+  // The exception is narrow and it is mechanical: ONE <img>, in ONE file, whose
+  // src is the MODEL FIELD the route already fetched and JPEG-sniffed. It may
+  // never be a URL literal Satori resolves mid-render, which is the failure
+  // this ban was really protecting against — see check-rail-share.mjs §3, which
+  // proves the fetch is awaited before any header is written.
+  const imgs = (src.match(/<img\b/g) || []).length;
+  if (rel === "app/api/og/card.jsx") {
+    ok(imgs <= 1, `${rel} renders ${imgs} <img> elements — the rail poster is the only one allowed`);
+    ok(imgs === 0 || /<img src=\{m\.poster\}/.test(src),
+       `${rel}: the only permitted <img> src is {m.poster} — a pre-fetched, sniffed data URI from lib/railShareCard.js, never a URL Satori resolves itself`);
+  } else {
+    ok(imgs === 0, `${rel} renders an <img> — the chosen direction has no photography, and an image is also the only thing in a card that can fail a fetch mid-response`);
+  }
   ok(!/data:image\//.test(src), `${rel} embeds a data: image — this is how the deleted sunset photo survived being deleted`);
   ok(!/["'`][^"'`]*\.(png|jpe?g|webp|avif|gif)["'`]/.test(src), `${rel} references an image file`);
   ok(!/\+\s*null\b|\bnull\s*\+/.test(src), `${rel} concatenates null into a string — "SITE_URL + null" is how two routes ended up fetching https://www.gowayfind.comnull`);
@@ -286,6 +310,7 @@ for (const f of DELETED) {
 const CALLERS = [
   "app/api/og/route.js", "app/api/og/intent/route.js", "app/api/og/beaches/route.js",
   "app/api/og/coupon/route.jsx", "app/api/og/list/card.jsx",
+  "app/api/og/rail/route.jsx",
 ];
 for (const rel of CALLERS) {
   const src = readFileSync(path.join(REPO, rel), "utf8");
@@ -299,6 +324,33 @@ ok(/h\.set\("Cache-Control"/.test(card),
 ok(/fonts:\s*\[/.test(card), "the renderer must supply the Archivo faces — Satori has no fallback for a missing family");
 for (const w of ["600", "700", "900"]) ok(card.includes(`Archivo-${w}-Latin.ttf`), `the renderer must load Archivo ${w}`);
 ok(!/lib\/shareCard\.js[\s\S]{0,80}fontSize/.test(card), "sizing must come from the model, not be restated in the markup");
+
+// ── 8. THE CTA HAS A WIDTH BUDGET, NOT A CHARACTER COUNT (v8.23) ───────────
+// ctaFrom() used to be str(label, 22).toUpperCase() — a blind slice, no measure,
+// no ellipsis. The `drive` rail walked straight into it: "Show me what's worth
+// it" is 23 characters, so the pill shipped "SHOW ME WHAT'S WORTH I", a word cut
+// mid-letter, past a green build. That is the same mistake section 2 exists for,
+// simply never applied to the pill.
+//
+// fitCta() measures and drops WHOLE WORDS. These assertions say something
+// stronger than "it fits": no first-party CTA is trimmed AT ALL. A new CTA that
+// outgrows its pill should fail the build so the copy is shortened on purpose.
+ok(CARD.ctaMaxWidth > 0, "the CTA needs a width budget, not a character count");
+ok(CARD.w - 60 - (CARD.ctaMaxWidth + 60) >= CARD.padX + CARD.footMaxWidth + 20,
+   `the CTA pill (${CARD.ctaMaxWidth + 60}px wide, right-aligned at 60) reaches back to ${CARD.w - 60 - (CARD.ctaMaxWidth + 60)}, and the foot already runs to ${CARD.padX + CARD.footMaxWidth}`);
+ok(fitCta("Show me what's worth it") === "SHOW ME WHAT'S WORTH IT",
+   `the 22-character slice is back: "Show me what's worth it" renders as "${fitCta("Show me what's worth it")}"`);
+ok(fitCta("A".repeat(400)).length < 40, "an unbounded label must still be capped — two routes take their CTA from a query string");
+ok(!/…/.test(fitCta("A".repeat(400))), "the CTA must never carry an ellipsis glyph — Archivo's Latin subset already gave us one tofu box");
+for (const r of RAILS) {
+  ok(fitCta(r.cta) === String(r.cta).toUpperCase(),
+     `rail "${r.id}": the CTA renders as "${fitCta(r.cta)}" instead of "${String(r.cta).toUpperCase()}" — shorten the copy or widen the pill deliberately`);
+}
+for (const key of Object.keys(SHARE_CARDS)) {
+  const c = shareCardFor(key);
+  if (!c || !c.cta) continue;
+  ok(fitCta(c.cta) === String(c.cta).toUpperCase(), `share card "${key}": its CTA does not fit the pill`);
+}
 
 if (fails.length) {
   console.error(`check-share-card: FAIL — ${fails.length}/${n}`);

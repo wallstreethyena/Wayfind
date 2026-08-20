@@ -268,7 +268,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.25";
+const BUILD_ID = "v8.27";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -683,7 +683,7 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
           REGION, not to six buttons, permanent motion on the first screen reads
           as an alert, and reduced-motion users would see nothing — so the glow
           stays where it earns its keep: on the tile you actually press. */}
-      <div className="wf-catrow" role="group" aria-label="Browse categories" style={{ display: "flex", gap: 7, overflowX: "auto", scrollSnapType: "x proximity", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", padding: "2px 0 6px" }}>
+      <div className="wf-catrow" role="group" aria-label="Browse categories" style={{ display: "flex", gap: 7, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x proximity", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", padding: "2px 0 6px" }}>
         {/* v6.90 — owner review of the category row asked for "anything you can
             do" to make it feel less flat. Two additive, guard-safe touches:
             (a) a soft circular halo behind the active icon (background only,
@@ -718,7 +718,7 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
           as a style object — and this one MUST have that hatch: it is the first
           thing that moves after a deliberate tap. */}
       <div className={(activeCat && subs.length > 1) ? "wf-subwrap is-open" : "wf-subwrap"}>
-        <div style={{ borderTop: `1px solid ${C.border}`, marginTop: 12, paddingTop: 12, display: "flex", gap: 6, flexWrap: "nowrap", overflowX: "auto", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", paddingBottom: 2 }}>
+        <div style={{ borderTop: `1px solid ${C.border}`, marginTop: 12, paddingTop: 12, display: "flex", gap: 6, flexWrap: "nowrap", overflowX: "auto", overscrollBehaviorX: "contain", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", paddingBottom: 2 }}>
           {subs.map((sf, si) => { const son = sub === sf.id; return (
             <button key={sf.id} className="wf-subchip" onClick={() => { onSub(sf.id); }} style={{ animationDelay: (si * 26) + "ms", flexShrink: 0, padding: "8px 11px 10px", border: "none", background: "transparent", color: son ? C.accent : "#A9B4C7", fontSize: 12.5, fontWeight: son ? 800 : 600, letterSpacing: "0.1px", cursor: "pointer", whiteSpace: "nowrap", position: "relative" }}>
               {sf.label}
@@ -2990,7 +2990,7 @@ function DiscoveryMenu({ locName, onBest, onGems, onFamily, onMood, onTonight, o
         <div style={{ fontSize: 15.5, fontWeight: 800, letterSpacing: "-.2px", lineHeight: 1.15, color: C.text }}>Shortcuts</div>
         <div style={{ marginTop: 3, fontSize: 12, fontWeight: 600, lineHeight: 1.4, color: "#8C97A8" }}>Tap one and skip straight to a ready-made list near you.</div>
       </div>
-      <div className="wf-discovery-grid" style={{ display: "flex", gap: 9, overflowX: "auto", scrollSnapType: "x proximity", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", paddingBottom: 4 }}>
+      <div className="wf-discovery-grid" style={{ display: "flex", gap: 9, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x proximity", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", paddingBottom: 4 }}>
       {/* v7.18 (owner, 2026-08-12): "on the name of these buttons we have not
           updated them — I need a witty, clever ONE WORD to describe what the
           user will get."
@@ -3751,6 +3751,30 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       else if (k === "events") { setScreen("events"); }
       else { openExperience(k); }
     } catch (e) {} }, 400); sp.delete("exp"); const qs = sp.toString(); window.history.replaceState({}, "", window.location.pathname + (qs ? "?" + qs : "")); }
+  } catch (e) {} }, []);
+  // v8.23 — A SHARED RAIL CARD LANDS HERE. /r/<rail> unfurls with the card's
+  // own artwork and then hands the reader to /?rail=<id> (app/r/[rail]/page.js
+  // + app/ShareRedirect.js, the same shape /l/[key] already uses). The rail
+  // opens its own drop, and the reader's geolocation re-ranks every card in it
+  // through the path that already exists — DaypartRail's center effect ->
+  // /api/rails?lat&lng. That is the whole of "see the items based on their
+  // current location": no second location stack, no duplicated homepage.
+  //
+  // Validated against RAILS before it is trusted: ?rail= is attacker-writable
+  // and an unknown id must open nothing rather than put the menu in a state no
+  // tile corresponds to.
+  const [initialRail, setInitialRail] = useState(null);
+  const _railLinked = useRef(false);
+  useEffect(() => { try {
+    if (_railLinked.current) return; _railLinked.current = true;
+    const sp = new URLSearchParams(window.location.search);
+    const k = sp.get("rail");
+    if (!k || !RAILS.some((r) => r.id === k)) return;
+    setInitialRail(k);
+    try { logEvent("share_open", null, { kind: "rail", rail_id: k }); } catch (e) {}
+    sp.delete("rail");
+    const qs = sp.toString();
+    window.history.replaceState({}, "", window.location.pathname + (qs ? "?" + qs : ""));
   } catch (e) {} }, []);
   const [moodPick, setMoodPick] = useState(null);   // last category tapped, drives the orange highlight
   const [browseCat, setBrowseCat] = useState(null); // v6.22: category tapped in the mood menu browses IN PLACE on the home feed. No navigation, the feed updates under the weather and the sub-menu slides down.
@@ -5423,7 +5447,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         <div style={{ fontSize: 15, fontWeight: 800, color: C.light }}>Unique finds near you</div>
         <div style={{ fontSize: 10.5, fontWeight: 700, color: C.muted, letterSpacing: ".5px", textTransform: "uppercase" }}>curated</div>
       </div>
-      <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 6, WebkitOverflowScrolling: "touch" }}>
+      <div style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 6, WebkitOverflowScrolling: "touch" }}>
         {Gems.GEMS.map((g) => (
           <div key={g.key} onClick={() => openGemPlace(g)} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ minWidth: 218, maxWidth: 218, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 13px", cursor: "pointer", flexShrink: 0 }}>
             <div style={{ fontSize: 13.5, fontWeight: 800, color: C.light, lineHeight: 1.2 }}>{g.name}</div>
@@ -5480,12 +5504,126 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // the list identity so switching lists never cross-restores.
   useEffect(() => {
     if (detail != null) return;
-    const s = scrollRestore.current;
-    if (!s || !scrollRef.current || s.key !== screen + "|" + cat + "|" + sub + "|" + vibe) return;
+    // v8.23.4 — FALL BACK TO THE STORED COPY. v6.08 wrote wf_sc_<key> to
+    // sessionStorage next to this ref and nothing ever read it, so the write was
+    // dead the day it shipped: after any reload the ref is empty and the reader
+    // lost their row. Same key, so it still cannot cross-restore between lists.
+    const key = screen + "|" + cat + "|" + sub + "|" + vibe;
+    let s = scrollRestore.current;
+    if ((!s || s.key !== key) && scrollRef.current) {
+      try {
+        const stored = sessionStorage.getItem("wf_sc_" + key);
+        if (stored != null && Number.isFinite(Number(stored))) s = { key, top: Number(stored) };
+      } catch (e) {}
+    }
+    if (!s || !scrollRef.current || s.key !== key) return;
     const top = s.top;
     scrollRestore.current = null;
     requestAnimationFrame(() => requestAnimationFrame(() => { try { if (scrollRef.current) scrollRef.current.scrollTop = top; } catch (e) {} }));
   }, [detail]);
+  // ══ v8.23.4 — DO NOT LOSE THE READER'S PLACE ═══════════════════════════
+  //
+  // Owner, 2026-08-19: "let's say the user click and goes to google maps, when
+  // they go back they go back to the start of the page and they have to go
+  // through the taxonomy all over again... there is nothing more annoying than
+  // losing your place in the site."
+  //
+  // THE MECHANISM THAT WAS SUPPOSED TO STOP THIS WAS HALF-BUILT. v6.08 captured
+  // the list scroll on detail-open into BOTH an in-memory ref and
+  // sessionStorage("wf_sc_<key>") — and only the ref was ever read back. A ref
+  // dies with the page. So the one path it protected was closing the detail
+  // sheet in-session; the moment the reader actually LEFT — Google Maps, a
+  // booking hop, any outbound tap — the surviving copy sat unread in
+  // sessionStorage and they came back to the top of a default tab.
+  //
+  // Scroll alone was never the whole loss either. The taxonomy IS the position:
+  // Night out > Speakeasy scrolled halfway down is four taps to rebuild, and
+  // none of screen/cat/browseCat/sub/vibe survived a reload.
+  //
+  // WHY sessionStorage AND NOT localStorage: this is "where I was a moment
+  // ago", not a preference. It must not resurrect a three-day-old tab state on
+  // a fresh visit, and the 30-minute ceiling below is a second belt on that.
+  const posRestore = useRef(null);
+  const posRead = useRef(false);
+  useEffect(() => {
+    if (posRead.current) return;
+    posRead.current = true;
+    try {
+      const raw = sessionStorage.getItem("wf_pos");
+      if (!raw) return;
+      const p = JSON.parse(raw);
+      if (!p || typeof p !== "object" || !p.ts || Date.now() - p.ts > 30 * 60000) {
+        sessionStorage.removeItem("wf_pos");
+        return;
+      }
+      if (p.screen) setScreen(p.screen);
+      if (p.cat) setCat(p.cat);
+      if (p.browseCat !== undefined) setBrowseCat(p.browseCat);
+      if (p.sub) setSub(p.sub);
+      if (p.vibe) setVibe(p.vibe);
+      posRestore.current = { top: Number(p.top) || 0, win: Number(p.win) || 0, at: Date.now() };
+    } catch (e) {}
+  }, []);
+  // APPLIED AFTER THE STATE SETTLES, and that ordering is the whole trick: the
+  // effect above this block zeroes the scroll on every [cat, sub, vibe, screen,
+  // ...] change, which includes the ones the restore itself just made. So the
+  // position is re-applied on the render those setters produce, behind a double
+  // rAF, and only within four seconds of the read — long enough for the feed to
+  // mount, short enough that a later filter change is never hijacked.
+  useEffect(() => {
+    const r = posRestore.current;
+    if (!r) return undefined;
+    if (Date.now() - r.at > 4000) { posRestore.current = null; return undefined; }
+    let a = 0, b = 0;
+    a = requestAnimationFrame(() => {
+      b = requestAnimationFrame(() => {
+        try {
+          if (scrollRef.current && r.top) scrollRef.current.scrollTop = r.top;
+        } catch (e) {}
+        posRestore.current = null;
+      });
+    });
+    return () => { cancelAnimationFrame(a); cancelAnimationFrame(b); };
+  }, [screen, cat, browseCat, sub, vibe]);
+  // The writer. On every taxonomy change, on a throttled scroll, and — the one
+  // that actually saves the Google Maps round trip — on pagehide, which fires
+  // when the browser is leaving THIS document, including for an outbound link.
+  // ONE scroller is recorded, because there is only one. v8.23.4 also stored a
+  // `win: window.scrollY` alongside it "in case the feed moves back to the
+  // window" — but in this shell window.scrollY is permanently 0 (the feed lives
+  // in div.wf-scrollarea, see v8.26), so that field saved 0 forever and its
+  // restore branch never once ran. A fallback that cannot fire is not
+  // resilience, it is a comment that lies. scripts/check-shell-scroll.mjs now
+  // fails the build on any new window.scroll* in the shell.
+  useEffect(() => {
+    const write = () => {
+      try {
+        sessionStorage.setItem("wf_pos", JSON.stringify({
+          screen, cat, browseCat, sub, vibe,
+          top: scrollRef.current ? scrollRef.current.scrollTop : 0,
+          ts: Date.now(),
+        }));
+      } catch (e) {}
+    };
+    write();
+    let t = null;
+    const onScroll = () => { if (t) return; t = setTimeout(() => { t = null; write(); }, 400); };
+    const el = scrollRef.current;
+    try { if (el) el.addEventListener("scroll", onScroll, { passive: true }); } catch (e) {}
+    try {
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("pagehide", write);
+    } catch (e) {}
+    return () => {
+      if (t) clearTimeout(t);
+      try { if (el) el.removeEventListener("scroll", onScroll); } catch (e) {}
+      try {
+        window.removeEventListener("scroll", onScroll);
+        window.removeEventListener("pagehide", write);
+      } catch (e) {}
+    };
+  }, [screen, cat, browseCat, sub, vibe]);
+
   // Reset the explore list back to 5 whenever a new result set loads or search mode flips.
   useEffect(() => { setVisibleCount(5); }, [places, searchMode]);
   function pickSub(id) { setSub(id); setVibe("all"); try { logEvent("filter_changed", null, { cat, sub: id }); } catch (e) {} }
@@ -8604,6 +8742,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // lands exactly where they were: rail still open, scroll intact.
         // (The owner's "everything is gone when I go back" bug.)
         onOpenPlace={(p) => { try { openDetail(p, "rail_menu"); } catch (er) {} }}
+        initialRail={initialRail}
+        // v8.23 — the rail card's share goes through THE share function, not a
+        // second one. shareLink() already solves the ordering that makes this
+        // work on iOS (the native sheet must be the first activation-consuming
+        // call in the tap — v4.07), prefers the Capacitor sheet inside the app
+        // shell, and falls back to the clipboard everywhere else.
+        //
+        // It returns TRUE when a sheet opened. Deliberately NO onCopied toast
+        // here: the card shows "Link copied" on itself, which is both more
+        // located and stops the two toasts this had in its first draft.
+        onShareRail={(intent) => {
+          try { return shareLink(intent.title, intent.url, null, intent.text); }
+          catch (e) { return false; }
+        }}
       />
     </div>
   ) : null;
@@ -8780,7 +8932,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               <span style={{ fontSize: 12, fontWeight: 800, color: C.accent, letterSpacing: "0.5px", textTransform: "uppercase" }}>Next 18 hours</span>
               <span style={{ fontSize: 11, color: C.muted }}>Feels-like · every 3h</span>
             </div>
-            <div style={{ display: "flex", gap: 4, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", padding: "0 6px" }}>
+            <div style={{ display: "flex", gap: 4, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", padding: "0 6px" }}>
               {weather.hourly.map((h, idx) => {
                 // v5.01: the "Now" tile must reflect the sky RIGHT NOW — the
                 // hourly block's is_day flag describes when the block STARTED
@@ -9000,7 +9152,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             now sits at the BOTTOM of Favorites, behind sign-in, where someone
             has already opted into having a profile at all. See Saved.js. */}
         {screen === "suggested" && FEATURED_AREAS.length > 0 && (
-        <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 9, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 9, overflowX: "auto", overscrollBehaviorX: "contain", WebkitOverflowScrolling: "touch" }}>
           <span style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, flexShrink: 0 }}>Explore other areas:</span>
           {FEATURED_AREAS.map((a) => (
             <button key={a.name} onClick={() => jumpToArea(a)} style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 11px", borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.light, fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
@@ -9039,7 +9191,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           gets a desktop-only padding-bottom bump in css.js rather than
           raising the flat mobile value, which would add dead space on phones
           that don't need it. */}
-      <div ref={scrollRef} className="wf-scrollarea" style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "7px 12px calc(28px + env(safe-area-inset-bottom))" }}>
+      <div ref={scrollRef} className="wf-scrollarea" style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overscrollBehavior: "contain", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "7px 12px calc(28px + env(safe-area-inset-bottom))" }}>
         <>
             {screen === "explore" && <div className="wf-explore">{exploreList}</div>}
             <MapErrorBoundary>{screen === "map" && <MapScreen ctx={ctx} />}</MapErrorBoundary>
@@ -10266,7 +10418,7 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
         <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>Bookable experiences</span>
         <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
       </div>
-      <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 6, marginBottom: 4 }}>
+      <div style={{ display: "flex", gap: 8, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 6, marginBottom: 4 }}>
         {chips.map((c) => {
           const on = c.key === cat;
           return (
@@ -10283,7 +10435,7 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
         ))}
       </div>
       {busy && !st.items.length ? (
-        <div aria-busy="true" style={{ display: "flex", gap: 10, overflowX: "auto" }}>
+        <div aria-busy="true" style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain" }}>
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="wf-skeleton" style={{ flex: "0 0 200px", height: 150, borderRadius: 12 }} aria-hidden="true" />
           ))}
@@ -10492,7 +10644,7 @@ function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includ
         <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>{chipLabel ? `${chipLabel} — bookable near ${city || "you"}` : `Bookable near ${city || "you"}`}</span>
         <span style={{ fontSize: 9.5, color: C.muted }}>Verified partners</span>
       </div>
-      <div ref={laneRef} style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4, scrollSnapType: "x proximity" }}>
+      <div ref={laneRef} style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 4, scrollSnapType: "x proximity" }}>
         {cards.map((card) => {
           const href = card.kind === "experience" ? commerceHref({ provider: "viator", offerId: card.offerId, surface: "browse_partner_rail", contentId: sub || "all" }) : card.href;
           if (!href) return null;
@@ -10556,7 +10708,7 @@ function UTDealsRail({ category, onSave, lat, lng }) {
             <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>{rail.label}</span>
             <span style={{ fontSize: 9.5, color: C.muted }}>via Undercover Tourist</span>
           </div>
-          <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
+          <div style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 4 }}>
             {rail.items.map((d) => (
               <a key={d.id} href={d.href} target="_blank" rel="sponsored nofollow noopener" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || d.href; try { logEvent("tickets_out", null, { kind: "ut_deal_rail", category, provider: d.provider, id: d.id }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 210px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", position: "relative" }}>
                 <div style={{ width: "100%", height: 96, background: d.image ? `center/cover no-repeat url(${d.image})` : d.photoRef ? `center/cover no-repeat url(/api/photo?ref=${encodeURIComponent(d.photoRef)}&w=600)` : (d.gradient || "linear-gradient(135deg,#1b2735,#2c3e50)"), display: "flex", alignItems: "flex-start", justifyContent: "flex-end", padding: 7 }}>

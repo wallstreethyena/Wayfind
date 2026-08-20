@@ -1,3 +1,174 @@
+## v8.27 - The main page stops fighting the reader
+- Owner, 2026-08-20: "the main page now feels jumpy and glitchy ... everything is
+  jittery"; "when I am trying to scroll through the rail it keeps catching the
+  edge of the screen on my mobile phone and going back to the previous page";
+  "these pills are too long, also we need to add more experience pills that match
+  the vibe."
+- THE JITTER WAS A RE-RENDER STORM, and it is measured, not inferred.
+  useScrollEnds runs on every `scroll` event of a rail under the reader's thumb.
+  It handed setEnds a FRESH OBJECT each time, so the state identity always
+  differed, React never bailed out, and dragging a rail re-rendered the whole of
+  DaypartRail — tile track, open drop, every place card — at frame rate. Worse,
+  `selPlaces` was rebuilt as a new array on each of those renders, and it is a
+  dependency of both useEditorialHooks and the beach-conditions effect, so those
+  re-entered their resolve and fetch-guard loops on every frame too.
+  MEASURED in headless Chromium, 80 scroll events on the rail track:
+  82 re-renders before, 3 after — a 96% reduction. The state is two booleans;
+  it now returns the same object when they have not changed, and selPlaces is
+  memoised on [selected, shown].
+- THE BACK-SWIPE HAD THE SAME SHAPE AS THE v8.26 SCROLL BUG: a declaration on an
+  element that cannot honour it. app/layout.js sets overscroll-behavior-x:none on
+  <body>, but overscroll-behavior only applies to a SCROLL CONTAINER and neither
+  <html> nor <body> is one here — both carry overflow-x:clip and the feed scrolls
+  inside div.wf-scrollarea. So the property has never done anything, a rail that
+  ran out of runway chained its leftover delta to the viewport, and iOS Safari
+  claimed it as the interactive back gesture mid-swipe. Containment now sits
+  where scrolling happens: on .wf-scrollarea, on all 21 inline horizontal
+  scrollers, and on the 9 rail classes, as 'contain' so each rail keeps its own
+  rubber-band and simply stops handing the gesture on.
+- THE LEAD PILL was 39 characters ("One of the best nearby places to try it") and
+  wrapped to two lines on a 390px phone. Now "Best nearby pick". The claim and
+  its gates (LAUNCH_LEAD_MIN_REVIEWS / LAUNCH_LEAD_MIN_SCORE) are unchanged; it
+  reads under a trend heading that already names the thing.
+- SIX MORE EXPERIENCE PILLS, and none of them is a new claim: lib/tags.js has
+  sanctioned livemusic / cocktails / wine / sports / breakfast / dog for their
+  identities since v2.0, and IconicPlaceCard simply never produced them — which
+  is why every bar in town wore the same three pills. Each is grounded exactly
+  like the existing ones, on a Google type or an explicit word in the venue's own
+  name, and the v2.0 identity gate still has the final say.
+- NEW GUARD scripts/check-overscroll-containment.mjs, proven red and green:
+  every horizontal scroller declares containment, and the shell's real scroller
+  does too.
+- GUARD REPAIRED, sixth time for this pattern: test-first-screen asserted
+  /\}, \[selected\]\);\n  const selPlaces/ — it pinned an effect's dependency array
+  to whatever text happened to follow it in the file, so adding a comment above
+  the next statement failed a check about a dependency. It now scopes to the
+  effect containing the centering arithmetic and reads ITS dependency list.
+- 367/367 guards green.
+
+## v8.26 - Clicking a rail card takes you to the picks (it never could before)
+- Owner, 2026-08-20, for at least the fourth time: "when I click on any of the
+  amazon rail cards the place cards expand but the view remains on the amazon
+  rail cards ... if the user does not know about the place cards showing up at
+  the bottom the user might think that nothing happened. I need that fixed, I
+  asked you multiple times."
+- ROOT CAUSE, and why three previous fixes all "shipped" without ever working:
+  the homepage does not scroll the document. app/home.js renders the feed inside
+  `<div className="wf-scrollarea" style={{flex:1,minHeight:0,overflowY:"auto"}}>`,
+  so that div is the scrolling box. On this page `window.scrollY` is permanently
+  0 and `window.scrollTo(...)` moves nothing. DaypartRail computed
+  `window.scrollY + rect.top - 78` and handed it to `window.scrollTo` — measured
+  live, that call resolves to `window.scrollTo(-78)` and the scroller does not
+  move a pixel. The code read as correct, rendered fine, and was a no-op.
+- THE FIX is scrollIntoView, not a different offset. scrollIntoView walks the
+  ancestor chain and scrolls every scrollable box on it, so it is right whether
+  the scroller is .wf-scrollarea today or the document tomorrow. The header
+  offset moved to `scroll-margin-top` on .wf8-menusec in railMenuCss.js, beside
+  the layout that causes it, instead of a magic 78 buried in arithmetic.
+- Two rAFs before landing: the drop flips display:none -> block in the same
+  commit and wf8MenuIn starts at translateY(-30px), so a same-frame landing aims
+  at geometry that is one frame stale.
+- AND IT VERIFIES ITSELF. A smooth scroll can be cancelled — by place-card
+  images reflowing under it, by a competing programmatic scroll, by a thumb — and
+  a cancelled scroll used to fail silently, which is the whole bug. 620ms after
+  the landing (the 460ms drop animation plus a beat) the effect re-checks that
+  the picks are actually on screen and lands them plainly if they are not. A
+  reader who scrolled themselves in the meantime is left alone: taking someone's
+  scroll position away is the other half of this complaint.
+- MEASURED, headless Chromium at 390x844, geolocated to Parrish: the scroller
+  moves 140 -> 524px, the drop lands 42px inside the scrollport (12px with
+  reduced motion, exactly the scroll-margin), the picks sit 32% down the screen,
+  0 page errors. Negative control in the same session: the shipped arithmetic
+  resolves to window.scrollTo(-78) and leaves both scrollTop values at 0.
+- NEW GUARD scripts/check-shell-scroll.mjs, proven red and green. It enforces the
+  RULE, not a snapshot: nothing under app/ may steer the viewport through
+  window.scroll* beyond a dated, shrink-only debt list, and the rail drop must
+  land with scrollIntoView after a frame, with its offset in CSS.
+- THE DEBT THE GUARD EXPOSED: 12 further window.scroll* call sites in the shell
+  (9 in app/home.js, 1 each in Experience.js, Itinerary.js, Surprise.js) are the
+  same no-op. Every "jump back to the top" they implement has never fired.
+  app/home.js:8575 is the one that does it correctly — it scrolls scrollRef AND
+  the window. Capped and listed; not fixed in this release.
+## v8.23 - The share button that was missing everywhere, and the deal registry 37 guides were never wired to
+- Owner, on the rail cards: "add a share button to these amazon rail cards ... when
+  it goes as a text message are we able to optimize the image to make it look like
+  the actual card? then whoever clicks on will go on the page and see all of the
+  items based on their current location?" Then, on a live guide: "why is it that
+  none of these blog has a share button ... i want a share button on all of them."
+  Then, on the same guide: "we definitely have an opportunity to add clipp coupons
+  in an article like this."
+- THE SHARE IMAGE IS AN EXCEPTION TO THE SHARE-CARD STANDARD, NARROWED RATHER THAN
+  DELETED. docs/share-card-standard.md has banned photography since v7.26, after a
+  "deleted" stock sunset photo turned out to be base64 inside lib/ogbg.js and after
+  two routes built "SITE_URL + null" — a fetch that dies AFTER the 200 headers are
+  streaming, yielding a zero-byte image the CDN then pins for a year. The rail
+  posters are not stock: the owner drew them, their headline is baked into their own
+  pixels, and a preview that redraws that headline in Archivo previews a DIFFERENT
+  object than the one the sender tapped. So exactly one image is now permitted, from
+  /cards-v8, resolved through lib/rails.js, and it reaches Satori as BYTES THE ROUTE
+  ALREADY FETCHED AND SNIFFED (FF D8 FF) rather than a URL Satori resolves
+  mid-render. That last clause is the entire safety argument, and it is asserted:
+  check-rail-share proves the fetch is awaited before any response is constructed
+  and that a miss falls back to the typographic card. Clause 8 of the standard now
+  states the exception; check-share-card still bans an <img> everywhere else and
+  permits exactly one, in one file, whose src is the model field.
+- 1200x630 WITH THE POSTER WHOLE. The posters are 760x1350 and every platform except
+  iMessage centre-crops a preview to about 1.91:1, which would cut the illustration
+  in half. The type beside it never repeats the artwork (the v8.1 rule): the picture
+  says what the collection is, and the one thing it cannot say — "Ranked from where
+  you are." — is the headline. /r/<rail> is what makes that true, handing the reader
+  to /?rail=<id> where the homepage's existing geolocation path re-ranks every card.
+- THE TILE SPLIT, AND THE SILENT FAILURE IT ALMOST CAUSED. A <button> inside an <a>
+  is a nested interactive, so .wf8-tile became the box and the crawlable link moved
+  inside as .wf8-tlink. .wf8-tile keeps its reserved geometry, touch-action, snap
+  point, data-id, .is-sel — and its offsetLeft, which the v8.22 centering effect does
+  arithmetic on. Had the link become the flex item instead, offsetLeft would read 0
+  and every selected card would centre itself on the track's left edge.
+- THE HOVER AND THE BIGGER CARD NEEDED THE TRACK FIXED FIRST. .wf8-track is
+  overflow-x:auto, which makes overflow-y compute to auto: anything that lifts or
+  scales past the padding box is CLIPPED, and 2px of top padding could not hold even
+  the 4px lift that was already there. Now 30/42, preserving the same 6px optical
+  centre the nav buttons are tuned to. The chosen card grows by SCALE, never width —
+  a width change reflows the track and moves every snap point under a scrolling thumb.
+- THE GUIDES HAD NO SHARE CONTROL AT ALL. 39 pages, ~46% of external entries (AUDIT
+  F2), every one a terminal page: a reader who wanted to send "23 Birthday Freebies
+  in Bradenton" to the person whose birthday it is had to select the address bar.
+  Two controls now, on every guide, unconditionally — the hero catches a reader who
+  already knew, the end-of-article one catches the far larger group who only know
+  after reading, and it sits after GuideConversion so the monetized CTA keeps first
+  position. lib/shareOut.js is the behaviour for pages outside the app shell, which
+  cannot reach app/home.js's shareLink(); check-guide-share pins the one thing the
+  two copies must agree on — the native sheet is attempted BEFORE the clipboard,
+  because on iOS a clipboard write consumes the tap's activation and the sheet is
+  then refused (the v4.06 bug).
+- THE CLIPP GAP WAS A WIRING GAP, NOT A MISSING FEATURE. app/guides/[slug]/page.js
+  rendered deal cards from g.dealCards — a hand-typed array of registry ids. Two
+  guides out of thirty-nine had one. So thirty-seven pages showed no local offers
+  over a registry holding twenty-one live rows in the Bradenton market alone,
+  including the Clipp half-price dining certificates for that exact city. An
+  editorial step was standing where a resolver belonged. lib/guideDeals.js resolves
+  a guide's own market and classified intent against the registry: 24 guides now
+  resolve 65 cards with no hand-typed ids, hand-declared lists are returned verbatim
+  and never reordered, an unmapped market (Key West) resolves NOTHING rather than the
+  nearest city's offers, one card per merchant, and expired rows are dropped — most
+  of the Bradenton Clipp certificates lapsed on 2026-08-17, so a stale week renders
+  fewer cards rather than a dead one.
+- ROOT-CAUSE FIX FOUND ON THE WAY: ctaFrom() sized the share-card CTA pill by a
+  22-CHARACTER SLICE with no width awareness. "Show me what's worth it" is 23
+  characters, so the drive rail's pill rendered "SHOW ME WHAT'S WORTH I" — a word cut
+  mid-letter, past a green build. That is the same mistake lib/shareCard.js's own
+  header rails against, never applied to the pill. fitCta() now measures against the
+  real Archivo advances and drops whole words, never an ellipsis (the Latin subset
+  already gave us one tofu box, for U+2605), and check-share-card asserts that no
+  first-party CTA is trimmed at all.
+- AND ONE THE NEW GUARD FOUND: railPosterUrl() checked its directory prefix BEFORE
+  URL normalisation, so "/cards-v8/../../etc/passwd" passed the test and then
+  resolved outside it. Not reachable — every basename comes from RAILS, in this repo
+  — but "the input is trusted" is a property of today's callers, not of the function.
+  It now re-checks the resolved pathname.
+- Guards: check-rail-share (786 assertions), check-guide-share (30), and
+  check-guide-deal-cards extended to the auto-resolved set (617). 362/362 green.
+
 ## v6.66 - The perfect-score flame reaches the surfaces that print a bare number
 - Owner, on seeing the 10.0 chip on a tour card: "i like this, can you find more
   places to put this in the website?"

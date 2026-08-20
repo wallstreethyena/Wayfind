@@ -102,7 +102,15 @@ ok(/const railMenuBand = railMenu \? \(/.test(code),
     // Places search result) is exactly the 6.4-second regression this file
     // exists for, and it is still caught: it is not an on* handler and it is
     // not in this list.
-    const NON_CONTENT = new Set(["center", "isSaved", "isOnTrip"]);
+    // v8.23 — initialRail joins them. It is a rail ID read SYNCHRONOUSLY from
+    // window.location.search in a mount effect (app/home.js, the ?rail= reader
+    // a shared card lands on): it fetches nothing, it renders nothing, and all
+    // it decides is which drop opens. The drop emits no HTML until a card is
+    // picked and is itself a next/dynamic ssr:false import, so this cannot gate
+    // first paint any more than center can. It is NOT content and it is not a
+    // handler, which is why it has to be named here rather than slipping
+    // through the on* pattern.
+    const NON_CONTENT = new Set(["center", "isSaved", "isOnTrip", "initialRail"]);
     if (NON_CONTENT.has(name) || /^on[A-Z]/.test(name)) continue;
     ok(/^railMenu\.\w+$/.test(value) || value === "RAILS",
       `<DaypartRail ${name}={${value}}> — every rail prop must be server data (railMenu.*) or static metadata (RAILS); anything else makes the first screen wait on a fetch`);
@@ -267,8 +275,17 @@ ok(/prefers-reduced-motion:reduce\)\{\.wf-sk\{animation:none\}/.test(cssM[1].rep
     "DaypartRail: the selection effect finds the selected tile in the track");
   ok(/tile\.offsetLeft - \(track\.clientWidth - tile\.clientWidth\) \/ 2/.test(dr),
     "DaypartRail: the selected tile is CENTERED, not merely nudged into view");
-  ok(/\}, \[selected\]\);\n  const selPlaces/.test(dr),
-    "DaypartRail: the centering effect re-runs on every selection change");
+  // v8.27 — asserts the PROPERTY, not the file's line order. This used to read
+  // /\}, \[selected\]\);\n  const selPlaces/ — it pinned the effect's closing line
+  // to whatever text happened to follow it, so adding a comment above the next
+  // statement failed a check about a dependency array. Scope to the effect that
+  // contains the centering arithmetic and read ITS dependency list.
+  {
+    const at = dr.indexOf('const tile = track.querySelector(".wf8-tile.is-sel")');
+    const close = at >= 0 ? dr.indexOf("}, [", at) : -1;
+    ok(close > at && /^\}, \[selected\]\);/.test(dr.slice(close)),
+      "DaypartRail: the centering effect re-runs on every selection change");
+  }
 }
 
 console.log(`test-first-screen: OK — ${passed} assertions (the first screen paints server-rendered content with no fetch; the rail reserves its own box; the events rail is never gated on the Places search; all three states handled; reduced-motion respected)`);
