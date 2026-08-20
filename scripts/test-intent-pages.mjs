@@ -99,6 +99,9 @@ ok(bb.includes('const heroImg = "/cards/beach-adobestock-216195684.jpeg"'), "bea
   ok(out.some((r) => r.id === "m1"), "the best-ranked branch is the one kept");
   const icSrc = readFileSync(new URL("../app/components/IntentPageClient.js", import.meta.url), "utf8");
   ok(icSrc.includes('.eq("verified", true).in("place_id"'), "intent rows fetch VERIFIED Wayfind hooks in one call");
+  ok(icSrc.includes('"/api/known-for"'), "intent rows also read Atlas via /api/known-for so a researched whyGo is not blank");
+  ok(!/!r\.editorial_hook\)\.slice\(0,\s*8\)/.test(icSrc),
+    "cacheOnly CARD_SUMMARY is not rationed to the first 8 rows");
   // The real guarantee is provenance, not just render shape: r.editorial (Google's
   // editorialSummary.text, set in lib/intentPages.js toRow) must never (a) be sent
   // into the /api/blurbs payload — the model would launder it into ai_line — and

@@ -184,7 +184,14 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
     if (!active || !center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) return;
     const ctrl = new AbortController();
     setResult({ status: "loading", trends: [] });
-    loadProvidedTrendList({ center, city, signal: ctrl.signal })
+    loadProvidedTrendList({
+      center, city, signal: ctrl.signal,
+      // v8.24 — trends render AS THE WALK FINDS THEM (owner: "always takes so
+      // long to load"). Each partial is the ranked prefix of the final list,
+      // so nothing reorders under the reader; `partial` keeps a small tail
+      // skeleton up until the walk completes.
+      onPartial: (body) => { if (!ctrl.signal.aborted && Array.isArray(body.trends) && body.trends.length) setResult({ status: "ok", trends: body.trends, partial: true }); },
+    })
       .then((body) => {
         if (ctrl.signal.aborted) return;
         // v7.24 — THE GATE MOVED TO RENDER (see `gatedTrends` below). The
@@ -226,8 +233,10 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
         .filter((t) => t.matches.length);
     } catch (e) { return list; }
   })();
-  // Every match gated away is an honest empty state, not an error.
-  const status = result.status === "ok" && !gatedTrends.length ? "no_verified_inventory" : result.status;
+  // Every match gated away is an honest empty state, not an error — unless
+  // the walk is still running (v8.24 partial), in which case it is simply
+  // still loading, not "nothing qualifies".
+  const status = result.status === "ok" && !gatedTrends.length ? (result.partial ? "loading" : "no_verified_inventory") : result.status;
 
   const visibleIdKey = status === "ok"
     ? gatedTrends.flatMap((trend) => trend.matches || []).map((p) => p && p.id).filter(Boolean).join("|")
@@ -328,6 +337,9 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
           onShare={onShare}
         />
       ))}
+      {/* v8.24 — the walk is still searching: one small tail skeleton says
+          "more coming" without blocking what is already verified above. */}
+      {result.partial ? <div role="status" aria-label="Finding more verified trends" className="wf-sk" style={{ height: 88, borderRadius: 17, marginTop: 16 }} /> : null}
       <div style={{ padding: "10px 2px 8px", color: "#6F7C8D", fontSize: 10.5, lineHeight: 1.45 }}>
         Trend momentum selects experiences. Wayfind Score ranks places. No paid placement.
       </div>

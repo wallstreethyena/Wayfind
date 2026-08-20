@@ -8,7 +8,7 @@
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { resolveEventById, idFromSlug } from "../../../../lib/eventResolve.js";
-import { ticketOutUrl, isTicketmasterFamily } from "../../../../lib/affiliates.js";
+import { isTicketmasterFamily } from "../../../../lib/affiliates.js";
 import { isEventWindow, EVENT_WINDOWS, windowRange, filterByWindow } from "../../../../lib/eventsList.js";
 import { LANDING_CITIES } from "../../../../lib/landing.js";
 import TicketButton from "./TicketButton.js";
@@ -180,7 +180,9 @@ export default async function EventPage({ params }) {
   const cancelled = /cancelled|canceled|postponed/i.test(e.status || "");
   const where = [e.venue, e.city].filter(Boolean).join(", ");
   const mapsUrl = where ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((e.venue || "") + " " + (e.city || ""))}` : null;
-  const external = e.url ? ticketOutUrl(e.url, "event") : null;
+  // Pass the official URL. TicketButton wraps Ticketmaster-family through
+  // /api/ticketmaster/go so the Impact URL never sits in the DOM (founder P0).
+  const external = e.url || null;
   const storyEvent = eventStoryEvidence(e);
   const initialStory = eventStoryFallback(storyEvent);
   const jsonLd = {

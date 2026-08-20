@@ -29,6 +29,7 @@ import { siteTodayStr } from "../../../lib/siteTime";
 // The moat was invisible to search and absent from the pages search can see.
 import { nowContext } from "../../../lib/nowContext";
 import { guidePicksForNow, guideNowHeadline, guideNowExplainer, guideWeather, indoorSiblingFor, indoorFromInventory, regionCity } from "../../../lib/guideNow";
+import { existingTypeSignals } from "../../../lib/placeCategory";
 
 /**
  * Rating + review count for a place from OUR OWN inventory.
@@ -127,7 +128,7 @@ async function inventoryPlaceByStem(stem, near) {
         lat: row.lat,
         lng: row.lng,
         photoRef: row.photo_ref || null,
-        types: Array.isArray(row.google_types) ? row.google_types : (row.primary_type ? [row.primary_type] : []),
+        types: existingTypeSignals(row),
         primary_type: row.primary_type || null,
       };
     }
@@ -171,7 +172,7 @@ async function inventoryPlace(pick, near) {
               return {
                 id: row.place_id, name: row.name, rating, reviews,
                 lat: row.lat, lng: row.lng, photoRef: row.photo_ref || null,
-                types: Array.isArray(row.google_types) ? row.google_types : (row.primary_type ? [row.primary_type] : []),
+                types: existingTypeSignals(row),
                 primary_type: row.primary_type || null,
               };
             }
@@ -273,9 +274,15 @@ const NEUTRAL_HERO = "/brand/opt/hero-1600.webp";
 
 function guideHero(g) {
   const haystack = `${g.title} ${g.keyword || ""}`.toLowerCase();
-  if (/restaurant|food|cuban|pie/.test(haystack)) return "/cards/date-night-dining-hero.jpg";
+  // v8.24 (owner, on the Gulf Coast Brunch & Date Night hero: "I never want
+  // to see this image ever again"). Two changes: the AI neon-concert
+  // composite (night-out.jpg) is BANNED site-wide and deleted from the repo
+  // (locked by scripts/check-banned-art.mjs), and brunch/date-night guides
+  // now match the DINING branch — a food guide was falling through to
+  // nightlife art because "brunch" appeared in no branch.
+  if (/restaurant|food|cuban|pie|brunch|dining|date/.test(haystack)) return "/cards/date-night-dining-hero.jpg";
   if (/beach|siesta|lido/.test(haystack)) return "/cards/beach-adobestock-216195684.jpeg";
-  if (/night|bar|cocktail/.test(haystack)) return "/cards/night-out.jpg";
+  if (/night|bar|cocktail/.test(haystack)) return "/cards/tonight-alfonso-scarpa-unsplash.jpg";
   if (/boat|kayak|spring|airboat/.test(haystack)) return "/brand/orlando-paddleboard-portrait.jpg";
   // The keyword branches above assign art that MATCHES the guide. This last
   // line is what a guide gets when none matched, so it must assert no
@@ -532,8 +539,8 @@ export default async function GuidePage({ params }) {
       bridgePicks = (Array.isArray(ranked) ? ranked : []).slice(0, 3).map((p) => ({
         id: p.id, name: p.name, rating: p.rating, reviews: p.reviews,
         distMi: p.distMi, openNow: p.openNow, photoRef: p.photoRef || null,
-        // Honest, built only from the place's own numbers — same helper the
-        // ranked landing pages use.
+        // Sourced why only — same helper the ranked landing pages use.
+        // No Atlas/curated/editorial why → empty, never a star sentence.
         reason: whyLine(p, "spot"),
       }));
     } catch (e) { bridgePicks = []; }

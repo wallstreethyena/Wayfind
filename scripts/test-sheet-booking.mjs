@@ -39,7 +39,24 @@ ok((bc.match(/experienceGoUrl\(/g) || []).length >= 2, "primary AND list variant
   ok(!/experienceGoUrl\(/.test(guide), "the guide page does NOT call experienceGoUrl directly — one predicate, not three callers of the raw helper");
 }
 ok(/goFallback/.test(bc) && /verifiedUrl \|\| goFallback/.test(bc), "primary falls back instead of rendering nothing");
-ok(/if \(verifiedUrl \|\| !tk\) addReservation/.test(bc), "search-fallback clicks never fabricate a reservation entry");
+// Search-fallback clicks must not write a reservation. The honest primary
+// gate is `if (verifiedUrl) addReservation("tickets", ...)` — hotel Check
+// rates is fail-closed, so `|| !tk` is dead and must not be required.
+// `|| goFallback` would fabricate a reservation on "Search Viator".
+// Strip comments first so this cannot pass on the explanatory note.
+{
+  const src = bcComponent
+    .replace(/\/\*[\s\S]*?\*\//g, " ")
+    .split("\n").filter((l) => !/^\s*\/\//.test(l)).join("\n");
+  const ticketsWrites = src.match(/addReservation\s*\(\s*["']tickets["']/g) || [];
+  ok(ticketsWrites.length === 1, "search-fallback clicks never fabricate a reservation entry");
+  ok(/if\s*\(\s*verifiedUrl\s*\)\s*addReservation\s*\(\s*["']tickets["']/.test(src),
+    "search-fallback clicks never fabricate a reservation entry");
+  ok(!/if\s*\(\s*verifiedUrl\s*\|\|[\s\S]{0,80}addReservation\s*\(\s*["']tickets["']/.test(src),
+    "search-fallback clicks never fabricate a reservation entry");
+  ok(!/if\s*\([^)]*goFallback[^)]*\)\s*addReservation/.test(src),
+    "search-fallback clicks never fabricate a reservation entry");
+}
 ok(/Tickets & tours/.test(bc), "the Tickets & tours label survives");
 ok(/never construct a booking URL from raw\/unverified input/.test(bc), "the integrity contract comment survives");
 

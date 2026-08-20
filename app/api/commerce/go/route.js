@@ -67,7 +67,9 @@ export async function GET(req) {
     const props = commercePayload(event, { ...base, ...(extra || {}) });
     // Deliberately NOT awaited: a slow analytics POST must not delay the user's
     // redirect. Errors are swallowed inside captureServer.
-    captureServer(event, { distinctId, properties: props });
+    // Visitor UA/IP attach inside captureServer (after the whitelist). Passing
+    // them through commercePayload would drop them.
+    captureServer(event, { distinctId, properties: props, headers: req.headers });
   };
 
   const fail = (reason) => {

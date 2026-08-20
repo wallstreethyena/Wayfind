@@ -309,20 +309,25 @@ ok(governedWayfindScore(90, { hasCreatorVideo: true, trending: true, distanceMi:
   // required; the trending-flag assertion itself is unchanged and still binds.
   ok(/governedWayfindScore\(q, \{ hasCreatorVideo: hasCreatorVideoAt\(p, [A-Za-z_$][\w$.]*\), distanceMi: [^}]*trending: !!p\.trending \}\)/.test(land),
     "rankedFor's governed call carries the trending flag AND passes the city to hasCreatorVideoAt");
-  ok(/if \(p\.trending && p\.trend_reason\) bits\.push\("🔥 " \+ p\.trend_reason\);/.test(land),
-    "whyLine leads with the 🔥 reason — the disclosure that rides every consumer of these rows");
+  const rankingWhy = readFileSync(path.resolve("lib/rankingWhy.js"), "utf8");
+  ok(/export function whyLine\s*\(/.test(land) && /rankingWhyLine\(p\)/.test(land),
+    "landing whyLine is the ranking-surface export and delegates to rankingWhyLine");
+  ok(/if \(p\.trending && p\.trend_reason\) bits\.push\("🔥 " \+ p\.trend_reason\);/.test(rankingWhy),
+    "rankingWhyLine leads with the 🔥 reason — the disclosure that rides every consumer of these rows");
   ok(/const trending = !!\(p\.trending && p\.trend_reason\);/.test(land),
     "the landing template's flame renders off the row's own unified flag (beach-only popularity flame folded in)");
 }
-// whyLine EXECUTED (via jsxLoad — landing.js carries JSX): a trending row's
-// line leads with the reason; a plain row's doesn't.
+// whyLine EXECUTED via rankingWhyLine (the function landing.js exports).
+// landing.js carries JSX; the renderer lives in a pure module so this
+// assertion does not depend on a JSX transpile.
 {
-  const { loadComponent } = await import("./lib/jsxLoad.mjs");
-  const { whyLine } = await loadComponent(path.resolve("lib/landing.js"), REPO);
-  const hot = whyLine({ rating: 4.8, reviews: 900, distMi: 3.2, trending: true, trend_reason: "Popular with locals" }, "spot");
+  const { rankingWhyLine } = await import("../lib/rankingWhy.js");
+  const hot = rankingWhyLine({ rating: 4.8, reviews: 900, distMi: 3.2, trending: true, trend_reason: "Popular with locals" });
   ok(hot.startsWith("🔥 Popular with locals"), "whyLine on a trending row starts with the disclosed reason");
-  const plain = whyLine({ rating: 4.8, reviews: 900, distMi: 3.2 }, "spot");
+  const plain = rankingWhyLine({ rating: 4.8, reviews: 900, distMi: 3.2 });
   ok(!plain.includes("🔥"), "whyLine on a plain row carries no flame");
+  ok(!plain.includes("★") && !/proven local favorite/i.test(plain),
+    "whyLine on a stats-only row does not sell stars as the reason");
 }
 
 // ── 2g. MAP + EXPERIENCE POOLS (2026-08-08, patch 5) ────────────────────────

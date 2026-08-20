@@ -34,6 +34,8 @@
 // RANKING_AND_FEATURING_SPEC.md §4 already applies to the creator row.
 import { useCallback, useEffect, useRef, useState } from "react";
 import RailCard, { RailNav, RailDots } from "./RailCard";
+import useEditorialHooks from "./useEditorialHooks";
+import { toHookLine } from "../../lib/editorialHook";
 import { INTENT_PAGES, toRow, rankRows, composeQueries, resolvePlanAhead } from "../../lib/intentPages";
 import { placeAllowed } from "../../lib/placeFilter";
 import { resolveMarqueeDayTrips } from "../../lib/marqueeDayTrips";
@@ -444,6 +446,12 @@ export default function IntentRailBody({
     null,
     city
   );
+  // Same sourced take BestNearby already passes. This rail used to omit `take`
+  // entirely, so Tonight's Move hid Atlas / wf_editorial / cached CARD_SUMMARY
+  // on every card — a blank gap next to a neighbor that already had research.
+  // toHookLine returns "" when there is no hook; RailCard then renders NOTHING.
+  // Do not fall back to r.editorial (Google editorialSummary) or invent a line.
+  const hooks = useEditorialHooks(list);
   const visibleIdKey = recommendationIds(list).join("|");
   useEffect(() => {
     if (onVisibleIds) onVisibleIds(visibleIdKey ? visibleIdKey.split("|") : []);
@@ -511,6 +519,7 @@ export default function IntentRailBody({
                   facts={facts}
                   award={i < 3 ? { tone: i + 1, icon: i === 0 ? "🏆" : String(i + 1), label: i === 0 ? "Top pick" : "Top " + (i + 1) } : null}
                   chips={chips}
+                  take={toHookLine(hooks[r.id], r.name)}
                   cta={partner ? {
                     label: "🎟️ Tickets via " + partner.merchant + " ↗",
                     href: commerceHref({ provider: partner.provider, offerId: partner.offerId, surface: "intent_rail", contentId: r.id }),

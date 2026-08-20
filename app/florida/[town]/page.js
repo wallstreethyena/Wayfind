@@ -75,13 +75,16 @@ export default async function Page({ params }) {
         <>
           <h2 style={S.h2}>The top-rated places right now</h2>
           <p style={S.p}>Ranked by rating and review volume with Wayfind&apos;s junk filter — no ads, no paid placement. Live hours and the full list are in the app.</p>
-          {topTen.map((p, i) => (
-            <div key={p.id || i} style={S.card}>
-              <p style={S.name}>{i + 1}. {p.name}</p>
-              <p style={S.rowWhy}>{whyLine(p, "spot")}</p>
-              <a style={S.open} href={appUrl(`${p.name} ${t.title} FL`)}>Open in Wayfind ›</a>
-            </div>
-          ))}
+          {topTen.map((p, i) => {
+            const why = whyLine(p, "spot");
+            return (
+              <div key={p.id || i} style={S.card}>
+                <p style={S.name}>{i + 1}. {p.name}</p>
+                {why ? <p style={S.rowWhy}>{why}</p> : null}
+                <a style={S.open} href={appUrl(`${p.name} ${t.title} FL`)}>Open in Wayfind ›</a>
+              </div>
+            );
+          })}
         </>
       ) : null}
 

@@ -280,6 +280,9 @@ node scripts/test-partner-rail-render.mjs
 node scripts/check-tour-strip-redirect.mjs
 node scripts/check-food-tour-rail.mjs
 node scripts/test-booking-resolve-extraction.mjs
+# Founder P0 (2026-08-19): Book/commerce clicks same-tab through /api/*/go
+# with a joinable click_id. Never a raw viator.com / booking.com / Impact href.
+node scripts/test-earning-handoff.mjs
 node scripts/check-guide-conversion.mjs
 node scripts/check-guide-teasers.mjs
 node scripts/test-gulf-coast-brunch-date-night.mjs
@@ -336,6 +339,16 @@ node scripts/check-score-law.mjs
 node scripts/check-trend-signal.mjs
 node scripts/check-version-watch.mjs
 node scripts/check-partner-hook-collisions.mjs
+# 2026-08-19 — one founder-verified Shell Key clear-kayak pin. Asserts the
+# CALL (placePartnerPick + commerceHref + resolveOffer), not a substring:
+# exact SKU 173028P1, tracked hop only, never raw viator.com, never
+# searchResults, never the scallop HOLD-SKU, rank unchanged.
+node scripts/test-shell-key-clear-kayak-pin.mjs
+# 2026-08-20 — cash-register factory + batch 1. Inventory existing cards,
+# never invent a place, never raw viator.com, never searchResults, never a
+# reminted click_id, never a rank change. ASSERT ON THE CALL.
+node scripts/test-cash-register-factory.mjs
+node scripts/test-cash-register-batch-2026-08-20.mjs
 node scripts/check-top40-rail.mjs
 node scripts/test-home-rails-render-smoke.mjs
 # The reader's storage budget. A cache may never cost them a preference —
@@ -379,6 +392,10 @@ node scripts/check-venue-timezone.mjs
 # — PROMOTE_METROS in JS and wf_promote_metros in Postgres — and drift between
 # them burns Place Details calls on places the worker will then reject.
 node scripts/check-promote-metros-parity.mjs
+# In-box never-queued enqueue: OFF by default, budget-gated, no Google.
+# Category placement from existing type/name signals only (empty types[]
+# reuses primary_type; a stored list name is never a type).
+node scripts/test-promote-backfill.mjs
 # A present-but-RETIRED Supabase key passes every other check and 401s at
 # runtime. Legacy anon/service_role keys were disabled on this project 2026-07-16.
 node scripts/check-supabase-key-live.mjs
@@ -419,6 +436,7 @@ node scripts/check-rail-routes.mjs
 node scripts/test-rail-select.mjs
 node scripts/test-summer-universe.mjs
 node scripts/test-birthday-universe.mjs
+node scripts/test-birthday-nearby.mjs
 node scripts/check-market-photo-honesty.mjs
 node scripts/test-location-context.mjs
 
@@ -445,3 +463,12 @@ node scripts/test-place-card-layout.mjs
 # Activities submenu), and place-matched deals show the exact Wayfind score
 # their rank used — never an invented one, never none when we have it.
 node scripts/check-rail-scroll-reset.mjs
+# v8.24 — the Date night experience pill is EXECUTED against fixtures: real
+# restaurant identity + price/room evidence + 4.4 floor, with negative
+# controls (counter-serve, no-room $$, non-restaurant, sub-floor) so the tag
+# diversifies cards without becoming decoration.
+node scripts/test-datenight-tag.mjs
+# v8.24 — owner-banned art stays banned: the asset absent from public/ AND
+# unreferenced by any non-comment source line, with a positive control so an
+# empty scan can never read as clean. Bans are additive-only.
+node scripts/check-banned-art.mjs
