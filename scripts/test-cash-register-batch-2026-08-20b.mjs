@@ -9,6 +9,7 @@
 //   Tampa Riverwalk         236733P1  dest 666    H1: 2 Person Mini Power Boat Rental at Tampa Riverwalk
 //   Blue Spring State Park  431125P5  dest 25790  H1: St. Johns River Cruise - Blue Spring State Park
 //   Little Toot Dolphin Adventure  179637P1  dest 22457  H1: Little Toot Dolphin Adventure at Clearwater Beach
+//   Keys Huka Dive                 5608638P1 dest 276    H1: Shark Tooth Snorkeling Adventure and Huka Dive in Venice Florida
 //
 // TreeUmph! Adventure Course is EMPTY-SLOT. Owner-confirmed 2026-08-20:
 // live d25738-22211P1 H1 is "Sorry, this product is unavailable". Do not
@@ -62,9 +63,17 @@ const BATCH = [
     destId: "22457",
     h1: "Little Toot Dolphin Adventure at Clearwater Beach",
   },
+  {
+    name: "Keys Huka Dive",
+    sku: "5608638P1",
+    destId: "276",
+    h1: "Shark Tooth Snorkeling Adventure and Huka Dive in Venice Florida",
+    // H1 names Huka + Venice, not the full "Keys Huka Dive" phrase.
+    named: "place-tokens",
+  },
 ];
 
-ok(BATCH.length === 4, `batch 2 table is the verified hops (got ${BATCH.length}) — an empty table makes every assertion below vacuous`);
+ok(BATCH.length === 5, `batch 2 table is the verified hops (got ${BATCH.length}) — an empty table makes every assertion below vacuous`);
 
 ok(placePartnerPick({ name: "Shell Key Preserve" })?.offerId === SHELL_SKU,
   "Shell Key keeps 173028P1 — this batch did not steal the founder pin");
@@ -100,9 +109,33 @@ ok(placePartnerPick({ name: "TreeUmph! Adventure Course" }) === null,
   "TreeUmph is empty-slot — 22211P1 live H1 is product unavailable");
 ok(placePartnerPick({ name: "TreeUmph Adventure Course" }) === null,
   "TreeUmph alias without bang is also empty — do not replace with a similar SKU");
+ok(placePartnerPick({ name: "Venice Beach" }) === null,
+  "Venice Beach stays empty — Huka H1 names Venice Florida, not the Venice Beach card");
+ok(placePartnerPick({ name: "Nokomis Public Beach" }) === null,
+  "Nokomis Public Beach stays empty — Keys Huka Dive is the named operator");
+ok(placePartnerPick({ name: "Sunken Gardens" }) === null,
+  "Sunken Gardens stays empty — no admission product");
+ok(placePartnerPick({ name: "Chihuly Collection" }) === null
+  && placePartnerPick({ name: "Chihuly" }) === null,
+  "Chihuly stays empty — Seattle glass, not a Florida hop");
+ok(placePartnerPick({ name: "Warm Mineral Springs" }) === null,
+  "Warm Mineral Springs stays empty");
+ok(placePartnerPick({ name: "Greenbrook" }) === null
+  && placePartnerPick({ name: "Greenbrook Adventure Golf" }) === null,
+  "Greenbrook stays empty");
+ok(placePartnerPick({ name: "Bridge Street Pier" }) === null
+  && placePartnerPick({ name: "Historic Bridge Street Pier" }) === null,
+  "Bridge Street Pier stays empty");
+ok(placePartnerPick({ name: "John Pennekamp Coral Reef State Park" })?.offerId !== "5608638P1",
+  "Huka Venice SKU is not pinned on the Keys reef park");
+ok(placePartnerPick({ name: "Keys Huka Dive" })?.offerId === "5608638P1",
+  "Keys Huka Dive is pinned to the Venice Huka product");
+ok(BATCH.find((r) => r.name === "Keys Huka Dive")?.destId === "276",
+  "Keys Huka dest is Florida 276, not a Keys-reef destination");
 
 for (const row of BATCH) {
-  ok(pageNamesPlace(row.h1, row.name) === "place",
+  const expectedNamed = row.named || "place";
+  ok(pageNamesPlace(row.h1, row.name) === expectedNamed,
     `live H1 still names ${row.name} (got ${pageNamesPlace(row.h1, row.name)})`);
   ok(pageNamesPlace("Sunset cruise somewhere else", row.name) === false,
     `a title that does not name ${row.name} is rejected — the H1 probe can fail`);
@@ -152,6 +185,12 @@ ok(placePartnerPick({ name: "Clearwater Beach" }) === null,
   "naming Clearwater Beach in the H1 does not attach the operator SKU to a beach card");
 ok(pageNamesPlace("2 Person Mini Power Boat Rental at Tampa Riverwalk", "Bayshore Boulevard") === false,
   "Riverwalk mini-boat H1 does not name Bayshore Boulevard");
+ok(pageNamesPlace("Shark Tooth Snorkeling Adventure and Huka Dive in Venice Florida", "John Pennekamp Coral Reef State Park") === false,
+  "Huka Venice H1 does not name the Keys reef park — Keys-reef fail-closed");
+ok(pageNamesPlace("Shark Tooth Snorkeling Adventure and Huka Dive in Venice Florida", "Key West") === false,
+  "Huka Venice H1 does not name Key West");
+ok(pageNamesPlace("Shark Tooth Snorkeling Adventure and Huka Dive in Venice Florida", "Keys Huka Dive", "Venice") === "place-tokens",
+  "Huka Venice H1 names Huka + Dive tokens and Venice, not a Keys-reef hop");
 
 ok(PROVIDERS.viator.table === "wf_experiences" && PROVIDERS.viator.idColumn === "product_code",
   "viator stays table-backed (wf_experiences.product_code)");
@@ -210,7 +249,7 @@ function stripComments(src) {
 const placeSrc = stripComments(readFileSync(new URL("../lib/placePartnerPicks.js", import.meta.url), "utf8"));
 ok(!/https:\/\/www\.viator\.com/i.test(placeSrc),
   "lib/placePartnerPicks.js has no raw viator.com URL — cards store the opaque offer id");
-ok(/\b386845P1\b/.test(placeSrc) && /\b236733P1\b/.test(placeSrc) && /\b431125P5\b/.test(placeSrc) && /\b179637P1\b/.test(placeSrc),
+ok(/\b386845P1\b/.test(placeSrc) && /\b236733P1\b/.test(placeSrc) && /\b431125P5\b/.test(placeSrc) && /\b179637P1\b/.test(placeSrc) && /\b5608638P1\b/.test(placeSrc),
   "positive control: batch 2 product codes are declared as placePick offer ids");
 ok(/\b173028P1\b/.test(placeSrc),
   "positive control: Shell Key product code is still declared");

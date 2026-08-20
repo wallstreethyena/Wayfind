@@ -38,6 +38,7 @@ for (const name of [
   "The Bay Park",
   "Tampa Riverwalk",
   "Blue Spring State Park",
+  "Keys Huka Dive",
 ]) {
   ok(inv.hooked.some((r) => r.name === name),
     `${name} is hooked — an existing card, not an invented one`);
@@ -50,6 +51,8 @@ ok(inv.hooked.find((r) => r.name === "Tampa Riverwalk")?.offerId === "236733P1",
   "Tampa Riverwalk stays on the mini-boat product that names the Riverwalk");
 ok(inv.hooked.find((r) => r.name === "Blue Spring State Park")?.offerId === "431125P5",
   "Blue Spring stays on the in-park St. Johns River cruise, not a ramp kayak");
+ok(inv.hooked.find((r) => r.name === "Keys Huka Dive")?.offerId === "5608638P1",
+  "Keys Huka Dive stays on the Venice Huka product, not a Keys-reef hop");
 ok(!inv.hooked.some((r) => r.name === "Clearwater Beach"),
   "Clearwater Beach is not hooked — no exact Atlas/summer/curated card, do not invent one");
 ok(!inv.hooked.some((r) => r.name === "TreeUmph! Adventure Course"),
@@ -102,6 +105,8 @@ ok(!/\| Tampa Riverwalk \|/.test(leftover),
   "leftover unmatched table does not still list Tampa Riverwalk");
 ok(!/\| Blue Spring State Park \|/.test(leftover),
   "leftover unmatched table does not still list Blue Spring — the cruise pin cleared it");
+ok(!/\| Keys Huka Dive \|/.test(leftover),
+  "leftover unmatched table does not still list Keys Huka Dive — the Venice Huka pin cleared it");
 ok(/\| Kelly Park - Rock Springs \|/.test(leftover),
   "positive control: leftover still records Kelly Park as unmatched (Kings Landing kayak refused)");
 ok(/\| TreeUmph! Adventure Course \|/.test(leftover),

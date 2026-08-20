@@ -66,6 +66,7 @@ const VIATOR_PLACE_PRODUCT_CODES = {
   "236733P1": "2 Person Mini Power Boat Rental at Tampa Riverwalk",
   "431125P5": "St. Johns River Cruise - Blue Spring State Park",
   "179637P1": "Little Toot Dolphin Adventure at Clearwater Beach",
+  "5608638P1": "Shark Tooth Snorkeling Adventure and Huka Dive in Venice Florida",
 };
 
 
