@@ -125,4 +125,44 @@ t("the metro used by the test is a real promotion metro", () => {
   assert.ok(PROMOTE_METROS.orlando, "orlando missing from PROMOTE_METROS");
 });
 
+t("null primaryType still promotes when types[] carry a real identity", () => {
+  const v = decidePromotion({
+    id: "ChIJcafe0000000000000000000",
+    displayName: { text: "Parrish Coffee" },
+    location: { latitude: 27.57, longitude: -82.43 },
+    types: ["cafe", "coffee_shop", "point_of_interest"],
+    primaryType: null,
+    rating: 4.5, userRatingCount: 210, businessStatus: "OPERATIONAL",
+  }, "manatee-sarasota", NOW);
+  assert.equal(v.action, "promote", v.error);
+  assert.equal(v.row.category, "food");
+});
+
+t("empty types[] reuses primaryType — does not guess from a stored list", () => {
+  const v = decidePromotion({
+    id: "ChIJcafe1111111111111111111",
+    displayName: { text: "Lakewood Ranch Cafe" },
+    location: { latitude: 27.39, longitude: -82.43 },
+    types: [],
+    primaryType: "cafe",
+    rating: 4.4, userRatingCount: 88, businessStatus: "OPERATIONAL",
+  }, "manatee-sarasota", NOW);
+  assert.equal(v.action, "promote", v.error);
+  assert.equal(v.row.category, "food");
+});
+
+t("a stored category string on the input is not a type signal", () => {
+  const v = decidePromotion({
+    id: "ChIJguess000000000000000000",
+    displayName: { text: "Acme Holdings LLC" },
+    location: { latitude: 27.4, longitude: -82.5 },
+    types: [],
+    primaryType: null,
+    category: "food",
+    businessStatus: "OPERATIONAL",
+  }, "manatee-sarasota", NOW);
+  assert.equal(v.action, "reject");
+  assert.match(v.error, /unclassified/i);
+});
+
 console.log(`test-promote-decision: ${n} assertions OK`);

@@ -11,7 +11,7 @@
 // An exclusion rule that is too eager is worse than the junk it removes.
 
 import fs from "node:fs";
-import { classify, isExcluded, exclusionReason, EXCLUSION } from "../lib/placeCategory.js";
+import { classify, isExcluded, exclusionReason, EXCLUSION, existingTypeSignals } from "../lib/placeCategory.js";
 
 const F = JSON.parse(fs.readFileSync(new URL("../data/atlas/fixtures-real-types.json", import.meta.url), "utf8"));
 let pass = 0, fail = 0;
@@ -102,6 +102,17 @@ for (const [name, f] of Object.entries(F)) {
   if (name.startsWith("__")) continue;
   for (const tag of classify(f).tags) t(`tag "${tag}" is a real sub-filter id (${name.slice(0, 24)})`, VOCAB.has(tag), true);
 }
+
+// ── 10. existing signals only — empty types[] reuses primaryType; never category
+t("empty types + primaryType cafe → food via primaryType", classify({ types: [], primaryType: "cafe", name: "Lakewood Ranch Cafe" }).category, "food");
+t("empty types + primaryType cafe via=primaryType", classify({ types: [], primaryType: "cafe", name: "Lakewood Ranch Cafe" }).via, "primaryType");
+t("null primaryType + types cafe → food via types", classify({ types: ["cafe", "point_of_interest"], primaryType: null, name: "Parrish Coffee" }).category, "food");
+t("null primaryType + types cafe via=types", classify({ types: ["cafe", "point_of_interest"], primaryType: null, name: "Parrish Coffee" }).via, "types");
+t("a category field is NOT a type signal", classify({ types: [], primaryType: null, name: "Acme Holdings LLC", category: "food" }).category, null);
+t("existingTypeSignals reuses primary_type when google_types is []", existingTypeSignals({ google_types: [], primary_type: "cafe" }), ["cafe"]);
+t("existingTypeSignals prefers a non-empty types[] over primary", existingTypeSignals({ types: ["museum"], primaryType: "cafe" }), ["museum"]);
+t("existingTypeSignals never invents from category", existingTypeSignals({ category: "food", name: "Acme" }), []);
+t("empty types + primaryType beach lands on the beach list", classify({ types: [], primaryType: "beach", name: "Siesta Key" }).category, "beach");
 
 console.log(`test-classify: ${pass} passed, ${fail} failed`);
 if (fail) { console.error("\nFAILURES:\n" + failures.join("\n")); process.exit(1); }

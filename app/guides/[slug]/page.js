@@ -29,6 +29,7 @@ import { siteTodayStr } from "../../../lib/siteTime";
 // The moat was invisible to search and absent from the pages search can see.
 import { nowContext } from "../../../lib/nowContext";
 import { guidePicksForNow, guideNowHeadline, guideNowExplainer, guideWeather, indoorSiblingFor, indoorFromInventory, regionCity } from "../../../lib/guideNow";
+import { existingTypeSignals } from "../../../lib/placeCategory";
 
 /**
  * Rating + review count for a place from OUR OWN inventory.
@@ -127,7 +128,7 @@ async function inventoryPlaceByStem(stem, near) {
         lat: row.lat,
         lng: row.lng,
         photoRef: row.photo_ref || null,
-        types: Array.isArray(row.google_types) ? row.google_types : (row.primary_type ? [row.primary_type] : []),
+        types: existingTypeSignals(row),
         primary_type: row.primary_type || null,
       };
     }
@@ -171,7 +172,7 @@ async function inventoryPlace(pick, near) {
               return {
                 id: row.place_id, name: row.name, rating, reviews,
                 lat: row.lat, lng: row.lng, photoRef: row.photo_ref || null,
-                types: Array.isArray(row.google_types) ? row.google_types : (row.primary_type ? [row.primary_type] : []),
+                types: existingTypeSignals(row),
                 primary_type: row.primary_type || null,
               };
             }
