@@ -43,6 +43,23 @@ const ok = (c, m) => { checks++; if (!c) { bad++; console.error("check-card-acti
 // happens to contain "//" is not a hazard this guard is trying to catch.
 const strip = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 
+// THE FIRST "/>" IS NOT THE END OF THE ELEMENT. This guard used
+// src.indexOf("/>", i), and a card whose `badge` prop contains
+// `<TrendReason r={p} />` ended its slice there — so every prop after the
+// badge (including the handlers this guard exists to check) was invisible and
+// four correctly-wired sites reported as broken. Depth-count instead.
+function jsxElement(src, i) {
+  let depth = 0;
+  for (let k = i + 1; k < src.length && k < i + 20000; k++) {
+    if (src[k] === "<") depth++;
+    else if (src[k] === "/" && src[k + 1] === ">") {
+      if (depth === 0) return src.slice(i, k + 2);
+      depth--; k++;
+    }
+  }
+  return src.slice(i, i + 4000);
+}
+
 const walk = (dir) => readdirSync(dir).flatMap((n) => {
   const p = join(dir, n); const s = statSync(p);
   if (s.isDirectory()) return n === "node_modules" || n === ".next" ? [] : walk(p);
@@ -132,9 +149,7 @@ for (const abs of walk(join(ROOT, "app"))) {
     const i = src.indexOf("<IconicPlaceCard", at);
     if (i < 0) break;
     at = i + 1;
-    const end = src.indexOf("/>", i);
-    if (end < 0) continue;
-    const el = src.slice(i, end);
+    const el = jsxElement(src, i);
     sites++;
     for (const [state, handler] of [["liked", "onLike"], ["disliked", "onDislike"], ["saved", "onSave"]]) {
       if (new RegExp("\\b" + state + "\\s*=").test(el)) {
@@ -146,5 +161,75 @@ for (const abs of walk(join(ROOT, "app"))) {
 }
 ok(sites > 0, "found no place-card render sites at all — this guard has lost its subject");
 
+// ---------------------------------------------------------------------------
+// 5. THE OTHER CARD. RailCard's thumbs were worse than a navigation: they
+// rendered as live <button>s whose onClick was `if (onLike) onLike(e)`, so a
+// caller that wired nothing shipped a control that swallowed the tap in
+// silence. Owner, 2026-08-20: "this button for the likes still not working
+// under the exploding trends near you" — DaypartRail rendered <ExplodingNearby>
+// with isSaved and onSave and nothing else.
+//
+// TWO RULES, and neither is a list:
+//   (a) RailCard carries the same fallback the place card does.
+//   (b) NO CARD-ACTION WRAPPER MAY SWALLOW. `onLike={(e) => { if (onLike)
+//       onLike(e, place) }}` is always a function, so the card cannot tell a
+//       wired caller from an unwired one. The honest value is undefined —
+//       `onLike={onLike ? (e) => onLike(e, place) : undefined}` — because that
+//       is what lets the card's own fallback run.
+const RAIL = "app/components/RailCard.js";
+const railSrc = readFileSync(join(ROOT, RAIL), "utf8");
+ok(/from "\.\.\/\.\.\/lib\/cardActions"/.test(railSrc), `${RAIL}: does not import the fallback store — an unwired rail card is a button that does nothing`);
+for (const a of ["Save", "Like", "Dislike"]) {
+  ok(new RegExp("const\\s+do" + a + "\\s*=\\s*on" + a + "\\s*\\|\\|\\s*\\(\\s*useFb\\s*\\?").test(railSrc),
+    `${RAIL}: do${a} must be \`on${a} || (useFb ? <fallback> : null)\``);
+  ok(new RegExp("disabled=\\{!do" + a + "\\}").test(railSrc),
+    `${RAIL}: the ${a} control must render disabled when it has no handler at all — a live button over a no-op is the bug this guard exists for`);
+}
+
+let swallowers = 0;
+for (const abs of walk(join(ROOT, "app"))) {
+  const rel = relative(ROOT, abs).replace(/\\/g, "/");
+  if (rel === RAIL || rel === CARD) continue;
+  const src = strip(readFileSync(abs, "utf8"));
+  const re = /on(Save|Like|Dislike)=\{\s*\((?:e)?\)\s*=>\s*\{\s*if\s*\(on\1\)/g;
+  let m;
+  while ((m = re.exec(src))) {
+    swallowers++;
+    ok(false, `${rel}: on${m[1]} is wrapped as \`(e) => { if (on${m[1]}) ... }\`, which is ALWAYS a function. The card cannot tell it is dead and renders a live control over a no-op. Write \`on${m[1]}={on${m[1]} ? (e) => on${m[1]}(...) : undefined}\`.`);
+  }
+}
+
+// A control the card cannot service must not render at all. A tour card has
+// no place row and no handlers; it used to draw four live buttons over four
+// no-ops.
+ok(/\{\(doSave \|\| doLike \|\| doDislike \|\| onShare\) \?/.test(railSrc),
+  `${RAIL}: the action row must be gated on having at least one usable control, or a card with no handlers still draws buttons that do nothing`);
+ok(/\{onShare \? \(/.test(railSrc), `${RAIL}: Share must render only when a share handler exists`);
+
+let railSites = 0;
+for (const abs of walk(join(ROOT, "app"))) {
+  const rel = relative(ROOT, abs).replace(/\\/g, "/");
+  if (rel === RAIL) continue;
+  const src = readFileSync(abs, "utf8");
+  let at = 0;
+  for (;;) {
+    const i = src.indexOf("<RailCard", at);
+    if (i < 0) break;
+    at = i + 1;
+    const el = jsxElement(src, i);
+    railSites++;
+    // Same rule as the place card: a card told what its state IS must be told
+    // how to CHANGE it — either the handler, or the row so it can use the
+    // shared store.
+    for (const [state, handler] of [["liked", "onLike"], ["disliked", "onDislike"], ["saved", "onSave"]]) {
+      if (new RegExp("\\b" + state + "\\s*=").test(el)) {
+        ok(new RegExp("\\b" + handler + "\\s*=").test(el) || /\bplace\s*=/.test(el),
+          `${rel}: a rail card is passed ${state}= with no ${handler}= and no \`place\` row. It would paint a state it cannot change.`);
+      }
+    }
+  }
+}
+ok(railSites > 0, "found no rail-card render sites — this half of the guard has lost its subject");
+
 if (bad) { console.error(`check-card-actions: ${bad} failure(s)`); process.exit(1); }
-console.log(`check-card-actions: OK — ${checks} assertions (${sites} card surfaces, actions: ${ACTIONS.join(", ")})`);
+console.log(`check-card-actions: OK — ${checks} assertions (${sites} place-card surfaces, ${railSites} rail-card surfaces, actions: ${ACTIONS.join(", ")})`);

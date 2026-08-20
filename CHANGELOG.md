@@ -1,3 +1,33 @@
+## v8.29.2 - A thumb that does nothing is worse than one that navigates
+- Owner, 2026-08-20, after v8.29 shipped: "this button for the likes still not
+  working under the exploding trends near you."
+- A DIFFERENT FAILURE FROM v8.29, on a different card. IconicPlaceCard's bug was a
+  LINK dressed as a button. RailCard's was a live <button> over a NO-OP:
+  `onClick={... if (onLike) onLike(e)}` renders and presses perfectly when the
+  caller passed no handler, and simply swallows the tap. DaypartRail renders
+  <ExplodingNearby> - the trending drop - with isSaved and onSave and nothing
+  else, so every thumb in it was dead.
+- IT COULD NOT EVEN BE DETECTED. Four callers wrapped their own optional prop as
+  `onLike={(e) => { if (onLike) onLike(e, place); }}`, which is ALWAYS a function.
+  The card could not tell a wired caller from an unwired one. Those wrappers are
+  now conditional - `onLike={onLike ? (e) => onLike(e, place) : undefined}` -
+  because undefined is the honest value and it is what lets a fallback run.
+- RailCard now carries the same hands IconicPlaceCard grew in v8.29: give it the
+  `place` row and an unwired thumb still registers a real like through
+  lib/cardActions. Where there is neither a handler nor a row - a Viator tour
+  card - the action row does not render at all instead of drawing four buttons
+  that do nothing.
+- DaypartRail also wires the trending drop properly (isLiked / isDisliked /
+  onLike / onDislike), so those cards use the home shell's own state like every
+  other card in the drop.
+- GUARD. check-card-actions.mjs gains three rules: RailCard must import the
+  fallback and resolve doSave/doLike/doDislike; no card-action wrapper anywhere
+  may swallow; and the action row must be gated on having a usable control. It
+  also had a real bug of its own - it sliced each element at the first "/>",
+  so a card whose `badge` prop contained `<TrendReason r={p} />` hid every prop
+  after it. Four correctly-wired sites were invisible to it. Depth-counted now.
+- 378/378 guards green.
+
 ## v8.29.1 - The ticket is a ticket, and the share chip stops borrowing its contrast from the artwork
 - Owner, 2026-08-20: "i asked multiple times so change the typography and display
   the tickets from viator on the place cards we need to make it look premium and

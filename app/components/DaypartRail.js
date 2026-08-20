@@ -665,6 +665,16 @@ export default function DaypartRail({
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
               onSave={onSave || undefined}
+              // v8.29.2 (owner: "this button for the likes still not working
+              // under the exploding trends near you"). This block passed
+              // isSaved and onSave and NOTHING else, so every thumb inside the
+              // trending drop was a live button over a no-op. The place cards
+              // below it have had these since v8.28; the trend cards now get
+              // the same home-shell state, from the same props.
+              isLiked={isLiked || undefined}
+              isDisliked={isDisliked || undefined}
+              onLike={onLike || undefined}
+              onDislike={onDislike || undefined}
             />
           ) : null}
           {selRail && selRail.guides ? (

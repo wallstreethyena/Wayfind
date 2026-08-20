@@ -1111,6 +1111,7 @@ export default function BestNearby({
                     } : null}
                     take={toHookLine(hooks[p.place_id], p.name)}
                     ariaLabel={"Open " + p.name}
+                    place={{ id: p.place_id || p.id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating, reviews: p.reviews, photo: cardPhoto(p, 640) }}
                     onOpen={() => { try { onLog && onLog("best_nearby_detail", { id: p.place_id, name: p.name }, { rail: "top40", pos: i + 1 }); } catch (e) {} openPlace(p); }}
                     onShare={() => { try { onLog && onLog("share", null, { id: p.place_id, kind: "top40_card" }); } catch (e) {} }}
                   />
@@ -1227,9 +1228,10 @@ export default function BestNearby({
                             liked={!!(liked && liked[p.place_id])}
                             disliked={!!(disliked && disliked[p.place_id])}
                             onOpen={() => openPlace({ id: p.place_id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating, reviews: p.reviews, photo: cardPhoto(p, 640) })}
-                            onSave={(e) => { if (onSave) onSave(e, { id: p.place_id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating, reviews: p.reviews, photo: cardPhoto(p, 640) }); }}
-                            onLike={(e) => { if (onLike) onLike(e, { id: p.place_id, name: p.name, rating: p.rating, reviews: p.reviews }); }}
-                            onDislike={(e) => { if (onDislike) onDislike(e, { id: p.place_id, name: p.name, rating: p.rating, reviews: p.reviews }); }}
+                            place={{ id: p.place_id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating, reviews: p.reviews, photo: cardPhoto(p, 640) }}
+                            onSave={onSave ? (e) => onSave(e, { id: p.place_id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating, reviews: p.reviews, photo: cardPhoto(p, 640) }) : undefined}
+                            onLike={onLike ? (e) => onLike(e, { id: p.place_id, name: p.name, rating: p.rating, reviews: p.reviews }) : undefined}
+                            onDislike={onDislike ? (e) => onDislike(e, { id: p.place_id, name: p.name, rating: p.rating, reviews: p.reviews }) : undefined}
                             onShare={() => { if (onShare) onShare({ id: p.place_id, name: p.name }); }}
                           />
                           );
@@ -1260,13 +1262,14 @@ export default function BestNearby({
                               isFinite(r.distance_mi) ? (r.distance_mi < 10 ? r.distance_mi.toFixed(1) : Math.round(r.distance_mi)) + " mi" : null,
                             ].filter(Boolean)}
                             ariaLabel={"Open " + r.title}
+                            place={{ id: r.id, name: r.title, rating: r.rating, reviews: r.reviews, photo: cardPhoto(r, 640) }}
                             saved={!!(isSaved && isSaved({ id: r.id }))}
                             liked={!!(liked && liked[r.id])}
                             disliked={!!(disliked && disliked[r.id])}
                             onOpen={() => openPlace({ id: r.id, name: r.title, category: r.category, rating: r.rating, reviews: r.reviews, photo: cardPhoto(r, 640) })}
-                            onSave={(e) => { if (onSave) onSave(e, { id: r.id, name: r.title, rating: r.rating, reviews: r.reviews, photo: cardPhoto(r, 640) }); }}
-                            onLike={(e) => { if (onLike) onLike(e, { id: r.id, name: r.title, rating: r.rating, reviews: r.reviews }); }}
-                            onDislike={(e) => { if (onDislike) onDislike(e, { id: r.id, name: r.title, rating: r.rating, reviews: r.reviews }); }}
+                            onSave={onSave ? (e) => onSave(e, { id: r.id, name: r.title, rating: r.rating, reviews: r.reviews, photo: cardPhoto(r, 640) }) : undefined}
+                            onLike={onLike ? (e) => onLike(e, { id: r.id, name: r.title, rating: r.rating, reviews: r.reviews }) : undefined}
+                            onDislike={onDislike ? (e) => onDislike(e, { id: r.id, name: r.title, rating: r.rating, reviews: r.reviews }) : undefined}
                             onShare={() => { if (onShare) onShare({ id: r.id, name: r.title }); }}
                           />                        ))}
                     </div>
