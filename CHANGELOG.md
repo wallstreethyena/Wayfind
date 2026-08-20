@@ -1,3 +1,29 @@
+## v8.29.1 - The ticket is a ticket, and the share chip stops borrowing its contrast from the artwork
+- Owner, 2026-08-20: "i asked multiple times so change the typography and display
+  the tickets from viator on the place cards we need to make it look premium and
+  fancy not ghetto like this."
+- THE TICKET. The one element on a place card that earns revenue shipped as a bare
+  <a> with a single inline colour, sitting in a lane of designed chips - so the eye
+  read it as leftover text. It is a ticket now, by TYPOGRAPHY rather than
+  decoration: a stamped 9.5px/800 letterspaced "TICKETS" against the merchant at
+  11px/700 in the reading colour, split by a perforated rule, on an amber glass
+  chip with a lit top edge. The emoji is gone - a drawn glyph, because the one
+  monetised control on the card should not be the one whose artwork the platform
+  picks. Href, click-id mint, commerce event, aria/title disclosure and
+  rel="sponsored noopener" are untouched; this is styling only.
+- THE SHARE CHIP (owner: "the share button on the white background cannot be seen
+  ... for a white background the share button has to stand out"). It was
+  rgba(8,11,18,.52) with a .24 white hairline - fine over a dark photo, but the
+  editorial art includes cream tiles, where that fill composites to about #838589
+  and a white glyph on it is roughly 2.9:1, under the 4.5 it needs. It no longer
+  depends on what is behind it: .86 fill, a brighter .38 white ring for dark art,
+  and a 1px black outer ring so it still has an edge on cream. Same size, position,
+  blur and hover.
+- check-intent-partner-picks.mjs pinned the literal "TICKETS · {merchant} ↗" string;
+  it now asserts the disclosure CONTRACT (visible label names the merchant, full
+  aria/title disclosure, sponsored rel) instead of the punctuation.
+- 378/378 guards green, build clean at 871/871.
+
 ## v8.29 - A like is a like, on every surface, and the shell always opens on a whole page
 - Owner, 2026-08-20, three times and the last one plainly: "no matter where i go
   now everything i click the like button the same issue happens this is almost

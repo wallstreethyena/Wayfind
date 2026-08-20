@@ -190,6 +190,16 @@ const photoUrl = (p) => {
   return null;
 };
 
+// v8.29 — the ticket glyph. Drawn, not an emoji: 🎟️ is a different picture on
+// iOS, Android and Windows, and the one control on this card that earns money
+// should not be the one whose artwork the platform chooses.
+const TicketGlyph = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+    <path d="M3 8.5V6.6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v1.9a2.4 2.4 0 0 0 0 4.8v1.9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-1.9a2.4 2.4 0 0 0 0-4.8Z" />
+    <path d="M14.6 5.6v1.7M14.6 11.1v1.8M14.6 16.7v1.5" strokeDasharray="1.6 2" />
+  </svg>
+);
+
 const ThumbIcon = ({ down = false }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     {down
@@ -418,10 +428,28 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
                   if (live && event.currentTarget) event.currentTarget.href = live;
                   try { emitCommerce("commerce_cta_clicked", { surface: "iconic_place_card", provider: partner.provider, merchant: partner.merchant, offer_id: partner.offerId, content_id: place.id, click_id: clickId, disclosure_version: "partner-place-v1" }); } catch {}
                 }}
-                style={{ color: "#FDBA74", textDecoration: "none" }}
+                className="wf-ticket-pill"
               >{/* v8.22 (owner: "it doesn't have to have so many letters —
                   be more concise"). Merchant + arrow is the whole message;
-                  the title/aria keep the full disclosure. */}🎟️ Tickets · {partner.merchant} ↗</a>
+                  the title/aria keep the full disclosure.
+
+                  v8.29 (owner: "display the tickets from viator on the place
+                  cards ... make it look premium and fancy not ghetto like
+                  this"). Same words, same disclosure, same one row — but it
+                  was a bare <a> with one inline colour sitting in a lane of
+                  real chips, so the ONE monetised affordance on the card was
+                  the least designed thing on it. It is now a ticket: stamped
+                  label, perforated stub rule, merchant in the reading weight,
+                  and a drawn glyph instead of an emoji that renders as a
+                  different picture on every platform. Styling only — the href,
+                  the click-id mint, the commerce event and the rel are
+                  untouched. */}
+                <TicketGlyph />
+                <span className="wf-ticket-pill-lb">Tickets</span>
+                <span className="wf-ticket-pill-sep" aria-hidden="true" />
+                <span className="wf-ticket-pill-mr">{partner.merchant}</span>
+                <span className="wf-ticket-pill-ar" aria-hidden="true">↗</span>
+              </a>
             ) : null}
           </div>
           {/* v8.22 (owner: "indicate that the pills are scrollable — someone
