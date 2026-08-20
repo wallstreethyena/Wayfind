@@ -753,7 +753,7 @@ export default async function GuidePage({ params }) {
                 // IconicPlaceCard renders an <li>; give it a real list parent
                 // so the HTML stays valid (crawlers parse these pages raw).
                 <ul className="wf-guide-card-slot" style={{ listStyle: "none", margin: "14px 0 4px", padding: 0 }}>
-                  <GuidePlaceCard place={resolved} rank={i + 1} editorial={placeCardHook(resolved) || null} />
+                  <GuidePlaceCard place={resolved} rank={i + 1} editorial={placeCardHook(resolved, [pick.blurb, pick.tip]) || null} />
                 </ul>
               ) : null}
               <div className="wf-guide-actions">

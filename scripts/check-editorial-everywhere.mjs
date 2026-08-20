@@ -97,6 +97,17 @@ ok(isUsableCardHook("The quartz sand stays cool underfoot in August.", "Siesta B
 ok(toHookLine("The quartz sand stays cool underfoot in August.", "Siesta Beach")
    === "The quartz sand stays cool underfoot in August",
   "toHookLine still ships a real why-go");
+// Host-page THEME — owner screenshots on THE LOCAL EDIT / birthday guide.
+// Not an AMC denylist: Bundtlet, BR scoop, IHOP pancakes, popcorn. The
+// article sentence is never a card hook, on any surface.
+ok(toHookLine("The simplest offer on this page: join Bundtastic Rewards and the birthday reward is a free Bundtlet.", "Nothing Bundt Cakes") === "",
+  "Nothing Bundt article sentence is not a card hook");
+ok(toHookLine("The BR app drops your birthday coupon into your account on your birthday.", "Baskin-Robbins") === "",
+  "Baskin-Robbins article sentence is not a card hook");
+ok(toHookLine("The International Bank of Pancakes lists free birthday pancakes as a member perk, no purchase requirement stated.", "IHOP") === "",
+  "IHOP article sentence is not a card hook — pancakes plural must not leak");
+ok(toHookLine("AMC Stubs Insider — the free tier — gives you a free large popcorn for your birthday.", "AMC Bradenton 20") === "",
+  "AMC popcorn article sentence is not a card hook");
 
 // ── 2. no second copy of the compressor may exist ───────────────────────────
 // Nine surfaces sharing one implementation was the whole point; a re-copied
@@ -121,6 +132,7 @@ const SURFACES = [
   ["app/components/TrendingNowClient.js", "toHookLine", "/trending"],
   ["app/components/DaypartRail.js", "toHookLine", "the homepage rail drop — IconicPlaceCard take"],
   ["app/components/IntentRail.js", "toHookLine", "Tonight's Move / hidden gems / worth-the-drive / budget rails"],
+  ["app/components/IconicPlaceCard.js", "toHookLine", "the canonical place card — global lock so a leaked host-page sentence cannot paint"],
 ];
 for (const [f, fn, what] of SURFACES) {
   const src = code(f);

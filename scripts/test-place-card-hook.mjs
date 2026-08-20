@@ -3,13 +3,16 @@
  * test-place-card-hook — place-card editorial is the place's sourced why-go.
  *
  * THE BUG (owner, 2026-08-20, live gowayfind.com birthday / THE LOCAL EDIT):
- * AMC Bradenton 20's card repeated the article's popcorn deal sentence.
- * Occasion surfaces had been passing pick.blurb / birthdayWhy / summerWhy
- * into IconicPlaceCard's editorial slot.
+ * AMC Bradenton 20, Nothing Bundt Cakes, and Baskin-Robbins cards repeated
+ * the article (popcorn / Bundtlet / birthday coupon). Occasion surfaces had
+ * been passing pick.blurb / birthdayWhy / summerWhy into IconicPlaceCard's
+ * editorial slot, and the card painted the raw prop.
  *
  * THE LAW: the card hook is Atlas knownFor/whyGo / wf_editorial / curated
- * only. Deal copy stays in the article. No sourced why → empty slot.
- * Never invent. Never fill with deal copy, "local favorite", or stars.
+ * only. Deal/theme copy stays in the article. No sourced why → empty slot.
+ * Never invent. Never fill with the blog sentence. Global — every surface
+ * that renders a place card, not an AMC denylist. IconicPlaceCard runs
+ * toHookLine on `editorial` so a leaked host-page sentence cannot paint.
  *
  * ASSERTED ON THE CALL (AGENTS.md / CLAUDE.md): placeCardHook is imported
  * and executed against the AMC deal string and a real Atlas whyGo. A regex
@@ -17,8 +20,11 @@
  */
 import { readFileSync } from "fs";
 import { GUIDES } from "../lib/guides.js";
-import { toHookLine, isUsableCardHook } from "../lib/editorialHook.js";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { toHookLine, isUsableCardHook, hostThemeOverlaps } from "../lib/editorialHook.js";
 import { placeCardHook, sourcedRankingWhy, sourcedWhyText } from "../lib/rankingWhy.js";
+import { loadComponent } from "./lib/jsxLoad.mjs";
 
 let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
@@ -82,14 +88,52 @@ ok(!/popcorn|Stubs Insider/i.test(siestaStuffed),
 ok(siestaStuffed === toHookLine(sourcedWhyText({ id: SIESTA_ID, name: "Siesta Beach" }), "Siesta Beach"),
   "Siesta hook is the compressed Atlas whyGo — same compressor the card uses");
 
-// Nothing Bundt — same empty-slot law, no invented dessert copy.
+// Nothing Bundt + Baskin-Robbins — owner screenshots, 2026-08-20. Same
+// empty-slot law as AMC. Do not special-case one bakery.
 const bundtPick = (birthday.picks || []).find((p) => /Nothing Bundt/i.test(p.name || ""));
-ok(bundtPick && /Bundtlet/i.test(bundtPick.blurb || ""),
+ok(bundtPick && /Bundtlet/i.test(bundtPick.blurb || "") && /on this page/i.test(bundtPick.blurb || ""),
   "control: Nothing Bundt deal copy still lives in the article");
+ok(toHookLine(bundtPick.blurb, "Nothing Bundt Cakes") === "",
+  "toHookLine blanks the Bundtlet article sentence — not a place why-go");
 ok(placeCardHook({
   id: bundtPick.placeId, name: "Nothing Bundt Cakes", blurb: bundtPick.blurb, birthdayWhy: bundtPick.blurb,
 }) === "",
   "Nothing Bundt with only the Bundtlet promo → empty card hook (do not invent a why)");
+ok(placeCardHook({ id: bundtPick.placeId, name: "Nothing Bundt Cakes" }, bundtPick.blurb) === "",
+  "Nothing Bundt sourced hook + host article → still empty (no Atlas why to inherit)");
+
+const brPick = (birthday.picks || []).find((p) => /Baskin-Robbins/i.test(p.name || ""));
+ok(brPick && /birthday coupon/i.test(brPick.blurb || ""),
+  "control: Baskin-Robbins deal copy still lives in the article");
+ok(toHookLine(brPick.blurb, "Baskin-Robbins") === "",
+  "toHookLine blanks the BR birthday-coupon article sentence");
+ok(placeCardHook({
+  id: brPick.placeId, name: "Baskin-Robbins", blurb: brPick.blurb, birthdayWhy: brPick.blurb,
+}) === "",
+  "Baskin-Robbins with only the coupon sentence → empty card hook");
+ok(hostThemeOverlaps(String(brPick.blurb).slice(0, 80), brPick.blurb) === true,
+  "hostThemeOverlaps: a card hook that is a slice of the article is inherited theme");
+
+// EVERY birthday pick — not an AMC/Bundt denylist. Article blurb is never
+// the card hook. Stuffing it onto the place object cannot change the hook.
+ok(birthday.picks.length >= 20, "birthday guide still has the full pick set — a short walk is not the claim");
+let birthdayWalk = 0;
+for (const pick of birthday.picks) {
+  const name = String(pick.name || "").split(":")[0].trim();
+  ok(toHookLine(pick.blurb, name) === "",
+    `${name}: article blurb is not a usable card hook`);
+  const sourced = placeCardHook({ id: pick.placeId, name });
+  const stuffed = placeCardHook({
+    id: pick.placeId, name, blurb: pick.blurb, birthdayWhy: pick.blurb, pickReason: pick.blurb, summerWhy: pick.blurb,
+  }, [pick.blurb, pick.tip]);
+  ok(stuffed === sourced,
+    `${name}: stuffing article/occasion fields does not change the card hook`);
+  ok(!hostThemeOverlaps(stuffed, pick.blurb),
+    `${name}: card hook is not a slice of the article`);
+  birthdayWalk++;
+}
+ok(birthdayWalk === birthday.picks.length,
+  `birthday walk ran ${birthdayWalk} times against ${birthday.picks.length} picks — a loop that ran 0 is not a walk`);
 
 // ── Atlas junk knownFor is not a hook (Tonight's Move / Oar & Iron) ────────
 const OAR_ID = "ChIJZW-6RgAjw4gRDVp3TtAFsaM";
@@ -116,8 +160,8 @@ const guidePage = read("app/guides/[slug]/page.js");
 const guideCode = code("app/guides/[slug]/page.js");
 ok(/import\s*\{[^}]*\bplaceCardHook\b[^}]*\}\s*from\s*["'][^"']*rankingWhy/.test(guideCode),
   "guide page imports placeCardHook from rankingWhy");
-ok(/editorial=\{placeCardHook\(resolved\)\s*\|\|\s*null\}/.test(guideCode),
-  "guide page CALLS placeCardHook(resolved) as the card editorial");
+ok(/editorial=\{placeCardHook\(resolved,\s*\[pick\.blurb,\s*pick\.tip\]\)\s*\|\|\s*null\}/.test(guideCode),
+  "guide page CALLS placeCardHook(resolved, [pick.blurb, pick.tip]) — sourced why, blanked if it is the article");
 ok(!/editorial=\{pick\.blurb/.test(guideCode),
   "guide page does not pass pick.blurb as the card editorial");
 ok(/<p style=\{S\.p\}>\{pick\.blurb\}<\/p>/.test(guideCode),
@@ -139,8 +183,61 @@ ok(typeof placeCardHook(null) === "string" && placeCardHook(null) === "",
 ok(placeCardHook({}) === "",
   "placeCardHook on an empty place is empty — never filler");
 
+// ── IconicPlaceCard is the global lock (every surface that renders a card) ─
+const iconicCode = code("app/components/IconicPlaceCard.js");
+ok(/import\s*\{[^}]*\btoHookLine\b[^}]*\}\s*from\s*["'][^"']*editorialHook/.test(iconicCode),
+  "IconicPlaceCard imports toHookLine from editorialHook");
+ok(/toHookLine\(editorial, place\.name\)/.test(iconicCode),
+  "IconicPlaceCard CALLS toHookLine(editorial, place.name) — a leaked pick.blurb cannot paint");
+ok(/\{take \? \(/.test(iconicCode) || /take \? \(/.test(iconicCode),
+  "IconicPlaceCard renders the filtered take, not the raw editorial prop");
+ok(!/wf-place-card-take\}>\{editorial\}/.test(iconicCode) && !/wf-place-card-take">\{editorial\}/.test(iconicCode),
+  "IconicPlaceCard does not render raw {editorial} into the take slot");
+
+const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
+const React = (await import("react")).default;
+const { renderToStaticMarkup } = await import("react-dom/server");
+const cardMod = await loadComponent(path.join(ROOT, "app/components/IconicPlaceCard.js"), ROOT);
+const Card = cardMod.default;
+const fixture = (name, id) => ({
+  id, name, rating: 4.5, reviews: 200, types: ["bakery"],
+  governed_score: 80, lat: 27.4, lng: -82.5,
+});
+const bundtHtml = renderToStaticMarkup(React.createElement(Card, {
+  place: fixture("Nothing Bundt Cakes", bundtPick.placeId),
+  rank: 4,
+  href: "/p/x",
+  editorial: bundtPick.blurb,
+}));
+ok(bundtHtml.includes("wf-place-card"),
+  "positive: IconicPlaceCard rendered (a miss must not read as a blank take)");
+ok(!/Bundtlet|Bundtastic|on this page/i.test(bundtHtml),
+  "RENDER: Nothing Bundt card with editorial={article blurb} does not paint the Bundtlet sentence");
+ok(!bundtHtml.includes("wf-place-card-take") || !/simplest offer/i.test(bundtHtml),
+  "RENDER: Bundt take slot does not carry the host-page offer");
+
+const brHtml = renderToStaticMarkup(React.createElement(Card, {
+  place: fixture("Baskin-Robbins", brPick.placeId),
+  rank: 5,
+  href: "/p/y",
+  editorial: brPick.blurb,
+}));
+ok(brHtml.includes("wf-place-card"),
+  "positive: Baskin-Robbins IconicPlaceCard rendered");
+ok(!/birthday coupon|BR app drops/i.test(brHtml),
+  "RENDER: Baskin-Robbins card with editorial={article blurb} does not paint the coupon sentence");
+
+const siestaHtml = renderToStaticMarkup(React.createElement(Card, {
+  place: { ...fixture("Siesta Beach", SIESTA_ID), types: ["beach"] },
+  rank: 1,
+  href: "/p/z",
+  editorial: siestaClean,
+}));
+ok(/quartz|sand|cool/i.test(siestaHtml) && siestaHtml.includes("wf-place-card-take"),
+  "RENDER positive: a real why-go still paints on IconicPlaceCard — the lock must not blank correct copy");
+
 if (failn) {
   console.error(`test-place-card-hook: FAIL — ${failn}/${n} assertions`);
   process.exit(1);
 }
-console.log(`test-place-card-hook: OK — ${n} assertions (placeCardHook CALLED on AMC deal + stuffed Siesta why; guide/rail call sites locked; article keeps the promo)`);
+console.log(`test-place-card-hook: OK — ${n} assertions (placeCardHook CALLED on AMC/Bundt/BR + every birthday pick; IconicPlaceCard RENDERED against article blurbs; guide/rail call sites locked)`);

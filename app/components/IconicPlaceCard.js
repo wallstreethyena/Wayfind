@@ -18,6 +18,7 @@ import { directionsHref } from "../../lib/directions.js";
 import { useEffect, useRef, useState } from "react";
 import { useMarketPhotoFallback, marketPhotoQuery } from "./marketPhoto.js";
 import { hasPlacePhotoRef } from "../../lib/placePhoto.js";
+import { toHookLine } from "../../lib/editorialHook.js";
 
 // ---------------------------------------------------------------------------
 // Experience-tag chips (owner: "I need the cards to look like the cards from
@@ -211,13 +212,18 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   // reviews, and it holds up.") is GONE — rating, reviews, rank, price,
   // status and distance already render above in `facts`/`award`, and
   // restating them here was the generic filler this rule exists to kill.
-  // `editorial` (a verified wf_editorial hook) still wins when present;
+  // THE CARD HOOK LAW (owner, 2026-08-20): the take is the PLACE — sourced
+  // why-go / known-for — never the host page theme (birthday deal, local-edit
+  // offer, guide occasion, rail title, pickReason, insider note). Callers
+  // still pass `editorial`; toHookLine is the global lock so a leaked
+  // pick.blurb / birthdayWhy cannot paint. Unusable → empty slot. Never invent.
   // `aiSummary` is a validated { card_line_1, card_line_2 } CARD_SUMMARY
   // (lib/editorialValidator.js already rejected anything generic, a
   // fragment, or card-data-repeating before this ever reached the client).
   // If NEITHER exists, nothing renders in this slot — no template fallback.
-  const validAiSummary = !editorial && aiSummary && typeof aiSummary === "object" && aiSummary.card_line_1 && aiSummary.card_line_2 ? aiSummary : null;
-  const hasTake = !!(editorial || validAiSummary);
+  const take = toHookLine(editorial, place.name);
+  const validAiSummary = !take && aiSummary && typeof aiSummary === "object" && aiSummary.card_line_1 && aiSummary.card_line_2 ? aiSummary : null;
+  const hasTake = !!(take || validAiSummary);
   const initials = String(place.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase();
   const actionHref = (action) => "/p/" + encodeURIComponent(place.id) + "?action=" + action;
   // v8.22 (owner: "indicate in the pills that the row is scrollable — someone
@@ -374,8 +380,8 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
               measurably overflows and the reader is not at its end. */}
           {laneMore ? <span className="wf-pill-more" aria-hidden="true">›</span> : null}
           </div>
-          {editorial ? (
-            <div className="wf-place-card-take">{editorial}</div>
+          {take ? (
+            <div className="wf-place-card-take">{take}</div>
           ) : validAiSummary ? (
             <div className="wf-place-card-take">
               <div>{validAiSummary.card_line_1}</div>
