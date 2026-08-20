@@ -46,7 +46,10 @@ import dynamic from "next/dynamic";
 // ssr:false costs nothing here: the drop renders no HTML until a card is
 // picked, so there was never any server markup to lose, and the crawlable link
 // is the tile's own href.
-const IconicPlaceCard = dynamic(() => import("./IconicPlaceCard"), { ssr: false });
+const IconicPlaceCard = dynamic(() => import("./IconicPlaceCard"), {
+  ssr: false,
+  loading: () => <PlaceCardSkeleton count={1} />,
+});
 // v8.12 — the owner's top-20 trends, back on the page (owner, 2026-08-18:
 // "the exploding trends do not have the 20 top trending items"). Mounted
 // INSIDE the trending drop only — behind a click, so it stays off the
@@ -72,6 +75,7 @@ import { railShareIntent } from "../../lib/railShare.js";
 import useEditorialHooks from "./useEditorialHooks";
 import { toHookLine } from "../../lib/editorialHook";
 import { formatBeachChipBits, waterQualityKey, WATER_TONE, WATER_PLAIN_LONG } from "../../lib/beachChip.js";
+import PlaceCardSkeleton from "./PlaceCardSkeleton";
 
 // Same drawing as the share control everywhere else in the app (app/home.js
 // HookSolo, IconicPlaceCard) so a share is one glyph in this product rather
@@ -285,6 +289,26 @@ export default function DaypartRail({
   // Which tile is currently saying "Link copied". One at a time, cleared on a
   // timer that matches the wf8Said animation — a toast that outlives its own
   // fade is a toast that looks stuck.
+  const [artReady, setArtReady] = useState({});
+  const markArtReady = useCallback((id) => {
+    if (!id) return;
+    setArtReady((prev) => (prev[id] ? prev : { ...prev, [id]: true }));
+  }, []);
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return undefined;
+    const mark = () => {
+      track.querySelectorAll("img.wf8-tim").forEach((img) => {
+        if (!(img.complete && img.naturalWidth)) return;
+        const tile = img.closest("[data-id]");
+        const id = tile && tile.getAttribute("data-id");
+        if (id) markArtReady(id);
+      });
+    };
+    mark();
+    const raf = requestAnimationFrame(mark);
+    return () => cancelAnimationFrame(raf);
+  }, [order, markArtReady]);
   const [said, setSaid] = useState(null);
   useEffect(() => {
     if (!said) return undefined;
@@ -520,7 +544,7 @@ export default function DaypartRail({
                 const base = railArt(r, shown.region);
                 const href = railHref(r, shown.region, shown.citySlug);
                 const eager = i < 2;
-                const tileClass = `wf8-tile${selected === id ? " is-sel" : ""}`;
+                const tileClass = `wf8-tile${selected === id ? " is-sel" : ""}${artReady[id] ? " is-art-ready" : ""}`;
                 const art = (
                     <picture>
                       <source type="image/avif" srcSet={railArtSrcSet(base, "avif")} sizes={RAIL_ART_SIZES} />
@@ -534,6 +558,7 @@ export default function DaypartRail({
                         decoding="async"
                         loading={eager ? "eager" : "lazy"}
                         fetchPriority={eager ? "high" : "low"}
+                        onLoad={() => markArtReady(id)}
                       />
                     </picture>
                 );
@@ -558,6 +583,11 @@ export default function DaypartRail({
                     data-id={id}
                     style={{ background: railTint(id) }}
                   >
+                    {artReady[id] ? null : (
+                      <div className="wf8-tile-sk" aria-hidden="true">
+                        <PlaceCardSkeleton count={1} as="div" />
+                      </div>
+                    )}
                     {href
                       ? <a className="wf8-tlink" href={href} aria-label={label} onClick={(e) => tileClick(e, id)}>{art}</a>
                       : <button type="button" className="wf8-tlink" aria-label={label} onClick={(e) => tileClick(e, id)}>{art}</button>}
@@ -654,16 +684,20 @@ export default function DaypartRail({
               <button type="button" className="wf8-pnav r" aria-label="More places" disabled={pcEnds.atEnd}
                 onClick={() => { scrollBy(pcRef, 1); syncPc(); }}><Chevron dir="r" /></button>
             </div>
-          ) : selRail ? (
+          ) : selRail && thinSet.has(selRail.id) ? (
             <div className="wf8-thin">
               <p>
-                {thinSet.has(selRail.id)
-                  ? `Nothing${near} clears this bar right now — ${selRail.emptyWhy || "nothing nearby clears the bar"}. Padding it with places that don't belong would make the rail worthless.`
-                  : `We're still gathering places for this${near}.`}
+                {`Nothing${near} clears this bar right now — ${selRail.emptyWhy || "nothing nearby clears the bar"}. Padding it with places that don't belong would make the rail worthless.`}
               </p>
               {railHref(selRail, shown.region, shown.citySlug) ? (
                 <a href={railHref(selRail, shown.region, shown.citySlug)}>{selRail.cta} →</a>
               ) : null}
+            </div>
+          ) : selRail ? (
+            <div className="wf8-pcwrap">
+              <ul className="wf8-pcrail" role="status" aria-busy="true" aria-label="Ranking places">
+                <PlaceCardSkeleton count={3} />
+              </ul>
             </div>
           ) : null}
         </div>

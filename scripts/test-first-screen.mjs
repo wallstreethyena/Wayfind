@@ -120,8 +120,10 @@ ok(/const railMenuBand = railMenu \? \(/.test(code),
   // The premise of the exemption above, asserted rather than assumed: the
   // drop is lazily imported and not server-rendered, so a handler passed to
   // it cannot be on the first-paint path.
-  ok(/const IconicPlaceCard = dynamic\(\(\) => import\("\.\/IconicPlaceCard"\), \{ ssr: false \}\)/.test(rail),
+  ok(/const IconicPlaceCard = dynamic\(\(\) => import\("\.\/IconicPlaceCard"\),\s*\{\s*ssr:\s*false/.test(rail),
     "the drop's place card must stay a next/dynamic ssr:false import — that is what keeps its props off the first-paint path AND what kept the bundle under the gate");
+  ok(/loading:\s*\(\)\s*=>\s*<PlaceCardSkeleton/.test(rail),
+    "while the lazy card chunk loads the drop paints a place-card-shaped skeleton, not an empty color slab");
   for (const p of ["isSaved", "isOnTrip", "onSave", "onItinerary", "onOpenPlace"]) {
     ok(new RegExp(p + "\\s*=\\s*null").test(rail),
       `${p} must default to null — /v8 mounts this component without it and has to keep working`);

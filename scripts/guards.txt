@@ -141,6 +141,7 @@ node scripts/test-vitals-attribution.mjs
 node scripts/test-layout-shift.mjs
 node scripts/test-lightbox-paging.mjs
 node scripts/test-first-screen.mjs
+node scripts/test-home-first-paint.mjs
 node scripts/test-noresult-telemetry.mjs
 node scripts/test-hero-image.mjs
 node scripts/test-marine.mjs

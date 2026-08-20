@@ -188,6 +188,7 @@ import { WF_LAYOUT_CSS, WF_SEARCH_CSS, WF_PLACE_CARD_CSS, WF_TASTE_CSS, WF_RAIL_
 // the selection logic and never leaves the server), so importing it here costs
 // the bundle the card copy and nothing else.
 import DaypartRail from "./components/DaypartRail";
+import PlaceCardSkeleton from "./components/PlaceCardSkeleton";
 import { useMarketPhotoFallback, marketPhotoQuery } from "./components/marketPhoto";
 import { WF_RAIL_MENU_CSS } from "./components/railMenuCss";
 import { RAILS } from "../lib/rails";
@@ -8983,7 +8984,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             <div className="wf-scope-wrap">
               <button type="button" className="wf-scope" aria-haspopup="listbox" aria-expanded={scopeOpen} onClick={() => setScopeOpen((v) => !v)} title="Location — ranked around this point" aria-label={"Location: " + (cityNow || "not set") + ". Open to use your precise current location or a previous one."}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 21s-6.6-5.4-6.6-10.2A6.6 6.6 0 0 1 12 4.2a6.6 6.6 0 0 1 6.6 6.6C18.6 15.6 12 21 12 21Z" /><circle cx="12" cy="10.8" r="2.3" /></svg>
-                <span style={{ maxWidth: 92, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{cityNow || "Location"}</span>
+                <span className="wf-scope-city">{cityNow || "Location"}</span>
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
               </button>
               {scopeOpen && (
@@ -9023,7 +9024,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               )}
             </div>
           )}
-          <div style={{ flex: 1, position: "relative" }}>
+          <div className="wf-search-field">
             <span className="wf-search-icon" style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", opacity: 0.9, display: "inline-flex", zIndex: 1 }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.2 4.2" /></svg></span>
             {/* v5.63 (audit P4): a real combobox — the input owns the listbox
                 (aria-controls), announces its expanded state and the active
@@ -9710,9 +9711,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                       list that silently shrinks (Family 60->13 mid-render read as frozen). */}
                   {loading ? (
                     <div style={{ marginTop: 2 }} aria-busy="true" aria-label="Finding the best spots">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className="wf-skeleton" style={{ height: 96, borderRadius: 16, marginBottom: 12 }} aria-hidden="true" />
-                      ))}
+                      <PlaceCardSkeleton count={5} as="div" />
                     </div>
                   ) : view.length === 0 ? (
                     <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
