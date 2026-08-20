@@ -1,3 +1,48 @@
+## v8.29 - A like is a like, on every surface, and the shell always opens on a whole page
+- Owner, 2026-08-20, three times and the last one plainly: "no matter where i go
+  now everything i click the like button the same issue happens this is almost
+  everywhere on the site and it needs to be fixed globally i am very annoyed" —
+  with a screenshot of gowayfind.com/p/<id>?action=like showing a homepage
+  containing a header, one promo card, and nothing else.
+- ONE CHAIN, THREE SYMPTOMS. Tap Like on a card whose caller wired no handler ->
+  IconicPlaceCard falls back to <a href="/p/<id>?action=like"> -> the browser
+  NAVIGATES -> app/p/[id]/page.js renders the app shell -> that route never
+  passed railMenu, so the shell drew no rails at all -> and because Home/Events/
+  Coupons/Map are state INSIDE the shell rather than routes, tapping Home from
+  there kept the URL at /p/<id> and the rails never came back. "The amazon rail
+  cards are gone", "the main screen stuck with nothing on it" and "the like
+  button opens the place card details" were the same bug seen from three angles.
+- FIX 1 - THE CARD CARRIES ITS OWN HANDS (lib/cardActions.js). v8.28 fixed the
+  one surface that had forgotten to wire a handler. That is a fix shaped like a
+  list, and the list goes stale. The card no longer depends on its caller: one
+  process-wide store, backed by the SAME four localStorage maps and the SAME
+  Supabase likes/saved_places writes app/home.js's toggleLike owns (through
+  lib/likeSignal.js), read by every card through useSyncExternalStore. A wired
+  caller still wins; an unwired one now registers a real like in place.
+  Supabase is import()ed lazily so no prerendered guide page pays for the auth
+  client to render a button most readers never press.
+- The <a> stays, and is now unreachable after hydration: it renders only while
+  fb.hydrated is false, which is the server render and the hydrating render —
+  exactly the window where JavaScript could not have handled the tap anyway.
+  Server HTML and client hydration still agree byte for byte.
+- GUIDE PAGES GET REAL LIKES. v8.28's cardActionsReadOnly existed because a
+  prerendered guide had no likes pipeline. It has one now, so guides render Like
+  and Dislike again instead of nothing.
+- FIX 2 - EVERY DOOR OPENS ON A WHOLE PAGE (lib/homeShellData.js). /p/<id> now
+  resolves the same railMenu + localEditGuides app/page.js does, through one
+  shared function with a one-hour in-process memo matching app/page.js's
+  revalidate. A share link lands on the real homepage with the detail over it,
+  and closing the detail leaves a populated page instead of a void. Only a real
+  result is memoised; a failed read is never cached.
+- GUARDS. check-card-actions.mjs was rewritten from "every render site must wire
+  every action" (a list) to four rules that cannot be satisfied by adding a
+  surface to a list: the fallback exists and persists through likeSignal; every
+  actionHref anchor is chosen by the RESOLVED handler, not the raw prop; nothing
+  else in app/ or lib/ builds a ?action= href behind a control; and a card told
+  what its state IS must be told how to CHANGE it. New check-shell-routes.mjs
+  finds every route that imports the shell and fails the build if it renders it
+  without railMenu.
+
 ## v8.28 - A place card's actions are wired or absent, never a link dressed as a button
 - Owner, 2026-08-20: "when I click the like button in those place cards that are
   shown by the rails, it opens up the page instead of just registering the like."

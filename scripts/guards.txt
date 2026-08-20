@@ -520,3 +520,7 @@ node scripts/check-overscroll-containment.mjs
 # the detail page. Keyed on the actionHref fallback itself, with a floor so the
 # guard cannot pass by losing its own subject.
 node scripts/check-card-actions.mjs
+# v8.29 — every route that renders the app shell must hand it the shell's
+# server data. /p/<id> shipped without railMenu, which is why liking a card
+# landed the owner on a homepage with no rails and no way back to one.
+node scripts/check-shell-routes.mjs

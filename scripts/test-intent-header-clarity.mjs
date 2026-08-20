@@ -123,7 +123,16 @@ for (const klass of ["wf-place-card", "wf-place-card-layout", "wf-place-card-sco
 }
 const iconicSource = readFileSync(path.join(ROOT, "app/components/IconicPlaceCard.js"), "utf8");
 ok(card.includes("wf-sheet-card-actions"), "standalone sheet cards use the premium single-row action layout");
-ok(iconicSource.includes("onSave") && iconicSource.includes("aria-pressed={!!saved}"), "sheet cards expose a stateful save control");
+// v8.29 — THE RULE, not the expression. This asserted the literal
+// `aria-pressed={!!saved}`. When the card began resolving its saved state
+// through its own fallback store (lib/cardActions.js) the expression became
+// `aria-pressed={isSavedNow}` and this failed — a check about STATEFULNESS
+// broken by a rename that kept the control stateful. Seventh time this suite
+// has pinned punctuation instead of behaviour; see v8.27's note on
+// test-first-screen.mjs. Now: the save control is a button that announces a
+// pressed state, whatever the card computes that state from.
+const saveControl = iconicSource.slice(iconicSource.indexOf('"wf-place-card-save"'), iconicSource.indexOf('"wf-place-card-save"') + 600);
+ok(iconicSource.includes("onSave") && /aria-pressed=\{[^}]+\}/.test(saveControl), "sheet cards expose a stateful save control");
 ok(card.includes("data-card-opens-detail"), "the iconic card body opens the full place detail");
 ok(iconicSource.includes('target.closest("a,button,input,select,textarea,[role=\'button\']")'), "card opening excludes its buttons, links, chips, and controls");
 ok(!card.includes("View place") && !card.includes("minHeight:228"), "iconic card does not reintroduce the tall imitation footer");

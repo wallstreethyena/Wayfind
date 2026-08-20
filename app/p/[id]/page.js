@@ -1,6 +1,12 @@
 import Home from "../../home";
 import { SITE_URL } from "../../../lib/site";
 import { placeCanonical } from "../../../lib/locationHonesty";
+// v8.29 — the shell's server data, the SAME call app/page.js makes. Without it
+// this route rendered the homepage with its entire rail band missing, and since
+// every in-app destination is a state change inside the shell rather than a
+// route, a reader who arrived here could not navigate back to a populated home.
+// See lib/homeShellData.js for the measurement and the cost note.
+import { homeShellData } from "../../../lib/homeShellData";
 
 function s(v) {
   if (Array.isArray(v)) return v[0] || "";
@@ -55,10 +61,14 @@ export async function generateMetadata({ params, searchParams }) {
   };
 }
 
-export default function PlaceSharePage({ params, searchParams }) {
+export default async function PlaceSharePage({ params, searchParams }) {
   const id = s(params.id);
   const requestedAction = s(searchParams.action);
   const action = ["save", "like", "dislike"].includes(requestedAction) ? requestedAction : "";
-  // Overlay may be the presentation; URL + canonical stay /p/{id}.
-  return <Home initialPlaceId={id} initialPlaceAction={action || null} />;
+  // Overlay may be the presentation; URL + canonical stay /p/{id}. What is
+  // BEHIND the overlay has to be the real homepage — closing the detail is the
+  // most common next move a share-link visitor makes, and landing them on an
+  // empty shell is how a shared place became a dead end.
+  const { railMenu, localEditGuides } = await homeShellData();
+  return <Home initialPlaceId={id} initialPlaceAction={action || null} railMenu={railMenu} localEditGuides={localEditGuides} />;
 }

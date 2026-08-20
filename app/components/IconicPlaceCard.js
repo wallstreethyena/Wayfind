@@ -19,6 +19,11 @@ import { useEffect, useRef, useState } from "react";
 import { useMarketPhotoFallback, marketPhotoQuery } from "./marketPhoto.js";
 import { hasPlacePhotoRef } from "../../lib/placePhoto.js";
 import { toHookLine } from "../../lib/editorialHook.js";
+// v8.29 — THE CARD'S OWN HANDS. Save/Like/Dislike used to fall back to
+// <a href="/p/<id>?action=like"> whenever a caller forgot to wire a handler,
+// which turned a like into a navigation on every surface that forgot. The card
+// now carries a working fallback instead of a link. See lib/cardActions.js.
+import { useCardActions, toggleLike as fallbackLike, toggleDislike as fallbackDislike, toggleSave as fallbackSave } from "../../lib/cardActions";
 
 // ---------------------------------------------------------------------------
 // Experience-tag chips (owner: "I need the cards to look like the cards from
@@ -193,7 +198,14 @@ const ThumbIcon = ({ down = false }) => (
   </svg>
 );
 
-export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, inTrip, onSave, onItinerary, onLike, onDislike, onOpen, onBadge, cardActionsReadOnly = false }) {
+export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, inTrip, onSave, onItinerary, onLike, onDislike, onOpen, onBadge, cardActionsReadOnly = false, surface = "place_card" }) {
+  // v8.29 — the shared like/dislike/save store, read ONLY when this card has an
+  // action its caller did not wire. A fully wired card (the home shell's, which
+  // owns its own state) subscribes to nothing and re-renders for nothing.
+  // Hooks run before the early return below, because they must: a card whose
+  // `place` arrives late may not skip a hook on the render before it.
+  const needsFallback = !cardActionsReadOnly && !(onSave && onLike && onDislike);
+  const fb = useCardActions(needsFallback);
   if (!place) return null;
   const expTags = experienceTags(place, 3);
   // THE GOVERNING LAW, shown == sorted (2026-08-07): a row ranked through
@@ -251,6 +263,18 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   const hasTake = !!(take || validAiSummary);
   const initials = String(place.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase();
   const actionHref = (action) => "/p/" + encodeURIComponent(place.id) + "?action=" + action;
+  // v8.29 — WIRED, OR THE CARD WIRES ITSELF. `fb.hydrated` is false on the
+  // server and on the hydrating render, so the markup React reconciles against
+  // is byte-identical to the HTML that was sent (the no-JS anchor); the swap to
+  // a real button happens on the render right after, which is an update, not a
+  // mismatch. Net effect: the anchor exists only while the page cannot run the
+  // handler anyway, and a tap after hydration can never be a navigation.
+  const doSave = onSave || (fb.hydrated ? (e, p) => fallbackSave(p, { surface }) : null);
+  const doLike = onLike || (fb.hydrated ? (e, p) => fallbackLike(p, { surface }) : null);
+  const doDislike = onDislike || (fb.hydrated ? (e, p) => fallbackDislike(p, { surface }) : null);
+  const isSavedNow = onSave ? !!saved : fb.hydrated ? !!fb.saved[place.id] : !!saved;
+  const isLikedNow = onLike ? !!liked : fb.hydrated ? !!fb.liked[place.id] : !!liked;
+  const isDislikedNow = onDislike ? !!disliked : fb.hydrated ? !!fb.disliked[place.id] : !!disliked;
   // v8.22 (owner: "indicate in the pills that the row is scrollable — someone
   // looking at it won't know"). After hydration, measure the lane: when it
   // genuinely overflows, a small pulsing chevron sits at its right edge and
@@ -439,14 +463,14 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
                 them and re-parented the fallback to onItinerary, so any surface
                 passing onSave but NOT onItinerary drew TWO save controls. It is
                 back where it belongs. */}
-            {onSave ? (
+            {doSave ? (
               <button
                 type="button"
-                className={"wf-place-card-save" + (saved ? " is-active" : "")}
-                aria-label={saved ? "Remove from saved: " + place.name : "Save " + place.name}
-                aria-pressed={!!saved}
-                onClick={(e) => { e.stopPropagation(); e.preventDefault(); onSave(e, place); }}
-              >{saved ? "♥ Saved" : "♡ Save"}</button>
+                className={"wf-place-card-save" + (isSavedNow ? " is-active" : "")}
+                aria-label={isSavedNow ? "Remove from saved: " + place.name : "Save " + place.name}
+                aria-pressed={isSavedNow}
+                onClick={(e) => { e.stopPropagation(); e.preventDefault(); doSave(e, place); }}
+              >{isSavedNow ? "♥ Saved" : "♡ Save"}</button>
             ) : (
               <a className="wf-place-card-save" href={actionHref("save")} aria-label={"Save " + place.name}>♡ Save</a>
             )}
@@ -465,26 +489,26 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
                 NOTHING rather than the actionHref anchor, because a control
                 that navigates when it promises to register a like is the bug
                 scripts/check-card-actions.mjs exists to stop. */}
-            {cardActionsReadOnly ? null : onLike ? (
+            {cardActionsReadOnly ? null : doLike ? (
               <button
                 type="button"
-                className={"wf-place-card-like" + (liked ? " is-active" : "")}
-                aria-label={liked ? "Remove like: " + place.name : "Like " + place.name}
-                aria-pressed={!!liked}
-                title={liked ? "Remove like" : "Like this place"}
-                onClick={(e) => { e.stopPropagation(); e.preventDefault(); onLike(e, place); }}
+                className={"wf-place-card-like" + (isLikedNow ? " is-active" : "")}
+                aria-label={isLikedNow ? "Remove like: " + place.name : "Like " + place.name}
+                aria-pressed={isLikedNow}
+                title={isLikedNow ? "Remove like" : "Like this place"}
+                onClick={(e) => { e.stopPropagation(); e.preventDefault(); doLike(e, place); }}
               ><ThumbIcon /></button>
             ) : (
               <a className="wf-place-card-like" href={actionHref("like")} aria-label={"Like " + place.name} title="Like this place"><ThumbIcon /></a>
             )}
-            {cardActionsReadOnly ? null : onDislike ? (
+            {cardActionsReadOnly ? null : doDislike ? (
               <button
                 type="button"
-                className={"wf-place-card-dislike" + (disliked ? " is-active" : "")}
-                aria-label={disliked ? "Remove dislike: " + place.name : "Not for me: " + place.name}
-                aria-pressed={!!disliked}
-                title={disliked ? "Remove dislike" : "Not for me"}
-                onClick={(e) => { e.stopPropagation(); e.preventDefault(); onDislike(e, place); }}
+                className={"wf-place-card-dislike" + (isDislikedNow ? " is-active" : "")}
+                aria-label={isDislikedNow ? "Remove dislike: " + place.name : "Not for me: " + place.name}
+                aria-pressed={isDislikedNow}
+                title={isDislikedNow ? "Remove dislike" : "Not for me"}
+                onClick={(e) => { e.stopPropagation(); e.preventDefault(); doDislike(e, place); }}
               ><ThumbIcon down /></button>
             ) : (
               <a className="wf-place-card-dislike" href={actionHref("dislike")} aria-label={"Not for me: " + place.name} title="Not for me"><ThumbIcon down /></a>
