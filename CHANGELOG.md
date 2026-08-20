@@ -1,3 +1,270 @@
+## v8.29.6 - Two fixes for one bug, merged so neither undoes the other
+- main's PR #888 ("Keep rail Like/Dislike on the rail", lib/railReaction.js) and this
+  branch's v8.29-v8.29.5 were written in parallel against the same tap. They chose
+  differently, and each one's guard failed the other's code.
+- #888 DELETES the <a href="/p/{id}?action=like"> outright and routes every reaction
+  through one click contract that cannot navigate. v8.29 KEPT the anchor as no-JS
+  progressive enhancement and made it unreachable after hydration, and gave the card
+  a working fallback handler so an unwired surface still registers a real like.
+- MERGED, NOT PICKED. #888's rule wins on the markup: the anchor is gone for like and
+  dislike, and both controls are always <button>s calling stayOnRailReaction. This
+  branch's rule wins on the handler: stayOnRailReaction receives `doLike`, which is
+  the caller's handler when one was wired and lib/cardActions.js's shared store
+  otherwise. #888 alone guaranteed the tap never leaves the rail while leaving every
+  unwired card a live button over a no-op — stayOnRailReaction returns silently when
+  the handler is missing. Together the tap neither navigates nor does nothing.
+- THE MERGE ITSELF SHIPPED TWO BUGS THAT LOOK LIKE NOTHING IN A DIFF. <DaypartRail>
+  ended up carrying onLike and onDislike TWICE, and the IconicPlaceCard render inside
+  it carried liked/onLike twice; JSX silently takes the last, which is how a working
+  handler gets replaced without a line that looks wrong. tsc caught the first
+  (TS17001); the second was found by reading. Both deduped, and the rail now reads
+  whichever shape the parent supplies — #888's `liked`/`disliked` maps or this
+  branch's isLiked/isDisliked predicates.
+- RailCard gains a WRITTEN opt-out (actionsReadOnly) instead of hiding its action row
+  whenever nothing was wired. The first version was too clever: it also hid the
+  control on a card that simply had not hydrated, which is the state
+  test-rail-like-stays probes. The Viator tour rail — a product, not a place — says
+  so in writing; every other card renders its thumbs, disabled while they have no
+  hands.
+- Two of #888's assertions were RE-POINTED, not relaxed: they pinned
+  stayOnRailReaction(e, onLike, place) — the raw prop, which is null on exactly the
+  surfaces the bug lived on. They now pin the resolved handler AND that it resolves
+  from the prop with a hydrated fallback, so both halves of the contract are asserted.
+- 382/382 guards green.
+
+## v8.29.5 - The next step names the place, and a hero stops holding a gap open
+- Owner, 2026-08-20: "these next steps are really not very clear we need to make it
+  clear for the user and make sure that we have deep links for those and we are
+  going to get paid" - on a guide CTA reading "Get the deal" with, directly beneath
+  it, "4.4 - 573 reviews - The Ringling Grillroom".
+- THE PAGE KNEW THE PLACE AND THE BUTTON DID NOT. Every rung of lib/guideCta.js
+  returns a bare verb, while `place` has been on the returned object all along.
+  namedStepLabel() spends it: "Get the deal at The Ringling Grillroom",
+  "Book tickets - Marie Selby Botanical Gardens", "Check rates - The Ritz-Carlton,
+  Sarasota", "Directions to Siesta Key". A registry CTA that already names its
+  venue ("Save $10 at Yoder's") is left alone.
+- LENGTH IS A CONSTRAINT, NOT A PREFERENCE: the button is one centred line in an
+  18px-padded card at 390px. Names trim at 30 characters on a word boundary, and a
+  composed label over 44 falls back to the bare verb rather than wrapping. The
+  hotel verb shortens to "Check rates" so the hotel's NAME survives - the name is
+  the information. No href, rel, provider or event changes: the deep links and
+  their tracking are exactly as the rungs built them.
+- THE /worth-the-drive HERO (owner: "there is nothing there"). The panel drew a
+  headline, a deck, a rule, then a hand-sized void, then Share. Two empty slots
+  made it. IntentPageClient passed trustLines={[]}, which BLANKED the shield line
+  the hero reserves room for - RankedExperiencePage already ships the right default
+  copy, so the override was deleting content rather than choosing it. The other
+  half is the quick-answer grid, which intent pages have no server data for; the
+  hero now tightens from 620px to 462px when that block is genuinely absent
+  instead of holding the gap open for something that is never coming.
+- 378/378 guards green.
+
+## v8.29.4 - Every bookable card states what is true about it
+- Owner, 2026-08-20, on the Bookable-highlights rail: "these places still don't have
+  the wayfind score."
+- THE ROW WAS SUPPRESSED, NOT JUST EMPTY. The metadata line rendered only when a
+  card had a price, a duration OR a score. An Undercover Tourist row carries none
+  of the three, so LEGOLAND and Busch Gardens drew a title and then nothing at all,
+  next to Viator cards reading "9.3 - from $90 - 2h". The two biggest attractions in
+  the state looked less trustworthy than a kayak tour.
+- Both venues ARE in wf_inventory with real numbers (LEGOLAND Florida Resort
+  4.5/19,000; Busch Gardens Tampa Bay 4.4/98,062). The deal rows simply never
+  looked them up. serveDeals() now resolves each deal's `maps_to` against
+  wf_inventory and stamps the venue's own rating/reviews onto the row, so a partner
+  card shows the SAME Wayfind chip every place card on the site shows.
+- THE MATCH IS DELIBERATELY CONSERVATIVE. ilike on the stem returns near-misses:
+  "legoland florida" also surfaces LEGOLAND Discovery Center Arizona, and "busch
+  gardens tampa bay" also surfaces its Howl-O-Scream event and a Red Roof Inn named
+  after it. A row is accepted only when the venue name contains EVERY word of the
+  stem; an exact name match wins outright, otherwise the most-reviewed survivor
+  does, and the >=15-review floor still applies. No confirmed venue -> no score, and
+  the card says "Bookable" rather than borrowing a number that is not about it.
+- One Supabase read per distinct maps_to per category, behind the route's existing
+  300s s-maxage. No Google Places call is added.
+- 378/378 guards green.
+
+## v8.29.3 - The card and the sheet name the same product, and a guide's art is chosen by slug
+- Owner, 2026-08-20, on a kayak tour whose CARD showed "TICKETS - Viator" and whose
+  DETAIL SHEET showed Directions and nothing else: "where the fuck is the viator
+  link ... i need this to be fixed globally".
+- TWO RESOLVERS, ONE PLACE. The card reads lib/placePartnerPicks.js - the
+  hand-verified exact-name registry, one venue to one product code. The sheet ran
+  lib/detailCta.js's ladder, which resolves tickets through bookingTargets and
+  Travelpayouts probes and knew nothing about that registry. Any place in the
+  registry the probes missed advertised a purchase on the card and dropped it on
+  the next screen. That is worse than no card: it spends the click and loses it.
+- The registry is now rung 1.5 of the ladder, ahead of every probe, for every place
+  type - it is the most specific thing we know about a venue. The sheet links THAT
+  product (`exact: true`) instead of handing the place back to <BookingCTA>, which
+  re-resolves from scratch and would throw the verified match away. Same
+  commerceHref / mintClickId / emitCommerce shape, same rel="sponsored noopener"
+  and the same aria/title disclosure as the card's chip.
+- GUIDE HERO ART IS CHOSEN BY SLUG. guideHero() matched on KEYWORDS, so
+  /dining|brunch|date/ handed one laid-table photograph to the brunch guide, the
+  Orlando magical-dining guide and every date-night guide at once - which is why
+  the owner asked six times for six different images. GUIDE_HERO_ART maps slug to
+  art and is consulted first; the keyword branches remain the fallback. Art is
+  self-hosted under /public/guides with its licence recorded in
+  public/guides/CREDITS.md, never hotlinked.
+- GUIDE PLACE CARDS: THE STEM SEARCH ONLY EVER TRIMMED FROM THE RIGHT. v8.14 added
+  right-trimming because authors suffix regions; they also prefix articles and
+  verbs. things-to-do-sarasota's pick is name "Ride the Legacy Trail" / appQuery
+  "The Legacy Trail", the inventory row is "Legacy Trail" - so both stems missed and
+  a place with 257 reviews and a photo rendered as a bare "Open in Wayfind" button.
+  Every contiguous word window is tried now, longest and leftmost first, capped at
+  8. The >=15-review floor and the 80-mile geo gate are untouched: they are what
+  keeps a wider net from catching the wrong place.
+- Eight guards walked .vercel/output as if it were source, so any checkout that had
+  run a Vercel build failed check-editorial-template's "exactly one implementation"
+  by counting the compiled copies. .vercel joins .next in every skip list.
+- 378/378 guards green.
+
+## v8.29.2 - A thumb that does nothing is worse than one that navigates
+- Owner, 2026-08-20, after v8.29 shipped: "this button for the likes still not
+  working under the exploding trends near you."
+- A DIFFERENT FAILURE FROM v8.29, on a different card. IconicPlaceCard's bug was a
+  LINK dressed as a button. RailCard's was a live <button> over a NO-OP:
+  `onClick={... if (onLike) onLike(e)}` renders and presses perfectly when the
+  caller passed no handler, and simply swallows the tap. DaypartRail renders
+  <ExplodingNearby> - the trending drop - with isSaved and onSave and nothing
+  else, so every thumb in it was dead.
+- IT COULD NOT EVEN BE DETECTED. Four callers wrapped their own optional prop as
+  `onLike={(e) => { if (onLike) onLike(e, place); }}`, which is ALWAYS a function.
+  The card could not tell a wired caller from an unwired one. Those wrappers are
+  now conditional - `onLike={onLike ? (e) => onLike(e, place) : undefined}` -
+  because undefined is the honest value and it is what lets a fallback run.
+- RailCard now carries the same hands IconicPlaceCard grew in v8.29: give it the
+  `place` row and an unwired thumb still registers a real like through
+  lib/cardActions. Where there is neither a handler nor a row - a Viator tour
+  card - the action row does not render at all instead of drawing four buttons
+  that do nothing.
+- DaypartRail also wires the trending drop properly (isLiked / isDisliked /
+  onLike / onDislike), so those cards use the home shell's own state like every
+  other card in the drop.
+- GUARD. check-card-actions.mjs gains three rules: RailCard must import the
+  fallback and resolve doSave/doLike/doDislike; no card-action wrapper anywhere
+  may swallow; and the action row must be gated on having a usable control. It
+  also had a real bug of its own - it sliced each element at the first "/>",
+  so a card whose `badge` prop contained `<TrendReason r={p} />` hid every prop
+  after it. Four correctly-wired sites were invisible to it. Depth-counted now.
+- 378/378 guards green.
+
+## v8.29.1 - The ticket is a ticket, and the share chip stops borrowing its contrast from the artwork
+- Owner, 2026-08-20: "i asked multiple times so change the typography and display
+  the tickets from viator on the place cards we need to make it look premium and
+  fancy not ghetto like this."
+- THE TICKET. The one element on a place card that earns revenue shipped as a bare
+  <a> with a single inline colour, sitting in a lane of designed chips - so the eye
+  read it as leftover text. It is a ticket now, by TYPOGRAPHY rather than
+  decoration: a stamped 9.5px/800 letterspaced "TICKETS" against the merchant at
+  11px/700 in the reading colour, split by a perforated rule, on an amber glass
+  chip with a lit top edge. The emoji is gone - a drawn glyph, because the one
+  monetised control on the card should not be the one whose artwork the platform
+  picks. Href, click-id mint, commerce event, aria/title disclosure and
+  rel="sponsored noopener" are untouched; this is styling only.
+- THE SHARE CHIP (owner: "the share button on the white background cannot be seen
+  ... for a white background the share button has to stand out"). It was
+  rgba(8,11,18,.52) with a .24 white hairline - fine over a dark photo, but the
+  editorial art includes cream tiles, where that fill composites to about #838589
+  and a white glyph on it is roughly 2.9:1, under the 4.5 it needs. It no longer
+  depends on what is behind it: .86 fill, a brighter .38 white ring for dark art,
+  and a 1px black outer ring so it still has an edge on cream. Same size, position,
+  blur and hover.
+- check-intent-partner-picks.mjs pinned the literal "TICKETS · {merchant} ↗" string;
+  it now asserts the disclosure CONTRACT (visible label names the merchant, full
+  aria/title disclosure, sponsored rel) instead of the punctuation.
+- 378/378 guards green, build clean at 871/871.
+
+## v8.29 - A like is a like, on every surface, and the shell always opens on a whole page
+- Owner, 2026-08-20, three times and the last one plainly: "no matter where i go
+  now everything i click the like button the same issue happens this is almost
+  everywhere on the site and it needs to be fixed globally i am very annoyed" —
+  with a screenshot of gowayfind.com/p/<id>?action=like showing a homepage
+  containing a header, one promo card, and nothing else.
+- ONE CHAIN, THREE SYMPTOMS. Tap Like on a card whose caller wired no handler ->
+  IconicPlaceCard falls back to <a href="/p/<id>?action=like"> -> the browser
+  NAVIGATES -> app/p/[id]/page.js renders the app shell -> that route never
+  passed railMenu, so the shell drew no rails at all -> and because Home/Events/
+  Coupons/Map are state INSIDE the shell rather than routes, tapping Home from
+  there kept the URL at /p/<id> and the rails never came back. "The amazon rail
+  cards are gone", "the main screen stuck with nothing on it" and "the like
+  button opens the place card details" were the same bug seen from three angles.
+- FIX 1 - THE CARD CARRIES ITS OWN HANDS (lib/cardActions.js). v8.28 fixed the
+  one surface that had forgotten to wire a handler. That is a fix shaped like a
+  list, and the list goes stale. The card no longer depends on its caller: one
+  process-wide store, backed by the SAME four localStorage maps and the SAME
+  Supabase likes/saved_places writes app/home.js's toggleLike owns (through
+  lib/likeSignal.js), read by every card through useSyncExternalStore. A wired
+  caller still wins; an unwired one now registers a real like in place.
+  Supabase is import()ed lazily so no prerendered guide page pays for the auth
+  client to render a button most readers never press.
+- The <a> stays, and is now unreachable after hydration: it renders only while
+  fb.hydrated is false, which is the server render and the hydrating render —
+  exactly the window where JavaScript could not have handled the tap anyway.
+  Server HTML and client hydration still agree byte for byte.
+- GUIDE PAGES GET REAL LIKES. v8.28's cardActionsReadOnly existed because a
+  prerendered guide had no likes pipeline. It has one now, so guides render Like
+  and Dislike again instead of nothing.
+- FIX 2 - EVERY DOOR OPENS ON A WHOLE PAGE (lib/homeShellData.js). /p/<id> now
+  resolves the same railMenu + localEditGuides app/page.js does, through one
+  shared function with a one-hour in-process memo matching app/page.js's
+  revalidate. A share link lands on the real homepage with the detail over it,
+  and closing the detail leaves a populated page instead of a void. Only a real
+  result is memoised; a failed read is never cached.
+- GUARDS. check-card-actions.mjs was rewritten from "every render site must wire
+  every action" (a list) to four rules that cannot be satisfied by adding a
+  surface to a list: the fallback exists and persists through likeSignal; every
+  actionHref anchor is chosen by the RESOLVED handler, not the raw prop; nothing
+  else in app/ or lib/ builds a ?action= href behind a control; and a card told
+  what its state IS must be told how to CHANGE it. New check-shell-routes.mjs
+  finds every route that imports the shell and fails the build if it renders it
+  without railMenu.
+
+## v8.28 - A place card's actions are wired or absent, never a link dressed as a button
+- Owner, 2026-08-20: "when I click the like button in those place cards that are
+  shown by the rails, it opens up the page instead of just registering the like."
+- ROOT CAUSE. IconicPlaceCard renders each action two ways on purpose:
+  `{onLike ? <button onClick=.../> : <a href={actionHref("like")}/>}`. The anchor
+  is real progressive enhancement and it stays. But a caller that omits the
+  handler gets a NAVIGATION wearing a button's clothes. Ten surfaces wired these
+  correctly; DaypartRail — the newest, and now the homepage's main card surface —
+  passed only onSave and did not even accept onLike/onDislike. So every Like in
+  the rail drop was a jump to /p/<id>?action=like.
+- THE GOD BUMP HAD A SECOND, SEPARATE CAUSE. The curator gold is driven by
+  place._members.ownerPick, aggregated server-side (ownerId is server env only,
+  by design). app/home.js applies that decoration to every pool it owns and it
+  was never applied to the rail pool — so even a landed owner like could not
+  mark a rail card. DaypartRail now takes the parent's OWN fetcher and decorator
+  (memberSignalsFor / applyMemberSignal) rather than re-deriving either: one
+  signal source, one aggregation, fetched per open drop, fail-soft.
+- GUIDES OPT OUT IN WRITING. The guard found a second broken surface:
+  GuidePlaceCard rendered the same dead links. toggleLike owns liked/disliked/
+  likedItems, the Supabase upsert and refreshOwnerPick, and re-implementing it
+  on a prerendered guide would fork the one mechanism. Those two controls now
+  render NOTHING there via cardActionsReadOnly — the honest state. Save and
+  Itinerary are untouched and still work.
+- NEW GUARD scripts/check-card-actions.mjs. Keyed on the actionHref fallback
+  itself, not on the shape of the ternary around it: the first cut matched
+  `{onLike ? ... actionHref(` and went silently green the moment that ternary
+  grew a branch — a guard describing punctuation instead of a rule. A MUST_COVER
+  floor closes the other hole, where renaming the fallback shrank the checked set
+  and still passed. Both failure modes are red-proven.
+- test-first-screen was RIGHT to reject liked={liked}: a rail prop must be server
+  data or a callable. Fixed by matching the existing isSaved/isOnTrip convention
+  (isLiked/isDisliked predicates) rather than weakening the rule — the check still
+  catches a real content prop.
+- v8.27.2 rides along: the drop landing is a settlement, not a moment. Picks
+  arrive from /api/rails AFTER the drop opens, so v8.26's single 620ms re-check
+  fired before the page had grown. A ResizeObserver now re-lands on every height
+  change until the picks are on screen, the reader touches the page, or 4s.
+- VERIFIED ON A REAL-CREDENTIAL BUILD, headless at 390x844, geolocated to Parrish:
+  scroller 0 -> 536 with 3 real cards and picks 37% down; 9 like controls in the
+  drop, ALL <button>, zero href, zero ?action= anchors anywhere; tapping Like does
+  not navigate and toggles is-liked on and off; 12 curator-signal calls; an owner
+  like paints is-curator-pick with the "Wayfind curator's pick" award; a guide page
+  renders 0 like controls and keeps its Save. 0 page errors.
+- 377/377 guards green. Build clean, 871/871 static pages.
+
 ## v8.27 - The main page stops fighting the reader
 - Owner, 2026-08-20: "the main page now feels jumpy and glitchy ... everything is
   jittery"; "when I am trying to scroll through the rail it keeps catching the

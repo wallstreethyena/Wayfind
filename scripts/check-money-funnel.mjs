@@ -60,7 +60,7 @@ const SEARCH = ["app", "lib"];
 const files = [];
 function collect(dir) {
   for (const name of readdirSync(dir)) {
-    if (name === "node_modules" || name === ".next") continue;
+    if (name === "node_modules" || name === ".next" || name === ".vercel") continue;
     const p = path.join(dir, name);
     const st = statSync(p);
     if (st.isDirectory()) collect(p);

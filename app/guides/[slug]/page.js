@@ -192,13 +192,34 @@ async function inventoryPlace(pick, near) {
     const v = String(s || "").trim().slice(0, 60);
     if (v && v.length >= 6 && !seen.has(v.toLowerCase())) { seen.add(v.toLowerCase()); candidates.push(v); }
   };
-  push(String(pick.name || "").split(/[—,(]/)[0]);
-  const aq = String(pick.appQuery || "").split(/[—,(]/)[0].trim();
-  if (aq) {
-    const words = aq.split(/\s+/);
-    for (let n = words.length; n >= 2; n--) push(words.slice(0, n).join(" "));
-    if (words.length === 1) push(aq);
-  }
+  // v8.29.3 (owner: "no place card for the legacy trail?" — and, twice before
+  // that, "every blog should have the place cards"). THE SHORTENING ONLY EVER
+  // TRIMMED FROM THE RIGHT. v8.14 added it because authors SUFFIX regions
+  // ("Bean Point Beach Anna Maria"); they also PREFIX articles and verbs. The
+  // things-to-do-sarasota pick is `name: "Ride the Legacy Trail"`,
+  // `appQuery: "The Legacy Trail"`, and the inventory row is named
+  // "Legacy Trail" — so `%The Legacy Trail%` missed, `%The Legacy%` missed,
+  // and a place that is IN the inventory with 257 reviews and a photo rendered
+  // as a bare "Open in Wayfind" button.
+  //
+  // Every contiguous word window now, longest first, leftmost first — so the
+  // most specific stem still wins and a leading "The"/"Ride the" costs nothing.
+  // Capped at 8 so a pathological title cannot fan out into a request storm;
+  // the >=15-review floor and the 80-mile geo gate below are untouched, and
+  // they are what keeps a wider net from catching the wrong place.
+  const windows = (raw) => {
+    const words = String(raw || "").split(/[—,(]/)[0].trim().split(/\s+/).filter(Boolean);
+    if (!words.length) return [];
+    if (words.length === 1) return [words[0]];
+    const out = [];
+    for (let n = words.length; n >= 2; n--) {
+      for (let i = 0; i + n <= words.length; i++) out.push(words.slice(i, i + n).join(" "));
+    }
+    return out;
+  };
+  for (const stem of windows(pick.appQuery)) push(stem);
+  for (const stem of windows(pick.name)) push(stem);
+  candidates.length = Math.min(candidates.length, 8);
   for (const stem of candidates) {
     const hit = await inventoryPlaceByStem(stem, near);
     if (hit) return hit;
@@ -278,7 +299,26 @@ const S = {
 // Built by scripts/build-brand-derivatives.mjs.
 const NEUTRAL_HERO = "/brand/opt/hero-1600.webp";
 
-function guideHero(g) {
+// v8.29.3 — PER-GUIDE ART, OWNED BY SLUG (owner, 2026-08-20, six times in one
+// afternoon: "for this blog image 1 we should use image 2"). guideHero() below
+// matches on KEYWORDS, which is exactly why one photograph covers a dozen
+// guides — a brunch guide and an Orlando magical-dining guide open on the same
+// laid table because both match /dining|brunch|date/. A keyword rule cannot
+// express "this guide, this picture", so the owner's choices live here, are
+// consulted FIRST, and the keyword branches stay as the fallback for guides
+// with no art of their own.
+//
+// SELF-HOSTED under /public/guides/<slug>.jpg, never hotlinked: the bytes are
+// ours, the licence is recorded next to them in public/guides/CREDITS.md, and
+// nothing on a guide page depends on a third party staying up.
+const GUIDE_HERO_ART = {
+  "things-to-do-in-sarasota-florida": "/guides/things-to-do-in-sarasota-florida.jpg",
+  "gulf-coast-brunch-and-date-night": "/guides/gulf-coast-brunch-and-date-night.jpg",
+};
+
+function guideHero(g, slug) {
+  const chosen = slug && GUIDE_HERO_ART[slug];
+  if (chosen) return chosen;
   const haystack = `${g.title} ${g.keyword || ""}`.toLowerCase();
   // v8.24 (owner, on the Gulf Coast Brunch & Date Night hero: "I never want
   // to see this image ever again"). Two changes: the AI neon-concert
@@ -654,7 +694,7 @@ export default async function GuidePage({ params }) {
         location={g.region || "Orlando"}
         title={g.title}
         description={`${g.title}—distilled into the few choices actually worth your time, with the context a map result leaves out.`}
-        image={guideHero(g)}
+        image={guideHero(g, params.slug)}
         // v8.23 — "Personalize these picks" is GONE, on the owner's call: "this
         // button makes no sense, a user clicked on it and it went back to the
         // main page — lets get rid of these buttons that dont serve a purpose on

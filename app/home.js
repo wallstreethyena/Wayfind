@@ -270,7 +270,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.27";
+const BUILD_ID = "v8.29.6";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -8756,8 +8756,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         onItinerary={(e, p) => { try { addToItinerary(p); } catch (er) {} }}
         liked={liked}
         disliked={disliked}
-        onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }}
-        onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }}
         // v8.17 — a rail card opens the detail SHEET in place instead of a
         // full /p/{id} navigation, so Back closes the sheet and the reader
         // lands exactly where they were: rail still open, scroll intact.
@@ -8773,6 +8771,24 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // It returns TRUE when a sheet opened. Deliberately NO onCopied toast
         // here: the card shows "Link copied" on itself, which is both more
         // located and stops the two toasts this had in its first draft.
+        // v8.28 — every action the card can render is wired here. Without a
+        // handler IconicPlaceCard falls back to <a href="/p/<id>?action=like">,
+        // which is why liking from the rail opened the detail page instead of
+        // registering the like (owner, 2026-08-20). scripts/check-card-actions.mjs
+        // now fails the build if any card surface leaves one dangling.
+        // v8.29.6 — ONE onLike here, not two. The merge of PR #888 and this
+        // branch left <DaypartRail> carrying onLike and onDislike twice; JSX
+        // takes the last silently, so a duplicate is how a working handler is
+        // replaced without a diff that looks wrong. `liked`/`disliked` (the
+        // maps) and isLiked/isDisliked (the predicates) both stay — the rail
+        // reads whichever it was given, and the two thumb surfaces inside it
+        // ask in different shapes.
+        isLiked={(id) => !!liked[id]}
+        isDisliked={(id) => !!disliked[id]}
+        onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }}
+        onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }}
+        memberSignalsFor={(list) => fetchMemberSignals(supabase, list)}
+        applyMemberSignal={withMemberSignal}
         onShareRail={(intent) => {
           try { return shareLink(intent.title, intent.url, null, intent.text); }
           catch (e) { return false; }

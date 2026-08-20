@@ -42,7 +42,7 @@ const KNOWN_TOTAL = [...KNOWN.values()].reduce((a, b) => a + b, 0);
 
 const walk = (dir) => readdirSync(dir).flatMap((n) => {
   const p = join(dir, n); const s = statSync(p);
-  if (s.isDirectory()) return n === "node_modules" || n === ".next" ? [] : walk(p);
+  if (s.isDirectory()) return n === "node_modules" || n === ".next" || n === ".vercel" ? [] : walk(p);
   return /\.(js|jsx)$/.test(n) ? [p] : [];
 });
 // Full-line comments are prose about the bug, not the bug.

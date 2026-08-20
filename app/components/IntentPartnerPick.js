@@ -92,6 +92,12 @@ export default function IntentPartnerPick({ city, intent, inventory, accent = "#
                 merchant: deal.providerLabel || "Undercover Tourist", eyebrow: deal.discount || deal.badge || rail.label || "Verified offer",
                 title: deal.title, image, discount: deal.discount || "", badge: deal.badge || "",
                 quality10: Number(deal.quality10 || 0) || 0, kind: "network-deal",
+                // v8.29.4 — the venue's own rating/reviews, resolved server-side
+                // from wf_inventory (lib/dealsData.js mergeVenueScores). Without
+                // these the Undercover Tourist cards next to a Viator card had
+                // no score, no price and no duration, so the whole metadata row
+                // was suppressed and they rendered with a blank gap.
+                rating: Number(deal.rating || 0) || 0, reviews: Number(deal.reviews || 0) || 0,
               });
             }
           }
@@ -230,12 +236,17 @@ export default function IntentPartnerPick({ city, intent, inventory, accent = "#
                   <span style={{ color: accent, fontSize: 8.5, fontWeight: 850, letterSpacing: ".45px", textTransform: "uppercase", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{pick.eyebrow}</span>
                 </div>
                 <div style={{ color: C.text, fontSize: 12.5, lineHeight: 1.35, fontWeight: 750, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{pick.title}</div>
-                {(pick.fromPrice || pick.duration || (pick.rating > 0 && pick.reviews > 0)) ? (
-                  <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 4 }}>
+                {/* v8.29.4 — THE ROW ALWAYS RENDERS. It used to be gated on
+                    having a price, a duration or a score, and an Undercover
+                    Tourist card has none of the three, so LEGOLAND and Busch
+                    Gardens drew a title and then nothing at all. Every card in
+                    this rail now states what is true about it: the Wayfind
+                    score when the venue is confirmed in inventory, "Bookable"
+                    when it is not, and the discount or price beside it. */}
+                <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 4 }}>
                     {pick.rating > 0 && pick.reviews > 0 ? <PlaceScoreChip p={{ rating: pick.rating, reviews: pick.reviews }} size={12} /> : <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted }}>Bookable</span>}
                     {pick.fromPrice || pick.duration || pick.discount ? <span style={{ color: pick.discount ? "#7DD3A8" : C.muted, fontSize: 11, fontWeight: pick.discount ? 800 : 400 }}>{pick.discount || (pick.fromPrice ? `from $${Math.round(pick.fromPrice)}` : "")}{pick.duration ? ` · ${pick.duration}` : ""}</span> : null}
-                  </div>
-                ) : null}
+                </div>
               </div>
             </a>
           );

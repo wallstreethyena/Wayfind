@@ -41,6 +41,16 @@
 // the same never-fabricate rule the rest of this codebase runs on.
 import { useEffect, useState } from "react";
 import { useMarketPhotoFallback } from "./marketPhoto.js";
+// v8.29.2 — the same fallback hands IconicPlaceCard grew in v8.29. RailCard's
+// thumbs were WORSE than a navigation: `onClick={... if (onLike) onLike(e)}`
+// renders an enabled, pressable button that silently does nothing when the
+// caller passed no handler — and several callers wrap their own optional prop
+// the same way (`onLike={(e) => { if (onLike) onLike(e, place); }}`), so the
+// prop is always a function and the card cannot even tell it is dead. Owner,
+// 2026-08-20: "this button for the likes still not working under the exploding
+// trends near you" — DaypartRail renders <ExplodingNearby> with isSaved and
+// onSave and nothing else.
+import { useCardActions, toggleLike as fallbackLike, toggleDislike as fallbackDislike, toggleSave as fallbackSave } from "../../lib/cardActions";
 import { railDotWindow, railDotIsEdge } from "../../lib/railDots.js";
 import { KB_CLICK, WayfindScoreBadge } from "./kit";
 import { stayOnRailReaction } from "../../lib/railReaction.js";
@@ -214,13 +224,42 @@ export default function RailCard({
   photo, photoFallback, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, badge, cta, take,
   onOpen, href, external, ariaLabel, className,
   saved, liked, disliked, onSave, onLike, onDislike, onShare,
+  // v8.29.2 — the row this card is ABOUT. Without it the card has nothing to
+  // like; with it, a caller that wires no handler still gets a working thumb
+  // instead of a button that lies. Optional: a caller with no place row (the
+  // events rail) keeps the old prop-only behaviour, and its thumbs now render
+  // disabled rather than dead.
+  place,
+  // v8.29.6 — the WRITTEN opt-out, for a card that is not a place: the Viator
+  // tour rail in BestNearby has no place row, no handlers and nothing to like.
+  // It used to draw Save / Like / Dislike / Share anyway, all four wired to
+  // `if (onX) onX(e)` — four live buttons over four no-ops. Hiding the row
+  // whenever nothing was wired was the first fix and it was too clever: it
+  // also hid the control on a card that simply had not hydrated yet, which is
+  // the state scripts/test-rail-like-stays.mjs probes. So the card says so in
+  // writing instead, and everything else renders its thumbs — disabled while
+  // they have no hands, which is honest and still unpressable.
+  actionsReadOnly = false,
 }) {
   // v8.13.3 (owner: "I don't want any of the place cards not to have an
   // image"). Rung 3 of the photo ladder — a category/eyebrow-matched stock
   // scene, fetched only when the caller resolved no photo. Runs before the
   // early return (rules of hooks). See ./marketPhoto.js for the ladder.
   const railMarketFallback = useMarketPhotoFallback(photo ? null : (eyebrow || null));
+  // Hooks before the early return, always called (rules of hooks). Subscribes
+  // only when this card actually needs the shared store.
+  const canFallback = !!(place && place.id);
+  const fb = useCardActions(canFallback && !(onSave && onLike && onDislike));
   if (!title) return null;
+  // A wired handler always wins; the store is what an unwired card falls back
+  // to, so no surface can ship a thumb that does nothing.
+  const useFb = canFallback && fb.hydrated;
+  const doSave = onSave || (useFb ? () => fallbackSave(place, { surface: "rail_card" }) : null);
+  const doLike = onLike || (useFb ? () => fallbackLike(place, { surface: "rail_card" }) : null);
+  const doDislike = onDislike || (useFb ? () => fallbackDislike(place, { surface: "rail_card" }) : null);
+  const isSavedNow = onSave ? !!saved : useFb ? !!fb.saved[place.id] : !!saved;
+  const isLikedNow = onLike ? !!liked : useFb ? !!fb.liked[place.id] : !!liked;
+  const isDislikedNow = onDislike ? !!disliked : useFb ? !!fb.disliked[place.id] : !!disliked;
   const list = Array.isArray(facts) ? facts.filter(Boolean) : [];
   const pills = Array.isArray(chips) ? chips.filter(Boolean) : [];
   // The card body is the tap target; every control inside it stops propagation
@@ -229,7 +268,7 @@ export default function RailCard({
   // test-card-a11y.mjs requires of anything that opens a place.
   return (
     <article
-      className={`wf-place-card wf-rail-card${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${className ? " " + className : ""}`}
+      className={`wf-place-card wf-rail-card${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${className ? " " + className : ""}`}
       role="button"
       tabIndex={0}
       onKeyDown={KB_CLICK}
@@ -321,37 +360,58 @@ export default function RailCard({
             >{cta.label}</a>
           ) : null}
 
+          {/* v8.29.2 / v8.29.6 — A CONTROL THIS CARD CANNOT SERVICE DOES NOT
+              RENDER, and the card says so in writing. A tour card (BestNearby's
+              Viator rail) has no place row and no handlers: it used to draw
+              Save / Like / Dislike / Share anyway, all four wired to
+              `if (onX) onX(e)` — four live buttons over four no-ops. Inferring
+              it from "nothing is wired" was the first attempt and it also hid
+              the control on a card that had simply not hydrated yet, so the
+              opt-out is explicit. */}
+          {actionsReadOnly ? null : (
           <div className="wf-place-card-actions wf-sheet-card-actions">
             <button
               type="button"
-              className={"wf-place-card-save" + (saved ? " is-active" : "")}
-              aria-label={saved ? "Remove from saved: " + title : "Save " + title}
-              aria-pressed={!!saved}
-              onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (onSave) onSave(e); }}
-            >{saved ? "♥ Saved" : "♡ Save"}</button>
+              className={"wf-place-card-save" + (isSavedNow ? " is-active" : "")}
+              aria-label={isSavedNow ? "Remove from saved: " + title : "Save " + title}
+              aria-pressed={isSavedNow}
+              disabled={!doSave}
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (doSave) doSave(e); }}
+            >{isSavedNow ? "♥ Saved" : "♡ Save"}</button>
             <button
               type="button"
-              className={"wf-place-card-like" + (liked ? " is-active" : "")}
-              aria-label={liked ? "Remove like: " + title : "Like " + title}
-              aria-pressed={!!liked}
-              title={liked ? "Remove like" : "Like this"}
-              onClick={(e) => stayOnRailReaction(e, onLike)}
+              className={"wf-place-card-like" + (isLikedNow ? " is-active" : "")}
+              aria-label={isLikedNow ? "Remove like: " + title : "Like " + title}
+              aria-pressed={isLikedNow}
+              title={isLikedNow ? "Remove like" : "Like this"}
+              // v8.29.6 — main PR #888 routes this through stayOnRailReaction so
+              // the tap can never navigate; v8.29.2 makes sure there is a hand on
+              // the other end of it. `disabled` is what remains honest for a card
+              // that has neither a handler nor a place row (a Viator tour card):
+              // stayOnRailReaction would return silently there, and a pressable
+              // button that returns silently is the thing being fixed.
+              disabled={!doLike}
+              onClick={(e) => stayOnRailReaction(e, doLike)}
             ><ThumbIcon /></button>
             <button
               type="button"
-              className={"wf-place-card-dislike" + (disliked ? " is-active" : "")}
-              aria-label={disliked ? "Remove dislike: " + title : "Not for me: " + title}
-              aria-pressed={!!disliked}
-              title={disliked ? "Remove dislike" : "Not for me"}
-              onClick={(e) => stayOnRailReaction(e, onDislike)}
+              className={"wf-place-card-dislike" + (isDislikedNow ? " is-active" : "")}
+              aria-label={isDislikedNow ? "Remove dislike: " + title : "Not for me: " + title}
+              aria-pressed={isDislikedNow}
+              title={isDislikedNow ? "Remove dislike" : "Not for me"}
+              disabled={!doDislike}
+              onClick={(e) => stayOnRailReaction(e, doDislike)}
             ><ThumbIcon down /></button>
-            <button
-              type="button"
-              className="wf-place-card-share"
-              aria-label={"Share " + title}
-              onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (onShare) onShare(e); }}
-            >↗ Share</button>
+            {onShare ? (
+              <button
+                type="button"
+                className="wf-place-card-share"
+                aria-label={"Share " + title}
+                onClick={(e) => { e.stopPropagation(); e.preventDefault(); onShare(e); }}
+              >↗ Share</button>
+            ) : null}
           </div>
+          )}
         </div>
       </div>
     </article>

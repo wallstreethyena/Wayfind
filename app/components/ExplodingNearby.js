@@ -53,7 +53,7 @@ function evidenceChip(p) {
   return null;
 }
 
-function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlace, onFindSimilar, isSaved, liked, disliked, onSave, onLike, onDislike, onShare }) {
+function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlace, onFindSimilar, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
   const railSeen = useRef(false);
   const primary = trend.matches[0];
   const more = trend.matches.slice(1);
@@ -104,20 +104,27 @@ function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlac
           onClick: () => onMeaningful("directions", place, { concept_key: trend.conceptKey, trend_position: index + 1, card_position: rank }),
         } : null}
         ariaLabel={"Open " + p.name + " for " + trend.label}
+        // v8.29.2 — the row itself, so an unwired caller still gets a working
+        // thumb from lib/cardActions instead of a button that does nothing.
+        place={place}
         saved={!!(isSaved && isSaved(place))}
-        liked={!!(liked && liked[p.id])}
-        disliked={!!(disliked && disliked[p.id])}
+        liked={!!(liked && liked[p.id]) || !!(isLiked && isLiked(p.id))}
+        disliked={!!(disliked && disliked[p.id]) || !!(isDisliked && isDisliked(p.id))}
         onOpen={() => {
           onMeaningful(additional ? "additional_trend_place_click" : "primary_trend_card_click", place, { concept_key: trend.conceptKey, trend_position: index + 1, card_position: rank });
           try { onLog && onLog("place_detail_view", place, { surface: "exploding_nearby", concept_key: trend.conceptKey, card_position: rank }); } catch (e) {}
           if (onOpenPlace) onOpenPlace(place);
         }}
-        onSave={(e) => {
+        onSave={onSave ? (e) => {
           onMeaningful("trend_card_save", place, { concept_key: trend.conceptKey, card_position: rank });
-          if (onSave) onSave(e, place);
-        }}
-        onLike={(e) => { if (onLike) onLike(e, place); }}
-        onDislike={(e) => { if (onDislike) onDislike(e, place); }}
+          onSave(e, place);
+        } : undefined}
+        // v8.29.2 — CONDITIONAL, not swallowing. `(e) => { if (onLike) ... }`
+        // is always a function, so RailCard could not tell a wired caller from
+        // an unwired one and rendered a live button over a no-op. undefined is
+        // the honest value, and it is what lets the card's own fallback run.
+        onLike={onLike ? (e) => onLike(e, place) : undefined}
+        onDislike={onDislike ? (e) => onDislike(e, place) : undefined}
         onShare={() => {
           onMeaningful("trend_card_share", place, { concept_key: trend.conceptKey, card_position: rank });
           try { onLog && onLog("share", place, { surface: "exploding_nearby", kind: "place", concept_key: trend.conceptKey, card_position: rank }); } catch (e) {}
@@ -180,7 +187,7 @@ function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlac
   );
 }
 
-export default function ExplodingNearby({ center, city, weather, active, onVisibleIds, onOpenPlace, onFindSimilar, onLog, isSaved, liked, disliked, onSave, onLike, onDislike, onShare }) {
+export default function ExplodingNearby({ center, city, weather, active, onVisibleIds, onOpenPlace, onFindSimilar, onLog, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
   const [result, setResult] = useState({ status: "loading", trends: [] });
   const [retry, setRetry] = useState(0);
   const rootRef = useRef(null);
@@ -339,6 +346,8 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
           isSaved={isSaved}
           liked={liked}
           disliked={disliked}
+          isLiked={isLiked}
+          isDisliked={isDisliked}
           onSave={onSave}
           onLike={onLike}
           onDislike={onDislike}

@@ -291,13 +291,14 @@ export default function CreatorFinds({ items, byCity, center, excludePlaceIds, o
                 award={v && v.creator ? { tone: "creator", icon: "🎬", label: "@" + v.creator + (plat ? " on " + plat.label : "") } : null}
                 chips={creatorChips(p, onExperience)}
                 ariaLabel={"Open " + p.name}
+                place={p}
                 onOpen={open}
                 saved={isSaved ? !!isSaved(p.id) : false}
                 liked={liked ? !!liked[p.id] : false}
                 disliked={disliked ? !!disliked[p.id] : false}
-                onSave={(e) => { if (onSave) onSave(e, p); }}
-                onLike={(e) => { if (onLike) onLike(e, p); }}
-                onDislike={(e) => { if (onDislike) onDislike(e, p); }}
+                onSave={onSave ? (e) => onSave(e, p) : undefined}
+                onLike={onLike ? (e) => onLike(e, p) : undefined}
+                onDislike={onDislike ? (e) => onDislike(e, p) : undefined}
                 onShare={() => { if (onShare) onShare(p); }}
               />
             );

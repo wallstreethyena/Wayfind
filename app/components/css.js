@@ -109,6 +109,32 @@ export const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba
   `.wf-search-row{min-width:0}.wf-search-field{flex:1;min-width:0;position:relative}.wf-scope-city{max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wf-search-input{min-width:0}` +
   `@media(max-width:430px){.wf-scope{padding:0 8px;gap:4px}.wf-scope-city{max-width:56px}.wf-search-icon{display:none!important}.wf-search-input{font-size:14px!important;padding-left:12px!important;padding-right:8px!important}.wf-search-submit{width:46px!important}}`;
 export const WF_PLACE_CARD_CSS = `
+/* v8.29 — THE TICKET (owner, 2026-08-20: "display the tickets from viator on
+   the place cards we need to make it look premium and fancy not ghetto like
+   this"). This is the only element on a place card that earns revenue, and it
+   shipped as a bare anchor with one inline colour inside a lane of designed
+   chips — so the eye read it as leftover text and slid past it.
+
+   It is a ticket now, and it is a ticket by TYPOGRAPHY rather than by
+   decoration: a stamped, letterspaced label at 9.5px/800 against the merchant
+   name at 11px/700 in the reading colour, split by a perforated rule. No
+   notches cut out of the sides — those need to punch through to the card's
+   own background, and this card renders on four different backgrounds.
+
+   It sits inside .wf-place-card-highlights, whose one-row clamp is 30px, so
+   the chip is 26 and shrinks to 24 on a 390px phone. */
+.wf-ticket-pill{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 9px 0 8px;border-radius:7px;text-decoration:none;position:relative;color:#FFD9AE;background:linear-gradient(180deg,rgba(253,186,116,.17),rgba(249,115,22,.10));border:1px solid rgba(253,186,116,.44);box-shadow:inset 0 1px 0 rgba(255,236,209,.18),0 1px 0 rgba(0,0,0,.34);transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+.wf-ticket-pill svg{width:13px;height:13px;display:block;flex:0 0 13px;color:#FDBA74}
+.wf-ticket-pill-lb{font-size:9.5px;font-weight:800;letter-spacing:.085em;text-transform:uppercase;color:#FFC98A;line-height:1}
+.wf-ticket-pill-sep{flex:0 0 1px;width:1px;height:12px;background:repeating-linear-gradient(180deg,rgba(253,186,116,.6) 0 2px,transparent 2px 4px)}
+.wf-ticket-pill-mr{font-size:11px;font-weight:700;line-height:1;color:#FFEAD2;max-width:104px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wf-ticket-pill-ar{font-size:10px;font-weight:800;line-height:1;color:rgba(255,201,138,.82)}
+@media(hover:hover){.wf-ticket-pill:hover{background:linear-gradient(180deg,rgba(253,186,116,.27),rgba(249,115,22,.17));border-color:rgba(253,186,116,.72);box-shadow:inset 0 1px 0 rgba(255,236,209,.26),0 5px 16px -7px rgba(249,115,22,.75);transform:translateY(-1px)}}
+.wf-ticket-pill:active{transform:none}
+.wf-ticket-pill:focus-visible{outline:2px solid #FDBA74;outline-offset:2px}
+@media(max-width:390px){.wf-ticket-pill{height:24px;gap:5px;padding:0 8px 0 7px}.wf-ticket-pill-mr{max-width:82px}}
+@media (prefers-reduced-motion:reduce){.wf-ticket-pill{transition:none}.wf-ticket-pill:hover{transform:none}}
+
 /* v8.22 — THE CONTRACT IS SELF-CONTAINED. The card ships onto pages that
    never load the app's global border-box reset (guide pages, embeds), and
    UA defaults give <button> border-box but <a> CONTENT-box — which is why

@@ -41,7 +41,7 @@ const ALLOWED = new Set([
   "lib/businessStatus.js", // venue-offset opening-hours math, driven by Date.now() + a per-place utcOffset
 ]);
 // Guards and tests may exercise the clock directly — that is their job.
-const SKIP_DIRS = new Set(["node_modules", ".next", ".git", "public", "docs", "supabase", "design-after-final"]);
+const SKIP_DIRS = new Set(["node_modules", ".next", ".vercel", ".git", "public", "docs", "supabase", "design-after-final"]);
 
 const HOUR_READS = [
   { re: /\.getHours\s*\(/g, what: "getHours()" },

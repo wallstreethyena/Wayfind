@@ -524,6 +524,15 @@ export default function IntentPageClient({ intent }) {
     });
   };
 
+  // v8.29.5 (owner, on /worth-the-drive: "there is nothing there" — a hero
+  // panel with a headline, a deck, a rule, then a hand-sized void, then the
+  // Share button). TWO empty slots made that hole. This page passed
+  // trustLines={[]}, which BLANKED the shield line the hero reserves room for;
+  // RankedExperiencePage already ships the right default copy, so the override
+  // was deleting content rather than choosing it, and it is gone. The other
+  // half is the quick-answer grid, which this page has no server data for —
+  // EditorialLandingHero now tightens the whole hero when that block is absent
+  // instead of holding 620px open for something that is never coming.
   return (
     <RankedExperiencePage
       topLeft={<BackControl fallback="/" variant="editorial" />}
@@ -540,7 +549,6 @@ export default function IntentPageClient({ intent }) {
           {copied ? "Link copied" : "Share this list"} <span aria-hidden="true">↗</span>
         </button>
       )}
-      trustLines={[]}
       footerSlot={<ScoreDisclosure />}
     >
       {/* ══ THE SHARED COMPOSITION (v6.72) ══════════════════════════════════

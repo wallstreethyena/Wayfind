@@ -198,9 +198,19 @@ ok(/onLike=\{onLike\}/.test(guide) && /onDislike=\{onDislike\}/.test(guide),
   "GuidePlaceCard passes onLike/onDislike into IconicPlaceCard");
 
 const iconicSrc = read("app/components/IconicPlaceCard.js");
-ok(/onClick=\{\(e\) => stayOnRailReaction\(e, onLike, place\)\}/.test(iconicSrc),
+// v8.29.6 — RE-POINTED, NOT RELAXED. These pinned `stayOnRailReaction(e, onLike,
+// place)` — the RAW prop. The prop is null on any surface that forgot to wire
+// one, and stayOnRailReaction returns silently when the handler is missing, so
+// the literal this asserted was also the literal that shipped a live button
+// over a no-op. `doLike` is `onLike` when the caller wired one and
+// lib/cardActions.js's shared store otherwise, so the contract this guard
+// exists for — the tap never navigates — is unchanged, and the tap now also
+// always does something. Both halves are asserted.
+ok(/const doLike = onLike \|\| \(fb\.hydrated \?/.test(iconicSrc) && /const doDislike = onDislike \|\| \(fb\.hydrated \?/.test(iconicSrc),
+  "IconicPlaceCard resolves doLike/doDislike from the prop with a hydrated fallback — the handler is never missing");
+ok(/onClick=\{\(e\) => stayOnRailReaction\(e, doLike, place\)\}/.test(iconicSrc),
   "IconicPlaceCard like button CALLS stayOnRailReaction — a comment is not a handler");
-ok(/onClick=\{\(e\) => stayOnRailReaction\(e, onDislike, place\)\}/.test(iconicSrc),
+ok(/onClick=\{\(e\) => stayOnRailReaction\(e, doDislike, place\)\}/.test(iconicSrc),
   "IconicPlaceCard dislike button CALLS stayOnRailReaction");
 
 if (fail) {

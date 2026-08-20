@@ -187,11 +187,18 @@ ok(placePartnerPick({ name: "Florida Aquarium Bar" }) === null, "place matching 
 // {merchant} ↗"; the full partner disclosure moved to the anchor's aria-label
 // and title. Re-pointed, not deleted — the guard now asserts all three parts
 // of the new contract instead of the retired long copy.
+// v8.29 — the visible label was restyled from a bare anchor into a designed
+// ticket chip (WF_PLACE_CARD_CSS .wf-ticket-pill), so the literal
+// "🎟️ Tickets · {partner.merchant} ↗" this pinned no longer exists. What the
+// guard is FOR is the disclosure contract, not the punctuation: a visible
+// label that says Tickets and names the merchant, the full partner
+// disclosure in aria-label and title, and rel="sponsored". Pinned to those.
 ok(/aria-label=\{`Partner tickets for \$\{place\.name\} via \$\{partner\.merchant\}`\}/.test(placeClientSrc)
-  && /🎟️ Tickets · \{partner\.merchant\} ↗/.test(placeClientSrc)
+  && />\s*Tickets\s*</.test(placeClientSrc)
+  && /\{partner\.merchant\}/.test(placeClientSrc)
   && /Wayfind may earn a commission; rankings never change\./.test(placeClientSrc)
   && /rel="sponsored noopener"/.test(placeClientSrc),
-  "global place cards disclose exact partner ticket links: concise visible label + full aria/title disclosure + sponsored rel");
+  "global place cards disclose exact partner ticket links: visible label names the merchant + full aria/title disclosure + sponsored rel");
 for (const row of PLACE_PARTNER_PICKS) {
   if (row.provider === "undercover_tourist") {
     // UT hooks resolve against wf_deals (table-backed provider, cron

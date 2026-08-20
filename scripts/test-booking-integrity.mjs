@@ -64,7 +64,7 @@ const GO_OK = new Set(["lib/affiliates.js"]);                                  /
 const PRODUCT_OK = new Set(["lib/affiliates.js", "lib/bookingResolver.js", "lib/viatorServer.js", "lib/guides.js", "lib/coupons.js"]); // resolver + curated editorial data
 const walk = (dir) => readdirSync(dir).flatMap((n) => {
   const p = join(dir, n); const s = statSync(p);
-  if (s.isDirectory()) return n === "node_modules" || n === ".next" ? [] : walk(p);
+  if (s.isDirectory()) return n === "node_modules" || n === ".next" || n === ".vercel" ? [] : walk(p);
   return /\.(js|jsx|mjs)$/.test(n) ? [p] : [];
 });
 // Strip full-line comments so a doc line mentioning the URL isn't read as construction.

@@ -532,13 +532,14 @@ export default function IntentRailBody({
                     },
                   } : null}
                   ariaLabel={"Open " + r.name}
+                  place={place}
                   saved={!!(isSaved && isSaved(place))}
                   liked={!!(liked && liked[r.id])}
                   disliked={!!(disliked && disliked[r.id])}
                   onOpen={() => { try { if (onLog) onLog("home_rail_open", { id: r.id, name: r.name }, { rail: intent, pos: i + 1 }); } catch (e) {} if (onOpenPlace) onOpenPlace(place); }}
-                  onSave={(e) => { if (onSave) onSave(e, place); }}
-                  onLike={(e) => { if (onLike) onLike(e, place); }}
-                  onDislike={(e) => { if (onDislike) onDislike(e, place); }}
+                  onSave={onSave ? (e) => onSave(e, place) : undefined}
+                  onLike={onLike ? (e) => onLike(e, place) : undefined}
+                  onDislike={onDislike ? (e) => onDislike(e, place) : undefined}
                   onShare={() => { if (onShare) onShare(place); }}
                 />
               );

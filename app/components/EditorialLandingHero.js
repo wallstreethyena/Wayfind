@@ -44,6 +44,16 @@ export function editorialHeroCss(prefix = "wf-beach-premium") {
   box-shadow:0 32px 90px rgba(0,0,0,.48),inset 0 1px rgba(255,255,255,.7);
 }
 .${P}-media{position:relative;min-height:620px;overflow:hidden;background:#101923}
+/* v8.29.5 — 620px IS A PROMISE ABOUT CONTENT THAT IS NOT ALWAYS KEPT. The hero
+   holds that height for the quick-answer grid, and the intent pages
+   (/worth-the-drive, /hidden-gems, /date-night…) have no server data for it —
+   so the panel drew a headline, a deck, a rule and then a hand-sized void
+   above the Share button. Owner: "there is nothing there."
+   When the grid is genuinely absent the whole hero tightens instead of holding
+   the gap open. :has() is already used elsewhere in this codebase's CSS and
+   degrades to the old height on anything that lacks it. */
+.${P}-hero:not(:has(.${P}-picks)){min-height:462px}
+.${P}-hero:not(:has(.${P}-picks)) .${P}-media{min-height:462px}
 .${P}-media>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .${P}-media:after{
   content:"";

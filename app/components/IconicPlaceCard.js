@@ -19,6 +19,21 @@ import { useEffect, useRef, useState } from "react";
 import { useMarketPhotoFallback, marketPhotoQuery } from "./marketPhoto.js";
 import { hasPlacePhotoRef } from "../../lib/placePhoto.js";
 import { toHookLine } from "../../lib/editorialHook.js";
+// v8.29 — THE CARD'S OWN HANDS. Save/Like/Dislike used to fall back to
+// <a href="/p/<id>?action=like"> whenever a caller forgot to wire a handler,
+// which turned a like into a navigation on every surface that forgot. The card
+// now carries a working fallback instead of a link. See lib/cardActions.js.
+import { useCardActions, toggleLike as fallbackLike, toggleDislike as fallbackDislike, toggleSave as fallbackSave } from "../../lib/cardActions";
+// v8.29.6 — MERGED WITH main's PR #888 (lib/railReaction.js), which fixed the
+// same tap from the other end: it deletes the Like/Dislike anchor outright and
+// routes every reaction through one click contract that cannot navigate.
+//
+// Both fixes are kept, because they solve different halves. #888 guarantees the
+// tap NEVER leaves the rail; it also made every unwired card a live button over
+// a no-op, because stayOnRailReaction silently returns when the handler is
+// missing. lib/cardActions.js is what stops that: the handler is never missing
+// after hydration. So the control is always a <button> (#888's rule) and it
+// always has hands (v8.29's). The anchor is gone for like and dislike.
 import { stayOnRailReaction } from "../../lib/railReaction.js";
 
 // ---------------------------------------------------------------------------
@@ -186,6 +201,16 @@ const photoUrl = (p) => {
   return null;
 };
 
+// v8.29 — the ticket glyph. Drawn, not an emoji: 🎟️ is a different picture on
+// iOS, Android and Windows, and the one control on this card that earns money
+// should not be the one whose artwork the platform chooses.
+const TicketGlyph = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+    <path d="M3 8.5V6.6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v1.9a2.4 2.4 0 0 0 0 4.8v1.9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-1.9a2.4 2.4 0 0 0 0-4.8Z" />
+    <path d="M14.6 5.6v1.7M14.6 11.1v1.8M14.6 16.7v1.5" strokeDasharray="1.6 2" />
+  </svg>
+);
+
 const ThumbIcon = ({ down = false }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     {down
@@ -194,7 +219,14 @@ const ThumbIcon = ({ down = false }) => (
   </svg>
 );
 
-export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, inTrip, onSave, onItinerary, onLike, onDislike, onOpen, onBadge }) {
+export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, inTrip, onSave, onItinerary, onLike, onDislike, onOpen, onBadge, cardActionsReadOnly = false, surface = "place_card" }) {
+  // v8.29 — the shared like/dislike/save store, read ONLY when this card has an
+  // action its caller did not wire. A fully wired card (the home shell's, which
+  // owns its own state) subscribes to nothing and re-renders for nothing.
+  // Hooks run before the early return below, because they must: a card whose
+  // `place` arrives late may not skip a hook on the render before it.
+  const needsFallback = !cardActionsReadOnly && !(onSave && onLike && onDislike);
+  const fb = useCardActions(needsFallback);
   if (!place) return null;
   const expTags = experienceTags(place, 3);
   // THE GOVERNING LAW, shown == sorted (2026-08-07): a row ranked through
@@ -256,6 +288,18 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   // rail → /p/{id}?action=like → trapped on the place route). Like is a
   // signal, not a page. See lib/railReaction.js.
   const actionHref = (action) => "/p/" + encodeURIComponent(place.id) + "?action=" + action;
+  // v8.29 — WIRED, OR THE CARD WIRES ITSELF. `fb.hydrated` is false on the
+  // server and on the hydrating render, so the markup React reconciles against
+  // is byte-identical to the HTML that was sent (the no-JS anchor); the swap to
+  // a real button happens on the render right after, which is an update, not a
+  // mismatch. Net effect: the anchor exists only while the page cannot run the
+  // handler anyway, and a tap after hydration can never be a navigation.
+  const doSave = onSave || (fb.hydrated ? (e, p) => fallbackSave(p, { surface }) : null);
+  const doLike = onLike || (fb.hydrated ? (e, p) => fallbackLike(p, { surface }) : null);
+  const doDislike = onDislike || (fb.hydrated ? (e, p) => fallbackDislike(p, { surface }) : null);
+  const isSavedNow = onSave ? !!saved : fb.hydrated ? !!fb.saved[place.id] : !!saved;
+  const isLikedNow = onLike ? !!liked : fb.hydrated ? !!fb.liked[place.id] : !!liked;
+  const isDislikedNow = onDislike ? !!disliked : fb.hydrated ? !!fb.disliked[place.id] : !!disliked;
   // v8.22 (owner: "indicate in the pills that the row is scrollable — someone
   // looking at it won't know"). After hydration, measure the lane: when it
   // genuinely overflows, a small pulsing chevron sits at its right edge and
@@ -399,10 +443,28 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
                   if (live && event.currentTarget) event.currentTarget.href = live;
                   try { emitCommerce("commerce_cta_clicked", { surface: "iconic_place_card", provider: partner.provider, merchant: partner.merchant, offer_id: partner.offerId, content_id: place.id, click_id: clickId, disclosure_version: "partner-place-v1" }); } catch {}
                 }}
-                style={{ color: "#FDBA74", textDecoration: "none" }}
+                className="wf-ticket-pill"
               >{/* v8.22 (owner: "it doesn't have to have so many letters —
                   be more concise"). Merchant + arrow is the whole message;
-                  the title/aria keep the full disclosure. */}🎟️ Tickets · {partner.merchant} ↗</a>
+                  the title/aria keep the full disclosure.
+
+                  v8.29 (owner: "display the tickets from viator on the place
+                  cards ... make it look premium and fancy not ghetto like
+                  this"). Same words, same disclosure, same one row — but it
+                  was a bare <a> with one inline colour sitting in a lane of
+                  real chips, so the ONE monetised affordance on the card was
+                  the least designed thing on it. It is now a ticket: stamped
+                  label, perforated stub rule, merchant in the reading weight,
+                  and a drawn glyph instead of an emoji that renders as a
+                  different picture on every platform. Styling only — the href,
+                  the click-id mint, the commerce event and the rel are
+                  untouched. */}
+                <TicketGlyph />
+                <span className="wf-ticket-pill-lb">Tickets</span>
+                <span className="wf-ticket-pill-sep" aria-hidden="true" />
+                <span className="wf-ticket-pill-mr">{partner.merchant}</span>
+                <span className="wf-ticket-pill-ar" aria-hidden="true">↗</span>
+              </a>
             ) : null}
           </div>
           {/* v8.22 (owner: "indicate that the pills are scrollable — someone
@@ -444,39 +506,49 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
                 them and re-parented the fallback to onItinerary, so any surface
                 passing onSave but NOT onItinerary drew TWO save controls. It is
                 back where it belongs. */}
-            {onSave ? (
+            {doSave ? (
               <button
                 type="button"
-                className={"wf-place-card-save" + (saved ? " is-active" : "")}
-                aria-label={saved ? "Remove from saved: " + place.name : "Save " + place.name}
-                aria-pressed={!!saved}
-                onClick={(e) => { e.stopPropagation(); e.preventDefault(); onSave(e, place); }}
-              >{saved ? "♥ Saved" : "♡ Save"}</button>
+                className={"wf-place-card-save" + (isSavedNow ? " is-active" : "")}
+                aria-label={isSavedNow ? "Remove from saved: " + place.name : "Save " + place.name}
+                aria-pressed={isSavedNow}
+                onClick={(e) => { e.stopPropagation(); e.preventDefault(); doSave(e, place); }}
+              >{isSavedNow ? "♥ Saved" : "♡ Save"}</button>
             ) : (
               <a className="wf-place-card-save" href={actionHref("save")} aria-label={"Save " + place.name}>♡ Save</a>
             )}
-            {/* Like/Dislike are ALWAYS buttons. The 2026-08-01 / 2026-08-20
-                fallback <a href="/p/{id}?action=like"> left the rail and
-                trapped the reader on the place route. Unwired callers get a
-                button that still cannot navigate (stayOnRailReaction no-ops
-                the missing handler). Wired callers record the signal in
-                place. */}
-            <button
-              type="button"
-              className={"wf-place-card-like" + (liked ? " is-active" : "")}
-              aria-label={liked ? "Remove like: " + place.name : "Like " + place.name}
-              aria-pressed={!!liked}
-              title={liked ? "Remove like" : "Like this place"}
-              onClick={(e) => stayOnRailReaction(e, onLike, place)}
-            ><ThumbIcon /></button>
-            <button
-              type="button"
-              className={"wf-place-card-dislike" + (disliked ? " is-active" : "")}
-              aria-label={disliked ? "Remove dislike: " + place.name : "Not for me: " + place.name}
-              aria-pressed={!!disliked}
-              title={disliked ? "Remove dislike" : "Not for me"}
-              onClick={(e) => stayOnRailReaction(e, onDislike, place)}
-            ><ThumbIcon down /></button>
+            {/* v8.29.6 — ALWAYS A BUTTON (main PR #888), ALWAYS WIRED (v8.29).
+                The anchor is gone: a control that promises to register a like
+                and instead loads a route is the bug both fixes exist for. The
+                handler is `doLike`, which is the caller's when the caller wired
+                one and lib/cardActions.js's shared store otherwise — so
+                stayOnRailReaction's "no-op when the handler is missing" branch
+                is unreachable on a hydrated page rather than the normal case.
+                stayOnRailReaction owns stopPropagation + preventDefault, so the
+                tap can never fall through to the surrounding list's navigation.
+
+                cardActionsReadOnly remains the written opt-out for a surface
+                that genuinely must not offer the control at all. */}
+            {cardActionsReadOnly ? null : (
+              <button
+                type="button"
+                className={"wf-place-card-like" + (isLikedNow ? " is-active" : "")}
+                aria-label={isLikedNow ? "Remove like: " + place.name : "Like " + place.name}
+                aria-pressed={isLikedNow}
+                title={isLikedNow ? "Remove like" : "Like this place"}
+                onClick={(e) => stayOnRailReaction(e, doLike, place)}
+              ><ThumbIcon /></button>
+            )}
+            {cardActionsReadOnly ? null : (
+              <button
+                type="button"
+                className={"wf-place-card-dislike" + (isDislikedNow ? " is-active" : "")}
+                aria-label={isDislikedNow ? "Remove dislike: " + place.name : "Not for me: " + place.name}
+                aria-pressed={isDislikedNow}
+                title={isDislikedNow ? "Remove dislike" : "Not for me"}
+                onClick={(e) => stayOnRailReaction(e, doDislike, place)}
+              ><ThumbIcon down /></button>
+            )}
             <button className="wf-place-card-share" type="button" aria-label={"Share " + place.name} onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (onShare) onShare(place); }}>↗ Share</button>
           </div>
         </div>
