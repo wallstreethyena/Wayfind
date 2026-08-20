@@ -20,6 +20,7 @@
  */
 import { readFileSync } from "fs";
 import { atlasCardForName } from "../lib/atlasCards.js";
+import { editorialFor } from "../lib/editorial.js";
 import {
   stripEditorialNameSuffix,
   collectEditorialNames,
@@ -113,6 +114,37 @@ ok(atlasCardForName(atlasCards, "Sarasota Medieval Fair") === null,
   "Medieval Fair is absent from Atlas — we do not invent a card for it");
 ok(atlasCardForName(atlasCards, "") === null && atlasCardForName(atlasCards, null) === null,
   "atlasCardForName is total over absence");
+
+// ── name-keyed note: /api/editorial finds it; Atlas stays empty ─────────────
+const FAIR_KNOWN = "Twice-daily full-armored joust, on the tournament field";
+const FAIR_WHY = "Sarasota Medieval Fair holds Full-Armored Jousting Tournaments twice daily, on the tournament field in the Woods of Mallaranny. Official welcome still dates this 47-acre woodland village Saturday–Sunday, November 7 through December 6.";
+const fairNote = editorialFor("Sarasota Medieval Fair");
+ok(fairNote && fairNote.knownFor === FAIR_KNOWN,
+  "editorialFor(Sarasota Medieval Fair) returns the verbatim sourced knownFor");
+ok(fairNote && fairNote.why === FAIR_WHY,
+  "editorialFor(Sarasota Medieval Fair) returns the verbatim sourced why");
+ok(editorialFor("Sarasota Medieval Fair 2026") === fairNote,
+  "editorialFor(Sarasota Medieval Fair 2026) prefix-matches the same note");
+ok(hasSourcedEditorialFields(fairNote) === true,
+  "the name-keyed note has rail fields — WayfindTakeRail would mount");
+
+// The route walks editorialNameCandidates then editorialFor. Assert that
+// call, not a regex over the route body (CLAUDE.md: assert on the CALL).
+const liveNames = editorialNameCandidates("Sarasota Medieval Fair", "");
+ok(liveNames.includes("Sarasota Medieval Fair"),
+  "/api/editorial?name=Sarasota Medieval Fair yields that candidate");
+ok(liveNames.some((n) => editorialFor(n) === fairNote),
+  "/api/editorial name candidates resolve the sourced note — not {none}");
+const yearNames = editorialNameCandidates("Sarasota Medieval Fair 2026", "");
+ok(yearNames.includes("Sarasota Medieval Fair") && yearNames.some((n) => editorialFor(n) === fairNote),
+  "a trailing-year name query still resolves after suffix strip + prefix match");
+const eventQueryNames = editorialQueryNames({
+  id: "x",
+  name: "Sarasota Fairgrounds",
+  _event: { name: "Sarasota Medieval Fair 2026", venue: "Sarasota Fairgrounds" },
+});
+ok(eventQueryNames.some((n) => editorialFor(n) === fairNote),
+  "Detail's event-shaped query names include a candidate that resolves");
 
 // ── rail: sourced event editorial paints; empty stays null ──────────────────
 const sourcedEventEd = { why: "A dated fair with a real grounds, not a mall pop-up.", knownFor: "Jousting and a weekend village on the fairgrounds" };
