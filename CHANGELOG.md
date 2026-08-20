@@ -1,3 +1,27 @@
+## v8.29.4 - Every bookable card states what is true about it
+- Owner, 2026-08-20, on the Bookable-highlights rail: "these places still don't have
+  the wayfind score."
+- THE ROW WAS SUPPRESSED, NOT JUST EMPTY. The metadata line rendered only when a
+  card had a price, a duration OR a score. An Undercover Tourist row carries none
+  of the three, so LEGOLAND and Busch Gardens drew a title and then nothing at all,
+  next to Viator cards reading "9.3 - from $90 - 2h". The two biggest attractions in
+  the state looked less trustworthy than a kayak tour.
+- Both venues ARE in wf_inventory with real numbers (LEGOLAND Florida Resort
+  4.5/19,000; Busch Gardens Tampa Bay 4.4/98,062). The deal rows simply never
+  looked them up. serveDeals() now resolves each deal's `maps_to` against
+  wf_inventory and stamps the venue's own rating/reviews onto the row, so a partner
+  card shows the SAME Wayfind chip every place card on the site shows.
+- THE MATCH IS DELIBERATELY CONSERVATIVE. ilike on the stem returns near-misses:
+  "legoland florida" also surfaces LEGOLAND Discovery Center Arizona, and "busch
+  gardens tampa bay" also surfaces its Howl-O-Scream event and a Red Roof Inn named
+  after it. A row is accepted only when the venue name contains EVERY word of the
+  stem; an exact name match wins outright, otherwise the most-reviewed survivor
+  does, and the >=15-review floor still applies. No confirmed venue -> no score, and
+  the card says "Bookable" rather than borrowing a number that is not about it.
+- One Supabase read per distinct maps_to per category, behind the route's existing
+  300s s-maxage. No Google Places call is added.
+- 378/378 guards green.
+
 ## v8.29.3 - The card and the sheet name the same product, and a guide's art is chosen by slug
 - Owner, 2026-08-20, on a kayak tour whose CARD showed "TICKETS - Viator" and whose
   DETAIL SHEET showed Directions and nothing else: "where the fuck is the viator
