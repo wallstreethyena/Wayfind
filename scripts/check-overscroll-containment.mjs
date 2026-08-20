@@ -27,7 +27,7 @@ const ok = (c, m) => { checks++; if (!c) { bad++; console.error("check-overscrol
 
 const walk = (dir) => readdirSync(dir).flatMap((n) => {
   const p = join(dir, n); const s = statSync(p);
-  if (s.isDirectory()) return n === "node_modules" || n === ".next" ? [] : walk(p);
+  if (s.isDirectory()) return n === "node_modules" || n === ".next" || n === ".vercel" ? [] : walk(p);
   return /\.(js|jsx)$/.test(n) ? [p] : [];
 });
 

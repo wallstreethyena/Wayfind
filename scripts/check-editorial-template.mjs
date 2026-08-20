@@ -82,7 +82,12 @@ if (ref) {
 // ── The whole point: the rule text exists in exactly one file. ──────────────
 // A copy-paste of the layout into a new surface is the failure mode; it shows up
 // as these selectors appearing in a second file.
-const SKIP = new Set(["node_modules", ".next", ".git", "coverage"]);
+// v8.29.3 — ".vercel" joins the skip list. `vercel build` writes a full copy of
+// the compiled app to .vercel/output, so this guard found the layout CSS in two
+// minified chunks and reported the one implementation as three. It failed on
+// any checkout where anyone had ever run a Vercel build — a guard describing
+// the build directory instead of the source.
+const SKIP = new Set(["node_modules", ".next", ".git", ".vercel", "coverage"]);
 const files = [];
 (function walk(d) {
   let entries = [];

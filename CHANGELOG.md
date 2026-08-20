@@ -1,3 +1,39 @@
+## v8.29.3 - The card and the sheet name the same product, and a guide's art is chosen by slug
+- Owner, 2026-08-20, on a kayak tour whose CARD showed "TICKETS - Viator" and whose
+  DETAIL SHEET showed Directions and nothing else: "where the fuck is the viator
+  link ... i need this to be fixed globally".
+- TWO RESOLVERS, ONE PLACE. The card reads lib/placePartnerPicks.js - the
+  hand-verified exact-name registry, one venue to one product code. The sheet ran
+  lib/detailCta.js's ladder, which resolves tickets through bookingTargets and
+  Travelpayouts probes and knew nothing about that registry. Any place in the
+  registry the probes missed advertised a purchase on the card and dropped it on
+  the next screen. That is worse than no card: it spends the click and loses it.
+- The registry is now rung 1.5 of the ladder, ahead of every probe, for every place
+  type - it is the most specific thing we know about a venue. The sheet links THAT
+  product (`exact: true`) instead of handing the place back to <BookingCTA>, which
+  re-resolves from scratch and would throw the verified match away. Same
+  commerceHref / mintClickId / emitCommerce shape, same rel="sponsored noopener"
+  and the same aria/title disclosure as the card's chip.
+- GUIDE HERO ART IS CHOSEN BY SLUG. guideHero() matched on KEYWORDS, so
+  /dining|brunch|date/ handed one laid-table photograph to the brunch guide, the
+  Orlando magical-dining guide and every date-night guide at once - which is why
+  the owner asked six times for six different images. GUIDE_HERO_ART maps slug to
+  art and is consulted first; the keyword branches remain the fallback. Art is
+  self-hosted under /public/guides with its licence recorded in
+  public/guides/CREDITS.md, never hotlinked.
+- GUIDE PLACE CARDS: THE STEM SEARCH ONLY EVER TRIMMED FROM THE RIGHT. v8.14 added
+  right-trimming because authors suffix regions; they also prefix articles and
+  verbs. things-to-do-sarasota's pick is name "Ride the Legacy Trail" / appQuery
+  "The Legacy Trail", the inventory row is "Legacy Trail" - so both stems missed and
+  a place with 257 reviews and a photo rendered as a bare "Open in Wayfind" button.
+  Every contiguous word window is tried now, longest and leftmost first, capped at
+  8. The >=15-review floor and the 80-mile geo gate are untouched: they are what
+  keeps a wider net from catching the wrong place.
+- Eight guards walked .vercel/output as if it were source, so any checkout that had
+  run a Vercel build failed check-editorial-template's "exactly one implementation"
+  by counting the compiled copies. .vercel joins .next in every skip list.
+- 378/378 guards green.
+
 ## v8.29.2 - A thumb that does nothing is worse than one that navigates
 - Owner, 2026-08-20, after v8.29 shipped: "this button for the likes still not
   working under the exploding trends near you."

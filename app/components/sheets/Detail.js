@@ -226,6 +226,36 @@ function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logE
   const [earnHydrated, setEarnHydrated] = useState(false);
   useEffect(() => { setEarnHydrated(true); }, []);
 
+  // v8.29.3 — AN EXACT, VERIFIED PRODUCT LINKS TO ITSELF (owner: "where is the
+  // viator link"). <BookingCTA> re-resolves the place from scratch, which is
+  // right when all we have is a category probe and wrong when lib/detailCta.js
+  // already matched this venue to one hand-verified product code — that match
+  // is what the place card promised, and it must be what the sheet delivers.
+  // Same commerceHref / mintClickId / emitCommerce shape and the same
+  // rel="sponsored noopener" as the card's ticket chip.
+  if (primaryCta.exact && primaryCta.href) {
+    return (
+      <a
+        ref={ctaRef}
+        href={primaryCta.href}
+        target="_blank"
+        rel="sponsored noopener"
+        aria-label={`Tickets for ${detail.name} via ${primaryCta.merchant}`}
+        title="Partner link. Wayfind may earn a commission; rankings never change."
+        style={style}
+        onClick={(e) => {
+          const clickId = mintClickId();
+          const live = commerceHref({ provider: primaryCta.provider, offerId: primaryCta.offerId, surface: "detail_primary", contentId: detail.id, clickId });
+          if (live && e.currentTarget) e.currentTarget.href = live;
+          try { emitCommerce("commerce_cta_clicked", { surface: "detail_primary", provider: primaryCta.provider, merchant: primaryCta.merchant, offer_id: primaryCta.offerId, content_id: detail.id, click_id: clickId, disclosure_version: "partner-place-v1" }); } catch (err) {}
+          onClick();
+        }}
+      >
+        <span>{primaryCta.label}</span><span aria-hidden="true">↗</span>
+      </a>
+    );
+  }
+
   if (primaryCta.type === DETAIL_CTA_TYPES.tickets || primaryCta.type === DETAIL_CTA_TYPES.rates) {
     return (
       <BookingCTA

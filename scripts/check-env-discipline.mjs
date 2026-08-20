@@ -83,7 +83,7 @@ const GRANDFATHERED_FALLBACK = new Set([
 // Populated from the tree as it stands; the config module lands separately.
 const GRANDFATHERED_DIRECT = new Set(); // seeded below on first run
 
-const SKIP_DIRS = new Set(["node_modules", ".next", ".git", "coverage"]);
+const SKIP_DIRS = new Set(["node_modules", ".next", ".vercel", ".git", "coverage"]);
 function walk(dir, out = []) {
   let entries = [];
   try { entries = readdirSync(dir, { withFileTypes: true }); } catch { return out; }
