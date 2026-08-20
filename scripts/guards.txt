@@ -339,6 +339,11 @@ node scripts/check-score-law.mjs
 node scripts/check-trend-signal.mjs
 node scripts/check-version-watch.mjs
 node scripts/check-partner-hook-collisions.mjs
+# 2026-08-19 — one founder-verified Shell Key clear-kayak pin. Asserts the
+# CALL (placePartnerPick + commerceHref + resolveOffer), not a substring:
+# exact SKU 173028P1, tracked hop only, never raw viator.com, never
+# searchResults, never the scallop HOLD-SKU, rank unchanged.
+node scripts/test-shell-key-clear-kayak-pin.mjs
 node scripts/check-top40-rail.mjs
 node scripts/test-home-rails-render-smoke.mjs
 # The reader's storage budget. A cache may never cost them a preference —
