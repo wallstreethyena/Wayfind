@@ -352,6 +352,7 @@ node scripts/test-shell-key-clear-kayak-pin.mjs
 node scripts/test-cash-register-factory.mjs
 node scripts/test-cash-register-batch-2026-08-20.mjs
 node scripts/test-cash-register-batch-2026-08-20b.mjs
+node scripts/test-treeumph-empty-slot.mjs
 node scripts/check-top40-rail.mjs
 node scripts/test-home-rails-render-smoke.mjs
 # The reader's storage budget. A cache may never cost them a preference —

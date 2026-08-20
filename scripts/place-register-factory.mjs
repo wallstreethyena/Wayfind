@@ -323,6 +323,7 @@ export const NOTABLE_SKIPS = [
   { name: "Sarasota Art Museum", why: "only art-crawl trolley, not museum admission" },
   { name: "Beer Can Island", why: "only appears in the body of Coquina Beach SKU 454941P3 already pinned — do not steal that hop" },
   { name: "Emerson Point Preserve", why: "no product H1 names this preserve" },
+  { name: "TreeUmph! Adventure Course", why: "22211P1 live H1 is 'Sorry, this product is unavailable' — empty-slot, do not pin similar-experiences rail SKUs" },
 ];
 
 export function leftoverMarkdown(inv, skipped = NOTABLE_SKIPS) {

@@ -52,6 +52,10 @@ ok(inv.hooked.find((r) => r.name === "Blue Spring State Park")?.offerId === "431
   "Blue Spring stays on the in-park St. Johns River cruise, not a ramp kayak");
 ok(!inv.hooked.some((r) => r.name === "Clearwater Beach"),
   "Clearwater Beach is not hooked — no exact Atlas/summer/curated card, do not invent one");
+ok(!inv.hooked.some((r) => r.name === "TreeUmph! Adventure Course"),
+  "TreeUmph is not hooked — dead SKU 22211P1 was unpinned");
+ok(inv.unmatched.some((r) => r.name === "TreeUmph! Adventure Course"),
+  "TreeUmph remains in leftover until a live product names it");
 
 ok(placePartnerPick({ name: "Shell Key Preserve" })?.offerId === "173028P1",
   "positive control: placePartnerPick still returns the founder Shell Key pin");
@@ -100,6 +104,10 @@ ok(!/\| Blue Spring State Park \|/.test(leftover),
   "leftover unmatched table does not still list Blue Spring — the cruise pin cleared it");
 ok(/\| Kelly Park - Rock Springs \|/.test(leftover),
   "positive control: leftover still records Kelly Park as unmatched (Kings Landing kayak refused)");
+ok(/\| TreeUmph! Adventure Course \|/.test(leftover),
+  "leftover records TreeUmph as unmatched — empty-slot, not a similar-SKU replacement");
+ok(/22211P1/.test(leftover) && /unavailable/.test(leftover),
+  "leftover notable skip names the dead SKU so nobody re-pins it from the similar-experiences rail");
 ok(leftover.includes("# Place-register leftover"),
   "positive control: leftover markdown has its heading, so the Shell Key absence above is not an empty string");
 ok(leftover.includes("## Notable skips this batch"),

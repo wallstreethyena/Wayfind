@@ -10,6 +10,10 @@
 //   Blue Spring State Park  431125P5  dest 25790  H1: St. Johns River Cruise - Blue Spring State Park
 //   Little Toot Dolphin Adventure  179637P1  dest 22457  H1: Little Toot Dolphin Adventure at Clearwater Beach
 //
+// TreeUmph! Adventure Course is EMPTY-SLOT. Owner-confirmed 2026-08-20:
+// live d25738-22211P1 H1 is "Sorry, this product is unavailable". Do not
+// replace with a similar-experiences rail SKU. Rank 38 stays 38.
+//
 // ASSERT ON THE CALL, not a substring. Rank is untouched. Shell Key stays
 // 173028P1. Scallop HOLD-SKU 236862P2 never pins.
 
@@ -92,10 +96,10 @@ ok(placePartnerPick({ name: "Anna Maria Island Dolphin Tours" })?.offerId !== "2
   "203023P1 is not pinned on AMI Dolphin Tours");
 ok(placePartnerPick({ name: "Oscar Scherer State Park" }) === null,
   "Oscar Scherer stays empty — 5666112P3 is not pinned");
-ok(placePartnerPick({ name: "TreeUmph! Adventure Course" })?.offerId === "22211P1",
-  "TreeUmph stays 22211P1 — live page still names the Bradenton course");
-ok(placePartnerPick({ name: "TreeUmph Adventure Course" })?.offerId === "22211P1",
-  "TreeUmph alias without bang still resolves to 22211P1");
+ok(placePartnerPick({ name: "TreeUmph! Adventure Course" }) === null,
+  "TreeUmph is empty-slot — 22211P1 live H1 is product unavailable");
+ok(placePartnerPick({ name: "TreeUmph Adventure Course" }) === null,
+  "TreeUmph alias without bang is also empty — do not replace with a similar SKU");
 
 for (const row of BATCH) {
   ok(pageNamesPlace(row.h1, row.name) === "place",
@@ -195,6 +199,10 @@ for (const row of BATCH) {
 
 const shell = SUMMER_UNIVERSE.find((e) => e.key === "shell_key");
 ok(shell && shell.rank === 28, `Shell Key summer rank is still 28 (got ${shell && shell.rank})`);
+const treeumph = SUMMER_UNIVERSE.find((e) => e.key === "treeumph_zip");
+ok(treeumph && treeumph.rank === 38, `TreeUmph summer rank is still 38 (got ${treeumph && treeumph.rank})`);
+ok(treeumph && treeumph.venue && treeumph.venue.name === "TreeUmph! Adventure Course",
+  "TreeUmph venue name is unchanged — unpinning the hop did not delete the card");
 
 function stripComments(src) {
   return String(src || "").replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
@@ -204,8 +212,10 @@ ok(!/https:\/\/www\.viator\.com/i.test(placeSrc),
   "lib/placePartnerPicks.js has no raw viator.com URL — cards store the opaque offer id");
 ok(/\b386845P1\b/.test(placeSrc) && /\b236733P1\b/.test(placeSrc) && /\b431125P5\b/.test(placeSrc) && /\b179637P1\b/.test(placeSrc),
   "positive control: batch 2 product codes are declared as placePick offer ids");
-ok(/\b173028P1\b/.test(placeSrc) && /\b22211P1\b/.test(placeSrc),
-  "positive control: Shell Key and TreeUmph product codes are still declared");
+ok(/\b173028P1\b/.test(placeSrc),
+  "positive control: Shell Key product code is still declared");
+ok(!/\b22211P1\b/.test(placeSrc),
+  "dead SKU 22211P1 is not declared as a placePick offer id");
 ok(!/\b203023P1\b/.test(placeSrc),
   "203023P1 is absent — AMI keeps the sunset SKU only");
 ok(!/\b5666112P3\b/.test(placeSrc),

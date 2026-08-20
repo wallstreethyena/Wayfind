@@ -20,7 +20,6 @@ import { cachedExperienceCard, viatorProductCard } from "../lib/viatorProductCar
 const VIATOR_PLACE_PRODUCT_CODES = {
   "412732P1": "Clear Kayak Ecotour at Robinson Preserve",
   "454941P4": "Robinson Preserve Mangrove Tour",
-  "22211P1": "TreeUmph Adventure Course",
   "237533P5": "Egmont Key Ferry (Fort De Soto)",
   "3170P97": "Fun Spot Attractions Theme Parks Admission",
   "173028P1": "Clear Kayak Tour of Shell Key Preserve and Tampa Bay Area",
