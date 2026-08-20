@@ -19,6 +19,7 @@ import { useEffect, useRef, useState } from "react";
 import { useMarketPhotoFallback, marketPhotoQuery } from "./marketPhoto.js";
 import { hasPlacePhotoRef } from "../../lib/placePhoto.js";
 import { toHookLine } from "../../lib/editorialHook.js";
+import { stayOnRailReaction } from "../../lib/railReaction.js";
 
 // ---------------------------------------------------------------------------
 // Experience-tag chips (owner: "I need the cards to look like the cards from
@@ -250,6 +251,10 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   const validAiSummary = !take && aiSummary && typeof aiSummary === "object" && aiSummary.card_line_1 && aiSummary.card_line_2 ? aiSummary : null;
   const hasTake = !!(take || validAiSummary);
   const initials = String(place.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase();
+  // Save still has a crawlable fallback for callers that have not wired
+  // onSave. Like/Dislike MUST NOT — that href is the 2026-08-20 P0 (Amazon
+  // rail → /p/{id}?action=like → trapped on the place route). Like is a
+  // signal, not a page. See lib/railReaction.js.
   const actionHref = (action) => "/p/" + encodeURIComponent(place.id) + "?action=" + action;
   // v8.22 (owner: "indicate in the pills that the row is scrollable — someone
   // looking at it won't know"). After hydration, measure the lane: when it
@@ -450,40 +455,28 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
             ) : (
               <a className="wf-place-card-save" href={actionHref("save")} aria-label={"Save " + place.name}>♡ Save</a>
             )}
-            {/* Like/Dislike: an in-place toggle when the caller wires onLike/
-                onDislike (IntentPageClient.js, TrendingNowClient.js, both
-                2026-08-01) — stopPropagation + preventDefault so the tap
-                never falls through to the surrounding list's own navigation,
-                matching the pattern app/home.js's PlaceCard and
-                ThingsToDoList's Card already use. is-active applies the CSS
-                that has shipped since this card existed but nothing here
-                ever triggered, because liked/disliked was never a prop.
-                Falls back to the original navigate-to-detail link for any
-                caller that has not wired the props — never a dead button. */}
-            {onLike ? (
-              <button
-                type="button"
-                className={"wf-place-card-like" + (liked ? " is-active" : "")}
-                aria-label={liked ? "Remove like: " + place.name : "Like " + place.name}
-                aria-pressed={!!liked}
-                title={liked ? "Remove like" : "Like this place"}
-                onClick={(e) => { e.stopPropagation(); e.preventDefault(); onLike(e, place); }}
-              ><ThumbIcon /></button>
-            ) : (
-              <a className="wf-place-card-like" href={actionHref("like")} aria-label={"Like " + place.name} title="Like this place"><ThumbIcon /></a>
-            )}
-            {onDislike ? (
-              <button
-                type="button"
-                className={"wf-place-card-dislike" + (disliked ? " is-active" : "")}
-                aria-label={disliked ? "Remove dislike: " + place.name : "Not for me: " + place.name}
-                aria-pressed={!!disliked}
-                title={disliked ? "Remove dislike" : "Not for me"}
-                onClick={(e) => { e.stopPropagation(); e.preventDefault(); onDislike(e, place); }}
-              ><ThumbIcon down /></button>
-            ) : (
-              <a className="wf-place-card-dislike" href={actionHref("dislike")} aria-label={"Not for me: " + place.name} title="Not for me"><ThumbIcon down /></a>
-            )}
+            {/* Like/Dislike are ALWAYS buttons. The 2026-08-01 / 2026-08-20
+                fallback <a href="/p/{id}?action=like"> left the rail and
+                trapped the reader on the place route. Unwired callers get a
+                button that still cannot navigate (stayOnRailReaction no-ops
+                the missing handler). Wired callers record the signal in
+                place. */}
+            <button
+              type="button"
+              className={"wf-place-card-like" + (liked ? " is-active" : "")}
+              aria-label={liked ? "Remove like: " + place.name : "Like " + place.name}
+              aria-pressed={!!liked}
+              title={liked ? "Remove like" : "Like this place"}
+              onClick={(e) => stayOnRailReaction(e, onLike, place)}
+            ><ThumbIcon /></button>
+            <button
+              type="button"
+              className={"wf-place-card-dislike" + (disliked ? " is-active" : "")}
+              aria-label={disliked ? "Remove dislike: " + place.name : "Not for me: " + place.name}
+              aria-pressed={!!disliked}
+              title={disliked ? "Remove dislike" : "Not for me"}
+              onClick={(e) => stayOnRailReaction(e, onDislike, place)}
+            ><ThumbIcon down /></button>
             <button className="wf-place-card-share" type="button" aria-label={"Share " + place.name} onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (onShare) onShare(place); }}>↗ Share</button>
           </div>
         </div>
