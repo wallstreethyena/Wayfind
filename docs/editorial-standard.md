@@ -54,3 +54,26 @@ Tight is the brand.
 2. Does the reader learn WHY it ranks here without needing the number? → the core law.
 3. Would a local nod at the tip, or roll their eyes? → the tip test.
 4. Is every claim sourced or cut? → the honesty gate.
+
+## Place-card hook — the house bar (owner lock, 2026-08-20)
+
+The place-card hook is GLOBAL. It must match The Cracked Pepper Cafe bar. See
+also `docs/wayfind/PRODUCT_TRUTH.md`.
+
+**Gold example** (live card take):
+
+> Winner of the 2023 Cuban Sandwich Festival's World's Best award, with a patio that overlooks a pond.
+
+**Two-beat rule:** one sourced distinction (award / named plate / craft) PLUS one
+physical why-sit (patio, dock, room, sand, pond). Short. Complete. Not a menu
+laundry list. Not address, hours, deal, name restatement, blog theme, or “you
+come for.”
+
+If that two-beat line cannot be sourced, the slot is empty. Do not invent
+replacement copy. Ranking is unchanged.
+
+A plate-list-only line without a why-sit is **not** the house bar. That is
+editorial law. `isUsableCardHook` must not auto-blank every comma-separated
+plate list — #861–#874 cards would empty overnight with no sourced replacement.
+Empty-slot for junk (address / hours / host-theme, locked by #860) stays.
+Tightening plate lists is Editorial's job.
