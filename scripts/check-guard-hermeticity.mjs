@@ -52,6 +52,8 @@ const EXEMPT = {
     "its entire purpose is reporting on the ambient environment; it asserts nothing and always exits 0",
   "check-env-value-overrides.mjs":
     "reads ATLAS_MODEL only to SAVE and restore it around deliberate fixture mutation — the assertions run against values it sets itself",
+  "check-inventory-integrity.mjs":
+    "same shape as check-commerce-redirect: it talks to a live Supabase and the credentials are the CONNECTION, not the verdict. Without them it prints SKIPPED and exits 0; with them the verdict comes entirely from row data. It is also not wired into prebuild at all (see EXCLUDED in check-guard-manifest.mjs) — it runs in .github/workflows/canary.yml, because a stale row in production must never be able to block a code deploy",
   "check-commerce-redirect.mjs":
     "talks to a live Supabase; the credentials are the connection, not the verdict, and it degrades to a skip without them",
   "check-deal-art.mjs":
