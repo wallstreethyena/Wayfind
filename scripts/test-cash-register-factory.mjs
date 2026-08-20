@@ -29,6 +29,20 @@ ok(shellHooked && shellHooked.offerId === "173028P1",
   `Shell Key stays 173028P1 in inventory (got ${shellHooked && shellHooked.offerId})`);
 ok(!inv.unmatched.some((r) => r.name === "Shell Key Preserve"),
   "Shell Key Preserve is not listed as unmatched — the factory does not ask for a duplicate pin");
+for (const name of [
+  "Fort De Soto Park",
+  "Pier 60",
+  "Turtle Beach",
+  "Weeki Wachee Springs State Park",
+  "Silver Springs State Park Glass Bottom Boat Tours",
+]) {
+  ok(inv.hooked.some((r) => r.name === name),
+    `${name} is hooked — an existing card, not an invented one`);
+  ok(!inv.unmatched.some((r) => r.name === name),
+    `${name} is not leftover after the owner-verified pin`);
+}
+ok(!inv.hooked.some((r) => r.name === "Clearwater Beach"),
+  "Clearwater Beach is not hooked — no exact Atlas/summer/curated card, do not invent one");
 
 ok(placePartnerPick({ name: "Shell Key Preserve" })?.offerId === "173028P1",
   "positive control: placePartnerPick still returns the founder Shell Key pin");

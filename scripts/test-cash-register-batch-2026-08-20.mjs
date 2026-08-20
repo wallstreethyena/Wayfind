@@ -21,44 +21,71 @@ const ok = (cond, msg) => { if (cond) pass++; else fail.push(msg); };
 const HOLD_SKU = "236862P2";
 const SHELL_SKU = "173028P1";
 const EGMONT_SKU = "237533P5";
+const FORT_SKU = "324135P3";
 
 const BATCH = [
-  { name: "Fort De Soto Park", sku: EGMONT_SKU, destId: "5403", rankKey: "fort_desoto", rank: 26, universe: "summer" },
-  { name: "Bioluminescence Tours - Cocoa Beach", sku: "86301P8", destId: "25319", rankKey: "bio_kayak_cocoa", rank: 1, universe: "summer" },
+  { name: "Fort De Soto Park", sku: FORT_SKU, destId: "5403", rankKey: "fort_desoto", rank: 26, universe: "summer" },
+  { name: "Tarpon Springs Sponge Docks", sku: "350236P1", destId: "22457", rankKey: "tarpon_sponge_docks", rank: 51, universe: "summer" },
+  { name: "Lido Beach", sku: "20572P1", destId: "25738", rankKey: "lido_beach", rank: 60, universe: "summer" },
+  { name: "Turtle Beach", sku: "87414P4", destId: "25738" },
+  { name: "Siesta Beach", sku: "136885P1", destId: "25738", rankKey: "siesta_drum_circle", rank: 34, universe: "summer" },
+  { name: "Myakka River State Park", sku: "136885P3", destId: "25738", rankKey: "myakka_morning", rank: 35, universe: "summer" },
   { name: "Anna Maria Island Dolphin Tours", sku: "203023P2", destId: "25738", rankKey: "ami_dolphin_sunset", rank: 32, universe: "summer" },
-  { name: "John Pennekamp Coral Reef State Park", sku: "246569P5", destId: "23475", rankKey: "pennekamp_snorkel", rank: 52, universe: "summer" },
+  { name: "Coquina Beach", sku: "454941P3", destId: "25738", rankKey: "ami_coquina", rank: 61, universe: "summer" },
+  { name: "Pier 60", sku: "298601P1", destId: "22457", rankKey: "pier_60", rank: 65, universe: "summer" },
+  { name: "Caladesi Island State Park", sku: "308814P5", destId: "22457", rankKey: "caladesi_island", rank: 29, universe: "summer" },
+  { name: "Honeymoon Island State Park", sku: "11779P1", destId: "22457", rankKey: "honeymoon_island", rank: 30, universe: "summer" },
+  { name: "Weeki Wachee Springs State Park", sku: "288108P1", destId: "276", rankKey: "weeki_wachee", rank: 5, universe: "summer" },
+  { name: "Rainbow Springs State Park", sku: "343215P2", destId: "663", rankKey: "rainbow_springs", rank: 7, universe: "summer" },
+  { name: "Silver Springs State Park Glass Bottom Boat Tours", sku: "290298P1", destId: "663", rankKey: "silver_springs_boats", rank: 11, universe: "summer" },
+  { name: "Bioluminescence Tours - Cocoa Beach", sku: "65756P5", destId: "25319", rankKey: "bio_kayak_cocoa", rank: 1, universe: "summer" },
+  { name: "Everglades City Airboat Tours", sku: "431125P10", destId: "22381", rankKey: "everglades_airboat", rank: 54, universe: "summer" },
+  { name: "John Pennekamp Coral Reef State Park", sku: "101001P1", destId: "23475", rankKey: "pennekamp_snorkel", rank: 52, universe: "summer" },
   { name: "Dry Tortugas National Park", sku: "17325KEYYAN", destId: "661", rankKey: "dry_tortugas", rank: 53, universe: "summer" },
   { name: "Three Sisters Springs", sku: "184792P17", destId: "22318", rankKey: "three_sisters", rank: 8, universe: "summer" },
   { name: "Wild Florida Adventure Park", sku: "5467P2", destId: "663", rankKey: "wild_florida_airboat", rank: 40, universe: "summer" },
-  { name: "Myakka River State Park", sku: "136885P3", destId: "25738", rankKey: "myakka_morning", rank: 35, universe: "summer" },
-  { name: "Rainbow Springs State Park", sku: "343215P2", destId: "663", rankKey: "rainbow_springs", rank: 7, universe: "summer" },
   { name: "St. Pete Pier", sku: "350214P1", destId: "5403", rankKey: "stpete_pier", rank: 21, universe: "birthday" },
   { name: "Robbie's of Islamorada", sku: "17984P2", destId: "23474", rankKey: "robbies_islamorada", rank: 79, universe: "summer" },
   { name: "Ted Sperling Park Nature Trail", sku: "68831P1", destId: "25738" },
   { name: "BK Adventure", sku: "26315P9", destId: "25319", rankKey: "bk_adventure_bio", rank: 4, universe: "summer" },
   { name: "Wekiwa Springs State Park", sku: "105290P10", destId: "663", rankKey: "wekiwa_springs", rank: 12, universe: "summer" },
-  { name: "Caladesi Island State Park", sku: "308814P5", destId: "22457", rankKey: "caladesi_island", rank: 29, universe: "summer" },
 ];
 
-ok(BATCH.length >= 14, `batch table is populated (got ${BATCH.length}) — an empty table makes every assertion below vacuous`);
+ok(BATCH.length >= 17, `batch table is populated (got ${BATCH.length}) — an empty table makes every assertion below vacuous`);
 
 ok(placePartnerPick({ name: "Shell Key Preserve" })?.offerId === SHELL_SKU,
   "Shell Key keeps 173028P1 — this batch did not steal the founder pin");
 ok(placePartnerPick({ name: "Egmont Key State Park" })?.offerId === EGMONT_SKU,
-  "Egmont Key keeps 237533P5 — Fort De Soto shares the ferry, it does not replace it");
-ok(placePartnerPick({ name: "Fort De Soto Park" })?.offerId === EGMONT_SKU,
-  "Fort De Soto aliases the Egmont ferry (boards at the Fort De Soto boat ramp)");
+  "Egmont Key keeps 237533P5 — Fort De Soto no longer shares the ferry");
+ok(placePartnerPick({ name: "Fort De Soto Park" })?.offerId === FORT_SKU,
+  "Fort De Soto is the owner-verified e-bike SKU, one offer, not the Egmont ferry");
 ok(placePartnerPick({ name: "Fort De Soto Park" })?.offerId !== SHELL_SKU,
   "Fort De Soto does not inherit the Shell Key kayak SKU");
+ok(placePartnerPick({ name: "Fort De Soto Park" })?.offerId !== EGMONT_SKU,
+  "Fort De Soto does not inherit the Egmont ferry — one register per name");
 
-ok(placePartnerPick({ name: "Honeymoon Island State Park" }) === null,
-  "Honeymoon Island does not inherit the Caladesi kayak — exact park name only");
+ok(placePartnerPick({ name: "Honeymoon Island State Park" })?.offerId === "11779P1",
+  "Honeymoon Island is its own jet-ski pin, not the Caladesi kayak");
+ok(placePartnerPick({ name: "Caladesi Island State Park" })?.offerId === "308814P5",
+  "Caladesi keeps 308814P5 — not the loose pontoon SKU, not Honeymoon's jet-ski");
 ok(placePartnerPick({ name: "Caladesi Island" }) === null,
   "bare 'Caladesi Island' does not inherit the state-park kayak");
 ok(placePartnerPick({ name: "Wekiwa Springs" }) === null,
   "bare 'Wekiwa Springs' does not inherit the state-park paddle");
 ok(placePartnerPick({ name: "Wild Florida" })?.offerId !== "5467P2",
   "bare 'Wild Florida' stays on the existing Tiqets row — the safari SKU is exact-name only");
+ok(placePartnerPick({ name: "Clearwater Beach" }) === null,
+  "Clearwater Beach is not an exact Atlas/summer/curated card — the sunset SKU is on Pier 60 only");
+ok(placePartnerPick({ name: "Lido Key Beach" }) === null,
+  "Lido Key Beach does not inherit the Lido Beach kayak — exact name only");
+ok(placePartnerPick({ name: "Mote Marine Laboratory" }) === null,
+  "Mote Marine stays empty — owner forbade the night-kayak SKU as the wrong product");
+ok(placePartnerPick({ name: "Pier 60" })?.offerId !== "342720P1"
+  && placePartnerPick({ name: "Honeymoon Island State Park" })?.offerId !== "342720P1"
+  && placePartnerPick({ name: "Honeymoon Island State Park" })?.offerId !== "338425P3",
+  "loose Honeymoon geo SKUs are not pinned");
+ok(!BATCH.some((r) => r.sku === HOLD_SKU || r.sku === "189704P3" || r.sku === "269962P2"),
+  "batch table excludes the scallop HOLD-SKU, the Mote night kayak, and the loose Caladesi pontoon");
 
 for (const row of BATCH) {
   const pick = placePartnerPick({ name: row.name });
