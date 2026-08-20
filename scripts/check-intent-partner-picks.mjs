@@ -24,6 +24,20 @@ const VIATOR_PLACE_PRODUCT_CODES = {
   "237533P5": "Egmont Key Ferry (Fort De Soto)",
   "3170P97": "Fun Spot Attractions Theme Parks Admission",
   "173028P1": "Clear Kayak Tour of Shell Key Preserve and Tampa Bay Area",
+  "86301P8": "Clear Kayak Bioluminescence Tour - Cocoa Beach",
+  "203023P2": "Anna Maria Island Dolphin Sunset Boat Tour",
+  "246569P5": "Snorkel Tour - Visit 2 Shallow Reefs John Pennekamp State Park",
+  "17325KEYYAN": "Dry Tortugas National Park Day Trip by Catamaran from Key West",
+  "184792P17": "Clear Kayak Three Sisters Springs & Manatee Tour Of Crystal River",
+  "5467P2": "Wild Florida Drive-Thru Safari and Gator Park Admission",
+  "136885P3": "Myakka State Park E-bike Safari",
+  "343215P2": "Rainbow Springs: Clear Kayak & Snorkel Eco Tour",
+  "350214P1": "4-Hour St. Pete Pier to Egmont Key Experience by Ferry",
+  "17984P2": "Island Adventure at Robbie's Marina",
+  "68831P1": "Sarasota Mangrove Tunnel Guided Kayak Adventure",
+  "26315P9": "Bioluminescence Night Kayaking Tour of Merritt Island Wildlife Refuge",
+  "105290P10": "Paddle Board or Clear Kayak and Swim Adventure at Wekiwa Springs",
+  "308814P5": "Kayak Adventure at Caladesi Island",
 };
 
 
