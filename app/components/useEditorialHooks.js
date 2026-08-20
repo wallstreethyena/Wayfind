@@ -19,11 +19,15 @@
 // Both calls fail SOFT. On any error the surface keeps whatever it had; a card
 // must never LOSE text because a lookup blinked.
 //
-// EVENTS ARE EXCLUDED, PERMANENTLY. An event is not a place: it has no
-// wf_editorial row, no "what it's known for", and asking this hook about one
-// returns nothing forever while spending a request to find that out. Callers
-// pass places only. check-editorial-everywhere asserts no event surface calls
-// this.
+// EVENTS ARE EXCLUDED, PERMANENTLY — ON LIST SURFACES. An event is not a
+// place: it has no wf_editorial row, no "what it's known for", and asking
+// this hook about one returns nothing forever while spending a request to
+// find that out. Callers pass places only. check-editorial-everywhere
+// asserts no event LIST surface calls this.
+//
+// DETAIL is the exception (owner, 2026-08-20): an opened event-shaped card
+// fetches /api/editorial and paints WayfindTakeRail when a sourced field
+// exists. That path lives in sheets/Detail.js, not here.
 import { useEffect, useRef, useState } from "react";
 import { hookTextOf } from "../../lib/editorialHook";
 

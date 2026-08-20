@@ -17,7 +17,8 @@ import { NextResponse } from "next/server";
 import { editorialFor, EDITORIAL_COUNT } from "../../../lib/editorial";
 import atlasCards from "../../../data/atlas/editorial-cards.json";
 import { mapWfEditorial } from "../../../lib/editorialRule";
-import { cardToEditorial, resolveAtlasId } from "../../../lib/atlasCards";
+import { cardToEditorial, resolveAtlasId, atlasCardForName } from "../../../lib/atlasCards";
+import { editorialNameCandidates } from "../../../lib/editorialLookup";
 
 export const dynamic = "force-dynamic";
 
@@ -58,7 +59,18 @@ export async function GET(req) {
     if (fleet) return NextResponse.json({ editorial: fleet, sources: fleet.sources || [] }, { headers: HEADERS_LIVE });
   }
   const name = String(u.searchParams.get("name") || "").slice(0, 140).trim();
-  if (!name) return NextResponse.json({ none: true, count: EDITORIAL_COUNT }, { headers: HEADERS });
-  const e = editorialFor(name);
-  return NextResponse.json(e ? { editorial: e } : { none: true }, { headers: HEADERS });
+  const also = String(u.searchParams.get("also") || "").slice(0, 400);
+  const names = editorialNameCandidates(name, also);
+  // Tier 3: Atlas by exact name — event/venue listings often arrive with a
+  // different id than the card's key. Exact name only; never a fuzzy attach.
+  for (const n of names) {
+    const byName = atlasCardForName(atlasCards, n);
+    if (byName) return NextResponse.json({ editorial: cardToEditorial(byName) }, { headers: HEADERS });
+  }
+  if (!names.length) return NextResponse.json({ none: true, count: EDITORIAL_COUNT }, { headers: HEADERS });
+  for (const n of names) {
+    const e = editorialFor(n);
+    if (e) return NextResponse.json({ editorial: e }, { headers: HEADERS });
+  }
+  return NextResponse.json({ none: true }, { headers: HEADERS });
 }
