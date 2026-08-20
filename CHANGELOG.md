@@ -1,3 +1,46 @@
+## v8.26 - Clicking a rail card takes you to the picks (it never could before)
+- Owner, 2026-08-20, for at least the fourth time: "when I click on any of the
+  amazon rail cards the place cards expand but the view remains on the amazon
+  rail cards ... if the user does not know about the place cards showing up at
+  the bottom the user might think that nothing happened. I need that fixed, I
+  asked you multiple times."
+- ROOT CAUSE, and why three previous fixes all "shipped" without ever working:
+  the homepage does not scroll the document. app/home.js renders the feed inside
+  `<div className="wf-scrollarea" style={{flex:1,minHeight:0,overflowY:"auto"}}>`,
+  so that div is the scrolling box. On this page `window.scrollY` is permanently
+  0 and `window.scrollTo(...)` moves nothing. DaypartRail computed
+  `window.scrollY + rect.top - 78` and handed it to `window.scrollTo` — measured
+  live, that call resolves to `window.scrollTo(-78)` and the scroller does not
+  move a pixel. The code read as correct, rendered fine, and was a no-op.
+- THE FIX is scrollIntoView, not a different offset. scrollIntoView walks the
+  ancestor chain and scrolls every scrollable box on it, so it is right whether
+  the scroller is .wf-scrollarea today or the document tomorrow. The header
+  offset moved to `scroll-margin-top` on .wf8-menusec in railMenuCss.js, beside
+  the layout that causes it, instead of a magic 78 buried in arithmetic.
+- Two rAFs before landing: the drop flips display:none -> block in the same
+  commit and wf8MenuIn starts at translateY(-30px), so a same-frame landing aims
+  at geometry that is one frame stale.
+- AND IT VERIFIES ITSELF. A smooth scroll can be cancelled — by place-card
+  images reflowing under it, by a competing programmatic scroll, by a thumb — and
+  a cancelled scroll used to fail silently, which is the whole bug. 620ms after
+  the landing (the 460ms drop animation plus a beat) the effect re-checks that
+  the picks are actually on screen and lands them plainly if they are not. A
+  reader who scrolled themselves in the meantime is left alone: taking someone's
+  scroll position away is the other half of this complaint.
+- MEASURED, headless Chromium at 390x844, geolocated to Parrish: the scroller
+  moves 140 -> 524px, the drop lands 42px inside the scrollport (12px with
+  reduced motion, exactly the scroll-margin), the picks sit 32% down the screen,
+  0 page errors. Negative control in the same session: the shipped arithmetic
+  resolves to window.scrollTo(-78) and leaves both scrollTop values at 0.
+- NEW GUARD scripts/check-shell-scroll.mjs, proven red and green. It enforces the
+  RULE, not a snapshot: nothing under app/ may steer the viewport through
+  window.scroll* beyond a dated, shrink-only debt list, and the rail drop must
+  land with scrollIntoView after a frame, with its offset in CSS.
+- THE DEBT THE GUARD EXPOSED: 12 further window.scroll* call sites in the shell
+  (9 in app/home.js, 1 each in Experience.js, Itinerary.js, Surprise.js) are the
+  same no-op. Every "jump back to the top" they implement has never fired.
+  app/home.js:8575 is the one that does it correctly — it scrolls scrollRef AND
+  the window. Capped and listed; not fixed in this release.
 ## v8.23 - The share button that was missing everywhere, and the deal registry 37 guides were never wired to
 - Owner, on the rail cards: "add a share button to these amazon rail cards ... when
   it goes as a text message are we able to optimize the image to make it look like

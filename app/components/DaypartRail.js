@@ -303,43 +303,6 @@ export default function DaypartRail({
     setSaid(r.id);
   }, [onShareRail, daypart, shown, selected]);
 
-  // v8.23.4 — OPENING A CARD TAKES YOU TO THE PICKS (owner, 2026-08-19: "when
-  // the user click on the amazon rail cards i want the page to go down to the
-  // place cards so the user can search the place cards").
-  //
-  // Until now a tap did three things the reader could not see: it set the
-  // selection, it centred the TILE inside its own horizontal track, and it
-  // revealed a drop BELOW THE FOLD. On a phone the rail tile is ~1.3 viewport
-  // widths tall, so the picks opened entirely off-screen and the tap read as
-  // "the card lit up and nothing happened".
-  //
-  // scrollIntoView rather than a computed offset: it walks up and scrolls every
-  // scrollable ancestor, so this keeps working whether the band sits inside
-  // .wf-scrollarea (it does today) or the window scrolls it tomorrow. The
-  // clearance under the sticky header is CSS — .wf8-menusec's scroll-margin-top
-  // in railMenuCss.js — because that is the layer that knows how tall the
-  // header is.
-  //
-  // Double rAF: the drop is display:none until .wf8.is-open lands, so the first
-  // frame after setSelected has no box to scroll to. Reduced motion gets the
-  // same destination without the travel.
-  useEffect(() => {
-    if (!selected || typeof document === "undefined") return undefined;
-    let a = 0, b = 0;
-    a = requestAnimationFrame(() => {
-      b = requestAnimationFrame(() => {
-        try {
-          const drop = document.querySelector(".wf8-menusec");
-          if (!drop) return;
-          const still = typeof window !== "undefined" && window.matchMedia
-            && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-          drop.scrollIntoView({ behavior: still ? "auto" : "smooth", block: "start", inline: "nearest" });
-        } catch (e) {}
-      });
-    });
-    return () => { cancelAnimationFrame(a); cancelAnimationFrame(b); };
-  }, [selected]);
-
   const openedShared = useRef(false);
   useEffect(() => {
     if (openedShared.current) return;
@@ -348,15 +311,69 @@ export default function DaypartRail({
     open(initialRail, "share_link");
   }, [initialRail, railById, open]);
 
-  // Park the band under the sticky header so the drop lands in the eye.
+  // Take the reader TO the picks. Owner, repeatedly, most recently 2026-08-20:
+  // "when the place cards expand the view should go to the place cards ...
+  // otherwise the user might think that nothing happened."
+  //
+  // ROOT CAUSE of why this never worked, through several attempts: the
+  // homepage does NOT scroll the document. app/home.js renders the feed inside
+  // <div className="wf-scrollarea" style={{flex:1,minHeight:0,overflowY:"auto"}}>,
+  // so THAT div is the scrolling box. On this page window.scrollY is always 0
+  // and window.scrollTo() is a NO-OP. The previous implementation computed
+  // `window.scrollY + rect.top - 78` and handed it to window.scrollTo — which
+  // is why the drop opened and the viewport never budged. The code read as if
+  // it worked, and every test that asserted the effect merely ran was happy.
+  //
+  // scrollIntoView is the fix, not a different offset: it walks the ancestor
+  // chain and scrolls EVERY scrollable box on it, so it lands correctly whether
+  // the scroller is .wf-scrollarea today or the document tomorrow. The header
+  // offset moves to scroll-margin-top in railMenuCss.js, next to the layout
+  // that causes it, instead of a magic 78 buried in arithmetic here.
+  //
+  // Two rAFs first: the section flips display:none -> block in this commit and
+  // wf8MenuIn starts at translateY(-30px), so a same-frame landing aims at
+  // geometry that is one frame stale.
+  //
+  // Then VERIFY. A smooth scroll can be cancelled — by the place-card images
+  // reflowing under it, by a competing programmatic scroll, by the reader's own
+  // thumb — and a cancelled scroll used to fail silently, which is the exact
+  // failure being fixed. If the picks are still off-screen once the 460ms drop
+  // animation has settled, land them without ceremony. A reader who scrolled
+  // themselves in the meantime is left alone: taking someone's scroll position
+  // away is the other half of this complaint ("nothing more annoying than
+  // losing your place in the site").
   useEffect(() => {
-    if (!selected || !menuRef.current) return;
-    const reduced = typeof window !== "undefined" && window.matchMedia
-      && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const y = window.scrollY + menuRef.current.getBoundingClientRect().top - 78;
-    window.scrollTo({ top: Math.max(0, y), behavior: reduced ? "auto" : "smooth" });
+    if (!selected || typeof window === "undefined") return undefined;
+    const sec = menuRef.current;
+    if (!sec) return undefined;
+    const reduced = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    let f1 = 0, f2 = 0, timer = 0, userMoved = false;
+    const noteUser = () => { userMoved = true; };
+    const land = (behavior) => {
+      try { sec.scrollIntoView({ behavior, block: "start", inline: "nearest" }); }
+      catch (e) { try { sec.scrollIntoView(true); } catch (e2) {} }
+    };
+    f1 = requestAnimationFrame(() => {
+      f2 = requestAnimationFrame(() => {
+        land(reduced ? "auto" : "smooth");
+        if (reduced) return;
+        for (const ev of ["wheel", "touchmove", "keydown"]) window.addEventListener(ev, noteUser, { passive: true, once: true });
+        timer = window.setTimeout(() => {
+          if (userMoved) return;
+          // The picks themselves are the thing that had to arrive on screen.
+          const el = pcRef.current || sec;
+          const top = el.getBoundingClientRect().top;
+          const vh = window.innerHeight || 0;
+          if (top > vh * 0.72 || top < -8) land("auto");
+        }, 620);
+      });
+    });
     if (pcRef.current) pcRef.current.scrollLeft = 0;
     syncPc();
+    return () => {
+      cancelAnimationFrame(f1); cancelAnimationFrame(f2); window.clearTimeout(timer);
+      for (const ev of ["wheel", "touchmove", "keydown"]) window.removeEventListener(ev, noteUser);
+    };
   }, [selected, syncPc]);
 
   useEffect(() => {

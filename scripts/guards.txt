@@ -503,3 +503,8 @@ node scripts/check-daypart-rotation.mjs
 # taxonomy and not just a scroll offset, and it must be written on pagehide —
 # an outbound tap runs no React cleanup.
 node scripts/check-position-memory.mjs
+# v8.26 — the shell scrolls .wf-scrollarea, not the document, so window.scrollTo
+# is a silent no-op inside it. This is the rule that broke "take me to the picks"
+# three times: the rail drop must land with scrollIntoView, and the existing
+# window.scroll* debt list may only shrink.
+node scripts/check-shell-scroll.mjs
