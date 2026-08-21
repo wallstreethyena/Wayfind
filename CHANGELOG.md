@@ -1,3 +1,21 @@
+## v8.29.9 - The events cache key was spending the SerpApi budget
+- Owner upgraded SerpApi to Starter: 1,000 google_events searches per MONTH.
+- The aggregation cache key was `ev1|lat.toFixed(2)|lng.toFixed(2)|radius|city|keyword`.
+  Two decimals of latitude is ~1.1km, so two visitors a kilometre apart missed each
+  other's cache entry and each triggered a fresh aggregation — including a fresh
+  BILLABLE SerpApi search. Production has 2,051 devices. At 1.1km cells a
+  1,000/month budget is days, not a month.
+- AND NOTHING WOULD HAVE TOLD US. fromSerpEvents is fail-soft by design: over quota
+  it returns `{ events: [] }`, not an error. The symptom is events quietly thinning
+  out — the same silence that made this worth finding before the money was spent
+  rather than after.
+- One decimal is ~11km. The aggregation's own radius is 25 MILES, so every visitor
+  inside one cell was always going to receive substantially the same event set; the
+  finer key bought nothing and billed for it. ~100x fewer distinct keys.
+- Same bug shape as v8.29.8's city-unlock metro fallback, a different meter. Both
+  were coordinate-precision keys quietly multiplying paid upstream calls.
+- 382/382 guards green.
+
 ## v8.29.8 - The apostrophe, and the city that was a dozen cities
 - GUIDE CARDS: THE APOSTROPHE (owner, twice: "another blog that does not have the
   place cards", with Gecko's Grill & Pub rendering as a bare "Open in Wayfind").
