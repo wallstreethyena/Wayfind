@@ -35,6 +35,10 @@ function clickIdFor(mapRef, key) {
 import { bookingTargets, hasBookingCTA, hasVerifiedTours, placeEvidence } from "../../lib/bookingResolve";
 export { hasBookingCTA };
 
+// What `targets` is when there is no place yet. Every consumer below reads
+// these by truthiness, so a frozen empty shape is the whole contract.
+const NO_TARGETS = Object.freeze({ verifiedUrl: null, goFallback: false, tk: null, tu: null, fallbackSuppressed: null });
+
 export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, addReservation, openExternal, locName, suppressFallback, label: labelOverride, placeId: placeIdProp, city: cityProp }) {
   // Hooks for the list-variant impression observer. Must be declared before any
   // conditional return so React's hook order stays stable across renders.
@@ -50,13 +54,19 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => { setHydrated(true); }, []);
 
-  if (!detail) return null;
-  const placeId = detail.id;
-  const hasTours = hasVerifiedTours(viaTours, placeId);
+  // NOTHING EXITS ABOVE A HOOK. `detail` is null between sheet opens and
+  // `variant` selects a different branch per call site; two hooks used to sit
+  // behind both, so React's hook count moved and the tree unmounted instead of
+  // warning (2026-08-21; scripts/check-hook-order.mjs).
+  const placeId = detail ? detail.id : null;
+  const detailId = detail ? detail.id || null : null;
+  const hasTours = detail ? hasVerifiedTours(viaTours, placeId) : false;
   const rankedTourItems = hasTours ? rankExperiences(viaTours[placeId].items) : [];
   const topItem = rankedTourItems[0] || null;
   // One predicate drives both the primary earning CTA and its disclosure.
-  const targets = bookingTargets(detail, kind, topItem, locName, { placeEvidence: placeEvidence(viaTours, placeId) });
+  const targets = detail
+    ? bookingTargets(detail, kind, topItem, locName, { placeEvidence: placeEvidence(viaTours, placeId) })
+    : NO_TARGETS;
 
   // Instrument the demotions. This is the measurement the gate exists to produce:
   // if most attractions land here, the honest conclusion is that Viator cannot
@@ -70,6 +80,41 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
     firedFor.current = placeId;
     try { logEvent && logEvent("fallback_suppressed", detail, { reason: targets.fallbackSuppressed, kind: kind || null }); } catch (e) {}
   }, [variant, placeId, targets.fallbackSuppressed, kind]);
+
+  // The tour-list impression observer. Lived inside `if (variant === "list")`,
+  // which is a hook behind a branch. Same work, one level up, gated inside.
+  const listCity = cityProp || (locName ? locName.split(",")[0] : "");
+  useEffect(() => {
+    if (variant !== "list") return undefined;
+    const root = listRootRef.current;
+    if (!root || typeof IntersectionObserver === "undefined") return undefined;
+    const seen = listSeenRef.current;
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        const id = e.target.getAttribute("data-offer");
+        const rank = e.target.getAttribute("data-rank");
+        if (!id || seen.has(id)) continue;
+        seen.add(id);
+        try {
+          emitCommerce("commerce_impression", {
+            surface: "detail_tour_list",
+            provider: "viator",
+            offer_id: id,
+            city_id: listCity || null,
+            canonical_place_id: detailId,
+            category: kind || null,
+            rank_bucket: rankBucket(Number(rank)),
+          });
+        } catch (er) {}
+        io.unobserve(e.target);
+      }
+    }, { threshold: [0.5] });
+    for (const el of root.querySelectorAll("[data-offer]")) io.observe(el);
+    return () => { try { io.disconnect(); } catch (er) {} };
+  }, [variant, hasTours, listCity, detailId, kind]);
+
+  if (!detail) return null;
 
   if (variant === "primary") {
     // v6.42 (owner): a bookable-kind place ALWAYS offers a prominent booking
@@ -136,35 +181,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
   }
 
   if (variant === "list") {
-    const listPlaceId = placeIdProp || placeId || detail.id || "unknown";
-    const listCity = cityProp || (locName ? locName.split(",")[0] : "");
-    useEffect(() => {
-      const root = listRootRef.current;
-      if (!root || typeof IntersectionObserver === "undefined") return;
-      const io = new IntersectionObserver((entries) => {
-        for (const e of entries) {
-          if (!e.isIntersecting) continue;
-          const id = e.target.getAttribute("data-offer");
-          const rank = e.target.getAttribute("data-rank");
-          if (!id || listSeenRef.current.has(id)) continue;
-          listSeenRef.current.add(id);
-          try {
-            emitCommerce("commerce_impression", {
-              surface: "detail_tour_list",
-              provider: "viator",
-              offer_id: id,
-              city_id: listCity || null,
-              canonical_place_id: detail.id || null,
-              category: kind || null,
-              rank_bucket: rankBucket(Number(rank)),
-            });
-          } catch (er) {}
-          io.unobserve(e.target);
-        }
-      }, { threshold: [0.5] });
-      for (const el of root.querySelectorAll("[data-offer]")) io.observe(el);
-      return () => { try { io.disconnect(); } catch (er) {} };
-    }, [hasTours, listCity, detail.id, kind]);
+    const listPlaceId = placeIdProp || placeId || detailId || "unknown";
     if (hasTours) {
       const items = rankedTourItems;
       return (

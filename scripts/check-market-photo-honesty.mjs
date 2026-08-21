@@ -27,7 +27,12 @@ ok(/never the venue/i.test(mod), "the honesty line is documented where the next 
 // actually uses (the ban list), and a token the file REALLY contains (the
 // positive control that proves the absence check can fail)].
 const SITES = [
-  ["app/components/IconicPlaceCard.js", /useMarketPhotoFallback\(photoUrl\(place\) \? null : marketPhotoQuery\(category, place\.city\)\)/, /\bname\b/, /\.name\b/],
+  // 2026-08-21: the call moved above `if (!place) return null` (rules of hooks
+  // — scripts/check-hook-order.mjs), so it now reads `!place || photoUrl(place)
+  // ? null : …`. A leading guard that can only produce MORE nulls does not
+  // weaken this contract, so the gate is matched by its tail rather than from
+  // the opening paren; the query arguments stay pinned exactly.
+  ["app/components/IconicPlaceCard.js", /useMarketPhotoFallback\([^;]*?photoUrl\(place\) \? null : marketPhotoQuery\(category, place\.city\)\)/, /\bname\b/, /\.name\b/],
   ["app/home.js", /useMarketPhotoFallback\(\s*\n?\s*\(p && \(p\.photo \|\| p\.photos\)\) \? null : marketPhotoQuery\(p && \(p\.primaryCategory \|\| p\.category\), \(p && p\.city\) \|\| city\)\s*\n?\s*\)/, /\bname\b/, /\.name\b/],
   // RailCard's venue name is its `title` prop — the ban must speak this
   // surface's vocabulary or a `title`-fed query sails through (red-proved).

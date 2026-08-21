@@ -2,6 +2,7 @@ import Script from "next/script";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { fontVariables } from "./fonts";
 import { SITE_URL } from "../lib/site";
+import { cardActionBridgeScript } from "../lib/cardActionAttrs";
 import { GUIDES } from "../lib/guides";
 import { RAILS_COLLAPSED_KEY, RAILS_COLLAPSED_ATTR, DEFAULT_COLLAPSED_RAILS, DEFAULT_COLLAPSED_RAILS_DESKTOP, RAILS_DESKTOP_MQ } from "../lib/railCollapse";
 import { CULTURE } from "../lib/culture";
@@ -153,6 +154,17 @@ export default function RootLayout({ children }) {
             0.4938-CLS pattern app/components/css.js opens with. */}
         <script dangerouslySetInnerHTML={{ __html: `(function(){try{var r=localStorage.getItem('${RAILS_COLLAPSED_KEY}');var d=${JSON.stringify(DEFAULT_COLLAPSED_RAILS)};var w=${JSON.stringify(DEFAULT_COLLAPSED_RAILS_DESKTOP)};var v=r?JSON.parse(r):((window.matchMedia&&window.matchMedia('${RAILS_DESKTOP_MQ}').matches)?w:d);if(!Array.isArray(v))v=d;var out=[];for(var i=0;i<v.length;i++){var s=typeof v[i]==='string'?v[i].trim():'';if(s&&s.length<=40&&out.indexOf(s)===-1)out.push(s)}document.documentElement.setAttribute('${RAILS_COLLAPSED_ATTR}',out.join(' '))}catch(e){}})();` }} />
         <script dangerouslySetInnerHTML={{ __html: "(function(){try{var c=null;try{var r=localStorage.getItem('wf_center');if(r){var o=JSON.parse(r);if(o&&isFinite(o.lat)&&isFinite(o.lng))c={lat:o.lat,lng:o.lng,loc:o.loc||''}}}catch(e){}if(!c)c={lat:27.5689,lng:-82.4393,loc:'Parrish, FL'};window.__wfEvPrime={lat:c.lat,lng:c.lng,p:fetch('/api/events?lat='+c.lat.toFixed(2)+'&lng='+c.lng.toFixed(2)+'&radius=25&city='+encodeURIComponent(c.loc||'')).then(function(r){return r.ok?r.json():null}).then(function(d){try{if(d&&d.events){for(var i=0;i<d.events.length;i++){var im=d.events[i]&&d.events[i].image;if(im){var pi=new Image();pi.fetchPriority='high';pi.src=im;break}}}}catch(e){}return d}).catch(function(){return null})}}catch(e){}})();" }} />
+        {/* THE PRE-HYDRATION TAP BRIDGE (2026-08-21). A prerendered guide page
+            paints its place-card Like / Not-for-me / Save controls ~6s before
+            React can hear them on a 1.5 Mbps phone (measured, production).
+            Every tap in that window used to be discarded in silence. This
+            script is parsed with the document, takes those taps in the capture
+            phase, paints the pressed state so the reader sees it land, and
+            queues the intent; lib/cardActions.js's useActionBridge replays it
+            into the real handler in the same commit React attaches onClick.
+            Built from lib/cardActionAttrs.js — the card renders the same
+            constants, so the selector and the markup cannot drift apart. */}
+        <script dangerouslySetInnerHTML={{ __html: cardActionBridgeScript() }} />
         {/* Sentry early-error buffer (<1KB, first-party inline — CSP script-src
             'self' 'unsafe-inline'). Captures errors that fire BEFORE the lazy
             client SDK finishes loading; SentryClient replays this queue on load,

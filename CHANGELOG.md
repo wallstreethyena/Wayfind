@@ -1,3 +1,63 @@
+## v8.29.15 - The tap that arrived before the page did
+- Owner, for the fourth time: "I click the like button and nothing happens." It
+  was still true after v8.29 wired every card's hands, because v8.29 fixed what
+  the control DOES once it is alive, not the window in which it is not.
+- MEASURED, NOT GUESSED. Production, Playwright with the connection throttled to
+  a normal 1.5 Mbps phone, /guides/things-to-do-sarasota:
+      Like button PAINTED at 1,186 ms      React handler ATTACHED at 7,572 ms
+  For 6.4 seconds the Like / Not-for-me / Save controls on a guide page are real,
+  visible, tappable HTML wired to nothing, and every tap in that window was
+  discarded in silence. Guide pages are prerendered, so their cards ship in the
+  HTML; the homepage renders its rail client-side, which is the only reason it
+  never showed this.
+- THE FIX IS TO CATCH THE TAP, NOT TO HIDE THE BUTTON. lib/cardActionAttrs.js
+  ships an 857-byte inline script parsed with the document — listening before any
+  bundle exists. It takes those clicks in the CAPTURE phase (so nothing
+  downstream can navigate on them), paints the pressed state immediately because
+  the reader has to see the tap land, and queues the intent. useActionBridge in
+  lib/cardActions.js replays the queue into the REAL handler in the same commit
+  that attaches React's onClick — the caller's when one is wired, the shared
+  store's otherwise. Same localStorage maps, same Supabase rows, same taste
+  signal as a live tap.
+- AND IT HANDS THE DOM BACK. The bridge paints straight onto the node; React
+  diffs against its OWN last value, so a control whose post-replay state equals
+  its pre-tap state would never be rewritten — like-then-dislike left both thumbs
+  lit. The pre-paint value is stashed in data-wf-was and restored before replay,
+  so React and the DOM start level. Proven: liked={} disliked={id:true},
+  likePressed=false, dislikePressed=true.
+- Verified end to end against a production build: tapped at 1,226 ms on a
+  throttled phone, acknowledged on the tick, recorded at 5,362 ms, queue drained,
+  no navigation. Tapping twice before hydration nets out to nothing stored. The
+  card body still opens the place.
+
+### The blank screen, root-caused
+- FIVE COMPONENTS CALLED HOOKS AFTER AN EARLY RETURN. IconicPlaceCard — the card
+  on every surface — called useCardActions, returned on `!place`, then called
+  useMarketPhotoFallback, useRef, useState and useEffect. home.js's PlaceCard did
+  it under `!cardComplete(p)`, a gate the photo-heal effect below it can FLIP by
+  mutating p. home.js's PageInner did it under `keyMissing`. BookingCTA had one
+  behind `!detail` and another inside `if (variant === "list")`. BookItLink had
+  one behind three consecutive returns.
+- React counts hooks by CALL ORDER. The first render where such a gate flips
+  throws "Rendered fewer hooks than expected", which does not render an error
+  message — it unmounts the tree. That is the white page the owner photographed.
+- 420 guards were green through all of it because this repo has no ESLint, so
+  react-hooks/rules-of-hooks was enforced by NOTHING. scripts/check-hook-order.mjs
+  is now that enforcement: it parses every file in app/ and lib/ with the
+  TypeScript compiler and fails the build on a hook below a component's early
+  exit. It found all five on its first run.
+- THREE GUARDS WERE PART OF THE PROBLEM. test-card-gate, test-image-score and
+  check-market-photo-honesty each pinned the exact run of statements above
+  PlaceCard's gate. That pin is why the photo-heal hooks STAYED below the gate —
+  moving them up would have gone red. All three now assert the rule (the gate is
+  the first return; the picker is called before it) instead of the punctuation,
+  test-card-gate through the TypeScript parser so a `return` inside a callback is
+  not mistaken for the component's.
+- The e2e like contract was rewritten to tap the button the instant it paints —
+  the earlier version slept 600 ms and then 2,500 ms, waiting out the exact
+  interval the bug lived in. It is red against production and green against this
+  build, plus a throttled-phone regression test alongside it.
+
 ## v8.29.14 - The alarm was pointed at the only working source
 - Owner: "why are we working on that we need to work on something else like for
   example 19,997 failed upstream calls in seven days, zero successes." Correct.

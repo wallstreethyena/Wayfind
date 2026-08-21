@@ -23,7 +23,7 @@ import { toHookLine } from "../../lib/editorialHook.js";
 // <a href="/p/<id>?action=like"> whenever a caller forgot to wire a handler,
 // which turned a like into a navigation on every surface that forgot. The card
 // now carries a working fallback instead of a link. See lib/cardActions.js.
-import { useCardActions, toggleLike as fallbackLike, toggleDislike as fallbackDislike, toggleSave as fallbackSave } from "../../lib/cardActions";
+import { useCardActions, useActionBridge, replayEvent, ACTION_ATTR, PLACE_ATTR, toggleLike as fallbackLike, toggleDislike as fallbackDislike, toggleSave as fallbackSave } from "../../lib/cardActions";
 // v8.29.6 — MERGED WITH main's PR #888 (lib/railReaction.js), which fixed the
 // same tap from the other end: it deletes the Like/Dislike anchor outright and
 // routes every reaction through one click contract that cannot navigate.
@@ -227,6 +227,55 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   // `place` arrives late may not skip a hook on the render before it.
   const needsFallback = !cardActionsReadOnly && !(onSave && onLike && onDislike);
   const fb = useCardActions(needsFallback);
+  // ── EVERY HOOK LIVES ABOVE THE EARLY RETURN ────────────────────────────────
+  // 2026-08-21. This component called useCardActions, returned on `!place`, and
+  // then called useMarketPhotoFallback, useRef, useState and useEffect further
+  // down. React identifies hooks by CALL ORDER, so the first render where
+  // `place` arrived (or left) changed the count and React threw "Rendered fewer
+  // hooks than expected" — which does not render an error, it unmounts the
+  // tree. That is the blank screen the owner photographed. 420 guards were
+  // green through it because this repo has no ESLint and nothing read hook
+  // order; scripts/check-hook-order.mjs is now that reader.
+  const category = place ? (coarseCat(place) || place.primaryType || place.type || "Local pick") : "";
+  // v8.13.3 (owner: "I don't want any of the place cards not to have an
+  // image"). Rung 3 of the photo ladder — a city+category stock scene via the
+  // cached /api/market-photo route — fetched ONLY when the venue-truthful
+  // rungs (photoRef / photo) are absent. See app/components/marketPhoto.js
+  // for the ladder and the honesty line (query is never the venue name).
+  const marketFallback = useMarketPhotoFallback(!place || photoUrl(place) ? null : marketPhotoQuery(category, place.city));
+  // v8.22 (owner: "indicate in the pills that the row is scrollable — someone
+  // looking at it won't know"). After hydration, measure the lane: when it
+  // genuinely overflows, a small pulsing chevron sits at its right edge and
+  // disappears once the reader reaches the end. No overflow → no affordance;
+  // server render carries none (measurement is a client fact).
+  const laneRef = useRef(null);
+  const [laneMore, setLaneMore] = useState(false);
+  useEffect(() => {
+    const el = laneRef.current;
+    if (!el) return undefined;
+    const measure = () => {
+      try { setLaneMore(el.scrollWidth - el.clientWidth > 8 && el.scrollLeft + el.clientWidth < el.scrollWidth - 6); } catch (e) {}
+    };
+    measure();
+    el.addEventListener("scroll", measure, { passive: true });
+    let ro = null;
+    try { ro = new ResizeObserver(measure); ro.observe(el); } catch (e) {}
+    return () => { el.removeEventListener("scroll", measure); try { ro && ro.disconnect(); } catch (e) {} };
+  }, []);
+  // The pre-hydration tap. On a prerendered guide page these controls are
+  // visible ~6s before React can hear them on a normal phone connection; the
+  // inline bridge in app/layout.js catches those taps and this replays them
+  // into the same handlers a live tap uses. See lib/cardActions.js.
+  const actionsLive = cardActionsReadOnly ? true : (fb.hydrated || !!(onSave && onLike && onDislike));
+  const handlersRef = useRef(null);
+  const cardRef = useActionBridge(place && place.id, (action) => {
+    const h = handlersRef.current;
+    if (!h) return;
+    const ev = replayEvent();
+    if (action === "like" && h.like) h.like(ev, h.place);
+    else if (action === "dislike" && h.dislike) h.dislike(ev, h.place);
+    else if (action === "save" && h.save) h.save(ev, h.place);
+  }, actionsLive);
   if (!place) return null;
   const expTags = experienceTags(place, 3);
   // THE GOVERNING LAW, shown == sorted (2026-08-07): a row ranked through
@@ -234,13 +283,6 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   // trending, disclosed below) — prefer it so the badge can never disagree
   // with the row's position. Un-ranked callers keep the canonical base.
   const score = toDisplayScore(Number.isFinite(place.governed_score) ? place.governed_score : place.wfScore != null ? place.wfScore : wayfindScore(place.rating, place.reviews));
-  const category = coarseCat(place) || place.primaryType || place.type || "Local pick";
-  // v8.13.3 (owner: "I don't want any of the place cards not to have an
-  // image"). Rung 3 of the photo ladder — a city+category stock scene via the
-  // cached /api/market-photo route — fetched ONLY when the venue-truthful
-  // rungs (photoRef / photo) are absent. See app/components/marketPhoto.js
-  // for the ladder and the honesty line (query is never the venue name).
-  const marketFallback = useMarketPhotoFallback(photoUrl(place) ? null : marketPhotoQuery(category, place.city));
   const status = businessStatus({
     ...place,
     oh: place.oh || place.regularOpeningHours || null,
@@ -300,25 +342,9 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   const isSavedNow = onSave ? !!saved : fb.hydrated ? !!fb.saved[place.id] : !!saved;
   const isLikedNow = onLike ? !!liked : fb.hydrated ? !!fb.liked[place.id] : !!liked;
   const isDislikedNow = onDislike ? !!disliked : fb.hydrated ? !!fb.disliked[place.id] : !!disliked;
-  // v8.22 (owner: "indicate in the pills that the row is scrollable — someone
-  // looking at it won't know"). After hydration, measure the lane: when it
-  // genuinely overflows, a small pulsing chevron sits at its right edge and
-  // disappears once the reader reaches the end. No overflow → no affordance;
-  // server render carries none (measurement is a client fact).
-  const laneRef = useRef(null);
-  const [laneMore, setLaneMore] = useState(false);
-  useEffect(() => {
-    const el = laneRef.current;
-    if (!el) return undefined;
-    const measure = () => {
-      try { setLaneMore(el.scrollWidth - el.clientWidth > 8 && el.scrollLeft + el.clientWidth < el.scrollWidth - 6); } catch (e) {}
-    };
-    measure();
-    el.addEventListener("scroll", measure, { passive: true });
-    let ro = null;
-    try { ro = new ResizeObserver(measure); ro.observe(el); } catch (e) {}
-    return () => { el.removeEventListener("scroll", measure); try { ro && ro.disconnect(); } catch (e) {} };
-  }, []);
+  // What the bridge replays into. Assigned during render, read only from the
+  // layout effect, so a queued tap always meets the CURRENT handlers.
+  handlersRef.current = { like: doLike, dislike: doDislike, save: doSave, place };
   const partner = placePartnerPick(place);
   const partnerHref = partner ? commerceHref({
     provider: partner.provider,
@@ -337,7 +363,7 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   };
 
   return (
-    <li data-iconic-place-card data-card-opens-detail onClick={openCard} className={`wf-place-card${isCuratorPick ? " is-curator-pick" : ""}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}`} style={{ listStyle: "none", cursor: href ? "pointer" : "default" }}>
+    <li ref={cardRef} data-iconic-place-card data-card-opens-detail onClick={openCard} className={`wf-place-card${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}`} style={{ listStyle: "none", cursor: href ? "pointer" : "default" }}>
       <div className="wf-place-card-layout">
         {photoUrl(place) || marketFallback
           ? <img src={photoUrl(place) || marketFallback} alt="" loading="lazy" style={{ objectFit: "cover" }} />
@@ -510,6 +536,7 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
               <button
                 type="button"
                 className={"wf-place-card-save" + (isSavedNow ? " is-active" : "")}
+                {...{ [ACTION_ATTR]: "save", [PLACE_ATTR]: place.id }}
                 aria-label={isSavedNow ? "Remove from saved: " + place.name : "Save " + place.name}
                 aria-pressed={isSavedNow}
                 onClick={(e) => { e.stopPropagation(); e.preventDefault(); doSave(e, place); }}
@@ -533,6 +560,7 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
               <button
                 type="button"
                 className={"wf-place-card-like" + (isLikedNow ? " is-active" : "")}
+                {...{ [ACTION_ATTR]: "like", [PLACE_ATTR]: place.id }}
                 aria-label={isLikedNow ? "Remove like: " + place.name : "Like " + place.name}
                 aria-pressed={isLikedNow}
                 title={isLikedNow ? "Remove like" : "Like this place"}
@@ -543,6 +571,7 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
               <button
                 type="button"
                 className={"wf-place-card-dislike" + (isDislikedNow ? " is-active" : "")}
+                {...{ [ACTION_ATTR]: "dislike", [PLACE_ATTR]: place.id }}
                 aria-label={isDislikedNow ? "Remove dislike: " + place.name : "Not for me: " + place.name}
                 aria-pressed={isDislikedNow}
                 title={isDislikedNow ? "Remove dislike" : "Not for me"}

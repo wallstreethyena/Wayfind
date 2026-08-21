@@ -270,7 +270,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.29.14";
+const BUILD_ID = "v8.29.15";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -8423,22 +8423,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     fallback();
   }
 
-  if (keyMissing) {
-    return (
-      <div style={shell}>
-        <div style={{ ...wrap, alignItems: "center", justifyContent: "center", padding: 24, textAlign: "center" }}>
-          <div>
-            <div style={{ fontSize: 40, marginBottom: 12 }}>🔑</div>
-            <h2 style={{ color: C.text, margin: "0 0 8px" }}>Almost there</h2>
-            <p style={{ color: C.light, maxWidth: 360, lineHeight: 1.6 }}>
-              Add your Google Maps API key as an environment variable named{" "}
-              <code style={{ color: C.accent }}>NEXT_PUBLIC_GOOGLE_MAPS_KEY</code> in Vercel, then redeploy.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   const subs = SUBFILTERS[cat] || [];
   const vibes = VIBES[cat] || [];
@@ -8662,6 +8646,31 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const h = idle(() => SCREEN_LOADERS.forEach((load) => { try { load().catch(() => {}); } catch (e) {} }));
     return () => { try { (window.cancelIdleCallback || clearTimeout)(h); } catch (e) {} };
   }, []);
+
+  // THE MISSING-KEY SCREEN, MOVED (2026-08-21). It used to return here from
+  // ~230 lines higher up, above four hooks — useState(trendTick) and three
+  // useEffects. React counts hooks by call order, so a build where the key is
+  // absent runs a different number of them than one where it is present, and
+  // any flip mid-life unmounts the tree rather than warning. Everything between
+  // the old position and this one is pure derivation over state that is empty
+  // when there is no key, so the screen it paints is identical.
+  // scripts/check-hook-order.mjs is what keeps it here.
+  if (keyMissing) {
+    return (
+      <div style={shell}>
+        <div style={{ ...wrap, alignItems: "center", justifyContent: "center", padding: 24, textAlign: "center" }}>
+          <div>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>🔑</div>
+            <h2 style={{ color: C.text, margin: "0 0 8px" }}>Almost there</h2>
+            <p style={{ color: C.light, maxWidth: 360, lineHeight: 1.6 }}>
+              Add your Google Maps API key as an environment variable named{" "}
+              <code style={{ color: C.accent }}>NEXT_PUBLIC_GOOGLE_MAPS_KEY</code> in Vercel, then redeploy.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // G1: the one ctx bag handed to the extracted screens. Every hook stays in
   // PageInner — screens are render-only and read state/callbacks/module
@@ -10800,7 +10809,6 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   const cardMarketFallback = useMarketPhotoFallback(
     (p && (p.photo || p.photos)) ? null : marketPhotoQuery(p && (p.primaryCategory || p.category), (p && p.city) || city)
   );
-  if (!cardComplete(p)) return null; // v6.39 GLOBAL guardrail: an incomplete card renders NOTHING (scripts/test-card-gate.mjs)
   // v4.89 — photo fix. Non-Google (Foursquare) entries often arrive without a
   // photo reference, so cards fell back to the logo. When a card renders
   // photoless, resolve its Google twin once (findPlace is cached ~8 days) and
@@ -10818,6 +10826,12 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     return () => { c = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [p && p.id]);
+  const cardProduct = usePlaceProduct(p && p.id);
+  // THE GATE COMES LAST. Every hook above runs on every render; `cardComplete`
+  // reads p.photo, which the heal effect above writes, so this gate genuinely
+  // flips mid-life. A hook below it would change React's hook count on that
+  // render and unmount the feed (2026-08-21; scripts/check-hook-order.mjs).
+  if (!cardComplete(p)) return null; // v6.39 GLOBAL guardrail: an incomplete card renders NOTHING (scripts/test-card-gate.mjs)
   // v5.99 / v6.96: the "Creator video" badge is shown whenever a place HAS a
   // renderable creator video. Until v6.96 that was the same set as "got the
   // boost"; a quality floor now makes the boosted set a subset. The invariant
@@ -10874,7 +10888,6 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   const knownForHook = !curatedHook && typeof line === "string" ? editorialLine(line, p.name) : "";
   const aiSummary = !curatedHook && !knownForHook && line && typeof line === "object" && line.card_line_1 && line.card_line_2 ? line : null;
   const offer = OFFERS[p.id];
-  const cardProduct = usePlaceProduct(p && p.id);
   // v6.27 GLOBAL RULE: the Wayfind Score (Bayesian, 0–10) is THE headline number
   // on every card. Invalid/missing wfScore -> null -> no badge (never a fake 0);
   // killswitch restores the old layout.
