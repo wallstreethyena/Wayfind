@@ -364,6 +364,20 @@ async function fromSerpEvents(lat, lng, keyword, city) {
     const r = await fetch(`https://serpapi.com/search.json?${p.toString()}`);
     if (!r.ok) return { configured: true, ok: false, events: [] };
     const data = await r.json();
+    // v8.29.9 — SERPAPI REPORTS FAILURE WITH HTTP 200 (2026-08-21). Out of
+    // searches, bad key, invalid engine — all of them come back 200 with an
+    // `error` STRING in the body and no events_results. `data.events_results ||
+    // []` then produced an empty array and this provider reported
+    // `{ ok: true, received: 0 }` into the health block: a dead integration
+    // wearing a green tick.
+    //
+    // Measured 2026-08-21 against production, immediately after the owner bought
+    // a plan: Bradenton, Tampa, Orlando and Sarasota ALL returned ok=true,
+    // received=0. Tampa and Orlando have enormous Google Events coverage, so
+    // "no results" was never a credible reading — but nothing in the response
+    // said otherwise, so a paid provider could sit dead indefinitely and the
+    // health block would keep calling it healthy.
+    if (data && data.error) return { configured: true, ok: false, error: String(data.error).slice(0, 140), events: [] };
     const raw = data.events_results || [];
     const events = raw.map((e, i) => {
       const dd = e.date || {};
