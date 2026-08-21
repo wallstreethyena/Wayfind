@@ -16,6 +16,8 @@ import { siteAnchorDate } from "../../../lib/siteTime.js";
 import { localStaplesFor, parseLibCalICS, parseICSDate, libcalId, LIBCAL_FEED } from "../../../lib/eventResolve.js";
 import { getBusinessFeeds, businessEventsFrom } from "../../../lib/businessFeeds.js";
 import { creatorEventsFor } from "../../../lib/creatorEvents.js";
+import { fetchCuratedEvents, curatedFeedEvents, CURATED_REACH_MI, CURATED_SOURCE } from "../../../lib/curatedEvents.js";
+import { stockPhotoPool, fromPool } from "../../../lib/stockPhoto.js";
 import { cget, cset, DAY } from "../../../lib/serverCache";
 
 function isoNowZ() {
@@ -544,6 +546,70 @@ async function fromBusinessFeeds(lat, lng, radius) {
 // deadline; a hung provider yields { timedOut } after `ms` instead of
 // stalling the whole response, and never touches the other providers.
 const PROVIDER_TIMEOUT_MS = 6000;
+// ── WAYFIND CURATED (v8.29.16) ──────────────────────────────────────────────
+//
+// The owner, handing over the new tile art: "wire this card into the events we
+// have from the schedule." This is that wire.
+//
+// wf_events holds eighteen servable, hand-verified, Tier-1 events, each with an
+// editorial hook and a checked date — and until now the only surface that could
+// see them was /florida-events. The home rail was fed exclusively by the live
+// aggregators, and the 2026-08-20 upstream audit found SerpApi returning ZERO
+// for Bradenton, Tampa and Orlando. A full pantry and a starving rail.
+//
+// It joins as ONE MORE PROVIDER, exactly as creator picks did in v6.96d, so it
+// inherits this route's validation, cross-provider dedup, proximity guard,
+// destination check and cap instead of growing a second path with its own idea
+// of what an event is.
+//
+// THE PHOTO. hero_image is NULL on all twenty rows, and no card in this product
+// may render imageless (v8.13.3, owner: "I don't want any of the place cards
+// not to have an image"). Rather than invent per-event photography we reuse the
+// ladder's own rung 3 — a real, cached Pexels SCENE keyed to what the event IS
+// and where it is ("haunted house Orlando", "parade Tampa", "farm festival
+// Bradenton"). Same honesty line as every other card that uses it: the query is
+// the CATEGORY and the CITY, never the event's or the venue's name, so it
+// cannot pretend to be a photograph of this event. A real hero_image, when one
+// is ever added to a row, always wins.
+async function curatedSceneImage(e) {
+  // subcategory first — "haunted house", "parade", "farm festival" — because it
+  // is the more specific TRUE thing. The category is the fallback.
+  const kind = String(e.genre || e.segment || "").trim();
+  const q = [kind, e.city].filter(Boolean).join(" ").slice(0, 60);
+  if (q.length < 3) return "";
+  try {
+    const photo = fromPool(await stockPhotoPool(q), 0);
+    return photo ? "/api/stock-photo?u=" + encodeURIComponent(photo.url) : "";
+  } catch (err) { return ""; }
+}
+
+async function fromCuratedEvents(lat, lng) {
+  if (lat == null || lng == null) return { configured: false, events: [] };
+  try {
+    const rows = await fetchCuratedEvents({ limit: 200 });
+    if (!rows.length) return { configured: true, events: [] };
+    // Filter to reach BEFORE resolving photos: a cold aggregation should cost
+    // at most a handful of pool lookups, not one per row in the table.
+    const near = curatedFeedEvents(rows).filter((e) =>
+      e.lat != null && e.lng != null && haversineMiLocal(lat, lng, e.lat, e.lng) <= CURATED_REACH_MI);
+    if (!near.length) return { configured: true, events: [] };
+    await Promise.all(near.map(async (e) => {
+      if (e.image) return;
+      e.image = await curatedSceneImage(e);
+      e.imageScene = !!e.image; // the card may say "scene", never "this event"
+    }));
+    // THE SCENE IS AN UPGRADE, NOT A GATE. The first cut dropped any row whose
+    // photo lookup came back empty — and a stubbed PEXELS_API_KEY then made the
+    // whole curated rail vanish in silence, which is the exact failure shape
+    // this work exists to end. It is also unnecessary: lib/eventCategoryArt.js
+    // already gives every bucket real art (concerts, theater, and five
+    // community scenes), so the v8.13.3 "no card without an image" law is
+    // satisfied whether or not Pexels answers. The scene photo is the more
+    // specific truth when we can get it; the category art is the floor.
+    return { configured: true, events: near };
+  } catch (err) { return { configured: true, ok: false, events: [] }; }
+}
+
 function withDeadline(provider, promise, ms = PROVIDER_TIMEOUT_MS) {
   const started = Date.now();
   return Promise.race([
@@ -606,6 +672,11 @@ async function aggregateEvents({ lat, lng, keyword, radius, city }) {
       // pure: it emits ONLY entries whose research is still in date, so an
       // expired festival contributes nothing instead of last year's dates.
       withDeadline("Creator picks", Promise.resolve(creatorEventsFor(lat, lng))),
+      // v8.29.16 — the hand-verified schedule (lib/curatedEvents.js). Listed
+      // last in the fan-out and first in the reader's rail: lib/frontEvents.js
+      // eventStature scores curation, so a checked event with an editorial hook
+      // outranks a listing nobody read.
+      withDeadline(CURATED_SOURCE, fromCuratedEvents(lat, lng)),
     ]);
 
     const configuredCount = results.filter((r) => r.configured).length;

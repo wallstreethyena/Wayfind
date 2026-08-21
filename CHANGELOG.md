@@ -1,3 +1,67 @@
+## v8.29.16 - The events card, wired to the schedule behind it
+- Owner, handing over the new tile: "wire this card into the events we have
+  from the schedule."
+- THE TILE IS HIS ARTWORK, byte-derived. scripts/make-rail-art.mjs (new) turns a
+  941x1672 poster into the five-file cards-v8 ladder with a 1px edge trim and a
+  cover-fit resample — no redraw, which is the v8.16 standing instruction ("use
+  it EXACTLY as I provided it"). It replaces the purple "YOUR NIGHT STARTS HERE"
+  art, which was off-brand and promised nothing about what was behind it.
+  RAIL_ART_V 9 -> 10, or every phone that has seen the home page in the last 30
+  days keeps the old one.
+- AND THE COPY MOVED TO MEET IT. RAILS.events now reads what the pixels read:
+  "What's Happening Near You / We already picked the good stuff / Concerts,
+  festivals, shows and pop-ups / See what's on". check-rail-art-matches-copy is
+  re-pinned, with the image read at 760px first — the bar that file sets.
+- THE AXIS WIDENED ON PURPOSE, from "ticketed and dated — it sells out" to THE
+  DATE. The curated schedule this tile now opens includes free events (both
+  Gasparillas, St. Augustine's Nights of Lights) and pop-ups sell nothing at
+  all, so the old axis had become false. It still collides with no other rail:
+  tonight owns hours, datenight owns the room, best owns score.
+
+### The schedule was full and the rail could not see it
+- wf_events holds 18 servable, hand-verified, Tier-1 events, each with a checked
+  date and an editorial hook — two of them Disney parties with live ticket URLs.
+  Until now the only surface that could see any of them was /florida-events.
+- lib/curatedEvents.js gains curatedToFeedEvent() / curatedFeedEvents(): one
+  curated row mapped to the shape every event surface already speaks. Pure, no
+  clock, no network.
+- app/api/events joins it AS ONE MORE PROVIDER, exactly as creator picks did in
+  v6.96d, so it inherits the route's validation, cross-provider dedup, proximity
+  guard, destination check and cap. Nothing bypasses a rule; it supplies rows to
+  the rules. Verified at Parrish: 7 curated events reach the feed —
+  Howl-O-Scream (32mi), Hunsader Pumpkin Fest (9mi), Clearwater Jazz (35mi),
+  Crystal Classic (22mi), both Gasparillas (24mi), Strawberry Festival (37mi).
+- A CURATED CARD OPENS OUR PAGE, NOT THE PARTNER'S. resolveDestination now
+  returns /florida-events/<slug> for a curated row — the page with the why-go,
+  the parking, the insider tip and the JSON-LD. The ticket URL is not lost: the
+  card keeps it as the CTA, so the reader gets our page AND one tap to buy.
+- PER-EVENT REACH. The feed's radius is tuned for "what's on near me tonight",
+  where 25 miles is generous. Gasparilla happens once a year and a Parrish
+  reader wants to know. A provider may now declare an honest reach on the row
+  (CURATED_REACH_MI = 60); the guard takes the larger of the two, can only ever
+  widen, and the card still prints the city and the distance.
+- CURATION IS A RANKING SIGNAL. eventStature scores a curated row +3 — the only
+  signal here that required a person. And `ticketed === true` now earns the same
+  +2 the ticketed BUCKETS get, because Halloween Horror Nights is a ticketed
+  event that buckets as community and should not rank as if nobody sells a
+  ticket to it. Balanced so curation leads the local field without displacing a
+  real concert, which is the category this app converts on.
+- THE PHOTO, HONESTLY. hero_image is NULL on all 20 rows. Rather than invent
+  per-event photography the route reuses the ladder's own rung 3 — a cached
+  Pexels SCENE keyed to what the event IS and where ("haunted house Tampa",
+  "farm festival Bradenton", "parade Tampa"). Same honesty line as every other
+  card that uses it: the query is the category and the city, never the event's
+  or the venue's name.
+- AND THE SCENE IS AN UPGRADE, NOT A GATE. The first cut dropped any row whose
+  photo lookup came back empty — then a stubbed PEXELS_API_KEY made the whole
+  curated rail vanish in silence, which is the exact failure shape this work
+  exists to end. lib/eventCategoryArt.js already gives every bucket real art, so
+  the v8.13.3 "no card without an image" law holds either way.
+- THE TILE NOW GOES WHERE IT SAYS. Every other tile opens a drop of place cards;
+  the events tile was opening a drop of ticketed VENUES — the arena, the
+  playhouse — under a headline promising concerts, festivals, shows and pop-ups.
+  It hands off to the events screen instead, where the real feed lives.
+
 ## v8.29.15 - The tap that arrived before the page did
 - Owner, for the fourth time: "I click the like button and nothing happens." It
   was still true after v8.29 wired every card's hands, because v8.29 fixed what
