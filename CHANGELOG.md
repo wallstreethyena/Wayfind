@@ -27,6 +27,17 @@
 - TRIPADVISOR returns 403, byte-identical to what a dummy key returns
   ("explicit deny in an identity-based policy"). Invalid key, or the Content API's
   IP allowlist does not include Vercel's egress. Owner action.
+- TRIPADVISOR WAS A MISSING HEADER, NOT ONLY A KEY. Their Content API requires
+  every key to be restricted to an IP allowlist OR a DOMAIN, and their docs say
+  that for callers whose IPs are not published — "these services don't publish the
+  IPs of the machines issuing requests" — you must use domain restriction, where
+  "all API requests must include the HTTP Referer Header with an URL containing a
+  restricted domain name." Vercel's egress is exactly that case, and both calls
+  sent NO headers at all. They now send Referer/Origin built from SITE_URL, the
+  same constant canonical URLs use, so the header cannot disagree with the domain
+  the key is registered against. The owner must still set the key to domain
+  restriction `gowayfind.com` in the developer portal — the header is half the
+  contract, and an IP-restricted key will keep returning 403 regardless.
 - NET: one real source restored to visibility, ~2,400 wasted upstream calls a day
   removed, and the two genuine credential faults named precisely instead of
   guessed at.
