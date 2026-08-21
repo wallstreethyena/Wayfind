@@ -1,3 +1,28 @@
+## v8.29.13 - The watcher must be watched
+- Chased the last thread: why job-watch stayed silent through 19,997 failed calls.
+- DETECTION WAS NEVER BROKEN. Called wf_job_health(48) directly against production:
+  it returns SIX incidents, correctly — atlas-build and atlas-retry at 48
+  consecutive dead runs, popularity:wikipedia/yelp/foursquare/tripadvisor at 24
+  each, every one with attempted > 0 and succeeded = 0. classifyHealth would put
+  all six in `incidents`. The RPC, the classifier and the thresholds all work.
+- DELIVERY was the failure. Without RESEND_API_KEY or DIGEST_EMAIL the route
+  returns `{ sent: false, reason: "..." }` and HTTP 200. That was written as the
+  honest path — "say why it could not send" — but nobody reads a cron's response
+  body, so the honesty landed in a void. A monitor reporting its own delivery
+  failure to no one is the precise failure it exists to prevent, one level up.
+- job-watch now files its own pulse on BOTH paths: succeeded = 0 when it cannot
+  send or the send fails, succeeded = n when it delivers. It becomes an incident
+  in the same feed it reads, so "job-watch never ran" and "job-watch ran and
+  everything was fine" stop looking identical from outside.
+- check-job-pulse-contract.mjs extended to require both self-pulses and the
+  succeeded: 0 on the cannot-send path.
+- STILL NEEDS THE OWNER, and cannot be fixed in code: RESEND_API_KEY /
+  DIGEST_EMAIL must be set in Vercel or no alert can ever leave the building; and
+  the four popularity providers are credential failures, not logic — http_429
+  (quota), http_400 (malformed/expired key), http_403 (auth). They burn ~2,850
+  wasted upstream calls a day until someone touches those accounts.
+- 384/384 guards green.
+
 ## v8.29.12 - The job that filed under "[object Object]", and 19,997 silent failures
 - Owner asked to fix the 915 imageless cards permanently. The mechanism to fix them
   ALREADY EXISTS — inventory-refresh runs hourly, calls getPlaceDetails (which has

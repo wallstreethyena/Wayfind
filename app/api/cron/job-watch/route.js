@@ -18,7 +18,7 @@
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-import { jobHealth, classifyHealth, incidentLine, DEAD_RUN_THRESHOLD } from "../../../../lib/jobPulse";
+import { jobHealth, classifyHealth, incidentLine, recordPulse, DEAD_RUN_THRESHOLD } from "../../../../lib/jobPulse";
 import { resolveOverride } from "../../../../lib/envAudit";
 
 const LOOKBACK_HOURS = 48;
@@ -61,6 +61,20 @@ export async function GET(req) {
   if (!resendKey || !to) {
     // Say why it could not send. A silent no-send here would reproduce the
     // failure mode this whole route exists to catch.
+    // v8.29.13 — THE WATCHER MUST BE WATCHED. Returning a reason in a cron's
+    // JSON body is not telling anyone: nobody reads a cron's response, and this
+    // still answers HTTP 200. Measured on production 2026-08-21, wf_job_health(48)
+    // returned SIX incidents — atlas-build and atlas-retry at 48 consecutive dead
+    // runs, and four popularity providers at 24 each, 19,997 failed upstream calls
+    // over seven days — and the owner learned about none of it. Detection was
+    // never broken. DELIVERY was, and the no-send path reported its own failure
+    // into a void.
+    //
+    // So job-watch now files its own pulse, into the same table it reads. A
+    // watcher that cannot deliver becomes an incident in its own feed rather than
+    // a silent 200 — which is the exact failure this route was built to end, one
+    // level up.
+    await recordPulse("job-watch", { attempted: Math.max(1, incidents.length), succeeded: 0, note: "CANNOT SEND: RESEND_API_KEY or DIGEST_EMAIL not set — " + incidents.length + " incident(s) undelivered" });
     return Response.json({ ok: true, incidents: incidents.length, sent: false, reason: "RESEND_API_KEY or DIGEST_EMAIL not set", detail: incidents.map(incidentLine) });
   }
 
@@ -83,5 +97,12 @@ export async function GET(req) {
     console.error(`[job-watch] resend threw ${String(e && e.message).slice(0, 160)}`);
   }
 
+  // The delivering path files a pulse too, so "job-watch has not run" and
+  // "job-watch ran and everything was fine" stop looking identical from outside.
+  await recordPulse("job-watch", {
+    attempted: Math.max(1, incidents.length),
+    succeeded: sent ? Math.max(1, incidents.length) : 0,
+    note: sent ? `delivered ${incidents.length} incident(s)` : `SEND FAILED status=${sendStatus} — ${incidents.length} incident(s) undelivered`,
+  });
   return Response.json({ ok: true, incidents: incidents.length, sent, sendStatus, detail: incidents.map(incidentLine) });
 }

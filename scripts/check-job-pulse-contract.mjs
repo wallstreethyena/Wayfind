@@ -105,6 +105,18 @@ for (const abs of walk(join(ROOT, "app"))) {
     }
   }
 }
+// v8.29.13 — THE WATCHER MUST BE WATCHED. job-watch detected six incidents
+// correctly and could not deliver them, returning HTTP 200 with a reason in a
+// JSON body nobody reads. Detection was never the problem; delivery was, and the
+// no-send path reported its own failure into a void. It must file its own pulse
+// on BOTH paths so "never ran" and "ran, all fine" stop looking identical.
+{
+  const wsrc = strip(readFileSync(join(ROOT, "app/api/cron/job-watch/route.js"), "utf8"));
+  const pulses = (wsrc.match(/recordPulse\(\s*["'`]job-watch["'`]/g) || []).length;
+  ok(pulses >= 2, `app/api/cron/job-watch/route.js records ${pulses} self-pulse(s); it needs one on the send path AND one on the cannot-send path, or a watcher that cannot deliver stays invisible`);
+  ok(/succeeded:\s*0/.test(wsrc), "job-watch's cannot-send path must record succeeded: 0 — a delivery failure has to read as an incident in the same feed it monitors");
+}
+
 ok(sites > 5, `found only ${sites} recordPulse call sites — this guard has lost its subject`);
 
 if (bad) { console.error(`check-job-pulse-contract: ${bad} failure(s)`); process.exit(1); }
