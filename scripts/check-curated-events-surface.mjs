@@ -85,6 +85,24 @@ const farRow = curatedToFeedEvent({ ...ROW, event_id: "ultra", slug: "ultra", ci
 const far = processEvents([{ provider: CURATED_SOURCE, configured: true, events: [farRow] }], PARRISH);
 ok(far.events.length === 0, "Miami is 180 miles away and stays out — 'near you' still means something");
 
+// THE CAP MUST NOT DELETE A HAND-VERIFIED ROW. The pipeline sorts by date and
+// cuts at `cap`, which is right for aggregator listings and wrong for a schedule
+// that is deliberately months out. Shipped once without this: six of seven
+// curated events fell past position 250 and the shelf rendered a single card.
+{
+  const filler = [];
+  for (let i = 0; i < 40; i++) {
+    filler.push({ id: "f" + i, name: "Filler " + i, date: "2099-01-" + String((i % 28) + 1).padStart(2, "0"), lat: PARRISH.lat, lng: PARRISH.lng, url: "https://example.com/" + i, ticketed: true });
+  }
+  const late = curatedToFeedEvent({ ...ROW, event_id: "late", slug: "late", start_date: "2099-12-24" });
+  const capped = processEvents(
+    [{ provider: "Filler", configured: true, events: filler }, { provider: CURATED_SOURCE, configured: true, events: [late] }],
+    { ...PARRISH, cap: 10 }
+  );
+  ok(capped.events.some((x) => x.curated), "a curated event dated past the cap SURVIVES the cap — the cap governs aggregator listings, not the schedule");
+  ok(capped.events.filter((x) => !x.curated).length <= 10, "…and the cap still governs everything an aggregator sends");
+}
+
 // ── 4. the rank, by calling it ──────────────────────────────────────────────
 const bucketOf = (x) => (x && x._bucket) || "community";
 const plain = { ...curatedToFeedEvent(ROW), curated: false, ticketed: undefined, image: "" };

@@ -1,3 +1,17 @@
+## v8.29.18 - The cap was eating the schedule
+- Shipped v8.29.17, opened the events screen on production, and the "Worth
+  planning for" shelf rendered ONE card out of seven. Nothing said why.
+- processEvents sorts by date and cuts at 250 — right for aggregator listings,
+  where a metro returns thousands and the near-term ones are the useful ones.
+  The curated schedule is deliberately months out (that is the whole point of
+  it), so six of seven curated events sat past position 250 and the cap ate them
+  in silence.
+- There are at most a couple of dozen curated rows in existence, each checked by
+  a person, so they are now lifted out before the cut and merged back. The cap
+  still governs everything an aggregator sends.
+- check-curated-events-surface gains the red-green pair for it: a curated event
+  dated past a cap of 10 survives, and the ten filler listings still get cut.
+
 ## v8.29.17 - Worth planning for
 - The schedule was wired into the feed in v8.29.16 and a reader still could not
   see it. Measured on production: the curated events are in the /api/events
