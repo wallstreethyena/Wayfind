@@ -149,6 +149,18 @@ export default function DaypartRail({
   // Unresolved seed (DEFAULT_CENTER / null) is NOT a visitor location.
   center = null,
   onCoverage = null,
+  // v8.29.16 — WHERE "SEE WHAT'S ON" ACTUALLY GOES. Every other tile opens a
+  // drop of place cards, which is the right payoff for "the best beaches near
+  // you". The events tile promises something a place card cannot be: concerts,
+  // festivals, shows and pop-ups — things with a DATE. Its drop was showing
+  // ticketed VENUES (the arena, the playhouse), which is a different question
+  // answered under a headline the owner drew himself.
+  //
+  // So this one tile hands off to the events screen, where the real feed lives
+  // — now including the hand-verified schedule in wf_events (v8.29.16,
+  // app/api/events). Nullable: /v8 mounts this component without it and keeps
+  // the old drop behaviour rather than breaking.
+  onOpenEvents = null,
   // v8.4 — SAVE AND ITINERARY. This surface had NEITHER, and it is the one the
   // owner looks at most: the homepage rail drop. All four come from app/home.js
   // so the state is the SAME store every other surface reads — a place saved
@@ -447,6 +459,7 @@ export default function DaypartRail({
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
       e.preventDefault();
     }
+    if (id === "events" && onOpenEvents) { onOpenEvents(); return; }
     if (selected === id) close(); else open(id, "rail");
   };
 

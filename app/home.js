@@ -270,7 +270,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.29.15";
+const BUILD_ID = "v8.29.16";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -8759,6 +8759,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         initialDaypart={railMenu.daypart}
         center={locResolved ? center : null}
         onCoverage={setRailsCoverage}
+        // v8.29.16 — the events tile opens the events screen rather than a drop
+        // of ticketed venues. What is behind it is the same feed the home rail
+        // runs, which now carries the curated schedule as its first provider.
+        onOpenEvents={() => { try { logEvent("events_see_all", null, { src: "rail_tile" }); } catch (er) {} setScreen("events"); }}
         isSaved={isSaved}
         isOnTrip={isOnTrip}
         onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }}

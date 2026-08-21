@@ -87,7 +87,27 @@ const PAIRS = {
   datenight: { copy: "0aca4828b3f1fdfd", art: "022cf3872de7c9a9" },
   drive: { copy: "3886fcf87019ef5d", art: "e338daa7257af817" },
   eat: { copy: "e76ee14790d3fb92", art: "18d7d66f30860e3d" },
-  events: { copy: "df419c2fb034ec56", art: "6a652cfc337fb25e" },
+  // v8.29.16 — RE-PINNED, PIXELS READ AT 760px BEFORE PINNING (the bar this
+  // file sets for itself). The tile is the owner's own poster, byte-derived from
+  // his 941x1672 PNG by scripts/make-rail-art.mjs — a 1px edge trim and a
+  // cover-fit resample, zero redraw. It reads:
+  //     wayfind
+  //     WHAT'S HAPPENING NEAR YOU?
+  //     We already picked the good stuff.
+  //     CONCERTS. FESTIVALS. SHOWS. POP-UPS.
+  //     The best things happening near you — ranked by Wayfind.
+  //     [SEE WHAT'S ON ->]
+  // lib/rails.js now says the same four things (title / short / sub / cta), and
+  // the axis widened from "ticketed and dated" to the DATE, because the curated
+  // schedule this tile now opens includes free events and pop-ups.
+  //
+  // The one line worth naming out loud: "ranked by Wayfind". It is a ranking
+  // claim, not a Score claim — lib/frontEvents.js eventStature really does rank
+  // these, and test-event-rail-images still forbids an event card ever wearing
+  // a Wayfind Score. Replaces the purple "YOUR NIGHT STARTS HERE / Local
+  // events. Real experiences." art, which was off-brand and made no promise
+  // about what was actually behind it.
+  events: { copy: "12d73e13f0973f31", art: "70e5f6df7ebd983a" },
   family: { copy: "947a8d48e13dac62", art: "9e64f507ce5c39e6" },
   gems: { copy: "ce723fe8321d837e", art: "f9c55fb2f617fd5e" },
   locals: { copy: "24b845b1d9114368", art: "78ea67914dee5c7b" },
