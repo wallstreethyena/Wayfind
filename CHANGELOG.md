@@ -1,3 +1,29 @@
+## v8.29.11 - Shopping had one contract out of five chips, and Stays sold trailer parks
+- The guard added in v8.29.10 did its job immediately: forcing every chip to be
+  DECLARED surfaced four more that were lying the same way Night out > Clubs was.
+  Malls, Boutiques, Markets and Outlets all fell through to CAT_ALLOW.shopping,
+  so all four returned exactly what "All" returned.
+- FOUR CONTRACTS, counted live before writing: shopping_mall 116, clothing_store
+  67, department_store 36, womens_clothing_store 32, market 19, farmers_market 17.
+  Malls / Boutiques / Markets are NARROW (primary identity only). Outlets has no
+  `outlet_mall` type in the inventory at all, so it rides the NAME fallback —
+  "Ellenton Premium Outlets" is how an outlet identifies itself, and that chip now
+  returns exactly two real outlet centres instead of the entire Shopping tab.
+- STAYS SOLD TRAILER PARKS. hotels held 11 `mobile_home_park` rows. A residential
+  trailer park is not a holiday and is not bookable. Added to CAT_EXCLUDE.hotels.
+  campground and rv_park deliberately NOT excluded — CAT_ALLOW.hotels admits those
+  on purpose and a state-park campground is a real stay. Verified: 0 remain.
+- A BUG I INTRODUCED AND CAUGHT. The first cut added a SECOND `hotels:` key to
+  CAT_EXCLUDE. A duplicate key silently overrides the first, which would have
+  dropped the existing office / recycling / apartment_complex vetoes. Merged into
+  the existing key instead, and asserted by call that all four still veto.
+- HONEST LIMIT, WRITTEN DOWN: shopping:boutiques still admits Ross, Old Navy and
+  Burlington, because Google types them `clothing_store` and nothing in the data
+  separates an independent boutique from a national discount chain. The chip no
+  longer lies — it returns clothing retail — but "Boutiques" implies independent.
+  That needs a chain veto shaped like NATIONAL_QUICK_RX, as its own change.
+- 383/383 guards green.
+
 ## v8.29.10 - Night out had six chips and zero contracts
 - Owner, 2026-08-21, screenshot of Night out > CLUBS with "Keke's Breakfast Cafe"
   at #1 and "S.O.B. Burgers" at #2: "how is keke a fucking club".

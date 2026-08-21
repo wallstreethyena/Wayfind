@@ -29,10 +29,6 @@ const CATEGORY_WIDE = {
   "food:quickbites": "acknowledged debt: 'quick' is a service-speed promise with no Google type behind it. Needs a real contract or renaming; category-wide today",
   "food:delivery": "acknowledged debt: delivery is an attribute Google does not type. Needs a real signal",
   "food:dessert": "acknowledged debt: the dessert regex exists inline in placeAllowed's meal-signal branch rather than as a SUB_ALLOW contract",
-  "shopping:malls": "acknowledged debt — no contract yet",
-  "shopping:boutiques": "acknowledged debt — no contract yet",
-  "shopping:markets": "acknowledged debt — handled by crossVeto's markets carve-out rather than a contract",
-  "shopping:outlets": "acknowledged debt — no contract yet",
   "hotels:luxury": "acknowledged debt — price/class tiering, not a type contract",
   "hotels:budget": "acknowledged debt — price/class tiering, not a type contract",
   "hotels:beach": "acknowledged debt — proximity, not a type",
@@ -60,7 +56,7 @@ for (const key of chips) {
 
 // A floor. The bug was the ABSENCE of these, so their absence must fail loudly
 // rather than shrink the guard's subject back to green.
-for (const key of ["nightlife:clubs", "nightlife:bars", "nightlife:sports", "nightlife:karaoke", "nightlife:speakeasy", "nightlife:music"]) {
+for (const key of ["nightlife:clubs", "nightlife:bars", "nightlife:sports", "nightlife:karaoke", "nightlife:speakeasy", "nightlife:music", "shopping:malls", "shopping:boutiques", "shopping:markets", "shopping:outlets"]) {
   ok(!!SUB_ALLOW[key], `${key} lost its contract — that is the exact regression that put a breakfast cafe at the top of Clubs`);
 }
 
