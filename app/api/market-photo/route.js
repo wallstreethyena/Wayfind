@@ -17,10 +17,15 @@
 // (dealArtwork()). This route only ever feeds CouponCard's small 52px
 // identity tile, the one thing actually on screen today.
 //
-// Server-only: this is the one place allowed to call stockPhotoPool()
-// (reads PEXELS_API_KEY + the shared Supabase cache) — lib/coupons.js
-// itself is imported by several "use client" screens and must stay free of
-// server secrets and async module-load work.
+// SERVER-ONLY, and that is the actual rule — not "only this file".
+// stockPhotoPool reads PEXELS_API_KEY and the shared Supabase cache, so it may
+// only ever be called from a server route or a server module; lib/coupons.js
+// is imported by several "use client" screens and must stay free of server
+// secrets and async module-load work, which is what this route exists to give
+// it. Two server routes call it directly today — this one, and
+// app/api/events/route.js, which resolves the scene photo for a curated event
+// (v8.29.16). Both obey the same honesty line: the query is a category and a
+// city, never a venue's or an event's own name.
 import { NextResponse } from "next/server";
 import { stockPhotoPool, fromPool } from "../../../lib/stockPhoto.js";
 
