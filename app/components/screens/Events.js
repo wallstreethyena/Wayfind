@@ -143,8 +143,26 @@ const EVENT_FILTERS = [
 const DEFAULT_PRIORITY = ["concerts", "sports", "comedy", "theater", "local"];
 
 export default function EventsScreen({ ctx }) {
-  const { events, eventCat, setEventCat, eventDate, setEventDate, locName, center, submitSearch, eventsLoading, eventsUnavailable, eventsError, loadEvents, openVenue, dedupeEvents, AreaInsight, Loader, eventsTours, eventBucket, ViatorRail } = ctx;
+  const { events, eventCat, setEventCat, eventDate, setEventDate, locName, center, submitSearch, eventsLoading, eventsUnavailable, eventsError, loadEvents, openVenue, dedupeEvents, AreaInsight, Loader, eventsTours, eventBucket, ViatorRail, eventSegmentMeta } = ctx;
   const all = events || [];
+  // ── WORTH PLANNING FOR (v8.29.16) ─────────────────────────────────────────
+  //
+  // The curated schedule (wf_events, joined to the feed in app/api/events)
+  // is DATED MONTHS OUT — Halloween Horror Nights, both Gasparillas, the
+  // Strawberry Festival. This screen is built around an eight-day strip and a
+  // category dropdown, which is right for "what is on tonight" and is exactly
+  // why eighteen hand-verified events could be sitting in the payload and still
+  // be invisible: the reader would have to guess a category AND widen the date.
+  //
+  // So they get their own shelf, above the controls, outside both filters. It
+  // is the one place on this screen where the answer is "here is the thing you
+  // should put in your calendar", and every card opens OUR event page — the one
+  // carrying the why-go, the parking and the insider tip a calendar cannot have.
+  const plannable = all
+    .filter((e) => e && e.curated && e.dest)
+    .slice()
+    .sort((a, b) => String(a.date || "9999").localeCompare(String(b.date || "9999")))
+    .slice(0, 8);
   const [filterOpen, setFilterOpen] = useState(false);
   // v6.20 — geo distance so ties break by proximity.
   const distMi = (e) => { if (!center || e == null || e.lat == null || e.lng == null) return Infinity; const R = 3958.8, t = (d) => (d * Math.PI) / 180; const s = Math.sin(t(e.lat - center.lat) / 2) ** 2 + Math.cos(t(center.lat)) * Math.cos(t(e.lat)) * Math.sin(t(e.lng - center.lng) / 2) ** 2; return R * 2 * Math.asin(Math.sqrt(s)); };
@@ -197,6 +215,38 @@ export default function EventsScreen({ ctx }) {
         {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <div style={{ marginTop: 10 }}><AreaInsight metro={_cm} cat={"events"} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /></div> : null; })()}
         <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>Bookable tours, concerts, comedy, theater, sports, and local happenings near you</div>
       </div>
+
+      {plannable.length > 0 && (
+        <section aria-label="Worth planning for" style={{ marginBottom: 18 }}>
+          <div style={{ marginBottom: 8 }}>
+            <div style={{ fontSize: 13.5, fontWeight: 800, color: C.text }}>Worth planning for</div>
+            <div style={{ marginTop: 2, fontSize: 11.5, lineHeight: 1.45, color: C.muted }}>Dates we checked ourselves — the ones worth putting in the calendar now.</div>
+          </div>
+          <div style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 6, WebkitOverflowScrolling: "touch" }}>
+            {plannable.map((e) => {
+              const d = ctx.formatEventDate(e.date, e.time);
+              const when = [d.mo, d.day].filter(Boolean).join(" ");
+              const facts = [ctx.cleanVenueName(e.venue) || e.city, e.price].filter(Boolean).join(" · ");
+              return (
+                <a
+                  key={e.id}
+                  href={e.dest}
+                  onClick={() => { try { ctx.logEvent("event_open", null, { id: e.id, kind: "internal", src: "planahead_shelf" }); } catch (err) {} }}
+                  style={{ flexShrink: 0, width: 232, borderRadius: 16, overflow: "hidden", background: C.card, border: `1px solid ${C.border}`, textDecoration: "none", display: "block" }}
+                >
+                  <EventArt e={e} seg={ctx.eventSegmentMeta(e.segment, e.genre, e.name)} height={104} ctx={ctx} />
+                  <div style={{ padding: "9px 11px 11px" }}>
+                    {when ? <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".7px", textTransform: "uppercase", color: C.accent }}>{when}</div> : null}
+                    <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, marginTop: 2, lineHeight: 1.25 }}>{e.name}</div>
+                    {facts ? <div style={{ fontSize: 11.5, color: C.muted, marginTop: 3 }}>{facts}</div> : null}
+                    {e.hook ? <div style={{ fontSize: 12, color: C.light, marginTop: 5, lineHeight: 1.4 }}>{e.hook}</div> : null}
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* v6.26 — the events category filter, ABOVE the bookable-experiences
           rail (owner direction) and styled to match the app's SortControl

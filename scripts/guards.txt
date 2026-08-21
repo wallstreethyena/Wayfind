@@ -544,3 +544,9 @@ node scripts/check-shell-routes.mjs
 # unmounted the tree — a white page, not a caught error. This repo has no ESLint,
 # so react-hooks/rules-of-hooks was enforced by nothing. It is enforced by this.
 node scripts/check-hook-order.mjs
+# 2026-08-21 — the hand-verified schedule (wf_events) must REACH a reader. It
+# held 18 servable Tier-1 events, two with live ticket URLs, and the only
+# surface that could see any of them was /florida-events while the home rail
+# starved. This guard EXECUTES the chain — map, destination, proximity, rank,
+# render — rather than matching text on it.
+node scripts/check-curated-events-surface.mjs

@@ -1,3 +1,24 @@
+## v8.29.17 - Worth planning for
+- The schedule was wired into the feed in v8.29.16 and a reader still could not
+  see it. Measured on production: the curated events are in the /api/events
+  payload (7 near Parrish, every one with a scene photo and an internal
+  destination) and NOT on screen — because the events tab is built around an
+  eight-day date strip and a category dropdown, and Halloween Horror Nights is
+  in September, Gasparilla in January. The reader would have to guess a
+  category AND widen the date to find something we hand-verified for them.
+- WORTH PLANNING FOR. A shelf at the top of the events screen, above the
+  controls and outside both filters, carrying the curated rows nearest-date
+  first: the scene photo, the month and day, the venue and price, and the
+  editorial hook. Every card opens our own /florida-events page.
+- check-curated-events-surface.mjs (new, 28 assertions) EXECUTES the chain
+  rather than matching text on it — a row goes in and the mapped event, its
+  destination, the proximity decision, its rank and the render all come out and
+  are asserted. It pins the four bugs found while building this: a photo filter
+  that emptied the whole rail when Pexels was down, a destination that sent the
+  reader to the partner instead of our page, a proximity guard that dropped a
+  32-mile Tampa event, and a ticketed event ranked as if nobody sells a ticket
+  to it. Guard count 385 -> 386.
+
 ## v8.29.16 - The events card, wired to the schedule behind it
 - Owner, handing over the new tile: "wire this card into the events we have
   from the schedule."
