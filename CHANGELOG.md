@@ -1,3 +1,20 @@
+## v8.29.7 - A third-party crash is not a Wayfind error
+- Owner, 2026-08-20, forwarding a Sentry alert (WAYFIND-9): "InvalidNodeTypeError:
+  Failed to execute 'selectNode' on 'Range': the given Node has no parent",
+  environment production, level error.
+- NOT OUR CODE. Every frame in that stack is
+  app:///_next-live/feedback/913.<hash>.js — Vercel's comment/feedback widget,
+  injected for signed-in Vercel team members. The throw is inside its own
+  text-selection handling and there is no Wayfind frame in the trace at all.
+- It still filed as a production error at level=error, which is worse than useless:
+  a third-party crash sitting at the top of the inbox is how a real one gets
+  scrolled past. DENY_URLS now covers /_next-live// and /vercel.live/.
+- DENIED BY URL, NEVER BY MESSAGE. Adding "InvalidNodeTypeError" to IGNORE_ERRORS
+  would also silence the same error thrown by our own code. test-sentry-lazy.mjs
+  asserts both halves: the toolbar's frames are filtered, an app:///_next/static
+  chunk of ours is NOT, and that string stays out of IGNORE_ERRORS.
+- 382/382 guards green.
+
 ## v8.29.6 - Two fixes for one bug, merged so neither undoes the other
 - main's PR #888 ("Keep rail Like/Dislike on the rail", lib/railReaction.js) and this
   branch's v8.29-v8.29.5 were written in parallel against the same tap. They chose
