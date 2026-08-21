@@ -1,3 +1,176 @@
+## v8.29.13 - The watcher must be watched
+- Chased the last thread: why job-watch stayed silent through 19,997 failed calls.
+- DETECTION WAS NEVER BROKEN. Called wf_job_health(48) directly against production:
+  it returns SIX incidents, correctly — atlas-build and atlas-retry at 48
+  consecutive dead runs, popularity:wikipedia/yelp/foursquare/tripadvisor at 24
+  each, every one with attempted > 0 and succeeded = 0. classifyHealth would put
+  all six in `incidents`. The RPC, the classifier and the thresholds all work.
+- DELIVERY was the failure. Without RESEND_API_KEY or DIGEST_EMAIL the route
+  returns `{ sent: false, reason: "..." }` and HTTP 200. That was written as the
+  honest path — "say why it could not send" — but nobody reads a cron's response
+  body, so the honesty landed in a void. A monitor reporting its own delivery
+  failure to no one is the precise failure it exists to prevent, one level up.
+- job-watch now files its own pulse on BOTH paths: succeeded = 0 when it cannot
+  send or the send fails, succeeded = n when it delivers. It becomes an incident
+  in the same feed it reads, so "job-watch never ran" and "job-watch ran and
+  everything was fine" stop looking identical from outside.
+- check-job-pulse-contract.mjs extended to require both self-pulses and the
+  succeeded: 0 on the cannot-send path.
+- STILL NEEDS THE OWNER, and cannot be fixed in code: RESEND_API_KEY /
+  DIGEST_EMAIL must be set in Vercel or no alert can ever leave the building; and
+  the four popularity providers are credential failures, not logic — http_429
+  (quota), http_400 (malformed/expired key), http_403 (auth). They burn ~2,850
+  wasted upstream calls a day until someone touches those accounts.
+- 384/384 guards green.
+
+## v8.29.12 - The job that filed under "[object Object]", and 19,997 silent failures
+- Owner asked to fix the 915 imageless cards permanently. The mechanism to fix them
+  ALREADY EXISTS — inventory-refresh runs hourly, calls getPlaceDetails (which has
+  requested `photos` since v8.7) and writes photo_ref. So the question was why it
+  never reached those metros, and the answer was not about photos at all.
+- recordPulse's signature is (job, opts). inventory-refresh called
+  `recordPulse(db, "inventory-refresh", {...})` — the Supabase CLIENT as the job
+  name. String(db) is "[object Object]", and that is verbatim what production's
+  wf_job_pulse table contained. The opts were wrong too: {refreshed, failed,
+  scanned} against a contract of {attempted, succeeded, failed, note}, so attempted
+  and succeeded were pinned at 0 forever.
+- THE COST WAS NOT A BAD ROW. app/api/cron/job-watch exists specifically to email
+  when a metered job succeeds at nothing, and classifyHealth treats attempted === 0
+  as "idle — nothing to do, not a failure". So the hourly job that keeps 7,800
+  inventory rows fresh was structurally invisible to the one monitor built to
+  notice it dying. Two wrong arguments bought five weeks of silence.
+- WHAT THE PULSE TABLE ACTUALLY SHOWS, once read: 19,997 failed upstream calls in
+  seven days with ZERO successes — popularity:foursquare 8,400 (http_429),
+  popularity:yelp 5,279 (http_400), popularity:wikipedia 4,638,
+  popularity:tripadvisor 1,680 (http_403). atlas-build 11/501, atlas-retry 5/504.
+  Those four have non-zero `attempted`, so job-watch SHOULD be emailing about them
+  — it is not, and job-watch records no pulse of its own, so there is no evidence
+  it runs at all. A monitor that cannot be monitored is the same blindness one
+  level up. Flagged, not guessed at.
+- PREVENTION: scripts/check-job-pulse-contract.mjs. recordPulse's first argument
+  must be a NAME you can read in the file, and every option key must be one the
+  function actually destructures — read from the function signature, so renaming a
+  field extends the guard instead of escaping it. Depth-aware rather than regex:
+  the first cut split inside `String(e).slice(0, 200)` and produced six false
+  positives against correct code. Red-and-green proven by reintroducing the exact
+  inventory-refresh bug (3 failures) and restoring it (120 assertions green).
+- 384/384 guards green.
+
+## v8.29.11 - Shopping had one contract out of five chips, and Stays sold trailer parks
+- The guard added in v8.29.10 did its job immediately: forcing every chip to be
+  DECLARED surfaced four more that were lying the same way Night out > Clubs was.
+  Malls, Boutiques, Markets and Outlets all fell through to CAT_ALLOW.shopping,
+  so all four returned exactly what "All" returned.
+- FOUR CONTRACTS, counted live before writing: shopping_mall 116, clothing_store
+  67, department_store 36, womens_clothing_store 32, market 19, farmers_market 17.
+  Malls / Boutiques / Markets are NARROW (primary identity only). Outlets has no
+  `outlet_mall` type in the inventory at all, so it rides the NAME fallback —
+  "Ellenton Premium Outlets" is how an outlet identifies itself, and that chip now
+  returns exactly two real outlet centres instead of the entire Shopping tab.
+- STAYS SOLD TRAILER PARKS. hotels held 11 `mobile_home_park` rows. A residential
+  trailer park is not a holiday and is not bookable. Added to CAT_EXCLUDE.hotels.
+  campground and rv_park deliberately NOT excluded — CAT_ALLOW.hotels admits those
+  on purpose and a state-park campground is a real stay. Verified: 0 remain.
+- A BUG I INTRODUCED AND CAUGHT. The first cut added a SECOND `hotels:` key to
+  CAT_EXCLUDE. A duplicate key silently overrides the first, which would have
+  dropped the existing office / recycling / apartment_complex vetoes. Merged into
+  the existing key instead, and asserted by call that all four still veto.
+- HONEST LIMIT, WRITTEN DOWN: shopping:boutiques still admits Ross, Old Navy and
+  Burlington, because Google types them `clothing_store` and nothing in the data
+  separates an independent boutique from a national discount chain. The chip no
+  longer lies — it returns clothing retail — but "Boutiques" implies independent.
+  That needs a chain veto shaped like NATIONAL_QUICK_RX, as its own change.
+- 383/383 guards green.
+
+## v8.29.10 - Night out had six chips and zero contracts
+- Owner, 2026-08-21, screenshot of Night out > CLUBS with "Keke's Breakfast Cafe"
+  at #1 and "S.O.B. Burgers" at #2: "how is keke a fucking club".
+- ROOT CAUSE, one line. placeAllowed resolves `SUB_ALLOW[cat:sub] || CAT_ALLOW[cat]`,
+  and there was not a single `nightlife:*` key in SUB_ALLOW. So Bars, Clubs,
+  Speakeasy, Karaoke, Sports Bars and Live Music ALL fell through to
+  CAT_ALLOW.nightlife — picking "Clubs" filtered identically to picking "All".
+  CAT_ALLOW.nightlife ends in `|restaurant|`, so every restaurant on the coast was
+  an admissible nightclub and Keke's simply won on its 9.6. Measured: the old
+  filter admitted 353 Sarasota-Manatee places, including four with "Breakfast" in
+  the name.
+- SIX CONTRACTS ADDED, grounded in types Google actually emits (counted live, not
+  invented) and every token \b-anchored, because the bare substrings are a
+  minefield: oyster_bar_restaurant/snack_bar/barbecue_restaurant contain "bar",
+  sports_club (105 rows) is a GYM, public_bath contains "pub", discount_store
+  contains "disco". `_` is a word character, so \bbar\b cannot match inside
+  oyster_bar_restaurant.
+- A NARROW CHIP MATCHES PRIMARY IDENTITY. Anchoring alone still admitted McCurdy's
+  Comedy Theatre, SEAHORSE LIQUOR STORE and BLAZED CITY VAPES to Clubs, because
+  Google hangs a secondary `night_club` tag on all three. NARROW_SUBS
+  (clubs/bars/sports/karaoke/speakeasy) now match `primary_type` only. Live Music
+  stays broad on purpose — a restaurant that hosts bands genuinely is one.
+- RESULT, proven by call against the live pool: Keke's, S.O.B. Burgers, BLAZED
+  CITY VAPES, SEAHORSE LIQUOR STORE, McCurdy's and Treasure Lanes are all now
+  false for Clubs. Bars went 129 -> 62 (Outback Steakhouse and a stadium dropped).
+  Clubs returns The Gator Club. Bradenton HAS two nightclubs; showing two is the
+  honest answer and showing a breakfast cafe to fill a row was the bug.
+- PREVENTION: scripts/check-sub-contracts.mjs. Every chip in lib/google.js either
+  has a SUB_ALLOW contract or is declared category-wide WITH A REASON — silence is
+  not an option, because silence is what shipped. It also pins the six nightlife
+  contracts as a floor and forbids unanchored bare tokens. Declaring the rest
+  surfaced 13 more chips with no contract (all of shopping, all of hotels, four of
+  food) — now visible as written debt instead of invisible.
+- 383/383 guards green.
+
+## v8.29.9 - The events cache key was spending the SerpApi budget
+- Owner upgraded SerpApi to Starter: 1,000 google_events searches per MONTH.
+- The aggregation cache key was `ev1|lat.toFixed(2)|lng.toFixed(2)|radius|city|keyword`.
+  Two decimals of latitude is ~1.1km, so two visitors a kilometre apart missed each
+  other's cache entry and each triggered a fresh aggregation — including a fresh
+  BILLABLE SerpApi search. Production has 2,051 devices. At 1.1km cells a
+  1,000/month budget is days, not a month.
+- AND NOTHING WOULD HAVE TOLD US. fromSerpEvents is fail-soft by design: over quota
+  it returns `{ events: [] }`, not an error. The symptom is events quietly thinning
+  out — the same silence that made this worth finding before the money was spent
+  rather than after.
+- One decimal is ~11km. The aggregation's own radius is 25 MILES, so every visitor
+  inside one cell was always going to receive substantially the same event set; the
+  finer key bought nothing and billed for it. ~100x fewer distinct keys.
+- Same bug shape as v8.29.8's city-unlock metro fallback, a different meter. Both
+  were coordinate-precision keys quietly multiplying paid upstream calls.
+- 382/382 guards green.
+
+## v8.29.8 - The apostrophe, and the city that was a dozen cities
+- GUIDE CARDS: THE APOSTROPHE (owner, twice: "another blog that does not have the
+  place cards", with Gecko's Grill & Pub rendering as a bare "Open in Wayfind").
+  Google writes venue names with a CURLY apostrophe; our editors type a STRAIGHT
+  one. The inventory holds 107 names with U+2019 and 638 with U+0027, and
+  `ilike '%Gecko's Grill%'` cannot match "Gecko's Grill & Pub" (curly). Measured
+  against production: the straight-quote pattern returns 0 rows, the fixed one
+  returns 6 — for a restaurant with 3,078 reviews that six guides could name and
+  none could resolve. Yoder's went 3 -> 5.
+  The stem now maps every apostrophe variant to `_`, LIKE's single-character
+  wildcard, so one pattern matches both forms with no extra round trip. It widens
+  the net by exactly one character; the >=15-review floor and the 80-mile geo gate
+  are untouched and are what keep that safe.
+- CITY FRAGMENTATION. app/api/city/unlock's nameless fallback was
+  `city-<lat.toFixed(2)>-<lng.toFixed(2)>`. Two decimals is ~1.1km, so every
+  unnamed location a kilometre apart minted its own metro AND paid for its own
+  six-query Google crawl of the same city. Production already held three:
+  city-47.61--122.33 (Seattle), city-39.74--104.99 (Denver), and
+  city-37.75--97.82 — the well-known IP-geolocation fallback coordinate for
+  "somewhere in the United States", against which 87 places had been crawled for
+  a phantom location in Kansas nobody lives in.
+  Now one decimal (~11km, a metro-sized cell), and before minting anything the
+  route adopts a metro we ALREADY hold within ~24mi. A city covered under its real
+  name can no longer be re-crawled under a coordinate.
+  The three existing coordinate metros are deliberately NOT renamed: the slug is a
+  runtime lookup key, so renaming the rows would orphan them. Code fix only.
+- TASTE: A CHANGE MADE AND REVERTED, ON PURPOSE. The open signal (weight 0.5 since
+  the taste model shipped) reaches recordTaste but stops at
+  `if (user || action !== "open")`, and production holds three users with likes
+  against 2,051 devices — so 1,211 detail opens from 206 devices are learned from
+  by almost nobody. Widening that gate to already-consented visitors was written,
+  and test-taste.mjs rejected it: "explicit reactions learn on-device before
+  sign-in; passive opens remain anonymous-neutral" is a documented privacy
+  commitment, not an oversight. Reverted. Whether to trade it is the owner's call.
+- 382/382 guards green.
+
 ## v8.29.7 - A third-party crash is not a Wayfind error
 - Owner, 2026-08-20, forwarding a Sentry alert (WAYFIND-9): "InvalidNodeTypeError:
   Failed to execute 'selectNode' on 'Range': the given Node has no parent",

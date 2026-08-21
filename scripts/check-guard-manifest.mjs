@@ -21,6 +21,7 @@ const EXCLUDED = {
   "check-bundle.mjs": "runs in `npm run audit:regression` — needs a completed next build, too slow for every prebuild",
   "check-headers.mjs": "runs in `npm run audit:regression` — asserts deployed response headers, needs a live origin",
   "check-moment.mjs": "STALE as of 2026-07-28: fails on 'trust copy must appear in overlay AND sheet'. The UI it guards changed in the design release; needs triage — either the copy regressed or the guard is obsolete. Deliberately not wired in while red.",
+  "check-inventory-integrity.mjs": "runs in the scheduled canary workflow, not prebuild — it reads PRODUCTION Supabase, and a stale row in the database must never be able to block a code deploy. Wrong coupling in that direction; see .github/workflows/canary.yml.",
   "check-ux.mjs": "STALE as of 2026-07-28: fails on 'mood kicker missing'. Same situation as check-moment.mjs — triage, then either fix the surface or retire the guard.",
 };
 

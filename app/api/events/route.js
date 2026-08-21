@@ -364,6 +364,20 @@ async function fromSerpEvents(lat, lng, keyword, city) {
     const r = await fetch(`https://serpapi.com/search.json?${p.toString()}`);
     if (!r.ok) return { configured: true, ok: false, events: [] };
     const data = await r.json();
+    // v8.29.9 — SERPAPI REPORTS FAILURE WITH HTTP 200 (2026-08-21). Out of
+    // searches, bad key, invalid engine — all of them come back 200 with an
+    // `error` STRING in the body and no events_results. `data.events_results ||
+    // []` then produced an empty array and this provider reported
+    // `{ ok: true, received: 0 }` into the health block: a dead integration
+    // wearing a green tick.
+    //
+    // Measured 2026-08-21 against production, immediately after the owner bought
+    // a plan: Bradenton, Tampa, Orlando and Sarasota ALL returned ok=true,
+    // received=0. Tampa and Orlando have enormous Google Events coverage, so
+    // "no results" was never a credible reading — but nothing in the response
+    // said otherwise, so a paid provider could sit dead indefinitely and the
+    // health block would keep calling it healthy.
+    if (data && data.error) return { configured: true, ok: false, error: String(data.error).slice(0, 140), events: [] };
     const raw = data.events_results || [];
     const events = raw.map((e, i) => {
       const dd = e.date || {};
@@ -559,7 +573,20 @@ async function aggregateEvents({ lat, lng, keyword, radius, city }) {
   };
   try {
     if (lat == null || lng == null) return { events: [] };
-    evK = "ev1|" + Number(lat).toFixed(2) + "|" + Number(lng).toFixed(2) + "|" + (radius || 25) + "|" + String(city || "").toLowerCase().slice(0, 40) + "|" + String(keyword || "").toLowerCase().slice(0, 40);
+    // v8.29.9 — THE CACHE KEY WAS SPENDING THE SERPAPI BUDGET (2026-08-21).
+    // Two decimals of latitude is ~1.1km, so two visitors a kilometre apart
+    // missed each other's cache entry and each triggered a fresh aggregation —
+    // including a fresh billable SerpApi google_events search. Production has
+    // 2,051 devices; the Starter plan is 1,000 searches/MONTH. At 1.1km cells
+    // that budget is days, not a month, and the symptom is events silently
+    // going empty again (fromSerpEvents is fail-soft, so it returns [] rather
+    // than erroring — nothing would have told us).
+    //
+    // One decimal is ~11km. The aggregation's own radius is 25 MILES, so every
+    // visitor inside one cell was always going to receive substantially the
+    // same event set; the finer key bought nothing and billed for it. Same bug
+    // shape as the city-unlock metro fallback fixed in v8.29.8, different meter.
+    evK = "ev1|" + Number(lat).toFixed(1) + "|" + Number(lng).toFixed(1) + "|" + (radius || 25) + "|" + String(city || "").toLowerCase().slice(0, 40) + "|" + String(keyword || "").toLowerCase().slice(0, 40);
     if (keyword === "__forceErr__") { const s = await staleEvents(); return s || { events: [] }; } // test hook
 
     const results = await Promise.all([

@@ -101,9 +101,22 @@ async function inventoryPlaceByStem(stem, near) {
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
   const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
   if (!url || !anon || !stem) return null;
+  // v8.29.8 — THE APOSTROPHE (owner: "another blog that does not have the place
+  // cards", screenshot of Gecko's Grill & Pub rendering as a bare button).
+  // Google writes venue names with a CURLY apostrophe and our editors type a
+  // STRAIGHT one. The inventory holds 107 names with U+2019 and 638 with U+0027,
+  // and `ilike '%Gecko's Grill%'` cannot match "Gecko’s Grill & Pub" — so a
+  // restaurant that is in the inventory SIX times, with 3,078 reviews, resolved
+  // to nothing on every guide that named it.
+  //
+  // `_` is LIKE's single-character wildcard, so one pattern matches both forms
+  // without a second round trip. It widens the net by exactly one character;
+  // the >=15-review floor and the 80-mile geo gate below are what keep that
+  // safe, and both are untouched.
+  const pattern = "%" + String(stem).replace(/['\u2018\u2019\u02BC\u00B4`]/g, "_") + "%";
   try {
     const r = await fetch(
-      `${url}/rest/v1/wf_inventory?select=place_id,name,lat,lng,primary_type,google_types,signals,photo_ref,editorial&status=eq.OPERATIONAL&name=ilike.${encodeURIComponent("%" + stem + "%")}&limit=5`,
+      `${url}/rest/v1/wf_inventory?select=place_id,name,lat,lng,primary_type,google_types,signals,photo_ref,editorial&status=eq.OPERATIONAL&name=ilike.${encodeURIComponent(pattern)}&limit=5`,
       { headers: { apikey: anon, Authorization: "Bearer " + anon }, next: { revalidate: 3600 } }
     );
     if (!r.ok) return null;
