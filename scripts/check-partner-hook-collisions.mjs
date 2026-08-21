@@ -30,7 +30,9 @@ import { UT_PLACE_DEAL_IDS } from "../lib/deals.js";
 
 // v8.19 — Viator place-hook pin: product_codes confirmed in wf_experiences
 // with link_ok:true, fail_count:0 on 2026-08-19 (the rail-card monetization
-// audit). A code absent here is an unverified hook.
+// audit). A code absent here is an unverified hook UNLESS it is a
+// registry-backed named offer whose destination is a hand-opened
+// https://www.viator.com/tours/... URL (2026-08-19 founder pin batch).
 const VIATOR_PLACE_PRODUCT_CODES = {
   "412732P1": "Clear Kayak Ecotour at Robinson Preserve",
   "454941P4": "Robinson Preserve Mangrove Tour",
@@ -68,6 +70,15 @@ const VIATOR_PLACE_PRODUCT_CODES = {
   "179637P1": "Little Toot Dolphin Adventure at Clearwater Beach",
   "5608638P1": "Shark Tooth Snorkeling Adventure and Huka Dive in Venice Florida",
 };
+
+function isKnownViatorPlaceOffer(offerId) {
+  if (VIATOR_PLACE_PRODUCT_CODES[offerId]) return true;
+  const row = PARTNER_OFFER_REGISTRY[offerId];
+  return !!(row
+    && row.provider === "viator"
+    && typeof row.destination === "string"
+    && /^https:\/\/www\.viator\.com\/tours\//.test(row.destination));
+}
 
 
 let pass = 0;
@@ -168,9 +179,14 @@ for (const row of [...PLACE_PARTNER_PICKS, ...VENUE_OFFERS]) {
     continue;
   }
   if (row.provider === "viator") {
-    // v8.19 — table-backed like UT: wf_experiences product_code lookup with
-    // its own link_ok pipeline. Pinned below, verified live 2026-08-19.
-    ok(!!VIATOR_PLACE_PRODUCT_CODES[row.offerId], `${row.offerId} viator hook is pinned to a live-verified wf_experiences product_code`);
+    ok(isKnownViatorPlaceOffer(row.offerId), `${row.offerId} viator hook is a live wf_experiences product_code or a registry-backed https://www.viator.com/tours/ destination`);
+    if (!VIATOR_PLACE_PRODUCT_CODES[row.offerId]) {
+      const entry = partnerOfferById(row.offerId, "viator");
+      ok(!!entry && HOST_OK.test(entry.destination),
+         `${row.offerId} registry destination is a real partner host over https (got ${entry && entry.destination})`);
+      ok(!/\s|\{|\}|example\.com|TODO/i.test(entry.destination),
+         `${row.offerId} has no placeholder or templated destination`);
+    }
     continue;
   }
   const entry = partnerOfferById(row.offerId, row.provider);
