@@ -9,6 +9,8 @@
 // serve-time gates so unenriched rows never leave the server. This test locks
 // BOTH layers so no future data source can ship a broken card again.
 import { readFileSync } from "fs";
+import { createRequire } from "node:module";
+const ts = createRequire(import.meta.url)("typescript");
 import { cardComplete } from "../lib/score.js";
 import { rankInventory } from "../lib/inventoryServe.js";
 
@@ -42,13 +44,44 @@ ok(typeof served[0].rating === "number" && served[0].rating > 0, "a served inven
 
 // ── the components actually enforce the contract ────────────────────────────
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
-// RE-POINTED v8.13.3 (owner, 2026-08-18: "I don't want any of the place cards
-// not to have an image"): useMarketPhotoFallback joins the allowed pre-gate
-// hooks — like useBestPhoto it MUST run on every render (rules of hooks), so
-// it can only live above the early return. The invariant is unchanged: the
-// completeness gate is the first RETURN, and only hooks may precede it.
-ok(/function PlaceCard\(\{[^}]*\}\) \{\s*\n\s*(?:\/\/[^\n]*\n\s*)*(?:const cardPhoto = useBestPhoto\([^;]*\);\s*\n\s*)?(?:\/\/[^\n]*\n\s*)*(?:const cardMarketFallback = useMarketPhotoFallback\([\s\S]{0,300}?\);\s*\n\s*)?(?:\/\/[^\n]*\n\s*)*(?:const cardProduct = usePlaceProduct\([^;]*\);\s*\n\s*)?if \(!cardComplete\(p\)\) return null;/.test(home),
-  "PlaceCard's completeness gate is its first RETURN (only the useBestPhoto + useMarketPhotoFallback + usePlaceProduct hooks may precede it — rules of hooks; an incomplete card still renders nothing)");
+// RE-POINTED AGAIN 2026-08-21, and this time at the RULE. Two earlier versions
+// of this assertion pinned the exact list of hooks allowed above the gate
+// (useBestPhoto, then + useMarketPhotoFallback, then + usePlaceProduct), and
+// each went red the next time a hook legitimately had to move above it — the
+// pinned-punctuation failure mode this repo keeps paying for. Worse, the pin
+// pushed back: the photo-heal useState/useEffect stayed BELOW the gate to keep
+// this regex green, which is a rules-of-hooks violation and, when the gate
+// flipped mid-life, a blank feed.
+//
+// The invariant was never the list. It is: NOTHING RENDERS BEFORE COMPLETENESS
+// IS DECIDED — the gate is PlaceCard's first return. Hook ORDER is a separate
+// invariant and now has its own guard, scripts/check-hook-order.mjs, which
+// enforces it across every component in the app rather than this one.
+//
+// Read with the TypeScript parser, so a `return` inside a callback above the
+// gate (every useEffect has one) is correctly not PlaceCard's return.
+{
+  const src = ts.createSourceFile("home.js", home, ts.ScriptTarget.ES2022, true, ts.ScriptKind.JSX);
+  let placeCard = null;
+  const find = (n) => {
+    if (ts.isFunctionDeclaration(n) && n.name && n.name.text === "PlaceCard") placeCard = n;
+    if (!placeCard) ts.forEachChild(n, find);
+  };
+  ts.forEachChild(src, find);
+  ok(!!(placeCard && placeCard.body), "PlaceCard is a function declaration in app/home.js");
+  // Its own returns — not the ones belonging to callbacks it creates.
+  const returns = [];
+  const walk = (n) => {
+    if (n !== placeCard && (ts.isFunctionDeclaration(n) || ts.isFunctionExpression(n) || ts.isArrowFunction(n))) return;
+    if (ts.isReturnStatement(n)) returns.push(n);
+    ts.forEachChild(n, walk);
+  };
+  ts.forEachChild(placeCard.body, walk);
+  ok(returns.length > 0, "PlaceCard returns something");
+  const first = returns[0].getText(src).replace(/\s+/g, " ");
+  ok(/^return null;?$/.test(first) && /if \(!cardComplete\(p\)\) return null;/.test(home.slice(Math.max(0, returns[0].getStart() - 40), returns[0].getEnd())),
+    "PlaceCard's completeness gate is its FIRST return — an incomplete card renders nothing, and nothing paints before that is decided (first return was: " + first + ")");
+}
 ok(/import \{[^}]*cardComplete[^}]*\} from "\.\.\/lib\/score"/.test(home), "home.js imports cardComplete from lib/score");
 ok(/if \(p\.wfScore == null && Number\(p\.rating\) > 0\) p\.wfScore = wayfindScore\(/.test(home),
   "PlaceCard self-heals a missing wfScore from rating signals (a rated card ALWAYS shows the Score badge)");

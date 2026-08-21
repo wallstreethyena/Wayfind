@@ -537,3 +537,10 @@ node scripts/check-job-pulse-contract.mjs
 # server data. /p/<id> shipped without railMenu, which is why liking a card
 # landed the owner on a homepage with no rails and no way back to one.
 node scripts/check-shell-routes.mjs
+# 2026-08-21 — the blank screen. IconicPlaceCard called a hook, returned early on
+# `!place`, then called four more; home.js's PlaceCard and PageInner, BookingCTA
+# and BookItLink all did the same. React counts hooks by call order, so the first
+# render where the gate flipped threw "Rendered fewer hooks than expected" and
+# unmounted the tree — a white page, not a caught error. This repo has no ESLint,
+# so react-hooks/rules-of-hooks was enforced by nothing. It is enforced by this.
+node scripts/check-hook-order.mjs

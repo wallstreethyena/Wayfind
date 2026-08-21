@@ -248,8 +248,16 @@ ok(String(viatorProductGoUrl("https://viator.com/tours/Crystal-River/x/d1-2", "C
     "BookItLink offer must not openExternal / window.open");
   ok(!/tpDeepLink\s*\(/.test(bookIt),
     "BookItLink search kind must not render tpDeepLink / a raw partner URL");
-  ok(/kind\s*!==\s*["']offer["']/.test(bookIt),
+  // RE-POINTED 2026-08-21. This pinned `kind !== "offer"`, the negative form,
+  // and went red when BookItLink resolved its gates ABOVE the early returns so
+  // its impression effect could stop being a hook behind a `return` (rules of
+  // hooks — scripts/check-hook-order.mjs). The invariant is that non-offer
+  // kinds earn nothing, not which direction the comparison is written in, so
+  // both forms count and the render must still be gated.
+  ok(/kind\s*(?:===|!==)\s*["']offer["']/.test(bookIt),
     "BookItLink fail-closes anything that is not kind offer");
+  ok(/if \(![A-Za-z_$][\w$]*\) return null;\s*return \(/.test(bookIt.replace(/\n\s*/g, "\n")),
+    "…and the JSX is unreachable unless that gate passed — the last statement before the render is a null return");
   ok(/commerceHref\([\s\S]{0,400}clickId/.test(bookItRaw) || /withClickId\(/.test(bookIt),
     "BookItLink offer href /api/commerce/go must carry click_id (commerceHref clickId or withClickId)");
 }

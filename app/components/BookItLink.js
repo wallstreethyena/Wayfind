@@ -32,26 +32,31 @@ export default function BookItLink({ detail, city, logEvent, addReservation }) {
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => { setHydrated(true); }, []);
 
-  if (!BOOK_IT_ON || !detail) return null;
-  const live = Object.keys(TP_PROGRAMS).filter(isTpProgramLive);
-  const target = bookItTarget(detail, { available: live, city });
-  if (!target) return null;
+  // EVERY GATE RESOLVES BEFORE ANY EXIT. The impression effect below is a hook,
+  // and a hook behind a `return` changes React's hook count the moment the gate
+  // flips — which unmounts the tree rather than warning (2026-08-21; see
+  // scripts/check-hook-order.mjs). `detail` changes every time the sheet opens
+  // on another place, so this gate flips constantly.
+  const live = BOOK_IT_ON && detail ? Object.keys(TP_PROGRAMS).filter(isTpProgramLive) : [];
+  const target = BOOK_IT_ON && detail ? bookItTarget(detail, { available: live, city }) : null;
   // kind "search" was tpDeepLink — a raw partner URL in the DOM. Fail-closed.
   // kind "offer" is the only earning path: /api/commerce/go, same-tab, stamped.
-  if (target.kind !== "offer") return null;
-  const baseHref = commerceHref({
-    provider: target.provider,
-    offerId: target.offerId,
+  const offer = target && target.kind === "offer" ? target : null;
+  const detailId = detail ? detail.id || null : null;
+  const baseHref = offer ? commerceHref({
+    provider: offer.provider,
+    offerId: offer.offerId,
     surface: "detail_book_it",
-    contentId: detail.id || null,
+    contentId: detailId,
     clickId: hydrated ? clickId.current : undefined,
-  });
-  if (!baseHref || !isEarningGoHref(baseHref)) return null;
-  const href = hydrated ? withClickId(baseHref, clickId.current) : baseHref;
-  const brand = (TP_PROGRAMS[target.provider] || {}).brand || target.provider;
+  }) : null;
+  const earning = baseHref && isEarningGoHref(baseHref) ? baseHref : null;
+  const provider = offer ? offer.provider : null;
+  const href = earning ? (hydrated ? withClickId(earning, clickId.current) : earning) : null;
+  const brand = offer ? ((TP_PROGRAMS[offer.provider] || {}).brand || offer.provider) : "";
   useEffect(() => {
     const el = ref.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
+    if (!el || !earning || typeof IntersectionObserver === "undefined") return undefined;
     const obs = new IntersectionObserver((entries) => {
       for (const e of entries) {
         if (!e.isIntersecting || e.intersectionRatio < 0.5 || impressRef.current) continue;
@@ -59,10 +64,10 @@ export default function BookItLink({ detail, city, logEvent, addReservation }) {
         try {
           emitCommerce("commerce_impression", {
             surface: "detail_book_it",
-            provider: target.provider,
-            offer_id: detail.id || "unknown",
+            provider,
+            offer_id: detailId || "unknown",
             city_id: city || null,
-            canonical_place_id: detail.id || null,
+            canonical_place_id: detailId,
           });
         } catch (er) {}
         obs.disconnect();
@@ -70,7 +75,8 @@ export default function BookItLink({ detail, city, logEvent, addReservation }) {
     }, { threshold: [0.5] });
     obs.observe(el);
     return () => { try { obs.disconnect(); } catch (er) {} };
-  }, [target.provider, detail.id, city]);
+  }, [provider, detailId, city, earning]);
+  if (!earning) return null;
   return (
     <a
       ref={ref}
@@ -80,14 +86,14 @@ export default function BookItLink({ detail, city, logEvent, addReservation }) {
         try {
           emitCommerce("commerce_cta_clicked", {
             surface: "detail_book_it",
-            provider: target.provider,
-            offer_id: detail.id || "unknown",
+            provider,
+            offer_id: detailId || "unknown",
             city_id: city || null,
-            canonical_place_id: detail.id || null,
+            canonical_place_id: detailId,
             click_id: clickId.current,
           });
         } catch (er) {}
-        try { if (logEvent) logEvent("book_it_out", detail, { provider: target.provider, click_id: clickId.current }); } catch (er) {}
+        try { if (logEvent) logEvent("book_it_out", detail, { provider, click_id: clickId.current }); } catch (er) {}
         try { if (addReservation) addReservation("book", detail, brand, href); } catch (er) {}
       }}
       style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}

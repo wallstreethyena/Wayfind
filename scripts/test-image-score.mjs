@@ -57,13 +57,23 @@ const home = read("app/home.js");
 // assertions below still prove it runs before the early return and feeds the
 // card's src.
 ok(/import \{ useBestPhoto \} from "\.\.\/lib\/bestPhoto"/.test(home), "PlaceCard imports the picker");
-// RE-POINTED v8.13.3 (owner: "I don't want any of the place cards not to have
-// an image"): useMarketPhotoFallback joins the pre-gate hook block (it too
-// must run on every render), and the src ladder gains the stock-scene LAST
-// rung — cardPhoto || p.photo || cardMarketFallback. Both invariants this
-// file proves are unchanged: the picker runs before the early return, and the
-// venue-truthful photo always outranks every fallback.
-ok(/const cardPhoto = useBestPhoto\(p && p\.photo, p && p\.photos\);\s*\n\s*(?:\/\/[^\n]*\n\s*)*(?:const cardMarketFallback = useMarketPhotoFallback\([\s\S]{0,300}?\);\s*\n\s*)*(?:\/\/[^\n]*\n\s*)*(?:const cardProduct = usePlaceProduct\([^;]*\);\s*\n\s*)?if \(!cardComplete\(p\)\) return null;/.test(home), "the hook runs BEFORE the early return (rules of hooks)");
+// RE-POINTED AGAIN 2026-08-21, at the RULE this time. The old assertion pinned
+// the exact run of statements between useBestPhoto and the gate, so every hook
+// that legitimately had to move above the gate broke it — and on 2026-08-21 it
+// did the reverse damage too, holding the photo-heal useState/useEffect BELOW
+// the gate (a rules-of-hooks violation, and a blank feed when the gate flipped)
+// because moving them up would not have matched.
+//
+// The invariant is an ORDER, so assert the order: the picker is called, the
+// gate exists, and the call comes first. Hook order across the whole app is
+// enforced separately by scripts/check-hook-order.mjs.
+{
+  const pick = home.indexOf("const cardPhoto = useBestPhoto(p && p.photo, p && p.photos);");
+  const gate = home.indexOf("if (!cardComplete(p)) return null;");
+  ok(pick !== -1, "PlaceCard calls useBestPhoto(p && p.photo, p && p.photos)");
+  ok(gate !== -1, "PlaceCard still gates on cardComplete");
+  ok(pick < gate, "the hook runs BEFORE the early return (rules of hooks)");
+}
 ok(/src=\{cardPhoto \|\| p\.photo \|\| cardMarketFallback\}/.test(home), "the card renders the best photo, then the primary, then the stock-scene last rung — venue-truth always first");
 
 console.log(`test-image-score: ${n - failn}/${n} passed`);
