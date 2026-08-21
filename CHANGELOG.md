@@ -1,3 +1,38 @@
+## v8.29.10 - Night out had six chips and zero contracts
+- Owner, 2026-08-21, screenshot of Night out > CLUBS with "Keke's Breakfast Cafe"
+  at #1 and "S.O.B. Burgers" at #2: "how is keke a fucking club".
+- ROOT CAUSE, one line. placeAllowed resolves `SUB_ALLOW[cat:sub] || CAT_ALLOW[cat]`,
+  and there was not a single `nightlife:*` key in SUB_ALLOW. So Bars, Clubs,
+  Speakeasy, Karaoke, Sports Bars and Live Music ALL fell through to
+  CAT_ALLOW.nightlife — picking "Clubs" filtered identically to picking "All".
+  CAT_ALLOW.nightlife ends in `|restaurant|`, so every restaurant on the coast was
+  an admissible nightclub and Keke's simply won on its 9.6. Measured: the old
+  filter admitted 353 Sarasota-Manatee places, including four with "Breakfast" in
+  the name.
+- SIX CONTRACTS ADDED, grounded in types Google actually emits (counted live, not
+  invented) and every token \b-anchored, because the bare substrings are a
+  minefield: oyster_bar_restaurant/snack_bar/barbecue_restaurant contain "bar",
+  sports_club (105 rows) is a GYM, public_bath contains "pub", discount_store
+  contains "disco". `_` is a word character, so \bbar\b cannot match inside
+  oyster_bar_restaurant.
+- A NARROW CHIP MATCHES PRIMARY IDENTITY. Anchoring alone still admitted McCurdy's
+  Comedy Theatre, SEAHORSE LIQUOR STORE and BLAZED CITY VAPES to Clubs, because
+  Google hangs a secondary `night_club` tag on all three. NARROW_SUBS
+  (clubs/bars/sports/karaoke/speakeasy) now match `primary_type` only. Live Music
+  stays broad on purpose — a restaurant that hosts bands genuinely is one.
+- RESULT, proven by call against the live pool: Keke's, S.O.B. Burgers, BLAZED
+  CITY VAPES, SEAHORSE LIQUOR STORE, McCurdy's and Treasure Lanes are all now
+  false for Clubs. Bars went 129 -> 62 (Outback Steakhouse and a stadium dropped).
+  Clubs returns The Gator Club. Bradenton HAS two nightclubs; showing two is the
+  honest answer and showing a breakfast cafe to fill a row was the bug.
+- PREVENTION: scripts/check-sub-contracts.mjs. Every chip in lib/google.js either
+  has a SUB_ALLOW contract or is declared category-wide WITH A REASON — silence is
+  not an option, because silence is what shipped. It also pins the six nightlife
+  contracts as a floor and forbids unanchored bare tokens. Declaring the rest
+  surfaced 13 more chips with no contract (all of shopping, all of hotels, four of
+  food) — now visible as written debt instead of invisible.
+- 383/383 guards green.
+
 ## v8.29.9 - The events cache key was spending the SerpApi budget
 - Owner upgraded SerpApi to Starter: 1,000 google_events searches per MONTH.
 - The aggregation cache key was `ev1|lat.toFixed(2)|lng.toFixed(2)|radius|city|keyword`.
