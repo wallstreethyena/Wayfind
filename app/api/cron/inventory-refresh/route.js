@@ -54,7 +54,15 @@ export async function GET(req) {
     .limit(limit);
   if (error) return jobFailed("inventory-refresh", "stale-row select failed: " + error.message);
   if (!rows || !rows.length) {
-    await recordPulse(db, "inventory-refresh", { refreshed: 0, note: "nothing stale" });
+    // v8.29.12 — recordPulse is (job, opts). This passed `db` as the JOB, so
+    // String(db) filed every inventory-refresh pulse under the literal job name
+    // "[object Object]" — which is exactly what the production pulse table
+    // contained. The opts keys were wrong too ({refreshed, failed, scanned}
+    // instead of {attempted, succeeded, note}), so attempted and succeeded were
+    // always 0. Net effect: the hourly job that keeps 7,800 rows fresh has been
+    // invisible to job-watch, the very monitor built to catch a job that
+    // succeeds at nothing. Two wrong arguments, five weeks of blindness.
+    await recordPulse("inventory-refresh", { attempted: 0, succeeded: 0, note: "nothing stale" });
     return Response.json({ ok: true, refreshed: 0, note: "nothing older than " + REFRESH_AFTER_DAYS + "d" });
   }
 
@@ -88,6 +96,6 @@ export async function GET(req) {
 
   // All-failed is an outage (Google or DB), not a quiet success.
   if (refreshed === 0 && failed > 0) return jobFailed("inventory-refresh", `0/${rows.length} rows refreshed (${failed} failures)`);
-  await recordPulse(db, "inventory-refresh", { refreshed, failed, scanned: rows.length });
+  await recordPulse("inventory-refresh", { attempted: rows.length, succeeded: refreshed, failed, note: `scanned ${rows.length}` });
   return Response.json({ ok: true, refreshed, failed, scanned: rows.length });
 }

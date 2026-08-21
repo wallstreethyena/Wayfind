@@ -528,6 +528,11 @@ node scripts/check-card-actions.mjs
 # category-wide with a reason. Night out had SIX chips and ZERO contracts, so
 # picking "Clubs" filtered identically to "All" and a breakfast cafe led it.
 node scripts/check-sub-contracts.mjs
+# v8.29.12 — recordPulse(job, opts) takes a NAME first. inventory-refresh passed
+# the Supabase client, so five weeks of pulses filed under "[object Object]" and
+# the job hid from job-watch, the monitor built to catch a job succeeding at
+# nothing. Red-and-green proven against the real bug.
+node scripts/check-job-pulse-contract.mjs
 # v8.29 — every route that renders the app shell must hand it the shell's
 # server data. /p/<id> shipped without railMenu, which is why liking a card
 # landed the owner on a homepage with no rails and no way back to one.

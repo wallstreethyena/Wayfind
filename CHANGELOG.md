@@ -1,3 +1,36 @@
+## v8.29.12 - The job that filed under "[object Object]", and 19,997 silent failures
+- Owner asked to fix the 915 imageless cards permanently. The mechanism to fix them
+  ALREADY EXISTS — inventory-refresh runs hourly, calls getPlaceDetails (which has
+  requested `photos` since v8.7) and writes photo_ref. So the question was why it
+  never reached those metros, and the answer was not about photos at all.
+- recordPulse's signature is (job, opts). inventory-refresh called
+  `recordPulse(db, "inventory-refresh", {...})` — the Supabase CLIENT as the job
+  name. String(db) is "[object Object]", and that is verbatim what production's
+  wf_job_pulse table contained. The opts were wrong too: {refreshed, failed,
+  scanned} against a contract of {attempted, succeeded, failed, note}, so attempted
+  and succeeded were pinned at 0 forever.
+- THE COST WAS NOT A BAD ROW. app/api/cron/job-watch exists specifically to email
+  when a metered job succeeds at nothing, and classifyHealth treats attempted === 0
+  as "idle — nothing to do, not a failure". So the hourly job that keeps 7,800
+  inventory rows fresh was structurally invisible to the one monitor built to
+  notice it dying. Two wrong arguments bought five weeks of silence.
+- WHAT THE PULSE TABLE ACTUALLY SHOWS, once read: 19,997 failed upstream calls in
+  seven days with ZERO successes — popularity:foursquare 8,400 (http_429),
+  popularity:yelp 5,279 (http_400), popularity:wikipedia 4,638,
+  popularity:tripadvisor 1,680 (http_403). atlas-build 11/501, atlas-retry 5/504.
+  Those four have non-zero `attempted`, so job-watch SHOULD be emailing about them
+  — it is not, and job-watch records no pulse of its own, so there is no evidence
+  it runs at all. A monitor that cannot be monitored is the same blindness one
+  level up. Flagged, not guessed at.
+- PREVENTION: scripts/check-job-pulse-contract.mjs. recordPulse's first argument
+  must be a NAME you can read in the file, and every option key must be one the
+  function actually destructures — read from the function signature, so renaming a
+  field extends the guard instead of escaping it. Depth-aware rather than regex:
+  the first cut split inside `String(e).slice(0, 200)` and produced six false
+  positives against correct code. Red-and-green proven by reintroducing the exact
+  inventory-refresh bug (3 failures) and restoring it (120 assertions green).
+- 384/384 guards green.
+
 ## v8.29.11 - Shopping had one contract out of five chips, and Stays sold trailer parks
 - The guard added in v8.29.10 did its job immediately: forcing every chip to be
   DECLARED surfaced four more that were lying the same way Night out > Clubs was.
