@@ -1,3 +1,37 @@
+## v8.29.14 - The alarm was pointed at the only working source
+- Owner: "why are we working on that we need to work on something else like for
+  example 19,997 failed upstream calls in seven days, zero successes." Correct.
+- GROUND TRUTH FIRST. wf_place_popularity holds 268 rows and every one is
+  WIKIPEDIA — 115 written in the last seven days, newest that morning. yelp,
+  foursquare and tripadvisor have written ZERO rows EVER. The 2026-08-08 comment
+  in this file already said the table was "fed by wikipedia ALONE"; three months
+  later it still is.
+- WIKIPEDIA WAS NEVER BROKEN. fetchWikipedia was the one fetcher that never called
+  notePop, so the cron pulsed it as attempted=2400 succeeded=0 and job-watch read
+  the only working source as dead. Both endpoints verified by call: opensearch and
+  the pageviews REST API each return HTTP 200 with real data. Instrumented now
+  (no_match / no_views / ok), so its successes count.
+- YELP IS A MALFORMED KEY, NOT AN EXPIRED ONE. Proven by call: Yelp answers a
+  bad-shaped key with `400 VALIDATION_ERROR — 'Bearer …' does not match
+  '^Bearer [A-Za-z0-9\-\_]{128}$'`. Production gets the same 400, so YELP_API_KEY
+  is the wrong LENGTH/FORMAT. An expired-but-well-formed key returns 401. Owner
+  action: replace the key.
+- FOURSQUARE'S KEY IS FINE, THE VOLUME IS NOT. A bad token answers 401 here
+  (verified by call); production gets 429. Foursquare was the only uncapped paid
+  source AND sourcesFor() returns it for every category, so it consumed the whole
+  100-place batch on all 12 daily runs — ~1,200 calls/day. Capped at 30/run.
+- AND IT CALLED A DEAD HOST FIRST, EVERY TIME. The legacy v3 probe fired ahead of
+  the real request on every place despite v3 being SUNSET 2026-05-15 — ~1,200
+  guaranteed-dead round trips a day. It now runs only for a legacy `fsq3…` key,
+  for which it is the only endpoint that ever worked.
+- TRIPADVISOR returns 403, byte-identical to what a dummy key returns
+  ("explicit deny in an identity-based policy"). Invalid key, or the Content API's
+  IP allowlist does not include Vercel's egress. Owner action.
+- NET: one real source restored to visibility, ~2,400 wasted upstream calls a day
+  removed, and the two genuine credential faults named precisely instead of
+  guessed at.
+- 384/384 guards green.
+
 ## v8.29.13 - The watcher must be watched
 - Chased the last thread: why job-watch stayed silent through 19,997 failed calls.
 - DETECTION WAS NEVER BROKEN. Called wf_job_health(48) directly against production:
