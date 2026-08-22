@@ -131,6 +131,42 @@ for (const a of ACTIONS) {
 }
 
 // ---------------------------------------------------------------------------
+// 2b. v8.30.1 — EVERY CONTROL IN THE ACTION ROW, not only the ones with an
+// anchor.
+//
+// Rule 2 above discovers actions from `actionHref("x")`, which means an action
+// with no no-JS anchor was invisible to this guard. SHARE IS EXACTLY THAT, and
+// it is the one that broke: the button read the raw prop
+//
+//     onClick={() => { if (onShare) onShare(place); }}
+//
+// app/home.js passed `onShareRail` to <DaypartRail> and never passed `onShare`,
+// so every Share button in every rail drop was a live-looking no-op — owner's
+// screenshot, 2026-08-22, showing iOS's Copy / Look Up callout over the word
+// "Share" because the tap had nothing to do. Every rule in this file was green.
+//
+// So the action list is now read off the ROW the card renders, not off the
+// anchors it happens to have. A seventh control with no anchor extends this
+// guard instead of escaping it.
+const ROW = [...new Set([...cardSrc.matchAll(/className=\{?"wf-place-card-([a-z]+)"/g)].map((m) => m[1]))]
+  .filter((a) => new RegExp("\\bon" + a[0].toUpperCase() + a.slice(1) + "\\b").test(cardSrc));
+ok(ROW.includes("share"), `${CARD}: the share control is no longer discoverable in the action row — this guard just stopped checking the action that broke`);
+for (const a of ROW) {
+  const Cap = a[0].toUpperCase() + a.slice(1);
+  ok(new RegExp("const\\s+do" + Cap + "\\s*=\\s*on" + Cap + "\\s*\\|\\|\\s*\\(\\s*fb\\.hydrated\\s*\\?").test(cardSrc),
+    `${CARD}: do${Cap} must be \`on${Cap} || (fb.hydrated ? <fallback> : null)\`. A control that reads its raw prop is dead the moment one caller forgets it.`);
+  ok(!new RegExp("if \\(on" + Cap + "\\) on" + Cap + "\\(").test(cardSrc),
+    `${CARD}: the ${a} control still calls the raw on${Cap} prop. It must call do${Cap}, or an unwired caller ships a button that does nothing.`);
+}
+// …and the fallback store must be ENABLED whenever any one of them is unwired.
+// Three of four is not wired: a caller that passed save/like/dislike and not
+// share left fb.hydrated false, so the share fallback could never resolve.
+ok(/needsFallback\s*=\s*!cardActionsReadOnly\s*&&\s*!\(onSave\s*&&\s*onLike\s*&&\s*onDislike\s*&&\s*onShare\)/.test(cardSrc),
+  `${CARD}: needsFallback must count EVERY action-row prop, share included — otherwise the fallback is off exactly when one control is missing`);
+ok(/export function shareCard\b/.test(storeSrc), `${STORE}: must export shareCard — the share fallback`);
+ok(/from "\.\/shareOut"/.test(storeSrc), `${STORE}: the share fallback must reuse lib/shareOut.js, which owns the iOS sheet-before-clipboard ordering (check-share-out.mjs), not a fourth copy of it`);
+
+// ---------------------------------------------------------------------------
 // 3. Nobody else builds a ?action= link. The card owns that URL shape; a second
 // author of it is a second place for this bug to come back.
 let offenders = 0;

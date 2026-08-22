@@ -23,7 +23,7 @@ import { toHookLine } from "../../lib/editorialHook.js";
 // <a href="/p/<id>?action=like"> whenever a caller forgot to wire a handler,
 // which turned a like into a navigation on every surface that forgot. The card
 // now carries a working fallback instead of a link. See lib/cardActions.js.
-import { useCardActions, useActionBridge, replayEvent, ACTION_ATTR, PLACE_ATTR, toggleLike as fallbackLike, toggleDislike as fallbackDislike, toggleSave as fallbackSave } from "../../lib/cardActions";
+import { useCardActions, useActionBridge, replayEvent, ACTION_ATTR, PLACE_ATTR, toggleLike as fallbackLike, toggleDislike as fallbackDislike, toggleSave as fallbackSave, shareCard as fallbackShare } from "../../lib/cardActions";
 // v8.29.6 — MERGED WITH main's PR #888 (lib/railReaction.js), which fixed the
 // same tap from the other end: it deletes the Like/Dislike anchor outright and
 // routes every reaction through one click contract that cannot navigate.
@@ -225,7 +225,11 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   // owns its own state) subscribes to nothing and re-renders for nothing.
   // Hooks run before the early return below, because they must: a card whose
   // `place` arrives late may not skip a hook on the render before it.
-  const needsFallback = !cardActionsReadOnly && !(onSave && onLike && onDislike);
+  // v8.30.1 — onShare JOINS THE TEST. A caller that wired save, like and
+  // dislike but not share left `fb.hydrated` false, so `doShare` resolved to
+  // null and the Share button was dead on exactly the surfaces that looked
+  // most correctly wired. Three of four is not wired.
+  const needsFallback = !cardActionsReadOnly && !(onSave && onLike && onDislike && onShare);
   const fb = useCardActions(needsFallback);
   // ── EVERY HOOK LIVES ABOVE THE EARLY RETURN ────────────────────────────────
   // 2026-08-21. This component called useCardActions, returned on `!place`, and
@@ -339,6 +343,12 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   const doSave = onSave || (fb.hydrated ? (e, p) => fallbackSave(p, { surface }) : null);
   const doLike = onLike || (fb.hydrated ? (e, p) => fallbackLike(p, { surface }) : null);
   const doDislike = onDislike || (fb.hydrated ? (e, p) => fallbackDislike(p, { surface }) : null);
+  // v8.30.1 — share joins the other three. It is the only action in this row
+  // that took the raw prop, so it was the only one a caller could leave dead —
+  // and <DaypartRail> did exactly that on every rail drop. The card's share
+  // contract is onShare(place): every render site in the app passes that shape,
+  // so the fallback matches it rather than the (e, place) shape save/like use.
+  const doShare = onShare || (fb.hydrated ? (p) => fallbackShare(p, { surface }) : null);
   const isSavedNow = onSave ? !!saved : fb.hydrated ? !!fb.saved[place.id] : !!saved;
   const isLikedNow = onLike ? !!liked : fb.hydrated ? !!fb.liked[place.id] : !!liked;
   const isDislikedNow = onDislike ? !!disliked : fb.hydrated ? !!fb.disliked[place.id] : !!disliked;
@@ -578,7 +588,7 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
                 onClick={(e) => stayOnRailReaction(e, doDislike, place)}
               ><ThumbIcon down /></button>
             )}
-            <button className="wf-place-card-share" type="button" aria-label={"Share " + place.name} onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (onShare) onShare(place); }}>↗ Share</button>
+            <button className="wf-place-card-share" type="button" aria-label={"Share " + place.name} onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (doShare) doShare(place); }}>↗ Share</button>
           </div>
         </div>
       </div>

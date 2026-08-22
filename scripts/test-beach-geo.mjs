@@ -12,6 +12,7 @@
 // already carry — this file fails the build if any of that regresses.
 import { readFileSync } from "fs";
 import { BEACH_NEAR_MI, beachMilesFrom, saysBeach, beachesWithin, vetBeachDistance } from "../lib/beaches.js";
+import { RAIL_SELECT } from "../lib/railSelect.js";
 
 let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
@@ -99,8 +100,24 @@ ok(vetBeachDistance([], ORLANDO).length === 0 && Array.isArray(vetBeachDistance(
 // for. Without the pick below, v8 would have re-introduced it.
 {
   const railSelect = readFileSync(new URL("../lib/railSelect.js", import.meta.url), "utf8");
-  ok(/import \{ BEACH_NEAR_MI \} from "\.\/beaches\.js"/.test(railSelect),
+  // v8.31 — isBeachPlace joins the import. The property this line exists for is
+  // that the rule is IMPORTED, never restated, and that still holds: both the
+  // 23-mile constant and the beach identity come from lib/beaches.js.
+  ok(/import \{ BEACH_NEAR_MI(?:, isBeachPlace)? \} from "\.\/beaches\.js"/.test(railSelect),
     "lib/railSelect.js imports the ONE rule, it does not re-implement it");
+  // v8.31 — AND A RADIUS IS NOT AN IDENTITY (owner, 2026-08-22: "beaches are
+  // not working"). Within 23 miles of Parrish the rail's candidates included
+  // two sets of tennis courts, four numbered beach accesses, a car park, a
+  // lifeguard tower, a wedding venue and an Asian massage parlour — every one
+  // of them named "beach", which is what placeFilter's beach gate admits on.
+  ok(/isBeachPlace\(p\)/.test(railSelect),
+    "…and the beach rail asks whether a reader can sit on it, not only whether it is near");
+  ok(RAIL_SELECT.beach.pick({ id: "x", distMi: 3, name: "Holmes Beach Tennis Courts", primaryType: "tennis_court", types: ["tennis_court"] }) === false,
+    "a tennis court three miles away is not Beach Day");
+  ok(RAIL_SELECT.beach.pick({ id: "x", distMi: 3, name: "Public Beach Access 5", primaryType: "beach", types: ["beach"] }) === false,
+    "nor is a numbered beach access, whatever Google types it");
+  ok(RAIL_SELECT.beach.pick({ id: "x", distMi: 3, name: "Siesta Beach", primaryType: "beach", types: ["beach"] }) === true,
+    "…while the actual beach passes");
   ok(/beach: \{ pools: \["beaches", "summer"\]/.test(railSelect)
     && /distMi <= BEACH_NEAR_MI/.test(railSelect)
     && /p\.distMi != null/.test(railSelect),
@@ -158,8 +175,14 @@ ok(/category === "beach" \? beachesWithin\(ranked, \{ lat, lng \}\) : vetBeachDi
   const rail = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
   ok(/center=\{center\}/.test(home), "app/home.js must hand the rail `center` — the ONE state both geolocation and the search box write");
   ok(/fetch\(`\/api\/rails\?lat=/.test(rail), "the rail must re-rank from the reader's own point, not stay pinned to the prerendered metro");
-  ok(/\}, \[center && center\.lat, center && center\.lng, lat, lng\]\);/.test(rail),
-    "…and that re-rank must re-run on `center`, so a SEARCHED city is subject to the rule exactly like a located one");
+  // v8.30 — `daypart` joined the dependency list because the today card now
+  // serves the owner's handpicked board for the CURRENT band, so a band change
+  // needs a new payload too. FOLLOWED, NOT LOOSENED: `center` is still pinned
+  // exactly and still first, which is the property this assertion exists for —
+  // a refactor that pinned the re-rank to geolocation and dropped the searched
+  // city would still fail here.
+  ok(/\}, \[center && center\.lat, center && center\.lng, lat, lng, daypart, initialDaypart\]\);/.test(rail),
+    "…and that re-rank must re-run on `center` (and, since v8.30, on the band), so a SEARCHED city is subject to the rule exactly like a located one");
   const api = readFileSync(new URL("../app/api/rails/route.js", import.meta.url), "utf8");
   ok(/COVERAGE_MI/.test(api) && /bestMi <= COVERAGE_MI \? best : null/.test(api),
     "out of coverage must resolve to NOTHING, never to the arithmetically-nearest town hundreds of miles away");

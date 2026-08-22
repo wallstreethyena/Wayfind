@@ -550,3 +550,37 @@ node scripts/check-hook-order.mjs
 # starved. This guard EXECUTES the chain — map, destination, proximity, rank,
 # render — rather than matching text on it.
 node scripts/check-curated-events-surface.mjs
+# 2026-08-22 — the owner's handpicked board (lib/localPicks.js) IS the "What
+# Should We Do Today?" card, for one town and one hour. Four failures this
+# pins, none of which anything else in the suite would notice: a radius wide
+# enough to cover one town swallows all five and serves a directory again; the
+# band stops reaching the server and the homepage freezes on whichever board
+# the CDN warmed in; the board gets merged into the ranked pool instead of
+# replacing it, so "only what's actually worth it" quietly becomes a top-12;
+# and a board too thin to fill the card, which now has no organic fallback
+# behind it. Executes the registry, the rail predicate and both ends of the
+# band parameter.
+node scripts/check-local-picks.mjs
+# 2026-08-22 — "Best Breakfast Picks" served Pizza Haven - NY Style near
+# Parrish, live, at position 8. Google hangs `diner` on counter-service rooms
+# of any cuisine and lib/breakfast.js weighed every token in the types array
+# equally, so one secondary token outvoted `pizza_restaurant`. This pins the
+# discipline that fixes it — the types array is unordered EVIDENCE, the primary
+# type is the CLAIM, and a secondary token may add but never outvote — against
+# 28 rows measured from the live inventory rather than invented.
+node scripts/check-breakfast-identity.mjs
+# 2026-08-22 — the breakfast identity reads the PRIMARY type. Google's `types`
+# array is unordered evidence and this rail treated every token as equal, so a
+# secondary `diner` on a pizzeria put Pizza Haven - NY Style on "Best Breakfast
+# Picks near Parrish" (owner screenshot). Every row asserted here is a real
+# wf_inventory row, so a future rewrite is measured against the data.
+node scripts/check-breakfast-identity.mjs
+# 2026-08-22 — RETRIEVAL FOLLOWS THE READER (lib/nearbyPool.js). The owner,
+# standing in Sarasota, got the same list the app serves from Parrish eighteen
+# miles away: every rail's candidates came from a Google "best X" search around
+# a CITY centroid, fifteen rows per category per town, ~150 places total against
+# 2,319 owned places within seventeen miles of his pin. This pins the ladder
+# (tighten before widening), the discovery gate AND the category identity, the
+# absence of the fifteen-row cap, and that a failed inventory read is loud
+# rather than a silent fall back to the anchor top-N.
+node scripts/check-nearby-pool.mjs

@@ -188,6 +188,18 @@ const pools = {
     Object.assign(mk("bd-tampa", { name: "Bulla Gastrobar Tampa", _s: 99, distMi: 22, types: ["spanish_restaurant"] }), { _birthdaySourced: true, _birthdayWhy: "Tapas and made-to-order sangria." }),
     Object.assign(mk("bd1", { name: "Yacht StarShip Dinner Cruise", _s: 93, distMi: 30, types: ["tourist_attraction"] }), { _birthdaySourced: true, _birthdayWhy: "The one dinner cruise ranked worth a birthday." }),
   ],
+  // v8.30 — the owner's handpicked board (lib/localPicks.js), stamped by
+  // lib/railsData.js buildLocalPicksPool. This pool is ALREADY market- and
+  // band-filtered by the time it gets here: it holds one town's picks for one
+  // hour, and nothing else. Deliberately LOWER-scoring than the anchor rows
+  // above, so "the board is the card" is proved by membership rather than by
+  // the board happening to outrank everything.
+  localpicks: [
+    Object.assign(mk("op-1", { name: "Handpicked Museum", _s: 62, distMi: 3, types: ["museum"] }), { _ownerPicked: true, _ownerMarket: "bradenton", _ownerDaypart: "morning", _ownerRank: 1, _ownerPickWhy: "An early museum visit, aquarium and planetarium included." }),
+    Object.assign(mk("op-2", { name: "Handpicked Riverwalk", _s: 58, distMi: 2, types: ["park"] }), { _ownerPicked: true, _ownerMarket: "bradenton", _ownerDaypart: "morning", _ownerRank: 2, _ownerPickWhy: "A waterfront start with playground and public-art stops." }),
+    Object.assign(mk("op-3", { name: "Handpicked Biscuit Cafe", _s: 54, distMi: 1, types: ["restaurant"] }), { _ownerPicked: true, _ownerMarket: "bradenton", _ownerDaypart: "morning", _ownerRank: 3, _ownerPickWhy: "The signature breakfast destination downtown." }),
+    Object.assign(mk("op-4", { name: "Handpicked Farm Market", _s: 50, distMi: 4, types: ["market"] }), { _ownerPicked: true, _ownerMarket: "bradenton", _ownerDaypart: "morning", _ownerRank: 4, _ownerPickWhy: "Downtown market day - vendors, coffee, people-watching." }),
+  ],
 };
 
 // v8.13 — every date-sensitive call below pins the clock through ctx.now
@@ -689,7 +701,7 @@ const WIDEN_RADIUS_MI = 25;
     const deepPools = { r1: shared, r2: shared, r3: shared };
     // capExposure is internal; exercise it through fillRails with three
     // restaurant-fed rails: eat + datenight + today all read `shared` here.
-    const deep = { "things-to-do": [], beaches: [], nightlife: [], creators: [], summer: [], birthday: [], breakfast: [], quickeats: [], family: [], events: [], restaurants: shared };
+    const deep = { "things-to-do": [], beaches: [], nightlife: [], creators: [], summer: [], birthday: [], breakfast: [], quickeats: [], family: [], events: [], localpicks: [], restaurants: shared };
     const f2 = fillRails(deep, (p) => p, CTX);
     const byId = {};
     for (const [rid, rows] of Object.entries(f2.places)) for (const x of rows) (byId[x.id] = byId[x.id] || []).push(rid);
@@ -697,6 +709,46 @@ const WIDEN_RADIUS_MI = 25;
     ok(overNow.length === 0,
       `deep shared pools converge — no organic row rides >2 rails (violators: ${overNow.map(([k, v]) => k + ":" + v.join("/")).join(", ") || "none"})`);
   }
+}
+
+// ── v8.30 · the handpicked board IS the today card ─────────────────────────
+// Owner, 2026-08-22, pointing at the tile: "Its for this card btw". Two
+// properties, and both are invisible in source:
+//   · with a board, `today` serves the board and NOT the ranked pool — even
+//     though every anchor row outscores every pick in the fixture above, which
+//     is exactly how a merge would look if someone reintroduced one;
+//   · without a board, the rail is byte-for-byte what it was before v8.30.
+{
+  const withBoard = selectFor("today", pools, { ...CTX, ownerBoard: true });
+  const ids = withBoard.map((p) => p.id);
+  ok(ids.length === 4 && ids.every((id) => id.startsWith("op-")),
+    `today with a board serves the board and only the board (got ${ids.join(",") || "none"})`);
+  ok(!ids.includes("a"), "today with a board does not fall back to the top-scoring anchor");
+  // Order is still the governed score, highest first — the board decides
+  // membership, never sequence (the v8.10 global rule).
+  const scores = withBoard.map((p) => p.governed_score ?? p._s);
+  ok(scores.every((v, i) => i === 0 || scores[i - 1] >= v), `the board is still score-ordered (${scores.join(">")})`);
+
+  const noBoard = selectFor("today", pools, { ...CTX, ownerBoard: false }).map((p) => p.id);
+  const legacy = selectFor("today", { ...pools, localpicks: [] }, CTX).map((p) => p.id);
+  eq(noBoard.filter((id) => !id.startsWith("op-")).join(","), legacy.join(","),
+    "today without a board is exactly the pre-v8.30 rail");
+
+  // The board rides the today card and NOTHING else — the registry is for one
+  // card, so no other rail may read the pool even when it is full.
+  for (const [id, cfg] of Object.entries(RAIL_SELECT)) {
+    if (id === "today") continue;
+    ok(!cfg.pools.includes("localpicks"), `${id}: does not read the handpicked board`);
+    ok(!selectFor(id, pools, { ...CTX, ownerBoard: true }).some((p) => p._ownerPicked),
+      `${id}: no handpicked row reaches this rail`);
+  }
+  // Registry rows are exempt from the exposure cap for the same reason
+  // summer/birthday/creator rows are (v8.13) — but with the board owning the
+  // card outright, what that has to guarantee is simply that all four survive
+  // fillRails rather than being capped away by rows on other rails.
+  const filled3 = fillRails(pools, (p) => p, { ...CTX, ownerBoard: true });
+  eq(filled3.places.today.map((p) => p.id).sort().join(","), "op-1,op-2,op-3,op-4",
+    "all four picks survive the exposure cap and reach the card");
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);

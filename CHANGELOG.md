@@ -1,3 +1,171 @@
+## v8.31.0 - Retrieval follows the reader
+- Owner, standing in Sarasota: "the results seem like it is the same [as
+  Parrish] ... why are we not finding the best places around me, this needs to
+  be a local discovery place and it is not doing that."
+- He was right, and it was never a ranking problem. Every rail's candidates came
+  from rankedFor(category, CITY) - a Google "best X" search around a centroid,
+  `pool.slice(0, 15)` rows per category per town. A metro reads four towns, so
+  every rail on the homepage chose from about 150 places. Measured against owned
+  inventory: 432 places within 3mi of that Sarasota pin, 691 within 5, 2,319
+  within 17 - 960 of them food, against a food rail choosing from ~60.
+- And rankedFor's second round drops the city name and searches 30 miles,
+  accepting results out to 39. Sarasota and Parrish centroids are 18.5 miles
+  apart and both metros include Bradenton, so the two towns retrieved from what
+  is effectively one circle; marketReviewFloor then stripped the small local
+  rooms out of both. Identical answers, by construction. Distance was only ever
+  a FILTER APPLIED AFTER RETRIEVAL - it re-sorted the same regional list.
+- lib/nearbyPool.js is the cure the codebase has already applied five times to
+  one rail at a time (locals v8.7, trending v8.9, summer v8.13, breakfast and
+  break v8.18, family and events v8.19), finally applied to the ANCHOR POOLS: a
+  ladder of rings from the reader's own point - 6mi, then 10, then 17, widening
+  only when a ring cannot fill - over owned wf_inventory, through the same
+  discovery gate the city path uses, stamped with the one score and ordered by
+  the one comparator. Beaches keep the owner's 23-mile rule, imported.
+- REPLACE, NOT UNION. The score's distance term costs a place 0.2 past 17 miles,
+  so a famous room fifteen miles out still buries an excellent cafe one mile
+  away: near-first has to be a retrieval property. Only a row carrying a live
+  `trending` flag rejoins - that is demand, not proximity. A thin area keeps its
+  city pools in full (Parrish: 106 places within 5mi against Sarasota's 691).
+- MEASURED AFTER: from Sarasota the food pool fills at the 6-mile ring, median
+  2.3mi, led by a place 0.5mi away. From Parrish it fills at 6mi with a
+  sandwich shop 0.1mi away, activities widen to 10mi, nightlife to 17. Overlap
+  between the two towns' lists: restaurants 0%, things-to-do 0%, nightlife 15%,
+  beaches 56% - they share a coast.
+- BEACHES: a radius is not an identity ("beaches are not working"). The rail
+  asked only the 23-mile rule, and placeFilter's beach gate admits on the NAME,
+  so within 23 miles of Parrish the candidates included two sets of tennis
+  courts, a pickleball court, a playground, four numbered beach accesses, a car
+  park, a lifeguard tower, a wedding venue, a fishing pier and an Asian massage
+  parlour. lib/beaches.js isBeachPlace() asks whether a reader can sit on it -
+  same primary-type discipline breakfast got in v8.30.1, verified against 27
+  real rows. Sarasota's beach pool: 52 rows -> 39, led by Lido at 3.3mi.
+- A failed inventory read is now LOUD. The identity pools read the same table
+  inside a bare `if (r.ok)`, so a rotated key would send every rail back to the
+  anchor top-N with nothing in the logs - and this project's legacy anon JWT is
+  already disabled and answers 401.
+- New guard check-nearby-pool (54 assertions, eight mutations red-proved);
+  test-beach-geo followed to the new contract. 389/389 green.
+
+## v8.30.1 - Two live defects the owner found in one sitting
+- **A pizzeria on the breakfast rail.** "Best Breakfast Picks near Parrish"
+  served Pizza Haven - NY Style at #8. Its Google types are
+  ["pizza_restaurant", "diner", "meal_takeaway", ...] and `diner` is a
+  BREAKFAST_TYPE, so lib/breakfast.js admitted it.
+- Root cause is not the token. Google's `types` array is unordered EVIDENCE and
+  the primary type is the CLAIM; this file weighed every token equally, and
+  existingTypeSignals() returns `types` INSTEAD of the primary type whenever it
+  is present - so nothing here could tell a pizzeria that serves eggs from a
+  room whose identity is breakfast. Same disease as v8.19's events rail, where a
+  pub rode a secondary `event_venue` token onto a ticketed-rooms list.
+- Three rules now, in order: a breakfast PRIMARY admits; a primary that names
+  another cuisine refuses (ahead of the name rule, so a "Pizza Cafe" cannot talk
+  its way back in on the word "cafe"); a LONE SECONDARY `diner` is not evidence.
+  Measured across the whole inventory: every place whose only breakfast token is
+  a secondary `diner` is something else (Pizza Haven, Skyline Chili, Graze South
+  Tampa, Mrs. Potato), and every genuine institution that carries `diner` -
+  Cracker Barrel, IHOP, Keke's, Waffle House, Denny's - carries
+  `breakfast_restaurant` beside it. `italian_restaurant` is deliberately NOT a
+  vetoed cuisine: Bradenton's Arte Caffe is a real Italian bakery-cafe, and
+  vetoing the cuisine to kill one pizzeria would have taken it too.
+- **The Share button on every rail place card did nothing.** app/home.js passes
+  `onShareRail` to <DaypartRail> (the tile's share, working since v8.23) and
+  never passed `onShare` (the card's). IconicPlaceCard's `if (onShare)` was
+  false, so the button was a live-looking no-op; on iOS the second, harder tap
+  produced the text-selection callout over the word "Share".
+- Why v8.29 missed it: that pass made like/dislike/save self-sufficient through
+  lib/cardActions.js, but the share implementation is a closure inside
+  app/home.js's 10,000-line component and nothing outside can import it. Share
+  was the only control in the row still reading its raw prop.
+- Fixed at four levels: home.js wires `onShare` (through the same shareLink that
+  owns the iOS sheet-before-clipboard ordering, and now carrying the reader's
+  city and the card's sourced hook - the share audit's S2); lib/cardActions.js
+  gains `shareCard`, built on lib/shareOut.js rather than a fourth copy of it;
+  IconicPlaceCard resolves `doShare` like the other three and `needsFallback`
+  finally counts share (three of four is not wired); DaypartRail's adapter used
+  an (e, place) shape the card never calls it with.
+- The action row is no longer selectable text - a tap that finds nothing can
+  never again become an iOS Copy / Look Up callout.
+- check-card-actions now reads the action list off the ROW the card renders
+  instead of off `actionHref` anchors, which is why share - the one control with
+  no no-JS anchor - was invisible to every rule in it. New guard
+  check-breakfast-identity (71 assertions, 28 measured rows). Six mutations
+  red-proved across the two. 388/388 green.
+
+## v8.30.1 - A pizzeria was a breakfast pick
+- Live on gowayfind.com, screenshotted by the owner: "Best Breakfast Picks near
+  Parrish" served **Pizza Haven - NY Style** at position 8.
+- Root cause, and it is not the `diner` token. Google's `types` array is
+  unordered EVIDENCE; the primary type is the CLAIM. lib/breakfast.js weighed
+  every token equally, so `diner` - which Google hangs on counter-service rooms
+  of any cuisine - outvoted `pizza_restaurant`. Worse, existingTypeSignals()
+  returns `types` INSTEAD of the primary type whenever `types` is non-empty,
+  which is always on a ranked row, so nothing in that file could see what the
+  place actually was. Same disease as v8.19's events rail, where a pub rode a
+  secondary `event_venue` token onto a list of ticketed rooms.
+- The cure, in the order it runs: a breakfast PRIMARY admits; a primary naming
+  another cuisine refuses, ahead of the name rule so a "Pizza Cafe" cannot talk
+  its way back in on the word cafe; the name rule still rescues the counters
+  Google mistypes; a LONE SECONDARY `diner` is not evidence; secondary
+  breakfast tokens count last.
+- `italian_restaurant` is deliberately NOT a vetoed cuisine - an Italian
+  bakery-cafe is a real breakfast format and Bradenton's Arte Caffe is one.
+  Drawing the veto one cuisine wider would have taken a genuine answer with it,
+  and check-breakfast-identity fails if someone does.
+- MEASURED, not assumed: across the entire inventory, every place whose only
+  breakfast token is a secondary `diner` is something else (Pizza Haven,
+  Skyline Chili, Graze South Tampa, Mrs. Potato, Pickford's Sundries), and
+  every genuine institution that carries `diner` carries `breakfast_restaurant`
+  beside it (Cracker Barrel, IHOP, Keke's, Waffle House, Denny's).
+- Also cleared from the Parrish rail by the same rule: a Vietnamese food hall,
+  a Mexican kitchen and a sub shop, each riding one secondary token.
+- New guard scripts/check-breakfast-identity.mjs - 71 assertions over 28 rows
+  measured from live inventory, six mutations red-proved. Suite 387 -> 388.
+
+## v8.30.0 - The owner's handpicked board, for one card and one hour
+- 225 slots handed over: 15 picks each for morning, afternoon and night across
+  Parrish, Bradenton, Lakewood Ranch, Palmetto and Ellenton. Then, on a
+  screenshot of the homepage tile: "Its for this card btw" - What Should We Do
+  Today? / Your best day, sorted / Handpicked, ranked and ready for right now.
+- lib/localPicks.js is that board: 77 venues, 212 placements, 201 serving,
+  place IDs resolved from the permanent index, fail-closed like summerUniverse
+  and birthdayUniverse. 70 of the 72 resolved venues are already OPERATIONAL
+  rows in wf_inventory, so the pool costs nothing on the hot path.
+- ONE CARD. The registry feeds `today` and nothing else; check-local-picks
+  asserts that in both directions, because letting the dinner picks also feed
+  Tonight's Move is a change to six other rails nobody decided to make.
+- THE BOARD IS THE CARD. Same shape as v8.13's summer rule - if the reader's
+  town has a board for this hour, `today` serves that board and not the ranked
+  pool. Merging a handpicked list into the pool and taking the top twelve by
+  score is how "only what's actually worth it" quietly becomes a directory.
+  Outside the five towns there is no board and the rail is untouched.
+- ONE HOUR. The band FILTERS: the morning board at 8am, the night board at 8pm.
+  It cannot reorder - display order is the governed score on every rail - so
+  membership is the only lever the hour has.
+- That filter needed the band to reach the server, or the CDN would freeze
+  whichever board it warmed in. /api/rails?band= is that parameter: four keys
+  per location on paper, roughly zero extra misses in practice because the
+  bands are disjoint in time. DaypartRail sends it and refetches when the clock
+  crosses a band edge, not only when the reader moves.
+- ONE TOWN. Every centroid here sits within ~11 miles of every other, so a
+  radius wide enough for one swallows all five - the first cut served a Parrish
+  reader all 70 places at once. The nearest market serves, and only that one.
+- localpicks is read FIRST on the today rail: with a board active only
+  handpicked rows pass, so an organic row seen first would consume the id and
+  the owner's own #1 would vanish from his own card.
+- Nine of the 225 slots named a place that does not exist or has permanently
+  closed - Hickory Hollow Farm, The Strawberry Shack, Birdrock Taco Shack,
+  Caddy's Bradenton, Paris Baguette UTC, Caffe Italia, Topgolf
+  Sarasota-Bradenton, The Chateau Sarasota, Masa Asian Bistro. Dropped, with
+  two honest substitutions. Three more renamed rather than dropped (Andersen
+  RacePark -> T4 KartPlex, ArtCenter Manatee -> Herrig Center for the Arts,
+  Popi's Place Lakewood Ranch -> the nearest confirmed-open branch).
+- Motorworks Brewing is held unresolved on purpose: closed for remodel until
+  about 1 Feb 2027, and the resolver refuses anything Google does not report
+  OPERATIONAL, so it comes back by itself the day it reopens.
+- New guard scripts/check-local-picks.mjs (2,224 assertions, eight mutations
+  red-proved); test-rail-select and test-beach-geo followed to the new
+  contract. 387/387 green, next build green.
+
 ## v8.29.18 - The cap was eating the schedule
 - Shipped v8.29.17, opened the events screen on production, and the "Worth
   planning for" shelf rendered ONE card out of seven. Nothing said why.
