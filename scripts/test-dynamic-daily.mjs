@@ -68,7 +68,13 @@ ok(/revalidate = 3600/.test(readFileSync(new URL("../app/page.js", import.meta.u
   "the homepage must regenerate hourly, or the rail's places freeze with the page");
 ok(/rankedFor\(/.test(railsData), "the rail's places come from the live ranking engine, not a stored list");
 // 3) and no rail may be a frozen single pick
-ok(/MAX_CARDS = 12/.test(readFileSync(new URL("../lib/railSelect.js", import.meta.url), "utf8")),
+// v8.33 — this used to read `/MAX_CARDS = 12/`, which pinned a CEILING to prove
+// a rail is a row rather than one frozen pick. The ceiling is gone (owner: "no
+// more max on anything"), and pinning a deleted constant would have quietly
+// asserted nothing. The property it was always reaching for is the FLOOR:
+// MIN_CARDS is what makes a rail a row, and a rail that cannot reach it ships
+// empty rather than showing a single hero.
+ok(/MIN_CARDS = 3/.test(readFileSync(new URL("../lib/railSelect.js", import.meta.url), "utf8")),
   "each rail shows a ranked ROW, never one frozen pick");
 // 4) the old frozen-hero shapes must not come back
 ok(!/const pick = cand\[0\]/.test(home), "a frozen cand[0] hero is back");

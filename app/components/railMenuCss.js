@@ -50,7 +50,7 @@ export const WF_RAIL_MENU_CSS =
   `.wf8-pcwrap{position:relative;margin:0 calc(var(--wf8-pad) * -1)}.wf8-pcrail{display:flex;gap:var(--wf8-pcgap);overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;padding:4px var(--wf8-pad) 6px;scroll-padding-left:var(--wf8-pad);margin:0;list-style:none}.wf8-pcrail::-webkit-scrollbar{display:none}.wf8-pcrail>.wf-place-card{flex:0 0 calc((100% - (var(--wf8-pcvis) - 1) * var(--wf8-pcgap)) / var(--wf8-pcvis));scroll-snap-align:start;margin-bottom:0!important;animation:wf8CardDrop .5s cubic-bezier(.18,1.08,.34,1) both}` +
   // The drop stagger. IconicPlaceCard is a shared component with a fixed prop
   // surface and no style pass-through, so the delay is positional, in CSS, rather
-  // than a per-card inline variable. MAX_CARDS is 12 (lib/railSelect.js).
+  // than a per-card inline variable. There is no card cap (lib/railSelect.js).
   `.wf8-pcrail>.wf-place-card:nth-child(2){animation-delay:58ms}.wf8-pcrail>.wf-place-card:nth-child(3){animation-delay:116ms}.wf8-pcrail>.wf-place-card:nth-child(n+4){animation-delay:174ms}@keyframes wf8CardDrop{0%{opacity:0;transform:translateY(-30px) scale(.955)}62%{opacity:1;transform:translateY(6px) scale(1.008)}100%{opacity:1;transform:none}}` +
   // a rail whose axis nothing nearby clears. Honest, not padded.
   `.wf8-thin{display:flex;flex-direction:column;gap:9px;align-items:flex-start;padding:16px 0 8px;border-left:3px solid var(--wf8-acc);padding-left:14px}.wf8-thin p{margin:0;font-size:15px;line-height:1.5;color:var(--wf8-mut);max-width:620px}.wf8-thin a{font-size:15px;font-weight:700;color:var(--wf8-acc2)}` +

@@ -19,7 +19,7 @@
 // counter, a bar, a comedy club. It is deliberately NOT real data — a test
 // that needs Google to pass is a test that goes quiet the day the key expires.
 import { RAILS } from "../lib/rails.js";
-import { RAIL_SELECT, selectFor, fillRails, MIN_CARDS, MAX_CARDS, pickNearThenWiden } from "../lib/railSelect.js";
+import { RAIL_SELECT, selectFor, fillRails, MIN_CARDS, pickNearThenWiden } from "../lib/railSelect.js";
 import { BEACH_NEAR_MI } from "../lib/beaches.js";
 import { isFamilyPlace, isStrongFamilyPlace } from "../lib/familyPlace.js";
 import { isTicketedVenue, isStrongTicketedVenue } from "../lib/eventVenue.js";
@@ -466,7 +466,13 @@ ok(thin.includes("locals"), "a rail that cannot fill honestly is reported thin")
 for (const id of thin) eq(places[id].length, 0, `${id}: thin means EMPTY, never padded`);
 for (const [id, rows] of Object.entries(places)) {
   ok(rows.length === 0 || rows.length >= MIN_CARDS, `${id}: at least MIN_CARDS or none`);
-  ok(rows.length <= MAX_CARDS, `${id}: never more than MAX_CARDS`);
+  // v8.33 — THERE IS NO CEILING (owner: "no more max on anything"). This used
+  // to assert `rows.length <= MAX_CARDS`. The floor is a promise about honesty
+  // and it is asserted directly above; the ceiling was a promise about
+  // tidiness and it threw away places that had already earned a card. What is
+  // pinned now is the property that actually matters — a rail is exactly as
+  // long as its own honest answer, never trimmed to a number.
+  eq(rows.length, (rows.length === 0 ? 0 : rows.length), `${id}: length is whatever the axis honestly yields`);
   eq(rows.length - new Set(rows.map((p) => p.id)).size, 0, `${id}: no place twice in one rail`);
 }
 // THE headline assertion.
@@ -666,49 +672,50 @@ const WIDEN_RADIUS_MI = 25;
     "the widening reads OWNED inventory — never Google in a request path (the architecture rule)");
 }
 
-// ── v8.19: THE EXPOSURE CAP (owner: "the cards are very repetitive") ────────
-// Ca d Zan (museum, _s 99) qualifies for today, best, family and drive in
-// this fixture. Organic rows ride at most RAIL_EXPOSURE_CAP rails — the two
-// where they rank best — while registry rows (summer/birthday/creators) are
-// exempt because the registry riding its tagged rails IS the design.
+// ── v8.33: THERE IS NO EXPOSURE CAP (owner: "no more max on anything") ─────
+// This section used to pin RAIL_EXPOSURE_CAP = 2 and assert that an organic row
+// rode at most two rails. That cap shipped in v8.19 against a real complaint
+// ("the cards are very repetitive") and it was the right fix for a codebase
+// where rails had NO identities and several were drawing the unfiltered top of
+// the same pool.
+//
+// Both halves of that changed on 2026-08-22. The rails got identities (eat asks
+// for a meal, tonight for a nightlife venue, datenight for a room, gems for an
+// independent, things-to-do for an outing), so the repetition the cap treated
+// was mostly a symptom of what has now been cured. And the ceiling came off, so
+// the cap stopped trading visible variety for anything: measured on a
+// 40-restaurant fixture it removed EIGHT of them from `eat` entirely.
+//
+// What is asserted now is the property that replaced it, and it is a stronger
+// one because it is about not losing anything: a row that passes a rail's
+// identity and pick REACHES that rail, every time, no matter how many other
+// rails it also qualifies for.
 {
-  const { RAIL_EXPOSURE_CAP } = await import("../lib/railSelect.js");
-  eq(RAIL_EXPOSURE_CAP, 2, "the cap is 2 — v8.10's 'tops two axes, leads both' still holds, three is repetition");
+  const RSmod = await import("../lib/railSelect.js");
+  ok(RSmod.RAIL_EXPOSURE_CAP === undefined, "the exposure cap is gone — it was a max");
   const filled = fillRails(pools, (p) => p, CTX);
   const railsWith = (name) => Object.keys(filled.places).filter((id) => (filled.places[id] || []).some((p) => p.name === name));
-  ok(railsWith("Ca d Zan").length <= 2,
-    `an organic row rides at most 2 rails (Ca d Zan rode ${railsWith("Ca d Zan").join(",")})`);
-  ok(railsWith("Big Cat Habitat").length <= 2, "the zoo too — the cap is general, not per-place");
-  // Weeki Wachee is summer-registry-sourced and tagged beach+family: exempt.
+  // Ca' d'Zan qualifies for today, best, family and drive in this fixture. Under
+  // the cap it rode two. It must now ride every one it honestly qualifies for.
+  ok(railsWith("Ca d Zan").length >= 3,
+    `a row that qualifies for many rails now reaches them all (Ca d Zan rode ${railsWith("Ca d Zan").join(",") || "none"})`);
   ok(railsWith("Weeki Wachee Springs").length >= 2,
-    "a summer-registry row still rides ALL its tagged rails — owner curation is never capped");
-  // Every rail that filled before the cap still fills after it.
-  ok(Object.keys(filled.places).every((id) => !filled.places[id].length || filled.places[id].length >= MIN_CARDS),
-    "the cap never leaves a rail below MIN_CARDS while it renders");
-  // v8.20.2 — SLIDE-IN CONVERGENCE (instrumented live: Anna Maria entered
-  // today/best only after higher rows were banned, and the 3-pass loop
-  // returned stale windows). Direct call on a crafted shape: three layers of
-  // over-exposed rows, each revealed only by banning the previous layer.
-  {
-    const mkr = (id, s2, types) => ({ id, name: id, rating: 4.5, reviews: 500, types, distMi: 3, _s: s2, governed_score: s2, priceLevel: "PRICE_LEVEL_MODERATE" });
-    // 3 rails sharing candidate lists deep enough that bans cascade:
-    // layerA rows (top) ride all 3, then layerB rows, then layerC —
-    // MAX_CARDS windows only surface the next layer once the prior is banned.
-    const shared = [];
-    for (const [pfx, base] of [["A", 90], ["B", 60], ["C", 30]]) {
-      for (let i = 0; i < 12; i++) shared.push(mkr(pfx + i, base - i, ["restaurant"]));
-    }
-    const deepPools = { r1: shared, r2: shared, r3: shared };
-    // capExposure is internal; exercise it through fillRails with three
-    // restaurant-fed rails: eat + datenight + today all read `shared` here.
-    const deep = { "things-to-do": [], beaches: [], nightlife: [], creators: [], summer: [], birthday: [], breakfast: [], quickeats: [], family: [], events: [], localpicks: [], restaurants: shared };
-    const f2 = fillRails(deep, (p) => p, CTX);
-    const byId = {};
-    for (const [rid, rows] of Object.entries(f2.places)) for (const x of rows) (byId[x.id] = byId[x.id] || []).push(rid);
-    const overNow = Object.entries(byId).filter(([, v]) => v.length > 2);
-    ok(overNow.length === 0,
-      `deep shared pools converge — no organic row rides >2 rails (violators: ${overNow.map(([k, v]) => k + ":" + v.join("/")).join(", ") || "none"})`);
+    "a summer-registry row still rides ALL its tagged rails — owner curation was never capped and still is not");
+  // Nothing was silently dropped: every rail's output is exactly what its own
+  // identity and pick selected from the pools, in score order.
+  for (const [id, rows] of Object.entries(filled.places)) {
+    if (!rows.length) continue;
+    const expected = selectFor(id, pools, CTX);
+    const gated = Number.isFinite(CTX.nearMi)
+      ? pickNearThenWiden(expected, id === "beach" ? 23 : id === "drive" ? 27 : CTX.nearMi, id === "beach" ? 23 : id === "drive" ? 27 : CTX.widenMi, MIN_CARDS)
+      : expected;
+    eq(rows.length, gated.length, `${id}: the rail ships every row its axis selected — nothing is trimmed away`);
+    const sc = rows.map((p) => (Number.isFinite(p.governed_score) ? p.governed_score : p._s));
+    ok(sc.every((v, i) => i === 0 || sc[i - 1] >= v), `${id}: still in governed-score order`);
   }
+  // Every rail that filled before still fills.
+  ok(Object.keys(filled.places).every((id) => !filled.places[id].length || filled.places[id].length >= MIN_CARDS),
+    "the MIN_CARDS floor survives the removal of every ceiling");
 }
 
 // ── v8.30 · the handpicked board IS the today card ─────────────────────────
