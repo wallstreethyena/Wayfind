@@ -311,7 +311,6 @@ export default function RailCard({
             />
           : <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}
         <div className="wf-place-card-content" style={{ position: "relative" }}>
-          <CreatorCardMark videos={railCreatorVideos} />
           <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start" }}>
             {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
             <div className="wf-place-card-heading">
@@ -378,6 +377,11 @@ export default function RailCard({
               it from "nothing is wired" was the first attempt and it also hid
               the control on a card that had simply not hydrated yet, so the
               opt-out is explicit. */}
+          {/* v8.34 — the creator credit sits in the bottom band, directly above
+              the actions (see css.js .wf-place-card-credit). It renders even on
+              a read-only card: the credit is a fact about the place, not a
+              control, and a tour card simply resolves no videos. */}
+          <CreatorCardMark videos={railCreatorVideos} />
           {actionsReadOnly ? null : (
           <div className="wf-place-card-actions wf-sheet-card-actions">
             <button

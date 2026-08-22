@@ -58,7 +58,9 @@ ok(creatorVideosFor(NOT_CURATED).length === 0, "the control place resolves nothi
 
 // 1 + 2. renders for a curated place, renders nothing for anything else.
 const html = render(React.createElement(CreatorCardMark, { videos: vids }));
-ok(html.includes("wf-place-card-creator"), "a place with a curated video renders the mark");
+ok(html.includes("wf-place-card-credit"), "a place with a curated video renders the credit row");
+ok(html.includes("@cindy.selects"), "…and NAMES the creator — a face with no name is decoration, which is why v8.34 moved it off the photo");
+ok(html.includes("wf-pcc-plat"), "…and says which platform, in that platform's own colour");
 ok(html.includes("wf-pcc-play"), "…with the play affordance, which is what makes a portrait read as a video");
 ok(render(React.createElement(CreatorCardMark, { videos: [] })) === "", "a place with no video renders NOTHING — no empty scrim");
 ok(render(React.createElement(CreatorCardMark, { videos: null })) === "", "…and a null list is not a crash");
@@ -76,12 +78,13 @@ ok(!/<a\b|<button\b|href=|onclick=/i.test(html),
 
 // 5. the styles exist. A mark positioned by CSS that is not in the sheet does
 //    not degrade gracefully; it lands in the middle of the name.
-for (const sel of [".wf-place-card-creator", ".wf-pcc-stack", ".wf-pcc-head", ".wf-pcc-play", ".wf-pcc-more"]) {
+for (const sel of [".wf-place-card-credit", ".wf-pcc-stack", ".wf-pcc-head", ".wf-pcc-play", ".wf-pcc-more", ".wf-pcc-name", ".wf-pcc-plat"]) {
   ok(WF_PLACE_CARD_CSS.includes(sel), `WF_PLACE_CARD_CSS defines ${sel}`);
 }
-ok(/\.wf-place-card-creator\{[^}]*pointer-events:none/.test(WF_PLACE_CARD_CSS.replace(/\s+/g, "")) ||
-   WF_PLACE_CARD_CSS.includes("pointer-events:none;\n}"),
-   "the mark is pointer-events:none in CSS as well as in markup");
+ok(/\.wf-place-card-credit\{[^}]*pointer-events:none/.test(WF_PLACE_CARD_CSS.replace(/\s+/g, "")),
+   "the credit row is pointer-events:none in CSS as well as in markup");
+ok(/\.wf-place-card-credit~\.wf-place-card-actions\{margin-top:0!important/.test(WF_PLACE_CARD_CSS.replace(/\s+/g, "")),
+   "…and the sibling override is present, or two auto margins split the gap and the row floats");
 
 // 5b. THE ONLOAD RACE. CreatorAvatar reveals the real photo on React's onLoad,
 //     which never fires for an image the browser already finished downloading

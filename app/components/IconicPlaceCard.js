@@ -390,7 +390,6 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
           ? <img src={photoUrl(place) || marketFallback} alt="" loading="lazy" style={{ objectFit: "cover" }} />
           : <div className="wf-place-card-monogram" aria-hidden="true">{initials}</div>}
         <div className="wf-place-card-content" style={{ position: "relative" }}>
-          <CreatorCardMark videos={creatorVideos} />
           <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start" }}>
             <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span>
             <div className="wf-place-card-heading">
@@ -530,6 +529,10 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
           ) : null}
           {rankingNote ? <div style={{ color: "#8791A4", fontSize: 9.5, marginTop: 4 }}>{rankingNote}</div> : null}
 
+          {/* v8.34 — the creator credit sits in the bottom band, directly above
+              the actions (see css.js .wf-place-card-credit). It carries the
+              margin-top:auto that used to belong to the action row. */}
+          <CreatorCardMark videos={creatorVideos} />
           <div className="wf-place-card-actions wf-sheet-card-actions">
             {/* v8.11 (owner, 2026-08-18): DIRECTIONS IS OFF THE CARD FACE —
                 "remove the directions from the place cards; only when the user

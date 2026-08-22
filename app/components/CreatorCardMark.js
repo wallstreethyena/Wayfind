@@ -27,13 +27,24 @@
 // tap away either way: the card opens the detail sheet, which is where the
 // player and the creator credit live.
 //
-// GEOMETRY. Absolutely positioned inside .wf-place-card-content — the same
-// trick .wf-place-card-rank uses to sit over the media column from inside the
-// copy column (left: -(--wf-place-card-media)). Nothing about the fixed 268px
-// card standard moves, so scripts/test-place-card-layout.mjs keeps passing.
+// GEOMETRY — v8.34, and this is the SECOND placement. v8.33 laid the avatar
+// over the bottom-left of the photo. Owner, on the shipped result: "i want her
+// avatar in a better placement not on top of the image like that." He is right,
+// and for a reason worth writing down: an overlay costs the photo (the single
+// most persuasive element on the card) and buys only a face, because a 96px
+// column has no room for a NAME. A face without a name is decoration; credit
+// that names the person is the actual thing.
+//
+// So it is a CREDIT ROW in the copy column now, bottom-anchored directly above
+// the action grid — which is where the fixed 268px card already had dead space
+// on every card, between the pills and the buttons. It costs nothing that was
+// being used, it clears the photograph entirely, and it fits the avatar, the
+// full handle and the platform. `margin-top:auto` on the row plus a
+// `~ .wf-place-card-actions{margin-top:0}` override is the same pattern
+// .wf-rail-card-cta already uses to sit in that band.
 
 import CreatorAvatar from "./CreatorAvatar";
-import { PLATFORM } from "../../lib/creatorVideos";
+import { PLATFORM, PLATFORM_RGB } from "../../lib/creatorVideos";
 import { creatorLabel } from "../../lib/creatorRights";
 
 // At most two faces. A third head on a 96px column is 22px of mush; the count
@@ -77,20 +88,22 @@ export default function CreatorCardMark({ videos }) {
     " — a video by @" + lead.handle +
     (extra > 0 ? ` and ${extra} other creator${extra === 1 ? "" : "s"}` : shown[1] ? ` and @${shown[1].handle}` : "");
 
+  const leadRgb = PLATFORM_RGB[lead.platform] || PLATFORM_RGB.tiktok;
+
   return (
-    <span className="wf-place-card-creator" role="img" aria-label={label}>
+    <div className="wf-place-card-credit" role="img" aria-label={label} style={{ "--pcc-ring": leadPlatform.color, "--pcc-rgb": leadRgb }}>
       <span className="wf-pcc-stack">
         {shown.map((h, i) => {
           const meta = PLATFORM[h.platform] || PLATFORM.tiktok;
           return (
             <span key={h.handle} className="wf-pcc-head" style={{ "--pcc-ring": meta.color, zIndex: shown.length - i }}>
-              {/* 30px: measured against the 96px media column (88 at ≤430px).
-                  Smaller and the face stops being a face at arm's length,
-                  which is the entire signal; larger and two stacked heads
-                  plus a "+2" chip stop fitting the column. */}
-              <CreatorAvatar handle={h.handle} platform={h.platform} size={30} color={meta.color} />
-              {/* The play mark rides the LEAD head, not the stack, so a "+2"
-                  chip can never sit under it. It is what turns a portrait into
+              {/* 26px: the credit row shares the card's fixed bottom band with
+                  the 34px action controls, so the face has to read at a glance
+                  without making the row taller than the space that was already
+                  empty there. */}
+              <CreatorAvatar handle={h.handle} platform={h.platform} size={26} color={meta.color} />
+              {/* The play mark rides the LEAD head, not the stack, so a second
+                  head can never sit under it. It is what turns a portrait into
                   "there is a video here" at a glance. */}
               {i === 0 ? (
                 <span className="wf-pcc-play" style={{ "--pcc-ring": leadPlatform.color }} aria-hidden="true">
@@ -100,8 +113,14 @@ export default function CreatorCardMark({ videos }) {
             </span>
           );
         })}
-        {extra > 0 ? <span className="wf-pcc-more" aria-hidden="true">+{extra}</span> : null}
       </span>
-    </span>
+      {/* The handle in full. This is the half the overlay could never carry —
+          a 96px photo column has no room for a name, and a face with no name
+          is a decoration. Credit that names the person is the point. */}
+      <span className="wf-pcc-name">
+        @{lead.handle}{extra > 0 ? <span className="wf-pcc-more"> +{extra}</span> : null}
+      </span>
+      <span className="wf-pcc-plat">{leadPlatform.label}</span>
+    </div>
   );
 }

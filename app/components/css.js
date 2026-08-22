@@ -710,42 +710,77 @@ export const WF_PLACE_CARD_CSS = `
 .wf-place-card-award.is-creator{border-color:rgba(244,114,182,.42);background:linear-gradient(110deg,rgba(244,114,182,.16),rgba(244,114,182,.03));color:#F9A8D4}
 .wf-place-card-award.is-creator .wf-place-card-award-icon{background:linear-gradient(145deg,#FDA4C8,#B83280);color:#2A0A18}
 
-/* v8.33 — THE FACE ON THE CARD (owner, 2026-08-22: "right now the place cards
-   does not show there is an influencer video on it … i like the idea of adding
-   the influencer avatar on the place card").
+/* v8.33 — THE CREATOR CREDIT ON THE CARD (owner, 2026-08-22: "right now the
+   place cards does not show there is an influencer video on it … i like the
+   idea of adding the influencer avatar on the place card").
 
-   A real person's photograph is the highest-contrast signal a 96px column can
-   carry — higher than any chip, because a face is pre-attentive and a word is
-   not. It sits at the FOOT of the media column, which is the one region of the
-   card where nothing else ever renders (the rank badge owns the head of it),
-   over a scrim that guarantees legibility on a blown-out photo, a dark photo
-   or the monogram fallback alike.
-
-   It is positioned from INSIDE .wf-place-card-content — the same negative-left
-   trick .wf-place-card-rank uses (left: -(--wf-place-card-media)) — so every
-   card implementation gets it by adding one element to the column it already
-   has, with no change to the fixed 268px card standard and no new grid child
-   that test-place-card-layout.mjs would have to re-measure.
+   A real person's face is the highest-contrast signal this card can carry —
+   higher than any chip, because a face is pre-attentive and a word is not. The
+   "🎬 Creator video" chip that used to be the only marker lives in the pills
+   lane, a one-row clamp with horizontal overflow, so on a narrow card it is
+   genuinely off-screen.
 
    pointer-events:none is load-bearing, not a detail: this renders inside three
    card implementations whose taps are owned by one card-level handler, and one
    (RailCard) that hard-blocks in-card navigation by contract. See the header of
-   app/components/CreatorCardMark.js. */
-.wf-place-card-creator{
-  position:absolute;
-  z-index:4;
-  bottom:0;
-  left:calc(0px - var(--wf-place-card-media,96px));
+   app/components/CreatorCardMark.js.
+
+   v8.34 — SECOND PLACEMENT, and the reason is worth keeping. v8.33 put this
+   over the bottom-left of the photo. Owner, on the shipped result: "i want her
+   avatar in a better placement not on top of the image like that." The overlay
+   spent the photograph — the most persuasive element on the card — and bought
+   only a face, because a 96px column has no room for a NAME, and a face with no
+   name is decoration.
+
+   It is a CREDIT ROW in the copy column now, bottom-anchored directly above the
+   action grid: the band where the fixed 268px card already had dead space on
+   every card, between the pills and the buttons. Nothing that was being used is
+   spent, the photograph is clear, and there is room for the avatar, the whole
+   handle and the platform. margin-top:auto here plus the sibling override on
+   .wf-place-card-actions is exactly the pattern .wf-rail-card-cta already uses
+   to sit in that band. */
+.wf-place-card-credit{
   display:flex;
-  width:var(--wf-place-card-media,96px);
-  height:58px;
-  align-items:flex-end;
-  justify-content:center;
-  padding-bottom:9px;
-  background:linear-gradient(180deg,rgba(4,8,15,0),rgba(4,8,15,.5) 46%,rgba(4,8,15,.88));
+  align-items:center;
+  min-width:0;
+  gap:8px;
+  margin-top:auto;
+  padding-top:10px;
   pointer-events:none;
 }
-.wf-pcc-stack{position:relative;display:flex;align-items:center}
+/* Without this the two auto margins SPLIT the free space and the credit row
+   floats in the middle of the gap instead of sitting on the actions. */
+.wf-place-card-credit~.wf-place-card-actions{margin-top:0!important;padding-top:8px}
+.wf-pcc-name{
+  min-width:0;
+  flex:1 1 auto;
+  overflow:hidden;
+  color:#DCE4EE;
+  font-size:11.5px;
+  font-weight:750;
+  letter-spacing:-.01em;
+  line-height:1;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.wf-pcc-plat{
+  display:inline-flex;
+  flex:0 0 auto;
+  height:17px;
+  align-items:center;
+  padding:0 7px;
+  border:1px solid rgba(var(--pcc-rgb,255,0,80),.42);
+  border-radius:999px;
+  background:rgba(var(--pcc-rgb,255,0,80),.12);
+  color:var(--pcc-ring,#FF0050);
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:.06em;
+  line-height:1;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.wf-pcc-stack{position:relative;display:flex;flex:0 0 auto;align-items:center}
 /* The ring is the platform's own colour, so the mark reads as "TikTok" without
    a wordmark we have no licence to draw. The second, dark ring underneath is
    what keeps a bright-pink ring from vanishing into a bright photo. */
@@ -774,21 +809,19 @@ export const WF_PLACE_CARD_CSS = `
   background:var(--pcc-ring,#FF0050);
   color:#0B0E1A;
 }
-.wf-pcc-more{
-  display:inline-flex;
-  height:17px;
-  margin-left:-7px;
-  align-items:center;
-  padding:0 5px 0 10px;
-  border:1px solid rgba(255,255,255,.2);
-  border-radius:999px;
-  background:rgba(4,8,15,.88);
-  color:#E7EDF5;
-  font-size:9.5px;
-  font-weight:800;
-  line-height:1;
+/* "+2" when more than two creators filmed the same place. Inline in the name
+   now rather than a floating chip: in a credit row it belongs to the sentence
+   ("@handle +2"), not to the avatar stack. */
+.wf-pcc-more{color:#94A3B8;font-size:10.5px;font-weight:800}
+/* 390px is the real phone. The content column there is ~268px wide and the
+   handle is the part that must survive — it already ellipsises, but the
+   platform pill is what gets tight first, so it loses its letterspacing
+   before the name loses characters. */
+@media(max-width:390px){
+  .wf-place-card-credit{gap:6px;padding-top:8px}
+  .wf-pcc-plat{padding:0 6px;letter-spacing:.03em}
+  .wf-pcc-name{font-size:11px}
 }
-@media(max-width:430px){.wf-place-card-creator{height:52px;padding-bottom:8px}}
 
 /* SMALL PHONES. Measured in headless Chromium across 320–1440: at 320px the
    four-control action grid overflowed its column by 27px and clipped Share.
