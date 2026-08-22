@@ -13,6 +13,7 @@
 import { sbEnv } from "../../../../lib/serverCache";
 import { isOperational } from "../../../../lib/businessStatus.js";
 import { pullViatorCityRows } from "../../../../lib/viatorIngest";
+import { credential } from "../../../../lib/envPlaceholder.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -215,7 +216,7 @@ export async function POST(req) {
   //      guardian-checked. Per-city 90-day dedup: skip when this city already has
   //      fresh Viator rows, so we resolve+pull at most once per city per season.
   let exp = 0;
-  const vkey = (process.env.VIATOR_API_KEY || "").trim();
+  const vkey = credential(process.env.VIATOR_API_KEY);
   if (vkey && cityNorm) {
     let expFresh = false;
     try {

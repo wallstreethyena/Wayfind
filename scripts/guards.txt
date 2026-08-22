@@ -659,3 +659,15 @@ node scripts/check-no-card-cap.mjs
 # the back door. v=2 is opt-in so tabs opened before the deploy keep the shape
 # they understand until VersionWatch reloads them.
 node scripts/check-rails-wire.mjs
+
+# A PLACEHOLDER IS NOT A CREDENTIAL. `vercel env pull` cannot read a var flagged
+# Sensitive — it writes the literal string "[SENSITIVE]", eleven characters that
+# pass every presence check. On 2026-07-31 that string went out as the Viator
+# pid on every affiliate URL: a working, unattributed link that converts and
+# pays nothing. Unset fails CLOSED (no CTA); junk fails OPEN. lib/envPlaceholder.js
+# ended it for lib/affiliates.js — but the other TWELVE reads of the same
+# variables were never converted, so app/api/viator/go (which stamps the pid
+# straight into searchFallback) could still emit pid=%5BSENSITIVE%5D. Found
+# 2026-08-22 while repairing a local .env.local holding that exact value in 24
+# vars. This pins every money-path credential read to credential().
+node scripts/check-credential-discipline.mjs

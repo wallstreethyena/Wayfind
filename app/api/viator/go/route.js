@@ -18,12 +18,13 @@ import { getFanoutCount, persistOffer } from "../../../../lib/verifiedOfferStore
 import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
 import { commercePayload } from "../../../../lib/commerce.js";
 import { withViatorTracking } from "../../../../lib/affiliates.js";
+import { credential } from "../../../../lib/envPlaceholder.js";
 
 // v4.29: bracket-notation env reads inside call time. Next inlines dot-access
 // process.env.NEXT_PUBLIC_* at build; bracket access forces a true runtime
 // lookup, so a value present in the runtime can never be baked out as "".
-const getKey = () => ((process.env["VIATOR_API_KEY"] || "").trim());
-const getPid = () => ((process.env["NEXT_PUBLIC_VIATOR_PID"] || "").trim());
+const getKey = () => credential(process.env["VIATOR_API_KEY"]);
+const getPid = () => credential(process.env["NEXT_PUBLIC_VIATOR_PID"]);
 
 // Warm-instance memory cache: query -> { url, exp }. v2: the key is prefixed with
 // RESOLVER_VERSION so a resolver change (like this geo-whitelist) invalidates every
