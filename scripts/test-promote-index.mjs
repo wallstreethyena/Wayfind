@@ -20,7 +20,15 @@ const NOW = "2026-07-15T18:00:00.000Z";
 eq(bucketMetro(28.538, -81.379), "orlando", "downtown Orlando → orlando");
 eq(bucketMetro(27.336, -82.531), "manatee-sarasota", "Sarasota → manatee-sarasota");
 eq(bucketMetro(27.947, -82.459), "tampa", "Tampa → tampa");
-eq(bucketMetro(25.761, -80.191), null, "Miami → null (no box)");
+// Miami became a served box on 2026-08-22 (595 places clearing 9.2 sat in it).
+// The assertion this replaces was "Miami → null"; keeping a NEGATIVE case is the
+// point, so it now uses a city Wayfind genuinely does not serve and must not
+// start serving by accident — the flood the promote boxes exist to prevent.
+eq(bucketMetro(25.761, -80.191), "miami", "downtown Miami → miami");
+eq(bucketMetro(41.008, 28.978), null, "Istanbul → null (outside every box)");
+eq(bucketMetro(30.267, -97.743), null, "Austin → null (outside every box)");
+eq(bucketMetro(27.947, -82.459), "tampa", "Tampa stays tampa after the Florida boxes landed");
+eq(bucketMetro(27.977, -82.800), "clearwater", "Clearwater beach side → clearwater, not tampa");
 eq(bucketMetro(null, -81), null, "null lat → null");
 ok(inBounds(28.5, -81.4, PROMOTE_METROS.orlando), "inBounds true for Orlando point");
 ok(!inBounds(28.5, -81.4, PROMOTE_METROS.tampa), "inBounds false for wrong box");
