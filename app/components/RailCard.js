@@ -54,6 +54,11 @@ import { useCardActions, toggleLike as fallbackLike, toggleDislike as fallbackDi
 import { railDotWindow, railDotIsEdge } from "../../lib/railDots.js";
 import { KB_CLICK, WayfindScoreBadge } from "./kit";
 import { stayOnRailReaction } from "../../lib/railReaction.js";
+// v8.33 — the creator's face on the media column, resolved from the optional
+// `place` row. A rail card without a place row (the Viator tour rail, an
+// event) simply has nothing to resolve and renders no mark.
+import { creatorVideosFor } from "../../lib/creatorVideos";
+import CreatorCardMark from "./CreatorCardMark";
 
 // Same glyphs as IconicPlaceCard's action row, so a thumb is one drawing in
 // this app rather than two that almost match.
@@ -249,6 +254,10 @@ export default function RailCard({
   // Hooks before the early return, always called (rules of hooks). Subscribes
   // only when this card actually needs the shared store.
   const canFallback = !!(place && place.id);
+  // v8.33 — the creator face. Guarded the same way IconicPlaceCard guards it:
+  // a rail is the one surface where a single throw takes out a whole row.
+  let railCreatorVideos = [];
+  try { railCreatorVideos = place ? (creatorVideosFor(place) || []) : []; } catch (e) { railCreatorVideos = []; }
   const fb = useCardActions(canFallback && !(onSave && onLike && onDislike));
   if (!title) return null;
   // A wired handler always wins; the store is what an unwired card falls back
@@ -302,6 +311,7 @@ export default function RailCard({
             />
           : <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}
         <div className="wf-place-card-content" style={{ position: "relative" }}>
+          <CreatorCardMark videos={railCreatorVideos} />
           <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start" }}>
             {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
             <div className="wf-place-card-heading">

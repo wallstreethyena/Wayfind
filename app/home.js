@@ -214,6 +214,7 @@ import CreatorFinds from "./components/CreatorFinds";
 import LocalEdit from "./components/LocalEdit";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor, PLATFORM, regionsWithFinds, spotsByCity, libraryStats } from "../lib/creatorVideos";
+import CreatorCardMark from "./components/CreatorCardMark";
 import { hasCreatorVideoAt, displayedWfScore } from "../lib/creatorBoost";
 import { CREATOR_VIDEO_BONUS, FAR_MILES, FAR_PENALTY, TRENDING_BONUS } from "../lib/wayfindScore";
 import { attachTrendSignals } from "../lib/trendSignal";
@@ -270,7 +271,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.33.1";
+const BUILD_ID = "v8.33.2";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -10884,6 +10885,14 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // evidence discipline, capped at 3; the two ranking DISCLOSURES stay first.
   // check-collection-look §8 now asserts this render too.
   const badges = [...(hasCreatorVideo(p) ? [{ key: "creatorvideo", icon: "🎬", label: "Creator video" }] : []), ...(featuredBoost(p) > 0 ? [{ key: "featured", icon: "🏅", label: "Featured" }] : []), ...experienceBadges(p, selectedBadge, 3)];
+  // v8.33 (owner, 2026-08-22) — the SAME resolved set the "Creator video" chip
+  // above is derived from (hasCreatorVideo() is creatorVideosFor().length > 0),
+  // so the face on the photo and the chip in the pills lane can never disagree
+  // about whether this place has a video. The chip stays: it is the ranking
+  // DISCLOSURE the score law requires to be visible, and a portrait discloses
+  // nothing on its own. See app/components/CreatorCardMark.js.
+  let cardCreatorVideos = [];
+  try { cardCreatorVideos = creatorVideosFor(p) || []; } catch (e) { cardCreatorVideos = []; }
   const pcat = primaryCategory(p);
   const m = rank ? medal(rank) : null;
   // v6.87 (owner): the rank-summary sentence ("Our #1 pick — 4.8★ · 1.4k
@@ -10987,6 +10996,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           ? <FallbackImg src={cardPhoto || p.photo || cardMarketFallback} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
           : <div className="wf-place-card-monogram" aria-hidden="true">{cardInitials}</div>}
         <div className="wf-place-card-content" style={{ padding: "12px 12px", flex: 1, minWidth: 0, position: "relative" }}>
+          <CreatorCardMark videos={cardCreatorVideos} />
           <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
             {rank && (m
               ? <div className="wf-place-card-rank" style={{ width: 24, height: 24, borderRadius: "50%", background: m.color, color: "#0D1117", fontSize: 12.5, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{rank}</div>

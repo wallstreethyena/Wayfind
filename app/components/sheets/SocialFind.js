@@ -18,7 +18,7 @@
 // history-back-to-close via ctx.sheetDragStart et al, wired in home.js the
 // same way DetailSheet is).
 import { C, sheetBg, sheet, SHEET_EASE, Grabber, Icon } from "../kit";
-import { PLATFORM, PLATFORM_RGB, creatorStats, allCreators } from "../../../lib/creatorVideos";
+import { PLATFORM, PLATFORM_RGB, creatorStats, allCreators, hasCreatorPage } from "../../../lib/creatorVideos";
 import CreatorAvatar from "../CreatorAvatar";
 import { creatorLabel, AFFILIATION_DISCLOSURE, REMOVAL_PROMPT, REMOVAL_CONTACT } from "../../../lib/creatorRights";
 import { summaryFor } from "../../../lib/creatorArchetypes";
@@ -327,6 +327,21 @@ function LibrarySheet({ onClose, onDragStart, onDragMove, onDragEnd, onOpenSpot,
                       style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12.5, fontWeight: 800, color: plat.color, textDecoration: "none" }}
                     >
                       Follow @{c.handle} on {plat.label} ↗
+                    </a>
+                  )}
+                  {/* v8.33 — the way OUT of the sheet and into the creator's own
+                      durable, indexable page (/creators/<handle>). This sheet is
+                      the richest view of a creator's work in the product and it
+                      lives behind a tap on a noindex surface — so it is also the
+                      one place a reader most wants a link they can send, and the
+                      one place a creator most wants a URL they can put in a bio.
+                      Gated on hasCreatorPage() so it never points at a 404. */}
+                  {hasCreatorPage(c.handle) && (
+                    <a
+                      href={`/creators/${encodeURIComponent(c.handle)}`}
+                      style={{ display: "inline-flex", alignItems: "center", gap: 5, marginLeft: profileUrl ? 14 : 0, fontSize: 12.5, fontWeight: 800, color: C.accent, textDecoration: "none" }}
+                    >
+                      All {c.count} spots →
                     </a>
                   )}
                 </div>

@@ -337,6 +337,13 @@ node scripts/check-creator-events.mjs
 node scripts/check-guard-integrity.mjs
 node scripts/check-creator-rights.mjs
 node scripts/check-creator-avatars.mjs
+# v8.33 — the creator's face on the place card, and the indexable /creators
+# layer behind it. Both RENDER the real components: the mark's honesty rules
+# (truthful label, no affiliation claim, no tap target) and the pages' (no thin
+# URLs, followed creator links, disclosure + removal route on every page) are
+# properties of the OUTPUT and cannot be read off the source.
+node scripts/test-creator-card-mark.mjs
+node scripts/test-creator-pages.mjs
 node scripts/check-brand-pin.mjs
 node scripts/check-score-law.mjs
 node scripts/check-trend-signal.mjs

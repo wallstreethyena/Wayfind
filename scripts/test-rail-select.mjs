@@ -499,7 +499,12 @@ for (const [id, rows] of Object.entries(places)) {
     "exactly the rails this fixture can fill honestly, and no others");
   // locals needs a real creator video and trending needs real demand data.
   // Neither can be faked into a fixture, and neither may be faked onto a page.
-  eq(thin.sort().join(","), "locals",
+  // v8.33 — `cindy` joins them, for the STRICTEST version of the same reason:
+  // it needs a real video by ONE named creator on a place that is also a real
+  // café. A fixture row cannot produce that without inventing a post by a real
+  // person, which is the one thing this file must never do. Its emptiness here
+  // is the guard working.
+  eq(thin.sort().join(","), "cindy,locals",
     "and exactly these cannot — each for its own stated reason");
 }
 // Determinism: same pools in, same lists out. The route is ISR-cached, so a

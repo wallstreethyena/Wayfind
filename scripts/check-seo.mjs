@@ -34,10 +34,18 @@ if (!readFileSync(join(root, "lib", "placeData.js"), "utf8").includes("alternate
 // or og:video meta is actually EMITTED until that gate is deliberately wired. Match
 // real emission (quoted @type / quoted meta value), not prose that mentions them.
 if (/"@type"\s*:\s*"VideoObject"|["']og:video["']/.test(trendingLib)) fail("VideoObject/og:video is gated (lib/videoObjectGate.js) — do not emit until every eligibility condition is met (creator permission + a real self-served thumbnail + no-click render + verification)");
+// v8.33 — the /creators layer delegates its metadata the same way /trending
+// does, so it gets the same treatment: assert the canonical ONCE here, then
+// accept the call sites below. The VideoObject gate is asserted for this module
+// too — it renders the same creator videos /trending does, so it is exactly as
+// able to reintroduce the schema the owner deferred.
+const creatorLib = readFileSync(join(root, "lib", "creatorPages.js"), "utf8");
+if (!creatorLib.includes("alternates: { canonical: url }")) fail("creator-page metadata lost its canonical");
+if (/"@type"\s*:\s*"VideoObject"|["']og:video["']/.test(creatorLib)) fail("VideoObject/og:video is gated (lib/videoObjectGate.js) — lib/creatorPages.js must not emit it either");
 for (const p of pages) {
   if (p === join(root, "app", "page.js")) continue;
   const s = readFileSync(p, "utf8");
-  if (!(s.includes("canonical") || s.includes("index: false") || s.includes("landingMetadata(") || s.includes("trendingMetadata(") || s.includes("trendingIndexMetadata(") || s.includes("placePageMetadata(") || s.includes("placesIndexMetadata("))) fail(`route ${p.slice(root.length)} declares neither a canonical nor noindex — it inherits canonical "/" and reads as a homepage duplicate`);
+  if (!(s.includes("canonical") || s.includes("index: false") || s.includes("landingMetadata(") || s.includes("trendingMetadata(") || s.includes("trendingIndexMetadata(") || s.includes("placePageMetadata(") || s.includes("placesIndexMetadata(") || s.includes("creatorMetadata(") || s.includes("creatorsIndexMetadata("))) fail(`route ${p.slice(root.length)} declares neither a canonical nor noindex — it inherits canonical "/" and reads as a homepage duplicate`);
 }
 
 // 2. layout contract: homepage canonical, JSON-LD, footer links, no H1.

@@ -9,6 +9,7 @@ import { CULTURE } from "../lib/culture";
 import { SITE_URL } from "../lib/site";
 import { LANDING_CATS, LANDING_CITIES } from "../lib/landing";
 import { trendingCitySlugs } from "../lib/trending";
+import { creatorSlugs } from "../lib/creatorPages";
 import { listIndexedIds } from "../lib/placeIndex";
 
 export default async function sitemap() {
@@ -26,9 +27,13 @@ export default async function sitemap() {
   const landing = Object.keys(LANDING_CATS).flatMap((cat) => Object.keys(LANDING_CITIES).map((city) => ({ url: `${SITE_URL}/${cat}/${city}` })));
   const hubs = Object.values(TOWN_HUBS).map((slug) => ({ url: `${SITE_URL}/florida/${slug}` }));
   const trending = [`${SITE_URL}/trending`, ...trendingCitySlugs().map((s) => `${SITE_URL}/trending/${s}`)].map((url) => ({ url }));
+  // v8.33 — the indexable creator layer. Only creators who clear
+  // creatorPages.MIN_SPOTS get a page, so this can never inflate the sitemap
+  // with thin one-item URLs.
+  const creators = [`${SITE_URL}/creators`, ...creatorSlugs().map((h) => `${SITE_URL}/creators/${encodeURIComponent(h)}`)].map((url) => ({ url }));
   const bestBeaches = Object.keys(BEACH_METROS).map((m) => ({ url: `${SITE_URL}/best-beaches/${m}` }));
   const eventWindows = Object.keys(LANDING_CITIES).flatMap((c) => Object.keys(EVENT_WINDOWS).map((w) => ({ url: `${SITE_URL}/events/${c}/${w}` })));
   const placeIds = await listIndexedIds(500);
   const places = [`${SITE_URL}/places`, ...placeIds.map((id) => `${SITE_URL}/places/${encodeURIComponent(id)}`)].map((url) => ({ url }));
-  return [...core, ...guides, ...culture, ...landing, ...hubs, ...trending, ...bestBeaches, ...eventWindows, ...places];
+  return [...core, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...bestBeaches, ...eventWindows, ...places];
 }

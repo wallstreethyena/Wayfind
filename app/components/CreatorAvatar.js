@@ -44,7 +44,7 @@
 // own comment says "do not fabricate" one — so there is nothing real to
 // capture a photo FOR yet. Add an entry here the same way INSTAGRAM_AVATARS
 // entries were added, the moment a real Facebook creator handle exists.
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { mayHostPhoto } from "../../lib/creatorRights";
 
 // Real Instagram avatars, captured live (2026-08-02) from each creator's own
@@ -102,6 +102,32 @@ function avatarSrc(handle, platform) {
 export default function CreatorAvatar({ handle, platform, size, color }) {
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
+  const imgRef = useRef(null);
+  // v8.33 — THE ONLOAD RACE, and it was hiding every real photo on any surface
+  // that server-renders. Measured on the deployed /creators index: thirteen
+  // avatars, thirteen sets of initials, and every image request a 200
+  // image/jpeg. The photos were fetched, decoded and sitting in the DOM at
+  // opacity 0.
+  //
+  // Why: this <img> starts at opacity 0 and is revealed by React's onLoad. When
+  // the markup is server-rendered, the browser starts (and for a committed
+  // /creators/<handle>.jpg finishes) the download during parse — so the DOM
+  // node's own `load` event has already fired by the time React hydrates and
+  // attaches the handler. React's onLoad then never fires, and `loaded` is
+  // false forever. It only LOOKED fine in the sheet and on a local dev run
+  // because /api/creator-avatar is a live scrape on a cold cache: slow enough
+  // to land after hydration. A cache hit is exactly what breaks it.
+  //
+  // The fix is the standard one: after mount, ASK the element whether it is
+  // already complete instead of waiting to be told. naturalWidth > 0 separates
+  // a finished decode from a broken one, and a complete-but-broken image is
+  // routed to the initials path rather than left as an empty circle.
+  useEffect(() => {
+    const el = imgRef.current;
+    if (!el || !el.complete) return;
+    if (el.naturalWidth > 0) setLoaded(true);
+    else setFailed(true);
+  }, [handle, platform]);
   // v6.98 — CONSENT GATE, and it lives HERE rather than at each call site so a
   // new surface cannot forget it. Without a written consent record in
   // lib/creatorRights.js this renders initials and never requests the photo.
@@ -120,6 +146,7 @@ export default function CreatorAvatar({ handle, platform, size, color }) {
       {initials(handle)}
       {src && !failed && (
         <img
+          ref={imgRef}
           src={src}
           alt=""
           onLoad={() => setLoaded(true)}

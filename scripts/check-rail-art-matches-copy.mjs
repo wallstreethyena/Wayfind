@@ -63,6 +63,15 @@ const PAIRS = {
   // and renders no tile until it is redrawn.
   beach: { copy: "bc2e671d898c25b0", art: "10af9b34c86feb0b" },
   best: { copy: "2bc35a61dc8196e8", art: "b43ed06222224c16" },
+  // v8.33 — the featured-creator rail. Pixels opened and read before pinning:
+  // the tile carries the Wayfind wordmark, a circular photo of the creator with
+  // "@cindy.selects" beside it, then "Your next COFFEE SPOT?", "WE ALREADY
+  // FOUND THE GOOD ONES.", three proof rows (HANDPICKED / CLOSE TO YOU / REAL
+  // REVIEWS), "The best cafés near you — ranked by Wayfind." and the button
+  // "FIND YOUR CAFE". Every one of those claims is one this rail can support:
+  // the places really are cafés she filmed, they really are ranked by the same
+  // engine as everything else, and no placement on it is paid.
+  cindy: { copy: "30d97235cfc066b7", art: "4599502d37a1f184" },
   // v8.16 (owner, 2026-08-19: "when I give you a card for the amazon rail use
   // it EXACTLY as I provided it"): the v8.15 tiles were REDRAWN flat mocks of
   // the owner's posters. Replaced with the owner's own artwork, byte-derived
