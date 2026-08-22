@@ -710,6 +710,86 @@ export const WF_PLACE_CARD_CSS = `
 .wf-place-card-award.is-creator{border-color:rgba(244,114,182,.42);background:linear-gradient(110deg,rgba(244,114,182,.16),rgba(244,114,182,.03));color:#F9A8D4}
 .wf-place-card-award.is-creator .wf-place-card-award-icon{background:linear-gradient(145deg,#FDA4C8,#B83280);color:#2A0A18}
 
+/* v8.33 — THE FACE ON THE CARD (owner, 2026-08-22: "right now the place cards
+   does not show there is an influencer video on it … i like the idea of adding
+   the influencer avatar on the place card").
+
+   A real person's photograph is the highest-contrast signal a 96px column can
+   carry — higher than any chip, because a face is pre-attentive and a word is
+   not. It sits at the FOOT of the media column, which is the one region of the
+   card where nothing else ever renders (the rank badge owns the head of it),
+   over a scrim that guarantees legibility on a blown-out photo, a dark photo
+   or the monogram fallback alike.
+
+   It is positioned from INSIDE .wf-place-card-content — the same negative-left
+   trick .wf-place-card-rank uses (left: -(--wf-place-card-media)) — so every
+   card implementation gets it by adding one element to the column it already
+   has, with no change to the fixed 268px card standard and no new grid child
+   that test-place-card-layout.mjs would have to re-measure.
+
+   pointer-events:none is load-bearing, not a detail: this renders inside three
+   card implementations whose taps are owned by one card-level handler, and one
+   (RailCard) that hard-blocks in-card navigation by contract. See the header of
+   app/components/CreatorCardMark.js. */
+.wf-place-card-creator{
+  position:absolute;
+  z-index:4;
+  bottom:0;
+  left:calc(0px - var(--wf-place-card-media,96px));
+  display:flex;
+  width:var(--wf-place-card-media,96px);
+  height:58px;
+  align-items:flex-end;
+  justify-content:center;
+  padding-bottom:9px;
+  background:linear-gradient(180deg,rgba(4,8,15,0),rgba(4,8,15,.5) 46%,rgba(4,8,15,.88));
+  pointer-events:none;
+}
+.wf-pcc-stack{position:relative;display:flex;align-items:center}
+/* The ring is the platform's own colour, so the mark reads as "TikTok" without
+   a wordmark we have no licence to draw. The second, dark ring underneath is
+   what keeps a bright-pink ring from vanishing into a bright photo. */
+.wf-pcc-head{
+  position:relative;
+  display:block;
+  padding:1.5px;
+  border-radius:50%;
+  background:linear-gradient(150deg,var(--pcc-ring,#FF0050),rgba(255,255,255,.3) 58%,var(--pcc-ring,#FF0050));
+  box-shadow:0 2px 10px rgba(0,0,0,.55),0 0 0 1.5px rgba(4,8,15,.88);
+}
+.wf-pcc-head+.wf-pcc-head{margin-left:-9px}
+.wf-pcc-play{
+  position:absolute;
+  right:-3px;
+  bottom:-3px;
+  z-index:6;
+  display:flex;
+  width:13px;
+  height:13px;
+  align-items:center;
+  justify-content:center;
+  padding-left:1px;
+  border:1.5px solid rgba(4,8,15,.92);
+  border-radius:50%;
+  background:var(--pcc-ring,#FF0050);
+  color:#0B0E1A;
+}
+.wf-pcc-more{
+  display:inline-flex;
+  height:17px;
+  margin-left:-7px;
+  align-items:center;
+  padding:0 5px 0 10px;
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:999px;
+  background:rgba(4,8,15,.88);
+  color:#E7EDF5;
+  font-size:9.5px;
+  font-weight:800;
+  line-height:1;
+}
+@media(max-width:430px){.wf-place-card-creator{height:52px;padding-bottom:8px}}
+
 /* SMALL PHONES. Measured in headless Chromium across 320–1440: at 320px the
    four-control action grid overflowed its column by 27px and clipped Share.
    The controls get tighter here rather than wrapping to a second row, because

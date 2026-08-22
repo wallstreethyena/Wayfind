@@ -35,6 +35,12 @@ import { useCardActions, useActionBridge, replayEvent, ACTION_ATTR, PLACE_ATTR, 
 // after hydration. So the control is always a <button> (#888's rule) and it
 // always has hands (v8.29's). The anchor is gone for like and dislike.
 import { stayOnRailReaction } from "../../lib/railReaction.js";
+// v8.33 — the creator's face on the media column. Resolved here rather than
+// passed in, because this card renders on surfaces (guide pages, /best-of,
+// the map's bottom card) whose row shapes differ wildly but ALL carry a place
+// id and a name — which is exactly what creatorVideosFor() resolves on.
+import { creatorVideosFor } from "../../lib/creatorVideos";
+import CreatorCardMark from "./CreatorCardMark";
 
 // ---------------------------------------------------------------------------
 // Experience-tag chips (owner: "I need the cards to look like the cards from
@@ -362,6 +368,11 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
     surface: "iconic_place_card",
     contentId: place.id,
   }) : null;
+  // v8.33 — never let a curation lookup take a card down. creatorVideosFor()
+  // is pure and dependency-free, but this component renders on embed surfaces
+  // with hand-built rows, and a thrown lookup here would blank a whole guide.
+  let creatorVideos = [];
+  try { creatorVideos = creatorVideosFor(place) || []; } catch (e) { creatorVideos = []; }
   const openCard = (event) => {
     const target = event && event.target;
     if (target && typeof target.closest === "function" && target.closest("a,button,input,select,textarea,[role='button']")) return;
@@ -379,6 +390,7 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
           ? <img src={photoUrl(place) || marketFallback} alt="" loading="lazy" style={{ objectFit: "cover" }} />
           : <div className="wf-place-card-monogram" aria-hidden="true">{initials}</div>}
         <div className="wf-place-card-content" style={{ position: "relative" }}>
+          <CreatorCardMark videos={creatorVideos} />
           <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start" }}>
             <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span>
             <div className="wf-place-card-heading">
