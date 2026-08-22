@@ -617,3 +617,16 @@ node scripts/check-env-placeholders.mjs
 # the question is "would a reader GO there". A veto, never an allowlist: the odd
 # local attraction is the whole product.
 node scripts/check-outing-identity.mjs
+
+# THE SCOUT. lib/scoutAdjudicate.js lets a model supply a section for a place
+# lib/placeCategory.js ABSTAINED on — the case where Google's own
+# editorialSummary carries an identity its type list does not ("Aquarium with a
+# stingray touch tank" vs types ["research_institute"]). Real capability, real
+# hazard: that same bucket holds Mote Marine Laboratory (Wayfind 94), Siesta
+# Roofing (92) and a mobile bartending service (99), and their type lists are
+# indistinguishable. This pins the one door open and every other one shut — no
+# admitting an excluded place, no overriding a decided one, no minting
+# taxonomy, needs_review=true with a null last_verified_at on every recovered
+# row, a validator that independently refuses laundered provenance, and the
+# 9.2 floor agreeing with lib/wayfindScore.js in both directions.
+node scripts/check-scout-law.mjs

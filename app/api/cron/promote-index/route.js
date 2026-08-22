@@ -170,6 +170,24 @@ export async function GET(req) {
     return Response.json({ ok: true, done: true, metro, claimed: 0, promoted: 0 });
   }
 
+  // Scout verdicts for this batch (lib/scoutAdjudicate.js). An ACCEPTED verdict
+  // supplies classify()'s ABSTENTION branch and nothing else — it cannot reach
+  // an excluded place and cannot override a decided one. A batch with no
+  // verdicts behaves exactly as it did before the scout existed, and that is
+  // also the fallback whenever this lookup fails: adjudication is an
+  // enhancement and must never be able to break the promoter.
+  const adjudicated = new Map();
+  try {
+    const ids = claimed.map((c) => `"${c.place_id}"`).join(",");
+    const r = await fetch(
+      `${s.url}/rest/v1/wf_scout_verdicts?select=place_id,section&accepted=is.true&place_id=in.(${ids})`,
+      { cache: "no-store", headers: { apikey: s.key, authorization: "Bearer " + s.key } });
+    if (r.ok) for (const v of await r.json()) { if (v && v.section) adjudicated.set(v.place_id, v.section); }
+    else console.warn(`[promote-index] scout verdict lookup ${r.status} — proceeding unadjudicated`);
+  } catch (e) {
+    console.warn(`[promote-index] scout verdicts unavailable this run: ${String(e && e.message).slice(0, 120)}`);
+  }
+
   const writeRows = [];
   const okIds = [];
   const rejects = [];
@@ -185,7 +203,7 @@ export async function GET(req) {
     // scripts/test-promote-decision.mjs. A "reject" is a verdict about the DATA
     // (unclassifiable, closed, out of bounds) — re-fetching buys the same answer,
     // so the queue must not retry it and pay Google again.
-    const verdict = decidePromotion(d.place, item.metro, nowIso);
+    const verdict = decidePromotion(d.place, item.metro, nowIso, adjudicated.get(item.place_id) || null);
     if (verdict.action !== "promote") {
       rejects.push({ place_id: item.place_id, name: item.name, error: verdict.error });
       continue;
