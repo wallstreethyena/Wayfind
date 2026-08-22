@@ -453,7 +453,7 @@ export const WF_PLACE_CARD_CSS = `
   -webkit-box-orient:vertical;
   text-overflow:ellipsis;
 }
-.wf-place-card-actions{align-items:center;gap:5px!important;margin-top:auto!important;padding-top:9px;flex-wrap:wrap!important}
+.wf-place-card-actions{align-items:center;gap:5px!important;margin-top:auto!important;padding-top:9px;flex-wrap:wrap!important;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 .wf-place-card-actions>a,.wf-place-card-actions>button{
   display:inline-flex!important;
   min-height:34px;

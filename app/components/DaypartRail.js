@@ -760,7 +760,18 @@ export default function DaypartRail({
                     onItinerary={onItinerary ? (e, pl) => onItinerary(e, pl || p) : null}
                     onLike={onLike ? (e, pl) => onLike(e, pl) : null}
                     onDislike={onDislike ? (e, pl) => onDislike(e, pl) : null}
-                    onShare={onShare ? (e, pl) => onShare(e, pl || p) : null}
+                    // v8.30.1 — THE SHAPE. IconicPlaceCard calls onShare(place),
+                    // like every other render site in the app; this adapter read
+                    // (e, pl), so once the prop was finally wired the handler
+                    // would have received the PLACE as its event. It also hands
+                    // over the two things that make the unfurl worth tapping and
+                    // that only this component knows: the reader's real city and
+                    // the card's sourced hook (the share audit's S2 — a card
+                    // share was shipping with neither).
+                    onShare={onShare ? (pl) => onShare(pl || p, {
+                      city: shown.cityLabel || "",
+                      hook: toHookLine(hooks[p.id], p.name) || "",
+                    }) : null}
                   />
                 ))}
               </ul>

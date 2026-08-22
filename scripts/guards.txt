@@ -569,3 +569,9 @@ node scripts/check-local-picks.mjs
 # type is the CLAIM, and a secondary token may add but never outvote — against
 # 28 rows measured from the live inventory rather than invented.
 node scripts/check-breakfast-identity.mjs
+# 2026-08-22 — the breakfast identity reads the PRIMARY type. Google's `types`
+# array is unordered evidence and this rail treated every token as equal, so a
+# secondary `diner` on a pizzeria put Pizza Haven - NY Style on "Best Breakfast
+# Picks near Parrish" (owner screenshot). Every row asserted here is a real
+# wf_inventory row, so a future rewrite is measured against the data.
+node scripts/check-breakfast-identity.mjs

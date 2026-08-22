@@ -1,3 +1,48 @@
+## v8.30.1 - Two live defects the owner found in one sitting
+- **A pizzeria on the breakfast rail.** "Best Breakfast Picks near Parrish"
+  served Pizza Haven - NY Style at #8. Its Google types are
+  ["pizza_restaurant", "diner", "meal_takeaway", ...] and `diner` is a
+  BREAKFAST_TYPE, so lib/breakfast.js admitted it.
+- Root cause is not the token. Google's `types` array is unordered EVIDENCE and
+  the primary type is the CLAIM; this file weighed every token equally, and
+  existingTypeSignals() returns `types` INSTEAD of the primary type whenever it
+  is present - so nothing here could tell a pizzeria that serves eggs from a
+  room whose identity is breakfast. Same disease as v8.19's events rail, where a
+  pub rode a secondary `event_venue` token onto a ticketed-rooms list.
+- Three rules now, in order: a breakfast PRIMARY admits; a primary that names
+  another cuisine refuses (ahead of the name rule, so a "Pizza Cafe" cannot talk
+  its way back in on the word "cafe"); a LONE SECONDARY `diner` is not evidence.
+  Measured across the whole inventory: every place whose only breakfast token is
+  a secondary `diner` is something else (Pizza Haven, Skyline Chili, Graze South
+  Tampa, Mrs. Potato), and every genuine institution that carries `diner` -
+  Cracker Barrel, IHOP, Keke's, Waffle House, Denny's - carries
+  `breakfast_restaurant` beside it. `italian_restaurant` is deliberately NOT a
+  vetoed cuisine: Bradenton's Arte Caffe is a real Italian bakery-cafe, and
+  vetoing the cuisine to kill one pizzeria would have taken it too.
+- **The Share button on every rail place card did nothing.** app/home.js passes
+  `onShareRail` to <DaypartRail> (the tile's share, working since v8.23) and
+  never passed `onShare` (the card's). IconicPlaceCard's `if (onShare)` was
+  false, so the button was a live-looking no-op; on iOS the second, harder tap
+  produced the text-selection callout over the word "Share".
+- Why v8.29 missed it: that pass made like/dislike/save self-sufficient through
+  lib/cardActions.js, but the share implementation is a closure inside
+  app/home.js's 10,000-line component and nothing outside can import it. Share
+  was the only control in the row still reading its raw prop.
+- Fixed at four levels: home.js wires `onShare` (through the same shareLink that
+  owns the iOS sheet-before-clipboard ordering, and now carrying the reader's
+  city and the card's sourced hook - the share audit's S2); lib/cardActions.js
+  gains `shareCard`, built on lib/shareOut.js rather than a fourth copy of it;
+  IconicPlaceCard resolves `doShare` like the other three and `needsFallback`
+  finally counts share (three of four is not wired); DaypartRail's adapter used
+  an (e, place) shape the card never calls it with.
+- The action row is no longer selectable text - a tap that finds nothing can
+  never again become an iOS Copy / Look Up callout.
+- check-card-actions now reads the action list off the ROW the card renders
+  instead of off `actionHref` anchors, which is why share - the one control with
+  no no-JS anchor - was invisible to every rule in it. New guard
+  check-breakfast-identity (71 assertions, 28 measured rows). Six mutations
+  red-proved across the two. 388/388 green.
+
 ## v8.30.1 - A pizzeria was a breakfast pick
 - Live on gowayfind.com, screenshotted by the owner: "Best Breakfast Picks near
   Parrish" served **Pizza Haven - NY Style** at position 8.

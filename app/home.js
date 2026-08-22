@@ -8802,6 +8802,34 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }}
         memberSignalsFor={(list) => fetchMemberSignals(supabase, list)}
         applyMemberSignal={withMemberSignal}
+        // v8.30.1 — THE PLACE CARD'S SHARE, which was never wired (owner,
+        // 2026-08-22, screenshot: "the share button on the amazon rail place
+        // cards are not working"). `onShareRail` directly below is the TILE's
+        // share and has worked since v8.23; the CARD's share prop was simply
+        // never passed, so IconicPlaceCard's `if (onShare)` was false and every
+        // Share button in every rail drop was a live-looking no-op. On iOS the
+        // second, harder tap then produced the text-selection callout over the
+        // word "Share" instead of a sheet.
+        //
+        // Same shareLink() as everywhere else: it owns the iOS ordering (the
+        // native sheet must be the first activation-consuming call in the tap
+        // — v4.07), prefers the Capacitor sheet inside the app shell, and falls
+        // back to the clipboard. The rail hands over the reader's real city and
+        // the card's sourced hook, so this link unfurls with both instead of
+        // the bare "restaurant · 4.6★" the share audit measured (S2).
+        onShare={(p, ctx) => {
+          if (!p || !p.id) return;
+          try { logEvent("share", p, { kind: "rail_place_card" }); } catch (er) {}
+          try {
+            shareLink(
+              p.name,
+              placeShareUrl(p, (ctx && ctx.city) || "", (ctx && ctx.hook) || ""),
+              () => showToast("Link copied"),
+              "Check out " + p.name + " on Wayfind",
+              () => { try { giveawayMark(p.id); addShared(p); } catch (er) {} },
+            );
+          } catch (er) {}
+        }}
         onShareRail={(intent) => {
           try { return shareLink(intent.title, intent.url, null, intent.text); }
           catch (e) { return false; }
