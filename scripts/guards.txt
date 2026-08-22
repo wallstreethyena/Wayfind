@@ -659,3 +659,10 @@ node scripts/check-no-card-cap.mjs
 # the back door. v=2 is opt-in so tabs opened before the deploy keep the shape
 # they understand until VersionWatch reloads them.
 node scripts/check-rails-wire.mjs
+
+# COMMUNITY FOOTER (owner 2026-08-22). Instagram surfaced in-app, an open
+# creator call (a good creator emails us and gets a spot), and an in-app FEEDBACK
+# control that writes to wf_feedback and NEVER email. Pins the Instagram handle
+# exact, creators=mailto while feedback never is, /api/feedback stores without a
+# mailer, and the component is mounted in the home footer beside Privacy/Terms.
+node scripts/check-community-footer.mjs
