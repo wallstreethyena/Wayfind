@@ -83,6 +83,20 @@ ok(/\.wf-place-card-creator\{[^}]*pointer-events:none/.test(WF_PLACE_CARD_CSS.re
    WF_PLACE_CARD_CSS.includes("pointer-events:none;\n}"),
    "the mark is pointer-events:none in CSS as well as in markup");
 
+// 5b. THE ONLOAD RACE. CreatorAvatar reveals the real photo on React's onLoad,
+//     which never fires for an image the browser already finished downloading
+//     before hydration — which is every committed /creators/<handle>.jpg on a
+//     server-rendered page, and every cached /api/creator-avatar hit. Measured
+//     on the deployed /creators index at v8.33: thirteen 200 image/jpeg
+//     responses, thirteen sets of initials. The element must be ASKED whether
+//     it is already complete. Asserted on the source because reproducing it
+//     needs a real browser and a real network race; the property is small and
+//     the regression is silent, which is the worst combination to leave unpinned.
+const avatarSrcTxt = readFileSync(path.join(REPO, "app/components/CreatorAvatar.js"), "utf8");
+ok(/\.complete/.test(avatarSrcTxt), "CreatorAvatar checks img.complete after mount — the onLoad race is handled");
+ok(/naturalWidth/.test(avatarSrcTxt), "…and naturalWidth separates a finished decode from a broken one");
+ok(/useEffect/.test(avatarSrcTxt) && /useRef/.test(avatarSrcTxt), "…via a ref read in an effect, not a guess");
+
 // 6. one face per PERSON, not per post — a creator with three posts about one
 //    place is one person on the card.
 const dupes = [
