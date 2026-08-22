@@ -584,3 +584,27 @@ node scripts/check-breakfast-identity.mjs
 # absence of the fifteen-row cap, and that a failed inventory read is loud
 # rather than a silent fall back to the anchor top-N.
 node scripts/check-nearby-pool.mjs
+# 2026-08-22 — THE MEAL, which "Actually Worth Eating" never asked for. `eat`
+# was the only rail with no identity: its pick asked whether a row was
+# summer-sourced and nothing else, so the governed score — a QUALITY measure —
+# decided alone, and a dessert counter with a 4.9 and 608 reviews scores
+# beautifully. Live near Parrish the rail led with Pomegranate Frozen Yogurt,
+# with a coffee house at 3 and shaved ice at 8. lib/mealPlace.js asks whether the
+# thing is a meal, on the same primary-type discipline as breakfast and beaches.
+node scripts/check-meal-identity.mjs
+# 2026-08-22 — EVERY RAIL MUST SAY WHAT ITS PLACES ARE. Four rail bugs this month
+# (breakfast serving a pizzeria, Beach Day serving tennis courts, Actually Worth
+# Eating serving frozen yogurt, Tonight's Move serving bar-and-grills, Date Night
+# serving a bagel counter, Places You'd Never Find ranking Papa Johns 7th) were
+# all one mistake: a rail with NO identity looks exactly like a rail with a
+# correct one — full board, pretty cards, descending score. RAIL_SELECT now
+# requires `identity` on every entry: a predicate, or null WITH a written waiver.
+# Silence was the bug, so this makes silence impossible.
+node scripts/check-rail-identity.mjs
+# 2026-08-22 — PRESENCE IS NOT VALIDITY (owner: "turn the anthropic llm back on,
+# it seems to be turned off"). ANTHROPIC_API_KEY was set to the literal string
+# "[SENSITIVE]" — a redaction pass had replaced 39 of 68 variables with it. Every
+# presence check in lib/envAudit.js reported green, Anthropic 401'd every call,
+# and the fail-soft UI rendered nothing. Same root cause as the rail bugs above,
+# and the same lesson the legacy Supabase JWT taught in #440, never generalised.
+node scripts/check-env-placeholders.mjs

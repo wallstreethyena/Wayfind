@@ -1,3 +1,58 @@
+## v8.31.2 - Every rail must say what its places are
+- Owner: "did you fix it? i said to fix it" - then: "understand what you did
+  that lead to make those mistakes ... prevent from that happening in the
+  future ... address other similar issues that are on the site now and create a
+  guardrail to prevent them going forward."
+- The mistake was not a wrong predicate. It was that a rail with NO identity
+  looks exactly like a rail with a correct one: the board fills, the cards are
+  pretty, the Wayfind Score descends. The score measures QUALITY, so where an
+  identity is missing the score silently answers a different question - "what is
+  best near you" instead of "what is this rail about" - and nothing in a
+  392-guard suite could see it, because nothing ever asked.
+- Four live rails were doing exactly that. Measured 2026-08-22 against live
+  inventory near Parrish, Sarasota and Lakewood Ranch:
+  - "Actually Worth Eating" (`eat`) led with Pomegranate Frozen Yogurt, with a
+    coffee house at 3, a creamery at 6 and shaved ice at 8. Lakewood Ranch
+    served a cookie shop, a juice bar, a sports bar and a brewpub; Sarasota
+    served a coffee shop and a gelateria. Its pick asked only whether the row
+    was summer-sourced. Now: lib/mealPlace.js - is it a meal.
+  - "Tonight's Move" (`tonight`) had a pick that filtered NOTHING - 54 of 54
+    rows eligible in Sarasota - and served six bar-and-grill restaurants
+    including Jaxx Wing Co., a family restaurant. isNightlifeVenue() already
+    existed in lib/nightlifeRail.js and had simply never been wired to the rail.
+  - "Date Night" (`datenight`) asked only for price >= $$ or a room word in the
+    name, so Jersey Girl Bagels, Culver's, Crumbl, a juice bar and The Breakfast
+    Company all qualified. Now: a meal, in a room, that is open at night.
+  - "Places You'd Never Find" (`gems`) ranked Papa Johns 7th near Parrish.
+    isChainBrand() existed too - and could never have matched, because
+    `papa john` inside a `)\b` alternation cannot match "Papa Johns". Curly
+    apostrophes broke Fleming's, Denny's, Keke's and Jeremiah's the same way.
+- THE GUARDRAIL, which is the actual deliverable: RAIL_SELECT entries now must
+  declare `identity` - a predicate saying what the place IS, enforced in
+  selectFor() BEFORE the pick - or `identity: null` WITH a written `waiver`
+  arguing why cross-category is the promise ("Any category. No paid placement.").
+  scripts/check-rail-identity.mjs fails the build on silence, on a placeholder
+  waiver, on a waiver that also has an identity, and on any change to the set of
+  waived rails. It also proves each identity is LOAD-BEARING: every leak row is
+  asserted to still pass its rail's `pick`, so deleting the identity brings the
+  leak straight back and the guard goes red.
+- Six rails are deliberately cross-category and now say so in prose: best,
+  drive, locals, season, today, trending.
+- SAME ROOT CAUSE, DIFFERENT SURFACE: the AI was off site-wide because
+  ANTHROPIC_API_KEY was set to the literal string "[SENSITIVE]" - a redaction
+  pass had replaced 39 of 68 variables in .env.local with it. Every presence
+  check in lib/envAudit.js reported green, Anthropic 401'd every call, and the
+  fail-soft UI rendered nothing. Presence is not validity - the same lesson the
+  disabled legacy Supabase JWT taught in #440, never generalised past that one
+  key. lib/envAudit.js now detects placeholder values across every classified
+  variable and checks the Anthropic key's SHAPE, both LOUD at boot, and a
+  placeholder makes auditEnv().ok false. scripts/check-env-placeholders.mjs
+  pins 19 placeholder shapes refused and 7 real values kept.
+- Guards: 389 -> 392. check-meal-identity (78), check-rail-identity (118),
+  check-env-placeholders (39). test-beach-geo, check-breakfast-identity and
+  check-meal-identity were each FOLLOWED to the new contract and strengthened -
+  each now also pins which half, identity or pick, does the refusing.
+
 ## v8.31.0 - Retrieval follows the reader
 - Owner, standing in Sarasota: "the results seem like it is the same [as
   Parrish] ... why are we not finding the best places around me, this needs to
