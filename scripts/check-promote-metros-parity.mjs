@@ -19,17 +19,28 @@
 // compares the JS constant against the migration file that defines the table,
 // which is the artifact under version control and the thing a careless edit would
 // change.
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { PROMOTE_METROS } from "../lib/promoteIndex.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const MIGRATION = "supabase/migrations/20260813_wf_promote_metros.sql";
+// EVERY migration that seeds this table, not just the first. Metros are added
+// incrementally (2026-08-22 opened thirteen Florida boxes in a second file), and
+// a landed migration must never be edited to add a row — that would make the
+// artifact lie about what the database contains. So the guard unions them, in
+// filename order, exactly as the database applied them.
+const MIGRATION_DIR = "supabase/migrations";
+const MIGRATIONS = readdirSync(join(ROOT, MIGRATION_DIR))
+  .filter((f) => /wf_promote_metros.*\.sql$/.test(f))
+  .sort();
+const MIGRATION = MIGRATIONS.join(" + ") || "(none found)";
 let fails = 0;
 const ok = (cond, msg) => { if (!cond) { console.error("  FAIL: " + msg); fails++; } };
 
-const sql = readFileSync(join(ROOT, MIGRATION), "utf8");
+ok(MIGRATIONS.length > 0,
+  `found no wf_promote_metros migration in ${MIGRATION_DIR} — if the file was renamed, update this guard rather than deleting it`);
+const sql = MIGRATIONS.map((f) => readFileSync(join(ROOT, MIGRATION_DIR, f), "utf8")).join("\n");
 
 // Parse the seed INSERT: ('metro', min_lat, max_lat, min_lng, max_lng)
 const rowRx = /\(\s*'([a-z0-9-]+)'\s*,\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\)/g;
