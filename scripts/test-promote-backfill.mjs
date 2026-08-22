@@ -79,9 +79,35 @@ ok(read("scripts/enqueue-inbox.mjs").includes(PROMOTE_BACKFILL_RPC),
 const vercel = read("vercel.json");
 ok(!/promote-backfill/.test(vercel), "vercel.json does not schedule promote-backfill (switch stays off)");
 
-// ── 3. four promote boxes unchanged (parity lock is a separate guard) ───────
-ok(Object.keys(PROMOTE_METROS).sort().join(",") === "manatee-sarasota,orlando,st-pete,tampa",
-  "PROMOTE_METROS still the four served boxes — this PR does not widen geo");
+// ── 3. the promote boxes stay inside Florida ────────────────────────────────
+// This assertion used to freeze the metro LIST at the original four, as a scope
+// lock on the PR that introduced the backfill switch. That lock expired on
+// 2026-08-22 when thirteen Florida boxes were added, and freezing a list is the
+// weaker check anyway — it fails on every legitimate expansion while saying
+// nothing about the failure that matters.
+//
+// The real invariant is geographic. 3,642 indexed places clearing 9.2 sit in
+// Dubai, Singapore, Istanbul, Leeds and Manila — the residue of stray searches.
+// Promoting those would flood the app with cards in cities Wayfind cannot rank
+// honestly or monetise, which is the entire reason wf_promote_metros exists. So:
+// every box must fall inside Florida, and every box must be well-formed.
+// Parity with the SQL table is a separate guard (check-promote-metros-parity).
+const FL = { minLat: 24.4, maxLat: 31.1, minLng: -87.7, maxLng: -79.9 };
+const metroKeys = Object.keys(PROMOTE_METROS);
+ok(metroKeys.length >= 4, `expected at least the four original boxes, found ${metroKeys.length}`);
+for (const key of metroKeys) {
+  const b = PROMOTE_METROS[key];
+  ok(b.minLat < b.maxLat && b.minLng < b.maxLng, `${key}: box is inverted (min must be < max)`);
+  ok(b.minLat >= FL.minLat && b.maxLat <= FL.maxLat && b.minLng >= FL.minLng && b.maxLng <= FL.maxLng,
+    `${key} falls outside Florida (${b.minLat},${b.minLng})-(${b.maxLat},${b.maxLng}). ` +
+    `Promotion is bounded to markets Wayfind can rank and monetise; widening it is a product decision, not a config edit.`);
+}
+// Prove the check can fail: a box in Istanbul must be caught.
+{
+  const bad = { minLat: 40.9, maxLat: 41.1, minLng: 28.8, maxLng: 29.1 };
+  ok(!(bad.minLat >= FL.minLat && bad.maxLat <= FL.maxLat && bad.minLng >= FL.minLng && bad.maxLng <= FL.maxLng),
+    "self-test: an Istanbul box must be detected as outside Florida, or this guard is inert");
+}
 
 // ── 4. category placement uses existing signals, not a stored list name ─────
 ok(JSON.stringify(existingTypeSignals({ google_types: [], primary_type: "cafe" })) === JSON.stringify(["cafe"]),
