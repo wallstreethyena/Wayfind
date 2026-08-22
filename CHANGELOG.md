@@ -1,3 +1,38 @@
+## v8.33.1 - One copy of each place on the wire
+- Measured in PRODUCTION right after v8.33 shipped, not assumed: one Sarasota
+  /api/rails response was 1,885 rows, 1,691KB raw, and Vercel served it at
+  524KB - more than double the 220KB my local brotli test predicted, because
+  Vercel compresses dynamic responses at a lower level than brotli -11.
+- The rows are not the problem. The owner asked for them and every one is a real
+  place that earned a card. The DUPLICATION is: about 450 distinct places sit
+  behind those 1,885 rows, because `eat`, `best`, `today` and `datenight`
+  legitimately share the same restaurants and each rail was shipping a full copy
+  of every one - 180-character photo reference and four-element type array
+  included.
+- A payload problem gets a payload fix. Trimming rails to shrink the response
+  would be the ceiling coming back through the back door
+  (scripts/check-no-card-cap.mjs), so it is explicitly not what happened here.
+- lib/railsWire.js `dedupeWire` sends every place ONCE in `placeIndex` and each
+  rail as a list of ids; lib/locationHonesty.js `liveFromRailsResponse` - the
+  single adapter every live rail response already passes through - rebuilds the
+  exact arrays, in the exact order. On a four-rail fixture: 471KB -> 148KB.
+- It is OPT-IN (`?v=2`) rather than a straight shape change, and that is the
+  part worth keeping: a tab opened before the deploy is still running the old
+  client, which reads `places[railId]` as an array of place objects. Hand it ids
+  and every rail renders empty until VersionWatch reloads it. The CDN keys on
+  the query string, so v1 and v2 cache independently and each client keeps
+  getting the shape it understands. A safe rollout in both directions.
+- Guards 395 -> 396: check-rails-wire (23 assertions) round-trips the transform
+  and pins that it is lossless AND order-preserving, that it actually shrinks,
+  that v1 still works, that a missing index entry is dropped rather than passed
+  on as undefined, and that the client actually asks for v=2 - without which the
+  whole thing is dead code and production keeps paying for the duplicates.
+- Six mutations run; two slipped and both were fixture blindness. The fixture
+  rails were in descending-review order, which is also what a naive `.sort()`
+  produces, so a rehydration that REORDERED round-tripped unchanged; and no rail
+  contained a repeated id, so a transform that silently collapsed rows looked
+  lossless. A deliberately scrambled rail and a rail with repeats now catch both.
+
 ## v8.33.0 - There is no max
 - Owner: "fuck the 12 max, removed the 12 max and lets have no max" ... "no more
   max on anything."
