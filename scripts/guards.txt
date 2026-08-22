@@ -608,3 +608,12 @@ node scripts/check-rail-identity.mjs
 # and the fail-soft UI rendered nothing. Same root cause as the rail bugs above,
 # and the same lesson the legacy Supabase JWT taught in #440, never generalised.
 node scripts/check-env-placeholders.mjs
+# 2026-08-22 — AN OUTING, not merely an attractions-gated row. Checked in
+# PRODUCTION after v8.31.2 shipped: "Places You'd Never Find" near Parrish led
+# with Elite Medical Spa, a wedding venue and MassageLuXe; nine of the Lakewood
+# Ranch things-to-do pool's top fifteen were spas, med spas, gyms and a
+# chiropractor. placeFilter's attractions gate admits spas ON PURPOSE — it feeds
+# /things-to-do's Spa subcategory — so the fix belongs on the rail side, where
+# the question is "would a reader GO there". A veto, never an allowlist: the odd
+# local attraction is the whole product.
+node scripts/check-outing-identity.mjs
