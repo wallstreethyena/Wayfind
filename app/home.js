@@ -271,7 +271,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.33.2";
+const BUILD_ID = "v8.34.0";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -10996,7 +10996,6 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           ? <FallbackImg src={cardPhoto || p.photo || cardMarketFallback} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
           : <div className="wf-place-card-monogram" aria-hidden="true">{cardInitials}</div>}
         <div className="wf-place-card-content" style={{ padding: "12px 12px", flex: 1, minWidth: 0, position: "relative" }}>
-          <CreatorCardMark videos={cardCreatorVideos} />
           <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
             {rank && (m
               ? <div className="wf-place-card-rank" style={{ width: 24, height: 24, borderRadius: "50%", background: m.color, color: "#0D1117", fontSize: 12.5, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{rank}</div>
@@ -11114,6 +11113,12 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               (Book on Viator) that the sheet cards never do; css.js adds a
               :has(.wf-place-card-book) 5-column variant so that case stays
               consistent too, rather than breaking under the 4-column grid. */}
+          {/* v8.34 — the creator credit sits in the bottom band, directly above
+              the actions (see css.js .wf-place-card-credit). The sibling rule
+              there zeroes the inline marginTop below with !important, which is
+              why the credit's own margin-top:auto is what bottom-anchors the
+              pair. */}
+          <CreatorCardMark videos={cardCreatorVideos} />
           <div className="wf-place-card-actions wf-sheet-card-actions" style={{ marginTop: 9, pointerEvents: "auto" }}>
             {cardProduct && cardProduct.url && (
               <ViatorCommerceLink
