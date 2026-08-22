@@ -15,10 +15,23 @@
 // upstream on the hot path: this is not the shape lib/apiGuard.js exists for,
 // and it is not in the middleware matcher for the same reason /api/events is
 // not. It also takes no free-text — only two numbers, snapped to a fixed list
-// of ~21 cities — so there is no novel-parameter space to iterate over.
+// of ~21 cities, plus one of four band names — so there is no novel-parameter
+// space to iterate over.
+//
+// v8.30 — WHY THE BAND IS A PARAMETER. The today card now serves the owner's
+// handpicked board for the reader's town, and the hour FILTERS it: the morning
+// board at 8am, the night board at 8pm. The band is corrected in the reader's
+// browser, so if it did not reach the server this response would freeze
+// whichever band the CDN happened to warm in — every reader all day getting the
+// 3am answer because that is when the cache filled. Four extra keys per
+// location, and in practice roughly zero extra misses: the bands are disjoint
+// in time, so at any moment every reader in a metro asks for the same one. An
+// unrecognised value is IGNORED rather than honoured, so there is still no
+// novel-key space to iterate over.
 import { NextResponse } from "next/server";
 import { LANDING_CITIES } from "../../../lib/landing";
 import { railMenuData } from "../../../lib/railsData";
+import { DAYPART_IDS } from "../../../lib/dayparts";
 
 export const revalidate = 3600;
 
@@ -64,6 +77,8 @@ export async function GET(req) {
       headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" },
     });
   }
+  const askedBand = String(sp.get("band") || "");
+  const band = DAYPART_IDS.includes(askedBand) ? askedBand : undefined;
   const asked = String(sp.get("city") || "");
   const slug = LANDING_CITIES[asked] ? asked : nearestCity(la, ln);
   if (!slug) {
@@ -78,7 +93,7 @@ export async function GET(req) {
     // Pools stay per-metro cached; distances, distance gates and the
     // creators pool re-origin on the visitor. The client snaps coordinates
     // to a coarse grid before asking, so the CDN cache keys stay countable.
-    const data = await railMenuData(slug, { origin, requireOrigin: true });
+    const data = await railMenuData(slug, { origin, requireOrigin: true, band });
     return NextResponse.json({ covered: true, data }, {
       headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" },
     });

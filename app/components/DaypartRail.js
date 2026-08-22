@@ -262,14 +262,24 @@ export default function DaypartRail({
       // same metro the rail kept the city-hall ranking while the map measured
       // from the reader, and a Parrish reader saw Sarasota-centre miles on
       // every card. 1.5mi still absorbs GPS jitter; a real move re-asks.
-      if (R * 2 * Math.asin(Math.sqrt(s2)) < 1.5) return undefined;
+      //
+      // v8.30 — THE BAND IS PART OF THE ANSWER NOW, so it joins the point in
+      // this test. The today card holds the owner's handpicked board for the
+      // CURRENT band only, and a reader who has not moved an inch still needs a
+      // new payload the moment the clock crosses into the next one — otherwise
+      // the morning board sits there all evening. Standing still inside the
+      // band the server already rendered is still free.
+      if (R * 2 * Math.asin(Math.sqrt(s2)) < 1.5 && daypart === initialDaypart) {
+        setLive(null);
+        return undefined;
+      }
     }
     let cancelled = false;
     setLive(emptyRailLive());
     // Snapped to ~0.7mi so the CDN sees a countable set of URLs per metro, not
     // one per GPS fix. The server re-measures every distance from this point.
     const snap = (v) => Math.round(v * 100) / 100;
-    fetch(`/api/rails?lat=${encodeURIComponent(snap(center.lat))}&lng=${encodeURIComponent(snap(center.lng))}`)
+    fetch(`/api/rails?lat=${encodeURIComponent(snap(center.lat))}&lng=${encodeURIComponent(snap(center.lng))}&band=${encodeURIComponent(daypart)}`)
       .then((r2) => r2.json().catch(() => null))
       .then((j) => {
         if (cancelled) return;
@@ -282,7 +292,7 @@ export default function DaypartRail({
         try { onCoverage && onCoverage("error"); } catch (e) {}
       });
     return () => { cancelled = true; };
-  }, [center && center.lat, center && center.lng, lat, lng]);
+  }, [center && center.lat, center && center.lng, lat, lng, daypart, initialDaypart]);
 
   // The live hour, after mount, from the ONE clock — read in the timezone of
   // the coordinates being ranked. Re-checkedevery minute so a rail left open across

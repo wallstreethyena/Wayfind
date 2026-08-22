@@ -1,3 +1,48 @@
+## v8.30.0 - The owner's handpicked board, for one card and one hour
+- 225 slots handed over: 15 picks each for morning, afternoon and night across
+  Parrish, Bradenton, Lakewood Ranch, Palmetto and Ellenton. Then, on a
+  screenshot of the homepage tile: "Its for this card btw" - What Should We Do
+  Today? / Your best day, sorted / Handpicked, ranked and ready for right now.
+- lib/localPicks.js is that board: 77 venues, 212 placements, 201 serving,
+  place IDs resolved from the permanent index, fail-closed like summerUniverse
+  and birthdayUniverse. 70 of the 72 resolved venues are already OPERATIONAL
+  rows in wf_inventory, so the pool costs nothing on the hot path.
+- ONE CARD. The registry feeds `today` and nothing else; check-local-picks
+  asserts that in both directions, because letting the dinner picks also feed
+  Tonight's Move is a change to six other rails nobody decided to make.
+- THE BOARD IS THE CARD. Same shape as v8.13's summer rule - if the reader's
+  town has a board for this hour, `today` serves that board and not the ranked
+  pool. Merging a handpicked list into the pool and taking the top twelve by
+  score is how "only what's actually worth it" quietly becomes a directory.
+  Outside the five towns there is no board and the rail is untouched.
+- ONE HOUR. The band FILTERS: the morning board at 8am, the night board at 8pm.
+  It cannot reorder - display order is the governed score on every rail - so
+  membership is the only lever the hour has.
+- That filter needed the band to reach the server, or the CDN would freeze
+  whichever board it warmed in. /api/rails?band= is that parameter: four keys
+  per location on paper, roughly zero extra misses in practice because the
+  bands are disjoint in time. DaypartRail sends it and refetches when the clock
+  crosses a band edge, not only when the reader moves.
+- ONE TOWN. Every centroid here sits within ~11 miles of every other, so a
+  radius wide enough for one swallows all five - the first cut served a Parrish
+  reader all 70 places at once. The nearest market serves, and only that one.
+- localpicks is read FIRST on the today rail: with a board active only
+  handpicked rows pass, so an organic row seen first would consume the id and
+  the owner's own #1 would vanish from his own card.
+- Nine of the 225 slots named a place that does not exist or has permanently
+  closed - Hickory Hollow Farm, The Strawberry Shack, Birdrock Taco Shack,
+  Caddy's Bradenton, Paris Baguette UTC, Caffe Italia, Topgolf
+  Sarasota-Bradenton, The Chateau Sarasota, Masa Asian Bistro. Dropped, with
+  two honest substitutions. Three more renamed rather than dropped (Andersen
+  RacePark -> T4 KartPlex, ArtCenter Manatee -> Herrig Center for the Arts,
+  Popi's Place Lakewood Ranch -> the nearest confirmed-open branch).
+- Motorworks Brewing is held unresolved on purpose: closed for remodel until
+  about 1 Feb 2027, and the resolver refuses anything Google does not report
+  OPERATIONAL, so it comes back by itself the day it reopens.
+- New guard scripts/check-local-picks.mjs (2,224 assertions, eight mutations
+  red-proved); test-rail-select and test-beach-geo followed to the new
+  contract. 387/387 green, next build green.
+
 ## v8.29.18 - The cap was eating the schedule
 - Shipped v8.29.17, opened the events screen on production, and the "Worth
   planning for" shelf rendered ONE card out of seven. Nothing said why.

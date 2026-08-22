@@ -158,8 +158,14 @@ ok(/category === "beach" \? beachesWithin\(ranked, \{ lat, lng \}\) : vetBeachDi
   const rail = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
   ok(/center=\{center\}/.test(home), "app/home.js must hand the rail `center` — the ONE state both geolocation and the search box write");
   ok(/fetch\(`\/api\/rails\?lat=/.test(rail), "the rail must re-rank from the reader's own point, not stay pinned to the prerendered metro");
-  ok(/\}, \[center && center\.lat, center && center\.lng, lat, lng\]\);/.test(rail),
-    "…and that re-rank must re-run on `center`, so a SEARCHED city is subject to the rule exactly like a located one");
+  // v8.30 — `daypart` joined the dependency list because the today card now
+  // serves the owner's handpicked board for the CURRENT band, so a band change
+  // needs a new payload too. FOLLOWED, NOT LOOSENED: `center` is still pinned
+  // exactly and still first, which is the property this assertion exists for —
+  // a refactor that pinned the re-rank to geolocation and dropped the searched
+  // city would still fail here.
+  ok(/\}, \[center && center\.lat, center && center\.lng, lat, lng, daypart, initialDaypart\]\);/.test(rail),
+    "…and that re-rank must re-run on `center` (and, since v8.30, on the band), so a SEARCHED city is subject to the rule exactly like a located one");
   const api = readFileSync(new URL("../app/api/rails/route.js", import.meta.url), "utf8");
   ok(/COVERAGE_MI/.test(api) && /bestMi <= COVERAGE_MI \? best : null/.test(api),
     "out of coverage must resolve to NOTHING, never to the arithmetically-nearest town hundreds of miles away");

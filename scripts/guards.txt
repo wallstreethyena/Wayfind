@@ -550,3 +550,14 @@ node scripts/check-hook-order.mjs
 # starved. This guard EXECUTES the chain — map, destination, proximity, rank,
 # render — rather than matching text on it.
 node scripts/check-curated-events-surface.mjs
+# 2026-08-22 — the owner's handpicked board (lib/localPicks.js) IS the "What
+# Should We Do Today?" card, for one town and one hour. Four failures this
+# pins, none of which anything else in the suite would notice: a radius wide
+# enough to cover one town swallows all five and serves a directory again; the
+# band stops reaching the server and the homepage freezes on whichever board
+# the CDN warmed in; the board gets merged into the ranked pool instead of
+# replacing it, so "only what's actually worth it" quietly becomes a top-12;
+# and a board too thin to fill the card, which now has no organic fallback
+# behind it. Executes the registry, the rail predicate and both ends of the
+# band parameter.
+node scripts/check-local-picks.mjs
