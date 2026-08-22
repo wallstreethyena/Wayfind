@@ -1,3 +1,44 @@
+## v8.31.3 - An outing, not merely an attractions-gated row
+- Found by checking PRODUCTION after v8.31.2 shipped, not by assuming the fix
+  was done. "Places You'd Never Find" near Parrish came back: Elite Medical Spa
+  of Parrish at 1, Bakers Ranch Wedding Venue at 3, MassageLuXe at 4, Blue Door
+  Spa at 5. Near Lakewood Ranch NINE of the things-to-do pool's top fifteen were
+  spas, med spas, gyms, yoga studios and a chiropractor; Sarasota's top
+  twenty-six carried seven spas. Every rail reading that pool - gems, best,
+  today, drive, season, trending, family - was drawing from it.
+- The pool is not wrong to contain them. lib/placeFilter.js's `attractions` gate
+  admits /\bspa\b|wellness/ deliberately, because /things-to-do has a Spa
+  SUBCATEGORY - a browsable tab and the right home for a day spa. Changing that
+  gate would delete a real section of the site.
+- What was missing is the RAIL-side question, which is a different one: a
+  homepage discovery rail answers "what should I go and DO near me", and a med
+  spa, a gym, a chiropractor and a wedding venue are not answers to it. The
+  Wayfind Score cannot tell them apart - a med spa with a 4.9 from 300 clients
+  scores exactly like a museum with a 4.9 from 300 visitors, because the score
+  measures how well a place is REGARDED, never what KIND of thing it is.
+- lib/outing.js is that question, wired as the `things-to-do` pool identity
+  alongside the beach one. It is a VETO, never an allowlist: the pool has already
+  passed the attractions gate, and an allowlist would silently delete the one odd
+  local attraction that makes a town worth visiting, which is the opposite of
+  what a discovery product is for.
+- What Parrish serves now, in order: Premier Escape Adventures, Poseidon Fishing
+  Charters, Bradenton Motorsports Park, Tom Bennett Park, Reel Escapes, Little
+  Manatee River State Park, Manatee Village Historical Park, the Florida
+  Railroad Museum, Gamble Creek Farms, Rye Preserve, a dog sanctuary and a
+  treehouse. Sarasota leads with kayak tours, escape rooms, the Ringling, Selby
+  Gardens, Ca' d'Zan and the Opera House.
+- Measured against every attractions row within 17 miles of the three pins, the
+  veto refuses 25 places and all 25 are RV resorts, campgrounds, gyms or a
+  church. No genuine attraction was lost.
+- Deliberate calls, documented in the module so nobody "fixes" them: campgrounds
+  and RV parks are lodging; marinas, farms and golf courses stay in; a spa inside
+  a resort is still a spa.
+- Guards 392 -> 393: check-outing-identity (71 assertions, 28 businesses refused,
+  28 real outings kept). Eight mutations run; the one that slipped - an escape
+  hatch letting a secondary `tourist_attraction` token overrule the primary type
+  - went unnoticed by all 25 measured rows because each is refused by two rules
+  at once, so three rule-isolation shapes were added and it is now caught.
+
 ## v8.31.2 - Every rail must say what its places are
 - Owner: "did you fix it? i said to fix it" - then: "understand what you did
   that lead to make those mistakes ... prevent from that happening in the
