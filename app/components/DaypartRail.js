@@ -279,7 +279,7 @@ export default function DaypartRail({
     // Snapped to ~0.7mi so the CDN sees a countable set of URLs per metro, not
     // one per GPS fix. The server re-measures every distance from this point.
     const snap = (v) => Math.round(v * 100) / 100;
-    fetch(`/api/rails?lat=${encodeURIComponent(snap(center.lat))}&lng=${encodeURIComponent(snap(center.lng))}&band=${encodeURIComponent(daypart)}`)
+    fetch(`/api/rails?lat=${encodeURIComponent(snap(center.lat))}&lng=${encodeURIComponent(snap(center.lng))}&band=${encodeURIComponent(daypart)}&v=2`)
       .then((r2) => r2.json().catch(() => null))
       .then((j) => {
         if (cancelled) return;

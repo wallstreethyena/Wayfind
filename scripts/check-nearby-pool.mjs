@@ -34,12 +34,13 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   NEARBY_CATS, NEARBY_RINGS_MI, NEARBY_BEACH_RINGS_MI, NEARBY_TARGET_ROWS,
-  NEARBY_POOL_CAP, NEARBY_STANDALONE_MIN, shapeNearbyRow, nearbyBbox, nearbyMiBetween,
+  NEARBY_STANDALONE_MIN, shapeNearbyRow, nearbyBbox, nearbyMiBetween,
   buildNearbyPool,
 } from "../lib/nearbyPool.js";
 import { BEACH_NEAR_MI } from "../lib/beaches.js";
-import { MAX_CARDS, MIN_CARDS } from "../lib/railSelect.js";
+import { MIN_CARDS } from "../lib/railSelect.js";
 import { RAIL_SELECT } from "../lib/railSelect.js";
+import * as NEARBY from "../lib/nearbyPool.js";
 
 let n = 0;
 const ok = (c, m) => { assert.ok(c, m); n++; };
@@ -58,15 +59,26 @@ ok(NEARBY_RINGS_MI[NEARBY_RINGS_MI.length - 1] >= 17,
 eq(NEARBY_BEACH_RINGS_MI, [BEACH_NEAR_MI],
   "beaches keep the owner's 23-mile rule, imported and not restated — there is exactly one of it");
 
-// ── 2. the caps ─────────────────────────────────────────────────────────────
-ok(NEARBY_POOL_CAP > 15,
-  `the pool cap must not be the fifteen that caused this (${NEARBY_POOL_CAP})`);
-ok(NEARBY_POOL_CAP >= MAX_CARDS * 4,
-  `the pool must be several rails deep (${NEARBY_POOL_CAP} vs MAX_CARDS ${MAX_CARDS}) — every rail filters it by its own identity before a card ships`);
-ok(NEARBY_TARGET_ROWS >= MAX_CARDS * 2 && NEARBY_TARGET_ROWS <= NEARBY_POOL_CAP,
+// ── 2. the ladder, which is the only thing left with a number ───────────────
+// v8.33 — NEARBY_POOL_CAP is GONE (owner: "no more max on anything"). It was
+// 60, justified as "several rails deep", and with the card ceiling removed
+// there was nothing left for it to be deep ENOUGH for: every row it was
+// trimming had already passed the category gate, the identity and the
+// discovery filter. Sixty was the fifteen-row cap this module exists to delete,
+// wearing a bigger number.
+//
+// NEARBY_TARGET_ROWS is NOT a cap and must survive. It stops the LADDER —
+// reach it in the 6-mile ring and the pool never widens to 17 — which is the
+// entire mechanism that keeps a dense downtown local. Removing it would widen
+// every reader to the furthest ring and hand back the "Sarasota gets Parrish's
+// list" defect this module was written for. Asserted here so nobody deletes it
+// in the name of the same instruction that correctly deleted the others.
+ok(!Object.prototype.hasOwnProperty.call(NEARBY, "NEARBY_POOL_CAP"),
+  "there must be no pool ceiling — a survivor of the identity has earned its place in the field");
+ok(NEARBY_TARGET_ROWS > 15,
+  `the ladder must not stop at the fifteen that caused this (${NEARBY_TARGET_ROWS})`);
+ok(NEARBY_TARGET_ROWS >= MIN_CARDS * 8,
   "the ring stops widening at a real field, not at one rail's worth");
-ok(NEARBY_STANDALONE_MIN > MAX_CARDS,
-  `a pool that only just fills one rail cannot stand alone for fifteen (${NEARBY_STANDALONE_MIN} vs ${MAX_CARDS})`);
 ok(NEARBY_STANDALONE_MIN >= MIN_CARDS,
   "the standalone floor is at least a rail's minimum");
 
@@ -200,7 +212,10 @@ eq(await buildNearbyPool(SARASOTA, "hotels"), [], "an unmapped category returns 
   const out = await buildNearbyPool(SARASOTA, "restaurants", { fetchImpl });
   ok(rings.length >= 2, `the ladder widened when the tight ring could not fill (rings tried: ${rings.join(", ")})`);
   ok(out.length > 4, `widening KEPT what it found (${out.length} rows) — a thin ring must never lose the wider ring's rows`);
-  ok(out.length <= NEARBY_POOL_CAP, "the pool respects its cap");
+  // v8.33 — this asserted `out.length <= NEARBY_POOL_CAP`. There is no cap, so
+  // the property worth pinning is the opposite one: the pool hands on EVERY row
+  // the ladder found, and 54 fixture rows must arrive as 54.
+  ok(out.length === 54, `the pool hands on every row it found, untrimmed (${out.length} of 54)`);
   const scored = out.every((r) => Number.isFinite(r.governed_score) && r.governed_score === r._s);
   ok(scored, "every row carries the ONE stamp, and _s is that same number — shown == sorted");
   const ordered = out.every((r, i) => i === 0 || (out[i - 1].governed_score >= r.governed_score));
@@ -214,5 +229,5 @@ ok(/console\.warn\([^)]*wf_inventory read failed/.test(src),
 ok(/console\.warn\([^)]*read threw/.test(src), "…and so must a thrown one");
 
 console.log(`check-nearby-pool: ${n} assertions OK — ladder ${NEARBY_RINGS_MI.join("→")}mi `
-  + `(beaches ${BEACH_NEAR_MI}mi), fill at ${NEARBY_TARGET_ROWS}, cap ${NEARBY_POOL_CAP}, `
+  + `(beaches ${BEACH_NEAR_MI}mi), fill at ${NEARBY_TARGET_ROWS}, NO ceiling, `
   + `stand alone above ${NEARBY_STANDALONE_MIN}`);

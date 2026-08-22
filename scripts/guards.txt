@@ -637,3 +637,25 @@ node scripts/check-outing-identity.mjs
 # row, a validator that independently refuses laundered provenance, and the
 # 9.2 floor agreeing with lib/wayfindScore.js in both directions.
 node scripts/check-scout-law.mjs
+# 2026-08-22 — THERE IS NO MAX (owner: "fuck the 12 max ... no more max on
+# anything"). MAX_CARDS, NEARBY_POOL_CAP, the two 40-row identity-pool slices
+# and RAIL_EXPOSURE_CAP are all gone. A ceiling is the easiest thing here to
+# reintroduce by accident because every disguise looks like tidy code — a
+# .slice(0,12) while rendering, a "sane default" while paginating — and it
+# always LOOKS correct: a rail trimmed to twelve is a full, beautifully ordered
+# rail, and nothing renders to say what was thrown away. MAX_CARDS already came
+# back twice (8, then 12), described in source as "cosmetic" both times. The
+# MIN_CARDS floor and the distance ladder survive and are asserted here on
+# purpose: they bound honesty and radius, never inventory.
+node scripts/check-no-card-cap.mjs
+# 2026-08-22 — ONE COPY OF EACH PLACE ON THE WIRE. Measured in production right
+# after v8.33 removed every card ceiling: one Sarasota /api/rails response was
+# 1,885 rows, 1,691KB raw, and Vercel served it at 524KB. The rows are not the
+# problem — the owner asked for them and every one earned a card. The
+# DUPLICATION is: ~450 distinct places sit behind those rows because eat, best,
+# today and datenight legitimately share restaurants and each shipped a full
+# copy, 180-char photo ref included. A payload problem gets a payload fix;
+# trimming rails to shrink the response would be the ceiling returning through
+# the back door. v=2 is opt-in so tabs opened before the deploy keep the shape
+# they understand until VersionWatch reloads them.
+node scripts/check-rails-wire.mjs
