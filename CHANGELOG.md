@@ -1,3 +1,51 @@
+## v8.31.0 - Retrieval follows the reader
+- Owner, standing in Sarasota: "the results seem like it is the same [as
+  Parrish] ... why are we not finding the best places around me, this needs to
+  be a local discovery place and it is not doing that."
+- He was right, and it was never a ranking problem. Every rail's candidates came
+  from rankedFor(category, CITY) - a Google "best X" search around a centroid,
+  `pool.slice(0, 15)` rows per category per town. A metro reads four towns, so
+  every rail on the homepage chose from about 150 places. Measured against owned
+  inventory: 432 places within 3mi of that Sarasota pin, 691 within 5, 2,319
+  within 17 - 960 of them food, against a food rail choosing from ~60.
+- And rankedFor's second round drops the city name and searches 30 miles,
+  accepting results out to 39. Sarasota and Parrish centroids are 18.5 miles
+  apart and both metros include Bradenton, so the two towns retrieved from what
+  is effectively one circle; marketReviewFloor then stripped the small local
+  rooms out of both. Identical answers, by construction. Distance was only ever
+  a FILTER APPLIED AFTER RETRIEVAL - it re-sorted the same regional list.
+- lib/nearbyPool.js is the cure the codebase has already applied five times to
+  one rail at a time (locals v8.7, trending v8.9, summer v8.13, breakfast and
+  break v8.18, family and events v8.19), finally applied to the ANCHOR POOLS: a
+  ladder of rings from the reader's own point - 6mi, then 10, then 17, widening
+  only when a ring cannot fill - over owned wf_inventory, through the same
+  discovery gate the city path uses, stamped with the one score and ordered by
+  the one comparator. Beaches keep the owner's 23-mile rule, imported.
+- REPLACE, NOT UNION. The score's distance term costs a place 0.2 past 17 miles,
+  so a famous room fifteen miles out still buries an excellent cafe one mile
+  away: near-first has to be a retrieval property. Only a row carrying a live
+  `trending` flag rejoins - that is demand, not proximity. A thin area keeps its
+  city pools in full (Parrish: 106 places within 5mi against Sarasota's 691).
+- MEASURED AFTER: from Sarasota the food pool fills at the 6-mile ring, median
+  2.3mi, led by a place 0.5mi away. From Parrish it fills at 6mi with a
+  sandwich shop 0.1mi away, activities widen to 10mi, nightlife to 17. Overlap
+  between the two towns' lists: restaurants 0%, things-to-do 0%, nightlife 15%,
+  beaches 56% - they share a coast.
+- BEACHES: a radius is not an identity ("beaches are not working"). The rail
+  asked only the 23-mile rule, and placeFilter's beach gate admits on the NAME,
+  so within 23 miles of Parrish the candidates included two sets of tennis
+  courts, a pickleball court, a playground, four numbered beach accesses, a car
+  park, a lifeguard tower, a wedding venue, a fishing pier and an Asian massage
+  parlour. lib/beaches.js isBeachPlace() asks whether a reader can sit on it -
+  same primary-type discipline breakfast got in v8.30.1, verified against 27
+  real rows. Sarasota's beach pool: 52 rows -> 39, led by Lido at 3.3mi.
+- A failed inventory read is now LOUD. The identity pools read the same table
+  inside a bare `if (r.ok)`, so a rotated key would send every rail back to the
+  anchor top-N with nothing in the logs - and this project's legacy anon JWT is
+  already disabled and answers 401.
+- New guard check-nearby-pool (54 assertions, eight mutations red-proved);
+  test-beach-geo followed to the new contract. 389/389 green.
+
 ## v8.30.1 - Two live defects the owner found in one sitting
 - **A pizzeria on the breakfast rail.** "Best Breakfast Picks near Parrish"
   served Pizza Haven - NY Style at #8. Its Google types are

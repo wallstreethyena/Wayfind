@@ -575,3 +575,12 @@ node scripts/check-breakfast-identity.mjs
 # Picks near Parrish" (owner screenshot). Every row asserted here is a real
 # wf_inventory row, so a future rewrite is measured against the data.
 node scripts/check-breakfast-identity.mjs
+# 2026-08-22 — RETRIEVAL FOLLOWS THE READER (lib/nearbyPool.js). The owner,
+# standing in Sarasota, got the same list the app serves from Parrish eighteen
+# miles away: every rail's candidates came from a Google "best X" search around
+# a CITY centroid, fifteen rows per category per town, ~150 places total against
+# 2,319 owned places within seventeen miles of his pin. This pins the ladder
+# (tighten before widening), the discovery gate AND the category identity, the
+# absence of the fifteen-row cap, and that a failed inventory read is loud
+# rather than a silent fall back to the anchor top-N.
+node scripts/check-nearby-pool.mjs
