@@ -107,13 +107,27 @@ for (const bad of [null, undefined, {}, { name: null }, { types: null }]) {
 }
 
 // The chain the rail actually runs: identity AND the morning radius.
+// v8.31.2 — the two questions now live in two places, deliberately:
+// `identity` is what the place IS, `pick` is the morning radius, and
+// selectFor runs identity first (scripts/check-rail-identity.mjs). This block
+// asks what production asks — does the rail ADMIT the row — and then pins each
+// half separately, so neither can quietly go missing the way the identity
+// nearly did when it moved.
+const admits = (place) => {
+  const cfg = RAIL_SELECT.breakfast;
+  return (!cfg.identity || cfg.identity(place, {})) && (!cfg.pick || cfg.pick(place, {}));
+};
 ok(RAIL_SELECT.breakfast.pools.includes("breakfast"), "the rail reads the breakfast identity pool");
-ok(RAIL_SELECT.breakfast.pick({ name: "Waffle House", primaryType: "breakfast_restaurant", types: ["breakfast_restaurant"], distMi: 2 }) === true,
+ok(RAIL_SELECT.breakfast.identity === isBreakfastPlace,
+  "the rail's declared identity IS isBreakfastPlace — imported, not a second copy of the rule");
+ok(admits({ name: "Waffle House", primaryType: "breakfast_restaurant", types: ["breakfast_restaurant"], distMi: 2 }) === true,
   "the rail admits a breakfast room inside the morning radius");
-ok(RAIL_SELECT.breakfast.pick({ name: "Waffle House", primaryType: "breakfast_restaurant", types: ["breakfast_restaurant"], distMi: BREAKFAST_NEAR_MI + 1 }) === false,
+ok(admits({ name: "Waffle House", primaryType: "breakfast_restaurant", types: ["breakfast_restaurant"], distMi: BREAKFAST_NEAR_MI + 1 }) === false,
   "…and still refuses one past it — nobody drives 11 miles before coffee");
-ok(RAIL_SELECT.breakfast.pick({ name: "Pizza Haven - NY Style", primaryType: "pizza_restaurant", types: ["pizza_restaurant", "diner"], distMi: 1 }) === false,
+ok(admits({ name: "Pizza Haven - NY Style", primaryType: "pizza_restaurant", types: ["pizza_restaurant", "diner"], distMi: 1 }) === false,
   "the reported defect cannot reach the rail even from next door");
+ok(RAIL_SELECT.breakfast.identity({ name: "Pizza Haven - NY Style", primaryType: "pizza_restaurant", types: ["pizza_restaurant", "diner"] }, {}) === false,
+  "…and it is the IDENTITY that refuses the pizzeria, not the radius happening to catch it");
 
 ok(NATIONAL_QUICK_RX.test("Chick-fil-A") && !NATIONAL_QUICK_RX.test("Keke's Breakfast Cafe"),
   "the national quick-service list still spares the breakfast institutions");

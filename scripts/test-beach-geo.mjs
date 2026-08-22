@@ -112,12 +112,32 @@ ok(vetBeachDistance([], ORLANDO).length === 0 && Array.isArray(vetBeachDistance(
   // of them named "beach", which is what placeFilter's beach gate admits on.
   ok(/isBeachPlace\(p\)/.test(railSelect),
     "…and the beach rail asks whether a reader can sit on it, not only whether it is near");
-  ok(RAIL_SELECT.beach.pick({ id: "x", distMi: 3, name: "Holmes Beach Tennis Courts", primaryType: "tennis_court", types: ["tennis_court"] }) === false,
+  // v8.31.2 — the beach RULE did not move, its HOME did. RAIL_SELECT entries now
+  // declare `identity` (what the place IS) separately from `pick` (distance,
+  // price, season proximity), and selectFor runs identity first — see
+  // scripts/check-rail-identity.mjs for why that contract exists at all. So this
+  // block now asks the question production asks: does the rail ADMIT this row.
+  // Testing `pick` alone would have quietly stopped testing the identity the
+  // moment it moved, which is the exact shape of the bug this file was written
+  // for, so both halves are asserted below and neither may go missing.
+  const admits = (place) => {
+    const cfg = RAIL_SELECT.beach;
+    return (!cfg.identity || cfg.identity(place, {})) && (!cfg.pick || cfg.pick(place, {}));
+  };
+  ok(typeof RAIL_SELECT.beach.identity === "function",
+    "the beach rail must DECLARE its identity — a rail that declares none is how tennis courts got in");
+  ok(typeof RAIL_SELECT.beach.pick === "function" && /distMi <= BEACH_NEAR_MI/.test(railSelect),
+    "…and must still carry the 23-mile rule in its pick, which is a separate question from what it IS");
+  ok(admits({ id: "x", distMi: 3, name: "Holmes Beach Tennis Courts", primaryType: "tennis_court", types: ["tennis_court"] }) === false,
     "a tennis court three miles away is not Beach Day");
-  ok(RAIL_SELECT.beach.pick({ id: "x", distMi: 3, name: "Public Beach Access 5", primaryType: "beach", types: ["beach"] }) === false,
+  ok(admits({ id: "x", distMi: 3, name: "Public Beach Access 5", primaryType: "beach", types: ["beach"] }) === false,
     "nor is a numbered beach access, whatever Google types it");
-  ok(RAIL_SELECT.beach.pick({ id: "x", distMi: 3, name: "Siesta Beach", primaryType: "beach", types: ["beach"] }) === true,
+  ok(admits({ id: "x", distMi: 3, name: "Siesta Beach", primaryType: "beach", types: ["beach"] }) === true,
     "…while the actual beach passes");
+  ok(admits({ id: "x", distMi: 40, name: "Siesta Beach", primaryType: "beach", types: ["beach"] }) === false,
+    "…and a real beach forty miles away is still not Beach Day — the radius must not have been lost in the move");
+  ok(RAIL_SELECT.beach.identity({ id: "x", name: "Holmes Beach Tennis Courts", primaryType: "tennis_court", types: ["tennis_court"] }, {}) === false,
+    "the IDENTITY is what refuses the tennis court, not the distance gate standing in for it");
   ok(/beach: \{ pools: \["beaches", "summer"\]/.test(railSelect)
     && /distMi <= BEACH_NEAR_MI/.test(railSelect)
     && /p\.distMi != null/.test(railSelect),
