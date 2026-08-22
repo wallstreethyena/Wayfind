@@ -1,3 +1,54 @@
+## v8.33.0 - There is no max
+- Owner: "fuck the 12 max, removed the 12 max and lets have no max" ... "no more
+  max on anything."
+- Four ceilings removed, and every one of them had been described in the source
+  as reasonable:
+  - `MAX_CARDS = 12` (lib/railSelect.js) - the cards a rail may show. Its own
+    comment called it "cosmetic", which is exactly the problem: it was never a
+    quality rule. The identity decides membership and the score decides order,
+    so by the time a row reached it, it had already earned a card. It also
+    silently decided how much of the owner's own curation the product would
+    show - the batch-2 brief said "10-12 per slot" for no reason but this
+    constant. It had already crept back once (8, then 12).
+  - `NEARBY_POOL_CAP = 60` (lib/nearbyPool.js) - the candidates a pool hands on.
+    Justified as "several rails deep"; with no card ceiling there was nothing
+    left for it to be deep enough FOR. It was the fifteen-row cap that module
+    exists to delete, wearing a bigger number.
+  - two `out.slice(0, 40)` trims on the identity pools in lib/railsData.js.
+  - `RAIL_EXPOSURE_CAP = 2` - how many rails one place could ride. It shipped in
+    v8.19 against a real complaint ("the cards are very repetitive") and was
+    right for a codebase where rails had no identities and several drew the
+    unfiltered top of the same pool. Both halves of that changed: the rails got
+    identities this month, and with the ceiling gone the cap stopped buying
+    variety and started deleting inventory. Measured on a 40-restaurant fixture
+    it removed EIGHT of them from `eat` - not from the visible top, from the rail
+    entirely - because they also led best/today/datenight.
+- What survives, deliberately, and is now asserted so it is not deleted in the
+  name of the same instruction:
+  - `MIN_CARDS = 3`. The FLOOR is a promise about honesty - a rail that cannot
+    fill ships empty rather than borrowing another rail's places. It is the
+    opposite kind of rule from a ceiling.
+  - `NEARBY_TARGET_ROWS = 45`. It stops the 6-mile ring widening to 17 when it
+    is already full, which is the whole mechanism that keeps retrieval local.
+    It bounds RADIUS, never inventory.
+- Live effect, measured: Sarasota `eat` 12 -> 235 cards, `best` 12 -> 557,
+  `today` 12 -> 503, `datenight` 12 -> 150. Parrish `eat` 12 -> 40, `best` 166,
+  `tonight` 37. Total rows in one /api/rails response: 192 -> 1,727.
+- Payload: 1.5MB raw, 220KB brotli on the wire (unchanged from before the
+  removal - the extra rows are duplicates across rails and compress away),
+  715KB gzip. Safe to RENDER because only the selected rail's cards mount
+  (DaypartRail selPlaces) and every card image is lazy. The remaining cost is
+  JSON.parse of 1.5MB on a phone; a follow-up will dedupe the wire format
+  (~450 unique places behind 1,727 references) through the single adapter
+  lib/locationHonesty.js liveFromRailsResponse.
+- Guards 393 -> 395: check-no-card-cap (33 assertions) fails the build on any
+  ceiling returning under any name, proves by EXECUTION that 40 qualifying
+  restaurants produce a 40-card rail, and asserts the floor and the ladder
+  survive. test-rail-select, check-nearby-pool and test-dynamic-daily were each
+  followed to the new contract - test-rail-select now asserts the stronger
+  property that every row an axis selects REACHES its rail, and that no rail is
+  reordered.
+
 ## v8.31.3 - An outing, not merely an attractions-gated row
 - Found by checking PRODUCTION after v8.31.2 shipped, not by assuming the fix
   was done. "Places You'd Never Find" near Parrish came back: Elite Medical Spa

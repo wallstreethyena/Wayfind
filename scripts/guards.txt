@@ -630,3 +630,14 @@ node scripts/check-outing-identity.mjs
 # row, a validator that independently refuses laundered provenance, and the
 # 9.2 floor agreeing with lib/wayfindScore.js in both directions.
 node scripts/check-scout-law.mjs
+# 2026-08-22 — THERE IS NO MAX (owner: "fuck the 12 max ... no more max on
+# anything"). MAX_CARDS, NEARBY_POOL_CAP, the two 40-row identity-pool slices
+# and RAIL_EXPOSURE_CAP are all gone. A ceiling is the easiest thing here to
+# reintroduce by accident because every disguise looks like tidy code — a
+# .slice(0,12) while rendering, a "sane default" while paginating — and it
+# always LOOKS correct: a rail trimmed to twelve is a full, beautifully ordered
+# rail, and nothing renders to say what was thrown away. MAX_CARDS already came
+# back twice (8, then 12), described in source as "cosmetic" both times. The
+# MIN_CARDS floor and the distance ladder survive and are asserted here on
+# purpose: they bound honesty and radius, never inventory.
+node scripts/check-no-card-cap.mjs
