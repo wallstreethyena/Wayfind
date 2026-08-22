@@ -1,3 +1,33 @@
+## v8.30.1 - A pizzeria was a breakfast pick
+- Live on gowayfind.com, screenshotted by the owner: "Best Breakfast Picks near
+  Parrish" served **Pizza Haven - NY Style** at position 8.
+- Root cause, and it is not the `diner` token. Google's `types` array is
+  unordered EVIDENCE; the primary type is the CLAIM. lib/breakfast.js weighed
+  every token equally, so `diner` - which Google hangs on counter-service rooms
+  of any cuisine - outvoted `pizza_restaurant`. Worse, existingTypeSignals()
+  returns `types` INSTEAD of the primary type whenever `types` is non-empty,
+  which is always on a ranked row, so nothing in that file could see what the
+  place actually was. Same disease as v8.19's events rail, where a pub rode a
+  secondary `event_venue` token onto a list of ticketed rooms.
+- The cure, in the order it runs: a breakfast PRIMARY admits; a primary naming
+  another cuisine refuses, ahead of the name rule so a "Pizza Cafe" cannot talk
+  its way back in on the word cafe; the name rule still rescues the counters
+  Google mistypes; a LONE SECONDARY `diner` is not evidence; secondary
+  breakfast tokens count last.
+- `italian_restaurant` is deliberately NOT a vetoed cuisine - an Italian
+  bakery-cafe is a real breakfast format and Bradenton's Arte Caffe is one.
+  Drawing the veto one cuisine wider would have taken a genuine answer with it,
+  and check-breakfast-identity fails if someone does.
+- MEASURED, not assumed: across the entire inventory, every place whose only
+  breakfast token is a secondary `diner` is something else (Pizza Haven,
+  Skyline Chili, Graze South Tampa, Mrs. Potato, Pickford's Sundries), and
+  every genuine institution that carries `diner` carries `breakfast_restaurant`
+  beside it (Cracker Barrel, IHOP, Keke's, Waffle House, Denny's).
+- Also cleared from the Parrish rail by the same rule: a Vietnamese food hall,
+  a Mexican kitchen and a sub shop, each riding one secondary token.
+- New guard scripts/check-breakfast-identity.mjs - 71 assertions over 28 rows
+  measured from live inventory, six mutations red-proved. Suite 387 -> 388.
+
 ## v8.30.0 - The owner's handpicked board, for one card and one hour
 - 225 slots handed over: 15 picks each for morning, afternoon and night across
   Parrish, Bradenton, Lakewood Ranch, Palmetto and Ellenton. Then, on a
