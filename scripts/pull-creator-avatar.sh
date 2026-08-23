@@ -7,9 +7,14 @@
 # 320px+ original — no login, no scraping of a walled page.
 APPID='936619743392459'
 BROWSER='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36'
-DEST=/Users/gabrielpereira/Projects/wf-creators-b7/public/creators
-TMP=/Users/gabrielpereira/Projects/wf-harvest/av
-mkdir -p "$TMP"
+# Paths derive from THIS SCRIPT's location, never a hardcoded checkout.
+# The first version hardcoded one worktree and silently wrote nowhere when
+# run from another — `cp` failed, the loop carried on, and the summary line
+# printed an empty byte count instead of stopping.
+REPO=${0:A:h:h}
+DEST="$REPO/public/creators"
+TMP=$(mktemp -d)
+mkdir -p "$TMP" "$DEST"
 for H in "$@"; do
   URL=$(curl -s --max-time 25 -H "x-ig-app-id: $APPID" -A "$BROWSER" \
     "https://www.instagram.com/api/v1/users/web_profile_info/?username=$H" \
@@ -26,7 +31,7 @@ for H in "$@"; do
     S=$([ "$W" -lt "$Ht" ] && echo "$W" || echo "$Ht")
     sips -c "$S" "$S" "$TMP/$H.jpg" >/dev/null 2>&1
     sips -z 240 240 "$TMP/$H.jpg" >/dev/null 2>&1
-    cp "$TMP/$H.jpg" "$DEST/$H.jpg"
+    cp "$TMP/$H.jpg" "$DEST/$H.jpg" || { echo "   COPY FAILED to $DEST"; exit 1; }
     echo "   -> committed $(stat -f%z "$DEST/$H.jpg") bytes $(sips -g pixelWidth -g pixelHeight "$DEST/$H.jpg" | tail -2 | tr -d ' \n')"
   ;; *) echo "   NOT AN IMAGE, skipped";; esac
 done
