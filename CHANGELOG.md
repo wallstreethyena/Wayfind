@@ -1,3 +1,55 @@
+## v8.41.0 - The menu takes you to the place cards
+
+- Owner, on a screenshot of the homepage with Stays underlined and the amazon
+  rail still filling the screen: "when i click on stays the page does not go to
+  the area where the place cards are displayed below the amazon rail card - this
+  is something that was happening in other areas of the menu."
+- MEASURED FIRST, on production. Instrumenting Element.prototype.scrollTo on
+  gowayfind.com and tapping a sub-chip logged exactly ONE call - scrollTo({top:0})
+  - and nothing else. So BOTH halves of the nav were dead, not just the tabs:
+  - The six category TABS had no landing at all. v8.11 gave the sub-chips a
+    jump-to-results and never gave the tabs one, so the tap that actually chooses
+    the category answered with a tray of chips and a page that had not moved.
+  - The SUB-CHIPS had one that could not fire. It measured the anchor in a single
+    requestAnimationFrame, and the effect that zeroes the scroller on every
+    [cat, sub, vibe, ...] change ran after it and cancelled the smooth scroll it
+    had just started. Even when it survived, one frame is earlier than the blocks
+    above it unmounting and the picks arriving, so it aimed at a stale offset.
+- lib/landOnResults.js is now the ONE landing, extracted from the rail drop's own
+  v8.27.2 settlement (the same complaint, reported 2026-08-20) and shared with it:
+  scrollIntoView because the shell scrolls .wf-scrollarea and window.scrollTo is a
+  no-op inside it; a ResizeObserver that re-lands until the results are on screen;
+  abandonment on any wheel/touch/keypress; a hard ceiling. Three near-copies of
+  this is how one bug got reported three times.
+- The reset effect now stands down while a landing is in flight (landingRef), so
+  the two mechanisms cannot cancel each other any more.
+- THE LANDING REVEALS A REAL CARD, not just the top of the block. Measured at
+  390x844 on a production build: landing the block at the top puts the first
+  Stays card at 354px of a 590px scrollport, but the first FOOD card at 599px -
+  one pixel under the fold, because Food's block carries the local read AND the
+  bookable rail above its cards. When the head is too tall for both, the landing
+  aligns the first card's bottom to the fold instead: the card is on screen and
+  the bookable rail stays directly above it. After: 322px. Skeletons are excluded
+  from the probe - landing on a grey placeholder is landing on nothing - and the
+  landing stays awake until a real card exists, because the picks arrive from a
+  live Places search seconds after the tap.
+- OTHER AREAS OF THE MENU, found by the new guard rather than by guessing:
+  - Itinerary's category row called setScreen("home"). There is no "home" screen
+    - the feed is "suggested" - so a category tap there left the reader on an
+    empty scroller with no itinerary, no feed and nothing selected in the nav.
+  - The giveaway prompt's "Find a place to share" called pickBrowse, which
+    TOGGLES: for a reader already browsing food it cleared the category instead
+    of showing one.
+  Both now go through openBrowse, the single entry point that pops to the feed,
+  sets the category without toggling, and lands.
+- Guards 400 -> 401: check-lands-on-results (63 assertions) pins the settlement's
+  four parts, both nav handlers, the reveal's scrollport measurement, the probe's
+  cross-file class contract, the reset's stand-down, and - derived from the
+  shell's own dispatch, not from a hand-written list - that no setScreen("...")
+  anywhere in app/ names a screen that does not render. check-shell-scroll,
+  check-collection-look and test-session-map-parity follow the extraction instead
+  of assuming the code is still inline; none of the three is weakened.
+
 ## v8.33.1 - One copy of each place on the wire
 - Measured in PRODUCTION right after v8.33 shipped, not assumed: one Sarasota
   /api/rails response was 1,885 rows, 1,691KB raw, and Vercel served it at

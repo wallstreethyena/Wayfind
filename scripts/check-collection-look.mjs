@@ -234,8 +234,17 @@ ok(!/experienceTags\(p, 1\)/.test(read("app/components/CreatorFinds.js")), "crea
   const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
   const navOpen = home.split("onNavOpen={")[1]?.split("onNavSub={")[0] || "";
   const navSub = home.split("onNavSub={")[1]?.split("aria-")[0]?.slice(0, 4000) || "";
-  ok(/screen !== "suggested"/.test(navOpen) && /setScreen\("suggested"\)/.test(navOpen),
-    "onNavOpen pops a standalone screen back to the feed before applying the category");
+  // v8.41 — onNavOpen's copy of the pop MOVED into openBrowse, the one entry
+  // point every off-feed category control now shares (the Itinerary row had a
+  // third copy of this and dispatched to a screen that does not exist). The
+  // ROLE is unchanged and this assertion is not weakened: the gate and the
+  // setter must still both be present, and onNavOpen must reach them — the
+  // probe just follows the call instead of assuming the body is inline.
+  const openBrowse = home.split("const openBrowse = (id) =>")[1]?.slice(0, 800) || "";
+  ok(/screen !== "suggested"/.test(openBrowse) && /setScreen\("suggested"\)/.test(openBrowse),
+    "openBrowse pops a standalone screen back to the feed before applying the category");
+  ok(/openBrowse\(/.test(navOpen),
+    "onNavOpen goes through openBrowse — that is where the pop back to the feed lives");
   ok(/screen !== "suggested"/.test(navSub) && /setScreen\("suggested"\)/.test(navSub),
     "onNavSub pops a standalone screen back to the feed — a sub-filter tap always lands on place cards");
 }

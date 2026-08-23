@@ -67,6 +67,9 @@ import { emptyRailLive, liveFromRailsResponse } from "../../lib/locationHonesty.
 // created on a dev server or a preview deploy still carries the production host
 // (lib/site.js canonicalShareUrl — the "it previewed as localhost" bug).
 import { railShareIntent } from "../../lib/railShare.js";
+// v8.41 — the ONE landing, shared with the nav tabs in app/home.js. See the
+// effect below and lib/landOnResults.js for why it stopped being local code.
+import { landOnResults } from "../../lib/landOnResults.js";
 // v8.10 (owner, 2026-08-18: "there is no explanation of what the place is").
 // The ONE editorial resolver every place surface uses (#687 pattern) — known-for
 // research first, pool-cached blurb second, both fail-soft, no model in the
@@ -429,44 +432,25 @@ export default function DaypartRail({
   // every height change and stops the instant the picks are on screen, on any
   // touch of the reader's own, or at a hard 4s ceiling. Our own scrolling never
   // resizes the drop, so this cannot feed itself.
+  //
+  // v8.41 — THE SETTLEMENT NOW LIVES IN lib/landOnResults.js, unchanged in
+  // behaviour and no longer unique to this component. The nav tabs had the same
+  // job and their own, weaker copy of it (one rAF, no observer, no abort), which
+  // is why the owner reported the identical "nothing happened" a second time
+  // from a different control. One implementation is the fix; this call site is
+  // deliberately left with its full history above it, because the history is
+  // what stops the next author rewriting a fourth version.
+  //
+  // `force` is OFF here on purpose: a drop that already sits in view should be
+  // left where the reader put it. The nav passes it, because a tab tap must
+  // always visibly answer.
   useEffect(() => {
     if (!selected || typeof window === "undefined") return undefined;
-    const sec = menuRef.current;
-    if (!sec) return undefined;
-    const reduced = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-    let f1 = 0, f2 = 0, ceiling = 0, ro = null, settled = false, userMoved = false;
-    const noteUser = () => { userMoved = true; };
-    const onScreen = () => {
-      const el = pcRef.current || sec;
-      const top = el.getBoundingClientRect().top;
-      return top >= -8 && top <= (window.innerHeight || 0) * 0.72;
-    };
-    const land = (behavior) => {
-      try { sec.scrollIntoView({ behavior, block: "start", inline: "nearest" }); }
-      catch (e) { try { sec.scrollIntoView(true); } catch (e2) {} }
-    };
-    const settle = (behavior) => {
-      if (settled || userMoved) return;
-      if (onScreen()) { settled = true; return; }
-      land(behavior);
-    };
-    const stop = () => { settled = true; if (ro) { try { ro.disconnect(); } catch (e) {} ro = null; } };
-    f1 = requestAnimationFrame(() => {
-      f2 = requestAnimationFrame(() => {
-        settle(reduced ? "auto" : "smooth");
-        if (reduced) { stop(); return; }
-        for (const ev of ["wheel", "touchmove", "keydown"]) window.addEventListener(ev, noteUser, { passive: true, once: true });
-        try { ro = new ResizeObserver(() => settle("auto")); ro.observe(sec); } catch (e) { ro = null; }
-        ceiling = window.setTimeout(stop, 4000);
-      });
-    });
+    if (!menuRef.current) return undefined;
+    const cancel = landOnResults(() => menuRef.current, { probe: () => pcRef.current });
     if (pcRef.current) pcRef.current.scrollLeft = 0;
     syncPc();
-    return () => {
-      cancelAnimationFrame(f1); cancelAnimationFrame(f2); window.clearTimeout(ceiling);
-      if (ro) { try { ro.disconnect(); } catch (e) {} }
-      for (const ev of ["wheel", "touchmove", "keydown"]) window.removeEventListener(ev, noteUser);
-    };
+    return cancel;
   }, [selected, syncPc]);
 
   useEffect(() => {

@@ -524,6 +524,13 @@ node scripts/check-position-memory.mjs
 # three times: the rail drop must land with scrollIntoView, and the existing
 # window.scroll* debt list may only shrink.
 node scripts/check-shell-scroll.mjs
+# v8.41 — the BEHAVIOUR half of the same complaint: check-shell-scroll holds the
+# mechanism (never steer through window), this holds the outcome. Every control
+# that replaces the feed lands the reader on it, through ONE implementation
+# (lib/landOnResults.js), and no control dispatches to a screen that does not
+# render. The nav tabs had neither, and the owner reported "nothing happened"
+# for the third time in three days.
+node scripts/check-lands-on-results.mjs
 # v8.27 — a horizontal rail may not hand the reader's swipe to the browser. The
 # overscroll-behavior on <body> never applied (body is not a scroll container in
 # this shell), so rail swipes chained out and iOS claimed them as the back
