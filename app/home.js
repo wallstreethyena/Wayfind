@@ -174,6 +174,7 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 // July 2026 decomposition (G0): design tokens and stateless helpers live in the
 // eager shared kit so extracted screens/sheets can import them without home.js.
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET, CHAMPAGNE, MEDALLION_SHADOW, TRENDING_POPULARITY_THRESHOLD, SHADOW } from "./components/kit";
+import { sponsorRailNear, partnerCollectionById, hydratePartnerCollection } from "../lib/partnerCollections";
 import { COLLECTION } from "./components/collectionTheme";
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
 import { frontPageEvents, bestFirst } from "../lib/frontEvents";
@@ -271,7 +272,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.34.0";
+const BUILD_ID = "v8.38.0";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -4066,6 +4067,23 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       if (!pool.length) { showToast("Nothing found for " + hol.name + " nearby yet"); return; }
       setHookDetail({ id: "hol-" + hol.key, key: "hol-" + hol.key, theme: "hol-" + hol.key, hol: hol.key, title: content.headline(locName), themeTitle: content.headline(locName), label: hol.name + " picks", take: content.sub, themeBody: content.sub, emoji: hol.emoji, accent: theme.accent, places: pool });
     } catch (e) { showToast("Could not load " + hol.name + " picks"); }
+  };
+
+  // Neighborhood partner collection (lib/partnerCollections.js). Unlike a
+  // holiday, the places are baked and owner-asserted, so this needs no nearby
+  // search and no discovery gate — it hydrates the curated list (distance from
+  // the reader + the LIVE Wayfind Score) and opens the same detail sheet.
+  const openPartnerCollection = async (coll) => {
+    if (!coll) return;
+    try { logEvent("partner_open", null, { partner: coll.id }); } catch (e) {}
+    // The heavy place data (baked photo refs) is lazy-imported here so it never
+    // enters the eager home bundle (check-bundle's 500KB budget). The sheet is
+    // itself lazy, so one more dynamic import on open costs nothing extra.
+    let places = [];
+    try { const mod = await import("../lib/partnerCollectionsData"); places = mod.partnerPlacesFor(coll.id); } catch (e) { return; }
+    const hd = hydratePartnerCollection(coll, places, center);
+    if (!hd || !hd.places || !hd.places.length) return;
+    setHookDetail(hd);
   };
   // v5.7x (home-menu consolidation): six tiles, one action model. Every
   // CURATED entry carries a `rank` comparator \u2014 food/nightlife/experiences/
@@ -8759,6 +8777,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         lng={railMenu.lng}
         initialDaypart={railMenu.daypart}
         center={locResolved ? center : null}
+        // Coconut Grove sponsor tile — geo-gated (sponsorRailNear returns null
+        // outside the 20mi gate), pinned to the front of the amazon rail, opens
+        // the curated partner sheet on tap. Only when location has resolved.
+        sponsor={locResolved && center ? sponsorRailNear(center.lat, center.lng) : null}
+        onOpenPartner={(pid) => { const c = partnerCollectionById(pid); if (c) openPartnerCollection(c); }}
         onCoverage={setRailsCoverage}
         // v8.29.16 — the events tile opens the events screen rather than a drop
         // of ticketed venues. What is behind it is the same feed the home rail
@@ -9984,6 +10007,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                         </div>
                       )}
                       {renderWorldCupCard(true)}
+                      {/* The Coconut Grove sponsor now lives in the amazon rail
+                          (DaypartRail sponsor tile), not here — see sponsorRail
+                          + onOpenPartner below. */}
                       {(() => { const _h = Hol.activeHoliday(new Date()); if (!_h) return null; const _c = Hol.themeFor(_h.key); const _ct = Hol.contentFor(_h.key, _h.name); return (
                         <div style={{ borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _c.grad, border: `1px solid ${_c.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
                           <button type="button" className="wf-holiday-open" onClick={() => openHoliday(_h)} aria-label={_ct.headline(locName)} style={{ position: "absolute", inset: 0, zIndex: 1, opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />

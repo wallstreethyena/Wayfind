@@ -16,6 +16,12 @@ export default function HookDetailSheet({ ctx }) {
         const theme = hookDetail.theme || "best";
         const heroImage = hookDetail.heroImage || null;
         const premiumImagePage = !!heroImage;
+        // A partner splash is a tall, text-bearing graphic (its title + co-brand
+        // lockup live near the top), so we anchor the crop to the top instead of
+        // the centre and give it more height — otherwise center/cover would slice
+        // out the middle band and drop the partner's badge.
+        const heroPos = hookDetail.partnerSplash ? "center top" : "center";
+        const heroMinH = hookDetail.partnerSplash ? (isDesktop ? 460 : 430) : (isDesktop ? 390 : 350);
         const premiumCardBg = "linear-gradient(145deg, rgba(27,36,51,.98) 0%, rgba(14,21,32,.99) 100%)";
         const premiumCardBorder = "rgba(148,163,184,.22)";
         const isLiked = hookLikes.has(hookDetail.id);
@@ -49,7 +55,7 @@ export default function HookDetailSheet({ ctx }) {
         return (
           <div style={{ position: "fixed", inset: 0, zIndex: 950, background: premiumImagePage ? `radial-gradient(circle at 50% 18%, ${acc}12 0%, transparent 34%), ${C.bg}` : C.bg, display: "flex", flexDirection: "column", overflowY: "auto", overscrollBehavior: "contain", alignItems: isDesktop ? "center" : "stretch" }}>
             {/* Gradient hero header */}
-            <div style={{ background: heroImage ? `linear-gradient(90deg, rgba(3,7,14,.82) 0%, rgba(3,7,14,.50) 48%, rgba(3,7,14,.18) 100%), linear-gradient(180deg, rgba(4,8,16,.16) 0%, rgba(4,8,16,.38) 48%, ${C.bg} 100%), url("${heroImage}") center / cover no-repeat` : `linear-gradient(155deg, ${acc}2A 0%, ${C.bg} 72%)`, borderBottom: premiumImagePage ? "none" : `1px solid ${acc}35`, padding: premiumImagePage ? "max(18px, calc(env(safe-area-inset-top) + 14px)) 18px 82px" : "max(16px, calc(env(safe-area-inset-top) + 12px)) 16px 18px", minHeight: heroImage ? (isDesktop ? 390 : 350) : undefined, flexShrink: 0, width: "100%", maxWidth: isDesktop ? 920 : "none", boxSizing: "border-box", position: "relative" }}>
+            <div style={{ background: heroImage ? `linear-gradient(90deg, rgba(3,7,14,.82) 0%, rgba(3,7,14,.50) 48%, rgba(3,7,14,.18) 100%), linear-gradient(180deg, rgba(4,8,16,.16) 0%, rgba(4,8,16,.38) 48%, ${C.bg} 100%), url("${heroImage}") ${heroPos} / cover no-repeat` : `linear-gradient(155deg, ${acc}2A 0%, ${C.bg} 72%)`, borderBottom: premiumImagePage ? "none" : `1px solid ${acc}35`, padding: premiumImagePage ? "max(18px, calc(env(safe-area-inset-top) + 14px)) 18px 82px" : "max(16px, calc(env(safe-area-inset-top) + 12px)) 16px 18px", minHeight: heroImage ? heroMinH : undefined, flexShrink: 0, width: "100%", maxWidth: isDesktop ? 920 : "none", boxSizing: "border-box", position: "relative" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
                 <button onClick={() => setHookDetail(null)} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: premiumImagePage ? "rgba(8,14,24,.58)" : C.card, border: `1px solid ${premiumImagePage ? "rgba(255,255,255,.20)" : C.border}`, borderRadius: 999, color: acc, fontSize: 14, fontWeight: 800, cursor: "pointer", padding: "8px 15px", backdropFilter: premiumImagePage ? "blur(14px)" : undefined, boxShadow: premiumImagePage ? "0 8px 24px rgba(0,0,0,.22)" : undefined }}>‹ Back</button>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -63,12 +69,26 @@ export default function HookDetailSheet({ ctx }) {
                 </div>
               </div>
               <div style={{ maxWidth: premiumImagePage ? 620 : undefined, textShadow: premiumImagePage ? "0 2px 16px rgba(0,0,0,.72)" : undefined }}>
-              <div style={{ fontSize: 10, fontWeight: 900, color: acc, textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: 8 }}>{hookDetail.emoji} {hookDetail.label}</div>
-              <div style={{ fontSize: premiumImagePage ? (isDesktop ? 34 : 29) : 24, fontWeight: 850, color: C.text, lineHeight: 1.12, letterSpacing: premiumImagePage ? "-0.7px" : undefined, marginBottom: hookDetail.themeBody ? 10 : 4 }}>
-                {hookDetail.themeTitle || hookDetail.hook}
-              </div>
-              {hookDetail.themeBody && (
-                <div style={{ fontSize: premiumImagePage ? 15 : 13.5, color: premiumImagePage ? "#E4EAF2" : C.light, lineHeight: 1.55, marginBottom: 10 }}>{hookDetail.themeBody}</div>
+              {/* A partner splash (lib/partnerCollections.js) carries its OWN
+                  title art baked into heroImage, so the sheet suppresses its
+                  eyebrow/title/body here to avoid printing the name twice, and
+                  shows the partnership credit instead. */}
+              {!hookDetail.partnerSplash && (
+                <>
+                  <div style={{ fontSize: 10, fontWeight: 900, color: acc, textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: 8 }}>{hookDetail.emoji} {hookDetail.label}</div>
+                  <div style={{ fontSize: premiumImagePage ? (isDesktop ? 34 : 29) : 24, fontWeight: 850, color: C.text, lineHeight: 1.12, letterSpacing: premiumImagePage ? "-0.7px" : undefined, marginBottom: hookDetail.themeBody ? 10 : 4 }}>
+                    {hookDetail.themeTitle || hookDetail.hook}
+                  </div>
+                  {hookDetail.themeBody && (
+                    <div style={{ fontSize: premiumImagePage ? 15 : 13.5, color: premiumImagePage ? "#E4EAF2" : C.light, lineHeight: 1.55, marginBottom: 10 }}>{hookDetail.themeBody}</div>
+                  )}
+                </>
+              )}
+              {hookDetail.partnerSplash && hookDetail.guide && (
+                <div style={{ fontSize: isDesktop ? 16 : 14.5, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.4, letterSpacing: "-0.2px", marginBottom: 8 }}>{hookDetail.guide}</div>
+              )}
+              {hookDetail.partnerSplash && hookDetail.creditLine && (
+                <div style={{ fontSize: 11.5, fontWeight: 700, color: "#E4EAF2", lineHeight: 1.5, marginBottom: 6 }}>{hookDetail.creditLine}</div>
               )}
               <div style={{ fontSize: 11.5, color: C.muted, fontWeight: 600 }}>
                 {sheetLoading ? "Finding the best picks near you…" : (themePlaces.length + " " + (theme === "skip" ? "to avoid" : theme === "drive" ? "worth the trip" : "curated picks") + " · Tap any to see full details")}
@@ -193,8 +213,27 @@ export default function HookDetailSheet({ ctx }) {
                             )))}
                           </div>
                         )}
-                        {isFeatured && (() => { const _w1 = whyFirst(p, themePlaces); return _w1 ? <div style={{ fontSize: 12, fontWeight: 700, color: "#FFFFFF", background: acc + "14", border: "1px solid " + acc + "3D", borderRadius: 9, padding: "7px 10px", marginBottom: 9, lineHeight: 1.4 }}>{_w1}</div> : null; })()}
-                        {(() => { const _isFam = !!(hookDetail && (hookDetail.fetchKey === "family" || hookDetail.theme === "family")); const _fam = _isFam ? Fam.familyWhy(p, { temp: weather ? weather.temp : null, rainy: !!(weather && /rain|storm|shower/i.test(weather.label || "")), distMi: p.distMi, openNow: liveOpen(p) }) : null; const why = _isWC ? WCC.wcCopy(p, themePlaces, i) : (_fam ? _fam.line : pickReason(p, { rank: i + 1, total: themePlaces.length, next: themePlaces[i + 1], weather, night: isNightNow(weather), foodContext: (theme === "best" || theme === "top5" || theme === "food" || /food|eat|breakfast|lunch|dinner/i.test(hookDetail.themeTitle || "")) })); return why ? <div style={{ fontSize: 12.5, color: _fam ? C.light : C.light, fontWeight: _fam ? 700 : 400, lineHeight: 1.4, marginBottom: isFeatured ? 8 : 2 }}>{why}</div> : null; })()}
+                        {/* Partner editorial (the CGNA's curated take, from
+                            lib/partnerCollectionsData.js `ed`). Present ONLY on
+                            partner cards; every other sheet has no p.editorial,
+                            so this renders nothing and the generic why below runs
+                            unchanged. This is the "why it was picked / where to
+                            go / what not to miss" the owner asked for. */}
+                        {p.editorial && (() => { const ed = p.editorial; return (
+                          <div style={{ marginTop: 2, marginBottom: isFeatured ? 8 : 2 }}>
+                            {(ed.role || ed.goodFor) && (
+                              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
+                                {ed.role && <span style={{ fontSize: 10.5, fontWeight: 900, letterSpacing: "0.6px", textTransform: "uppercase", color: acc, background: acc + "1E", border: `1px solid ${acc}55`, borderRadius: 999, padding: "3px 9px" }}>{ed.role}</span>}
+                                {ed.goodFor && <span style={{ fontSize: 11, fontWeight: 700, color: C.muted }}>{ed.goodFor}</span>}
+                              </div>
+                            )}
+                            {ed.why && <div style={{ fontSize: 13, color: premiumImagePage ? "#E9EEF6" : C.light, lineHeight: 1.5, fontWeight: 500, marginBottom: (ed.order || ed.tip) ? 8 : 0 }}>{ed.why}</div>}
+                            {ed.order && (<div style={{ fontSize: 12.5, color: premiumImagePage ? "#EAF2FF" : C.text, lineHeight: 1.45, marginBottom: ed.tip ? 5 : 0 }}><span style={{ fontWeight: 800, color: acc }}>Don't miss </span>{ed.order}</div>)}
+                            {ed.tip && (<div style={{ fontSize: 12, color: C.muted, lineHeight: 1.45 }}><span style={{ fontWeight: 800, color: premiumImagePage ? "#CBD5E1" : C.light }}>Insider tip </span>{ed.tip}</div>)}
+                          </div>
+                        ); })()}
+                        {isFeatured && !p.editorial && (() => { const _w1 = whyFirst(p, themePlaces); return _w1 ? <div style={{ fontSize: 12, fontWeight: 700, color: "#FFFFFF", background: acc + "14", border: "1px solid " + acc + "3D", borderRadius: 9, padding: "7px 10px", marginBottom: 9, lineHeight: 1.4 }}>{_w1}</div> : null; })()}
+                        {(() => { if (p.editorial) return null; const _isFam = !!(hookDetail && (hookDetail.fetchKey === "family" || hookDetail.theme === "family")); const _fam = _isFam ? Fam.familyWhy(p, { temp: weather ? weather.temp : null, rainy: !!(weather && /rain|storm|shower/i.test(weather.label || "")), distMi: p.distMi, openNow: liveOpen(p) }) : null; const why = _isWC ? WCC.wcCopy(p, themePlaces, i) : (_fam ? _fam.line : pickReason(p, { rank: i + 1, total: themePlaces.length, next: themePlaces[i + 1], weather, night: isNightNow(weather), foodContext: (theme === "best" || theme === "top5" || theme === "food" || /food|eat|breakfast|lunch|dinner/i.test(hookDetail.themeTitle || "")) })); return why ? <div style={{ fontSize: 12.5, color: _fam ? C.light : C.light, fontWeight: _fam ? 700 : 400, lineHeight: 1.4, marginBottom: isFeatured ? 8 : 2 }}>{why}</div> : null; })()}
                         {isFeatured && (
                           <div style={{ fontSize: 12.5, color: acc, fontWeight: 700 }}>See full details →</div>
                         )}

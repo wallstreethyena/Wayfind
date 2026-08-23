@@ -124,8 +124,15 @@ ok(/const railMenuBand = railMenu \? \(/.test(code),
     // loud: they are read ONLY inside the drop, never in the rail's own markup,
     // so they cannot delay or change the first paint either. The moment one is
     // read outside the drop it stops belonging on this list.
+    // `sponsor` (the geo-gated neighborhood partner tile) belongs here for the
+    // SAME reason as `center`: it is passed as `locResolved && center ? … : null`,
+    // so at first paint — before geolocation resolves — it is null and the rail
+    // renders entirely from its server props. The sponsor tile is ADDITIVE and
+    // appears only after location resolves; it can no more blank the first
+    // screen than `center` can. (If it were ever passed unconditionally, it
+    // would stop belonging on this list.)
     const NON_CONTENT = new Set([
-      "center", "isSaved", "isOnTrip", "initialRail",
+      "center", "sponsor", "isSaved", "isOnTrip", "initialRail",
       "liked", "disliked", "isLiked", "isDisliked",
       "memberSignalsFor", "applyMemberSignal",
     ]);

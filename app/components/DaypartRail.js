@@ -208,6 +208,12 @@ export default function DaypartRail({
   // fallback), exactly like every other in-app card. Nullable for the /v8
   // preview route, which keeps the navigation behavior.
   onOpenPlace = null,
+  // A sponsor/partner rail (e.g. Coconut Grove) hands its collection id up to
+  // home.js, which opens the curated partner sheet — the tile never navigates.
+  // `sponsor` is the synthetic rail object itself (already geo-gated by home.js,
+  // or null); `onOpenPartner` is the callback its tile fires.
+  sponsor = null,
+  onOpenPartner = null,
   // v8.23 — SHARE. The tile hands an intent up rather than opening a sheet
   // itself, because app/home.js already owns the hard part: on iOS a clipboard
   // write consumes the tap's transient user activation, so the native sheet has
@@ -236,13 +242,22 @@ export default function DaypartRail({
   const menuRef = useRef(null);
   const shown = live || { places: {}, thin: thin || [], region: region || null, citySlug: citySlug || null, cityLabel: cityLabel || "" };
   const thinSet = useMemo(() => new Set(shown.thin), [shown.thin]);
-  const railById = useMemo(() => new Map(rails.map((r) => [r.id, r])), [rails]);
+  const railById = useMemo(() => new Map((sponsor ? [sponsor, ...rails] : rails).map((r) => [r.id, r])), [sponsor, rails]);
   // NOTE on `artStale`: a rail can be renamed in code while the reader keeps
   // seeing the old claim, because the headline on these tiles is PIXELS.
   // `trending` still reads "EXPLODING TRENDS NEAR YOU" in the artwork, and the
   // Exploding Trends accordion is dark (removed 2026-08-16). The stale tile is
   // hidden — do not remount the accordion; do not advertise a dark surface.
-  const order = useMemo(() => orderFor(daypart, rails.map((r) => r.id)), [daypart, rails]);
+  // A SPONSOR tile (a geo-gated neighborhood partner, e.g. Coconut Grove) is
+  // injected here as a SYNTHETIC rail — home.js passes it already gated by the
+  // reader's location, or null. It is NOT added to lib/rails.js RAILS, so the
+  // canonical 15-rail identity/route/rotation guards are untouched; it just
+  // rides the same tile markup and pins to the FRONT ("Top Sponsor").
+  const allRails = useMemo(() => (sponsor ? [sponsor, ...rails] : rails), [sponsor, rails]);
+  const order = useMemo(() => {
+    const base = orderFor(daypart, rails.map((r) => r.id));
+    return sponsor ? [sponsor.id, ...base] : base;
+  }, [daypart, rails, sponsor]);
   const band = DAYPARTS[daypart] || DAYPARTS.afternoon;
 
   // Re-rank when the reader is meaningfully somewhere else. The threshold is
@@ -470,6 +485,10 @@ export default function DaypartRail({
       e.preventDefault();
     }
     if (id === "events" && onOpenEvents) { onOpenEvents(); return; }
+    // A sponsor/partner tile opens the curated partner sheet instead of the
+    // in-rail drop — the whole tile is the ad; the payoff is the featured list.
+    const _r = railById.get(id);
+    if (_r && _r.partner && onOpenPartner) { onOpenPartner(_r.partner); return; }
     if (selected === id) close(); else open(id, "rail");
   };
 
@@ -653,13 +672,17 @@ export default function DaypartRail({
                     {href
                       ? <a className="wf8-tlink" href={href} aria-label={label} onClick={(e) => tileClick(e, id)}>{art}</a>
                       : <button type="button" className="wf8-tlink" aria-label={label} onClick={(e) => tileClick(e, id)}>{art}</button>}
-                    <button
-                      type="button"
-                      className="wf8-tshare"
-                      aria-label={`Share ${r.title}`}
-                      title={`Share ${r.title}`}
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); share(r); }}
-                    ><ShareGlyph /></button>
+                    {/* A sponsor tile is a paid unit, not a shareable list —
+                        it has no route to share, so it shows no share control. */}
+                    {r.sponsor ? null : (
+                      <button
+                        type="button"
+                        className="wf8-tshare"
+                        aria-label={`Share ${r.title}`}
+                        title={`Share ${r.title}`}
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); share(r); }}
+                      ><ShareGlyph /></button>
+                    )}
                     {said === id ? <span className="wf8-tsaid" role="status">Link copied</span> : null}
                   </div>
                 );
