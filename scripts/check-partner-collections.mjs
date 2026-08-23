@@ -25,6 +25,7 @@ import {
   PARTNER_COLLECTIONS, partnerCollectionsNear, hydratePartnerCollection, milesBetween,
   sponsorRailNear, partnerCollectionById,
 } from "../lib/partnerCollections.js";
+import { partnerPlacesFor } from "../lib/partnerCollectionsData.js";
 import { wayfindScore } from "../lib/wayfindScore.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -33,6 +34,7 @@ const ok = (c, m) => { if (!c) { console.error("  FAIL: " + m); fails++; } };
 
 // ── the collection exists and is well-formed ───────────────────────────────
 const grove = PARTNER_COLLECTIONS.find((c) => c.id === "coconut-grove");
+const GROVE_PLACES = partnerPlacesFor("coconut-grove");
 ok(!!grove, "the coconut-grove collection must exist");
 if (grove) {
   ok(grove.radiusMi === 20, `Coconut Grove gate must be 20 miles (owner's rule), got ${grove.radiusMi}`);
@@ -41,14 +43,14 @@ if (grove) {
 
   // Every venue the CGNA asked us to feature is present, once.
   const want = ["Barracuda", "Amal", "Level 6", "Sapore di Mare", "BodyRok", "Ritz-Carlton Coconut Grove", "Grand Public"];
-  const have = grove.places.map((p) => p.name);
+  const have = GROVE_PLACES.map((p) => p.name);
   for (const w of want) ok(have.includes(w), `the featured list must include ${w} (have: ${have.join(", ")})`);
-  ok(grove.places.length === want.length, `expected exactly ${want.length} featured places, got ${grove.places.length}`);
-  ok(new Set(grove.places.map((p) => p.id)).size === grove.places.length, "no duplicate place ids");
+  ok(GROVE_PLACES.length === want.length, `expected exactly ${want.length} featured places, got ${GROVE_PLACES.length}`);
+  ok(new Set(GROVE_PLACES.map((p) => p.id)).size === GROVE_PLACES.length, "no duplicate place ids");
 
   // Each place carries the real inputs the score is computed from, and a valid
   // Google place id + photo ref (so the card renders).
-  for (const p of grove.places) {
+  for (const p of GROVE_PLACES) {
     ok(/^[A-Za-z0-9_-]{20,}$/.test(p.id), `${p.name}: needs a real Google place_id`);
     ok(typeof p.rating === "number" && p.rating > 0 && p.rating <= 5, `${p.name}: needs a real rating`);
     ok(Number.isInteger(p.reviews) && p.reviews >= 0, `${p.name}: needs a review count`);
@@ -83,11 +85,11 @@ ok(partnerCollectionsNear(NaN, NaN).length === 0, "a reader with no location see
 
 // ── THE SCORE: derived from THE formula, never hardcoded ────────────────────
 if (grove) {
-  const hd = hydratePartnerCollection(grove, grove.center);
-  ok(hd && hd.places.length === grove.places.length, "hydrate returns every place");
+  const hd = hydratePartnerCollection(grove, GROVE_PLACES, grove.center);
+  ok(hd && hd.places.length === GROVE_PLACES.length, "hydrate returns every place");
   ok(hd.partnerSplash === true && hd.heroImage === grove.heroImage, "hydrate carries the splash + hero for the sheet");
   for (const p of hd.places) {
-    const src = grove.places.find((x) => x.id === p.id);
+    const src = GROVE_PLACES.find((x) => x.id === p.id);
     ok(p.wfScore === wayfindScore(src.rating, src.reviews), `${p.name}: displayed score must equal wayfindScore(rating,reviews), got ${p.wfScore} vs ${wayfindScore(src.rating, src.reviews)}`);
     ok(Number.isFinite(p.distMi), `${p.name}: needs a distance from the reader`);
   }
@@ -99,6 +101,15 @@ ok(/sponsorRailNear/.test(home) && /partnerCollectionById/.test(home), "home.js 
 ok(/sponsor=\{locResolved && center \? sponsorRailNear\(center\.lat, center\.lng\)/.test(home), "the sponsor tile must be gated on the reader's resolved center");
 ok(/onOpenPartner=\{/.test(home), "home.js must pass onOpenPartner to open the collection sheet");
 ok(/openPartnerCollection\(/.test(home), "home.js must open the collection sheet");
+
+// BUNDLE DISCIPLINE (the Vercel check-bundle failure, 2026-08-23). The heavy
+// place data — ~800-char baked photo refs × 7 — must load LAZILY, not sit in the
+// eager home bundle. So: home.js dynamic-imports the data module, and the light
+// module carries none of those strings.
+ok(/import\("\.\.\/lib\/partnerCollectionsData"\)/.test(home), "home.js must LAZY-import partnerCollectionsData (keeps the heavy photo refs out of the eager bundle)");
+const lightSrc = readFileSync(join(ROOT, "lib/partnerCollections.js"), "utf8");
+ok(!/AVoNoX/.test(lightSrc), "lib/partnerCollections.js must NOT contain baked Google photo refs — they belong in the lazy partnerCollectionsData module");
+ok(partnerPlacesFor("coconut-grove").length === 7, "partnerPlacesFor('coconut-grove') must return the 7 venues");
 
 const rail = readFileSync(join(ROOT, "app/components/DaypartRail.js"), "utf8");
 ok(/sponsor \? \[sponsor, \.\.\.rails\]/.test(rail), "DaypartRail must inject the sponsor as a synthetic rail (not into RAILS)");

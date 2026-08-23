@@ -4073,10 +4073,15 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // holiday, the places are baked and owner-asserted, so this needs no nearby
   // search and no discovery gate — it hydrates the curated list (distance from
   // the reader + the LIVE Wayfind Score) and opens the same detail sheet.
-  const openPartnerCollection = (coll) => {
+  const openPartnerCollection = async (coll) => {
     if (!coll) return;
     try { logEvent("partner_open", null, { partner: coll.id }); } catch (e) {}
-    const hd = hydratePartnerCollection(coll, center);
+    // The heavy place data (baked photo refs) is lazy-imported here so it never
+    // enters the eager home bundle (check-bundle's 500KB budget). The sheet is
+    // itself lazy, so one more dynamic import on open costs nothing extra.
+    let places = [];
+    try { const mod = await import("../lib/partnerCollectionsData"); places = mod.partnerPlacesFor(coll.id); } catch (e) { return; }
+    const hd = hydratePartnerCollection(coll, places, center);
     if (!hd || !hd.places || !hd.places.length) return;
     setHookDetail(hd);
   };
