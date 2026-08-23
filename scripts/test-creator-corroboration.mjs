@@ -23,7 +23,7 @@ import {
   TREND_THRESHOLD, TREND_REASONS, TREND_SOURCE_WEIGHTS,
   CORROBORATION_MIN_CREATORS, CORROBORATION_FULL_CREATORS,
 } from "../lib/trendSignal.js";
-import { creatorCountFor, creatorVideosFor } from "../lib/creatorVideos.js";
+import { creatorCountFor, creatorVideosFor, allCreators as allCreatorsFn } from "../lib/creatorVideos.js";
 import { governedWayfindScore, wayfindScore, TRENDING_BONUS } from "../lib/wayfindScore.js";
 import { governedScoreOf } from "../lib/lawfulOrder.js";
 import { readFileSync, readdirSync } from "node:fs";
@@ -289,4 +289,54 @@ for (const junk of [null, undefined, NaN, "3", -4, Infinity, {}]) {
     `no runtime module imports the curation backlog — importing it puts the whole ~18KB straight back in the bundle. Offenders: ${bad.join(", ")}`);
 }
 
-console.log(`test-creator-corroboration: OK — ${pass} assertions (distinct people not posts, leading-signal floor, one mechanism for badge+rank, no monetized path, no silent duplicate entries)`);
+// ── 10. THE CAPTIONS STAYED WITH THEIR VIDEOS ──────────────────────────────
+// v8.43. Captions moved to lib/creatorCaptions.js so ~30KB of prose stops
+// riding the eager route bundle for readers who never open a card. The whole
+// move is only safe while two things hold, and neither is visible by reading
+// the diff:
+//   • every renderable video still resolves to its caption, through the
+//     "<entry key>|<url>" composite (the url alone is NOT unique — a round-up
+//     post carries a different caption per venue, which silently dropped 8
+//     captions the first time this was written);
+//   • only the THREE lazy/server surfaces import it, or the bytes come back.
+{
+  const { CAPTIONS, captionFor } = await import("../lib/creatorCaptions.js");
+  ok(Object.keys(CAPTIONS).length > 200, `the caption store is populated (${Object.keys(CAPTIONS).length})`);
+
+  const { creators, unattributed } = allCreatorsFn();
+  const all = [...creators.flatMap((c) => c.spots), ...unattributed];
+  ok(all.length > 200, `walked every renderable spot (${all.length})`);
+  const missing = all.filter((s) => !captionFor(s.video));
+  ok(missing.length === 0,
+    `every renderable video still resolves its caption after the move — ${missing.length} lost` +
+    (missing.length ? ": " + missing.slice(0, 5).map((s) => s.key).join(", ") : ""));
+
+  // The composite key really is doing work: the round-up posts share a url.
+  const byUrl = new Map();
+  for (const s of all) byUrl.set(s.video.url, (byUrl.get(s.video.url) || 0) + 1);
+  const shared = [...byUrl.values()].filter((n) => n > 1).length;
+  ok(shared > 0,
+    "at least one post is shared by several venues — which is exactly why the key is entry+url, not url");
+
+  ok(captionFor(null) === "" && captionFor({}) === "" && captionFor({ url: "nope" }) === "",
+    "a missing caption is \"\", never a throw");
+
+  const bad = [];
+  const ALLOWED = new Set(["lib/creatorPages.js", "app/components/sheets/SocialFind.js", "app/components/sheets/Detail.js"]);
+  const walk2 = (dir) => {
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
+      if (e.name === "node_modules" || e.name.startsWith(".")) continue;
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) { walk2(p); continue; }
+      if (!/\.(js|jsx|mjs)$/.test(e.name)) continue;
+      if (p.endsWith("creatorCaptions.js")) continue;
+      const rel = path.relative(process.cwd(), p);
+      if (/\b(?:from|import|require)\s*\(?\s*["'][^"']*creatorCaptions(?:\.js)?["']/.test(readFileSync(p, "utf8")) && !ALLOWED.has(rel)) bad.push(rel);
+    }
+  };
+  for (const d of ["lib", "app"]) walk2(path.resolve(d));
+  ok(bad.length === 0,
+    `only the three lazy/server caption surfaces import the store — anything eager puts ~30KB back in every first paint. Offenders: ${bad.join(", ")}`);
+}
+
+console.log(`test-creator-corroboration: OK — ${pass} assertions (distinct people not posts, leading-signal floor, one mechanism for badge+rank, no monetized path, no silent duplicates, captions intact off the eager bundle)`);

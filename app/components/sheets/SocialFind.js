@@ -19,6 +19,7 @@
 // same way DetailSheet is).
 import { C, sheetBg, sheet, SHEET_EASE, Grabber, Icon } from "../kit";
 import { PLATFORM, PLATFORM_RGB, creatorStats, allCreators, hasCreatorPage } from "../../../lib/creatorVideos";
+import { captionFor } from "../../../lib/creatorCaptions";
 import CreatorAvatar from "../CreatorAvatar";
 import { creatorLabel, AFFILIATION_DISCLOSURE, REMOVAL_PROMPT, REMOVAL_CONTACT } from "../../../lib/creatorRights";
 import { summaryFor } from "../../../lib/creatorArchetypes";
@@ -194,7 +195,7 @@ export default function SocialFindSheet({ ctx }) {
             </div>
           </a>
 
-          {video.caption && <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.55, marginBottom: 18 }}>{video.caption}</div>}
+          {captionFor(video) && <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.55, marginBottom: 18 }}>{captionFor(video)}</div>}
 
           <button onClick={() => { setSocialFind(null); openDetail(place, "social_find_sheet"); }} style={{ width: "100%", padding: "12px 0", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13.5, fontWeight: 800, cursor: "pointer", marginBottom: 22 }}>
             View full place details ›
