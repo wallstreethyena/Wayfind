@@ -51,8 +51,7 @@ const S = {
   // visual language as the hub, linking into the app shell at /p/[id].
   pgrid: { display: "grid", gridTemplateColumns: "1fr", gap: 10, margin: "6px 0 6px" },
   pcard: { display: "flex", gap: 12, alignItems: "stretch", background: "#161B22", border: "1px solid #21262D", borderRadius: 12, overflow: "hidden", textDecoration: "none" },
-  pthumb: { width: 76, minWidth: 76, background: "#0D1117", objectFit: "cover", display: "block" },
-  pthumbFallback: (name) => ({ width: 76, minWidth: 76, display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(145deg,#1B2433,#0E1520)", color: "#8ED6C4", fontSize: 26, fontWeight: 800 }),
+  pthumb: { width: 76, minWidth: 76, background: "linear-gradient(145deg,#1B2433,#0E1520)", objectFit: "cover", display: "block", alignSelf: "stretch" },
   pbody: { flex: 1, minWidth: 0, padding: "10px 12px 10px 2px" },
   pname: { fontSize: 15, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.25, marginBottom: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
   pmetarow: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" },
@@ -60,7 +59,13 @@ const S = {
   pmeta: { fontSize: 12.5, color: "#8B949E", fontWeight: 600 },
 };
 
-const photoRefUrl = (ref) => (ref ? "/api/photo?ref=" + encodeURIComponent(ref) + "&w=220" : null);
+// A real thumbnail for every nearby place: the stored Google photo ref when we
+// have one, otherwise the venue's first photo by place_id (the same reliable,
+// cached /api/photo path the event heroes use). Falls back to the gradient the
+// <img> background paints if a place genuinely has no photo.
+const thumbUrl = (p) => (p.photoRef
+  ? "/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&w=220"
+  : "/api/photo?place=" + encodeURIComponent(p.id) + "&w=220");
 
 export default async function CuratedEventPage({ params }) {
   const e = await fetchCuratedEventBySlug(params.slug);
@@ -117,9 +122,7 @@ export default async function CuratedEventPage({ params }) {
               <div style={S.pgrid}>
                 {pairings.map((p) => (
                   <a key={p.id} href={pairingHref(p)} style={S.pcard}>
-                    {photoRefUrl(p.photoRef)
-                      ? <img src={photoRefUrl(p.photoRef)} alt="" loading="lazy" style={S.pthumb} />
-                      : <div style={S.pthumbFallback(p.name)} aria-hidden="true">{(p.name || "?").trim().charAt(0).toUpperCase()}</div>}
+                    <img src={thumbUrl(p)} alt="" loading="lazy" style={S.pthumb} />
                     <div style={S.pbody}>
                       <div style={S.pname}>{p.name}</div>
                       <div style={S.pmetarow}>
