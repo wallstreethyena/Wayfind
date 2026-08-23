@@ -52,6 +52,29 @@ export const WF_RAIL_MENU_CSS =
   // surface and no style pass-through, so the delay is positional, in CSS, rather
   // than a per-card inline variable. There is no card cap (lib/railSelect.js).
   `.wf8-pcrail>.wf-place-card:nth-child(2){animation-delay:58ms}.wf8-pcrail>.wf-place-card:nth-child(3){animation-delay:116ms}.wf8-pcrail>.wf-place-card:nth-child(n+4){animation-delay:174ms}@keyframes wf8CardDrop{0%{opacity:0;transform:translateY(-30px) scale(.955)}62%{opacity:1;transform:translateY(6px) scale(1.008)}100%{opacity:1;transform:none}}` +
+  // THE TRENDING DROP USES THE SAME COLUMN AS EVERY OTHER DROP.
+  //
+  // <ExplodingNearby> is rendered by exactly one caller — DaypartRail, inside
+  // this .wf8 subtree — but it brings its own .wf-rail from app/components/css.js,
+  // and that rail's card rule is flex:0 0 100%. On a phone that rule is close to
+  // right and owner-set (2026-08-08: "i want the card size to be full"); measured,
+  // --wf8-pcvis 1.08 below 560px is a 321px card in a 364px column — still the
+  // full card the owner asked for, now with the same sliver of peek Tonight's
+  // Move already shows on that phone. On a DESKTOP the two rails disagreed
+  // loudly: Tonight's Move served 3.4 cards across a 1396px column while
+  // the trend directly above it served ONE card stretched to that full 1396px —
+  // same component, same score chip, same action row, 3.6x the width (measured
+  // by scripts/test-drop-rail-parity.mjs: trend 1396, place 383). It read as a
+  // different, broken card, and a stretched card is a weaker card: the photo
+  // shrinks to a sliver of its own frame and the Directions CTA becomes a
+  // 1300px band nobody reads as a button.
+  //
+  // So the trend rail inherits the drop's geometry rather than restating it:
+  // --wf8-pcvis and --wf8-pcgap are the SAME variables .wf8-pcrail uses, which
+  // means the responsive steps below (3.4 / 2.4 / 1.9 / 1.35 / 1.08) move both
+  // rails together forever. Higher specificity than .wf-rail>.wf-rail-card, so
+  // no !important is needed and nothing outside .wf8 is touched.
+  `.wf8 .wf-rail-exploding{gap:var(--wf8-pcgap);margin:0 calc(var(--wf8-pad) * -1);padding:4px var(--wf8-pad) 6px;scroll-padding-left:var(--wf8-pad)}.wf8 .wf-rail-exploding>.wf-rail-card{flex:0 0 calc((100% - (var(--wf8-pcvis) - 1) * var(--wf8-pcgap)) / var(--wf8-pcvis));width:auto;animation:wf8CardDrop .5s cubic-bezier(.18,1.08,.34,1) both}.wf8 .wf-rail-exploding>.wf-rail-card:nth-child(2){animation-delay:58ms}.wf8 .wf-rail-exploding>.wf-rail-card:nth-child(3){animation-delay:116ms}.wf8 .wf-rail-exploding>.wf-rail-card:nth-child(n+4){animation-delay:174ms}` +
   // a rail whose axis nothing nearby clears. Honest, not padded.
   `.wf8-thin{display:flex;flex-direction:column;gap:9px;align-items:flex-start;padding:16px 0 8px;border-left:3px solid var(--wf8-acc);padding-left:14px}.wf8-thin p{margin:0;font-size:15px;line-height:1.5;color:var(--wf8-mut);max-width:620px}.wf8-thin a{font-size:15px;font-weight:700;color:var(--wf8-acc2)}` +
   // the guides library — what Local Guides opens onto
@@ -62,4 +85,4 @@ export const WF_RAIL_MENU_CSS =
   // too narrow to hold a title on one line.
   `.wf8-grail>li{flex:0 0 clamp(268px,26vw,330px);scroll-snap-align:start;display:flex;min-width:0}.wf8-gcard{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;padding:15px 16px 16px;border-radius:14px;background:var(--wf8-card);border:1px solid var(--wf8-line);transition:transform .18s,border-color .18s;animation:wf8CardDrop .5s cubic-bezier(.18,1.08,.34,1) both;animation-delay:calc(var(--wf8-i) * 48ms)}.wf8-gcard:hover{transform:translateY(-3px);border-color:var(--wf8-line2)}.wf8-gtop{display:flex;align-items:baseline;gap:7px;font-size:12px;font-weight:700;color:var(--wf8-acc2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wf8-gtop em{font-style:normal;color:var(--wf8-dim);font-weight:400}.wf8-gtit{margin:0;font-size:17px;font-weight:700;line-height:1.3;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.wf8-gtea{margin:0;font-size:13px;font-weight:400;line-height:1.46;color:var(--wf8-mut);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.wf8-gread{margin-top:auto;padding-top:4px;font-size:13px;font-weight:700;color:var(--wf8-acc2)}` +
   // responsive: no dead space on either device
-  `@media(max-width:900px){.wf8-track{padding:16px var(--wf8-pad) 28px}.wf8-tile.is-sel,.wf8.is-open .wf8-tile.is-sel{transform:translateY(-6px) scale(1.03)}.wf8-tshare{width:36px;height:36px;top:9px;right:9px}.wf8-tsaid{height:36px;top:9px;right:53px}}@media(max-width:1400px){.wf8{--wf8-pcvis:2.4}}@media(max-width:1100px){.wf8{--wf8-pcvis:1.9}}@media(max-width:900px){.wf8{--wf8-tw:min(76vw,340px);--wf8-pcvis:1.35;--wf8-pcgap:11px;--wf8-pad:16px}.wf8-grail>li{flex:0 0 min(78vw,320px)}}@media(max-width:560px){.wf8{--wf8-pcvis:1.08;--wf8-pad:13px}}@media (prefers-reduced-motion:reduce){.wf8.is-open .wf8-menusec,.wf8-pcrail>.wf-place-card,.wf8-gcard{animation:none}.wf8-tile,.wf8-gcard,.wf8-tim,.wf8-tshare{transition:none}.wf8-tile::before{display:none}.wf8-tile:hover,.wf8-tile:has(:focus-visible){transform:translateY(-4px)}.wf8-tile:hover .wf8-tim{transform:none}.wf8-tsaid{animation:none}}`;
+  `@media(max-width:900px){.wf8-track{padding:16px var(--wf8-pad) 28px}.wf8-tile.is-sel,.wf8.is-open .wf8-tile.is-sel{transform:translateY(-6px) scale(1.03)}.wf8-tshare{width:36px;height:36px;top:9px;right:9px}.wf8-tsaid{height:36px;top:9px;right:53px}}@media(max-width:1400px){.wf8{--wf8-pcvis:2.4}}@media(max-width:1100px){.wf8{--wf8-pcvis:1.9}}@media(max-width:900px){.wf8{--wf8-tw:min(76vw,340px);--wf8-pcvis:1.35;--wf8-pcgap:11px;--wf8-pad:16px}.wf8-grail>li{flex:0 0 min(78vw,320px)}}@media(max-width:560px){.wf8{--wf8-pcvis:1.08;--wf8-pad:13px}}@media (prefers-reduced-motion:reduce){.wf8.is-open .wf8-menusec,.wf8-pcrail>.wf-place-card,.wf8 .wf-rail-exploding>.wf-rail-card,.wf8-gcard{animation:none}.wf8-tile,.wf8-gcard,.wf8-tim,.wf8-tshare{transition:none}.wf8-tile::before{display:none}.wf8-tile:hover,.wf8-tile:has(:focus-visible){transform:translateY(-4px)}.wf8-tile:hover .wf8-tim{transform:none}.wf8-tsaid{animation:none}}`;

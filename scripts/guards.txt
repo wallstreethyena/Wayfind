@@ -474,6 +474,10 @@ node scripts/check-invisible-text.mjs
 # v8.22 — the card layout CONTRACT, measured on real Chromium boxes at 390px
 # with card CSS alone (the embed condition where box-sizing broke /guides/*)
 node scripts/test-place-card-layout.mjs
+# v8.35 — the trending drop and the place drop are the SAME COLUMN, measured:
+# a trend card and a place card under one "Showing <rail>" bar are the same
+# width at 1440 and at 390 (owner, 2026-08-23, two screenshots of one drop)
+node scripts/test-drop-rail-parity.mjs
 # v8.22 — the partner rails open at their own #1: scrollLeft zeroed on every
 # content-identity change (the mid-track open bug, owner screenshots on every
 # Activities submenu), and place-matched deals show the exact Wayfind score
