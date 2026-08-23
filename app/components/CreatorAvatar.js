@@ -67,6 +67,26 @@ const INSTAGRAM_AVATARS = {
   influencetampa: "/creators/influencetampa.jpg",
   tampaterrencee: "/creators/tampaterrencee.jpg",
   lifeinparrish: "/creators/lifeinparrish.jpg",
+  // 2026-08-23 batch. THE CAPTURE IS NO LONGER A HAND STEP — and the v6.95 note
+  // above is now only half true, so read it with this.
+  //
+  // Instagram still serves a login wall to a datacenter request for the PROFILE
+  // PAGE with a browser UA, exactly as that note found. Two doors around it were
+  // measured this session, from the owner's own machine:
+  //   1. the page with a CRAWLER UA (facebookexternalhit) returns og:image — but
+  //      the URL literally carries dst-jpg_s100x100, so it is a 100px thumbnail
+  //      and committing it would mean upscaling 2.4x to meet the 240 convention;
+  //   2. /api/v1/users/web_profile_info/?username=<handle> with the public
+  //      x-ig-app-id returns profile_pic_url_hd — the 320px original, no login.
+  // Door 2 is what these three came through, downscaled 320 -> 240, never up.
+  // ~/Projects/wf-harvest/avatars-hd.sh does it; the script is the record.
+  //
+  // The staleness trade in the note above is UNCHANGED: a creator who changes
+  // their photo goes stale here until someone re-runs it. What changed is only
+  // that re-running it is now seconds rather than a browser session.
+  cailincoastal: "/creators/cailincoastal.jpg",
+  gabrielaromero11: "/creators/gabrielaromero11.jpg",
+  eatsbylaurr: "/creators/eatsbylaurr.jpg",
   // 2026-08-07 batch, captured the same way as every entry above.
   tampaiman: "/creators/tampaiman.jpg",
   _adatewithkait: "/creators/_adatewithkait.jpg",
