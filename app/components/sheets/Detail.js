@@ -20,6 +20,7 @@ import { isNative, nativePickPhoto } from "../../../lib/native";
 import BookingCTA, { hasBookingCTA } from "../BookingCTA";
 import BookItLink from "../BookItLink";
 import { creatorVideosFor, PLATFORM, PLATFORM_RGB } from "../../../lib/creatorVideos";
+import { captionFor } from "../../../lib/creatorCaptions";
 import { resolveDetailCta, detailVerdict, detailCtaLabel, DETAIL_CTA_TYPES } from "../../../lib/detailCta";
 import { emitCommerce, commerceHref, mintClickId } from "../../../lib/commerce";
 import { withClickId, isEarningGoHref } from "../../../lib/hubConversion";
@@ -925,7 +926,7 @@ export default function DetailSheet({ ctx }) {
                           <div style={{ minWidth: 0, flex: 1 }}>
                             <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "0.6px", textTransform: "uppercase", color: p.color, marginBottom: 3 }}>Featured on {p.label}</div>
                             <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, lineHeight: 1.25 }}>{headline}</div>
-                            {v.caption && <div style={{ fontSize: 12, color: C.muted, marginTop: 4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", lineHeight: 1.35 }}>{v.caption}</div>}
+                            {captionFor(v) && <div style={{ fontSize: 12, color: C.muted, marginTop: 4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", lineHeight: 1.35 }}>{captionFor(v)}</div>}
                             <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 7 }}>
                               <span style={{ fontSize: 12.5, fontWeight: 800, color: p.color }}>Watch Video ↗</span>
                               {handle && <span style={{ fontSize: 11.5, color: C.muted }}>· by {handle}</span>}

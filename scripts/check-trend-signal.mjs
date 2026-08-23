@@ -138,8 +138,15 @@ ok(computeTrendSignal({ popularity: 0.95 }).trendReason === TREND_REASONS.popula
 }
 
 // ── the weights themselves stay honest ──────────────────────────────────────
-ok(Object.keys(TREND_SOURCE_WEIGHTS).every((k) => ["popularity", "busynow", "nearby_event", "topic"].includes(k)),
-  "the only sources are the four real-demand ones — adding a source means updating this guard deliberately");
+// v8.42 — `corroboration` was added here DELIBERATELY, which is the point of
+// this assertion existing. It qualifies as real demand data on the same terms
+// as the other four: it is a count of distinct creators who went to a place and
+// posted it publicly under their own names, none of them paid, none of it
+// bought. The moment any creator in lib/creatorVideos.js becomes a paid
+// placement, this key comes back out of the list below AND out of
+// TREND_SOURCE_WEIGHTS, and app/how-wayfind-ranks/page.js has to change with it.
+ok(Object.keys(TREND_SOURCE_WEIGHTS).every((k) => ["popularity", "busynow", "nearby_event", "topic", "corroboration"].includes(k)),
+  "the only sources are the five real-demand ones — adding a source means updating this guard deliberately");
 ok(Object.values(TREND_SOURCE_WEIGHTS).every((w) => w > 0 && w <= 1), "weights are sane");
 ok(Object.keys(TREND_REASONS).sort().join() === Object.keys(TREND_SOURCE_WEIGHTS).sort().join(),
   "every source has a human-readable reason — no source can trend undisclosed");
