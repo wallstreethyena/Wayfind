@@ -26,7 +26,7 @@ import {
 import { creatorCountFor, creatorVideosFor } from "../lib/creatorVideos.js";
 import { governedWayfindScore, wayfindScore, TRENDING_BONUS } from "../lib/wayfindScore.js";
 import { governedScoreOf } from "../lib/lawfulOrder.js";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 
 let pass = 0;
@@ -244,6 +244,49 @@ for (const junk of [null, undefined, NaN, "3", -4, Infinity, {}]) {
   // or a future regression in the regex passes this section vacuously.
   const planted = new Map([["a", 1], ["b", 2]]);
   ok([...planted].filter(([, n]) => n > 1).length === 1, "the duplicate detector detects a planted duplicate");
+}
+
+// ── 9. THE CLIENT BUNDLE CARRIES NOTHING IT CANNOT READ ────────────────────
+// v8.43. lib/creatorVideos.js is client-bundled, and the curation backlog is
+// not: 23 entries whose every video has url:"" were shipping ~18KB of data to
+// every visitor that renderable() guarantees can never be shown. They now live
+// in lib/creatorVideosStaged.js, which no runtime module imports.
+//
+// Both halves are asserted, because either one alone rots. Without the first,
+// staged rows creep back into CURATED one batch at a time; without the second,
+// someone imports the staged file "just to count them" and the whole saving
+// silently returns.
+{
+  const src = readFileSync(path.resolve("lib/creatorVideos.js"), "utf8");
+  const emptyUrls = (src.match(/\burl: ""/g) || []).length;
+  ok(emptyUrls === 0,
+    `CURATED holds NO staged entries (found ${emptyUrls} with url:"") — an entry that cannot render does not belong in a module every visitor downloads`);
+
+  const stagedSrc = readFileSync(path.resolve("lib/creatorVideosStaged.js"), "utf8");
+  ok(/export const STAGED = \[/.test(stagedSrc) && (stagedSrc.match(/\bkey: "/g) || []).length > 5,
+    "the staged file exists and still holds the backlog — the entries were MOVED, not deleted");
+
+  // Nothing in the shipped app may import it. Walk lib/ and app/ for real.
+  const bad = [];
+  const walk = (dir) => {
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
+      if (e.name === "node_modules" || e.name.startsWith(".")) continue;
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) { walk(p); continue; }
+      if (!/\.(js|jsx|mjs)$/.test(e.name)) continue;
+      if (p.endsWith("creatorVideosStaged.js")) continue;
+      // A real module edge, not a mention: creatorVideos.js DESCRIBES the split
+      // in its own comments, and a guard that fired on prose would be a guard
+      // nobody could keep green while documenting the thing it protects.
+      const txt = readFileSync(p, "utf8");
+      if (/\b(?:from|import|require)\s*\(?\s*["'][^"']*creatorVideosStaged(?:\.js)?["']/.test(txt)) {
+        bad.push(path.relative(process.cwd(), p));
+      }
+    }
+  };
+  for (const d of ["lib", "app"]) walk(path.resolve(d));
+  ok(bad.length === 0,
+    `no runtime module imports the curation backlog — importing it puts the whole ~18KB straight back in the bundle. Offenders: ${bad.join(", ")}`);
 }
 
 console.log(`test-creator-corroboration: OK — ${pass} assertions (distinct people not posts, leading-signal floor, one mechanism for badge+rank, no monetized path, no silent duplicate entries)`);
