@@ -10,6 +10,7 @@ import { SITE_URL } from "../lib/site";
 import { LANDING_CATS, LANDING_CITIES } from "../lib/landing";
 import { trendingCitySlugs } from "../lib/trending";
 import { creatorSlugs } from "../lib/creatorPages";
+import { sponsorSlugs } from "../lib/sponsoredPlaces";
 import { listIndexedIds } from "../lib/placeIndex";
 
 export default async function sitemap() {
@@ -33,7 +34,11 @@ export default async function sitemap() {
   const creators = [`${SITE_URL}/creators`, ...creatorSlugs().map((h) => `${SITE_URL}/creators/${encodeURIComponent(h)}`)].map((url) => ({ url }));
   const bestBeaches = Object.keys(BEACH_METROS).map((m) => ({ url: `${SITE_URL}/best-beaches/${m}` }));
   const eventWindows = Object.keys(LANDING_CITIES).flatMap((c) => Object.keys(EVENT_WINDOWS).map((w) => ({ url: `${SITE_URL}/events/${c}/${w}` })));
+  // v8.43.1 — the paid-partner layer. sponsorSlugs() only returns advertisers
+  // that cleared sponsorHasPage(), so a sponsor with no real content can never
+  // put a thin URL in here to chase a placement.
+  const partners = [`${SITE_URL}/partners`, ...sponsorSlugs().map((s) => `${SITE_URL}/partners/${s}`)].map((url) => ({ url }));
   const placeIds = await listIndexedIds(500);
   const places = [`${SITE_URL}/places`, ...placeIds.map((id) => `${SITE_URL}/places/${encodeURIComponent(id)}`)].map((url) => ({ url }));
-  return [...core, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...bestBeaches, ...eventWindows, ...places];
+  return [...core, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...places];
 }

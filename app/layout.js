@@ -334,6 +334,11 @@ export default function RootLayout({ children }) {
                     reaches from the homepage. This is that link. */}
                 <a href="/creators" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Local creators</a>
                 <a href="/trending" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Trending places</a>
+                {/* v8.43.1 — same reason as the creator link above: without a
+                    site-wide entry point every /partners/* page is an orphan no
+                    crawler reaches. It doubles as the honest, permanently linked
+                    answer to "does Wayfind take money from businesses?" */}
+                <a href="/partners" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Partners</a>
                 <a href="/terms" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Terms</a>
                 <a href="/privacy" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Privacy</a>
                 <a href="/about" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>About</a>

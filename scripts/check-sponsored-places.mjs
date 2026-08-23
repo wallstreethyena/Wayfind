@@ -44,6 +44,7 @@ import { loadComponent } from "./lib/jsxLoad.mjs";
 import {
   SPONSORED_PLACES, SPONSORED_DEFAULT_RADIUS_MI, sponsoredPlacesNear, sponsoredPlaceNear,
   sponsoredPlaceById, sponsoredIsLive, sponsoredHref, hydrateSponsoredPlace, milesBetween,
+  sponsorHasPage, sponsorSlugs, sponsorBySlug, sponsorPagePath,
 } from "../lib/sponsoredPlaces.js";
 import { wayfindScore } from "../lib/wayfindScore.js";
 
@@ -173,7 +174,7 @@ const html = renderToStaticMarkup(React.createElement(Card, { pick }));
 ok(html.includes(rio.label), `the disclosure label renders — expected ${JSON.stringify(rio.label)}`);
 ok(/paid placement/i.test(html), "the paid-placement footnote renders");
 ok(/not part of the deal/i.test(html), "…and it says the score was not part of the deal");
-ok(html.includes("Rio Body Wax · Gastonia"), "the venue line renders, branch and all");
+ok(html.includes("Rio Body Wax") && html.includes("Gastonia"), "the business and its branch both render — a reader must know WHICH studio");
 // React escapes text nodes, so the expectation has to be escaped the same way —
 // otherwise an apostrophe in the advertiser's own copy reads as a missing line.
 const esc = (s) => String(s)
@@ -182,7 +183,7 @@ const esc = (s) => String(s)
 ok(html.includes(esc(rio.headline)), "the advertiser's headline renders");
 ok(html.includes(esc(rio.body)), "the advertiser's body copy renders");
 ok(html.includes(rio.claim), "the advertiser's own claim renders");
-ok(html.includes("384 reviews"), "the real review count renders");
+ok(html.includes("384") && /Google reviews/.test(html), "the real review count renders, attributed to Google");
 ok(/4\.9★/.test(html), "the real star rating renders");
 ok(/Wayfind Score 9\.5 out of 10/.test(html), "the LIVE Wayfind Score renders (9.5 for 4.9 / 384)");
 ok(/Score pending/.test(html) === false, "a paid card never ships the pending state");
@@ -218,6 +219,95 @@ ok(/sponsoredPick\s*\?/.test(HOME_CODE) || /&&\s*sponsoredPick/.test(HOME_CODE),
   "the render is gated on sponsoredPick — the ONLY thing that decides who sees a paid card");
 ok(/sponsoredPlaceNear\(/.test(HOME_CODE), "home.js asks the gate rather than filtering the registry itself");
 
+/* ── 6b. THE PARTNER PAGE — the half of the deal with no geo-gate ───────────
+   The card can only reach someone standing in Gaston County with the app open.
+   This page answers "brazilian wax gastonia" for anyone, forever, and is the
+   link the business puts in its own bio. It is also the surface that can hurt
+   the domain if it is allowed to go thin, so the floor is asserted first. */
+const PAGE_SRC = readFileSync(join(ROOT, "lib/sponsorPage.js"), "utf8");
+const SITEMAP = readFileSync(join(ROOT, "app/sitemap.js"), "utf8");
+const LAYOUT = readFileSync(join(ROOT, "app/layout.js"), "utf8");
+const ROUTE = readFileSync(join(ROOT, "app/partners/[slug]/page.js"), "utf8");
+const INDEX_ROUTE = readFileSync(join(ROOT, "app/partners/page.js"), "utf8");
+
+ok(sponsorHasPage(rio) === true, "Rio clears the content floor for a page");
+ok(sponsorSlugs().includes("rio-body-wax-gastonia"), "…and appears in sponsorSlugs()");
+ok(sponsorPagePath(rio) === "/partners/rio-body-wax-gastonia", "the page path is the slug, so URL and campaign id cannot drift");
+ok(sponsorBySlug("rio-body-wax-gastonia") === rio, "the slug resolves back to the sponsor");
+ok(sponsorBySlug("not-a-partner") === null, "an unknown slug resolves to null (the route 404s on it)");
+// THE FLOOR, proven to actually exclude. A paid page with nothing on it does
+// not rank, and a site that ships thin pages for money stops ranking at all.
+ok(sponsorHasPage({ ...rio, page: undefined }) === false, "a sponsor with no page content gets NO page");
+ok(sponsorHasPage({ ...rio, page: { ...rio.page, about: ["one"] } }) === false, "…nor one with a single thin paragraph");
+ok(sponsorHasPage({ ...rio, page: { ...rio.page, services: ["a", "b"] } }) === false, "…nor one with almost no services");
+
+// Discoverable, not an orphan.
+ok(/sponsorSlugs/.test(SITEMAP), "the sitemap is built from sponsorSlugs()");
+ok(/\/partners/.test(SITEMAP), "the sitemap carries the /partners layer");
+ok(/href="\/partners"/.test(LAYOUT), "the site footer links /partners — otherwise every partner page is an orphan");
+ok(/dynamicParams\s*=\s*false/.test(ROUTE), "an unknown /partners slug is a real 404, not a soft-404 over infinite URL space");
+ok(/generateStaticParams/.test(ROUTE) && /sponsorSlugs/.test(ROUTE), "the route prerenders exactly the slugs that earned a page");
+ok(/generateMetadata/.test(ROUTE), "the page carries its own metadata (title/description/canonical)");
+ok(/PartnersIndexPage/.test(INDEX_ROUTE), "/partners renders the index");
+
+// The rendered page.
+const pageMod = await loadComponent(join(ROOT, "lib/sponsorPage.js"), ROOT);
+const pageHtml = renderToStaticMarkup(pageMod.SponsorPage({ slug: "rio-body-wax-gastonia" }));
+ok(pageHtml.includes(rio.label), "the page renders the sponsored label");
+// The literal transaction, in a sentence a reader cannot misread — and NOT the
+// "<brand> partner" construction lib/creatorRights.js bans.
+ok(/pays to be featured/i.test(pageHtml.replace(/\s+/g, " ")),
+  "the page says in plain words that the business pays to be featured");
+ok(/no advertiser can move it/i.test(pageHtml), "…and that the score cannot be bought");
+ok(pageHtml.includes("Wayfind Score"), "the Wayfind Score is named on the page");
+ok(/9\.5/.test(pageHtml), "the page shows the LIVE score (9.5 for 4.9 / 384)");
+ok(pageHtml.includes(esc(rio.page.lede)), "the lede renders");
+ok(rio.page.waxes.every((w) => pageHtml.includes(w.name)), "every wax formula renders");
+ok(pageHtml.includes(esc(rio.page.services[0])), "the service list renders");
+ok(pageHtml.includes(rio.address), "the address renders");
+// The /places disclaimer would be a LIE here — this page IS affiliated, by
+// invoice. It must never be copy-pasted in.
+ok(!/not affiliated with the places listed/i.test(pageHtml),
+  "the page does NOT carry the independent-guide disclaimer — on a paid page that sentence is false");
+// Schema: LocalBusiness yes, borrowed aggregateRating no.
+const ldBlocks = [...pageHtml.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+ok(ldBlocks.length >= 2, "the page emits business + breadcrumb JSON-LD");
+ok(ldBlocks.some((b) => /HealthAndBeautyBusiness|LocalBusiness/.test(b)), "…a business entity");
+ok(ldBlocks.some((b) => /BreadcrumbList/.test(b)), "…and a breadcrumb trail");
+ok(!ldBlocks.some((b) => /aggregateRating/i.test(b)),
+  "NO aggregateRating in the schema of a PAID page — those stars are Google's, not ours to mark up");
+// The page's booking link is a paid link too, and reports separately.
+const pageAnchor = pageHtml.match(/<a [^>]*href="[^"]*riobodywax[^"]*"[^>]*>/);
+ok(!!pageAnchor, "the page has a booking anchor");
+if (pageAnchor) {
+  ok(/rel="[^"]*\bsponsored\b/.test(pageAnchor[0]), "…carrying rel=sponsored");
+  ok(/utm_medium=partner_page/.test(pageAnchor[0]),
+    "…and stamped partner_page, so the advertiser can see the page working separately from the card");
+}
+ok(sponsoredHref(rio, "partner_page").includes("utm_medium=partner_page"), "sponsoredHref honours the surface it was asked for");
+ok(sponsoredHref(rio).includes("utm_medium=sponsored_card"), "…and still defaults to the card");
+
+// The index.
+const idxHtml = renderToStaticMarkup(pageMod.PartnersIndexPage());
+ok(idxHtml.includes("Partners on Wayfind"), "the index renders its heading");
+ok(!/wayfind partner/i.test(idxHtml) && !/wayfind partner/i.test(pageHtml),
+  "neither page uses the banned affiliation construction, in the RENDERED markup (the source scan cannot see JSX line breaks)");
+ok(idxHtml.includes("/partners/rio-body-wax-gastonia"), "…and links every partner page");
+ok(/does not buy a Wayfind Score|not buy a Wayfind Score/i.test(idxHtml), "…and states plainly what money does not buy");
+
+/* ── 6c. THE PREMIUM CARD (v8.43.1) ────────────────────────────────────────
+   "Premium" here is a set of decisions, not a mood, so each one is pinned. */
+ok(/linear-gradient\(90deg/.test(CARD_CODE), "the advertiser's colour appears as a single edge rule, not a background wash");
+ok(html.includes("Google reviews"), "the review count is attributed to Google on the card");
+ok(/<h3[^>]*>Rio Body Wax<\/h3>/.test(html), "the business name is the card's heading element, not the ad copy");
+ok(html.includes('href="/partners/rio-body-wax-gastonia"'), "the card links into the partner page");
+ok(html.includes('href="tel:+17046712160"'), "the card offers the real phone number");
+ok(/google\.com\/maps/.test(html), "the card offers directions");
+// One filled action, and only one. A second filled button is how a paid unit
+// stops reading premium and starts reading like a banner.
+const filled = (html.match(/background:#6D2E8E/g) || []).length;
+ok(filled === 1, `exactly one filled brand button on the card, got ${filled}`);
+
 /* ── 7. RED PROOFS ──────────────────────────────────────────────────────────
    Each wall above is shown to actually fail when the thing it protects breaks.
    Without these, a guard that always passes reads exactly like a guard that
@@ -241,6 +331,12 @@ const RED = [
   }],
   ["an unstamped outbound is detectable", () => {
     return !sponsoredHref({ id: "y", href: "https://example.com/" }).includes("utm_campaign=rio-body-wax-gastonia");
+  }],
+  ["a thin partner page is detectable", () => {
+    return sponsorHasPage({ ...rio, page: { lede: "x", about: [], services: [] } }) === false;
+  }],
+  ["an orphaned partner layer is detectable", () => {
+    return !/href="\/partners"/.test('<a href="/creators">Local creators</a>');
   }],
 ];
 for (const [label, fn] of RED) ok(fn() === true, "RED PROOF failed to fail: " + label);
