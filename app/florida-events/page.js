@@ -41,7 +41,7 @@ const S = {
 // above the evergreen ones, which is what it is: not this weekend, not the next
 // six weeks, but the set a reader plans a year around. Placing it any higher
 // would push a June-2027 festival above a Halloween event six weeks out.
-const RAILS = ["this-weekend", "spooky-season", "coming-up", "major-music-festivals", "only-in-florida", "live-music", "bring-the-kids", "food-festivals"];
+const RAILS = ["this-weekend", "spooky-season", "coming-up", "florida-icons", "major-music-festivals", "only-in-florida", "live-music", "bring-the-kids", "food-festivals"];
 
 export default async function FloridaEventsHub() {
   const all = await fetchCuratedEvents();
