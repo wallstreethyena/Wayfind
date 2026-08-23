@@ -1,3 +1,62 @@
+## v8.42.0 - Thirteen more Clipp certificates, and the coupons finally find their own place cards
+
+- Owner, 2026-08-23: "i went to clipp and they had tons of great coupons make sure
+  to bring in 100 of them and make sure to place them in the place cards for the
+  actual business when the business has a place card showing on wayfind."
+- THE HARVEST NUMBER IS NOT 100, and the measurement is the point. Every Clipp
+  city page in our three metros was enumerated in a real browser (Clipp sits
+  behind Akamai; bare fetchers get 403, which is why this has always been
+  browser-gated) - 59 pages across Tampa Bay, Sarasota/Manatee and Orlando. They
+  are not 59 catalogues: each page is the same regional pool re-sorted by
+  distance, so 1,269 tiles collapse to 89 DISTINCT offers. We already carried 40.
+  Of the 49 new ones, 7 were Sold Out and ~25 were car washes, Botox/TRT clinics,
+  oil changes and gyms - which the 2026-07-29 directive keeps off the tab. 13 were
+  real Wayfind inventory, and all 13 shipped. Getting to 100 means opening Miami /
+  Fort Lauderdale / West Palm / Naples / Fort Myers / Jacksonville, which carry
+  30-36 each - a metro decision, taken next, not a harvesting problem.
+- Coupons live today 58 -> 71. Orlando 3 -> 14, which is where the new inventory
+  is. Every one of the 13 was opened on its own Clipp page and confirmed live with
+  Buy Now on 2026-08-23; none is carried on a list-tile alone.
+- THE SECOND HALF OF THE ASK WAS ALREADY HALF-BROKEN. `couponForPlace` resolves a
+  card by Google Place ID first and name second, but its index only ever read
+  `placeId` - the Clipp-harvest field. The static cards store the same identifier
+  as `venuePlaceId` (added v8.19 for artwork), so ELEVEN live coupons knew exactly
+  which venue they belonged to and were still matched by name. Measured against
+  the live Google names:
+  - Mote's pill was DEAD. Google renamed the venue "Mote Science Education
+    Aquarium"; the coupon says "Mote Marine Laboratory & Aquarium", so the name
+    index missed and the card showed no offer at all.
+  - The three Gecko's coupons all key on one Google name, and a name map keeps
+    whichever it indexed first - so the Hillview bar-bingo certificate could be
+    served on the all-locations card. That is the wrong-branch failure
+    check-coupon-place-match exists to stop, arriving through the one door it did
+    not cover.
+  The index now reads `placeId || venuePlaceId`. Coupons reachable by exact Place
+  ID: 39 -> 64 of 71. Pie on Main got its real id too (one venue, address already
+  in the row). Marco's Pizza - Bradenton deliberately did NOT: Google has no
+  Marco's in Bradenton proper, only Palmetto and Lakewood Ranch, and guessing
+  which is exactly the wrong-branch sale this file refuses to make.
+- NEW ROWS SHIP A PLACE ID, NOT A PHOTO REF. Thirteen ~600-character photo
+  references put the route at 500.9KB gz against a 500KB budget - and that budget
+  is a ratchet, not a number to raise. CouponCard's own note already says a stored
+  ref EXPIRES while a place id does not, and its thumbnail already falls back to
+  /api/photo?place=<id> for the venue's CURRENT first photo. So the smaller row is
+  also the fresher one: 496.3KB gz, below where main sits.
+- Six new METRO_TOWNS entries (Zellwood, Casselberry, Ocoee, Oviedo, Winter
+  Garden, Lake Mary -> orlando), each checked against the real nearestMetro()
+  before it was written, so the deal side and the viewer side of the geo-gate
+  agree and no coupon is hidden from the people nearest it. Zero unplaced rows.
+- Both QDOBA rows and both Little Greek rows resolve to the same Google name as
+  each other, so every new row ships an EMPTY `match` and rides its Place ID -
+  the Pacific Counter precedent. Duck Donuts Fort Myers and Sea Serpent Tours
+  (St. Augustine) were left out: no covered metro, so they would be `unplaced`.
+  McDonald's Lake County was left out because a McDonald's card is one this
+  product is right not to rank.
+- check-coupon-place-match 30 -> 108 assertions: hand the resolver a bare place id
+  with no name and the coupon for that venue must come back, for every row that
+  states one; and the Hillview Gecko's card must resolve to the Hillview coupon.
+  Red-proofed by reverting the index to `placeId` only and watching it go red.
+
 ## v8.33.1 - One copy of each place on the wire
 - Measured in PRODUCTION right after v8.33 shipped, not assumed: one Sarasota
   /api/rails response was 1,885 rows, 1,691KB raw, and Vercel served it at

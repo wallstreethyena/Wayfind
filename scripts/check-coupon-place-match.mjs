@@ -121,6 +121,44 @@ for (const [base, rows] of byBase) {
 ok(couponForPlace({ place_id: "ChIJ-definitely-not-a-real-place-id", name: "Marco's Pizza" }, today) === null,
   "an unknown Place ID with a chain name must resolve to NOTHING — fail closed, never 'the first Marco's we happen to have'");
 
+// ─── 3b. venuePlaceId IS IDENTITY TOO (v8.41) ───────────────────────────────
+//
+// The static cards store their exact Google Place ID as `venuePlaceId` — added
+// in v8.19 so dealArtwork could fetch the venue's photo. The resolver's index
+// read only `placeId`, the Clipp-harvest field, so eleven live coupons that KNEW
+// their venue were still matched by name. Measured against the live Google names
+// on 2026-08-23, that cost two real things: Mote's pill was dead (Google renamed
+// the venue "Mote Science Education Aquarium"), and the three Gecko's coupons all
+// keyed on one Google name, so a name map served whichever it indexed first — the
+// Hillview bar-bingo certificate could appear on the all-locations card.
+//
+// This asserts the ROLE, on the real resolver: hand it a bare place id, with no
+// name at all, and the coupon that names that venue must come back.
+{
+  const idOnly = live.filter((c) => c.venuePlaceId && !c.placeId);
+  ok(idOnly.length > 0, "no live coupon carries venuePlaceId — the positive control for this section is gone, so its assertions cannot fail");
+  for (const c of idOnly) {
+    ok(couponForPlace({ place_id: c.venuePlaceId }, today) !== null,
+      `${c.id} stores the exact Place ID ${c.venuePlaceId} and the resolver still cannot find it from that id alone — venuePlaceId must be indexed as identity, not left to the name map`);
+  }
+  // Two coupons at the SAME venue may share an id (three Ringling offers do).
+  // Two coupons at DIFFERENT venues must never collapse — that is the whole bug.
+  const byVenue = new Map();
+  for (const c of live) {
+    const k = c.placeId || c.venuePlaceId;
+    if (!k) continue;
+    const hit = couponForPlace({ place_id: k }, today);
+    ok(hit !== null, `${c.id}: its own venue id resolves to nothing`);
+    if (hit) byVenue.set(k, hit.id);
+  }
+  const hillview = live.find((c) => c.id === "cpn-geckos-bar-bingo-hillview");
+  if (hillview && hillview.venuePlaceId) {
+    const hit = couponForPlace({ place_id: hillview.venuePlaceId, name: "Gecko's Grill & Pub" }, today);
+    ok(hit && hit.id === "cpn-geckos-bar-bingo-hillview",
+      "the Hillview Gecko's card resolves to some OTHER Gecko's coupon — three rows share one Google name, so identity has to win over the name map or the wrong branch's offer is served");
+  }
+}
+
 // ─── 4. EVERY CARD SURFACE USES THE IDENTITY RESOLVER ───────────────────────
 // couponForPlaceName is still exported for callers holding nothing but a
 // string, but a card always has the place object and must pass it.
@@ -146,4 +184,4 @@ ok(/return b \|\| "Deal";/.test(helper.slice(0, 400)),
   "couponChipLabel must fall back to the neutral word Deal when a coupon states no value — never to a number this code made up");
 
 const withValue = live.filter((c) => typeof c.badge === "string" && c.badge.trim()).length;
-console.log(`check-coupon-place-match: OK — ${pass} assertions (${live.length} live coupons, all reachable; ${live.filter((c) => c.placeId).length} by exact Google Place ID; ${withValue} state their value on the chip)`);
+console.log(`check-coupon-place-match: OK — ${pass} assertions (${live.length} live coupons, all reachable; ${live.filter((c) => c.placeId || c.venuePlaceId).length} by exact Google Place ID; ${withValue} state their value on the chip)`);
