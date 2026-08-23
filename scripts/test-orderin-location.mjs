@@ -18,8 +18,17 @@ const oi = readFileSync(new URL("../app/order-in/OrderInClient.js", import.meta.
 // because the CALL was present and only the WRITE was failing. The
 // assertion is about persistence, not about which function performs it.
 ok(/(?:localStorage\.setItem|setLocal)\("wf_center"/.test(home), "home.js persists the resolved location to wf_center");
-ok(/isFinite\(center\.lat\)[\s\S]{0,60}locName\)[\s\S]{0,40}(?:setItem|setLocal)\("wf_center"/.test(home),
+// v8.46 — the gate grew a third clause. A finite center and a real locName are
+// still required, and now the two must also DESCRIBE THE SAME PLACE: the owner's
+// browser held { lat:35.26, lng:-81.13, loc:"Parrish, FL" } — a North Carolina
+// pin under a Florida name — and this page prints metroCity from saved.loc, so
+// it would have said "Parrish" over North Carolina restaurants.
+ok(/isFinite\(center\.lat\)[\s\S]{0,140}locName[\s\S]{0,140}(?:setItem|setLocal)\("wf_center"/.test(home),
   "home.js gates the persist on a finite center AND a real locName (never the initial default)");
+ok(/centerAgreesWithLabel\(center, locName\)[\s\S]{0,240}(?:setItem|setLocal)\("wf_center"/.test(home),
+  "home.js will not persist a center and a label that describe different places");
+ok(/centerAgreesWithLabel\(/.test(oi),
+  "OrderInClient validates the stored pair before adopting it as this page's location");
 
 // OrderInClient reads it, in the right precedence: URL params -> wf_center -> geolocation.
 ok(/localStorage\.getItem\("wf_center"/.test(oi), "OrderInClient reads the app's last-known location (wf_center)");

@@ -37,6 +37,8 @@ import {
   resolveLocationContext,
   locationSurface,
   categoryNavHrefs,
+  centerAgreesWithLabel,
+  milesBetween,
 } from "../lib/locationHonesty.js";
 
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -119,8 +121,8 @@ ok(/from "\.\.\/lib\/locationHonesty"/.test(read("app/home.js")) || /from "\.\.\
   "home.js imports the honesty helpers");
 ok(/const \[locResolved,\s*setLocResolved\]/.test(HOME),
   "home.js tracks locResolved separately from the seed coords");
-ok(/isSeedCenter\(prev\)/.test(HOME) && /setCenter\(/.test(HOME),
-  "geo may replace the seed — isSeedCenter(prev) is the gate, not prev || c");
+ok(/isSeedCenter\(centerRef\.current\)/.test(HOME) && /setCenter\(/.test(HOME),
+  "geo may replace the seed — isSeedCenter(the committed center) is the gate, not prev || c");
 ok(!/setCenter\(\(prev\) => prev \|\| c\)/.test(HOME),
   "the prev || c geo lock that blocked /api/geo is gone");
 ok(/const cityNow = cityLabel\(locName\)/.test(HOME),
@@ -156,6 +158,58 @@ ok(/setLive\(emptyRailLive\(\)\)/.test(RAIL),
   "changing center clears live rails before the new fetch — leftover distances cannot linger");
 ok(/center=\{locResolved \? center : null\}/.test(HOME),
   "DaypartRail only receives a center once the location is resolved");
+
+/* ── H. THE PAIRING LAW (v8.46) ─────────────────────────────────────────
+ * The label and the coordinates are two halves of ONE fact. Measured on the
+ * owner's browser 2026-08-23, localStorage.wf_center held
+ *   { lat: 35.2619678, lng: -81.126481, loc: "Parrish, FL", manual: true }
+ * — a pin outside Gastonia, NORTH CAROLINA under the name of a Florida town
+ * 570 miles away. /api/rails answers covered:false there, so every rail on the
+ * homepage emptied while the chrome confidently said "Parrish".
+ *
+ * Executed first, then pinned at every writer and reader of wf_center.
+ */
+const PARRISH = { lat: 27.5859, lng: -82.4254 };
+const GASTONIA = { lat: 35.2619678, lng: -81.126481 };
+ok(centerAgreesWithLabel(PARRISH, "Parrish, FL") === true,
+  "a Parrish pin under a Parrish label agrees");
+ok(centerAgreesWithLabel(GASTONIA, "Parrish, FL") === false,
+  "THE BUG: a North Carolina pin under \"Parrish, FL\" is a corrupt pair");
+ok(centerAgreesWithLabel({ lat: 27.3364, lng: -82.5307 }, "Parrish, FL") === true,
+  "Sarasota coords under a Parrish label still agree — 19mi is the same metro, not corruption");
+ok(centerAgreesWithLabel(GASTONIA, "Gulfport, FL") === true,
+  "a town we hold no pin for cannot be contradicted — the law never discards on a hunch");
+ok(centerAgreesWithLabel(null, "Parrish, FL") === false && centerAgreesWithLabel({}, "Tampa") === false,
+  "a missing point is not a location");
+ok(Math.round(milesBetween(PARRISH, GASTONIA)) > 500,
+  "milesBetween measures the real distance the corrupt pair spanned");
+
+// WRITERS. wf_center and wf_recent_locs are only written for a coherent pair —
+// guarding the read side alone would let every session re-mint the corruption.
+ok(/centerAgreesWithLabel\(center, locName\)[\s\S]{0,240}setLocal\("wf_center"/.test(HOME),
+  "wf_center is only written when the label and the coordinates agree");
+ok(/centerAgreesWithLabel\(center, locName\)[\s\S]{0,400}wf_recent_locs/.test(HOME),
+  "wf_recent_locs is only written when the label and the coordinates agree");
+
+// READERS. Every consumer of the shared pin validates before trusting it.
+ok(/centerAgreesWithLabel\(\{ lat: c\.lat, lng: c\.lng \}, c\.loc\)/.test(HOME),
+  "home.js validates a restored wf_center pair before applying it");
+ok(/centerAgreesWithLabel\(\{ lat: r\.lat, lng: r\.lng \}, r\.loc\)/.test(HOME),
+  "home.js drops incoherent rows out of the recent-locations list on hydration");
+for (const [rel, why] of [
+  ["app/order-in/OrderInClient.js", "the order-in page prints metroCity from saved.loc"],
+  ["app/components/shareIntentSheet.js", "an invite bakes these coordinates into a link a friend opens"],
+]) {
+  const SRC = strip(read(rel));
+  ok(/wf_center/.test(SRC) ? /centerAgreesWithLabel\(/.test(SRC) : true,
+    `${rel} validates the wf_center pair before trusting it — ${why}`);
+}
+
+// PRODUCERS. The two known divergence shapes must not come back.
+ok(!/setLocName\(\(prev\) => prev \|\| d\.name\)/.test(HOME),
+  "ipFallback no longer moves the NAME under a different condition than the CENTER");
+ok(!/setLocName\(await reverseGeocode\(/.test(HOME),
+  "recenterToMe resolves the name BEFORE committing the point — an awaited setLocName can strand the old city on the new pin");
 
 /* ── G. dests nav must not eat city suggestions ────────────────────────── */
 ok(/is-suggesting/.test(HOME) && /suggestions\.length/.test(HOME),

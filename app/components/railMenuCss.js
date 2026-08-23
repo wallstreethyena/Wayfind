@@ -77,6 +77,17 @@ export const WF_RAIL_MENU_CSS =
   `.wf8 .wf-rail-exploding{gap:var(--wf8-pcgap);margin:0 calc(var(--wf8-pad) * -1);padding:4px var(--wf8-pad) 6px;scroll-padding-left:var(--wf8-pad)}.wf8 .wf-rail-exploding>.wf-rail-card{flex:0 0 calc((100% - (var(--wf8-pcvis) - 1) * var(--wf8-pcgap)) / var(--wf8-pcvis));width:auto;animation:wf8CardDrop .5s cubic-bezier(.18,1.08,.34,1) both}.wf8 .wf-rail-exploding>.wf-rail-card:nth-child(2){animation-delay:58ms}.wf8 .wf-rail-exploding>.wf-rail-card:nth-child(3){animation-delay:116ms}.wf8 .wf-rail-exploding>.wf-rail-card:nth-child(n+4){animation-delay:174ms}` +
   // a rail whose axis nothing nearby clears. Honest, not padded.
   `.wf8-thin{display:flex;flex-direction:column;gap:9px;align-items:flex-start;padding:16px 0 8px;border-left:3px solid var(--wf8-acc);padding-left:14px}.wf8-thin p{margin:0;font-size:15px;line-height:1.5;color:var(--wf8-mut);max-width:620px}.wf8-thin a{font-size:15px;font-weight:700;color:var(--wf8-acc2)}` +
+  // v8.46 — the action row of an honest-empty drop. A reader who lands on
+  // "we're not live here yet" or "we couldn't reach the ranking service" gets
+  // something to PRESS: the one-tap GPS recenter (which is also the self-heal
+  // for a stored pin whose label and coordinates disagree) or a real retry,
+  // alongside the rail's own page. Same accent vocabulary as .wf8-thin a, so
+  // it reads as part of the same honest block rather than a bolted-on dialog.
+  `.wf8-thinact{display:flex;flex-wrap:wrap;gap:14px;align-items:center}` +
+  `.wf8-thinbtn{appearance:none;border:1px solid var(--wf8-acc);background:transparent;color:var(--wf8-acc2);font:inherit;font-size:15px;font-weight:700;padding:8px 14px;border-radius:999px;cursor:pointer;transition:background .16s ease,color .16s ease}` +
+  `.wf8-thinbtn:hover{background:var(--wf8-acc);color:#0b0b0d}` +
+  `.wf8-thinbtn:focus-visible{outline:2px solid var(--wf8-acc2);outline-offset:2px}` +
+  `@media (prefers-reduced-motion:reduce){.wf8-thinbtn{transition:none}}` +
   // the guides library — what Local Guides opens onto
   `.wf8-grail{display:flex;gap:var(--wf8-pcgap);overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;padding:4px var(--wf8-pad) 6px;scroll-padding-left:var(--wf8-pad);margin:0 calc(var(--wf8-pad) * -1);list-style:none}.wf8-grail::-webkit-scrollbar{display:none}` +
   // The <li> is the flex ITEM, so the width and the snap point belong to it; the
