@@ -1,3 +1,31 @@
+## v8.46.1 - The pairing law reaches the pre-hydration primer
+
+- The last reader of wf_center that v8.46 could not cover: the /api/events
+  primer inlined in app/layout.js. It runs before React exists, so it cannot
+  import lib/locationHonesty.js, and it read the stored pair raw.
+- It matters more than a speculative prefetch sounds. `city` on that request is
+  not decoration: it is part of the server's events cache key AND the literal
+  text query two providers run ("events in " + city). So the owner's corrupt
+  pair asked Google for "events in Parrish, FL" while the geo providers searched
+  North Carolina, blended the two into one payload, and cached that blend for
+  the cell. The homepage consumer already value-matches the primed lat/lng
+  against the live center and discards a mismatch, so nobody SAW the wrong
+  events - the damage was a poisoned shared cache entry and two wasted provider
+  calls, which is exactly the kind of quiet wrong the location-honesty contract
+  exists to stop.
+- `cityOriginsWire()` emits the city pins slug-keyed and rounded to 3 decimals
+  (~100m, far finer than a 40-mile test needs) and `PAIRING_MAX_MI` states the
+  threshold. Both are INTERPOLATED into the inline script, never retyped - the
+  same rule the rail-collapse script beside it has followed since v7.29, so the
+  inline copy cannot drift from the law it is a copy of. 662 bytes of HTML.
+- An incoherent record is now ignored whole rather than half-trusted; the
+  default seed answers instead, exactly as it does when nothing is stored.
+- check-location-honesty 97 -> 100 assertions. The inline script's OWN
+  arithmetic is executed against the real corrupt record (rejected), a real
+  Parrish pin (kept), and a town we hold no pin for (kept - the law never
+  discards on a hunch), so the copy and the module cannot disagree about the
+  case that actually broke.
+
 ## v8.46 - The grey box in Parrish, and the pin that was in North Carolina
 
 - Owner, with two screenshots of gowayfind.com: "this is not workign for parrish

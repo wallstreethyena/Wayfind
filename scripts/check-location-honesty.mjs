@@ -39,6 +39,7 @@ import {
   categoryNavHrefs,
   centerAgreesWithLabel,
   milesBetween,
+  cityOriginsWire,
 } from "../lib/locationHonesty.js";
 
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -203,6 +204,38 @@ for (const [rel, why] of [
   const SRC = strip(read(rel));
   ok(/wf_center/.test(SRC) ? /centerAgreesWithLabel\(/.test(SRC) : true,
     `${rel} validates the wf_center pair before trusting it — ${why}`);
+}
+
+// THE PRE-HYDRATION PRIMER (v8.46.1). app/layout.js reads wf_center before
+// React exists, and its `city` param is BOTH a server cache key and the literal
+// text query two event providers run — so a corrupt pair asked Google for one
+// city's events while the geo providers searched another, and cached the blend.
+const LAYOUT = strip(read("app/layout.js"));
+ok(/cityOriginsWire\(\)/.test(LAYOUT) && /PAIRING_MAX_MI/.test(LAYOUT),
+  "the events primer INTERPOLATES the city pins from lib/locationHonesty — never retyped, so the inline copy cannot drift from the law");
+ok(/agrees\(o\)\)c=\{lat:o\.lat/.test(LAYOUT),
+  "the events primer only adopts a stored wf_center whose label and coordinates agree");
+const wire = cityOriginsWire();
+ok(Array.isArray(wire.parrish) && Math.abs(wire.parrish[0] - 27.586) < 0.01,
+  "cityOriginsWire carries real pins");
+ok(!!wire["siesta-key"] && !!wire["new-york"] && !wire["new york"],
+  "cityOriginsWire keys are slugs — the shape the inline script derives from a label");
+{
+  // EXECUTED against the inline script's own arithmetic, so the copy and the
+  // module cannot disagree about the owner's actual record.
+  const slug = (l) => String(l || "").split(",")[0].trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const inlineAgrees = (o) => {
+    const p = wire[slug(o.loc)];
+    if (!p) return true;
+    const a = (p[0] - o.lat) * 69, b = (p[1] - o.lng) * 69 * Math.cos((o.lat * Math.PI) / 180);
+    return Math.sqrt(a * a + b * b) <= 40;
+  };
+  ok(inlineAgrees({ lat: 35.2619678, lng: -81.126481, loc: "Parrish, FL" }) === false,
+    "the inline primer check rejects the owner's real corrupt record");
+  ok(inlineAgrees({ lat: 27.5859, lng: -82.4254, loc: "Parrish, FL" }) === true,
+    "the inline primer check keeps a real Parrish pin");
+  ok(inlineAgrees({ lat: 35.2619678, lng: -81.126481, loc: "Gulfport, FL" }) === true,
+    "the inline primer check cannot contradict a town we hold no pin for");
 }
 
 // PRODUCERS. The two known divergence shapes must not come back.

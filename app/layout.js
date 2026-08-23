@@ -5,6 +5,9 @@ import { SITE_URL } from "../lib/site";
 import { cardActionBridgeScript } from "../lib/cardActionAttrs";
 import { GUIDES } from "../lib/guides";
 import { RAILS_COLLAPSED_KEY, RAILS_COLLAPSED_ATTR, DEFAULT_COLLAPSED_RAILS, DEFAULT_COLLAPSED_RAILS_DESKTOP, RAILS_DESKTOP_MQ } from "../lib/railCollapse";
+// v8.46.1 — the pairing law, interpolated into the pre-hydration events primer
+// below (it runs before React, so it cannot import the module at runtime).
+import { cityOriginsWire, PAIRING_MAX_MI } from "../lib/locationHonesty";
 import { CULTURE } from "../lib/culture";
 import PostHogProvider from "./components/PostHogProvider";
 import SentryClient from "./components/SentryClient";
@@ -153,7 +156,18 @@ export default function RootLayout({ children }) {
             the true width — never by JS state after mount, which is the
             0.4938-CLS pattern app/components/css.js opens with. */}
         <script dangerouslySetInnerHTML={{ __html: `(function(){try{var r=localStorage.getItem('${RAILS_COLLAPSED_KEY}');var d=${JSON.stringify(DEFAULT_COLLAPSED_RAILS)};var w=${JSON.stringify(DEFAULT_COLLAPSED_RAILS_DESKTOP)};var v=r?JSON.parse(r):((window.matchMedia&&window.matchMedia('${RAILS_DESKTOP_MQ}').matches)?w:d);if(!Array.isArray(v))v=d;var out=[];for(var i=0;i<v.length;i++){var s=typeof v[i]==='string'?v[i].trim():'';if(s&&s.length<=40&&out.indexOf(s)===-1)out.push(s)}document.documentElement.setAttribute('${RAILS_COLLAPSED_ATTR}',out.join(' '))}catch(e){}})();` }} />
-        <script dangerouslySetInnerHTML={{ __html: "(function(){try{var c=null;try{var r=localStorage.getItem('wf_center');if(r){var o=JSON.parse(r);if(o&&isFinite(o.lat)&&isFinite(o.lng))c={lat:o.lat,lng:o.lng,loc:o.loc||''}}}catch(e){}if(!c)c={lat:27.5689,lng:-82.4393,loc:'Parrish, FL'};window.__wfEvPrime={lat:c.lat,lng:c.lng,p:fetch('/api/events?lat='+c.lat.toFixed(2)+'&lng='+c.lng.toFixed(2)+'&radius=25&city='+encodeURIComponent(c.loc||'')).then(function(r){return r.ok?r.json():null}).then(function(d){try{if(d&&d.events){for(var i=0;i<d.events.length;i++){var im=d.events[i]&&d.events[i].image;if(im){var pi=new Image();pi.fetchPriority='high';pi.src=im;break}}}}catch(e){}return d}).catch(function(){return null})}}catch(e){}})();" }} />
+        {/* v8.46.1 — THE PAIRING LAW REACHES THE PRIMER. This was the last
+            reader of wf_center that could not import lib/locationHonesty.js,
+            because it runs before React exists. It matters more than it looks:
+            `city` here is part of the server's events cache key AND the literal
+            text query two providers run ("events in " + city), so the owner's
+            corrupt pair (a North Carolina pin labelled "Parrish, FL") asked
+            Google for Florida events while the geo providers searched North
+            Carolina, then cached the blend for that cell. The pins are
+            INTERPOLATED via cityOriginsWire(), never retyped — the same rule as
+            the rail-collapse script above, so the inline copy cannot drift from
+            the law. An incoherent record is ignored whole; the seed answers. */}
+        <script dangerouslySetInnerHTML={{ __html: "(function(){try{var O=" + JSON.stringify(cityOriginsWire()) + ";var M=" + PAIRING_MAX_MI + ";function agrees(o){try{var h=String(o.loc||'').split(',')[0].trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');if(!h)return true;var p=O[h];if(!p)return true;var a=(p[0]-o.lat)*69,b=(p[1]-o.lng)*69*Math.cos(o.lat*Math.PI/180);return Math.sqrt(a*a+b*b)<=M}catch(e){return true}}var c=null;try{var r=localStorage.getItem('wf_center');if(r){var o=JSON.parse(r);if(o&&isFinite(o.lat)&&isFinite(o.lng)&&agrees(o))c={lat:o.lat,lng:o.lng,loc:o.loc||''}}}catch(e){}if(!c)c={lat:27.5689,lng:-82.4393,loc:'Parrish, FL'};window.__wfEvPrime={lat:c.lat,lng:c.lng,p:fetch('/api/events?lat='+c.lat.toFixed(2)+'&lng='+c.lng.toFixed(2)+'&radius=25&city='+encodeURIComponent(c.loc||'')).then(function(r){return r.ok?r.json():null}).then(function(d){try{if(d&&d.events){for(var i=0;i<d.events.length;i++){var im=d.events[i]&&d.events[i].image;if(im){var pi=new Image();pi.fetchPriority='high';pi.src=im;break}}}}catch(e){}return d}).catch(function(){return null})}}catch(e){}})();" }} />
         {/* THE PRE-HYDRATION TAP BRIDGE (2026-08-21). A prerendered guide page
             paints its place-card Like / Not-for-me / Save controls ~6s before
             React can hear them on a 1.5 Mbps phone (measured, production).
