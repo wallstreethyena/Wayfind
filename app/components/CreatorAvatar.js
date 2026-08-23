@@ -84,6 +84,7 @@ const INSTAGRAM_AVATARS = {
   // The staleness trade in the note above is UNCHANGED: a creator who changes
   // their photo goes stale here until someone re-runs it. What changed is only
   // that re-running it is now seconds rather than a browser session.
+  iviethefoodie: "/creators/iviethefoodie.jpg",
   cailincoastal: "/creators/cailincoastal.jpg",
   gabrielaromero11: "/creators/gabrielaromero11.jpg",
   eatsbylaurr: "/creators/eatsbylaurr.jpg",
