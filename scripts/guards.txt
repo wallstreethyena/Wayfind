@@ -561,6 +561,9 @@ node scripts/check-hook-order.mjs
 # starved. This guard EXECUTES the chain — map, destination, proximity, rank,
 # render — rather than matching text on it.
 node scripts/check-curated-events-surface.mjs
+# v8.40 — the owner's marquee music inventory reaches a reader, and an
+# unannounced row (derived Memorial-Day dates) never reaches a card
+node scripts/check-major-music-festivals.mjs
 # 2026-08-22 — the owner's handpicked board (lib/localPicks.js) IS the "What
 # Should We Do Today?" card, for one town and one hour. Four failures this
 # pins, none of which anything else in the suite would notice: a radius wide
