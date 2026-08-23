@@ -16,6 +16,12 @@ export default function HookDetailSheet({ ctx }) {
         const theme = hookDetail.theme || "best";
         const heroImage = hookDetail.heroImage || null;
         const premiumImagePage = !!heroImage;
+        // A partner splash is a tall, text-bearing graphic (its title + co-brand
+        // lockup live near the top), so we anchor the crop to the top instead of
+        // the centre and give it more height — otherwise center/cover would slice
+        // out the middle band and drop the partner's badge.
+        const heroPos = hookDetail.partnerSplash ? "center top" : "center";
+        const heroMinH = hookDetail.partnerSplash ? (isDesktop ? 460 : 430) : (isDesktop ? 390 : 350);
         const premiumCardBg = "linear-gradient(145deg, rgba(27,36,51,.98) 0%, rgba(14,21,32,.99) 100%)";
         const premiumCardBorder = "rgba(148,163,184,.22)";
         const isLiked = hookLikes.has(hookDetail.id);
@@ -49,7 +55,7 @@ export default function HookDetailSheet({ ctx }) {
         return (
           <div style={{ position: "fixed", inset: 0, zIndex: 950, background: premiumImagePage ? `radial-gradient(circle at 50% 18%, ${acc}12 0%, transparent 34%), ${C.bg}` : C.bg, display: "flex", flexDirection: "column", overflowY: "auto", overscrollBehavior: "contain", alignItems: isDesktop ? "center" : "stretch" }}>
             {/* Gradient hero header */}
-            <div style={{ background: heroImage ? `linear-gradient(90deg, rgba(3,7,14,.82) 0%, rgba(3,7,14,.50) 48%, rgba(3,7,14,.18) 100%), linear-gradient(180deg, rgba(4,8,16,.16) 0%, rgba(4,8,16,.38) 48%, ${C.bg} 100%), url("${heroImage}") center / cover no-repeat` : `linear-gradient(155deg, ${acc}2A 0%, ${C.bg} 72%)`, borderBottom: premiumImagePage ? "none" : `1px solid ${acc}35`, padding: premiumImagePage ? "max(18px, calc(env(safe-area-inset-top) + 14px)) 18px 82px" : "max(16px, calc(env(safe-area-inset-top) + 12px)) 16px 18px", minHeight: heroImage ? (isDesktop ? 390 : 350) : undefined, flexShrink: 0, width: "100%", maxWidth: isDesktop ? 920 : "none", boxSizing: "border-box", position: "relative" }}>
+            <div style={{ background: heroImage ? `linear-gradient(90deg, rgba(3,7,14,.82) 0%, rgba(3,7,14,.50) 48%, rgba(3,7,14,.18) 100%), linear-gradient(180deg, rgba(4,8,16,.16) 0%, rgba(4,8,16,.38) 48%, ${C.bg} 100%), url("${heroImage}") ${heroPos} / cover no-repeat` : `linear-gradient(155deg, ${acc}2A 0%, ${C.bg} 72%)`, borderBottom: premiumImagePage ? "none" : `1px solid ${acc}35`, padding: premiumImagePage ? "max(18px, calc(env(safe-area-inset-top) + 14px)) 18px 82px" : "max(16px, calc(env(safe-area-inset-top) + 12px)) 16px 18px", minHeight: heroImage ? heroMinH : undefined, flexShrink: 0, width: "100%", maxWidth: isDesktop ? 920 : "none", boxSizing: "border-box", position: "relative" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
                 <button onClick={() => setHookDetail(null)} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: premiumImagePage ? "rgba(8,14,24,.58)" : C.card, border: `1px solid ${premiumImagePage ? "rgba(255,255,255,.20)" : C.border}`, borderRadius: 999, color: acc, fontSize: 14, fontWeight: 800, cursor: "pointer", padding: "8px 15px", backdropFilter: premiumImagePage ? "blur(14px)" : undefined, boxShadow: premiumImagePage ? "0 8px 24px rgba(0,0,0,.22)" : undefined }}>‹ Back</button>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -63,12 +69,23 @@ export default function HookDetailSheet({ ctx }) {
                 </div>
               </div>
               <div style={{ maxWidth: premiumImagePage ? 620 : undefined, textShadow: premiumImagePage ? "0 2px 16px rgba(0,0,0,.72)" : undefined }}>
-              <div style={{ fontSize: 10, fontWeight: 900, color: acc, textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: 8 }}>{hookDetail.emoji} {hookDetail.label}</div>
-              <div style={{ fontSize: premiumImagePage ? (isDesktop ? 34 : 29) : 24, fontWeight: 850, color: C.text, lineHeight: 1.12, letterSpacing: premiumImagePage ? "-0.7px" : undefined, marginBottom: hookDetail.themeBody ? 10 : 4 }}>
-                {hookDetail.themeTitle || hookDetail.hook}
-              </div>
-              {hookDetail.themeBody && (
-                <div style={{ fontSize: premiumImagePage ? 15 : 13.5, color: premiumImagePage ? "#E4EAF2" : C.light, lineHeight: 1.55, marginBottom: 10 }}>{hookDetail.themeBody}</div>
+              {/* A partner splash (lib/partnerCollections.js) carries its OWN
+                  title art baked into heroImage, so the sheet suppresses its
+                  eyebrow/title/body here to avoid printing the name twice, and
+                  shows the partnership credit instead. */}
+              {!hookDetail.partnerSplash && (
+                <>
+                  <div style={{ fontSize: 10, fontWeight: 900, color: acc, textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: 8 }}>{hookDetail.emoji} {hookDetail.label}</div>
+                  <div style={{ fontSize: premiumImagePage ? (isDesktop ? 34 : 29) : 24, fontWeight: 850, color: C.text, lineHeight: 1.12, letterSpacing: premiumImagePage ? "-0.7px" : undefined, marginBottom: hookDetail.themeBody ? 10 : 4 }}>
+                    {hookDetail.themeTitle || hookDetail.hook}
+                  </div>
+                  {hookDetail.themeBody && (
+                    <div style={{ fontSize: premiumImagePage ? 15 : 13.5, color: premiumImagePage ? "#E4EAF2" : C.light, lineHeight: 1.55, marginBottom: 10 }}>{hookDetail.themeBody}</div>
+                  )}
+                </>
+              )}
+              {hookDetail.partnerSplash && hookDetail.creditLine && (
+                <div style={{ fontSize: 11.5, fontWeight: 700, color: "#E4EAF2", lineHeight: 1.5, marginBottom: 6 }}>{hookDetail.creditLine}</div>
               )}
               <div style={{ fontSize: 11.5, color: C.muted, fontWeight: 600 }}>
                 {sheetLoading ? "Finding the best picks near you…" : (themePlaces.length + " " + (theme === "skip" ? "to avoid" : theme === "drive" ? "worth the trip" : "curated picks") + " · Tap any to see full details")}

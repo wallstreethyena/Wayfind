@@ -659,3 +659,12 @@ node scripts/check-no-card-cap.mjs
 # the back door. v=2 is opt-in so tabs opened before the deploy keep the shape
 # they understand until VersionWatch reloads them.
 node scripts/check-rails-wire.mjs
+
+# NEIGHBORHOOD PARTNER RAILS (owner 2026-08-22). Geo-gated, paid local
+# placements (lib/partnerCollections.js). First is the Coconut Grove
+# Neighborhood Association: a branded card shows ONLY within 20 miles of the
+# Grove and opens a curated sheet of 7 venues, each with its LIVE Wayfind Score.
+# This pins the 20mi gate (so a paid placement cannot silently widen), that the
+# 7 named venues are present with real place_ids + photos, and that every shown
+# score is derived from wayfindScore() rather than hardcoded.
+node scripts/check-partner-collections.mjs
