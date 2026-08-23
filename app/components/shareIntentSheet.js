@@ -1,5 +1,7 @@
 "use client";
 import { encodeInvite, invitePath, inviteShareText, smsHref, activityForPlace } from "../../lib/dateInvite";
+// v8.46 — the pairing law. wf_center is shared state; every reader validates.
+import { centerAgreesWithLabel } from "../../lib/locationHonesty";
 
 // app/components/shareIntentSheet.js — the question, callable from anywhere (v7.28).
 //
@@ -249,7 +251,16 @@ export function askShareIntent(o) {
       let geo = "";
       try {
         const c = JSON.parse(window.localStorage.getItem("wf_center") || "null");
-        if (c && isFinite(c.lat) && isFinite(c.lng)) geo = c.lat + "," + c.lng;
+        // v8.46 — THE PAIRING LAW, and it matters MORE here than anywhere else:
+        // these coordinates are baked into a link a friend opens, permanently,
+        // with no session of their own to self-correct from. A stored pair whose
+        // label and point contradict each other would ship the recipient a
+        // ranking origin in the wrong state under this invite's city name.
+        // Sending no geo at all is honest — the recipient's own location
+        // resolves on arrival — and a lie is not.
+        if (c && isFinite(c.lat) && isFinite(c.lng) && centerAgreesWithLabel({ lat: c.lat, lng: c.lng }, c.loc)) {
+          geo = c.lat + "," + c.lng;
+        }
       } catch (e) {}
       const code = encodeInvite({ place: name, city: opt.city, id: opt.id, to: who, kind: opt.kind, geo });
       if (!code) { opt.onPlain && opt.onPlain(); close(); return; }

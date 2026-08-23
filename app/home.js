@@ -240,7 +240,7 @@ import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlen
 import { canonicalShareUrl } from "../lib/site";
 import { askShareIntent } from "./components/shareIntentSheet";
 import { placeKinds } from "../lib/dateInvite";
-import { isSeedCenter, cityLabel, landingSlugFromLoc } from "../lib/locationHonesty";
+import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel } from "../lib/locationHonesty";
 
 const BUILD = "beta";
 
@@ -272,7 +272,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.45.0";
+const BUILD_ID = "v8.46.0";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -3639,7 +3639,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // current afterwards.
   const [recentLocs, setRecentLocs] = useState([]);
   useEffect(() => {
-    try { const raw = localStorage.getItem("wf_recent_locs"); if (raw) setRecentLocs(JSON.parse(raw) || []); } catch (e) {}
+    // v8.46 — hydrate through the pairing law and REWRITE what survives, so a
+    // corrupt row already on a reader's device (the owner had one) disappears
+    // on their next load instead of waiting for a tap that would re-break the
+    // page. Rows we hold no city pin for pass untouched — this law only
+    // discards pairs it can actually prove wrong.
+    try {
+      const raw = localStorage.getItem("wf_recent_locs");
+      if (raw) {
+        const all = JSON.parse(raw) || [];
+        const clean = (Array.isArray(all) ? all : []).filter((r) => r && r.loc && isFinite(r.lat) && isFinite(r.lng) && centerAgreesWithLabel({ lat: r.lat, lng: r.lng }, r.loc));
+        setRecentLocs(clean);
+        if (clean.length !== (Array.isArray(all) ? all.length : 0)) localStorage.setItem("wf_recent_locs", JSON.stringify(clean));
+      }
+    } catch (e) {}
   }, []);
   // v8.4 — which nav tab has its sub-chip tray open. Separate from
   // browseCat on purpose: opening a tray is not yet a filter, and closing
@@ -3808,17 +3821,46 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const [deviceLoc, setDeviceLoc] = useState(null);
   const [locName, setLocName] = useState("");
   const [locResolved, setLocResolved] = useState(false);
+  // v8.46 — the committed center, readable from async callbacks. The geo
+  // effect's IP fallback fires 2.5s after mount from inside a closure that
+  // captured `center` at mount, so it could not ask "where are we NOW?"
+  // without a functional updater — which is why it ended up deciding the
+  // center and the label under two different conditions. One ref, one
+  // decision, both halves of the location moved together.
+  const centerRef = useRef(null);
+  useEffect(() => { centerRef.current = center; }, [center]);
   // A1: persist the app's resolved location, including whether it came from
   // a manual search, so remounts do not snap back to device GPS.
   useEffect(() => {
-    try { if (center && isFinite(center.lat) && isFinite(center.lng) && locName) setLocal("wf_center", JSON.stringify({ lat: center.lat, lng: center.lng, loc: locName, manual: !!manualRef.current, ts: Date.now() })); } catch (e) {}
+    // v8.46 — THE PAIRING LAW AT THE WRITER, which is where the corrupt record
+    // is actually manufactured. This effect fires whenever EITHER half changes
+    // and persists whatever the two happen to hold — so any of the paths that
+    // move one half without the other (ipFallback's two different guards,
+    // recenterToMe's awaited reverse-geocode, clearSearchedLocation) writes the
+    // mismatch to disk, where it outlives the session that made it. That is how
+    // { lat: 35.26, lng: -81.13, loc: "Parrish, FL" } — a North Carolina pin
+    // under a Florida name — ended up on the owner's browser and emptied every
+    // rail on his homepage. Guarding only the READ side would let this keep
+    // re-minting it every session. A pair that contradicts itself is not a
+    // location and does not get stored; the last good record stays untouched
+    // until a coherent one replaces it.
+    try {
+      if (center && isFinite(center.lat) && isFinite(center.lng) && locName && centerAgreesWithLabel(center, locName)) {
+        setLocal("wf_center", JSON.stringify({ lat: center.lat, lng: center.lng, loc: locName, manual: !!manualRef.current, ts: Date.now() }));
+      }
+    } catch (e) {}
     // v8.14 (owner: the search bar's left slot "should show the previous
     // location"). Every NAMED center the reader has actually used joins a
     // small recency list the location control serves back. Deduped by city
     // label so "Parrish, FL" appears once however many exact points it had;
     // capped at 6 (current + 5 previous shown).
     try {
-      if (center && isFinite(center.lat) && isFinite(center.lng) && locName) {
+      // v8.46 — same law, same reason. The scope menu's "Recent" list SETS the
+      // center from these rows (setCenter({lat:r.lat,lng:r.lng}); setLocName(r.loc)),
+      // so an incoherent row here is a corrupt pin one tap away, forever. The
+      // owner's list held `{"lat":35.2619678,"lng":-81.126481,"loc":"Parrish, FL"}`
+      // for exactly this reason.
+      if (center && isFinite(center.lat) && isFinite(center.lng) && locName && centerAgreesWithLabel(center, locName)) {
         const raw = localStorage.getItem("wf_recent_locs");
         const prev = raw ? JSON.parse(raw) : [];
         const next = [{ lat: center.lat, lng: center.lng, loc: locName, ts: Date.now() },
@@ -4039,6 +4081,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       const raw = localStorage.getItem("wf_center");
       const c = raw ? JSON.parse(raw) : null;
       if (c && c.manual && isFinite(c.lat) && isFinite(c.lng) && (!c.ts || Date.now() - c.ts < 6 * 3600 * 1000)) {
+        // v8.46 — THE PAIRING LAW, ENFORCED AT THE DOOR. This is the record
+        // that broke the owner's homepage (2026-08-23), read off his browser:
+        //   { lat: 35.2619678, lng: -81.126481, loc: "Parrish, FL", manual: true }
+        // — a pin outside Gastonia, NC carrying the name of a Florida town 570
+        // miles away. Restored as-is it made every rail uncovered under a
+        // "Parrish" heading. A stored pair whose halves contradict each other
+        // is not a location: drop it, delete it, and let GPS//api/geo answer.
+        // Both halves go or neither does — restoring the LABEL alone would
+        // just rebuild the same lie on the next center that lands.
+        if (!centerAgreesWithLabel({ lat: c.lat, lng: c.lng }, c.loc)) {
+          try { localStorage.removeItem("wf_center"); } catch (e2) {}
+          try { logEvent("location_pair_corrupt", null, { loc: String(c.loc || ""), lat: +Number(c.lat).toFixed(3), lng: +Number(c.lng).toFixed(3) }); } catch (e2) {}
+          return;
+        }
         manualRef.current = true;
         setCenter({ lat: c.lat, lng: c.lng });
         setLocResolved(true);
@@ -6428,9 +6484,25 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         if (d && d.ok && !gotGPS && !manualRef.current) {
           const c = { lat: d.lat, lng: d.lng };
           setDeviceLoc((prev) => prev || c);
-          setCenter((prev) => (isSeedCenter(prev) ? c : prev));
           setLocResolved(true);
-          if (d.name) setLocName((prev) => prev || d.name);
+          // v8.46 — ONE GUARD FOR ONE FACT. This was two:
+          //     setCenter((prev) => (isSeedCenter(prev) ? c : prev));
+          //     if (d.name) setLocName((prev) => prev || d.name);
+          // The center only moved when it was still the seed; the NAME moved
+          // whenever it happened to be blank. Two independent conditions on the
+          // two halves of a single answer — so the halves could, and did,
+          // disagree: a center that stayed put picked up the IP service's city
+          // name, and the chrome started printing a town the ranking had never
+          // heard of. /api/rails then answered covered:false and every rail on
+          // the page went empty under a confident heading.
+          //
+          // The IP answer is now adopted WHOLE or not at all — one decision,
+          // read off centerRef (the committed center, not a stale closure) and
+          // applied to both halves together.
+          if (isSeedCenter(centerRef.current)) {
+            setCenter(c);
+            if (d.name) setLocName(d.name);
+          }
         }
       } catch (e) {}
     };
@@ -7827,6 +7899,15 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           setCenter({ lat, lng });
           setLocResolved(true);
           manualRef.current = true;
+          // v8.46 — this moves the RANKING to a business the reader tapped and
+          // never touched the label. Inside the same town that is harmless (the
+          // pairing law holds it). Tap a place in another city from the
+          // autosuggest and the chrome kept printing the old town over the new
+          // town's results. We do not have a city name for this point without
+          // spending a geocode, and the honest answer to "which city is this?"
+          // when we do not know is no city at all — locationHonesty prints
+          // nothing rather than a guess or a "near you".
+          if (!centerAgreesWithLabel({ lat, lng }, locName)) setLocName("");
         }
         openDetail(placeObj);
       } catch {
@@ -7890,8 +7971,22 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
 
   function clearSearchedLocation() {
     manualRef.current = false; try { localStorage.removeItem("wf_center"); } catch (e) {}
-    if (deviceLoc && isFinite(deviceLoc.lat)) { setCenter({ lat: deviceLoc.lat, lng: deviceLoc.lng }); setLocResolved(true); }
-    setLocName("");
+    // v8.46 — BOTH HALVES OR NEITHER. `setLocName("")` was unconditional while
+    // the recenter was guarded on having a device fix, so with no fix yet the
+    // ranking stayed pinned to the city the reader had searched while the
+    // chrome went blank — the app quietly claiming no location while serving
+    // one. Clearing the label is only honest once the coordinates have actually
+    // left that city.
+    if (deviceLoc && isFinite(deviceLoc.lat)) {
+      setCenter({ lat: deviceLoc.lat, lng: deviceLoc.lng });
+      setLocResolved(true);
+      setLocName("");
+    } else {
+      // No fix to fall back to: ask for one. recenterToMe clears wf_center,
+      // resolves the name and the point together, and is the same path the
+      // header's "Current location" runs.
+      try { recenterToMe(); } catch (e) {}
+    }
   }
 
   // v6.97 (owner: "a near me button to reset my location would be nice, I
@@ -7916,10 +8011,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // fresh enableHighAccuracy GPS fix, the same precision the map pin runs
     // on. A real GPS deviceLoc still shortcuts — it IS the precise answer.
     if (!locApprox && deviceLoc && isFinite(deviceLoc.lat)) {
+      // v8.46 — NAME FIRST, THEN COMMIT. This used to move the center, the map
+      // and locResolved immediately and only then `await` the reverse geocode
+      // inside a catch-all try — so a throw, or simply a slow answer, left the
+      // ranking at the new point while the chrome still named the OLD city, and
+      // the writer effect persisted that pair to wf_center. Resolving the name
+      // before anything commits makes the two halves land in one render, which
+      // is the same order the mount GPS handler already uses.
+      const name = await reverseGeocode(deviceLoc.lat, deviceLoc.lng).catch(() => "");
       setCenter({ lat: deviceLoc.lat, lng: deviceLoc.lng });
       setLocResolved(true);
       setMapFocus({ lat: deviceLoc.lat, lng: deviceLoc.lng, ts: Date.now() });
-      try { setLocName(await reverseGeocode(deviceLoc.lat, deviceLoc.lng)); } catch (e) {}
+      // No name is honest (locationHonesty prints no city rather than "you");
+      // a STALE name is a lie, so the old label never survives a move.
+      setLocName(name || "");
       try { logEvent("recenter_to_me", null, { hadFix: true }); } catch (e) {}
       return;
     }
@@ -7929,10 +8034,15 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setDeviceLoc(c);
         setLocApprox(false);
+        // v8.46 — name first, then commit (see the note above). Same defect,
+        // same fix: the label and the coordinates are one fact and land in one
+        // render, so a failed or slow geocode can never strand the old city's
+        // name on a new city's pin.
+        const name = await reverseGeocode(c.lat, c.lng).catch(() => "");
         setCenter(c);
         setLocResolved(true);
         setMapFocus({ ...c, ts: Date.now() });
-        try { setLocName(await reverseGeocode(c.lat, c.lng)); } catch (e) {}
+        setLocName(name || "");
         try { logEvent("recenter_to_me", null, { hadFix: false }); } catch (e) {}
       },
       () => { try { logEvent("recenter_to_me_denied", null, {}); } catch (e) {} },
@@ -8777,6 +8887,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         lng={railMenu.lng}
         initialDaypart={railMenu.daypart}
         center={locResolved ? center : null}
+        // v8.46 — the drop names the reader's own town in its honest-empty
+        // copy, and can hand them the one-tap GPS fix. `recenterToMe` is also
+        // the SELF-HEAL for a stored pin whose label and coordinates disagree:
+        // it clears wf_center and re-asks the device.
+        locName={locName}
+        onRecenter={recenterToMe}
         // Coconut Grove sponsor tile — geo-gated (sponsorRailNear returns null
         // outside the 20mi gate), pinned to the front of the amazon rail, opens
         // the curated partner sheet on tap. Only when location has resolved.

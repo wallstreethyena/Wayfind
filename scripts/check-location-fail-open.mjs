@@ -57,10 +57,19 @@ ok(!/<CityGate /.test(HOME),
   "v8.11: CityGate stays off the homepage — honesty is empty rails, not the door");
 ok(/liveFromRailsResponse/.test(RAIL) || /!j \|\| !j\.covered \|\| !j\.data/.test(RAIL),
   "the live fetch still treats covered:false / missing data as a miss");
-ok(/\.catch\(\(\) => \{[\s\S]{0,180}setLive\(emptyRailLive\(\)\)/.test(RAIL)
+// v8.46 — STRICTLY STRONGER THAN THE .catch() THIS USED TO PIN. A .catch only
+// covers a REJECTED fetch; it does nothing for a request that neither resolves
+// nor rejects (a black-holed connection, a device that slept mid-request), and
+// that is the failure that actually stuck — the owner's rail drop sat on grey
+// skeletons with no way out. settleLoad (lib/loadState.js) arms a 12s timer
+// BEFORE the request, so every one of those paths reaches !res.ok and empties
+// the flagship. Either shape satisfies the law; the settleLoad shape satisfies
+// more of it.
+ok((/settleLoad\(/.test(RAIL) && /!res\.ok[\s\S]{0,180}setLive\(emptyRailLive\(\)\)/.test(RAIL))
+  || /\.catch\(\(\) => \{[\s\S]{0,180}setLive\(emptyRailLive\(\)\)/.test(RAIL)
   || /\.catch\(\(\) => \{[\s\S]{0,180}setLive\(emptyLive\(\)\)/.test(RAIL)
   || /\.catch\(\(\) => \{[\s\S]{0,180}covered:\s*false/.test(RAIL),
-  "a thrown /api/rails must empty the flagship, not .catch(() => {})");
+  "a thrown, timed-out or never-settling /api/rails must empty the flagship");
 ok(/covered:\s*false/.test(RAILS_API) && /COVERAGE_MI/.test(RAILS_API),
   "api/rails still fail-closes outside coverage instead of inventing a town");
 ok(/if \(!origin\)/.test(RAILS_API),

@@ -260,6 +260,11 @@ node scripts/check-art-assets.mjs
 node scripts/check-brand-derivatives.mjs
 node scripts/check-coupon-place-match.mjs
 node scripts/check-no-stuck-loading.mjs
+# v8.46 — check-no-stuck-loading executes lib/loadState.js's own contract but
+# never asked whether anything USED it. DaypartRail did not, and shipped the
+# same permanent grey box the module was written for. This one scans the
+# codebase: no render chain may end on a loading state.
+node scripts/check-no-terminal-loading.mjs
 node scripts/test-atlas-retry.mjs
 node scripts/test-atlas-verify-timefmt.mjs
 node scripts/check-cuisine-never-queried.mjs

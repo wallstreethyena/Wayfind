@@ -19,7 +19,17 @@ ok(/if \(manualRef\.current\) return;/.test(h), "the geolocation effect still yi
 
 // Clear × is a real revert-to-device
 ok(/manualRef\.current = false; try \{ localStorage\.removeItem\("wf_center"\)/.test(h), "Clear × resets manual mode + forgets the searched location");
-ok(/if \(deviceLoc && isFinite\(deviceLoc\.lat\)\) \{ setCenter\(\{ lat: deviceLoc\.lat, lng: deviceLoc\.lng \}\);/.test(h), "Clear × recenters to the device location");
+ok(/if \(deviceLoc && isFinite\(deviceLoc\.lat\)\) \{\s*\n?\s*setCenter\(\{ lat: deviceLoc\.lat, lng: deviceLoc\.lng \}\);/.test(h), "Clear × recenters to the device location");
+// v8.46 — BOTH HALVES OR NEITHER. setLocName("") used to run unconditionally
+// while the recenter was gated on having a device fix, so with no fix yet the
+// ranking stayed pinned to the searched city while the chrome went blank — the
+// app claiming no location while still serving one. The label now only clears
+// on the branch where the coordinates actually moved, and the no-fix branch
+// asks for a real one instead of leaving a mismatched pair behind.
+ok(/setCenter\(\{ lat: deviceLoc\.lat, lng: deviceLoc\.lng \}\);[\s\S]{0,160}setLocName\(""\);[\s\S]{0,200}\} else \{/.test(h),
+  "Clear × clears the label on the same branch that moves the point — never one without the other");
+ok(/\} else \{[\s\S]{0,300}recenterToMe\(\)/.test(h),
+  "Clear × with no device fix asks for one rather than blanking the label over a stale center");
 
 console.log(`test-searched-location: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);

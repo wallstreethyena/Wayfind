@@ -61,7 +61,19 @@ const ExplodingNearby = dynamic(() => import("./ExplodingNearby"), { ssr: false 
 import { DAYPARTS, partForHour, orderFor, railHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES } from "../../lib/rails.js";
-import { emptyRailLive, liveFromRailsResponse } from "../../lib/locationHonesty.js";
+// `cityLabel` is aliased because this component already takes a prop by that
+// name. The import is the LAW (never "you", never "your area"); the prop is a
+// string the caller handed down.
+import { emptyRailLive, liveFromRailsResponse, cityLabel as honestCityLabel } from "../../lib/locationHonesty.js";
+// v8.46 — THE GREY BOX, AGAIN. lib/loadState.js was written on 2026-08-12 for
+// the owner's screenshot of THIS RAIL ("What Should We Do Today?" expanded over
+// an empty grey box) and BestNearby/TodaysBest were moved onto it. This
+// component never was, so it kept the defect the module exists to kill: the
+// skeleton was the final `else` of the render chain, reached whenever
+// `shown.places[id]` was empty — which is ALSO what a still-in-flight fetch, a
+// failed fetch, and a genuinely uncovered location all look like. Three
+// different facts, one indistinguishable grey box, no way out of it.
+import { settleLoad, LOAD_PENDING, LOAD_FAILED, LOAD_TIMEOUT_MS, isPending, isFailed } from "../../lib/loadState.js";
 // v8.23 — the share intent (url, title, message body) is resolved in one pure
 // module so the tile never builds a link string of its own, and so a share
 // created on a dev server or a preview deploy still carries the production host
@@ -149,6 +161,16 @@ export default function DaypartRail({
   // Unresolved seed (DEFAULT_CENTER / null) is NOT a visitor location.
   center = null,
   onCoverage = null,
+  // v8.46 — the label the CHROME is showing the reader. The drop needs it for
+  // one job only: to name the town in the honest "we're not live here yet"
+  // copy. It is never used to rank anything — `center` does that — so a label
+  // that disagrees with the coordinates can mislead nobody here.
+  locName = "",
+  // v8.46 — the way out of an uncovered/unlocated drop: home.js's recenterToMe,
+  // the same one-tap GPS fix the header runs. Nullable (/v8 has no location
+  // machinery); without it the drop still explains itself, it just cannot
+  // offer the fix.
+  onRecenter = null,
   // v8.29.16 — WHERE "SEE WHAT'S ON" ACTUALLY GOES. Every other tile opens a
   // drop of place cards, which is the right payoff for "the best beaches near
   // you". The events tile promises something a place card cannot be: concerts,
@@ -236,11 +258,40 @@ export default function DaypartRail({
   // visitor is somewhere else, or that /api/rails failed. covered:false and
   // thrown fetches must empty the flagship, never keep Sarasota as "your" city.
   const [live, setLive] = useState(null);
+  // v8.46 — WHAT THE EMPTINESS MEANS. `live` alone cannot say: emptyRailLive()
+  // is byte-identical for "the fetch is in flight", "the fetch failed" and
+  // "Wayfind does not cover this town", and the render chain used to treat all
+  // three as "still ranking" and show a skeleton with no way out. This is the
+  // missing fact, tracked explicitly and settled by lib/loadState.js:
+  //   null          — nothing has been asked yet; the server props are the answer
+  //   LOAD_PENDING  — a /api/rails request is genuinely in flight (skeleton OK)
+  //   LOAD_FAILED   — it failed or timed out (12s) — say so, offer a retry
+  //   "uncovered"   — it answered covered:false — say so, offer the way in
+  //   "live"        — real ranked places for this reader's point
+  const [railLoad, setRailLoad] = useState(null);
+  // A failed load must be RE-CLAIMABLE (lib/loadState.js canClaim). Bumping
+  // this re-runs the center effect with identical coordinates, which is what
+  // makes the "Try again" button a real button and not decoration.
+  const [retryNonce, setRetryNonce] = useState(0);
   const [selected, setSelected] = useState(null);
   const trackRef = useRef(null);
   const pcRef = useRef(null);
   const menuRef = useRef(null);
-  const shown = live || { places: {}, thin: thin || [], region: region || null, citySlug: citySlug || null, cityLabel: cityLabel || "" };
+  // v8.46 — THE SERVER PROPS ARE AN ANSWER AGAIN. dd783d8 ("leftover Sarasota
+  // after Tampa") replaced `{ places, thin, … }` with `{ places: {}, thin: [] }`
+  // to stop a Tampa reader inheriting the flagship's places. It over-corrected:
+  // `places` and `thin` became DEAD PROPS, so before the first live payload
+  // every rail was empty AND `thin` was empty — which is exactly the state that
+  // fell through to the terminal skeleton. It also broke /v8 outright, which
+  // passes real per-city places and never passes `center`, so `live` there is
+  // permanently the honest empty.
+  //
+  // Reinstated safely, because the shape it feared no longer exists: the ISR
+  // homepage asks railMenuData(null) (app/page.js), which by design returns
+  // places:{} and every list rail in `thin` — an honest empty, not a flagship.
+  // A caller that DOES pass places (/v8) is passing its own city's, and the
+  // center effect still replaces them the instant the reader is somewhere else.
+  const shown = live || { places: places || {}, thin: thin || [], region: region || null, citySlug: citySlug || null, cityLabel: cityLabel || "" };
   const thinSet = useMemo(() => new Set(shown.thin), [shown.thin]);
   const railById = useMemo(() => new Map((sponsor ? [sponsor, ...rails] : rails).map((r) => [r.id, r])), [sponsor, rails]);
   // NOTE on `artStale`: a rail can be renamed in code while the reader keeps
@@ -265,8 +316,29 @@ export default function DaypartRail({
   // GPS jitter would spend a request to return an identical list.
   useEffect(() => {
     if (!center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) {
+      // A CALLER THAT ALREADY NAMED THE CITY. /v8?city=orlando ranks on the
+      // server for a city IT chose and hands the result down in `places` plus
+      // that city's own point in lat/lng. There is no reader location to wait
+      // for and none is claimed — the page's own <h1> says which city this is —
+      // so the server props are the answer, not a placeholder. The ISR homepage
+      // is untouched by this: railMenuData(null) returns lat/lng null, so it
+      // still falls through to the honest empty below and can never present a
+      // flagship metro as the visitor's town.
+      if (Number.isFinite(lat) && Number.isFinite(lng)) {
+        setLive(null);
+        setRailLoad("live");
+        return undefined;
+      }
+      // No point from either side. Geolocation is probably still resolving
+      // (8s GPS timeout, then the /api/geo fallback), so this IS pending — but
+      // pending with a DEADLINE, on the same clock loadState uses. A reader who
+      // blocked location, or whose fix never lands, gets a sentence and a
+      // button instead of the grey box that could previously sit there for the
+      // life of the tab.
       setLive(emptyRailLive());
-      return undefined;
+      setRailLoad(LOAD_PENDING);
+      const settleUnlocated = setTimeout(() => setRailLoad("unlocated"), LOAD_TIMEOUT_MS);
+      return () => clearTimeout(settleUnlocated);
     }
     if (Number.isFinite(lat) && Number.isFinite(lng)) {
       const R = 3958.8, r = (d) => (d * Math.PI) / 180;
@@ -285,29 +357,42 @@ export default function DaypartRail({
       // the morning board sits there all evening. Standing still inside the
       // band the server already rendered is still free.
       if (R * 2 * Math.asin(Math.sqrt(s2)) < 1.5 && daypart === initialDaypart) {
+        // The reader is standing where the server already ranked, in the band
+        // it ranked for: the server props ARE the live answer. `live = null`
+        // now means exactly that, because `shown` falls back to those props.
         setLive(null);
+        setRailLoad("live");
         return undefined;
       }
     }
     let cancelled = false;
     setLive(emptyRailLive());
+    setRailLoad(LOAD_PENDING);
     // Snapped to ~0.7mi so the CDN sees a countable set of URLs per metro, not
     // one per GPS fix. The server re-measures every distance from this point.
     const snap = (v) => Math.round(v * 100) / 100;
-    fetch(`/api/rails?lat=${encodeURIComponent(snap(center.lat))}&lng=${encodeURIComponent(snap(center.lng))}&band=${encodeURIComponent(daypart)}&v=2`)
-      .then((r2) => r2.json().catch(() => null))
-      .then((j) => {
-        if (cancelled) return;
-        setLive(liveFromRailsResponse(j));
-        try { onCoverage && onCoverage(j && j.covered === true && j.data ? "covered" : "uncovered"); } catch (e) {}
-      })
-      .catch(() => {
-        if (cancelled) return;
+    // v8.46 — SETTLED, ALWAYS. Through lib/loadState.js, the module written for
+    // this exact grey box: the 12s timer is armed BEFORE the request, so a
+    // black-holed connection, a sleeping device and a promise nothing ever
+    // resolves all reach LOAD_FAILED instead of leaving the skeleton up. The
+    // old chain had a .catch for rejections and nothing at all for a fetch that
+    // simply never settles — the one failure mode that looks like slowness.
+    settleLoad(() => fetch(`/api/rails?lat=${encodeURIComponent(snap(center.lat))}&lng=${encodeURIComponent(snap(center.lng))}&band=${encodeURIComponent(daypart)}&v=2`).then((r2) => r2.json())).then((res) => {
+      if (cancelled) return;
+      if (!res.ok) {
         setLive(emptyRailLive());
+        setRailLoad(LOAD_FAILED);
         try { onCoverage && onCoverage("error"); } catch (e) {}
-      });
+        return;
+      }
+      const j = res.data;
+      const covered = !!(j && j.covered === true && j.data);
+      setLive(liveFromRailsResponse(j));
+      setRailLoad(covered ? "live" : "uncovered");
+      try { onCoverage && onCoverage(covered ? "covered" : "uncovered"); } catch (e) {}
+    });
     return () => { cancelled = true; };
-  }, [center && center.lat, center && center.lng, lat, lng, daypart, initialDaypart]);
+  }, [center && center.lat, center && center.lng, lat, lng, daypart, initialDaypart, retryNonce]);
 
   // The live hour, after mount, from the ONE clock — read in the timezone of
   // the coordinates being ranked. Re-checkedevery minute so a rail left open across
@@ -608,6 +693,10 @@ export default function DaypartRail({
     );
   };
   const near = (live && live.cityLabel) ? ` near ${live.cityLabel}` : "";
+  // The town to NAME in an honest-empty sentence. The reader's own label first
+  // (it is what the chrome is already showing them, so the copy matches the
+  // page), then whatever the payload named, then nothing — and never "you".
+  const dropCity = honestCityLabel(locName) || (shown.cityLabel ? honestCityLabel(shown.cityLabel) : "") || "";
 
   return (
     <div className={`wf8 is-${daypart}${selected ? " is-open" : ""}`} data-daypart={daypart}>
@@ -803,6 +892,18 @@ export default function DaypartRail({
               <button type="button" className="wf8-pnav r" aria-label="More places" disabled={pcEnds.atEnd}
                 onClick={() => { scrollBy(pcRef, 1); syncPc(); }}><Chevron dir="r" /></button>
             </div>
+          ) : selRail && isPending(railLoad) ? (
+            /* v8.46 — THE ONLY PLACE A SKELETON MAY RENDER. It is gated on an
+               explicit in-flight flag that lib/loadState.js guarantees will be
+               overwritten within 12s, by data or by LOAD_FAILED. It is no
+               longer the final `else`, so "empty" can never be mistaken for
+               "still ranking". scripts/check-no-terminal-loading.mjs fails the
+               build if a skeleton ever becomes the last branch again. */
+            <div className="wf8-pcwrap">
+              <ul className="wf8-pcrail" role="status" aria-busy="true" aria-label="Ranking places">
+                <PlaceCardSkeleton count={3} />
+              </ul>
+            </div>
           ) : selRail && thinSet.has(selRail.id) ? (
             <div className="wf8-thin">
               <p>
@@ -813,10 +914,35 @@ export default function DaypartRail({
               ) : null}
             </div>
           ) : selRail ? (
-            <div className="wf8-pcwrap">
-              <ul className="wf8-pcrail" role="status" aria-busy="true" aria-label="Ranking places">
-                <PlaceCardSkeleton count={3} />
-              </ul>
+            /* THE HONEST TERMINAL STATE. Whatever else went wrong, the reader
+               gets a sentence that is true, and at least one thing to press.
+               Never a grey box. */
+            <div className="wf8-thin">
+              <p>
+                {isFailed(railLoad)
+                  ? `We couldn't reach the ranking service just now, so we won't show you a list we haven't ranked.`
+                  : railLoad === "unlocated"
+                    ? `We need a location before we can rank anything${dropCity ? ` — the pin we're holding says ${dropCity}` : ""}.`
+                    : `Wayfind isn't live in ${dropCity || "your area"} yet — we only publish a list once we've actually ranked the places in it.`}
+              </p>
+              <div className="wf8-thinact">
+                {isFailed(railLoad) ? (
+                  <button type="button" className="wf8-thinbtn" onClick={() => { setRetryNonce((n) => n + 1); try { logEvent("rail_retry", { rail_id: selRail.id }); } catch (e) {} }}>
+                    Try again
+                  </button>
+                ) : onRecenter ? (
+                  /* The self-heal. The defect that produced this screen on the
+                     owner's own browser was a stored pin in North Carolina
+                     wearing a Florida city's name; one tap on a real GPS fix
+                     fixes it, and it is the same recenter the header runs. */
+                  <button type="button" className="wf8-thinbtn" onClick={() => { try { onRecenter(); } catch (e) {} try { logEvent("rail_recenter", { rail_id: selRail.id }); } catch (e) {} }}>
+                    Use my current location
+                  </button>
+                ) : null}
+                {railHref(selRail, shown.region, shown.citySlug) ? (
+                  <a href={railHref(selRail, shown.region, shown.citySlug)}>{selRail.cta} →</a>
+                ) : null}
+              </div>
             </div>
           ) : null}
         </div>

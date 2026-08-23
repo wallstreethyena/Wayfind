@@ -23,6 +23,9 @@ import { couponForPlaceName, couponIsLive } from "../../lib/coupons";
 import { buildCuisineRails } from "../../lib/orderInRails";
 import { nearestMetro, METROS, missingGuaranteed, tagFeatured } from "../../lib/orderInFeatured";
 import { emitCommerce, mintClickId } from "../../lib/commerce";
+// v8.46 — the pairing law. wf_center is shared state written by app/home.js;
+// every reader of it validates the pair before trusting it.
+import { centerAgreesWithLabel } from "../../lib/locationHonesty";
 
 const DEFAULT_CENTER = { lat: 28.5384, lng: -81.3789, loc: "Orlando, FL" };
 
@@ -53,7 +56,17 @@ export default function OrderInClient() {
     } catch (e) {}
     try {
       const saved = JSON.parse(localStorage.getItem("wf_center") || "null");
-      if (saved && isFinite(saved.lat) && isFinite(saved.lng)) { setCenter({ lat: saved.lat, lng: saved.lng, loc: saved.loc || "" }); return; }
+      // v8.46 — THE PAIRING LAW, HERE TOO. `metroCity` below falls back to
+      // `saved.loc.split(",")[0]` whenever nearestMetro() can't place the
+      // point, so an incoherent stored pair made this page print one city's
+      // name over another city's restaurants — the same lie that emptied the
+      // homepage rails. A pair we can prove wrong is not a location: skip it
+      // and fall through to geolocation, which is what this reader deserves
+      // anyway.
+      if (saved && isFinite(saved.lat) && isFinite(saved.lng)
+        && centerAgreesWithLabel({ lat: saved.lat, lng: saved.lng }, saved.loc)) {
+        setCenter({ lat: saved.lat, lng: saved.lng, loc: saved.loc || "" }); return;
+      }
     } catch (e) {}
     let done = false;
     try {

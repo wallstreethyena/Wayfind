@@ -1,3 +1,72 @@
+## v8.46 - The grey box in Parrish, and the pin that was in North Carolina
+
+- Owner, with two screenshots of gowayfind.com: "this is not workign for parrish
+  fl why please fix this". The "What Should We Do Today?" drop was three grey
+  place-card skeletons that never resolved. Parrish is the flagship town. It is
+  covered. /api/rails answers it with 13 ranked places in 8.3s, measured.
+- ROOT CAUSE, read off his own browser rather than guessed at.
+  localStorage.wf_center held
+  `{ lat: 35.2619678, lng: -81.126481, loc: "Parrish, FL", manual: true }`
+  - a pin outside Gastonia, NORTH CAROLINA wearing the name of a Florida town
+  570 miles away. /api/geo said Parrish, FL (27.5875,-82.4251). Device GPS said
+  27.620,-82.411. Both right. The stored pin was 500+ miles from any
+  LANDING_CITIES entry, so /api/rails answered covered:false, and the page
+  emptied every rail under a confident "Parrish" heading.
+- WHY THE HALVES COULD DISAGREE. `center` and `locName` are two independent
+  useState values written from thirteen call sites, several across an `await`,
+  and nothing tied them together. ipFallback was the clearest case: the center
+  moved only when it was still the seed (`isSeedCenter(prev) ? c : prev`) while
+  the NAME moved whenever it happened to be blank (`prev || d.name`) - two
+  different guards on two halves of one fact. recenterToMe committed the point
+  and then awaited the reverse geocode inside a catch-all, so a slow or thrown
+  geocode stranded the old city's name on the new city's pin. And the writer
+  effect persisted whatever the two happened to hold, so the mismatch outlived
+  the session that made it.
+- lib/locationHonesty.js gains the PAIRING LAW: `centerAgreesWithLabel`. True
+  when the two agree and true when we cannot tell - a town we hold no pin for
+  (Gulfport) is not evidence of corruption. False only when we hold the city's
+  origin and the coordinates are more than 40 miles from it, which holds a whole
+  metro (Parrish to Sarasota is 19mi) while a cross-state pin cannot survive. It
+  runs at the WRITER (wf_center and wf_recent_locs are never persisted
+  incoherent) and at every READER: home.js hydration, the recents list - which
+  rewrites itself, so a corrupt row already on a device disappears rather than
+  waiting for a tap - plus OrderInClient (it prints metroCity from saved.loc)
+  and shareIntentSheet (those coordinates get baked into a link a friend opens,
+  with no session of their own to self-correct from).
+- WHY IT WAS INVISIBLE INSTEAD OF LOUD, which is the second defect and the worse
+  one. DaypartRail's render chain ended with the skeleton as the FINAL else, so
+  "still fetching", "the fetch failed", "the fetch never settled" and "we do not
+  cover this town" were one indistinguishable grey box with no timeout, no error
+  branch and no way out. lib/loadState.js was written for exactly this on
+  2026-08-12 - after this SAME rail was reported stuck once before - and
+  BestNearby/TodaysBest were moved onto it. DaypartRail never was. It is now:
+  settleLoad arms its 12s timer before the request, so a black-holed connection
+  reaches LOAD_FAILED instead of sitting there for the life of the tab.
+- The drop now says which thing actually happened, and gives the reader
+  something to press: an uncovered town gets "Wayfind isn't live in {city} yet"
+  plus the one-tap location fix (which is also the self-heal for a corrupt pin);
+  a failed load gets an honest sentence and a Try again that really re-runs the
+  request; an unresolved location gets a bounded wait, then a sentence.
+- dd783d8 had also made `places` and `thin` DEAD PROPS while over-correcting a
+  real leftover-Sarasota bug. That guaranteed an empty first paint and broke /v8
+  outright - it passes real per-city places and never passes `center`, so it was
+  permanently skeletons. Restored safely: the ISR homepage asks
+  railMenuData(null), which returns places:{} and every list rail in `thin` by
+  design, so there is no flagship left to leak.
+- Guards 403 -> 404: check-no-terminal-loading scans every component in app/ and
+  lib/ for a loading state as the final arm of a ternary - check-no-stuck-loading
+  only ever executed loadState's own contract and never asked whether anything
+  used it, which is how DaypartRail opted out in silence. Run against the
+  pre-fix file it names app/components/DaypartRail.js:817. The pairing law is
+  EXECUTED in check-location-honesty (93 assertions) against the real corrupt
+  record, the Sarasota-under-a-Parrish-label near miss that must still pass, and
+  the unknown town that must not be discarded.
+- Verified live against a production build, four ways: the owner's exact corrupt
+  record self-heals to his real GPS point and renders 13 ranked cards; Charlotte
+  gets the honest uncovered panel; an /api/rails that never settles shows a
+  bounded skeleton for 12s then an honest failure and a Try again that recovers
+  to 436 Tampa cards; /v8 renders its server-ranked places instead of skeletons.
+
 ## v8.33.1 - One copy of each place on the wire
 - Measured in PRODUCTION right after v8.33 shipped, not assumed: one Sarasota
   /api/rails response was 1,885 rows, 1,691KB raw, and Vercel served it at

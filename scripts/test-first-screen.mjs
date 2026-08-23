@@ -131,10 +131,19 @@ ok(/const railMenuBand = railMenu \? \(/.test(code),
     // appears only after location resolves; it can no more blank the first
     // screen than `center` can. (If it were ever passed unconditionally, it
     // would stop belonging on this list.)
+    // v8.46 — `locName` joins them, on the same terms as `liked`/`disliked`:
+    // it is client state read in exactly ONE place, the drop's honest-empty
+    // sentence ("Wayfind isn't live in {city} yet"), which only ever renders
+    // after a tile has been tapped and the load has settled to uncovered or
+    // failed. It appears nowhere in the rail's own markup, so it cannot delay
+    // or change the first paint. The moment a tile prints it, it stops
+    // belonging on this list. (It is a LABEL only — `center` still does all
+    // the ranking, so a label that disagreed with the coordinates could not
+    // mislead anything here even if the pairing law let one through.)
     const NON_CONTENT = new Set([
       "center", "sponsor", "isSaved", "isOnTrip", "initialRail",
       "liked", "disliked", "isLiked", "isDisliked",
-      "memberSignalsFor", "applyMemberSignal",
+      "memberSignalsFor", "applyMemberSignal", "locName",
     ]);
     if (NON_CONTENT.has(name) || /^on[A-Z]/.test(name)) continue;
     ok(/^railMenu\.\w+$/.test(value) || value === "RAILS",

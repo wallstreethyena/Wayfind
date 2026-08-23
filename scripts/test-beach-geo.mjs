@@ -201,7 +201,11 @@ ok(/category === "beach" \? beachesWithin\(ranked, \{ lat, lng \}\) : vetBeachDi
   // exactly and still first, which is the property this assertion exists for —
   // a refactor that pinned the re-rank to geolocation and dropped the searched
   // city would still fail here.
-  ok(/\}, \[center && center\.lat, center && center\.lng, lat, lng, daypart, initialDaypart\]\);/.test(rail),
+  // v8.46 — `retryNonce` may follow (the honest-empty drop's "Try again" has to
+  // be able to re-run an identical request). The PREFIX is what this assertion
+  // is about and it is still pinned exactly, in order: a refactor that pinned
+  // the re-rank to geolocation and dropped the searched city still fails here.
+  ok(/\}, \[center && center\.lat, center && center\.lng, lat, lng, daypart, initialDaypart[,\]]/.test(rail),
     "…and that re-rank must re-run on `center` (and, since v8.30, on the band), so a SEARCHED city is subject to the rule exactly like a located one");
   const api = readFileSync(new URL("../app/api/rails/route.js", import.meta.url), "utf8");
   ok(/COVERAGE_MI/.test(api) && /bestMi <= COVERAGE_MI \? best : null/.test(api),
