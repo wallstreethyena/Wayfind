@@ -57,6 +57,16 @@ function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlac
   const railSeen = useRef(false);
   const primary = trend.matches[0];
   const more = trend.matches.slice(1);
+  // v8.39 — derived from the ROWS, with `provenCount` only as a hint. The
+  // producer and the renderer are two modules and a cached payload apart; a
+  // count that disagreed with its own list is how a rail ends up claiming a
+  // number it cannot show. Counting the rendered rows cannot drift.
+  const provenCount = trend.matches.filter((p) => p.trendProof !== "category").length;
+  const nearbyCount = trend.matches.length - provenCount;
+  // What the extra cards ARE, named from the rows themselves: one venue type
+  // if they agree, the honest generic if they do not.
+  const nearbyTypes = new Set(trend.matches.filter((p) => p.trendProof === "category").map((p) => prettyType(p.primaryType || p.category).toLowerCase()));
+  const nearbyNoun = nearbyTypes.size === 1 ? [...nearbyTypes][0] + "s" : "places";
   if (!primary) return null;
 
   const card = (p, rank, additional) => {
@@ -77,10 +87,25 @@ function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlac
       // in full ("6 spots for functional smoothies…"), so the pill repeating
       // it was pure noise and forced a cut-off. One word on the pill; the full
       // trend stays in the title for hover/screen readers.
-      { key: "exploding-trend", icon: "🔥", label: "Trending", title: "Trending: " + trend.label, onClick: onFindSimilar ? () => {
-        onMeaningful("trend_find_similar", place, { concept_key: trend.conceptKey, query: trend.label });
-        onFindSimilar(trend.label);
-      } : undefined },
+      // v8.39 — THE CHIP SAYS WHAT THIS CARD PROVED, NOT WHAT THE RAIL IS ABOUT.
+      //
+      // A "🔥 Trending" chip on a card asserts that THIS place offers the
+      // trend. That is true of an offering-proven match (a discriminating
+      // Google type, or the venue's own name) and it is NOT true of a
+      // categorical one — the right kind of venue nearby, returned by Google
+      // for this query, proven as nothing more. Giving both the same chip
+      // would launder the second into the first, which is the whole reason
+      // the tier exists. So the categorical card names its VENUE instead, and
+      // the find-similar search it runs is the venue type, not the trend.
+      p.trendProof === "category"
+        ? { key: "nearby-type", icon: "📍", label: prettyType(p.primaryType || p.category), title: prettyType(p.primaryType || p.category) + " nearby — not verified for " + trend.label, onClick: onFindSimilar ? () => {
+            onMeaningful("trend_find_similar", place, { concept_key: trend.conceptKey, query: prettyType(p.primaryType || p.category), proof: "category" });
+            onFindSimilar(prettyType(p.primaryType || p.category));
+          } : undefined }
+        : { key: "exploding-trend", icon: "🔥", label: "Trending", title: "Trending: " + trend.label, onClick: onFindSimilar ? () => {
+            onMeaningful("trend_find_similar", place, { concept_key: trend.conceptKey, query: trend.label, proof: "offering" });
+            onFindSimilar(trend.label);
+          } : undefined },
       p.hasCreatorVideo ? { key: "creator-video", icon: "🎬", label: "Creator video" } : null,
     ].filter(Boolean);
     const directionHref = directionsUrl(place);
@@ -164,8 +189,22 @@ function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlac
           make sure the user knows it has more." ONE rail holds every verified
           match, best governed score first; the primary card keeps its award
           band inside the rail, and RailDots is the there-is-more bubble. */}
+      {/* v8.39 — THE COUNT LINE COUNTS ONLY WHAT THE RAIL CAN CLAIM.
+          This read `count={trend.matches.length}` with unit "spots for <trend>",
+          which was exact while every card was offering-proven. Now that a rail
+          can carry categorical venues behind its proven ones, the same line
+          would call twelve burger restaurants twelve smash-burger spots. The
+          headline number is the PROVEN count; the rest are described as what
+          they are, in the same breath, so nothing has to be discovered by
+          tapping. */}
       {more.length ? (
-        <RailNav railId={"exploding-" + trend.conceptKey} count={trend.matches.length} unit={"spots for " + trend.label.toLowerCase()} />
+        <RailNav
+          railId={"exploding-" + trend.conceptKey}
+          count={provenCount}
+          total={trend.matches.length}
+          unit={(provenCount === 1 ? "spot for " : "spots for ") + trend.label.toLowerCase()
+            + (nearbyCount ? ", plus " + nearbyCount + " more " + nearbyNoun + " nearby" : "")}
+        />
       ) : null}
       <div
         className="wf-rail wf-rail-exploding"

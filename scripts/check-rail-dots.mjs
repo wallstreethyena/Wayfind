@@ -122,8 +122,29 @@ const card = readFileSync(path.join(REPO, "app/components/RailCard.js"), "utf8")
 ok(/export function RailDots\(/.test(card), "RailDots is still the one exported indicator");
 const libDots = readFileSync(path.join(REPO, "lib/railDots.js"), "utf8");
 ok(/export function railDotWindow\(/.test(libDots), "the window math stays in lib/, JSX-free, or this guard cannot execute it");
-ok(/railDotWindow\(count, page\)/.test(card) && /railDotIsEdge\(/.test(card),
+// v8.39 — matches the CALL, not the caller's local variable name. This read
+// `railDotWindow(count, page)` literally, which pinned an identifier rather
+// than the contract and went red the moment the first argument stopped being
+// the card count (it is now the measured PAGE count — see below). The thing
+// worth protecting is that the window math has exactly one home.
+ok(/railDotWindow\(\s*\w+\s*,\s*page\s*\)/.test(card) && /railDotIsEdge\(/.test(card),
    "RailDots must CALL the shared window math, not keep a second copy inline — two copies is how the strip and its guard drift apart");
+// v8.39 — A DOT IS A PAGE, AND A PAGE IS MEASURED.
+//
+// RailDots was written when `.wf-rail>.wf-rail-card` was `flex:0 0 100%`, so
+// one card and one viewport were the same distance and the card count could
+// stand in for the page count. v8.35 sized the trending cards off the drop's
+// own column (~3.4 across a desktop) and that identity broke: a 12-dot strip
+// could only ever light its first 3, because `scrollLeft / clientWidth` tops
+// out at (12 - 3.4) / 3.4. The strip promised pages that no scroll could reach.
+//
+// So the page count has to come from the rail's own geometry. Asserted on the
+// source because the arithmetic only exists once a browser has laid the rail
+// out; test-drop-rail-parity.mjs is what measures the widths for real.
+ok(/scrollWidth/.test(card) && /clientWidth/.test(card),
+   "RailDots must MEASURE its pages off the rail (scrollWidth / clientWidth) — card count is only the page count while a card fills the column, which stopped being true in v8.35");
+ok(/ResizeObserver|addEventListener\(\s*["']resize["']/.test(card),
+   "the page count must be re-measured when the rail resizes — card width is a media-query variable, so a rotation changes how many pages exist");
 ok(/data-rail-dots=/.test(card), "the strip carries data-rail-dots so a live/e2e pass can find and assert it");
 
 console.log(`check-rail-dots: OK — ${pass} assertions; window math executed across 198 page states, ${dotted}/${rails} rails dotted, the "n of N" pill is gone from ${files.length} app files`);

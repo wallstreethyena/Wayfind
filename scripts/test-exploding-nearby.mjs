@@ -82,19 +82,30 @@ const googlePlace = (id, name, types, lat = 27.337) => ({
   rating: 4.8, userRatingCount: 700, businessStatus: "OPERATIONAL", types,
   photos: [{ name: `places/${id}/photos/one` }],
 });
-ok(placeFromGoogle(googlePlace("plain-cafe", "Main Street Coffee", ["cafe", "coffee_shop"]), "hojicha_lattes", center) == null,
-  "an exact Google query still cannot turn a generic cafe into a hojicha match");
-ok(placeFromGoogle(googlePlace("smash-live", "Smashburger", ["hamburger_restaurant", "restaurant"]), "smash_burgers", center)?.governedScore > 0,
+// ── v8.39 — THE TWO TIERS ────────────────────────────────────────────────────
+// The venues below used to come back null. They now come back TIERED, and the
+// law they used to enforce is enforced on the tier instead: a place that does
+// not prove the offering may never be called a spot for the trend, may never
+// lead a module, and may never wear the trend chip. These asserts are that law
+// restated, not relaxed — each one names the tier explicitly, so a future
+// change that promotes a categorical venue to "offering" goes red here.
+ok(placeFromGoogle(googlePlace("plain-cafe", "Main Street Coffee", ["cafe", "coffee_shop"]), "hojicha_lattes", center)?.trendProof === "category",
+  "an exact Google query still cannot turn a generic cafe into a hojicha match — it is the right venue nearby, never proof of the offering");
+const smashLive = placeFromGoogle(googlePlace("smash-live", "Smashburger", ["hamburger_restaurant", "restaurant"]), "smash_burgers", center);
+ok(smashLive?.governedScore > 0,
   "a correctly typed Google result whose own identity proves the offering receives the governed score");
+ok(smashLive?.trendProof === "offering",
+  "a venue whose own name proves the trend is tier 'offering' — the only tier allowed to lead a module");
 // Proof cases for the new top-20 concepts: type proof and name proof.
-ok(placeFromGoogle(googlePlace("ramen-type", "Kazu Kitchen", ["ramen_restaurant", "restaurant"]), "elevated_ramen", center)?.governedScore > 0,
+const ramenType = placeFromGoogle(googlePlace("ramen-type", "Kazu Kitchen", ["ramen_restaurant", "restaurant"]), "elevated_ramen", center);
+ok(ramenType?.governedScore > 0 && ramenType?.trendProof === "offering",
   "a dedicated Google type proves the offering even when the name says nothing (types are truth)");
 ok(placeFromGoogle(googlePlace("ramen-none", "Joe's Diner", ["restaurant"]), "elevated_ramen", center) == null,
   "a generic restaurant with no ramen identity is refused for the ramen trend");
-ok(placeFromGoogle(googlePlace("matcha-name", "Blossom Matcha Bar", ["cafe"]), "matcha_specialty_coffee", center)?.governedScore > 0,
+ok(placeFromGoogle(googlePlace("matcha-name", "Blossom Matcha Bar", ["cafe"]), "matcha_specialty_coffee", center)?.trendProof === "offering",
   "a cafe whose own identity names matcha is admitted by name proof");
-ok(placeFromGoogle(googlePlace("matcha-chain", "Starbucks", ["coffee_shop", "cafe"]), "matcha_specialty_coffee", center) == null,
-  "a generic coffee chain is not a matcha or specialty answer without proof");
+ok(placeFromGoogle(googlePlace("matcha-chain", "Starbucks", ["coffee_shop", "cafe"]), "matcha_specialty_coffee", center)?.trendProof === "category",
+  "a generic coffee chain is not a matcha or specialty answer without proof — it is a coffee shop nearby and is labelled as one");
 ok(placeFromGoogle(googlePlace("golf-shop", "Golf Galaxy", ["sporting_goods_store", "store"]), "golf_simulators", center) == null,
   "a golf shop selling clubs is vetoed by type: names lie");
 ok(placeFromGoogle(googlePlace("curry-wrong", "Curry Palace Indian Cuisine", ["indian_restaurant", "restaurant"]), "caribbean_curry_bowls", center) == null,
@@ -114,14 +125,14 @@ ok(placeFromGoogle(googlePlace("fc-1", "Reel Deal Charters", ["fishing_charter",
   "a fishing_charter-typed operator qualifies on type evidence alone");
 ok(placeFromGoogle(googlePlace("ar-1", "Lowry Pinball Hall", ["amusement_center"]), "retro_arcades", center)?.governedScore > 0,
   "a pinball hall qualifies by name evidence");
-ok(placeFromGoogle(googlePlace("ar-2", "Fun Center", ["amusement_center"]), "retro_arcades", center) == null,
-  "a generic amusement center with no arcade identity is refused");
+ok(placeFromGoogle(googlePlace("ar-2", "Fun Center", ["amusement_center"]), "retro_arcades", center)?.trendProof === "category",
+  "a generic amusement center with no arcade identity is never called a retro arcade — it rides behind the proven ones as what it is");
 ok(placeFromGoogle(googlePlace("bk-1", "Rise & Flour Bakehouse", ["bakery", "cafe"]), "artisanal_bakeries", center)?.governedScore > 0,
   "a bakery qualifies on Google's own bakery type");
 ok(placeFromGoogle(googlePlace("om-1", "Sora Omakase", ["sushi_restaurant", "japanese_restaurant"]), "omakase", center)?.governedScore > 0,
   "an omakase counter qualifies by name evidence");
-ok(placeFromGoogle(googlePlace("om-2", "Tokyo Express Sushi", ["sushi_restaurant"]), "omakase", center) == null,
-  "a takeout sushi shop is not an omakase answer: the sushi type alone is not the claim");
+ok(placeFromGoogle(googlePlace("om-2", "Tokyo Express Sushi", ["sushi_restaurant"]), "omakase", center)?.trendProof === "category",
+  "a takeout sushi shop is not an omakase answer: the sushi type alone is not the claim, so it can only ever ride as a sushi restaurant nearby");
 ok(placeFromGoogle(googlePlace("cu-1", "Havana Cafe", ["cuban_restaurant", "restaurant"]), "cuban_latin_flavor", center)?.governedScore > 0,
   "a cuban_restaurant qualifies on type evidence");
 
@@ -154,6 +165,52 @@ ok(!searchCalls.some((u) => /pilates|sauna|matcha|acai/i.test(decodeURIComponent
   "a morning trend is never searched at night: the daypart trigger is also the cost gate");
 ok(typeof liveList.trends[0].stat === "string" && /650%/.test(liveList.trends[0].stat),
   "a launch trend still carries its owner-supplied search-data stat when one exists");
+
+// ── v8.39 — THE TIER LAW, EXECUTED THROUGH THE WHOLE WALK ────────────────────
+// The unit asserts above pin what placeFromGoogle stamps. These pin what the
+// walk DOES with it, which is where the trust actually lives: a categorical
+// venue may ride a rail, and may never lead one or be counted as a spot for
+// the trend. Fixture: one burger place that proves smash (name) and three that
+// are only hamburger restaurants — the exact Parrish shape (1 proven, N near).
+const tierFetch = async (url) => {
+  const q = new URL(String(url), "https://wayfind.test").searchParams.get("q") || "";
+  if (!/smash burger/i.test(q)) return { ok: true, status: 200, json: async () => ({ places: [] }) };
+  return { ok: true, status: 200, json: async () => ({ places: [
+    // The categorical ones outscore the proven one on purpose: if ordering
+    // were left to governedScore, a place that never proved the offering
+    // would lead the module and wear its superlative.
+    { ...googlePlace("t-cat-1", "Beachside Grill", ["hamburger_restaurant", "restaurant"]), rating: 4.9, userRatingCount: 4000 },
+    { ...googlePlace("t-cat-2", "Corner Burger Co", ["hamburger_restaurant", "restaurant"]), rating: 4.9, userRatingCount: 3000 },
+    { ...googlePlace("t-cat-3", "Joe's Diner", ["restaurant"]), rating: 5.0, userRatingCount: 9000 },
+    { ...googlePlace("t-proven", "Coastal Smash", ["hamburger_restaurant", "restaurant"]), rating: 4.5, userRatingCount: 300 },
+  ] }) };
+};
+const tierList = await loadProvidedTrendList({ center, city: "Parrish", bucket: "night", fetchImpl: tierFetch });
+const tierTrend = tierList.trends.find((t) => t.conceptKey === "smash_burgers");
+ok(!!tierTrend, "positive control: the tiered fixture produced the smash burger module");
+ok(tierTrend && tierTrend.matches[0].id === "t-proven" && tierTrend.matches[0].trendProof === "offering",
+  "the LEAD is the place that proved the offering even when three categorical venues outrank it on score");
+ok(tierTrend && tierTrend.provenCount === 1 && tierTrend.matches.length === 3,
+  "the module reports ONE proven spot and carries the two categorical burger places behind it");
+ok(tierTrend && !tierTrend.matches.some((p) => p.id === "t-cat-3"),
+  "a place whose only qualifying type is the catch-all `restaurant` is refused at every tier — Joe's Diner is not a burger card");
+ok(tierTrend && tierTrend.matches.slice(1).every((p) => p.trendProof === "category"),
+  "every card after the proven ones is tagged category, so the chip can name the venue instead of the trend");
+
+// A market with NO proof renders nothing, however many of the right kind of
+// venue it holds. This is the "food hall in Parrish" case: 17 qualifying
+// venues, zero food courts, and the honest answer is an absent module.
+const noProofFetch = async (url) => {
+  const q = new URL(String(url), "https://wayfind.test").searchParams.get("q") || "";
+  if (!/smash burger/i.test(q)) return { ok: true, status: 200, json: async () => ({ places: [] }) };
+  return { ok: true, status: 200, json: async () => ({ places: [
+    { ...googlePlace("np-1", "Beachside Grill", ["hamburger_restaurant", "restaurant"]), rating: 4.9, userRatingCount: 4000 },
+    { ...googlePlace("np-2", "Corner Grill", ["hamburger_restaurant", "restaurant"]), rating: 4.8, userRatingCount: 2000 },
+  ] }) };
+};
+const noProofList = await loadProvidedTrendList({ center, city: "Parrish", bucket: "night", fetchImpl: noProofFetch });
+ok(!noProofList.trends.some((t) => t.conceptKey === "smash_burgers"),
+  "a trend with zero proven matches renders NOTHING — two well-reviewed burger joints are not a smash burger obsession");
 
 const morningCalls = [];
 const morningFetch = async (url) => {

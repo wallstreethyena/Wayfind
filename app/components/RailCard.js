@@ -116,13 +116,21 @@ const initialsOf = (name) => String(name || "WF").split(/\s+/).filter(Boolean).s
 // (app/home.js's rail lives in an IIFE inside the render tree). The query is
 // scoped to a data attribute this component owns, so it cannot collide with
 // anything else on the page.
-export function RailNav({ railId, count, unit }) {
-  if (!count || count < 2) return null;
+export function RailNav({ railId, count, unit, total }) {
+  // v8.39 — `total` is how many CARDS the rail holds; `count` is the number the
+  // hint is allowed to claim, which is not always the same thing (the trending
+  // rails now carry categorical venues behind their proven ones and say so in
+  // `unit`). The arrows exist when there is something to scroll to — that is a
+  // fact about the rail, never about the claim — so they key off `total`, and
+  // fall back to `count` for every caller that passes only the one number.
+  const cards = Number.isFinite(total) ? total : count;
+  if (!cards || cards < 2) return null;
   const move = (dir) => {
     if (typeof document === "undefined") return;
     const rail = document.querySelector(`[data-rail="${railId}"]`);
     if (!rail) return;
-    // One viewport width — which, with a full-width card, is exactly one card.
+    // One viewport width. Before v8.35 that was exactly one card; now it is
+    // however many cards the column fits, which is the right page either way.
     rail.scrollBy({ left: dir * rail.clientWidth, behavior: "smooth" });
   };
   return (
@@ -157,23 +165,50 @@ export function RailNav({ railId, count, unit }) {
 // out, carried by the same vocabulary as the rest of the strip.
 export function RailDots({ railId, count }) {
   const [page, setPage] = useState(0);
+  // v8.39 — THE DOTS COUNT PAGES, AND A PAGE STOPPED BEING ONE CARD.
+  //
+  // This component was written when `.wf-rail>.wf-rail-card` was `flex:0 0
+  // 100%`, so "one card" and "one viewport" were the same distance and `count`
+  // (cards) could stand in for pages. v8.35 sized the trending cards off the
+  // drop's own column — about 3.4 across a desktop — and the identity broke:
+  // `scrollLeft / clientWidth` now tops out around (12 - 3.4) / 3.4 ≈ 2.5, so a
+  // twelve-dot strip could only ever light its first three. The strip said
+  // there were nine pages left that no amount of scrolling could reach.
+  //
+  // Pages are therefore MEASURED off the rail's own geometry, and re-measured
+  // on resize because the card width is a media-query variable — a phone
+  // rotating to landscape changes how many pages exist. `count` stays the
+  // honest fallback for the first paint (before layout, scrollWidth is 0) and
+  // the ceiling: there is never more than one page per card.
+  const [pages, setPages] = useState(count);
   useEffect(() => {
     if (typeof document === "undefined" || !count || count < 2) return;
     const rail = document.querySelector(`[data-rail="${railId}"]`);
     if (!rail) return;
     const read = () => {
       const w = rail.clientWidth || 1;
-      setPage(Math.max(0, Math.min(count - 1, Math.round(rail.scrollLeft / w))));
+      const n = Math.max(1, Math.min(count, Math.ceil((rail.scrollWidth || w) / w)));
+      setPages(n);
+      setPage(Math.max(0, Math.min(n - 1, Math.round(rail.scrollLeft / w))));
     };
     rail.addEventListener("scroll", read, { passive: true });
+    // ResizeObserver over a window listener: the rail's width changes with the
+    // drop opening and closing too, not only with the viewport.
+    let ro = null;
+    if (typeof ResizeObserver === "function") { ro = new ResizeObserver(read); ro.observe(rail); }
+    else if (typeof window !== "undefined") window.addEventListener("resize", read);
     read();
-    return () => rail.removeEventListener("scroll", read);
+    return () => {
+      rail.removeEventListener("scroll", read);
+      if (ro) ro.disconnect();
+      else if (typeof window !== "undefined") window.removeEventListener("resize", read);
+    };
   }, [railId, count]);
-  if (!count || count < 2) return null;
+  if (!count || count < 2 || pages < 2) return null;
   // The sliding window. Clamped at both ends so the strip never shows blanks:
-  // near the start it pins to 0, near the end it pins to count - W, and only in
+  // near the start it pins to 0, near the end it pins to pages - W, and only in
   // the middle does it actually follow the active page.
-  const { start, end } = railDotWindow(count, page);
+  const { start, end } = railDotWindow(pages, page);
   const dots = [];
   for (let i = start; i < end; i++) dots.push(i);
   return (
@@ -181,7 +216,8 @@ export function RailDots({ railId, count }) {
       aria-hidden="true"
       data-rail-dots={railId}
       data-page={page + 1}
-      data-count={count}
+      data-count={pages}
+      data-cards={count}
       style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 5, padding: "7px 0 1px" }}
     >
       {dots.map((i) => {
@@ -189,7 +225,7 @@ export function RailDots({ railId, count }) {
         // An edge dot is only "tapered" when content actually continues past
         // it — at the true first/last card nothing is hidden, so nothing shrinks
         // and the strip reads as a plain, complete page control.
-        const edge = railDotIsEdge(i, start, end, count);
+        const edge = railDotIsEdge(i, start, end, pages);
         return (
           <span
             key={i}
