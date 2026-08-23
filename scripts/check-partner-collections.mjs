@@ -23,6 +23,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   PARTNER_COLLECTIONS, partnerCollectionsNear, hydratePartnerCollection, milesBetween,
+  sponsorRailNear, partnerCollectionById,
 } from "../lib/partnerCollections.js";
 import { wayfindScore } from "../lib/wayfindScore.js";
 
@@ -55,7 +56,23 @@ if (grove) {
     ok(milesBetween(grove.center.lat, grove.center.lng, p.lat, p.lng) <= grove.radiusMi, `${p.name} sits outside its own gate`);
   }
   ok(existsSync(join(ROOT, "public" + grove.heroImage)), `the splash art ${grove.heroImage} must exist in /public`);
+
+  // The AMAZON-RAIL tile art ladder must exist (avif/webp/jpg at 380 + 760),
+  // or the sponsor tile renders broken.
+  ok(typeof grove.tileArt === "string" && grove.tileArt, "the collection must name its rail tile art (tileArt)");
+  for (const w of [380, 760]) for (const ext of ["avif", "webp", "jpg"]) {
+    const f = `public/cards-v8/${grove.tileArt}-${w}.${ext}`;
+    ok(existsSync(join(ROOT, f)), `rail tile art ${f} must exist`);
+  }
 }
+
+// ── THE SPONSOR RAIL TILE: geo-gated, and it opens the collection ───────────
+const groveTile = sponsorRailNear(25.7272, -80.2578);
+ok(groveTile && groveTile.sponsor === true, "sponsorRailNear must return a sponsor tile in the Grove");
+ok(groveTile && partnerCollectionById(groveTile.partner) === grove, "the tile's partner id must resolve back to the collection");
+ok(sponsorRailNear(26.1224, -80.1373) === null, "no sponsor tile in Fort Lauderdale (~24mi)");
+ok(sponsorRailNear(27.9506, -82.4572) === null, "no sponsor tile in Tampa");
+ok(sponsorRailNear(NaN, NaN) === null, "no sponsor tile without a location");
 
 // ── THE GATE: in the Grove yes; 20+ miles away NO ───────────────────────────
 ok(partnerCollectionsNear(25.7272, -80.2578).some((c) => c.id === "coconut-grove"), "a reader in Coconut Grove must see the card");
@@ -76,11 +93,17 @@ if (grove) {
   }
 }
 
-// ── it is actually mounted and geo-gated in the home feed ───────────────────
+// ── it is wired into the AMAZON RAIL (DaypartRail), geo-gated ───────────────
 const home = readFileSync(join(ROOT, "app/home.js"), "utf8");
-ok(/import \{ partnerCollectionsNear, hydratePartnerCollection \} from "\.\.\/lib\/partnerCollections"/.test(home), "home.js must import the partner collection helpers");
-ok(/partnerCollectionsNear\(center\.lat, center\.lng\)/.test(home), "the home card must gate on the reader's own center");
-ok(/openPartnerCollection\(/.test(home), "the home card must open the collection sheet");
+ok(/sponsorRailNear/.test(home) && /partnerCollectionById/.test(home), "home.js must import the sponsor-rail helpers");
+ok(/sponsor=\{locResolved && center \? sponsorRailNear\(center\.lat, center\.lng\)/.test(home), "the sponsor tile must be gated on the reader's resolved center");
+ok(/onOpenPartner=\{/.test(home), "home.js must pass onOpenPartner to open the collection sheet");
+ok(/openPartnerCollection\(/.test(home), "home.js must open the collection sheet");
+
+const rail = readFileSync(join(ROOT, "app/components/DaypartRail.js"), "utf8");
+ok(/sponsor \? \[sponsor, \.\.\.rails\]/.test(rail), "DaypartRail must inject the sponsor as a synthetic rail (not into RAILS)");
+ok(/sponsor \? \[sponsor\.id, \.\.\.base\]/.test(rail), "DaypartRail must pin the sponsor tile to the front");
+ok(/_r\.partner && onOpenPartner/.test(rail), "a partner tile must open via onOpenPartner, not navigate");
 
 // ── red-proofs ──────────────────────────────────────────────────────────────
 {

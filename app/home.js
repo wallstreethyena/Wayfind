@@ -174,7 +174,7 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 // July 2026 decomposition (G0): design tokens and stateless helpers live in the
 // eager shared kit so extracted screens/sheets can import them without home.js.
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET, CHAMPAGNE, MEDALLION_SHADOW, TRENDING_POPULARITY_THRESHOLD, SHADOW } from "./components/kit";
-import { partnerCollectionsNear, hydratePartnerCollection } from "../lib/partnerCollections";
+import { sponsorRailNear, partnerCollectionById, hydratePartnerCollection } from "../lib/partnerCollections";
 import { COLLECTION } from "./components/collectionTheme";
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
 import { frontPageEvents, bestFirst } from "../lib/frontEvents";
@@ -8772,6 +8772,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         lng={railMenu.lng}
         initialDaypart={railMenu.daypart}
         center={locResolved ? center : null}
+        // Coconut Grove sponsor tile — geo-gated (sponsorRailNear returns null
+        // outside the 20mi gate), pinned to the front of the amazon rail, opens
+        // the curated partner sheet on tap. Only when location has resolved.
+        sponsor={locResolved && center ? sponsorRailNear(center.lat, center.lng) : null}
+        onOpenPartner={(pid) => { const c = partnerCollectionById(pid); if (c) openPartnerCollection(c); }}
         onCoverage={setRailsCoverage}
         // v8.29.16 — the events tile opens the events screen rather than a drop
         // of ticketed venues. What is behind it is the same feed the home rail
@@ -9997,27 +10002,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                         </div>
                       )}
                       {renderWorldCupCard(true)}
-                      {/* Neighborhood partner rail — geo-gated (lib/partnerCollections.js).
-                          Renders ONLY when the reader is inside a collection's gate
-                          (Coconut Grove: 20mi). A reader outside every gate gets
-                          nothing here — the whole point of a paid local placement. */}
-                      {(() => {
-                        if (!center) return null;
-                        const _pc = partnerCollectionsNear(center.lat, center.lng)[0];
-                        if (!_pc) return null;
-                        return (
-                          <div onClick={() => openPartnerCollection(_pc)} role="button" tabIndex={0} onKeyDown={KB_CLICK} aria-label={_pc.title} style={{ cursor: "pointer", borderRadius: 18, marginBottom: 12, position: "relative", overflow: "hidden", background: `linear-gradient(135deg, ${_pc.accent}26 0%, #08251F 52%, #04140F 100%)`, border: `1px solid ${_pc.accent}55`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", padding: "16px 16px 15px" }}>
-                            <div style={{ position: "absolute", top: 13, right: 14, fontSize: 10, fontWeight: 800, letterSpacing: "0.4px", color: _pc.accent, opacity: 0.9 }}>{_pc.places.length} places</div>
-                            <div style={{ fontSize: 10.5, fontWeight: 900, letterSpacing: "1.4px", textTransform: "uppercase", color: _pc.accent, marginBottom: 7 }}>{_pc.eyebrow}</div>
-                            <div style={{ fontSize: 20, fontWeight: 800, color: "#F2EFE6", lineHeight: 1.12, letterSpacing: "-0.3px" }}>{_pc.title}</div>
-                            <div style={{ fontSize: 12.5, color: "#C7D6D0", marginTop: 5, lineHeight: 1.4, maxWidth: 300 }}>{_pc.sub}</div>
-                            <div style={{ display: "inline-flex", alignItems: "center", gap: 7, marginTop: 12, padding: "8px 16px", borderRadius: 999, background: _pc.accent, color: "#04140F", fontSize: 12.5, fontWeight: 800 }}>
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#04140F" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
-                              {_pc.cta} →
-                            </div>
-                          </div>
-                        );
-                      })()}
+                      {/* The Coconut Grove sponsor now lives in the amazon rail
+                          (DaypartRail sponsor tile), not here — see sponsorRail
+                          + onOpenPartner below. */}
                       {(() => { const _h = Hol.activeHoliday(new Date()); if (!_h) return null; const _c = Hol.themeFor(_h.key); const _ct = Hol.contentFor(_h.key, _h.name); return (
                         <div style={{ borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _c.grad, border: `1px solid ${_c.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
                           <button type="button" className="wf-holiday-open" onClick={() => openHoliday(_h)} aria-label={_ct.headline(locName)} style={{ position: "absolute", inset: 0, zIndex: 1, opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
