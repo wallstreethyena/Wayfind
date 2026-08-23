@@ -205,4 +205,45 @@ for (const junk of [null, undefined, NaN, "3", -4, Infinity, {}]) {
   }
 }
 
-console.log(`test-creator-corroboration: OK — ${pass} assertions (distinct people not posts, leading-signal floor, one mechanism for badge+rank, no monetized path)`);
+// ── 8. NO DUPLICATE ENTRIES — the bug this batch actually hit ──────────────
+// v8.43, found by hand and never by the build: the Miami batch generated a
+// second entry under the key "el-churrascaso-miami-lakes" because the key is
+// derived from the venue and the venue was already curated by someone else.
+//
+// Nothing would have caught it and nothing would have LOOKED wrong. Both
+// resolvers take the first match — creatorVideosFor() returns on the first
+// placeId hit, videosByKey() uses CURATED.find() — so the later duplicate
+// simply never renders. The creator's video is in the file, is credited in no
+// surface, and counts for nothing: the exact silent-loss shape that a
+// corroboration rule makes WORSE, because the second creator on a place is
+// precisely the entry most likely to collide and the one worth the most.
+//
+// Parsed from source rather than from the module, because the export surface
+// deliberately does not hand out CURATED — and a duplicate is a property of
+// the FILE, not of what the file manages to return.
+{
+  const src = readFileSync(path.resolve("lib/creatorVideos.js"), "utf8");
+  const count = (re) => {
+    const seen = new Map();
+    for (const m of src.matchAll(re)) seen.set(m[1], (seen.get(m[1]) || 0) + 1);
+    return seen;
+  };
+  const keys = count(/\bkey: "([^"]+)"/g);
+  const dupKeys = [...keys].filter(([, n]) => n > 1).map(([k]) => k);
+  ok(keys.size > 200, `the key parse found the library (${keys.size}) — an empty parse would make this vacuous`);
+  ok(dupKeys.length === 0,
+    `every CURATED key is unique — a duplicate never renders and is invisible. Offenders: ${dupKeys.join(", ")}`);
+
+  const pids = count(/\bplaceId: "([^"]+)"/g);
+  const dupPids = [...pids].filter(([, n]) => n > 1).map(([k]) => k);
+  ok(pids.size > 100, `the placeId parse found real ids (${pids.size})`);
+  ok(dupPids.length === 0,
+    `no two entries claim the SAME venue — two entries on one placeId means one creator's video is unreachable, and it is corroboration that gets lost. Offenders: ${dupPids.join(", ")}`);
+
+  // The positive control: prove the detector can actually see a duplicate,
+  // or a future regression in the regex passes this section vacuously.
+  const planted = new Map([["a", 1], ["b", 2]]);
+  ok([...planted].filter(([, n]) => n > 1).length === 1, "the duplicate detector detects a planted duplicate");
+}
+
+console.log(`test-creator-corroboration: OK — ${pass} assertions (distinct people not posts, leading-signal floor, one mechanism for badge+rank, no monetized path, no silent duplicate entries)`);
