@@ -56,6 +56,16 @@ if (grove) {
     ok(Number.isInteger(p.reviews) && p.reviews >= 0, `${p.name}: needs a review count`);
     ok(!p.photoRef || /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(p.photoRef), `${p.name}: photoRef must be a valid Google photo resource name`);
     ok(milesBetween(grove.center.lat, grove.center.lng, p.lat, p.lng) <= grove.radiusMi, `${p.name} sits outside its own gate`);
+    // Every featured place must carry REAL editorial — the owner's ask: a
+    // reader must know where to go / where to stay and exactly why it was
+    // picked. A blank `ed` (a place added without research) fails the build.
+    ok(p.ed && typeof p.ed === "object", `${p.name}: needs an editorial (ed) block`);
+    if (p.ed) {
+      ok(typeof p.ed.role === "string" && p.ed.role.length >= 4, `${p.name}: ed.role must say where-to-go/where-to-stay`);
+      ok(typeof p.ed.why === "string" && p.ed.why.length >= 40, `${p.name}: ed.why must explain why it was picked`);
+      ok(typeof p.ed.order === "string" && p.ed.order.length >= 20, `${p.name}: ed.order must name what not to miss`);
+      ok(typeof p.ed.tip === "string" && p.ed.tip.length >= 15, `${p.name}: ed.tip must give an insider tip`);
+    }
   }
   ok(existsSync(join(ROOT, "public" + grove.heroImage)), `the splash art ${grove.heroImage} must exist in /public`);
 
@@ -88,12 +98,26 @@ if (grove) {
   const hd = hydratePartnerCollection(grove, GROVE_PLACES, grove.center);
   ok(hd && hd.places.length === GROVE_PLACES.length, "hydrate returns every place");
   ok(hd.partnerSplash === true && hd.heroImage === grove.heroImage, "hydrate carries the splash + hero for the sheet");
+  ok(typeof hd.guide === "string" && /where to/i.test(hd.guide), "hydrate carries the where-to-go/where-to-stay guide intro");
   for (const p of hd.places) {
     const src = GROVE_PLACES.find((x) => x.id === p.id);
     ok(p.wfScore === wayfindScore(src.rating, src.reviews), `${p.name}: displayed score must equal wayfindScore(rating,reviews), got ${p.wfScore} vs ${wayfindScore(src.rating, src.reviews)}`);
     ok(Number.isFinite(p.distMi), `${p.name}: needs a distance from the reader`);
+    // The editorial must survive hydration onto the card the sheet renders.
+    ok(p.editorial && typeof p.editorial.why === "string" && p.editorial.why.length >= 40, `${p.name}: hydrate must carry the editorial onto the card`);
   }
 }
+
+// ── THE SHEET RENDERS THE EDITORIAL (not the generic auto-blurb) ────────────
+// The partner sheet is HookDetail.js's partnerSplash path. It must (a) render
+// each card's p.editorial, (b) show the guide intro, and (c) SUPPRESS the
+// generic pickReason when editorial is present, so a partner card never shows
+// both a curated take and a machine blurb.
+const sheet = readFileSync(join(ROOT, "app/components/sheets/HookDetail.js"), "utf8");
+ok(/p\.editorial/.test(sheet), "HookDetail.js must render p.editorial on the place cards");
+ok(/hookDetail\.guide/.test(sheet), "HookDetail.js must render the guide intro for the partner splash");
+ok(/if \(p\.editorial\) return null/.test(sheet), "HookDetail.js must suppress the generic pickReason when editorial is present");
+ok(/!p\.editorial && \(\(\) => \{ const _w1 = whyFirst/.test(sheet), "HookDetail.js must suppress the featured whyFirst blurb when editorial is present");
 
 // ── it is wired into the AMAZON RAIL (DaypartRail), geo-gated ───────────────
 const home = readFileSync(join(ROOT, "app/home.js"), "utf8");
@@ -120,6 +144,11 @@ ok(/_r\.partner && onOpenPartner/.test(rail), "a partner tile must open via onOp
 {
   ok(milesBetween(25.7272, -80.2578, 26.1224, -80.1373) > 20, "self-test: Fort Lauderdale really is >20mi, or the gate test is vacuous");
   ok(wayfindScore(4.8, 3350) !== wayfindScore(3.0, 3350), "self-test: the score formula actually varies with rating");
+  // A place shipped without editorial must be caught, not waved through.
+  const fakeNoEd = { name: "X", ed: null };
+  ok(!(fakeNoEd.ed && typeof fakeNoEd.ed.why === "string"), "self-test: a blank editorial block must be detectable");
+  // The sheet-suppression wall must actually depend on the guard text.
+  ok(!/if \(p\.editorial\) return null/.test(sheet.replace("if (p.editorial) return null;", "")), "self-test: removing the suppression guard from the sheet must be detectable");
 }
 
 if (fails) { console.error(`check-partner-collections: ${fails} failure(s)`); process.exit(1); }

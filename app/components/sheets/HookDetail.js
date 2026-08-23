@@ -84,6 +84,9 @@ export default function HookDetailSheet({ ctx }) {
                   )}
                 </>
               )}
+              {hookDetail.partnerSplash && hookDetail.guide && (
+                <div style={{ fontSize: isDesktop ? 16 : 14.5, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.4, letterSpacing: "-0.2px", marginBottom: 8 }}>{hookDetail.guide}</div>
+              )}
               {hookDetail.partnerSplash && hookDetail.creditLine && (
                 <div style={{ fontSize: 11.5, fontWeight: 700, color: "#E4EAF2", lineHeight: 1.5, marginBottom: 6 }}>{hookDetail.creditLine}</div>
               )}
@@ -210,8 +213,27 @@ export default function HookDetailSheet({ ctx }) {
                             )))}
                           </div>
                         )}
-                        {isFeatured && (() => { const _w1 = whyFirst(p, themePlaces); return _w1 ? <div style={{ fontSize: 12, fontWeight: 700, color: "#FFFFFF", background: acc + "14", border: "1px solid " + acc + "3D", borderRadius: 9, padding: "7px 10px", marginBottom: 9, lineHeight: 1.4 }}>{_w1}</div> : null; })()}
-                        {(() => { const _isFam = !!(hookDetail && (hookDetail.fetchKey === "family" || hookDetail.theme === "family")); const _fam = _isFam ? Fam.familyWhy(p, { temp: weather ? weather.temp : null, rainy: !!(weather && /rain|storm|shower/i.test(weather.label || "")), distMi: p.distMi, openNow: liveOpen(p) }) : null; const why = _isWC ? WCC.wcCopy(p, themePlaces, i) : (_fam ? _fam.line : pickReason(p, { rank: i + 1, total: themePlaces.length, next: themePlaces[i + 1], weather, night: isNightNow(weather), foodContext: (theme === "best" || theme === "top5" || theme === "food" || /food|eat|breakfast|lunch|dinner/i.test(hookDetail.themeTitle || "")) })); return why ? <div style={{ fontSize: 12.5, color: _fam ? C.light : C.light, fontWeight: _fam ? 700 : 400, lineHeight: 1.4, marginBottom: isFeatured ? 8 : 2 }}>{why}</div> : null; })()}
+                        {/* Partner editorial (the CGNA's curated take, from
+                            lib/partnerCollectionsData.js `ed`). Present ONLY on
+                            partner cards; every other sheet has no p.editorial,
+                            so this renders nothing and the generic why below runs
+                            unchanged. This is the "why it was picked / where to
+                            go / what not to miss" the owner asked for. */}
+                        {p.editorial && (() => { const ed = p.editorial; return (
+                          <div style={{ marginTop: 2, marginBottom: isFeatured ? 8 : 2 }}>
+                            {(ed.role || ed.goodFor) && (
+                              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
+                                {ed.role && <span style={{ fontSize: 10.5, fontWeight: 900, letterSpacing: "0.6px", textTransform: "uppercase", color: acc, background: acc + "1E", border: `1px solid ${acc}55`, borderRadius: 999, padding: "3px 9px" }}>{ed.role}</span>}
+                                {ed.goodFor && <span style={{ fontSize: 11, fontWeight: 700, color: C.muted }}>{ed.goodFor}</span>}
+                              </div>
+                            )}
+                            {ed.why && <div style={{ fontSize: 13, color: premiumImagePage ? "#E9EEF6" : C.light, lineHeight: 1.5, fontWeight: 500, marginBottom: (ed.order || ed.tip) ? 8 : 0 }}>{ed.why}</div>}
+                            {ed.order && (<div style={{ fontSize: 12.5, color: premiumImagePage ? "#EAF2FF" : C.text, lineHeight: 1.45, marginBottom: ed.tip ? 5 : 0 }}><span style={{ fontWeight: 800, color: acc }}>Don't miss </span>{ed.order}</div>)}
+                            {ed.tip && (<div style={{ fontSize: 12, color: C.muted, lineHeight: 1.45 }}><span style={{ fontWeight: 800, color: premiumImagePage ? "#CBD5E1" : C.light }}>Insider tip </span>{ed.tip}</div>)}
+                          </div>
+                        ); })()}
+                        {isFeatured && !p.editorial && (() => { const _w1 = whyFirst(p, themePlaces); return _w1 ? <div style={{ fontSize: 12, fontWeight: 700, color: "#FFFFFF", background: acc + "14", border: "1px solid " + acc + "3D", borderRadius: 9, padding: "7px 10px", marginBottom: 9, lineHeight: 1.4 }}>{_w1}</div> : null; })()}
+                        {(() => { if (p.editorial) return null; const _isFam = !!(hookDetail && (hookDetail.fetchKey === "family" || hookDetail.theme === "family")); const _fam = _isFam ? Fam.familyWhy(p, { temp: weather ? weather.temp : null, rainy: !!(weather && /rain|storm|shower/i.test(weather.label || "")), distMi: p.distMi, openNow: liveOpen(p) }) : null; const why = _isWC ? WCC.wcCopy(p, themePlaces, i) : (_fam ? _fam.line : pickReason(p, { rank: i + 1, total: themePlaces.length, next: themePlaces[i + 1], weather, night: isNightNow(weather), foodContext: (theme === "best" || theme === "top5" || theme === "food" || /food|eat|breakfast|lunch|dinner/i.test(hookDetail.themeTitle || "")) })); return why ? <div style={{ fontSize: 12.5, color: _fam ? C.light : C.light, fontWeight: _fam ? 700 : 400, lineHeight: 1.4, marginBottom: isFeatured ? 8 : 2 }}>{why}</div> : null; })()}
                         {isFeatured && (
                           <div style={{ fontSize: 12.5, color: acc, fontWeight: 700 }}>See full details →</div>
                         )}
