@@ -28,7 +28,17 @@ const S = {
   sub: { fontSize: 16, color: "#8B949E", marginBottom: 26 },
   railTitle: { fontSize: 13, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#8ED6C4", margin: "30px 0 4px" },
   railSub: { fontSize: 13.5, color: "#8B949E", margin: "0 0 12px" },
-  card: { display: "block", padding: "14px 16px", borderRadius: 14, background: "#161B22", border: "1px solid #21262D", marginBottom: 10, textDecoration: "none" },
+  // v8.42 — image-forward place cards. The hero photo is the venue's own
+  // Google photo (hero_image → /api/photo?place=…); the badge over it is the
+  // DATE, never a Wayfind Score — an event is dated, not quality-ranked, and
+  // the place-card score slot would be a claim the app is forbidden to make on
+  // an event (see the events-card rule / test-event-rail-images).
+  card: { display: "block", borderRadius: 14, background: "#161B22", border: "1px solid #21262D", marginBottom: 12, textDecoration: "none", overflow: "hidden" },
+  imgWrap: { position: "relative", width: "100%", aspectRatio: "16 / 9", background: "#0D1117" },
+  img: { width: "100%", height: "100%", objectFit: "cover", display: "block" },
+  imgFallback: { width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(145deg,#1B2433,#0E1520)", color: "#8ED6C4", fontSize: 34, fontWeight: 800 },
+  badge: { position: "absolute", top: 10, left: 10, background: "rgba(4,8,16,.74)", color: "#FF8A3D", fontSize: 12, fontWeight: 800, letterSpacing: 0.5, textTransform: "uppercase", borderRadius: 999, padding: "5px 11px" },
+  cbody: { padding: "12px 15px 14px" },
   when: { fontSize: 12, fontWeight: 800, letterSpacing: 0.6, textTransform: "uppercase", color: "#FF8A3D", margin: 0 },
   t: { fontSize: 16.5, fontWeight: 800, color: "#FFFFFF", margin: "3px 0 0" },
   hook: { fontSize: 13.5, color: "#C9D1D9", margin: "4px 0 0" },
@@ -84,13 +94,21 @@ export default async function FloridaEventsHub() {
           {rail.subtitle ? <p style={S.railSub}>{rail.subtitle}</p> : null}
           {rail.cards.map((e) => (
             <a key={e.event_id} href={"/florida-events/" + e.slug} style={S.card}>
-              <p style={S.when}>{dateRangeLabel(e)} · {e.city}</p>
-              <p style={S.t}>{e.event_name}</p>
-              <p style={S.hook}>{e.card_hook}</p>
-              <p style={S.meta}>
-                {e.is_free ? "Free" : e.price_band || ""}
-                {e.wayfind_verdict ? (e.is_free || e.price_band ? " · " : "") + e.wayfind_verdict : ""}
-              </p>
+              <div style={S.imgWrap}>
+                {e.hero_image
+                  ? <img src={e.hero_image} alt="" loading="lazy" style={S.img} />
+                  : <div style={S.imgFallback} aria-hidden="true">{(e.short_title || e.event_name || "?").trim().charAt(0)}</div>}
+                <span style={S.badge}>{dateRangeLabel(e)}</span>
+              </div>
+              <div style={S.cbody}>
+                <p style={S.when}>{e.city}</p>
+                <p style={S.t}>{e.event_name}</p>
+                <p style={S.hook}>{e.card_hook}</p>
+                <p style={S.meta}>
+                  {e.is_free ? "Free" : e.price_band || ""}
+                  {e.wayfind_verdict ? (e.is_free || e.price_band ? " · " : "") + e.wayfind_verdict : ""}
+                </p>
+              </div>
             </a>
           ))}
         </section>

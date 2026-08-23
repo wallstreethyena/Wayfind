@@ -568,6 +568,10 @@ node scripts/check-major-music-festivals.mjs
 # category, RAISES the two-famous cap (load-bearing: proven against composeRail's
 # default), and keeps undated Disney festivals invisible until their status flips
 node scripts/check-florida-icons.mjs
+# v8.42 — event pages get real "nearby & worth it" places (buildNearbyPool,
+# floor-gated, genuinely nearby, /p/ links) and the hub becomes visual place
+# cards whose badge is the DATE, never a Wayfind Score (an event is dated)
+node scripts/check-event-pairings.mjs
 # 2026-08-22 — the owner's handpicked board (lib/localPicks.js) IS the "What
 # Should We Do Today?" card, for one town and one hour. Four failures this
 # pins, none of which anything else in the suite would notice: a radius wide
