@@ -196,6 +196,7 @@ import CreatorAvatar from "./components/CreatorAvatar";
 import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlend, localToVector as tasteLocalToVector, tasteChips } from "../lib/taste";
 import { canonicalShareUrl } from "../lib/site";
 
+import { credential } from "../lib/envPlaceholder.js";
 const BUILD = "beta";
 
 // v6.34 — CITY-MODE tours verification (the Hanoi-rail fix): every city rail
@@ -602,7 +603,7 @@ function applyAffinity(places, affinities) {
     // capped at 30. Ordering only — displayed wfScore never changes.
     const _d = p.distMi || 0;
     const distPenalty = _d <= 4 ? 0 : Math.min(30, (_d - 4) * 1.3);
-    return { ...p, _ps: placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: boost, distancePenalty: distPenalty, faveTier: faveTier(p), featured: featuredBoost(p), community: communityBoost(p), curated: !!curatedFor(p), evidence: creatorBoostFor(p) }) };
+    return { ...p, _ps: placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: boost, distancePenalty: distPenalty, faveTier: faveTier(p), featured: featuredBoost(p), curated: !!curatedFor(p), evidence: creatorBoostFor(p) }) };
   }).sort((a, b) => b._ps - a._ps);
 }
 
@@ -1012,15 +1013,30 @@ function wayfindNotes(name) {
   if (n.indexOf("universal") >= 0) return WAYFIND_NOTES["universal orlando resort"];
   return null;
 }
-// Owner-curation signals from the Supabase place_signals view: just the
-// place_ids the owner account has liked. Owner likes boost globally (+4,
-// below WAYFIND_FEATURED tiers so deliberate curation still outranks a tap).
-// Community likes carry zero rank weight by design. Money never touches rank.
-const SIGNALS = { map: {}, loaded: false };
-function communityBoost(p) {
-  if (!p || !p.id) return 0;
-  return SIGNALS.map[p.id] ? 4 : 0;
-}
+// OWNER CURATION LIVES IN lib/memberSignals.js, NOT HERE.
+//
+// A `communityBoost()` used to sit at this spot, reading a `place_signals`
+// relation for "the place_ids the owner account has liked" and adding +4. That
+// relation has never existed: it is absent from every commit in this repo's
+// history AND from the live database (checked information_schema, 2026-08-06),
+// so the client read 404'd on every page load, the error path set loaded=true
+// so it never retried, and the boost has been exactly 0 for every place since
+// the day it was written. Deleting it is behaviour-preserving BY CONSTRUCTION.
+//
+// It is not being restored, because the signal it described is already
+// implemented and working somewhere else. lib/memberSignals.js is explicit that
+// it is "the ONE place the community like signal is aggregated into a ranking
+// input... so the owner's editorial weight and the anonymous-device floor are
+// applied in exactly one choke point (no parallel matchers — the standing
+// lesson)": /api/signals/likes -> aggregateLikeSignals() -> Ranking.memberDelta,
+// where an owner like already counts as weight 50. Creating `place_signals` to
+// feed this second path would have applied the same signal TWICE, and would
+// have required exposing which account is the owner's to the anon client — the
+// one thing that file says must never happen ("ownerId + weight are SERVER env
+// only and are NEVER derived from any client input").
+//
+// So the fix for a dead read was to delete the dead reader, not to build the
+// table it wanted. Locked by scripts/check-owner-curation-one-path.mjs.
 const _wfNorm = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 const CURATED_BY_NAME = new Map(CURATED.map((c) => [_wfNorm(c.name), c]));
 const curatedFor = (p) => (p && inCuratedRegion(p) ? CURATED_BY_NAME.get(_wfNorm(p.name)) : undefined);
@@ -3673,7 +3689,7 @@ function PageInner({ initialEvents = null }) {
         const picks = pool.filter((p) => p && p.id && p.lat != null && inCat(p));
         if (!picks.length) return [];
         const condCtx = condCtxFromNow(nowContext({ weather }));
-        const boostBase = (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, zeroIsUnrated: false, featured: featuredBoost(p), community: communityBoost(p), evidence: creatorBoostFor(p) }); // B13: merit base = wfScore + boosts applied ONCE and uniformly. NOT p._ps, which already bakes in these same boosts (+ affinity/distance/curated) -> using it here double-counted featured/community/video AND compared personalized _ps items against raw-wfScore items in one comparator.
+        const boostBase = (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, zeroIsUnrated: false, featured: featuredBoost(p), evidence: creatorBoostFor(p) }); // B13: merit base = wfScore + boosts applied ONCE and uniformly. NOT p._ps, which already bakes in these same boosts (+ affinity/distance/curated) -> using it here double-counted featured/community/video AND compared personalized _ps items against raw-wfScore items in one comparator.
         const ranked = lens === "gems" ? picks.slice().sort(GEMS_RANK) : Ranking.rankByConditions(picks, condCtx, boostBase);
         return ranked.slice(0, 10);
       } catch (e) { return []; }
@@ -3894,13 +3910,6 @@ function PageInner({ initialEvents = null }) {
     } catch (e) {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail]);
-  useEffect(() => {
-    if (!supabase || SIGNALS.loaded) return;
-    supabase.from("place_signals").select("place_id").then(({ data }) => {
-      SIGNALS.loaded = true;
-      if (data) data.forEach((r) => { if (r && r.place_id) SIGNALS.map[r.place_id] = true; });
-    }, () => { SIGNALS.loaded = true; });
-  }, []);
   const [disliked, setDisliked] = useState({});
   const [likedItems, setLikedItems] = useState({});
   // v5.07 Coupons: saved coupons live on-device (wf_coupons) AND, when signed
@@ -3974,8 +3983,13 @@ function PageInner({ initialEvents = null }) {
   const [locApprox, setLocApprox] = useState(false);
   const [feedRetry, setFeedRetry] = useState(0);
   const pendingQRef = useRef(null);
-  useEffect(() => { try { const qq = new URLSearchParams(window.location.search).get("q"); if (qq && qq.trim()) pendingQRef.current = qq.trim(); } catch (e) {} }, []);
-  useEffect(() => { if (!pendingQRef.current || !center) return; const qq = pendingQRef.current; pendingQRef.current = null; try { window.history.replaceState({}, "", window.location.pathname); } catch (e) {} submitSearch(qq); // eslint-disable-next-line react-hooks/exhaustive-deps
+  // ?q= arrivals carry two optional companions from guide pages (see
+  // app/guides/[slug]/page.js appUrl): intent=place ("this query names a
+  // specific POI — open its detail, do not treat it as a city") and near=
+  // ("resolve it against the guide's region, not the visitor's location").
+  // Captured together so the effect below hands submitSearch the whole intent.
+  useEffect(() => { try { const sp = new URLSearchParams(window.location.search); const qq = sp.get("q"); if (qq && qq.trim()) pendingQRef.current = { q: qq.trim(), placeIntent: sp.get("intent") === "place", near: (sp.get("near") || "").trim() || null }; } catch (e) {} }, []);
+  useEffect(() => { if (!pendingQRef.current || !center) return; const pq = pendingQRef.current; pendingQRef.current = null; try { window.history.replaceState({}, "", window.location.pathname); } catch (e) {} submitSearch(pq.q, { placeIntent: pq.placeIntent, near: pq.near }); // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [center]);
   // The landing URL's query string, captured during the FIRST RENDER — before
   // any effect can rewrite it.
@@ -4142,6 +4156,28 @@ function PageInner({ initialEvents = null }) {
     setAuthOpen(true);
     showToast(msg || "Sign up free — save your spots and sync them to every device.");
     return false;
+  }
+
+  // THE SAVE MOMENT IS THE SIGNUP MOMENT (2026-08-07). Measured: 30 days,
+  // 929 external visitors, zero signups — the passive header "Sign in" button
+  // converts nobody, and the low-friction anonymous save paths (card heart,
+  // detail thumb) never mention an account at all. This offers the account
+  // ONCE per device, AFTER the first anonymous save/like has already
+  // succeeded — the save is never blocked (that low friction is intentional
+  // and stays), the offer just rides the one moment the visitor has expressed
+  // durable intent. Benefit-first copy per the owner rule of 2026-07-17.
+  function offerAccountAfterSave(src) {
+    try {
+      if (user || !authReady) return;
+      if (localStorage.getItem("wf_signup_offered")) return;
+      localStorage.setItem("wf_signup_offered", String(Date.now()));
+      // Let the save's own confirmation toast land first; then the offer.
+      setTimeout(() => {
+        try { logEvent("signup_offer_shown", null, { src }); } catch (e) {}
+        setAuthOpen(true);
+        showToast("Saved on this device — sign up free and it follows you to every device.");
+      }, 1200);
+    } catch (e) {}
   }
 
   // Save a monetized non-place card (Viator experience / UT deal) to
@@ -4535,7 +4571,7 @@ function PageInner({ initialEvents = null }) {
     return () => window.removeEventListener("resize", onR);
   }, []);
   const isDesktop = vw >= 900;
-  const keyMissing = !process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
+  const keyMissing = !credential(process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY);
 
   function openSurprise() {
     setSurprisePick(null);
@@ -5107,7 +5143,7 @@ function PageInner({ initialEvents = null }) {
         svFolderDelete("Disliked", p.id);
       }
     }
-    if (!wasLiked) showToast("Added to your taste");
+    if (!wasLiked) { showToast("Added to your taste"); offerAccountAfterSave("like"); }
   }
   function toggleDislike(e, p) {
     e.stopPropagation();
@@ -7262,6 +7298,38 @@ function PageInner({ initialEvents = null }) {
       setQuery("");
     };
     try {
+      // GUIDE PLACE-INTENT (fix for "guides → app converts 0%", 2026-08-07).
+      // A guide's "Open in Wayfind" declares intent=place: the query names one
+      // specific place, so the area-first rule below must NOT apply — that rule
+      // is what geocoded "Airboat the Everglades headwaters" to Everglades
+      // City and dumped the reader on a generic recentered feed. Resolution
+      // order here is deliberately inverted: POI search near the guide's own
+      // region first, area handling only as the fallback. A query our own
+      // guide data marks as an area (", FL" suffix) skips this and recenters
+      // like any city search — that IS its intent.
+      if (opts && opts.placeIntent && !/,\s*(fl|florida)\s*$/i.test(q)) {
+        const nearGeo = opts.near ? await geoTry(opts.near) : null;
+        const pinned = nearGeo ? { lat: nearGeo.lat, lng: nearGeo.lng } : searchCenter;
+        if (pinned) {
+          const hits = await searchNearbyPlaces(q, pinned, (opts && opts.miles) || 45);
+          if (hits && hits.length > 0) {
+            const sorted = hits.slice().sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
+            setQuery("");
+            // Recenter to the guide's region so the feed BEHIND the sheet
+            // matches what the reader was just reading about — not their GPS.
+            if (nearGeo && nearGeo.isArea) goTo(nearGeo);
+            setSearchMode(true);
+            setLoading(false);
+            openDetail(sorted[0]);
+            // Arrival-side proof the bridge works — click-side events on the
+            // static guide page die with the unload; this one cannot.
+            try { logEvent("guide_place_open", sorted[0], { q: q.slice(0, 80), matched: (sorted[0].name || "").slice(0, 80), near: (opts.near || "").slice(0, 40) }); } catch (e) {}
+            return;
+          }
+        }
+        // No POI matched — fall through to the standard ladder rather than
+        // dead-ending the deep link.
+      }
       const bo = q.match(/^\s*(?:the\s+)?best\s+of\s+(.{2,40})$/i);
       if (bo) {
         const g = await geoTry(bo[1].trim());
@@ -7344,7 +7412,7 @@ function PageInner({ initialEvents = null }) {
       return { ...prev, favorites: { ...f, places: h ? f.places.filter((x) => x.id !== p.id) : [...f.places, p] } };
     });
     showToast(has ? "Removed from Favorites" : "❤️ Saved to Favorites");
-    if (!has) logEvent("save", p);
+    if (!has) { logEvent("save", p); offerAccountAfterSave("favorite"); }
     // Auto-file into the city trip on save only. Unsaving from Favorites must
     // not remove it from a trip: the trip is an independent, curated plan.
     if (!has) {
@@ -7613,7 +7681,7 @@ function PageInner({ initialEvents = null }) {
   } else if (sortBy === "price") {
     viewBase = _distFiltered.sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
   } else {
-    viewBase = Ranking.rankByConditions(_distFiltered, _viewCtx, (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_LAST, faveTier: faveTier(p), featured: featuredBoost(p), community: communityBoost(p), evidence: creatorBoostFor(p) }));
+    viewBase = Ranking.rankByConditions(_distFiltered, _viewCtx, (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_LAST, faveTier: faveTier(p), featured: featuredBoost(p), evidence: creatorBoostFor(p) }));
     // Near-first rule: with 5+ options inside 12 miles, nothing past 20 may outrank them.
     const _nc = viewBase.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
     if (_nc >= 5) viewBase = [...viewBase.filter((p) => !(p.distMi != null && p.distMi > 20)), ...viewBase.filter((p) => p.distMi != null && p.distMi > 20)];
@@ -7815,7 +7883,7 @@ function PageInner({ initialEvents = null }) {
     // for the "not here yet" recommendation mode.
     socialFind, setSocialFind, videoHeroPlaces, socialFindRegions, socialFindByCity, socialFindStats,
     // map screen (G4)
-    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, map3D, setMap3D, mapRetryKey, setMapRetryKey, mapDefaultAppliedRef, cat, setCat, setSub, setVibe, sortBy, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, communityBoost, MapView, Hol, recenterToMe,
+    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, map3D, setMap3D, mapRetryKey, setMapRetryKey, mapDefaultAppliedRef, cat, setCat, setSub, setVibe, sortBy, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, MapView, Hol, recenterToMe,
     // experience badge screen (G4)
     activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, ViatorRail, intentScopeLabel,
     // intro overlay (G4) — the 3.2s auto-show timer stays in PageInner, flips introOpen
@@ -7842,7 +7910,16 @@ function PageInner({ initialEvents = null }) {
               <span className="wf-wordmark-text" aria-hidden="true" />
               <span className="wf-wordmark-pin" aria-hidden="true" />
             </div>
-            {locName && <span style={{ fontSize: 13, fontWeight: 400, color: C.muted, marginLeft: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>· {locName}</span>}
+            {/* The location used to sit HERE, and could not fit. Measured on
+                production at 390px: the row is 362px, the wordmark sprite is a
+                fixed 154px, and the weather (71px) and Sign in (86px) are both
+                flex-shrink:0 — so `· Parrish, FL` was allotted 23px of the 72px
+                it needs and rendered as a bare ellipsis. Still clipped at 430px
+                (63/72). It is not a tuning problem: trimming the weather label
+                AND shrinking the brand 20% still only reached 69px, and
+                "Parrish, FL" is a SHORT name — "St. Petersburg, FL" needs 118px.
+                A variable-length city cannot share this row, so it gets its own
+                (see below) where any name fits. Locked by check-home-location. */}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
             {weather && (weather.feels != null || weather.temp != null) && (
@@ -7862,6 +7939,21 @@ function PageInner({ initialEvents = null }) {
             ))}
           </div>
         </div>
+        )}
+        {/* WHERE "near you" IS. Its own full-width line, so a long city name
+            ("St. Petersburg, FL") fits exactly as well as a short one — the
+            failure the top row could not be tuned out of. Owner's report that
+            motivated the Near-me button was "I got stuck looking around and had
+            no idea where I was"; that button shipped while the label naming the
+            place stayed invisible on every phone. Not interactive on purpose:
+            search and Near-me are both one row below, and a status line should
+            not become a fourth sub-44px tap target. The approximate-location
+            caveat already has its own banner and is not duplicated here. */}
+        {screen !== "map" && locName && (
+          <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 8, minWidth: 0, color: C.muted }}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0 }}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="2.8" /></svg>
+            <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: ".1px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{locName}</span>
+          </div>
         )}
         {wxOpen && weather && Array.isArray(weather.hourly) && weather.hourly.length > 0 && (
           <div style={{ marginTop: -6, marginBottom: 12, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.panel} 62%)`, border: "none", borderRadius: "0 0 18px 18px", padding: "12px 8px 14px", boxShadow: "0 12px 26px rgba(0,0,0,.4)" }}>
@@ -8203,7 +8295,7 @@ function PageInner({ initialEvents = null }) {
                   trends section — which is switched off. Computed, then discarded,
                   every render. Now it is lifted to `videoPlaces` above and BOTH
                   surfaces read the same array, so they can never disagree. */}
-              {!browseCat && <CreatorFinds items={videoPlaces} onOpenPlace={(p) => openDetail(p, "creatorfinds")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
+              {!browseCat && <CreatorFinds items={videoPlaces} byCity={socialFindByCity} onOpenPlace={(p) => openDetail(p, "creatorfinds")} onBrowse={() => setSocialFind({ browse: true })} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
               {/* v6.97 — MOVED BELOW THE ANSWER (approved mockup: "the six
                   categories still exist, untouched. They stop being the first thing a
                   stranger has to solve"). Same component, same six categories, same
@@ -8713,6 +8805,24 @@ function PageInner({ initialEvents = null }) {
                         </div>
                       </div>
                     )}
+                    {/* Featured deals hero — revenue priority: show active deals prominently at top-of-fold (v8.48). */}
+                    {(() => {
+                      const activeCoupons = COUPONS.filter((c) => couponIsLive(c));
+                      if (!activeCoupons.length) return null;
+                      const featured = activeCoupons.find((c) => c.business === "Clipp" && c.title.includes("dining")) || activeCoupons[0];
+                      if (!featured) return null;
+                      return (
+                        <div onClick={() => setScreen("coupons")} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ cursor: "pointer", borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: `linear-gradient(135deg, ${C.accent}22 0%, ${C.accent}14 100%)`, border: `1px solid ${C.accent}44`, boxShadow: "0 8px 24px rgba(249,115,22,.15)", position: "relative", overflow: "hidden" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                            <span style={{ fontSize: 20 }}>🏷️</span>
+                            <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: C.accent, textTransform: "uppercase" }}>Featured deals</span>
+                          </div>
+                          <div style={{ fontSize: 18, fontWeight: 800, color: C.text, lineHeight: 1.15, letterSpacing: "-0.3px", marginBottom: 6 }}>{featured.title}</div>
+                          <div style={{ fontSize: 12.5, color: C.light, marginTop: 4, lineHeight: 1.4, marginBottom: 12 }}>{featured.details && featured.details.slice(0, 120) + (featured.details.length > 120 ? "…" : "")}</div>
+                          <div style={{ display: "inline-flex", alignItems: "center", padding: "8px 16px", borderRadius: 999, background: C.accent, color: "#0D1117", fontSize: 12.5, fontWeight: 800 }}>View all deals ›</div>
+                        </div>
+                      );
+                    })()}
                     {heroPlace && (<>
                       {/* "Best move right now" section removed (owner 2026-07-17). The giveaway / World Cup / holiday promo cards below are separate features and stay. */}
                       {gwPop && (giveawayLive() || giveawaySoon()) && (
