@@ -317,7 +317,6 @@ node scripts/test-intent-header-clarity.mjs
 node scripts/test-rail-like-stays.mjs
 node scripts/check-viator-redirect-layer.mjs
 node scripts/check-intent-partner-picks.mjs
-node scripts/test-viator-place-pins-2026-08-19.mjs
 node scripts/check-unified-commerce-rail.mjs
 node scripts/test-event-rail-images.mjs
 node scripts/test-experience-now-rank.mjs
