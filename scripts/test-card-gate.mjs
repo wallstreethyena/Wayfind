@@ -56,6 +56,18 @@ ok(/import \{ hasScoreSignal \} from "\.\.\/\.\.\/\.\.\/\.\.\/lib\/score"/.test(
   "the search route imports the SHARED predicate rather than restating it");
 ok(/const served = freeMode \? places\.filter\(hasScoreSignal\) : places;/.test(route),
   "free mode filters unrenderable rows BEFORE serving — the server never returns a row the card gate will discard");
+// v8.48b — CLEAN ON THE WAY OUT TOO. The first fix filtered only the freshly
+// bought Google rows; free mode had already written lean rows into v1p, and a
+// cache HIT replayed them unfiltered (measured live post-deploy: "best
+// restaurants" near Parrish, 20 rows, 20 unrenderable). Every serve path now
+// passes through the same predicate.
+ok(/const clean = \(rows\) => \(freeMode && Array\.isArray\(rows\) \? rows\.filter\(hasScoreSignal\) : \(rows \|\| \[\]\)\);/.test(route),
+  "a single clean() applies the score-signal rule to every CACHED serve path");
+ok(/const rv = clean\(rich\.v\);/.test(route), "the rich-cache hit is cleaned before it is served");
+ok(/const fv = clean\(fresh\.v\);/.test(route), "the fresh-cache hit is cleaned before it is served");
+ok(/const sv = s \? clean\(s\.v\) : \[\];/.test(route), "the stale serve is cleaned before it is served");
+ok(/ownedOr\("inventory-poisoned-cache"\)/.test(route),
+  "a cache row that cleans to EMPTY falls back to owned inventory, never to a blank list");
 ok(/if \(served\.length\) await cset\(k, served, FRESH_TTL_MS\);/.test(route),
   "only the SERVED set is cached, so a v1p cache hit can never replay unrenderable rows");
 ok(/await upsertPlaceIds\(skeletons\(places\)\)/.test(route),
