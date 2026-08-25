@@ -13,13 +13,16 @@
 //
 // ASSERT ON THE CALL, not the string. A grep for 173028P1 would pass if the
 // code only mentioned the SKU in a comment. Every money claim below INVOKES
-// placePartnerPick / commerceHref / resolveOffer / summerEntriesNow.
+// placePartnerPick / commerceHref / resolveOffer / resolveDetailCta /
+// nearbyTourListAllowed / summerEntriesNow. The live ?place= sheet is the
+// path Trust hit after #944 — closed hours + viaTours ferry must not win.
 
 import { readFileSync } from "node:fs";
 import { commerceHref } from "../lib/commerce.js";
 import { PARTNER_OFFER_REGISTRY, partnerOfferById } from "../lib/partnerOfferRegistry.js";
-import { placePartnerPick } from "../lib/placePartnerPicks.js";
+import { nearbyTourListAllowed, placePartnerPick } from "../lib/placePartnerPicks.js";
 import { PROVIDERS, resolveOffer } from "../lib/commerceProviders.js";
+import { resolveDetailCta } from "../lib/detailCta.js";
 import { SUMMER_UNIVERSE, summerEntriesNow } from "../lib/summerUniverse.js";
 
 let pass = 0;
@@ -29,7 +32,10 @@ const ok = (cond, msg) => { if (cond) pass++; else fail.push(msg); };
 const SKU = "173028P1";
 const CANONICAL = "https://www.viator.com/tours/St-Petersburg/Clear-Kayak-Tours-of-Shell-Key/d5403-173028P1";
 const HOLD_SKU = "236862P2";
+const FERRY_SKU = "237533P2";
+const EGMONT_SKU = "237533P5";
 const PLACE = "Shell Key Preserve";
+const PLACE_ID = "ChIJ5_NkHLUcw4gRndvLQGe_Ox8";
 
 // ── 1. Existing Atlas / summer card, exact name, this SKU ────────────────
 const pick = placePartnerPick({ name: PLACE });
@@ -46,8 +52,14 @@ ok(placePartnerPick({ name: "Shell Key Preserve Kayak" }) === null,
 ok(placePartnerPick({ name: "Fort De Soto Park" }) === null
   || placePartnerPick({ name: "Fort De Soto Park" }).offerId !== SKU,
   "Fort De Soto does not inherit the Shell Key SKU");
-ok(placePartnerPick({ name: "Egmont Key State Park" })?.offerId === "237533P5",
+ok(placePartnerPick({ name: "Egmont Key State Park" })?.offerId === EGMONT_SKU,
   "Egmont Key keeps its existing ferry pin — this SKU did not steal a neighbor");
+ok(placePartnerPick({ id: PLACE_ID, name: "Unnamed" })?.offerId === SKU,
+  "the live ?place= id alone still resolves to the founder kayak — name drift cannot drop the pin");
+ok(placePartnerPick({ id: PLACE_ID, name: PLACE })?.offerId === SKU,
+  "id + exact name still resolve to the same kayak pin (one offer)");
+ok(placePartnerPick({ name: PLACE })?.offerId !== FERRY_SKU,
+  "Shell Key Preserve is never the 237533P2 ferry");
 
 // ── 2. Book goes through the existing tracked hop — never a partner href ─
 const href = commerceHref({
@@ -165,7 +177,104 @@ const guides = stripComments(readFileSync(new URL("../lib/guides.js", import.met
 ok(!/\b173028P1\b/.test(guides) && !/d5403-173028P1/.test(guides),
   "lib/guides.js does not carry this SKU as a raw viatorUrl");
 
-// ── 6. Probe can fail — positives and a known-absent ─────────────────────
+// ── 6. Live render path Trust hit (CALL resolveDetailCta, not a SKU grep) ─
+// Production 2026-08-25: ?place=ChIJ5_NkHLUcw4gRndvLQGe_Ox8 painted only
+// offer=237533P2 (Shell Key Ferry) from viaTours. The founder pin never
+// reached the sheet because (a) closed-hours ran first and (b) the nearby
+// list is a second offer source. This is that exact shape.
+const livePlace = {
+  id: PLACE_ID,
+  name: PLACE,
+  types: ["park", "natural_feature", "tourist_attraction", "point_of_interest"],
+  address: "2187 Oceanview Dr, Tierra Verde, FL 33715, USA",
+  lat: 27.6586734,
+  lng: -82.7401087,
+};
+const ferryViaTours = {
+  [PLACE_ID]: {
+    loading: false,
+    items: [{
+      code: FERRY_SKU,
+      title: "Shell Key Ferry",
+      url: "https://www.viator.com/tours/St-Petersburg/Shell-Key-Ferry/d5403-237533P2",
+    }],
+  },
+};
+const liveCta = resolveDetailCta({
+  detail: livePlace,
+  kind: "nature",
+  viaTours: ferryViaTours,
+  locName: "Tierra Verde, FL",
+  offers: {},
+  openState: false,
+});
+ok(liveCta && liveCta.monetized === true,
+  "the live closed Preserve sheet still paints an earning Book — closed hours cannot drop the founder pin");
+ok(liveCta.offerId === SKU,
+  `live primary offerId is the kayak ${SKU}, not the ferry (got ${liveCta && liveCta.offerId})`);
+ok(liveCta.offerId !== FERRY_SKU,
+  "live primary is never 237533P2");
+ok(liveCta.exact === true, "live primary is the exact pin, not a viaTours re-resolve");
+ok(String(liveCta.href || "").startsWith("/api/commerce/go?"),
+  `live Book hops through /api/commerce/go (got ${String(liveCta.href || "").slice(0, 80)})`);
+{
+  const q = new URLSearchParams(String(liveCta.href || "").split("?")[1] || "");
+  ok(q.get("offer") === SKU, `live href carries offer=${SKU} (got ${q.get("offer")})`);
+  ok(q.get("provider") === "viator", "live href names provider=viator");
+  ok(q.get("offer") !== FERRY_SKU, "live href does not carry the ferry offer");
+}
+ok(!/searchResults/i.test(String(liveCta.href || "")),
+  "live href is never a searchResults URL");
+ok(nearbyTourListAllowed(livePlace) === false,
+  "nearbyTourListAllowed is false on the pinned Preserve — the ferry list cannot paint");
+ok(nearbyTourListAllowed({ name: "A Museum Without A Pin", id: "ChIJ_no_pin" }) === true,
+  "positive control: an unpinned place still allows the nearby list");
+
+const idOnly = resolveDetailCta({
+  detail: { ...livePlace, name: "Unnamed" },
+  kind: "nature",
+  viaTours: ferryViaTours,
+  locName: "Tierra Verde, FL",
+  offers: {},
+  openState: true,
+});
+ok(idOnly.offerId === SKU,
+  `place-id match still paints the kayak when the display name drifted (got ${idOnly && idOnly.offerId})`);
+
+const egmont = resolveDetailCta({
+  detail: {
+    id: "ChIJ_egmont_not_this_card",
+    name: "Egmont Key State Park",
+    types: ["park", "tourist_attraction"],
+    address: "3500 Pinellas Bayway S, Tierra Verde, FL 33715, USA",
+  },
+  kind: "nature",
+  viaTours: {
+    ChIJ_egmont_not_this_card: {
+      loading: false,
+      items: [{ code: FERRY_SKU, title: "Shell Key Ferry", url: "https://www.viator.com/tours/x/d5403-237533P2" }],
+    },
+  },
+  locName: "Tierra Verde, FL",
+  offers: {},
+  openState: true,
+});
+ok(egmont.offerId === EGMONT_SKU,
+  `Egmont keeps ${EGMONT_SKU} (got ${egmont && egmont.offerId}) — this fix did not steal the neighbor`);
+ok(egmont.offerId !== FERRY_SKU, "Egmont is not 237533P2");
+
+const holdPlace = resolveDetailCta({
+  detail: { id: "ChIJ_crystal", name: "Crystal River State Park", types: ["park"] },
+  kind: "wildlife",
+  viaTours: {},
+  locName: "Crystal River, FL",
+  offers: {},
+  openState: true,
+});
+ok(holdPlace.offerId !== HOLD_SKU && placePartnerPick({ name: "Crystal River State Park" }) === null,
+  "Crystal River / 236862P2 stays unpinned — this did not revive #843 or the HOLD-SKU");
+
+// ── 7. Probe can fail — positives and a known-absent ─────────────────────
 ok(/viator\.com/.test(CANONICAL),
   "positive control: the canonical URL really is a viator.com product, so 'no viator.com in the href' is a real distinction");
 ok(placePartnerPick({ name: "A Venue That Does Not Exist" }) === null,
@@ -176,4 +285,4 @@ if (fail.length) {
   for (const m of fail) console.error("  - " + m);
   process.exit(1);
 }
-console.log(`test-shell-key-clear-kayak-pin: OK — ${pass} assertions (placePartnerPick + commerceHref + resolveOffer CALLED; ${SKU} hops through /api/commerce/go; dest is the founder-verified product, never searchResults, never ${HOLD_SKU}; summer rank 28 unchanged)`);
+console.log(`test-shell-key-clear-kayak-pin: OK — ${pass} assertions (placePartnerPick + commerceHref + resolveOffer + resolveDetailCta CALLED; live closed+ferry viaTours still paints ${SKU} through /api/commerce/go; nearby list suppressed; never ${FERRY_SKU}, never searchResults, never ${HOLD_SKU}; Egmont stays ${EGMONT_SKU}; summer rank 28 unchanged)`);
