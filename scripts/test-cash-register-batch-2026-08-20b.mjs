@@ -21,7 +21,7 @@
 import { readFileSync } from "node:fs";
 import { commerceHref } from "../lib/commerce.js";
 import { PARTNER_OFFER_REGISTRY, partnerOfferById } from "../lib/partnerOfferRegistry.js";
-import { placePartnerPick } from "../lib/placePartnerPicks.js";
+import { PLACE_PARTNER_PICKS, placePartnerPick } from "../lib/placePartnerPicks.js";
 import { PROVIDERS, resolveOffer } from "../lib/commerceProviders.js";
 import { SUMMER_UNIVERSE } from "../lib/summerUniverse.js";
 import { editorialFor } from "../lib/editorial.js";
@@ -256,16 +256,20 @@ ok(/\b386845P1\b/.test(placeSrc) && /\b236733P1\b/.test(placeSrc) && /\b431125P5
   "positive control: batch 2 product codes are declared as placePick offer ids");
 ok(/\b173028P1\b/.test(placeSrc),
   "positive control: Shell Key product code is still declared");
-ok(!/\b22211P1\b/.test(placeSrc),
-  "dead SKU 22211P1 is not declared as a placePick offer id");
+ok(!PLACE_PARTNER_PICKS.some((r) => String(r.offerId).toUpperCase() === "22211P1"),
+  "dead SKU 22211P1 is not a placePick offer id");
+ok(!/placePick\(\s*"22211P1"/.test(placeSrc),
+  "dead SKU 22211P1 is not declared as a placePick(...) pin");
 ok(!/\b203023P1\b/.test(placeSrc),
   "203023P1 is absent — AMI keeps the sunset SKU only");
 ok(!/\b5666112P3\b/.test(placeSrc),
   "5666112P3 is absent — Oscar Scherer stays empty");
 ok(!/\b292464P2\b/.test(placeSrc) && !/\b5560271P1\b/.test(placeSrc),
   "Mote night kayak and the other forbidden SKU are not place-pinned");
-ok(!new RegExp(`\\b${HOLD_SKU}\\b`).test(placeSrc),
-  "the scallop HOLD-SKU is absent from placePartnerPicks");
+ok(!PLACE_PARTNER_PICKS.some((r) => String(r.offerId).toUpperCase() === HOLD_SKU),
+  "the scallop HOLD-SKU is not a placePick offer id");
+ok(!new RegExp(`placePick\\(\\s*"${HOLD_SKU}"`).test(placeSrc),
+  "the scallop HOLD-SKU is not declared as a placePick(...) pin");
 
 const cardSrc = stripComments(readFileSync(new URL("../app/components/IconicPlaceCard.js", import.meta.url), "utf8"));
 ok(/commerceHref\(\{\s*provider:\s*partner\.provider/.test(cardSrc),

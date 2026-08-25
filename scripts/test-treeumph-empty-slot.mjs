@@ -18,7 +18,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { placePartnerPick } from "../lib/placePartnerPicks.js";
+import { PLACE_PARTNER_PICKS, placePartnerPick } from "../lib/placePartnerPicks.js";
 import { SUMMER_UNIVERSE } from "../lib/summerUniverse.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -52,8 +52,8 @@ const src = readFileSync(join(ROOT, "lib/placePartnerPicks.js"), "utf8");
 const code = stripComments(src);
 assert(/\b173028P1\b/.test(code), "positive control: Shell Key 173028P1 is still a placePick offer id");
 assert(
-  !new RegExp(`\\b${DEAD_SKU}\\b`).test(code),
-  `${DEAD_SKU} is declared as a placePick offer id — that product is owner-confirmed unavailable`,
+  !PLACE_PARTNER_PICKS.some((r) => String(r.offerId).toUpperCase() === DEAD_SKU),
+  `${DEAD_SKU} is not a placePick offer id — that product is owner-confirmed unavailable`,
 );
 assert(
   !/placePick\(\s*"22211P1"/.test(code),

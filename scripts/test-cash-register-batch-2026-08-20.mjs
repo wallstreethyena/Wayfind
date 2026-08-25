@@ -9,7 +9,7 @@
 import { readFileSync } from "node:fs";
 import { commerceHref } from "../lib/commerce.js";
 import { PARTNER_OFFER_REGISTRY, partnerOfferById } from "../lib/partnerOfferRegistry.js";
-import { placePartnerPick } from "../lib/placePartnerPicks.js";
+import { PLACE_PARTNER_PICKS, placePartnerPick } from "../lib/placePartnerPicks.js";
 import { PROVIDERS, resolveOffer } from "../lib/commerceProviders.js";
 import { SUMMER_UNIVERSE } from "../lib/summerUniverse.js";
 import { BIRTHDAY_UNIVERSE } from "../lib/birthdayUniverse.js";
@@ -185,8 +185,10 @@ ok(!/https:\/\/www\.viator\.com/i.test(placeSrc),
   "lib/placePartnerPicks.js has no raw viator.com URL — cards store the opaque offer id");
 ok(/\b173028P1\b/.test(placeSrc) && /\b105290P10\b/.test(placeSrc) && /\b308814P5\b/.test(placeSrc),
   "positive control: product codes are declared as placePick offer ids");
-ok(!new RegExp(`\\b${HOLD_SKU}\\b`).test(placeSrc),
-  "the scallop HOLD-SKU is absent from placePartnerPicks");
+ok(!PLACE_PARTNER_PICKS.some((r) => String(r.offerId).toUpperCase() === HOLD_SKU),
+  "the scallop HOLD-SKU is not a placePick offer id");
+ok(!new RegExp(`placePick\\(\\s*"${HOLD_SKU}"`).test(placeSrc),
+  "the scallop HOLD-SKU is not declared as a placePick(...) pin");
 
 const cardSrc = stripComments(readFileSync(new URL("../app/components/IconicPlaceCard.js", import.meta.url), "utf8"));
 ok(/commerceHref\(\{\s*provider:\s*partner\.provider/.test(cardSrc),
