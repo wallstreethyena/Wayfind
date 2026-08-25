@@ -1,0 +1,43 @@
+{
+  "_meta": {
+    "what": "Effective CLIENT permissions per table: the role holds the grant AND a policy names it for that command. Generated from production by scripts/sync-policy-snapshot.mjs.",
+    "why": "RLS refuses a write by returning 0 rows or a 204, not by throwing. Two bugs lived in this repo for weeks because of it: nobody could delete their own comment, and signed-in users were told 'you're on the list' while their waitlist insert was rejected. scripts/check-client-writes-have-policies.mjs compares this contract against every write the browser actually attempts.",
+    "generatedAt": "2026-08-25",
+    "project": "gbhtoehdxkzjsmmkisgu",
+    "note": "Tables only. Views are never written by the client, so they are out of scope."
+  },
+  "tables": {
+    "comments":                 { "anon": ["INSERT","SELECT","UPDATE"], "authenticated": ["DELETE","INSERT","SELECT","UPDATE"] },
+    "cwv_runs":                 { "anon": ["INSERT","SELECT"], "authenticated": ["INSERT","SELECT"] },
+    "events":                   { "anon": ["INSERT"], "authenticated": ["INSERT"] },
+    "follows":                  { "anon": ["DELETE","INSERT","SELECT","UPDATE"], "authenticated": ["DELETE","INSERT","SELECT","UPDATE"] },
+    "likes":                    { "anon": ["DELETE","INSERT","SELECT","UPDATE"], "authenticated": ["DELETE","INSERT","SELECT","UPDATE"] },
+    "offers":                   { "anon": ["SELECT"], "authenticated": ["SELECT"] },
+    "profiles":                 { "anon": ["DELETE","INSERT","SELECT","UPDATE"], "authenticated": ["DELETE","INSERT","SELECT","UPDATE"] },
+    "saved_places":             { "anon": ["DELETE","INSERT","SELECT","UPDATE"], "authenticated": ["DELETE","INSERT","SELECT","UPDATE"] },
+    "shared_lists":             { "anon": ["INSERT","SELECT"], "authenticated": ["INSERT","SELECT"] },
+    "wf_affiliate_providers":   { "anon": ["SELECT"], "authenticated": ["SELECT"] },
+    "wf_beach_water":           { "anon": ["SELECT"], "authenticated": ["SELECT"] },
+    "wf_blog_posts":            { "anon": ["SELECT"], "authenticated": ["SELECT"] },
+    "wf_blog_settings":         { "anon": ["SELECT"], "authenticated": ["SELECT"] },
+    "wf_booking_audit":         { "anon": ["SELECT"] },
+    "wf_city_requests":         { "authenticated": ["INSERT","SELECT"] },
+    "wf_core_metros":           { "anon": ["SELECT"], "authenticated": ["SELECT"] },
+    "wf_deals":                 { "anon": ["SELECT"], "authenticated": ["SELECT"] },
+    "wf_editorial":             { "anon": ["SELECT"], "authenticated": ["SELECT"] },
+    "wf_events":                { "anon": ["SELECT"], "authenticated": ["SELECT"] },
+    "wf_experiences":           { "anon": ["SELECT"], "authenticated": ["SELECT"] },
+    "wf_hero_images":           { "anon": ["SELECT"] },
+    "wf_inventory":             { "anon": ["SELECT"], "authenticated": ["SELECT"] },
+    "wf_lists":                 { "anon": ["SELECT"], "authenticated": ["SELECT"] },
+    "wf_media_reports":         { "authenticated": ["INSERT","SELECT"] },
+    "wf_place_ids":             { "anon": ["SELECT"] },
+    "wf_place_popularity":      { "anon": ["SELECT"], "authenticated": ["SELECT"] },
+    "wf_place_products_manual": { "anon": ["SELECT"], "authenticated": ["SELECT"] },
+    "wf_saved_items":           { "authenticated": ["DELETE","INSERT","SELECT","UPDATE"] },
+    "wf_taste":                 { "authenticated": ["DELETE","INSERT","SELECT","UPDATE"] },
+    "wf_user_media":            { "anon": ["SELECT"], "authenticated": ["DELETE","INSERT","SELECT"] },
+    "wf_viator_dests":          { "anon": ["SELECT"], "authenticated": ["SELECT"] },
+    "wf_waitlist":              { "anon": ["INSERT"], "authenticated": ["INSERT"] }
+  }
+}

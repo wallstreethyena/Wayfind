@@ -19,7 +19,7 @@ export default function CityGate({ status, center, city, user, onSignUp, onUnloc
   // SINGLE SOURCE OF TRUTH: home.js already resolves wf_gate_status and passes it
   // in. We do NOT re-fetch here — that double round-trip is what made the card
   // linger. The card now appears/disappears atomically with home's fast lookup.
-  const [phase, setPhase] = useState("idle");  // idle | building | listed
+  const [phase, setPhase] = useState("idle");  // idle | building | listed | listfailed | failed
   const [email, setEmail] = useState("");
   const requestedFor = useRef(null);
   const cityName = (city || "this area").split(",")[0];
@@ -35,11 +35,15 @@ export default function CityGate({ status, center, city, user, onSignUp, onUnloc
     requestedFor.current = key;
     setPhase("building");
     try {
-      await supabase.from("wf_city_requests").insert({
+      // Same trap as notify(): a refused insert resolves, it does not throw.
+      // This row is the demand signal wf_city_demand reads, so losing it
+      // silently means a city looks unwanted when someone asked for it.
+      const { error } = await supabase.from("wf_city_requests").insert({
         user_id: (user && user.id) || null, email: (user && user.email) || null,
         city_query: cityName, lat: center.lat, lng: center.lng, status: "requested",
       });
-    } catch (e) {}
+      if (error) console.error(`[city-gate] city request not recorded for ${cityName}: ${error.message || error.code || "unknown"}`);
+    } catch (e) { console.error(`[city-gate] city request threw for ${cityName}`); }
     // The on-demand fetch only runs for a signed-in user, so send the access
     // token — the server verifies it before spending Google calls (#10). AWAIT it:
     // on success we re-check coverage so the card DISAPPEARS (was lingering on a
@@ -57,10 +61,18 @@ export default function CityGate({ status, center, city, user, onSignUp, onUnloc
   const notify = async () => {
     const em = email.trim();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) return;
+    // Supabase does not THROW on a refused write. An RLS or permission failure
+    // comes back as { error }, so try/catch alone cannot see it — and this block
+    // used to set "listed" on BOTH paths. For as long as wf_waitlist_insert was
+    // scoped to {anon}, every signed-in visitor who typed their email was told
+    // "You're on the list" while the row was rejected. wf_waitlist is the demand
+    // signal behind wf_expansion_demand, so each one was a lost email AND a lost
+    // vote on which metro gets built next. Read the error; say what happened.
     try {
-      await supabase.from("wf_waitlist").insert({ email: em, city: cityName, lat: center.lat, lng: center.lng, source: "gate" });
-      setPhase("listed");
-    } catch (e) { setPhase("listed"); }
+      const { error } = await supabase.from("wf_waitlist").insert({ email: em, city: cityName, lat: center.lat, lng: center.lng, source: "gate" });
+      if (error) console.error(`[city-gate] waitlist insert refused for ${cityName}: ${error.message || error.code || "unknown"}`);
+      setPhase(error ? "listfailed" : "listed");
+    } catch (e) { setPhase("listfailed"); }
   };
 
   // ── premium shell ── (constrained + centered so it doesn't stretch ugly on desktop)
@@ -124,6 +136,13 @@ export default function CityGate({ status, center, city, user, onSignUp, onUnloc
           {eyebrow("You're on the list")}
           {title("We'll tell you when " + cityName + " is live.")}
           {body("Signed-in members can unlock a city the moment they arrive — it's free, and worth it if you're headed there soon.")}
+        </>
+      ) : phase === "listfailed" ? (
+        <>
+          {eyebrow("That didn't save")}
+          {title("We couldn't add you to the " + cityName + " list.")}
+          {body("Nothing was recorded, so please try again — telling you it worked when it didn't would be worse.")}
+          <button onClick={() => setPhase("idle")} style={primaryBtn}>Try again</button>
         </>
       ) : (
         <>

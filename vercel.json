@@ -84,6 +84,10 @@
     {
       "path": "/api/cron/inventory-refresh",
       "schedule": "10 * * * *"
+    },
+    {
+      "path": "/api/cron/schema-watch",
+      "schedule": "18 6 * * *"
     }
   ]
 }
