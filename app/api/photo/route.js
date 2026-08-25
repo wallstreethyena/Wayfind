@@ -1,4 +1,4 @@
-import { gateShut } from "../../../lib/spendGate";
+import { gateShut, spendAllow } from "../../../lib/spendGate";
 // v6.18 — server-side Google Places photo proxy.
 //
 // Why this exists: the browser was loading place photos directly from
@@ -33,7 +33,10 @@ export async function GET(req) {
   // the August bill). Gate shut -> a long-cached redirect to owned fallback
   // art. Popular photos stay live from the edge cache; only true misses
   // degrade, to branded art rather than a broken image.
-  if (gateShut()) {
+  // shut: never pay. free: one monthly photos ledger grant per lambda-reached
+  // miss (August 2026 seeded exhausted; resets Sep 1). Edge-cached photos are
+  // free forever and unaffected.
+  if (gateShut() || !(await spendAllow("photos"))) {
     return NextResponse.redirect(new URL("/wf-photo-fallback.svg", req.url), {
       status: 302,
       headers: { "Cache-Control": "public, max-age=86400, s-maxage=86400" },

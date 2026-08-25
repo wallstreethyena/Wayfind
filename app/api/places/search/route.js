@@ -9,6 +9,7 @@
 // index); all OTHER place content must not be cached beyond 30 days. Fresh TTL is
 // ~10 days for accuracy; the stale-serve fallback is hard-capped at 30 days.
 import { NextResponse } from "next/server";
+import { gateFree, spendAllow } from "../../../../lib/spendGate";
 import { cget, cset, upsertPlaceIds, cacheConfigured, lastWrite, memSize, DAY } from "../../../../lib/serverCache";
 import { serveFromInventory } from "../../../../lib/inventoryServe";
 
@@ -23,6 +24,15 @@ const FIELD_MASK = [
   "places.userRatingCount", "places.priceLevel", "places.priceRange",
   "places.formattedAddress", "places.regularOpeningHours",
   "places.utcOffsetMinutes", "places.types", "places.photos", "places.businessStatus",
+].join(",");
+
+// FREE MODE mask - Pro-tier fields ONLY (Text Search Pro: 5,000 free/month).
+// rating/userRatingCount/priceLevel/priceRange/regularOpeningHours/businessStatus
+// are Enterprise on Text Search and are deliberately absent: cards fall back to
+// the score-law null path (chip hidden, nothing fabricated).
+const TEXT_PRO_MASK = [
+  "places.id", "places.displayName", "places.location", "places.types",
+  "places.formattedAddress", "places.photos", "places.primaryType",
 ].join(",");
 
 // Edge cache: 1 day fresh + 9 days stale-while-revalidate on top of Supabase.
@@ -150,7 +160,10 @@ async function handleSearch(params, origin) {
   }
 
   // Round the bias point to ~1km so nearby users share cache entries.
-  const k = ["v1", q.toLowerCase(), lat.toFixed(2), lng.toFixed(2), Math.round(radius / 1000), n].join("|");
+  // FREE MODE writes lean (Pro-mask) rows under its own "v1p" namespace so they
+  // can never poison the rich cache, nor serve as rich after the gate reopens.
+  const freeMode = gateFree();
+  const k = [freeMode ? "v1p" : "v1", q.toLowerCase(), lat.toFixed(2), lng.toFixed(2), Math.round(radius / 1000), n].join("|");
   const wantDebug = String(params.debug || "") === "1";
   const forceErr = String(params.forceErr || "") === "1"; // test hook: skip Google, drive the stale path
   const dbg = () => wantDebug ? { lastWrite: lastWrite(), memSize: memSize(), supabaseConfigured: cacheConfigured() } : undefined;
@@ -173,16 +186,21 @@ async function handleSearch(params, origin) {
     if (forceErr) { const s = await serveStale(); return s || NextResponse.json({ error: "forced (no stale)", debug: dbg() }, { status: 502 }); }
     // THE GATE (shut): never pay Google on a miss — lean on the warmed cache and
     // owned inventory. Serve stale (≤30d) → inventory → empty. Zero new searches.
-    if (gateShut()) {
+    const gateBlocked = async (why) => {
       const stale = await serveStale();
       if (stale) return stale;
       const inv = params.cat ? await serveFromInventory(params.cat, lat, lng, radius, n) : [];
-      if (inv.length) return NextResponse.json({ places: inv, cached: false, source: "inventory", gate: "shut", debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
-      return NextResponse.json({ places: [], cached: false, gate: "shut", debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
-    }
+      if (inv.length) return NextResponse.json({ places: inv, cached: false, source: "inventory", gate: why, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
+      return NextResponse.json({ places: [], cached: false, gate: why, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
+    };
+    // THE GATE (shut): never pay Google on a miss — lean on the warmed cache and
+    // owned inventory. Serve stale (≤30d) → inventory → empty. Zero new searches.
+    if (gateShut()) return await gateBlocked("shut");
+    // FREE MODE: pay only on a monthly text_pro ledger grant (fail-closed ledger).
+    if (freeMode && !(await spendAllow("text_pro"))) return await gateBlocked("free-budget");
     const r = await fetch("https://places.googleapis.com/v1/places:searchText", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "X-Goog-Api-Key": serverKey, "X-Goog-FieldMask": FIELD_MASK },
+      headers: { "Content-Type": "application/json", "X-Goog-Api-Key": serverKey, "X-Goog-FieldMask": freeMode ? TEXT_PRO_MASK : FIELD_MASK },
       body: JSON.stringify({ textQuery: q, maxResultCount: n, locationBias: { circle: { center: { latitude: lat, longitude: lng }, radius } } }),
     });
     if (!r.ok) {

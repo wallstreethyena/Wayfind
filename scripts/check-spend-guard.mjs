@@ -70,8 +70,22 @@ if (!/WAYFIND_GATE/.test(search)) die("search route lost its WAYFIND_GATE kill s
 // 3 — the radius ladder stays
 if (!/RADIUS_LADDER/.test(search)) die("search route lost the radius ladder — duplicate paid searches return (Google case 74703052).");
 
+// 4 - FREE MODE invariants (WAYFIND_GATE=free must stay inside Google's free tier)
+const gate = read("lib/spendGate.js");
+if (!/wf_spend_take/.test(gate)) die("spendGate lost the ledger RPC - free mode would spend unmetered.");
+for (const [sku, cap] of [["text_pro", 4800], ["details_enterprise", 950], ["details_pro", 4800], ["photos", 950], ["nearby_pro", 4800]]) {
+  if (!new RegExp(sku + ":\\s*" + cap).test(gate)) die(`spendGate cap for ${sku} moved off ${cap} - it must stay ~5% under Google's monthly free line.`);
+}
+if (!/TEXT_PRO_MASK/.test(search)) die("search route lost TEXT_PRO_MASK - free mode would bill Enterprise Text Search.");
+const proMask = search.match(/const TEXT_PRO_MASK = \[([^\]]*)\]/);
+if (!proMask) die("TEXT_PRO_MASK not parseable");
+else if (/rating|priceLevel|priceRange|regularOpeningHours|businessStatus/.test(proMask[1])) die("TEXT_PRO_MASK carries an Enterprise-tier field - free mode would bill.");
+if (!/spendAllow\("text_pro"\)/.test(search)) die("search route can pay Google without a text_pro ledger grant.");
+if (!/spendAllow\("details_enterprise"\)/.test(read("lib/placeDetails.js"))) die("placeDetails can pay Google without a details_enterprise ledger grant.");
+if (!/spendAllow\("photos"\)/.test(read("app/api/photo/route.js"))) die("photo route can pay Google without a photos ledger grant.");
+
 // red-prove ourselves: the atmosphere regex must actually catch the original sin
 if (!ATMOSPHERE.test('const FIELDS = "id,editorialSummary";')) die("self-test: atmosphere regex is broken");
 
 if (failed) { console.error(`check-spend-guard: ${failed} failure(s)`); process.exit(1); }
-console.log("check-spend-guard: OK — masks lean, every metered call site gated, radius ladder present");
+console.log("check-spend-guard: OK — masks lean, every metered call site gated, radius ladder present, free-mode budgets pinned");

@@ -1,4 +1,4 @@
-import { gateShut } from "../../../../lib/spendGate";
+import { gateShut, gateFree } from "../../../../lib/spendGate";
 // app/api/places/refresh/route.js — v6.35 REFRESH-AHEAD worker.
 //
 // Poked fire-and-forget by /api/places/search when it serves a fresh-but-aging
@@ -72,7 +72,7 @@ async function handle(params) {
 
 export async function GET(req) {
   // COST GUARD (2026-08-25): WAYFIND_GATE=shut stops ALL metered Google spend.
-  if (gateShut()) return NextResponse.json({ skipped: "gate shut" });
+  if (gateShut() || gateFree()) return NextResponse.json({ skipped: "gate " + (gateShut() ? "shut" : "free: scheduled re-buys are the waste free mode exists to stop") });
   const u = new URL(req.url);
   return handle(Object.fromEntries(u.searchParams));
 }
