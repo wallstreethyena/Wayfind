@@ -2,6 +2,7 @@
 import { Component, useEffect, useMemo, useRef, useState , Fragment} from "react";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, getLoader, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, wayfindScore } from "../lib/google";
 import { mergeHealedPlacePhotos } from "../lib/detailHero";
+import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks";
 import { intentRadiusMi, intentScopeLabel } from "../lib/momentIntents";
 import { MAP_DEFAULT_CATEGORY } from "../lib/mapExplorer";
 import { nearMeQuery } from "../lib/nearMeQuery";
@@ -4418,11 +4419,24 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   }, [hookDetail && hookDetail.id, hookDetail && hookDetail.places && hookDetail.places.length]);
   // Hook cards — computed from real data, refreshes when the place list changes.
   const hookCards = useMemo(() => {
+    // v8.50 — the chef-curated card (lib/chefPicks.js) is PINNED into the
+    // first three cards on both branches, per owner directive. chefHookCard()
+    // is null until the chef's complete verbatim list exists, so this inserts
+    // nothing until the data does — the strip can never advertise a list that
+    // cannot open. Position 1 (second card) keeps the live #1-right-now hook
+    // first while staying inside the top three.
+    const _chef = chefHookCard(RON_DUPRAT_TOP7);
+    const _withChef = (arr) => {
+      if (!_chef) return arr;
+      const out = (arr || []).filter((h) => h && h.id !== _chef.id);
+      out.splice(Math.min(1, out.length), 0, _chef);
+      return out;
+    };
     // AI hooks take priority — they use real place data for truly provocative copy.
     // Fall back to static templates while AI response is loading or if it fails.
-    if (aiHooks && aiHooks.length > 0) return aiHooks;
+    if (aiHooks && aiHooks.length > 0) return _withChef(aiHooks);
     const src = (suggested && suggested.length > 0 ? suggested : places).filter(Boolean);
-    return generateHooks(src, locName);
+    return _withChef(generateHooks(src, locName));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aiHooks, suggested && suggested.length, places && places.length, locName]);
   function handleHookAction(h) {
@@ -4430,6 +4444,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const { type, place, key } = h.action;
     if (type === "detail" && place) openDetail(place);
     else if (type === "experience" && key) openExperience(key);
+    // v8.50 — chef picks sheet. Owner directive 2026-08-25 (supersedes the
+    // original keep-his-order spec): the SEVEN PLACES are the chef's verbatim
+    // — nothing enters that he did not name — but they display ranked by the
+    // Wayfind Score (no presetSort "curated"); his own rank rides along as
+    // _chefRank so cards can still say "Ron's #3". Continent-wide presetMi:
+    // the list spans states, distance is context, never a filter.
+    else if (type === "chefpicks" && key === RON_DUPRAT_TOP7.key) {
+      try { logEvent("chef_picks_open", null, { chef: RON_DUPRAT_TOP7.key }); } catch (e) {}
+      setHookDetail({ id: "chef-" + key, key: "chef-" + key, theme: "chef-" + key,
+        title: RON_DUPRAT_TOP7.title, themeTitle: RON_DUPRAT_TOP7.title, label: RON_DUPRAT_TOP7.eyebrow,
+        take: RON_DUPRAT_TOP7.sub, themeBody: RON_DUPRAT_TOP7.sub,
+        heroImage: RON_DUPRAT_TOP7.heroImage, emoji: "👨‍🍳",
+        places: chefPickPlaces(RON_DUPRAT_TOP7), sections: null, presetMi: 5000 });
+    }
     else if (type === "explore") setScreen("explore");
   }
   const debounceRef = useRef(null);
