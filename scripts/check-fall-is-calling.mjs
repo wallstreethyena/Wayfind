@@ -24,6 +24,7 @@
 //      second thing to maintain and a new way to be wrong in November.
 //
 // EXECUTES the real RAIL_LIBRARY predicates against wf_events-shaped fixtures.
+import { readFileSync } from "node:fs";
 import { RAIL_LIBRARY } from "../lib/curatedEvents.js";
 
 let pass = 0;
@@ -88,6 +89,22 @@ for (const key of SHELVES) {
   ok(f(key)(christmas) === false, `"${key}" rejects a Christmas row — the collection empties itself out of season`);
   ok(f(key).length <= 1, `"${key}" reads only the event — no date/context argument, so there is no calendar rule to maintain`);
 }
+
+// 7. THE POOL EVERY SHELF IS BUILT FROM MUST NOT SILENTLY TRUNCATE (v8.47.1).
+// fetchCuratedEvents is the ONLY source for every rail in RAIL_LIBRARY. It used
+// a bare `.limit(200)` ordered by start_date, so the first time wf_events grew
+// past 200 the furthest-out events would drop off every shelf with no error —
+// a wrong answer indistinguishable from a right one, which is the same defect
+// class as v8.46's terminal skeleton. It found me before I found it: a short
+// read of this table produced shelf counts I published and had to correct.
+const SRC = readFileSync(new URL("../lib/curatedEvents.js", import.meta.url), "utf8")
+  .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
+ok(!/export async function fetchCuratedEvents\([\s\S]{0,400}?\.limit\(limit\);\s*\n\s*if \(error/.test(SRC),
+  "fetchCuratedEvents no longer ends on a bare .limit() as its only bound");
+ok(/\.range\(from, from \+ PAGE - 1\)/.test(SRC),
+  "fetchCuratedEvents PAGES through wf_events — it cannot silently truncate the pool every rail is built from");
+ok(/if \(data\.length < PAGE\) break/.test(SRC),
+  "pagination terminates on a short page rather than on a hardcoded ceiling");
 
 if (fail.length) {
   console.error(`check-fall-is-calling: FAIL (${fail.length} of ${pass + fail.length})`);
