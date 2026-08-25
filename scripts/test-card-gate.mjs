@@ -68,6 +68,29 @@ ok(/const fv = clean\(fresh\.v\);/.test(route), "the fresh-cache hit is cleaned 
 ok(/const sv = s \? clean\(s\.v\) : \[\];/.test(route), "the stale serve is cleaned before it is served");
 ok(/ownedOr\("inventory-poisoned-cache"\)/.test(route),
   "a cache row that cleans to EMPTY falls back to owned inventory, never to a blank list");
+
+// ── v8.48c: THE CLIENT CACHE POISONED ITSELF ───────────────────────────────
+// normalize() keeps a row that has only a location, so the lean free-mode rows
+// were written to localStorage as a NON-EMPTY list under an 8-day TTL. cached()
+// then served them with no network call: the server fix was live and correct
+// and the browser never asked. Owner's own session, after both server fixes
+// shipped: Food > Cafes rendered "Nothing here right now" while the same page
+// got 18 good places from /api/places/search.
+const g = readFileSync(new URL("../lib/google.js", import.meta.url), "utf8");
+ok(/const QCACHE_KEY = "wfq_v2";/.test(g),
+  "the query-cache namespace is bumped so pre-fix poisoned entries are orphaned on the next load");
+ok(/import \{ hasScoreSignal \} from "\.\/score\.js"/.test(g),
+  "lib/google.js uses the SHARED predicate for its cache, not a fourth copy of the rule");
+ok(/function serveable\(v\) \{\s*return Array\.isArray\(v\) \? v\.filter\(hasScoreSignal\) : v;/.test(g),
+  "serveable() drops unrenderable rows; non-arrays (findPlace) pass through untouched");
+ok(/const hit = serveable\(qread\(key\)\);/.test(g),
+  "the cache sanitises on READ — entries already on readers' devices heal themselves");
+ok(/if \(hit && \(!Array\.isArray\(hit\) \|\| hit\.length\)\) return Promise\.resolve\(hit\);/.test(g),
+  "a hit that sanitises to EMPTY is a MISS and refetches — never served as 'nothing here'");
+ok(/const out = serveable\(v\);/.test(g),
+  "…and sanitises on WRITE, so a lean-row era can never poison the client cache again");
+ok(/localStorage\.removeItem\(QCACHE_KEY_LEGACY\)/.test(g),
+  "the dead wfq_v1 namespace is evicted (v7.08: it had grown to ~80% of the 5MB budget)");
 ok(/if \(served\.length\) await cset\(k, served, FRESH_TTL_MS\);/.test(route),
   "only the SERVED set is cached, so a v1p cache hit can never replay unrenderable rows");
 ok(/await upsertPlaceIds\(skeletons\(places\)\)/.test(route),
