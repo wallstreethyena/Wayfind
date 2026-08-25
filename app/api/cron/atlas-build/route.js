@@ -358,7 +358,7 @@ async function pool(items, limit, fn) {
 
 export async function GET(req) {
   // COST GUARD (2026-08-25): WAYFIND_GATE=shut stops ALL metered Google spend.
-  if (gateShut() || gateFree()) return NextResponse.json({ skipped: "gate " + (gateShut() ? "shut" : "free: atlas spends Details+Anthropic; owner opens it deliberately") });
+  if (gateShut() || gateFree()) return Response.json({ skipped: "gate " + (gateShut() ? "shut" : "free: atlas spends Details+Anthropic; owner opens it deliberately") });
   const secret = process.env.CRON_SECRET;
   const url = new URL(req.url);
   const auth = req.headers.get("authorization") || "";
