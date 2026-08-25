@@ -206,22 +206,47 @@ async function handleSearch(params, origin) {
   // orphaned the entire warm rich cache, so every category tap became a miss.
   // Before ANY gate/ledger/paid decision, serve the RICH v1 row if one exists
   // within the 30-day ToS window — richer data, zero spend, instant.
+  // v8.48 — A CACHE ROW CAN BE POISONED. Free mode ran for a while writing lean
+  // Pro-mask rows (no rating/userRatingCount) into the v1p namespace. Those rows
+  // fail hasScoreSignal(), so the card gate refuses them — and a cache HIT
+  // replays them straight past the serve-time filter below, which is why "best
+  // restaurants" near Parrish still returned 20 unrenderable rows after the
+  // first fix deployed. Clean on the way OUT, not just on the way in, so a row
+  // already written can never render as a blank feed.
+  const clean = (rows) => (freeMode && Array.isArray(rows) ? rows.filter(hasScoreSignal) : (rows || []));
+  // Every cached row was unrenderable: serve OWNED inventory (which carries its
+  // own rating/reviews) rather than a blank list. Free — no Google call.
+  const ownedOr = async (source) => {
+    const inv = params.cat ? await serveFromInventory(params.cat, lat, lng, radius, n) : [];
+    return inv.length ? NextResponse.json({ places: inv, cached: false, source, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS }) : null;
+  };
   if (!fresh && freeMode) {
     const kRich = ["v1", q.toLowerCase(), lat.toFixed(2), lng.toFixed(2), Math.round(radius / 1000), n].join("|");
     const rich = await cget(kRich, { staleMs: STALE_MAX_MS });
-    if (rich) return NextResponse.json({ places: rich.v, cached: true, source: "rich-cache", debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
+    if (rich) {
+      const rv = clean(rich.v);
+      if (rv.length) return NextResponse.json({ places: rv, cached: true, source: "rich-cache", debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
+    }
   }
   if (fresh) {
-    // v6.35: serve the still-fresh copy instantly; if it is aging past its
-    // jittered refresh age, poke a background refresh so it never reaches day 30.
-    if (fresh.due) pokeRefresh(origin, k, { q, lat, lng, radius, n });
-    return NextResponse.json({ places: fresh.v, cached: true, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
+    const fv = clean(fresh.v);
+    if (fv.length) {
+      // v6.35: serve the still-fresh copy instantly; if it is aging past its
+      // jittered refresh age, poke a background refresh so it never reaches day 30.
+      if (fresh.due) pokeRefresh(origin, k, { q, lat, lng, radius, n });
+      return NextResponse.json({ places: fv, cached: true, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
+    }
+    const owned = await ownedOr("inventory-poisoned-cache");
+    if (owned) return owned;
+    // Nothing owned here either — fall through to the gated path and let it buy
+    // a fresh (now filtered) answer under the free-tier ledger.
   }
 
   const serveStale = async () => {
     // ToS: serve a stale row ONLY within the 30-day age cap.
     const s = await cget(k, { staleMs: STALE_MAX_MS });
-    return s ? NextResponse.json({ places: s.v, cached: true, stale: true, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS }) : null;
+    const sv = s ? clean(s.v) : [];
+    return sv.length ? NextResponse.json({ places: sv, cached: true, stale: true, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS }) : null;
   };
 
   try {
