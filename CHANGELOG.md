@@ -1,3 +1,59 @@
+## v8.49 - Cafés was never a data problem: the chip filtered a shelf it was never on
+
+Owner, repeatedly and for a long time: *"the cafes are still not working... i
+asked this to be fixed a long time ago now."* Food > Cafés in Parrish rendered
+**"Nothing here right now"** under a healthy Viator rail.
+
+- **THE DATA WAS ALWAYS THERE.** Measured against production inventory: **652
+  food rows within 17mi of Parrish**, of which `placeAllowed("food","cafes")`
+  admits **111**. The contract works; the rows exist; the chip returned nothing.
+- **IT IS AN ORDERING BUG, and this is the whole of it:**
+  1. free mode (v8.48) cannot render an unowned Google row — no rating under
+     `TEXT_PRO_MASK` — so a café query correctly falls back to owned inventory.
+  2. that fallback asked for the whole CATEGORY: `serveFromInventory("food")`.
+  3. `rankInventory` scores `rating*20 + reviews/100` and returns the **top 50**.
+     Across all food near Parrish those slots go to big-review restaurants —
+     measured, **0 of the top 50 are cafés**.
+  4. only THEN did the chip filter run, on a list with no cafés in it.
+- **The counterfactual is why the obvious fix was the wrong one.** The
+  documented `limit=1000`-with-no-geo-bound truncation is real and costs **81%**
+  of nearby cafés (111 -> 21) — but fixing it ALONE still yields zero cards,
+  because the cap-before-filter happens either way. Both are fixed; only one of
+  them was the bug.
+- `serveFromInventory` now takes `sub`, applies `placeAllowed` **before**
+  `rankInventory`, and geo-bounds its read with a bounding box sized to the
+  radius plus rankInventory's own 1.15 gate. The route forwards `params.sub` at
+  all six call sites; the browse feed sends `&sub=` on its `inv=1` serve.
+  Fail-open by design: a sub with no `SUB_ALLOW` contract falls through, so an
+  unrecognised chip can never empty a tab.
+- **VERIFIED against the real Parrish inventory**, not a fixture:
+
+  | chip | cards before | cards after |
+  |---|---|---|
+  | Cafés | 0 | **40** (Keke's, The Sage Biscuit Café, …) |
+  | Breakfast | unfiltered top-40 | 40, breakfast-typed |
+  | (no sub) | 40 | 40, unchanged |
+
+- Guards 410 -> 411: `check-narrow-chip-inventory` REPRODUCES the defect
+  (rank-50-then-filter on a synthetic pool yields 0 cafés) and proves the fix
+  (filter-then-rank yields all 6), then pins the wire — `placeAllowed` before
+  `rankInventory` by source position, the geo bound, all six route call sites,
+  and the client actually sending the chip.
+
+### Found while fixing, NOT fixed here
+
+**Only 2 of the 7 Food chips have a `SUB_ALLOW` contract** — `breakfast` and
+`cafes`. `lunch`, `dinner`, `quickbites`, `delivery` and `dessert` fall straight
+through to `CAT_ALLOW.food`, so picking Desserts applies the same filter as
+picking All (verified: Desserts near Parrish returns Shake Station, *Publix* and
+Anna Maria Oyster Bar). This is the exact defect v8.29.10 fixed for Night out,
+still live on Food. It is a content decision — writing five contracts — not a
+mechanical one, so it is named here rather than guessed at.
+
+`MEAL_GATE_RE` in `app/home.js` is also keyed `coffee`, and no chip has that id
+(the chip is `cafes`). The gate written to protect Cafés has been pointing at a
+chip that does not exist since the rename.
+
 ## v8.47.1 - ERRATA: the shelves were never short, and the pool could silently truncate
 
 **Correcting v8.47.** That entry published a table claiming Pumpkin Season held
