@@ -1,3 +1,4 @@
+import { gateShut } from "../../../../lib/spendGate";
 // app/api/cron/promote-index/route.js — drains wf_promotion_queue: index places
 // (wf_place_ids) become owned cards (wf_inventory), a bounded batch at a time.
 //
@@ -127,6 +128,8 @@ async function rpc(s, fn, body) {
 }
 
 export async function GET(req) {
+  // COST GUARD (2026-08-25): WAYFIND_GATE=shut stops ALL metered Google spend.
+  if (gateShut()) return NextResponse.json({ skipped: "gate shut" });
   const secret = process.env.CRON_SECRET;
   const url = new URL(req.url);
   const auth = req.headers.get("authorization") || "";

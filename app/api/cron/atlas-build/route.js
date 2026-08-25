@@ -1,3 +1,4 @@
+import { gateShut } from "../../../../lib/spendGate";
 // app/api/cron/atlas-build/route.js — bulk-builds the Wayfind "Atlas" editorial
 // (atlas-590-v1) for places that don't have one yet. Sources facts from the
 // Google Places Details API, writes each entry with Claude, and upserts to
@@ -353,6 +354,8 @@ async function pool(items, limit, fn) {
 // back is publishable.
 
 export async function GET(req) {
+  // COST GUARD (2026-08-25): WAYFIND_GATE=shut stops ALL metered Google spend.
+  if (gateShut()) return NextResponse.json({ skipped: "gate shut" });
   const secret = process.env.CRON_SECRET;
   const url = new URL(req.url);
   const auth = req.headers.get("authorization") || "";

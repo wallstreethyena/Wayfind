@@ -1,3 +1,4 @@
+import { gateShut } from "../../../../lib/spendGate";
 // app/api/cron/inventory-refresh/route.js — keep wf_inventory's Google content
 // inside the 30-day freshness ceiling, a few rows at a time.
 //
@@ -33,6 +34,8 @@ const REFRESH_AFTER_DAYS = 25;
 const PARALLEL = 5;
 
 export async function GET(req) {
+  // COST GUARD (2026-08-25): WAYFIND_GATE=shut stops ALL metered Google spend.
+  if (gateShut()) return NextResponse.json({ skipped: "gate shut" });
   const secret = process.env.CRON_SECRET;
   const auth = req.headers.get("authorization") || "";
   if (!secret || auth !== "Bearer " + secret) return Response.json({ error: "unauthorized" }, { status: 401 });

@@ -1,3 +1,4 @@
+import { gateShut } from "../../../../lib/spendGate";
 // app/api/cron/scout/route.js — the 9.2 scout.
 //
 // OWNER DIRECTIVE (2026-08-22): "I want that to always be looking for places
@@ -102,6 +103,8 @@ async function adjudicateBatch(key, rows) {
 }
 
 export async function GET(req) {
+  // COST GUARD (2026-08-25): WAYFIND_GATE=shut stops ALL metered Google spend.
+  if (gateShut()) return NextResponse.json({ skipped: "gate shut" });
   const secret = process.env.CRON_SECRET;
   const auth = req.headers.get("authorization") || "";
   if (!secret || auth !== "Bearer " + secret) return new Response("unauthorized", { status: 401 });
