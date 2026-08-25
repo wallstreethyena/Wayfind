@@ -7,6 +7,7 @@ export const runtime = "nodejs";
 import { intentPartnerPicks } from "../../../../lib/intentPartnerPicks.js";
 import { sbEnv } from "../../../../lib/serverCache.js";
 import { cachedExperienceCard, viatorProductCard } from "../../../../lib/viatorProductCard.js";
+import { isDeniedViatorSku } from "../../../../lib/viatorIntegrity.js";
 
 const TTL = 6 * 3600 * 1000;
 const mem = new Map();
@@ -59,7 +60,7 @@ export async function GET(req) {
   const city = String(sp.get("city") || "").trim().slice(0, 80);
   const intent = String(sp.get("intent") || "").trim().slice(0, 40);
   const codes = intentPartnerPicks(city, intent)
-    .filter((pick) => pick.provider === "viator" && /^\d+P\d+$/i.test(pick.offerId))
+    .filter((pick) => pick.provider === "viator" && /^\d+P\d+$/i.test(pick.offerId) && !isDeniedViatorSku(pick.offerId))
     .map((pick) => pick.offerId)
     .slice(0, 8);
   if (!codes.length) return Response.json({ items: [] });

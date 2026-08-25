@@ -116,9 +116,12 @@ ok(resolved.dest && !resolved.dest.includes(HOLD_SKU),
 ok(!/searchResults/i.test(CANONICAL),
   "the founder-verified canonical is a product path, not searchResults");
 
-const hold = await resolveOffer("viator", HOLD_SKU, { env: () => null });
-ok(hold.error === "no-supabase-env" && !hold.dest,
-  `the scallop HOLD-SKU ${HOLD_SKU} is not pinned and fails closed without a catalogue (got ${hold.error || hold.dest})`);
+const hold = await resolveOffer("viator", HOLD_SKU, {
+  env: () => ({ url: "https://wayfind-guard.invalid", key: "k" }),
+  fetch: async () => { throw new Error("HOLD SKU must not hit the catalogue"); },
+});
+ok(hold.error === "denied-sku" && !hold.dest,
+  `the scallop HOLD-SKU ${HOLD_SKU} is denied in resolveOffer (got ${hold.error || hold.dest})`);
 
 // ── 4. Ranking is never for sale ─────────────────────────────────────────
 const shell = SUMMER_UNIVERSE.find((e) => e.key === "shell_key");

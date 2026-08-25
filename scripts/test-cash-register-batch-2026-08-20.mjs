@@ -154,9 +154,12 @@ for (const row of BATCH) {
     `${row.name}: resolved dest is not the scallop HOLD-SKU`);
 }
 
-const hold = await resolveOffer("viator", HOLD_SKU, { env: () => null });
-ok(hold.error === "no-supabase-env" && !hold.dest,
-  `the scallop HOLD-SKU ${HOLD_SKU} is not pinned and fails closed without a catalogue`);
+const hold = await resolveOffer("viator", HOLD_SKU, {
+  env: () => ({ url: "https://wayfind-guard.invalid", key: "k" }),
+  fetch: async () => { throw new Error("HOLD SKU must not hit the catalogue"); },
+});
+ok(hold.error === "denied-sku" && !hold.dest,
+  `the scallop HOLD-SKU ${HOLD_SKU} is denied in resolveOffer`);
 
 for (const row of BATCH) {
   if (!row.rankKey) continue;

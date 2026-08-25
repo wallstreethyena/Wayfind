@@ -24,6 +24,13 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { PLACE_PARTNER_PICKS, placePartnerPick } from "../lib/placePartnerPicks.js";
+import {
+  inspectViatorProductPage,
+  isDeniedViatorSku,
+  isViatorSearchOrHomeUrl,
+  pageNamesPlace as integrityPageNamesPlace,
+  parseViatorProductUrl,
+} from "../lib/viatorIntegrity.js";
 import { SUMMER_UNIVERSE } from "../lib/summerUniverse.js";
 import { BIRTHDAY_UNIVERSE, birthdayEntries } from "../lib/birthdayUniverse.js";
 import { CURATED } from "../lib/curated.js";
@@ -130,51 +137,14 @@ export function inventoryAttachable() {
   };
 }
 
-const PRODUCT_CODE_RE = /\/d(\d+)-([A-Za-z0-9]+)/i;
 const UA = "Mozilla/5.0 (compatible; WayfindCashRegister/1.0; +https://gowayfind.com)";
 
-function decodeEntities(s) {
-  return String(s || "")
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&apos;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
-    .replace(/&nbsp;/g, " ");
-}
-
-function extractTitle(html) {
-  const og = html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i)
-    || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:title["']/i);
-  if (og) return decodeEntities(og[1]).replace(/\s+\|\s+Viator.*$/i, "").trim();
-  const t = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-  return t ? decodeEntities(t[1]).replace(/\s+\|\s+Viator.*$/i, "").trim() : "";
-}
-
-function extractH1(html) {
-  const m = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
-  if (!m) return "";
-  return decodeEntities(m[1].replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
-}
-
 export function parseProductUrl(url) {
-  const m = String(url || "").match(PRODUCT_CODE_RE);
-  if (!m) return null;
-  return { destId: m[1], productCode: m[2] };
+  return parseViatorProductUrl(url);
 }
 
 export function pageNamesPlace(hay, placeName, city) {
-  const h = norm(hay);
-  const place = norm(placeName);
-  if (!h || !place) return false;
-  if (h.includes(place)) return "place";
-  const tokens = place.split(" ").filter((t) => t.length >= 4);
-  const hit = tokens.filter((t) => h.includes(t)).length;
-  if (tokens.length >= 2 && hit >= Math.min(2, tokens.length)) return "place-tokens";
-  if (city && h.includes(norm(city)) && hit >= 1) return "city+token";
-  return false;
+  return integrityPageNamesPlace(hay, placeName, city);
 }
 
 export async function verifyViatorProduct(url, placeName, city = "") {
@@ -191,16 +161,16 @@ export async function verifyViatorProduct(url, placeName, city = "") {
     named: false,
     reason: "",
   };
+  if (isViatorSearchOrHomeUrl(url)) {
+    out.reason = "start-url-is-searchResults";
+    return out;
+  }
   if (!parsed) {
     out.reason = "url-is-not-a-product-path";
     return out;
   }
-  if (/searchResults/i.test(url)) {
-    out.reason = "start-url-is-searchResults";
-    return out;
-  }
-  if (/236862P2/i.test(url)) {
-    out.reason = "scallop-HOLD-SKU";
+  if (isDeniedViatorSku(parsed.productCode)) {
+    out.reason = inspectViatorProductPage({ startUrl: url, body: "" }).reason;
     return out;
   }
 
@@ -216,40 +186,22 @@ export async function verifyViatorProduct(url, placeName, city = "") {
   }
   out.status = res.status;
   out.finalUrl = String(res.url || "");
-  if (!res.ok) {
-    out.reason = `http-${res.status}`;
-    return out;
-  }
-  if (/searchResults/i.test(out.finalUrl)) {
-    out.reason = "redirected-to-searchResults";
-    return out;
-  }
-  const finalParsed = parseProductUrl(out.finalUrl);
-  if (!finalParsed) {
-    out.reason = "final-url-is-not-a-product-path";
-    return out;
-  }
-  if (finalParsed.productCode !== parsed.productCode) {
-    out.reason = `redirected-to-other-product:${finalParsed.productCode}`;
-    out.productCode = finalParsed.productCode;
-    out.destId = finalParsed.destId;
-    return out;
-  }
   const html = await res.text();
-  if (/<title[^>]*>\s*404/i.test(html) || /there is no such page/i.test(html)) {
-    out.reason = "soft-404";
-    return out;
-  }
-  out.title = extractTitle(html);
-  out.h1 = extractH1(html);
-  const hay = `${out.title} ${out.h1} ${out.finalUrl}`;
-  out.named = pageNamesPlace(hay, placeName, city);
-  if (!out.named) {
-    out.reason = "page-does-not-name-place-or-city";
-    return out;
-  }
-  out.ok = true;
-  out.reason = "verified";
+  const inspected = inspectViatorProductPage({
+    startUrl: url,
+    finalUrl: out.finalUrl,
+    body: html,
+    httpStatus: res.status,
+    placeName,
+    city,
+  });
+  out.productCode = inspected.productCode;
+  out.destId = inspected.destId;
+  out.title = inspected.title;
+  out.h1 = inspected.h1;
+  out.named = inspected.named;
+  out.reason = inspected.reason;
+  out.ok = inspected.ok;
   return out;
 }
 

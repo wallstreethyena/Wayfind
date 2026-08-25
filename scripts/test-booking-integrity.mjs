@@ -7,6 +7,8 @@
 // right LOCAL product is kept. Plus isolation checks: affiliate never touches
 // Score/placement, and only the sanctioned module builds the /go URL.
 import { resolveVerified } from "../lib/bookingResolver.js";
+import { buildVerifiedOffer, isLiveEligible } from "../lib/verifiedOffers.js";
+import { chooseViatorGoLocation, isDeniedViatorSku } from "../lib/viatorIntegrity.js";
 import { readFileSync, readdirSync, statSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname, join, relative } from "path";
@@ -61,7 +63,7 @@ for (const f of ["lib/score.js", "lib/ranking.js"]) {
 
 // ── Isolation: only lib/affiliates.js builds the /go URL; no UI hand-rolls a product URL ──
 const GO_OK = new Set(["lib/affiliates.js"]);                                  // the ONE /go-URL builder
-const PRODUCT_OK = new Set(["lib/affiliates.js", "lib/bookingResolver.js", "lib/viatorServer.js", "lib/guides.js", "lib/coupons.js"]); // resolver + curated editorial data
+const PRODUCT_OK = new Set(["lib/affiliates.js", "lib/bookingResolver.js", "lib/viatorServer.js", "lib/guides.js", "lib/coupons.js", "lib/viatorIntegrity.js"]); // resolver + curated editorial data + integrity parser
 const walk = (dir) => readdirSync(dir).flatMap((n) => {
   const p = join(dir, n); const s = statSync(p);
   if (s.isDirectory()) return n === "node_modules" || n === ".next" || n === ".vercel" ? [] : walk(p);
@@ -77,4 +79,30 @@ for (const abs of [...walk(join(ROOT, "app")), ...walk(join(ROOT, "lib"))]) {
   if (/viator\.com\/tours\//.test(src)) ok(PRODUCT_OK.has(rel), `${rel} hand-builds a viator.com product URL — must come from the resolver / affiliates (or be curated data)`);
 }
 
-console.log(`test-booking-integrity: OK — ${pass} assertions (wrong-place rejected; local kept; fail-closed; affiliate isolated from Score + /go)`);
+// ── HOLD denylist + search-as-Book (CALL, not a SKU grep) ────────────────
+ok(isDeniedViatorSku("236862P2") && isDeniedViatorSku("22211P1"),
+  "HOLD SKUs 236862P2 and 22211P1 are denied in code");
+ok(!isLiveEligible(buildVerifiedOffer({
+  productCode: "236862P2",
+  productUrl: "https://www.viator.com/tours/Homosassa/Scallop/d50024-236862P2",
+  commissionable: true,
+  bookableNow: true,
+  confidence: 0.99,
+  evidence: { entityMatch: 1, geoConfirmed: true },
+})), "236862P2 cannot clear isLiveEligible with a perfect score");
+ok(!isLiveEligible(buildVerifiedOffer({
+  productCode: "22211P1",
+  productUrl: "https://www.viator.com/tours/Sarasota/TreeUmph/d25738-22211P1",
+  commissionable: true,
+  bookableNow: true,
+  confidence: 0.99,
+  evidence: { entityMatch: 1, geoConfirmed: true },
+})), "22211P1 cannot clear isLiveEligible with a perfect score");
+ok(chooseViatorGoLocation({
+  rawProduct: "https://www.viator.com/searchResults/all?text=dali",
+  siteFallback: "/",
+}).ok === false, "searchResults never becomes a Book Location");
+ok(chooseViatorGoLocation({ siteFallback: "/" }).location === "/",
+  "a failed Book resolve fails closed to our site, not Viator search");
+
+console.log(`test-booking-integrity: OK — ${pass} assertions (wrong-place rejected; local kept; fail-closed; affiliate isolated from Score + /go; HOLD/search cannot Book)`);
