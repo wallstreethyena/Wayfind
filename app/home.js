@@ -142,6 +142,13 @@ const AuthSheet = nextDynamic(loadAuth, { ssr: false, loading: () => null });
 const DetailSheet = nextDynamic(loadDetail, { ssr: false, loading: () => null });
 const IntroSheet = nextDynamic(loadIntro, { ssr: false, loading: () => null });
 const SocialFindSheet = nextDynamic(loadSocialFind, { ssr: false, loading: () => null });
+// v8.43 — THE PAID SPONSOR CARD. Behind next/dynamic on purpose: the geo gate
+// in lib/sponsoredPlaces.js is false for all but a few square miles of the
+// world, so the component must not sit in the home route's eager JS (that route
+// runs ~498KB gz against check-bundle's 500KB budget). ssr:false is correct as
+// well as cheap — the gate needs the reader's resolved location, which does not
+// exist on the server, so there is nothing to render into the HTML.
+const SponsoredPlaceCard = nextDynamic(() => import("./components/SponsoredPlaceCard"), { ssr: false, loading: () => null });
 import * as Trips from "../lib/trips";
 import * as Ranking from "../lib/ranking";
 // v6.72: ViatorRail EXTRACTED to app/components/ViatorRail.js so the nine
@@ -272,7 +279,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.47.0";
+const BUILD_ID = "v8.47.1";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -4023,6 +4030,29 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const [gateStatus, setGateStatus] = useState(null);
   const [gateBump, setGateBump] = useState(0); // bump to re-check coverage after an unlock completes
   const [railsCoverage, setRailsCoverage] = useState(null);
+  // v8.43 — the PAID, GEO-GATED sponsor card (lib/sponsoredPlaces.js). Null for
+  // every reader outside a sponsor's bought radius, which is nearly all of them.
+  const [sponsoredPick, setSponsoredPick] = useState(null);
+  // The registry is dynamic-imported HERE, after a real location resolves,
+  // rather than statically at the top of this file: the home route is at ~498KB
+  // gz against check-bundle's 500KB budget, and a reader in Sarasota should pay
+  // nothing for an advertiser in North Carolina. hydrate adds distance and the
+  // LIVE Wayfind Score — the card itself computes no numbers of its own.
+  useEffect(() => {
+    let dead = false;
+    if (!locResolved || !center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) { setSponsoredPick(null); return; }
+    (async () => {
+      try {
+        const mod = await import("../lib/sponsoredPlaces");
+        const s = mod.sponsoredPlaceNear(center.lat, center.lng);
+        if (!dead) setSponsoredPick(s ? mod.hydrateSponsoredPlace(s, center) : null);
+      } catch (e) { if (!dead) setSponsoredPick(null); }
+    })();
+    return () => { dead = true; };
+    // Keyed on the COORDINATES, not the center object — center is rebuilt on
+    // most renders, and depending on the object identity would re-run this
+    // effect (and re-fire the impression) in a loop.
+  }, [locResolved, center && center.lat, center && center.lng]);
   const [homeTodo, setHomeTodo] = useState(null);
   const [suggestedLoading, setSuggestedLoading] = useState(false);
   const [intent, setIntent] = useState(null);
@@ -9647,6 +9677,26 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             {railMenuBand}
             <div className="wf-cols">
               <div className="wf-col-main">
+              {/* v8.43 — THE PAID SPONSOR CARD, first in the column.
+                  Wayfind's first direct advertiser bought this slot, and a
+                  bought slot that nobody scrolls to is worth nothing to them or
+                  to us — so it leads the column rather than being buried where
+                  house inventory usually goes.
+
+                  IT IS SAFE THERE FOR ONE REASON: `sponsoredPick` is non-null
+                  ONLY inside the advertiser's own bought radius
+                  (lib/sponsoredPlaces.js, 15mi for Rio Body Wax Gastonia,
+                  pinned by scripts/check-sponsored-places.mjs). Every other
+                  reader on the planet renders nothing here and the rail band
+                  above is still the first thing they see, so
+                  check-home-answer-first's invariant is untouched.
+
+                  The disclosure is inside the card, twice, and the Wayfind
+                  Score it shows is recomputed by the same formula as every
+                  unpaid card. Money buys the position, never the number. */}
+              {!browseCat && sponsoredPick ? (
+                <SponsoredPlaceCard pick={sponsoredPick} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />
+              ) : null}
               {/* v6.62 (2026-08-08, owner: "add this to the top of the page"),
                   REVERSES v6.97's "MOVED BELOW THE ANSWER" call below. The six
                   categories are back to being the first thing on the page,

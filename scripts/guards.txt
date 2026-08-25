@@ -689,3 +689,14 @@ node scripts/check-rails-wire.mjs
 # 7 named venues are present with real place_ids + photos, and that every shown
 # score is derived from wayfindScore() rather than hardcoded.
 node scripts/check-partner-collections.mjs
+
+# PAID SPONSOR CARDS (owner 2026-08-23) — Wayfind's first direct advertiser,
+# Rio Body Wax GASTONIA NC. A business paid for a slot in the home feed. This
+# pins the four things that can quietly rot on a paid placement: the geo-gate
+# (15mi, tighter than the Grove's 20 because the same brand runs its own
+# Charlotte and Pineville studios), the disclosure (asserted in the RENDERED
+# markup, twice), the score (must be wayfindScore(rating, reviews) — the slot is
+# for sale, the number never is), and the link (rel="sponsored", utm attribution
+# so the advertiser can see what they bought). Plus the bundle wall: home.js
+# must reach both the registry and the card lazily.
+node scripts/check-sponsored-places.mjs

@@ -42,10 +42,21 @@ if (/"@type"\s*:\s*"VideoObject"|["']og:video["']/.test(trendingLib)) fail("Vide
 const creatorLib = readFileSync(join(root, "lib", "creatorPages.js"), "utf8");
 if (!creatorLib.includes("alternates: { canonical: url }")) fail("creator-page metadata lost its canonical");
 if (/"@type"\s*:\s*"VideoObject"|["']og:video["']/.test(creatorLib)) fail("VideoObject/og:video is gated (lib/videoObjectGate.js) — lib/creatorPages.js must not emit it either");
+// v8.43.1 — /partners delegates its metadata identically. Accepting the
+// delegation below without asserting the canonical HERE would be loosening the
+// guard for a PAID page, which is the last one that should get a pass.
+const sponsorLib = readFileSync(join(root, "lib", "sponsorPage.js"), "utf8");
+if (!sponsorLib.includes("alternates: { canonical: url }")) fail("partner-page metadata lost its canonical");
+// A paid page must never mark up review stars it did not collect (Google's own
+// structured-data policy). The rating is SHOWN and attributed instead.
+// Matches an EMITTED object key (`aggregateRating:`), not the prose above it
+// explaining why there isn't one — the same distinction the VideoObject gate
+// draws two lines up.
+if (/aggregateRating\s*:/.test(sponsorLib)) fail("lib/sponsorPage.js must not emit aggregateRating — those reviews are Google's, and the page is paid");
 for (const p of pages) {
   if (p === join(root, "app", "page.js")) continue;
   const s = readFileSync(p, "utf8");
-  if (!(s.includes("canonical") || s.includes("index: false") || s.includes("landingMetadata(") || s.includes("trendingMetadata(") || s.includes("trendingIndexMetadata(") || s.includes("placePageMetadata(") || s.includes("placesIndexMetadata(") || s.includes("creatorMetadata(") || s.includes("creatorsIndexMetadata("))) fail(`route ${p.slice(root.length)} declares neither a canonical nor noindex — it inherits canonical "/" and reads as a homepage duplicate`);
+  if (!(s.includes("canonical") || s.includes("index: false") || s.includes("landingMetadata(") || s.includes("trendingMetadata(") || s.includes("trendingIndexMetadata(") || s.includes("placePageMetadata(") || s.includes("placesIndexMetadata(") || s.includes("creatorMetadata(") || s.includes("creatorsIndexMetadata(") || s.includes("sponsorPageMetadata(") || s.includes("partnersIndexMetadata("))) fail(`route ${p.slice(root.length)} declares neither a canonical nor noindex — it inherits canonical "/" and reads as a homepage duplicate`);
 }
 
 // 2. layout contract: homepage canonical, JSON-LD, footer links, no H1.
