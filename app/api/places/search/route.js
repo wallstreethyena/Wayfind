@@ -186,14 +186,18 @@ async function handleSearch(params, origin) {
     if (forceErr) { const s = await serveStale(); return s || NextResponse.json({ error: "forced (no stale)", debug: dbg() }, { status: 502 }); }
     // THE GATE (shut): never pay Google on a miss — lean on the warmed cache and
     // owned inventory. Serve stale (≤30d) → inventory → empty. Zero new searches.
-    // shut: never pay. free: pay only on a monthly text_pro ledger grant.
-    if (gateShut() || (freeMode && !(await spendAllow("text_pro")))) {
+    const gateBlocked = async (why) => {
       const stale = await serveStale();
       if (stale) return stale;
       const inv = params.cat ? await serveFromInventory(params.cat, lat, lng, radius, n) : [];
-      if (inv.length) return NextResponse.json({ places: inv, cached: false, source: "inventory", gate: "shut", debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
-      return NextResponse.json({ places: [], cached: false, gate: "shut", debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
-    }
+      if (inv.length) return NextResponse.json({ places: inv, cached: false, source: "inventory", gate: why, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
+      return NextResponse.json({ places: [], cached: false, gate: why, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
+    };
+    // THE GATE (shut): never pay Google on a miss — lean on the warmed cache and
+    // owned inventory. Serve stale (≤30d) → inventory → empty. Zero new searches.
+    if (gateShut()) return await gateBlocked("shut");
+    // FREE MODE: pay only on a monthly text_pro ledger grant (fail-closed ledger).
+    if (freeMode && !(await spendAllow("text_pro"))) return await gateBlocked("free-budget");
     const r = await fetch("https://places.googleapis.com/v1/places:searchText", {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Goog-Api-Key": serverKey, "X-Goog-FieldMask": freeMode ? TEXT_PRO_MASK : FIELD_MASK },
