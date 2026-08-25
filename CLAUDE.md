@@ -46,6 +46,38 @@ when it is neither — run `git fetch --prune --all` before trusting `git branch
 
 ---
 
+## 📉 Lessons — 2026-08-25 revenue audit (full story: docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md)
+
+Five rules, each bought with a real outage or leak that day. Do not relearn them.
+
+1. **Env-gated branches need a static guard or a CI run with the flag ON.** The
+   spend-gate's `NextResponse.json()` (never imported) crashed all four content
+   crons the moment FREE MODE flipped — green build, dead pipeline.
+   `scripts/check-response-imports.mjs` now checks the source; keep it green,
+   and give any new env-flag branch the same treatment.
+2. **Deterministic provider failures (billing/quota) never retry.** 579
+   identical Anthropic 400s over 8 days, each also burning paid Places calls.
+   `lib/providerHealth.js` classifies + breaks the circuit; pulse notes with a
+   `billing:`/`quota:` prefix page after ONE dead run. Keep the Anthropic
+   account on auto-reload — the breaker limits blast radius, it can't add credits.
+3. **Every fallback rung keeps attribution, and "degraded" is not "failed."**
+   Missing-query Viator clicks went to the bare homepage (free traffic to the
+   partner); Uber Eats' attributed search fallback was counted as a failure
+   (47% "failure rate" nobody could alert on). Redirect events now carry
+   `resolver_path`; `provider_redirect_failed` means unattributable, nothing else.
+4. **Commercial links go through our `/api/*/go` routes, never a client-built
+   `NEXT_PUBLIC_*` template href.** Build-time inlining silently unmonetized
+   the Detail delivery rung (August's two largest `primary_cta_null` buckets).
+   `Aff.uberEatsGoUrl` / `experienceGoUrl` are the pattern. When you fix a
+   bake-time-env bug, grep for its siblings — this was the second occurrence.
+5. **New public content ships WITH its sitemap + schema; new tables ship WITH
+   RLS.** The 83-row curated events layer was invisible to Google; three
+   backup tables sat anon-writable for six days (RLS enabled 2026-08-25 —
+   drop them once confirmed unreferenced). Read the Supabase advisor output
+   on a schedule, not after the revenue dips.
+
+---
+
 ## ⚠️ Concurrency rules
 
 - **main moves fast** — both sessions push, sometimes every few minutes. NEVER assume main

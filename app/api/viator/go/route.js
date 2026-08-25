@@ -241,7 +241,7 @@ export async function GET(req) {
   if (rawProduct) {
     if (isValidViatorProduct(rawProduct)) {
       const dest = withViatorTracking(rawProduct) || rawProduct;
-      emit("provider_redirect_started", { offer_id: "product:" + rawProduct.slice(0, 120) });
+      emit("provider_redirect_started", { offer_id: "product:" + rawProduct.slice(0, 120), resolver_path: "exact-product" });
       return new Response(null, {
         status: 302,
         headers: {
@@ -258,13 +258,28 @@ export async function GET(req) {
     emit("provider_redirect_failed", { failure_reason: "invalid-product-url" });
   }
 
-  if (!q) return failAndRedirect("missing-query", "https://www.viator.com");
+  // MISSING QUERY (2026-08-25). This used to 302 to bare https://www.viator.com
+  // — an UNATTRIBUTED homepage dump: the click was already paid for (a user
+  // pressed Book), and the one place it could still convert for us was thrown
+  // away at the door. Six of these in the week of Aug 23 alone. The ladder now
+  // degrades while keeping attribution at every rung:
+  //   city present → attributed search for "things to do in {city}"
+  //   nothing      → attributed homepage (pid/mcid carried), still credited
+  if (!q) {
+    const degraded = city
+      ? searchFallback("things to do in " + city)
+      : (getPid()
+        ? `https://www.viator.com/?pid=${encodeURIComponent(getPid())}&mcid=42383&medium=link`
+        : "https://www.viator.com");
+    emit("provider_redirect_failed", { failure_reason: "missing-query", resolver_path: city ? "city-search-fallback" : "homepage-fallback" });
+    return Response.redirect(degraded, 302);
+  }
 
   const term = city && !q.toLowerCase().includes(city.toLowerCase()) ? `${q} ${city}` : q;
   const resolved = await resolveProduct(term, q, region, kind, placeId);
   const url = resolved || searchFallback(term);
 
-  emit("provider_redirect_started");
+  emit("provider_redirect_started", { resolver_path: resolved ? "product" : "search-fallback" });
 
   // v2: split the edge cache by outcome. A confirmed product is stable (1h); a search
   // fallback caches only briefly (60s) so a wrong fallback never sticks and a fix (or

@@ -95,6 +95,7 @@ import { aiKey } from "../../../../lib/aiKey";
 import { sbEnv } from "../../../../lib/serverCache";
 import { resolveOverride } from "../../../../lib/envAudit";
 import { recordPulse } from "../../../../lib/jobPulse";
+import { classifyProviderFailure, breakerOpen, tripBreaker } from "../../../../lib/providerHealth.js";
 // Two halves of ONE pipeline, not alternatives:
 //   atlasVerify   — fetches the venue's own page and returns the issue list
 //                   (this is what catches invented founding dates).
@@ -314,6 +315,15 @@ async function writeEditorial(place, d, key, sources, stats, timeoutMs = 20000) 
       let msg = "";
       try { msg = String(((await r.json()) || {}).error?.message || "").slice(0, 200); } catch (e) { msg = "(unparseable body)"; }
       console.error(`ATLAS-DIAG anthropic status=${r.status} model=${MODEL()} msg=${msg}`);
+      // BILLING/QUOTA IS DETERMINISTIC (2026-08-25, the 579-call incident):
+      // the next call in this batch cannot succeed either. Halt the run and
+      // trip the cross-run breaker so subsequent invocations skip the batch
+      // entirely until the cooldown passes or a human adds credits.
+      const kind = classifyProviderFailure(r.status, msg);
+      if (kind && stats) {
+        stats.providerHalt = { kind, msg: `anthropic ${r.status}: ${msg}`.slice(0, 180) };
+        tripBreaker("anthropic", kind, stats.providerHalt.msg).catch(() => {});
+      }
       return null;
     }
     const j = await r.json();
@@ -358,7 +368,7 @@ async function pool(items, limit, fn) {
 
 export async function GET(req) {
   // COST GUARD (2026-08-25): WAYFIND_GATE=shut stops ALL metered Google spend.
-  if (gateShut() || gateFree()) return NextResponse.json({ skipped: "gate " + (gateShut() ? "shut" : "free: atlas spends Details+Anthropic; owner opens it deliberately") });
+  if (gateShut() || gateFree()) return Response.json({ skipped: "gate " + (gateShut() ? "shut" : "free: atlas spends Details+Anthropic; owner opens it deliberately") });
   const secret = process.env.CRON_SECRET;
   const url = new URL(req.url);
   const auth = req.headers.get("authorization") || "";
@@ -371,6 +381,22 @@ export async function GET(req) {
   if (!s) return jobCannotRun("atlas-build", "SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL is missing");
   if (!gkey || !akey) return jobCannotRun("atlas-build", "GOOGLE_MAPS_SERVER_KEY or ANTHROPIC_API_KEY is missing");
   const svcH = { apikey: s.key, Authorization: `Bearer ${s.key}`, "Content-Type": "application/json" };
+
+  // CIRCUIT BREAKER (2026-08-25, after the 579-call billing incident). If a
+  // previous run proved the provider is refusing for a deterministic reason
+  // (billing/quota), skip the whole batch — no Places spend, no model calls —
+  // until the cooldown passes. attempted:1/succeeded:0 keeps the dead-run
+  // streak accumulating so job-watch pages instead of reading this as idle.
+  {
+    const down = await breakerOpen("anthropic");
+    if (down) {
+      await recordPulse(url.searchParams.get("retry") === "1" ? "atlas-retry" : "atlas-build", {
+        attempted: 1, succeeded: 0,
+        note: (down.kind === "billing" ? "billing: " : "quota: ") + "anthropic circuit open — " + (down.reason || ""),
+      });
+      return Response.json({ ok: false, skipped: "anthropic-circuit-open", kind: down.kind, reason: down.reason, since: down.at });
+    }
+  }
 
   const limit = Math.max(1, Math.min(parseInt(url.searchParams.get("limit") || "10", 10) || 10, 25));
   const reqCat = (url.searchParams.get("category") || "").trim();
@@ -464,6 +490,10 @@ export async function GET(req) {
 
   await pool(places, 6, async (place) => {
     if (Date.now() - startedAt > DISPATCH_DEADLINE_MS) { deferred++; return; } // stays in wf_atlas_missing, picked up next run
+    // In-run circuit: after one billing/quota refusal, every further place this
+    // run would spend a Places call + page fetch feeding a provider that cannot
+    // answer. Defer instead — wf_atlas_missing hands them back once it recovers.
+    if (stats.providerHalt) { deferred++; return; }
     // ride-level → store as RIDE-LEVEL, never written/sourced
     const parkZone = isInsidePark(place.lat, place.lng, place.name);
     if (RIDE_RX.test(String(place.name || "")) || parkZone) {
@@ -578,9 +608,13 @@ export async function GET(req) {
   await recordPulse(retryMode ? "atlas-retry" : "atlas-build", {
     attempted: rows.length,
     succeeded: publishedCount,
-    note: publishedCount === 0 && rows.length > 0
-      ? `0 published of ${rows.length}: pending=${pending} unverified=${unverified} with_page=${withPage}`
-      : null,
+    note: stats.providerHalt
+      // "billing:"/"quota:" prefix is the escalation hook: classifyHealth
+      // treats it as an incident after ONE dead run, not DEAD_RUN_THRESHOLD.
+      ? `${stats.providerHalt.kind}: ${stats.providerHalt.msg}`
+      : publishedCount === 0 && rows.length > 0
+        ? `0 published of ${rows.length}: pending=${pending} unverified=${unverified} with_page=${withPage}`
+        : null,
   });
 
   return Response.json({
@@ -601,6 +635,7 @@ export async function GET(req) {
     // batch verifies badly, so losing it would hide the cause.
     unverified, with_page: withPage,
     sourced, pending, rides, salvaged: stats.salvaged, opportunities: opps,
+    provider_halt: stats.providerHalt || null,
     took_ms: Date.now() - startedAt,
     remaining_after: Array.isArray(left) ? left.length + "+ (paged)" : "?", error: upErr, model: MODEL(),
   }, { headers: { "Cache-Control": "no-store" } });

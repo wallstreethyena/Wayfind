@@ -96,7 +96,7 @@ async function setStatus(s, h, lat, lng, status) {
 
 export async function POST(req) {
   // COST GUARD (2026-08-25): WAYFIND_GATE=shut stops ALL metered Google spend.
-  if (gateShut() || gateFree()) return NextResponse.json({ skipped: "gate " + (gateShut() ? "shut" : "free: a city crawl is a deliberate growth spend") });
+  if (gateShut() || gateFree()) return Response.json({ skipped: "gate " + (gateShut() ? "shut" : "free: a city crawl is a deliberate growth spend") });
   let body = {};
   try { body = await req.json(); } catch (e) {}
   const lat = Number(body.lat), lng = Number(body.lng);
