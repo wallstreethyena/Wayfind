@@ -72,7 +72,13 @@ ok(nearestMetro(28.54, -81.38) === "orlando" && nearestMetro(40.7, -74.0) === nu
   "Orlando resolves; New York gets no curation (organic only)");
 // A2: true-distance (haversine, miles) metric with a ~75mi coverage radius.
 ok(nearestMetro(28.7, -82.3) === "tampa", "a point ~50mi from Tampa still resolves (within the 75mi coverage)");
-ok(nearestMetro(25.76, -80.19) === null, "Miami is >75mi from every covered metro -> no curation");
+// 2026-08-25 — Miami became a covered metro with the Coconut Grove
+// partnership's first merchant deal (see lib/orderInFeatured.js). It resolves
+// now, but with NO guaranteed roster: curation stays organic-only until the
+// owner supplies picks, and that emptiness is asserted so a roster can only
+// ever be added deliberately.
+ok(nearestMetro(25.76, -80.19) === "miami", "Miami resolves to its own metro (Coconut Grove partnership, 2026-08-25)");
+ok(guaranteedFor("miami").length === 0, "…with no guaranteed roster yet — Miami Order-In is organic-only until the owner picks");
 ok(isFeaturedLocal("Bellabrava", "stpete") === true && isFeaturedLocal("McDonald's", "stpete") === false,
   "featured = curated LOCALS only; chains never featured");
 ok(isChainBrand("Starbucks — Kennedy & Dakota") && isChainBrand("Crumbl Cookies"), "chain matcher catches branches");
