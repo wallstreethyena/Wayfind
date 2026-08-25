@@ -346,5 +346,23 @@ ok(!isDeniedViatorSku(SHELL), "Shell Key is not on the denylist");
 
 ok(Object.keys(VIATOR_SKU_DENYLIST).length >= 2,
   "denylist has at least the two HOLD SKUs");
+ok(Object.prototype.hasOwnProperty.call(VIATOR_SKU_DENYLIST, HOLD)
+  && Object.prototype.hasOwnProperty.call(VIATOR_SKU_DENYLIST, DEAD),
+  "denylist keys include 236862P2 and 22211P1");
+
+{
+  const picksSrc = readFileSync(join(ROOT, "lib", "placePartnerPicks.js"), "utf8");
+  ok(!/from\s*["']\.\/viatorIntegrity\.js["']/.test(picksSrc),
+    "placePartnerPicks must not import viatorIntegrity (inspect stays off the homepage chunk)");
+  ok(!/from\s*["']\.\/viatorDenylist\.js["']/.test(picksSrc),
+    "placePartnerPicks inlines HOLD codes — a denylist import re-bloats the homepage chunk");
+  ok(/id !== "236862P2" && id !== "22211P1"/.test(picksSrc),
+    "inlined pin check names both HOLD SKUs in the comparison");
+  for (const code of Object.keys(VIATOR_SKU_DENYLIST)) {
+    ok(isDeniedViatorSku(code) === true, `denylist CALL refuses ${code}`);
+    ok(placePickIsLive({ provider: "viator", offerId: code }) === false,
+      `integrity placePickIsLive CALL refuses ${code}`);
+  }
+}
 
 console.log(`test-viator-integrity-lock: OK — ${pass} assertions (isLiveEligible + placePickIsLive + resolveOffer + inspect + chooseViatorGoLocation + detailCta CALLED; HOLD/dead/search never Book; beach exclusion intact)`);
