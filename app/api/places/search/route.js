@@ -12,6 +12,7 @@ import { NextResponse } from "next/server";
 import { gateFree, spendAllow } from "../../../../lib/spendGate";
 import { cget, cset, upsertPlaceIds, cacheConfigured, lastWrite, memSize, DAY } from "../../../../lib/serverCache";
 import { serveFromInventory } from "../../../../lib/inventoryServe";
+import { hasScoreSignal } from "../../../../lib/score";
 
 export const dynamic = "force-dynamic";
 
@@ -264,8 +265,32 @@ async function handleSearch(params, origin) {
     // discovers ids, OUR data supplies quality. Fail-soft: no inventory match
     // leaves the place lean (score law hides its chip).
     if (freeMode && places.length) await enrichFromInventory(places);
-    if (places.length) await Promise.all([cset(k, places, FRESH_TTL_MS), upsertPlaceIds(skeletons(places))]);
-    return NextResponse.json({ places, cached: false, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
+    // v8.48 — NEVER SERVE A ROW THE CARD GATE WILL DISCARD (live incident,
+    // 2026-08-25). enrichFromInventory only reaches places we already OWN;
+    // anything else stays lean, and a lean row fails lib/score.js
+    // hasScoreSignal() — which means PlaceCard returns null for it while the
+    // feed still COUNTS it. Measured against production on this build:
+    // "famous landmarks and monuments" near Parrish returned 20 rows of which
+    // 15 could never render, and the reader got "That's all 20 spots" over an
+    // empty list. Dropping them here keeps the count honest at every tier and
+    // costs nothing — the ids are still learned below, so tomorrow's promotion
+    // pass can enrich them into inventory and bring them back with a Score.
+    const served = freeMode ? places.filter(hasScoreSignal) : places;
+    // The whole page was unrenderable: fall back to OWNED inventory, which
+    // carries its own rating/reviews, rather than serving a confidently empty
+    // list. Same reader-first order the 429 path already uses.
+    if (freeMode && !served.length && places.length) {
+      const inv = params.cat ? await serveFromInventory(params.cat, lat, lng, radius, n) : [];
+      if (inv.length) {
+        await upsertPlaceIds(skeletons(places));
+        return NextResponse.json({ places: inv, cached: false, source: "inventory-lean", debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
+      }
+    }
+    // Cache the SERVED set (so a v1p hit can never replay unrenderable rows),
+    // but learn every id Google discovered — that is what feeds promotion.
+    if (served.length) await cset(k, served, FRESH_TTL_MS);
+    if (places.length) await upsertPlaceIds(skeletons(places));
+    return NextResponse.json({ places: served, cached: false, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
   } catch {
     const inv = params.cat ? await serveFromInventory(params.cat, lat, lng, radius, n) : [];
     if (inv.length) return NextResponse.json({ places: inv, cached: false, source: "inventory", debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });

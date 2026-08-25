@@ -8613,7 +8613,24 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const _nc = viewBase.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
     if (_nc >= 5) viewBase = [...viewBase.filter((p) => !(p.distMi != null && p.distMi > 20)), ...viewBase.filter((p) => p.distMi != null && p.distMi > 20)];
   }
-  const view = dedupePlaces(dealsOnly ? viewBase.filter((p) => offers[p.id]) : viewBase, !searchMode);
+  // v8.48 — THE COUNT AND THE CARDS MUST BE THE SAME LIST (live incident,
+  // 2026-08-25, owner: "all of the menus are showing empty when we have sooo
+  // many place cards"). PlaceCard has refused rows with no rating signal since
+  // v6.39 (`if (!cardComplete(p)) return null`), but this list was never gated
+  // on the same rule — so a pool of unrenderable rows produced a feed that
+  // counted 21 spots, rendered none, and printed "That's all 21 spots" under
+  // the blank. FREE MODE made that pool the common case (its Pro field mask
+  // omits the Enterprise-billed rating/userRatingCount), which is why the
+  // symptom was site-wide and looked like a total outage rather than thin data.
+  //
+  // Gating HERE, at the one place the browse pool is finalised, makes the
+  // failure honest on every surface that reads `view`: the result count, the
+  // "That's all N" line, the beach-conditions rows and the map all describe the
+  // cards actually on screen, and an empty pool now falls into the real
+  // "Nothing here right now" branch with a widen/relax action instead of
+  // rendering a silent void. A data regression can still lose places; it can no
+  // longer look like a broken page.
+  const view = dedupePlaces(dealsOnly ? viewBase.filter((p) => offers[p.id]) : viewBase, !searchMode).filter(cardComplete);
   // Consolidate the FULL ranked pool before selecting the hero. Doing this
   // after removing the hero stranded its children as peer recommendations:
   // SeaWorld could become the hero while Bayside Stadium survived below as if

@@ -11,7 +11,7 @@
 import { readFileSync } from "fs";
 import { createRequire } from "node:module";
 const ts = createRequire(import.meta.url)("typescript");
-import { cardComplete } from "../lib/score.js";
+import { cardComplete, hasScoreSignal } from "../lib/score.js";
 import { rankInventory } from "../lib/inventoryServe.js";
 
 let pass = 0;
@@ -32,6 +32,34 @@ ok(cardComplete({ id: "f", name: "   " }) === false, "whitespace name refused");
 ok(cardComplete({ id: "g", name: "Ghost With Nothing" }) === false, "name with zero substance refused");
 ok(cardComplete({ name: "No Id Place", rating: 5 }) === false, "missing id refused");
 ok(cardComplete(null) === false, "null refused");
+
+// ── v8.48: ONE predicate, both tiers (the FREE MODE blank-feed incident) ────
+// Free mode ships a Text Search Pro mask with no rating/userRatingCount because
+// those are Enterprise-billed. The PR that shipped it assumed a rating-less row
+// would render a card with its score chip hidden; the law above actually
+// refuses the whole card. The server counted those rows, the client refused
+// them, and every category read "That's all N spots" over nothing. The rule now
+// lives in ONE function that both tiers import, and these assertions pin that.
+ok(typeof hasScoreSignal === "function", "lib/score exports hasScoreSignal for the serve tier");
+ok(hasScoreSignal({ rating: 4.4, userRatingCount: 210 }) === true, "raw Google row with rating passes the signal rule");
+ok(hasScoreSignal({ userRatingCount: 210 }) === true, "review volume alone passes");
+ok(hasScoreSignal({ displayName: { text: "Lean Pro-mask row" }, id: "x" }) === false,
+  "a lean free-mode row (no rating, no userRatingCount) FAILS — this is the row that must never be served");
+ok(hasScoreSignal({ rating: 0, userRatingCount: 0 }) === false, "explicit zeros are not a signal");
+ok(hasScoreSignal(null) === false, "null refused");
+// cardComplete must keep delegating, or the two tiers can drift apart again.
+ok(cardComplete({ id: "z", name: "Lean but named", }) === hasScoreSignal({ id: "z", name: "Lean but named" }),
+  "cardComplete's signal half IS hasScoreSignal — no second copy of the rule");
+
+const route = readFileSync(new URL("../app/api/places/search/route.js", import.meta.url), "utf8");
+ok(/import \{ hasScoreSignal \} from "\.\.\/\.\.\/\.\.\/\.\.\/lib\/score"/.test(route),
+  "the search route imports the SHARED predicate rather than restating it");
+ok(/const served = freeMode \? places\.filter\(hasScoreSignal\) : places;/.test(route),
+  "free mode filters unrenderable rows BEFORE serving — the server never returns a row the card gate will discard");
+ok(/if \(served\.length\) await cset\(k, served, FRESH_TTL_MS\);/.test(route),
+  "only the SERVED set is cached, so a v1p cache hit can never replay unrenderable rows");
+ok(/await upsertPlaceIds\(skeletons\(places\)\)/.test(route),
+  "…while every discovered id is still learned, so promotion can enrich them back into inventory");
 
 // ── the serve gate: unenriched inventory rows never leave the server ────────
 const enriched = { place_id: "wf1", name: "Enriched Museum", lat: 27.5, lng: -82.4, google_types: ["museum"], signals: { rating: 4.6, reviews: 812 }, photo_ref: "ph1", status: "OPERATIONAL" };
@@ -83,6 +111,13 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
     "PlaceCard's completeness gate is its FIRST return — an incomplete card renders nothing, and nothing paints before that is decided (first return was: " + first + ")");
 }
 ok(/import \{[^}]*cardComplete[^}]*\} from "\.\.\/lib\/score"/.test(home), "home.js imports cardComplete from lib/score");
+// v8.48 — THE COUNT IS THE CARDS. `view` is the browse pool: it feeds the
+// result count, the "That's all N spots" line and the map. Ungated, it counted
+// rows PlaceCard then refused, which is what turned thin data into what read as
+// a dead site. Gate stays on the pool, not on the JSX, so every reader agrees.
+ok(/const view = dedupePlaces\([^\n]*\)\.filter\(cardComplete\);/.test(home),
+  "the browse pool `view` is gated on cardComplete — the count and the rendered cards are the same list");
+
 ok(/if \(p\.wfScore == null && Number\(p\.rating\) > 0\) p\.wfScore = wayfindScore\(/.test(home),
   "PlaceCard self-heals a missing wfScore from rating signals (a rated card ALWAYS shows the Score badge)");
 // v6.46 (owner): the client-ranked food top-10 was replaced by the engine-
@@ -120,4 +155,4 @@ const inv = readFileSync(new URL("../lib/inventoryServe.js", import.meta.url), "
 ok(/if \(!\(typeof _sr\.rating === "number" && _sr\.rating > 0\)\) continue;/.test(inv),
   "rankInventory's unenriched-row skip is in place (serve-time gate)");
 
-console.log(`test-card-gate: OK — ${pass} assertions (no card renders without a name AND a Wayfind Score; unenriched rows never leave the server)`);
+console.log(`test-card-gate: OK — ${pass} assertions (no card renders without a name AND a Wayfind Score; unenriched rows never leave the server; the count and the cards are one list)`);
