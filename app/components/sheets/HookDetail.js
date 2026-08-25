@@ -113,6 +113,25 @@ export default function HookDetailSheet({ ctx }) {
             {/* Scrollable editorial list */}
             <div style={{ flexShrink: 0, padding: premiumImagePage ? "0 16px calc(30px + env(safe-area-inset-bottom))" : "14px 16px calc(24px + env(safe-area-inset-bottom))", marginTop: premiumImagePage ? -54 : 0, width: "100%", maxWidth: isDesktop ? 920 : "none", boxSizing: "border-box", position: "relative", zIndex: 2 }}>
               {sheetLoading && <Loader label="Finding the best picks" pad="28px 0" />}
+              {/* GROVE 33 (2026-08-25): the partner's own program, labeled as
+                  such — not a ranked place, so it sits above the ranked list
+                  without touching it. Outbound is tracked (partner_program_out)
+                  so referred memberships are measurable — the revenue evidence
+                  for the CGNA conversation. */}
+              {!sheetLoading && hookDetail.program && (
+                <a
+                  href={hookDetail.program.joinUrl}
+                  target="_blank" rel="noopener"
+                  onClick={() => { try { logEvent && logEvent("partner_program_out", { program: hookDetail.program.name, surface: "partner_sheet" }); } catch (e) {} }}
+                  style={{ display: "block", textDecoration: "none", background: `linear-gradient(135deg, ${acc}1c 0%, ${C.card} 62%)`, border: `1.5px solid ${acc}70`, borderRadius: 18, padding: "14px 16px", marginBottom: 14, cursor: "pointer" }}
+                >
+                  <div style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: "1px", textTransform: "uppercase", color: acc, marginBottom: 5 }}>{hookDetail.program.tag}</div>
+                  <div style={{ fontSize: 16.5, fontWeight: 800, color: "#FFFFFF", letterSpacing: "-0.2px", marginBottom: 5 }}>{hookDetail.program.name}</div>
+                  <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.5, marginBottom: 4 }}>{hookDetail.program.line}</div>
+                  <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.5, marginBottom: 10 }}>{hookDetail.program.detail}</div>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 800, color: acc }}>{hookDetail.program.joinLabel} <span aria-hidden="true">→</span></span>
+                </a>
+              )}
               {!sheetLoading && themePlaces.length === 0 && (
                 <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
                   <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 12 }}><Critter size={48} /></div>

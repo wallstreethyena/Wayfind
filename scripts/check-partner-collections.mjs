@@ -151,5 +151,18 @@ ok(/_r\.partner && onOpenPartner/.test(rail), "a partner tile must open via onOp
   ok(!/if \(p\.editorial\) return null/.test(sheet.replace("if (p.editorial) return null;", "")), "self-test: removing the suppression guard from the sheet must be detectable");
 }
 
+// GROVE 33 program (2026-08-25): the partner CTA must stay tracked, labeled,
+// and factual — and may never claim a named merchant participates.
+{
+  const lightSrc = readFileSync(new URL("../lib/partnerCollections.js", import.meta.url), "utf8");
+  const sheetSrc = readFileSync(new URL("../app/components/sheets/HookDetail.js", import.meta.url), "utf8");
+  ok(/program:\s*\{/.test(lightSrc), "grove collection carries the Grove 33 program block");
+  ok(/utm_source=wayfind/.test(lightSrc), "the program joinUrl carries Wayfind utm — referrals must be attributable");
+  ok(/Partner program/.test(lightSrc), "the program module is labeled as a partner program (disclosure)");
+  ok(/program:\s*collection\.program/.test(lightSrc), "hydrate carries the program onto the sheet payload");
+  ok(/hookDetail\.program/.test(sheetSrc) && /partner_program_out/.test(sheetSrc), "the sheet renders the program with tracked outbound");
+  ok(!/participating:\s*true/.test(lightSrc), "no per-venue Grove 33 participation claims (CGNA publishes no merchant list)");
+}
+
 if (fails) { console.error(`check-partner-collections: ${fails} failure(s)`); process.exit(1); }
-console.log("check-partner-collections: OK — Coconut Grove gated at 20mi, 7 venues, every shown score is THE Wayfind Score");
+console.log("check-partner-collections: OK — Coconut Grove gated at 20mi, 7 venues, every shown score is THE Wayfind Score, Grove 33 tracked + labeled");
