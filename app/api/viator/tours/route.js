@@ -18,6 +18,7 @@ export const runtime = "nodejs";
 import { resolveVerifiedMany } from "../../../../lib/bookingResolver.js";
 import { getFanoutCount, persistOffer } from "../../../../lib/verifiedOfferStore.js";
 import { offerBelongsToRequestedCity } from "../../../../lib/partnerGeo.js";
+import { isDeniedViatorSku, isViatorSearchOrHomeUrl } from "../../../../lib/viatorIntegrity.js";
 
 const getKey = () => ((process.env["VIATOR_API_KEY"] || "").trim());
 
@@ -124,7 +125,9 @@ export async function GET(req) {
         }
       } catch (e) {}
     }
-    const candidates = results.filter((r) => r && r.productUrl && r.title);
+    const candidates = results.filter((r) => r && r.productUrl && r.title
+      && !isDeniedViatorSku(r.productCode || r.productUrl)
+      && !isViatorSearchOrHomeUrl(r.productUrl));
 
     // Per-candidate fan-out: how many OTHER distinct places has each product
     // already matched? A generic bundled tour that wins for many queries

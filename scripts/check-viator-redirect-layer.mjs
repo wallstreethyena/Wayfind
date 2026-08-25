@@ -145,11 +145,17 @@ const bad = await GET(new Request(
 const badLoc = bad.headers.get("Location") || "";
 ok(!badLoc.includes("evil.tld"), `a refused product must never reach Location (got ${badLoc.slice(0, 80)})`);
 ok(bad.status === 302, "a refused product still lands the user somewhere real");
-ok(/viator\.com/.test(badLoc), "the fallback must still be a viator destination, not an error page");
+ok(/^https:\/\/x\.test\/?$/.test(badLoc.replace(/\/$/, "") + "") || badLoc === "https://x.test/" || badLoc === "https://x.test",
+  `a refused Book product fails closed to our origin, never search-as-Book (got ${badLoc.slice(0, 80)})`);
+ok(!/searchResults|viator\.com/i.test(badLoc),
+  "a refused Book product must not 302 to searchResults or viator.com");
 
 // No product and no query: still must not emit a broken redirect.
 const none = await GET(new Request("https://x.test/api/viator/go"));
 ok(none.status === 302, "a query-less call must still redirect rather than throw");
+const noneLoc = none.headers.get("Location") || "";
+ok(/x\.test/.test(noneLoc) && !/viator\.com/i.test(noneLoc),
+  `a query-less Book click fails closed to our origin (got ${noneLoc.slice(0, 80)})`);
 
 /* ── 4b. THE JOIN KEY, proven by capturing what the route emits ──────────────
  * The whole point of a client-minted click_id is that commerce_cta_clicked

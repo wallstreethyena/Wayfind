@@ -1,15 +1,16 @@
 // v4.23 — Viator exact-product redirect. Every "Book" click routes through
 // here; we resolve the query against the Viator Partner API and 302 the user
-// to the exact product page with affiliate attribution. If the API key is
-// missing or the lookup fails for any reason, we fall back to the tracked
-// search URL, so this can never be worse than the old behavior.
+// to the exact product page with affiliate attribution.
 //
 // v5.52 (BOOKING_INTEGRITY_DIAGNOSIS.md, Phase 1-3): "first region-token
 // match" is replaced with the same scored resolver used by
 // /api/viator/tours -- a candidate only redirects to a real product page if
-// it clears the hard invariant in lib/verifiedOffers.js. Anything that
-// doesn't falls back to the tracked search page (unchanged, and still
-// honest about not knowing rather than teleporting to a wrong product).
+// it clears the hard invariant in lib/verifiedOffers.js.
+//
+// 2026-08-25 integrity lock: a failed Book resolve NEVER becomes
+// searchResults or the Viator homepage. Those pages are not Book. Honest
+// Search Viator is an explicit intent=search from experienceGoUrl. Book
+// fails closed to our own site.
 export const runtime = "nodejs";
 
 import { randomUUID } from "node:crypto";
@@ -18,6 +19,12 @@ import { getFanoutCount, persistOffer } from "../../../../lib/verifiedOfferStore
 import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
 import { commercePayload } from "../../../../lib/commerce.js";
 import { withViatorTracking } from "../../../../lib/affiliates.js";
+import { FALLBACK } from "../../../../lib/commerceProviders.js";
+import {
+  chooseViatorGoLocation,
+  isDeniedViatorSku,
+  isViatorSearchOrHomeUrl,
+} from "../../../../lib/viatorIntegrity.js";
 
 // v4.29: bracket-notation env reads inside call time. Next inlines dot-access
 // process.env.NEXT_PUBLIC_* at build; bracket access forces a true runtime
@@ -38,6 +45,17 @@ function searchFallback(q) {
   return PID
     ? `https://www.viator.com/searchResults/all?text=${t}&pid=${encodeURIComponent(PID)}&mcid=42383&medium=link`
     : `https://www.viator.com/searchResults/all?text=${t}`;
+}
+
+// Response.redirect requires an absolute URL. Book fail-closed is our own
+// origin, never a partner guess.
+function siteLocation(req, location) {
+  const loc = String(location || FALLBACK || "/");
+  try {
+    return new URL(loc, req.url).toString();
+  } catch {
+    return new URL("/", req.url).toString();
+  }
 }
 
 // EXACT-PRODUCT PASSTHROUGH (2026-07-31).
@@ -128,7 +146,9 @@ async function resolveProduct(searchTerm, name, region, kind, placeId) {
     }
     const data = await res.json();
     const results = data && data.products && Array.isArray(data.products.results) ? data.products.results : [];
-    const candidates = results.filter((r) => r && r.productUrl && r.title);
+    const candidates = results.filter((r) => r && r.productUrl && r.title
+      && !isDeniedViatorSku(r.productCode || r.productUrl)
+      && !isViatorSearchOrHomeUrl(r.productUrl));
     const fanoutByCode = {};
     await Promise.all(candidates.map(async (r) => {
       const key = r.productCode || r.productUrl;
@@ -150,7 +170,7 @@ async function resolveProduct(searchTerm, name, region, kind, placeId) {
         decision: offer ? "redirect_to_product" : "search_fallback",
       }));
     } catch (e) {}
-    if (!offer) return null;
+    if (!offer || isDeniedViatorSku(offer.productCode || offer.productUrl) || isViatorSearchOrHomeUrl(offer.productUrl)) return null;
     await persistOffer(offer);
     // productUrl from the affiliate API carries partner attribution already.
     mem.set(ck, { url: offer.productUrl, exp: Date.now() + TTL });
@@ -235,55 +255,72 @@ export async function GET(req) {
     return Response.json({ hasKey: !!KEY, keyLooksValid: KEY.length >= 20, hasPid: !!getPid(), upstreamStatus: upstream });
   }
 
+  const intent = (searchParams.get("intent") || "").trim();
+
   // EXACT PRODUCT. A curated pick already knows its destination, so there is
-  // nothing to resolve: re-apply attribution and hand off. This is the path that
-  // takes the bare viator.com href out of /culture/[metro]'s DOM.
+  // nothing to resolve: re-apply attribution and hand off — unless the SKU
+  // is denylisted or the URL is a search/homepage pretending to be Book.
   if (rawProduct) {
     if (isValidViatorProduct(rawProduct)) {
-      const dest = withViatorTracking(rawProduct) || rawProduct;
-      emit("provider_redirect_started", { offer_id: "product:" + rawProduct.slice(0, 120), resolver_path: "exact-product" });
-      return new Response(null, {
-        status: 302,
-        headers: {
-          Location: dest,
-          // A curated product URL is stable, so it caches like a resolved one.
-          "Cache-Control": "public, s-maxage=3600, max-age=0",
-          "Referrer-Policy": "no-referrer",
-        },
+      const chosen = chooseViatorGoLocation({
+        rawProduct: withViatorTracking(rawProduct) || rawProduct,
+        siteFallback: FALLBACK,
       });
+      if (chosen.ok) {
+        emit("provider_redirect_started", { offer_id: "product:" + rawProduct.slice(0, 120), resolver_path: chosen.resolver_path });
+        return new Response(null, {
+          status: 302,
+          headers: {
+            Location: chosen.location,
+            "Cache-Control": "public, s-maxage=3600, max-age=0",
+            "Referrer-Policy": "no-referrer",
+          },
+        });
+      }
+      emit("provider_redirect_failed", { failure_reason: chosen.reason, resolver_path: chosen.resolver_path });
+      return Response.redirect(siteLocation(req, chosen.location), 302);
     }
-    // REFUSED. Never redirect to an unvalidated destination — that is the open
-    // redirect this route exists to not be. Report it, then fall through to the
-    // normal query flow so a user who clicked "book" still lands somewhere real.
-    emit("provider_redirect_failed", { failure_reason: "invalid-product-url" });
+    emit("provider_redirect_failed", { failure_reason: "invalid-product-url", resolver_path: "fail-closed" });
+    return Response.redirect(siteLocation(req, FALLBACK), 302);
   }
 
-  // MISSING QUERY (2026-08-25). This used to 302 to bare https://www.viator.com
-  // — an UNATTRIBUTED homepage dump: the click was already paid for (a user
-  // pressed Book), and the one place it could still convert for us was thrown
-  // away at the door. Six of these in the week of Aug 23 alone. The ladder now
-  // degrades while keeping attribution at every rung:
-  //   city present → attributed search for "things to do in {city}"
-  //   nothing      → attributed homepage (pid/mcid carried), still credited
+  // Honest Search Viator (intent=search). Book never uses this rung.
+  if (intent === "search") {
+    const term = q
+      ? (city && !q.toLowerCase().includes(city.toLowerCase()) ? `${q} ${city}` : q)
+      : (city ? "things to do in " + city : "");
+    const chosen = chooseViatorGoLocation({
+      intent: "search",
+      searchUrl: () => (term ? searchFallback(term) : null),
+      siteFallback: FALLBACK,
+    });
+    emit(chosen.ok ? "provider_redirect_started" : "provider_redirect_failed", {
+      failure_reason: chosen.ok ? undefined : chosen.reason,
+      resolver_path: chosen.resolver_path,
+    });
+    return Response.redirect(siteLocation(req, chosen.location), 302);
+  }
+
+  // BOOK. Missing query or a failed resolve used to 302 to searchResults /
+  // the Viator homepage and look like a product handoff. That is forbidden.
   if (!q) {
-    const degraded = city
-      ? searchFallback("things to do in " + city)
-      : (getPid()
-        ? `https://www.viator.com/?pid=${encodeURIComponent(getPid())}&mcid=42383&medium=link`
-        : "https://www.viator.com");
-    emit("provider_redirect_failed", { failure_reason: "missing-query", resolver_path: city ? "city-search-fallback" : "homepage-fallback" });
-    return Response.redirect(degraded, 302);
+    const chosen = chooseViatorGoLocation({ siteFallback: FALLBACK });
+    emit("provider_redirect_failed", { failure_reason: "missing-query", resolver_path: chosen.resolver_path });
+    return Response.redirect(siteLocation(req, chosen.location), 302);
   }
 
   const term = city && !q.toLowerCase().includes(city.toLowerCase()) ? `${q} ${city}` : q;
   const resolved = await resolveProduct(term, q, region, kind, placeId);
-  const url = resolved || searchFallback(term);
+  const chosen = chooseViatorGoLocation({
+    resolvedProductUrl: resolved,
+    siteFallback: FALLBACK,
+  });
 
-  emit("provider_redirect_started", { resolver_path: resolved ? "product" : "search-fallback" });
+  emit(chosen.ok ? "provider_redirect_started" : "provider_redirect_failed", {
+    failure_reason: chosen.ok ? undefined : chosen.reason,
+    resolver_path: chosen.resolver_path,
+  });
 
-  // v2: split the edge cache by outcome. A confirmed product is stable (1h); a search
-  // fallback caches only briefly (60s) so a wrong fallback never sticks and a fix (or
-  // a newly-eligible product) propagates fast. Browsers don't cache the 302.
-  const cache = resolved ? "public, s-maxage=3600, max-age=0" : "public, s-maxage=60, max-age=0";
-  return new Response(null, { status: 302, headers: { Location: url, "Cache-Control": cache, "Referrer-Policy": "no-referrer" } });
+  const cache = chosen.ok ? "public, s-maxage=3600, max-age=0" : "public, s-maxage=60, max-age=0";
+  return new Response(null, { status: 302, headers: { Location: chosen.ok ? chosen.location : siteLocation(req, chosen.location), "Cache-Control": cache, "Referrer-Policy": "no-referrer" } });
 }

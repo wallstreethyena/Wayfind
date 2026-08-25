@@ -131,6 +131,7 @@ node scripts/test-curator-boost.mjs
 node scripts/test-orderin-location.mjs
 node scripts/test-scorelabel.mjs
 node scripts/test-booking-integrity.mjs
+node scripts/test-viator-integrity-lock.mjs
 node scripts/test-experiences-v3.mjs
 node scripts/test-experiences-location.mjs
 node scripts/test-searched-location.mjs
