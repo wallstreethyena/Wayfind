@@ -704,3 +704,8 @@ node scripts/check-sponsored-places.mjs
 # THE $1,878 GUARD — no atmosphere-tier fields in server masks, every metered
 # Google call site behind the WAYFIND_GATE spend gate, radius ladder present.
 node scripts/check-spend-guard.mjs
+
+# BRAND-ASSET GUARD — every share surface renders through the ONE branded
+# renderer (drawn pin + wordmark), one brand orange, score pill in the kit.
+# Law: claude/wayfind-OS-4-BRAND-SYSTEM-LAW (project docs).
+node scripts/check-brand-assets.mjs
