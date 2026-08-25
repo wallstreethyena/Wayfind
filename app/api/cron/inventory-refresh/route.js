@@ -1,4 +1,4 @@
-import { gateShut } from "../../../../lib/spendGate";
+import { gateShut, gateFree } from "../../../../lib/spendGate";
 // app/api/cron/inventory-refresh/route.js — keep wf_inventory's Google content
 // inside the 30-day freshness ceiling, a few rows at a time.
 //
@@ -35,7 +35,7 @@ const PARALLEL = 5;
 
 export async function GET(req) {
   // COST GUARD (2026-08-25): WAYFIND_GATE=shut stops ALL metered Google spend.
-  if (gateShut()) return NextResponse.json({ skipped: "gate shut" });
+  if (gateShut() || gateFree()) return NextResponse.json({ skipped: "gate " + (gateShut() ? "shut" : "free: scheduled re-buys stay off inside the free tier") });
   const secret = process.env.CRON_SECRET;
   const auth = req.headers.get("authorization") || "";
   if (!secret || auth !== "Bearer " + secret) return Response.json({ error: "unauthorized" }, { status: 401 });
