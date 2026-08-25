@@ -717,3 +717,6 @@ node scripts/check-spend-guard.mjs
 # renderer (drawn pin + wordmark), one brand orange, score pill in the kit.
 # Law: claude/wayfind-OS-4-BRAND-SYSTEM-LAW (project docs).
 node scripts/check-brand-assets.mjs
+node scripts/check-schema-watch.mjs
+node scripts/check-client-writes-have-policies.mjs
+node scripts/check-writes-fail-loudly.mjs
