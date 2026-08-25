@@ -153,7 +153,10 @@ function MODEL() {
   return o.value;
 }
 const GKEY = () => (process.env.GOOGLE_MAPS_SERVER_KEY || "").trim();
-const PLACE_FIELDS = "id,displayName,formattedAddress,rating,userRatingCount,websiteUri,regularOpeningHours,editorialSummary,types,priceLevel,googleMapsUri";
+// COST GUARD (2026-08-25): editorialSummary removed — atmosphere-tier field,
+// bills the call at the top Details SKU. Blurbs generate from the remaining
+// fields; re-adding it is an explicit owner spend decision (check-spend-guard).
+const PLACE_FIELDS = "id,displayName,formattedAddress,rating,userRatingCount,websiteUri,regularOpeningHours,types,priceLevel,googleMapsUri";
 
 // Individual rides inside a park — the spec says skip these (merge into parent).
 // This is a denylist and needs upkeep: the original missed 9 of 11 sampled
