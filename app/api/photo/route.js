@@ -1,4 +1,5 @@
 import { gateShut, spendAllow } from "../../../lib/spendGate";
+import { stockPhotoPool, fromPool } from "../../../lib/stockPhoto";
 // v6.18 — server-side Google Places photo proxy.
 //
 // Why this exists: the browser was loading place photos directly from
@@ -28,6 +29,52 @@ const THIRTY_DAYS = 60 * 60 * 24 * 30;
 // the same cached call the self-heal below already makes.
 const PLACE_RX = /^[A-Za-z0-9_-]{10,}$/;
 
+const STOCK_QUERY = {
+  Food: "restaurant food dining",
+  Nightlife: "bar nightlife cocktails",
+  Shopping: "shopping storefront",
+  Hotels: "hotel resort",
+  attractions: "things to do outdoors",
+  food: "restaurant food dining",
+  nightlife: "bar nightlife cocktails",
+  shopping: "shopping storefront",
+};
+function invCfg() {
+  const raw = String(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/^['"]+|['"]+$/g, "").replace(/\/+$/, "");
+  const url = raw ? (/^https?:\/\//i.test(raw) ? raw.replace(/^http:\/\//i, "https://") : "https://" + raw) : "";
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  return url && key ? { url, key } : null;
+}
+async function freeStockRedirect(req) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const ref = searchParams.get("ref") || "";
+    const m = /^places\/([A-Za-z0-9_-]+)\/photos\//.exec(ref);
+    const placeId = m ? m[1] : (searchParams.get("place") || "");
+    if (!placeId) return null;
+    const s = invCfg();
+    if (!s) return null;
+    const r = await fetch(
+      s.url + "/rest/v1/wf_inventory?place_id=eq." + encodeURIComponent(placeId) + "&select=category,primary_type,metro&limit=1",
+      { headers: { apikey: s.key, Authorization: "Bearer " + s.key }, next: { revalidate: 86400 } }
+    );
+    if (!r.ok) return null;
+    const rows = await r.json();
+    const row = Array.isArray(rows) && rows[0];
+    if (!row) return null;
+    const typeWords = STOCK_QUERY[row.category] || String(row.primary_type || row.category || "").replace(/_/g, " ") || "city";
+    const metroWords = String(row.metro || "").replace(/city-[-\d.]+/g, "").replace(/-/g, " ").trim();
+    const pool = await stockPhotoPool((typeWords + " " + metroWords).trim());
+    // stable per-place pick: tiny hash of the placeId
+    let h = 0; for (let i = 0; i < placeId.length; i++) h = (h * 31 + placeId.charCodeAt(i)) | 0;
+    const pick = fromPool(pool, Math.abs(h));
+    if (!pick || !pick.url) return null;
+    return NextResponse.redirect(pick.url, {
+      status: 302,
+      headers: { "Cache-Control": "public, max-age=86400, s-maxage=86400" },
+    });
+  } catch (e) { return null; }
+}
 export async function GET(req) {
   // COST GUARD (2026-08-25): photo media is metered ($7/1k, 22,759 fetches on
   // the August bill). Gate shut -> a long-cached redirect to owned fallback
@@ -36,7 +83,18 @@ export async function GET(req) {
   // shut: never pay. free: one monthly photos ledger grant per lambda-reached
   // miss (August 2026 seeded exhausted; resets Sep 1). Edge-cached photos are
   // free forever and unaffected.
+  //
+  // FREE-IMAGE LADDER (2026-08-25, owner order "get the image at no cost"):
+  // when a paid Google fetch is refused, do NOT jump straight to placeholder
+  // art. The placeId is inside the ref; look the place up in OWNED inventory
+  // and redirect to a relevant, license-free Pexels photo from the same
+  // wfstock2 pools the landing pages already ship (v1.00 precedent: stock
+  // pools stand in on place cards site-wide there). Deterministic pick keyed
+  // on placeId so a card keeps a stable image and neighbors differ. Placeholder
+  // SVG only when even that fails. Zero Google spend on this entire path.
   if (gateShut() || !(await spendAllow("photos"))) {
+    const art = await freeStockRedirect(req);
+    if (art) return art;
     return NextResponse.redirect(new URL("/wf-photo-fallback.svg", req.url), {
       status: 302,
       headers: { "Cache-Control": "public, max-age=86400, s-maxage=86400" },
