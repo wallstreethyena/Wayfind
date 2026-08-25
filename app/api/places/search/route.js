@@ -136,6 +136,38 @@ function gateShut() {
   return String(process.env.WAYFIND_GATE || "").trim().toLowerCase() === "shut";
 }
 
+function invCfg() {
+  const raw = String(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/^['"]+|['"]+$/g, "").replace(/\/+$/, "");
+  const url = raw ? (/^https?:\/\//i.test(raw) ? raw.replace(/^http:\/\//i, "https://") : "https://" + raw) : "";
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  return url && key ? { url, key } : null;
+}
+// Merge OWNED quality signals (wf_inventory.signals rating/reviews + status)
+// onto lean Pro-mask Google results, in ONE PostgREST call. Mutates in place.
+async function enrichFromInventory(places) {
+  try {
+    const s = invCfg();
+    if (!s) return;
+    const ids = places.map((p) => p && p.id).filter((id) => typeof id === "string" && /^[A-Za-z0-9_-]+$/.test(id));
+    if (!ids.length) return;
+    const r = await fetch(
+      s.url + "/rest/v1/wf_inventory?place_id=in.(" + ids.join(",") + ")&select=place_id,status,signals",
+      { headers: { apikey: s.key, Authorization: "Bearer " + s.key }, cache: "no-store" }
+    );
+    if (!r.ok) return;
+    const rows = await r.json();
+    const byId = new Map((Array.isArray(rows) ? rows : []).map((row) => [row.place_id, row]));
+    for (const p of places) {
+      const row = p && byId.get(p.id);
+      if (!row) continue;
+      const sig = row.signals || {};
+      if (p.rating == null && typeof sig.rating === "number") p.rating = sig.rating;
+      if (p.userRatingCount == null && typeof sig.reviews === "number") p.userRatingCount = sig.reviews;
+      if (!p.businessStatus && row.status) p.businessStatus = row.status;
+    }
+  } catch (e) { /* enrichment is best-effort; lean results still serve */ }
+}
+
 async function handleSearch(params, origin) {
   const serverKey = process.env.GOOGLE_MAPS_SERVER_KEY;
   if (!serverKey) return NextResponse.json({ error: "server key not configured" }, { status: 501 });
@@ -169,6 +201,15 @@ async function handleSearch(params, origin) {
   const dbg = () => wantDebug ? { lastWrite: lastWrite(), memSize: memSize(), supabaseConfigured: cacheConfigured() } : undefined;
 
   const fresh = await cget(k);
+  // FREE MODE FIX (2026-08-25, live empty-results incident): the v1p namespace
+  // orphaned the entire warm rich cache, so every category tap became a miss.
+  // Before ANY gate/ledger/paid decision, serve the RICH v1 row if one exists
+  // within the 30-day ToS window — richer data, zero spend, instant.
+  if (!fresh && freeMode) {
+    const kRich = ["v1", q.toLowerCase(), lat.toFixed(2), lng.toFixed(2), Math.round(radius / 1000), n].join("|");
+    const rich = await cget(kRich, { staleMs: STALE_MAX_MS });
+    if (rich) return NextResponse.json({ places: rich.v, cached: true, source: "rich-cache", debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
+  }
   if (fresh) {
     // v6.35: serve the still-fresh copy instantly; if it is aging past its
     // jittered refresh age, poke a background refresh so it never reaches day 30.
@@ -216,6 +257,13 @@ async function handleSearch(params, origin) {
     }
     const data = await r.json();
     const places = data.places || [];
+    // FREE MODE FIX (2026-08-25): the Pro mask omits rating/userRatingCount/
+    // businessStatus, and the ranking floors (correctly) refuse unrated places,
+    // which emptied every list. We OWN those signals for 12k+ places - merge
+    // them from wf_inventory before caching/serving. Reader-first: Google
+    // discovers ids, OUR data supplies quality. Fail-soft: no inventory match
+    // leaves the place lean (score law hides its chip).
+    if (freeMode && places.length) await enrichFromInventory(places);
     if (places.length) await Promise.all([cset(k, places, FRESH_TTL_MS), upsertPlaceIds(skeletons(places))]);
     return NextResponse.json({ places, cached: false, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
   } catch {
