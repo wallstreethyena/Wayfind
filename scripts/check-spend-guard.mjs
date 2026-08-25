@@ -84,6 +84,12 @@ if (!/spendAllow\("text_pro"\)/.test(search)) die("search route can pay Google w
 if (!/spendAllow\("details_enterprise"\)/.test(read("lib/placeDetails.js"))) die("placeDetails can pay Google without a details_enterprise ledger grant.");
 if (!/spendAllow\("photos"\)/.test(read("app/api/photo/route.js"))) die("photo route can pay Google without a photos ledger grant.");
 
+// 5 - FREE MODE serving invariants (live empty-results incident, 2026-08-25):
+// the rich v1 cache must be consulted before any paid decision, and lean
+// Pro-mask results must be enriched from owned inventory signals.
+if (!/kRich/.test(search) || !/rich-cache/.test(search)) die("free mode lost the rich v1 cache fallback - warm cache orphaned, empty results return.");
+if (!/enrichFromInventory\(places\)/.test(search)) die("free mode lost inventory enrichment - lean results fail the ranking floors and every list renders empty.");
+
 // red-prove ourselves: the atmosphere regex must actually catch the original sin
 if (!ATMOSPHERE.test('const FIELDS = "id,editorialSummary";')) die("self-test: atmosphere regex is broken");
 
