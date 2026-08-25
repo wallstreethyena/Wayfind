@@ -144,7 +144,11 @@ if (rio) {
   ok(h.wfScore === wayfindScore(rio.rating, rio.reviews), "the hydrated score IS wayfindScore(rating, reviews)");
   ok(h.wfScore !== null && h.wfScore > 0, "…and it is a real number");
   ok(Number.isFinite(h.distMi) && h.distMi < 15, "hydrate computes a real distance from the reader");
-  ok(h.photo && h.photo.startsWith("/api/photo?ref="), "the photo goes through Wayfind's own proxy, never a keyed Google URL");
+  // 2026-08-25: a committed self-hosted asset (/partners/*.jpg) is BETTER than
+  // the proxy — no metered fetch, no spend gate, survives cache purges. The
+  // real rule stands either way: never a keyed Google URL in the DOM.
+  ok(h.photo && (h.photo.startsWith("/partners/") || h.photo.startsWith("/api/photo?ref=")), "the photo is self-hosted or goes through Wayfind's own proxy");
+  ok(!/googleapis\.com/.test(String(h.photo)) && !/key=/.test(String(h.photo)), "…and is never a keyed Google URL");
 }
 // The component may not carry a score of its own — it must ask PlaceScoreChip,
 // the same component every unpaid card uses.

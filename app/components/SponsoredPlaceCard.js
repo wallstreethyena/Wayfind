@@ -89,6 +89,15 @@ export default function SponsoredPlaceCard({ pick, onLog }) {
   const quiet = [
     pick.phone ? { key: "call", label: "Call", href: "tel:" + pick.phone, external: false } : null,
     pick.mapsHref ? { key: "map", label: "Directions", href: pick.mapsHref, external: true } : null,
+    // Share (owner, 2026-08-25): same non-async navigator.share pattern as
+    // sharePlace — the call must run inside the tap's user gesture. Shares the
+    // permanent partner page (the half of the placement that works everywhere),
+    // falling back to a clipboard copy. Never a dead control: pagePath-gated.
+    pick.pagePath ? { key: "share", label: "Share", onTap: () => {
+      const u = "https://www.gowayfind.com" + pick.pagePath + "?utm_source=wayfind&utm_medium=sponsored_card_share";
+      try { if (navigator.share) { const pr = navigator.share({ title: pick.name, url: u }); if (pr && pr.catch) pr.catch(() => {}); return; } } catch (e) {}
+      try { navigator.clipboard && navigator.clipboard.writeText(u); } catch (e) {}
+    } } : null,
     pick.pagePath ? { key: "page", label: "Full details", href: pick.pagePath, external: false } : null,
   ].filter(Boolean);
 
@@ -251,9 +260,14 @@ export default function SponsoredPlaceCard({ pick, onLog }) {
               <span key={q.key} style={{ display: "inline-flex", alignItems: "center" }}>
                 {i ? <span aria-hidden="true" style={{ color: "rgba(255,255,255,.18)", fontSize: 11 }}>·</span> : null}
                 <a
-                  href={q.href}
+                  href={q.href || "#"}
                   {...(q.external ? { target: "_blank", rel: "noopener" } : {})}
-                  onClick={() => log("sponsor_secondary", { to: q.key })}
+                  onClick={(e) => {
+                    // onTap entries (Share) act in-place: run inside the tap's
+                    // user gesture, never navigate to "#".
+                    if (q.onTap) { e.preventDefault(); q.onTap(); }
+                    log("sponsor_secondary", { to: q.key });
+                  }}
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
