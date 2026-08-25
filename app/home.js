@@ -279,7 +279,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.47.1";
+const BUILD_ID = "v8.49.0";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -6637,7 +6637,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               const hj = await hr.json();
               return Array.isArray(hj.hotels) ? hj.hotels : [];
             }
-            const r = await fetch(`/api/places/search?q=inventory&lat=${center.lat.toFixed(4)}&lng=${center.lng.toFixed(4)}&radius=${m}&n=40&cat=${encodeURIComponent(cat)}&inv=1`);
+            // v8.49 — SEND THE CHIP. Without `sub` this asks for the whole
+            // category and gets the top 40 BY SCORE, then the chip filter runs
+            // on the client — so a narrow chip competes against every
+            // restaurant in the metro for those 40 slots and loses. Measured
+            // near Parrish: 0 of the top 50 food rows are cafés, which is
+            // exactly why Food > Cafés rendered "Nothing here right now" while
+            // 111 admissible cafés sat in inventory 17 miles away.
+            const r = await fetch(`/api/places/search?q=inventory&lat=${center.lat.toFixed(4)}&lng=${center.lng.toFixed(4)}&radius=${m}&n=40&cat=${encodeURIComponent(cat)}&inv=1${sub && sub !== "all" ? `&sub=${encodeURIComponent(sub)}` : ""}`);
             const j = await r.json();
             const raw = Array.isArray(j.places) ? j.places : [];
             return raw.map((x) => {

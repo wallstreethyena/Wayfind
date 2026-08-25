@@ -188,7 +188,7 @@ async function handleSearch(params, origin) {
   // tab. Serves only rows we already own; can never trigger paid spend.
   if (String(params.inv || "") === "1") {
     const invN = Math.min(Math.max(Number(params.n) || 40, 1), 50); // v6.39: inventory serve is FREE — allow up to 50
-    const inv = await serveFromInventory(String(params.cat || ""), lat, lng, radius, invN);
+    const inv = await serveFromInventory(String(params.cat || ""), lat, lng, radius, invN, params.sub);
     return NextResponse.json({ places: inv, cached: false, source: "inventory-direct" }, { headers: EDGE_HEADERS });
   }
 
@@ -217,7 +217,7 @@ async function handleSearch(params, origin) {
   // Every cached row was unrenderable: serve OWNED inventory (which carries its
   // own rating/reviews) rather than a blank list. Free — no Google call.
   const ownedOr = async (source) => {
-    const inv = params.cat ? await serveFromInventory(params.cat, lat, lng, radius, n) : [];
+    const inv = params.cat ? await serveFromInventory(params.cat, lat, lng, radius, n, params.sub) : [];
     return inv.length ? NextResponse.json({ places: inv, cached: false, source, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS }) : null;
   };
   if (!fresh && freeMode) {
@@ -256,7 +256,7 @@ async function handleSearch(params, origin) {
     const gateBlocked = async (why) => {
       const stale = await serveStale();
       if (stale) return stale;
-      const inv = params.cat ? await serveFromInventory(params.cat, lat, lng, radius, n) : [];
+      const inv = params.cat ? await serveFromInventory(params.cat, lat, lng, radius, n, params.sub) : [];
       if (inv.length) return NextResponse.json({ places: inv, cached: false, source: "inventory", gate: why, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
       return NextResponse.json({ places: [], cached: false, gate: why, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
     };
@@ -275,7 +275,7 @@ async function handleSearch(params, origin) {
       // complete owned set, e.g. ~191 hotels) BEFORE the thin stale cache, so a
       // Google quota outage no longer collapses "Stay" to one hotel. Free-text
       // searches (no cat) and empty inventory fall through to the stale cache.
-      const inv = params.cat ? await serveFromInventory(params.cat, lat, lng, radius, n) : [];
+      const inv = params.cat ? await serveFromInventory(params.cat, lat, lng, radius, n, params.sub) : [];
       if (inv.length) return NextResponse.json({ places: inv, cached: false, source: "inventory", debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
       const stale = await serveStale();
       if (stale) return stale;
@@ -305,7 +305,7 @@ async function handleSearch(params, origin) {
     // carries its own rating/reviews, rather than serving a confidently empty
     // list. Same reader-first order the 429 path already uses.
     if (freeMode && !served.length && places.length) {
-      const inv = params.cat ? await serveFromInventory(params.cat, lat, lng, radius, n) : [];
+      const inv = params.cat ? await serveFromInventory(params.cat, lat, lng, radius, n, params.sub) : [];
       if (inv.length) {
         await upsertPlaceIds(skeletons(places));
         return NextResponse.json({ places: inv, cached: false, source: "inventory-lean", debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
@@ -317,7 +317,7 @@ async function handleSearch(params, origin) {
     if (places.length) await upsertPlaceIds(skeletons(places));
     return NextResponse.json({ places: served, cached: false, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
   } catch {
-    const inv = params.cat ? await serveFromInventory(params.cat, lat, lng, radius, n) : [];
+    const inv = params.cat ? await serveFromInventory(params.cat, lat, lng, radius, n, params.sub) : [];
     if (inv.length) return NextResponse.json({ places: inv, cached: false, source: "inventory", debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
     const stale = await serveStale();
     if (stale) return stale;
