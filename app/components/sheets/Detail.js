@@ -26,7 +26,7 @@ import { emitCommerce, commerceHref, mintClickId } from "../../../lib/commerce";
 import { withClickId, isEarningGoHref } from "../../../lib/hubConversion";
 import { funnelProps } from "../../../lib/funnel";
 import { useCommerceImpression } from "../useCommerceImpression";
-import { placePartnerPick } from "../../../lib/placePartnerPicks";
+import { nearbyTourListAllowed, placePartnerPick } from "../../../lib/placePartnerPicks";
 import { pairsWellWith } from "../../../lib/pairsWellWith";
 import { askShareIntent } from "../shareIntentSheet";
 import { placeKinds } from "../../../lib/dateInvite";
@@ -829,7 +829,7 @@ export default function DetailSheet({ ctx }) {
                     onClick={handlePrimaryCtaClick}
                   />
                 </div>
-                {!detail._event && primaryCta.monetized && primaryCta.type !== DETAIL_CTA_TYPES.tickets && primaryCta.type !== DETAIL_CTA_TYPES.rates && <FTCDisclosure />}
+                {!detail._event && primaryCta.monetized && (primaryCta.exact || (primaryCta.type !== DETAIL_CTA_TYPES.tickets && primaryCta.type !== DETAIL_CTA_TYPES.rates)) && <FTCDisclosure />}
                 {/* One balanced secondary bar. Directions used to occupy a row
                     by itself above reactions, which made the dock look like two
                     unrelated button systems. Keep every secondary action on the
@@ -1097,7 +1097,7 @@ export default function DetailSheet({ ctx }) {
                 </div>
               ); })()}
               <div style={{ marginBottom: 16 }}>
-              {!detail._event && ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"].includes(placeKind(detail)) && (() => {
+              {!detail._event && nearbyTourListAllowed(detail) && ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"].includes(placeKind(detail)) && (() => {
                 const _hasNoteUrl = (() => { const _n = wayfindNotes(detail.name); return !!(_n && _n.some((x) => x && typeof x === "object" && x.url)); })();
                 return <BookingCTA variant="list" detail={detail} kind={placeKind(detail)} viaTours={viaTours} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} locName={locName} suppressFallback={_hasNoteUrl} placeId={detail.id} city={ctaCity} />;
               })()}

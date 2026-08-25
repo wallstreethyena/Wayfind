@@ -33,6 +33,7 @@ function clickIdFor(mapRef, key) {
 }
 
 import { bookingTargets, hasBookingCTA, hasVerifiedTours, placeEvidence } from "../../lib/bookingResolve";
+import { nearbyTourListAllowed, placePartnerPick } from "../../lib/placePartnerPicks";
 export { hasBookingCTA };
 
 // What `targets` is when there is no place yet. Every consumer below reads
@@ -60,6 +61,10 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
   // warning (2026-08-21; scripts/check-hook-order.mjs).
   const placeId = detail ? detail.id : null;
   const detailId = detail ? detail.id || null : null;
+  // Founder pin wins the card. Nearby / wf_experiences inventory (the Shell
+  // Key ferry, 237533P2) must not paint a second Book or steal the primary
+  // offer id from topItem.code.
+  const pin = detail ? placePartnerPick(detail) : null;
   const hasTours = detail ? hasVerifiedTours(viaTours, placeId) : false;
   const rankedTourItems = hasTours ? rankExperiences(viaTours[placeId].items) : [];
   const topItem = rankedTourItems[0] || null;
@@ -124,9 +129,48 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
     // guessed product link). Kinds identical to the card gate + the sheet's
     // tour-fetch gate; scripts/test-sheet-booking.mjs enforces the match.
     const { verifiedUrl, goFallback, tk, tu } = targets;
-    if (!tu) return null;
     const primaryPlaceId = placeIdProp || detail.id || "unknown";
     const primaryCity = cityProp || (locName ? locName.split(",")[0] : "");
+    if (pin) {
+      const pinHref = commerceHref({
+        provider: pin.provider,
+        offerId: pin.offerId,
+        surface: "detail_primary",
+        contentId: primaryPlaceId,
+        clickId: hydrated ? primaryClickId.current : undefined,
+      });
+      if (pinHref) {
+        const primaryHref = hydrated ? withClickId(pinHref, primaryClickId.current) : pinHref;
+        return (
+          <a
+            href={primaryHref}
+            rel="noreferrer sponsored"
+            onClick={() => {
+              const clickId = primaryClickId.current;
+              try {
+                emitCommerce("commerce_cta_clicked", {
+                  surface: "detail_primary",
+                  provider: pin.provider,
+                  merchant: pin.merchant,
+                  offer_id: pin.offerId,
+                  city_id: primaryCity || null,
+                  canonical_place_id: detail.id || null,
+                  category: kind || null,
+                  click_id: clickId,
+                  disclosure_version: "partner-place-v1",
+                });
+              } catch (er) {}
+              try { logEvent && logEvent("tickets_out", detail, { click_id: clickId }); } catch (er) {}
+            }}
+            style={{ flex: 1, minWidth: 0, minHeight: 48, padding: "0 14px", background: "linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.018))", border: `1px solid ${C.border}`, borderRadius: 14, color: C.light, fontSize: 13.5, fontWeight: 800, textDecoration: "none", lineHeight: 1.15, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap", boxSizing: "border-box" }}
+          >
+            <span>{labelOverride || ("Tickets \u00b7 " + pin.merchant)}</span>
+            <span aria-hidden="true" style={{ color: C.accent, fontSize: 16, lineHeight: 1 }}>↗</span>
+          </a>
+        );
+      }
+    }
+    if (!tu) return null;
     const verifiedOfferId = topItem && (topItem.code || topItem.productCode);
     const primaryBase = (verifiedUrl && verifiedOfferId)
       ? commerceHref({ provider: "viator", offerId: verifiedOfferId, surface: "detail_primary", contentId: primaryCity, clickId: hydrated ? primaryClickId.current : undefined })
@@ -176,11 +220,16 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
     // link — both gate on the SAME targets.tu, so a commission link can never
     // show undisclosed (previously this used a narrower gate that missed the
     // "Search Viator" tracked-search fallback — the dominant earning case).
-    if (!targets.tu) return null;
+    // A founder pin is also an earning Book (detailCta exact / this primary),
+    // even when isTicketyPlace is false (park / natural_feature).
+    if (!targets.tu && !pin) return null;
     return <div style={{ fontSize: 10.5, color: C.muted, margin: "7px 2px 0", textAlign: "center" }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>;
   }
 
   if (variant === "list") {
+    // One offer per card. The founder pin is the Book; nearby inventory
+    // (Shell Key Ferry 237533P2 on the Preserve card) must not also paint.
+    if (!nearbyTourListAllowed(detail)) return null;
     const listPlaceId = placeIdProp || placeId || detailId || "unknown";
     if (hasTours) {
       const items = rankedTourItems;
