@@ -1,3 +1,4 @@
+import { gateShut } from "../../../lib/spendGate";
 // v6.18 — server-side Google Places photo proxy.
 //
 // Why this exists: the browser was loading place photos directly from
@@ -28,6 +29,16 @@ const THIRTY_DAYS = 60 * 60 * 24 * 30;
 const PLACE_RX = /^[A-Za-z0-9_-]{10,}$/;
 
 export async function GET(req) {
+  // COST GUARD (2026-08-25): photo media is metered ($7/1k, 22,759 fetches on
+  // the August bill). Gate shut -> a long-cached redirect to owned fallback
+  // art. Popular photos stay live from the edge cache; only true misses
+  // degrade, to branded art rather than a broken image.
+  if (gateShut()) {
+    return NextResponse.redirect(new URL("/wf-photo-fallback.svg", req.url), {
+      status: 302,
+      headers: { "Cache-Control": "public, max-age=86400, s-maxage=86400" },
+    });
+  }
   const { searchParams } = new URL(req.url);
   let ref = searchParams.get("ref") || "";
   const place = searchParams.get("place") || "";

@@ -1,3 +1,4 @@
+import { gateShut } from "../../../../lib/spendGate";
 // app/api/city/unlock/route.js — the on-demand city fetch (spec STEP 3 #10). A
 // SIGNED-IN user tapped "Unlock {city}" in an uncovered area; this pulls Google
 // Places for that city into wf_inventory. The moment inventory lands near the
@@ -94,6 +95,8 @@ async function setStatus(s, h, lat, lng, status) {
 }
 
 export async function POST(req) {
+  // COST GUARD (2026-08-25): WAYFIND_GATE=shut stops ALL metered Google spend.
+  if (gateShut()) return NextResponse.json({ skipped: "gate shut" });
   let body = {};
   try { body = await req.json(); } catch (e) {}
   const lat = Number(body.lat), lng = Number(body.lng);

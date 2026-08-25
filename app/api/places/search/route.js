@@ -131,7 +131,12 @@ async function handleSearch(params, origin) {
   if (!serverKey) return NextResponse.json({ error: "server key not configured" }, { status: 501 });
   const q = String(params.q || "").slice(0, 120).trim();
   const lat = Number(params.lat), lng = Number(params.lng);
-  const radius = Math.min(Math.max(Number(params.radius) || 24000, 500), 50000);
+  // COST GUARD (2026-08-25): snap radius to a fixed ladder BEFORE it reaches the
+  // cache key or Google. The perf audit caught the same query bought at 27359m
+  // AND 32000m - two paid searches, two cache keys, one user intent. Ties snap up.
+  const RADIUS_LADDER = [2000, 8000, 16000, 32000, 50000];
+  const rawRadius = Math.min(Math.max(Number(params.radius) || 24000, 500), 50000);
+  const radius = RADIUS_LADDER.reduce((best, r) => Math.abs(r - rawRadius) < Math.abs(best - rawRadius) ? r : (Math.abs(r - rawRadius) === Math.abs(best - rawRadius) ? Math.max(r, best) : best), RADIUS_LADDER[0]);
   const n = Math.min(Math.max(Number(params.n) || 20, 1), 20);
   if (!q || !isFinite(lat) || !isFinite(lng)) return NextResponse.json({ error: "bad request" }, { status: 400 });
 
@@ -223,6 +228,8 @@ const NEARBY_MASK = [
   "places.location", "places.rating", "places.userRatingCount", "places.businessStatus",
 ].join(",");
 async function probeNearby(params) {
+  // COST GUARD: nearby is metered (Enterprise SKU) - gate shut serves nothing new.
+  if (gateShut()) return NextResponse.json({ places: [], gate: "shut" }, { headers: EDGE_HEADERS });
   const serverKey = process.env.GOOGLE_MAPS_SERVER_KEY;
   if (!serverKey) return NextResponse.json({ error: "server key not configured" }, { status: 501 });
   const types = String(params.types || "restaurant").split(",").map((s) => s.trim()).filter(Boolean).slice(0, 50);
