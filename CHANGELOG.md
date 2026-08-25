@@ -1,3 +1,56 @@
+## v8.47.1 - ERRATA: the shelves were never short, and the pool could silently truncate
+
+**Correcting v8.47.** That entry published a table claiming Pumpkin Season held
+one row and Fall Date Night two, both under buildRail's three-card floor. That
+was wrong. A read of `wf_events` during the work returned 40 rows when the table
+held 80 displayable, and I computed and shipped shelf counts from the short read
+without checking the count against the table. The real numbers at the time were
+Pumpkin Season 4, Halloween Nights 6, Family Fall 14, Fall Date Night 5 - all
+four shipping. **There was no seeding gap.** The five rows below were added
+because they are real and verified, not because anything needed rescuing.
+
+- **The wrong answer looked exactly like a right one**, which is the same defect
+  class as the terminal skeleton v8.46 was written for and the reason this entry
+  exists instead of a quiet amend.
+- **`fetchCuratedEvents` is now PAGINATED**, which is the durable half of the
+  fix. It is the ONLY source every rail in `RAIL_LIBRARY` is built from, and it
+  ordered by `start_date` ascending and stopped at a bare `.limit(200)`. The
+  table is at 98 rows. The first time it crossed 200, the events furthest out
+  would have dropped off every shelf in the product with no error, no warning
+  and nothing to distinguish it from "we do not have any of those". 200 was not
+  a ceiling, it was a deadline. It now reads in pages of 500 and stops on a
+  short page. An explicit `limit` from a caller is still honoured.
+- Guard extended 29 -> 32 assertions: the paging is asserted on the real source,
+  and a bare `.limit()` as the function's only bound fails the build.
+
+### The five rows added, every date off a primary source on 2026-08-25
+
+| event | where | dates |
+|---|---|---|
+| Candlelight: A Haunted Evening of Halloween Classics | The Abbey, Orlando | Oct 22-23 |
+| SeaWorld Orlando Halloween Spooktacular | SeaWorld Orlando | Aug 29 - Nov 1, 26 select dates |
+| Gators, Ghosts & Goblins at Gatorland | Gatorland, Orlando | Oct 10-11, 17-18, 24-25 |
+| Fox Squirrel Corn Maze & Pumpkin Patch | Plant City | Sept 26 - Oct 25, weekends |
+| Sweetfields Farm Corn Maze & Pumpkin Patch | Masaryktown | Oct 3 - Nov 8 |
+
+Live after seeding: Pumpkin Season **6**, Halloween Nights **6**, Family Fall
+**18**, Fall Date Night **6**.
+
+- **THREE ROWS WERE DROPPED FROM THE SEED BECAUSE THEY ALREADY EXISTED** under
+  different `event_id`s - Keel Farms Harvest Days, LEGOLAND Brick-or-Treat and
+  Howl-O-Scream SeaWorld Orlando. A unique index on `slug` caught it. Minting a
+  second card for one real event is worse than adding nothing, and the near-miss
+  is the argument for the slug index rather than against it.
+- **NOT SEEDED, deliberately:** Southern Hill Farms (Clermont) and Scott's Maze
+  Adventures (Mount Dora) are both real and both still showing 2021 events on
+  their own sites - they have not published 2026 dates. A card with a guessed
+  date is worse than no card.
+- `scripts/seed-fall-2026.mjs` resolves `place_id` and coordinates through
+  Google Places rather than from memory, and **exits on a refusal instead of
+  writing nulls**: the browser key is HTTP-referrer restricted and answered 403,
+  which the first draft silently read as "venue not found" and would have
+  written as null coordinates on eight real venues. A refusal is not an absence.
+
 ## v8.47 - FALL IS CALLING, and the shelf a parent can actually open
 
 - Owner, 2026-08-23: "this should absolutely become a dedicated Wayfind fall
