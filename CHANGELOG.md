@@ -1,3 +1,59 @@
+## v8.47 - FALL IS CALLING, and the shelf a parent can actually open
+
+- Owner, 2026-08-23: "this should absolutely become a dedicated Wayfind fall
+  collection, not just random places" - Pumpkin Season, Halloween Nights,
+  Family Fall, Fall Date Night, Worth the Drive.
+- MEASURED FIRST, against the 40 displayable rows already in wf_events rather
+  than against a plan. Two shelves clear buildRail's three-card floor TODAY and
+  two do not, and knowing which is the whole point of measuring:
+
+  | shelf | live rows | ships |
+  |---|---|---|
+  | Halloween Nights | 3 (Fantasy Fest, Howl-O-Scream Tampa, HHN Orlando) | yes |
+  | Family Fall | 4 (Hunsader Farms, Not-So-Scary, Crystal Classic, Food & Wine) | yes |
+  | Pumpkin Season | 1 (Hunsader Farms) | not yet |
+  | Fall Date Night | 2 (Crystal Classic, Food & Wine) | not yet |
+
+- WHY FIVE SHELVES AND NOT ONE TAG. `spooky-season` already exists and is
+  deliberately broad (`tags.includes("halloween")`) - it answers "is it
+  Halloween season". It cannot answer the question a reader actually arrives
+  with, which is never "show me Halloween" but "what do I do with the kids on
+  Saturday" or "where do we go without them".
+- AUDIENCE IS THE SPLIT, NOT SCARINESS, and the reason is a real pair already in
+  the table: Fantasy Fest and Mickey's Not-So-Scary Halloween Party BOTH carry
+  the `halloween` tag. One is a Key West costume street party; the other is a
+  six-year-old's night. A single rail holding both is a rail nobody can act on,
+  and a Family Fall shelf that stopped reading `audience` would put the first
+  one in front of the second one's reader. check-fall-is-calling asserts that
+  pair by name.
+- AN OMISSION IS NOT A LICENCE TO GUESS. A row with no `audience` appears on
+  NEITHER audience shelf rather than on both. Guessing who a night is for is the
+  same class of invention as a fabricated startTime, which this module already
+  refuses.
+- SEASONAL BY CONSTRUCTION. Every filter is a tag test and reads only the event
+  - no date argument, asserted - so the shelves empty themselves in December
+  with no calendar rule to maintain and no new way to be wrong in November.
+- `worth-the-drive` is the fifth shelf and is deliberately NOT redefined: it
+  already exists as the >60mi rail and applies to fall rows unchanged. Two rails
+  answering "worth the drive" would drift apart.
+- Guards 404 -> 405: check-fall-is-calling (29 assertions) EXECUTES the real
+  RAIL_LIBRARY predicates against wf_events-shaped fixtures - the Fantasy Fest /
+  Not-So-Scary split by name, the no-audience abstention, `fall` alone not
+  making a pumpkin patch, a couples row out of season not making Date Night, and
+  a Christmas row rejected by all four.
+- DATES VERIFIED against primary sources this session, not carried over from
+  last year: HHN Aug 28-Nov 1 (35th anniversary year), Mickey's Not-So-Scary
+  from Aug 7, EPCOT Food & Wine Aug 27-Nov 21, SeaWorld Spooktacular Aug 29-Nov
+  1, Howl-O-Scream Sept 11-Oct 31, LEGOLAND Brick-or-Treat Sept 5-Oct 31. The
+  four already in wf_events matched. The rest are the seeding gap below.
+- STILL TO SEED, and named so it is not forgotten: SeaWorld Orlando
+  Howl-O-Scream and Spooktacular, LEGOLAND Brick-or-Treat, Crayola Screamin'
+  Green Hauntoween, Gatorland Gators/Ghosts & Goblins, A Petrified Forest
+  (Altamonte Springs), Scream-A-Geddon (Dade City, $2.5M rebuild, "Bonzo's
+  Bizarre" new for 2026), the Orlando Dragon Boat Festival, Candlelight: A
+  Haunted Evening (the natural Fall Date Night third card), and a real pumpkin
+  patch or two beyond Hunsader. Those fill both shelves that are short.
+
 ## v8.46.1 - The pairing law reaches the pre-hydration primer
 
 - The last reader of wf_center that v8.46 could not cover: the /api/events
