@@ -574,6 +574,10 @@ node scripts/check-major-music-festivals.mjs
 # category, RAISES the two-famous cap (load-bearing: proven against composeRail's
 # default), and keeps undated Disney festivals invisible until their status flips
 node scripts/check-florida-icons.mjs
+# v8.47 — FALL IS CALLING: five shelves split by AUDIENCE, not scariness.
+# Fantasy Fest and Mickey's Not-So-Scary both carry `halloween`; this proves
+# they can never share a shelf.
+node scripts/check-fall-is-calling.mjs
 # 2026-08-22 — the owner's handpicked board (lib/localPicks.js) IS the "What
 # Should We Do Today?" card, for one town and one hour. Four failures this
 # pins, none of which anything else in the suite would notice: a radius wide
