@@ -100,10 +100,14 @@ export async function GET(req) {
   const clickId = UUID_LIKE.test(clickIdFromClient) ? clickIdFromClient : randomUUID();
   const distinctId = distinctIdFromCookies(req.headers.get("cookie")) || clickId;
 
+  // Callers may name their surface (detail_primary, order_in, ...) so the
+  // funnel can tell WHICH button converted; the historical default stands.
+  const surface = String(u.searchParams.get("surface") || "").trim().slice(0, 60) || "order_in";
+
   const baseProps = {
     provider: "uber_eats",
     offer_id: name || "unknown",
-    surface: "order_in",
+    surface,
     content_id: name || "unknown",
     city_id: city || null,
     category: "restaurant",
@@ -119,18 +123,25 @@ export async function GET(req) {
 
   const fallback = wrap(searchUrl(name || "food delivery", city));
   if (!name) {
-    emit("provider_redirect_failed", { failure_reason: "missing-name" });
+    emit("provider_redirect_failed", { failure_reason: "missing-name", resolver_path: "generic-search" });
     return Response.redirect(fallback, 302);
   }
 
   const store = await resolveStore(name, city, lat, lng);
   const dest = wrap(store || fallback);
 
-  if (!store) {
-    emit("provider_redirect_failed", { failure_reason: "store-unresolved" });
-  } else {
-    emit("provider_redirect_started");
-  }
+  // OUTCOME SEMANTICS (2026-08-25). The search fallback is a DEGRADED SUCCESS,
+  // not a failure: the user still lands on an attributed Uber Eats search for
+  // this restaurant, exactly as the file header promises. Reporting it as
+  // provider_redirect_failed made the money-path failure rate read 47% in a
+  // week when almost every one of those clicks landed somewhere attributed —
+  // an alert threshold set against that number could only be ignored.
+  // provider_redirect_started now fires on BOTH rungs, carrying which one:
+  //   resolver_path "store"           — exact store page (best case)
+  //   resolver_path "search-fallback" — attributed search by name + city
+  // provider_redirect_failed is reserved for a handoff that could not be
+  // attributed at all (missing-name above).
+  emit("provider_redirect_started", { resolver_path: store ? "store" : "search-fallback" });
 
   return Response.redirect(dest, 302);
 }

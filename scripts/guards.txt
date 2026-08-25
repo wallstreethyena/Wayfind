@@ -17,6 +17,7 @@
 #     stops a guard from being silently forgotten.
 
 node scripts/check-guard-manifest.mjs
+node scripts/check-response-imports.mjs
 # Runs second, right behind the manifest: both are meta-guards, and a suite whose
 # verdicts depend on the shell makes every line below it unreliable. Added
 # 2026-07-31 after 5c541b4 let `.env.production.local` decide whether a live
@@ -275,6 +276,7 @@ node scripts/check-editorial-template.mjs
 node scripts/check-cuisine-chip-floor.mjs
 node scripts/check-quota-reservation.mjs
 node scripts/check-commerce-events.mjs
+node scripts/test-provider-health.mjs
 node scripts/check-cuisine-sheet.mjs
 node scripts/check-commerce-redirect.mjs
 node scripts/test-card-analytics.mjs
@@ -303,6 +305,7 @@ node scripts/check-money-funnel.mjs
 node scripts/check-deal-sheet.mjs
 node scripts/check-guards-can-fail.mjs
 node scripts/check-provider-redirects.mjs
+node scripts/test-redirect-integrity.mjs
 node scripts/check-direct-affiliate-urls.mjs
 node scripts/check-doc-ownership.mjs
 node scripts/check-locks.mjs

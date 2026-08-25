@@ -152,6 +152,12 @@ const KNOWN_UNMONETIZED = new Set([
   "tmImpactLink",         // literal-default credential (IMPACT_SID etc.), covered by check-untracked-affiliate-links
   "ticketOutUrl",         // delegates to tmImpactLink; same literal-default class
   "experienceGoUrl",      // returns our OWN /api/viator/go route — attribution happens server-side at the 302
+  // Same class as experienceGoUrl: returns our OWN /api/eats/go route, which
+  // resolves the exact store and applies NEXT_PUBLIC_UBEREATS_TEMPLATE at
+  // runtime, server-side, at the 302 (v8.44 — the detail delivery rung moved
+  // here so the primary CTA stops degrading to an unmonetized "See menu" when
+  // the template env is unset at build time).
+  "uberEatsGoUrl",
   "ticketmasterGoUrl",    // returns our OWN /api/ticketmaster/go route — same server-side-attribution class as experienceGoUrl
   "hotelUrl",             // Stay22: the href is rewritten at click time by LinkSwap, so a static assert would be wrong
   // hotelSearchUrl was DELETED from lib/affiliates.js 2026-07-30 (bare
