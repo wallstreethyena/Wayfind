@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * check-trend-section-honesty — the Exploding Trends section may not render
- * until a snapshot actually exists.
+ * check-trend-section-honesty — the Exploding Trends section may not
+ * ship its own error message as a headline.
  *
  * WHAT SHIPPED (removed 2026-08-16, owner: "FIX IT OR REMOVE IT"): the
  * homepage's FIRST section, opened BY DEFAULT, read
@@ -15,69 +15,78 @@
  *   wf_trend_snapshots / wf_trend_topics / wf_trend_place_matches   0 rows each
  * so /api/trends/nearby answered 503 trend_configuration_error every time.
  *
- * The failure was not the error handling — that was correct and honest. The
- * failure was MOUNTING A SURFACE WHOSE DATA SOURCE HAS NEVER BEEN POPULATED,
- * and giving it the most valuable slot on the page. A section that can only
- * ever render its own error state is worse than no section.
- *
- * This does not forbid bringing it back. It forbids bringing it back BLIND:
- * restore the block and this guard tells you to set the cadence variable
- * first, which is the step whose absence is the whole bug.
+ * v8.12 remounted the module inside the trending drop (DaypartRail) over the
+ * owner-licensed EXPLODING_NEARBY_UNIVERSE. The snapshot flag is no longer
+ * the mount gate — the owner list is the floor. What this guard now forbids
+ * is the sentence coming back as the 502/503 happy path while that list
+ * exists. The executable law lives in check-exploding-nearby-floor.mjs;
+ * this file pins the mount sites and the snapshot declaration so a future
+ * restore of the SNAPSHOT basis still has a human-flipped flag.
  */
 import { readFileSync } from "node:fs";
+import { EXPLODING_NEARBY_UNIVERSE } from "../lib/trendTaxonomy.js";
+import { explodingUiStatus, UNAVAILABLE_COPY } from "../lib/explodingNearbyServe.js";
 
-const P = "app/components/BestNearby.js";
-const raw = readFileSync(P, "utf8");
-// Strip comments first — this file's own removal note names the component and
-// the headline, and a guard that fires on its rationale is a guard someone
-// deletes. (Repo lesson, five occurrences on 2026-07-30.)
-const src = raw.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/[^\n]*$/gm, " ");
+const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/[^\n]*$/gm, " ");
+const read = (p) => readFileSync(p, "utf8");
 
-const mounted = /<ExplodingNearby[\s/>]/.test(src);
+const BEST = "app/components/BestNearby.js";
+const DPR = "app/components/DaypartRail.js";
+const best = strip(read(BEST));
+const dpr = strip(read(DPR));
+const mountedBest = /<ExplodingNearby[\s/>]/.test(best);
+const mountedDrop = /<ExplodingNearby[\s/>]/.test(dpr);
 
-// HERMETIC BY CONSTRUCTION. An earlier draft of this guard read
-// process.env.EXPLODING_TOPICS_IMPORT_CADENCE — and check-guard-hermeticity
-// rejected it, correctly: a guard whose verdict depends on the shell says OK
-// in any terminal that happens to have the var exported, which is precisely
-// the false green it exists to prevent. So the gate is a COMMITTED flag a
-// human flips in a reviewable diff. See lib/trendRights.js.
-const rights = readFileSync("lib/trendRights.js", "utf8")
-  .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/[^\n]*$/gm, " ");
+const rights = strip(read("lib/trendRights.js"));
 const m = rights.match(/export const TREND_SNAPSHOT_IMPORTED\s*=\s*(true|false)\s*;/);
 if (!m) {
   console.error("check-trend-section-honesty: FAILED");
   console.error("  \u2717 lib/trendRights.js no longer declares TREND_SNAPSHOT_IMPORTED as a literal true/false.");
-  console.error("    That flag is the only thing standing between this section and shipping its own");
-  console.error("    error message as the first headline on the homepage. Restore it.");
   process.exit(1);
 }
 const snapshotImported = m[1] === "true";
 
-if (mounted && !snapshotImported) {
+if (mountedBest && !snapshotImported) {
   console.error("check-trend-section-honesty: FAILED");
-  console.error(`  \u2717 ${P} mounts <ExplodingNearby>, but lib/trendRights.js declares TREND_SNAPSHOT_IMPORTED = false.`);
-  console.error("    With no snapshot, /api/trends/nearby throws TrendConfigError before it reads");
-  console.error("    anything, so the section can ONLY render \"Trend recommendations are temporarily");
-  console.error("    unavailable\" \u2014 which is exactly what shipped to every visitor, in the first slot.");
-  console.error("    Import a snapshot and set the cadence in all three envs, then flip the flag.");
+  console.error(`  \u2717 ${BEST} remounts the default-open accordion <ExplodingNearby> while TREND_SNAPSHOT_IMPORTED is false.`);
+  console.error("    That slot is the 2026-08-16 outage. The trending DROP (DaypartRail) is the lawful mount.");
   process.exit(1);
 }
 
-// The removal must also not have left the default-open pointer aimed at a
-// section that no longer exists — that would open the panel onto nothing.
-const def = (src.match(/export const DEFAULT_SECTION = ([^;]+);/) || [])[1];
-if (!def) {
-  console.error("check-trend-section-honesty: FAILED\n  ✗ DEFAULT_SECTION is gone from " + P);
+if (mountedDrop && !EXPLODING_NEARBY_UNIVERSE.length) {
+  console.error("check-trend-section-honesty: FAILED");
+  console.error(`  \u2717 ${DPR} mounts <ExplodingNearby>, but EXPLODING_NEARBY_UNIVERSE is empty.`);
+  console.error("    The drop would have nothing to fail-soft to, so it can only paint");
+  console.error(`    \"${UNAVAILABLE_COPY}\".`);
   process.exit(1);
 }
-if (/["']exploding["']/.test(def) && !mounted) {
+
+if (mountedDrop) {
+  const painted = explodingUiStatus({
+    status: "trend_data_error",
+    error: UNAVAILABLE_COPY,
+    trends: [],
+  });
+  if (painted.status !== "no_verified_inventory" || painted.error) {
+    console.error("check-trend-section-honesty: FAILED");
+    console.error("  \u2717 explodingUiStatus still lets the unavailable sentence through while the owner list exists.");
+    process.exit(1);
+  }
+}
+
+const def = (best.match(/export const DEFAULT_SECTION = ([^;]+);/) || [])[1];
+if (!def) {
+  console.error("check-trend-section-honesty: FAILED\n  ✗ DEFAULT_SECTION is gone from " + BEST);
+  process.exit(1);
+}
+if (/["']exploding["']/.test(def) && !mountedBest) {
   console.error("check-trend-section-honesty: FAILED");
   console.error('  ✗ DEFAULT_SECTION points at "exploding", which is not mounted — the panel opens onto nothing.');
   process.exit(1);
 }
 
 console.log(
-  mounted
-    ? `check-trend-section-honesty: OK \u2014 <ExplodingNearby> is mounted and TREND_SNAPSHOT_IMPORTED is declared true, so a snapshot exists for it to select from; DEFAULT_SECTION = ${def.trim()}`
-    : `check-trend-section-honesty: OK \u2014 <ExplodingNearby> is not mounted (no snapshot has ever been imported), and DEFAULT_SECTION = ${def.trim()} points at a section that renders`
+  mountedDrop
+    ? `check-trend-section-honesty: OK — DaypartRail mounts <ExplodingNearby> over the owner-list floor (${EXPLODING_NEARBY_UNIVERSE.length} topics); BestNearby accordion ${mountedBest ? "is mounted (snapshot flag " + snapshotImported + ")" : "stays unmounted"}; DEFAULT_SECTION = ${def.trim()}`
+    : `check-trend-section-honesty: OK — <ExplodingNearby> is not mounted in the trending drop, and DEFAULT_SECTION = ${def.trim()} points at a section that renders`
 );

@@ -5,6 +5,8 @@
 import { readFileSync } from "node:fs";
 import { EXPLODING_NEARBY_UNIVERSE, EXPLODING_NEARBY_KEYS, CONCEPTS } from "../lib/trendTaxonomy.js";
 import { governedTrendPlace, hasSpecificTrendEvidence, matchAvailabilityAllows, selectExplodingNearby } from "../lib/explodingNearby.js";
+import { explodingMetroFor, explodingUiStatus, serveExplodingNearby, UNAVAILABLE_COPY, OWNER_LIST_EXPLANATION } from "../lib/explodingNearbyServe.js";
+import { TrendConfigError } from "../lib/trendRights.js";
 import { matchConcept, MATCH_CODES } from "../lib/trendMatch.js";
 import { TREND_EVENTS, SUCCESS_METRICS } from "../lib/trendTelemetry.js";
 import { recommendationIds, uniqueRecommendations } from "../lib/recommendationDedupe.js";
@@ -321,34 +323,43 @@ const scoreAtHighMomentum = governedTrendPlace({ ...inventory[0], trend_strength
 ok(scoreAtLowMomentum === scoreAtHighMomentum, "topic momentum cannot change a place's displayed governed score");
 
 const route = read("app/api/trends/nearby/route.js");
+const serve = read("lib/explodingNearbyServe.js");
 const getRoute = route.slice(route.indexOf("export async function GET"));
-// RE-POINTED v8.12 (owner, 2026-08-18: "the exploding trends do not have the
-// 20 top trending items"). The route now serves TWO lawful bases: the
-// provider snapshot (cadence-gated, exactly as before — but only when a
-// snapshot actually exists) and the OWNER LIST (EXPLODING_NEARBY_UNIVERSE
-// through the same evidence-gated matcher). The old assertion pinned
-// cadence-validation-before-anything, which is precisely what turned an
-// import that never ran into a permanent 503 over the owner's own licensed
-// list. What is pinned now:
-//   1. the snapshot basis still validates cadence BEFORE reading its private
-//      tables;
-//   2. only TrendConfigError falls through to the owner basis — real errors
-//      still throw;
-//   3. the owner basis runs the SAME matcher (matchTopicToInventory), so
-//      nothing serves without evidence;
-//   4. a stale snapshot is still refused loudly (console.error), never used.
-ok(getRoute.indexOf("const cadence = importCadence()") > -1 && getRoute.indexOf("const cadence = importCadence()") < getRoute.indexOf("wf_trend_snapshots"), "the snapshot basis validates freshness configuration before its private trend tables are read");
-ok(/instanceof TrendConfigError\)\) throw e/.test(getRoute), "only an unconfigured provider import falls through to the owner basis — every other error still throws");
-ok(/matchTopicToInventory\(t\.key, inventory, \{ metro \}\)/.test(getRoute), "the owner basis runs the SAME evidence-gated matcher — nothing serves without proof");
-ok(/EXPLODING_NEARBY_UNIVERSE\.map/.test(getRoute), "owner-basis topics come from the owner's licensed universe, in his rank order");
-ok(!/RIGHTS_MODE|RIGHTS_REF|requireCapability|rightsReference/.test(route), "the serving route contains no retired external-approval gate");
-ok(/refused a stale snapshot/.test(route), "a stale snapshot is refused loudly, never served");
-ok(!/canonical_topic/.test(route), "raw source topic names never leave the serving route");
+// RE-POINTED 2026-08-26 (owner: Exploding Trends broken again on live home).
+// The v8.12 owner-list fallback still 502/503'd: serverEnv() threw before
+// the list could run, and owner-basis matches set public_explanation:null
+// so selectExplodingNearby dropped them. The law moved into
+// serveExplodingNearby (executed below). What is pinned now:
+//   1. GET calls serveExplodingNearby — it does not catch-and-503;
+//   2. snapshot cadence is still validated BEFORE private trend tables;
+//   3. owner basis still runs matchTopicToInventory;
+//   4. a stale snapshot is still refused loudly;
+//   5. owner-list matches carry a controlled explanation (not a stat).
+ok(/serveExplodingNearby\s*\(/.test(getRoute), "GET delegates to serveExplodingNearby so a 502/503 catch cannot return as the happy path");
+ok(serve.indexOf("const cadence = importCadence()") > -1 && serve.indexOf("const cadence = importCadence()") < serve.indexOf("wf_trend_snapshots"), "the snapshot basis validates freshness configuration before its private trend tables are read");
+ok(/matchTopicToInventory\(t\.key, inventory, \{ metro \}\)/.test(serve), "the owner basis runs the SAME evidence-gated matcher — nothing serves without proof");
+ok(/ownerTopics\(/.test(serve) && /EXPLODING_NEARBY_UNIVERSE/.test(serve), "owner-basis topics come from the owner's licensed universe, in his rank order");
+ok(!/RIGHTS_MODE|RIGHTS_REF|requireCapability|rightsReference/.test(route + serve), "the serving path contains no retired external-approval gate");
+ok(/refused a stale snapshot/.test(serve), "a stale snapshot is refused loudly, never served");
+ok(!/canonical_topic/.test(route + serve), "raw source topic names never leave the serving path");
 ok(read("middleware.js").includes('"/api/trends/nearby"'), "the service-role trend-data route is same-origin and rate-limit guarded");
+ok(OWNER_LIST_EXPLANATION.length > 0 && !/search(?:es)? up|%/i.test(OWNER_LIST_EXPLANATION),
+  "owner-list public_explanation is controlled copy, not a fabricated stat");
+
+ok(explodingMetroFor(27.5859, -82.4254) === "manatee-sarasota", "Parrish pin maps to manatee-sarasota");
+ok(explodingMetroFor(27.498, -82.575) === "manatee-sarasota", "Bradenton maps to manatee-sarasota");
+const cfgMiss = await serveExplodingNearby({
+  lat: 27.5859, lng: -82.4254,
+  readRows: async () => { throw new TrendConfigError("SUPABASE_URL", "is not set"); },
+});
+ok(cfgMiss.httpStatus === 200 && cfgMiss.status === "no_verified_inventory",
+  "a missing secret fail-softs to honest empty, never 503");
+ok(explodingUiStatus({ status: "trend_data_error", error: UNAVAILABLE_COPY, trends: [] }).status === "no_verified_inventory",
+  "the rail remaps a 502-shaped body to honest empty while the owner list exists");
 
 const ui = read("app/components/ExplodingNearby.js");
-ok(ui.includes("loadProvidedTrendList") && !ui.includes("/api/trends/nearby"),
-  "the homepage consumes the supplied 20-trend list and does not wait for a provider snapshot");
+ok(ui.includes("loadProvidedTrendList") && ui.includes("/api/trends/nearby") && ui.includes("explodingUiStatus"),
+  "the homepage walks the supplied list first, then the owner-list nearby floor; 502/503 is not the paint path");
 for (const event of [
   "exploding_section_impression", "trend_impression", "trend_expand", "primary_trend_card_click",
   "trend_horizontal_scroll", "additional_trend_place_click", "place_detail_view", "trend_card_save",
