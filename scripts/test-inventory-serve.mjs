@@ -58,6 +58,35 @@ const rows = [
   ok("higher quality ranks first", ids[0] === "near_best");
   ok("output is Google-shaped (displayName.text)", out[0].displayName.text === "Near Best");
 }
+// ── v8.60: rankInventory ranks by the WAYFIND SCORE, not rating*20 ──────────
+// The old formula gave rating 100 of ~120 points and review count at most 20,
+// so a 5.0 from four reviews scored 100.04 - level with a 5.0 backed by three
+// thousand, and ahead of a proven 4.6. Owner screenshot, Parrish > Family >
+// Kids, 2026-08-26: "Renaissance Event Center", 4 reviews, in a kids list.
+// The Bayesian blend pulls thin ratings toward the 3.9 baseline, and it is the
+// same number the card renders - so the shelf and the chip finally agree.
+{
+  const thin = { place_id: "thin5", name: "Thin Five", lat: 27.34, lng: -82.531, signals: { rating: 5, reviews: 4 }, status: "OPERATIONAL" };
+  // 4.3/600 is chosen deliberately: it is the band where the two formulas
+  // DISAGREE. old = 92.00 vs the thin row's 100.04 (thin wins, wrong);
+  // wayfindScore = 85 vs 79 (proven wins, right). A 4.6/1337 fixture would
+  // pass under BOTH formulas and prove nothing - measured before it was used.
+  const proven = { place_id: "proven43", name: "Proven 4.3", lat: 27.34, lng: -82.531, signals: { rating: 4.3, reviews: 600 }, status: "OPERATIONAL" };
+  const ids = rankInventory([thin, proven], C.lat, C.lng, 27000, 20).map((p) => p.id);
+  ok("a proven 4.3 outranks a 5.0 with four reviews", ids[0] === "proven43");
+
+  // …and the cap is where it actually bites: with one slot, the thin 5.0 must
+  // not be the row that survives.
+  const one = rankInventory([thin, proven], C.lat, C.lng, 27000, 1).map((p) => p.id);
+  ok("the single surviving slot goes to the proven place", one.length === 1 && one[0] === "proven43");
+
+  // An unrated row is dropped upstream of the rank (measured, not assumed), so
+  // it can never reach a shelf on a phantom number - the defect
+  // lib/wayfindScore.js's header records for landing.js cannot occur here.
+  const unrated = { place_id: "unrated", name: "Unrated", lat: 27.34, lng: -82.531, signals: { rating: null, reviews: 0 }, status: "OPERATIONAL" };
+  const withUnrated = rankInventory([unrated, proven], C.lat, C.lng, 27000, 20).map((p) => p.id);
+  ok("an unrated row never reaches the shelf", withUnrated.length === 1 && withUnrated[0] === "proven43");
+}
 {
   const out = rankInventory(rows, C.lat, C.lng, 27000, 1);
   ok("n cap respected (n=1 -> 1 result)", out.length === 1 && out[0].id === "near_best");
