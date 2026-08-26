@@ -17,10 +17,6 @@ copyFileSync(new URL("../lib/placeCategory.js", import.meta.url), join(tmp, "pla
 // (ONE national-chain veto for the browse Breakfast tab AND the rail).
 // breakfast.js is itself import-free, so the standalone property holds.
 copyFileSync(new URL("../lib/breakfast.js", import.meta.url), join(tmp, "breakfast.js"));
-// v8.50 — placeFilter imports isLunchPlace from lib/mealPlace.js so Food →
-// Lunch cannot lead with a breakfast-only room. mealPlace only imports
-// placeCategory, which is already copied above.
-copyFileSync(new URL("../lib/mealPlace.js", import.meta.url), join(tmp, "mealPlace.js"));
 copyFileSync(new URL("../lib/placeFilter.js", import.meta.url), join(tmp, "placeFilter.mjs"));
 const { placeAllowed } = await import(join(tmp, "placeFilter.mjs"));
 if (typeof placeAllowed !== "function") fail("placeAllowed not exported from lib/placeFilter.js");

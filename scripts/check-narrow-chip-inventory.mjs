@@ -84,10 +84,10 @@ ok(calls.length > 0 && calls.every((c) => /params\.sub/.test(c)),
 const HOME = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 ok(/inv=1\$\{sub && sub !== "all"/.test(HOME),
   "the browse feed sends &sub= on its inv=1 serve");
-ok(/if\s*\(\s*browseChipUsesInventory\(\s*cat,\s*sub\s*\)\s*\)/.test(HOME),
-  "a specific identity chip actually CALLS if (browseChipUsesInventory(cat, sub)) — a `false &&` mention is the v8.49 false green");
-ok(/mergeBrowseSources\(/.test(HOME),
-  "the chip path merges owned inventory into the browse list");
+ok(/if\s*\(\s*sub\s*&&\s*sub\s*!==\s*"all"\s*&&\s*SUB_ALLOW\[/.test(HOME),
+  "a specific identity chip widens from inventory when SUB_ALLOW[cat:sub] exists — a `false &&` mention is the v8.49 false green");
+ok(/\[\s*_b\[1\]\s*,\s*_b\[0\]\s*\]/.test(HOME),
+  "the chip path merges owned inventory before Google so the library wins");
 
 if (fail.length) {
   console.error(`check-narrow-chip-inventory: FAIL (${fail.length} of ${pass + fail.length})`);

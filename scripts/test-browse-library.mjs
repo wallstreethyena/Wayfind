@@ -165,19 +165,19 @@ ok(merged.find((p) => p.id === cafeBrowse[0].id)._wfInventory === true,
 // ── 5. THE WIRE in home.js — the CALL, not the name ─────────────────────────
 const HOME = readFileSync(new URL("../app/home.js", import.meta.url), "utf8")
   .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
-ok(/if\s*\(\s*browseChipUsesInventory\(\s*cat,\s*sub\s*\)\s*\)/.test(HOME),
-  "home _fetchAt CALLS if (browseChipUsesInventory(cat, sub)) — a `false &&` mention is the v8.49 false green");
-ok(/mergeBrowseSources\(/.test(HOME),
-  "home _fetchAt CALLS mergeBrowseSources(");
-ok(new RegExp(`n=\\$\\{BROWSE_INVENTORY_N\\}`).test(HOME) || HOME.includes(`n=\${BROWSE_INVENTORY_N}`),
-  "the inv=1 serve asks for BROWSE_INVENTORY_N, not a merchandising 40");
+ok(/if\s*\(\s*sub\s*&&\s*sub\s*!==\s*"all"\s*&&\s*SUB_ALLOW\[/.test(HOME),
+  "home _fetchAt widens when SUB_ALLOW[cat:sub] exists — a `false &&` mention is the v8.49 false green");
+ok(/\[\s*_b\[1\]\s*,\s*_b\[0\]\s*\]/.test(HOME),
+  "the chip merge puts inventory (_b[1]) before Google (_b[0]) so the library wins");
+ok(/n=400&cat=/.test(HOME),
+  "the inv=1 serve asks for 400 (the cost bound), not a merchandising 40");
 ok(/primaryType:\s*x\.primaryType/.test(HOME),
   "inventory rows keep primaryType so lunch identity can see breakfast_restaurant");
 
 const FETCH = HOME.slice(HOME.indexOf("const _fetchAt"), HOME.indexOf("const _startM"));
-ok(FETCH.includes("browseChipUsesInventory"),
+ok(FETCH.includes("SUB_ALLOW["),
   "_fetchAt itself (not some other helper) is where the inventory widen lives");
-ok(!/return await searchPlaces\(cat, sub/.test(FETCH.split("browseChipUsesInventory")[0]),
+ok(!/return await searchPlaces\(cat, sub/.test(FETCH.split("SUB_ALLOW[")[0]),
   "the searchPlaces-only return must sit AFTER the inventory widen, not be the only path");
 
 // ── 6. serveFromInventory still filters before rank (edit the ORDER, fail) ──
