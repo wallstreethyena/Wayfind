@@ -12,13 +12,14 @@ import { gateShut, spendAllow } from "../../../lib/spendGate";
 // them at the CDN for 30 days — the Google ToS maximum for cached place
 // content. No key ever reaches the browser, and images load reliably.
 import { NextResponse } from "next/server";
+import { FALLBACK_PATH, PHOTO_REF_RX, resolvePlacePhoto } from "../../../lib/placePhotoServe";
 
 export const dynamic = "force-dynamic";
 
 // Only a real Google photo resource name may be proxied — never an arbitrary
 // URL. Shape: places/{placeId}/photos/{photoId}. This is the SSRF guard: the
 // proxy can reach exactly one host, one endpoint, nothing else.
-const REF_RX = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
+const REF_RX = PHOTO_REF_RX;
 
 const THIRTY_DAYS = 60 * 60 * 24 * 30;
 
@@ -29,109 +30,59 @@ const THIRTY_DAYS = 60 * 60 * 24 * 30;
 const PLACE_RX = /^[A-Za-z0-9_-]{10,}$/;
 
 export async function GET(req) {
-  // COST GUARD (2026-08-25): photo media is metered ($7/1k, 22,759 fetches on
-  // the August bill). Gate shut / free-tier exhausted -> branded fallback
-  // art, NEVER a category+metro Pexels pool. That pool is what painted the
-  // same manatee on River Walk, Nathan Benderson Park and Bishop Museum
-  // (Family → Toddlers, Parrish, 2026-08-25 11:51 PM ET) and the same beach
-  // sunset on Kids Empire + Intense Escape earlier the same night. Empty /
-  // branded is allowed. Another place's photo is not. Spend stays gated.
-  // shut: never pay. free: one monthly photos ledger grant per lambda-reached
-  // miss. Edge-cached Google photos are free forever and unaffected.
-  if (gateShut() || !(await spendAllow("photos"))) {
-    return NextResponse.redirect(new URL("/wf-photo-fallback.svg", req.url), {
-      status: 302,
-      headers: { "Cache-Control": "public, max-age=86400, s-maxage=86400" },
-    });
-  }
+  // COST GUARD (2026-08-25 / 2026-08-26): photo media is metered. #956
+  // deleted the category+metro Pexels pool (one manatee on three Family
+  // cards) and then 302'd EVERY gated miss to /wf-photo-fallback.svg — so
+  // distinct inventory photo_refs still painted one teal compass. Empty /
+  // branded is allowed ONLY when that placeId has no photo. Another place's
+  // photo is not. A shared stock pool is not.
+  //
+  // Order: cache → inventory photo_url → spendAllow("photos") → Google.
+  // Cache / inventory hits never spend. shut: never pay. The branded SVG
+  // is no-store so it cannot poison the 30-day photo cache.
   const { searchParams } = new URL(req.url);
-  let ref = searchParams.get("ref") || "";
+  const ref = searchParams.get("ref") || "";
   const place = searchParams.get("place") || "";
-  let w = parseInt(searchParams.get("w") || "640", 10);
-  if (!Number.isFinite(w) || w < 64) w = 640;
-  if (w > 1600) w = 1600; // cap billable size
-
-  if (!ref && PLACE_RX.test(place)) {
-    const key0 = process.env.GOOGLE_MAPS_SERVER_KEY;
-    if (!key0) return NextResponse.json({ error: "no server key" }, { status: 502 });
-    try {
-      const d = await fetch(
-        "https://places.googleapis.com/v1/places/" + place + "?fields=photos&key=" + key0,
-        { next: { revalidate: 86400 } }
-      );
-      if (d.ok) {
-        const j = await d.json();
-        const fresh = j && Array.isArray(j.photos) && j.photos[0] && j.photos[0].name;
-        if (fresh && REF_RX.test(fresh)) ref = fresh;
-      }
-    } catch (e) {}
-    if (!ref) return NextResponse.json({ error: "no photo" }, { status: 404, headers: { "Cache-Control": "public, max-age=3600" } });
-  }
-
-  if (!REF_RX.test(ref)) {
+  const w = searchParams.get("w") || "640";
+  if (ref && !REF_RX.test(ref) && !place) {
     return NextResponse.json({ error: "bad ref" }, { status: 400 });
   }
-
-  const key = process.env.GOOGLE_MAPS_SERVER_KEY;
-  if (!key) {
-    // No server key configured — fall back to the direct public-key URL so
-    // nothing breaks before the env is set (public key is already client-side).
-    const pub = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY || "";
-    return NextResponse.redirect(
-      "https://places.googleapis.com/v1/" + ref + "/media?maxWidthPx=" + w + "&key=" + pub,
-      302
-    );
+  if (!ref && place && !PLACE_RX.test(place)) {
+    return NextResponse.json({ error: "bad place" }, { status: 400 });
   }
 
-  const upstream =
-    "https://places.googleapis.com/v1/" + ref + "/media?maxWidthPx=" + w + "&key=" + key;
+  const shut = gateShut();
+  const spendAllowed = !shut && (await spendAllow("photos"));
+  const result = await resolvePlacePhoto({
+    ref,
+    place,
+    w,
+    gateShut: shut,
+    spendAllowed,
+    serverKey: process.env.GOOGLE_MAPS_SERVER_KEY || "",
+  });
 
-  try {
-    let r = await fetch(upstream, { redirect: "follow" });
-    // v8.17 SELF-HEAL (owner, live screenshots 2026-08-19: broken images on
-    // the guide cards AND the beaches pages). Google Places photo resource
-    // names EXPIRE — a ref harvested weeks ago answers 400 forever, and every
-    // surface that stored it (wf_inventory photo_ref, cached rows) renders a
-    // broken image. The placeId is INSIDE the ref (places/{id}/photos/...),
-    // so a stale ref is recoverable right here: one Place Details call for
-    // the CURRENT photo name, then fetch that. Cost is bounded — one details
-    // lookup per stale ref per 30-day cache window, and only on the 400 path.
-    if (!r.ok && (r.status === 400 || r.status === 403 || r.status === 404)) {
-      try {
-        const placeId = ref.split("/")[1];
-        const d = await fetch(
-          "https://places.googleapis.com/v1/places/" + placeId + "?fields=photos&key=" + key,
-          { next: { revalidate: 86400 } }
-        );
-        if (d.ok) {
-          const j = await d.json();
-          const fresh = j && Array.isArray(j.photos) && j.photos[0] && j.photos[0].name;
-          if (fresh && REF_RX.test(fresh) && fresh !== ref) {
-            r = await fetch(
-              "https://places.googleapis.com/v1/" + fresh + "/media?maxWidthPx=" + w + "&key=" + key,
-              { redirect: "follow" }
-            );
-          }
-        }
-      } catch (e) {}
-    }
-    if (!r.ok || !r.body) {
-      // Cache the miss briefly so a transient upstream error doesn't hammer us.
-      return NextResponse.json(
-        { error: "upstream " + r.status },
-        { status: r.status === 404 ? 404 : 502, headers: { "Cache-Control": "public, max-age=300" } }
-      );
-    }
-    const buf = await r.arrayBuffer();
-    return new NextResponse(buf, {
-      status: 200,
-      headers: {
-        "Content-Type": r.headers.get("content-type") || "image/jpeg",
-        // 30-day CDN + browser cache; immutable — a photo ref's bytes never change.
-        "Cache-Control": "public, max-age=" + THIRTY_DAYS + ", s-maxage=" + THIRTY_DAYS + ", immutable",
-      },
+  if (result.type === "redirect" && result.location) {
+    const dest = /^https?:\/\//i.test(result.location)
+      ? result.location
+      : new URL(result.location, req.url);
+    return NextResponse.redirect(dest, {
+      status: 302,
+      headers: { "Cache-Control": result.cacheControl || ("public, max-age=" + THIRTY_DAYS + ", s-maxage=" + THIRTY_DAYS + ", immutable") },
     });
-  } catch (e) {
-    return NextResponse.json({ error: "fetch failed" }, { status: 502 });
   }
+
+  if (result.type === "empty") {
+    return NextResponse.redirect(new URL(FALLBACK_PATH, req.url), {
+      status: 302,
+      headers: { "Cache-Control": "private, no-store" },
+    });
+  }
+
+  // Owned ref whose bytes we could not fetch (stale, no key, upstream).
+  // 404 — not a shared SVG. Distinct refs stay distinct finals.
+  return NextResponse.json(
+    { error: "no photo" },
+    { status: 404, headers: { "Cache-Control": "private, no-store" } }
+  );
 }
