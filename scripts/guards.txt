@@ -31,6 +31,7 @@ npm run check:version
 npm run check:jsx
 node scripts/check-hydration-style.mjs
 node scripts/check-imports.mjs
+node scripts/check-kit-focus.mjs
 npm run check:dupes
 node scripts/test-dupes-imports.mjs
 npm run check:env
@@ -224,6 +225,7 @@ node scripts/check-app-viewport.mjs
 node scripts/check-shell-decomposition.mjs
 node scripts/check-collection-look.mjs
 node scripts/check-house-card.mjs
+node scripts/test-house-card-photo.mjs
 node scripts/check-intent-hero-fits.mjs
 node scripts/check-place-detail-honest.mjs
 node scripts/test-atlas-verify.mjs

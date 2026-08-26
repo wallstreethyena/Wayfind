@@ -16,8 +16,7 @@ import { overrideFor } from "../../lib/placeOverrides";
 import * as Tags from "../../lib/tags";
 import { directionsHref } from "../../lib/directions.js";
 import { useEffect, useRef, useState } from "react";
-import { useMarketPhotoFallback, marketPhotoQuery } from "./marketPhoto.js";
-import { hasPlacePhotoRef } from "../../lib/placePhoto.js";
+import { houseCardPhotoSrc } from "../../lib/placePhoto.js";
 import { toHookLine } from "../../lib/editorialHook.js";
 // v8.29 — THE CARD'S OWN HANDS. Save/Like/Dislike used to fall back to
 // <a href="/p/<id>?action=like"> whenever a caller forgot to wire a handler,
@@ -201,12 +200,7 @@ const compactCount = (n) => Number(n) >= 1000
   ? (Math.round(Number(n) / 100) / 10) + "k"
   : String(Number(n) || 0);
 
-const photoUrl = (p) => {
-  const ref = p && (p.photoRef || p.photo_ref);
-  if (hasPlacePhotoRef(ref)) return "/api/photo?ref=" + encodeURIComponent(ref) + "&w=640";
-  if (p && typeof p.photo === "string" && p.photo) return p.photo;
-  return null;
-};
+const photoUrl = (p) => houseCardPhotoSrc(p);
 
 // v8.29 — the ticket glyph. Drawn, not an emoji: 🎟️ is a different picture on
 // iOS, Android and Windows, and the one control on this card that earns money
@@ -248,12 +242,9 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   // green through it because this repo has no ESLint and nothing read hook
   // order; scripts/check-hook-order.mjs is now that reader.
   const category = place ? (coarseCat(place) || place.primaryType || place.type || "Local pick") : "";
-  // v8.13.3 (owner: "I don't want any of the place cards not to have an
-  // image"). Rung 3 of the photo ladder — a city+category stock scene via the
-  // cached /api/market-photo route — fetched ONLY when the venue-truthful
-  // rungs (photoRef / photo) are absent. See app/components/marketPhoto.js
-  // for the ladder and the honesty line (query is never the venue name).
-  const marketFallback = useMarketPhotoFallback(!place || photoUrl(place) ? null : marketPhotoQuery(category, place.city));
+  // v8.49.1 — house cards do not share a category+city stock scene. A
+  // photoless indoor playground and a photoless escape room in the same
+  // town used to paint the same beach sunset. Own photo, or the monogram.
   // v8.22 (owner: "indicate in the pills that the row is scrollable — someone
   // looking at it won't know"). After hydration, measure the lane: when it
   // genuinely overflows, a small pulsing chevron sits at its right edge and
@@ -387,8 +378,8 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   return (
     <li ref={cardRef} data-iconic-place-card data-card-opens-detail onClick={openCard} className={`wf-place-card${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}`} style={{ listStyle: "none", cursor: href ? "pointer" : "default" }}>
       <div className="wf-place-card-layout">
-        {photoUrl(place) || marketFallback
-          ? <img src={photoUrl(place) || marketFallback} alt="" loading="lazy" style={{ objectFit: "cover" }} />
+        {photoUrl(place)
+          ? <img src={photoUrl(place)} alt="" loading="lazy" style={{ objectFit: "cover" }} />
           : <div className="wf-place-card-monogram" aria-hidden="true">{initials}</div>}
         <div className="wf-place-card-content" style={{ position: "relative" }}>
           <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start" }}>
