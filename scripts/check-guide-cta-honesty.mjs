@@ -21,10 +21,11 @@
  * over the resolver's source would pass on a label built at runtime.
  */
 import { GUIDES } from "../lib/guides.js";
-import { guidePrimaryCta, guideIntent, pickVenueLabel } from "../lib/guideCta.js";
+import { guidePrimaryCta, guideIntent, pickVenueLabel, paintGuideCta } from "../lib/guideCta.js";
 import { couponForPlaceName } from "../lib/coupons.js";
 import { siteTodayStr } from "../lib/siteTime.js";
 import { viatorProductGoUrl } from "../lib/affiliates.js";
+import { isSearchAsBookHref } from "../lib/viatorDenylist.js";
 import { credentialedEnv } from "./lib/guardEnv.mjs";
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
@@ -114,39 +115,36 @@ for (const slug of slugs) {
     tours++;
     if (!cta.exact) searches++;
 
-    // 2. THE HONESTY RULE. A search must never be labelled as tickets for a
-    //    named place. This is the exact string that shipped and did not convert.
-    ok(!/tickets|book now/i.test(cta.label) || cta.exact,
-      `${slug}: a SEARCH destination is labelled "${cta.label}" — a label may only promise tickets when cta.exact is true`);
+    // 2. Search-as-Book is not Book. A tour CTA may only paint when the dest
+    //    is an exact product. intent=search / searchResults / q= without a
+    //    product code is the Crystal River leak — hide, do not relabel.
+    ok(cta.exact === true,
+      `${slug}: a painted tour CTA must be exact — search dests do not paint as Book (got exact=${cta.exact} href=${cta.href})`);
+    ok(!isSearchAsBookHref(cta.href),
+      `${slug}: painted tour href is search-as-Book (${cta.href}) — hide the CTA`);
+    ok(paintGuideCta(cta) === cta || paintGuideCta(cta).kind === "tour",
+      `${slug}: paintGuideCta must keep an exact tour`);
 
-    // 3. A search label names the REGION (what it really searches), an exact
-    //    label names the PLACE (what it really opens).
-    if (cta.exact) {
-      // Name what the click OPENS. When a product resolved, that is the PRODUCT
-      // title — a resolved product is often a related experience rather than the
-      // pick itself (Winter Park Scenic Boat Tour resolves to a kayak tour on
-      // the same lake chain), so naming the pick would over-promise exactly the
-      // way the old label did.
-      ok(exactLabelIsHonest(cta),
-        `${slug}: an exact CTA must name what it opens — the product title, or the VENUE from the pick, or nothing at all — got "${cta.label}"`);
-      const pick = (GUIDES[slug].picks || []).find((p) => p && p.name === cta.place);
-      if (pick && pick.viatorUrl) {
-        curatedGoWraps++;
-        ok(typeof cta.href === "string" && cta.href.startsWith("/api/viator/go?"),
-          `${slug}: a curated exact product must go through /api/viator/go, not a bare partner URL (got ${cta.href})`);
-        const u = new URL("https://x.test" + cta.href);
-        ok(u.searchParams.get("product") === pick.viatorUrl,
-          `${slug}: /go must carry the curated product, not a different SKU (got ${u.searchParams.get("product")})`);
-        const built = viatorProductGoUrl(pick.viatorUrl, GUIDES[slug].region || "Orlando", "guide", "guide");
-        ok(cta.href === built,
-          `${slug}: href must be the existing go builder output, not a hand-rolled path`);
-      }
-    } else {
-      const region = GUIDES[slug].region || "Orlando";
-      ok(cta.label.includes(region),
-        `${slug}: a search CTA must name the region it searches, got "${cta.label}"`);
+    ok(exactLabelIsHonest(cta),
+      `${slug}: an exact CTA must name what it opens — the product title, or the VENUE from the pick, or nothing at all — got "${cta.label}"`);
+    const pick = (GUIDES[slug].picks || []).find((p) => p && p.name === cta.place);
+    if (pick && pick.viatorUrl) {
+      curatedGoWraps++;
+      ok(typeof cta.href === "string" && cta.href.startsWith("/api/viator/go?"),
+        `${slug}: a curated exact product must go through /api/viator/go, not a bare partner URL (got ${cta.href})`);
+      const u = new URL("https://x.test" + cta.href);
+      ok(u.searchParams.get("product") === pick.viatorUrl,
+        `${slug}: /go must carry the curated product, not a different SKU (got ${u.searchParams.get("product")})`);
+      const built = viatorProductGoUrl(pick.viatorUrl, GUIDES[slug].region || "Orlando", "guide", "guide");
+      ok(cta.href === built,
+        `${slug}: href must be the existing go builder output, not a hand-rolled path`);
     }
   }
+
+  ok(!isSearchAsBookHref(cta.href),
+    `${slug}: no painted CTA may be a search dest (got ${cta.href})`);
+  ok(paintGuideCta(cta).href == null || !isSearchAsBookHref(paintGuideCta(cta).href),
+    `${slug}: paintGuideCta must hide search-as-Book`);
 
   // 4. A monetized CTA always has an href; a non-monetized one never claims to earn.
   if (cta.monetized) ok(!!cta.href, `${slug}: a monetized CTA must have an href`);
@@ -158,9 +156,15 @@ const labels = slugs.map((s) => guidePrimaryCta(GUIDES[s], today).label).filter(
 ok(!labels.some((l) => /^Check tours & tickets$/.test(l)),
   "the generic 'Check tours & tickets' label must no longer be produced for any guide");
 
-// Positive control: the assertions above ran against real tour guides. If the
-// registry ever stops producing them, the honesty rule silently tests nothing.
-ok(tours >= 5, `PROBE BROKEN: expected several tour-intent guides to exercise the honesty rule, got ${tours}`);
+// Positive control: Gatorland still paints an exact tour. Search dests must
+// not paint — that is the Crystal River leak. A floor of "several tour CTAs"
+// would force us to invent SKUs for bookQuery-only guides.
+ok(tours >= 1, `PROBE BROKEN: expected at least the Gatorland exact tour CTA, got ${tours}`);
+ok(searches === 0, `search-as-Book must not paint — got ${searches} inexact tour CTAs`);
+ok(guideIntent(GUIDES["swim-with-manatees-crystal-river"]) === "tour",
+  "Crystal River stays tour-intent (bookQuery is still editorial; it just must not paint as Book)");
+ok(guidePrimaryCta(GUIDES["swim-with-manatees-crystal-river"], today).kind !== "tour",
+  "Crystal River must not paint a tour Book CTA without an exact product");
 
 // 6. THE TOUR DEAL RUNG, asserted on the invariant rather than on a count.
 //    `deals >= 1` was the first version of this and it was decoration: removing
@@ -226,8 +230,10 @@ for (const slug of slugs) {
 //     and is weaker than a call — stated plainly so it reads as weaker.
 const cta_src = readFileSync(REPO + "lib/guideCta.js", "utf8")
   .replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
-ok(/const\s+venue\s*=\s*exact\s*\?\s*pickVenueLabel\(/.test(cta_src),
+ok(/const\s+venue\s*=\s*pickVenueLabel\(/.test(cta_src),
   "the exact branch must derive its name through pickVenueLabel");
+ok(/if\s*\(\s*!exact\s*\|\|\s*isSearchAsBookHref\(href\)\s*\)\s*continue/.test(cta_src),
+  "the tour rung must skip search dests — search-as-Book is not Book");
 ok(!/See tickets for \$\{p\.name\}/.test(cta_src),
   "the exact label must never interpolate the raw pick name — that is the shipped bug");
 ok(/See tickets & availability/.test(cta_src),
@@ -265,6 +271,8 @@ ok(wrapChild.status === 0 && String(wrapChild.stdout || "").trim().split("\n").p
 // 7. The events must carry `exact`, or none of this is readable.
 const conv = readFileSync(REPO + "app/guides/[slug]/GuideConversion.js", "utf8")
   .replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+ok(/isSearchAsBookHref\(\s*cta\.href\s*\)/.test(conv),
+  "GuideConversion must hide search-as-Book at paint time — belt on the resolver");
 for (const ev of ["commerce_impression", "commerce_cta_clicked"]) {
   const m = new RegExp(`track\\(\\s*["']${ev}["'][\\s\\S]{0,320}?\\)`).exec(conv);
   ok(m && /exact:\s*!!cta\.exact/.test(m[0]),
@@ -278,8 +286,8 @@ if (fail.length) {
 }
 console.log(
   `check-guide-cta-honesty: OK — ${pass} assertions across ${slugs.length} guides ` +
-  `(${monetized} monetized, ${tours} tour-intent of which ${searches} are searches, ${deals} live deals); ` +
-  `every CTA carries a boolean exact, no search is labelled as tickets, ` +
-  `search labels name the region and exact labels name the place, events carry exact; ` +
+  `(${monetized} monetized, ${tours} exact tour paints, ${searches} search-as-Book paints, ${deals} live deals); ` +
+  `every CTA carries a boolean exact, search dests do not paint as Book, ` +
+  `exact labels name the place, events carry exact; ` +
   `curated exact products wrap through /api/viator/go (${curatedGoWraps} wrap(s) this pass)`
 );

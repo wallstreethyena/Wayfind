@@ -17,6 +17,7 @@ import { useEffect, useRef, useState } from "react";
 import { track } from "../../../lib/track";
 import { emitCommerce } from "../../../lib/commerce";
 import { mintClickId, withClickId, isEarningGoHref } from "../../../lib/hubConversion";
+import { isSearchAsBookHref } from "../../../lib/viatorDenylist";
 
 export default function GuideConversion({ slug, region, cta, next, social, socialStatus }) {
   const ref = useRef(null);
@@ -27,6 +28,13 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
   if (clickId.current === null) clickId.current = mintClickId();
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => { setHydrated(true); }, []);
+  // Search-as-Book is not Book. A dest that is intent=search / searchResults /
+  // q= without a product code must not paint as Book / Tickets / Viator.
+  // viatorDenylist is the client-safe predicate — do not import guideCta here
+  // (that module pulls the booking resolver into the client chunk).
+  if (cta && (isSearchAsBookHref(cta.href) || (cta.kind === "tour" && !cta.exact))) {
+    cta = { kind: "none", href: null, label: null, sponsored: false, monetized: false, deal: null, place: null, exact: false };
+  }
   const earningGo = !!(cta && cta.monetized && isEarningGoHref(cta.href));
   const ctaHref = (hydrated && earningGo) ? withClickId(cta.href, clickId.current) : (cta && cta.href);
 

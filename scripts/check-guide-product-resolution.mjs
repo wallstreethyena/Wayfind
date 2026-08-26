@@ -102,8 +102,12 @@ ok(!/resolveViatorProduct\s*\(/.test(mod),
 /* ── 6. the page upgrade must be gated and must not emit a partner href ───── */
 const page = strip(readFileSync(REPO + "app/guides/[slug]/page.js", "utf8"));
 ok(/resolveGuideProduct\s*\(/.test(page), "the guide page must attempt render-time resolution");
-ok(/kind === "tour"\s*&&\s*!primaryCta\.exact/.test(page),
-  "the upgrade must only run for a tour CTA that is not already exact — re-resolving an exact CTA wastes a call and can only downgrade it");
+ok(/guideIntent\(\s*g\s*\)\s*===\s*["']tour["']/.test(page),
+  "the upgrade stays scoped to tour-intent guides");
+ok(/!\s*\(\s*primaryCta\s*&&\s*primaryCta\.exact\s*\)/.test(page),
+  "the upgrade must not re-resolve an already-exact CTA — re-resolving can only downgrade it");
+ok(/paintGuideCta\s*\(\s*primaryCta\s*\)/.test(page),
+  "after upgrade, paintGuideCta must hide a leftover search dest — search-as-Book is not Book");
 ok(/viatorProductGoUrl\s*\(/.test(page),
   "a resolved product must be handed to viatorProductGoUrl, never rendered as a bare partner href");
 ok(!/href:\s*hit\.url/.test(page),
