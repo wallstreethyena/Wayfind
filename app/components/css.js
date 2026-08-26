@@ -293,7 +293,10 @@ export const WF_PLACE_CARD_CSS = `
 .wf-place-card-category:before{content:"";width:12px;height:2px;border-radius:99px;background:#F97316}
 .wf-place-card-category.is-tappable{cursor:pointer}
 .wf-place-card-name{font-size:16px!important;font-weight:780!important;line-height:1.12!important;letter-spacing:-.025em}
-.wf-place-card-score{position:absolute;z-index:4;inset:auto 6px 8px;pointer-events:auto;filter:none!important}
+/* v8.61: score sits with the rank at the TOP of the photo, not its floor. */
+.wf-place-card-score{position:absolute;z-index:4;inset:11px 6px auto;pointer-events:auto;filter:none!important}
+/* Only offset when a rank badge is actually there to clear. */
+.wf-place-card-rank~.wf-place-card-score{top:53px}
 .wf-place-card-score .wayfind-score-badge[data-score-band="excellent"]{--wf-score-color:#25C26E;--wf-score-tint:rgba(37,194,110,.10);--wf-score-border:rgba(37,194,110,.62);--wf-score-glow:rgba(37,194,110,.20)}
 .wf-place-card-score .wayfind-score-badge[data-score-band="strong"]{--wf-score-color:#FF6B18;--wf-score-tint:rgba(255,107,24,.11);--wf-score-border:rgba(255,107,24,.68);--wf-score-glow:rgba(255,107,24,.20)}
 .wf-place-card-score .wayfind-score-badge[data-score-band="fair"]{--wf-score-color:#F2C94C;--wf-score-tint:rgba(242,201,76,.11);--wf-score-border:rgba(242,201,76,.68);--wf-score-glow:rgba(242,201,76,.18)}

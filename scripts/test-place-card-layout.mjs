@@ -118,6 +118,7 @@ const m = await p.evaluate(() => {
       laneBox: laneBox ? { y: laneBox.y, h: laneBox.h || laneBox.height } : null,
       media: box(media), score: box(score), title: box(title), name: box(name),
       scoreInTitle: !!(score && title && title.contains(score)),
+      scoreInMedia: !!(score && media && media.contains(score)),
     });
   });
   return out;
@@ -129,6 +130,22 @@ ok(m.pageScrollX <= m.viewport + 1, `no horizontal page overflow at 390px (scrol
 m.cards.forEach((c, ci) => {
   const tag = variants[ci] ? variants[ci].key : "card" + ci;
   ok(c.kids.length >= 4, `${tag}: positive control — action row has >=4 controls (got ${c.kids.length})`);
+  // v8.61 — the Wayfind Score belongs to the TITLE BLOCK, on the photo beside
+  // it. #958 correctly evicted it from the title row and then anchored it to
+  // the media's floor, where it landed level with the Save/Share row and ~200px
+  // under the venue name it qualifies (measured: score y=231..271, actions
+  // y=219..268, on a Stays > Budget card). Two assertions, both on real boxes:
+  // it stays OUT of the title row, and it stays in the photo's upper half so it
+  // cannot drift back down to the buttons.
+  if (c.score && c.media && c.name) {
+    ok(!c.scoreInTitle, `${tag}: the score is never inside the title row`);
+    ok(c.scoreInMedia, `${tag}: the score is an overlay on the photo`);
+    const scoreMid = c.score.y + c.score.h / 2;
+    const mediaMid = c.media.y + c.media.h / 2;
+    ok(scoreMid < mediaMid, `${tag}: the score sits in the UPPER half of the photo, with the rank — not stranded at its floor (score mid ${scoreMid.toFixed(0)} vs media mid ${mediaMid.toFixed(0)})`);
+    const rowTop = c.kids.length ? Math.min(...c.kids.map((k) => k.y)) : Infinity;
+    ok(c.score.y + c.score.h < rowTop, `${tag}: the score clears the action row entirely (score bottom ${(c.score.y + c.score.h).toFixed(0)} vs actions top ${rowTop.toFixed(0)})`);
+  }
   for (let i = 0; i < c.kids.length; i++) for (let j = i + 1; j < c.kids.length; j++) {
     const a = c.kids[i], b = c.kids[j];
     const oxv = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
