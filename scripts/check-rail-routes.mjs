@@ -86,7 +86,10 @@ for (const r of RAILS) {
   axes.set(r.axis, r.id);
   if (!RAIL_TINT[r.id]) bad(`${r.id}: no tile tint`);
   if (!r.short || !r.sub || !r.cta || !r.title) bad(`${r.id}: missing card copy`);
-  if (!r.guides && !r.list) bad(`${r.id}: neither a ranked list nor the guides rail`);
+  // v8.66 — `drop: true` is the third rail kind: a curated in-component drop
+  // (chef testimony, the augtober fall pool). Its tile is a BUTTON — no href,
+  // no destination to check — and its list never comes from railSelect pools.
+  if (!r.guides && !r.list && !r.drop) bad(`${r.id}: neither a ranked list, the guides rail, nor a curated drop`);
   if (r.list && !RAIL_SELECT[r.id]) bad(`${r.id}: shows a list but lib/railSelect.js has no selector for it`);
   if (r.list && RAIL_SELECT[r.id] && !RAIL_SELECT[r.id].pools.length) bad(`${r.id}: selector reads no pools`);
 }
@@ -118,6 +121,7 @@ for (const r of RAILS) {
     for (const city of [undefined, "parrish", "orlando", "tampa"]) {
       const href = railHref(r, region, city);
       if (!href) {
+        if (r.drop && !r.href) continue; // a drop rail's tile is a button — no destination exists to be wrong
         if (!city && r.href && ["/best-beaches", "/things-to-do", "/restaurants", "/nightlife"].includes(r.href)) continue;
         bad(`${r.id}: railHref returned nothing`);
         continue;

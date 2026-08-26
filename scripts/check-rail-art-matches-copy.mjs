@@ -61,6 +61,16 @@ const PAIRS = {
   // `trending` is deliberately absent: its art still reads "EXPLODING TRENDS
   // NEAR YOU / Everyone's searching this." It carries artStale: true instead
   // and renders no tile until it is redrawn.
+  // v8.66 — both tiles are the owner's OWN posters (2026-08-26), byte-derived
+  // by scripts/make-rail-art.mjs, zero redraw. Pixels read at pin time:
+  //   chef reads "CURATED BY A TOP CHEF / CHEF RON DUPRAT'S TOP 7 /
+  //   7 restaurants a Top Chef says are worth the trip. / Chef-approved
+  //   dining picks" — the rail copy says the same four things.
+  //   augtober reads "SEASONAL / AUGTOBER EVENTS NEAR YOU / Pumpkins,
+  //   festivals, spooky nights & Florida fall plans worth showing up for."
+  //   — matches title/short/sub.
+  chef: { copy: "0b5d7b04d1dce6fd", art: "3df8871be0a36cc1" },
+  augtober: { copy: "ed0931530625e1ae", art: "8148ec94da82c4b5" },
   beach: { copy: "bc2e671d898c25b0", art: "10af9b34c86feb0b" },
   best: { copy: "2bc35a61dc8196e8", art: "b43ed06222224c16" },
   // v8.33 — the featured-creator rail. Pixels opened and read before pinning:
