@@ -212,8 +212,12 @@ ok(/<p style=\{S\.p\}>\{pick\.blurb\}<\/p>/.test(guideCode),
   "occasion/deal copy stays in the article body ({pick.blurb})");
 
 const railCode = code("app/components/DaypartRail.js");
-ok(/editorial=\{toHookLine\(hooks\[p\.id\], p\.name\)\s*\|\|\s*null\}/.test(railCode),
-  "DaypartRail card editorial is the sourced hook or nothing");
+// v8.66 — the chef and augtober drops carry their OWN sourced editorial
+// (Ron's whyWorthTheTrip testimony; the owner-verified fall take), so the
+// expression branches: those two drops read p.hook, every other drop keeps
+// the sourced toHookLine or nothing. Occasion copy stays banned either way.
+ok(/editorial=\{\(selected === "chef" \|\| selected === "augtober"\) \? \(p\.hook \|\| null\) : \(toHookLine\(hooks\[p\.id\], p\.name\) \|\| null\)\}/.test(railCode),
+  "DaypartRail card editorial is the sourced hook (or the curated drops' own sourced line) or nothing");
 ok(!/\|\|\s*p\.summerWhy/.test(railCode) && !/\|\|\s*p\.birthdayWhy/.test(railCode),
   "DaypartRail does not fall back to summerWhy/birthdayWhy as the card hook");
 

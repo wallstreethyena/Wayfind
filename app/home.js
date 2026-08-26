@@ -9991,11 +9991,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   <button onClick={() => { setA2hs(false); try { localStorage.setItem("wf_a2hs_dismissed", "1"); logEvent("a2hs_dismiss"); } catch (e) {} }} aria-label="Dismiss" style={{ flexShrink: 0, width: 30, height: 30, background: "transparent", border: "none", color: C.muted, fontSize: 16, cursor: "pointer" }}>✕</button>
                 </div>
               )}
-              {/* AUGTOBER on the LANDING feed too (owner: "right on the page") — the
-                  browse mount below only exists once a menu is open, which left the
-                  default view, the first thing every visitor sees, without the rail.
-                  Gated !browseCat so a browse never renders it twice. */}
-              {!browseCat && <AugtoberRail onOpenPlace={openDetail} />}
               {/* v6.22: when a category is being browsed from the mood menu, the feed under the weather becomes that category's ranked places. No navigation, the same PlaceCard used everywhere else. */}
               {browseCat && (
                 <div ref={browseAnchorRef} style={{ marginBottom: 16 }}>
@@ -10008,7 +10003,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                       list (wf_things_to_do) — the stacked Viator rail + Bookable
                       Experiences chips are gone from this page; tours interleave and
                       earn their rank. Family keeps its bookable rail. */}
-                  {<AugtoberRail onOpenPlace={openDetail} />}
                   {browseCat === "family" && center && <UnifiedBrowseCommerceRail cat="family" sub="all" initialExperiences={browseTours} categories={["attractions"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {browseCat === "attractions" && center && <UnifiedBrowseCommerceRail cat="attractions" sub={sub} includeExperiences={!!(sub && sub !== "all")} categories={["attractions", "more"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {browseCat === "hotels" && center && view.length > 0 && <UnifiedBrowseCommerceRail cat="hotels" sub="all" categories={["stays"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
@@ -10023,7 +10017,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                       Each passes its OWN category so the chip map cannot cross-resolve — "all"
                       exists in all seven categories and "family" is both a sub-chip and a
                       category. Ranking is unchanged: rankExperiences, highest score first. */}
-                  {browseCat === "food" && <ChefPicksRail onOpen={openDetail} />}
                   {browseCat === "food" && center && <UnifiedBrowseCommerceRail cat="food" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {browseCat === "nightlife" && center && <UnifiedBrowseCommerceRail cat="nightlife" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {browseCat === "shopping" && center && view.length > 0 && <UnifiedBrowseCommerceRail cat="shopping" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
@@ -11024,144 +11017,6 @@ function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includ
 // check-unified-commerce-rail already forbade mounting it) — same 200px card, same
 // <img> height 86 object-fit cover, same title clamp, same disclosure footer —
 // the two rails should read as one visual system, not two different eras of UI.
-// v8.64 (owner, 2026-08-26: "make sure chef ron duprat top 7 choices is in the
-// rail card... make sure the style is the same of the rail cards... keep Ron's
-// order exactly as given"). The chef's seven as a RAIL, in the same 200px tile
-// chrome as UnifiedBrowseCommerceRail / UTDealsRail (one visual system, not
-// two eras of UI): same flex-basis 200 card, same 86px cover image band, same
-// corner chip, same two-line title clamp, same PlaceScoreChip row. Differences
-// are the point, not drift: tiles open OUR place detail (no external href, no
-// commerce, so no affiliate disclosure line), the corner chip reads "Ron's #N"
-// instead of "via {merchant}", and the order is HIS — rank is testimony
-// (lib/chefPicks.js law) and on this surface it is also the sort. A tile whose
-// place photo cannot load falls back to the campaign art rather than hiding —
-// a chef's pick does not disappear because a photo budget ran dry.
-// v8.65 (owner, 2026-08-26): AUGTOBER — "all the fall themed bars,
-// restaurants, cafes, events, pumpkins, anything that is fall themed and
-// Halloween … in this rail card, and I don't want it to open an additional
-// page. It should just pop up with the place cards … right on the page, and
-// then make the page move to the place cards."
-//
-// Same 200px/86px tile chrome as the other rails. Tapping ANY tile (or See
-// all) never navigates: it expands an inline section of full-width house
-// cards (RailCard — the .wf-place-card contract) directly below the rail and
-// scrolls the page to it. Events wear the WHEN badge (their one real
-// number); year-round spooky places wear the Wayfind Score and open the
-// normal place detail sheet. Pool + laws live in lib/fallPool.js via
-// /api/events/fall — owned data only, no metered calls.
-function AugtoberRail({ onOpenPlace }) {
-  const [pool, setPool] = useState(null);
-  const [open, setOpen] = useState(false);
-  const listRef = useRef(null);
-  useEffect(() => {
-    let dead = false;
-    fetch("/api/events/fall").then((r) => (r.ok ? r.json() : null), () => null).then((j) => { if (!dead) setPool(j); });
-    return () => { dead = true; };
-  }, []);
-  const events = (pool && pool.events) || [];
-  const places = (pool && pool.places) || [];
-  if (!pool || events.length + places.length < 3) return null; // rail floor — never a stub shelf
-  const expand = () => {
-    setOpen(true);
-    try { logEventAnon("augtober_open", null, { n: events.length + places.length }); } catch (e) {}
-    setTimeout(() => { try { listRef.current && listRef.current.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" }); } catch (e) {} }, 60);
-  };
-  const scoreOf = (p) => { const s = displayedWfScore({ wfScore: p.wfScore, rating: p.rating, reviews: p.reviews }); return toDisplayScore(s != null ? s : p.wfScore); };
-  return (
-    <aside data-augtober-rail style={{ margin: "2px 0 14px" }}>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
-        <span style={{ fontSize: 12, fontWeight: 800, color: "#FB923C", textTransform: "uppercase", letterSpacing: ".4px" }}>Augtober — fall &amp; Halloween near you</span>
-        <button type="button" onClick={open ? () => setOpen(false) : expand} style={{ background: "none", border: 0, padding: 0, cursor: "pointer", fontSize: 11, fontWeight: 800, color: C.accent }}>{open ? "Close" : "See all ↓"}</button>
-      </div>
-      <div style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 4, scrollSnapType: "x proximity" }}>
-        {events.slice(0, 14).map((e) => (
-          <button key={e.id} type="button" onClick={expand} aria-label={e.title + " — " + (e.when && e.when.label)} style={{ flex: "0 0 200px", scrollSnapAlign: "start", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textAlign: "left", padding: 0, cursor: "pointer", color: "inherit", font: "inherit" }}>
-            <div style={{ position: "relative", height: 86, overflow: "hidden", borderBottom: `1px solid ${C.border}`, background: "#131A26" }}>
-              {e.image ? <img src={e.image} alt="" loading="lazy" onError={(ev) => { ev.currentTarget.style.display = "none"; }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : null}
-              <span style={{ position: "absolute", top: 7, right: 7, padding: "3px 7px", borderRadius: 999, background: "rgba(7,12,20,.82)", border: "1px solid rgba(251,146,60,.5)", color: "#FDBA74", fontSize: 8.5, fontWeight: 800 }}>{(e.when && e.when.label) || "Seasonal"}</span>
-            </div>
-            <div style={{ padding: "8px 10px" }}>
-              <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.title}</div>
-              <div style={{ marginTop: 4, fontSize: 11, color: C.muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{[e.city, e.is_free ? "Free" : e.price_band].filter(Boolean).join(" · ")}</div>
-            </div>
-          </button>
-        ))}
-      </div>
-      {open ? (
-        <div ref={listRef} style={{ scrollMarginTop: 96, marginTop: 12 }}>
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
-            <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>Fall plans, in full</span>
-            <button type="button" onClick={() => setOpen(false)} style={{ background: "none", border: 0, padding: 0, cursor: "pointer", fontSize: 11, fontWeight: 800, color: C.muted }}>✕ Close</button>
-          </div>
-          {events.map((e) => (
-            <RailCard key={"ev-" + e.id}
-              title={e.title}
-              eyebrow="Augtober"
-              photo={e.image || ""}
-              when={{ label: (e.when && e.when.label) || "Seasonal", value: e.city || "", tone: (e.when && e.when.tone) || "later" }}
-              facts={[e.venue && e.venue !== e.title ? e.venue : null, e.city, e.is_free ? "Free" : e.price_band].filter(Boolean)}
-              take={e.hook}
-              href={e.url || undefined}
-              external
-              ariaLabel={e.title}
-              className="wf-augtober-card"
-            />
-          ))}
-          {places.length ? (
-            <div style={{ margin: "6px 0 8px", fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>Spooky all year</div>
-          ) : null}
-          {places.map((p) => (
-            <RailCard key={"pl-" + p.id}
-              title={p.title}
-              eyebrow={p.category === "food" ? "Food" : "Activities"}
-              photo={p.image || ""}
-              score={scoreOf(p)}
-              facts={[p.metro ? String(p.metro).replace(/-/g, " ") : null].filter(Boolean)}
-              take={p.take}
-              onOpen={() => { try { logEventAnon("augtober_place_open", { id: p.id, name: p.name }, {}); } catch (e) {} onOpenPlace && onOpenPlace({ id: p.id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating, reviews: p.reviews, wfScore: p.wfScore, photo: p.image, types: [], hook: p.take }); }}
-              place={{ id: p.id, name: p.name }}
-              ariaLabel={p.title}
-              className="wf-augtober-card"
-            />
-          ))}
-        </div>
-      ) : null}
-    </aside>
-  );
-}
-
-function ChefPicksRail({ onOpen }) {
-  const c = RON_DUPRAT_TOP7;
-  const places = chefPickPlaces(c);
-  if (!places.length) return null; // chefPicksReady gate — no partial list, ever
-  return (
-    <aside data-chef-picks-rail style={{ margin: "2px 0 14px" }}>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
-        <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>{c.title}</span>
-        <span style={{ fontSize: 9.5, color: C.muted }}>Chef-approved dining picks</span>
-      </div>
-      <div style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 4, scrollSnapType: "x proximity" }}>
-        {places.map((p) => (
-          <button key={p.id} type="button" onClick={() => { try { logEventAnon("chef_rail_open", p, { chef: c.key, rank: p._chefRank }); } catch (e) {} onOpen && onOpen(p); }} aria-label={"Ron's #" + p._chefRank + ": " + p.name} style={{ flex: "0 0 200px", scrollSnapAlign: "start", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textAlign: "left", padding: 0, cursor: "pointer", color: "inherit", font: "inherit" }}>
-            <div style={{ position: "relative", height: 86, overflow: "hidden", borderBottom: `1px solid ${C.border}` }}>
-              <img src={"/api/photo?place=" + encodeURIComponent(p.id) + "&w=400"} alt="" loading="lazy" onError={(e) => { if (e.currentTarget.src.indexOf(c.heroImage) === -1) e.currentTarget.src = c.heroImage; }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-              <span style={{ position: "absolute", top: 7, right: 7, padding: "3px 7px", borderRadius: 999, background: "rgba(7,12,20,.82)", border: "1px solid rgba(255,255,255,.24)", color: "#fff", fontSize: 8.5, fontWeight: 800 }}>Ron's #{p._chefRank}</span>
-            </div>
-            <div style={{ padding: "8px 10px" }}>
-              <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{p.name}</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 4, flexWrap: "wrap" }}>
-                {p.rating > 0 && p.reviews > 0 ? <PlaceScoreChip p={{ rating: p.rating, reviews: p.reviews }} size={12} /> : null}
-                <span style={{ fontSize: 11, fontWeight: 500, color: C.muted }}>{p.area}</span>
-              </div>
-            </div>
-          </button>
-        ))}
-      </div>
-      <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Picked by {c.chef.name}, {c.chef.credential} — shown in his order, never reranked.</div>
-    </aside>
-  );
-}
-
 function UTDealsRail({ category, onSave, lat, lng, onLog = NOLOG }) {
   const [rails, setRails] = useState(null);
   useEffect(() => {

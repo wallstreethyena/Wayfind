@@ -15,7 +15,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { isFallTagged, fallEventLive, fallWhenLabel, FALL_PLACE_IDS, OPEN_RUN_DAYS } from "../lib/fallPool.js";
+import { isFallTagged, fallEventLive, fallWhenLabel, fallSkinLive, FALL_PLACE_IDS, OPEN_RUN_DAYS } from "../lib/fallPool.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 let pass = 0, fail = 0;
@@ -50,30 +50,40 @@ ok(!ids.includes("ChIJ6SYy9bEWw4gRgJT7j78eTYc"), "'Screaming Buddha Yoga' is a y
 ok(ids.every((i) => /^ChIJ[A-Za-z0-9_-]{10,}$/.test(i)), "every pool entry is a real canonical place id");
 ok(Object.values(FALL_PLACE_IDS).every((v) => typeof v === "string" && v.length > 20), "every pool entry carries its one-line why");
 
-// ── 3. The wiring, in syntactic position ───────────────────────────────────
+// ── 3. The wiring, in syntactic position — v8.66: the AUGTOBER surface is a
+// DAYPART TILE whose tap opens the standard pop-down drop (owner: "remove
+// these from the menu i want them to pop down like we have for the amazon
+// rail card in the main page"). The v8.65 mid-feed AugtoberRail is GONE. ────
 const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
 const home = strip(readFileSync(path.join(ROOT, "app/home.js"), "utf8"));
-const at = home.indexOf("function AugtoberRail(");
-ok(at > -1, "AugtoberRail is declared");
-const body = home.slice(at, at + 14000);
-ok(/fetch\("\/api\/events\/fall"\)/.test(body), "the rail reads the owned fall pool API");
-ok(/flex: "0 0 200px"/.test(body) && /height: 86/.test(body), "tiles wear the shared rail chrome (200px / 86px image band)");
-// THE OWNER'S RULE: a tile tap expands in place. No hrefs, no navigation.
-const _ti = body.indexOf("events.slice(0, 14).map");
-const _te = body.indexOf("{open ? (", _ti);
-ok(_ti > -1 && _te > _ti, "positive control: the tile zone is locatable");
-const tileZone = body.slice(_ti, _te);
-ok(/onClick=\{expand\}/.test(tileZone), "tapping a tile EXPANDS inline");
-ok(!/href=|location\.|router\.|window\.open/.test(tileZone), "a tile tap never navigates anywhere");
-ok(/scrollIntoView/.test(body), "expanding moves the page to the cards");
-ok(/<RailCard/.test(body), "the inline section renders the house card contract (RailCard)");
-ok(/when=\{\{ label/.test(body), "event cards wear the WHEN badge — an event never gets a fabricated score");
-ok(/score=\{scoreOf\(p\)\}/.test(body), "place cards wear the real Wayfind Score");
-const mounts = (home.match(/<AugtoberRail onOpenPlace=\{openDetail\} \/>/g) || []).length;
-ok(mounts === 2, `the rail is mounted EXACTLY twice — landing feed + browse feed (got ${mounts}); the landing mount is what every visitor sees first`);
-ok(/\{!browseCat && <AugtoberRail onOpenPlace=\{openDetail\} \/>\}/.test(home), "the landing mount is gated !browseCat so a browse never renders the rail twice");
-// events.length + places.length < 3 → null: the rail floor
-ok(/events\.length \+ places\.length < 3\) return null/.test(body), "a thin pool renders nothing — never a stub shelf");
+ok(home.indexOf("function AugtoberRail(") === -1 && home.indexOf("<AugtoberRail") === -1,
+  "the mid-feed AugtoberRail is fully removed from home.js (the strip tile replaces it)");
+const railsSrc = readFileSync(path.join(ROOT, "lib/rails.js"), "utf8");
+const augRow = (railsSrc.match(/\{ id: "augtober",[\s\S]*?\},/) || [""])[0];
+ok(/art: "augtober"/.test(augRow), "the augtober rail entry exists and wears the owner's poster art");
+ok(!/href:/.test(augRow), "the augtober tile carries NO href — a tap opens the drop, never a page");
+const daySrc = readFileSync(path.join(ROOT, "lib/dayparts.js"), "utf8");
+ok((daySrc.match(/order: \[[^\]]*'augtober'[^\]]*\]/g) || []).length === 4, "the augtober tile rides all four daypart bands");
+const rail = strip(readFileSync(path.join(ROOT, "app/components/DaypartRail.js"), "utf8"));
+ok(/selected !== "augtober" \|\| fallPool\) return undefined;/.test(rail), "the drop fetches the owned fall pool only when opened, once");
+ok(/fetch\("\/api\/events\/fall"\)/.test(rail), "…and it reads /api/events/fall, the one pool API");
+const _ti = rail.indexOf('selRail.id === "augtober" && fallPool');
+ok(_ti > -1, "positive control: the augtober drop block is locatable");
+const evZone = rail.slice(_ti, _ti + 2600);
+ok(/\(e\.when && e\.when\.label\) \|\| "Seasonal"/.test(evZone), "event tiles wear the WHEN badge — an event never gets a fabricated score");
+ok(/target="_blank" rel="noreferrer"/.test(evZone), "an event tile links to the official page with noreferrer");
+ok(/if \(selected === "augtober"\)/.test(rail) && /photo: p\.image \|\| null/.test(rail),
+  "the drop's place cards come from the vetted fall pool, mapped onto the house card contract");
+ok(/selRail\.id !== "augtober"/.test(rail), "the drop header does not double-claim 'near <city>' over the title's own 'Near You'");
+// ── 3b. The seasonal skin: a DATE LAW, executed ────────────────────────────
+ok(fallSkinLive("2026-10-31") === true, "the fall skin is live on Halloween");
+ok(fallSkinLive("2026-11-01") === true, "…and through HHN's final night");
+ok(fallSkinLive("2026-11-02") === false, "…and GONE the morning after — the transition to Christmas needs no one's memory");
+ok(fallSkinLive(null) === false, "no site date, no skin — never a guess");
+ok(/fallSkin \? " wf-fall" : ""/.test(rail) || /fallSkin \? "wf-fall" : undefined/.test(rail),
+  "the skin class is gated by fallSkinLive, in syntactic position");
+const css = readFileSync(path.join(ROOT, "app/components/css.js"), "utf8");
+ok(/\.wf-fall \.wf-place-card\{background:linear-gradient/.test(css), "the fall card skin exists in css.js and scopes ONLY under .wf-fall — no fall paint outside the fall drop");
 
 // route file structural
 const route = strip(readFileSync(path.join(ROOT, "app/api/events/fall/route.js"), "utf8"));

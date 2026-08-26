@@ -66,30 +66,29 @@ ok(C.eyebrow === "Curated by a Top Chef", "eyebrow is the locked owner copy");
   ok(readFileSync(hero).length > 10000, "the hero art ships with the card");
 }
 
-// ── 5. THE RAIL (v8.64, owner 2026-08-26: "in the rail card... same style...
-//       keep Ron's order exactly as given") ────────────────────────────────
+// ── 5. THE TILE + DROP (v8.66, owner 2026-08-26: "i asked for it to be
+//       placed on [the daypart poster strip] with its own rail card … pop
+//       down like we have for the amazon rail card"). The v8.64 mid-feed
+//       ChefPicksRail is GONE from home.js by the same directive — the chef
+//       surface is now a daypart tile whose tap opens the standard pop-down
+//       drop of house place cards, in HIS order. ─────────────────────────────
 {
   const home = readFileSync(path.join(REPO, "app/home.js"), "utf8");
-  const at = home.indexOf("function ChefPicksRail(");
-  ok(at > -1, "ChefPicksRail is declared");
-  const body = home.slice(at, at + 3600);
-  // Same tile chrome as the commerce rails — the constants that ARE the style.
-  ok(/flex: "0 0 200px"/.test(body), "rail tile is the shared 200px card");
-  ok(/height: 86/.test(body), "rail tile has the shared 86px image band");
-  ok(/scrollSnapType: "x proximity"/.test(body), "rail scrolls with the shared snap");
-  // HIS order: the rail maps chefPickPlaces() output directly — the function
-  // section 2 already proves preserves entry order — with no sort in between.
-  ok(/const places = chefPickPlaces\(c\);/.test(body) && !/places\s*\.\s*sort|\.sort\(/.test(body),
-    "the rail renders chefPickPlaces verbatim — no sort touches Ron's order");
-  ok(/Ron's #\{p\._chefRank\}/.test(body), "each tile wears Ron's own rank");
-  // Picks, not paid placements: nothing commercial may enter this rail.
-  ok(!/commerceHref|viator|sponsored|href=/.test(body.replace(/\/\* [\s\S]*?\*\//g, "")),
-    "no affiliate/commerce href inside the chef rail — testimony is never monetized inline");
-  ok(/onError=\{\(e\) => \{ if \(e\.currentTarget\.src\.indexOf\(c\.heroImage\)/.test(body),
-    "a dead place photo falls back to the campaign art — a pick never hides");
-  // Mounted on the Food browse.
-  ok(/browseCat === "food" && <ChefPicksRail onOpen=\{openDetail\} \/>/.test(home),
-    "the rail mounts on the Food browse and opens OUR place detail");
+  ok(home.indexOf("function ChefPicksRail(") === -1 && home.indexOf("<ChefPicksRail") === -1,
+    "the mid-feed ChefPicksRail is fully removed from home.js (owner: the strip tile replaces it)");
+  const rails = readFileSync(path.join(REPO, "lib/rails.js"), "utf8");
+  const chefRow = (rails.match(/\{ id: "chef",[\s\S]*?\},/) || [""])[0];
+  ok(/art: "chef"/.test(chefRow), "the chef rail entry exists and wears the owner's poster art");
+  ok(!/href:/.test(chefRow), "the chef tile carries NO href — it is a button, a tap never navigates");
+  const day = readFileSync(path.join(REPO, "lib/dayparts.js"), "utf8");
+  ok((day.match(/order: \[[^\]]*'chef'[^\]]*\]/g) || []).length === 4, "the chef tile rides all four daypart bands");
+  const rail = readFileSync(path.join(REPO, "app/components/DaypartRail.js"), "utf8");
+  ok(/chefPickPlaces\(RON_DUPRAT_TOP7\)\.map\(/.test(rail) && !/chefPlaces\s*\.\s*sort/.test(rail),
+    "the drop renders chefPickPlaces verbatim — no sort touches Ron's order");
+  ok(/if \(selected === "chef"\) return chefPlaces;/.test(rail), "the chef drop serves HIS list, not the ranked pools");
+  ok(/selRail\.id !== "chef"/.test(rail), 'the drop header never claims "near <city>" for a list that spans states by design');
+  const art = readFileSync(path.join(REPO, "public/cards-v8/chef-760.jpg"));
+  ok(art.length > 10000, "the owner's chef poster tile ships (cards-v8/chef-760.jpg)");
 }
 
 console.log(`check-chef-picks: OK — ${pass} assertions${n === 0 ? " (list not yet supplied — card correctly dark)" : ""}`);

@@ -61,6 +61,16 @@ const ExplodingNearby = dynamic(() => import("./ExplodingNearby"), { ssr: false 
 import { DAYPARTS, partForHour, orderFor, railHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES } from "../../lib/rails.js";
+// v8.66 (owner, 2026-08-26): the chef and augtober tiles open the SAME
+// pop-down drop as every other rail — the mid-feed rails they replace are
+// gone from home.js. Chef's list is static testimony (HIS order, never
+// reranked, no distance gate — Le Bernardin is in New York and that is the
+// point); augtober's pool comes from /api/events/fall, fetched only when its
+// drop opens. fallSkinLive gates the fall card skin: it retires the day
+// after Halloween as the season hands over to Christmas.
+import { RON_DUPRAT_TOP7, chefPickPlaces } from "../../lib/chefPicks.js";
+import { fallSkinLive } from "../../lib/fallPool.js";
+import { siteTodayStr } from "../../lib/siteTime.js";
 // `cityLabel` is aliased because this component already takes a prop by that
 // name. The import is the LAW (never "you", never "your area"); the prop is a
 // string the caller handed down.
@@ -625,6 +635,34 @@ export default function DaypartRail({
     () => (memberSig && applyMemberSignal ? applyMemberSignal(_selRaw, memberSig) : _selRaw),
     [applyMemberSignal, memberSig, _selRaw]
   );
+  // v8.66 — the two curated drops. Chef: static testimony in HIS order (the
+  // shape IconicPlaceCard reads; `photo` self-heals once refs are harvested).
+  // Augtober: the owned fall pool, fetched once per session when its drop
+  // first opens; events render above the place cards, both wear the fall skin
+  // while the season lasts (fallSkinLive — gone after Halloween).
+  const chefPlaces = useMemo(() => chefPickPlaces(RON_DUPRAT_TOP7).map((e) => ({
+    id: e.id, name: e.name, city: e.area, lat: e.lat, lng: e.lng,
+    rating: e.rating, reviews: e.reviews, types: [], hook: e.hook, _chefRank: e._chefRank,
+  })), []);
+  const [fallPool, setFallPool] = useState(null);
+  useEffect(() => {
+    if (selected !== "augtober" || fallPool) return undefined;
+    let dead = false;
+    fetch("/api/events/fall").then((r) => (r.ok ? r.json() : null), () => null)
+      .then((j) => { if (!dead) setFallPool(j || { events: [], places: [] }); });
+    return () => { dead = true; };
+  }, [selected, fallPool]);
+  const fallSkin = fallSkinLive(siteTodayStr());
+  const dropList = useMemo(() => {
+    if (selected === "chef") return chefPlaces;
+    if (selected === "augtober") {
+      return ((fallPool && fallPool.places) || []).map((p) => ({
+        id: p.id, name: p.name, city: (p.metro || "").replace(/-/g, " "), lat: p.lat, lng: p.lng,
+        rating: p.rating, reviews: p.reviews, types: [], photo: p.image || null, hook: p.take || null,
+      }));
+    }
+    return selPlaces;
+  }, [selected, chefPlaces, fallPool, selPlaces]);
   // Resolves ONLY the open drop's places (empty list while closed, so the
   // closed menu costs zero requests). Fail-soft: no hook, no line, no loss.
   const hooks = useEditorialHooks(selPlaces);
@@ -788,7 +826,7 @@ export default function DaypartRail({
       <section className="wf8-menusec" ref={menuRef} aria-label={selRail ? `${selRail.title} — picks` : "Picks"} aria-hidden={!selected}>
         <div className="wf8-in">
           <div className="wf8-mbar">
-            <p className="wf8-mhd">Showing <b>{selRail ? selRail.title : ""}</b>{selRail && !selRail.guides ? near : ""}</p>
+            <p className="wf8-mhd">Showing <b>{selRail ? selRail.title : ""}</b>{selRail && !selRail.guides && selRail.id !== "chef" && selRail.id !== "augtober" ? near : ""}</p>
             <button type="button" className="wf8-mclose" onClick={close}>✕ Close</button>
           </div>
 
@@ -819,6 +857,30 @@ export default function DaypartRail({
               onDislike={onDislike || undefined}
             />
           ) : null}
+          {/* v8.66 — the AUGTOBER drop leads with its dated events (WHEN
+              badge, never a fabricated score), the vetted fall places follow
+              as house cards below. Tiles are real links to the official event
+              page. The wf-fall class is the seasonal skin — it disappears
+              after Halloween (fallSkinLive), not by anyone remembering. */}
+          {selRail && selRail.id === "augtober" && fallPool && (fallPool.events || []).length ? (
+            <div className={fallSkin ? "wf-fall" : undefined} style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 10, marginBottom: 12 }} aria-label="Fall and Halloween events">
+              {(fallPool.events || []).slice(0, 20).map((e) => (
+                <a key={e.id} href={e.url || undefined} target="_blank" rel="noreferrer" aria-label={(e.title || e.name) + (e.when && e.when.label ? " — " + e.when.label : "")}
+                  onClick={() => logEvent("augtober_event_open", { id: e.id, name: e.name })}
+                  className="wf8-falltile"
+                  style={{ flex: "0 0 200px", background: "var(--wf-card,#131A26)", border: "1px solid rgba(148,163,184,.18)", borderRadius: 14, overflow: "hidden", textDecoration: "none", color: "inherit" }}>
+                  <div style={{ position: "relative", height: 86, overflow: "hidden", borderBottom: "1px solid rgba(148,163,184,.18)", background: "#131A26" }}>
+                    {e.image ? <img src={e.image} alt="" loading="lazy" onError={(ev) => { ev.currentTarget.style.display = "none"; }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : null}
+                    <span style={{ position: "absolute", top: 7, right: 7, padding: "3px 7px", borderRadius: 999, background: "rgba(7,12,20,.82)", border: "1px solid rgba(251,146,60,.5)", color: "#FDBA74", fontSize: 8.5, fontWeight: 800 }}>{(e.when && e.when.label) || "Seasonal"}</span>
+                  </div>
+                  <div style={{ padding: "8px 10px 10px" }}>
+                    <div style={{ fontSize: 13.5, fontWeight: 800, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{e.title || e.name}</div>
+                    <div style={{ fontSize: 11.5, opacity: 0.75, marginTop: 2 }}>{e.city}{e.price_band ? " · " + e.price_band : ""}</div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          ) : null}
           {selRail && selRail.guides ? (
             <ul className="wf8-grail" aria-label="Local guides">
               {guides.map((g, i) => (
@@ -841,10 +903,10 @@ export default function DaypartRail({
                 </a>
               </li>
             </ul>
-          ) : selRail && selPlaces.length ? (
-            <div className="wf8-pcwrap">
+          ) : selRail && dropList.length ? (
+            <div className={"wf8-pcwrap" + (selected === "augtober" && fallSkin ? " wf-fall" : "")}>
               <ul className="wf8-pcrail" ref={pcRef}>
-                {selPlaces.map((p, i) => (
+                {dropList.map((p, i) => (
                   <IconicPlaceCard
                     key={p.id}
                     place={p}
@@ -856,7 +918,7 @@ export default function DaypartRail({
                     // fields (summerWhy, birthdayWhy) stay off the card —
                     // they are page/rail copy, not a place hook. No sourced
                     // why → empty slot, never a deal or registry promo.
-                    editorial={toHookLine(hooks[p.id], p.name) || null}
+                    editorial={(selected === "chef" || selected === "augtober") ? (p.hook || null) : (toHookLine(hooks[p.id], p.name) || null)}
                     badge={beachChip(p)}
                     saved={isSaved ? isSaved(p.id) : false}
                     // v8.29.6 — ONE set of these, reading whichever shape the
@@ -892,7 +954,7 @@ export default function DaypartRail({
               <button type="button" className="wf8-pnav r" aria-label="More places" disabled={pcEnds.atEnd}
                 onClick={() => { scrollBy(pcRef, 1); syncPc(); }}><Chevron dir="r" /></button>
             </div>
-          ) : selRail && isPending(railLoad) ? (
+          ) : selRail && (isPending(railLoad) || (selRail.id === "augtober" && !fallPool)) ? (
             /* v8.46 — THE ONLY PLACE A SKELETON MAY RENDER. It is gated on an
                explicit in-flight flag that lib/loadState.js guarantees will be
                overwritten within 12s, by data or by LOAD_FAILED. It is no
