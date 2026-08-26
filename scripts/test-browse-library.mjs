@@ -260,6 +260,17 @@ ok(!/from ["'].*chipIdentity/.test(SRC_SOURCES),
   "sources.js must not import chipIdentity — that graph is homepage JS and the 496KB ratchet");
 ok(!/\bmc=\{browseCat\}/.test(HOME) && !/\bmc === "family"/.test(HOME),
   "home.js must not grow a Family eyebrow table — that 0.2KB is why CI hit 496.2; identity is server-side");
+const EXPLODING = readFileSync(new URL("../lib/explodingNearby.js", import.meta.url), "utf8")
+  .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
+ok(!/from ["'].*inventoryServe/.test(EXPLODING),
+  "explodingNearby must not import inventoryServe — that pulled chipIdentity into the homepage chunk (CI 496.2)");
+ok(!/from ["'].*chipIdentity/.test(EXPLODING),
+  "explodingNearby must not import chipIdentity");
+const INV_HEAD = SRC.slice(0, SRC.indexOf("export async function serveFromInventory"));
+ok(!/from ["'].*chipIdentity/.test(INV_HEAD) && !/from ["'].*browseInventory/.test(INV_HEAD),
+  "inventoryServe must not statically import chipIdentity or browseInventory — homepage-reachable until Exploding dropped it");
+ok(/await import\(["']\.\/chipIdentity\.js["']\)/.test(SRC),
+  "serveFromInventory lazy-loads chipIdentity so a client import of this file cannot ship the identity tables");
 
 // ── 8. Family chips cannot share a ranked list (live smoke 2026-08-26) ─────
 // Trust smoked aa17e8ab at 12:50 AM ET: Family → Toddlers, Kids, and Rainy
