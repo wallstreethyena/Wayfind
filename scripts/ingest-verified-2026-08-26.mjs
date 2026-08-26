@@ -234,6 +234,26 @@ if (staged.length) {
   report.created = staged.map((s) => ({ name: s.row.name, place_id: s.row.place_id, metro: s.row.metro, category: s.row.category }));
   console.log(`  ✓ upserted ${staged.length} place rows`);
 }
+// wf_place_ids index — the allowlist gate for the canonical /places/[id] page
+// (app/places/[id]/page.js: an id NOT in this index calls notFound() before any
+// Google call). Without this, the batch exists in the library but every one of
+// its canonical pages 404s — QA proved exactly that on the first run. Same
+// skeleton + merge-duplicates shape as lib/serverCache.upsertPlaceIds.
+{
+  const seen = new Date(Date.now()).toISOString();
+  const ALL_BATCH_IDS = [...staged.map((s) => s.row.place_id), ...EDITORIAL_ONLY.map((p) => p.place_id)];
+  const invRows = await fetch(`${URL_}/rest/v1/wf_inventory?place_id=in.(${ALL_BATCH_IDS.map((i) => `"${i}"`).join(",")})&select=place_id,name,lat,lng,category,signals`, { headers: H }).then((r) => r.json());
+  if (!Array.isArray(invRows) || invRows.length !== ALL_BATCH_IDS.length) {
+    console.error(`index upsert aborted: expected ${ALL_BATCH_IDS.length} inventory rows to mirror, got ${Array.isArray(invRows) ? invRows.length : "error"}`);
+    process.exit(1);
+  }
+  const idx = await fetch(`${URL_}/rest/v1/wf_place_ids`, {
+    method: "POST", headers: { ...H, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" },
+    body: JSON.stringify(invRows.map((r) => ({ place_id: r.place_id, name: r.name, lat: r.lat, lng: r.lng, category: r.category, signals: r.signals, seen_at: seen }))),
+  });
+  if (!idx.ok) { console.error(`wf_place_ids upsert failed ${idx.status}: ${(await idx.text()).slice(0, 300)}`); process.exit(1); }
+  console.log(`  ✓ wf_place_ids index: ${invRows.length} ids mirrored — canonical /places pages can serve the batch`);
+}
 // editorial patches (existing canonical rows — Café Rialto stays ONE row)
 for (const p of EDITORIAL_ONLY) {
   const prev = await fetch(`${URL_}/rest/v1/wf_inventory?place_id=eq.${encodeURIComponent(p.place_id)}&select=editorial`, { headers: H }).then((r) => r.json());

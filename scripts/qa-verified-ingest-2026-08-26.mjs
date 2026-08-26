@@ -53,10 +53,17 @@ for (const p of PLACES) {
   ok(typeof row.editorial === "string" && row.editorial.startsWith(p.edStart), `${p.name}: the SUPPLIED editorial sits on THIS entity`);
   ok(row.source === "owner-verified" && !!row.last_verified_at, `${p.name}: provenance (source=owner-verified) + verification timestamp stored`);
   ok(row.signals && typeof row.signals.rating === "number" && row.signals.rating > 0, `${p.name}: rating signal present — the card law can render it`);
+  // The wf_place_ids allowlist row — the gate the canonical page checks. Missing
+  // index row = 404 with a perfect inventory row (the first QA run's exact failure).
+  const idxRow = await rows("wf_place_ids", `place_id=eq.${encodeURIComponent(row.place_id)}&select=place_id`);
+  ok(Array.isArray(idxRow) && idxRow.length === 1, `${p.name}: wf_place_ids index row present (the /places gate)`);
   // The canonical Wayfind place route serves this entity (acceptance #1/#7).
-  const page = await fetch(`${SITE}/p/${encodeURIComponent(row.place_id)}`, { redirect: "follow" }).then((x) => x.ok ? x.text() : null).catch(() => null);
+  // /places/[id] is the indexable per-place page, gated by the wf_place_ids
+  // allowlist (app/places/[id]/page.js) — NOT /p/[id], which is the share shell
+  // whose title comes from the ?t= query param, so its body proves nothing.
+  const page = await fetch(`${SITE}/places/${encodeURIComponent(row.place_id)}`, { redirect: "follow" }).then((x) => x.ok ? x.text() : null).catch(() => null);
   const nameCore = row.name.split(/[^A-Za-z0-9 ]/)[0].trim().slice(0, 18);
-  ok(!!page && page.includes(nameCore.slice(0, 12)), `${p.name}: /p/${row.place_id.slice(0, 10)}… serves the canonical card (body names the place)`);
+  ok(!!page && page.includes(nameCore.slice(0, 12)), `${p.name}: /places/${row.place_id.slice(0, 10)}… serves the canonical page (body names the place)`);
 }
 
 console.log("— multi-branch + holds —");
