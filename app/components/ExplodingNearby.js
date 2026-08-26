@@ -322,12 +322,11 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
   // Every match gated away is an honest empty state, not an error — unless
   // the walk is still running (v8.24 partial), in which case it is simply
   // still loading, not "nothing qualifies".
-  const rawStatus = result.status === "ok" && !gatedTrends.length ? (result.partial ? "loading" : "no_verified_inventory") : result.status;
+  const status = result.status === "ok" && !gatedTrends.length ? (result.partial ? "loading" : "no_verified_inventory") : result.status;
   // 502/503 / a dead Google walk are never the paint path while the owner
   // list still exists. explodingUiStatus is the law — execute it, do not
   // re-derive "temporarily unavailable" from a status string here.
-  const painted = explodingUiStatus({ status: rawStatus, trends: gatedTrends, error: result.error });
-  const status = painted.status;
+  const painted = explodingUiStatus({ status, trends: gatedTrends, error: result.error });
 
   const visibleIdKey = status === "ok"
     ? gatedTrends.flatMap((trend) => trend.matches || []).map((p) => p && p.id).filter(Boolean).join("|")
@@ -386,20 +385,20 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
   };
 
   if (!active) return null;
-  if (status === "loading") {
+  if (status === "loading" || painted.status === "loading") {
     return (
       <div role="status" aria-busy="true" aria-label="Finding verified trends near you" style={{ padding: "4px 0 8px" }}>
         {[0, 1, 2].map((i) => <div key={i} className="wf-sk" style={{ height: 224, borderRadius: 17, marginTop: i ? 16 : 0 }} />)}
       </div>
     );
   }
-  if (status === "unsupported_location") {
+  if (status === "unsupported_location" || painted.status === "unsupported_location") {
     return <div style={{ color: C.muted, fontSize: 13, lineHeight: 1.5, padding: "7px 2px 13px" }}>Exploding Trends Near You is not available in this area yet.</div>;
   }
-  if (status === "no_verified_inventory") {
+  if (painted.status === "no_verified_inventory") {
     return <div style={{ color: C.muted, fontSize: 13, lineHeight: 1.5, padding: "7px 2px 13px" }}>No trend has enough verified local inventory to recommend right now.</div>;
   }
-  if (status !== "ok" || !gatedTrends.length) {
+  if (painted.status !== "ok" || !gatedTrends.length) {
     return (
       <div role="alert" style={{ padding: "8px 2px 14px" }}>
         <div style={{ color: "#F8C6B8", fontSize: 13, lineHeight: 1.5 }}>{painted.error || UNAVAILABLE_COPY}</div>
