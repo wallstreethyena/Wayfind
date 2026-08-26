@@ -148,8 +148,12 @@ ok(foodLead && foodLead.id === "kekes",
 ok(browseChipUsesInventory("food", "cafes") === true, "Cafés chip uses owned inventory");
 ok(browseChipUsesInventory("food", "lunch") === true, "Lunch chip uses owned inventory");
 ok(browseChipUsesInventory("food", "breakfast") === true, "Breakfast chip uses owned inventory (it has a contract)");
-ok(browseChipUsesInventory("food", "dessert") === false,
-  "Desserts stays named debt — no SUB_ALLOW, so we must not dump unfiltered food into it");
+// v8.63 — the debt this line used to name is PAID: food:dessert has a real
+// SUB_ALLOW contract now (measured Google types; test-chip-contracts.mjs
+// executes the leaker/keeper verdicts), so the Desserts chip reads owned
+// inventory like Cafés and Lunch do.
+ok(browseChipUsesInventory("food", "dessert") === true,
+  "Desserts chip uses owned inventory — its v8.63 contract exists, so it must not fall back to the Google top-20");
 ok(browseChipUsesInventory("food", "dinner") === false, "Dinner stays named debt on the client — CHIP_IDENTITY is server-side so the 496KB ratchet holds");
 ok(browseChipUsesInventory("food", "quickbites") === false,
   "Quick bites stays named debt — no contract, so we must not dump unfiltered food into it");
