@@ -70,13 +70,19 @@ for (const id of ids) {
 /* ── 5. The page may only reach photos THROUGH the consent gate ──────────── */
 const PAGE = "app/florida-events/[slug]/page.js";
 const src = readFileSync(path.join(REPO, PAGE), "utf8");
-ok(/eventPhotos\(/.test(src), `${PAGE} must resolve photos through eventPhotos()`);
-ok(!/["'`]\/events\/[a-z0-9-]+\.(jpg|jpeg|png|webp)["'`]/i.test(src),
+// Comments stripped before every source assertion. A guard that can be FAILED
+// by its own rationale is a guard someone deletes - this file's first draft
+// tripped on the words window.location inside a note explaining why that must
+// never be used, the exact trap check-guide-share.mjs records hitting first.
+// Only whole-line // comments go, so an inline https:// in real code survives.
+const code = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+ok(/eventPhotos\(/.test(code), `${PAGE} must resolve photos through eventPhotos()`);
+ok(!/["'`]\/events\/[a-z0-9-]+\.(jpg|jpeg|png|webp)["'`]/i.test(code),
   `${PAGE} must not hardcode an /events/*.jpg path — that bypasses the consent gate entirely`);
-ok(/alt=\{[^}]*\.alt\}/.test(src), `${PAGE} renders the registry's alt text, never alt=""`);
+ok(/alt=\{[^}]*\.alt\}/.test(code), `${PAGE} renders the registry's alt text, never alt=""`);
 // The credit must render wherever the strip does: attribution is what the
 // organiser gets out of this, and it is half of why the consent holds.
-ok(/shots\.credit/.test(src), `${PAGE} must render the photo credit alongside the photos`);
+ok(/shots\.credit/.test(code), `${PAGE} must render the photo credit alongside the photos`);
 
 /* ── 6. Structured data uses ABSOLUTE image urls ─────────────────────────── */
 // hero_image is now often a same-origin path; a relative url in JSON-LD is
@@ -94,6 +100,44 @@ ok(/shots\.credit/.test(src), `${PAGE} must render the photo credit alongside th
   ok(ld.image.every((u) => /^https:\/\//.test(u)), `every JSON-LD image url is absolute (got ${JSON.stringify(ld.image.slice(0, 2))})`);
   ok(new Set(ld.image).size === ld.image.length, "JSON-LD images are de-duplicated");
   ok(ld.image[0].includes(EVENT_PHOTO_SETS[ids[0]].hero.src), "the owned hero leads the image list — it is the one we hold rights to");
+}
+
+/* ── 7. THE SHARE CARD IS THE PHOTOGRAPH, and it resolves ───────────────── */
+// An event with owned photography previews with that photograph rather than the
+// generated text card. Deliberately NOT an <img> inside /api/og: check-share-
+// card.mjs bans photography in the generated card (the owner deleted a stock
+// sunset that decorated every card, and an <img> is the only thing in a Satori
+// render that can fail a fetch mid-response). Pointing metadata at the static
+// file needs no renderer, so there is nothing to fail — but it MUST be absolute
+// or a scraper will not resolve it (check-og-absolute.mjs).
+{
+  ok(/SITE_URL \+ shots\.hero\.src/.test(code),
+    `${PAGE}: the OG image must be built as SITE_URL + the owned hero path`);
+  ok(!/images:\s*\[\{\s*url:\s*["'`]\//.test(code), `${PAGE}: an OG image url must never be a bare relative path`);
+  ok(/width:\s*ogW/.test(code) && /height:\s*ogH/.test(code),
+    `${PAGE}: OG width/height must follow the real file, not a hardcoded 1200x630 that misdescribes it`);
+  // The generated card must still be the fallback: an event with no consented
+  // photos may not end up with NO share image at all.
+  ok(/\/api\/og\?t=/.test(code), `${PAGE}: events without owned photos must still fall back to the generated card`);
+}
+
+/* ── 8. TWO SHARE CONTROLS, UNCONDITIONAL, SERVER-RESOLVED URL ──────────── */
+// The rule check-guide-share.mjs proves for guides, applied to events — where
+// the case is stronger, because the whole point of "Friday, free, 7pm" is the
+// person you are going with.
+{
+  ok(/import ShareButton from/.test(code), `${PAGE} does not import a share control`);
+  const uses = (code.match(/<ShareButton/g) || []).length;
+  ok(uses >= 2, `${PAGE} renders ${uses} share control(s) — one near the date for the reader who already knew, one at the foot for the larger group who only know after reading`);
+  ok(!/&&\s*<ShareButton/.test(code), `${PAGE}: a share control is behind a condition — it must render on every event`);
+  ok(/const shareUrl = SITE_URL \+ "\/florida-events\/" \+ params\.slug/.test(code),
+    `${PAGE}: the share URL must be resolved SERVER-side from SITE_URL — built from window.location it carries a preview host the recipient cannot open`);
+  ok(!/window\.location/.test(code), `${PAGE} builds a share link from window.location`);
+  // Both controls must be distinguishable in analytics, or "shares are flat"
+  // and "the top one never gets seen" look identical.
+  ok(/placement: "hero"/.test(code) && /placement: "page_end"/.test(code),
+    `${PAGE}: each share control must name its placement in the tracked meta`);
+  ok((code.match(/event="event_share"/g) || []).length >= 2, `${PAGE}: both controls report the same event name`);
 }
 
 if (fail.length) {

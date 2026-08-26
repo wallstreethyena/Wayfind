@@ -11,6 +11,7 @@ import { notFound } from "next/navigation";
 import { SITE_URL } from "../../../lib/site";
 import { fetchCuratedEvents, fetchCuratedEventBySlug, eventJsonLd, dateRangeLabel } from "../../../lib/curatedEvents";
 import { eventPhotos } from "../../../lib/eventPhotos";
+import ShareButton from "../../components/ShareButton";
 
 export const revalidate = 3600;
 
@@ -24,11 +25,28 @@ export async function generateMetadata({ params }) {
   if (!e) return {};
   const title = `${e.event_name} ${e.year}: Dates, Tickets & What to Know`;
   const desc = `${e.event_name} runs ${dateRangeLabel(e)} in ${e.city}. ${e.card_hook || ""} Wayfind's verdict, timing, parking and what to pair it with.`.trim();
-  const og = SITE_URL + "/api/og?t=" + encodeURIComponent(`${e.event_name} — ${dateRangeLabel(e)}`);
+  // THE SHARE CARD. An event that has owned, consent-cleared photography
+  // previews with the PHOTOGRAPH; everything else keeps the generated text
+  // card. This is deliberately NOT a photo inside /api/og: scripts/check-share-
+  // card.mjs bans photography in the generated card and is right to — the
+  // owner deleted a stock sunset that decorated every card, and an <img> is
+  // the only thing in a Satori render that can fail a fetch mid-response. The
+  // distinction that guard itself draws is between stock borrowed to decorate
+  // a claim and the object actually being shared. A photo of THIS market,
+  // handed to us by the organiser, is the second thing, and pointing metadata
+  // straight at the static file gets it with no renderer and nothing to fail.
+  // Built on SITE_URL because a scraper does not resolve a relative path
+  // (scripts/check-og-absolute.mjs).
+  const shots = eventPhotos(e.event_id);
+  const og = shots && shots.hero
+    ? SITE_URL + shots.hero.src
+    : SITE_URL + "/api/og?t=" + encodeURIComponent(`${e.event_name} — ${dateRangeLabel(e)}`);
+  const ogW = shots && shots.hero ? shots.hero.w : 1200;
+  const ogH = shots && shots.hero ? shots.hero.h : 630;
   return {
     title: title + " | Wayfind",
     description: desc.slice(0, 300),
-    openGraph: { title, description: desc.slice(0, 300), url: `${SITE_URL}/florida-events/${e.slug}`, siteName: "Wayfind", images: [{ url: og, width: 1200, height: 630 }] },
+    openGraph: { title, description: desc.slice(0, 300), url: `${SITE_URL}/florida-events/${e.slug}`, siteName: "Wayfind", images: [{ url: og, width: ogW, height: ogH, alt: shots && shots.hero ? shots.hero.alt : title }] },
     twitter: { card: "summary_large_image", title, images: [og] },
     alternates: { canonical: `${SITE_URL}/florida-events/${e.slug}` },
   };
@@ -55,6 +73,9 @@ const S = {
   strip: { display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", padding: "2px 0 8px", margin: "0 0 6px", WebkitOverflowScrolling: "touch", scrollSnapType: "x mandatory" },
   shot: { flex: "0 0 auto", width: 168, aspectRatio: "853 / 1280", objectFit: "cover", borderRadius: 12, display: "block", background: "#161B22", scrollSnapAlign: "start" },
   credit: { fontSize: 12.5, color: "#8B949E", margin: "0 0 22px" },
+  shareTop: { margin: "-8px 0 22px" },
+  shareEnd: { margin: "28px 0 4px", padding: "18px 20px", borderRadius: 16, background: "#0E1520", border: "1px solid #1F2A3A" },
+  shareAsk: { margin: "0 0 12px", fontSize: 15.5, lineHeight: 1.5, color: "#C9D1D9" },
 };
 
 export default async function CuratedEventPage({ params }) {
@@ -62,6 +83,10 @@ export default async function CuratedEventPage({ params }) {
   if (!e) notFound();
 
   const shots = eventPhotos(e.event_id);
+  // SERVER-resolved, never window.location — on a preview deploy that is a host
+  // the recipient cannot open (lib/site.js canonicalShareUrl).
+  const shareUrl = SITE_URL + "/florida-events/" + params.slug;
+  const shareText = `${e.event_name} — ${dateRangeLabel(e)}${e.is_free ? ", free" : ""}. Found this on Wayfind.`;
   const ld = eventJsonLd(e, { siteUrl: SITE_URL });
   const crumbs = {
     "@context": "https://schema.org", "@type": "BreadcrumbList",
@@ -97,6 +122,24 @@ export default async function CuratedEventPage({ params }) {
         {e.duration_recommendation ? <div style={S.row}><span style={S.k}>Time needed</span><span style={S.v}>{e.duration_recommendation}</span></div> : null}
         {e.crowd_level ? <div style={S.row}><span style={S.k}>Crowds</span><span style={S.v}>{e.crowd_level}</span></div> : null}
         {e.wayfind_verdict ? <div style={S.row}><span style={S.k}>Verdict</span><span style={S.v}>{e.wayfind_verdict}</span></div> : null}
+      </div>
+
+      {/* Two share controls, the guide rule applied to an event
+          (scripts/check-guide-share.mjs): this one catches the reader who knew
+          they wanted to send it the moment they saw the date, and the one at
+          the foot catches the far larger group who only know after reading. An
+          event is the strongest share case on the site — the whole point of
+          "Friday, free, 7pm" is the person you are going with. */}
+      <div style={S.shareTop}>
+        <ShareButton
+          url={shareUrl}
+          title={`${e.event_name} ${e.year}`}
+          text={shareText}
+          label="Share"
+          tone="dark"
+          event="event_share"
+          meta={{ slug: params.slug, event_id: e.event_id || null, city: e.city || null, placement: "hero" }}
+        />
       </div>
 
       {e.schedule_note ? <p style={S.note}>{e.schedule_note}</p> : null}
@@ -137,6 +180,21 @@ export default async function CuratedEventPage({ params }) {
           </a>
         </p>
       ) : null}
+
+      <section style={S.shareEnd}>
+        <p style={S.shareAsk}>
+          Going? Send it to whoever you&rsquo;d go with — they&rsquo;ll get the dates, the hours and where to park.
+        </p>
+        <ShareButton
+          url={shareUrl}
+          title={`${e.event_name} ${e.year}`}
+          text={shareText}
+          label="Share this event"
+          tone="solid"
+          event="event_share"
+          meta={{ slug: params.slug, event_id: e.event_id || null, city: e.city || null, placement: "page_end" }}
+        />
+      </section>
 
       <p style={S.foot}>
         Verified {e.last_verified_at ? String(e.last_verified_at).slice(0, 10) : "recently"} against the organiser&rsquo;s own listing.
