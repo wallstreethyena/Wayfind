@@ -172,7 +172,7 @@ export const WF_PLACE_CARD_CSS = `
    thread, one step further): matching the tallest sibling made cards equal
    within one rail row and still unequal across rails and list pages. A fixed
    height is the only geometry that is identical EVERYWHERE. */
-.wf-place-card{--wf-card-h:268px;height:var(--wf-card-h);box-sizing:border-box}
+.wf-place-card{--wf-card-h:268px;height:var(--wf-card-h);box-sizing:border-box;position:relative}
 .wf-place-card-layout{height:100%;box-sizing:border-box}
 .wf-place-card-monogram{height:100%;box-sizing:border-box}
 /* border-box is load-bearing: the content column carries 13/11px padding, and
@@ -293,10 +293,8 @@ export const WF_PLACE_CARD_CSS = `
 .wf-place-card-category:before{content:"";width:12px;height:2px;border-radius:99px;background:#F97316}
 .wf-place-card-category.is-tappable{cursor:pointer}
 .wf-place-card-name{font-size:16px!important;font-weight:780!important;line-height:1.12!important;letter-spacing:-.025em}
-/* v8.61: score sits with the rank at the TOP of the photo, not its floor. */
-.wf-place-card-score{position:absolute;z-index:4;inset:11px 6px auto;pointer-events:auto;filter:none!important}
-/* Only offset when a rank badge is actually there to clear. */
-.wf-place-card-rank~.wf-place-card-score{top:53px}
+.wf-place-card-score{position:absolute;z-index:5;inset:10px 10px auto auto;pointer-events:auto;filter:none!important}
+.wf-place-card-score~.wf-place-card-layout .wf-place-card-heading{padding-right:86px}
 .wf-place-card-score .wayfind-score-badge[data-score-band="excellent"]{--wf-score-color:#25C26E;--wf-score-tint:rgba(37,194,110,.10);--wf-score-border:rgba(37,194,110,.62);--wf-score-glow:rgba(37,194,110,.20)}
 .wf-place-card-score .wayfind-score-badge[data-score-band="strong"]{--wf-score-color:#FF6B18;--wf-score-tint:rgba(255,107,24,.11);--wf-score-border:rgba(255,107,24,.68);--wf-score-glow:rgba(255,107,24,.20)}
 .wf-place-card-score .wayfind-score-badge[data-score-band="fair"]{--wf-score-color:#F2C94C;--wf-score-tint:rgba(242,201,76,.11);--wf-score-border:rgba(242,201,76,.68);--wf-score-glow:rgba(242,201,76,.18)}

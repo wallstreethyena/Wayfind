@@ -754,3 +754,4 @@ node scripts/check-schema-watch.mjs
 node scripts/check-client-writes-have-policies.mjs
 node scripts/check-writes-fail-loudly.mjs
 node scripts/check-os-state.mjs
+node scripts/test-adaptive-widen.mjs

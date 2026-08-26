@@ -121,7 +121,7 @@ const m = await p.evaluate(() => {
     const name = card.querySelector(".wf-place-card-name");
     const box = (el) => { if (!el) return null; const r = el.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; };
     out.cards.push({
-      card: { x: cb.x, w: cb.width }, kids, pills,
+      card: { x: cb.x, y: cb.y, w: cb.width, h: cb.height }, kids, pills,
       laneBox: laneBox ? { y: laneBox.y, h: laneBox.h || laneBox.height } : null,
       media: box(media), score: box(score), title: box(title), name: box(name),
       scoreInTitle: !!(score && title && title.contains(score)),
@@ -138,19 +138,20 @@ m.cards.forEach((c, ci) => {
   const tag = variants[ci] ? variants[ci].key : "card" + ci;
   const isRail = tag === "rail-card";
   if (!isRail) ok(c.kids.length >= 4, `${tag}: positive control — action row has >=4 controls (got ${c.kids.length})`);
-  // v8.61 — the Wayfind Score belongs to the TITLE BLOCK, on the photo beside
-  // it. #958 correctly evicted it from the title row and then anchored it to
-  // the media's floor, where it landed level with the Save/Share row and ~200px
-  // under the venue name it qualifies (measured: score y=231..271, actions
-  // y=219..268, on a Stays > Budget card). Two assertions, both on real boxes:
-  // it stays OUT of the title row, and it stays in the photo's upper half so it
-  // cannot drift back down to the buttons.
+  // v8.62 — OWNER'S PLACEMENT, verbatim (2026-08-26, live): "the score goes
+  // in the top right hand corner of the card, not in front of the image."
+  // Supersedes v8.61/#965/#966 (top of photo) and #958 (photo floor). Four
+  // assertions, all on real boxes: out of the title row, OFF the photo, in
+  // the card's top-right corner, and clear of the action row.
   if (c.score && c.media && c.name) {
     ok(!c.scoreInTitle, `${tag}: the score is never inside the title row`);
-    ok(c.scoreInMedia, `${tag}: the score is an overlay on the photo`);
-    const scoreMid = c.score.y + c.score.h / 2;
-    const mediaMid = c.media.y + c.media.h / 2;
-    ok(scoreMid < mediaMid, `${tag}: the score sits in the UPPER half of the photo, with the rank — not stranded at its floor (score mid ${scoreMid.toFixed(0)} vs media mid ${mediaMid.toFixed(0)})`);
+    ok(!c.scoreInMedia, `${tag}: the score is NOT a child of the photo — it belongs to the card (owner: "not in front of the image")`);
+    const mediaRight = c.media.x + c.media.w;
+    ok(c.score.x >= mediaRight - 1, `${tag}: the score sits clear of the photo (score x ${c.score.x.toFixed(0)} vs media right ${mediaRight.toFixed(0)})`);
+    ok(c.score.y - c.card.y <= 24, `${tag}: the score hugs the card's TOP edge (offset ${(c.score.y - c.card.y).toFixed(0)}px)`);
+    const cardRight = c.card.x + c.card.w;
+    const scoreRight = c.score.x + c.score.w;
+    ok(cardRight - scoreRight <= 24 && cardRight - scoreRight >= 0, `${tag}: the score hugs the card's RIGHT edge (gap ${(cardRight - scoreRight).toFixed(0)}px)`);
     const rowTop = c.kids.length ? Math.min(...c.kids.map((k) => k.y)) : Infinity;
     ok(c.score.y + c.score.h < rowTop, `${tag}: the score clears the action row entirely (score bottom ${(c.score.y + c.score.h).toFixed(0)} vs actions top ${rowTop.toFixed(0)})`);
   }
@@ -166,11 +167,13 @@ m.cards.forEach((c, ci) => {
   ok(c.media && c.media.w > 40 && c.media.h > 80, `${tag}: positive control — media column is the tall photo`);
   ok(c.score && c.score.w > 20 && c.score.h > 20, `${tag}: positive control — score overlay rendered`);
   ok(!c.scoreInTitle, `${tag}: score overlay is not a child of the title row`);
-  if (c.media && c.score) {
-    ok(c.score.x >= c.media.x - 1 && c.score.x + c.score.w <= c.media.x + c.media.w + 1,
-      `${tag}: score stays inside the media column (got score.x=${Math.round(c.score.x)} w=${Math.round(c.score.w)} media.x=${Math.round(c.media.x)} w=${Math.round(c.media.w)})`);
-    ok(c.score.y >= c.media.y - 1 && c.score.y + c.score.h <= c.media.y + c.media.h + 1,
-      `${tag}: score stays inside the media height`);
+  if (c.score) {
+    // v8.62: the badge lives on the CARD (top-right corner), so its box must
+    // stay inside the card's box — never outside it, never on the photo.
+    ok(c.score.x >= c.card.x - 1 && c.score.x + c.score.w <= c.card.x + c.card.w + 1,
+      `${tag}: score stays inside the card box horizontally (got score.x=${Math.round(c.score.x)} w=${Math.round(c.score.w)} card.x=${Math.round(c.card.x)} w=${Math.round(c.card.w)})`);
+    ok(c.score.y >= c.card.y - 1 && c.score.y + c.score.h <= c.card.y + c.card.h + 1,
+      `${tag}: score stays inside the card box vertically`);
   }
   if (c.score && c.name) {
     const oxv = Math.min(c.score.x + c.score.w, c.name.x + c.name.w) - Math.max(c.score.x, c.name.x);
@@ -183,40 +186,33 @@ m.cards.forEach((c, ci) => {
   }
 });
 
-// ── v8.61 — THE SCORE CHIP IS GLOBAL, SO THE LOCK HAS TO BE. ───────────────
-// Placement is (one CSS rule) x (the parent it is absolute against). The rule
-// is measured above on real boxes, twice. The parent is per-renderer, and four
-// files draw this chip. IconicPlaceCard and RailCard are measured; home.js's
-// PlaceCard and ThingsToDoList's Card are closures inside large client modules
-// and cannot be mounted standalone, so their parent is locked structurally:
-// every wf-place-card-score must sit inside the media block, never the content
-// block. If someone moves it back beside the title, its nearest preceding
-// wrapper becomes wf-place-card-content and this fails.
+// ── v8.62 — THE SCORE CHIP IS GLOBAL, SO THE LOCK HAS TO BE. ───────────────
+// #966's version of this block locked the chip INSIDE the media. The owner
+// then said, verbatim (2026-08-26, live): "the score goes in the top right
+// hand corner of the card, not in front of the image" — so the lock flips
+// with the law, not against it. Placement is (one CSS rule) x (the parent it
+// is absolute against). The rule is measured above on real boxes; the parent
+// is locked structurally in all four renderers: every JSX score chip renders
+// as a DIRECT CHILD of the card, BEFORE the .wf-place-card-layout wrapper
+// opens — never inside the media block, never inside the content block.
 const SCORE_RENDERERS = [
   "app/components/IconicPlaceCard.js",
   "app/components/RailCard.js",
   "app/components/ThingsToDoList.js",
   "app/home.js",
 ];
-let seenTotal = 0;
+const stripJs = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
 for (const rel of SCORE_RENDERERS) {
-  const src = readFileSync(path.join(ROOT, rel), "utf8");
-  let from = 0, seen = 0;
-  for (;;) {
-    const at = src.indexOf("wf-place-card-score", from);
-    if (at === -1) break;
-    from = at + 1;
-    // Skip the CSS-selector mentions inside comments/strings that are not JSX.
-    const before = src.slice(0, at);
-    const media = before.lastIndexOf("wf-place-card-media");
-    const content = before.lastIndexOf("wf-place-card-content");
-    if (media === -1) continue; // a mention with no media wrapper before it (comment)
-    seen++; seenTotal++;
-    ok(media > content, `${rel}: the score chip at index ${at} belongs to the media block, not the content/title block`);
-  }
-  ok(seen >= 1, `${rel}: positive control — at least one score chip found (got ${seen})`);
+  const src = stripJs(readFileSync(path.join(ROOT, rel), "utf8"));
+  // The chip renders before the layout wrapper — card-corner position.
+  ok(/className=["']wf-place-card-score["'][\s\S]{0,1400}wf-place-card-layout/.test(src),
+    `${rel}: the score chip is a direct child of the card, rendered BEFORE wf-place-card-layout`);
+  // And the media block holds no score — the owner's "not in front of the image".
+  const mediaBlocks = [...src.matchAll(/wf-place-card-media["'][\s\S]{0,900}/g)];
+  ok(mediaBlocks.length >= 1, `${rel}: positive control — media block found`);
+  for (const m2 of mediaBlocks) ok(!/wf-place-card-score/.test(m2[0]),
+    `${rel}: no score chip inside the media block (owner: "not in front of the image")`);
 }
-ok(seenTotal >= 4, `all four score renderers accounted for (got ${seenTotal} chips)`);
 
 console.log(`\ntest-place-card-layout: ${fail ? "FAIL" : "OK"} — ${pass} layout assertions on real Chromium boxes at 390px, card CSS alone (the embed condition)`);
 process.exit(fail ? 1 : 0);

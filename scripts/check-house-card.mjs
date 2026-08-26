@@ -10,9 +10,12 @@
 //
 // Owner (2026-08-26), live Parrish / Family → Rainy day: the green WAYFIND
 // score chip in the title row crowded the name and the TOP {CATEGORY} PICK
-// chip and overlapped the photo/heading edge. REQUIRE — score overlay is a
-// CHILD of .wf-place-card-media (on the photo, with the rank). A title-row
-// score fails the build. No compact home-row exception.
+// chip and overlapped the photo/heading edge. Then owner (2026-08-26, live,
+// verbatim): "the score goes in the top right hand corner of the card, not
+// in front of the image." REQUIRE — v8.62: score overlay is a direct child
+// of the CARD (rendered BEFORE .wf-place-card-layout, anchored top-right by
+// css.js), never a child of the media, never in the title row. Rank stays
+// on the photo. A title-row or on-photo score fails the build.
 //
 // This is not documentation. It CALLS the award helper and RENDERS
 // IconicPlaceCard (jsxLoad), then scans every place-card renderer for the
@@ -88,13 +91,18 @@ ok(html.includes("wf-place-card-score") && html.includes("wayfind-score-badge"),
     const i = html.indexOf(needle);
     if (i < 0) return "absent";
     const before = html.slice(0, i);
+    const layout = before.lastIndexOf("wf-place-card-layout");
     const media = before.lastIndexOf("wf-place-card-media");
     const title = before.lastIndexOf("wf-place-card-title-row");
-    if (media < 0 && title < 0) return "none";
-    return media > title ? "media" : "title-row";
+    if (layout < 0 && media < 0 && title < 0) return "card";
+    if (media > title && media > layout) return "media";
+    if (title > media && title > layout) return "title-row";
+    return "layout";
   };
-  ok(hostOf("wf-place-card-score") === "media",
-    "score overlay is a child of the media, not the title row (got host=" + hostOf("wf-place-card-score") + ")");
+  // v8.62 (owner): the score is a child of the CARD — it renders BEFORE the
+  // layout wrapper opens, so nothing (media, title-row, layout) precedes it.
+  ok(hostOf("wf-place-card-score") === "card",
+    "score overlay is a child of the CARD (top-right corner), not of the media or the title row (got host=" + hostOf("wf-place-card-score") + ")");
   ok(hostOf("wf-place-card-rank") === "media",
     "rank overlay is a child of the media, not the title row (got host=" + hostOf("wf-place-card-rank") + ")");
   const titleOpen = html.indexOf("wf-place-card-title-row");
@@ -146,7 +154,9 @@ for (const f of AWARD_SITES) {
     "home PlaceCard award is TOP {section} PICK, not cuisine-BEST");
 }
 
-// ── 4b. Every house-card renderer: score is in the media, never the title. ─
+// ── 4b. Every house-card renderer: score is on the CARD, never the title, ──
+//        never the media (v8.62, owner: "top right hand corner of the card,
+//        not in front of the image").
 {
   const HOUSE = [
     "app/components/IconicPlaceCard.js",
@@ -167,8 +177,15 @@ for (const f of AWARD_SITES) {
       ok(!/WayfindScoreBadge/.test(m[0]), f + " title-row must not render WayfindScoreBadge");
       ok(!/wf-place-card-rank/.test(m[0]), f + " title-row must not hold the rank overlay");
     }
-    ok(/wf-place-card-media[\s\S]{0,900}wf-place-card-score/.test(src),
-      f + " score overlay must be a child of wf-place-card-media");
+    // v8.62 — the score node renders BEFORE the layout wrapper opens (a
+    // direct child of .wf-place-card), so in source order the score class
+    // appears ahead of wf-place-card-layout. Inside the media block it must
+    // NOT appear at all — that was #965's on-photo placement.
+    ok(/wf-place-card-score[\s\S]{0,1200}wf-place-card-layout/.test(src),
+      f + " score overlay must be a direct child of the card, rendered before wf-place-card-layout");
+    const mediaBlock = (src.match(/wf-place-card-media[\s\S]{0,900}/) || [""])[0];
+    ok(!/wf-place-card-score/.test(mediaBlock),
+      f + " score overlay must NOT live inside wf-place-card-media (owner: not in front of the image)");
     ok(/wf-place-card-media[\s\S]{0,900}wf-place-card-rank/.test(src),
       f + " rank overlay must be a child of wf-place-card-media");
   }
@@ -268,4 +285,4 @@ for (const f of AWARD_SITES) {
     "home PlaceCard must not fetch a shared category+city stock photo");
 }
 
-console.log(`check-house-card: OK — ${pass} assertions (TOP {CATEGORY} PICK only; score+rank on the photo; no Image-1 compact row; no gold BEST chip; no unbound FOCUS; no shared stock photo)`);
+console.log(`check-house-card: OK — ${pass} assertions (TOP {CATEGORY} PICK only; score on the card corner, rank on the photo; no Image-1 compact row; no gold BEST chip; no unbound FOCUS; no shared stock photo)`);

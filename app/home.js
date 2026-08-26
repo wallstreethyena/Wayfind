@@ -184,7 +184,7 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 // eager shared kit so extracted screens/sheets can import them without home.js.
 import { C, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, RADII, MOTION, TARGET, SHADOW } from "./components/kit";
 import { sponsorRailNear, partnerCollectionById, hydratePartnerCollection } from "../lib/partnerCollections";
-import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
+import { toDisplayScore, pickEligibleByScore, cardComplete, displayableAt } from "../lib/score";
 import { frontPageEvents, bestFirst } from "../lib/frontEvents";
 import { pickHomeExp } from "../lib/homeExpPick";
 // July 2026 decomposition (wave 1): the homepage's ~520 lines of server-
@@ -6738,7 +6738,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         let _usedM = _startM;
         if (autoRadiusRef.current || _startM <= DEFAULT_RADIUS_M) {
           for (const _m of RADIUS_LADDER_M) {
-            if ((results || []).length >= ADAPT_MIN) break;
+            // v8.62 — break on what the feed can SHOW at the radius actually
+            // in use, not on the raw fetch. The serve's gate is radius*1.15
+            // on a server radius that snaps UP the cost ladder, so rows
+            // arrive from beyond the display cut (`distMi <= sliderMi`) and
+            // a raw `.length` declares a thin shelf full. Live: Beaches near
+            // Parrish fetched 32, displayed 1, never widened. displayableAt
+            // (lib/score.js) is the view's own admission rule.
+            if (displayableAt(results, _usedM) >= ADAPT_MIN) break;
             if (_m <= _usedM) continue;
             results = await _fetchAt(_m); _usedM = _m;
           }
@@ -11221,19 +11228,20 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   return (
     <div className={`wf-place-card${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
       <button type="button" className="wf-place-card-open" onClick={onDetail} aria-label={`Open ${p.name}`} style={{ position: "absolute", inset: 0, zIndex: 0, width: "100%", height: "100%", opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
-      {/* v6.34 put the score IN the title row so it could not cover letters.
-          2026-08-26 owner (live Parrish / Family → Rainy day): that chip is
-          now crowded against the name and the TOP {CATEGORY} PICK chip and
-          overlaps the photo/heading edge. SUPERSEDED — rank + Wayfind score
-          are children of .wf-place-card-media (on the photo). The ✦ PICK
-          seal (v8.17) stays gone; check-pick-medallion.mjs still bans it. */}
+      {/* v8.62 (owner, 2026-08-26, live): "top right hand corner of the card,
+          not in front of the image." The score badge is a direct child of the
+          CARD, anchored to its top-right corner by the shared
+          .wf-place-card-score rule in css.js — it never rides the photo
+          (#965/#958 superseded) and never crowds the title row (v6.34
+          superseded). Rank stays on the photo. The ✦ PICK seal (v8.17)
+          stays gone; check-pick-medallion.mjs still bans it. */}
+      {dispScore != null && <div className="wf-place-card-score"><WayfindScoreBadge score={dispScore} /></div>}
       <div className="wf-place-card-layout" style={{ position: "relative", zIndex: 1, pointerEvents: "none" }}>
         <div className="wf-place-card-media">
           {(cardPhoto || (p && p.photo))
             ? <FallbackImg src={cardPhoto || p.photo} icon={iconForPlace(p)} />
             : <div className="wf-place-card-monogram" aria-hidden="true">{cardInitials}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
-          {dispScore != null && <div className="wf-place-card-score"><WayfindScoreBadge score={dispScore} /></div>}
         </div>
         <div className="wf-place-card-content" style={{ position: "relative" }}>
           <div className="wf-place-card-title-row">
