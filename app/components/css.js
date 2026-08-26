@@ -82,24 +82,7 @@ export const WF_WIDE_PAD = 60;
 export const WF_WIDE_MAX = 1320;
 export const WF_ASIDE_COL = 332;
 export const WF_ASIDE_GAP = 28;
-export const WF_LAYOUT_CSS = `/* v8.27 — THE BACK-SWIPE FIX (owner, 2026-08-20: "when I am trying to scroll
-   through the rail it keeps catching the edge of the screen on my mobile phone
-   and going back to the previous page").
-
-   app/layout.js declares overscroll-behavior-x:none on <body> — and it has
-   NEVER done anything. overscroll-behavior only applies to a SCROLL
-   CONTAINER, and in this shell neither <html> nor <body> is one: both carry
-   overflow-x:clip and the feed scrolls inside div.wf-scrollarea. So a
-   horizontal rail that ran out of runway chained its remaining delta straight
-   out to the viewport, and iOS Safari read that as the interactive back
-   gesture and slid the previous page in mid-swipe.
-
-   Containment now sits where scrolling actually happens: on .wf-scrollarea
-   (app/home.js) and on every horizontal rail. Value is 'contain', not 'none' —
-   the rail keeps its own rubber-band, it just stops handing the gesture to
-   anyone else. (No backticks in this comment — it lives inside a JS template
-   literal.) Enforced by scripts/check-overscroll-containment.mjs. */
-.wf-navtabs,.wf-navsubs-row,.wf-dests,.wf-mapfp-scroll,.wf-intent-proof,.wf-place-card-highlights,.wf-catrow,.wf-hooks,.wf-discovery-grid,.wf8-track,.wf8-pcrail,.wf8-grail,.matches{overscroll-behavior-x:contain}.wf-search-row.is-suggesting{z-index:40}.wf-dests.is-covered{pointer-events:none}@keyframes wfsk{0%{background-position:200% 0}100%{background-position:-200% 0}}.wf-sk{background:linear-gradient(90deg,#161B22 25%,#1D242E 37%,#161B22 63%);background-size:200% 100%;animation:wfsk 1.4s ease-in-out infinite}@media (prefers-reduced-motion:reduce){.wf-sk{animation:none}}.wf-catrow{position:relative}.wf-catrow::-webkit-scrollbar{display:none}.wf-cattile:active{transform:scale(.96)}.wf-catwrap{position:relative}@keyframes wfcatsweep{0%{transform:translateX(-100%)}100%{transform:translateX(150%)}}.wf-catwrap.is-coach:before{content:"";position:absolute;top:0;bottom:8px;left:0;width:40%;border-radius:14px;pointer-events:none;z-index:0;background:linear-gradient(100deg,rgba(249,115,22,0) 0%,rgba(249,115,22,.17) 50%,rgba(249,115,22,0) 100%);animation:wfcatsweep 2.5s cubic-bezier(.4,0,.2,1) .8s 3 both}.wf-subwrap{overflow:hidden;max-height:0;opacity:0;transform:translateY(-9px);transition:max-height .32s cubic-bezier(.2,.85,.3,1),opacity .2s ease,transform .28s cubic-bezier(.2,.85,.3,1)}.wf-subwrap.is-open{max-height:120px;opacity:1;transform:translateY(0)}@keyframes wfsubin{from{opacity:0;transform:translateY(-7px) scale(.97)}to{opacity:1;transform:none}}.wf-subwrap.is-open .wf-subchip{animation:wfsubin .32s cubic-bezier(.2,.85,.3,1) both}@keyframes wfcathint{0%,100%{opacity:.62}50%{opacity:1}}.wf-catlead-hint.is-coach{animation:wfcathint 1.9s ease-in-out 4}@media (prefers-reduced-motion:reduce){.wf-catwrap.is-coach:before,.wf-catlead-hint.is-coach,.wf-subwrap.is-open .wf-subchip{animation:none}.wf-subwrap{transition:none;transform:none}}.wf-shell{max-width:480px}.wf-col-main{flex:1;min-width:0}.wf-col-side{display:block;margin:18px 0 4px}.wf-fullbleed{margin-left:-12px;margin-right:-12px}.wf-hooks{display:block;margin:0 0 14px}.wf-hook-card{width:100%;height:152px}.wf-topbar{box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 8px 20px rgba(0,0,0,.12)}.wf-topbar:after{content:"";position:absolute;left:14px;right:14px;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(249,115,22,.48),transparent);opacity:.6}.wf-wordmark{display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}.wf-wordmark-text,.wf-wordmark-pin{display:block;flex:none;background-image:url("/brand/wayfind-wordmark-transparent-v2.png");background-image:image-set(url("/brand/opt/wordmark-400.avif") type("image/avif"),url("/brand/opt/wordmark-400.webp") type("image/webp"));background-repeat:no-repeat}.wf-wordmark-text{width:117.4px;height:39.06px;background-size:151.2px 39.06px;background-position:left center}.wf-wordmark-pin{width:31.65px;height:36.54px;background-size:141.45px 36.54px;background-position:right center}.wf-event-share-card{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}.wf-event-share-card:hover{transform:translateY(-2px);border-color:rgba(203,213,225,.42)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.075),0 14px 30px rgba(0,0,0,.34)!important}.wf-weather-button,.wf-signin-button,.wf-vibe-button{transition:background .18s ease,border-color .18s ease,transform .18s ease}.wf-weather-button:hover{background:rgba(255,255,255,.04)!important;border-radius:10px}.wf-signin-button:hover,.wf-vibe-button:hover{border-color:rgba(249,115,22,.5)!important;transform:translateY(-1px)}.wf-search-row{filter:drop-shadow(0 8px 14px rgba(0,0,0,.18))}.wf-search-input{transition:border-color .18s ease,background .18s ease}.wf-search-input:focus{border-color:rgba(203,213,225,.72)!important;background:#151D29!important}.wf-search-submit{box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 7px 14px rgba(249,115,22,.22);transition:filter .18s ease,transform .18s ease}.wf-search-submit:hover{filter:brightness(1.06);transform:translateX(1px)}.wf-bottom-nav{gap:3px;padding:5px 5px 6px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 -9px 24px rgba(0,0,0,.14)}@media(display-mode:standalone){.wf-bottom-nav{padding-bottom:env(safe-area-inset-bottom)!important}}.wf-bottom-nav-item{position:relative;min-height:66px;transition:color .18s ease,transform .18s ease}.wf-bottom-nav-icon{width:32px;height:28px;display:grid;place-items:center}.wf-bottom-nav-item.is-active:before{content:"";position:absolute;top:0;width:24px;height:2px;border-radius:0 0 99px 99px;background:#F97316;box-shadow:0 2px 8px rgba(249,115,22,.6)}.wf-bottom-nav-item.is-active .wf-bottom-nav-icon{filter:drop-shadow(0 2px 6px rgba(249,115,22,.28))}.wf-bottom-nav-item.is-active .wf-bottom-nav-label{letter-spacing:.12px}.wf-discovery-visual{position:relative;min-height:188px;overflow:hidden;border-radius:20px;background:#0D1117;box-shadow:0 16px 38px rgba(0,0,0,.28)}.wf-discovery-visual picture{position:absolute;inset:0;display:block}.wf-discovery-visual img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.wf-discovery-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,8,14,.9) 0%,rgba(3,8,14,.62) 43%,rgba(3,8,14,.1) 78%),linear-gradient(0deg,rgba(3,8,14,.42),transparent 60%)}.wf-discovery-copy{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:flex-end;height:188px;max-width:300px;padding:20px;color:#F8FAFC}.wf-discovery-kicker{font-size:10px;font-weight:800;letter-spacing:1.1px;color:#FB923C}.wf-discovery-title{margin-top:7px;font-size:22px;font-weight:800;line-height:1.08;letter-spacing:-.45px}.wf-discovery-text{margin-top:7px;font-size:12.5px;font-weight:600;line-height:1.42;color:#D8E0EA}.wf-navtabs{display:flex;gap:18px;overflow-x:auto;scrollbar-width:none;margin:0 0 8px;padding:0 2px}.wf-navtabs::-webkit-scrollbar{display:none}.wf-navtab{position:relative;display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;padding:5px 0 10px;background:none;border:0;cursor:pointer;font-size:14px;font-weight:600;color:#8A96AE;white-space:nowrap;transition:color .16s ease}.wf-navtab:hover{color:#CBD4E8}.wf-navtab.is-on{color:#FFFFFF;font-weight:800}.wf-navtab.is-on:after{content:"";position:absolute;left:0;right:0;bottom:4px;height:2.5px;border-radius:2px;background:#F97316}.wf-navtab:focus-visible{outline:2px solid #F97316;outline-offset:2px;border-radius:6px}.wf-navtab{text-decoration:none}.wf-navtab.is-filter{cursor:default;text-decoration:underline dotted rgba(255,255,255,.28);text-underline-offset:5px}.wf-navtab.is-filter:hover{color:#CBD4E8;text-decoration-color:rgba(255,255,255,.5)}.wf-navtab.is-filter.is-on:after{height:2px;background:rgba(249,115,22,.55);border-radius:1px}.wf-navsubs{overflow:hidden;max-height:0;opacity:0;transition:max-height .2s ease-out,opacity .18s ease-out;margin:0 0 6px}.wf-navsubs.is-open{max-height:96px;opacity:1}.wf-navsubs-row{display:flex;gap:16px;overflow-x:auto;scrollbar-width:none;padding:2px 2px 4px;border-top:1px solid #22272E;padding-top:8px}.wf-navsubs-row::-webkit-scrollbar{display:none}.wf-navsub{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;padding:5px 2px 10px;background:none;border:0;color:#8A96AE;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer;text-decoration:none;transition:color .16s ease;animation:wfsubin .3s cubic-bezier(.2,.85,.3,1) both}.wf-navsub:hover{color:#CBD4E8}.wf-navsub.is-on{color:#FFFFFF;font-weight:800}.wf-navsub.is-on:after{content:"";position:absolute;left:0;right:0;bottom:4px;height:2.5px;border-radius:2px;background:#F97316}.wf-navsub:focus-visible{outline:2px solid #F97316;outline-offset:2px}.wf-navsub-all{color:#FB923C;font-weight:750}.wf-navsub-all:hover{color:#FFC58F}@media (prefers-reduced-motion:reduce){.wf-navsubs{transition:none}.wf-navsub{animation:none}}.wf-scope-wrap{position:relative;flex:0 0 auto}.wf-scope{display:flex;align-items:center;gap:5px;height:48px;padding:0 12px;background:#1D2536;border:1.5px solid #30363D;border-right:none;border-radius:14px 0 0 14px;color:#B7C2D8;font-size:13px;font-weight:650;cursor:pointer;white-space:nowrap}.wf-scope:hover{background:#242D40}.wf-scope:focus-visible{outline:2px solid #F97316;outline-offset:-2px}.wf-search-row.has-scope .wf-search-input{border-radius:0!important;border-left:none!important}.wf-scope-menu{position:absolute;top:calc(100% + 8px);left:0;z-index:60;min-width:216px;margin:0;padding:6px;list-style:none;background:rgba(16,22,33,.94);backdrop-filter:blur(18px) saturate(1.25);-webkit-backdrop-filter:blur(18px) saturate(1.25);border:1px solid rgba(255,255,255,.09);border-radius:14px;box-shadow:0 24px 56px rgba(0,0,0,.62),0 3px 10px rgba(0,0,0,.45);transform-origin:top left;animation:wfscopein .22s cubic-bezier(.2,.85,.3,1) both}@keyframes wfscopein{from{opacity:0;transform:translateY(-7px) scale(.965)}to{opacity:1;transform:none}}@media (prefers-reduced-motion:reduce){.wf-scope-menu{animation:none}}.wf-scope-menu li{padding:11px 12px;border-radius:9px;font-size:13.5px;font-weight:650;color:#E7EDF5;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wf-scope-menu li:hover,.wf-scope-menu li[aria-selected="true"]{background:rgba(249,115,22,.16);color:#FFC2A2}.wf-scope-cur{display:flex;align-items:center;gap:9px;color:#fff!important;font-weight:750!important}.wf-scope-cur svg{flex:0 0 auto;color:#F97316}.wf-scope-sep{height:1px;margin:6px 4px;padding:0!important;background:rgba(255,255,255,.08);cursor:default!important}.wf-scope-sep:hover{background:rgba(255,255,255,.08)!important}.wf-scope-label{padding:7px 12px 3px!important;font-size:10.5px!important;font-weight:800!important;letter-spacing:.12em;text-transform:uppercase;color:#8B96A9!important;cursor:default!important}.wf-scope-label:hover{background:none!important;color:#8B96A9!important}.wf-dests{display:flex;align-items:stretch;gap:2px;margin:9px 0 -6px;overflow-x:auto;scrollbar-width:none;border-top:1px solid #22272E}.wf-dests::-webkit-scrollbar{display:none}.wf-dest{position:relative;display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;padding:10px 12px 11px;background:none;border:0;cursor:pointer;font-size:13.5px;font-weight:600;color:#94A1BC;white-space:nowrap;text-decoration:none;transition:color .16s ease}.wf-dest:hover{color:#E4EAF7}.wf-dest.is-on{color:#FFFFFF;font-weight:800}.wf-dest.is-on:after{content:"";position:absolute;left:12px;right:12px;bottom:4px;height:2.5px;border-radius:2px;background:#F97316}.wf-dest-opener.is-on{color:#FB923C}.wf-dest-opener.is-on:after{background:#FB923C}.wf-dest:focus-visible{outline:2px solid #F97316;outline-offset:-2px;border-radius:8px}.wf-scpanel{margin:6px 0 -6px;padding:4px 0 2px;border-top:1px solid #22272E;animation:wfscin .18s ease-out}@keyframes wfscin{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}@media (prefers-reduced-motion:reduce){.wf-scpanel{animation:none}}@media(max-width:560px){.wf-navtabs{gap:14px}.wf-navtab{font-size:13px}.wf-dest{padding:10px 10px 11px;font-size:12.5px;gap:6px}.wf-scope{font-size:12.5px;padding:0 10px}}@media(min-width:${WF_DESKTOP_BP}px){.wf-shell{max-width:1280px}.wf-navtab{font-size:15px}.wf-dest{font-size:14px;padding:10px 14px 12px}.wf-scope{height:58px;font-size:14px;border-radius:17px 0 0 17px}.wf-explore{max-width:760px;margin:0 auto}.wf-cols{display:block;width:100%;max-width:800px;margin:16px auto 0}.wf-col-main{width:100%;max-width:800px;margin:0 auto}.wf-col-side{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}.wf-topbar{padding-left:max(28px,calc((min(100vw,1280px) - 800px)/2))!important;padding-right:max(28px,calc((min(100vw,1280px) - 800px)/2))!important;padding-top:20px!important;padding-bottom:18px!important}.wf-topbar-row{margin-bottom:14px!important}.wf-wordmark{gap:6px}.wf-wordmark-text{width:139.77px;height:46.5px;background-size:179.99px 46.5px}.wf-wordmark-pin{width:37.68px;height:43.5px;background-size:168.38px 43.5px}.wf-weather-button{padding:5px 8px!important}.wf-weather-button span:first-child{font-size:21px!important}.wf-signin-button{padding:10px 16px!important;font-size:13px!important}.wf-vibe-button{width:48px!important;height:48px!important}.wf-search-input{height:58px!important;font-size:17px!important;border-radius:17px 0 0 17px!important}.wf-search-submit{width:62px!important;height:58px!important;border-radius:0 17px 17px 0!important;font-size:25px!important}.wf-bottom-nav{left:50%!important;right:auto!important;bottom:18px!important;transform:translateX(-50%);width:min(800px,calc(100vw - 44px));max-width:none!important;margin:0!important;padding:9px!important;border:1px solid #30363D!important;border-radius:22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 18px 48px rgba(0,0,0,.42);backdrop-filter:blur(18px)}.wf-bottom-nav-item{min-height:72px;padding:10px 12px!important;border-radius:0!important}.wf-bottom-nav-icon{width:36px;height:31px;transform:scale(1.1)}.wf-bottom-nav-label{font-size:12px!important;letter-spacing:.05px}.wf-bottom-nav-item:hover{background:rgba(255,255,255,.025)!important}.wf-discovery-empty{padding-top:30px!important}.wf-discovery-heading{display:block!important;margin-bottom:16px!important}.wf-discovery-heading>div:first-child{margin:0!important;flex:initial!important}.wf-discovery-visual{min-height:224px;border-radius:22px}.wf-discovery-copy{height:224px;max-width:365px;padding:28px}.wf-discovery-title{font-size:27px}.wf-discovery-text{font-size:13.5px;max-width:300px}.wf-discovery-link{transition:transform .16s ease,border-color .16s ease}.wf-discovery-link:hover{transform:translateY(-1px);border-color:rgba(203,213,225,.35)!important}.wf-scrollarea{padding-bottom:calc(34px + env(safe-area-inset-bottom))!important}.wf-hooks{display:flex;flex-wrap:wrap;overflow-x:visible;padding-left:12px;padding-right:12px;margin:0 -12px 14px}.wf-hook-card{width:290px;height:185px}.wf-catrow{overflow-x:visible!important}.wf-cattile{flex:1 1 auto!important;justify-content:center!important}.wf-discovery-grid{overflow-x:visible!important}.wf-discovery-link{flex:1 1 auto!important;justify-content:center!important}}@media(min-width:${WF_WIDE_BP}px){.wf-shell{--wf-page:min(${WF_WIDE_MAX}px,calc(100vw - ${WF_WIDE_PAD * 2}px));--wf-side:${WF_ASIDE_COL}px;--wf-gutter:${WF_ASIDE_GAP}px;--wf-main:var(--wf-page);--wf-feed:min(960px,var(--wf-page))}.wf-shell{max-width:none}.wf-cols{display:block;width:100%;max-width:var(--wf-page);margin:16px auto 0}.wf-col-main{width:100%;max-width:var(--wf-feed);margin:0 auto}.wf-col-side{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start;width:100%;max-width:none;margin:22px 0 6px}.wf-explore{max-width:var(--wf-page)}.wf-topbar{padding-left:max(28px,calc((100vw - var(--wf-page))/2))!important;padding-right:max(28px,calc((100vw - var(--wf-page))/2))!important}.wf-topbar:after{left:max(28px,calc((100vw - var(--wf-page))/2));right:max(28px,calc((100vw - var(--wf-page))/2))}.wf-bottom-nav{left:max(28px,calc((100vw - var(--wf-page))/2))!important;right:auto!important;transform:none;width:min(var(--wf-main),calc(100vw - 56px));box-sizing:border-box}.wf-search-row{max-width:var(--wf-main)}.wf-catrow{max-width:none;margin:0;gap:9px}.wf-catlead{max-width:none;margin:0}.wf-cattile:hover{filter:brightness(1.12)}.wf-subwrap.is-open{max-height:140px}}`;
+export const WF_LAYOUT_CSS = `.wf-navtabs,.wf-navsubs-row,.wf-dests,.wf-mapfp-scroll,.wf-intent-proof,.wf-place-card-highlights,.wf-catrow,.wf-hooks,.wf-discovery-grid,.wf8-track,.wf8-pcrail,.wf8-grail,.matches{overscroll-behavior-x:contain}.wf-search-row.is-suggesting{z-index:40}.wf-dests.is-covered{pointer-events:none}@keyframes wfsk{0%{background-position:200% 0}100%{background-position:-200% 0}}.wf-sk{background:linear-gradient(90deg,#161B22 25%,#1D242E 37%,#161B22 63%);background-size:200% 100%;animation:wfsk 1.4s ease-in-out infinite}@media (prefers-reduced-motion:reduce){.wf-sk{animation:none}}.wf-catrow{position:relative}.wf-catrow::-webkit-scrollbar{display:none}.wf-cattile:active{transform:scale(.96)}.wf-catwrap{position:relative}@keyframes wfcatsweep{0%{transform:translateX(-100%)}100%{transform:translateX(150%)}}.wf-catwrap.is-coach:before{content:"";position:absolute;top:0;bottom:8px;left:0;width:40%;border-radius:14px;pointer-events:none;z-index:0;background:linear-gradient(100deg,rgba(249,115,22,0) 0%,rgba(249,115,22,.17) 50%,rgba(249,115,22,0) 100%);animation:wfcatsweep 2.5s cubic-bezier(.4,0,.2,1) .8s 3 both}.wf-subwrap{overflow:hidden;max-height:0;opacity:0;transform:translateY(-9px);transition:max-height .32s cubic-bezier(.2,.85,.3,1),opacity .2s ease,transform .28s cubic-bezier(.2,.85,.3,1)}.wf-subwrap.is-open{max-height:120px;opacity:1;transform:translateY(0)}@keyframes wfsubin{from{opacity:0;transform:translateY(-7px) scale(.97)}to{opacity:1;transform:none}}.wf-subwrap.is-open .wf-subchip{animation:wfsubin .32s cubic-bezier(.2,.85,.3,1) both}@keyframes wfcathint{0%,100%{opacity:.62}50%{opacity:1}}.wf-catlead-hint.is-coach{animation:wfcathint 1.9s ease-in-out 4}@media (prefers-reduced-motion:reduce){.wf-catwrap.is-coach:before,.wf-catlead-hint.is-coach,.wf-subwrap.is-open .wf-subchip{animation:none}.wf-subwrap{transition:none;transform:none}}.wf-shell{max-width:480px}.wf-col-main{flex:1;min-width:0}.wf-col-side{display:block;margin:18px 0 4px}.wf-fullbleed{margin-left:-12px;margin-right:-12px}.wf-hooks{display:block;margin:0 0 14px}.wf-hook-card{width:100%;height:152px}.wf-topbar{box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 8px 20px rgba(0,0,0,.12)}.wf-topbar:after{content:"";position:absolute;left:14px;right:14px;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(249,115,22,.48),transparent);opacity:.6}.wf-wordmark{display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}.wf-wordmark-text,.wf-wordmark-pin{display:block;flex:none;background-image:url("/brand/wayfind-wordmark-transparent-v2.png");background-image:image-set(url("/brand/opt/wordmark-400.avif") type("image/avif"),url("/brand/opt/wordmark-400.webp") type("image/webp"));background-repeat:no-repeat}.wf-wordmark-text{width:117.4px;height:39.06px;background-size:151.2px 39.06px;background-position:left center}.wf-wordmark-pin{width:31.65px;height:36.54px;background-size:141.45px 36.54px;background-position:right center}.wf-event-share-card{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}.wf-event-share-card:hover{transform:translateY(-2px);border-color:rgba(203,213,225,.42)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.075),0 14px 30px rgba(0,0,0,.34)!important}.wf-weather-button,.wf-signin-button,.wf-vibe-button{transition:background .18s ease,border-color .18s ease,transform .18s ease}.wf-weather-button:hover{background:rgba(255,255,255,.04)!important;border-radius:10px}.wf-signin-button:hover,.wf-vibe-button:hover{border-color:rgba(249,115,22,.5)!important;transform:translateY(-1px)}.wf-search-row{filter:drop-shadow(0 8px 14px rgba(0,0,0,.18))}.wf-search-input{transition:border-color .18s ease,background .18s ease}.wf-search-input:focus{border-color:rgba(203,213,225,.72)!important;background:#151D29!important}.wf-search-submit{box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 7px 14px rgba(249,115,22,.22);transition:filter .18s ease,transform .18s ease}.wf-search-submit:hover{filter:brightness(1.06);transform:translateX(1px)}.wf-bottom-nav{gap:3px;padding:5px 5px 6px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 -9px 24px rgba(0,0,0,.14)}@media(display-mode:standalone){.wf-bottom-nav{padding-bottom:env(safe-area-inset-bottom)!important}}.wf-bottom-nav-item{position:relative;min-height:66px;transition:color .18s ease,transform .18s ease}.wf-bottom-nav-icon{width:32px;height:28px;display:grid;place-items:center}.wf-bottom-nav-item.is-active:before{content:"";position:absolute;top:0;width:24px;height:2px;border-radius:0 0 99px 99px;background:#F97316;box-shadow:0 2px 8px rgba(249,115,22,.6)}.wf-bottom-nav-item.is-active .wf-bottom-nav-icon{filter:drop-shadow(0 2px 6px rgba(249,115,22,.28))}.wf-bottom-nav-item.is-active .wf-bottom-nav-label{letter-spacing:.12px}.wf-discovery-visual{position:relative;min-height:188px;overflow:hidden;border-radius:20px;background:#0D1117;box-shadow:0 16px 38px rgba(0,0,0,.28)}.wf-discovery-visual picture{position:absolute;inset:0;display:block}.wf-discovery-visual img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.wf-discovery-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,8,14,.9) 0%,rgba(3,8,14,.62) 43%,rgba(3,8,14,.1) 78%),linear-gradient(0deg,rgba(3,8,14,.42),transparent 60%)}.wf-discovery-copy{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:flex-end;height:188px;max-width:300px;padding:20px;color:#F8FAFC}.wf-discovery-kicker{font-size:10px;font-weight:800;letter-spacing:1.1px;color:#FB923C}.wf-discovery-title{margin-top:7px;font-size:22px;font-weight:800;line-height:1.08;letter-spacing:-.45px}.wf-discovery-text{margin-top:7px;font-size:12.5px;font-weight:600;line-height:1.42;color:#D8E0EA}.wf-navtabs{display:flex;gap:18px;overflow-x:auto;scrollbar-width:none;margin:0 0 8px;padding:0 2px}.wf-navtabs::-webkit-scrollbar{display:none}.wf-navtab{position:relative;display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;padding:5px 0 10px;background:none;border:0;cursor:pointer;font-size:14px;font-weight:600;color:#8A96AE;white-space:nowrap;transition:color .16s ease}.wf-navtab:hover{color:#CBD4E8}.wf-navtab.is-on{color:#FFFFFF;font-weight:800}.wf-navtab.is-on:after{content:"";position:absolute;left:0;right:0;bottom:4px;height:2.5px;border-radius:2px;background:#F97316}.wf-navtab:focus-visible{outline:2px solid #F97316;outline-offset:2px;border-radius:6px}.wf-navtab{text-decoration:none}.wf-navtab.is-filter{cursor:default;text-decoration:underline dotted rgba(255,255,255,.28);text-underline-offset:5px}.wf-navtab.is-filter:hover{color:#CBD4E8;text-decoration-color:rgba(255,255,255,.5)}.wf-navtab.is-filter.is-on:after{height:2px;background:rgba(249,115,22,.55);border-radius:1px}.wf-navsubs{overflow:hidden;max-height:0;opacity:0;transition:max-height .2s ease-out,opacity .18s ease-out;margin:0 0 6px}.wf-navsubs.is-open{max-height:96px;opacity:1}.wf-navsubs-row{display:flex;gap:16px;overflow-x:auto;scrollbar-width:none;padding:2px 2px 4px;border-top:1px solid #22272E;padding-top:8px}.wf-navsubs-row::-webkit-scrollbar{display:none}.wf-navsub{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;padding:5px 2px 10px;background:none;border:0;color:#8A96AE;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer;text-decoration:none;transition:color .16s ease;animation:wfsubin .3s cubic-bezier(.2,.85,.3,1) both}.wf-navsub:hover{color:#CBD4E8}.wf-navsub.is-on{color:#FFFFFF;font-weight:800}.wf-navsub.is-on:after{content:"";position:absolute;left:0;right:0;bottom:4px;height:2.5px;border-radius:2px;background:#F97316}.wf-navsub:focus-visible{outline:2px solid #F97316;outline-offset:2px}.wf-navsub-all{color:#FB923C;font-weight:750}.wf-navsub-all:hover{color:#FFC58F}@media (prefers-reduced-motion:reduce){.wf-navsubs{transition:none}.wf-navsub{animation:none}}.wf-scope-wrap{position:relative;flex:0 0 auto}.wf-scope{display:flex;align-items:center;gap:5px;height:48px;padding:0 12px;background:#1D2536;border:1.5px solid #30363D;border-right:none;border-radius:14px 0 0 14px;color:#B7C2D8;font-size:13px;font-weight:650;cursor:pointer;white-space:nowrap}.wf-scope:hover{background:#242D40}.wf-scope:focus-visible{outline:2px solid #F97316;outline-offset:-2px}.wf-search-row.has-scope .wf-search-input{border-radius:0!important;border-left:none!important}.wf-scope-menu{position:absolute;top:calc(100% + 8px);left:0;z-index:60;min-width:216px;margin:0;padding:6px;list-style:none;background:rgba(16,22,33,.94);backdrop-filter:blur(18px) saturate(1.25);-webkit-backdrop-filter:blur(18px) saturate(1.25);border:1px solid rgba(255,255,255,.09);border-radius:14px;box-shadow:0 24px 56px rgba(0,0,0,.62),0 3px 10px rgba(0,0,0,.45);transform-origin:top left;animation:wfscopein .22s cubic-bezier(.2,.85,.3,1) both}@keyframes wfscopein{from{opacity:0;transform:translateY(-7px) scale(.965)}to{opacity:1;transform:none}}@media (prefers-reduced-motion:reduce){.wf-scope-menu{animation:none}}.wf-scope-menu li{padding:11px 12px;border-radius:9px;font-size:13.5px;font-weight:650;color:#E7EDF5;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.wf-scope-menu li:hover,.wf-scope-menu li[aria-selected="true"]{background:rgba(249,115,22,.16);color:#FFC2A2}.wf-scope-cur{display:flex;align-items:center;gap:9px;color:#fff!important;font-weight:750!important}.wf-scope-cur svg{flex:0 0 auto;color:#F97316}.wf-scope-sep{height:1px;margin:6px 4px;padding:0!important;background:rgba(255,255,255,.08);cursor:default!important}.wf-scope-sep:hover{background:rgba(255,255,255,.08)!important}.wf-scope-label{padding:7px 12px 3px!important;font-size:10.5px!important;font-weight:800!important;letter-spacing:.12em;text-transform:uppercase;color:#8B96A9!important;cursor:default!important}.wf-scope-label:hover{background:none!important;color:#8B96A9!important}.wf-dests{display:flex;align-items:stretch;gap:2px;margin:9px 0 -6px;overflow-x:auto;scrollbar-width:none;border-top:1px solid #22272E}.wf-dests::-webkit-scrollbar{display:none}.wf-dest{position:relative;display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;padding:10px 12px 11px;background:none;border:0;cursor:pointer;font-size:13.5px;font-weight:600;color:#94A1BC;white-space:nowrap;text-decoration:none;transition:color .16s ease}.wf-dest:hover{color:#E4EAF7}.wf-dest.is-on{color:#FFFFFF;font-weight:800}.wf-dest.is-on:after{content:"";position:absolute;left:12px;right:12px;bottom:4px;height:2.5px;border-radius:2px;background:#F97316}.wf-dest-opener.is-on{color:#FB923C}.wf-dest-opener.is-on:after{background:#FB923C}.wf-dest:focus-visible{outline:2px solid #F97316;outline-offset:-2px;border-radius:8px}.wf-scpanel{margin:6px 0 -6px;padding:4px 0 2px;border-top:1px solid #22272E;animation:wfscin .18s ease-out}@keyframes wfscin{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}@media (prefers-reduced-motion:reduce){.wf-scpanel{animation:none}}@media(max-width:560px){.wf-navtabs{gap:14px}.wf-navtab{font-size:13px}.wf-dest{padding:10px 10px 11px;font-size:12.5px;gap:6px}.wf-scope{font-size:12.5px;padding:0 10px}}@media(min-width:${WF_DESKTOP_BP}px){.wf-shell{max-width:1280px}.wf-navtab{font-size:15px}.wf-dest{font-size:14px;padding:10px 14px 12px}.wf-scope{height:58px;font-size:14px;border-radius:17px 0 0 17px}.wf-explore{max-width:760px;margin:0 auto}.wf-cols{display:block;width:100%;max-width:800px;margin:16px auto 0}.wf-col-main{width:100%;max-width:800px;margin:0 auto}.wf-col-side{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}.wf-topbar{padding-left:max(28px,calc((min(100vw,1280px) - 800px)/2))!important;padding-right:max(28px,calc((min(100vw,1280px) - 800px)/2))!important;padding-top:20px!important;padding-bottom:18px!important}.wf-topbar-row{margin-bottom:14px!important}.wf-wordmark{gap:6px}.wf-wordmark-text{width:139.77px;height:46.5px;background-size:179.99px 46.5px}.wf-wordmark-pin{width:37.68px;height:43.5px;background-size:168.38px 43.5px}.wf-weather-button{padding:5px 8px!important}.wf-weather-button span:first-child{font-size:21px!important}.wf-signin-button{padding:10px 16px!important;font-size:13px!important}.wf-vibe-button{width:48px!important;height:48px!important}.wf-search-input{height:58px!important;font-size:17px!important;border-radius:17px 0 0 17px!important}.wf-search-submit{width:62px!important;height:58px!important;border-radius:0 17px 17px 0!important;font-size:25px!important}.wf-bottom-nav{left:50%!important;right:auto!important;bottom:18px!important;transform:translateX(-50%);width:min(800px,calc(100vw - 44px));max-width:none!important;margin:0!important;padding:9px!important;border:1px solid #30363D!important;border-radius:22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 18px 48px rgba(0,0,0,.42);backdrop-filter:blur(18px)}.wf-bottom-nav-item{min-height:72px;padding:10px 12px!important;border-radius:0!important}.wf-bottom-nav-icon{width:36px;height:31px;transform:scale(1.1)}.wf-bottom-nav-label{font-size:12px!important;letter-spacing:.05px}.wf-bottom-nav-item:hover{background:rgba(255,255,255,.025)!important}.wf-discovery-empty{padding-top:30px!important}.wf-discovery-heading{display:block!important;margin-bottom:16px!important}.wf-discovery-heading>div:first-child{margin:0!important;flex:initial!important}.wf-discovery-visual{min-height:224px;border-radius:22px}.wf-discovery-copy{height:224px;max-width:365px;padding:28px}.wf-discovery-title{font-size:27px}.wf-discovery-text{font-size:13.5px;max-width:300px}.wf-discovery-link{transition:transform .16s ease,border-color .16s ease}.wf-discovery-link:hover{transform:translateY(-1px);border-color:rgba(203,213,225,.35)!important}.wf-scrollarea{padding-bottom:calc(34px + env(safe-area-inset-bottom))!important}.wf-hooks{display:flex;flex-wrap:wrap;overflow-x:visible;padding-left:12px;padding-right:12px;margin:0 -12px 14px}.wf-hook-card{width:290px;height:185px}.wf-catrow{overflow-x:visible!important}.wf-cattile{flex:1 1 auto!important;justify-content:center!important}.wf-discovery-grid{overflow-x:visible!important}.wf-discovery-link{flex:1 1 auto!important;justify-content:center!important}}@media(min-width:${WF_WIDE_BP}px){.wf-shell{--wf-page:min(${WF_WIDE_MAX}px,calc(100vw - ${WF_WIDE_PAD * 2}px));--wf-side:${WF_ASIDE_COL}px;--wf-gutter:${WF_ASIDE_GAP}px;--wf-main:var(--wf-page);--wf-feed:min(960px,var(--wf-page))}.wf-shell{max-width:none}.wf-cols{display:block;width:100%;max-width:var(--wf-page);margin:16px auto 0}.wf-col-main{width:100%;max-width:var(--wf-feed);margin:0 auto}.wf-col-side{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start;width:100%;max-width:none;margin:22px 0 6px}.wf-explore{max-width:var(--wf-page)}.wf-topbar{padding-left:max(28px,calc((100vw - var(--wf-page))/2))!important;padding-right:max(28px,calc((100vw - var(--wf-page))/2))!important}.wf-topbar:after{left:max(28px,calc((100vw - var(--wf-page))/2));right:max(28px,calc((100vw - var(--wf-page))/2))}.wf-bottom-nav{left:max(28px,calc((100vw - var(--wf-page))/2))!important;right:auto!important;transform:none;width:min(var(--wf-main),calc(100vw - 56px));box-sizing:border-box}.wf-search-row{max-width:var(--wf-main)}.wf-catrow{max-width:none;margin:0;gap:9px}.wf-catlead{max-width:none;margin:0}.wf-cattile:hover{filter:brightness(1.12)}.wf-subwrap.is-open{max-height:140px}}`;
 export const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba(0,0,0,.24));transition:filter .2s ease}.wf-search-row:focus-within{filter:drop-shadow(0 13px 25px rgba(0,0,0,.34)) drop-shadow(0 0 7px rgba(148,163,184,.06))}.wf-search-row>div:first-child{border-radius:14px 0 0 14px}.wf-search-icon{color:#AEB9C8;transition:color .18s ease}.wf-search-row:focus-within .wf-search-icon{color:#E2E8F0}.wf-search-input{background:linear-gradient(135deg,#182130,#111923)!important;border-color:#354153!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.045),inset 0 -1px 0 rgba(0,0,0,.25);transition:border-color .18s ease,background .18s ease,box-shadow .18s ease}.wf-search-input::placeholder{color:#8190A3;opacity:1}.wf-search-input:focus,.wf-search-input:focus-visible{outline:none!important;outline-offset:0!important;border-color:rgba(203,213,225,.72)!important;background:linear-gradient(135deg,#1A2330,#121923)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.075),inset 0 0 0 1px rgba(203,213,225,.08),0 0 0 1px rgba(203,213,225,.14)!important}.wf-search-submit{background:linear-gradient(180deg,#FF9B47 0%,#F97316 55%,#E95A0C 100%)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.34),0 8px 18px rgba(249,115,22,.27);transition:filter .18s ease,transform .18s ease,box-shadow .18s ease}.wf-search-submit:hover{filter:brightness(1.06);transform:translateX(1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.42),0 10px 20px rgba(249,115,22,.34)}@media(min-width:${WF_DESKTOP_BP}px){.wf-topbar{padding-top:18px!important;padding-bottom:16px!important}.wf-topbar-row{margin-bottom:10px!important}.wf-search-row>div:first-child{border-radius:17px 0 0 17px}.wf-search-icon{left:16px!important}.wf-search-input{padding-left:43px!important}}` +
   /* v8.28 — 390px placeholder fit. The official string is "Search a place or
      city" (aria-label + placeholder). The location chip + 38px icon gutter +
@@ -109,20 +92,6 @@ export const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba
   `.wf-search-row{min-width:0}.wf-search-field{flex:1;min-width:0;position:relative}.wf-scope-city{max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wf-search-input{min-width:0}` +
   `@media(max-width:430px){.wf-scope{padding:0 8px;gap:4px}.wf-scope-city{max-width:56px}.wf-search-icon{display:none!important}.wf-search-input{font-size:14px!important;padding-left:12px!important;padding-right:8px!important}.wf-search-submit{width:46px!important}}`;
 export const WF_PLACE_CARD_CSS = `
-/* v8.29 — THE TICKET (owner, 2026-08-20: "display the tickets from viator on
-   the place cards we need to make it look premium and fancy not ghetto like
-   this"). This is the only element on a place card that earns revenue, and it
-   shipped as a bare anchor with one inline colour inside a lane of designed
-   chips — so the eye read it as leftover text and slid past it.
-
-   It is a ticket now, and it is a ticket by TYPOGRAPHY rather than by
-   decoration: a stamped, letterspaced label at 9.5px/800 against the merchant
-   name at 11px/700 in the reading colour, split by a perforated rule. No
-   notches cut out of the sides — those need to punch through to the card's
-   own background, and this card renders on four different backgrounds.
-
-   It sits inside .wf-place-card-highlights, whose one-row clamp is 30px, so
-   the chip is 26 and shrinks to 24 on a 390px phone. */
 .wf-ticket-pill{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 9px 0 8px;border-radius:7px;text-decoration:none;position:relative;color:#FFD9AE;background:linear-gradient(180deg,rgba(253,186,116,.17),rgba(249,115,22,.10));border:1px solid rgba(253,186,116,.44);box-shadow:inset 0 1px 0 rgba(255,236,209,.18),0 1px 0 rgba(0,0,0,.34);transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease}
 .wf-ticket-pill svg{width:13px;height:13px;display:block;flex:0 0 13px;color:#FDBA74}
 .wf-ticket-pill-lb{font-size:9.5px;font-weight:800;letter-spacing:.085em;text-transform:uppercase;color:#FFC98A;line-height:1}
@@ -135,49 +104,10 @@ export const WF_PLACE_CARD_CSS = `
 @media(max-width:390px){.wf-ticket-pill{height:24px;gap:5px;padding:0 8px 0 7px}.wf-ticket-pill-mr{max-width:82px}}
 @media (prefers-reduced-motion:reduce){.wf-ticket-pill{transition:none}.wf-ticket-pill:hover{transform:none}}
 
-/* v8.22 — THE CONTRACT IS SELF-CONTAINED. The card ships onto pages that
-   never load the app's global border-box reset (guide pages, embeds), and
-   UA defaults give <button> border-box but <a> CONTENT-box — which is why
-   the 42px thumb anchors rendered 70px wide and overlapped on /guides/*
-   while the same card looked fine in the app. Measured: 22x42px overlap at
-   390px. The card owns its own box model; no host reset is ever assumed.
-   Locked by scripts/test-place-card-layout.mjs on real Chromium boxes. */
 .wf-place-card,.wf-place-card *,.wf-place-card *::before,.wf-place-card *::after{box-sizing:border-box}
-/* ══════════════════════════════════════════════════════════════════════════
-   THE CARD STANDARD — v8.13 (owner, 2026-08-18): "the place cards are
-   different sizes. I need to make sure that the place cards are all the same
-   size … I don't want you to make it less taller, I want them to be the same
-   height. And if some of them don't have things written in them … keep them
-   the same size, and make sure that the buttons — the share, the like —
-   everything in every single place card is lined in structure. Every place
-   card should be exactly the same, and it has to have this premium look."
-
-   ONE GEOMETRY, EVERYWHERE the .wf-place-card contract renders (home.js
-   PlaceCard, IconicPlaceCard, RailCard, the map's bottom card):
-
-     · card height:      --wf-card-h = 268px, FIXED — tall, never content-
-                         sized. A card with no editorial is the same 268px;
-                         the room breathes between copy and actions (the
-                         v8.12 owner-approved spacing), it never shrinks.
-     · media column:     96px (88px ≤430px, 108px desktop) at full card height.
-     · action row:       Save / Like / Dislike / Share, bottom-anchored
-                         (margin-top:auto) on the same grid template in every
-                         card, so the buttons line up card-to-card to the px.
-     · row clamps keep the fixed height honest instead of clipping actions:
-       name ≤2 lines, facts 1 line, pills 1 row, take ≤2 lines (v7.05),
-       award 1 line (ellipsis). Nothing may remove a clamp without raising
-       --wf-card-h to fit the new worst case — the standard is the pair.
-
-   v8.12's per-rail height:100% stretch is SUPERSEDED by this (same owner
-   thread, one step further): matching the tallest sibling made cards equal
-   within one rail row and still unequal across rails and list pages. A fixed
-   height is the only geometry that is identical EVERYWHERE. */
 .wf-place-card{--wf-card-h:268px;height:var(--wf-card-h);box-sizing:border-box;position:relative}
 .wf-place-card-layout{height:100%;box-sizing:border-box}
 .wf-place-card-monogram{height:100%;box-sizing:border-box}
-/* border-box is load-bearing: the content column carries 13/11px padding, and
-   at height:100% content-box it overflows the fixed card by exactly that
-   padding — measured as a 13px action-row clip in the 390px render harness. */
 .wf-place-card-content{display:flex;flex-direction:column;height:100%;box-sizing:border-box}
 .wf-place-card-name{display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .wf-place-card-meta{flex-wrap:nowrap!important;overflow:hidden;white-space:nowrap}
@@ -433,10 +363,7 @@ export const WF_PLACE_CARD_CSS = `
   color:#CDD5E1!important;
   font-size:10.5px!important;
   line-height:1.35!important;
-  /* v7.05: two lines, not one clipped line. A one-line ellipsis on a 100-char
-     editorial budget would just move the truncation from the source string to
-     the CSS — the reader still never reaches the payoff. */
-  display:-webkit-box;
+    display:-webkit-box;
   -webkit-line-clamp:2;
   -webkit-box-orient:vertical;
   text-overflow:ellipsis;
@@ -482,10 +409,6 @@ export const WF_PLACE_CARD_CSS = `
 }
 .wf-sheet-card-actions>.wf-place-card-save,
 .wf-sheet-card-actions>.wf-place-card-share{min-width:0!important;margin-left:0!important;padding-inline:8px!important}
-/* v6.90 — the home PlaceCard can render a 5th action (Book on Viator, first
-   in row order) that the 4-column sheet-card layout above was never built
-   for. :has() lets the same wf-sheet-card-actions class stay the single
-   action-row layout everywhere instead of forking a second one. */
 .wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:minmax(70px,.8fr) minmax(64px,.8fr) 42px 42px minmax(76px,1fr)}
 .wf-place-card.is-liked{border-color:rgba(76,224,179,.35)!important}
 .wf-place-card.is-disliked{border-color:rgba(248,113,113,.28)!important}
@@ -503,53 +426,19 @@ export const WF_PLACE_CARD_CSS = `
   .wf-place-card-name{font-size:17px!important}
 }
 
-/* ─────────────────────────────────────────────────────────────────────────
-   THE RAIL (v7.02). Owner, 2026-08-08, with a screenshot of the /best-of
-   card: "this image is where the money is at... apply everything else
-   towards that style... the finds from local creators should also match
-   that style."
-
-   So a rail card is not a different card. It is THE place card above, at a
-   fixed width, snapping sideways. Everything in this block is width and
-   density — nothing here restyles the card's language, because the whole
-   point is that there is only one language. Two rails use it today (events,
-   creator finds); the hero swipe cards above "Happening near you" are
-   deliberately untouched (owner: "the hero cards, leave them").
-
-   WIDTH. 318px, not full width: the peek at the right edge is the only thing
-   that tells a reader the rail moves. Capped at 88vw so a 320px phone still
-   shows that peek instead of one card wider than the screen.
-   ───────────────────────────────────────────────────────────────────────── */
 .wf-rail{
   display:flex;
   align-items:stretch;
   gap:10px;
   overflow-x:auto;
   overflow-y:hidden;
-  /* 2026-08-12 — SCROLL CHAINING IS THE OTHER HALF OF THE SIDEWAYS-SHIFT BUG.
-     Without this, a flick that runs past the last card does not stop at the
-     rail's edge: the momentum CHAINS to the ancestor, and on iOS the ancestor
-     that ends up moving is the viewport itself. The layout then sits shifted
-     with every element clipped by the same amount, which is what the owner
-     screenshotted. "contain" stops the gesture at the rail. (No backticks in
-     this comment — it lives inside a JS template literal.) Pinned by
-     scripts/check-no-sideways-scroll.mjs. */
-  overscroll-behavior-inline:contain;
+    overscroll-behavior-inline:contain;
   padding-bottom:4px;
   scroll-snap-type:x mandatory;
   -webkit-overflow-scrolling:touch;
   scrollbar-width:none;
 }
 .wf-rail::-webkit-scrollbar{display:none}
-/* FULL WIDTH (owner, 2026-08-08: "you compressed it, i dont want that... i
-   want the card size to be full"). The first pass sized the card at 318px so a
-   sliver of the next one peeked past the right edge — that peek is the usual
-   way to say "this scrolls", but it costs ~50px of the card's own width, and
-   on a 390px phone that is the difference between the creator handle reading
-   "@secretsoftampabay on Instagram" and reading "@SECRETSOFTAMPABAY ON INS…".
-   The card takes the full column and .wf-rail-nav above it carries the "there
-   is more" signal instead. Measured on production at 390 and 1024: the handle
-   stops clipping and no action row overflows. */
 .wf-rail>.wf-rail-card{
   flex:0 0 100%;
   width:100%;
@@ -557,17 +446,9 @@ export const WF_PLACE_CARD_CSS = `
   scroll-snap-align:start;
 }
 .wf-rail-card{display:flex;flex-direction:column;cursor:pointer}
-/* The EVENTS rail pins a floor equal to its tallest measured card (236px in
-   headless Chromium at 320–1440) so the skeleton and the live rail are the
-   SAME height at every width, not merely close. A floor, not a fixed height:
-   if content ever exceeds it the card grows instead of clipping its own
-   action row. EV_RAIL_MIN_H in app/home.js is this number — the two are
-   asserted together by scripts/test-event-rail-images.mjs. */
 .wf-rail-events>.wf-rail-card{min-height:245px}
 .wf-rail-card>.wf-place-card-layout{flex:1}
 .wf-rail-card .wf-place-card-content{padding:12px 12px 10px!important}
-/* Two reserved title lines. A rail of cards whose baselines stagger by one
-   line is the exact misalignment the owner reported on the creator row. */
 .wf-rail-card .wf-place-card-name{
   display:-webkit-box;
   -webkit-line-clamp:2;
@@ -577,24 +458,11 @@ export const WF_PLACE_CARD_CSS = `
   font-size:15px!important;
   line-height:1.15!important;
 }
-/* One line each, clipped — a 318px column cannot afford a wrapped meta row or
-   a second row of chips without every card in the rail growing to match. */
 .wf-rail-card .wf-place-card-meta{flex-wrap:nowrap!important;overflow:hidden;gap:4px 10px!important;margin:7px 0 6px!important}
 .wf-rail-card .wf-place-card-highlights{flex-wrap:nowrap!important;overflow:hidden}
-/* …EXCEPT in the Top 40 rail, where the card carries the reference card's full
-   tag set (Creator video · Waterfront · Great value · Crowd favorite) and those
-   are the content, not decoration. One clipped row is what left a hole in the
-   card; two wrapped rows is what the approved design actually shows. */
 .wf-rail-top40 .wf-place-card-highlights{flex-wrap:wrap!important;overflow:visible;max-height:none;mask-image:none;-webkit-mask-image:none}
 .wf-rail-card .wf-place-card-award{margin-bottom:6px}
-/* The EDITORIAL line on a rail card. .wf-place-card-take is single-line-
-   ellipsised on the /best-of list, where the row is full page width; a rail card
-   is one column and the line is the point of the card — two lines, clamped, so
-   a long one cannot make one card in the rail taller than its neighbours. */
 .wf-rail-card .wf-place-card-take{white-space:normal!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:6px}
-/* The money action. Full width above the action row rather than a fifth
-   column in it: at this width five controls in one row leaves every one of
-   them too small to read, and this is the tap that earns the commission. */
 .wf-rail-card-cta{
   display:flex!important;
   align-items:center;
@@ -620,11 +488,6 @@ export const WF_PLACE_CARD_CSS = `
 .wf-rail-card .wf-place-card-like svg,.wf-rail-card .wf-place-card-dislike svg{width:17px;height:17px}
 .wf-rail-card .wf-place-card-actions>a,.wf-rail-card .wf-place-card-actions>button{min-height:36px;padding:0 7px!important;font-size:10px!important}
 
-/* THE "THERE IS MORE" ROW. With full-width cards nothing peeks past the edge,
-   so the rail has to say out loud that it moves. This is that sign: a live
-   count on the left and two real controls on the right, sitting directly above
-   the first card. The arrows page by exactly one viewport width, which with a
-   full-width card is exactly one card. */
 .wf-rail-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 7px}
 .wf-rail-nav-hint{color:#8B97A8;font-size:11px;font-weight:700;letter-spacing:.2px}
 .wf-rail-nav-hint b{color:#CBD5E1;font-weight:800}
@@ -648,10 +511,6 @@ export const WF_PLACE_CARD_CSS = `
 .wf-rail-nav-btn:hover{border-color:rgba(249,115,22,.6);color:#FFB27A;transform:translateY(-1px)}
 .wf-rail-nav-btn:focus-visible{outline:2px solid rgba(249,115,22,.72);outline-offset:2px}
 
-/* THE WHEN BADGE — events counterpart to the Wayfind Score overlay on the
-   photo. An event has no score and must never be handed a fabricated one, so
-   the same box carries a date fact. Tone is derived from the event's own
-   date (today / tomorrow / later), never picked for effect. */
 .wf-place-card-score .wf-rail-when{width:100%;min-width:0;height:40px}
 .wf-rail-when{
   --wf-when-color:#7FA6C8;
@@ -689,41 +548,9 @@ export const WF_PLACE_CARD_CSS = `
 .wf-rail-when-label{width:100%;overflow:hidden;color:#B8C2D0;font-size:6.5px;font-weight:800;letter-spacing:.7px;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}
 .wf-rail-when-value{width:100%;color:#F8FAFC;font-size:13.5px;font-weight:800;line-height:.98;white-space:nowrap}
 
-/* The creator credential wears the award band, in the platform's own register
-   rather than the champagne reserved for a Wayfind curator's pick (that
-   meaning is protected by check-curator-boost.mjs and must not be diluted). */
 .wf-place-card-award.is-creator{border-color:rgba(244,114,182,.42);background:linear-gradient(110deg,rgba(244,114,182,.16),rgba(244,114,182,.03));color:#F9A8D4}
 .wf-place-card-award.is-creator .wf-place-card-award-icon{background:linear-gradient(145deg,#FDA4C8,#B83280);color:#2A0A18}
 
-/* v8.33 — THE CREATOR CREDIT ON THE CARD (owner, 2026-08-22: "right now the
-   place cards does not show there is an influencer video on it … i like the
-   idea of adding the influencer avatar on the place card").
-
-   A real person's face is the highest-contrast signal this card can carry —
-   higher than any chip, because a face is pre-attentive and a word is not. The
-   "🎬 Creator video" chip that used to be the only marker lives in the pills
-   lane, a one-row clamp with horizontal overflow, so on a narrow card it is
-   genuinely off-screen.
-
-   pointer-events:none is load-bearing, not a detail: this renders inside three
-   card implementations whose taps are owned by one card-level handler, and one
-   (RailCard) that hard-blocks in-card navigation by contract. See the header of
-   app/components/CreatorCardMark.js.
-
-   v8.34 — SECOND PLACEMENT, and the reason is worth keeping. v8.33 put this
-   over the bottom-left of the photo. Owner, on the shipped result: "i want her
-   avatar in a better placement not on top of the image like that." The overlay
-   spent the photograph — the most persuasive element on the card — and bought
-   only a face, because a 96px column has no room for a NAME, and a face with no
-   name is decoration.
-
-   It is a CREDIT ROW in the copy column now, bottom-anchored directly above the
-   action grid: the band where the fixed 268px card already had dead space on
-   every card, between the pills and the buttons. Nothing that was being used is
-   spent, the photograph is clear, and there is room for the avatar, the whole
-   handle and the platform. margin-top:auto here plus the sibling override on
-   .wf-place-card-actions is exactly the pattern .wf-rail-card-cta already uses
-   to sit in that band. */
 .wf-place-card-credit{
   display:flex;
   align-items:center;
@@ -733,8 +560,6 @@ export const WF_PLACE_CARD_CSS = `
   padding-top:10px;
   pointer-events:none;
 }
-/* Without this the two auto margins SPLIT the free space and the credit row
-   floats in the middle of the gap instead of sitting on the actions. */
 .wf-place-card-credit~.wf-place-card-actions{margin-top:0!important;padding-top:8px}
 .wf-pcc-name{
   min-width:0;
@@ -766,9 +591,6 @@ export const WF_PLACE_CARD_CSS = `
   white-space:nowrap;
 }
 .wf-pcc-stack{position:relative;display:flex;flex:0 0 auto;align-items:center}
-/* The ring is the platform's own colour, so the mark reads as "TikTok" without
-   a wordmark we have no licence to draw. The second, dark ring underneath is
-   what keeps a bright-pink ring from vanishing into a bright photo. */
 .wf-pcc-head{
   position:relative;
   display:block;
@@ -794,25 +616,13 @@ export const WF_PLACE_CARD_CSS = `
   background:var(--pcc-ring,#FF0050);
   color:#0B0E1A;
 }
-/* "+2" when more than two creators filmed the same place. Inline in the name
-   now rather than a floating chip: in a credit row it belongs to the sentence
-   ("@handle +2"), not to the avatar stack. */
 .wf-pcc-more{color:#94A3B8;font-size:10.5px;font-weight:800}
-/* 390px is the real phone. The content column there is ~268px wide and the
-   handle is the part that must survive — it already ellipsises, but the
-   platform pill is what gets tight first, so it loses its letterspacing
-   before the name loses characters. */
 @media(max-width:390px){
   .wf-place-card-credit{gap:6px;padding-top:8px}
   .wf-pcc-plat{padding:0 6px;letter-spacing:.03em}
   .wf-pcc-name{font-size:11px}
 }
 
-/* SMALL PHONES. Measured in headless Chromium across 320–1440: at 320px the
-   four-control action grid overflowed its column by 27px and clipped Share.
-   The controls get tighter here rather than wrapping to a second row, because
-   a rail whose cards are one row taller on one device is a rail whose skeleton
-   height is wrong on that device. */
 @media(max-width:360px){
   .wf-rail-card .wf-place-card-content{padding-inline:9px!important}
   .wf-rail-card .wf-sheet-card-actions{grid-template-columns:minmax(42px,1fr) 34px 34px minmax(46px,1fr);gap:4px!important}
@@ -820,9 +630,6 @@ export const WF_PLACE_CARD_CSS = `
   .wf-rail-card .wf-place-card-actions>a,.wf-rail-card .wf-place-card-actions>button{padding:0 5px!important;font-size:9.5px!important}
 }
 
-/* The "worth the drive" card at the end of the creator rail. Same footprint
-   and same border language as the cards beside it — an arrow tile half their
-   height reads as a broken last card rather than as an invitation. */
 .wf-rail-bridge{
   display:flex;
   flex:0 0 100%;
@@ -870,17 +677,6 @@ export const WF_PLACE_CARD_CSS = `
   .wf-bottom-nav-label{font-size:10.75px!important}
 }
 
-/* v6.73 — owner: "i want a orange pulsing glow behind this section, i love
-   these little coupons, they are such a hidden gem on the site, such a great
-   find!" (Deal card, sheets/Detail.js — both the owner-curated coupon and the
-   live Supabase-offer variant). This is content-level emphasis on a revenue
-   surface (every redeem click is a commission event), not chrome — the
-   MOTION token's "no bounce/pulse/glow loops anywhere in chrome" rule (kit.js)
-   scopes to navigational chrome; the app already has precedent for slow,
-   opacity-only pulses on special commercial callouts (the giveaway popup's
-   wfGold top-bar pulse, 2.8s ease-in-out). Same register here: box-shadow
-   only (no scale/transform, so it can't shift layout or read as jittery),
-   slow enough to feel like a glow breathing rather than an alert. */
 @keyframes wfDealGlow{
   0%,100%{box-shadow:0 0 0 0 rgba(249,115,22,0),0 4px 14px rgba(0,0,0,.25)}
   50%{box-shadow:0 0 26px 6px rgba(249,115,22,.38),0 4px 14px rgba(0,0,0,.25)}
@@ -890,17 +686,6 @@ export const WF_PLACE_CARD_CSS = `
   .wf-deal-glow{animation:none;box-shadow:0 0 16px 3px rgba(249,115,22,.24),0 4px 14px rgba(0,0,0,.25)}
 }
 
-/* v6.93 (owner: "there is no pulsing glow behind it") — a color-parameterized
-   twin of .wf-deal-glow for the Social Media Find surfaces (home hero card +
-   Detail sheet card). .wf-deal-glow is hardcoded orange; these cards span 4
-   platforms with 4 different brand colors (lib/creatorVideos.js PLATFORM), so
-   the color rides in via the --glow-rgb custom property (an "r,g,b" triplet,
-   set inline per-card) instead of being baked into the keyframe. Falls back
-   to TikTok pink if --glow-rgb is somehow unset. Same register as the deal
-   glow: box-shadow only, no scale/transform, same 2.6s breathing cadence and
-   the same explicitly-approved exception to kit.js's MOTION "no pulse in
-   chrome" rule (this is content-level emphasis on a discovery/social-proof
-   surface, not navigational chrome). */
 @keyframes wfSocialGlow{
   0%,100%{box-shadow:0 0 0 0 rgba(var(--glow-rgb,255,0,80),0),0 4px 14px rgba(0,0,0,.25)}
   50%{box-shadow:0 0 26px 6px rgba(var(--glow-rgb,255,0,80),.42),0 4px 14px rgba(0,0,0,.25)}
@@ -909,9 +694,6 @@ export const WF_PLACE_CARD_CSS = `
 @media (prefers-reduced-motion:reduce){
   .wf-social-glow{animation:none;box-shadow:0 0 16px 3px rgba(var(--glow-rgb,255,0,80),.3),0 4px 14px rgba(0,0,0,.25)}
 }
-/* v8.28 — place-card-shaped skeleton. A single rounded color slab is the
-   homepage loading flash; this is the live card's geometry (media column +
-   copy lines + action row) with shimmer only. No copy. */
 .wf-place-card-sk{pointer-events:none}
 .wf-place-card-sk-media{width:100%;height:100%;min-height:176px;border-radius:0}
 .wf-place-card-sk-line{height:11px;border-radius:6px;margin:0 0 8px}
@@ -996,7 +778,6 @@ export const WF_TASTE_CSS = `
 }
 .wf-taste-chip.is-neg:hover{border-color:rgba(159,177,203,.44);box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 8px 18px rgba(0,0,0,.26)}
 .wf-taste-chip-neg{font-weight:650;opacity:.72;text-transform:uppercase;font-size:9.5px;letter-spacing:.7px;margin-right:1px}
-/* WCAG 2.5.8 — the old remove control was an 18px dot. 24px is the minimum. */
 .wf-taste-x{
   display:grid;
   place-items:center;
@@ -1035,12 +816,6 @@ export const WF_TASTE_CSS = `
 }
 .wf-taste-btn:hover{transform:translateY(-1px);filter:brightness(1.06)}
 .wf-taste-btn:active{transform:translateY(0) scale(.99)}
-/* v6.56: the neutral sibling of is-danger. "Turn off" stops the re-ranking and
-   keeps what was learned; "Reset" erases the vector. Those are genuinely
-   different acts, so they must not look the same — only the destructive one
-   gets the red treatment. Deliberately NOT called .is-primary: v6.50 removed
-   that class and scripts/test-taste.mjs asserts it stays gone, because nothing
-   in this sheet should be styled as the recommended action. */
 .wf-taste-btn.is-quiet{
   border:1px solid #2D3748;
   background:linear-gradient(135deg,rgba(28,34,48,.94),rgba(11,14,20,.92));

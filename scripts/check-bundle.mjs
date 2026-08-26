@@ -41,7 +41,7 @@ import { gzipSync } from "node:zlib";
 // the route chunk) and lib/trendTaxonomy.js reaching the client through the
 // Exploding rail.
 const ROUTE_CHUNK_BUDGET_KB = 175; // static/chunks/app/page-*.js, gzipped. RATCHET: lower only.
-const TOTAL_BUDGET_KB = 500;       // every JS asset for route "/", gzipped.  RATCHET: lower only.
+const TOTAL_BUDGET_KB = 493;       // every JS asset for route "/", gzipped.  RATCHET: lower only.
 const WARN_HEADROOM_KB = 2;        // print a loud warning below this. See below.
 // ─── WHY 500, AND WHY THIS GATE STARTED BLOCKING EVERYTHING (2026-08-26) ────
 // #950 set 496 from a LOCAL measurement of 495.2 — 0.8KB of headroom, which
@@ -65,13 +65,23 @@ const WARN_HEADROOM_KB = 2;        // print a loud warning below this. See below
 // only real lever is moving LIVE code off the client, and app/home.js at 388KB
 // parsed is that whole job.
 //
-// 500 is the pre-#950 value and still a large ratchet DOWN from the 535.8 this
-// gate was silently failing at for months. Lower it again the moment the
-// home.js split lands — but keep >=2KB of headroom, because gzip is
+// 500 was the pre-#950 value and still a large ratchet DOWN from the 535.8
+// this gate was silently failing at for months. Lower it again when live code
+// leaves the client — but keep >=2KB of headroom, because gzip is
 // environment-dependent and a budget without slack measures the weather.
+//
+// v8.63, same day: the CSS-comment strip (below) freed 7.2KB — measured
+// 488.8 at level 6. 493 locks ~6KB of that win while keeping 4.2KB of
+// headroom, honoring both halves of the lesson above: real savings ratchet
+// down, and the slack floor stays comfortably above 2KB.
 // 2026-08-26: CULTURE corpus left the homepage client (lib/cultureCorpus.js).
-// Measured 495.2KB gz after the split. 496 locks the savings; 500 was the
+// Measured 495.2KB gz after the split. 496 locked the savings; 500 was the
 // previous ratchet that #949 died against (500.1).
+// 2026-08-26 (v8.63): 15.5KB of PROSE COMMENTS were shipping inside the CSS
+// template strings of app/components/css.js — a template literal is not
+// minified, so every /* rationale */ block rode to every visitor. Stripped
+// (git history keeps the prose; the guards keep the rules) and measured
+// 488.8KB gz. 493 locks it (see above); check-css-comment-bytes.mjs stops the creep-back.
 
 const fail = (m) => { console.error("check-bundle: FAIL — " + m); process.exit(1); };
 
