@@ -102,6 +102,32 @@ ok(/shots\.credit/.test(code), `${PAGE} must render the photo credit alongside t
   ok(ld.image[0].includes(EVENT_PHOTO_SETS[ids[0]].hero.src), "the owned hero leads the image list — it is the one we hold rights to");
 }
 
+/* ── 6b. THE PHOTO RAIL CANNOT STRETCH ──────────────────────────────────── */
+// SHIPPED BROKEN 2026-08-26 and caught by the owner on the live page: the first
+// rail put `width` + `aspect-ratio` on the <img> itself inside a flex row. A
+// flex row's default `align-items: stretch` overrides an item's own computed
+// height, and the intrinsic width/height attributes (853x1280) gave it
+// something enormous to stretch to — four full-viewport-height slabs. A mock
+// built by hand looked right because the mock was not the page.
+//
+// The shape that cannot do this: an explicit px width AND height on a WRAPPER,
+// the img filling it with object-fit, and the row pinned to flex-start.
+{
+  const strip = (code.match(/strip:\s*\{[\s\S]*?\},/) || [""])[0];
+  ok(/alignItems:\s*["']flex-start["']/.test(strip),
+    `${PAGE}: the photo rail must set alignItems:"flex-start" — a flex row stretches its children by default, which is exactly how this shipped as full-height slabs`);
+  const box = (code.match(/shotBox:\s*\{[\s\S]*?\},/) || [""])[0];
+  ok(/width:\s*\d+/.test(box) && /height:\s*\d+/.test(box),
+    `${PAGE}: each photo needs a wrapper with an explicit px width AND height — sizing the <img> itself is what broke`);
+  ok(/overflow:\s*["']hidden["']/.test(box), `${PAGE}: the photo wrapper must clip its image`);
+  const shot = (code.match(/\n\s*shot:\s*\{[\s\S]*?\},/) || [""])[0];
+  ok(!/aspectRatio/.test(shot), `${PAGE}: the <img> must not carry aspectRatio — the wrapper owns the box now`);
+  ok(/objectFit:\s*["']cover["']/.test(shot) && /width:\s*["']100%["']/.test(shot) && /height:\s*["']100%["']/.test(shot),
+    `${PAGE}: the <img> must simply fill its wrapper (100%/100% + object-fit: cover)`);
+  ok(!/<img[^>]*width=\{p\.w\}/.test(code),
+    `${PAGE}: no intrinsic width/height attributes on a rail photo — 853x1280 is what the row stretched to`);
+}
+
 /* ── 7. THE SHARE CARD IS THE PHOTOGRAPH, and it resolves ───────────────── */
 // An event with owned photography previews with that photograph rather than the
 // generated text card. Deliberately NOT an <img> inside /api/og: check-share-

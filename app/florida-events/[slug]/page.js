@@ -70,8 +70,30 @@ const S = {
   // horizontally and shows phone photos at the portrait aspect they were shot
   // at, because letterboxing a 2:3 photo into a 2:1 slot crops the subject out.
   hero: { width: "100%", height: "auto", aspectRatio: "1200 / 631", objectFit: "cover", borderRadius: 14, display: "block", margin: "0 0 16px", background: "#161B22" },
-  strip: { display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", padding: "2px 0 8px", margin: "0 0 6px", WebkitOverflowScrolling: "touch", scrollSnapType: "x mandatory" },
-  shot: { flex: "0 0 auto", width: 168, aspectRatio: "853 / 1280", objectFit: "cover", borderRadius: 12, display: "block", background: "#161B22", scrollSnapAlign: "start" },
+  // v8.70 — THE RAIL, REBUILT SO IT CANNOT STRETCH.
+  //
+  // The first version put width + aspect-ratio directly on the <img> inside a
+  // flex row. Two things then went wrong together on desktop: a flex row's
+  // default `align-items: stretch` overrides an item's own computed height, and
+  // the intrinsic width/height attributes (853x1280) give the box something
+  // enormous to stretch to. The result was four full-viewport-height slabs.
+  //
+  // The fix is to stop asking the image to size itself at all. Each photo sits
+  // in a wrapper with an EXPLICIT px width AND height; the <img> just fills it
+  // with object-fit: cover. No aspect-ratio maths, no intrinsic-size influence,
+  // and `alignItems: flex-start` means nothing can be stretched by the row.
+  strip: {
+    display: "flex", alignItems: "flex-start", gap: 10,
+    overflowX: "auto", overscrollBehaviorX: "contain",
+    padding: "2px 0 10px", margin: "0 0 6px",
+    WebkitOverflowScrolling: "touch", scrollSnapType: "x mandatory",
+  },
+  shotBox: {
+    flex: "0 0 auto", width: 172, height: 258,
+    borderRadius: 12, overflow: "hidden", background: "#161B22",
+    scrollSnapAlign: "start",
+  },
+  shot: { width: "100%", height: "100%", objectFit: "cover", display: "block" },
   credit: { fontSize: 12.5, color: "#8B949E", margin: "0 0 22px" },
   shareTop: { margin: "-8px 0 22px" },
   shareEnd: { margin: "28px 0 4px", padding: "18px 20px", borderRadius: 16, background: "#0E1520", border: "1px solid #1F2A3A" },
@@ -152,8 +174,12 @@ export default async function CuratedEventPage({ params }) {
           <h2 style={S.h2}>What it looks like</h2>
           <div style={S.strip}>
             {shots.photos.map((p) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img key={p.src} src={p.src} alt={p.alt} width={p.w} height={p.h} loading="lazy" style={S.shot} />
+              <div key={p.src} style={S.shotBox}>
+                {/* No width/height attributes: the wrapper is the box, and the
+                    intrinsic 853x1280 is exactly what the row stretched to. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={p.src} alt={p.alt} loading="lazy" style={S.shot} />
+              </div>
             ))}
           </div>
           {shots.credit ? (
