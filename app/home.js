@@ -10017,6 +10017,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                       Each passes its OWN category so the chip map cannot cross-resolve — "all"
                       exists in all seven categories and "family" is both a sub-chip and a
                       category. Ranking is unchanged: rankExperiences, highest score first. */}
+                  {browseCat === "food" && <ChefPicksRail onOpen={openDetail} />}
                   {browseCat === "food" && center && <UnifiedBrowseCommerceRail cat="food" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {browseCat === "nightlife" && center && <UnifiedBrowseCommerceRail cat="nightlife" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {browseCat === "shopping" && center && view.length > 0 && <UnifiedBrowseCommerceRail cat="shopping" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
@@ -11017,6 +11018,50 @@ function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includ
 // check-unified-commerce-rail already forbade mounting it) — same 200px card, same
 // <img> height 86 object-fit cover, same title clamp, same disclosure footer —
 // the two rails should read as one visual system, not two different eras of UI.
+// v8.64 (owner, 2026-08-26: "make sure chef ron duprat top 7 choices is in the
+// rail card... make sure the style is the same of the rail cards... keep Ron's
+// order exactly as given"). The chef's seven as a RAIL, in the same 200px tile
+// chrome as UnifiedBrowseCommerceRail / UTDealsRail (one visual system, not
+// two eras of UI): same flex-basis 200 card, same 86px cover image band, same
+// corner chip, same two-line title clamp, same PlaceScoreChip row. Differences
+// are the point, not drift: tiles open OUR place detail (no external href, no
+// commerce, so no affiliate disclosure line), the corner chip reads "Ron's #N"
+// instead of "via {merchant}", and the order is HIS — rank is testimony
+// (lib/chefPicks.js law) and on this surface it is also the sort. A tile whose
+// place photo cannot load falls back to the campaign art rather than hiding —
+// a chef's pick does not disappear because a photo budget ran dry.
+function ChefPicksRail({ onOpen }) {
+  const c = RON_DUPRAT_TOP7;
+  const places = chefPickPlaces(c);
+  if (!places.length) return null; // chefPicksReady gate — no partial list, ever
+  return (
+    <aside data-chef-picks-rail style={{ margin: "2px 0 14px" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
+        <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>{c.title}</span>
+        <span style={{ fontSize: 9.5, color: C.muted }}>Chef-approved dining picks</span>
+      </div>
+      <div style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 4, scrollSnapType: "x proximity" }}>
+        {places.map((p) => (
+          <button key={p.id} type="button" onClick={() => { try { logEventAnon("chef_rail_open", p, { chef: c.key, rank: p._chefRank }); } catch (e) {} onOpen && onOpen(p); }} aria-label={"Ron's #" + p._chefRank + ": " + p.name} style={{ flex: "0 0 200px", scrollSnapAlign: "start", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textAlign: "left", padding: 0, cursor: "pointer", color: "inherit", font: "inherit" }}>
+            <div style={{ position: "relative", height: 86, overflow: "hidden", borderBottom: `1px solid ${C.border}` }}>
+              <img src={"/api/photo?place=" + encodeURIComponent(p.id) + "&w=400"} alt="" loading="lazy" onError={(e) => { if (e.currentTarget.src.indexOf(c.heroImage) === -1) e.currentTarget.src = c.heroImage; }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              <span style={{ position: "absolute", top: 7, right: 7, padding: "3px 7px", borderRadius: 999, background: "rgba(7,12,20,.82)", border: "1px solid rgba(255,255,255,.24)", color: "#fff", fontSize: 8.5, fontWeight: 800 }}>Ron's #{p._chefRank}</span>
+            </div>
+            <div style={{ padding: "8px 10px" }}>
+              <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{p.name}</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 4, flexWrap: "wrap" }}>
+                {p.rating > 0 && p.reviews > 0 ? <PlaceScoreChip p={{ rating: p.rating, reviews: p.reviews }} size={12} /> : null}
+                <span style={{ fontSize: 11, fontWeight: 500, color: C.muted }}>{p.area}</span>
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+      <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Picked by {c.chef.name}, {c.chef.credential} — shown in his order, never reranked.</div>
+    </aside>
+  );
+}
+
 function UTDealsRail({ category, onSave, lat, lng, onLog = NOLOG }) {
   const [rails, setRails] = useState(null);
   useEffect(() => {
