@@ -136,4 +136,66 @@ for (const f of AWARD_SITES) {
     "house CSS sizes FallbackImg via .wf-place-card-media (the home-browse wrap)");
 }
 
-console.log(`check-house-card: OK — ${pass} assertions (TOP {CATEGORY} PICK only; no Image-1 compact row; no gold BEST chip)`);
+// ── 6. RENDER ThingsToDoList. #952 left FOCUS unbound; source greps missed it. ─
+{
+  const TTD = (await loadComponent(path.join(ROOT, "app/components/ThingsToDoList.js"), ROOT)).default;
+  let html = "";
+  let err = null;
+  try {
+    html = renderToStaticMarkup(React.createElement(TTD, {
+      center: { lat: 27.597, lng: -82.345 },
+      city: "Parrish",
+    }));
+  } catch (e) { err = e; }
+  ok(!err, "ThingsToDoList renders without throwing — " + (err ? err.constructor.name + ": " + err.message : "ok"));
+  ok(!(err && err instanceof ReferenceError),
+    "ThingsToDoList must not throw ReferenceError (FOCUS / C unbound is the 2026-08-25 live crash)");
+  ok(html.includes("wf-sk") || html.includes("wf-place-card") || html.includes("right now"),
+    "positive control: ThingsToDoList produced markup (got " + html.slice(0, 80) + ")");
+}
+
+// ── 7. Two photoless house cards must not share an <img>. Own photo or monogram. ─
+{
+  const kids = renderToStaticMarkup(React.createElement(Iconic, {
+    place: { id: "kids-empire", name: "Kids Empire Bradenton", types: ["playground"], city: "Parrish" },
+    rank: 1,
+    href: "/p/kids-empire",
+  }));
+  const escape = renderToStaticMarkup(React.createElement(Iconic, {
+    place: { id: "intense-escape", name: "Intense Escape", types: ["tourist_attraction"], city: "Parrish" },
+    rank: 2,
+    href: "/p/intense-escape",
+  }));
+  ok(kids.includes("wf-place-card-monogram") && escape.includes("wf-place-card-monogram"),
+    "photoless house cards use the branded monogram, not a shared stock scene");
+  ok(!/<img\b/i.test(kids) && !/<img\b/i.test(escape),
+    "photoless house cards must not paint an <img> (that is how one beach sunset reused across Kids Empire + Intense Escape)");
+  const ownA = renderToStaticMarkup(React.createElement(Iconic, {
+    place: { id: "a", name: "Place A", photoRef: "places/AAA/photos/BBB", types: ["museum"] },
+    rank: 1,
+    href: "/p/a",
+  }));
+  const ownB = renderToStaticMarkup(React.createElement(Iconic, {
+    place: { id: "b", name: "Place B", photoRef: "places/CCC/photos/DDD", types: ["museum"] },
+    rank: 2,
+    href: "/p/b",
+  }));
+  ok(ownA.includes("places%2FAAA") && ownB.includes("places%2FCCC"),
+    "each house card with a photoRef uses that place's own /api/photo URL");
+  ok(!ownA.includes("places%2FCCC") && !ownB.includes("places%2FAAA"),
+    "one place's photoRef must not appear on the other card");
+  ok((ownA.match(/src="[^"]+"/g) || [])[0] !== (ownB.match(/src="[^"]+"/g) || [])[0],
+    "two adjacent house cards with different placeIds must not emit the same photo URL");
+  const iconic = strip(read("app/components/IconicPlaceCard.js"));
+  const homePc = (() => {
+    const raw = strip(read("app/home.js"));
+    const start = raw.indexOf("function PlaceCard(");
+    return start >= 0 ? raw.slice(start, start + 12000) : "";
+  })();
+  ok(!/useMarketPhotoFallback|marketPhotoQuery/.test(iconic),
+    "IconicPlaceCard must not fetch a shared category+city stock photo");
+  ok(!/cardMarketFallback|useMarketPhotoFallback|marketPhotoQuery/.test(homePc),
+    "home PlaceCard must not fetch a shared category+city stock photo");
+}
+
+console.log(`check-house-card: OK — ${pass} assertions (TOP {CATEGORY} PICK only; no Image-1 compact row; no gold BEST chip; no unbound FOCUS; no shared stock photo)`);

@@ -12,7 +12,7 @@
 // from-$, duration, "Selling fast" ONLY on the engine's flag, tap books.
 // scripts/test-todays-best.mjs locks the contract.
 import { useEffect, useState } from "react";
-import { WayfindScoreBadge } from "./kit";
+import { C, FOCUS, WayfindScoreBadge } from "./kit";
 import IconicPlaceCard from "./IconicPlaceCard";
 import { topPickAward } from "../../lib/topPickAward";
 import { toDisplayScore } from "../../lib/score";

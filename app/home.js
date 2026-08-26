@@ -198,7 +198,6 @@ import { WF_LAYOUT_CSS, WF_SEARCH_CSS, WF_PLACE_CARD_CSS, WF_TASTE_CSS, WF_RAIL_
 // the bundle the card copy and nothing else.
 import DaypartRail from "./components/DaypartRail";
 import PlaceCardSkeleton from "./components/PlaceCardSkeleton";
-import { useMarketPhotoFallback, marketPhotoQuery } from "./components/marketPhoto";
 import { WF_RAIL_MENU_CSS } from "./components/railMenuCss";
 import { RAILS } from "../lib/rails";
 // v8.3: the category tabs resolve their city segment through the SAME builder
@@ -11074,14 +11073,13 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // cardComplete early return below (rules of hooks: this hook must run on
   // every render, even for a card that ultimately renders nothing).
   const cardPhoto = useBestPhoto(p && p.photo, p && p.photos);
-  // v8.13.3 (owner: "I don't want any of the place cards not to have an
-  // image"). Rung 3 of the photo ladder — a city+category stock scene via the
-  // cached /api/market-photo route, fetched ONLY when the venue-truthful
-  // rungs (photo / photos / Google-twin heal below) came up empty. Must run
-  // before the early return (rules of hooks). See components/marketPhoto.js.
-  const cardMarketFallback = useMarketPhotoFallback(
-    (p && (p.photo || p.photos)) ? null : marketPhotoQuery(p && (p.primaryCategory || p.category), (p && p.city) || city)
-  );
+  // v8.49.1 (owner, 2026-08-25, Family → Kids at Parrish): Kids Empire and
+  // Intense Escape both painted the same beach-sunset stock scene. That was
+  // rung 3 of the photo ladder — /api/market-photo keyed on category+city —
+  // so every photoless Activities card in one town reused one Pexels image.
+  // House cards now use the venue's own photo or the branded monogram.
+  // Never another place's photo. The Coupons market-level cards still use
+  // the stock rung; they are not a venue card.
   // v4.89 — photo fix. Non-Google (Foursquare) entries often arrive without a
   // photo reference, so cards fell back to the logo. When a card renders
   // photoless, resolve its Google twin once (findPlace is cached ~8 days) and
@@ -11225,8 +11223,8 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           award band and the editorial hook line; nothing overlays the photo.
           check-pick-medallion.mjs is inverted, not deleted. */}
       <div className="wf-place-card-layout" style={{ position: "relative", zIndex: 1, pointerEvents: "none" }}>
-        {(p.photo || cardMarketFallback)
-          ? <FallbackImg className="wf-place-card-media" src={cardPhoto || p.photo || cardMarketFallback} icon={iconForPlace(p)} />
+        {(cardPhoto || (p && p.photo))
+          ? <FallbackImg className="wf-place-card-media" src={cardPhoto || p.photo} icon={iconForPlace(p)} />
           : <div className="wf-place-card-monogram" aria-hidden="true">{cardInitials}</div>}
         <div className="wf-place-card-content" style={{ position: "relative" }}>
           <div className="wf-place-card-title-row">

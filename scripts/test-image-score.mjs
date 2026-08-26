@@ -74,7 +74,8 @@ ok(/import \{ useBestPhoto \} from "\.\.\/lib\/bestPhoto"/.test(home), "PlaceCar
   ok(gate !== -1, "PlaceCard still gates on cardComplete");
   ok(pick < gate, "the hook runs BEFORE the early return (rules of hooks)");
 }
-ok(/src=\{cardPhoto \|\| p\.photo \|\| cardMarketFallback\}/.test(home), "the card renders the best photo, then the primary, then the stock-scene last rung — venue-truth always first");
+ok(/src=\{cardPhoto \|\| p\.photo\}/.test(home), "the card renders the vision-picked photo, then the primary — venue-truth only");
+ok(!/cardMarketFallback/.test(home), "house PlaceCard must not reuse a category+city stock scene (Kids Empire / Intense Escape shared a beach sunset)");
 
 console.log(`test-image-score: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);

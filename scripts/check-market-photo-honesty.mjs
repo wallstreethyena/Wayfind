@@ -21,19 +21,24 @@ ok(/export function useMarketPhotoFallback\(/.test(mod), "the shared hook exists
 ok(/export function marketPhotoQuery\(category, city\)/.test(mod), "the query builder takes category + city and nothing else");
 ok(/never the venue/i.test(mod), "the honesty line is documented where the next editor will read it");
 
-// Every consumer: the hook is DISABLED (null query) when a real photo exists,
-// and no call site ever feeds a venue name into the query.
-// Each site: [file, expected gated call, the venue-name token this surface
-// actually uses (the ban list), and a token the file REALLY contains (the
-// positive control that proves the absence check can fail)].
+// House cards (2026-08-25): a category+city stock scene is ONE photo reused
+// across every photoless venue in that town. Owner screenshot — Kids Empire
+// Bradenton and Intense Escape both painted the same beach sunset. Those
+// cards now use the venue's own photo or the branded monogram. The ladder
+// stays for market-level / rail chrome that is not a named venue card.
+const HOUSE = ["app/components/IconicPlaceCard.js", "app/home.js"];
+const rail = read("app/components/RailCard.js");
+ok(/useMarketPhotoFallback\(photo \? null : \(eyebrow \|\| null\)\)/.test(rail),
+  "positive control: RailCard still calls the stock ladder — so the house-card absence check below can fail");
+for (const file of HOUSE) {
+  const src = read(file);
+  const calls = src.match(/(?:useMarketPhotoFallback|marketPhotoQuery)\([^)]*\)/g) || [];
+  ok(calls.length === 0, `${file}: house cards must not call the shared stock-photo ladder (got ${JSON.stringify(calls)})`);
+}
+
+// Remaining consumer: the hook is DISABLED (null query) when a real photo
+// exists, and no call site ever feeds a venue name into the query.
 const SITES = [
-  // 2026-08-21: the call moved above `if (!place) return null` (rules of hooks
-  // — scripts/check-hook-order.mjs), so it now reads `!place || photoUrl(place)
-  // ? null : …`. A leading guard that can only produce MORE nulls does not
-  // weaken this contract, so the gate is matched by its tail rather than from
-  // the opening paren; the query arguments stay pinned exactly.
-  ["app/components/IconicPlaceCard.js", /useMarketPhotoFallback\([^;]*?photoUrl\(place\) \? null : marketPhotoQuery\(category, place\.city\)\)/, /\bname\b/, /\.name\b/],
-  ["app/home.js", /useMarketPhotoFallback\(\s*\n?\s*\(p && \(p\.photo \|\| p\.photos\)\) \? null : marketPhotoQuery\(p && \(p\.primaryCategory \|\| p\.category\), \(p && p\.city\) \|\| city\)\s*\n?\s*\)/, /\bname\b/, /\.name\b/],
   // RailCard's venue name is its `title` prop — the ban must speak this
   // surface's vocabulary or a `title`-fed query sails through (red-proved).
   ["app/components/RailCard.js", /useMarketPhotoFallback\(photo \? null : \(eyebrow \|\| null\)\)/, /\bname\b|\btitle\b/, /\btitle\b/],
@@ -48,6 +53,6 @@ for (const [file, rx, ban, control] of SITES) {
 }
 
 console.log(fail === 0
-  ? `check-market-photo-honesty: OK — ${pass} assertions (stock rung is scene-truthful, venue rungs always first, one shared ladder)`
+  ? `check-market-photo-honesty: OK — ${pass} assertions (stock rung is scene-truthful; house cards never share it)`
   : `check-market-photo-honesty: FAIL — ${fail} of ${pass + fail}`);
 process.exit(fail === 0 ? 0 : 1);
