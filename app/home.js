@@ -1461,22 +1461,9 @@ function tasteBump(place) {
 // the entire Food list when fewer than five meal matches remained; that is how a
 // widened Breakfast search became generic fast food. Honest scarcity is better
 // than unrelated results, so this gate never falls back to the ungated pool.
-const MEAL_GATE_RE = {
-  breakfast: /breakfast|brunch|cafe|caf\u00e9|coffee|bakery|diner|pancake|waffle|donut|doughnut|biscuit|bagel|crepe|creperie|juice/,
-  // v8.50 — the chip id is `cafes`. The key used to be `coffee`, so this
-  // gate never ran for Food → Cafés (CHANGELOG v8.49 named the miss).
-  cafes: /coffee|cafe|caf\u00e9|espresso|roaster|tea ?house|bakery|juice/,
-};
 function mealGate(list, subId) {
-  if (subId === "lunch") {
-    return (list || []).filter((p) => placeAllowed("food", "lunch", p));
-  }
-  const re = MEAL_GATE_RE[subId];
-  if (!re) return list;
-  return (list || []).filter((p) =>
-    placeAllowed("food", subId, p)
-    && re.test((((Array.isArray(p.types) ? p.types.join(" ") : "") + " " + (p.type || "") + " " + (p.name || ""))).toLowerCase())
-  );
+  if (!subId || subId === "all") return list;
+  return (list || []).filter((p) => placeAllowed("food", subId, p));
 }
 
 function curatedNote(p) {
