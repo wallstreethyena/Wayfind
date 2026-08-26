@@ -83,7 +83,7 @@ ok(fallSkinLive(null) === false, "no site date, no skin — never a guess");
 ok(/fallSkin \? " wf-fall" : ""/.test(rail) || /fallSkin \? "wf-fall" : undefined/.test(rail),
   "the skin class is gated by fallSkinLive, in syntactic position");
 const css = readFileSync(path.join(ROOT, "app/components/css.js"), "utf8");
-ok(/\.wf-fall \.wf-place-card\{background:linear-gradient/.test(css), "the fall card skin exists in css.js and scopes ONLY under .wf-fall — no fall paint outside the fall drop");
+ok(/\.wf-fall \.wf-place-card\{background:linear-gradient\([^;!]*\)!important/.test(css), "the fall card skin exists, scopes ONLY under .wf-fall, and carries !important — the base .wf-place-card background is !important and silently wins otherwise (proven live 2026-08-26)");
 
 // route file structural
 const route = strip(readFileSync(path.join(ROOT, "app/api/events/fall/route.js"), "utf8"));
