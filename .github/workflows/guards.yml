@@ -40,3 +40,8 @@ jobs:
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
         run: npx next build
+      # postbuild (check-bundle) only runs on `npm run build`. GitHub used
+      # to stop at `npx next build`, so #949 shipped green here and died on
+      # Vercel — 67 gzipped bytes over the 500KB homepage ratchet.
+      - name: Homepage bundle ratchet
+        run: node scripts/check-bundle.mjs

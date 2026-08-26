@@ -23,6 +23,10 @@ node scripts/check-response-imports.mjs
 # 2026-07-31 after 5c541b4 let `.env.production.local` decide whether a live
 # affiliate program was protected.
 node scripts/check-guard-hermeticity.mjs
+# Vercel runs `npm run build` (postbuild → check-bundle). GitHub used to run
+# `npx next build` only, so a homepage JS overage shipped green and died on
+# deploy (#949, 2026-08-26). This lock is source-level and cheap.
+node scripts/check-build-lifecycle.mjs
 npm run check:version
 npm run check:jsx
 node scripts/check-hydration-style.mjs
