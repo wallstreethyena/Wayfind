@@ -189,6 +189,7 @@ export const WF_PLACE_CARD_CSS = `
   margin-bottom:12px!important;
   overflow:hidden;
   border-radius:17px!important;
+  border-width:1px;border-style:solid;
   border-color:rgba(159,177,203,.25)!important;
   background:linear-gradient(145deg,rgba(255,255,255,.035),transparent 36%),#111824!important;
   box-shadow:0 14px 36px rgba(0,0,0,.27),inset 0 1px rgba(255,255,255,.035);
@@ -240,7 +241,7 @@ export const WF_PLACE_CARD_CSS = `
   box-shadow:0 14px 34px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.07);
 }
 .wf-place-card-content{padding:13px 13px 11px!important;display:flex;min-width:0;flex-direction:column}
-.wf-place-card-title-row{gap:7px!important}
+.wf-place-card-title-row{display:flex!important;align-items:flex-start;gap:7px!important}
 .wf-place-card-rank{
   position:absolute!important;
   z-index:4;
@@ -349,7 +350,7 @@ export const WF_PLACE_CARD_CSS = `
   font-size:7.5px!important;
   line-height:1!important;
 }
-.wf-place-card-meta{gap:4px 12px!important;margin:8px 0 6px!important;color:#A8B2C2}
+.wf-place-card-meta{display:flex!important;align-items:center;gap:4px 12px!important;margin:8px 0 6px!important;color:#A8B2C2}
 .wf-place-card-meta>span{position:relative;font-size:10.5px!important;white-space:nowrap}
 .wf-place-card-meta>span+span:before{content:"·";position:absolute;left:-8px;color:#4E5A6D}
 .wf-place-card-meta>span[style*="color: rgb(34, 197, 94)"],.wf-place-card-meta>span[style*="#22C55E"]{color:#4CE0B3!important}
