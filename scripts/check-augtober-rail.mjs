@@ -69,7 +69,9 @@ ok(/scrollIntoView/.test(body), "expanding moves the page to the cards");
 ok(/<RailCard/.test(body), "the inline section renders the house card contract (RailCard)");
 ok(/when=\{\{ label/.test(body), "event cards wear the WHEN badge — an event never gets a fabricated score");
 ok(/score=\{scoreOf\(p\)\}/.test(body), "place cards wear the real Wayfind Score");
-ok(/<AugtoberRail onOpenPlace=\{openDetail\} \/>/.test(home), "the rail is mounted on the browse feed and opens OUR detail sheet");
+const mounts = (home.match(/<AugtoberRail onOpenPlace=\{openDetail\} \/>/g) || []).length;
+ok(mounts === 2, `the rail is mounted EXACTLY twice — landing feed + browse feed (got ${mounts}); the landing mount is what every visitor sees first`);
+ok(/\{!browseCat && <AugtoberRail onOpenPlace=\{openDetail\} \/>\}/.test(home), "the landing mount is gated !browseCat so a browse never renders the rail twice");
 // events.length + places.length < 3 → null: the rail floor
 ok(/events\.length \+ places\.length < 3\) return null/.test(body), "a thin pool renders nothing — never a stub shelf");
 
