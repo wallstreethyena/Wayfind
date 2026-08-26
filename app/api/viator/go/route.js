@@ -17,7 +17,7 @@ import { randomUUID } from "node:crypto";
 import { resolveVerified } from "../../../../lib/bookingResolver.js";
 import { getFanoutCount, persistOffer } from "../../../../lib/verifiedOfferStore.js";
 import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
-import { commercePayload } from "../../../../lib/commerce.js";
+import { commercePayload, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { withViatorTracking } from "../../../../lib/affiliates.js";
 import { FALLBACK } from "../../../../lib/commerceProviders.js";
 import {
@@ -25,6 +25,8 @@ import {
   isDeniedViatorSku,
   isViatorSearchOrHomeUrl,
 } from "../../../../lib/viatorIntegrity.js";
+
+export { sanitizeClientClickId };
 
 // v4.29: bracket-notation env reads inside call time. Next inlines dot-access
 // process.env.NEXT_PUBLIC_* at build; bracket access forces a true runtime
@@ -91,14 +93,6 @@ export function isValidViatorProduct(url) {
     const u = new URL(s);
     return u.protocol === "https:" && u.hostname.toLowerCase() === "www.viator.com";
   } catch (e) { return false; }
-}
-
-// The client mints a click_id so its commerce_cta_clicked can be joined to this
-// redirect's provider_redirect_started. Accepted only in an opaque-id shape, so
-// a caller cannot inject punctuation into an analytics field.
-export function sanitizeClientClickId(v) {
-  const s = String(v || "").trim();
-  return /^[A-Za-z0-9_-]{8,64}$/.test(s) ? s : null;
 }
 
 function regionTokens(region) {
@@ -182,8 +176,6 @@ async function resolveProduct(searchTerm, name, region, kind, placeId) {
     clearTimeout(timer);
   }
 }
-
-const UUID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);

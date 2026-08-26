@@ -262,4 +262,18 @@ ok(String(viatorProductGoUrl("https://viator.com/tours/Crystal-River/x/d1-2", "C
     "BookItLink offer href /api/commerce/go must carry click_id (commerceHref clickId or withClickId)");
 }
 
+// Exact founder-pin Book on the sheet (Shell Key path Trust inspected).
+{
+  const detailRaw = read("app/components/sheets/Detail.js");
+  const detailCode = strip(detailRaw);
+  const exactStart = detailCode.indexOf("primaryCta.exact");
+  const exactEnd = detailCode.indexOf("DETAIL_CTA_TYPES.tickets");
+  ok(exactStart > 0 && exactEnd > exactStart, "positive control — the exact-pin Book branch still exists");
+  const exactBlock = detailCode.slice(exactStart, exactEnd);
+  ok(/withClickId\(/.test(exactBlock),
+    "exact-pin Book stamps click_id via withClickId on the painted href");
+  ok(!/target\s*=\s*["_']_blank["_']/.test(exactBlock),
+    "exact-pin Book is same-tab native leave — no target=_blank");
+}
+
 console.log(`test-earning-handoff: OK — ${pass} assertions (go-route hrefs, same-tab native leave, click_id stamp on the relative path, no raw viator.com / booking.com / Impact / tripadvisor / vrbo URL on earning Book)`);

@@ -38,11 +38,9 @@ import { randomUUID } from "node:crypto";
 // extensionless specifier. Next resolves both, so this costs nothing and is what
 // makes the route executable by a guard.
 import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
-import { commercePayload, rankBucket } from "../../../../lib/commerce.js";
+import { commercePayload, rankBucket, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { PROVIDERS, FALLBACK, resolveOffer } from "../../../../lib/commerceProviders.js";
 import { isCrawler } from "../../../../lib/crawler.js";
-
-const UUID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function GET(req) {
   const sp = new URL(req.url).searchParams;
@@ -51,9 +49,10 @@ export async function GET(req) {
   const surface = String(sp.get("surface") || "").trim();
   const contentId = String(sp.get("content") || "").trim();
   const rank = sp.get("rank");
-  const clickIdFromClient = String(sp.get("click_id") || "").trim();
-
-  const clickId = UUID_LIKE.test(clickIdFromClient) ? clickIdFromClient : randomUUID();
+  // Same sanitizer as /api/viator/go. UUID_LIKE dropped the documented
+  // mintClickId fallback (`wf-…`) and reminted, so a human same-tab Book
+  // hop could not join provider_redirect_started.
+  const clickId = sanitizeClientClickId(sp.get("click_id")) || randomUUID();
   const distinctId = distinctIdFromCookies(req.headers.get("cookie")) || clickId;
 
   const base = {

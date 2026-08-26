@@ -18,7 +18,7 @@
 // path Trust hit after #944 — closed hours + viaTours ferry must not win.
 
 import { readFileSync } from "node:fs";
-import { commerceHref } from "../lib/commerce.js";
+import { commerceHref, placePageBookHref } from "../lib/commerce.js";
 import { PARTNER_OFFER_REGISTRY, partnerOfferById } from "../lib/partnerOfferRegistry.js";
 import { nearbyTourListAllowed, placePartnerPick } from "../lib/placePartnerPicks.js";
 import { PROVIDERS, resolveOffer } from "../lib/commerceProviders.js";
@@ -82,6 +82,30 @@ ok(String(href).startsWith("/api/commerce/go?"),
 }
 ok(!/viator\.com|searchResults/i.test(String(href)),
   "the rendered href contains neither viator.com nor a searchResults path");
+
+// ── 2b. /places Book is the same SKU AND carries a client click_id ────────
+// Trust 2026-08-25: the live /places href was this hop without click_id.
+// placePageBookHref is the hydrated path the island paints; fail-closed
+// without an id so an unattributed Book cannot ship again.
+{
+  const placeHref = placePageBookHref({
+    provider: pick && pick.provider,
+    offerId: pick && pick.offerId,
+    contentId: PLACE_ID,
+    clickId: "wf-shellkey1",
+  });
+  ok(!!placeHref, "placePageBookHref produced a /places Book hop");
+  ok(String(placeHref).startsWith("/api/commerce/go?"),
+    `/places Book is our redirect (got ${String(placeHref).slice(0, 80)})`);
+  const pq = new URLSearchParams(String(placeHref).split("?")[1] || "");
+  ok(pq.get("offer") === SKU, `/places Book carries offer=${SKU} (got ${pq.get("offer")})`);
+  ok(pq.get("click_id") === "wf-shellkey1",
+    `/places Book href must include the client click_id (got ${pq.get("click_id")})`);
+  ok(pq.get("surface") === "place_page", "/places Book stays surface=place_page");
+  ok(pq.get("offer") !== FERRY_SKU, "/places Book is never the ferry");
+  ok(placePageBookHref({ provider: pick && pick.provider, offerId: pick && pick.offerId, contentId: PLACE_ID }) === null,
+    "placePageBookHref refuses to paint without a click_id");
+}
 
 // ── 3. Server resolve is the existing table-backed hop, this product code ─
 // PROVIDERS.viator looks up wf_experiences by product_code. CI has no

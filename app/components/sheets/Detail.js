@@ -236,19 +236,22 @@ function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logE
   // Same commerceHref / mintClickId / emitCommerce shape and the same
   // rel="sponsored noopener" as the card's ticket chip.
   if (primaryCta.exact && primaryCta.href) {
+    // Stamp the client click_id onto the painted href after hydration.
+    // Trust 2026-08-25: the exact-pin Book on Shell Key had target=_blank
+    // and no click_id in the href — a same-tab hop through /api/commerce/go
+    // reminted and could not join provider_redirect_started. Same-tab native
+    // leave (founder P0); reuse the painted id, never remint on click.
+    const exactHref = earnHydrated ? withClickId(primaryCta.href, earnClickId.current) : primaryCta.href;
     return (
       <a
         ref={ctaRef}
-        href={primaryCta.href}
-        target="_blank"
-        rel="sponsored noopener"
+        href={exactHref}
+        rel="sponsored noreferrer"
         aria-label={`Tickets for ${detail.name} via ${primaryCta.merchant}`}
         title="Partner link. Wayfind may earn a commission; rankings never change."
         style={style}
-        onClick={(e) => {
-          const clickId = mintClickId();
-          const live = commerceHref({ provider: primaryCta.provider, offerId: primaryCta.offerId, surface: "detail_primary", contentId: detail.id, clickId });
-          if (live && e.currentTarget) e.currentTarget.href = live;
+        onClick={() => {
+          const clickId = earnClickId.current;
           try { emitCommerce("commerce_cta_clicked", { surface: "detail_primary", provider: primaryCta.provider, merchant: primaryCta.merchant, offer_id: primaryCta.offerId, content_id: detail.id, click_id: clickId, disclosure_version: "partner-place-v1" }); } catch (err) {}
           onClick();
         }}
