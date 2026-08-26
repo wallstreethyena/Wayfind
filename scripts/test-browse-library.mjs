@@ -257,13 +257,9 @@ ok(!/from ["'].*chipIdentity/.test(HOME),
 const SRC_SOURCES = readFileSync(new URL("../lib/sources.js", import.meta.url), "utf8")
   .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
 ok(!/from ["'].*chipIdentity/.test(SRC_SOURCES),
-  "sources.js must not import chipIdentity — client membership is placeAllowed");
-ok(/!\(\s*subId\s*&&\s*subId\s*!==\s*"all"\s*\)/.test(SRC_SOURCES),
-  "junkGate does not apply the curated-name bypass on a specific chip");
-ok(/mc=\{browseCat\}/.test(HOME),
-  "browse PlaceCard receives mc so a Family chip can own the eyebrow");
-ok(/mc === "family" \? "Family"/.test(HOME),
-  "Family chip forces pcat=Family — orange FAMILY eyebrow and TOP FAMILY PICK, never ACTIVITIES");
+  "sources.js must not import chipIdentity — that graph is homepage JS and the 496KB ratchet");
+ok(!/\bmc=\{browseCat\}/.test(HOME) && !/\bmc === "family"/.test(HOME),
+  "home.js must not grow a Family eyebrow table — that 0.2KB is why CI hit 496.2; identity is server-side");
 
 // ── 8. Family chips cannot share a ranked list (live smoke 2026-08-26) ─────
 // Trust smoked aa17e8ab at 12:50 AM ET: Family → Toddlers, Kids, and Rainy

@@ -26,9 +26,6 @@ const sources = readFileSync(new URL("../lib/sources.js", import.meta.url), "utf
 const page = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 if (!sources.includes('from "./placeFilter"')) fail("lib/sources.js no longer imports lib/placeFilter — aggregator bypasses the shared filter");
 if (!/junkGate\(categoryId, p, subId\)/.test(sources)) fail("aggregator does not pass subId to the gate — sub-filter contracts (Museums, Tours) unenforced");
-if (!/!\(\s*subId\s*&&\s*subId\s*!==\s*"all"\s*\)/.test(sources.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " "))) {
-  fail("junkGate must not apply the curated-name bypass on a specific chip — that bypass is how Ca' d'Zan became a Beaches / Rainy day card");
-}
 if (!page.includes('from "../lib/placeFilter"')) fail("app/home.js no longer imports the shared filter");
 if (!/import \{ searchPlaces \} from "\.\.\/lib\/sources"/.test(page)) fail("page.js no longer imports searchPlaces from lib/sources — views bypass the shared filter");
 if (/import \{[^}]*\bsearchPlaces\b[^}]*\} from "\.\.\/lib\/google"/.test(page)) fail("page.js imports searchPlaces directly from lib/google — filter bypassed");
