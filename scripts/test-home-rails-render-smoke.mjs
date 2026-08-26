@@ -86,7 +86,7 @@ const RailCard = (await load("app/components/RailCard.js")).default;
 const RAIL_CASES = [
   ["a place card (score, facts, chips, actions)", {
     photo: "/x.jpg", title: "Smoke Test Place", eyebrow: "Fine dining", rank: 1, score: 9.4,
-    facts: ["8.7k reviews", "Open"], award: { tone: 1, icon: "🏆", label: "Top pick near you" },
+    facts: ["8.7k reviews", "Open"], award: { tone: 1, icon: "1", label: "Top food pick" },
     chips: [{ key: "c", icon: "🎬", label: "Creator video" }], onOpen: () => {}, onShare: () => {},
   }],
   ["an event card (NO score, a when badge)", {

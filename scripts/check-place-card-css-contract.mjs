@@ -63,6 +63,7 @@ const SHELL_MAP = {
   "app/components/TrendingNowClient.js": "app/components/RankedExperiencePage.js",
   "app/components/BestNearby.js": "app/home.js",
   "app/components/DaypartRail.js": "app/home.js",
+  "app/components/ThingsToDoList.js": "app/home.js",
   "app/components/CreatorFinds.js": "app/home.js",
   "app/components/RailCard.js": "app/home.js",
   "app/components/sheets/Detail.js": "app/home.js",

@@ -96,7 +96,7 @@ for (const f of ["lib/memberSignals.js", "app/api/signals/likes/route.js"]) {
     ok(!/position\s*:\s*absolute/.test(rule), "the curator credential stays in normal card flow, never on top of the photo or controls");
   }
   const iconic = read("app/components/IconicPlaceCard.js");
-  ok(/isCuratorPick \? "Wayfind curator's pick"/.test(iconic) && /isCuratorPick \? " is-curator"/.test(iconic), "the shared iconic card uses the same single curator award treatment");
+  ok(/topPickAward\(\{\s*category,\s*rank,\s*curator:\s*isCuratorPick\s*\}\)/.test(iconic) && /award\.curator \? " is-curator"/.test(iconic), "the shared iconic card uses the same single curator award treatment via topPickAward");
   ok(!/WF_OWNER|OWNER_USER_ID/.test(home), "the client never references the owner id/env — it only renders the server's ownerPick");
   ok(/function refreshOwnerPick\(/.test(home) && /fresh=1/.test(home), "the owner post-tap refetch (refreshOwnerPick) cache-busts with fresh=1");
   const i = home.indexOf("function refreshOwnerPick(");

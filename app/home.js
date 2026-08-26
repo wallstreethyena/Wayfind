@@ -26,6 +26,7 @@ import { eventWhenLabel } from "../lib/eventTime";
 // v7.06 — the editorial line, resolved through the ONE compressor every place
 // surface shares. See lib/editorialHook.js for the law it enforces.
 import { editorialLine } from "../lib/editorialHook";
+import { topPickAward } from "../lib/topPickAward";
 import { eventCategoryArt } from "../lib/eventCategoryArt";
 import { markSessionStart, markShareOpen, checkShareReturn } from "../lib/shareMetrics";
 import { priceWord } from "../lib/price";
@@ -1779,26 +1780,24 @@ function confidenceOf(reviews) {
   return null;
 }
 
-function medal(rank) {
-  if (rank === 1) return { color: "#FBBF24", emoji: "🥇" };
-  if (rank === 2) return { color: "#CBD5E1", emoji: "🥈" };
-  if (rank >= 3 && rank <= 5) return { color: "#CD7F32", emoji: "🥉" };
-  return null;
-}
-
 // Shows a real photo, or a clean branded placeholder if the photo is missing or
 // fails to load. Never a broken image icon. onClick only fires on a real photo.
 // Premium redesign, Phase 3: the shared image chain — skeleton while loading,
 // the image once it decodes, branded artwork if the src is missing or fails.
 // Never a blank rectangle or a broken-image glyph. The state decision lives
 // in kit.js imageDisplayState() so it's unit-tested independent of the DOM.
-function FallbackImg({ src, alt, style, icon, onClick }) {
+//
+// className is how the house place card sizes the media column. A 96×96
+// inline style here was the compact-row chrome (Image 1): CSS styles
+// `.wf-place-card-layout>img`, and a wrapping div with minHeight:96 blocked
+// that rule. Pass `wf-place-card-media` and leave dimensions to css.js.
+function FallbackImg({ src, alt, style, className, icon, onClick }) {
   const [bad, setBad] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const state = imageDisplayState({ src, errored: bad, loaded });
-  if (state === "fallback") return <BrandedImageFallback style={style} />;
+  if (state === "fallback") return <BrandedImageFallback className={className} style={style} />;
   return (
-    <div style={{ ...style, position: "relative", overflow: "hidden" }}>
+    <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}>
       {state === "skeleton" && <div className="wf-skeleton" style={{ position: "absolute", inset: 0 }} aria-hidden="true" />}
       <img decoding="async" src={src} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => setLoaded(true)} onError={() => setBad(true)} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />
     </div>
@@ -11138,7 +11137,6 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   let cardCreatorVideos = [];
   try { cardCreatorVideos = creatorVideosFor(p) || []; } catch (e) { cardCreatorVideos = []; }
   const pcat = primaryCategory(p);
-  const m = rank ? medal(rank) : null;
   // v6.87 (owner): the rank-summary sentence ("Our #1 pick — 4.8★ · 1.4k
   // reviews, and it holds up.") is GONE — rating, reviews, rank, price,
   // status and distance already render elsewhere on this card, and
@@ -11209,20 +11207,14 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // One credential slot, never a second curator badge. An owner like promotes
   // this existing award to the quieter curator treatment; the rank number and
   // Wayfind Score already communicate placement elsewhere on the card.
+  // Owner 2026-08-25: TOP {CATEGORY} PICK + rank, never BEST … PICK, never
+  // a gold trophy. Category is the section (Food / Activities), not cuisine
+  // — cuisine stays a chip. lib/topPickAward.js is the only composer.
   const cardAward = isCuratorPick
     ? { rank: cardRank, label: "Wayfind curator's pick", curator: true }
-    : cardRank >= 1 && cardRank <= 3
-    ? {
-        rank: cardRank,
-        // v8.19 — same double-"pick" defense as IconicPlaceCard's award: a
-        // label that already ends in "pick" must not compose "…pick pick".
-        label: (cardRank === 1 ? "Best " : "Top ")
-          + (String(cardPrimaryLabel || "local").replace(/\s*pick\s*$/i, "").trim() || "local")
-          + " pick",
-      }
-    : null;
+    : topPickAward({ category: pcat, rank: cardRank });
   return (
-    <div className={`wf-place-card${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}`} style={{ position: "relative", background: C.card, border: `1px solid ${liked ? "rgba(34,197,94,.45)" : disliked ? "rgba(239,68,68,.3)" : C.border}`, borderRadius: 14, marginBottom: 12, overflow: "hidden" }}>
+    <div className={`wf-place-card${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
       <button type="button" className="wf-place-card-open" onClick={onDetail} aria-label={`Open ${p.name}`} style={{ position: "absolute", inset: 0, zIndex: 0, width: "100%", height: "100%", opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
       {/* v6.34: the badge lives IN the title row (flex), not floated over it.
           The old absolute top-right overlay cleared long titles with a magic
@@ -11235,24 +11227,21 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           directions, this is the later one. Curation still shows through the
           award band and the editorial hook line; nothing overlays the photo.
           check-pick-medallion.mjs is inverted, not deleted. */}
-      <div className="wf-place-card-layout" style={{ display: "flex", position: "relative", zIndex: 1, pointerEvents: "none" }}>
+      <div className="wf-place-card-layout" style={{ position: "relative", zIndex: 1, pointerEvents: "none" }}>
         {(p.photo || cardMarketFallback)
-          ? <FallbackImg src={cardPhoto || p.photo || cardMarketFallback} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
+          ? <FallbackImg className="wf-place-card-media" src={cardPhoto || p.photo || cardMarketFallback} icon={iconForPlace(p)} />
           : <div className="wf-place-card-monogram" aria-hidden="true">{cardInitials}</div>}
-        <div className="wf-place-card-content" style={{ padding: "12px 12px", flex: 1, minWidth: 0, position: "relative" }}>
-          <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-            {rank && (m
-              ? <div className="wf-place-card-rank" style={{ width: 24, height: 24, borderRadius: "50%", background: m.color, color: "#0D1117", fontSize: 12.5, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{rank}</div>
-              : <div className="wf-place-card-rank" style={{ width: 28, textAlign: "center", color: C.muted, fontSize: 13, fontWeight: 800, flexShrink: 0 }}>#{rank}</div>
-            )}
+        <div className="wf-place-card-content" style={{ position: "relative" }}>
+          <div className="wf-place-card-title-row">
+            {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
             <div className="wf-place-card-heading">
-              {cardPrimaryLabel && (cardCuisineCanTap
-                ? <button type="button" className="wf-place-card-category is-tappable" style={{ pointerEvents: "auto" }} onClick={(e) => { e.stopPropagation(); onCuisineTap(cardCuisine, p); }}>{cardPrimaryLabel} ›</button>
-                : <span className="wf-place-card-category">{cardPrimaryLabel}</span>
+              {pcat && (cardCuisineCanTap
+                ? <button type="button" className="wf-place-card-category is-tappable" style={{ pointerEvents: "auto" }} onClick={(e) => { e.stopPropagation(); onCuisineTap(cardCuisine, p); }}>{pcat} ›</button>
+                : <span className="wf-place-card-category">{pcat || cardPrimaryLabel}</span>
               )}
-              <div className="wf-place-card-name" style={{ fontSize: 15, fontWeight: 700, color: C.text, lineHeight: 1.3, flex: 1, minWidth: 0, paddingRight: 4 }}>{p.name}</div>
+              <div className="wf-place-card-name">{p.name}</div>
             </div>
-            {dispScore != null && <div className="wf-place-card-score" style={{ flexShrink: 0, marginLeft: "auto", filter: "drop-shadow(0 6px 14px rgba(0,0,0,.5))" }}><WayfindScoreBadge score={dispScore} /></div>}
+            {dispScore != null && <div className="wf-place-card-score"><WayfindScoreBadge score={dispScore} /></div>}
           </div>
           <div className="wf-place-card-meta" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "7px 0 6px" }}>
             {offer && <span style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>{offerLabel(offer)}</span>}
@@ -11308,14 +11297,8 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
             </div>
           )}
           {cardAward && (
-            <div className={`wf-place-card-award${cardAward.curator ? " is-curator" : ` is-rank-${cardAward.rank}`}`} aria-label={cardAward.curator ? "Personally selected by Wayfind's curator" : `Wayfind ranked this the number ${cardAward.rank} ${cardPrimaryLabel || "local"} option`}>
-              <span className="wf-place-card-award-icon" aria-hidden="true">
-                {cardAward.curator
-                  ? "✦"
-                  : cardAward.rank === 1
-                  ? <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 4h8v3a4 4 0 0 1-8 0V4Z" /><path d="M8 6H5v1a3 3 0 0 0 3 3" /><path d="M16 6h3v1a3 3 0 0 1-3 3" /><path d="M12 11v4" /><path d="M9 20h6" /><path d="M10 15h4v5h-4z" /></svg>
-                  : cardAward.rank}
-              </span>
+            <div className={`wf-place-card-award${cardAward.curator ? " is-curator" : ` is-rank-${cardAward.rank}`}`} aria-label={cardAward.curator ? "Personally selected by Wayfind's curator" : `Wayfind ranked this the number ${cardAward.rank} ${pcat || "local"} option`}>
+              <span className="wf-place-card-award-icon" aria-hidden="true">{cardAward.curator ? "✦" : cardAward.icon}</span>
               <span>{cardAward.label}</span>
             </div>
           )}

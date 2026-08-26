@@ -68,7 +68,7 @@ ok(home.includes("aiSummary.card_line_1") && home.includes("aiSummary.card_line_
 
 const ttd = readFileSync(new URL("../app/components/ThingsToDoList.js", import.meta.url), "utf8");
 ok(!/rankReason\(r, rank\)/.test(ttd), "ThingsToDoList's row still falls back to rankReason");
-ok(ttd.includes("blurb.card_line_1") && ttd.includes("blurb.card_line_2"), "ThingsToDoList no longer renders the validated two-line CARD_SUMMARY");
+ok(/aiSummary=\{blurb/.test(ttd) || (ttd.includes("blurb.card_line_1") && ttd.includes("blurb.card_line_2")), "ThingsToDoList no longer hands the validated CARD_SUMMARY to IconicPlaceCard");
 
 console.log(`test-editorial-contract: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);

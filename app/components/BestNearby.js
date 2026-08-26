@@ -18,7 +18,7 @@
 // scripts/test-todays-best.mjs locks the contract.
 import { cloneElement, isValidElement, useCallback, useState, useRef, useEffect } from "react";
 import { reasonLine } from "../../lib/reasonLine";
-import { C, CHAMPAGNE, TYPE, RADII, SHADOW, FOCUS, TARGET, Icon, NavIcon, directionsUrl, PlaceScoreChip } from "./kit";
+import { C, TYPE, RADII, SHADOW, FOCUS, TARGET, Icon, NavIcon, directionsUrl, PlaceScoreChip } from "./kit";
 import { fetchTodaysBest, fetchThingsToDo, tbPhotoUrl, byVisibleScore, daypartCompose, mealCompose, NEAR_RADIUS_MI, WIDEN_RADIUS_MI } from "../../lib/todaysBest.js";
 import { SERVICE_RX } from "../../lib/placeFilter.js";
 // v7.04 — the Top 40 rail renders the SAME card every other rail renders.
@@ -60,7 +60,8 @@ import { supabase } from "../../lib/supabase.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
 // v6.72: one source for the hour, the bucket and the outdoor gate.
 import { nowContext } from "../../lib/nowContext.js";
-import { gateOutdoor } from "../../lib/ranking.js";
+import { gateOutdoor, coarseCat } from "../../lib/ranking.js";
+import { topPickAward } from "../../lib/topPickAward.js";
 // v7.06 — ONE editorial-line implementation, shared by every place surface.
 import { toHookLine } from "../../lib/editorialHook.js";
 import useEditorialHooks from "./useEditorialHooks";
@@ -69,7 +70,6 @@ import { recommendationIds, uniqueRecommendations } from "../../lib/recommendati
 
 // Owner: "a little lighter, almost black" — one step off the page's #040810.
 const CARD_BG = "#0B0E15";
-const MEDAL = [CHAMPAGNE.base, "#C7CCD6", "#B8804A"]; // gold, silver, bronze
 
 const fmtDur = (m) => (m == null ? null : m >= 60 ? (m % 60 ? Math.floor(m / 60) + "h " + (m % 60) + "m" : m / 60 + "h") : m + "m");
 
@@ -80,13 +80,11 @@ const fmtDur = (m) => (m == null ? null : m >= 60 ? (m % 60 ? Math.floor(m / 60)
 // Behaviour is unchanged: proven by CALLING both implementations across the
 // apostrophe, abbreviation, placeholder and cap cases before the move.
 
-// Rank medal: top three only — a trophy in gold, silver, bronze.
+// Rank mark: the house card's dark circle + number. Gold trophies were the
+// rejected BEST … PICK chrome (owner, 2026-08-25).
 function Medal({ i }) {
-  if (i > 2) return <span style={{ width: 20, textAlign: "center", fontSize: 12, fontWeight: 800, color: C.muted, flexShrink: 0 }}>{i + 1}</span>;
   return (
-    <span style={{ width: 20, display: "inline-flex", justifyContent: "center", flexShrink: 0 }} aria-label={"Ranked #" + (i + 1)}>
-      <Icon name="trophy" size={15} color={MEDAL[i]} strokeWidth={2.2} />
-    </span>
+    <span aria-label={"Ranked #" + (i + 1)} style={{ width: 20, height: 20, borderRadius: "50%", background: "#334155", color: "#F8FAFC", fontSize: 11, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{i + 1}</span>
   );
 }
 
@@ -1096,7 +1094,7 @@ export default function BestNearby({
                     rank={i + 1}
                     score={toDisplayScore(p.governed_score)}
                     facts={facts}
-                    award={i < 3 ? { tone: i + 1, icon: i === 0 ? "🏆" : String(i + 1), label: i === 0 ? "Top pick near you" : "Top " + (i + 1) + " near you" } : null}
+                    award={topPickAward({ category: coarseCat(tagged) || prettyType(p.primary_type), rank: i + 1 })}
                     chips={chips}
                     cta={partner ? {
                       label: "🎟️ Tickets via " + partner.merchant + " ↗",
@@ -1212,6 +1210,7 @@ export default function BestNearby({
                           <RailCard key={p.place_id} rank={i + 1}
                             photo={cardPhoto(p, 480)} title={p.name} eyebrow={prettyType(p.primary_type)}
                             score={toDisplayScore(p.governed_score)}
+                            award={topPickAward({ category: coarseCat(tagged) || "Food", rank: i + 1 })}
                             take={toHookLine(hooks[p.place_id], p.name)}
                             badge={<>{p.trending ? <Flame reason={p.trend_reason} /> : null}<TrendReason r={p} /></>}
                             facts={[
@@ -1258,6 +1257,7 @@ export default function BestNearby({
                           <RailCard key={r.id} rank={i + 1}
                             photo={cardPhoto(r, 480)} title={r.title} eyebrow={prettyType(r.category)}
                             score={toDisplayScore(r.governed_score)}
+                            award={topPickAward({ category: r.category === "beach" ? "Activities" : (prettyType(r.category) || "Activities"), rank: i + 1 })}
                             take={toHookLine(hooks[r.id], r.title)}
                             badge={<>{r.trending ? <Flame reason={r.trend_reason} /> : null}<TrendReason r={r} /></>}
                             facts={[

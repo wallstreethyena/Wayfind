@@ -66,7 +66,7 @@ const trendCards = Array.from({ length: N }, (_, i) =>
     rank: i + 1,
     score: 9.4,
     facts: ["382 reviews", "3.5 mi", "$ · Inexpensive"],
-    award: i ? null : { tone: 1, icon: "\u{1F3C6}", label: "Best nearby pick" },
+    award: i ? null : { tone: 1, icon: "1", label: "Top food pick" },
     chips: [{ key: "exploding-trend", icon: "\u{1F525}", label: "Trending" }],
     take: "Crisp-edged, griddled burgers are the order people seek out here.",
     cta: { label: "Directions ↗", href: "https://maps.google.com/", external: true },
