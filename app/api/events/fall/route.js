@@ -23,8 +23,12 @@ const TTL = 30 * 60 * 1000; // 30 min — owned data, cheap to refresh
 
 export async function GET() {
   try {
+    // cget returns an ENVELOPE ({ v, stale, ageMs, due }) — serve .v, never the
+    // envelope. Serving `cached` raw shipped {events: undefined} to every client
+    // the moment the cache warmed, and the rail floor hid the rail site-wide
+    // while the cold-cache path (and every pre-warm verification) looked perfect.
     const cached = await cget(CK, { staleMs: TTL });
-    if (cached) return Response.json(cached, { headers: { "Cache-Control": "public, max-age=300, s-maxage=900" } });
+    if (cached && cached.v) return Response.json(cached.v, { headers: { "Cache-Control": "public, max-age=300, s-maxage=900" } });
 
     const today = siteTodayStr();
     const rows = await fetchCuratedEvents();
