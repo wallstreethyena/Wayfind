@@ -181,6 +181,15 @@ const CHIP_BLOCK = [
   ["family", "rainy", "Ca' d'Zan", ["museum", "tourist_attraction"], "museum"],
   ["family", "rainy", "Tibbals Learning Center & Circus Museum at The Ringling", ["museum"], "museum"],
   ["attractions", "beaches", "Siesta Key Tennis Club", ["tennis_court"], "tennis_court"],
+  // Live Parrish screenshot, 2026-08-26. Both are filed category=beach in
+  // wf_inventory and BOTH reached the chip on the word "Beach" in their NAME:
+  // the pavilion carries no primary and no types beyond point_of_interest, the
+  // preserve is typed nature_preserve + park. A coarse inventory bucket is not
+  // identity. Real rows, verbatim from wf_inventory.
+  ["attractions", "beaches", "E.G. Simmons Beach Pavilion 12", ["point_of_interest", "establishment"], null],
+  ["attractions", "beaches", "Apollo Beach Preserve", ["nature_preserve", "tourist_attraction", "park"], "nature_preserve"],
+  ["attractions", "beaches", "Apollo Beach Marina", ["marina", "point_of_interest"], "marina"],
+  ["attractions", "beaches", "Apollo Beach Dog Park", ["dog_park", "park"], "dog_park"],
   ["family", "kids", "Intense Escape", ["amusement_center"], "amusement_center"],
   ["family", "toddlers", "Bishop Museum of Science and Nature", ["museum", "science_museum"], "museum"],
 ];
@@ -194,6 +203,9 @@ const CHIP_KEEP = [
   ["attractions", "museums", "Bishop Museum of Science and Nature", ["museum", "science_museum"], "museum"],
   ["attractions", "beaches", "Siesta Key Beach", ["beach"], "beach"],
   ["attractions", "beaches", "Fort De Soto Park", ["park", "beach"], "park"],
+  // The tightening above must not clip a real beach whose Google types are
+  // thin. Real row: primary_type beach, google_types [park, point_of_interest].
+  ["attractions", "beaches", "Fort De Soto Beach", ["park", "point_of_interest"], "beach"],
   ["family", "kids", "Kids Empire", ["amusement_center", "entertainment"], "amusement_center"],
 ];
 for (const [cat, sub, name, types, primaryType] of CHIP_KEEP) {
