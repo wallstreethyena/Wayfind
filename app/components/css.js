@@ -229,6 +229,10 @@ export const WF_PLACE_CARD_CSS = `
 .wf-fall .wf-place-card .wf-place-card-media img,.wf-place-card.wf-fall-card .wf-place-card-media img{-webkit-mask-image:radial-gradient(135% 110% at 100% 0%,#000 60%,transparent 92%);mask-image:radial-gradient(135% 110% at 100% 0%,#000 60%,transparent 92%)}
 .wf-fall .wf-place-card button,.wf-place-card.wf-fall-card button{background:rgba(59,26,5,.62)!important;border:1px solid rgba(255,196,110,.6)!important;color:#FFE9CB!important}
 .wf-fall .wf8-falltile{border:1.5px solid rgba(255,196,110,.7)!important;background:linear-gradient(150deg,#B8641B,#7A3C0D)!important;color:#FFF3E2!important}
+.wf-fall .wf-place-card .wf-place-card-category,.wf-place-card.wf-fall-card .wf-place-card-category{color:#4A2508!important;font-weight:900!important}
+.wf-fall .wf-place-card .wf-place-card-category:before,.wf-place-card.wf-fall-card .wf-place-card-category:before{content:"\\1F341";width:auto;height:auto;background:none;font-size:11px;line-height:1}
+.wf-fall .wf-place-card .wf-place-card-highlights>button,.wf-fall .wf-place-card .wf-place-card-highlights>span,.wf-fall .wf-place-card .wf-place-card-highlights>a,.wf-place-card.wf-fall-card .wf-place-card-highlights>button,.wf-place-card.wf-fall-card .wf-place-card-highlights>span,.wf-place-card.wf-fall-card .wf-place-card-highlights>a{background:rgba(59,26,5,.62)!important;border:1px solid rgba(255,196,110,.6)!important;color:#FFE9CB!important;box-shadow:none!important}
+.wf-fall .wf-place-card .wf-place-card-highlights,.wf-place-card.wf-fall-card .wf-place-card-highlights{mask-image:linear-gradient(90deg,#000 94%,transparent 100%);-webkit-mask-image:linear-gradient(90deg,#000 94%,transparent 100%)}
 
 .wf-place-card-score~.wf-place-card-layout .wf-place-card-heading{padding-right:86px}
 .wf-place-card-score .wayfind-score-badge[data-score-band="excellent"]{--wf-score-color:#25C26E;--wf-score-tint:rgba(37,194,110,.10);--wf-score-border:rgba(37,194,110,.62);--wf-score-glow:rgba(37,194,110,.20)}

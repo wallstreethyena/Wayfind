@@ -15,7 +15,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { isFallTagged, fallEventLive, fallWhenLabel, fallSkinLive, eventFranchiseKey, FALL_PLACE_IDS, FALL_REJECTED_IDS, FALL_EVENT_TICKET_DEALS, OPEN_RUN_DAYS } from "../lib/fallPool.js";
+import { isFallTagged, fallEventLive, fallWhenLabel, fallSkinLive, eventFranchiseKey, FALL_PLACE_IDS, FALL_REJECTED_IDS, FALL_OFFERING_SOURCES, FALL_EVENT_TICKET_DEALS, OPEN_RUN_DAYS } from "../lib/fallPool.js";
 import { FALL_CARD_IDS, fallCardClass } from "../lib/fallSkin.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -58,6 +58,18 @@ ok(ids.includes("ChIJ7QVjUK_FwogRaTLY8uxOico") && ids.includes("ChIJTzoiienhwogR
   "the researched picks are IN (SpookEasy Lounge; Paradeco's fall menu) — real offerings, sourced");
 ok(ids.every((i) => /^ChIJ[A-Za-z0-9_-]{10,}$/.test(i)), "every pool entry is a real canonical place id");
 ok(Object.values(FALL_PLACE_IDS).every((v) => typeof v === "string" && v.length > 20), "every pool entry carries its seasonal WHY");
+// 2a. THE OFFERING TEST (owner: places enter for what they OFFER, never the
+// name — 'run another test on that to make sure'). Executed: the pool and the
+// documented-offering registry must be the SAME set, every entry must name a
+// concrete offering with a source, and the offering may never be just the
+// place's own name wearing a costume.
+const srcIds = Object.keys(FALL_OFFERING_SOURCES);
+ok(srcIds.length === ids.length && ids.every((i) => FALL_OFFERING_SOURCES[i]),
+  "every pool member has a DOCUMENTED offering + source — a name-only pick has nowhere to hide");
+ok(srcIds.every((i) => /^https:\/\//.test(FALL_OFFERING_SOURCES[i].source) && FALL_OFFERING_SOURCES[i].offering.length > 15),
+  "each registry entry carries a real https source and a concrete offering description");
+ok(srcIds.every((i) => /menu|pumpkin|maple|squash|haunted|ghost|horror|spooky|potion|halloween|coffin|oddities|burial/i.test(FALL_OFFERING_SOURCES[i].offering)),
+  "every offering names the FALL substance (menu item or theming), not a vibe");
 
 // ── 2b. Franchise dedupe, EXECUTED (owner: "most of them are repetitive") ──
 ok(eventFranchiseKey("Howl-O-Scream SeaWorld Orlando") === eventFranchiseKey("Howl-O-Scream Busch Gardens Tampa Bay"),
