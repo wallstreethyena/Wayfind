@@ -758,3 +758,4 @@ node scripts/test-adaptive-widen.mjs
 node scripts/test-chip-contracts.mjs
 node scripts/check-css-comment-bytes.mjs
 node scripts/check-augtober-rail.mjs
+node scripts/check-cget-envelope.mjs
