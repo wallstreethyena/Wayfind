@@ -6733,16 +6733,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             if (cat === "shopping") return _out.filter((pp) => placeAllowed("shopping", "all", pp));
             return _out;
           }
-          // v8.50 — identity chips union owned inventory. searchPlaces is
+          // v8.50 — identity chips read owned inventory. searchPlaces is
           // Google Text Search, max 20; that cap is why Cafés printed 1 card.
           if (sub && sub !== "all" && SUB_ALLOW[`${cat}:${sub}`]) {
-            const _b = await Promise.all([
-              searchPlaces(cat, sub, ctr, m, vibe).catch(() => { _fetchErrs++; return []; }),
-              _invAll(m),
-            ]);
-            const _seen = new Set(); const _out = [];
-            [_b[1], _b[0]].forEach((arr) => (arr || []).forEach((pp) => { if (pp && pp.id && !_seen.has(pp.id)) { _seen.add(pp.id); _out.push(pp); } }));
-            return _out;
+            const inv = await _invAll(m);
+            if (inv.length) return inv;
           }
           return await searchPlaces(cat, sub, ctr, m, vibe);
         };

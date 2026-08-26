@@ -167,8 +167,10 @@ const HOME = readFileSync(new URL("../app/home.js", import.meta.url), "utf8")
   .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
 ok(/if\s*\(\s*sub\s*&&\s*sub\s*!==\s*"all"\s*&&\s*SUB_ALLOW\[/.test(HOME),
   "home _fetchAt widens when SUB_ALLOW[cat:sub] exists — a `false &&` mention is the v8.49 false green");
-ok(/\[\s*_b\[1\]\s*,\s*_b\[0\]\s*\]/.test(HOME),
-  "the chip merge puts inventory (_b[1]) before Google (_b[0]) so the library wins");
+ok(/const\s+inv\s*=\s*await\s+_invAll\(m\)/.test(HOME),
+  "an identity chip CALLS _invAll(m) — Google searchPlaces alone is the v8.49 bug");
+ok(/if\s*\(\s*inv\.length\s*\)\s*return\s+inv/.test(HOME),
+  "a filled library is returned as-is; Google is only the empty-library fallback");
 ok(/n=400&cat=/.test(HOME),
   "the inv=1 serve asks for 400 (the cost bound), not a merchandising 40");
 ok(/primaryType:\s*x\.primaryType/.test(HOME),

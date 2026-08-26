@@ -86,8 +86,8 @@ ok(/inv=1\$\{sub && sub !== "all"/.test(HOME),
   "the browse feed sends &sub= on its inv=1 serve");
 ok(/if\s*\(\s*sub\s*&&\s*sub\s*!==\s*"all"\s*&&\s*SUB_ALLOW\[/.test(HOME),
   "a specific identity chip widens from inventory when SUB_ALLOW[cat:sub] exists — a `false &&` mention is the v8.49 false green");
-ok(/\[\s*_b\[1\]\s*,\s*_b\[0\]\s*\]/.test(HOME),
-  "the chip path merges owned inventory before Google so the library wins");
+ok(/const\s+inv\s*=\s*await\s+_invAll\(m\)/.test(HOME),
+  "the chip path CALLS _invAll(m) so the owned library is the list");
 
 if (fail.length) {
   console.error(`check-narrow-chip-inventory: FAIL (${fail.length} of ${pass + fail.length})`);
