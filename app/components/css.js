@@ -224,7 +224,7 @@ export const WF_PLACE_CARD_CSS = `
 .wf-place-card-category.is-tappable{cursor:pointer}
 .wf-place-card-name{font-size:16px!important;font-weight:780!important;line-height:1.12!important;letter-spacing:-.025em}
 .wf-place-card-score{position:absolute;z-index:5;inset:10px 10px auto auto;pointer-events:auto;filter:none!important}
-.wf-fall .wf-place-card{background:linear-gradient(140deg,#C2660F 0%,#8A3D0C 58%,#5C2708 100%);border-color:rgba(251,191,36,.55)}
+.wf-fall .wf-place-card{background:linear-gradient(140deg,#C2660F 0%,#8A3D0C 58%,#5C2708 100%)!important;border-color:rgba(251,191,36,.55)!important}
 .wf-fall .wf-place-card:before{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:radial-gradient(120px 60px at 92% 88%,rgba(255,200,120,.16),transparent 70%),radial-gradient(90px 50px at 6% 6%,rgba(255,170,80,.14),transparent 70%)}
 .wf-fall .wf-place-card button{border-color:rgba(251,191,36,.42)}
 .wf-fall .wf8-falltile{border-color:rgba(251,191,36,.5)!important;background:linear-gradient(140deg,#9A4B0F,#5C2708)!important}
