@@ -13,7 +13,8 @@ export const dynamic = "force-dynamic";
 // vetted year-round spooky PLACES ride along as normal scored place rows.
 import { fetchCuratedEvents } from "../../../../lib/curatedEvents.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
-import { isFallTagged, fallEventLive, fallWhenLabel, FALL_PLACE_IDS } from "../../../../lib/fallPool.js";
+import { isFallTagged, fallEventLive, fallWhenLabel, FALL_PLACE_IDS, FALL_EVENT_TICKET_DEALS } from "../../../../lib/fallPool.js";
+import { hasCjPid } from "../../../../lib/deals.js";
 import { supabase } from "../../../../lib/supabase.js";
 import { wayfindScore } from "../../../../lib/wayfindScore.js";
 import { cget, cset } from "../../../../lib/serverCache.js";
@@ -52,6 +53,30 @@ export async function GET() {
         is_free: !!e.is_free, price_band: e.price_band || null,
         tags: e.tags || [],
       }));
+
+    // Ticket monetization (owner, 2026-08-26). Attach the hand-verified
+    // Undercover Tourist deal to the events FALL_EVENT_TICKET_DEALS maps —
+    // SERVER-side, from wf_deals rows the deals-health cron keeps alive, and
+    // only when the row is still active + link_ok + CJ-attributed. Fail-soft:
+    // no row, no ticket, the tile keeps its official page. Product-integrity
+    // rule lives with the map in lib/fallPool.js.
+    try {
+      const dealIds = [...new Set(Object.values(FALL_EVENT_TICKET_DEALS))];
+      if (supabase && dealIds.length && events.some((ev) => FALL_EVENT_TICKET_DEALS[ev.id])) {
+        const { data: deals } = await supabase
+          .from("wf_deals")
+          .select("id,affiliate_url,active,link_ok,provider")
+          .in("id", dealIds);
+        const byId = new Map((deals || [])
+          .filter((d) => d.active && d.link_ok && hasCjPid(d.affiliate_url))
+          .map((d) => [d.id, d]));
+        for (const ev of events) {
+          const want = FALL_EVENT_TICKET_DEALS[ev.id];
+          const d = want ? byId.get(want) : null;
+          if (d) ev.ticket = { href: d.affiliate_url, via: "Undercover Tourist", deal_id: d.id };
+        }
+      }
+    } catch { /* monetization is additive — the rail never breaks over it */ }
 
     let places = [];
     if (supabase) {

@@ -15,7 +15,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { isFallTagged, fallEventLive, fallWhenLabel, fallSkinLive, FALL_PLACE_IDS, OPEN_RUN_DAYS } from "../lib/fallPool.js";
+import { isFallTagged, fallEventLive, fallWhenLabel, fallSkinLive, eventFranchiseKey, FALL_PLACE_IDS, FALL_REJECTED_IDS, FALL_EVENT_TICKET_DEALS, OPEN_RUN_DAYS } from "../lib/fallPool.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 let pass = 0, fail = 0;
@@ -42,13 +42,34 @@ ok(lbl.label === "Open now" && !/thru/i.test(lbl.label), "open-run label says 'O
 ok(/Thru Nov 1/.test(fallWhenLabel(hhn, "2026-09-01").label) || /Select nights thru Nov 1/.test(fallWhenLabel({ ...hhn, select_nights: true }, "2026-09-01").label),
   "dated label states the real verified end");
 
-// ── 2. The vetted place pool stays vetted ──────────────────────────────────
+// ── 2. The vetted place pool stays vetted — RE-VETTED per the owner's
+// 2026-08-26 rejection: a spooky NAME is not a fall offering. ───────────────
 const ids = Object.keys(FALL_PLACE_IDS);
-ok(ids.length >= 5, `positive control — the spooky-places pool exists (${ids.length})`);
+ok(ids.length >= 8, `positive control — the researched fall pool exists (${ids.length})`);
 ok(!ids.includes("ChIJdRuMvWg3DogRdLBmivDl1SQ"), "a Chicago haunted house can never enter the Florida pool");
 ok(!ids.includes("ChIJ6SYy9bEWw4gRgJT7j78eTYc"), "'Screaming Buddha Yoga' is a yoga studio, not fall content");
+for (const r of FALL_REJECTED_IDS) ok(!ids.includes(r), `owner-rejected id ${r.slice(0, 12)}… stays OUT (name-only spookiness / brand duplicate)`);
+ok(FALL_REJECTED_IDS.includes("ChIJUXMXELw9w4gR4TGRAD8NghQ") && FALL_REJECTED_IDS.includes("ChIJJQbqwSD7wogRTm8XCaabaMA"),
+  "both Vampire Penguins are pinned in the rejected list — 'vampire in the name' is not a fall theme (owner, verbatim)");
+ok(ids.filter((i) => i === "ChIJB2B8mYzHwogRkZIDCDARWww").length === 1 && !ids.includes("ChIJUcws8z5p54gRUBjqVlhhFgY"),
+  "one Ice Screamin location only — one tile per brand");
+ok(ids.includes("ChIJ7QVjUK_FwogRaTLY8uxOico") && ids.includes("ChIJTzoiienhwogRbPa3GpuvBQU"),
+  "the researched picks are IN (SpookEasy Lounge; Paradeco's fall menu) — real offerings, sourced");
 ok(ids.every((i) => /^ChIJ[A-Za-z0-9_-]{10,}$/.test(i)), "every pool entry is a real canonical place id");
-ok(Object.values(FALL_PLACE_IDS).every((v) => typeof v === "string" && v.length > 20), "every pool entry carries its one-line why");
+ok(Object.values(FALL_PLACE_IDS).every((v) => typeof v === "string" && v.length > 20), "every pool entry carries its seasonal WHY");
+
+// ── 2b. Franchise dedupe, EXECUTED (owner: "most of them are repetitive") ──
+ok(eventFranchiseKey("Howl-O-Scream SeaWorld Orlando") === eventFranchiseKey("Howl-O-Scream Busch Gardens Tampa Bay"),
+  "the two Howl-O-Screams share one franchise key — only the nearest gets a tile");
+ok(eventFranchiseKey("Halloween Horror Nights Orlando") !== eventFranchiseKey("Sideshow Obscura — HHN35 Tribute Store"),
+  "HHN and the Tribute Store are DIFFERENT offerings — dedupe must not swallow them");
+ok(eventFranchiseKey("Vampire Penguin") !== eventFranchiseKey("Fantasy Fest"), "distinct franchises stay distinct");
+
+// ── 2c. Ticket monetization: PRODUCT integrity, pinned ─────────────────────
+ok(FALL_EVENT_TICKET_DEALS["mnsshp-2026"] === 8, "Not-So-Scary deep-links UT's ticket for THAT event (deal 8)");
+ok(!("hhn-orlando-2026" in FALL_EVENT_TICKET_DEALS) && !Object.keys(FALL_EVENT_TICKET_DEALS).some((k) => /howl-o-scream/.test(k)),
+  "separately-ticketed events (HHN, Howl-O-Scream) NEVER deep-link generic day tickets — wrong product is a trust bug wearing a commission");
+ok(Object.values(FALL_EVENT_TICKET_DEALS).every((v) => Number.isInteger(v) && v > 0), "every mapping points at a real wf_deals id");
 
 // ── 3. The wiring, in syntactic position — v8.66: the AUGTOBER surface is a
 // DAYPART TILE whose tap opens the standard pop-down drop (owner: "remove
@@ -69,9 +90,17 @@ ok(/selected !== "augtober" \|\| fallPool\) return undefined;/.test(rail), "the 
 ok(/fetch\("\/api\/events\/fall"\)/.test(rail), "…and it reads /api/events/fall, the one pool API");
 const _ti = rail.indexOf('selRail.id === "augtober" && fallPool');
 ok(_ti > -1, "positive control: the augtober drop block is locatable");
-const evZone = rail.slice(_ti, _ti + 2600);
+const evZone = rail.slice(_ti, _ti + 5200);
 ok(/\(e\.when && e\.when\.label\) \|\| "Seasonal"/.test(evZone), "event tiles wear the WHEN badge — an event never gets a fabricated score");
 ok(/target="_blank" rel="noreferrer"/.test(evZone), "an event tile links to the official page with noreferrer");
+// monetized tiles: paid link first, disclosed, sponsored rel on the PAID link only
+ok(/e\.ticket \? \(/.test(evZone) && /href=\{e\.ticket\.href\} target="_blank" rel="sponsored nofollow noopener"/.test(evZone),
+  "a monetized tile links the health-checked UT deal FIRST, with rel sponsored");
+ok(/Tickets · via " \+ e\.ticket\.via/.test(evZone), "the paid tile DISCLOSES its partner on the tile (FTC line)");
+ok(/logEvent\("tickets_out", \{ kind: "augtober_rail"/.test(evZone), "a paid click emits tickets_out — revenue that cannot be measured cannot be protected");
+ok(/e\.url \|\| e\.place_id/.test(rail), "an event with no link and no venue never renders — a dead tile is worse than one fewer tile");
+ok(/eventFranchiseKey\(e\.name \|\| e\.title\)/.test(rail) && /dist\(a\) - dist\(b\)/.test(rail),
+  "the drop dedupes by franchise and shows the NEAREST location first");
 ok(/if \(selected === "augtober"\)/.test(rail) && /photo: p\.image \|\| null/.test(rail),
   "the drop's place cards come from the vetted fall pool, mapped onto the house card contract");
 ok(/selRail\.id !== "augtober"/.test(rail), "the drop header does not double-claim 'near <city>' over the title's own 'Near You'");
