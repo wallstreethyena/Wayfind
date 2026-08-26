@@ -1776,10 +1776,9 @@ function confidenceOf(reviews) {
 // Never a blank rectangle or a broken-image glyph. The state decision lives
 // in kit.js imageDisplayState() so it's unit-tested independent of the DOM.
 //
-// className is how the house place card sizes the media column. A 96×96
-// inline style here was the compact-row chrome (Image 1): CSS styles
-// `.wf-place-card-layout>img`, and a wrapping div with minHeight:96 blocked
-// that rule. Pass `wf-place-card-media` and leave dimensions to css.js.
+// The house media column is `.wf-place-card-layout > .wf-place-card-media`.
+// This helper fills that column — pass `wf-place-card-photo`, never a 96×96
+// inline size (that was Image-1 compact chrome). Leave dimensions to css.js.
 function FallbackImg({ src, alt, style, className, icon, onClick }) {
   const [bad, setBad] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -11211,24 +11210,22 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   return (
     <div className={`wf-place-card${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
       <button type="button" className="wf-place-card-open" onClick={onDetail} aria-label={`Open ${p.name}`} style={{ position: "absolute", inset: 0, zIndex: 0, width: "100%", height: "100%", opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
-      {/* v6.34: the badge lives IN the title row (flex), not floated over it.
-          The old absolute top-right overlay cleared long titles with a magic
-          paddingRight (88px) that was ~17px narrower than the badge, so titles
-          and wrapped meta chips rendered under it — "the score sits on top of
-          letters". In-flow, nothing can ever overlap it. */}
-      {/* v8.17 (owner, 2026-08-19, on a screenshot of the ✦ PICK seal:
-          "what is this pick badge on the picture, it looks like a bug").
-          The v6.48 medallion is REMOVED — two owner calls in opposite
-          directions, this is the later one. Curation still shows through the
-          award band and the editorial hook line; nothing overlays the photo.
-          check-pick-medallion.mjs is inverted, not deleted. */}
+      {/* v6.34 put the score IN the title row so it could not cover letters.
+          2026-08-26 owner (live Parrish / Family → Rainy day): that chip is
+          now crowded against the name and the TOP {CATEGORY} PICK chip and
+          overlaps the photo/heading edge. SUPERSEDED — rank + Wayfind score
+          are children of .wf-place-card-media (on the photo). The ✦ PICK
+          seal (v8.17) stays gone; check-pick-medallion.mjs still bans it. */}
       <div className="wf-place-card-layout" style={{ position: "relative", zIndex: 1, pointerEvents: "none" }}>
-        {(cardPhoto || (p && p.photo))
-          ? <FallbackImg className="wf-place-card-media" src={cardPhoto || p.photo} icon={iconForPlace(p)} />
-          : <div className="wf-place-card-monogram" aria-hidden="true">{cardInitials}</div>}
+        <div className="wf-place-card-media">
+          {(cardPhoto || (p && p.photo))
+            ? <FallbackImg src={cardPhoto || p.photo} icon={iconForPlace(p)} />
+            : <div className="wf-place-card-monogram" aria-hidden="true">{cardInitials}</div>}
+          {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
+          {dispScore != null && <div className="wf-place-card-score"><WayfindScoreBadge score={dispScore} /></div>}
+        </div>
         <div className="wf-place-card-content" style={{ position: "relative" }}>
           <div className="wf-place-card-title-row">
-            {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
             <div className="wf-place-card-heading">
               {pcat && (cardCuisineCanTap
                 ? <button type="button" className="wf-place-card-category is-tappable" style={{ pointerEvents: "auto" }} onClick={(e) => { e.stopPropagation(); onCuisineTap(cardCuisine, p); }}>{pcat} ›</button>
@@ -11236,7 +11233,6 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               )}
               <div className="wf-place-card-name">{p.name}</div>
             </div>
-            {dispScore != null && <div className="wf-place-card-score"><WayfindScoreBadge score={dispScore} /></div>}
           </div>
           <div className="wf-place-card-meta" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "7px 0 6px" }}>
             {offer && <span style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>{offerLabel(offer)}</span>}

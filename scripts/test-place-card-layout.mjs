@@ -108,7 +108,17 @@ const m = await p.evaluate(() => {
     const kids = row ? [...row.children].map((k) => { const r = k.getBoundingClientRect(); return { cls: k.className.split(" ")[0] || k.tagName, x: r.x, y: r.y, w: r.width, h: r.height }; }) : [];
     const pills = lane ? [...lane.children].map((k) => { const r = k.getBoundingClientRect(); return { cls: k.className || k.tagName, y: r.y, h: r.height }; }) : [];
     const laneBox = lane ? lane.getBoundingClientRect() : null;
-    out.cards.push({ card: { x: cb.x, w: cb.width }, kids, pills, laneBox: laneBox ? { y: laneBox.y, h: laneBox.h || laneBox.height } : null });
+    const media = card.querySelector(".wf-place-card-media");
+    const score = card.querySelector(".wf-place-card-score");
+    const title = card.querySelector(".wf-place-card-title-row");
+    const name = card.querySelector(".wf-place-card-name");
+    const box = (el) => { if (!el) return null; const r = el.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; };
+    out.cards.push({
+      card: { x: cb.x, w: cb.width }, kids, pills,
+      laneBox: laneBox ? { y: laneBox.y, h: laneBox.h || laneBox.height } : null,
+      media: box(media), score: box(score), title: box(title), name: box(name),
+      scoreInTitle: !!(score && title && title.contains(score)),
+    });
   });
   return out;
 });
@@ -128,6 +138,20 @@ m.cards.forEach((c, ci) => {
   for (const k of c.kids) ok(k.x >= c.card.x - 1 && k.x + k.w <= c.card.x + c.card.w + 1,
     `${tag}: ${k.cls} stays inside the card box`);
   ok(c.pills.length >= 3, `${tag}: positive control — highlights lane has >=3 pills (got ${c.pills.length})`);
+  ok(c.media && c.media.w > 40 && c.media.h > 80, `${tag}: positive control — media column is the tall photo`);
+  ok(c.score && c.score.w > 20 && c.score.h > 20, `${tag}: positive control — score overlay rendered`);
+  ok(!c.scoreInTitle, `${tag}: score overlay is not a child of the title row`);
+  if (c.media && c.score) {
+    ok(c.score.x >= c.media.x - 1 && c.score.x + c.score.w <= c.media.x + c.media.w + 1,
+      `${tag}: score stays inside the media column (got score.x=${Math.round(c.score.x)} w=${Math.round(c.score.w)} media.x=${Math.round(c.media.x)} w=${Math.round(c.media.w)})`);
+    ok(c.score.y >= c.media.y - 1 && c.score.y + c.score.h <= c.media.y + c.media.h + 1,
+      `${tag}: score stays inside the media height`);
+  }
+  if (c.score && c.name) {
+    const oxv = Math.min(c.score.x + c.score.w, c.name.x + c.name.w) - Math.max(c.score.x, c.name.x);
+    const oyv = Math.min(c.score.y + c.score.h, c.name.y + c.name.h) - Math.max(c.score.y, c.name.y);
+    ok(!(oxv > 1 && oyv > 1), `${tag}: score overlaps the place name by ${Math.round(oxv)}x${Math.round(oyv)}px — the Parrish screenshot bug`);
+  }
   if (c.laneBox) for (const pl of c.pills) {
     ok(pl.y >= c.laneBox.y - 1 && pl.y + pl.h <= c.laneBox.y + (c.laneBox.h || 0) + 1.5,
       `${tag}: pill fully inside the lane's vertical box (no cropped sliver) — ${String(pl.cls).slice(0, 30)}`);

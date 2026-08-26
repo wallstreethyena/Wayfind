@@ -383,17 +383,22 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   return (
     <li ref={cardRef} data-iconic-place-card data-card-opens-detail onClick={openCard} className={`wf-place-card${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}`} style={{ listStyle: "none", cursor: href ? "pointer" : "default" }}>
       <div className="wf-place-card-layout">
-        {photoUrl(place)
-          ? <img src={photoUrl(place)} alt="" loading="lazy" style={{ objectFit: "cover" }} />
-          : <div className="wf-place-card-monogram" aria-hidden="true">{initials}</div>}
+        {/* 2026-08-26 owner (live Parrish / Family → Rainy day): score+rank
+            live on the photo. #956's own-photo-or-monogram rule is unchanged
+            — no shared category stock scene. */}
+        <div className="wf-place-card-media">
+          {photoUrl(place)
+            ? <img src={photoUrl(place)} alt="" loading="lazy" style={{ objectFit: "cover" }} />
+            : <div className="wf-place-card-monogram" aria-hidden="true">{initials}</div>}
+          {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
+          {score != null ? <div className="wf-place-card-score"><WayfindScoreBadge score={score} /></div> : null}
+        </div>
         <div className="wf-place-card-content" style={{ position: "relative" }}>
           <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start" }}>
-            <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span>
             <div className="wf-place-card-heading">
               <span className="wf-place-card-category">{category}</span>
               <a className="wf-place-card-name" href={href} onClick={onOpen ? (e) => { e.preventDefault(); e.stopPropagation(); onOpen(place); } : undefined} style={{ display: "block", color: "#F8F5EE", textDecoration: "none" }}>{place.name}</a>
             </div>
-            {score != null ? <div className="wf-place-card-score"><WayfindScoreBadge score={score} /></div> : null}
           </div>
 
           <div className="wf-place-card-meta" style={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}>
