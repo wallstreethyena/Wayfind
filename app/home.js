@@ -1,5 +1,5 @@
 "use client";
-import { Component, useEffect, useMemo, useRef, useState , Fragment} from "react";
+import { Component, useEffect, useMemo, useRef, useState } from "react";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, getLoader, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, wayfindScore } from "../lib/google";
 import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks";
@@ -21,7 +21,7 @@ import { noteHighPointAndMaybeAsk } from "../lib/appRating";
 import { wcRotation } from "../lib/shareCards";
 // v6.31: THE single source of truth for open/closed. Every surface reads status
 // from here so one venue can never show two statuses at the same instant.
-import { businessStatus, isOpenNow, statusLabel } from "../lib/businessStatus";
+import { businessStatus, isOpenNow } from "../lib/businessStatus";
 import { eventWhenLabel } from "../lib/eventTime";
 // v7.06 — the editorial line, resolved through the ONE compressor every place
 // surface shares. See lib/editorialHook.js for the law it enforces.
@@ -70,11 +70,11 @@ import { setLocal, sweepLocal } from "../lib/localStore";
 import { placeRouteBackPlan } from "../lib/railReaction";
 import { reconcileIds } from "../lib/syncReconcile";
 // v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
-import { placeAllowed } from "../lib/placeFilter";
+import { placeAllowed, SUB_ALLOW } from "../lib/placeFilter";
 import { parseCouponValue } from "../lib/couponValue";
 import { currentSeason, seasonQueries, seasonalFit, SEASON_META } from "../lib/seasons";
 import { COUPONS, couponForPlaceName, normalizeOfferRow } from "../lib/coupons";
-import { HOOK_BANK, pickHook } from "../lib/hooks";
+import { pickHook } from "../lib/hooks";
 import * as Meals from "../lib/meals";
 import * as Radius from "../lib/radius";
 import { isTrueLodging } from "../lib/lodging";
@@ -182,12 +182,10 @@ import { CURATED } from "../lib/curated";
 import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/exploreMenu";
 // July 2026 decomposition (G0): design tokens and stateless helpers live in the
 // eager shared kit so extracted screens/sheets can import them without home.js.
-import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET, CHAMPAGNE, MEDALLION_SHADOW, TRENDING_POPULARITY_THRESHOLD, SHADOW } from "./components/kit";
+import { C, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, RADII, MOTION, TARGET, SHADOW } from "./components/kit";
 import { sponsorRailNear, partnerCollectionById, hydratePartnerCollection } from "../lib/partnerCollections";
-import { COLLECTION } from "./components/collectionTheme";
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
 import { frontPageEvents, bestFirst } from "../lib/frontEvents";
-import { rankBeaches, beachesWithin, BEACH_NEAR_MI } from "../lib/beaches";
 import { pickHomeExp } from "../lib/homeExpPick";
 // July 2026 decomposition (wave 1): the homepage's ~520 lines of server-
 // rendered CSS live in their own shell file. They are still concatenated into
@@ -223,7 +221,7 @@ import RailCard, { RailNav, RailDots } from "./components/RailCard";
 import CreatorFinds from "./components/CreatorFinds";
 import LocalEdit from "./components/LocalEdit";
 import { MARKETS, marketForLocation } from "../lib/destinations";
-import { creatorVideosFor, PLATFORM, regionsWithFinds, spotsByCity, libraryStats } from "../lib/creatorVideos";
+import { creatorVideosFor, regionsWithFinds, spotsByCity, libraryStats } from "../lib/creatorVideos";
 import CreatorCardMark from "./components/CreatorCardMark";
 import { hasCreatorVideoAt, displayedWfScore } from "../lib/creatorBoost";
 import { CREATOR_VIDEO_BONUS, FAR_MILES, FAR_PENALTY, TRENDING_BONUS } from "../lib/wayfindScore";
@@ -1463,17 +1461,9 @@ function tasteBump(place) {
 // the entire Food list when fewer than five meal matches remained; that is how a
 // widened Breakfast search became generic fast food. Honest scarcity is better
 // than unrelated results, so this gate never falls back to the ungated pool.
-const MEAL_GATE_RE = {
-  breakfast: /breakfast|brunch|cafe|caf\u00e9|coffee|bakery|diner|pancake|waffle|donut|doughnut|biscuit|bagel|crepe|creperie|juice/,
-  coffee: /coffee|cafe|caf\u00e9|espresso|roaster|tea ?house|bakery|juice/,
-};
 function mealGate(list, subId) {
-  const re = MEAL_GATE_RE[subId];
-  if (!re) return list;
-  return (list || []).filter((p) =>
-    placeAllowed("food", subId, p)
-    && re.test((((Array.isArray(p.types) ? p.types.join(" ") : "") + " " + (p.type || "") + " " + (p.name || ""))).toLowerCase())
-  );
+  if (!subId || subId === "all") return list;
+  return (list || []).filter((p) => placeAllowed("food", subId, p));
 }
 
 function curatedNote(p) {
@@ -6671,7 +6661,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             // near Parrish: 0 of the top 50 food rows are cafés, which is
             // exactly why Food > Cafés rendered "Nothing here right now" while
             // 111 admissible cafés sat in inventory 17 miles away.
-            const r = await fetch(`/api/places/search?q=inventory&lat=${center.lat.toFixed(4)}&lng=${center.lng.toFixed(4)}&radius=${m}&n=40&cat=${encodeURIComponent(cat)}&inv=1${sub && sub !== "all" ? `&sub=${encodeURIComponent(sub)}` : ""}`);
+            const r = await fetch(`/api/places/search?q=inventory&lat=${center.lat.toFixed(4)}&lng=${center.lng.toFixed(4)}&radius=${m}&n=400&cat=${encodeURIComponent(cat)}&inv=1${sub && sub !== "all" ? `&sub=${encodeURIComponent(sub)}` : ""}`);
             const j = await r.json();
             const raw = Array.isArray(j.places) ? j.places : [];
             return raw.map((x) => {
@@ -6688,6 +6678,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                 reviews: x.userRatingCount || 0,
                 wfScore: wayfindScore(typeof x.rating === "number" ? x.rating : 0, x.userRatingCount || 0),
                 types: Array.isArray(x.types) ? x.types : [],
+                primaryType: x.primaryType || x.primary_type || null,
                 photo: _ph ? "/api/photo?ref=" + encodeURIComponent(_ph) + "&w=640" : null,
                 openNow: null,
                 businessStatus: x.businessStatus || "OPERATIONAL",
@@ -6728,6 +6719,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             // Shopping "All" list; they remain available under the Markets tab.
             if (cat === "shopping") return _out.filter((pp) => placeAllowed("shopping", "all", pp));
             return _out;
+          }
+          // v8.50 — identity chips read owned inventory. searchPlaces is
+          // Google Text Search, max 20; that cap is why Cafés printed 1 card.
+          if (sub && sub !== "all" && SUB_ALLOW[`${cat}:${sub}`]) {
+            const inv = await _invAll(m);
+            if (inv.length) return inv;
           }
           return await searchPlaces(cat, sub, ctr, m, vibe);
         };

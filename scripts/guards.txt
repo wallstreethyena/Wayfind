@@ -124,6 +124,11 @@ node scripts/test-map-worker.mjs
 node scripts/test-map-explorer.mjs
 node scripts/test-card-a11y.mjs
 node scripts/test-sparse-category.mjs
+# v8.50 — home Food→Cafés / Food→Lunch must return the owned-library identity,
+# not a Google top-N slice. test-sparse-category locks the honest "That's all N"
+# line; this one locks that N is the library, not a pool-cap. Also refuses a
+# breakfast-only primary as Lunch #1 when lunch library exists.
+node scripts/test-browse-library.mjs
 node scripts/test-sync-reconcile.mjs
 node scripts/test-site-time.mjs
 node scripts/check-sitetime.mjs

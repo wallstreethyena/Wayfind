@@ -24,8 +24,7 @@ const ok = (c, m) => { checks++; if (!c) { bad++; console.error("check-sub-contr
 // Chips whose promise really is the category's promise. Each needs a reason a
 // human wrote, so "we forgot" can never masquerade as "we decided".
 const CATEGORY_WIDE = {
-  "food:lunch": "the chip is a TIME of day, not a venue kind — the query differentiates it and every candidate is legitimately food",
-  "food:dinner": "same as food:lunch — a time, not a kind",
+  "food:dinner": "a time of day, not a venue kind — acknowledged debt; Lunch got a real contract in v8.50 (isLunchPlace) because a breakfast cafe led it",
   "food:quickbites": "acknowledged debt: 'quick' is a service-speed promise with no Google type behind it. Needs a real contract or renaming; category-wide today",
   "food:delivery": "acknowledged debt: delivery is an attribute Google does not type. Needs a real signal",
   "food:dessert": "acknowledged debt: the dessert regex exists inline in placeAllowed's meal-signal branch rather than as a SUB_ALLOW contract",

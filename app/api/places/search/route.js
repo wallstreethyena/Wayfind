@@ -187,7 +187,11 @@ async function handleSearch(params, origin) {
   // cache write), used by the "All is a superset" union on every category
   // tab. Serves only rows we already own; can never trigger paid spend.
   if (String(params.inv || "") === "1") {
-    const invN = Math.min(Math.max(Number(params.n) || 40, 1), 50); // v6.39: inventory serve is FREE — allow up to 50
+    // v8.50 — inventory serve is FREE. 400 is the same cost bound nearbyPool
+    // uses per ring (lib/browseInventory.js BROWSE_INVENTORY_N), not a
+    // merchandising ceiling. The old 50 was how a filled café identity still
+    // shipped 40 cards and called the library done.
+    const invN = Math.min(Math.max(Number(params.n) || 40, 1), 400);
     const inv = await serveFromInventory(String(params.cat || ""), lat, lng, radius, invN, params.sub);
     return NextResponse.json({ places: inv, cached: false, source: "inventory-direct" }, { headers: EDGE_HEADERS });
   }
