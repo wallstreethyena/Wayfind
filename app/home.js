@@ -9991,6 +9991,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   <button onClick={() => { setA2hs(false); try { localStorage.setItem("wf_a2hs_dismissed", "1"); logEvent("a2hs_dismiss"); } catch (e) {} }} aria-label="Dismiss" style={{ flexShrink: 0, width: 30, height: 30, background: "transparent", border: "none", color: C.muted, fontSize: 16, cursor: "pointer" }}>✕</button>
                 </div>
               )}
+              {/* AUGTOBER on the LANDING feed too (owner: "right on the page") — the
+                  browse mount below only exists once a menu is open, which left the
+                  default view, the first thing every visitor sees, without the rail.
+                  Gated !browseCat so a browse never renders it twice. */}
+              {!browseCat && <AugtoberRail onOpenPlace={openDetail} />}
               {/* v6.22: when a category is being browsed from the mood menu, the feed under the weather becomes that category's ranked places. No navigation, the same PlaceCard used everywhere else. */}
               {browseCat && (
                 <div ref={browseAnchorRef} style={{ marginBottom: 16 }}>
