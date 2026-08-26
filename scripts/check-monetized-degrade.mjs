@@ -5,7 +5,7 @@
 // correct literal that still carried attribution (TP marker 750791, the Impact
 // SID/campaign/ad). Two were bleeding: their fallback returned a WORKING,
 // UNATTRIBUTED link — vrboUrl sending free traffic to Expedia out of our
-// highest-commission category, and uberEatsUrl doing the same.
+// highest-commission category. (uberEatsUrl, which had the same leak, was deleted 2026-08-26 with Uber Eats.)
 //
 // "Is the env var set?" cannot tell those apart. Only degrade behaviour can:
 //     env SET   -> the URL must be ATTRIBUTED (carry the id/marker/wrapper)
@@ -66,18 +66,11 @@ const BUILDERS = [
     env: "NEXT_PUBLIC_VIATOR_PID", set: "P00000000", attributed: "P00000000",
     mustFailClosed: true, extraUnset: { NEXT_PUBLIC_GYG_PID: "" },
   },
-  {
-    fn: "uberEatsUrl", args: ["Columbia Restaurant", "Sarasota"],
-    env: "NEXT_PUBLIC_UBEREATS_TEMPLATE", set: "https://track.example/x?u={url}", attributed: "track.example",
-    // EXEMPTION CLOSED 2026-08-13, on its own deadline. The template never
-    // arrived and the Uber Eats project is parked pending affiliate approval, so
-    // the exemption expired into its intended end state rather than being
-    // extended. uberEatsUrl now returns null with the template unset, and the
-    // two call sites fall through to the Maps CTA, so a restaurant card still
-    // has a working action. Re-arming is an env change, not a code change.
-    mustFailClosed: true,
-  },
 ];
+// uberEatsUrl was DELETED from lib/affiliates.js 2026-08-26 with the whole
+// Uber Eats path (owner directive: permanently removed). Like hotelSearchUrl
+// below, it is deliberately NOT pre-classified: a re-add must fail this guard
+// and force a triage.
 
 for (const b of BUILDERS) {
   // (a) env SET -> attributed.
@@ -152,12 +145,7 @@ const KNOWN_UNMONETIZED = new Set([
   "tmImpactLink",         // literal-default credential (IMPACT_SID etc.), covered by check-untracked-affiliate-links
   "ticketOutUrl",         // delegates to tmImpactLink; same literal-default class
   "experienceGoUrl",      // returns our OWN /api/viator/go route — attribution happens server-side at the 302
-  // Same class as experienceGoUrl: returns our OWN /api/eats/go route, which
-  // resolves the exact store and applies NEXT_PUBLIC_UBEREATS_TEMPLATE at
-  // runtime, server-side, at the 302 (v8.44 — the detail delivery rung moved
-  // here so the primary CTA stops degrading to an unmonetized "See menu" when
-  // the template env is unset at build time).
-  "uberEatsGoUrl",
+  // uberEatsGoUrl deleted 2026-08-26 with /api/eats/go — see the BUILDERS note.
   "ticketmasterGoUrl",    // returns our OWN /api/ticketmaster/go route — same server-side-attribution class as experienceGoUrl
   "hotelUrl",             // Stay22: the href is rewritten at click time by LinkSwap, so a static assert would be wrong
   // hotelSearchUrl was DELETED from lib/affiliates.js 2026-07-30 (bare
@@ -171,4 +159,4 @@ for (const fn of exports_) {
     `lib/affiliates.js exports ${fn}() and this guard does not classify it. Add it to BUILDERS (with its env var and the substring that proves attribution) or to KNOWN_UNMONETIZED with a reason. An unclassified URL builder is how the next VRBO ships.`);
 }
 
-console.log(`check-monetized-degrade: OK — ${pass} assertions across ${BUILDERS.length} builders (env SET => attributed, env UNSET => null; one dated exemption; every affiliates.js export classified)`);
+console.log(`check-monetized-degrade: OK — ${pass} assertions across ${BUILDERS.length} builders (env SET => attributed, env UNSET => null; every affiliates.js export classified)`);

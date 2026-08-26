@@ -4200,24 +4200,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // sheet if wanted. (The legacy family/budget EXPERIENCE tiles are separate and
   // untouched — see EXPERIENCES / REVENUE_EXP_KEYS, guarded by check-cards.)
   const openCurated = async (kind, opts = {}) => {
-    // v6.37 — "Order In" opens its dedicated route (a real, shareable URL with
-    // Uber Eats CTAs), not a curated list; hand the current center along so the
-    // page skips a second location prompt.
-    // v6.39 — "Order In" opens the REAL Food browse on the new Delivery
-    // subfilter (owner directive: same cards, same Score, main-menu
-    // discoverable). The standalone /order-in URL still exists for direct
-    // links; the tile now keeps users in the app's one card system.
-    if (kind === "delivery") {
-      try { logEvent("orderin_open", null, {}); } catch (e) {}
-      // v6.42 — the inline Delivery subfilter renders a BLANK home even where
-      // delivery inventory EXISTS (verified live in Parrish, FL: the /order-in
-      // page there lists plenty of restaurants with "Order on Uber Eats" CTAs).
-      // The inline render path is broken, not the data. Route the tile to the
-      // /order-in page that works — same engine, same Wayfind Score, the Uber
-      // Eats CTA on every card. Restores the reliable pre-v6.39 behavior.
-      window.location.assign("/order-in");
-      return;
-    }
+    // 2026-08-26 — the kind === "delivery" branch (the "Order In" tile ->
+    // /order-in) is gone with Uber Eats (owner directive; the tile itself was
+    // removed from lib/exploreMenu.js and the page deleted).
     const c = CURATED[kind]; if (!c) return;
     const lens = (kind === "bestof" || kind === "today") ? (opts && opts.lens === "gems" ? "gems" : "institutions") : null;
     try { logEvent("curated_open", null, { kind }); } catch (e) {}

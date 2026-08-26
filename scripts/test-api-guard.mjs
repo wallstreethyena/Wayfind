@@ -42,7 +42,7 @@ ok(internal === null, "internal secret bypasses the gate (for our SSR calls)");
 const internalBad = guardPaidRoute({ headers: H({ "x-wf-internal": "wrong" }) }, { internalSecret: "s3cret" });
 ok(internalBad && internalBad.status === 403, "wrong internal secret does NOT bypass");
 
-// ── B2: rateLimitOnly — /api/eats/go NAVIGATIONS skip the same-origin block but keep rate-limiting ──
+// ── B2: rateLimitOnly — GET-302 NAVIGATIONS (e.g. /api/viator/go) skip the same-origin block but keep rate-limiting ──
 const goNav = guardPaidRoute({ headers: H({ "sec-fetch-site": "none", "x-forwarded-for": "7.7.7.1" }) }, { rateLimitOnly: true });
 ok(goNav === null, "rateLimitOnly: a direct/nav request (Sec-Fetch-Site none) is NOT 403'd (never breaks the redirect)");
 const goCross = guardPaidRoute({ headers: H({ "sec-fetch-site": "cross-site", "x-forwarded-for": "7.7.7.2" }) }, { rateLimitOnly: true });
@@ -51,16 +51,17 @@ let goTripped = null;
 for (let i = 0; i < RL_LIMIT + 5; i++) goTripped = guardPaidRoute({ headers: H({ "x-forwarded-for": "7.7.7.3" }) }, { rateLimitOnly: true });
 ok(goTripped && goTripped.status === 429, "rateLimitOnly still 429s a burst from one IP (caps scrape abuse)");
 
-// ── B2: the middleware wires both eats routes; /api/eats/go is rate-limit-only ──
+// ── 2026-08-26: the /api/eats/* routes are GONE with Uber Eats (owner
+// directive). The middleware must not carry dead matcher entries — a stale
+// entry would silently re-guard a route someone re-adds under that name
+// without a triage.
 const mw = readFileSync(new URL("../middleware.js", import.meta.url), "utf8");
-ok(/"\/api\/eats\/check"/.test(mw), "middleware matcher includes /api/eats/check (full guard)");
-ok(/"\/api\/eats\/go"/.test(mw), "middleware matcher includes /api/eats/go");
-ok(/rateLimitOnly/.test(mw) && /"\/api\/eats\/go"/.test(mw), "middleware passes rateLimitOnly for /api/eats/go");
+ok(!/"\/api\/eats\//.test(mw), "middleware carries NO /api/eats/* matcher entries (routes deleted 2026-08-26)");
 
 // ── 2026-07-17 audit: the Viator proxies are guarded too ──
 // /api/viator/tours = same-origin XHR hitting the metered Viator API + a
 // service-role Supabase write → full guard. /api/viator/go = GET-302 nav → rate-
-// limit only (like /api/eats/go). Both were completely unguarded before.
+// limit only (GET-302 nav). Both were completely unguarded before.
 ok(/"\/api\/viator\/tours"/.test(mw), "middleware matcher includes /api/viator/tours (full guard)");
 ok(/"\/api\/viator\/go"/.test(mw), "middleware matcher includes /api/viator/go");
 ok(/NAV_302_ROUTES[\s\S]*\/api\/viator\/go/.test(mw), "middleware treats /api/viator/go as a rate-limit-only GET-302 nav route");
@@ -70,4 +71,4 @@ ok(/NAV_302_ROUTES[\s\S]*\/api\/viator\/go/.test(mw), "middleware treats /api/vi
 ok(/"\/api\/signals\/likes"/.test(mw), "middleware matcher includes /api/signals/likes (full guard)");
 
 if (fails) { console.error(`test-api-guard: ${fails} failure(s)`); process.exit(1); }
-console.log("test-api-guard: OK — same-origin gate allows real browsers + blocks scrapers/cross-site; per-IP rate limit trips on burst; internal-secret bypass works; eats + viator proxies guarded (go routes=rate-limit-only)");
+console.log("test-api-guard: OK — same-origin gate allows real browsers + blocks scrapers/cross-site; per-IP rate limit trips on burst; internal-secret bypass works; viator proxies guarded (go routes=rate-limit-only); eats routes verified deleted");

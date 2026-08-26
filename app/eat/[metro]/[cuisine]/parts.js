@@ -11,7 +11,7 @@
 // by a guard instead of grepped.
 //
 // THE DISCLOSURE FOLLOWS THE MONEY. It renders only when the primary CTA actually
-// earns. "Order pickup" works today but NEXT_PUBLIC_UBEREATS_TEMPLATE is unset, so
+// earns. (The Uber Eats pickup rung was removed 2026-08-26 — owner directive.)
 // it earns nothing — printing "we may earn a commission" under it would be false,
 // and would teach users the line is boilerplate rather than information.
 //
@@ -127,7 +127,7 @@ export default function CuisineListClient({ places, metro, cuisine }) {
                   rel={cta.monetized ? "noopener sponsored nofollow" : "noopener noreferrer"}
                   onClick={(e) => {
                     const clickId = mintClickId();
-                    const offerId = cta.offerId || (cta.type === "delivery" ? "uber_eats" : cta.type);
+                    const offerId = cta.offerId || cta.type;
                     emitCommerce("commerce_cta_clicked", {
                       surface: "cuisine_shortlist",
                       ...funnelProps("commerce_cta_clicked", { metro, cuisine, placeId: p.id }),

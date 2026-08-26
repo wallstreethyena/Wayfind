@@ -68,11 +68,7 @@ await testRoute("/api/viator/go", "../app/api/viator/go/route.js", () => ({
   headers: { get: () => null },
 }));
 
-await testRoute("/api/eats/go", "../app/api/eats/go/route.js", () => ({
-  url: "http://localhost:3000/api/eats/go",
-  headers: { get: () => null },
-}));
-
+// /api/eats/go was deleted 2026-08-26 with Uber Eats (owner directive).
 await testRoute("/api/ticketmaster/go", "../app/api/ticketmaster/go/route.js", () => ({
   url: "http://localhost:3000/api/ticketmaster/go?url=https://www.ticketmaster.com/event/123",
   headers: { get: () => null },
@@ -97,7 +93,7 @@ for (const ev of noUaCaptured) {
 
 // Sanity: commerce/go failure carries a reason.
 const failed = captured.filter((b) => b.event === "provider_redirect_failed");
-ok(failed.length >= 2, "at least two failure events captured (commerce + viator/eats missing params)");
+ok(failed.length >= 2, "at least two failure events captured (commerce + viator missing params)");
 for (const f of failed) {
   ok(f.properties?.failure_reason, `provider_redirect_failed has failure_reason: ${JSON.stringify(f.properties)}`);
 }
@@ -130,12 +126,6 @@ await testClickIdEcho(
   "/api/viator/go",
   "../app/api/viator/go/route.js",
   "http://localhost:3000/api/viator/go?click_id=" + encodeURIComponent(CLIENT_CLICK_ID)
-);
-
-await testClickIdEcho(
-  "/api/eats/go",
-  "../app/api/eats/go/route.js",
-  "http://localhost:3000/api/eats/go?click_id=" + encodeURIComponent(CLIENT_CLICK_ID)
 );
 
 await testClickIdEcho(
@@ -179,7 +169,6 @@ const CHROME_UA =
 const UA_FIXTURES = [
   ["/api/commerce/go", "../app/api/commerce/go/route.js", "http://localhost:3000/api/commerce/go?provider=unknown&offer=xyz"],
   ["/api/viator/go", "../app/api/viator/go/route.js", "http://localhost:3000/api/viator/go"],
-  ["/api/eats/go", "../app/api/eats/go/route.js", "http://localhost:3000/api/eats/go"],
   ["/api/ticketmaster/go", "../app/api/ticketmaster/go/route.js", "http://localhost:3000/api/ticketmaster/go?url=https://www.ticketmaster.com/event/123"],
 ];
 

@@ -44,13 +44,27 @@ const BUILDERS = [
   // ("still firing eats_out") until a template exists. That is a deliberate
   // decision to send unattributed traffic, not an oversight — flagged back to
   // the owner 2026-07-30. Flip mustFailClosed to true the moment that changes.
-  // EXEMPTION CLOSED 2026-08-13, on its own deadline. The template never
-  // arrived, the Uber Eats project is parked pending affiliate approval, and the
-  // guard's own instruction was "wire the env, or set mustFailClosed:true to
-  // suppress the row." We suppressed the row. The date did its job: it converted
-  // a temporary decision into a forced, visible one instead of letting it drift.
-  { fn: "uberEatsUrl", env: "NEXT_PUBLIC_UBEREATS_TEMPLATE", mustFailClosed: true },
+  // EXEMPTION CLOSED 2026-08-13; BUILDER DELETED 2026-08-26. uberEatsUrl (and
+  // its server sibling uberEatsGoUrl, /api/eats/*, and the /order-in page) are
+  // gone with Uber Eats — owner directive: "remove the uber eats permanently
+  // ... i want uber eats deleted". The 2026-08-26 audit found /api/eats/go
+  // live-302ing users to a bare, untracked ubereats.com search in production —
+  // the exact leak this guard exists to catch, resurrected server-side after
+  // the client builder was closed. The tombstone assertions below keep it dead.
 ];
+
+// ── UBER EATS STAYS DELETED (2026-08-26, owner directive) ───────────────────
+// A revived Uber Eats path would be a working, untracked handoff on day one
+// (no template/PID exists). If delivery affiliation ever lands, it must arrive
+// as a provider behind /api/commerce/go with requireTracking — never as a
+// template-wrapped client link or a bespoke go route.
+ok(!/uberEats/i.test(src), "no uberEats builder may exist in lib/affiliates.js");
+ok(!/ubereats\.com/i.test(src), "no ubereats.com URL may be constructible from lib/affiliates.js");
+{
+  const { existsSync } = await import("node:fs");
+  ok(!existsSync(new URL("../app/api/eats", import.meta.url)), "app/api/eats/* stays deleted");
+  ok(!existsSync(new URL("../app/order-in", import.meta.url)), "app/order-in stays deleted");
+}
 
 // ── THE EXEMPTION EXPIRES. A DATE, NOT A FLAG. ──────────────────────────────
 // Owner ruling 2026-07-30: keep the Uber Eats row rendering — suppressing it
@@ -72,7 +86,7 @@ for (const b of BUILDERS) {
   ok(Date.now() < due,
     `THE ${b.fn} EXEMPTION EXPIRED ON ${b.expires}. It renders a WORKING, UNTRACKED link because ${b.env} is unset — donating traffic to the partner. Either wire ${b.env}, or set mustFailClosed:true to suppress the row. Extending the date is allowed but must be deliberate and explained in the PR.`);
 }
-ok(BUILDERS.length >= 2, "the builder list is populated");
+ok(BUILDERS.length >= 1, "the builder list is populated");
 // The exemption list must stay SMALL and deliberate. A third untracked builder
 // is a new leak, not a new exception.
 ok(BUILDERS.filter((b) => !b.mustFailClosed).length <= 1,
