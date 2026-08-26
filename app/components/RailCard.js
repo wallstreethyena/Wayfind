@@ -53,6 +53,8 @@ import { useMarketPhotoFallback } from "./marketPhoto.js";
 import { useCardActions, toggleLike as fallbackLike, toggleDislike as fallbackDislike, toggleSave as fallbackSave } from "../../lib/cardActions";
 import { railDotWindow, railDotIsEdge } from "../../lib/railDots.js";
 import { KB_CLICK, WayfindScoreBadge } from "./kit";
+import { fallCardClass } from "../../lib/fallSkin.js";
+import { siteTodayStr } from "../../lib/siteTime.js";
 import { stayOnRailReaction } from "../../lib/railReaction.js";
 // v8.33 — the creator's face on the media column, resolved from the optional
 // `place` row. A rail card without a place row (the Viator tour rail, an
@@ -313,7 +315,7 @@ export default function RailCard({
   // test-card-a11y.mjs requires of anything that opens a place.
   return (
     <article
-      className={`wf-place-card wf-rail-card${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${className ? " " + className : ""}`}
+      className={`wf-place-card wf-rail-card${fallCardClass(place && place.id, siteTodayStr())}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${className ? " " + className : ""}`}
       role="button"
       tabIndex={0}
       onKeyDown={KB_CLICK}

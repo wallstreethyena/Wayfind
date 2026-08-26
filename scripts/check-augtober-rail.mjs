@@ -16,6 +16,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { isFallTagged, fallEventLive, fallWhenLabel, fallSkinLive, eventFranchiseKey, FALL_PLACE_IDS, FALL_REJECTED_IDS, FALL_EVENT_TICKET_DEALS, OPEN_RUN_DAYS } from "../lib/fallPool.js";
+import { FALL_CARD_IDS, fallCardClass } from "../lib/fallSkin.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 let pass = 0, fail = 0;
@@ -112,7 +113,30 @@ ok(fallSkinLive(null) === false, "no site date, no skin — never a guess");
 ok(/fallSkin \? " wf-fall" : ""/.test(rail) || /fallSkin \? "wf-fall" : undefined/.test(rail),
   "the skin class is gated by fallSkinLive, in syntactic position");
 const css = readFileSync(path.join(ROOT, "app/components/css.js"), "utf8");
-ok(/\.wf-fall \.wf-place-card\{background:linear-gradient\([^;!]*\)!important/.test(css), "the fall card skin exists, scopes ONLY under .wf-fall, and carries !important — the base .wf-place-card background is !important and silently wins otherwise (proven live 2026-08-26)");
+ok(/\.wf-fall \.wf-place-card,\.wf-place-card\.wf-fall-card\{background:linear-gradient\([^;!]*\)!important/.test(css), "the fall card skin exists, scopes ONLY under .wf-fall, and carries !important — the base .wf-place-card background is !important and silently wins otherwise (proven live 2026-08-26)");
+
+// ── 3c. THE FALL CARD FOLLOWS THE PLACE (owner, 2026-08-26: "all of the
+// place cards that are featured for fall … only those places that are fall
+// known and make it go away when fall is over"). One membership, four
+// renderers, one death date — the #966 lesson says pin ALL FOUR, because
+// placement/skin is (one CSS rule) x (every root that carries the class). ──
+ok(FALL_CARD_IDS.size === Object.keys(FALL_PLACE_IDS).length && Object.keys(FALL_PLACE_IDS).every((i) => FALL_CARD_IDS.has(i)),
+  "FALL_CARD_IDS (client) and FALL_PLACE_IDS (server) are the SAME set — membership has one source of truth");
+ok(fallCardClass("ChIJTzoiienhwogRbPa3GpuvBQU", "2026-10-01") === " wf-fall-card", "a fall-known place wears the card in season (executed)");
+ok(fallCardClass("ChIJTzoiienhwogRbPa3GpuvBQU", "2026-11-02") === "", "…and NOT after Halloween — the skin dies with the season");
+ok(fallCardClass("ChIJdd8VlMN-54gRoaU0d_zYhfk", "2026-10-01") === "", "a non-member place NEVER wears it — fall-known only");
+ok(fallCardClass(null, "2026-10-01") === "", "no id, no class");
+const RENDERERS = [
+  ["app/components/IconicPlaceCard.js", /className=\{`wf-place-card\$\{fallCardClass\(place\.id, siteTodayStr\(\)\)\}/],
+  ["app/components/RailCard.js", /className=\{`wf-place-card wf-rail-card\$\{fallCardClass\(place && place\.id, siteTodayStr\(\)\)\}/],
+  ["app/home.js", /className=\{`wf-place-card\$\{fallCardClass\(p && p\.id, siteTodayStr\(\)\)\}/],
+  ["app/components/ThingsToDoList.js", /"wf-place-card wf-ttd-focus" \+ fallCardClass\(r\.place_id \|\| r\.id, siteTodayStr\(\)\)/],
+];
+for (const [f, rx] of RENDERERS) {
+  ok(rx.test(strip(readFileSync(path.join(ROOT, f), "utf8"))), `${f} carries fallCardClass on its card ROOT — a renderer that drops it ships season-blind cards`);
+}
+ok(/\.wf-place-card\.wf-fall-card\{background:linear-gradient\([^;!]*\)!important/.test(css),
+  "the card-level skin selector exists with !important — the drop-scoped class alone cannot dress a card on the browse feed");
 
 // route file structural
 const route = strip(readFileSync(path.join(ROOT, "app/api/events/fall/route.js"), "utf8"));
