@@ -10,6 +10,7 @@
 import { notFound } from "next/navigation";
 import { SITE_URL } from "../../../lib/site";
 import { fetchCuratedEvents, fetchCuratedEventBySlug, eventJsonLd, dateRangeLabel } from "../../../lib/curatedEvents";
+import { eventPhotos } from "../../../lib/eventPhotos";
 
 export const revalidate = 3600;
 
@@ -46,12 +47,21 @@ const S = {
   note: { fontSize: 14.5, color: "#C9D1D9", background: "#161B22", borderLeft: "3px solid #FF8A3D", borderRadius: 8, padding: "10px 14px", margin: "0 0 14px" },
   link: { color: "#FF8A3D", textDecoration: "none", fontWeight: 700 },
   foot: { fontSize: 13.5, color: "#8B949E", marginTop: 30, borderTop: "1px solid #21262D", paddingTop: 14 },
+  // v8.69 — owned event photography (see lib/eventPhotos.js for the consent
+  // rule that gates it). The hero is a wide band; the strip below it scrolls
+  // horizontally and shows phone photos at the portrait aspect they were shot
+  // at, because letterboxing a 2:3 photo into a 2:1 slot crops the subject out.
+  hero: { width: "100%", height: "auto", aspectRatio: "1200 / 631", objectFit: "cover", borderRadius: 14, display: "block", margin: "0 0 16px", background: "#161B22" },
+  strip: { display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", padding: "2px 0 8px", margin: "0 0 6px", WebkitOverflowScrolling: "touch", scrollSnapType: "x mandatory" },
+  shot: { flex: "0 0 auto", width: 168, aspectRatio: "853 / 1280", objectFit: "cover", borderRadius: 12, display: "block", background: "#161B22", scrollSnapAlign: "start" },
+  credit: { fontSize: 12.5, color: "#8B949E", margin: "0 0 22px" },
 };
 
 export default async function CuratedEventPage({ params }) {
   const e = await fetchCuratedEventBySlug(params.slug);
   if (!e) notFound();
 
+  const shots = eventPhotos(e.event_id);
   const ld = eventJsonLd(e, { siteUrl: SITE_URL });
   const crumbs = {
     "@context": "https://schema.org", "@type": "BreadcrumbList",
@@ -70,6 +80,14 @@ export default async function CuratedEventPage({ params }) {
       <div style={S.kicker}>Wayfind Events</div>
       <h1 style={S.h1}>{e.event_name} {e.year}</h1>
 
+      {/* Owned photography only. eventPhotos() fails closed when there is no
+          consent record, so an event without one renders no photo at all
+          rather than falling back to someone else's image. */}
+      {shots && shots.hero ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={shots.hero.src} alt={shots.hero.alt} width={shots.hero.w} height={shots.hero.h} style={S.hero} />
+      ) : null}
+
       {/* The answer box. Date first, always. */}
       <div style={S.box}>
         <div style={S.row}><span style={S.k}>When</span><span style={S.v}>{dateRangeLabel(e)}, {e.year}</span></div>
@@ -85,6 +103,27 @@ export default async function CuratedEventPage({ params }) {
       {e.editorial_summary ? <p style={S.p}>{e.editorial_summary}</p> : null}
 
       {e.why_go ? (<><h2 style={S.h2}>Why it&rsquo;s worth going</h2><p style={S.p}>{e.why_go}</p></>) : null}
+
+      {shots && shots.photos.length ? (
+        <>
+          <h2 style={S.h2}>What it looks like</h2>
+          <div style={S.strip}>
+            {shots.photos.map((p) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img key={p.src} src={p.src} alt={p.alt} width={p.w} height={p.h} loading="lazy" style={S.shot} />
+            ))}
+          </div>
+          {shots.credit ? (
+            <p style={S.credit}>
+              {"Photos: "}
+              {shots.creditUrl
+                ? <a style={S.link} href={shots.creditUrl} rel="nofollow noopener" target="_blank">{shots.credit}</a>
+                : shots.credit}
+              {", shared with Wayfind for this listing."}
+            </p>
+          ) : null}
+        </>
+      ) : null}
       {e.skip_if ? (<><h2 style={S.h2}>Who should skip it</h2><p style={S.p}>{e.skip_if}</p></>) : null}
       {e.insider_tip ? (<><h2 style={S.h2}>The move</h2><p style={S.p}>{e.insider_tip}</p></>) : null}
       {e.parking_tip ? (<><h2 style={S.h2}>Getting there</h2><p style={S.p}>{e.parking_tip}</p></>) : null}
