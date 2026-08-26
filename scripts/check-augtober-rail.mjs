@@ -113,7 +113,14 @@ ok(fallSkinLive(null) === false, "no site date, no skin — never a guess");
 ok(/fallSkin \? " wf-fall" : ""/.test(rail) || /fallSkin \? "wf-fall" : undefined/.test(rail),
   "the skin class is gated by fallSkinLive, in syntactic position");
 const css = readFileSync(path.join(ROOT, "app/components/css.js"), "utf8");
-ok(/\.wf-fall \.wf-place-card,\.wf-place-card\.wf-fall-card\{background:linear-gradient\([^;!]*\)!important/.test(css), "the fall card skin exists, scopes ONLY under .wf-fall, and carries !important — the base .wf-place-card background is !important and silently wins otherwise (proven live 2026-08-26)");
+ok(/\.wf-fall \.wf-place-card,\.wf-place-card\.wf-fall-card\{background:#C96F1E url\(\/fall\/card-bg-760\.webp[^)]*\) left bottom\/cover no-repeat!important/.test(css),
+  "the fall skin IS the owner's template art (v8.68.1: 'this is the FALL place card design') — served as the card background with !important, cover from left-bottom so the pumpkins stay pinned under the photo mask");
+ok(/;mask-image:radial-gradient\(135% 110% at 100% 0%,#000 60%,transparent 92%\)\}/.test(css),
+  "the photo fades at its left corners so the art's baked pumpkins and leaf show THROUGH it — the owner's overlap, no cropped overlays, no hard edges");
+import { statSync } from "node:fs";
+for (const f of ["public/fall/card-bg-380.webp", "public/fall/card-bg-760.webp", "public/fall/card-bg-1148.webp"]) {
+  ok(statSync(path.join(ROOT, f)).size > 4000, `the processed owner art ships on disk (${f})`);
+}
 
 // ── 3c. THE FALL CARD FOLLOWS THE PLACE (owner, 2026-08-26: "all of the
 // place cards that are featured for fall … only those places that are fall
@@ -135,8 +142,8 @@ const RENDERERS = [
 for (const [f, rx] of RENDERERS) {
   ok(rx.test(strip(readFileSync(path.join(ROOT, f), "utf8"))), `${f} carries fallCardClass on its card ROOT — a renderer that drops it ships season-blind cards`);
 }
-ok(/\.wf-place-card\.wf-fall-card\{background:linear-gradient\([^;!]*\)!important/.test(css),
-  "the card-level skin selector exists with !important — the drop-scoped class alone cannot dress a card on the browse feed");
+ok(/\.wf-place-card\.wf-fall-card\{background:#C96F1E url\(/.test(css),
+  "the card-level skin selector exists — the drop-scoped class alone cannot dress a card on the browse feed");
 
 // route file structural
 const route = strip(readFileSync(path.join(ROOT, "app/api/events/fall/route.js"), "utf8"));
