@@ -11218,13 +11218,8 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           seal (v8.17) stays gone; check-pick-medallion.mjs still bans it. */}
       <div className="wf-place-card-layout" style={{ position: "relative", zIndex: 1, pointerEvents: "none" }}>
         <div className="wf-place-card-media">
-<<<<<<< HEAD
           {(cardPhoto || (p && p.photo))
             ? <FallbackImg src={cardPhoto || p.photo} icon={iconForPlace(p)} />
-=======
-          {(p.photo || cardMarketFallback)
-            ? <FallbackImg src={cardPhoto || p.photo || cardMarketFallback} icon={iconForPlace(p)} />
->>>>>>> b4facfcb (fix(card): keep the score-on-photo change under the 496KB ratchet)
             : <div className="wf-place-card-monogram" aria-hidden="true">{cardInitials}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
           {dispScore != null && <div className="wf-place-card-score"><WayfindScoreBadge score={dispScore} /></div>}
