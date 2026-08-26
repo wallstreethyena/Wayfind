@@ -5,6 +5,7 @@
 export const runtime = "nodejs";
 
 import { intentPartnerPicks } from "../../../../lib/intentPartnerPicks.js";
+import { dropDeadLinkRows } from "../../../../lib/experienceLinkHealth.js";
 import { sbEnv } from "../../../../lib/serverCache.js";
 import { cachedExperienceCard, viatorProductCard } from "../../../../lib/viatorProductCard.js";
 import { isDeniedViatorSku } from "../../../../lib/viatorIntegrity.js";
@@ -18,14 +19,15 @@ async function cachedCards(codes) {
   if (!s || !codes.length) return [];
   try {
     const values = codes.map((code) => `"${code.replace(/["\\]/g, "")}"`).join(",");
-    const url = `${s.url}/rest/v1/wf_experiences?select=product_code,title,image,rating,reviews,from_price,duration_min&product_code=in.(${encodeURIComponent(values)})`;
+    const url = `${s.url}/rest/v1/wf_experiences?select=product_code,title,image,rating,reviews,from_price,duration_min,link_ok&product_code=in.(${encodeURIComponent(values)})`;
     const res = await fetch(url, {
       headers: { apikey: s.key, Authorization: `Bearer ${s.key}` },
       cache: "no-store",
     });
     if (!res.ok) return [];
     const rows = await res.json();
-    return (Array.isArray(rows) ? rows : []).map(cachedExperienceCard).filter(Boolean);
+    // 2026-08-26: a sweep-proven dead product must not render a curated card.
+    return dropDeadLinkRows(rows).map(cachedExperienceCard).filter(Boolean);
   } catch {
     return [];
   }

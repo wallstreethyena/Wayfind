@@ -26,6 +26,19 @@ import { viatorProductGoUrl } from "../lib/affiliates.js";
 import { withClickId } from "../lib/hubConversion.js";
 
 const REPO = fileURLToPath(new URL("..", import.meta.url));
+
+// SET UNCONDITIONALLY, BEFORE ANY ROUTE INVOCATION (2026-08-26 audit). run-guards
+// sets this for every guard it spawns, but a DIRECT run (`node scripts/check-
+// viator-redirect-layer.mjs` in a shell with production env sourced) had no
+// protection until §5's fetch stub — §4b's good/bad/none GETs went out with the
+// real fetch, and PostHog shows the cost: ~70 provider_redirect_started events
+// on the d827-1234P5 FIXTURE (surface "culture") in the last 30 days, plus the
+// matching "orlando tour" rows — synthetic traffic polluting the money funnel,
+// the exact incident class lib/serverEvents.js documents from 2026-08-04.
+// Written unconditionally, never read back (check-guard-hermeticity's rule);
+// §5 deletes it inside its own stubbed-fetch window, so the join-key
+// assertions still capture events without anything leaving the process.
+process.env.WF_SUPPRESS_ANALYTICS = "1";
 let pass = 0; const fail = [];
 const ok = (c, m) => { if (c) pass++; else fail.push(m); };
 
