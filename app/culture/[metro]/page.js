@@ -3,7 +3,9 @@
 // the trust-and-authority pages in the middleman structure: they earn links
 // and pass authority to the guides and the app through internal links.
 import { notFound } from "next/navigation";
-import { CULTURE, TOWN_PROFILES, TOWN_HUBS } from "../../../lib/culture";
+import { TOWN_PROFILES } from "../../../lib/culture";
+import { CULTURE } from "../../../lib/cultureCorpus";
+import { TOWN_HUBS } from "../../../lib/cultureHubs";
 import ExploreBridge from "../../components/ExploreBridge";
 import { LANDING_CITIES, rankedFor, whyLine } from "../../../lib/landing";
 import { SITE_URL } from "../../../lib/site";

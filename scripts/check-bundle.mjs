@@ -41,7 +41,10 @@ import { gzipSync } from "node:zlib";
 // the route chunk) and lib/trendTaxonomy.js reaching the client through the
 // Exploding rail.
 const ROUTE_CHUNK_BUDGET_KB = 175; // static/chunks/app/page-*.js, gzipped. RATCHET: lower only.
-const TOTAL_BUDGET_KB = 500;       // every JS asset for route "/", gzipped.  RATCHET: lower only.
+const TOTAL_BUDGET_KB = 496;       // every JS asset for route "/", gzipped.  RATCHET: lower only.
+// 2026-08-26: CULTURE corpus left the homepage client (lib/cultureCorpus.js).
+// Measured 495.2KB gz after the split. 496 locks the savings; 500 was the
+// previous ratchet that #949 died against (500.1).
 
 const fail = (m) => { console.error("check-bundle: FAIL — " + m); process.exit(1); };
 

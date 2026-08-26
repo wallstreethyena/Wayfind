@@ -142,8 +142,12 @@ if (!landingLib.includes("serve stale")) fail("landing search lost stale-if-erro
 
 // 7. destination hubs exist and the Sarasota culture page links to them
 //    instead of carrying every full town profile inline.
+const cultureHubs = readFileSync(join(root, "lib", "cultureHubs.js"), "utf8");
+if (!/(?:export const)\s+TOWN_HUBS\s*=/.test(cultureHubs)) fail("TOWN_HUBS missing from lib/cultureHubs.js");
 const cultureLib = readFileSync(join(root, "lib", "culture.js"), "utf8");
-if (!cultureLib.includes("export const TOWN_HUBS")) fail("TOWN_HUBS missing from lib/culture.js");
+if (/(?:export const)\s+TOWN_HUBS\s*=/.test(cultureLib) || /from\s+["']\.\/cultureHubs["']/.test(cultureLib)) {
+  fail("lib/culture.js must not declare or re-export TOWN_HUBS — that puts SEO slugs back in the homepage client bundle");
+}
 if (!existsSync(join(root, "app", "florida", "[town]", "page.js"))) fail("/florida/[town] destination hubs missing");
 if (!culture.includes('href={"/florida/" + TOWN_HUBS[k]}')) fail("culture pages no longer link town hubs — the oversized inline profiles are banned for hub towns");
 const smHubs = readFileSync(join(root, "app", "sitemap.js"), "utf8");

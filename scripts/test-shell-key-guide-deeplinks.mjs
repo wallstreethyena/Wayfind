@@ -14,7 +14,8 @@
 
 import { readFileSync } from "node:fs";
 import { GUIDES } from "../lib/guides.js";
-import { CULTURE, TOWN_PROFILES, TOWN_ALIASES } from "../lib/culture.js";
+import { TOWN_PROFILES, TOWN_ALIASES } from "../lib/culture.js";
+import { CULTURE } from "../lib/cultureCorpus.js";
 import { SUMMER_UNIVERSE } from "../lib/summerUniverse.js";
 
 let pass = 0;

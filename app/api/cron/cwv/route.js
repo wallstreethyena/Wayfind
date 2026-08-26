@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 import { GUIDES } from "../../../../lib/guides";
-import { CULTURE } from "../../../../lib/culture";
+import { CULTURE } from "../../../../lib/cultureCorpus";
 import { SITE_URL } from "../../../../lib/site";
 
 function pageList() {

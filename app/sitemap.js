@@ -4,8 +4,8 @@
 import { GUIDES } from "../lib/guides";
 import { BEACH_METROS } from "../lib/beaches";
 import { EVENT_WINDOWS } from "../lib/eventsList";
-import { TOWN_HUBS } from "../lib/culture";
-import { CULTURE } from "../lib/culture";
+import { TOWN_HUBS } from "../lib/cultureHubs";
+import { CULTURE } from "../lib/cultureCorpus";
 import { SITE_URL } from "../lib/site";
 import { LANDING_CATS, LANDING_CITIES } from "../lib/landing";
 import { trendingCitySlugs } from "../lib/trending";

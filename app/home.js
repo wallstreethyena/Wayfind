@@ -1916,7 +1916,7 @@ function AreaInsight({ metro, cat, town, center, onFind }) {
   const tn = town && Culture.townNotesFor ? Culture.townNotesFor(town) : null;
   const townNote = tn ? ((cat === "beach" && tn.beach) || (key && tn[key]) || null) : null;
   const notes = townNote || (metro && key && Culture.CAT_NOTES[metro] ? Culture.CAT_NOTES[metro][key] : null);
-  const c = metro ? Culture.CULTURE[metro] : null;
+  const cTitle = metro ? Culture.CULTURE_TITLES[metro] : null;
   const isTown = !!townNote;
   const named = isTown && notes ? (notes.items || []).filter((x) => x.place) : [];
   const namedKey = named.map((x) => x.place).join("|");
@@ -1927,8 +1927,8 @@ function AreaInsight({ metro, cat, town, center, onFind }) {
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [namedKey, center && center.lat, center && center.lng]);
-  if (!notes || !c) return null;
-  const placeLabel = isTown ? town : (town && town.toLowerCase() !== c.title.toLowerCase() ? town + " + " + c.title : c.title);
+  if (!notes || !cTitle) return null;
+  const placeLabel = isTown ? town : (town && town.toLowerCase() !== cTitle.toLowerCase() ? town + " + " + cTitle : cTitle);
   const headline = notes.headline || ("A local read on " + placeLabel + ".");
   const visibleItems = (notes.items || []).filter((x) => !isTown || !x.place || grounded[x.place]);
   const readCount = Math.max(1, Math.ceil((visibleItems.length + (notes.mistake ? 1 : 0) + (isTown && tn && tn.one ? 1 : 0)) * 0.66));
@@ -6070,7 +6070,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const q = detail.name + (placeCity ? " " + placeCity : "");
     let cancelled = false;
     setViaTours((m) => ({ ...m, [detail.id]: { loading: true, items: [] } }));
-    fetch("/api/viator/tours?q=" + encodeURIComponent(q) + "&name=" + encodeURIComponent(detail.name) + "&kind=" + encodeURIComponent(placeKind(detail) || "") + "&placeId=" + encodeURIComponent(detail.id) + "&count=3&region=" + encodeURIComponent((() => { try { const _m = Culture.resolveMetro(locName); return [placeCity, _m && Culture.CULTURE[_m] ? Culture.CULTURE[_m].title : ""].filter(Boolean).join(","); } catch { return placeCity || ""; } })()))
+    fetch("/api/viator/tours?q=" + encodeURIComponent(q) + "&name=" + encodeURIComponent(detail.name) + "&kind=" + encodeURIComponent(placeKind(detail) || "") + "&placeId=" + encodeURIComponent(detail.id) + "&count=3&region=" + encodeURIComponent((() => { try { const _m = Culture.resolveMetro(locName); return [placeCity, _m && Culture.CULTURE_TITLES[_m] ? Culture.CULTURE_TITLES[_m] : ""].filter(Boolean).join(","); } catch { return placeCity || ""; } })()))
       .then((r) => r.json())
       .then((d) => { if (!cancelled) setViaTours((m) => ({ ...m, [detail.id]: { loading: false, items: (d && d.items) || [] } })); })
       .catch(() => { if (!cancelled) setViaTours((m) => ({ ...m, [detail.id]: { loading: false, items: [] } })); });
@@ -6920,7 +6920,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     (async () => {
       try {
         const _m = Culture.resolveMetro(locName);
-        const cityQ = (_m && Culture.CULTURE[_m] && Culture.CULTURE[_m].title) || (locName ? locName.split(",")[0] : "");
+        const cityQ = (_m && Culture.CULTURE_TITLES[_m]) || (locName ? locName.split(",")[0] : "");
         if (!cityQ) return;
         const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=20" + _viatorCityParams(cityQ, center));
         const d = await r.json();
@@ -6961,7 +6961,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     (async () => {
       try {
         const _m = Culture.resolveMetro(locName);
-        const cityQ = (_m && Culture.CULTURE[_m] && Culture.CULTURE[_m].title) || (locName ? locName.split(",")[0] : "");
+        const cityQ = (_m && Culture.CULTURE_TITLES[_m]) || (locName ? locName.split(",")[0] : "");
         if (!cityQ) return;
         const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=20" + _viatorCityParams(cityQ, center));
         const d = await r.json();
@@ -6988,7 +6988,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     (async () => {
       try {
         const _m = Culture.resolveMetro(locName);
-        const cityQ = (_m && Culture.CULTURE[_m] && Culture.CULTURE[_m].title) || (locName ? locName.split(",")[0] : "");
+        const cityQ = (_m && Culture.CULTURE_TITLES[_m]) || (locName ? locName.split(",")[0] : "");
         // No city resolved yet (reverse-geocode still in flight): stay in the
         // loading state and let this effect re-fire when locName lands — never
         // flash "no tours" before we've even asked. Deps include locName.
