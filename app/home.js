@@ -71,6 +71,8 @@ import { placeRouteBackPlan } from "../lib/railReaction";
 import { reconcileIds } from "../lib/syncReconcile";
 // v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
 import { placeAllowed } from "../lib/placeFilter";
+import { browseChipUsesInventory, mergeBrowseSources, BROWSE_INVENTORY_N } from "../lib/browseInventory";
+import { isLunchPlace } from "../lib/mealPlace";
 import { parseCouponValue } from "../lib/couponValue";
 import { currentSeason, seasonQueries, seasonalFit, SEASON_META } from "../lib/seasons";
 import { COUPONS, couponForPlaceName, normalizeOfferRow } from "../lib/coupons";
@@ -1465,9 +1467,14 @@ function tasteBump(place) {
 // than unrelated results, so this gate never falls back to the ungated pool.
 const MEAL_GATE_RE = {
   breakfast: /breakfast|brunch|cafe|caf\u00e9|coffee|bakery|diner|pancake|waffle|donut|doughnut|biscuit|bagel|crepe|creperie|juice/,
-  coffee: /coffee|cafe|caf\u00e9|espresso|roaster|tea ?house|bakery|juice/,
+  // v8.50 — the chip id is `cafes`. The key used to be `coffee`, so this
+  // gate never ran for Food → Cafés (CHANGELOG v8.49 named the miss).
+  cafes: /coffee|cafe|caf\u00e9|espresso|roaster|tea ?house|bakery|juice/,
 };
 function mealGate(list, subId) {
+  if (subId === "lunch") {
+    return (list || []).filter((p) => isLunchPlace(p) && placeAllowed("food", "lunch", p));
+  }
   const re = MEAL_GATE_RE[subId];
   if (!re) return list;
   return (list || []).filter((p) =>
@@ -6671,7 +6678,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             // near Parrish: 0 of the top 50 food rows are cafés, which is
             // exactly why Food > Cafés rendered "Nothing here right now" while
             // 111 admissible cafés sat in inventory 17 miles away.
-            const r = await fetch(`/api/places/search?q=inventory&lat=${center.lat.toFixed(4)}&lng=${center.lng.toFixed(4)}&radius=${m}&n=40&cat=${encodeURIComponent(cat)}&inv=1${sub && sub !== "all" ? `&sub=${encodeURIComponent(sub)}` : ""}`);
+            const r = await fetch(`/api/places/search?q=inventory&lat=${center.lat.toFixed(4)}&lng=${center.lng.toFixed(4)}&radius=${m}&n=${BROWSE_INVENTORY_N}&cat=${encodeURIComponent(cat)}&inv=1${sub && sub !== "all" ? `&sub=${encodeURIComponent(sub)}` : ""}`);
             const j = await r.json();
             const raw = Array.isArray(j.places) ? j.places : [];
             return raw.map((x) => {
@@ -6688,6 +6695,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                 reviews: x.userRatingCount || 0,
                 wfScore: wayfindScore(typeof x.rating === "number" ? x.rating : 0, x.userRatingCount || 0),
                 types: Array.isArray(x.types) ? x.types : [],
+                primaryType: x.primaryType || x.primary_type || null,
                 photo: _ph ? "/api/photo?ref=" + encodeURIComponent(_ph) + "&w=640" : null,
                 openNow: null,
                 businessStatus: x.businessStatus || "OPERATIONAL",
@@ -6728,6 +6736,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             // Shopping "All" list; they remain available under the Markets tab.
             if (cat === "shopping") return _out.filter((pp) => placeAllowed("shopping", "all", pp));
             return _out;
+          }
+          // v8.50 — A SPECIFIC CHIP WITH AN IDENTITY MUST READ OWNED INVENTORY.
+          // searchPlaces is Google Text Search capped at 20. v8.49 taught
+          // serveFromInventory to filter before the cap, but Cafés/Lunch never
+          // called it — they returned searchPlaces alone. A cache hit of one
+          // renderable café (Keke's) was treated as the complete library, and
+          // sparse-category honestly printed "That's all 1". Same pool-cap
+          // disease the breakfast rail cured with buildIdentityPool.
+          if (browseChipUsesInventory(cat, sub)) {
+            const _b = await Promise.all([
+              searchPlaces(cat, sub, ctr, m, vibe).catch(() => { _fetchErrs++; return []; }),
+              _invAll(m),
+            ]);
+            return mergeBrowseSources(_b[1], _b[0]);
           }
           return await searchPlaces(cat, sub, ctr, m, vibe);
         };

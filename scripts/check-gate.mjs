@@ -17,6 +17,10 @@ copyFileSync(new URL("../lib/placeCategory.js", import.meta.url), join(tmp, "pla
 // (ONE national-chain veto for the browse Breakfast tab AND the rail).
 // breakfast.js is itself import-free, so the standalone property holds.
 copyFileSync(new URL("../lib/breakfast.js", import.meta.url), join(tmp, "breakfast.js"));
+// v8.50 — placeFilter imports isLunchPlace from lib/mealPlace.js so Food →
+// Lunch cannot lead with a breakfast-only room. mealPlace only imports
+// placeCategory, which is already copied above.
+copyFileSync(new URL("../lib/mealPlace.js", import.meta.url), join(tmp, "mealPlace.js"));
 copyFileSync(new URL("../lib/placeFilter.js", import.meta.url), join(tmp, "placeFilter.mjs"));
 const { placeAllowed } = await import(join(tmp, "placeFilter.mjs"));
 if (typeof placeAllowed !== "function") fail("placeAllowed not exported from lib/placeFilter.js");
@@ -41,6 +45,11 @@ const MUST_BLOCK = [
   ["food", "cafes", "Adobe Kava", ["tea_house", "coffee_shop", "cafe", "food_store", "store", "food"]],
   ["food", "breakfast", "Mad Hatter Kava", ["coffee_shop", "cafe", "food_store", "store"]],
   ["food", "cafes", "Cloud 9 Hookah Lounge", ["cafe", "lounge"]],
+  // v8.50 — Lunch is a midday meal. A breakfast-only cafe and a coffee shop
+  // are not the answer, even when they score well enough to lead unfiltered food.
+  ["food", "lunch", "Keke's Breakfast Cafe", ["breakfast_restaurant", "cafe"]],
+  ["food", "lunch", "Ryan's Coffee House", ["coffee_shop"]],
+  ["food", "lunch", "Pomegranate Frozen Yogurt", ["dessert_shop"]],
   ["attractions", "museums", "La Nails & Spa", ["nail_salon"]],
   ["attractions", "museums", "La Nails & Spa", []],           // even with no types, the name is enough
   ["attractions", "tours", "La Nails & Spa", []],
@@ -138,6 +147,9 @@ const MUST_PASS = [
   ["hotels", "all", "Southern Comfort Bed and Breakfast", ["lodging", "bed_and_breakfast"]],
   ["food", "breakfast", "The Breakfast House", ["restaurant", "breakfast_restaurant"]],
   ["food", "all", "First Watch", ["restaurant", "breakfast_restaurant"]],
+  ["food", "lunch", "S.O.B. Burgers", ["hamburger_restaurant"]],
+  ["food", "lunch", "P J's Sandwich Shop", ["sandwich_shop"]],
+  ["food", "cafes", "Toasted Mango Cafe", ["cafe", "coffee_shop"]],
   ["nightlife", "all", "The Office Pub", ["bar", "pub"]],
   ["food", "all", "Buttermilk Handcrafted Food", ["restaurant"]],
   ["attractions", "outdoors", "Emerson Point Preserve", ["park", "tourist_attraction"]],

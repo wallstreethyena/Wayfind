@@ -1,3 +1,13 @@
+## v8.50 - The home menu still never asked the library (Cafés = 1, Lunch led with breakfast)
+
+Owner, 2026-08-25, Parrish, live screenshots: Food → Cafés printed **"That's all 1 food spot near Parrish"** (Keke's only) and Food → Lunch served two cards with **Keke's Breakfast Cafe tagged BREAKFAST at #1**. The Viator rail above the list was healthy. `test-sparse-category` was green — honesty about a 1-card list is how a pool-cap hides the library and still looks finished.
+
+- **v8.49 was a real fix to the wrong call site.** `serveFromInventory` now filters before the cap, and `_invAll` already sent `&sub=`. Cafés and Lunch never called `_invAll`. `_fetchAt` returned `searchPlaces()` alone for every specific chip — Google Text Search, max 20, or a cache hit of one renderable café. The inventory identity sat behind `sub === "all"`.
+- **The pool is now the identity over owned inventory**, the same class of cure as breakfast v8.18's `buildIdentityPool`. A chip with a `SUB_ALLOW` contract unions `_invAll` (n = 400, the nearbyPool cost bound, not a shelf size) with the Google rows. Ranking is still the score, highest → lowest. No card cap.
+- **Lunch is a midday meal, not any food and not Breakfast.** `isLunchPlace` = `isMealPlace` minus a `breakfast_restaurant` / `brunch_restaurant` primary. Keke's stays a meal (the eat rail is right to keep it) and cannot lead Food → Lunch. Dessert counters and coffee shops stay out.
+- **`MEAL_GATE_RE` is keyed `cafes` now.** It had been `coffee` since the chip was renamed, so the gate written to protect Cafés pointed at a chip that does not exist.
+- Guard `test-browse-library` executes the retrieval against a fixture built to reproduce the live shape (60 famous restaurants, 12 cafés that lose any food top-20, Keke's with the highest score, 8 lunch rooms). It fails if browse returns fewer cards than the identity, and fails if Lunch #1 is a breakfast-only primary while lunch library exists.
+
 ## v8.49 - Cafés was never a data problem: the chip filtered a shelf it was never on
 
 Owner, repeatedly and for a long time: *"the cafes are still not working... i

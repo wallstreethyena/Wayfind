@@ -27,7 +27,7 @@
  * Every row below is a real wf_inventory row from that measurement.
  */
 import assert from "node:assert/strict";
-import { isMealPlace } from "../lib/mealPlace.js";
+import { isMealPlace, isLunchPlace } from "../lib/mealPlace.js";
 import { RAIL_SELECT, MIN_CARDS } from "../lib/railSelect.js";
 
 let n = 0;
@@ -90,6 +90,25 @@ ok(isMealPlace({ name: "P J's Sandwich Shop", primaryType: "sandwich_shop", type
 const { isBreakfastPlace } = await import("../lib/breakfast.js");
 ok(isBreakfastPlace({ name: "P J's Sandwich Shop", primaryType: "sandwich_shop", types: ["sandwich_shop", "cafe"] }) === false,
   "…and still not breakfast there");
+
+// v8.50 — Lunch is a meal that is NOT a breakfast-only room. Keke's is a meal
+// (eat rail, above) and is the wrong #1 for the Lunch chip.
+ok(isLunchPlace({ name: "Keke's Breakfast Cafe", primaryType: "breakfast_restaurant", types: ["breakfast_restaurant", "cafe"] }) === false,
+  "Keke's is a meal and is NOT lunch — a breakfast-only primary cannot lead Food → Lunch");
+ok(isLunchPlace({ name: "First Watch", primaryType: "breakfast_restaurant", types: ["breakfast_restaurant"] }) === false,
+  "…nor can another breakfast_restaurant");
+ok(isLunchPlace({ name: "P J's Sandwich Shop", primaryType: "sandwich_shop", types: ["sandwich_shop"] }) === true,
+  "a sandwich shop IS lunch");
+ok(isLunchPlace({ name: "S.O.B. Burgers", primaryType: "hamburger_restaurant", types: ["hamburger_restaurant"] }) === true,
+  "a burger room IS lunch");
+ok(isLunchPlace({ name: "Le Mans Kitchen", primaryType: "restaurant", types: ["restaurant", "food"] }) === true,
+  "a restaurant IS lunch");
+ok(isLunchPlace({ name: "Ryan's Coffee House", primaryType: "coffee_shop", types: ["coffee_shop"] }) === false,
+  "a coffee shop is not lunch — Lunch is not any food");
+ok(isLunchPlace({ name: "Pomegranate Frozen Yogurt", primaryType: "dessert_shop", types: ["dessert_shop"] }) === false,
+  "a dessert counter is not lunch");
+ok(isLunchPlace({ name: "Keke's Breakfast Cafe", types: ["breakfast_restaurant", "cafe"] }) === false,
+  "a breakfast_restaurant first type with no primaryType is still not lunch");
 
 // RULE ISOLATION — two shapes that exist because a mutation run showed the
 // measured rows above were passing for the RIGHT answer via the WRONG rule, so
