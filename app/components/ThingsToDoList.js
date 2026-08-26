@@ -125,17 +125,19 @@ function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, onLog, on
   const body = (
     <article className="wf-place-card wf-ttd-focus" style={{ marginBottom: 12 }}>
       <div className="wf-place-card-layout">
-        {r.image_url
-          ? <img src={r.image_url} alt="" loading="lazy" style={{ objectFit: "cover" }} />
-          : <div className="wf-place-card-monogram" aria-hidden="true">WF</div>}
+        <div className="wf-place-card-media">
+          {r.image_url
+            ? <img src={r.image_url} alt="" loading="lazy" style={{ objectFit: "cover" }} />
+            : <div className="wf-place-card-monogram" aria-hidden="true">WF</div>}
+          {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
+          {ds != null ? <div className="wf-place-card-score"><WayfindScoreBadge score={ds} /></div> : null}
+        </div>
         <div className="wf-place-card-content" style={{ position: "relative" }}>
           <div className="wf-place-card-title-row">
-            {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
             <div className="wf-place-card-heading">
               <span className="wf-place-card-category">Activities</span>
               <div className="wf-place-card-name">{r.title}</div>
             </div>
-            {ds != null ? <div className="wf-place-card-score"><WayfindScoreBadge score={ds} /></div> : null}
           </div>
           {facts.length ? (
             <div className="wf-place-card-meta">{facts.map((f) => <span key={f}>{f}</span>)}</div>

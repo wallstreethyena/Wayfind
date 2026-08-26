@@ -210,10 +210,15 @@ export const WF_PLACE_CARD_CSS = `
 .wf-place-card:hover{transform:translateY(-1px);border-color:rgba(159,177,203,.37)!important;box-shadow:0 18px 42px rgba(0,0,0,.34),inset 0 1px rgba(255,255,255,.05)}
 .wf-place-card:focus-visible{outline:2px solid rgba(249,115,22,.72);outline-offset:3px}
 .wf-place-card-layout{--wf-place-card-media:96px;display:grid!important;grid-template-columns:var(--wf-place-card-media) minmax(0,1fr);min-height:176px}
-.wf-place-card-layout>img,.wf-place-card-layout>.wf-place-card-media{width:var(--wf-place-card-media)!important;height:100%!important;min-height:176px!important}
+.wf-place-card-layout>img,.wf-place-card-layout>.wf-place-card-media{position:relative;width:var(--wf-place-card-media)!important;height:100%!important;min-height:176px!important;overflow:hidden}
+.wf-place-card-media>img,.wf-place-card-media>.wf-place-card-monogram,.wf-place-card-media>.wf-place-card-photo{display:block;width:100%!important;height:100%!important;min-height:176px!important;object-fit:cover}
 .wf-place-card.is-no-take .wf-place-card-layout,
 .wf-place-card.is-no-take .wf-place-card-layout>img,
-.wf-place-card.is-no-take .wf-place-card-monogram{min-height:0}
+.wf-place-card.is-no-take .wf-place-card-layout>.wf-place-card-media,
+.wf-place-card.is-no-take .wf-place-card-monogram,
+.wf-place-card.is-no-take .wf-place-card-media>img,
+.wf-place-card.is-no-take .wf-place-card-media>.wf-place-card-monogram,
+.wf-place-card.is-no-take .wf-place-card-media>.wf-place-card-photo{min-height:0}
 .wf-place-card-monogram{
   position:relative;
   display:grid;
@@ -244,7 +249,7 @@ export const WF_PLACE_CARD_CSS = `
   position:absolute!important;
   z-index:4;
   top:11px;
-  left:calc(10px - var(--wf-place-card-media));
+  left:10px;
   display:flex!important;
   width:34px!important;
   height:34px!important;
@@ -291,15 +296,22 @@ export const WF_PLACE_CARD_CSS = `
 .wf-place-card-category:before{content:"";width:12px;height:2px;border-radius:99px;background:#F97316}
 .wf-place-card-category.is-tappable{cursor:pointer}
 .wf-place-card-name{font-size:16px!important;font-weight:780!important;line-height:1.12!important;letter-spacing:-.025em}
-.wf-place-card-score{filter:none!important}
+.wf-place-card-score{
+  position:absolute!important;
+  z-index:4;
+  left:6px;
+  right:6px;
+  bottom:8px;
+  filter:none!important;
+}
 .wf-place-card-score .wayfind-score-badge[data-score-band="excellent"]{--wf-score-color:#25C26E;--wf-score-tint:rgba(37,194,110,.10);--wf-score-border:rgba(37,194,110,.62);--wf-score-glow:rgba(37,194,110,.20)}
 .wf-place-card-score .wayfind-score-badge[data-score-band="strong"]{--wf-score-color:#FF6B18;--wf-score-tint:rgba(255,107,24,.11);--wf-score-border:rgba(255,107,24,.68);--wf-score-glow:rgba(255,107,24,.20)}
 .wf-place-card-score .wayfind-score-badge[data-score-band="fair"]{--wf-score-color:#F2C94C;--wf-score-tint:rgba(242,201,76,.11);--wf-score-border:rgba(242,201,76,.68);--wf-score-glow:rgba(242,201,76,.18)}
 .wf-place-card-score .wayfind-score-badge[data-score-band="low"]{--wf-score-color:#E5484D;--wf-score-tint:rgba(229,72,77,.11);--wf-score-border:rgba(229,72,77,.66);--wf-score-glow:rgba(229,72,77,.18)}
 .wf-place-card-score .wayfind-score-badge{
-  width:98px;
-  min-width:98px;
-  height:46px;
+  width:100%;
+  min-width:0;
+  height:40px;
   box-sizing:border-box;
   justify-content:flex-start;
   border-width:1.5px!important;
@@ -489,6 +501,7 @@ export const WF_PLACE_CARD_CSS = `
 @media(max-width:430px){
   .wf-place-card-layout{--wf-place-card-media:88px}
   .wf-place-card-layout>img,.wf-place-card-layout>.wf-place-card-media{width:88px!important}
+  .wf-place-card-score .wayfind-score-badge>span:last-child>span:last-child{font-size:15px!important}
   .wf-place-card-content{padding-inline:10px!important}
   .wf-place-card-name{font-size:15px!important}
   .wf-place-card-meta>span{font-size:9.75px!important}
@@ -648,11 +661,14 @@ export const WF_PLACE_CARD_CSS = `
 /* THE WHEN BADGE — the events counterpart to the Wayfind Score badge, and the
    reason an event can wear this card honestly. The score box is the first
    thing the eye lands on; an event has no score and must never be handed a
-   fabricated one, so the same 98x46 box carries the fact an event really has
-   and a reader really acts on. Geometry mirrors .wf-place-card-score's rules
-   above deliberately — the two are interchangeable in the layout. Tone is
+   fabricated one, so the same overlay box on the photo carries the fact an
+   event really has and a reader really acts on. Geometry mirrors
+   .wf-place-card-score's rules above deliberately — the two are
+   interchangeable on the photo. Nested in .wf-place-card-score the box fills
+   the media column. Tone is
    derived from the event's own date (today / tomorrow / later), never picked
    for effect. */
+.wf-place-card-score .wf-rail-when{width:100%;min-width:0;height:40px}
 .wf-rail-when{
   --wf-when-color:#7FA6C8;
   --wf-when-tint:rgba(127,166,200,.10);

@@ -14,8 +14,13 @@
 //
 // WHAT STILL CARRIES THE CLAIM: curation is disclosed by the award band
 // ("Wayfind curator's pick") and the editorial hook line — content, not an
-// overlay on the photograph. Nothing may overlay the media column again
-// without a new dated owner call recorded here.
+// overlay on the photograph.
+//
+// 2026-08-26 owner (live Parrish / Family → Rainy day): the GREEN WAYFIND
+// score chip and the rank number ARE required overlays on the photo — they
+// are not this seal. This guard still bans only the ✦ PICK medallion
+// (aria-label="Wayfind Pick" / a PICK label on the media). House score+rank
+// overlays are locked by scripts/check-house-card.mjs.
 import { readFileSync } from "node:fs";
 
 let pass = 0;

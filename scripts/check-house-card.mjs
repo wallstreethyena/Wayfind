@@ -8,10 +8,16 @@
 //            rank ON the photo, orange category eyebrow, dark
 //            "TOP {CATEGORY} PICK" chip with the rank number in a circle.
 //
+// Owner (2026-08-26), live Parrish / Family → Rainy day: the green WAYFIND
+// score chip in the title row crowded the name and the TOP {CATEGORY} PICK
+// chip and overlapped the photo/heading edge. REQUIRE — score overlay is a
+// CHILD of .wf-place-card-media (on the photo, with the rank). A title-row
+// score fails the build. No compact home-row exception.
+//
 // This is not documentation. It CALLS the award helper and RENDERS
 // IconicPlaceCard (jsxLoad), then scans every place-card renderer for the
-// rejected chrome. A second card system, a BEST … PICK label, or a yellow
-// rank-next-to-title compact row fails the build.
+// rejected chrome. A second card system, a BEST … PICK label, a yellow
+// rank-next-to-title compact row, or a title-row score fails the build.
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -70,6 +76,36 @@ ok(!/best\s+\w+\s+pick/i.test(html), "rank-1 house card must not emit BEST … P
 ok(!html.includes("🏆"), "rank-1 house card must not emit a trophy glyph");
 ok(html.includes("wf-place-card-rank") && html.includes(">1<"),
   "rank lives in wf-place-card-rank (on the photo), not a yellow circle next to the title");
+ok(html.includes("wf-place-card-media"),
+  "positive control: house card wraps the photo in wf-place-card-media");
+ok(html.includes("wf-place-card-score") && html.includes("wayfind-score-badge"),
+  "positive control: house card rendered the Wayfind score overlay");
+{
+  // Nearest preceding host class. Score/rank AFTER the title-row marker means
+  // they leaked into the content column — the Parrish screenshot. Score/rank
+  // AFTER media and BEFORE title-row means they are children of the photo.
+  const hostOf = (needle) => {
+    const i = html.indexOf(needle);
+    if (i < 0) return "absent";
+    const before = html.slice(0, i);
+    const media = before.lastIndexOf("wf-place-card-media");
+    const title = before.lastIndexOf("wf-place-card-title-row");
+    if (media < 0 && title < 0) return "none";
+    return media > title ? "media" : "title-row";
+  };
+  ok(hostOf("wf-place-card-score") === "media",
+    "score overlay is a child of the media, not the title row (got host=" + hostOf("wf-place-card-score") + ")");
+  ok(hostOf("wf-place-card-rank") === "media",
+    "rank overlay is a child of the media, not the title row (got host=" + hostOf("wf-place-card-rank") + ")");
+  const titleOpen = html.indexOf("wf-place-card-title-row");
+  ok(titleOpen >= 0, "positive control: title-row still exists so the absence check is not vacuous");
+  const titleSlice = html.slice(titleOpen, html.indexOf("wf-place-card-meta", titleOpen));
+  ok(titleSlice.length > 40, "positive control: title-row slice is real content");
+  ok(!titleSlice.includes("wf-place-card-score") && !titleSlice.includes("wayfind-score-badge"),
+    "title-row must not contain the score badge — that is the crowded-name bug");
+  ok(!titleSlice.includes("wf-place-card-rank"),
+    "title-row must not contain the rank — rank is on the photo");
+}
 
 // ── 3. Every place-card renderer uses the helper — no local BEST composer. ─
 const AWARD_SITES = [
@@ -109,6 +145,34 @@ for (const f of AWARD_SITES) {
   ok(/topPickAward\(\{\s*category:\s*pcat,\s*rank:\s*cardRank\s*\}\)/.test(body),
     "home PlaceCard award is TOP {section} PICK, not cuisine-BEST");
 }
+
+// ── 4b. Every house-card renderer: score is in the media, never the title. ─
+{
+  const HOUSE = [
+    "app/components/IconicPlaceCard.js",
+    "app/components/RailCard.js",
+    "app/components/ThingsToDoList.js",
+    "app/home.js",
+  ];
+  for (const f of HOUSE) {
+    const raw = strip(read(f));
+    const src = f === "app/home.js"
+      ? raw.slice(raw.indexOf("function PlaceCard("), raw.indexOf("function PlaceCard(") + 9000)
+      : raw;
+    ok(src.length > 400, "positive control: " + f + " body parsed");
+    const rows = [...src.matchAll(/className=["']wf-place-card-title-row["'][\s\S]{0,700}/g)];
+    ok(rows.length >= 1, "positive control: " + f + " still has a title-row (got " + rows.length + ")");
+    for (const m of rows) {
+      ok(!/wf-place-card-score/.test(m[0]), f + " title-row must not hold wf-place-card-score");
+      ok(!/WayfindScoreBadge/.test(m[0]), f + " title-row must not render WayfindScoreBadge");
+      ok(!/wf-place-card-rank/.test(m[0]), f + " title-row must not hold the rank overlay");
+    }
+    ok(/wf-place-card-media[\s\S]{0,900}wf-place-card-score/.test(src),
+      f + " score overlay must be a child of wf-place-card-media");
+    ok(/wf-place-card-media[\s\S]{0,900}wf-place-card-rank/.test(src),
+      f + " rank overlay must be a child of wf-place-card-media");
+  }
+}
 {
   const ttd = strip(read("app/components/ThingsToDoList.js"));
   ok(/<IconicPlaceCard[\s/>]/.test(ttd), "ThingsToDoList place rows render IconicPlaceCard — not a second compact row");
@@ -134,6 +198,12 @@ for (const f of AWARD_SITES) {
     "the trophy-ribbon :after on the pick icon stays deleted");
   ok(/\.wf-place-card-layout>\.wf-place-card-media/.test(css),
     "house CSS sizes FallbackImg via .wf-place-card-media (the home-browse wrap)");
+  const scoreRule = (css.match(/\.wf-place-card-score\{[^}]*\}/) || [""])[0];
+  ok(scoreRule.length > 20, "positive control: .wf-place-card-score rule exists");
+  ok(/position:\s*absolute/.test(scoreRule),
+    "the score chip is absolutely positioned on the media, not in-flow in the title row");
+  ok(!/calc\(10px\s*-\s*var\(--wf-place-card-media\)\)/.test(css),
+    "rank no longer uses the title-row left-offset hack — it is a media child");
 }
 
 // ── 6. RENDER ThingsToDoList. #952 left FOCUS unbound; source greps missed it. ─
@@ -198,4 +268,4 @@ for (const f of AWARD_SITES) {
     "home PlaceCard must not fetch a shared category+city stock photo");
 }
 
-console.log(`check-house-card: OK — ${pass} assertions (TOP {CATEGORY} PICK only; no Image-1 compact row; no gold BEST chip; no unbound FOCUS; no shared stock photo)`);
+console.log(`check-house-card: OK — ${pass} assertions (TOP {CATEGORY} PICK only; score+rank on the photo; no Image-1 compact row; no gold BEST chip; no unbound FOCUS; no shared stock photo)`);

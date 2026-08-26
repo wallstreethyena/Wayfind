@@ -331,33 +331,35 @@ export default function RailCard({
       aria-label={ariaLabel || title}
     >
       <div className="wf-place-card-layout">
-        {(photo || railMarketFallback)
-          ? <img
-              src={photo || railMarketFallback}
-              data-fallback={photoFallback || ""}
-              alt=""
-              loading="lazy"
-              decoding="async"
-              onError={(ev) => {
-                const fb = ev.currentTarget.dataset.fallback;
-                if (fb) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fb; }
-                else { ev.currentTarget.style.visibility = "hidden"; }
-              }}
-              style={{ objectFit: "cover" }}
-            />
-          : <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}
+        <div className="wf-place-card-media">
+          {(photo || railMarketFallback)
+            ? <img
+                src={photo || railMarketFallback}
+                data-fallback={photoFallback || ""}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                onError={(ev) => {
+                  const fb = ev.currentTarget.dataset.fallback;
+                  if (fb) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fb; }
+                  else { ev.currentTarget.style.visibility = "hidden"; }
+                }}
+                style={{ objectFit: "cover" }}
+              />
+            : <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}
+          {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
+          {score != null
+            ? <div className="wf-place-card-score"><WayfindScoreBadge score={score} /></div>
+            : when ? <div className="wf-place-card-score"><RailWhenBadge {...when} /></div> : null}
+        </div>
         <div className="wf-place-card-content" style={{ position: "relative" }}>
           <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start" }}>
-            {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
             <div className="wf-place-card-heading">
               {eyebrow ? (onEyebrow
                 ? <button type="button" className="wf-place-card-category is-tappable" onClick={(e) => { e.stopPropagation(); e.preventDefault(); onEyebrow(e); }}>{eyebrow} ›</button>
                 : <span className="wf-place-card-category">{eyebrow}</span>) : null}
               <div className="wf-place-card-name">{title}</div>
             </div>
-            {score != null
-              ? <div className="wf-place-card-score"><WayfindScoreBadge score={score} /></div>
-              : when ? <div className="wf-place-card-score"><RailWhenBadge {...when} /></div> : null}
           </div>
 
           {list.length ? (
