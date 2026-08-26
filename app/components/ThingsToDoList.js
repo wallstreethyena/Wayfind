@@ -152,7 +152,7 @@ function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, onLog, on
           {take ? <div className="wf-place-card-take">{take}</div> : null}
           <div className="wf-place-card-actions wf-sheet-card-actions">
             <span className="wf-place-card-book">Book ↗</span>
-            {onShare ? <span className="wf-place-card-share">↗ Share</span> : null}
+            {onShare ? <span role="button" tabIndex={0} className="wf-place-card-share" onClick={(e) => { e.stopPropagation(); e.preventDefault(); onShare(r); }} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); e.preventDefault(); onShare(r); } }}>↗ Share</span> : null}
           </div>
         </div>
       </div>

@@ -4335,7 +4335,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const openCuisine = (label, fromPlace) => {
     if (!label) return;
     const ctx = condCtxFromNow(nowContext({ weather }));
-    const pool = dedupePlaces([...(displayList || []), ...(places || [])].filter(Boolean), true);
+    const pool = intentPool();
     const list = Ranking.rankByConditions(pool.filter((p) => Dining.cuisineLabel(p) === label), ctx).slice(0, 10);
     setCuisineSheet({ label, list });
   };
@@ -10852,7 +10852,15 @@ function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includ
   }, [initialExperiences, includeExperiences, cat, browseCat, sub, lat, lng, city, region]);
 
   useEffect(() => {
-    if (!categories.length || !Number.isFinite(lat) || !Number.isFinite(lng)) { setDeals([]); return; }
+    // The deals lane never consulted `plan`. `categories` is a literal and `sub`
+    // was not even in the dep array, so every Activities chip fetched the same
+    // theme-park tickets and painted them under a heading naming that chip:
+    // "SPA & WELLNESS - BOOKABLE NEAR PARRISH" over LEGOLAND and Busch Gardens,
+    // on a live screenshot. The heading comment below already called this exact
+    // shape "a bug you can SEE". A chip that declares no bookable catalog now
+    // sells nothing here rather than the wrong thing under its own name.
+    const chipSellsNothing = !!(sub && sub !== "all" && plan.catalogParam === null);
+    if (chipSellsNothing || !categories.length || !Number.isFinite(lat) || !Number.isFinite(lng)) { setDeals([]); return; }
     let dead = false;
     const geo = "&lat=" + lat.toFixed(3) + "&lng=" + lng.toFixed(3);
     Promise.all(categories.map((category) => fetch("/api/deals?category=" + encodeURIComponent(category) + geo).then((r) => (r.ok ? r.json() : null), () => null))).then((payloads) => {
@@ -10862,7 +10870,7 @@ function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includ
       setDeals(rows);
     });
     return () => { dead = true; };
-  }, [categories.join("|"), lat, lng]);
+  }, [categories.join("|"), lat, lng, sub, plan.catalogParam]);
 
   // v6.90 — owner: "make sure they are displayed by rating and discount,
   // point based on the activity time of today." Same small, capped, order-
