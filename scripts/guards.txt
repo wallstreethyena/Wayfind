@@ -341,6 +341,10 @@ node scripts/check-guards-emit-no-analytics.mjs
 node scripts/check-known-for.mjs
 node scripts/check-atlas-retry-cron.mjs
 node scripts/check-guide-cta-honesty.mjs
+# 2026-08-26 — guide bookQuery must not paint as Book. Crystal River
+# leaked /api/viator/go?q=…&intent=search onto searchResults. ASSERT ON
+# THE CALL (guidePrimaryCta + paintGuideCta + GuideConversion RENDER).
+node scripts/test-guide-search-as-book.mjs
 node scripts/check-guide-product-resolution.mjs
 node scripts/check-map-controls.mjs
 node scripts/check-map-filter-panel.mjs

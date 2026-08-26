@@ -14,7 +14,7 @@ import { resolveGuideProduct, productCtaLabel } from "../../../lib/guideProductR
 // resolution path: two ways to turn a place into a booking href, which is how an
 // earning link once rendered with no FTC disclosure.
 import { bookingTargets } from "../../../lib/bookingResolve";
-import { guidePrimaryCta, guideContinue, guideIntent } from "../../../lib/guideCta";
+import { guidePrimaryCta, guideContinue, guideIntent, paintGuideCta } from "../../../lib/guideCta";
 import GuideConversion from "./GuideConversion";
 import GuideDealCards from "./GuideDealCards";
 // v8.23 — the share control every guide was missing, and the resolver that
@@ -372,41 +372,37 @@ export default async function GuidePage({ params }) {
   let primaryCta = guidePrimaryCta(g);
   const continueTo = guideContinue(g, params.slug, GUIDES);
 
-  // ── UPGRADE A SEARCH INTO A PRODUCT, at render time ──────────────────────
-  // #599 made the tour label honest: a CTA that only has a Viator SEARCH says
-  // "Find tours in {region}" instead of promising tickets. Honest, but a floor —
-  // measured 2026-08-05, ALL NINE tour guides were on that floor and 0 of 20
-  // readers clicked.
+  // ── UPGRADE A bookQuery PICK INTO A PRODUCT, at render time ──────────────
+  // Search-as-Book is not Book. guidePrimaryCta no longer paints a search dest
+  // as a Book / Tickets / Viator CTA (the Crystal River leak: bookQuery became
+  // /api/viator/go?q=…&intent=search and landed on searchResults). The ceiling
+  // still exists: if resolveVerified finds a geo-confirmed product, paint that
+  // exact hop. Fail-closed otherwise — hide the CTA. Do not invent a SKU.
   //
-  // This is the ceiling. The page is already an async server component with ISR,
-  // so it can ask Viator for the actual product and bake it in. resolveVerified
-  // (the default-deny, geo-confirmed predicate behind /api/viator/go) decides —
-  // NOT the weaker "region token appears in the title" check — because a guide
-  // caches its CTA for a day, so a wrong-place product here is served to
-  // everyone rather than to one clicker.
-  //
-  // Fail-soft in every direction: no key, no candidates, an ambiguous field or a
-  // geo mismatch all leave the honest search label exactly as it was.
-  if (primaryCta && primaryCta.kind === "tour" && !primaryCta.exact && primaryCta.place) {
-    const pick = (g.picks || []).find((p) => p && p.name === primaryCta.place);
+  // The upgrade must not run over an already-exact CTA (re-resolving can only
+  // downgrade it) and must not overwrite a live deal.
+  if (guideIntent(g) === "tour" && !(primaryCta && primaryCta.exact) && !(primaryCta && primaryCta.kind === "deal")) {
+    const pick = (g.picks || []).find((p) => p && (p.bookQuery || p.viatorUrl));
     const region = g.region || "Orlando";
     const hit = pick ? await resolveGuideProduct(pick, region).catch(() => null) : null;
     // The href goes through OUR redirect, never a bare partner URL — the route
     // re-validates the destination host before it can become a Location.
     const href = hit ? viatorProductGoUrl(hit.url, region, "guide", "guide") : null;
     if (href) {
-      // Name what the click OPENS. A long title is truncated on a word boundary
-      // so the button stays one line at 390px; the full title still rides the
-      // events as product_title.
       primaryCta = {
-        ...primaryCta,
+        kind: "tour",
         href,
         exact: true,
-        productTitle: hit.title || primaryCta.place,
-        label: productCtaLabel(hit.title, primaryCta.place),
+        sponsored: true,
+        monetized: true,
+        deal: null,
+        place: pick.name,
+        productTitle: hit.title || pick.name,
+        label: productCtaLabel(hit.title, pick.name),
       };
     }
   }
+  primaryCta = paintGuideCta(primaryCta);
 
   // LIVE DEAL CARDS. A guide opts in by listing REGISTRY IDS — it cannot supply
   // an offer, a price or a URL of its own, so an unregistered deal has no route
