@@ -410,6 +410,9 @@ node scripts/test-trend-rights.mjs
 node scripts/test-trend-ingest.mjs
 node scripts/test-trend-classify.mjs
 node scripts/test-exploding-nearby.mjs
+# Owner-list floor: Parrish cannot paint "temporarily unavailable" while
+# EXPLODING_NEARBY_UNIVERSE exists. 502/503 is not the happy path.
+node scripts/check-exploding-nearby-floor.mjs
 node scripts/test-marquee-day-trips.mjs
 node scripts/test-pairs-well-with.mjs
 node scripts/test-trend-order.mjs

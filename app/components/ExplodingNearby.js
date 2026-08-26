@@ -12,6 +12,7 @@ import { loadProvidedTrendList } from "../../lib/explodingLaunchSearch.js";
 import { nowContext } from "../../lib/nowContext.js";
 import { gateOutdoor, coarseCat } from "../../lib/ranking.js";
 import { topPickAward } from "../../lib/topPickAward.js";
+import { explodingUiStatus, needsOwnerFloor, UNAVAILABLE_COPY } from "../../lib/explodingNearbyServe.js";
 
 // v8.27 (owner, 2026-08-20, on a screenshot of the ramen card: "these pills are
 // too long"). "One of the best nearby places to try it" is 39 characters — it
@@ -239,6 +240,21 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
     if (!active || !center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) return;
     const ctrl = new AbortController();
     setResult({ status: "loading", trends: [] });
+    const apply = (body) => {
+      const painted = explodingUiStatus({
+        status: body && body.status,
+        trends: body && body.trends,
+        error: body && body.error,
+      });
+      setResult({ ...painted, partial: !!(body && body.partial) });
+    };
+    const ownerFloor = async () => {
+      const u = new URL("/api/trends/nearby", typeof window !== "undefined" ? window.location.origin : "https://www.gowayfind.com");
+      u.searchParams.set("lat", String(center.lat));
+      u.searchParams.set("lng", String(center.lng));
+      const r = await fetch(u.toString(), { cache: "no-store", signal: ctrl.signal });
+      return r.json().catch(() => ({}));
+    };
     loadProvidedTrendList({
       center, city, signal: ctrl.signal,
       // v8.24 — trends render AS THE WALK FINDS THEM (owner: "always takes so
@@ -247,7 +263,7 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
       // skeleton up until the walk completes.
       onPartial: (body) => { if (!ctrl.signal.aborted && Array.isArray(body.trends) && body.trends.length) setResult({ status: "ok", trends: body.trends, partial: true }); },
     })
-      .then((body) => {
+      .then(async (body) => {
         if (ctrl.signal.aborted) return;
         // v7.24 — THE GATE MOVED TO RENDER (see `gatedTrends` below). The
         // owner's rule is unchanged — "the result should be based on the time
@@ -266,10 +282,24 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
         // pure filter over rows already in memory), needs no refetch, and fixes
         // the hour boundary too: a rail opened at 11:29 is re-gated at 11:31
         // when the bucket flips from morning to afternoon.
-        const trends = Array.isArray(body.trends) ? body.trends : [];
-        setResult({ status: body.status || "trend_data_error", trends, error: body.error || null });
+        let next = body || {};
+        if (needsOwnerFloor(next)) {
+          try {
+            const floor = await ownerFloor();
+            if (floor && Array.isArray(floor.trends) && floor.trends.length) next = floor;
+          } catch (e) { /* explodingUiStatus fail-softs the Google body */ }
+        }
+        apply(next);
       })
-      .catch(() => { if (!ctrl.signal.aborted) setResult({ status: "trend_data_error", trends: [], error: "Trend recommendations are temporarily unavailable." }); });
+      .catch(async () => {
+        if (ctrl.signal.aborted) return;
+        let next = { status: "trend_data_error", trends: [], error: UNAVAILABLE_COPY };
+        try {
+          const floor = await ownerFloor();
+          if (floor && (Array.isArray(floor.trends) && floor.trends.length || floor.status)) next = floor;
+        } catch (e) { /* painted below */ }
+        apply(next);
+      });
     return () => ctrl.abort();
   }, [active, retry, city, center && center.lat, center && center.lng]);
 
@@ -291,7 +321,12 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
   // Every match gated away is an honest empty state, not an error — unless
   // the walk is still running (v8.24 partial), in which case it is simply
   // still loading, not "nothing qualifies".
-  const status = result.status === "ok" && !gatedTrends.length ? (result.partial ? "loading" : "no_verified_inventory") : result.status;
+  const rawStatus = result.status === "ok" && !gatedTrends.length ? (result.partial ? "loading" : "no_verified_inventory") : result.status;
+  // 502/503 / a dead Google walk are never the paint path while the owner
+  // list still exists. explodingUiStatus is the law — execute it, do not
+  // re-derive "temporarily unavailable" from a status string here.
+  const painted = explodingUiStatus({ status: rawStatus, trends: gatedTrends, error: result.error });
+  const status = painted.status;
 
   const visibleIdKey = status === "ok"
     ? gatedTrends.flatMap((trend) => trend.matches || []).map((p) => p && p.id).filter(Boolean).join("|")
@@ -366,7 +401,7 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
   if (status !== "ok" || !gatedTrends.length) {
     return (
       <div role="alert" style={{ padding: "8px 2px 14px" }}>
-        <div style={{ color: "#F8C6B8", fontSize: 13, lineHeight: 1.5 }}>{result.error || "Trend recommendations are temporarily unavailable."}</div>
+        <div style={{ color: "#F8C6B8", fontSize: 13, lineHeight: 1.5 }}>{painted.error || UNAVAILABLE_COPY}</div>
         <button type="button" onClick={() => setRetry((n) => n + 1)} style={{ marginTop: 8, minHeight: 38, padding: "0 13px", borderRadius: 9, border: "1px solid rgba(255,255,255,.15)", background: "rgba(255,255,255,.04)", color: C.text, fontWeight: 750, cursor: "pointer" }}>Try again</button>
       </div>
     );

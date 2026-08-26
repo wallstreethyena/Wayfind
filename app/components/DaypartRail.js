@@ -54,9 +54,9 @@ const IconicPlaceCard = dynamic(() => import("./IconicPlaceCard"), {
 // "the exploding trends do not have the 20 top trending items"). Mounted
 // INSIDE the trending drop only — behind a click, so it stays off the
 // homepage's critical path (same ssr:false budget rule as the card above).
-// Data comes from /api/trends/nearby, which now serves the owner-licensed
-// EXPLODING_NEARBY_UNIVERSE through the same evidence-gated matcher the cron
-// path uses (see that route's v8.12 note).
+// Data: Google walk first (loadProvidedTrendList), then /api/trends/nearby
+// as the owner-list floor when the walk 502/503s or finds nothing. The
+// nearby route fail-softs missing config to that same in-repo list.
 const ExplodingNearby = dynamic(() => import("./ExplodingNearby"), { ssr: false });
 import { DAYPARTS, partForHour, orderFor, railHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
