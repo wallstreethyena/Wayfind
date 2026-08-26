@@ -11,7 +11,8 @@ import Home from "./home";
 import ProofVeil from "./components/ProofVeil";
 import { homeProofCopy } from "../lib/locationHonesty";
 import { rankedFor, whyLine } from "../lib/landing";
-import { TOWN_HUBS, TOWN_PROFILES } from "../lib/culture";
+import { TOWN_PROFILES } from "../lib/culture";
+import { TOWN_HUBS } from "../lib/cultureHubs";
 // v7.29 PERF: the "Read the local edit" index is built HERE, on the server,
 // once per revalidation. app/components/LocalEdit.js used to import the whole
 // GUIDES corpus to compute each guide's read time, which put 52.8KB of guide

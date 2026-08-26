@@ -8,7 +8,7 @@ import { RAILS_COLLAPSED_KEY, RAILS_COLLAPSED_ATTR, DEFAULT_COLLAPSED_RAILS, DEF
 // v8.46.1 — the pairing law, interpolated into the pre-hydration events primer
 // below (it runs before React, so it cannot import the module at runtime).
 import { cityOriginsWire, PAIRING_MAX_MI } from "../lib/locationHonesty";
-import { CULTURE } from "../lib/culture";
+import { CULTURE } from "../lib/cultureCorpus";
 import PostHogProvider from "./components/PostHogProvider";
 import SentryClient from "./components/SentryClient";
 import VersionWatch from "./components/VersionWatch";

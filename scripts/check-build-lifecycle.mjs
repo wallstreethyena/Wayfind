@@ -41,6 +41,18 @@ const ymlCode = stripHash(yml);
 ok(/run:\s*node scripts\/check-bundle\.mjs/.test(ymlCode),
   "guards.yml must RUN `node scripts/check-bundle.mjs` after the production build — a comment is not a call; npx next build alone is how #949 shipped green and Vercel died");
 
+const home = read("app/home.js");
+const events = read("app/components/screens/Events.js");
+const culture = read("lib/culture.js");
+ok(!/cultureHubs/.test(home) && !/cultureHubs/.test(events),
+  "homepage client (home.js / Events.js) must not import cultureHubs — SEO slugs are server-only so they stay off the 500KB ratchet");
+ok(!/cultureCorpus/.test(home) && !/cultureCorpus/.test(events),
+  "homepage client must not import cultureCorpus — the metro cards are server HTML");
+ok(!/(?:export const)\s+CULTURE\s*=/.test(culture),
+  "lib/culture.js must not declare CULTURE — that object is cultureCorpus.js so the homepage client does not ship every metro card");
+ok(/(?:export const)\s+CULTURE_TITLES\s*=/.test(culture),
+  "lib/culture.js declares CULTURE_TITLES — the only culture field AreaInsight reads on the client");
+
 if (fail.length) {
   console.error("check-build-lifecycle: FAIL — " + fail.join("; "));
   process.exit(1);

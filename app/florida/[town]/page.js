@@ -5,7 +5,8 @@
 // after geolocation or JS). Every CTA deep-links the exact place with its
 // town, so location intent survives the jump into the app.
 import { notFound } from "next/navigation";
-import { TOWN_PROFILES, TOWN_HUBS } from "../../../lib/culture";
+import { TOWN_PROFILES } from "../../../lib/culture";
+import { TOWN_HUBS } from "../../../lib/cultureHubs";
 import { rankedFor, whyLine, LANDING_CITIES } from "../../../lib/landing";
 import { SITE_URL } from "../../../lib/site";
 
