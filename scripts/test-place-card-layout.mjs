@@ -25,7 +25,7 @@
 // Fixtures exercise the shapes that have actually broken: wired buttons AND
 // anchor fallbacks, a long water chip, several experience pills, a partner
 // ticket link (real placePartnerPicks row, so the <a> path renders).
-import { mkdtempSync, writeFileSync, rmSync, existsSync } from "node:fs";
+import { mkdtempSync, writeFileSync, rmSync, existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadComponent } from "./lib/jsxLoad.mjs";
@@ -41,6 +41,10 @@ const { renderToStaticMarkup } = await import("react-dom/server");
 const { WF_PLACE_CARD_CSS } = await loadComponent(path.join(ROOT, "app/components/css.js"), ROOT);
 const mod = await loadComponent(path.join(ROOT, "app/components/IconicPlaceCard.js"), ROOT);
 const Card = mod.default;
+// v8.61 — the score chip is drawn by FOUR renderers off one CSS rule. Placement
+// is (rule x parent), so the rule is measured here on two of them and the
+// parent is locked for all four by the source-order invariant at the bottom.
+const RailCard = (await loadComponent(path.join(ROOT, "app/components/RailCard.js"), ROOT)).default;
 
 const basePlace = {
   id: "layout-fixture-1",
@@ -60,12 +64,15 @@ const waterChip = React.createElement(React.Fragment, null,
 const variants = [
   { key: "wired-buttons", props: { place: basePlace, rank: 1, href: "/p/x", badge: waterChip, saved: false, liked: false, disliked: false, onSave: noop, onLike: noop, onDislike: noop } },
   { key: "anchor-fallbacks", props: { place: { ...basePlace, id: "layout-fixture-2" }, rank: 2, href: "/p/y", badge: waterChip } },
+  // The rail draws the same chip from its own file. If its media wrapper ever
+  // drifts, the score lands somewhere else on a surface nobody screenshots.
+  { key: "rail-card", Component: RailCard, props: { title: "TreeUmph! Adventure Course", score: 9.2, rank: 1, href: "/p/z", photo: "", category: "Activities", distMi: 14.1 } },
 ];
 
 const html = `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1">
 <style>${WF_PLACE_CARD_CSS}</style></head>
 <body style="margin:0;background:#0B0E1A"><ul style="margin:0;padding:12px;list-style:none">
-${variants.map((v) => `<!-- ${v.key} -->` + renderToStaticMarkup(React.createElement(Card, v.props))).join("\n")}
+${variants.map((v) => `<!-- ${v.key} -->` + renderToStaticMarkup(React.createElement(v.Component || Card, v.props))).join("\n")}
 </ul></body></html>`;
 
 const tmp = mkdtempSync(path.join(ROOT, ".wf-cardlayout-"));
@@ -129,7 +136,8 @@ ok(m.cards.length === variants.length, `positive control: ${variants.length} car
 ok(m.pageScrollX <= m.viewport + 1, `no horizontal page overflow at 390px (scrollWidth ${m.pageScrollX})`);
 m.cards.forEach((c, ci) => {
   const tag = variants[ci] ? variants[ci].key : "card" + ci;
-  ok(c.kids.length >= 4, `${tag}: positive control — action row has >=4 controls (got ${c.kids.length})`);
+  const isRail = tag === "rail-card";
+  if (!isRail) ok(c.kids.length >= 4, `${tag}: positive control — action row has >=4 controls (got ${c.kids.length})`);
   // v8.61 — the Wayfind Score belongs to the TITLE BLOCK, on the photo beside
   // it. #958 correctly evicted it from the title row and then anchored it to
   // the media's floor, where it landed level with the Save/Share row and ~200px
@@ -154,7 +162,7 @@ m.cards.forEach((c, ci) => {
   }
   for (const k of c.kids) ok(k.x >= c.card.x - 1 && k.x + k.w <= c.card.x + c.card.w + 1,
     `${tag}: ${k.cls} stays inside the card box`);
-  ok(c.pills.length >= 3, `${tag}: positive control — highlights lane has >=3 pills (got ${c.pills.length})`);
+  if (!isRail) ok(c.pills.length >= 3, `${tag}: positive control — highlights lane has >=3 pills (got ${c.pills.length})`);
   ok(c.media && c.media.w > 40 && c.media.h > 80, `${tag}: positive control — media column is the tall photo`);
   ok(c.score && c.score.w > 20 && c.score.h > 20, `${tag}: positive control — score overlay rendered`);
   ok(!c.scoreInTitle, `${tag}: score overlay is not a child of the title row`);
@@ -174,6 +182,41 @@ m.cards.forEach((c, ci) => {
       `${tag}: pill fully inside the lane's vertical box (no cropped sliver) — ${String(pl.cls).slice(0, 30)}`);
   }
 });
+
+// ── v8.61 — THE SCORE CHIP IS GLOBAL, SO THE LOCK HAS TO BE. ───────────────
+// Placement is (one CSS rule) x (the parent it is absolute against). The rule
+// is measured above on real boxes, twice. The parent is per-renderer, and four
+// files draw this chip. IconicPlaceCard and RailCard are measured; home.js's
+// PlaceCard and ThingsToDoList's Card are closures inside large client modules
+// and cannot be mounted standalone, so their parent is locked structurally:
+// every wf-place-card-score must sit inside the media block, never the content
+// block. If someone moves it back beside the title, its nearest preceding
+// wrapper becomes wf-place-card-content and this fails.
+const SCORE_RENDERERS = [
+  "app/components/IconicPlaceCard.js",
+  "app/components/RailCard.js",
+  "app/components/ThingsToDoList.js",
+  "app/home.js",
+];
+let seenTotal = 0;
+for (const rel of SCORE_RENDERERS) {
+  const src = readFileSync(path.join(ROOT, rel), "utf8");
+  let from = 0, seen = 0;
+  for (;;) {
+    const at = src.indexOf("wf-place-card-score", from);
+    if (at === -1) break;
+    from = at + 1;
+    // Skip the CSS-selector mentions inside comments/strings that are not JSX.
+    const before = src.slice(0, at);
+    const media = before.lastIndexOf("wf-place-card-media");
+    const content = before.lastIndexOf("wf-place-card-content");
+    if (media === -1) continue; // a mention with no media wrapper before it (comment)
+    seen++; seenTotal++;
+    ok(media > content, `${rel}: the score chip at index ${at} belongs to the media block, not the content/title block`);
+  }
+  ok(seen >= 1, `${rel}: positive control — at least one score chip found (got ${seen})`);
+}
+ok(seenTotal >= 4, `all four score renderers accounted for (got ${seenTotal} chips)`);
 
 console.log(`\ntest-place-card-layout: ${fail ? "FAIL" : "OK"} — ${pass} layout assertions on real Chromium boxes at 390px, card CSS alone (the embed condition)`);
 process.exit(fail ? 1 : 0);
