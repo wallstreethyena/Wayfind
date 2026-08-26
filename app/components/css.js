@@ -210,7 +210,7 @@ export const WF_PLACE_CARD_CSS = `
 .wf-place-card:hover{transform:translateY(-1px);border-color:rgba(159,177,203,.37)!important;box-shadow:0 18px 42px rgba(0,0,0,.34),inset 0 1px rgba(255,255,255,.05)}
 .wf-place-card:focus-visible{outline:2px solid rgba(249,115,22,.72);outline-offset:3px}
 .wf-place-card-layout{--wf-place-card-media:96px;display:grid!important;grid-template-columns:var(--wf-place-card-media) minmax(0,1fr);min-height:176px}
-.wf-place-card-layout>img{width:96px!important;height:100%!important;min-height:176px!important}
+.wf-place-card-layout>img,.wf-place-card-layout>.wf-place-card-media{width:var(--wf-place-card-media)!important;height:100%!important;min-height:176px!important}
 .wf-place-card.is-no-take .wf-place-card-layout,
 .wf-place-card.is-no-take .wf-place-card-layout>img,
 .wf-place-card.is-no-take .wf-place-card-monogram{min-height:0}
@@ -362,10 +362,10 @@ export const WF_PLACE_CARD_CSS = `
   margin:1px 0 7px;
   padding:3px 9px 3px 5px;
   overflow:hidden;
-  border:1px solid rgba(223,184,96,.35);
+  border:1px solid rgba(148,163,184,.28);
   border-radius:999px;
-  background:linear-gradient(110deg,rgba(223,184,96,.16),rgba(223,184,96,.035));
-  color:#F5D98F;
+  background:linear-gradient(110deg,rgba(51,65,85,.62),rgba(15,23,42,.38));
+  color:#E2E8F0;
   font-size:9px;
   font-weight:850;
   letter-spacing:.055em;
@@ -383,29 +383,14 @@ export const WF_PLACE_CARD_CSS = `
   flex:0 0 18px;
   place-items:center;
   border-radius:50%;
-  background:#D9A52E;
-  color:#111824;
+  background:#334155;
+  color:#F8FAFC;
   font-size:9px;
   font-weight:950;
-  box-shadow:0 3px 10px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.45);
+  box-shadow:0 3px 10px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.12);
 }
-.wf-place-card-award-icon:after{
-  content:"";
-  position:absolute;
-  z-index:-1;
-  bottom:-4px;
-  width:9px;
-  height:7px;
-  background:currentColor;
-  clip-path:polygon(0 0,100% 0,78% 100%,50% 68%,22% 100%);
-  opacity:.72;
-}
-.wf-place-card-award.is-rank-1{border-color:rgba(235,187,72,.48);background:linear-gradient(110deg,rgba(235,187,72,.2),rgba(235,187,72,.04));color:#F4D477}
-.wf-place-card-award.is-rank-1 .wf-place-card-award-icon{background:linear-gradient(145deg,#FFE39A,#D79A18);color:#2B1B00}
-.wf-place-card-award.is-rank-2{border-color:rgba(190,204,223,.34);background:linear-gradient(110deg,rgba(190,204,223,.14),rgba(190,204,223,.025));color:#D9E2EF}
-.wf-place-card-award.is-rank-2 .wf-place-card-award-icon{background:linear-gradient(145deg,#F2F5F8,#9BAABD);color:#17202D}
-.wf-place-card-award.is-rank-3{border-color:rgba(204,139,91,.38);background:linear-gradient(110deg,rgba(204,139,91,.15),rgba(204,139,91,.025));color:#E4B18B}
-.wf-place-card-award.is-rank-3 .wf-place-card-award-icon{background:linear-gradient(145deg,#E6B184,#9A5D36);color:#25150C}
+.wf-place-card-award.is-rank-1,.wf-place-card-award.is-rank-2,.wf-place-card-award.is-rank-3{border-color:rgba(148,163,184,.28);background:linear-gradient(110deg,rgba(51,65,85,.62),rgba(15,23,42,.38));color:#E2E8F0}
+.wf-place-card-award.is-rank-1 .wf-place-card-award-icon,.wf-place-card-award.is-rank-2 .wf-place-card-award-icon,.wf-place-card-award.is-rank-3 .wf-place-card-award-icon{background:#334155;color:#F8FAFC}
 .wf-place-card-award.is-curator{border-color:rgba(244,212,119,.52);background:linear-gradient(110deg,rgba(244,212,119,.17),rgba(244,212,119,.025));color:#F7D982}
 .wf-place-card-award.is-curator .wf-place-card-award-icon{background:radial-gradient(circle at 35% 28%,#FFF1BC,#E1A72D 58%,#80500A 100%);color:#2A1A03}
 .wf-place-card-highlights{gap:5px!important;margin-bottom:6px!important}
@@ -503,7 +488,7 @@ export const WF_PLACE_CARD_CSS = `
 .wf-place-card.is-disliked{border-color:rgba(248,113,113,.28)!important}
 @media(max-width:430px){
   .wf-place-card-layout{--wf-place-card-media:88px}
-  .wf-place-card-layout>img{width:88px!important}
+  .wf-place-card-layout>img,.wf-place-card-layout>.wf-place-card-media{width:88px!important}
   .wf-place-card-content{padding-inline:10px!important}
   .wf-place-card-name{font-size:15px!important}
   .wf-place-card-meta>span{font-size:9.75px!important}
@@ -511,7 +496,7 @@ export const WF_PLACE_CARD_CSS = `
 }
 @media(min-width:${WF_DESKTOP_BP}px){
   .wf-place-card-layout{--wf-place-card-media:108px}
-  .wf-place-card-layout>img{width:108px!important}
+  .wf-place-card-layout>img,.wf-place-card-layout>.wf-place-card-media{width:108px!important}
   .wf-place-card-name{font-size:17px!important}
 }
 

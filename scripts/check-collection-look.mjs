@@ -217,13 +217,20 @@ ok(!/experienceTags\(p, 1\)/.test(read("app/components/CreatorFinds.js")), "crea
 
 // v8.19 (owner screenshot: "TOP LOCAL PICK PICK") — both award builders
 // strip a trailing "pick" from the category before appending the word.
+// v8.xx (owner 2026-08-25): composition lives in lib/topPickAward.js so
+// rank 1 cannot quietly become BEST FOOD PICK again. The strip stays;
+// the composer is shared.
 {
+  const award = readFileSync(new URL("../lib/topPickAward.js", import.meta.url), "utf8");
+  ok(/replace\(\/\\s\*pick\\s\*\$\/i,\s*\"\"\)/.test(award) && /\"Top \" \+ cat \+ \" pick\"/.test(award),
+    "topPickAward strips a trailing 'pick' and always composes Top {cat} pick");
+  ok(!/\"Best \"/.test(award), "topPickAward never composes BEST … PICK");
   const iconic = readFileSync(new URL("../app/components/IconicPlaceCard.js", import.meta.url), "utf8");
-  ok(/replace\(\/\\s\*pick\\s\*\$\/.{0,40}\).{0,80}\+ " pick"|awardCat \+ " pick"/.test(iconic.replace(/\n/g, " ")) && /awardCat = String\(category\)\.toLowerCase\(\)\.replace/.test(iconic),
-    "IconicPlaceCard award strips a trailing 'pick' from the category (no 'top local pick pick')");
+  ok(/topPickAward\(\{\s*category,\s*rank,\s*curator:\s*isCuratorPick\s*\}\)/.test(iconic),
+    "IconicPlaceCard delegates the pick chip to topPickAward");
   const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
-  ok(/replace\(\/\\s\*pick\\s\*\$\/i, ""\)/.test(home),
-    "home PlaceCard award has the same double-'pick' defense");
+  ok(/topPickAward\(\{\s*category:\s*pcat,\s*rank:\s*cardRank\s*\}\)/.test(home),
+    "home PlaceCard delegates the pick chip to topPickAward");
 }
 
 // v8.22 (owner: "when I click the submenu from another screen it does not

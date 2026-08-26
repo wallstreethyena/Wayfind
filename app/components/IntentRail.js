@@ -52,6 +52,7 @@ import { couponForPlace } from "../../lib/coupons";
 import { recommendationIds, uniqueRecommendations } from "../../lib/recommendationDedupe.js";
 import { lawfulSort } from "../../lib/lawfulOrder.js";
 import PlaceCardSkeleton from "./PlaceCardSkeleton";
+import { topPickAward } from "../../lib/topPickAward";
 
 // Measured against the Top 40 rail, which renders the identical card with the
 // identical chip and action rows. One constant so the skeleton and the live
@@ -517,7 +518,7 @@ export default function IntentRailBody({
                   rank={i + 1}
                   score={toDisplayScore(Number.isFinite(r.governed_score) ? r.governed_score : wayfindScore(r.rating, r.reviews))}
                   facts={facts}
-                  award={i < 3 ? { tone: i + 1, icon: i === 0 ? "🏆" : String(i + 1), label: i === 0 ? "Top pick" : "Top " + (i + 1) } : null}
+                  award={topPickAward({ category: coarseCat(r) || "local", rank: i + 1 })}
                   chips={chips}
                   take={toHookLine(hooks[r.id], r.name)}
                   cta={partner ? {

@@ -175,10 +175,10 @@ ok(!placeAllowed("shopping", "giftshops", { name: "Sweety Cafe", types: ["cafe",
   ok(iconic.includes("validAiSummary.card_line_1") && iconic.includes("validAiSummary.card_line_2"), "IconicPlaceCard renders the validated two-line CARD_SUMMARY when there's no verified hook");
 
   const ttd = read("app/components/ThingsToDoList.js");
-  ok(/toHookLine\(r\.editorial_hook, r\.title\) \?/.test(ttd), "ThingsToDoList leads with the verified hook, compressed through the shared toHookLine");
+  ok(/editorial=\{r\.editorial_hook\}/.test(ttd), "ThingsToDoList passes the verified hook into IconicPlaceCard");
   ok(!/rankReason/.test(ttd), "ThingsToDoList's rankReason fallback must stay dead — hide the block instead of showing generic filler");
-  ok(ttd.includes("blurb.card_line_1") && ttd.includes("blurb.card_line_2"),
-    "ThingsToDoList's fallback is the validated two-line CARD_SUMMARY — DIFFERENT wiring from IntentPageClient, and coverage must count it as such");
+  ok(/aiSummary=\{blurb/.test(ttd),
+    "ThingsToDoList's fallback is the validated CARD_SUMMARY, handed to IconicPlaceCard as aiSummary");
   ok(/: null\}/.test(ttd), "ThingsToDoList ends in null, not in a type string");
   ok(!/\{r\.type\}/.test(ttd), "ThingsToDoList never prints the raw Google type as the editorial line");
 }

@@ -12,7 +12,9 @@
 // from-$, duration, "Selling fast" ONLY on the engine's flag, tap books.
 // scripts/test-todays-best.mjs locks the contract.
 import { useEffect, useState } from "react";
-import { C, CHAMPAGNE, MEDALLION_SHADOW, TYPE, RADII, SHADOW, FOCUS, WayfindScoreBadge } from "./kit";
+import { WayfindScoreBadge } from "./kit";
+import IconicPlaceCard from "./IconicPlaceCard";
+import { topPickAward } from "../../lib/topPickAward";
 import { toDisplayScore } from "../../lib/score";
 // v7.06 — the ONE editorial-line compressor, shared by every place surface.
 import { toHookLine } from "../../lib/editorialHook";
@@ -28,11 +30,8 @@ import { nowContext } from "../../lib/nowContext.js";
 import { rankForNow } from "../../lib/ranking.js";
 import { supabase } from "../../lib/supabase.js";
 import { waterForBeaches, sampledShort } from "../../lib/waterStations.js";
-import { WATER_PLAIN, WATER_TONE, waterQualityKey } from "../../lib/beachChip.js";
+import { WATER_PLAIN, waterQualityKey } from "../../lib/beachChip.js";
 import ViatorCommerceLink from "./ViatorCommerceLink";
-
-// The standard-card medal ring (home.js medal(): gold / silver / bronze 3-5).
-const medalColor = (rank) => (rank === 1 ? "#FBBF24" : rank === 2 ? "#CBD5E1" : rank <= 5 ? "#CD7F32" : null);
 
 // v6.47 (owner: "the little experience chip are also not workign i used to be
 // able to click on them and open a page"). The chips rendered as inert <span>s
@@ -49,24 +48,6 @@ const medalColor = (rank) => (rank === 1 ? "#FBBF24" : rank === 2 ? "#CBD5E1" : 
 // chip styles) is deleted — no card renders decorative tag bubbles anymore.
 const fmtDur = (m) => (m == null ? null : m >= 60 ? (m % 60 ? Math.floor(m / 60) + "h " + (m % 60) + "m" : m / 60 + "h") : m + "m");
 
-// Standard-card trust dot (home.js confidenceOf thresholds, verbatim).
-const confColor = (n) => (n >= 500 ? "#22C55E" : n >= 100 ? "#FBBF24" : "#94A3B8");
-
-// The Save/Share/Like/Dislike pill. One shape for all four so the row reads as
-// a set — the taste controls are not a different kind of thing from Save.
-function ActionPill({ label, ariaLabel, active, onClick, children }) {
-  return (
-    <button type="button" aria-label={ariaLabel || label} aria-pressed={active ? "true" : "false"} onClick={onClick}
-      style={{ display: "inline-flex", alignItems: "center", gap: 5, border: `1px solid ${active ? C.light : C.border}`, borderRadius: 999, padding: "7px 14px", background: active ? C.adim : "transparent", color: active ? C.light : C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer", minHeight: 36 }}>
-      {children}{label ? <span>{label}</span> : null}
-    </button>
-  );
-}
-// Same thumbs as the detail sheet — an SVG rather than an emoji so the icon does
-// not change shape between platforms next to a text label.
-const ThumbUp = () => (<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg>);
-const ThumbDown = () => (<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M17 14V3" /><path d="M17 14l-4 7c-1.5 0-2.5-1-2.5-2.5V14H5.9a2 2 0 0 1-2-2.4l1.2-6A2 2 0 0 1 7 4h10" /></svg>);
-
 // ONE row -> place mapping. Every consumer that hands a row to app/home.js (the
 // detail sheet, Save, Like, Dislike) goes through here, because those consumers
 // store what they are given: toggleLike keeps `{ place: p }` in wf_liked_items
@@ -76,134 +57,111 @@ const ThumbDown = () => (<svg width="15" height="15" viewBox="0 0 24 24" fill="n
 // v6.57: `category` is load-bearing — isBeach(detail) identifies a beach row
 // from it alone, since wf_things_to_do rows carry no coordinates or types.
 export function ttdPlace(r) {
-  return { id: r.id, name: r.title, rating: r.rating, reviews: r.reviews, photo: tbPhotoUrl(r.photo_ref, 640), category: r.category };
+  return {
+    id: r.id,
+    name: r.title,
+    rating: r.rating,
+    reviews: r.reviews,
+    photo: tbPhotoUrl(r.photo_ref, 640),
+    category: r.category,
+    distMi: r.distance_mi,
+    governed_score: r.governed_score,
+    trending: r.trending,
+    trend_reason: r.trend_reason,
+    types: r.category === "beach" ? ["beach", "natural_feature"] : (Array.isArray(r.types) ? r.types : []),
+  };
 }
 
 function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, onLog, onSave, onShare, liked, disliked, onLike, onDislike }) {
   const isTour = r.kind === "experience";
-  const img = isTour ? (r.image_url || null) : tbPhotoUrl(r.photo_ref, 640);
+  const place = ttdPlace(r);
   const open = () => {
-    if (isTour) return; // anchor handles it
+    if (isTour) return;
     try { onLog && onLog("ttd_detail", { id: r.id, name: r.title }); } catch (e) {}
-    // v6.57: pass `category` through so isBeach(detail) (home.js) can identify
-    // a beach row without lat/lng/types — wf_things_to_do's rows carry no
-    // coordinates, so the detail sheet's water-quality/popularity signals
-    // (keyed by place_id alone) still resolve even though live wind/wave/red
-    // tide (which need coordinates) won't for places opened from this list.
-    onOpenPlace && onOpenPlace(ttdPlace(r));
+    onOpenPlace && onOpenPlace(place);
   };
-  // v6.56 (owner): EXACTLY the standard Wayfind card shell — photo-left 96px,
-  // rank ring (medal colors), title row carrying the WayfindScoreBadge in-flow,
-  // meta line with the green review dot. Tours differ ONLY by their meta
-  // (from-$ + duration) and the Book pill where places show the chevron.
-  // THE GOVERNING LAW, shown == sorted (2026-08-07): rows ranked by
-  // byVisibleScore carry governed_score — base +0.2 video −0.2 past 17mi
-  // +0.6 trending (disclosed below) — and the badge must show THAT number,
-  // never a re-derived base that can disagree with the row's position.
   const ds = Number.isFinite(r.governed_score)
     ? toDisplayScore(r.governed_score)
     : Number(r.rating) > 0 ? toDisplayScore(wayfindScore(Number(r.rating), Number(r.reviews) || 0)) : null;
-  const mc = medalColor(rank);
+  const waterBadge = r.category === "beach" && beachSignal && beachSignal.water ? (() => {
+    const w = beachSignal.water;
+    const key = waterQualityKey(w);
+    if (!key) return null;
+    const when = sampledShort(w.sampled_at);
+    return <span title={when ? `FL Healthy Beaches sample, ${when}` : undefined}>🌊 {WATER_PLAIN[key]}{when ? ` · ${when}` : ""}</span>;
+  })() : null;
+  const trendBadge = r.trending && r.trend_reason ? <span title={"Trending — " + r.trend_reason}>🔥 {r.trend_reason}</span> : null;
+  // Place rows ARE the house card. Tour rows cannot mount IconicPlaceCard —
+  // a Viator product id is not a Google place id — so they wear the same
+  // .wf-place-card chrome, no yellow rank-next-to-title, no BEST … PICK.
+  if (!isTour) {
+    return (
+      <IconicPlaceCard
+        place={place}
+        rank={rank}
+        editorial={r.editorial_hook}
+        aiSummary={blurb && typeof blurb === "object" ? blurb : null}
+        rankingNote={r.drive_deduction ? "ranked lower for the drive (−" + r.drive_deduction.toFixed(1) + ")" : null}
+        badge={<>{trendBadge}{waterBadge}</>}
+        saved={false}
+        liked={!!liked}
+        disliked={!!disliked}
+        onOpen={open}
+        onSave={onSave ? (e, p) => onSave(p) : undefined}
+        onLike={onLike}
+        onDislike={onDislike}
+        onShare={onShare ? () => onShare(r) : undefined}
+        surface="ttd"
+      />
+    );
+  }
+  const award = topPickAward({ category: "Activities", rank });
+  const facts = [
+    r.reviews > 0 ? Number(r.reviews).toLocaleString() + " reviews" : null,
+    r.price_from != null ? "from $" + r.price_from : null,
+    fmtDur(r.duration_min),
+  ].filter(Boolean);
+  const take = toHookLine(r.editorial_hook, r.title);
   const body = (
-    <div style={{ display: "flex" }}>
-      <div style={{ position: "relative", width: 96, alignSelf: "stretch", minHeight: 96, flexShrink: 0, background: "#10141d" }}>
-        {img && <img src={img} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
-        {/* v6.72 (owner): the pick badge is a MEDALLION, not a pill. The
-            rectangular chip was wider than the 96px thumbnail it sat on, so it
-            wrapped to two lines and bled over the photo. A 34px champagne seal
-            fits the corner at any thumbnail size and reads as an award rather
-            than a label. The words stay in aria-label/title so the meaning is
-            still announced and still hoverable. */}
-        {/* v8.17 — the ✦ PICK medallion is removed (owner reversal, 2026-08-19); rank + award band carry the claim. */}
-        {isTour && r.selling_out ? <span style={{ position: "absolute", top: 7, left: 7, background: "#B33A2B", color: "#fff", fontSize: 9, fontWeight: 800, letterSpacing: ".4px", textTransform: "uppercase", borderRadius: 999, padding: "2px 7px" }}>Selling fast</span> : null}
-      </div>
-      <div style={{ padding: "12px 12px", flex: 1, minWidth: 0, position: "relative" }}>
-        <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-          {mc
-            ? <div style={{ width: 24, height: 24, borderRadius: "50%", background: mc, color: "#0D1117", fontSize: 12.5, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{rank}</div>
-            : <div style={{ width: 28, textAlign: "center", color: C.muted, fontSize: 13, fontWeight: 800, flexShrink: 0 }}>#{rank}</div>}
-          <div style={{ fontSize: 15, fontWeight: 700, color: C.text, lineHeight: 1.3, flex: 1, minWidth: 0, paddingRight: 4 }}>{r.title}</div>
-          {ds != null && <div style={{ flexShrink: 0, marginLeft: "auto", filter: "drop-shadow(0 6px 14px rgba(0,0,0,.5))" }}><WayfindScoreBadge score={ds} /></div>}
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6, fontSize: 12, color: C.muted, flexWrap: "wrap" }}>
-          {r.reviews > 0 ? <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><span style={{ width: 7, height: 7, borderRadius: "50%", background: confColor(r.reviews), flexShrink: 0 }} /> {Number(r.reviews).toLocaleString()} reviews</span> : null}
-          {isTour ? (
-            <>
-              {r.price_from != null ? <span style={{ fontSize: 13, color: C.green, fontWeight: 700 }}>from ${r.price_from}</span> : null}
-              {fmtDur(r.duration_min) ? <span>· {fmtDur(r.duration_min)}</span> : null}
-            </>
-          ) : (
-            <>{isFinite(r.distance_mi) ? <span>· {r.distance_mi < 10 ? r.distance_mi.toFixed(1) : Math.round(r.distance_mi)} mi{r.drive_deduction ? " — ranked lower for the drive (−" + r.drive_deduction.toFixed(1) + ")" : ""}</span> : null}</>
-          )}
-        </div>
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 7 }}>
-          {/* v7.15 (owner, 2026-08-11): the category and "Crowd favorite"
-              chip bubbles are gone. What remains in this row is DISCLOSURE,
-              not decoration: the trending bump note and the beach water
-              signal. */}
-          {/* 2026-08-07: the 🔥 is the UNIFIED trend signal (lib/trendSignal.js
-              — real foot traffic + major-event proximity, attached before the
-              sort) and doubles as the mandatory disclosure for the +0.6
-              trending bump inside governed_score. All categories, one meaning. */}
-          {r.trending && r.trend_reason ? (
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 800, color: "#FB923C", background: "rgba(251,146,60,.12)", border: "1px solid rgba(251,146,60,.4)", borderRadius: 999, padding: "3px 10px" }} title={"Trending — " + r.trend_reason}>🔥 {r.trend_reason}</span>
-          ) : null}
-          {r.category === "beach" && beachSignal && beachSignal.water ? (() => {
-            // v8.19 — the ONE plain-language water vocabulary
-            // (lib/beachChip.js WATER_PLAIN) + the sample date, so a
-            // first-time reader knows what the band means for a swim.
-            const w = beachSignal.water;
-            const key = waterQualityKey(w);
-            if (!key) return null;
-            const when = sampledShort(w.sampled_at);
-            return <span style={{ display: "inline-flex", alignItems: "center", fontSize: 11.5, fontWeight: 700, color: WATER_TONE[key] }} title={when ? `FL Healthy Beaches sample, ${when}` : undefined}>🌊 {WATER_PLAIN[key]}{when ? ` · ${when}` : ""}</span>;
-          })() : null}
-        </div>
-        {/* THE EDITORIAL (owner, 2026-07-22): why this spot is great — the
-            verified wf_editorial hook (gold, like the beaches page). Falls
-            through to a validated Anthropic CARD_SUMMARY (Known for / Best
-            for — see lib/editorialValidator.js). v6.87 (owner): the
-            rank-summary fallback ("Our #1 pick — ...and it holds up.") is
-            gone — rating/reviews/rank/distance already render above, and if
-            neither a verified hook nor a validated AI summary exists this
-            block renders nothing rather than generic filler. */}
-        {toHookLine(r.editorial_hook, r.title) ? (
-          <div style={{ fontSize: 12.5, fontWeight: 700, color: "#FBBF24", lineHeight: 1.45, marginTop: 7 }}>{toHookLine(r.editorial_hook, r.title)}</div>
-        ) : blurb && typeof blurb === "object" && blurb.card_line_1 && blurb.card_line_2 ? (
-          <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45, marginTop: 7 }}>
-            <div>{blurb.card_line_1}</div>
-            <div style={{ marginTop: 2 }}>{blurb.card_line_2}</div>
+    <article className="wf-place-card wf-ttd-focus" style={{ marginBottom: 12 }}>
+      <div className="wf-place-card-layout">
+        {r.image_url
+          ? <img src={r.image_url} alt="" loading="lazy" style={{ objectFit: "cover" }} />
+          : <div className="wf-place-card-monogram" aria-hidden="true">WF</div>}
+        <div className="wf-place-card-content" style={{ position: "relative" }}>
+          <div className="wf-place-card-title-row">
+            {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
+            <div className="wf-place-card-heading">
+              <span className="wf-place-card-category">Activities</span>
+              <div className="wf-place-card-name">{r.title}</div>
+            </div>
+            {ds != null ? <div className="wf-place-card-score"><WayfindScoreBadge score={ds} /></div> : null}
           </div>
-        ) : null}
-        <div style={{ display: "flex", gap: 6, marginTop: 9, flexWrap: "wrap", alignItems: "center" }}>
-          {isTour ? <span style={{ display: "inline-flex", background: C.accent, color: "#0D1117", borderRadius: 999, padding: "7px 14px", fontSize: 12, fontWeight: 800 }}>Book ↗</span> : null}
-          {!isTour && onSave ? <button onClick={(e) => { e.stopPropagation(); onSave(ttdPlace(r)); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, border: `1px solid ${C.border}`, borderRadius: 999, padding: "7px 14px", background: "transparent", color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>♡ Save</button> : null}
-          {/* Like / dislike were missing here while every other place surface
-              (PlaceCard, the detail sheet, Saved, Itinerary) carried them — so
-              the rail the homepage leans on was the one place a user could not
-              teach Wayfind anything, and the taste model never heard from it.
-              Gated on !isTour for the same reason Save is: a tour row's id is a
-              Viator PRODUCT id, not a Google place id, so a like on one would
-              write a row the taste model and the Liked folder cannot resolve.
-              The tour row is also an <a>, and a <button> inside it would be the
-              nested-interactive problem the category chips already dodge. */}
-          {!isTour && onLike ? (
-            <ActionPill ariaLabel={liked ? "Remove like" : "Like this place"} active={!!liked} onClick={(e) => { e.stopPropagation(); e.preventDefault(); onLike(e, ttdPlace(r)); }}><ThumbUp /></ActionPill>
+          {facts.length ? (
+            <div className="wf-place-card-meta">{facts.map((f) => <span key={f}>{f}</span>)}</div>
           ) : null}
-          {!isTour && onDislike ? (
-            <ActionPill ariaLabel={disliked ? "Remove dislike" : "Show me fewer like this"} active={!!disliked} onClick={(e) => { e.stopPropagation(); e.preventDefault(); onDislike(e, ttdPlace(r)); }}><ThumbDown /></ActionPill>
+          {award ? (
+            <div className={`wf-place-card-award is-rank-${award.rank}`}>
+              <span className="wf-place-card-award-icon" aria-hidden="true">{award.icon}</span>
+              <span>{award.label}</span>
+            </div>
           ) : null}
-          {onShare ? <span role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); onShare(r); } }} onClick={(e) => { e.stopPropagation(); e.preventDefault(); onShare(r); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, border: `1px solid ${C.border}`, borderRadius: 999, padding: "7px 14px", background: "transparent", color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>↗ Share</span> : null}
+          {r.selling_out ? <div className="wf-place-card-highlights"><span>Selling fast</span></div> : null}
+          {take ? <div className="wf-place-card-take">{take}</div> : null}
+          <div className="wf-place-card-actions wf-sheet-card-actions">
+            <span className="wf-place-card-book">Book ↗</span>
+            {onShare ? <span className="wf-place-card-share">↗ Share</span> : null}
+          </div>
         </div>
       </div>
-    </div>
+    </article>
   );
-  const style = { display: "block", width: "100%", textAlign: "left", borderRadius: RADII.card, overflow: "hidden", border: `1px solid ${C.border}`, background: C.card, boxShadow: SHADOW.card, marginBottom: 12, cursor: "pointer", textDecoration: "none", padding: 0 };
-  // v6.79 (AGENTS.md §6b): an unattributable tour link is not rendered as a
-  // link at all — the card stays, the booking anchor does not.
-  return isTour
-    ? <ViatorCommerceLink t={r} city={city} surface="ttd_ranked_card" contentId={city} rank={rank} className="wf-ttd-focus" style={style} onClick={(e, clickId) => { try { onLog && onLog("ttd_book", { id: r.id, name: r.title }, { click_id: clickId }); } catch (er) {} }}>{body}</ViatorCommerceLink>
-    : <div role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } }} onClick={open} className="wf-ttd-focus" style={style}>{body}</div>;
+  const style = { display: "block", width: "100%", textAlign: "left", textDecoration: "none", padding: 0, border: 0, background: "transparent" };
+  return (
+    <ViatorCommerceLink t={r} city={city} surface="ttd_ranked_card" contentId={city} rank={rank} className="wf-ttd-focus" style={style} onClick={(e, clickId) => { try { onLog && onLog("ttd_book", { id: r.id, name: r.title }, { click_id: clickId }); } catch (er) {} }}>
+      {body}
+    </ViatorCommerceLink>
+  );
 }
 
 export default function ThingsToDoList({ center, city, weather, onOpenPlace, onLog, blurbs, loadBlurbs, onSave, onShare, liked, disliked, onLike, onDislike }) {

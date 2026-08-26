@@ -41,6 +41,7 @@ import { stayOnRailReaction } from "../../lib/railReaction.js";
 // id and a name — which is exactly what creatorVideosFor() resolves on.
 import { creatorVideosFor } from "../../lib/creatorVideos";
 import CreatorCardMark from "./CreatorCardMark";
+import { topPickAward } from "../../lib/topPickAward";
 
 // ---------------------------------------------------------------------------
 // Experience-tag chips (owner: "I need the cards to look like the cards from
@@ -312,12 +313,12 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
     // (lib/trendSignal.js — real demand data; lib/wayfindScore TRENDING_BONUS).
     place.trending && place.trend_reason ? "🔥 " + place.trend_reason : null,
   ].filter(Boolean);
-  // v8.19 (owner screenshot: "TOP LOCAL PICK PICK"). When the category
-  // falls back to "Local pick", composing "+ ' pick'" doubled the word.
-  // Strip any trailing "pick" from the category before composing — the
-  // award is the one place that appends it.
-  const awardCat = String(category).toLowerCase().replace(/\s*pick\s*$/, "").trim() || "local";
-  const award = isCuratorPick ? "Wayfind curator's pick" : rank <= 3 ? (rank === 1 ? "Best " : "Top ") + awardCat + " pick" : null;
+  // Owner 2026-08-25: one chip language — TOP {CATEGORY} PICK + rank in a
+  // dark circle. Rank 1 used to say "Best … pick" with a gold trophy; that
+  // is the rejected merchandising chip. lib/topPickAward.js is the only
+  // composer (strips a trailing "pick" so "Local pick" cannot become
+  // "top local pick pick").
+  const award = topPickAward({ category, rank, curator: isCuratorPick });
   // v6.87 (owner): the rank-summary fallback ("Our #1 pick — 4.9★ with 921
   // reviews, and it holds up.") is GONE — rating, reviews, rank, price,
   // status and distance already render above in `facts`/`award`, and
@@ -404,9 +405,9 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
           </div>
 
           {award ? (
-            <div className={`wf-place-card-award${isCuratorPick ? " is-curator" : ` is-rank-${rank}`}`} aria-label={isCuratorPick ? "Personally selected by Wayfind's curator" : undefined}>
-              <span className="wf-place-card-award-icon" aria-hidden="true">{isCuratorPick ? "✦" : rank === 1 ? "🏆" : rank}</span>
-              <span>{award}</span>
+            <div className={`wf-place-card-award${award.curator ? " is-curator" : ` is-rank-${award.rank}`}`} aria-label={award.curator ? "Personally selected by Wayfind's curator" : undefined}>
+              <span className="wf-place-card-award-icon" aria-hidden="true">{award.icon}</span>
+              <span>{award.label}</span>
             </div>
           ) : null}
 

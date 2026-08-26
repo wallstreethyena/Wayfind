@@ -67,13 +67,14 @@ const houseChips = (home.match(/PlaceScoreChip p=\{\{ rating: [A-Za-z_$][\w$]*\.
 ok(houseChips >= 2, `Viator tiles lost the house PlaceScoreChip (found ${houseChips} tile renderers using it, expected at least 2)`);
 ok(!/`★ \$\{t\.rating\}`|>★ \{t\.rating\}/.test(home), "raw Google-star lead is back on Viator tiles");
 
-// Things to Do rows wear the EXACT standard card shell (owner, 2026-07-22):
-// photo-left 96px, medal rank ring, WayfindScoreBadge in the title row.
+// Things to Do place rows ARE the house card (owner, 2026-08-25). The
+// compact 96×96 + yellow medal ring was Image-1 and is the reject.
 {
   const ttd = readFileSync(new URL("../app/components/ThingsToDoList.js", import.meta.url), "utf8");
-  ok(ttd.includes("WayfindScoreBadge score={ds}"), "TTD rows lost the standard WayfindScoreBadge");
-  ok(ttd.includes("width: 96, alignSelf: \"stretch\", minHeight: 96"), "TTD rows lost the standard 96px photo-left column");
-  ok(ttd.includes("medalColor(rank)"), "TTD rows lost the standard medal rank ring");
+  ok(/<IconicPlaceCard[\s/>]/.test(ttd), "TTD place rows render IconicPlaceCard — the house card");
+  ok(ttd.includes("WayfindScoreBadge score={ds}"), "TTD tour rows still carry the house WayfindScoreBadge");
+  ok(!ttd.includes("medalColor(rank)"), "the yellow medal rank ring stays deleted on Things to Do");
+  ok(!ttd.includes('width: 96, alignSelf: "stretch", minHeight: 96'), "the 96×96 compact photo column stays deleted on Things to Do");
   ok(!ttd.includes('aspectRatio: "16 / 9"'), "the oversized 16:9 photo-top shell is back on Things to Do");
 }
 

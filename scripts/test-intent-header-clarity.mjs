@@ -101,7 +101,7 @@ const card = renderToStaticMarkup(createElement(Card, {
   place: { ...places[0], photoRef: "places/abc/photos/def", priceLevel: 2 },
   rank: 1, href: "/p/inside", editorial: "A museum locals use when the afternoon sky opens up.",
 }));
-for (const needle of ["Rank 1", "The Gallery", "WAYFIND", "650 reviews", "Moderate", "Best activities pick", "Save", "Like The Gallery", "Not for me", "Share"]) {
+for (const needle of ["Rank 1", "The Gallery", "WAYFIND", "650 reviews", "Moderate", "Top Activities pick", "Save", "Like The Gallery", "Not for me", "Share"]) {
   ok(card.includes(needle), `iconic card renders '${needle}'`);
 }
 // v6.88 (owner): the card used to stamp the page's own eyebrow ("Best of",

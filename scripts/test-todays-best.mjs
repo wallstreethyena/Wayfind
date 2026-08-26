@@ -5,6 +5,7 @@
 import { readFileSync } from "fs";
 import { TB_SECTIONS, isRenderablePick, dedupeBrands, tbPhotoUrl } from "../lib/todaysBest.js";
 import { chipCommerce } from "../lib/browseCommerceMap.js";
+import { topPickAward } from "../lib/topPickAward.js";
 
 let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
@@ -94,10 +95,15 @@ import("../lib/todaysBest.js").then((m2) => {
 ok(lib2.includes("byVisibleScore(dedupeBrands(pool))") && lib2.includes("byVisibleScore(vetBeachDistance(pool.filter(isRenderableThing)"), "both menus sort by the visible Score, best to worst");
 ok(/kind === "experience"\) return !!r\.booking_url/.test(lib2), "a tour without a booking link never renders");
 
-// ── v6.47 (owner batch 3) ────────────────────────────────────────────────────
-// medals: top-3 trophies, champagne/silver/bronze — never past rank 3
-ok(/MEDAL = \[CHAMPAGNE\.base, "#C7CCD6", "#B8804A"\]/.test(bn), "top-3 medals are the premium champagne/silver/bronze set");
-ok(/if \(i > 2\) return/.test(bn), "medals stop at rank 3");
+// ── v6.47 / v8.49 (owner 2026-08-25) ────────────────────────────────────────
+// Rank marks on leftover compact lists are the house dark circle + number.
+// Gold champagne/silver/bronze trophies were the rejected BEST … PICK chrome.
+// The pick CHIP itself still stops at rank 3 — prove it by CALLING the helper.
+ok(/function Medal\(\{\s*i\s*\}\)/.test(bn), "positive control: Medal is still declared for the (off) trends list");
+ok(/background:\s*"#334155"/.test(bn) && !/CHAMPAGNE\.base/.test(bn),
+  "rank marks are the house dark circle, not gold champagne trophies");
+ok(topPickAward({ category: "Food", rank: 3 }) && topPickAward({ category: "Food", rank: 4 }) === null,
+  "pick chips still stop at rank 3 (called, not grepped)");
 // rows open OUR detail sheet, never a Google tab
 ok(bn.includes("onOpenPlace") && /onOpenPlace\(p\)/.test(bn), "rows hand the place to the app's own detail opener");
 // RE-POINTED v8.8: with <BestNearby> unmounted from "/" there is no home
@@ -246,19 +252,36 @@ ok(ttd.includes("r.editorial_hook"), "TTD cards lost the verified editorial hook
 // where a user could not teach Wayfind anything, and the taste model never heard
 // a signal from it. Each property below is one edit away from going silent again.
 ok(/onLike/.test(ttd) && /onDislike/.test(ttd), "the TTD rail still renders like/dislike — without them this list contributes nothing to the taste model");
-ok(/liked \? "Remove like"/.test(ttd) && /aria-pressed=/.test(ttd), "the taste pills still announce their state (aria-pressed + a label that flips) — an unlabelled icon toggle is unusable without sight");
-// Gated on !isTour for two INDEPENDENT reasons, so assert it rather than trust it.
-for (const p of ["onLike", "onDislike"]) {
-  ok(new RegExp(`!isTour && ${p}`).test(ttd), `${p} stays gated on !isTour: a tour row's id is a Viator PRODUCT id (a like would write a taste row nothing can resolve), and the tour card IS an <a>, so a <button> inside it nests interactive elements`);
+// Place rows ARE IconicPlaceCard. The a11y lives on that card, not a second
+// TTD-only pill. Grepping TTD for "Remove like" went green-on-move the day
+// the pills moved — assert the component that actually paints them.
+{
+  const iconic = readFileSync(new URL("../app/components/IconicPlaceCard.js", import.meta.url), "utf8");
+  ok(/<IconicPlaceCard[\s/>]/.test(ttd), "TTD place rows mount IconicPlaceCard — the house card owns the taste pills");
+  ok(/aria-pressed=\{isLikedNow\}/.test(iconic) && /Remove like/.test(iconic),
+    "the house-card taste pills still announce their state (aria-pressed + a label that flips)");
+  ok(/stayOnRailReaction\(e, doLike, place\)/.test(iconic) && /stayOnRailReaction\(e, doDislike, place\)/.test(iconic),
+    "IconicPlaceCard hands the mapped `place` into like/dislike, not a rebuilt row");
+}
+// Tour rows never get like/dislike: a Viator PRODUCT id is not a place id,
+// and the tour card IS an <a>, so a <button> inside it would nest interactives.
+ok(/if \(!isTour\)/.test(ttd), "the place/tour split remains — like/dislike only exist on the place branch");
+{
+  const tour = ttd.slice(ttd.indexOf("const award = topPickAward"), ttd.indexOf("export default function ThingsToDoList"));
+  ok(tour.includes("ViatorCommerceLink") && tour.length > 200 && !/onLike=/.test(tour) && !/onDislike=/.test(tour),
+    "the tour branch (Viator <a>) never nests like/dislike buttons");
 }
 // One row->place mapping. toggleLike stores `{ place: p }`, and the Saved
 // screen's Liked folder renders that stored object later — so a thin mapping at
 // one call site shows up as a placeholder card in a folder somewhere else.
 ok(/export function ttdPlace\(/.test(ttd), "ttdPlace is still the single row->place mapping");
 ok(!/onOpenPlace\(\{ id: r\.id/.test(ttd), "no call site rebuilds the place shape inline — they all go through ttdPlace");
-for (const p of ["onSave(ttdPlace(r))", "onLike(e, ttdPlace(r))", "onDislike(e, ttdPlace(r))"]) {
-  ok(ttd.includes(p), `${p} hands the MAPPED place to app/home.js, not the raw row`);
-}
+ok(/const place = ttdPlace\(r\)/.test(ttd) && /place=\{place\}/.test(ttd),
+  "one ttdPlace(r) mapping is handed to IconicPlaceCard as `place` — not rebuilt per action");
+ok(/onSave=\{onSave \? \(e, p\) => onSave\(p\)/.test(ttd),
+  "onSave receives the mapped place IconicPlaceCard already holds, not the raw row");
+ok(/onLike=\{onLike\}/.test(ttd) && /onDislike=\{onDislike\}/.test(ttd),
+  "onLike/onDislike pass through; IconicPlaceCard calls them with the mapped place");
 ok(/photo: tbPhotoUrl\(r\.photo_ref/.test(ttd), "ttdPlace still carries the photo — it is what the Liked/Saved folder renders for these rows");
 ok(/category: r\.category/.test(ttd), "ttdPlace still carries `category` — isBeach(detail) resolves a beach row from it alone (these rows carry no coordinates or types)");
 ok(/liked=\{liked\}/.test(home) && /disliked=\{disliked\}/.test(home), "app/home.js still passes liked/disliked into the rail, or the pills can never render their state");
