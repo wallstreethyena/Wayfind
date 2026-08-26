@@ -149,7 +149,7 @@ export default async function CulturePage({ params }) {
         ) : null}</div>
       ))}
       <h2 style={S.h2}>Worth your eyes</h2>
-      {c.see.map((x, i) => (<div key={i} style={S.item}><p style={S.name}>{x.name}</p><p style={S.story}>{x.story}</p></div>))}
+      {c.see.map((x, i) => (<div key={i} style={S.item}><p style={S.name}>{x.placeId ? <a href={"/places/" + encodeURIComponent(x.placeId)} style={{ color: "inherit", textDecoration: "none" }}>{x.name}</a> : x.name}</p><p style={S.story}>{x.story}</p></div>))}
       <h2 style={S.h2}>Talk like a local</h2>
       {c.say.map((x, i) => (<p key={i} style={S.item}><span style={S.phrase}>{x.phrase}</span><span style={S.meaning}> — {x.meaning}</span></p>))}
       <h2 style={S.h2}>Good to know</h2>
@@ -182,7 +182,9 @@ export default async function CulturePage({ params }) {
                 {CATS.map(([ck, cl]) => t[ck] && t[ck].line ? (
                   <p key={ck} style={{ fontSize: 13.5, color: "#C9D1D9", margin: "0 0 7px" }}>
                     <b style={{ color: "#FFFFFF" }}>{cl}:</b> {t[ck].line}
-                    {Array.isArray(t[ck].items) && t[ck].items.length ? <span style={{ color: "#8B949E" }}> Don&apos;t miss: {t[ck].items.map((x) => x.name).join(" · ")}.</span> : null}
+                    {Array.isArray(t[ck].items) && t[ck].items.length ? <span style={{ color: "#8B949E" }}> Don&apos;t miss: {t[ck].items.map((x, xi) => (
+                      <span key={xi}>{xi ? " · " : null}{x.placeId ? <a href={"/places/" + encodeURIComponent(x.placeId)} style={{ color: "#CBD5E1", fontWeight: 700, textDecoration: "none" }}>{x.name}</a> : x.name}</span>
+                    ))}.</span> : null}
                   </p>
                 ) : null)}
               </div>
