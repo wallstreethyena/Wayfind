@@ -124,13 +124,15 @@ function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, onLog, on
   const take = toHookLine(r.editorial_hook, r.title);
   const body = (
     <article className="wf-place-card wf-ttd-focus" style={{ marginBottom: 12 }}>
+      {/* v8.62: score in the top right corner of the CARD, never on the photo
+          (owner, 2026-08-26). Direct child of .wf-place-card — css.js rule. */}
+      {ds != null ? <div className="wf-place-card-score"><WayfindScoreBadge score={ds} /></div> : null}
       <div className="wf-place-card-layout">
         <div className="wf-place-card-media">
           {r.image_url
             ? <img src={r.image_url} alt="" loading="lazy" style={{ objectFit: "cover" }} />
             : <div className="wf-place-card-monogram" aria-hidden="true">WF</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
-          {ds != null ? <div className="wf-place-card-score"><WayfindScoreBadge score={ds} /></div> : null}
         </div>
         <div className="wf-place-card-content" style={{ position: "relative" }}>
           <div className="wf-place-card-title-row">

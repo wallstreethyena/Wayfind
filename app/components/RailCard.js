@@ -330,6 +330,12 @@ export default function RailCard({
       }}
       aria-label={ariaLabel || title}
     >
+      {/* v8.62: score (or the when-badge that borrows its slot) in the top
+          right corner of the CARD, never on the photo (owner, 2026-08-26).
+          Direct child of .wf-place-card — the shared css.js rule anchors it. */}
+      {score != null
+        ? <div className="wf-place-card-score"><WayfindScoreBadge score={score} /></div>
+        : when ? <div className="wf-place-card-score"><RailWhenBadge {...when} /></div> : null}
       <div className="wf-place-card-layout">
         <div className="wf-place-card-media">
           {(photo || railMarketFallback)
@@ -348,9 +354,6 @@ export default function RailCard({
               />
             : <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
-          {score != null
-            ? <div className="wf-place-card-score"><WayfindScoreBadge score={score} /></div>
-            : when ? <div className="wf-place-card-score"><RailWhenBadge {...when} /></div> : null}
         </div>
         <div className="wf-place-card-content" style={{ position: "relative" }}>
           <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start" }}>

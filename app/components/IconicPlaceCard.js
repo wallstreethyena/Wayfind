@@ -382,16 +382,18 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
 
   return (
     <li ref={cardRef} data-iconic-place-card data-card-opens-detail onClick={openCard} className={`wf-place-card${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}`} style={{ listStyle: "none", cursor: href ? "pointer" : "default" }}>
+      {/* v8.62 (owner, 2026-08-26, live): the Wayfind Score sits in the top
+          right corner of the CARD, never on the photo. Direct child of
+          .wf-place-card so the shared css.js rule anchors it to the card. */}
+      {score != null ? <div className="wf-place-card-score"><WayfindScoreBadge score={score} /></div> : null}
       <div className="wf-place-card-layout">
-        {/* 2026-08-26 owner (live Parrish / Family → Rainy day): score+rank
-            live on the photo. #956's own-photo-or-monogram rule is unchanged
-            — no shared category stock scene. */}
+        {/* #956's own-photo-or-monogram rule is unchanged — no shared
+            category stock scene. Rank stays on the photo. */}
         <div className="wf-place-card-media">
           {photoUrl(place)
             ? <img src={photoUrl(place)} alt="" loading="lazy" style={{ objectFit: "cover" }} />
             : <div className="wf-place-card-monogram" aria-hidden="true">{initials}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
-          {score != null ? <div className="wf-place-card-score"><WayfindScoreBadge score={score} /></div> : null}
         </div>
         <div className="wf-place-card-content" style={{ position: "relative" }}>
           <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start" }}>
