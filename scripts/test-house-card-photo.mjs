@@ -78,6 +78,8 @@ ok(!isOwnedPhotoUrl("/wf-photo-fallback.svg"),
   "the branded SVG is empty/branded, not a place-owned photo");
 ok(!isOwnedPhotoUrl("/api/market-photo?q=attractions+parrish"),
   "a category+metro market-photo URL is the shared-pool leak");
+ok(!isOwnedPhotoUrl("https://places.googleapis.com/v1/places/ChIJ/photos/X/media?key=leak"),
+  "a keyed Google media URL is never a FINAL url — that is the original referrer-drop leak");
 
 // ── CALL the resolver. Unique refs that all 302 to one file is a FAIL. ──
 function leakSharedFallback() {
@@ -250,6 +252,10 @@ function leakSharedFallback() {
     "resolvePlacePhoto is declared (syntactic position, not a mention)");
   ok(!/\bstockPhotoPool\b/.test(serve) && !/\bfreeStockRedirect\b/.test(serve) && !/\bfromPool\b/.test(serve),
     "the photo resolver must not restore a shared stock pool");
+  ok(/fields=photos/.test(serve) && /fresh !== ref/.test(serve),
+    "stale inventory photo_refs self-heal from the placeId inside the ref — a 400 must not erase a place that has a photo");
+  ok(/redirect:\s*["']follow["']/.test(serve),
+    "library-fill still uses the proven redirect-follow media path when skipHttpRedirect misses");
 }
 
 // House-card call sites must not grow a client identity helper onto the homepage.
