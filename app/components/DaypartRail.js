@@ -69,7 +69,7 @@ import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES } fro
 // drop opens. fallSkinLive gates the fall card skin: it retires the day
 // after Halloween as the season hands over to Christmas.
 import { RON_DUPRAT_TOP7, chefPickPlaces } from "../../lib/chefPicks.js";
-import { fallSkinLive } from "../../lib/fallPool.js";
+import { fallSkinLive, eventFranchiseKey } from "../../lib/fallSkin.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
 // `cityLabel` is aliased because this component already takes a prop by that
 // name. The import is the LAW (never "you", never "your area"); the prop is a
@@ -653,6 +653,29 @@ export default function DaypartRail({
     return () => { dead = true; };
   }, [selected, fallPool]);
   const fallSkin = fallSkinLive(siteTodayStr());
+  // v8.67 — the event tiles the augtober drop actually shows: one per
+  // FRANCHISE (nearest location wins), nearest-first when we know where the
+  // reader is, and only events that can take the reader somewhere (official
+  // url, or a venue we can open in place). Cap 14 — variety over volume.
+  const fallEvents = useMemo(() => {
+    const rows = (fallPool && fallPool.events) || [];
+    const c = center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null);
+    const dist = (e) => (c && Number.isFinite(e.lat) && Number.isFinite(e.lng))
+      ? Math.hypot((e.lng - c.lng) * Math.cos(((e.lat + c.lat) / 2) * Math.PI / 180), e.lat - c.lat)
+      : 999;
+    const linked = rows.filter((e) => e.url || e.place_id);
+    const sorted = linked.slice().sort((a, b) => dist(a) - dist(b));
+    const seen = new Set();
+    const out = [];
+    for (const e of sorted) {
+      const k = eventFranchiseKey(e.name || e.title);
+      if (seen.has(k)) continue;
+      seen.add(k);
+      out.push(e);
+      if (out.length >= 14) break;
+    }
+    return out;
+  }, [fallPool, center, lat, lng]);
   const dropList = useMemo(() => {
     if (selected === "chef") return chefPlaces;
     if (selected === "augtober") {
@@ -857,28 +880,56 @@ export default function DaypartRail({
               onDislike={onDislike || undefined}
             />
           ) : null}
-          {/* v8.66 — the AUGTOBER drop leads with its dated events (WHEN
-              badge, never a fabricated score), the vetted fall places follow
-              as house cards below. Tiles are real links to the official event
-              page. The wf-fall class is the seasonal skin — it disappears
-              after Halloween (fallSkinLive), not by anyone remembering. */}
-          {selRail && selRail.id === "augtober" && fallPool && (fallPool.events || []).length ? (
+          {/* v8.67 (owner, 2026-08-26: "no deep links … most of them are
+              repetitive") — the AUGTOBER drop leads with its dated events, ONE
+              PER FRANCHISE, nearest first: the second Howl-O-Scream never gets
+              a tile, the near one does. Every tile GOES somewhere — the
+              official page when the event has one, our own venue detail when
+              it does not; an event with neither is not shown, because a dead
+              tile is worse than one fewer tile. WHEN badge, never a fabricated
+              score. wf-fall is the seasonal skin (fallSkinLive — gone after
+              Halloween). */}
+          {selRail && selRail.id === "augtober" && fallPool && fallEvents.length ? (
             <div className={fallSkin ? "wf-fall" : undefined} style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 10, marginBottom: 12 }} aria-label="Fall and Halloween events">
-              {(fallPool.events || []).slice(0, 20).map((e) => (
-                <a key={e.id} href={e.url || undefined} target="_blank" rel="noreferrer" aria-label={(e.title || e.name) + (e.when && e.when.label ? " — " + e.when.label : "")}
-                  onClick={() => logEvent("augtober_event_open", { id: e.id, name: e.name })}
-                  className="wf8-falltile"
-                  style={{ flex: "0 0 200px", background: "var(--wf-card,#131A26)", border: "1px solid rgba(148,163,184,.18)", borderRadius: 14, overflow: "hidden", textDecoration: "none", color: "inherit" }}>
-                  <div style={{ position: "relative", height: 86, overflow: "hidden", borderBottom: "1px solid rgba(148,163,184,.18)", background: "#131A26" }}>
-                    {e.image ? <img src={e.image} alt="" loading="lazy" onError={(ev) => { ev.currentTarget.style.display = "none"; }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : null}
-                    <span style={{ position: "absolute", top: 7, right: 7, padding: "3px 7px", borderRadius: 999, background: "rgba(7,12,20,.82)", border: "1px solid rgba(251,146,60,.5)", color: "#FDBA74", fontSize: 8.5, fontWeight: 800 }}>{(e.when && e.when.label) || "Seasonal"}</span>
-                  </div>
-                  <div style={{ padding: "8px 10px 10px" }}>
-                    <div style={{ fontSize: 13.5, fontWeight: 800, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{e.title || e.name}</div>
-                    <div style={{ fontSize: 11.5, opacity: 0.75, marginTop: 2 }}>{e.city}{e.price_band ? " · " + e.price_band : ""}</div>
-                  </div>
-                </a>
-              ))}
+              {fallEvents.map((e) => {
+                const inner = (
+                  <>
+                    <div style={{ position: "relative", height: 86, overflow: "hidden", borderBottom: "1px solid rgba(148,163,184,.18)", background: "#131A26" }}>
+                      {e.image ? <img src={e.image} alt="" onError={(ev) => { ev.currentTarget.style.display = "none"; }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : null}
+                      <span style={{ position: "absolute", top: 7, right: 7, padding: "3px 7px", borderRadius: 999, background: "rgba(7,12,20,.82)", border: "1px solid rgba(251,146,60,.5)", color: "#FDBA74", fontSize: 8.5, fontWeight: 800 }}>{(e.when && e.when.label) || "Seasonal"}</span>
+                    </div>
+                    <div style={{ padding: "8px 10px 9px" }}>
+                      <div style={{ fontSize: 13.5, fontWeight: 800, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{e.title || e.name}</div>
+                      <div style={{ fontSize: 11.5, opacity: 0.75, marginTop: 2 }}>{e.city}{e.price_band ? " · " + e.price_band : ""}</div>
+                      <div style={{ fontSize: 10.5, fontWeight: 800, color: "#FDBA74", marginTop: 5 }}>{e.ticket ? "🎟 Tickets · via " + e.ticket.via : e.url ? "Event page ↗" : "Open the venue →"}</div>
+                    </div>
+                  </>
+                );
+                const tileStyle = { flex: "0 0 200px", background: "var(--wf-card,#131A26)", border: "1px solid rgba(148,163,184,.18)", borderRadius: 14, overflow: "hidden", textDecoration: "none", color: "inherit", textAlign: "left", padding: 0, cursor: "pointer", font: "inherit" };
+                const label = (e.title || e.name) + (e.when && e.when.label ? " — " + e.when.label : "");
+                // Monetized first (owner: these events earn — the server attached a
+                // health-checked UT deal, disclosed on the tile). rel carries
+                // sponsored on the paid link ONLY; the official-page link stays
+                // plain noreferrer.
+                return e.ticket ? (
+                  <a key={e.id} href={e.ticket.href} target="_blank" rel="sponsored nofollow noopener" aria-label={label + " — tickets via " + e.ticket.via} className="wf8-falltile" style={tileStyle}
+                    onClick={() => {
+                      // commerce.js loads at CLICK time, not page time — the
+                      // bundle ratchet is why; the money-funnel guard reads
+                      // the emitCommerce call here either way.
+                      import("../../lib/commerce.js").then(({ emitCommerce, mintClickId }) => {
+                        try { emitCommerce("commerce_cta_clicked", { surface: "augtober_rail", content_id: e.id, provider: "undercover_tourist", merchant: e.ticket.via, offer_id: String(e.ticket.deal_id), click_id: mintClickId(), disclosure_version: "augtober-tile-v1" }); } catch (er) {}
+                      }).catch(() => {});
+                      logEvent("tickets_out", { kind: "augtober_rail", id: e.id, name: e.name, deal: e.ticket.deal_id });
+                    }}>{inner}</a>
+                ) : e.url ? (
+                  <a key={e.id} href={e.url} target="_blank" rel="noreferrer" aria-label={label} className="wf8-falltile" style={tileStyle}
+                    onClick={() => logEvent("augtober_event_open", { id: e.id, name: e.name })}>{inner}</a>
+                ) : (
+                  <button key={e.id} type="button" aria-label={label} className="wf8-falltile" style={tileStyle}
+                    onClick={() => { logEvent("augtober_event_open", { id: e.id, name: e.name, via: "venue" }); onOpenPlace && onOpenPlace({ id: e.place_id, name: e.venue || e.name, lat: e.lat, lng: e.lng, types: [], hook: e.hook }); }}>{inner}</button>
+                );
+              })}
             </div>
           ) : null}
           {selRail && selRail.guides ? (

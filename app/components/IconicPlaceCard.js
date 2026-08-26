@@ -11,6 +11,8 @@ import { wayfindScore } from "../../lib/google";
 import { priceLabel } from "../../lib/price";
 import { commerceHref, emitCommerce, mintClickId } from "../../lib/commerce";
 import { placePartnerPick } from "../../lib/placePartnerPicks";
+import { fallCardClass } from "../../lib/fallSkin.js";
+import { siteTodayStr } from "../../lib/siteTime.js";
 import { cuisineLabel } from "../../lib/dining";
 import { overrideFor } from "../../lib/placeOverrides";
 import * as Tags from "../../lib/tags";
@@ -381,7 +383,7 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   };
 
   return (
-    <li ref={cardRef} data-iconic-place-card data-card-opens-detail onClick={openCard} className={`wf-place-card${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}`} style={{ listStyle: "none", cursor: href ? "pointer" : "default" }}>
+    <li ref={cardRef} data-iconic-place-card data-card-opens-detail onClick={openCard} className={`wf-place-card${fallCardClass(place.id, siteTodayStr())}${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}`} style={{ listStyle: "none", cursor: href ? "pointer" : "default" }}>
       {/* v8.62 (owner, 2026-08-26, live): the Wayfind Score sits in the top
           right corner of the CARD, never on the photo. Direct child of
           .wf-place-card so the shared css.js rule anchors it to the card. */}
