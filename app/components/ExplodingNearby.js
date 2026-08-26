@@ -291,14 +291,15 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
         }
         apply(next);
       })
-      .catch(async () => {
-        if (ctrl.signal.aborted) return;
-        let next = { status: "trend_data_error", trends: [], error: UNAVAILABLE_COPY };
-        try {
-          const floor = await ownerFloor();
-          if (floor && (Array.isArray(floor.trends) && floor.trends.length || floor.status)) next = floor;
-        } catch (e) { /* painted below */ }
-        apply(next);
+      .catch(() => {
+        // Terminal first — check-no-stuck-loading forbids an async catch that
+        // can leave status:"loading" on the skeleton. explodingUiStatus then
+        // remaps the 502-shaped body to honest empty while the owner list exists.
+        setResult(explodingUiStatus({ status: "trend_data_error", trends: [], error: UNAVAILABLE_COPY }));
+        ownerFloor().then((floor) => {
+          if (ctrl.signal.aborted) return;
+          if (floor && Array.isArray(floor.trends) && floor.trends.length) apply(floor);
+        }).catch(() => {});
       });
     return () => ctrl.abort();
   }, [active, retry, city, center && center.lat, center && center.lng]);
