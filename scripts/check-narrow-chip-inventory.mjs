@@ -61,10 +61,10 @@ ok(serveFromInventory.length >= 6,
   "serveFromInventory accepts a `sub` argument");
 const SRC = readFileSync(new URL("../lib/inventoryServe.js", import.meta.url), "utf8")
   .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
-ok(/placeAllowed\(physical, subId,/.test(SRC),
-  "serveFromInventory applies placeAllowed with the sub");
-ok(SRC.indexOf("placeAllowed(physical, subId,") < SRC.indexOf("return rankInventory("),
-  "…and it does so BEFORE rankInventory — the whole point");
+ok(/chipIdentity\(cat, subId/.test(SRC),
+  "serveFromInventory applies chipIdentity(cat, subId) — the tapped chip, not physical:sub");
+ok(SRC.indexOf("chipIdentity(cat, subId") < SRC.indexOf("return rankInventory("),
+  "…and it does so BEFORE rankInventory — Family → Rainy used to rank unfiltered attractions");
 ok(/lat=gte\.|lat=lte\./.test(SRC),
   "the inventory read is GEO-BOUNDED — an unbounded limit=1000 reads heap order and loses 81% of nearby cafés");
 

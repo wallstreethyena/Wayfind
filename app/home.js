@@ -10035,7 +10035,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   ) : (
                     <>
                       {view.map((p, i) => (
-                        <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
+                        <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} menuCat={browseCat} menuSub={sub} />
                       ))}
                       {/* End-of-feed honesty: name the count + the city so a short list reads
                           as complete, not broken. When sparse (<8) offer a real next step —
@@ -11067,7 +11067,7 @@ function UTDealsRail({ category, onSave, lat, lng }) {
 // (gated on Aff.isTicketyPlace so it only appears on ticketed venues, never free
 // parks/beaches). The /go route still upgrades to the exact product at click time when
 // one clears the geo-gated resolver; otherwise it's an honest Viator search.
-function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap, beachSignal, city }) {
+function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap, beachSignal, city, menuCat, menuSub }) {
   // v6.86: vision-scored, people-free card photo — must run BEFORE the
   // cardComplete early return below (rules of hooks: this hook must run on
   // every render, even for a card that ultimately renders nothing).
@@ -11130,7 +11130,14 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // nothing on its own. See app/components/CreatorCardMark.js.
   let cardCreatorVideos = [];
   try { cardCreatorVideos = creatorVideosFor(p) || []; } catch (e) { cardCreatorVideos = []; }
-  const pcat = primaryCategory(p);
+  // Family is a VIRTUAL tab over attractions. primaryCategory(museum) is
+  // Activities — that is why a Rainy day card wore an orange ACTIVITIES
+  // eyebrow and TOP ACTIVITIES PICK. The tapped chip owns the label.
+  const pcat = menuCat === "family" ? "Family" : primaryCategory(p);
+  const familyChipLabel = menuCat === "family" && menuSub && menuSub !== "all"
+    ? (((SUBFILTERS.family || []).find((s) => s && s.id === menuSub) || {}).label || "Family")
+    : null;
+  const cardEyebrow = familyChipLabel || pcat;
   // v6.87 (owner): the rank-summary sentence ("Our #1 pick — 4.8★ · 1.4k
   // reviews, and it holds up.") is GONE — rating, reviews, rank, price,
   // status and distance already render elsewhere on this card, and
@@ -11229,7 +11236,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
             <div className="wf-place-card-heading">
               {pcat && (cardCuisineCanTap
                 ? <button type="button" className="wf-place-card-category is-tappable" style={{ pointerEvents: "auto" }} onClick={(e) => { e.stopPropagation(); onCuisineTap(cardCuisine, p); }}>{pcat} ›</button>
-                : <span className="wf-place-card-category">{pcat || cardPrimaryLabel}</span>
+                : <span className="wf-place-card-category">{cardEyebrow || cardPrimaryLabel}</span>
               )}
               <div className="wf-place-card-name">{p.name}</div>
             </div>

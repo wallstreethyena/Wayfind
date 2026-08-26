@@ -30,9 +30,11 @@ import { isLunchPlace } from "../lib/mealPlace.js";
 import { isBreakfastPlace } from "../lib/breakfast.js";
 import {
   browseChipUsesInventory,
+  browseChipLibraryCat,
   mergeBrowseSources,
   BROWSE_INVENTORY_N,
 } from "../lib/browseInventory.js";
+import { CHIP_IDENTITY, chipIdentity, isRainyDayPlace, isSitOnSandPlace } from "../lib/chipIdentity.js";
 
 let pass = 0;
 const fail = [];
@@ -146,8 +148,15 @@ ok(foodLead && foodLead.id === "kekes",
 ok(browseChipUsesInventory("food", "cafes") === true, "Cafés chip uses owned inventory");
 ok(browseChipUsesInventory("food", "lunch") === true, "Lunch chip uses owned inventory");
 ok(browseChipUsesInventory("food", "breakfast") === true, "Breakfast chip uses owned inventory (it has a contract)");
-ok(browseChipUsesInventory("food", "dessert") === false,
-  "Desserts stays named debt — no contract, so we must not dump unfiltered food into it");
+ok(browseChipUsesInventory("food", "dessert") === true,
+  "Desserts now has a SUB_ALLOW contract — inventory union is dessert rooms, not All food");
+ok(browseChipUsesInventory("food", "dinner") === true, "Dinner chip uses owned inventory");
+ok(browseChipUsesInventory("food", "quickbites") === true, "Quick bites chip uses owned inventory");
+ok(browseChipUsesInventory("food", "delivery") === false,
+  "Delivery stays named debt — no contract, so we must not dump unfiltered food into it");
+ok(browseChipUsesInventory("hotels", "luxury") === true, "Stays → Luxury uses owned inventory");
+ok(browseChipUsesInventory("family", "rainy") === true, "Family → Rainy day uses owned inventory");
+ok(browseChipUsesInventory("attractions", "beaches") === true, "Activities → Beaches uses owned inventory");
 ok(browseChipUsesInventory("food", "all") === false, "'All' is the existing union path, not this helper");
 ok(!!SUB_ALLOW["food:lunch"], "food:lunch has a SUB_ALLOW contract — no longer CATEGORY_WIDE");
 ok(BROWSE_INVENTORY_N === 400, `BROWSE_INVENTORY_N is the 400 cost bound (got ${BROWSE_INVENTORY_N})`);
@@ -185,10 +194,77 @@ ok(!/return await searchPlaces\(cat, sub/.test(FETCH.split("SUB_ALLOW[")[0]),
 // ── 6. serveFromInventory still filters before rank (edit the ORDER, fail) ──
 const SRC = readFileSync(new URL("../lib/inventoryServe.js", import.meta.url), "utf8")
   .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
-ok(SRC.indexOf("placeAllowed(physical, subId,") < SRC.indexOf("return rankInventory("),
-  "serveFromInventory still applies placeAllowed BEFORE rankInventory");
+ok(SRC.indexOf("chipIdentity(cat, subId") < SRC.indexOf("return rankInventory("),
+  "serveFromInventory applies chipIdentity(cat, subId) BEFORE rankInventory — Family → Rainy is family:rainy, not attractions:rainy");
 ok(!/slice\(\s*0\s*,\s*Math\.min\([^)]*,\s*50\)/.test(SRC),
   "rankInventory must not hide a merchandising 50 inside Math.min — that was the leftover cap");
+
+// ── 7. Full-taxonomy identity: Family / Beaches / named CHIP_IDENTITY ────────
+// Parse SUBFILTERS from source — do not import lib/google.js (client Loader).
+const gSrc = GOOGLE_SRC.slice(GOOGLE_SRC.indexOf("export const SUBFILTERS"), GOOGLE_SRC.indexOf("export function queryFor"));
+let curCat = null;
+const subChips = [];
+for (const line of gSrc.split("\n")) {
+  const c = line.match(/^\s{2}([a-z]+):\s*\[/);
+  if (c) { curCat = c[1]; continue; }
+  const i = line.match(/\{\s*id:\s*"([a-z]+)"/);
+  if (i && curCat) subChips.push(`${curCat}:${i[1]}`);
+}
+ok(subChips.length > 20, `parsed SUBFILTERS chips (got ${subChips.length})`);
+
+const cadzan = { name: "Ca' d'Zan", types: ["museum", "tourist_attraction"], primaryType: "museum", category: "attractions" };
+const tibbals = { name: "Tibbals Learning Center & Circus Museum at The Ringling", types: ["museum"], primaryType: "museum" };
+const riverWalk = { name: "River Walk", types: ["park", "tourist_attraction"], primaryType: "park" };
+const siesta = { name: "Siesta Key Beach", types: ["beach"], primaryType: "beach" };
+const bishop = { name: "Bishop Museum of Science and Nature", types: ["museum", "science_museum"], primaryType: "museum" };
+const intense = { name: "Intense Escape", types: ["amusement_center"], primaryType: "amusement_center" };
+const kidsEmpire = { name: "Kids Empire", types: ["amusement_center", "entertainment"], primaryType: "amusement_center" };
+const tennis = { name: "Siesta Key Tennis Club", types: ["tennis_court"], primaryType: "tennis_court" };
+const fortDeSoto = { name: "Fort De Soto Park", types: ["park", "beach"], primaryType: "park" };
+
+ok(chipIdentity("family", "rainy", cadzan) === false, "Rainy day refuses Ca' d'Zan");
+ok(isRainyDayPlace(cadzan) === false, "isRainyDayPlace itself refuses Ca' d'Zan");
+ok(chipIdentity("family", "rainy", tibbals) === false, "Rainy day refuses Tibbals / Ringling circus museum");
+ok(chipIdentity("family", "rainy", riverWalk) === false, "Rainy day refuses an outdoor River Walk");
+ok(chipIdentity("family", "rainy", siesta) === false, "Rainy day refuses a beach");
+ok(chipIdentity("family", "rainy", bishop) === true, "Rainy day keeps Bishop (indoor science museum)");
+ok(chipIdentity("attractions", "museums", bishop) === true, "Museums keeps Bishop");
+ok(chipIdentity("attractions", "beaches", bishop) === false, "Beaches refuses Bishop");
+ok(chipIdentity("family", "toddlers", bishop) === false, "Toddlers refuses Bishop (membership museum, not a toddler room)");
+ok(chipIdentity("attractions", "beaches", cadzan) === false, "Beaches refuses Ca' d'Zan — a mansion is not sit-on-sand");
+ok(isSitOnSandPlace(cadzan) === false, "isSitOnSandPlace itself refuses Ca' d'Zan");
+ok(chipIdentity("attractions", "beaches", tennis) === false, "Beaches refuses a tennis club");
+ok(chipIdentity("attractions", "beaches", siesta) === true, "Beaches keeps Siesta Key Beach");
+ok(chipIdentity("attractions", "beaches", fortDeSoto) === true, "Beaches keeps Fort De Soto (park + beach)");
+ok(chipIdentity("family", "kids", intense) === false, "Kids refuses Intense Escape (adult escape room)");
+ok(chipIdentity("family", "kids", kidsEmpire) === true, "Kids keeps Kids Empire");
+
+ok(browseChipLibraryCat("attractions", "beaches") === "beach",
+  "Activities → Beaches reads wf_inventory category=beach, not attractions");
+ok(browseChipLibraryCat("family", "rainy") === "family",
+  "Family → Rainy day keeps the tapped family cat so VIRTUAL_CATS still applies");
+
+for (const key of subChips) {
+  const fn = CHIP_IDENTITY[key];
+  ok(!!fn, `${key} has a named CHIP_IDENTITY predicate`);
+  ok(!!fn && /^is[A-Z]/.test(fn.name),
+    `${key} identity is a named isX function (got ${fn && fn.name}) — a placeAllowed wrapper with no name is the decorative chip`);
+}
+
+ok(!/from ["'].*chipIdentity/.test(HOME),
+  "home.js must not import chipIdentity — that graph blew the 496KB homepage ratchet");
+const SRC_SOURCES = readFileSync(new URL("../lib/sources.js", import.meta.url), "utf8")
+  .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
+ok(!/from ["'].*chipIdentity/.test(SRC_SOURCES),
+  "sources.js must not import chipIdentity — client membership is placeAllowed");
+ok(/if\s*\(\s*sub\s*&&\s*sub\s*!==\s*"all"\s*\)\s*return\s+placeAllowed/.test(SRC_SOURCES),
+  "junkGate runs placeAllowed on a specific chip BEFORE the curated-name bypass");
+ok(/menuCat=\{browseCat\}/.test(HOME) && /menuSub=\{sub\}/.test(HOME),
+  "browse PlaceCard receives menuCat/menuSub so a Family chip can own the eyebrow");
+ok(/menuCat === "family" \? "Family"/.test(HOME),
+  "Family chip forces pcat=Family — TOP FAMILY PICK, never TOP ACTIVITIES PICK");
+ok(/familyChipLabel/.test(HOME) && /cardEyebrow/.test(HOME),
+  "Family eyebrow is the subchip label (Rainy day), not ACTIVITIES");
 
 if (fail.length) {
   console.error(`test-browse-library: FAIL (${fail.length} of ${pass + fail.length})`);

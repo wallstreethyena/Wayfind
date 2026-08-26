@@ -26,6 +26,9 @@ const sources = readFileSync(new URL("../lib/sources.js", import.meta.url), "utf
 const page = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 if (!sources.includes('from "./placeFilter"')) fail("lib/sources.js no longer imports lib/placeFilter — aggregator bypasses the shared filter");
 if (!/junkGate\(categoryId, p, subId\)/.test(sources)) fail("aggregator does not pass subId to the gate — sub-filter contracts (Museums, Tours) unenforced");
+if (!/if\s*\(\s*sub\s*&&\s*sub\s*!==\s*"all"\s*\)\s*return\s+placeAllowed/.test(sources.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " "))) {
+  fail("junkGate must run placeAllowed on a specific chip BEFORE the curated-name bypass — that bypass is how Ca' d'Zan became a Beaches / Rainy day card");
+}
 if (!page.includes('from "../lib/placeFilter"')) fail("app/home.js no longer imports the shared filter");
 if (!/import \{ searchPlaces \} from "\.\.\/lib\/sources"/.test(page)) fail("page.js no longer imports searchPlaces from lib/sources — views bypass the shared filter");
 if (/import \{[^}]*\bsearchPlaces\b[^}]*\} from "\.\.\/lib\/google"/.test(page)) fail("page.js imports searchPlaces directly from lib/google — filter bypassed");
@@ -105,6 +108,17 @@ const MUST_BLOCK = [
   ["shopping", "all", "Orange Blossom Coffee", ["coffee_shop", "tea_house", "cafe", "food_store", "food"]],
   ["shopping", "all", "The Shop", ["auto_parts_store", "car_repair", "service", "store"]],
   ["nightlife", "all", "Habitat House Concerts", ["live_music_venue", "nature_preserve", "event_venue", "park"]],
+  // Family → Rainy day is indoor family rooms. A waterfront mansion, a
+  // circus-museum campus, an outdoor park, and a beach are Activities.
+  ["family", "rainy", "Ca' d'Zan", ["museum", "tourist_attraction"]],
+  ["family", "rainy", "Tibbals Learning Center & Circus Museum at The Ringling", ["museum"]],
+  ["family", "rainy", "River Walk", ["park", "tourist_attraction"]],
+  ["family", "rainy", "Siesta Key Beach", ["beach"]],
+  // Activities → Beaches is sit-on-sand. A mansion museum and a tennis court are not.
+  ["attractions", "beaches", "Ca' d'Zan", ["museum", "tourist_attraction"]],
+  ["attractions", "beaches", "Siesta Key Tennis Club", ["tennis_court"]],
+  ["family", "kids", "Intense Escape", ["amusement_center"]],
+  ["family", "toddlers", "Bishop Museum of Science and Nature", ["museum", "science_museum"]],
 ];
 for (const [cat, sub, name, types] of MUST_BLOCK) {
   if (placeAllowed(cat, sub, { name, types })) fail(`junk passed the gate: [${cat}:${sub}] ${name}`);
@@ -156,6 +170,12 @@ const MUST_PASS = [
   ["beach", "all", "Coquina Beach", ["beach"]],
   ["attractions", "outdoors", "Nathan Benderson Park", ["park"]],
   ["beach", "all", "Fort De Soto Park", ["park", "beach"]],
+  ["attractions", "museums", "Bishop Museum of Science and Nature", ["museum", "science_museum"]],
+  ["family", "rainy", "Bishop Museum of Science and Nature", ["museum", "science_museum"]],
+  ["family", "kids", "Kids Empire", ["amusement_center", "entertainment"]],
+  ["family", "toddlers", "Toddler Playground", ["playground", "park"]],
+  ["attractions", "beaches", "Siesta Key Beach", ["beach"]],
+  ["attractions", "beaches", "Fort De Soto Park", ["park", "beach"]],
 ];
 for (const [cat, sub, name, types] of MUST_PASS) {
   if (!placeAllowed(cat, sub, { name, types })) fail(`legit place wrongly killed: [${cat}:${sub}] ${name}`);
