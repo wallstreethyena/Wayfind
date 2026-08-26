@@ -1,0 +1,82 @@
+#!/usr/bin/env node
+// scripts/check-augtober-rail.mjs — the AUGTOBER surface, executed and pinned.
+//
+// Owner, 2026-08-26: everything fall/Halloween in the rail-card chrome, and
+// tapping it must NOT open another page — it expands the house place cards
+// inline and scrolls to them. Two laws this guard executes for real
+// (lib/fallPool.js), plus the wiring pinned in syntactic position:
+//
+//   • DATED LAW: an event with an end_date retires the moment it passes —
+//     nothing expired can ride the rail.
+//   • OPEN-RUN LAW: an end_date-null row (the HHN Tribute Store — Universal
+//     has published NO closing date and we refuse to fabricate one) stays
+//     visible for OPEN_RUN_DAYS from its start WITHOUT ever claiming an end;
+//     its label says "Open now", never "Thru <date>".
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { isFallTagged, fallEventLive, fallWhenLabel, FALL_PLACE_IDS, OPEN_RUN_DAYS } from "../lib/fallPool.js";
+
+const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
+let pass = 0, fail = 0;
+const ok = (c, m) => { c ? pass++ : (fail++, console.log("  FAIL:", m)); };
+
+// ── 1. The pool laws, executed ─────────────────────────────────────────────
+ok(isFallTagged(["halloween", "nightlife"]) && isFallTagged(["fall"]) && !isFallTagged(["food", "beer"]),
+  "fall tagging admits halloween/fall and refuses untagged rows");
+
+// dated: the real HHN35 shape
+const hhn = { start_date: "2026-08-28", end_date: "2026-11-01" };
+ok(fallEventLive(hhn, "2026-10-15") === true, "HHN35 is live mid-run");
+ok(fallEventLive(hhn, "2026-11-01") === true, "HHN35 is live on its final night");
+ok(fallEventLive(hhn, "2026-11-02") === false, "HHN35 RETIRES the day after Nov 1 — acceptance test #14, executed");
+
+// open run: the real Tribute Store shape — end_date null, start Aug 26
+const store = { start_date: "2026-08-26", end_date: null };
+ok(fallEventLive(store, "2026-08-26") === true, "Tribute Store visible on opening day with NO end date");
+ok(fallEventLive(store, "2026-09-25") === true, "…and a month in — the open-run allowance, not a fabricated end");
+ok(fallEventLive(store, "2026-08-26".slice(0, 8) + "26") === true, "control repeats");
+ok(fallEventLive(store, "2027-01-15") === false, `…but an open run cannot outlive OPEN_RUN_DAYS (${OPEN_RUN_DAYS}) unre-verified`);
+const lbl = fallWhenLabel(store, "2026-09-01");
+ok(lbl.label === "Open now" && !/thru/i.test(lbl.label), "open-run label says 'Open now' — it NEVER claims an end date");
+ok(/Thru Nov 1/.test(fallWhenLabel(hhn, "2026-09-01").label) || /Select nights thru Nov 1/.test(fallWhenLabel({ ...hhn, select_nights: true }, "2026-09-01").label),
+  "dated label states the real verified end");
+
+// ── 2. The vetted place pool stays vetted ──────────────────────────────────
+const ids = Object.keys(FALL_PLACE_IDS);
+ok(ids.length >= 5, `positive control — the spooky-places pool exists (${ids.length})`);
+ok(!ids.includes("ChIJdRuMvWg3DogRdLBmivDl1SQ"), "a Chicago haunted house can never enter the Florida pool");
+ok(!ids.includes("ChIJ6SYy9bEWw4gRgJT7j78eTYc"), "'Screaming Buddha Yoga' is a yoga studio, not fall content");
+ok(ids.every((i) => /^ChIJ[A-Za-z0-9_-]{10,}$/.test(i)), "every pool entry is a real canonical place id");
+ok(Object.values(FALL_PLACE_IDS).every((v) => typeof v === "string" && v.length > 20), "every pool entry carries its one-line why");
+
+// ── 3. The wiring, in syntactic position ───────────────────────────────────
+const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
+const home = strip(readFileSync(path.join(ROOT, "app/home.js"), "utf8"));
+const at = home.indexOf("function AugtoberRail(");
+ok(at > -1, "AugtoberRail is declared");
+const body = home.slice(at, at + 14000);
+ok(/fetch\("\/api\/events\/fall"\)/.test(body), "the rail reads the owned fall pool API");
+ok(/flex: "0 0 200px"/.test(body) && /height: 86/.test(body), "tiles wear the shared rail chrome (200px / 86px image band)");
+// THE OWNER'S RULE: a tile tap expands in place. No hrefs, no navigation.
+const _ti = body.indexOf("events.slice(0, 14).map");
+const _te = body.indexOf("{open ? (", _ti);
+ok(_ti > -1 && _te > _ti, "positive control: the tile zone is locatable");
+const tileZone = body.slice(_ti, _te);
+ok(/onClick=\{expand\}/.test(tileZone), "tapping a tile EXPANDS inline");
+ok(!/href=|location\.|router\.|window\.open/.test(tileZone), "a tile tap never navigates anywhere");
+ok(/scrollIntoView/.test(body), "expanding moves the page to the cards");
+ok(/<RailCard/.test(body), "the inline section renders the house card contract (RailCard)");
+ok(/when=\{\{ label/.test(body), "event cards wear the WHEN badge — an event never gets a fabricated score");
+ok(/score=\{scoreOf\(p\)\}/.test(body), "place cards wear the real Wayfind Score");
+ok(/<AugtoberRail onOpenPlace=\{openDetail\} \/>/.test(home), "the rail is mounted on the browse feed and opens OUR detail sheet");
+// events.length + places.length < 3 → null: the rail floor
+ok(/events\.length \+ places\.length < 3\) return null/.test(body), "a thin pool renders nothing — never a stub shelf");
+
+// route file structural
+const route = strip(readFileSync(path.join(ROOT, "app/api/events/fall/route.js"), "utf8"));
+ok(/isFallTagged\(e\.tags\)/.test(route) && /fallEventLive\(e, today\)/.test(route), "the API applies BOTH pool laws");
+ok(/FALL_PLACE_IDS/.test(route), "the API serves the vetted place pool, not an ad-hoc list");
+
+console.log(`\ncheck-augtober-rail: ${fail ? "FAIL" : "OK"} — ${pass} assertions; dated events retire, the open run never claims an end, and a tile tap expands in place instead of navigating`);
+process.exit(fail ? 1 : 0);

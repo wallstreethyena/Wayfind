@@ -10003,6 +10003,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                       list (wf_things_to_do) — the stacked Viator rail + Bookable
                       Experiences chips are gone from this page; tours interleave and
                       earn their rank. Family keeps its bookable rail. */}
+                  {<AugtoberRail onOpenPlace={openDetail} />}
                   {browseCat === "family" && center && <UnifiedBrowseCommerceRail cat="family" sub="all" initialExperiences={browseTours} categories={["attractions"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {browseCat === "attractions" && center && <UnifiedBrowseCommerceRail cat="attractions" sub={sub} includeExperiences={!!(sub && sub !== "all")} categories={["attractions", "more"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {browseCat === "hotels" && center && view.length > 0 && <UnifiedBrowseCommerceRail cat="hotels" sub="all" categories={["stays"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
@@ -11030,6 +11031,100 @@ function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includ
 // (lib/chefPicks.js law) and on this surface it is also the sort. A tile whose
 // place photo cannot load falls back to the campaign art rather than hiding —
 // a chef's pick does not disappear because a photo budget ran dry.
+// v8.65 (owner, 2026-08-26): AUGTOBER — "all the fall themed bars,
+// restaurants, cafes, events, pumpkins, anything that is fall themed and
+// Halloween … in this rail card, and I don't want it to open an additional
+// page. It should just pop up with the place cards … right on the page, and
+// then make the page move to the place cards."
+//
+// Same 200px/86px tile chrome as the other rails. Tapping ANY tile (or See
+// all) never navigates: it expands an inline section of full-width house
+// cards (RailCard — the .wf-place-card contract) directly below the rail and
+// scrolls the page to it. Events wear the WHEN badge (their one real
+// number); year-round spooky places wear the Wayfind Score and open the
+// normal place detail sheet. Pool + laws live in lib/fallPool.js via
+// /api/events/fall — owned data only, no metered calls.
+function AugtoberRail({ onOpenPlace }) {
+  const [pool, setPool] = useState(null);
+  const [open, setOpen] = useState(false);
+  const listRef = useRef(null);
+  useEffect(() => {
+    let dead = false;
+    fetch("/api/events/fall").then((r) => (r.ok ? r.json() : null), () => null).then((j) => { if (!dead) setPool(j); });
+    return () => { dead = true; };
+  }, []);
+  const events = (pool && pool.events) || [];
+  const places = (pool && pool.places) || [];
+  if (!pool || events.length + places.length < 3) return null; // rail floor — never a stub shelf
+  const expand = () => {
+    setOpen(true);
+    try { logEventAnon("augtober_open", null, { n: events.length + places.length }); } catch (e) {}
+    setTimeout(() => { try { listRef.current && listRef.current.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" }); } catch (e) {} }, 60);
+  };
+  const scoreOf = (p) => { const s = displayedWfScore({ wfScore: p.wfScore, rating: p.rating, reviews: p.reviews }); return toDisplayScore(s != null ? s : p.wfScore); };
+  return (
+    <aside data-augtober-rail style={{ margin: "2px 0 14px" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
+        <span style={{ fontSize: 12, fontWeight: 800, color: "#FB923C", textTransform: "uppercase", letterSpacing: ".4px" }}>Augtober — fall &amp; Halloween near you</span>
+        <button type="button" onClick={open ? () => setOpen(false) : expand} style={{ background: "none", border: 0, padding: 0, cursor: "pointer", fontSize: 11, fontWeight: 800, color: C.accent }}>{open ? "Close" : "See all ↓"}</button>
+      </div>
+      <div style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 4, scrollSnapType: "x proximity" }}>
+        {events.slice(0, 14).map((e) => (
+          <button key={e.id} type="button" onClick={expand} aria-label={e.title + " — " + (e.when && e.when.label)} style={{ flex: "0 0 200px", scrollSnapAlign: "start", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textAlign: "left", padding: 0, cursor: "pointer", color: "inherit", font: "inherit" }}>
+            <div style={{ position: "relative", height: 86, overflow: "hidden", borderBottom: `1px solid ${C.border}`, background: "#131A26" }}>
+              {e.image ? <img src={e.image} alt="" loading="lazy" onError={(ev) => { ev.currentTarget.style.display = "none"; }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : null}
+              <span style={{ position: "absolute", top: 7, right: 7, padding: "3px 7px", borderRadius: 999, background: "rgba(7,12,20,.82)", border: "1px solid rgba(251,146,60,.5)", color: "#FDBA74", fontSize: 8.5, fontWeight: 800 }}>{(e.when && e.when.label) || "Seasonal"}</span>
+            </div>
+            <div style={{ padding: "8px 10px" }}>
+              <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.title}</div>
+              <div style={{ marginTop: 4, fontSize: 11, color: C.muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{[e.city, e.is_free ? "Free" : e.price_band].filter(Boolean).join(" · ")}</div>
+            </div>
+          </button>
+        ))}
+      </div>
+      {open ? (
+        <div ref={listRef} style={{ scrollMarginTop: 96, marginTop: 12 }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
+            <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>Fall plans, in full</span>
+            <button type="button" onClick={() => setOpen(false)} style={{ background: "none", border: 0, padding: 0, cursor: "pointer", fontSize: 11, fontWeight: 800, color: C.muted }}>✕ Close</button>
+          </div>
+          {events.map((e) => (
+            <RailCard key={"ev-" + e.id}
+              title={e.title}
+              eyebrow="Augtober"
+              photo={e.image || ""}
+              when={{ label: (e.when && e.when.label) || "Seasonal", value: e.city || "", tone: (e.when && e.when.tone) || "later" }}
+              facts={[e.venue && e.venue !== e.title ? e.venue : null, e.city, e.is_free ? "Free" : e.price_band].filter(Boolean)}
+              take={e.hook}
+              href={e.url || undefined}
+              external
+              ariaLabel={e.title}
+              className="wf-augtober-card"
+            />
+          ))}
+          {places.length ? (
+            <div style={{ margin: "6px 0 8px", fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>Spooky all year</div>
+          ) : null}
+          {places.map((p) => (
+            <RailCard key={"pl-" + p.id}
+              title={p.title}
+              eyebrow={p.category === "food" ? "Food" : "Activities"}
+              photo={p.image || ""}
+              score={scoreOf(p)}
+              facts={[p.metro ? String(p.metro).replace(/-/g, " ") : null].filter(Boolean)}
+              take={p.take}
+              onOpen={() => { try { logEventAnon("augtober_place_open", { id: p.id, name: p.name }, {}); } catch (e) {} onOpenPlace && onOpenPlace({ id: p.id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating, reviews: p.reviews, wfScore: p.wfScore, photo: p.image, types: [], hook: p.take }); }}
+              place={{ id: p.id, name: p.name }}
+              ariaLabel={p.title}
+              className="wf-augtober-card"
+            />
+          ))}
+        </div>
+      ) : null}
+    </aside>
+  );
+}
+
 function ChefPicksRail({ onOpen }) {
   const c = RON_DUPRAT_TOP7;
   const places = chefPickPlaces(c);
