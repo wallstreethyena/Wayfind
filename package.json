@@ -23,7 +23,8 @@
     "check:bundle": "node scripts/check-bundle.mjs",
     "audit:regression": "npm run prebuild && npm run test:e2e && npm run check:bundle && node scripts/check-headers.mjs",
     "events:verify": "node scripts/events-verify.mjs",
-    "postbuild": "node scripts/check-bundle.mjs"
+    "postbuild": "node scripts/check-bundle.mjs",
+    "os:state": "node scripts/os-state.mjs --write --mirror"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
