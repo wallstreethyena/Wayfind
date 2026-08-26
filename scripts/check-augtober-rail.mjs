@@ -16,7 +16,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { isFallTagged, fallEventLive, fallWhenLabel, fallSkinLive, eventFranchiseKey, FALL_PLACE_IDS, FALL_REJECTED_IDS, FALL_OFFERING_SOURCES, FALL_EVENT_TICKET_DEALS, OPEN_RUN_DAYS } from "../lib/fallPool.js";
-import { FALL_CARD_IDS, fallCardClass } from "../lib/fallSkin.js";
+import { FALL_CARD_IDS, fallCardClass, thanksgivingDayOfMonth } from "../lib/fallSkin.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 let pass = 0, fail = 0;
@@ -119,9 +119,18 @@ ok(/if \(selected === "augtober"\)/.test(rail) && /photo: p\.image \|\| null/.te
   "the drop's place cards come from the vetted fall pool, mapped onto the house card contract");
 ok(/selRail\.id !== "augtober"/.test(rail), "the drop header does not double-claim 'near <city>' over the title's own 'Near You'");
 // ── 3b. The seasonal skin: a DATE LAW, executed ────────────────────────────
-ok(fallSkinLive("2026-10-31") === true, "the fall skin is live on Halloween");
-ok(fallSkinLive("2026-11-01") === true, "…and through HHN's final night");
-ok(fallSkinLive("2026-11-02") === false, "…and GONE the morning after — the transition to Christmas needs no one's memory");
+// THE ANNUAL WINDOW, EXECUTED (owner, 2026-08-26, superseding his same-day
+// after-Halloween call): back every Aug 26, gone the day AFTER Thanksgiving,
+// every year, computed. The Thanksgiving math is proven against four known
+// years before anything trusts it.
+ok(thanksgivingDayOfMonth(2026) === 26 && thanksgivingDayOfMonth(2027) === 25 && thanksgivingDayOfMonth(2028) === 23 && thanksgivingDayOfMonth(2029) === 22,
+  "the 4th-Thursday math matches the real Thanksgiving for 2026-2029");
+ok(fallSkinLive("2026-08-25") === false && fallSkinLive("2026-08-26") === true, "the season OPENS on Aug 26 — not a day early");
+ok(fallSkinLive("2026-10-31") === true && fallSkinLive("2026-11-02") === true, "Halloween no longer ends it — the skin runs through the fall");
+ok(fallSkinLive("2026-11-26") === true && fallSkinLive("2026-11-27") === false, "live THROUGH Thanksgiving 2026 (Nov 26), gone the morning after");
+ok(fallSkinLive("2027-08-26") === true && fallSkinLive("2027-11-25") === true && fallSkinLive("2027-11-26") === false,
+  "…and it COMES BACK in 2027 on the same date, leaving after THAT year's Thanksgiving — the rule survives every year with no one remembering");
+ok(fallSkinLive("2027-07-04") === false && fallSkinLive("2027-12-25") === false, "never worn out of season");
 ok(fallSkinLive(null) === false, "no site date, no skin — never a guess");
 ok(/fallSkin \? " wf-fall" : ""/.test(rail) || /fallSkin \? "wf-fall" : undefined/.test(rail),
   "the skin class is gated by fallSkinLive, in syntactic position");
@@ -143,7 +152,7 @@ for (const f of ["public/fall/card-bg-380.webp", "public/fall/card-bg-760.webp",
 ok(FALL_CARD_IDS.size === Object.keys(FALL_PLACE_IDS).length && Object.keys(FALL_PLACE_IDS).every((i) => FALL_CARD_IDS.has(i)),
   "FALL_CARD_IDS (client) and FALL_PLACE_IDS (server) are the SAME set — membership has one source of truth");
 ok(fallCardClass("ChIJTzoiienhwogRbPa3GpuvBQU", "2026-10-01") === " wf-fall-card", "a fall-known place wears the card in season (executed)");
-ok(fallCardClass("ChIJTzoiienhwogRbPa3GpuvBQU", "2026-11-02") === "", "…and NOT after Halloween — the skin dies with the season");
+ok(fallCardClass("ChIJTzoiienhwogRbPa3GpuvBQU", "2026-11-27") === "" && fallCardClass("ChIJTzoiienhwogRbPa3GpuvBQU", "2027-09-15") === " wf-fall-card", "…gone the day after Thanksgiving, back in season next year — the card follows the annual window");
 ok(fallCardClass("ChIJdd8VlMN-54gRoaU0d_zYhfk", "2026-10-01") === "", "a non-member place NEVER wears it — fall-known only");
 ok(fallCardClass(null, "2026-10-01") === "", "no id, no class");
 const RENDERERS = [
