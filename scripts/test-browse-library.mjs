@@ -148,13 +148,14 @@ ok(foodLead && foodLead.id === "kekes",
 ok(browseChipUsesInventory("food", "cafes") === true, "Cafés chip uses owned inventory");
 ok(browseChipUsesInventory("food", "lunch") === true, "Lunch chip uses owned inventory");
 ok(browseChipUsesInventory("food", "breakfast") === true, "Breakfast chip uses owned inventory (it has a contract)");
-ok(browseChipUsesInventory("food", "dessert") === true,
-  "Desserts now has a SUB_ALLOW contract — inventory union is dessert rooms, not All food");
-ok(browseChipUsesInventory("food", "dinner") === true, "Dinner chip uses owned inventory");
-ok(browseChipUsesInventory("food", "quickbites") === true, "Quick bites chip uses owned inventory");
+ok(browseChipUsesInventory("food", "dessert") === false,
+  "Desserts stays named debt — no SUB_ALLOW, so we must not dump unfiltered food into it");
+ok(browseChipUsesInventory("food", "dinner") === false, "Dinner stays named debt on the client — CHIP_IDENTITY is server-side so the 496KB ratchet holds");
+ok(browseChipUsesInventory("food", "quickbites") === false,
+  "Quick bites stays named debt — no contract, so we must not dump unfiltered food into it");
 ok(browseChipUsesInventory("food", "delivery") === false,
   "Delivery stays named debt — no contract, so we must not dump unfiltered food into it");
-ok(browseChipUsesInventory("hotels", "luxury") === true, "Stays → Luxury uses owned inventory");
+ok(browseChipUsesInventory("hotels", "luxury") === false, "Stays chips stay named debt on the client — CHIP_IDENTITY is server-side so the 496KB ratchet holds");
 ok(browseChipUsesInventory("family", "rainy") === true, "Family → Rainy day uses owned inventory");
 ok(browseChipUsesInventory("attractions", "beaches") === true, "Activities → Beaches uses owned inventory");
 ok(browseChipUsesInventory("food", "all") === false, "'All' is the existing union path, not this helper");
@@ -257,14 +258,12 @@ const SRC_SOURCES = readFileSync(new URL("../lib/sources.js", import.meta.url), 
   .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
 ok(!/from ["'].*chipIdentity/.test(SRC_SOURCES),
   "sources.js must not import chipIdentity — client membership is placeAllowed");
-ok(/if\s*\(\s*sub\s*&&\s*sub\s*!==\s*"all"\s*\)\s*return\s+placeAllowed/.test(SRC_SOURCES),
-  "junkGate runs placeAllowed on a specific chip BEFORE the curated-name bypass");
-ok(/menuCat=\{browseCat\}/.test(HOME) && /menuSub=\{sub\}/.test(HOME),
-  "browse PlaceCard receives menuCat/menuSub so a Family chip can own the eyebrow");
-ok(/menuCat === "family" \? "Family"/.test(HOME),
-  "Family chip forces pcat=Family — TOP FAMILY PICK, never TOP ACTIVITIES PICK");
-ok(/familyChipLabel/.test(HOME) && /cardEyebrow/.test(HOME),
-  "Family eyebrow is the subchip label (Rainy day), not ACTIVITIES");
+ok(/!\(\s*subId\s*&&\s*subId\s*!==\s*"all"\s*\)/.test(SRC_SOURCES),
+  "junkGate does not apply the curated-name bypass on a specific chip");
+ok(/mc=\{browseCat\}/.test(HOME),
+  "browse PlaceCard receives mc so a Family chip can own the eyebrow");
+ok(/mc === "family" \? "Family"/.test(HOME),
+  "Family chip forces pcat=Family — orange FAMILY eyebrow and TOP FAMILY PICK, never ACTIVITIES");
 
 if (fail.length) {
   console.error(`test-browse-library: FAIL (${fail.length} of ${pass + fail.length})`);
