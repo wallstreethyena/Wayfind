@@ -844,7 +844,7 @@ export default async function GuidePage({ params }) {
             <div className="wf-guide-number">{String(i + 1).padStart(2, "0")}</div>
             <div>
               <div style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: "1.7px", textTransform: "uppercase", color: "#F97316" }}>{i === 0 ? "The essential" : "The local edit"}</div>
-              <h2 style={{ ...S.h2, marginTop: 5, fontFamily: "var(--wf-display)", fontSize: 28 }}>{pick.name}</h2>
+              <h2 style={{ ...S.h2, marginTop: 5, fontFamily: "var(--wf-display)", fontSize: 28 }}>{pick.placeId ? <a href={"/places/" + encodeURIComponent(pick.placeId)} style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 4 }}>{pick.name}</a> : pick.name}</h2>
               <p style={S.p}>{pick.blurb}</p>
               {pick.tip ? <p className="wf-guide-tip" style={S.tip}>Insider note — {pick.tip}</p> : null}
               {/* THE CARD, only when the place genuinely resolved. Editorial
@@ -861,6 +861,7 @@ export default async function GuidePage({ params }) {
                 </ul>
               ) : null}
               <div className="wf-guide-actions">
+                {pick.placeId ? <a href={"/places/" + encodeURIComponent(pick.placeId)} style={{ ...S.btnGhost, marginLeft: 0 }}>Place page</a> : null}
                 {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name)} style={{ ...S.btnGhost, marginLeft: 0 }}>Open in Wayfind</a> : null}
               </div>
             </div>

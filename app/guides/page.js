@@ -33,7 +33,7 @@ export default function GuidesHub() {
     const r = g.region || "Orlando";
     (regions[r] = regions[r] || []).push({ slug, ...g });
   }
-  const order = ["Sarasota", "Orlando", "Tampa"];
+  const order = ["Sarasota", "Orlando", "Tampa", "St. Petersburg"];
   return (
     <main style={S.page}>
       {/* v8.22 (owner, live /guides: "there is nothing on this page that makes
