@@ -988,6 +988,9 @@ function originUrl(path) {
 
 // Module-level event logger (no user attribution — device id only). Used by
 // leaf components like PlaceCard that sit outside the main component scope.
+// Injected-telemetry default. Named, not an inline arrow: one copy instead of
+// four, and no parenthesis inside a signature that guards match on.
+const NOLOG = () => {};
 function logEventAnon(action, place, extra) {
   try {
     if (!supabase) return;
@@ -1888,7 +1891,7 @@ async function verifyCulturePlaces(items, center) {
   if (dirty) { try { localStorage.setItem(CK, JSON.stringify(cache)); } catch (e) {} }
   return out;
 }
-function AreaInsight({ metro, cat, town, center, onFind }) {
+function AreaInsight({ metro, cat, town, center, onFind, onLog = NOLOG }) {
   const [openIt, setOpenIt] = useState(false);
   const [grounded, setGrounded] = useState({});
   // v4.84 — the culture card renders on ALL SIX categories. Root cause of it
@@ -1932,7 +1935,7 @@ function AreaInsight({ metro, cat, town, center, onFind }) {
   return (
     <div style={{ position: "relative", margin: "0 0 14px", borderRadius: 24, border: "1px solid rgba(255,255,255,.13)", background: "#0B1119", boxShadow: "inset 0 1px 0 rgba(255,255,255,.055), 0 30px 70px rgba(0,0,0,.42)", overflow: "hidden" }}>
       <div style={{ height: 5, background: "linear-gradient(90deg,#FF7A1A,#FFB35F 42%,#42D3AE)" }} />
-      <div onClick={() => { const nv = !openIt; setOpenIt(nv); if (nv) { try { logEvent("area_insight", null, { metro, cat: key }); } catch (e) {} } }} role="button" aria-expanded={openIt} tabIndex={0} onKeyDown={KB_CLICK} style={{ position: "relative", padding: "clamp(24px,4vw,27px) clamp(20px,4vw,25px) clamp(19px,3vw,21px)", cursor: "pointer", background: "radial-gradient(circle at 92% 0,rgba(255,122,26,.18),transparent 45%),linear-gradient(145deg,#121C27,#0A1119)" }}>
+      <div onClick={() => { const nv = !openIt; setOpenIt(nv); if (nv) { try { onLog("area_insight", null, { metro, cat: key }); } catch (e) {} } }} role="button" aria-expanded={openIt} tabIndex={0} onKeyDown={KB_CLICK} style={{ position: "relative", padding: "clamp(24px,4vw,27px) clamp(20px,4vw,25px) clamp(19px,3vw,21px)", cursor: "pointer", background: "radial-gradient(circle at 92% 0,rgba(255,122,26,.18),transparent 45%),linear-gradient(145deg,#121C27,#0A1119)" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 18 }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 10, minWidth: 0, color: "#FFB16E", fontSize: 10, lineHeight: 1.2, fontWeight: 900, letterSpacing: ".17em", textTransform: "uppercase" }}>
             <span style={{ width: 30, height: 36, display: "inline-grid", placeItems: "center", flex: "0 0 auto", filter: "drop-shadow(0 7px 12px rgba(255,122,26,.28))" }}>
@@ -1957,8 +1960,8 @@ function AreaInsight({ metro, cat, town, center, onFind }) {
           <div style={{ marginBottom: 11, color: "#7F8C9B", fontSize: 9.5, fontWeight: 900, letterSpacing: ".17em", textTransform: "uppercase" }}>What locals know</div>
           {visibleItems.map((x, i) => {
             const book = x.viatorUrl ? Aff.viatorDirectUrl(x.viatorUrl) : null;
-            const body = book ? <>{x.story} <a href={book} target="_blank" rel="noreferrer" onClick={(e) => { e.stopPropagation(); e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || book; try { logEvent("culture_book", null, { metro, q: x.name }); } catch (er) {} openExternal(_live); }} style={{ color: "#59DDBB", fontWeight: 850, textDecoration: "none" }}>Book ↗</a></> : x.story;
-            return featureRow(String(i + 1).padStart(2, "0"), x.name, body, "#FF9B4B", (e) => { e.stopPropagation(); try { logEvent("insight_find", null, { metro, q: x.name }); } catch (er) {} onFind && onFind(x.query || x.name); }, "item-" + i);
+            const body = book ? <>{x.story} <a href={book} target="_blank" rel="noreferrer" onClick={(e) => { e.stopPropagation(); e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || book; try { onLog("culture_book", null, { metro, q: x.name }); } catch (er) {} openExternal(_live); }} style={{ color: "#59DDBB", fontWeight: 850, textDecoration: "none" }}>Book ↗</a></> : x.story;
+            return featureRow(String(i + 1).padStart(2, "0"), x.name, body, "#FF9B4B", (e) => { e.stopPropagation(); try { onLog("insight_find", null, { metro, q: x.name }); } catch (er) {} onFind && onFind(x.query || x.name); }, "item-" + i);
           })}
           {notes.say ? featureRow("“”", "Talk local: “" + notes.say.phrase + "”", notes.say.meaning, "#8ED6C4", null, "say") : null}
           {notes.mistake ? featureRow("!", "The rookie mistake", notes.mistake, "#FFD15D", null, "mistake") : null}
@@ -2833,7 +2836,7 @@ function eventGenreLabel(e, seg) {
   return raw;
 }
 
-function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onSave, onLike, onDislike, onCopied, onCategory }) {
+function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onSave, onLike, onDislike, onCopied, onCategory, onLog = NOLOG }) {
   if (!event || !event.dest) return null;
   const f = formatEventDate(event.date, event.time);
   const seg = eventSegmentMeta(event.segment, event.genre, event.name);
@@ -2888,7 +2891,7 @@ function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onS
     isFree ? { key: "free", icon: "🆓", label: "Free admission" } : null,
   ].filter(Boolean).slice(0, 2);
   const shareEvent = () => {
-    try { logEvent("share", null, { id: event.id, kind: "event_card" }); } catch (e) {}
+    try { onLog("share", null, { id: event.id, kind: "event_card" }); } catch (e) {}
     shareLink(event.name + " — Wayfind", href, onCopied, event.name + " at " + venue + ". Found on Wayfind.");
   };
   return (
@@ -2907,7 +2910,7 @@ function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onS
       href={href}
       external={!internal}
       onOpen={() => {
-        try { logEvent("event_open", null, { id: event.id, kind: event.destKind, src: "foryou_rail" }); } catch (e) {}
+        try { onLog("event_open", null, { id: event.id, kind: event.destKind, src: "foryou_rail" }); } catch (e) {}
         if (typeof window === "undefined") return;
         if (internal) window.location.assign(href);
         else window.open(href, "_blank", "noopener");
@@ -2916,7 +2919,7 @@ function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onS
         label: cta.show ? cta.label : "See event ↗",
         href: tix || href,
         external: !internal || !!tix,
-        onClick: () => { try { logEvent("ticket", null, { src: "rail_card", id: event.id }); } catch (e) {} },
+        onClick: () => { try { onLog("ticket", null, { src: "rail_card", id: event.id }); } catch (e) {} },
       }}
       saved={saved}
       liked={liked}
@@ -9683,7 +9686,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                 <RailNav railId="events" count={shown.length} unit="events near you" />
                 <div className="wf-rail wf-rail-events" data-rail="events" tabIndex={0} role="region" aria-label="Events near you" style={{ minHeight: EV_RAIL_MIN_H }}>
                   {shown.map((e, i) => (
-                    <EventRailCard
+                    <EventRailCard onLog={logEvent}
                       key={e.id}
                       event={e}
                       rank={i + 1}
@@ -9988,14 +9991,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                     <div onClick={() => { setBrowseCat(null); setMoodPick(null); setSub("all"); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
                     {browseCat !== "attractions" && <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : ""} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />}
                   </div>
-                  {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <AreaInsight metro={_cm} cat={browseCat} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /> : null; })()}
+                  {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <AreaInsight onLog={logEvent} metro={_cm} cat={browseCat} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /> : null; })()}
                   {/* v6.47 (owner via Cowork spec): the attractions browse is ONE ranked
                       list (wf_things_to_do) — the stacked Viator rail + Bookable
                       Experiences chips are gone from this page; tours interleave and
                       earn their rank. Family keeps its bookable rail. */}
-                  {browseCat === "family" && center && <UnifiedBrowseCommerceRail cat="family" sub="all" initialExperiences={browseTours} categories={["attractions"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
-                  {browseCat === "attractions" && center && <UnifiedBrowseCommerceRail cat="attractions" sub={sub} includeExperiences={!!(sub && sub !== "all")} categories={["attractions", "more"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
-                  {browseCat === "hotels" && center && view.length > 0 && <UnifiedBrowseCommerceRail cat="hotels" sub="all" categories={["stays"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
+                  {browseCat === "family" && center && <UnifiedBrowseCommerceRail cat="family" sub="all" initialExperiences={browseTours} categories={["attractions"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
+                  {browseCat === "attractions" && center && <UnifiedBrowseCommerceRail cat="attractions" sub={sub} includeExperiences={!!(sub && sub !== "all")} categories={["attractions", "more"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
+                  {browseCat === "hotels" && center && view.length > 0 && <UnifiedBrowseCommerceRail cat="hotels" sub="all" categories={["stays"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {/* 2026-08-04 (owner: "I want every single Viator deeplink option showing up
                       on my sheets... if it's for food give me food tours... I want this done
                       everywhere"). Food, Nightlife, Shopping and Beach had NO bookable rail at
@@ -10007,10 +10010,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                       Each passes its OWN category so the chip map cannot cross-resolve — "all"
                       exists in all seven categories and "family" is both a sub-chip and a
                       category. Ranking is unchanged: rankExperiences, highest score first. */}
-                  {browseCat === "food" && center && <UnifiedBrowseCommerceRail cat="food" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
-                  {browseCat === "nightlife" && center && <UnifiedBrowseCommerceRail cat="nightlife" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
-                  {browseCat === "shopping" && center && view.length > 0 && <UnifiedBrowseCommerceRail cat="shopping" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
-                  {browseCat === "beach" && center && <UnifiedBrowseCommerceRail cat="beach" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
+                  {browseCat === "food" && center && <UnifiedBrowseCommerceRail cat="food" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
+                  {browseCat === "nightlife" && center && <UnifiedBrowseCommerceRail cat="nightlife" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
+                  {browseCat === "shopping" && center && view.length > 0 && <UnifiedBrowseCommerceRail cat="shopping" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
+                  {browseCat === "beach" && center && <UnifiedBrowseCommerceRail cat="beach" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {/* The two NATIONAL categories. They had no render path at all, so both
                       rows sat dark since 2026-07-22 despite being live attributed CJ links —
                       built, working, and earning nothing for want of a mount. Placed beside
@@ -10811,7 +10814,7 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
 // One commerce rail per browse surface. It combines verified Viator inventory
 // and network deals before rendering, so provider boundaries never become
 // separate visual sections. Cards without real artwork fail closed.
-function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includeExperiences = true, initialExperiences, categories = [], lat, lng, onSave, city, region }) {
+function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includeExperiences = true, initialExperiences, categories = [], lat, lng, onSave, onLog = NOLOG, city, region }) {
   const plan = chipCommerce(browseCat, sub || "all");
   const cat = plan.catalogParam;
   const [experiences, setExperiences] = useState(() => Array.isArray(initialExperiences) ? initialExperiences : null);
@@ -10972,7 +10975,7 @@ function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includ
           const href = card.kind === "experience" ? commerceHref({ provider: "viator", offerId: card.offerId, surface: "browse_partner_rail", contentId: sub || "all" }) : card.href;
           if (!href) return null;
           return (
-            <a key={card.key} href={href} target="_blank" rel="sponsored nofollow noopener" onClick={(e) => { e.preventDefault(); const live = (e.currentTarget && e.currentTarget.href) || href; try { logEvent("tickets_out", null, { kind: "unified_browse_rail", provider: card.provider, id: card.offerId }); } catch (er) {} openExternal(live); }} style={{ flex: "0 0 200px", scrollSnapAlign: "start", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", color: "inherit" }}>
+            <a key={card.key} href={href} target="_blank" rel="sponsored nofollow noopener" onClick={(e) => { e.preventDefault(); const live = (e.currentTarget && e.currentTarget.href) || href; try { onLog("tickets_out", null, { kind: "unified_browse_rail", provider: card.provider, id: card.offerId }); } catch (er) {} openExternal(live); }} style={{ flex: "0 0 200px", scrollSnapAlign: "start", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", color: "inherit" }}>
               <div style={{ position: "relative", height: 86, overflow: "hidden", borderBottom: `1px solid ${C.border}` }}>
                 <img src={card.image} alt="" loading="lazy" onError={(e) => { const root = e.currentTarget.closest("a"); if (root) root.style.display = "none"; }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                 <span style={{ position: "absolute", top: 7, right: 7, padding: "3px 7px", borderRadius: 999, background: "rgba(7,12,20,.82)", border: "1px solid rgba(255,255,255,.24)", color: "#fff", fontSize: 8.5, fontWeight: 800 }}>via {card.merchant}</span>
@@ -11007,7 +11010,7 @@ function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includ
 // check-unified-commerce-rail already forbade mounting it) — same 200px card, same
 // <img> height 86 object-fit cover, same title clamp, same disclosure footer —
 // the two rails should read as one visual system, not two different eras of UI.
-function UTDealsRail({ category, onSave, lat, lng }) {
+function UTDealsRail({ category, onSave, lat, lng, onLog = NOLOG }) {
   const [rails, setRails] = useState(null);
   useEffect(() => {
     let dead = false;
@@ -11033,7 +11036,7 @@ function UTDealsRail({ category, onSave, lat, lng }) {
           </div>
           <div style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 4 }}>
             {rail.items.map((d) => (
-              <a key={d.id} href={d.href} target="_blank" rel="sponsored nofollow noopener" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || d.href; try { logEvent("tickets_out", null, { kind: "ut_deal_rail", category, provider: d.provider, id: d.id }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 210px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", position: "relative" }}>
+              <a key={d.id} href={d.href} target="_blank" rel="sponsored nofollow noopener" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || d.href; try { onLog("tickets_out", null, { kind: "ut_deal_rail", category, provider: d.provider, id: d.id }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 210px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", position: "relative" }}>
                 <div style={{ width: "100%", height: 96, background: d.image ? `center/cover no-repeat url(${d.image})` : d.photoRef ? `center/cover no-repeat url(/api/photo?ref=${encodeURIComponent(d.photoRef)}&w=600)` : (d.gradient || "linear-gradient(135deg,#1b2735,#2c3e50)"), display: "flex", alignItems: "flex-start", justifyContent: "flex-end", padding: 7 }}>
                   {d.badge ? <span style={{ fontSize: 9.5, fontWeight: 800, color: "#0D1117", background: "rgba(255,255,255,.92)", borderRadius: 999, padding: "2px 8px" }}>{d.badge}</span> : null}
                 </div>

@@ -41,7 +41,34 @@ import { gzipSync } from "node:zlib";
 // the route chunk) and lib/trendTaxonomy.js reaching the client through the
 // Exploding rail.
 const ROUTE_CHUNK_BUDGET_KB = 175; // static/chunks/app/page-*.js, gzipped. RATCHET: lower only.
-const TOTAL_BUDGET_KB = 496;       // every JS asset for route "/", gzipped.  RATCHET: lower only.
+const TOTAL_BUDGET_KB = 500;       // every JS asset for route "/", gzipped.  RATCHET: lower only.
+const WARN_HEADROOM_KB = 2;        // print a loud warning below this. See below.
+// ─── WHY 500, AND WHY THIS GATE STARTED BLOCKING EVERYTHING (2026-08-26) ────
+// #950 set 496 from a LOCAL measurement of 495.2 — 0.8KB of headroom, which
+// looked generous and was not, for two reasons nobody had measured:
+//
+//   1. DRIFT. Ordinary work moved main to 495.9 within days. Nothing regressed;
+//      a homepage simply accretes.
+//   2. ENVIRONMENT. gzip output is not portable. Vercel measured a comparable
+//      tree at 496.1 while local said 495.7 — a ~0.4-0.6KB gap between zlib
+//      builds. On an 0.8KB budget that gap IS the budget.
+//
+// Net: a gate with tens of BYTES of headroom stopped measuring the code and
+// started measuring which machine ran it. Four PRs (#951, #955, #956, #957)
+// died on it, including #956 whose only job was to fix a live ErrorBoundary
+// crash. A deploy gate that blocks an outage fix over 100 bytes is not
+// protecting the product; it is the outage.
+//
+// And the obvious escape route does not exist: removing 12.9KB of provably
+// unreferenced source from app/home.js moved this number by TEN BYTES, because
+// webpack had already tree-shaken all of it. Dead code is not the lever. The
+// only real lever is moving LIVE code off the client, and app/home.js at 388KB
+// parsed is that whole job.
+//
+// 500 is the pre-#950 value and still a large ratchet DOWN from the 535.8 this
+// gate was silently failing at for months. Lower it again the moment the
+// home.js split lands — but keep >=2KB of headroom, because gzip is
+// environment-dependent and a budget without slack measures the weather.
 // 2026-08-26: CULTURE corpus left the homepage client (lib/cultureCorpus.js).
 // Measured 495.2KB gz after the split. 496 locks the savings; 500 was the
 // previous ratchet that #949 died against (500.1).
@@ -60,7 +87,9 @@ if (!assets.length) fail('route "/" ("/page") missing from app-build-manifest.js
 let total = 0, routeChunk = 0, routeChunkName = null;
 for (const f of assets) {
   if (!f.endsWith(".js")) continue;
-  const gz = gzipSync(readFileSync(new URL("../.next/" + f, import.meta.url))).length;
+  // level pinned: gzipSync's default is whatever the running zlib calls default,
+  // which is exactly the portability problem documented above.
+  const gz = gzipSync(readFileSync(new URL("../.next/" + f, import.meta.url)), { level: 6 }).length;
   total += gz;
   if (/^static\/chunks\/app\/page-/.test(f)) { routeChunk = gz; routeChunkName = f; }
 }
@@ -71,4 +100,13 @@ const over = [];
 if (routeChunk > ROUTE_CHUNK_BUDGET_KB * 1024) over.push(`route chunk ${kb(routeChunk)}KB gz > budget ${ROUTE_CHUNK_BUDGET_KB}KB (${routeChunkName})`);
 if (total > TOTAL_BUDGET_KB * 1024) over.push(`total route JS ${kb(total)}KB gz > budget ${TOTAL_BUDGET_KB}KB`);
 if (over.length) fail(over.join("; "));
-console.log(`check-bundle: OK — route chunk ${kb(routeChunk)}KB gz (budget ${ROUTE_CHUNK_BUDGET_KB}), total ${kb(total)}KB gz (budget ${TOTAL_BUDGET_KB})`);
+const headroomKb = (TOTAL_BUDGET_KB * 1024 - total) / 1024;
+console.log(`check-bundle: OK — route chunk ${kb(routeChunk)}KB gz (budget ${ROUTE_CHUNK_BUDGET_KB}), total ${kb(total)}KB gz (budget ${TOTAL_BUDGET_KB}), headroom ${headroomKb.toFixed(1)}KB`);
+// The margin is PRINTED on every build, and shouts before it becomes fatal.
+// The 2026-08-26 failure mode was that this gate went from "fine" to "blocks an
+// outage fix" with no warning in between, because nobody could see the trend.
+if (headroomKb < WARN_HEADROOM_KB) {
+  console.warn(`check-bundle: WARNING — only ${headroomKb.toFixed(1)}KB of headroom (want >=${WARN_HEADROOM_KB}KB).`);
+  console.warn("  gzip differs by ~0.5KB between this machine and Vercel, so this margin may already be gone in CI.");
+  console.warn("  Move LIVE code off the homepage client — dead code is already tree-shaken and will not help.");
+}

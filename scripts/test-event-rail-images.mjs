@@ -71,8 +71,14 @@ ok(/\.wf-rail-when\{/.test(css) && /data-when-tone="now"/.test(css), "the WHEN b
 ok(/onSave=\{onSave\}/.test(card) && /saveEventItem\(/.test(src), "Save writes a real row (wf_saved_items, item_type event)");
 ok(/item_type: "event"/.test(src), "the saved row is typed as an event so the Saved tab can label it correctly");
 ok(/onDislike=\{onDislike\}/.test(card) && /eventSignals\.disliked\[e\.id\] !== true/.test(src), "a dislike genuinely removes the event from the rail — the visible consequence that makes the control honest");
-ok(/onShare=\{shareEvent\}/.test(card) && /logEvent\("share", null, \{ id: event\.id, kind: "event_card" \}\)/.test(card), "the share action and its logging survive the restyle");
-ok(/logEvent\("event_open"/.test(card), "the open-event log is preserved");
+// v8.61 — these two matched `logEvent(` for months while `logEvent` was UNBOUND
+// inside EventRailCard (declared in PageInner, never passed down). The source
+// line existed, the guard was green, and every one of these events threw into a
+// catch and fired ZERO times. A source grep cannot tell a live call from a dead
+// one — check-unbound-refs now can, and does. Matched on the injected prop.
+ok(/onShare=\{shareEvent\}/.test(card) && /onLog\("share", null, \{ id: event\.id, kind: "event_card" \}\)/.test(card), "the share action and its logging survive the restyle");
+ok(/onLog\("event_open"/.test(card), "the open-event log is preserved");
+ok(/onLog\s*=\s*NOLOG/.test(src) && /<EventRailCard onLog=\{logEvent\}/.test(src), "the rail is actually HANDED a logger — the binding these two assertions assume");
 ok(/cta=\{\{/.test(card) && /eventCTA\(event\)/.test(card), "the ticket/details CTA is matched to the event, never a blanket 'Get tickets' on a free community event");
 // v7.03: the chips are ATTRIBUTES, never a second printing of the eyebrow. The
 // first pass shipped seg.short in both, so every card read "— THEATER ›" above
