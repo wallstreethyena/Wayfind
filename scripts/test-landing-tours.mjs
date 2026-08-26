@@ -11,10 +11,11 @@ ok(s.includes("import TourStrip from"), "the ranking page mounts the client Tour
 ok(s.includes('catSlug === "things-to-do" ? <TourStrip'), "tours mount on high-intent things-to-do pages");
 ok(/catSlug === "beaches" \? <TourStrip[^>]*waterOnly/.test(s), "beaches mount the WATER-ONLY strip (same contract as /best-beaches/[metro])");
 ok(!/catSlug === "nightlife" \? <TourStrip/.test(s), "nightlife never mounts a tours strip — no honest matching inventory");
-ok(!/catSlug === "restaurants" \? <TourStrip/.test(s), "restaurants never mount a tours strip — they get Order In instead");
-// Restaurants: the exact-store Order In path, never a rebuilt or guessed link.
-ok(s.includes('catSlug === "restaurants"') && s.includes('"/api/eats/go?"'), "restaurant rows link out through /api/eats/go (exact-store 302, honest search fallback)");
-ok(/rel="noreferrer nofollow sponsored"/.test(s), "the Order In link carries the sponsored/nofollow rel");
+ok(!/catSlug === "restaurants" \? <TourStrip/.test(s), "restaurants never mount a tours strip");
+// 2026-08-26 — the restaurant rows' "Order on Uber Eats" link is GONE with
+// Uber Eats (owner directive; it 302'd to an untracked ubereats.com search).
+ok(!/\/api\/eats\//.test(s), "landing carries no /api/eats route reference (deleted 2026-08-26)");
+ok(!/Order on Uber Eats/.test(s), "landing renders no Uber Eats CTA");
 const ts = readFileSync(new URL("../app/components/TourStrip.js", import.meta.url), "utf8");
 ok(ts.startsWith('"use client"'), "TourStrip is a client island — it fetches /api/experiences at RUNTIME (the build-time read returned empty)");
 ok(ts.includes('fetch("/api/experiences?"'), "TourStrip reads the runtime experiences endpoint");

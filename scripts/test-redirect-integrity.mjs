@@ -53,17 +53,18 @@ const ok = (c, m) => { if (!c) fail(m); pass++; };
   ok(!/failAndRedirect\(\s*"missing-query",\s*"https:\/\/www\.viator\.com"\s*\)/.test(viator),
     "the missing-query path no longer dumps users on the bare unattributed viator.com homepage");
 
-  const eats = read("app/api/eats/go/route.js");
-  ok(/resolver_path:\s*store\s*\?\s*"store"\s*:\s*"search-fallback"/.test(eats),
-    "the eats redirect reports store vs search-fallback instead of counting an attributed fallback as a failure");
-  ok(!/provider_redirect_failed",\s*\{\s*failure_reason:\s*"store-unresolved"/.test(eats),
-    "store-unresolved is no longer reported as a hard failure — the user still lands attributed");
+  // /api/eats/go was deleted 2026-08-26 with Uber Eats (owner directive);
+  // assert it STAYS deleted rather than reading it.
+  {
+    const { existsSync } = await import("node:fs");
+    ok(!existsSync(new URL("../app/api/eats", import.meta.url)), "app/api/eats/* stays deleted (Uber Eats removed 2026-08-26)");
+  }
 }
 
 // ── 3. resolver_path flows through the commerce schema ───────────────────
 {
   const { commercePayload } = await import("../lib/commerce.js");
-  const started = commercePayload("provider_redirect_started", { provider: "uber_eats", click_id: "wf-abc12345", resolver_path: "search-fallback" });
+  const started = commercePayload("provider_redirect_started", { provider: "viator", click_id: "wf-abc12345", resolver_path: "search-fallback" });
   ok(started.resolver_path === "search-fallback", "provider_redirect_started carries resolver_path");
   const failed = commercePayload("provider_redirect_failed", { provider: "viator", failure_reason: "missing-query", resolver_path: "fail-closed" });
   ok(failed.resolver_path === "fail-closed" && failed.failure_reason === "missing-query",

@@ -23,12 +23,17 @@ const { resolveRowCta, secondaryCta, showsDisclosure, CTA_LABELS, directionsUrl 
 
 // ── 1. the ladder, every rung, in order ──────────────────────────────────
 const MAPS = "https://maps.example/x";
-const all = resolveRowCta({ deal: { url: "https://d" }, bookingUrl: "https://b", deliveryUrl: "https://v", deliveryEarns: true, mapsUrl: MAPS });
+// 2026-08-26 — the delivery rung is GONE with Uber Eats (owner directive:
+// permanently deleted). The ladder is deal > bookable > directions, and a
+// stray deliveryUrl argument from an un-migrated caller must be IGNORED, not
+// resurrected into a rung.
+const all = resolveRowCta({ deal: { url: "https://d" }, bookingUrl: "https://b", mapsUrl: MAPS });
 ok(all.type === "deal", `a deal outranks every other rung (got ${all.type})`);
-const noDeal = resolveRowCta({ bookingUrl: "https://b", deliveryUrl: "https://v", deliveryEarns: true, mapsUrl: MAPS });
-ok(noDeal.type === "bookable", `bookable outranks delivery (got ${noDeal.type})`);
-const noBook = resolveRowCta({ deliveryUrl: "https://v", deliveryEarns: true, mapsUrl: MAPS });
-ok(noBook.type === "delivery", `delivery outranks directions (got ${noBook.type})`);
+const noDeal = resolveRowCta({ bookingUrl: "https://b", mapsUrl: MAPS });
+ok(noDeal.type === "bookable", `bookable outranks directions (got ${noDeal.type})`);
+const stray = resolveRowCta({ deliveryUrl: "https://v", deliveryEarns: true, mapsUrl: MAPS });
+ok(stray.type === "directions", `a stray deliveryUrl from an un-migrated caller is ignored — the delivery rung stays deleted (got ${stray.type})`);
+ok(CTA_LABELS.delivery === undefined, "no delivery label survives the removal");
 const bare = resolveRowCta({ mapsUrl: MAPS });
 ok(bare.type === "directions" && bare.href === MAPS, "with every monetized rung dark, the row still offers directions — never a dead end");
 ok(resolveRowCta({}).type === "directions", "an empty row resolves rather than throwing");
@@ -39,21 +44,15 @@ for (const [k, label] of Object.entries(CTA_LABELS)) {
   ok(!/viator|uber|clipp|opentable|google/i.test(label), `${k} label names the action, not the partner ("${label}")`);
 }
 ok(CTA_LABELS.deal === "Claim the deal" && CTA_LABELS.bookable === "Reserve a table" &&
-   CTA_LABELS.delivery === "Order pickup" && CTA_LABELS.directions === "Directions",
-   "the four labels match the signed spec exactly");
+   CTA_LABELS.directions === "Directions",
+   "the three labels match the signed spec exactly (delivery removed 2026-08-26)");
 
 // ── 2. THE DISCLOSURE FOLLOWS THE MONEY ──────────────────────────────────
-// The subtlest failure on this page: "Order pickup" resolves to a real Uber Eats
-// destination but earns NOTHING while NEXT_PUBLIC_UBEREATS_TEMPLATE is unset.
-// Printing an FTC line under it would be a false statement to the user, and would
-// teach them the line is boilerplate rather than information.
-const unpaid = resolveRowCta({ deliveryUrl: "https://v", deliveryEarns: false, mapsUrl: MAPS });
-ok(unpaid.type === "delivery" && unpaid.monetized === false,
-  "an untracked delivery link is delivery-but-NOT-monetized");
+const unpaid = resolveRowCta({ bookingUrl: null, mapsUrl: MAPS });
 ok(showsDisclosure(unpaid) === false,
-  "…and shows NO disclosure — 'we may earn a commission' under a link that cannot earn is false");
-const paid = resolveRowCta({ deliveryUrl: "https://v", deliveryEarns: true, mapsUrl: MAPS });
-ok(showsDisclosure(paid) === true, "a TRACKED delivery link does show the disclosure");
+  "a directions row shows NO disclosure — 'we may earn a commission' under a link that cannot earn is false");
+const paid = resolveRowCta({ bookingUrl: "https://b", mapsUrl: MAPS });
+ok(showsDisclosure(paid) === true, "a tracked bookable link does show the disclosure");
 ok(showsDisclosure(resolveRowCta({ deal: { url: "https://d" }, mapsUrl: MAPS })) === true, "a deal shows the disclosure");
 ok(showsDisclosure(bare) === false, "a directions-only row shows no disclosure");
 // Red-prove the probe: if showsDisclosure returned a constant, the pair above
@@ -62,7 +61,7 @@ ok(showsDisclosure(paid) !== showsDisclosure(unpaid),
   "showsDisclosure DISCRIMINATES between a paid and an unpaid link — not a constant");
 
 // ── 3. the quiet secondary ───────────────────────────────────────────────
-ok(secondaryCta(noBook, MAPS)?.type === "directions", "a monetized row still offers directions as the quiet secondary");
+ok(secondaryCta(noDeal, MAPS)?.type === "directions", "a monetized row still offers directions as the quiet secondary");
 ok(secondaryCta(bare, MAPS) === null,
   "a directions-PRIMARY row does not repeat directions as its secondary — two identical buttons read as a bug");
 ok(typeof directionsUrl({ id: "p1", name: "X" }) === "string", "directions resolves to a URL");

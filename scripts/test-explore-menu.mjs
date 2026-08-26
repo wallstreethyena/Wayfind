@@ -7,8 +7,10 @@ let failures = 0;
 const fail = (m) => { console.error("test-explore-menu: FAIL — " + m); failures++; };
 const eq = (a, b, m) => { if (JSON.stringify(a) !== JSON.stringify(b)) fail(`${m}: got ${JSON.stringify(a)} want ${JSON.stringify(b)}`); };
 
-const DAY = ["today", "food", "eat", "stay", "night"];
-const EVENING = ["today", "night", "eat", "food", "stay"];
+// 2026-08-26 — the "eat" (Order In / Uber Eats) tile was removed with Uber
+// Eats (owner directive); the menu is four tiles now.
+const DAY = ["today", "food", "stay", "night"];
+const EVENING = ["today", "night", "food", "stay"];
 
 // A Date whose SITE-TZ (America/New_York) wall clock is h:m — this is the
 // tzOffset-omitted fallback path. v6.72 (#533) changed that fallback from the
@@ -34,8 +36,8 @@ eq(orderExploreMenu(at(0, 0)), DAY, "midnight is the daytime order");
 
 // ── never duplicate or drop a category during the reorder ──
 for (const order of [orderExploreMenu(at(10, 0)), orderExploreMenu(at(18, 0))]) {
-  if (order.length !== 5) fail("order must always have exactly 5 tiles: " + JSON.stringify(order));
-  if (new Set(order).size !== 5) fail("order must not duplicate a tile: " + JSON.stringify(order));
+  if (order.length !== 4) fail("order must always have exactly 4 tiles: " + JSON.stringify(order));
+  if (new Set(order).size !== 4) fail("order must not duplicate a tile: " + JSON.stringify(order));
   for (const k of DAY) if (!order.includes(k)) fail(`tile ${k} dropped from the order: ` + JSON.stringify(order));
   if (order[0] !== "today") fail("Today's Best must always be first: " + JSON.stringify(order));
 }

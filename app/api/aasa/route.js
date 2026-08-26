@@ -81,7 +81,7 @@ export const AASA = Object.freeze({
         components: [
           {
             // API routes are machine endpoints. /api/commerce/go and
-            // /api/eats/go in particular are 302s to partner domains, and a
+            // /api/commerce/go and /api/viator/go are 302s to partner domains, and a
             // partner checkout belongs in Safari with its own cookie jar, not
             // inside our WebView.
             "/": "/api/*",

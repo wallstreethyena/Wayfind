@@ -11,18 +11,13 @@ import { guardPaidRoute } from "./lib/apiGuard";
 // legitimate same-origin browser calls reach the paid upstream. It never blocks
 // a real user; the hard backstop remains the owner's provider quota caps.
 //
-// B2: /api/eats/check + /api/eats/go proxy a live Uber Eats scrape. /check is a
-// same-origin XHR that fans out up to 24 outbound scrapes per POST — the exact
-// amplification shape this guard exists for — so it gets the full same-origin +
-// rate-limit guard. /api/eats/go is a GET 302 the browser NAVIGATES to (new tab);
-// a same-origin 403 would break a legitimate click-through in browsers that strip
-// both Sec-Fetch-Site and Referer, so it gets rate-limit only (rateLimitOnly).
-//
+// B2 (historical): the /api/eats/* routes this note described were removed
+// 2026-08-26 with Uber Eats (owner directive; see lib/affiliates.js).
 // Viator (2026-07-17 audit): /api/viator/tours is a same-origin XHR (app/home.js)
 // that hits the metered Viator Partner API AND writes Supabase via service-role
 // (persistOffer) — same amplification shape, so full guard. /api/viator/go is a
 // GET 302 the browser navigates to (culture "Book this experience" links, card
-// CTAs), so rate-limit only, exactly like /api/eats/go. Neither has a server-side
+// CTAs), so rate-limit only. Neither has a server-side
 // (SSR) caller — home.js fetches /tours client-side, and /go is only ever a link
 // the browser follows — so guarding them cannot break an SSR page.
 //
@@ -68,8 +63,6 @@ export const config = {
     // affiliate product catalog from being harvested off-origin.
     "/api/place-products",
     "/api/hooks",
-    "/api/eats/check",
-    "/api/eats/go",
     "/api/viator/tours",
     // Intent-sheet curated enrichment: exact product artwork and commercial
     // metadata come from the metered Viator Partner API on cache misses.
@@ -148,7 +141,7 @@ export const config = {
 // link resolves through this route, so the comment described the intent and the
 // code did the opposite. check-clipp-deals.mjs asserts membership in this Set, not
 // merely that the path appears somewhere in this file.
-const NAV_302_ROUTES = new Set(["/api/eats/go", "/api/viator/go", "/api/commerce/go"]);
+const NAV_302_ROUTES = new Set(["/api/viator/go", "/api/commerce/go"]);
 // Image proxies loaded via <img> — including cross-origin OG/share-preview
 // crawlers (Facebook, Twitter, iMessage). A same-origin 403 would break every
 // shared-link image, so keep the per-IP rate limit (the real cost guard) but

@@ -120,26 +120,26 @@ const noOffers = {};
   ok(!/data-detail-directions[\s\S]{0,300}<\/div>\s*\{!detail\._event/.test(detailSheet), "Directions cannot return to a stranded row above reactions");
 }
 
-// v8.44 — the delivery rung goes through the SERVER resolver, and it always
-// renders for a named restaurant. The old client-template link returned null
-// with the template env unset, so the primary fell to an unmonetized "See
-// menu" — (restaurant, menu) 37 and (restaurant, delivery) 33 were August's
-// two largest primary_cta_null buckets. The go route owns fallback + runtime
-// attribution now; the ladder's job is only to hand the click to it.
+// 2026-08-26 — the delivery/pickup rungs are GONE with Uber Eats (owner
+// directive: permanently deleted; see lib/affiliates.js REMOVED note). A
+// restaurant or café without a live deal falls to the honest Maps "See menu"
+// CTA — never to a dead link, and never to a revived untracked Uber handoff.
 {
   const p = place({ types: ["restaurant"], id: "rest_1", name: "Mario's Trattoria", lat: 27.33, lng: -82.53 });
   const cta = resolveDetailCta({ detail: p, kind: "restaurant", viaTours: noTours, locName: "Sarasota, FL", offers: noOffers, openState: open });
-  ok(cta.type === DETAIL_CTA_TYPES.delivery, "open restaurant without a deal → Order delivery, never a dead-end menu — got " + cta.type);
-  ok(String(cta.href || "").startsWith("/api/eats/go?"), "…and the href routes through the server resolver, not a build-time template link — got " + cta.href);
-  ok(/name=Mario/.test(cta.href) && /city=Sarasota/.test(cta.href), "…carrying name and city so the resolver can find the exact store");
-  ok(/surface=detail_primary/.test(cta.href), "…and naming its surface so the funnel can tell this button from Order In");
-  ok(cta.provider === "ubereats", "delivery rung declares its provider");
+  ok(cta.type === DETAIL_CTA_TYPES.menu, "open restaurant without a deal → See menu — got " + cta.type);
+  ok(!!cta.href && !/\/api\/eats\//.test(String(cta.href)), "…and the href is a working Maps link, never a deleted eats route — got " + cta.href);
+  ok(cta.monetized === false, "the menu CTA never claims to earn");
 }
 {
   const p = place({ types: ["cafe", "coffee_shop"], id: "cafe_go_1", name: "Perq Coffee Bar", lat: 27.33, lng: -82.53 });
   const cta = resolveDetailCta({ detail: p, kind: "cafe", viaTours: noTours, locName: "Sarasota, FL", offers: noOffers, openState: open });
-  ok(cta.type === DETAIL_CTA_TYPES.pickup, "open cafe → Order pickup through the same resolver — got " + cta.type);
-  ok(String(cta.href || "").startsWith("/api/eats/go?"), "cafe pickup href routes through /api/eats/go");
+  ok(cta.type === DETAIL_CTA_TYPES.menu, "open cafe → See menu — got " + cta.type);
+  ok(!!cta.href && !/\/api\/eats\//.test(String(cta.href)), "cafe href is a working Maps link, never a deleted eats route");
+}
+{
+  ok(DETAIL_CTA_TYPES.delivery === undefined && DETAIL_CTA_TYPES.pickup === undefined,
+    "the delivery/pickup CTA types stay deleted — a re-add must come through a tracked provider and a triage, not a type revival");
 }
 
 if (fail) {

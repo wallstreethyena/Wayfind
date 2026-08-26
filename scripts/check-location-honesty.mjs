@@ -198,7 +198,8 @@ ok(/centerAgreesWithLabel\(\{ lat: c\.lat, lng: c\.lng \}, c\.loc\)/.test(HOME),
 ok(/centerAgreesWithLabel\(\{ lat: r\.lat, lng: r\.lng \}, r\.loc\)/.test(HOME),
   "home.js drops incoherent rows out of the recent-locations list on hydration");
 for (const [rel, why] of [
-  ["app/order-in/OrderInClient.js", "the order-in page prints metroCity from saved.loc"],
+  // app/order-in/OrderInClient.js was in this list until 2026-08-26 — the
+  // page was deleted with Uber Eats (owner directive).
   ["app/components/shareIntentSheet.js", "an invite bakes these coordinates into a link a friend opens"],
 ]) {
   const SRC = strip(read(rel));

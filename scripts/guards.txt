@@ -112,7 +112,6 @@ node scripts/test-rail-score-order.mjs
 node scripts/check-subfilter-experience-coverage.mjs
 node scripts/test-klook-coupons.mjs
 node scripts/test-sheet-booking.mjs
-node scripts/test-orderin-rails.mjs
 node scripts/test-card-booking.mjs
 node scripts/test-events-tours.mjs
 node scripts/test-ranked-experience-rails.mjs
@@ -133,12 +132,10 @@ node scripts/test-browse-library.mjs
 node scripts/test-sync-reconcile.mjs
 node scripts/test-site-time.mjs
 node scripts/check-sitetime.mjs
-node scripts/test-eats-verified.mjs
 node scripts/test-classifier-veto.mjs
 node scripts/test-showtime-dedup.mjs
 node scripts/test-member-score.mjs
 node scripts/test-curator-boost.mjs
-node scripts/test-orderin-location.mjs
 node scripts/test-scorelabel.mjs
 node scripts/test-booking-integrity.mjs
 node scripts/test-viator-integrity-lock.mjs

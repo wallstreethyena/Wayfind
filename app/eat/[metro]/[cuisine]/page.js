@@ -207,14 +207,13 @@ export default async function CuisineListPage({ params }) {
   //   bookable  hasBookingCTA is false for every restaurant kind (BOOKABLE_KINDS
   //             has no food kind) and no reservation partner exists yet.
   // Delivery is the only rung that fires now — and it EARNS NOTHING until
-  // NEXT_PUBLIC_UBEREATS_TEMPLATE is set, which is why `monetized` is computed
+  // a link actually earns, which is why `monetized` is computed
   // from the template rather than from "a link exists". The FTC line follows that
   // flag, so it never appears under a link that cannot earn.
   //
   // siteTodayStr() is venue-local Eastern, never UTC — a UTC date expires a
   // coupon ~4h early for a Florida user.
   const today = siteTodayStr();
-  const deliveryEarns = !!(process.env.NEXT_PUBLIC_UBEREATS_TEMPLATE || "").trim();
 
   const places = rows.map((r) => ({
     id: r.place_id, name: r.name,
@@ -232,7 +231,6 @@ export default async function CuisineListPage({ params }) {
     const bookable = hasBookingCTA(detail, "food", {}, meta.label)
       ? bookingTargets(detail, "food", null, meta.label).tu
       : null;
-    const delivery = Aff.uberEatsUrl(p.name, meta.label) || null;
     const maps = directionsUrl({ id: p.id, name: p.name, city: meta.label });
     const cta = resolveRowCta({
       deal: coupon ? {
@@ -241,7 +239,7 @@ export default async function CuisineListPage({ params }) {
         provider: coupon.commerce && coupon.commerce.provider,
         offerId: coupon.commerce && coupon.commerce.offerId,
       } : null,
-      bookingUrl: bookable, deliveryUrl: delivery, deliveryEarns, mapsUrl: maps,
+      bookingUrl: bookable, mapsUrl: maps,
     });
     return {
       ...p,
