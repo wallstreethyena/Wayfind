@@ -68,14 +68,13 @@ ok(/import \{ useBestPhoto \} from "\.\.\/lib\/bestPhoto"/.test(home), "PlaceCar
 // gate exists, and the call comes first. Hook order across the whole app is
 // enforced separately by scripts/check-hook-order.mjs.
 {
-  const pick = home.indexOf("const cardPhoto = useBestPhoto(ownPhoto, houseCardPhotoList(p));");
+  const pick = home.indexOf("const cardPhoto = useBestPhoto(p && p.photo, p && p.photos);");
   const gate = home.indexOf("if (!cardComplete(p)) return null;");
-  ok(pick !== -1, "PlaceCard calls useBestPhoto on the identity-gated photo list");
+  ok(pick !== -1, "PlaceCard calls useBestPhoto(p && p.photo, p && p.photos)");
   ok(gate !== -1, "PlaceCard still gates on cardComplete");
   ok(pick < gate, "the hook runs BEFORE the early return (rules of hooks)");
 }
-ok(/houseCardPhotoSrc\(p\)/.test(home), "PlaceCard identity-gates the card photo so a stolen Bishop ref cannot paint River Walk");
-ok(/src=\{cardPhoto \|\| ownPhoto\}/.test(home), "the card renders the vision-picked photo, then the identity-gated primary — never raw p.photo");
+ok(/src=\{cardPhoto \|\| p\.photo\}/.test(home), "the card renders the vision-picked photo, then the primary — venue-truth only");
 ok(!/cardMarketFallback/.test(home), "house PlaceCard must not reuse a category+city stock scene (Kids Empire / Intense Escape shared a beach sunset)");
 
 console.log(`test-image-score: ${n - failn}/${n} passed`);

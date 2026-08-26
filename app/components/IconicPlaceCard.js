@@ -16,7 +16,7 @@ import { overrideFor } from "../../lib/placeOverrides";
 import * as Tags from "../../lib/tags";
 import { directionsHref } from "../../lib/directions.js";
 import { useEffect, useRef, useState } from "react";
-import { houseCardPhotoSrc } from "../../lib/placePhoto.js";
+import { hasPlacePhotoRef } from "../../lib/placePhoto.js";
 import { toHookLine } from "../../lib/editorialHook.js";
 // v8.29 — THE CARD'S OWN HANDS. Save/Like/Dislike used to fall back to
 // <a href="/p/<id>?action=like"> whenever a caller forgot to wire a handler,
@@ -200,7 +200,12 @@ const compactCount = (n) => Number(n) >= 1000
   ? (Math.round(Number(n) / 100) / 10) + "k"
   : String(Number(n) || 0);
 
-const photoUrl = (p) => houseCardPhotoSrc(p);
+const photoUrl = (p) => {
+  const ref = p && (p.photoRef || p.photo_ref);
+  if (hasPlacePhotoRef(ref)) return "/api/photo?ref=" + encodeURIComponent(ref) + "&w=640";
+  if (p && typeof p.photo === "string" && p.photo) return p.photo;
+  return null;
+};
 
 // v8.29 — the ticket glyph. Drawn, not an emoji: 🎟️ is a different picture on
 // iOS, Android and Windows, and the one control on this card that earns money

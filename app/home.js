@@ -85,7 +85,6 @@ import { usePlaceProduct } from "../lib/placeProduct";
 // effects — the rail uses owned artwork and the place cards carry their own
 // photoRef, so nothing on this page live-picks a hero photo any more.
 import { useBestPhoto } from "../lib/bestPhoto";
-import { houseCardPhotoList, houseCardPhotoSrc } from "../lib/placePhoto";
 import nextDynamic from "next/dynamic";
 // v5.39 (July 2026 audit, Phase 7): the map bundle loads when the map
 // screen (or sidebar map) first renders, not on first paint.
@@ -11073,8 +11072,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // v6.86: vision-scored, people-free card photo — must run BEFORE the
   // cardComplete early return below (rules of hooks: this hook must run on
   // every render, even for a card that ultimately renders nothing).
-  const ownPhoto = houseCardPhotoSrc(p);
-  const cardPhoto = useBestPhoto(ownPhoto, houseCardPhotoList(p));
+  const cardPhoto = useBestPhoto(p && p.photo, p && p.photos);
   // v8.49.1 (owner, 2026-08-25, Family → Kids at Parrish): Kids Empire and
   // Intense Escape both painted the same beach-sunset stock scene. That was
   // rung 3 of the photo ladder — /api/market-photo keyed on category+city —
@@ -11225,8 +11223,8 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           award band and the editorial hook line; nothing overlays the photo.
           check-pick-medallion.mjs is inverted, not deleted. */}
       <div className="wf-place-card-layout" style={{ position: "relative", zIndex: 1, pointerEvents: "none" }}>
-        {(cardPhoto || ownPhoto)
-          ? <FallbackImg className="wf-place-card-media" src={cardPhoto || ownPhoto} icon={iconForPlace(p)} />
+        {(cardPhoto || (p && p.photo))
+          ? <FallbackImg className="wf-place-card-media" src={cardPhoto || p.photo} icon={iconForPlace(p)} />
           : <div className="wf-place-card-monogram" aria-hidden="true">{cardInitials}</div>}
         <div className="wf-place-card-content" style={{ position: "relative" }}>
           <div className="wf-place-card-title-row">

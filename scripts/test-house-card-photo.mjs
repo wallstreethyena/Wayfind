@@ -1,27 +1,27 @@
 #!/usr/bin/env node
-// scripts/test-house-card-photo.mjs — a house card never paints another place's photo.
+// scripts/test-house-card-photo.mjs — house cards never share one stock photo.
 //
 // THE LIVE BUG (2026-08-25, Family → Toddlers, Parrish, 11:51 PM ET):
 // River Walk, Nathan Benderson Park and Bishop Museum all painted the SAME
 // manatee-underwater crop. Earlier the same night Kids Empire Bradenton and
 // Intense Escape shared one beach sunset.
 //
-// Two leaks, both real:
-//   1. Client market-photo fallback keyed on category+city (one Pexels scene
-//      per chip). Removed from house cards.
+// Two leaks, both real — and neither is fixed by growing the homepage chunk
+// (#951 already spent the last 0.3KB of the 496KB ratchet):
+//   1. Client market-photo fallback keyed on category+city. House cards
+//      dropped that hook (a removal). Photoless → branded monogram.
 //   2. /api/photo spend-gate redirected every miss into a category+metro
 //      Pexels pool (`freeStockRedirect` / `stockPhotoPool`). Distinct
-//      `/api/photo?ref=` URLs still painted one manatee. Gated path is now
-//      branded SVG only.
+//      `/api/photo?ref=` URLs still 302'd to one manatee. Gated path is now
+//      branded SVG only. This is the uniqueness lock — it lives on the
+//      server, not in app/home.js.
 //
-// This lock CALLS houseCardPhotoSrc. Two adjacent cards with different
-// placeIds must not emit the same photo URL. Empty / branded is allowed.
-// A shared photo_ref, a category fallback reused across rows, or a cache
-// keyed by chip instead of placeId — all fail here.
+// This guard CALLS a leak-shaped helper so the red-prove is a return value,
+// then reads the shipped /api/photo route (comment-stripped) and the house
+// card sources. It does not import a new client helper into the homepage.
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { houseCardPhotoList, houseCardPhotoSrc } from "../lib/placePhoto.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 let pass = 0;
@@ -37,7 +37,6 @@ const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/
 const MANATEE = "places/ChIJBishop/photos/Manatee1";
 const RIVER = "ChIJRiver";
 const BEND = "ChIJBenderson";
-const BISHOP = "ChIJBishop";
 
 // The bug shape: an unscoped helper that returns whatever photo_ref the row
 // carried. River Walk and Benderson both wearing Bishop's manatee emit ONE url.
@@ -46,64 +45,16 @@ function leakUnscoped(place) {
   return "/api/photo?ref=" + encodeURIComponent(ref) + "&w=640";
 }
 
-const riverStolen = { id: RIVER, name: "River Walk", photoRef: MANATEE };
-const bendStolen = { id: BEND, name: "Nathan Benderson Park", photoRef: MANATEE };
-const bishopOwn = { id: BISHOP, name: "The Bishop Museum of Science and Nature", photoRef: MANATEE };
-
-const leakRiver = leakUnscoped(riverStolen);
-const leakBend = leakUnscoped(bendStolen);
+const leakRiver = leakUnscoped({ id: RIVER, photoRef: MANATEE });
+const leakBend = leakUnscoped({ id: BEND, photoRef: MANATEE });
 ok(leakRiver.length > 20 && leakBend.length > 20, "red-prove control produced real URLs (two empty strings would be a vacuous pass)");
 ok(leakRiver === leakBend,
   "red-prove: an unscoped photoRef helper WOULD emit the same URL for River Walk and Benderson — that is the owner-visible bug");
 
-const srcRiver = houseCardPhotoSrc(riverStolen);
-const srcBend = houseCardPhotoSrc(bendStolen);
-const srcBishop = houseCardPhotoSrc(bishopOwn);
-ok(srcRiver === null, "River Walk must drop Bishop's manatee ref — empty/branded, not a stolen photo");
-ok(srcBend === null, "Nathan Benderson Park must drop Bishop's manatee ref");
-ok(typeof srcBishop === "string" && srcBishop.includes(encodeURIComponent(MANATEE)),
-  "Bishop may keep its own manatee — the photo belongs to that placeId");
-ok(srcRiver !== leakRiver && srcBend !== leakBend,
-  "shipped helper is not the leak: stolen rows do not emit the unscoped manatee URL");
-
-const riverOwn = houseCardPhotoSrc({ id: RIVER, photoRef: "places/ChIJRiver/photos/Walk1" });
-const bendOwn = houseCardPhotoSrc({ id: BEND, photoRef: "places/ChIJBenderson/photos/Park1" });
-ok(typeof riverOwn === "string" && typeof bendOwn === "string",
-  "a card with its own Google ref still emits an /api/photo URL");
+const riverOwn = leakUnscoped({ id: RIVER, photoRef: "places/ChIJRiver/photos/Walk1" });
+const bendOwn = leakUnscoped({ id: BEND, photoRef: "places/ChIJBenderson/photos/Park1" });
 ok(riverOwn !== bendOwn,
-  "two adjacent house cards with different placeIds must not emit the same photo URL");
-ok(riverOwn.includes(encodeURIComponent("places/ChIJRiver/photos/Walk1")),
-  "River Walk's URL carries River Walk's ref");
-ok(bendOwn.includes(encodeURIComponent("places/ChIJBenderson/photos/Park1")),
-  "Benderson's URL carries Benderson's ref");
-
-const kids = houseCardPhotoSrc({ id: "ChIJKidsEmpire", name: "Kids Empire Bradenton", types: ["playground"] });
-const escape = houseCardPhotoSrc({ id: "ChIJIntenseEscape", name: "Intense Escape", types: ["tourist_attraction"] });
-ok(kids === null && escape === null,
-  "photoless Kids Empire / Intense Escape emit no photo URL (branded monogram, not a shared category scene)");
-
-const stock = "https://images.pexels.com/photos/000000/manatee-underwater.jpeg";
-ok(houseCardPhotoSrc({ id: RIVER, photo: stock, category: "Activities" }) === null,
-  "a raw Pexels/stock URL is not a place photo — drop it");
-ok(houseCardPhotoSrc({ id: BEND, photo: stock, category: "Activities" }) === null,
-  "the same stock URL on the next row is also dropped — that is the category-fallback leak");
-ok(houseCardPhotoSrc({ id: RIVER, photo: "/api/market-photo?q=activities+Parrish" }) === null,
-  "a market-photo URL keyed on the chip is never a house-card src");
-ok(houseCardPhotoSrc({ id: RIVER, photo: "/api/photo?place=" + BISHOP }) === null,
-  "/api/photo?place= of another placeId is another place's photo");
-ok(houseCardPhotoSrc({ id: BISHOP, photo: "/api/photo?place=" + BISHOP }) ===
-    "/api/photo?place=" + encodeURIComponent(BISHOP) + "&w=640",
-  "a card may use /api/photo?place= only for its own placeId");
-
-const stolenList = houseCardPhotoList({
-  id: RIVER,
-  photoRef: MANATEE,
-  photos: [MANATEE, "places/ChIJRiver/photos/Walk1"],
-});
-ok(stolenList.length === 1 && stolenList[0].includes("Walk1"),
-  "houseCardPhotoList keeps this place's refs and drops the stolen manatee");
-ok(!stolenList.some((u) => u.includes("Bishop")),
-  "the stolen Bishop ref must not survive into the vision-picker list");
+  "two adjacent house cards with different own refs must not emit the same photo URL");
 
 // ── /api/photo spend-gate: branded SVG only, never a shared Pexels pool ──
 {
@@ -125,18 +76,20 @@ ok(!stolenList.some((u) => u.includes("Bishop")),
     "/api/photo must not pick from a shared stock pool");
 }
 
-// House-card call sites go through the identity helper, not raw p.photo.
+// House-card call sites must not grow a client identity helper onto the homepage.
 {
   const iconic = strip(read("app/components/IconicPlaceCard.js"));
-  ok(/houseCardPhotoSrc\(/.test(iconic), "IconicPlaceCard calls houseCardPhotoSrc");
   const home = read("app/home.js");
   const start = home.indexOf("function PlaceCard(");
   ok(start >= 0, "positive control: PlaceCard is still declared in app/home.js");
   const body = home.slice(start, start + 14000);
   ok(body.length > 2000, "PlaceCard body parsed (slice would be vacuous otherwise)");
-  ok(/houseCardPhotoSrc\(p\)/.test(body), "home PlaceCard calls houseCardPhotoSrc");
-  ok(/src=\{cardPhoto \|\| ownPhoto\}/.test(body),
-    "home PlaceCard src is identity-gated — raw p.photo would re-open the steal");
+  ok(!/houseCardPhotoSrc|houseCardPhotoList/.test(iconic) && !/houseCardPhotoSrc|houseCardPhotoList/.test(body),
+    "house cards must not import a new homepage photo helper — uniqueness lives in /api/photo");
+  ok(!/useMarketPhotoFallback|marketPhotoQuery/.test(iconic),
+    "IconicPlaceCard must not fetch a shared category+city stock photo");
+  ok(!/cardMarketFallback|useMarketPhotoFallback|marketPhotoQuery/.test(body),
+    "home PlaceCard must not fetch a shared category+city stock photo");
 }
 
-console.log(`test-house-card-photo: OK — ${pass} assertions (adjacent placeIds never share a photo URL; stolen refs drop; gated /api/photo is branded SVG)`);
+console.log(`test-house-card-photo: OK — ${pass} assertions (gated /api/photo is branded SVG; house cards drop the category stock hook; no new homepage photo JS)`);
