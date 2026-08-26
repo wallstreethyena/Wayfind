@@ -93,6 +93,7 @@ const _ti = rail.indexOf('selRail.id === "augtober" && fallPool');
 ok(_ti > -1, "positive control: the augtober drop block is locatable");
 const evZone = rail.slice(_ti, _ti + 5200);
 ok(/\(e\.when && e\.when\.label\) \|\| "Seasonal"/.test(evZone), "event tiles wear the WHEN badge — an event never gets a fabricated score");
+ok(!/loading="lazy"/.test(evZone), "fall tile images are EAGER — the drop opens on a click (that IS the lazy gate), and lazy imgs mounted inside the freshly-expanded scroller never fired their intersection (proven live 2026-08-26: currentSrc stayed empty until the attribute was removed)");
 ok(/target="_blank" rel="noreferrer"/.test(evZone), "an event tile links to the official page with noreferrer");
 // monetized tiles: paid link first, disclosed, sponsored rel on the PAID link only
 ok(/e\.ticket \? \(/.test(evZone) && /href=\{e\.ticket\.href\} target="_blank" rel="sponsored nofollow noopener"/.test(evZone),

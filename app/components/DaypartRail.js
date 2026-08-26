@@ -895,7 +895,7 @@ export default function DaypartRail({
                 const inner = (
                   <>
                     <div style={{ position: "relative", height: 86, overflow: "hidden", borderBottom: "1px solid rgba(148,163,184,.18)", background: "#131A26" }}>
-                      {e.image ? <img src={e.image} alt="" loading="lazy" onError={(ev) => { ev.currentTarget.style.display = "none"; }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : null}
+                      {e.image ? <img src={e.image} alt="" onError={(ev) => { ev.currentTarget.style.display = "none"; }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : null}
                       <span style={{ position: "absolute", top: 7, right: 7, padding: "3px 7px", borderRadius: 999, background: "rgba(7,12,20,.82)", border: "1px solid rgba(251,146,60,.5)", color: "#FDBA74", fontSize: 8.5, fontWeight: 800 }}>{(e.when && e.when.label) || "Seasonal"}</span>
                     </div>
                     <div style={{ padding: "8px 10px 9px" }}>
