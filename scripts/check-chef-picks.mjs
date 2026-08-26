@@ -66,4 +66,30 @@ ok(C.eyebrow === "Curated by a Top Chef", "eyebrow is the locked owner copy");
   ok(readFileSync(hero).length > 10000, "the hero art ships with the card");
 }
 
+// ── 5. THE RAIL (v8.64, owner 2026-08-26: "in the rail card... same style...
+//       keep Ron's order exactly as given") ────────────────────────────────
+{
+  const home = readFileSync(path.join(REPO, "app/home.js"), "utf8");
+  const at = home.indexOf("function ChefPicksRail(");
+  ok(at > -1, "ChefPicksRail is declared");
+  const body = home.slice(at, at + 3600);
+  // Same tile chrome as the commerce rails — the constants that ARE the style.
+  ok(/flex: "0 0 200px"/.test(body), "rail tile is the shared 200px card");
+  ok(/height: 86/.test(body), "rail tile has the shared 86px image band");
+  ok(/scrollSnapType: "x proximity"/.test(body), "rail scrolls with the shared snap");
+  // HIS order: the rail maps chefPickPlaces() output directly — the function
+  // section 2 already proves preserves entry order — with no sort in between.
+  ok(/const places = chefPickPlaces\(c\);/.test(body) && !/places\s*\.\s*sort|\.sort\(/.test(body),
+    "the rail renders chefPickPlaces verbatim — no sort touches Ron's order");
+  ok(/Ron's #\{p\._chefRank\}/.test(body), "each tile wears Ron's own rank");
+  // Picks, not paid placements: nothing commercial may enter this rail.
+  ok(!/commerceHref|viator|sponsored|href=/.test(body.replace(/\/\* [\s\S]*?\*\//g, "")),
+    "no affiliate/commerce href inside the chef rail — testimony is never monetized inline");
+  ok(/onError=\{\(e\) => \{ if \(e\.currentTarget\.src\.indexOf\(c\.heroImage\)/.test(body),
+    "a dead place photo falls back to the campaign art — a pick never hides");
+  // Mounted on the Food browse.
+  ok(/browseCat === "food" && <ChefPicksRail onOpen=\{openDetail\} \/>/.test(home),
+    "the rail mounts on the Food browse and opens OUR place detail");
+}
+
 console.log(`check-chef-picks: OK — ${pass} assertions${n === 0 ? " (list not yet supplied — card correctly dark)" : ""}`);
