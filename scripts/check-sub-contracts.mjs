@@ -24,14 +24,14 @@ const ok = (c, m) => { checks++; if (!c) { bad++; console.error("check-sub-contr
 // Chips whose promise really is the category's promise. Each needs a reason a
 // human wrote, so "we forgot" can never masquerade as "we decided".
 const CATEGORY_WIDE = {
-  "food:dinner": "a time of day, not a venue kind — acknowledged debt; Lunch got a real contract in v8.50 (isLunchPlace) because a breakfast cafe led it",
-  "food:quickbites": "acknowledged debt: 'quick' is a service-speed promise with no Google type behind it. Needs a real contract or renaming; category-wide today",
-  "food:delivery": "acknowledged debt: delivery is an attribute Google does not type. Needs a real signal",
-  "food:dessert": "acknowledged debt: the dessert regex exists inline in placeAllowed's meal-signal branch rather than as a SUB_ALLOW contract",
-  "hotels:luxury": "acknowledged debt — price/class tiering, not a type contract",
-  "hotels:budget": "acknowledged debt — price/class tiering, not a type contract",
-  "hotels:beach": "acknowledged debt — proximity, not a type",
-  "hotels:boutique": "acknowledged debt — no contract yet",
+  "food:dinner": "a time of day, not a venue kind — CHIP_IDENTITY names it server-side; a client SUB_ALLOW blew the 496KB homepage ratchet. Lunch keeps isLunchPlace (#951). Bars stay (O'bricks).",
+  "food:quickbites": "acknowledged debt: 'quick' is a service-speed promise with no Google type behind it — a SUB_ALLOW regex here blew the 496KB homepage ratchet",
+  "food:delivery": "acknowledged debt: delivery is an attribute Google does not type. Needs a real signal — unioning unfiltered food would turn the chip into All",
+  "food:dessert": "acknowledged debt: dessert identity lives in CHIP_IDENTITY / the meal-signal branch; a second SUB_ALLOW regex is homepage-JS weight",
+  "hotels:luxury": "acknowledged debt — price/class tiering; CHIP_IDENTITY names it server-side, SUB_ALLOW on the client blew the 496KB ratchet",
+  "hotels:budget": "acknowledged debt — price/class tiering; same ratchet",
+  "hotels:beach": "acknowledged debt — proximity; same ratchet",
+  "hotels:boutique": "acknowledged debt — no client contract; CHIP_IDENTITY names it server-side",
   "attractions:all": "the 'all' chip is the category by definition",
 };
 

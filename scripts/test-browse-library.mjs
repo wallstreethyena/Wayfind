@@ -30,9 +30,11 @@ import { isLunchPlace } from "../lib/mealPlace.js";
 import { isBreakfastPlace } from "../lib/breakfast.js";
 import {
   browseChipUsesInventory,
+  browseChipLibraryCat,
   mergeBrowseSources,
   BROWSE_INVENTORY_N,
 } from "../lib/browseInventory.js";
+import { CHIP_IDENTITY, chipIdentity, isRainyDayPlace, isSitOnSandPlace } from "../lib/chipIdentity.js";
 
 let pass = 0;
 const fail = [];
@@ -76,9 +78,9 @@ const library = [...restaurants, ...cafes, ...lunchRooms, kekes, ...desserts];
 
 const asPlace = (row) => ({
   name: row.name,
-  types: row.google_types,
-  primary_type: row.primary_type,
-  primaryType: row.primary_type,
+  types: row.google_types || row.types,
+  primary_type: row.primary_type || row.primaryType,
+  primaryType: row.primaryType || row.primary_type,
   category: row.category,
 });
 
@@ -147,7 +149,15 @@ ok(browseChipUsesInventory("food", "cafes") === true, "Cafés chip uses owned in
 ok(browseChipUsesInventory("food", "lunch") === true, "Lunch chip uses owned inventory");
 ok(browseChipUsesInventory("food", "breakfast") === true, "Breakfast chip uses owned inventory (it has a contract)");
 ok(browseChipUsesInventory("food", "dessert") === false,
-  "Desserts stays named debt — no contract, so we must not dump unfiltered food into it");
+  "Desserts stays named debt — no SUB_ALLOW, so we must not dump unfiltered food into it");
+ok(browseChipUsesInventory("food", "dinner") === false, "Dinner stays named debt on the client — CHIP_IDENTITY is server-side so the 496KB ratchet holds");
+ok(browseChipUsesInventory("food", "quickbites") === false,
+  "Quick bites stays named debt — no contract, so we must not dump unfiltered food into it");
+ok(browseChipUsesInventory("food", "delivery") === false,
+  "Delivery stays named debt — no contract, so we must not dump unfiltered food into it");
+ok(browseChipUsesInventory("hotels", "luxury") === false, "Stays chips stay named debt on the client — CHIP_IDENTITY is server-side so the 496KB ratchet holds");
+ok(browseChipUsesInventory("family", "rainy") === true, "Family → Rainy day uses owned inventory");
+ok(browseChipUsesInventory("attractions", "beaches") === true, "Activities → Beaches uses owned inventory");
 ok(browseChipUsesInventory("food", "all") === false, "'All' is the existing union path, not this helper");
 ok(!!SUB_ALLOW["food:lunch"], "food:lunch has a SUB_ALLOW contract — no longer CATEGORY_WIDE");
 ok(BROWSE_INVENTORY_N === 400, `BROWSE_INVENTORY_N is the 400 cost bound (got ${BROWSE_INVENTORY_N})`);
@@ -185,10 +195,157 @@ ok(!/return await searchPlaces\(cat, sub/.test(FETCH.split("SUB_ALLOW[")[0]),
 // ── 6. serveFromInventory still filters before rank (edit the ORDER, fail) ──
 const SRC = readFileSync(new URL("../lib/inventoryServe.js", import.meta.url), "utf8")
   .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
-ok(SRC.indexOf("placeAllowed(physical, subId,") < SRC.indexOf("return rankInventory("),
-  "serveFromInventory still applies placeAllowed BEFORE rankInventory");
+ok(SRC.indexOf("chipIdentity(cat, subId") < SRC.indexOf("return rankInventory("),
+  "serveFromInventory applies chipIdentity(cat, subId) BEFORE rankInventory — Family → Rainy is family:rainy, not attractions:rainy");
 ok(!/slice\(\s*0\s*,\s*Math\.min\([^)]*,\s*50\)/.test(SRC),
   "rankInventory must not hide a merchandising 50 inside Math.min — that was the leftover cap");
+
+// ── 7. Full-taxonomy identity: Family / Beaches / named CHIP_IDENTITY ────────
+// Parse SUBFILTERS from source — do not import lib/google.js (client Loader).
+const gSrc = GOOGLE_SRC.slice(GOOGLE_SRC.indexOf("export const SUBFILTERS"), GOOGLE_SRC.indexOf("export function queryFor"));
+let curCat = null;
+const subChips = [];
+for (const line of gSrc.split("\n")) {
+  const c = line.match(/^\s{2}([a-z]+):\s*\[/);
+  if (c) { curCat = c[1]; continue; }
+  const i = line.match(/\{\s*id:\s*"([a-z]+)"/);
+  if (i && curCat) subChips.push(`${curCat}:${i[1]}`);
+}
+ok(subChips.length > 20, `parsed SUBFILTERS chips (got ${subChips.length})`);
+
+const cadzan = { name: "Ca' d'Zan", types: ["museum", "tourist_attraction"], primaryType: "museum", category: "attractions" };
+const tibbals = { name: "Tibbals Learning Center & Circus Museum at The Ringling", types: ["museum"], primaryType: "museum" };
+const riverWalk = { name: "River Walk", types: ["park", "tourist_attraction"], primaryType: "park" };
+const siesta = { name: "Siesta Key Beach", types: ["beach"], primaryType: "beach" };
+const bishop = { name: "Bishop Museum of Science and Nature", types: ["museum", "science_museum"], primaryType: "museum" };
+const intense = { name: "Intense Escape", types: ["amusement_center"], primaryType: "amusement_center" };
+const kidsEmpire = { name: "Kids Empire", types: ["amusement_center", "entertainment"], primaryType: "amusement_center" };
+const tennis = { name: "Siesta Key Tennis Club", types: ["tennis_court"], primaryType: "tennis_court" };
+const fortDeSoto = { name: "Fort De Soto Park", types: ["park", "beach"], primaryType: "park" };
+
+ok(chipIdentity("family", "rainy", cadzan) === false, "Rainy day refuses Ca' d'Zan");
+ok(isRainyDayPlace(cadzan) === false, "isRainyDayPlace itself refuses Ca' d'Zan");
+ok(chipIdentity("family", "rainy", tibbals) === false, "Rainy day refuses Tibbals / Ringling circus museum");
+ok(chipIdentity("family", "rainy", riverWalk) === false, "Rainy day refuses an outdoor River Walk");
+ok(chipIdentity("family", "rainy", siesta) === false, "Rainy day refuses a beach");
+ok(chipIdentity("family", "rainy", bishop) === true, "Rainy day keeps Bishop (indoor science museum)");
+ok(chipIdentity("attractions", "museums", bishop) === true, "Museums keeps Bishop");
+ok(chipIdentity("attractions", "beaches", bishop) === false, "Beaches refuses Bishop");
+ok(chipIdentity("family", "toddlers", bishop) === false, "Toddlers refuses Bishop (membership museum, not a toddler room)");
+ok(chipIdentity("attractions", "beaches", cadzan) === false, "Beaches refuses Ca' d'Zan — a mansion is not sit-on-sand");
+ok(isSitOnSandPlace(cadzan) === false, "isSitOnSandPlace itself refuses Ca' d'Zan");
+ok(chipIdentity("attractions", "beaches", tennis) === false, "Beaches refuses a tennis club");
+ok(chipIdentity("attractions", "beaches", siesta) === true, "Beaches keeps Siesta Key Beach");
+ok(chipIdentity("attractions", "beaches", fortDeSoto) === true, "Beaches keeps Fort De Soto (park + beach)");
+ok(chipIdentity("family", "kids", intense) === false, "Kids refuses Intense Escape (adult escape room)");
+ok(chipIdentity("family", "kids", kidsEmpire) === true, "Kids keeps Kids Empire");
+
+ok(browseChipLibraryCat("attractions", "beaches") === "beach",
+  "Activities → Beaches reads wf_inventory category=beach, not attractions");
+ok(browseChipLibraryCat("family", "rainy") === "family",
+  "Family → Rainy day keeps the tapped family cat so VIRTUAL_CATS still applies");
+
+for (const key of subChips) {
+  const fn = CHIP_IDENTITY[key];
+  ok(!!fn, `${key} has a named CHIP_IDENTITY predicate`);
+  ok(!!fn && /^is[A-Z]/.test(fn.name),
+    `${key} identity is a named isX function (got ${fn && fn.name}) — a placeAllowed wrapper with no name is the decorative chip`);
+}
+
+ok(!/from ["'].*chipIdentity/.test(HOME),
+  "home.js must not import chipIdentity — that graph blew the 496KB homepage ratchet");
+const SRC_SOURCES = readFileSync(new URL("../lib/sources.js", import.meta.url), "utf8")
+  .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
+ok(!/from ["'].*chipIdentity/.test(SRC_SOURCES),
+  "sources.js must not import chipIdentity — that graph is homepage JS and the 496KB ratchet");
+ok(!/\bmc=\{browseCat\}/.test(HOME) && !/\bmc === "family"/.test(HOME),
+  "home.js must not grow a Family eyebrow table — that 0.2KB is why CI hit 496.2; identity is server-side");
+const EXPLODING = readFileSync(new URL("../lib/explodingNearby.js", import.meta.url), "utf8")
+  .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
+ok(!/from ["'].*inventoryServe/.test(EXPLODING),
+  "explodingNearby must not import inventoryServe — that pulled chipIdentity into the homepage chunk (CI 496.2)");
+ok(!/from ["'].*chipIdentity/.test(EXPLODING),
+  "explodingNearby must not import chipIdentity");
+const INV_HEAD = SRC.slice(0, SRC.indexOf("export async function serveFromInventory"));
+ok(!/from ["'].*chipIdentity/.test(INV_HEAD) && !/from ["'].*browseInventory/.test(INV_HEAD),
+  "inventoryServe must not statically import chipIdentity or browseInventory — homepage-reachable until Exploding dropped it");
+ok(/await import\(["']\.\/chipIdentity\.js["']\)/.test(SRC),
+  "serveFromInventory lazy-loads chipIdentity so a client import of this file cannot ship the identity tables");
+
+// ── 8. Family chips cannot share a ranked list (live smoke 2026-08-26) ─────
+// Trust smoked aa17e8ab at 12:50 AM ET: Family → Toddlers, Kids, and Rainy
+// day each returned the SAME 222-item list in the SAME order (Kids Empire,
+// Intense Escape, Premier Escape, Freedom Factory, … Tibbals at 13).
+// That is fail-open on attractions:sub (Family is VIRTUAL). Identity must
+// run on the tapped chip BEFORE rank, and the first 10 names must differ.
+const genericAttractions = Array.from({ length: 80 }, (_, i) => ({
+  place_id: `fa${i}`, name: `Freedom Factory ${i}`, category: "attractions",
+  google_types: ["tourist_attraction", "amusement_center"], primary_type: "tourist_attraction",
+  ...near(i), status: "OPERATIONAL", signals: { rating: 4.9, reviews: 8000 - i },
+}));
+const toddlerRooms = Array.from({ length: 12 }, (_, i) => ({
+  place_id: `tp${i}`, name: `Toddler Playground ${i}`, category: "attractions",
+  google_types: ["playground", "park"], primary_type: "playground",
+  ...near(i), status: "OPERATIONAL", signals: { rating: 4.4, reviews: 80 },
+}));
+const kidRooms = Array.from({ length: 12 }, (_, i) => ({
+  place_id: `ka${i}`, name: `Kids Arcade ${i}`, category: "attractions",
+  google_types: ["amusement_center", "entertainment"], primary_type: "amusement_center",
+  ...near(i), status: "OPERATIONAL", signals: { rating: 4.4, reviews: 90 },
+}));
+const rainyRooms = Array.from({ length: 12 }, (_, i) => ({
+  place_id: `rm${i}`, name: `Indoor Science Museum ${i}`, category: "attractions",
+  google_types: ["museum", "science_museum"], primary_type: "science_museum",
+  ...near(i), status: "OPERATIONAL", signals: { rating: 4.4, reviews: 85 },
+}));
+const familyLib = [
+  ...genericAttractions,
+  ...toddlerRooms, ...kidRooms, ...rainyRooms,
+  { place_id: "cadzan", ...cadzan, ...near(0), status: "OPERATIONAL", signals: { rating: 4.8, reviews: 7000 } },
+  { place_id: "tibbals", ...tibbals, ...near(1), status: "OPERATIONAL", signals: { rating: 4.7, reviews: 6000 } },
+  { place_id: "intense", ...intense, ...near(2), status: "OPERATIONAL", signals: { rating: 4.8, reviews: 6500 } },
+  { place_id: "kidsempire", ...kidsEmpire, ...near(3), status: "OPERATIONAL", signals: { rating: 4.8, reviews: 6400 } },
+  { place_id: "premier", name: "Premier Escape", types: ["amusement_center"], primaryType: "amusement_center",
+    google_types: ["amusement_center"], primary_type: "amusement_center",
+    ...near(4), status: "OPERATIONAL", signals: { rating: 4.8, reviews: 6300 } },
+];
+
+function chipRows(cat, sub) {
+  return familyLib.filter((row) => chipIdentity(cat, sub, asPlace(row)));
+}
+function browseFamily(sub) {
+  return rankInventory(chipRows("family", sub), PARRISH.lat, PARRISH.lng, RADIUS_M, BROWSE_INVENTORY_N);
+}
+const names10 = (rows) => rows.slice(0, 10).map((p) => (p.displayName && p.displayName.text) || p.name || p.id);
+
+const unfilteredFamily = rankInventory(familyLib, PARRISH.lat, PARRISH.lng, RADIUS_M, 10);
+ok(unfilteredFamily.length === 10, "control: unfiltered family rank produced 10 cards");
+ok(unfilteredFamily[0] && unfilteredFamily[0].id === "fa0",
+  "control: unfiltered family rank leads with the high-review generic attraction — that is the live 222-item disease");
+
+const toddlerBrowse = browseFamily("toddlers");
+const kidsBrowse = browseFamily("kids");
+const rainyBrowse = browseFamily("rainy");
+const toddler10 = names10(toddlerBrowse);
+const kids10 = names10(kidsBrowse);
+const rainy10 = names10(rainyBrowse);
+ok(toddler10.length === 10, `Toddlers identity produced 10 cards (got ${toddler10.length})`);
+ok(kids10.length === 10, `Kids identity produced 10 cards (got ${kids10.length})`);
+ok(rainy10.length === 10, `Rainy day identity produced 10 cards (got ${rainy10.length})`);
+ok(toddler10.join("|") !== kids10.join("|"),
+  `Toddlers first 10 must not equal Kids first 10 (live smoke). toddlers=${toddler10.join(", ")} kids=${kids10.join(", ")}`);
+ok(kids10.join("|") !== rainy10.join("|"),
+  `Kids first 10 must not equal Rainy day first 10 (live smoke). kids=${kids10.join(", ")} rainy=${rainy10.join(", ")}`);
+ok(toddler10.join("|") !== rainy10.join("|"),
+  `Toddlers first 10 must not equal Rainy day first 10 (live smoke). toddlers=${toddler10.join(", ")} rainy=${rainy10.join(", ")}`);
+ok(!rainyBrowse.some((p) => p.id === "cadzan" || /ca['’].?d['’].?zan/i.test((p.displayName && p.displayName.text) || "")),
+  "Ca' d'Zan is not on Family → Rainy day");
+ok(!rainyBrowse.some((p) => p.id === "tibbals"),
+  "Tibbals is not on Family → Rainy day");
+ok(!kidsBrowse.some((p) => p.id === "intense" || p.id === "premier"),
+  "adult escape rooms are not on Family → Kids");
+ok(chipRows("attractions", "beaches").every((r) => r.place_id !== "cadzan"),
+  "Ca' d'Zan is not on Activities → Beaches");
 
 if (fail.length) {
   console.error(`test-browse-library: FAIL (${fail.length} of ${pass + fail.length})`);

@@ -105,6 +105,11 @@ const MUST_BLOCK = [
   ["shopping", "all", "Orange Blossom Coffee", ["coffee_shop", "tea_house", "cafe", "food_store", "food"]],
   ["shopping", "all", "The Shop", ["auto_parts_store", "car_repair", "service", "store"]],
   ["nightlife", "all", "Habitat House Concerts", ["live_music_venue", "nature_preserve", "event_venue", "park"]],
+  // These fail SUB_ALLOW itself (no rainy/beach token). chipIdentity covers
+  // the museum-shaped leaks below — those regexes must not ride the homepage JS.
+  ["family", "rainy", "River Walk", ["park", "tourist_attraction"]],
+  ["family", "rainy", "Siesta Key Beach", ["beach"]],
+  ["attractions", "beaches", "Ca' d'Zan", ["museum", "tourist_attraction"]],
 ];
 for (const [cat, sub, name, types] of MUST_BLOCK) {
   if (placeAllowed(cat, sub, { name, types })) fail(`junk passed the gate: [${cat}:${sub}] ${name}`);
@@ -156,8 +161,45 @@ const MUST_PASS = [
   ["beach", "all", "Coquina Beach", ["beach"]],
   ["attractions", "outdoors", "Nathan Benderson Park", ["park"]],
   ["beach", "all", "Fort De Soto Park", ["park", "beach"]],
+  ["attractions", "museums", "Bishop Museum of Science and Nature", ["museum", "science_museum"]],
+  ["family", "rainy", "Bishop Museum of Science and Nature", ["museum", "science_museum"]],
+  ["family", "kids", "Kids Empire", ["amusement_center", "entertainment"]],
+  ["family", "toddlers", "Toddler Playground", ["playground", "park"]],
+  ["attractions", "beaches", "Siesta Key Beach", ["beach"]],
+  ["attractions", "beaches", "Fort De Soto Park", ["park", "beach"]],
 ];
 for (const [cat, sub, name, types] of MUST_PASS) {
   if (!placeAllowed(cat, sub, { name, types })) fail(`legit place wrongly killed: [${cat}:${sub}] ${name}`);
 }
-console.log(`check-gate: OK — real module executed; ${MUST_BLOCK.length} junk fixtures blocked (incl. nail salon under Museums), ${MUST_PASS.length} legit fixtures pass, all paths wired`);
+
+// Named CHIP_IDENTITY — server-side. These rows pass a loose SUB_ALLOW
+// (museum → rainy, nature → toddlers, escape → kids, key → beaches) and
+// must still fail the tapped chip. Do not copy these regexes into
+// placeFilter; that is homepage JS and the 496KB ratchet.
+const { chipIdentity } = await import(new URL("../lib/chipIdentity.js", import.meta.url));
+const CHIP_BLOCK = [
+  ["family", "rainy", "Ca' d'Zan", ["museum", "tourist_attraction"], "museum"],
+  ["family", "rainy", "Tibbals Learning Center & Circus Museum at The Ringling", ["museum"], "museum"],
+  ["attractions", "beaches", "Siesta Key Tennis Club", ["tennis_court"], "tennis_court"],
+  ["family", "kids", "Intense Escape", ["amusement_center"], "amusement_center"],
+  ["family", "toddlers", "Bishop Museum of Science and Nature", ["museum", "science_museum"], "museum"],
+];
+for (const [cat, sub, name, types, primaryType] of CHIP_BLOCK) {
+  if (chipIdentity(cat, sub, { name, types, primaryType, primary_type: primaryType })) {
+    fail(`chipIdentity leaked [${cat}:${sub}] ${name}`);
+  }
+}
+const CHIP_KEEP = [
+  ["family", "rainy", "Bishop Museum of Science and Nature", ["museum", "science_museum"], "museum"],
+  ["attractions", "museums", "Bishop Museum of Science and Nature", ["museum", "science_museum"], "museum"],
+  ["attractions", "beaches", "Siesta Key Beach", ["beach"], "beach"],
+  ["attractions", "beaches", "Fort De Soto Park", ["park", "beach"], "park"],
+  ["family", "kids", "Kids Empire", ["amusement_center", "entertainment"], "amusement_center"],
+];
+for (const [cat, sub, name, types, primaryType] of CHIP_KEEP) {
+  if (!chipIdentity(cat, sub, { name, types, primaryType, primary_type: primaryType })) {
+    fail(`chipIdentity wrongly killed [${cat}:${sub}] ${name}`);
+  }
+}
+
+console.log(`check-gate: OK — real module executed; ${MUST_BLOCK.length} junk fixtures blocked (incl. nail salon under Museums), ${MUST_PASS.length} legit fixtures pass, ${CHIP_BLOCK.length} chip-identity leaks blocked`);

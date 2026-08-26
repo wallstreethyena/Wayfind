@@ -61,10 +61,16 @@ ok(serveFromInventory.length >= 6,
   "serveFromInventory accepts a `sub` argument");
 const SRC = readFileSync(new URL("../lib/inventoryServe.js", import.meta.url), "utf8")
   .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
-ok(/placeAllowed\(physical, subId,/.test(SRC),
-  "serveFromInventory applies placeAllowed with the sub");
-ok(SRC.indexOf("placeAllowed(physical, subId,") < SRC.indexOf("return rankInventory("),
-  "…and it does so BEFORE rankInventory — the whole point");
+ok(/chipIdentity\(cat, subId/.test(SRC),
+  "serveFromInventory applies chipIdentity(cat, subId) — the tapped chip, not physical:sub");
+ok(SRC.indexOf("chipIdentity(cat, subId") < SRC.indexOf("return rankInventory("),
+  "…and it does so BEFORE rankInventory — Family → Rainy used to rank unfiltered attractions");
+ok(/await import\(["']\.\/chipIdentity\.js["']\)/.test(SRC),
+  "chipIdentity is a dynamic import inside serveFromInventory — a top-level import leaked 0.2KB onto the homepage");
+const EXPLODING = readFileSync(new URL("../lib/explodingNearby.js", import.meta.url), "utf8")
+  .replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
+ok(!/from ["'].*inventoryServe/.test(EXPLODING),
+  "explodingNearby must not import inventoryServe — that was the homepage-JS leak of chipIdentity");
 ok(/lat=gte\.|lat=lte\./.test(SRC),
   "the inventory read is GEO-BOUNDED — an unbounded limit=1000 reads heap order and loses 81% of nearby cafés");
 
