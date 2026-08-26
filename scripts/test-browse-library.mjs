@@ -78,9 +78,9 @@ const library = [...restaurants, ...cafes, ...lunchRooms, kekes, ...desserts];
 
 const asPlace = (row) => ({
   name: row.name,
-  types: row.google_types,
-  primary_type: row.primary_type,
-  primaryType: row.primary_type,
+  types: row.google_types || row.types,
+  primary_type: row.primary_type || row.primaryType,
+  primaryType: row.primaryType || row.primary_type,
   category: row.category,
 });
 
@@ -264,6 +264,81 @@ ok(/mc=\{browseCat\}/.test(HOME),
   "browse PlaceCard receives mc so a Family chip can own the eyebrow");
 ok(/mc === "family" \? "Family"/.test(HOME),
   "Family chip forces pcat=Family — orange FAMILY eyebrow and TOP FAMILY PICK, never ACTIVITIES");
+
+// ── 8. Family chips cannot share a ranked list (live smoke 2026-08-26) ─────
+// Trust smoked aa17e8ab at 12:50 AM ET: Family → Toddlers, Kids, and Rainy
+// day each returned the SAME 222-item list in the SAME order (Kids Empire,
+// Intense Escape, Premier Escape, Freedom Factory, … Tibbals at 13).
+// That is fail-open on attractions:sub (Family is VIRTUAL). Identity must
+// run on the tapped chip BEFORE rank, and the first 10 names must differ.
+const genericAttractions = Array.from({ length: 80 }, (_, i) => ({
+  place_id: `fa${i}`, name: `Freedom Factory ${i}`, category: "attractions",
+  google_types: ["tourist_attraction", "amusement_center"], primary_type: "tourist_attraction",
+  ...near(i), status: "OPERATIONAL", signals: { rating: 4.9, reviews: 8000 - i },
+}));
+const toddlerRooms = Array.from({ length: 12 }, (_, i) => ({
+  place_id: `tp${i}`, name: `Toddler Playground ${i}`, category: "attractions",
+  google_types: ["playground", "park"], primary_type: "playground",
+  ...near(i), status: "OPERATIONAL", signals: { rating: 4.4, reviews: 80 },
+}));
+const kidRooms = Array.from({ length: 12 }, (_, i) => ({
+  place_id: `ka${i}`, name: `Kids Arcade ${i}`, category: "attractions",
+  google_types: ["amusement_center", "entertainment"], primary_type: "amusement_center",
+  ...near(i), status: "OPERATIONAL", signals: { rating: 4.4, reviews: 90 },
+}));
+const rainyRooms = Array.from({ length: 12 }, (_, i) => ({
+  place_id: `rm${i}`, name: `Indoor Science Museum ${i}`, category: "attractions",
+  google_types: ["museum", "science_museum"], primary_type: "science_museum",
+  ...near(i), status: "OPERATIONAL", signals: { rating: 4.4, reviews: 85 },
+}));
+const familyLib = [
+  ...genericAttractions,
+  ...toddlerRooms, ...kidRooms, ...rainyRooms,
+  { place_id: "cadzan", ...cadzan, ...near(0), status: "OPERATIONAL", signals: { rating: 4.8, reviews: 7000 } },
+  { place_id: "tibbals", ...tibbals, ...near(1), status: "OPERATIONAL", signals: { rating: 4.7, reviews: 6000 } },
+  { place_id: "intense", ...intense, ...near(2), status: "OPERATIONAL", signals: { rating: 4.8, reviews: 6500 } },
+  { place_id: "kidsempire", ...kidsEmpire, ...near(3), status: "OPERATIONAL", signals: { rating: 4.8, reviews: 6400 } },
+  { place_id: "premier", name: "Premier Escape", types: ["amusement_center"], primaryType: "amusement_center",
+    google_types: ["amusement_center"], primary_type: "amusement_center",
+    ...near(4), status: "OPERATIONAL", signals: { rating: 4.8, reviews: 6300 } },
+];
+
+function chipRows(cat, sub) {
+  return familyLib.filter((row) => chipIdentity(cat, sub, asPlace(row)));
+}
+function browseFamily(sub) {
+  return rankInventory(chipRows("family", sub), PARRISH.lat, PARRISH.lng, RADIUS_M, BROWSE_INVENTORY_N);
+}
+const names10 = (rows) => rows.slice(0, 10).map((p) => (p.displayName && p.displayName.text) || p.name || p.id);
+
+const unfilteredFamily = rankInventory(familyLib, PARRISH.lat, PARRISH.lng, RADIUS_M, 10);
+ok(unfilteredFamily.length === 10, "control: unfiltered family rank produced 10 cards");
+ok(unfilteredFamily[0] && unfilteredFamily[0].id === "fa0",
+  "control: unfiltered family rank leads with the high-review generic attraction — that is the live 222-item disease");
+
+const toddlerBrowse = browseFamily("toddlers");
+const kidsBrowse = browseFamily("kids");
+const rainyBrowse = browseFamily("rainy");
+const toddler10 = names10(toddlerBrowse);
+const kids10 = names10(kidsBrowse);
+const rainy10 = names10(rainyBrowse);
+ok(toddler10.length === 10, `Toddlers identity produced 10 cards (got ${toddler10.length})`);
+ok(kids10.length === 10, `Kids identity produced 10 cards (got ${kids10.length})`);
+ok(rainy10.length === 10, `Rainy day identity produced 10 cards (got ${rainy10.length})`);
+ok(toddler10.join("|") !== kids10.join("|"),
+  `Toddlers first 10 must not equal Kids first 10 (live smoke). toddlers=${toddler10.join(", ")} kids=${kids10.join(", ")}`);
+ok(kids10.join("|") !== rainy10.join("|"),
+  `Kids first 10 must not equal Rainy day first 10 (live smoke). kids=${kids10.join(", ")} rainy=${rainy10.join(", ")}`);
+ok(toddler10.join("|") !== rainy10.join("|"),
+  `Toddlers first 10 must not equal Rainy day first 10 (live smoke). toddlers=${toddler10.join(", ")} rainy=${rainy10.join(", ")}`);
+ok(!rainyBrowse.some((p) => p.id === "cadzan" || /ca['’].?d['’].?zan/i.test((p.displayName && p.displayName.text) || "")),
+  "Ca' d'Zan is not on Family → Rainy day");
+ok(!rainyBrowse.some((p) => p.id === "tibbals"),
+  "Tibbals is not on Family → Rainy day");
+ok(!kidsBrowse.some((p) => p.id === "intense" || p.id === "premier"),
+  "adult escape rooms are not on Family → Kids");
+ok(chipRows("attractions", "beaches").every((r) => r.place_id !== "cadzan"),
+  "Ca' d'Zan is not on Activities → Beaches");
 
 if (fail.length) {
   console.error(`test-browse-library: FAIL (${fail.length} of ${pass + fail.length})`);
