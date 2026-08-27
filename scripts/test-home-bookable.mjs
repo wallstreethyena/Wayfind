@@ -35,6 +35,31 @@ ok(pickHomeExp([night, day], 9) && pickHomeExp([night, day], 9).title === day.ti
 ok(pickHomeExp([night, day], 20) && pickHomeExp([night, day], 20).title === night.title, "8 PM: the night-coded tour IS featured");
 ok(pickHomeExp([], 9) === null && pickHomeExp(null, 12) === null, "no inventory → null (card absent, fails soft)");
 
+// ── THE PICK MUST SURVIVE A FRACTIONAL HOUR (v8.71.2) ────────────────────────
+// The three assertions above pass INTEGER hours, which is the one shape
+// production never uses: pickHomeExp defaults to siteHourFloat(), which is
+// hour + minutes/60. That default fed `top[hour % top.length]` a fractional
+// index — top[1.6] is undefined, `|| null` read it as "no inventory", and the
+// card deleted itself from the homepage for 59 minutes of every hour.
+//
+// Nothing caught it because nothing ever called the function the way the app
+// does. So these walk EVERY MINUTE OF THE DAY and also exercise the REAL
+// DEFAULT with no hour argument at all.
+{
+  const inv = Array.from({ length: 12 }, (_, i) => ({ title: "Sunset Cruise " + i, url: "x?pid=1", image: "i", reviews: 100 + i }));
+  let nulls = 0, walked = 0;
+  for (let hh = 0; hh < 24; hh++) for (let mm = 0; mm < 60; mm++) { walked++; if (!pickHomeExp(inv, hh + mm / 60)) nulls++; }
+  ok(walked === 1440, `PROBE: the minute walk actually ran (${walked} of 1440) — a loop that ran 0 proves nothing`);
+  ok(nulls === 0, `the card must render at EVERY minute of the day with inventory present — got ${nulls} blank minutes out of 1440`);
+  ok(!!pickHomeExp(inv), "…including through the REAL default hour (no argument), which is the only shape production ever uses");
+  // A fractional hour must land on the SAME pick as its whole hour: the
+  // rotation is hourly, so it must not change between :00 and :59.
+  ok(pickHomeExp(inv, 21).title === pickHomeExp(inv, 21.6).title,
+    "the rotation is HOURLY — 21:00 and 21:36 must show the same pick, or the card reshuffles under a reader who is still looking at it");
+  ok(pickHomeExp(inv, 21).title !== pickHomeExp(inv, 22).title || inv.length < 2,
+    "…but it does still rotate between hours");
+}
+
 
 // ── THE ICONIC CONTRACT (v8.71) ──────────────────────────────────────────────
 // Owner, 2026-08-26, holding his Emerson Point card next to this one: "i dont
