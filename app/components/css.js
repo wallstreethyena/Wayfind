@@ -105,7 +105,7 @@ export const WF_PLACE_CARD_CSS = `
 @media (prefers-reduced-motion:reduce){.wf-ticket-pill{transition:none}.wf-ticket-pill:hover{transform:none}}
 
 .wf-place-card,.wf-place-card *,.wf-place-card *::before,.wf-place-card *::after{box-sizing:border-box}
-.wf-place-card{--wf-card-h:268px;height:var(--wf-card-h);box-sizing:border-box;position:relative}
+.wf-place-card{--wf-card-h:268px;--wf-card-badge-w:104px;height:var(--wf-card-h);box-sizing:border-box;position:relative}
 .wf-place-card-layout{height:100%;box-sizing:border-box}
 .wf-place-card-monogram{height:100%;box-sizing:border-box}
 .wf-place-card-content{display:flex;flex-direction:column;height:100%;box-sizing:border-box}
@@ -234,14 +234,13 @@ export const WF_PLACE_CARD_CSS = `
 .wf-fall .wf-place-card .wf-place-card-highlights>button,.wf-fall .wf-place-card .wf-place-card-highlights>span,.wf-fall .wf-place-card .wf-place-card-highlights>a,.wf-place-card.wf-fall-card .wf-place-card-highlights>button,.wf-place-card.wf-fall-card .wf-place-card-highlights>span,.wf-place-card.wf-fall-card .wf-place-card-highlights>a{background:rgba(59,26,5,.62)!important;border:1px solid rgba(255,196,110,.6)!important;color:#FFE9CB!important;box-shadow:none!important}
 .wf-fall .wf-place-card .wf-place-card-highlights,.wf-place-card.wf-fall-card .wf-place-card-highlights{mask-image:linear-gradient(90deg,#000 94%,transparent 100%);-webkit-mask-image:linear-gradient(90deg,#000 94%,transparent 100%)}
 
-.wf-place-card-score~.wf-place-card-layout .wf-place-card-heading{padding-right:86px}
+.wf-place-card-score~.wf-place-card-layout .wf-place-card-heading{padding-right:calc(var(--wf-card-badge-w) + 10px)}
 .wf-place-card-score .wayfind-score-badge[data-score-band="excellent"]{--wf-score-color:#25C26E;--wf-score-tint:rgba(37,194,110,.10);--wf-score-border:rgba(37,194,110,.62);--wf-score-glow:rgba(37,194,110,.20)}
 .wf-place-card-score .wayfind-score-badge[data-score-band="strong"]{--wf-score-color:#FF6B18;--wf-score-tint:rgba(255,107,24,.11);--wf-score-border:rgba(255,107,24,.68);--wf-score-glow:rgba(255,107,24,.20)}
 .wf-place-card-score .wayfind-score-badge[data-score-band="fair"]{--wf-score-color:#F2C94C;--wf-score-tint:rgba(242,201,76,.11);--wf-score-border:rgba(242,201,76,.68);--wf-score-glow:rgba(242,201,76,.18)}
 .wf-place-card-score .wayfind-score-badge[data-score-band="low"]{--wf-score-color:#E5484D;--wf-score-tint:rgba(229,72,77,.11);--wf-score-border:rgba(229,72,77,.66);--wf-score-glow:rgba(229,72,77,.18)}
 .wf-place-card-score .wayfind-score-badge{
-  width:100%;
-  min-width:0;
+  min-width:var(--wf-card-badge-w);
   height:40px;
   box-sizing:border-box;
   justify-content:flex-start;
@@ -531,7 +530,7 @@ export const WF_PLACE_CARD_CSS = `
 .wf-rail-nav-btn:hover{border-color:rgba(249,115,22,.6);color:#FFB27A;transform:translateY(-1px)}
 .wf-rail-nav-btn:focus-visible{outline:2px solid rgba(249,115,22,.72);outline-offset:2px}
 
-.wf-place-card-score .wf-rail-when{width:100%;min-width:0;height:40px}
+.wf-place-card-score .wf-rail-when{min-width:var(--wf-card-badge-w);height:40px}
 .wf-rail-when{
   --wf-when-color:#7FA6C8;
   --wf-when-tint:rgba(127,166,200,.10);
