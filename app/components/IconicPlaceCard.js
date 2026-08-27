@@ -25,6 +25,7 @@ import { toHookLine } from "../../lib/editorialHook.js";
 // which turned a like into a navigation on every surface that forgot. The card
 // now carries a working fallback instead of a link. See lib/cardActions.js.
 import { useCardActions, useActionBridge, replayEvent, ACTION_ATTR, PLACE_ATTR, toggleLike as fallbackLike, toggleDislike as fallbackDislike, toggleSave as fallbackSave, shareCard as fallbackShare } from "../../lib/cardActions";
+import { memo } from "react";
 // v8.29.6 — MERGED WITH main's PR #888 (lib/railReaction.js), which fixed the
 // same tap from the other end: it deletes the Like/Dislike anchor outright and
 // routes every reaction through one click contract that cannot navigate.
@@ -227,7 +228,7 @@ const ThumbIcon = ({ down = false }) => (
   </svg>
 );
 
-export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, inTrip, onSave, onItinerary, onLike, onDislike, onOpen, onBadge, cardActionsReadOnly = false, surface = "place_card", eagerMedia = false, mediaPriority = null }) {
+function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, inTrip, onSave, onItinerary, onLike, onDislike, onOpen, onBadge, cardActionsReadOnly = false, surface = "place_card", eagerMedia = false, mediaPriority = null, memoKey = null }) {
   // v8.29 — the shared like/dislike/save store, read ONLY when this card has an
   // action its caller did not wire. A fully wired card (the home shell's, which
   // owns its own state) subscribes to nothing and re-renders for nothing.
@@ -650,3 +651,38 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
     </li>
   );
 }
+
+// ── OPT-IN MEMOISATION (v8.79) ──────────────────────────────────────────────
+//
+// MEASURED on production 2026-08-27, iPhone 14 viewport at 4x CPU throttle,
+// six thumb swipes across an open rail:
+//
+//     16 long tasks · 1573 ms of blocked main thread
+//
+// The rail drop holds 189 of these cards. Every scroll that moves the photo
+// window re-renders the parent, and because this component was not memoised,
+// all 189 rebuilt — hooks, action wiring, score badge and all — for a change
+// that affects about sixteen of them. That is the owner's "the site jitters".
+//
+// WHY A PLAIN React.memo WOULD DO NOTHING. The drop's call site builds SIX
+// fresh closures per card per render (onSave, onItinerary, onLike, onDislike,
+// onShare, onOpen) and a fresh `badge` ELEMENT. Every one of those fails a
+// shallow prop comparison on identity, so the default comparator can never hit.
+//
+// WHY THE COMPARATOR IS OPT-IN. Six surfaces render this card. A comparator
+// that quietly ignored function and element props would be correct for the rail
+// and a silent staleness bug anywhere a caller legitimately swaps a handler or
+// a chip — and `badge` in particular is beachChip(p), which arrives LATE from a
+// water-conditions fetch. So a caller must hand over `memoKey`: a string it
+// composes from everything that should force a repaint. No memoKey, no
+// memoisation, byte-identical behaviour to before this change. The rail is the
+// only caller that opts in, and scripts/check-card-memo.mjs proves both halves.
+function sameCard(prev, next) {
+  // Absent on either side: never memoise. This is the whole safety property —
+  // five of the six surfaces keep today's behaviour exactly.
+  if (prev.memoKey == null || next.memoKey == null) return false;
+  return prev.memoKey === next.memoKey;
+}
+
+export default memo(IconicPlaceCard, sameCard);
+export { sameCard };

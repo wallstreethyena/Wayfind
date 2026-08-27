@@ -1307,9 +1307,39 @@ export default function DaypartRail({
                   const inWin = i >= pcWin.lo && i <= pcWin.hi;
                   const isPaid = !!(sponsorCard && p && p.id === sponsorCard.place.id && selected === sponsorCard.rail);
                   const organicRank = isPaid ? null : (sponsorCard && selected === sponsorCard.rail ? i : i + 1);
+                  // THE MEMO KEY (v8.79). IconicPlaceCard only memoises when a
+                  // caller hands one over, and it compares NOTHING ELSE — so
+                  // every value that can change what this card DRAWS has to be
+                  // in here, or the card freezes showing a stale one.
+                  //
+                  // Composed rather than shallow-compared because the call site
+                  // below builds six fresh closures and a fresh badge ELEMENT
+                  // per card per render; identity comparison can never hit on
+                  // any of them. scripts/check-card-memo.mjs asserts that every
+                  // prop this call site passes is either represented here or is
+                  // a function whose behaviour is fully determined by these.
+                  //
+                  // beachCond[p.id] is in it because the water chip arrives
+                  // LATE from its own fetch, on a card whose row never changes —
+                  // exactly the shape a memo turns into a permanent blank.
+                  // shown.cityLabel is in it because onShare puts it in the
+                  // unfurl, and a share carrying the wrong town is worse than
+                  // no share.
+                  const memoKey = [
+                    p.id, inWin ? 1 : 0, organicRank == null ? "-" : organicRank,
+                    isPaid ? 1 : 0,
+                    (isSaved ? isSaved(p.id) : false) ? 1 : 0,
+                    (isLiked ? !!isLiked(p.id) : liked ? !!liked[p.id] : false) ? 1 : 0,
+                    (isDisliked ? !!isDisliked(p.id) : disliked ? !!disliked[p.id] : false) ? 1 : 0,
+                    (isOnTrip ? isOnTrip(p) : false) ? 1 : 0,
+                    beachCond[p.id] ? (beachCond[p.id].sig || JSON.stringify(beachCond[p.id]).length) : "-",
+                    hooks[p.id] ? 1 : 0,
+                    shown.cityLabel || "",
+                  ].join("|");
                   return (
                   <IconicPlaceCard
                     key={p.id}
+                    memoKey={memoKey}
                     place={inWin ? p : photoless(p)}
                     rank={organicRank}
                     // The paid card opens the destination the placement bought —
