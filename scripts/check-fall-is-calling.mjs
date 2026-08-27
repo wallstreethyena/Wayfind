@@ -106,6 +106,35 @@ ok(/\.range\(from, from \+ PAGE - 1\)/.test(SRC),
 ok(/if \(data\.length < PAGE\) break/.test(SRC),
   "pagination terminates on a short page rather than on a hardcoded ceiling");
 
+// ── THE FALL SKIN CARRIES NO PALE PANEL (v8.73) ────────────────────────────
+// Owner, 2026-08-27, on a live Augtober card: "there shouldn't be no reason why
+// there is the lighter orange part… it usually happens right before the
+// picture." Measured: /fall/card-bg-760.jpg is 760x474 and its cream->dark seam
+// sits at x=210, i.e. the artwork's left 27.63% is a pale panel. Under
+// `cover` on a 268px-tall card that panel renders ~118.7px wide, against an
+// 88px photo column - a ~31px cream band down the side of EVERY fall card. It
+// was invisible while the column happened to be wider; nothing about the art
+// or the column guaranteed they would agree, and once they drifted the band
+// appeared everywhere at once.
+//
+// The art is now SPLIT, which removes the coupling rather than re-tuning it:
+// the card gets a dark-only crop (no cream exists in it to leak) and the
+// pumpkins are scoped to the photo column, where they were always meant to be.
+// No card width can reintroduce the band.
+const CSS = readFileSync(new URL("../app/components/css.js", import.meta.url), "utf8");
+const fallCardRule = (CSS.match(/\.wf-fall \.wf-place-card,\.wf-place-card\.wf-fall-card\{[^}]*\}/) || [""])[0];
+ok(/card-bg-dark-/.test(fallCardRule),
+  "the fall CARD background is the dark-only crop (a combined artwork puts a cream panel behind the content column)");
+ok(!/card-bg-760\.webp|card-bg-1148\.webp/.test(CSS),
+  "the combined artwork with the pale left panel is referenced nowhere — that file IS the band");
+ok(/\.wf-fall \.wf-place-card \.wf-place-card-media[^{]*\{[^}]*card-bg-left-/.test(CSS),
+  "the pumpkin/cream art is scoped to .wf-place-card-media, so it can never paint beside the photo");
+for (const asset of ["card-bg-dark-640.webp", "card-bg-dark-1100.webp", "card-bg-left-320.webp"]) {
+  let bytes = 0;
+  try { bytes = readFileSync(new URL("../public/fall/" + asset, import.meta.url)).length; } catch (e) { bytes = 0; }
+  ok(bytes > 2000, `public/fall/${asset} exists and is a real image (${bytes} bytes) — a 404 here repaints the flat fallback and loses the season`);
+}
+
 if (fail.length) {
   console.error(`check-fall-is-calling: FAIL (${fail.length} of ${pass + fail.length})`);
   for (const m of fail) console.error("  ✗ " + m);
