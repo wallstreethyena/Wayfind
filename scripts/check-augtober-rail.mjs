@@ -146,12 +146,19 @@ ok(fallSkinLive(null) === false, "no site date, no skin — never a guess");
 ok(/fallSkin \? " wf-fall" : ""/.test(rail) || /fallSkin \? "wf-fall" : undefined/.test(rail),
   "the skin class is gated by fallSkinLive, in syntactic position");
 const css = readFileSync(path.join(ROOT, "app/components/css.js"), "utf8");
-ok(/\.wf-fall \.wf-place-card,\.wf-place-card\.wf-fall-card\{background:#C96F1E url\(\/fall\/card-bg-760\.webp[^)]*\) left bottom\/cover no-repeat!important/.test(css),
-  "the fall skin IS the owner's template art (v8.68.1: 'this is the FALL place card design') — served as the card background with !important, cover from left-bottom so the pumpkins stay pinned under the photo mask");
+// v8.73 — the art is SPLIT. The combined file carried a cream panel across its
+// left 27.63%, which renders ~119px on a 268px card against an 88px photo
+// column: a ~31px pale band beside every fall card (owner, 2026-08-27). The
+// card now takes the dark-only crop and the pumpkins are scoped to the photo
+// column, so no card width can reintroduce the band.
+ok(/\.wf-fall \.wf-place-card,\.wf-place-card\.wf-fall-card\{background:#BC4D08 url\(\/fall\/card-bg-dark-640\.webp[^)]*\) right bottom\/cover no-repeat!important/.test(css),
+  "the fall CARD is the owner's template art, dark-only crop, served with !important so nothing repaints it");
+ok(/\.wf-fall \.wf-place-card \.wf-place-card-media[^{]*\{background:url\(\/fall\/card-bg-left-320\.webp[^)]*\) left bottom\/auto 100% no-repeat/.test(css),
+  "the pumpkins stay pinned under the photo mask — scoped to the media column, never beside it");
 ok(/;mask-image:radial-gradient\(135% 110% at 100% 0%,#000 60%,transparent 92%\)\}/.test(css),
   "the photo fades at its left corners so the art's baked pumpkins and leaf show THROUGH it — the owner's overlap, no cropped overlays, no hard edges");
 import { statSync } from "node:fs";
-for (const f of ["public/fall/card-bg-380.webp", "public/fall/card-bg-760.webp", "public/fall/card-bg-1148.webp"]) {
+for (const f of ["public/fall/card-bg-dark-640.webp", "public/fall/card-bg-dark-1100.webp", "public/fall/card-bg-left-320.webp"]) {
   ok(statSync(path.join(ROOT, f)).size > 4000, `the processed owner art ships on disk (${f})`);
 }
 
@@ -175,7 +182,7 @@ const RENDERERS = [
 for (const [f, rx] of RENDERERS) {
   ok(rx.test(strip(readFileSync(path.join(ROOT, f), "utf8"))), `${f} carries fallCardClass on its card ROOT — a renderer that drops it ships season-blind cards`);
 }
-ok(/\.wf-place-card\.wf-fall-card\{background:#C96F1E url\(/.test(css),
+ok(/\.wf-place-card\.wf-fall-card\{background:#BC4D08 url\(/.test(css),
   "the card-level skin selector exists — the drop-scoped class alone cannot dress a card on the browse feed");
 
 // route file structural
