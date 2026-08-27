@@ -3,7 +3,7 @@ import { Component, useEffect, useMemo, useRef, useState } from "react";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, getLoader, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, wayfindScore } from "../lib/google";
 import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks";
-import { fallCardClass } from "../lib/fallSkin.js";
+import { fallCardClass, fallShareLine } from "../lib/fallSkin.js";
 import { siteTodayStr } from "../lib/siteTime";
 import { intentRadiusMi, intentScopeLabel } from "../lib/momentIntents";
 import { MAP_DEFAULT_CATEGORY } from "../lib/mapExplorer";
@@ -9054,7 +9054,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               p.name,
               placeShareUrl(p, (ctx && ctx.city) || "", (ctx && ctx.hook) || ""),
               () => showToast("Link copied"),
-              "Check out " + p.name + " on Wayfind",
+              fallShareLine("Check out " + p.name + " on Wayfind", p.id, siteTodayStr()),
               () => { try { giveawayMark(p.id); addShared(p); } catch (er) {} },
             );
           } catch (er) {}
@@ -10200,7 +10200,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               {/* Wayfind Picks now renders as the first hook card inside the "Worth a look" section below, matching the editorial cards. */}
               {/* "Worth a look near you": Wayfind Picks first, editorial hooks in the middle, Roll the Dice last. Same hook-card shape, different accent colors, so they blend. */}
               {!browseCat && (suggested && suggested.length > 0) && (() => {
-                const shareHook = (hk, pl) => { if (!pl) return; askShareIntent({ name: pl.name, city: locName, id: pl.id, kind: placeKinds(pl), onPlain: () => shareLink(pl.name, placeShareUrl(pl, locName, blurbLine(blurbs[pl.id])), () => showToast("Link copied"), "Check out " + pl.name + " on Wayfind", () => { try { logEvent("share", pl, { kind: "hook" }); } catch (e) {} giveawayMark(pl.id); addShared(pl); }), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", pl, { kind: "invite", from: "hook" }); } catch (e) {} giveawayMark(pl.id); addShared(pl); }) }); };
+                const shareHook = (hk, pl) => { if (!pl) return; askShareIntent({ name: pl.name, city: locName, id: pl.id, kind: placeKinds(pl), onPlain: () => shareLink(pl.name, placeShareUrl(pl, locName, blurbLine(blurbs[pl.id])), () => showToast("Link copied"), fallShareLine("Check out " + pl.name + " on Wayfind", pl.id, siteTodayStr()), () => { try { logEvent("share", pl, { kind: "hook" }); } catch (e) {} giveawayMark(pl.id); addShared(pl); }), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", pl, { kind: "invite", from: "hook" }); } catch (e) {} giveawayMark(pl.id); addShared(pl); }) }); };
                 // v5.11: the dice card rotates the TAKE A CHANCE bank; the
                 // classic line "I want to take a chance." stays as variant zero
                 // and the fallback (PROTECTED copy, check-ux).
@@ -11512,7 +11512,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
             {onDislike && (
               <button className={`wf-place-card-dislike${disliked ? " is-active" : ""}`} onClick={onDislike} aria-label={disliked ? "Remove dislike" : "Not for me"} aria-pressed={disliked} title={disliked ? "Remove dislike" : "Not for me"} style={{ display: "inline-flex", alignItems: "center", background: disliked ? "#F87171" : "transparent", border: `1.5px solid ${disliked ? "#F87171" : C.border}`, borderRadius: 999, color: disliked ? "#2A0A0A" : C.muted, padding: "5px 11px", cursor: "pointer" }}><svg viewBox="0 0 24 24" fill={disliked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 4v10H4V4h4Z" /><path d="M8 6h8.5a2 2 0 0 1 1.9 1.4l1.3 4a2 2 0 0 1-1.9 2.6H14l.6 3.1a2.4 2.4 0 0 1-2.4 2.9L8 14V6Z" /></svg></button>
             )}
-            <button className="wf-place-card-share" onClick={(e) => { e.stopPropagation(); logEventAnon("share", p, { kind: "place_card" }); try { onShareCard && onShareCard(p); } catch (er) {} askShareIntent({ name: p.name, city: "", id: p.id, kind: placeKinds(p), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEventAnon("share", p, { kind: "invite", from: "place_card" }); } catch (er) {} }), onPlain: () => shareLink(p.name, placeShareUrl(p, "", ""), () => { try { if (typeof window !== "undefined") { const _t = document.createElement("div"); _t.textContent = "Link copied"; _t.style.cssText = "position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:#161B22;color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:700;z-index:99999;border:1px solid #30363D;box-shadow:0 6px 24px rgba(0,0,0,.5)"; document.body.appendChild(_t); setTimeout(() => { try { document.body.removeChild(_t); } catch(e){} }, 1600); } } catch (e) {} }, "Check out " + p.name + " on Wayfind") }); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", border: `1.5px solid ${C.border}`, borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>↗ Share</button>
+            <button className="wf-place-card-share" onClick={(e) => { e.stopPropagation(); logEventAnon("share", p, { kind: "place_card" }); try { onShareCard && onShareCard(p); } catch (er) {} askShareIntent({ name: p.name, city: "", id: p.id, kind: placeKinds(p), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEventAnon("share", p, { kind: "invite", from: "place_card" }); } catch (er) {} }), onPlain: () => shareLink(p.name, placeShareUrl(p, "", ""), () => { try { if (typeof window !== "undefined") { const _t = document.createElement("div"); _t.textContent = "Link copied"; _t.style.cssText = "position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:#161B22;color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:700;z-index:99999;border:1px solid #30363D;box-shadow:0 6px 24px rgba(0,0,0,.5)"; document.body.appendChild(_t); setTimeout(() => { try { document.body.removeChild(_t); } catch(e){} }, 1600); } } catch (e) {} }, fallShareLine("Check out " + p.name + " on Wayfind", p.id, siteTodayStr())) }); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", border: `1.5px solid ${C.border}`, borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>↗ Share</button>
           </div>
           {/* Restored 2026-07-25: the per-card affiliate disclosure (spec Sec.2,
               shipped v6.67) was dropped from the homepage in the design-release-01

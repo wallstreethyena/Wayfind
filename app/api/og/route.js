@@ -65,6 +65,9 @@ export async function GET(req) {
         name: get("t", 80), city: get("loc", 40), mi: get("mi", 6),
         sc: get("sc", 5), r: get("r", 4), rev: get("rev", 9).replace(/[^0-9]/g, ""),
         cat: get("cat", 30), hook: get("hk", 110),
+        // Decided by app/p/[id]/page.js from the place id + today's date, not
+        // by the sharer. buildCard ignores any tone that is not in TONES.
+        tone: get("tone", 8),
       }));
     }
 
