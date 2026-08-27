@@ -163,14 +163,44 @@ ok(/if \(!cancelled && next\) setHomeExp\(next\)/.test(expEffect[0]),
 ok(/homeExpCenter\.current !== key\) \{ homeExpCenter\.current = key; setHomeExp\(null\); \}/.test(src),
   "the homeExp pick must be cleared when the search center moves — otherwise the previous city's tour survives the move." + HOME_EXP_NOTE);
 
-// c) The clamped title reserves exactly the lines it clamps to.
-ok(/const HOME_EXP_TITLE_MIN_H = HOME_EXP_TITLE_FS \* HOME_EXP_TITLE_LH \* 2;/.test(src),
-  "HOME_EXP_TITLE_MIN_H must stay DERIVED from the font size and line height — a hardcoded pixel value silently stops matching when the type changes." + HOME_EXP_NOTE);
-const titleLine = src.split("\n").find((l) => l.includes("HOME_EXP_TITLE_MIN_H") && l.includes("minHeight"));
-ok(!!titleLine, "no JSX element applies HOME_EXP_TITLE_MIN_H as a minHeight — the bookable card's title is unreserved again." + HOME_EXP_NOTE);
-ok(/WebkitLineClamp: 2\b/.test(titleLine),
-  "the reserved title must still clamp to exactly 2 lines — the reservation and the clamp have to agree or the card can outgrow its reserved box." + HOME_EXP_NOTE);
-ok(/fontSize: HOME_EXP_TITLE_FS/.test(titleLine) && /lineHeight: HOME_EXP_TITLE_LH/.test(titleLine),
-  "the reserved title must read its font size and line height from the same constants the reservation is derived from." + HOME_EXP_NOTE);
+// c) THE CARD CANNOT CHANGE HEIGHT WHEN IT REFRESHES.
+//
+// v8.71 — this used to be three assertions about a hand-reserved title box
+// (HOME_EXP_TITLE_MIN_H, derived from the font size and line height, applied as
+// a minHeight on a 2-line clamp). The bookable card is now the app's own
+// .wf-place-card, whose CSS gives it a FIXED height — `--wf-card-h:268px;
+// height:var(--wf-card-h)` — so the title cannot move the feed no matter how
+// long the next hour's pick is. That is a STRICTLY STRONGER guarantee than
+// reserving two lines of type, which is why the assertions FOLLOWED the code
+// instead of being deleted: the invariant they encode ("an idle reader's feed
+// must not jump when this card swaps at the top of the hour") is unchanged and
+// still has to be proven.
+//
+// Both halves are asserted, because either alone is a false green: the card
+// wearing the class proves nothing if the class stops fixing the height, and
+// the class fixing the height proves nothing if the card stops wearing it.
+const expBlock = src.slice(src.indexOf("{!browseCat && homeExp &&"), src.indexOf("<LocalEdit"));
+ok(expBlock.length > 500, `PROBE: the bookable-card block was delimited (${expBlock.length} chars) — a -1 here would scan the whole file and prove nothing`);
+ok(/className="wf-place-card is-no-take"/.test(expBlock),
+  "the bookable card must wear .wf-place-card — that class is what fixes its height, and a fixed height is what stops the hourly refresh moving the feed." + HOME_EXP_NOTE);
+// The card overrides the shared height because it honestly carries no editorial
+// take and the full 268px leaves a void. That override must stay a FIXED px
+// value — a content-driven height (auto/fit-content/min-content) would put the
+// idle-jump straight back, which is the whole point of this section.
+{
+  const h = expBlock.match(/"--wf-card-h":\s*"([^"]+)"/);
+  ok(!h || /^\d+(\.\d+)?px$/.test(h[1]),
+    `the bookable card's height override must be a fixed px value, never content-driven — got ${h && h[1]}` + HOME_EXP_NOTE);
+}
+ok(!/minHeight/.test(expBlock),
+  "…so it must NOT hand-reserve a title box any more; two competing height rules is how one silently stops matching the other." + HOME_EXP_NOTE);
+{
+  const cssSrc = readFileSync(new URL("../app/components/css.js", import.meta.url), "utf8").replace(/\s*\n\s*/g, "");
+  const rule = (cssSrc.match(/\.wf-place-card\{[^}]*\}/) || [""])[0];
+  ok(/--wf-card-h:\d+px/.test(rule) && /height:var\(--wf-card-h\)/.test(rule),
+    `.wf-place-card must still FIX its height — without it the class buys the card nothing and the reservation this section protects is gone. Got: ${rule.slice(0, 90)}` + HOME_EXP_NOTE);
+}
+ok(!/HOME_EXP_TITLE_MIN_H/.test(src),
+  "the superseded title-reservation constants must be GONE, not left declared and unread — a constant nothing reads is the next reader's false lead." + HOME_EXP_NOTE);
 
 console.log(`test-layout-shift: OK — ${passed} assertions (responsive layout is CSS-driven at the 900px breakpoint; isDesktop never sets geometry; the hourly bookable-card refresh cannot move the feed)`);

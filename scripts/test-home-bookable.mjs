@@ -35,5 +35,70 @@ ok(pickHomeExp([night, day], 9) && pickHomeExp([night, day], 9).title === day.ti
 ok(pickHomeExp([night, day], 20) && pickHomeExp([night, day], 20).title === night.title, "8 PM: the night-coded tour IS featured");
 ok(pickHomeExp([], 9) === null && pickHomeExp(null, 12) === null, "no inventory → null (card absent, fails soft)");
 
+
+// ── THE ICONIC CONTRACT (v8.71) ──────────────────────────────────────────────
+// Owner, 2026-08-26, holding his Emerson Point card next to this one: "i dont
+// like the way it looks i want it to look like our iconic place cards you know
+// the ones." The card is now the real .wf-place-card DOM.
+//
+// The risk that creates is the whole reason these assertions exist: the iconic
+// card has slots this data CANNOT honestly fill, and a rebuild that "completes
+// the look" by filling them ships four fabrications on a monetised unit. Each
+// empty slot is pinned as an ABSENCE, and every absence carries a positive
+// control so it cannot pass just because the block was mis-delimited.
+// COMMENTS ARE STRIPPED BEFORE EVERY ABSENCE CHECK. This block explains, in
+// prose, exactly which slots must stay empty — so it names priceLabel,
+// PlaceScoreChip and "2.4 mi" in the very comments that say never to render
+// them. Grepping the raw source therefore fails on the guard's own
+// documentation, which is the trap CLAUDE.md records hitting five times in one
+// day. `cardCode` is code only; `card` keeps the prose for the presence checks.
+const card = h.slice(h.indexOf("{!browseCat && homeExp && (() => {"), h.indexOf("</ViatorCommerceLink>") + 21);
+const cardCode = card.replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+ok(card.length > 800, `PROBE: the bookable-card block was delimited (${card.length} chars) — a -1 would scan the whole file and every absence below would pass vacuously`);
+ok(/ViatorCommerceLink/.test(card), "PROBE: the delimited block really is the bookable card");
+
+// What it DOES wear.
+ok(/className="wf-place-card is-no-take"/.test(card), "the card wears the iconic .wf-place-card contract");
+ok(/<div className="wf-place-card-score"><WayfindScoreBadge/.test(card),
+  "the score sits in the card's own top-right badge slot, like every other card");
+ok(/wf-place-card-media/.test(card) && /wf-place-card-category/.test(card) && /wf-place-card-name/.test(card),
+  "…with the iconic media column, orange-ticked eyebrow and name");
+ok(/wf-place-card-highlights/.test(card), "…and the chip lane");
+
+// THE SCORE IS THE ONE FORMULA, called explicitly.
+ok(/toDisplayScore\(wayfindScore\(Number\(homeExp\.rating\), Number\(homeExp\.reviews\)\)\)/.test(card),
+  "the score is wayfindScore(rating, reviews) — the SAME call the rest of the app ranks with, not the second Bayesian copy in lib/experiencesData and not a number of the card's own");
+ok(!/PlaceScoreChip/.test(cardCode),
+  "…called directly rather than left to PlaceScoreChip's self-heal, so the shown number cannot drift from the ranking number");
+
+// THE FOUR THINGS THIS DATA CANNOT HONESTLY SAY.
+ok(!/wf-place-card-rank/.test(cardCode),
+  "NO rank chip: rank={1} exists only so rankBucket() reports \"top3\" in analytics — there is no visible ranked list behind it, so a \"1\" would assert a ranking Wayfind never performed");
+ok(!/wf-place-card-award/.test(cardCode),
+  "NO top-pick band, for the same reason — topPickAward would compose a merchandising claim out of an analytics constant");
+ok(!/wf-place-card-take/.test(cardCode),
+  "NO editorial take: wf_experiences carries no sourced why-go for a tour product, and the card-hook law forbids filling that slot with the house tagline. is-no-take collapses it honestly");
+ok(/is-no-take/.test(card), "…and the card says so in its class, so the CSS collapses the slot instead of leaving a hole");
+ok(!/\bmi\b|distMi|milesBetween/.test(cardCode),
+  "NO distance: wf_experiences stores a dest_id and a city, never a per-product point — \"2.4 mi\" would be invented");
+ok(!/priceLabel\(/.test(cardCode),
+  "NO priceLabel: fromPrice is dollars, a Google priceLevel is 0-4, and the two scales are not interchangeable");
+ok(/"from \$" \+ homeExp\.fromPrice/.test(card), "…the price renders as a plain fact instead");
+
+// ONE action, and it is the monetised one — no dead buttons.
+ok(!/wf-place-card-save|onSave|onLike|onDislike/.test(cardCode),
+  "NO save/like/dislike: those stores key on a Google place id and this row carries a Viator product_code, so they would render enabled and do nothing");
+ok(/wf-place-card-book/.test(card), "the one action is the Book CTA");
+ok(/Wayfind may earn a commission; rankings never change/.test(card),
+  "…and the affiliate disclosure rides ON it, not in a page footer the reader never reaches");
+
+// The chips are the HARVESTED tags, resolved server-side.
+const serve = readFileSync(new URL("../lib/experiencesServe.js", import.meta.url), "utf8");
+ok(/chips:/.test(serve) && /CATEGORY_BY_KEY\[k\]/.test(serve),
+  "chips resolve from the harvested category tags server-side — keeping the label table out of the home bundle");
+ok(/\.filter\(Boolean\)/.test(serve.slice(serve.indexOf("chips:"))),
+  "…and an unknown tag drops rather than rendering a raw key like \"water\"");
+ok(/homeExp\.chips \|\| \[\]/.test(card), "the card renders those resolved chips and invents none of its own");
+
 console.log(`test-home-bookable: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);
