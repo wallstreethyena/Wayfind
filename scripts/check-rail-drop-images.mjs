@@ -99,7 +99,13 @@ const PLACE = {
    pass it. This is the half that was missing for three weeks. */
 {
   const rail = strip(readFileSync(join(ROOT, "app/components/DaypartRail.js"), "utf8"));
-  const start = rail.indexOf("dropList.map(");
+  // DELIMIT ON THE THING THAT CANNOT MOVE. This read `dropList.map(` and went
+  // red in v8.77 when the drop began mounting in chunks
+  // (`dropList.slice(0, mounted).map(`) — a guard failing because correct code
+  // moved. CLAUDE.md's rule is to FOLLOW the code, never to delete the
+  // assertion, so it now anchors on `dropList` plus whatever call follows,
+  // which survives a slice, a filter or a memo wrapper.
+  const start = rail.search(/dropList(?:\.[a-zA-Z]+\([^)]*\))*\.map\(/);
   const end = rail.indexOf("</ul>", start);
   const block = start > -1 && end > start ? rail.slice(start, end) : "";
   ok(block.length > 400, `PROBE: the drop's card map was delimited (${block.length} chars) — a -1 here would scan the whole file and prove nothing`);
