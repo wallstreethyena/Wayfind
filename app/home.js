@@ -10029,7 +10029,27 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                           <div className="wf-place-card-score"><WayfindScoreBadge score={wf} /></div>
                           <div className="wf-place-card-layout">
                             <div className="wf-place-card-media">
-                              <img src={homeExp.image} alt="" loading="lazy" decoding="async" style={{ objectFit: "cover" }} />
+                              {/* EAGER, and measured rather than assumed.
+                                  On production 2026-08-27 this photo did not
+                                  load: scrolled to the centre of the viewport,
+                                  five seconds elapsed, complete:false and
+                                  currentSrc:"" — then removeAttribute("loading")
+                                  painted the same url in 8ms. It is the same
+                                  symptom #985 fixed inside the rail's scroller,
+                                  and finding it HERE, in the ordinary feed
+                                  column, means the cause is broader than that
+                                  one container: 18 of the 19 lazy images on the
+                                  homepage had never loaded either.
+                                  That wider problem is NOT solved by this line
+                                  and is written up rather than half-fixed — a
+                                  scroll-container hypothesis was tested against
+                                  a rooted IntersectionObserver and did not hold.
+                                  What is fixed here is the single most
+                                  monetised unit on the page, which was shipping
+                                  with an empty photo well. One image, high in
+                                  the feed, after a tap-free render — the cost is
+                                  one fetch the reader was always going to make. */}
+                              <img src={homeExp.image} alt="" loading="eager" decoding="async" style={{ objectFit: "cover" }} />
                             </div>
                             <div className="wf-place-card-content" style={{ position: "relative" }}>
                               <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start" }}>

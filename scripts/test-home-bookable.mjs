@@ -100,5 +100,13 @@ ok(/\.filter\(Boolean\)/.test(serve.slice(serve.indexOf("chips:"))),
   "…and an unknown tag drops rather than rendering a raw key like \"water\"");
 ok(/homeExp\.chips \|\| \[\]/.test(card), "the card renders those resolved chips and invents none of its own");
 
+// THE PHOTO LOADS. Measured on production, not assumed: with loading="lazy"
+// this image sat at complete:false / currentSrc:"" while centred in the
+// viewport, and painted in 8ms the moment the attribute came off. A commerce
+// card with an empty photo well is the worst version of the most monetised
+// unit on the page, so the attribute is pinned rather than left to drift back.
+ok(/loading="eager"/.test(cardCode) && !/loading="lazy"/.test(cardCode),
+  "the bookable card's photo is EAGER — measured on production: lazy left it blank while centred in the viewport, and it painted in 8ms without the attribute");
+
 console.log(`test-home-bookable: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);
