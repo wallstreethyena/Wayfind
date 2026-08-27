@@ -762,3 +762,4 @@ node scripts/check-experiences-link-health.mjs
 node scripts/check-event-photo-rights.mjs
 node scripts/check-fetch-deadlines.mjs
 node scripts/check-skeleton-has-a-voice.mjs
+node scripts/check-drop-photo-window.mjs
