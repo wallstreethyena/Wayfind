@@ -166,8 +166,20 @@ const DR = strip(readFileSync(join(ROOT, "app/components/DaypartRail.js"), "utf8
 
 /* ── 4. AN OUTAGE IS NOT SCARCITY ──────────────────────────────────────────*/
 {
-  ok(/\.catch\(\(\) => \{ failed = true; return null; \}\)/.test(RD),
-    "railMenuData records that loadRailPlaces threw rather than swallowing it");
+  // ASSERT THE INVARIANT, NOT THE MECHANISM. This read `.catch(() => { failed
+  // = true })` until v8.74, when the load was moved behind settleLoad —
+  // because a bare .catch only ever saw the failure mode that THROWS, and
+  // production's was the other one (a stalled upstream that never settles;
+  // measured 2026-08-27, two of five fresh Orlando cells never returned).
+  // Pinning the old spelling would have gone red on the fix and green on a
+  // future regression that dropped the flag while keeping the shape, which is
+  // the wrong way round. The invariant is: the load is BOUNDED, and whatever
+  // it does, the outcome is recorded. Union of both plausible spellings, per
+  // CLAUDE.md — never one path.
+  ok(/const failed = !res\.ok;/.test(RD) || /\.catch\(\(\) => \{ failed = true; return null; \}\)/.test(RD),
+    "railMenuData RECORDS the load's failure rather than swallowing it");
+  ok(/settleLoad\(/.test(RD),
+    "…and the load is BOUNDED, not merely caught — a hang is not a rejection, and an unbounded await is what actually reached the reader (scripts/check-fetch-deadlines.mjs pins the deadline and its ordering against the client budget)");
   ok(/covered: !failed,/.test(RD),
     "…and reports covered:false when it did — `covered:true` with zero places tells the reader \"nothing near you clears this bar\", which is a claim about their town made on the strength of our own crash");
   ok(/\n\s*failed,\n/.test(RD), "…and carries the fact out, so a caller can tell the two apart");
