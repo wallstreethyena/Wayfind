@@ -98,8 +98,21 @@ const RAIL = strip(read("app/components/DaypartRail.js"));
 
 ok(/from "\.\.\/\.\.\/lib\/loadState\.js"/.test(RAIL),
   "DaypartRail imports lib/loadState.js — the module written for this exact grey box");
-ok(/settleLoad\(\s*\(\)\s*=>\s*fetch\(/.test(RAIL),
-  "the /api/rails request runs through settleLoad, so a fetch that never settles still reaches a rendered state within LOAD_TIMEOUT_MS");
+// v8.73 — the fetch moved into a named `inflight` promise so a response that
+// lands AFTER the deadline can still be applied (see check-rail-pool-waves for
+// why: /api/rails was measured cold at 25.4s against a 12s deadline, and the
+// reader was shown "we couldn't reach the ranking service" for a request that
+// was about to succeed). This assertion FOLLOWED that rather than being
+// deleted, because the invariant it protects is unchanged and still load-
+// bearing: a fetch that never settles must still reach a RENDERED state.
+//
+// Asserted in two halves, because either alone is a false green — settleLoad
+// wrapping something that is not the rails fetch would pass the first, and the
+// fetch existing without a deadline would pass the second.
+ok(/const inflight = fetch\(`\/api\/rails\?/.test(RAIL),
+  "the /api/rails request is a named promise, so both the deadline and the late lane can read it");
+ok(/settleLoad\(\(\) => inflight, \{ timeoutMs: [A-Z_]+ \}\)/.test(RAIL),
+  "…and it runs through settleLoad with an explicit budget, so a fetch that never settles still reaches a rendered state instead of leaving the skeleton up");
 ok(!/fetch\(`\/api\/rails[\s\S]{0,400}?\.catch\(/.test(RAIL),
   "the old bare fetch().then().catch() chain is gone — .catch handles rejection, and rejection was never the failure mode that stuck");
 ok(/setRailLoad\(LOAD_FAILED\)/.test(RAIL) && /setRailLoad\([^)]*"uncovered"/.test(RAIL),

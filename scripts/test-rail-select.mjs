@@ -630,26 +630,44 @@ const WIDEN_RADIUS_MI = 25;
   ok(!/LANDING_CITIES\.sarasota/.test(api.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ")),
     "api/rails has no Sarasota leftover fallback");
   // v8.18 — the identity pools are actually BUILT and wired (the ROLE, not a
-  // name): buildIdentityPool assigned to both pool keys with the predicate
-  // and radius each selector gates on. Without these two lines the fixture
-  // pools above assert a pipeline that does not exist in production.
+  // name): buildIdentityPool called with the predicate and radius each selector
+  // gates on, and its result ASSIGNED to the pool key. Without these the
+  // fixture pools above assert a pipeline that does not exist in production.
+  //
+  // v8.73 — the builders moved into two Promise.all waves, so the call and the
+  // assignment are now separate statements (the cold /api/rails path measured
+  // 25.4s against a 12s client deadline; see check-rail-pool-waves.mjs). These
+  // assertions FOLLOWED that, and each one gained its second half: a builder
+  // called inside a wave whose result is never assigned produces exactly the
+  // empty rail this block exists to prevent, and would have passed a check that
+  // only looked for the call.
   const dcode = data.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
-  ok(/pools\.breakfast = await buildIdentityPool\(pools, origin, isBreakfastPlace, BREAKFAST_NEAR_MI/.test(dcode),
+  ok(/buildIdentityPool\(pools, origin, isBreakfastPlace, BREAKFAST_NEAR_MI/.test(dcode),
     "railsData builds the breakfast identity pool from owned inventory (the pool-cap cure)");
-  ok(/pools\.quickeats = await buildIdentityPool\(pools, origin, isQuickService, 8/.test(dcode),
+  ok(/pools\.breakfast = breakfast;/.test(dcode),
+    "…and ASSIGNS it to pools.breakfast — a pool computed inside a wave and never attached is the same empty rail, wearing a longer request");
+  ok(/buildIdentityPool\(pools, origin, isQuickService, 8/.test(dcode),
     "railsData builds the quickeats identity pool for the 30-minute break");
+  ok(/pools\.quickeats = quickeats;/.test(dcode),
+    "…and ASSIGNS it to pools.quickeats — a pool computed inside a wave and never attached is the same empty rail, wearing a longer request");
   // v8.22 — the drive pool is BUILT (the exact call, on the pools object, from
   // the pooled-cities list) and bounded by the same band the selector reads.
-  ok(/pools\.drive = await buildDrivePool\(pools, origin, cities\)/.test(dcode),
+  ok(/buildDrivePool\(pools, origin, cities\)/.test(dcode),
     "railsData builds the drive pool (27mi horizon) — without it the fixture above asserts a pipeline that does not exist");
+  ok(/pools\.drive = drive;/.test(dcode),
+    "…and ASSIGNS it to pools.drive — a pool computed inside a wave and never attached is the same empty rail, wearing a longer request");
   ok(/d >= DRIVE_MIN_MI && d <= DRIVE_REACH_MI/.test(dcode),
     "buildDrivePool admits rows only inside the [DRIVE_MIN_MI, DRIVE_REACH_MI] band measured from the reader");
   // v8.19 — family and events wired the same way (the ROLE: the exact call,
   // predicate and radius the selectors gate on).
-  ok(/pools\.family = await buildIdentityPool\(pools, origin, isFamilyPlace, FAMILY_NEAR_MI, \["things-to-do"\], isStrongFamilyPlace, \{ typeOv: FAMILY_TYPES \}\)/.test(dcode),
+  ok(/buildIdentityPool\(pools, origin, isFamilyPlace, FAMILY_NEAR_MI/.test(dcode),
     "railsData builds the family identity pool — plain reuse, strong widen, type-targeted read");
-  ok(/pools\.events = await buildIdentityPool\(pools, origin, isStrongTicketedVenue, EVENTS_NEAR_MI, \["things-to-do", "nightlife"\], null, \{ typeOv: TICKETED_TYPES \}\)/.test(dcode),
+  ok(/pools\.family = family;/.test(dcode),
+    "…and ASSIGNS it to pools.family — a pool computed inside a wave and never attached is the same empty rail, wearing a longer request");
+  ok(/buildIdentityPool\(pools, origin, isStrongTicketedVenue, EVENTS_NEAR_MI/.test(dcode),
     "railsData builds the events identity pool with the STRONG identity on both sources (the bar-leak fix)");
+  ok(/pools\.events = events;/.test(dcode),
+    "…and ASSIGNS it to pools.events — a pool computed inside a wave and never attached is the same empty rail, wearing a longer request");
   ok(/google_types=ov\.%7B/.test(dcode),
     "typeOv reaches the REST query as an array-overlap filter — the cap must only ever trim QUALIFYING rows (3-of-54 starvation, measured live)");
   ok(/primaryType: row\.primary_type \|\| null/.test(dcode),
