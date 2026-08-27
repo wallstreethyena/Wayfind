@@ -251,6 +251,7 @@ const read = (p) => readFileSync(join(ROOT, p), "utf8");
   // role false green CLAUDE.md warns about. So: drive selfCheck with a fake
   // upstream that returns the OUTAGE payload production actually returned, and
   // read the verdict out of the real result rows.
+  const syn0 = read("lib/commandCenter/sources/synthetic.js");
   const { selfCheck } = await import(join(ROOT, "lib/commandCenter/sources/synthetic.js"));
   // The SILENT shape: 200, covered:true, no failure flag, rails present, and
   // not one card behind them. This is what the reader experiences as "I tapped
@@ -277,6 +278,36 @@ const read = (p) => readFileSync(join(ROOT, p), "utf8");
   const otherRow = rows.find((r) => r.key === "api_geo");
   ok(otherRow && otherRow.ok === true,
     "CONTROL: a target with no assertion still passes on a 200 — the body check did not become a blanket failure");
+
+  // ── THE PROBE MUST FIT INSIDE THE ROUTE THAT AWAITS IT ──────────────────
+  // selfCheck runs inside a Promise.all under the command-center panel's own
+  // maxDuration. A probe permitted to wait longer than that budget does not
+  // report a failure, it CAUSES one — the owner's dashboard dies instead of
+  // telling him what is wrong. Read both numbers rather than trusting that
+  // whoever adds the next target remembers this file exists.
+  const panelSrc = read("app/api/command-center/[panel]/route.js");
+  const mPanel = panelSrc.match(/export const maxDuration\s*=\s*(\d+)/);
+  ok(!!mPanel, "the command-center panel route declares maxDuration");
+  const panelBudgetMs = mPanel ? Number(mPanel[1]) * 1000 : NaN;
+  const synCode = codeOnly(syn0);
+  const declared = [...synCode.matchAll(/timeoutMs:\s*(\d+)/g)].map((m) => Number(m[1]));
+  ok(declared.length > 0, `PROBE: found ${declared.length} declared probe timeout(s) — a zero here would make the next assertion vacuous`);
+  const overrun = declared.filter((t) => t >= panelBudgetMs);
+  ok(overrun.length === 0,
+    `every probe timeout (${declared.join(", ")}ms) is strictly inside the panel's ${panelBudgetMs}ms budget — a probe that outlives the route it runs in takes the dashboard down instead of reporting (found ${overrun.join(", ")})`);
+
+  // ── AND IT MEASURES WHAT A READER IS ACTUALLY SERVED ────────────────────
+  // Executed: read the request options the probe really passed.
+  const seenCache = {};
+  const fake2 = async (url, init) => {
+    seenCache[/\/api\/rails/.test(url) ? "rails" : "other"] = init && init.cache;
+    return { status: 200, headers: fakeHeaders, text: async () => JSON.stringify({ covered: true, data: { places: { a: new Array(99).fill("i") } } }), arrayBuffer: async () => new ArrayBuffer(0) };
+  };
+  await selfCheck({ fetchImpl: fake2, baseUrl: "https://probe2.test" });
+  ok(seenCache.rails !== "no-store",
+    "EXECUTED: the /api/rails probe does NOT force a cold rebuild — this endpoint is CDN-cached for an hour by design, so a no-store probe would spend a metro rebuild on every dashboard load and time something no reader experiences");
+  ok(seenCache.other === "no-store",
+    "CONTROL: the ordinary liveness targets still send no-store — this is one target's exemption, not a site-wide loss of freshness");
 
   const { CRITICAL_CHECKS, computeAlerts } = await import(join(ROOT, "lib/commandCenter/alerts.js"));
   ok(CRITICAL_CHECKS.includes("api_rails") && CRITICAL_CHECKS.includes("home"),
