@@ -630,6 +630,11 @@ node scripts/check-florida-icons.mjs
 # Fantasy Fest and Mickey's Not-So-Scary both carry `halloween`; this proves
 # they can never share a shelf.
 node scripts/check-fall-is-calling.mjs
+# v8.82 — the season has to survive the LINK. A fall place wore the skin in
+# the feed and then produced a share that landed in the thread as the ordinary
+# near-black card. This pins the warm palette, the id+date decision (never a
+# query parameter), and that every place-share sentence carries the marker.
+node scripts/check-fall-share.mjs
 # 2026-08-22 — the owner's handpicked board (lib/localPicks.js) IS the "What
 # Should We Do Today?" card, for one town and one hour. Four failures this
 # pins, none of which anything else in the suite would notice: a radius wide
