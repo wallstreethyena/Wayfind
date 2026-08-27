@@ -524,6 +524,14 @@ node scripts/check-invisible-text.mjs
 # v8.22 — the card layout CONTRACT, measured on real Chromium boxes at 390px
 # with card CSS alone (the embed condition where box-sizing broke /guides/*)
 node scripts/test-place-card-layout.mjs
+# v8.81 — A PRESS MUST BE VISIBLE. The fall skin's blanket `button` rule
+# outranked every .is-active rule, so a liked card on that skin was painted
+# identically to an unliked one: the tap registered, the toast fired, and the
+# control did not move. check-state-affordance is the cheap source law (it
+# compares selector weights and runs everywhere); test-reaction-affordance is
+# the rendered proof, and skips loudly where there is no browser.
+node scripts/check-state-affordance.mjs
+node scripts/test-reaction-affordance.mjs
 # v8.35 — the trending drop and the place drop are the SAME COLUMN, measured:
 # a trend card and a place card under one "Showing <rail>" bar are the same
 # width at 1440 and at 390 (owner, 2026-08-23, two screenshots of one drop)
