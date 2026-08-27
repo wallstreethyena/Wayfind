@@ -99,6 +99,47 @@ export const RAILS_LOAD_TIMEOUT_MS = 30000;
 // on production from a cold cache cell: request out at 1.8s, answered at 5.3s,
 // cards on screen at 6.4s), so a normal load never shows it at all.
 export const RAIL_VOICE_MS = 6000;
+
+// ── THE PHOTO WINDOW (v8.76) ────────────────────────────────────────────────
+//
+// MEASURED on production 2026-08-27, iPhone 14 viewport, ONE tap on "Actually
+// Worth Eating":
+//
+//     189 place cards rendered
+//     189 <img loading="eager">
+//     189 downloaded and decoded
+//     257.4 MB of decoded bitmap
+//
+// iOS Safari kills a content process that crosses its memory limit and shows
+// "A problem repeatedly occurred" — which is the owner's screenshot, taken one
+// minute after his screenshot of this rail loading. Not a slow rail. The tab
+// dying.
+//
+// THIS WAS SELF-INFLICTED, and by the same hand on the same day. v8.70 (#985)
+// fixed a real bug — `loading="lazy"` never fires inside .wf8-pcrail, so lazy
+// there means NEVER, and the drop was a wall of blank grey boxes — by opting
+// every card in the drop out of lazy. The guard written for it asserts the drop
+// opts out and that nothing else does. It never asked HOW MANY CARDS THE DROP
+// HOLDS, because the owner deliberately removed every card ceiling
+// (scripts/check-no-card-cap.mjs enforces that there is no MAX, twice).
+//
+// Both rules are right. "No card cap" is the owner's product decision. "Eager
+// in this container" is a measured browser fact. TOGETHER they multiply into a
+// quarter of a gigabyte of bitmap, and nothing in 436 guards was looking at the
+// product.
+//
+// So the ceiling goes on the PHOTOS, never on the cards. Every place the reader
+// earned is still in the rail, still ranked, still scrollable, still counted.
+// What is bounded is how many of them hold a decoded image at once: a window
+// that follows the scroll. Outside it a card renders its monogram — a designed
+// state this card already has — and the photo returns from the HTTP cache the
+// moment the window reaches it again.
+//
+// ~3.4 cards are visible at a time (--wf8-pcvis). The window is far wider than
+// that on both sides so a normal swipe never outruns it, and at 28 cards the
+// worst case is about 38MB of bitmap instead of 257MB.
+export const PHOTO_WINDOW_BACK = 10;
+export const PHOTO_WINDOW_AHEAD = 18;
 // v8.23 — the share intent (url, title, message body) is resolved in one pure
 // module so the tile never builds a link string of its own, and so a share
 // created on a dev server or a preview deploy still carries the production host
@@ -329,6 +370,23 @@ export default function DaypartRail({
   // slow-is-not-failed bug coming back — just the truth about what is
   // happening and one real thing to press. The reader is never stranded.
   const [railSlow, setRailSlow] = useState(false);
+  // Which slice of the open drop may hold a decoded photo. Reset whenever the
+  // reader opens a different rail, because the list underneath changed.
+  const [pcWin, setPcWin] = useState({ lo: 0, hi: PHOTO_WINDOW_BACK + PHOTO_WINDOW_AHEAD });
+  // Stable photoless twins, so a card leaving the window does not get a NEW
+  // object every render and re-render the whole drop. WeakMap keyed on the row
+  // itself: a new payload brings new rows and the old twins are collectable.
+  const noPhotoRef = useRef(null);
+  if (noPhotoRef.current === null) noPhotoRef.current = new WeakMap();
+  // Same row, no photo. Memoized on the row object so a card leaving the
+  // window is handed the SAME twin every render — a fresh object here would
+  // re-render the whole drop on every scroll tick.
+  const photoless = (row) => {
+    const m = noPhotoRef.current;
+    let twin = m.get(row);
+    if (!twin) { twin = { ...row, photo: null, photoRef: null, photo_ref: null }; m.set(row, twin); }
+    return twin;
+  };
   // A failed load must be RE-CLAIMABLE (lib/loadState.js canClaim). Bumping
   // this re-runs the center effect with identical coordinates, which is what
   // makes the "Try again" button a real button and not decoration.
@@ -563,6 +621,7 @@ export default function DaypartRail({
   // aria-label and the <img> alt, so nothing is lost to a screen reader.
   const [trackEnds, syncTrack] = useScrollEnds(trackRef, [order.length]);
   const [pcEnds, syncPc] = useScrollEnds(pcRef, [selected]);
+
 
   const open = useCallback((id, src) => {
     const rail = railById.get(id);
@@ -845,6 +904,33 @@ export default function DaypartRail({
     }
     return base;
   }, [selected, chefPlaces, fallPool, selPlaces, sponsorCard]);
+
+  // The window follows the horizontal scroll of the open drop.
+  //
+  // It returns the SAME object when the bounds have not moved, for the reason
+  // useScrollEnds documents at length: this runs on every scroll event of a
+  // rail the reader is dragging, and handing React a fresh object each time
+  // re-rendered the entire component at ~60fps for the length of the gesture
+  // (the "jumpy and glitchy" report of 2026-08-20). Two integers — bail out.
+  useEffect(() => {
+    const el = pcRef.current;
+    if (!el || !selected) return undefined;
+    const sync = () => {
+      const n = dropList.length;
+      if (!n) return;
+      const w = el.scrollWidth / n;
+      if (!(w > 0)) return;
+      const first = Math.floor(el.scrollLeft / w);
+      const last = Math.ceil((el.scrollLeft + el.clientWidth) / w);
+      const lo = Math.max(0, first - PHOTO_WINDOW_BACK);
+      const hi = last + PHOTO_WINDOW_AHEAD;
+      setPcWin((prev) => (prev.lo === lo && prev.hi === hi ? prev : { lo, hi }));
+    };
+    sync();
+    el.addEventListener("scroll", sync, { passive: true });
+    window.addEventListener("resize", sync);
+    return () => { el.removeEventListener("scroll", sync); window.removeEventListener("resize", sync); };
+  }, [selected, dropList.length]);
   // Resolves ONLY the open drop's places (empty list while closed, so the
   // closed menu costs zero requests). Fail-soft: no hook, no line, no loss.
   const hooks = useEditorialHooks(selPlaces);
@@ -1132,12 +1218,27 @@ export default function DaypartRail({
                   //     from the first ORGANIC card, so the genuine #1 of this
                   //     rail is still labelled #1 rather than demoted to #2 by
                   //     an ad sitting above it.
+                  // THE PHOTO IS WINDOWED, THE CARD IS NOT (v8.76). Every place
+                  // the reader earned stays in this list — the owner removed
+                  // every card ceiling twice and check-no-card-cap.mjs holds him
+                  // to it. What is bounded is how many cards hold a DECODED
+                  // BITMAP at once. Measured before this: 189 eager images,
+                  // 257.4 MB, iOS Safari killing the tab. Outside the window the
+                  // card falls back to the monogram it already has a design for,
+                  // and the photo returns from the HTTP cache when the window
+                  // reaches it again.
+                  //
+                  // Eager stays the only option INSIDE the window: v8.70
+                  // measured that the intersection heuristic never resolves in
+                  // .wf8-pcrail, so lazy there means NEVER rather than later.
+                  // The window IS the loading mechanism.
+                  const inWin = i >= pcWin.lo && i <= pcWin.hi;
                   const isPaid = !!(sponsorCard && p && p.id === sponsorCard.place.id && selected === sponsorCard.rail);
                   const organicRank = isPaid ? null : (sponsorCard && selected === sponsorCard.rail ? i : i + 1);
                   return (
                   <IconicPlaceCard
                     key={p.id}
-                    place={p}
+                    place={inWin ? p : photoless(p)}
                     rank={organicRank}
                     // The paid card opens the destination the placement bought —
                     // our own event page, which carries the dates, the parking,
@@ -1219,7 +1320,7 @@ export default function DaypartRail({
                     // only after a tap, so LCP is long settled; and the ones
                     // past the first screen carry fetchPriority "low" so the
                     // cards the reader is actually looking at win the queue.
-                    eagerMedia
+                    eagerMedia={inWin}
                     mediaPriority={i < 4 ? "high" : "low"}
                   />
                   );
