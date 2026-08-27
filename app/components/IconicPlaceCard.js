@@ -307,6 +307,14 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
     priceLabel(place.priceLevel ?? place.price_level ?? place.priceNum),
     state,
     distance,
+    // v8.69 — a WHEN fact, for a card whose subject only happens on certain
+    // nights. It rides here rather than in the chip lane for a measured
+    // reason: at 390px that lane already overflows (275px of content in a
+    // 226px box), and it is masked and scroll-clipped by design, so a fact a
+    // reader must see to act correctly can be scrolled out of sight there.
+    // Caller-supplied and never invented — no value, no fact, exactly like
+    // every other slot on this card.
+    place.whenFact || null,
     // 2026-08-07: mandatory disclosure for the trending rank component
     // (lib/trendSignal.js — real demand data; lib/wayfindScore TRENDING_BONUS).
     place.trending && place.trend_reason ? "🔥 " + place.trend_reason : null,

@@ -140,8 +140,20 @@ ok(/const railMenuBand = railMenu \? \(/.test(code),
     // belonging on this list. (It is a LABEL only — `center` still does all
     // the ranking, so a label that disagreed with the coordinates could not
     // mislead anything here even if the pairing law let one through.)
+    // v8.69 — `sponsorCard` (the PAID place card at the front of one rail's
+    // drop) joins them on the strictest reading of this list's own rule, and
+    // it is worth stating why rather than assuming, because "it is a sponsor
+    // prop and `sponsor` is already allowed" would be the wrong reason:
+    // `sponsor` is a TILE in the track, which is first-paint surface, and it
+    // earns its place here only through the `locResolved && center ? … : null`
+    // conditional. `sponsorCard` is narrower than that. It is read in exactly
+    // one place — the `dropList` memo and the map that renders it — and the
+    // drop emits no HTML until a reader taps a tile. It appears nowhere in the
+    // rail's own markup. So it can neither delay the first screen nor change
+    // it, and at first paint it is null anyway (home.js resolves it inside the
+    // location effect). The moment a TILE prints it, it stops belonging here.
     const NON_CONTENT = new Set([
-      "center", "sponsor", "isSaved", "isOnTrip", "initialRail",
+      "center", "sponsor", "sponsorCard", "isSaved", "isOnTrip", "initialRail",
       "liked", "disliked", "isLiked", "isDisliked",
       "memberSignalsFor", "applyMemberSignal", "locName",
     ]);
@@ -170,8 +182,19 @@ ok(/const railMenuBand = railMenu \? \(/.test(code),
   // passes openDetail, the rail forwards it onto the card's onOpen.
   ok(/onOpenPlace=\{\(p\) => \{ try \{ openDetail\(p, "rail_menu"\)/.test(railBlock),
     "the rail band passes openDetail as onOpenPlace — without it every card tap is a full navigation and Back wipes the feed");
-  ok(/onOpen=\{onOpenPlace \? \(pl\) => onOpenPlace\(pl\) : undefined\}/.test(rail),
+  // v8.69 — the expression grew an `!isPaid &&` guard and this assertion
+  // FOLLOWED it rather than being relaxed, because the invariant is unchanged:
+  // an EARNED card must still open the sheet in place. The one exception is
+  // the paid rail card, whose destination is a real first-party page
+  // (/florida-events/…) that the in-app place sheet cannot render at all — it
+  // carries a sponsor id, not a Google place id, so routing it into openDetail
+  // would open a detail for a place that is not in inventory. Both halves are
+  // asserted, so neither "the sheet path was dropped" nor "the ad was quietly
+  // given the sheet path back" can pass.
+  ok(/onOpen=\{!isPaid && onOpenPlace \? \(pl\) => onOpenPlace\(pl\) : undefined\}/.test(rail),
     "DaypartRail forwards onOpenPlace to IconicPlaceCard's onOpen — the sheet path, with the /p/ href kept as the crawlable fallback");
+  ok(/href=\{isPaid \? sponsorCard\.href : `\/p\/\$\{encodeURIComponent\(p\.id\)\}`\}/.test(rail),
+    "…and the paid card navigates to the page the placement bought, while every earned card keeps its /p/ href");
   // v8.28 — Like/Dislike stay on the rail. The drop used to omit onLike, so
   // IconicPlaceCard fell back to <a href="/p/{id}?action=like"> and every
   // thumb left the open Amazon rail. Both ends of the wire:

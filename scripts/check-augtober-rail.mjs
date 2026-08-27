@@ -115,8 +115,19 @@ ok(/logEvent\("tickets_out", \{ kind: "augtober_rail"/.test(evZone), "a paid cli
 ok(/e\.url \|\| e\.place_id/.test(rail), "an event with no link and no venue never renders — a dead tile is worse than one fewer tile");
 ok(/eventFranchiseKey\(e\.name \|\| e\.title\)/.test(rail) && /dist\(a\) - dist\(b\)/.test(rail),
   "the drop dedupes by franchise and shows the NEAREST location first");
-ok(/if \(selected === "augtober"\)/.test(rail) && /photo: p\.image \|\| null/.test(rail),
+// v8.69 — the branch became a ternary when the paid rail card landed. Followed,
+// not loosened: the invariant is that this drop is built from the VETTED fall
+// pool (lib/fallPool.FALL_PLACE_IDS, offering-sourced) mapped onto the house
+// card contract — not from the ranked pools and not from anything else.
+ok(/selected === "augtober" \?/.test(rail) && /photo: p\.image \|\| null/.test(rail),
   "the drop's place cards come from the vetted fall pool, mapped onto the house card contract");
+// …and the paid-placement machinery cannot quietly widen it. A sponsor CAN buy
+// the augtober rail (it is a curated pool, not one person's attributed list —
+// see RAILS_NOT_FOR_SALE), but the card it gets is disclosed and prepended, and
+// it must never be able to ENTER the pool itself: fallPool.places is the only
+// source of the vetted members, and the sponsor arrives beside them.
+ok(!/FALL_PLACE_IDS[\s\S]{0,200}sponsorCard/.test(rail) && !/sponsorCard[\s\S]{0,120}fallPool\.places/.test(rail),
+  "a paid card is never merged INTO the vetted fall pool — it rides beside it, disclosed");
 ok(/selRail\.id !== "augtober"/.test(rail), "the drop header does not double-claim 'near <city>' over the title's own 'Near You'");
 // ── 3b. The seasonal skin: a DATE LAW, executed ────────────────────────────
 // THE ANNUAL WINDOW, EXECUTED (owner, 2026-08-26, superseding his same-day

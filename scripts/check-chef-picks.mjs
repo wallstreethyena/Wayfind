@@ -85,7 +85,20 @@ ok(C.eyebrow === "Curated by a Top Chef", "eyebrow is the locked owner copy");
   const rail = readFileSync(path.join(REPO, "app/components/DaypartRail.js"), "utf8");
   ok(/chefPickPlaces\(RON_DUPRAT_TOP7\)\.map\(/.test(rail) && !/chefPlaces\s*\.\s*sort/.test(rail),
     "the drop renders chefPickPlaces verbatim — no sort touches Ron's order");
-  ok(/if \(selected === "chef"\) return chefPlaces;/.test(rail), "the chef drop serves HIS list, not the ranked pools");
+  // v8.69 — the expression became a ternary when the paid rail card landed, and
+  // this FOLLOWED it rather than being deleted. The invariant is unchanged and
+  // is now asserted in two halves, because the refactor introduced a way to
+  // break it that did not exist before:
+  //   1. the chef drop still serves HIS list rather than a ranked pool;
+  //   2. …and no paid card can be prepended to it. A sponsored unit at position
+  //      one of a named chef's personal Top 7 reads as Wayfind having sold his
+  //      endorsement — the false-endorsement shape creatorRights.js bans in
+  //      wording, arriving through placement instead.
+  ok(/selected === "chef" \? chefPlaces/.test(rail), "the chef drop serves HIS list, not the ranked pools");
+  const { RAILS_NOT_FOR_SALE, sponsoredRailNear } = await import("../lib/sponsoredPlaces.js");
+  ok(RAILS_NOT_FOR_SALE.includes("chef"), "the chef rail is registered as NOT FOR SALE");
+  ok(sponsoredRailNear("chef", 27.4214874, -82.5367616, "2026-08-28") === null,
+    "…and the gate refuses to serve a paid card there even from inside a live placement's own radius");
   ok(/selRail\.id !== "chef"/.test(rail), 'the drop header never claims "near <city>" for a list that spans states by design');
   const art = readFileSync(path.join(REPO, "public/cards-v8/chef-760.jpg"));
   ok(art.length > 10000, "the owner's chef poster tile ships (cards-v8/chef-760.jpg)");
