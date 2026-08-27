@@ -67,6 +67,17 @@ const variants = [
   // The rail draws the same chip from its own file. If its media wrapper ever
   // drifts, the score lands somewhere else on a surface nobody screenshots.
   { key: "rail-card", Component: RailCard, props: { title: "TreeUmph! Adventure Course", score: 9.2, rank: 1, href: "/p/z", photo: "", category: "Activities", distMi: 14.1 } },
+  // v8.72 — THE WIDEST BADGE THAT EXISTS, which is the one that broke.
+  // A perfect score is the only badge that gains BOTH a fourth digit ("10.0")
+  // and the flame span, and it is ~21px wider than every fixture above. The
+  // owner's screenshot (2026-08-27, the "Make a day of it" card) showed it
+  // sitting on top of the title; every assertion in this file was green,
+  // because no fixture had ever rendered a 10.0. governed_score 100 →
+  // toDisplayScore → 10.0 → isPerfectScore → the flame.
+  { key: "perfect-score", props: { place: { ...basePlace, id: "layout-fixture-3", name: "Sarasota Guided Mangrove Tunnel Kayak Tour", governed_score: 100 }, rank: 3, href: "/p/perfect", badge: waterChip } },
+  // The when-pill borrows the SAME corner slot, so it needs the same clearance.
+  // Before v8.72 the slot reserved 86px and this pill was 98px wide.
+  { key: "rail-when", Component: RailCard, props: { title: "Möbius Sarasota Night Market", rank: 1, href: "/p/w", photo: "", category: "Events", when: { label: "Tonight", value: "6:00 PM", tone: "now" } } },
 ];
 
 const html = `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -120,10 +131,26 @@ const m = await p.evaluate(() => {
     const title = card.querySelector(".wf-place-card-title-row");
     const name = card.querySelector(".wf-place-card-name");
     const box = (el) => { if (!el) return null; const r = el.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height }; };
+    // v8.72 — TEXT lines, not the padded block. The name's BOX ends at the
+    // heading's padding edge, so a box-vs-box test can read clean while the
+    // glyphs run under the badge. A Range over the text nodes returns one
+    // rect per rendered LINE, which is what the reader actually sees.
+    const lineRects = (el) => {
+      if (!el) return [];
+      const r = document.createRange(); r.selectNodeContents(el);
+      return [...r.getClientRects()].map((l) => ({ x: l.x, y: l.y, w: l.width, h: l.height }));
+    };
+    const heading = card.querySelector(".wf-place-card-heading");
+    // The gutter is padding INSIDE the heading's box, so the box's own right
+    // edge is the card's — it is the CONTENT edge that has to clear the badge.
+    const headingContentRight = heading ? heading.getBoundingClientRect().right - parseFloat(getComputedStyle(heading).paddingRight || "0") : null;
+    const category = card.querySelector(".wf-place-card-category");
     out.cards.push({
       card: { x: cb.x, y: cb.y, w: cb.width, h: cb.height }, kids, pills,
       laneBox: laneBox ? { y: laneBox.y, h: laneBox.h || laneBox.height } : null,
       media: box(media), score: box(score), title: box(title), name: box(name),
+      heading: box(heading), headingContentRight,
+      nameLines: lineRects(name), categoryLines: lineRects(category),
       scoreInTitle: !!(score && title && title.contains(score)),
       scoreInMedia: !!(score && media && media.contains(score)),
     });
@@ -136,7 +163,7 @@ ok(m.cards.length === variants.length, `positive control: ${variants.length} car
 ok(m.pageScrollX <= m.viewport + 1, `no horizontal page overflow at 390px (scrollWidth ${m.pageScrollX})`);
 m.cards.forEach((c, ci) => {
   const tag = variants[ci] ? variants[ci].key : "card" + ci;
-  const isRail = tag === "rail-card";
+  const isRail = tag.startsWith("rail");
   if (!isRail) ok(c.kids.length >= 4, `${tag}: positive control — action row has >=4 controls (got ${c.kids.length})`);
   // v8.62 — OWNER'S PLACEMENT, verbatim (2026-08-26, live): "the score goes
   // in the top right hand corner of the card, not in front of the image."
@@ -180,6 +207,25 @@ m.cards.forEach((c, ci) => {
     const oyv = Math.min(c.score.y + c.score.h, c.name.y + c.name.h) - Math.max(c.score.y, c.name.y);
     ok(!(oxv > 1 && oyv > 1), `${tag}: score overlaps the place name by ${Math.round(oxv)}x${Math.round(oyv)}px — the Parrish screenshot bug`);
   }
+  // v8.72 — THE CLEARANCE IS MEASURED ON GLYPHS, AND ON EVERY LINE.
+  // The gutter the badge sits in is `padding-right` on the heading; the
+  // heading's box therefore always ends before the badge, and a box test
+  // cannot see the failure the owner photographed. These two assertions run
+  // over the rendered LINE rects of the title and the eyebrow, and only for
+  // the lines that actually share vertical space with the badge.
+  if (c.score) {
+    const scoreBottom = c.score.y + c.score.h, scoreRight = c.score.x + c.score.w;
+    const clashes = (lines) => lines.filter((l) => l.y < scoreBottom - 1 && l.y + l.h > c.score.y + 1 && l.x + l.w > c.score.x + 1 && l.x < scoreRight - 1);
+    ok(c.nameLines.length >= 1, `${tag}: positive control — the title rendered at least one line box`);
+    const nameClash = clashes(c.nameLines);
+    ok(nameClash.length === 0, `${tag}: no title LINE runs under the badge (worst overlap ${nameClash.length ? Math.round(Math.max(...nameClash.map((l) => l.x + l.w - c.score.x))) : 0}px) — the "Make a day of it" screenshot bug`);
+    const catClash = clashes(c.categoryLines);
+    ok(catClash.length === 0, `${tag}: no eyebrow LINE runs under the badge (worst overlap ${catClash.length ? Math.round(Math.max(...catClash.map((l) => l.x + l.w - c.score.x))) : 0}px)`);
+    // And the gutter is not merely big enough by luck: the heading's padded
+    // box must clear the badge's left edge outright.
+    if (c.headingContentRight != null) ok(c.headingContentRight <= c.score.x + 1,
+      `${tag}: the heading's reserved gutter clears the badge (text may reach ${Math.round(c.headingContentRight)}, badge starts ${Math.round(c.score.x)}) — the reserve is derived from --wf-card-badge-w, never a hardcoded px`);
+  }
   if (c.laneBox) for (const pl of c.pills) {
     ok(pl.y >= c.laneBox.y - 1 && pl.y + pl.h <= c.laneBox.y + (c.laneBox.h || 0) + 1.5,
       `${tag}: pill fully inside the lane's vertical box (no cropped sliver) — ${String(pl.cls).slice(0, 30)}`);
@@ -212,6 +258,28 @@ for (const rel of SCORE_RENDERERS) {
   ok(mediaBlocks.length >= 1, `${rel}: positive control — media block found`);
   for (const m2 of mediaBlocks) ok(!/wf-place-card-score/.test(m2[0]),
     `${rel}: no score chip inside the media block (owner: "not in front of the image")`);
+}
+
+// ── v8.72 — ONE NUMBER, DECLARED ONCE. ─────────────────────────────────────
+// The corner gutter and the badges that sit in it are the same measurement.
+// When they were two literals (86px reserved, a badge that grew to 97px on a
+// perfect score, a when-pill that was always 98px) they drifted, and the drift
+// was invisible to every source guard. They now both read --wf-card-badge-w;
+// this asserts the property is declared and that neither consumer has quietly
+// gone back to a literal.
+{
+  const css = readFileSync(path.join(ROOT, "app/components/css.js"), "utf8");
+  ok(/--wf-card-badge-w:\s*\d+px/.test(css), "css.js declares --wf-card-badge-w (the corner slot's one measurement)");
+  const gutter = css.match(/\.wf-place-card-score~\.wf-place-card-layout \.wf-place-card-heading\{([^}]*)\}/);
+  ok(!!gutter, "positive control: the heading's score gutter rule is still in css.js under its known selector");
+  ok(!!gutter && /var\(--wf-card-badge-w\)/.test(gutter[1]),
+    `the heading gutter is derived from --wf-card-badge-w, not a literal (got: ${gutter ? gutter[1] : "rule missing"})`);
+  const railWhen = css.match(/\.wf-place-card-score \.wf-rail-when\{([^}]*)\}/);
+  ok(!!railWhen && /var\(--wf-card-badge-w\)/.test(railWhen[1]),
+    `the when-pill in the score slot is sized from --wf-card-badge-w (got: ${railWhen ? railWhen[1] : "rule missing"})`);
+  const badge = css.match(/\.wf-place-card-score \.wayfind-score-badge\{([^}]*)\}/);
+  ok(!!badge && /var\(--wf-card-badge-w\)/.test(badge[1]),
+    "the score badge in the slot is sized from --wf-card-badge-w");
 }
 
 console.log(`\ntest-place-card-layout: ${fail ? "FAIL" : "OK"} — ${pass} layout assertions on real Chromium boxes at 390px, card CSS alone (the embed condition)`);
