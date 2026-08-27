@@ -6,7 +6,7 @@
 // state, no imports from app/home.js. Content guardrails grep the concatenated
 // shell source (scripts/lib/shellSrc.mjs), so moving code here never breaks them.
 import { useEffect, useRef } from "react";
-import { getScoreBand, isValidScore, BAND_COLOR, SCORE_TOKENS, pinGlyphColor, toDisplayScore } from "../../lib/score";
+import { getScoreBand, isValidScore, BAND_COLOR, SCORE_TOKENS, pinGlyphColor, toDisplayScore, formatScore } from "../../lib/score";
 import { isPerfectScore } from "../../lib/lawfulOrder";
 import { wayfindScore } from "../../lib/google"; // v6.40: the ONE score formula — chips self-heal from rating signals when wfScore is missing
 // PriceBadge renders these; it never derives a label of its own. See lib/price.js.
@@ -352,9 +352,9 @@ export function PlaceScoreChip({ p, size = 12 }) {
   // reader.
   const perfect = isPerfectScore(s);
   return (
-    <span aria-label={`Wayfind Score ${s.toFixed(1)} out of 10${perfect ? ", a perfect score" : ""}`} style={{ display: "inline-flex", alignItems: "center", gap: 3, background: col, color: "#0B0B0C", fontWeight: 800, fontSize: size, padding: "1px 7px 1px 5px", borderRadius: 6, lineHeight: 1.35 }} title={perfect ? `Wayfind Score ${s.toFixed(1)} / 10 — a perfect score` : `Wayfind Score ${s.toFixed(1)} / 10`}>
+    <span aria-label={`Wayfind Score ${formatScore(s)} out of 10${perfect ? ", a perfect score" : ""}`} style={{ display: "inline-flex", alignItems: "center", gap: 3, background: col, color: "#0B0B0C", fontWeight: 800, fontSize: size, padding: "1px 7px 1px 5px", borderRadius: 6, lineHeight: 1.35 }} title={perfect ? `Wayfind Score ${formatScore(s)} / 10 — a perfect score` : `Wayfind Score ${formatScore(s)} / 10`}>
       <svg width={size - 1} height={size - 1} viewBox="0 0 24 24" fill="none" stroke={pinGlyphColor(band)} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z" /><circle cx="12" cy="10" r="2.4" fill={pinGlyphColor(band)} stroke="none" /></svg>
-      {s.toFixed(1)}
+      {formatScore(s)}
       {perfect ? <span aria-hidden="true" style={{ fontSize: size - 1, lineHeight: 1 }}>🔥</span> : null}
     </span>
   );
@@ -373,7 +373,7 @@ export function WayfindScoreBadge({ score, confidence, modelVersion, onOpen, siz
   const bandColor = BAND_COLOR[band];
   const glyph = pinGlyphColor(band);
   const s = (n) => Math.round(n * size);
-  const aria = `Wayfind Score ${score.toFixed(1)} out of 10${isPerfectScore(score) ? ", a perfect score" : ""}${confidence ? `, ${confidence} confidence` : ""}`;
+  const aria = `Wayfind Score ${formatScore(score)} out of 10${isPerfectScore(score) ? ", a perfect score" : ""}${confidence ? `, ${confidence} confidence` : ""}`;
   return (
     <button
       type="button"
@@ -398,7 +398,7 @@ export function WayfindScoreBadge({ score, confidence, modelVersion, onOpen, siz
       <span style={{ display: "flex", flexDirection: "column", justifyContent: "center", gap: s(1), padding: `${s(4)}px ${s(8)}px ${s(4)}px ${s(7)}px` }}>
         <span style={{ fontSize: s(7.5), fontWeight: 800, letterSpacing: "0.8px", color: SCORE_TOKENS.muted }}>WAYFIND</span>
         <span style={{ fontSize: s(15), fontWeight: 800, color: SCORE_TOKENS.text, display: "flex", alignItems: "baseline", gap: s(2) }}>
-          {score.toFixed(1)}
+          {formatScore(score)}
           <span style={{ fontSize: s(8.5), fontWeight: 700, color: SCORE_TOKENS.muted }}>/10</span>
           {/* v6.63 — the perfect-score flame. See the matching note in
               PlaceScoreChip above for why it lives inside the chip rather than
