@@ -140,6 +140,50 @@ export const RAIL_VOICE_MS = 6000;
 // worst case is about 38MB of bitmap instead of 257MB.
 export const PHOTO_WINDOW_BACK = 10;
 export const PHOTO_WINDOW_AHEAD = 18;
+
+// ── THE DROP MOUNTS IN CHUNKS (v8.77) ───────────────────────────────────────
+//
+// MEASURED on production 2026-08-27, iPhone 14 viewport at 4x CPU throttle
+// (roughly a mid-range phone under load), ONE tap on a rail:
+//
+//     8 long tasks · 959 ms of blocked main thread · worst single task 275 ms
+//
+// A "long task" is >50ms where the main thread cannot respond to anything. For
+// nearly a full second after the tap the page is frozen: no scroll, no tap, no
+// paint. That is the owner's report — "it's, like, super glitchy, the site
+// jitters, it takes a long time to load everything."
+//
+// The cause is not the network and not the images. It is 189 IconicPlaceCards
+// — each with its own hooks, action wiring and score badge — being constructed,
+// laid out and painted inside a SINGLE synchronous render.
+//
+// The answer is not fewer cards. The owner removed every card ceiling twice and
+// check-no-card-cap.mjs holds him to it, and he is right: the list is the
+// product. The answer is to stop doing all the work in one task. The first
+// chunk covers well past the first screen (~3.4 cards visible) so the reader
+// sees a full rail immediately; the rest arrive on idle frames, before any
+// thumb can reach them. Nothing is dropped — check-drop-photo-window.mjs
+// asserts the count provably converges on the full list.
+export const DROP_FIRST_CHUNK = 24;
+export const DROP_CHUNK = 32;
+
+// ── AND THE PHOTO WINDOW MOVES IN STEPS ─────────────────────────────────────
+//
+// MEASURED the same way, six thumb swipes across the open rail:
+//
+//     10 long tasks · 1046 ms blocked · worst 155 ms
+//
+// The window's bounds are card indices, so they changed on almost every scroll
+// tick, and each change re-renders this component — every mounted card with it.
+// Bailing out on unchanged bounds (which it already did) does nothing when the
+// bounds genuinely change 40 times in a swipe.
+//
+// Quantising to a step is the cheap half of the fix: the window still follows
+// the reader, it just snaps to multiples of DROP_CHUNK_STEP instead of to every
+// card, so a full swipe changes it once or twice rather than forty times. The
+// window is deliberately far wider than the step, so snapping can never leave a
+// visible card outside it.
+export const PHOTO_WINDOW_STEP = 8;
 // v8.23 — the share intent (url, title, message body) is resolved in one pure
 // module so the tile never builds a link string of its own, and so a share
 // created on a dev server or a preview deploy still carries the production host
@@ -373,6 +417,9 @@ export default function DaypartRail({
   // Which slice of the open drop may hold a decoded photo. Reset whenever the
   // reader opens a different rail, because the list underneath changed.
   const [pcWin, setPcWin] = useState({ lo: 0, hi: PHOTO_WINDOW_BACK + PHOTO_WINDOW_AHEAD });
+  // How many of the open drop's cards are MOUNTED. Grows on idle frames until
+  // it reaches the full list — never a ceiling, only a schedule.
+  const [mounted, setMounted] = useState(DROP_FIRST_CHUNK);
   // Stable photoless twins, so a card leaving the window does not get a NEW
   // object every render and re-render the whole drop. WeakMap keyed on the row
   // itself: a new payload brings new rows and the old twins are collectable.
@@ -916,14 +963,20 @@ export default function DaypartRail({
     const el = pcRef.current;
     if (!el || !selected) return undefined;
     const sync = () => {
-      const n = dropList.length;
+      // childElementCount, NOT dropList.length: while the drop is still
+      // mounting in chunks those differ, and dividing the rendered width by the
+      // FULL list length would place the reader dozens of cards to the left of
+      // where they actually are.
+      const n = el.childElementCount;
       if (!n) return;
       const w = el.scrollWidth / n;
       if (!(w > 0)) return;
       const first = Math.floor(el.scrollLeft / w);
       const last = Math.ceil((el.scrollLeft + el.clientWidth) / w);
-      const lo = Math.max(0, first - PHOTO_WINDOW_BACK);
-      const hi = last + PHOTO_WINDOW_AHEAD;
+      // Snapped to a step so a swipe moves the window once, not once per card.
+      const q = (v) => Math.floor(v / PHOTO_WINDOW_STEP) * PHOTO_WINDOW_STEP;
+      const lo = Math.max(0, q(first - PHOTO_WINDOW_BACK));
+      const hi = q(last + PHOTO_WINDOW_AHEAD) + PHOTO_WINDOW_STEP;
       setPcWin((prev) => (prev.lo === lo && prev.hi === hi ? prev : { lo, hi }));
     };
     sync();
@@ -931,6 +984,25 @@ export default function DaypartRail({
     window.addEventListener("resize", sync);
     return () => { el.removeEventListener("scroll", sync); window.removeEventListener("resize", sync); };
   }, [selected, dropList.length]);
+
+  // Reset the schedule when the reader opens a different rail.
+  useEffect(() => { setMounted(DROP_FIRST_CHUNK); }, [selected]);
+
+  // …then extend it on idle frames until the WHOLE list is mounted. This is a
+  // schedule, never a ceiling: the loop only stops when `mounted` has reached
+  // dropList.length. requestIdleCallback where it exists (not Safari), a short
+  // timeout where it does not — either way the work lands between frames
+  // instead of inside the tap.
+  useEffect(() => {
+    const total = dropList.length;
+    if (!selected || mounted >= total) return undefined;
+    const ric = typeof window !== "undefined" && window.requestIdleCallback
+      ? window.requestIdleCallback : (fn) => setTimeout(fn, 32);
+    const cancel = typeof window !== "undefined" && window.cancelIdleCallback
+      ? window.cancelIdleCallback : clearTimeout;
+    const id = ric(() => setMounted((m) => Math.min(total, m + DROP_CHUNK)));
+    return () => { try { cancel(id); } catch (e) {} };
+  }, [selected, mounted, dropList.length]);
   // Resolves ONLY the open drop's places (empty list while closed, so the
   // closed menu costs zero requests). Fail-soft: no hook, no line, no loss.
   const hooks = useEditorialHooks(selPlaces);
@@ -1202,7 +1274,7 @@ export default function DaypartRail({
           ) : selRail && dropList.length ? (
             <div className={"wf8-pcwrap" + (selected === "augtober" && fallSkin ? " wf-fall" : "")}>
               <ul className="wf8-pcrail" ref={pcRef}>
-                {dropList.map((p, i) => {
+                {dropList.slice(0, mounted).map((p, i) => {
                   // v8.69 — the paid card is index 0 of its own rail and is the
                   // ONLY card here that is not a ranked result. Two consequences,
                   // both deliberate:

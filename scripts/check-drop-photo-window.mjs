@@ -86,9 +86,25 @@ const SRC = strip(RAW);
     "…and only cards inside the window load eagerly");
   ok(!/\beagerMedia\s*$|\beagerMedia\s*\/>|\beagerMedia\s+[a-z]/m.test(SRC.replace(/eagerMedia=\{inWin\}/g, "")),
     "…with no bare `eagerMedia` left anywhere — that spelling is the unconditional one that shipped 189 eager images");
-  ok(/dropList\.map\(/.test(SRC), "PROBE: the drop still maps its FULL list — a slice() here would be a card cap wearing a different name");
+  // v8.77 — the drop now mounts in CHUNKS, so it maps a slice. A slice is a cap
+  // or a schedule depending on one thing: whether its bound provably reaches
+  // the full list. Assert that, not the absence of slice().
+  ok(/dropList\.slice\(0,\s*mounted\)\.map\(/.test(SRC),
+    "PROBE: the drop maps dropList.slice(0, mounted) — a variable bound, which is the only shape that can be a schedule rather than a ceiling");
   ok(!/dropList\.slice\(0,\s*\d+\)\.map\(/.test(SRC),
-    "…and does not truncate it. Fixing a memory bug by showing fewer places would take the owner's own product rule away to pay for my regression");
+    "…and NOT a literal. Fixing a performance bug by showing fewer places would take the owner's own product rule away to pay for my regression — he removed every card ceiling twice");
+  const mi = SRC.indexOf("setMounted((m) =>");
+  ok(mi > -1, "PROBE: the mount schedule exists");
+  const sched = SRC.slice(Math.max(0, mi - 700), mi + 250);
+  ok(/const total = dropList\.length;/.test(sched),
+    "the schedule's target is the FULL list length, not a constant");
+  ok(/mounted >= total\) return undefined;/.test(sched),
+    "…and it only stops once `mounted` has REACHED that length — the loop's exit condition IS the convergence proof");
+  ok(/Math\.min\(total, m \+ DROP_CHUNK\)/.test(sched),
+    "…growing by a chunk per idle frame and clamping at the total, so it can neither overshoot nor stall short");
+  const mFirst = SRC.match(/export const DROP_FIRST_CHUNK\s*=\s*(\d+)/);
+  ok(!!mFirst && Number(mFirst[1]) >= 12,
+    `the FIRST chunk (${mFirst ? mFirst[1] : "?"}) covers well past the ~3.4 cards visible, so the reader sees a full rail immediately rather than watching it assemble`);
 }
 
 /* ── 3. THE WINDOW ACTUALLY FOLLOWS THE READER ─────────────────────────────
@@ -160,8 +176,15 @@ const RED = [
     const fake = '<IconicPlaceCard place={p}\n eagerMedia\n mediaPriority="high" />';
     return /\beagerMedia\s*$/m.test(fake);
   }],
-  ["a card cap sneaking in as the fix is detectable", () => {
+  ["a literal card cap sneaking in as the fix is detectable", () => {
     return /dropList\.slice\(0,\s*\d+\)\.map\(/.test("dropList.slice(0, 24).map((p, i) => {");
+  }],
+  ["a schedule that stalls short of the full list is detectable", () => {
+    const stalls = "if (!selected || mounted >= 48) return undefined;";
+    return !/mounted >= total\) return undefined;/.test(stalls);
+  }],
+  ["a schedule targeting a constant instead of the list is detectable", () => {
+    return !/const total = dropList\.length;/.test("const total = 60;");
   }],
   ["a window that never moves is detectable", () => {
     const fake = "const [pcWin] = useState({ lo: 0, hi: 28 });";
