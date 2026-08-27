@@ -153,10 +153,14 @@ const css = readFileSync(path.join(ROOT, "app/components/css.js"), "utf8");
 // column, so no card width can reintroduce the band.
 ok(/\.wf-fall \.wf-place-card,\.wf-place-card\.wf-fall-card\{background:#BC4D08 url\(\/fall\/card-bg-dark-640\.webp[^)]*\) right bottom\/cover no-repeat!important/.test(css),
   "the fall CARD is the owner's template art, dark-only crop, served with !important so nothing repaints it");
-ok(/\.wf-fall \.wf-place-card \.wf-place-card-media[^{]*\{background:url\(\/fall\/card-bg-left-320\.webp[^)]*\) left bottom\/auto 100% no-repeat/.test(css),
-  "the pumpkins stay pinned under the photo mask — scoped to the media column, never beside it");
-ok(/;mask-image:radial-gradient\(135% 110% at 100% 0%,#000 60%,transparent 92%\)\}/.test(css),
-  "the photo fades at its left corners so the art's baked pumpkins and leaf show THROUGH it — the owner's overlap, no cropped overlays, no hard edges");
+ok(/\.wf-fall \.wf-place-card \.wf-place-card-media[^{]*\{background:#[0-9A-Fa-f]{6}\}/.test(css),
+  "the photo column sits on a flat dark tone — v8.74 retired the cream tile, so nothing pale can show through the photo");
+// v8.74 REVERSES v8.68.1's overlap. That mask made the photo opaque only near
+// its top-right corner, so most of the column showed the art beneath it. With a
+// cream panel underneath that read as a pale vertical stripe beside the photo —
+// the defect the owner reported twice. The photo now covers its column.
+ok(!/mask-image:radial-gradient\(135% 110% at 100% 0%/.test(css),
+  "the fall photo is NOT masked away — it covers its column, and the card is one dark orange behind it");
 import { statSync } from "node:fs";
 for (const f of ["public/fall/card-bg-dark-640.webp", "public/fall/card-bg-dark-1100.webp", "public/fall/card-bg-left-320.webp"]) {
   ok(statSync(path.join(ROOT, f)).size > 4000, `the processed owner art ships on disk (${f})`);
