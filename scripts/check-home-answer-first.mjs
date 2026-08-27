@@ -575,8 +575,18 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   // lib/railsData.js buildCreatorsPool).
   {
     const RD = readFileSync(path.join(REPO, "lib/railsData.js"), "utf8");
-    ok(/pools\.creators\s*=\s*await buildCreatorsPool/.test(RD),
+    // v8.73 — the builders moved into two Promise.all waves (the cold /api/rails
+    // path was measured at 25.4s against the client's 12s deadline, which is how
+    // a tapped rail came back empty). The invariant here is untouched and still
+    // the point: with the CreatorFinds shelf unmounted, the locals rail is the
+    // only surface carrying the creator library, so the pool must still be BUILT
+    // and still be ASSIGNED. Asserted in both halves — a builder called inside a
+    // wave whose result is never assigned to pools.creators would leave the rail
+    // empty exactly as if it had been deleted, and would pass a one-half check.
+    ok(/buildCreatorsPool\(pools, origin\)/.test(RD),
        "the creator surface is gone from BOTH homes — the shelf is unmounted AND the rail's creators pool is no longer built. One of them must carry the library.");
+    ok(/pools\.creators\s*=\s*creators;/.test(RD),
+       "…and the built pool is assigned to pools.creators — a result computed and dropped is the same empty rail with a longer request");
   }
 
   // ── THE TDZ RULE, learned the hard way ──

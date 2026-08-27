@@ -276,6 +276,7 @@ node scripts/check-no-stuck-loading.mjs
 # same permanent grey box the module was written for. This one scans the
 # codebase: no render chain may end on a loading state.
 node scripts/check-no-terminal-loading.mjs
+node scripts/check-rail-pool-waves.mjs
 # v8.49 — a narrow chip must filter BEFORE rankInventory caps at 50, or it
 # competes against the whole category for those slots and loses (Food > Cafés
 # rendered empty while 111 admissible cafés sat 17mi away).

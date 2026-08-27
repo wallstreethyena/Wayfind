@@ -65,11 +65,30 @@ ok(/liveFromRailsResponse/.test(RAIL) || /!j \|\| !j\.covered \|\| !j\.data/.tes
 // BEFORE the request, so every one of those paths reaches !res.ok and empties
 // the flagship. Either shape satisfies the law; the settleLoad shape satisfies
 // more of it.
-ok((/settleLoad\(/.test(RAIL) && /!res\.ok[\s\S]{0,180}setLive\(emptyRailLive\(\)\)/.test(RAIL))
-  || /\.catch\(\(\) => \{[\s\S]{0,180}setLive\(emptyRailLive\(\)\)/.test(RAIL)
-  || /\.catch\(\(\) => \{[\s\S]{0,180}setLive\(emptyLive\(\)\)/.test(RAIL)
-  || /\.catch\(\(\) => \{[\s\S]{0,180}covered:\s*false/.test(RAIL),
-  "a thrown, timed-out or never-settling /api/rails must empty the flagship");
+// v8.73 — THE LAW IS UNCHANGED AND THE ASSERTION FOLLOWED THE CODE.
+//
+// `shown = live || { places, … }` falls back to the SERVER props, which on a
+// city route are the flagship metro's own places. So the thing that must never
+// happen is `live` staying NULL after a failed request: Sarasota's list would
+// sit under "near you" in a town that is not Sarasota. That is this file's
+// whole subject and it is still enforced below.
+//
+// What changed is the case where `live` is NOT null. It used to be wiped too —
+// on every fetch, before the request, and again on failure. Combined with a
+// cold /api/rails measured at 25.4s against a 12s deadline, that blanked
+// correct, same-point rails for 25 seconds and then apologised. Keeping a
+// payload that was ranked for the reader's own point is not a location lie; it
+// is the same answer, a minute older.
+//
+// Both halves are asserted, because either alone is a false green: emptying
+// unconditionally re-opens the blanking bug, and never emptying re-opens the
+// flagship lie.
+ok(/settleLoad\(/.test(RAIL), "the rails request is settled, so a never-resolving fetch still reaches a decision");
+ok(/setLive\(\(prev\) => \(prev == null \? emptyRailLive\(\) : prev\)\)/.test(RAIL),
+  "a thrown, timed-out or never-settling /api/rails must empty the flagship — when `live` is null, `shown` falls back to the SERVER props, and on a city route those are the flagship metro's places wearing \"near you\"");
+ok(/const moved = lastPointRef\.current !== null && lastPointRef\.current !== pointKey;/.test(RAIL)
+  && /moved \? emptyRailLive\(\) : prev/.test(RAIL),
+  "…and the pre-request wipe follows the READER'S POINT, not every fetch: a move blanks immediately (those cards are about the wrong town now), a retry or a daypart tick does not (the reader is standing exactly where they were ranked)");
 ok(/covered:\s*false/.test(RAILS_API) && /COVERAGE_MI/.test(RAILS_API),
   "api/rails still fail-closes outside coverage instead of inventing a town");
 ok(/if \(!origin\)/.test(RAILS_API),

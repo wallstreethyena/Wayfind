@@ -77,8 +77,18 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
   ok(/hasCreatorVideoAt\(\s*p\s*,/.test(trendingCfg),
     "the trending rail calls hasCreatorVideoAt with ONE argument again — it returns false for every place in that form, which is exactly how the locals rail shipped empty for three sessions");
   const rd = readFileSync(new URL("../lib/railsData.js", import.meta.url), "utf8");
-  ok(/pools\.creators\s*=\s*await buildCreatorsPool/.test(rd),
-    "lib/railsData.js no longer attaches the creators pool — the locals rail is routed to a source that never gets built");
+  // v8.73 — the builders run in two Promise.all waves now (the cold /api/rails
+  // path measured 25.4s against a 12s client deadline; see
+  // scripts/check-rail-pool-waves.mjs). This file's whole subject is "a rail
+  // routed to a source that never gets built", so the assertion FOLLOWED the
+  // refactor rather than being relaxed — and it gained the half that the new
+  // shape makes possible to get wrong: a builder can now be called inside a
+  // wave and its result silently never assigned, which is the same empty rail
+  // this guard exists for, wearing a longer request.
+  ok(/buildCreatorsPool\(pools, origin\)/.test(rd),
+    "lib/railsData.js no longer BUILDS the creators pool — the locals rail is routed to a source that never gets built");
+  ok(/pools\.creators\s*=\s*creators;/.test(rd),
+    "lib/railsData.js builds the creators pool and never ATTACHES it — pools.creators stays undefined and the locals rail is empty by construction");
   ok(/CREATOR_FINDS_RADIUS_MI/.test(rd) && /getPlaceDetails/.test(rd),
     "buildCreatorsPool lost its registry rules — the radius gate from the shared origin and the placeId-hydration path are what keep it both near and real");
 }

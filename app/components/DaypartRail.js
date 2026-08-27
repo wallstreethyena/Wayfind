@@ -84,6 +84,15 @@ import { emptyRailLive, liveFromRailsResponse, cityLabel as honestCityLabel } fr
 // failed fetch, and a genuinely uncovered location all look like. Three
 // different facts, one indistinguishable grey box, no way out of it.
 import { settleLoad, LOAD_PENDING, LOAD_FAILED, LOAD_TIMEOUT_MS, isPending, isFailed } from "../../lib/loadState.js";
+
+// The rails request gets its OWN budget, because lib/loadState's 12s was
+// derived for rails that "read our own Supabase RPCs" and this one does not:
+// it makes live Google searchText calls per category per town. Measured cold
+// on production 2026-08-27 at 7.4s typical / 25.4s worst, so 12s was cutting
+// off requests that were about to succeed. This is the point at which we stop
+// pretending it is coming, not the point at which we stop listening — a
+// response that lands later is still applied (see the late lane below).
+export const RAILS_LOAD_TIMEOUT_MS = 30000;
 // v8.23 — the share intent (url, title, message body) is resolved in one pure
 // module so the tile never builds a link string of its own, and so a share
 // created on a dev server or a preview deploy still carries the production host
@@ -334,6 +343,13 @@ export default function DaypartRail({
   // Re-rank when the reader is meaningfully somewhere else. The threshold is
   // generous on purpose: a few miles is the same market and refetching on every
   // GPS jitter would spend a request to return an identical list.
+  // The point the current `live` payload was ranked for. `null` until the first
+  // fetch, which is how "we have never had an answer for this reader" stays
+  // distinguishable from "we have one and it is for right here".
+  // ~0.7mi. One definition, read by the move test and by the request URL, so a
+  // reader can never be judged "moved" at a precision the CDN key does not share.
+  const snapPre = (v) => Math.round(v * 100) / 100;
+  const lastPointRef = useRef(null);
   useEffect(() => {
     if (!center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) {
       // A CALLER THAT ALREADY NAMED THE CITY. /v8?city=orlando ranks on the
@@ -386,30 +402,98 @@ export default function DaypartRail({
       }
     }
     let cancelled = false;
-    setLive(emptyRailLive());
+    // ── WIPE ON A MOVE, NOT ON A RETRY ────────────────────────────────────
+    // This used to blank every rail before EVERY fetch. Combined with a cold
+    // request measured at 25s, that is 25 seconds of empty rails for a reader
+    // who was already looking at correct ones — and if the request then missed
+    // its deadline, the blank stayed and got a failure message on top.
+    //
+    // The honesty rule this wipe exists for is about LOCATION, not freshness:
+    // places ranked for somewhere else must never sit under "near you". So the
+    // wipe follows the point. A reader who moved gets the blank immediately,
+    // because what is on screen is now about the wrong town. A reader who
+    // pressed Try again, or whose clock crossed a daypart edge, is standing
+    // exactly where those cards were ranked — keeping them is the honest
+    // answer, and blanking them was only ever an accident of ordering.
+    const pointKey = `${snapPre(center.lat)},${snapPre(center.lng)}`;
+    const moved = lastPointRef.current !== null && lastPointRef.current !== pointKey;
+    if (moved || lastPointRef.current === null) setLive((prev) => (moved ? emptyRailLive() : prev));
+    lastPointRef.current = pointKey;
     setRailLoad(LOAD_PENDING);
     // Snapped to ~0.7mi so the CDN sees a countable set of URLs per metro, not
     // one per GPS fix. The server re-measures every distance from this point.
-    const snap = (v) => Math.round(v * 100) / 100;
+    const snap = snapPre;
     // v8.46 — SETTLED, ALWAYS. Through lib/loadState.js, the module written for
     // this exact grey box: the 12s timer is armed BEFORE the request, so a
     // black-holed connection, a sleeping device and a promise nothing ever
     // resolves all reach LOAD_FAILED instead of leaving the skeleton up. The
     // old chain had a .catch for rejections and nothing at all for a fetch that
     // simply never settles — the one failure mode that looks like slowness.
-    settleLoad(() => fetch(`/api/rails?lat=${encodeURIComponent(snap(center.lat))}&lng=${encodeURIComponent(snap(center.lng))}&band=${encodeURIComponent(daypart)}&v=2`).then((r2) => r2.json())).then((res) => {
-      if (cancelled) return;
-      if (!res.ok) {
-        setLive(emptyRailLive());
-        setRailLoad(LOAD_FAILED);
-        try { onCoverage && onCoverage("error"); } catch (e) {}
-        return;
-      }
-      const j = res.data;
+    // ── SLOW IS NOT FAILED (v8.73) ────────────────────────────────────────
+    //
+    // MEASURED on production for a Bradenton reader, 2026-08-27:
+    //     warm CDN hit          0.45 – 0.68 s
+    //     cold origin recompute 6.7 – 7.9 s, one observed at 40s+
+    //     server-side rebuild   7.4 s typical, 25.4 s genuinely cold
+    //     payload               580 – 740 KB over LTE
+    //
+    // lib/loadState.js sets a 12s deadline and its comment says that is "well
+    // past the p99 of these rails (they read our own Supabase RPCs)". That
+    // premise is FALSE for this one: /api/rails makes live Google searchText
+    // calls for every category × every town in the metro pool. A cold request
+    // routinely exceeds 12s, so the reader was being shown "we couldn't reach
+    // the ranking service" for a request that was about to succeed — and,
+    // worse, `setLive(emptyRailLive())` threw away whatever was on screen, so
+    // ONE slow response emptied EVERY rail at once (railLoad is one state for
+    // the whole component).
+    //
+    // The deadline still exists — a black-holed connection must not leave a
+    // skeleton up forever, which is what lib/loadState.js was written for. What
+    // changed is what happens at each end of it:
+    //
+    //   • the response is applied WHENEVER it lands, even after the deadline.
+    //     `settleLoad` resolving does not cancel the fetch, so a 25s answer
+    //     still fills the rails instead of being discarded.
+    //   • the deadline expiring no longer wipes what is already rendered.
+    //     Nothing is ever taken away from the reader to show them an error.
+    //   • a NON-OK HTTP response is distinguished from a transport failure.
+    //     `r2.json()` on a Vercel 504 HTML page threw and was reported as
+    //     "couldn't reach", which sent every future reader of this code
+    //     hunting a network problem that was really a slow origin.
+    let landed = false;
+    const apply = (j) => {
+      if (cancelled || landed) return;
+      landed = true;
       const covered = !!(j && j.covered === true && j.data);
       setLive(liveFromRailsResponse(j));
       setRailLoad(covered ? "live" : "uncovered");
       try { onCoverage && onCoverage(covered ? "covered" : "uncovered"); } catch (e) {}
+    };
+    const inflight = fetch(`/api/rails?lat=${encodeURIComponent(snap(center.lat))}&lng=${encodeURIComponent(snap(center.lng))}&band=${encodeURIComponent(daypart)}&v=2`)
+      .then((r2) => (r2.ok ? r2.json() : Promise.reject(new Error("http " + r2.status))));
+    // The late lane: whatever the deadline decides, a real answer still wins.
+    inflight.then(apply, () => {});
+    settleLoad(() => inflight, { timeoutMs: RAILS_LOAD_TIMEOUT_MS }).then((res) => {
+      if (cancelled || landed) return;
+      if (!res.ok) {
+        // THE FLAGSHIP STILL GETS EMPTIED — but only when there is a flagship
+        // to empty. `shown = live || {places}` falls back to the SERVER props,
+        // which on a city route are the flagship metro's own places. So a
+        // reader whose very first rails request fails must get
+        // emptyRailLive(), or Sarasota's list sits under "near you" in a town
+        // that is not Sarasota. That is the honesty rule
+        // check-location-fail-open.mjs was written for and it is untouched.
+        //
+        // What changed is the OTHER case: when `live` already holds a payload
+        // ranked for this exact point, keeping it is both honest and correct,
+        // and wiping it is what turned one slow response into every rail going
+        // empty at once.
+        setLive((prev) => (prev == null ? emptyRailLive() : prev));
+        setRailLoad(LOAD_FAILED);
+        try { onCoverage && onCoverage(res.reason === "timeout" ? "slow" : "error"); } catch (e) {}
+        return;
+      }
+      apply(res.data);
     });
     return () => { cancelled = true; };
   }, [center && center.lat, center && center.lng, lat, lng, daypart, initialDaypart, retryNonce]);
