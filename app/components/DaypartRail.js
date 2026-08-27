@@ -1081,6 +1081,20 @@ export default function DaypartRail({
                     // event page is the thing the advertiser is actually buying.
                     cardActionsReadOnly={isPaid}
                     surface={isPaid ? "rail_sponsored_card" : "place_card"}
+                    // v8.70 — EVERY card in this drop loads its photo eagerly,
+                    // because in THIS container lazy never fires: measured on
+                    // production, eight in-view cards, the rail scrolled 2294px,
+                    // zero images loaded — and one de-lazied by hand loaded the
+                    // same url in 7ms. Lazy here does not mean "later", it means
+                    // "never", which is why this is not a perf regression: the
+                    // alternative is a drop of blank grey boxes.
+                    //
+                    // It costs nothing at first paint either. The drop renders
+                    // only after a tap, so LCP is long settled; and the ones
+                    // past the first screen carry fetchPriority "low" so the
+                    // cards the reader is actually looking at win the queue.
+                    eagerMedia
+                    mediaPriority={i < 4 ? "high" : "low"}
                   />
                   );
                 })}

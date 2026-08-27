@@ -227,7 +227,7 @@ const ThumbIcon = ({ down = false }) => (
   </svg>
 );
 
-export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, inTrip, onSave, onItinerary, onLike, onDislike, onOpen, onBadge, cardActionsReadOnly = false, surface = "place_card" }) {
+export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, inTrip, onSave, onItinerary, onLike, onDislike, onOpen, onBadge, cardActionsReadOnly = false, surface = "place_card", eagerMedia = false, mediaPriority = null }) {
   // v8.29 — the shared like/dislike/save store, read ONLY when this card has an
   // action its caller did not wire. A fully wired card (the home shell's, which
   // owns its own state) subscribes to nothing and re-renders for nothing.
@@ -400,8 +400,34 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
         {/* #956's own-photo-or-monogram rule is unchanged — no shared
             category stock scene. Rank stays on the photo. */}
         <div className="wf-place-card-media">
+        {/* v8.70 — LAZY IS OPT-OUT, because in one container it never
+            fires at all and a lazy image there is a PERMANENTLY blank
+            one. Measured on production 2026-08-27, inside the homepage
+            rail's drop (.wf8-pcrail): every card `inView: true`, the
+            rail scrolled 2294px horizontally, a vertical nudge on top,
+            thirteen seconds elapsed — ZERO of eight images loaded
+            (complete:false, currentSrc:""). Removing the attribute from
+            one of them loaded the SAME url in 7ms, and a HEAD on it
+            returned 200 image/jpeg the whole time. So this is not a
+            slow network, a bad path or the spend gate; the intersection
+            heuristic simply does not resolve for images mounted into a
+            horizontal scroller that a tap has just expanded.
+            #979 found and fixed the identical thing on the fall EVENT
+            tiles in DaypartRail and the place cards next to them were
+            left behind — same bug, different component.
+            Default stays lazy: this card also renders far below the
+            fold on landing pages, where lazy works and matters. */}
           {photoUrl(place)
-            ? <img src={photoUrl(place)} alt="" loading="lazy" style={{ objectFit: "cover" }} />
+            ? (
+              <img
+                src={photoUrl(place)}
+                alt=""
+                loading={eagerMedia ? "eager" : "lazy"}
+                decoding="async"
+                {...(mediaPriority ? { fetchpriority: mediaPriority } : null)}
+                style={{ objectFit: "cover" }}
+              />
+            )
             : <div className="wf-place-card-monogram" aria-hidden="true">{initials}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
         </div>
