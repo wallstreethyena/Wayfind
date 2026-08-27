@@ -93,6 +93,12 @@ import { settleLoad, LOAD_PENDING, LOAD_FAILED, LOAD_TIMEOUT_MS, isPending, isFa
 // pretending it is coming, not the point at which we stop listening — a
 // response that lands later is still applied (see the late lane below).
 export const RAILS_LOAD_TIMEOUT_MS = 30000;
+// How long a reader may look at a silent skeleton before it explains itself.
+// Well inside RAILS_LOAD_TIMEOUT_MS — the point is to speak DURING the wait,
+// not to shorten it — and past the p50 of a warm response (measured 2026-08-27
+// on production from a cold cache cell: request out at 1.8s, answered at 5.3s,
+// cards on screen at 6.4s), so a normal load never shows it at all.
+export const RAIL_VOICE_MS = 6000;
 // v8.23 — the share intent (url, title, message body) is resolved in one pure
 // module so the tile never builds a link string of its own, and so a share
 // created on a dev server or a preview deploy still carries the production host
@@ -298,6 +304,31 @@ export default function DaypartRail({
   //   "uncovered"   — it answered covered:false — say so, offer the way in
   //   "live"        — real ranked places for this reader's point
   const [railLoad, setRailLoad] = useState(null);
+  // ── A SKELETON MUST NOT BE MUTE (v8.75) ─────────────────────────────────
+  //
+  // THE OWNER'S REPORT, with a screenshot of this exact drop: "I literally
+  // just try to refresh to see if anything would come up. It just looked like
+  // it was doing something. But, again, it show with no results."
+  //
+  // REPRODUCED, 2026-08-27, iPhone 14 viewport against production with
+  // /api/rails held open: the drop renders three grey placeholder cards and
+  // NOTHING ELSE — no sentence, no link, no way out — for the FULL
+  // RAILS_LOAD_TIMEOUT_MS. His two screenshots are the same moment at
+  // different times: the grey box before the deadline, and "we couldn't reach
+  // the ranking service" after it.
+  //
+  // v8.73 raised that budget from 12s to 30s to stop a slow-but-arriving
+  // response being called a failure. That was right, and it made THIS worse:
+  // it more than doubled the time a reader can sit in front of a silent grey
+  // box. And because refreshing restarts the clock, the reader who does the
+  // obvious thing — pull to refresh — resets a 30-second wait and sees grey
+  // again, every time. That is the loop he was stuck in.
+  //
+  // So: after RAIL_VOICE_MS the skeleton acquires a voice and an exit. Not a
+  // failure — nothing has failed, and claiming otherwise would be the
+  // slow-is-not-failed bug coming back — just the truth about what is
+  // happening and one real thing to press. The reader is never stranded.
+  const [railSlow, setRailSlow] = useState(false);
   // A failed load must be RE-CLAIMABLE (lib/loadState.js canClaim). Bumping
   // this re-runs the center effect with identical coordinates, which is what
   // makes the "Try again" button a real button and not decoration.
@@ -497,6 +528,17 @@ export default function DaypartRail({
     });
     return () => { cancelled = true; };
   }, [center && center.lat, center && center.lng, lat, lng, daypart, initialDaypart, retryNonce]);
+
+  // Armed off railLoad alone, on purpose. Re-running the load effect sets
+  // LOAD_PENDING again, but React bails out on an identical value, so this
+  // does not re-render and the timer is NOT re-armed — the voice appears a
+  // fixed interval after the wait BEGAN, not after the most recent retry.
+  // That is what makes it honest about how long the reader has been waiting.
+  useEffect(() => {
+    if (!isPending(railLoad)) { setRailSlow(false); return undefined; }
+    const t = setTimeout(() => setRailSlow(true), RAIL_VOICE_MS);
+    return () => clearTimeout(t);
+  }, [railLoad]);
 
   // The live hour, after mount, from the ONE clock — read in the timezone of
   // the coordinates being ranked. Re-checkedevery minute so a rail left open across
@@ -1199,6 +1241,14 @@ export default function DaypartRail({
               <ul className="wf8-pcrail" role="status" aria-busy="true" aria-label="Ranking places">
                 <PlaceCardSkeleton count={3} />
               </ul>
+              {railSlow ? (
+                <div className="wf8-slowsay">
+                  <p>{`Still ranking places${near} — we only show a list once we've actually ranked it.`}</p>
+                  {railHref(selRail, shown.region, shown.citySlug) ? (
+                    <a href={railHref(selRail, shown.region, shown.citySlug)}>{selRail.cta} →</a>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
           ) : selRail && thinSet.has(selRail.id) ? (
             <div className="wf8-thin">
