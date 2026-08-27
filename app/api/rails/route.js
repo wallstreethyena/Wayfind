@@ -35,6 +35,12 @@ import { railMenuData } from "../../../lib/railsData";
 import { DAYPART_IDS } from "../../../lib/dayparts";
 
 export const revalidate = 3600;
+// The platform's own ceiling, one layer outside railsData's 20s deadline and
+// DaypartRail's 30s client budget. Nothing should ever reach this — it is here
+// so that a stall in code neither of those two bound still ends in a response
+// rather than in a lambda that runs until the platform's silent default kills
+// it with nothing written to the CDN.
+export const maxDuration = 30;
 
 const R_EARTH_MI = 3958.8;
 const rad = (d) => (d * Math.PI) / 180;
@@ -108,12 +114,32 @@ export async function GET(req) {
     // creators pool re-origin on the visitor. The client snaps coordinates
     // to a coarse grid before asking, so the CDN cache keys stay countable.
     const data = await railMenuData(slug, { origin, requireOrigin: true, band });
+    // A DEGRADED ANSWER MUST NOT BE CACHED AS THE TRUTH (v8.74). railMenuData
+    // now returns `failed: true` when the build did not complete — but this
+    // route was about to hand that empty payload to the CDN with an hour of
+    // s-maxage, which would have pinned "nothing near you clears this bar" on
+    // one transient stall for every reader in that cell for the next hour, and
+    // is exactly why the owner's report was "sometimes it shows up, sometimes
+    // it doesn't" rather than a clean outage.
+    //
+    // no-store on the degraded path means the very next request rebuilds, so
+    // the cell self-heals instead of latching. The successful answer keeps the
+    // hour it earned.
+    const degraded = !data || data.failed === true;
     return NextResponse.json({ covered: true, data: wire === 2 ? dedupeWire(data) : data }, {
-      headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" },
+      headers: {
+        "Cache-Control": degraded
+          ? "no-store"
+          : "public, s-maxage=3600, stale-while-revalidate=86400",
+      },
     });
   } catch (e) {
     // Fail-closed: the client must NOT keep the SSR flagship as the visitor's
     // city. An empty rail is honest; Sarasota-as-you is not.
-    return NextResponse.json({ covered: false, data: null }, { status: 200 });
+    // Same rule as the degraded path above: an exception is not a fact about
+    // the reader's town, so it must never be cached as one. This response
+    // previously carried no Cache-Control at all, which left the decision to
+    // whatever default the edge applied.
+    return NextResponse.json({ covered: false, data: null }, { status: 200, headers: { "Cache-Control": "no-store" } });
   }
 }
