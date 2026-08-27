@@ -170,6 +170,16 @@ export default function DaypartRail({
   // the one piece of state both geolocation and the search box write to.
   // Unresolved seed (DEFAULT_CENTER / null) is NOT a visitor location.
   center = null,
+  // v8.69 — THE PAID CARD INSIDE A RAIL'S DROP (owner, 2026-08-26). Already
+  // geo-gated, flight-checked and hydrated by app/home.js through
+  // lib/sponsoredPlaces.sponsoredRailCardNear(), so this component makes no
+  // eligibility decision of its own — it places the card and renders the
+  // disclosure. Null for every reader outside a sponsor's bought radius, which
+  // is nearly all of them, and null on /v8 which has no location machinery.
+  //
+  // Distinct from `sponsor` above, which is a rail TILE (the poster in the
+  // track). This is a CARD in the list behind one.
+  sponsorCard = null,
   onCoverage = null,
   // v8.46 — the label the CHROME is showing the reader. The drop needs it for
   // one job only: to name the town in the honest "we're not live here yet"
@@ -677,15 +687,38 @@ export default function DaypartRail({
     return out;
   }, [fallPool, center, lat, lng]);
   const dropList = useMemo(() => {
-    if (selected === "chef") return chefPlaces;
-    if (selected === "augtober") {
-      return ((fallPool && fallPool.places) || []).map((p) => ({
-        id: p.id, name: p.name, city: (p.metro || "").replace(/-/g, " "), lat: p.lat, lng: p.lng,
-        rating: p.rating, reviews: p.reviews, types: [], photo: p.image || null, hook: p.take || null,
-      }));
+    const base = selected === "chef" ? chefPlaces
+      : selected === "augtober" ? ((fallPool && fallPool.places) || []).map((p) => ({
+          id: p.id, name: p.name, city: (p.metro || "").replace(/-/g, " "), lat: p.lat, lng: p.lng,
+          rating: p.rating, reviews: p.reviews, types: [], photo: p.image || null, hook: p.take || null,
+        }))
+      : selPlaces;
+    // v8.69 (owner, 2026-08-26: "create a place card for them in our rail lists
+    // — place them on the night is calling and add a sponsored feature on it").
+    // THE PAID CARD RIDES AT THE FRONT OF ITS OWN RAIL AND NOWHERE ELSE.
+    //
+    // `sponsorCard` is already gated and hydrated by the caller
+    // (lib/sponsoredPlaces.sponsoredRailCardNear — geo + flight window), so
+    // this is placement only: no filtering decision lives here, which is what
+    // keeps the gate a single door rather than a rule two files half-know.
+    //
+    // The dedupe is not defensive noise. Möbius is a real Sarasota venue that
+    // can also rank into this rail organically, and a reader seeing the same
+    // place twice — once paid, once earned — reads as the ranking being for
+    // sale, which is the one thing this registry exists to prevent.
+    // …AND IT NEVER STANDS ALONE. A rail with nothing earned to show ships an
+    // HONEST EMPTY ("we only publish a list once we've actually ranked the
+    // places in it") — that copy is a promise, and prepending an ad to an empty
+    // list would replace the promise with a drop containing nothing BUT an ad.
+    // Caught live at 390px: the drop rendered exactly one card and it was the
+    // paid one. It is also worthless to the advertiser, who bought a slot at
+    // the top of a list of real recommendations, not a page of their own.
+    if (sponsorCard && selected === sponsorCard.rail && sponsorCard.place && base.length > 0) {
+      const dupe = new Set([sponsorCard.place.id, sponsorCard.place.placeId].filter(Boolean));
+      return [sponsorCard.place, ...base.filter((p) => p && !dupe.has(p.id))];
     }
-    return selPlaces;
-  }, [selected, chefPlaces, fallPool, selPlaces]);
+    return base;
+  }, [selected, chefPlaces, fallPool, selPlaces, sponsorCard]);
   // Resolves ONLY the open drop's places (empty list while closed, so the
   // closed menu costs zero requests). Fail-soft: no hook, no line, no loss.
   const hooks = useEditorialHooks(selPlaces);
@@ -957,20 +990,62 @@ export default function DaypartRail({
           ) : selRail && dropList.length ? (
             <div className={"wf8-pcwrap" + (selected === "augtober" && fallSkin ? " wf-fall" : "")}>
               <ul className="wf8-pcrail" ref={pcRef}>
-                {dropList.map((p, i) => (
+                {dropList.map((p, i) => {
+                  // v8.69 — the paid card is index 0 of its own rail and is the
+                  // ONLY card here that is not a ranked result. Two consequences,
+                  // both deliberate:
+                  //
+                  //   • IT WEARS NO RANK AND NO "TOP … PICK" BAND. It is first
+                  //     because it was bought. A "1" chip would assert a ranking
+                  //     Wayfind did not perform, on the one card where the reader
+                  //     has the least reason to trust us — and lib/topPickAward
+                  //     would then compose a merchandising claim out of a
+                  //     purchase. `rank={null}` drops both (the chip is falsy-
+                  //     guarded; topPickAward returns null off 1–3).
+                  //   • THE EARNED CARDS KEEP THEIR REAL NUMBERS. Ranks count
+                  //     from the first ORGANIC card, so the genuine #1 of this
+                  //     rail is still labelled #1 rather than demoted to #2 by
+                  //     an ad sitting above it.
+                  const isPaid = !!(sponsorCard && p && p.id === sponsorCard.place.id && selected === sponsorCard.rail);
+                  const organicRank = isPaid ? null : (sponsorCard && selected === sponsorCard.rail ? i : i + 1);
+                  return (
                   <IconicPlaceCard
                     key={p.id}
                     place={p}
-                    rank={i + 1}
-                    href={`/p/${encodeURIComponent(p.id)}`}
-                    onOpen={onOpenPlace ? (pl) => onOpenPlace(pl) : undefined}
+                    rank={organicRank}
+                    // The paid card opens the destination the placement bought —
+                    // our own event page, which carries the dates, the parking,
+                    // the consent-cleared photos and the advertiser's own link.
+                    // A real href, so it is crawlable and shareable like every
+                    // other card here.
+                    href={isPaid ? sponsorCard.href : `/p/${encodeURIComponent(p.id)}`}
+                    // ...and it must NOT be intercepted into the in-app place
+                    // sheet: `p.id` is a sponsor id, not a Google place id, so
+                    // onOpenPlace would open a detail for a place that does not
+                    // exist in inventory.
+                    onOpen={!isPaid && onOpenPlace ? (pl) => onOpenPlace(pl) : undefined}
                     // Place-card editorial is the sourced why-go / known-for
                     // only (useEditorialHooks → Atlas / wf_editorial). Occasion
                     // fields (summerWhy, birthdayWhy) stay off the card —
                     // they are page/rail copy, not a place hook. No sourced
                     // why → empty slot, never a deal or registry promo.
-                    editorial={(selected === "chef" || selected === "augtober") ? (p.hook || null) : (toHookLine(hooks[p.id], p.name) || null)}
-                    badge={beachChip(p)}
+                    editorial={(isPaid || selected === "chef" || selected === "augtober") ? (p.hook || null) : (toHookLine(hooks[p.id], p.name) || null)}
+                    // THE DISCLOSURE IS PART OF THE CARD, NOT A SETTING.
+                    // IconicPlaceCard renders `badge` FIRST in the chip lane,
+                    // ahead of the decorative tag pills, precisely so a
+                    // disclosure cannot be clipped by the one-row clamp (see the
+                    // v8.17 note at that call site). That is what makes this the
+                    // right slot for it rather than a nicer-looking one further
+                    // down the card.
+                    //
+                    // The DISCLOSURE IS THE ONLY THING IN THIS LANE for a paid
+                    // card. The nights ride in the meta row instead
+                    // (place.whenFact): measured at 390px the lane holds 275px
+                    // of content in a 226px box, so a second chip is partly
+                    // masked — and "which nights is this actually open" is the
+                    // one fact a reader on an HOURS rail must not have to
+                    // scroll a clipped lane to find.
+                    badge={isPaid ? <span className="wf-sponsor-chip">{sponsorCard.label}</span> : beachChip(p)}
                     saved={isSaved ? isSaved(p.id) : false}
                     // v8.29.6 — ONE set of these, reading whichever shape the
                     // parent gave. The merge of two independent fixes left the
@@ -995,10 +1070,20 @@ export default function DaypartRail({
                     // share was shipping with neither).
                     onShare={onShare ? (pl) => onShare(pl || p, {
                       city: shown.cityLabel || "",
-                      hook: toHookLine(hooks[p.id], p.name) || "",
+                      hook: isPaid ? (p.hook || "") : (toHookLine(hooks[p.id], p.name) || ""),
                     }) : null}
+                    // SAVE / LIKE / DISLIKE ARE READ-ONLY ON THE PAID CARD.
+                    // Those stores key on a Google place id; this row carries a
+                    // sponsor id, so wiring them would ship four live-looking
+                    // buttons that write a key nothing else can ever read back
+                    // — the exact dead-affordance bug RailCard documents at its
+                    // `actionsReadOnly` prop. Share stays live: sharing the
+                    // event page is the thing the advertiser is actually buying.
+                    cardActionsReadOnly={isPaid}
+                    surface={isPaid ? "rail_sponsored_card" : "place_card"}
                   />
-                ))}
+                  );
+                })}
               </ul>
               <button type="button" className="wf8-pnav l" aria-label="Previous places" disabled={pcEnds.atStart}
                 onClick={() => { scrollBy(pcRef, -1); syncPc(); }}><Chevron dir="l" /></button>

@@ -45,7 +45,12 @@ import {
   SPONSORED_PLACES, SPONSORED_DEFAULT_RADIUS_MI, sponsoredPlacesNear, sponsoredPlaceNear,
   sponsoredPlaceById, sponsoredIsLive, sponsoredHref, hydrateSponsoredPlace, milesBetween,
   sponsorHasPage, sponsorSlugs, sponsorBySlug, sponsorPagePath,
+  sponsoredRailNear, sponsoredRailCardForReader, hydrateSponsoredRailPlace, railWhenChip,
+  RAILS_NOT_FOR_SALE,
 } from "../lib/sponsoredPlaces.js";
+import { RAILS } from "../lib/rails.js";
+import { mayHostEventPhotos } from "../lib/eventPhotos.js";
+import { topPickAward } from "../lib/topPickAward.js";
 import { wayfindScore } from "../lib/wayfindScore.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -312,6 +317,247 @@ ok(/google\.com\/maps/.test(html), "the card offers directions");
 const filled = (html.match(/background:#6D2E8E/g) || []).length;
 ok(filled === 1, `exactly one filled brand button on the card, got ${filled}`);
 
+
+/* ── 8. THE RAIL PLACEMENT (v8.69, owner 2026-08-26) ────────────────────────
+   Sponsor #2 buys a card inside a rail's DROP instead of the home column, and
+   that is a genuinely different product with two failure modes the column card
+   does not have:
+
+     A. THE PAID CARD LOOKS RANKED. It renders as the app's own place card, at
+        position one, in a list the reader believes is ranked by score. If it
+        wears a rank chip or a "TOP … PICK" band, Wayfind has asserted a
+        ranking it did not perform, on the one card where money changed hands.
+        That is the ranking being for sale in everything but name.
+     B. THE CARD OUTLIVES ITS CLAIM. This placement is a two-night market on a
+        rail whose axis is "still open when you get there". A flight window that
+        does not close, or a "Tonight" label that is a literal rather than a
+        computation, puts a shut warehouse on Tonight's Move.
+
+   Both are asserted by EXECUTING the real functions with an explicit `now`, so
+   these assertions mean the same thing in CI next year as they do today. A
+   date-dependent guard that quietly stops testing after its subject expires is
+   the same false green as a guard nobody ever saw fail.                       */
+const DURING = "2026-08-28";   // a market night
+const BEFORE = "2026-08-26";   // the run-up, inside the flight
+const AFTER  = "2026-08-30";   // the morning after the last night
+const SRQ = [27.3364, -82.5307];      // downtown Sarasota, inside the gate
+const BRADENTON = [27.4989, -82.5748];// inside
+const TAMPA = [27.9506, -82.4572];    // outside
+const ORLANDO = [28.5383, -81.3792];  // outside
+
+const mob = sponsoredPlaceById("mobius-sarasota-night-market");
+ok(!!mob, "the mobius-sarasota-night-market placement exists");
+if (mob) {
+  ok(mob.rail === "tonight", `Möbius rides the tonight rail, got ${mob.rail}`);
+  ok(RAILS.some((r) => r.id === mob.rail), `the placement names a rail that EXISTS in lib/rails.js — got "${mob.rail}"`);
+  ok(mob.radiusMi === 20, `Möbius' gate must be 20 miles, got ${mob.radiusMi}`);
+  ok(mob.placeId === "ChIJe5-RQ0Y_w4gRb7cZQa2GDkc", "Möbius carries its real Google place_id");
+  ok(mob.rating === 5 && mob.reviews === 10, "Möbius carries the rating/reviews verified at entry, not rounded-up ones");
+  ok(typeof mob.endsOn === "string" && /^\d{4}-\d{2}-\d{2}$/.test(mob.endsOn),
+    "a DATED event gets a real endsOn — `null` is only for an open-ended retainer");
+  ok(mob.endsOn === mob.railNights[mob.railNights.length - 1],
+    "the flight ends on the LAST market night, so the card cannot outlive the run");
+  ok(typeof mob.railHref === "string" && mob.railHref.startsWith("/"),
+    "the card's destination is a first-party path, so the tap is crawlable and stays on the site");
+
+  /* A. THE TWO GATES ARE DIFFERENT DOORS. */
+  ok(sponsoredPlacesNear(SRQ[0], SRQ[1], DURING).length === 0,
+    "a rail placement NEVER reaches the home-column gate — that inventory was not sold");
+  ok(sponsoredRailNear("tonight", SRQ[0], SRQ[1], DURING)?.id === "mobius-sarasota-night-market",
+    "…and the rail gate DOES serve it in Sarasota");
+  ok(sponsoredPlaceNear(35.2621, -81.1873, DURING)?.id === "rio-body-wax-gastonia",
+    "the column gate is untouched — Rio still serves in Gastonia");
+  ok(sponsoredRailNear("tonight", 35.2621, -81.1873, DURING) === null,
+    "…and a column placement never leaks into a rail");
+  ok(sponsoredRailNear("beach", SRQ[0], SRQ[1], DURING) === null,
+    "a placement bought on `tonight` does not render on another rail");
+  ok(RAILS_NOT_FOR_SALE.length >= 1 && RAILS_NOT_FOR_SALE.every((r) => RAILS.some((x) => x.id === r)),
+    "every rail on the not-for-sale list is a rail that actually exists — a typo'd id protects nothing");
+  for (const r of RAILS_NOT_FOR_SALE) {
+    ok(sponsoredRailNear(r, SRQ[0], SRQ[1], DURING) === null,
+      `the "${r}" rail is an ATTRIBUTED LIST and is not for sale — a paid card at position one of a named person's own picks reads as their endorsement being sold`);
+    ok(!SPONSORED_PLACES.some((x) => x.rail === r), `…and no entry has been written against it (${r})`);
+  }
+  ok(sponsoredRailCardForReader(SRQ[0], SRQ[1], null, DURING, DURING) !== null,
+    "CONTROL: a placement on a SELLABLE rail is still served — the not-for-sale list is narrow, not a blanket off-switch");
+
+  /* B. THE GEO GATE. */
+  for (const [label, ll] of [["downtown Sarasota", SRQ], ["Bradenton", BRADENTON]]) {
+    ok(sponsoredRailCardForReader(ll[0], ll[1], null, DURING, DURING) !== null, `a reader in ${label} receives the rail card`);
+  }
+  for (const [label, ll] of [["Tampa", TAMPA], ["Orlando", ORLANDO]]) {
+    ok(sponsoredRailCardForReader(ll[0], ll[1], null, DURING, DURING) === null, `a reader in ${label} receives NOTHING`);
+  }
+  ok(sponsoredRailCardForReader(NaN, NaN, null, DURING, DURING) === null, "an unresolved location receives nothing");
+
+  /* C. THE FLIGHT WINDOW CLOSES. */
+  ok(sponsoredRailCardForReader(SRQ[0], SRQ[1], null, BEFORE, BEFORE) !== null, "the card runs during the run-up");
+  ok(sponsoredRailCardForReader(SRQ[0], SRQ[1], null, DURING, DURING) !== null, "…and on a market night");
+  ok(sponsoredRailCardForReader(SRQ[0], SRQ[1], null, AFTER, AFTER) === null,
+    "…and is GONE the morning after the last night — a shut warehouse must never sit on Tonight's Move");
+
+  /* D. THE WHEN LABEL IS COMPUTED, NEVER A LITERAL. */
+  ok(railWhenChip(mob, DURING) === "Tonight · 7pm–1am", `on a market night the chip says Tonight, got ${JSON.stringify(railWhenChip(mob, DURING))}`);
+  ok(railWhenChip(mob, BEFORE) === "Fri & Sat · 7pm–1am", `before the run it names the nights, got ${JSON.stringify(railWhenChip(mob, BEFORE))}`);
+  ok(!/Tonight/.test(String(railWhenChip(mob, BEFORE))), "…and never claims Tonight on a night it is shut");
+  ok(railWhenChip(mob, AFTER) === null, "after the run there is no when-label left to show");
+
+  /* E. THE SCORE IS NOT FOR SALE — same wall as the column card. */
+  const card = sponsoredRailCardForReader(SRQ[0], SRQ[1], { lat: SRQ[0], lng: SRQ[1] }, DURING, DURING);
+  ok(card.place.wfScore === wayfindScore(mob.rating, mob.reviews),
+    "the rail card's score is recomputed from rating/reviews, never a stored number");
+  ok(card.place.wfScore === 81, `wayfindScore(5, 10) is 81 -> "8.1" — a thin 5★ is shrunk by the prior like anyone else's, got ${card.place.wfScore}`);
+  ok(!Object.prototype.hasOwnProperty.call(mob, "wfScore") && !/wfScore\s*:\s*\d/.test(JSON.stringify(mob)),
+    "…and no baked score is stored on the entry for it to disagree with");
+
+  /* F. A BOUGHT SLOT IS NOT A RANK. The failure mode that makes paid placement
+     indistinguishable from a sold ranking. Asserted on the hydrate AND on the
+     award composer, because the band is what actually renders the claim. */
+  ok(card.rank === null, "the rail card carries NO rank — it is first because it was bought");
+  ok(topPickAward({ category: "local", rank: card.rank }) === null,
+    "…so no TOP-PICK band can be composed for it");
+  ok(card.place._sponsored === true, "the row is marked sponsored, so a renderer can tell paid from earned");
+
+  /* G. THE DISCLOSURE. */
+  ok(typeof card.label === "string" && /sponsor/i.test(card.label), "the card carries the disclosure label");
+  ok(!/wayfind partner/i.test(card.label), "…and never the banned affiliation construction (lib/creatorRights)");
+
+  /* H. THE PHOTOGRAPH IS CONSENT-GATED, not a hardcoded path. Fla. Stat.
+     540.08 — the photo shows identifiable people, so pulling the record must
+     pull the picture from this card too, in the same edit. */
+  ok(mayHostEventPhotos(mob.eventId) === true, "the photo set behind the card has a real consent record");
+  ok(String(card.place.photo || "").startsWith("/events/"), "the card renders the OWNED photo, not a metered Google fetch");
+  ok(typeof card.place.photoAlt === "string" && card.place.photoAlt.length > 20, "…with the alt text the consent record carries");
+  ok(hydrateSponsoredRailPlace({ ...mob, eventId: "no-such-event" }, mob.center, DURING).place.photo === null,
+    "…and a placement with no consent record renders NO photo rather than one it may not host");
+
+  /* I. THE TAKE IS OURS. A paid slot does not buy the editorial line. */
+  ok(card.place.hook === mob.railTake, "the card's take is the registry's railTake");
+  ok(card.place.hook !== mob.body && card.place.hook !== mob.headline,
+    "…which is Wayfind's own line, not the advertiser's ad copy");
+}
+
+/* I2. THE DISCLOSURE IS IN THE RENDERED MARKUP, not merely in a constant.
+   The column card's guard learned this the hard way and says so at the top of
+   this file: "a constant that is never rendered discloses nothing." The rail
+   card's disclosure travels through a `badge` prop into a chip lane that
+   CLIPS at one row, so source presence is especially weak evidence here —
+   IconicPlaceCard renders `badge` FIRST for exactly that reason, and this
+   proves the arrangement rather than trusting the comment that explains it. */
+{
+  const iconic = await loadComponent(join(ROOT, "app/components/IconicPlaceCard.js"), ROOT);
+  const Card = iconic.default || iconic;
+  const c = sponsoredRailCardForReader(SRQ[0], SRQ[1], { lat: SRQ[0], lng: SRQ[1] }, DURING, DURING);
+  const markup = renderToStaticMarkup(
+    React.createElement(Card, {
+      place: c.place,
+      rank: c.rank,
+      href: c.href,
+      editorial: c.place.hook,
+      cardActionsReadOnly: true,
+      badge: React.createElement("span", { className: "wf-sponsor-chip" }, c.label),
+    })
+  );
+  ok(markup.includes(mob.label), "the disclosure label is in the RENDERED card markup");
+  ok(/class="[^"]*wf-sponsor-chip/.test(markup), "…wearing the disclosure class the CSS targets");
+  // The nights ride the META ROW, not the chip lane — the lane clips at 390px
+  // and this is the fact a reader on an hours rail must not miss.
+  ok(markup.includes(c.when), "the computed when-label renders on the card");
+  const metaStart = markup.indexOf("wf-place-card-meta");
+  const metaEnd = markup.indexOf("</div>", markup.indexOf(">", metaStart));
+  ok(metaStart !== -1 && markup.slice(metaStart, metaEnd).includes(c.when),
+    "…inside the meta row, where nothing masks or scroll-clips it");
+  ok(!/wf-sponsor-when/.test(markup), "…and NOT as a second chip in the lane that already overflows at 390px");
+  const iLane = markup.indexOf("wf-place-card-highlights");
+  ok(markup.indexOf("wf-sponsor-chip") > iLane, "…inside the chip lane");
+
+  // POSITION, WITH A POSITIVE CONTROL. The lane clamps to one row and scrolls,
+  // so a disclosure rendered after the decorative pills can be scrolled out of
+  // sight on a narrow card. Möbius' own row happens to generate NO pills, which
+  // means asserting order on IT proves nothing — the first version of this
+  // check stayed green with the badge deliberately moved below the pills,
+  // because there were none to be below. So the order is proven on a control
+  // place that definitely has them, and the control asserts the pills exist
+  // before it asserts what they sit behind.
+  const control = renderToStaticMarkup(
+    React.createElement(Card, {
+      place: { id: "control", name: "Control Park", rating: 4.7, reviews: 900, types: ["park", "tourist_attraction"], lat: 27.3, lng: -82.5 },
+      badge: React.createElement("span", { className: "wf-sponsor-chip" }, mob.label),
+    })
+  );
+  const cLane = control.indexOf("wf-place-card-highlights");
+  const cChip = control.indexOf("wf-sponsor-chip");
+  const cPill = control.indexOf("<button", cLane);
+  ok(cPill !== -1 && cPill < control.indexOf("wf-place-card-actions"),
+    "CONTROL: the control place really does render decorative pills in the lane (without this the order check proves nothing)");
+  ok(cChip > cLane && cChip < cPill,
+    "…and the disclosure renders FIRST in the lane, ahead of every decorative pill, so the one-row clamp trims decoration instead");
+  ok(!/wf-place-card-rank/.test(markup), "the paid card renders NO rank chip");
+  ok(!/wf-place-card-award/.test(markup), "…and NO top-pick band");
+  ok(markup.includes(mob.railHref), "the card links to the destination the placement bought");
+  ok(markup.includes("/events/mobius-night-market-hero.jpg"), "…and shows the owned, consent-cleared photograph");
+  ok(!/wayfind partner/i.test(markup), "the rendered card never uses the banned affiliation construction");
+  // 8.1, not 10.0. The number is the whole trust argument for paid placement.
+  ok(/8\.1/.test(markup), "the rendered score is the recomputed 8.1, not the raw 5★");
+}
+
+/* J. THE WIRING, in syntactic position. */
+const RAIL_SRC = strip(readFileSync(join(ROOT, "app/components/DaypartRail.js"), "utf8"));
+ok(/sponsoredRailCardForReader\(/.test(HOME_CODE),
+  "home.js asks the registry which rail the placement rides — it must not hardcode a rail id");
+ok(!/sponsoredRailCardNear\(\s*["']/.test(HOME_CODE),
+  "…and specifically does not pass a literal rail name, which would silently break sponsor #3");
+ok(/sponsorCard=\{railSponsorCard\}/.test(HOME_CODE), "home.js hands the hydrated card to <DaypartRail>");
+ok(/sponsorCard\s*=\s*null,/.test(RAIL_SRC), "DaypartRail accepts sponsorCard and defaults it to null");
+ok(/selected === sponsorCard\.rail/.test(RAIL_SRC), "the card is placed ONLY in the rail it was bought on");
+ok(/\[sponsorCard\.place, \.\.\.base\.filter/.test(RAIL_SRC), "…at the FRONT of that rail's drop");
+ok(/dupe\.has\(p\.id\)/.test(RAIL_SRC), "…and the earned copy of the same place is removed, so one venue never appears twice");
+ok(/rank=\{organicRank\}/.test(RAIL_SRC), "the card's rank comes from the organic counter, not the array index");
+ok(/const organicRank = isPaid \? null :/.test(RAIL_SRC), "…which is null for the paid card");
+ok(/wf-sponsor-chip/.test(RAIL_SRC), "DaypartRail renders the disclosure chip");
+  ok(!/wf-sponsor-when/.test(RAIL_SRC), "…and puts nothing else in that lane — the nights ride the meta row (place.whenFact)");
+  ok(/place\.whenFact \|\| null,/.test(strip(readFileSync(join(ROOT, "app/components/IconicPlaceCard.js"), "utf8"))),
+    "IconicPlaceCard renders whenFact as a meta fact, caller-supplied and never invented");
+  ok(/sponsorCard\.place && base\.length > 0/.test(RAIL_SRC),
+    "the paid card is prepended only to a NON-EMPTY list — never the sole card in an otherwise honest-empty drop");
+// The prop is exempted from test-first-screen's server-data rule on the
+// grounds that it is read ONLY inside the drop (which emits no HTML until a
+// tile is tapped). That exemption is only true while it stays that way, so
+// this is the thing that notices if it ever moves into the tile track.
+{
+  const trackStart = RAIL_SRC.indexOf("wf8-track");
+  const menuStart = RAIL_SRC.indexOf("wf8-menusec");
+  const inTrack = trackStart !== -1 && menuStart > trackStart
+    && RAIL_SRC.slice(trackStart, menuStart).includes("sponsorCard");
+  ok(!inTrack, "sponsorCard is never read in the TILE TRACK — that is first-paint surface, and test-first-screen exempts this prop only because the drop is not");
+}
+ok(/cardActionsReadOnly=\{isPaid\}/.test(RAIL_SRC),
+  "save/like/dislike are read-only on the paid card — those stores key on a place id it does not have");
+// THE DISCLOSURE'S STYLING, and why it is what it is — documented HERE rather
+// than in css.js, because prose inside a CSS template literal is bytes every
+// reader downloads (check-css-comment-bytes enforces that, correctly).
+//
+// It is deliberately NOT an orange chip. Orange is the tappable-affordance
+// colour in this lane (the `>button` rule), and a disclosure is not an
+// affordance — dressing it as one is how an ad label gets read as decoration
+// and skipped. It is a plate: brighter text than a decorative chip, uppercase
+// and letter-spaced so it reads as a label, and pinned to full opacity so no
+// parent fade can dim the one element the FTC cares about. #F4F7FC on the
+// plate is ~13:1, which matters precisely because it renders at 9px — a
+// disclosure nobody can read is not a disclosure.
+const CSS_SRC = readFileSync(join(ROOT, "app/components/css.js"), "utf8");
+ok(/\.wf-place-card-highlights>span\.wf-sponsor-chip\{/.test(CSS_SRC), "the disclosure chip has its own rule");
+{
+  const flat = CSS_SRC.replace(/\s*\n\s*/g, "");
+  ok(/\.wf-sponsor-chip\{[^}]*text-transform:uppercase/.test(flat),
+    "…and reads as a label rather than a decorative pill");
+  ok(/\.wf-sponsor-chip\{[^}]*opacity:1!important/.test(flat),
+    "…at full opacity, so no parent fade can dim the disclosure");
+  const chipRule = (flat.match(/\.wf-place-card-highlights>span\.wf-sponsor-chip\{[^}]*\}/) || [""])[0];
+  ok(chipRule && !/#F97316|#FFC18F|249,115,22/.test(chipRule),
+    "…and is NOT painted in the tappable-affordance orange, which would read as decoration rather than a label");
+}
+
 /* ── 7. RED PROOFS ──────────────────────────────────────────────────────────
    Each wall above is shown to actually fail when the thing it protects breaks.
    Without these, a guard that always passes reads exactly like a guard that
@@ -342,6 +588,34 @@ const RED = [
   ["an orphaned partner layer is detectable", () => {
     return !/href="\/partners"/.test('<a href="/creators">Local creators</a>');
   }],
+  // ── the rail placement's four walls, each shown to fail ──────────────────
+  ["a rail placement leaking into the home column is detectable", () => {
+    const leaked = { ...mob }; delete leaked.rail;
+    return [leaked].filter((x) => !x.rail).length === 1; // would now serve the column gate
+  }],
+  ["a flight window that never closes is detectable", () => {
+    return sponsoredIsLive({ ...mob, endsOn: null }, AFTER) === true
+      && sponsoredIsLive(mob, AFTER) === false;
+  }],
+  ["a hardcoded \"Tonight\" label is detectable", () => {
+    // The real function must DISAGREE with a literal on a night it is shut.
+    return railWhenChip(mob, BEFORE) !== "Tonight · 7pm–1am";
+  }],
+  ["a rank chip on the paid card is detectable", () => {
+    return topPickAward({ category: "local", rank: 1 }) !== null
+      && topPickAward({ category: "local", rank: null }) === null;
+  }],
+  ["a paid card sold onto an attributed list is detectable", () => {
+    // Sell the SAME live placement onto the chef rail and the gate must refuse
+    // it, while still serving it on the rail it really bought.
+    const sold = { ...mob, rail: "chef" };
+    const wouldServe = [sold].filter((x) => !RAILS_NOT_FOR_SALE.includes(x.rail)).length;
+    return wouldServe === 0 && sponsoredRailNear("tonight", SRQ[0], SRQ[1], DURING) !== null;
+  }],
+  ["a photo hosted without consent is detectable", () => {
+    return hydrateSponsoredRailPlace({ ...mob, eventId: "unconsented" }, mob.center, DURING).place.photo === null
+      && hydrateSponsoredRailPlace(mob, mob.center, DURING).place.photo !== null;
+  }],
 ];
 for (const [label, fn] of RED) ok(fn() === true, "RED PROOF failed to fail: " + label);
 
@@ -349,4 +623,4 @@ if (fails) {
   console.error(`check-sponsored-places: FAIL — ${fails} of ${pass + fails} assertions`);
   process.exit(1);
 }
-console.log(`check-sponsored-places: OK — ${pass} assertions (1 placement, gate 15mi, score derived, disclosure rendered)`);
+console.log(`check-sponsored-places: OK — ${pass} assertions (${SPONSORED_PLACES.length} placements: ${SPONSORED_PLACES.map((x) => x.id + (x.rail ? " [rail:" + x.rail + "]" : " [column]")).join(", ")}; scores derived, disclosures rendered, flights proven to close)`);

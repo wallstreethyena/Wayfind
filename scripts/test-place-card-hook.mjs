@@ -216,8 +216,18 @@ const railCode = code("app/components/DaypartRail.js");
 // (Ron's whyWorthTheTrip testimony; the owner-verified fall take), so the
 // expression branches: those two drops read p.hook, every other drop keeps
 // the sourced toHookLine or nothing. Occasion copy stays banned either way.
-ok(/editorial=\{\(selected === "chef" \|\| selected === "augtober"\) \? \(p\.hook \|\| null\) : \(toHookLine\(hooks\[p\.id\], p\.name\) \|\| null\)\}/.test(railCode),
-  "DaypartRail card editorial is the sourced hook (or the curated drops' own sourced line) or nothing");
+// v8.69 — the PAID rail card joins the same branch, and the assertion followed
+// the code rather than being loosened. It belongs there on the identical
+// grounds as chef/augtober: `p.hook` is a line WAYFIND wrote (the registry's
+// `railTake`, which is wf_events.card_hook for that row), not the advertiser's
+// ad copy. A paid slot buys position; it does not buy the take.
+//
+// That last claim is the one worth being nervous about, so it is not left to
+// this regex: check-sponsored-places.mjs asserts BY VALUE that the rendered
+// hook equals railTake and differs from the sponsor's own `headline`/`body`.
+// This line proves the wiring; that one proves the content.
+ok(/editorial=\{\(isPaid \|\| selected === "chef" \|\| selected === "augtober"\) \? \(p\.hook \|\| null\) : \(toHookLine\(hooks\[p\.id\], p\.name\) \|\| null\)\}/.test(railCode),
+  "DaypartRail card editorial is the sourced hook (or the curated drops' / paid card's own sourced line) or nothing");
 ok(!/\|\|\s*p\.summerWhy/.test(railCode) && !/\|\|\s*p\.birthdayWhy/.test(railCode),
   "DaypartRail does not fall back to summerWhy/birthdayWhy as the card hook");
 

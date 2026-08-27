@@ -366,6 +366,16 @@ export const WF_PLACE_CARD_CSS = `
   outline:none;
 }
 .wf-place-card-highlights>span{color:#DFE5EE!important}
+.wf-place-card-highlights>span.wf-sponsor-chip{
+  border-color:rgba(159,177,203,.38)!important;
+  background:linear-gradient(180deg,rgba(226,235,248,.14),rgba(226,235,248,.06))!important;
+  color:#F4F7FC!important;
+  font-size:9px!important;
+  font-weight:850!important;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+  opacity:1!important;
+}
 .wf-place-card-take{
   overflow:hidden;
   padding-left:8px;

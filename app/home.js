@@ -4026,6 +4026,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // v8.43 — the PAID, GEO-GATED sponsor card (lib/sponsoredPlaces.js). Null for
   // every reader outside a sponsor's bought radius, which is nearly all of them.
   const [sponsoredPick, setSponsoredPick] = useState(null);
+  // v8.69 — the paid card that rides inside a RAIL'S DROP rather than the home
+  // column (owner, 2026-08-26). Same registry, same gate, different surface:
+  // an entry carrying `rail` is excluded from sponsoredPlaceNear() and served
+  // only here, so the two products cannot serve each other's inventory.
+  const [railSponsorCard, setRailSponsorCard] = useState(null);
   // The registry is dynamic-imported HERE, after a real location resolves,
   // rather than statically at the top of this file: the home route is at ~498KB
   // gz against check-bundle's 500KB budget, and a reader in Sarasota should pay
@@ -4033,13 +4038,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // LIVE Wayfind Score — the card itself computes no numbers of its own.
   useEffect(() => {
     let dead = false;
-    if (!locResolved || !center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) { setSponsoredPick(null); return; }
+    if (!locResolved || !center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) { setSponsoredPick(null); setRailSponsorCard(null); return; }
     (async () => {
       try {
         const mod = await import("../lib/sponsoredPlaces");
         const s = mod.sponsoredPlaceNear(center.lat, center.lng);
         if (!dead) setSponsoredPick(s ? mod.hydrateSponsoredPlace(s, center) : null);
-      } catch (e) { if (!dead) setSponsoredPick(null); }
+        // ONE dynamic import serves both surfaces. The rail card resolves off
+        // the SAME reader point, and its when-label is computed from the site
+        // clock (venue-local, DST-aware) rather than the browser's — a market
+        // that runs 7pm–1am must not read "Tonight" to a reader whose device
+        // has already rolled past midnight in another zone.
+        const rc = mod.sponsoredRailCardForReader(center.lat, center.lng, center, siteTodayStr());
+        if (!dead) setRailSponsorCard(rc);
+      } catch (e) { if (!dead) { setSponsoredPick(null); setRailSponsorCard(null); } }
     })();
     return () => { dead = true; };
     // Keyed on the COORDINATES, not the center object — center is rebuilt on
@@ -8970,6 +8982,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // outside the 20mi gate), pinned to the front of the amazon rail, opens
         // the curated partner sheet on tap. Only when location has resolved.
         sponsor={locResolved && center ? sponsorRailNear(center.lat, center.lng) : null}
+        // v8.69 — the PAID place card at the front of its own rail's drop.
+        // Resolved in the sponsor effect above (geo gate + flight window +
+        // live Wayfind Score), null for every reader outside the bought radius.
+        sponsorCard={railSponsorCard}
         onOpenPartner={(pid) => { const c = partnerCollectionById(pid); if (c) openPartnerCollection(c); }}
         onCoverage={setRailsCoverage}
         // v8.29.16 — the events tile opens the events screen rather than a drop
