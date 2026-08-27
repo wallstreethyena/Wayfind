@@ -266,6 +266,10 @@ export function RailDots({ railId, count }) {
 export default function RailCard({
   photo, photoFallback, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, badge, cta, take,
   onOpen, href, external, ariaLabel, className,
+  // v8.70 — see the IconicPlaceCard note: inside .wf8-pcrail (the rail's
+  // tap-expanded horizontal scroller) `loading="lazy"` never resolves, so a
+  // lazy image there is a permanently blank one. Opt-out, default unchanged.
+  eagerMedia = false, mediaPriority = null,
   saved, liked, disliked, onSave, onLike, onDislike, onShare,
   // v8.29.2 — the row this card is ABOUT. Without it the card has nothing to
   // like; with it, a caller that wires no handler still gets a working thumb
@@ -345,8 +349,9 @@ export default function RailCard({
                 src={photo || railMarketFallback}
                 data-fallback={photoFallback || ""}
                 alt=""
-                loading="lazy"
+                loading={eagerMedia ? "eager" : "lazy"}
                 decoding="async"
+                {...(mediaPriority ? { fetchpriority: mediaPriority } : null)}
                 onError={(ev) => {
                   const fb = ev.currentTarget.dataset.fallback;
                   if (fb) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fb; }

@@ -738,6 +738,7 @@ node scripts/check-partner-collections.mjs
 # so the advertiser can see what they bought). Plus the bundle wall: home.js
 # must reach both the registry and the card lazily.
 node scripts/check-sponsored-places.mjs
+node scripts/check-rail-drop-images.mjs
 
 # THE $1,878 GUARD — no atmosphere-tier fields in server masks, every metered
 # Google call site behind the WAYFIND_GATE spend gate, radius ladder present.
