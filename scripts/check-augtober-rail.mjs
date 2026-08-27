@@ -56,6 +56,14 @@ ok(ids.filter((i) => i === "ChIJB2B8mYzHwogRkZIDCDARWww").length === 1 && !ids.i
   "one Ice Screamin location only — one tile per brand");
 ok(ids.includes("ChIJ7QVjUK_FwogRaTLY8uxOico") && ids.includes("ChIJTzoiienhwogRbPa3GpuvBQU"),
   "the researched picks are IN (SpookEasy Lounge; Paradeco's fall menu) — real offerings, sourced");
+// v8.83 — the 2026-08-27 sweep's two survivors, pinned by id so a later
+// "cleanup" cannot quietly drop the only two places that widened the pool
+// beyond Tampa/Orlando. Fear at the Pier is Panama City's year-round haunt;
+// Red Coconut becomes the Dead Coconut Club for HHN 35 every fall.
+ok(ids.includes("ChIJ2Z9gE5eNk4gRz-Ey8y0ahfM") && ids.includes("ChIJwZ_GK-d-54gRm5Ahg7PZYeY"),
+  "the 2026-08-27 sweep's verified additions are IN (Fear at the Pier; the Dead Coconut Club takeover)");
+ok(FALL_REJECTED_IDS.includes("ChIJ06f9LojFwogRdHVILZ-XOjs"),
+  "Nightly Spirits Tampa stays OUT — 5.0 stars across 318 reviews and the operator's own page says tours are currently unavailable. A card for something nobody can book is worse than no card.");
 ok(ids.every((i) => /^ChIJ[A-Za-z0-9_-]{10,}$/.test(i)), "every pool entry is a real canonical place id");
 ok(Object.values(FALL_PLACE_IDS).every((v) => typeof v === "string" && v.length > 20), "every pool entry carries its seasonal WHY");
 // 2a. THE OFFERING TEST (owner: places enter for what they OFFER, never the
