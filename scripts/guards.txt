@@ -381,6 +381,11 @@ node scripts/test-creator-corroboration.mjs
 node scripts/check-brand-pin.mjs
 node scripts/check-score-law.mjs
 node scripts/check-trend-signal.mjs
+# check-version-watch pins the WIRING of the auto-update path; test-stale-tab
+# asserts the two DECISIONS behind it (is this document cached? would a reload
+# cost the user something?). Both matter: a fix only reaches a user when their
+# document is re-fetched, and most users never refresh.
+node scripts/test-stale-tab.mjs
 node scripts/check-version-watch.mjs
 node scripts/check-partner-hook-collisions.mjs
 # 2026-08-19 — one founder-verified Shell Key clear-kayak pin. Asserts the
