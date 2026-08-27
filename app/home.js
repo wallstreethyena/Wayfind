@@ -9949,34 +9949,133 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                           rendered VERBATIM (pid intact) — never hand-built, never routed
                           through the resolver. The fetch effect above already drops any
                           item missing pid=, so an unattributed link can never reach here. */}
-                      {!browseCat && homeExp && (
+                      {!browseCat && homeExp && (() => {
+                        // v8.71 (owner, 2026-08-26, holding his Emerson Point
+                        // card next to this one: "i dont like the way it looks
+                        // i want it to look like our iconic place cards you
+                        // know the ones").
+                        //
+                        // It IS the iconic card now — the real .wf-place-card
+                        // DOM contract, so every rule in WF_PLACE_CARD_CSS
+                        // applies with no second stylesheet to drift. What it
+                        // is NOT is a copy of IconicPlaceCard: that component
+                        // owns save/like/dislike/share, all of which key on a
+                        // GOOGLE PLACE ID. A Viator product has a product_code
+                        // and is in no place store, so those four buttons would
+                        // render enabled and do nothing — the dead-affordance
+                        // bug RailCard documents at `actionsReadOnly`.
+                        //
+                        // AND THE SLOTS THIS DATA CANNOT HONESTLY FILL STAY
+                        // EMPTY, which is the whole reason this is hand-built:
+                        //   • no DISTANCE — wf_experiences stores a dest_id and
+                        //     a city, never a per-product point. "2.4 mi" would
+                        //     be invented.
+                        //   • no RANK CHIP and no TOP-PICK band — `rank={1}` on
+                        //     the old card existed only so rankBucket() would
+                        //     say "top3" in analytics. There is no visible
+                        //     ranked list behind it, so a "1" would assert one.
+                        //   • no EDITORIAL TAKE — there is no sourced why-go for
+                        //     a tour product anywhere in wf_experiences, and the
+                        //     card-hook law forbids filling that slot with the
+                        //     house tagline. `is-no-take` collapses it honestly
+                        //     (css.js) rather than leaving a hole.
+                        //   • no OPEN/CLOSED — a tour has no opening hours.
+                        //   • the price renders as a FACT ("from $37"), never
+                        //     through priceLabel() — fromPrice is dollars, not
+                        //     a Google 0–4 priceLevel, and the two scales are
+                        //     not interchangeable.
+                        //
+                        // THE SCORE IS THE ONE FORMULA. wayfindScore(rating,
+                        // reviews) — the same call the rest of the app ranks
+                        // with — on Viator's own rating and review count. The
+                        // old card reached it accidentally, by handing
+                        // PlaceScoreChip a bare {rating, reviews} and letting
+                        // it self-heal; lib/experiencesData also carries a
+                        // SECOND copy of the same Bayesian maths for its server
+                        // sort. Calling it explicitly here means the number on
+                        // the card cannot drift from the number that ranked it.
+                        const wf = toDisplayScore(wayfindScore(Number(homeExp.rating), Number(homeExp.reviews)));
+                        const facts = [
+                          homeExp.reviews > 0 ? homeExp.reviews.toLocaleString() + " reviews" : null,
+                          homeExp.duration || null,
+                          homeExp.fromPrice != null ? "from $" + homeExp.fromPrice : null,
+                        ].filter(Boolean);
+                        return (
                         <ViatorCommerceLink
                           t={homeExp}
                           surface="home_bookable_card"
                           contentId={cityNow}
                           rank={1}
                           onClick={(e, clickId) => { try { logEvent("tickets_out", null, { kind: "home_bookable", code: homeExp.code, click_id: clickId }); } catch (er) {} }}
-                          style={{ display: "flex", gap: 12, alignItems: "stretch", background: C.card, border: `1px solid ${C.border}`, borderRadius: RADII.card, overflow: "hidden", textDecoration: "none", color: "inherit", marginBottom: 14, boxShadow: SHADOW.card }}
+                          className="wf-place-card is-no-take"
+                          // A SHORTER CARD, STILL A FIXED ONE. The iconic card
+                          // is 268px because it carries a two-line editorial
+                          // take; this one honestly has none, and at the full
+                          // height that shows up as a large void above the CTA.
+                          // The override is a FIXED px value, not a content
+                          // height, so the layout-shift guarantee section 7 of
+                          // test-layout-shift protects is untouched: whichever
+                          // pick the hourly refresh brings in, the box is the
+                          // same size and an idle reader's feed cannot jump.
+                          // 176px is measured, not picked: at 390px the gap
+                          // between the chip lane and the CTA bottoms out at
+                          // its natural 22px anywhere below ~172px and grows
+                          // from there, so this is the tightest height that
+                          // still leaves the content breathing room.
+                          style={{ display: "block", textDecoration: "none", color: "inherit", marginBottom: 14, "--wf-card-h": "176px" }}
                         >
-                          <div style={{ position: "relative", width: 108, flexShrink: 0, background: "#10141d" }}>
-                            <img src={homeExp.image} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-                            {homeExp.sellingOut ? <span style={{ position: "absolute", top: 6, left: 6, fontSize: 9, fontWeight: 800, letterSpacing: ".3px", textTransform: "uppercase", color: "#FF8A3D", background: "rgba(13,17,23,.82)", borderRadius: RADII.chip, padding: "2px 7px" }}>🔥 Selling out</span> : null}
-                          </div>
-                          <div style={{ flex: 1, minWidth: 0, padding: "11px 13px 12px", display: "flex", flexDirection: "column" }}>
-                            <div style={{ ...TYPE.eyebrow, color: C.light, marginBottom: 4 }}>✨ Make a day of it</div>
-                            {/* minHeight = exactly the two lines WebkitLineClamp allows, so a
-                                short pick and a long pick occupy the same box (see
-                                HOME_EXP_TITLE_MIN_H — this card refreshes on the hour under
-                                an idle reader and must not move the feed when it does). */}
-                            <div style={{ fontSize: HOME_EXP_TITLE_FS, fontWeight: 750, color: C.text, lineHeight: HOME_EXP_TITLE_LH, minHeight: HOME_EXP_TITLE_MIN_H, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{homeExp.title}</div>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: "auto", paddingTop: 8 }}>
-                              {homeExp.rating > 0 && homeExp.reviews > 0 ? <PlaceScoreChip p={{ rating: homeExp.rating, reviews: homeExp.reviews }} size={12} /> : null}
-                              {homeExp.fromPrice != null ? <span style={{ fontSize: 12, color: C.green, fontWeight: 700 }}>from ${homeExp.fromPrice}</span> : null}
-                              <span style={{ marginLeft: "auto", minHeight: TARGET, display: "inline-flex", alignItems: "center", background: C.accent, color: "#0D1117", borderRadius: RADII.chip, padding: "6px 13px", fontSize: 11.5, fontWeight: 800 }}>Book ↗</span>
+                          {/* Top-right of the CARD, never on the photo — the
+                              global placement law (owner, 2026-08-24). */}
+                          <div className="wf-place-card-score"><WayfindScoreBadge score={wf} /></div>
+                          <div className="wf-place-card-layout">
+                            <div className="wf-place-card-media">
+                              <img src={homeExp.image} alt="" loading="lazy" decoding="async" style={{ objectFit: "cover" }} />
+                            </div>
+                            <div className="wf-place-card-content" style={{ position: "relative" }}>
+                              <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start" }}>
+                                <div className="wf-place-card-heading">
+                                  {/* The eyebrow, with the card's orange tick.
+                                      The ✨ is gone: the CSS :before rule draws
+                                      the mark every other card wears, and two
+                                      marks on one line is the thing that made
+                                      this look like a different product. */}
+                                  <span className="wf-place-card-category">Make a day of it</span>
+                                  <span className="wf-place-card-name" style={{ display: "block" }}>{homeExp.title}</span>
+                                </div>
+                              </div>
+                              <div className="wf-place-card-meta" style={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}>
+                                {facts.map((f) => <span key={f}>{f}</span>)}
+                              </div>
+                              <div className="wf-place-card-highlights-wrap">
+                                <div className="wf-place-card-highlights">
+                                  {/* Disclosures first, decoration second —
+                                      the lane clamps to one row and scrolls,
+                                      so anything after the chips can be
+                                      trimmed (IconicPlaceCard, v8.17). */}
+                                  {homeExp.sellingOut ? <span>{"\uD83D\uDD25 Selling out"}</span> : null}
+                                  {(homeExp.chips || []).map((c) => <span key={c.key}>{c.icon} {c.label}</span>)}
+                                </div>
+                              </div>
+                              {/* ONE action, and it is the monetised one. The
+                                  disclosure rides on it rather than in a footer
+                                  the reader never reaches: same words and same
+                                  posture as the ticket pill on the place card. */}
+                              <div className="wf-place-card-actions wf-sheet-card-actions">
+                                <span
+                                  className="wf-place-card-book"
+                                  title="Partner link. Wayfind may earn a commission; rankings never change."
+                                  aria-label={"Book " + homeExp.title + " with Viator"}
+                                  // nowrap because the action row is a grid and
+                                  // a two-word label broke onto three lines at
+                                  // 390px — measured, not guessed.
+                                  style={{ whiteSpace: "nowrap" }}
+                                >Book with Viator ↗</span>
+                              </div>
                             </div>
                           </div>
                         </ViatorCommerceLink>
-                      )}
+                        );
+                      })()}
               {/* v6.97 — THE MISSING BRIDGE (owner's own note on the mockup). The
                   guides pull real traffic from Google every month and every reader
                   dead-ends there, because nothing on the home screen has ever linked
@@ -11450,9 +11549,6 @@ const EV_RAIL_MIN_H = 245; // v7.03: measured on PRODUCTION at 390 and 1024 with
 // makes the card's height identical for every possible pick — the content can
 // change, the box cannot. Derived, not hardcoded, so editing the type below
 // cannot silently un-reserve it.
-const HOME_EXP_TITLE_FS = 13.5;
-const HOME_EXP_TITLE_LH = 1.35;
-const HOME_EXP_TITLE_MIN_H = HOME_EXP_TITLE_FS * HOME_EXP_TITLE_LH * 2; // exactly two lines
 // WF_LAYOUT_CSS lives in app/components/css.js (July 2026 decomposition).
 // Re-declaring it here renders the shell stylesheet — and the wordmark — twice.
 
