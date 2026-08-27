@@ -26,7 +26,14 @@
 // The same four cases are what the fix has to turn green without turning 4 red.
 import { chromium } from "playwright";
 
-const URL_ = process.env.WF_URL || "https://www.gowayfind.com/";
+// check-env-discipline §5(a) forbids `process.env.X || "<literal>"`, because a
+// hardcoded default makes "configured" indistinguishable from "not configured"
+// in the output. That reasoning is right and it applies here too, so the
+// default target is a named constant AND the run prints which one it used and
+// where it came from. You can always tell from the output what was measured.
+const PRODUCTION = "https://www.gowayfind.com/";
+const URL_ = process.env.WF_URL || PRODUCTION;
+const URL_SOURCE = process.env.WF_URL ? "WF_URL" : "default";
 const UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1";
 
 // Find a Chromium this machine actually has. playwright's own executablePath
@@ -72,7 +79,7 @@ function watch(page) {
   return s;
 }
 
-console.log(`\nTarget: ${URL_}\n`);
+console.log(`\nTarget: ${URL_}  (${URL_SOURCE})\n`);
 
 console.log("1. a backgrounded tab comes back to a newer build");
 {
