@@ -226,10 +226,7 @@ export const WF_PLACE_CARD_CSS = `
 .wf-place-card-score{position:absolute;z-index:5;inset:10px 10px auto auto;pointer-events:auto;filter:none!important}
 .wf-fall .wf-place-card,.wf-place-card.wf-fall-card{background:#BC4D08 url(/fall/card-bg-dark-640.webp?v=2) right bottom/cover no-repeat!important;border:1.5px solid rgba(255,196,110,.75)!important;box-shadow:0 10px 26px rgba(96,46,8,.5)!important;overflow:hidden}
 @media(min-resolution:1.5dppx){.wf-fall .wf-place-card,.wf-place-card.wf-fall-card{background-image:url(/fall/card-bg-dark-1100.webp?v=2)!important}}
-/* Pumpkins are scoped to the photo column; the card art is dark-only. The old
-   combined artwork leaked a cream band beside every photo. */
-.wf-fall .wf-place-card .wf-place-card-media,.wf-place-card.wf-fall-card .wf-place-card-media{background:url(/fall/card-bg-left-320.webp?v=2) left bottom/auto 100% no-repeat}
-.wf-fall .wf-place-card .wf-place-card-media img,.wf-place-card.wf-fall-card .wf-place-card-media img{-webkit-mask-image:radial-gradient(135% 110% at 100% 0%,#000 60%,transparent 92%);mask-image:radial-gradient(135% 110% at 100% 0%,#000 60%,transparent 92%)}
+.wf-fall .wf-place-card .wf-place-card-media,.wf-place-card.wf-fall-card .wf-place-card-media{background:#A8420A}
 .wf-fall .wf-place-card button,.wf-place-card.wf-fall-card button{background:rgba(59,26,5,.62)!important;border:1px solid rgba(255,196,110,.6)!important;color:#FFE9CB!important}
 .wf-fall .wf8-falltile{border:1.5px solid rgba(255,196,110,.7)!important;background:linear-gradient(150deg,#B8641B,#7A3C0D)!important;color:#FFF3E2!important}
 .wf-fall .wf-place-card .wf-place-card-category,.wf-place-card.wf-fall-card .wf-place-card-category{color:#4A2508!important;font-weight:900!important}

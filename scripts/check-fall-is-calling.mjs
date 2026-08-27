@@ -127,9 +127,18 @@ ok(/card-bg-dark-/.test(fallCardRule),
   "the fall CARD background is the dark-only crop (a combined artwork puts a cream panel behind the content column)");
 ok(!/card-bg-760\.webp|card-bg-1148\.webp/.test(CSS),
   "the combined artwork with the pale left panel is referenced nowhere — that file IS the band");
-ok(/\.wf-fall \.wf-place-card \.wf-place-card-media[^{]*\{[^}]*card-bg-left-/.test(CSS),
-  "the pumpkin/cream art is scoped to .wf-place-card-media, so it can never paint beside the photo");
-for (const asset of ["card-bg-dark-640.webp", "card-bg-dark-1100.webp", "card-bg-left-320.webp"]) {
+// v8.74 — the photo now COVERS its column and the column behind it is dark
+// orange. The owner, looking at a live card: "there's a lighter vertical to the
+// right of the picture… the picture should be on top of that, and then it
+// should be just one dark orange." So no pale surface may sit in the media
+// column at all — not the cream panel, and not a cream tile showing through a
+// masked photo, which is what the v8.68.1 overlap produced once the mask ate
+// most of the column.
+ok(/\.wf-fall \.wf-place-card \.wf-place-card-media[^{]*\{background:#[0-9A-Fa-f]{6}\}/.test(CSS),
+  "the photo column's own background is a flat dark tone — never a cream tile that a transparent photo can reveal");
+ok(!/\.wf-fall[^\n]*mask-image:radial-gradient/.test(CSS),
+  "the fall photo is not masked away: a fade that eats the photo is what exposes the pale surface under it");
+for (const asset of ["card-bg-dark-640.webp", "card-bg-dark-1100.webp"]) {
   let bytes = 0;
   try { bytes = readFileSync(new URL("../public/fall/" + asset, import.meta.url)).length; } catch (e) { bytes = 0; }
   ok(bytes > 2000, `public/fall/${asset} exists and is a real image (${bytes} bytes) — a 404 here repaints the flat fallback and loses the season`);
