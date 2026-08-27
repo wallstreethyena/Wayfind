@@ -87,8 +87,27 @@ const SRC = strip(RAW);
   ok(/railSlow\s*\?/.test(branch),
     "the voice is rendered INSIDE the skeleton branch — a reader looking at a grey box is exactly the reader it is for");
   ok(/wf8-slowsay/.test(branch), "…through its own class, so it can be styled without touching the failure state's");
-  ok(/<a href=\{railHref\(/.test(branch),
-    "…and it carries a REAL link. A sentence with nothing to press is still a dead end; this is the escape hatch the mute box never had");
+  // THE ASSERTION THIS REPLACED WAS A FALSE GREEN, and it is worth saying how.
+  // It read `/<a href=\{railHref\(/` — the link is in the source — and passed
+  // on a version that rendered NOTHING to press, because railHref returns null
+  // without a citySlug and during a pending load there is no citySlug yet.
+  // Verified on production: voice present, link null. The identifier appeared
+  // and played no role (CLAUDE.md), inside a guard written against dead ends.
+  //
+  // So assert the property that actually matters: the conditional CANNOT
+  // produce nothing. Its else-branch must be a control, never `null`.
+  // Delimited to the VOICE's own div, not the whole branch — the outer
+  // `{railSlow ? (…) : null}` legitimately ends in null and would otherwise
+  // trip the dead-end check below.
+  const condStart = branch.indexOf("railHref(selRail");
+  const condEnd = branch.indexOf("</div>", condStart);
+  const cond = condStart > -1 && condEnd > condStart ? branch.slice(condStart, condEnd) : "";
+  ok(cond.length > 100, "PROBE: the escape-hatch conditional was delimited");
+  ok(/<a href=\{railHref\(/.test(cond), "the honest link is offered when a real destination exists");
+  ok(/\)\s*:\s*\(\s*<button/.test(cond.replace(/\{\/\*[\s\S]*?\*\/\}/g, "")),
+    "…and the ELSE-BRANCH IS A CONTROL, not null — this is the assertion that would have caught the version that shipped a sentence with nothing to press");
+  ok(!/\)\s*:\s*null\s*\}\s*<\/div>/.test(cond),
+    "…so the waiting state can never render a dead end, whatever railHref decides");
 }
 
 /* ── 4. IT DOES NOT CLAIM A FAILURE ────────────────────────────────────────

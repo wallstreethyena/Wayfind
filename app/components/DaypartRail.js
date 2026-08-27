@@ -1244,9 +1244,33 @@ export default function DaypartRail({
               {railSlow ? (
                 <div className="wf8-slowsay">
                   <p>{`Still ranking places${near} — we only show a list once we've actually ranked it.`}</p>
+                  {/* THE ELSE-BRANCH IS A BUTTON, NEVER null (v8.75.1).
+                      Verified on production the day this shipped: the voice
+                      rendered and the link did NOT, because railHref returns
+                      null without a citySlug — and during a pending load there
+                      IS no citySlug yet. So the first version of this shipped
+                      the exact thing its own guard calls a dead end: a
+                      sentence with nothing to press. The guard passed because
+                      it asserted the link was in the SOURCE, not that anything
+                      rendered — the identifier-appears-but-plays-no-role false
+                      green CLAUDE.md documents, walked into while writing a
+                      guard against dead ends.
+
+                      railHref stays exactly as it is: "never invent a city" is
+                      the right rule and a rail page for a town we have not
+                      established is not a real destination. The fix is on this
+                      side — when there is no honest link, offer the control the
+                      reader was already reaching for. He refreshed the whole
+                      page; this re-runs the load without re-downloading the
+                      app, which is strictly the better version of what he did
+                      by hand. */}
                   {railHref(selRail, shown.region, shown.citySlug) ? (
                     <a href={railHref(selRail, shown.region, shown.citySlug)}>{selRail.cta} →</a>
-                  ) : null}
+                  ) : (
+                    <button type="button" className="wf8-thinbtn" onClick={() => { setRetryNonce((n) => n + 1); try { logEvent("rail_retry", { rail_id: selRail.id, from: "slow" }); } catch (e) {} }}>
+                      Try again
+                    </button>
+                  )}
                 </div>
               ) : null}
             </div>
