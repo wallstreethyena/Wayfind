@@ -134,13 +134,15 @@ const SRC = strip(RAW);
   // alone — a mutation that applied to the wrong target reads exactly like a
   // guard that correctly passed. CLAUDE.md's rule, met in the wild: prove the
   // mutation hit the site you meant.
-  ok(/(?<![a-zA-Z])addEventListener\("scroll",\s*sync/.test(block),
+  ok(/(?<![a-zA-Z])addEventListener\("scroll",\s*onScroll/.test(block),
     "the window is driven by the drop's OWN scroll listener — the window IS the loading mechanism, so it has to move, or every card past the first screen is blank forever (v8.70's bug, returning for the tail)");
   ok(/el\.scrollLeft/.test(block) && /clientWidth/.test(block),
     "…computed from the scroller's real position and width, not from a counter");
   ok(/prev\.lo === lo && prev\.hi === hi \? prev :/.test(block),
     "…and it returns the SAME object when the bounds have not moved. useScrollEnds documents why: a fresh object per scroll event re-rendered this whole component at ~60fps and is the 'jumpy and glitchy' report of 2026-08-20");
-  ok(/removeEventListener\("scroll",\s*sync/.test(block), "…and that listener is removed on cleanup");
+  ok(/removeEventListener\("scroll",\s*onScroll/.test(block), "…and that listener is removed on cleanup");
+  ok(/setTimeout\(sync, WINDOW_SETTLE_MS\)/.test(block) && /clearTimeout\(t\)/.test(block),
+    "…and it SCHEDULES rather than setting state inline: a gesture must not re-render the parent, because memoising the card cannot stop the parent rebuilding 189 elements (measured: v8.79 got swipes to 1231ms and no further)");
 }
 
 /* ── 4. THE PHOTOLESS TWIN IS STABLE ───────────────────────────────────────

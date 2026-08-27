@@ -184,6 +184,12 @@ export const DROP_CHUNK = 32;
 // window is deliberately far wider than the step, so snapping can never leave a
 // visible card outside it.
 export const PHOTO_WINDOW_STEP = 8;
+
+// How long the rail must be still before the photo window moves. Long enough
+// that a flick costs nothing, short enough that a reader who stops to look
+// never notices they waited. Momentum scrolling fires continuously, so this is
+// measured from the LAST scroll event, not the first.
+export const WINDOW_SETTLE_MS = 140;
 // v8.23 — the share intent (url, title, message body) is resolved in one pure
 // module so the tile never builds a link string of its own, and so a share
 // created on a dev server or a preview deploy still carries the production host
@@ -979,10 +985,40 @@ export default function DaypartRail({
       const hi = q(last + PHOTO_WINDOW_AHEAD) + PHOTO_WINDOW_STEP;
       setPcWin((prev) => (prev.lo === lo && prev.hi === hi ? prev : { lo, hi }));
     };
+    // ── THE WINDOW MOVES WHEN THE THUMB STOPS (v8.80) ──────────────────
+    //
+    // MEASURED across three shipped attempts, iPhone 14 viewport at 4x CPU
+    // throttle, six thumb swipes across the open rail:
+    //
+    //     before the window existed   10 tasks · 1046 ms blocked
+    //     v8.77 quantised the window  16 tasks · 1573 ms   (worse — reported)
+    //     v8.79 memoised the card     14 tasks · 1231 ms   (better, not fixed)
+    //
+    // Memoising the CARD stopped 189 children re-rendering. It could not stop
+    // the PARENT rebuilding 189 elements — six closures, a beachChip() call and
+    // a composed key each — because that work happens before memo is ever
+    // consulted. React.memo skips a child's render; it does not skip creating
+    // the child.
+    //
+    // So the fix is not to make the re-render cheaper. It is to not re-render
+    // DURING the gesture at all. Scroll no longer sets state; it schedules.
+    // While the thumb is moving the component is untouched and the browser
+    // owns the frame. When the scroll settles the window updates once.
+    //
+    // The cost, stated: on a long fast flick the cards under the thumb show
+    // their monogram until the reader pauses. That is the right trade — a
+    // photo that arrives when you stop beats a rail that stutters while you
+    // move, and the reader cannot read a card they are flinging past anyway.
+    let t = null;
+    const onScroll = () => { if (t) clearTimeout(t); t = setTimeout(sync, WINDOW_SETTLE_MS); };
     sync();
-    el.addEventListener("scroll", sync, { passive: true });
-    window.addEventListener("resize", sync);
-    return () => { el.removeEventListener("scroll", sync); window.removeEventListener("resize", sync); };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      if (t) clearTimeout(t);
+      el.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, [selected, dropList.length]);
 
   // Reset the schedule when the reader opens a different rail.
