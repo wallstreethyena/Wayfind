@@ -761,3 +761,4 @@ node scripts/check-cget-envelope.mjs
 node scripts/check-experiences-link-health.mjs
 node scripts/check-event-photo-rights.mjs
 node scripts/check-fetch-deadlines.mjs
+node scripts/check-skeleton-has-a-voice.mjs

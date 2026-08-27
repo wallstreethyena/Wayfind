@@ -88,6 +88,13 @@ export const WF_RAIL_MENU_CSS =
   `.wf8-thinbtn:hover{background:var(--wf8-acc);color:#0b0b0d}` +
   `.wf8-thinbtn:focus-visible{outline:2px solid var(--wf8-acc2);outline-offset:2px}` +
   `@media (prefers-reduced-motion:reduce){.wf8-thinbtn{transition:none}}` +
+  // v8.75 -- the voice a waiting skeleton acquires after RAIL_VOICE_MS.
+  // Rationale lives in DaypartRail.js beside the state it renders; kept out of
+  // this template literal because prose here ships to every reader
+  // (scripts/check-css-comment-bytes.mjs).
+  `.wf8-slowsay{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:12px 0 2px}` +
+  `.wf8-slowsay p{margin:0;font-size:14px;line-height:1.5;color:var(--wf8-mut);max-width:620px}` +
+  `.wf8-slowsay a{font-size:15px;font-weight:700;color:var(--wf8-acc2)}` +
   // the guides library — what Local Guides opens onto
   `.wf8-grail{display:flex;gap:var(--wf8-pcgap);overflow-x:auto;scrollbar-width:none;scroll-snap-type:x mandatory;padding:4px var(--wf8-pad) 6px;scroll-padding-left:var(--wf8-pad);margin:0 calc(var(--wf8-pad) * -1);list-style:none}.wf8-grail::-webkit-scrollbar{display:none}` +
   // The <li> is the flex ITEM, so the width and the snap point belong to it; the
