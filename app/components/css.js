@@ -227,7 +227,21 @@ export const WF_PLACE_CARD_CSS = `
 .wf-fall .wf-place-card,.wf-place-card.wf-fall-card{background:#BC4D08 url(/fall/card-bg-dark-640.webp?v=2) right bottom/cover no-repeat!important;border:1.5px solid rgba(255,196,110,.75)!important;box-shadow:0 10px 26px rgba(96,46,8,.5)!important;overflow:hidden}
 @media(min-resolution:1.5dppx){.wf-fall .wf-place-card,.wf-place-card.wf-fall-card{background-image:url(/fall/card-bg-dark-1100.webp?v=2)!important}}
 .wf-fall .wf-place-card .wf-place-card-media,.wf-place-card.wf-fall-card .wf-place-card-media{background:#A8420A}
-.wf-fall .wf-place-card button,.wf-place-card.wf-fall-card button{background:rgba(59,26,5,.62)!important;border:1px solid rgba(255,196,110,.6)!important;color:#FFE9CB!important}
+` +
+// v8.81 — `:not(.is-active)` IS THE WHOLE POINT OF THE NEXT SELECTOR.
+// It used to say `button`, full stop, and it outranked every state rule
+// further down: (0,2,1) beats (0,2,0), both !important, and this one comes
+// first in source order. So on a fall card a LIKED place was painted the
+// same cream as an unliked one. The tap registered, the taste profile
+// updated, the toast fired — and the control the finger landed on did not
+// move a single pixel. The owner, 2026-08-27: "I don't see the button
+// showing like it was activated… it's gonna look like it's broken."
+//
+// THE LAW, and it is general: a skin paints the RESTING state. A skin never
+// paints a control that is carrying state. Pinned by
+// scripts/check-state-affordance.mjs, which fails the build on any new
+// blanket `button`/`a` override inside a skin scope that lacks this guard.
+`.wf-fall .wf-place-card button:not(.is-active),.wf-place-card.wf-fall-card button:not(.is-active){background:rgba(59,26,5,.62)!important;border:1px solid rgba(255,196,110,.6)!important;color:#FFE9CB!important}
 .wf-fall .wf8-falltile{border:1.5px solid rgba(255,196,110,.7)!important;background:linear-gradient(150deg,#B8641B,#7A3C0D)!important;color:#FFF3E2!important}
 .wf-fall .wf-place-card .wf-place-card-category,.wf-place-card.wf-fall-card .wf-place-card-category{color:#4A2508!important;font-weight:900!important}
 .wf-fall .wf-place-card .wf-place-card-category:before,.wf-place-card.wf-fall-card .wf-place-card-category:before{content:"\\1F341";width:auto;height:auto;background:none;font-size:11px;line-height:1}
@@ -416,8 +430,22 @@ export const WF_PLACE_CARD_CSS = `
   border-radius:12px!important;
 }
 .wf-place-card-like svg,.wf-place-card-dislike svg{display:block;width:19px;height:19px}
-.wf-place-card-like.is-active{color:#4CE0B3!important;border-color:rgba(76,224,179,.45)!important;background:rgba(76,224,179,.08)!important}
-.wf-place-card-dislike.is-active{color:#F87171!important;border-color:rgba(248,113,113,.4)!important;background:rgba(248,113,113,.07)!important}
+` +
+// v8.81 — "ON" IS A SOLID FILL. These two used to say it with an 8% tint,
+// which is a whisper on a dark card and silence on any skin that paints its
+// own background. Save has always said it the loud way — solid fill, dark
+// glyph — so like and dislike now speak the same language, and the thumb
+// fills with it. That reads on any background we ever put behind it.
+// Measured, not asserted: scripts/test-reaction-affordance.mjs presses the
+// real control in a real browser on both skins and fails if the rendered
+// pixels do not move.
+`.wf-place-card-like.is-active{color:#06231A!important;border-color:#34D399!important;background:#34D399!important}
+.wf-place-card-dislike.is-active{color:#2A0A0A!important;border-color:#F87171!important;background:#F87171!important}
+.wf-place-card-like.is-active svg,.wf-place-card-dislike.is-active svg{fill:currentColor}
+` +
+// A 140ms colour fade — not motion, so it is not a reduced-motion concern.
+// It is what makes the press read as a RESPONSE rather than a repaint.
+`.wf-place-card-save,.wf-place-card-trip,.wf-place-card-like,.wf-place-card-dislike{transition:background-color .14s ease,border-color .14s ease,color .14s ease}
 .wf-place-card-share{min-width:88px;margin-left:auto}
 .wf-sheet-card-actions{
   display:grid!important;
