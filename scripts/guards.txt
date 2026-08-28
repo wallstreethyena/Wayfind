@@ -499,6 +499,7 @@ node scripts/check-one-nav-per-screen.mjs
 node scripts/check-rail-routes.mjs
 # (c) every rail must actually SELECT — six of fifteen once led with the same
 #     place because an unfiltered rail is a perfectly valid duplicate.
+node scripts/check-date-night-identity.mjs
 node scripts/test-rail-daylight.mjs
 node scripts/test-rail-select.mjs
 node scripts/test-summer-universe.mjs
