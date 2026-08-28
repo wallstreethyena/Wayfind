@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 // (end_date null — the HHN Tribute Store, whose close Universal has not
 // published) stays for OPEN_RUN_DAYS without ever claiming an end date; the
 // vetted year-round spooky PLACES ride along as normal scored place rows.
-import { fetchCuratedEvents } from "../../../../lib/curatedEvents.js";
+import { fetchCuratedEvents, isTrusted } from "../../../../lib/curatedEvents.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
 import { isFallTagged, fallEventLive, fallWhenLabel, FALL_PLACE_IDS, FALL_EVENT_TICKET_DEALS } from "../../../../lib/fallPool.js";
 import { hasCjPid } from "../../../../lib/deals.js";
@@ -34,7 +34,13 @@ export async function GET() {
     const today = siteTodayStr();
     const rows = await fetchCuratedEvents();
     const events = (rows || [])
-      .filter((e) => isFallTagged(e.tags) && fallEventLive(e, today) && e.card_hook && (e.event_status === "scheduled" || e.event_status === "sold_out"))
+      // isTrusted, NOT a second inline copy of the status check. The line this
+      // replaced asked only about event_status and therefore skipped the
+      // source_tier and confidence gates that lib/curatedEvents has always
+      // applied — so a creator-discovered row could have DATED a card on the
+      // rail the owner looks at most. The fall date law (fallEventLive, with
+      // its open-run rule) stays here because it is genuinely this rail's own.
+      .filter((e) => isTrusted(e) && isFallTagged(e.tags) && fallEventLive(e, today))
       .sort((a, b) => String(a.start_date).localeCompare(String(b.start_date)))
       .map((e) => ({
         kind: "event",
