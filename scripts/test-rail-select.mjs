@@ -238,7 +238,14 @@ eq(lead("tonight"), "The Mable Bar & Grill", "tonight leads with the top-scoring
 // golden-hour park keeps its curated datenight slot.
 ok(!namesOf("tonight").includes("Golden Hour Preserve"), "a datenight-tagged park that locks at dusk never rides Tonight's Move");
 ok(namesOf("tonight").includes("Night Fishing Pier"), "an explicitly tonight-tagged summer entry still does");
-ok(namesOf("datenight").includes("Golden Hour Preserve"), "…and the golden-hour park keeps its curated datenight slot");
+// v8.82 — FLIPPED, and flipped on purpose (owner, 2026-08-28, on the live
+// rail: "horrible for night time, nothing is an actual recommendation I would
+// follow"). v8.17 fixed the ALIAS that leaked datenight rows onto Tonight's
+// Move and left them on Date Night itself, where the same park was still the
+// top card under "Quiet enough to talk". A curated tag now has to AGREE with
+// the rail's identity rather than replace it; the park keeps `season`, which
+// is the rail whose promise a golden-hour walk actually keeps.
+ok(!namesOf("datenight").includes("Golden Hour Preserve"), "…and it does not ride Date Night either: a tag qualifies a row, it never exempts it from the room (v8.82)");
 eq(lead("events"), "Van Wezel Hall", "events leads with a ticketed venue, not a museum");
 eq(lead("break"), "Quick Bagel Co", "the 30-minute break leads with counter service");
 // Gems still ranks by score WITHIN the axis — the filter decides membership,
@@ -250,7 +257,7 @@ ok(selectFor("gems", pools).every((p) => p.rating >= 4.6 && p.reviews >= 40 && p
 // v8.17 — su7 (curated golden-hour datenight entry, 96) now outscores the
 // waterfront room (90); the global rule is score order, so it leads. The
 // original claim survives one line down: the room still beats every counter.
-eq(lead("datenight"), "Golden Hour Preserve", "date night leads with its highest-scored member (global score rule)");
+eq(lead("datenight"), "Beach House Waterfront", "date night leads with its highest-scored MEMBER — and membership is now the room (v8.82)");
 ok(namesOf("datenight").includes("Beach House Waterfront"), "the waterfront room is on date night");
 // Assert the invariant, not the name: a fixture row called "Far Beach" proves
 // nothing about the predicate.

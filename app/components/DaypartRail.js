@@ -71,6 +71,7 @@ import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES } fro
 import { RON_DUPRAT_TOP7, chefPickPlaces } from "../../lib/chefPicks.js";
 import { fallSkinLive, eventFranchiseKey } from "../../lib/fallSkin.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
+import { servableRows, isNowRail } from "../../lib/daylight.js";
 // `cityLabel` is aliased because this component already takes a prop by that
 // name. The import is the LAW (never "you", never "your area"); the prop is a
 // string the caller handed down.
@@ -859,7 +860,38 @@ export default function DaypartRail({
   // including the ~60 renders per second a rail drag used to produce. Memoised,
   // the drop's places change when the drop or the data changes, and not once
   // more.
-  const _selRaw = useMemo(() => (selected ? (shown.places[selected] || []) : []), [selected, shown]);
+  const _selRawAll = useMemo(() => (selected ? (shown.places[selected] || []) : []), [selected, shown]);
+  // v8.82 — THE CLOCK THE RAILS NEVER HAD (owner, 2026-08-28: the date night
+  // and tonight cards "are horrible for night time, nothing is an actual
+  // recommendation I would follow").
+  //
+  // WHY THIS FILTER IS ON THE CLIENT AND NOT IN SELECTION. /api/rails is CDN
+  // cached for an hour and keyed on lat/lng/band, so a response computed at
+  // 6pm — before sunset — is still being served at 8pm. A daylight verdict
+  // baked server-side would therefore be stale for up to an hour on exactly
+  // the boundary it exists to catch. The reader's browser is the only place
+  // that knows what time it actually is, which is the same reason `oh` travels
+  // as structured hours and businessStatus() resolves them here rather than a
+  // frozen openNow boolean being shipped from the server.
+  //
+  // The server list stays a SUPERSET and nothing about selection changes; this
+  // removes only what can be proven wrong for this minute. lib/daylight.js
+  // owns the rule and the rail set — see NOW_RAILS there for why `beach` and
+  // `drive` are deliberately NOT filtered (you read those to plan tomorrow).
+  const [nowTick, setNowTick] = useState(() => Date.now());
+  useEffect(() => {
+    if (!isNowRail(selected)) return undefined;
+    // Ten minutes: fine enough that a phone left open through sunset corrects
+    // itself, coarse enough to cost nothing. Sunset is the only boundary this
+    // has to catch and it does not move while you are looking at it.
+    const t = setInterval(() => setNowTick(Date.now()), 600000);
+    return () => clearInterval(t);
+  }, [selected]);
+  const _selRaw = useMemo(() => {
+    const at = center && Number.isFinite(center.lat) ? center : (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null);
+    if (!at) return _selRawAll;
+    return servableRows(selected, _selRawAll, { lat: at.lat, lng: at.lng, now: nowTick });
+  }, [selected, _selRawAll, center, lat, lng, nowTick]);
   // v8.28 — the curator's pick can only mark a card that carries _members, and
   // that aggregate is server-side by design. Fetched per open drop, fail-soft:
   // no signals, no mark, never a guess and never a blocked render.

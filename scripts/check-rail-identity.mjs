@@ -193,7 +193,20 @@ for (const [railId, place] of LOAD_BEARING) {
   const park = { id: "park", name: "Emerson Point Preserve", primaryType: "park", types: ["park"], rating: 4.8, reviews: 900, distMi: 9, _summerSourced: true, _summerRails: ["datenight"] };
   ok(RAIL_SELECT.tonight.identity(pier, {}) === true, "a tonight-tagged summer row must still reach Tonight's Move");
   ok(RAIL_SELECT.tonight.identity(park, {}) === false, "a datenight-only summer row must NOT reach Tonight's Move (v8.17)");
-  ok(RAIL_SELECT.datenight.identity(park, {}) === true, "a datenight-tagged summer row must still reach Date Night");
+  // v8.82 — REVERSED DELIBERATELY, on the owner's report (2026-08-28: the date
+  // night card is "horrible for night time, nothing is an actual recommendation
+  // I would follow"). This assertion used to pin the OPPOSITE, and it was
+  // pinning the defect: a registry tag REPLACED the rail's identity, so the
+  // live top four on Date Night were a dolphin-tour boat, a beach 16 miles
+  // away, a room, and a nature preserve that locks at dusk — under a tile that
+  // says "Quiet enough to talk". A summer tag now chooses WHICH rails a row is
+  // eligible for; it can no longer exempt the row from what the rail IS.
+  // The row keeps its home on `season`, which every summer row serves.
+  ok(RAIL_SELECT.datenight.identity(park, {}) === false, "a datenight-tagged summer PARK does not reach Date Night — a tag qualifies a row, it does not exempt it from the room (v8.82)");
+  {
+    const room = { id: "room", name: "Sunset Supper Club", primaryType: "restaurant", types: ["restaurant", "food"], rating: 4.7, reviews: 400, distMi: 4, _summerSourced: true, _summerRails: ["datenight"] };
+    ok(RAIL_SELECT.datenight.identity(room, {}) === true, "…and a datenight-tagged summer ROOM still does — the gate is BOTH, not neither");
+  }
   ok(RAIL_SELECT.datenight.identity(pier, {}) === false, "a tonight-only summer row must NOT reach Date Night");
 }
 

@@ -248,6 +248,7 @@ import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlen
 import { canonicalShareUrl } from "../lib/site";
 import { askShareIntent } from "./components/shareIntentSheet";
 import { placeKinds } from "../lib/dateInvite";
+import { isDateRoom } from "../lib/dateRoom.js";
 import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel } from "../lib/locationHonesty";
 
 const BUILD = "beta";
@@ -1519,9 +1520,18 @@ const EXPERIENCES = {
   // the Perfect-right-now LLM reasoning layer; filtering stays 100% in the
   // structured engine (junk gate, quality floor, open-now, distance).
   datenight: { icon: "🌹", label: "Date Night", title: "Date Night", mood: true, lead: "Romantic, intimate, made for two: candlelit dinners, wine bars, sunset views and after-dark charm.", viator: true, queries: (c) => { const eve = (c && c.timeBucket ? c.timeBucket : bucketForHour(siteHourFloat())) === "night"; return eve
-    ? [{ cat: "food", keyword: "romantic dinner intimate" }, { cat: "nightlife", keyword: "wine bar cocktail lounge" }, { cat: "food", keyword: "waterfront dinner sunset views" }, { cat: "food", keyword: "date night restaurant" }, { cat: "attractions", keyword: "scenic sunset spot" }]
-    : [{ cat: "food", keyword: "romantic cafe brunch" }, { cat: "attractions", keyword: "botanical garden scenic walk" }, { cat: "food", keyword: "wine tasting winery" }, { cat: "food", keyword: "romantic restaurant" }]; },
-    filter: (p) => (p.rating || 0) >= 4.3 && !/fast_food|meal_takeaway|chicken_wings/.test(((p.types || []).join(" "))) },
+    ? [{ cat: "food", keyword: "romantic dinner intimate" }, { cat: "nightlife", keyword: "wine bar cocktail lounge" }, { cat: "food", keyword: "waterfront dinner sunset views" }, { cat: "food", keyword: "date night restaurant" }, { cat: "food", keyword: "rooftop restaurant sunset view" }]
+    : [{ cat: "food", keyword: "romantic cafe brunch" }, { cat: "food", keyword: "garden patio restaurant" }, { cat: "food", keyword: "wine tasting winery" }, { cat: "food", keyword: "romantic restaurant" }]; },
+    // v8.82 (owner, 2026-08-28, on this sheet leading with the SUNSHINE SKYWAY
+    // BRIDGE: "a bridge for date night is ridiculous"). The filter used to be
+    // `rating >= 4.3 && !fast_food` — a QUALITY bar with no identity in it at
+    // all, which is why a 4.8-rated bridge passed. Two of the queries above
+    // were asking `attractions` for a "scenic sunset spot" and a "botanical
+    // garden", so the sheet was not merely admitting the bridge, it was going
+    // out to find it. Both now ask `food` for a room with the same view.
+    // The gate is lib/dateRoom.js — the ONE date-night identity, the same rule
+    // the datenight RAIL selects on. The rating floor stays on top of it.
+    filter: (p) => (p.rating || 0) >= 4.3 && isDateRoom(p) },
   nightout: { icon: "🍸", label: "Night Out", title: "Night Out", mood: true, lead: "Bars, live music, dance floors and late kitchens — where tonight actually happens.", queries: [{ cat: "nightlife", keyword: "" }, { cat: "nightlife", keyword: "live music" }, { cat: "nightlife", keyword: "craft cocktail bar" }, { cat: "nightlife", keyword: "dance club" }, { cat: "food", keyword: "late night eats" }], filter: (p) => (p.rating || 0) >= 4.2 },
   eatnow: { icon: "🍽️", label: "Where to Eat", title: "Where to Eat Right Now", mood: true, lead: "The best food for this exact hour, ranked honestly — no ads, no paid placement.", queries: (c) => { const _n = c && c.timeBucket ? c : nowContext({}); const h = _n.hour; const wknd = _n.isWeekend;
     if (h < 11) return wknd ? [{ cat: "food", keyword: "brunch" }, { cat: "food", keyword: "breakfast" }, { cat: "food", keyword: "bakery coffee" }] : [{ cat: "food", keyword: "breakfast" }, { cat: "food", keyword: "bakery coffee" }, { cat: "food", keyword: "brunch" }];
@@ -1751,7 +1761,16 @@ function experienceBadges(p, selectedKey, max, audit) {
   const gate = Tags.filterAllowed(identity, keys);
   if (audit) { audit.identity = identity; audit.candidates = keys.slice(); audit.blocked = gate.blocked; audit.shown = gate.shown.slice(); }
   keys = gate.shown;
-  if (selectedKey && EXPERIENCES[selectedKey]) {
+  // v8.82 — PROMOTE A TAG THE PLACE EARNED. NEVER MINT ONE.
+  // This used to unshift `selectedKey` unconditionally, which walked straight
+  // past BOTH gates above — the evidence set `q` and Tags.filterAllowed, the
+  // trust layer that exists for precisely this. So every card in an open
+  // experience sheet wore that sheet's badge whether or not it qualified, and
+  // the owner's screenshot is the result: a bridge with a "🌹 Date Night" chip
+  // on it. A chip is a claim about the PLACE; restating which sheet you are
+  // looking at is not evidence, and it is the one place on a card where an
+  // unearned tag reads as a verdict.
+  if (selectedKey && EXPERIENCES[selectedKey] && keys.indexOf(selectedKey) !== -1) {
     keys = keys.filter((k) => k !== selectedKey);
     keys.unshift(selectedKey);
   }
