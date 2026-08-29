@@ -1,0 +1,264 @@
+{
+  "batch": "2026-08-29d",
+  "rule": "Inventory + sourced two-beat hook only. Empty knownFor if the why-sit cannot be sourced. No Book /go. Ranking is never for sale. No Places API. Atlas cards require a public ChIJ — HOLD the Google id rather than invent one. Food trucks pin only with a documented home lot. Events are dated rows, not restaurant cards. No new home chips.",
+  "places": [
+    {
+      "key": "delicieuxFoodTruck",
+      "status": "hold_google_id",
+      "name": "Delicieux Food Truck",
+      "placeId": null,
+      "q": "Delicieux Food Truck, 1031 W Busch Blvd, Tampa, FL 33612",
+      "address": "1031 W Busch Blvd, Tampa, FL 33612",
+      "metro": "tampa",
+      "wantCategory": "food",
+      "primaryType": "food_truck",
+      "types": [
+        "food_truck",
+        "hamburger_restaurant"
+      ],
+      "chipsKeep": [
+        ["food", "all"],
+        ["food", "lunch"]
+      ],
+      "chipsBlock": [
+        ["food", "breakfast"],
+        ["food", "cafes"],
+        ["attractions", "beaches"],
+        ["nightlife", "clubs"]
+      ],
+      "knownFor": null,
+      "vibeCheck": null,
+      "whyGo": null,
+      "hours": null,
+      "phone": null,
+      "officialWebsite": null,
+      "lat": null,
+      "lng": null,
+      "center": null,
+      "coordSource": null,
+      "note": "HOLD Google id — no official site, no public ChIJ, no named OSM node, no Wikipedia. Directories (Uber Eats / DoorDash) and a 2026-03-13 Florida health inspection at 1031 W BUSCH BLVD document a standing lot (fence and deck around the truck). That is a home lot, not a roaming schedule. Hook stays EMPTY: no official-page award. Do not claim Tampa Mag Best Burger / Best Food Truck (2026 Best Burger winners were Boulon, El Cap, Mighty Fine; 2025 Best Food Truck was Burger Culture). Do not invent a ChIJ. Do not call Places.",
+      "sourceUrls": [],
+      "researchUrls": [
+        "https://www.ubereats.com/store/delicieux-food-services-1031-west-busch-boulevard/qmNq3pNGTyieEOo2IMTqaw",
+        "https://dirtyfl.com/locations/tampa/delicieux-food-services-839466/"
+      ],
+      "researchNote": "No official business page found 2026-08-29. Uber Eats lists DELICIEUX FOOD SERVICES at 1031 West Busch Boulevard (Burgers). DirtyFL reprints the health inspection at that address (mobile vehicle fenced/decked in place). LLC filing (Delicieux Food Services LLC) is 3303 Russett Dr — home/agent, not the lot. Hook stays empty."
+    },
+    {
+      "key": "brewkinisCoffee",
+      "status": "hold_google_id",
+      "name": "BrewKini’s Coffee Co",
+      "placeId": null,
+      "q": "BrewKini’s Coffee Co, 2612 N Tampa St, Tampa, FL 33605",
+      "address": "2612 N Tampa St, Tampa, FL 33605",
+      "metro": "tampa",
+      "wantCategory": "food",
+      "primaryType": "coffee_shop",
+      "types": [
+        "coffee_shop",
+        "cafe"
+      ],
+      "chipsKeep": [
+        ["food", "cafes"],
+        ["food", "breakfast"],
+        ["food", "all"]
+      ],
+      "chipsBlock": [
+        ["attractions", "beaches"],
+        ["nightlife", "clubs"],
+        ["hotels", "all"]
+      ],
+      "knownFor": "Freshly roasted Spaddy's beans, at the Tampa Heights trailer next to Shuffle",
+      "vibeCheck": "Official brewkinisco.com: tropical / island-style coffee trailer anchored at Shuffle in Tampa Heights. Freshly roasted Spaddy's beans. Hours Fri 7am–11am, Sat–Sun 9am–2pm. Official zip is 33605, not Yelp's 33602. Tiny umbrellas appear on Yelp only — omitted. Not Wilmington NC Brew-Kini.",
+      "whyGo": "Island-style coffee on freshly roasted Spaddy's beans, at the Tampa Heights trailer next to Shuffle.",
+      "hours": "Fri 7am–11am; Sat–Sun 9am–2pm",
+      "phone": null,
+      "officialWebsite": "https://brewkinisco.com/",
+      "lat": 27.9675568,
+      "lng": -82.4611897,
+      "center": {
+        "latitude": 27.9675568,
+        "longitude": -82.4611897
+      },
+      "coordSource": "official-maps-url",
+      "officialMapsFid": "0xabe5d28ac407ddb5:0x1973c287449c06cf",
+      "officialMapsUrl": "https://www.google.com/maps/dir//BrewKini%E2%80%99s+Coffee+Co.,+2612+N+Tampa+St,+Tampa,+FL+33605/@40.4334867,-74.3440384,14z/data=!4m8!4m7!1m0!1m5!1m1!1s0xabe5d28ac407ddb5:0x1973c287449c06cf!2m2!1d-82.4611897!2d27.9675568",
+      "note": "HOLD Google id — official page prints a Maps directions URL with hex FID 0xabe5d28ac407ddb5:0x1973c287449c06cf, not a ChIJ. Coords 27.9675568,-82.4611897 are the official URL's !2d/!2d pair (the @40.43,-74.34 viewport is a wrong NJ/PA center — not used). OSM named way 524352373 is Shuffle Tampa, a different business next door — not stolen. Do not invent a ChIJ from the hex pair. Do not call Places. Do not claim tiny umbrellas (Yelp only).",
+      "sourceUrls": [
+        "https://brewkinisco.com/"
+      ],
+      "researchUrls": [
+        "https://www.yelp.com/biz/brewkini-s-coffee-tampa-bay"
+      ],
+      "researchNote": "Official page fetched 2026-08-29: BrewKini's / Brewkini's spelling, 2612 N Tampa St Tampa FL 33605, Tampa Heights, anchored at Shuffle, Spaddy's beans, island style. Yelp reprints 33602 + tiny umbrellas — zip and umbrellas not used. Wilmington NC Brew-Kini at 5671 Market St is a different shop."
+    }
+  ],
+  "holds": [
+    {
+      "name": "Neon / Blacklight Art Experience, Tampa",
+      "status": "VENUE_UNNAMED",
+      "note": "Owner did not name the venue. Candidates exist (Marcolina’s Fine Arts Gallery Ybor Neon Nights; Painting with a Twist Tampa West, 5537 Sheldon Rd #U; Lume & Noir at Art Lofts, 1715 N Howard). HOLD until the owner names which one. Do not guess. Nothing written."
+    },
+    {
+      "name": "Sugared Lime / key lime crunch cake",
+      "status": "STOREFRONT_UNVERIFIED",
+      "note": "No verified public storefront found. Do not pin Alessi or a porch-bakery guess. HOLD until name + address. Nothing written."
+    },
+    {
+      "name": "Family-owned bakery, Plant City",
+      "status": "UNNAMED",
+      "note": "Owner did not name the bakery. Do not guess El Mirasol or Exclusively Yours. HOLD until named. Nothing written."
+    },
+    {
+      "name": "Florida Beach Experience / Florida Travel Guide clip",
+      "status": "NOT_A_PLACE",
+      "note": "A clip, not a place. HOLD. Do not pick a random beach. Nothing written."
+    },
+    {
+      "name": "Chicken Guy",
+      "status": "LOCATION_UNVERIFIED",
+      "address": "25769 Sierra Center Blvd, Wesley Chapel, FL 33559",
+      "note": "Still HOLD from #1024/#1025. Owner: confirm the exact Florida location before publishing. Cypress Creek candidate exists. No public ChIJ. Already recorded on those drafts — not rewritten here."
+    },
+    {
+      "name": "Sloan's Ice Cream St. Armands",
+      "status": "PLANNED_NOT_OPEN",
+      "address": "380B St. Armands Circle, Sarasota, FL",
+      "note": "Still HOLD from #1024/#1025. Coming Soon / planned Q1 2027. Not open."
+    },
+    {
+      "name": "Dirty Sara-Soda",
+      "status": "MOBILE_NO_PIN",
+      "note": "Still HOLD from #1024/#1025. Mobile trailer / events, no fixed pin. Do not fake a street pin."
+    },
+    {
+      "name": "Happy Hands World",
+      "status": "COMING_SOON",
+      "address": "459 Brandon Town Center Dr, Brandon, FL 33511",
+      "note": "Still HOLD from #1024/#1025. Official play-center page still Coming Soon."
+    },
+    {
+      "name": "Eiswerkstatt",
+      "status": "OUT_OF_FLORIDA",
+      "address": "Bern, Switzerland",
+      "note": "Still HOLD from #1025. Out of Florida inventory. Nothing written."
+    },
+    {
+      "name": "#1025 intended ADD list without ChIJ",
+      "status": "GOOGLE_ID_UNSOURCED",
+      "note": "SoFresh Downtown Sarasota, Mobius Sarasota, Icy-N-Spicy (Miramar), Belladukes, La Birra Coral Gables, both Canelitas, Divilma Clermont, The Luce St. Pete Beach remain HOLD on #1025. This batch does not mint those ids and does not edit that PR."
+    },
+    {
+      "name": "Meacham Urban Farm",
+      "status": "GOOGLE_ID_UNSOURCED",
+      "note": "Still HOLD from #1019. Official 1108 E Scott Street + OSM way 933420531. No public ChIJ on main. Do not call Places. Already recorded on owner-batch-2026-08-29.json — not rewritten here."
+    },
+    {
+      "name": "The Dancing Goat Dairy",
+      "status": "GOOGLE_ID_UNSOURCED",
+      "note": "Still HOLD from #1019. Official 12502 Maverick Court, Tampa 33626. No public ChIJ. Already recorded on the 2026-08-29 batch."
+    },
+    {
+      "name": "Fat Beet Farm Kitchen & Bakery",
+      "status": "GOOGLE_ID_UNSOURCED",
+      "note": "Still HOLD from #1019. Official 13830 W. Hillsborough Ave., Tampa 33635. No public ChIJ. Already recorded on the 2026-08-29 batch."
+    },
+    {
+      "name": "Actually Worth Eating rail",
+      "status": "INTENT_ONLY",
+      "note": "Owner interest in an Actually Worth Eating home rail is HOLD-only. No new chip, no new taxonomy, no home.js change in this batch. Existing food categories only."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "tampa-bay-rodeo-2026-09-04",
+      "event_series_id": "tampa-bay-rodeo-family-festival",
+      "event_name": "Tampa Bay Rodeo & Family Festival",
+      "short_title": "Tampa Bay Rodeo",
+      "year": 2026,
+      "slug": "tampa-bay-rodeo-2026-09-04",
+      "start_date": "2026-09-04",
+      "end_date": "2026-09-04",
+      "start_time": "16:30",
+      "end_time": null,
+      "timezone": "America/New_York",
+      "select_nights": false,
+      "schedule_note": "Labor Day weekend night one. Official: gates 4:30pm, live music 5:45pm, rodeo 7:30pm. End time not printed on tamparodeo.com — left empty.",
+      "event_status": "scheduled",
+      "venue": "Hillsborough County Fairgrounds",
+      "address": "215 Sydney Washer Rd",
+      "city": "Dover",
+      "county": "Hillsborough",
+      "state": "FL",
+      "lat": null,
+      "lng": null,
+      "place_id": null,
+      "category": "seasonal",
+      "subcategory": "rodeo",
+      "tags": [
+        "rodeo",
+        "family",
+        "labor-day",
+        "local"
+      ],
+      "audience": [
+        "families",
+        "adults"
+      ],
+      "is_free": false,
+      "price_band": "tickets",
+      "official_event_url": "https://tamparodeo.com/",
+      "official_ticket_url": "https://tamparodeo.com/",
+      "card_hook": "The first Labor Day Tampa Bay Rodeo, at the Hillsborough County Fairgrounds",
+      "source_url": "https://tamparodeo.com/",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high"
+    },
+    {
+      "event_id": "tampa-bay-rodeo-2026-09-05",
+      "event_series_id": "tampa-bay-rodeo-family-festival",
+      "event_name": "Tampa Bay Rodeo & Family Festival",
+      "short_title": "Tampa Bay Rodeo",
+      "year": 2026,
+      "slug": "tampa-bay-rodeo-2026-09-05",
+      "start_date": "2026-09-05",
+      "end_date": "2026-09-05",
+      "start_time": "16:30",
+      "end_time": null,
+      "timezone": "America/New_York",
+      "select_nights": false,
+      "schedule_note": "Labor Day weekend night two. Official: gates 4:30pm, live music 5:45pm, rodeo 7:30pm. End time not printed on tamparodeo.com — left empty.",
+      "event_status": "scheduled",
+      "venue": "Hillsborough County Fairgrounds",
+      "address": "215 Sydney Washer Rd",
+      "city": "Dover",
+      "county": "Hillsborough",
+      "state": "FL",
+      "lat": null,
+      "lng": null,
+      "place_id": null,
+      "category": "seasonal",
+      "subcategory": "rodeo",
+      "tags": [
+        "rodeo",
+        "family",
+        "labor-day",
+        "local"
+      ],
+      "audience": [
+        "families",
+        "adults"
+      ],
+      "is_free": false,
+      "price_band": "tickets",
+      "official_event_url": "https://tamparodeo.com/",
+      "official_ticket_url": "https://tamparodeo.com/",
+      "card_hook": "The first Labor Day Tampa Bay Rodeo, at the Hillsborough County Fairgrounds",
+      "source_url": "https://tamparodeo.com/",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high"
+    }
+  ]
+}
