@@ -18,9 +18,10 @@
 // already inside the metro's inventory and filters on a stored label. No radius,
 // no text search, nothing reaches Google.
 //
-// SSG intact: generateStaticParams enumerates only (metro, cuisine) pairs that
-// actually have places, so there is no dynamic fan-out and no route that renders
-// an empty list.
+// generateStaticParams enumerates only (metro, cuisine) pairs that actually
+// have places — at runtime / ISR. During `next build` (NEXT_PHASE=phase-
+// production-build) it returns [] so a hung wf_cuisine_places cannot SIGTERM
+// the worker (dpl_96WvKb / /eat/tampa/indian). ISR fills the real pairs.
 import { notFound } from "next/navigation";
 import { SITE_URL } from "../../../../lib/site";
 import { CUISINE_METROS } from "../../../../lib/cuisine";
@@ -32,6 +33,7 @@ import { couponForPlaceName, couponEndsLabel } from "../../../../lib/coupons";
 import { hasBookingCTA, bookingTargets } from "../../../../lib/bookingResolve";
 import * as Aff from "../../../../lib/affiliates";
 import { siteTodayStr } from "../../../../lib/siteTime";
+import { isSsgBuild, eatFetch, eatCuisineStaticParams } from "../../../../lib/eatInventory";
 
 export const revalidate = 3600;
 
@@ -50,10 +52,13 @@ const sb = () => ({
 });
 
 async function rpc(fn, body) {
+  // SSG / next build: skip the RPC. A hang here is what SIGTERM'd
+  // /eat/tampa/indian on dpl_96WvKb — wf_cuisine_places has no deadline.
+  if (isSsgBuild()) return null;
   const { url, anon } = sb();
   if (!url || !anon) return null;
   try {
-    const r = await fetch(url + "/rest/v1/rpc/" + fn, {
+    const r = await eatFetch(url + "/rest/v1/rpc/" + fn, {
       method: "POST",
       headers: { apikey: anon, Authorization: "Bearer " + anon, "content-type": "application/json" },
       body: JSON.stringify(body),
@@ -73,6 +78,7 @@ async function rpc(fn, body) {
  * geo filter returns nothing at all, silently.
  */
 async function foodToursFor(metro) {
+  if (isSsgBuild()) return [];
   const dests = METRO_DESTS[metro];
   if (!dests || !dests.length) return [];
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
@@ -80,7 +86,7 @@ async function foodToursFor(metro) {
   if (!url || !anon) return [];
   const cols = "product_code,title,image,rating,reviews,from_price,product_url,dest_id,link_ok";
   try {
-    const r = await fetch(`${url}/rest/v1/wf_experiences?select=${cols}&dest_id=in.(${dests.join(",")})&limit=800`, {
+    const r = await eatFetch(`${url}/rest/v1/wf_experiences?select=${cols}&dest_id=in.(${dests.join(",")})&limit=800`, {
       headers: { apikey: anon, Authorization: "Bearer " + anon },
       next: { revalidate: 3600 },
     });
@@ -96,12 +102,10 @@ async function foodToursFor(metro) {
 }
 
 export async function generateStaticParams() {
-  const out = [];
-  for (const metro of Object.keys(CUISINE_METROS)) {
-    const chips = await rpc("wf_cuisine_chips", { p_metro: metro });
-    for (const c of chips || []) out.push({ metro, cuisine: c.cuisine });
-  }
-  return out;
+  // At NEXT_PHASE=phase-production-build this returns [] so `next build`
+  // cannot prerender /eat/tampa/indian and SIGTERM the worker. ISR fills
+  // real (metro, cuisine) pairs from wf_cuisine_chips at runtime.
+  return eatCuisineStaticParams();
 }
 
 export async function generateMetadata({ params }) {
@@ -190,7 +194,37 @@ export default async function CuisineListPage({ params }) {
   // A cuisine with no places has no chip, so this route should be unreachable.
   // If it is reached, 404 rather than render an empty page — a soft-404 with an
   // apology body is one indexable empty URL per guess.
-  if (!rows || !rows.length) notFound();
+  //
+  // SSG is the other "could not ask": we skipped the RPC so we have no rows,
+  // and that is NOT "this cuisine does not exist". Render the editorial shell
+  // (no invented places) rather than baking a 404 into the deploy.
+  if (!rows || !rows.length) {
+    if (isSsgBuild()) {
+      const name = pretty(params.cuisine);
+      return (
+        <main style={{ background: "#141a24", minHeight: "100vh", color: "#1e2430", fontFamily: "var(--wf-sans)" }}>
+          <style dangerouslySetInnerHTML={{ __html: CSS }} />
+          <div className="wf-sl-sheet">
+            <div className="wf-sl-head">
+              <div className="wf-sl-crumb">
+                <a href={`/eat/${params.metro}`}>What to Eat Near {meta.label}</a>
+                <span aria-hidden="true">&rsaquo;</span>{name}
+              </div>
+              <h1 className="wf-sl-h1" id="wf-sl-title">The best <em>{name}</em> near {meta.label}</h1>
+              <div className="wf-sl-sub">
+                <span className="wf-sl-count">The shortlist is already built</span>
+              </div>
+            </div>
+            <p className="wf-sl-trust">
+              Cuisine coverage is unavailable right now. This is a temporary problem on our side, not an
+              empty neighbourhood — please try again shortly.
+            </p>
+          </div>
+        </main>
+      );
+    }
+    notFound();
+  }
 
   const name = pretty(params.cuisine);
   // The score arrives PRE-COMPUTED from wf_cuisine_places. It used to be derived
