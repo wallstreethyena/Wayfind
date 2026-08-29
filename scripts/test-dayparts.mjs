@@ -22,7 +22,13 @@ for(let h=0;h<24;h++){
 eq(partForHour(6),'morning','06:00 is morning (nowContext morningStart)');
 eq(partForHour(10),'morning','10:59 band');
 eq(partForHour(11.5),'lunch','11:30 flips to lunch (nowContext afternoonStart)');
-eq(partForHour(13),'lunch','13:xx lunch');
+// v8.86 — MOVED ON THE OWNER'S INSTRUCTION (2026-08-28, by voice): "in the
+// afternoon around, like, one o'clock, we start showing nighttime stuff". The
+// lunch/afternoon split now sits at 13:00, not 14:00. The canonical clock is
+// untouched — nowContext still owns 11.5 and 17.5, and BAND_TO_BUCKET is
+// proven below for all 1,440 minutes.
+eq(partForHour(12.9),'lunch','12:54 is still lunch');
+eq(partForHour(13),'afternoon','13:00 flips to afternoon — tonight becomes the question (v8.86)');
 eq(partForHour(14),'afternoon','14:00 flips to afternoon');
 eq(partForHour(16),'afternoon','16:xx afternoon');
 eq(partForHour(17.5),'night','17:30 flips to night (nowContext nightStart)');
@@ -57,10 +63,22 @@ for(const p of DAYPART_IDS){
 // this file; a relation survives an insertion.
 eq(orderFor('morning',ALL)[0],'breakfast','morning: breakfast leads (v8.15 — it IS the morning question)');
 eq(orderFor('lunch',ALL)[0],'eat','lunch: food leads');
-eq(orderFor('afternoon',ALL)[0],'today','afternoon: the day leads');
+// v8.86 — REVERSED DELIBERATELY. Owner, on meeting the ticket rail only after
+// dark: "at nighttime, I'm looking at concerts and tickets — there it is, sold
+// out." A ticket surfaced at 8pm for tonight cannot be bought; the same card at
+// 2pm can. `today` keeps a strong slot; the lead goes to the rail with a
+// deadline on it.
+eq(orderFor('afternoon',ALL)[0],'events','afternoon: tickets lead, while they are still buyable (v8.86)');
+ok(orderFor('afternoon',ALL).indexOf('tonight')<orderFor('afternoon',ALL).indexOf('eat'),
+   'afternoon: tonight is ahead of dinner — the afternoon is when tonight gets decided');
 eq(orderFor('night',ALL)[0],'tonight','night: tonight leads');
 ok(orderFor('lunch',ALL).indexOf('eat')<orderFor('lunch',ALL).indexOf('break'),'lunch: Eat ahead of Break');
-ok(orderFor('night',ALL).indexOf('eat')<orderFor('night',ALL).indexOf('events'),'night: Eat ahead of Events');
+// v8.86 — REVERSED with the same instruction. Events was EIGHTH at night,
+// which is the arrangement that made the owner meet a show only once it had
+// sold out. By this hour the buying decision is mostly made, but a 9pm show is
+// still a real answer, so it sits fourth — behind tonight, ahead of dinner.
+ok(orderFor('night',ALL).indexOf('events')<orderFor('night',ALL).indexOf('eat'),
+   'night: Events ahead of Eat — a show still open beats a table (v8.86)');
 { const leaders=DAYPART_IDS.map(p=>orderFor(p,ALL)[0]);
   eq([...new Set(leaders)].length,DAYPART_IDS.length,'every band leads with a DIFFERENT card (the v8.23.2 property)'); }
 ok(orderFor('night',ALL).indexOf('break')>10,'night: Break parked at the back');
