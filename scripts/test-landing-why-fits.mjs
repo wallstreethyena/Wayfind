@@ -28,6 +28,7 @@ import {
   toHookLine,
 } from "../lib/editorialHook.js";
 import { landingWhyFits, placeCardHook, rankingWhyLine } from "../lib/rankingWhy.js";
+import { editorialFor } from "../lib/editorial.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 let pass = 0;
@@ -67,6 +68,19 @@ ok(landingWhyFits({ name: "Pangea Alchemy Lab", hook: PANGEA_FILLER, distMi: 18.
   "Pangea curated vibe + distance renders EMPTY");
 ok(landingWhyFits({ name: "Pangea Alchemy Lab", distMi: 18.6 }) === "",
   "name-only Pangea (curated hook lookup, the live path) still blanks filler");
+{
+  const older = editorialFor("Pangea Alchemy Lab");
+  ok(older && older.why && older.vibe,
+    "positive control: lib/editorial.js still holds older Pangea copy");
+  ok(!/MacDinton|Chase Rice|two-beat|patio|1988/i.test(older.why + " " + older.vibe),
+    "that older copy is not a house two-beat sit-line — do not promote it");
+  ok(landingWhyFits({ name: "Pangea Alchemy Lab" }) === "",
+    "landings do not paint editorial.js Pangea copy — empty, no invented replacement");
+  const land = strip(read("lib/landing.js"));
+  const rw = strip(read("lib/rankingWhy.js"));
+  ok(!/from\s+["'][^"']*editorial\.js["']/.test(land) && !/from\s+["'][^"']*editorial\.js["']/.test(rw),
+    "landing + rankingWhy do not import lib/editorial.js — that path stays unpainted");
+}
 ok(landingWhyFits({ name: "The Mable - Bar & Grill", distMi: 17.3 }) === "",
   "live Mable name still blanks the curated filler hook");
 ok(landingWhyFits({ name: "Cortez Clam Factory", distMi: 16.9 }) === "",

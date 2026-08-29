@@ -26,6 +26,7 @@ import {
   photoRefOwnedByPlace,
 } from "../lib/placePhoto.js";
 import { invPlaceToLanding } from "../lib/landingInventory.js";
+import { invRowToPlace } from "../lib/inventoryServe.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 let pass = 0;
@@ -68,6 +69,51 @@ ok(landingCardPhotoSrc({
   "stock URL + neighbor ref still empty");
 ok(landingCardPhotoSrc({ id: PANGEA, name: "Pangea Alchemy Lab", photo_url: OWNED_URL }) === OWNED_URL,
   "Pangea's stored inventory photo_url is displayed");
+ok(landingCardPhotoSrc({
+    id: PANGEA, name: "Pangea Alchemy Lab",
+    photo_url: OWNED_URL,
+    photo: PEXELS,
+    photoRef: SHAMROCK_REF,
+  }) === OWNED_URL,
+  "Pexels / neighbor ref must not override a stored real photo_url");
+ok(!/pexels/i.test(landingCardPhotoSrc({
+    id: PANGEA, name: "Pangea Alchemy Lab",
+    photo: PEXELS, photoUrl: PEXELS,
+  })),
+  "a stuffed Pexels photo field never becomes the card src");
+
+{
+  // Runtime inventory shape (wf_inventory row → invRowToPlace → landing).
+  // This is the path rankedFor actually runs. Confirm photo_url / photo_ref
+  // survive. Zero Places.
+  const row = invRowToPlace({
+    place_id: PANGEA,
+    name: "Pangea Alchemy Lab",
+    lat: 27.336, lng: -82.531,
+    status: "OPERATIONAL",
+    google_types: ["bar"],
+    photo_ref: PANGEA_REF,
+    photo_url: OWNED_URL,
+    signals: { rating: 4.6, reviews: 752 },
+  });
+  ok(row && row.id === PANGEA && row.photo_url === OWNED_URL,
+    "invRowToPlace KEEPS wf_inventory.photo_url at runtime");
+  ok(row.photo_ref === PANGEA_REF && row.photos && row.photos[0] && row.photos[0].name === PANGEA_REF,
+    "invRowToPlace KEEPS wf_inventory.photo_ref at runtime");
+  const mapped = invPlaceToLanding(row);
+  ok(mapped && mapped.photo_url === OWNED_URL && mapped.photoRef === PANGEA_REF,
+    "invPlaceToLanding does not discard a confirmed inventory photo");
+  ok(landingCardPhotoSrc(mapped) === OWNED_URL,
+    "runtime inventory photo_url is what the landing card displays");
+  const pexelsRow = invRowToPlace({
+    place_id: PANGEA, name: "Pangea Alchemy Lab",
+    lat: 27.336, lng: -82.531, status: "OPERATIONAL",
+    google_types: ["bar"], photo_url: PEXELS,
+    signals: { rating: 4.6, reviews: 752 },
+  });
+  ok(landingCardPhotoSrc(invPlaceToLanding(pexelsRow)) === "",
+    "a Pexels URL stored as photo_url is stripped — never a pub-sign stand-in");
+}
 
 ok(isLandingCardImageAllowed("", PANGEA) === true, "empty src is allowed (placeholder)");
 ok(isLandingCardImageAllowed("/wf-photo-fallback.svg", PANGEA) === true,
