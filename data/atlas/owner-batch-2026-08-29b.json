@@ -1,0 +1,426 @@
+{
+  "batch": "2026-08-29b",
+  "rule": "Inventory + sourced two-beat hook only. Empty knownFor if the why-sit cannot be sourced. No Book /go. Ranking is never for sale. No Places API. Atlas cards require a public ChIJ — HOLD the Google id rather than invent one.",
+  "places": [
+    {
+      "key": "sofreshLwr",
+      "status": "hold_google_id",
+      "name": "SoFresh Lakewood Ranch",
+      "placeId": null,
+      "q": "SoFresh, 11569 FL-70 #106, Bradenton, FL 34202",
+      "address": "11569 FL-70 #106, Bradenton, FL 34202",
+      "metro": "manatee-sarasota",
+      "wantCategory": "food",
+      "primaryType": "restaurant",
+      "types": [
+        "restaurant",
+        "salad_restaurant"
+      ],
+      "chipsKeep": [
+        ["food", "all"],
+        ["food", "lunch"]
+      ],
+      "chipsBlock": [
+        ["attractions", "beaches"],
+        ["nightlife", "clubs"]
+      ],
+      "knownFor": "Bowls, wraps, and salads cooked to order with olive oil, at the Fresh Market Plaza shop",
+      "vibeCheck": "Official brand line is real food cooked to order with olive oil, with gluten-free, dairy-free, nut-free, vegan, vegetarian, and high-protein flags. The Lakewood Ranch room is the Fresh Market Plaza shop on SR 70.",
+      "whyGo": "Warm bowls, salads, and wraps cooked to order with olive oil, at the Fresh Market Plaza shop.",
+      "hours": "Daily 10am–9pm",
+      "phone": "(941) 769-9550",
+      "officialWebsite": "https://sofresh.com/store-location/lakewood-ranch/",
+      "lat": 27.434089,
+      "lng": -82.426148,
+      "center": {
+        "latitude": 27.434089,
+        "longitude": -82.426148
+      },
+      "coordSource": "official-maps-embed",
+      "officialMapsCid": "12960599191770957252",
+      "note": "HOLD Google id — official page prints a Maps embed CID + ll=27.434089,-82.426148, not a ChIJ. Hex/CID conversion would invent a placeId. Do not call Places.",
+      "sourceUrls": [
+        "https://sofresh.com/store-location/lakewood-ranch/",
+        "https://sofresh.com/"
+      ],
+      "researchUrls": [],
+      "researchNote": "Homepage: 'Real food. Cooked to order with olive oil' plus diet flags. Store page: Fresh Market Plaza, 11569 FL-70 #106."
+    },
+    {
+      "key": "mobiusSarasota",
+      "status": "hold_google_id",
+      "name": "Mobius Sarasota",
+      "placeId": null,
+      "q": "Mobius Sarasota, 2211 Whitfield Park Loop, Ste 101, Sarasota, FL 34243",
+      "address": "2211 Whitfield Park Loop, Ste 101, Sarasota, FL 34243",
+      "metro": "manatee-sarasota",
+      "wantCategory": "shopping",
+      "primaryType": "clothing_store",
+      "types": [
+        "clothing_store",
+        "thrift_store"
+      ],
+      "chipsKeep": [
+        ["shopping", "all"]
+      ],
+      "chipsBlock": [
+        ["food", "all"],
+        ["nightlife", "all"],
+        ["attractions", "beaches"]
+      ],
+      "knownFor": "Curated thrift and wholesale-priced new clothes, in a Whitfield Park warehouse suite",
+      "vibeCheck": "Appointment shop in a Whitfield Park warehouse suite — curated thrift plus new clothes at wholesale prices. Not a food hall.",
+      "whyGo": "A curated thrift and wholesale-new-clothes appointment shop in a Whitfield Park warehouse suite.",
+      "hours": null,
+      "phone": null,
+      "officialWebsite": null,
+      "lat": null,
+      "lng": null,
+      "center": null,
+      "coordSource": null,
+      "note": "HOLD Google id — no public ChIJ on official pages, OSM, Wikipedia, or the repo. Nominatim had no named pin. Do not use a street centroid. Do not call Places.",
+      "sourceUrls": [],
+      "researchUrls": [
+        "https://www.sarasotamagazine.com/eat-and-drink/2026/06/dirty-sara-soda-dirty-sodas-secret-lives-of-mormon-wives",
+        "https://local.yahoo.com/info-240583375-mobius-sarasota-sarasota/"
+      ],
+      "researchNote": "Sarasota Magazine (ALLOWED_THIRD_PARTY) calls Mobius a curated thrift shop in Whitfield Industrial Park. Yahoo listing prints curated thrift + new clothes at wholesale prices, by appointment, 2211 Whitfield Park Loop Ste 101. No official site found."
+    },
+    {
+      "key": "icyNSpicyMiramar",
+      "status": "hold_google_id",
+      "name": "Icy-N-Spicy",
+      "placeId": null,
+      "q": "Icy-N-Spicy, 12567 Miramar Parkway, Bldg E, Miramar, FL 33027",
+      "address": "12567 Miramar Parkway, Bldg E, Miramar, FL 33027",
+      "metro": "miami",
+      "wantCategory": "food",
+      "primaryType": "dessert_shop",
+      "types": [
+        "dessert_shop",
+        "ice_cream_shop"
+      ],
+      "chipsKeep": [
+        ["food", "dessert"],
+        ["food", "all"]
+      ],
+      "chipsBlock": [
+        ["attractions", "beaches"],
+        ["shopping", "all"]
+      ],
+      "knownFor": "A family dessert shop, in Miramar Parkway Building E",
+      "vibeCheck": "WSVN's Miramar piece is a family dessert room in Bldg E — cotton candy pizza and burrito are the plates, not the two-beat.",
+      "whyGo": "A family dessert shop in Miramar Parkway Building E.",
+      "hours": null,
+      "phone": null,
+      "officialWebsite": null,
+      "lat": null,
+      "lng": null,
+      "center": null,
+      "coordSource": null,
+      "note": "HOLD Google id — no public ChIJ. OSM had a house geocode at 12567 Miramar Parkway, not a named shop; street centroid not used. Do not call Places.",
+      "sourceUrls": [],
+      "researchUrls": [
+        "https://wsvn.com/entertainment/deco-drive/get-your-sugar-high-with-icy-n-spicys-cotton-candy-pizza-burrito-at-their-miramar-location/"
+      ],
+      "researchNote": "WSVN 2026 Deco Drive: owner Xiaoli Lui, 12567 Miramar Parkway Bldg E, family/kids dessert shop. wsvn.com is not ALLOWED_THIRD_PARTY — research only, not a published Atlas cite."
+    },
+    {
+      "key": "belladukes",
+      "status": "hold_google_id",
+      "name": "Belladukes Gourmet Market",
+      "placeId": null,
+      "q": "Belladukes Gourmet Market, 155 East Boca Raton Road, Boca Raton, FL 33432",
+      "address": "155 East Boca Raton Road, Boca Raton, FL 33432",
+      "metro": "miami",
+      "wantCategory": "shopping",
+      "primaryType": "gourmet_grocery",
+      "types": [
+        "gourmet_grocery",
+        "grocery_store",
+        "store"
+      ],
+      "chipsKeep": [
+        ["shopping", "markets"]
+      ],
+      "chipsBlock": [
+        ["food", "all"],
+        ["attractions", "beaches"],
+        ["nightlife", "clubs"]
+      ],
+      "knownFor": "A gourmet market, on East Boca Raton Road",
+      "vibeCheck": "Official connect page is the gourmet-market pin on East Boca Raton Road. Hours live there. Espresso Frosty is not on that page — do not claim it.",
+      "whyGo": "A gourmet market on East Boca Raton Road.",
+      "hours": "Mon–Thu 8am–7pm; Fri–Sat 8am–6pm; Sun 8am–3pm",
+      "phone": "561-990-1516",
+      "officialWebsite": "https://www.belladukes.com/connect/",
+      "lat": 26.3515972,
+      "lng": -80.0848375,
+      "center": {
+        "latitude": 26.3515972,
+        "longitude": -80.0848375
+      },
+      "coordSource": "osm",
+      "osm": {
+        "node": 11466075111,
+        "type": "cafe",
+        "name": "belladukes"
+      },
+      "officialMapsUrl": "https://www.google.com/maps/place/Belladukes/@26.3516459,-80.0844376,17z/data=!3m1!4b1!4m6!3m5!1s0x88d8e3960fc6e959:0xd6cb14053a04f293!8m2!3d26.3516459!4d-80.0844376!16s%2Fg%2F11tjl4t_86",
+      "note": "HOLD Google id — official page prints a Maps share URL with hex FID /g/11tjl4t_86, not a ChIJ. OSM named node 11466075111 used for coords. Do not invent a ChIJ from the hex pair. Do not call Places. Do not claim Espresso Frosty.",
+      "sourceUrls": [
+        "https://www.belladukes.com/connect/"
+      ],
+      "researchUrls": [],
+      "researchNote": "Connect page fetched 2026-08-29: 155 East Boca Raton Road, hours, phone. Body does not include Espresso Frosty."
+    },
+    {
+      "key": "chickenGuyCypressCreek",
+      "status": "hold_google_id",
+      "name": "Chicken Guy Cypress Creek",
+      "placeId": null,
+      "q": "Chicken Guy, 25769 Sierra Center Blvd, Wesley Chapel, FL 33559",
+      "address": "25769 Sierra Center Blvd, Wesley Chapel, FL 33559",
+      "metro": "tampa",
+      "wantCategory": "food",
+      "primaryType": "restaurant",
+      "types": [
+        "restaurant",
+        "fast_food_restaurant"
+      ],
+      "chipsKeep": [
+        ["food", "all"],
+        ["food", "lunch"]
+      ],
+      "chipsBlock": [
+        ["attractions", "beaches"],
+        ["nightlife", "clubs"]
+      ],
+      "knownFor": "Guy Fieri tenders, across from Tampa Premium Outlets",
+      "vibeCheck": "Official Cypress Creek page: Guy Fieri tenders (brined, herb-infused) just off I-75 / SR 56, across from Tampa Premium Outlets, next to Hyatt Place.",
+      "whyGo": "Guy Fieri tenders at the official Cypress Creek shop, across from Tampa Premium Outlets.",
+      "hours": "Sun–Thu 7am–10pm; Fri–Sat 7am–12am",
+      "phone": null,
+      "officialWebsite": "https://chickenguy.com/locations/cypress-creek/",
+      "lat": null,
+      "lng": null,
+      "center": null,
+      "coordSource": null,
+      "note": "HOLD Google id — official page embeds a Maps query URL without a ChIJ. OSM named the Hyatt Place hotel on Sierra Center Blvd, not this shop. Do not steal the hotel pin. Do not call Places.",
+      "sourceUrls": [
+        "https://chickenguy.com/locations/cypress-creek/"
+      ],
+      "researchUrls": [],
+      "researchNote": "Official Cypress Creek page fetched 2026-08-29: 25769 Sierra Center Blvd, across from Tampa Premium Outlets, Guy Fieri founding / tenders."
+    },
+    {
+      "key": "laBirraCoralGables",
+      "status": "hold_google_id",
+      "name": "La Birra Bar Coral Gables",
+      "placeId": null,
+      "q": "La Birra Bar, 219 Miracle Mile, Coral Gables, FL",
+      "address": "219 Miracle Mile, Coral Gables, FL 33134",
+      "metro": "miami",
+      "wantCategory": "food",
+      "primaryType": "hamburger_restaurant",
+      "types": [
+        "restaurant",
+        "hamburger_restaurant"
+      ],
+      "chipsKeep": [
+        ["food", "all"],
+        ["food", "lunch"]
+      ],
+      "chipsBlock": [
+        ["attractions", "beaches"],
+        ["nightlife", "clubs"]
+      ],
+      "knownFor": "A world-champion burger shop, on Miracle Mile",
+      "vibeCheck": "Official labirrabar.com lists Coral Gables at 219 Miracle Mile and calls the burger OFICIALMENTE CAMPEONA DEL MUNDO. Dubai 2026 is not on that page — omitted.",
+      "whyGo": "The official world-champion burger shop on Miracle Mile.",
+      "hours": null,
+      "phone": null,
+      "officialWebsite": "https://www.labirrabar.com/",
+      "lat": null,
+      "lng": null,
+      "center": null,
+      "coordSource": null,
+      "note": "HOLD Google id — no public ChIJ. OSM has a house-number node at 219 Miracle Mile, not a named restaurant; not used as the pin. Do not call Places. Do not use Dubai 2026 as the hook.",
+      "sourceUrls": [
+        "https://www.labirrabar.com/"
+      ],
+      "researchUrls": [
+        "https://www.miaminewtimes.com/food-drink/award-winning-burger-spot-opens-in-coral-gables-40548836/"
+      ],
+      "researchNote": "Official page: Coral Gables 219 Miracle Mile + world-champion line. Dubai Burger Championship 2026 appears on press, not on labirrabar.com — omitted from the hook."
+    },
+    {
+      "key": "canelitaCoralGables",
+      "status": "hold_google_id",
+      "name": "Canelita Cheesecake Coral Gables",
+      "placeId": null,
+      "q": "Canelita Cheesecake, 374 Miracle Mile, Coral Gables, FL 33134",
+      "address": "374 Miracle Mile, Coral Gables, FL 33134",
+      "metro": "miami",
+      "wantCategory": "food",
+      "primaryType": "bakery",
+      "types": [
+        "bakery",
+        "dessert_shop"
+      ],
+      "chipsKeep": [
+        ["food", "dessert"],
+        ["food", "all"]
+      ],
+      "chipsBlock": [
+        ["attractions", "beaches"],
+        ["nightlife", "clubs"]
+      ],
+      "knownFor": "Gluten-free Basque cheesecake, on Miracle Mile",
+      "vibeCheck": "Official find-us lists 374 Miracle Mile. Homepage: naturally gluten-free Basque cheesecake, no cookie crust.",
+      "whyGo": "Naturally gluten-free Basque cheesecake at the Miracle Mile shop.",
+      "hours": "Daily 7am–8pm",
+      "phone": "+1 (305) 775-9312",
+      "officialWebsite": "https://canelitacheesecake.com/pages/find-us",
+      "lat": null,
+      "lng": null,
+      "center": null,
+      "coordSource": null,
+      "note": "HOLD Google id — no public ChIJ. OSM house-number node at 374 Miracle Mile is not a named Canelita pin. Do not call Places.",
+      "sourceUrls": [
+        "https://canelitacheesecake.com/pages/find-us",
+        "https://canelitacheesecake.com/"
+      ],
+      "researchUrls": [],
+      "researchNote": "Find-us: 374 Miracle Mile + 1653 North Miami Avenue. Homepage: naturally gluten-free Basque cheesecake. Homepage also lists 3659 Grand Ave — not requested, not added."
+    },
+    {
+      "key": "canelitaMiami",
+      "status": "hold_google_id",
+      "name": "Canelita Cheesecake Miami",
+      "placeId": null,
+      "q": "Canelita Cheesecake, 1653 North Miami Avenue, Miami, FL 33136",
+      "address": "1653 North Miami Avenue, Miami, FL 33136",
+      "metro": "miami",
+      "wantCategory": "food",
+      "primaryType": "bakery",
+      "types": [
+        "bakery",
+        "dessert_shop"
+      ],
+      "chipsKeep": [
+        ["food", "dessert"],
+        ["food", "all"]
+      ],
+      "chipsBlock": [
+        ["attractions", "beaches"],
+        ["nightlife", "clubs"]
+      ],
+      "knownFor": "Gluten-free Basque cheesecake, on North Miami Avenue",
+      "vibeCheck": "Same official find-us page as Coral Gables. This pin is the North Miami Avenue shop — a second place, not a collapsed twin.",
+      "whyGo": "Naturally gluten-free Basque cheesecake at the North Miami Avenue shop.",
+      "hours": "Daily 7am–8pm",
+      "phone": "+1 (305) 775-9312",
+      "officialWebsite": "https://canelitacheesecake.com/pages/find-us",
+      "lat": null,
+      "lng": null,
+      "center": null,
+      "coordSource": null,
+      "note": "HOLD Google id — no public ChIJ. OSM at 1653 North Miami Avenue is Doughnut Break, a different shop; not used. Do not call Places.",
+      "sourceUrls": [
+        "https://canelitacheesecake.com/pages/find-us",
+        "https://canelitacheesecake.com/"
+      ],
+      "researchUrls": [],
+      "researchNote": "Official find-us lists this address. Do not reuse a sibling placeId. Doughnut Break OSM node is the wrong identity."
+    },
+    {
+      "key": "divilmaClermont",
+      "status": "hold_google_id",
+      "name": "Divilma Clermont",
+      "placeId": null,
+      "q": "Divilma, 639 8th St Suite 4, Clermont, FL 34711",
+      "address": "639 8th St Suite 4, Clermont, FL 34711",
+      "metro": "orlando",
+      "wantCategory": "food",
+      "primaryType": "bakery",
+      "types": [
+        "bakery",
+        "dessert_shop"
+      ],
+      "chipsKeep": [
+        ["food", "dessert"],
+        ["food", "all"]
+      ],
+      "chipsBlock": [
+        ["attractions", "beaches"],
+        ["nightlife", "clubs"]
+      ],
+      "knownFor": "Pistachio, blueberry, and Biscoff rolls, at the Clermont shop",
+      "vibeCheck": "Official menu lists pistachio, blueberry, and Biscoff cinnamon rolls. Contact-us and stores pages pin Suite 4 on 8th St. Weekend hours only.",
+      "whyGo": "Pistachio, blueberry, and Biscoff rolls at the official Clermont shop.",
+      "hours": "Sat 11am–8pm; Sun 10am–5pm; Mon–Fri closed",
+      "phone": null,
+      "officialWebsite": "https://divilma.com/contact-us/",
+      "lat": null,
+      "lng": null,
+      "center": null,
+      "coordSource": null,
+      "note": "HOLD Google id — no public ChIJ. OSM at 639 8th Street is Cookie Queen Factory / house / florist, not Divilma. Do not steal those pins. Do not call Places.",
+      "sourceUrls": [
+        "https://divilma.com/contact-us/",
+        "https://divilma.com/our-menu/",
+        "https://divilma.com/stores/"
+      ],
+      "researchUrls": [],
+      "researchNote": "Menu fetched 2026-08-29 includes BISCOFF ROLL. Stores page: Clermont is Main Location; Orlando Gateway is Very soon / under construction (separate HOLD)."
+    }
+  ],
+  "holds": [
+    {
+      "name": "SoFresh Bradenton",
+      "status": "COMING_SOON",
+      "address": "6709 Manatee Avenue West, Bradenton, FL 34209",
+      "note": "Official store page https://sofresh.com/store-location/bradenton/ lists the address but hours and contact are Coming Soon. Locations index lists the row; the dedicated page is not a proven open shop. No public ChIJ. Nothing written."
+    },
+    {
+      "name": "Dirty Sara-Soda",
+      "status": "MOBILE_NO_PIN",
+      "note": "Mobile trailer, no fixed pin. WWSB (mysuncoast.com 2026-06-10) and Sarasota Magazine (2026-06-17): Amber Hanratty slings dirty sodas from a retro trailer around Sarasota / Manatee. Not a walk-up room."
+    },
+    {
+      "name": "Happy Hands World",
+      "status": "COMING_SOON",
+      "address": "459 Brandon Town Center Dr, Brandon, FL 33511",
+      "note": "happyhandsworld.com lists 459 Brandon Town Center Dr (Store 853) and a Lakeland mall row. The play-center page https://happyhandsworld.com/pages/brandon-exchange-play-center says Coming Soon and is kit/ecom first. Not a proven indoor gym. Nothing written."
+    },
+    {
+      "name": "Sloan's Ice Cream St. Armands",
+      "status": "PLANNED_NOT_OPEN",
+      "address": "380B St. Armands Circle, Sarasota, FL",
+      "note": "Planned Q1 2027 at ~380B St. Armands Circle (Herald-Tribune 2026-08-22). Not open. Nothing written."
+    },
+    {
+      "name": "Divilma Orlando",
+      "status": "ANNOUNCED_NO_DATE",
+      "address": "5455 Gateway Village Circle, Suite 102, Orlando, FL 32812",
+      "note": "Official stores page lists Orlando Gateway as Very soon / under construction. No open date. Not a card."
+    },
+    {
+      "name": "Meacham Urban Farm",
+      "status": "GOOGLE_ID_UNSOURCED",
+      "note": "Still HOLD from #1019. Official 1108 E Scott Street + OSM way 933420531. No public ChIJ on main. Do not call Places. Already recorded on owner-batch-2026-08-29.json — not rewritten here."
+    },
+    {
+      "name": "The Dancing Goat Dairy",
+      "status": "GOOGLE_ID_UNSOURCED",
+      "note": "Still HOLD from #1019. Official 12502 Maverick Court, Tampa 33626. No public ChIJ. Already recorded on the 2026-08-29 batch."
+    },
+    {
+      "name": "Fat Beet Farm Kitchen & Bakery",
+      "status": "GOOGLE_ID_UNSOURCED",
+      "note": "Still HOLD from #1019. Official 13830 W. Hillsborough Ave., Tampa 33635. No public ChIJ. Already recorded on the 2026-08-29 batch."
+    }
+  ],
+  "events": []
+}
