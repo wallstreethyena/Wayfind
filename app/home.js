@@ -6210,7 +6210,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try { const _aud = {}; experienceBadges(p, null, 99, _aud); logEvent("detail_open", p, { identity: _aud.identity || null, blocked: (_aud.blocked || []).length, ctx: typeof context === "string" ? context : null }); } catch (e) {}
     // v6.08 (PR-C): remember where we were in the list so back returns here, not to the top.
     try { if (scrollRef.current) { const _k = screen + "|" + cat + "|" + sub + "|" + vibe; const _t = scrollRef.current.scrollTop; scrollRestore.current = { key: _k, top: _t }; sessionStorage.setItem("wf_sc_" + _k, String(_t)); } } catch (e) {}
-    setDetail(isOwnerAccount(user) && liked[p.id] ? stampOwnerPick(p, true) : p);
+    setDetail(p);
+    if (isOwnerAccount(user) && liked[p.id]) setDetail((cur) => (cur && cur.id === p.id ? stampOwnerPick(cur, true) : cur));
     setDetailContext(context || null);
     recordSignal(p, "open"); // implicit engagement signal
     try { if (OFFERS[p.id]) logEvent("offer_impression", p, { offer_id: OFFERS[p.id].id }); } catch (e) {}
