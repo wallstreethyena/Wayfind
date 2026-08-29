@@ -214,6 +214,7 @@ node scripts/test-place-products.mjs
 node scripts/test-city-viator.mjs
 node scripts/test-analytics.mjs
 node scripts/test-paid-landing.mjs
+node scripts/test-landing-inventory-ssg.mjs
 node scripts/test-activation.mjs
 node scripts/test-containment.mjs
 node scripts/test-experiment.mjs
