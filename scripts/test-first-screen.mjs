@@ -36,13 +36,21 @@ import { shellSrc } from "./lib/shellSrc.mjs";
 // = (", which was hoisted ABOVE eventsRailSlot when the Shortcuts row moved
 // into the header — leaving every slice below it empty and every assertion
 // over that slice vacuously true.
+// v8.87 — RE-ANCHORED, because the slot MOVED and this delimiter is a file
+// position rather than an invariant (CLAUDE.md's own warning about exactly
+// this shape). It used to sit inside the `screen === "suggested"` IIFE at ten
+// spaces of indent and was closed by that IIFE's `return (`; the events rail
+// was dead there — computed and handed to nothing — so it moved out to the
+// component body and became a thunk handed to <DaypartRail eventsSlot>.
+//
+// Both anchors changed with it: `(() => {` -> `() => {`, and the terminator is
+// now the thunk's own `\n  };` at component depth. The length PROBE below is
+// what made this a two-minute fix instead of four vacuous passes — it is the
+// reason a delimiter like this is allowed to exist at all, and it is why the
+// probe is an assertion rather than a comment.
 const sliceEventsSlot = (src) => {
-  const a = src.indexOf("const eventsRailSlot = (() => {");
-  // Anchored on the NEWLINE + exactly ten spaces. Without the newline the
-  // search matches the slot's OWN `              return (` at fourteen spaces
-  // (a substring of it), which cut the slice to 77 characters and turned every
-  // assertion below into a vacuous pass — caught by the length probe.
-  const b = src.indexOf("\n          return (\n", a);
+  const a = src.indexOf("const eventsRailSlot = () => {");
+  const b = src.indexOf("\n  };\n", a);
   return a > -1 && b > a ? src.slice(a, b) : "";
 };
 
@@ -152,10 +160,29 @@ ok(/const railMenuBand = railMenu \? \(/.test(code),
     // rail's own markup. So it can neither delay the first screen nor change
     // it, and at first paint it is null anyway (home.js resolves it inside the
     // location effect). The moment a TILE prints it, it stops belonging here.
+    // v8.87 — `eventsSlot` joins them, and it is worth stating the reason
+    // rather than assuming it, because "it is behind the drop like
+    // sponsorCard" is only HALF the reason and the other half is what makes
+    // it safe.
+    //
+    // It carries client-fetched CONTENT — /api/events, the nine-provider feed
+    // — which is exactly the class this file's 6.4-second regression came
+    // from, and a pre-built node of 24 event cards would have belonged on the
+    // wrong side of this line. So it is not a node. It is a THUNK
+    // (app/home.js `eventsRailSlot = () => …`), invoked in exactly one place:
+    // `selRail.id === "events" && eventsSlot ? … {eventsSlot()}`, inside a
+    // drop that emits no HTML until a tile is tapped. Nothing is fetched,
+    // allocated or rendered for it at first paint, on the same terms as
+    // memberSignalsFor and applyMemberSignal above.
+    //
+    // THE MOMENT IT IS CALLED OUTSIDE THE DROP — or passed as a node instead
+    // of a callable — it stops belonging on this list, and
+    // scripts/check-events-rail-renders.mjs asserts the `{eventsSlot()}` call
+    // shape so that change cannot be silent.
     const NON_CONTENT = new Set([
       "center", "sponsor", "sponsorCard", "isSaved", "isOnTrip", "initialRail",
       "liked", "disliked", "isLiked", "isDisliked",
-      "memberSignalsFor", "applyMemberSignal", "locName",
+      "memberSignalsFor", "applyMemberSignal", "locName", "eventsSlot",
     ]);
     if (NON_CONTENT.has(name) || /^on[A-Z]/.test(name)) continue;
     ok(/^railMenu\.\w+$/.test(value) || value === "RAILS",
@@ -279,7 +306,12 @@ ok(/const EV_RAIL_MIN_H = \d+/.test(code), "EV_RAIL_MIN_H constant missing");
 // deck it still renders; the rail's own loading box is built in eventsRailSlot
 // and is asserted there. Two reserves, each on the thing it is reserving for.
 {
-  const slotStart = code.indexOf("const eventsRailSlot = (() => {");
+  // v8.87 — same re-anchor as sliceEventsSlot above, and the same reason: the
+  // slot became a THUNK when it stopped being dead code. "handed to the menu"
+  // was the half of this sentence that was not true until now — it was built
+  // once and handed to nothing; scripts/check-events-rail-renders.mjs is what
+  // asserts the handing-over, which is the part this file never checked.
+  const slotStart = code.indexOf("const eventsRailSlot = () => {");
   ok(slotStart > -1, "the events rail is built once, as eventsRailSlot, and handed to the menu");
   const slot = sliceEventsSlot(code);
   ok(slot.length > 400, `PROBE: the events-rail slot was delimited (${slot.length} chars)`);

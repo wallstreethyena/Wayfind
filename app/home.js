@@ -8977,6 +8977,100 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // three levels into a column it has left. Every prop is unchanged and every
   // prop is still server data — test-first-screen reads exactly this block to
   // prove it.
+  // v8.87 — THE EVENTS RAIL WAS BUILT, RANKED, MONETIZED, AND RENDERED FOR
+  // NOBODY. Owner, 2026-08-28, by voice: "we don't even have an events, uh,
+  // rail. Like, we gotta develop an events rail. for, like, concerts and
+  // tickets."
+  //
+  // He was right about the surface and wrong only about the cause. Every part
+  // of it exists and has for a year: the nine-provider feed
+  // (app/api/events/route.js), the owner's own best-first ranking
+  // (lib/frontEvents.js bestFirst — "I want to display the best events"),
+  // EventRailCard with its save / like / dislike / share / category wiring, and
+  // EV_RAIL_MIN_H reserving its exact measured height so the skeleton swap
+  // moves nothing. What did not exist was a single JSX reference. `const
+  // eventsRailSlot = …` was computed inside the `screen === "suggested"` IIFE
+  // and then dropped on the floor — grep found the identifier exactly twice in
+  // 12k lines: the declaration, and a comment claiming it renders "as section
+  // nine of BestNearby". It renders in no section at all.
+  //
+  // THIS IS THE §"REACHABILITY IS TRANSITIVE" TRAP IN CLAUDE.md, in its purest
+  // form: the code is present, correct, imported, type-checked, bundled and
+  // dead. `next build` cannot see it — an expression that is never rendered is
+  // legal JavaScript — and no guard asked whether the value was USED.
+  //
+  // So it moves OUT to the component body, where the consumer is, and is handed
+  // to <DaypartRail> as the events tile's drop. That also answers the second
+  // half of the owner's message: v8.86 made `events` LEAD the afternoon, and a
+  // tile that leads a band must open something. Until now it navigated away to
+  // the events screen; now it opens concerts and tickets in place, and the
+  // navigation survives as the "See every event" button inside the drop.
+  //
+  // scripts/check-events-rail-renders.mjs fails the build if it goes dark
+  // again — it asserts the value reaches JSX, not merely that it is declared.
+  // v7.06 — THE EVENTS RAIL, built ONCE and handed to the menu (owner,
+  // 2026-08-09: "i also want to add events into this list"). Same
+  // pipeline it has always run — dedupeEvents, the owner's
+  // frontPageEvents chain, the disliked filter — and the same
+  // EventRailCard. It renders as section nine of BestNearby instead of
+  // as a separate heading below the promo deck.
+  //
+  // The RESERVE travels with it: EV_RAIL_MIN_H is the floor here now,
+  // and the loading state renders the same box, so the skeleton -> live
+  // swap inside the menu moves nothing.
+  // A THUNK, not a node. The rail is behind a tap, so building 24
+  // EventRailCards on every render of a 12k-line component would be work done
+  // for a drop that is closed — and it is what would make `eventsSlot` a
+  // CONTENT prop under scripts/test-first-screen.mjs's rule rather than a
+  // callable read only inside the drop, alongside memberSignalsFor and
+  // applyMemberSignal. Nothing here is allocated until the events tile opens.
+  const eventsRailSlot = () => {
+    if (foryouEvents === null) {
+      return (
+        <div className="wf-rail wf-rail-events" aria-hidden="true" role="status" aria-busy="true" style={{ minHeight: EV_RAIL_MIN_H, overflow: "hidden" }}>
+          {[0, 1].map((i) => (
+            <div key={i} className="wf-sk" style={{ width: "100%", height: EV_RAIL_MIN_H, borderRadius: 17, flexShrink: 0, opacity: 1 - i * 0.22 }} />
+          ))}
+        </div>
+      );
+    }
+    const evs = dedupeEvents(foryouEvents || [], true);
+    const usable = evs.filter((e) => e && e.dest);
+    const fp = frontPageEvents(usable, eventBucket);
+    // v6.69 (owner: "I want to display the best events"). bestFirst
+    // ranks by stature then imminence; RAIL_CHAIN's category order is
+    // still what the events TAB runs. See lib/frontEvents.js.
+    const shown = bestFirst(fp.usable, eventBucket, fp.featured).filter((e) => eventSignals.disliked[e.id] !== true).slice(0, 24);
+    if (!shown.length) return null;
+    return (
+      <>
+        <RailNav railId="events" count={shown.length} unit="events near you" />
+        <div className="wf-rail wf-rail-events" data-rail="events" tabIndex={0} role="region" aria-label="Events near you" style={{ minHeight: EV_RAIL_MIN_H }}>
+          {shown.map((e, i) => (
+            <EventRailCard onLog={logEvent}
+              key={e.id}
+              event={e}
+              rank={i + 1}
+              relativeLabel={eventWhenLabel(e)}
+              saved={!!savedEvents[e.id]}
+              liked={eventSignals.liked[e.id] === true}
+              disliked={eventSignals.disliked[e.id] === true}
+              onSave={() => saveEventItem(e)}
+              onLike={() => toggleEventSignal(e, "liked")}
+              onDislike={() => toggleEventSignal(e, "disliked")}
+              onCategory={(bucket) => { try { logEvent("event_category_open", null, { bucket, src: "rail_chip" }); } catch (er) {} setEventCat(bucket === "community" ? "local" : bucket); setScreen("events"); }}
+              onCopied={() => showToast("Event link copied")}
+            />
+          ))}
+        </div>
+        <RailDots railId="events" count={shown.length} />
+        <button type="button" className="wf-railsec-more" onClick={() => { try { logEvent("events_see_all", null, { src: "menu_rail", shown: shown.length }); } catch (er) {} setScreen("events"); }}>
+          {"See every event \u2192"}
+        </button>
+      </>
+    );
+  };
+
   const railMenuBand = railMenu ? (
     <div className="wf-fullbleed">
       <DaypartRail
@@ -9010,7 +9104,16 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // v8.29.16 — the events tile opens the events screen rather than a drop
         // of ticketed venues. What is behind it is the same feed the home rail
         // runs, which now carries the curated schedule as its first provider.
+        //
+        // v8.87 — …and now it opens the EVENTS THEMSELVES, in place. `eventsSlot`
+        // is the dated, best-first, ticket-bearing rail (see the block above);
+        // DaypartRail opens the drop when it is given one and keeps this
+        // navigation for when it is not — a reader with no events near them, or
+        // /v8 mounting the rail without a feed, still gets somewhere to go
+        // rather than a tile that does nothing. The fallback is the point: this
+        // is the only branch that runs if the feed is empty.
         onOpenEvents={() => { try { logEvent("events_see_all", null, { src: "rail_tile" }); } catch (er) {} setScreen("events"); }}
+        eventsSlot={eventsRailSlot}
         isSaved={isSaved}
         isOnTrip={isOnTrip}
         onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }}
@@ -9626,22 +9729,17 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           const heroHook = heroPick ? hookCards.find((hk) => hk && hk.placeId === heroPick.id) : null;
           const sectionHooks = hookCards.filter((hk) => hk && hk.id !== "top5" && (!heroHook || hk.id !== heroHook.id)).slice(0, 5);
           const sectionHookIds = new Set(sectionHooks.map((hk) => hk.id));
-          // Wayfind Picks hero hook — the single entry into the curated top 10 sheet.
-          // Built from the live feed so it works whether or not AI hooks are present.
-          const picksHook = (() => {
-            const bs = [...displayList].filter(Boolean).sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
-            if (bs.length < 5) return null;
-            const cityN = locName ? locName.split(",")[0] : "this area";
-            return {
-              id: "top5", accent: C.accent, emoji: "🧭", label: "Wayfind Picks",
-              theme: "best", placeId: bs[0].id, highlightWord: "top 10",
-              hook: `The top 10 near ${cityN} right now`,
-              subtitle: "Ten spots worth your time, ranked",
-              cta: "See the top 10 →",
-              themeTitle: `Wayfind Picks · Top 10 in ${cityN}`,
-              themeBody: `The ten highest-scoring spots near you, ranked by the Wayfind Score, which weights each rating by how many people stand behind it. No ads, no paid placement, just what consistently earns it. Anything past 10 miles is flagged so you can weigh the drive.`,
-            };
-          })();
+          // v8.87 — `picksHook` DELETED, computed and never rendered. It was a
+          // fallback twin of the `top5` hook card built ~7,000 lines up (the
+          // Wayfind Picks entry into the top-10 sheet, id "top5", theme "best"),
+          // written so the entry "works whether or not AI hooks are present" —
+          // and then never referenced, so it worked in neither case. The live
+          // door is real and reachable: hookCards emits top5 whenever the feed
+          // has five scored places, and `sectionHooks` one line above filters it
+          // out precisely because the HERO already carries it. No surface is
+          // lost by removing this; the same sweep that found the dead events
+          // rail found this, and scripts/check-events-rail-renders.mjs keeps
+          // both classes from coming back.
           const heroReason = heroPick ? ((heroHook && heroHook.hook) ? heroHook.hook : blurbLine(blurbs[heroPick.id])) : "";
           const heroIsGem = !!(heroPick && heroGemTrue && heroPick.id === heroGemTrue.id && (!heroTop || heroGemTrue.id !== heroTop.id));
           // Honest hero badge: only say "start here" when the place is genuinely open now.
@@ -9682,62 +9780,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           const homeOpenRank = (p) => !p ? 4 : p.openNow === true ? 0 : p.openNow == null ? 1 : (p.nextOpen && p.nextOpen.today) ? 2 : 3;
           const homeBaseSorted = sortBy === "near" ? [...feedList].sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12)) : [...feedList];
           const homeFeed = homeBaseSorted.sort((a, b) => homeOpenRank(a) - homeOpenRank(b));
-          // v7.06 — THE EVENTS RAIL, built ONCE and handed to the menu (owner,
-          // 2026-08-09: "i also want to add events into this list"). Same
-          // pipeline it has always run — dedupeEvents, the owner's
-          // frontPageEvents chain, the disliked filter — and the same
-          // EventRailCard. It renders as section nine of BestNearby instead of
-          // as a separate heading below the promo deck.
-          //
-          // The RESERVE travels with it: EV_RAIL_MIN_H is the floor here now,
-          // and the loading state renders the same box, so the skeleton -> live
-          // swap inside the menu moves nothing.
-          const eventsRailSlot = (() => {
-            if (foryouEvents === null) {
-              return (
-                <div className="wf-rail wf-rail-events" aria-hidden="true" role="status" aria-busy="true" style={{ minHeight: EV_RAIL_MIN_H, overflow: "hidden" }}>
-                  {[0, 1].map((i) => (
-                    <div key={i} className="wf-sk" style={{ width: "100%", height: EV_RAIL_MIN_H, borderRadius: 17, flexShrink: 0, opacity: 1 - i * 0.22 }} />
-                  ))}
-                </div>
-              );
-            }
-            const evs = dedupeEvents(foryouEvents || [], true);
-            const usable = evs.filter((e) => e && e.dest);
-            const fp = frontPageEvents(usable, eventBucket);
-            // v6.69 (owner: "I want to display the best events"). bestFirst
-            // ranks by stature then imminence; RAIL_CHAIN's category order is
-            // still what the events TAB runs. See lib/frontEvents.js.
-            const shown = bestFirst(fp.usable, eventBucket, fp.featured).filter((e) => eventSignals.disliked[e.id] !== true).slice(0, 24);
-            if (!shown.length) return null;
-            return (
-              <>
-                <RailNav railId="events" count={shown.length} unit="events near you" />
-                <div className="wf-rail wf-rail-events" data-rail="events" tabIndex={0} role="region" aria-label="Events near you" style={{ minHeight: EV_RAIL_MIN_H }}>
-                  {shown.map((e, i) => (
-                    <EventRailCard onLog={logEvent}
-                      key={e.id}
-                      event={e}
-                      rank={i + 1}
-                      relativeLabel={eventWhenLabel(e)}
-                      saved={!!savedEvents[e.id]}
-                      liked={eventSignals.liked[e.id] === true}
-                      disliked={eventSignals.disliked[e.id] === true}
-                      onSave={() => saveEventItem(e)}
-                      onLike={() => toggleEventSignal(e, "liked")}
-                      onDislike={() => toggleEventSignal(e, "disliked")}
-                      onCategory={(bucket) => { try { logEvent("event_category_open", null, { bucket, src: "rail_chip" }); } catch (er) {} setEventCat(bucket === "community" ? "local" : bucket); setScreen("events"); }}
-                      onCopied={() => showToast("Event link copied")}
-                    />
-                  ))}
-                </div>
-                <RailDots railId="events" count={shown.length} />
-                <button type="button" className="wf-railsec-more" onClick={() => { try { logEvent("events_see_all", null, { src: "menu_rail", shown: shown.length }); } catch (er) {} setScreen("events"); }}>
-                  {"See every event \u2192"}
-                </button>
-              </>
-            );
-          })();
           return (
             <>
             {/* v8.2 — THE BAND RUNS EDGE TO EDGE (owner, 2026-08-15; lab:

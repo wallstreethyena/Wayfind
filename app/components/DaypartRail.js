@@ -304,6 +304,29 @@ export default function DaypartRail({
   // app/api/events). Nullable: /v8 mounts this component without it and keeps
   // the old drop behaviour rather than breaking.
   onOpenEvents = null,
+  // v8.87 — THE EVENTS DROP. A THUNK returning a node (app/home.js
+  // `eventsRailSlot`): the dated, best-first, ticket-bearing events near the
+  // reader, with their own save / like / dislike / share wiring.
+  //
+  // A CALLABLE, for two reasons that point the same way. It is not evaluated
+  // until the events drop is actually open, so a closed drop costs nothing —
+  // and that is also what keeps it on the right side of
+  // scripts/test-first-screen.mjs, whose rule is that a rail prop is allowed
+  // to be client-derived only when it is read inside the drop and appears
+  // nowhere in the rail's own markup (the same terms memberSignalsFor and
+  // applyMemberSignal are on that list under). A pre-built NODE would have
+  // been content, allocated on every render of a 12k-line component for a
+  // surface behind a tap.
+  //
+  // A callable rather than DATA because EventRailCard and its nine handlers
+  // live in home.js beside the state they mutate; threading them through here
+  // would be a second copy of that surface, which is how the date-night claim
+  // ended up being three different rules (v8.82).
+  //
+  // Nullable, and the null is load-bearing: with no slot the tile keeps the
+  // v8.29.16 hand-off to the events screen, so /v8 and a reader with an empty
+  // feed still get somewhere to go instead of a tile that opens nothing.
+  eventsSlot = null,
   // v8.4 — SAVE AND ITINERARY. This surface had NEITHER, and it is the one the
   // owner looks at most: the homepage rail drop. All four come from app/home.js
   // so the state is the SAME store every other surface reads — a place saved
@@ -822,7 +845,22 @@ export default function DaypartRail({
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
       e.preventDefault();
     }
-    if (id === "events" && onOpenEvents) { onOpenEvents(); return; }
+    // v8.87 — the events tile opens its own drop when there is one to open,
+    // and otherwise keeps the v8.29.16 hand-off to the events screen.
+    //
+    // THE THUNK IS CALLED HERE ON PURPOSE, and the alternative is what makes it
+    // worth a paragraph. `eventsSlot` is a function, so it is ALWAYS truthy —
+    // testing the prop alone would open the drop even for a reader with nothing
+    // on near them, and what they would meet is a rail promising "the date — it
+    // happens once, then it is gone" over a shelf of bars that are open every
+    // night. That is precisely the drop of ticketed venues v8.29.16 replaced
+    // with this navigation, walked back in by accident.
+    //
+    // Asking the slot itself (it returns null when it has nothing to show) keeps
+    // ONE definition of "are there events tonight" instead of a second, cheaper,
+    // eventually-disagreeing copy here — the mistake that gave date night three
+    // different rules (v8.82). It costs one call, on the tap, on one tile.
+    if (id === "events" && (!eventsSlot || !eventsSlot()) && onOpenEvents) { onOpenEvents(); return; }
     // A sponsor/partner tile opens the curated partner sheet instead of the
     // in-rail drop — the whole tile is the ad; the payoff is the featured list.
     const _r = railById.get(id);
@@ -1280,6 +1318,21 @@ export default function DaypartRail({
                 );
               })}
             </div>
+          ) : null}
+          {/* v8.87 — THE EVENTS DROP. Dated events above the ticketed venues,
+              the same shape the augtober drop uses above its fall places: the
+              rail's promise is "the date — it happens once, then it is gone",
+              and until now the only thing under it was rooms that are open
+              every night. The place cards below still render — a reader who
+              opened this tile for "what's on" is also the reader most likely
+              to want the venue — so this ADDS the answer rather than replacing
+              the shelf.
+
+              v8.86 put `events` at the front of the afternoon band precisely
+              so a ticket is met while it is still buyable; this is the card it
+              now leads with. */}
+          {selRail && selRail.id === "events" && eventsSlot ? (
+            <div style={{ marginBottom: 12 }}>{eventsSlot()}</div>
           ) : null}
           {selRail && selRail.guides ? (
             <ul className="wf8-grail" aria-label="Local guides">
