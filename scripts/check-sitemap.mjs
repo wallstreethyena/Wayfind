@@ -5,6 +5,7 @@
 // Personalized / empty variants stay out. Thin noindex hubs stay out until
 // they render crawlable inventory (same contract as check-seo.mjs).
 import { readFileSync } from "fs";
+import { listPublishReadyAtlasIds, unionIndexedAndAtlasIds } from "../lib/atlasPlaceAllowlist.js";
 
 let pass = 0;
 const fail = (m) => { console.error("check-sitemap: FAIL — " + m); process.exit(1); };
@@ -34,4 +35,14 @@ ok(sm.includes("EVENT_WINDOWS") && sm.includes("/events/${c}/${w}"),
   "durable event window lists remain the events product in the sitemap");
 ok(sm.includes("/places/"), "durable place pages stay in the sitemap (the real /p/ content)");
 
-console.log(`check-sitemap: OK — ${pass} assertions (factual lastmod; durable membership; empty/personalized/thin hubs excluded)`);
+// Atlas publish-ready cards must be in the place-URL set (union, not a 12k dump).
+const idx = readFileSync(new URL("../lib/placeIndex.js", import.meta.url), "utf8");
+ok(/return unionIndexedAndAtlasIds\(indexed,\s*listPublishReadyAtlasIds\(\)\)/.test(idx),
+  "listIndexedIds must CALL unionIndexedAndAtlasIds(indexed, listPublishReadyAtlasIds()) — a mention is not the union");
+const atlasIds = listPublishReadyAtlasIds();
+ok(atlasIds.length === 255, `publish-ready Atlas allowlist drifted (got ${atlasIds.length}, want 255)`);
+const united = unionIndexedAndAtlasIds(["wf-indexed-only"], atlasIds);
+ok(united.includes("wf-indexed-only") && united.includes(atlasIds[0]) && united.length === 256,
+  "union must keep indexed ids and the 255 Atlas cards without dumping inventory");
+
+console.log(`check-sitemap: OK — ${pass} assertions (factual lastmod; durable membership; empty/personalized/thin hubs excluded; Atlas 255 unioned)`);
