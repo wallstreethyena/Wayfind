@@ -1,0 +1,967 @@
+{
+  "batch": "2026-08-29",
+  "rule": "Inventory + sourced two-beat hook only. Empty knownFor if the why-sit cannot be sourced. No Book /go. Ranking is never for sale.",
+  "places": [
+    {
+      "key": "farmersMilk",
+      "status": "add",
+      "name": "Farmer's Milk Cafe & Bakery",
+      "placeId": "ChIJYQCTNOCxwogR77eUWAEbqwQ",
+      "q": "Farmer's Milk Cafe & Bakery, 27049 Halter Loop, Wesley Chapel, FL 33544",
+      "address": "27049 Halter Loop, Wesley Chapel, FL 33544",
+      "metro": "tampa",
+      "wantCategory": "food",
+      "primaryType": "cafe",
+      "types": [
+        "cafe",
+        "bakery",
+        "breakfast_restaurant",
+        "brunch_restaurant",
+        "coffee_shop"
+      ],
+      "chipsKeep": [
+        [
+          "food",
+          "cafes"
+        ],
+        [
+          "food",
+          "breakfast"
+        ],
+        [
+          "food",
+          "all"
+        ]
+      ],
+      "chipsBlock": [
+        [
+          "attractions",
+          "beaches"
+        ],
+        [
+          "shopping",
+          "all"
+        ]
+      ],
+      "knownFor": "Syrniki and a Ukrainian pastry case, in a suburban Hub café",
+      "vibeCheck": "A Ukrainian-style café and bakery at The Hub at Lexington Oaks — farm milk in the coffee, an Eastern European pastry case, and syrniki instead of the usual diner eggs.",
+      "whyGo": "Syrniki — cottage-cheese pancakes with berries, sour cream, and jam — plus a pastry case of Kyiv cake, Napoleon, and Basque cheesecake, with farm milk in the coffee at a suburban Hub café.",
+      "hours": null,
+      "phone": null,
+      "officialWebsite": null,
+      "lat": 28.2352509,
+      "lng": -82.3705635,
+      "center": {
+        "latitude": 28.23525,
+        "longitude": -82.37056
+      },
+      "sourceUrls": [
+        "https://www.google.com/maps/search/?api=1&query=Farmer%27s%20Milk%20Cafe%20%26%20Bakery&query_place_id=ChIJYQCTNOCxwogR77eUWAEbqwQ"
+      ],
+      "researchUrls": [
+        "https://thatssotampa.com/farmers-milk-eastern-european-pastries-cafe-wesley-chapel/"
+      ],
+      "researchNote": "Hook sourced from these pages; not cited on the Atlas card because check-no-disney-sources requires ALLOWED_THIRD_PARTY vetting first."
+    },
+    {
+      "key": "peacheyLandings",
+      "status": "add",
+      "name": "Peachey's Baking Co — Landings",
+      "placeId": "ChIJGZxJfQBBw4gRv9t1RoPs7Vk",
+      "q": "Peachey's Baking Co, 4800 S Tamiami Trail, Sarasota, FL 34231",
+      "address": "4800 S Tamiami Trl, Sarasota, FL 34231",
+      "metro": "manatee-sarasota",
+      "wantCategory": "food",
+      "primaryType": "donut_shop",
+      "types": [
+        "donut_shop",
+        "bakery",
+        "coffee_shop"
+      ],
+      "chipsKeep": [
+        [
+          "food",
+          "cafes"
+        ],
+        [
+          "food",
+          "dessert"
+        ],
+        [
+          "food",
+          "breakfast"
+        ]
+      ],
+      "chipsBlock": [
+        [
+          "attractions",
+          "beaches"
+        ],
+        [
+          "nightlife",
+          "all"
+        ]
+      ],
+      "knownFor": "Warm glazed donuts from an Amish family recipe, at the Landings shop",
+      "vibeCheck": "The Landings brick-and-mortar for Nate Peachey's Amish-family glazed donuts — pretzels and an espresso bar in a crisp shop, open until they sell out.",
+      "whyGo": "Warm vanilla-glazed donuts from the Peachey family's Amish recipe, with pretzels and espresso, at the Landings shop on South Tamiami Trail.",
+      "hours": "Tue–Sat 7am–1pm or sell-out",
+      "phone": null,
+      "officialWebsite": "https://peacheysbakingco.com/our-shops",
+      "lat": 27.2848161,
+      "lng": -82.5326804,
+      "center": {
+        "latitude": 27.28482,
+        "longitude": -82.53268
+      },
+      "sourceUrls": [
+        "https://peacheysbakingco.com/our-shops"
+      ],
+      "researchUrls": [
+        "https://ediblesarasota.ediblecommunities.com/eat/peacheys-baking-co/"
+      ],
+      "researchNote": "Hook sourced from these pages; not cited on the Atlas card because check-no-disney-sources requires ALLOWED_THIRD_PARTY vetting first."
+    },
+    {
+      "key": "peacheyCattlemen",
+      "status": "add",
+      "name": "Peachey's Baking Co — Cattlemen",
+      "placeId": "ChIJF_JCwylHw4gRgRW83f7ggDg",
+      "q": "Peachey's Baking Co, 999 Cattlemen Road Unit E, Sarasota, FL 34232",
+      "address": "999 Cattlemen Rd Unit E, Sarasota, FL 34232",
+      "metro": "manatee-sarasota",
+      "wantCategory": "food",
+      "primaryType": "donut_shop",
+      "types": [
+        "donut_shop",
+        "coffee_shop"
+      ],
+      "chipsKeep": [
+        [
+          "food",
+          "cafes"
+        ],
+        [
+          "food",
+          "dessert"
+        ],
+        [
+          "food",
+          "breakfast"
+        ]
+      ],
+      "chipsBlock": [
+        [
+          "attractions",
+          "beaches"
+        ],
+        [
+          "nightlife",
+          "all"
+        ]
+      ],
+      "knownFor": "Warm glazed donuts from an Amish family recipe, at the Cattlemen shop",
+      "vibeCheck": "The Cattlemen shop — same Amish-family glazed donuts, pretzels, and coffee as Landings, in its own Google pin so the two rooms never collapse.",
+      "whyGo": "The second Sarasota shop: warm glazed donuts from Nate Peachey's Amish family recipe, plus pretzels and espresso, at Cattlemen Road Unit E.",
+      "hours": "Tue–Sat 7am–1pm or sell-out",
+      "phone": null,
+      "officialWebsite": "https://peacheysbakingco.com/our-shops",
+      "lat": 27.3250417,
+      "lng": -82.4508841,
+      "center": {
+        "latitude": 27.32504,
+        "longitude": -82.45088
+      },
+      "sourceUrls": [
+        "https://peacheysbakingco.com/our-shops"
+      ],
+      "researchUrls": [
+        "https://ocala.com/story/entertainment/dining/2026/03/07/popular-doughnut-shop-opens-second-sarasota-location/88944901007/"
+      ],
+      "researchNote": "Hook sourced from these pages; not cited on the Atlas card because check-no-disney-sources requires ALLOWED_THIRD_PARTY vetting first."
+    },
+    {
+      "key": "sobBurgers",
+      "status": "already_in",
+      "name": "S.O.B. Burgers",
+      "placeId": "ChIJv28NsOUVw4gR9GIkUomVMIU",
+      "q": "S.O.B. Burgers, 5866 14th St W, Bradenton, FL 34207",
+      "address": "5866 14th St W, Bradenton, FL 34207",
+      "metro": "manatee-sarasota",
+      "wantCategory": "food",
+      "primaryType": "hamburger_restaurant",
+      "types": [
+        "hamburger_restaurant"
+      ],
+      "chipsKeep": [
+        [
+          "food",
+          "lunch"
+        ],
+        [
+          "food",
+          "all"
+        ]
+      ],
+      "chipsBlock": [
+        [
+          "food",
+          "breakfast"
+        ],
+        [
+          "attractions",
+          "beaches"
+        ]
+      ],
+      "knownFor": null,
+      "vibeCheck": null,
+      "whyGo": null,
+      "note": "Already painted on live Parrish Lunch. No sourced physical why-sit for a two-beat hook, so editorial stays empty rather than a plate-list. Do not duplicate.",
+      "hours": null,
+      "phone": "941-755-1998",
+      "officialWebsite": "https://sob-burgers.shop",
+      "lat": 27.4362585,
+      "lng": -82.5763784,
+      "center": {
+        "latitude": 27.43626,
+        "longitude": -82.57638
+      },
+      "sourceUrls": []
+    },
+    {
+      "key": "diveDen",
+      "status": "add",
+      "name": "Dive Cocktail Den",
+      "placeId": "ChIJkeMXXa9Bw4gRCn7uZ5kG-eQ",
+      "q": "Dive Cocktail Den, 2881 Clark Rd #19, Sarasota, FL 34231",
+      "address": "2881 Clark Rd #19, Sarasota, FL 34231",
+      "metro": "manatee-sarasota",
+      "wantCategory": "nightlife",
+      "primaryType": "cocktail_bar",
+      "types": [
+        "cocktail_bar",
+        "bar"
+      ],
+      "chipsKeep": [
+        [
+          "nightlife",
+          "all"
+        ],
+        [
+          "nightlife",
+          "bars"
+        ],
+        [
+          "nightlife",
+          "speakeasy"
+        ]
+      ],
+      "chipsBlock": [
+        [
+          "shopping",
+          "all"
+        ],
+        [
+          "food",
+          "cafes"
+        ],
+        [
+          "attractions",
+          "beaches"
+        ]
+      ],
+      "knownFor": "A hidden cocktail den behind a steel door in the liquor store",
+      "vibeCheck": "A speakeasy-feel cocktail room behind a heavy steel door in the middle aisle of Dive Wine & Spirits — not the bottle shop, not The Hive wine bar.",
+      "whyGo": "Slide the steel door at the back of the liquor store and you are in the den: a large bar, a few tables, and cocktails from the bottles on the other side of the wall.",
+      "hours": null,
+      "phone": "941-888-0382",
+      "officialWebsite": "http://www.diveliquors.com/",
+      "lat": 27.2701573,
+      "lng": -82.5122431,
+      "center": {
+        "latitude": 27.27016,
+        "longitude": -82.51224
+      },
+      "sourceUrls": [
+        "http://www.diveliquors.com/",
+        "https://www.sarasotamagazine.com/eat-and-drink/2021/12/dive-wine-spirits-bar"
+      ],
+      "researchUrls": [
+        "https://lbknews.com/trio-of-venues-in-dive-wine-and-spirits/"
+      ],
+      "researchNote": "Hook sourced from these pages; not cited on the Atlas card because check-no-disney-sources requires ALLOWED_THIRD_PARTY vetting first."
+    },
+    {
+      "key": "frogPondSpb",
+      "status": "add",
+      "name": "The Frog Pond SPB",
+      "placeId": "ChIJcX8K3HADw4gRCgXXlZf5ccY",
+      "q": "The Frog Pond SPB, 5200 Gulf Blvd, St Pete Beach, FL 33706",
+      "address": "5200 Gulf Blvd, St Pete Beach, FL 33706",
+      "metro": "tampa",
+      "wantCategory": "food",
+      "primaryType": "breakfast_restaurant",
+      "types": [
+        "breakfast_restaurant",
+        "brunch_restaurant",
+        "restaurant"
+      ],
+      "chipsKeep": [
+        [
+          "food",
+          "breakfast"
+        ],
+        [
+          "food",
+          "all"
+        ]
+      ],
+      "chipsBlock": [
+        [
+          "attractions",
+          "beaches"
+        ],
+        [
+          "beach",
+          "beaches"
+        ]
+      ],
+      "knownFor": "Banana Foster waffles and huge omelets, inside Mad Fish",
+      "vibeCheck": "The 1982 breakfast room now inside Mad Fish on St. Pete Beach — huge portions, omelets and Benedicts, morning only. Not a beach card and not a Pinellas Park pin.",
+      "whyGo": "Frog Pond breakfast inside Mad Fish: Banana Foster waffles, towering omelets, and Benedicts in a Gulf Boulevard dining room that becomes dinner after the morning sitting.",
+      "hours": "Daily 7:30am–1:40pm (Mad Fish dinner is a different sitting)",
+      "phone": "727-363-7205",
+      "officialWebsite": null,
+      "lat": 27.7256217,
+      "lng": -82.7418963,
+      "center": {
+        "latitude": 27.72562,
+        "longitude": -82.7419
+      },
+      "sourceUrls": [
+        "https://www.google.com/maps/search/?api=1&query=The%20Frog%20Pond%20SPB&query_place_id=ChIJcX8K3HADw4gRCgXXlZf5ccY"
+      ],
+      "researchUrls": [
+        "https://ilovetheburg.com/frog-pond-reopens-st-pete-beach/",
+        "https://stpetecatalyst.com/zaps/frog-pond-reopens-in-st-pete-beach-redington-beach/"
+      ],
+      "researchNote": "Hook sourced from these pages; not cited on the Atlas card because check-no-disney-sources requires ALLOWED_THIRD_PARTY vetting first."
+    },
+    {
+      "key": "frogPondDowntown",
+      "status": "add",
+      "name": "The Frog Pond Downtown St. Petersburg",
+      "placeId": "ChIJKyxHD4fhwogR1O-zkiFq51o",
+      "q": "The Frog Pond Downtown St. Petersburg, 890 3rd Ave S, St. Petersburg, FL 33701",
+      "address": "890 3rd Ave S, St. Petersburg, FL 33701",
+      "metro": "tampa",
+      "wantCategory": "food",
+      "primaryType": "breakfast_restaurant",
+      "types": [
+        "breakfast_restaurant",
+        "brunch_restaurant",
+        "restaurant"
+      ],
+      "chipsKeep": [
+        [
+          "food",
+          "breakfast"
+        ],
+        [
+          "food",
+          "all"
+        ]
+      ],
+      "chipsBlock": [
+        [
+          "attractions",
+          "beaches"
+        ],
+        [
+          "beach",
+          "beaches"
+        ]
+      ],
+      "knownFor": "Huge omelets and Benedicts since 1982, across from Tropicana Field",
+      "vibeCheck": "The downtown Frog Pond since the 2022 reopen — indoor and outdoor tables across from Tropicana Field, Kahwa coffee, and the same huge-portion breakfast the brand has run since 1982.",
+      "whyGo": "Founded 1982: towering omelets, Benedicts, and blintzes in a downtown room across from Tropicana Field, not a Pinellas Park address.",
+      "hours": "Daily 7:30am–2pm",
+      "phone": "727-592-4977",
+      "officialWebsite": "https://www.frogponddtsp.com/",
+      "lat": 27.7677851,
+      "lng": -82.6463066,
+      "center": {
+        "latitude": 27.76779,
+        "longitude": -82.64631
+      },
+      "sourceUrls": [
+        "https://www.frogponddtsp.com/"
+      ]
+    },
+    {
+      "key": "burgerCulture",
+      "status": "add",
+      "name": "Burger Culture Lutz",
+      "placeId": "ChIJm_MbVcLHwogRdDvs5papv1A",
+      "q": "Burger Culture Lutz, 15526 N Florida Ave, Tampa, FL 33613",
+      "address": "15526 N Florida Ave, Tampa, FL 33613",
+      "metro": "tampa",
+      "wantCategory": "food",
+      "primaryType": "hamburger_restaurant",
+      "types": [
+        "hamburger_restaurant"
+      ],
+      "chipsKeep": [
+        [
+          "food",
+          "lunch"
+        ],
+        [
+          "food",
+          "all"
+        ]
+      ],
+      "chipsBlock": [
+        [
+          "food",
+          "breakfast"
+        ],
+        [
+          "attractions",
+          "beaches"
+        ]
+      ],
+      "knownFor": "Burgers on glazed donuts and waffle buns, at the Lutz-line counter",
+      "vibeCheck": "They brand it Lutz; Google's pin is Tampa 33613, just south of the line. Burgers land on glazed donuts, grilled cheese, waffles, pizza dough, and ramen buns.",
+      "whyGo": "The Lutz-branded Tampa counter where a cheeseburger arrives between two warm glazed donuts — or on a waffle, grilled cheese, pizza dough, or ramen bun.",
+      "hours": "Daily 11am–1:30am",
+      "phone": "813-992-7444",
+      "officialWebsite": "https://www.burgerculture-tampa.com/location/lutz/",
+      "lat": 28.0947629,
+      "lng": -82.4615049,
+      "center": {
+        "latitude": 28.09476,
+        "longitude": -82.4615
+      },
+      "sourceUrls": [
+        "https://www.burgerculture-tampa.com/location/lutz/",
+        "https://www.burgerculture-tampa.com/menus/"
+      ]
+    },
+    {
+      "key": "campfired",
+      "status": "add",
+      "name": "Campfired",
+      "placeId": "ChIJd6m6J4jPwogR7P5HCLMRyyg",
+      "q": "Campfired, 6302 E Dr Martin Luther King Jr Blvd Atrium, Tampa, FL 33619",
+      "address": "6302 E Dr Martin Luther King Jr Blvd Atrium, Tampa, FL 33619",
+      "metro": "tampa",
+      "wantCategory": "food",
+      "primaryType": "brunch_restaurant",
+      "types": [
+        "brunch_restaurant",
+        "breakfast_restaurant",
+        "cafe",
+        "restaurant"
+      ],
+      "chipsKeep": [
+        [
+          "food",
+          "breakfast"
+        ],
+        [
+          "food",
+          "cafes"
+        ],
+        [
+          "food",
+          "all"
+        ]
+      ],
+      "chipsBlock": [
+        [
+          "nightlife",
+          "clubs"
+        ],
+        [
+          "attractions",
+          "beaches"
+        ]
+      ],
+      "knownFor": "Wood-fired brunch and Cuban coffee, under canvas tents in a garden atrium",
+      "vibeCheck": "A garden atrium inside an office building on MLK — canvas tents, plants, wood-fired brunch, Cuban coffee, and tiny pancakes. You walk a long hallway to find it.",
+      "whyGo": "Wood-fired brunch and Cuban coffee under canvas tents in a sunlit garden atrium, not a strip-mall café.",
+      "hours": "Mon–Thu 8:30am–3pm; Fri–Sun 8:30am–5pm",
+      "phone": "813-321-6555",
+      "officialWebsite": null,
+      "lat": 27.9829024,
+      "lng": -82.3869781,
+      "center": {
+        "latitude": 27.9829,
+        "longitude": -82.38698
+      },
+      "sourceUrls": [
+        "https://www.google.com/maps/search/?api=1&query=Campfired&query_place_id=ChIJd6m6J4jPwogR7P5HCLMRyyg"
+      ],
+      "researchUrls": [
+        "https://www.atly.com/location/Campfired"
+      ],
+      "researchNote": "Hook sourced from these pages; not cited on the Atlas card because check-no-disney-sources requires ALLOWED_THIRD_PARTY vetting first."
+    },
+    {
+      "key": "meachamUrbanFarm",
+      "status": "hold_google_id",
+      "name": "Meacham Urban Farm",
+      "placeId": null,
+      "q": "Meacham Urban Farm, 1108 E Scott Street, Tampa, FL 33602",
+      "address": "1108 E Scott Street, Tampa, FL 33602",
+      "metro": "tampa",
+      "wantCategory": "attractions",
+      "primaryType": "farmers_market",
+      "types": [
+        "farmers_market",
+        "farm"
+      ],
+      "chipsKeep": [
+        [
+          "attractions",
+          "all"
+        ],
+        [
+          "shopping",
+          "markets"
+        ]
+      ],
+      "chipsBlock": [
+        [
+          "attractions",
+          "beaches"
+        ],
+        [
+          "food",
+          "all"
+        ],
+        [
+          "nightlife",
+          "all"
+        ],
+        [
+          "hotels",
+          "all"
+        ]
+      ],
+      "knownFor": "A two-acre organic farm on a former vacant downtown lot, with a farm store for produce, meats, raw dairy, and honey",
+      "vibeCheck": "A two-acre organic farm on a former vacant downtown lot across from Tempo / Encore — farm store, not a restaurant.",
+      "whyGo": "The downtown farm store for organically grown produce, pasture-raised meats, raw dairy, and honey, on the two-acre lot that used to sit empty.",
+      "hours": "Thu/Fri 2–6, Sat/Sun 8–2, Mon 2–6 (official site; not the hook)",
+      "phone": null,
+      "officialWebsite": "https://www.meachamfarm.com/",
+      "lat": 27.9570411,
+      "lng": -82.4544409,
+      "center": null,
+      "coordSource": "osm",
+      "osm": {
+        "way": 933420531,
+        "type": "farmland",
+        "displayHint": "1108"
+      },
+      "note": "HOLD Google id — no public ChIJ found (Maps HTML, Wikipedia, OSM, official pages). OSM named pin used for coords. Do not invent a ChIJ. Do not call Places.",
+      "sourceUrls": [
+        "https://www.meachamfarm.com/",
+        "https://www.meachamfarm.com/about-the-farm"
+      ],
+      "researchUrls": [
+        "https://www.tampaha.org/meacham-urban-farm"
+      ],
+      "researchNote": "THA page sources the farm store honey and the Tempo/Encore sit. Official site sources the vacant two-acre lot, produce, pasture-raised meats, and raw dairy. Sourdough was only on LocalHarvest — not used."
+    },
+    {
+      "key": "dancingGoatDairy",
+      "status": "hold_google_id",
+      "name": "The Dancing Goat Dairy",
+      "placeId": null,
+      "q": "The Dancing Goat Dairy, 12502 Maverick Court, Tampa, FL 33626",
+      "address": "12502 Maverick Court, Tampa, FL 33626",
+      "metro": "tampa",
+      "wantCategory": "attractions",
+      "primaryType": "farm",
+      "types": [
+        "farm"
+      ],
+      "chipsKeep": [
+        [
+          "attractions",
+          "all"
+        ]
+      ],
+      "chipsBlock": [
+        [
+          "nightlife",
+          "all"
+        ],
+        [
+          "shopping",
+          "all"
+        ],
+        [
+          "food",
+          "all"
+        ],
+        [
+          "attractions",
+          "beaches"
+        ]
+      ],
+      "knownFor": "A working goat dairy for milk, cheese, kefir, yogurt, eggs, and goat-milk soaps, at the Maverick Court barn porch",
+      "vibeCheck": "The farm pin is Maverick Court — pickup at the barn porch, not the St. Pete curbside and not a grocery aisle.",
+      "whyGo": "Farm pickup at the barn front porch: ring the bell for raw goat milk, cheese, kefir, yogurt, eggs, and handmade goat-milk soaps. Animal viewing is AirBNB Experiences only — not a walk-up petting farm.",
+      "hours": "Farm pickup Wed 3pm–7pm, Sun 1pm–4pm",
+      "phone": "(813) 784-0353",
+      "officialWebsite": "https://dancinggoatdairy.com/",
+      "lat": null,
+      "lng": null,
+      "center": null,
+      "coordSource": null,
+      "note": "HOLD Google id — no public ChIJ, no OSM named pin. Official address only. Do not invent lat/lng or a ChIJ. Do not call Places. Card pin is the farm, not St. Pete curbside.",
+      "sourceUrls": [
+        "https://dancinggoatdairy.com/",
+        "https://dancinggoatdairy.com/contact/",
+        "https://dancinggoatdairy.com/visit/"
+      ],
+      "researchUrls": [],
+      "researchNote": "Visit page: pickup is the barn porch; animal viewing only during AirBNB Experiences. Why-sit is the porch pickup, not a walk-up animal visit."
+    },
+    {
+      "key": "fatBeetFarm",
+      "status": "hold_google_id",
+      "name": "Fat Beet Farm Kitchen & Bakery",
+      "placeId": null,
+      "q": "Fat Beet Farm Kitchen & Bakery, 13830 W Hillsborough Ave, Tampa, FL 33635",
+      "address": "13830 W. Hillsborough Ave., Tampa, FL 33635",
+      "metro": "tampa",
+      "wantCategory": "food",
+      "primaryType": "restaurant",
+      "types": [
+        "restaurant",
+        "bakery",
+        "breakfast_restaurant",
+        "brunch_restaurant"
+      ],
+      "chipsKeep": [
+        [
+          "food",
+          "all"
+        ],
+        [
+          "food",
+          "breakfast"
+        ],
+        [
+          "food",
+          "lunch"
+        ]
+      ],
+      "chipsBlock": [
+        [
+          "attractions",
+          "beaches"
+        ],
+        [
+          "hotels",
+          "all"
+        ],
+        [
+          "nightlife",
+          "clubs"
+        ]
+      ],
+      "knownFor": "Michelin Guide listed farm kitchen and bakery, in an all-day storefront on the west Tampa farm",
+      "vibeCheck": "Jen and Tim Curci's 2013 farm kitchen: all-day menu, house bakery, tours and community calendar posted on site. Michelin Guide listed — no extra star or acreage claimed.",
+      "whyGo": "An all-day kitchen and bakery storefront on the working west Tampa farm — biscuits with honey, butter, and jam; soups; the turkey Reuben — with tours posted on the on-site calendar.",
+      "hours": null,
+      "phone": null,
+      "officialWebsite": "https://fatbeetfarm.com/",
+      "lat": null,
+      "lng": null,
+      "center": null,
+      "coordSource": null,
+      "note": "HOLD Google id — no public ChIJ. OSM had street geocode only; do not use the street centroid. Do not invent a ChIJ. Do not call Places. Do not claim Green Star or 13 acres.",
+      "sourceUrls": [
+        "https://fatbeetfarm.com/"
+      ],
+      "researchUrls": [
+        "https://guide.michelin.com/us/en/florida/tampa/restaurant/fat-beet-farm-kitchen-and-bakery"
+      ],
+      "researchNote": "Michelin page fetched 2026-08-29: listed restaurant, 13830 W. Hillsborough Ave., Jen and Tim Curci, 2013, all-day kitchen + storefront, bakery, tours/yoga on the calendar. Page body did not include 'Green Star'. Acreage not on Michelin or the official fetch (Cloudflare interstitial)."
+    }
+  ],
+  "holds": [
+    {
+      "name": "Monarch Kitchen & Bar",
+      "status": "OUT_OF_MARKET",
+      "note": "No Florida location found. Monarch Kitchen & Bar resolves to Davenport, Iowa. Nothing written."
+    },
+    {
+      "name": "Urban Brews & Creamery",
+      "status": "OUT_OF_MARKET",
+      "note": "Kingsport, TN — 247 Broad St. Not Florida. Nothing written."
+    },
+    {
+      "name": "Skinny Burger Food Truck, Tampa",
+      "status": "SCHEDULE_UNCONFIRMED",
+      "note": "Possible 14998 N Florida Ave, Tampa, but the schedule is unconfirmed. Owner said confirm before publish. HOLD."
+    },
+    {
+      "name": "The Founders Club, Tampa",
+      "status": "NOT_A_PUBLIC_PLACE",
+      "note": "Private networking, not a public place card. Nothing written."
+    },
+    {
+      "name": "Dive Wine & Spirits (bottle shop)",
+      "status": "WRONG_IDENTITY",
+      "note": "Separate Google pin ChIJs3-RNzJBw4gRDwMcWbB-8Ik at Unit 20. That is the liquor store. The card is Dive Cocktail Den (ChIJkeMXXa9Bw4gRCn7uZ5kG-eQ) so Night out does not file a bottle shop on Shopping."
+    },
+    {
+      "name": "Meacham Urban Farm",
+      "status": "GOOGLE_ID_UNSOURCED",
+      "note": "Official 1108 E Scott Street + OSM way 933420531 (27.9570411, -82.4544409). No public ChIJ. HOLD the Google id. Batch row recorded. No Atlas card."
+    },
+    {
+      "name": "The Dancing Goat Dairy",
+      "status": "GOOGLE_ID_UNSOURCED",
+      "note": "Official 12502 Maverick Court, Tampa 33626. No OSM pin, no public ChIJ. HOLD the Google id. No invented lat/lng. Batch row recorded. No Atlas card."
+    },
+    {
+      "name": "Fat Beet Farm Kitchen & Bakery",
+      "status": "GOOGLE_ID_UNSOURCED",
+      "note": "Michelin + official address 13830 W. Hillsborough Ave., Tampa 33635. OSM street geocode only — not used as a pin. No public ChIJ. HOLD the Google id. No Atlas card. No Green Star / 13-acre claims."
+    }
+  ],
+  "events": [
+    {
+      "event_id": "st-pete-night-market-2026-09",
+      "event_series_id": "st-pete-night-market",
+      "event_name": "St. Pete Night Market at Ferg's",
+      "short_title": "St. Pete Night Market",
+      "year": 2026,
+      "slug": "st-pete-night-market-2026-09",
+      "start_date": "2026-09-02",
+      "end_date": "2026-09-02",
+      "start_time": "18:00",
+      "end_time": "22:00",
+      "timezone": "America/New_York",
+      "select_nights": false,
+      "schedule_note": "First Wednesday of every month, 6–10pm. This row is September 2, 2026.",
+      "event_status": "scheduled",
+      "venue": "Ferg's Sports Bar & Grill",
+      "address": "1320 Central Ave",
+      "city": "St. Petersburg",
+      "county": "Pinellas",
+      "state": "FL",
+      "lat": 27.7708789,
+      "lng": -82.65219,
+      "place_id": "ChIJJ9mP3iviwogRrJCNTTUAT9c",
+      "category": "community",
+      "subcategory": "night-market",
+      "tags": [
+        "market",
+        "family",
+        "free",
+        "pets",
+        "local"
+      ],
+      "audience": [
+        "families",
+        "adults"
+      ],
+      "is_free": true,
+      "price_band": "free",
+      "official_event_url": "https://www.visitstpeteclearwater.com/event/st-pete-night-market-fergs/60331",
+      "card_hook": "A free first-Wednesday night market at Ferg's, family and pet friendly",
+      "source_url": "https://www.visitstpeteclearwater.com/event/st-pete-night-market-fergs/60331",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high"
+    },
+    {
+      "event_id": "st-pete-night-market-2026-10",
+      "event_series_id": "st-pete-night-market",
+      "event_name": "St. Pete Night Market at Ferg's",
+      "short_title": "St. Pete Night Market",
+      "year": 2026,
+      "slug": "st-pete-night-market-2026-10",
+      "start_date": "2026-10-07",
+      "end_date": "2026-10-07",
+      "start_time": "18:00",
+      "end_time": "22:00",
+      "timezone": "America/New_York",
+      "select_nights": false,
+      "schedule_note": "First Wednesday of every month, 6–10pm. This row is October 7, 2026.",
+      "event_status": "scheduled",
+      "venue": "Ferg's Sports Bar & Grill",
+      "address": "1320 Central Ave",
+      "city": "St. Petersburg",
+      "county": "Pinellas",
+      "state": "FL",
+      "lat": 27.7708789,
+      "lng": -82.65219,
+      "place_id": "ChIJJ9mP3iviwogRrJCNTTUAT9c",
+      "category": "community",
+      "subcategory": "night-market",
+      "tags": [
+        "market",
+        "family",
+        "free",
+        "pets",
+        "local"
+      ],
+      "audience": [
+        "families",
+        "adults"
+      ],
+      "is_free": true,
+      "price_band": "free",
+      "official_event_url": "https://www.visitstpeteclearwater.com/event/st-pete-night-market-fergs/60331",
+      "card_hook": "A free first-Wednesday night market at Ferg's, family and pet friendly",
+      "source_url": "https://www.visitstpeteclearwater.com/event/st-pete-night-market-fergs/60331",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high"
+    },
+    {
+      "event_id": "st-pete-night-market-2026-11",
+      "event_series_id": "st-pete-night-market",
+      "event_name": "St. Pete Night Market at Ferg's",
+      "short_title": "St. Pete Night Market",
+      "year": 2026,
+      "slug": "st-pete-night-market-2026-11",
+      "start_date": "2026-11-04",
+      "end_date": "2026-11-04",
+      "start_time": "18:00",
+      "end_time": "22:00",
+      "timezone": "America/New_York",
+      "select_nights": false,
+      "schedule_note": "First Wednesday of every month, 6–10pm. This row is November 4, 2026.",
+      "event_status": "scheduled",
+      "venue": "Ferg's Sports Bar & Grill",
+      "address": "1320 Central Ave",
+      "city": "St. Petersburg",
+      "county": "Pinellas",
+      "state": "FL",
+      "lat": 27.7708789,
+      "lng": -82.65219,
+      "place_id": "ChIJJ9mP3iviwogRrJCNTTUAT9c",
+      "category": "community",
+      "subcategory": "night-market",
+      "tags": [
+        "market",
+        "family",
+        "free",
+        "pets",
+        "local"
+      ],
+      "audience": [
+        "families",
+        "adults"
+      ],
+      "is_free": true,
+      "price_band": "free",
+      "official_event_url": "https://www.visitstpeteclearwater.com/event/st-pete-night-market-fergs/60331",
+      "card_hook": "A free first-Wednesday night market at Ferg's, family and pet friendly",
+      "source_url": "https://www.visitstpeteclearwater.com/event/st-pete-night-market-fergs/60331",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high"
+    },
+    {
+      "event_id": "st-pete-night-market-2026-12",
+      "event_series_id": "st-pete-night-market",
+      "event_name": "St. Pete Night Market at Ferg's",
+      "short_title": "St. Pete Night Market",
+      "year": 2026,
+      "slug": "st-pete-night-market-2026-12",
+      "start_date": "2026-12-02",
+      "end_date": "2026-12-02",
+      "start_time": "18:00",
+      "end_time": "22:00",
+      "timezone": "America/New_York",
+      "select_nights": false,
+      "schedule_note": "First Wednesday of every month, 6–10pm. This row is December 2, 2026.",
+      "event_status": "scheduled",
+      "venue": "Ferg's Sports Bar & Grill",
+      "address": "1320 Central Ave",
+      "city": "St. Petersburg",
+      "county": "Pinellas",
+      "state": "FL",
+      "lat": 27.7708789,
+      "lng": -82.65219,
+      "place_id": "ChIJJ9mP3iviwogRrJCNTTUAT9c",
+      "category": "community",
+      "subcategory": "night-market",
+      "tags": [
+        "market",
+        "family",
+        "free",
+        "pets",
+        "local"
+      ],
+      "audience": [
+        "families",
+        "adults"
+      ],
+      "is_free": true,
+      "price_band": "free",
+      "official_event_url": "https://www.visitstpeteclearwater.com/event/st-pete-night-market-fergs/60331",
+      "card_hook": "A free first-Wednesday night market at Ferg's, family and pet friendly",
+      "source_url": "https://www.visitstpeteclearwater.com/event/st-pete-night-market-fergs/60331",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high"
+    },
+    {
+      "event_id": "clermont-harvest-festival-2026",
+      "event_series_id": "clermont-harvest-festival",
+      "event_name": "Downtown Clermont Harvest Festival",
+      "short_title": "Clermont Harvest Festival",
+      "year": 2026,
+      "slug": "clermont-harvest-festival-2026",
+      "start_date": "2026-10-31",
+      "end_date": "2026-10-31",
+      "start_time": "10:00",
+      "end_time": "16:00",
+      "timezone": "America/New_York",
+      "select_nights": false,
+      "schedule_note": "Saturday, October 31, 2026, 10:00 AM–4:00 PM along West Montrose Street.",
+      "event_status": "scheduled",
+      "venue": "Downtown Clermont",
+      "address": "752 West Montrose Street",
+      "city": "Clermont",
+      "county": "Lake",
+      "state": "FL",
+      "lat": 28.5556249,
+      "lng": -81.7678286,
+      "place_id": null,
+      "category": "seasonal",
+      "subcategory": "harvest-festival",
+      "tags": [
+        "fall",
+        "family",
+        "harvest",
+        "free",
+        "local"
+      ],
+      "audience": [
+        "families",
+        "kids"
+      ],
+      "is_free": true,
+      "price_band": "free",
+      "official_event_url": "https://www.clermontdowntown.com/events/2025-clermont-harvest-festival-cb6sc",
+      "card_hook": "A free downtown harvest day with 100-plus vendors, on West Montrose",
+      "source_url": "https://www.clermontdowntown.com/events/2025-clermont-harvest-festival-cb6sc",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high"
+    }
+  ]
+}

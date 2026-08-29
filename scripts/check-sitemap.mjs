@@ -40,9 +40,11 @@ const idx = readFileSync(new URL("../lib/placeIndex.js", import.meta.url), "utf8
 ok(/return unionIndexedAndAtlasIds\(indexed,\s*listPublishReadyAtlasIds\(\)\)/.test(idx),
   "listIndexedIds must CALL unionIndexedAndAtlasIds(indexed, listPublishReadyAtlasIds()) — a mention is not the union");
 const atlasIds = listPublishReadyAtlasIds();
-ok(atlasIds.length === 255, `publish-ready Atlas allowlist drifted (got ${atlasIds.length}, want 255)`);
+// 255 from #1021 + 8 sourced ChIJ cards from the 2026-08-29 owner batch (#1019).
+const PUBLISH_READY = 263;
+ok(atlasIds.length === PUBLISH_READY, `publish-ready Atlas allowlist drifted (got ${atlasIds.length}, want ${PUBLISH_READY})`);
 const united = unionIndexedAndAtlasIds(["wf-indexed-only"], atlasIds);
-ok(united.includes("wf-indexed-only") && united.includes(atlasIds[0]) && united.length === 256,
-  "union must keep indexed ids and the 255 Atlas cards without dumping inventory");
+ok(united.includes("wf-indexed-only") && united.includes(atlasIds[0]) && united.length === PUBLISH_READY + 1,
+  `union must keep indexed ids and the ${PUBLISH_READY} Atlas cards without dumping inventory`);
 
-console.log(`check-sitemap: OK — ${pass} assertions (factual lastmod; durable membership; empty/personalized/thin hubs excluded; Atlas 255 unioned)`);
+console.log(`check-sitemap: OK — ${pass} assertions (factual lastmod; durable membership; empty/personalized/thin hubs excluded; Atlas ${PUBLISH_READY} unioned)`);
