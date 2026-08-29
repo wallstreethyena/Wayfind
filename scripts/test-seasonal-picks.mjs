@@ -227,9 +227,17 @@ ok(/floor:\s*\{\s*rating:\s*4(\.0)?\s*,/.test(intentPagesSrc),
 // gradient fallback, added in v6.52 for exactly this card, has no caller now).
 {
   const dayparts = readFileSync(new URL("../lib/dayparts.js", import.meta.url), "utf8");
-  const orders = [...dayparts.matchAll(/order: \[([^\]]+)\]/g)].map((m) => m[1].replace(/['\s]/g, "").split(","));
+  // v8.90 — the band NAME is captured now, not just the array. One band (the
+  // afternoon) has a different rule from the other three, and identifying it by
+  // array position would be a silent mis-assertion the day someone reorders the
+  // DAYPARTS declaration.
+  const bands = [...dayparts.matchAll(/^  (\w+): \{[\s\S]*?order: \[([^\]]+)\]/gm)]
+    .map((m) => [m[1], m[2].replace(/['\s]/g, "").split(",")]);
+  const orders = bands.map(([, o]) => o);
   ok(orders.length === 4, `all four bands declare an order (found ${orders.length})`);
-  for (const o of orders) {
+  ok(bands.map(([b]) => b).sort().join(",") === "afternoon,lunch,morning,night",
+    `positive control: the four bands were identified BY NAME (found ${bands.map(([b]) => b).join(",")}) — without this the afternoon exemption below could silently land on the wrong band`);
+  for (const [band, o] of bands) {
     ok(o.filter((id) => id === "season").length === 1, "seasonal appears exactly once per band — never twice, never missing");
     // v8.23.2 — REVERSAL, dated, and the fifth time this order has been revised
     // (v6.55, v6.59, v6.61, v6.94, now). WAS: ok(o[0] === "season"), from v6.55
@@ -252,7 +260,21 @@ ok(/floor:\s*\{\s*rating:\s*4(\.0)?\s*,/.test(intentPagesSrc),
     // desktop (~3.4 tiles visible) and one short swipe on a phone. What it no
     // longer does is spend the one slot that carries the time-of-day signal.
     ok(o[0] !== "season", "seasonal must NOT lead — it is the only tile a phone shows, and pinning it there cancels the daypart rotation (v8.23.2 reversal of v6.55)");
-    ok(o.indexOf("season") === 2, `seasonal holds THIRD in every band — prominent, predictable, and never in the rotating slot (found ${o.indexOf("season") + 1})`);
+    // v8.90 — THIRD IN EVERY BAND BUT THE AFTERNOON (owner, 2026-08-29, naming
+    // the cards that lead at 1pm: "date night also, Tonight's Move also, and
+    // the Local Knows — these should be the first to show up").
+    //
+    // The line above is the one that matters and it is UNCHANGED and still
+    // applies to all four: seasonal may never LEAD, because that is what
+    // cancelled the daypart rotation in v6.55 and it is the failure this pair
+    // was written for. What the afternoon gives up is the fixed third slot, not
+    // prominence — it is inside the first swipe either way.
+    if (band === "afternoon") {
+      ok(o.indexOf("season") > 2 && o.indexOf("season") < 7,
+        `afternoon: seasonal steps back from third for the four cards the owner named, and stays inside the first swipe (found ${o.indexOf("season") + 1})`);
+    } else {
+      ok(o.indexOf("season") === 2, `seasonal holds THIRD in every band — prominent, predictable, and never in the rotating slot (found ${o.indexOf("season") + 1})`);
+    }
   }
   ok(!/function LocalPlanHeroCard\(/.test(home), "LocalPlanHeroCard is back without the slide it rendered");
   ok(!/<HeroRail>/.test(home), "the hero rail is back alongside the daypart rail");

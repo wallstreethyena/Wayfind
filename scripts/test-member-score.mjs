@@ -4,6 +4,7 @@
 // defeated the wfScore==null "Score pending" self-heal. A null base stays null.
 import { memberDelta } from "../lib/ranking.js";
 import { toDisplayScore } from "../lib/score.js";
+import { withOwnerBump } from "../lib/ownerBump.js";
 import { readFileSync } from "fs";
 
 let pass = 0;
@@ -24,8 +25,22 @@ ok(toDisplayScore(null) == null, "toDisplayScore(null) is null");
 
 // Wiring: home.js only nudges a non-null base; the old (p.wfScore || 0) is gone.
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
-ok(/wfScore: p\.wfScore != null \? \+\(\(p\.wfScore \+ d\)\.toFixed\(2\)\) : p\.wfScore/.test(home),
+// v8.90 — RE-ANCHORED, and the invariant is now proven on BOTH layers instead
+// of matched as one line. withMemberSignal grew a second step: the member nudge
+// (`d`), then the owner's god bump (lib/ownerBump.js, +7 internal = +0.7 on the
+// badge). A null base has to survive both, because either one coercing null to
+// 0 produces the fake red "0.1/10" badge this whole file exists for — and the
+// bump is the more dangerous of the two, since it is a flat +7 rather than a
+// fractional nudge, i.e. a "0.7/10" on a place nobody has rated.
+ok(/const nudged = p\.wfScore != null \? \+\(\(p\.wfScore \+ d\)\.toFixed\(2\)\) : p\.wfScore;/.test(home),
   "withMemberSignal nudges only a non-null base (null stays null)");
+ok(/withOwnerBump\(nudged, g\.ownerPick === true\)/.test(home),
+  "…and the owner bump is applied to THAT value, so it inherits the same null rule rather than re-deriving one");
+// EXECUTED, not read: the bump layer's own null behaviour.
+ok(withOwnerBump(null, true) === null,
+  "the god bump on a null base stays null — a flat +7 on an unrated place would be a 0.7/10 badge, which is the same defect as the 0.1/10 this file was written for");
+ok(withOwnerBump(82, true) === 89 && toDisplayScore(withOwnerBump(82, true)) === 8.9,
+  "…and on a real base it is exactly +0.7 on the badge");
 ok(!/wfScore: \+\(\(\(p\.wfScore \|\| 0\) \+ d\)/.test(home),
   "the old (p.wfScore || 0) coercion (red 0.1/10 source) is removed");
 

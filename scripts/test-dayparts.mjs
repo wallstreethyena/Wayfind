@@ -54,8 +54,25 @@ for(const p of DAYPART_IDS){
   // as a phone reader could tell. The band's own axis leads now.
   eq(o[0],DAYPARTS[p].order[0],`${p}: leads with its own axis, not one pinned card`);
   ok(o[0]!=='season',`${p}: Summer Picks must not lead — it eats the only tile a phone shows`);
-  eq(o.indexOf('season'),2,`${p}: Summer Picks holds third`);
-  ok(o.indexOf('trending')<3,`${p}: Trending in the top 3 (is #${o.indexOf('trending')+1})`);
+  // v8.90 — THE AFTERNOON IS EXEMPT, BY NAME (owner, 2026-08-29): "make sure it
+  // shows up at 1pm as the FIRST card … date night also, Tonight's Move also,
+  // and the Local Knows — these should be the first to show up."
+  //
+  // The exemption is ONE BAND and it is written as one band on purpose. v8.23.2
+  // pinned these because `season` sat at index 0 in ALL FOUR and a phone shows
+  // ~1.3 tiles, so the pinned leader WAS the rail — the whole daypart feature
+  // happening off-screen. That failure needs all four bands to agree; three
+  // still do, and the rule below still catches the afternoon putting `season`
+  // first, which is the half that actually caused it.
+  if (p !== 'afternoon') {
+    eq(o.indexOf('season'),2,`${p}: Summer Picks holds third`);
+    ok(o.indexOf('trending')<3,`${p}: Trending in the top 3 (is #${o.indexOf('trending')+1})`);
+  } else {
+    eq(o.slice(0,4).join(','),'events,tonight,datenight,locals',
+      'afternoon: the owner named the four that lead at 1pm — what is on, where to go, the dinner, the local\'s answer (v8.90)');
+    ok(o.indexOf('season')<7 && o.indexOf('trending')<7,
+      `afternoon: season and trending give up the top three but stay inside the first swipe (season #${o.indexOf('season')+1}, trending #${o.indexOf('trending')+1})`);
+  }
 }
 // the specific calls Gabe made
 // The owner's standing calls, re-expressed as RELATIONS rather than as five-item
