@@ -37,6 +37,7 @@ import { SITE_URL } from "../../../lib/site";
 import CuisineMenu from "./CuisineMenu";
 import FoodTourRail from "../../components/FoodTourRail";
 import { METRO_DESTS, pickFoodTours } from "../../../lib/foodTours";
+import { isSsgBuild, eatFetch } from "../../../lib/eatInventory";
 
 export const revalidate = 3600;
 
@@ -70,11 +71,15 @@ const pretty = (c) => PRETTY[c] || c.charAt(0).toUpperCase() + c.slice(1);
  * that key has not been rotated (see lib/envAudit.legacySupabaseKeys).
  */
 async function chipsFor(metro) {
+  // SSG / next build: do not wait on Supabase. null = "could not ask", which
+  // is the existing unavailable UI — not an invented empty neighbourhood.
+  // dpl_96WvKb SIGTERM'd /eat cuisine pages on an unbounded sibling fetch.
+  if (isSsgBuild()) return null;
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
   const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
   if (!url || !anon) return null;   // null = could not ask, which is NOT the same as "no cuisines"
   try {
-    const r = await fetch(url + "/rest/v1/rpc/wf_cuisine_chips", {
+    const r = await eatFetch(url + "/rest/v1/rpc/wf_cuisine_chips", {
       method: "POST",
       headers: { apikey: anon, Authorization: "Bearer " + anon, "content-type": "application/json" },
       body: JSON.stringify({ p_metro: metro }),
@@ -103,6 +108,7 @@ async function chipsFor(metro) {
  * the Dalí→Barcelona bug.
  */
 async function foodToursFor(metro) {
+  if (isSsgBuild()) return [];
   const dests = METRO_DESTS[metro];
   if (!dests || !dests.length) return [];
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
@@ -111,7 +117,7 @@ async function foodToursFor(metro) {
   const cols = "product_code,title,image,rating,reviews,from_price,product_url,dest_id,link_ok";
   const q = `${url}/rest/v1/wf_experiences?select=${cols}&dest_id=in.(${dests.join(",")})&limit=800`;
   try {
-    const r = await fetch(q, {
+    const r = await eatFetch(q, {
       headers: { apikey: anon, Authorization: "Bearer " + anon },
       next: { revalidate: 3600 },
     });
