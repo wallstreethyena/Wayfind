@@ -51,15 +51,32 @@ ok(/"icon-allow-overlap": true/.test(view), "pins hide each other at density —
 // now: a selected place still gets its own distinct sprite, and still grows to
 // 1.18. Asserting the old string would have gone green the day someone dropped
 // the selected sprite while keeping the name in a comment.
-ok(/selected: !!p\.sel/.test(view) && /\["==", \["get", "sel"\], 1\], 1\.18/.test(view),
-  "the selected pin no longer swaps to its own sprite and grows to 1.18");
+// v8.89 — FOLLOWED THE CODE AGAIN, AND THE ASSERTION IS NOW THE INVARIANT
+// RATHER THAN THREE NUMBERS. The sprite itself grew (28x38 -> 34x46) so the
+// glyph inside it could be seen at all, which meant every literal icon-size
+// had to be re-scaled — and a guard written against literals goes red on a
+// re-scale and, far worse, goes GREEN on a version that keeps the numbers and
+// inverts their meaning.
+//
+// What must be true is an ORDERING: a selected pin is the largest thing on the
+// map, the ranked head is larger than the field, and the field is smallest.
+// That is parsed out of the expression that actually ships.
+{
+  const m = view.match(/"icon-size":\s*\["case",\s*\["==",\s*\["get",\s*"sel"\],\s*1\],\s*([\d.]+),\s*\["<=",\s*\["get",\s*"rank"\],\s*5\],\s*([\d.]+),\s*([\d.]+)\]/);
+  ok(!!m, "positive control: the icon-size case expression is still found under its known shape (a -1 here would make the ordering checks below vacuous)");
+  const [sel, ranked, field] = m ? m.slice(1).map(Number) : [0, 0, 0];
+  ok(/selected: !!p\.sel/.test(view),
+    "the selected pin no longer swaps to its own sprite");
+  ok(!!m && sel > ranked,
+    `the selected pin is the largest on the map (sel ${sel} vs ranked ${ranked})`);
+  ok(!!m && ranked > field,
+    `the ranked head of the list is drawn larger than the field (ranked ${ranked} vs field ${field}) — the top five carry a NUMERAL and it has to be readable`);
+  ok(!!m && field >= 0.8,
+    `the field is not shrunk into illegibility (${field}) — the owner's "you cannot see the icon in these" was partly this number`);
+}
 ok(/\["==", \["get", "anySel"\], 1\], \.5/.test(view), "unselected pins no longer dim when something is selected");
-// v8.85 — the top FIVE are now drawn larger, not just rank 1, because they
-// carry a numeral that has to be readable (owner: "show me number top 5
-// choices"). Same invariant — the ranked head of the list is visually ahead of
-// the field — measured on the expression that actually ships.
-ok(/\["<=", \["get", "rank"\], 5\], 1\.06, 0\.9/.test(view),
-  "the ranked head of the list is no longer drawn larger than the field");
+// (the ranked-head ordering is asserted in the block above, parsed rather than
+//  matched against a literal — v8.89)
 ok(!/scoreLabel/.test(view) && !/"wf-place-ranks"/.test(view), "score text crept back onto the pins — the score belongs to the card (v7.16)");
 ok(/slice\(0, 60\)/.test(view), "the density cap fell below 60 — the thin-map complaint comes back");
 ok(/slice\(0, 40\)/.test(map), "the default map pool cap fell below 40");

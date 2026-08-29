@@ -187,6 +187,7 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 import { C, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, RADII, MOTION, TARGET, SHADOW } from "./components/kit";
 import { sponsorRailNear, partnerCollectionById, hydratePartnerCollection } from "../lib/partnerCollections";
 import { toDisplayScore, pickEligibleByScore, cardComplete, displayableAt } from "../lib/score";
+import { withOwnerBump } from "../lib/ownerBump.js";
 import { frontPageEvents, bestFirst } from "../lib/frontEvents";
 import { pickHomeExp } from "../lib/homeExpPick";
 // July 2026 decomposition (wave 1): the homepage's ~520 lines of server-
@@ -839,7 +840,32 @@ function withMemberSignal(list, sig) {
   // turned member likes into a tiny positive (~0.6-1.2 on the 0-100 scale) -> a red
   // "0.1/10" badge that also defeated the wfScore==null "Score pending" self-heal.
   // A null base stays null (Score pending self-heals from rating or shows pending).
-  return (list || []).map((p) => { const g = p && sig[p.id]; if (!g) return p; const d = Ranking.memberDelta(g); return { ...p, wfScore: p.wfScore != null ? +((p.wfScore + d).toFixed(2)) : p.wfScore, _members: g }; });
+  // v8.90 — THE GOD BUMP LANDS HERE, and here ONLY (owner, 2026-08-29: "every
+  // like button pressed by gabrielpereira@me.com receives the god bump, 0.7 in
+  // the score, so an 8.0 is now an 8.7, globally everywhere").
+  //
+  // This function is already the single choke point where the server's like
+  // aggregate meets a place object — every ranked surface routes through
+  // /api/signals/likes -> aggregateLikeSignals -> here, and the rail passes THIS
+  // function down as `applyMemberSignal` rather than re-deriving one. So
+  // "globally everywhere" is satisfied by putting the bump in one line, and a
+  // second implementation anywhere else would be the parallel-matcher mistake
+  // this codebase has paid for repeatedly.
+  //
+  // `g.ownerPick` is SERVER-derived (ownerId is server env; the client never
+  // decides owner status), so a device cannot mint itself a bump.
+  //
+  // A NULL BASE STAYS NULL — the B14 rule this line already enforced for the
+  // member delta, and withOwnerBump enforces it too: an unrated place shows
+  // "Score pending", and a bump on a phantom 0 is the fake "0.1/10" badge
+  // lib/score.js's header exists for.
+  return (list || []).map((p) => {
+    const g = p && sig[p.id];
+    if (!g) return p;
+    const d = Ranking.memberDelta(g);
+    const nudged = p.wfScore != null ? +((p.wfScore + d).toFixed(2)) : p.wfScore;
+    return { ...p, wfScore: withOwnerBump(nudged, g.ownerPick === true), _members: g };
+  });
 }
 // v4.95: the old mapsRouteUrl (Google-Maps directions to ALL places at once)
 // is gone by product direction — a list's map icon opens Wayfind's own map.

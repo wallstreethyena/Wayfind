@@ -58,7 +58,85 @@ export async function POST(req) {
     if (!Array.isArray(rows)) return Response.json({ lines: atlas, found: Object.keys(atlas).length, degraded: "bad-shape" }, { status: 200 });
 
     // Atlas wins on conflict. knownForMap already drops unverified / placeholder rows.
-    return Response.json({ lines: { ...knownForMap(rows), ...atlas }, found: rows.length + Object.keys(atlas).length });
+    const researched = { ...knownForMap(rows), ...atlas };
+
+    // ── v8.89 — THE THIRD RUNG: wf_inventory.editorial ──────────────────────
+    //
+    // Owner, 2026-08-29: "I want to identify why do we have silent cards … and
+    // what would be the most effective way to bring those silent cards to the
+    // website in a way that will add value."
+    //
+    // MEASURED, against live data on the day this shipped:
+    //
+    //   wf_inventory                       12,790 rows
+    //   wf_editorial, verified WITH a hook     548   <- all this route could serve
+    //   wf_inventory.editorial               2,510
+    //   places with an inventory line and NO verified hook   2,253
+    //
+    // Narrowed to the rows that actually reach a rail (>=100 reviews, >=4.3):
+    //
+    //   category      qualifying   speaks today   would speak   still silent
+    //   food               4,637      304 (6.6%)        +885          3,448
+    //   attractions        2,606       21 (0.8%)        +507          2,078
+    //   nightlife          1,273       32 (2.5%)        +147          1,094
+    //   shopping             435       25               +157            253
+    //   hotels               187       35               +111             41
+    //   beach                 63       24                +17             22
+    //   ─────────────────────────────────────────────────────────────────────
+    //   TOTAL              9,201      441 (4.8%)      +1,824    5.1x coverage
+    //
+    // So the answer to "why are there silent cards" is not "nobody wrote the
+    // copy". It is that TWO THIRDS OF THE COPY WE HOLD SITS IN A TABLE THIS
+    // ROUTE NEVER ASKED. Attractions is the clearest case: 21 of 2,606 cards
+    // could speak, and 507 lines were sitting one query away.
+    //
+    // WHY IT IS THE LOWEST RUNG AND NOT A REPLACEMENT. These lines are
+    // descriptive rather than editorial — "Laid-back spot offering grouper,
+    // jumbo shrimp, lobsters & other seafood, plus a salad bar & market". That
+    // is a true and useful answer to "what is this place known for", which is
+    // exactly the question this route's name asks. It is NOT a Wayfind verdict,
+    // so it never outranks one: Atlas wins, then the verified fleet card, and
+    // this fills the silence underneath them. `tiers` marks which rung each
+    // line came from so a surface can treat them differently — the card gives
+    // the descriptive tier a quieter treatment (no accent bar), because the bar
+    // is how Wayfind says "this is our read".
+    //
+    // Fail-soft like every other lookup here: a failure returns what we already
+    // resolved rather than blanking a card.
+    const stillSilent = need.filter((id) => !researched[id]);
+    let inv = {};
+    if (stillSilent.length) {
+      try {
+        const iq = url + "/rest/v1/wf_inventory?select=place_id,editorial&editorial=not.is.null&place_id=in.("
+          + stillSilent.map((i) => '"' + encodeURIComponent(i) + '"').join(",") + ")";
+        const ir = await fetch(iq, {
+          headers: { apikey: anon, Authorization: "Bearer " + anon },
+          next: { revalidate: 3600 },
+        });
+        if (ir.ok) {
+          const irows = await ir.json();
+          if (Array.isArray(irows)) {
+            for (const r of irows) {
+              const line = String((r && r.editorial) || "").trim();
+              // The same floor the fleet card has to clear: a fragment is not a
+              // line, and a card is better silent than half-spoken.
+              if (r && r.place_id && line.length >= 24) inv[r.place_id] = line;
+            }
+          }
+        }
+      } catch (e) { inv = {}; }
+    }
+
+    const tiers = {};
+    for (const id of Object.keys(researched)) tiers[id] = "wayfind";
+    for (const id of Object.keys(inv)) if (!researched[id]) tiers[id] = "known";
+
+    return Response.json({
+      lines: { ...inv, ...researched },
+      tiers,
+      found: Object.keys(researched).length + Object.keys(inv).length,
+      fromInventory: Object.keys(inv).length,
+    });
   } catch (e) {
     return Response.json({ lines: {}, degraded: "threw" }, { status: 200 });
   }

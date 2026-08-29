@@ -52,8 +52,8 @@ const PAIRS = {
   // TWO WORTH THE OWNER'S EYE, recorded here rather than silently blessed.
   // Neither is false, so neither blocks; both look like copy that moved on
   // without its art:
-  //   tonight  the art's eyebrow reads "THE BEST AROUND YOU", which is a
-  //            DIFFERENT rail's name. The rail is "Tonight's Move".
+  //   tonight  RESOLVED in v8.90 — the owner's own poster replaced the art
+  //            whose eyebrow read "THE BEST AROUND YOU". See its pin below.
   //   best     the art is a mood picker — "What are you in the mood for?" /
   //            "FIND MY VIBE" — while the rail is "The Best Around You" /
   //            "See the top scores". Different promise, same destination.
@@ -132,7 +132,17 @@ const PAIRS = {
   locals: { copy: "24b845b1d9114368", art: "78ea67914dee5c7b" },
   season: { copy: "5e56e55d7648c697", art: "0396a099193ec768" },
   today: { copy: "d4910f822ce738ba", art: "0ffb0528c763577d" },
-  tonight: { copy: "0f47f844eddc75d2", art: "db7ea7951ebf8142" },
+  // v8.90 — RE-PINNED, and this one closes a mismatch that had been recorded
+  // and tolerated since the 2026-08-16 baseline: the old art's eyebrow read
+  // "THE BEST AROUND YOU", which is a DIFFERENT rail's name, on a card called
+  // Tonight's Move. The owner replaced it with his own poster and the two now
+  // agree word for word — the art says "NIGHTLIFE / TONIGHT'S MOVE / Concerts,
+  // live music, comedy & events actually worth going out for tonight / Ranked
+  // for right now", and the copy is title "Tonight's Move", sub "Concerts,
+  // live music, comedy & events", short "Ranked for right now".
+  //
+  // Read at 300px before re-pinning, which is what this file asks for.
+  tonight: { copy: "852c9b81e7b9c33d", art: "a1301677f237214b" },
 };
 
 const railRow = (id) => (rails.match(new RegExp(`\\{ id: "${id}",[\\s\\S]*?\\},`)) || [""])[0];

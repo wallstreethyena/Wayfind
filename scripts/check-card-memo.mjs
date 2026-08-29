@@ -99,6 +99,13 @@ const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm
     rank: "organicRank",
     href: "p.id + isPaid",
     editorial: "hooks[p.id] + isPaid",
+    // v8.89 — the editorial TIER decides whether the line wears Wayfind's
+    // accent bar or the quieter descriptive treatment, so it is a rendered
+    // difference and needs its own field. It is not covered by
+    // `hooks[p.id] ? 1 : 0`: a line can be RE-TIERED without its text changing
+    // (a fleet hook getting verified promotes an inventory line to Wayfind's),
+    // and the presence flag would read identically across that change.
+    editorialTier: "hooks.tiers[p.id]",
     badge: "isPaid + beachCond[p.id] — the LATE-arriving water chip",
     saved: "isSaved(p.id)",
     liked: "isLiked(p.id)",

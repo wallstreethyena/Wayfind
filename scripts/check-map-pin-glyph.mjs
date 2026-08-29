@@ -16,7 +16,7 @@
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { pinGlyphFor, categoryGlyph, pinImageKey, RANKED_PIN_COUNT, NEUTRAL_GLYPH } from "../lib/mapPinGlyph.js";
+import { pinGlyphFor, categoryGlyph, pinImageKey, RANKED_PIN_COUNT, NEUTRAL_GLYPH, pinFamily, pinColorFor, NEUTRAL_COLOR, FAMILY_COLOR } from "../lib/mapPinGlyph.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 let pass = 0, fail = 0;
@@ -97,11 +97,83 @@ ok(pinGlyphFor(pizza, 0, "food").kind === "glyph" && pinGlyphFor(pizza, -3, "foo
   ok(/^[\w-]+$/.test(pinImageKey("#F97316", "🏖️", false)), "the key is id-safe — an emoji is several code units and MapLibre compares image ids as plain strings");
 }
 
+// ── 4b. THE COLOUR, EXECUTED (v8.89) ────────────────────────────────────────
+// Owner, 2026-08-29, on the v8.85 pin strip: "you cannot see the icon in these,
+// I need the icon to be distinguished between food, bars, hotels etc."
+//
+// The glyph was half the problem. The other half was that MapView derived ONE
+// colour per VIEW, so every pin on the Food map was the same orange whatever
+// the place was — the only channel that is legible at pin size, spent
+// restating the filter the reader had just chosen.
+//
+// Each row leads its types[] with the WRONG answer, the same discipline the
+// glyph table above uses: a fixture whose union starts with the true primary
+// cannot tell the two readings apart.
+{
+  const COLOR_CASES = [
+    ["Sofra Kitchen Bar & Bistro", "italian_restaurant", ["bar", "italian_restaurant", "restaurant"], "food", "food"],
+    ["Joy Coffee", "coffee_shop", ["restaurant", "coffee_shop", "cafe"], "food", "cafe",
+      "a cafe is NOT the same colour as a restaurant — they sit side by side on every Food map"],
+    ["Sea Maids Creamery", "ice_cream_shop", ["restaurant", "ice_cream_shop"], "food", "cafe"],
+    ["Bahi Hut Tiki Cocktail Lounge", "cocktail_bar", ["restaurant", "cocktail_bar", "bar"], "nightlife", "drinks",
+      "a bar is not a restaurant, which is the owner's 'food, bars' in one line"],
+    ["McCurdy's Comedy Theatre", "comedy_club", ["bar", "comedy_club"], "attractions", "shows"],
+    ["Van Wezel", "performing_arts_theater", ["event_venue", "performing_arts_theater"], "attractions", "shows"],
+    ["Siesta Beach", "beach", ["tourist_attraction", "beach", "natural_feature"], "attractions", "water"],
+    ["Marina Jack", "marina", ["restaurant", "marina"], "attractions", "water",
+      "Marina Jack's union LEADS with restaurant — reading types[] would paint it orange"],
+    ["Emerson Point Preserve", "nature_preserve", ["park", "nature_preserve"], "attractions", "outdoors"],
+    ["The Ringling", "museum", ["tourist_attraction", "museum", "art_gallery"], "attractions", "culture"],
+    ["The Ritz-Carlton", "hotel", ["restaurant", "spa", "hotel"], "hotels", "stay",
+      "a hotel's union leads with restaurant and carries spa — both would be the wrong colour"],
+    ["Westfield Sarasota Square", "shopping_mall", ["point_of_interest", "shopping_mall"], "shopping", "shop"],
+  ];
+  for (const [name, primaryType, types, category, wantFamily, why] of COLOR_CASES) {
+    const place = { name, primaryType, types };
+    const gotFamily = pinFamily(place, category);
+    ok(gotFamily === wantFamily,
+      `${name} (${primaryType}) is in the ${wantFamily} colour family${why ? " — " + why : ""}; got ${gotFamily}`);
+    ok(/^#[0-9A-F]{6}$/i.test(pinColorFor(place, category)), `…and resolves to a real hex colour`);
+  }
+  // THE POINT OF THE WHOLE CHANGE, asserted as one fact: the families a single
+  // Food map really mixes must come out as DIFFERENT colours. Before this
+  // release all three were #F97316.
+  const onFoodMap = [
+    ["restaurant", "italian_restaurant"], ["cafe", "coffee_shop"], ["bar", "cocktail_bar"],
+  ].map(([, pt]) => pinColorFor({ primaryType: pt }, "food"));
+  ok(new Set(onFoodMap).size === 3,
+    `a restaurant, a cafe and a bar are three different colours on the SAME map (got ${onFoodMap.join(", ")}) — one orange for all three is the defect`);
+  // Negative control: a rule that returned a different colour for everything
+  // would satisfy the line above and be useless. Two restaurants must MATCH.
+  ok(pinColorFor({ primaryType: "italian_restaurant" }, "food") === pinColorFor({ primaryType: "sushi_restaurant" }, "food"),
+    "negative control: two restaurants share one colour — the families are families, not sixty shades");
+  // Total over garbage, inside a map render loop.
+  ok(/^#[0-9A-F]{6}$/i.test(pinColorFor(null, null)) && pinColorFor(null, null) === NEUTRAL_COLOR,
+    "an unknown place gets the neutral slate rather than a confident wrong colour");
+  ok(pinColorFor({ primaryType: "chiropractor" }, "food") === FAMILY_COLOR.food,
+    "…and an unmapped type inside a known view falls back to the VIEW's family, which is still a true statement about what the reader is looking at");
+}
+
 // ── 5. THE WIRING (weaker: source, and named as such) ───────────────────────
 {
   const mv = stripComments(readFileSync(join(ROOT, "app/components/MapView.js"), "utf8"));
-  ok(/import \{ pinGlyphFor, pinImageKey \} from "\.\.\/\.\.\/lib\/mapPinGlyph\.js"/.test(mv),
+  // v8.89 — pinColorFor joined the import: the pin's COLOUR is now a fact about
+  // the place too, not about the view's filter. Matched as a set rather than a
+  // literal list so adding a fourth export does not go red for no reason, while
+  // a MapView that stopped importing any of the three still does.
+  ok(/import \{[^}]*\} from "\.\.\/\.\.\/lib\/mapPinGlyph\.js"/.test(mv)
+    && /\bpinGlyphFor\b/.test(mv) && /\bpinImageKey\b/.test(mv) && /\bpinColorFor\b/.test(mv),
     "weaker check (source): MapView imports the rule rather than restating it");
+  ok(/pinColorFor\(place, category\)/.test(mv),
+    "…and the PIN's colour is resolved per PLACE — one orange for every pin on the Food map is what made a steakhouse, a cafe and a beach bar identical");
+  ok(!/const categoryColor =/.test(mv),
+    "…and the per-VIEW pin table it replaced is gone, not merely bypassed");
+  // The CLUSTER ring keeps the view's colour, deliberately and by contrast: a
+  // cluster is "twelve results in the filter you chose", which is a fact about
+  // the view. Asserted so nobody deletes it while cleaning up the pin table,
+  // and so this guard is scoped to the pin rather than to the word "colour".
+  ok(/const clusterColor = \{ food:/.test(mv),
+    "…while the CLUSTER ring keeps the view's colour, which is the one place a per-view colour is the true statement");
   ok(/pinGlyphFor\(place, rank, category\)/.test(mv),
     "weaker check (source): MapView CALLS pinGlyphFor with the place, its rank and the view's category");
   ok(/"icon-image": \["get", "img"\]/.test(mv),

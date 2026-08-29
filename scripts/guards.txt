@@ -791,3 +791,5 @@ node scripts/check-event-day-is-venue-local.mjs
 node scripts/check-event-date-honesty.mjs
 node scripts/check-events-rail-renders.mjs
 node scripts/check-no-dead-end-pages.mjs
+node scripts/check-known-for-tiers.mjs
+node scripts/check-owner-bump.mjs
