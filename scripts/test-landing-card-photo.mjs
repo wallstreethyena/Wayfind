@@ -20,9 +20,12 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  isForbiddenLandingStock,
   isLandingCardImageAllowed,
+  isLandingHeroImageAllowed,
   isPlaceOwnedPhotoUrl,
   landingCardPhotoSrc,
+  landingHeroSrc,
   photoRefOwnedByPlace,
 } from "../lib/placePhoto.js";
 import { invPlaceToLanding } from "../lib/landingInventory.js";
@@ -69,6 +72,31 @@ ok(landingCardPhotoSrc({
   "stock URL + neighbor ref still empty");
 ok(landingCardPhotoSrc({ id: PANGEA, name: "Pangea Alchemy Lab", photo_url: OWNED_URL }) === OWNED_URL,
   "Pangea's stored inventory photo_url is displayed");
+
+{
+  // Owner browser, live /nightlife/parrish: these files ARE other venues.
+  const LIVE = [
+    { name: "Pangea Alchemy Lab", id: PANGEA, url: "https://images.pexels.com/photos/16408140/pexels-photo-16408140.jpeg", note: "Shamrock City Pub Est. 2008 oval sign" },
+    { name: "Jaxx Wing Co.", id: "ChIJJaxxWingCoXX", url: "https://images.pexels.com/photos/12103056/pexels-photo-12103056.jpeg", note: "PHO THIN 17 storefront" },
+    { name: "Oscura", id: "ChIJOscuraXXXXXX", url: "https://images.pexels.com/photos/2599246/pexels-photo-2599246.jpeg", note: "generic neon BAR sign" },
+  ];
+  const BRETTOS = "https://images.pexels.com/photos/14698219/pexels-photo-14698219.jpeg";
+  for (const row of LIVE) {
+    ok(isForbiddenLandingStock(row.url) === true, row.note + " is forbidden nightlife stock");
+    ok(landingCardPhotoSrc({ id: row.id, name: row.name, photo_url: row.url }) === "",
+      row.name + " + " + row.note + " is blank — not treated as a real picture");
+    ok(isLandingCardImageAllowed(row.url, row.id) === false,
+      row.name + " must not be allowed to render " + row.note);
+  }
+  ok(isForbiddenLandingStock(BRETTOS) === true, "Brettos Athens (pexels 14698219) is forbidden hero stock");
+  ok(isLandingHeroImageAllowed(BRETTOS) === false,
+    "Parrish nightlife hero must not be Brettos bar in Athens");
+  const hero = landingHeroSrc("nightlife");
+  ok(hero === "/cards/tonight-alfonso-scarpa-unsplash.jpg",
+    "nightlife hero is owner concert-crowd chrome (got " + hero + ")");
+  ok(isLandingHeroImageAllowed(hero) === true, "owner concert-crowd chrome is a legal hero");
+  ok(!/pexels/i.test(hero), "nightlife hero is not Pexels");
+}
 ok(landingCardPhotoSrc({
     id: PANGEA, name: "Pangea Alchemy Lab",
     photo_url: OWNED_URL,
@@ -155,6 +183,8 @@ ok(isLandingCardImageAllowed("/api/photo?ref=" + encodeURIComponent(SHAMROCK_REF
   ok(land.length > 500, "positive control: landing.js has a body after comment-strip");
   ok(/landingCardPhotoSrc\(/.test(land),
     "LandingPage CALLS landingCardPhotoSrc — a mention is the substring trap");
+  ok(/landingHeroSrc\(catSlug\)/.test(land),
+    "LandingPage CALLS landingHeroSrc(catSlug) — hero is not fromPool");
   ok(!/\bstockPhotoPool\b/.test(land),
     "landing.js must not call stockPhotoPool — that pool painted Shamrock on Pangea");
   ok(!/\bfromPool\b/.test(land),
