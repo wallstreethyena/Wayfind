@@ -60,6 +60,19 @@ for (const p of ADD) {
   ok(!/\b(?:fl|florida)\s+\d{5}\b/i.test(card.knownFor), `${p.name}: hook dumped a zip`);
   ok(!/\/go\b|book tickets|book now/i.test(JSON.stringify(card)),
     `${p.name}: Book / /go leaked onto the card`);
+  // check-no-disney-sources: every cited host must be the card's official
+  // site, Google, or ALLOWED_THIRD_PARTY. Unvetted research stays on the
+  // batch as researchUrls — never on the published Atlas card.
+  const PERMITTED_HOST = /(?:^|\.)(?:google\.com|googleapis\.com|peacheysbakingco\.com|sarasotamagazine\.com|burgerculture-tampa\.com|frogponddtsp\.com|diveliquors\.com)$/i;
+  const BLOCKED_HOST = /thatssotampa|ediblecommunities|ocala\.com|lbknews|ilovetheburg|stpetecatalyst|atly\.com/i;
+  ok(!(card.sourceUrls || []).some((u) => BLOCKED_HOST.test(u)),
+    `${p.name}: unvetted research URL leaked onto the Atlas card`);
+  for (const u of card.sourceUrls || []) {
+    let host = "";
+    try { host = new URL(u).hostname.replace(/^www\./, ""); } catch { host = ""; }
+    ok(!!host && PERMITTED_HOST.test(host),
+      `${p.name}: sourceUrl host "${host}" is not official / Google / ALLOWED_THIRD_PARTY`);
+  }
   const shaped = { name: p.name, types: p.types, primaryType: p.primaryType, primary_type: p.primaryType };
   for (const [cat, sub] of p.chipsKeep) {
     ok(chipIdentity(cat, sub, shaped) === true,

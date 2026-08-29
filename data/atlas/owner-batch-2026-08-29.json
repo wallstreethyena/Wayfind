@@ -12,9 +12,37 @@
       "metro": "tampa",
       "wantCategory": "food",
       "primaryType": "cafe",
-      "types": ["cafe", "bakery", "breakfast_restaurant", "brunch_restaurant", "coffee_shop"],
-      "chipsKeep": [["food", "cafes"], ["food", "breakfast"], ["food", "all"]],
-      "chipsBlock": [["attractions", "beaches"], ["shopping", "all"]],
+      "types": [
+        "cafe",
+        "bakery",
+        "breakfast_restaurant",
+        "brunch_restaurant",
+        "coffee_shop"
+      ],
+      "chipsKeep": [
+        [
+          "food",
+          "cafes"
+        ],
+        [
+          "food",
+          "breakfast"
+        ],
+        [
+          "food",
+          "all"
+        ]
+      ],
+      "chipsBlock": [
+        [
+          "attractions",
+          "beaches"
+        ],
+        [
+          "shopping",
+          "all"
+        ]
+      ],
       "knownFor": "Syrniki and a Ukrainian pastry case, in a suburban Hub café",
       "vibeCheck": "A Ukrainian-style café and bakery at The Hub at Lexington Oaks — farm milk in the coffee, an Eastern European pastry case, and syrniki instead of the usual diner eggs.",
       "whyGo": "Syrniki — cottage-cheese pancakes with berries, sour cream, and jam — plus a pastry case of Kyiv cake, Napoleon, and Basque cheesecake, with farm milk in the coffee at a suburban Hub café.",
@@ -23,10 +51,17 @@
       "officialWebsite": null,
       "lat": 28.2352509,
       "lng": -82.3705635,
-      "center": { "latitude": 28.23525, "longitude": -82.37056 },
+      "center": {
+        "latitude": 28.23525,
+        "longitude": -82.37056
+      },
       "sourceUrls": [
+        "https://www.google.com/maps/search/?api=1&query=Farmer%27s%20Milk%20Cafe%20%26%20Bakery&query_place_id=ChIJYQCTNOCxwogR77eUWAEbqwQ"
+      ],
+      "researchUrls": [
         "https://thatssotampa.com/farmers-milk-eastern-european-pastries-cafe-wesley-chapel/"
-      ]
+      ],
+      "researchNote": "Hook sourced from these pages; not cited on the Atlas card because check-no-disney-sources requires ALLOWED_THIRD_PARTY vetting first."
     },
     {
       "key": "peacheyLandings",
@@ -38,9 +73,35 @@
       "metro": "manatee-sarasota",
       "wantCategory": "food",
       "primaryType": "donut_shop",
-      "types": ["donut_shop", "bakery", "coffee_shop"],
-      "chipsKeep": [["food", "cafes"], ["food", "dessert"], ["food", "breakfast"]],
-      "chipsBlock": [["attractions", "beaches"], ["nightlife", "all"]],
+      "types": [
+        "donut_shop",
+        "bakery",
+        "coffee_shop"
+      ],
+      "chipsKeep": [
+        [
+          "food",
+          "cafes"
+        ],
+        [
+          "food",
+          "dessert"
+        ],
+        [
+          "food",
+          "breakfast"
+        ]
+      ],
+      "chipsBlock": [
+        [
+          "attractions",
+          "beaches"
+        ],
+        [
+          "nightlife",
+          "all"
+        ]
+      ],
       "knownFor": "Warm glazed donuts from an Amish family recipe, at the Landings shop",
       "vibeCheck": "The Landings brick-and-mortar for Nate Peachey's Amish-family glazed donuts — pretzels and an espresso bar in a crisp shop, open until they sell out.",
       "whyGo": "Warm vanilla-glazed donuts from the Peachey family's Amish recipe, with pretzels and espresso, at the Landings shop on South Tamiami Trail.",
@@ -49,11 +110,17 @@
       "officialWebsite": "https://peacheysbakingco.com/our-shops",
       "lat": 27.2848161,
       "lng": -82.5326804,
-      "center": { "latitude": 27.28482, "longitude": -82.53268 },
+      "center": {
+        "latitude": 27.28482,
+        "longitude": -82.53268
+      },
       "sourceUrls": [
-        "https://peacheysbakingco.com/our-shops",
+        "https://peacheysbakingco.com/our-shops"
+      ],
+      "researchUrls": [
         "https://ediblesarasota.ediblecommunities.com/eat/peacheys-baking-co/"
-      ]
+      ],
+      "researchNote": "Hook sourced from these pages; not cited on the Atlas card because check-no-disney-sources requires ALLOWED_THIRD_PARTY vetting first."
     },
     {
       "key": "peacheyCattlemen",
@@ -65,9 +132,34 @@
       "metro": "manatee-sarasota",
       "wantCategory": "food",
       "primaryType": "donut_shop",
-      "types": ["donut_shop", "coffee_shop"],
-      "chipsKeep": [["food", "cafes"], ["food", "dessert"], ["food", "breakfast"]],
-      "chipsBlock": [["attractions", "beaches"], ["nightlife", "all"]],
+      "types": [
+        "donut_shop",
+        "coffee_shop"
+      ],
+      "chipsKeep": [
+        [
+          "food",
+          "cafes"
+        ],
+        [
+          "food",
+          "dessert"
+        ],
+        [
+          "food",
+          "breakfast"
+        ]
+      ],
+      "chipsBlock": [
+        [
+          "attractions",
+          "beaches"
+        ],
+        [
+          "nightlife",
+          "all"
+        ]
+      ],
       "knownFor": "Warm glazed donuts from an Amish family recipe, at the Cattlemen shop",
       "vibeCheck": "The Cattlemen shop — same Amish-family glazed donuts, pretzels, and coffee as Landings, in its own Google pin so the two rooms never collapse.",
       "whyGo": "The second Sarasota shop: warm glazed donuts from Nate Peachey's Amish family recipe, plus pretzels and espresso, at Cattlemen Road Unit E.",
@@ -76,11 +168,17 @@
       "officialWebsite": "https://peacheysbakingco.com/our-shops",
       "lat": 27.3250417,
       "lng": -82.4508841,
-      "center": { "latitude": 27.32504, "longitude": -82.45088 },
+      "center": {
+        "latitude": 27.32504,
+        "longitude": -82.45088
+      },
       "sourceUrls": [
-        "https://peacheysbakingco.com/our-shops",
+        "https://peacheysbakingco.com/our-shops"
+      ],
+      "researchUrls": [
         "https://ocala.com/story/entertainment/dining/2026/03/07/popular-doughnut-shop-opens-second-sarasota-location/88944901007/"
-      ]
+      ],
+      "researchNote": "Hook sourced from these pages; not cited on the Atlas card because check-no-disney-sources requires ALLOWED_THIRD_PARTY vetting first."
     },
     {
       "key": "sobBurgers",
@@ -92,9 +190,29 @@
       "metro": "manatee-sarasota",
       "wantCategory": "food",
       "primaryType": "hamburger_restaurant",
-      "types": ["hamburger_restaurant"],
-      "chipsKeep": [["food", "lunch"], ["food", "all"]],
-      "chipsBlock": [["food", "breakfast"], ["attractions", "beaches"]],
+      "types": [
+        "hamburger_restaurant"
+      ],
+      "chipsKeep": [
+        [
+          "food",
+          "lunch"
+        ],
+        [
+          "food",
+          "all"
+        ]
+      ],
+      "chipsBlock": [
+        [
+          "food",
+          "breakfast"
+        ],
+        [
+          "attractions",
+          "beaches"
+        ]
+      ],
       "knownFor": null,
       "vibeCheck": null,
       "whyGo": null,
@@ -104,7 +222,10 @@
       "officialWebsite": "https://sob-burgers.shop",
       "lat": 27.4362585,
       "lng": -82.5763784,
-      "center": { "latitude": 27.43626, "longitude": -82.57638 },
+      "center": {
+        "latitude": 27.43626,
+        "longitude": -82.57638
+      },
       "sourceUrls": []
     },
     {
@@ -117,9 +238,38 @@
       "metro": "manatee-sarasota",
       "wantCategory": "nightlife",
       "primaryType": "cocktail_bar",
-      "types": ["cocktail_bar", "bar"],
-      "chipsKeep": [["nightlife", "all"], ["nightlife", "bars"], ["nightlife", "speakeasy"]],
-      "chipsBlock": [["shopping", "all"], ["food", "cafes"], ["attractions", "beaches"]],
+      "types": [
+        "cocktail_bar",
+        "bar"
+      ],
+      "chipsKeep": [
+        [
+          "nightlife",
+          "all"
+        ],
+        [
+          "nightlife",
+          "bars"
+        ],
+        [
+          "nightlife",
+          "speakeasy"
+        ]
+      ],
+      "chipsBlock": [
+        [
+          "shopping",
+          "all"
+        ],
+        [
+          "food",
+          "cafes"
+        ],
+        [
+          "attractions",
+          "beaches"
+        ]
+      ],
       "knownFor": "A hidden cocktail den behind a steel door in the liquor store",
       "vibeCheck": "A speakeasy-feel cocktail room behind a heavy steel door in the middle aisle of Dive Wine & Spirits — not the bottle shop, not The Hive wine bar.",
       "whyGo": "Slide the steel door at the back of the liquor store and you are in the den: a large bar, a few tables, and cocktails from the bottles on the other side of the wall.",
@@ -128,11 +278,18 @@
       "officialWebsite": "http://www.diveliquors.com/",
       "lat": 27.2701573,
       "lng": -82.5122431,
-      "center": { "latitude": 27.27016, "longitude": -82.51224 },
+      "center": {
+        "latitude": 27.27016,
+        "longitude": -82.51224
+      },
       "sourceUrls": [
-        "https://www.sarasotamagazine.com/eat-and-drink/2021/12/dive-wine-spirits-bar",
+        "http://www.diveliquors.com/",
+        "https://www.sarasotamagazine.com/eat-and-drink/2021/12/dive-wine-spirits-bar"
+      ],
+      "researchUrls": [
         "https://lbknews.com/trio-of-venues-in-dive-wine-and-spirits/"
-      ]
+      ],
+      "researchNote": "Hook sourced from these pages; not cited on the Atlas card because check-no-disney-sources requires ALLOWED_THIRD_PARTY vetting first."
     },
     {
       "key": "frogPondSpb",
@@ -144,9 +301,31 @@
       "metro": "tampa",
       "wantCategory": "food",
       "primaryType": "breakfast_restaurant",
-      "types": ["breakfast_restaurant", "brunch_restaurant", "restaurant"],
-      "chipsKeep": [["food", "breakfast"], ["food", "all"]],
-      "chipsBlock": [["attractions", "beaches"], ["beach", "beaches"]],
+      "types": [
+        "breakfast_restaurant",
+        "brunch_restaurant",
+        "restaurant"
+      ],
+      "chipsKeep": [
+        [
+          "food",
+          "breakfast"
+        ],
+        [
+          "food",
+          "all"
+        ]
+      ],
+      "chipsBlock": [
+        [
+          "attractions",
+          "beaches"
+        ],
+        [
+          "beach",
+          "beaches"
+        ]
+      ],
       "knownFor": "Banana Foster waffles and huge omelets, inside Mad Fish",
       "vibeCheck": "The 1982 breakfast room now inside Mad Fish on St. Pete Beach — huge portions, omelets and Benedicts, morning only. Not a beach card and not a Pinellas Park pin.",
       "whyGo": "Frog Pond breakfast inside Mad Fish: Banana Foster waffles, towering omelets, and Benedicts in a Gulf Boulevard dining room that becomes dinner after the morning sitting.",
@@ -155,11 +334,18 @@
       "officialWebsite": null,
       "lat": 27.7256217,
       "lng": -82.7418963,
-      "center": { "latitude": 27.72562, "longitude": -82.74190 },
+      "center": {
+        "latitude": 27.72562,
+        "longitude": -82.7419
+      },
       "sourceUrls": [
+        "https://www.google.com/maps/search/?api=1&query=The%20Frog%20Pond%20SPB&query_place_id=ChIJcX8K3HADw4gRCgXXlZf5ccY"
+      ],
+      "researchUrls": [
         "https://ilovetheburg.com/frog-pond-reopens-st-pete-beach/",
         "https://stpetecatalyst.com/zaps/frog-pond-reopens-in-st-pete-beach-redington-beach/"
-      ]
+      ],
+      "researchNote": "Hook sourced from these pages; not cited on the Atlas card because check-no-disney-sources requires ALLOWED_THIRD_PARTY vetting first."
     },
     {
       "key": "frogPondDowntown",
@@ -171,9 +357,31 @@
       "metro": "tampa",
       "wantCategory": "food",
       "primaryType": "breakfast_restaurant",
-      "types": ["breakfast_restaurant", "brunch_restaurant", "restaurant"],
-      "chipsKeep": [["food", "breakfast"], ["food", "all"]],
-      "chipsBlock": [["attractions", "beaches"], ["beach", "beaches"]],
+      "types": [
+        "breakfast_restaurant",
+        "brunch_restaurant",
+        "restaurant"
+      ],
+      "chipsKeep": [
+        [
+          "food",
+          "breakfast"
+        ],
+        [
+          "food",
+          "all"
+        ]
+      ],
+      "chipsBlock": [
+        [
+          "attractions",
+          "beaches"
+        ],
+        [
+          "beach",
+          "beaches"
+        ]
+      ],
       "knownFor": "Huge omelets and Benedicts since 1982, across from Tropicana Field",
       "vibeCheck": "The downtown Frog Pond since the 2022 reopen — indoor and outdoor tables across from Tropicana Field, Kahwa coffee, and the same huge-portion breakfast the brand has run since 1982.",
       "whyGo": "Founded 1982: towering omelets, Benedicts, and blintzes in a downtown room across from Tropicana Field, not a Pinellas Park address.",
@@ -182,7 +390,10 @@
       "officialWebsite": "https://www.frogponddtsp.com/",
       "lat": 27.7677851,
       "lng": -82.6463066,
-      "center": { "latitude": 27.76779, "longitude": -82.64631 },
+      "center": {
+        "latitude": 27.76779,
+        "longitude": -82.64631
+      },
       "sourceUrls": [
         "https://www.frogponddtsp.com/"
       ]
@@ -197,9 +408,29 @@
       "metro": "tampa",
       "wantCategory": "food",
       "primaryType": "hamburger_restaurant",
-      "types": ["hamburger_restaurant"],
-      "chipsKeep": [["food", "lunch"], ["food", "all"]],
-      "chipsBlock": [["food", "breakfast"], ["attractions", "beaches"]],
+      "types": [
+        "hamburger_restaurant"
+      ],
+      "chipsKeep": [
+        [
+          "food",
+          "lunch"
+        ],
+        [
+          "food",
+          "all"
+        ]
+      ],
+      "chipsBlock": [
+        [
+          "food",
+          "breakfast"
+        ],
+        [
+          "attractions",
+          "beaches"
+        ]
+      ],
       "knownFor": "Burgers on glazed donuts and waffle buns, at the Lutz-line counter",
       "vibeCheck": "They brand it Lutz; Google's pin is Tampa 33613, just south of the line. Burgers land on glazed donuts, grilled cheese, waffles, pizza dough, and ramen buns.",
       "whyGo": "The Lutz-branded Tampa counter where a cheeseburger arrives between two warm glazed donuts — or on a waffle, grilled cheese, pizza dough, or ramen bun.",
@@ -208,7 +439,10 @@
       "officialWebsite": "https://www.burgerculture-tampa.com/location/lutz/",
       "lat": 28.0947629,
       "lng": -82.4615049,
-      "center": { "latitude": 28.09476, "longitude": -82.46150 },
+      "center": {
+        "latitude": 28.09476,
+        "longitude": -82.4615
+      },
       "sourceUrls": [
         "https://www.burgerculture-tampa.com/location/lutz/",
         "https://www.burgerculture-tampa.com/menus/"
@@ -224,9 +458,36 @@
       "metro": "tampa",
       "wantCategory": "food",
       "primaryType": "brunch_restaurant",
-      "types": ["brunch_restaurant", "breakfast_restaurant", "cafe", "restaurant"],
-      "chipsKeep": [["food", "breakfast"], ["food", "cafes"], ["food", "all"]],
-      "chipsBlock": [["nightlife", "clubs"], ["attractions", "beaches"]],
+      "types": [
+        "brunch_restaurant",
+        "breakfast_restaurant",
+        "cafe",
+        "restaurant"
+      ],
+      "chipsKeep": [
+        [
+          "food",
+          "breakfast"
+        ],
+        [
+          "food",
+          "cafes"
+        ],
+        [
+          "food",
+          "all"
+        ]
+      ],
+      "chipsBlock": [
+        [
+          "nightlife",
+          "clubs"
+        ],
+        [
+          "attractions",
+          "beaches"
+        ]
+      ],
       "knownFor": "Wood-fired brunch and Cuban coffee, under canvas tents in a garden atrium",
       "vibeCheck": "A garden atrium inside an office building on MLK — canvas tents, plants, wood-fired brunch, Cuban coffee, and tiny pancakes. You walk a long hallway to find it.",
       "whyGo": "Wood-fired brunch and Cuban coffee under canvas tents in a sunlit garden atrium, not a strip-mall café.",
@@ -235,10 +496,17 @@
       "officialWebsite": null,
       "lat": 27.9829024,
       "lng": -82.3869781,
-      "center": { "latitude": 27.98290, "longitude": -82.38698 },
+      "center": {
+        "latitude": 27.9829,
+        "longitude": -82.38698
+      },
       "sourceUrls": [
+        "https://www.google.com/maps/search/?api=1&query=Campfired&query_place_id=ChIJd6m6J4jPwogR7P5HCLMRyyg"
+      ],
+      "researchUrls": [
         "https://www.atly.com/location/Campfired"
-      ]
+      ],
+      "researchNote": "Hook sourced from these pages; not cited on the Atlas card because check-no-disney-sources requires ALLOWED_THIRD_PARTY vetting first."
     }
   ],
   "holds": [
@@ -294,8 +562,17 @@
       "place_id": "ChIJJ9mP3iviwogRrJCNTTUAT9c",
       "category": "community",
       "subcategory": "night-market",
-      "tags": ["market", "family", "free", "pets", "local"],
-      "audience": ["families", "adults"],
+      "tags": [
+        "market",
+        "family",
+        "free",
+        "pets",
+        "local"
+      ],
+      "audience": [
+        "families",
+        "adults"
+      ],
       "is_free": true,
       "price_band": "free",
       "official_event_url": "https://www.visitstpeteclearwater.com/event/st-pete-night-market-fergs/60331",
@@ -330,8 +607,17 @@
       "place_id": "ChIJJ9mP3iviwogRrJCNTTUAT9c",
       "category": "community",
       "subcategory": "night-market",
-      "tags": ["market", "family", "free", "pets", "local"],
-      "audience": ["families", "adults"],
+      "tags": [
+        "market",
+        "family",
+        "free",
+        "pets",
+        "local"
+      ],
+      "audience": [
+        "families",
+        "adults"
+      ],
       "is_free": true,
       "price_band": "free",
       "official_event_url": "https://www.visitstpeteclearwater.com/event/st-pete-night-market-fergs/60331",
@@ -366,8 +652,17 @@
       "place_id": "ChIJJ9mP3iviwogRrJCNTTUAT9c",
       "category": "community",
       "subcategory": "night-market",
-      "tags": ["market", "family", "free", "pets", "local"],
-      "audience": ["families", "adults"],
+      "tags": [
+        "market",
+        "family",
+        "free",
+        "pets",
+        "local"
+      ],
+      "audience": [
+        "families",
+        "adults"
+      ],
       "is_free": true,
       "price_band": "free",
       "official_event_url": "https://www.visitstpeteclearwater.com/event/st-pete-night-market-fergs/60331",
@@ -402,8 +697,17 @@
       "place_id": "ChIJJ9mP3iviwogRrJCNTTUAT9c",
       "category": "community",
       "subcategory": "night-market",
-      "tags": ["market", "family", "free", "pets", "local"],
-      "audience": ["families", "adults"],
+      "tags": [
+        "market",
+        "family",
+        "free",
+        "pets",
+        "local"
+      ],
+      "audience": [
+        "families",
+        "adults"
+      ],
       "is_free": true,
       "price_band": "free",
       "official_event_url": "https://www.visitstpeteclearwater.com/event/st-pete-night-market-fergs/60331",
@@ -438,8 +742,17 @@
       "place_id": null,
       "category": "seasonal",
       "subcategory": "harvest-festival",
-      "tags": ["fall", "family", "harvest", "free", "local"],
-      "audience": ["families", "kids"],
+      "tags": [
+        "fall",
+        "family",
+        "harvest",
+        "free",
+        "local"
+      ],
+      "audience": [
+        "families",
+        "kids"
+      ],
       "is_free": true,
       "price_band": "free",
       "official_event_url": "https://www.clermontdowntown.com/events/2025-clermont-harvest-festival-cb6sc",
