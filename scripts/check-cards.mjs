@@ -49,7 +49,7 @@ if (!s.includes('const [sortBy, setSortBy] = useState("rated")')) fail("browse s
 // stays as the string-shaped wrapper so a leftover filler sentence still dies.
 if (!s.includes("function insightSane(")) fail("insightSane guard missing");
 if (!s.includes("whyWayfindPickedBody")) fail("insight render not routed through whyWayfindPickedBody");
-if (!s.includes("const body = whyWayfindPickedBody(insight)")) fail("the Why-Wayfind block must take its body from whyWayfindPickedBody, not a loading shell");
+if (!/const body = cirqueItaliaWhyBody\(detail, whyWayfindPickedBody\(insight\)\)/.test(s)) fail("the Why-Wayfind block must take its body from whyWayfindPickedBody (via cirqueItaliaWhyBody), not a loading shell");
 
 // 10. v6.15 — the Favorites-heart bug class: EVERY <PlaceCard> must pass the
 // `saved` prop so the heart reflects real Favorites membership. A folder card

@@ -36,6 +36,7 @@ import { askShareIntent } from "../shareIntentSheet";
 import { placeKinds } from "../../../lib/dateInvite";
 import { hasRealPlacePhoto, realPlacePhotoSrc } from "../../../lib/detailHero";
 import { editorialRequestQuery, carriedEditorial, hasSourcedEditorialFields } from "../../../lib/editorialLookup";
+import { cirqueItaliaWhyBody } from "../../../lib/cirqueItalia";
 import { whyWayfindPickedBody } from "../../../lib/insightWhy";
 import { isOwnerPick } from "../../../lib/ownerBump";
 
@@ -963,8 +964,8 @@ export default function DetailSheet({ ctx }) {
                 // through validateWhyParagraph. This gate is the render
                 // contract: whitespace / filler / error / still-loading
                 // all become "" and the block is omitted.
-                const body = whyWayfindPickedBody(insight);
-                if (!body) return null;
+                  const body = cirqueItaliaWhyBody(detail, whyWayfindPickedBody(insight));
+                  if (!body) return null;
                 return (
                   <div style={{ marginBottom: 16, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 62%)`, border: `1px solid ${C.border}55`, borderRadius: 14, padding: "13px 14px" }}>
                     <div style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: "0.6px", textTransform: "uppercase" }}>{detail._event ? "Why this venue" : "Why Wayfind picked this"}</div>

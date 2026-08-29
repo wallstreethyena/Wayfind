@@ -22,7 +22,7 @@ ok(ticketOutUrl("https://www.ticketmaster.com/event/x").includes("evyy.net") && 
 ok(tmImpactLink("https://concerts.livenation.com/x").includes("evyy.net"), "Live Nation (TM-family) also routes through the Impact redirect");
 const d = readFileSync(new URL("../app/components/sheets/Detail.js", import.meta.url), "utf8");
 ok(!d.includes("A highly reviewed nearby option with a strong rating.") && !d.includes("Worth a look while you are nearby."), "the generic FILLER fallbacks are gone — never stamped as a Wayfind opinion");
-ok(/const body = whyWayfindPickedBody\(insight\);\s*\n\s*if \(!body\) return null;/.test(d), "'Why Wayfind picked this' renders ONLY on a real grounded insight, else omits");
+ok(/const body = cirqueItaliaWhyBody\(detail, whyWayfindPickedBody\(insight\)\);\s*\n\s*if \(!body\) return null;/.test(d), "'Why Wayfind picked this' renders ONLY on a real grounded insight, else omits");
 ok(!/if \(insightLoading\) return \(/.test(d), "the Why-Wayfind block must not paint an LLM loading shell — empty stays empty, no heading while the model runs");
 ok(d.includes("the Ryan's Coffee House bug"), "the brand-integrity intent is documented at the block");
 console.log(`test-money-honest: ${n - failn}/${n} passed`);
