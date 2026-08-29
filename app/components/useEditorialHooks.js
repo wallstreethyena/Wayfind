@@ -41,6 +41,13 @@ const chunk = (a, n) => { const out = []; for (let i = 0; i < a.length; i += n) 
 
 export default function useEditorialHooks(items) {
   const [hooks, setHooks] = useState({});
+  // v8.89 — WHICH RUNG EACH LINE CAME FROM. `hooks` stays a flat id -> string
+  // map, because six surfaces read it and none of them should have to learn a
+  // new shape. `tiers` rides alongside: "wayfind" for the Atlas card and the
+  // verified fleet hook, "known" for the descriptive wf_inventory line that
+  // fills the silence underneath them. A caller that ignores it behaves exactly
+  // as it did before this change.
+  const [tiers, setTiers] = useState({});
   // Accumulates across location changes: a place already resolved stays
   // resolved, so scrolling back to a warm row never re-blanks it.
   const seen = useRef({});
@@ -76,6 +83,7 @@ export default function useEditorialHooks(items) {
     let dead = false;
     (async () => {
       const next = {};
+      const nextTier = {};
       for (const batch of chunk(needPayload, BATCH)) {
         const bIds = batch.map((p) => p.id);
         // 1) Researched editorial hook — wins where it exists.
@@ -87,7 +95,10 @@ export default function useEditorialHooks(items) {
           });
           const d = await r.json();
           if (d && d.lines && typeof d.lines === "object") {
-            for (const id of bIds) if (d.lines[id]) next[id] = d.lines[id];
+            for (const id of bIds) if (d.lines[id]) {
+              next[id] = d.lines[id];
+              nextTier[id] = (d.tiers && d.tiers[id]) || "wayfind";
+            }
           }
         } catch (e) {}
         // 2) Validated generated "Known for" line from the shared pool. cacheOnly
@@ -107,7 +118,9 @@ export default function useEditorialHooks(items) {
             // "[object Object]" on the card. BestNearby's original resolver did
             // this normalisation inline; lifting the resolver out dropped it,
             // and check-editorial-everywhere caught it by CALLING the compressor.
-            for (const id of bIds) if (!next[id] && d.blurbs[id]) { const t = hookTextOf(d.blurbs[id]); if (t) next[id] = t; }
+            // The pool line is a validated GENERATED summary, so it is the
+            // same descriptive tier as the inventory line — not a Wayfind read.
+            for (const id of bIds) if (!next[id] && d.blurbs[id]) { const t = hookTextOf(d.blurbs[id]); if (t) { next[id] = t; nextTier[id] = "known"; } }
           }
         } catch (e) {}
         if (dead) return;
@@ -118,10 +131,16 @@ export default function useEditorialHooks(items) {
       for (const id of need) seen.current[id] = true;
       if (!Object.keys(next).length) return;
       setHooks((prev) => ({ ...prev, ...next }));
+      setTiers((prev) => ({ ...prev, ...nextTier }));
     })();
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 
+  // The map is returned as-is (every existing caller keeps its shape) with the
+  // tiers hung off a non-enumerable property, so `hooks[id]` and
+  // `Object.keys(hooks)` are byte-identical to before and a caller that wants
+  // the tier asks for it by name.
+  Object.defineProperty(hooks, "tiers", { value: tiers, enumerable: false, configurable: true });
   return hooks;
 }

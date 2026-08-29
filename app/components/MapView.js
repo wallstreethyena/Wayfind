@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { LngLatBounds, Map as MapLibreMap, Marker, NavigationControl, setWorkerUrl } from "maplibre-gl";
-import { pinGlyphFor, pinImageKey } from "../../lib/mapPinGlyph.js";
+import { pinGlyphFor, pinImageKey, pinColorFor } from "../../lib/mapPinGlyph.js";
 import { areaMoved, distanceRingData, MAP_RING_MILES } from "../../lib/mapExplorer";
 import { safeRemoveMap } from "../../lib/mapTeardown";
 
@@ -137,7 +137,17 @@ function ensureOriginPinCss() {
 // source — a bilinear upscale, which is the blur and the doubled-looking edge
 // the owner photographed (the 2.4px white stroke smeared over the offset drop
 // shadow). Author at the real device ratio instead of assuming 2.
-const PIN_W = 28, PIN_H = 38;
+// v8.89 — 28x38 -> 34x46 (owner, 2026-08-29: "you cannot see the icon in
+// these"). The head is what had to grow: at 28px the white disc was 14.4px
+// across and the emoji inside it was drawn at 10px, then scaled to 0.9 by the
+// layer — about nine device-independent pixels of picture. Nothing is legible
+// at nine pixels.
+//
+// At 34 the head disc is 19px and the glyph 14px: roughly DOUBLE the drawn
+// area. The pin is still smaller than a fingertip and the layer still collides
+// and clusters exactly as before, so density is unchanged — this trades white
+// space inside the pin for a picture, not screen space for pins.
+const PIN_W = 34, PIN_H = 46;
 const PIN_DPR = (() => {
   try {
     const d = typeof window !== "undefined" ? window.devicePixelRatio : 2;
@@ -165,8 +175,10 @@ function drawPinImageData(color, { selected = false, glyph = null, kind = "glyph
   canvas.width = W; canvas.height = H;
   const g = canvas.getContext("2d");
   g.scale(PIN_DPR, PIN_DPR);
-  // Teardrop: head circle r≈10 centred at (14,12), tip at (14,36).
-  const path = new Path2D("M14 36 C 9.2 27.5 4 21.5 4 12.6 A 10 10 0 1 1 24 12.6 C 24 21.5 18.8 27.5 14 36 Z");
+  // Teardrop: head circle r=12.2 centred at (17,15.2), tip at (17,44).
+  // Same silhouette as v8.85, scaled 34/28 so nothing about the shape or the
+  // shadow changes — only the room inside the head.
+  const path = new Path2D("M17 44 C 11.2 33.4 4.8 26.1 4.8 15.2 A 12.2 12.2 0 1 1 29.2 15.2 C 29.2 26.1 22.8 33.4 17 44 Z");
   g.shadowColor = "rgba(15,23,35,.38)"; g.shadowBlur = 3.5; g.shadowOffsetY = 1.5;
   g.fillStyle = selected ? "#F97316" : color;
   g.fill(path);
@@ -176,8 +188,8 @@ function drawPinImageData(color, { selected = false, glyph = null, kind = "glyph
   g.stroke(path);
   // The head disc grows to hold a mark; with no mark it is the original dot,
   // so a pin that cannot be labelled looks exactly as it always did.
-  const r = glyph ? (selected ? 7.6 : 7.2) : (selected ? 4.6 : 3.9);
-  g.beginPath(); g.arc(14, 12.6, r, 0, Math.PI * 2);
+  const r = glyph ? (selected ? 9.6 : 9.2) : (selected ? 5.6 : 4.8);
+  g.beginPath(); g.arc(17, 15.2, r, 0, Math.PI * 2);
   g.fillStyle = "#FFFFFF"; g.fill();
   if (glyph) {
     g.textAlign = "center";
@@ -186,13 +198,13 @@ function drawPinImageData(color, { selected = false, glyph = null, kind = "glyph
       // A numeral is drawn, not typed with an emoji font: at this size the
       // system UI face is far more legible, and #0B0F14 on white is the same
       // ink the cluster count already uses.
-      g.font = "800 10px -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif";
+      g.font = "800 13px -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif";
       g.fillStyle = "#0B0F14";
-      g.fillText(String(glyph), 14, 13.1);
+      g.fillText(String(glyph), 17, 15.9);
     } else {
       // Emoji sit high in their em box, so the baseline nudge is empirical.
-      g.font = "10px -apple-system,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif";
-      g.fillText(String(glyph), 14, 13.2);
+      g.font = "14px -apple-system,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif";
+      g.fillText(String(glyph), 17, 16.0);
     }
   }
   return g.getImageData(0, 0, W, H);
@@ -306,8 +318,27 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     const placeFeatures = [];
     placesByIdRef.current = new Map();
     ranked.forEach((place, index) => {
-      const categoryColor = { food: "#F97316", nightlife: "#A855F7", attractions: "#0EA5E9", family: "#14B8A6", hotels: "#6366F1", shopping: "#EC4899" }[category] || "#F97316";
-      const color = place.openNow === false ? "#64748B" : index === 0 ? "#FBBF24" : categoryColor;
+      // v8.89 — THE COLOUR IS A FACT ABOUT THE PLACE, NOT ABOUT THE FILTER.
+      //
+      // This used to be `{food:…, nightlife:…}[category]` — one colour for the
+      // whole VIEW. On the Food map every pin came out the same orange, so the
+      // only channel that is actually legible at pin size was spent restating
+      // the filter the reader had just chosen themselves. That is the owner's
+      // "I need the icon to be distinguished between food, bars, hotels":
+      // a steakhouse, a coffee shop and a beach bar were identical dots.
+      //
+      // pinColorFor reads the place's own primary type (lib/mapPinGlyph.js),
+      // so a Food map now separates into restaurants, cafés and bars at a
+      // glance, before any glyph is resolved.
+      //
+      // TWO OVERRIDES SURVIVE, and both outrank the family because both are
+      // about whether the pin is worth walking to at all:
+      //   · CLOSED is slate. "Shut right now" beats "is a taco place".
+      //   · #1 is the gold pin. The top pick has been gold since v7.16 and the
+      //     numeral inside it says the same thing twice, deliberately.
+      const color = place.openNow === false ? "#64748B"
+        : index === 0 ? "#FBBF24"
+        : pinColorFor(place, category);
       const id = String(place.id || `map-place-${index}`);
       placesByIdRef.current.set(id, place);
       const rank = index + 1;
@@ -506,7 +537,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
         "icon-ignore-placement": true,
         // The top five carry a numeral, so they need the room to read it; the
         // rest sit back. 0.86 was tuned for a pin with a 4px dot in it.
-        "icon-size": ["case", ["==", ["get", "sel"], 1], 1.18, ["<=", ["get", "rank"], 5], 1.06, 0.9],
+        "icon-size": ["case", ["==", ["get", "sel"], 1], 1.1, ["<=", ["get", "rank"], 5], 1.0, 0.88],
       }, paint: { "icon-opacity": OPACITY } });
       map.addSource("wf-rings", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
       map.addLayer({ id: "wf-rings-glow", type: "line", source: "wf-rings", filter: ["==", ["get", "kind"], "ring"], paint: { "line-color": "#F97316", "line-width": 6, "line-opacity": .18 } });

@@ -123,6 +123,21 @@ const OPEN_LATE = { periods: [{ open: { day: 0, hour: 6, minute: 0 }, close: { d
   { open: { day: 6, hour: 6, minute: 0 }, close: { day: 6, hour: 23, minute: 59 } }] };
 const litPark = { ...preserve, oh: OPEN_LATE, utcOffset: -240 };
 eq(servableNow(litPark, ctx(DARK)), true, "a park that PUBLISHES late hours is open at 11pm — real hours outrank the daylight inference");
+// v8.89 — THE CLOCK THIS ASSERTION IS ACTUALLY ABOUT.
+//
+// The line above went red on a clean tree between midnight and 6am, every
+// night, and passed the other eighteen hours: servableNow's hours layer called
+// openNowFromHours WITHOUT the `now` it had been handed, so businessStatus fell
+// back to Date.now() while the daylight layer below it used `now`. Two layers
+// of one decision, reading two different clocks.
+//
+// So the fixture is walked at four instants that are NOT the current one, and
+// the answers have to disagree with each other — a pair that came back
+// identical would be the bug, restated.
+eq(servableNow(litPark, ctx(at("2026-08-29T04:30:00Z"))), false,
+  "…and CLOSED at 12:30am ET, when the same published hours say so — the hours layer answers for the instant it was given, not for whenever the test happens to run");
+eq(servableNow(litPark, ctx(at("2026-08-29T14:00:00Z"))), true, "…open again at 10am ET");
+eq(servableNow(litPark, ctx(at("2026-08-29T09:00:00Z"))), false, "…still closed at 5am ET");
 
 // ── 5. WHICH RAILS ANSWER "RIGHT NOW" ───────────────────────────────────────
 // Pinned as a set. Adding or removing a rail here is a product decision about

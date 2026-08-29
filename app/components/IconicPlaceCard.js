@@ -228,7 +228,7 @@ const ThumbIcon = ({ down = false }) => (
   </svg>
 );
 
-function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, inTrip, onSave, onItinerary, onLike, onDislike, onOpen, onBadge, cardActionsReadOnly = false, surface = "place_card", eagerMedia = false, mediaPriority = null, memoKey = null }) {
+function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfind", aiSummary, badge, rankingNote, onShare, saved, liked, disliked, inTrip, onSave, onItinerary, onLike, onDislike, onOpen, onBadge, cardActionsReadOnly = false, surface = "place_card", eagerMedia = false, mediaPriority = null, memoKey = null }) {
   // v8.29 — the shared like/dislike/save store, read ONLY when this card has an
   // action its caller did not wire. A fully wired card (the home shell's, which
   // owns its own state) subscribes to nothing and re-renders for nothing.
@@ -560,8 +560,15 @@ function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, ranki
               measurably overflows and the reader is not at its end. */}
           {laneMore ? <span className="wf-pill-more" aria-hidden="true">›</span> : null}
           </div>
+          {/* v8.89 — TWO TIERS, ONE SLOT. The accent bar is how Wayfind says
+              "this is our read", so it belongs to copy Wayfind wrote or
+              verified. The descriptive tier — the wf_inventory line and the
+              validated pool summary — answers the same question ("what is this
+              place known for") and is worth showing, on 1,824 more cards near
+              the flagship reader, but it is not a verdict and does not get to
+              look like one. Same slot, same typography, no bar. */}
           {take ? (
-            <div className="wf-place-card-take">{take}</div>
+            <div className={"wf-place-card-take" + (editorialTier === "known" ? " is-known-for" : "")}>{take}</div>
           ) : validAiSummary ? (
             <div className="wf-place-card-take">
               <div>{validAiSummary.card_line_1}</div>

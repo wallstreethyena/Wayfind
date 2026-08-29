@@ -1463,11 +1463,17 @@ export default function DaypartRail({
                     p.id, inWin ? 1 : 0, organicRank == null ? "-" : organicRank,
                     isPaid ? 1 : 0,
                     (isSaved ? isSaved(actionId) : false) ? 1 : 0,
-                    (isLiked ? !!isLiked(p.id) : liked ? !!liked[p.id] : false) ? 1 : 0,
-                    (isDisliked ? !!isDisliked(p.id) : disliked ? !!disliked[p.id] : false) ? 1 : 0,
-                    (isOnTrip ? isOnTrip(p) : false) ? 1 : 0,
+                    (isLiked ? !!isLiked(actionId) : liked ? !!liked[actionId] : false) ? 1 : 0,
+                    (isDisliked ? !!isDisliked(actionId) : disliked ? !!disliked[actionId] : false) ? 1 : 0,
+                    (isOnTrip ? isOnTrip(actionPlace) : false) ? 1 : 0,
                     beachCond[p.id] ? (beachCond[p.id].sig || JSON.stringify(beachCond[p.id]).length) : "-",
                     hooks[p.id] ? 1 : 0,
+                    // v8.89 — the TIER, not just the presence. The line and its
+                    // treatment arrive together from one resolve pass, but a
+                    // card can be re-tiered without the text changing (a fleet
+                    // hook getting verified promotes an inventory line to
+                    // Wayfind's), and the accent bar is the visible difference.
+                    (hooks.tiers && hooks.tiers[p.id]) || "-",
                     shown.cityLabel || "",
                   ].join("|");
                   return (
@@ -1493,6 +1499,13 @@ export default function DaypartRail({
                     // they are page/rail copy, not a place hook. No sourced
                     // why → empty slot, never a deal or registry promo.
                     editorial={(isPaid || selected === "chef" || selected === "augtober") ? (p.hook || null) : (toHookLine(hooks[p.id], p.name) || null)}
+                    // v8.89 — a paid card's line and a curated drop's line are
+                    // OURS (the registry's railTake, Ron Duprat's own list, the
+                    // fall pool's card_hook), so they keep the accent bar. The
+                    // resolver's tier decides for everything else.
+                    editorialTier={(isPaid || selected === "chef" || selected === "augtober")
+                      ? "wayfind"
+                      : ((hooks.tiers && hooks.tiers[p.id]) || "wayfind")}
                     // THE DISCLOSURE IS PART OF THE CARD, NOT A SETTING.
                     // IconicPlaceCard renders `badge` FIRST in the chip lane,
                     // ahead of the decorative tag pills, precisely so a

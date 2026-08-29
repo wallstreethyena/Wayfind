@@ -429,11 +429,19 @@ export const WF_PLACE_CARD_CSS = `
 //    that wants another scale changes one number (the rail sets 36, the 360px
 //    breakpoint 34).
 //
+// v8.89 — `.wf-place-card-share{min-width:88px;margin-left:auto}` DELETED.
+// Both declarations were always overridden: IconicPlaceCard renders the row as
+// `wf-place-card-actions wf-sheet-card-actions`, and the sheet rule below sets
+// `min-width:0!important;margin-left:0!important` on that very selector. It was
+// dead in every rendered state — proven, not assumed, by test-card-action-row,
+// which measures the real widths in a browser and is unchanged by the removal.
+//
 //    38px rather than 34 or 40 is deliberate: Save and Share GROW (34 -> 38,
 //    a bigger tap target), the thumbs give up 2px, and the row ends 2px
 //    SHORTER than before — which matters, because .wf-place-card has a fixed
 //    --wf-card-h and clips anything that outgrows it.
-`.wf-place-card-actions{--wf-act-h:38px;align-items:center;gap:5px!important;margin-top:auto!important;padding-top:9px;flex-wrap:wrap!important;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+`.wf-place-card-take.is-known-for{border-left-color:rgba(148,163,184,.34);color:#AEB9C9!important}
+.wf-place-card-actions{--wf-act-h:38px;align-items:center;gap:5px!important;margin-top:auto!important;padding-top:9px;flex-wrap:wrap!important;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 .wf-place-card-actions>a,.wf-place-card-actions>button{
   display:inline-flex!important;
   min-height:var(--wf-act-h);
@@ -480,7 +488,6 @@ export const WF_PLACE_CARD_CSS = `
 // A 140ms colour fade — not motion, so it is not a reduced-motion concern.
 // It is what makes the press read as a RESPONSE rather than a repaint.
 `.wf-place-card-save,.wf-place-card-trip,.wf-place-card-like,.wf-place-card-dislike{transition:background-color .14s ease,border-color .14s ease,color .14s ease}
-.wf-place-card-share{min-width:88px;margin-left:auto}
 .wf-sheet-card-actions{
   display:grid!important;
   grid-template-columns:minmax(64px,.9fr) 42px 42px minmax(76px,1fr);
