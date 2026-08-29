@@ -20,13 +20,18 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  atlasAllowlistApplyGate,
   atlasPageDescription,
   atlasPlaceFor,
   hasPublishReadyAtlasCard,
+  inventoryToSkeleton,
   listPublishReadyAtlasIds,
   mergePlacePage,
+  planAtlasAllowlistSeed,
+  preferInventorySkeleton,
   shouldCallGooglePlaceDetails,
   unionIndexedAndAtlasIds,
+  usableSupabaseEnv,
 } from "../lib/atlasPlaceAllowlist.js";
 import { atlasCardFor, indexAtlasCards, missingAtlasEditorial, parseAtlas590 } from "../lib/atlasCards.js";
 import { knownForLine } from "../lib/knownFor.js";
@@ -131,6 +136,57 @@ ok(mergedSkel.lat === 27.31 && mergedSkel.lng === -82.58, "skeleton lat/lng was 
 ok(mergedSkel.description && /Lido/i.test(mergedSkel.description), "cold-cache indexed path lost Atlas copy");
 ok(mergedSkel.rating === 4.6, "skeleton rating was dropped");
 
+const invRow = { place_id: LIDO, name: "Lido Beach", lat: 27.311, lng: -82.582, category: "beach", signals: { rating: 4.4, reviews: 890 }, status: "OPERATIONAL" };
+const fromInv = inventoryToSkeleton(invRow);
+ok(fromInv && fromInv.lat === 27.311 && fromInv.lng === -82.582 && fromInv.signals.rating === 4.4,
+  "inventoryToSkeleton dropped lat/lng/signals we already hold");
+ok(inventoryToSkeleton({ place_id: LIDO }) == null, "inventory row without a name invented a skeleton");
+ok(inventoryToSkeleton(null) == null, "null inventory invented a skeleton");
+
+const preferred = preferInventorySkeleton(fromInv, { name: "Old", lat: 1, lng: 2, signals: { rating: 1 } });
+ok(preferred.lat === 27.311 && preferred.name === "Lido Beach" && preferred.signals.rating === 4.4,
+  "preferInventorySkeleton did not let inventory win on name/lat/signals");
+ok(preferInventorySkeleton(null, { name: "Indexed", lat: 9, lng: 8 }).lat === 9,
+  "preferInventorySkeleton dropped the indexed skeleton when inventory was absent");
+ok(preferInventorySkeleton(null, null) == null, "preferInventorySkeleton invented a row from nothing");
+
+const mergedInv = mergePlacePage(LIDO, { skel: fromInv, details: null, atlas: atlasPlaceFor(LIDO) });
+ok(mergedInv.lat === 27.311 && mergedInv.lng === -82.582 && mergedInv.rating === 4.4,
+  "merge did not use inventory lat/lng/signals — that is the held row, not a Google call");
+ok(mergedInv.address && /Franklin|Lido/i.test(mergedInv.address),
+  "inventory merge lost the Atlas/TSV address (inventory has no address column)");
+
+const seed = planAtlasAllowlistSeed({
+  atlasIds: [LIDO, OSCAR, POINT_OF_ROCKS, UNKNOWN],
+  silentIds: [POINT_OF_ROCKS],
+  inventoryById: new Map([
+    [LIDO, invRow],
+    [POINT_OF_ROCKS, { place_id: POINT_OF_ROCKS, name: "Point of Rocks", lat: 27.2, lng: -82.5, category: "beach" }],
+  ]),
+});
+ok(seed.payloads.length === 1 && seed.payloads[0].place_id === LIDO && seed.payloads[0].lat === 27.311,
+  "seed plan must write only inventory-backed Atlas cards");
+ok(seed.refusedSilent.includes(POINT_OF_ROCKS) && !seed.payloads.some((p) => p.place_id === POINT_OF_ROCKS),
+  "silent Point of Rocks entered the wf_place_ids payload — stay blank");
+ok(seed.missingInventory.includes(OSCAR) && seed.missingInventory.includes(UNKNOWN),
+  "ids without inventory must be reported, not invented");
+
+ok(atlasAllowlistApplyGate({ apply: false, url: "https://x.supabase.co", serviceKey: "svc" }).write === false,
+  "dry-run must not write");
+ok(atlasAllowlistApplyGate({ apply: true, url: "", serviceKey: "svc" }).write === false,
+  "--apply without URL wrote");
+ok(atlasAllowlistApplyGate({ apply: true, url: "https://x.supabase.co", serviceKey: "" }).write === false,
+  "--apply without service role wrote");
+ok(atlasAllowlistApplyGate({ apply: true, url: "https://x.supabase.co", serviceKey: "svc" }).write === true,
+  "keyed --apply is the only write path");
+ok(usableSupabaseEnv("https://e2eplaceholder.supabase.co", "e2e-placeholder-anon-key-not-real") === false,
+  "e2e placeholder env is treated as live");
+ok(atlasAllowlistApplyGate({
+  apply: true,
+  url: "https://e2eplaceholder.supabase.co",
+  serviceKey: "e2e-placeholder-anon-key-not-real",
+}).write === false, "--apply with placeholder env wrote");
+
 const united = unionIndexedAndAtlasIds(["aaa", LIDO], allow);
 ok(united[0] === "aaa" && united.includes(LIDO) && united.length === 256,
   "union did not keep indexed ids + 255 Atlas cards (deduped)");
@@ -140,9 +196,13 @@ const pd = code("lib/placeData.js");
 ok(/const atlas = atlasPlaceFor\(id\)/.test(pd), "loadPlace no longer reads the Atlas allowlist");
 ok(/atlasPlaceFor/.test(pd) && /if \(!skel && !atlas\) return null/.test(pd),
   "loadPlace lost the dual allowlist short-circuit (skeleton OR Atlas)");
+ok(/const inv = atlas \? await getInventoryIdentity\(id\) : null/.test(pd),
+  "loadPlace no longer reads wf_inventory for Atlas ids (or reads it for non-Atlas ids)");
+ok(/preferInventorySkeleton\(inv, indexed\)/.test(pd),
+  "loadPlace no longer prefers inventory identity over a Places call");
 ok(/peekPlaceDetails\(id\)/.test(pd), "loadPlace no longer peeks the pd1| cache before considering Google");
-ok(/if \(shouldCallGooglePlaceDetails\(\{ skel, cached, atlas \}\)\)/.test(pd),
-  "getPlaceDetails is no longer gated on shouldCallGooglePlaceDetails({ skel, cached, atlas })");
+ok(/if \(shouldCallGooglePlaceDetails\(\{ skel: indexed, cached, atlas \}\)\)/.test(pd),
+  "getPlaceDetails is no longer gated on shouldCallGooglePlaceDetails({ skel: indexed, cached, atlas })");
 ok(/details = await getPlaceDetails\(id\)/.test(pd),
   "non-Atlas indexed cold-cache path lost getPlaceDetails — that path is still allowed");
 
@@ -191,8 +251,28 @@ for (const abs of [...walk(join(root, "app")), ...walk(join(root, "lib"))]) {
 }
 ok(clientHits.length === 0, `client files imported Atlas JSON / allowlist: ${clientHits.join(", ")}`);
 
+const ingest = code("scripts/ingest-atlas-place-allowlist.mjs");
+ok(/planAtlasAllowlistSeed\(/.test(ingest) && /atlasAllowlistApplyGate\(/.test(ingest) && /usableSupabaseEnv\(/.test(ingest),
+  "ingest no longer CALLS the fail-closed planner / apply gate / placeholder check");
+ok(/wf_inventory/.test(ingest) && /wf_place_ids/.test(ingest),
+  "ingest lost the inventory → wf_place_ids path");
+ok(!/places\.googleapis|getPlaceDetails|GOOGLE_MAPS_SERVER_KEY/.test(ingest),
+  "ingest contacts Places / Place Details");
+ok(/FAIL-CLOSED/.test(read("scripts/ingest-atlas-place-allowlist.mjs")),
+  "ingest no longer names the fail-closed refusals");
+
+const ident = code("lib/inventoryIdentity.js");
+ok(/wf_inventory/.test(ident) && /inventoryToSkeleton/.test(ident),
+  "getInventoryIdentity no longer maps a wf_inventory row");
+ok(!/places\.googleapis|getPlaceDetails/.test(ident),
+  "inventory identity path hits Places");
+
 // Files this change owns must not grow CSS or house-chrome restyles.
-for (const rel of ["lib/placeData.js", "lib/placeIndex.js", "lib/atlasPlaceAllowlist.js", "lib/placeDetails.js", "app/places/[id]/page.js"]) {
+for (const rel of [
+  "lib/placeData.js", "lib/placeIndex.js", "lib/atlasPlaceAllowlist.js",
+  "lib/placeDetails.js", "lib/inventoryIdentity.js", "app/places/[id]/page.js",
+  "scripts/ingest-atlas-place-allowlist.mjs",
+]) {
   const src = read(rel);
   ok(!/\.css['"]/.test(src) && !/home\.js/.test(src), `${rel} imported CSS or app/home.js`);
 }
