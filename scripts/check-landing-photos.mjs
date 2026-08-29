@@ -1,59 +1,81 @@
-// check-landing-photos.mjs — locks the v6.57 repetitive-images fix.
+// check-landing-photos.mjs — landing cards never share a photo pool.
 //
-// THE INCIDENT: every SSR city landing page (/things-to-do, /restaurants,
-// /beaches, /nightlife x [city]) rendered its hero AND every place card from
-// ONE static image per CATEGORY (4 files total), because these routes never
-// fetch a Google Places photo and landingPhoto()'s only fallback was that one
-// static file. Confirmed: every one of the ~20 cities in LANDING_CITIES, and
-// every card on every one of those pages, showed the identical photo.
+// THE INCIDENT (v6.57): every SSR city landing page rendered its hero AND
+// every place card from ONE static image per CATEGORY. The "fix" cycled a
+// city+category Pexels pool (lib/stockPhoto.js) per card index.
 //
-// This guard asserts the fix stays wired: lib/landing.js pulls its fallback
-// imagery from a city+category-matched stock pool (lib/stockPhoto.js) cycled
-// per card, not a single hardcoded file reused everywhere. It does NOT
-// require PEXELS_API_KEY to be set (the fail-soft static fallback must keep
-// working with no key) — it only asserts the DYNAMIC path exists and is used.
+// THE FOLLOW-ON (2026-08-29, /nightlife/parrish, owner browser):
+//   Pangea → pexels 16408140 Shamrock City Pub Est. 2008 oval sign
+//   Jaxx Wing Co. → pexels 12103056 PHO THIN 17 storefront
+//   Oscura → pexels 2599246 generic neon BAR sign
+//   Page hero → pexels 14698219 Brettos bar in Athens (not Parrish)
+// Pexels nightlife stock is not a "real picture" of the card. Owned
+// inventory photo or empty. Hero is category chrome, never an unrelated city bar.
 import { readFileSync } from "fs";
+import {
+  isForbiddenLandingStock,
+  isLandingCardImageAllowed,
+  isLandingHeroImageAllowed,
+  landingCardPhotoSrc,
+  landingHeroSrc,
+} from "../lib/placePhoto.js";
+
 const fail = (m) => { console.error("check-landing-photos: FAIL — " + m); process.exit(1); };
-
 const landing = readFileSync(new URL("../lib/landing.js", import.meta.url), "utf8");
-const stock = (() => { try { return readFileSync(new URL("../lib/stockPhoto.js", import.meta.url), "utf8"); } catch { return null; } })();
+const code = landing.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
 
-if (!stock) fail("lib/stockPhoto.js is missing — the city+category photo pool no longer exists");
-if (!/export\s+(async\s+)?function\s+stockPhotoPool/.test(stock)) fail("lib/stockPhoto.js no longer exports stockPhotoPool()");
-if (!/export\s+function\s+fromPool/.test(stock)) fail("lib/stockPhoto.js no longer exports fromPool()");
-// Fail-soft contract: a missing key must resolve to [] / null, never throw.
-if (!/PEXELS_API_KEY/.test(stock)) fail("lib/stockPhoto.js no longer reads PEXELS_API_KEY — key-gating removed?");
-
-if (!/import\s*\{\s*stockPhotoPool\s*,\s*fromPool\s*\}\s*from\s*"\.\/stockPhoto\.js"/.test(landing)) {
-  fail("lib/landing.js no longer imports stockPhotoPool/fromPool from ./stockPhoto.js");
+if (!/import\s*\{[^}]*\blandingCardPhotoSrc\b[^}]*\}\s*from\s*"\.\/placePhoto\.js"/.test(code)) {
+  fail("lib/landing.js no longer imports landingCardPhotoSrc from ./placePhoto.js");
 }
-if (!/stockPhotoPool\(landingPhotoQuery\(city,\s*catSlug\)\)/.test(landing)) {
-  fail("lib/landing.js no longer fetches a city+category photo pool per render");
+if (!/landingHeroSrc\(catSlug\)/.test(code)) {
+  fail("landing hero no longer CALLS landingHeroSrc(catSlug)");
 }
-// The hero and the per-card <img> must each read from the pool (fromPool(...))
-// before falling back to the static LANDING_HERO map, not the static map alone.
-// Hero reads index -1 (the pool's LAST entry), deliberately not 0 — card i=0
-// below reads index 0, and a shared index there put the hero and the first
-// ranked card side by side wearing the identical photo (v1.01, 2026-08-08).
-if (!/image=\{\(fromPool\(stockPool, -1\) \|\| \{\}\)\.url \|\| LANDING_HERO\[catSlug\]\}/.test(landing)) {
-  fail("landing hero no longer prefers the stock pool over the static per-category image (or reverted to the index-0 hero/card-0 collision)");
+if (!/landingCardPhotoSrc\(p\)/.test(code) && !/landingPhoto\(p\)/.test(code)) {
+  fail("place-card image no longer goes through landingCardPhotoSrc / landingPhoto(p)");
 }
-if (!/landingPhoto\(p, catSlug, stockPool, i\)/.test(landing)) {
-  fail("place-card image no longer passes the per-card index into landingPhoto() — cards would repeat one image again");
+if (/\bstockPhotoPool\b/.test(code)) {
+  fail("lib/landing.js still calls stockPhotoPool — that is the Shamrock/Pho Thin/Brettos leak");
 }
-// POOL_SIZE must stay >= 16: rankedFor() renders up to 15 cards
-// (pool.slice(0, 15)) PLUS the hero = 16 slots that ideally want distinct
-// photos. A regression back to 10 silently reintroduces intra-page repeats
-// past card ~10 (confirmed live on /things-to-do/sarasota and /kihei).
-const poolSizeMatch = stock.match(/POOL_SIZE\s*=\s*(\d+)/);
-if (!poolSizeMatch || Number(poolSizeMatch[1]) < 16) {
-  fail("lib/stockPhoto.js POOL_SIZE is below 16 — landing pages need up to 15 cards + 1 hero = 16 distinct photos per page");
-}
-// landingPhoto() itself must still fall back to the static map when the pool
-// is empty (no key / fetch failure) — the fail-soft contract, never a broken <img>.
-const fnMatch = landing.match(/function landingPhoto\([^)]*\)\s*\{[\s\S]*?\n\}/);
-if (!fnMatch || !/LANDING_HERO\[catSlug\]/.test(fnMatch[0])) {
-  fail("landingPhoto() no longer falls back to the static LANDING_HERO image when the stock pool is empty");
+if (/\bfromPool\b/.test(code)) {
+  fail("lib/landing.js still reads fromPool — cards would cycle a shared category pool");
 }
 
-console.log("check-landing-photos: OK — landing pages pull city+category-matched stock photos, cycled per card, with the static image kept only as the no-key/failure fallback");
+const PANGEA = "ChIJPangeaAlchemyLab";
+const SHAMROCK_REF = "places/ChIJShamrockCityPub/photos/OvalSign2008";
+const PANGEA_REF = "places/" + PANGEA + "/photos/OwnLab1";
+const leak = landingCardPhotoSrc({ id: PANGEA, name: "Pangea Alchemy Lab", photoRef: SHAMROCK_REF });
+if (leak) fail("landingCardPhotoSrc(Pangea, Shamrock ref) returned a src — the matcher is decoration");
+const own = landingCardPhotoSrc({ id: PANGEA, name: "Pangea Alchemy Lab", photoRef: PANGEA_REF });
+if (!own || !own.includes(encodeURIComponent(PANGEA_REF))) {
+  fail("landingCardPhotoSrc does not emit Pangea's own /api/photo ref (got " + own + ")");
+}
+if (!isLandingCardImageAllowed(own, PANGEA)) {
+  fail("Pangea's own src failed isLandingCardImageAllowed — the guard cannot see a legal image");
+}
+
+const LIVE_STOCK = [
+  "https://images.pexels.com/photos/16408140/pexels-photo-16408140.jpeg",
+  "https://images.pexels.com/photos/12103056/pexels-photo-12103056.jpeg",
+  "https://images.pexels.com/photos/14698219/pexels-photo-14698219.jpeg",
+  "https://images.pexels.com/photos/2599246/pexels-photo-2599246.jpeg",
+];
+for (const url of LIVE_STOCK) {
+  if (!isForbiddenLandingStock(url)) fail("isForbiddenLandingStock missed live stock " + url);
+  if (isLandingCardImageAllowed(url, PANGEA)) fail("card allowed live Pexels stock " + url);
+  if (isLandingHeroImageAllowed(url)) fail("hero allowed live Pexels stock " + url);
+}
+
+const hero = landingHeroSrc("nightlife");
+if (!hero) fail("nightlife landingHeroSrc is empty");
+if (!isLandingHeroImageAllowed(hero)) fail("nightlife hero failed isLandingHeroImageAllowed (got " + hero + ")");
+if (/pexels/i.test(hero) || hero.includes("14698219")) {
+  fail("nightlife hero is still Pexels / Brettos Athens (got " + hero + ")");
+}
+if (!/tonight-alfonso-scarpa-unsplash/.test(hero)) {
+  fail("nightlife hero must be the owner concert-crowd chrome, not a named bar (got " + hero + ")");
+}
+if (!isLandingCardImageAllowed("", PANGEA)) {
+  fail("empty src must be allowed — placeholder is the correct no-photo state");
+}
+
+console.log("check-landing-photos: OK — owned photo or empty; hero is category chrome not Brettos; live Pexels ids banned");

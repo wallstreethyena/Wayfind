@@ -11,7 +11,7 @@ const s = readFileSync(new URL("../lib/landing.js", import.meta.url), "utf8");
 const code = s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 ok(s.includes("async function landingEditorials"), "the verified-editorial join exists");
 ok(s.includes("verified=is.true&select=place_id,hook,why_here,local_tip"), "it reads the verified Wayfind cards");
-ok(/eds\[p\.id\] && eds\[p\.id\]\.why_here \? eds\[p\.id\]\.why_here : whyLine/.test(s), "why_here REPLACES the fallback where an editorial exists");
+ok(/landingWhyFits\(p,\s*eds\[p\.id\]\)/.test(s), "Why it fits CALLS landingWhyFits — sourced two-beat or empty, never whyLine filler");
 ok(/eds\[p\.id\] && eds\[p\.id\]\.hook \?/.test(s), "the hook renders as the row subtitle");
 ok(/eds\[p\.id\] && eds\[p\.id\]\.local_tip/.test(s), "local_tip renders as the insider line");
 
@@ -133,6 +133,8 @@ ok(sourcedRankingWhy({
   const hot = rankingWhyLine({ rating: 4.8, reviews: 900, distMi: 3.2, trending: true, trend_reason: "Popular with locals" });
   ok(hot.startsWith("🔥 Popular with locals"), "trending disclosure still leads the line");
   ok(!GOOGLE_NUMBER_PROSE.test(hot), "a trending row still does not sell stars as the reason");
+  ok(!/mi from the (?:town|city) center/i.test(hot) && !/mi from downtown/i.test(hot),
+    "rankingWhyLine never appends miles-from-center filler");
 }
 
 // --- The visible page must state the METHOD, not only the promise ------------
