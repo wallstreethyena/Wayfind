@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// scripts/ingest-atlas-place-allowlist.mjs — seed wf_place_ids for the 263
+// scripts/ingest-atlas-place-allowlist.mjs — seed wf_place_ids for the 264
 // publish-ready Atlas cards FROM wf_inventory we already hold.
 //
 // Zero Google Place Details / Photos / Places. Fail-closed.

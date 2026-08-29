@@ -57,8 +57,8 @@ ok(HOLDS.some((h) => /Chicken Guy/i.test(h.name)) &&
    HOLDS.some((h) => /Fat Beet Farm/i.test(h.name)),
   "location / Coming Soon / mobile / Bern HOLDs plus the three still-held Tampa farms are named");
 
-ok(listPublishReadyAtlasIds().length === 263,
-  "Atlas publish-ready lock stays 263 — this batch must not mint cards without a public ChIJ");
+ok(listPublishReadyAtlasIds().length === 264,
+  "Atlas publish-ready lock is 264 — this batch minted none; 2026-08-29e added the official NRB ChIJ");
 
 for (const p of HOLD_GOOGLE) {
   ok(p.placeId == null, `${p.name}: invented a Google id — HOLD the id, do not mint a ChIJ`);

@@ -156,6 +156,7 @@ const MUST_PASS = [
   ["food", "dessert", "Peachey's Baking Co — Landings", ["donut_shop", "bakery", "coffee_shop"]],
   ["food", "breakfast", "The Frog Pond SPB", ["breakfast_restaurant", "brunch_restaurant", "restaurant"]],
   ["food", "breakfast", "The Frog Pond Downtown St. Petersburg", ["breakfast_restaurant", "brunch_restaurant"]],
+  ["food", "breakfast", "The Frog Pond North Redington Beach", ["breakfast_restaurant", "brunch_restaurant", "restaurant"]],
   ["food", "cafes", "Campfired", ["cafe", "brunch_restaurant", "breakfast_restaurant"]],
   ["food", "breakfast", "Campfired", ["brunch_restaurant", "breakfast_restaurant", "cafe"]],
   ["nightlife", "all", "Dive Cocktail Den", ["cocktail_bar", "bar"]],
@@ -204,6 +205,7 @@ const CHIP_BLOCK = [
   // 2026-08-29 owner pins: a Gulf Blvd breakfast room is not sit-on-sand,
   // and a cocktail den is not a liquor store on Shopping.
   ["attractions", "beaches", "The Frog Pond SPB", ["breakfast_restaurant", "brunch_restaurant", "restaurant"], "breakfast_restaurant"],
+  ["attractions", "beaches", "The Frog Pond North Redington Beach", ["breakfast_restaurant", "brunch_restaurant", "restaurant"], "breakfast_restaurant"],
   ["shopping", "all", "Dive Cocktail Den", ["cocktail_bar", "bar"], "cocktail_bar"],
   ["family", "kids", "Intense Escape", ["amusement_center"], "amusement_center"],
   ["family", "toddlers", "Bishop Museum of Science and Nature", ["museum", "science_museum"], "museum"],
@@ -223,6 +225,7 @@ const CHIP_KEEP = [
   ["attractions", "beaches", "Fort De Soto Beach", ["park", "point_of_interest"], "beach"],
   ["family", "kids", "Kids Empire", ["amusement_center", "entertainment"], "amusement_center"],
   ["food", "breakfast", "The Frog Pond SPB", ["breakfast_restaurant", "brunch_restaurant", "restaurant"], "breakfast_restaurant"],
+  ["food", "breakfast", "The Frog Pond North Redington Beach", ["breakfast_restaurant", "brunch_restaurant", "restaurant"], "breakfast_restaurant"],
   ["nightlife", "all", "Dive Cocktail Den", ["cocktail_bar", "bar"], "cocktail_bar"],
 ];
 for (const [cat, sub, name, types, primaryType] of CHIP_KEEP) {

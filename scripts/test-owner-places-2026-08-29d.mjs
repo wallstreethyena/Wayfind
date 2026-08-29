@@ -59,8 +59,8 @@ ok(HOLDS.some((h) => /Neon|Blacklight/i.test(h.name)) &&
    HOLDS.some((h) => /Actually Worth Eating/i.test(h.name)),
   "unnamed-venue HOLDs, earlier-batch leftovers, #1025 list, and the Actually Worth Eating intent are named");
 
-ok(listPublishReadyAtlasIds().length === 263,
-  "Atlas publish-ready lock stays 263 — this batch must not mint cards without a public ChIJ");
+ok(listPublishReadyAtlasIds().length === 264,
+  "Atlas publish-ready lock is 264 — this batch minted none; 2026-08-29e added the official NRB ChIJ");
 
 for (const p of HOLD_GOOGLE) {
   ok(p.placeId == null, `${p.name}: invented a Google id — HOLD the id, do not mint a ChIJ`);
