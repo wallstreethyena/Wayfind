@@ -23,12 +23,11 @@ eq(partForHour(6),'morning','06:00 is morning (nowContext morningStart)');
 eq(partForHour(10),'morning','10:59 band');
 eq(partForHour(11.5),'lunch','11:30 flips to lunch (nowContext afternoonStart)');
 eq(partForHour(12.9),'lunch','12:54 is still lunch');
-eq(partForHour(13),'lunch','13:00 is still lunch — lunch runs to 14:00');
-eq(partForHour(14),'afternoon','14:00 flips to afternoon');
+eq(partForHour(13),'afternoon','13:00 flips to afternoon — tonight takes over at 1pm');
+eq(partForHour(14),'afternoon','14:00 is afternoon');
 eq(partForHour(16),'afternoon','16:xx afternoon');
-eq(partForHour(17.5),'evening','17:30 flips to evening (dinner leads; tonight is nearby)');
-eq(partForHour(21.9),'evening','21:54 is still evening');
-eq(partForHour(22),'night','22:00 flips to night — tonight leads from 10pm');
+eq(partForHour(17.5),'night','17:30 flips to night (nowContext nightStart)');
+eq(partForHour(22),'night','22:00 is night');
 eq(partForHour(23),'night','23:00 night');
 eq(partForHour(0),'night','midnight is still night');
 eq(partForHour(4),'night','04:59 still night');
@@ -60,18 +59,15 @@ for(const p of DAYPART_IDS){
 // this file; a relation survives an insertion.
 eq(orderFor('morning',ALL)[0],'breakfast','morning: breakfast leads (it IS the morning question)');
 eq(orderFor('lunch',ALL)[0],'break','lunch: the lunch poster leads — not breakfast, not tonight');
-eq(orderFor('afternoon',ALL)[0],'today','afternoon: the day-plan leads, not night');
-ok(orderFor('afternoon',ALL).indexOf('tonight')>orderFor('afternoon',ALL).indexOf('today'),
-   'afternoon: tonight is behind the day-plan — 2pm is not night');
-eq(orderFor('evening',ALL)[0],'eat','evening: dinner leads');
-ok(orderFor('evening',ALL).indexOf('tonight')>0,'evening: tonight is nearby but not first');
-ok(orderFor('evening',ALL).indexOf('tonight')<6,'evening: tonight stays inside the first swipe');
+eq(orderFor('afternoon',ALL)[0],'tonight','afternoon: tonight takes over at 1pm');
 eq(orderFor('night',ALL)[0],'tonight','night: tonight leads');
 ok(orderFor('lunch',ALL).indexOf('eat')<orderFor('lunch',ALL).indexOf('breakfast'),'lunch: Eat ahead of breakfast (morning is over)');
 ok(orderFor('night',ALL).indexOf('events')<orderFor('night',ALL).indexOf('eat'),
    'night: Events ahead of Eat — a show still open beats a table');
-{ const leaders=DAYPART_IDS.map(p=>orderFor(p,ALL)[0]);
-  eq([...new Set(leaders)].length,DAYPART_IDS.length,'every band leads with a DIFFERENT card (the v8.23.2 property)'); }
+eq(orderFor('morning',ALL)[0],'breakfast','morning leader is breakfast');
+eq(orderFor('lunch',ALL)[0],'break','lunch leader is break');
+ok(orderFor('afternoon',ALL)[0]==='tonight' && orderFor('night',ALL)[0]==='tonight',
+   'from 1pm both remaining bands lead with tonight (owner, 2026-08-29 12:25)');
 ok(orderFor('night',ALL).indexOf('break')>10,'night: Break parked at the back');
 ok(orderFor('morning',ALL).indexOf('events')>10,'morning: Events parked at the back');
 
@@ -81,13 +77,15 @@ eq(orderFor('morning',[]),[],'empty rail set -> empty');
 eq(orderFor('morning',['eat','zzz']),['eat','zzz'],'unknown ids kept, known ones prioritised');
 eq(orderFor('morning',['zzz']),['zzz'],'a rail not in any priority list still renders');
 ok(!orderFor('morning',['eat']).includes('today'),'never invents a rail that does not exist');
-eq(orderForHour(19,ALL)[0],'eat','orderForHour composes (19:00 is evening, and evening leads with dinner)');
-// Owner-required first-poster clock (2026-08-29). Hour in, first rail out —
-// not a regex over the order arrays.
+eq(orderForHour(19,ALL)[0],'tonight','orderForHour composes (19:00 is night, and tonight leads from 1pm)');
+// Owner-required first-poster clock (2026-08-29 12:25 ET). Hour in, first
+// rail out — not a regex over the order arrays.
 eq(orderForHour(8,ALL)[0],'breakfast','hour 8: breakfast first');
 ok(orderForHour(11.6,ALL)[0]!=='breakfast','hour 11.6: not breakfast-first');
-ok(orderForHour(15,ALL)[0]!=='tonight','hour 15: not tonight-first');
-eq(orderForHour(22.1,ALL)[0],'tonight','hour 22.1: tonight first');
+ok(orderForHour(11.6,ALL)[0]!=='tonight','hour 11.6: not tonight-first');
+eq(orderForHour(13.1,ALL)[0],'tonight','hour 13.1: tonight first');
+eq(orderForHour(15,ALL)[0],'tonight','hour 15: tonight first');
+eq(orderForHour(22,ALL)[0],'tonight','hour 22: tonight first');
 eq(orderForHour(23,ALL)[0],'tonight','hour 23: tonight first');
 
 // ── regionFor
@@ -156,12 +154,11 @@ ok(Object.keys(LEGACY_HERO_EVENT).every(k=>ALL.includes(k)),'every legacy key is
 // The two shared edges are nowContext's, not a copy that can drift.
 eq(DAYPARTS.morning.from, BUCKET_EDGES.morningStart, 'morning starts where nowContext says');
 eq(DAYPARTS.lunch.from, BUCKET_EDGES.afternoonStart, 'lunch starts where nowContext ends morning');
-eq(DAYPARTS.lunch.to, BUCKET_EDGES.lunchEnd, 'lunch ends at the shared 14:00 edge');
-eq(DAYPARTS.afternoon.from, BUCKET_EDGES.lunchEnd, 'afternoon starts where lunch ends');
+eq(DAYPARTS.lunch.to, BUCKET_EDGES.lunchEnd, 'lunch ends at 13:00');
+eq(BUCKET_EDGES.lunchEnd, BUCKET_EDGES.lateNightStart, 'lunchEnd and lateNightStart are the same 1pm edge');
+eq(DAYPARTS.afternoon.from, BUCKET_EDGES.lateNightStart, 'afternoon (tonight-leads) starts at 1pm');
 eq(DAYPARTS.afternoon.to, BUCKET_EDGES.nightStart, 'afternoon ends where nowContext starts night');
-eq(DAYPARTS.evening.from, BUCKET_EDGES.nightStart, 'evening starts where nowContext says night');
-eq(DAYPARTS.evening.to, BUCKET_EDGES.lateNightStart, 'evening ends at 22:00');
-eq(DAYPARTS.night.from, BUCKET_EDGES.lateNightStart, 'night (tonight-leads) starts at 22:00');
+eq(DAYPARTS.night.from, BUCKET_EDGES.nightStart, 'night band starts where nowContext says night');
 eq(DAYPARTS.night.to, BUCKET_EDGES.morningStart, 'night ends where nowContext starts morning');
 eq(Object.keys(BAND_TO_BUCKET).sort().join(','), [...DAYPART_IDS].sort().join(','),
   'every band has a canonical-bucket mapping');
@@ -169,12 +166,10 @@ eq(Object.keys(BAND_TO_BUCKET).sort().join(','), [...DAYPART_IDS].sort().join(',
 // cannot express that, which is why partForHour takes siteHourFloat's output.
 eq(partForHour(11 + 29/60), 'morning', '11:29 is morning');
 eq(partForHour(11.5), 'lunch', '11:30 is lunch');
-eq(partForHour(13 + 59/60), 'lunch', '13:59 is still lunch');
-eq(partForHour(14), 'afternoon', '14:00 is afternoon');
+eq(partForHour(12 + 59/60), 'lunch', '12:59 is still lunch');
+eq(partForHour(13), 'afternoon', '13:00 is afternoon — tonight first');
 eq(partForHour(17 + 29/60), 'afternoon', '17:29 is afternoon');
-eq(partForHour(17.5), 'evening', '17:30 is evening');
-eq(partForHour(21 + 59/60), 'evening', '21:59 is still evening');
-eq(partForHour(22), 'night', '22:00 is night');
+eq(partForHour(17.5), 'night', '17:30 is night');
 // siteHourFloat is the ONE clock; prove the band pipeline consumes it cleanly.
 ok(typeof siteHourFloat() === 'number' && isFinite(siteHourFloat()), 'siteHourFloat returns a usable float hour');
 ok(DAYPART_IDS.includes(partForHour(siteHourFloat())), 'the live hour resolves to a real band');

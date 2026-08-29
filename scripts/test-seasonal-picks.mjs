@@ -227,9 +227,9 @@ ok(/floor:\s*\{\s*rating:\s*4(\.0)?\s*,/.test(intentPagesSrc),
 // LocalPlanHeroCard went with the slide it existed to render (its photo-less
 // gradient fallback, added in v6.52 for exactly this card, has no caller now).
 {
-  ok(DAYPART_IDS.length === 5, `all five bands exist (found ${DAYPART_IDS.length})`);
-  ok([...DAYPART_IDS].sort().join(",") === "afternoon,evening,lunch,morning,night",
-    `positive control: the five bands were identified BY NAME (found ${DAYPART_IDS.join(",")})`);
+  ok(DAYPART_IDS.length === 4, `all four bands exist (found ${DAYPART_IDS.length})`);
+  ok([...DAYPART_IDS].sort().join(",") === "afternoon,lunch,morning,night",
+    `positive control: the four bands were identified BY NAME (found ${DAYPART_IDS.join(",")})`);
   const bands = DAYPART_IDS.map((b) => [b, DAYPARTS[b].order]);
   for (const [band, o] of bands) {
     ok(o.filter((id) => id === "season").length === 1, "seasonal appears exactly once per band — never twice, never missing");

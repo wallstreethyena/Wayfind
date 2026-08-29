@@ -141,12 +141,9 @@ for (const [id, m] of Object.entries(LOCAL_PICK_MARKETS)) {
   const mIds = ids("morning"), nIds = ids("night");
   ok([...mIds].some((x) => !nIds.has(x)), `${m.label}: the morning board is not the night board`);
   ok([...nIds].some((x) => !mIds.has(x)), `${m.label}: the night board is not the morning board`);
-  // …and the owner's one "afternoon" covers both of the app's midday bands,
-  // and his one "night" covers evening + late night.
+  // …and the owner's one "afternoon" covers both of the app's midday bands.
   eq([...ids("lunch")].sort(), [...ids("afternoon")].sort(),
     `${m.label}: lunch and afternoon share the owner's afternoon board`);
-  eq([...ids("evening")].sort(), [...ids("night")].sort(),
-    `${m.label}: evening and night share the owner's night board`);
 }
 // Out of coverage is EMPTY, never the nearest-by-arithmetic town.
 for (const [label, pt] of [["Tampa", { lat: 27.95, lng: -82.46 }], ["Miami", { lat: 25.77, lng: -80.19 }], ["nowhere", { lat: NaN, lng: NaN }]]) {

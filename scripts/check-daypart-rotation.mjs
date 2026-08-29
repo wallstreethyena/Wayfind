@@ -19,10 +19,11 @@
  * not exist, measured as if it did.
  *
  * So this guard asserts the PERCEIVABLE property, not the mechanism:
- *   1. the first tile differs in every band
+ *   1. morning / lunch / tonight-from-1pm are three different first tiles
+ *      (afternoon and night share tonight — owner, 2026-08-29 12:25)
  *   2. each band's `why` — which is rendered to the reader — still describes
  *      the rail it actually leads with
- *   3. nothing but `blog` is pinned to one position everywhere
+ *   3. nothing but the named pins is pinned to one position everywhere
  * and it red-proves itself against the exact shape that shipped.
  */
 import { DAYPARTS, DAYPART_IDS, orderFor } from "../lib/dayparts.js";
@@ -41,8 +42,13 @@ for (const b of DAYPART_IDS) order[b] = orderFor(b, ids);
 // invisible no matter how much moves behind it.
 {
   const leaders = DAYPART_IDS.map((b) => order[b][0]);
-  ok(new Set(leaders).size === DAYPART_IDS.length,
-     `the first tile is "${leaders.join('", "')}" across ${DAYPART_IDS.join("/")} — a phone shows ~1.3 tiles, so a repeated leader means the rail looks identical all day`);
+  ok(order.morning[0] === "breakfast", `morning leads with breakfast (got "${order.morning[0]}")`);
+  ok(order.lunch[0] === "break", `lunch leads with break (got "${order.lunch[0]}")`);
+  ok(order.afternoon[0] === "tonight" && order.night[0] === "tonight",
+     `from 1pm the first tile is tonight (afternoon "${order.afternoon[0]}", night "${order.night[0]}")`);
+  ok(new Set(["breakfast", "break", "tonight"]).size === 3 &&
+     new Set(leaders).size === 3,
+     `the first tile is "${leaders.join('", "')}" — breakfast / lunch / tonight, not one card all day`);
   for (const b of DAYPART_IDS) {
     ok(RAIL_IDS.includes(order[b][0]), `${b}: leads with "${order[b][0]}", which is not a rail`);
   }
@@ -158,4 +164,4 @@ if (fails.length) {
   for (const f of fails) console.error("  · " + f);
   process.exit(1);
 }
-console.log(`check-daypart-rotation: OK — ${n} assertions; the first tile differs in all ${DAYPART_IDS.length} bands, every rendered "why" names the rail it leads with, and the only pinned slots are the three named here`);
+console.log(`check-daypart-rotation: OK — ${n} assertions; first tile is breakfast / break / tonight-from-1pm, every rendered "why" names the rail it leads with, and the only pinned slots are the three named here`);

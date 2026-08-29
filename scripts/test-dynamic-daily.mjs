@@ -60,8 +60,14 @@ const railsData = readFileSync(new URL("../lib/railsData.js", import.meta.url), 
 // 1) the ORDER rotates with the hour, and differently in each band
 {
   const orders = DAYPART_IDS.map((b) => DAYPARTS[b].order.join(","));
-  ok(orders.length === DAYPART_IDS.length && DAYPART_IDS.length === 5, `all five bands declare an order (found ${orders.length})`);
-  ok(new Set(orders).size === DAYPART_IDS.length, "every band orders the rail differently — five bands with one order is a frozen homepage");
+  ok(orders.length === DAYPART_IDS.length && DAYPART_IDS.length === 4, `all four bands declare an order (found ${orders.length})`);
+  // morning and lunch each have their own order. Afternoon and night SHARE
+  // the tonight-leads list (owner, 2026-08-29 12:25: night poster from 1pm).
+  // Three distinct orders across the day is the rotation; four identical
+  // ones would be a frozen homepage.
+  ok(new Set(orders).size === 3, `three distinct rail orders (morning / lunch / tonight-from-1pm) — got ${new Set(orders).size}`);
+  ok(DAYPARTS.afternoon.order.join(",") === DAYPARTS.night.order.join(","),
+    "afternoon and night share the tonight-leads order");
 }
 // 2) the PLACES rotate, because they are re-ranked every regeneration
 ok(/revalidate = 3600/.test(readFileSync(new URL("../app/page.js", import.meta.url), "utf8")),
