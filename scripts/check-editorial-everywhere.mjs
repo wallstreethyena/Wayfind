@@ -30,7 +30,7 @@
  * than pattern-matched in source.
  */
 import { readFileSync } from "fs";
-import { toHookLine, hookTextOf, editorialLine, isUsableCardHook, HOOK_CAP } from "../lib/editorialHook.js";
+import { toHookLine, hookTextOf, editorialLine, isUsableCardHook, isDistanceFillerWhy, HOOK_CAP } from "../lib/editorialHook.js";
 
 let pass = 0;
 const fails = [];
@@ -95,6 +95,9 @@ ok(isUsableCardHook("Best for a well-rated sit-down: 4.8★ across 900 reviews. 
   "a pickReason template is not a card hook");
 ok(isUsableCardHook("The quartz sand stays cool underfoot in August.", "Siesta Beach") === true,
   "a real why-go stays usable — the gate must not fire on correct copy");
+ok(isDistanceFillerWhy("18.6 mi from the town center") === true
+    && isUsableCardHook("A creative cocktail lounge with moody lighting · 18.6 mi from the town center.", "Pangea Alchemy Lab") === false,
+  "miles-from-center is filler — isUsableCardHook blanks it");
 ok(toHookLine("The quartz sand stays cool underfoot in August.", "Siesta Beach")
    === "The quartz sand stays cool underfoot in August",
   "toHookLine still ships a real why-go");

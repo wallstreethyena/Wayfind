@@ -117,7 +117,7 @@ ok(landingIdentityOk("things-to-do", water, chipIdentity) === true,
       "TTD asks serveFromInventory('attractions', …, 'all') — identity lives in the serve");
     ok(places === 0, "fetchLandingInventory never touched places.googleapis");
     ok(out.some((p) => p.id === "ring" && p._wfInventory === true), "Ringling maps through as owned inventory");
-    ok(out.every((p) => p.photoRef == null), "ZERO Google photos on inventory rows");
+    ok(out.every((p) => p.photoRef == null), "rows without an owned photo_ref stay photoless — no Places enrich");
   } finally {
     globalThis.fetch = prev;
   }
@@ -131,6 +131,29 @@ ok(landingIdentityOk("things-to-do", water, chipIdentity) === true,
   });
   ok(out.length === 1 && out[0].name === "Siesta Beach",
     "injected inventoryRows short-circuit the serve (test seam, production never passes this)");
+}
+
+{
+  const PANGEA = "ChIJPangeaAlchemyLab";
+  const SHAMROCK = "ChIJShamrockCityPub";
+  const own = invPlaceToLanding({
+    id: PANGEA, name: "Pangea Alchemy Lab",
+    photos: [{ name: "places/" + PANGEA + "/photos/OwnLab1" }],
+    photo_url: "https://lh3.googleusercontent.com/p/pangea-own",
+  });
+  ok(own && own.photoRef === "places/" + PANGEA + "/photos/OwnLab1",
+    "invPlaceToLanding PASSES THROUGH a photo_ref whose place id matches the card");
+  ok(own.photo_url === "https://lh3.googleusercontent.com/p/pangea-own",
+    "invPlaceToLanding PASSES THROUGH that place's stored photo_url");
+  const leak = invPlaceToLanding({
+    id: PANGEA, name: "Pangea Alchemy Lab",
+    photoRef: "places/" + SHAMROCK + "/photos/OvalSign2008",
+    photo_url: "https://images.pexels.com/photos/4120665/shamrock-city.jpg",
+  });
+  ok(leak && leak.photoRef == null,
+    "Pangea cannot keep Shamrock City's photo_ref — ownership mismatch is stripped");
+  ok(leak.photo_url == null,
+    "a Pexels / shared-pool URL is not an owned photo_url");
 }
 
 // ── 5. THE SAME DECISION rankedFor RUNS, EXECUTED (not a regex over JSX) ──
