@@ -785,4 +785,5 @@ node scripts/check-skeleton-has-a-voice.mjs
 node scripts/check-drop-photo-window.mjs
 node scripts/check-district-not-a-meal.mjs
 node scripts/check-card-memo.mjs
+node scripts/check-event-day-is-venue-local.mjs
 node scripts/check-event-date-honesty.mjs
