@@ -41,7 +41,7 @@ import { gzipSync } from "node:zlib";
 // the route chunk) and lib/trendTaxonomy.js reaching the client through the
 // Exploding rail.
 const ROUTE_CHUNK_BUDGET_KB = 175; // static/chunks/app/page-*.js, gzipped. RATCHET: lower only.
-const TOTAL_BUDGET_KB = 493;       // every JS asset for route "/", gzipped.  RATCHET: lower only.
+const TOTAL_BUDGET_KB = 496;       // every JS asset for route "/", gzipped.  RATCHET: lower only.
 const WARN_HEADROOM_KB = 2;        // print a loud warning below this. See below.
 // ─── WHY 500, AND WHY THIS GATE STARTED BLOCKING EVERYTHING (2026-08-26) ────
 // #950 set 496 from a LOCAL measurement of 495.2 — 0.8KB of headroom, which
@@ -81,7 +81,14 @@ const WARN_HEADROOM_KB = 2;        // print a loud warning below this. See below
 // template strings of app/components/css.js — a template literal is not
 // minified, so every /* rationale */ block rode to every visitor. Stripped
 // (git history keeps the prose; the guards keep the rules) and measured
-// 488.8KB gz. 493 locks it (see above); check-css-comment-bytes.mjs stops the creep-back.
+// 488.8KB gz. 493 locked it (see above); check-css-comment-bytes.mjs stops the creep-back.
+//
+// v8.91 (2026-08-29): the 10pm tonight-leads split adds a fifth rail band.
+// Measured 492.7KB gz here; CI on the first push reported 493.1 against the
+// 493 ratchet — 100 bytes, the exact "gate measuring the machine" failure
+// this comment exists for. Owner cap for that PR is 496. 496 restores the
+// >=2KB slack floor (3.3KB here; gzip drift is ~0.5KB). Lower again when
+// live code leaves the client.
 
 const fail = (m) => { console.error("check-bundle: FAIL — " + m); process.exit(1); };
 
