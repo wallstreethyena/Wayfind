@@ -12,6 +12,8 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { RON_DUPRAT_TOP7, chefPicksReady, chefPickPlaces, chefHookCard } from "../lib/chefPicks.js";
+import { DAYPART_IDS, orderFor } from "../lib/dayparts.js";
+import { RAIL_IDS } from "../lib/rails.js";
 
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 let pass = 0;
@@ -80,8 +82,8 @@ ok(C.eyebrow === "Curated by a Top Chef", "eyebrow is the locked owner copy");
   const chefRow = (rails.match(/\{ id: "chef",[\s\S]*?\},/) || [""])[0];
   ok(/art: "chef"/.test(chefRow), "the chef rail entry exists and wears the owner's poster art");
   ok(!/href:/.test(chefRow), "the chef tile carries NO href — it is a button, a tap never navigates");
-  const day = readFileSync(path.join(REPO, "lib/dayparts.js"), "utf8");
-  ok((day.match(/order: \[[^\]]*'chef'[^\]]*\]/g) || []).length === 5, "the chef tile rides all five daypart bands");
+  ok(DAYPART_IDS.every((b) => orderFor(b, RAIL_IDS).includes("chef")),
+    "the chef tile rides every daypart band (called, not grepped)");
   const rail = readFileSync(path.join(REPO, "app/components/DaypartRail.js"), "utf8");
   ok(/chefPickPlaces\(RON_DUPRAT_TOP7\)\.map\(/.test(rail) && !/chefPlaces\s*\.\s*sort/.test(rail),
     "the drop renders chefPickPlaces verbatim — no sort touches Ron's order");

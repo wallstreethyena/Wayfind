@@ -20,6 +20,7 @@
 import { readFileSync } from "fs";
 import { currentSeason, seasonQueries, seasonalFit, SEASON_META, SEASONS } from "../lib/seasons.js";
 import { siteAnchorDate } from "../lib/siteTime.js";
+import { DAYPARTS, DAYPART_IDS } from "../lib/dayparts.js";
 
 let pass = 0;
 const fail = (m) => { console.error("test-seasonal-picks: FAIL — " + m); process.exit(1); };
@@ -226,17 +227,10 @@ ok(/floor:\s*\{\s*rating:\s*4(\.0)?\s*,/.test(intentPagesSrc),
 // LocalPlanHeroCard went with the slide it existed to render (its photo-less
 // gradient fallback, added in v6.52 for exactly this card, has no caller now).
 {
-  const dayparts = readFileSync(new URL("../lib/dayparts.js", import.meta.url), "utf8");
-  // v8.90 — the band NAME is captured now, not just the array. One band (the
-  // afternoon) has a different rule from the other three, and identifying it by
-  // array position would be a silent mis-assertion the day someone reorders the
-  // DAYPARTS declaration.
-  const bands = [...dayparts.matchAll(/^  (\w+): \{[\s\S]*?order: \[([^\]]+)\]/gm)]
-    .map((m) => [m[1], m[2].replace(/['\s]/g, "").split(",")]);
-  const orders = bands.map(([, o]) => o);
-  ok(orders.length === 5, `all five bands declare an order (found ${orders.length})`);
-  ok(bands.map(([b]) => b).sort().join(",") === "afternoon,evening,lunch,morning,night",
-    `positive control: the five bands were identified BY NAME (found ${bands.map(([b]) => b).join(",")})`);
+  ok(DAYPART_IDS.length === 5, `all five bands exist (found ${DAYPART_IDS.length})`);
+  ok([...DAYPART_IDS].sort().join(",") === "afternoon,evening,lunch,morning,night",
+    `positive control: the five bands were identified BY NAME (found ${DAYPART_IDS.join(",")})`);
+  const bands = DAYPART_IDS.map((b) => [b, DAYPARTS[b].order]);
   for (const [band, o] of bands) {
     ok(o.filter((id) => id === "season").length === 1, "seasonal appears exactly once per band — never twice, never missing");
     // v8.23.2 — REVERSAL, dated, and the fifth time this order has been revised
