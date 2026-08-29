@@ -32,6 +32,7 @@ const ok = (c, m) => { n++; if (!c) fail.push(m); };
 const PLACE_ID = /^ChIJ[A-Za-z0-9_-]{20,}$/;
 const ADD = batch.places.filter((p) => p.status === "add");
 const ALREADY = batch.places.filter((p) => p.status === "already_in");
+const HOLD_GOOGLE = batch.places.filter((p) => p.status === "hold_google_id");
 const HOLDS = batch.holds;
 const EVENTS = batch.events;
 
@@ -43,6 +44,9 @@ ok(HOLDS.some((h) => /Monarch Kitchen/i.test(h.name)) &&
    HOLDS.some((h) => /Skinny Burger/i.test(h.name)) &&
    HOLDS.some((h) => /Founders Club/i.test(h.name)),
   "the four owner HOLDs are named in the batch");
+ok(HOLD_GOOGLE.length === 3, `expected 3 hold_google_id farm rows, got ${HOLD_GOOGLE.length}`);
+ok(HOLD_GOOGLE.every((p) => /Meacham Urban Farm|Dancing Goat Dairy|Fat Beet Farm/i.test(p.name)),
+  "the three Tampa farm rows are Meacham, Dancing Goat, Fat Beet");
 
 for (const p of ADD) {
   ok(PLACE_ID.test(p.placeId), `${p.name}: real Google placeId, not invented`);
@@ -96,6 +100,49 @@ ok(chipIdentity("food", "breakfast", {
   name: sob.name, types: sob.types, primaryType: sob.primaryType, primary_type: sob.primaryType,
 }) === false, "S.O.B. Burgers is not a breakfast room");
 
+for (const p of HOLD_GOOGLE) {
+  ok(p.placeId == null, `${p.name}: invented a Google id — HOLD the id, do not mint a ChIJ`);
+  ok(!cards.some((c) => c && c.name === p.name),
+    `${p.name}: leaked an Atlas card without a public ChIJ`);
+  ok(typeof p.address === "string" && /tampa/i.test(p.address),
+    `${p.name}: official Tampa address is the publishable pin`);
+  ok(typeof p.knownFor === "string" && p.knownFor.trim().length >= 20,
+    `${p.name}: two-beat is sourced on the batch even while the Google id is held`);
+  ok(!/\b\d{1,2}:\d{2}\b/.test(p.knownFor), `${p.name}: hook dumped a clock`);
+  ok(!/green star/i.test([p.knownFor, p.vibeCheck, p.whyGo].join(" ")),
+    `${p.name}: invented a Michelin Green Star in the hook`);
+  ok(!/13 acres/i.test([p.knownFor, p.vibeCheck, p.whyGo].join(" ")),
+    `${p.name}: invented acreage in the hook`);
+  ok(!/\/go\b|book tickets|book now/i.test(JSON.stringify(p)),
+    `${p.name}: Book / /go leaked`);
+  const shaped = { name: p.name, types: p.types, primaryType: p.primaryType, primary_type: p.primaryType };
+  for (const [cat, sub] of p.chipsKeep) {
+    ok(chipIdentity(cat, sub, shaped) === true,
+      `${p.name}: chipIdentity FAILED [${cat}:${sub}] — identity-before-rank`);
+  }
+  for (const [cat, sub] of p.chipsBlock) {
+    ok(chipIdentity(cat, sub, shaped) === false,
+      `${p.name}: chipIdentity LEAKED [${cat}:${sub}]`);
+  }
+}
+const meacham = HOLD_GOOGLE.find((p) => /Meacham/i.test(p.name));
+ok(meacham && meacham.lat === 27.9570411 && meacham.lng === -82.4544409 && meacham.coordSource === "osm",
+  "Meacham uses the OSM named pin — not a Places geocode");
+ok(meacham && meacham.osm && meacham.osm.way === 933420531,
+  "Meacham records OSM way 933420531");
+ok(meacham && /two-acre|two acre/i.test(meacham.knownFor) && /farm store/i.test(meacham.knownFor),
+  "Meacham two-beat keeps the vacant-lot farm + farm store");
+const goat = HOLD_GOOGLE.find((p) => /Dancing Goat/i.test(p.name));
+ok(goat && goat.lat == null && goat.lng == null,
+  "Dancing Goat does not invent lat/lng — OSM had no named pin");
+ok(goat && /barn porch/i.test(goat.knownFor) && !/airbnb|petting|walk-up visit/i.test(goat.knownFor),
+  "Dancing Goat why-sit is the barn porch pickup, not a walk-up animal visit");
+const beet = HOLD_GOOGLE.find((p) => /Fat Beet/i.test(p.name));
+ok(beet && beet.lat == null && beet.lng == null,
+  "Fat Beet does not use a street-centroid as the pin");
+ok(beet && /michelin guide listed/i.test(beet.knownFor) && /storefront|all-day/i.test(beet.knownFor),
+  "Fat Beet two-beat is Michelin Guide listed + the farm storefront");
+
 for (const h of HOLDS) {
   ok(!cards.some((c) => c && c.name && c.name.toLowerCase().includes(h.name.split(",")[0].toLowerCase().slice(0, 18))),
     `HOLD ${h.name} leaked into editorial-cards.json`);
@@ -141,6 +188,10 @@ ok(/S\.O\.B\. Burgers/.test(ingest) && /already_in|ALREADY/.test(ingest),
   "ingest names S.O.B. as already-in so a later run cannot mint a twin");
 ok(/Monarch Kitchen/.test(ingest) && /Urban Brews/.test(ingest) && /Skinny Burger/.test(ingest) && /Founders Club/.test(ingest),
   "ingest HOLDs the four out-of-library names");
+ok(/Meacham Urban Farm/.test(ingest) && /Dancing Goat Dairy/.test(ingest) && /Fat Beet Farm/.test(ingest),
+  "ingest names the three Tampa farms as hold_google_id");
+ok(!/places\.googleapis\.com/.test(ingest) && !/\bsearchText\s*\(/.test(ingest),
+  "ingest is fail-closed — no Places host and no searchText()");
 ok(!/app\/home\.js|IconicPlaceCard|app\/globals/.test(ingest),
   "ingest does not touch homepage JS, IconicPlaceCard, or CSS");
 
@@ -172,4 +223,4 @@ if (fail.length) {
   for (const m of fail) console.error("  - " + m);
   process.exit(1);
 }
-console.log(`test-owner-places-2026-08-29: OK — ${n} assertions; ${ADD.length} Atlas cards; ${ALREADY.length} already-in; ${HOLDS.length} HOLDs; ${EVENTS.length} events`);
+console.log(`test-owner-places-2026-08-29: OK — ${n} assertions; ${ADD.length} Atlas cards; ${ALREADY.length} already-in; ${HOLD_GOOGLE.length} google-id holds; ${HOLDS.length} HOLDs; ${EVENTS.length} events`);
