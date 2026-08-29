@@ -34,20 +34,11 @@ function strip(src) {
 }
 const read = (rel) => readFileSync(join(ROOT, rel), "utf8");
 
-const prevPhase = process.env.NEXT_PHASE;
-const prevKey = process.env.GOOGLE_MAPS_SERVER_KEY;
-const prevUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const prevAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-function restoreEnv() {
-  if (prevPhase === undefined) delete process.env.NEXT_PHASE;
-  else process.env.NEXT_PHASE = prevPhase;
-  if (prevKey === undefined) delete process.env.GOOGLE_MAPS_SERVER_KEY;
-  else process.env.GOOGLE_MAPS_SERVER_KEY = prevKey;
-  if (prevUrl === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_URL;
-  else process.env.NEXT_PUBLIC_SUPABASE_URL = prevUrl;
-  if (prevAnon === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  else process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = prevAnon;
+function clearEatFixtures() {
+  delete process.env.NEXT_PHASE;
+  delete process.env.GOOGLE_MAPS_SERVER_KEY;
+  delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+  delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 }
 
 // ── 1. Forbidden-network, EXECUTED ────────────────────────────────────────
@@ -98,7 +89,7 @@ ok(isSsgBuild() === false, "CONTROL: deleting NEXT_PHASE is not SSG");
     ok(fetches === 0, "SSG food-tour read never fetched");
   } finally {
     globalThis.fetch = prev;
-    restoreEnv();
+    clearEatFixtures();
   }
 }
 
@@ -131,7 +122,7 @@ ok(isSsgBuild() === false, "CONTROL: deleting NEXT_PHASE is not SSG");
   } finally {
     clearInterval(keepAlive);
     globalThis.fetch = prev;
-    restoreEnv();
+    clearEatFixtures();
   }
 }
 
@@ -162,7 +153,7 @@ ok(isSsgBuild() === false, "CONTROL: deleting NEXT_PHASE is not SSG");
       "CONTROL: a cuisine that is not in inventory is not minted");
   } finally {
     globalThis.fetch = prev;
-    restoreEnv();
+    clearEatFixtures();
   }
 }
 
@@ -200,7 +191,7 @@ ok(isSsgBuild() === false, "CONTROL: deleting NEXT_PHASE is not SSG");
       "SSG fetchCuratedEventBySlug is null — generateStaticParams then returns []");
     ok(elapsed < 200, `SSG curated-event reads are immediate (${elapsed}ms)`);
   } finally {
-    restoreEnv();
+    clearEatFixtures();
   }
 }
 
@@ -250,7 +241,7 @@ ok(isSsgBuild() === false, "CONTROL: deleting NEXT_PHASE is not SSG");
   ok(wouldSkip === true, "self-test: build forbids network — if this is false the skip is decoration");
 }
 
-restoreEnv();
+clearEatFixtures();
 
 if (fail.length) {
   console.error(`test-eat-ssg-failsoft: ${fail.length} failure(s)`);
