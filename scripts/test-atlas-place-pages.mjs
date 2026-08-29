@@ -52,12 +52,15 @@ const UNKNOWN = "ChIJnotarealplaceid00000000000";
 const cards = JSON.parse(read("data/atlas/editorial-cards.json"));
 const atlas590 = parseAtlas590(read("data/atlas/atlas-590.tsv"));
 const index = indexAtlasCards(cards);
+// 255 from #1021 + 8 sourced ChIJ cards from the 2026-08-29 owner batch (#1019).
+// The three Tampa farms stay HOLD — they must not mint ids or grow this count.
+const PUBLISH_READY = 263;
 
 // ── 1. allowlist size + the three live-404 examples open ──────────────────
 const allow = listPublishReadyAtlasIds();
-ok(allow.length === 255, `allowlist is ${allow.length} ids, not 255`);
+ok(allow.length === PUBLISH_READY, `allowlist is ${allow.length} ids, not ${PUBLISH_READY}`);
 ok(allow.includes(LIDO) && allow.includes(OSCAR) && allow.includes(BEER),
-  "Lido / Oscar Scherer / Beer Can Island missing from the 255");
+  "Lido / Oscar Scherer / Beer Can Island missing from the publish-ready allowlist");
 ok(!allow.includes(POINT_OF_ROCKS), "Point of Rocks (silent) leaked into the allowlist");
 
 for (const [id, nameRe, takeRe] of [
@@ -108,7 +111,7 @@ for (const id of allow) {
   ok(desc == null || desc.length >= 20, `${id} shipped a fragment take`);
   ok(desc == null || !/worth a look|a solid choice|our #1 pick/i.test(desc), `${id} invented generic filler`);
 }
-ok(sourced === 255, `${sourced} of 255 cards produced a sourced take — the rest must stay empty, not invent`);
+ok(sourced === PUBLISH_READY, `${sourced} of ${PUBLISH_READY} cards produced a sourced take — the rest must stay empty, not invent`);
 
 // ── 3. Google spend gate (executed, not grepped) ──────────────────────────
 ok(shouldCallGooglePlaceDetails({ skel: null, cached: null, atlas: atlasPlaceFor(LIDO) }) === false,
@@ -188,8 +191,8 @@ ok(atlasAllowlistApplyGate({
 }).write === false, "--apply with placeholder env wrote");
 
 const united = unionIndexedAndAtlasIds(["aaa", LIDO], allow);
-ok(united[0] === "aaa" && united.includes(LIDO) && united.length === 256,
-  "union did not keep indexed ids + 255 Atlas cards (deduped)");
+ok(united[0] === "aaa" && united.includes(LIDO) && united.length === PUBLISH_READY + 1,
+  `union did not keep indexed ids + ${PUBLISH_READY} Atlas cards (deduped)`);
 
 // ── 4. source: loadPlace / peek never hit Places for Atlas ids ────────────
 const pd = code("lib/placeData.js");
@@ -218,7 +221,7 @@ ok(!/spendAllow/.test(peekFn) && !/GOOGLE_MAPS_SERVER_KEY/.test(peekFn),
 
 const idx = code("lib/placeIndex.js");
 ok(/return unionIndexedAndAtlasIds\(indexed,\s*listPublishReadyAtlasIds\(\)\)/.test(idx),
-  "listIndexedIds no longer CALLs the Atlas union (sitemap would drop the 255)");
+  "listIndexedIds no longer CALLs the Atlas union (sitemap would drop the publish-ready Atlas cards)");
 
 // ── 5. editorial / known-for wiring still Atlas-first; JSON stays server-only
 const knownFor = code("app/api/known-for/route.js");
@@ -281,4 +284,4 @@ if (bad) {
   console.error(`\ntest-atlas-place-pages: FAIL — ${bad}/${n} assertions`);
   process.exit(1);
 }
-console.log(`test-atlas-place-pages: OK — ${n} assertions (255 allowlisted, silent stay blank, zero Google, JSON server-only)`);
+console.log(`test-atlas-place-pages: OK — ${n} assertions (${PUBLISH_READY} allowlisted, silent stay blank, zero Google, JSON server-only)`);
