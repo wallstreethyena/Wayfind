@@ -47,6 +47,8 @@ import { existingTypeSignals } from "../../../lib/placeCategory";
  * Reads via REST rather than a client library so this stays server-safe.
  */
 async function inventorySocial(placeName) {
+  // SSG: skip the ilike storm. Editorial shell still renders; ISR fills proof.
+  if (isSsgBuild()) return "unconfigured";
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
   const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
   const name = String(placeName || "").trim();
@@ -64,7 +66,7 @@ async function inventorySocial(placeName) {
   const stem = name.split(/[—,(]/)[0].trim().slice(0, 40);
   if (!stem) return false;
   try {
-    const r = await fetch(
+    const r = await guideFetch(
       `${url}/rest/v1/wf_inventory?select=name,signals&status=eq.OPERATIONAL&name=ilike.${encodeURIComponent("%" + stem + "%")}&limit=5`,
       { headers: { apikey: anon, Authorization: "Bearer " + anon }, next: { revalidate: 3600 } }
     );
@@ -98,6 +100,7 @@ async function inventorySocial(placeName) {
 // gets no card rather than a stock photo. Same >=15 review floor as the social
 // path — below that a rating is noise.
 async function inventoryPlaceByStem(stem, near) {
+  if (isSsgBuild()) return null;
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
   const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
   if (!url || !anon || !stem) return null;
@@ -115,7 +118,7 @@ async function inventoryPlaceByStem(stem, near) {
   // safe, and both are untouched.
   const pattern = "%" + String(stem).replace(/['\u2018\u2019\u02BC\u00B4`]/g, "_") + "%";
   try {
-    const r = await fetch(
+    const r = await guideFetch(
       `${url}/rest/v1/wf_inventory?select=place_id,name,lat,lng,primary_type,google_types,signals,photo_ref,editorial&status=eq.OPERATIONAL&name=ilike.${encodeURIComponent(pattern)}&limit=5`,
       { headers: { apikey: anon, Authorization: "Bearer " + anon }, next: { revalidate: 3600 } }
     );
@@ -171,12 +174,12 @@ async function inventoryPlace(pick, near) {
   // ids) resolves on it directly: exact, no ilike ambiguity, no geo gate
   // needed (the id IS the identity). The name path below stays the fallback
   // for the older guides. Same >=15-review floor via the shared row shaper.
-  if (pick.placeId) {
+  if (pick.placeId && !isSsgBuild()) {
     const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
     const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
     if (url && anon) {
       try {
-        const r = await fetch(
+        const r = await guideFetch(
           `${url}/rest/v1/wf_inventory?select=place_id,name,lat,lng,primary_type,google_types,signals,photo_ref,editorial&status=eq.OPERATIONAL&place_id=eq.${encodeURIComponent(pick.placeId)}&limit=1`,
           { headers: { apikey: anon, Authorization: "Bearer " + anon }, next: { revalidate: 3600 } }
         );
@@ -261,6 +264,7 @@ import ExploreBridge from "../../components/ExploreBridge";
 import IntentPartnerPick from "../../components/IntentPartnerPick";
 import { guideRailIntent } from "../../../lib/railPlacement";
 import { LANDING_CITIES, rankedFor, whyLine } from "../../../lib/landing";
+import { isSsgBuild, guideFetch } from "../../../lib/landingInventory";
 
 // 15 minutes. Long enough that the weather fetch is nearly free, short enough
 // that "97° right now" is never a lie. A guide whose live block is stale is
@@ -381,7 +385,7 @@ export default async function GuidePage({ params }) {
   //
   // The upgrade must not run over an already-exact CTA (re-resolving can only
   // downgrade it) and must not overwrite a live deal.
-  if (guideIntent(g) === "tour" && !(primaryCta && primaryCta.exact) && !(primaryCta && primaryCta.kind === "deal")) {
+  if (!isSsgBuild() && guideIntent(g) === "tour" && !(primaryCta && primaryCta.exact) && !(primaryCta && primaryCta.kind === "deal")) {
     const pick = (g.picks || []).find((p) => p && (p.bookQuery || p.viatorUrl));
     const region = g.region || "Orlando";
     const hit = pick ? await resolveGuideProduct(pick, region).catch(() => null) : null;
@@ -533,12 +537,11 @@ export default async function GuidePage({ params }) {
     if (!LANDING_CITIES[cityKey]) {
       socialStatus = "unavailable";
       console.error(`[guide] social proof: no LANDING_CITIES entry for "${cityKey}" (${params.slug})`);
-    } else if (!(process.env.GOOGLE_MAPS_SERVER_KEY || "").trim()) {
-      // Same doctrine as above: rankedFor reaches Google Places; without the
-      // server key (env-less builds) a null is BY DESIGN, not degradation —
-      // don't page anyone about it.
+    } else if (isSsgBuild() || !(process.env.GOOGLE_MAPS_SERVER_KEY || "").trim()) {
+      // rankedFor is inventory-first now, but SSG still skips the fallback so
+      // a Vercel preview cannot wait on Places / a hung library read.
       socialStatus = "unavailable";
-      console.log(`[guide] social proof: Places server key unconfigured — rankedFor skipped, expected outside prod builds (${params.slug})`);
+      console.log(`[guide] social proof: SSG or Places key unconfigured — rankedFor skipped (${params.slug})`);
     } else {
       try {
         const rows = await rankedFor("things-to-do", cityKey, LANDING_CITIES[cityKey]);
@@ -578,7 +581,7 @@ export default async function GuidePage({ params }) {
   // than leaving the visitor at a dead end. This is what makes the fix scale:
   // no editorial work per guide, and it covers Bradenton, whose three guides
   // are 0/3 indoor and therefore have no sibling to offer.
-  if (nowResult.mode === "plain" && nowCtx.weather.known && !nowCtx.outdoorOK && !sibling) {
+  if (!isSsgBuild() && nowResult.mode === "plain" && nowCtx.weather.known && !nowCtx.outdoorOK && !sibling) {
     try {
       const citySlug = regionCity(g.region);
       if (citySlug) {
@@ -604,7 +607,7 @@ export default async function GuidePage({ params }) {
   // guideIntent() classification the primary CTA uses. null for hotel guides.
   const railIntent = guideRailIntent(guideIntent(g));
   let bridgePicks = [];
-  if (bridgeCity) {
+  if (bridgeCity && !isSsgBuild()) {
     try {
       const ranked = await rankedFor("things-to-do", bridgeSlug, { withPhotos: true });
       bridgePicks = (Array.isArray(ranked) ? ranked : []).slice(0, 3).map((p) => ({
