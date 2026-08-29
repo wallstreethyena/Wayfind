@@ -7544,5 +7544,31 @@
     "sourceUrls": [
       "https://www.google.com/maps/search/?api=1&query=Campfired&query_place_id=ChIJd6m6J4jPwogR7P5HCLMRyyg"
     ]
+  },
+  {
+    "placeId": "ChIJbyotrqf-wogRJwMPtUFijn8",
+    "name": "The Frog Pond North Redington Beach",
+    "num": 625,
+    "category": "food",
+    "hours": "Mon–Sat 7am–2pm; Sun 7:30am–2pm",
+    "vibeCheck": "The original Frog Pond dining room in North Redington Beach — doors opened September 1, 1982, opposed to drive-through food. Not the Mad Fish SPB pin and not downtown.",
+    "whyGo": "Breakfast since September 1, 1982 in a Gulf Boulevard dining room that refuses the drive-through window — the North Redington Beach room, not Mad Fish and not downtown.",
+    "bestFor": null,
+    "knownFor": "Breakfast that refuses the drive-through, on Gulf Boulevard",
+    "powerhouseProof": null,
+    "foodMove": null,
+    "drinkMove": null,
+    "insiderMove": null,
+    "verifiedStory": null,
+    "funFact": null,
+    "currentUsefulDetail": null,
+    "watchOut": null,
+    "phone": "727-642-3211",
+    "officialWebsite": "https://frogpondrestaurant.com/",
+    "address": "16909 Gulf Boulevard, North Redington Beach, FL 33708",
+    "sourceUrls": [
+      "https://frogpondrestaurant.com/",
+      "https://www.google.com/maps/dir/?api=1&destination=Frog%20Pond&destination_place_id=ChIJbyotrqf-wogRJwMPtUFijn8"
+    ]
   }
 ]

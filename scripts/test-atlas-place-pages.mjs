@@ -52,9 +52,10 @@ const UNKNOWN = "ChIJnotarealplaceid00000000000";
 const cards = JSON.parse(read("data/atlas/editorial-cards.json"));
 const atlas590 = parseAtlas590(read("data/atlas/atlas-590.tsv"));
 const index = indexAtlasCards(cards);
-// 255 from #1021 + 8 sourced ChIJ cards from the 2026-08-29 owner batch (#1019).
+// 255 from #1021 + 8 sourced ChIJ cards from the 2026-08-29 owner batch (#1019)
+// + 1 official North Redington Beach Frog Pond ChIJ from 2026-08-29e.
 // The three Tampa farms stay HOLD — they must not mint ids or grow this count.
-const PUBLISH_READY = 263;
+const PUBLISH_READY = 264;
 
 // ── 1. allowlist size + the three live-404 examples open ──────────────────
 const allow = listPublishReadyAtlasIds();

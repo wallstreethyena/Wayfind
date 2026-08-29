@@ -40,8 +40,9 @@ const idx = readFileSync(new URL("../lib/placeIndex.js", import.meta.url), "utf8
 ok(/return unionIndexedAndAtlasIds\(indexed,\s*listPublishReadyAtlasIds\(\)\)/.test(idx),
   "listIndexedIds must CALL unionIndexedAndAtlasIds(indexed, listPublishReadyAtlasIds()) — a mention is not the union");
 const atlasIds = listPublishReadyAtlasIds();
-// 255 from #1021 + 8 sourced ChIJ cards from the 2026-08-29 owner batch (#1019).
-const PUBLISH_READY = 263;
+// 255 from #1021 + 8 sourced ChIJ cards from the 2026-08-29 owner batch (#1019)
+// + 1 official North Redington Beach Frog Pond ChIJ from 2026-08-29e.
+const PUBLISH_READY = 264;
 ok(atlasIds.length === PUBLISH_READY, `publish-ready Atlas allowlist drifted (got ${atlasIds.length}, want ${PUBLISH_READY})`);
 const united = unionIndexedAndAtlasIds(["wf-indexed-only"], atlasIds);
 ok(united.includes("wf-indexed-only") && united.includes(atlasIds[0]) && united.length === PUBLISH_READY + 1,
