@@ -20,6 +20,7 @@ Do **not** ship a visual or ranking change from this audit.
 1. **Food → Dinner / Quick bites / Delivery are decorative.** Named `CHIP_IDENTITY` wrappers call `placeAllowed("food", <sub>)` with **no** `SUB_ALLOW`. Membership equals Food → All. That is the Family 222-list bug in a food costume.
 2. **Stays → Luxury / Budget / Beach / Boutique are not on the library wire.** `browseChipUsesInventory` is false. Home `_fetchAt` fires Google Text Search. Server-side name predicates exist and are unused on that path. The luxury rule is also a `\bresort\b` substring (Golden Host Resort would count as luxury if the rule ever ran).
 3. **Name-tail leaks still exist on chips that *do* have contracts:** Fleming’s (primary `steak_house`) is Night out → Bars because the name contains “Wine Bar”; Palmetto Riverside Bed & Breakfast is Activities → Outdoors because the name contains “riverside”; a frozen-yogurt counter is Shopping → All because `dessert_shop` contains `shop`.
+4. **Live Night out → All (Parrish home feed):** Oscura showed with an ACTIVITIES label at #4 of 58. That is a cross-category card on the nightlife chip, not a thin-list honesty problem.
 
 Leave predicates frozen until the owner picks one chip family to lock. Prefer a follow-up that only adds a **guard** (executed membership ≠ All) for Dinner / Quick bites / Delivery and Stays subs — no CSS, no card markup.
 
@@ -37,6 +38,7 @@ Method, in order. Ranking was not for sale; no `/go`; no production writes.
 | `GET https://www.gowayfind.com/api/hotels?lat=27.5689&lng=-82.4393&limit=40` | Live Stays inventory (owned, no Google). This **is** the home Stays → All `_invAll` path | Stays **subs** (those skip inventory) |
 | Live SEO landings `/restaurants/parrish`, `/nightlife/parrish`, `/things-to-do/parrish`, `/beaches/parrish`, `/florida/parrish` | Supporting city lists | **Not** the home chip feed. Different cache and query. |
 | Home `_fetchAt` in `app/home.js` | Wire: `SUB_ALLOW` → `_invAll` (`inv=1&sub=`); else `searchPlaces` (Google, max 20) | — |
+| Live home chips on gowayfind.com, location Parrish, FL (browser, no Book / no `/go`) | Food → All and Night out → All first 5 + Night out count | Every other chip. Pass stopped after those two All lists. |
 
 `CHIP_IDENTITY` is server + guards only. `home.js` must not import it (496KB ratchet; #955 CI). Client membership is `placeAllowed`. Inventory chips get `chipIdentity` inside `serveFromInventory` **before** `rankInventory`.
 
@@ -62,7 +64,7 @@ Method, in order. Ranking was not for sale; no `/go`; no production writes.
 
 ## Risks / unknowns
 
-- **Home-feed first-5 for most chips was not captured in a same-origin browser session this pass.** Same-origin `/api/places/search` is guarded; spoofing Origin to pull `inv=1` was refused (that is the $735 Places leak door). `/api/sources/compare` was not used (401, and it bills Google + Foursquare).
+- **Home-feed first-5 for most chips was not captured.** A live browser pass on gowayfind.com (Parrish, no Book / no `/go`) recorded Food → All and Night out → All only, then stopped. Same-origin `/api/places/search` is guarded; spoofing Origin to pull `inv=1` was refused (that is the $735 Places leak door). `/api/sources/compare` was not used (401, and it bills Google + Foursquare).
 - **SEO landings are a different machine.** `/things-to-do/parrish` still leads Escape Reality, Ca’ d’Zan, Sunshine Skyway. That is not proof Activities → All on the home chip shows the same five, and it is not a Beaches leak (Ca’ d’Zan fails `isSitOnSandPlace`).
 - **Stays → All live list is owned hotels, then unioned with Google** on the home “All” path. First 5 below are the owned half only.
 - **`isLuxuryStayChip` / `isBudgetStayChip` / `isBeachStayChip` / `isBoutiqueStayChip` are unused on the home subchip wire.** Evaluating them locally is what the predicate *would* do, not what the live Luxury chip returns.
@@ -101,13 +103,14 @@ A sibling pair that would dump the same membership as All is FAIL unless the chi
 
 First-5 sources:
 
+- `home` — live home chip on gowayfind.com, Parrish, FL.  
 - `hotels-api` — live owned Stays list (home All inventory path).  
 - `exec` — `chipIdentity(cat,sub,place)` on typed rows / owned stay names. Not a screenshot of the home feed.  
 - `landing` — SEO page, **not** the home chip. Supporting only.
 
 | Chip | Predicate (`file` · `fn`) | Library before rank | First 5 Parrish names (source) | PASS/FAIL | Why |
 |---|---|---|---|---|---|
-| Food → All | `lib/chipIdentity.js` `isFoodPlace` → `placeAllowed("food","all")` | NO-LIB (union: Google All + meal-slot + inventory) | Shake Station; C & K Smokehouse BBQ; Aqua Tequila; First Watch; Anna Maria Oyster Bar Ellenton (`landing` `/restaurants/parrish` — **not home**) | PASS (All) | Category union. Landing is a different ranker; listed only as city context. |
+| Food → All | `lib/chipIdentity.js` `isFoodPlace` → `placeAllowed("food","all")` | NO-LIB (union: Google All + meal-slot + inventory) | **Live `home`:** 1. Empanadas Valrico, Sarasota 2. Mister 01 Extraordinary Pizza UTC 3. The Barnyard 4. Keke’s Breakfast Cafe 5. S.O.B. Burgers | PASS (All), geo-soft | Identity is food. #1 Valrico and #2 UTC are not Parrish-near; score won over distance. SEO `/restaurants/parrish` is a different five (Shake Station…). |
 | Food → Breakfast | `isBreakfastChip` → `placeAllowed("food","breakfast")` | LIB-FIRST | First Watch; Keke’s Breakfast Cafe; Ryan’s Coffee House; It’s In The DNA Coffee (`exec` keepers). Fleming’s steakhouse **refused** (`exec`, #960 lock) | PASS | Primary-identity veto holds: Fleming’s `steak_house` + secondary `brunch_restaurant` is out. National QS veto stays. |
 | Food → Cafés | `isCafePlace` → `placeAllowed("food","cafes")` | LIB-FIRST | Ryan’s Coffee House; It’s In The DNA Coffee; Keke’s; First Watch (`exec`). No steakhouse (`exec`) | PASS with softness | #951 library-first still on. Coffee-forward contract admits any row with `cafe`/`coffee` — Keke’s and First Watch are breakfast rooms, not roasters. Not the “1 café / That’s all 1” bug. |
 | Food → Lunch | `isLunchChip` → `isLunchPlace` ∧ `placeAllowed("food","lunch")` | LIB-FIRST | C & K Smokehouse BBQ; Shake Station; Fleming’s; Outback (`exec` keepers). Keke’s **out**. Froyo **out**. Coffee **out** | PASS | #951 lock: lunch is a midday meal, not breakfast-only primary, not dessert, not coffee. |
@@ -115,7 +118,7 @@ First-5 sources:
 | Food → Quick bites | `isQuickBitePlace` → `placeAllowed("food","quickbites")` | NO-LIB | **Same membership as Food All** (`exec`) | **FAIL** | Same hole. Acknowledged debt in `CATEGORY_WIDE` (“no Google type”). Still a lie on the chip. |
 | Food → Delivery | `isDeliveryPlace` → `placeAllowed("food","delivery")` | NO-LIB | **Same membership as Food All** (`exec`) | **FAIL** | Same hole. Delivery is an attribute, not a type. Chip = All. |
 | Food → Desserts | `isDessertChip` → `placeAllowed("food","dessert")` | LIB-FIRST | Pomegranate Frozen Yogurt (`exec` keeper). BBQ / sandwich / Keke’s **refused** (`exec`, v8.63) | PASS | Contract exists; library-first on. Not a second Food All. |
-| Night out → All | `isNightlifePlace` → `placeAllowed("nightlife","all")` | NO-LIB (union) | Peggy’s Corral; The Loaded Barrel Tavern; Woody’s River Roo; Waypoint; The Greyson Palmetto (`landing` `/nightlife/parrish` — **not home**) | PASS with softness | `CAT_ALLOW.nightlife` ends in `\|restaurant\|`. Keke’s and Fleming’s **pass Night out All** (`exec`). All is allowed to be wide; Clubs must not be. |
+| Night out → All | `isNightlifePlace` → `placeAllowed("nightlife","all")` | NO-LIB (union) | **Live `home`:** 1. O’bricks Irish Pub & Martini Bar 2. Corporate Ladder Brewing Company 3. Apollo Beach Society Wine Bar 4. Oscura 5. Jaxx Wing Co. — “That’s all 58 night out spots near Parrish.” | **FAIL** (identity on All) | Oscura rendered with an **ACTIVITIES** label (coffee shop / punk venue) on Night out. Jaxx is wings. `CAT_ALLOW.nightlife` ends in `\|restaurant\|`. All is allowed to be wide; an Activities card on this chip is not. SEO `/nightlife/parrish` is a different five. |
 | Night out → Bars | `isBarPlace` → `placeAllowed("nightlife","bars")` (NARROW primary, then **name tail**) | LIB-FIRST | Peggy’s Corral; Good Liquid Brewing (`exec` keepers). Outback (primary `steak_house`, name has no `bar`) **out**. Fleming’s **in** (`exec`) | **FAIL** | Fleming’s Prime Steakhouse & Wine Bar is a steakhouse. NARROW primary is `steak_house` (correct miss); the **name tail** matches `\bbar\b`. Identity after rank’s opposite: the name rescued a wrong room. |
 | Night out → Clubs | `isClubPlace` → `placeAllowed("nightlife","clubs")` NARROW | LIB-FIRST | No keeper in the typed Parrish fixture (`exec`). Keke’s **out** | PASS (contract) | The v8.29.10 lock holds on execution: breakfast cafe is not a club. Live card count unverified (thin market is allowed to be thin). |
 | Night out → Speakeasy | `isSpeakeasyPlace` → `cocktail_bar\|speakeasy` NARROW | LIB-FIRST | No keeper in fixture (`exec`) | PASS (contract) / live unread | Predicate is not All. Supply may be zero near Parrish. |
