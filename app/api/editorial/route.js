@@ -19,7 +19,6 @@ import atlasCards from "../../../data/atlas/editorial-cards.json";
 import { mapWfEditorial } from "../../../lib/editorialRule";
 import { cardToEditorial, resolveAtlasId, atlasCardForName } from "../../../lib/atlasCards";
 import { editorialNameCandidates } from "../../../lib/editorialLookup";
-import { cirqueItaliaBlocksEditorial } from "../../../lib/cirqueItalia";
 
 export const dynamic = "force-dynamic";
 
@@ -50,13 +49,6 @@ async function wfEditorialFor(id) {
 export async function GET(req) {
   const u = new URL(req.url);
   const id = String(u.searchParams.get("id") || "").trim();
-  const name = String(u.searchParams.get("name") || "").slice(0, 140).trim();
-  const also = String(u.searchParams.get("also") || "").slice(0, 400);
-  const names = editorialNameCandidates(name, also);
-  // Cirque Italia HQ / unknown pin: no tent card by name. Official pages only.
-  if (names.some((n) => cirqueItaliaBlocksEditorial({ name: n, id }))) {
-    return NextResponse.json({ none: true }, { headers: HEADERS });
-  }
   // Tier 1: the owner's Atlas card always wins — hand curation beats machine.
   // Same-place aliases (review-same-place.tsv) resolve to the id that holds the card.
   const atlasId = id && (CARD_BY_ID.has(id) ? id : resolveAtlasId(id));
@@ -66,6 +58,9 @@ export async function GET(req) {
     const fleet = await wfEditorialFor(id);
     if (fleet) return NextResponse.json({ editorial: fleet, sources: fleet.sources || [] }, { headers: HEADERS_LIVE });
   }
+  const name = String(u.searchParams.get("name") || "").slice(0, 140).trim();
+  const also = String(u.searchParams.get("also") || "").slice(0, 400);
+  const names = editorialNameCandidates(name, also);
   // Tier 3: Atlas by exact name — event/venue listings often arrive with a
   // different id than the card's key. Exact name only; never a fuzzy attach.
   for (const n of names) {

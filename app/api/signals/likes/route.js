@@ -13,12 +13,64 @@
 export const runtime = "nodejs";
 
 import { aggregateLikeSignals } from "../../../../lib/memberSignals.js";
+import { ownerUserIds } from "../../../../lib/ownerIdentity.js";
 
-// Curator Boost: the owner's like weight + identity are SERVER env ONLY — never
-// hardcoded (public repo), never client-supplied. Missing owner id -> every like
-// weight 1 (feature simply off). No query param can influence the weight.
+// Curator Boost: owner identity is SERVER-resolved — never a client flag.
+// Door 1: WF_OWNER_USER_ID vs likes.user_id.
+// Door 2: signed-in session email / auth.users email (lib/ownerIdentity.js)
+// so a missing owner-id env cannot no-op the founder's like.
+// No query param can influence the weight or who counts as owner.
 const OWNER_ID = () => String(process.env.WF_OWNER_USER_ID || "").trim();
 const OWNER_WEIGHT = () => Math.max(1, parseInt(process.env.WF_OWNER_LIKE_WEIGHT || "50", 10) || 50);
+const emailCache = new Map();
+
+async function sessionUserFromRequest(s, req) {
+  const authz = String(req.headers.get("authorization") || "");
+  const m = authz.match(/^Bearer\s+(.+)$/i);
+  if (!m) return null;
+  const token = m[1].trim();
+  if (token.length < 20) return null;
+  const anon = String(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
+  if (!anon) return null;
+  try {
+    const r = await fetch(s.url + "/auth/v1/user", {
+      headers: { apikey: anon, Authorization: "Bearer " + token },
+      cache: "no-store",
+    });
+    if (!r.ok) return null;
+    const u = await r.json();
+    if (!u || !u.id) return null;
+    const email = u.email || (u.user_metadata && u.user_metadata.email) || "";
+    return { id: String(u.id), email };
+  } catch {
+    return null;
+  }
+}
+
+async function emailsForUserIds(s, uids) {
+  const out = {};
+  const need = [];
+  for (const uid of uids || []) {
+    if (!uid) continue;
+    if (emailCache.has(uid)) out[uid] = emailCache.get(uid);
+    else need.push(uid);
+  }
+  await Promise.all(need.slice(0, 40).map(async (uid) => {
+    try {
+      const r = await fetch(s.url + "/auth/v1/admin/users/" + encodeURIComponent(uid), {
+        headers: { apikey: s.key, Authorization: "Bearer " + s.key },
+        cache: "no-store",
+      });
+      if (!r.ok) return;
+      const u = await r.json();
+      const row = u && u.user ? u.user : u;
+      const email = (row && row.email) || "";
+      emailCache.set(uid, email);
+      out[uid] = email;
+    } catch { /* leave unknown — env / session doors still apply */ }
+  }));
+  return out;
+}
 
 const mem = new Map(); // warm-instance: idsKey -> { counts, owner, exp }
 const TTL = 60 * 1000; // 60s so an owner like/unlike propagates fast (matches s-maxage)
@@ -52,8 +104,12 @@ export async function GET(req) {
     ]);
     const likeRows = r1.ok ? await r1.json() : [];
     const deviceRows = r2.ok ? await r2.json() : [];
+    const likeUserIds = (Array.isArray(likeRows) ? likeRows : []).map((row) => row && row.user_id).filter(Boolean);
+    const sessionUser = await sessionUserFromRequest(s, req);
+    const emailByUserId = await emailsForUserIds(s, [...new Set(likeUserIds)]);
+    const ownerIds = ownerUserIds(OWNER_ID(), sessionUser, emailByUserId, likeUserIds);
     // The owner weight + curator picks are applied HERE, in the one aggregate.
-    const { counts, owner } = aggregateLikeSignals(likeRows, deviceRows, OWNER_ID(), OWNER_WEIGHT(), ids);
+    const { counts, owner } = aggregateLikeSignals(likeRows, deviceRows, ownerIds, OWNER_WEIGHT(), ids);
     if (!fresh) mem.set(ck, { counts, owner, exp: Date.now() + TTL });
     return Response.json({ counts, owner }, { headers: { "Cache-Control": fresh ? "no-store" : "public, s-maxage=60, stale-while-revalidate=600" } });
   } catch (e) { return Response.json({ counts: {}, owner: {} }); }

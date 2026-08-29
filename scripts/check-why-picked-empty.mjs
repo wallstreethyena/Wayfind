@@ -2,31 +2,16 @@
 // scripts/check-why-picked-empty.mjs — empty Why-Wayfind chrome cannot ship.
 //
 // Owner, 2026-08-29, Cirque Italia Sarasota: the LLM heading showed, then
-// wrote nothing. The 2026-08-20 lock is two-beat sourced hook OR EMPTY —
-// never a heading over a blank, never an LLM-on-render loading shell.
-//
-// This pin is the office / unknown client-inventory listing (no ChIJ in
-// atlas, no public /places page, no current Gulf-coast tent). Why stays
-// EMPTY. The sourced tent two-beat is stored only for a future public-tent
-// Place ID — it is not attached by name.
-//
-// This file EXECUTES whyWayfindPickedBody + cirqueItaliaWhyBody, then reads
-// Detail.js for the syntactic position: the heading is inside the branch
-// that already has a body. A loading-shell mutation must turn this red.
+// wrote nothing. Compact insight returned empty; atlas has ZERO hits;
+// live GET /api/editorial?name=Cirque%20Italia → {none:true}. EMPTY is
+// correct. Do not invent a two-beat. Stop mounting the opinion heading
+// until whyWayfindPickedBody returns a validated non-empty paragraph.
+// Loading may use a generic spinner, not that heading.
 
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { whyWayfindPickedBody } from "../lib/insightWhy.js";
-import {
-  CIRQUE_ITALIA_PUBLIC_TENT_PLACE_IDS,
-  CIRQUE_ITALIA_TENT_WHY,
-  cirqueItaliaBlocksEditorial,
-  cirqueItaliaWhyBody,
-  isCirqueItaliaPlace,
-  isCirqueItaliaPublicTent,
-} from "../lib/cirqueItalia.js";
-import { carriedEditorial } from "../lib/editorialLookup.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 let pass = 0, fail = 0;
@@ -35,8 +20,6 @@ const strip = (src) => src
   .replace(/\/\*[\s\S]*?\*\//g, "")
   .replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
 
-// Non-Cirque two-beat. Invented Cirque copy must not live in this fixture —
-// the Cirque pin is EMPTY until a public-tent ChIJ exists.
 const REAL = "Selby Gardens is a bayfront botanical, not a roadside planting: walk the canopy, then sit on the water side when the light drops. That sequence is the reason to go, and it is on the grounds, not a nearby hotel lawn.";
 
 ok(whyWayfindPickedBody(null) === "", "null insight is empty");
@@ -53,33 +36,12 @@ ok(whyWayfindPickedBody({ why_wayfind_picked_this: "I cannot assess this as an A
 ok(whyWayfindPickedBody({ why_wayfind_picked_this: REAL }) === REAL, "a real two-beat paragraph is kept");
 
 {
-  const office = { name: "Cirque Italia Sarasota", id: "ChIJ_client_inventory_unknown" };
-  const hq = { name: "Cirque Italia", id: "" };
-  const llm = whyWayfindPickedBody({ why_wayfind_picked_this: REAL });
-  ok(isCirqueItaliaPlace(office) === true, "name match: Cirque Italia Sarasota");
-  ok(isCirqueItaliaPlace({ name: "Cirque du Soleil Store" }) === false, "Cirque du Soleil is not Cirque Italia");
-  ok(isCirqueItaliaPlace({ name: "Cirque St. Armands" }) === false, "Cirque St. Armands restaurant is not Cirque Italia");
-  ok(isCirqueItaliaPlace({ name: "Circus Museum" }) === false, "Circus Museum is not Cirque Italia");
-  ok(CIRQUE_ITALIA_PUBLIC_TENT_PLACE_IDS.length === 0, "no public-tent ChIJ is listed — why stays empty");
-  ok(isCirqueItaliaPublicTent(office) === false, "unknown client pin is not a public tent");
-  ok(cirqueItaliaWhyBody(office, llm) === "", "office / unknown pin: why EXECUTED empty even if the LLM wrote a real paragraph");
-  ok(cirqueItaliaWhyBody(hq, CIRQUE_ITALIA_TENT_WHY) === "", "HQ name with no tent id: sourced tent beat is NOT attached");
-  ok(cirqueItaliaWhyBody({ name: "Marie Selby Botanical Gardens" }, REAL) === REAL, "non-Cirque places still receive a real why body");
-  ok(cirqueItaliaBlocksEditorial(office) === true, "office pin blocks editorial inheritance");
-  ok(carriedEditorial({ name: "Cirque Italia Sarasota", knownFor: CIRQUE_ITALIA_TENT_WHY }) === null,
-    "carriedEditorial EXECUTED empty for Cirque Italia — a tent hook cannot ride the office pin");
-  ok(CIRQUE_ITALIA_TENT_WHY === "Custom 35,000-gallon water stage under a traveling tent — acts play over the pool with rain curtains and fountain jets.",
-    "the stored tent two-beat is the official-page sentence, unused until a tent ChIJ exists");
-}
-
-{
   const detail = readFileSync(join(ROOT, "app/components/sheets/Detail.js"), "utf8");
   ok(/whyWayfindPickedBody/.test(detail), "positive control: Detail.js calls whyWayfindPickedBody");
-  ok(/cirqueItaliaWhyBody/.test(detail), "positive control: Detail.js calls cirqueItaliaWhyBody");
   const code = strip(detail);
-  const BODY = "const body = cirqueItaliaWhyBody(detail, whyWayfindPickedBody(insight));";
+  const BODY = "const body = whyWayfindPickedBody(insight);";
   ok(code.includes(BODY),
-    "the Why-Wayfind body is cirqueItaliaWhyBody(detail, whyWayfindPickedBody(insight))");
+    "the Why-Wayfind body is whyWayfindPickedBody(insight) — validated paragraph or empty");
   ok(/if \(!body\) return null;/.test(code),
     "no body → the block is omitted (heading cannot ship alone)");
   ok(!/if \(insightLoading\)/.test(code),
@@ -92,17 +54,19 @@ ok(whyWayfindPickedBody({ why_wayfind_picked_this: REAL }) === REAL, "a real two
   ok(/if \(!body\) return null;[\s\S]*Why Wayfind picked this/.test(afterBody),
     "the heading is AFTER the empty-body return — it cannot render when body is empty");
   ok(!/Cirque Italia Sarasota/.test(detail),
-    "Detail.js does not invent Cirque Italia Sarasota copy (empty is correct for this pin)");
+    "Detail.js does not invent Cirque Italia Sarasota copy");
+  ok(!/35,000-gallon/.test(detail),
+    "Detail.js does not invent the tent two-beat");
 }
 
 {
   const holdPath = join(ROOT, "data/atlas/HOLD-cirque-italia.md");
   ok(existsSync(holdPath), "HOLD note exists for Cirque Italia (no ChIJ, why EMPTY)");
   const hold = readFileSync(holdPath, "utf8");
-  ok(/why EMPTY/i.test(hold) && /do not send people to HQ/i.test(hold),
-    "HOLD note says why EMPTY and do not send people to HQ");
-  ok(/past/i.test(hold) && /Palmetto/i.test(hold) && /Do not treat as current/i.test(hold),
-    "Palmetto Jan 2025 is recorded as past — do not treat as current");
+  ok(/why EMPTY/i.test(hold) && /Do not invent a two-beat/i.test(hold),
+    "HOLD note says why EMPTY and do not invent a two-beat");
+  ok(/Do not treat as current|past, not current/i.test(hold) && /Palmetto/i.test(hold),
+    "Palmetto Jan 2025 is recorded as past, not current");
   ok(/Clown d'Or/i.test(hold) && /do \*\*not\*\* claim|do not claim/i.test(hold),
     "no Clown d'Or claim — HOLD forbids the medal");
 }
@@ -140,10 +104,16 @@ ok(whyWayfindPickedBody({ why_wayfind_picked_this: REAL }) === REAL, "a real two
 }
 
 {
-  const route = readFileSync(join(ROOT, "app/api/editorial/route.js"), "utf8");
-  ok(/cirqueItaliaBlocksEditorial/.test(route),
-    "/api/editorial CALLS cirqueItaliaBlocksEditorial before name-keyed cards");
+  const libFiles = readdirSync(join(ROOT, "lib")).filter((f) => /\.(js|mjs)$/.test(f));
+  ok(libFiles.length > 0, "positive control: lib/ has js files");
+  for (const f of libFiles) {
+    if (f === "insightWhy.js") continue;
+    const src = readFileSync(join(ROOT, "lib", f), "utf8");
+    if (/35,000-gallon/.test(src) || /CIRQUE_ITALIA_TENT_WHY/.test(src)) {
+      ok(false, `lib/${f} must not store an invented Cirque two-beat`);
+    }
+  }
 }
 
-console.log(`\ncheck-why-picked-empty: ${fail ? "FAIL" : "OK"} — ${pass} assertions; whyWayfindPickedBody + cirqueItaliaWhyBody EXECUTED; office pin empty; no inventory ChIJ; Detail omits heading/LLM shell when empty.`);
+console.log(`\ncheck-why-picked-empty: ${fail ? "FAIL" : "OK"} — ${pass} assertions; whyWayfindPickedBody EXECUTED; no invented Cirque copy; Detail omits heading/LLM shell when empty.`);
 process.exit(fail ? 1 : 0);

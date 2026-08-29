@@ -38,7 +38,9 @@
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { withOwnerBump, isOwnerPick, isOwnerAccount, stampOwnerPick, ownerBumpScoreRaw, OWNER_BUMP, OWNER_BUMP_DISPLAY, SCORE_CEILING, OWNER_ACCOUNT_EMAIL } from "../lib/ownerBump.js";
+import { withOwnerBump, isOwnerPick, stampOwnerPick, ownerBumpScoreRaw, OWNER_BUMP, OWNER_BUMP_DISPLAY, SCORE_CEILING } from "../lib/ownerBump.js";
+import { isOwnerEmail, ownerUserIds, OWNER_ACCOUNT_EMAIL } from "../lib/ownerIdentity.js";
+import { memberDelta } from "../lib/ranking.js";
 import { toDisplayScore } from "../lib/score.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -88,22 +90,26 @@ ok(isOwnerPick(null) === false && isOwnerPick({}) === false, "total over garbage
 // ── 4. ONE IMPLEMENTATION — stampOwnerPick IS THE MUTATOR ───────────────────
 {
   const home = strip(readFileSync(join(ROOT, "app/home.js"), "utf8"));
-  ok(/import \{ stampOwnerPick, isOwnerAccount \} from "\.\.\/lib\/ownerBump\.js"/.test(home),
-    "weaker check (source): app/home.js imports stampOwnerPick + isOwnerAccount rather than restating the arithmetic or the email");
+  ok(/import \{ stampOwnerPick \} from "\.\.\/lib\/ownerBump\.js"/.test(home),
+    "weaker check (source): app/home.js imports stampOwnerPick rather than restating the arithmetic");
+  ok(!/isOwnerAccount|ownerIdentity|OWNER_ACCOUNT_EMAIL/.test(home),
+    "the client does not hardcode the founder email or UUID — ownerPick is server-derived");
   ok(!/withOwnerBump\(/.test(home),
     "app/home.js does not call withOwnerBump directly — the arithmetic stays inside stampOwnerPick so like + list load cannot drift");
-  const fn = home.match(/function withMemberSignal\(list, sig\)[\s\S]{0,1600}?\n\}/);
+  const fn = home.match(/function withMemberSignal\(list, sig\)[\s\S]{0,2200}?\n\}/);
   ok(!!fn, "positive control: withMemberSignal is still found under its known shape");
   ok(!!fn && /stampOwnerPick\([\s\S]{0,80}g\.ownerPick === true\)/.test(fn[0]),
     "the bump is applied inside withMemberSignal via stampOwnerPick — the list-load choke point");
+  ok(!!fn && /g\.ownerPick === true \? base : nudged/.test(fn[0]),
+    "an owner pick uses the raw base (then +0.7), not memberDelta stacked on top");
   ok(/applyMemberSignal=\{withMemberSignal\}/.test(home),
     "…and the rail drop is HANDED that same function, so the rail cannot end up with an unbumped copy of the rule");
   ok(/function patchOwnerPick\(/.test(home) && /stampOwnerPick\(pl, ownerPick\)/.test(home) && /stampOwnerPick\(cur, ownerPick\)/.test(home),
     "the like path stamps the same function onto the feed AND the open detail sheet");
-  ok(/if \(isOwnerAccount\(user\)\) patchOwnerPick\(p\.id, nowLiked\)/.test(home),
-    "a founder-session like does not wait on WF_OWNER_USER_ID — it stamps immediately");
-  ok(/isOwnerAccount\(user\) && hint && typeof hint\.liked === "boolean"/.test(home),
-    "reconcile keeps the founder session's like even when the server owner map is empty");
+  ok(/fetchPlaceById\(placeId\)/.test(home) && /withMemberSignal\(\[p\], sig\)/.test(home),
+    "/p/{id} runs fetchPlaceById through withMemberSignal so the sheet is not stuck on the raw score");
+  ok(/function refreshOwnerPick\(/.test(home) && /fresh: true/.test(home),
+    "refreshOwnerPick cache-busts then stamps from the server owner map");
 
   // Nobody else may add seven points to a score.
   const bad = [];
@@ -134,15 +140,27 @@ ok(isOwnerPick(null) === false && isOwnerPick({}) === false, "total over garbage
 
 // ── 6. LIKE PATH + DETAIL SHEET, EXECUTED ───────────────────────────────────
 {
-  ok(isOwnerAccount({ email: OWNER_ACCOUNT_EMAIL }) === true, "the founder email is recognized");
-  ok(isOwnerAccount({ email: "GabrielPereira@me.com" }) === true, "…case-insensitively");
-  ok(isOwnerAccount({ user_metadata: { email: OWNER_ACCOUNT_EMAIL } }) === true, "…and via user_metadata.email");
-  ok(isOwnerAccount({ email: "someone@else.com" }) === false, "any other email cannot mint the bump");
-  ok(isOwnerAccount(null) === false && isOwnerAccount({}) === false, "total over absence");
+  ok(isOwnerEmail(OWNER_ACCOUNT_EMAIL) === true, "the founder email is recognized server-side");
+  ok(isOwnerEmail("GabrielPereira@me.com") === true, "…case-insensitively");
+  ok(isOwnerEmail("someone@else.com") === false, "any other email cannot mint the bump");
+  ok(isOwnerEmail(null) === false && isOwnerEmail("") === false, "total over absence");
+  ok(ownerUserIds("", { id: "u-founder", email: OWNER_ACCOUNT_EMAIL }, {}, []).includes("u-founder"),
+    "missing WF_OWNER_USER_ID still matches the signed-in session email");
+  ok(ownerUserIds("", { id: "u-other", email: "someone@else.com" }, {}, []).length === 0,
+    "a non-founder session cannot mint ownerPick");
+  ok(ownerUserIds("", null, { "u-founder": OWNER_ACCOUNT_EMAIL }, ["u-founder"]).includes("u-founder"),
+    "auth-user email on a like row is the second door");
+  ok(ownerUserIds("env-uuid", { id: "u-founder", email: OWNER_ACCOUNT_EMAIL }, {}, []).includes("env-uuid")
+    && ownerUserIds("env-uuid", { id: "u-founder", email: OWNER_ACCOUNT_EMAIL }, {}, []).includes("u-founder"),
+    "env UUID and session email are additive, not either-or");
 
+  const d = memberDelta({ likes: 50 });
+  ok(d === 1.2, `owner-weighted likes produce memberDelta ${d} (the +0.12 we must NOT stack)`);
   const liked = stampOwnerPick({ id: "x", wfScore: 81, _members: { authors: 0, warnAuthors: 0 } }, true);
   ok(liked.wfScore === 88 && toDisplayScore(liked.wfScore) === 8.8,
-    `8.1 becomes 8.8 on the badge after stampOwnerPick (got ${toDisplayScore(liked.wfScore)})`);
+    `8.1 becomes 8.8 on the badge after stampOwnerPick (got ${toDisplayScore(liked.wfScore)}) — +0.7 only, not +0.7+${d / 10}`);
+  ok(liked.wfScore !== 81 + d + 7,
+    "the displayed bump is not raw + memberDelta + 7");
   ok(liked._members.ownerPick === true, "…and the same stamp sets ownerPick so the mark travels with the number");
   const likedTwice = stampOwnerPick(liked, true);
   ok(likedTwice.wfScore === 88,
@@ -170,5 +188,5 @@ ok(isOwnerPick(null) === false && isOwnerPick({}) === false, "total over garbage
     "the detail thumbs-up fills when liked — the owner can see the like registered");
 }
 
-console.log(`\ncheck-owner-bump: ${fail ? "FAIL" : "OK"} — ${pass} assertions; 8.0 -> 8.7 and 8.1 -> 8.8 EXECUTED, stampOwnerPick is idempotent, founder email stamps without waiting on ownerId, other emails cannot mint, detail sheet shows the score + like state, null stays null.`);
+console.log(`\ncheck-owner-bump: ${fail ? "FAIL" : "OK"} — ${pass} assertions; 8.0 -> 8.7 and 8.1 -> 8.8 EXECUTED (+0.7 only), stampOwnerPick is idempotent, server email door works when env is empty, client has no hardcoded identity, detail sheet shows the score + like state, null stays null.`);
 process.exit(fail ? 1 : 0);
