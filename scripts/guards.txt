@@ -148,6 +148,7 @@ node scripts/test-atlas-card-hooks.mjs
 node scripts/test-atlas-place-pages.mjs
 node scripts/test-owner-places-2026-08-29.mjs
 node scripts/test-owner-places-2026-08-29b.mjs
+node scripts/test-owner-places-2026-08-29c.mjs
 node scripts/test-command-center.mjs
 node scripts/test-vitals-attribution.mjs
 node scripts/test-layout-shift.mjs
