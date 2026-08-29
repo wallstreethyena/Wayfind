@@ -43,6 +43,7 @@ const INVENTED_CIRCLE = [
 ];
 const OFF_COAST_FOOD = [
   "Bern's Steak House", "Armature Works", "Columbia Restaurant Ybor",
+  "Burger Culture Lutz", "Campfired",
 ];
 
 function guideBody(g) {
@@ -165,15 +166,21 @@ ok(foodById.get("ChIJSZyKtGVaw4gRkKUbiPqvOVI")?.name === "Original Word of Mouth
   "positive control: Venice Word of Mouth card is present");
 ok(foodById.get("ChIJs8HMPKxDw4gR8rXHdqdvpmE")?.name === "Ophelia's on the Bay",
   "positive control: Ophelia's card is present");
-// Winter Park food cards now exist (Magical Dining 2026: ÔMO, AVA). That does
-// not authorize a Winter Park chapter on THIS Gulf Coast guide — the picks
-// and off-coast name checks above still forbid it. Tampa is still empty.
+// Winter Park food cards exist (Magical Dining 2026: ÔMO, AVA). Tampa food
+// cards now exist too (owner 2026-08-29: Burger Culture Lutz, Campfired).
+// Neither authorizes a Winter Park / Tampa chapter on THIS Gulf Coast
+// guide — the picks and off-coast name checks above still forbid it.
 const wpFood = cards.filter((c) => c.category === "food" && /winter park/i.test(c.address || ""));
 const tampaFood = cards.filter((c) => c.category === "food" && /tampa/i.test(c.address || ""));
 ok(wpFood.length >= 2, `Winter Park food cards exist (${wpFood.map((c) => c.name).join(", ")}) — Magical Dining; this guide still must not grow a chapter from them`);
-ok(tampaFood.length === 0, "there are still no Tampa food cards to invent a chapter from");
+ok(tampaFood.some((c) => c.placeId === "ChIJm_MbVcLHwogRdDvs5papv1A") &&
+   tampaFood.some((c) => c.placeId === "ChIJd6m6J4jPwogR7P5HCLMRyyg"),
+  "Tampa food cards include the 2026-08-29 owner pins (Burger Culture Lutz, Campfired)");
+ok(tampaFood.length >= 2, `Tampa food cards exist (${tampaFood.map((c) => c.name).join(", ")}) — owner 2026-08-29; this guide still must not grow a chapter from them`);
 ok(picks.every((p) => !wpFood.some((c) => c.placeId === p.placeId)),
   "the Gulf Coast brunch guide still does not pick a Winter Park card");
+ok(picks.every((p) => !tampaFood.some((c) => c.placeId === p.placeId)),
+  "the Gulf Coast brunch guide still does not pick a Tampa card");
 
 if (fail.length) {
   console.error("test-gulf-coast-brunch-date-night: FAIL");
