@@ -8,9 +8,11 @@
  *      shorter official string. This file measures the placeholder against
  *      the input's content box at a real 390×844 viewport.
  *   2. Homepage rail flash. First paint used blank color slabs (a single
- *      rounded wf-sk / railTint rectangle) while rails hydrated. First paint
- *      must paint a place-card-shaped skeleton (media column + copy lines +
- *      action row) or the official string / card geometry came back as a slab.
+ *      rounded wf-sk / railTint rectangle) while rails hydrated. Poster tiles
+ *      now paint the real <img class="wf8-tim"> (Tonight JPG is in the SSR
+ *      document) — a PlaceCardSkeleton overlay on that image is the iPhone
+ *      stuck-skeleton look. The drop still paints place-card skeletons
+ *      while ranking.
  *
  * Ranking, scores, Atlas, affiliates, CSP, ads, and geolocation defaults are
  * not this file's job. toHookLine / isUsableCardHook are not imported.
@@ -70,8 +72,12 @@ ok(/className="wf-place-card-layout"/.test(SKEL_CODE),
   "the skeleton USES .wf-place-card-layout — that is the two-column card shape");
 ok(/wf-place-card-sk-media/.test(SKEL_CODE) && /wf-place-card-sk-actions/.test(SKEL_CODE),
   "the skeleton has a media column AND an action row — a single rounded slab has neither");
-ok(/className="wf8-tile-sk"/.test(RAIL_CODE) && /<PlaceCardSkeleton count=\{1\} as="div" \/>/.test(RAIL_CODE),
-  "DaypartRail tiles paint a place-card skeleton until rail art is ready — first paint is not a blank railTint slab");
+ok(/className="wf8-tim"/.test(RAIL_CODE) && /<picture>/.test(RAIL_CODE),
+  "DaypartRail poster tiles paint the real <img class=\"wf8-tim\"> — Tonight JPG is already in the document");
+ok(!/className="wf8-tile-sk"/.test(RAIL_CODE),
+  "a present poster img is not covered by wf8-tile-sk — that overlay is the iPhone stuck-skeleton look");
+ok(!/<PlaceCardSkeleton count=\{1\} as="div" \/>/.test(RAIL_CODE),
+  "the tile-level PlaceCardSkeleton overlay is gone — first paint is the poster, not a grey card");
 ok(/loading:\s*\(\)\s*=>\s*<PlaceCardSkeleton/.test(RAIL_CODE),
   "the lazy IconicPlaceCard drop paints PlaceCardSkeleton while the chunk loads");
 ok(/aria-label="Ranking places"/.test(RAIL_CODE) && /<PlaceCardSkeleton count=\{3\} \/>/.test(RAIL_CODE),

@@ -250,7 +250,7 @@ import { canonicalShareUrl } from "../lib/site";
 import { askShareIntent } from "./components/shareIntentSheet";
 import { placeKinds } from "../lib/dateInvite";
 import { isDateRoom } from "../lib/dateRoom.js";
-import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel } from "../lib/locationHonesty";
+import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin } from "../lib/locationHonesty";
 
 const BUILD = "beta";
 
@@ -876,6 +876,26 @@ const DEFAULT_CENTER = { lat: 27.5689, lng: -82.4393, name: "Parrish, FL" };
 // null until GPS, manual search, or /api/geo adopts a real point. Do not claim
 // "near you" / "you" unless locName is a real city. Keep the literal here so
 // test-events-prime can lockstep primer coords against home.js.
+//
+// /api/rails may start at first paint from this seed (or wf_center /
+// __wfEvPrime) via firstPaintRailOrigin — that is a fetch origin, not a
+// visitor city. locResolved / locName still own "your" city.
+
+/** Already-inlined hints for the first /api/rails request. Not a city claim. */
+function readInlineRailHints() {
+  if (typeof window === "undefined") return { prime: null, stored: null };
+  let prime = null;
+  let stored = null;
+  try {
+    const p = window.__wfEvPrime;
+    if (p && Number.isFinite(+p.lat) && Number.isFinite(+p.lng)) prime = { lat: +p.lat, lng: +p.lng };
+  } catch (e) {}
+  try {
+    const raw = localStorage.getItem("wf_center");
+    stored = raw ? JSON.parse(raw) : null;
+  } catch (e) {}
+  return { prime, stored };
+}
 const FEATURED_AREAS = [];
 
 // Intent: Wayfind asks WHY you are going out, then reshapes every pick around it.
@@ -9097,6 +9117,19 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     );
   };
 
+  // First-paint rails origin. `center` stays null until GPS / manual / geo
+  // — that is still the visitor location. DaypartRail only needs a POINT so
+  // /api/rails can start before locResolved (owner iPhone, 2026-08-29: rails
+  // was 200 in 0.44s while the client sat on LOAD_PENDING). When a real
+  // center arrives, firstPaintRailOrigin returns it and the rail refetches.
+  const inlineRail = readInlineRailHints();
+  const railCenter = firstPaintRailOrigin({
+    resolved: center,
+    locResolved,
+    prime: inlineRail.prime,
+    stored: inlineRail.stored,
+  });
+
   const railMenuBand = railMenu ? (
     <div className="wf-fullbleed">
       <DaypartRail
@@ -9110,7 +9143,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         lat={railMenu.lat}
         lng={railMenu.lng}
         initialDaypart={railMenu.daypart}
-        center={locResolved ? center : null}
+        center={railCenter}
         // v8.46 — the drop names the reader's own town in its honest-empty
         // copy, and can hand them the one-tap GPS fix. `recenterToMe` is also
         // the SELF-HEAL for a stored pin whose label and coordinates disagree:

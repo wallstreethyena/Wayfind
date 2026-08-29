@@ -76,6 +76,7 @@ import { servableRows, isNowRail } from "../../lib/daylight.js";
 // name. The import is the LAW (never "you", never "your area"); the prop is a
 // string the caller handed down.
 import { emptyRailLive, liveFromRailsResponse, cityLabel as honestCityLabel } from "../../lib/locationHonesty.js";
+import { posterImgIsReady, bindPosterArtReady, posterImgInTile } from "../../lib/posterArtReady.js";
 // v8.46 — THE GREY BOX, AGAIN. lib/loadState.js was written on 2026-08-12 for
 // the owner's screenshot of THIS RAIL ("What Should We Do Today?" expanded over
 // an empty grey box) and BestNearby/TodaysBest were moved onto it. This
@@ -267,9 +268,11 @@ export default function DaypartRail({
   lat = null,
   lng = null,
   initialDaypart = "afternoon",
-  // The reader's real location, once it resolves. app/home.js passes `center`,
-  // the one piece of state both geolocation and the search box write to.
-  // Unresolved seed (DEFAULT_CENTER / null) is NOT a visitor location.
+  // A POINT to rank from. app/home.js passes firstPaintRailOrigin() at first
+  // paint (wf_center / __wfEvPrime / DEFAULT_CENTER) so /api/rails starts
+  // before locResolved. That point is not a visitor city — locName stays
+  // empty until GPS / manual / /api/geo. When a real center arrives the
+  // effect below refetches. Unresolved seed is still NOT "your" city.
   center = null,
   // v8.69 — THE PAID CARD INSIDE A RAIL'S DROP (owner, 2026-08-26). Already
   // geo-gated, flight-checked and hydrated by app/home.js through
@@ -720,15 +723,22 @@ export default function DaypartRail({
     if (!id) return;
     setArtReady((prev) => (prev[id] ? prev : { ...prev, [id]: true }));
   }, []);
+  const posterUnbind = useRef(new Map());
+  const bindTilePoster = useCallback((id) => (img) => {
+    const prev = posterUnbind.current.get(id);
+    if (prev) { prev(); posterUnbind.current.delete(id); }
+    if (!img || !id) return;
+    posterUnbind.current.set(id, bindPosterArtReady(img, () => markArtReady(id)));
+  }, [markArtReady]);
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return undefined;
     const mark = () => {
-      track.querySelectorAll("img.wf8-tim").forEach((img) => {
-        if (!(img.complete && img.naturalWidth)) return;
-        const tile = img.closest("[data-id]");
-        const id = tile && tile.getAttribute("data-id");
-        if (id) markArtReady(id);
+      track.querySelectorAll(".wf8-tile").forEach((tile) => {
+        const id = tile.getAttribute("data-id");
+        if (!id) return;
+        const img = posterImgInTile(tile);
+        if (img && (posterImgIsReady(img) || img.complete)) markArtReady(id);
       });
     };
     mark();
@@ -1176,7 +1186,9 @@ export default function DaypartRail({
                         decoding="async"
                         loading={eager ? "eager" : "lazy"}
                         fetchPriority={eager ? "high" : "low"}
+                        ref={bindTilePoster(id)}
                         onLoad={() => markArtReady(id)}
+                        onError={() => markArtReady(id)}
                       />
                     </picture>
                 );
@@ -1201,12 +1213,12 @@ export default function DaypartRail({
                     data-id={id}
                     style={{ background: railTint(id) }}
                   >
-                    {artReady[id] ? null : (
-                      <div className="wf8-tile-sk" aria-hidden="true">
-                        <PlaceCardSkeleton count={1} as="div" />
-                      </div>
-                    )}
-                    {href
+                    {/* Poster tiles already ship <img class="wf8-tim"> — Tonight's
+                        Move JPG is in the SSR document. A PlaceCardSkeleton on
+                        top of that image is the iPhone "stuck skeleton" look
+                        (2026-08-29). Keep is-art-ready for CSS; do not cover
+                        present art with grey cards. */}
+                    {href}
                       ? <a className="wf8-tlink" href={href} aria-label={label} onClick={(e) => tileClick(e, id)}>{art}</a>
                       : <button type="button" className="wf8-tlink" aria-label={label} onClick={(e) => tileClick(e, id)}>{art}</button>}
                     {/* A sponsor tile is a paid unit, not a shareable list —
