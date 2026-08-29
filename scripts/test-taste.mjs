@@ -98,7 +98,7 @@ ok(home.includes('recordSignal(p, "save")') && home.includes('recordSignal(p, "s
   const body = (start, end) => home.slice(home.indexOf(start), home.indexOf(end));
   ok(!body("function toggleLike", "function toggleDislike").includes("requireAuth"), "like works immediately on-device before sign-in");
   ok(!body("function toggleDislike", "function toggleHookLike").includes("requireAuth"), "dislike works immediately on-device before sign-in");
-  ok(!body("function addShared", "async function refreshOwnerPick").includes("requireAuth"), "share is remembered immediately on-device before sign-in");
+  ok(!body("function addShared", "function patchOwnerPick").includes("requireAuth"), "share is remembered immediately on-device before sign-in");
   ok(!body("function quickSaveFavorite", "function saveHookList").includes("requireAuth"), "save works immediately on-device before sign-in");
 }
 // The Score must stay global — taste/affinity must NOT flow into the displayed score.

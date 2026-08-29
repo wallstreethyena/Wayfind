@@ -3,7 +3,10 @@
 // (default 50); everyone else weight 1; the weight flows through the EXISTING
 // memberDelta cap so B14 (null base stays null) and the +1.2 like ceiling hold.
 import { aggregateLikeSignals } from "../lib/memberSignals.js";
+import { ownerUserIds } from "../lib/ownerIdentity.js";
 import { memberDelta } from "../lib/ranking.js";
+import { stampOwnerPick } from "../lib/ownerBump.js";
+import { toDisplayScore } from "../lib/score.js";
 import { readFileSync } from "fs";
 import { shellSrc } from "./lib/shellSrc.mjs";
 
@@ -40,7 +43,7 @@ const W = 50;
   const wfScore = null;
   const applied = wfScore != null ? +(wfScore + d).toFixed(2) : wfScore; // withMemberSignal's exact guard
   ok(applied === null, "a null base score stays null after the god bump (B14)");
-  ok(/p\.wfScore != null \? \+\(\(p\.wfScore \+ d\)/.test(read("app/home.js")), "withMemberSignal keeps the `wfScore != null` guard in source (B14)");
+  ok(/const nudged = base != null \? \+\(\(base \+ d\)\.toFixed\(2\)\) : base;/.test(read("app/home.js")), "withMemberSignal keeps the `base != null` guard in source (B14)");
 }
 
 // 4. the like nudge is CAPPED even at weight 50 — a product-sane god bump.
@@ -98,13 +101,32 @@ for (const f of ["lib/memberSignals.js", "app/api/signals/likes/route.js"]) {
   const iconic = read("app/components/IconicPlaceCard.js");
   ok(/topPickAward\(\{\s*category,\s*rank,\s*curator:\s*isCuratorPick\s*\}\)/.test(iconic) && /award\.curator \? " is-curator"/.test(iconic), "the shared iconic card uses the same single curator award treatment via topPickAward");
   ok(!/WF_OWNER|OWNER_USER_ID/.test(home), "the client never references the owner id/env — it only renders the server's ownerPick");
-  ok(/function refreshOwnerPick\(/.test(home) && /fresh=1/.test(home), "the owner post-tap refetch (refreshOwnerPick) cache-busts with fresh=1");
-  const i = home.indexOf("function refreshOwnerPick(");
-  const rop = home.slice(i, i + 900);
-  ok(/ownerPick/.test(rop) && !/wfScore/.test(rop), "the real-time refetch patches ownerPick ONLY, never wfScore (chip/rank timing decoupled — no mid-scroll re-sort)");
+  ok(/function refreshOwnerPick\(/.test(home) && /fresh: true/.test(home), "the owner post-tap refetch (refreshOwnerPick) cache-busts with fresh=1");
+  const i = home.indexOf("function patchOwnerPick(");
+  const pop = home.slice(i, i + 700);
+  ok(/stampOwnerPick\(pl, ownerPick\)/.test(pop) && /stampOwnerPick\(cur, ownerPick\)/.test(pop),
+    "the like path stamps ownerPick AND wfScore (via stampOwnerPick) on list cards AND the open detail sheet — 8.1→8.8, then reconcile");
+  ok(/withMemberSignal\(\[p\], sig\)/.test(home) && /fetchPlaceById\(placeId\)/.test(home),
+    "/p/{id} applies withMemberSignal after fetchPlaceById so the sheet is not stuck on the raw score");
+}
+
+// 8b. THE LOCK THAT USED TO SAY "never wfScore" — inverted on purpose.
+// main 095d32b9 assertion 8 required refreshOwnerPick to patch ownerPick ONLY.
+// That is the bug: tap left the open sheet on the raw number. The tap must
+// move the displayed score, then reconcile with the server.
+{
+  const d = memberDelta({ likes: 50 });
+  const stamped = stampOwnerPick({ wfScore: 81 }, true);
+  ok(toDisplayScore(stamped.wfScore) === 8.8, "EXECUTED: 8.1 → 8.8 on the badge");
+  ok(stamped.wfScore === 88 && stamped.wfScore !== 81 + d + 7,
+    "EXECUTED: the spoken bump is +0.7 only, not memberDelta's extra +0.12 stacked on OWNER_BUMP");
+  const emptyEnv = ownerUserIds("", { id: "sid", email: "someone@else.com" }, {}, ["sid"]);
+  ok(emptyEnv.length === 0, "EXECUTED: a non-founder session cannot mint ownerPick when env is empty");
+  ok(/ownerUserIds\(/.test(read("app/api/signals/likes/route.js")),
+    "the likes route CALLS ownerUserIds — env UUID + session/auth email, not a client flag");
 }
 
 // 9. fresh=1 is a cache flag only — it cannot influence the weight/owner (env-only).
 ok(/searchParams\.get\("fresh"\)/.test(read("app/api/signals/likes/route.js")), "the route honors the fresh cache-bust flag (owner id/weight stay env-only)");
 
-console.log(`test-curator-boost: OK — ${pass} assertions (owner weight 50 in ONE aggregate; visitor regression-proof; B14 holds; +1.2 capped; unlike resets; env-only + no hardcoded identity; affiliate-isolated; credential display-only + real-time via fresh refetch, no re-sort)`);
+console.log(`test-curator-boost: OK — ${pass} assertions (owner weight 50 in ONE aggregate; visitor regression-proof; B14 holds; +1.2 capped; unlike resets; env UUID + server email door; no client identity; affiliate-isolated; tap updates wfScore 8.1→8.8 on sheet and cards)`);

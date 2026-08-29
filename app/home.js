@@ -187,7 +187,7 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 import { C, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, RADII, MOTION, TARGET, SHADOW } from "./components/kit";
 import { sponsorRailNear, partnerCollectionById, hydratePartnerCollection } from "../lib/partnerCollections";
 import { toDisplayScore, pickEligibleByScore, cardComplete, displayableAt } from "../lib/score";
-import { withOwnerBump } from "../lib/ownerBump.js";
+import { stampOwnerPick } from "../lib/ownerBump.js";
 import { frontPageEvents, bestFirst } from "../lib/frontEvents";
 import { pickHomeExp } from "../lib/homeExpPick";
 // July 2026 decomposition (wave 1): the homepage's ~520 lines of server-
@@ -806,7 +806,17 @@ function listShareUrl(key, title, n, loc, hk) {
   if (loc) q.push("loc=" + encodeURIComponent(String(loc).split(",")[0].slice(0, 30)));
   return originUrl("/l/" + encodeURIComponent(key) + "?" + q.join("&"));
 }
-async function fetchMemberSignals(sb, list) {
+async function likesAuthHeaders(sb) {
+  try {
+    if (!sb || !sb.auth || typeof sb.auth.getSession !== "function") return {};
+    const { data } = await sb.auth.getSession();
+    const tok = data && data.session && data.session.access_token;
+    return tok ? { Authorization: "Bearer " + tok } : {};
+  } catch {
+    return {};
+  }
+}
+async function fetchMemberSignals(sb, list, opts) {
   try {
     const ids = (list || []).map((p) => p && p.id).filter(Boolean).slice(0, 50);
     if (!ids.length) return null;
@@ -815,9 +825,14 @@ async function fetchMemberSignals(sb, list) {
     // service key) because RLS correctly hides other users' like rows from
     // the browser. The COUNT is never rendered anywhere; it only feeds the
     // ranking nudge in Ranking.memberDelta, per product direction.
+    // The session JWT (if any) is sent so the server can match the founder
+    // email as a second door. The client does not decide ownerPick.
+    const fresh = opts && opts.fresh === true;
+    const likesUrl = "/api/signals/likes?ids=" + encodeURIComponent(ids.join(",")) + (fresh ? "&fresh=1" : "");
+    const likesHeaders = await likesAuthHeaders(sb);
     const [cRes, lRes] = await Promise.all([
       sb ? sb.from("comments").select("place_id,user_id,type").in("place_id", ids).then((r) => r.data, () => null) : Promise.resolve(null),
-      fetch("/api/signals/likes?ids=" + encodeURIComponent(ids.join(","))).then((r) => (r.ok ? r.json() : null), () => null),
+      fetch(likesUrl, { headers: likesHeaders }).then((r) => (r.ok ? r.json() : null), () => null),
     ]);
     const out = {};
     if (Array.isArray(cRes) && cRes.length) {
@@ -840,31 +855,26 @@ function withMemberSignal(list, sig) {
   // turned member likes into a tiny positive (~0.6-1.2 on the 0-100 scale) -> a red
   // "0.1/10" badge that also defeated the wfScore==null "Score pending" self-heal.
   // A null base stays null (Score pending self-heals from rating or shows pending).
-  // v8.90 — THE GOD BUMP LANDS HERE, and here ONLY (owner, 2026-08-29: "every
-  // like button pressed by gabrielpereira@me.com receives the god bump, 0.7 in
-  // the score, so an 8.0 is now an 8.7, globally everywhere").
+  // v8.90 — THE GOD BUMP LANDS HERE, and here ONLY. OWNER_BUMP=7 (+0.7 on
+  // the badge: 8.1 → 8.8). The spoken bump is that +0.7 only — do not also
+  // stack memberDelta's like-weight nudge (~+0.12) on an owner pick.
   //
-  // This function is already the single choke point where the server's like
+  // This function is the single choke point where the server's like
   // aggregate meets a place object — every ranked surface routes through
   // /api/signals/likes -> aggregateLikeSignals -> here, and the rail passes THIS
-  // function down as `applyMemberSignal` rather than re-deriving one. So
-  // "globally everywhere" is satisfied by putting the bump in one line, and a
-  // second implementation anywhere else would be the parallel-matcher mistake
-  // this codebase has paid for repeatedly.
+  // function down as `applyMemberSignal`. /p/{id} must run the same function
+  // after fetchPlaceById so the sheet is not stuck on the raw score.
   //
-  // `g.ownerPick` is SERVER-derived (ownerId is server env; the client never
-  // decides owner status), so a device cannot mint itself a bump.
-  //
-  // A NULL BASE STAYS NULL — the B14 rule this line already enforced for the
-  // member delta, and withOwnerBump enforces it too: an unrated place shows
-  // "Score pending", and a bump on a phantom 0 is the fake "0.1/10" badge
-  // lib/score.js's header exists for.
+  // `g.ownerPick` is SERVER-derived. The client never hardcodes an email or
+  // UUID. Null base stays null (B14 / no fake 0.7).
   return (list || []).map((p) => {
     const g = p && sig[p.id];
     if (!g) return p;
     const d = Ranking.memberDelta(g);
-    const nudged = p.wfScore != null ? +((p.wfScore + d).toFixed(2)) : p.wfScore;
-    return { ...p, wfScore: withOwnerBump(nudged, g.ownerPick === true), _members: g };
+    const base = p._wfScoreRaw != null ? p._wfScoreRaw : p.wfScore;
+    const nudged = base != null ? +((base + d).toFixed(2)) : base;
+    const forDisplay = g.ownerPick === true ? base : nudged;
+    return stampOwnerPick({ ...p, wfScore: forDisplay, _members: g }, g.ownerPick === true);
   });
 }
 // v4.95: the old mapsRouteUrl (Google-Maps directions to ALL places at once)
@@ -5970,27 +5980,28 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try { setLocal("wf_shared_items", JSON.stringify(next)); } catch {}
     svFolderUpsert("Shared", p);
   }
-  // Curator Boost real-time chip: after a like/unlike write LANDS, refetch the
-  // server's ownerPick for THIS place (cache-busting fresh=1) and patch it into
-  // the visible feed so the OWNER sees the chip appear/disappear within ~1s. The
-  // client never learns or decides owner status — it renders whatever ownerPick
-  // the server returns. Chip ONLY: wfScore/rank are untouched, so nothing re-sorts
-  // mid-scroll (the 50x ranking effect lands on the next feed load, by design).
+  // After a like/unlike write LANDS, refetch the server's ownerPick (fresh=1)
+  // and stamp ownerPick AND wfScore on list cards and the open sheet
+  // (8.1 → 8.8). The client cannot mint: only the server owner map.
+  function patchOwnerPick(placeId, ownerPick) {
+    if (!placeId) return;
+    const patch = (cur) => (cur || []).map((pl) => (pl && pl.id === placeId ? stampOwnerPick(pl, ownerPick) : pl));
+    setPlaces(patch);
+    setExpPlaces(patch);
+    setDetail((cur) => (cur && cur.id === placeId ? stampOwnerPick(cur, ownerPick) : cur));
+  }
   async function refreshOwnerPick(placeId) {
     if (!placeId) return;
     try {
-      const r = await fetch("/api/signals/likes?ids=" + encodeURIComponent(placeId) + "&fresh=1");
-      if (!r.ok) return;
-      const d = await r.json();
-      const ownerPick = !!(d && d.owner && d.owner[placeId]);
-      const patch = (cur) => (cur || []).map((pl) => (pl && pl.id === placeId ? { ...pl, _members: { ...(pl._members || { authors: 0, warnAuthors: 0 }), ownerPick } } : pl));
-      setPlaces(patch);
-      setExpPlaces(patch);
+      const sig = await fetchMemberSignals(supabase, [{ id: placeId }], { fresh: true });
+      const ownerPick = !!(sig && sig[placeId] && sig[placeId].ownerPick);
+      patchOwnerPick(placeId, ownerPick);
     } catch (e) {}
   }
   function toggleLike(e, p) {
     e.stopPropagation();
     const wasLiked = !!liked[p.id];
+    const nowLiked = !wasLiked;
     const nextLiked = { ...liked }; const nextDis = { ...disliked };
     const nextLikedItems = { ...likedItems }; const nextDisItems = { ...dislikedItems };
     if (wasLiked) { delete nextLiked[p.id]; delete nextLikedItems[p.id]; }
@@ -6024,7 +6035,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       nextDisItems[p.id] = { place: p, ts: Date.now() }; delete nextLikedItems[p.id];
       recordSignal(p, "dislike"); logEvent("dislike", p);
       svFolderUpsert("Disliked", p);
-      if (supabase && user) supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id).then(() => {}, () => {});
+      if (supabase && user) supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id).then(() => refreshOwnerPick(p.id), () => {});
     }
     setLiked(nextLiked); setDisliked(nextDis);
     setLikedItems(nextLikedItems); setDislikedItems(nextDisItems);
@@ -6187,6 +6198,17 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // v6.08 (PR-C): remember where we were in the list so back returns here, not to the top.
     try { if (scrollRef.current) { const _k = screen + "|" + cat + "|" + sub + "|" + vibe; const _t = scrollRef.current.scrollTop; scrollRestore.current = { key: _k, top: _t }; sessionStorage.setItem("wf_sc_" + _k, String(_t)); } } catch (e) {}
     setDetail(p);
+    // /p/{id} and any card that skipped withMemberSignal still show the raw
+    // score until this overlay lands. Same function as the list path.
+    fetchMemberSignals(supabase, [p]).then((sig) => {
+      if (!sig) return;
+      const next = withMemberSignal([p], sig)[0];
+      if (!next || next.id !== p.id) return;
+      setDetail((cur) => (cur && cur.id === p.id ? { ...cur, wfScore: next.wfScore, _members: next._members, _wfScoreRaw: next._wfScoreRaw } : cur));
+      const patch = (cur) => (cur || []).map((pl) => (pl && pl.id === p.id ? { ...pl, wfScore: next.wfScore, _members: next._members, _wfScoreRaw: next._wfScoreRaw } : pl));
+      setPlaces(patch);
+      setExpPlaces(patch);
+    }).catch(() => {});
     setDetailContext(context || null);
     recordSignal(p, "open"); // implicit engagement signal
     try { if (OFFERS[p.id]) logEvent("offer_impression", p, { offer_id: OFFERS[p.id].id }); } catch (e) {}
@@ -6548,10 +6570,15 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       (async () => {
         const p = await fetchPlaceById(placeId);
         if (p) {
-          if (placeAction === "save") quickSaveFavorite(p);
-          else if (placeAction === "like") toggleLike({ stopPropagation() {} }, p);
-          else if (placeAction === "dislike") toggleDislike({ stopPropagation() {} }, p);
-          openDetail(p);
+          let opened = p;
+          try {
+            const sig = await fetchMemberSignals(supabase, [p]);
+            if (sig) opened = withMemberSignal([p], sig)[0] || p;
+          } catch (e) {}
+          if (placeAction === "save") quickSaveFavorite(opened);
+          else if (placeAction === "like") toggleLike({ stopPropagation() {} }, opened);
+          else if (placeAction === "dislike") toggleDislike({ stopPropagation() {} }, opened);
+          openDetail(opened);
         }
       })();
     }

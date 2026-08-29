@@ -45,8 +45,11 @@ if (!s.includes('const [hkSort, setHkSort] = useState("rated")')) fail("sheet so
 if (!s.includes('const [sortBy, setSortBy] = useState("rated")')) fail("browse sort must default to quality-first (rated)");
 
 // 9. AI insight meta-commentary can never reach the user.
+// The render gate is whyWayfindPickedBody (lib/insightWhy.js). insightSane
+// stays as the string-shaped wrapper so a leftover filler sentence still dies.
 if (!s.includes("function insightSane(")) fail("insightSane guard missing");
-if (!s.includes("const S = (v) => insightSane(v)")) fail("insight render not routed through insightSane");
+if (!s.includes("whyWayfindPickedBody")) fail("insight render not routed through whyWayfindPickedBody");
+if (!s.includes("const body = whyWayfindPickedBody(insight)")) fail("the Why-Wayfind block must take its body from whyWayfindPickedBody, not a loading shell");
 
 // 10. v6.15 — the Favorites-heart bug class: EVERY <PlaceCard> must pass the
 // `saved` prop so the heart reflects real Favorites membership. A folder card

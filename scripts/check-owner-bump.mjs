@@ -38,7 +38,9 @@
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { withOwnerBump, isOwnerPick, OWNER_BUMP, OWNER_BUMP_DISPLAY, SCORE_CEILING } from "../lib/ownerBump.js";
+import { withOwnerBump, isOwnerPick, stampOwnerPick, ownerBumpScoreRaw, OWNER_BUMP, OWNER_BUMP_DISPLAY, SCORE_CEILING } from "../lib/ownerBump.js";
+import { isOwnerEmail, ownerUserIds, OWNER_ACCOUNT_EMAIL } from "../lib/ownerIdentity.js";
+import { memberDelta } from "../lib/ranking.js";
 import { toDisplayScore } from "../lib/score.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -58,7 +60,7 @@ ok(OWNER_BUMP_DISPLAY === 0.7 && OWNER_BUMP === 7,
   `the bump is 0.7 on the badge and 7 internally (got ${OWNER_BUMP_DISPLAY} / ${OWNER_BUMP}) — Wayfind stores 0-100 and shows /10, and writing 0.7 in internal points would be a 0.07 on the badge, i.e. invisible`);
 
 // A ladder, so the rule is proven as a rule and not at one value.
-for (const [base, want] of [[52, 5.9], [70, 7.7], [80, 8.7], [88, 9.5], [93, 10]]) {
+for (const [base, want] of [[52, 5.9], [70, 7.7], [80, 8.7], [81, 8.8], [88, 9.5], [93, 10]]) {
   ok(toDisplayScore(withOwnerBump(base, true)) === want,
     `${toDisplayScore(base)} -> ${want} with the owner's like (got ${toDisplayScore(withOwnerBump(base, true))})`);
 }
@@ -85,22 +87,29 @@ ok(isOwnerPick({ ownerPick: true }) === false,
 ok(isOwnerPick({ _members: { ownerPick: "yes" } }) === false, "…and only a real boolean true counts");
 ok(isOwnerPick(null) === false && isOwnerPick({}) === false, "total over garbage");
 
-// ── 4. ONE IMPLEMENTATION, AT THE ONE CHOKE POINT ───────────────────────────
+// ── 4. ONE IMPLEMENTATION — stampOwnerPick IS THE MUTATOR ───────────────────
 {
   const home = strip(readFileSync(join(ROOT, "app/home.js"), "utf8"));
-  ok(/import \{ withOwnerBump \} from "\.\.\/lib\/ownerBump\.js"/.test(home),
-    "weaker check (source): app/home.js imports the rule rather than restating the arithmetic");
-  const uses = (home.match(/withOwnerBump\(/g) || []).length;
-  ok(uses === 1,
-    `withOwnerBump is CALLED exactly once in app/home.js (found ${uses}) — a second call site is a second place for the two to drift, and the whole point of "globally everywhere" is that there is one`);
-  // …and that one call is inside withMemberSignal, which is what makes it
-  // global: the rail is handed this function rather than deriving its own.
-  const fn = home.match(/function withMemberSignal\(list, sig\)[\s\S]{0,1400}?\n\}/);
+  ok(/import \{ stampOwnerPick \} from "\.\.\/lib\/ownerBump\.js"/.test(home),
+    "weaker check (source): app/home.js imports stampOwnerPick rather than restating the arithmetic");
+  ok(!/isOwnerAccount|ownerIdentity|OWNER_ACCOUNT_EMAIL/.test(home),
+    "the client does not hardcode the founder email or UUID — ownerPick is server-derived");
+  ok(!/withOwnerBump\(/.test(home),
+    "app/home.js does not call withOwnerBump directly — the arithmetic stays inside stampOwnerPick so like + list load cannot drift");
+  const fn = home.match(/function withMemberSignal\(list, sig\)[\s\S]{0,2200}?\n\}/);
   ok(!!fn, "positive control: withMemberSignal is still found under its known shape");
-  ok(!!fn && /withOwnerBump\(nudged, g\.ownerPick === true\)/.test(fn[0]),
-    "the bump is applied inside withMemberSignal — the single point where the server's like aggregate meets a place object");
+  ok(!!fn && /stampOwnerPick\([\s\S]{0,80}g\.ownerPick === true\)/.test(fn[0]),
+    "the bump is applied inside withMemberSignal via stampOwnerPick — the list-load choke point");
+  ok(!!fn && /g\.ownerPick === true \? base : nudged/.test(fn[0]),
+    "an owner pick uses the raw base (then +0.7), not memberDelta stacked on top");
   ok(/applyMemberSignal=\{withMemberSignal\}/.test(home),
     "…and the rail drop is HANDED that same function, so the rail cannot end up with an unbumped copy of the rule");
+  ok(/function patchOwnerPick\(/.test(home) && /stampOwnerPick\(pl, ownerPick\)/.test(home) && /stampOwnerPick\(cur, ownerPick\)/.test(home),
+    "the like path stamps the same function onto the feed AND the open detail sheet");
+  ok(/fetchPlaceById\(placeId\)/.test(home) && /withMemberSignal\(\[p\], sig\)/.test(home),
+    "/p/{id} runs fetchPlaceById through withMemberSignal so the sheet is not stuck on the raw score");
+  ok(/function refreshOwnerPick\(/.test(home) && /fresh: true/.test(home),
+    "refreshOwnerPick cache-busts then stamps from the server owner map");
 
   // Nobody else may add seven points to a score.
   const bad = [];
@@ -129,5 +138,55 @@ ok(isOwnerPick(null) === false && isOwnerPick({}) === false, "total over garbage
     "…and the stylesheet actually paints it — a class nothing styles is not a disclosure");
 }
 
-console.log(`\ncheck-owner-bump: ${fail ? "FAIL" : "OK"} — ${pass} assertions; the owner's own example (8.0 -> 8.7) EXECUTED through withOwnerBump + toDisplayScore, a five-step ladder, the 10.0 ceiling, the null-stays-null rule, the single-door flag, exactly ONE call site at the one choke point every ranked surface routes through, and the disclosure lock that stops the number moving silently.`);
+// ── 6. LIKE PATH + DETAIL SHEET, EXECUTED ───────────────────────────────────
+{
+  ok(isOwnerEmail(OWNER_ACCOUNT_EMAIL) === true, "the founder email is recognized server-side");
+  ok(isOwnerEmail("GabrielPereira@me.com") === true, "…case-insensitively");
+  ok(isOwnerEmail("someone@else.com") === false, "any other email cannot mint the bump");
+  ok(isOwnerEmail(null) === false && isOwnerEmail("") === false, "total over absence");
+  ok(ownerUserIds("", { id: "u-founder", email: OWNER_ACCOUNT_EMAIL }, {}, []).includes("u-founder"),
+    "missing WF_OWNER_USER_ID still matches the signed-in session email");
+  ok(ownerUserIds("", { id: "u-other", email: "someone@else.com" }, {}, []).length === 0,
+    "a non-founder session cannot mint ownerPick");
+  ok(ownerUserIds("", null, { "u-founder": OWNER_ACCOUNT_EMAIL }, ["u-founder"]).includes("u-founder"),
+    "auth-user email on a like row is the second door");
+  ok(ownerUserIds("env-uuid", { id: "u-founder", email: OWNER_ACCOUNT_EMAIL }, {}, []).includes("env-uuid")
+    && ownerUserIds("env-uuid", { id: "u-founder", email: OWNER_ACCOUNT_EMAIL }, {}, []).includes("u-founder"),
+    "env UUID and session email are additive, not either-or");
+
+  const d = memberDelta({ likes: 50 });
+  ok(d === 1.2, `owner-weighted likes produce memberDelta ${d} (the +0.12 we must NOT stack)`);
+  const liked = stampOwnerPick({ id: "x", wfScore: 81, _members: { authors: 0, warnAuthors: 0 } }, true);
+  ok(liked.wfScore === 88 && toDisplayScore(liked.wfScore) === 8.8,
+    `8.1 becomes 8.8 on the badge after stampOwnerPick (got ${toDisplayScore(liked.wfScore)}) — +0.7 only, not +0.7+${d / 10}`);
+  ok(liked.wfScore !== 81 + d + 7,
+    "the displayed bump is not raw + memberDelta + 7");
+  ok(liked._members.ownerPick === true, "…and the same stamp sets ownerPick so the mark travels with the number");
+  const likedTwice = stampOwnerPick(liked, true);
+  ok(likedTwice.wfScore === 88,
+    `stamping twice does not add 1.4 (got ${likedTwice.wfScore})`);
+  const unliked = stampOwnerPick(likedTwice, false);
+  ok(unliked.wfScore === 81 && unliked._members.ownerPick === false,
+    "unlike restores the pre-bump number and clears the mark");
+
+  const pending = stampOwnerPick({ id: "y", wfScore: null, rating: null, reviews: 0 }, true);
+  ok(pending.wfScore == null && pending._members.ownerPick === true,
+    "a null/unrated base stays null (no fake 0.7) but the like still registers as ownerPick");
+
+  const fromRating = stampOwnerPick({ id: "z", wfScore: null, rating: 4.5, reviews: 58 }, true);
+  ok(fromRating.wfScore != null && fromRating.wfScore === withOwnerBump(ownerBumpScoreRaw({ rating: 4.5, reviews: 58 }), true),
+    "a rated place with a null stored score still moves — the card already showed the computed number");
+  ok(stampOwnerPick({ id: "z", wfScore: null, rating: 4.5, reviews: 58 }, false).wfScore == null,
+    "…and the non-owner path does not mint that computed score (ranking stays honest)");
+
+  const detail = strip(readFileSync(join(ROOT, "app/components/sheets/Detail.js"), "utf8"));
+  ok(/<PlaceScoreChip p=\{detail\}/.test(detail),
+    "the detail sheet paints PlaceScoreChip on the opened place — the same number as the card, including Score pending");
+  ok(/isOwnerPick\(detail\)/.test(detail) && /Curator's pick/.test(detail),
+    "…and a founder like shows the Curator's pick mark on that same row");
+  ok(/fill=\{liked\[detail\.id\] \? "currentColor" : "none"\}/.test(detail),
+    "the detail thumbs-up fills when liked — the owner can see the like registered");
+}
+
+console.log(`\ncheck-owner-bump: ${fail ? "FAIL" : "OK"} — ${pass} assertions; 8.0 -> 8.7 and 8.1 -> 8.8 EXECUTED (+0.7 only), stampOwnerPick is idempotent, server email door works when env is empty, client has no hardcoded identity, detail sheet shows the score + like state, null stays null.`);
 process.exit(fail ? 1 : 0);

@@ -203,6 +203,7 @@ node scripts/test-detail-event-editorial.mjs
 node scripts/test-detail-cta-ladder.mjs
 node scripts/test-booking-audit.mjs
 node scripts/test-money-honest.mjs
+node scripts/check-why-picked-empty.mjs
 node scripts/test-landing-tours.mjs
 node scripts/test-home-bookable.mjs
 node scripts/test-ranking-editorial.mjs
