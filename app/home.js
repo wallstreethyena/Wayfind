@@ -187,7 +187,7 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 import { C, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, RADII, MOTION, TARGET, SHADOW } from "./components/kit";
 import { sponsorRailNear, partnerCollectionById, hydratePartnerCollection } from "../lib/partnerCollections";
 import { toDisplayScore, pickEligibleByScore, cardComplete, displayableAt } from "../lib/score";
-import { withOwnerBump } from "../lib/ownerBump.js";
+import { stampOwnerPick, isOwnerAccount } from "../lib/ownerBump.js";
 import { frontPageEvents, bestFirst } from "../lib/frontEvents";
 import { pickHomeExp } from "../lib/homeExpPick";
 // July 2026 decomposition (wave 1): the homepage's ~520 lines of server-
@@ -852,20 +852,27 @@ function withMemberSignal(list, sig) {
   // second implementation anywhere else would be the parallel-matcher mistake
   // this codebase has paid for repeatedly.
   //
-  // `g.ownerPick` is SERVER-derived (ownerId is server env; the client never
-  // decides owner status), so a device cannot mint itself a bump.
+  // `g.ownerPick` is SERVER-derived (owner id is server env). The like path
+  // also stamps via stampOwnerPick when the signed-in email is the founder
+  // so a missing server owner id cannot no-op the bump he is looking at.
   //
   // A NULL BASE STAYS NULL — the B14 rule this line already enforced for the
-  // member delta, and withOwnerBump enforces it too: an unrated place shows
-  // "Score pending", and a bump on a phantom 0 is the fake "0.1/10" badge
-  // lib/score.js's header exists for.
+  // member delta, and stampOwnerPick / withOwnerBump enforce it too: an
+  // unrated place shows "Score pending", and a bump on a phantom 0 is the
+  // fake "0.1/10" badge lib/score.js's header exists for.
   return (list || []).map((p) => {
     const g = p && sig[p.id];
     if (!g) return p;
     const d = Ranking.memberDelta(g);
-    const nudged = p.wfScore != null ? +((p.wfScore + d).toFixed(2)) : p.wfScore;
-    return { ...p, wfScore: withOwnerBump(nudged, g.ownerPick === true), _members: g };
+    const base = p._wfScoreRaw != null ? p._wfScoreRaw : p.wfScore;
+    const nudged = base != null ? +((base + d).toFixed(2)) : base;
+    return stampOwnerPick({ ...p, wfScore: nudged, _members: g }, g.ownerPick === true);
   });
+}
+
+function applyOwnerSessionLikes(list, user, likedMap) {
+  if (!isOwnerAccount(user) || !likedMap) return list;
+  return (list || []).map((p) => (p && p.id && likedMap[p.id] ? stampOwnerPick(p, true) : p));
 }
 // v4.95: the old mapsRouteUrl (Google-Maps directions to ALL places at once)
 // is gone by product direction — a list's map icon opens Wayfind's own map.
@@ -4219,7 +4226,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       const rankScore = (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: Hol.fitFor(hol.key, p) + Hol.pinFor(hol.key, p), featured: featuredBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0, trend: p.trending ? TRENDING_BONUS : 0 });
       pool.sort((a, b) => rankScore(b) - rankScore(a));
       pool = pool.slice(0, 12);
-      try { const sig = await fetchMemberSignals(supabase, pool); if (sig) pool = withMemberSignal(pool, sig); } catch (e) {}
+      try { const sig = await fetchMemberSignals(supabase, pool); if (sig) pool = applyOwnerSessionLikes(withMemberSignal(pool, sig), user, liked); } catch (e) {}
       if (!pool.length) { showToast("Nothing found for " + hol.name + " nearby yet"); return; }
       setHookDetail({ id: "hol-" + hol.key, key: "hol-" + hol.key, theme: "hol-" + hol.key, hol: hol.key, title: content.headline(locName), themeTitle: content.headline(locName), label: hol.name + " picks", take: content.sub, themeBody: content.sub, emoji: hol.emoji, accent: theme.accent, places: pool });
     } catch (e) { showToast("Could not load " + hol.name + " picks"); }
@@ -5970,27 +5977,36 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try { setLocal("wf_shared_items", JSON.stringify(next)); } catch {}
     svFolderUpsert("Shared", p);
   }
-  // Curator Boost real-time chip: after a like/unlike write LANDS, refetch the
-  // server's ownerPick for THIS place (cache-busting fresh=1) and patch it into
-  // the visible feed so the OWNER sees the chip appear/disappear within ~1s. The
-  // client never learns or decides owner status — it renders whatever ownerPick
-  // the server returns. Chip ONLY: wfScore/rank are untouched, so nothing re-sorts
-  // mid-scroll (the 50x ranking effect lands on the next feed load, by design).
-  async function refreshOwnerPick(placeId) {
+  // After a like/unlike write LANDS, refetch the server's ownerPick (fresh=1)
+  // and reconcile. The founder session does not wait on a server owner id: if
+  // he just liked, the stamp stays even when the server owner map is empty.
+  // Non-owner sessions render only what the server returns — they cannot mint.
+  // stampOwnerPick moves the displayed score (+0.7) on the card AND the open
+  // detail sheet; it is idempotent so a second pass cannot add 1.4.
+  function patchOwnerPick(placeId, ownerPick) {
+    if (!placeId) return;
+    const patch = (cur) => (cur || []).map((pl) => (pl && pl.id === placeId ? stampOwnerPick(pl, ownerPick) : pl));
+    setPlaces(patch);
+    setExpPlaces(patch);
+    setDetail((cur) => (cur && cur.id === placeId ? stampOwnerPick(cur, ownerPick) : cur));
+  }
+  async function refreshOwnerPick(placeId, hint) {
     if (!placeId) return;
     try {
       const r = await fetch("/api/signals/likes?ids=" + encodeURIComponent(placeId) + "&fresh=1");
       if (!r.ok) return;
       const d = await r.json();
-      const ownerPick = !!(d && d.owner && d.owner[placeId]);
-      const patch = (cur) => (cur || []).map((pl) => (pl && pl.id === placeId ? { ...pl, _members: { ...(pl._members || { authors: 0, warnAuthors: 0 }), ownerPick } } : pl));
-      setPlaces(patch);
-      setExpPlaces(patch);
+      const serverPick = !!(d && d.owner && d.owner[placeId]);
+      const ownerPick = isOwnerAccount(user) && hint && typeof hint.liked === "boolean"
+        ? hint.liked
+        : serverPick;
+      patchOwnerPick(placeId, ownerPick);
     } catch (e) {}
   }
   function toggleLike(e, p) {
     e.stopPropagation();
     const wasLiked = !!liked[p.id];
+    const nowLiked = !wasLiked;
     const nextLiked = { ...liked }; const nextDis = { ...disliked };
     const nextLikedItems = { ...likedItems }; const nextDisItems = { ...dislikedItems };
     if (wasLiked) { delete nextLiked[p.id]; delete nextLikedItems[p.id]; }
@@ -6003,11 +6019,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     setLiked(nextLiked); setDisliked(nextDis);
     setLikedItems(nextLikedItems); setDislikedItems(nextDisItems);
     try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); localStorage.setItem("wf_liked_items", JSON.stringify(nextLikedItems)); setLocal("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
+    if (isOwnerAccount(user)) patchOwnerPick(p.id, nowLiked);
     if (supabase && user) {
       if (wasLiked) {
-        supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id).then(() => refreshOwnerPick(p.id), () => {});
+        supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id).then(() => refreshOwnerPick(p.id, { liked: nowLiked }), () => {});
       } else {
-        supabase.from("likes").upsert({ user_id: user.id, place_id: p.id, place: p }, { onConflict: "user_id,place_id" }).then(() => refreshOwnerPick(p.id), () => {});
+        supabase.from("likes").upsert({ user_id: user.id, place_id: p.id, place: p }, { onConflict: "user_id,place_id" }).then(() => refreshOwnerPick(p.id, { liked: nowLiked }), () => {});
         svFolderDelete("Disliked", p.id);
       }
     }
@@ -6024,13 +6041,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       nextDisItems[p.id] = { place: p, ts: Date.now() }; delete nextLikedItems[p.id];
       recordSignal(p, "dislike"); logEvent("dislike", p);
       svFolderUpsert("Disliked", p);
-      if (supabase && user) supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id).then(() => {}, () => {});
+      if (isOwnerAccount(user)) patchOwnerPick(p.id, false);
+      if (supabase && user) supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id).then(() => refreshOwnerPick(p.id, { liked: false }), () => {});
     }
     setLiked(nextLiked); setDisliked(nextDis);
     setLikedItems(nextLikedItems); setDislikedItems(nextDisItems);
     try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); localStorage.setItem("wf_liked_items", JSON.stringify(nextLikedItems)); setLocal("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
     if (!wasDis) showToast("Got it — fewer places like this");
   }
+  useEffect(() => {
+    if (!isOwnerAccount(user)) return;
+    setPlaces((cur) => applyOwnerSessionLikes(cur, user, liked));
+    setExpPlaces((cur) => applyOwnerSessionLikes(cur, user, liked));
+    setDetail((cur) => (cur && liked[cur.id] ? stampOwnerPick(cur, true) : cur));
+  }, [user, liked]);
   function toggleHookLike(hookId) {
     if (!requireAuth("Sign up free — your spots, saved and synced to every device.")) return;
     const next = new Set(hookLikes);
@@ -6186,7 +6210,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try { const _aud = {}; experienceBadges(p, null, 99, _aud); logEvent("detail_open", p, { identity: _aud.identity || null, blocked: (_aud.blocked || []).length, ctx: typeof context === "string" ? context : null }); } catch (e) {}
     // v6.08 (PR-C): remember where we were in the list so back returns here, not to the top.
     try { if (scrollRef.current) { const _k = screen + "|" + cat + "|" + sub + "|" + vibe; const _t = scrollRef.current.scrollTop; scrollRestore.current = { key: _k, top: _t }; sessionStorage.setItem("wf_sc_" + _k, String(_t)); } } catch (e) {}
-    setDetail(p);
+    setDetail(isOwnerAccount(user) && liked[p.id] ? stampOwnerPick(p, true) : p);
     setDetailContext(context || null);
     recordSignal(p, "open"); // implicit engagement signal
     try { if (OFFERS[p.id]) logEvent("offer_impression", p, { offer_id: OFFERS[p.id].id }); } catch (e) {}
@@ -6832,7 +6856,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             // geocode had not resolved. 46% of no-result events carry an empty
             // loc, so whether that correlates with fetch failures matters.
             locState: locName ? "resolved" : "pending",
-          }); fetchMemberSignals(supabase, results).then((sig) => { if (!cancelled && sig) setPlaces((cur) => withMemberSignal(cur, sig)); }); }
+          }); fetchMemberSignals(supabase, results).then((sig) => { if (!cancelled && sig) setPlaces((cur) => applyOwnerSessionLikes(withMemberSignal(cur, sig), user, liked)); }); }
       } catch (e) {
         if (!cancelled) { setErr("We couldn't load spots right now. Try again in a moment."); setPlaces([]); }
       } finally {
@@ -6954,7 +6978,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // owner's device — fetched vs kept, the radius actually searched, and
         // the client clamp (expMi) that hides fetched-but-distant results.
         try { logEvent("moment_open_diag", null, { intent: activeBadge, fetched: raw.length, kept: results.length, radiusMi: Math.round(radius / 1609.34), clampMi: expMi, within17: results.filter((p) => p.distMi != null && p.distMi <= 17).length }); } catch (e) {}
-        if (!_tok.dead) { setExpPlaces(results); loadBlurbs(results); fetchMemberSignals(supabase, results).then((sig) => { if (!_tok.dead && sig) setExpPlaces((cur) => withMemberSignal(cur, sig)); }); }
+        if (!_tok.dead) { setExpPlaces(results); loadBlurbs(results); fetchMemberSignals(supabase, results).then((sig) => { if (!_tok.dead && sig) setExpPlaces((cur) => applyOwnerSessionLikes(withMemberSignal(cur, sig), user, liked)); }); }
         // v4.89: photo fix for the vibe rows — resolve real photos for the
         // top photoless multi-source entries (cached lookups), then repaint.
         try {

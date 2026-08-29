@@ -48,7 +48,7 @@ const LOCAL_FIRST = [
   ["quickSaveFavorite(p)", "function quickSaveFavorite(p) {", "function saveHookList", new RegExp(PERSIST("wayfind_lists").source + '|setLists\\(')],
   ["toggleLike(e, p)", "function toggleLike(e, p) {", "function toggleDislike", PERSIST("wf_liked")],
   ["toggleDislike(e, p)", "function toggleDislike(e, p) {", "function toggleHookLike", PERSIST("wf_disliked")],
-  ["addShared(p)", "function addShared(p) {", "async function refreshOwnerPick", PERSIST("wf_shared_items")],
+  ["addShared(p)", "function addShared(p) {", "function patchOwnerPick", PERSIST("wf_shared_items")],
   ["toggleSaveCoupon(c)", "function toggleSaveCoupon(c) {", "function copyCouponCode", PERSIST("wf_coupons")],
 ];
 for (const [label, sig, endSig, deviceWrite] of LOCAL_FIRST) {

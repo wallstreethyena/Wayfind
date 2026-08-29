@@ -32,10 +32,10 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 // 0 produces the fake red "0.1/10" badge this whole file exists for — and the
 // bump is the more dangerous of the two, since it is a flat +7 rather than a
 // fractional nudge, i.e. a "0.7/10" on a place nobody has rated.
-ok(/const nudged = p\.wfScore != null \? \+\(\(p\.wfScore \+ d\)\.toFixed\(2\)\) : p\.wfScore;/.test(home),
+ok(/const nudged = base != null \? \+\(\(base \+ d\)\.toFixed\(2\)\) : base;/.test(home),
   "withMemberSignal nudges only a non-null base (null stays null)");
-ok(/withOwnerBump\(nudged, g\.ownerPick === true\)/.test(home),
-  "…and the owner bump is applied to THAT value, so it inherits the same null rule rather than re-deriving one");
+ok(/stampOwnerPick\([\s\S]{0,80}g\.ownerPick === true\)/.test(home),
+  "…and the owner bump is applied to THAT value via stampOwnerPick, so it inherits the same null rule rather than re-deriving one");
 // EXECUTED, not read: the bump layer's own null behaviour.
 ok(withOwnerBump(null, true) === null,
   "the god bump on a null base stays null — a flat +7 on an unrated place would be a 0.7/10 badge, which is the same defect as the 0.1/10 this file was written for");

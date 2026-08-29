@@ -40,7 +40,7 @@ const W = 50;
   const wfScore = null;
   const applied = wfScore != null ? +(wfScore + d).toFixed(2) : wfScore; // withMemberSignal's exact guard
   ok(applied === null, "a null base score stays null after the god bump (B14)");
-  ok(/p\.wfScore != null \? \+\(\(p\.wfScore \+ d\)/.test(read("app/home.js")), "withMemberSignal keeps the `wfScore != null` guard in source (B14)");
+  ok(/const nudged = base != null \? \+\(\(base \+ d\)\.toFixed\(2\)\) : base;/.test(read("app/home.js")), "withMemberSignal keeps the `base != null` guard in source (B14)");
 }
 
 // 4. the like nudge is CAPPED even at weight 50 — a product-sane god bump.
@@ -99,12 +99,13 @@ for (const f of ["lib/memberSignals.js", "app/api/signals/likes/route.js"]) {
   ok(/topPickAward\(\{\s*category,\s*rank,\s*curator:\s*isCuratorPick\s*\}\)/.test(iconic) && /award\.curator \? " is-curator"/.test(iconic), "the shared iconic card uses the same single curator award treatment via topPickAward");
   ok(!/WF_OWNER|OWNER_USER_ID/.test(home), "the client never references the owner id/env — it only renders the server's ownerPick");
   ok(/function refreshOwnerPick\(/.test(home) && /fresh=1/.test(home), "the owner post-tap refetch (refreshOwnerPick) cache-busts with fresh=1");
-  const i = home.indexOf("function refreshOwnerPick(");
-  const rop = home.slice(i, i + 900);
-  ok(/ownerPick/.test(rop) && !/wfScore/.test(rop), "the real-time refetch patches ownerPick ONLY, never wfScore (chip/rank timing decoupled — no mid-scroll re-sort)");
+  const i = home.indexOf("function patchOwnerPick(");
+  const pop = home.slice(i, i + 700);
+  ok(/stampOwnerPick\(pl, ownerPick\)/.test(pop) && /stampOwnerPick\(cur, ownerPick\)/.test(pop),
+    "the like path stamps ownerPick AND the score (via stampOwnerPick) on cards and the open detail sheet");
 }
 
 // 9. fresh=1 is a cache flag only — it cannot influence the weight/owner (env-only).
 ok(/searchParams\.get\("fresh"\)/.test(read("app/api/signals/likes/route.js")), "the route honors the fresh cache-bust flag (owner id/weight stay env-only)");
 
-console.log(`test-curator-boost: OK — ${pass} assertions (owner weight 50 in ONE aggregate; visitor regression-proof; B14 holds; +1.2 capped; unlike resets; env-only + no hardcoded identity; affiliate-isolated; credential display-only + real-time via fresh refetch, no re-sort)`);
+console.log(`test-curator-boost: OK — ${pass} assertions (owner weight 50 in ONE aggregate; visitor regression-proof; B14 holds; +1.2 capped; unlike resets; env-only + no hardcoded identity; affiliate-isolated; credential display + like path stamps score via stampOwnerPick)`);

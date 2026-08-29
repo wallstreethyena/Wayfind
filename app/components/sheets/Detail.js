@@ -2,7 +2,8 @@
 // Extracted from app/home.js (G3, July 2026 decomposition). Render-only.
 // The place-detail bottom sheet — Wayfind's core, most-used UI surface.
 // Five helpers used exclusively here move in too (galleryBtn, InfoChip,
-// WorthTheDriveWidget, compass, insightSane); everything else (including
+// WorthTheDriveWidget, compass); why-picked body is lib/insightWhy.js.
+// everything else (including
 // betterAlternatives/similarPlaces/relatedPicks, which close over the
 // module-scope EXPERIENCES table) stays in home.js and flows through ctx,
 // same as every other extraction phase.
@@ -35,6 +36,8 @@ import { askShareIntent } from "../shareIntentSheet";
 import { placeKinds } from "../../../lib/dateInvite";
 import { hasRealPlacePhoto, realPlacePhotoSrc } from "../../../lib/detailHero";
 import { editorialRequestQuery, carriedEditorial, hasSourcedEditorialFields } from "../../../lib/editorialLookup";
+import { whyWayfindPickedBody } from "../../../lib/insightWhy";
+import { isOwnerPick } from "../../../lib/ownerBump";
 
 // Community takes (v6.54, owner: "the review is capped on characters we
 // should be able to allow the user to have more characters and write it
@@ -82,10 +85,7 @@ function fmtBeachDay(d) {
 // food establishment...") instead of a real verdict. That must never reach a
 // user. Applied at render time so poisoned cache entries are neutralized too.
 function insightSane(t) {
-  const x = String(t || "").trim();
-  if (!x) return "";
-  if (/not a (food|restaurant|dining)|food establishment|does not belong|browsing category|miscategor|wrong category|as an ai|i cannot|i can't|unable to (assess|evaluate)/i.test(x)) return "";
-  return x;
+  return whyWayfindPickedBody({ why_wayfind_picked_this: t });
 }
 
 function WorthTheDriveWidget({ place, myVote, votes, onVote }) {
@@ -736,7 +736,8 @@ export default function DetailSheet({ ctx }) {
               )}
               {/* Verdict: one consistent row of the things that decide whether to go */}
               <div style={{ display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap", marginBottom: 14, fontSize: 13, fontWeight: 700 }}>
-                {(() => { const sl = scoreLabel(detail.wfScore); return sl ? <span style={{ color: C.light, fontWeight: 800 }}>{sl.s}<span style={{ color: C.muted, fontWeight: 700, fontSize: 11.5 }}> / 10</span></span> : null; })()}
+                <PlaceScoreChip p={detail} size={13} />
+                {isOwnerPick(detail) ? <span style={{ color: C.gold, fontWeight: 800, fontSize: 11 }}>✦ Curator's pick</span> : null}
                 {(() => { const a = new Set((placePosts || []).map((x) => x.user_id)).size; if (!a) return null; return (<><span style={{ color: C.border }}>·</span><span style={{ color: C.muted, fontWeight: 700, fontSize: 11 }}>{a} member take{a === 1 ? "" : "s"}{a >= 3 ? " · in score" : ""}</span></>); })()}
                 {detail.reviews > 0 && (<>
                   <span style={{ color: C.border }}>·</span>
@@ -863,7 +864,7 @@ export default function DetailSheet({ ctx }) {
                     </a>
                   )}
                   {!detail._event && (<>
-                    <button onClick={(e) => toggleLike(e, detail)} aria-label="Like" style={{ flexShrink: 0, width: 44, height: 44, background: liked[detail.id] ? C.adim : "rgba(255,255,255,.035)", border: `1px solid ${liked[detail.id] ? C.light : C.border}`, borderRadius: 12, color: liked[detail.id] ? C.light : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg></button>
+                    <button onClick={(e) => toggleLike(e, detail)} aria-label={liked[detail.id] ? "Remove like" : "Like"} aria-pressed={!!liked[detail.id]} style={{ flexShrink: 0, width: 44, height: 44, background: liked[detail.id] ? C.adim : "rgba(255,255,255,.035)", border: `1px solid ${liked[detail.id] ? C.light : C.border}`, borderRadius: 12, color: liked[detail.id] ? C.light : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="17" height="17" viewBox="0 0 24 24" fill={liked[detail.id] ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg></button>
                     <button onClick={(e) => toggleDislike(e, detail)} aria-label="Not for me" style={{ flexShrink: 0, width: 44, height: 44, background: "rgba(255,255,255,.035)", border: `1px solid ${disliked[detail.id] ? C.red : C.border}`, borderRadius: 12, color: disliked[detail.id] ? C.red : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "rotate(180deg)" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg></button>
                   </>)}
                   <button data-add-to-trip onClick={addToPlan} aria-label={isSaved(detail.id) ? "In your trip" : "Add to my trip"} style={{ flex: "1 1 46%", minWidth: 104, height: 44, padding: "0 10px", background: isSaved(detail.id) ? C.adim : "rgba(255,255,255,.035)", border: `1px solid ${isSaved(detail.id) ? C.light : C.border}`, borderRadius: 12, color: isSaved(detail.id) ? C.light : C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap" }}>{isSaved(detail.id) ? "\u2713 In my trip" : "\u2661 Add to my trip"}</button>
@@ -953,31 +954,16 @@ export default function DetailSheet({ ctx }) {
                   real opinion the block is omitted; the neutral Google summary
                   still renders below, clearly sourced. */}
               {(() => {
-                if (insightLoading) return (
-                  <div style={{ marginBottom: 16, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 62%)`, border: `1px solid ${C.border}55`, borderRadius: 14, padding: "13px 14px" }}>
-                    <div style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: "0.6px", textTransform: "uppercase" }}>{detail._event ? "Why this venue" : "Why Wayfind picked this"}</div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: C.muted, marginTop: 8 }}>
-                      <div style={{ animation: "wfbob 1.1s ease-in-out infinite", display: "flex" }}><Critter size={22} /></div>
-                      Reading the reviews
-                    </div>
-                  </div>
-                );
-                // v6.9x (owner, editorial-quality audit 2026-08-01): the
-                // stitch-from-parts fallback (verdict + whyPicked + tip +
-                // goWhen + skipIf — none of which had been validated on its
-                // own) is gone. /api/insight's compact mode now returns
-                // exactly one field, why_wayfind_picked_this, and it always
-                // comes through validateWhyParagraph before it ever reaches
-                // here — so if it's present, it's already good. Nothing to
-                // compose.
-                const ins = insight && !insight.error && !insight.unavailable ? insight : null;
-                const S = (v) => insightSane(v);
-                const why = ins ? S(ins.why_wayfind_picked_this) : "";
-                // A REAL, review-grounded opinion only — no filler, ever. The
-                // curated editorial has its own surface (the Wayfind-take rail);
-                // the Google summary renders neutrally below. So this block is
-                // strictly the insight, shown only when it actually grounded.
-                const body = why;
+                // v8.91 (owner): never paint the
+                // heading, an LLM loading shell, or an empty paragraph.
+                // insightLoading used to flash "Why Wayfind picked this" +
+                // "Reading the reviews", then write nothing when the model
+                // returned blank. Empty is a valid answer — hide the chrome.
+                // v6.9x: /api/insight compact returns one field, already
+                // through validateWhyParagraph. This gate is the render
+                // contract: whitespace / filler / error / still-loading
+                // all become "" and the block is omitted.
+                const body = whyWayfindPickedBody(insight);
                 if (!body) return null;
                 return (
                   <div style={{ marginBottom: 16, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 62%)`, border: `1px solid ${C.border}55`, borderRadius: 14, padding: "13px 14px" }}>
