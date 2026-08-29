@@ -179,10 +179,25 @@ ok(/_sp\.delete\("action"\)/.test(home), "home.js strips ?action= from /p/{id} s
 const rail = read("app/components/DaypartRail.js");
 ok(/onLike = null/.test(rail) && /onDislike = null/.test(rail),
   "DaypartRail accepts onLike/onDislike (nullable for /v8)");
-ok(/onLike=\{onLike \? \(e, pl\) => onLike\(e, pl\) : null\}/.test(rail),
+// v8.88 — RE-ANCHORED, following the code rather than deleting the check.
+// The adapter used to forward `pl`, IconicPlaceCard's own callback argument,
+// which is the PLACE IT RENDERED — and on the paid sponsored card that row
+// carries a SPONSOR id, a key nothing else in the app can read back. It now
+// forwards `actionPlace`: the same row under its verified Google place id, so
+// the like lands in the store the /p/ detail and Favorites read from. On every
+// unpaid card the two are the same object.
+//
+// The question this assertion was written for is unchanged and still answered:
+// is a REAL handler forwarded, or does IconicPlaceCard fall back to
+// <a href="/p/{id}?action=like"> and navigate the reader off the rail (v8.28)?
+ok(/onLike=\{onLike \? \(e\) => onLike\(e, actionPlace\) : null\}/.test(rail),
   "DaypartRail forwards onLike onto IconicPlaceCard");
-ok(/onDislike=\{onDislike \? \(e, pl\) => onDislike\(e, pl\) : null\}/.test(rail),
+ok(/onDislike=\{onDislike \? \(e\) => onDislike\(e, actionPlace\) : null\}/.test(rail),
   "DaypartRail forwards onDislike onto IconicPlaceCard");
+// …and `actionPlace` must be the id-resolving twin, not an alias for the row.
+// Without this, the two assertions above could be satisfied by renaming `p`.
+ok(/const actionPlace = paidHasStoreKey/.test(rail),
+  "…and actionPlace is the resolved twin (paid card -> its Google place id), not a rename of the card row");
 ok(/onLike=\{onLike \|\| undefined\}/.test(rail),
   "DaypartRail forwards onLike onto ExplodingNearby (trending drop)");
 

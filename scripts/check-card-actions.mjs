@@ -48,16 +48,64 @@ const strip = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$
 // `<TrendReason r={p} />` ended its slice there — so every prop after the
 // badge (including the handlers this guard exists to check) was invisible and
 // four correctly-wired sites reported as broken. Depth-count instead.
+// v8.88 — THIS USED TO TRUNCATE SILENTLY, IN BOTH DIRECTIONS.
+//
+// The old fallback was `return src.slice(i, i + 4000)`. When an element ran
+// longer than 4,000 characters — DaypartRail's <IconicPlaceCard> does, once its
+// props carry any explanation — the slice simply stopped mid-attribute and
+// every check below ran against a fragment.
+//
+// Caught the lucky way: adding comments to that element pushed `onSave=` past
+// the cap and the guard went RED, complaining that a call site passing both
+// `saved` and `onSave` was passing only `saved`. The dangerous direction is the
+// same bug pointing the other way — a real `liked=` with no `onLike=` sitting
+// at character 4,100 reads as absent, which is the exact defect this file
+// exists to catch, silently unasserted.
+//
+// So the fallback is gone. An element whose end cannot be found returns null,
+// and the caller counts those and FAILS. A guard is allowed to be defeated by
+// syntax it does not understand; it is not allowed to be quiet about it.
+//
+// It also could not read a FRAGMENT. `<>` incremented depth and `</>` was seen
+// only as a `/>`, which decremented it once — so a call site whose `badge` prop
+// is `{<>{a}{b}</>}` left the counter one deep and the element's own `/>` was
+// consumed as if it closed something else. The scan then ran to EOF and, under
+// the old 4,000-char fallback, returned a fragment. That is why
+// ThingsToDoList.js — whose props are, as it happens, all paired correctly —
+// had never once been checked by this guard.
+//
+// The model is now the three real cases: `</` closes (depth--), a bare `<`
+// opens (depth++), and `/>` self-closes — which is OUR end at depth 0 and an
+// inner element's end otherwise. Quoted strings and template literals are
+// skipped so a `"<"` in copy cannot move the counter.
 function jsxElement(src, i) {
   let depth = 0;
-  for (let k = i + 1; k < src.length && k < i + 20000; k++) {
-    if (src[k] === "<") depth++;
-    else if (src[k] === "/" && src[k + 1] === ">") {
+  for (let k = i + 1; k < src.length; k++) {
+    const c = src[k];
+    if (c === '"' || c === "'" || c === "`") {
+      const q = c;
+      for (k++; k < src.length; k++) {
+        if (src[k] === "\\") { k++; continue; }
+        if (src[k] === q) break;
+      }
+      continue;
+    }
+    if (c === "<") {
+      if (src[k + 1] === "/") { depth--; continue; }
+      // A `<` only OPENS a tag when a tag name or a fragment follows it.
+      // `mediaPriority={i < 4 ? "high" : "low"}` is the first thing inside
+      // DaypartRail's element, and counting that comparison as an open tag is
+      // what left the scanner permanently one deep. `<=` is the same trap.
+      if (!/[A-Za-z_$>]/.test(src[k + 1] || "")) continue;
+      depth++;
+      continue;
+    }
+    if (c === "/" && src[k + 1] === ">") {
       if (depth === 0) return src.slice(i, k + 2);
       depth--; k++;
     }
   }
-  return src.slice(i, i + 4000);
+  return null;
 }
 
 const walk = (dir) => readdirSync(dir).flatMap((n) => {
@@ -199,6 +247,10 @@ for (const abs of walk(join(ROOT, "app"))) {
     at = i + 1;
     const el = jsxElement(src, i);
     sites++;
+    // A slice this scanner could not delimit proves NOTHING about the site, so
+    // say so rather than testing a fragment (v8.88 — see jsxElement's header).
+    ok(el !== null, `${rel}: could not delimit the <IconicPlaceCard> element at offset ${i} — every pairing check below would have run against a truncated fragment and passed vacuously`);
+    if (el === null) continue;
     for (const [state, handler] of [["liked", "onLike"], ["disliked", "onDislike"], ["saved", "onSave"]]) {
       if (new RegExp("\\b" + state + "\\s*=").test(el)) {
         ok(new RegExp("\\b" + handler + "\\s*=").test(el),

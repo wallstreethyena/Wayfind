@@ -12,6 +12,7 @@ import { isTicketmasterFamily } from "../../../../lib/affiliates.js";
 import { isEventWindow, EVENT_WINDOWS, windowRange, filterByWindow } from "../../../../lib/eventsList.js";
 import { LANDING_CITIES } from "../../../../lib/landing.js";
 import TicketButton from "./TicketButton.js";
+import { addressLine, directionsUrl } from "../../../../lib/placeWhere.js";
 import EventStory from "./EventStory.js";
 import EventPlan from "./EventPlan.js";
 import OpenAppCTA from "../../../components/OpenAppCTA.js";
@@ -179,7 +180,17 @@ export default async function EventPage({ params }) {
   if (!e) notFound();
   const cancelled = /cancelled|canceled|postponed/i.test(e.status || "");
   const where = [e.venue, e.city].filter(Boolean).join(", ");
-  const mapsUrl = where ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((e.venue || "") + " " + (e.city || ""))}` : null;
+  // v8.88 — ONE RULE FOR WHERE (lib/placeWhere.js). This built a Maps SEARCH
+  // on the string `venue + " " + city` while the row it was describing already
+  // carried `address`, `lat` and `lng` from the provider — so the most precise
+  // fields on the object were the ones the link ignored, and the reader landed
+  // on a search result they then had to tap Directions on themselves.
+  //
+  // maps/dir instead of maps/search removes that second tap; the ladder in
+  // placeWhere picks the exact destination, and returns null when the row
+  // genuinely cannot name one, in which case no button renders at all.
+  const mapsUrl = directionsUrl(e);
+  const streetLine = addressLine(e);
   // Pass the official URL. TicketButton wraps Ticketmaster-family through
   // /api/ticketmaster/go so the Impact URL never sits in the DOM (founder P0).
   const external = e.url || null;
@@ -217,8 +228,13 @@ export default async function EventPage({ params }) {
           <div style={{ marginTop: 14, background: "#131A24", border: "1px solid #263041", borderRadius: 14, padding: "13px 15px" }}>
             <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.6px", textTransform: "uppercase", color: "#94A3B8" }}>Venue</div>
             <div style={{ fontSize: 15, fontWeight: 700, color: "#F1F5F9", marginTop: 3 }}>{e.venue || e.city}</div>
-            {e.city && e.venue && <div style={{ fontSize: 13, color: "#94A3B8", marginTop: 1 }}>{e.city}</div>}
-            {mapsUrl && <a href={mapsUrl} target="_blank" rel="noreferrer" style={{ display: "inline-block", marginTop: 9, color: A, fontWeight: 800, fontSize: 13, textDecoration: "none" }}>Directions ↗</a>}
+            {/* The street, when the provider gave us one. Falls back to the
+                city — the old behaviour — so nothing that rendered before
+                stops rendering. */}
+            {streetLine && streetLine !== (e.venue || e.city)
+              ? <div style={{ fontSize: 13, color: "#94A3B8", marginTop: 1 }}>{streetLine}</div>
+              : (e.city && e.venue ? <div style={{ fontSize: 13, color: "#94A3B8", marginTop: 1 }}>{e.city}</div> : null)}
+            {mapsUrl && <a href={mapsUrl} target="_blank" rel="noreferrer" aria-label={"Get directions to " + (e.venue || e.name)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", marginTop: 10, padding: "10px 16px", borderRadius: 11, background: A, border: `1px solid ${A}`, color: "#0D1117", fontWeight: 800, fontSize: 13.5, lineHeight: 1, textDecoration: "none" }}>{"\u2192 Get directions"}</a>}
           </div>
         )}
         {e.description && (

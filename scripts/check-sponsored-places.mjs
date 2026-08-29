@@ -531,8 +531,42 @@ ok(/wf-sponsor-chip/.test(RAIL_SRC), "DaypartRail renders the disclosure chip");
     && RAIL_SRC.slice(trackStart, menuStart).includes("sponsorCard");
   ok(!inTrack, "sponsorCard is never read in the TILE TRACK — that is first-paint surface, and test-first-screen exempts this prop only because the drop is not");
 }
-ok(/cardActionsReadOnly=\{isPaid\}/.test(RAIL_SRC),
-  "save/like/dislike are read-only on the paid card — those stores key on a place id it does not have");
+// v8.88 — THIS ASSERTION ENCODED A PRODUCT DECISION THE OWNER REVERSED, and it
+// is flipped deliberately rather than deleted, with his words on the record:
+// "you should actually be able to like it … I don't know why you didn't put the
+// like dislike and share the way that we have in every single card."
+//
+// The old rule was `cardActionsReadOnly={isPaid}` and its stated reason —
+// "those stores key on a place id it does not have" — was HALF right. The card
+// ROW carries a sponsor id, true. The registry ENTRY behind it carries a
+// verified Google place id, and `placeId` is on the REQUIRED list at the top of
+// this file, so every placement has one by contract. hydrateSponsoredRailPlace
+// has been passing it through as `place.placeId` since v8.69. The store key
+// existed the whole time; nothing asked for it.
+//
+// So the condition is now "read-only only when there is genuinely nowhere to
+// write", and all three parts are pinned: the twin that resolves the id, the
+// guard that keeps it honest, and the registry rule that makes it available.
+ok(/cardActionsReadOnly=\{isPaid && !paidHasStoreKey\}/.test(RAIL_SRC),
+  "the paid card offers save/like/dislike when it has a real Google place id to write under — and only then");
+ok(/const paidHasStoreKey = !!\(isPaid && p && p\.placeId\)/.test(RAIL_SRC),
+  "…and 'has a key' means the row's own verified Google place id, not the sponsor id");
+ok(/const actionPlace = paidHasStoreKey/.test(RAIL_SRC) && /id: p\.placeId/.test(RAIL_SRC),
+  "…and every reaction writes through a twin carrying THAT id, so a save from the paid card is readable by /p/ and Favorites");
+// The twin sheds the two fields that are only true while this is an ad.
+// `_sponsored` on a saved row would paint a disclosure chip on a place the
+// reader chose for themselves — a disclosure error pointing the wrong way —
+// and `whenFact` ("Tonight · 7pm–1am") is a lie in any list that outlives the
+// evening.
+ok(/const \{ _sponsored, whenFact, \.\.\.rest \} = p/.test(RAIL_SRC),
+  "…and that twin drops _sponsored and whenFact, which are facts about the placement rather than about the place");
+// REQUIRED includes "placeId" (section 0), so the read-only branch is
+// unreachable in production TODAY. It is kept, not simplified away, because it
+// is the fallback if that contract is ever relaxed, and the failure it prevents
+// is silent: four live-looking buttons writing keys nothing can read back, on
+// the one card Wayfind is paid for.
+ok(REQUIRED.includes("placeId"),
+  "the registry REQUIRES placeId, which is what makes the reactions reachable at all — relax that and the read-only branch is what catches it");
 // THE DISCLOSURE'S STYLING, and why it is what it is — documented HERE rather
 // than in css.js, because prose inside a CSS template literal is bytes every
 // reader downloads (check-css-comment-bytes enforces that, correctly).
