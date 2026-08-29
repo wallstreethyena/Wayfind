@@ -149,8 +149,12 @@ ok(!/<ExplodingNearby[\s/>]/.test(HOME),
 /* ── F. After Tampa, leftover Sarasota heading / distances cannot linger ── */
 ok(/setLive\(emptyRailLive\(\)\)/.test(RAIL) || /setLive\(emptyLive\(\)\)/.test(RAIL),
   "changing center clears live rails before the new fetch — leftover Sarasota distances cannot linger");
-ok(/center=\{locResolved \? center : null\}/.test(HOME),
-  "DaypartRail and LocalEdit only receive a center once the location is resolved");
+ok(/<LocalEdit center=\{locResolved \? center : null\}/.test(HOME),
+  "LocalEdit still waits for locResolved — the seed is not a visitor city");
+ok(/center=\{railCenter\}/.test(HOME) && /firstPaintRailOrigin\(/.test(HOME),
+  "DaypartRail gets firstPaintRailOrigin at first paint so /api/rails does not wait on locResolved");
+ok(!/<DaypartRail[\s\S]{0,800}center=\{locResolved \? center : null\}/.test(HOME),
+  "DaypartRail no longer waits on locResolved before a rails origin");
 ok(!/Near Sarasota right now/.test(strip(read("app/page.js"))),
   "HomeProof no longer hardcodes \"Near Sarasota right now\" into the ISR document");
 

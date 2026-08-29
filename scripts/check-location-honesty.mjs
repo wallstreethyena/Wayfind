@@ -40,6 +40,7 @@ import {
   centerAgreesWithLabel,
   milesBetween,
   cityOriginsWire,
+  firstPaintRailOrigin,
 } from "../lib/locationHonesty.js";
 
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -157,8 +158,12 @@ ok(!/<BestNearby[\s/>]/.test(HOME),
 /* ── F. leftover Sarasota after a city change ──────────────────────────── */
 ok(/setLive\(emptyRailLive\(\)\)/.test(RAIL),
   "changing center clears live rails before the new fetch — leftover distances cannot linger");
-ok(/center=\{locResolved \? center : null\}/.test(HOME),
-  "DaypartRail only receives a center once the location is resolved");
+ok(/<LocalEdit center=\{locResolved \? center : null\}/.test(HOME),
+  "LocalEdit still waits for locResolved — the seed is not a visitor city");
+ok(/center=\{railCenter\}/.test(HOME) && /firstPaintRailOrigin\(/.test(HOME),
+  "DaypartRail gets firstPaintRailOrigin at first paint so /api/rails does not wait on locResolved");
+ok(!/<DaypartRail[\s\S]{0,800}center=\{locResolved \? center : null\}/.test(HOME),
+  "DaypartRail no longer waits on locResolved before a rails origin");
 
 /* ── H. THE PAIRING LAW (v8.46) ─────────────────────────────────────────
  * The label and the coordinates are two halves of ONE fact. Measured on the
@@ -182,6 +187,16 @@ ok(centerAgreesWithLabel(GASTONIA, "Gulfport, FL") === true,
   "a town we hold no pin for cannot be contradicted — the law never discards on a hunch");
 ok(centerAgreesWithLabel(null, "Parrish, FL") === false && centerAgreesWithLabel({}, "Tampa") === false,
   "a missing point is not a location");
+{
+  const seed = firstPaintRailOrigin({});
+  ok(Math.abs(seed.lat - DEFAULT_CENTER.lat) < 1e-6 && Math.abs(seed.lng - DEFAULT_CENTER.lng) < 1e-6,
+    "firstPaintRailOrigin with no hint is DEFAULT_CENTER — a fetch origin, not a visitor city");
+  const won = firstPaintRailOrigin({ locResolved: true, resolved: { lat: 27.9506, lng: -82.4572 }, prime: DEFAULT_CENTER });
+  ok(Math.abs(won.lat - 27.9506) < 1e-6, "a resolved visitor point wins over the seed / prime");
+  const corrupt = firstPaintRailOrigin({ locResolved: false, stored: { lat: 35.2619678, lng: -81.126481, loc: "Parrish, FL" } });
+  ok(Math.abs(corrupt.lat - DEFAULT_CENTER.lat) < 1e-6,
+    "a corrupt wf_center is not a rails origin — pairing law still holds");
+}
 ok(Math.round(milesBetween(PARRISH, GASTONIA)) > 500,
   "milesBetween measures the real distance the corrupt pair spanned");
 
