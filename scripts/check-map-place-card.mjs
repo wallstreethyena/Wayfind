@@ -44,9 +44,22 @@ ok(/selectedId=\{mapPreview/.test(map), "the card and the pins do not share one 
 ok(/drawPinImageData/.test(view) && /ensurePinImage/.test(view), "the pin sprite factory is gone — places would fall back to shapeless markers");
 ok(/"icon-anchor": "bottom"/.test(view), "the pin tip no longer sits on the exact coordinate — precision was the owner's ask");
 ok(/"icon-allow-overlap": true/.test(view), "pins hide each other at density — allow-overlap is what makes 60 pins readable");
-ok(/"wf-pin-sel"/.test(view) && /1\.18/.test(view), "the selected pin no longer swaps to the selected sprite and grows");
+// v8.85 — FOLLOWED THE CODE RATHER THAN DELETED. The literal "wf-pin-sel" is
+// gone because the sprite key is now composed per feature (colour x mark x
+// selected) by lib/mapPinGlyph.pinImageKey — an emoji cannot be concatenated
+// into an image id safely. The INVARIANT is unchanged and is what is asserted
+// now: a selected place still gets its own distinct sprite, and still grows to
+// 1.18. Asserting the old string would have gone green the day someone dropped
+// the selected sprite while keeping the name in a comment.
+ok(/selected: !!p\.sel/.test(view) && /\["==", \["get", "sel"\], 1\], 1\.18/.test(view),
+  "the selected pin no longer swaps to its own sprite and grows to 1.18");
 ok(/\["==", \["get", "anySel"\], 1\], \.5/.test(view), "unselected pins no longer dim when something is selected");
-ok(/\["==", \["get", "rank"\], 1\], 1, 0\.86/.test(view), "rank 1 is no longer drawn larger than the field");
+// v8.85 — the top FIVE are now drawn larger, not just rank 1, because they
+// carry a numeral that has to be readable (owner: "show me number top 5
+// choices"). Same invariant — the ranked head of the list is visually ahead of
+// the field — measured on the expression that actually ships.
+ok(/\["<=", \["get", "rank"\], 5\], 1\.06, 0\.9/.test(view),
+  "the ranked head of the list is no longer drawn larger than the field");
 ok(!/scoreLabel/.test(view) && !/"wf-place-ranks"/.test(view), "score text crept back onto the pins — the score belongs to the card (v7.16)");
 ok(/slice\(0, 60\)/.test(view), "the density cap fell below 60 — the thin-map complaint comes back");
 ok(/slice\(0, 40\)/.test(map), "the default map pool cap fell below 40");

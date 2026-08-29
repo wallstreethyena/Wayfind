@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { LngLatBounds, Map as MapLibreMap, Marker, NavigationControl, setWorkerUrl } from "maplibre-gl";
+import { pinGlyphFor, pinImageKey } from "../../lib/mapPinGlyph.js";
 import { areaMoved, distanceRingData, MAP_RING_MILES } from "../../lib/mapExplorer";
 import { safeRemoveMap } from "../../lib/mapTeardown";
 
@@ -143,7 +144,22 @@ const PIN_DPR = (() => {
     return Math.max(2, Math.min(3, Math.ceil(d || 2)));
   } catch (e) { return 2; }
 })();
-function drawPinImageData(color, { selected = false } = {}) {
+// v8.85 (owner, 2026-08-28, on a Food/Dinner map showing thirteen identical
+// orange teardrops): "show me number top 5 choices and make the places have an
+// icon representing its categories".
+//
+// The head of the pin was a white dot, so every result looked like every other
+// result — while the map already HELD the rank (a feature property, used only
+// to size pin #1) and the place's primary type. Both were being thrown away at
+// the last step. lib/mapPinGlyph.js decides WHAT goes in the head; this
+// function only draws it.
+//
+// The white disc stays and the mark sits inside it. Painting a glyph straight
+// onto the coloured teardrop fails twice: an emoji is full-colour, so it
+// fights the pin's own fill, and a dark numeral on a mid-orange body is under
+// 3:1 contrast at 28px. A white disc is one shape that fixes both, and it is
+// what the pin already drew.
+function drawPinImageData(color, { selected = false, glyph = null, kind = "glyph" } = {}) {
   const W = PIN_W * PIN_DPR, H = PIN_H * PIN_DPR;
   const canvas = document.createElement("canvas");
   canvas.width = W; canvas.height = H;
@@ -158,8 +174,27 @@ function drawPinImageData(color, { selected = false } = {}) {
   g.lineWidth = selected ? 2.4 : 2;
   g.strokeStyle = "#FFFFFF";
   g.stroke(path);
-  g.beginPath(); g.arc(14, 12.6, selected ? 4.6 : 3.9, 0, Math.PI * 2);
+  // The head disc grows to hold a mark; with no mark it is the original dot,
+  // so a pin that cannot be labelled looks exactly as it always did.
+  const r = glyph ? (selected ? 7.6 : 7.2) : (selected ? 4.6 : 3.9);
+  g.beginPath(); g.arc(14, 12.6, r, 0, Math.PI * 2);
   g.fillStyle = "#FFFFFF"; g.fill();
+  if (glyph) {
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    if (kind === "rank") {
+      // A numeral is drawn, not typed with an emoji font: at this size the
+      // system UI face is far more legible, and #0B0F14 on white is the same
+      // ink the cluster count already uses.
+      g.font = "800 10px -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif";
+      g.fillStyle = "#0B0F14";
+      g.fillText(String(glyph), 14, 13.1);
+    } else {
+      // Emoji sit high in their em box, so the baseline nudge is empirical.
+      g.font = "10px -apple-system,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif";
+      g.fillText(String(glyph), 14, 13.2);
+    }
+  }
   return g.getImageData(0, 0, W, H);
 }
 function ensurePinImage(map, key, color, opts) {
@@ -275,13 +310,30 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       const color = place.openNow === false ? "#64748B" : index === 0 ? "#FBBF24" : categoryColor;
       const id = String(place.id || `map-place-${index}`);
       placesByIdRef.current.set(id, place);
-      placeFeatures.push({ type: "Feature", properties: { id, rank: index + 1, color, name: place.name || "Place", sel: selectedId != null && String(id) === String(selectedId) ? 1 : 0, anySel: selectedId != null ? 1 : 0 }, geometry: { type: "Point", coordinates: [place.lng, place.lat] } });
+      const rank = index + 1;
+      const sel = selectedId != null && String(id) === String(selectedId) ? 1 : 0;
+      // v8.85 — the top five carry their POSITION, everything else carries its
+      // CATEGORY. lib/mapPinGlyph.js owns that rule; this only asks it.
+      const mark = pinGlyphFor(place, rank, category);
+      const img = pinImageKey(sel ? "#F97316" : color, mark.text, !!sel);
+      placeFeatures.push({ type: "Feature", properties: {
+        id, rank, color, img, name: place.name || "Place",
+        // Carried so the pin can be described to a screen reader and so a
+        // future surface can read the same decision rather than re-deriving it.
+        mark: mark.text, markKind: mark.kind,
+        sel, anySel: selectedId != null ? 1 : 0,
+      }, geometry: { type: "Point", coordinates: [place.lng, place.lat] } });
       bounds.extend([place.lng, place.lat]);
     });
-    // Register a pin sprite for every color this frame uses (idempotent),
-    // plus the selected sprite, BEFORE the data lands so no icon is missing.
-    for (const f of placeFeatures) ensurePinImage(map, "wf-pin-" + f.properties.color, f.properties.color);
-    ensurePinImage(map, "wf-pin-sel", "#F97316", { selected: true });
+    // Register a sprite for every (colour x mark x selected) this frame uses,
+    // idempotently, BEFORE the data lands so no icon is ever missing. A
+    // screenful is typically 8-12 distinct images — still ONE symbol layer,
+    // which is the perf rule this file has kept for places since it was
+    // written (never N DOM markers).
+    for (const f of placeFeatures) {
+      const p = f.properties;
+      ensurePinImage(map, p.img, p.sel ? "#F97316" : p.color, { selected: !!p.sel, glyph: p.mark, kind: p.markKind });
+    }
     const placeSource = map.getSource("wf-places");
     if (placeSource) placeSource.setData({ type: "FeatureCollection", features: placeFeatures });
     if (map.getLayer("wf-place-clusters")) {
@@ -444,11 +496,17 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       // rest drop back so the card reads as anchored to ONE place.
       const OPACITY = ["case", ["==", ["get", "sel"], 1], 1, ["==", ["get", "anySel"], 1], .5, .97];
       map.addLayer({ id: "wf-place-pins", type: "symbol", source: "wf-places", filter: ["!", ["has", "point_count"]], layout: {
-        "icon-image": ["case", ["==", ["get", "sel"], 1], "wf-pin-sel", ["concat", "wf-pin-", ["get", "color"]]],
+        // v8.85 — the sprite key is resolved per feature (colour x mark x
+        // selected) rather than rebuilt in an expression, because the mark is
+        // now part of the identity of the image and a `concat` of an emoji
+        // into an image id is not something to rely on.
+        "icon-image": ["get", "img"],
         "icon-anchor": "bottom",
         "icon-allow-overlap": true,
         "icon-ignore-placement": true,
-        "icon-size": ["case", ["==", ["get", "sel"], 1], 1.18, ["==", ["get", "rank"], 1], 1, 0.86],
+        // The top five carry a numeral, so they need the room to read it; the
+        // rest sit back. 0.86 was tuned for a pin with a 4px dot in it.
+        "icon-size": ["case", ["==", ["get", "sel"], 1], 1.18, ["<=", ["get", "rank"], 5], 1.06, 0.9],
       }, paint: { "icon-opacity": OPACITY } });
       map.addSource("wf-rings", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
       map.addLayer({ id: "wf-rings-glow", type: "line", source: "wf-rings", filter: ["==", ["get", "kind"], "ring"], paint: { "line-color": "#F97316", "line-width": 6, "line-opacity": .18 } });
