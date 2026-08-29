@@ -98,17 +98,11 @@ for (const b of DAYPART_IDS) {
 // Anything else holding a fixed position is occupying a slot the engine cannot
 // use, which is how the original bug hid: it looked like a placement choice.
 {
-  // v8.90 — `trending` and `season` LEFT this list, deliberately. They are no
-  // longer pinned across all four bands because the afternoon now leads with
-  // the four cards the owner named at 1pm (events, tonight, datenight, locals).
-  // Removing them is required by this file's own rule two blocks down: a name
-  // in ALLOWED_PINS that is not actually pinned makes the list stop meaning
-  // anything. Their placement in the other three bands is asserted by
-  // test-dayparts, which is where a per-band rule belongs.
-  //
-  // `blog` stays: last in every band, which is the one pin that is about the
-  // rail being a tail rather than about which answer leads.
-  const ALLOWED_PINS = { blog: ids.length - 1 };  // 0-indexed
+  // The template is back across every band: [axis] [trending] [season] […].
+  // Afternoon no longer exempts itself — 14:00–17:30 leads with `today`, so
+  // trending/season hold their standing slots again. A name in ALLOWED_PINS
+  // that is not actually pinned makes the list stop meaning anything.
+  const ALLOWED_PINS = { trending: 1, season: 2, blog: ids.length - 1 };  // 0-indexed
   const pinned = [];
   for (const id of ids) {
     const pos = DAYPART_IDS.map((b) => order[b].indexOf(id));

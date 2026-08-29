@@ -105,7 +105,7 @@ const augRow = (railsSrc.match(/\{ id: "augtober",[\s\S]*?\},/) || [""])[0];
 ok(/art: "augtober"/.test(augRow), "the augtober rail entry exists and wears the owner's poster art");
 ok(!/href:/.test(augRow), "the augtober tile carries NO href — a tap opens the drop, never a page");
 const daySrc = readFileSync(path.join(ROOT, "lib/dayparts.js"), "utf8");
-ok((daySrc.match(/order: \[[^\]]*'augtober'[^\]]*\]/g) || []).length === 4, "the augtober tile rides all four daypart bands");
+ok((daySrc.match(/order: \[[^\]]*'augtober'[^\]]*\]/g) || []).length === 5, "the augtober tile rides all five daypart bands");
 const rail = strip(readFileSync(path.join(ROOT, "app/components/DaypartRail.js"), "utf8"));
 ok(/selected !== "augtober" \|\| fallPool\) return undefined;/.test(rail), "the drop fetches the owned fall pool only when opened, once");
 ok(/fetch\("\/api\/events\/fall"\)/.test(rail), "…and it reads /api/events/fall, the one pool API");

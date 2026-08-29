@@ -60,8 +60,8 @@ const railsData = readFileSync(new URL("../lib/railsData.js", import.meta.url), 
 // 1) the ORDER rotates with the hour, and differently in each band
 {
   const orders = [...dayparts.matchAll(/order: \[([^\]]+)\]/g)].map((m) => m[1].replace(/\s/g, ""));
-  ok(orders.length === 4, `all four bands declare an order (found ${orders.length})`);
-  ok(new Set(orders).size === 4, "every band orders the rail differently — four bands with one order is a frozen homepage");
+  ok(orders.length === 5, `all five bands declare an order (found ${orders.length})`);
+  ok(new Set(orders).size === 5, "every band orders the rail differently — five bands with one order is a frozen homepage");
 }
 // 2) the PLACES rotate, because they are re-ranked every regeneration
 ok(/revalidate = 3600/.test(readFileSync(new URL("../app/page.js", import.meta.url), "utf8")),

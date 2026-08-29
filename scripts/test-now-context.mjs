@@ -73,6 +73,12 @@ t("buckets: exactly three, and every hour of the day lands in one", () => {
   assert.equal(TIME_BUCKETS.length, 3, "TIME_BUCKETS must stay three — the binary day/evening split is the bug");
   assert.equal(BUCKET_EDGES.afternoonStart, 11.5);
   assert.equal(BUCKET_EDGES.nightStart, 17.5);
+  // Rail-order refinements. They do not create buckets — 14:00 is still
+  // afternoon and 22:00 is still night for greeting / meal / outdoor gate.
+  assert.equal(BUCKET_EDGES.lunchEnd, 14);
+  assert.equal(BUCKET_EDGES.lateNightStart, 22);
+  assert.equal(bucketForHour(14), "afternoon", "14:00 stays in the afternoon bucket");
+  assert.equal(bucketForHour(22), "night", "22:00 stays in the night bucket");
 });
 
 t("buckets: out-of-range and garbage hours never throw", () => {

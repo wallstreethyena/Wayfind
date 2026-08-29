@@ -81,7 +81,7 @@ ok(C.eyebrow === "Curated by a Top Chef", "eyebrow is the locked owner copy");
   ok(/art: "chef"/.test(chefRow), "the chef rail entry exists and wears the owner's poster art");
   ok(!/href:/.test(chefRow), "the chef tile carries NO href — it is a button, a tap never navigates");
   const day = readFileSync(path.join(REPO, "lib/dayparts.js"), "utf8");
-  ok((day.match(/order: \[[^\]]*'chef'[^\]]*\]/g) || []).length === 4, "the chef tile rides all four daypart bands");
+  ok((day.match(/order: \[[^\]]*'chef'[^\]]*\]/g) || []).length === 5, "the chef tile rides all five daypart bands");
   const rail = readFileSync(path.join(REPO, "app/components/DaypartRail.js"), "utf8");
   ok(/chefPickPlaces\(RON_DUPRAT_TOP7\)\.map\(/.test(rail) && !/chefPlaces\s*\.\s*sort/.test(rail),
     "the drop renders chefPickPlaces verbatim — no sort touches Ron's order");

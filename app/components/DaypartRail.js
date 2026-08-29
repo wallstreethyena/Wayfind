@@ -29,7 +29,7 @@
 // never new Date().getHours(). Venue-local, not device-local: a reader in
 // Seattle at 6pm PT looking at Orlando is looking at a 9pm ET city, and the
 // rail must lead with tonight, not the afternoon. scripts/check-one-clock.mjs
-// enforces this; scripts/test-dayparts.mjs proves the four bands never
+// enforces this; scripts/test-dayparts.mjs proves the five bands never
 // contradict nowContext's three.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";

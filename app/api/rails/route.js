@@ -15,7 +15,7 @@
 // upstream on the hot path: this is not the shape lib/apiGuard.js exists for,
 // and it is not in the middleware matcher for the same reason /api/events is
 // not. It also takes no free-text — only two numbers, snapped to a fixed list
-// of ~21 cities, plus one of four band names — so there is no novel-parameter
+// of ~21 cities, plus one of five band names — so there is no novel-parameter
 // space to iterate over.
 //
 // v8.30 — WHY THE BAND IS A PARAMETER. The today card now serves the owner's
