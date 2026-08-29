@@ -103,7 +103,12 @@ ok(/\.wf-rail-events>\.wf-rail-card\{min-height:245px\}/.test(css), "…and the 
   // than in EventsRailSkeleton, which now reserves the promo deck only. The
   // claim is unchanged and is still asserted on the box that actually swaps:
   // same width, same radius, same rail class as the live card.
-  const slotStart = src.indexOf("const eventsRailSlot = (() => {");
+  // v8.87 — re-anchored: the slot became a thunk (`() => {`) when it moved out
+  // of the `screen === "suggested"` IIFE and was finally handed to
+  // <DaypartRail eventsSlot>, where it renders. Its loading box is unchanged
+  // and every assertion below is the original. The PROBE is what turned this
+  // into a one-line fix rather than four silent passes.
+  const slotStart = src.indexOf("const eventsRailSlot = () => {");
   ok(slotStart > -1, "PROBE: the events rail is built as eventsRailSlot (if this is -1 the checks below prove nothing)");
   const skel = src.slice(slotStart, src.indexOf("const discoveryMenu = (", slotStart));
   ok(/width: "100%"/.test(skel), "the skeleton blocks are full-width like the live card, so the swap moves nothing sideways either");

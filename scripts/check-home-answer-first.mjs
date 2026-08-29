@@ -150,7 +150,11 @@ const iRail = HOME.indexOf("{railMenuBand}");
 const iCatMenu = HOME.indexOf("<CategoryMenu nav activeCat=");
 const iMenu = HOME.indexOf("const discoveryMenu");
 const iMenuUse = HOME.indexOf("{discoveryMenu}");
-const iEventsSlot = HOME.indexOf("const eventsRailSlot = (() => {");
+// v8.87 — re-anchored to the thunk. The slot left BestNearby's ninth section
+// for the component body and is now handed to <DaypartRail eventsSlot>, where
+// it opens as the events tile's drop — which is the first time it rendered at
+// all. See scripts/check-events-rail-renders.mjs.
+const iEventsSlot = HOME.indexOf("const eventsRailSlot = () => {");
 const iTopbar = HOME.indexOf('className="wf-topbar"');
 const iScrollArea = HOME.indexOf('className="wf-scrollarea"');
 
@@ -170,7 +174,7 @@ ok(iBest === -1, "the BestNearby accordion is mounted on the homepage again — 
 ok(iRail > -1, "PROBE: the rail band is rendered in the feed (if this is -1 the comparisons below prove nothing)");
 ok(iCatMenu > -1, "the six categories still render — as the header tab strip (<CategoryMenu nav ...>). A -1 here used to SATISFY the ordering assertion below");
 ok(iMenuUse > -1, "the shortcut row still renders — as the header's Shortcuts panel");
-ok(iEventsSlot > -1, "PROBE: the events rail is still built (it lives inside BestNearby as section nine, v7.06)");
+ok(iEventsSlot > -1, "PROBE: the events rail is still built (v8.87: in the component body, handed to the rail menu as the events tile's drop)");
 ok(iTopbar > -1 && iScrollArea > iTopbar, `PROBE: the header subtree is delimited (topbar ${iTopbar} < scrollarea ${iScrollArea})`);
 
 // BOTH CONTROLS LIVE IN THE HEADER, above the entire feed at every width.
