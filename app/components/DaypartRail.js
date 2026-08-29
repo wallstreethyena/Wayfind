@@ -1218,7 +1218,7 @@ export default function DaypartRail({
                         top of that image is the iPhone "stuck skeleton" look
                         (2026-08-29). Keep is-art-ready for CSS; do not cover
                         present art with grey cards. */}
-                    {href}
+                    {href
                       ? <a className="wf8-tlink" href={href} aria-label={label} onClick={(e) => tileClick(e, id)}>{art}</a>
                       : <button type="button" className="wf8-tlink" aria-label={label} onClick={(e) => tileClick(e, id)}>{art}</button>}
                     {/* A sponsor tile is a paid unit, not a shareable list —

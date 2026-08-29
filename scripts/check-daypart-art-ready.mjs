@@ -196,6 +196,8 @@ ok(!/<PlaceCardSkeleton count=\{1\} as="div" \/>/.test(tileBlock),
   "the tile-level PlaceCardSkeleton overlay is gone — drop loading may still use PlaceCardSkeleton");
 ok(/<PlaceCardSkeleton count=\{3\} \/>/.test(RAIL),
   "PROBE: the drop still paints three card skeletons while ranking — we did not delete PlaceCardSkeleton");
+ok(/\{href\s*\?\s*<a className="wf8-tlink"/.test(tileBlock),
+  "the tile link ternary is still one JSX expression — `{href}` then a bare `?` is a check:jsx parse error");
 
 /* ── 4. PINNED: home.js starts rails at first paint, honesty intact ────── */
 const HOME_RAW = read("app/home.js");
