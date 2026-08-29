@@ -1391,6 +1391,55 @@ export default function DaypartRail({
                   // The window IS the loading mechanism.
                   const inWin = i >= pcWin.lo && i <= pcWin.hi;
                   const isPaid = !!(sponsorCard && p && p.id === sponsorCard.place.id && selected === sponsorCard.rail);
+                  // v8.88 — THE PAID CARD GETS ITS LIKE, DISLIKE AND SAVE BACK
+                  // (owner, 2026-08-29): "you should actually be able to like
+                  // it … I don't know why you didn't put the like dislike and
+                  // share the way that we have in every single card."
+                  //
+                  // v8.69 hid them for a real reason and the reason was HALF
+                  // right: the row's `id` is a SPONSOR id, so a save written
+                  // under it would be a key nothing else in the app can ever
+                  // read back — a favourite that never appears in Favorites.
+                  // What that argument missed is that the same registry row
+                  // also carries a VERIFIED GOOGLE PLACE ID (Möbius:
+                  // ChIJe5-RQ0Y_w4gRb7cZQa2GDkc, resolved through Places v1 at
+                  // entry), and hydrateSponsoredRailPlace has been passing it
+                  // through as `placeId` the whole time. So the store key
+                  // existed; nothing asked for it.
+                  //
+                  // `actionId` is that key. Every write AND every read-back
+                  // uses it, together — a like written under one id and read
+                  // under another is a button that un-presses itself, which is
+                  // worse than no button. The card's IDENTITY is untouched:
+                  // `key`, `href` and the dedupe still use the sponsor id, so
+                  // the tap still lands on the event page the placement bought
+                  // and never on a /p/ detail nobody paid for.
+                  //
+                  // A sponsor with no place id (a pop-up, a market with no
+                  // Google listing) keeps the read-only row, which is what
+                  // cardActionsReadOnly was written for.
+                  // Every reaction prop below takes `actionPlace`, never the
+                  // card row, and never IconicPlaceCard's own `pl` callback
+                  // argument — that hands back the PLACE it rendered, which
+                  // still carries the sponsor id, so threading it through
+                  // would reintroduce exactly the split this fixes.
+                  //
+                  // cardActionsReadOnly survives as a CONDITION rather than a
+                  // deletion: a sponsor with no Google listing (a pop-up, a
+                  // market) genuinely has nowhere to write, and the v8.69
+                  // dead-affordance argument still holds for it unchanged.
+                  const paidHasStoreKey = !!(isPaid && p && p.placeId);
+                  const actionId = paidHasStoreKey ? p.placeId : (p && p.id);
+                  // The stored twin sheds the two fields that are only true
+                  // while this is an AD. `_sponsored` would let some later
+                  // surface paint a sponsor chip on a place the reader saved
+                  // for themselves — a disclosure error pointing the wrong way,
+                  // labelling as bought something that no longer is. `whenFact`
+                  // is "Tonight · 7pm–1am", which is a fact about this evening
+                  // and a lie in every Favorites list that outlives it.
+                  const actionPlace = paidHasStoreKey
+                    ? (() => { const { _sponsored, whenFact, ...rest } = p; return { ...rest, id: p.placeId }; })()
+                    : p;
                   const organicRank = isPaid ? null : (sponsorCard && selected === sponsorCard.rail ? i : i + 1);
                   // THE MEMO KEY (v8.79). IconicPlaceCard only memoises when a
                   // caller hands one over, and it compares NOTHING ELSE — so
@@ -1413,7 +1462,7 @@ export default function DaypartRail({
                   const memoKey = [
                     p.id, inWin ? 1 : 0, organicRank == null ? "-" : organicRank,
                     isPaid ? 1 : 0,
-                    (isSaved ? isSaved(p.id) : false) ? 1 : 0,
+                    (isSaved ? isSaved(actionId) : false) ? 1 : 0,
                     (isLiked ? !!isLiked(p.id) : liked ? !!liked[p.id] : false) ? 1 : 0,
                     (isDisliked ? !!isDisliked(p.id) : disliked ? !!disliked[p.id] : false) ? 1 : 0,
                     (isOnTrip ? isOnTrip(p) : false) ? 1 : 0,
@@ -1460,20 +1509,21 @@ export default function DaypartRail({
                     // one fact a reader on an HOURS rail must not have to
                     // scroll a clipped lane to find.
                     badge={isPaid ? <span className="wf-sponsor-chip">{sponsorCard.label}</span> : beachChip(p)}
-                    saved={isSaved ? isSaved(p.id) : false}
+                    saved={isSaved ? isSaved(actionId) : false}
                     // v8.29.6 — ONE set of these, reading whichever shape the
                     // parent gave. The merge of two independent fixes left the
                     // element carrying `liked` and `onLike` twice; in JSX the
                     // last wins silently, which is exactly how a working
                     // handler gets replaced by a broken one without a diff
                     // that looks wrong.
-                    liked={isLiked ? !!isLiked(p.id) : liked ? !!liked[p.id] : false}
-                    disliked={isDisliked ? !!isDisliked(p.id) : disliked ? !!disliked[p.id] : false}
-                    inTrip={isOnTrip ? isOnTrip(p) : false}
-                    onSave={onSave ? (e, pl) => onSave(e, pl || p) : null}
-                    onItinerary={onItinerary ? (e, pl) => onItinerary(e, pl || p) : null}
-                    onLike={onLike ? (e, pl) => onLike(e, pl) : null}
-                    onDislike={onDislike ? (e, pl) => onDislike(e, pl) : null}
+                    liked={isLiked ? !!isLiked(actionId) : liked ? !!liked[actionId] : false}
+                    disliked={isDisliked ? !!isDisliked(actionId) : disliked ? !!disliked[actionId] : false}
+                    inTrip={isOnTrip ? isOnTrip(actionPlace) : false}
+                    // All four take `actionPlace` (see its declaration above).
+                    onSave={onSave ? (e) => onSave(e, actionPlace) : null}
+                    onItinerary={onItinerary ? (e) => onItinerary(e, actionPlace) : null}
+                    onLike={onLike ? (e) => onLike(e, actionPlace) : null}
+                    onDislike={onDislike ? (e) => onDislike(e, actionPlace) : null}
                     // v8.30.1 — THE SHAPE. IconicPlaceCard calls onShare(place),
                     // like every other render site in the app; this adapter read
                     // (e, pl), so once the prop was finally wired the handler
@@ -1486,14 +1536,8 @@ export default function DaypartRail({
                       city: shown.cityLabel || "",
                       hook: isPaid ? (p.hook || "") : (toHookLine(hooks[p.id], p.name) || ""),
                     }) : null}
-                    // SAVE / LIKE / DISLIKE ARE READ-ONLY ON THE PAID CARD.
-                    // Those stores key on a Google place id; this row carries a
-                    // sponsor id, so wiring them would ship four live-looking
-                    // buttons that write a key nothing else can ever read back
-                    // — the exact dead-affordance bug RailCard documents at its
-                    // `actionsReadOnly` prop. Share stays live: sharing the
-                    // event page is the thing the advertiser is actually buying.
-                    cardActionsReadOnly={isPaid}
+                    // v8.88 — read-only ONLY when there is nowhere to write.
+                    cardActionsReadOnly={isPaid && !paidHasStoreKey}
                     surface={isPaid ? "rail_sponsored_card" : "place_card"}
                     // v8.70 — EVERY card in this drop loads its photo eagerly,
                     // because in THIS container lazy never fires: measured on

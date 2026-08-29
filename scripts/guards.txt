@@ -535,6 +535,7 @@ node scripts/test-place-card-layout.mjs
 # the rendered proof, and skips loudly where there is no browser.
 node scripts/check-state-affordance.mjs
 node scripts/test-reaction-affordance.mjs
+node scripts/test-card-action-row.mjs
 # v8.35 — the trending drop and the place drop are the SAME COLUMN, measured:
 # a trend card and a place card under one "Showing <rail>" bar are the same
 # width at 1440 and at 390 (owner, 2026-08-23, two screenshots of one drop)
@@ -789,3 +790,4 @@ node scripts/check-card-memo.mjs
 node scripts/check-event-day-is-venue-local.mjs
 node scripts/check-event-date-honesty.mjs
 node scripts/check-events-rail-renders.mjs
+node scripts/check-no-dead-end-pages.mjs

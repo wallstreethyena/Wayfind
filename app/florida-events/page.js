@@ -35,6 +35,14 @@ const S = {
   meta: { fontSize: 12.5, color: "#8B949E", margin: "5px 0 0" },
   foot: { fontSize: 14.5, color: "#8B949E", marginTop: 34, borderTop: "1px solid #21262D", paddingTop: 16 },
   link: { color: "#FF8A3D", textDecoration: "none", fontWeight: 700 },
+  // v8.88 — the hub was a dead end too. Same pill as /guides and every event
+  // page, so the way out of any Wayfind content surface looks identical.
+  back: {
+    display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px",
+    borderRadius: 999, background: "#161B22", border: "1px solid #21262D",
+    color: "#FF8A3D", fontSize: 13.5, fontWeight: 800, textDecoration: "none",
+    marginBottom: 18,
+  },
 };
 
 // v8.40 — "major-music-festivals" sits BELOW the three time-driven shelves and
@@ -67,6 +75,7 @@ export default async function FloridaEventsHub() {
   return (
     <main style={S.page}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <a style={S.back} href="/">&lsaquo; Back to Wayfind</a>
       <div style={S.kicker}>Wayfind Events</div>
       <h1 style={S.h1}>Florida Events</h1>
       <p style={S.sub}>

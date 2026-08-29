@@ -227,8 +227,17 @@ ok(/const railMenuBand = railMenu \? \(/.test(code),
   // thumb left the open Amazon rail. Both ends of the wire:
   ok(/onLike=\{\(e, p\) => \{ try \{ toggleLike\(e, p\)/.test(railBlock),
     "the rail band passes home.js toggleLike — a missing handler is the ?action=like navigation");
-  ok(/onLike=\{onLike \? \(e, pl\) => onLike\(e, pl\) : null\}/.test(rail),
-    "DaypartRail forwards onLike onto IconicPlaceCard — the in-place path");
+  // v8.88 — RE-ANCHORED, and the invariant is stronger than the string it
+  // replaced. The adapter used to pass `pl` — whatever place IconicPlaceCard
+  // handed back — which on the paid sponsored card is the row under its
+  // SPONSOR id, a key nothing else in the app can read back. It now passes
+  // `actionPlace`, the same row under its verified Google place id, so the
+  // like lands where the read-back looks. On every unpaid card the two are the
+  // same object and nothing changes. The assertion still answers the question
+  // it was written for: is a real handler forwarded, or does IconicPlaceCard
+  // fall back to <a href="/p/{id}?action=like"> and navigate away (v8.28).
+  ok(/onLike=\{onLike \? \(e\) => onLike\(e, actionPlace\) : null\}/.test(rail),
+    "DaypartRail forwards onLike onto IconicPlaceCard — the in-place path, carrying the place under the id the stores actually key on");
   ok(/if \(!center \|\| !Number\.isFinite\(center\.lat\)/.test(rail), "…and bail out of the re-rank when it has not");
 }
 // And it must be gone from where it used to be: a page carrying BOTH the rail

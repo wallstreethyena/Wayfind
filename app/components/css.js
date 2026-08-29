@@ -401,12 +401,46 @@ export const WF_PLACE_CARD_CSS = `
   -webkit-box-orient:vertical;
   text-overflow:ellipsis;
 }
-.wf-place-card-actions{align-items:center;gap:5px!important;margin-top:auto!important;padding-top:9px;flex-wrap:wrap!important;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+` +
+// ── v8.88 — THE ACTION ROW: ONE HEIGHT, AND A LABEL THAT CANNOT FOLD ────────
+//
+// Owner, 2026-08-29, on the sponsored Möbius card: "the share button for the
+// place card looks weird because the arrows on top of share, it should be to
+// the side. It should be a uniform size."
+//
+// Two independent defects, both visible in the same screenshot.
+//
+// 1. THE FOLD. `<button>↗ Share</button>` is a flex container (this rule sets
+//    inline-flex) whose only child is a text node, which becomes ONE anonymous
+//    flex item — and that item wraps at the space like any other text. Nothing
+//    in this file ever said it must not, so the glyph stacked above the word
+//    the moment the box got narrow. `white-space:nowrap` is the fix.
+//
+//    WHY THE BOX GOT NARROW is the more interesting half, and it lives at
+//    .wf-sheet-card-actions below: that grid hardcodes four columns — Save,
+//    like, dislike, Share — with two THUMB-sized 42px tracks in the middle.
+//    A surface that renders the row without the thumbs (cardActionsReadOnly,
+//    which the PAID card used until this release) put Share into a 42px track
+//    built for a single glyph. On the one card Wayfind is paid to show.
+//
+// 2. THE STEP. Save and Share were min-height:34px next to like/dislike at
+//    height:40px — six pixels of difference across four controls on one line.
+//    --wf-act-h now sets all four, so the row cannot drift again and a surface
+//    that wants another scale changes one number (the rail sets 36, the 360px
+//    breakpoint 34).
+//
+//    38px rather than 34 or 40 is deliberate: Save and Share GROW (34 -> 38,
+//    a bigger tap target), the thumbs give up 2px, and the row ends 2px
+//    SHORTER than before — which matters, because .wf-place-card has a fixed
+//    --wf-card-h and clips anything that outgrows it.
+`.wf-place-card-actions{--wf-act-h:38px;align-items:center;gap:5px!important;margin-top:auto!important;padding-top:9px;flex-wrap:wrap!important;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 .wf-place-card-actions>a,.wf-place-card-actions>button{
   display:inline-flex!important;
-  min-height:34px;
+  min-height:var(--wf-act-h);
+  height:var(--wf-act-h);
   align-items:center;
   justify-content:center;
+  white-space:nowrap!important;
   padding:0 13px!important;
   border:1px solid rgba(159,177,203,.22)!important;
   border-radius:11px!important;
@@ -422,8 +456,8 @@ export const WF_PLACE_CARD_CSS = `
 .wf-place-card-like,.wf-place-card-dislike{
   width:42px!important;
   min-width:42px!important;
-  height:40px!important;
-  min-height:40px!important;
+  height:var(--wf-act-h)!important;
+  min-height:var(--wf-act-h)!important;
   flex:0 0 42px;
   justify-content:center!important;
   padding:0!important;
@@ -457,6 +491,8 @@ export const WF_PLACE_CARD_CSS = `
 .wf-sheet-card-actions>.wf-place-card-save,
 .wf-sheet-card-actions>.wf-place-card-share{min-width:0!important;margin-left:0!important;padding-inline:8px!important}
 .wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:minmax(70px,.8fr) minmax(64px,.8fr) 42px 42px minmax(76px,1fr)}
+.wf-sheet-card-actions:not(:has(.wf-place-card-like)){grid-template-columns:minmax(64px,1fr) minmax(76px,1fr)}
+.wf-rail-card .wf-sheet-card-actions:not(:has(.wf-place-card-like)){grid-template-columns:minmax(50px,1fr) minmax(56px,1fr)}
 .wf-place-card.is-liked{border-color:rgba(76,224,179,.35)!important}
 .wf-place-card.is-disliked{border-color:rgba(248,113,113,.28)!important}
 @media(max-width:430px){
@@ -531,9 +567,10 @@ export const WF_PLACE_CARD_CSS = `
 .wf-rail-card .wf-place-card-actions{margin-top:auto!important;padding-top:8px}
 .wf-rail-card .wf-rail-card-cta~.wf-place-card-actions{margin-top:0!important;padding-top:6px}
 .wf-rail-card .wf-sheet-card-actions{grid-template-columns:minmax(50px,1fr) 38px 38px minmax(56px,1fr);gap:5px!important}
-.wf-rail-card .wf-place-card-like,.wf-rail-card .wf-place-card-dislike{width:38px!important;min-width:38px!important;height:36px!important;min-height:36px!important;flex:0 0 38px}
+.wf-rail-card .wf-place-card-actions{--wf-act-h:36px}
+.wf-rail-card .wf-place-card-like,.wf-rail-card .wf-place-card-dislike{width:38px!important;min-width:38px!important;flex:0 0 38px}
 .wf-rail-card .wf-place-card-like svg,.wf-rail-card .wf-place-card-dislike svg{width:17px;height:17px}
-.wf-rail-card .wf-place-card-actions>a,.wf-rail-card .wf-place-card-actions>button{min-height:36px;padding:0 7px!important;font-size:10px!important}
+.wf-rail-card .wf-place-card-actions>a,.wf-rail-card .wf-place-card-actions>button{padding:0 7px!important;font-size:10px!important}
 
 .wf-rail-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 7px}
 .wf-rail-nav-hint{color:#8B97A8;font-size:11px;font-weight:700;letter-spacing:.2px}
@@ -673,6 +710,7 @@ export const WF_PLACE_CARD_CSS = `
 @media(max-width:360px){
   .wf-rail-card .wf-place-card-content{padding-inline:9px!important}
   .wf-rail-card .wf-sheet-card-actions{grid-template-columns:minmax(42px,1fr) 34px 34px minmax(46px,1fr);gap:4px!important}
+  .wf-rail-card .wf-place-card-actions{--wf-act-h:34px}
   .wf-rail-card .wf-place-card-like,.wf-rail-card .wf-place-card-dislike{width:34px!important;min-width:34px!important;flex:0 0 34px}
   .wf-rail-card .wf-place-card-actions>a,.wf-rail-card .wf-place-card-actions>button{padding:0 5px!important;font-size:9.5px!important}
 }

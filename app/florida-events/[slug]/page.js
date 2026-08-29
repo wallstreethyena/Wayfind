@@ -11,6 +11,7 @@ import { notFound } from "next/navigation";
 import { SITE_URL } from "../../../lib/site";
 import { fetchCuratedEvents, fetchCuratedEventBySlug, eventJsonLd, dateRangeLabel } from "../../../lib/curatedEvents";
 import { eventPhotos } from "../../../lib/eventPhotos";
+import { addressLine, directionsUrl } from "../../../lib/placeWhere";
 import ShareButton from "../../components/ShareButton";
 
 export const revalidate = 3600;
@@ -95,6 +96,30 @@ const S = {
   },
   shot: { width: "100%", height: "100%", objectFit: "cover", display: "block" },
   credit: { fontSize: 12.5, color: "#8B949E", margin: "0 0 22px" },
+  // v8.88 — the way back. Byte-identical to the pill on /guides and
+  // /guides/[slug] (check-guides pins that anchor) because a reader who has
+  // seen it once should not have to learn a second control: this page simply
+  // never got one, so every route into it — the paid rail card, the augtober
+  // drop, a shared link — was a terminal page.
+  back: {
+    display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px",
+    borderRadius: 999, background: "#161B22", border: "1px solid #21262D",
+    color: "#FF8A3D", fontSize: 13.5, fontWeight: 800, textDecoration: "none",
+    marginBottom: 18,
+  },
+  backRow: { display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" },
+  // v8.88 — the DIRECTIONS control. A pill, not a text link, because the owner
+  // asked for "the little button that allows you to click on it and get
+  // directions" and because this is the one action on the page a reader takes
+  // with their body. Full-width on a phone: it is the last thing you tap
+  // before you drive.
+  dirs: {
+    display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7,
+    marginTop: 12, padding: "11px 18px", borderRadius: 12,
+    background: "#F97316", border: "1px solid #F97316", color: "#0D1117",
+    fontSize: 14.5, fontWeight: 800, textDecoration: "none", lineHeight: 1,
+  },
+  addr: { color: "#C9D1D9", fontSize: 14, marginTop: 2 },
   shareTop: { margin: "-8px 0 22px" },
   shareEnd: { margin: "28px 0 4px", padding: "18px 20px", borderRadius: 16, background: "#0E1520", border: "1px solid #1F2A3A" },
   shareAsk: { margin: "0 0 12px", fontSize: 15.5, lineHeight: 1.5, color: "#C9D1D9" },
@@ -109,6 +134,27 @@ export default async function CuratedEventPage({ params }) {
   // the recipient cannot open (lib/site.js canonicalShareUrl).
   const shareUrl = SITE_URL + "/florida-events/" + params.slug;
   const shareText = `${e.event_name} — ${dateRangeLabel(e)}${e.is_free ? ", free" : ""}. Found this on Wayfind.`;
+  // v8.88 — WHERE IT IS, AND HOW TO GET THERE (owner, 2026-08-29, on this very
+  // page): "how are people gonna be able to find it?"
+  //
+  // The answer box printed `{venue}, {city}, {state}` — "Möbius Sarasota,
+  // Sarasota, FL" — for a row that has held
+  // "2211 Whitfield Park Loop, Ste 101, Sarasota, FL 34243" since it was
+  // created. `address` is in EVENT_COLUMNS and is SELECTed on every read; the
+  // page just never printed it.
+  //
+  // AND THE SHARPEST PART: eventJsonLd() below has always emitted that street
+  // address as PostalAddress.streetAddress, plus GeoCoordinates. So Google has
+  // had the address on this page all along and the reader has not. Structured
+  // data was better informed than the human it was describing.
+  //
+  // Both values come from lib/placeWhere.js, the ONE rule, so this page and
+  // /events/[city]/[slug] cannot drift into two answers about where something
+  // is. directionsUrl returns null when the row cannot honestly send anyone
+  // anywhere (7 of 89 rows), and the button is simply not rendered — a dead
+  // "Directions" that drops you in the middle of a city is worse than none.
+  const where = addressLine(e);
+  const dirs = directionsUrl(e);
   const ld = eventJsonLd(e, { siteUrl: SITE_URL });
   const crumbs = {
     "@context": "https://schema.org", "@type": "BreadcrumbList",
@@ -124,6 +170,22 @@ export default async function CuratedEventPage({ params }) {
       {ld ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} /> : null}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbs) }} />
 
+      {/* v8.88 — THE WAY BACK (owner: "you need to put a way to go back to
+          Wayfind from that page … there's no way to get back").
+          Every route into this page was one-way: the paid rail card on the
+          homepage, the augtober drop, /florida-events, and every shared link.
+          Browser back covers the first three and covers NOTHING for the reader
+          who arrived from a text message — which, for an event page, is most of
+          them, because sharing is the whole point of the surface (there are two
+          share controls on this page and were zero ways out).
+
+          Two doors, because they answer different questions: the product, and
+          the shelf this event sits on. */}
+      <div style={S.backRow}>
+        <a style={S.back} href="/">&lsaquo; Back to Wayfind</a>
+        <a style={S.back} href="/florida-events">&lsaquo; Florida Events</a>
+      </div>
+
       <div style={S.kicker}>Wayfind Events</div>
       <h1 style={S.h1}>{e.event_name} {e.year}</h1>
 
@@ -138,13 +200,39 @@ export default async function CuratedEventPage({ params }) {
       {/* The answer box. Date first, always. */}
       <div style={S.box}>
         <div style={S.row}><span style={S.k}>When</span><span style={S.v}>{dateRangeLabel(e)}, {e.year}</span></div>
-        <div style={S.row}><span style={S.k}>Where</span><span style={S.v}>{e.venue ? e.venue + ", " : ""}{e.city}, {e.state}</span></div>
+        <div style={S.row}>
+          <span style={S.k}>Where</span>
+          <span style={S.v}>
+            {e.venue ? <div>{e.venue}</div> : null}
+            {/* The street, on its own line. When we hold no street address
+                this falls back to "City, ST" — the same fact the venue line
+                already implies, so it is only printed when it ADDS something
+                (no venue name to carry it). Never a fabricated precision. */}
+            {where && (e.venue ? where !== `${e.city}, ${e.state}` : true)
+              ? <div style={S.addr}>{where}</div>
+              : (!e.venue ? <div style={S.addr}>{e.city}, {e.state}</div> : null)}
+          </span>
+        </div>
         <div style={S.row}><span style={S.k}>Cost</span><span style={S.v}>{e.is_free ? "Free" : (e.price_band || "Ticketed — see the organiser")}</span></div>
         {e.minimum_age ? <div style={S.row}><span style={S.k}>Age</span><span style={S.v}>{e.minimum_age}+</span></div> : null}
         {e.duration_recommendation ? <div style={S.row}><span style={S.k}>Time needed</span><span style={S.v}>{e.duration_recommendation}</span></div> : null}
         {e.crowd_level ? <div style={S.row}><span style={S.k}>Crowds</span><span style={S.v}>{e.crowd_level}</span></div> : null}
         {e.wayfind_verdict ? <div style={S.row}><span style={S.k}>Verdict</span><span style={S.v}>{e.wayfind_verdict}</span></div> : null}
       </div>
+
+      {/* The button you tap right before you drive. It opens turn-by-turn
+          DIRECTIONS (maps/dir), not a map search that then asks the reader to
+          find the Directions button themselves — the owner asked for the
+          second tap to be gone, and those are two different Google endpoints.
+          Absent entirely when the row cannot name a destination. */}
+      {dirs ? (
+        <p style={{ margin: "-12px 0 22px" }}>
+          <a style={S.dirs} href={dirs} target="_blank" rel="noopener nofollow"
+            aria-label={"Get directions to " + (e.venue || e.event_name)}>
+            {"\u2192 Get directions"}
+          </a>
+        </p>
+      ) : null}
 
       {/* Two share controls, the guide rule applied to an event
           (scripts/check-guide-share.mjs): this one catches the reader who knew
