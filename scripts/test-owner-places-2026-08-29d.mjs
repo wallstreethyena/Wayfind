@@ -169,8 +169,26 @@ ok(EVENTS.every((e) => /first Labor Day/i.test(e.card_hook) && /Hillsborough Cou
   "Rodeo hook keeps first Labor Day + the fairgrounds sit");
 ok(EVENTS.every((e) => !/\b\d{1,2}:\d{2}\b/.test(e.card_hook)),
   "Rodeo hook does not dump the 4:30 / 5:45 / 7:30 clocks");
-ok(EVENTS.every((e) => e.is_free === false && e.price_band === "tickets"),
-  "Rodeo is a ticketed event, not a free always-open card");
+// 2026-08-30 — FOLLOWED THE CODE, and the code was wrong. This line asserted
+// price_band === "tickets", which wf_events rejects:
+//   CHECK (price_band = ANY (ARRAY['free','$','$$','$$$','$$$$']))
+// So the guard encoded the defect as correct — the shape CLAUDE.md names, "a
+// guard written in the same PR that caused the bug". The batch never wrote a
+// single event because the ingest posts them in one statement and Postgres
+// refused the whole thing.
+//
+// The INVARIANT is unchanged and is what is asserted now: this is a ticketed
+// event, not a free always-open card. "tickets" was never a price band; it was
+// the absence of one. is_free false plus a ticket URL is what makes it
+// ticketed, and null is the honest answer to "how much" — asserted explicitly
+// so a future pass cannot quietly invent a band we never sourced.
+ok(EVENTS.every((e) => e.is_free === false), "Rodeo is a ticketed event, not a free always-open card");
+ok(EVENTS.every((e) => e.price_band == null),
+  "…and carries NO price band — tamparodeo.com does not print one, and a band we did not source is a made-up price");
+ok(EVENTS.every((e) => /^https:\/\//.test(String(e.official_ticket_url || ""))),
+  "…the ticket URL is what makes it ticketed, and it is the official site");
+ok(EVENTS.every((e) => ["free", "$", "$$", "$$$", "$$$$"].includes(e.price_band) || e.price_band == null),
+  "…and whatever it carries is a band wf_events will actually accept (the check constraint this row once violated)");
 
 for (const e of EVENTS) {
   ok(["scheduled", "sold_out"].includes(e.event_status), `${e.event_id}: displayable status`);
