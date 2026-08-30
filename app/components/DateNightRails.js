@@ -43,10 +43,22 @@
 // the plain left-click changed back to opening the drop — which is what a link
 // with an onClick that calls preventDefault has always done on this rail.
 import { useEffect, useMemo, useRef, useState } from "react";
-import IconicPlaceCard from "./IconicPlaceCard";
+import RailCard, { RailNav, RailDots } from "./RailCard";
+import { directionsUrl } from "./kit";
 import { toHookLine } from "../../lib/editorialHook";
+import { toDisplayScore } from "../../lib/score.js";
+import { wayfindScore } from "../../lib/wayfindScore.js";
+import { topPickAward } from "../../lib/topPickAward.js";
+import { coarseCat } from "../../lib/ranking.js";
+import { priceLabel } from "../../lib/price.js";
 
 const C = { text: "#F1F5F9", muted: "#8b93a1" };
+
+const compact = (n) => (Number(n) >= 1000 ? Math.round(Number(n) / 100) / 10 + "k" : String(Number(n) || 0));
+const prettyType = (t) => {
+  const s = String(t || "").replace(/_/g, " ").trim();
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : "";
+};
 
 /**
  * Fetch and render the Date Night intent rails.
@@ -171,35 +183,78 @@ export default function DateNightRails({
           {rail.id === firstNightOutId ? (
             <p style={{ margin: "0 0 6px", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: C.muted, textTransform: "uppercase" }}>Night Out</p>
           ) : null}
-          <h2 style={{ margin: "0 0 12px", fontSize: 18, fontWeight: 800, color: C.text }}>{rail.title}</h2>
-          <div style={{ display: "flex", overflowX: "auto", overscrollBehaviorX: "contain", gap: 14, padding: "2px 0 8px", WebkitOverflowScrolling: "touch" }}>
-            {rail.places.map((p, i) => (
-              <div key={p.id} style={{ flex: "0 0 auto", width: 300, maxWidth: "86vw" }}>
-                <ol style={{ listStyle: "none", margin: 0, padding: 0 }}>
-                  <IconicPlaceCard
-                    place={p}
-                    rank={i + 1}
-                    href={"/p/" + encodeURIComponent(p.id)}
-                    editorial={toHookLine(p.editorial, p.name) || null}
-                    surface="date_night_intent"
-                    // In the DROP these are live and the card opens the sheet in
-                    // place; on the PAGE the parent passes none and the card's
-                    // own href is the answer. Same component, both ways.
-                    onOpen={onOpenPlace ? (pl) => onOpenPlace(pl || p) : undefined}
-                    saved={isSaved ? isSaved(p.id) : undefined}
-                    inTrip={isOnTrip ? isOnTrip(p) : undefined}
-                    liked={isLiked ? !!isLiked(p.id) : liked ? !!liked[p.id] : undefined}
-                    disliked={isDisliked ? !!isDisliked(p.id) : disliked ? !!disliked[p.id] : undefined}
-                    onSave={onSave ? (e) => onSave(e, p) : undefined}
-                    onItinerary={onItinerary ? (e) => onItinerary(e, p) : undefined}
-                    onLike={onLike ? (e) => onLike(e, p) : undefined}
-                    onDislike={onDislike ? (e) => onDislike(e, p) : undefined}
-                    onShare={onShare ? (pl) => onShare(pl || p, { city }) : undefined}
-                  />
-                </ol>
-              </div>
-            ))}
+          {/* v8.93 (owner, 2026-08-30, on his own screenshot of the open drop:
+              "the size of the cards is also wrong … since we will be displaying
+              multiple rails we need to use the style from Exploding Trends Near
+              You, I want the place card style to be like that").
+
+              THIS IS THE SAME CODE PATH, not a copy of its look. The rail is
+              <RailNav> + `.wf-rail` + <RailCard> + <RailDots> — the exact
+              structure ExplodingNearby's TrendBlock builds, so the card width,
+              the --wf-pcvis peek, the snap, the scroll affordances and the
+              Directions / Save / thumbs / Share row are inherited rather than
+              restated. The 300px inline box this replaced was a private guess
+              at a size the design system already owns, and it is why his
+              screenshot shows "Tikka Indi…" and a clipped action row: the name
+              had 108px to live in. */}
+          <RailNav
+            railId={"datenight-" + rail.id}
+            count={rail.places.length}
+            unit={rail.places.length === 1 ? "place for " + rail.title.toLowerCase() : "places for " + rail.title.toLowerCase()}
+          />
+          <div
+            className="wf-rail wf-rail-exploding"
+            data-rail={"datenight-" + rail.id}
+            tabIndex={0}
+            role="region"
+            aria-label={rail.title}
+          >
+            {rail.places.map((p, i) => {
+              const rank = i + 1;
+              const type = prettyType(p.primaryType || p.primary_type || p.category);
+              // The card is handed the row itself, so an unwired caller still
+              // gets a working thumb from lib/cardActions rather than a button
+              // that does nothing (the v8.29.2 lesson from this same rail).
+              const facts = [
+                p.reviews ? compact(p.reviews) + " reviews" : null,
+                priceLabel(p.priceLevel != null ? p.priceLevel : p.priceNum) || null,
+                Number.isFinite(p.distMi) ? p.distMi + " mi" : null,
+              ].filter(Boolean);
+              const chips = [type ? { key: "type", icon: "\uD83D\uDCCD", label: type, title: type } : null].filter(Boolean);
+              const href = directionsUrl(p);
+              return (
+                <RailCard
+                  key={p.id}
+                  className="wf-exploding-primary"
+                  photo={p.photo || null}
+                  place={p}
+                  title={p.name}
+                  eyebrow={type}
+                  rank={rank}
+                  score={toDisplayScore(wayfindScore(p.rating, p.reviews))}
+                  facts={facts}
+                  award={topPickAward({ category: coarseCat(p) || type || "date night", rank })}
+                  chips={chips}
+                  take={toHookLine(p.editorial, p.name) || null}
+                  cta={href ? { label: "Directions \u2197", href, external: true } : null}
+                  ariaLabel={"Open " + p.name}
+                  // In the DROP these are live and the card opens the sheet in
+                  // place; on the PAGE the parent passes none and RailCard's own
+                  // cardActions fallback keeps every thumb honest. Same
+                  // component, both ways.
+                  onOpen={onOpenPlace ? () => onOpenPlace(p) : undefined}
+                  saved={isSaved ? !!isSaved(p.id) : undefined}
+                  liked={isLiked ? !!isLiked(p.id) : liked ? !!liked[p.id] : undefined}
+                  disliked={isDisliked ? !!isDisliked(p.id) : disliked ? !!disliked[p.id] : undefined}
+                  onSave={onSave ? (e) => onSave(e, p) : undefined}
+                  onLike={onLike ? (e) => onLike(e, p) : undefined}
+                  onDislike={onDislike ? (e) => onDislike(e, p) : undefined}
+                  onShare={onShare ? () => onShare(p, { city }) : undefined}
+                />
+              );
+            })}
           </div>
+          {rail.places.length > 1 ? <RailDots railId={"datenight-" + rail.id} count={rail.places.length} /> : null}
         </section>
       ))}
     </>

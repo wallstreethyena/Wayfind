@@ -9115,11 +9115,37 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // still what the events TAB runs. See lib/frontEvents.js.
     const shown = bestFirst(fp.usable, eventBucket, fp.featured).filter((e) => eventSignals.disliked[e.id] !== true).slice(0, 24);
     if (!shown.length) return null;
-    return (
-      <>
-        <RailNav railId="events" count={shown.length} unit="events near you" />
-        <div className="wf-rail wf-rail-events" data-rail="events" tabIndex={0} role="region" aria-label="Events near you" style={{ minHeight: EV_RAIL_MIN_H }}>
-          {shown.map((e, i) => (
+    // v8.93 (owner, 2026-08-30): "events itself may need to have multiple rails
+    // — also start with concert, then theater, than comedy, then sports."
+    //
+    // ONE rail of 24 mixed rows made the reader do the sorting: a symphony, a
+    // roller derby and an open mic in the same horizontal scroll, with nothing
+    // saying which was which until they read each card. These are not degrees
+    // of one thing, they are four different evenings, so they get four rails
+    // in HIS order — which is also descending by how far ahead people plan.
+    //
+    // EVERYTHING STILL SHOWS. The four named buckets come first, in order;
+    // whatever falls outside them (community, family, film, markets, a
+    // business calendar) keeps its own rail at the end rather than being
+    // dropped, because a civic event nobody bucketed is still on tonight. An
+    // empty bucket renders nothing at all — the empty-rail law.
+    const EVENT_RAIL_ORDER = [
+      { key: "concerts", title: "Concerts & live music" },
+      { key: "theater", title: "Theater & the arts" },
+      { key: "comedy", title: "Comedy" },
+      { key: "sports", title: "Sports" },
+    ];
+    const named = new Set(EVENT_RAIL_ORDER.map((r) => r.key));
+    const groups = EVENT_RAIL_ORDER
+      .map((r) => ({ ...r, rows: shown.filter((e) => eventBucket(e) === r.key) }))
+      .concat([{ key: "more", title: "Also happening", rows: shown.filter((e) => !named.has(eventBucket(e))) }])
+      .filter((g) => g.rows.length);
+    const eventRail = (g) => (
+      <div key={g.key} style={{ marginBottom: 6 }}>
+        <div style={{ fontSize: 13.5, fontWeight: 800, color: "#E7EDF6", margin: "10px 0 4px" }}>{g.title}</div>
+        <RailNav railId={"events-" + g.key} count={g.rows.length} unit={g.title.toLowerCase() + " near you"} />
+        <div className={"wf-rail wf-rail-events"} data-rail={"events-" + g.key} tabIndex={0} role="region" aria-label={g.title} style={{ minHeight: EV_RAIL_MIN_H }}>
+          {g.rows.map((e, i) => (
             <EventRailCard onLog={logEvent}
               key={e.id}
               event={e}
@@ -9136,8 +9162,21 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             />
           ))}
         </div>
-        <RailDots railId="events" count={shown.length} />
-        <button type="button" className="wf-railsec-more" onClick={() => { try { logEvent("events_see_all", null, { src: "menu_rail", shown: shown.length }); } catch (er) {} setScreen("events"); }}>
+        {g.rows.length > 1 ? <RailDots railId={"events-" + g.key} count={g.rows.length} /> : null}
+      </div>
+    );
+    return (
+      <>
+        {/* v7.09 (owner, 2026-08-09) is still in force: "on the last menu the
+            Happening near you should be named Events near you." The four
+            bucket rails below are a subdivision of that section, not a
+            replacement for it, so the section keeps his name and the total —
+            and each rail then says which evening it is. */}
+        <h3 className="wf-events-railhd" style={{ margin: "2px 0 10px", fontSize: 15, fontWeight: 800, color: "#9AA7C0" }}>
+          Events near you <span style={{ fontWeight: 600, opacity: 0.75 }}>· {shown.length}</span>
+        </h3>
+        {groups.map((g) => eventRail(g))}
+        <button type="button" className="wf-railsec-more" onClick={() => { try { logEvent("events_see_all", null, { src: "menu_rail", shown: shown.length, rails: groups.map((g) => g.key).join(",") }); } catch (er) {} setScreen("events"); }}>
           {"See every event \u2192"}
         </button>
       </>

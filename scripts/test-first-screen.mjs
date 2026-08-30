@@ -265,7 +265,17 @@ passed++;
   ok(slot.length > 400, `PROBE: the events-rail slot was delimited (${slot.length} chars)`);
   ok(/if \(foryouEvents === null\)/.test(slot), "loading state (null) not handled by the events rail");
   ok(/if \(!shown\.length\) return null;/.test(slot), "empty state (loaded, nothing showable) not handled by the events rail");
-  ok(/<RailNav railId="events"/.test(slot), "populated state not handled by the events rail");
+  // v8.93 — FOLLOWED THE CODE. The events rail is now FOUR rails in the
+  // owner's order (concerts → theater → comedy → sports) plus an "Also
+  // happening" tail for whatever falls outside those buckets, so the railId is
+  // "events-<bucket>" rather than the single "events". The invariant is
+  // unchanged and is what is asserted: the POPULATED state renders a real rail
+  // rather than falling through to nothing.
+  ok(/<RailNav railId=\{"events-" \+ g\.key\}/.test(slot), "populated state not handled by the events rail");
+  ok(/EVENT_RAIL_ORDER = \[[\s\S]*?"concerts"[\s\S]*?"theater"[\s\S]*?"comedy"[\s\S]*?"sports"/.test(slot),
+    "…and the four named buckets are in the owner's order: concerts, theater, comedy, sports");
+  ok(/key: "more"/.test(slot),
+    "…with a tail rail for everything outside them — a civic event nobody bucketed is still on tonight, so it is never dropped");
 }
 // The honest zero-events fallback in the feed — a card and three alternative
 // intents — must survive. It is the one thing in that position that was never
@@ -335,8 +345,20 @@ ok(/const EV_RAIL_MIN_H = \d+/.test(code), "EV_RAIL_MIN_H constant missing");
   ok(slot.includes("EV_RAIL_MIN_H"), "the events rail's loading box reserves the card-row height from EV_RAIL_MIN_H");
   ok(/foryouEvents === null/.test(slot), "…and it renders that box while the events chain is still in flight, not an empty section");
 }
-ok(/aria-label="Events near you"[^\n]*minHeight: EV_RAIL_MIN_H/.test(code),
-  "the live card scroller must reserve minHeight: EV_RAIL_MIN_H to match the skeleton");
+// v8.93 — FOLLOWED THE CODE, and STRENGTHENED. This pinned one scroller by its
+// literal aria-label ("Events near you"); the rail is now four rails plus a
+// tail, each labelled with its own bucket title, so the literal no longer
+// exists. The invariant is the anti-layout-shift reserve, and it has to hold
+// for EVERY scroller now — so the check counts them and requires all of them
+// to reserve, which the single-label version could never have caught.
+{
+  const slot = sliceEventsSlot(code);
+  const scrollers = slot.match(/className=\{?"wf-rail wf-rail-events"?\}?[\s\S]{0,400}?>/g) || [];
+  ok(scrollers.length >= 2, `PROBE: found ${scrollers.length} events scrollers in the slot (loading box + at least one live rail)`);
+  const reserving = scrollers.filter((t) => /minHeight: EV_RAIL_MIN_H/.test(t));
+  ok(reserving.length === scrollers.length,
+    `every events card scroller must reserve minHeight: EV_RAIL_MIN_H to match the skeleton (${reserving.length}/${scrollers.length} do)`);
+}
 
 // 4b. ALL THREE states must reserve the same floor. Reserving only on the
 //     loading state relocates the shift instead of removing it: measured

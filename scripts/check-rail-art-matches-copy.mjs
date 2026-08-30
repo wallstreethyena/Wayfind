@@ -108,7 +108,12 @@ const PAIRS = {
   // Regenerated at 760×1013 (source 3:4, --preserve-frame). No BEST NIGHT,
   // no TONIGHT'S MOVE icon row. Rail copy unchanged (title Date Night /
   // Book date night). Pixels live in the image.
-  datenight: { copy: "0aca4828b3f1fdfd", art: "1f715d022d675151" },
+  // v8.93 re-pin, CONFIRMED BY READING BOTH. The poster's baked type is
+  // "DATE NIGHT / An unforgettable night. Already planned."; the rail copy is
+  // short "Already planned", sub "An unforgettable night, ranked for two".
+  // The old sub ("The room matters as much as the food") described a poster
+  // that no longer exists, which is exactly what this guard is for.
+  datenight: { copy: "dee84f0d45e6897a", art: "1b432d0ac5e1ce24" },
   drive: { copy: "3886fcf87019ef5d", art: "e338daa7257af817" },
   eat: { copy: "e76ee14790d3fb92", art: "18d7d66f30860e3d" },
   // v8.29.16 — RE-PINNED, PIXELS READ AT 760px BEFORE PINNING (the bar this

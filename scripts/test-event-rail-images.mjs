@@ -34,14 +34,36 @@ ok(/className=\{`wf-place-card wf-rail-card/.test(rail), "RailCard renders the c
 for (const cls of ["wf-place-card-layout", "wf-place-card-rank", "wf-place-card-category", "wf-place-card-name", "wf-place-card-meta", "wf-place-card-award", "wf-place-card-highlights", "wf-place-card-actions"]) {
   ok(rail.includes(cls), `RailCard renders .${cls} — the money card's own structure, not a lookalike`);
 }
-ok(/aria-label="Events near you"[^\n]*minHeight: EV_RAIL_MIN_H/.test(src), "the live rail still reserves the shared height constant");
-ok(/className="wf-rail wf-rail-events" data-rail="events"[^\n]*aria-label="Events near you"/.test(src), "the events rail uses the shared .wf-rail scroller (snap + hidden scrollbar in one place)");
+// v8.93 — FOLLOWED THE CODE, and each of these got STRICTER on the way.
+// The events rail is now four rails in the owner's order (concerts → theater →
+// comedy → sports) plus a tail for everything outside them, so the single
+// literal aria-label="Events near you" no longer exists on a scroller — it is
+// the SECTION heading above them, which is where his v7.09 rename actually
+// belongs. The three invariants are unchanged and are now asserted across
+// EVERY rail rather than the one that happened to carry the label.
+{
+  const scrollers = src.match(/className=\{?"wf-rail wf-rail-events"?\}?[\s\S]{0,400}?>/g) || [];
+  ok(scrollers.length >= 2, `PROBE: found ${scrollers.length} events scrollers (loading box + at least one live rail)`);
+  ok(scrollers.every((t) => /minHeight: EV_RAIL_MIN_H/.test(t)),
+    "every live events rail still reserves the shared height constant");
+  // The loading box is a skeleton, not a scroller: it has no cards to page
+  // through and no RailNav above it, so it correctly carries no data-rail.
+  // Scoping to role="region" is what separates "a live rail" from "the box we
+  // draw while waiting" — asserting over both would demand an id that would
+  // point the arrows at grey blocks.
+  const live = scrollers.filter((t) => /role="region"/.test(t));
+  ok(live.length >= 1, `PROBE: ${live.length} LIVE events rail(s) among ${scrollers.length} scrollers`);
+  ok(live.every((t) => /data-rail=/.test(t)),
+    "every live events rail uses the shared .wf-rail scroller and carries a data-rail id (snap + hidden scrollbar in one place, and RailNav's arrows find it)");
+  ok(/Events near you/.test(src),
+    "the owner's section name survives the split (v7.09: \"Happening near you\" → \"Events near you\")");
+}
 // v7.03 (owner: "use a sign above the card to let the user know there is more,
 // i want the card size to be full"). With full-width cards nothing peeks past
 // the edge, so the affordance is no longer implicit and the rail MUST carry an
 // explicit one — a card that fills the column with no visible signal that it
 // scrolls is a rail nobody scrolls.
-ok(/<RailNav railId="events"/.test(src), "the events rail carries the explicit 'there is more' row above it");
+ok(/<RailNav railId=\{"events-" \+ g\.key\}/.test(src), "every events rail carries the explicit 'there is more' row above it");
 ok(/flex:0 0 100%;\n  width:100%;/.test(css), "rail cards take the full column — the compressed 318px peek is gone");
 ok(!/--wf-rail-card-w/.test(css), "…and the old fixed card-width variable is gone with it, so nothing can re-compress the card by setting it");
 ok(/\.wf-rail-nav-btn\{/.test(css) && /scrollBy\(\{ left: dir \* rail\.clientWidth/.test(rail), "the arrows are real controls that page the rail by exactly one card width");

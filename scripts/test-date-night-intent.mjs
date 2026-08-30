@@ -156,8 +156,13 @@ ok(good.beachOk === true, "good signals set beachOk");
 ok(good.rails[0] && good.rails[0].id === "dinner", "Dinner is the first rail when inventory exists");
 ok(good.rails.map((r) => r.id).join(",") === "dinner,dessert,speakeasies,livemusic,clubs,together,beach",
   `good-weather rail order (got ${good.rails.map((r) => r.id).join(",")})`);
-ok(DATE_NIGHT_RAIL_ORDER.join(",") === "dinner,dessert,speakeasies,livemusic,clubs,together,beach,museums",
-  "canonical order is Dinner → Dessert → Speakeasies → Live Music → Clubs → Together → Beach|Museums");
+// v8.93 — Shopping joins the journey, LAST (owner, 2026-08-30: "we should
+// replace it with shopping and the events"). Last is the claim being made: the
+// browse is the optional beat, so it never displaces the table.
+ok(DATE_NIGHT_RAIL_ORDER.join(",") === "dinner,dessert,speakeasies,livemusic,clubs,together,beach,museums,shopping",
+  `canonical order is Dinner → Dessert → Speakeasies → Live Music → Clubs → Together → Beach|Museums → Shopping (got ${DATE_NIGHT_RAIL_ORDER.join(",")})`);
+ok(DATE_NIGHT_RAIL_ORDER[DATE_NIGHT_RAIL_ORDER.length - 1] === "shopping",
+  "…and Shopping is last, never ahead of the dinner it decorates");
 
 const nightIds = good.rails.filter((r) => r.group === "nightlife").map((r) => r.id);
 ok(nightIds[0] === "speakeasies" && nightIds[nightIds.length - 1] === "clubs",
@@ -248,7 +253,21 @@ ok(nightOrder.includes("datenight"), "Date Night still exists in the night order
   // <DateNightRails> so the DROP and the PAGE render one definition; the page
   // keeps the shell. Both assertions are unchanged in meaning and are now made
   // against the file that actually draws a card.
-  ok(/<IconicPlaceCard[\s/>]/.test(rails), "the intent rails use the existing IconicPlaceCard (no new card chrome)");
+  // v8.93 — FOLLOWED THE CODE, on the owner's instruction (2026-08-30, with a
+  // screenshot of the open drop): "the size of the cards is also wrong … since
+  // we will be displaying multiple rails we need to use the style from
+  // Exploding Trends Near You, I want the place card style to be like that."
+  // The invariant this line has always protected is "no NEW card chrome" — a
+  // shared card, never a bespoke one. That still holds; the shared card is now
+  // RailCard, in the same `.wf-rail` + RailNav + RailDots structure
+  // ExplodingNearby builds, so the sizing is inherited rather than guessed.
+  ok(/<RailCard[\s/>]/.test(rails), "the intent rails use the existing RailCard — no new card chrome");
+  ok(/className="wf-rail wf-rail-exploding"/.test(rails),
+    "…inside the Exploding Trends rail container, so card width and the peek come from the design system, not an inline 300px guess");
+  ok(/<RailNav[\s/>]/.test(rails) && /<RailDots[\s/>]/.test(rails),
+    "…with the same there-is-more affordances that rail ships");
+  ok(!/<IconicPlaceCard[\s/>]/.test(rails),
+    "…and the old card is gone rather than left beside it — two card styles in one drop is the drift this file exists to stop");
   ok(/<RankedExperiencePage[\s/>]/.test(src), "the intent page keeps the existing RankedExperiencePage shell");
   ok(/toHookLine\(/.test(rails), "editorial lines go through toHookLine — empty stays empty");
   ok(/<DateNightRails[\s/>]/.test(src), "…and the page RENDERS those shared rails rather than a second copy of them");
@@ -258,7 +277,7 @@ ok(nightOrder.includes("datenight"), "Date Night still exists in the night order
     const drop = stripComments(readFileSync(join(ROOT, "app/components/DaypartRail.js"), "utf8"));
     const declarations = [src, drop].filter((f) => /function DateNightRails|const DateNightRails = \(/.test(f)).length;
     ok(declarations === 0, "neither the page nor the rail re-declares the rails — they import the one component");
-    ok(/<IconicPlaceCard[\s/>]/.test(rails), "positive control: the shared component really is the one drawing cards");
+    ok(/<RailCard[\s/>]/.test(rails), "positive control: the shared component really is the one drawing cards");
   }
   ok(!/places\.googleapis|searchText|placeDetails/.test(src), "the client does not call Google Places");
   ok(!/room for it tonight/.test(src) && !/clears this bar/.test(src),
@@ -360,8 +379,19 @@ ok(nightOrder.includes("datenight"), "Date Night still exists in the night order
   ok(speaksForEmpty.length === 3, `three fallback branches speak for an empty pool (got ${speaksForEmpty.length})`);
   ok(speaksForEmpty.every((b) => /railOwnsItsOwnAnswer/.test(b)),
     "EVERY pool fallback branch (pending skeleton, thin copy, honest terminal) is skipped for a rail that owns its own answer");
-  ok(branches.some((b) => /dropList\.length/.test(b) && !/railOwnsItsOwnAnswer/.test(b)),
-    "…and the ranked place cards still render under the Date Night rails, exactly as they do under Exploding Trends");
+  // v8.93 — THIS ASSERTION IS INVERTED, and the owner's screenshot is the
+  // reason. v8.92 kept the pool under Date Night by analogy with trending. The
+  // pool is the generic FOOD rail for the reader's location, so under a
+  // qualified date-night journey it served C & K Smokehouse BBQ: ranked
+  // correctly, and nobody's date night. Trending's pool works because "the
+  // best places near you, period" is a true caption for it; there is no true
+  // caption for a BBQ joint under "Date Night". Owner, 2026-08-30: "the date
+  // night card still has the old rail … we should replace it with shopping and
+  // the events" — and both of those now exist as things that qualify.
+  ok(branches.every((b) => /railOwnsItsOwnAnswer/.test(b)),
+    "the pool does not speak for Date Night AT ALL — not its cards, not its empty copy");
+  ok(/selRail && selRail\.id === "datenight" && eventsSlot/.test(src),
+    "…and the dated events ride under the journey, from the SAME eventsSlot thunk the events tile renders");
 }
 
 // Poster art is not this PR

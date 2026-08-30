@@ -254,7 +254,32 @@ ok(/floor:\s*\{\s*rating:\s*4(\.0)?\s*,/.test(intentPagesSrc),
     // desktop (~3.4 tiles visible) and one short swipe on a phone. What it no
     // longer does is spend the one slot that carries the time-of-day signal.
     ok(o[0] !== "season", "seasonal must NOT lead — it is the only tile a phone shows, and pinning it there cancels the daypart rotation (v8.23.2 reversal of v6.55)");
-    ok(o.indexOf("season") === 2, `${band}: seasonal holds THIRD — prominent, predictable, and never in the rotating slot (found ${o.indexOf("season") + 1})`);
+    // v8.93 — THIRD BECAME FOURTH in the tonight-led bands, and the assertion
+    // follows the reason rather than the number. Owner, 2026-08-30: "make sure
+    // that the Date Night card is next to Tonight's Move, to the right of
+    // Tonight's Move." Tonight is what is ON and Date Night is who you are
+    // going with; side by side they are the whole evening in two tiles, which
+    // is worth one slot from trending and one from season.
+    //
+    // What the rule has always protected is intact and is what is asserted:
+    // seasonal never leads (above), it is never adrift (it sits in the first
+    // FOUR of twenty in every band), and it is PREDICTABLE — the same index in
+    // both tonight-led bands, so a reader who learns where it is keeps being
+    // right. "Exactly index 2" was one expression of that, not the rule.
+    ok(o.indexOf("season") >= 1 && o.indexOf("season") <= 3,
+      `${band}: seasonal stays in the first four — prominent, and never in the rotating lead slot (found ${o.indexOf("season") + 1})`);
+  }
+  // PREDICTABLE, proven across the bands rather than asserted per band: the two
+  // tonight-led bands must agree with each other, or "where seasonal lives"
+  // becomes a thing the reader has to re-learn at 5:30pm.
+  {
+    const a = DAYPARTS.afternoon.order.indexOf("season");
+    const n = DAYPARTS.night.order.indexOf("season");
+    ok(a === n, `afternoon and night place seasonal identically (afternoon ${a + 1}, night ${n + 1})`);
+    ok(DAYPARTS.afternoon.order[0] === "tonight" && DAYPARTS.afternoon.order[1] === "datenight",
+      "…and the two slots it gave up are Tonight's Move then Date Night, in that order (owner, 2026-08-30)");
+    ok(DAYPARTS.night.order[0] === "tonight" && DAYPARTS.night.order[1] === "datenight",
+      "…in the night band too — one shared list, so the pairing cannot drift between them");
   }
   ok(!/function LocalPlanHeroCard\(/.test(home), "LocalPlanHeroCard is back without the slide it rendered");
   ok(!/<HeroRail>/.test(home), "the hero rail is back alongside the daypart rail");
@@ -289,4 +314,4 @@ ok(/floor:\s*\{\s*rating:\s*4(\.0)?\s*,/.test(intentPagesSrc),
   ok(currentSeason() === currentSeason(siteAnchorDate()), "default agrees with the ET-anchored day right now");
 }
 
-console.log(`test-seasonal-picks: OK — ${pass} assertions (season logic pure + tested; seasonal holds third in every daypart band, exactly once; ranking is rating + a bounded seasonal nudge, never a replacement)`);
+console.log(`test-seasonal-picks: OK — ${pass} assertions (season logic pure + tested; seasonal sits in the first four of every band and identically in both tonight-led bands, exactly once, never leading; ranking is rating + a bounded seasonal nudge, never a replacement)`);
