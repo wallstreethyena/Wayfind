@@ -1,26 +1,23 @@
 #!/usr/bin/env node
-// scripts/check-datenight-rail-uncropped.mjs — Date Night rail shows the FULL poster.
+// scripts/check-datenight-rail-uncropped.mjs — Date Night rail shows the FULL poster,
+// filling the same 9:16 tile as Tonight / Worth the Drive.
 //
-// THE INCIDENT (owner iPhone, Parrish, after #1031 / 1569b3fd). Cover-fitting
-// a non-9:16 owner poster into the 760×1350 ladder + .wf8-tim object-fit:cover
-// clipped the left-aligned type.
+// THE INCIDENTS
+//   #1031 cover-fit the 1086×1448 Adobe poster into 760×1350 → clipped DATE/NIGHT.
+//   #1032 preserved the 3:4 frame + object-fit:contain → full type, but a stamp
+//         inside a taller tile (founder iPhone, maroon letterbox bars).
+//   #1034 kept the shared 9:16 tile box. Correct box, still the 3:4 contain encode.
 //
-// FOUNDER LOCK (2026-08-30): the card is the 1086×1448 Adobe DATE NIGHT
-// poster (wayfind / DATE NIGHT / within 27 miles / Impress. Every time.).
-// BEST NIGHT / EVERY DETAIL and TONIGHT'S MOVE / icon-row are discarded.
+// THE FIX pads the locked 3:4 onto the 9:16 ladder (scale to WIDTH, pad TOP and
+// BOTTOM only, color from the poster's own dark edge) so .wf8-tim cover fills
+// the tile without cropping DATE / NIGHT.
 //
-// THE FIX is Date Night only. Other posters stay 9:16 + cover. This guard
-// executes the sizes it can (locked PNG, 760.jpg, railArtSize) and pins the
-// CSS/JS positions that keep the tile from covering. A comment that mentions
-// "contain" does not pass.
-//
-// #1032 set a Date Night-only --wf8-ratio:0.75 so the tile BOX matched the
-// 3:4 poster. Same width + shorter aspect = a shorter card than Tonight /
-// Worth the Drive. The TILE BOX is now the shared 9:16; contain letterboxes
-// the poster inside it. This file COMPUTES both boxes and requires them
-// equal. Grepping "0.75 is gone" is not that proof.
+// This file EXECUTES sizes, SHA, railArtSize, the CSS tile formula, and — when
+// Chromium is present — the measured boxes plus a canvas pixel compare of the
+// DATE/NIGHT edge columns. A comment that mentions "contain" or "9:16" does
+// not pass.
 
-import { readFileSync, existsSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { readFileSync, existsSync, mkdtempSync, writeFileSync, rmSync, copyFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -60,6 +57,7 @@ function jpegSize(buf) {
   throw new Error("JPEG has no SOF");
 }
 
+const LOCKED_SHA = "43c40558299064d94dbb299422e2ffaa57bf76ac0b51cd1737cdaf67ed5a9355";
 const LOCKED = "tmp/datenight-final-adobe.png";
 const SRC = "art/rail-sources/datenight.png";
 const OWNER = "public/cards/date-night-owner.png";
@@ -81,6 +79,8 @@ const jpg = jpegSize(jpgBuf);
 
 ok(locked.width === 1086 && locked.height === 1448,
   `founder lock is the 1086×1448 DATE NIGHT Adobe poster (got ${locked.width}×${locked.height})`);
+ok(sha(lockedBuf) === LOCKED_SHA,
+  `locked Adobe PNG is the known 1086×1448 blob (got ${sha(lockedBuf)})`);
 ok(!(src.width === 1024 && src.height === 1536),
   "BEST NIGHT / EVERY DETAIL (1024×1536) is discarded — not the rail source");
 ok(src.width === locked.width && src.height === locked.height,
@@ -92,22 +92,27 @@ ok(sha(srcBuf) === sha(lockedBuf),
 ok(sha(ownerBuf) === sha(lockedBuf),
   "public/cards/date-night-owner.png is byte-identical to the locked Adobe PNG");
 
-const srcAspect = src.width / src.height;
-const jpgAspect = jpg.width / jpg.height;
-ok(Math.abs(jpgAspect - srcAspect) < 0.01,
-  `datenight-760.jpg must keep the source aspect ${srcAspect.toFixed(4)} — cover-fit to 9:16 is the crop (got ${jpg.width}×${jpg.height} = ${jpgAspect.toFixed(4)})`);
-ok(jpg.height !== 1350 && jpg.height !== 1140,
-  `datenight-760.jpg is not a 9:16 (1350) or leftover 2:3 (1140) crop (got ${jpg.height})`);
-ok(jpg.width === 760,
-  `the 760w rung is still 760 wide so RAIL_ART_WIDTHS stay honest (got ${jpg.width})`);
+ok(jpg.width === 760 && jpg.height === 1350,
+  `datenight-760.jpg is the 9:16 ladder 760×1350 (got ${jpg.width}×${jpg.height})`);
+ok(jpg.height !== 1013 && jpg.height !== 1140,
+  `datenight-760.jpg is not the leftover 3:4 (1013) or 2:3 (1140) encode (got ${jpg.height})`);
+
+const fitH = Math.round(locked.height * 760 / locked.width);
+ok(fitH === 1013,
+  `width-fit of 1086×1448 onto 760 is 1013 tall — pad top/bottom from there (got ${fitH})`);
+ok(fitH < jpg.height,
+  `760 encode is taller than the width-fit poster (${jpg.height} > ${fitH}) — top/bottom pad, not a side crop`);
+const padTop = Math.floor((jpg.height - fitH) / 2);
+ok(padTop > 0 && padTop + fitH <= jpg.height,
+  `poster band is y=${padTop}..${padTop + fitH} inside the 1350 frame`);
 
 const box = railArtSize("datenight");
 ok(box.width === jpg.width && box.height === jpg.height,
   `railArtSize("datenight") matches the 760.jpg box — executed, got ${box.width}×${box.height} vs jpg ${jpg.width}×${jpg.height}`);
-ok(Math.abs(box.width / box.height - srcAspect) < 0.01,
-  "railArtSize Date Night matches the source aspect, not the 9:16 default");
+ok(box.width === RAIL_ART_DEFAULT_SIZE.width && box.height === RAIL_ART_DEFAULT_SIZE.height,
+  `railArtSize Date Night is the same 9:16 intrinsic as default (${RAIL_ART_DEFAULT_SIZE.width}×${RAIL_ART_DEFAULT_SIZE.height}), not 760×1013`);
 ok(RAIL_ART_DEFAULT_SIZE.width === 760 && RAIL_ART_DEFAULT_SIZE.height === 1350,
-  "the default ladder is still 760×1350 — Date Night is the exception, not a global restyle");
+  "the default ladder is still 760×1350");
 ok(railArtSize("tonight").height === 1350 && railArtSize("events").height === 1350
   && railArtSize("drive").height === 1350 && railArtSize("family").height === 1350,
   "Tonight, Events, Worth the Drive, and Family stay on the default box");
@@ -160,12 +165,10 @@ for (const tw of [300, 340, 440]) {
     `at ${tw}px tile width, Date Night uses the shared box ${shared.width}×${shared.height} (got ${dn.width}×${dn.height})`);
 }
 
-const dnImg = css.match(/\.wf8-tile\[data-id="datenight"\] \.wf8-tim\{[^}]+\}/);
-ok(!!dnImg, "positive control: the Date Night img rule is a real selector");
-ok(!!dnImg && /object-fit:contain/.test(dnImg[0]),
-  "Date Night img is object-fit:contain — cover is what clipped the left edge");
-ok(!!dnImg && !/object-fit:cover/.test(dnImg[0]),
-  "Date Night img must not also set cover (contain then cover is still a crop)");
+ok(!/\.wf8-tile\[data-id="datenight"\] \.wf8-tim\{/.test(css),
+  "Date Night has no img override — the shared .wf8-tim cover fills the 9:16 pad");
+ok(!/\.wf8-tile\[data-id="datenight"\][^\{]*\{[^}]*object-fit:contain/.test(css),
+  "Date Night does not letterbox with object-fit:contain");
 ok(/\.wf8-tim\{[^}]*object-fit:cover/.test(css),
   "the shared .wf8-tim rule is still cover — other posters are unchanged");
 ok(!/\.wf8-tile\[data-id="(?:tonight|events|drive|family)"\]/.test(css),
@@ -180,14 +183,18 @@ ok(/width=\{artBox\.width\}/.test(rail) && /height=\{artBox\.height\}/.test(rail
   "the tile <img> uses the size railArtSize returned, in the width/height props");
 
 const railsSrc = strip(read("lib/rails.js"));
-ok(/(?:export const)\s+RAIL_ART_V\s*=\s*"14"/.test(railsSrc) && RAIL_ART_V === "14",
-  `RAIL_ART_V is 14 so cached BEST NIGHT crops cannot survive (declared + executed, got ${RAIL_ART_V})`);
+ok(/(?:export const)\s+RAIL_ART_V\s*=\s*"15"/.test(railsSrc) && RAIL_ART_V === "15",
+  `RAIL_ART_V is 15 so cached 3:4 contain encodes cannot survive (declared + executed, got ${RAIL_ART_V})`);
 
 const make = strip(read("scripts/make-rail-art.mjs"));
 ok(/preserveFrame/.test(make) && /--preserve-frame/.test(read("scripts/make-rail-art.mjs")),
   "make-rail-art still has the --preserve-frame path Date Night was rebuilt with");
+ok(/padLadder/.test(make) && /--pad-ladder/.test(read("scripts/make-rail-art.mjs")),
+  "make-rail-art still has the --pad-ladder path that width-fits and pads top/bottom");
 ok(/preserveFrame\s*\?\s*"fill"\s*:\s*"cover"/.test(make),
   "preserve-frame resamples with fill (source aspect), not cover (the crop)");
+ok(/padLadder && !preserveFrame/.test(make),
+  "pad-ladder cannot run without preserve-frame — cover-after-pad is not this recipe");
 
 const intent = strip(read("lib/intentPages.js"));
 const dnArt = [...intent.matchAll(/art:\s*"([^"]+)"/g)]
@@ -198,9 +205,9 @@ ok(dnArt.length >= 1 && dnArt.every((p) => p === "/cards/date-night-owner.png"),
 ok(!/date-night-adobestock-190984224/.test(intent),
   "/date-night does not point at the old AdobeStock jpeg");
 
-// Layout: inject the shipped CSS and measure the boxes the browser computes.
-// Formula equality above is the always-on lock. This is the same question
-// asked of getBoundingClientRect at the 390px phone the founder used.
+// Layout + glyph pixels: inject the shipped CSS and the real 760 encode.
+// Formula equality above is the always-on lock. This asks getBoundingClientRect
+// and canvas ImageData at the 390px phone the founder used.
 {
   let chromium = null;
   try {
@@ -218,43 +225,94 @@ ok(!/date-night-adobestock-190984224/.test(intent),
   }
   const launchOpts = resolveChromium();
   if (!launchOpts) {
-    console.log("  (Chromium layout measure skipped — no browser; formula boxes above still ran)");
+    console.log("  (Chromium layout/pixel measure skipped — no browser; formula boxes + jpeg size above still ran)");
   } else {
+    const tmp = mkdtempSync(join(ROOT, ".wf-dn-tile-"));
+    copyFileSync(join(ROOT, JPG), join(tmp, "datenight-760.jpg"));
+    copyFileSync(join(ROOT, LOCKED), join(tmp, "locked.png"));
     const fixture = `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
 <style>*{box-sizing:border-box}${WF_RAIL_MENU_CSS}</style></head>
 <body style="margin:0;background:#040810">
 <div class="wf8" style="width:390px">
   <div class="wf8-track">
     <div class="wf8-tile" data-id="tonight"><img class="wf8-tim" alt="" width="760" height="1350"></div>
-    <div class="wf8-tile" data-id="datenight"><img class="wf8-tim" alt="" width="760" height="1013"></div>
+    <div class="wf8-tile" data-id="datenight"><img class="wf8-tim" alt="" src="datenight-760.jpg" width="760" height="1350"></div>
     <div class="wf8-tile" data-id="drive"><img class="wf8-tim" alt="" width="760" height="1350"></div>
   </div>
 </div>
+<img id="locked" src="locked.png" width="1086" height="1448" style="position:absolute;left:-9999px">
+<img id="encode" src="datenight-760.jpg" width="760" height="1350" style="position:absolute;left:-9999px">
 </body></html>`;
-    const tmp = mkdtempSync(join(ROOT, ".wf-dn-tile-"));
     const pagePath = join(tmp, "tiles.html");
     writeFileSync(pagePath, fixture);
     const browser = await chromium.launch(launchOpts);
     try {
       const page = await (await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 })).newPage();
       await page.goto("file://" + pagePath, { waitUntil: "load" });
+      await page.evaluate(() => Promise.all([
+        document.getElementById("locked").decode(),
+        document.getElementById("encode").decode(),
+        document.querySelector('.wf8-tile[data-id="datenight"] .wf8-tim').decode(),
+      ]));
       const innerWidth = await page.evaluate(() => window.innerWidth);
       ok(innerWidth === 390, `PROBE: measured viewport is 390px, not a clamped request (got ${innerWidth})`);
-      const measured = await page.evaluate(() => {
+      const measured = await page.evaluate(({ fitH, padTop }) => {
         const box = (el) => {
           if (!el) return null;
           const r = el.getBoundingClientRect();
           return { w: r.width, h: r.height };
         };
         const fit = (el) => el ? getComputedStyle(el).objectFit : null;
+        const locked = document.getElementById("locked");
+        const encode = document.getElementById("encode");
+        const srcC = document.createElement("canvas");
+        srcC.width = 760; srcC.height = fitH;
+        srcC.getContext("2d").drawImage(locked, 0, 0, 760, fitH);
+        const encC = document.createElement("canvas");
+        encC.width = 760; encC.height = 1350;
+        encC.getContext("2d").drawImage(encode, 0, 0, 760, 1350);
+        const src = srcC.getContext("2d").getImageData(0, 0, 760, fitH).data;
+        const enc = encC.getContext("2d").getImageData(0, padTop, 760, fitH).data;
+        const stripMae = (x0, cols) => {
+          let s = 0, n = 0;
+          for (let y = 0; y < fitH; y++) {
+            for (let x = x0; x < x0 + cols; x++) {
+              const i = (y * 760 + x) * 4;
+              s += Math.abs(src[i] - enc[i]) + Math.abs(src[i + 1] - enc[i + 1]) + Math.abs(src[i + 2] - enc[i + 2]);
+              n += 3;
+            }
+          }
+          return s / n;
+        };
+        // DATE sits ~18–38% down the 3:4 poster; NIGHT ~38–56%. Sample the
+        // leftmost / rightmost 6px of those bands. A 9:16 cover crop insets
+        // ~135 source pixels (~94px at 760) and those strips go dark/wrong.
+        const band = (y0f, y1f) => {
+          const y0 = Math.round(fitH * y0f), y1 = Math.round(fitH * y1f);
+          let cream = 0, rose = 0, n = 0;
+          for (let y = y0; y < y1; y++) {
+            for (let x = 0; x < 760; x++) {
+              const i = (y * 760 + x) * 4;
+              const r = enc[i], g = enc[i + 1], b = enc[i + 2];
+              n++;
+              if (r > 170 && g > 140 && b > 90 && r > b + 20) cream++;
+              if (r > 130 && r < 210 && g > 70 && g < 160 && b > 70 && b < 150 && r > g + 10) rose++;
+            }
+          }
+          return { cream, rose, n, y0, y1 };
+        };
         return {
           tonight: box(document.querySelector('.wf8-tile[data-id="tonight"]')),
           datenight: box(document.querySelector('.wf8-tile[data-id="datenight"]')),
           drive: box(document.querySelector('.wf8-tile[data-id="drive"]')),
           dnFit: fit(document.querySelector('.wf8-tile[data-id="datenight"] .wf8-tim')),
           tonightFit: fit(document.querySelector('.wf8-tile[data-id="tonight"] .wf8-tim')),
+          leftMae: stripMae(0, 8),
+          rightMae: stripMae(752, 8),
+          dateBand: band(0.18, 0.38),
+          nightBand: band(0.38, 0.56),
         };
-      });
+      }, { fitH, padTop });
       ok(measured.tonight && measured.datenight && measured.drive,
         "PROBE: Tonight, Date Night, and Worth the Drive tiles all rendered");
       ok(measured.tonight.w > 0 && measured.datenight.w > 0 && measured.drive.w > 0
@@ -266,10 +324,18 @@ ok(!/date-night-adobestock-190984224/.test(intent),
       ok(Math.abs(measured.datenight.w - measured.drive.w) < 0.5
         && Math.abs(measured.datenight.h - measured.drive.h) < 0.5,
         `Date Night measured box ${measured.datenight.w}×${measured.datenight.h} must match Worth the Drive ${measured.drive.w}×${measured.drive.h}`);
-      ok(measured.dnFit === "contain",
-        `Date Night computed object-fit is contain, not cover (got ${measured.dnFit})`);
+      ok(measured.dnFit === "cover",
+        `Date Night computed object-fit is cover — contain is the letterbox (got ${measured.dnFit})`);
       ok(measured.tonightFit === "cover",
-        `Tonight still uses cover — Date Night contain did not restyle the rail (got ${measured.tonightFit})`);
+        `Tonight still uses cover — Date Night did not restyle the rail (got ${measured.tonightFit})`);
+      ok(measured.leftMae < 18,
+        `DATE/NIGHT left-edge columns match the width-fit source (MAE ${measured.leftMae.toFixed(2)} < 18) — a cover crop would replace them`);
+      ok(measured.rightMae < 18,
+        `DATE/NIGHT right-edge columns match the width-fit source (MAE ${measured.rightMae.toFixed(2)} < 18) — a cover crop would replace them`);
+      ok(measured.dateBand.cream > 200,
+        `DATE cream glyphs are inside the 760 frame (cream pixels ${measured.dateBand.cream} in y=${measured.dateBand.y0}..${measured.dateBand.y1})`);
+      ok(measured.nightBand.rose > 200,
+        `NIGHT dusty-rose glyphs are inside the 760 frame (rose pixels ${measured.nightBand.rose} in y=${measured.nightBand.y0}..${measured.nightBand.y1})`);
     } finally {
       await browser.close();
       try { rmSync(tmp, { recursive: true, force: true }); } catch (e) {}
@@ -281,4 +347,4 @@ if (fail) {
   console.error(`check-datenight-rail-uncropped: FAIL — ${fail} assertion(s), ${pass} passed`);
   process.exit(1);
 }
-console.log(`check-datenight-rail-uncropped: OK — ${pass} assertions (locked 1086×1448 executed + byte-identical to rail source and hero, 760.jpg aspect matches, railArtSize 3:4 intrinsic, TILE BOX computed equal to Tonight/Drive at 9:16, contain still on, RAIL_ART_V 14)`);
+console.log(`check-datenight-rail-uncropped: OK — ${pass} assertions (locked 1086×1448 SHA executed + byte-identical to rail source and hero, 760.jpg is 9:16, railArtSize matches default, TILE BOX equals Tonight/Drive, no contain letterbox, DATE/NIGHT edges inside frame, RAIL_ART_V 15)`);

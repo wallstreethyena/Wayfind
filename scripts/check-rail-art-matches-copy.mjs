@@ -103,12 +103,13 @@ const PAIRS = {
   breakfast: { copy: "357ed5dfa8609429", art: "502233352f9fc2aa" },
   blog: { copy: "390c7f9cbf645d12", art: "3af2ada7cdef7446" },
   break: { copy: "8da3d9103f225a40", art: "23219929258396e1" },
-  // v14 (2026-08-30) — FOUNDER LOCK. 1086×1448 Adobe DATE NIGHT poster
-  // (wayfind / DATE NIGHT / within 27 miles / Impress. Every time.).
-  // Regenerated at 760×1013 (source 3:4, --preserve-frame). No BEST NIGHT,
-  // no TONIGHT'S MOVE icon row. Rail copy unchanged (title Date Night /
-  // Book date night). Pixels live in the image.
-  datenight: { copy: "0aca4828b3f1fdfd", art: "1f715d022d675151" },
+  // v15 (2026-08-30) — FOUNDER LOCK, 9:16 FILL. Same 1086×1448 Adobe DATE
+  // NIGHT poster (wayfind / DATE NIGHT / within 27 miles / Impress. Every
+  // time.), width-fit onto 760×1350 with top/bottom pad from the poster's
+  // own dark edge (--preserve-frame --pad-ladder). No BEST NIGHT, no
+  // TONIGHT'S MOVE icon row, no contain letterbox. Rail copy unchanged
+  // (title Date Night / Book date night). Pixels live in the image.
+  datenight: { copy: "0aca4828b3f1fdfd", art: "ea3623a4288f07b5" },
   drive: { copy: "3886fcf87019ef5d", art: "e338daa7257af817" },
   eat: { copy: "e76ee14790d3fb92", art: "18d7d66f30860e3d" },
   // v8.29.16 — RE-PINNED, PIXELS READ AT 760px BEFORE PINNING (the bar this
