@@ -14,9 +14,9 @@
 // of his pixels: a 1px edge trim (the export carries a hairline seam on some
 // edges) and a cover-fit resize. No text, no crop beyond that, no redraw.
 //
-// --preserve-frame is the exception that Date Night needs. Its owner poster
-// is 1024×1536 (2:3), not 9:16. Cover-fitting that into 760×1350 clipped the
-// left-aligned wordmark. The flag resamples to the requested width at the
+// --preserve-frame is the exception that Date Night needs. Its locked poster
+// is 1086×1448 (3:4), not 9:16. Cover-fitting that into 760×1350 clipped the
+// left-aligned type. The flag resamples to the requested width at the
 // SOURCE aspect, with no trim and no cover crop. Other rails stay on the
 // default cover-fit path.
 //

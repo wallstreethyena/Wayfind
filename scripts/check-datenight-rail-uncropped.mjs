@@ -1,19 +1,16 @@
 #!/usr/bin/env node
 // scripts/check-datenight-rail-uncropped.mjs — Date Night rail shows the FULL poster.
 //
-// THE INCIDENT (owner iPhone, Parrish, after #1031 / 1569b3fd). The new
-// BEST NIGHT. / EVERY DETAIL. art shipped, and the left edge was gone:
-// "wayfind" clipped, SPEAKEASIES → "…AKEASIES", "WE'LL TAKE YOU UP TO" →
-// "LL TAKE YOU UP TO 27 MILES".
+// THE INCIDENT (owner iPhone, Parrish, after #1031 / 1569b3fd). Cover-fitting
+// a non-9:16 owner poster into the 760×1350 ladder + .wf8-tim object-fit:cover
+// clipped the left-aligned type.
 //
-// Cause, measured: the owner PNG is 1024×1536 (2:3). make-rail-art.mjs
-// cover-fit that into the ladder's 760×1350 (~9:16) box, and .wf8-tim
-// object-fit:cover + object-position:50% 0% did the same crop again in the
-// tile. Cover-fitting 2:3 into 9:16 drops ~15% of the width — exactly the
-// left-aligned type.
+// FOUNDER LOCK (2026-08-30): the card is the 1086×1448 Adobe DATE NIGHT
+// poster (wayfind / DATE NIGHT / within 27 miles / Impress. Every time.).
+// BEST NIGHT / EVERY DETAIL and TONIGHT'S MOVE / icon-row are discarded.
 //
 // THE FIX is Date Night only. Other posters stay 9:16 + cover. This guard
-// executes the sizes it can (source PNG, 760.jpg, railArtSize) and pins the
+// executes the sizes it can (locked PNG, 760.jpg, railArtSize) and pins the
 // CSS/JS positions that keep the tile from covering. A comment that mentions
 // "contain" does not pass.
 
@@ -31,6 +28,7 @@ const strip = (src) => src
 
 let pass = 0, fail = 0;
 const ok = (c, m) => { c ? pass++ : (fail++, console.error("  FAIL:", m)); };
+const sha = (b) => createHash("sha256").update(b).digest("hex");
 
 function pngSize(buf) {
   if (buf[0] !== 0x89 || buf[1] !== 0x50 || buf[2] !== 0x4e || buf[3] !== 0x47) {
@@ -55,40 +53,50 @@ function jpegSize(buf) {
   throw new Error("JPEG has no SOF");
 }
 
+const LOCKED = "tmp/datenight-final-adobe.png";
 const SRC = "art/rail-sources/datenight.png";
 const OWNER = "public/cards/date-night-owner.png";
 const JPG = "public/cards-v8/datenight-760.jpg";
 
+ok(existsSync(join(ROOT, LOCKED)), `positive control: ${LOCKED} is present`);
 ok(existsSync(join(ROOT, SRC)), `positive control: ${SRC} is present`);
 ok(existsSync(join(ROOT, OWNER)), `positive control: ${OWNER} is present`);
 ok(existsSync(join(ROOT, JPG)), `positive control: ${JPG} is present`);
 
+const lockedBuf = readFileSync(join(ROOT, LOCKED));
 const srcBuf = readFileSync(join(ROOT, SRC));
 const ownerBuf = readFileSync(join(ROOT, OWNER));
 const jpgBuf = readFileSync(join(ROOT, JPG));
+const locked = pngSize(lockedBuf);
 const src = pngSize(srcBuf);
 const owner = pngSize(ownerBuf);
 const jpg = jpegSize(jpgBuf);
 
-ok(src.width === 1024 && src.height === 1536,
-  `Date Night source is the 1024×1536 owner poster (got ${src.width}×${src.height})`);
-ok(owner.width === src.width && owner.height === src.height,
-  `/date-night hero PNG must stay the same full frame as the rail source (got ${owner.width}×${owner.height})`);
-ok(createHash("sha256").update(srcBuf).digest("hex") === createHash("sha256").update(ownerBuf).digest("hex"),
-  "art/rail-sources/datenight.png and public/cards/date-night-owner.png are the same original bytes");
+ok(locked.width === 1086 && locked.height === 1448,
+  `founder lock is the 1086×1448 DATE NIGHT Adobe poster (got ${locked.width}×${locked.height})`);
+ok(!(src.width === 1024 && src.height === 1536),
+  "BEST NIGHT / EVERY DETAIL (1024×1536) is discarded — not the rail source");
+ok(src.width === locked.width && src.height === locked.height,
+  `rail source is the locked frame (got ${src.width}×${src.height})`);
+ok(owner.width === locked.width && owner.height === locked.height,
+  `/date-night hero PNG is the same full frame (got ${owner.width}×${owner.height})`);
+ok(sha(srcBuf) === sha(lockedBuf),
+  "art/rail-sources/datenight.png is byte-identical to the locked Adobe PNG");
+ok(sha(ownerBuf) === sha(lockedBuf),
+  "public/cards/date-night-owner.png is byte-identical to the locked Adobe PNG");
 
 const srcAspect = src.width / src.height;
 const jpgAspect = jpg.width / jpg.height;
 ok(Math.abs(jpgAspect - srcAspect) < 0.01,
   `datenight-760.jpg must keep the source aspect ${srcAspect.toFixed(4)} — cover-fit to 9:16 is the crop (got ${jpg.width}×${jpg.height} = ${jpgAspect.toFixed(4)})`);
-ok(jpg.height !== 1350,
-  "datenight-760.jpg is no longer the 760×1350 cover-crop that clipped the left type");
+ok(jpg.height !== 1350 && jpg.height !== 1140,
+  `datenight-760.jpg is not a 9:16 (1350) or leftover 2:3 (1140) crop (got ${jpg.height})`);
 ok(jpg.width === 760,
   `the 760w rung is still 760 wide so RAIL_ART_WIDTHS stay honest (got ${jpg.width})`);
 
 const box = railArtSize("datenight");
-ok(box.width === 760 && box.height === 1140,
-  `railArtSize("datenight") is 760×1140 (2:3) — executed, got ${box.width}×${box.height}`);
+ok(box.width === jpg.width && box.height === jpg.height,
+  `railArtSize("datenight") matches the 760.jpg box — executed, got ${box.width}×${box.height} vs jpg ${jpg.width}×${jpg.height}`);
 ok(Math.abs(box.width / box.height - srcAspect) < 0.01,
   "railArtSize Date Night matches the source aspect, not the 9:16 default");
 ok(RAIL_ART_DEFAULT_SIZE.width === 760 && RAIL_ART_DEFAULT_SIZE.height === 1350,
@@ -100,8 +108,10 @@ ok(railArtSize("tonight").height === 1350 && railArtSize("events").height === 13
 const css = strip(read("app/components/railMenuCss.js"));
 const dnTile = css.match(/\.wf8-tile\[data-id="datenight"\]\{[^}]+\}/);
 ok(!!dnTile, "positive control: the Date Night tile rule is a real selector, not a mention");
-ok(!!dnTile && /--wf8-ratio:0\.666667/.test(dnTile[0]),
-  `Date Night tile --wf8-ratio is 2:3 (0.666667), matching the source (got ${dnTile ? dnTile[0] : "missing"})`);
+ok(!!dnTile && /--wf8-ratio:0\.75/.test(dnTile[0]),
+  `Date Night tile --wf8-ratio is 3:4 (0.75), matching the locked source (got ${dnTile ? dnTile[0] : "missing"})`);
+ok(!!dnTile && !/--wf8-ratio:0\.666667/.test(dnTile[0]),
+  "the leftover 2:3 ratio from the discarded BEST NIGHT card is gone");
 const dnImg = css.match(/\.wf8-tile\[data-id="datenight"\] \.wf8-tim\{[^}]+\}/);
 ok(!!dnImg, "positive control: the Date Night img rule is a real selector");
 ok(!!dnImg && /object-fit:contain/.test(dnImg[0]),
@@ -120,8 +130,8 @@ ok(/width=\{artBox\.width\}/.test(rail) && /height=\{artBox\.height\}/.test(rail
   "the tile <img> uses the size railArtSize returned, in the width/height props");
 
 const railsSrc = strip(read("lib/rails.js"));
-ok(/(?:export const)\s+RAIL_ART_V\s*=\s*"13"/.test(railsSrc) && RAIL_ART_V === "13",
-  `RAIL_ART_V is 13 so cached 9:16 crops cannot survive (declared + executed, got ${RAIL_ART_V})`);
+ok(/(?:export const)\s+RAIL_ART_V\s*=\s*"14"/.test(railsSrc) && RAIL_ART_V === "14",
+  `RAIL_ART_V is 14 so cached BEST NIGHT crops cannot survive (declared + executed, got ${RAIL_ART_V})`);
 
 const make = strip(read("scripts/make-rail-art.mjs"));
 ok(/preserveFrame/.test(make) && /--preserve-frame/.test(read("scripts/make-rail-art.mjs")),
@@ -134,10 +144,12 @@ const dnArt = [...intent.matchAll(/art:\s*"([^"]+)"/g)]
   .map((m) => m[1])
   .filter((p) => /date-night/.test(p));
 ok(dnArt.length >= 1 && dnArt.every((p) => p === "/cards/date-night-owner.png"),
-  `/date-night hero still uses the original owner PNG, full frame (got ${JSON.stringify(dnArt)})`);
+  `/date-night hero uses date-night-owner.png (the locked poster), not the AdobeStock jpeg (got ${JSON.stringify(dnArt)})`);
+ok(!/date-night-adobestock-190984224/.test(intent),
+  "/date-night does not point at the old AdobeStock jpeg");
 
 if (fail) {
   console.error(`check-datenight-rail-uncropped: FAIL — ${fail} assertion(s), ${pass} passed`);
   process.exit(1);
 }
-console.log(`check-datenight-rail-uncropped: OK — ${pass} assertions (source 1024×1536 executed, 760.jpg aspect matches, railArtSize 2:3, tile contain + 0.666667, default posters still 9:16, RAIL_ART_V 13)`);
+console.log(`check-datenight-rail-uncropped: OK — ${pass} assertions (locked 1086×1448 executed + byte-identical to rail source and hero, 760.jpg aspect matches, railArtSize 3:4, tile contain + 0.75, default posters still 9:16, RAIL_ART_V 14)`);
