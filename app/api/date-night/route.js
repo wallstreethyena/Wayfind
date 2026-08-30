@@ -28,7 +28,26 @@ const WX_URL =
   "&hourly=temperature_2m,apparent_temperature,weather_code,is_day" +
   "&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=2";
 
-function json(obj, status = 200, cache = "private, max-age=60") {
+// v8.93.2 — PUBLIC, because nothing in this response is private and the
+// `private` keyword was costing every reader a full origin round trip.
+//
+// MEASURED on production 2026-08-30: `x-vercel-cache: MISS` on every request,
+// 1.6-2.2s TTFB for 268KB brotli, twice in a row for the identical URL. That
+// is not a slow route — it is a route the shared cache was FORBIDDEN to hold.
+// `private` means "one browser may store this, no proxy may", and it is for
+// responses shaped by who is asking: a signed-in cart, a personal feed. This
+// payload is shaped by lat, lng, city and hour and by nothing else — two
+// readers standing together get byte-identical answers — so it is exactly the
+// class /api/rails already serves as public.
+//
+// The numbers match that route on purpose: an hour of shared cache, a day of
+// stale-while-revalidate so the first reader after expiry is served instantly
+// while the rebuild happens behind them. The intent rails change when the
+// INVENTORY changes, which is a cron, not a request.
+//
+// The 400 path keeps no-store, and a degraded answer must still never be
+// cached as the truth — the v8.74 rule this file inherits.
+function json(obj, status = 200, cache = "public, s-maxage=3600, stale-while-revalidate=86400") {
   return Response.json(obj, {
     status,
     headers: { "cache-control": cache },
@@ -108,6 +127,17 @@ export async function GET(req) {
   };
   const composed = composeDateNightRails(places, signals);
 
+  // …AND A DEGRADED ANSWER IS STILL NOT CACHED AS THE TRUTH (the v8.74 rule
+  // /api/rails carries, which arrives here the moment this route becomes
+  // publicly cacheable). Composing zero rails is not a fact about the reader's
+  // town — it is what a stalled inventory read, a cold pool or a bad radius
+  // also looks like. An hour of shared cache on that would pin "nothing near
+  // you clears the bar for a date-night journey" on every reader in the cell,
+  // off one transient miss, which is exactly the "sometimes it shows up,
+  // sometimes it doesn't" report that rule was written for. no-store means the
+  // very next request rebuilds and the cell self-heals; a real answer keeps
+  // the hour it earned.
+  const empty = !composed.rails || composed.rails.length === 0;
   return json({
     rails: composed.rails,
     beachOk: composed.beachOk,
@@ -118,5 +148,5 @@ export async function GET(req) {
       beachShow: wxSignals.beachShow,
       gateWhy: wxSignals.gateWhy,
     },
-  });
+  }, 200, empty ? "no-store" : undefined);
 }

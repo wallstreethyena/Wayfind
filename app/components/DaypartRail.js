@@ -490,6 +490,32 @@ export default function DaypartRail({
   // center effect still replaces them the instant the reader is somewhere else.
   const shown = live || { places: places || {}, thin: thin || [], region: region || null, citySlug: citySlug || null, cityLabel: cityLabel || "" };
   const thinSet = useMemo(() => new Set(shown.thin), [shown.thin]);
+  // v8.93.2 — A PLACEHOLDER IS NOT A MEASUREMENT (owner, 2026-08-30, two
+  // screenshots two minutes apart: Tonight's Move reading "Nothing near
+  // Parrish clears this bar right now" while /api/rails was returning
+  // covered:true, thin:[] and FORTY places for that exact cell).
+  //
+  // ROOT CAUSE. app/page.js prerenders the homepage with railMenuData(null) —
+  // no reader location — and that path ships
+  // `thin: RAILS.filter(r => r.list).map(r => r.id)`: EVERY rail marked thin,
+  // meaning "we have nothing yet". On the client `live` starts null and
+  // `railLoad` starts null (not LOAD_PENDING), so `shown` falls back to those
+  // server props, isPending(null) is false so the skeleton branch is skipped,
+  // and thinSet.has(id) is true — and the drop states a VERDICT ABOUT HIS TOWN
+  // built out of our own absence of data, before we have asked anything.
+  //
+  // This is v8.73's lesson one layer earlier. That fix made a pipeline CRASH
+  // stop reading as scarcity; this one makes the state BEFORE the pipeline
+  // stop reading as scarcity too. "Nothing clears this bar" is the strongest
+  // claim this product makes about a place — it is the sentence that says our
+  // silence is the town's fault — so it may only be said about a payload we
+  // actually received and ranked for THIS reader.
+  //
+  // `answered` is exactly that and nothing more: a live payload exists. The
+  // SSR thin list keeps its other job (it is still what the honest-empty
+  // copy reads once a real answer confirms it), it just cannot speak before
+  // one arrives.
+  const answered = live != null;
   const railById = useMemo(() => new Map((sponsor ? [sponsor, ...rails] : rails).map((r) => [r.id, r])), [sponsor, rails]);
   // NOTE on `artStale`: a rail can be renamed in code while the reader keeps
   // seeing the old claim, because the headline on these tiles is PIXELS.
@@ -1752,7 +1778,7 @@ export default function DaypartRail({
                 </div>
               ) : null}
             </div>
-          ) : selRail && !railOwnsItsOwnAnswer && thinSet.has(selRail.id) ? (
+          ) : selRail && !railOwnsItsOwnAnswer && answered && thinSet.has(selRail.id) ? (
             <div className="wf8-thin">
               <p>
                 {`Nothing${near} clears this bar right now — ${selRail.emptyWhy || "nothing nearby clears the bar"}. Padding it with places that don't belong would make the rail worthless.`}
@@ -1771,7 +1797,18 @@ export default function DaypartRail({
                   ? `We couldn't reach the ranking service just now, so we won't show you a list we haven't ranked.`
                   : railLoad === "unlocated"
                     ? `We need a location before we can rank anything${dropCity ? ` — the pin we're holding says ${dropCity}` : ""}.`
-                    : `Wayfind isn't live in ${dropCity || "your area"} yet — we only publish a list once we've actually ranked the places in it.`}
+                    /* v8.93.2 — THE UNASKED STATE GETS ITS OWN SENTENCE, and it
+                       is the reason `answered` exists. With no live payload the
+                       two sentences either side of this are both claims we have
+                       not earned: "nothing clears this bar" blames the town for
+                       our silence, and "Wayfind isn't live here yet" blames the
+                       coverage. Neither is true when the honest answer is that
+                       we have not asked yet — which is the state the owner
+                       photographed at 5:33 and again at 5:35 while the API was
+                       returning forty places for his cell. */
+                    : !answered
+                      ? `We haven't ranked${near} yet — this list arrives as soon as we have your spot.`
+                      : `Wayfind isn't live in ${dropCity || "your area"} yet — we only publish a list once we've actually ranked the places in it.`}
               </p>
               <div className="wf8-thinact">
                 {isFailed(railLoad) ? (
