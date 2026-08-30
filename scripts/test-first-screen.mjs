@@ -287,9 +287,9 @@ ok(/const EV_RAIL_MIN_H = \d+/.test(code), "EV_RAIL_MIN_H constant missing");
   ok(/\.wf8-tile\{[^}]*width:var\(--wf8-tw\)[^}]*height:calc\(var\(--wf8-tw\) \/ var\(--wf8-ratio\)\)/.test(railCss.replace(/\n\s*/g, "")),
     "the rail tile must have a fixed box BEFORE its art decodes, or 15 images reflow the column as they land");
   const railJs = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
-  // Date Night is 3:4 (railArtSize), every other tile stays 760×1350. The
-  // invariant is that the <img> still carries an intrinsic box — not that
-  // every poster is 9:16.
+  // Date Night's <img> intrinsic is 3:4 (railArtSize); the CSS TILE BOX is
+  // the shared 9:16. The invariant here is that the <img> still carries an
+  // intrinsic box — not that every poster is 9:16.
   ok(/railArtSize\(id\)/.test(railJs) && /width=\{artBox\.width\}/.test(railJs) && /height=\{artBox\.height\}/.test(railJs),
     "the rail's <img> must carry intrinsic width/height from railArtSize so the browser reserves the box itself");
   ok(railArtSize("tonight").width === 760 && railArtSize("tonight").height === 1350,
