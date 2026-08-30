@@ -106,11 +106,15 @@ ok(none.places.datenight.length < MIN_CARDS,
 const ic = readFileSync(new URL("../app/components/IntentPageClient.js", import.meta.url), "utf8");
 ok(/intent === "date-night"/.test(ic) && /\/api\/rails\?lat=/.test(ic),
   "the /date-night landing reads /api/rails — the same inventory shortlist as the home drop");
-const dnFetch = ic.match(/if \(intent === "date-night"\) \{[\s\S]{0,1800}?return;/);
-ok(!!dnFetch, "positive control: the date-night inventory fetch is a real branch");
-ok(!!dnFetch && !/\/api\/places\/search/.test(dnFetch[0]),
+const dnStart = ic.indexOf('if (intent === "date-night") {');
+const dnEnd = ic.indexOf("const qs = def.queries(now);");
+ok(dnStart >= 0 && dnEnd > dnStart, "positive control: the date-night inventory fetch is a real branch");
+const dnFetch = (dnStart >= 0 && dnEnd > dnStart ? ic.slice(dnStart, dnEnd) : "")
+  .replace(/\/\*[\s\S]*?\*\//g, "")
+  .replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
+ok(dnFetch.length > 0 && !/\/api\/places\/search/.test(dnFetch),
   "that branch does not call /api/places/search — zero Google Places on Date Night");
-ok(!!dnFetch && !/placeDetails|Place Details|photo backfill/i.test(dnFetch[0]),
+ok(dnFetch.length > 0 && !/placeDetails|fetchPlaceDetail|photoRef|photo backfill/i.test(dnFetch),
   "that branch does not call Place Details or photo backfill");
 ok(/intent === "date-night" \? null : <IntentPartnerPick/.test(ic),
   "Date Night landing renders no partner / Book rail");

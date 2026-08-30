@@ -155,13 +155,13 @@ const pools = {
     mk("n3", { name: "Comedy Room", _s: 60, types: ["comedy_club"] }),
     mk("inv4", { name: "Widened Riverside Playhouse", _s: 64, rating: 4.7, reviews: 420, types: ["performing_arts_theater"], distMi: 21 }),
   ],
-  // Date Night identity pool: rooms + a rooftop inside 27mi + a 28mi
-  // steakhouse that identity admits and the hard radius must refuse.
+  // Date Night identity pool: rooms + a rooftop inside 27mi. The 28mi
+  // steakhouse lives in the visitor-origin fixture below — selectFor has
+  // no radius, so a 99-score far row here would steal the lead assertion.
   datenight: [
     mk("r1", { name: "Beach House Waterfront", _s: 90, types: ["restaurant"], priceLevel: "PRICE_LEVEL_MODERATE" }),
     mk("r3", { name: "Owen Bistro", _s: 85, types: ["restaurant"], priceLevel: "PRICE_LEVEL_EXPENSIVE" }),
     mk("dn-roof", { name: "Harbor Rooftop Bar", _s: 81, types: ["rooftop_bar", "bar"], distMi: 10 }),
-    mk("dn-far", { name: "Too Far Steakhouse", _s: 99, types: ["steak_house"], distMi: 28, priceLevel: "PRICE_LEVEL_EXPENSIVE" }),
   ],
   // v8.13 — the summer pool is ALSO synthetic-by-construction:
   // lib/railsData.js buildSummerPool sources it from the owner's curated
