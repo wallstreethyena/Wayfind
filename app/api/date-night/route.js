@@ -61,7 +61,24 @@ export async function GET(req) {
   const n = BROWSE_INVENTORY_N;
   const origin = { lat, lng };
 
-  const [food, dessert, speakeasy, music, clubs, spa, tours, museums, beaches, weather, beachCond] = await Promise.all([
+  // Weather must NEVER block Dinner. Kick it off, then compose with whatever
+  // has arrived by the time inventory returns. If weather is still in flight,
+  // fail closed to Museums (dateNightBeachOk). No new vendor, no guess.
+  let wxSignals = { weatherKnown: false, outdoorOK: false, beachShow: false, gateWhy: null };
+  const wxReady = Promise.all([
+    fetchWeather(lat, lng),
+    getBeachConditions(lat, lng).catch(() => ({ show: false })),
+  ]).then(([weather, beachCond]) => {
+    const ctx = nowContext({ lat, lng, city, weather, hour });
+    wxSignals = {
+      weatherKnown: !!(ctx.weather && ctx.weather.known),
+      outdoorOK: ctx.outdoorOK === true,
+      beachShow: !!(beachCond && beachCond.show === true),
+      gateWhy: ctx.gateWhy || null,
+    };
+  }).catch(() => {});
+
+  const [food, dessert, speakeasy, music, clubs, spa, tours, museums, beaches] = await Promise.all([
     serveFromInventory("food", lat, lng, radiusM, n),
     serveFromInventory("food", lat, lng, radiusM, n, "dessert"),
     serveFromInventory("nightlife", lat, lng, radiusM, n, "speakeasy"),
@@ -71,9 +88,9 @@ export async function GET(req) {
     serveFromInventory("attractions", lat, lng, radiusM, n, "tours"),
     serveFromInventory("attractions", lat, lng, radiusM, n, "museums"),
     serveFromInventory("attractions", lat, lng, radiusM, n, "beaches"),
-    fetchWeather(lat, lng),
-    getBeachConditions(lat, lng).catch(() => ({ show: false })),
   ]);
+
+  await Promise.race([wxReady, Promise.resolve()]);
 
   const seen = new Set();
   const places = [];
@@ -84,12 +101,10 @@ export async function GET(req) {
     places.push(row);
   }
 
-  const ctx = nowContext({ lat, lng, city, weather, hour });
-  const beachShow = !!(beachCond && beachCond.show === true);
   const signals = {
-    weatherKnown: !!(ctx.weather && ctx.weather.known),
-    outdoorOK: ctx.outdoorOK === true,
-    beachShow,
+    weatherKnown: wxSignals.weatherKnown,
+    outdoorOK: wxSignals.outdoorOK,
+    beachShow: wxSignals.beachShow,
   };
   const composed = composeDateNightRails(places, signals);
 
@@ -98,10 +113,10 @@ export async function GET(req) {
     beachOk: composed.beachOk,
     hidden: composed.hidden,
     weather: {
-      known: signals.weatherKnown,
-      outdoorOK: signals.outdoorOK,
-      beachShow,
-      gateWhy: ctx.gateWhy || null,
+      known: wxSignals.weatherKnown,
+      outdoorOK: wxSignals.outdoorOK,
+      beachShow: wxSignals.beachShow,
+      gateWhy: wxSignals.gateWhy,
     },
   });
 }
