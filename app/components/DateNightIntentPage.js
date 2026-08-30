@@ -4,12 +4,11 @@
 // Homepage Date Night poster lands here. Existing RankedExperiencePage shell,
 // existing IconicPlaceCard on every result. No new card chrome.
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import RankedExperiencePage from "./RankedExperiencePage";
-import IconicPlaceCard from "./IconicPlaceCard";
+import DateNightRails from "./DateNightRails";
 import { BackControl } from "../best-beaches/[metro]/parts";
-import { toHookLine } from "../../lib/editorialHook";
 import { editorialIntentHeader } from "../../lib/collectionHeader";
 import { INTENT_PAGES } from "../../lib/intentPages";
 import { areaSeasonalContext } from "../../lib/areaSeasonalContext";
@@ -24,8 +23,6 @@ const C = { text: "#F1F5F9", muted: "#8b93a1" };
 export default function DateNightIntentPage() {
   const def = INTENT_PAGES["date-night"];
   const sp = useSearchParams();
-  const [payload, setPayload] = useState(null);
-  const [failed, setFailed] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const loc = useMemo(() => {
@@ -48,43 +45,14 @@ export default function DateNightIntentPage() {
   const areaCtx = areaSeasonalContext(loc && loc.city, currentSeason());
   const header = editorialIntentHeader("date-night", loc.city, areaCtx);
 
-  useEffect(() => {
-    if (!Number.isFinite(loc.lat) || !Number.isFinite(loc.lng)) {
-      setFailed(true);
-      return;
-    }
-    let dead = false;
-    const q = new URLSearchParams({
-      lat: String(loc.lat),
-      lng: String(loc.lng),
-    });
-    if (loc.city) q.set("city", loc.city);
-    const hour = parseFloat(sp.get("hour"));
-    if (Number.isFinite(hour)) q.set("hour", String(hour));
-    (async () => {
-      try {
-        const r = await fetch("/api/date-night?" + q.toString());
-        const j = r.ok ? await r.json() : null;
-        if (dead) return;
-        if (!j || !Array.isArray(j.rails)) { setFailed(true); return; }
-        setPayload(j);
-        try { track("date_night_intent_open", { city: loc.city, rails: j.rails.map((x) => x.id).join(","), hidden: (j.hidden || []).join(","), beach_ok: !!j.beachOk }); } catch (e) {}
-      } catch (e) {
-        if (!dead) setFailed(true);
-      }
-    })();
-    return () => { dead = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // v8.92 — the fetch, the skeleton, the failure copy and the rail render all
+  // live in <DateNightRails> now. This page owns the shell and the share.
 
   const share = async () => {
     const url = canonicalShareUrl(typeof window !== "undefined" ? window.location.href : "/date-night");
     try { if (navigator.share) { await navigator.share({ title: header.eyebrow || "Date night", url }); return; } } catch (e) { if (e && e.name === "AbortError") return; }
     try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (e) {}
   };
-
-  const rails = (payload && payload.rails) || [];
-  const firstNightOutId = (rails.find((r) => r.group === "nightlife") || {}).id;
 
   return (
     <RankedExperiencePage
@@ -104,37 +72,18 @@ export default function DateNightIntentPage() {
       )}
       footerSlot={<ScoreDisclosure />}
     >
-      {payload == null && !failed ? (
-        <div style={{ marginTop: 18 }}>
-          {[0, 1, 2].map((i) => <div key={i} className="wf-skeleton" style={{ height: 88, borderRadius: 14, marginBottom: 12, background: "#0B0E15" }} />)}
-        </div>
-      ) : failed ? (
-        <p style={{ marginTop: 18, fontSize: 13, color: C.muted }}>We could not build tonight&apos;s date from owned inventory. That is a miss on our side, not an empty town.</p>
-      ) : !rails.length ? (
-        <p style={{ marginTop: 18, fontSize: 13, color: C.muted }}>Nothing near you clears the bar for a date-night journey right now — that honesty is the product.</p>
-      ) : rails.map((rail) => {
-        return (
-          <section key={rail.id} aria-label={rail.title} style={{ marginTop: 28 }}>
-            {rail.id === firstNightOutId ? <p style={{ margin: "0 0 6px", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: C.muted, textTransform: "uppercase" }}>Night Out</p> : null}
-            <h2 style={{ margin: "0 0 12px", fontSize: 18, fontWeight: 800, color: C.text }}>{rail.title}</h2>
-            <div style={{ display: "flex", overflowX: "auto", overscrollBehaviorX: "contain", gap: 14, padding: "2px 0 8px", WebkitOverflowScrolling: "touch" }}>
-              {rail.places.map((p, i) => (
-                <div key={p.id} style={{ flex: "0 0 auto", width: 300, maxWidth: "86vw" }}>
-                  <ol style={{ listStyle: "none", margin: 0, padding: 0 }}>
-                    <IconicPlaceCard
-                      place={p}
-                      rank={i + 1}
-                      href={"/p/" + encodeURIComponent(p.id)}
-                      editorial={toHookLine(p.editorial, p.name) || null}
-                      surface="date_night_intent"
-                    />
-                  </ol>
-                </div>
-              ))}
-            </div>
-          </section>
-        );
-      })}
+      {/* v8.92 — the rails moved into <DateNightRails> so the DROP and this
+          PAGE cannot drift. Two copies of "what is a date night" is how that
+          claim came to have three different rules in v8.82. This shell keeps
+          what a page is for — the hero, the share, the score disclosure — and
+          nothing about the intent itself lives here any more. */}
+      <DateNightRails
+        active
+        center={{ lat: loc.lat, lng: loc.lng }}
+        city={loc.city}
+        hour={Number.isFinite(parseFloat(sp.get("hour"))) ? parseFloat(sp.get("hour")) : null}
+        onTrack={(name, props) => { try { track(name, props); } catch (e) {} }}
+      />
     </RankedExperiencePage>
   );
 }

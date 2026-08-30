@@ -78,10 +78,34 @@ const strip = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$
 // opens (depth++), and `/>` self-closes — which is OUR end at depth 0 and an
 // inner element's end otherwise. Quoted strings and template literals are
 // skipped so a `"<"` in copy cannot move the counter.
+// v8.92 — AND IT COULD NOT READ A COMMENT. `<IconicPlaceCard` in
+// DateNightRails.js carries `// … the card's own href is the answer` between
+// two props (comments are legal in a JSX opening tag — the attribute list is
+// tokenised as JS). The apostrophe in "card's" opened a string the scanner
+// then ran to EOF looking to close, and the element came back null.
+//
+// Failing loudly is what made that visible rather than vacuous, so the loud
+// failure did its job — but the fix belongs in the scanner, not in the prose.
+// CLAUDE.md records this same shape five times under "strip comments before a
+// source check"; here the offsets have to survive, so comments are SKIPPED in
+// place instead of stripped. Order matters: `//` and `/*` are tested before
+// `/>`, or a line comment's slash would read as a self-close.
 function jsxElement(src, i) {
   let depth = 0;
   for (let k = i + 1; k < src.length; k++) {
     const c = src[k];
+    if (c === "/" && src[k + 1] === "/") {
+      const nl = src.indexOf("\n", k);
+      if (nl < 0) return null;
+      k = nl;
+      continue;
+    }
+    if (c === "/" && src[k + 1] === "*") {
+      const end = src.indexOf("*/", k + 2);
+      if (end < 0) return null;
+      k = end + 1;
+      continue;
+    }
     if (c === '"' || c === "'" || c === "`") {
       const q = c;
       for (k++; k < src.length; k++) {

@@ -58,6 +58,11 @@ const IconicPlaceCard = dynamic(() => import("./IconicPlaceCard"), {
 // as the owner-list floor when the walk 502/503s or finds nothing. The
 // nearby route fail-softs missing config to that same in-repo list.
 const ExplodingNearby = dynamic(() => import("./ExplodingNearby"), { ssr: false });
+// v8.92 — same lazy contract as the trend list above it: the Date Night intent
+// rails render only inside their own open drop, so none of this reaches the
+// homepage's critical path (scripts/check-bundle.mjs, and the reason
+// IconicPlaceCard is lazy here at all).
+const DateNightRails = dynamic(() => import("./DateNightRails"), { ssr: false });
 import { DAYPARTS, partForHour, orderFor, railHref, dateNightIntentHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES, railArtSize } from "../../lib/rails.js";
@@ -773,40 +778,27 @@ export default function DaypartRail({
     setSaid(r.id);
   }, [onShareRail, daypart, shown, selected]);
 
-  const goDateNightIntent = useCallback(() => {
-    const dest = dateNightIntentHref({
-      href: railHref(railById.get("datenight"), shown.region, shown.citySlug) || "/date-night",
-      cityLabel: shown.cityLabel || cityLabel,
-      lat: (center && Number.isFinite(center.lat) ? center.lat : lat),
-      lng: (center && Number.isFinite(center.lng) ? center.lng : lng),
-    });
-    logEvent("rail_open", {
-      rail_id: "datenight", rail_title: "Date Night", daypart,
-      region: shown.region, city: shown.citySlug,
-      position: order.indexOf("datenight") + 1, src: "rail",
-      has_places: (shown.places.datenight || []).length,
-    });
-    logEvent("datenight_hero_open", { src: "rail", rail_id: "datenight" });
-    try { window.location.assign(dest); } catch (err) {}
-    return dest;
-  }, [railById, shown, cityLabel, center, lat, lng, daypart, order]);
+  // v8.92 — goDateNightIntent() DELETED. Its only two callers were the two
+  // navigations removed above, so keeping it would leave exactly the shape
+  // check-events-rail-renders.mjs exists to catch: a value computed for nobody.
+  // dateNightIntentHref still builds the tile's href, which is the part that
+  // was always right.
 
   const openedShared = useRef(false);
   useEffect(() => {
     if (openedShared.current) return;
     if (!initialRail || !railById.has(initialRail)) return;
     openedShared.current = true;
-    // A shared Date Night card is the intent page, never the in-rail drop.
-    if (initialRail === "datenight") { goDateNightIntent(); return; }
+    // v8.92 — a shared ?rail=datenight card opens the DROP, exactly like every
+    // other shared rail card. The intent page is still one tap away (the tile's
+    // own href) and is still what a crawler and a pasted /date-night link get.
     open(initialRail, "share_link");
-  }, [initialRail, railById, open, goDateNightIntent]);
+  }, [initialRail, railById, open]);
 
-  const leftForDateNight = useRef(false);
-  useEffect(() => {
-    if (selected !== "datenight" || leftForDateNight.current) return;
-    leftForDateNight.current = true;
-    goDateNightIntent();
-  }, [selected, goDateNightIntent]);
+  // v8.92 — the effect that navigated away the moment the Date Night drop
+  // opened is GONE. It was the belt to tileClick's braces: even a keyboard
+  // activation or a ?rail= deep link that reached `open("datenight")` was
+  // bounced to another page before a single card painted.
 
   // Take the reader TO the picks. Owner, repeatedly.
   //
@@ -875,18 +867,21 @@ export default function DaypartRail({
   }, [selected, close]);
 
   const tileClick = (e, id) => {
-    // Date Night FIRST — before preventDefault. The poster is a real <a href>
-    // to /date-night. Opening the in-rail drop is the Parrish empty-bar bug
-    // (isDateRoom thin → "nothing nearby has the room" → Shake Station food).
-    if (id === "datenight") {
-      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || (e.button != null && e.button !== 0)) return;
-      const dest = goDateNightIntent();
-      if (e.currentTarget && e.currentTarget.tagName === "A") {
-        const native = e.currentTarget.getAttribute("href") || "";
-        if (dest && dest !== native) e.preventDefault();
-      }
-      return;
-    }
+    // v8.92 — DATE NIGHT OPENS ITS DROP, like every other tile on this rail.
+    //
+    // #1033 put a navigate-away branch here and set the anchor's onClick to
+    // undefined so the drop could not bind. Its stated reason was real — the
+    // Parrish drop was an empty "nothing nearby has the room" bar with Shake
+    // Station leading FOOD — but that was a POOL problem, and #1033 had already
+    // fixed it properly in lib/dateNightIntent.js. Navigating away was the
+    // second fix for a bug the first fix had killed, and it cost the owner the
+    // interaction he designed: "the date night card should just open … it
+    // should look exactly like the Exploding Trends and have individual rails."
+    //
+    // The drop now mounts <DateNightRails>, which is that same intent engine.
+    // The href stays on the anchor, so cmd-click, middle-click, a crawler and a
+    // shared card all still reach /date-night — only the plain left click came
+    // home.
     // Let the browser do its thing for a new tab / new window / middle click —
     // a real link must keep behaving like one. A button (no city, no href)
     // only opens the drop.
@@ -924,9 +919,25 @@ export default function DaypartRail({
     el.scrollBy({ left: dir * (el.clientWidth - 70), behavior: reduced ? "auto" : "smooth" });
   };
 
-  // Date Night never owns this drop. A selected datenight tile is a navigation
-  // in flight — rendering the empty-bar copy or a mixed FOOD rail is the bug.
-  const selRail = selected && selected !== "datenight" ? railById.get(selected) : null;
+  // v8.92 — DATE NIGHT OWNS THIS DROP AGAIN (owner, 2026-08-30: "the date night
+  // card should just open … it should look exactly like the Exploding Trends
+  // and have individual rails").
+  //
+  // #1033 wrote the line below as `selected !== "datenight"` because at that
+  // moment a selected Date Night tile really WAS a navigation in flight, and
+  // binding selRail would have painted the generic FOOD pool under a page that
+  // was already leaving. Both halves of that premise are gone: nothing
+  // navigates, and <DateNightRails> renders the qualified intent above the
+  // pool. What kept the wrong list off this drop was never this condition — it
+  // was #1033's pool fix, and that is still here.
+  const selRail = selected ? railById.get(selected) : null;
+  // …and when a rail brings its OWN answer, its own skeleton and its own
+  // honest empty (Date Night does; trending's ExplodingNearby sits above a
+  // real pool and does not), the shared pool fallbacks below must not speak
+  // for it. Otherwise an intent drop full of rails ends with "nothing near you
+  // clears this bar" — the empty-bar screenshot the owner sent in v8.82,
+  // arriving by a different road.
+  const railOwnsItsOwnAnswer = !!(selRail && selRail.id === "datenight");
   // v8.22 (owner: "when the amazon rail card is selected make sure it becomes
   // the main focus on the screen"). The pulsing glow marks the card; this
   // brings it there — the open tile centers itself in the track, so the
@@ -1221,7 +1232,7 @@ export default function DaypartRail({
                   })
                   : railDest;
                 const eager = i < 2;
-                const tileClass = `wf8-tile${selected === id && id !== "datenight" ? " is-sel" : ""}${artReady[id] ? " is-art-ready" : ""}`;
+                const tileClass = `wf8-tile${selected === id ? " is-sel" : ""}${artReady[id] ? " is-art-ready" : ""}`;
                 const artBox = railArtSize(id);
                 const art = (
                     <picture>
@@ -1269,7 +1280,7 @@ export default function DaypartRail({
                         (2026-08-29). Keep is-art-ready for CSS; do not cover
                         present art with grey cards. */}
                     {href
-                      ? <a className="wf8-tlink" href={href} aria-label={label} data-wf-date-night-intent={id === "datenight" ? "1" : undefined} onClick={id === "datenight" ? undefined : function (e) { tileClick(e, id); }}>{art}</a>
+                      ? <a className="wf8-tlink" href={href} aria-label={label} data-wf-date-night-intent={id === "datenight" ? "1" : undefined} onClick={function (e) { tileClick(e, id); }}>{art}</a>
                       : <button type="button" className="wf8-tlink" aria-label={label} onClick={(e) => tileClick(e, id)}>{art}</button>}
                     {/* A sponsor tile is a paid unit, not a shareable list —
                         it has no route to share, so it shows no share control. */}
@@ -1307,6 +1318,41 @@ export default function DaypartRail({
               matched to verified local places (daypart-gated inside the
               component). The ranked place cards below stay: trends answer
               "what's the thing", the cards answer "the best places, period". */}
+          {/* v8.92 — DATE NIGHT'S INTENT RAILS, IN THE DROP (owner, 2026-08-30:
+              "when the user clicks on it, it should look exactly like the
+              Exploding Trends and have individual rails").
+
+              Same position, same contract and the same lazy mount as
+              <ExplodingNearby> below — nothing is fetched until the tile is
+              opened. The rails themselves are #1033's engine, unchanged:
+              Dinner, Dessert, Speakeasies, Live Music, Clubs, Things To Do
+              Together, and Beach XOR Museums, inside DATE_NIGHT_WIDEN_MI, with
+              empty rails hidden and beach failing closed to museums when the
+              weather is unknown. Only where it renders changed.
+
+              The place cards below it stay: the rails answer "what is the
+              journey", the cards answer "the best rooms near you, period". */}
+          {selRail && selRail.id === "datenight" ? (
+            <DateNightRails
+              active
+              center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
+              city={shown.cityLabel || ""}
+              onTrack={(name, props) => logEvent(name, props)}
+              onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
+              isSaved={isSaved || undefined}
+              isOnTrip={isOnTrip || undefined}
+              liked={liked || undefined}
+              disliked={disliked || undefined}
+              isLiked={isLiked || undefined}
+              isDisliked={isDisliked || undefined}
+              onSave={onSave || undefined}
+              onItinerary={onItinerary || undefined}
+              onLike={onLike || undefined}
+              onDislike={onDislike || undefined}
+              onShare={onShare || undefined}
+            />
+          ) : null}
+
           {selRail && selRail.id === "trending" ? (
             <ExplodingNearby
               active
@@ -1637,7 +1683,7 @@ export default function DaypartRail({
               <button type="button" className="wf8-pnav r" aria-label="More places" disabled={pcEnds.atEnd}
                 onClick={() => { scrollBy(pcRef, 1); syncPc(); }}><Chevron dir="r" /></button>
             </div>
-          ) : selRail && (isPending(railLoad) || (selRail.id === "augtober" && !fallPool)) ? (
+          ) : selRail && !railOwnsItsOwnAnswer && (isPending(railLoad) || (selRail.id === "augtober" && !fallPool)) ? (
             /* v8.46 — THE ONLY PLACE A SKELETON MAY RENDER. It is gated on an
                explicit in-flight flag that lib/loadState.js guarantees will be
                overwritten within 12s, by data or by LOAD_FAILED. It is no
@@ -1681,7 +1727,7 @@ export default function DaypartRail({
                 </div>
               ) : null}
             </div>
-          ) : selRail && thinSet.has(selRail.id) ? (
+          ) : selRail && !railOwnsItsOwnAnswer && thinSet.has(selRail.id) ? (
             <div className="wf8-thin">
               <p>
                 {`Nothing${near} clears this bar right now — ${selRail.emptyWhy || "nothing nearby clears the bar"}. Padding it with places that don't belong would make the rail worthless.`}
@@ -1690,7 +1736,7 @@ export default function DaypartRail({
                 <a href={railHref(selRail, shown.region, shown.citySlug)}>{selRail.cta} →</a>
               ) : null}
             </div>
-          ) : selRail ? (
+          ) : selRail && !railOwnsItsOwnAnswer ? (
             /* THE HONEST TERMINAL STATE. Whatever else went wrong, the reader
                gets a sentence that is true, and at least one thing to press.
                Never a grey box. */

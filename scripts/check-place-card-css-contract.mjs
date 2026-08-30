@@ -69,6 +69,15 @@ const SHELL_MAP = {
   "app/components/RailCard.js": "app/home.js",
   "app/components/sheets/Detail.js": "app/home.js",
   "app/components/screens/Map.js": "app/home.js",
+  // v8.92 — the ONE component with TWO shells. <DateNightRails> is mounted by
+  // the homepage drop (DaypartRail → app/home.js) AND by /date-night
+  // (DateNightIntentPage → RankedExperiencePage). That is the whole point of
+  // the extraction: one definition of "what is a date night", two surfaces. So
+  // it is mapped to BOTH and both are required to inject — an array here is a
+  // STRICTER claim than a string, not a looser one, because a card that styles
+  // on the homepage and renders bare on the intent page is exactly the /guides
+  // bug this guard exists for, just on the surface nobody checked.
+  "app/components/DateNightRails.js": ["app/home.js", "app/components/RankedExperiencePage.js"],
   // The card itself: rendered only through the callers above.
   "app/components/IconicPlaceCard.js": "app/home.js",
 };
@@ -97,9 +106,11 @@ for (const f of files) {
     fail(`${f} renders the iconic place card but neither injects WF_PLACE_CARD_CSS nor is mapped to an injecting shell — the card WILL render unstyled (the /guides bug). Inject the CSS in the route, or map the file to its shell here.`);
     continue;
   }
-  const shellSrc = readFileSync(shell, "utf8");
-  if (!injects(shellSrc))
-    fail(`${f} relies on ${shell} for WF_PLACE_CARD_CSS, but that shell no longer injects it`);
+  for (const one of Array.isArray(shell) ? shell : [shell]) {
+    const shellSrc = readFileSync(one, "utf8");
+    if (!injects(shellSrc))
+      fail(`${f} relies on ${one} for WF_PLACE_CARD_CSS, but that shell no longer injects it`);
+  }
 }
 // Positive control on the sweep itself: the tree is known to contain render
 // sites. Zero found means the regex or the walk broke, not that the app

@@ -160,7 +160,11 @@ const SURFACES = [
   ["app/components/BestNearby.js", "toHookLine", "the eat rows, the things-to-do rows and the Top 40 rail"],
   ["app/components/ThingsToDoList.js", "toHookLine", "the ranked things-to-do list"],
   ["app/components/IntentPageClient.js", "toHookLine", "every intent page, including /best-of"],
-  ["app/components/DateNightIntentPage.js", "toHookLine", "the Date Night qualified-intent journey"],
+  // v8.92 — FOLLOWED THE CODE. The Date Night rails moved out of the page
+  // shell into <DateNightRails> so the homepage DROP and /date-night render one
+  // definition. The surface that draws a card is the surface that must compress
+  // the line, so the pin moves with it rather than being deleted.
+  ["app/components/DateNightRails.js", "toHookLine", "the Date Night qualified-intent journey — the drop AND /date-night"],
   ["app/components/TrendingNowClient.js", "toHookLine", "/trending"],
   ["app/components/DaypartRail.js", "toHookLine", "the homepage rail drop — IconicPlaceCard take"],
   ["app/components/IntentRail.js", "toHookLine", "Tonight's Move / hidden gems / worth-the-drive / budget rails"],

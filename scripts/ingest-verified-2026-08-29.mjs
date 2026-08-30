@@ -129,14 +129,37 @@ const H = { apikey: SVC, Authorization: `Bearer ${SVC}`, "Content-Type": "applic
 if (staged.length) {
   const existingById = {};
   for (const s of staged) {
-    const dup = await fetch(`${URL_}/rest/v1/wf_inventory?place_id=eq.${encodeURIComponent(s.row.place_id)}&select=place_id,name,editorial,source`, { headers: H }).then((r) => r.json());
+    const dup = await fetch(`${URL_}/rest/v1/wf_inventory?place_id=eq.${encodeURIComponent(s.row.place_id)}&select=place_id,name,editorial,source,signals,photo_ref`, { headers: H }).then((r) => r.json());
     const existing = Array.isArray(dup) && dup[0] ? dup[0] : null;
     if (existing) {
       s.already = true;
       const priorEd = existing.editorial;
       const hasBetter = !!(priorEd && String(priorEd).trim().length >= 20);
       if (hasBetter) { s.row.editorial = priorEd; s.skippedHook = true; }
+      // 2026-08-30 — A PIN MUST NOT COST A PLACE ITS RATING OR ITS PHOTO.
+      // The staged row carries `signals: {}` and `photo_ref: null` because
+      // this ingest is fail-closed on Places: it has no rating to state and no
+      // photo to fetch. Upserting those literals over a row that ALREADY holds
+      // them is not "no new data", it is DELETION — and the rails gate on
+      // reviews >= 100 and rating >= 4.3, so the place silently leaves every
+      // rail it was earning, wearing a monogram where its photo was.
+      //
+      // Caught before it shipped on Dive Cocktail Den (4.7 / 47) and Campfired
+      // (4.3 / 415, $$), both of which pre-existed this batch with real
+      // signals and a photo. An empty pin never overwrites a full field.
+      if (existing.signals && Object.keys(existing.signals).length) s.row.signals = existing.signals;
+      if (existing.photo_ref) s.row.photo_ref = existing.photo_ref;
     }
+    // …AND A ROW WE COULD NOT MEASURE IS STALE BY DEFINITION.
+    // wf_inventory stamps refreshed_at = now() on insert, and
+    // /api/cron/inventory-refresh only looks at rows OLDER than 30 days,
+    // stalest-first. So a fail-closed pin — no rating, no reviews, no photo —
+    // lands looking freshly refreshed and is skipped for a month, which is a
+    // month of being invisible on every rail (the gate is reviews >= 100 and
+    // rating >= 4.3) wearing a monogram. Backdating puts it at the FRONT of
+    // the very next hourly pass, which is the truth: nothing about this row
+    // has ever been measured. A row that DOES carry signals is left alone.
+    if (!s.row.signals || !Object.keys(s.row.signals).length) s.row.refreshed_at = "2000-01-01T00:00:00.000Z";
     existingById[s.row.place_id] = existing;
   }
   const res = await fetch(`${URL_}/rest/v1/wf_inventory?on_conflict=place_id`, {

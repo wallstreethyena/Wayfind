@@ -1,0 +1,207 @@
+"use client";
+
+// app/components/DateNightRails.js — THE DATE NIGHT INTENT RAILS, ONE DEFINITION.
+//
+// v8.92 (owner, 2026-08-30, on the live homepage): "the date night card should
+// just open, but now it's opening on a different page. I don't know why it did
+// that. I want it to go back and do the same as before … when the user clicks
+// on it, it should look exactly like the Exploding Trends and have individual
+// rails."
+//
+// WHAT HAPPENED, and why this is an EXTRACTION rather than a revert.
+//
+// #1033 built a genuinely good thing: Date Night stopped being a category list
+// and became a qualified INTENT — Dinner, Dessert, Speakeasies, Live Music,
+// Clubs, Things To Do Together, and Beach XOR Museums, all inside
+// DATE_NIGHT_WIDEN_MI, with empty rails hidden, beach failing closed to museums
+// when the weather is unknown, dinner refusing counter service (the Shake
+// Station bug) and Together refusing kayak tours. That engine is exactly what
+// the owner is describing to me now, and it fixed two live complaints of his:
+// the "nothing nearby has the room" empty bar and Shake Station ranked #1.
+//
+// What #1033 got wrong is WHERE it rendered. It wrapped those rails in
+// RankedExperiencePage — a full page — and then made the homepage tile a native
+// link with `onClick={undefined}` so the in-rail drop could not bind. The tap
+// stopped behaving like every other tile on the rail.
+//
+// Reverting would throw away the engine to fix the destination. So the rails
+// move OUT of the page shell into this component, and both surfaces render it:
+//
+//   the DROP  DaypartRail mounts <DateNightRails> where it mounts
+//             <ExplodingNearby> for trending — the precedent the owner named
+//             himself, and the one surface in this product that already proves
+//             a rich multi-rail answer can live inside a drop.
+//   the PAGE  DateNightIntentPage keeps its shell, its share button and its
+//             hero, and renders this in the middle.
+//
+// ONE definition, because two copies of "what is a date night" is how that
+// claim came to have three different rules in v8.82. scripts/check-date-night-
+// intent-one-surface.mjs fails the build on a second copy.
+//
+// THE HREF SURVIVES. The tile is still <a href="/date-night?…">, so cmd-click,
+// middle-click, a crawler and a shared card all still reach a real page. Only
+// the plain left-click changed back to opening the drop — which is what a link
+// with an onClick that calls preventDefault has always done on this rail.
+import { useEffect, useMemo, useRef, useState } from "react";
+import IconicPlaceCard from "./IconicPlaceCard";
+import { toHookLine } from "../../lib/editorialHook";
+
+const C = { text: "#F1F5F9", muted: "#8b93a1" };
+
+/**
+ * Fetch and render the Date Night intent rails.
+ *
+ * @param {boolean} active   mount-gate. The drop passes `selRail.id ===
+ *                           "datenight"`, so nothing is fetched until the tile
+ *                           is actually opened — the same contract
+ *                           ExplodingNearby has, and the reason a closed drop
+ *                           costs nothing.
+ * @param {{lat:number,lng:number}} center
+ * @param {string} city
+ * @param {number} hour      optional float hour, for a caller that already
+ *                           resolved the venue-local clock (lib/nowContext).
+ * @param {Function} onOpenPlace  open the detail sheet in place. Absent on the
+ *                           page, where a card's own /p/ href is the answer.
+ * Card state/handlers are passed straight through, in whichever shape the
+ * parent supplies — the v8.29.2 lesson from the trending drop, where a block
+ * that forwarded only isSaved/onSave shipped four live-looking dead thumbs.
+ */
+export default function DateNightRails({
+  active = true,
+  center = null,
+  city = "",
+  hour = null,
+  onOpenPlace = null,
+  onTrack = null,
+  isSaved = undefined,
+  isOnTrip = undefined,
+  liked = undefined,
+  disliked = undefined,
+  isLiked = undefined,
+  isDisliked = undefined,
+  onSave = undefined,
+  onItinerary = undefined,
+  onLike = undefined,
+  onDislike = undefined,
+  onShare = undefined,
+}) {
+  const [payload, setPayload] = useState(null);
+  const [failed, setFailed] = useState(false);
+  const asked = useRef("");
+
+  const lat = center && Number.isFinite(center.lat) ? center.lat : null;
+  const lng = center && Number.isFinite(center.lng) ? center.lng : null;
+
+  // The request key is the request. Re-fetching on every render of a parent
+  // that re-renders on scroll is the defect the rail drop has paid for twice
+  // (v8.27 beach conditions, v8.79 the memo key), so the effect is keyed on
+  // what actually changes the answer and nothing else.
+  const key = useMemo(
+    () => (active && lat != null && lng != null
+      ? [lat.toFixed(3), lng.toFixed(3), city || "", hour == null ? "" : String(hour)].join("|")
+      : ""),
+    [active, lat, lng, city, hour],
+  );
+
+  useEffect(() => {
+    if (!key || asked.current === key) return;
+    asked.current = key;
+    let dead = false;
+    const q = new URLSearchParams({ lat: String(lat), lng: String(lng) });
+    if (city) q.set("city", city);
+    if (hour != null && Number.isFinite(hour)) q.set("hour", String(hour));
+    (async () => {
+      try {
+        const r = await fetch("/api/date-night?" + q.toString());
+        const j = r.ok ? await r.json() : null;
+        if (dead) return;
+        if (!j || !Array.isArray(j.rails)) { setFailed(true); return; }
+        setPayload(j);
+        if (onTrack) {
+          try {
+            onTrack("date_night_intent_open", {
+              city, rails: j.rails.map((x) => x.id).join(","),
+              hidden: (j.hidden || []).join(","), beach_ok: !!j.beachOk,
+            });
+          } catch (e) {}
+        }
+      } catch (e) {
+        if (!dead) setFailed(true);
+      }
+    })();
+    return () => { dead = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
+
+  if (!active) return null;
+
+  const rails = (payload && payload.rails) || [];
+  // The first nightlife rail carries the "Night Out" divider — the journey has
+  // two halves (the meal, then the night), and the divider is what says so.
+  const firstNightOutId = (rails.find((r) => r.group === "nightlife") || {}).id;
+
+  if (payload == null && !failed) {
+    return (
+      <div style={{ marginTop: 4 }} role="status" aria-busy="true" aria-label="Building tonight's date">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="wf-sk" style={{ height: 88, borderRadius: 14, marginBottom: 12, background: "#0B0E15" }} />
+        ))}
+      </div>
+    );
+  }
+  if (failed) {
+    return (
+      <p style={{ marginTop: 4, fontSize: 13, color: C.muted }}>
+        We could not build tonight&apos;s date from owned inventory. That is a miss on our side, not an empty town.
+      </p>
+    );
+  }
+  if (!rails.length) {
+    return (
+      <p style={{ marginTop: 4, fontSize: 13, color: C.muted }}>
+        Nothing near you clears the bar for a date-night journey right now — that honesty is the product.
+      </p>
+    );
+  }
+
+  return (
+    <>
+      {rails.map((rail) => (
+        <section key={rail.id} aria-label={rail.title} style={{ marginTop: 22 }}>
+          {rail.id === firstNightOutId ? (
+            <p style={{ margin: "0 0 6px", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: C.muted, textTransform: "uppercase" }}>Night Out</p>
+          ) : null}
+          <h2 style={{ margin: "0 0 12px", fontSize: 18, fontWeight: 800, color: C.text }}>{rail.title}</h2>
+          <div style={{ display: "flex", overflowX: "auto", overscrollBehaviorX: "contain", gap: 14, padding: "2px 0 8px", WebkitOverflowScrolling: "touch" }}>
+            {rail.places.map((p, i) => (
+              <div key={p.id} style={{ flex: "0 0 auto", width: 300, maxWidth: "86vw" }}>
+                <ol style={{ listStyle: "none", margin: 0, padding: 0 }}>
+                  <IconicPlaceCard
+                    place={p}
+                    rank={i + 1}
+                    href={"/p/" + encodeURIComponent(p.id)}
+                    editorial={toHookLine(p.editorial, p.name) || null}
+                    surface="date_night_intent"
+                    // In the DROP these are live and the card opens the sheet in
+                    // place; on the PAGE the parent passes none and the card's
+                    // own href is the answer. Same component, both ways.
+                    onOpen={onOpenPlace ? (pl) => onOpenPlace(pl || p) : undefined}
+                    saved={isSaved ? isSaved(p.id) : undefined}
+                    inTrip={isOnTrip ? isOnTrip(p) : undefined}
+                    liked={isLiked ? !!isLiked(p.id) : liked ? !!liked[p.id] : undefined}
+                    disliked={isDisliked ? !!isDisliked(p.id) : disliked ? !!disliked[p.id] : undefined}
+                    onSave={onSave ? (e) => onSave(e, p) : undefined}
+                    onItinerary={onItinerary ? (e) => onItinerary(e, p) : undefined}
+                    onLike={onLike ? (e) => onLike(e, p) : undefined}
+                    onDislike={onDislike ? (e) => onDislike(e, p) : undefined}
+                    onShare={onShare ? (pl) => onShare(pl || p, { city }) : undefined}
+                  />
+                </ol>
+              </div>
+            ))}
+          </div>
+        </section>
+      ))}
+    </>
+  );
+}

@@ -243,9 +243,23 @@ ok(nightOrder.includes("datenight"), "Date Night still exists in the night order
 }
 {
   const src = stripComments(readFileSync(join(ROOT, "app/components/DateNightIntentPage.js"), "utf8"));
-  ok(/<IconicPlaceCard[\s/>]/.test(src), "the intent page uses the existing IconicPlaceCard (no new card chrome)");
+  const rails = stripComments(readFileSync(join(ROOT, "app/components/DateNightRails.js"), "utf8"));
+  // v8.92 — FOLLOWED THE CODE. The rails moved out of the page into
+  // <DateNightRails> so the DROP and the PAGE render one definition; the page
+  // keeps the shell. Both assertions are unchanged in meaning and are now made
+  // against the file that actually draws a card.
+  ok(/<IconicPlaceCard[\s/>]/.test(rails), "the intent rails use the existing IconicPlaceCard (no new card chrome)");
   ok(/<RankedExperiencePage[\s/>]/.test(src), "the intent page keeps the existing RankedExperiencePage shell");
-  ok(/toHookLine\(/.test(src), "editorial lines go through toHookLine — empty stays empty");
+  ok(/toHookLine\(/.test(rails), "editorial lines go through toHookLine — empty stays empty");
+  ok(/<DateNightRails[\s/>]/.test(src), "…and the page RENDERS those shared rails rather than a second copy of them");
+  // ONE definition. Two copies of "what is a date night" is how that claim came
+  // to have three different rules in v8.82.
+  {
+    const drop = stripComments(readFileSync(join(ROOT, "app/components/DaypartRail.js"), "utf8"));
+    const declarations = [src, drop].filter((f) => /function DateNightRails|const DateNightRails = \(/.test(f)).length;
+    ok(declarations === 0, "neither the page nor the rail re-declares the rails — they import the one component");
+    ok(/<IconicPlaceCard[\s/>]/.test(rails), "positive control: the shared component really is the one drawing cards");
+  }
   ok(!/places\.googleapis|searchText|placeDetails/.test(src), "the client does not call Google Places");
   ok(!/room for it tonight/.test(src) && !/clears this bar/.test(src),
     "the intent page never uses the empty-rail 'room for it tonight' copy");
@@ -278,27 +292,76 @@ ok(nightOrder.includes("datenight"), "Date Night still exists in the night order
   const click = src.match(/const tileClick = \(e, id\) => \{[\s\S]*?\n  \};/);
   ok(!!click, "DaypartRail tileClick is a function we can read (positive control)");
   const body = click ? click[0] : "";
-  ok(body.indexOf('id === "datenight"') < body.indexOf("preventDefault"),
-    "datenight is handled BEFORE the generic preventDefault that opens the drop");
-  const dn = body.match(/if \(id === "datenight"\) \{[\s\S]*?\n    \}/);
-  ok(!!dn, "tileClick has an explicit id === \"datenight\" branch (weaker: source position)");
-  ok(dn && /goDateNightIntent\(/.test(dn[0]), "datenight tap navigates via goDateNightIntent");
-  ok(dn && !/\bopen\(/.test(dn[0]), "datenight tap does not open the in-rail drop");
-  ok(/const goDateNightIntent = useCallback/.test(src) && /location\.assign\(dest\)/.test(src),
-    "goDateNightIntent assigns /date-night (the journey), not a list");
-  ok(/initialRail === "datenight"/.test(src), "a shared ?rail=datenight link also navigates — it does not open the drop");
-  ok(/selected && selected !== "datenight"/.test(src),
-    "the drop's selRail never binds to datenight — no empty-bar copy, no Shake Station FOOD rail");
+  // ── v8.92 — SIX ASSERTIONS FLIPPED, DELIBERATELY, WITH THE OWNER'S WORDS ──
+  //
+  // Owner, 2026-08-30, on the live homepage: "the date night card should just
+  // open, but now it's opening on a different page. I don't know why it did
+  // that. I want it to go back and do the same as before … when the user clicks
+  // on it, it should look exactly like the Exploding Trends and have individual
+  // rails."
+  //
+  // These six encoded #1033's SECOND fix, not its first. The first fix was
+  // real and is kept in full: lib/dateNightIntent.js killed the Parrish "nothing
+  // nearby has the room" empty bar and Shake Station leading FOOD. Navigating
+  // away was then layered on top to avoid a drop that the first fix had already
+  // repaired — and it cost the interaction the owner designed.
+  //
+  // So the tap comes home and the rails come with it. What is asserted now is
+  // the thing that actually has to hold: the drop MOUNTS the same intent engine
+  // the page does. That is a stronger claim than "it navigates" ever was —
+  // navigation could be true with an empty page behind it.
+  ok(!/if \(id === "datenight"\) \{/.test(body),
+    "tileClick has NO navigate-away branch for datenight — it falls through to the same preventDefault + open() every other tile uses");
+  ok(!/goDateNightIntent/.test(src),
+    "goDateNightIntent is gone entirely — its only two callers were the removed navigations, and a helper computed for nobody is the defect check-events-rail-renders exists for");
+  ok(/selRail && selRail\.id === "datenight" \? \(/.test(src) && /<DateNightRails/.test(src),
+    "the DROP mounts <DateNightRails> — the same intent engine the page renders, in the position <ExplodingNearby> holds for trending");
+  ok(/const DateNightRails = dynamic\(\(\) => import\("\.\/DateNightRails"\), \{ ssr: false \}\)/.test(src),
+    "…lazily, on the same contract as ExplodingNearby, so a closed drop costs the homepage nothing");
+  ok(!/initialRail === "datenight"/.test(src),
+    "a shared ?rail=datenight link opens the DROP, like every other shared rail card");
+  ok(!/selected && selected !== "datenight"/.test(src),
+    "the drop's selRail binds to datenight again — the pool fix is what keeps it honest, not a locked door");
   ok(/\{href\s*\?\s*<a className="wf8-tlink"/.test(src),
     "PROBE: the tile link ternary is still `{href ? <a className=\"wf8-tlink\"` (check-daypart-art-ready)");
   const tileA = src.match(/\{href\s*\?\s*<a className="wf8-tlink"[^>]*>/);
   ok(!!tileA, "the tile <a> opening tag is a readable JSX expression (positive control)");
   ok(tileA && /data-wf-date-night-intent=\{id === "datenight" \? "1" : undefined\}/.test(tileA[0]),
     "datenight tile is marked data-wf-date-night-intent");
-  ok(tileA && /onClick=\{id === "datenight" \? undefined : function \(e\) \{ tileClick\(e, id\); \}\}/.test(tileA[0]),
-    "datenight <a> onClick is undefined — native /date-night; preventDefault cannot open the drop");
+  ok(tileA && /onClick=\{function \(e\) \{ tileClick\(e, id\); \}\}/.test(tileA[0]),
+    "the datenight <a> calls tileClick like every other tile — an onClick of undefined is what stopped the drop binding (v8.92)");
+  // …and the href SURVIVES, which is the half that was always right: cmd-click,
+  // middle-click, a crawler and a pasted link all still reach the real page.
+  ok(tileA && /href=\{href\}/.test(tileA[0]),
+    "the tile is still a real <a href> to the intent page — only the plain left click came back to the drop");
   ok(/id === "datenight"[\s\S]{0,180}dateNightIntentHref\(/.test(src),
     "datenight tile href is dateNightIntentHref (the intent URL, not a drop)");
+  // The OPEN tile has to look open. #1033 suppressed .is-sel on datenight for
+  // the same reason it suppressed selRail — the tile was never meant to stay.
+  // Now it stays, and a selected card with no selection state is the v8.22
+  // half-cropped-card complaint wearing a different hat (the centering effect
+  // below finds the open tile by `.wf8-tile.is-sel`, so without it the drop
+  // also stops scrolling itself into view).
+  ok(/wf8-tile\$\{selected === id \? " is-sel" : ""\}/.test(src),
+    "the open datenight tile wears .is-sel like every other tile — the centering effect queries for it");
+  // A rail that brings its own skeleton, its own empty and its own failure copy
+  // must not ALSO get the shared pool's. Date Night's drop ending in "nothing
+  // near you clears this bar" underneath six full rails is the v8.82 empty-bar
+  // screenshot arriving by a different road.
+  ok(/const railOwnsItsOwnAnswer = !!\(selRail && selRail\.id === "datenight"\)/.test(src),
+    "the drop knows which rails answer for themselves");
+  const branches = src.match(/\) : selRail && [^?]*\?/g) || [];
+  ok(branches.length === 4, `the pool ternary chain is readable (positive control: ${branches.length} branches after the cards)`);
+  // The CARDS branch stays open to Date Night on purpose: the pool below the
+  // rails is what trending does too (ExplodingNearby above, ranked rooms
+  // below), and it is the shelf the owner asked to come back. Only the three
+  // branches that SPEAK FOR AN EMPTY POOL are closed.
+  const speaksForEmpty = branches.filter((b) => !/dropList\.length/.test(b));
+  ok(speaksForEmpty.length === 3, `three fallback branches speak for an empty pool (got ${speaksForEmpty.length})`);
+  ok(speaksForEmpty.every((b) => /railOwnsItsOwnAnswer/.test(b)),
+    "EVERY pool fallback branch (pending skeleton, thin copy, honest terminal) is skipped for a rail that owns its own answer");
+  ok(branches.some((b) => /dropList\.length/.test(b) && !/railOwnsItsOwnAnswer/.test(b)),
+    "…and the ranked place cards still render under the Date Night rails, exactly as they do under Exploding Trends");
 }
 
 // Poster art is not this PR
@@ -311,4 +374,4 @@ if (fail) {
   console.log(`test-date-night-intent: ${fail} failed, ${pass} passed`);
   process.exit(1);
 }
-console.log(`test-date-night-intent: OK — ${pass} assertions (composer executed; Beach XOR Museums; hide-empty; Dinner first; Clubs last nightlife; Spa+Tours share together; homepage tap navigates)`);
+console.log(`test-date-night-intent: OK — ${pass} assertions (composer executed; Beach XOR Museums; hide-empty; Dinner first; Clubs last nightlife; Spa+Tours share together; the homepage tap OPENS THE DROP and the drop mounts the same rails)`);

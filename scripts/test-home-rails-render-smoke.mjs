@@ -165,9 +165,55 @@ for (const [label, props] of INTENT_CASES) {
     "event discovery remains connected through home.js and its full Events screen");
 }
 
+// ── v8.92 — <DateNightRails>, the EXTRACTION, actually CALLED ───────────────
+//
+// CLAUDE.md's extraction rule: moving rendering code between modules is the
+// most dangerous refactor in this repo, and it ships green through every
+// source-as-text guard because nothing calls the component. #486 cost hours of
+// production on exactly this. So the newly extracted component is rendered here
+// across the two prop shapes that exist — the DROP (every card handler live)
+// and the PAGE (none of them, the card's own href is the answer) — plus the
+// degenerate shapes a real homepage passes before a pin resolves.
+//
+// WHAT THIS PROVES AND WHAT IT DOES NOT. renderToStaticMarkup does not run
+// effects, so this executes the module, the hook order, the memo key and the
+// skeleton / inactive branches. It does NOT reach the rails.map() branch, which
+// needs a resolved fetch. That branch's prop pairing is asserted statically by
+// check-card-actions (which reads this exact call site) and its data by
+// test-date-night-intent, which EXECUTES the composer. Naming the gap is the
+// point — a weaker check that reads as proof is worse than no check.
+const DateNightRails = (await load("app/components/DateNightRails.js")).default;
+const DN_CASES = [
+  ["the DROP shape — every handler live", {
+    active: true, center: CENTER, city: "Bradenton", onTrack: () => {}, onOpenPlace: () => {},
+    isSaved: () => false, isOnTrip: () => false, isLiked: () => false, isDisliked: () => false,
+    onSave: () => {}, onItinerary: () => {}, onLike: () => {}, onDislike: () => {}, onShare: () => {},
+  }],
+  ["the PAGE shape — no handlers, the card href is the answer", { active: true, center: CENTER, city: "Sarasota" }],
+  ["closed drop", { active: false, center: CENTER, city: "Bradenton" }],
+  ["no pin yet", { active: true, center: null, city: "" }],
+  ["a half-resolved center", { active: true, center: { lat: 27.5, lng: null }, city: "Tampa" }],
+  ["the legacy map shape (liked/disliked objects, not predicates)", {
+    active: true, center: CENTER, city: "Tampa", liked: {}, disliked: {},
+  }],
+  ["no props at all — every default has to be total", {}],
+];
+for (const [label, props] of DN_CASES) {
+  let err = null, html = "";
+  try { html = renderToStaticMarkup(createElement(DateNightRails, props)); } catch (e) { err = e; }
+  ok(!err, `DateNightRails renders with ${label} — threw: ${err && err.message}`);
+  if (!err) ok(typeof html === "string", `DateNightRails returned markup (or null) with ${label}`);
+}
+{
+  const open = renderToStaticMarkup(createElement(DateNightRails, { active: true, center: CENTER, city: "Bradenton" }));
+  const closed = renderToStaticMarkup(createElement(DateNightRails, { active: false, center: CENTER, city: "Bradenton" }));
+  ok(/aria-busy="true"/.test(open), "an OPEN drop paints the ranking skeleton, not an empty box — 'empty' must never read as 'still ranking'");
+  ok(closed === "", "a CLOSED drop renders nothing at all — the lazy mount is what keeps the homepage free of it");
+}
+
 if (fail.length) {
   console.error("test-home-rails-render-smoke: FAIL");
   fail.forEach((f) => console.error("  - " + f));
   process.exit(1);
 }
-console.log(`test-home-rails-render-smoke: OK — ${pass} assertions; BestNearby, RailCard and IntentRailBody were CALLED across ${CASES.length + RAIL_CASES.length + INTENT_CASES.length + 1} prop shapes, which is the only check that separates "the source reads right" from "the component runs"`);
+console.log(`test-home-rails-render-smoke: OK — ${pass} assertions; BestNearby, RailCard, IntentRailBody and DateNightRails were CALLED across ${CASES.length + RAIL_CASES.length + INTENT_CASES.length + DN_CASES.length + 1} prop shapes, which is the only check that separates "the source reads right" from "the component runs"`);
