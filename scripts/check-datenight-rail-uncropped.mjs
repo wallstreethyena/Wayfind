@@ -218,8 +218,14 @@ ok(!/date-night-adobestock-190984224/.test(intent),
   function resolveChromium() {
     if (!chromium) return null;
     try { const p = chromium.executablePath(); if (p && existsSync(p)) return {}; } catch (e) {}
-    const cloud = "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
-    if (existsSync(cloud)) return { executablePath: cloud };
+    const candidates = [
+      "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
+      "/opt/google/chrome/chrome",
+      "/usr/local/bin/chrome",
+    ];
+    for (const p of candidates) {
+      if (existsSync(p)) return { executablePath: p };
+    }
     if (process.platform === "darwin") return {};
     return null;
   }
@@ -245,7 +251,10 @@ ok(!/date-night-adobestock-190984224/.test(intent),
 </body></html>`;
     const pagePath = join(tmp, "tiles.html");
     writeFileSync(pagePath, fixture);
-    const browser = await chromium.launch(launchOpts);
+    const browser = await chromium.launch({
+      ...launchOpts,
+      args: ["--allow-file-access-from-files", "--disable-web-security", "--no-sandbox"],
+    });
     try {
       const page = await (await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 })).newPage();
       await page.goto("file://" + pagePath, { waitUntil: "load" });
@@ -273,6 +282,12 @@ ok(!/date-night-adobestock-190984224/.test(intent),
         encC.getContext("2d").drawImage(encode, 0, 0, 760, 1350);
         const src = srcC.getContext("2d").getImageData(0, 0, 760, fitH).data;
         const enc = encC.getContext("2d").getImageData(0, padTop, 760, fitH).data;
+        let posterMae = 0, posterN = 0;
+        for (let i = 0; i < src.length; i += 4) {
+          posterMae += Math.abs(src[i] - enc[i]) + Math.abs(src[i + 1] - enc[i + 1]) + Math.abs(src[i + 2] - enc[i + 2]);
+          posterN += 3;
+        }
+        posterMae /= posterN;
         const stripMae = (x0, cols) => {
           let s = 0, n = 0;
           for (let y = 0; y < fitH; y++) {
@@ -284,22 +299,26 @@ ok(!/date-night-adobestock-190984224/.test(intent),
           }
           return s / n;
         };
-        // DATE sits ~18–38% down the 3:4 poster; NIGHT ~38–56%. Sample the
-        // leftmost / rightmost 6px of those bands. A 9:16 cover crop insets
-        // ~135 source pixels (~94px at 760) and those strips go dark/wrong.
-        const band = (y0f, y1f) => {
+        // DATE sits ~18–38% down the 3:4 poster; NIGHT ~38–56%. The letters
+        // touch the left/right edges. A 9:16 cover crop insets ~94px at 760
+        // and those edge columns go dark. A different 9:16 card (Tonight)
+        // matches neither the full-band MAE nor these edge glyphs.
+        const cream = (r, g, b) => r > 170 && g > 140 && b > 90 && r > b + 20;
+        const rose = (r, g, b) => r > 130 && r < 210 && g > 70 && g < 160 && b > 70 && b < 150 && r > g + 10;
+        const glyphs = (y0f, y1f, pred) => {
           const y0 = Math.round(fitH * y0f), y1 = Math.round(fitH * y1f);
-          let cream = 0, rose = 0, n = 0;
+          let all = 0, minX = 760, maxX = -1;
           for (let y = y0; y < y1; y++) {
             for (let x = 0; x < 760; x++) {
               const i = (y * 760 + x) * 4;
-              const r = enc[i], g = enc[i + 1], b = enc[i + 2];
-              n++;
-              if (r > 170 && g > 140 && b > 90 && r > b + 20) cream++;
-              if (r > 130 && r < 210 && g > 70 && g < 160 && b > 70 && b < 150 && r > g + 10) rose++;
+              if (pred(enc[i], enc[i + 1], enc[i + 2])) {
+                all++;
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+              }
             }
           }
-          return { cream, rose, n, y0, y1 };
+          return { all, minX, maxX, y0, y1 };
         };
         return {
           tonight: box(document.querySelector('.wf8-tile[data-id="tonight"]')),
@@ -307,10 +326,11 @@ ok(!/date-night-adobestock-190984224/.test(intent),
           drive: box(document.querySelector('.wf8-tile[data-id="drive"]')),
           dnFit: fit(document.querySelector('.wf8-tile[data-id="datenight"] .wf8-tim')),
           tonightFit: fit(document.querySelector('.wf8-tile[data-id="tonight"] .wf8-tim')),
+          posterMae,
           leftMae: stripMae(0, 8),
           rightMae: stripMae(752, 8),
-          dateBand: band(0.18, 0.38),
-          nightBand: band(0.38, 0.56),
+          dateBand: glyphs(0.18, 0.38, cream),
+          nightBand: glyphs(0.38, 0.56, rose),
         };
       }, { fitH, padTop });
       ok(measured.tonight && measured.datenight && measured.drive,
@@ -328,14 +348,16 @@ ok(!/date-night-adobestock-190984224/.test(intent),
         `Date Night computed object-fit is cover — contain is the letterbox (got ${measured.dnFit})`);
       ok(measured.tonightFit === "cover",
         `Tonight still uses cover — Date Night did not restyle the rail (got ${measured.tonightFit})`);
+      ok(measured.posterMae < 16,
+        `760 poster band matches the width-fit locked source (MAE ${measured.posterMae.toFixed(2)} < 16) — a different 9:16 card or a cover crop fails this`);
       ok(measured.leftMae < 18,
         `DATE/NIGHT left-edge columns match the width-fit source (MAE ${measured.leftMae.toFixed(2)} < 18) — a cover crop would replace them`);
       ok(measured.rightMae < 18,
         `DATE/NIGHT right-edge columns match the width-fit source (MAE ${measured.rightMae.toFixed(2)} < 18) — a cover crop would replace them`);
-      ok(measured.dateBand.cream > 200,
-        `DATE cream glyphs are inside the 760 frame (cream pixels ${measured.dateBand.cream} in y=${measured.dateBand.y0}..${measured.dateBand.y1})`);
-      ok(measured.nightBand.rose > 200,
-        `NIGHT dusty-rose glyphs are inside the 760 frame (rose pixels ${measured.nightBand.rose} in y=${measured.nightBand.y0}..${measured.nightBand.y1})`);
+      ok(measured.dateBand.all > 2000 && measured.dateBand.minX < 200 && measured.dateBand.maxX > 550,
+        `DATE cream glyphs are fully inside the 760 frame (n=${measured.dateBand.all} x=${measured.dateBand.minX}..${measured.dateBand.maxX} y=${measured.dateBand.y0}..${measured.dateBand.y1})`);
+      ok(measured.nightBand.all > 2000 && measured.nightBand.minX < 140 && measured.nightBand.maxX > 720,
+        `NIGHT dusty-rose glyphs are fully inside the 760 frame — the T is the cover-crop casualty (n=${measured.nightBand.all} x=${measured.nightBand.minX}..${measured.nightBand.maxX} y=${measured.nightBand.y0}..${measured.nightBand.y1})`);
     } finally {
       await browser.close();
       try { rmSync(tmp, { recursive: true, force: true }); } catch (e) {}
