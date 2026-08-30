@@ -103,11 +103,13 @@ const PAIRS = {
   breakfast: { copy: "357ed5dfa8609429", art: "502233352f9fc2aa" },
   blog: { copy: "390c7f9cbf645d12", art: "3af2ada7cdef7446" },
   break: { copy: "8da3d9103f225a40", art: "23219929258396e1" },
-  // v12 (2026-08-29) — ART ONLY. Pixels read at 760px: wayfind + pin,
-  // BEST NIGHT. / EVERY DETAIL., SPEAKEASIES / FANCY RESTAURANTS / CLUBS /
-  // ROOFTOPS, 27 MILES, DATE NIGHT, PERFECTED. Rail copy is unchanged
-  // (title Date Night / Book date night). Scope cut: poster swap, not copy.
-  datenight: { copy: "0aca4828b3f1fdfd", art: "c0c7a14061978324" },
+  // v13 (2026-08-30) — SAME ART, FULL FRAME. v12 cover-fit the 1024×1536
+  // owner poster into 760×1350 and clipped the left-aligned wordmark.
+  // Regenerated at 760×1140 (source 2:3, --preserve-frame). Pixels read at
+  // 760px: wayfind + pin, BEST NIGHT. / EVERY DETAIL., SPEAKEASIES /
+  // FANCY RESTAURANTS / CLUBS / ROOFTOPS, 27 MILES, DATE NIGHT, PERFECTED.
+  // Rail copy is unchanged (title Date Night / Book date night).
+  datenight: { copy: "0aca4828b3f1fdfd", art: "c87b2b1b153879cf" },
   drive: { copy: "3886fcf87019ef5d", art: "e338daa7257af817" },
   eat: { copy: "e76ee14790d3fb92", art: "18d7d66f30860e3d" },
   // v8.29.16 — RE-PINNED, PIXELS READ AT 760px BEFORE PINNING (the bar this

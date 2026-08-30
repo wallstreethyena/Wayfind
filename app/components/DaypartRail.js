@@ -60,7 +60,7 @@ const IconicPlaceCard = dynamic(() => import("./IconicPlaceCard"), {
 const ExplodingNearby = dynamic(() => import("./ExplodingNearby"), { ssr: false });
 import { DAYPARTS, partForHour, orderFor, railHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
-import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES } from "../../lib/rails.js";
+import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES, railArtSize } from "../../lib/rails.js";
 // v8.66 (owner, 2026-08-26): the chef and augtober tiles open the SAME
 // pop-down drop as every other rail — the mid-feed rails they replace are
 // gone from home.js. Chef's list is static testimony (HIS order, never
@@ -1173,6 +1173,7 @@ export default function DaypartRail({
                 const href = railHref(r, shown.region, shown.citySlug);
                 const eager = i < 2;
                 const tileClass = `wf8-tile${selected === id ? " is-sel" : ""}${artReady[id] ? " is-art-ready" : ""}`;
+                const artBox = railArtSize(id);
                 const art = (
                     <picture>
                       <source type="image/avif" srcSet={railArtSrcSet(base, "avif")} sizes={RAIL_ART_SIZES} />
@@ -1181,8 +1182,8 @@ export default function DaypartRail({
                         className="wf8-tim"
                         src={railArtFallback(base)}
                         alt={r.title}
-                        width="760"
-                        height="1350"
+                        width={artBox.width}
+                        height={artBox.height}
                         decoding="async"
                         loading={eager ? "eager" : "lazy"}
                         fetchPriority={eager ? "high" : "low"}

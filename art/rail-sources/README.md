@@ -24,5 +24,10 @@ Regenerate with:
 
     node scripts/make-rail-art.mjs art/rail-sources/<file> <rail-id>
 
+Date Night is 2:3, not 9:16 — regenerate it with `--preserve-frame` so the
+ladder keeps the full poster (no cover crop):
+
+    node scripts/make-rail-art.mjs art/rail-sources/datenight.png datenight --preserve-frame
+
 then re-pin the rail in `scripts/check-rail-art-matches-copy.mjs`, and bump
 `RAIL_ART_V` in `lib/rails.js` if the filenames did not change.
