@@ -58,7 +58,7 @@ const IconicPlaceCard = dynamic(() => import("./IconicPlaceCard"), {
 // as the owner-list floor when the walk 502/503s or finds nothing. The
 // nearby route fail-softs missing config to that same in-repo list.
 const ExplodingNearby = dynamic(() => import("./ExplodingNearby"), { ssr: false });
-import { DAYPARTS, partForHour, orderFor, railHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
+import { DAYPARTS, partForHour, orderFor, railHref, dateNightIntentHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES, railArtSize } from "../../lib/rails.js";
 // v8.66 (owner, 2026-08-26): the chef and augtober tiles open the SAME
@@ -875,6 +875,26 @@ export default function DaypartRail({
     // in-rail drop — the whole tile is the ad; the payoff is the featured list.
     const _r = railById.get(id);
     if (_r && _r.partner && onOpenPartner) { onOpenPartner(_r.partner); return; }
+    // Date Night is a QUALIFIED INTENT, not a category drop. The poster
+    // navigates to /date-night (Dinner → Dessert → Night Out → Together →
+    // Beach XOR Museums). Do not open the generic in-rail list.
+    if (id === "datenight") {
+      const dest = dateNightIntentHref({
+        href: railHref(_r, shown.region, shown.citySlug) || "/date-night",
+        cityLabel: shown.cityLabel || cityLabel,
+        lat: (center && Number.isFinite(center.lat) ? center.lat : lat),
+        lng: (center && Number.isFinite(center.lng) ? center.lng : lng),
+      });
+      logEvent("rail_open", {
+        rail_id: "datenight", rail_title: _r ? _r.title : "Date Night", daypart,
+        region: shown.region, city: shown.citySlug,
+        position: order.indexOf("datenight") + 1, src: "rail",
+        has_places: (shown.places.datenight || []).length,
+      });
+      logEvent("datenight_hero_open", { src: "rail", rail_id: "datenight" });
+      try { window.location.assign(dest); } catch (err) {}
+      return;
+    }
     if (selected === id) close(); else open(id, "rail");
   };
 

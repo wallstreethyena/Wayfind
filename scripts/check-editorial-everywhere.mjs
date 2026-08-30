@@ -160,6 +160,7 @@ const SURFACES = [
   ["app/components/BestNearby.js", "toHookLine", "the eat rows, the things-to-do rows and the Top 40 rail"],
   ["app/components/ThingsToDoList.js", "toHookLine", "the ranked things-to-do list"],
   ["app/components/IntentPageClient.js", "toHookLine", "every intent page, including /best-of"],
+  ["app/components/DateNightIntentPage.js", "toHookLine", "the Date Night qualified-intent journey"],
   ["app/components/TrendingNowClient.js", "toHookLine", "/trending"],
   ["app/components/DaypartRail.js", "toHookLine", "the homepage rail drop — IconicPlaceCard take"],
   ["app/components/IntentRail.js", "toHookLine", "Tonight's Move / hidden gems / worth-the-drive / budget rails"],

@@ -60,6 +60,7 @@ const injects = (src) => {
 const SHELL_MAP = {
   "app/components/GuidePlaceCard.js": "app/guides/[slug]/page.js",
   "app/components/IntentPageClient.js": "app/components/RankedExperiencePage.js",
+  "app/components/DateNightIntentPage.js": "app/components/RankedExperiencePage.js",
   "app/components/TrendingNowClient.js": "app/components/RankedExperiencePage.js",
   "app/components/BestNearby.js": "app/home.js",
   "app/components/DaypartRail.js": "app/home.js",
