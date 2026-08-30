@@ -58,7 +58,7 @@ const IconicPlaceCard = dynamic(() => import("./IconicPlaceCard"), {
 // as the owner-list floor when the walk 502/503s or finds nothing. The
 // nearby route fail-softs missing config to that same in-repo list.
 const ExplodingNearby = dynamic(() => import("./ExplodingNearby"), { ssr: false });
-import { DAYPARTS, partForHour, orderFor, railHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
+import { DAYPARTS, partForHour, orderFor, railHref, dateNightIntentHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES, railArtSize } from "../../lib/rails.js";
 // v8.66 (owner, 2026-08-26): the chef and augtober tiles open the SAME
@@ -773,13 +773,40 @@ export default function DaypartRail({
     setSaid(r.id);
   }, [onShareRail, daypart, shown, selected]);
 
+  const goDateNightIntent = useCallback(() => {
+    const dest = dateNightIntentHref({
+      href: railHref(railById.get("datenight"), shown.region, shown.citySlug) || "/date-night",
+      cityLabel: shown.cityLabel || cityLabel,
+      lat: (center && Number.isFinite(center.lat) ? center.lat : lat),
+      lng: (center && Number.isFinite(center.lng) ? center.lng : lng),
+    });
+    logEvent("rail_open", {
+      rail_id: "datenight", rail_title: "Date Night", daypart,
+      region: shown.region, city: shown.citySlug,
+      position: order.indexOf("datenight") + 1, src: "rail",
+      has_places: (shown.places.datenight || []).length,
+    });
+    logEvent("datenight_hero_open", { src: "rail", rail_id: "datenight" });
+    try { window.location.assign(dest); } catch (err) {}
+    return dest;
+  }, [railById, shown, cityLabel, center, lat, lng, daypart, order]);
+
   const openedShared = useRef(false);
   useEffect(() => {
     if (openedShared.current) return;
     if (!initialRail || !railById.has(initialRail)) return;
     openedShared.current = true;
+    // A shared Date Night card is the intent page, never the in-rail drop.
+    if (initialRail === "datenight") { goDateNightIntent(); return; }
     open(initialRail, "share_link");
-  }, [initialRail, railById, open]);
+  }, [initialRail, railById, open, goDateNightIntent]);
+
+  const leftForDateNight = useRef(false);
+  useEffect(() => {
+    if (selected !== "datenight" || leftForDateNight.current) return;
+    leftForDateNight.current = true;
+    goDateNightIntent();
+  }, [selected, goDateNightIntent]);
 
   // Take the reader TO the picks. Owner, repeatedly.
   //
@@ -848,6 +875,18 @@ export default function DaypartRail({
   }, [selected, close]);
 
   const tileClick = (e, id) => {
+    // Date Night FIRST — before preventDefault. The poster is a real <a href>
+    // to /date-night. Opening the in-rail drop is the Parrish empty-bar bug
+    // (isDateRoom thin → "nothing nearby has the room" → Shake Station food).
+    if (id === "datenight") {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || (e.button != null && e.button !== 0)) return;
+      const dest = goDateNightIntent();
+      if (e.currentTarget && e.currentTarget.tagName === "A") {
+        const native = e.currentTarget.getAttribute("href") || "";
+        if (dest && dest !== native) e.preventDefault();
+      }
+      return;
+    }
     // Let the browser do its thing for a new tab / new window / middle click —
     // a real link must keep behaving like one. A button (no city, no href)
     // only opens the drop.
@@ -885,7 +924,9 @@ export default function DaypartRail({
     el.scrollBy({ left: dir * (el.clientWidth - 70), behavior: reduced ? "auto" : "smooth" });
   };
 
-  const selRail = selected ? railById.get(selected) : null;
+  // Date Night never owns this drop. A selected datenight tile is a navigation
+  // in flight — rendering the empty-bar copy or a mixed FOOD rail is the bug.
+  const selRail = selected && selected !== "datenight" ? railById.get(selected) : null;
   // v8.22 (owner: "when the amazon rail card is selected make sure it becomes
   // the main focus on the screen"). The pulsing glow marks the card; this
   // brings it there — the open tile centers itself in the track, so the
@@ -1170,9 +1211,17 @@ export default function DaypartRail({
                 if (!r) return null;
                 if (r.artStale) return null;
                 const base = railArt(r, shown.region);
-                const href = railHref(r, shown.region, shown.citySlug);
+                const railDest = railHref(r, shown.region, shown.citySlug);
+                const href = id === "datenight"
+                  ? dateNightIntentHref({
+                    href: railDest || "/date-night",
+                    cityLabel: shown.cityLabel || cityLabel,
+                    lat: (center && Number.isFinite(center.lat) ? center.lat : lat),
+                    lng: (center && Number.isFinite(center.lng) ? center.lng : lng),
+                  })
+                  : railDest;
                 const eager = i < 2;
-                const tileClass = `wf8-tile${selected === id ? " is-sel" : ""}${artReady[id] ? " is-art-ready" : ""}`;
+                const tileClass = `wf8-tile${selected === id && id !== "datenight" ? " is-sel" : ""}${artReady[id] ? " is-art-ready" : ""}`;
                 const artBox = railArtSize(id);
                 const art = (
                     <picture>
@@ -1220,7 +1269,7 @@ export default function DaypartRail({
                         (2026-08-29). Keep is-art-ready for CSS; do not cover
                         present art with grey cards. */}
                     {href
-                      ? <a className="wf8-tlink" href={href} aria-label={label} onClick={(e) => tileClick(e, id)}>{art}</a>
+                      ? <a className="wf8-tlink" href={href} aria-label={label} data-wf-date-night-intent={id === "datenight" ? "1" : undefined} onClick={id === "datenight" ? undefined : function (e) { tileClick(e, id); }}>{art}</a>
                       : <button type="button" className="wf8-tlink" aria-label={label} onClick={(e) => tileClick(e, id)}>{art}</button>}
                     {/* A sponsor tile is a paid unit, not a shareable list —
                         it has no route to share, so it shows no share control. */}
@@ -1246,7 +1295,7 @@ export default function DaypartRail({
         </div>
       </section>
 
-      <section className="wf8-menusec" ref={menuRef} aria-label={selRail ? `${selRail.title} — picks` : "Picks"} aria-hidden={!selected}>
+      <section className="wf8-menusec" ref={menuRef} aria-label={selRail ? `${selRail.title} — picks` : "Picks"} aria-hidden={!selRail}>
         <div className="wf8-in">
           <div className="wf8-mbar">
             <p className="wf8-mhd">Showing <b>{selRail ? selRail.title : ""}</b>{selRail && !selRail.guides && selRail.id !== "chef" && selRail.id !== "augtober" ? near : ""}</p>
