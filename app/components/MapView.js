@@ -284,7 +284,7 @@ function markerNode({ label, color, kind, selected }) {
   return el;
 }
 
-export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus, fit, rings, compact = false, styleMode = "bright", onRetry, selectedId = null, onAreaChange = null }) {
+export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus, fit, rings, compact = false, styleMode = "bright", onRetry, selectedId = null, onAreaChange = null, showOrigin = true }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -379,7 +379,13 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     });
 
     const origin = deviceLoc || center;
-    if (origin && origin.lat != null && origin.lng != null) {
+    // showOrigin=false — v8.94, the creator map. That surface has no search
+    // centre and no device fix: its `center` is a CENTROID computed from the
+    // creator's own pins purely so this map can be created at all (the init
+    // effect below is keyed on having one). Dropping an "origin" pin there
+    // would label a derived average as a place, which is the one thing a map
+    // must never do. The pin is a claim; only draw it when it is true.
+    if (showOrigin && origin && origin.lat != null && origin.lng != null) {
       const node = markerNode({ label: deviceLoc ? "Your location" : "Search center", color: deviceLoc ? "#3B82F6" : "#F97316", kind: "origin" });
       markersRef.current.push(new Marker({ element: node, anchor: "bottom" }).setLngLat([origin.lng, origin.lat]).addTo(map));
       if (fit) bounds.extend([origin.lng, origin.lat]);
@@ -583,7 +589,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!(center && Number.isFinite(Number(center.lat)) && Number.isFinite(Number(center.lng)))]);
 
-  useEffect(() => { redraw(); }, [places, center, category, deviceLoc, events, fit, rings, selectedId]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { redraw(); }, [places, center, category, deviceLoc, events, fit, rings, selectedId, showOrigin]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // v8.23.3 — the zoom-responsive ring-expansion effect was REMOVED here. It
   // listened to every "zoom" event, debounced 120ms, and recomputed all the
