@@ -12,15 +12,15 @@ export const runtime = "nodejs";
 // for the rest of the app and WRONG here. dateNightBeachOk requires
 // weather.known AND outdoorOK AND beach.show. Any unknown → Museums, hide Beach.
 
-import { serveFromInventory } from "../../../../lib/inventoryServe.js";
-import { getBeachConditions } from "../../../../lib/marine.js";
-import { nowContext } from "../../../../lib/nowContext.js";
-import { BROWSE_INVENTORY_N } from "../../../../lib/browseInventory.js";
+import { serveFromInventory } from "../../../lib/inventoryServe.js";
+import { getBeachConditions } from "../../../lib/marine.js";
+import { nowContext } from "../../../lib/nowContext.js";
+import { BROWSE_INVENTORY_N } from "../../../lib/browseInventory.js";
 import {
   DATE_NIGHT_WIDEN_MI,
   composeDateNightRails,
   toDateNightPlace,
-} from "../../../../lib/dateNightIntent.js";
+} from "../../../lib/dateNightIntent.js";
 
 const WX_URL =
   "https://api.open-meteo.com/v1/forecast?current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,dew_point_2m" +

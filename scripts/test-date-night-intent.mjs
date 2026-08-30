@@ -5,7 +5,7 @@
 // generic list. It opens a journey that orchestrates existing categories.
 // This file CALLS the composer. Source assertions that remain are scoped to
 // a syntactic position and say so.
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -89,6 +89,15 @@ const SHAKE = p({
   id: "shake-1", name: "Shake Station", primaryType: "hamburger_restaurant",
   types: ["hamburger_restaurant", "restaurant", "food"], rating: 4.6, reviews: 800, distMi: 9.6,
 });
+const BURGER = p({
+  id: "burger-1", name: "The Burger Bar", primaryType: "restaurant",
+  types: ["restaurant", "food"], rating: 4.9, reviews: 2000, priceNum: 2, distMi: 3,
+});
+const SHELL_KEY = p({
+  id: "shell-1", name: "Shell Key Clear Kayak Sunset & Glow Tours",
+  primaryType: "tour_agency", types: ["tour_agency", "boat_tour", "tourist_attraction"],
+  rating: 4.9, reviews: 711, distMi: 18,
+});
 const WINE = p({
   id: "wine-1", name: "Vintage Wine Room", primaryType: "wine_bar",
   types: ["wine_bar", "bar"],
@@ -107,8 +116,11 @@ ok(isDateDinner(DINNER) && isDateDinner(DINNER_CASUAL), "steakhouse / trattoria 
 ok(!isDateDinner(WINE), "a wine bar is a date room but not Dinner — Night Out / hide, not the dinner rail");
 ok(!isDateDinner(FAST), "fast food is not a date dinner");
 ok(!isDateDinner(SHAKE), "Shake Station is not a date-night dinner — the live Parrish #1");
-ok(isDateDinner(DINNER_PLAIN), "a sit-down pizza still qualifies as Dinner so Parrish cannot go empty when date-rooms are thin");
-ok(isDateRoomDinner(DINNER) && !isDateRoomDinner(SHAKE), "date-room is a RANK signal, not the only admit");
+ok(!isDateDinner(BURGER), "a highly-rated burger shop is not a date dinner, even at $$");
+ok(!isDateDinner(DINNER_PLAIN), "a $ pizza is not special enough — hide Dinner rather than fill with a value spot");
+ok(isDateRoomDinner(DINNER) && !isDateRoomDinner(SHAKE), "date-room is a RANK signal; Shake Station is neither dinner nor a room");
+ok(isDateTour(TOUR) && !isDateTour(SHELL_KEY), "Sunset Cruise is a couples tour; Shell Key kayak/glow is generic outdoor rec");
+ok(!isDateTogether(SHELL_KEY), "Shell Key is not Things To Do Together");
 ok(isDateDessert(DESSERT) && !isDateDessert(DINNER), "dessert chip admits a creamery, not a steakhouse");
 ok(isDateSpeakeasy(SPEAKEASY) && !isDateSpeakeasy(CLUB), "speakeasy is cocktail/speakeasy, not a dance club");
 ok(isDateLiveMusic(LIVE) && !isDateLiveMusic(CLUB), "Live Music excludes night_club so Clubs can own that rail");
@@ -190,18 +202,26 @@ ok(new Set(ids).size === ids.length, "a place is assigned to exactly one rail");
 ok(!ids.includes("fast-1") && !ids.includes("wine-1") && !ids.includes("far-1"),
   "off-intent / out-of-radius rows never appear");
 
-const valueFood = composeDateNightRails([SHAKE, FAST, DINNER_PLAIN], GOOD);
-ok(valueFood.rails[0] && valueFood.rails[0].id === "dinner", "Dinner still exists when the pool is mostly value food");
-ok(valueFood.rails[0].places.every((x) => x.id === "dinner-3"), "Dinner keeps the sit-down meal and drops Shake Station / McDonald's");
-ok(!valueFood.rails.some((r) => r.places.some((x) => x.id === "shake-1")), "Shake Station appears on no Date Night rail");
-ok(valueFood.rails.some((r) => r.id === "dinner") && valueFood.rails[0].places.length >= 1,
-  "an empty isDateRoom gate must not replace the whole page — Dinner from inventory still renders");
+const valueFood = composeDateNightRails([SHAKE, FAST, DINNER_PLAIN, BURGER], GOOD);
+ok(!valueFood.rails.some((r) => r.id === "dinner"), "Dinner hides when the only meals are Shake Station / burgers / cheap pizza");
+ok(!valueFood.rails.some((r) => r.places.some((x) => x.id === "shake-1" || x.id === "burger-1")),
+  "Shake Station and burger shops appear on no Date Night rail");
+
+const withDinner = composeDateNightRails([SHAKE, FAST, DINNER_PLAIN, DINNER_CASUAL], GOOD);
+ok(withDinner.rails[0] && withDinner.rails[0].id === "dinner", "Dinner still leads when a special-enough sit-down exists");
+ok(withDinner.rails[0].places.every((x) => x.id === "dinner-2"), "Dinner keeps the trattoria and drops Shake Station / pizza / McDonald's");
+
+const kayakLead = composeDateNightRails([SHELL_KEY, SPA], GOOD);
+ok(!kayakLead.rails.some((r) => r.places.some((x) => x.id === "shell-1")),
+  "Shell Key kayak/glow never appears on Date Night — not even on Together");
+ok(kayakLead.rails.some((r) => r.id === "together") && kayakLead.rails.find((r) => r.id === "together").places.every((x) => x.id === "spa-1"),
+  "Together keeps the spa and hides the generic kayak tour");
 
 // Dinner ranks special-enough rooms first (existing signal, not a paid boost)
 const dinnerRail = good.rails.find((r) => r.id === "dinner");
-ok(dinnerRail && dinnerRail.places.some((x) => x.id === "dinner-3"), "a highly rated pizza still competes on Dinner");
-ok(dinnerRail.places.findIndex((x) => x.id === "dinner-1") < dinnerRail.places.findIndex((x) => x.id === "dinner-3"),
-  "special date-room signal (price ≥ 2) ranks ahead of a higher-scored ordinary restaurant — not a paid boost");
+ok(dinnerRail && dinnerRail.places.some((x) => x.id === "dinner-1") && dinnerRail.places.some((x) => x.id === "dinner-2"),
+  "Dinner keeps the steakhouse and the $$ trattoria");
+ok(!dinnerRail.places.some((x) => x.id === "dinner-3"), "cheap pizza does not pad Dinner");
 
 // ── Entry: homepage tap navigates; /date-night is the intent page ───────────
 const href = dateNightIntentHref({ href: "/date-night", cityLabel: "Tampa", lat: 27.95, lng: -82.46 });
@@ -231,7 +251,8 @@ ok(nightOrder.includes("datenight"), "Date Night still exists in the night order
     "the intent page never uses the empty-rail 'room for it tonight' copy");
 }
 {
-  const src = stripComments(readFileSync(join(ROOT, "app/api/date-night/route.js"), "utf8"));
+  const raw = readFileSync(join(ROOT, "app/api/date-night/route.js"), "utf8");
+  const src = stripComments(raw);
   ok(/serveFromInventory\(/.test(src), "the API reads owned inventory");
   ok(/dateNightBeachOk|composeDateNightRails/.test(src), "the API composes through dateNightIntent");
   ok(!/places\.googleapis|searchText|placeDetails/.test(src), "the API does not call Google Places");
@@ -241,6 +262,16 @@ ok(nightOrder.includes("datenight"), "Date Night still exists in the night order
   ok(invAll && !/fetchWeather|getBeachConditions/.test(invAll[0]),
     "weather / beach-condition fetches are NOT awaited with inventory — Dinner must not wait on weather");
   ok(/Promise\.race\(\[wxReady/.test(src), "weather is raced; unknown weather fails closed to Museums");
+  const rels = [...raw.matchAll(/from\s+["']((?:\.\.\/)+lib\/[^"']+)["']/g)].map((m) => m[1]);
+  ok(rels.length >= 5, `date-night route imports lib via ../../../lib (got ${rels.length})`);
+  ok(rels.every((r) => r.startsWith("../../../lib/")),
+    "every lib import is three levels up (app/api/date-night → repo root), not four");
+  ok(!/from\s+["']\.\.\/\.\.\/\.\.\/\.\.\/lib\//.test(raw),
+    "date-night route does not use ../../../../lib — that resolved outside the repo and broke next build");
+  const routeDir = join(ROOT, "app/api/date-night");
+  for (const rel of rels) {
+    ok(existsSync(join(routeDir, rel)), `import ${rel} resolves from app/api/date-night`);
+  }
 }
 {
   const src = stripComments(readFileSync(join(ROOT, "app/components/DaypartRail.js"), "utf8"));
@@ -258,6 +289,16 @@ ok(nightOrder.includes("datenight"), "Date Night still exists in the night order
   ok(/initialRail === "datenight"/.test(src), "a shared ?rail=datenight link also navigates — it does not open the drop");
   ok(/selected && selected !== "datenight"/.test(src),
     "the drop's selRail never binds to datenight — no empty-bar copy, no Shake Station FOOD rail");
+  ok(/\{href\s*\?\s*<a className="wf8-tlink"/.test(src),
+    "PROBE: the tile link ternary is still `{href ? <a className=\"wf8-tlink\"` (check-daypart-art-ready)");
+  const tileA = src.match(/\{href\s*\?\s*<a className="wf8-tlink"[^>]*>/);
+  ok(!!tileA, "the tile <a> opening tag is a readable JSX expression (positive control)");
+  ok(tileA && /data-wf-date-night-intent=\{id === "datenight" \? "1" : undefined\}/.test(tileA[0]),
+    "datenight tile is marked data-wf-date-night-intent");
+  ok(tileA && /onClick=\{id === "datenight" \? undefined : function \(e\) \{ tileClick\(e, id\); \}\}/.test(tileA[0]),
+    "datenight <a> onClick is undefined — native /date-night; preventDefault cannot open the drop");
+  ok(/id === "datenight"[\s\S]{0,180}dateNightIntentHref\(/.test(src),
+    "datenight tile href is dateNightIntentHref (the intent URL, not a drop)");
 }
 
 // Poster art is not this PR

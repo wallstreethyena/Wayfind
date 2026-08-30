@@ -1211,7 +1211,15 @@ export default function DaypartRail({
                 if (!r) return null;
                 if (r.artStale) return null;
                 const base = railArt(r, shown.region);
-                const href = railHref(r, shown.region, shown.citySlug);
+                const railDest = railHref(r, shown.region, shown.citySlug);
+                const href = id === "datenight"
+                  ? dateNightIntentHref({
+                    href: railDest || "/date-night",
+                    cityLabel: shown.cityLabel || cityLabel,
+                    lat: (center && Number.isFinite(center.lat) ? center.lat : lat),
+                    lng: (center && Number.isFinite(center.lng) ? center.lng : lng),
+                  })
+                  : railDest;
                 const eager = i < 2;
                 const tileClass = `wf8-tile${selected === id && id !== "datenight" ? " is-sel" : ""}${artReady[id] ? " is-art-ready" : ""}`;
                 const artBox = railArtSize(id);
@@ -1261,7 +1269,7 @@ export default function DaypartRail({
                         (2026-08-29). Keep is-art-ready for CSS; do not cover
                         present art with grey cards. */}
                     {href
-                      ? <a className="wf8-tlink" href={href} aria-label={label} onClick={(e) => tileClick(e, id)}>{art}</a>
+                      ? <a className="wf8-tlink" href={href} aria-label={label} data-wf-date-night-intent={id === "datenight" ? "1" : undefined} onClick={id === "datenight" ? undefined : function (e) { tileClick(e, id); }}>{art}</a>
                       : <button type="button" className="wf8-tlink" aria-label={label} onClick={(e) => tileClick(e, id)}>{art}</button>}
                     {/* A sponsor tile is a paid unit, not a shareable list —
                         it has no route to share, so it shows no share control. */}
