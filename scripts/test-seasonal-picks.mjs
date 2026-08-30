@@ -276,10 +276,18 @@ ok(/floor:\s*\{\s*rating:\s*4(\.0)?\s*,/.test(intentPagesSrc),
     const a = DAYPARTS.afternoon.order.indexOf("season");
     const n = DAYPARTS.night.order.indexOf("season");
     ok(a === n, `afternoon and night place seasonal identically (afternoon ${a + 1}, night ${n + 1})`);
-    ok(DAYPARTS.afternoon.order[0] === "tonight" && DAYPARTS.afternoon.order[1] === "datenight",
-      "…and the two slots it gave up are Tonight's Move then Date Night, in that order (owner, 2026-08-30)");
-    ok(DAYPARTS.night.order[0] === "tonight" && DAYPARTS.night.order[1] === "datenight",
-      "…in the night band too — one shared list, so the pairing cannot drift between them");
+    // v8.93.1 — the owner moved slot two to trending later the same night
+    // ("I want the position of this to be to the right of Tonight's Move",
+    // about the new TRENDING NEAR YOU poster), with Date Night immediately
+    // after it. The three read as one thought in order: what is on, what
+    // people are actually doing, and who you are going with.
+    const HEAD = ["tonight", "trending", "datenight"];
+    for (const b of ["afternoon", "night"]) {
+      ok(DAYPARTS[b].order.slice(0, 3).join(",") === HEAD.join(","),
+        `${b} opens ${HEAD.join(" → ")} (got ${DAYPARTS[b].order.slice(0, 3).join(" → ")})`);
+    }
+    ok(DAYPARTS.afternoon.order.slice(0, 3).join(",") === DAYPARTS.night.order.slice(0, 3).join(","),
+      "…and both tonight-led bands open identically — one shared list, so the trio cannot drift between them");
   }
   ok(!/function LocalPlanHeroCard\(/.test(home), "LocalPlanHeroCard is back without the slide it rendered");
   ok(!/<HeroRail>/.test(home), "the hero rail is back alongside the daypart rail");

@@ -98,7 +98,14 @@ const PAIRS = {
   // TRENDS NEAR YOU / Everyone's searching this. You should too. / See
   // what's trending →" — matches the restored rail copy, and the drop now
   // leads with the owner's 20 curated trends (v8.12), so the claim is backed.
-  trending: { copy: "687d51781c7e6ddb", art: "61663b523e17f32a" },
+  // v8.93.1 re-pin, CONFIRMED BY READING BOTH. The poster's baked type is
+  // "TRENDING NEAR YOU / What people are searching and experiencing right
+  // now."; the rail copy is short "Trending near you", sub "What people are
+  // searching and experiencing right now". The old sub also claimed a COUNT
+  // ("The 20 trends taking over") the rail never promised — on a quiet night
+  // there are fewer than twenty verified near you, and this guard is exactly
+  // the thing that should have caught a number the art does not say.
+  trending: { copy: "497cdda9fb4521f8", art: "48aa69f9ded69316" },
   birthday: { copy: "e30656dbabf938e6", art: "c62ecd24477ae8d3" },
   breakfast: { copy: "357ed5dfa8609429", art: "502233352f9fc2aa" },
   blog: { copy: "390c7f9cbf645d12", art: "3af2ada7cdef7446" },

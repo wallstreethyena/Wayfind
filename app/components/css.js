@@ -91,6 +91,29 @@ export const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba
      official string stays fully readable. Do not invent a new brand line. */
   `.wf-search-row{min-width:0}.wf-search-field{flex:1;min-width:0;position:relative}.wf-scope-city{max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wf-search-input{min-width:0}` +
   `@media(max-width:430px){.wf-scope{padding:0 8px;gap:4px}.wf-scope-city{max-width:56px}.wf-search-icon{display:none!important}.wf-search-input{font-size:14px!important;padding-left:12px!important;padding-right:8px!important}.wf-search-submit{width:46px!important}}`;
+// v8.93.1 — THE ONE CARD WIDTH, FOR EVERY RAIL ON THE SITE.
+// Owner, 2026-08-30, with a screenshot of one event card spanning the whole
+// desktop window and a crop of the KPOT card: "this is how the card should
+// look EVERYWHERE ... are you able to fix this permanently, globally?"
+
+// THE ROOT CAUSE was this rule reading `flex:0 0 100%`. One card per scroller
+// width is right on a phone and absurd on a 1900px desktop — the card grows,
+// the 108px photo does not, and the result is the stretched row he
+// photographed. Exploding Trends looked correct only because railMenuCss
+// overrides this for `.wf8 .wf-rail-exploding` alone, so ONE rail in ONE
+// container had the right answer and every other rail on the site fell back
+// to full width. That is why he kept seeing it "a lot on the desktop".
+
+// So the peek moves into the BASE rule, where every `.wf-rail` inherits it:
+// --wf-rail-vis is how many cards a row shows, on the same ladder the drop
+// already uses (1.08 → 1.35 → 1.9 → 2.4 → 3.4), so a card is the same size
+// whether it sits in the feed, a drop, or an events rail. The fractional
+// values are deliberate: the part-card at the edge is what tells a reader the
+// row scrolls.
+
+// `width:auto` matters — a leftover `width:100%` would fight the flex-basis
+// and win on some engines, which is how the first attempt at this looked
+// right in Chrome and wrong in Safari.
 export const WF_PLACE_CARD_CSS = `
 .wf-ticket-pill{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 9px 0 8px;border-radius:7px;text-decoration:none;position:relative;color:#FFD9AE;background:linear-gradient(180deg,rgba(253,186,116,.17),rgba(249,115,22,.10));border:1px solid rgba(253,186,116,.44);box-shadow:inset 0 1px 0 rgba(255,236,209,.18),0 1px 0 rgba(0,0,0,.34);transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease}
 .wf-ticket-pill svg{width:13px;height:13px;display:block;flex:0 0 13px;color:#FDBA74}
@@ -529,9 +552,17 @@ export const WF_PLACE_CARD_CSS = `
   scrollbar-width:none;
 }
 .wf-rail::-webkit-scrollbar{display:none}
+.wf-rail{
+  --wf-rail-vis:1.08;
+  --wf-rail-gap:10px;
+}
+@media(min-width:560px){ .wf-rail{--wf-rail-vis:1.35} }
+@media(min-width:900px){ .wf-rail{--wf-rail-vis:1.9} }
+@media(min-width:1100px){ .wf-rail{--wf-rail-vis:2.4} }
+@media(min-width:1400px){ .wf-rail{--wf-rail-vis:3.4} }
 .wf-rail>.wf-rail-card{
-  flex:0 0 100%;
-  width:100%;
+  flex:0 0 calc((100% - (var(--wf-rail-vis) - 1) * var(--wf-rail-gap)) / var(--wf-rail-vis));
+  width:auto;
   margin-bottom:0!important;
   scroll-snap-align:start;
 }

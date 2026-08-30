@@ -23,8 +23,7 @@ import {
   isDateTogether,
   isDateSpa,
   isDateTour,
-  isSpecialDateDinner,
-} from "../lib/dateNightIntent.js";
+  isSpecialDateDinner, DATE_NIGHT_RAIL_DEFS } from "../lib/dateNightIntent.js";
 import { dateNightIntentHref, orderFor } from "../lib/dayparts.js";
 import { RAIL_IDS } from "../lib/rails.js";
 
@@ -266,6 +265,34 @@ ok(nightOrder.includes("datenight"), "Date Night still exists in the night order
     "…inside the Exploding Trends rail container, so card width and the peek come from the design system, not an inline 300px guess");
   ok(/<RailNav[\s/>]/.test(rails) && /<RailDots[\s/>]/.test(rails),
     "…with the same there-is-more affordances that rail ships");
+  // v8.93.1 — AND EVERY RAIL STILL SAYS WHAT IT IS. The first pass at the
+  // Exploding Trends structure dropped the <h2> along with the old markup, and
+  // the owner's screenshot showed a Dinner rail with no word "Dinner" on it.
+  // RailNav's line is a COUNT, not a heading — "18 places for clubs" tells the
+  // reader how many and never what.
+  ok(/<h2[^>]*>\{rail\.title\}<\/h2>/.test(rails),
+    "every Date Night rail renders its own title — RailNav's count line is not a heading");
+  // v8.93.1 — AND EVERY RAIL EXPLAINS ITSELF. Owner, 2026-08-30: "on Exploding
+  // Trends you have an explanation of what the rail is … Date Night does not.
+  // I would like that everywhere multiple rails are showing." The deck is the
+  // PROMISE, so the rules are asserted, not just its presence: every rail has
+  // one, none repeats its own title, none states a number (RailNav owns the
+  // count, and a number the rail cannot keep is the "20 trends" claim this
+  // release deleted), and each fits one line at 390px.
+  ok(/\{rail\.deck \? \(/.test(rails) && /\{rail\.deck\}<\/p>/.test(rails),
+    "the rails render the deck when there is one, and nothing when there is not");
+  ok(rails.indexOf("{rail.deck}") > rails.indexOf("{rail.title}") && rails.indexOf("{rail.deck}") < rails.indexOf("<RailNav"),
+    "…between the title and the count line, which is where Exploding Trends puts its dek");
+  for (const def of DATE_NIGHT_RAIL_DEFS) {
+    ok(typeof def.deck === "string" && def.deck.length > 20,
+      `${def.id}: has a deck that says what the rail is for`);
+    ok(def.deck.length <= 78, `${def.id}: deck fits one line at 390px (${def.deck.length} chars)`);
+    ok(!new RegExp("\\b" + def.title.split(" ")[0] + "\\b", "i").test(def.deck),
+      `${def.id}: the deck does not just repeat its own title`);
+    ok(!/\d/.test(def.deck), `${def.id}: the deck states no number — RailNav owns the count`);
+  }
+  ok(rails.indexOf("{rail.title}</h2>") < rails.indexOf("<RailNav"),
+    "…above the count line, not below it");
   ok(!/<IconicPlaceCard[\s/>]/.test(rails),
     "…and the old card is gone rather than left beside it — two card styles in one drop is the drift this file exists to stop");
   ok(/<RankedExperiencePage[\s/>]/.test(src), "the intent page keeps the existing RankedExperiencePage shell");

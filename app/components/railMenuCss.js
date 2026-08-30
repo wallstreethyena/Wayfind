@@ -13,6 +13,21 @@
 //
 // The type scale is Amazon's, matching app/components/kit.js TYPE: weights 400
 // and 700 only, letter-spacing normal, sizes on 12/13/15/17/21.
+// v8.93.1 — THE POSTER TILE IS SIZED BY HEIGHT ON A DESKTOP, and only there.
+// Owner, 2026-08-30: "the sizing for the Amazon rail card does not fit all in
+// the screen on the desktop, it's too tall on the desktop."
+//
+// The tile is a 9:16 poster, so its height is width / 0.5625 = 1.78x width. At
+// the old --wf8-tw ceiling of 440px that is a 782px card, taller than the
+// content area of most laptop windows — the reader had to scroll to see one
+// tile, which is the opposite of a carousel.
+//
+// The fix takes the SMALLER of the width the layout wants and the width a
+// 62vh-tall card would need. Aspect is untouched, so nothing is cropped or
+// letterboxed and check-datenight-rail-uncropped still measures cover with
+// the whole poster inside the frame. On a phone 62vh is far larger than
+// 76vw / 0.5625, so the min() picks the width branch and mobile is unchanged —
+// which is the point: this is a desktop ceiling, not a global resize.
 export const WF_RAIL_MENU_CSS =
   // the hero band — logo, then the pitch, then the rail drops out of it
   `.wf8-hero{position:relative;z-index:4;overflow:hidden;border-bottom:1px solid var(--wf8-line);margin:0 calc(var(--wf8-pad) * -1) 0;padding:26px var(--wf8-pad) 22px;text-align:center;background:radial-gradient(760px 420px at 20% -10%,rgba(255,106,43,.13),transparent 62%),radial-gradient(700px 420px at 88% 108%,rgba(139,92,246,.14),transparent 62%),var(--wf8-band)}` +
@@ -21,7 +36,7 @@ export const WF_RAIL_MENU_CSS =
   `.wf8-h1{font-size:clamp(24px,3.2vw,34px);line-height:1.18;font-weight:700;letter-spacing:normal;margin:0 0 10px;color:#fff}` +
   `.wf8-hsub{font-size:17px;line-height:1.5;color:var(--wf8-mut);font-weight:400;margin:0 auto;max-width:560px}` +
   `@media(max-width:560px){.wf8-hero{padding:20px var(--wf8-pad) 18px}.wf8-hlogo{height:30px;margin-bottom:11px}.wf8-h1{font-size:23px}.wf8-hsub{font-size:15px}}` +
-  `.wf8{--wf8-band:#0A0E1A;--wf8-card:#101725;--wf8-line:rgba(255,255,255,.08);--wf8-line2:rgba(255,255,255,.14);--wf8-tx:#F4F7FF;--wf8-mut:#A9B5CD;--wf8-dim:#7A87A0;--wf8-acc:#FF6A2B;--wf8-acc2:#FF8A3D;--wf8-pad:22px;--wf8-ratio:.5625;--wf8-tw:clamp(300px,34vw,440px);--wf8-pcvis:3.4;--wf8-pcgap:13px;position:relative;color:var(--wf8-tx);font-family:var(--wf-sans,-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif)}.wf8 *{box-sizing:border-box}.wf8 button{background:none;border:0;cursor:pointer;font:inherit;color:inherit}.wf8 a{color:inherit;text-decoration:none}.wf8-in{max-width:1720px;margin:0 auto;padding:0 var(--wf8-pad)}` +
+  `.wf8{--wf8-band:#0A0E1A;--wf8-card:#101725;--wf8-line:rgba(255,255,255,.08);--wf8-line2:rgba(255,255,255,.14);--wf8-tx:#F4F7FF;--wf8-mut:#A9B5CD;--wf8-dim:#7A87A0;--wf8-acc:#FF6A2B;--wf8-acc2:#FF8A3D;--wf8-pad:22px;--wf8-ratio:.5625;--wf8-tw:min(clamp(300px,34vw,440px),calc(62vh * var(--wf8-ratio)));--wf8-pcvis:3.4;--wf8-pcgap:13px;position:relative;color:var(--wf8-tx);font-family:var(--wf-sans,-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif)}.wf8 *{box-sizing:border-box}.wf8 button{background:none;border:0;cursor:pointer;font:inherit;color:inherit}.wf8 a{color:inherit;text-decoration:none}.wf8-in{max-width:1720px;margin:0 auto;padding:0 var(--wf8-pad)}` +
   // the page dresses for the hour — scoped to the root, never to <body>
   `.wf8.is-morning{--wf8-acc:#FF8A3D;--wf8-acc2:#FFB25E;--wf8-band:#0B1119}.wf8.is-lunch{--wf8-acc:#FF6A2B;--wf8-acc2:#FF8A3D;--wf8-band:#0A0E17}.wf8.is-afternoon{--wf8-acc:#FF7A2B;--wf8-acc2:#FFA23A;--wf8-band:#0C0D16}.wf8.is-night{--wf8-band:#0A0711;--wf8-card:#12101F;--wf8-acc:#FBBF24;--wf8-acc2:#FCD34D;--wf8-line:rgba(255,255,255,.09);--wf8-line2:rgba(255,255,255,.16)}` +
   // the daypart bar
