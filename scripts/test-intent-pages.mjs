@@ -3,6 +3,7 @@
 // only), photo-from-the-list heroes, floors, and honest why-lines.
 import { readFileSync } from "fs";
 import { INTENT_PAGES, distanceDeduction, rankRows, toRow } from "../lib/intentPages.js";
+import { RAIL_ART_V } from "../lib/rails.js";
 
 let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
@@ -51,7 +52,20 @@ ok(unranked[0].id === "b", "with no penalty config, pure quality order holds (th
 ok(ranked.find((r) => r.id === "b").deduction >= 0.4, "the deduction is still carried on the row for the why-line");
 
 // Dedicated landing pages use the same owned artwork as their homepage cards.
-ok(INTENT_PAGES["date-night"].art === "/cards/date-night-owner.png", "date-night landing page matches the owner Date Night poster");
+// v8.93 — FOLLOWED THE CODE. The page art is now cache-busted with RAIL_ART_V
+// (CollectionHero renders it as a bare <img src>, so a swapped poster under a
+// fixed filename stays invisible for 30 days — the v8.15 bug). The invariant
+// is unchanged: the landing page uses the SAME owned poster file as the
+// homepage card. Asserted on the path, with the version checked separately so
+// a dropped bust cannot pass as "the file is right".
+{
+  const art = String(INTENT_PAGES["date-night"].art || "");
+  ok(art.split("?")[0] === "/cards/date-night-owner.png", `date-night landing page matches the owner Date Night poster (got ${art})`);
+  ok(art === "/cards/date-night-owner.png?v=" + RAIL_ART_V,
+    "…and it carries the RAIL_ART_V bust, so a new poster is not hidden behind the 30-day CDN copy");
+  ok(String(INTENT_PAGES["date-night"].card.art || "") === "/cards/date-night-owner.png",
+    "…while the SHARE card stays unversioned — that route is Cache-Control: immutable and must be the same bytes on every deploy");
+}
 ok(INTENT_PAGES["date-night"].card.art === "/cards/date-night-owner.png", "date-night share card uses the same owner poster");
 ok(INTENT_PAGES.family.art === "/cards/family-adobestock-794890098.jpeg", "family landing page matches its homepage hero card");
 const ic = readFileSync(new URL("../app/components/IntentPageClient.js", import.meta.url), "utf8");

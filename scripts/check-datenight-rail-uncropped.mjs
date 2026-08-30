@@ -5,14 +5,22 @@
 // a non-9:16 owner poster into the 760×1350 ladder + .wf8-tim object-fit:cover
 // clipped the left-aligned type.
 //
-// FOUNDER LOCK (2026-08-30): the card is the 1086×1448 Adobe DATE NIGHT
-// poster (wayfind / DATE NIGHT / within 27 miles / Impress. Every time.).
-// BEST NIGHT / EVERY DETAIL and TONIGHT'S MOVE / icon-row are discarded.
+// FOUNDER LOCK (v8.93, 2026-08-30): the card is the owner's 941×1672 DATE
+// NIGHT poster — wayfind / DATE NIGHT / "An unforgettable night. Already
+// planned." BEST NIGHT / EVERY DETAIL, the 1086×1448 "Impress. Every time."
+// Adobe frame, and TONIGHT'S MOVE / icon-row are all discarded.
 //
-// THE FIX is Date Night only. Other posters stay 9:16 + cover. This guard
-// executes the sizes it can (locked PNG, 760.jpg, railArtSize) and pins the
-// CSS/JS positions that keep the tile from covering. A comment that mentions
-// "contain" does not pass.
+// THE RULE GENERALISED, and that is the point of this revision. The invariant
+// was never "Date Night is contain" — it is THE OWNER'S POSTER IS NOT CROPPED.
+// v14 needed contain because its 3:4 frame did not fit a 9:16 box; contain
+// fits everything and therefore PADS, which is the maroon letterbox band the
+// owner photographed on 2026-08-30. The new poster is 0.5628 against a 0.5625
+// box, so cover clips nothing and pads nothing — the same invariant, reached
+// by the opposite CSS.
+//
+// So this file now derives the expected fit from the SOURCE ASPECT instead of
+// pinning a keyword: on-ratio ⇒ cover, off-ratio ⇒ contain. Swap in another
+// off-ratio poster and the guard demands contain again, on its own.
 //
 // #1032 set a Date Night-only --wf8-ratio:0.75 so the tile BOX matched the
 // 3:4 poster. Same width + shorter aspect = a shorter card than Tonight /
@@ -79,10 +87,12 @@ const src = pngSize(srcBuf);
 const owner = pngSize(ownerBuf);
 const jpg = jpegSize(jpgBuf);
 
-ok(locked.width === 1086 && locked.height === 1448,
-  `founder lock is the 1086×1448 DATE NIGHT Adobe poster (got ${locked.width}×${locked.height})`);
+ok(locked.width === 941 && locked.height === 1672,
+  `founder lock is the 941×1672 DATE NIGHT poster (got ${locked.width}×${locked.height})`);
 ok(!(src.width === 1024 && src.height === 1536),
   "BEST NIGHT / EVERY DETAIL (1024×1536) is discarded — not the rail source");
+ok(!(src.width === 1086 && src.height === 1448),
+  "the v14 'Impress. Every time.' 3:4 frame is discarded — it is what needed the letterbox");
 ok(src.width === locked.width && src.height === locked.height,
   `rail source is the locked frame (got ${src.width}×${src.height})`);
 ok(owner.width === locked.width && owner.height === locked.height,
@@ -94,10 +104,18 @@ ok(sha(ownerBuf) === sha(lockedBuf),
 
 const srcAspect = src.width / src.height;
 const jpgAspect = jpg.width / jpg.height;
+const BOX_ASPECT = 760 / 1350;
+// ON-RATIO is the whole question, and it is measured, never assumed. Within
+// half a percent of the tile box, a cover-fit resample moves fewer than four
+// pixels of a 1672px frame — no type can be clipped by that. Outside it,
+// cover is the #1031 left-edge crop and contain is required instead.
+const ON_RATIO = Math.abs(srcAspect - BOX_ASPECT) < 0.005;
+ok(ON_RATIO,
+  `the locked poster is ON the shared 9:16 tile box (source ${srcAspect.toFixed(4)} vs box ${BOX_ASPECT.toFixed(4)}) — an off-ratio poster needs the contain path back, and this guard will say so`);
 ok(Math.abs(jpgAspect - srcAspect) < 0.01,
-  `datenight-760.jpg must keep the source aspect ${srcAspect.toFixed(4)} — cover-fit to 9:16 is the crop (got ${jpg.width}×${jpg.height} = ${jpgAspect.toFixed(4)})`);
-ok(jpg.height !== 1350 && jpg.height !== 1140,
-  `datenight-760.jpg is not a 9:16 (1350) or leftover 2:3 (1140) crop (got ${jpg.height})`);
+  `datenight-760.jpg keeps the source aspect ${srcAspect.toFixed(4)} — a resample that changes it is a crop (got ${jpg.width}×${jpg.height} = ${jpgAspect.toFixed(4)})`);
+ok(jpg.height !== 1140,
+  `datenight-760.jpg is not the leftover 2:3 crop (got ${jpg.height})`);
 ok(jpg.width === 760,
   `the 760w rung is still 760 wide so RAIL_ART_WIDTHS stay honest (got ${jpg.width})`);
 
@@ -105,7 +123,7 @@ const box = railArtSize("datenight");
 ok(box.width === jpg.width && box.height === jpg.height,
   `railArtSize("datenight") matches the 760.jpg box — executed, got ${box.width}×${box.height} vs jpg ${jpg.width}×${jpg.height}`);
 ok(Math.abs(box.width / box.height - srcAspect) < 0.01,
-  "railArtSize Date Night matches the source aspect, not the 9:16 default");
+  "railArtSize Date Night matches the source aspect — which, now that the poster is on-ratio, IS the 9:16 default");
 ok(RAIL_ART_DEFAULT_SIZE.width === 760 && RAIL_ART_DEFAULT_SIZE.height === 1350,
   "the default ladder is still 760×1350 — Date Night is the exception, not a global restyle");
 ok(railArtSize("tonight").height === 1350 && railArtSize("events").height === 1350
@@ -160,12 +178,21 @@ for (const tw of [300, 340, 440]) {
     `at ${tw}px tile width, Date Night uses the shared box ${shared.width}×${shared.height} (got ${dn.width}×${dn.height})`);
 }
 
+// THE FIT IS DERIVED, NOT PINNED. ON_RATIO ⇒ the shared cover rule and NO
+// per-tile override; off-ratio ⇒ the contain override must exist.
 const dnImg = css.match(/\.wf8-tile\[data-id="datenight"\] \.wf8-tim\{[^}]+\}/);
-ok(!!dnImg, "positive control: the Date Night img rule is a real selector");
-ok(!!dnImg && /object-fit:contain/.test(dnImg[0]),
-  "Date Night img is object-fit:contain — cover is what clipped the left edge");
-ok(!!dnImg && !/object-fit:cover/.test(dnImg[0]),
-  "Date Night img must not also set cover (contain then cover is still a crop)");
+if (ON_RATIO) {
+  ok(!dnImg,
+    "an ON-RATIO poster takes the shared cover rule with NO per-tile override — contain would letterbox it, which is the maroon band the owner photographed");
+  ok(!/\.wf8-tile\[data-id="datenight"\]/.test(css),
+    "…and no Date Night tile override of any kind survives, including the hover-zoom opt-out that came with it");
+} else {
+  ok(!!dnImg, "an OFF-RATIO poster must carry the Date Night img rule");
+  ok(!!dnImg && /object-fit:contain/.test(dnImg[0]),
+    "…and it must be object-fit:contain — cover is what clipped the left edge");
+  ok(!!dnImg && !/object-fit:cover/.test(dnImg[0]),
+    "…and must not also set cover (contain then cover is still a crop)");
+}
 ok(/\.wf8-tim\{[^}]*object-fit:cover/.test(css),
   "the shared .wf8-tim rule is still cover — other posters are unchanged");
 ok(!/\.wf8-tile\[data-id="(?:tonight|events|drive|family)"\]/.test(css),
@@ -180,8 +207,15 @@ ok(/width=\{artBox\.width\}/.test(rail) && /height=\{artBox\.height\}/.test(rail
   "the tile <img> uses the size railArtSize returned, in the width/height props");
 
 const railsSrc = strip(read("lib/rails.js"));
-ok(/(?:export const)\s+RAIL_ART_V\s*=\s*"14"/.test(railsSrc) && RAIL_ART_V === "14",
-  `RAIL_ART_V is 14 so cached BEST NIGHT crops cannot survive (declared + executed, got ${RAIL_ART_V})`);
+// The version is asserted as a NUMBER THAT ONLY GOES UP, not a literal. Pinning
+// "14" meant every future poster swap failed this guard for the one reason that
+// is never a defect — and a guard that fires on the correct fix is the guard
+// people delete. 15 is where the new poster landed; the floor moves with it.
+const declaredV = (railsSrc.match(/(?:export const)\s+RAIL_ART_V\s*=\s*"(\d+)"/) || [])[1];
+ok(declaredV != null && declaredV === RAIL_ART_V,
+  `RAIL_ART_V is declared and executes to the same value (declared ${declaredV}, executed ${RAIL_ART_V})`);
+ok(Number(RAIL_ART_V) >= 15,
+  `RAIL_ART_V is at least 15, so every phone holding a v14 letterboxed card is busted (got ${RAIL_ART_V})`);
 
 const make = strip(read("scripts/make-rail-art.mjs"));
 ok(/preserveFrame/.test(make) && /--preserve-frame/.test(read("scripts/make-rail-art.mjs")),
@@ -193,7 +227,7 @@ const intent = strip(read("lib/intentPages.js"));
 const dnArt = [...intent.matchAll(/art:\s*"([^"]+)"/g)]
   .map((m) => m[1])
   .filter((p) => /date-night/.test(p));
-ok(dnArt.length >= 1 && dnArt.every((p) => p === "/cards/date-night-owner.png"),
+ok(dnArt.length >= 1 && dnArt.every((p) => p.split("?")[0] === "/cards/date-night-owner.png"),
   `/date-night hero uses date-night-owner.png (the locked poster), not the AdobeStock jpeg (got ${JSON.stringify(dnArt)})`);
 ok(!/date-night-adobestock-190984224/.test(intent),
   "/date-night does not point at the old AdobeStock jpeg");
@@ -266,10 +300,14 @@ ok(!/date-night-adobestock-190984224/.test(intent),
       ok(Math.abs(measured.datenight.w - measured.drive.w) < 0.5
         && Math.abs(measured.datenight.h - measured.drive.h) < 0.5,
         `Date Night measured box ${measured.datenight.w}×${measured.datenight.h} must match Worth the Drive ${measured.drive.w}×${measured.drive.h}`);
-      ok(measured.dnFit === "contain",
-        `Date Night computed object-fit is contain, not cover (got ${measured.dnFit})`);
+      // The COMPUTED fit, derived from the source aspect exactly as the static
+      // half above derives it. This is the assertion that actually proves the
+      // reader sees the whole poster: the box and the image are measured in a
+      // real 390px viewport, not inferred from a stylesheet.
+      ok(measured.dnFit === (ON_RATIO ? "cover" : "contain"),
+        `Date Night computed object-fit is ${ON_RATIO ? "cover (the poster is on-ratio, so cover clips nothing and pads nothing)" : "contain (the poster is off-ratio, so cover would clip the left edge)"} — got ${measured.dnFit}`);
       ok(measured.tonightFit === "cover",
-        `Tonight still uses cover — Date Night contain did not restyle the rail (got ${measured.tonightFit})`);
+        `Tonight still uses cover — nothing about Date Night restyled the rail (got ${measured.tonightFit})`);
     } finally {
       await browser.close();
       try { rmSync(tmp, { recursive: true, force: true }); } catch (e) {}
@@ -281,4 +319,4 @@ if (fail) {
   console.error(`check-datenight-rail-uncropped: FAIL — ${fail} assertion(s), ${pass} passed`);
   process.exit(1);
 }
-console.log(`check-datenight-rail-uncropped: OK — ${pass} assertions (locked 1086×1448 executed + byte-identical to rail source and hero, 760.jpg aspect matches, railArtSize 3:4 intrinsic, TILE BOX computed equal to Tonight/Drive at 9:16, contain still on, RAIL_ART_V 14)`);
+console.log(`check-datenight-rail-uncropped: OK — ${pass} assertions (locked ${locked.width}\u00d7${locked.height} executed + byte-identical to rail source and hero; 760.jpg keeps the source aspect; the poster is ${ON_RATIO ? "ON" : "OFF"}-ratio so the required fit is ${ON_RATIO ? "cover with no per-tile override" : "contain"}, asserted statically AND measured in a real 390px viewport; TILE BOX computed equal to Tonight/Drive; RAIL_ART_V ${RAIL_ART_V})`);

@@ -108,7 +108,21 @@ for (const b of DAYPART_IDS) {
   // Afternoon no longer exempts itself — 14:00–17:30 leads with `today`, so
   // trending/season hold their standing slots again. A name in ALLOWED_PINS
   // that is not actually pinned makes the list stop meaning anything.
-  const ALLOWED_PINS = { trending: 1, season: 2, blog: ids.length - 1 };  // 0-indexed
+  // v8.93 — trending and season are OFF this list, deliberately, which is the
+  // outcome this guard was built to make explicit rather than accidental.
+  // Owner, 2026-08-30: "make sure that the Date Night card is next to Tonight's
+  // Move, to the right of Tonight's Move." The two tonight-led bands now open
+  // tonight → datenight, so trending and season shift one place there and keep
+  // their old slots in morning and lunch. They are no longer identical across
+  // all four bands — that is them ROTATING, which is what this file wants of
+  // every rail; a pin was always the exception needing a reason, and theirs
+  // has expired. Their real protections are elsewhere and unchanged: seasonal
+  // may never lead (test-seasonal-picks, test-dayparts) and must stay in the
+  // first four of every band.
+  //
+  // `blog` stays pinned last on purpose: Local Guides is reading, not a plan
+  // for tonight, so it is the one card that should never compete for a slot.
+  const ALLOWED_PINS = { blog: ids.length - 1 };  // 0-indexed
   const pinned = [];
   for (const id of ids) {
     const pos = DAYPART_IDS.map((b) => order[b].indexOf(id));
@@ -164,4 +178,4 @@ if (fails.length) {
   for (const f of fails) console.error("  · " + f);
   process.exit(1);
 }
-console.log(`check-daypart-rotation: OK — ${n} assertions; first tile is breakfast / break / tonight-from-1pm, every rendered "why" names the rail it leads with, and the only pinned slots are the three named here`);
+console.log(`check-daypart-rotation: OK — ${n} assertions; first tile is breakfast / break / tonight-from-1pm, every rendered "why" names the rail it leads with, and the only pinned slot is Local Guides last (the one card that is reading, not a plan for tonight)`);

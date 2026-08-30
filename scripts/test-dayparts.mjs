@@ -50,7 +50,14 @@ for(const p of DAYPART_IDS){
   // as a phone reader could tell. The band's own axis leads now.
   eq(o[0],DAYPARTS[p].order[0],`${p}: leads with its own axis, not one pinned card`);
   ok(o[0]!=='season',`${p}: Summer Picks must not lead — it eats the only tile a phone shows`);
-  eq(o.indexOf('season'),2,`${p}: Summer Picks holds third`);
+  // v8.93 — the tonight-led bands now open tonight → datenight (owner,
+  // 2026-08-30: "Date Night … to the right of Tonight's Move"), so seasonal
+  // sits fourth there and third elsewhere. The rule this pinned is unchanged
+  // and is what is asserted: seasonal is prominent and never adrift, and it is
+  // in the same place in both bands a reader meets after 1pm.
+  // test-seasonal-picks owns the cross-band agreement; this file owns the
+  // per-band bound, because orderFor() is what it executes.
+  ok(o.indexOf('season')>=1&&o.indexOf('season')<=3,`${p}: Summer Picks stays in the first four (found ${o.indexOf('season')+1})`);
   ok(o.indexOf('trending')<3,`${p}: Trending in the top 3 (is #${o.indexOf('trending')+1})`);
 }
 // the specific calls Gabe made

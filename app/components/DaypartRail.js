@@ -931,12 +931,25 @@ export default function DaypartRail({
   // pool. What kept the wrong list off this drop was never this condition — it
   // was #1033's pool fix, and that is still here.
   const selRail = selected ? railById.get(selected) : null;
-  // …and when a rail brings its OWN answer, its own skeleton and its own
-  // honest empty (Date Night does; trending's ExplodingNearby sits above a
-  // real pool and does not), the shared pool fallbacks below must not speak
-  // for it. Otherwise an intent drop full of rails ends with "nothing near you
-  // clears this bar" — the empty-bar screenshot the owner sent in v8.82,
-  // arriving by a different road.
+  // …and when a rail brings its OWN answer, the shared pool below must not
+  // speak for it AT ALL — neither its empty copy nor its cards.
+  //
+  // v8.93 (owner, 2026-08-30, on a screenshot of the open Date Night drop):
+  // "the date night card still has the old rail that you can see in this
+  // image, we should replace it with shopping and the events."
+  //
+  // The "old rail" is this pool. v8.92 kept it deliberately, reasoning that
+  // trending shows ExplodingNearby ABOVE its ranked cards so Date Night could
+  // too. That reasoning was wrong here and his screenshot is why: the pool is
+  // the generic FOOD rail for the reader's location, so under a qualified
+  // date-night journey it served C & K Smokehouse BBQ and Bubba's — real
+  // places, ranked correctly, and nobody's date night. Trending's pool works
+  // because "the best places near you, period" is a true caption for it; there
+  // is no true caption for a BBQ joint under "Date Night".
+  //
+  // Shopping is now a rail inside the composer (lib/dateNightIntent) and the
+  // dated events ride below, so the beats he wanted the pool to cover are
+  // covered by things that actually qualify.
   const railOwnsItsOwnAnswer = !!(selRail && selRail.id === "datenight");
   // v8.22 (owner: "when the amazon rail card is selected make sure it becomes
   // the main focus on the screen"). The pulsing glow marks the card; this
@@ -1442,6 +1455,18 @@ export default function DaypartRail({
           {selRail && selRail.id === "events" && eventsSlot ? (
             <div style={{ marginBottom: 12 }}>{eventsSlot()}</div>
           ) : null}
+          {/* v8.93 (owner: "…and the events, which I don't see"). Date Night
+              gets the dated rows too, from the SAME thunk the events tile
+              renders — one definition of "what is on tonight", so the two
+              surfaces cannot drift into disagreeing about it. Called, not
+              tested for truthiness: eventsSlot is always a function and
+              returns null when nothing is on, which is the only honest way to
+              ask (the v8.87 note on the tile above). It sits BELOW the
+              journey rails because a table is the decision and a show is the
+              thing you build around it. */}
+          {selRail && selRail.id === "datenight" && eventsSlot ? (
+            <div style={{ marginTop: 22 }}>{eventsSlot()}</div>
+          ) : null}
           {selRail && selRail.guides ? (
             <ul className="wf8-grail" aria-label="Local guides">
               {guides.map((g, i) => (
@@ -1464,7 +1489,7 @@ export default function DaypartRail({
                 </a>
               </li>
             </ul>
-          ) : selRail && dropList.length ? (
+          ) : selRail && !railOwnsItsOwnAnswer && dropList.length ? (
             <div className={"wf8-pcwrap" + (selected === "augtober" && fallSkin ? " wf-fall" : "")}>
               <ul className="wf8-pcrail" ref={pcRef}>
                 {dropList.slice(0, mounted).map((p, i) => {
