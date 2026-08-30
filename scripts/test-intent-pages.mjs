@@ -10,7 +10,8 @@ const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
 const cfg = INTENT_PAGES.family.distancePenalty;
 ok(cfg && cfg.freeMi === 17 && cfg.per === 5 && cfg.deduct === 0.2, "family decay is the owner's exact rule (17mi free, -0.2/5mi)");
 const dcfg = INTENT_PAGES["date-night"].distancePenalty;
-ok(dcfg && dcfg.freeMi === 17 && dcfg.per === 5 && dcfg.deduct === 0.2, "date-night carries the SAME distance rule (owner follow-up)");
+ok(dcfg && dcfg.freeMi === 27 && dcfg.per === 5 && dcfg.deduct === 0.2, "date-night free band matches the poster's hard 27-mile radius");
+ok(INTENT_PAGES["date-night"].maxMi === 27, "date-night caps membership at 27.0 miles — a 28-mile restaurant is out");
 ok(distanceDeduction(17, cfg) === 0, "17 mi exactly: no deduction");
 ok(Math.abs(distanceDeduction(18, cfg) - 0.2) < 1e-9, "18 mi: first block bites (-0.2)");
 ok(Math.abs(distanceDeduction(22.1, cfg) - 0.4) < 1e-9, "22.1 mi: second block (-0.4)");
@@ -51,7 +52,8 @@ ok(unranked[0].id === "b", "with no penalty config, pure quality order holds (th
 ok(ranked.find((r) => r.id === "b").deduction >= 0.4, "the deduction is still carried on the row for the why-line");
 
 // Dedicated landing pages use the same owned artwork as their homepage cards.
-ok(INTENT_PAGES["date-night"].art === "/cards/date-night-adobestock-190984224.jpeg", "date-night landing page matches its homepage hero card");
+ok(INTENT_PAGES["date-night"].art === "/cards/date-night-owner.png", "date-night landing page matches the owner's Date Night poster");
+ok(INTENT_PAGES["date-night"].card.art === "/cards/date-night-owner.png", "date-night share card uses the same owner poster");
 ok(INTENT_PAGES.family.art === "/cards/family-adobestock-794890098.jpeg", "family landing page matches its homepage hero card");
 const ic = readFileSync(new URL("../app/components/IntentPageClient.js", import.meta.url), "utf8");
 ok(ic.includes("ranked lower for the drive"), "penalized rows explain themselves");

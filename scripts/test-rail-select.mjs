@@ -24,6 +24,7 @@ import { BEACH_NEAR_MI } from "../lib/beaches.js";
 import { isFamilyPlace, isStrongFamilyPlace } from "../lib/familyPlace.js";
 import { isTicketedVenue, isStrongTicketedVenue } from "../lib/eventVenue.js";
 import { isBirthdayPlace, isStrongBirthdayPlace, BIRTHDAY_NEAR_MI } from "../lib/birthdayPlace.js";
+import { DATENIGHT_NEAR_MI } from "../lib/dateRoom.js";
 import { readFileSync } from "node:fs";
 
 let pass = 0, fail = 0;
@@ -154,6 +155,14 @@ const pools = {
     mk("n3", { name: "Comedy Room", _s: 60, types: ["comedy_club"] }),
     mk("inv4", { name: "Widened Riverside Playhouse", _s: 64, rating: 4.7, reviews: 420, types: ["performing_arts_theater"], distMi: 21 }),
   ],
+  // Date Night identity pool: rooms + a rooftop inside 27mi + a 28mi
+  // steakhouse that identity admits and the hard radius must refuse.
+  datenight: [
+    mk("r1", { name: "Beach House Waterfront", _s: 90, types: ["restaurant"], priceLevel: "PRICE_LEVEL_MODERATE" }),
+    mk("r3", { name: "Owen Bistro", _s: 85, types: ["restaurant"], priceLevel: "PRICE_LEVEL_EXPENSIVE" }),
+    mk("dn-roof", { name: "Harbor Rooftop Bar", _s: 81, types: ["rooftop_bar", "bar"], distMi: 10 }),
+    mk("dn-far", { name: "Too Far Steakhouse", _s: 99, types: ["steak_house"], distMi: 28, priceLevel: "PRICE_LEVEL_EXPENSIVE" }),
+  ],
   // v8.13 — the summer pool is ALSO synthetic-by-construction:
   // lib/railsData.js buildSummerPool sources it from the owner's curated
   // summer registry (lib/summerUniverse.js) and stamps `_summerSourced`, the
@@ -280,6 +289,9 @@ ok(!namesOf("events").includes("Ca d Zan"), "a museum is not an event");
 ok(!namesOf("events").includes("The Mable Bar & Grill"), "a bar open every night is not a dated, ticketed event");
 ok(namesOf("tonight").includes("The Mable Bar & Grill"), "...but it is absolutely a move for tonight");
 ok(!namesOf("datenight").includes("Corner Taco"), "a taco counter is not date night");
+ok(namesOf("datenight").includes("Harbor Rooftop Bar"), "a rooftop 10 miles out is on Date Night when inventory classifies it");
+ok(namesOf("datenight").includes("Van Wezel Hall"), "a show venue reaches Date Night from the events pool");
+ok(namesOf("datenight").includes("The Club"), "a night club reaches Date Night — the poster names CLUBS");
 ok(namesOf("family").includes("Big Cat Habitat"), "family finds the zoo");
 // v8.13 — the summer axis (owner, 2026-08-18: "everything is just beaches,
 // and that's not really what I'm looking for"). In summer the rail is the
@@ -606,6 +618,14 @@ const WIDEN_RADIUS_MI = 25;
       mk("bd-n3", { name: "Near Karaoke", _s: 72, distMi: 8, types: ["night_club"] }),
       Object.assign(mk("bd-tampa", { name: "Bulla Gastrobar Tampa", _s: 99, distMi: 22, types: ["spanish_restaurant"] }), { _birthdaySourced: true }),
     ],
+    datenight: [
+      mk("dn-n1", { name: "Near Chophouse", _s: 90, distMi: 5, types: ["steak_house"], priceLevel: "PRICE_LEVEL_EXPENSIVE" }),
+      mk("dn-n2", { name: "Near Wine Room", _s: 82, distMi: 8, types: ["wine_bar"] }),
+      mk("dn-roof", { name: "Harbor Rooftop Bar", _s: 80, distMi: 10, types: ["rooftop_bar", "bar"] }),
+      mk("dn-mid", { name: "Twenty Mile Bistro", _s: 76, distMi: 20, types: ["restaurant"], priceLevel: "PRICE_LEVEL_MODERATE" }),
+      mk("dn-edge", { name: "Edge Room", _s: 74, distMi: 27, types: ["restaurant"], priceLevel: "PRICE_LEVEL_EXPENSIVE" }),
+      mk("dn-far", { name: "Too Far Steakhouse", _s: 99, distMi: 28, types: ["steak_house"], priceLevel: "PRICE_LEVEL_EXPENSIVE" }),
+    ],
   };
   const filled = fillRails(visitor, (p) => p, { nearMi: NEAR_RADIUS_MI, widenMi: WIDEN_RADIUS_MI, cityLabel: "Tampa" });
   ok(filled.places.eat.every((p) => p.distMi <= 17), "eat (meals) fills from 17 when 17 can");
@@ -624,6 +644,19 @@ const WIDEN_RADIUS_MI = 25;
     "birthday stays on BIRTHDAY_NEAR_MI — no 17/25 stretch");
   ok(!filled.places.birthday.some((p) => p.id === "bd-tampa"),
     "birthday does not widen to admit a 22-mile Tampa flagship");
+  eq(DATENIGHT_NEAR_MI, 27, "Date Night's hard radius is the 27.0 the poster prints");
+  ok(filled.places.datenight && filled.places.datenight.length >= MIN_CARDS,
+    "date night fills from the 27-mile shortlist under visitor origin");
+  ok(filled.places.datenight.every((p) => p.distMi <= DATENIGHT_NEAR_MI),
+    "date night stays on DATENIGHT_NEAR_MI — no 17/25 stretch");
+  ok(filled.places.datenight.some((p) => p.id === "dn-roof"),
+    "a rooftop 10 miles out is in when inventory classifies it");
+  ok(filled.places.datenight.some((p) => p.id === "dn-mid"),
+    "a 20-mile room is in — 27 is the cap, not 17");
+  ok(filled.places.datenight.some((p) => p.id === "dn-edge"),
+    "27.0 miles exactly is in");
+  ok(!filled.places.datenight.some((p) => p.id === "dn-far"),
+    "a restaurant 28 miles away is out — 27 is hard");
 }
 {
   const data = readFileSync(new URL("../lib/railsData.js", import.meta.url), "utf8");
@@ -675,6 +708,10 @@ const WIDEN_RADIUS_MI = 25;
     "railsData builds the events identity pool with the STRONG identity on both sources (the bar-leak fix)");
   ok(/pools\.events = events;/.test(dcode),
     "…and ASSIGNS it to pools.events — a pool computed inside a wave and never attached is the same empty rail, wearing a longer request");
+  ok(/buildIdentityPool\(pools, origin, isDateNightShortlist, DATENIGHT_NEAR_MI/.test(dcode),
+    "railsData builds the Date Night identity pool from owned inventory at 27 miles — no Places call");
+  ok(/pools\.datenight = datenight;/.test(dcode),
+    "…and ASSIGNS it to pools.datenight — a pool computed inside a wave and never attached is the same empty rail, wearing a longer request");
   ok(/google_types=ov\.%7B/.test(dcode),
     "typeOv reaches the REST query as an array-overlap filter — the cap must only ever trim QUALIFYING rows (3-of-54 starvation, measured live)");
   ok(/primaryType: row\.primary_type \|\| null/.test(dcode),
