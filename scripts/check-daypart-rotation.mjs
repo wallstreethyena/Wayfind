@@ -120,9 +120,17 @@ for (const b of DAYPART_IDS) {
   // may never lead (test-seasonal-picks, test-dayparts) and must stay in the
   // first four of every band.
   //
+  // v8.93.1 — trending comes BACK to this list at slot two, with a reason.
+  // Owner, 2026-08-30, with the new TRENDING NEAR YOU poster: "I want the
+  // position of this to be to the right of Tonight's Move." Slot two in every
+  // band is a deliberate pin, not drift: what is on tonight, then what people
+  // are actually doing. season is the one that now rotates, which is the whole
+  // point of the reshuffle — the card that must never lead is also the card
+  // with no fixed seat.
+  //
   // `blog` stays pinned last on purpose: Local Guides is reading, not a plan
   // for tonight, so it is the one card that should never compete for a slot.
-  const ALLOWED_PINS = { blog: ids.length - 1 };  // 0-indexed
+  const ALLOWED_PINS = { trending: 1, blog: ids.length - 1 };  // 0-indexed
   const pinned = [];
   for (const id of ids) {
     const pos = DAYPART_IDS.map((b) => order[b].indexOf(id));
@@ -178,4 +186,4 @@ if (fails.length) {
   for (const f of fails) console.error("  · " + f);
   process.exit(1);
 }
-console.log(`check-daypart-rotation: OK — ${n} assertions; first tile is breakfast / break / tonight-from-1pm, every rendered "why" names the rail it leads with, and the only pinned slot is Local Guides last (the one card that is reading, not a plan for tonight)`);
+console.log(`check-daypart-rotation: OK — ${n} assertions; first tile is breakfast / break / tonight-from-1pm, every rendered "why" names the rail it leads with, and the only pinned slots are trending at two (the owner\u2019s poster, right of Tonight\u2019s Move) and Local Guides last`);

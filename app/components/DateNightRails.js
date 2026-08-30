@@ -197,6 +197,25 @@ export default function DateNightRails({
               at a size the design system already owns, and it is why his
               screenshot shows "Tikka Indi…" and a clipped action row: the name
               had 108px to live in. */}
+          {/* v8.93.1 — THE RAIL TITLE CAME BACK. Swapping to the Exploding
+              Trends structure dropped the <h2> with the old markup, so the
+              owner's screenshot showed a Dinner rail with no word "Dinner" on
+              it: five cards under a divider that named nothing. RailNav's line
+              is a COUNT ("18 places for clubs · swipe or tap"), never a
+              heading — a rail that says how many and not what is the shape
+              check-rail-heading-truth exists for. */}
+          <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 800, color: C.text }}>{rail.title}</h2>
+          {/* v8.93.1 — THE RAIL SAYS WHAT IT IS FOR (owner, 2026-08-30,
+              comparing this drop to Exploding Trends, which has one and is why
+              he could read that surface without tapping anything). It is the
+              PROMISE, never the contents and never a count — RailNav's line
+              below already carries the number, and a number the rail cannot
+              keep is the "20 trends" claim this repo just deleted. Same size
+              and colour as the trend dek so the two surfaces read as one
+              product. */}
+          {rail.deck ? (
+            <p style={{ margin: "0 0 8px", fontSize: 12.5, lineHeight: 1.45, color: "#AEB8C6" }}>{rail.deck}</p>
+          ) : null}
           <RailNav
             railId={"datenight-" + rail.id}
             count={rail.places.length}
