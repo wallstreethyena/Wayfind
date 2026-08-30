@@ -44,8 +44,7 @@ import { TRENDING_POPULARITY_THRESHOLD } from "./kit";
 import { canonicalShareUrl } from "../../lib/site";
 import { askShareIntent } from "./shareIntentSheet";
 import { placeKinds } from "../../lib/dateInvite";
-import { resolveLocationContext, locationSurface, liveFromRailsResponse } from "../../lib/locationHonesty";
-import { DATENIGHT_NEAR_MI } from "../../lib/dateRoom";
+import { resolveLocationContext, locationSurface } from "../../lib/locationHonesty";
 
 const PHOTO_REF = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
 
@@ -55,7 +54,7 @@ export default function IntentPageClient({ intent }) {
   const [rows, setRows] = useState(null); // null = loading
   const [copied, setCopied] = useState(false);
   const [sortBy, setSortBy] = useState("rated");
-  const [radius, setRadius] = useState(intent === "date-night" ? DATENIGHT_NEAR_MI : 17);
+  const [radius, setRadius] = useState(17);
   const [variant, setVariant] = useState(0); // 0 = canonical; SSR and first client render must agree
   // v6.71 (Wave 2): date-night/family never QUERY for beaches, but a text
   // search like "waterfront dinner sunset views" or "scenic sunset spot" can
@@ -221,47 +220,6 @@ export default function IntentPageClient({ intent }) {
     if (!now) return;
     let dead = false;
     (async () => {
-      // Date Night is inventory-only: the same /api/rails shortlist the
-      // homepage drop uses, hard-capped at 27 miles from THIS page's center.
-      if (intent === "date-night") {
-        try {
-          const u = "/api/rails?lat=" + loc.lat.toFixed(2) + "&lng=" + loc.lng.toFixed(2) + "&v=2";
-          const r = await fetch(u);
-          const j = r.ok ? await r.json() : null;
-          const live = liveFromRailsResponse(j);
-          const list = ((live && live.places && live.places.datenight) || [])
-            .filter((p) => p && Number.isFinite(Number(p.distMi)) && Number(p.distMi) <= DATENIGHT_NEAR_MI)
-            .map((p) => ({ ...p, editorial_hook: null, ai_line: null }));
-          try {
-            if (supabase && list.length) {
-              const { data: eds } = await supabase.from("wf_editorial").select("place_id,hook").eq("verified", true).in("place_id", list.map((row) => row.id));
-              const byId = new Map((eds || []).map((e) => [e.place_id, e.hook]));
-              for (const row of list) row.editorial_hook = byId.get(row.id) || null;
-            }
-          } catch (e) {}
-          try {
-            const missing = list.filter((row) => row.id && !row.editorial_hook).map((row) => row.id);
-            for (let i = 0; i < missing.length; i += 40) {
-              const batch = missing.slice(i, i + 40);
-              const kr = await fetch("/api/known-for", {
-                method: "POST",
-                headers: { "content-type": "application/json" },
-                body: JSON.stringify({ ids: batch }),
-              });
-              const kd = kr.ok ? await kr.json() : null;
-              if (kd && kd.lines && typeof kd.lines === "object") {
-                for (const row of list) {
-                  if (!row.editorial_hook && kd.lines[row.id]) row.editorial_hook = kd.lines[row.id];
-                }
-              }
-            }
-          } catch (e) {}
-          if (!dead) setRows(list);
-        } catch (e) {
-          if (!dead) setRows([]);
-        }
-        return;
-      }
       const qs = def.queries(now);
       const results = await Promise.all(qs.map(async ({ cat, q }) => {
         try {
@@ -417,7 +375,6 @@ export default function IntentPageClient({ intent }) {
   // an uncurated US city gets a local exact product or no card, never Orlando.
   useEffect(() => {
     if (!def || !isFinite(loc.lat)) return;
-    if (intent === "date-night") return;
     let dead = false;
     (async () => {
       try {
@@ -604,7 +561,7 @@ export default function IntentPageClient({ intent }) {
           boundary yet.
           Every block degrades to ABSENT, never to a placeholder. */}
       <div style={{ marginTop: 18 }}>
-        {intent === "date-night" ? null : <IntentPartnerPick
+        <IntentPartnerPick
           city={loc.city} intent={intent} inventory={tours} accent={def.accent}
           lat={loc.lat} lng={loc.lng} couponIntent={INTENT_COUPON_BADGE[intent]}
           onOpenCoupons={(coupon, state) => {
@@ -614,7 +571,7 @@ export default function IntentPageClient({ intent }) {
             const saved = state && state.clipped ? "&saved=1" : "";
             window.location.href = `/coupons?view=clipped${focus}${saved}`;
           }}
-          onLog={(name, _p, meta) => { try { track(name, { ...(meta || {}), intent }); } catch (e) {} }} />}
+          onLog={(name, _p, meta) => { try { track(name, { ...(meta || {}), intent }); } catch (e) {} }} />
 
         {/* momentPicks resolve against the rows this page already loaded, so a
             pick we cannot show a score for is dropped rather than rendered thin. */}
@@ -628,7 +585,7 @@ export default function IntentPageClient({ intent }) {
         </div>
       ) : rows.length ? (
         <>
-        <CollectionFilter sortBy={sortBy} onSort={setSortBy} radius={radius} onRadius={intent === "date-night" ? (mi) => setRadius(Math.min(DATENIGHT_NEAR_MI, Number(mi) || DATENIGHT_NEAR_MI)) : setRadius} city={loc.city} />
+        <CollectionFilter sortBy={sortBy} onSort={setSortBy} radius={radius} onRadius={setRadius} city={loc.city} />
         {visibleRows.length ? <ol style={{ listStyle: "none", margin: 0, padding: 0 }}>
           {visibleRows.map((r, i) => {
             const sig = beachSignals[r.id];

@@ -25,7 +25,7 @@
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { isDateRoom, isRooftopDatePlace, isDateNightStreetEvent, DATENIGHT_NEAR_MI } from "../lib/dateRoom.js";
+import { isDateRoom } from "../lib/dateRoom.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 let pass = 0, fail = 0;
@@ -115,21 +115,5 @@ ok(isDateRoom(null) === false && isDateRoom({}) === false, "total over garbage: 
     "the Date Night sheet no longer asks `attractions` for anything — that is how it went looking for a scenic sunset spot and found a bridge");
 }
 
-ok(DATENIGHT_NEAR_MI === 27, "Date Night's hard radius is 27.0");
-ok(isRooftopDatePlace({ name: "Harbor Rooftop Bar", types: ["rooftop_bar", "bar"] }),
-  "a rooftop_bar classifies as a rooftop");
-ok(isDateNightStreetEvent({ name: "Night Market Pop-Up", types: ["festival"] }),
-  "a pop-up PLACE classifies from existing inventory");
-ok(!isDateRoom({ name: "Van Wezel Hall", types: ["performing_arts_theater"] }),
-  "a show venue is not a date ROOM — the room rule is unchanged");
-{
-  const intent = stripComments(readFileSync(join(ROOT, "lib/intentPages.js"), "utf8"));
-  const block = intent.match(/"date-night":\s*\{[\s\S]{0,2500}?queries:\s*\(c\)\s*=>/);
-  ok(!!block, "positive control: date-night queries still exist as a dead fallback");
-  const q = intent.match(/"date-night":\s*\{[\s\S]{0,3500}?titles:/);
-  ok(!!q && !/cat:\s*"attractions"/.test(q[0]) && !/scenic sunset spot/.test(q[0]),
-    "the /date-night fallback queries no longer hunt attractions / scenic sunset (the Skyway leak)");
-}
-
-console.log(`\ncheck-date-night-identity: ${fail ? "FAIL" : "OK"} — ${pass} assertions; ${CASES.length} rows EXECUTED through the room rule, plus rooftop/pop-up classifiers and the Skyway-query lock`);
+console.log(`\ncheck-date-night-identity: ${fail ? "FAIL" : "OK"} — ${pass} assertions; ${CASES.length} rows EXECUTED through the one rule (the bridge, the preserve, the beach, the tour boat, the breakfast room, the counter and the sports bar all refused; the bistro, the steakhouse, the wine bar and the cocktail lounge admitted), plus four scoped source checks on the sheet that node cannot import`);
 process.exit(fail ? 1 : 0);
