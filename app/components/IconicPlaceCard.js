@@ -18,7 +18,7 @@ import { overrideFor } from "../../lib/placeOverrides";
 import * as Tags from "../../lib/tags";
 import { directionsHref } from "../../lib/directions.js";
 import { useEffect, useRef, useState } from "react";
-import { hasPlacePhotoRef } from "../../lib/placePhoto.js";
+import { hasPlacePhotoRef, ownedPlacePhotoSrc } from "../../lib/placePhoto.js";
 import { toHookLine } from "../../lib/editorialHook.js";
 // v8.29 — THE CARD'S OWN HANDS. Save/Like/Dislike used to fall back to
 // <a href="/p/<id>?action=like"> whenever a caller forgot to wire a handler,
@@ -203,11 +203,32 @@ const compactCount = (n) => Number(n) >= 1000
   ? (Math.round(Number(n) / 100) / 10) + "k"
   : String(Number(n) || 0);
 
+// v8.95 — THE LADDER, not a private copy of its top two rungs.
+//
+// This function used to stop at "own ref, or a `photo` string, or nothing",
+// and "or nothing" is how Chef Ron Duprat's seven picks rendered as empty
+// boxes for four days: their rows carry a real Google place id and no ref, so
+// every rung this knew about missed and the card politely drew a hole. The
+// owner law it was breaking is v8.13.3 — "I don't want any of the place cards
+// not to have an image."
+//
+// ownedPlacePhotoSrc is the rung that closes it: a bare place id becomes
+// /api/photo?place=<id>, which the server resolves against wf_inventory (and
+// lib/curatedPhotoRefs) BEFORE the spend gate, so it costs nothing and can
+// only ever return that place's own picture.
+//
+// It imports the two RUNG helpers rather than cardImageSrc, and the reason is
+// measured, not stylistic: cardImageSrc also owns rung 1, which vets an
+// arbitrary photo_url against the stock-photo blocklist, and pulling that into
+// a client component drags FORBIDDEN_LANDING_STOCK and STOCK_PHOTO_RX into the
+// homepage bundle — 0.7KB gz, against 1.1KB of headroom. Rung 1 is a server
+// and landing-page concern; a row that reaches this card has already been
+// through it. Same definitions, same order, no duplicated string-building.
 const photoUrl = (p) => {
   const ref = p && (p.photoRef || p.photo_ref);
   if (hasPlacePhotoRef(ref)) return "/api/photo?ref=" + encodeURIComponent(ref) + "&w=640";
   if (p && typeof p.photo === "string" && p.photo) return p.photo;
-  return null;
+  return ownedPlacePhotoSrc(p && (p.place_id || p.id), 640) || null;
 };
 
 // v8.29 — the ticket glyph. Drawn, not an emoji: 🎟️ is a different picture on
