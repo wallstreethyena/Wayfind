@@ -616,7 +616,7 @@ export default function IntentPageClient({ intent }) {
             const saved = state && state.clipped ? "&saved=1" : "";
             window.location.href = `/coupons?view=clipped${focus}${saved}`;
           }}
-          onLog={(name, _p, meta) => { try { track(name, { ...(meta || {}), intent }); } catch (e) {} }} />
+          onLog={(name, _p, meta) => { try { track(name, { ...(meta || {}), intent }); } catch (e) {} }} />}
 
         {/* momentPicks resolve against the rows this page already loaded, so a
             pick we cannot show a score for is dropped rather than rendered thin. */}
