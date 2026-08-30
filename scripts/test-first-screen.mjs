@@ -30,6 +30,7 @@
 // below is the original.
 import { readFileSync } from "node:fs";
 import { shellSrc } from "./lib/shellSrc.mjs";
+import { railArtSize } from "../lib/rails.js";
 
 // v8.2: eventsRailSlot is the last const the feed builds before its return,
 // so the return is where its body ends. This used to be "const discoveryMenu
@@ -286,8 +287,15 @@ ok(/const EV_RAIL_MIN_H = \d+/.test(code), "EV_RAIL_MIN_H constant missing");
   ok(/\.wf8-tile\{[^}]*width:var\(--wf8-tw\)[^}]*height:calc\(var\(--wf8-tw\) \/ var\(--wf8-ratio\)\)/.test(railCss.replace(/\n\s*/g, "")),
     "the rail tile must have a fixed box BEFORE its art decodes, or 15 images reflow the column as they land");
   const railJs = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
-  ok(/width="760"\s*\n?\s*height="1350"/.test(railJs) || /width="760"[\s\S]{0,60}height="1350"/.test(railJs),
-    "the rail's <img> must carry intrinsic width/height so the browser reserves the box itself");
+  // Date Night is 3:4 (railArtSize), every other tile stays 760×1350. The
+  // invariant is that the <img> still carries an intrinsic box — not that
+  // every poster is 9:16.
+  ok(/railArtSize\(id\)/.test(railJs) && /width=\{artBox\.width\}/.test(railJs) && /height=\{artBox\.height\}/.test(railJs),
+    "the rail's <img> must carry intrinsic width/height from railArtSize so the browser reserves the box itself");
+  ok(railArtSize("tonight").width === 760 && railArtSize("tonight").height === 1350,
+    "the default rail poster box is still 760×1350 — Date Night is the only aspect exception");
+  ok(railArtSize("events").height === 1350 && railArtSize("drive").height === 1350 && railArtSize("family").height === 1350,
+    "Events, Worth the Drive, and Family stay on the default 9:16 box");
   // v8.19 (owner: "it requires clicking twice … the other cards get really
   // dark"). The tile answers the FIRST tap (touch-action:manipulation kills
   // the double-tap-zoom wait) and an open menu keeps the other tiles alive

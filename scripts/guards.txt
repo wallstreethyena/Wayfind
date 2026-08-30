@@ -507,6 +507,9 @@ node scripts/check-location-honesty.mjs
 # The rail tile headline is PIXELS. Renaming a rail in code changes nothing
 # the reader sees until the art is redrawn — pin copy and art together.
 node scripts/check-rail-art-matches-copy.mjs
+# Date Night owner poster is 2:3. Cover-fitting it into the 9:16 rail tile
+# clipped the left-aligned wordmark after #1031. Pin the full frame.
+node scripts/check-datenight-rail-uncropped.mjs
 node scripts/check-cron-honesty.mjs
 node scripts/check-one-nav-per-screen.mjs
 node scripts/check-rail-routes.mjs

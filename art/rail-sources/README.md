@@ -18,11 +18,16 @@ width from HIS pixels rather than from someone's memory of them.
 | file | rail id | added |
 | --- | --- | --- |
 | `cindy.png` | `cindy` — "Your Next Coffee Spot" | 2026-08-22 |
-| `datenight.png` | `datenight` — BEST NIGHT. / EVERY DETAIL. | 2026-08-29 |
+| `datenight.png` | `datenight` — DATE NIGHT / Impress. Every time. (1086×1448) | 2026-08-30 |
 
 Regenerate with:
 
     node scripts/make-rail-art.mjs art/rail-sources/<file> <rail-id>
+
+Date Night is 3:4 (1086×1448), not 9:16 — regenerate it with `--preserve-frame`
+so the ladder keeps the full poster (no cover crop):
+
+    node scripts/make-rail-art.mjs art/rail-sources/datenight.png datenight --preserve-frame
 
 then re-pin the rail in `scripts/check-rail-art-matches-copy.mjs`, and bump
 `RAIL_ART_V` in `lib/rails.js` if the filenames did not change.
