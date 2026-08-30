@@ -51,7 +51,8 @@ ok(unranked[0].id === "b", "with no penalty config, pure quality order holds (th
 ok(ranked.find((r) => r.id === "b").deduction >= 0.4, "the deduction is still carried on the row for the why-line");
 
 // Dedicated landing pages use the same owned artwork as their homepage cards.
-ok(INTENT_PAGES["date-night"].art === "/cards/date-night-adobestock-190984224.jpeg", "date-night landing page matches its homepage hero card");
+ok(INTENT_PAGES["date-night"].art === "/cards/date-night-owner.png", "date-night landing page matches the owner Date Night poster");
+ok(INTENT_PAGES["date-night"].card.art === "/cards/date-night-owner.png", "date-night share card uses the same owner poster");
 ok(INTENT_PAGES.family.art === "/cards/family-adobestock-794890098.jpeg", "family landing page matches its homepage hero card");
 const ic = readFileSync(new URL("../app/components/IntentPageClient.js", import.meta.url), "utf8");
 ok(ic.includes("ranked lower for the drive"), "penalized rows explain themselves");
