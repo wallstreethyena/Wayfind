@@ -25,7 +25,7 @@
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { isDateRoom, isDateNightShortlist, DATENIGHT_NEAR_MI } from "../lib/dateRoom.js";
+import { isDateRoom } from "../lib/dateRoom.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 let pass = 0, fail = 0;
@@ -87,8 +87,8 @@ ok(isDateRoom(null) === false && isDateRoom({}) === false, "total over garbage: 
   // (a) the sheet's membership gate calls the shared rule.
   const dn = home.match(/datenight:\s*\{[\s\S]{0,3000}?filter:\s*\(p\)\s*=>([^\n]*)/);
   ok(!!dn, "positive control (weaker check, source): the datenight EXPERIENCE and its filter are still found under their known shape");
-  ok(!!dn && /isDateNightShortlist\(p\)/.test(dn[1]),
-    `the Date Night sheet gates on isDateNightShortlist — not on a rating alone (got: ${dn ? dn[1].trim().slice(0, 90) : "rule missing"})`);
+  ok(!!dn && /isDateRoom\(p\)/.test(dn[1]),
+    `the Date Night sheet gates on isDateRoom — not on a rating alone (got: ${dn ? dn[1].trim().slice(0, 90) : "rule missing"})`);
   ok(!!dn && !/^\s*\(p\.rating \|\| 0\) >= [\d.]+ && !\/fast_food/.test(dn[1]),
     "the old rating-only filter is gone, not merely supplemented");
 
@@ -115,23 +115,5 @@ ok(isDateRoom(null) === false && isDateRoom({}) === false, "total over garbage: 
     "the Date Night sheet no longer asks `attractions` for anything — that is how it went looking for a scenic sunset spot and found a bridge");
 }
 
-// ── 5. THE SHORTLIST, EXECUTED ──────────────────────────────────────────────
-// The owner's poster names clubs, rooftops and 27 miles. The room rule is
-// unchanged; the shortlist is the union of existing classifiers. A tag or a
-// score still cannot mint a bridge.
-ok(DATENIGHT_NEAR_MI === 27, "Date Night's hard radius is 27.0 — the number the poster prints");
-ok(isDateNightShortlist({ name: "Harbor Rooftop Bar", primaryType: "rooftop_bar", types: ["rooftop_bar", "bar"], rating: 4.6, reviews: 400 }),
-  "a rooftop bar is on the Date Night shortlist");
-ok(isDateNightShortlist({ name: "The Velvet Club", primaryType: "night_club", types: ["night_club"], rating: 4.5, reviews: 800 }),
-  "a club is on the shortlist — the poster names CLUBS");
-ok(isDateNightShortlist({ name: "Van Wezel Hall", types: ["performing_arts_theater"], rating: 4.7, reviews: 2000 }),
-  "a show venue is on the shortlist");
-ok(isDateNightShortlist({ name: "Night Market Pop-Up", types: ["festival"], rating: 4.4, reviews: 80 }),
-  "a pop-up / street event PLACE is on the shortlist when inventory classifies it");
-ok(!isDateNightShortlist({ name: "Sunshine Skyway Bridge", primaryType: "bridge", types: ["bridge", "tourist_attraction"], rating: 4.8, reviews: 2300 }),
-  "the bridge is still not date night after the shortlist widened");
-ok(!isDateNightShortlist({ name: "Paddy Wagon Sports Bar", primaryType: "sports_bar", types: ["sports_bar", "bar"], rating: 4.6, reviews: 500 }),
-  "a sports bar is still Tonight's Move");
-
-console.log(`\ncheck-date-night-identity: ${fail ? "FAIL" : "OK"} — ${pass} assertions; ${CASES.length} rows EXECUTED through the room rule, plus the shortlist (rooftop / club / show / pop-up admitted; bridge and sports bar refused) and the scoped source checks on the sheet`);
+console.log(`\ncheck-date-night-identity: ${fail ? "FAIL" : "OK"} — ${pass} assertions; ${CASES.length} rows EXECUTED through the one rule (the bridge, the preserve, the beach, the tour boat, the breakfast room, the counter and the sports bar all refused; the bistro, the steakhouse, the wine bar and the cocktail lounge admitted), plus four scoped source checks on the sheet that node cannot import`);
 process.exit(fail ? 1 : 0);

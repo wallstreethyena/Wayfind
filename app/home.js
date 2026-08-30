@@ -249,7 +249,7 @@ import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlen
 import { canonicalShareUrl } from "../lib/site";
 import { askShareIntent } from "./components/shareIntentSheet";
 import { placeKinds } from "../lib/dateInvite";
-import { isDateNightShortlist } from "../lib/dateRoom.js";
+import { isDateRoom } from "../lib/dateRoom.js";
 import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin } from "../lib/locationHonesty";
 
 const BUILD = "beta";
@@ -1575,7 +1575,7 @@ const EXPERIENCES = {
   // v5.22 — "Right place, right moment" mood vibes. mood:true marks them for
   // the Perfect-right-now LLM reasoning layer; filtering stays 100% in the
   // structured engine (junk gate, quality floor, open-now, distance).
-  datenight: { icon: "🌹", label: "Date Night", title: "Date Night", mood: true, lead: "Romantic, intimate, made for two: candlelit dinners, wine bars, sunset views and after-dark charm.", viator: false, queries: (c) => { const eve = (c && c.timeBucket ? c.timeBucket : bucketForHour(siteHourFloat())) === "night"; return eve
+  datenight: { icon: "🌹", label: "Date Night", title: "Date Night", mood: true, lead: "Romantic, intimate, made for two: candlelit dinners, wine bars, sunset views and after-dark charm.", viator: true, queries: (c) => { const eve = (c && c.timeBucket ? c.timeBucket : bucketForHour(siteHourFloat())) === "night"; return eve
     ? [{ cat: "food", keyword: "romantic dinner intimate" }, { cat: "nightlife", keyword: "wine bar cocktail lounge" }, { cat: "food", keyword: "waterfront dinner sunset views" }, { cat: "food", keyword: "date night restaurant" }, { cat: "food", keyword: "rooftop restaurant sunset view" }]
     : [{ cat: "food", keyword: "romantic cafe brunch" }, { cat: "food", keyword: "garden patio restaurant" }, { cat: "food", keyword: "wine tasting winery" }, { cat: "food", keyword: "romantic restaurant" }]; },
     // v8.82 (owner, 2026-08-28, on this sheet leading with the SUNSHINE SKYWAY
@@ -1587,7 +1587,7 @@ const EXPERIENCES = {
     // out to find it. Both now ask `food` for a room with the same view.
     // The gate is lib/dateRoom.js — the ONE date-night identity, the same rule
     // the datenight RAIL selects on. The rating floor stays on top of it.
-    filter: (p) => (p.rating || 0) >= 4.3 && isDateNightShortlist(p) },
+    filter: (p) => (p.rating || 0) >= 4.3 && isDateRoom(p) },
   nightout: { icon: "🍸", label: "Night Out", title: "Night Out", mood: true, lead: "Bars, live music, dance floors and late kitchens — where tonight actually happens.", queries: [{ cat: "nightlife", keyword: "" }, { cat: "nightlife", keyword: "live music" }, { cat: "nightlife", keyword: "craft cocktail bar" }, { cat: "nightlife", keyword: "dance club" }, { cat: "food", keyword: "late night eats" }], filter: (p) => (p.rating || 0) >= 4.2 },
   eatnow: { icon: "🍽️", label: "Where to Eat", title: "Where to Eat Right Now", mood: true, lead: "The best food for this exact hour, ranked honestly — no ads, no paid placement.", queries: (c) => { const _n = c && c.timeBucket ? c : nowContext({}); const h = _n.hour; const wknd = _n.isWeekend;
     if (h < 11) return wknd ? [{ cat: "food", keyword: "brunch" }, { cat: "food", keyword: "breakfast" }, { cat: "food", keyword: "bakery coffee" }] : [{ cat: "food", keyword: "breakfast" }, { cat: "food", keyword: "bakery coffee" }, { cat: "food", keyword: "brunch" }];
@@ -5540,7 +5540,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try { window.scrollTo(0, 0); } catch (e2) {}
   }
   function openExperience(key) {
-    if (key === "datenight" || key === "romantic") { goIntent("/date-night"); return; }
     if (!EXPERIENCES[key]) return;
     if (REVENUE_EXP_KEYS.includes(key)) { openExpSheet(key); return; }
     setActiveBadge(key);
@@ -10085,7 +10084,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "12px 15px" }}>
                     <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Nothing strong tonight nearby. Try one of these instead.</div>
                     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                      <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Date night", src: "events_empty" }); } catch (e) {} goIntent("/date-night"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.adim, border: `1px solid ${C.accent}`, color: C.accent, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Date night</button>
+                      <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Date night", src: "events_empty" }); } catch (e) {} openExperience("romantic"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.adim, border: `1px solid ${C.accent}`, color: C.accent, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Date night</button>
                       <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Rainy day", src: "events_empty" }); } catch (e) {} openRainy(); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Rainy day</button>
                       <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Hidden gems", src: "events_empty" }); } catch (e) {} openExperience("gem"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Hidden gems</button>
                     </div>

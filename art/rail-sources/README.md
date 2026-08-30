@@ -18,7 +18,7 @@ width from HIS pixels rather than from someone's memory of them.
 | file | rail id | added |
 | --- | --- | --- |
 | `cindy.png` | `cindy` — "Your Next Coffee Spot" | 2026-08-22 |
-| `datenight.png` | `datenight` — "Date Night, Perfected" / BEST NIGHT. EVERY DETAIL. | 2026-08-29 |
+| `datenight.png` | `datenight` — BEST NIGHT. / EVERY DETAIL. | 2026-08-29 |
 
 Regenerate with:
 
