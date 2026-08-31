@@ -17,6 +17,7 @@ import { isFallTagged, fallEventLive, fallWhenLabel, FALL_PLACE_IDS, FALL_EVENT_
 import { hasCjPid } from "../../../../lib/deals.js";
 import { supabase } from "../../../../lib/supabase.js";
 import { wayfindScore } from "../../../../lib/wayfindScore.js";
+import { cardImageSrc } from "../../../../lib/placePhoto.js";
 import { cget, cset } from "../../../../lib/serverCache.js";
 
 const CK = "fall-rail-v1";
@@ -54,11 +55,36 @@ export async function GET() {
         when: fallWhenLabel(e, today),
         hook: e.card_hook,
         take: e.editorial_summary || null,
-        image: e.hero_image || null,
+        image: e.hero_image || null,   // venue photo filled in below when null
         url: e.official_ticket_url || e.official_event_url || e.event_page_url || null,
         is_free: !!e.is_free, price_band: e.price_band || null,
         tags: e.tags || [],
       }));
+
+    // THE IMAGE, DERIVED — NOT BACKFILLED (owner, 2026-08-30, on four blank
+    // AUGTOBER tiles: "these places are missing the pictures").
+    //
+    // hero_image is a STORED column that scripts/backfill-event-heroes ran ONCE
+    // on 2026-08-26. It filled the rows that existed that day and nothing has
+    // filled a row since, so every event added afterwards is born blank — three
+    // Manatee Performing Arts Center shows and one Big Top Brewing night, all
+    // four with a place_id whose venue is already in wf_inventory WITH a
+    // photo_ref. The data to draw them has been sitting one join away the whole
+    // time. A second backfill would fix these four and leave the fifth blank
+    // row to be discovered by the owner again, so the derivation moves to serve
+    // time, where it cannot go stale.
+    //
+    // ?place= (not ?ref=) is deliberate: /api/photo resolves the id against
+    // wf_inventory itself, so this route never carries a ref, the ownership
+    // rule stays in one place (lib/placePhoto photoRefOwnedByPlace — an event
+    // can only ever wear ITS OWN venue's photo, never a neighbour's), and a
+    // venue with no photo redirects to the branded fallback instead of a hole.
+    // Costs nothing: cache and inventory are both ahead of the spend gate.
+    for (const ev of events) {
+      if (ev.image) continue;
+      const src = cardImageSrc({ place_id: ev.place_id }, 640);
+      if (src) { ev.image = src; ev.imageIsVenue = true; }  // "the venue", never "this event"
+    }
 
     // Ticket monetization (owner, 2026-08-26). Attach the hand-verified
     // Undercover Tourist deal to the events FALL_EVENT_TICKET_DEALS maps —
@@ -101,7 +127,7 @@ export async function GET() {
           rating: p.signals.rating, reviews: p.signals.reviews || 0,
           wfScore: wayfindScore(p.signals.rating, p.signals.reviews || 0),
           take: p.editorial || FALL_PLACE_IDS[p.place_id] || null,
-          image: "/api/photo?place=" + encodeURIComponent(p.place_id) + "&w=640",
+          image: cardImageSrc({ place_id: p.place_id, photo_ref: p.photo_ref }, 640),
         }))
         .sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
     }

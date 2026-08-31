@@ -815,3 +815,4 @@ node scripts/check-owner-batch-schema.mjs
 node scripts/check-rail-card-width-is-global.mjs
 node scripts/check-scarcity-needs-an-answer.mjs
 node scripts/check-date-night-cacheable.mjs
+node scripts/check-no-imageless-card.mjs
