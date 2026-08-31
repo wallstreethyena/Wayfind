@@ -519,6 +519,7 @@ node scripts/check-rail-routes.mjs
 #     place because an unfiltered rail is a perfectly valid duplicate.
 node scripts/check-date-night-identity.mjs
 node scripts/test-date-night-intent.mjs
+node scripts/test-birthday-intent.mjs
 node scripts/test-rail-daylight.mjs
 node scripts/test-rail-select.mjs
 node scripts/test-summer-universe.mjs

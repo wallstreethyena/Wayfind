@@ -63,6 +63,9 @@ const ExplodingNearby = dynamic(() => import("./ExplodingNearby"), { ssr: false 
 // homepage's critical path (scripts/check-bundle.mjs, and the reason
 // IconicPlaceCard is lazy here at all).
 const DateNightRails = dynamic(() => import("./DateNightRails"), { ssr: false });
+// Birthday uses the same lazy multi-rail contract: the seven evidence-gated
+// rails are absent from the homepage bundle until its postcard is opened.
+const BirthdayRails = dynamic(() => import("./BirthdayRails"), { ssr: false });
 import { DAYPARTS, partForHour, orderFor, railHref, dateNightIntentHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES, railArtSize } from "../../lib/rails.js";
@@ -994,7 +997,7 @@ export default function DaypartRail({
   // Neither may fall through to the generic place pool: doing so made the
   // Events drop begin with real happenings and end with buildings where an
   // event might happen on some other date.
-  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "datenight" || selRail.id === "events"));
+  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "events"));
   // v8.22 (owner: "when the amazon rail card is selected make sure it becomes
   // the main focus on the screen"). The pulsing glow marks the card; this
   // brings it there — the open tile centers itself in the track, so the
@@ -1406,6 +1409,28 @@ export default function DaypartRail({
               isDisliked={isDisliked || undefined}
               onSave={onSave || undefined}
               onItinerary={onItinerary || undefined}
+              onLike={onLike || undefined}
+              onDislike={onDislike || undefined}
+              onShare={onShare || undefined}
+            />
+          ) : null}
+
+          {/* Birthday is one postcard opening seven location-aware rails. The
+              old broad birthday pool stays suppressed below: these qualified
+              rails are the answer, not an introduction to a generic list. */}
+          {selRail && selRail.id === "birthday" ? (
+            <BirthdayRails
+              active
+              center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
+              city={shown.cityLabel || ""}
+              onTrack={(name, props) => logEvent(name, props)}
+              onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
+              isSaved={isSaved || undefined}
+              liked={liked || undefined}
+              disliked={disliked || undefined}
+              isLiked={isLiked || undefined}
+              isDisliked={isDisliked || undefined}
+              onSave={onSave || undefined}
               onLike={onLike || undefined}
               onDislike={onDislike || undefined}
               onShare={onShare || undefined}
