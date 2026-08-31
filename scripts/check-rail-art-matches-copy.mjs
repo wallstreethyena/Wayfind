@@ -124,7 +124,10 @@ const PAIRS = {
   // to be plain text ("See what's trending"), the same arrangement the Date
   // Night poster already ships.
   trending: { copy: "66ecfc4ecc4065ef", art: "48aa69f9ded69316" },
-  birthday: { copy: "e30656dbabf938e6", art: "c62ecd24477ae8d3" },
+  // v8.95 — owner's purple 941x1672 poster, read before pinning: "wayfind /
+  // YOUR BEST DAY EVER / happy birthday". It opens Birthday Plans, Solved;
+  // the promise and destination agree without asserting an unsupported deal.
+  birthday: { copy: "e30656dbabf938e6", art: "bc6e72ccb1f16676" },
   breakfast: { copy: "357ed5dfa8609429", art: "502233352f9fc2aa" },
   blog: { copy: "390c7f9cbf645d12", art: "3af2ada7cdef7446" },
   break: { copy: "8da3d9103f225a40", art: "23219929258396e1" },
