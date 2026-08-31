@@ -105,7 +105,25 @@ const PAIRS = {
   // ("The 20 trends taking over") the rail never promised — on a quiet night
   // there are fewer than twenty verified near you, and this guard is exactly
   // the thing that should have caught a number the art does not say.
-  trending: { copy: "497cdda9fb4521f8", art: "48aa69f9ded69316" },
+  //
+  // v8.94 re-pin — SAME ART, COPY ONLY. The art hash is byte-identical to the
+  // v8.93.1 line above because nothing about the poster changed; what changed
+  // is the one field v8.93.1 left behind. Its own note transcribes the baked
+  // headline as "TRENDING NEAR YOU" and then pins a rail still TITLED
+  // "Exploding Trends Near You" — and the title is what the reader actually
+  // meets, in the "Showing <rail> near <city>" drop bar, the tile alt and the
+  // /r/trending <h1>. This file's bar is "no claim the rail cannot support";
+  // a name the picture above it contradicts is the narrowest possible version
+  // of exactly that. Pixels re-read at 760px and 380px before re-pinning:
+  //     wayfind ⌖
+  //     TRENDING
+  //     NEAR YOU
+  //     What people are searching
+  //     and experiencing right now.
+  // and nothing else — no CTA is baked in, which is why the rail's cta is free
+  // to be plain text ("See what's trending"), the same arrangement the Date
+  // Night poster already ships.
+  trending: { copy: "66ecfc4ecc4065ef", art: "48aa69f9ded69316" },
   birthday: { copy: "e30656dbabf938e6", art: "c62ecd24477ae8d3" },
   breakfast: { copy: "357ed5dfa8609429", art: "502233352f9fc2aa" },
   blog: { copy: "390c7f9cbf645d12", art: "3af2ada7cdef7446" },
