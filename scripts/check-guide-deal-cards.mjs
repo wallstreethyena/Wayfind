@@ -111,8 +111,12 @@ ok(/url:\s*c\.url/.test(pageCode), "page.js does not pass the registry url throu
 
 // Rain check on the social-proof fix: inventory is tried before the live API.
 ok(/inventorySocial\(/.test(pageCode), "social proof no longer consults our own inventory");
-ok(pageCode.indexOf("inventorySocial(primaryCta.place)") < pageCode.indexOf("rankedFor(\"things-to-do\""),
-  "inventory must be consulted BEFORE rankedFor — rankedFor cannot answer during next build");
+ok(pageCode.includes("inventorySocial(primaryCta.place)"),
+  "social proof consults owned inventory directly");
+ok(!pageCode.includes("rankedFor(\"things-to-do\""),
+  "guides never enter rankedFor's no-store path — static ISR cannot switch dynamic at runtime");
+ok(/inventoryPlacesForRegion[\s\S]{0,1800}next:\s*\{\s*revalidate:\s*3600\s*\}/.test(pageCode),
+  "live guide modules use one explicitly cacheable inventory read");
 
 // ── v8.23: THE SET NOBODY TYPED IN ─────────────────────────────────────────
 // Until v8.23 this guard only ever looked at guides with a hand-declared

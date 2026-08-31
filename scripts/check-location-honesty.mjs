@@ -42,6 +42,7 @@ import {
   cityOriginsWire,
   firstPaintRailOrigin,
 } from "../lib/locationHonesty.js";
+import { nearestCoveredCity, railDistanceMi } from "../lib/railCoverage.js";
 
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const read = (rel) => readFileSync(path.join(REPO, rel), "utf8");
@@ -67,6 +68,7 @@ ok(nearPhrase("") === "" && nearPhrase("you") === "", "nearPhrase is empty witho
 ok(nearPhrase("Tampa, FL") === " near Tampa", "nearPhrase names the city when it has one");
 ok(landingSlugFromLoc("Orlando, FL") === "orlando", "Orlando maps to the orlando landing slug");
 ok(landingSlugFromLoc("Tampa, FL") === "tampa", "Tampa maps to the tampa landing slug");
+ok(landingSlugFromLoc("Miami, FL") === "miami", "Miami maps to the miami landing slug");
 ok(landingSlugFromLoc("Gulfport, FL") === null, "an unknown town is not silently Sarasota");
 ok(landingSlugFromLoc("") === null && landingSlugFromLoc("you") === null, "no named city → no landing slug");
 
@@ -74,6 +76,22 @@ ok(resolveRailCity("orlando", { orlando: {}, sarasota: {} }) === "orlando", "a k
 ok(resolveRailCity("nope", { orlando: {}, sarasota: {} }) === null, "unknown slug is null, not sarasota");
 ok(resolveRailCity("", { sarasota: {} }) === null, "empty slug is null");
 ok(resolveRailCity(null, { sarasota: {} }) === null, "missing slug is null");
+
+const COVERAGE_FIXTURE = {
+  sarasota: { lat: 27.3364, lng: -82.5307 },
+  orlando: { lat: 28.5384, lng: -81.3789 },
+  miami: { lat: 25.7617, lng: -80.1918 },
+};
+ok(nearestCoveredCity(COVERAGE_FIXTURE, 25.7617, -80.1918) === "miami",
+  "downtown Miami resolves to Miami, not covered:false");
+ok(nearestCoveredCity(COVERAGE_FIXTURE, 26.1224, -80.1373) === "miami",
+  "Fort Lauderdale is inside the explicit Miami coverage radius");
+ok(nearestCoveredCity(COVERAGE_FIXTURE, 24.5551, -81.7800) === null,
+  "Key West stays unsupported — adding Miami does not erase the 90-mile boundary");
+ok(nearestCoveredCity(COVERAGE_FIXTURE, NaN, -80.19) === null,
+  "invalid coordinates never invent a covered city");
+ok(railDistanceMi(25.7617, -80.1918, 25.7617, -80.1918) === 0,
+  "the coverage distance law is executable");
 
 const empty = emptyRailLive();
 ok(empty.covered === false && empty.citySlug === null && Object.keys(empty.places).length === 0,
@@ -110,12 +128,20 @@ ok(!/citySlug = "sarasota"/.test(RAIL),
 
 /* ── B. unknown slug is not sarasota ───────────────────────────────────── */
 const RD = strip(read("lib/railsData.js"));
+const LANDING = strip(read("lib/landing.js"));
+const RAILS_API = strip(read("app/api/rails/route.js"));
 ok(/resolveRailCity\(citySlug,\s*LANDING_CITIES\)/.test(RD),
   "railMenuData resolves the slug through resolveRailCity");
 ok(!/LANDING_CITIES\[citySlug\] \|\| LANDING_CITIES\.sarasota/.test(RD),
   "the unknown-slug → LANDING_CITIES.sarasota fallback is gone");
 ok(!/const slug = LANDING_CITIES\[citySlug\] \? citySlug : "sarasota"/.test(RD),
   "an unknown slug is no longer rewritten to the string \"sarasota\"");
+ok(/"miami":\s*\{\s*name:\s*"Miami"/.test(LANDING),
+  "Miami is an explicit landing/rail market, backed by its own coordinates");
+ok(/miami:\s*\["miami"\]/.test(RD),
+  "Miami has its own rail pool and never borrows Orlando or Sarasota");
+ok(/nearestCoveredCity\(LANDING_CITIES,\s*lat,\s*lng,\s*COVERAGE_MI\)/.test(RAILS_API),
+  "/api/rails calls the executed coverage law");
 
 /* ── C. DEFAULT_CENTER is a seed; geo can replace it; no "you" ─────────── */
 const HOME = strip(read("app/home.js"));

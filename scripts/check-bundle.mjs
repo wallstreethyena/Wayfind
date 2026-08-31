@@ -41,7 +41,7 @@ import { gzipSync } from "node:zlib";
 // the route chunk) and lib/trendTaxonomy.js reaching the client through the
 // Exploding rail.
 const ROUTE_CHUNK_BUDGET_KB = 175; // static/chunks/app/page-*.js, gzipped. RATCHET: lower only.
-const TOTAL_BUDGET_KB = 496;       // every JS asset for route "/", gzipped.  RATCHET: lower only.
+const TOTAL_BUDGET_KB = 492;       // every JS asset for route "/", gzipped.  RATCHET: lower only.
 const WARN_HEADROOM_KB = 2;        // print a loud warning below this. See below.
 // ─── WHY 500, AND WHY THIS GATE STARTED BLOCKING EVERYTHING (2026-08-26) ────
 // #950 set 496 from a LOCAL measurement of 495.2 — 0.8KB of headroom, which
@@ -89,6 +89,12 @@ const WARN_HEADROOM_KB = 2;        // print a loud warning below this. See below
 // this comment exists for. Owner cap for that PR is 496. 496 restores the
 // >=2KB slack floor (3.3KB here; gzip drift is ~0.5KB). Lower again when
 // live code leaves the client.
+//
+// 2026-08-31: HomeAside, BestNearby and CreatorFinds were all deliberately
+// unmounted from "/" but remained eager imports. Removing those unreachable
+// module edges moved the measured total from 494.8KB to 486.2KB gzipped and
+// Next's reported first-load JS from 505KB to 496KB. 492 locks 4KB of that
+// real reduction while retaining 5.8KB of local headroom for zlib drift.
 
 const fail = (m) => { console.error("check-bundle: FAIL — " + m); process.exit(1); };
 

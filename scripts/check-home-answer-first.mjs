@@ -464,13 +464,15 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
 
   // v8.4 (owner, 2026-08-16): the weather card and "Deals near you" come off
   // the homepage at EVERY width. HomeAside itself is deliberately kept — the
-  // component and its dealTiers wiring are intact — so the thing to assert is
-  // that "/" does not RENDER it. AGENTS.md §7 is the reason this is pinned at
+  // component and its dealTiers wiring are intact — but "/" must neither
+  // render nor eagerly import it. AGENTS.md §7 is the reason this is pinned at
   // all: a 3-way merge keeps someone else's newer copy of a block that a
   // change was meant to remove, which is how the taste editor nearly shipped
   // back after being explicitly deleted.
   ok(!/<HomeAside[\s/>]/.test(HOME),
      "the homepage renders <HomeAside> again — the weather card and Deals were removed from \"/\" at every width (owner, 2026-08-16). Deals stays reachable through the Coupons tab, which owns the vetted card and the attribution.");
+  ok(!/import\s+HomeAside\s+from/.test(HOME),
+     "the removed HomeAside is still an eager homepage dependency — unmounted code must not consume first-load JS");
 
   // ═════════════════════════════════════════════════════════════════════════
   // v8.2 (owner, 2026-08-15) — A COLLAPSED SECTION IS NOT A MENU ROW.
@@ -572,6 +574,8 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   const iCats = HOME.indexOf("<CategoryMenu nav activeCat=");
   ok(iBestNearby === -1, "the BestNearby accordion is mounted on the homepage again (owner removed it 2026-08-18: 'the menus should only show when the cards is clicked')");
   ok(iFinds === -1, "the CreatorFinds shelf is mounted standalone on the homepage again — the locals rail tile is the creator surface now, and a second shelf is the stacked-menu duplication the owner removed");
+  ok(!/import\s+BestNearby\s+from/.test(HOME), "the unmounted BestNearby accordion still consumes homepage first-load JS");
+  ok(!/import\s+CreatorFinds\s+from/.test(HOME), "the unmounted CreatorFinds shelf still consumes homepage first-load JS");
   ok(iCats > 0, "the six categories still render as the header tab strip (v6.62's 'add this to the top of the page' still satisfied)");
   // …and the creator inventory the shelf carried still reaches the reader:
   // the locals rail is registry-sourced, asserted where that code lives

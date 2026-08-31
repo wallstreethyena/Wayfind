@@ -186,6 +186,7 @@ node scripts/check-soft-404.mjs
 node scripts/check-og-absolute.mjs
 node scripts/test-intent-pages.mjs
 node scripts/test-beach-water.mjs
+node scripts/test-beach-decision.mjs
 node scripts/test-blurbs-cache.mjs
 node scripts/test-editorial-contract.mjs
 node scripts/test-red-tide.mjs

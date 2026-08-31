@@ -61,8 +61,12 @@ ok(/socialStatus/.test(page), "the page tracks a social-proof STATUS, not just a
 for (const st of ['"ok"', '"no-match"', '"unavailable"'])
   ok(page.includes(st), `social status ${st} is a distinct outcome`);
 ok(/console\.error\(`\[guide\] social proof/.test(page), "a FAILED social lookup logs loudly — it must not look like a sparse page");
-ok(/rows\.length[\s\S]{0,200}?unavailable/.test(page),
-  "ZERO rows counts as UNAVAILABLE, not empty — these metros have hundreds of attractions, so 0 means a degraded lookup");
+ok(/hit === false[\s\S]{0,160}?socialStatus = "unavailable"/.test(page),
+  "a failed inventory request is UNAVAILABLE, never disguised as a no-match");
+ok(/hit === "unconfigured"[\s\S]{0,160}?socialStatus = "unavailable"/.test(page),
+  "an unconfigured inventory source is UNAVAILABLE, never disguised as a no-match");
+ok(!/rankedFor\("things-to-do"/.test(page),
+  "guide rendering never falls through to rankedFor's no-store path");
 ok(/social_status: socialStatus/.test(conv), "the status rides the impression event so a degraded lookup is countable");
 ok(/social \?/.test(conv) && !/reviews: 0|rating: 0/.test(conv), "absent social proof renders NOTHING — no placeholder, no fake zero");
 
