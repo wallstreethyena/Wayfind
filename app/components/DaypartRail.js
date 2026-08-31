@@ -893,6 +893,8 @@ export default function DaypartRail({
   }, [selected, close]);
 
   const tileClick = (e, id) => {
+    // ONE lookup, read by three branches below (opensPage, partner, drop).
+    const _r = railById.get(id);
     // v8.92 — DATE NIGHT OPENS ITS DROP, like every other tile on this rail.
     //
     // #1033 put a navigate-away branch here and set the anchor's onClick to
@@ -913,6 +915,19 @@ export default function DaypartRail({
     // only opens the drop.
     if (e.currentTarget && e.currentTarget.tagName === "A") {
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      // v8.94 — A RAIL WHOSE ANSWER IS A PAGE NAVIGATES TO IT.
+      //
+      // Returning BEFORE preventDefault is the whole mechanism: the tile is
+      // already a real <a href>, so letting the browser have the click is the
+      // navigation. Nothing here builds a URL, and nothing calls router.push,
+      // so the destination a reader reaches is provably the same one a crawler
+      // follows and a shared card opens — there is no second copy to drift.
+      //
+      // It is a per-rail opt-in (lib/rails.js `opensPage`), not a heuristic on
+      // href: every tile on this rail has an href, and the other fourteen must
+      // keep opening their drop in place. See the cindy entry for why exactly
+      // one rail qualifies today.
+      if (_r && _r.opensPage) return;
       e.preventDefault();
     }
     // v8.87 — the events tile opens its own drop when there is one to open,
@@ -933,7 +948,6 @@ export default function DaypartRail({
     if (id === "events" && (!eventsSlot || !eventsSlot()) && onOpenEvents) { onOpenEvents(); return; }
     // A sponsor/partner tile opens the curated partner sheet instead of the
     // in-rail drop — the whole tile is the ad; the payoff is the featured list.
-    const _r = railById.get(id);
     if (_r && _r.partner && onOpenPartner) { onOpenPartner(_r.partner); return; }
     if (selected === id) close(); else open(id, "rail");
   };

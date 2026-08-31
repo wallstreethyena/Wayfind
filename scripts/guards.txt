@@ -390,6 +390,7 @@ node scripts/check-creator-avatars.mjs
 # properties of the OUTPUT and cannot be read off the source.
 node scripts/test-creator-card-mark.mjs
 node scripts/test-creator-pages.mjs
+node scripts/check-creator-tile-navigates.mjs
 node scripts/test-creator-corroboration.mjs
 node scripts/check-brand-pin.mjs
 node scripts/check-score-law.mjs

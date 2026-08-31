@@ -8,4 +8,9 @@ import { CreatorPage, creatorMetadata, creatorSlugs } from "../../../lib/creator
 export const dynamicParams = false;
 export function generateStaticParams() { return creatorSlugs().map((handle) => ({ handle })); }
 export function generateMetadata({ params }) { return creatorMetadata(params.handle); }
-export default function Page({ params }) { return CreatorPage({ handle: params.handle }); }
+// ASYNC: CreatorPage awaits a wf_inventory join for its map (lib/creatorPlaces.js).
+// revalidate is a day because the inputs move on that scale — a curated spot is
+// added by hand and an inventory row's rating/photo is refreshed by the ingest
+// crons — so anything shorter buys nothing and spends a database read per hit.
+export const revalidate = 86400;
+export default async function Page({ params }) { return CreatorPage({ handle: params.handle }); }

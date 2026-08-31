@@ -82,8 +82,23 @@ ok(/slice\(0, 60\)/.test(view), "the density cap fell below 60 — the thin-map 
 ok(/slice\(0, 40\)/.test(map), "the default map pool cap fell below 40");
 ok(/clusterRadius: 30/.test(view), "the cluster radius widened again — more clustering means fewer visible pins");
 ok(/pixelRatio: PIN_DPR/.test(view), "pin sprites are not registered at 2x — they would render blurry on retina");
-ok(/\[places, center, category, deviceLoc, events, fit, rings, selectedId\]/.test(view),
-  "selectedId is not a redraw dependency — the pin state would never change");
+// v8.94 — PARSED, NOT MATCHED. This was a literal of the whole dependency
+// array, so it went red when `showOrigin` was ADDED to it (a new prop that
+// changes what redraw() draws and therefore belongs there). That is the
+// green-on-move failure in its noisy costume: the same literal would also have
+// passed happily if the array were reordered with selectedId dropped and
+// re-added elsewhere, and it fails on every correct future addition. The
+// invariant is membership, so assert membership — and assert it for EVERY
+// input redraw() reads, which is strictly more than the literal proved.
+{
+  const dep = view.match(/useEffect\(\s*\(\)\s*=>\s*\{\s*redraw\(\);?\s*\}\s*,\s*\[([^\]]*)\]/);
+  ok(!!dep, "positive control: the redraw effect's dependency array is still found under its known shape");
+  const deps = dep ? dep[1].split(",").map((d) => d.trim()).filter(Boolean) : [];
+  for (const need of ["places", "center", "category", "deviceLoc", "events", "fit", "rings", "selectedId", "showOrigin"]) {
+    ok(deps.includes(need),
+      `\`${need}\` is not a redraw dependency — a change to it would not repaint the pins (deps: ${deps.join(", ") || "none"})`);
+  }
+}
 ok(map.length > 3000 && view.length > 3000 && iconic.length > 3000, "a source file did not load — assertions above would pass vacuously");
 
 // ── empty take: do not reserve the 176px take gap ────────────────────────

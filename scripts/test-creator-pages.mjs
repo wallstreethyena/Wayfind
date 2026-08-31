@@ -65,7 +65,30 @@ ok(!!featured, "the featured creator resolves a profile");
 ok(featured.cities.length >= 2, `…across real cities (got ${featured.cities.length})`);
 ok(featured.placeCount >= CREATOR_PAGE_MIN_SPOTS, "…with a real body of work on it");
 
-const html = renderToStaticMarkup(CreatorPage({ handle: FEATURED_CREATOR }));
+// CreatorPage is ASYNC (v8.94) — it awaits the wf_inventory join behind its
+// map. Rendering the un-awaited Promise would have produced an empty string and
+// silently passed nothing: renderToStaticMarkup(Promise) is not an error.
+//
+// TWO RENDERS, because the map has two legitimate states and only one of them
+// is reachable in a bare-node guard on its own. `html` is the page WITH rows
+// injected through CreatorPage's documented seam (the shape lib/creatorPlaces.js
+// returns, verified against real wf_inventory rows); `htmlNoMap` is the page
+// with the join returning nothing, which is what a reader gets when Supabase is
+// unreachable. The second is the negative control: it must still be a complete
+// page, and it must not claim a map it does not have.
+const MAP_ROWS = [
+  { id: "ChIJIQGDwpgXw4gRxIJcGmjtyK4", name: "Spinning Coffee", lat: 27.4949284, lng: -82.5966988, primary_type: "coffee_shop", category: "food", rating: 4.9, reviews: 214, city: "Bradenton", videoUrl: "https://www.tiktok.com/@cindy.selects/video/7668348057171365133" },
+  { id: "ChIJ1RqNFQB954gR3YpxvP7m-Gs", name: "Jabal Coffee House", lat: 28.44425, lng: -81.4268183, primary_type: "coffee_shop", category: "food", rating: 4.8, reviews: 640, city: "Orlando", videoUrl: null },
+  { id: "ChIJzybHW0dj54gRu_MY96JT_zk", name: "NeuroPlay", lat: 28.4581435, lng: -81.2990885, primary_type: "indoor_playground", category: "attractions", rating: 5, reviews: 41, city: "Orlando", videoUrl: null },
+];
+const rendered = await CreatorPage({ handle: FEATURED_CREATOR, mapPlaces: MAP_ROWS });
+const html = renderToStaticMarkup(rendered);
+const htmlNoMap = renderToStaticMarkup(await CreatorPage({ handle: FEATURED_CREATOR, mapPlaces: [] }));
+ok(htmlNoMap.length > 2000, `negative control: with no map rows the page still renders in full (${htmlNoMap.length} bytes)`);
+ok(!htmlNoMap.includes("wfcm-grid"), "…and renders NO map frame rather than an empty panel");
+ok(!/on the map/.test(htmlNoMap), "…and makes no claim about pins it does not have");
+ok(htmlNoMap.includes("Share this page"), "…while the share control survives a database that is down");
+ok(html.length > 2000, `positive control: the page rendered real markup (${html.length} bytes) — every assertion below is vacuous on an empty string`);
 ok(html.includes("ProfilePage"), "emits ProfilePage JSON-LD");
 ok(html.includes("BreadcrumbList") && html.includes("ItemList"), "…plus breadcrumbs and the place ItemList");
 ok(!/"@type"\s*:\s*"VideoObject"/.test(html), "does NOT emit VideoObject — still gated by lib/videoObjectGate.js");
@@ -76,6 +99,77 @@ ok(!claimsAffiliation(html), "the RENDERED page makes no affiliation claim");
 ok(/not affiliated with Wayfind/i.test(html), "…and states the independence disclosure outright");
 ok(html.includes(REMOVAL_CONTACT), "…and offers the removal route before anyone has to ask");
 ok(html.includes("/creators\"") || html.includes("href=\"/creators\""), "links back to the index — no orphan page");
+
+// ── v8.94: the creator's own map, and the share control ─────────────────────
+//
+// Both are rendered here rather than grepped in the source, because both are
+// composed from other components and a source grep cannot tell a mounted
+// <CreatorMapPanel/> from a mention of the name.
+//
+// THE MAP PANEL IS ASSERTED THROUGH ITS SIDEBAR, NOT ITS <MapView>. MapView is
+// a next/dynamic({ssr:false}) child: it renders NOTHING on the server, in this
+// guard and in production alike. What must exist in the server HTML is the
+// frame around it — the heading, the honest "she filmed it herself" claim and
+// the category rail — because that is the part a crawler and a JS-less reader
+// actually receive.
+ok(/s map<\/h2>/.test(html), "the creator map panel's heading does not render — the owner's interactive map is missing from the page");
+ok(html.includes("wfcm-grid") && html.includes("wfcm-side") && html.includes("wfcm-map"),
+  "…the map panel's layout is not in the server HTML");
+ok(/filmed herself/.test(html),
+  "the map does not say whose places these are — 'every pin is a place she filmed herself' is the claim that separates this from a nearby-search");
+ok(/All places<\/span><b>\d+<\/b>/.test(html),
+  "the category rail has no counted 'All places' row — the counts are the control");
+ok(/Share this page/.test(html),
+  "the share button is gone — a creator page nobody can share is an SEO asset with no distribution");
+ok(html.includes("<span>All places</span><b>3</b>"),
+  "the 'All places' count does not match the rows handed to the panel — the sidebar must count what the map draws");
+ok(html.includes("<span>Coffee &amp; cafés</span><b>2</b>"),
+  "the two coffee_shop rows are not grouped as cafés — the sidebar and the pins must resolve family the same way");
+ok(/on the map, across Bradenton and Orlando/.test(html),
+  "the map's one-line intro does not name the cities the rows are actually in");
+
+// ── v8.94: the map never approximates ───────────────────────────────────────
+//
+// CALLED, not read. The rule these enforce is that a spot without real
+// coordinates produces NO PIN — never a city-centre dot standing in for a café.
+// A regex over lib/creatorPlaces.js would pass on a version that fell back to a
+// default lat/lng, because the fallback would be new code the regex never saw.
+{
+  const { placeIdsFor, invRowToMapRow } = await import("../lib/creatorPlaces.js");
+  ok(placeIdsFor([{ placeId: "ChIJIQGDwpgXw4gRxIJcGmjtyK4" }, { placeId: "ChIJIQGDwpgXw4gRxIJcGmjtyK4" }]).length === 1,
+    "a placeId curated twice is queried once");
+  ok(placeIdsFor([{ placeId: "not,a,place,id" }, { placeId: "'; drop --" }, {}, null]).length === 0,
+    "anything that is not a Google place id is DROPPED before it reaches the query string, never escaped into it");
+  ok(placeIdsFor([]).length === 0 && placeIdsFor(null).length === 0, "…and no spots is not a crash");
+  const noCoords = invRowToMapRow({ place_id: "x", name: "Nowhere", lat: null, lng: null }, { name: "Nowhere" });
+  ok(noCoords === null, "a row with no coordinates yields NO pin — the map must never invent a location");
+  ok(invRowToMapRow({ place_id: "x", name: "Nowhere", lat: "abc", lng: 1 }, {}) === null, "…and a non-numeric coordinate is not coerced into one either");
+  ok(invRowToMapRow(null, {}) === null, "a placeId wf_inventory has never seen is simply absent");
+  const row = invRowToMapRow(
+    { place_id: "pid", name: "Dolce and Bake Cafe/Bakery", lat: 28.44, lng: -81.42, primary_type: "cafeteria", category: "food", signals: { rating: 4.7, reviews: 88 } },
+    { name: "Dolce", city: "Orlando", video: { url: "https://example.com/v" } },
+  );
+  ok(row && row.name === "Dolce", "the pin carries the name the creator used, not the directory's legal name");
+  ok(row && row.primary_type === "cafeteria" && row.category === "food",
+    "the classification is carried through untouched — the pin colour is inventory's own answer, not a second opinion");
+  ok(row && row.rating === 4.7 && row.reviews === 88, "rating and review count ride along for the tapped-pin card");
+  ok(row && row.videoUrl === "https://example.com/v", "…and so does her own video, which is the whole point of the page");
+}
+{
+  // The map must never claim more pins than it drew. mapIntro() is the one
+  // place that number is written, so it is CALLED rather than pattern-matched.
+  const { mapIntro } = pagesMod;
+  ok(typeof mapIntro === "function", "mapIntro is exported so its arithmetic can be checked");
+  ok(mapIntro({ placeCount: 11 }, []) === "", "no rows -> no claim at all");
+  const two = mapIntro({ placeCount: 11 }, [{ city: "Orlando" }, { city: "Bradenton" }]);
+  ok(two.startsWith("2 of them are on the map"), `the count is the ROW count, not the curated count (got: ${two})`);
+  ok(two.includes("9 more spots are listed below but not yet mapped"),
+     `…and the gap between them is disclosed rather than hidden (got: ${two})`);
+  ok(mapIntro({ placeCount: 3 }, [{ city: "Orlando" }, { city: "Orlando" }, { city: "Tampa" }]).includes("across Orlando and Tampa"),
+     "cities are de-duplicated and read as prose");
+  ok(!mapIntro({ placeCount: 2 }, [{ city: "Orlando" }, { city: "Tampa" }]).includes("more spot"),
+     "no phantom gap when every curated spot is mapped");
+}
 
 // Every spot on the page has somewhere real to go.
 for (const g of featured.cities) {
