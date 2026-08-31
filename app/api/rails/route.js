@@ -33,6 +33,7 @@ import { dedupeWire } from "../../../lib/railsWire.js";
 import { LANDING_CITIES } from "../../../lib/landing";
 import { railMenuData } from "../../../lib/railsData";
 import { DAYPART_IDS } from "../../../lib/dayparts";
+import { nearestCoveredCity } from "../../../lib/railCoverage";
 
 export const revalidate = 3600;
 // The platform's own ceiling, one layer outside railsData's 20s deadline and
@@ -42,14 +43,6 @@ export const revalidate = 3600;
 // it with nothing written to the CDN.
 export const maxDuration = 30;
 
-const R_EARTH_MI = 3958.8;
-const rad = (d) => (d * Math.PI) / 180;
-function miBetween(aLat, aLng, bLat, bLng) {
-  const s = Math.sin(rad(bLat - aLat) / 2) ** 2
-    + Math.cos(rad(aLat)) * Math.cos(rad(bLat)) * Math.sin(rad(bLng - aLng) / 2) ** 2;
-  return R_EARTH_MI * 2 * Math.asin(Math.sqrt(s));
-}
-
 // Past this, the reader is not in a market Wayfind has ranked inventory for and
 // the honest answer is the flagship, not the nearest-by-arithmetic town 400
 // miles away. Same spirit as the beach rule: near means near.
@@ -57,14 +50,7 @@ const COVERAGE_MI = 90;
 
 /** Nearest LANDING_CITIES slug to a point, or null when nothing is close. */
 export function nearestCity(lat, lng) {
-  const la = Number(lat), ln = Number(lng);
-  if (!Number.isFinite(la) || !Number.isFinite(ln)) return null;
-  let best = null, bestMi = Infinity;
-  for (const [slug, c] of Object.entries(LANDING_CITIES)) {
-    const mi = miBetween(la, ln, c.lat, c.lng);
-    if (mi < bestMi) { bestMi = mi; best = slug; }
-  }
-  return bestMi <= COVERAGE_MI ? best : null;
+  return nearestCoveredCity(LANDING_CITIES, lat, lng, COVERAGE_MI);
 }
 
 export async function GET(req) {

@@ -23,6 +23,8 @@ import {
   isDateTogether,
   isDateSpa,
   isDateTour,
+  isDateMuseum,
+  isDateShopping,
   isSpecialDateDinner, DATE_NIGHT_RAIL_DEFS } from "../lib/dateNightIntent.js";
 import { dateNightIntentHref, orderFor } from "../lib/dayparts.js";
 import { RAIL_IDS } from "../lib/rails.js";
@@ -105,6 +107,26 @@ const FAR = p({
   id: "far-1", name: "Distant Chophouse", primaryType: "steak_house",
   types: ["steak_house", "restaurant", "food"], priceNum: 3, distMi: 40,
 });
+const RESTAURANT_WITH_MUSIC_TAG = p({
+  id: "music-leak", name: "Ocean Prime", primaryType: "seafood_restaurant",
+  types: ["seafood_restaurant", "restaurant", "live_music_venue"],
+});
+const PRESERVE_WITH_MUSEUM_TAG = p({
+  id: "museum-leak-1", name: "Weedon Island Preserve", primaryType: "nature_preserve",
+  types: ["nature_preserve", "museum", "tourist_attraction"],
+});
+const THEME_PARK_WITH_MUSEUM_TAG = p({
+  id: "museum-leak-2", name: "Hogwarts", primaryType: "theme_park",
+  types: ["theme_park", "museum", "tourist_attraction"],
+});
+const BREAKFAST_DESSERT_LEAK = p({
+  id: "dessert-leak", name: "First Watch", primaryType: "breakfast_restaurant",
+  types: ["breakfast_restaurant", "dessert_shop", "restaurant"],
+});
+const ACTIVITY_SHOP_LEAK = p({
+  id: "shopping-leak", name: "SURFIT USA Kayak Shop", primaryType: "sporting_goods_store",
+  types: ["sporting_goods_store", "store", "kayak_rental"],
+});
 
 const FULL = [DINNER, DINNER_CASUAL, DINNER_PLAIN, DESSERT, SPEAKEASY, LIVE, CLUB, SPA, TOUR, BEACH, MUSEUM, FAST, WINE, FAR];
 const GOOD = { weatherKnown: true, outdoorOK: true, beachShow: true };
@@ -126,16 +148,20 @@ ok(isDateLiveMusic(LIVE) && !isDateLiveMusic(CLUB), "Live Music excludes night_c
 ok(isDateClub(CLUB) && !isDateClub(LIVE), "Clubs is night_club / dance_hall");
 ok(isDateSpa(SPA) && isDateTour(TOUR) && isDateTogether(SPA) && isDateTogether(TOUR), "Spa and Tours both belong on Things To Do Together");
 ok(isSpecialDateDinner(DINNER) && isSpecialDateDinner(DINNER_CASUAL), "price ≥ 2 is the existing 'special' dinner signal");
+ok(!isDateLiveMusic(RESTAURANT_WITH_MUSIC_TAG), "a restaurant with a secondary music tag is not a factual Live Music venue");
+ok(!isDateMuseum(PRESERVE_WITH_MUSEUM_TAG) && !isDateMuseum(THEME_PARK_WITH_MUSEUM_TAG),
+  "nature preserves and theme parks cannot leak into Museum through secondary tags");
+ok(!isDateDessert(BREAKFAST_DESSERT_LEAK), "a breakfast restaurant cannot leak into the Dessert stop");
+ok(!isDateShopping(ACTIVITY_SHOP_LEAK), "an activity/rental shop is an errand, not a Date Night browse");
 
 // ── Radius is the datenight RAIL pair; Worth the Drive stays 27 ─────────────
 {
   const tb = readFileSync(join(ROOT, "lib/todaysBest.js"), "utf8");
   const drive = readFileSync(join(ROOT, "lib/railSelect.js"), "utf8");
   const nearLit = tb.match(/export const NEAR_RADIUS_MI = (\d+)/);
-  const widenLit = tb.match(/export const WIDEN_RADIUS_MI = (\d+)/);
   const driveLit = drive.match(/export const DRIVE_REACH_MI = (\d+)/);
   ok(nearLit && Number(nearLit[1]) === DATE_NIGHT_NEAR_MI, `DATE_NIGHT_NEAR_MI (${DATE_NIGHT_NEAR_MI}) equals todaysBest NEAR_RADIUS_MI (${nearLit && nearLit[1]})`);
-  ok(widenLit && Number(widenLit[1]) === DATE_NIGHT_WIDEN_MI, `DATE_NIGHT_WIDEN_MI (${DATE_NIGHT_WIDEN_MI}) equals todaysBest WIDEN_RADIUS_MI (${widenLit && widenLit[1]})`);
+  ok(DATE_NIGHT_WIDEN_MI === 27, `Date Night reconciles to the owner-approved 27mi reach (got ${DATE_NIGHT_WIDEN_MI})`);
   ok(driveLit && Number(driveLit[1]) === 27, `DRIVE_REACH_MI stays 27 (got ${driveLit && driveLit[1]}) — Date Night must not touch Worth the Drive`);
 }
 ok(!/DRIVE_REACH_MI/.test(stripComments(readFileSync(join(ROOT, "lib/dateNightIntent.js"), "utf8"))),
@@ -226,6 +252,12 @@ const dinnerRail = good.rails.find((r) => r.id === "dinner");
 ok(dinnerRail && dinnerRail.places.some((x) => x.id === "dinner-1") && dinnerRail.places.some((x) => x.id === "dinner-2"),
   "Dinner keeps the steakhouse and the $$ trattoria");
 ok(!dinnerRail.places.some((x) => x.id === "dinner-3"), "cheap pizza does not pad Dinner");
+{
+  const higherScorePlainRoom = p({ ...DINNER_CASUAL, id: "score-first", name: "Sofra Kitchen", rating: 4.9, reviews: 5000 });
+  const lowerScoreNamedRoom = p({ ...DINNER, id: "room-second", name: "Waterfront Steak House", rating: 4.5, reviews: 300 });
+  const ranked = composeDateNightRails([lowerScoreNamedRoom, higherScorePlainRoom], GOOD).rails.find((r) => r.id === "dinner");
+  ok(ranked && ranked.places[0].id === "score-first", "Dinner is displayed-score first; room character only breaks score ties");
+}
 
 // ── Entry: homepage tap navigates; /date-night is the intent page ───────────
 const href = dateNightIntentHref({ href: "/date-night", cityLabel: "Tampa", lat: 27.95, lng: -82.46 });
@@ -394,7 +426,7 @@ ok(nightOrder.includes("datenight"), "Date Night still exists in the night order
   // must not ALSO get the shared pool's. Date Night's drop ending in "nothing
   // near you clears this bar" underneath six full rails is the v8.82 empty-bar
   // screenshot arriving by a different road.
-  ok(/const railOwnsItsOwnAnswer = !!\(selRail && selRail\.id === "datenight"\)/.test(src),
+  ok(/const railOwnsItsOwnAnswer = !!\(selRail && \(selRail\.id === "datenight" \|\| selRail\.id === "events"\)\)/.test(src),
     "the drop knows which rails answer for themselves");
   const branches = src.match(/\) : selRail && [^?]*\?/g) || [];
   ok(branches.length === 4, `the pool ternary chain is readable (positive control: ${branches.length} branches after the cards)`);

@@ -990,7 +990,11 @@ export default function DaypartRail({
   // Shopping is now a rail inside the composer (lib/dateNightIntent) and the
   // dated events ride below, so the beats he wanted the pool to cover are
   // covered by things that actually qualify.
-  const railOwnsItsOwnAnswer = !!(selRail && selRail.id === "datenight");
+  // Date Night owns a composed journey. Events owns the dated event feed.
+  // Neither may fall through to the generic place pool: doing so made the
+  // Events drop begin with real happenings and end with buildings where an
+  // event might happen on some other date.
+  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "datenight" || selRail.id === "events"));
   // v8.22 (owner: "when the amazon rail card is selected make sure it becomes
   // the main focus on the screen"). The pulsing glow marks the card; this
   // brings it there — the open tile centers itself in the track, so the
@@ -1231,7 +1235,9 @@ export default function DaypartRail({
     // v8.19 — any drop, any rail: a beach card carries its water line
     // wherever it appears (the fetch above is gated the same way).
     if (!isBeachRow(p)) return null;
-    const c = beachCond[p.id];
+    // The server ships the cached water verdict so the primary decision is
+    // visible immediately; the lite request progressively adds temp and wind.
+    const c = beachCond[p.id] || (p.water ? { water: p.water } : null);
     if (!c) return null;
     // v8.22 (owner, on one long chip cut at the card edge: "make it shorter
     // or make it into multiple pills"). SEPARATE SHORT PILLS now: the
@@ -1480,18 +1486,14 @@ export default function DaypartRail({
               })}
             </div>
           ) : null}
-          {/* v8.87 — THE EVENTS DROP. Dated events above the ticketed venues,
-              the same shape the augtober drop uses above its fall places: the
-              rail's promise is "the date — it happens once, then it is gone",
-              and until now the only thing under it was rooms that are open
-              every night. The place cards below still render — a reader who
-              opened this tile for "what's on" is also the reader most likely
-              to want the venue — so this ADDS the answer rather than replacing
-              the shelf.
+          {/* v8.95 — THE EVENTS DROP IS EVENTS, FULL STOP. Dated happenings
+              render here; the generic place pool is suppressed by
+              railOwnsItsOwnAnswer. A venue is not evidence that something is
+              happening there on the date the reader asked about. Tonight's
+              Move remains the separate venue decision.
 
               v8.86 put `events` at the front of the afternoon band precisely
-              so a ticket is met while it is still buyable; this is the card it
-              now leads with. */}
+              so a ticket is met while it is still buyable. */}
           {selRail && selRail.id === "events" && eventsSlot ? (
             <div style={{ marginBottom: 12 }}>{eventsSlot()}</div>
           ) : null}

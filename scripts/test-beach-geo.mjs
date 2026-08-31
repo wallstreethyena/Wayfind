@@ -13,6 +13,7 @@
 import { readFileSync } from "fs";
 import { BEACH_NEAR_MI, beachMilesFrom, saysBeach, beachesWithin, vetBeachDistance } from "../lib/beaches.js";
 import { RAIL_SELECT } from "../lib/railSelect.js";
+import { nearestCoveredCity } from "../lib/railCoverage.js";
 
 let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
@@ -208,8 +209,10 @@ ok(/category === "beach" \? beachesWithin\(ranked, \{ lat, lng \}\) : vetBeachDi
   ok(/\}, \[center && center\.lat, center && center\.lng, lat, lng, daypart, initialDaypart[,\]]/.test(rail),
     "…and that re-rank must re-run on `center` (and, since v8.30, on the band), so a SEARCHED city is subject to the rule exactly like a located one");
   const api = readFileSync(new URL("../app/api/rails/route.js", import.meta.url), "utf8");
-  ok(/COVERAGE_MI/.test(api) && /bestMi <= COVERAGE_MI \? best : null/.test(api),
-    "out of coverage must resolve to NOTHING, never to the arithmetically-nearest town hundreds of miles away");
+  ok(/nearestCoveredCity\(LANDING_CITIES,\s*lat,\s*lng,\s*COVERAGE_MI\)/.test(api),
+    "the API routes through the executable coverage-boundary law");
+  ok(nearestCoveredCity({ miami: { lat: 25.7617, lng: -80.1918 } }, 24.5551, -81.7800, 90) === null,
+    "out of coverage resolves to NOTHING, never to the arithmetically-nearest town");
 }
 ok(/const \[center, setCenter\] = useState\((null|DEFAULT_CENTER)\)/.test(home), "`center` is one piece of state — the single source of truth the rule measures from");
 {

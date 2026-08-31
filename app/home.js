@@ -206,7 +206,6 @@ import { RAILS } from "../lib/rails";
 // v8.3: the category tabs resolve their city segment through the SAME builder
 // the rail tiles use, so neither can emit a bare segmented route.
 import { railHref } from "../lib/dayparts";
-import HomeAside from "./components/HomeAside";
 // v6.46 — wave 2 of the same decomposition: ~200 lines of pure owner-written
 // curation DATA (best-of / local-fave name lists, the hand-written place notes,
 // the featured-boost table, the founder "note from Wayfind" blocks). Data only.
@@ -216,11 +215,9 @@ import HomeAside from "./components/HomeAside";
 // curatedData.js is registered in scripts/lib/shellSrc.mjs exactly like css.js,
 // so the content guardrails still grep every curated name and note.
 import { BEST_OF_NAMES, LOCAL_FAVE_EXTRA, WAYFIND_PHOTOS, WAYFIND_NOTES, WAYFIND_FEATURED, CURATED_NOTES } from "./components/curatedData";
-import BestNearby from "./components/BestNearby";
 // v7.02 (owner, 2026-08-08): the ONE card every homepage rail renders — the
 // /best-of place card at rail width, not a second card shape. See RailCard.js.
 import RailCard, { RailNav, RailDots } from "./components/RailCard";
-import CreatorFinds from "./components/CreatorFinds";
 import LocalEdit from "./components/LocalEdit";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor, regionsWithFinds, spotsByCity, libraryStats } from "../lib/creatorVideos";

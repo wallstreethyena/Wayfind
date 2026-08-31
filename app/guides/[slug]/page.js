@@ -33,8 +33,9 @@ import { siteTodayStr } from "../../../lib/siteTime";
 // only on /tonight, /date-night and seven siblings — all `noindex, nofollow`.
 // The moat was invisible to search and absent from the pages search can see.
 import { nowContext } from "../../../lib/nowContext";
-import { guidePicksForNow, guideNowHeadline, guideNowExplainer, guideWeather, indoorSiblingFor, indoorFromInventory, regionCity } from "../../../lib/guideNow";
+import { guidePicksForNow, guideNowHeadline, guideNowExplainer, guideWeather, indoorSiblingFor, indoorFromInventory, regionCity, regionCoords } from "../../../lib/guideNow";
 import { existingTypeSignals } from "../../../lib/placeCategory";
+import { wayfindScore } from "../../../lib/wayfindScore";
 
 /**
  * Rating + review count for a place from OUR OWN inventory.
@@ -243,6 +244,42 @@ async function inventoryPlace(pick, near) {
   return null;
 }
 
+// One cached inventory read for the guide's live recommendation modules.
+// This deliberately avoids rankedFor(): its runtime cache uses `no-store`,
+// which makes a statically generated guide switch rendering modes only when
+// weather or a sparse CTA activates a fallback (Next's static-to-dynamic
+// production error). Inventory already contains the score/photo/editorial
+// fields these modules need and costs no Places request.
+async function inventoryPlacesForRegion(region, limit = 80) {
+  if (isSsgBuild()) return [];
+  const center = regionCoords(region);
+  const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
+  const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
+  if (!center || !url || !anon) return [];
+  const pad = 0.75;
+  const query = `lat=gte.${(center.lat - pad).toFixed(4)}&lat=lte.${(center.lat + pad).toFixed(4)}&lng=gte.${(center.lng - pad).toFixed(4)}&lng=lte.${(center.lng + pad).toFixed(4)}`;
+  try {
+    const response = await guideFetch(
+      `${url}/rest/v1/wf_inventory?select=place_id,name,lat,lng,primary_type,google_types,signals,photo_ref,editorial&status=eq.OPERATIONAL&${query}&limit=${Math.max(1, Math.min(120, limit))}`,
+      { headers: { apikey: anon, Authorization: "Bearer " + anon }, next: { revalidate: 3600 } },
+    );
+    if (!response.ok) return [];
+    const rows = await response.json();
+    return (Array.isArray(rows) ? rows : []).map((row) => {
+      const rating = Number(row && row.signals && row.signals.rating);
+      const reviews = Number(row && row.signals && row.signals.reviews);
+      const score = wayfindScore(rating, reviews);
+      if (!row || !row.place_id || !row.name || score == null) return null;
+      return {
+        id: row.place_id, name: row.name, rating, reviews,
+        lat: row.lat, lng: row.lng, photoRef: row.photo_ref || null,
+        types: existingTypeSignals(row), primary_type: row.primary_type || null,
+        editorial: row.editorial || null, governed_score: score, wfScore: score,
+      };
+    }).filter(Boolean).sort((a, b) => (b.governed_score - a.governed_score) || (b.reviews - a.reviews));
+  } catch (e) { return []; }
+}
+
 import GuidePlaceCard from "../../components/GuidePlaceCard";
 import { placeCardHook } from "../../../lib/rankingWhy";
 // v8.14 — THE CARD CONTRACT'S CSS. IconicPlaceCard renders class names
@@ -263,7 +300,7 @@ import PremiumIntentHero from "../../components/PremiumIntentHero";
 import ExploreBridge from "../../components/ExploreBridge";
 import IntentPartnerPick from "../../components/IntentPartnerPick";
 import { guideRailIntent } from "../../../lib/railPlacement";
-import { LANDING_CITIES, rankedFor, whyLine } from "../../../lib/landing";
+import { LANDING_CITIES } from "../../../lib/landing";
 import { isSsgBuild, guideFetch } from "../../../lib/landingInventory";
 
 // 15 minutes. Long enough that the weather fetch is nearly free, short enough
@@ -532,51 +569,8 @@ export default async function GuidePage({ params }) {
       socialStatus = "ok";
     }
   }
-  if (!social && primaryCta && primaryCta.place) {
-    const cityKey = (g.region === "Tampa" ? "tampa" : g.region === "Sarasota" ? "sarasota" : "orlando");
-    if (!LANDING_CITIES[cityKey]) {
-      socialStatus = "unavailable";
-      console.error(`[guide] social proof: no LANDING_CITIES entry for "${cityKey}" (${params.slug})`);
-    } else if (isSsgBuild() || !(process.env.GOOGLE_MAPS_SERVER_KEY || "").trim()) {
-      // rankedFor is inventory-first now, but SSG still skips the fallback so
-      // a Vercel preview cannot wait on Places / a hung library read.
-      socialStatus = "unavailable";
-      console.log(`[guide] social proof: SSG or Places key unconfigured — rankedFor skipped (${params.slug})`);
-    } else {
-      try {
-        const rows = await rankedFor("things-to-do", cityKey, LANDING_CITIES[cityKey]);
-        if (!Array.isArray(rows)) {
-          socialStatus = "unavailable";
-          console.error(`[guide] social proof: rankedFor returned ${rows === null ? "null" : typeof rows} for ${cityKey} (${params.slug})`);
-        } else if (!rows.length) {
-          // Zero rows is NOT a legitimate empty here — this metro has hundreds of
-          // attractions in inventory, so an empty result means the lookup is
-          // degraded (Places quota, cache miss), not that Orlando is empty.
-          socialStatus = "unavailable";
-          console.error(`[guide] social proof: rankedFor returned 0 rows for ${cityKey} — inventory is not empty, so this is a degraded lookup (${params.slug})`);
-        } else {
-          const want = String(primaryCta.place).toLowerCase();
-          const hit = rows.find((r) => {
-            const n = String(r.name || "").toLowerCase();
-            return n && (n.includes(want) || want.includes(n));
-          });
-          if (hit && hit.rating > 0 && hit.reviews >= 15) {
-            social = { rating: hit.rating, reviews: hit.reviews, name: hit.name };
-            socialStatus = "ok";
-          }
-        }
-      } catch (e) {
-        socialStatus = "unavailable";
-        console.error(`[guide] social proof threw for ${cityKey} (${params.slug}): ${String(e && e.message).slice(0, 160)}`);
-      }
-    }
-
   // TIER 3 — the live product, deliberately placed AFTER the social-proof
-  // section above. check-guide-deal-cards enforces that our own inventory is
-  // consulted BEFORE rankedFor, because rankedFor reaches Google Places and
-  // cannot answer during `next build`. Inserting this earlier broke that
-  // ordering; the guard caught it. Same code, correct position.
-  // TIER 3 — the live product. When neither this guide nor a sibling can answer
+  // section above. When neither this guide nor a sibling can answer
   // the conditions, fall back to real ranked inventory for the region rather
   // than leaving the visitor at a dead end. This is what makes the fix scale:
   // no editorial work per guide, and it covers Bradenton, whose three guides
@@ -585,11 +579,10 @@ export default async function GuidePage({ params }) {
     try {
       const citySlug = regionCity(g.region);
       if (citySlug) {
-        const ranked = await rankedFor("things-to-do", citySlug, { limit: 24 });
-        liveIndoor = indoorFromInventory(ranked && ranked.places ? ranked.places : ranked);
+        const ranked = await inventoryPlacesForRegion(g.region, 80);
+        liveIndoor = indoorFromInventory(ranked, 4);
       }
     } catch (e) { liveIndoor = []; }
-  }
   }
   // v4.18: FAQ structured data — makes these guides eligible for expanded
   // FAQ rich results in search, which lifts click-through beyond position.
@@ -599,8 +592,8 @@ export default async function GuidePage({ params }) {
     mainEntity: g.faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
   } : null;
   // Region -> landing city (all four guide regions exist as landing slugs).
-  // rankedFor reuses the SAME 30-day cached rows as /go/[city], so this adds no
-  // new metered Places spend beyond the first render per city.
+  // The bridge reuses the same cached inventory-only read as the live indoor
+  // fallback, so it cannot trigger Places spend or a static-to-dynamic switch.
   const bridgeSlug = String(g.region || "Orlando").toLowerCase().replace(/\s+/g, "-");
   const bridgeCity = LANDING_CITIES[bridgeSlug] || null;
   // What this guide sells under, derived from what it IS — the same
@@ -609,13 +602,12 @@ export default async function GuidePage({ params }) {
   let bridgePicks = [];
   if (bridgeCity && !isSsgBuild()) {
     try {
-      const ranked = await rankedFor("things-to-do", bridgeSlug, { withPhotos: true });
-      bridgePicks = (Array.isArray(ranked) ? ranked : []).slice(0, 3).map((p) => ({
+      const ranked = await inventoryPlacesForRegion(g.region, 80);
+      bridgePicks = ranked.slice(0, 3).map((p) => ({
         id: p.id, name: p.name, rating: p.rating, reviews: p.reviews,
         distMi: p.distMi, openNow: p.openNow, photoRef: p.photoRef || null,
-        // Sourced why only — same helper the ranked landing pages use.
-        // No Atlas/curated/editorial why → empty, never a star sentence.
-        reason: whyLine(p, "spot"),
+        // Inventory editorial is sourced; absence stays empty.
+        reason: p.editorial || null,
       }));
     } catch (e) { bridgePicks = []; }
   }
