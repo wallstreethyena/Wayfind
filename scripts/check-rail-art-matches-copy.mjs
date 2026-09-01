@@ -131,17 +131,13 @@ const PAIRS = {
   breakfast: { copy: "357ed5dfa8609429", art: "502233352f9fc2aa" },
   blog: { copy: "390c7f9cbf645d12", art: "3af2ada7cdef7446" },
   break: { copy: "8da3d9103f225a40", art: "23219929258396e1" },
-  // v14 (2026-08-30) — FOUNDER LOCK. 1086×1448 Adobe DATE NIGHT poster
-  // (wayfind / DATE NIGHT / within 27 miles / Impress. Every time.).
-  // Regenerated at 760×1013 (source 3:4, --preserve-frame). No BEST NIGHT,
-  // no TONIGHT'S MOVE icon row. Rail copy unchanged (title Date Night /
-  // Book date night). Pixels live in the image.
-  // v8.93 re-pin, CONFIRMED BY READING BOTH. The poster's baked type is
+  // 2026-09-01 re-pin, CONFIRMED BY READING BOTH. The owner's true 9:16 pink
+  // LOVE poster replaces the earlier 941×1672 frame and is regenerated at
+  // 760×1350 with no redraw. The poster's baked type is
   // "DATE NIGHT / An unforgettable night. Already planned."; the rail copy is
   // short "Already planned", sub "An unforgettable night, ranked for two".
-  // The old sub ("The room matters as much as the food") described a poster
-  // that no longer exists, which is exactly what this guard is for.
-  datenight: { copy: "dee84f0d45e6897a", art: "1b432d0ac5e1ce24" },
+  // The LOVE prop is visual only and adds no unsupported product claim.
+  datenight: { copy: "dee84f0d45e6897a", art: "f6c1d8f07a4f1e1b" },
   drive: { copy: "3886fcf87019ef5d", art: "e338daa7257af817" },
   eat: { copy: "e76ee14790d3fb92", art: "18d7d66f30860e3d" },
   // v8.29.16 — RE-PINNED, PIXELS READ AT 760px BEFORE PINNING (the bar this
