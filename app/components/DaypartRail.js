@@ -66,6 +66,7 @@ const DateNightRails = dynamic(() => import("./DateNightRails"), { ssr: false })
 // Birthday uses the same lazy multi-rail contract: the seven evidence-gated
 // rails are absent from the homepage bundle until its postcard is opened.
 const BirthdayRails = dynamic(() => import("./BirthdayRails"), { ssr: false });
+const BreakfastRails = dynamic(() => import("./BreakfastRails"), { ssr: false });
 import { DAYPARTS, partForHour, orderFor, railHref, dateNightIntentHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES, railArtSize } from "../../lib/rails.js";
@@ -695,6 +696,36 @@ export default function DaypartRail({
     return () => { cancelled = true; };
   }, [center && center.lat, center && center.lng, lat, lng, daypart, initialDaypart, retryNonce]);
 
+  // Birthday is the only heavy composed poster that was still completely
+  // cold until the tap. Warm its exact two-decimal cell during browser idle,
+  // after the homepage rails have had first priority. This uses owned
+  // inventory only (zero Google requests) and the URL is byte-identical to
+  // BirthdayRails, so the later tap gets the browser/CDN/runtime-cache answer.
+  useEffect(() => {
+    if (!center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) return undefined;
+    const cell = `${center.lat.toFixed(2)}|${center.lng.toFixed(2)}`;
+    const storageKey = `wf_birthday_warm:${cell}`;
+    try { if (sessionStorage.getItem(storageKey)) return undefined; } catch (_) {}
+    let cancelled = false;
+    const run = () => {
+      if (cancelled) return;
+      try { sessionStorage.setItem(storageKey, "1"); } catch (_) {}
+      const q = new URLSearchParams({ lat: center.lat.toFixed(2), lng: center.lng.toFixed(2), v: "2" });
+      fetch("/api/birthday?" + q.toString()).catch(() => {
+        // A failed warm-up is allowed to try again on the next page view.
+        try { sessionStorage.removeItem(storageKey); } catch (_) {}
+      });
+    };
+    const idle = typeof window !== "undefined" && window.requestIdleCallback
+      ? window.requestIdleCallback(run, { timeout: 3500 })
+      : setTimeout(run, 1800);
+    return () => {
+      cancelled = true;
+      if (typeof window !== "undefined" && window.cancelIdleCallback) window.cancelIdleCallback(idle);
+      else clearTimeout(idle);
+    };
+  }, [center && center.lat, center && center.lng]);
+
   // Armed off railLoad alone, on purpose. Re-running the load effect sets
   // LOAD_PENDING again, but React bails out on an identical value, so this
   // does not re-render and the timer is NOT re-armed — the voice appears a
@@ -997,7 +1028,7 @@ export default function DaypartRail({
   // Neither may fall through to the generic place pool: doing so made the
   // Events drop begin with real happenings and end with buildings where an
   // event might happen on some other date.
-  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "events"));
+  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "breakfast" || selRail.id === "events"));
   // v8.22 (owner: "when the amazon rail card is selected make sure it becomes
   // the main focus on the screen"). The pulsing glow marks the card; this
   // brings it there — the open tile centers itself in the track, so the
@@ -1424,6 +1455,23 @@ export default function DaypartRail({
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
               city={shown.cityLabel || ""}
               onTrack={(name, props) => logEvent(name, props)}
+              onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
+              isSaved={isSaved || undefined}
+              liked={liked || undefined}
+              disliked={disliked || undefined}
+              isLiked={isLiked || undefined}
+              isDisliked={isDisliked || undefined}
+              onSave={onSave || undefined}
+              onLike={onLike || undefined}
+              onDislike={onDislike || undefined}
+              onShare={onShare || undefined}
+            />
+          ) : null}
+
+          {selRail && selRail.id === "breakfast" ? (
+            <BreakfastRails
+              places={dropList}
+              city={shown.cityLabel || ""}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
               liked={liked || undefined}

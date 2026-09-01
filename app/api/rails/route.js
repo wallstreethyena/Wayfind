@@ -34,6 +34,7 @@ import { LANDING_CITIES } from "../../../lib/landing";
 import { railMenuData } from "../../../lib/railsData";
 import { DAYPART_IDS } from "../../../lib/dayparts";
 import { nearestCoveredCity } from "../../../lib/railCoverage";
+import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 
 export const revalidate = 3600;
 // The platform's own ceiling, one layer outside railsData's 20s deadline and
@@ -99,7 +100,13 @@ export async function GET(req) {
     // Pools stay per-metro cached; distances, distance gates and the
     // creators pool re-origin on the visitor. The client snaps coordinates
     // to a coarse grid before asking, so the CDN cache keys stay countable.
-    const data = await railMenuData(slug, { origin, requireOrigin: true, band });
+    const key = `menu:${slug}:${geoCell(la)}:${geoCell(ln)}:${band || "all"}`;
+    const cached = await fastCachedRail(
+      key,
+      () => railMenuData(slug, { origin, requireOrigin: true, band }),
+      { name: "homepage-rails", usable: (value) => !!(value && value.failed !== true) },
+    );
+    const data = cached.value;
     // A DEGRADED ANSWER MUST NOT BE CACHED AS THE TRUTH (v8.74). railMenuData
     // now returns `failed: true` when the build did not complete — but this
     // route was about to hand that empty payload to the CDN with an hour of
@@ -117,6 +124,7 @@ export async function GET(req) {
         "Cache-Control": degraded
           ? "no-store"
           : "public, s-maxage=3600, stale-while-revalidate=86400",
+        "x-wayfind-fast-cache": cached.state,
       },
     });
   } catch (e) {

@@ -21,6 +21,7 @@ import {
   composeDateNightRails,
   toDateNightPlace,
 } from "../../../lib/dateNightIntent.js";
+import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 
 const WX_URL =
   "https://api.open-meteo.com/v1/forecast?current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,dew_point_2m" +
@@ -66,23 +67,11 @@ async function fetchWeather(lat, lng) {
   }
 }
 
-export async function GET(req) {
-  const { searchParams } = new URL(req.url);
-  const lat = parseFloat(searchParams.get("lat"));
-  const lng = parseFloat(searchParams.get("lng"));
-  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-    return json({ error: "lat and lng are required" }, 400, "no-store");
-  }
-  const hourRaw = parseFloat(searchParams.get("hour"));
-  const hour = Number.isFinite(hourRaw) ? hourRaw : undefined;
-  const city = String(searchParams.get("city") || "").slice(0, 40) || null;
+async function buildDateNightAnswer({ lat, lng, city, hour }) {
   const radiusM = DATE_NIGHT_WIDEN_MI * 1609.34;
   const n = BROWSE_INVENTORY_N;
   const origin = { lat, lng };
 
-  // Weather must NEVER block Dinner. Kick it off, then compose with whatever
-  // has arrived by the time inventory returns. If weather is still in flight,
-  // fail closed to Museums (dateNightBeachOk). No new vendor, no guess.
   let wxSignals = { weatherKnown: false, outdoorOK: false, beachShow: false, gateWhy: null };
   const wxReady = Promise.all([
     fetchWeather(lat, lng),
@@ -97,7 +86,7 @@ export async function GET(req) {
     };
   }).catch(() => {});
 
-  const [food, dessert, speakeasy, music, clubs, spa, tours, museums, beaches] = await Promise.all([
+  const pools = await Promise.all([
     serveFromInventory("food", lat, lng, radiusM, n),
     serveFromInventory("food", lat, lng, radiusM, n, "dessert"),
     serveFromInventory("nightlife", lat, lng, radiusM, n, "speakeasy"),
@@ -110,22 +99,49 @@ export async function GET(req) {
   ]);
 
   await Promise.race([wxReady, Promise.resolve()]);
-
   const seen = new Set();
   const places = [];
-  for (const raw of [...food, ...dessert, ...speakeasy, ...music, ...clubs, ...spa, ...tours, ...museums, ...beaches]) {
+  for (const raw of pools.flat()) {
     const row = toDateNightPlace(raw, origin);
     if (!row || seen.has(row.id)) continue;
     seen.add(row.id);
     places.push(row);
   }
-
-  const signals = {
+  const composed = composeDateNightRails(places, {
     weatherKnown: wxSignals.weatherKnown,
     outdoorOK: wxSignals.outdoorOK,
     beachShow: wxSignals.beachShow,
+  });
+  return {
+    rails: composed.rails,
+    beachOk: composed.beachOk,
+    hidden: composed.hidden,
+    weather: {
+      known: wxSignals.weatherKnown,
+      outdoorOK: wxSignals.outdoorOK,
+      beachShow: wxSignals.beachShow,
+      gateWhy: wxSignals.gateWhy,
+    },
   };
-  const composed = composeDateNightRails(places, signals);
+}
+
+export async function GET(req) {
+  const { searchParams } = new URL(req.url);
+  const lat = parseFloat(searchParams.get("lat"));
+  const lng = parseFloat(searchParams.get("lng"));
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return json({ error: "lat and lng are required" }, 400, "no-store");
+  }
+  const hourRaw = parseFloat(searchParams.get("hour"));
+  const hour = Number.isFinite(hourRaw) ? hourRaw : undefined;
+  const city = String(searchParams.get("city") || "").slice(0, 40) || null;
+  const hourBucket = Number.isFinite(hour) ? Math.floor(hour / 3) : "auto";
+  const key = `date-night:${geoCell(lat)}:${geoCell(lng)}:${hourBucket}`;
+  const cached = await fastCachedRail(key, () => buildDateNightAnswer({ lat, lng, city, hour }), {
+    name: "date-night-rails",
+    usable: (value) => !!(value && Array.isArray(value.rails) && value.rails.length),
+  });
+  const answer = cached.value;
 
   // …AND A DEGRADED ANSWER IS STILL NOT CACHED AS THE TRUTH (the v8.74 rule
   // /api/rails carries, which arrives here the moment this route becomes
@@ -137,16 +153,9 @@ export async function GET(req) {
   // sometimes it doesn't" report that rule was written for. no-store means the
   // very next request rebuilds and the cell self-heals; a real answer keeps
   // the hour it earned.
-  const empty = !composed.rails || composed.rails.length === 0;
-  return json({
-    rails: composed.rails,
-    beachOk: composed.beachOk,
-    hidden: composed.hidden,
-    weather: {
-      known: wxSignals.weatherKnown,
-      outdoorOK: wxSignals.outdoorOK,
-      beachShow: wxSignals.beachShow,
-      gateWhy: wxSignals.gateWhy,
-    },
-  }, 200, empty ? "no-store" : undefined);
+  const empty = !answer.rails || answer.rails.length === 0;
+  return Response.json(answer, { status: 200, headers: {
+    "cache-control": empty ? "no-store" : "public, s-maxage=3600, stale-while-revalidate=86400",
+    "x-wayfind-fast-cache": cached.state,
+  } });
 }
