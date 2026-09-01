@@ -36,19 +36,22 @@ import { gateShut } from "../../../../lib/spendGate";
 //     /api/cron/job-watch sees "attempted 10, succeeded 0" instead of a green 200,
 //   * the response body reports rejects by reason, not just a count.
 //
-// COST AND CADENCE. Place Details (New) at ~$0.017/record. ?limit is hard-capped
-// at 25, so a single invocation can never spend more than ~$0.43 no matter what
-// calls it. vercel.json fires this four times an hour (:05 :20 :35 :50) rather
-// than hourly: the initial backlog is 4,732 places, and at 25/hour that is eight
-// days of a visibly thin map. At 100/hour the home market clears in about 16
-// hours and the whole backlog in two days, then the queue is only ever the
-// trickle the enqueue trigger adds — a handful an hour — so the steady-state
-// spend collapses to near zero on its own. The ceiling is bounded either way:
-// four fires x $0.43 = $1.72/hour worst case, and the job idles at $0 the moment
-// the queue is empty.
+// COST AND CADENCE (2026-09-01). Place Details (New) at ~$0.017/record.
+// batch_limit is no longer a hardcoded 25 — it is read live from
+// public.wf_promote_config (migration 20260901_wf_promote_config.sql) and
+// self-tunes between runs (lib/promoteThrottle.js), clamped to [1, 50]; a
+// config read/parse failure falls back to the static 25 it replaced, never to
+// 0 (silent stop) or unbounded. vercel.json now fires this every 5 minutes
+// (12x/hour) rather than four times an hour: at the claim RPC's own 50-row
+// cap that is a ~600/hour ceiling (12 x $0.85 = ~$10.20/hour worst case, only
+// ever reached if every run earns the +25% step by staying under the 5% error
+// bar with a full queue) with a self-imposed floor of 5/run the moment error
+// rate climbs past 20% or Google returns a 429. The job idles at $0 the
+// moment the queue is empty either way.
 import { sbEnv } from "../../../../lib/serverCache";
 import { recordPulse } from "../../../../lib/jobPulse";
-import { decidePromotion, dedupeById, PROMOTE_METROS } from "../../../../lib/promoteIndex";
+import { decidePromotion, dedupeById, PROMOTE_METROS, metrosFromRows } from "../../../../lib/promoteIndex";
+import { clampBatchLimit, nextBatchLimit } from "../../../../lib/promoteThrottle";
 import { jobFailed } from "../../../../lib/jobFail";
 
 export const runtime = "nodejs";
@@ -68,7 +71,6 @@ const DETAILS_MASK = [
   "rating", "userRatingCount", "priceLevel", "businessStatus", "editorialSummary", "photos",
 ].join(",");
 
-const HARD_LIMIT = 25;              // per invocation, ~$0.43 ceiling
 const COST_PER_RECORD = 0.017;
 const GKEY = () => (process.env.GOOGLE_MAPS_SERVER_KEY || "").trim();
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -127,6 +129,78 @@ async function rpc(s, fn, body) {
   return r.json();
 }
 
+// fetchLiveMetros — the FIX for the 2026-09-01 outage. PROMOTE_METROS is a JS
+// constant; public.wf_promote_metros (migration 20260813_wf_promote_metros.sql)
+// is the table it was always supposed to mirror, and the two silently diverged
+// on 2026-08-23 when miami-dade/broward/palm-beach/keys/florida were added to
+// the table only. wf_bucket_metro() (the SQL twin, called by the enqueue
+// trigger) picked the new rows up immediately; this route did not, so every
+// place the queue correctly tagged with a new metro was rejected right back
+// out by validateInventoryRow with "unknown metro: <name>" — ~1,467 places
+// over nine days. Read fresh every run (cache:"no-store" — a cached read here
+// is the same poisoned-cache class as the write-caching bug documented above
+// rpc(), just on the read side) so a metro added to the table is honored on
+// this run, not the next deploy. Returns null (never {}) on any failure or
+// empty result, so the caller can tell "fetch failed, fall back" apart from
+// "the table legitimately has zero active metros" — the two must never be
+// treated the same, since the latter reading would reject everything.
+async function fetchLiveMetros(s) {
+  try {
+    const r = await fetch(
+      `${s.url}/rest/v1/wf_promote_metros?select=metro,min_lat,max_lat,min_lng,max_lng,active&active=is.true`,
+      { cache: "no-store", headers: { apikey: s.key, authorization: "Bearer " + s.key } }
+    );
+    if (!r.ok) { console.warn(`[promote-index] wf_promote_metros lookup ${r.status} — falling back to PROMOTE_METROS`); return null; }
+    const metros = metrosFromRows(await r.json());
+    return Object.keys(metros).length ? metros : null;
+  } catch (e) {
+    console.warn(`[promote-index] wf_promote_metros unavailable this run, falling back to PROMOTE_METROS: ${String(e && e.message).slice(0, 120)}`);
+    return null;
+  }
+}
+
+// fetchPromoteConfig — the single wf_promote_config row (id=1). null on any
+// failure (missing table pre-migration, unreachable, malformed) so the caller
+// falls back through clampBatchLimit's own default (25) rather than crashing
+// the drain over a throttle it can perfectly well run without.
+async function fetchPromoteConfig(s) {
+  try {
+    const r = await fetch(
+      `${s.url}/rest/v1/wf_promote_config?select=batch_limit,auto&id=eq.1`,
+      { cache: "no-store", headers: { apikey: s.key, authorization: "Bearer " + s.key } }
+    );
+    if (!r.ok) { console.warn(`[promote-index] wf_promote_config lookup ${r.status} — falling back to the static batch size`); return null; }
+    const rows = await r.json();
+    return Array.isArray(rows) && rows[0] ? rows[0] : null;
+  } catch (e) {
+    console.warn(`[promote-index] wf_promote_config unavailable this run, falling back to the static batch size: ${String(e && e.message).slice(0, 120)}`);
+    return null;
+  }
+}
+
+// writePromoteConfig — best-effort. A failed write leaves batch_limit exactly
+// where it was for the NEXT run to read (never silently reset), and never
+// blocks or fails the drain itself — same fail-soft posture as recordPulse.
+async function writePromoteConfig(s, { batchLimit, promoted, rejected, errors }) {
+  try {
+    const r = await fetch(`${s.url}/rest/v1/wf_promote_config?id=eq.1`, {
+      method: "PATCH",
+      cache: "no-store",
+      headers: { apikey: s.key, Authorization: `Bearer ${s.key}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify({
+        batch_limit: batchLimit,
+        last_run_promoted: promoted,
+        last_run_rejected: rejected,
+        last_run_errors: errors,
+        updated_at: new Date().toISOString(),
+      }),
+    });
+    if (!r.ok) console.warn(`[promote-index] wf_promote_config write-back ${r.status} — next run keeps the last saved batch_limit`);
+  } catch (e) {
+    console.warn(`[promote-index] wf_promote_config write-back failed: ${String(e && e.message).slice(0, 120)}`);
+  }
+}
+
 export async function GET(req) {
   // COST GUARD (2026-08-25): WAYFIND_GATE=shut stops ALL metered Google spend.
   if (gateShut()) return Response.json({ skipped: "gate shut" });
@@ -150,10 +224,23 @@ export async function GET(req) {
     return Response.json({ ok: false, error: "missing GOOGLE_MAPS_SERVER_KEY" });
   }
 
-  const limit = Math.max(1, Math.min(parseInt(url.searchParams.get("limit") || "10", 10) || 10, HARD_LIMIT));
+  // Live metro geography (see fetchLiveMetros above). Falls back to the static
+  // PROMOTE_METROS only when the table can't be reached — never silently to
+  // "nothing is valid".
+  const metros = (await fetchLiveMetros(s)) || PROMOTE_METROS;
+
+  // Adaptive batch size (2026-09-01) — see lib/promoteThrottle.js. configRow is
+  // null pre-migration/unreachable; clampBatchLimit's own fallback (25, the
+  // static value this replaces) covers that with no special-casing here.
+  const configRow = await fetchPromoteConfig(s);
+  const configBatchLimit = clampBatchLimit(configRow && configRow.batch_limit);
+  const autoTune = !configRow || configRow.auto !== false; // missing row/column reads as "auto" — the pre-migration default
+  // ?limit= is still an operator override for manual/debug invocations, but it
+  // can never exceed the current adaptive ceiling.
+  const limit = Math.max(1, Math.min(parseInt(url.searchParams.get("limit") || "", 10) || configBatchLimit, configBatchLimit));
   const metroParam = (url.searchParams.get("metro") || "").trim();
-  if (metroParam && !PROMOTE_METROS[metroParam]) {
-    return Response.json({ ok: false, error: `unknown metro "${metroParam}"`, known: Object.keys(PROMOTE_METROS) });
+  if (metroParam && !metros[metroParam]) {
+    return Response.json({ ok: false, error: `unknown metro "${metroParam}"`, known: Object.keys(metros) });
   }
   const metro = metroParam || null;
   const nowIso = new Date().toISOString();
@@ -206,7 +293,7 @@ export async function GET(req) {
     // scripts/test-promote-decision.mjs. A "reject" is a verdict about the DATA
     // (unclassifiable, closed, out of bounds) — re-fetching buys the same answer,
     // so the queue must not retry it and pay Google again.
-    const verdict = decidePromotion(d.place, item.metro, nowIso, adjudicated.get(item.place_id) || null);
+    const verdict = decidePromotion(d.place, item.metro, nowIso, adjudicated.get(item.place_id) || null, metros);
     if (verdict.action !== "promote") {
       rejects.push({ place_id: item.place_id, name: item.name, error: verdict.error });
       continue;
@@ -256,6 +343,20 @@ export async function GET(req) {
     : (succeeded === 0 && claimed.length > 0 ? `0/${claimed.length} promoted; top reject: ${(rejects[0] && rejects[0].error) || "none"}`.slice(0, 200) : null);
   await recordPulse("promote-index", { attempted: claimed.length, succeeded, note });
 
+  // Adaptive step (2026-09-01) — see lib/promoteThrottle.js. `errors` here is
+  // OPERATIONAL distress (transient/retry fetch failures + a failed upsert),
+  // never decidePromotion's own data verdicts — an unclassifiable or
+  // out-of-bounds place is a correct reject and must not throttle the drain.
+  // `queueNonEmpty` is a proxy (a full claim), not a fresh COUNT query — see
+  // the comment on nextBatchLimit for why that tradeoff is deliberate.
+  const errors = retries.length + (writeError ? okIds.length : 0);
+  const sawRateLimit = retries.some((r) => /\b429\b/.test(r.error || ""));
+  const queueNonEmpty = claimed.length >= limit;
+  const nextLimit = autoTune
+    ? nextBatchLimit(configBatchLimit, { attempted: claimed.length, errors, sawRateLimit, queueNonEmpty })
+    : configBatchLimit; // auto=false is an operator pin — leave batch_limit exactly as configured
+  await writePromoteConfig(s, { batchLimit: nextLimit, promoted: succeeded, rejected: rejects.length, errors });
+
   return Response.json({
     ok: !writeError,
     metro: metro || "(all)",
@@ -266,6 +367,8 @@ export async function GET(req) {
     deduped: dropped,
     estimatedSpendUSD: Math.round(claimed.length * COST_PER_RECORD * 100) / 100,
     writeError,
+    batchLimit: configBatchLimit,
+    nextBatchLimit: nextLimit,
     // Full reasons, not counts. The whole point of #438 was that a count told
     // you nothing about WHICH service was failing.
     rejectSample: rejects.slice(0, 5),

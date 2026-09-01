@@ -8,6 +8,7 @@ import { dirname, join } from "path";
 import {
   PROMOTE_METROS, bucketMetro, inBounds, computeMissing, planEnrichment,
   buildInventoryRow, reconcile, toWriteRow, validateInventoryRow, dedupeById, KNOWN_CATEGORIES,
+  decidePromotion, metrosFromRows,
 } from "../lib/promoteIndex.js";
 
 let pass = 0;
@@ -126,6 +127,51 @@ const gPlace = (over = {}) => ({
   eq(d.dropped, 2, "dropped 1 dup + 1 no-id");
 }
 ok(KNOWN_CATEGORIES.length === 6, "six known categories");
+
+// ── 5b. metrosFromRows + decidePromotion(metros) — the 2026-09-01 fix ────────
+// PROMOTE_METROS is the OFFLINE FALLBACK; the route/worker fetch
+// wf_promote_metros live and pass the result through decidePromotion's
+// `metros` param. This locks both the row→map shaping and that the param
+// actually reaches validateInventoryRow (it did not, before this fix — see
+// lib/promoteIndex.js decidePromotion history).
+{
+  const rows = [
+    { metro: "miami-dade", min_lat: 25.5, max_lat: 25.98, min_lng: -80.5, max_lng: -80.1, active: true },
+    { metro: "inactive-metro", min_lat: 1, max_lat: 2, min_lng: 1, max_lng: 2, active: false },
+    { metro: "bad-bounds", min_lat: 5, max_lat: 1, min_lng: 1, max_lng: 2, active: true }, // minLat > maxLat
+    { metro: null, min_lat: 1, max_lat: 2, min_lng: 1, max_lng: 2, active: true },
+    "not an object",
+  ];
+  const metros = metrosFromRows(rows);
+  eq(Object.keys(metros).join(","), "miami-dade", "metrosFromRows keeps only active, well-formed rows");
+  eq(metros["miami-dade"].minLat, 25.5, "metrosFromRows carries bounds through as numbers");
+  eq(Object.keys(metrosFromRows([])).length, 0, "metrosFromRows([]) is an empty map, not a throw");
+  eq(Object.keys(metrosFromRows(null)).length, 0, "metrosFromRows(null) degrades to an empty map");
+
+  const miamiPlace = {
+    id: "ChIJmiami00000000000000000",
+    displayName: { text: "A Miami Museum" },
+    location: { latitude: 25.76, longitude: -80.19 },
+    types: ["museum", "point_of_interest"], primaryType: "museum",
+    rating: 4.5, userRatingCount: 500, businessStatus: "OPERATIONAL",
+  };
+  // Reproduces the 2026-08-23/09-01 outage exactly: PROMOTE_METROS alone
+  // (the pre-fix behaviour — no 5th arg) does not know "miami-dade", so the
+  // place is rejected even though it is otherwise perfectly valid.
+  const withoutLive = decidePromotion(miamiPlace, "miami-dade", NOW);
+  ok(withoutLive.action === "reject" && /unknown metro: miami-dade/.test(withoutLive.error),
+    "without a live metros map, a real place in a DB-only metro is rejected as unknown — this is the bug");
+  // Pass the DB-fetched map through (metrosFromRows(rows) from above) — the
+  // SAME place now promotes.
+  const withLive = decidePromotion(miamiPlace, "miami-dade", NOW, null, metros);
+  ok(withLive.action === "promote", "with the live metros map threaded through, the fix promotes it: " + (withLive.error || ""));
+  eq(withLive.row.metro, "miami-dade", "the promoted row is stamped with the live-only metro");
+  // Existing 3-arg callers (route.js's pre-fix shape is gone, but the default
+  // must still work for every caller that has not been updated to pass a 5th
+  // arg) are unaffected — PROMOTE_METROS is still the implicit default.
+  const stillDefaults = decidePromotion({ ...miamiPlace, location: { latitude: 28.538, longitude: -81.379 } }, "orlando", NOW);
+  ok(stillDefaults.action === "promote", "omitting metros still defaults to PROMOTE_METROS for the four original served metros");
+}
 
 // ── 6. GUARD — orchestrator safety invariants (source-level) ─────────────────
 const orch = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "promote-index.mjs"), "utf8");

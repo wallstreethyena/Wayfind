@@ -65,3 +65,21 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/check-inventory-integrity.mjs
+
+  promote-metros:
+    name: promotion metro live parity
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci --no-audit --no-fund
+      # Catches the 2026-09-01 defect class: a metro added straight to
+      # wf_promote_metros with no matching migration, silently un-mirrored by
+      # lib/promoteIndex.js PROMOTE_METROS. Skips loudly without secrets.
+      - name: Promote-metros live drift
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/check-promote-metros-live-drift.mjs
