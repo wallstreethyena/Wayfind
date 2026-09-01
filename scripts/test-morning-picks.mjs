@@ -1,6 +1,7 @@
 // scripts/test-morning-picks.mjs — lock test for Morning Picks (lib/morningPicks.js).
 // Pure + deterministic. Pins the pre-11am LOCAL gate + honest café pick. Wire into prebuild.
 import { isMorning, isCafe, storyHeadline, getMorningPick, MORNING_HEADLINES } from "../lib/morningPicks.js";
+import { isCafePlace, splitBreakfastRails } from "../lib/breakfastRails.js";
 let n = 0, fail = 0;
 const ok = (c, m) => { n++; if (!c) { fail++; console.error("FAIL:", m); } };
 const ET = "America/New_York";
@@ -34,6 +35,19 @@ ok(pick.cta === "Explore Morning Picks →", "cta present");
 const h = storyHeadline({ place_id: "b" });
 ok(MORNING_HEADLINES.includes(h) && !/best coffee|top cafe/i.test(h), "story headline, not 'Best Coffee'");
 ok(storyHeadline({ place_id: "b" }) === storyHeadline({ place_id: "b" }), "headline deterministic");
+
+// The Breakfast poster owns two mutually-exclusive ranked rails.
+const split = splitBreakfastRails([
+  { id: "meal", name: "First Watch", primaryType: "breakfast_restaurant" },
+  { id: "cafe", name: "Buddy Brew Coffee", primaryType: "coffee_shop" },
+  { id: "named", name: "Downtown Café", primaryType: "restaurant" },
+  { id: "keke", name: "Keke's Breakfast Cafe", primaryType: "breakfast_restaurant" },
+]);
+ok(split.length === 2 && split[0].id === "breakfast-restaurants" && split[1].id === "breakfast-cafes", "breakfast answer has exactly two named rails");
+ok(split[0].places.map((p) => p.id).join(",") === "meal,keke", "meal-first places remain in ranked input order");
+ok(split[1].places.map((p) => p.id).join(",") === "cafe,named", "cafés remain in ranked input order");
+ok(isCafePlace({ name: "Breakfast Café", primaryType: "breakfast_restaurant" }) === false, "café in a breakfast restaurant name cannot demote its primary identity");
+ok(new Set(split.flatMap((rail) => rail.places.map((p) => p.id))).size === 4, "no place leaks into both rails");
 
 console.log(`test-morning-picks: ${n - fail}/${n} passed`);
 if (fail) process.exit(1);

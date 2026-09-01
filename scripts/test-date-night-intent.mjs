@@ -430,14 +430,13 @@ ok(nightOrder.includes("datenight"), "Date Night still exists in the night order
   // must not ALSO get the shared pool's. Date Night's drop ending in "nothing
   // near you clears this bar" underneath six full rails is the v8.82 empty-bar
   // screenshot arriving by a different road.
-  ok(/const railOwnsItsOwnAnswer = !!\(selRail && \(selRail\.id === "datenight" \|\| selRail\.id === "birthday" \|\| selRail\.id === "events"\)\)/.test(src),
-    "the drop knows Date Night, Birthday, and Events answer for themselves");
+  ok(/const railOwnsItsOwnAnswer = !!\(selRail && \(selRail\.id === "datenight" \|\| selRail\.id === "birthday" \|\| selRail\.id === "breakfast" \|\| selRail\.id === "events"\)\)/.test(src),
+    "the drop knows Date Night, Birthday, Breakfast, and Events answer for themselves");
   const branches = src.match(/\) : selRail && [^?]*\?/g) || [];
   ok(branches.length === 4, `the pool ternary chain is readable (positive control: ${branches.length} branches after the cards)`);
   // The CARDS branch stays open to Date Night on purpose: the pool below the
-  // rails is what trending does too (ExplodingNearby above, ranked rooms
-  // below), and it is the shelf the owner asked to come back. Only the three
-  // branches that SPEAK FOR AN EMPTY POOL are closed.
+  // rails used to be what trending does too. Composed-answer surfaces now own
+  // their entire drop so a generic pool cannot contradict their identity.
   const speaksForEmpty = branches.filter((b) => !/dropList\.length/.test(b));
   ok(speaksForEmpty.length === 3, `three fallback branches speak for an empty pool (got ${speaksForEmpty.length})`);
   ok(speaksForEmpty.every((b) => /railOwnsItsOwnAnswer/.test(b)),

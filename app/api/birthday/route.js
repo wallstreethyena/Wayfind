@@ -10,6 +10,7 @@ import { distMeters, serveFromInventory, serveInventoryByPlaceIds } from "../../
 import { NET_DEADLINE_MS } from "../../../lib/fetchDeadline.js";
 import { BIRTHDAY_WIDEN_MI, composeBirthdayRails } from "../../../lib/birthdayIntent.js";
 import { BIRTHDAY_REWARD_PLACE_IDS, birthdayRewardFor } from "../../../lib/birthdayRewards.js";
+import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 
 function json(body, status = 200, cache = "public, s-maxage=3600, stale-while-revalidate=86400") {
   return Response.json(body, { status, headers: { "cache-control": cache } });
@@ -59,48 +60,46 @@ export async function GET(request) {
     return json({ error: "lat and lng are required" }, 400, "no-store");
   }
 
-  const radiusM = BIRTHDAY_WIDEN_MI * 1609.34;
-  const n = BROWSE_INVENTORY_N;
-  const origin = { lat, lng };
-  const retryRead = async (operation) => {
-    let lastError = null;
-    for (let attempt = 0; attempt < 2; attempt += 1) {
-      try { return await operation(); } catch (error) { lastError = error; }
-    }
-    throw lastError || new Error("Birthday inventory read failed");
-  };
-
-  let pools;
+  const key = `birthday:${geoCell(lat)}:${geoCell(lng)}`;
   try {
-    // Only the two identities that can honestly satisfy the five experience
-    // rails are broad reads. Gifts are a tiny exact-ID lookup. This replaces
-    // six 1,000-row reads and prevents hotels, shops, beaches and attractions
-    // from being fetched only to be rejected after the fact.
-    const broadRead = { failLoud: true, primaryOnly: true, deadlineMs: NET_DEADLINE_MS };
-    const exactRead = { failLoud: true, deadlineMs: NET_DEADLINE_MS };
-    pools = await Promise.all([
-      retryRead(() => serveFromInventory("food", lat, lng, radiusM, n, undefined, broadRead)),
-      retryRead(() => serveFromInventory("nightlife", lat, lng, radiusM, n, undefined, broadRead)),
-      retryRead(() => serveInventoryByPlaceIds(BIRTHDAY_REWARD_PLACE_IDS, lat, lng, radiusM, exactRead)),
-    ]);
+    const cached = await fastCachedRail(key, async () => {
+      const radiusM = BIRTHDAY_WIDEN_MI * 1609.34;
+      const n = BROWSE_INVENTORY_N;
+      const origin = { lat, lng };
+      const broadRead = { failLoud: true, primaryOnly: true, deadlineMs: NET_DEADLINE_MS };
+      const exactRead = { failLoud: true, deadlineMs: NET_DEADLINE_MS };
+      // One bounded attempt per read. Retrying the same cold query doubled the
+      // wait and made a 6s miss look like a broken page.
+      const pools = await Promise.all([
+        serveFromInventory("food", lat, lng, radiusM, n, undefined, broadRead),
+        serveFromInventory("nightlife", lat, lng, radiusM, n, undefined, broadRead),
+        serveInventoryByPlaceIds(BIRTHDAY_REWARD_PLACE_IDS, lat, lng, radiusM, exactRead),
+      ]);
+
+      const seen = new Set();
+      const places = [];
+      for (const raw of pools.flat()) {
+        const place = toBirthdayPlace(raw, origin);
+        if (!place || seen.has(place.id)) continue;
+        seen.add(place.id);
+        if (!place.photo && !place.photoRef) continue;
+        places.push(place);
+      }
+      return composeBirthdayRails(places);
+    }, {
+      name: "birthday-rails",
+      usable: (value) => !!(value && Array.isArray(value.rails) && value.rails.some((rail) => rail.places?.length)),
+    });
+    const total = cached.value.rails.reduce((sum, rail) => sum + rail.places.length, 0);
+    return Response.json(cached.value, {
+      status: 200,
+      headers: {
+        "cache-control": total ? "public, s-maxage=3600, stale-while-revalidate=86400" : "no-store",
+        "x-wayfind-fast-cache": cached.state,
+      },
+    });
   } catch (error) {
     console.error("[api/birthday] inventory unavailable", { message: String(error?.message || error) });
     return json({ error: "Birthday inventory is temporarily unavailable" }, 503, "no-store");
   }
-
-  const seen = new Set();
-  const places = [];
-  for (const raw of pools.flat()) {
-    const place = toBirthdayPlace(raw, origin);
-    if (!place || seen.has(place.id)) continue;
-    seen.add(place.id);
-    // Birthday is a visual, premium surface. A missing owned photo is an
-    // enrichment task, not permission to paint an unrelated stock venue.
-    if (!place.photo && !place.photoRef) continue;
-    places.push(place);
-  }
-
-  const result = composeBirthdayRails(places);
-  const total = result.rails.reduce((sum, rail) => sum + rail.places.length, 0);
-  return json(result, 200, total ? undefined : "no-store");
 }

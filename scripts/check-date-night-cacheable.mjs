@@ -46,10 +46,12 @@ ok(!!sig && /stale-while-revalidate=\d+/.test(sig[1]),
   "…and stale-while-revalidate, so the first reader after expiry is served instantly while the rebuild happens behind them");
 
 // The safety property. Without it, caching makes a transient miss permanent.
-ok(/const empty = !composed\.rails \|\| composed\.rails\.length === 0;/.test(src),
+ok(/const empty = !answer\.rails \|\| answer\.rails\.length === 0;/.test(src),
   "the route knows whether it composed anything");
-ok(/empty \? "no-store" : undefined/.test(src),
+ok(/"cache-control": empty \? "no-store" : "public, s-maxage=3600, stale-while-revalidate=86400"/.test(src),
   "an EMPTY answer is no-store — a cached empty is a claim about the reader's town made out of one stalled read (v8.74)");
+ok(/fastCachedRail\(key,[\s\S]*usable: \(value\) => !!\(value && Array\.isArray\(value\.rails\) && value\.rails\.length\)/.test(src),
+  "the runtime cache keeps only a non-empty last-known-good answer");
 ok(/, 400, "no-store"\)/.test(src),
   "the 400 path stays no-store");
 
