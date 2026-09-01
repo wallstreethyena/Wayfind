@@ -68,6 +68,7 @@ const DateNightRails = dynamic(() => import("./DateNightRails"), { ssr: false })
 const BirthdayRails = dynamic(() => import("./BirthdayRails"), { ssr: false });
 const BreakfastRails = dynamic(() => import("./BreakfastRails"), { ssr: false });
 const WorthEatingRails = dynamic(() => import("./WorthEatingRails"), { ssr: false });
+const LunchBreakRails = dynamic(() => import("./LunchBreakRails"), { ssr: false });
 import { DAYPARTS, partForHour, orderFor, railHref, dateNightIntentHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES, railArtSize } from "../../lib/rails.js";
@@ -1029,7 +1030,7 @@ export default function DaypartRail({
   // Neither may fall through to the generic place pool: doing so made the
   // Events drop begin with real happenings and end with buildings where an
   // event might happen on some other date.
-  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "breakfast" || selRail.id === "eat" || selRail.id === "events"));
+  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "breakfast" || selRail.id === "break" || selRail.id === "eat" || selRail.id === "events"));
   // v8.22 (owner: "when the amazon rail card is selected make sure it becomes
   // the main focus on the screen"). The pulsing glow marks the card; this
   // brings it there — the open tile centers itself in the track, so the
@@ -1175,6 +1176,33 @@ export default function DaypartRail({
     }
     return base;
   }, [selected, chefPlaces, fallPool, selPlaces, sponsorCard]);
+
+  // Lunch is a format answer over the FOOD inventory, not merely the legacy
+  // `break` selector. The latter is intentionally narrow (quick-service within
+  // eight miles) and can fail its minimum-card floor as one empty array even
+  // while the same response carries dozens of useful meal cards under `eat`.
+  // Union the owned meal pools, keep the lunch radius, and let
+  // composeLunchBreakRails apply the seven mutually-exclusive identities.
+  const lunchBreakPlaces = useMemo(() => {
+    const rows = ["break", "eat", "breakfast"].flatMap((railId) => shown.places[railId] || []);
+    const seen = new Set();
+    return rows.filter((place) => {
+      if (!place?.id || seen.has(place.id)) return false;
+      if (Number.isFinite(place.distMi) && place.distMi > 8) return false;
+      seen.add(place.id);
+      return true;
+    });
+  }, [shown]);
+  const [lunchBreakLive, setLunchBreakLive] = useState(null);
+  useEffect(() => {
+    if (selected !== "break" || !center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) return undefined;
+    let cancelled = false;
+    const q = new URLSearchParams({ lat: center.lat.toFixed(2), lng: center.lng.toFixed(2) });
+    fetch("/api/lunch-break?" + q.toString())
+      .then((response) => response.ok ? response.json() : null)
+      .then((body) => { if (!cancelled && Array.isArray(body?.places) && body.places.length) setLunchBreakLive(body.places); }, () => {});
+    return () => { cancelled = true; };
+  }, [selected, center && center.lat, center && center.lng]);
 
   // The window follows the horizontal scroll of the open drop.
   //
@@ -1472,6 +1500,23 @@ export default function DaypartRail({
           {selRail && selRail.id === "breakfast" ? (
             <BreakfastRails
               places={dropList}
+              city={shown.cityLabel || ""}
+              onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
+              isSaved={isSaved || undefined}
+              liked={liked || undefined}
+              disliked={disliked || undefined}
+              isLiked={isLiked || undefined}
+              isDisliked={isDisliked || undefined}
+              onSave={onSave || undefined}
+              onLike={onLike || undefined}
+              onDislike={onDislike || undefined}
+              onShare={onShare || undefined}
+            />
+          ) : null}
+
+          {selRail && selRail.id === "break" ? (
+            <LunchBreakRails
+              places={lunchBreakLive || lunchBreakPlaces}
               city={shown.cityLabel || ""}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
