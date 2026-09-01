@@ -5,9 +5,9 @@
 // a non-9:16 owner poster into the 760×1350 ladder + .wf8-tim object-fit:cover
 // clipped the left-aligned type.
 //
-// FOUNDER LOCK (v8.93, 2026-08-30): the card is the owner's 941×1672 DATE
-// NIGHT poster — wayfind / DATE NIGHT / "An unforgettable night. Already
-// planned." BEST NIGHT / EVERY DETAIL, the 1086×1448 "Impress. Every time."
+// FOUNDER LOCK (2026-09-01): the card is the owner's 864×1536 pink DATE NIGHT
+// poster — wayfind / DATE NIGHT / "An unforgettable night. Already planned."
+// / LOVE. BEST NIGHT / EVERY DETAIL, the 1086×1448 "Impress. Every time."
 // Adobe frame, and TONIGHT'S MOVE / icon-row are all discarded.
 //
 // THE RULE GENERALISED, and that is the point of this revision. The invariant
@@ -68,7 +68,7 @@ function jpegSize(buf) {
   throw new Error("JPEG has no SOF");
 }
 
-const LOCKED = "tmp/datenight-final-adobe.png";
+const LOCKED = "tmp/datenight-love-poster.png";
 const SRC = "art/rail-sources/datenight.png";
 const OWNER = "public/cards/date-night-owner.png";
 const JPG = "public/cards-v8/datenight-760.jpg";
@@ -87,8 +87,8 @@ const src = pngSize(srcBuf);
 const owner = pngSize(ownerBuf);
 const jpg = jpegSize(jpgBuf);
 
-ok(locked.width === 941 && locked.height === 1672,
-  `founder lock is the 941×1672 DATE NIGHT poster (got ${locked.width}×${locked.height})`);
+ok(locked.width === 864 && locked.height === 1536,
+  `founder lock is the 864×1536 pink LOVE DATE NIGHT poster (got ${locked.width}×${locked.height})`);
 ok(!(src.width === 1024 && src.height === 1536),
   "BEST NIGHT / EVERY DETAIL (1024×1536) is discarded — not the rail source");
 ok(!(src.width === 1086 && src.height === 1448),
@@ -98,16 +98,16 @@ ok(src.width === locked.width && src.height === locked.height,
 ok(owner.width === locked.width && owner.height === locked.height,
   `/date-night hero PNG is the same full frame (got ${owner.width}×${owner.height})`);
 ok(sha(srcBuf) === sha(lockedBuf),
-  "art/rail-sources/datenight.png is byte-identical to the locked Adobe PNG");
+  "art/rail-sources/datenight.png is byte-identical to the locked owner PNG");
 ok(sha(ownerBuf) === sha(lockedBuf),
-  "public/cards/date-night-owner.png is byte-identical to the locked Adobe PNG");
+  "public/cards/date-night-owner.png is byte-identical to the locked owner PNG");
 
 const srcAspect = src.width / src.height;
 const jpgAspect = jpg.width / jpg.height;
 const BOX_ASPECT = 760 / 1350;
 // ON-RATIO is the whole question, and it is measured, never assumed. Within
 // half a percent of the tile box, a cover-fit resample moves fewer than four
-// pixels of a 1672px frame — no type can be clipped by that. Outside it,
+// pixels of a 1536px frame — no type can be clipped by that. Outside it,
 // cover is the #1031 left-edge crop and contain is required instead.
 const ON_RATIO = Math.abs(srcAspect - BOX_ASPECT) < 0.005;
 ok(ON_RATIO,
@@ -260,7 +260,7 @@ ok(!/date-night-adobestock-190984224/.test(intent),
 <div class="wf8" style="width:390px">
   <div class="wf8-track">
     <div class="wf8-tile" data-id="tonight"><img class="wf8-tim" alt="" width="760" height="1350"></div>
-    <div class="wf8-tile" data-id="datenight"><img class="wf8-tim" alt="" width="760" height="1013"></div>
+    <div class="wf8-tile" data-id="datenight"><img class="wf8-tim" alt="" width="760" height="1350"></div>
     <div class="wf8-tile" data-id="drive"><img class="wf8-tim" alt="" width="760" height="1350"></div>
   </div>
 </div>
