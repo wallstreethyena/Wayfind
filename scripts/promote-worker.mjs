@@ -19,7 +19,9 @@
 //                        Fetched live at run start; falls back to the static
 //                        PROMOTE_METROS four (manatee-sarasota, tampa,
 //                        st-pete, orlando) only if that fetch fails.
-//   --limit <n>         max places THIS run (default 100). Cost = n x $0.017.
+//   --limit <n>         max places THIS run (default 100). Cost = n x $0.025
+//                        (Details New Enterprise+Atmosphere — see COST_PER
+//                        below), minus whatever the spend ledger denies.
 //   --batch <n>         claim size per cycle. Clamped to the LIVE wf_promote_config
 //                        batch_limit (default: that value, currently self-tuned
 //                        5..50 by the cron — see lib/promoteThrottle.js); falls
@@ -38,6 +40,7 @@
 import { readFileSync, appendFileSync } from "node:fs";
 import { decidePromotion, dedupeById, PROMOTE_METROS, metrosFromRows } from "../lib/promoteIndex.js";
 import { clampBatchLimit } from "../lib/promoteThrottle.js";
+import { spendAllow } from "../lib/spendGate.js";
 
 // ── env (never logged) ──────────────────────────────────────────────────────
 const ENV = {};
@@ -71,6 +74,17 @@ if (/^eyJ[A-Za-z0-9_-]/.test(SB_KEY)) {
   console.error("Supabase Settings -> API Keys and set it in Vercel and locally.");
   process.exit(1);
 }
+// Bridge into process.env for lib/spendGate.js (2026-09-01 fix). spendGate.js
+// reads process.env.SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY / WAYFIND_GATE
+// directly, Vercel-style — this script instead parses .env.local into the
+// local ENV object above and never touches process.env. Without this bridge
+// every spendAllow() call below would see an EMPTY environment (no url, no
+// key) and fail closed on every single place, indistinguishable from the
+// ledger genuinely being exhausted. Never overwrite a value already set in
+// the real process environment.
+process.env.SUPABASE_URL = process.env.SUPABASE_URL || SB_URL;
+process.env.SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || SB_KEY;
+if (ENV.WAYFIND_GATE !== undefined) process.env.WAYFIND_GATE = process.env.WAYFIND_GATE || ENV.WAYFIND_GATE;
 
 const args = process.argv.slice(2);
 const argOf = (n, d) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : d; };
@@ -79,7 +93,11 @@ const TOTAL = Math.max(1, parseInt(argOf("--limit", "100"), 10));
 const BATCH_ARG = argOf("--batch", null); // clamped against the live config below, once fetched
 const CONC = Math.max(1, Math.min(parseInt(argOf("--concurrency", "6"), 10), 10));
 const AUDIT = argOf("--audit", "/home/claude/wf-worker/audit.jsonl");
-const COST_PER = 0.017;
+// $0.025/record (2026-09-01, corrected): DETAILS_MASK below mixes an
+// Enterprise field with editorialSummary (Atmosphere), so Google bills this
+// as Details (New) Enterprise+Atmosphere, not plain Enterprise — the
+// previous $0.017 here undercounted true spend by ~47%.
+const COST_PER = 0.025;
 
 const DETAILS_MASK = [
   "id", "displayName", "location", "types", "primaryType",
@@ -143,6 +161,14 @@ async function fetchPromoteConfig() {
 const isTerminal = (s) => s >= 400 && s < 500 && s !== 429;
 
 async function details(placeId) {
+  // FAIL-CLOSED SPEND GATE (2026-09-01). Same fix, same reason, as
+  // app/api/cron/promote-index/route.js: one spendAllow() grant per place
+  // BEFORE any Google fetch. A denial never calls Google and is reported as
+  // ledgerDenied so the caller settles the row as a RETRY — running out of
+  // budget this run is not a verdict about the place.
+  if (!(await spendAllow("details_enterprise_atmosphere"))) {
+    return { ok: false, terminal: false, ledgerDenied: true, error: "details: spend ledger denied (details_enterprise_atmosphere)" };
+  }
   for (let a = 0; a < 3; a++) {
     let r;
     try {
@@ -192,7 +218,7 @@ console.log(cfgRow
   ? `batch: ${BATCH} (config batch_limit ${configBatchLimit}${BATCH_ARG ? `, --batch ${BATCH_ARG} clamped to it` : ""})`
   : `batch: ${BATCH} (FALLBACK — wf_promote_config unreachable, static default clamp)`);
 
-const T = { claimed: 0, promoted: 0, rejected: 0, retried: 0, batches: 0, spend: 0 };
+const T = { claimed: 0, promoted: 0, rejected: 0, retried: 0, ledgerDenied: 0, batches: 0, spend: 0 };
 const rejectReasons = new Map();
 const started = Date.now();
 
@@ -205,12 +231,15 @@ while (T.claimed < TOTAL) {
 
   const results = await pmap(claimed, CONC, async (item) => {
     const d = await details(item.place_id);
-    if (!d.ok) return { item, kind: d.terminal ? "reject" : "retry", error: d.error };
+    if (!d.ok) return { item, kind: d.ledgerDenied ? "ledgerDenied" : (d.terminal ? "reject" : "retry"), error: d.error };
     const v = decidePromotion(d.place, item.metro, new Date().toISOString(), null, METROS);
     if (v.action !== "promote") return { item, kind: "reject", error: v.error };
     return { item, kind: "promote", row: v.row };
   });
-  T.spend += claimed.length * COST_PER;
+  const ledgerDeniedCount = results.filter((r) => r.kind === "ledgerDenied").length;
+  // Only records that actually reached Google cost money — a ledger denial is
+  // precisely a call that did NOT happen.
+  T.spend += (claimed.length - ledgerDeniedCount) * COST_PER;
 
   const promote = results.filter((r) => r.kind === "promote");
   const { rows } = dedupeById(promote.map((r) => r.row));
@@ -241,6 +270,8 @@ while (T.claimed < TOTAL) {
       const key = String(r.error).split(":")[0].slice(0, 60);
       rejectReasons.set(key, (rejectReasons.get(key) || 0) + 1);
     } else {
+      // "retry" and "ledgerDenied" both settle the same way — no p_reject.
+      // Neither is a verdict about the place.
       settle.push(rpc("wf_promotion_complete", { p_place_id: r.item.place_id, p_ok: false, p_error: r.error }));
     }
   }
@@ -250,6 +281,7 @@ while (T.claimed < TOTAL) {
   else T.promoted += rows.length;
   T.rejected += results.filter((r) => r.kind === "reject").length;
   T.retried += results.filter((r) => r.kind === "retry").length;
+  T.ledgerDenied += ledgerDeniedCount;
 
   try {
     appendFileSync(AUDIT, JSON.stringify({
@@ -263,11 +295,12 @@ while (T.claimed < TOTAL) {
   } catch {}
 
   const el = Math.round((Date.now() - started) / 1000);
-  console.log(`  batch ${String(T.batches).padStart(3)} | claimed ${String(T.claimed).padStart(5)} | promoted ${String(T.promoted).padStart(5)} | rejected ${String(T.rejected).padStart(4)} | retry ${T.retried} | $${T.spend.toFixed(2)} | ${el}s`);
+  console.log(`  batch ${String(T.batches).padStart(3)} | claimed ${String(T.claimed).padStart(5)} | promoted ${String(T.promoted).padStart(5)} | rejected ${String(T.rejected).padStart(4)} | retry ${T.retried} | ledger-denied ${T.ledgerDenied} | $${T.spend.toFixed(2)} | ${el}s`);
 }
 
 console.log("\n" + "-".repeat(70));
-console.log(`claimed ${T.claimed} | promoted ${T.promoted} | rejected ${T.rejected} | retrying ${T.retried}`);
+console.log(`claimed ${T.claimed} | promoted ${T.promoted} | rejected ${T.rejected} | retrying ${T.retried} | ledger-denied ${T.ledgerDenied}`);
+if (T.ledgerDenied) console.log(`${T.ledgerDenied} place(s) were skipped by the spend ledger (WAYFIND_GATE=free cap, or gate shut) and returned to pending for a future run.`);
 console.log(`estimated Place Details spend: $${T.spend.toFixed(2)}`);
 if (rejectReasons.size) {
   console.log("reject reasons:");

@@ -484,6 +484,12 @@ node scripts/test-promote-backfill.mjs
 # runtime. Legacy anon/service_role keys were disabled on this project 2026-07-16.
 node scripts/check-supabase-key-live.mjs
 node scripts/test-promote-decision.mjs
+# 2026-09-01 — promote-index/route.js imported gateShut() but never called
+# spendAllow(): WAYFIND_GATE=free did not meter this drain since 2026-08-13.
+# check-spend-guard.mjs's GATED_FILES check only asserted gateShut() was
+# called, a hand-maintained list that never grew to require spendAllow() here.
+# This one walks every file under app/api/cron/** and scripts/** instead.
+node scripts/check-places-spend-gated.mjs
 node scripts/check-curated-events.mjs
 
 # V8 rail menu (the homepage's daypart rail). Two failure modes it exists for:

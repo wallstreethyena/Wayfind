@@ -1,4 +1,4 @@
-import { gateShut } from "../../../../lib/spendGate";
+import { gateShut, spendAllow } from "../../../../lib/spendGate";
 // app/api/cron/promote-index/route.js — drains wf_promotion_queue: index places
 // (wf_place_ids) become owned cards (wf_inventory), a bounded batch at a time.
 //
@@ -36,18 +36,38 @@ import { gateShut } from "../../../../lib/spendGate";
 //     /api/cron/job-watch sees "attempted 10, succeeded 0" instead of a green 200,
 //   * the response body reports rejects by reason, not just a count.
 //
-// COST AND CADENCE (2026-09-01). Place Details (New) at ~$0.017/record.
-// batch_limit is no longer a hardcoded 25 — it is read live from
-// public.wf_promote_config (migration 20260901_wf_promote_config.sql) and
-// self-tunes between runs (lib/promoteThrottle.js), clamped to [1, 50]; a
-// config read/parse failure falls back to the static 25 it replaced, never to
-// 0 (silent stop) or unbounded. vercel.json now fires this every 5 minutes
-// (12x/hour) rather than four times an hour: at the claim RPC's own 50-row
-// cap that is a ~600/hour ceiling (12 x $0.85 = ~$10.20/hour worst case, only
-// ever reached if every run earns the +25% step by staying under the 5% error
-// bar with a full queue) with a self-imposed floor of 5/run the moment error
-// rate climbs past 20% or Google returns a 429. The job idles at $0 the
-// moment the queue is empty either way.
+// COST AND CADENCE (2026-09-01). The DETAILS_MASK below mixes an Enterprise
+// field (rating, userRatingCount, priceLevel, businessStatus) with an
+// Atmosphere field (editorialSummary). Google bills the HIGHEST tier any
+// requested field belongs to for the WHOLE call, so this is genuinely a
+// Details (New) Enterprise+Atmosphere call at ~$0.025/record (verified
+// against Google's pricing page 2026-09-01), not the plain-Enterprise
+// ~$0.017 an earlier version of this file assumed — that earlier constant
+// undercounted true spend by ~47% in every estimate below and in the
+// response body. batch_limit is no longer a hardcoded 25 — it is read live
+// from public.wf_promote_config (migration 20260901_wf_promote_config.sql)
+// and self-tunes between runs (lib/promoteThrottle.js), clamped to [1, 50];
+// a config read/parse failure falls back to the static 25 it replaced, never
+// to 0 (silent stop) or unbounded. vercel.json now fires this every 5
+// minutes (12x/hour) rather than four times an hour: at the claim RPC's own
+// 50-row cap that is a ~600/hour ceiling (12 x $1.25 = ~$15/hour worst case,
+// only ever reached if every run earns the +25% step by staying under the 5%
+// error bar with a full queue) with a self-imposed floor of 5/run the moment
+// error rate climbs past 20% or Google returns a 429. The job idles at $0
+// the moment the queue is empty either way.
+//
+// THE SPEND GATE (2026-09-01 fix, #see spendGate.js). Every Details fetch
+// since 2026-08-13 was un-ledgered: this file imported gateShut() but never
+// called spendAllow(), so WAYFIND_GATE=free did not protect this drain the
+// way it protects lib/placeDetails.js. details() below now takes one
+// spendAllow("details_enterprise_atmosphere") grant per place BEFORE the
+// Google fetch, fail-closed — a denial (over the free-tier cap, gate shut,
+// or the ledger being unreachable) never calls Google and is settled as a
+// RETRY, not a reject: running out of budget this run is not a verdict about
+// the place, and the row must come back on a future run once budget frees
+// up. Ledger denials feed nextBatchLimit's ledgerDenials input below so the
+// adaptive throttle backs the batch size off under ledger pressure exactly
+// like it backs off under Google error/429 pressure.
 import { sbEnv } from "../../../../lib/serverCache";
 import { recordPulse } from "../../../../lib/jobPulse";
 import { decidePromotion, dedupeById, PROMOTE_METROS, metrosFromRows } from "../../../../lib/promoteIndex";
@@ -71,7 +91,7 @@ const DETAILS_MASK = [
   "rating", "userRatingCount", "priceLevel", "businessStatus", "editorialSummary", "photos",
 ].join(",");
 
-const COST_PER_RECORD = 0.017;
+const COST_PER_RECORD = 0.025;
 const GKEY = () => (process.env.GOOGLE_MAPS_SERVER_KEY || "").trim();
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -82,6 +102,14 @@ function isTerminalStatus(status) {
 }
 
 async function details(key, placeId) {
+  // FAIL-CLOSED SPEND GATE (2026-09-01). One ledger grant per place, taken
+  // BEFORE any Google fetch. A denial — WAYFIND_GATE=shut, the free-tier cap
+  // reached, or the ledger itself unreachable — never touches Google and is
+  // reported as ledgerDenied so the caller settles the row as a RETRY, not a
+  // reject: this is a statement about THIS run's budget, not about the place.
+  if (!(await spendAllow("details_enterprise_atmosphere"))) {
+    return { ok: false, terminal: false, ledgerDenied: true, error: "details: spend ledger denied (details_enterprise_atmosphere)" };
+  }
   for (let attempt = 0; attempt < 3; attempt++) {
     const r = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`, {
       cache: "no-store", // a cached 200 here would mean promoting a place from a stale snapshot
@@ -282,10 +310,12 @@ export async function GET(req) {
   const okIds = [];
   const rejects = [];
   const retries = [];
+  const ledgerDenied = [];
 
   for (const item of claimed) {
     const d = await details(gkey, item.place_id);
     if (!d.ok) {
+      if (d.ledgerDenied) { ledgerDenied.push({ place_id: item.place_id, name: item.name, error: d.error }); continue; }
       (d.terminal ? rejects : retries).push({ place_id: item.place_id, name: item.name, error: d.error });
       continue;
     }
@@ -335,6 +365,9 @@ export async function GET(req) {
   }
   for (const x of rejects) settle.push(rpc(s, "wf_promotion_complete", { p_place_id: x.place_id, p_ok: false, p_error: x.error, p_reject: true }));
   for (const x of retries) settle.push(rpc(s, "wf_promotion_complete", { p_place_id: x.place_id, p_ok: false, p_error: x.error }));
+  // ledgerDenied settles exactly like retries — no p_reject. Running out of
+  // this run's spend budget is never a verdict about the place.
+  for (const x of ledgerDenied) settle.push(rpc(s, "wf_promotion_complete", { p_place_id: x.place_id, p_ok: false, p_error: x.error }));
   await Promise.allSettled(settle);
 
   const succeeded = writeError ? 0 : written;
@@ -353,7 +386,7 @@ export async function GET(req) {
   const sawRateLimit = retries.some((r) => /\b429\b/.test(r.error || ""));
   const queueNonEmpty = claimed.length >= limit;
   const nextLimit = autoTune
-    ? nextBatchLimit(configBatchLimit, { attempted: claimed.length, errors, sawRateLimit, queueNonEmpty })
+    ? nextBatchLimit(configBatchLimit, { attempted: claimed.length, errors, ledgerDenials: ledgerDenied.length, sawRateLimit, queueNonEmpty })
     : configBatchLimit; // auto=false is an operator pin — leave batch_limit exactly as configured
   await writePromoteConfig(s, { batchLimit: nextLimit, promoted: succeeded, rejected: rejects.length, errors });
 
@@ -364,8 +397,11 @@ export async function GET(req) {
     promoted: succeeded,
     rejected: rejects.length,
     retrying: retries.length,
+    ledgerDenied: ledgerDenied.length,
     deduped: dropped,
-    estimatedSpendUSD: Math.round(claimed.length * COST_PER_RECORD * 100) / 100,
+    // Only records that actually reached Google cost money — a ledger denial
+    // is precisely a call that did NOT happen, so it is excluded here.
+    estimatedSpendUSD: Math.round((claimed.length - ledgerDenied.length) * COST_PER_RECORD * 100) / 100,
     writeError,
     batchLimit: configBatchLimit,
     nextBatchLimit: nextLimit,
@@ -373,5 +409,6 @@ export async function GET(req) {
     // you nothing about WHICH service was failing.
     rejectSample: rejects.slice(0, 5),
     retrySample: retries.slice(0, 5),
+    ledgerDeniedSample: ledgerDenied.slice(0, 5),
   });
 }
