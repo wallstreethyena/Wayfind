@@ -714,13 +714,11 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
       "…and hands that resolved photo to the card (the placeholder shows only while loading or on a genuine miss)");
     ok(/score=\{h && h\.rating \? toDisplayScore\(governedWayfindScore\(wayfindScore\(h\.rating, h\.reviews\), \{ hasCreatorVideo: true \}\)\) : null\}/.test(CF),
       "…a registry card scores ONLY when the lookup returned a real rating — an unresolved spot carries no score, never a zero or a guess");
-    // RE-POINTED v8.13.3 (owner: "I don't want any of the place cards not to
-    // have an image"): the branch widened to (photo || railMarketFallback) —
-    // the stock-scene last rung (components/marketPhoto.js). Unchanged: a real
-    // <img> renders whenever ANY photo resolved; the monogram is the loading/
-    // total-miss state only.
-    ok(/\(photo \|\| railMarketFallback\)\s*\n?\s*\?\s*<img/.test(RC) && /wf-place-card-monogram/.test(RC),
-      "…and RailCard renders a real <img> when a photo or the stock-scene fallback resolved, the monogram tile only when neither has");
+    // 2026-09-01: named venue cards must not share category stock. A real
+    // <img> renders only when the caller resolved that venue's own photo;
+    // otherwise the branded monogram is the honest state.
+    ok(/\{photo\s*\n?\s*\?\s*<img/.test(RC) && /src=\{photo\}/.test(RC) && /wf-place-card-monogram/.test(RC),
+      "…and RailCard renders only the resolved venue photo, with a branded monogram on a genuine miss");
     ok(/\/api\/photo\?ref=/.test(CF) && /REF_RX\.test\(ref\)/.test(CF),
       "the photo goes through the guarded /api/photo proxy with a shape-checked ref — never a bare Google URL");
     ok(/center=\{center\}/.test(HOME) || /center: center/.test(HOME),
