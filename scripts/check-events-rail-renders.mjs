@@ -125,8 +125,8 @@ const rail = stripComments(railRaw);
     "the events tile navigates away when the slot has NOTHING to show — testing the prop alone would always be truthy (it is a function), so a reader with no events near them would meet a shelf of bars under a rail that promises dates (weaker check, source: DaypartRail imports next/dynamic and cannot be loaded into node)");
   ok(/selRail\.id === "events" && eventsSlot/.test(rail),
     "…and the drop paints the slot when the open rail IS events — the negative half: a slot rendered under every rail would be worse than none");
-  ok(/selRail\.id === "datenight" \|\| selRail\.id === "birthday" \|\| selRail\.id === "breakfast" \|\| selRail\.id === "break" \|\| selRail\.id === "eat" \|\| selRail\.id === "today" \|\| selRail\.id === "events"/.test(rail),
-    "Date Night, Birthday, Breakfast, Lunch Break, Actually Worth Eating, Today's Best Options, and Events own their answers and cannot fall through into generic venue place cards");
+  ok(/selRail\.id === "datenight" \|\| selRail\.id === "birthday" \|\| selRail\.id === "breakfast" \|\| selRail\.id === "break" \|\| selRail\.id === "eat" \|\| selRail\.id === "today" \|\| selRail\.id === "augtober" \|\| selRail\.id === "events"/.test(rail),
+    "Date Night, Birthday, Breakfast, Lunch Break, Actually Worth Eating, Today's Best Options, Augtober, and Events own their answers and cannot fall through into generic venue place cards");
 }
 
 // ── 3. THE RAIL'S PROMISE MATCHES WHAT IS BEHIND IT ─────────────────────────

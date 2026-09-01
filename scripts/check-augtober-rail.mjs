@@ -15,7 +15,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { isFallTagged, fallEventLive, fallWhenLabel, fallSkinLive, eventFranchiseKey, FALL_PLACE_IDS, FALL_REJECTED_IDS, FALL_OFFERING_SOURCES, FALL_EVENT_TICKET_DEALS, OPEN_RUN_DAYS } from "../lib/fallPool.js";
+import { isFallTagged, fallEventLive, fallWhenLabel, fallSkinLive, eventFranchiseKey, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_REJECTED_IDS, FALL_OFFERING_SOURCES, FALL_EVENT_TICKET_DEALS, OPEN_RUN_DAYS } from "../lib/fallPool.js";
 import { FALL_CARD_IDS, fallCardClass, thanksgivingDayOfMonth } from "../lib/fallSkin.js";
 import { DAYPART_IDS, orderFor } from "../lib/dayparts.js";
 import { RAIL_IDS } from "../lib/rails.js";
@@ -109,34 +109,35 @@ ok(!/href:/.test(augRow), "the augtober tile carries NO href — a tap opens the
 ok(DAYPART_IDS.every((b) => orderFor(b, RAIL_IDS).includes("augtober")),
   "the augtober tile rides every daypart band (called, not grepped)");
 const rail = strip(readFileSync(path.join(ROOT, "app/components/DaypartRail.js"), "utf8"));
-ok(/selected !== "augtober" \|\| fallPool\) return undefined;/.test(rail), "the drop fetches the owned fall pool only when opened, once");
-ok(/fetch\("\/api\/events\/fall"\)/.test(rail), "…and it reads /api/events/fall, the one pool API");
-const _ti = rail.indexOf('selRail.id === "augtober" && fallPool');
-ok(_ti > -1, "positive control: the augtober drop block is locatable");
-const evZone = rail.slice(_ti, _ti + 5200);
-ok(/\(e\.when && e\.when\.label\) \|\| "Seasonal"/.test(evZone), "event tiles wear the WHEN badge — an event never gets a fabricated score");
-ok(!/loading="lazy"/.test(evZone), "fall tile images are EAGER — the drop opens on a click (that IS the lazy gate), and lazy imgs mounted inside the freshly-expanded scroller never fired their intersection (proven live 2026-08-26: currentSrc stayed empty until the attribute was removed)");
-ok(/target="_blank" rel="noreferrer"/.test(evZone), "an event tile links to the official page with noreferrer");
-// monetized tiles: paid link first, disclosed, sponsored rel on the PAID link only
-ok(/e\.ticket \? \(/.test(evZone) && /href=\{e\.ticket\.href\} target="_blank" rel="sponsored nofollow noopener"/.test(evZone),
-  "a monetized tile links the health-checked UT deal FIRST, with rel sponsored");
-ok(/Tickets · via " \+ e\.ticket\.via/.test(evZone), "the paid tile DISCLOSES its partner on the tile (FTC line)");
-ok(/logEvent\("tickets_out", \{ kind: "augtober_rail"/.test(evZone), "a paid click emits tickets_out — revenue that cannot be measured cannot be protected");
-ok(/e\.url \|\| e\.place_id/.test(rail), "an event with no link and no venue never renders — a dead tile is worse than one fewer tile");
-ok(/eventFranchiseKey\(e\.name \|\| e\.title\)/.test(rail) && /dist\(a\) - dist\(b\)/.test(rail),
-  "the drop dedupes by franchise and shows the NEAREST location first");
+const fallComponent = strip(readFileSync(path.join(ROOT, "app/components/FallIntentRails.js"), "utf8"));
+const fallIntent = strip(readFileSync(path.join(ROOT, "lib/fallIntentRails.js"), "utf8"));
+const sharedCard = strip(readFileSync(path.join(ROOT, "app/components/RailCard.js"), "utf8"));
+ok(/FallIntentRails = dynamic/.test(rail) && /selRail\.id === "augtober"/.test(rail), "the drop lazy-loads its owned ten-rail answer only when Augtober opens");
+ok(/fetch\("\/api\/events\/fall\?"/.test(fallComponent), "…and it reads /api/events/fall, the one pool API");
+ok(/result\.rails\.length !== 10/.test(fallComponent), "positive control: the complete ten-rail contract is required");
+ok(/when=\{isEvent \? card\.when : null\}/.test(fallComponent), "event cards wear the WHEN badge — an event never gets a fabricated score");
+ok(/className="wf-exploding-primary"/.test(fallComponent), "fall cards use the house card's responsive media contract");
+ok(/external: true/.test(fallComponent) && /rel: cta\.sponsored \? "sponsored nofollow noopener" : "noreferrer"/.test(sharedCard), "official event links open externally with noreferrer");
+// monetized cards: paid CTA first, disclosed, sponsored rel on the PAID link only
+ok(/card\.ticket\?\.href/.test(fallComponent) && /sponsored: true/.test(fallComponent),
+  "a monetized card links the health-checked UT deal FIRST, with rel sponsored");
+ok(/Tickets · \$\{card\.ticket\.via\}/.test(fallComponent), "the paid card DISCLOSES its partner on the CTA (FTC line)");
+ok(/onTrack\?\.\("tickets_out", \{ kind: "fall_intent_rail"/.test(fallComponent), "a paid click emits tickets_out — revenue that cannot be measured cannot be protected");
+ok(/event\.url \|\| event\.place_id/.test(strip(readFileSync(path.join(ROOT, "app/api/events/fall/route.js"), "utf8"))), "an event with no link and no venue never renders — a dead card is worse than one fewer card");
+ok(/eventFranchiseKey\(name\)/.test(fallIntent) && /itemDistance\(a, ctx\)/.test(fallIntent),
+  "the collection dedupes by franchise and ranks on proximity after quality");
 // v8.69 — the branch became a ternary when the paid rail card landed. Followed,
 // not loosened: the invariant is that this drop is built from the VETTED fall
 // pool (lib/fallPool.FALL_PLACE_IDS, offering-sourced) mapped onto the house
 // card contract — not from the ranked pools and not from anything else.
-ok(/selected === "augtober" \?/.test(rail) && /photo: p\.image \|\| null/.test(rail),
+ok(/FALL_PLACE_RAIL/.test(strip(readFileSync(path.join(ROOT, "app/api/events/fall/route.js"), "utf8"))) && /const place = isEvent \? null/.test(fallComponent),
   "the drop's place cards come from the vetted fall pool, mapped onto the house card contract");
 // …and the paid-placement machinery cannot quietly widen it. A sponsor CAN buy
 // the augtober rail (it is a curated pool, not one person's attributed list —
 // see RAILS_NOT_FOR_SALE), but the card it gets is disclosed and prepended, and
 // it must never be able to ENTER the pool itself: fallPool.places is the only
 // source of the vetted members, and the sponsor arrives beside them.
-ok(!/FALL_PLACE_IDS[\s\S]{0,200}sponsorCard/.test(rail) && !/sponsorCard[\s\S]{0,120}fallPool\.places/.test(rail),
+ok(!/sponsorCard/.test(fallComponent) && Object.keys(FALL_PLACE_RAIL).length === Object.keys(FALL_PLACE_IDS).length,
   "a paid card is never merged INTO the vetted fall pool — it rides beside it, disclosed");
 ok(/selRail\.id !== "augtober"/.test(rail), "the drop header does not double-claim 'near <city>' over the title's own 'Near You'");
 // ── 3b. The seasonal skin: a DATE LAW, executed ────────────────────────────
@@ -153,7 +154,7 @@ ok(fallSkinLive("2027-08-26") === true && fallSkinLive("2027-11-25") === true &&
   "…and it COMES BACK in 2027 on the same date, leaving after THAT year's Thanksgiving — the rule survives every year with no one remembering");
 ok(fallSkinLive("2027-07-04") === false && fallSkinLive("2027-12-25") === false, "never worn out of season");
 ok(fallSkinLive(null) === false, "no site date, no skin — never a guess");
-ok(/fallSkin \? " wf-fall" : ""/.test(rail) || /fallSkin \? "wf-fall" : undefined/.test(rail),
+ok(/fallSkinLive\(siteTodayStr\(\)\)/.test(fallComponent) && /fallSkin \? " wf-fall" : ""/.test(fallComponent),
   "the skin class is gated by fallSkinLive, in syntactic position");
 const css = readFileSync(path.join(ROOT, "app/components/css.js"), "utf8");
 // v8.73 — the art is SPLIT. The combined file carried a cream panel across its

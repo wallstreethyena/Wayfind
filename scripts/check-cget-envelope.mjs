@@ -44,15 +44,24 @@ for (const f of files) {
   }
 }
 
-// positive control: the fixed fall route must exist, read cget, and serve .v —
-// if this control fails, the guard is scanning nothing and a green is a lie.
+// Positive control the matcher itself instead of pinning it to one production
+// route. Fall moved to railFastCache (which deliberately exposes `.value`), so
+// using that route as the cget fixture would make a safe cache migration fail
+// this guard even though the envelope rule still has full coverage.
+const probe = "const cached = await cget('probe'); Response.json(cached);";
+const probeName = [...probe.matchAll(/(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*await\s+cget\([^;]*?;/g)][0]?.[1];
+const probeCaught = !!probeName && new RegExp(`Response\\.json\\(\\s*${probeName}\\s*[,)]`).test(probe);
+if (!probeCaught) offenders.push("CONTROL FAILED: synthetic bare cget envelope was not caught");
+
+// Fall remains a second cache-shape control: fastCachedRail returns
+// { value, state }, and only value may reach the response body.
 const fall = strip(readFileSync(path.join(ROOT, "app/api/events/fall/route.js"), "utf8"));
-const controlOk = /await cget\(/.test(fall) && /Response\.json\(cached\.v/.test(fall);
-if (!controlOk) offenders.push("CONTROL FAILED: app/api/events/fall/route.js no longer reads cget + serves .v — guard cannot prove itself");
+const fallControlOk = /await fastCachedRail\(/.test(fall) && /Response\.json\(cached\.value/.test(fall);
+if (!fallControlOk) offenders.push("CONTROL FAILED: fall route must serve fastCachedRail's cached.value, never its envelope");
 
 if (offenders.length) {
   for (const o of offenders) console.log("  FAIL:", o);
   console.log(`check-cget-envelope: FAIL — ${offenders.length} offender(s)`);
   process.exit(1);
 }
-console.log(`check-cget-envelope: OK — ${bindings} cget bindings across ${scanned} routes serve values, never envelopes (control: fall route reads .v)`);
+console.log(`check-cget-envelope: OK — ${bindings} cget bindings across ${scanned} routes serve values, never envelopes (synthetic control caught; fall serves cached.value)`);
