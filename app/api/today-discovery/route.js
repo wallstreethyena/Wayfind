@@ -82,7 +82,10 @@ export async function GET(request) {
   // Creator associations may use the resolved city as a strict secondary
   // identity check, so it belongs in the cache key alongside the geo cells.
   const cityKey = city.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "unknown";
-  const key = `today-discovery:${geoCell(lat)}:${geoCell(lng)}:${cityKey}`;
+  // v2 retires payloads composed before the venue-identity veto. FastCache is
+  // shared beyond one deployment, so code fixes that change membership must
+  // never inherit an earlier generation's answer.
+  const key = `today-discovery:v2:${geoCell(lat)}:${geoCell(lng)}:${cityKey}`;
   try {
     const cached = await fastCachedRail(key, async () => {
       const radiusM = TODAY_NATURE_MI * 1609.34;
