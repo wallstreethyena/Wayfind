@@ -60,9 +60,16 @@ for (const p of cronRoutes) {
 for (const rel of Object.keys(EXCEPTIONS)) ok(cronRoutes.some((p) => p.endsWith(rel)), `EXCEPTIONS names ${rel}, which no longer exists — remove the entry`);
 
 // ── 2. the promotion mask is the CORE mask and bills at Pro ───────────────
-const { CORE_DETAILS_MASK, PROMOTE_SKU, maskTier, ABOVE_PRO_FIELDS } = await import("../lib/promoteDetails.js");
+const { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, maskTier, ABOVE_PRO_FIELDS } = await import("../lib/promoteDetails.js");
 ok(maskTier(CORE_DETAILS_MASK) === "pro", `CORE_DETAILS_MASK bills at "${maskTier(CORE_DETAILS_MASK)}", must be "pro" (${CORE_DETAILS_MASK})`);
 ok(PROMOTE_SKU === "details_pro", `PROMOTE_SKU is "${PROMOTE_SKU}" — the ledger SKU must match the tier the mask bills at (details_pro)`);
+// The rating exception buys exactly rating+userRatingCount on top of CORE —
+// Enterprise, NOT Atmosphere. editorialSummary is the field that pushed the
+// old mask off the Enterprise allowance; it must never come back here.
+ok(RATING_SKU === "details_enterprise", `RATING_SKU is "${RATING_SKU}", must be details_enterprise`);
+const ratingExtra = RATING_DETAILS_MASK.split(",").filter((f) => !CORE_DETAILS_MASK.split(",").includes(f)).sort();
+ok(JSON.stringify(ratingExtra) === JSON.stringify(["rating", "userRatingCount"]), `RATING_DETAILS_MASK may add ONLY rating,userRatingCount to CORE — adds ${ratingExtra.join(",")}`);
+ok(!/editorialSummary|priceLevel|reviews|regularOpeningHours/.test(RATING_DETAILS_MASK), "RATING_DETAILS_MASK carries an Atmosphere/extra Enterprise field");
 for (const f of ["id", "displayName", "location", "types", "primaryType", "businessStatus", "photos"]) {
   ok(CORE_DETAILS_MASK.split(",").includes(f), `CORE_DETAILS_MASK lost "${f}" — buildInventoryRow/classify/the closed-listing gate need it`);
 }
@@ -75,6 +82,9 @@ for (const rel of ["app/api/cron/promote-index/route.js", "scripts/promote-worke
   ok(!/"X-Goog-FieldMask":\s*"[^"]/.test(src), `${rel} hardcodes an inline field mask string — the mask must be CORE_DETAILS_MASK`);
   ok(/withIndexSignals\(/.test(src), `${rel} must hydrate rating/reviews from the index (withIndexSignals) since the mask no longer buys them`);
   ok(/spendAllowCapped\(PROMOTE_SKU,\s*\w+\)/.test(src), `${rel} must gate each Details call with spendAllowCapped(PROMOTE_SKU, <month cap>)`);
+  ok(/spendAllowCapped\(RATING_SKU,\s*\w+\)/.test(src), `${rel} must gate the rating buy with spendAllowCapped(RATING_SKU, <month cap>)`);
+  ok(/hasIndexRating\(/.test(src), `${rel} must decide the mask per place with hasIndexRating() — the rating buy is the exception, not the default`);
+  ok(/details\([^)]*,\s*mask\)/.test(src), `${rel} must pass the chosen mask into details() — a fixed mask would silently bill every place at Enterprise or leave the rating out`);
   ok(/wf_promotion_release/.test(src), `${rel} must RELEASE (wf_promotion_release) a place the ledger refused, not complete it as a failure`);
   ok(/month_cap/.test(src), `${rel} must read wf_promote_config.month_cap — the operator's budget dial`);
 }

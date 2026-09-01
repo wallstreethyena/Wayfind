@@ -38,7 +38,7 @@
 import { readFileSync, appendFileSync } from "node:fs";
 import { decidePromotion, dedupeById, PROMOTE_METROS, metrosFromRows } from "../lib/promoteIndex.js";
 import { clampBatchLimit } from "../lib/promoteThrottle.js";
-import { CORE_DETAILS_MASK, PROMOTE_SKU, withIndexSignals } from "../lib/promoteDetails.js";
+import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, hasIndexRating } from "../lib/promoteDetails.js";
 
 // ── env (never logged) ──────────────────────────────────────────────────────
 const ENV = {};
@@ -151,12 +151,12 @@ async function fetchPromoteConfig() {
 // not a transient fault. Retrying buys the same answer three times.
 const isTerminal = (s) => s >= 400 && s < 500 && s !== 429;
 
-async function details(placeId) {
+async function details(placeId, mask = DETAILS_MASK) {
   for (let a = 0; a < 3; a++) {
     let r;
     try {
       r = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`, {
-        headers: { "X-Goog-Api-Key": G_KEY, "X-Goog-FieldMask": DETAILS_MASK },
+        headers: { "X-Goog-Api-Key": G_KEY, "X-Goog-FieldMask": mask },
       });
     } catch (e) {
       if (a === 2) return { ok: false, terminal: false, error: `details network: ${String(e.message || e).slice(0, 120)}` };
@@ -236,15 +236,23 @@ while (T.claimed < TOTAL) {
   const indexSignals = await fetchIndexSignals(claimed.map((c) => c.place_id));
   let budgetExhausted = false;
   const results = await pmap(claimed, CONC, async (item) => {
-    // THE MONEY GUARD — one atomic ledger grant per Google call, before it.
-    // The first refusal is the month's budget running out; stop asking.
-    if (budgetExhausted || !(await spendAllowCapped(PROMOTE_SKU, MONTH_CAP))) {
+    if (budgetExhausted) return { item, kind: "release" };
+    // THE MONEY GUARD — exactly one atomic ledger grant per Google call, for the
+    // SKU the call actually bills at (same rule as the cron): CORE + Pro when the
+    // index has the stars; RATING + Enterprise when it does not, falling back to
+    // CORE + Pro if the Enterprise ledger says no. A Pro refusal is the month's
+    // promotion budget running out; stop asking.
+    const sig = indexSignals.get(item.place_id);
+    let mask = DETAILS_MASK;
+    if (!hasIndexRating(sig) && (await spendAllowCapped(RATING_SKU, MONTH_CAP))) {
+      mask = RATING_DETAILS_MASK;
+    } else if (!(await spendAllowCapped(PROMOTE_SKU, MONTH_CAP))) {
       budgetExhausted = true;
       return { item, kind: "release" };
     }
-    const d = await details(item.place_id);
+    const d = await details(item.place_id, mask);
     if (!d.ok) return { item, kind: d.terminal ? "reject" : "retry", error: d.error };
-    const place = withIndexSignals(d.place, indexSignals.get(item.place_id));
+    const place = withIndexSignals(d.place, sig);
     const v = decidePromotion(place, item.metro, new Date().toISOString(), null, METROS);
     if (v.action !== "promote") return { item, kind: "reject", error: v.error };
     return { item, kind: "promote", row: v.row };

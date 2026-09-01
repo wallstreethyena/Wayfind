@@ -71,7 +71,7 @@ import { sbEnv } from "../../../../lib/serverCache";
 import { recordPulse } from "../../../../lib/jobPulse";
 import { decidePromotion, dedupeById, PROMOTE_METROS, metrosFromRows } from "../../../../lib/promoteIndex";
 import { clampBatchLimit, nextBatchLimit } from "../../../../lib/promoteThrottle";
-import { CORE_DETAILS_MASK, PROMOTE_SKU, withIndexSignals } from "../../../../lib/promoteDetails";
+import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, hasIndexRating } from "../../../../lib/promoteDetails";
 import { jobFailed } from "../../../../lib/jobFail";
 
 export const runtime = "nodejs";
@@ -103,11 +103,11 @@ function isTerminalStatus(status) {
   return status >= 400 && status < 500 && status !== 429;
 }
 
-async function details(key, placeId) {
+async function details(key, placeId, mask = DETAILS_MASK) {
   for (let attempt = 0; attempt < 3; attempt++) {
     const r = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`, {
       cache: "no-store", // a cached 200 here would mean promoting a place from a stale snapshot
-      headers: { "X-Goog-Api-Key": key, "X-Goog-FieldMask": DETAILS_MASK },
+      headers: { "X-Goog-Api-Key": key, "X-Goog-FieldMask": mask },
     });
     if (r.ok) return { ok: true, place: await r.json() };
     const body = (await r.text()).slice(0, 160);
@@ -336,16 +336,31 @@ export async function GET(req) {
   const released = [];
 
   let budgetExhausted = false;
+  let ratingBought = 0; // places that had no index rating and bought it (Enterprise, its own free allowance)
+  let ratingSkipped = 0; // ... and could not (Enterprise ledger said no) — promoted from CORE, no stars yet
   for (const item of claimed) {
-    // THE MONEY GUARD. One atomic ledger grant per Google call, before the call.
-    // The first refusal means the month's budget is gone — every later place in
-    // this batch would be refused too, so stop asking and hand them all back.
-    if (budgetExhausted || !(await spendAllowCapped(PROMOTE_SKU, monthCap))) {
-      budgetExhausted = true;
-      released.push(item.place_id);
-      continue;
+    if (budgetExhausted) { released.push(item.place_id); continue; }
+    // THE MONEY GUARD. Exactly one atomic ledger grant per Google call, for the
+    // SKU that call actually bills at, before the call:
+    //   index has the stars (~88%)  -> CORE mask, one Pro grant.
+    //   index has no stars          -> RATING mask, one Enterprise grant (its
+    //                                  own row, its own free allowance); if
+    //                                  THAT is refused, fall back to CORE + Pro.
+    // A Pro refusal means the month's promotion budget is gone — every later
+    // place in this batch would be refused too, so stop asking and hand them back.
+    const sig = indexSignals.get(item.place_id);
+    let mask = DETAILS_MASK;
+    if (!hasIndexRating(sig) && (await spendAllowCapped(RATING_SKU, monthCap))) {
+      mask = RATING_DETAILS_MASK; ratingBought++;
+    } else {
+      if (!hasIndexRating(sig)) ratingSkipped++;
+      if (!(await spendAllowCapped(PROMOTE_SKU, monthCap))) {
+        budgetExhausted = true;
+        released.push(item.place_id);
+        continue;
+      }
     }
-    const d = await details(gkey, item.place_id);
+    const d = await details(gkey, item.place_id, mask);
     if (!d.ok) {
       (d.terminal ? rejects : retries).push({ place_id: item.place_id, name: item.name, error: d.error });
       continue;
@@ -354,7 +369,7 @@ export async function GET(req) {
     // scripts/test-promote-decision.mjs. A "reject" is a verdict about the DATA
     // (unclassifiable, closed, out of bounds) — re-fetching buys the same answer,
     // so the queue must not retry it and pay Google again.
-    const place = withIndexSignals(d.place, indexSignals.get(item.place_id));
+    const place = withIndexSignals(d.place, sig);
     const verdict = decidePromotion(place, item.metro, nowIso, adjudicated.get(item.place_id) || null, metros);
     if (verdict.action !== "promote") {
       rejects.push({ place_id: item.place_id, name: item.name, error: verdict.error });
@@ -440,6 +455,8 @@ export async function GET(req) {
     rejected: rejects.length,
     retrying: retries.length,
     released: released.length,
+    ratingBought,
+    ratingSkipped,
     budgetExhausted,
     monthCap,
     deduped: dropped,
