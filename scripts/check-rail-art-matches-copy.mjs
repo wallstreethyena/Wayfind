@@ -72,7 +72,6 @@ const PAIRS = {
   chef: { copy: "0b5d7b04d1dce6fd", art: "3df8871be0a36cc1" },
   augtober: { copy: "ed0931530625e1ae", art: "8148ec94da82c4b5" },
   beach: { copy: "bc2e671d898c25b0", art: "10af9b34c86feb0b" },
-  best: { copy: "2bc35a61dc8196e8", art: "b43ed06222224c16" },
   // v8.33 — the featured-creator rail. Pixels opened and read before pinning:
   // the tile carries the Wayfind wordmark, a circular photo of the creator with
   // "@cindy.selects" beside it, then "Your next COFFEE SPOT?", "WE ALREADY
@@ -162,10 +161,15 @@ const PAIRS = {
   // about what was actually behind it.
   events: { copy: "12d73e13f0973f31", art: "70e5f6df7ebd983a" },
   family: { copy: "947a8d48e13dac62", art: "9e64f507ce5c39e6" },
-  gems: { copy: "ce723fe8321d837e", art: "f9c55fb2f617fd5e" },
   locals: { copy: "24b845b1d9114368", art: "78ea67914dee5c7b" },
   season: { copy: "5e56e55d7648c697", art: "0396a099193ec768" },
-  today: { copy: "d4910f822ce738ba", art: "0ffb0528c763577d" },
+  // 2026-09-02 — the three competing homepage posters (Today, Best Around
+  // You, Places You'd Never Find) are one decision surface now. Pixels read
+  // at 760px before pinning: the owner's exact poster says "Make today a
+  // really GOOD DAY! / DO SOMETHING BETTER". The rail says "Today's Best
+  // Options / Do something better" and opens the ten evidence-specific
+  // discovery rails, so the visual promise and payoff agree.
+  today: { copy: "27ef533b46440897", art: "e4642747138d1148" },
   // v8.90 — RE-PINNED, and this one closes a mismatch that had been recorded
   // and tolerated since the 2026-08-16 baseline: the old art's eyebrow read
   // "THE BEST AROUND YOU", which is a DIFFERENT rail's name, on a card called

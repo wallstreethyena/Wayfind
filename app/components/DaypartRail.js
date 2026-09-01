@@ -11,7 +11,7 @@
 //
 // THE TWO RULES THIS COMPONENT ENFORCES
 //
-// 1. The hour decides what LEADS, never what EXISTS. All 15 rails render in
+// 1. The hour decides what LEADS, never what EXISTS. Every registered rail renders in
 //    every daypart; an off-peak one is parked on the right, one swipe away.
 //    Hiding a card the visitor came for is worse than showing it late.
 //    (lib/dayparts.js orderFor)
@@ -69,6 +69,7 @@ const BirthdayRails = dynamic(() => import("./BirthdayRails"), { ssr: false });
 const BreakfastRails = dynamic(() => import("./BreakfastRails"), { ssr: false });
 const WorthEatingRails = dynamic(() => import("./WorthEatingRails"), { ssr: false });
 const LunchBreakRails = dynamic(() => import("./LunchBreakRails"), { ssr: false });
+const TodayDiscoveryRails = dynamic(() => import("./TodayDiscoveryRails"), { ssr: false });
 import { DAYPARTS, partForHour, orderFor, railHref, dateNightIntentHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES, railArtSize } from "../../lib/rails.js";
@@ -1030,7 +1031,7 @@ export default function DaypartRail({
   // Neither may fall through to the generic place pool: doing so made the
   // Events drop begin with real happenings and end with buildings where an
   // event might happen on some other date.
-  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "breakfast" || selRail.id === "break" || selRail.id === "eat" || selRail.id === "events"));
+  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "breakfast" || selRail.id === "break" || selRail.id === "eat" || selRail.id === "today" || selRail.id === "events"));
   // v8.22 (owner: "when the amazon rail card is selected make sure it becomes
   // the main focus on the screen"). The pulsing glow marks the card; this
   // brings it there — the open tile centers itself in the track, so the
@@ -1535,6 +1536,25 @@ export default function DaypartRail({
             <WorthEatingRails
               places={dropList}
               city={shown.cityLabel || ""}
+              onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
+              isSaved={isSaved || undefined}
+              liked={liked || undefined}
+              disliked={disliked || undefined}
+              isLiked={isLiked || undefined}
+              isDisliked={isDisliked || undefined}
+              onSave={onSave || undefined}
+              onLike={onLike || undefined}
+              onDislike={onDislike || undefined}
+              onShare={onShare || undefined}
+            />
+          ) : null}
+
+          {selRail && selRail.id === "today" ? (
+            <TodayDiscoveryRails
+              active
+              center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
+              city={shown.cityLabel || ""}
+              onTrack={(name, props) => logEvent(name, props)}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
               liked={liked || undefined}

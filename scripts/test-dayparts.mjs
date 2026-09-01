@@ -136,9 +136,10 @@ eq(metroFor('bogus'),'manatee-sarasota','metroFor falls back');
 eq(cityFor('bogus'),'sarasota','cityFor falls back');
 
 // ── legacy events
-eq(Object.keys(LEGACY_HERO_EVENT).length,8,'all 8 legacy hero events mapped');
+eq(Object.keys(LEGACY_HERO_EVENT).length,7,'all active legacy hero events mapped');
 ok(Object.values(LEGACY_HERO_EVENT).every(v=>/_hero_open$/.test(v)),'legacy names look right');
 ok(Object.keys(LEGACY_HERO_EVENT).every(k=>ALL.includes(k)),'every legacy key is a real rail');
+ok(!Object.prototype.hasOwnProperty.call(LEGACY_HERO_EVENT,'gems'),'the retired hidden-gems poster cannot emit a homepage-open event');
 
 // ── THE REFINEMENT PROOF ────────────────────────────────────────────────────
 // The four rail bands must never contradict the three canonical nowContext
@@ -184,4 +185,3 @@ ok(DAYPART_IDS.includes(partForHour(siteHourFloat())), 'the live hour resolves t
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail?1:0);
-
