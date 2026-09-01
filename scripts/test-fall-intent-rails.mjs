@@ -23,6 +23,7 @@ ok(FALL_INTENT_RAIL_DEFS.length === 10, "the collection has exactly ten rails");
 ok(FALL_INTENT_RAIL_DEFS.map((rail) => rail.id).join("|") === expected.join("|"), "the ten approved base intents are present in order");
 ok(new Set(FALL_INTENT_RAIL_DEFS.map((rail) => rail.title)).size === 10, "every rail title is unique");
 ok(Object.keys(FALL_RAIL_RADIUS_MI).sort().join("|") === expected.slice().sort().join("|"), "every intent has an explicit radius law");
+ok(FALL_RAIL_RADIUS_MI["date-night"] === 120, "distinctive spooky nights keep a destination reach rather than disappearing just beyond a local-food radius");
 
 ok(fallPhase("2026-09-01") === "early", "September opens in the early fall phase");
 ok(fallPhase("2026-09-30") === "opening", "late September promotes farms and Oktoberfest");
@@ -76,7 +77,7 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(/fall-intents:v2:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key");
+ok(/fall-intents:v3:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key");
 ok(/take: FALL_PLACE_IDS\[p\.place_id\] \|\| p\.editorial/.test(route), "verified seasonal evidence wins over a generic inventory summary");
 ok(!/searchText|places\.googleapis|nearbySearch/.test(route), "the fall API makes no paid Google place call");
 ok(/Promise\.all\(\[/.test(route), "independent Supabase reads start in parallel");

@@ -32,7 +32,7 @@ export async function GET(request) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return json({ error: "lat and lng are required" }, 400, "no-store");
   try {
     const today = siteTodayStr();
-    const key = `fall-intents:v2:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    const key = `fall-intents:v3:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     const cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = Object.keys(FALL_PLACE_IDS);
