@@ -52,13 +52,13 @@ ok(/sessionStorage\.getItem\(STAMP\)/.test(code), "the stamp is READ before relo
 //    check, on the false premise that a tab that just loaded must be current.
 //    A tab that just loaded FROM CACHE is exactly the stale case, and it is
 //    the one that reached the owner's phone. What is pinned now is that the
-//    boot check exists AND is gated on the document actually looking cached —
-//    an ungated check on every load would be a request per page view for
-//    nothing.
-ok(/documentMayBeStale\(/.test(code) && /check\("boot"\)/.test(code),
-  "boot runs a check when this document may have come from a cache — the 2026-08-27 hole");
-ok(/getEntriesByType\("navigation"\)/.test(code),
-  "the boot check reads navigation timing, so a document that arrived over the wire is not re-checked for nothing");
+//    boot check always exists. Navigation timing is not a reliable cache
+//    oracle in iOS private/PWA/service-worker contexts, so the tiny no-store
+//    version read runs once per mount and a matching build is a no-op.
+ok(/check\("boot"\)/.test(code),
+  "every mount checks the current server build — stale poster bundles cannot wait ten minutes");
+ok(!/getEntriesByType\("navigation"\)/.test(code) && !/documentMayBeStale\(/.test(code),
+  "boot detection does not depend on navigation timing, which misses iOS/PWA cache paths");
 const lib = readFileSync(path.resolve("lib/staleTab.js"), "utf8");
 ok(/export function documentMayBeStale/.test(lib) && /export function reloadBlockers/.test(lib),
   "lib/staleTab.js still exports both decisions — scripts/test-stale-tab.mjs is what actually asserts them");
