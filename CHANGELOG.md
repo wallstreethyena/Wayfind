@@ -1,3 +1,12 @@
+## v8.51.1 - The stars are the exception, and the exception has its own allowance
+
+First live batch of v8.51 (22:25Z): 50 promoted, 8 with a rating. The index carries a rating for ~88% of the queue (6,022 of 6,882 measured), not 100% — the earlier count tested for the KEY, and `{rating:null, reviews:0}` has the key. A card with no stars is a card the score cannot rank.
+
+- **Per-place mask.** `hasIndexRating(signals)` decides: index has the stars → CORE (Pro, as before); index does not → `RATING_DETAILS_MASK` = CORE + rating + userRatingCount, which bills at Enterprise — 1,000 free a month, `details_enterprise` ledger row, 39 used — and comfortably covers the ~860 such rows. Still no editorialSummary: that is the Atmosphere field that pushed the old mask off the Enterprise allowance.
+- **Exactly one grant per call, for the SKU the call bills at.** Enterprise grant for the rating buy; Pro grant otherwise. If the Enterprise ledger refuses, the place falls back to CORE + Pro (a card without stars beats no card; the rating is enrichable later). A Pro refusal is still the month's budget ending: release the rest of the batch.
+- Guard: `RATING_DETAILS_MASK` may add only `rating,userRatingCount` to CORE; both write paths must decide with `hasIndexRating()` and pass the chosen mask into `details()`. Tests: 61 checks.
+- The 42 no-star cards written by the first three v8.51 runs are re-queued after this deploys and get their stars from the same path.
+
 ## v8.51 - The drain had no bill in front of it, and was buying the wrong thing
 
 Live, 2026-09-01: 13,230 places on the shelf, 7,346 known places still in the back room. #1054 (merged 20:12Z) fixed the metro drift and raised the drain's ceiling to ~600/hour, then the whole queue was parked to Sept 8 seventeen minutes later — because the cron asked lib/spendGate ONE question per run ("is the gate shut?") and never the per-place ledger question every other metered path asks. At 600/hour that was an unbounded Google bill.

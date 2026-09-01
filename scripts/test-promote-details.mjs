@@ -1,7 +1,7 @@
 // scripts/test-promote-details.mjs — offline tests for lib/promoteDetails.js and
 // the gate-mode arithmetic of spendAllowCapped (lib/spendGate.js). NO network:
 // the ledger call is stubbed by pointing fetch at a local function.
-import { CORE_DETAILS_MASK, PROMOTE_SKU, withIndexSignals, maskTier } from "../lib/promoteDetails.js";
+import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, maskTier, hasIndexRating } from "../lib/promoteDetails.js";
 import { buildInventoryRow } from "../lib/seedPlaces.js";
 
 let pass = 0;
@@ -11,6 +11,17 @@ const eq = (g, w, m) => { if (JSON.stringify(g) !== JSON.stringify(w)) fail(`${m
 
 // ── mask tier ───────────────────────────────────────────────────────────────
 eq(maskTier(CORE_DETAILS_MASK), "pro", "the core mask bills at Pro");
+eq(maskTier(RATING_DETAILS_MASK), "enterprise", "the rating mask bills at Enterprise (not Atmosphere: no editorialSummary)");
+eq(RATING_SKU, "details_enterprise", "the rating SKU matches the rating mask tier");
+ok(!RATING_DETAILS_MASK.includes("editorialSummary") && !RATING_DETAILS_MASK.includes("priceLevel"), "the rating mask adds only the stars");
+
+// ── hasIndexRating — the per-place mask decision ────────────────────────────
+eq(hasIndexRating({ rating: 4.6, reviews: 312 }), true, "a numeric rating on the index -> CORE");
+eq(hasIndexRating({ rating: null, reviews: 0 }), false, "the live no-rating shape {rating:null,reviews:0} -> buy the stars");
+eq(hasIndexRating({ rating: "4.6" }), false, "a string rating is not a rating");
+eq(hasIndexRating(null), false, "no signals -> buy the stars");
+eq(hasIndexRating(undefined), false, "missing index row -> buy the stars");
+eq(hasIndexRating({ rating: NaN }), false, "NaN is not a rating");
 eq(maskTier("id,location,types,photos"), "essentials", "ids+geo+types+photos alone is Essentials");
 eq(maskTier(CORE_DETAILS_MASK + ",rating"), "enterprise", "adding rating raises the tier to Enterprise");
 eq(maskTier(CORE_DETAILS_MASK + ",editorialSummary"), "enterprise", "adding editorialSummary raises the tier (Atmosphere)");
