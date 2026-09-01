@@ -47,6 +47,7 @@ ok(split.length === 2 && split[0].id === "breakfast-restaurants" && split[1].id 
 ok(split[0].places.map((p) => p.id).join(",") === "meal,keke", "meal-first places remain in ranked input order");
 ok(split[1].places.map((p) => p.id).join(",") === "cafe,named", "cafés remain in ranked input order");
 ok(isCafePlace({ name: "Breakfast Café", primaryType: "breakfast_restaurant" }) === false, "café in a breakfast restaurant name cannot demote its primary identity");
+ok(isCafePlace({ name: "Keke's Breakfast Cafe", primaryType: "restaurant" }) === false, "a meal-first breakfast name beats the generic café-name fallback");
 ok(new Set(split.flatMap((rail) => rail.places.map((p) => p.id))).size === 4, "no place leaks into both rails");
 
 console.log(`test-morning-picks: ${n - fail}/${n} passed`);
