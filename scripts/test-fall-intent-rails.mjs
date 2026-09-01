@@ -86,6 +86,7 @@ ok(/selRail\.id === "augtober" \|\| selRail\.id === "events"/.test(daypart), "ge
 ok(!/fallEvents\.map|wf8-falltile/.test(daypart), "the old mixed inline fall strip is retired rather than duplicated");
 ok(/result\.rails\.length !== 10/.test(component), "the client fails closed on an incomplete rail contract");
 ok(/FALL_LOAD_TIMEOUT_MS = 12000/.test(component) && /controller\.abort\(\)/.test(component) && /signal: controller\.signal/.test(component), "the collection cannot leave a first-time reader on an endless skeleton");
+ok(/\}, \[key, retry\]\);/.test(component) && !/\[key, city, retry, onTrack\]/.test(component), "parent telemetry re-renders cannot abort the rail request and strand its duplicate guard");
 ok(/service miss, not an empty city/.test(component), "a failed service is not misreported as an empty location");
 ok(/seasonal look-alike/.test(component), "thin rails render the approved honest empty state");
 ok(/actionsReadOnly=\{isEvent\}/.test(component), "dated events do not render dead place reactions");

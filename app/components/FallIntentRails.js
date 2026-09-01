@@ -72,7 +72,13 @@ export default function FallIntentRails({
       .catch(() => { if (!cancelled) setFailed(true); })
       .finally(() => clearTimeout(timer));
     return () => { cancelled = true; clearTimeout(timer); controller.abort(); };
-  }, [key, city, retry, onTrack]);
+    // `onTrack` is intentionally not a dependency. The parent supplies an
+    // inline telemetry callback and can re-render while this request is in
+    // flight; treating that callback identity as data aborts the request, then
+    // the duplicate-request guard refuses to restart it, leaving a permanent
+    // skeleton. Location and an explicit retry are the request identity.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key, retry]);
 
   if (!active) return null;
   if (!key) return <p style={{ color: COLORS.muted, fontSize: 13 }}>Share your location to rank Florida&apos;s fall options for you.</p>;
