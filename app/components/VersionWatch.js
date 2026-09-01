@@ -47,7 +47,7 @@
 // Pinned by scripts/check-version-watch.mjs; decided by lib/staleTab.js, which
 // scripts/test-stale-tab.mjs asserts.
 import { useCallback, useEffect, useRef, useState } from "react";
-import { documentMayBeStale, reloadBlockers } from "../../lib/staleTab";
+import { reloadBlockers } from "../../lib/staleTab";
 
 const CHECK_MS = 10 * 60 * 1000; // floor for a tab that is never backgrounded
 const RETRY_MS = 4000;           // how often an armed reload re-reads the room
@@ -175,12 +175,13 @@ export default function VersionWatch() {
 
     poll = setInterval(() => check("interval"), CHECK_MS);
 
-    // THE BOOT CHECK — the hole that let 2026-08-27 happen. Only when the
-    // document itself may have come from cache; a document that arrived over
-    // the wire is by definition the build the server just handed us.
-    let nav = null;
-    try { nav = performance.getEntriesByType("navigation")[0] || null; } catch (e) {}
-    if (documentMayBeStale(nav)) check("boot");
+    // THE BOOT CHECK. Always compare the bundle with the current server build.
+    // `transferSize` is not a reliable cache oracle on iOS private browsing,
+    // service-worker navigations, or restored standalone/PWA windows. The
+    // endpoint is tiny and no-store; a matching build is a no-op, while a
+    // stale homepage loses retired posters immediately instead of waiting up
+    // to ten minutes for the interval.
+    check("boot");
 
     return () => {
       alive = false;

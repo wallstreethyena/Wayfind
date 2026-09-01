@@ -40,7 +40,6 @@
 // the `when` badge in the same box, which is a fact it really carries. That is
 // the same never-fabricate rule the rest of this codebase runs on.
 import { useEffect, useState } from "react";
-import { useMarketPhotoFallback } from "./marketPhoto.js";
 // v8.29.2 — the same fallback hands IconicPlaceCard grew in v8.29. RailCard's
 // thumbs were WORSE than a navigation: `onClick={... if (onLike) onLike(e)}`
 // renders an enabled, pressable button that silently does nothing when the
@@ -288,11 +287,6 @@ export default function RailCard({
   // they have no hands, which is honest and still unpressable.
   actionsReadOnly = false,
 }) {
-  // v8.13.3 (owner: "I don't want any of the place cards not to have an
-  // image"). Rung 3 of the photo ladder — a category/eyebrow-matched stock
-  // scene, fetched only when the caller resolved no photo. Runs before the
-  // early return (rules of hooks). See ./marketPhoto.js for the ladder.
-  const railMarketFallback = useMarketPhotoFallback(photo ? null : (eyebrow || null));
   // Hooks before the early return, always called (rules of hooks). Subscribes
   // only when this card actually needs the shared store.
   const canFallback = !!(place && place.id);
@@ -344,9 +338,9 @@ export default function RailCard({
         : when ? <div className="wf-place-card-score"><RailWhenBadge {...when} /></div> : null}
       <div className="wf-place-card-layout">
         <div className="wf-place-card-media">
-          {(photo || railMarketFallback)
+          {photo
             ? <img
-                src={photo || railMarketFallback}
+                src={photo}
                 data-fallback={photoFallback || ""}
                 alt=""
                 loading={eagerMedia ? "eager" : "lazy"}

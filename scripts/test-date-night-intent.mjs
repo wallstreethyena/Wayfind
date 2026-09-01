@@ -55,7 +55,7 @@ const DESSERT = p({
   types: ["ice_cream_shop", "dessert_shop", "food"],
 });
 const SPEAKEASY = p({
-  id: "speak-1", name: "Bahi Hut Tiki Cocktail Lounge", primaryType: "cocktail_bar",
+  id: "speak-1", name: "Craftails Speakeasy", primaryType: "cocktail_bar",
   types: ["cocktail_bar", "speakeasy", "bar"],
 });
 const LIVE = p({
@@ -127,6 +127,14 @@ const ACTIVITY_SHOP_LEAK = p({
   id: "shopping-leak", name: "SURFIT USA Kayak Shop", primaryType: "sporting_goods_store",
   types: ["sporting_goods_store", "store", "kayak_rental"],
 });
+const COMEDY_CLUB_LEAK = p({
+  id: "club-leak", name: "Side Splitters Comedy Club", primaryType: "night_club",
+  types: ["night_club"], rating: 4.6, reviews: 2795,
+});
+const COCKTAIL_BAR_LEAK = p({
+  id: "speak-leak", name: "Copper Shaker", primaryType: "cocktail_bar",
+  types: ["cocktail_bar", "bar"], editorial: "Classic craft cocktails in cozy digs",
+});
 
 const FULL = [DINNER, DINNER_CASUAL, DINNER_PLAIN, DESSERT, SPEAKEASY, LIVE, CLUB, SPA, TOUR, BEACH, MUSEUM, FAST, WINE, FAR];
 const GOOD = { weatherKnown: true, outdoorOK: true, beachShow: true };
@@ -146,6 +154,8 @@ ok(isDateDessert(DESSERT) && !isDateDessert(DINNER), "dessert chip admits a crea
 ok(isDateSpeakeasy(SPEAKEASY) && !isDateSpeakeasy(CLUB), "speakeasy is cocktail/speakeasy, not a dance club");
 ok(isDateLiveMusic(LIVE) && !isDateLiveMusic(CLUB), "Live Music excludes night_club so Clubs can own that rail");
 ok(isDateClub(CLUB) && !isDateClub(LIVE), "Clubs is night_club / dance_hall");
+ok(!isDateClub(COMEDY_CLUB_LEAK), "a comedy club mislabeled by Google as night_club never enters Clubs");
+ok(!isDateSpeakeasy(COCKTAIL_BAR_LEAK), "a cocktail bar without actual speakeasy evidence never enters Speakeasies");
 ok(isDateSpa(SPA) && isDateTour(TOUR) && isDateTogether(SPA) && isDateTogether(TOUR), "Spa and Tours both belong on Things To Do Together");
 ok(isSpecialDateDinner(DINNER) && isSpecialDateDinner(DINNER_CASUAL), "price ≥ 2 is the existing 'special' dinner signal");
 ok(!isDateLiveMusic(RESTAURANT_WITH_MUSIC_TAG), "a restaurant with a secondary music tag is not a factual Live Music venue");

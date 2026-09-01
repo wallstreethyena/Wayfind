@@ -51,6 +51,7 @@ import { wayfindScore } from "../../lib/wayfindScore.js";
 import { topPickAward } from "../../lib/topPickAward.js";
 import { coarseCat } from "../../lib/ranking.js";
 import { priceLabel } from "../../lib/price.js";
+import { cardImageSrc } from "../../lib/placePhoto.js";
 
 const C = { text: "#F1F5F9", muted: "#8b93a1" };
 
@@ -245,7 +246,12 @@ export default function DateNightRails({
                 <RailCard
                   key={p.id}
                   className="wf-exploding-primary"
-                  photo={p.photo || null}
+                  // A named venue may show only its own URL/ref/place-id
+                  // ladder. RailCard deliberately has no category-stock
+                  // fallback: one cocktail or dance-floor scene repeated
+                  // across different names looks like venue photography and
+                  // is therefore false.
+                  photo={cardImageSrc(p, 640) || null}
                   place={p}
                   title={p.name}
                   eyebrow={type}

@@ -21,38 +21,25 @@ ok(/export function useMarketPhotoFallback\(/.test(mod), "the shared hook exists
 ok(/export function marketPhotoQuery\(category, city\)/.test(mod), "the query builder takes category + city and nothing else");
 ok(/never the venue/i.test(mod), "the honesty line is documented where the next editor will read it");
 
-// House cards (2026-08-25): a category+city stock scene is ONE photo reused
+// Named place cards (2026-09-01): a category+city stock scene is ONE photo reused
 // across every photoless venue in that town. Owner screenshot — Kids Empire
-// Bradenton and Intense Escape both painted the same beach sunset. Those
-// cards now use the venue's own photo or the branded monogram. The ladder
-// stays for market-level / rail chrome that is not a named venue card.
-const HOUSE = ["app/components/IconicPlaceCard.js", "app/home.js"];
+// Bradenton and Intense Escape both painted the same beach sunset; later the
+// Speakeasies and Clubs rails repeated one cocktail/dance-floor scene across
+// different venue names. Every named card now uses the venue's own photo or
+// branded monogram. The ladder stays only for market-level chrome that does
+// not claim to depict a named venue.
+const HOUSE = ["app/components/IconicPlaceCard.js", "app/components/RailCard.js", "app/home.js"];
 const rail = read("app/components/RailCard.js");
-ok(/useMarketPhotoFallback\(photo \? null : \(eyebrow \|\| null\)\)/.test(rail),
-  "positive control: RailCard still calls the stock ladder — so the house-card absence check below can fail");
 for (const file of HOUSE) {
   const src = read(file);
   const calls = src.match(/(?:useMarketPhotoFallback|marketPhotoQuery)\([^)]*\)/g) || [];
   ok(calls.length === 0, `${file}: house cards must not call the shared stock-photo ladder (got ${JSON.stringify(calls)})`);
 }
 
-// Remaining consumer: the hook is DISABLED (null query) when a real photo
-// exists, and no call site ever feeds a venue name into the query.
-const SITES = [
-  // RailCard's venue name is its `title` prop — the ban must speak this
-  // surface's vocabulary or a `title`-fed query sails through (red-proved).
-  ["app/components/RailCard.js", /useMarketPhotoFallback\(photo \? null : \(eyebrow \|\| null\)\)/, /\bname\b|\btitle\b/, /\btitle\b/],
-];
-for (const [file, rx, ban, control] of SITES) {
-  const src = read(file);
-  ok(rx.test(src), `${file}: the fallback is gated behind "no real photo" and queries scene terms only`);
-  ok(control.test(src), `${file}: positive control — the file really contains the banned surface's venue-name token, so the absence check below can fail`);
-  const calls = src.match(/(?:useMarketPhotoFallback|marketPhotoQuery)\([^)]*\)/g) || [];
-  ok(calls.length > 0, `${file}: at least one ladder call found`);
-  ok(calls.every((c) => !ban.test(c)), `${file}: no ladder call ever passes a venue name — found ${JSON.stringify(calls.filter((c) => ban.test(c)))}`);
-}
+ok(/\{photo\s*\?/.test(rail) && /src=\{photo\}/.test(rail),
+  "RailCard renders only the caller's verified photo and otherwise uses its branded monogram");
 
 console.log(fail === 0
-  ? `check-market-photo-honesty: OK — ${pass} assertions (stock rung is scene-truthful; house cards never share it)`
+  ? `check-market-photo-honesty: OK — ${pass} assertions (named place cards never share stock imagery)`
   : `check-market-photo-honesty: FAIL — ${fail} of ${pass + fail}`);
 process.exit(fail === 0 ? 0 : 1);
