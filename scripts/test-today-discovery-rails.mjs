@@ -13,6 +13,7 @@ import {
   isWaterActivity,
 } from "../lib/todayDiscoveryRails.js";
 import { RAILS } from "../lib/rails.js";
+import { DAYPARTS } from "../lib/dayparts.js";
 import { wayfindScore } from "../lib/wayfindScore.js";
 
 let pass = 0;
@@ -90,6 +91,10 @@ ok(!isPickleballPlace(leaks[4]), "a generic sports club cannot become Pickleball
 const todayRail = RAILS.find((rail) => rail.id === "today");
 ok(todayRail?.title === "Today's Best Options" && todayRail?.art === "today", "the combined poster replaces the guarded Today artwork slot");
 ok(!RAILS.some((rail) => rail.id === "best" || rail.id === "gems"), "Best Around You and Places You'd Never Find are retired from the homepage poster registry");
+for (const [band, definition] of Object.entries(DAYPARTS)) {
+  ok(definition.order.indexOf("today") >= 0 && definition.order.indexOf("today") <= 4,
+    `Today's Best Options stays in the first five posters during ${band}`);
+}
 
 const route = fs.readFileSync(new URL("../app/api/today-discovery/route.js", import.meta.url), "utf8");
 ok(/fastCachedRail\(key/.test(route) && /serveFromInventory/.test(route) && !/searchPlaces|places\.googleapis/.test(route), "the endpoint is FastCache-backed, owned-inventory-only, and makes no Google search");
