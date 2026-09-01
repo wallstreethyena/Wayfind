@@ -166,6 +166,7 @@ node scripts/test-marine.mjs
 node scripts/test-live-picks.mjs
 node scripts/test-sports-rail.mjs
 node scripts/test-morning-picks.mjs
+node scripts/test-lunch-break-rails.mjs
 node scripts/test-things-to-do.mjs
 node scripts/test-atlas-build.mjs
 node scripts/check-ttd-dedup.mjs
