@@ -5,9 +5,11 @@ export const runtime = "nodejs";
 // and every qualitative category is evidence-gated in lib/birthdayIntent.
 
 import { BROWSE_INVENTORY_N } from "../../../lib/browseInventory.js";
-import { distMeters, serveFromInventory } from "../../../lib/inventoryServe.js";
+import { birthdayAttributesFor } from "../../../lib/birthdayAttributes.js";
+import { distMeters, serveFromInventory, serveInventoryByPlaceIds } from "../../../lib/inventoryServe.js";
+import { NET_DEADLINE_MS } from "../../../lib/fetchDeadline.js";
 import { BIRTHDAY_WIDEN_MI, composeBirthdayRails } from "../../../lib/birthdayIntent.js";
-import { birthdayRewardFor } from "../../../lib/birthdayRewards.js";
+import { BIRTHDAY_REWARD_PLACE_IDS, birthdayRewardFor } from "../../../lib/birthdayRewards.js";
 
 function json(body, status = 200, cache = "public, s-maxage=3600, stale-while-revalidate=86400") {
   return Response.json(body, { status, headers: { "cache-control": cache } });
@@ -42,8 +44,10 @@ function toBirthdayPlace(raw, origin) {
     distMi: Math.round((distMeters(origin.lat, origin.lng, lat, lng) / 1609.34) * 10) / 10,
     _wfInventory: true,
   };
-  const reward = birthdayRewardFor(id);
+  const reward = birthdayRewardFor(id, new Date(), name);
   if (reward) place._birthdayReward = reward;
+  const attributes = birthdayAttributesFor(id);
+  if (attributes) place._birthdayAttributes = attributes;
   return place;
 }
 
@@ -58,14 +62,31 @@ export async function GET(request) {
   const radiusM = BIRTHDAY_WIDEN_MI * 1609.34;
   const n = BROWSE_INVENTORY_N;
   const origin = { lat, lng };
-  const pools = await Promise.all([
-    serveFromInventory("food", lat, lng, radiusM, n),
-    serveFromInventory("nightlife", lat, lng, radiusM, n),
-    serveFromInventory("attractions", lat, lng, radiusM, n),
-    serveFromInventory("beach", lat, lng, radiusM, n),
-    serveFromInventory("hotels", lat, lng, radiusM, n),
-    serveFromInventory("shopping", lat, lng, radiusM, n),
-  ]);
+  const retryRead = async (operation) => {
+    let lastError = null;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try { return await operation(); } catch (error) { lastError = error; }
+    }
+    throw lastError || new Error("Birthday inventory read failed");
+  };
+
+  let pools;
+  try {
+    // Only the two identities that can honestly satisfy the five experience
+    // rails are broad reads. Gifts are a tiny exact-ID lookup. This replaces
+    // six 1,000-row reads and prevents hotels, shops, beaches and attractions
+    // from being fetched only to be rejected after the fact.
+    const broadRead = { failLoud: true, primaryOnly: true, deadlineMs: NET_DEADLINE_MS };
+    const exactRead = { failLoud: true, deadlineMs: NET_DEADLINE_MS };
+    pools = await Promise.all([
+      retryRead(() => serveFromInventory("food", lat, lng, radiusM, n, undefined, broadRead)),
+      retryRead(() => serveFromInventory("nightlife", lat, lng, radiusM, n, undefined, broadRead)),
+      retryRead(() => serveInventoryByPlaceIds(BIRTHDAY_REWARD_PLACE_IDS, lat, lng, radiusM, exactRead)),
+    ]);
+  } catch (error) {
+    console.error("[api/birthday] inventory unavailable", { message: String(error?.message || error) });
+    return json({ error: "Birthday inventory is temporarily unavailable" }, 503, "no-store");
+  }
 
   const seen = new Set();
   const places = [];
