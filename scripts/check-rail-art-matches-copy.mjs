@@ -66,11 +66,11 @@ const PAIRS = {
   //   chef reads "CURATED BY A TOP CHEF / CHEF RON DUPRAT'S TOP 7 /
   //   7 restaurants a Top Chef says are worth the trip. / Chef-approved
   //   dining picks" — the rail copy says the same four things.
-  //   augtober reads "SEASONAL / AUGTOBER EVENTS NEAR YOU / Pumpkins,
-  //   festivals, spooky nights & Florida fall plans worth showing up for."
-  //   — matches title/short/sub.
+  //   augtober now reads "Florida's BEST FALL, FOUND" over a real Florida
+  //   pumpkin field — the owner's replacement for the expired Augtober card.
+  //   Its promise matches the statewide fall intent collection behind it.
   chef: { copy: "0b5d7b04d1dce6fd", art: "3df8871be0a36cc1" },
-  augtober: { copy: "ed0931530625e1ae", art: "8148ec94da82c4b5" },
+  augtober: { copy: "1f10dd10c4ca5fff", art: "bb444b37f60420c0" },
   beach: { copy: "bc2e671d898c25b0", art: "10af9b34c86feb0b" },
   // v8.33 — the featured-creator rail. Pixels opened and read before pinning:
   // the tile carries the Wayfind wordmark, a circular photo of the creator with

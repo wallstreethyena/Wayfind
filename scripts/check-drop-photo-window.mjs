@@ -53,6 +53,7 @@ const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm
 
 const RAW = readFileSync(join(ROOT, "app/components/DaypartRail.js"), "utf8");
 const SRC = strip(RAW);
+const CSS = strip(readFileSync(join(ROOT, "app/components/railMenuCss.js"), "utf8"));
 
 /* ── 1. THE MEMORY BOUND, IN BYTES ─────────────────────────────────────────
    Asserted as a number a reviewer can check against the measurement, not as
@@ -103,8 +104,22 @@ const SRC = strip(RAW);
   ok(/Math\.min\(total, m \+ DROP_CHUNK\)/.test(sched),
     "…growing by a chunk per idle frame and clamping at the total, so it can neither overshoot nor stall short");
   const mFirst = SRC.match(/export const DROP_FIRST_CHUNK\s*=\s*(\d+)/);
+  const mChunk = SRC.match(/export const DROP_CHUNK\s*=\s*(\d+)/);
+  const mQuiet = SRC.match(/export const DROP_SCROLL_QUIET_MS\s*=\s*(\d+)/);
   ok(!!mFirst && Number(mFirst[1]) >= 12,
     `the FIRST chunk (${mFirst ? mFirst[1] : "?"}) covers well past the ~3.4 cards visible, so the reader sees a full rail immediately rather than watching it assemble`);
+  ok(!!mChunk && Number(mChunk[1]) <= 6,
+    `each background commit adds at most six complex cards (got ${mChunk ? mChunk[1] : "?"}), not the 32-card Safari burst that blocked scrolling`);
+  ok(!!mQuiet && Number(mQuiet[1]) >= 120,
+    `Safari waits for a real scroll-quiet window (got ${mQuiet ? mQuiet[1] : "?"}ms), rather than mounting again 32ms later`);
+  ok(/pcScrolling \|\| mounted >= total/.test(sched),
+    "the mount scheduler stops while either the page or the horizontal rail is actively scrolling");
+  ok(/querySelector\("\.wf-scrollarea"\)/.test(SRC) && /DROP_SCROLL_QUIET_MS/.test(sched),
+    "the internal mobile page scroller drives the quiet gate, and the Safari fallback uses that same budget");
+  ok(/content-visibility:auto/.test(CSS) && /contain:paint style/.test(CSS),
+    "mounted offscreen cards keep their full design but do not demand paint work from the phone");
+  ok(/nth-child\(n\+13\)\{animation:none\}/.test(CSS),
+    "offscreen background chunks do not start invisible entrance animations; the visible first twelve retain the premium motion");
 }
 
 /* ── 3. THE WINDOW ACTUALLY FOLLOWS THE READER ─────────────────────────────
@@ -186,6 +201,12 @@ const RED = [
   ["a schedule targeting a constant instead of the list is detectable", () => {
     return !/const total = dropList\.length;/.test("const total = 60;");
   }],
+  ["a mount scheduler that ignores active scrolling is detectable", () => {
+    return !/pcScrolling \|\| mounted >= total/.test("if (!selected || mounted >= total) return undefined;");
+  }],
+  ["the old 32ms Safari burst is detectable", () => {
+    return !/DROP_SCROLL_QUIET_MS/.test("setTimeout(fn, 32)");
+  }],
   ["a window that never moves is detectable", () => {
     const fake = "const [pcWin] = useState({ lo: 0, hi: 28 });";
     return !/addEventListener\("scroll"/.test(fake);
@@ -201,4 +222,6 @@ if (fails) {
   console.error(`check-drop-photo-window: FAIL — ${fails} of ${pass + fails} assertions`);
   process.exit(1);
 }
-console.log(`check-drop-photo-window: OK — ${pass} assertions (photos bounded to ~${Math.round((10 + 18 + 4) * MB)}MB of bitmap, cards unbounded; the window follows the scroll and its twins are stable)`);
+const liveBack = Number((SRC.match(/export const PHOTO_WINDOW_BACK\s*=\s*(\d+)/) || [])[1]);
+const liveAhead = Number((SRC.match(/export const PHOTO_WINDOW_AHEAD\s*=\s*(\d+)/) || [])[1]);
+console.log(`check-drop-photo-window: OK — ${pass} assertions (photos bounded to ~${Math.round((liveBack + liveAhead + 4) * MB)}MB of bitmap, cards unbounded; scroll-time mounting is paused and offscreen paint is contained)`);

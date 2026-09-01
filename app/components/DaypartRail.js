@@ -144,11 +144,11 @@ export const RAIL_VOICE_MS = 6000;
 // state this card already has — and the photo returns from the HTTP cache the
 // moment the window reaches it again.
 //
-// ~3.4 cards are visible at a time (--wf8-pcvis). The window is far wider than
-// that on both sides so a normal swipe never outruns it, and at 28 cards the
-// worst case is about 38MB of bitmap instead of 257MB.
-export const PHOTO_WINDOW_BACK = 10;
-export const PHOTO_WINDOW_AHEAD = 18;
+// ~3.4 cards are visible at a time (--wf8-pcvis). The window is wider than
+// that on both sides so a normal swipe never outruns it, and at 20 cards the
+// worst case is about 27MB of bitmap instead of 257MB.
+export const PHOTO_WINDOW_BACK = 6;
+export const PHOTO_WINDOW_AHEAD = 10;
 
 // ── THE DROP MOUNTS IN CHUNKS (v8.77) ───────────────────────────────────────
 //
@@ -173,8 +173,9 @@ export const PHOTO_WINDOW_AHEAD = 18;
 // sees a full rail immediately; the rest arrive on idle frames, before any
 // thumb can reach them. Nothing is dropped — check-drop-photo-window.mjs
 // asserts the count provably converges on the full list.
-export const DROP_FIRST_CHUNK = 24;
-export const DROP_CHUNK = 32;
+export const DROP_FIRST_CHUNK = 12;
+export const DROP_CHUNK = 6;
+export const DROP_SCROLL_QUIET_MS = 160;
 
 // ── AND THE PHOTO WINDOW MOVES IN STEPS ─────────────────────────────────────
 //
@@ -454,6 +455,12 @@ export default function DaypartRail({
   // How many of the open drop's cards are MOUNTED. Grows on idle frames until
   // it reaches the full list — never a ceiling, only a schedule.
   const [mounted, setMounted] = useState(DROP_FIRST_CHUNK);
+  // Mounting is background work, not scroll work. Safari has no
+  // requestIdleCallback, so the old 32ms timeout assembled dozens of complex
+  // cards while the reader's finger was moving. One state transition marks a
+  // whole gesture; the work resumes only after the page and rail are quiet.
+  const [pcScrolling, setPcScrolling] = useState(false);
+  const pcScrollTimerRef = useRef(null);
   // Stable photoless twins, so a card leaving the window does not get a NEW
   // object every render and re-render the whole drop. WeakMap keyed on the row
   // itself: a new payload brings new rows and the old twins are collectable.
@@ -1200,6 +1207,27 @@ export default function DaypartRail({
   // Reset the schedule when the reader opens a different rail.
   useEffect(() => { setMounted(DROP_FIRST_CHUNK); }, [selected]);
 
+  useEffect(() => {
+    if (!selected || typeof window === "undefined") return undefined;
+    const scrollArea = document.querySelector(".wf-scrollarea");
+    const rail = pcRef.current;
+    const onScroll = () => {
+      setPcScrolling(true);
+      if (pcScrollTimerRef.current) clearTimeout(pcScrollTimerRef.current);
+      pcScrollTimerRef.current = setTimeout(() => {
+        pcScrollTimerRef.current = null;
+        setPcScrolling(false);
+      }, DROP_SCROLL_QUIET_MS);
+    };
+    const targets = [window, scrollArea, rail].filter(Boolean);
+    targets.forEach((target) => target.addEventListener("scroll", onScroll, { passive: true }));
+    return () => {
+      targets.forEach((target) => target.removeEventListener("scroll", onScroll));
+      if (pcScrollTimerRef.current) clearTimeout(pcScrollTimerRef.current);
+      pcScrollTimerRef.current = null;
+    };
+  }, [selected]);
+
   // …then extend it on idle frames until the WHOLE list is mounted. This is a
   // schedule, never a ceiling: the loop only stops when `mounted` has reached
   // dropList.length. requestIdleCallback where it exists (not Safari), a short
@@ -1207,14 +1235,15 @@ export default function DaypartRail({
   // instead of inside the tap.
   useEffect(() => {
     const total = dropList.length;
-    if (!selected || mounted >= total) return undefined;
+    if (!selected || pcScrolling || mounted >= total) return undefined;
     const ric = typeof window !== "undefined" && window.requestIdleCallback
-      ? window.requestIdleCallback : (fn) => setTimeout(fn, 32);
+      ? (fn) => window.requestIdleCallback(fn, { timeout: 600 })
+      : (fn) => setTimeout(fn, DROP_SCROLL_QUIET_MS);
     const cancel = typeof window !== "undefined" && window.cancelIdleCallback
       ? window.cancelIdleCallback : clearTimeout;
     const id = ric(() => setMounted((m) => Math.min(total, m + DROP_CHUNK)));
     return () => { try { cancel(id); } catch (e) {} };
-  }, [selected, mounted, dropList.length]);
+  }, [selected, pcScrolling, mounted, dropList.length]);
   // Resolves ONLY the open drop's places (empty list while closed, so the
   // closed menu costs zero requests). Fail-soft: no hook, no line, no loss.
   const hooks = useEditorialHooks(selPlaces);
