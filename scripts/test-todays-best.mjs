@@ -164,8 +164,10 @@ ok(/No creator videos linked near you yet/.test(bn), "honest empty state for the
   ok(/href: "\/date-night"/.test(rails) && /href: "\/family"/.test(rails), "date-night and family must still be reachable from the home rail");
   ok(/datenight: 'datenight_hero_open'/.test(dayparts) && /family: 'family_hero_open'/.test(dayparts),
     "the legacy hero events must keep firing for one release, or live dashboards flatline at cutover");
-  ok(/beach: 'beach_hero_open'/.test(dayparts) && /trending: 'buzz_hero_open'/.test(dayparts) && /gems: 'hidden_gems_hero_open'/.test(dayparts),
-    "…all eight of them, not just the two that were easy to remember");
+  ok(/beach: 'beach_hero_open'/.test(dayparts) && /trending: 'buzz_hero_open'/.test(dayparts) && /today: 'discovery_hero_open'/.test(dayparts),
+    "…all active legacy mappings, not just the two that were easy to remember");
+  ok(!/gems: 'hidden_gems_hero_open'/.test(dayparts),
+    "the retired Hidden Gems homepage poster cannot keep emitting a phantom open event");
 }
 // 2026-08-06 (owner decision, SUPERSEDES "the sparkle lives beside search").
 // The search-bar sparkle is gone and "What are you feeling?" moved into the

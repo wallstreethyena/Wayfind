@@ -295,17 +295,19 @@ ok(/floor:\s*\{\s*rating:\s*4(\.0)?\s*,/.test(intentPagesSrc),
 // v8: the five sibling slides this checked for are five RAILS now, each with
 // its own owned artwork. The assertion it was making — "adding the seasonal
 // gradient fallback must not have quietly dropped a real photo from any
-// existing slide" — is asserted at the source instead: every rail's art files
+// existing slide" — is asserted at the source instead: every active rail's art files
 // must exist on disk, in every region, in every format, which
-// scripts/check-rail-routes.mjs proves for all fifteen. Naming the five here
-// keeps the original intent: none of them may vanish.
+// scripts/check-rail-routes.mjs proves. Places You'd Never Find was explicitly
+// consolidated into Today's Best Options, so it must no longer appear as a
+// separate homepage poster; its standalone destination remains untouched.
 {
   const rails = readFileSync(new URL("../lib/rails.js", import.meta.url), "utf8");
-  for (const id of ["beach", "gems", "datenight", "family", "trending"]) {
+  for (const id of ["beach", "today", "datenight", "family", "trending"]) {
     ok(new RegExp(`id: "${id}"`).test(rails), `the "${id}" card is still on the homepage, as a rail`);
     const def = (rails.match(new RegExp(`\\{ id: "${id}"[\\s\\S]*?\\},`)) || [""])[0];
     ok(/art: "/.test(def), `the "${id}" rail still supplies real owned artwork`);
   }
+  ok(!/id: "gems"/.test(rails), "the old Places You'd Never Find homepage poster is consolidated, not duplicated");
 }
 
 // v6.97 — the DEFAULT currentSeason() reads the ET-anchored calendar day, so

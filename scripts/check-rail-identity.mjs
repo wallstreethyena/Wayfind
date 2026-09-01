@@ -88,7 +88,7 @@ for (const rail of RAILS) {
   }
 }
 const WAIVED = Object.entries(RAIL_SELECT).filter(([, c]) => c.identity === null).map(([k]) => k).sort();
-ok(WAIVED.join(",") === "best,drive,locals,season,today,trending",
+ok(WAIVED.join(",") === "drive,locals,season,today,trending",
   `the set of rails with NO identity changed to [${WAIVED.join(", ")}]. That is a product decision, ` +
   `not a refactor: update this line deliberately and say why in the waiver.`);
 
@@ -131,14 +131,6 @@ const CASES = [
   ["datenight", row("Thai Spice & Sushi", "thai_restaurant", ["thai_restaurant", "sushi_restaurant", "japanese_restaurant", "restaurant"]), true, "kept"],
   ["datenight", row("Gulley's", "seafood_restaurant", ["seafood_restaurant", "restaurant", "food", "point_of_interest"]), true, "kept — Parrish must still fill"],
 
-  // ── gems: the independent (v8.31.2) ──────────────────────────────────────
-  ["gems", row("Papa Johns Pizza", "pizza_restaurant", ["pizza_restaurant", "restaurant", "food", "point_of_interest"]), false, "ranked 7th on Places You'd Never Find"],
-  ["gems", row("7 Brew Coffee", "coffee_shop", ["coffee_shop", "cafe", "food", "store"]), false, "a national drive-thru chain"],
-  ["gems", row("Jeremiah's Italian Ice", "ice_cream_shop", ["ice_cream_shop", "dessert_shop", "confectionery", "food_store"]), false, "a chain"],
-  ["gems", row("Tropical Smoothie Cafe", "juice_shop", ["juice_shop", "acai_shop", "food_store", "store"]), false, "a chain"],
-  ["gems", row("Taqueria Maty", "mexican_restaurant", ["mexican_restaurant", "restaurant", "food", "point_of_interest"]), true, "kept — this is the whole point of the rail"],
-  ["gems", row("Vampire Penguin", "dessert_shop", ["dessert_shop", "confectionery", "food_store", "store"]), true, "kept — a local dessert counter genuinely IS a hidden gem"],
-  ["gems", row("Restaurant iDalia", "italian_restaurant", ["italian_restaurant", "restaurant", "food", "point_of_interest"]), true, "kept"],
 ];
 
 for (const [railId, place, want, note] of CASES) {
@@ -156,7 +148,6 @@ const LOAD_BEARING = [
   ["eat", row("Pomegranate Frozen Yogurt", "dessert_shop", ["dessert_shop", "confectionery", "food_store", "store"])],
   ["tonight", row("Salty Jim's Island Bar & Grill", "bar_and_grill", ["bar_and_grill", "bar", "restaurant", "food"])],
   ["datenight", row("Jersey Girl Bagels Parrish", "bakery", ["bakery", "food_store", "food", "store"], { priceLevel: 2 })],
-  ["gems", row("Papa Johns Pizza", "pizza_restaurant", ["pizza_restaurant", "restaurant", "food", "point_of_interest"], { rating: 4.6, reviews: 300 })],
 ];
 for (const [railId, place] of LOAD_BEARING) {
   const cfg = RAIL_SELECT[railId];

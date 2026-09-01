@@ -248,12 +248,6 @@ ok(namesOf("tonight").includes("Night Fishing Pier"), "an explicitly tonight-tag
 ok(!namesOf("datenight").includes("Golden Hour Preserve"), "…and it does not ride Date Night either: a tag qualifies a row, it never exempts it from the room (v8.82)");
 eq(lead("events"), "Van Wezel Hall", "events leads with a ticketed venue, not a museum");
 eq(lead("break"), "Quick Bagel Co", "the 30-minute break leads with counter service");
-// Gems still ranks by score WITHIN the axis — the filter decides membership,
-// never order. Nonna (4.7 / 320) outscores Hidden Deli (4.8 / 90) and leads.
-eq(lead("gems"), "Nonna Trattoria", "gems ranks by score inside its own axis");
-ok(!namesOf("gems").includes("Ca d Zan"), "the 1,200-review anchor is not a hidden gem");
-ok(selectFor("gems", pools).every((p) => p.rating >= 4.6 && p.reviews >= 40 && p.reviews <= 600),
-  "every gem really is over 4.6 and under 600 reviews");
 // v8.17 — su7 (curated golden-hour datenight entry, 96) now outscores the
 // waterfront room (90); the global rule is score order, so it leads. The
 // original claim survives one line down: the room still beats every counter.
@@ -420,8 +414,6 @@ ok(!isBirthdayPlace({ name: "Corner Taco", types: ["fast_food_restaurant"] }),
   "birthdayPlace: a taco counter is not a birthday plan");
 ok(!isStrongBirthdayPlace({ name: "Publix Super Market", primaryType: "grocery_store", types: ["grocery_store", "banquet_hall"] }),
   "strong birthday: a grocery that also lists banquet_hall is still a grocery");
-ok(namesOf("best").includes("Siesta Key Beach") && namesOf("best").includes("Beach House Waterfront"),
-  "the best-around-you rail really does see every pool");
 // v8.6 — THE SIGNAL CHANGED, SO THE FIXTURE EXPECTATION CHANGED WITH IT.
 // This asserted 0 because nothing in the fixture carried the `trending` flag.
 // That assertion was GREEN THROUGHOUT the three sessions the rail shipped empty
@@ -502,7 +494,7 @@ for (const [id, rows] of Object.entries(places)) {
   // v8.15 — birthday and breakfast join the fillable set: the fixture carries
   // three marked registry rows and three qualifying morning rooms.
   eq(leads.map(([id]) => id).sort().join(","),
-    "beach,best,birthday,break,breakfast,datenight,drive,eat,events,family,gems,season,today,tonight,trending",
+    "beach,birthday,break,breakfast,datenight,drive,eat,events,family,season,today,tonight,trending",
     "exactly the rails this fixture can fill honestly, and no others");
   // locals needs a real creator video and trending needs real demand data.
   // Neither can be faked into a fixture, and neither may be faked onto a page.
@@ -725,9 +717,9 @@ const WIDEN_RADIUS_MI = 25;
   ok(RSmod.RAIL_EXPOSURE_CAP === undefined, "the exposure cap is gone — it was a max");
   const filled = fillRails(pools, (p) => p, CTX);
   const railsWith = (name) => Object.keys(filled.places).filter((id) => (filled.places[id] || []).some((p) => p.name === name));
-  // Ca' d'Zan qualifies for today, best, family and drive in this fixture. Under
-  // the cap it rode two. It must now ride every one it honestly qualifies for.
-  ok(railsWith("Ca d Zan").length >= 3,
+  // Ca' d'Zan qualifies for today and family in this fixture. The retired Best
+  // homepage poster no longer adds a duplicate destination.
+  ok(railsWith("Ca d Zan").length >= 2,
     `a row that qualifies for many rails now reaches them all (Ca d Zan rode ${railsWith("Ca d Zan").join(",") || "none"})`);
   ok(railsWith("Weeki Wachee Springs").length >= 2,
     "a summer-registry row still rides ALL its tagged rails — owner curation was never capped and still is not");
