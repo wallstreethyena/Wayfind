@@ -75,15 +75,17 @@ const beaches = composeTodayDiscoveryRails([
 ok(beaches.map((row) => row.id).join(",") === "good-water,excellent-poor", "current good water outranks a higher-score beach with poor water");
 
 const leaks = [
+  place("noisy-restaurant", "Kitchen and Cocktails", "restaurant", ["restaurant", "bar", "tourist_attraction"]),
   place("spring-hill-shop", "Spring Hill Golf Shop", "store", ["store", "sporting_goods_store"]),
   place("mini-golf", "Adventure Mini Golf", "miniature_golf_course", ["miniature_golf_course"]),
   place("marina-store", "Beach Marina Supply", "store", ["store"]),
   place("tennis", "Parrish Tennis Club", "sports_club", ["sports_club"]),
 ];
-ok(!isFloridaSpring(leaks[0]), "Spring Hill retail cannot become a Florida spring");
-ok(!isGolfPlace(leaks[1]), "miniature golf cannot become Golf");
-ok(!isWaterActivity(leaks[2]), "a marina supply store cannot become a water activity");
-ok(!isPickleballPlace(leaks[3]), "a generic sports club cannot become Pickleball without pickleball evidence");
+ok(!isTopActivity(leaks[0]), "a restaurant with a noisy tourist-attraction token cannot become Top Activities");
+ok(!isFloridaSpring(leaks[1]), "Spring Hill retail cannot become a Florida spring");
+ok(!isGolfPlace(leaks[2]), "miniature golf cannot become Golf");
+ok(!isWaterActivity(leaks[3]), "a marina supply store cannot become a water activity");
+ok(!isPickleballPlace(leaks[4]), "a generic sports club cannot become Pickleball without pickleball evidence");
 
 const todayRail = RAILS.find((rail) => rail.id === "today");
 ok(todayRail?.title === "Today's Best Options" && todayRail?.art === "today", "the combined poster replaces the guarded Today artwork slot");
