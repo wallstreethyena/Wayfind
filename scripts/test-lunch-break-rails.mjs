@@ -40,7 +40,7 @@ const leakage = composeLunchBreakRails([
   place("pizza-wings", "Wolveshead Pizza & Wings", "pizza_restaurant", ["pizza_restaurant", "chicken_wings_restaurant"], ["pizza"]),
   place("pub", "Miller's Ale House", "american_restaurant", ["chicken_wings_restaurant"], ["american"]),
   place("applebees", "Applebee's Grill + Bar", "american_restaurant", ["hamburger_restaurant"], ["american", "burgers"]),
-  place("formal-italian", "Ferraro's Italian Grille", "italian_restaurant", ["italian_restaurant"], ["italian"]),
+  place("formal-italian", "Ferraro's Italian Grille", "italian_restaurant", ["italian_restaurant", "pizza_restaurant"], ["italian", "pizza"]),
   place("seasons", "Seasons 52", "american_restaurant", ["salad_shop"], ["american", "vegetarian"]),
 ]);
 const leakMembership = new Map(leakage.flatMap((rail) => rail.places.map((row) => [row.id, rail.id])));
