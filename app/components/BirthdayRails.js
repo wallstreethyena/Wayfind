@@ -37,18 +37,23 @@ export default function BirthdayRails({
 }) {
   const [payload, setPayload] = useState(null);
   const [failed, setFailed] = useState(false);
+  const [retry, setRetry] = useState(0);
   const asked = useRef("");
   const lat = center && Number.isFinite(center.lat) ? center.lat : null;
   const lng = center && Number.isFinite(center.lng) ? center.lng : null;
   const key = useMemo(() => active && lat != null && lng != null
-    ? [lat.toFixed(3), lng.toFixed(3)].join("|")
+    ? [lat.toFixed(2), lng.toFixed(2)].join("|")
     : "", [active, lat, lng]);
 
   useEffect(() => {
-    if (!key || asked.current === key) return;
-    asked.current = key;
+    const requestKey = key + "|" + retry;
+    if (!key || asked.current === requestKey) return;
+    asked.current = requestKey;
+    setPayload(null);
+    setFailed(false);
     let dead = false;
-    const query = new URLSearchParams({ lat: String(lat), lng: String(lng) });
+    const [queryLat, queryLng] = key.split("|");
+    const query = new URLSearchParams({ lat: queryLat, lng: queryLng, v: "2" });
     fetch("/api/birthday?" + query.toString())
       .then(async (response) => response.ok ? response.json() : null)
       .then((result) => {
@@ -68,7 +73,7 @@ export default function BirthdayRails({
       .catch(() => { if (!dead) setFailed(true); });
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
+  }, [key, retry]);
 
   if (!active) return null;
   if (!key) {
@@ -84,7 +89,12 @@ export default function BirthdayRails({
     );
   }
   if (failed) {
-    return <p style={{ color: COLORS.muted, fontSize: 13 }}>We could not reach Wayfind&apos;s Birthday inventory. That is a service miss, not an empty town.</p>;
+    return (
+      <div>
+        <p style={{ color: COLORS.muted, fontSize: 13 }}>We could not reach Wayfind&apos;s Birthday inventory. That is a service miss, not an empty town.</p>
+        <button type="button" onClick={() => setRetry((value) => value + 1)} style={{ border: "1px solid #4B5563", borderRadius: 999, background: "#111827", color: COLORS.text, padding: "7px 12px", fontWeight: 800 }}>Try again</button>
+      </div>
+    );
   }
 
   return (
