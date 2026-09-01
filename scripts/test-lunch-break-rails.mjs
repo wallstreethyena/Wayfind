@@ -1,5 +1,6 @@
 import { composeLunchBreakRails, LUNCH_BREAK_RAILS } from "../lib/lunchBreakRails.js";
 import { wayfindScore } from "../lib/wayfindScore.js";
+import fs from "node:fs";
 
 let pass = 0;
 const fail = [];
@@ -35,10 +36,12 @@ ok(wayfindScore(ordered[0].rating, ordered[0].reviews) > wayfindScore(ordered[1]
 const duplicated = composeLunchBreakRails([fixtures[0], { ...fixtures[0] }]);
 ok(duplicated.find((rail) => rail.id === "deli-sandwiches").places.length === 1, "duplicate inventory rows become one card");
 
+const daypartSource = fs.readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
+ok(/\["break", "eat", "breakfast"\]\.flatMap/.test(daypartSource) && /places=\{lunchBreakPlaces\}/.test(daypartSource), "Lunch Break consumes the broad owned meal inventory instead of inheriting one empty legacy selector");
+
 if (fail.length) {
   console.error("test-lunch-break-rails: FAIL");
   for (const message of fail) console.error("  - " + message);
   process.exit(1);
 }
 console.log(`test-lunch-break-rails: OK — ${pass} assertions`);
-

@@ -1177,6 +1177,23 @@ export default function DaypartRail({
     return base;
   }, [selected, chefPlaces, fallPool, selPlaces, sponsorCard]);
 
+  // Lunch is a format answer over the FOOD inventory, not merely the legacy
+  // `break` selector. The latter is intentionally narrow (quick-service within
+  // eight miles) and can fail its minimum-card floor as one empty array even
+  // while the same response carries dozens of useful meal cards under `eat`.
+  // Union the owned meal pools, keep the lunch radius, and let
+  // composeLunchBreakRails apply the seven mutually-exclusive identities.
+  const lunchBreakPlaces = useMemo(() => {
+    const rows = ["break", "eat", "breakfast"].flatMap((railId) => shown.places[railId] || []);
+    const seen = new Set();
+    return rows.filter((place) => {
+      if (!place?.id || seen.has(place.id)) return false;
+      if (Number.isFinite(place.distMi) && place.distMi > 8) return false;
+      seen.add(place.id);
+      return true;
+    });
+  }, [shown]);
+
   // The window follows the horizontal scroll of the open drop.
   //
   // It returns the SAME object when the bounds have not moved, for the reason
@@ -1489,7 +1506,7 @@ export default function DaypartRail({
 
           {selRail && selRail.id === "break" ? (
             <LunchBreakRails
-              places={dropList}
+              places={lunchBreakPlaces}
               city={shown.cityLabel || ""}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
