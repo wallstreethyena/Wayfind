@@ -13,28 +13,47 @@ export const dynamic = "force-dynamic";
 // vetted year-round spooky PLACES ride along as normal scored place rows.
 import { fetchCuratedEvents, isTrusted } from "../../../../lib/curatedEvents.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
-import { isFallTagged, fallEventLive, fallWhenLabel, FALL_PLACE_IDS, FALL_EVENT_TICKET_DEALS } from "../../../../lib/fallPool.js";
+import { isFallTagged, fallEventLive, fallWhenLabel, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_EVENT_TICKET_DEALS } from "../../../../lib/fallPool.js";
 import { hasCjPid } from "../../../../lib/deals.js";
 import { supabase } from "../../../../lib/supabase.js";
 import { wayfindScore } from "../../../../lib/wayfindScore.js";
 import { cardImageSrc } from "../../../../lib/placePhoto.js";
-import { cget, cset } from "../../../../lib/serverCache.js";
+import { fastCachedRail, geoCell } from "../../../../lib/railFastCache.js";
+import { composeFallIntentRails } from "../../../../lib/fallIntentRails.js";
 
-const CK = "fall-rail-v1";
-const TTL = 30 * 60 * 1000; // 30 min — owned data, cheap to refresh
+function json(body, status = 200, cache = "public, s-maxage=900, stale-while-revalidate=86400") {
+  return Response.json(body, { status, headers: { "cache-control": cache } });
+}
 
-export async function GET() {
+export async function GET(request) {
+  const { searchParams } = new URL(request.url);
+  const lat = Number.parseFloat(searchParams.get("lat") || "");
+  const lng = Number.parseFloat(searchParams.get("lng") || "");
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return json({ error: "lat and lng are required" }, 400, "no-store");
   try {
-    // cget returns an ENVELOPE ({ v, stale, ageMs, due }) — serve .v, never the
-    // envelope. Serving `cached` raw shipped {events: undefined} to every client
-    // the moment the cache warmed, and the rail floor hid the rail site-wide
-    // while the cold-cache path (and every pre-warm verification) looked perfect.
-    const cached = await cget(CK, { staleMs: TTL });
-    if (cached && cached.v) return Response.json(cached.v, { headers: { "Cache-Control": "public, max-age=300, s-maxage=900" } });
-
     const today = siteTodayStr();
-    const rows = await fetchCuratedEvents();
-    const events = (rows || [])
+    const key = `fall-intents:v1:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    const cached = await fastCachedRail(key, async () => {
+      if (!supabase) throw new Error("Supabase unavailable");
+      const ids = Object.keys(FALL_PLACE_IDS);
+      const dealIds = [...new Set(Object.values(FALL_EVENT_TICKET_DEALS))];
+      // All three reads are independent. Start them together so a cold cache
+      // costs one Supabase round trip rather than a waterfall of three.
+      const [rows, placeResult, dealResult] = await Promise.all([
+        fetchCuratedEvents(),
+        supabase.from("wf_inventory")
+          .select("place_id,name,lat,lng,metro,category,signals,editorial,photo_ref,status")
+          .in("place_id", ids),
+        dealIds.length
+          ? supabase.from("wf_deals").select("id,affiliate_url,active,link_ok,provider").in("id", dealIds)
+          : Promise.resolve({ data: [], error: null }),
+      ]);
+      if (placeResult.error) throw placeResult.error;
+
+      const byDealId = new Map((dealResult.data || [])
+        .filter((deal) => deal.active && deal.link_ok && hasCjPid(deal.affiliate_url))
+        .map((deal) => [deal.id, deal]));
+      const events = (rows || [])
       // isTrusted, NOT a second inline copy of the status check. The line this
       // replaced asked only about event_status and therefore skipped the
       // source_tier and confidence gates that lib/curatedEvents has always
@@ -43,7 +62,11 @@ export async function GET() {
       // its open-run rule) stays here because it is genuinely this rail's own.
       .filter((e) => isTrusted(e) && isFallTagged(e.tags) && fallEventLive(e, today))
       .sort((a, b) => String(a.start_date).localeCompare(String(b.start_date)))
-      .map((e) => ({
+      .map((e) => {
+        const dealId = FALL_EVENT_TICKET_DEALS[e.event_id];
+        const deal = dealId ? byDealId.get(dealId) : null;
+        return ({
+        ...e,
         kind: "event",
         id: e.event_id,
         title: e.short_title || e.event_name,
@@ -59,7 +82,10 @@ export async function GET() {
         url: e.official_ticket_url || e.official_event_url || e.event_page_url || null,
         is_free: !!e.is_free, price_band: e.price_band || null,
         tags: e.tags || [],
-      }));
+        ticket: deal ? { href: deal.affiliate_url, via: "Undercover Tourist", deal_id: deal.id } : null,
+      });
+      })
+      .filter((event) => event.url || event.place_id);
 
     // THE IMAGE, DERIVED — NOT BACKFILLED (owner, 2026-08-30, on four blank
     // AUGTOBER tiles: "these places are missing the pictures").
@@ -86,38 +112,7 @@ export async function GET() {
       if (src) { ev.image = src; ev.imageIsVenue = true; }  // "the venue", never "this event"
     }
 
-    // Ticket monetization (owner, 2026-08-26). Attach the hand-verified
-    // Undercover Tourist deal to the events FALL_EVENT_TICKET_DEALS maps —
-    // SERVER-side, from wf_deals rows the deals-health cron keeps alive, and
-    // only when the row is still active + link_ok + CJ-attributed. Fail-soft:
-    // no row, no ticket, the tile keeps its official page. Product-integrity
-    // rule lives with the map in lib/fallPool.js.
-    try {
-      const dealIds = [...new Set(Object.values(FALL_EVENT_TICKET_DEALS))];
-      if (supabase && dealIds.length && events.some((ev) => FALL_EVENT_TICKET_DEALS[ev.id])) {
-        const { data: deals } = await supabase
-          .from("wf_deals")
-          .select("id,affiliate_url,active,link_ok,provider")
-          .in("id", dealIds);
-        const byId = new Map((deals || [])
-          .filter((d) => d.active && d.link_ok && hasCjPid(d.affiliate_url))
-          .map((d) => [d.id, d]));
-        for (const ev of events) {
-          const want = FALL_EVENT_TICKET_DEALS[ev.id];
-          const d = want ? byId.get(want) : null;
-          if (d) ev.ticket = { href: d.affiliate_url, via: "Undercover Tourist", deal_id: d.id };
-        }
-      }
-    } catch { /* monetization is additive — the rail never breaks over it */ }
-
-    let places = [];
-    if (supabase) {
-      const ids = Object.keys(FALL_PLACE_IDS);
-      const { data } = await supabase
-        .from("wf_inventory")
-        .select("place_id,name,lat,lng,metro,category,signals,editorial,photo_ref,status")
-        .in("place_id", ids);
-      places = (data || [])
+      const places = (placeResult.data || [])
         .filter((p) => (!p.status || p.status === "OPERATIONAL") && p.signals && typeof p.signals.rating === "number" && p.signals.rating > 0)
         .map((p) => ({
           kind: "place",
@@ -128,14 +123,24 @@ export async function GET() {
           wfScore: wayfindScore(p.signals.rating, p.signals.reviews || 0),
           take: p.editorial || FALL_PLACE_IDS[p.place_id] || null,
           image: cardImageSrc({ place_id: p.place_id, photo_ref: p.photo_ref }, 640),
+          fallRail: FALL_PLACE_RAIL[p.place_id] || null,
         }))
         .sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
-    }
 
-    const out = { today, events, places };
-    try { await cset(CK, out, TTL); } catch {}
-    return Response.json(out, { headers: { "Cache-Control": "public, max-age=300, s-maxage=900" } });
-  } catch {
-    return Response.json({ today: null, events: [], places: [] }, { status: 200 });
+      const composed = composeFallIntentRails(events, places, { lat, lng, today });
+      return { today, ...composed, sourceCount: events.length + places.length };
+    }, {
+      name: "fall-intent-rails",
+      usable: (value) => value?.rails?.length === 10 && Number(value?.sourceCount || 0) > 0,
+    });
+    return Response.json(cached.value, {
+      headers: {
+        "cache-control": "public, s-maxage=900, stale-while-revalidate=86400",
+        "x-wayfind-fast-cache": cached.state,
+      },
+    });
+  } catch (error) {
+    console.error("[api/events/fall] inventory unavailable", { message: String(error?.message || error) });
+    return json({ error: "Fall inventory is temporarily unavailable" }, 503, "no-store");
   }
 }

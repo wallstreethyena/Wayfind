@@ -412,7 +412,7 @@ export default function RailCard({
             <a
               className="wf-place-card-book wf-rail-card-cta"
               href={cta.href || "#"}
-              {...(cta.external ? { target: "_blank", rel: "noreferrer" } : {})}
+              {...(cta.external ? { target: "_blank", rel: cta.sponsored ? "sponsored nofollow noopener" : "noreferrer" } : {})}
               onClick={(e) => { e.stopPropagation(); if (cta.onClick) cta.onClick(e); }}
             >{cta.label}</a>
           ) : null}

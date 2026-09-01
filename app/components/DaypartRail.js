@@ -70,19 +70,14 @@ const BreakfastRails = dynamic(() => import("./BreakfastRails"), { ssr: false })
 const WorthEatingRails = dynamic(() => import("./WorthEatingRails"), { ssr: false });
 const LunchBreakRails = dynamic(() => import("./LunchBreakRails"), { ssr: false });
 const TodayDiscoveryRails = dynamic(() => import("./TodayDiscoveryRails"), { ssr: false });
+const FallIntentRails = dynamic(() => import("./FallIntentRails"), { ssr: false });
 import { DAYPARTS, partForHour, orderFor, railHref, dateNightIntentHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES, railArtSize } from "../../lib/rails.js";
-// v8.66 (owner, 2026-08-26): the chef and augtober tiles open the SAME
-// pop-down drop as every other rail — the mid-feed rails they replace are
-// gone from home.js. Chef's list is static testimony (HIS order, never
-// reranked, no distance gate — Le Bernardin is in New York and that is the
-// point); augtober's pool comes from /api/events/fall, fetched only when its
-// drop opens. fallSkinLive gates the fall card skin: it retires the day
-// after Halloween as the season hands over to Christmas.
+// Chef and Augtober open the same pop-down shell as every other rail. Their
+// answers stay lazy: Chef's testimony is static; FallIntentRails fetches the
+// owned, cached ten-rail collection only after the Augtober poster is opened.
 import { RON_DUPRAT_TOP7, chefPickPlaces } from "../../lib/chefPicks.js";
-import { fallSkinLive, eventFranchiseKey } from "../../lib/fallSkin.js";
-import { siteTodayStr } from "../../lib/siteTime.js";
 import { servableRows, isNowRail } from "../../lib/daylight.js";
 // `cityLabel` is aliased because this component already takes a prop by that
 // name. The import is the LAW (never "you", never "your area"); the prop is a
@@ -1031,7 +1026,7 @@ export default function DaypartRail({
   // Neither may fall through to the generic place pool: doing so made the
   // Events drop begin with real happenings and end with buildings where an
   // event might happen on some other date.
-  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "breakfast" || selRail.id === "break" || selRail.id === "eat" || selRail.id === "today" || selRail.id === "events"));
+  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "breakfast" || selRail.id === "break" || selRail.id === "eat" || selRail.id === "today" || selRail.id === "augtober" || selRail.id === "events"));
   // v8.22 (owner: "when the amazon rail card is selected make sure it becomes
   // the main focus on the screen"). The pulsing glow marks the card; this
   // brings it there — the open tile centers itself in the track, so the
@@ -1103,53 +1098,17 @@ export default function DaypartRail({
     () => (memberSig && applyMemberSignal ? applyMemberSignal(_selRaw, memberSig) : _selRaw),
     [applyMemberSignal, memberSig, _selRaw]
   );
-  // v8.66 — the two curated drops. Chef: static testimony in HIS order (the
-  // shape IconicPlaceCard reads; `photo` self-heals once refs are harvested).
-  // Augtober: the owned fall pool, fetched once per session when its drop
-  // first opens; events render above the place cards, both wear the fall skin
-  // while the season lasts (fallSkinLive — gone after Halloween).
+  // Chef is static testimony in HIS order (the shape IconicPlaceCard reads;
+  // `photo` self-heals once refs are harvested). Augtober now owns its complete
+  // answer in FallIntentRails, behind the same lazy boundary as Birthday,
+  // Breakfast and Today's Best Options.
   const chefPlaces = useMemo(() => chefPickPlaces(RON_DUPRAT_TOP7).map((e) => ({
     id: e.id, name: e.name, city: e.area, lat: e.lat, lng: e.lng,
     rating: e.rating, reviews: e.reviews, types: [], hook: e.hook, _chefRank: e._chefRank,
   })), []);
-  const [fallPool, setFallPool] = useState(null);
-  useEffect(() => {
-    if (selected !== "augtober" || fallPool) return undefined;
-    let dead = false;
-    fetch("/api/events/fall").then((r) => (r.ok ? r.json() : null), () => null)
-      .then((j) => { if (!dead) setFallPool(j || { events: [], places: [] }); });
-    return () => { dead = true; };
-  }, [selected, fallPool]);
-  const fallSkin = fallSkinLive(siteTodayStr());
-  // v8.67 — the event tiles the augtober drop actually shows: one per
-  // FRANCHISE (nearest location wins), nearest-first when we know where the
-  // reader is, and only events that can take the reader somewhere (official
-  // url, or a venue we can open in place). Cap 14 — variety over volume.
-  const fallEvents = useMemo(() => {
-    const rows = (fallPool && fallPool.events) || [];
-    const c = center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null);
-    const dist = (e) => (c && Number.isFinite(e.lat) && Number.isFinite(e.lng))
-      ? Math.hypot((e.lng - c.lng) * Math.cos(((e.lat + c.lat) / 2) * Math.PI / 180), e.lat - c.lat)
-      : 999;
-    const linked = rows.filter((e) => e.url || e.place_id);
-    const sorted = linked.slice().sort((a, b) => dist(a) - dist(b));
-    const seen = new Set();
-    const out = [];
-    for (const e of sorted) {
-      const k = eventFranchiseKey(e.name || e.title);
-      if (seen.has(k)) continue;
-      seen.add(k);
-      out.push(e);
-      if (out.length >= 14) break;
-    }
-    return out;
-  }, [fallPool, center, lat, lng]);
   const dropList = useMemo(() => {
     const base = selected === "chef" ? chefPlaces
-      : selected === "augtober" ? ((fallPool && fallPool.places) || []).map((p) => ({
-          id: p.id, name: p.name, city: (p.metro || "").replace(/-/g, " "), lat: p.lat, lng: p.lng,
-          rating: p.rating, reviews: p.reviews, types: [], photo: p.image || null, hook: p.take || null,
-        }))
+      : selected === "augtober" ? []
       : selPlaces;
     // v8.69 (owner, 2026-08-26: "create a place card for them in our rail lists
     // — place them on the night is calling and add a sponsored feature on it").
@@ -1176,7 +1135,7 @@ export default function DaypartRail({
       return [sponsorCard.place, ...base.filter((p) => p && !dupe.has(p.id))];
     }
     return base;
-  }, [selected, chefPlaces, fallPool, selPlaces, sponsorCard]);
+  }, [selected, chefPlaces, selPlaces, sponsorCard]);
 
   // Lunch is a format answer over the FOOD inventory, not merely the legacy
   // `break` selector. The latter is intentionally narrow (quick-service within
@@ -1568,6 +1527,25 @@ export default function DaypartRail({
             />
           ) : null}
 
+          {selRail && selRail.id === "augtober" ? (
+            <FallIntentRails
+              active
+              center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
+              city={shown.cityLabel || ""}
+              onTrack={(name, props) => logEvent(name, props)}
+              onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
+              isSaved={isSaved || undefined}
+              liked={liked || undefined}
+              disliked={disliked || undefined}
+              isLiked={isLiked || undefined}
+              isDisliked={isDisliked || undefined}
+              onSave={onSave || undefined}
+              onLike={onLike || undefined}
+              onDislike={onDislike || undefined}
+              onShare={onShare || undefined}
+            />
+          ) : null}
+
           {selRail && selRail.id === "trending" ? (
             <ExplodingNearby
               active
@@ -1589,58 +1567,6 @@ export default function DaypartRail({
               onLike={onLike || undefined}
               onDislike={onDislike || undefined}
             />
-          ) : null}
-          {/* v8.67 (owner, 2026-08-26: "no deep links … most of them are
-              repetitive") — the AUGTOBER drop leads with its dated events, ONE
-              PER FRANCHISE, nearest first: the second Howl-O-Scream never gets
-              a tile, the near one does. Every tile GOES somewhere — the
-              official page when the event has one, our own venue detail when
-              it does not; an event with neither is not shown, because a dead
-              tile is worse than one fewer tile. WHEN badge, never a fabricated
-              score. wf-fall is the seasonal skin (fallSkinLive — gone after
-              Halloween). */}
-          {selRail && selRail.id === "augtober" && fallPool && fallEvents.length ? (
-            <div className={fallSkin ? "wf-fall" : undefined} style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 10, marginBottom: 12 }} aria-label="Fall and Halloween events">
-              {fallEvents.map((e) => {
-                const inner = (
-                  <>
-                    <div style={{ position: "relative", height: 86, overflow: "hidden", borderBottom: "1px solid rgba(148,163,184,.18)", background: "#131A26" }}>
-                      {e.image ? <img src={e.image} alt="" onError={(ev) => { ev.currentTarget.style.display = "none"; }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : null}
-                      <span style={{ position: "absolute", top: 7, right: 7, padding: "3px 7px", borderRadius: 999, background: "rgba(7,12,20,.82)", border: "1px solid rgba(251,146,60,.5)", color: "#FDBA74", fontSize: 8.5, fontWeight: 800 }}>{(e.when && e.when.label) || "Seasonal"}</span>
-                    </div>
-                    <div style={{ padding: "8px 10px 9px" }}>
-                      <div style={{ fontSize: 13.5, fontWeight: 800, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{e.title || e.name}</div>
-                      <div style={{ fontSize: 11.5, opacity: 0.75, marginTop: 2 }}>{e.city}{e.price_band ? " · " + e.price_band : ""}</div>
-                      <div style={{ fontSize: 10.5, fontWeight: 800, color: "#FDBA74", marginTop: 5 }}>{e.ticket ? "🎟 Tickets · via " + e.ticket.via : e.url ? "Event page ↗" : "Open the venue →"}</div>
-                    </div>
-                  </>
-                );
-                const tileStyle = { flex: "0 0 200px", background: "var(--wf-card,#131A26)", border: "1px solid rgba(148,163,184,.18)", borderRadius: 14, overflow: "hidden", textDecoration: "none", color: "inherit", textAlign: "left", padding: 0, cursor: "pointer", font: "inherit" };
-                const label = (e.title || e.name) + (e.when && e.when.label ? " — " + e.when.label : "");
-                // Monetized first (owner: these events earn — the server attached a
-                // health-checked UT deal, disclosed on the tile). rel carries
-                // sponsored on the paid link ONLY; the official-page link stays
-                // plain noreferrer.
-                return e.ticket ? (
-                  <a key={e.id} href={e.ticket.href} target="_blank" rel="sponsored nofollow noopener" aria-label={label + " — tickets via " + e.ticket.via} className="wf8-falltile" style={tileStyle}
-                    onClick={() => {
-                      // commerce.js loads at CLICK time, not page time — the
-                      // bundle ratchet is why; the money-funnel guard reads
-                      // the emitCommerce call here either way.
-                      import("../../lib/commerce.js").then(({ emitCommerce, mintClickId }) => {
-                        try { emitCommerce("commerce_cta_clicked", { surface: "augtober_rail", content_id: e.id, provider: "undercover_tourist", merchant: e.ticket.via, offer_id: String(e.ticket.deal_id), click_id: mintClickId(), disclosure_version: "augtober-tile-v1" }); } catch (er) {}
-                      }).catch(() => {});
-                      logEvent("tickets_out", { kind: "augtober_rail", id: e.id, name: e.name, deal: e.ticket.deal_id });
-                    }}>{inner}</a>
-                ) : e.url ? (
-                  <a key={e.id} href={e.url} target="_blank" rel="noreferrer" aria-label={label} className="wf8-falltile" style={tileStyle}
-                    onClick={() => logEvent("augtober_event_open", { id: e.id, name: e.name })}>{inner}</a>
-                ) : (
-                  <button key={e.id} type="button" aria-label={label} className="wf8-falltile" style={tileStyle}
-                    onClick={() => { logEvent("augtober_event_open", { id: e.id, name: e.name, via: "venue" }); onOpenPlace && onOpenPlace({ id: e.place_id, name: e.venue || e.name, lat: e.lat, lng: e.lng, types: [], hook: e.hook }); }}>{inner}</button>
-                );
-              })}
-            </div>
           ) : null}
           {/* v8.95 — THE EVENTS DROP IS EVENTS, FULL STOP. Dated happenings
               render here; the generic place pool is suppressed by
@@ -1688,7 +1614,7 @@ export default function DaypartRail({
               </li>
             </ul>
           ) : selRail && !railOwnsItsOwnAnswer && dropList.length ? (
-            <div className={"wf8-pcwrap" + (selected === "augtober" && fallSkin ? " wf-fall" : "")}>
+            <div className="wf8-pcwrap">
               <ul className="wf8-pcrail" ref={pcRef}>
                 {dropList.slice(0, mounted).map((p, i) => {
                   // v8.69 — the paid card is index 0 of its own rail and is the
@@ -1906,7 +1832,7 @@ export default function DaypartRail({
               <button type="button" className="wf8-pnav r" aria-label="More places" disabled={pcEnds.atEnd}
                 onClick={() => { scrollBy(pcRef, 1); syncPc(); }}><Chevron dir="r" /></button>
             </div>
-          ) : selRail && !railOwnsItsOwnAnswer && (isPending(railLoad) || (selRail.id === "augtober" && !fallPool)) ? (
+          ) : selRail && !railOwnsItsOwnAnswer && isPending(railLoad) ? (
             /* v8.46 — THE ONLY PLACE A SKELETON MAY RENDER. It is gated on an
                explicit in-flight flag that lib/loadState.js guarantees will be
                overwritten within 12s, by data or by LOAD_FAILED. It is no
