@@ -19,6 +19,19 @@
 // compares the JS constant against the migration file that defines the table,
 // which is the artifact under version control and the thing a careless edit would
 // change.
+//
+// WHAT THIS GUARD CANNOT SEE (2026-09-01). On 2026-08-23 and 2026-09-01 five rows
+// (miami-dade, broward, palm-beach, keys, florida) were inserted straight into
+// the LIVE wf_promote_metros table with no matching migration. This guard stayed
+// green throughout — file matched file — while validateInventoryRow() silently
+// rejected every queued place in those metros with "unknown metro: <name>",
+// because PROMOTE_METROS never moved. A file-vs-file check cannot catch a
+// database edited outside a commit; only a file-vs-LIVE-DB check can. That is
+// scripts/check-promote-metros-live-drift.mjs — it runs on a schedule (not at
+// prebuild, since it needs a live Supabase read), and app/api/cron/promote-index
+// + scripts/promote-worker.mjs no longer depend on PROMOTE_METROS being current
+// at all: they fetch wf_promote_metros live at run start. Keep BOTH guards —
+// this one still catches a JS/migration edit that forgot its twin.
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";

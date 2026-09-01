@@ -12,7 +12,12 @@ To install it:
     git commit -m "ops: install the canary workflow"
     git push
 
-Nothing it runs is blocked. Both checks are on this branch and run standalone:
+Nothing it runs is blocked. All three checks are on this branch and run standalone:
 
     E2E_BASE_URL=https://www.gowayfind.com npx playwright test tests/e2e/shell-route-contract.spec.js
     SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... node scripts/check-inventory-integrity.mjs
+    SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... node scripts/check-promote-metros-live-drift.mjs
+
+The last one is currently RED against production — see its own header comment
+and its entry in check-guard-manifest.mjs's EXCLUDED list for why, and what
+closes it.

@@ -64,6 +64,8 @@ const EXEMPT = {
     "same shape as check-env-value-overrides: PINTEREST_ACCESS_TOKEN is SAVED, set to a fixture value the guard chooses, asserted against a stub transport (token-in-header, never-in-URL), then restored — the ambient shell never reaches a verdict, and the token-hygiene assertion requires setting the env var the adapter reads at call time",
   "check-guards-emit-no-analytics.mjs":
     "same shape as check-env-value-overrides: WF_SUPPRESS_ANALYTICS and NEXT_PUBLIC_POSTHOG_KEY are SAVED, set to fixture values it chooses, asserted against, and restored in a finally — the ambient shell never reaches a verdict. It cannot delegate to a child process because the assertion is that captureServer issues no fetch, which requires stubbing fetch inside this process",
+  "check-promote-metros-live-drift.mjs":
+    "same shape as check-inventory-integrity.mjs: it talks to a live Supabase and the credentials are the CONNECTION, not the verdict. Without them it prints SKIPPED and exits 0; with them the verdict comes entirely from wf_promote_metros row data compared to lib/promoteIndex.js PROMOTE_METROS. It is also not wired into prebuild at all (see EXCLUDED in check-guard-manifest.mjs) — it runs in the scheduled canary workflow, because a row inserted straight into production must never be able to block a code deploy",
 };
 
 // This file is excluded from its own sweep. It is, by construction, full of

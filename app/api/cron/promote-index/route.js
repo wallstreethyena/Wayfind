@@ -48,7 +48,7 @@ import { gateShut } from "../../../../lib/spendGate";
 // the queue is empty.
 import { sbEnv } from "../../../../lib/serverCache";
 import { recordPulse } from "../../../../lib/jobPulse";
-import { decidePromotion, dedupeById, PROMOTE_METROS } from "../../../../lib/promoteIndex";
+import { decidePromotion, dedupeById, PROMOTE_METROS, metrosFromRows } from "../../../../lib/promoteIndex";
 import { jobFailed } from "../../../../lib/jobFail";
 
 export const runtime = "nodejs";
@@ -127,6 +127,36 @@ async function rpc(s, fn, body) {
   return r.json();
 }
 
+// fetchLiveMetros — the FIX for the 2026-09-01 outage. PROMOTE_METROS is a JS
+// constant; public.wf_promote_metros (migration 20260813_wf_promote_metros.sql)
+// is the table it was always supposed to mirror, and the two silently diverged
+// on 2026-08-23 when miami-dade/broward/palm-beach/keys/florida were added to
+// the table only. wf_bucket_metro() (the SQL twin, called by the enqueue
+// trigger) picked the new rows up immediately; this route did not, so every
+// place the queue correctly tagged with a new metro was rejected right back
+// out by validateInventoryRow with "unknown metro: <name>" — ~1,467 places
+// over nine days. Read fresh every run (cache:"no-store" — a cached read here
+// is the same poisoned-cache class as the write-caching bug documented above
+// rpc(), just on the read side) so a metro added to the table is honored on
+// this run, not the next deploy. Returns null (never {}) on any failure or
+// empty result, so the caller can tell "fetch failed, fall back" apart from
+// "the table legitimately has zero active metros" — the two must never be
+// treated the same, since the latter reading would reject everything.
+async function fetchLiveMetros(s) {
+  try {
+    const r = await fetch(
+      `${s.url}/rest/v1/wf_promote_metros?select=metro,min_lat,max_lat,min_lng,max_lng,active&active=is.true`,
+      { cache: "no-store", headers: { apikey: s.key, authorization: "Bearer " + s.key } }
+    );
+    if (!r.ok) { console.warn(`[promote-index] wf_promote_metros lookup ${r.status} — falling back to PROMOTE_METROS`); return null; }
+    const metros = metrosFromRows(await r.json());
+    return Object.keys(metros).length ? metros : null;
+  } catch (e) {
+    console.warn(`[promote-index] wf_promote_metros unavailable this run, falling back to PROMOTE_METROS: ${String(e && e.message).slice(0, 120)}`);
+    return null;
+  }
+}
+
 export async function GET(req) {
   // COST GUARD (2026-08-25): WAYFIND_GATE=shut stops ALL metered Google spend.
   if (gateShut()) return Response.json({ skipped: "gate shut" });
@@ -150,10 +180,15 @@ export async function GET(req) {
     return Response.json({ ok: false, error: "missing GOOGLE_MAPS_SERVER_KEY" });
   }
 
+  // Live metro geography (see fetchLiveMetros above). Falls back to the static
+  // PROMOTE_METROS only when the table can't be reached — never silently to
+  // "nothing is valid".
+  const metros = (await fetchLiveMetros(s)) || PROMOTE_METROS;
+
   const limit = Math.max(1, Math.min(parseInt(url.searchParams.get("limit") || "10", 10) || 10, HARD_LIMIT));
   const metroParam = (url.searchParams.get("metro") || "").trim();
-  if (metroParam && !PROMOTE_METROS[metroParam]) {
-    return Response.json({ ok: false, error: `unknown metro "${metroParam}"`, known: Object.keys(PROMOTE_METROS) });
+  if (metroParam && !metros[metroParam]) {
+    return Response.json({ ok: false, error: `unknown metro "${metroParam}"`, known: Object.keys(metros) });
   }
   const metro = metroParam || null;
   const nowIso = new Date().toISOString();
@@ -206,7 +241,7 @@ export async function GET(req) {
     // scripts/test-promote-decision.mjs. A "reject" is a verdict about the DATA
     // (unclassifiable, closed, out of bounds) — re-fetching buys the same answer,
     // so the queue must not retry it and pay Google again.
-    const verdict = decidePromotion(d.place, item.metro, nowIso, adjudicated.get(item.place_id) || null);
+    const verdict = decidePromotion(d.place, item.metro, nowIso, adjudicated.get(item.place_id) || null, metros);
     if (verdict.action !== "promote") {
       rejects.push({ place_id: item.place_id, name: item.name, error: verdict.error });
       continue;
