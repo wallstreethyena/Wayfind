@@ -42,6 +42,8 @@ ok(fallRailOrder("2026-11-10")[0] === "festivals", "November leads with outdoor 
 ok(fallEventRail(event({ event_name: "Hunsader Pumpkin Festival", tags: ["fall", "pumpkins", "farm"], audience: ["families"] })) === "farms", "a real pumpkin farm enters the farm rail");
 ok(fallEventRail(event({ event_name: "Generic Fall Concert", category: "music", subcategory: "concert", tags: ["fall"] })) == null, "fall alone cannot seasonalize an ordinary concert");
 ok(fallEventRail(event({ event_name: "Halloween Horror Nights", category: "halloween", subcategory: "haunted-house", tags: ["halloween", "theme-park", "scary"] })) === "theme-parks", "HHN is a theme-park decision, not duplicated as a local haunt");
+ok(fallEventRail(event({ event_name: "Halloween Hangar Bar", subcategory: "themed-bar", tags: ["fall", "halloween", "theme-park", "nightlife"], audience: ["adults", "couples"] })) === "date-night", "a theme-park district tag cannot turn a Halloween bar into a park event");
+ok(fallEventRail(event({ event_name: "EPCOT Food & Wine", category: "festival", subcategory: "food-festival", tags: ["fall", "theme-park", "food"] })) === "festivals", "a theme-park fall festival without Halloween programming stays out of Halloween Theme Parks");
 ok(fallEventRail(event({ event_name: "Scream-A-Geddon Horror Park", category: "halloween", subcategory: "haunted-house", tags: ["fall", "halloween", "scary"] })) === "haunts", "a non-park scare attraction enters haunts");
 ok(fallEventRail(event({ event_name: "Boo at the Bay", tags: ["halloween", "trick-or-treat"], audience: ["families", "kids"] })) === "family", "safe trick-or-treat programming enters family");
 ok(fallEventRail(event({ event_name: "Scary Family Fixture", tags: ["halloween", "scary"], audience: ["families"] })) === "haunts", "a scary signal vetoes family placement");
@@ -73,7 +75,8 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(/fall-intents:v1:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key");
+ok(/fall-intents:v2:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key");
+ok(/take: FALL_PLACE_IDS\[p\.place_id\] \|\| p\.editorial/.test(route), "verified seasonal evidence wins over a generic inventory summary");
 ok(!/searchText|places\.googleapis|nearbySearch/.test(route), "the fall API makes no paid Google place call");
 ok(/Promise\.all\(\[/.test(route), "independent Supabase reads start in parallel");
 ok(/FALL_PLACE_RAIL/.test(route) && /composeFallIntentRails/.test(route), "the API composes owned events and vetted places through one taxonomy");

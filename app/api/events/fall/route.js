@@ -32,7 +32,7 @@ export async function GET(request) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return json({ error: "lat and lng are required" }, 400, "no-store");
   try {
     const today = siteTodayStr();
-    const key = `fall-intents:v1:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    const key = `fall-intents:v2:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     const cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = Object.keys(FALL_PLACE_IDS);
@@ -121,7 +121,10 @@ export async function GET(request) {
           lat: p.lat, lng: p.lng, metro: p.metro, category: p.category,
           rating: p.signals.rating, reviews: p.signals.reviews || 0,
           wfScore: wayfindScore(p.signals.rating, p.signals.reviews || 0),
-          take: p.editorial || FALL_PLACE_IDS[p.place_id] || null,
+          // This place is here because of its verified seasonal offering. The
+          // generic inventory summary may still be useful elsewhere, but it
+          // must never hide the evidence that earned this fall recommendation.
+          take: FALL_PLACE_IDS[p.place_id] || p.editorial || null,
           image: cardImageSrc({ place_id: p.place_id, photo_ref: p.photo_ref }, 640),
           fallRail: FALL_PLACE_RAIL[p.place_id] || null,
         }))
