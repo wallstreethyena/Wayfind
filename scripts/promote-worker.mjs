@@ -20,7 +20,10 @@
 //                        PROMOTE_METROS four (manatee-sarasota, tampa,
 //                        st-pete, orlando) only if that fetch fails.
 //   --limit <n>         max places THIS run (default 100). Cost = n x $0.017.
-//   --batch <n>         claim size per cycle, <=50 (default 25)
+//   --batch <n>         claim size per cycle. Clamped to the LIVE wf_promote_config
+//                        batch_limit (default: that value, currently self-tuned
+//                        5..50 by the cron — see lib/promoteThrottle.js); falls
+//                        back to a static 25 if the config table is unreachable.
 //   --concurrency <n>   parallel Place Details calls, <=10 (default 6)
 //
 // IDEMPOTENT AND RESUMABLE. Places are claimed under a 15-minute lease with
@@ -34,6 +37,7 @@
 // time; `vercel env pull .env.local` is the fix.
 import { readFileSync, appendFileSync } from "node:fs";
 import { decidePromotion, dedupeById, PROMOTE_METROS, metrosFromRows } from "../lib/promoteIndex.js";
+import { clampBatchLimit } from "../lib/promoteThrottle.js";
 
 // ── env (never logged) ──────────────────────────────────────────────────────
 const ENV = {};
@@ -72,7 +76,7 @@ const args = process.argv.slice(2);
 const argOf = (n, d) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : d; };
 const METRO = argOf("--metro", null);
 const TOTAL = Math.max(1, parseInt(argOf("--limit", "100"), 10));
-const BATCH = Math.max(1, Math.min(parseInt(argOf("--batch", "25"), 10), 50));
+const BATCH_ARG = argOf("--batch", null); // clamped against the live config below, once fetched
 const CONC = Math.max(1, Math.min(parseInt(argOf("--concurrency", "6"), 10), 10));
 const AUDIT = argOf("--audit", "/home/claude/wf-worker/audit.jsonl");
 const COST_PER = 0.017;
@@ -111,6 +115,25 @@ async function fetchLiveMetros() {
     return Object.keys(metros).length ? metros : null;
   } catch (e) {
     console.warn(`wf_promote_metros unavailable, falling back to PROMOTE_METROS: ${String(e && e.message).slice(0, 120)}`);
+    return null;
+  }
+}
+
+// fetchPromoteConfig — read-only here. The WORKER never writes wf_promote_config
+// or runs the adaptive step (lib/promoteThrottle.js nextBatchLimit) — that is
+// the automated cron's job (app/api/cron/promote-index/route.js), which runs
+// far more often and actually observes a run's error rate. This is a manual,
+// human-invoked tool: it only HONORS the current batch_limit as a ceiling on
+// --batch, via the same clampBatchLimit both call sites share, so a hand run
+// can never spend faster than the adaptive system currently trusts.
+async function fetchPromoteConfig() {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/wf_promote_config?select=batch_limit&id=eq.1`, { headers: H });
+    if (!r.ok) { console.warn(`wf_promote_config lookup ${r.status} — falling back to the static batch size`); return null; }
+    const rows = await r.json();
+    return Array.isArray(rows) && rows[0] ? rows[0] : null;
+  } catch (e) {
+    console.warn(`wf_promote_config unavailable, falling back to the static batch size: ${String(e && e.message).slice(0, 120)}`);
     return null;
   }
 }
@@ -159,6 +182,15 @@ const METROS = liveMetros || PROMOTE_METROS;
 console.log(liveMetros
   ? `metros: ${Object.keys(METROS).length} active from wf_promote_metros (${Object.keys(METROS).join(", ")})`
   : `metros: FALLBACK to static PROMOTE_METROS (${Object.keys(METROS).join(", ")}) — wf_promote_metros unreachable this run`);
+
+// batch_limit (2026-09-01) — see lib/promoteThrottle.js. cfgRow is null
+// pre-migration/unreachable; clampBatchLimit's own fallback (25) covers that.
+const cfgRow = await fetchPromoteConfig();
+const configBatchLimit = clampBatchLimit(cfgRow && cfgRow.batch_limit);
+const BATCH = Math.max(1, Math.min(parseInt(BATCH_ARG, 10) || configBatchLimit, configBatchLimit));
+console.log(cfgRow
+  ? `batch: ${BATCH} (config batch_limit ${configBatchLimit}${BATCH_ARG ? `, --batch ${BATCH_ARG} clamped to it` : ""})`
+  : `batch: ${BATCH} (FALLBACK — wf_promote_config unreachable, static default clamp)`);
 
 const T = { claimed: 0, promoted: 0, rejected: 0, retried: 0, batches: 0, spend: 0 };
 const rejectReasons = new Map();
