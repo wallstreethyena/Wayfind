@@ -1,5 +1,6 @@
 // scripts/test-food-collections.mjs — lock test for Food collections (lib/foodCollections.js).
 import { buildFoodCollections, isFood, COLLECTIONS, RAW_CATEGORY_NAMES } from "../lib/foodCollections.js";
+import { composeWorthEatingRails, WORTH_EATING_RAILS } from "../lib/worthEatingRails.js";
 let n = 0, fail = 0;
 const ok = (c, m) => { n++; if (!c) { fail++; console.error("FAIL:", m); } };
 
@@ -44,6 +45,36 @@ if (dn) ok(dn.places.every((pl) => pl.priceLevel == null || pl.priceLevel >= 3),
 // locals require many reviews
 const lo = cols.find((c) => c.id === "locals-love");
 if (lo) ok(lo.places.every((pl) => pl.reviewCount >= 500), "locals are high-review");
+
+const cuisinePlaces = [
+  { id: "american", name: "American Room", cuisines: ["american"], rating: 4.6, reviews: 900 },
+  { id: "latin", name: "Latin Room", cuisines: ["latin-american"], rating: 4.5, reviews: 900 },
+  { id: "italian", name: "Italian Room", cuisines: ["italian"], rating: 4.6, reviews: 800 },
+  { id: "seafood", name: "Coastal Room", cuisines: ["american", "seafood"], rating: 4.7, reviews: 700 },
+  { id: "cuban", name: "Cuban Room", cuisines: ["latin-american", "cuban"], rating: 4.7, reviews: 600 },
+  { id: "caribbean", name: "Island Room", cuisines: ["caribbean"], rating: 4.8, reviews: 500 },
+  { id: "japanese", name: "Japanese Room", cuisines: ["asian", "japanese"], rating: 4.8, reviews: 400 },
+  { id: "asian", name: "Thai Room", cuisines: ["asian", "thai"], rating: 4.9, reviews: 300 },
+];
+const cuisineRails = composeWorthEatingRails(cuisinePlaces);
+ok(cuisineRails.length === 8 && cuisineRails.map((r) => r.id).join(",") === WORTH_EATING_RAILS.map((r) => r.id).join(","), "Actually Worth Eating has the founder's exact eight-rail order");
+ok(cuisineRails.every((rail) => rail.places.length === 1), "all eight cuisine rails receive their proven fixture");
+ok(cuisineRails.find((r) => r.id === "cuban").places[0].id === "cuban", "specific Cuban evidence beats generic Latin American");
+ok(cuisineRails.find((r) => r.id === "japanese").places[0].id === "japanese", "specific Japanese evidence beats generic Asian");
+ok(cuisineRails.find((r) => r.id === "seafood-coastal").places[0].id === "seafood", "seafood evidence beats generic American");
+ok(new Set(cuisineRails.flatMap((rail) => rail.places.map((pl) => pl.id))).size === cuisinePlaces.length, "no restaurant leaks into two cuisine rails");
+const guarded = composeWorthEatingRails([
+  { id: "great", name: "Great Room", cuisines: ["american"], rating: 4.8, reviews: 500 },
+  { id: "weak", name: "Weak Room", cuisines: ["american"], rating: 3.8, reviews: 500 },
+  { id: "fast", name: "Fast Chain", cuisines: ["american"], primaryType: "fast_food_restaurant", rating: 4.8, reviews: 500 },
+  { id: "smoothie", name: "Brazil Bowls", cuisines: ["brazilian"], primaryType: "restaurant", types: ["restaurant", "acai_shop"], rating: 4.8, reviews: 500 },
+]);
+ok(guarded.flatMap((rail) => rail.places).map((place) => place.id).join(",") === "great", "the answer refuses low-score, fast-food, and smoothie-counter look-alikes");
+const orderedAmerican = composeWorthEatingRails([
+  { id: "lower", name: "Lower", cuisines: ["american"], rating: 4.4, reviews: 500 },
+  { id: "higher", name: "Higher", cuisines: ["american"], rating: 4.9, reviews: 500 },
+]).find((rail) => rail.id === "american-contemporary");
+ok(orderedAmerican.places.map((place) => place.id).join(",") === "higher,lower", "each cuisine rail is explicitly ranked highest Wayfind Score to lowest");
 
 console.log(`test-food-collections: ${n - fail}/${n} passed`);
 if (fail) process.exit(1);
