@@ -9,11 +9,17 @@ export const dynamic = "force-dynamic";
 import { createClient } from "@supabase/supabase-js";
 import { pickBestPhoto } from "../../../../lib/heroImage";
 import { jobCannotRun } from "../../../../lib/jobFail";
+import { gateShut, spendAllow } from "../../../../lib/spendGate";
 
 const CENTROIDS = { "manatee-sarasota": { lat: 27.4, lng: -82.55 }, tampa: { lat: 27.85, lng: -82.6 }, orlando: { lat: 28.54, lng: -81.38 } };
 
+// `fields=photos` alone is the Essentials IDs-Only SKU (no charge), six calls a
+// day. It still goes through the ledger (2026-09-01, check-promote-spend-gate):
+// no cron reaches places.googleapis.com without a per-call grant, so the day
+// someone widens this mask the counter is already in front of it.
 async function photosOf(placeId, key) {
   try {
+    if (gateShut() || !(await spendAllow("details_ids_only"))) return [];
     const r = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}?fields=photos`, {
       headers: { "X-Goog-Api-Key": key },
     });
