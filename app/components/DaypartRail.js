@@ -1193,6 +1193,16 @@ export default function DaypartRail({
       return true;
     });
   }, [shown]);
+  const [lunchBreakLive, setLunchBreakLive] = useState(null);
+  useEffect(() => {
+    if (selected !== "break" || !center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) return undefined;
+    let cancelled = false;
+    const q = new URLSearchParams({ lat: center.lat.toFixed(2), lng: center.lng.toFixed(2) });
+    fetch("/api/lunch-break?" + q.toString())
+      .then((response) => response.ok ? response.json() : null)
+      .then((body) => { if (!cancelled && Array.isArray(body?.places) && body.places.length) setLunchBreakLive(body.places); }, () => {});
+    return () => { cancelled = true; };
+  }, [selected, center && center.lat, center && center.lng]);
 
   // The window follows the horizontal scroll of the open drop.
   //
@@ -1506,7 +1516,7 @@ export default function DaypartRail({
 
           {selRail && selRail.id === "break" ? (
             <LunchBreakRails
-              places={lunchBreakPlaces}
+              places={lunchBreakLive || lunchBreakPlaces}
               city={shown.cityLabel || ""}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}

@@ -37,7 +37,11 @@ const duplicated = composeLunchBreakRails([fixtures[0], { ...fixtures[0] }]);
 ok(duplicated.find((rail) => rail.id === "deli-sandwiches").places.length === 1, "duplicate inventory rows become one card");
 
 const daypartSource = fs.readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
-ok(/\["break", "eat", "breakfast"\]\.flatMap/.test(daypartSource) && /places=\{lunchBreakPlaces\}/.test(daypartSource), "Lunch Break consumes the broad owned meal inventory instead of inheriting one empty legacy selector");
+ok(/\["break", "eat", "breakfast"\]\.flatMap/.test(daypartSource) && /places=\{lunchBreakLive \|\| lunchBreakPlaces\}/.test(daypartSource), "Lunch Break keeps the broad meal response as its immediate fallback");
+ok(/fetch\("\/api\/lunch-break\?"/.test(daypartSource) && /setLunchBreakLive\(body\.places\)/.test(daypartSource), "Lunch Break hydrates from its dedicated owned-inventory endpoint");
+
+const routeSource = fs.readFileSync(new URL("../app/api/lunch-break/route.js", import.meta.url), "utf8");
+ok(/serveFromInventory\("food"/.test(routeSource) && /fastCachedRail\(key/.test(routeSource), "the dedicated endpoint is owned-inventory-only and FastCache-backed");
 
 if (fail.length) {
   console.error("test-lunch-break-rails: FAIL");
