@@ -38,6 +38,7 @@
 import { readFileSync, appendFileSync } from "node:fs";
 import { decidePromotion, dedupeById, PROMOTE_METROS, metrosFromRows } from "../lib/promoteIndex.js";
 import { clampBatchLimit } from "../lib/promoteThrottle.js";
+import { CORE_DETAILS_MASK, PROMOTE_SKU, withIndexSignals } from "../lib/promoteDetails.js";
 
 // ── env (never logged) ──────────────────────────────────────────────────────
 const ENV = {};
@@ -81,10 +82,18 @@ const CONC = Math.max(1, Math.min(parseInt(argOf("--concurrency", "6"), 10), 10)
 const AUDIT = argOf("--audit", "/home/claude/wf-worker/audit.jsonl");
 const COST_PER = 0.017;
 
-const DETAILS_MASK = [
-  "id", "displayName", "location", "types", "primaryType",
-  "rating", "userRatingCount", "priceLevel", "businessStatus", "editorialSummary", "photos",
-].join(",");
+// The SAME Pro-tier core mask as the cron — see lib/promoteDetails.js.
+const DETAILS_MASK = CORE_DETAILS_MASK;
+
+// THE MONEY GUARD, shared with the cron. lib/spendGate.js reads process.env, and
+// this script deliberately loads .env.local into ENV (never process.env) so a
+// value can never leak into a child process or a stack trace — so hand the gate
+// exactly the two names it needs, then import it. WAYFIND_GATE is left as
+// whatever the shell has: locally that is normally unset ("open"), which means
+// wf_promote_config.month_cap IS the ceiling, counted down in the same
+// wf_spend_ledger row the cron uses. Two writers, one budget.
+for (const k of ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"]) if (!process.env[k]) process.env[k] = k === "SUPABASE_URL" ? SB_URL : SB_KEY;
+const { spendAllowCapped } = await import("../lib/spendGate.js");
 
 const H = { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, "Content-Type": "application/json" };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -128,7 +137,7 @@ async function fetchLiveMetros() {
 // can never spend faster than the adaptive system currently trusts.
 async function fetchPromoteConfig() {
   try {
-    const r = await fetch(`${SB_URL}/rest/v1/wf_promote_config?select=batch_limit&id=eq.1`, { headers: H });
+    const r = await fetch(`${SB_URL}/rest/v1/wf_promote_config?select=batch_limit,month_cap&id=eq.1`, { headers: H });
     if (!r.ok) { console.warn(`wf_promote_config lookup ${r.status} — falling back to the static batch size`); return null; }
     const rows = await r.json();
     return Array.isArray(rows) && rows[0] ? rows[0] : null;
@@ -191,8 +200,29 @@ const BATCH = Math.max(1, Math.min(parseInt(BATCH_ARG, 10) || configBatchLimit, 
 console.log(cfgRow
   ? `batch: ${BATCH} (config batch_limit ${configBatchLimit}${BATCH_ARG ? `, --batch ${BATCH_ARG} clamped to it` : ""})`
   : `batch: ${BATCH} (FALLBACK — wf_promote_config unreachable, static default clamp)`);
+// The monthly budget. Missing row/column reads as the free tier, never unlimited
+// (spendAllowCapped also fails closed on anything that is not a positive number).
+const MONTH_CAP = cfgRow && cfgRow.month_cap != null ? Number(cfgRow.month_cap) : 4800;
+console.log(`budget: ${PROMOTE_SKU} month_cap ${MONTH_CAP} (wf_promote_config.month_cap; WAYFIND_GATE ${process.env.WAYFIND_GATE ? "set" : "unset -> open: month_cap is the ceiling"})`);
 
-const T = { claimed: 0, promoted: 0, rejected: 0, retried: 0, batches: 0, spend: 0 };
+// fetchIndexSignals — rating/reviews for a batch, from wf_place_ids (the index),
+// which is where they come from now instead of the Details call. Same fallback
+// as the cron: on failure the card is promoted without stars (rating null).
+async function fetchIndexSignals(placeIds) {
+  const out = new Map();
+  if (!placeIds.length) return out;
+  try {
+    const ids = placeIds.map((id) => `"${id}"`).join(",");
+    const r = await fetch(`${SB_URL}/rest/v1/wf_place_ids?select=place_id,signals&place_id=in.(${ids})`, { headers: H });
+    if (!r.ok) { console.warn(`wf_place_ids signals lookup ${r.status} — promoting without index rating/reviews`); return out; }
+    for (const row of await r.json()) if (row && row.place_id) out.set(row.place_id, row.signals || null);
+  } catch (e) {
+    console.warn(`wf_place_ids signals unavailable: ${String(e && e.message).slice(0, 120)}`);
+  }
+  return out;
+}
+
+const T = { claimed: 0, promoted: 0, rejected: 0, retried: 0, released: 0, batches: 0, spend: 0 };
 const rejectReasons = new Map();
 const started = Date.now();
 
@@ -203,14 +233,24 @@ while (T.claimed < TOTAL) {
   T.claimed += claimed.length;
   T.batches++;
 
+  const indexSignals = await fetchIndexSignals(claimed.map((c) => c.place_id));
+  let budgetExhausted = false;
   const results = await pmap(claimed, CONC, async (item) => {
+    // THE MONEY GUARD — one atomic ledger grant per Google call, before it.
+    // The first refusal is the month's budget running out; stop asking.
+    if (budgetExhausted || !(await spendAllowCapped(PROMOTE_SKU, MONTH_CAP))) {
+      budgetExhausted = true;
+      return { item, kind: "release" };
+    }
     const d = await details(item.place_id);
     if (!d.ok) return { item, kind: d.terminal ? "reject" : "retry", error: d.error };
-    const v = decidePromotion(d.place, item.metro, new Date().toISOString(), null, METROS);
+    const place = withIndexSignals(d.place, indexSignals.get(item.place_id));
+    const v = decidePromotion(place, item.metro, new Date().toISOString(), null, METROS);
     if (v.action !== "promote") return { item, kind: "reject", error: v.error };
     return { item, kind: "promote", row: v.row };
   });
-  T.spend += claimed.length * COST_PER;
+  const bought = results.filter((r) => r.kind !== "release").length;
+  T.spend += bought * COST_PER;
 
   const promote = results.filter((r) => r.kind === "promote");
   const { rows } = dedupeById(promote.map((r) => r.row));
@@ -240,6 +280,10 @@ while (T.claimed < TOTAL) {
       settle.push(rpc("wf_promotion_complete", { p_place_id: r.item.place_id, p_ok: false, p_error: r.error, p_reject: true }));
       const key = String(r.error).split(":")[0].slice(0, 60);
       rejectReasons.set(key, (rejectReasons.get(key) || 0) + 1);
+    } else if (r.kind === "release") {
+      // Budget refusal: back to pending, attempt refunded, parked — never a
+      // failure against the place (see wf_promotion_release in the migration).
+      settle.push(rpc("wf_promotion_release", { p_place_id: r.item.place_id, p_delay_minutes: 60, p_note: `spend ledger: ${PROMOTE_SKU} month_cap ${MONTH_CAP} reached` }));
     } else {
       settle.push(rpc("wf_promotion_complete", { p_place_id: r.item.place_id, p_ok: false, p_error: r.error }));
     }
@@ -250,6 +294,7 @@ while (T.claimed < TOTAL) {
   else T.promoted += rows.length;
   T.rejected += results.filter((r) => r.kind === "reject").length;
   T.retried += results.filter((r) => r.kind === "retry").length;
+  T.released += results.filter((r) => r.kind === "release").length;
 
   try {
     appendFileSync(AUDIT, JSON.stringify({

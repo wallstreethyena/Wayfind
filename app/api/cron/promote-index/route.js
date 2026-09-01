@@ -1,4 +1,4 @@
-import { gateShut } from "../../../../lib/spendGate";
+import { gateShut, spendAllowCapped } from "../../../../lib/spendGate";
 // app/api/cron/promote-index/route.js — drains wf_promotion_queue: index places
 // (wf_place_ids) become owned cards (wf_inventory), a bounded batch at a time.
 //
@@ -36,6 +36,25 @@ import { gateShut } from "../../../../lib/spendGate";
 //     /api/cron/job-watch sees "attempted 10, succeeded 0" instead of a green 200,
 //   * the response body reports rejects by reason, not just a count.
 //
+// SPEND (2026-09-01, second pass). Every Details call below is preceded by ONE
+// atomic ledger grant — spendAllowCapped(PROMOTE_SKU, month_cap) — exactly like
+// every other metered path in this repo (places/search, photo, placeDetails).
+// The first pass of this cron only asked "is the gate shut?" once per run; at
+// the 600/hour ceiling that was an unbounded bill. Now the budget is a number
+// in wf_promote_config.month_cap (default 4,800 = Google's Pro free tier, so
+// the default is $0), counted down in wf_spend_ledger. When the ledger says
+// no, the rest of the claimed batch is RELEASED (wf_promotion_release) — back
+// to pending, attempt refunded, parked one hour — never marked failed. A
+// budget refusal is not a fact about the place.
+//
+// SKU (same pass). The mask is CORE_DETAILS_MASK from lib/promoteDetails.js —
+// Pro tier, 5,000 free/month — not the Enterprise+Atmosphere mask this cron
+// shipped with (editorialSummary + rating/userRatingCount/priceLevel; 1,000
+// free/month, 950 of which were gone 12 hours into September). Rating and
+// review count come from the index (wf_place_ids.signals), which every queued
+// place already carries; price and editorial are on-demand enrichment via
+// lib/placeDetails.js and never gate a card's existence.
+//
 // COST AND CADENCE (2026-09-01). Place Details (New) at ~$0.017/record.
 // batch_limit is no longer a hardcoded 25 — it is read live from
 // public.wf_promote_config (migration 20260901_wf_promote_config.sql) and
@@ -52,6 +71,7 @@ import { sbEnv } from "../../../../lib/serverCache";
 import { recordPulse } from "../../../../lib/jobPulse";
 import { decidePromotion, dedupeById, PROMOTE_METROS, metrosFromRows } from "../../../../lib/promoteIndex";
 import { clampBatchLimit, nextBatchLimit } from "../../../../lib/promoteThrottle";
+import { CORE_DETAILS_MASK, PROMOTE_SKU, withIndexSignals } from "../../../../lib/promoteDetails";
 import { jobFailed } from "../../../../lib/jobFail";
 
 export const runtime = "nodejs";
@@ -63,13 +83,15 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const maxDuration = 60;
 
-// EXACTLY the fields buildInventoryRow consumes — same mask as
-// scripts/promote-index.mjs. Adding an atmosphere field here would raise the SKU
-// tier for data inventory does not store.
-const DETAILS_MASK = [
-  "id", "displayName", "location", "types", "primaryType",
-  "rating", "userRatingCount", "priceLevel", "businessStatus", "editorialSummary", "photos",
-].join(",");
+// The CORE mask (Pro tier) — see lib/promoteDetails.js for why it is not the
+// full mask buildInventoryRow can consume. Shared with scripts/promote-worker.mjs
+// so both write paths buy the same thing.
+const DETAILS_MASK = CORE_DETAILS_MASK;
+
+// A ledger refusal parks the rest of the batch for this long. One hour: long
+// enough that an exhausted month does not cost 12 empty claim cycles an hour,
+// short enough that a raised month_cap is picked up the same day.
+const RELEASE_DELAY_MINUTES = 60;
 
 const COST_PER_RECORD = 0.017;
 const GKEY = () => (process.env.GOOGLE_MAPS_SERVER_KEY || "").trim();
@@ -166,7 +188,7 @@ async function fetchLiveMetros(s) {
 async function fetchPromoteConfig(s) {
   try {
     const r = await fetch(
-      `${s.url}/rest/v1/wf_promote_config?select=batch_limit,auto&id=eq.1`,
+      `${s.url}/rest/v1/wf_promote_config?select=batch_limit,auto,month_cap&id=eq.1`,
       { cache: "no-store", headers: { apikey: s.key, authorization: "Bearer " + s.key } }
     );
     if (!r.ok) { console.warn(`[promote-index] wf_promote_config lookup ${r.status} — falling back to the static batch size`); return null; }
@@ -176,6 +198,28 @@ async function fetchPromoteConfig(s) {
     console.warn(`[promote-index] wf_promote_config unavailable this run, falling back to the static batch size: ${String(e && e.message).slice(0, 120)}`);
     return null;
   }
+}
+
+// fetchIndexSignals — {place_id -> signals} for the claimed batch, from the
+// index (wf_place_ids). This is where rating/reviews now come from instead of
+// the Details call (see lib/promoteDetails.js). Failure returns an empty map,
+// which is what the promoter sees for a place Google has no rating for
+// (rating null, reviews 0) — the card still exists, it just has no stars yet.
+async function fetchIndexSignals(s, placeIds) {
+  const out = new Map();
+  if (!placeIds.length) return out;
+  try {
+    const ids = placeIds.map((id) => `"${id}"`).join(",");
+    const r = await fetch(
+      `${s.url}/rest/v1/wf_place_ids?select=place_id,signals&place_id=in.(${ids})`,
+      { cache: "no-store", headers: { apikey: s.key, authorization: "Bearer " + s.key } }
+    );
+    if (!r.ok) { console.warn(`[promote-index] wf_place_ids signals lookup ${r.status} — promoting without index rating/reviews`); return out; }
+    for (const row of await r.json()) if (row && row.place_id) out.set(row.place_id, row.signals || null);
+  } catch (e) {
+    console.warn(`[promote-index] wf_place_ids signals unavailable this run: ${String(e && e.message).slice(0, 120)}`);
+  }
+  return out;
 }
 
 // writePromoteConfig — best-effort. A failed write leaves batch_limit exactly
@@ -235,6 +279,10 @@ export async function GET(req) {
   const configRow = await fetchPromoteConfig(s);
   const configBatchLimit = clampBatchLimit(configRow && configRow.batch_limit);
   const autoTune = !configRow || configRow.auto !== false; // missing row/column reads as "auto" — the pre-migration default
+  // Monthly budget (migration 20260901_wf_promote_spend_cap_and_release.sql).
+  // A missing row/column reads as the free tier (4,800), never as unlimited —
+  // spendAllowCapped fails closed on anything that is not a positive number.
+  const monthCap = configRow && configRow.month_cap != null ? Number(configRow.month_cap) : 4800;
   // ?limit= is still an operator override for manual/debug invocations, but it
   // can never exceed the current adaptive ceiling.
   const limit = Math.max(1, Math.min(parseInt(url.searchParams.get("limit") || "", 10) || configBatchLimit, configBatchLimit));
@@ -278,12 +326,25 @@ export async function GET(req) {
     console.warn(`[promote-index] scout verdicts unavailable this run: ${String(e && e.message).slice(0, 120)}`);
   }
 
+  // Rating + review count for the batch, from the index — see fetchIndexSignals.
+  const indexSignals = await fetchIndexSignals(s, claimed.map((c) => c.place_id));
+
   const writeRows = [];
   const okIds = [];
   const rejects = [];
   const retries = [];
+  const released = [];
 
+  let budgetExhausted = false;
   for (const item of claimed) {
+    // THE MONEY GUARD. One atomic ledger grant per Google call, before the call.
+    // The first refusal means the month's budget is gone — every later place in
+    // this batch would be refused too, so stop asking and hand them all back.
+    if (budgetExhausted || !(await spendAllowCapped(PROMOTE_SKU, monthCap))) {
+      budgetExhausted = true;
+      released.push(item.place_id);
+      continue;
+    }
     const d = await details(gkey, item.place_id);
     if (!d.ok) {
       (d.terminal ? rejects : retries).push({ place_id: item.place_id, name: item.name, error: d.error });
@@ -293,7 +354,8 @@ export async function GET(req) {
     // scripts/test-promote-decision.mjs. A "reject" is a verdict about the DATA
     // (unclassifiable, closed, out of bounds) — re-fetching buys the same answer,
     // so the queue must not retry it and pay Google again.
-    const verdict = decidePromotion(d.place, item.metro, nowIso, adjudicated.get(item.place_id) || null, metros);
+    const place = withIndexSignals(d.place, indexSignals.get(item.place_id));
+    const verdict = decidePromotion(place, item.metro, nowIso, adjudicated.get(item.place_id) || null, metros);
     if (verdict.action !== "promote") {
       rejects.push({ place_id: item.place_id, name: item.name, error: verdict.error });
       continue;
@@ -335,13 +397,23 @@ export async function GET(req) {
   }
   for (const x of rejects) settle.push(rpc(s, "wf_promotion_complete", { p_place_id: x.place_id, p_ok: false, p_error: x.error, p_reject: true }));
   for (const x of retries) settle.push(rpc(s, "wf_promotion_complete", { p_place_id: x.place_id, p_ok: false, p_error: x.error }));
+  // Budget refusals: back to pending, attempt refunded, parked — see the
+  // migration. Deliberately NOT wf_promotion_complete(p_ok:false): that path
+  // burns an attempt and would reject a good place after three empty months.
+  for (const id of released) settle.push(rpc(s, "wf_promotion_release", { p_place_id: id, p_delay_minutes: RELEASE_DELAY_MINUTES, p_note: `spend ledger: ${PROMOTE_SKU} month_cap ${monthCap} reached` }));
   await Promise.allSettled(settle);
 
+  const attempted = claimed.length - released.length; // places we actually paid to look at
   const succeeded = writeError ? 0 : written;
   const note = writeError
     ? `upsert failed: ${writeError.slice(0, 120)}`
-    : (succeeded === 0 && claimed.length > 0 ? `0/${claimed.length} promoted; top reject: ${(rejects[0] && rejects[0].error) || "none"}`.slice(0, 200) : null);
-  await recordPulse("promote-index", { attempted: claimed.length, succeeded, note });
+    : budgetExhausted
+      ? `budget: ${PROMOTE_SKU} month_cap ${monthCap} reached; released ${released.length}/${claimed.length}`.slice(0, 200)
+      : (succeeded === 0 && attempted > 0 ? `0/${attempted} promoted; top reject: ${(rejects[0] && rejects[0].error) || "none"}`.slice(0, 200) : null);
+  // attempted counts only what was bought. A run that released its whole batch
+  // pulses as attempted 0 with the budget note, so job-watch reads it as IDLE
+  // (budget), never as "tried everything, achieved nothing".
+  await recordPulse("promote-index", { attempted, succeeded, note });
 
   // Adaptive step (2026-09-01) — see lib/promoteThrottle.js. `errors` here is
   // OPERATIONAL distress (transient/retry fetch failures + a failed upsert),
@@ -352,8 +424,11 @@ export async function GET(req) {
   const errors = retries.length + (writeError ? okIds.length : 0);
   const sawRateLimit = retries.some((r) => /\b429\b/.test(r.error || ""));
   const queueNonEmpty = claimed.length >= limit;
+  // ledgerDenials is the throttle's own input for budget refusals: a batch that
+  // was mostly released halves the NEXT claim, so an exhausted month costs a
+  // handful of claim/release round trips an hour instead of fifty.
   const nextLimit = autoTune
-    ? nextBatchLimit(configBatchLimit, { attempted: claimed.length, errors, sawRateLimit, queueNonEmpty })
+    ? nextBatchLimit(configBatchLimit, { attempted: claimed.length, errors, ledgerDenials: released.length, sawRateLimit, queueNonEmpty })
     : configBatchLimit; // auto=false is an operator pin — leave batch_limit exactly as configured
   await writePromoteConfig(s, { batchLimit: nextLimit, promoted: succeeded, rejected: rejects.length, errors });
 
@@ -364,8 +439,11 @@ export async function GET(req) {
     promoted: succeeded,
     rejected: rejects.length,
     retrying: retries.length,
+    released: released.length,
+    budgetExhausted,
+    monthCap,
     deduped: dropped,
-    estimatedSpendUSD: Math.round(claimed.length * COST_PER_RECORD * 100) / 100,
+    estimatedSpendUSD: Math.round(attempted * COST_PER_RECORD * 100) / 100,
     writeError,
     batchLimit: configBatchLimit,
     nextBatchLimit: nextLimit,
