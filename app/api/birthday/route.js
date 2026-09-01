@@ -7,6 +7,7 @@ export const runtime = "nodejs";
 import { BROWSE_INVENTORY_N } from "../../../lib/browseInventory.js";
 import { birthdayAttributesFor } from "../../../lib/birthdayAttributes.js";
 import { distMeters, serveFromInventory, serveInventoryByPlaceIds } from "../../../lib/inventoryServe.js";
+import { NET_DEADLINE_MS } from "../../../lib/fetchDeadline.js";
 import { BIRTHDAY_WIDEN_MI, composeBirthdayRails } from "../../../lib/birthdayIntent.js";
 import { BIRTHDAY_REWARD_PLACE_IDS, birthdayRewardFor } from "../../../lib/birthdayRewards.js";
 
@@ -75,10 +76,12 @@ export async function GET(request) {
     // rails are broad reads. Gifts are a tiny exact-ID lookup. This replaces
     // six 1,000-row reads and prevents hotels, shops, beaches and attractions
     // from being fetched only to be rejected after the fact.
+    const broadRead = { failLoud: true, primaryOnly: true, deadlineMs: NET_DEADLINE_MS };
+    const exactRead = { failLoud: true, deadlineMs: NET_DEADLINE_MS };
     pools = await Promise.all([
-      retryRead(() => serveFromInventory("food", lat, lng, radiusM, n, undefined, { failLoud: true })),
-      retryRead(() => serveFromInventory("nightlife", lat, lng, radiusM, n, undefined, { failLoud: true })),
-      retryRead(() => serveInventoryByPlaceIds(BIRTHDAY_REWARD_PLACE_IDS, lat, lng, radiusM, { failLoud: true })),
+      retryRead(() => serveFromInventory("food", lat, lng, radiusM, n, undefined, broadRead)),
+      retryRead(() => serveFromInventory("nightlife", lat, lng, radiusM, n, undefined, broadRead)),
+      retryRead(() => serveInventoryByPlaceIds(BIRTHDAY_REWARD_PLACE_IDS, lat, lng, radiusM, exactRead)),
     ]);
   } catch (error) {
     console.error("[api/birthday] inventory unavailable", { message: String(error?.message || error) });
