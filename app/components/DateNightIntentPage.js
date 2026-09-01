@@ -4,7 +4,7 @@
 // Homepage Date Night poster lands here. Existing RankedExperiencePage shell,
 // existing IconicPlaceCard on every result. No new card chrome.
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import RankedExperiencePage from "./RankedExperiencePage";
 import DateNightRails from "./DateNightRails";
@@ -14,33 +14,55 @@ import { INTENT_PAGES } from "../../lib/intentPages";
 import { areaSeasonalContext } from "../../lib/areaSeasonalContext";
 import { currentSeason } from "../../lib/seasons";
 import { ScoreDisclosure } from "./ExperienceBlocks";
-import { resolveLocationContext, locationSurface } from "../../lib/locationHonesty";
+import { resolveLocationContext, locationSurface, milesBetween } from "../../lib/locationHonesty";
 import { canonicalShareUrl } from "../../lib/site";
 import { track } from "../../lib/track";
 
-const C = { text: "#F1F5F9", muted: "#8b93a1" };
+function dateNightLocation({ urlCity = "", urlLat = NaN, urlLng = NaN, stored = null } = {}) {
+  const coords = { lat: Number(urlLat), lng: Number(urlLng) };
+  const hasUrlCoords = Number.isFinite(coords.lat) && Number.isFinite(coords.lng);
+  let city = String(urlCity || "").slice(0, 40);
+
+  // A coordinates-only poster URL may recover the matching stored label after
+  // hydration, but a stale pin from another town must never replace the URL's
+  // ranking origin. The old render-time localStorage read did both: it made
+  // SSR say "your town", made the first client render say the stored city,
+  // and let that stored city/point override explicit URL coordinates.
+  if (!city && hasUrlCoords && stored) {
+    const distance = milesBetween(coords, stored);
+    if (Number.isFinite(distance) && distance <= 25) city = stored.loc || "";
+  }
+
+  const ctx = resolveLocationContext({
+    urlCity: city,
+    urlLat,
+    urlLng,
+    stored: hasUrlCoords ? null : stored,
+  });
+  const surface = locationSurface(ctx);
+  return { lat: ctx.lat, lng: ctx.lng, city: surface.headingCity };
+}
 
 export default function DateNightIntentPage() {
   const def = INTENT_PAGES["date-night"];
   const sp = useSearchParams();
   const [copied, setCopied] = useState(false);
+  const urlCity = (sp.get("city") || "").slice(0, 40);
+  const urlLat = parseFloat(sp.get("lat"));
+  const urlLng = parseFloat(sp.get("lng"));
 
-  const loc = useMemo(() => {
+  // SSR and the first client render use URL data only. Browser storage is read
+  // in an effect, so a returning visitor cannot trigger React #425/#422 and
+  // lose hydration on this page. Explicit URL coordinates remain authoritative.
+  const [loc, setLoc] = useState(() => dateNightLocation({ urlCity, urlLat, urlLng }));
+  useEffect(() => {
     let stored = null;
     try {
       const c = JSON.parse(localStorage.getItem("wf_center") || "null");
-      if (c && isFinite(c.lat) && isFinite(c.lng)) stored = { lat: c.lat, lng: c.lng, loc: c.loc };
+      if (c && isFinite(c.lat) && isFinite(c.lng)) stored = { lat: Number(c.lat), lng: Number(c.lng), loc: c.loc };
     } catch (e) {}
-    const ctx = resolveLocationContext({
-      urlCity: (sp.get("city") || "").slice(0, 40),
-      urlLat: parseFloat(sp.get("lat")),
-      urlLng: parseFloat(sp.get("lng")),
-      stored,
-    });
-    const surface = locationSurface(ctx);
-    return { lat: ctx.lat, lng: ctx.lng, city: surface.headingCity };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    setLoc(dateNightLocation({ urlCity, urlLat, urlLng, stored }));
+  }, [urlCity, urlLat, urlLng]);
 
   const areaCtx = areaSeasonalContext(loc && loc.city, currentSeason());
   const header = editorialIntentHeader("date-night", loc.city, areaCtx);

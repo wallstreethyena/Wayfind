@@ -280,6 +280,10 @@ ok(nightOrder.includes("datenight"), "Date Night still exists in the night order
 {
   const src = stripComments(readFileSync(join(ROOT, "app/components/DateNightIntentPage.js"), "utf8"));
   const rails = stripComments(readFileSync(join(ROOT, "app/components/DateNightRails.js"), "utf8"));
+  ok(/useEffect\(\(\) => \{[\s\S]*localStorage\.getItem\("wf_center"\)/.test(src),
+    "Date Night reads the stored location only after hydration");
+  ok(/useState\(\(\) => dateNightLocation\(\{ urlCity, urlLat, urlLng \}\)\)/.test(src),
+    "Date Night's SSR and first client render derive location from the same URL-only input");
   // v8.92 — FOLLOWED THE CODE. The rails moved out of the page into
   // <DateNightRails> so the DROP and the PAGE render one definition; the page
   // keeps the shell. Both assertions are unchanged in meaning and are now made
