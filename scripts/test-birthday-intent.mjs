@@ -53,6 +53,7 @@ const upscaleBase = { primaryType: "restaurant", types: ["restaurant"], rating: 
 ok(!isUpscaleBirthdayDinner({ ...upscaleBase, name: "Miller's Ale House", editorial: "Casual sports-pub chain" }), "an ale house cannot enter upscale through a secondary type");
 ok(!isUpscaleBirthdayDinner({ ...upscaleBase, name: "Woody's River Roo", editorial: "Casual tiki bar and grill", types: ["restaurant", "fine_dining_restaurant"] }), "a casual tiki grill cannot enter upscale through a false fine-dining tag");
 ok(!isUpscaleBirthdayDinner({ ...upscaleBase, name: "Applebee's", editorial: "Informal family restaurant", types: ["restaurant", "steak_house"] }), "a family chain cannot enter upscale through a steakhouse tag");
+ok(!isUpscaleBirthdayDinner({ ...upscaleBase, name: "Texas Roadhouse", primaryType: "steak_house", editorial: "Steakhouse chain", priceNum: 2 }), "a moderate steakhouse chain is not automatically an upscale birthday dinner");
 ok(isUpscaleBirthdayDinner({ ...upscaleBase, name: "Michael John's", primaryType: "french_restaurant", priceNum: 3, editorial: "Polished French-American steak and seafood room" }), "a polished expensive restaurant clears the upscale promise");
 
 const multi = {
@@ -80,6 +81,12 @@ const ranked = composeBirthdayRails([
   { ...multi, id: "higher", name: "Higher", rating: 4.8, reviews: 2000, distMi: 20 },
 ]).rails.find((rail) => rail.id === "upscale").places;
 ok(ranked[0]?.id === "higher", "Birthday rails rank by displayed Wayfind Score before distance");
+
+const deduped = composeBirthdayRails([
+  { ...multi, id: "seasons-a", name: "Seasons 52", rating: 4.7, reviews: 3000, distMi: 12 },
+  { ...multi, id: "seasons-b", name: "Seasons 52", rating: 4.6, reviews: 2500, distMi: 8 },
+]).rails.find((rail) => rail.id === "upscale").places;
+ok(deduped.length === 1 && deduped[0]?.id === "seasons-a", "same-name venues dedupe after score ordering");
 
 const batch = JSON.parse(readFileSync(new URL("../data/birthday/enrichment-batch-2026-08-31.json", import.meta.url), "utf8"));
 ok(batch.places.length === 50, "owner enrichment batch preserves all 50 candidates");
