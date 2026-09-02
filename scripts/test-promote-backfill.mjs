@@ -79,9 +79,16 @@ ok(read("scripts/enqueue-inbox.mjs").includes(PROMOTE_BACKFILL_RPC),
 const vercel = read("vercel.json");
 ok(!/promote-backfill/.test(vercel), "vercel.json does not schedule promote-backfill (switch stays off)");
 
-// ── 3. four promote boxes unchanged (parity lock is a separate guard) ───────
-ok(Object.keys(PROMOTE_METROS).sort().join(",") === "manatee-sarasota,orlando,st-pete,tampa",
-  "PROMOTE_METROS still the four served boxes — this PR does not widen geo");
+// ── 3. five promote boxes, "global" opt-in only (parity lock is a separate guard) ──
+// WO7 (2026-09-02) added "global" — a whole-planet catch-all for curated
+// (creator-sourced) places outside the four served metros. It is not a fifth
+// AUTOMATED market: both enqueue paths (wf_enqueue_promotion's trigger,
+// wf_promotion_backfill's sweep) skip a 'global' bucket unless asked for by
+// name — see supabase/migrations/20260902_wf_promote_global_bucket_opt_in.sql.
+// This assertion is updated honestly, not loosened: it still fails the moment
+// an UNANNOUNCED box appears.
+ok(Object.keys(PROMOTE_METROS).sort().join(",") === "global,manatee-sarasota,orlando,st-pete,tampa",
+  "PROMOTE_METROS is the four served boxes plus the opt-in 'global' catch-all — this PR does not widen AUTOMATED geo");
 
 // ── 4. category placement uses existing signals, not a stored list name ─────
 ok(JSON.stringify(existingTypeSignals({ google_types: [], primary_type: "cafe" })) === JSON.stringify(["cafe"]),

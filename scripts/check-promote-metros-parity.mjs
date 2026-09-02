@@ -38,26 +38,35 @@ import { fileURLToPath } from "node:url";
 import { PROMOTE_METROS } from "../lib/promoteIndex.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const MIGRATION = "supabase/migrations/20260813_wf_promote_metros.sql";
+// The seed migration plus every migration that has since added its own metro
+// row — WO7 (2026-09-02) added "global" in a SEPARATE file rather than
+// editing this historical one. Both are parsed and merged so parity stays a
+// real check of "everything a migration says exists" rather than silently
+// blind to whatever the newer file adds.
+const MIGRATIONS = [
+  "supabase/migrations/20260813_wf_promote_metros.sql",
+  "supabase/migrations/20260902_wf_promote_global_bucket_opt_in.sql",
+];
 let fails = 0;
 const ok = (cond, msg) => { if (!cond) { console.error("  FAIL: " + msg); fails++; } };
-
-const sql = readFileSync(join(ROOT, MIGRATION), "utf8");
 
 // Parse the seed INSERT: ('metro', min_lat, max_lat, min_lng, max_lng)
 const rowRx = /\(\s*'([a-z0-9-]+)'\s*,\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\)/g;
 const fromSql = {};
-for (const m of sql.matchAll(rowRx)) {
-  fromSql[m[1]] = { minLat: +m[2], maxLat: +m[3], minLng: +m[4], maxLng: +m[5] };
+for (const MIGRATION of MIGRATIONS) {
+  const sql = readFileSync(join(ROOT, MIGRATION), "utf8");
+  for (const m of sql.matchAll(rowRx)) {
+    fromSql[m[1]] = { minLat: +m[2], maxLat: +m[3], minLng: +m[4], maxLng: +m[5] };
+  }
 }
 
 ok(Object.keys(fromSql).length > 0,
-  `could not parse any metro rows out of ${MIGRATION} — if the seed INSERT was restructured, update this guard rather than deleting it`);
+  `could not parse any metro rows out of ${MIGRATIONS.join(", ")} — if a seed INSERT was restructured, update this guard rather than deleting it`);
 
 const jsKeys = Object.keys(PROMOTE_METROS).sort();
 const sqlKeys = Object.keys(fromSql).sort();
 ok(jsKeys.join(",") === sqlKeys.join(","),
-  `metro SETS differ.\n    lib/promoteIndex.js PROMOTE_METROS: ${jsKeys.join(", ")}\n    ${MIGRATION}:                        ${sqlKeys.join(", ")}`);
+  `metro SETS differ.\n    lib/promoteIndex.js PROMOTE_METROS: ${jsKeys.join(", ")}\n    ${MIGRATIONS.join(" + ")}: ${sqlKeys.join(", ")}`);
 
 for (const key of jsKeys) {
   const a = PROMOTE_METROS[key];
@@ -65,7 +74,7 @@ for (const key of jsKeys) {
   if (!b) continue;
   for (const f of ["minLat", "maxLat", "minLng", "maxLng"]) {
     ok(a[f] === b[f],
-      `${key}.${f} differs — JS says ${a[f]}, ${MIGRATION} says ${b[f]}. The trigger would queue a different set of places than the worker will accept.`);
+      `${key}.${f} differs — JS says ${a[f]}, migrations say ${b[f]}. The trigger would queue a different set of places than the worker will accept.`);
   }
 }
 
