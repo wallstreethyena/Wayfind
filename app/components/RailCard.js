@@ -55,6 +55,7 @@ import { KB_CLICK, WayfindScoreBadge } from "./kit";
 import { fallCardClass } from "../../lib/fallSkin.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import { stayOnRailReaction } from "../../lib/railReaction.js";
+import { safeUrl } from "../../lib/links.js";
 // v8.33 — the creator's face on the media column, resolved from the optional
 // `place` row. A rail card without a place row (the Viator tour rail, an
 // event) simply has nothing to resolve and renders no mark.
@@ -292,6 +293,12 @@ export default function RailCard({
   // they have no hands, which is honest and still unpressable.
   actionsReadOnly = false,
 }) {
+  // 2026-09-02 (hijacked-domain incident): an external CTA renders ONLY when
+  // lib/links.safeUrl accepts its href — malformed, junk, or quarantined
+  // destinations drop the button instead of shipping a bad link. An internal
+  // (app-relative) CTA is unaffected.
+  const ctaHref = cta && cta.external ? safeUrl(cta.href) : null;
+
   // Hooks before the early return, always called (rules of hooks). Subscribes
   // only when this card actually needs the shared store.
   const canFallback = !!(place && place.id);
@@ -331,7 +338,13 @@ export default function RailCard({
         // tap on the body.
         if (t && typeof t.closest === "function" && t.closest("a,button,input,select,textarea")) return;
         if (onOpen) onOpen(e);
-        else if (href && typeof window !== "undefined") { if (external) window.open(href, "_blank", "noopener"); else window.location.assign(href); }
+        else if (href && typeof window !== "undefined") {
+          // 2026-09-02: an EXTERNAL destination goes through lib/links.safeUrl
+          // (the app-wide chokepoint) — a quarantined or malformed href opens
+          // nothing rather than a hijacked page. Internal routes are ours.
+          if (external) { const safe = safeUrl(href); if (safe) window.open(safe, "_blank", "noopener"); }
+          else window.location.assign(href);
+        }
       }}
       aria-label={ariaLabel || title}
     >
@@ -407,10 +420,10 @@ export default function RailCard({
               filler. An empty slot is honest; a generic line is not. */}
           {take ? <div className="wf-place-card-take">{take}</div> : null}
 
-          {cta ? (
+          {ctaHref || (cta && !cta.external) ? (
             <a
               className="wf-place-card-book wf-rail-card-cta"
-              href={cta.href || "#"}
+              href={ctaHref || cta.href || "#"}
               {...(cta.external ? { target: "_blank", rel: cta.sponsored ? "sponsored nofollow noopener" : "noreferrer" } : {})}
               onClick={(e) => { e.stopPropagation(); if (cta.onClick) cta.onClick(e); }}
             >{cta.label}</a>

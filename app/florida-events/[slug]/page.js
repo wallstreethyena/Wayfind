@@ -8,6 +8,7 @@
 //
 // The answer box comes FIRST. Nobody wants 500 words before the date.
 import { notFound } from "next/navigation";
+import { safeUrl } from "../../../lib/links.js";
 import { SITE_URL } from "../../../lib/site";
 import { fetchCuratedEvents, fetchCuratedEventBySlug, eventJsonLd, dateRangeLabel } from "../../../lib/curatedEvents";
 import { eventPhotos } from "../../../lib/eventPhotos";
@@ -333,9 +334,9 @@ export default async function CuratedEventPage({ params }) {
         </>
       ) : null}
 
-      {e.official_event_url ? (
+      {safeUrl(e.official_event_url) ? (
         <p style={S.p}>
-          <a style={S.link} href={e.official_event_url} rel="nofollow noopener" target="_blank">
+          <a style={S.link} href={safeUrl(e.official_event_url)} rel="nofollow noopener" target="_blank">
             Official site — confirm dates and tickets before you travel
           </a>
         </p>

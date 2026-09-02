@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 // (end_date null — the HHN Tribute Store, whose close Universal has not
 // published) stays for OPEN_RUN_DAYS without ever claiming an end date; the
 // vetted year-round spooky PLACES ride along as normal scored place rows.
-import { fetchCuratedEvents, isTrusted } from "../../../../lib/curatedEvents.js";
+import { fetchCuratedEvents, isTrusted, eventOutboundUrl } from "../../../../lib/curatedEvents.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
 import { isFallTagged, fallEventLive, fallWhenLabel, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_EVENT_TICKET_DEALS } from "../../../../lib/fallPool.js";
 import { hasCjPid } from "../../../../lib/deals.js";
@@ -22,6 +22,7 @@ import { fastCachedRail, geoCell } from "../../../../lib/railFastCache.js";
 import { composeFallIntentRails } from "../../../../lib/fallIntentRails.js";
 import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../../../../lib/fallPhotoSpots.js";
 import { FALL_DISCOVERIES_2026 } from "../../../../lib/fallDiscoveries2026.js";
+import { FALL_COLLECTION_POSTER, fallEventCardImageSrc } from "../../../../lib/fallEventImage.js";
 
 const FALL_DB_DEADLINE_MS = 3500;
 
@@ -76,6 +77,7 @@ export async function GET(request) {
       .map((e) => {
         const dealId = FALL_EVENT_TICKET_DEALS[e.event_id];
         const deal = dealId ? byDealId.get(dealId) : null;
+        const image = fallEventCardImageSrc(e, 640);
         return ({
         ...e,
         kind: "event",
@@ -89,8 +91,12 @@ export async function GET(request) {
         when: fallWhenLabel(e, today),
         hook: e.card_hook,
         take: e.editorial_summary || null,
-        image: e.hero_image || null,   // venue photo filled in below when null
-        url: e.official_ticket_url || e.official_event_url || e.event_page_url || null,
+        // Collection art belongs on the collection tile, never on a named
+        // destination. The helper also rejects legacy DB rows that were seeded
+        // with that poster and derives this venue's own photo from place_id.
+        image: image || null,
+        imageIsVenue: !!image && (!e.hero_image || e.hero_image === FALL_COLLECTION_POSTER),
+        url: eventOutboundUrl(e) || null,   // 2026-09-02: link_ok + quarantine + safeUrl gated
         is_free: !!e.is_free, price_band: e.price_band || null,
         tags: e.tags || [],
         ticket: deal ? { href: deal.affiliate_url, via: "Undercover Tourist", deal_id: deal.id } : null,
@@ -117,12 +123,6 @@ export async function GET(request) {
     // can only ever wear ITS OWN venue's photo, never a neighbour's), and a
     // venue with no photo redirects to the branded fallback instead of a hole.
     // Costs nothing: cache and inventory are both ahead of the spend gate.
-    for (const ev of events) {
-      if (ev.image) continue;
-      const src = cardImageSrc({ place_id: ev.place_id }, 640);
-      if (src) { ev.image = src; ev.imageIsVenue = true; }  // "the venue", never "this event"
-    }
-
       const places = (placeResult.error ? [] : (placeResult.data || []))
         .filter((p) => (!p.status || p.status === "OPERATIONAL") && p.signals && typeof p.signals.rating === "number" && p.signals.rating > 0)
         .map((p) => ({
