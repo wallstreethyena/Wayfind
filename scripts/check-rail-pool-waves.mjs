@@ -111,11 +111,8 @@ const DR = strip(readFileSync(join(ROOT, "app/components/DaypartRail.js"), "utf8
 {
   ok(/export const RAILS_LOAD_TIMEOUT_MS = (\d+);/.test(DR), "the rails request declares its OWN budget");
   const ms = Number((DR.match(/RAILS_LOAD_TIMEOUT_MS = (\d+)/) || [])[1]);
-  const { LOAD_TIMEOUT_MS } = await import("../lib/loadState.js");
-  ok(ms > LOAD_TIMEOUT_MS,
-    `the rails budget (${ms}ms) must exceed lib/loadState's generic ${LOAD_TIMEOUT_MS}ms — that one was derived for rails reading our own Supabase RPCs, and /api/rails makes live Google calls per category per town (measured cold: 25441ms)`);
-  ok(ms >= 25000 && ms <= 45000,
-    `…and must still be a deadline, not an absence of one — got ${ms}ms`);
+  ok(ms >= 8000 && ms <= 10000,
+    `the inventory-only rails budget must produce a visible failure within 8–10s — got ${ms}ms`);
   ok(/settleLoad\(\(\) => inflight, \{ timeoutMs: RAILS_LOAD_TIMEOUT_MS \}\)/.test(DR),
     "…and it is the budget actually passed to settleLoad, not a constant nobody reads");
 

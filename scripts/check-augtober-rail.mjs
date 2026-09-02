@@ -113,7 +113,9 @@ const fallComponent = strip(readFileSync(path.join(ROOT, "app/components/FallInt
 const fallIntent = strip(readFileSync(path.join(ROOT, "lib/fallIntentRails.js"), "utf8"));
 const sharedCard = strip(readFileSync(path.join(ROOT, "app/components/RailCard.js"), "utf8"));
 ok(/FallIntentRails = dynamic/.test(rail) && /selRail\.id === "augtober"/.test(rail), "the drop lazy-loads its owned ten-rail answer only when Augtober opens");
-ok(/fetch\("\/api\/events\/fall\?"/.test(fallComponent), "…and it reads /api/events/fall, the one pool API");
+ok(/fetchJsonWithDeadline\("\/api\/events\/fall\?"/.test(fallComponent), "…and it reads /api/events/fall through the shared deadline helper");
+ok(/query\.set\("full", "1"\)/.test(fallComponent) && /timeoutMs: FALL_LOAD_TIMEOUT_MS/.test(fallComponent),
+  "the fall pool can expand on demand without surrendering its browser deadline");
 ok(/result\.rails\.length !== 10/.test(fallComponent), "positive control: the complete ten-rail contract is required");
 ok(/when=\{isEvent \? card\.when : null\}/.test(fallComponent), "event cards wear the WHEN badge — an event never gets a fabricated score");
 ok(/className="wf-exploding-primary"/.test(fallComponent), "fall cards use the house card's responsive media contract");

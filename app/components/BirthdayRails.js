@@ -9,6 +9,7 @@ import { toDisplayScore } from "../../lib/score.js";
 import { topPickAward } from "../../lib/topPickAward.js";
 import { wayfindScore } from "../../lib/wayfindScore.js";
 import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
+import { railScrollNeedsMore } from "../../lib/railResponse.js";
 
 const COLORS = { text: "#F1F5F9", muted: "#8b93a1" };
 const compact = (value) => Number(value) >= 1000
@@ -114,7 +115,8 @@ export default function BirthdayRails({
             ) : (
               <>
                 <RailNav railId={railId} count={rail.total || rail.places.length} unit={(rail.total || rail.places.length) === 1 ? "verified place" : "verified places"} />
-                <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>
+                <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}
+                  onScroll={(event) => { if (!full && payload.hasMore && railScrollNeedsMore(event.currentTarget)) setFull(true); }}>
                   {rail.places.map((place, index) => {
                     const rank = index + 1;
                     const reward = place._birthdayReward || null;

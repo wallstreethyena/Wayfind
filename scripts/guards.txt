@@ -299,6 +299,15 @@ node scripts/check-no-stuck-loading.mjs
 # codebase: no render chain may end on a loading state.
 node scripts/check-no-terminal-loading.mjs
 node scripts/check-rail-pool-waves.mjs
+# WO8 (2026-09-02) — production perf regression lock. /api/rails cold compute
+# hit the 20s deadline (owner, Bradenton) doing ~30 wf_inventory reads with
+# `editorial` on every row; check-rail-compute-budget.mjs re-runs the real
+# loadRailPlaces pipeline against a mocked, RECORDING fetch (the harness is
+# scripts/test-rail-compute-budget.mjs) and asserts a call-count + byte
+# ceiling, red-proved by a computed counterfactual that puts editorial back
+# on every bulk row. See lib/inventoryReadCache.js.
+node scripts/test-rail-compute-budget.mjs
+node scripts/check-rail-compute-budget.mjs
 # v8.49 — a narrow chip must filter BEFORE rankInventory caps at 50, or it
 # competes against the whole category for those slots and loses (Food > Cafés
 # rendered empty while 111 admissible cafés sat 17mi away).

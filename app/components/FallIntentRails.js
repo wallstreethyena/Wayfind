@@ -6,9 +6,11 @@ import { directionsUrl } from "./kit";
 import { toDisplayScore } from "../../lib/score.js";
 import { fallSkinLive } from "../../lib/fallSkin.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
+import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
+import { railScrollNeedsMore } from "../../lib/railResponse.js";
 
 const COLORS = { text: "#FFF7ED", muted: "#A99FA8" };
-export const FALL_LOAD_TIMEOUT_MS = 12000;
+export const FALL_LOAD_TIMEOUT_MS = 10000;
 const compact = (value) => Number(value) >= 1000 ? Math.round(Number(value) / 100) / 10 + "k" : String(Number(value) || 0);
 
 function eventChips(card) {
@@ -44,6 +46,7 @@ export default function FallIntentRails({
   const [payload, setPayload] = useState(null);
   const [failed, setFailed] = useState(false);
   const [retry, setRetry] = useState(0);
+  const [full, setFull] = useState(false);
   const asked = useRef("");
   const lat = center && Number.isFinite(center.lat) ? center.lat : null;
   const lng = center && Number.isFinite(center.lng) ? center.lng : null;
@@ -51,34 +54,31 @@ export default function FallIntentRails({
   const fallSkin = fallSkinLive(siteTodayStr());
 
   useEffect(() => {
-    const requestKey = `${key}|${retry}`;
+    const requestKey = `${key}|${retry}|${full ? "full" : "first"}`;
     if (!key || asked.current === requestKey) return;
     asked.current = requestKey;
     setPayload(null);
     setFailed(false);
     let cancelled = false;
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), FALL_LOAD_TIMEOUT_MS);
     const [queryLat, queryLng] = key.split("|");
     const query = new URLSearchParams({ lat: queryLat, lng: queryLng, v: "2" });
-    fetch("/api/events/fall?" + query.toString(), { signal: controller.signal })
-      .then((response) => response.ok ? response.json() : null)
+    if (full) query.set("full", "1");
+    fetchJsonWithDeadline("/api/events/fall?" + query.toString(), { timeoutMs: FALL_LOAD_TIMEOUT_MS })
       .then((result) => {
         if (cancelled) return;
         if (!result || !Array.isArray(result.rails) || result.rails.length !== 10) { setFailed(true); return; }
         setPayload(result);
         try { onTrack?.("fall_intent_collection_open", { city, phase: result.phase, rails: result.rails.map((rail) => rail.id).join(","), cards: result.rails.reduce((sum, rail) => sum + rail.cards.length, 0) }); } catch {}
       })
-      .catch(() => { if (!cancelled) setFailed(true); })
-      .finally(() => clearTimeout(timer));
-    return () => { cancelled = true; clearTimeout(timer); controller.abort(); };
+      .catch(() => { if (!cancelled) setFailed(true); });
+    return () => { cancelled = true; };
     // `onTrack` is intentionally not a dependency. The parent supplies an
     // inline telemetry callback and can re-render while this request is in
     // flight; treating that callback identity as data aborts the request, then
     // the duplicate-request guard refuses to restart it, leaving a permanent
     // skeleton. Location and an explicit retry are the request identity.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, retry]);
+  }, [key, retry, full]);
 
   if (!active) return null;
   if (!key) return <p style={{ color: COLORS.muted, fontSize: 13 }}>Share your location to rank Florida&apos;s fall options for you.</p>;
@@ -91,8 +91,9 @@ export default function FallIntentRails({
       <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 850, color: COLORS.text }}>{rail.title}</h2>
       <p style={{ margin: "0 0 8px", fontSize: 12.5, lineHeight: 1.45, color: "#C9BFC6" }}>{rail.deck}</p>
       {!rail.cards.length ? <p style={{ margin: "8px 0 0", fontSize: 13, color: COLORS.muted }}>No nearby option has enough current evidence for this rail yet. Wayfind will not fill it with a seasonal look-alike.</p> : <>
-        <RailNav railId={railId} count={rail.cards.length} unit={rail.cards.length === 1 ? "ranked option" : "ranked options"} />
-        <div className={`wf-rail wf-rail-exploding${fallSkin ? " wf-fall" : ""}`} data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>
+        <RailNav railId={railId} count={rail.total || rail.cards.length} total={rail.cards.length} unit={(rail.total || rail.cards.length) === 1 ? "ranked option" : "ranked options"} />
+        <div className={`wf-rail wf-rail-exploding${fallSkin ? " wf-fall" : ""}`} data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}
+          onScroll={(event) => { if (!full && payload.hasMore && railScrollNeedsMore(event.currentTarget)) setFull(true); }}>
           {rail.cards.map((card, index) => {
             const rank = index + 1;
             const isEvent = card.kind === "event";
@@ -129,5 +130,5 @@ export default function FallIntentRails({
         {rail.cards.length > 1 ? <RailDots railId={railId} count={rail.cards.length} /> : null}
       </>}
     </section>;
-  })}</>;
+  })}{payload.hasMore && !full ? <button type="button" onClick={() => setFull(true)} style={{ marginTop: 18, border: "1px solid #7C2D12", borderRadius: 999, background: "#1C1014", color: COLORS.text, padding: "9px 14px", fontWeight: 800 }}>Load every verified fall option</button> : null}</>;
 }

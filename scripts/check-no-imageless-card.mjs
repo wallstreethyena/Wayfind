@@ -193,7 +193,7 @@ for (const row of FALL_DISCOVERIES_2026) {
       `${row.event_id}: without a verified place identity, the card stays honest instead of borrowing a farm photo`);
   }
 }
-ok(/fallEventCardImageSrc\(e, 640\)/.test(fallRoute),
+ok(/fallEventCardImageSrc\(e, 640(?:, inventoryById\.get\(e\.place_id\))?\)/.test(fallRoute),
   "the live Fall endpoint applies the collection-poster rejection before returning cards");
 
 // A stale database copy used to win the de-duplication race over the owner's

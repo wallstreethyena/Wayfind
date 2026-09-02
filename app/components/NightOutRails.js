@@ -13,6 +13,7 @@ import { priceLabel } from "../../lib/price.js";
 import { toDisplayScore } from "../../lib/score.js";
 import { wayfindScore } from "../../lib/wayfindScore.js";
 import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
+import { railScrollNeedsMore } from "../../lib/railResponse.js";
 
 const C = { text: "#F1F5F9", muted: "#8B93A1" };
 const compact = (n) => Number(n) >= 1000 ? Math.round(Number(n) / 100) / 10 + "k" : String(Number(n) || 0);
@@ -73,7 +74,8 @@ export default function NightOutRails({
         <p style={{ margin: "8px 0 0", fontSize: 13, color: C.muted }}>No verified event or venue within 27 miles clears this intent yet. Wayfind will not fill it with a look-alike.</p>
       ) : <>
         <RailNav railId={railId} count={count} unit={count === 1 ? "verified option" : "verified options"} />
-        <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>
+        <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}
+          onScroll={(event) => { if (!full && remote?.hasMore && railScrollNeedsMore(event.currentTarget)) setFull(true); }}>
           {eventCards}
           {rail.places.map((place, index) => {
             const rank = eventCards.length + index + 1;
