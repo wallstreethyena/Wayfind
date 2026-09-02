@@ -101,7 +101,7 @@ ok(/fastCachedRail\(key/.test(route) && /serveFromInventory/.test(route) && !/se
 ok(/Promise\.all\(categories\.map/.test(route), "all six inventory categories load in parallel instead of a serial waterfall");
 ok(/today-discovery:v2:/.test(route) && /cityKey/.test(route) && /inventoryCategories\?\.includes\("beach"\)/.test(route), "versioned cache identity includes creator city and duplicated beach inventory still receives water evidence");
 const component = fs.readFileSync(new URL("../app/components/TodayDiscoveryRails.js", import.meta.url), "utf8");
-ok(/fetch\("\/api\/today-discovery\?"/.test(component) && /payload\.rails\.map/.test(component), "the lazy drop fetches and renders the dedicated ten-rail answer");
+ok(/fetchJsonWithDeadline\("\/api\/today-discovery\?"/.test(component) && /payload\.rails\.map/.test(component), "the lazy drop fetches and renders the dedicated ten-rail answer through the bounded client helper");
 
 if (fail.length) {
   console.error("test-today-discovery-rails: FAIL");
