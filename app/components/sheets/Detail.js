@@ -8,6 +8,7 @@
 // module-scope EXPERIENCES table) stays in home.js and flows through ctx,
 // same as every other extraction phase.
 import { useEffect, useRef, useState } from "react";
+import { safeUrl } from "../../../lib/links.js";
 import { C, sheetBg, sheet, SHEET_EASE, Grabber, directionsUrl, offerLabel, scoreLabel, stars, PlaceScoreChip, PriceBadge, TRENDING_POPULARITY_THRESHOLD } from "../kit";
 import { priceLevelOf } from "../../../lib/price";
 // v8.82 — the season travels with the share (see lib/fallSkin.fallShareLine).
@@ -401,6 +402,31 @@ function WhereToGoNextRow({ p, partner, openDetail, liveOpen, FallbackImg, ctaCi
 
 export default function DetailSheet({ ctx }) {
   const { detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, placeKind, isBeach, suggested, places, offers, locName, blurbs, blurbLine, liked, disliked, user, authReady, sheetDragStart, sheetDragMove, sheetDragEnd, quickSaveFavorite, isSaved, toggleLike, toggleDislike, addShared, giveawayMark, logEvent, openExternal, openCuisine, openExperience, openDetail, setAuthOpen, ticketUrl, formatEventDate, shareLink, showToast, dedupePlaces, primaryCategory, experienceBadges, Critter, FallbackImg, liveOpen, weather } = ctx;
+
+  // 2026-09-02 (hijacked-domain incident): the venue website Google hands us
+  // is a third-party destination we have never read. It renders ONLY after
+  // /api/outbound/verdict has fetched and classified the page (cached 14d in
+  // wf_link_verdicts) and answered "alive". Quarantined / hijacked / parked /
+  // dead / unknown -> no button. safeUrl still runs first (the quarantine
+  // ledger short-circuits without a network call).
+  const websiteCandidate = detailExtra ? safeUrl(detailExtra.website) : null;
+  const [websiteOk, setWebsiteOk] = useState(null); // null = pending / none
+  useEffect(() => {
+    setWebsiteOk(null);
+    if (!websiteCandidate) return undefined;
+    let dead = false;
+    const ctrl = new AbortController();
+    fetch("/api/outbound/verdict", {
+      method: "POST", signal: ctrl.signal,
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ url: websiteCandidate, names: [detail && detail.name].filter(Boolean) }),
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((v) => { if (!dead) setWebsiteOk(!!(v && v.ok)); })
+      .catch(() => { if (!dead) setWebsiteOk(false); });
+    return () => { dead = true; ctrl.abort(); };
+  }, [websiteCandidate, detail && detail.id]);
+  const websiteHref = websiteOk === true ? websiteCandidate : null;
 
   // v6.37 — the owner's editorial voice (Vibe Check / Why Go / Best Move),
   // fetched per opened place from /api/editorial so the 288-place data module
@@ -1372,10 +1398,10 @@ export default function DetailSheet({ ctx }) {
               </div>
               </div>
 
-              {detailExtra && (detailExtra.phone || detailExtra.website) && (
+              {detailExtra && (detailExtra.phone || websiteHref) && (
                 <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
                   {detailExtra.phone && <a href={"tel:" + detailExtra.phone} style={{ flex: 1, padding: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, fontWeight: 600, textDecoration: "none", textAlign: "center" }}>📞 Call</a>}
-                  {detailExtra.website && <a href={detailExtra.website} target="_blank" rel="noreferrer" style={{ flex: 1, padding: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, fontWeight: 600, textDecoration: "none", textAlign: "center" }}>🌐 Website ↗</a>}
+                  {websiteHref && <a href={websiteHref} target="_blank" rel="noreferrer" style={{ flex: 1, padding: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, fontWeight: 600, textDecoration: "none", textAlign: "center" }}>🌐 Website ↗</a>}
                 </div>
               )}
 

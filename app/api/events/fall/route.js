@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 // (end_date null — the HHN Tribute Store, whose close Universal has not
 // published) stays for OPEN_RUN_DAYS without ever claiming an end date; the
 // vetted year-round spooky PLACES ride along as normal scored place rows.
-import { fetchCuratedEvents, isTrusted } from "../../../../lib/curatedEvents.js";
+import { fetchCuratedEvents, isTrusted, eventOutboundUrl } from "../../../../lib/curatedEvents.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
 import { isFallTagged, fallEventLive, fallWhenLabel, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_EVENT_TICKET_DEALS } from "../../../../lib/fallPool.js";
 import { hasCjPid } from "../../../../lib/deals.js";
@@ -90,7 +90,7 @@ export async function GET(request) {
         hook: e.card_hook,
         take: e.editorial_summary || null,
         image: e.hero_image || null,   // venue photo filled in below when null
-        url: e.official_ticket_url || e.official_event_url || e.event_page_url || null,
+        url: eventOutboundUrl(e) || null,   // 2026-09-02: link_ok + quarantine + safeUrl gated
         is_free: !!e.is_free, price_band: e.price_band || null,
         tags: e.tags || [],
         ticket: deal ? { href: deal.affiliate_url, via: "Undercover Tourist", deal_id: deal.id } : null,
