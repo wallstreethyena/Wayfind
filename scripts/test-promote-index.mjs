@@ -21,7 +21,16 @@ const NOW = "2026-07-15T18:00:00.000Z";
 eq(bucketMetro(28.538, -81.379), "orlando", "downtown Orlando → orlando");
 eq(bucketMetro(27.336, -82.531), "manatee-sarasota", "Sarasota → manatee-sarasota");
 eq(bucketMetro(27.947, -82.459), "tampa", "Tampa → tampa");
-eq(bucketMetro(25.761, -80.191), null, "Miami → null (no box)");
+// WO7 (2026-09-02) added the "global" whole-planet catch-all to PROMOTE_METROS
+// (see lib/promoteIndex.js), so a point outside the four named metros now
+// buckets to 'global' rather than null — a discovery-time fact, not an
+// automated-promotion instruction (both enqueue paths skip 'global' by
+// design; see supabase/migrations/20260902_wf_promote_global_bucket_opt_in.sql).
+// "no box at all" is still a real, testable case against the four NAMED
+// metros alone.
+eq(bucketMetro(25.761, -80.191), "global", "Miami → global (no NAMED box, but the catch-all)");
+const NAMED_ONLY = Object.fromEntries(Object.entries(PROMOTE_METROS).filter(([k]) => k !== "global"));
+eq(bucketMetro(25.761, -80.191, NAMED_ONLY), null, "Miami → null against the four named boxes alone");
 eq(bucketMetro(null, -81), null, "null lat → null");
 ok(inBounds(28.5, -81.4, PROMOTE_METROS.orlando), "inBounds true for Orlando point");
 ok(!inBounds(28.5, -81.4, PROMOTE_METROS.tampa), "inBounds false for wrong box");

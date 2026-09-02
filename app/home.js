@@ -229,7 +229,13 @@ import { BEST_OF_NAMES, LOCAL_FAVE_EXTRA, WAYFIND_PHOTOS, WAYFIND_NOTES, WAYFIND
 import RailCard, { RailNav, RailDots } from "./components/RailCard";
 import LocalEdit from "./components/LocalEdit";
 import { MARKETS, marketForLocation } from "../lib/destinations";
-import { creatorVideosFor, regionsWithFinds, spotsByCity, libraryStats } from "../lib/creatorVideos";
+// v9 (2026-09-02, WO9 bundle fix) — from lib/creatorSignals.js, not
+// lib/creatorVideos.js. Both remaining call sites (hasCreatorVideo() at the
+// module scope below, and cardCreatorVideos feeding CreatorCardMark) only
+// read .length/.creator/.platform, never .url — see lib/creatorSignals.js's
+// header. regionsWithFinds/spotsByCity/libraryStats moved into
+// app/components/sheets/SocialFind.js, the only place that read them.
+import { creatorVideosFor } from "../lib/creatorSignals";
 import CreatorCardMark from "./components/CreatorCardMark";
 import { hasCreatorVideoAt, displayedWfScore } from "../lib/creatorBoost";
 import { CREATOR_VIDEO_BONUS, FAR_MILES, FAR_PENALTY, TRENDING_BONUS } from "../lib/wayfindScore";
@@ -4090,17 +4096,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // creator pick matters. Previously an IIFE inlined in the JSX: recomputed on
   // every render and handed to a section that is switched off.
   //
-  // DECLARED HERE, NOT WITH THE OTHER DERIVED VALUES ABOVE, and that is
-  // load-bearing: useMemo evaluates its dependency array on the first render, so
-  // placing it before `suggested` throws "Cannot access before initialization"
-  // and takes the whole home page down. tsc does not catch it — `check:jsx`
-  // passed on exactly that version.
-  const videoPlaces = useMemo(() => {
-    try {
-      const pool = dedupePlaces([...(suggested || []), ...(places || [])].filter(Boolean), true).filter((pp) => hasCreatorVideo(pp));
-      return pool.map((pp) => ({ p: pp, videos: creatorVideosFor(pp, locName) || [] })).filter((x) => x.videos.length).sort((a, b) => ((b.p.wfScore ?? 0) - (a.p.wfScore ?? 0))).slice(0, 8);
-    } catch (e) { return []; }
-  }, [suggested, places, locName]);
+  // v9 (2026-09-02, WO9) — REMOVED. `videoPlaces` was computed here but never
+  // read: grep found no JSX consumer anywhere (the "Finds from local
+  // creators" row this comment describes, once a BestNearby creatorSlot prop,
+  // was removed by v8's hero-deck cleanup, and this computation was simply
+  // never cleaned up alongside it). Confirmed dead before deleting — see
+  // scripts/check-bundle.mjs's history for why shipping unread compute here
+  // matters: it was also a live creatorVideosFor() call on every homepage
+  // render for a value nothing used.
   const [gateStatus, setGateStatus] = useState(null);
   const [gateBump, setGateBump] = useState(0); // bump to re-check coverage after an unlock completes
   const [railsCoverage, setRailsCoverage] = useState(null);
@@ -7557,59 +7560,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // nothing new is added to the page outside that rail. Sourced from the
   // already-loaded nearby pool (creatorVideosFor() needs name/city, which the
   // wf_buzz_picks RPC rows don't carry).
-  const videoHeroPlaces = useMemo(() => {
-    if (screen !== "suggested" || !center) return [];
-    const nearbyPool = dedupePlaces([...(suggested || []), ...(places || [])].filter(Boolean), true)
-      .filter((p) => p && p.id && (p.distMi == null || p.distMi <= 25));
-    const out = [];
-    const seen = new Set();
-    for (const p of nearbyPool) {
-      if (seen.has(p.id)) continue;
-      const vids = creatorVideosFor(p, locName);
-      if (!vids.length) continue;
-      seen.add(p.id);
-      out.push({ place: p, video: vids[0] });
-    }
-    // v6.93 (owner: "sort it by region") — closest first. Every entry here
-    // already passed the 25-mile + city-match gate above (all effectively
-    // "your region" already), so distance is the honest tie-break: the find
-    // that's actually nearest you leads, popularity a distant second.
-    out.sort((a, b) => (a.place.distMi ?? 1e9) - (b.place.distMi ?? 1e9) || promOf(b.place) - promOf(a.place));
-    return out;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center, suggested, places, locName]);
-
-  // v6.93 — "if no videos are available for that region then we make a
-  // recommendation for areas where videos are available" (owner). Static
-  // over the curated library (module-scope, no network/render dependency),
-  // so a one-time useMemo is enough; recomputes only if the library itself
-  // is hot-reloaded.
-  const socialFindRegions = useMemo(() => regionsWithFinds(), []);
-
-  // v6.94 — "make image 1 the default... organized by location" (owner). The
-  // browse-by-city default view the consolidated hero card below now opens
-  // into. `center` isn't in videoHeroPlaces's deps chain (that list already
-  // depends on it), so this stays a light, separate memo.
-  const socialFindByCity = useMemo(() => spotsByCity(center), [center]);
-  // Static over the curated library, same one-time-memo reasoning as
-  // socialFindRegions above.
-
-  // v8 (2026-08-15) — FIVE PIECES OF STATE AND FOUR EFFECTS REMOVED WITH THE
-  // PROMO HERO DECK: bestBeach, dateHeroImg, gemHeroImg, buzzPick, buzzWhy.
-  // Nothing read them any more, but they were still FETCHING on every single
-  // homepage load, for cards that no longer render:
   //
-  //     wf_nearest_beaches       Supabase RPC   (the beach slide)
-  //     wf_buzz_picks            Supabase RPC   (the trending slide)
-  //     /api/buzz/why            LLM call       (its why-line)
-  //     date-night hero photo    Places search  (metered)
-  //     hidden-gems hero photo   Places search + a vision-model call (metered)
-  //
-  // Dead code that costs money on every visit is worse than dead code. The
-  // rail's own places come from ONE server-side ranking pass at regeneration
-  // (lib/railsData.js), so none of this moved — it went.
-
-  const socialFindStats = useMemo(() => libraryStats(), []);
+  // v9 (2026-09-02, WO9 bundle fix) — videoHeroPlaces, socialFindRegions,
+  // socialFindByCity and socialFindStats MOVED into
+  // app/components/sheets/SocialFind.js, which is the ONLY place any of them
+  // are read (confirmed: grep found no other consumer — the v8 hero-deck
+  // removal took the last eager renderer of any of this with it, same
+  // deadness as the videoPlaces removal above). All four called
+  // lib/creatorVideos.js functions that need the FULL curated registry
+  // (video urls included, for the sheet's link-outs) — computing them here,
+  // on every homepage render, forced that whole ~56KB-gz file into the eager
+  // "/" bundle for a sheet that opens on a tap and was already
+  // next/dynamic(ssr:false). Same functions, same inputs (screen/center/
+  // suggested/places/locName, all already flow through ctx), same output —
+  // only WHEN they run changed: now inside the sheet, only when it mounts.
 
 
 
@@ -9115,7 +9079,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // places: the place+video the user tapped in from, every other nearby
     // find (for the "more near you" strip), and the region-availability list
     // for the "not here yet" recommendation mode.
-    socialFind, setSocialFind, videoHeroPlaces, socialFindRegions, socialFindByCity, socialFindStats,
+    //
+    // v9 (2026-09-02, WO9) — videoHeroPlaces/socialFindRegions/
+    // socialFindByCity/socialFindStats no longer precomputed here; the sheet
+    // derives them itself from `screen` (added below) plus center/suggested/
+    // places/locName/dedupePlaces, all already passed through ctx elsewhere.
+    socialFind, setSocialFind, screen,
     // map screen (G4)
     mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, map3D, setMap3D, mapRetryKey, setMapRetryKey, mapDefaultAppliedRef, cat, setCat, setSub, setVibe, sortBy, deviceLoc, searchMapArea, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, MapView, Hol, recenterToMe,
     // experience badge screen (G4)

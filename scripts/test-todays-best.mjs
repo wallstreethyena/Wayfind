@@ -126,7 +126,14 @@ ok(mw.includes('"/api/local/report"'), "report endpoint is IN the middleware gua
 ok(bn.includes("Creators are posting about these"), "video block header present");
 ok(bn.includes("videoPlaces") && /PLATFORM\[pl\]/.test(bn), "platform chips come from the curated video set");
 ok(!/\bviews\b|view count|viral/i.test(bn), "no view-count or virality claims");
-ok(/hasCreatorVideo\(pp\)/.test(home), "trend places are exactly the video-linked ones");
+// RE-POINTED v9 (2026-09-02, WO9): home.js's own `videoPlaces` computation
+// (the source of the literal `hasCreatorVideo(pp)` this line used to grep
+// for) was confirmed dead — same v8.8 BestNearby-unmounted-from-"/" gap the
+// comment above already carved out for the other home-wiring assertions
+// here, just never applied to this one. Removed as a live creatorVideosFor()
+// call on every homepage render for a value nothing read (see app/home.js);
+// BestNearby.js's own component-level contract (assertion above) still pins
+// the video-block behavior for every surface that actually mounts it.
 ok(/No creator videos linked near you yet/.test(bn), "honest empty state for the video block");
 // ── v8 (2026-08-15): THE HERO SWIPE DECK IS GONE ────────────────────────────
 // Six assertions used to live here pinning that deck's implementation — its

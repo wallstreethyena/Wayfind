@@ -602,14 +602,18 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   // reads a `const` declared further down throws "Cannot access before
   // initialization" and takes the whole page down. `check:jsx` passes on it —
   // tsc does not model temporal dead zones. This shipped-blocking bug was
-  // caught by hand; this assertion is why it cannot come back.
-  const iMemo = HOME.indexOf("const videoPlaces = useMemo(");
-  ok(iMemo > 0, "videoPlaces is memoised");
-  for (const dep of ["suggested", "places", "locName"]) {
-    const iDecl = HOME.indexOf(`const [${dep},`);
-    ok(iDecl > 0 && iDecl < iMemo,
-       `"${dep}" is declared BEFORE the videoPlaces useMemo that depends on it — a later declaration is a temporal-dead-zone crash on first render, and tsc does not see it`);
-  }
+  // caught by hand.
+  //
+  // REMOVED v9 (2026-09-02, WO9 bundle fix): `videoPlaces` itself was removed
+  // from app/home.js — grep found no JSX consumer anywhere (the <BestNearby
+  // creatorSlot> row this memo fed left "/" in the same v8.8 cleanup the
+  // order-block assertions above already account for, and the memo was never
+  // cleaned up alongside it: a live creatorVideosFor() call on every homepage
+  // render for a value nothing read). The TDZ hazard itself — a useMemo must
+  // never read a dependency declared below it — has no dedicated guard now
+  // that its one instance is gone; a future memo introducing it would need a
+  // fresh assertion here, the same way this one was written by hand after
+  // the incident.
 
   // ── the bridge ──
   ok(/<LocalEdit center=\{locResolved \? center : null\}/.test(HOME) || /<LocalEdit center=\{center\}/.test(HOME), "the home screen links to the guides — they pull traffic from Google and dead-end without this");
@@ -837,8 +841,21 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   // sheet still reads the socialFindByCity memo, and the rail's creators pool
   // reads spotsByCity(origin) server-side. What must not come back is a
   // standalone CreatorFinds shelf, asserted in the order block above.
-  ok(/const socialFindByCity = useMemo\(\(\) => spotsByCity\(center\)/.test(HOME),
-     "the spotsByCity memo left home.js — the SocialFind sheet now derives the registry some other way, which is the two-derivations drift this line exists to stop");
+  //
+  // RE-POINTED AGAIN v9 (2026-09-02, WO9 bundle fix): the memo itself moved
+  // OUT of home.js and INTO app/components/sheets/SocialFind.js (next/dynamic,
+  // ssr:false) — home.js was computing it (and videoHeroPlaces/
+  // socialFindRegions/socialFindStats alongside it) on every homepage render
+  // via lib/creatorVideos.js's full url-carrying registry, for a sheet that
+  // opens on a tap. Same ONE-DERIVATION invariant this line always meant:
+  // asserted at its new address, plus a negative check that home.js hasn't
+  // grown a second, independent derivation (the exact drift this guard exists
+  // to catch).
+  const SF = readFileSync(path.join(REPO, "app/components/sheets/SocialFind.js"), "utf8");
+  ok(/const socialFindByCity = useMemo\(\(\) => spotsByCity\(center\)/.test(SF),
+     "the spotsByCity memo lives in app/components/sheets/SocialFind.js — the one place that reads it");
+  ok(!/useMemo\(\(\) => spotsByCity\(/.test(HOME),
+     "home.js must not ALSO derive spotsByCity — that would be the two-derivations drift this line exists to stop, now on the eager side of the bundle wall");
 }
 
 // THE REPORT MUST BE THE LAST THING BEFORE THE SUMMARY.

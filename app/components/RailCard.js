@@ -58,7 +58,12 @@ import { stayOnRailReaction } from "../../lib/railReaction.js";
 // v8.33 — the creator's face on the media column, resolved from the optional
 // `place` row. A rail card without a place row (the Viator tour rail, an
 // event) simply has nothing to resolve and renders no mark.
-import { creatorVideosFor } from "../../lib/creatorVideos";
+// v9 (2026-09-02, WO9 bundle fix) — from lib/creatorSignals.js: CreatorCardMark
+// only reads .creator/.platform off each video, never the url, so the lean
+// mirror (see that file's header) answers this without pulling the full
+// ~56KB-gz lib/creatorVideos.js into the eager "/" bundle. RailCard.js is
+// itself eager (app/home.js imports it directly).
+import { creatorVideosFor } from "../../lib/creatorSignals.js";
 import CreatorCardMark from "./CreatorCardMark";
 
 // Same glyphs as IconicPlaceCard's action row, so a thumb is one drawing in
