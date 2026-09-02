@@ -651,7 +651,7 @@ const WIDEN_RADIUS_MI = 25;
     "…and ASSIGNS it to pools.quickeats — a pool computed inside a wave and never attached is the same empty rail, wearing a longer request");
   // v8.22 — the drive pool is BUILT (the exact call, on the pools object, from
   // the pooled-cities list) and bounded by the same band the selector reads.
-  ok(/buildDrivePool\(pools, origin, cities\)/.test(dcode),
+  ok(/buildDrivePool\(pools, origin, cities(?:, \w+)?\)/.test(dcode),
     "railsData builds the drive pool (27mi horizon) — without it the fixture above asserts a pipeline that does not exist");
   ok(/pools\.drive = drive;/.test(dcode),
     "…and ASSIGNS it to pools.drive — a pool computed inside a wave and never attached is the same empty rail, wearing a longer request");
