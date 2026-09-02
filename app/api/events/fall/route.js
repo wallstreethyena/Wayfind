@@ -22,7 +22,7 @@ import { fastCachedRail, geoCell } from "../../../../lib/railFastCache.js";
 import { composeFallIntentRails } from "../../../../lib/fallIntentRails.js";
 import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../../../../lib/fallPhotoSpots.js";
 import { FALL_DISCOVERIES_2026 } from "../../../../lib/fallDiscoveries2026.js";
-import { FALL_COLLECTION_POSTER, fallEventCardImageSrc } from "../../../../lib/fallEventImage.js";
+import { FALL_COLLECTION_POSTER, fallEventCardImageSrc, mergeFallDiscoveryRows } from "../../../../lib/fallEventImage.js";
 
 const FALL_DB_DEADLINE_MS = 3500;
 
@@ -63,8 +63,7 @@ export async function GET(request) {
       // The owner-supplied discovery registry is publish-ready source data,
       // not merely a seed script. Merge it at read time so a missed/lagging
       // database seed cannot erase verified farms, cafes and spooky dates.
-      const eventRows = [...(rows || []), ...FALL_DISCOVERIES_2026]
-        .filter((row, index, all) => all.findIndex((other) => other.event_id === row.event_id) === index);
+      const eventRows = mergeFallDiscoveryRows(rows, FALL_DISCOVERIES_2026);
       const events = eventRows
       // isTrusted, NOT a second inline copy of the status check. The line this
       // replaced asked only about event_status and therefore skipped the
