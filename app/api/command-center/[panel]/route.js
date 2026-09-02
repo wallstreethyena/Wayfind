@@ -30,6 +30,8 @@ import { repoSnapshot } from "../../../../lib/commandCenter/sources/github.js";
 import { runtimeDeployment, deploymentsList } from "../../../../lib/commandCenter/sources/vercel.js";
 import { sentryIssues } from "../../../../lib/commandCenter/sources/sentry.js";
 import { selfCheck, integrationsStatus, labCWV } from "../../../../lib/commandCenter/sources/synthetic.js";
+import { dailyTrendIntelligence } from "../../../../lib/dailyTrendReport.js";
+import dailyTrendReport from "../../../../data/trend-reports/latest.json";
 
 function parseRange(searchParams, now) {
   const key = String(searchParams.get("range") || "today");
@@ -274,6 +276,18 @@ async function alertsPanel(now) {
   return gatherAlerts(now);
 }
 
+function intelligence(now) {
+  return {
+    source: {
+      name: "Owner supplied daily trend report",
+      connected: true,
+      fetchedAt: now.toISOString(),
+      confidence: "mixed",
+    },
+    ...dailyTrendIntelligence({ nowMs: now.getTime(), input: dailyTrendReport }),
+  };
+}
+
 export async function GET(req, ctx) {
   const auth = await requireOwner(req);
   if (!auth.ok) return jsonNoStore(auth.body, auth.status);
@@ -296,6 +310,7 @@ export async function GET(req, ctx) {
       case "health": data = await health(range); break;
       case "ops": data = await ops(); break;
       case "alerts": data = await alertsPanel(now); break;
+      case "intelligence": data = intelligence(now); break;
       case "meta": data = { eventMap: EVENT_MAP, definitions: KPI_DEFS, authMode: auth.mode }; break;
       default: return jsonNoStore({ ok: false, reason: "unknown_panel" }, 404);
     }

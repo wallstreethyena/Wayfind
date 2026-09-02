@@ -30,7 +30,7 @@ const RANGES = [
   ["month", "This month"], ["last_month", "Last month"], ["custom", "Custom"],
 ];
 const SECTIONS = [
-  ["alerts", "Alerts"], ["overview", "Overview"], ["traffic", "Traffic"], ["journey", "Journey"],
+  ["alerts", "Alerts"], ["intelligence", "Intelligence & leads"], ["overview", "Overview"], ["traffic", "Traffic"], ["journey", "Journey"],
   ["places", "Places & affiliate"], ["retention", "Signups"], ["health", "Health"], ["ops", "Code & ops"],
 ];
 
@@ -205,6 +205,89 @@ function AlertsSection({ auth, range }) {
           ))}
         </div>
       )}
+    </Section>
+  );
+}
+
+function IntelligenceSection({ auth }) {
+  const p = usePanel("intelligence", auth, { key: "today" });
+  const d = dget(p.data, "data", null);
+  if (p.error) return <Section id="intelligence" title="Intelligence & leads"><PanelError {...p} reload={p.reload} /></Section>;
+  const intel = dget(d, "intelligence", []) || [];
+  const leads = dget(d, "leads", []) || [];
+  const excluded = dget(d, "excluded", []) || [];
+  const summary = dget(d, "report", {}) || {};
+  const safeguards = dget(d, "safeguards", {}) || {};
+  const rows = (items) => items.map((item) => [
+    item.rank,
+    item.phrase,
+    item.area,
+    item.valueLabel,
+    item.status && item.status.label,
+    item.target,
+    item.action,
+    item.source && item.source.name,
+  ]);
+  return (
+    <Section id="intelligence" title="Intelligence & leads" loading={p.loading && !p.data}
+      sub="Daily research becomes an auditable decision queue. It cannot change a Wayfind Score or publish a card by itself.">
+      <Grid min={185}>
+        <StatTile label="Report date" value={summary.reportDate || "–"} sub={summary.region || "Florida"} source={dget(d, "source")} />
+        <StatTile label="Signals received" value={fmtNum(summary.count)} sub={`${fmtNum(summary.actionableCount)} actionable now`} source={dget(d, "source")} />
+        <StatTile label="Expired automatically" value={fmtNum(summary.expiredCount)} sub="Past events leave the active queue" source={dget(d, "source")} />
+        <StatTile label="Held for proof" value={fmtNum(summary.heldCount)} sub="No fresh metric, no trend claim" source={dget(d, "source")} />
+      </Grid>
+      <div style={{ height: 12 }} />
+      <Card style={{ borderLeft: `3px solid ${STATUS.good}` }}>
+        <div style={{ fontSize: 13, fontWeight: 800, color: C.text }}>Safety lock</div>
+        <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.5, marginTop: 3 }}>{safeguards.rule}</div>
+      </Card>
+      <div style={{ height: 12 }} />
+      <Two>
+        <Card>
+          <Frame title="Intelligence" def="Measured demand, published rankings, and planning themes. Metric types stay separate, so a related query score never becomes search volume."
+            source={dget(d, "source")} columns={["Rank", "Phrase", "Area", "Evidence", "Status", "Surface", "Action", "Source"]} rows={rows(intel)}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {intel.map((item) => (
+                <div key={item.rank} style={{ borderBottom: `1px solid ${C.border}`, paddingBottom: 8 }}>
+                  <div style={{ display: "flex", gap: 7, alignItems: "center", flexWrap: "wrap" }}>
+                    <span style={{ color: C.gold, fontWeight: 800, fontSize: 11 }}>#{item.rank}</span>
+                    <span style={{ color: C.text, fontWeight: 800, fontSize: 13 }}>{item.phrase}</span>
+                    <StatusPill ok={item.status.key === "active" ? true : item.status.key === "held" || item.status.key === "stale" ? null : true} label={item.status.label} detail={item.valueLabel} />
+                  </div>
+                  <div style={{ color: C.muted, fontSize: 11.5, lineHeight: 1.45, marginTop: 4 }}>{item.area}: {item.action}</div>
+                  {item.source.url ? <a href={item.source.url} target="_blank" rel="noreferrer" style={{ color: C.light, fontSize: 10.5 }}>Source ↗</a> : null}
+                </div>
+              ))}
+            </div>
+          </Frame>
+        </Card>
+        <Card>
+          <Frame title="Leads" def="Events and local decision gaps worth action. Dates expire automatically, and every public card still needs existing verification."
+            source={dget(d, "source")} columns={["Rank", "Phrase", "Area", "Evidence", "Status", "Surface", "Action", "Source"]} rows={rows(leads)}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {leads.map((item) => (
+                <div key={item.rank} style={{ borderBottom: `1px solid ${C.border}`, paddingBottom: 8, opacity: item.status.key === "expired" ? 0.58 : 1 }}>
+                  <div style={{ display: "flex", gap: 7, alignItems: "center", flexWrap: "wrap" }}>
+                    <span style={{ color: C.gold, fontWeight: 800, fontSize: 11 }}>#{item.rank}</span>
+                    <span style={{ color: C.text, fontWeight: 800, fontSize: 13 }}>{item.phrase}</span>
+                    <StatusPill ok={item.status.key === "live" || item.status.key === "upcoming" || item.status.key === "active" ? true : null} label={item.status.label} detail={item.valueLabel} />
+                  </div>
+                  <div style={{ color: C.muted, fontSize: 11.5, lineHeight: 1.45, marginTop: 4 }}>{item.area}: {item.action}</div>
+                  {item.source.url ? <a href={item.source.url} target="_blank" rel="noreferrer" style={{ color: C.light, fontSize: 10.5 }}>Source ↗</a> : null}
+                </div>
+              ))}
+            </div>
+          </Frame>
+        </Card>
+      </Two>
+      <div style={{ height: 12 }} />
+      <Card>
+        <div style={{ ...TYPE.eyebrow, color: C.muted, marginBottom: 7 }}>Skipped on purpose</div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {excluded.map((item) => <span key={item.phrase} title={item.reason} style={{ border: `1px solid ${C.border}`, borderRadius: 99, padding: "5px 9px", color: C.light, fontSize: 11 }}>{item.phrase}</span>)}
+        </div>
+      </Card>
     </Section>
   );
 }
@@ -929,6 +1012,7 @@ export default function CommandCenter() {
       </header>
 
       <AlertsSection auth={auth} range={range} />
+      <IntelligenceSection auth={auth} />
       <OverviewSection auth={auth} range={range} />
       <TrafficSection auth={auth} range={range} />
       <JourneySection auth={auth} range={range} />
