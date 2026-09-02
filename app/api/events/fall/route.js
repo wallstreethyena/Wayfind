@@ -20,6 +20,7 @@ import { wayfindScore } from "../../../../lib/wayfindScore.js";
 import { cardImageSrc } from "../../../../lib/placePhoto.js";
 import { fastCachedRail, geoCell } from "../../../../lib/railFastCache.js";
 import { composeFallIntentRails } from "../../../../lib/fallIntentRails.js";
+import { pageOneRail } from "../../../../lib/railPage.js";
 import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../../../../lib/fallPhotoSpots.js";
 import { FALL_DISCOVERIES_2026, FALL_DISCOVERY_RAIL, FALL_SEASONAL_PLACE_IDS } from "../../../../lib/fallDiscoveries2026.js";
 import { windowRailAnswer } from "../../../../lib/railResponse.js";
@@ -37,6 +38,13 @@ export async function GET(request) {
   const lng = Number.parseFloat(searchParams.get("lng") || "");
   const full = searchParams.get("full") === "1";
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return json({ error: "lat and lng are required" }, 400, "no-store");
+  // WO11 paging contract — see app/api/night-out/route.js. Fall Intent's ten
+  // rails are a fixed curated set (`usable` below requires exactly 10), so
+  // paging only ever applies to ONE rail's cards, never to how many rails
+  // exist.
+  const railId = searchParams.get("rail") || "";
+  const page = searchParams.get("page");
+  const size = searchParams.get("size");
   try {
     const today = siteTodayStr();
     // v6 invalidates payloads composed before verified registry identity won
@@ -197,12 +205,16 @@ export async function GET(request) {
       name: "fall-intent-rails",
       usable: (value) => value?.rails?.length === 10 && Number(value?.sourceCount || 0) > 0,
     });
-    return Response.json(windowRailAnswer(cached.value, full), {
-      headers: {
-        "cache-control": "public, s-maxage=900, stale-while-revalidate=86400",
-        "x-wayfind-fast-cache": cached.state,
-      },
-    });
+    const headers = {
+      "cache-control": "public, s-maxage=900, stale-while-revalidate=86400",
+      "x-wayfind-fast-cache": cached.state,
+    };
+    if (railId) {
+      const paged = pageOneRail(cached.value.rails, railId, { page, size });
+      if (!paged) return Response.json({ error: "unknown rail" }, { status: 404, headers: { "cache-control": "no-store" } });
+      return Response.json({ rail: railId, today: cached.value.today, phase: cached.value.phase, ...paged }, { headers });
+    }
+    return Response.json(windowRailAnswer(cached.value, full), { headers });
   } catch (error) {
     console.error("[api/events/fall] inventory unavailable", { message: String(error?.message || error) });
     return json({ error: "Fall inventory is temporarily unavailable" }, 503, "no-store");

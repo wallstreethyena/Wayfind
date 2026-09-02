@@ -839,6 +839,8 @@ node scripts/check-css-comment-bytes.mjs
 node scripts/check-augtober-rail.mjs
 node scripts/test-fall-intent-rails.mjs
 node scripts/test-night-out-intent.mjs
+node scripts/test-rail-paging.mjs
+node scripts/check-rail-paging-contract.mjs
 node scripts/check-cget-envelope.mjs
 node scripts/check-experiences-link-health.mjs
 node scripts/check-event-photo-rights.mjs
