@@ -22,6 +22,7 @@ import {
   toDateNightPlace,
 } from "../../../lib/dateNightIntent.js";
 import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
+import { windowRailAnswer } from "../../../lib/railResponse.js";
 
 const WX_URL =
   "https://api.open-meteo.com/v1/forecast?current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,dew_point_2m" +
@@ -98,6 +99,8 @@ async function buildDateNightAnswer({ lat, lng, city, hour }) {
     serveFromInventory("attractions", lat, lng, radiusM, n, "beaches"),
   ]);
 
+  // Weather is optional enrichment. Unknown conditions deliberately fail
+  // closed to Museums and must never hold the place answer hostage.
   await Promise.race([wxReady, Promise.resolve()]);
   const seen = new Set();
   const places = [];
@@ -135,6 +138,7 @@ export async function GET(req) {
   const hourRaw = parseFloat(searchParams.get("hour"));
   const hour = Number.isFinite(hourRaw) ? hourRaw : undefined;
   const city = String(searchParams.get("city") || "").slice(0, 40) || null;
+  const full = searchParams.get("full") === "1";
   const hourBucket = Number.isFinite(hour) ? Math.floor(hour / 3) : "auto";
   const key = `date-night:${geoCell(lat)}:${geoCell(lng)}:${hourBucket}`;
   const cached = await fastCachedRail(key, () => buildDateNightAnswer({ lat, lng, city, hour }), {
@@ -154,7 +158,7 @@ export async function GET(req) {
   // very next request rebuilds and the cell self-heals; a real answer keeps
   // the hour it earned.
   const empty = !answer.rails || answer.rails.length === 0;
-  return Response.json(answer, { status: 200, headers: {
+  return Response.json(windowRailAnswer(answer, full), { status: 200, headers: {
     "cache-control": empty ? "no-store" : "public, s-maxage=3600, stale-while-revalidate=86400",
     "x-wayfind-fast-cache": cached.state,
   } });

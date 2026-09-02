@@ -13,6 +13,7 @@ import { BIRTHDAY_REWARD_PLACE_IDS, birthdayRewardFor } from "../../../lib/birth
 import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 import { cgetMany } from "../../../lib/serverCache.js";
 import { PHOTO_REF_RX, isOwnedPhotoUrl, photoCacheKey } from "../../../lib/placePhotoServe.js";
+import { windowRailAnswer } from "../../../lib/railResponse.js";
 
 const RAIL_PHOTO_W = 640; // must match BirthdayRails' /api/photo?w= so the cache key is the same one that route writes
 const PHOTO_CACHE_STALE_MS = 60 * 60 * 24 * 30 * 1000;
@@ -52,7 +53,6 @@ async function attachCachedPhotos(rails) {
   }
   return rails;
 }
-
 function json(body, status = 200, cache = "public, s-maxage=3600, stale-while-revalidate=86400") {
   return Response.json(body, { status, headers: { "cache-control": cache } });
 }
@@ -97,6 +97,7 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const lat = Number.parseFloat(searchParams.get("lat") || "");
   const lng = Number.parseFloat(searchParams.get("lng") || "");
+  const full = searchParams.get("full") === "1";
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
     return json({ error: "lat and lng are required" }, 400, "no-store");
   }
@@ -134,7 +135,7 @@ export async function GET(request) {
       usable: (value) => !!(value && Array.isArray(value.rails) && value.rails.some((rail) => rail.places?.length)),
     });
     const total = cached.value.rails.reduce((sum, rail) => sum + rail.places.length, 0);
-    return Response.json(cached.value, {
+    return Response.json(windowRailAnswer(cached.value, full), {
       status: 200,
       headers: {
         "cache-control": total ? "public, s-maxage=3600, stale-while-revalidate=86400" : "no-store",

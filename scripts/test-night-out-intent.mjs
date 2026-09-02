@@ -4,6 +4,7 @@ import {
   NIGHT_OUT_MAX_MI, NIGHT_OUT_NEAR_MI, NIGHT_OUT_RAIL_DEFS,
   composeNightOutRails, nightOutDistanceMi, nightOutEventRail, nightOutPlaceRail,
 } from "../lib/nightOutIntent.js";
+import { windowRailAnswer } from "../lib/railResponse.js";
 
 let pass = 0;
 const failures = [];
@@ -63,10 +64,18 @@ ok(!composed.rails.flatMap((rail) => rail.places).some((row) => row.id === "far"
 ok(!composed.rails.flatMap((rail) => rail.places).some((row) => row.id === "unknown"), "unknown-distance places are rejected");
 ok(composed.rails.flatMap((rail) => rail.places).length === new Set(composed.rails.flatMap((rail) => rail.places.map((row) => row.id))).size, "each venue belongs to at most one Night Out rail");
 
+const longAnswer = { rails: [{ id: "cocktails", places: Array.from({ length: 20 }, (_, id) => ({ id })) }] };
+const firstWindow = windowRailAnswer(longAnswer);
+ok(firstWindow.rails[0].places.length === 12, "first paint carries a bounded ranked window");
+ok(firstWindow.rails[0].total === 20 && firstWindow.hasMore === true, "the compact answer preserves the full truthful count");
+ok(windowRailAnswer(longAnswer, true).rails[0].places.length === 20, "the full cached inventory remains available on request");
+
 const rails = readFileSync(new URL("../lib/rails.js", import.meta.url), "utf8");
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/NightOutRails.js", import.meta.url), "utf8");
+const route = readFileSync(new URL("../app/api/night-out/route.js", import.meta.url), "utf8");
+const clientJson = readFileSync(new URL("../lib/clientJson.js", import.meta.url), "utf8");
 ok(/id: "events"[\s\S]{0,420}retiredInto: "tonight"/.test(rails), "the standalone Events poster is retired into Night Out without deleting its metadata");
 ok(/!r\.retiredInto/.test(daypart), "retired posters are hidden from the tile track");
 ok(/requested\.retiredInto \|\| id/.test(daypart), "legacy Events deep links resolve to Night Out");
@@ -76,6 +85,9 @@ ok(/mode === "night-out"/.test(home) && /nightOutEventRail\(event\)/.test(home),
 ok(!/selRail\.id === "events" && eventsSlot/.test(daypart), "the obsolete standalone Events drop is gone");
 ok(/selRail\.id === "augtober" \|\| selRail\.id === "tonight"/.test(daypart), "Night Out owns its complete answer and cannot fall through to generic places");
 ok(/No verified event or venue within 27 miles/.test(component), "an empty intent tells the truth instead of using a look-alike");
+ok(/serveFromInventory\(\s*"nightlife"/.test(route), "Night Out reads the complete owned nightlife inventory instead of homepage survivors");
+ok(/fetchJsonWithDeadline\("\/api\/night-out/.test(component), "Night Out has a bounded, retryable reader request");
+ok(/CLIENT_RAIL_DEADLINE_MS = 10000/.test(clientJson) && /AbortController/.test(clientJson), "reader-facing place rails cannot remain on a permanent skeleton");
 
 if (failures.length) {
   console.error("test-night-out-intent: FAIL");

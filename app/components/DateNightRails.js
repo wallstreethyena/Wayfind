@@ -48,6 +48,7 @@ import { directionsUrl } from "./kit";
 import { toHookLine } from "../../lib/editorialHook";
 import { toDisplayScore } from "../../lib/score.js";
 import { wayfindScore } from "../../lib/wayfindScore.js";
+import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
 import { topPickAward } from "../../lib/topPickAward.js";
 import { coarseCat } from "../../lib/ranking.js";
 import { priceLabel } from "../../lib/price.js";
@@ -100,6 +101,7 @@ export default function DateNightRails({
 }) {
   const [payload, setPayload] = useState(null);
   const [failed, setFailed] = useState(false);
+  const [full, setFull] = useState(false);
   const asked = useRef("");
 
   const lat = center && Number.isFinite(center.lat) ? center.lat : null;
@@ -111,9 +113,9 @@ export default function DateNightRails({
   // what actually changes the answer and nothing else.
   const key = useMemo(
     () => (active && lat != null && lng != null
-      ? [lat.toFixed(3), lng.toFixed(3), city || "", hour == null ? "" : String(hour)].join("|")
+      ? [lat.toFixed(3), lng.toFixed(3), city || "", hour == null ? "" : String(hour), full ? "full" : "first"].join("|")
       : ""),
-    [active, lat, lng, city, hour],
+    [active, lat, lng, city, hour, full],
   );
 
   useEffect(() => {
@@ -123,10 +125,10 @@ export default function DateNightRails({
     const q = new URLSearchParams({ lat: String(lat), lng: String(lng) });
     if (city) q.set("city", city);
     if (hour != null && Number.isFinite(hour)) q.set("hour", String(hour));
+    if (full) q.set("full", "1");
     (async () => {
       try {
-        const r = await fetch("/api/date-night?" + q.toString());
-        const j = r.ok ? await r.json() : null;
+        const j = await fetchJsonWithDeadline("/api/date-night?" + q.toString());
         if (dead) return;
         if (!j || !Array.isArray(j.rails)) { setFailed(true); return; }
         setPayload(j);
@@ -219,8 +221,8 @@ export default function DateNightRails({
           ) : null}
           <RailNav
             railId={"datenight-" + rail.id}
-            count={rail.places.length}
-            unit={rail.places.length === 1 ? "place for " + rail.title.toLowerCase() : "places for " + rail.title.toLowerCase()}
+            count={rail.total || rail.places.length}
+            unit={(rail.total || rail.places.length) === 1 ? "place for " + rail.title.toLowerCase() : "places for " + rail.title.toLowerCase()}
           />
           <div
             className="wf-rail wf-rail-exploding"
@@ -282,6 +284,7 @@ export default function DateNightRails({
           {rail.places.length > 1 ? <RailDots railId={"datenight-" + rail.id} count={rail.places.length} /> : null}
         </section>
       ))}
+      {payload.hasMore && !full ? <button type="button" onClick={() => setFull(true)} style={{ marginTop: 18, border: "1px solid #4B5563", borderRadius: 999, background: "#111827", color: C.text, padding: "9px 14px", fontWeight: 800 }}>Load every ranked option</button> : null}
     </>
   );
 }

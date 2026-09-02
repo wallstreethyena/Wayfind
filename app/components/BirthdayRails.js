@@ -8,6 +8,7 @@ import { priceLabel } from "../../lib/price.js";
 import { toDisplayScore } from "../../lib/score.js";
 import { topPickAward } from "../../lib/topPickAward.js";
 import { wayfindScore } from "../../lib/wayfindScore.js";
+import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
 
 const COLORS = { text: "#F1F5F9", muted: "#8b93a1" };
 const compact = (value) => Number(value) >= 1000
@@ -38,6 +39,7 @@ export default function BirthdayRails({
   const [payload, setPayload] = useState(null);
   const [failed, setFailed] = useState(false);
   const [retry, setRetry] = useState(0);
+  const [full, setFull] = useState(false);
   const asked = useRef("");
   const lat = center && Number.isFinite(center.lat) ? center.lat : null;
   const lng = center && Number.isFinite(center.lng) ? center.lng : null;
@@ -46,7 +48,7 @@ export default function BirthdayRails({
     : "", [active, lat, lng]);
 
   useEffect(() => {
-    const requestKey = key + "|" + retry;
+    const requestKey = key + "|" + retry + "|" + (full ? "full" : "first");
     if (!key || asked.current === requestKey) return;
     asked.current = requestKey;
     setPayload(null);
@@ -54,8 +56,8 @@ export default function BirthdayRails({
     let dead = false;
     const [queryLat, queryLng] = key.split("|");
     const query = new URLSearchParams({ lat: queryLat, lng: queryLng, v: "2" });
-    fetch("/api/birthday?" + query.toString())
-      .then(async (response) => response.ok ? response.json() : null)
+    if (full) query.set("full", "1");
+    fetchJsonWithDeadline("/api/birthday?" + query.toString())
       .then((result) => {
         if (dead) return;
         if (!result || !Array.isArray(result.rails)) { setFailed(true); return; }
@@ -73,7 +75,7 @@ export default function BirthdayRails({
       .catch(() => { if (!dead) setFailed(true); });
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, retry]);
+  }, [key, retry, full]);
 
   if (!active) return null;
   if (!key) {
@@ -111,7 +113,7 @@ export default function BirthdayRails({
               </p>
             ) : (
               <>
-                <RailNav railId={railId} count={rail.places.length} unit={rail.places.length === 1 ? "verified place" : "verified places"} />
+                <RailNav railId={railId} count={rail.total || rail.places.length} unit={(rail.total || rail.places.length) === 1 ? "verified place" : "verified places"} />
                 <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>
                   {rail.places.map((place, index) => {
                     const rank = index + 1;
@@ -164,6 +166,7 @@ export default function BirthdayRails({
           </section>
         );
       })}
+      {payload.hasMore && !full ? <button type="button" onClick={() => setFull(true)} style={{ marginTop: 18, border: "1px solid #4B5563", borderRadius: 999, background: "#111827", color: COLORS.text, padding: "9px 14px", fontWeight: 800 }}>Load every ranked option</button> : null}
     </>
   );
 }

@@ -9,6 +9,7 @@ import { toDisplayScore } from "../../lib/score.js";
 import { topPickAward } from "../../lib/topPickAward.js";
 import { wayfindScore } from "../../lib/wayfindScore.js";
 import { beachDecisionReason, beachWaterBand } from "../../lib/beachDecision.js";
+import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
 
 const COLORS = { text: "#F1F5F9", muted: "#8b93a1" };
 const compact = (value) => Number(value) >= 1000 ? Math.round(Number(value) / 100) / 10 + "k" : String(Number(value) || 0);
@@ -21,13 +22,14 @@ export default function TodayDiscoveryRails({
   const [payload, setPayload] = useState(null);
   const [failed, setFailed] = useState(false);
   const [retry, setRetry] = useState(0);
+  const [full, setFull] = useState(false);
   const asked = useRef("");
   const lat = center && Number.isFinite(center.lat) ? center.lat : null;
   const lng = center && Number.isFinite(center.lng) ? center.lng : null;
   const key = useMemo(() => active && lat != null && lng != null ? `${lat.toFixed(2)}|${lng.toFixed(2)}` : "", [active, lat, lng]);
 
   useEffect(() => {
-    const requestKey = `${key}|${city}|${retry}`;
+    const requestKey = `${key}|${city}|${retry}|${full ? "full" : "first"}`;
     if (!key || asked.current === requestKey) return;
     asked.current = requestKey;
     setPayload(null);
@@ -35,8 +37,8 @@ export default function TodayDiscoveryRails({
     let dead = false;
     const [queryLat, queryLng] = key.split("|");
     const query = new URLSearchParams({ lat: queryLat, lng: queryLng, city, v: "1" });
-    fetch("/api/today-discovery?" + query.toString())
-      .then((response) => response.ok ? response.json() : null)
+    if (full) query.set("full", "1");
+    fetchJsonWithDeadline("/api/today-discovery?" + query.toString())
       .then((result) => {
         if (dead) return;
         if (!result || !Array.isArray(result.rails)) { setFailed(true); return; }
@@ -45,7 +47,7 @@ export default function TodayDiscoveryRails({
       })
       .catch(() => { if (!dead) setFailed(true); });
     return () => { dead = true; };
-  }, [key, city, retry, onTrack]);
+  }, [key, city, retry, full, onTrack]);
 
   if (!active) return null;
   if (!key) return <p style={{ color: COLORS.muted, fontSize: 13 }}>Share your location to rank today&apos;s best discoveries near you.</p>;
@@ -58,7 +60,7 @@ export default function TodayDiscoveryRails({
       <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 800, color: COLORS.text }}>{rail.title}</h2>
       <p style={{ margin: "0 0 8px", fontSize: 12.5, lineHeight: 1.45, color: "#AEB8C6" }}>{rail.deck}</p>
       {!rail.places.length ? <p style={{ margin: "8px 0 0", fontSize: 13, color: COLORS.muted }}>No nearby place has enough verified evidence for this rail yet. We will not fill it with a look-alike.</p> : <>
-        <RailNav railId={railId} count={rail.places.length} unit={rail.places.length === 1 ? "ranked place" : "ranked places"} />
+        <RailNav railId={railId} count={rail.total || rail.places.length} unit={(rail.total || rail.places.length) === 1 ? "ranked place" : "ranked places"} />
         <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>
           {rail.places.map((place, index) => {
             const rank = index + 1;
@@ -85,5 +87,5 @@ export default function TodayDiscoveryRails({
         {rail.places.length > 1 ? <RailDots railId={railId} count={rail.places.length} /> : null}
       </>}
     </section>;
-  })}</>;
+  })}{payload.hasMore && !full ? <button type="button" onClick={() => setFull(true)} style={{ marginTop: 18, border: "1px solid #4B5563", borderRadius: 999, background: "#111827", color: COLORS.text, padding: "9px 14px", fontWeight: 800 }}>Load every ranked option</button> : null}</>;
 }

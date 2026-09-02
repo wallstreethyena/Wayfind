@@ -11,6 +11,7 @@ import { distMeters, serveFromInventory } from "../../../lib/inventoryServe.js";
 import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 import { nearestWater } from "../../../lib/waterStations.js";
 import { composeTodayDiscoveryRails, TODAY_NATURE_MI } from "../../../lib/todayDiscoveryRails.js";
+import { windowRailAnswer } from "../../../lib/railResponse.js";
 
 function json(body, status = 200, cache = "public, s-maxage=3600, stale-while-revalidate=86400") {
   return Response.json(body, { status, headers: { "cache-control": cache } });
@@ -77,6 +78,7 @@ export async function GET(request) {
   const lat = Number.parseFloat(searchParams.get("lat") || "");
   const lng = Number.parseFloat(searchParams.get("lng") || "");
   const city = String(searchParams.get("city") || "").trim().slice(0, 80);
+  const full = searchParams.get("full") === "1";
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return json({ error: "lat and lng are required" }, 400, "no-store");
 
   // Creator associations may use the resolved city as a strict secondary
@@ -112,7 +114,7 @@ export async function GET(request) {
       usable: (value) => !!value?.rails?.some((rail) => rail.places?.length),
     });
     const total = cached.value.rails.reduce((sum, rail) => sum + rail.places.length, 0);
-    return Response.json(cached.value, {
+    return Response.json(windowRailAnswer(cached.value, full), {
       headers: {
         "cache-control": total ? "public, s-maxage=3600, stale-while-revalidate=86400" : "no-store",
         "x-wayfind-fast-cache": cached.state,

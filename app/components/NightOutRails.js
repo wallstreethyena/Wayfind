@@ -3,7 +3,7 @@
 // One Night Out answer: ten evidence-gated rails over venue inventory and the
 // dated event cards owned by home.js. Events lead each shelf because a dated
 // happening is not interchangeable with the building where one might occur.
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import RailCard, { RailDots, RailNav } from "./RailCard";
 import { directionsUrl } from "./kit";
 import { toHookLine } from "../../lib/editorialHook";
@@ -12,6 +12,7 @@ import { cardImageSrc } from "../../lib/placePhoto.js";
 import { priceLabel } from "../../lib/price.js";
 import { toDisplayScore } from "../../lib/score.js";
 import { wayfindScore } from "../../lib/wayfindScore.js";
+import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
 
 const C = { text: "#F1F5F9", muted: "#8B93A1" };
 const compact = (n) => Number(n) >= 1000 ? Math.round(Number(n) / 100) / 10 + "k" : String(Number(n) || 0);
@@ -25,17 +26,43 @@ export default function NightOutRails({
   onOpenPlace = null, isSaved, liked, disliked, isLiked, isDisliked,
   onSave, onLike, onDislike, onShare,
 }) {
-  const payload = useMemo(
-    () => composeNightOutRails([], places, center || {}),
-    [places, center],
-  );
+  const fallback = useMemo(() => composeNightOutRails([], places, center || {}), [places, center]);
+  const [remote, setRemote] = useState(null);
+  const [failed, setFailed] = useState(false);
+  const [retry, setRetry] = useState(0);
+  const [full, setFull] = useState(false);
+  const asked = useRef("");
+  const lat = Number(center?.lat);
+  const lng = Number(center?.lng);
+  const key = active && Number.isFinite(lat) && Number.isFinite(lng) ? `${lat.toFixed(2)}|${lng.toFixed(2)}|${retry}|${full ? "full" : "first"}` : "";
+  useEffect(() => {
+    if (!key || asked.current === key) return;
+    asked.current = key;
+    let dead = false;
+    setFailed(false);
+    const query = new URLSearchParams({ lat: lat.toFixed(2), lng: lng.toFixed(2) });
+    if (full) query.set("full", "1");
+    fetchJsonWithDeadline("/api/night-out?" + query.toString())
+      .then((value) => { if (!dead && Array.isArray(value?.rails)) setRemote(value); })
+      .catch(() => { if (!dead) setFailed(true); });
+    return () => { dead = true; };
+  }, [key, lat, lng]);
+  const payload = remote || fallback;
   const eventSurface = active && eventsSlot ? eventsSlot("night-out") : null;
 
   if (!active) return null;
 
+  if (!remote && !failed && !payload.rails.some((rail) => rail.places.length)) {
+    return <div role="status" aria-busy="true" aria-label="Building Night Out">{[0, 1, 2].map((index) => <div key={index} className="wf-sk" style={{ height: 88, borderRadius: 14, marginBottom: 12, background: "#0B0E15" }} />)}</div>;
+  }
+
+  if (failed && !payload.rails.some((rail) => rail.places.length)) {
+    return <div><p style={{ color: C.muted, fontSize: 13 }}>We could not reach Wayfind&apos;s Night Out inventory. That is a service miss, not an empty town.</p><button type="button" onClick={() => setRetry((value) => value + 1)} style={{ border: "1px solid #4B5563", borderRadius: 999, background: "#111827", color: C.text, padding: "7px 12px", fontWeight: 800 }}>Try again</button></div>;
+  }
+
   return <>{payload.rails.map((rail) => {
     const eventCards = Array.isArray(eventSurface?.byRail?.[rail.id]) ? eventSurface.byRail[rail.id] : [];
-    const count = eventCards.length + rail.places.length;
+    const count = eventCards.length + (rail.total || rail.places.length);
     const railId = "night-out-" + rail.id;
     return <section key={rail.id} aria-label={rail.title} style={{ marginTop: 22 }}>
       <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 850, color: C.text }}>{rail.title}</h2>
@@ -74,8 +101,8 @@ export default function NightOutRails({
               onShare={onShare ? () => onShare(place, { city }) : undefined} />;
           })}
         </div>
-        {count > 1 ? <RailDots railId={railId} count={count} /> : null}
+        {eventCards.length + rail.places.length > 1 ? <RailDots railId={railId} count={eventCards.length + rail.places.length} /> : null}
       </>}
     </section>;
-  })}</>;
+  })}{payload.hasMore && !full ? <button type="button" onClick={() => setFull(true)} style={{ marginTop: 18, border: "1px solid #4B5563", borderRadius: 999, background: "#111827", color: C.text, padding: "9px 14px", fontWeight: 800 }}>Load every ranked option</button> : null}</>;
 }
