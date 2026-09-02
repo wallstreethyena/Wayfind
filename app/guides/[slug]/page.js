@@ -322,6 +322,7 @@ export function generateMetadata({ params }) {
   return {
     title: `${g.title} | Wayfind`,
     description: g.description,
+    keywords: g.relatedKeywords || (g.keyword ? [g.keyword] : undefined),
     alternates: { canonical: url },
     openGraph: { title: g.title, description: g.description, url, siteName: "Wayfind", type: "article", images: [{ url: ogImg, width: 1200, height: 630 }] },
     twitter: { card: "summary_large_image", title: g.title, description: g.description, images: [ogImg] },
@@ -368,6 +369,7 @@ const NEUTRAL_HERO = "/brand/opt/hero-1600.webp";
 const GUIDE_HERO_ART = {
   "things-to-do-in-sarasota-florida": "/guides/things-to-do-in-sarasota-florida.jpg",
   "gulf-coast-brunch-and-date-night": "/guides/gulf-coast-brunch-and-date-night.jpg",
+  "orlando-halloween-food-2026": "/guides/orlando-halloween-food-2026/hero.webp",
 };
 
 function guideHero(g, slug) {
@@ -834,8 +836,21 @@ export default async function GuidePage({ params }) {
           <section key={i} className="wf-guide-pick">
             <div className="wf-guide-number">{String(i + 1).padStart(2, "0")}</div>
             <div>
-              <div style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: "1.7px", textTransform: "uppercase", color: "#F97316" }}>{i === 0 ? "The essential" : "The local edit"}</div>
+              <div style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: "1.7px", textTransform: "uppercase", color: "#F97316" }}>{pick.eyebrow || (i === 0 ? "The essential" : "The local edit")}</div>
               <h2 style={{ ...S.h2, marginTop: 5, fontFamily: "var(--wf-display)", fontSize: 28 }}>{pick.placeId ? <a href={"/places/" + encodeURIComponent(pick.placeId)} style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 4 }}>{pick.name}</a> : pick.name}</h2>
+              {pick.image ? (
+                <figure style={{ margin: "12px 0 18px" }}>
+                  <img
+                    src={pick.image}
+                    alt={pick.imageAlt || pick.name}
+                    width="1200"
+                    height="1500"
+                    loading="lazy"
+                    style={{ display: "block", width: "100%", height: "auto", borderRadius: 16, objectFit: "cover", aspectRatio: "4 / 5" }}
+                  />
+                  {pick.imageNote ? <figcaption style={{ marginTop: 7, fontSize: 11.5, color: "#94A3B8" }}>{pick.imageNote}</figcaption> : null}
+                </figure>
+              ) : null}
               <p style={S.p}>{pick.blurb}</p>
               {pick.tip ? <p className="wf-guide-tip" style={S.tip}>Insider note — {pick.tip}</p> : null}
               {/* THE CARD, only when the place genuinely resolved. Editorial
@@ -859,6 +874,17 @@ export default async function GuidePage({ params }) {
           </section>
         );
       })}
+      {Array.isArray(g.sources) && g.sources.length ? (
+        <section aria-label="Sources" style={{ marginTop: 30, paddingTop: 18, borderTop: "1px solid #21262D" }}>
+          <h2 style={S.h2}>Sources and verification</h2>
+          <p style={S.p}>Seasonal menus can change. These links were checked on the date shown above; confirm the live menu before making a special trip.</p>
+          <ul style={{ color: "#CBD5E1", paddingLeft: 20 }}>
+            {g.sources.map((source, i) => (
+              <li key={i} style={{ marginBottom: 7 }}><a href={source.url} rel="nofollow noopener" style={S.footerLink}>{source.label}</a></li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
       {dealCards.length ? (
         <GuideDealCards slug={params.slug} region={g.region || "Orlando"} deals={dealCards} />
       ) : null}
