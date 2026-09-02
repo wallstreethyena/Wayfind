@@ -1,3 +1,13 @@
+## v8.52 - Seven more birthday gifts, the card says how to get them, and the rail stops paying two hops per photo
+
+Owner, 2026-09-01, from his own phone: a $15 Cooper's Hawk reward, a Wahlburgers free-shake email, and five Toast-app "Happy Birthday" credits (Turmeric $10, Wheat + Water $10, Riviera French Café $8, K-Bob $5, Melao Bakery $5). Plus: "make sure the place card explains how to get the free gift" and "the load time on these place cards is very long."
+
+- **Rewards registry (lib/birthdayRewards.js): 18 → 25.** Each new row keyed to the exact place id already in inventory and brand-guarded (a look-alike name at the same pin gets nothing). The owner-received cohort carries its own `verifiedAt` (2026-09-01) so the 30-day fail-closed rule ages it independently of the 08-19 chain review.
+- **`claim` on every reward.** One plain sentence in the order a person does it: sign up, where it appears, how to redeem. The Birthday Free Gifts card now reads "Free: {gift}. How: {claim}." instead of gift + eligibility jargon.
+- **Guide "23 Birthday Freebies" → 26.** Cooper's Hawk, Wahlburgers, and Toast (one entry, five restaurants named) appended; title, date, description, intro, and a Toast FAQ updated. `check-guides` confirms the number matches the pick count; `test-place-card-hook` confirms none of the new article prose can leak onto a card.
+- **Speed.** Measured from Parrish: the rail JSON is cached (150ms warm) but every card image paid two round trips: `/api/photo` on a cold function (~700ms) that only reads the 30-day photo cache and 302s, then the Google bytes. `attachCachedPhotos()` in `/api/birthday` now does one batched `cgetMany` over the same cache inside the hour-cached rail computation and puts the final googleusercontent URL on the place. One hop per image. Never spends: a ref not in cache falls back to `/api/photo` exactly as before; only owned URLs are attached.
+- **Heads-up:** the 18 chain rewards were verified 2026-08-19 and fail closed on 2026-09-18 unless re-verified. That is the registry working as designed, not a bug, but it needs a re-verification pass before then or the rail drops to the seven new ones.
+
 ## v8.51.1 - The stars are the exception, and the exception has its own allowance
 
 First live batch of v8.51 (22:25Z): 50 promoted, 8 with a rating. The index carries a rating for ~88% of the queue (6,022 of 6,882 measured), not 100% — the earlier count tested for the KEY, and `{rating:null, reviews:0}` has the key. A card with no stars is a card the score cannot rank.

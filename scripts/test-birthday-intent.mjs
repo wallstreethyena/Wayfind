@@ -72,9 +72,16 @@ ok(!!reward && reward.gift.includes("handcrafted"), "fresh exact reward resolves
 ok(birthdayRewardFor("not-a-place", new Date("2026-08-31T00:00:00Z")) === null, "unknown place ID has no reward");
 ok(birthdayRewardFor("ChIJCTw8qAE9w4gRV4bsIMbQ2H8", new Date("2026-10-01T00:00:00Z")) === null, "stale reward fails closed");
 ok(BIRTHDAY_REWARD_MAX_AGE_DAYS === 30, "reward freshness ceiling is locked at 30 days");
-ok(BIRTHDAY_REWARD_PLACE_IDS.length === 18, "the exact-gift registry preserves all 18 offers with a stated item");
+ok(BIRTHDAY_REWARD_PLACE_IDS.length === 25, "the exact-gift registry preserves all 25 offers with a stated item (18 chain terms + 7 owner-received 2026-09-01)");
 ok(birthdayRewardFor("ChIJbQc50hEWw4gRekS45lcFEFU", new Date("2026-08-31T00:00:00Z"), "Bradenton Donut Shop") === null, "a changed venue cannot inherit Duck Donuts' gift");
 ok(birthdayRewardFor("ChIJiVUwo8Y9w4gRyfRSxgrLTps", new Date("2026-08-31T00:00:00Z"), "Nick & Moes Bradenton 005") === null, "a changed venue cannot inherit Moe's burrito");
+// v8.52: every reward tells the reader HOW to get it (owner, 2026-09-01), and
+// the owner-received cohort ages on its own date, not the chains' 08-19.
+ok(BIRTHDAY_REWARD_PLACE_IDS.every((id) => typeof birthdayRewardFor(id, new Date("2026-09-02T00:00:00Z"), "").claim === "string" && birthdayRewardFor(id, new Date("2026-09-02T00:00:00Z"), "").claim.length > 20), "every reward carries a how-to-claim sentence");
+ok(birthdayRewardFor("ChIJz5Lpb5c_w4gRivPISVkQG3A", new Date("2026-09-20T00:00:00Z"), "Wahlburgers") !== null, "owner-received rewards stay fresh past the chains' 08-19 expiry");
+ok(birthdayRewardFor("ChIJz5Lpb5c_w4gRivPISVkQG3A", new Date("2026-10-05T00:00:00Z"), "Wahlburgers") === null, "owner-received rewards still fail closed after 30 days");
+ok(birthdayRewardFor("ChIJ80Omqfw7w4gRgrn1EifPaLI", new Date("2026-09-02T00:00:00Z"), "Wheat + Water Italian Kitchen") !== null, "brand guard accepts the real Wheat + Water name (punctuation normalised)");
+ok(birthdayRewardFor("ChIJ80Omqfw7w4gRgrn1EifPaLI", new Date("2026-09-02T00:00:00Z"), "Wheat Head on the Water") === null, "brand guard rejects a look-alike name at the same id");
 
 const ranked = composeBirthdayRails([
   { ...multi, id: "lower", name: "Lower", rating: 4.4, reviews: 2000, distMi: 2 },

@@ -143,7 +143,7 @@ export default function BirthdayRails({
                         facts={facts}
                         award={topPickAward({ category: reward ? "birthday gift" : type, rank })}
                         chips={chips}
-                        take={reward ? reward.gift + ". " + reward.requirement + "." : (toHookLine(place.editorial, place.name) || null)}
+                        take={reward ? "Free: " + reward.gift + ". How: " + (reward.claim || reward.requirement) + "." : (toHookLine(place.editorial, place.name) || null)}
                         cta={directions ? { label: "Directions ↗", href: directions, external: true } : null}
                         ariaLabel={"Open " + place.name}
                         onOpen={onOpenPlace ? () => onOpenPlace(place) : undefined}
