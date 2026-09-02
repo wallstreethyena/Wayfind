@@ -11,6 +11,47 @@ import { NET_DEADLINE_MS } from "../../../lib/fetchDeadline.js";
 import { BIRTHDAY_WIDEN_MI, composeBirthdayRails } from "../../../lib/birthdayIntent.js";
 import { BIRTHDAY_REWARD_PLACE_IDS, birthdayRewardFor } from "../../../lib/birthdayRewards.js";
 import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
+import { cgetMany } from "../../../lib/serverCache.js";
+import { PHOTO_REF_RX, isOwnedPhotoUrl, photoCacheKey } from "../../../lib/placePhotoServe.js";
+
+const RAIL_PHOTO_W = 640; // must match BirthdayRails' /api/photo?w= so the cache key is the same one that route writes
+const PHOTO_CACHE_STALE_MS = 60 * 60 * 24 * 30 * 1000;
+
+// attachCachedPhotos — PERF (owner, 2026-09-01: "the load time on these place
+// cards is very long"). Measured from Parrish over cellular: the rail JSON
+// itself is cached (fast-cache + CDN) and returns in ~150ms warm, but every
+// card image then paid TWO round trips — /api/photo (a cold Vercel function,
+// ~700ms, that only looks up the 30-day photo cache and 302s) and then the
+// googleusercontent bytes. Fifteen cards, two hops each, on a two-bar signal.
+//
+// This reads the SAME 30-day photo cache the /api/photo route writes — one
+// batched cgetMany for every ref in the rails, inside the rail computation
+// that is itself cached for an hour — and puts the final image URL straight
+// on the place, so <img src> goes to Google in one hop. It NEVER spends: a
+// ref that is not in the cache is left alone and the card falls back to the
+// /api/photo route exactly as before (which is where the ledger lives).
+// Only owned googleusercontent URLs are attached (isOwnedPhotoUrl), so a
+// stock or fallback URL can never be laundered into a place card here.
+async function attachCachedPhotos(rails) {
+  const refs = [];
+  for (const rail of rails || []) for (const p of rail.places || []) {
+    if (!p.photo && p.photoRef && PHOTO_REF_RX.test(p.photoRef)) refs.push(p.photoRef);
+  }
+  if (!refs.length) return rails;
+  let hits;
+  try {
+    hits = await cgetMany(refs.map((ref) => photoCacheKey(ref, RAIL_PHOTO_W)), { staleMs: PHOTO_CACHE_STALE_MS });
+  } catch {
+    return rails; // cache unreachable: the cards still load, one hop slower
+  }
+  for (const rail of rails || []) for (const p of rail.places || []) {
+    if (p.photo || !p.photoRef) continue;
+    const hit = hits.get(photoCacheKey(p.photoRef, RAIL_PHOTO_W));
+    const uri = hit && hit.v && typeof hit.v.uri === "string" ? hit.v.uri : null;
+    if (uri && isOwnedPhotoUrl(uri)) p.photo = uri;
+  }
+  return rails;
+}
 
 function json(body, status = 200, cache = "public, s-maxage=3600, stale-while-revalidate=86400") {
   return Response.json(body, { status, headers: { "cache-control": cache } });
@@ -85,7 +126,9 @@ export async function GET(request) {
         if (!place.photo && !place.photoRef) continue;
         places.push(place);
       }
-      return composeBirthdayRails(places);
+      const composed = composeBirthdayRails(places);
+      if (composed && Array.isArray(composed.rails)) await attachCachedPhotos(composed.rails);
+      return composed;
     }, {
       name: "birthday-rails",
       usable: (value) => !!(value && Array.isArray(value.rails) && value.rails.some((rail) => rail.places?.length)),
