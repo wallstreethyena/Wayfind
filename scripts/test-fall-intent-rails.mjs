@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { readFileSync } from "node:fs";
 import {
-  FALL_INTENT_RAIL_DEFS, FALL_NEAR_MI, FALL_RAIL_RADIUS_MI, fallEventRail, fallPhase,
+  FALL_INTENT_RAIL_DEFS, FALL_MIN_RESULTS, FALL_NEAR_MI, FALL_RAIL_RADIUS_MI, FALL_STATEWIDE_MAX_MI, fallEventRail, fallPhase,
   fallRailOrder, composeFallIntentRails,
 } from "../lib/fallIntentRails.js";
 import { FALL_PLACE_IDS, FALL_PLACE_RAIL } from "../lib/fallPool.js";
@@ -26,6 +26,7 @@ ok(FALL_INTENT_RAIL_DEFS.map((rail) => rail.id).join("|") === expected.join("|")
 ok(new Set(FALL_INTENT_RAIL_DEFS.map((rail) => rail.title)).size === 10, "every rail title is unique");
 ok(Object.keys(FALL_RAIL_RADIUS_MI).sort().join("|") === expected.slice().sort().join("|"), "every intent has an explicit radius law");
 ok(FALL_NEAR_MI === 27, "the nearby ring ends at 27 miles");
+ok(FALL_MIN_RESULTS === 8 && FALL_STATEWIDE_MAX_MI >= 350, "thin Florida rails widen to a useful statewide fallback");
 ok(["food", "family", "date-night"].every((id) => FALL_RAIL_RADIUS_MI[id] === 27), "food, family and spooky date night stay local at 27 miles");
 ok(["farms", "haunts", "oktoberfest", "festivals", "photos"].every((id) => FALL_RAIL_RADIUS_MI[id] === 45), "seasonal destinations widen only to 45 miles");
 ok(["theme-parks", "day-trips"].every((id) => FALL_RAIL_RADIUS_MI[id] === 60), "only theme parks and day trips reach the 60-mile ring");
@@ -72,7 +73,8 @@ const composed = composeFallIntentRails(duplicateSeries, [
 ], { lat: 27.95, lng: -82.46, today: "2026-09-01", now });
 ok(composed.rails.length === 10, "composition always returns all ten rails, including honest empties");
 ok(composed.rails.find((rail) => rail.id === "farms").cards.length === 1, "one event series appears once");
-ok(composed.rails.find((rail) => rail.id === "food").cards.map((card) => card.id).join("|") === "food-near", "local food radius excludes a distant seasonal menu");
+ok(composed.rails.find((rail) => rail.id === "food").cards.map((card) => card.id).join("|") === "food-near|food-far", "a thin local food rail appends verified Florida-wide inventory");
+ok(composed.rails.find((rail) => rail.id === "food").cards[1].fallbackTier === 1, "a statewide result is explicitly marked as fallback inventory");
 ok(composed.rails.flatMap((rail) => rail.cards).length === new Set(composed.rails.flatMap((rail) => rail.cards.map((card) => card.id))).size, "no card appears in more than one rail");
 
 const distanceLaw = composeFallIntentRails([], [
@@ -106,10 +108,13 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(/fall-intents:v4:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key");
+ok(/fall-intents:v5:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key");
+ok(/FALL_DISCOVERIES_2026/.test(route) && /eventRows/.test(route), "publish-ready fall discoveries are served even when their database seed lags");
 ok(/take: FALL_PLACE_IDS\[p\.place_id\] \|\| FALL_PHOTO_SPOTS\[p\.place_id\]\?\.visualProof \|\| p\.editorial/.test(route), "verified seasonal or visual evidence wins over a generic inventory summary");
 ok(!/searchText|places\.googleapis|nearbySearch/.test(route), "the fall API makes no paid Google place call");
 ok(/Promise\.all\(\[/.test(route), "independent Supabase reads start in parallel");
+ok(/FALL_DB_DEADLINE_MS = 3500/.test(route) && /abortSignal\(signal\)/.test(route), "Fall inventory reads settle before the reader-facing skeleton deadline");
+ok(/placeResult\.error \? \[\]/.test(route) && /sourceFailures/.test(route), "a slow optional place/deal read cannot erase the publish-ready fall answer");
 ok(/FALL_PLACE_RAIL/.test(route) && /composeFallIntentRails/.test(route), "the API composes owned events and vetted places through one taxonomy");
 ok(/FALL_PHOTO_PLACE_IDS/.test(route) && /FALL_PHOTO_SPOTS/.test(route), "the photo rail reads the researched registry rather than trusting an Instagrammable label");
 ok(/FallIntentRails = dynamic/.test(daypart), "the ten-rail component is lazy and absent from first paint");

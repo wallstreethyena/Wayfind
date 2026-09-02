@@ -12,11 +12,11 @@ ok(/fetchJsonWithDeadline\("\/api\/night-out\?"/.test(component),
   "NightOutRails must fetch the dedicated bounded Night Out endpoint");
 ok(/\["food",\s*"nightlife",\s*"attractions"\]/.test(route),
   "the Night Out endpoint must read food, nightlife and attraction inventory");
-ok(/Promise\.all\(/.test(route) && /serveFromInventory/.test(route),
-  "the complete inventory must load in parallel from the owned shelf");
+ok(/Promise\.allSettled\(/.test(route) && /serveFromInventory/.test(route),
+  "the complete inventory must load in parallel from the owned shelf without one failed category blanking the answer");
 ok(/new Set\(\)/.test(route) && /seen\.has\(/.test(route),
   "the combined inventory must deduplicate before composition");
-ok(/night-out:v3/.test(route), "the expanded answer must use the v3 cache identity");
+ok(/night-out:v4/.test(route), "the expanded answer must use the v4 cache identity");
 ok(!/useIntentCandidates/.test(daypart),
   "DaypartRail must not issue a duplicate inventory request while NightOutRails loads the complete answer");
 ok(/<NightOutRails[\s\S]{0,400}?places=\{nightOutPlaces\}/.test(daypart),

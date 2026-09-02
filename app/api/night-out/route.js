@@ -10,6 +10,9 @@ import { distMeters, serveFromInventory } from "../../../lib/inventoryServe.js";
 import { composeNightOutRails, NIGHT_OUT_MAX_MI } from "../../../lib/nightOutIntent.js";
 import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 import { windowRailAnswer } from "../../../lib/railResponse.js";
+import { nightOutEditorialEvidence } from "../../../lib/nightOutEvidence.js";
+
+const NIGHT_OUT_DB_DEADLINE_MS = 3000;
 
 function toPlace(raw, origin) {
   const id = String(raw?.id || "");
@@ -24,7 +27,7 @@ function toPlace(raw, origin) {
     types: Array.isArray(raw.types) ? raw.types : [],
     primaryType: raw.primaryType || raw.primary_type || null,
     priceLevel: raw.priceLevel ?? raw.priceNum ?? null,
-    editorial: raw?.editorialSummary?.text || raw?.editorial || null,
+    editorial: nightOutEditorialEvidence(id) || raw?.editorialSummary?.text || raw?.editorial || null,
     photo: raw.photo_url || raw.photoUrl || null,
     photoRef: raw?.photo_ref || raw?.photos?.[0]?.name || null,
     distMi: Math.round((distMeters(origin.lat, origin.lng, lat, lng) / 1609.34) * 10) / 10,
@@ -40,13 +43,18 @@ export async function GET(request) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
     return Response.json({ error: "lat and lng are required" }, { status: 400, headers: { "cache-control": "no-store" } });
   }
-  const key = `night-out:v3:${geoCell(lat)}:${geoCell(lng)}`;
+  const key = `night-out:v4:${geoCell(lat)}:${geoCell(lng)}`;
   try {
     const cached = await fastCachedRail(key, async () => {
-      const options = { failLoud: true, primaryOnly: true, deadlineMs: NET_DEADLINE_MS };
-      const pools = await Promise.all(["food", "nightlife", "attractions"].map((category) =>
+      const options = { failLoud: true, primaryOnly: false, deadlineMs: Math.min(NET_DEADLINE_MS, NIGHT_OUT_DB_DEADLINE_MS) };
+      // One slow category must not hold every already-ready shelf hostage.
+      // Secondary-category membership is included because clubs, cabarets and
+      // dinner shows are commonly stored under their venue's primary type.
+      const settled = await Promise.allSettled(["food", "nightlife", "attractions"].map((category) =>
         serveFromInventory(category, lat, lng, NIGHT_OUT_MAX_MI * 1609.34, BROWSE_INVENTORY_N, undefined, options),
       ));
+      const pools = settled.filter((result) => result.status === "fulfilled").map((result) => result.value);
+      if (!pools.length) throw new Error("All Night Out inventory reads failed");
       const origin = { lat, lng };
       const seen = new Set();
       const places = pools.flat().map((row) => toPlace(row, origin)).filter((place) => {
@@ -54,7 +62,8 @@ export async function GET(request) {
         seen.add(place.id);
         return true;
       });
-      return composeNightOutRails([], places, origin);
+      const composed = composeNightOutRails([], places, origin);
+      return { ...composed, sourceCount: places.length, sourceFailures: settled.filter((result) => result.status === "rejected").length };
     }, {
       name: "night-out-rails",
       usable: (value) => !!value?.rails?.some((rail) => rail.places?.length),
