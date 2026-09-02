@@ -44,7 +44,7 @@ import { photoRefOwnedByPlace } from "../lib/placePhoto.js";
 import { readFileSync } from "node:fs";
 import { resolvePlacePhoto } from "../lib/placePhotoServe.js";
 import { FALL_DISCOVERIES_2026 } from "../lib/fallDiscoveries2026.js";
-import { FALL_COLLECTION_POSTER, fallEventCardImageSrc } from "../lib/fallEventImage.js";
+import { FALL_COLLECTION_POSTER, fallEventCardImageSrc, mergeFallDiscoveryRows } from "../lib/fallEventImage.js";
 
 let pass = 0; const fail = [];
 const ok = (c, m) => { if (c) pass++; else fail.push(m); };
@@ -195,6 +195,32 @@ for (const row of FALL_DISCOVERIES_2026) {
 }
 ok(/fallEventCardImageSrc\(e, 640\)/.test(fallRoute),
   "the live Fall endpoint applies the collection-poster rejection before returning cards");
+
+// A stale database copy used to win the de-duplication race over the owner's
+// newer registry row. Nueva Cantina therefore lost its valid Place ID in
+// production and had no photo even after the shared-poster fix.
+{
+  const source = FALL_DISCOVERIES_2026.find((row) => row.event_id === "nueva-cantina-halloween-tampa-2026");
+  const [merged] = mergeFallDiscoveryRows([{
+    event_id: source.event_id,
+    place_id: null,
+    lat: null,
+    lng: null,
+    hero_image: FALL_COLLECTION_POSTER,
+    link_ok: false,
+    link_verdict: "hijacked",
+  }], [source]);
+  ok(merged.place_id === source.place_id && merged.lat === source.lat && merged.lng === source.lng,
+    "newer verified registry identity replaces a stale database copy");
+  ok(merged.hero_image == null,
+    "the stale database poster is discarded during the identity merge");
+  ok(merged.link_ok === false && merged.link_verdict === "hijacked",
+    "mutable database link-health verdicts remain authoritative");
+  ok(fallEventCardImageSrc(merged, 640) === ownedPlacePhotoSrc(source.place_id, 640),
+    "the merged Nueva row resolves to Nueva Cantina's own photo");
+}
+ok(/mergeFallDiscoveryRows\(rows, FALL_DISCOVERIES_2026\)/.test(fallRoute),
+  "the live endpoint merges verified identity before image resolution");
 
 if (fail.length) {
   console.error("check-no-imageless-card: FAILED");
