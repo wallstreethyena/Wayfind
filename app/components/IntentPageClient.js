@@ -4,7 +4,7 @@
 // params (the hero cards pass them) with a wf_center fallback; queries per
 // intent + daypart from lib/intentPages; results floored on real depth,
 // ranked by the ONE score, rendered on the /best-beaches standard shell.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 // v7.06 — the ONE editorial-line compressor, shared by every place surface.
 import { toHookLine } from "../../lib/editorialHook";
 import { useSearchParams } from "next/navigation";
@@ -84,6 +84,11 @@ export default function IntentPageClient({ intent }) {
   // erase whatever the user had liked/disliked from elsewhere).
   const [likedItems, setLikedItems] = useState({});
   const [dislikedItems, setDislikedItems] = useState({});
+  // Performance clocks are intentionally client-local and contain no user id.
+  // They let PostHog answer the Birthday-vs-intent-page question with the same
+  // event shape in every market: mount -> usable ranked rows -> committed DOM.
+  const mountedAtRef = useRef(typeof performance !== "undefined" ? performance.now() : Date.now());
+  const firstRenderLoggedRef = useRef(false);
   useEffect(() => {
     try { const s = readLocalLikeState(); setLiked(s.liked); setDisliked(s.disliked); setLikedItems(s.likedItems); setDislikedItems(s.dislikedItems); } catch (e) {}
     try { const s = readLocalSavedState(); setSaved(s.saved); setSavedLists(s.lists); } catch (e) {}
@@ -220,8 +225,14 @@ export default function IntentPageClient({ intent }) {
     if (!now) return;
     let dead = false;
     (async () => {
+      const clock = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
+      const startedAt = clock();
+      const traceId = (() => {
+        try { return crypto.randomUUID(); } catch (e) { return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`; }
+      })();
       const qs = def.queries(now);
       const results = await Promise.all(qs.map(async ({ cat, q }) => {
+        const queryStartedAt = clock();
         try {
           // v6.94 (owner: "the default for this page should be 30 miles...
           // the hero card is called worth the drive") — every intent page
@@ -241,8 +252,20 @@ export default function IntentPageClient({ intent }) {
           // category, so the page and the rail that links to it cannot admit
           // different places. Owner, 2026-08-11: a phone-repair storefront and
           // an optician were rendering as "hidden gems".
-          return (j && Array.isArray(j.places) ? j.places : []).map(toRow).filter((row) => row && placeAllowed(cat, null, row));
-        } catch (e) { return []; }
+          const raw = j && Array.isArray(j.places) ? j.places : [];
+          const eligible = raw.map(toRow).filter((row) => row && placeAllowed(cat, null, row));
+          return {
+            cat, q, rows: eligible,
+            rawCandidates: raw.length,
+            afterEligibility: eligible.length,
+            cacheStatus: j && j.cached ? (j.stale ? "stale" : "hit") : "miss",
+            source: (j && j.source) || (j && j.cached ? "shared-cache" : "search"),
+            latencyMs: Math.round(clock() - queryStartedAt),
+            ok: r.ok,
+          };
+        } catch (e) {
+          return { cat, q, rows: [], rawCandidates: 0, afterEligibility: 0, cacheStatus: "error", source: "error", latencyMs: Math.round(clock() - queryStartedAt), ok: false };
+        }
       }));
       // ctx is what makes this ranking time-aware rather than just time-queried:
       // it applies the outdoor suppression gate, the per-bucket reweight, and
@@ -251,8 +274,10 @@ export default function IntentPageClient({ intent }) {
       // 2026-08-07: the unified trend signal decorates rows BEFORE ranking so
       // rankRows' trending term (+0.6, disclosed on the card) can apply. Fails
       // soft — no popularity rows, no term.
-      const flatRows = results.flat();
+      const searchFinishedAt = clock();
+      const flatRows = results.flatMap((result) => result.rows);
       try { await attachTrendSignals(flatRows, {}); } catch (e) {}
+      const trendFinishedAt = clock();
       let ranked = rankRows(flatRows, def.floor, {
         origin: { lat: loc.lat, lng: loc.lng },
         penalty: def.distancePenalty || null,
@@ -280,6 +305,47 @@ export default function IntentPageClient({ intent }) {
             const mIds = new Set(marquee.map((r) => r.id));
             ranked = marquee.concat(ranked.filter((r) => !mIds.has(r.id)));
           }
+        } catch (e) {}
+      }
+      const rankedFinishedAt = clock();
+
+      // P0: the ranked list is the minimum viable answer. Editorial, Atlas
+      // hooks and cached blurbs progressively enhance it below; none may keep
+      // the user staring at skeletons after useful places already exist.
+      if (!dead) {
+        setRows(ranked);
+        try {
+          track("intent_card_query", {
+            trace_id: traceId,
+            card_id: intent,
+            market: loc.city,
+            geo_cell: `${loc.lat.toFixed(2)},${loc.lng.toFixed(2)}`,
+            time_bucket: now.timeBucket,
+            availability: resolvePlanAhead(def, def.timeless ? null : now) ? "plan_ahead" : "now",
+            radius_m: def.radiusM || 32000,
+            query_count: results.length,
+            raw_candidates: results.reduce((sum, result) => sum + result.rawCandidates, 0),
+            after_eligibility: flatRows.length,
+            final_results: ranked.length,
+            under_8: ranked.length < 8,
+            under_12: ranked.length < 12,
+            cache_hits: results.filter((result) => result.cacheStatus === "hit" || result.cacheStatus === "stale").length,
+            cache_misses: results.filter((result) => result.cacheStatus === "miss").length,
+            query_latency_ms: Math.round(searchFinishedAt - startedAt),
+            trend_latency_ms: Math.round(trendFinishedAt - searchFinishedAt),
+            ranking_latency_ms: Math.round(rankedFinishedAt - trendFinishedAt),
+            usable_rows_latency_ms: Math.round(rankedFinishedAt - startedAt),
+            query_funnel: results.map((result) => ({
+              category: result.cat,
+              query: result.q,
+              raw: result.rawCandidates,
+              eligible: result.afterEligibility,
+              cache: result.cacheStatus,
+              source: result.source,
+              latency_ms: result.latencyMs,
+              ok: result.ok,
+            })),
+          });
         } catch (e) {}
       }
       // v6.56 (owner): the line under each row is WAYFIND editorial (verified
@@ -311,7 +377,6 @@ export default function IntentPageClient({ intent }) {
           }
         }
       } catch (e) {}
-      if (!dead) setRows(ranked);
       // Rows without a verified / Atlas hook may already hold a CARD_SUMMARY in
       // the 30-day pool. Ask for every such row, not the first 8 — a café past
       // that cap with a cached hook was blank while a neighbor showed copy.
@@ -346,6 +411,32 @@ export default function IntentPageClient({ intent }) {
     // and no test caught it — only loading the page did.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [intent, now]);
+
+  useEffect(() => {
+    if (!Array.isArray(rows) || !rows.length || firstRenderLoggedRef.current) return;
+    let cancelled = false;
+    const first = requestAnimationFrame(() => {
+      const second = requestAnimationFrame(() => {
+        if (cancelled || firstRenderLoggedRef.current) return;
+        firstRenderLoggedRef.current = true;
+        const nowMs = typeof performance !== "undefined" ? performance.now() : Date.now();
+        try {
+          track("intent_first_place_rendered", {
+            card_id: intent,
+            market: loc.city,
+            result_count: rows.length,
+            mount_to_first_place_ms: Math.round(nowMs - mountedAtRef.current),
+            device_class: window.innerWidth < 768 ? "mobile" : "desktop",
+          });
+        } catch (e) {}
+      });
+      return second;
+    });
+    return () => { cancelled = true; cancelAnimationFrame(first); };
+    // The first non-empty committed list is the measurement. Later editorial
+    // enhancement intentionally must not create a second timing event.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows]);
 
   useEffect(() => {
     if (!Array.isArray(rows) || !rows.length || !supabase) return;

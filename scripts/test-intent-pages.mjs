@@ -91,6 +91,23 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 }
 ok(!home.includes("setFamilyHeroImg"), "the owned family artwork no longer triggers an unused live-photo fetch");
 
+// P0 performance law: useful ranked rows render before optional copy
+// enrichment. This is deliberately an ordering assertion, not merely a check
+// that both calls exist — the regression was valid code in the wrong order.
+{
+  const firstRankedPaint = ic.indexOf("setRows(ranked)");
+  const editorialRead = ic.indexOf('.from("wf_editorial")');
+  const atlasRead = ic.indexOf('fetch("/api/known-for"');
+  ok(firstRankedPaint > -1, "intent pages publish the minimum viable ranked list");
+  ok(editorialRead > firstRankedPaint && atlasRead > firstRankedPaint,
+    "verified editorial and Atlas enrichment run after the first usable list is published");
+  ok(ic.includes('track("intent_card_query"'), "intent queries emit one aggregate candidate/cache diagnostic event");
+  ok(ic.includes('track("intent_first_place_rendered"'), "the committed first place emits mount-to-render timing");
+  for (const field of ["raw_candidates", "after_eligibility", "final_results", "under_8", "under_12", "cache_hits", "cache_misses", "usable_rows_latency_ms"]) {
+    ok(ic.includes(field), `intent diagnostic event carries ${field}`);
+  }
+}
+
 // Shared references remain validated for metadata, while the visible landing
 // hero stays locked to the owned card artwork.
 ok(ic.includes("visible landing-page hero stays locked"), "the owned-art continuity rule is stated where the hero is built");
