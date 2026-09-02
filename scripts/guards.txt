@@ -135,6 +135,7 @@ node scripts/test-sync-reconcile.mjs
 node scripts/test-site-time.mjs
 node scripts/check-sitetime.mjs
 node scripts/test-classifier-veto.mjs
+node scripts/test-menu-taxonomy-audit.mjs
 node scripts/test-showtime-dedup.mjs
 node scripts/test-member-score.mjs
 node scripts/test-curator-boost.mjs
