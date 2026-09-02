@@ -37,12 +37,12 @@ import { nearestCoveredCity } from "../../../lib/railCoverage";
 import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 
 export const revalidate = 3600;
-// The platform's own ceiling, one layer outside railsData's 20s deadline and
-// DaypartRail's 30s client budget. Nothing should ever reach this — it is here
+// The platform's own ceiling, one layer outside railsData's 9s deadline and
+// DaypartRail's 10s client budget. Nothing should ever reach this — it is here
 // so that a stall in code neither of those two bound still ends in a response
 // rather than in a lambda that runs until the platform's silent default kills
 // it with nothing written to the CDN.
-export const maxDuration = 30;
+export const maxDuration = 12;
 
 // Past this, the reader is not in a market Wayfind has ranked inventory for and
 // the honest answer is the flagship, not the nearest-by-arithmetic town 400

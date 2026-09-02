@@ -43,6 +43,8 @@ import { CURATED_PHOTO_REFS } from "../lib/curatedPhotoRefs.js";
 import { photoRefOwnedByPlace } from "../lib/placePhoto.js";
 import { readFileSync } from "node:fs";
 import { resolvePlacePhoto } from "../lib/placePhotoServe.js";
+import { FALL_DISCOVERIES_2026 } from "../lib/fallDiscoveries2026.js";
+import { FALL_COLLECTION_POSTER, fallEventCardImageSrc, mergeFallDiscoveryRows } from "../lib/fallEventImage.js";
 
 let pass = 0; const fail = [];
 const ok = (c, m) => { if (c) pass++; else fail.push(m); };
@@ -166,10 +168,61 @@ ok(eventImage({ hero_image: null, place_id: null }) === "",
 
 // And the serving path must actually use the ladder, not a private copy of it.
 const fallRoute = readFileSync(new URL("../app/api/events/fall/route.js", import.meta.url), "utf8");
-ok(/import \{ cardImageSrc \}/.test(fallRoute) && (fallRoute.match(/cardImageSrc\(/g) || []).length >= 2,
-  "app/api/events/fall builds BOTH its event and its place images through cardImageSrc — one ladder, or the next surface grows its own idea of a fallback");
+ok(/import \{ cardImageSrc \}/.test(fallRoute) && /fallEventCardImageSrc/.test(fallRoute) && (fallRoute.match(/cardImageSrc\(/g) || []).length >= 1,
+  "app/api/events/fall builds events through the Fall identity gate and places through cardImageSrc — both end at the one owned-photo ladder");
 ok(!/"\/api\/photo\?place=" \+ encodeURIComponent/.test(fallRoute),
   "…and no hand-rolled /api/photo?place= string survives beside it");
+
+// A RAIL POSTER IS NOT A PLACE PHOTO. Ten owner-supplied rows once carried
+// the exact same scarecrow poster, so every cafe, bar and pottery studio looked
+// like the same pumpkin field. The source is clean, and the serving helper
+// must also neutralize already-seeded legacy rows until their next data write.
+ok(FALL_DISCOVERIES_2026.every((row) => row.hero_image !== FALL_COLLECTION_POSTER),
+  "Fall discoveries never store the collection poster as a destination photo");
+for (const row of FALL_DISCOVERIES_2026) {
+  const legacy = fallEventCardImageSrc({ ...row, hero_image: FALL_COLLECTION_POSTER }, 640);
+  ok(legacy !== FALL_COLLECTION_POSTER,
+    `${row.event_id}: a legacy seeded poster is rejected at serve time`);
+  if (row.place_id) {
+    ok(legacy === ownedPlacePhotoSrc(row.place_id, 640),
+      `${row.event_id}: the replacement is that venue's own place-id photo`);
+    ok(isLandingCardImageAllowed(legacy, row.place_id),
+      `${row.event_id}: the replacement image cannot belong to another venue`);
+  } else {
+    ok(legacy === "",
+      `${row.event_id}: without a verified place identity, the card stays honest instead of borrowing a farm photo`);
+  }
+}
+ok(/fallEventCardImageSrc\(e, 640(?:, inventoryById\.get\(e\.place_id\))?\)/.test(fallRoute),
+  "the live Fall endpoint applies the collection-poster rejection before returning cards");
+
+// A stale database copy used to win the de-duplication race over the owner's
+// newer registry row. Nueva Cantina therefore lost its valid Place ID in
+// production and had no photo even after the shared-poster fix.
+{
+  const source = FALL_DISCOVERIES_2026.find((row) => row.event_id === "nueva-cantina-halloween-tampa-2026");
+  const [merged] = mergeFallDiscoveryRows([{
+    event_id: source.event_id,
+    place_id: null,
+    lat: null,
+    lng: null,
+    hero_image: FALL_COLLECTION_POSTER,
+    link_ok: false,
+    link_verdict: "hijacked",
+  }], [source]);
+  ok(merged.place_id === source.place_id && merged.lat === source.lat && merged.lng === source.lng,
+    "newer verified registry identity replaces a stale database copy");
+  ok(merged.hero_image == null,
+    "the stale database poster is discarded during the identity merge");
+  ok(merged.link_ok === false && merged.link_verdict === "hijacked",
+    "mutable database link-health verdicts remain authoritative");
+  ok(fallEventCardImageSrc(merged, 640) === ownedPlacePhotoSrc(source.place_id, 640),
+    "the merged Nueva row resolves to Nueva Cantina's own photo");
+}
+ok(/mergeFallDiscoveryRows\(rows, FALL_DISCOVERIES_2026\)/.test(fallRoute),
+  "the live endpoint merges verified identity before image resolution");
+ok(/fall-intents:v6:/.test(fallRoute),
+  "the Fall cache epoch cannot replay a pre-identity-fix image payload after deployment");
 
 if (fail.length) {
   console.error("check-no-imageless-card: FAILED");

@@ -62,6 +62,11 @@ export const config = {
     // wf_place_products via the service role. ANTI-SCRAPING — keeps the verified
     // affiliate product catalog from being harvested off-origin.
     "/api/place-products",
+    // 2026-09-02: /api/outbound/verdict fetches a THIRD-PARTY page on request
+    // (the detail sheet's website-button content check). Same-origin POST +
+    // per-IP rate limit so nobody uses Wayfind as a fetch proxy. Not a cost
+    // gate — no metered upstream — an abuse gate.
+    "/api/outbound/verdict",
     "/api/hooks",
     "/api/viator/tours",
     // Intent-sheet curated enrichment: exact product artwork and commercial

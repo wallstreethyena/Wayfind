@@ -53,6 +53,7 @@ import { topPickAward } from "../../lib/topPickAward.js";
 import { coarseCat } from "../../lib/ranking.js";
 import { priceLabel } from "../../lib/price.js";
 import { cardImageSrc } from "../../lib/placePhoto.js";
+import { railScrollNeedsMore } from "../../lib/railResponse.js";
 
 const C = { text: "#F1F5F9", muted: "#8b93a1" };
 
@@ -230,6 +231,7 @@ export default function DateNightRails({
             tabIndex={0}
             role="region"
             aria-label={rail.title}
+            onScroll={(event) => { if (!full && payload.hasMore && railScrollNeedsMore(event.currentTarget)) setFull(true); }}
           >
             {rail.places.map((p, i) => {
               const rank = i + 1;

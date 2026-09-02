@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 // (end_date null — the HHN Tribute Store, whose close Universal has not
 // published) stays for OPEN_RUN_DAYS without ever claiming an end date; the
 // vetted year-round spooky PLACES ride along as normal scored place rows.
-import { fetchCuratedEvents, isTrusted } from "../../../../lib/curatedEvents.js";
+import { fetchCuratedEvents, isTrusted, eventOutboundUrl } from "../../../../lib/curatedEvents.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
 import { isFallTagged, fallEventLive, fallWhenLabel, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_EVENT_TICKET_DEALS } from "../../../../lib/fallPool.js";
 import { hasCjPid } from "../../../../lib/deals.js";
@@ -21,7 +21,9 @@ import { cardImageSrc } from "../../../../lib/placePhoto.js";
 import { fastCachedRail, geoCell } from "../../../../lib/railFastCache.js";
 import { composeFallIntentRails } from "../../../../lib/fallIntentRails.js";
 import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../../../../lib/fallPhotoSpots.js";
-import { FALL_DISCOVERIES_2026 } from "../../../../lib/fallDiscoveries2026.js";
+import { FALL_DISCOVERIES_2026, FALL_DISCOVERY_RAIL, FALL_SEASONAL_PLACE_IDS } from "../../../../lib/fallDiscoveries2026.js";
+import { windowRailAnswer } from "../../../../lib/railResponse.js";
+import { FALL_COLLECTION_POSTER, fallEventCardImageSrc, mergeFallDiscoveryRows } from "../../../../lib/fallEventImage.js";
 
 const FALL_DB_DEADLINE_MS = 3500;
 
@@ -33,13 +35,21 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const lat = Number.parseFloat(searchParams.get("lat") || "");
   const lng = Number.parseFloat(searchParams.get("lng") || "");
+  const full = searchParams.get("full") === "1";
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return json({ error: "lat and lng are required" }, 400, "no-store");
   try {
     const today = siteTodayStr();
-    const key = `fall-intents:v5:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v6 invalidates payloads composed before verified registry identity won
+    // over stale database duplicates. Without the epoch bump, a corrected
+    // deploy could replay Nueva Cantina's no-photo v5 response for 15 minutes.
+    const key = `fall-intents:v6:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     const cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
-      const ids = [...new Set([...Object.keys(FALL_PLACE_IDS), ...FALL_PHOTO_PLACE_IDS])];
+      const ids = [...new Set([
+        ...Object.keys(FALL_PLACE_IDS),
+        ...FALL_PHOTO_PLACE_IDS,
+        ...FALL_DISCOVERIES_2026.map((row) => row.place_id).filter(Boolean),
+      ])];
       const dealIds = [...new Set(Object.values(FALL_EVENT_TICKET_DEALS))];
       const signal = AbortSignal.timeout(FALL_DB_DEADLINE_MS);
       // All three reads are independent. Start them together so a cold cache
@@ -47,7 +57,7 @@ export async function GET(request) {
       const [rows, placeResult, dealResult] = await Promise.all([
         fetchCuratedEvents({ signal }),
         supabase.from("wf_inventory")
-          .select("place_id,name,lat,lng,metro,category,signals,editorial,photo_ref,status")
+          .select("place_id,name,lat,lng,metro,category,primary_type,google_types,signals,editorial,photo_ref,status")
           .in("place_id", ids).abortSignal(signal),
         dealIds.length
           ? supabase.from("wf_deals").select("id,affiliate_url,active,link_ok,provider").in("id", dealIds).abortSignal(signal)
@@ -62,9 +72,8 @@ export async function GET(request) {
       // The owner-supplied discovery registry is publish-ready source data,
       // not merely a seed script. Merge it at read time so a missed/lagging
       // database seed cannot erase verified farms, cafes and spooky dates.
-      const eventRows = [...(rows || []), ...FALL_DISCOVERIES_2026]
-        .filter((row, index, all) => all.findIndex((other) => other.event_id === row.event_id) === index);
-      const events = eventRows
+      const eventRows = mergeFallDiscoveryRows(rows, FALL_DISCOVERIES_2026);
+      const eligibleRows = eventRows
       // isTrusted, NOT a second inline copy of the status check. The line this
       // replaced asked only about event_status and therefore skipped the
       // source_tier and confidence gates that lib/curatedEvents has always
@@ -72,10 +81,14 @@ export async function GET(request) {
       // rail the owner looks at most. The fall date law (fallEventLive, with
       // its open-run rule) stays here because it is genuinely this rail's own.
       .filter((e) => isTrusted(e) && isFallTagged(e.tags) && fallEventLive(e, today))
-      .sort((a, b) => String(a.start_date).localeCompare(String(b.start_date)))
+      .sort((a, b) => String(a.start_date).localeCompare(String(b.start_date)));
+      const inventoryById = new Map((placeResult.data || []).map((row) => [row.place_id, row]));
+      const events = eligibleRows
+      .filter((e) => !FALL_SEASONAL_PLACE_IDS.has(e.event_id))
       .map((e) => {
         const dealId = FALL_EVENT_TICKET_DEALS[e.event_id];
         const deal = dealId ? byDealId.get(dealId) : null;
+        const image = fallEventCardImageSrc(e, 640, inventoryById.get(e.place_id));
         return ({
         ...e,
         kind: "event",
@@ -89,8 +102,12 @@ export async function GET(request) {
         when: fallWhenLabel(e, today),
         hook: e.card_hook,
         take: e.editorial_summary || null,
-        image: e.hero_image || null,   // venue photo filled in below when null
-        url: e.official_ticket_url || e.official_event_url || e.event_page_url || null,
+        // Collection art belongs on the collection tile, never on a named
+        // destination. The helper also rejects legacy DB rows that were seeded
+        // with that poster and derives this venue's own photo from place_id.
+        image: image || null,
+        imageIsVenue: !!image && (!e.hero_image || e.hero_image === FALL_COLLECTION_POSTER),
+        url: eventOutboundUrl(e) || null,   // 2026-09-02: link_ok + quarantine + safeUrl gated
         is_free: !!e.is_free, price_band: e.price_band || null,
         tags: e.tags || [],
         ticket: deal ? { href: deal.affiliate_url, via: "Undercover Tourist", deal_id: deal.id } : null,
@@ -117,13 +134,45 @@ export async function GET(request) {
     // can only ever wear ITS OWN venue's photo, never a neighbour's), and a
     // venue with no photo redirects to the branded fallback instead of a hole.
     // Costs nothing: cache and inventory are both ahead of the spend gate.
-    for (const ev of events) {
-      if (ev.image) continue;
-      const src = cardImageSrc({ place_id: ev.place_id }, 640);
-      if (src) { ev.image = src; ev.imageIsVenue = true; }  // "the venue", never "this event"
-    }
+      // Seasonal menus, decor and make-and-take offerings are attributes of a
+      // permanent business. They are not calendar events. Use the Google place
+      // id as identity so taps, saves, photos and directions all belong to the
+      // real venue; keep the discovery id only as provenance.
+      const seasonalPlaces = eligibleRows
+        .filter((row) => FALL_SEASONAL_PLACE_IDS.has(row.event_id) && row.place_id)
+        .map((row) => {
+          const inventory = inventoryById.get(row.place_id) || null;
+          const signals = inventory?.signals || {};
+          const rating = typeof signals.rating === "number" ? signals.rating : null;
+          const reviews = Number(signals.reviews || 0);
+          return {
+            kind: "place",
+            id: row.place_id,
+            discoveryId: row.event_id,
+            title: row.short_title || row.venue || row.event_name,
+            name: row.venue || inventory?.name || row.event_name,
+            city: row.city,
+            lat: row.lat ?? inventory?.lat,
+            lng: row.lng ?? inventory?.lng,
+            metro: inventory?.metro || null,
+            category: inventory?.category || row.subcategory || "seasonal-place",
+            primaryType: inventory?.primary_type || null,
+            types: inventory?.google_types || [],
+            rating,
+            reviews,
+            wfScore: rating ? wayfindScore(rating, reviews) : null,
+            take: row.editorial_summary || row.card_hook || null,
+            hook: row.card_hook || null,
+            image: fallEventCardImageSrc({ ...row, hero_image: null }, 640, inventory),
+            fallRail: FALL_DISCOVERY_RAIL[row.event_id],
+            sourceUrl: row.source_url || null,
+            seasonalThrough: row.end_date || null,
+          };
+        });
 
-      const places = (placeResult.error ? [] : (placeResult.data || []))
+      const seasonalPlaceIds = new Set(seasonalPlaces.map((place) => place.id));
+      const places = [...seasonalPlaces, ...(placeResult.error ? [] : (placeResult.data || []))
+        .filter((p) => !seasonalPlaceIds.has(p.place_id))
         .filter((p) => (!p.status || p.status === "OPERATIONAL") && p.signals && typeof p.signals.rating === "number" && p.signals.rating > 0)
         .map((p) => ({
           kind: "place",
@@ -139,7 +188,7 @@ export async function GET(request) {
           image: cardImageSrc({ place_id: p.place_id, photo_ref: p.photo_ref }, 640),
           fallRail: FALL_PLACE_RAIL[p.place_id] || (FALL_PHOTO_SPOTS[p.place_id] ? "photos" : null),
           ...(FALL_PHOTO_SPOTS[p.place_id] || {}),
-        }))
+        }))]
         .sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
 
       const composed = composeFallIntentRails(events, places, { lat, lng, today });
@@ -148,7 +197,7 @@ export async function GET(request) {
       name: "fall-intent-rails",
       usable: (value) => value?.rails?.length === 10 && Number(value?.sourceCount || 0) > 0,
     });
-    return Response.json(cached.value, {
+    return Response.json(windowRailAnswer(cached.value, full), {
       headers: {
         "cache-control": "public, s-maxage=900, stale-while-revalidate=86400",
         "x-wayfind-fast-cache": cached.state,

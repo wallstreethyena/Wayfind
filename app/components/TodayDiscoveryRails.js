@@ -10,6 +10,7 @@ import { topPickAward } from "../../lib/topPickAward.js";
 import { wayfindScore } from "../../lib/wayfindScore.js";
 import { beachDecisionReason, beachWaterBand } from "../../lib/beachDecision.js";
 import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
+import { railScrollNeedsMore } from "../../lib/railResponse.js";
 
 const COLORS = { text: "#F1F5F9", muted: "#8b93a1" };
 const compact = (value) => Number(value) >= 1000 ? Math.round(Number(value) / 100) / 10 + "k" : String(Number(value) || 0);
@@ -61,7 +62,8 @@ export default function TodayDiscoveryRails({
       <p style={{ margin: "0 0 8px", fontSize: 12.5, lineHeight: 1.45, color: "#AEB8C6" }}>{rail.deck}</p>
       {!rail.places.length ? <p style={{ margin: "8px 0 0", fontSize: 13, color: COLORS.muted }}>No nearby place has enough verified evidence for this rail yet. We will not fill it with a look-alike.</p> : <>
         <RailNav railId={railId} count={rail.total || rail.places.length} unit={(rail.total || rail.places.length) === 1 ? "ranked place" : "ranked places"} />
-        <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>
+        <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}
+          onScroll={(event) => { if (!full && payload.hasMore && railScrollNeedsMore(event.currentTarget)) setFull(true); }}>
           {rail.places.map((place, index) => {
             const rank = index + 1;
             const photo = place.photo || (place.photoRef ? "/api/photo?ref=" + encodeURIComponent(place.photoRef) + "&w=640" : null);

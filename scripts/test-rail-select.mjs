@@ -692,6 +692,19 @@ const WIDEN_RADIUS_MI = 25;
   }
   ok(/rest\/v1\/wf_inventory/.test(dcode) && /status=eq\.OPERATIONAL/.test(dcode),
     "the widening reads OWNED inventory — never Google in a request path (the architecture rule)");
+  eq((dcode.match(/inventoryOnly: true/g) || []).length, 2,
+    "both rankedFor fan-outs are inventory-only — a cold homepage cell never falls through to live Google search");
+  const landingCode = readFileSync(new URL("../lib/landing.js", import.meta.url), "utf8");
+  ok(/opts && opts\.inventoryOnly === true\) return \[\]/.test(landingCode),
+    "rankedFor honors the rail-only no-Google contract before its runtime Places fallback");
+  const geoIndex = readFileSync(new URL("../supabase/migrations/20260902_wf_inventory_category_geo_bounds.sql", import.meta.url), "utf8");
+  ok(/on public\.wf_inventory \(category, lat, lng\)/.test(geoIndex),
+    "the cold category + geographic-bounds read has one aligned composite index migration");
+  for (const file of ["TodayDiscoveryRails", "NightOutRails", "DateNightRails", "BirthdayRails", "FallIntentRails"]) {
+    const railUi = readFileSync(new URL(`../app/components/${file}.js`, import.meta.url), "utf8");
+    ok(/railScrollNeedsMore\(event\.currentTarget\)/.test(railUi),
+      `${file} fetches the remaining ranked window when a swipe nears the end`);
+  }
 }
 
 // ── v8.33: THERE IS NO EXPOSURE CAP (owner: "no more max on anything") ─────

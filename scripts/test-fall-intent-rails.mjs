@@ -5,8 +5,10 @@ import {
   fallRailOrder, composeFallIntentRails,
 } from "../lib/fallIntentRails.js";
 import { FALL_PLACE_IDS, FALL_PLACE_RAIL } from "../lib/fallPool.js";
-import { FALL_DISCOVERIES_2026, FALL_DISCOVERY_RAIL } from "../lib/fallDiscoveries2026.js";
+import { FALL_DISCOVERIES_2026, FALL_DISCOVERY_RAIL, FALL_SEASONAL_PLACE_IDS } from "../lib/fallDiscoveries2026.js";
+import { railScrollNeedsMore, windowRailAnswer } from "../lib/railResponse.js";
 import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../lib/fallPhotoSpots.js";
+import { FALL_COLLECTION_POSTER, fallEventCardImageSrc } from "../lib/fallEventImage.js";
 
 let pass = 0;
 const failures = [];
@@ -103,12 +105,28 @@ ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "
 ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "food").length === 3, "Rosallie, Perfect Press and Haraz House live in seasonal food");
 ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "date-night").length === 7, "Mangoni, Nueva, You Do the Dishes, Dead Coconut Club, both All Fired Up studios and Sirens of Helena live in spooky date night");
 ok(FALL_DISCOVERIES_2026.filter((row) => row.verification_confidence === "high").length === 8, "the six dated farm programs plus Dead Coconut Club and Mangoni's venue-confirmed dates carry first party high confidence verification");
+ok(FALL_SEASONAL_PLACE_IDS.size === 10, "the ten permanent-business discoveries are explicitly modeled as seasonal places");
+ok(FALL_DISCOVERIES_2026.filter((row) => !FALL_SEASONAL_PLACE_IDS.has(row.event_id)).length === 6, "only the six dated farm programs remain events");
+ok(FALL_DISCOVERIES_2026.every((row) => !/\/cards-v8\/augtober-/i.test(String(row.hero_image || ""))), "no place or event wears the Fall collection poster as if it were a real photo");
+const photoOwner = "ChIJTzoiienhwogRbPa3GpuvBQU";
+const ownedPhotoRef = `places/${photoOwner}/photos/fall-owned-photo`;
+const fallOwnedImage = fallEventCardImageSrc(
+  { place_id: photoOwner, hero_image: FALL_COLLECTION_POSTER },
+  640,
+  { place_id: photoOwner, photo_ref: ownedPhotoRef },
+);
+ok(fallOwnedImage.includes(encodeURIComponent(ownedPhotoRef)) && !/augtober-760/.test(fallOwnedImage), "the old scarecrow poster is rejected and replaced by that venue's owned Google photo ref");
+ok(fallEventCardImageSrc({ place_id: photoOwner, hero_image: "https://images.example.com/real-event.jpg" }) === "https://images.example.com/real-event.jpg", "a real event-specific hero remains eligible for a dated event");
+const fallWindow = windowRailAnswer({ rails: [{ id: "food", cards: Array.from({ length: 20 }, (_, id) => ({ id })) }] });
+ok(fallWindow.rails[0].cards.length === 12 && fallWindow.rails[0].total === 20 && fallWindow.hasMore === true, "Fall first paint carries a compact ranked window and the honest full count");
+ok(railScrollNeedsMore({ scrollLeft: 620, clientWidth: 300, scrollWidth: 1000 }) === true, "a swipe near the rail end requests the remaining ranked cards");
+ok(railScrollNeedsMore({ scrollLeft: 100, clientWidth: 300, scrollWidth: 1000 }) === false, "an early swipe does not fetch the full catalogue");
 
 const route = readFileSync(new URL("../app/api/events/fall/route.js", import.meta.url), "utf8");
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(/fall-intents:v5:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key");
+ok(/fall-intents:v6:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key");
 ok(/FALL_DISCOVERIES_2026/.test(route) && /eventRows/.test(route), "publish-ready fall discoveries are served even when their database seed lags");
 ok(/take: FALL_PLACE_IDS\[p\.place_id\] \|\| FALL_PHOTO_SPOTS\[p\.place_id\]\?\.visualProof \|\| p\.editorial/.test(route), "verified seasonal or visual evidence wins over a generic inventory summary");
 ok(!/searchText|places\.googleapis|nearbySearch/.test(route), "the fall API makes no paid Google place call");
@@ -116,14 +134,18 @@ ok(/Promise\.all\(\[/.test(route), "independent Supabase reads start in parallel
 ok(/FALL_DB_DEADLINE_MS = 3500/.test(route) && /abortSignal\(signal\)/.test(route), "Fall inventory reads settle before the reader-facing skeleton deadline");
 ok(/placeResult\.error \? \[\]/.test(route) && /sourceFailures/.test(route), "a slow optional place/deal read cannot erase the publish-ready fall answer");
 ok(/FALL_PLACE_RAIL/.test(route) && /composeFallIntentRails/.test(route), "the API composes owned events and vetted places through one taxonomy");
+ok(/FALL_SEASONAL_PLACE_IDS/.test(route) && /const seasonalPlaces =/.test(route) && /discoveryId: row\.event_id/.test(route), "permanent-business discoveries are served as Google-place cards, not events");
+ok(/FALL_COLLECTION_POSTER/.test(route) && /fallEventCardImageSrc/.test(route), "old cached scarecrow hero values are rejected at serve time, not merely removed from new source rows");
 ok(/FALL_PHOTO_PLACE_IDS/.test(route) && /FALL_PHOTO_SPOTS/.test(route), "the photo rail reads the researched registry rather than trusting an Instagrammable label");
 ok(/FallIntentRails = dynamic/.test(daypart), "the ten-rail component is lazy and absent from first paint");
 ok(/selRail\.id === "augtober"/.test(daypart) && /<FallIntentRails/.test(daypart), "the Augtober poster opens the specialized collection");
 ok(/selRail\.id === "augtober" \|\| selRail\.id === "tonight"/.test(daypart), "generic place fallback is suppressed for Augtober and Night Out");
 ok(!/fallEvents\.map|wf8-falltile/.test(daypart), "the old mixed inline fall strip is retired rather than duplicated");
 ok(/result\.rails\.length !== 10/.test(component), "the client fails closed on an incomplete rail contract");
-ok(/FALL_LOAD_TIMEOUT_MS = 12000/.test(component) && /controller\.abort\(\)/.test(component) && /signal: controller\.signal/.test(component), "the collection cannot leave a first-time reader on an endless skeleton");
-ok(/\}, \[key, retry\]\);/.test(component) && !/\[key, city, retry, onTrack\]/.test(component), "parent telemetry re-renders cannot abort the rail request and strand its duplicate guard");
+ok(/FALL_LOAD_TIMEOUT_MS = 10000/.test(component) && /fetchJsonWithDeadline/.test(component), "the collection cannot leave a first-time reader on an endless skeleton");
+ok(/\}, \[key, retry, full\]\);/.test(component) && !/\[key, city, retry, onTrack\]/.test(component), "parent telemetry re-renders cannot abort the rail request and strand its duplicate guard");
+ok(/rail\.total \|\| rail\.cards\.length/.test(component) && /Load every verified fall option/.test(component), "Fall shows the true option count and can fetch the remaining cached cards");
+ok(/railScrollNeedsMore\(event\.currentTarget\)/.test(component), "Fall fetches the remaining cached cards when a reader swipes near the end");
 ok(/service miss, not an empty city/.test(component), "a failed service is not misreported as an empty location");
 ok(/seasonal look-alike/.test(component), "thin rails render the approved honest empty state");
 ok(/actionsReadOnly=\{isEvent\}/.test(component), "dated events do not render dead place reactions");

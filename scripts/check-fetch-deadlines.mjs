@@ -8,7 +8,8 @@
  * prevent those things, but it's not protecting it."
  *
  * v8.73 (#993) found half of it — nine builders running sequentially against a
- * 12-second client deadline — parallelised them and raised the budget to 30s.
+ * 12-second client deadline — parallelised them and, at the time, raised the
+ * budget to 30s. The owned-inventory repair now permits a 10s client budget.
  * The half it did not find, measured on production 2026-08-27 AFTER that fix
  * shipped, serially, one request at a time, against Orlando with its metro pool
  * already warm, six fresh CDN cache cells:
@@ -40,7 +41,7 @@
  * ORDERING BETWEEN THEM — which is the part a later tidy-up breaks without
  * noticing, because each number looks arbitrary on its own:
  *
- *     per-call 8s  <  server 20s  <  client 30s
+ *     per-call 8s  <  server 9s  <  client 10s
  *
  * If the server deadline ever exceeds the client's, the reader's stopwatch
  * decides what they are told about their town again, and we are back to
@@ -360,4 +361,4 @@ if (fails) {
   console.error(`check-fetch-deadlines: FAIL — ${fails} of ${pass + fails} assertions`);
   process.exit(1);
 }
-console.log(`check-fetch-deadlines: OK — ${pass} assertions (fetchDeadline executed against a never-settling fetch; assertRailsBody executed against 10 real payload shapes; the 8s < 20s < 30s ordering pinned; 7 rail-path fetch sites bounded)`);
+console.log(`check-fetch-deadlines: OK — ${pass} assertions (fetchDeadline executed against a never-settling fetch; assertRailsBody executed against 10 real payload shapes; the 8s < 9s < 10s ordering pinned; 7 rail-path fetch sites bounded)`);

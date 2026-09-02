@@ -886,3 +886,13 @@ node scripts/check-credential-discipline.mjs
 # exact, creators=mailto while feedback never is, /api/feedback stores without a
 # mailer, and the component is mounted in the home footer beside Privacy/Terms.
 node scripts/check-community-footer.mjs
+# 2026-09-02 HIJACKED-DOMAIN INCIDENT. fruitvillegrove.com (a dropped domain,
+# re-registered by a togel/slot operator) answered 200 behind a Fall event
+# card's "Event details" button; olearystikibar.com had casino copy injected.
+# Status-only link checks cannot see either. This lock proves BY CALL that
+# lib/links.safeUrl refuses the quarantine ledger, that the content classifier
+# catches both incident shapes (and spares a real casino venue, Spanish pages
+# and bot walls), that lib/curatedEvents publishes nothing for a bad row, and
+# that every render site (RailCard, Detail, fall endpoint, single-event page)
+# routes through those calls — each red-proved by an applied mutation.
+node scripts/check-link-quarantine.mjs

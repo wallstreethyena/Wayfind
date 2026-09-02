@@ -95,14 +95,10 @@ import { posterImgIsReady, bindPosterArtReady, posterImgInTile } from "../../lib
 // different facts, one indistinguishable grey box, no way out of it.
 import { settleLoad, LOAD_PENDING, LOAD_FAILED, LOAD_TIMEOUT_MS, isPending, isFailed } from "../../lib/loadState.js";
 
-// The rails request gets its OWN budget, because lib/loadState's 12s was
-// derived for rails that "read our own Supabase RPCs" and this one does not:
-// it makes live Google searchText calls per category per town. Measured cold
-// on production 2026-08-27 at 7.4s typical / 25.4s worst, so 12s was cutting
-// off requests that were about to succeed. This is the point at which we stop
-// pretending it is coming, not the point at which we stop listening — a
-// response that lands later is still applied (see the late lane below).
-export const RAILS_LOAD_TIMEOUT_MS = 30000;
+// Reader-facing rails are inventory-only now. Ten seconds is the visible
+// browser deadline; it sits outside the server's 9s compute budget and still
+// keeps the late-response lane below, so recovery never requires a refresh.
+export const RAILS_LOAD_TIMEOUT_MS = 10000;
 // How long a reader may look at a silent skeleton before it explains itself.
 // Well inside RAILS_LOAD_TIMEOUT_MS — the point is to speak DURING the wait,
 // not to shorten it — and past the p50 of a warm response (measured 2026-08-27
@@ -428,12 +424,9 @@ export default function DaypartRail({
   // different times: the grey box before the deadline, and "we couldn't reach
   // the ranking service" after it.
   //
-  // v8.73 raised that budget from 12s to 30s to stop a slow-but-arriving
-  // response being called a failure. That was right, and it made THIS worse:
-  // it more than doubled the time a reader can sit in front of a silent grey
-  // box. And because refreshing restarts the clock, the reader who does the
-  // obvious thing — pull to refresh — resets a 30-second wait and sees grey
-  // again, every time. That is the loop he was stuck in.
+  // The old 30s budget more than doubled the time a reader could sit in front
+  // of a silent grey box. Refreshing restarted the clock, which is the loop
+  // the owner was stuck in. The inventory-only path now has a 10s deadline.
   //
   // So: after RAIL_VOICE_MS the skeleton acquires a voice and an exit. Not a
   // failure — nothing has failed, and claiming otherwise would be the
@@ -631,15 +624,10 @@ export default function DaypartRail({
     //     server-side rebuild   7.4 s typical, 25.4 s genuinely cold
     //     payload               580 – 740 KB over LTE
     //
-    // lib/loadState.js sets a 12s deadline and its comment says that is "well
-    // past the p99 of these rails (they read our own Supabase RPCs)". That
-    // premise is FALSE for this one: /api/rails makes live Google searchText
-    // calls for every category × every town in the metro pool. A cold request
-    // routinely exceeds 12s, so the reader was being shown "we couldn't reach
-    // the ranking service" for a request that was about to succeed — and,
-    // worse, `setLive(emptyRailLive())` threw away whatever was on screen, so
-    // ONE slow response emptied EVERY rail at once (railLoad is one state for
-    // the whole component).
+    // The old path could fall through to live Google searches and routinely
+    // exceeded 12s. Rail pool reads are now inventory-only, and the compact
+    // compute budget lets the browser settle at 10s without waiting for the
+    // platform's 30s kill. Existing cards are still never wiped on a retry.
     //
     // The deadline still exists — a black-holed connection must not leave a
     // skeleton up forever, which is what lib/loadState.js was written for. What

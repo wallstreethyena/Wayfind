@@ -56,7 +56,9 @@ if (!probeCaught) offenders.push("CONTROL FAILED: synthetic bare cget envelope w
 // Fall remains a second cache-shape control: fastCachedRail returns
 // { value, state }, and only value may reach the response body.
 const fall = strip(readFileSync(path.join(ROOT, "app/api/events/fall/route.js"), "utf8"));
-const fallControlOk = /await fastCachedRail\(/.test(fall) && /Response\.json\(cached\.value/.test(fall);
+const fallControlOk = /await fastCachedRail\(/.test(fall)
+  && /Response\.json\((?:windowRailAnswer\()?cached\.value/.test(fall)
+  && !/Response\.json\(\s*cached\s*[,)]/.test(fall);
 if (!fallControlOk) offenders.push("CONTROL FAILED: fall route must serve fastCachedRail's cached.value, never its envelope");
 
 if (offenders.length) {
