@@ -263,6 +263,40 @@ export default function HookDetailSheet({ ctx }) {
                 );
               })}
 
+              {/* More of the neighborhood worth your time — real nearby places
+                  from the reader's own nearby pool, BEYOND the partner picks, so
+                  a partner sheet also answers "what else is around here" (owner
+                  2026-08-23: pairs-well nearby, on both surfaces). Gated to the
+                  partner splash, excludes the featured venues, ranked by Wayfind,
+                  and hides below a three-card floor so it is never a thin shelf.
+                  The partner's own picks stay featured above; this only adds. */}
+              {hookDetail.partnerSplash && (() => {
+                const shown = new Set(themePlaces.map((p) => p && p.id));
+                const near = (allSrc || [])
+                  .filter((p) => p && p.id && !shown.has(p.id) && p.wfScore != null && (p.distMi == null || p.distMi <= 10))
+                  .sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0))
+                  .slice(0, 4);
+                if (near.length < 3) return null;
+                return (
+                  <div style={{ marginTop: 18, marginBottom: 6 }}>
+                    <div style={{ fontSize: 13, fontWeight: 900, letterSpacing: "0.6px", textTransform: "uppercase", color: acc, marginBottom: 3 }}>More of the Grove worth your time</div>
+                    <div style={{ fontSize: 12, color: C.muted, marginBottom: 10 }}>Nearby, beyond the picks above — ranked by Wayfind.</div>
+                    {near.map((p) => (
+                      <div key={p.id} onClick={() => { setHookDetail(null); openDetail(p, hookDetail.theme); }} style={{ display: "flex", gap: 10, alignItems: "center", background: premiumImagePage ? "rgba(22,29,42,.92)" : C.card, border: `1px solid ${premiumImagePage ? "rgba(148,163,184,.18)" : C.border}`, borderRadius: 12, overflow: "hidden", marginBottom: 8, cursor: "pointer" }}>
+                        <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 62, height: 62, objectFit: "cover", display: "block", flexShrink: 0 }} />
+                        <div style={{ flex: 1, minWidth: 0, paddingRight: 10 }}>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: C.text, lineHeight: 1.25, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+                            <PlaceScoreChip p={p} size={12} />
+                            {p.distMi != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+
               {/* Bottom save + share actions */}
               {themePlaces.length > 0 && (
                 <div style={{ display: "flex", gap: 10, marginTop: 4 }}>

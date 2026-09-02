@@ -8,6 +8,11 @@ import { siteTodayStr } from "../lib/siteTime";
 import { intentRadiusMi, intentScopeLabel } from "../lib/momentIntents";
 import { MAP_DEFAULT_CATEGORY } from "../lib/mapExplorer";
 import { nearMeQuery } from "../lib/nearMeQuery";
+// v8.41 — the ONE landing. Every control that swaps the feed under the reader
+// takes them to the results through this, not through its own hand-rolled
+// scroll. See lib/landOnResults.js for the three things a landing has to get
+// right and the three that kept being missed.
+import { landOnResults } from "../lib/lazyLandOnResults";
 import { waterForBeaches, sampledShort } from "../lib/waterStations";
 import { WATER_PLAIN, WATER_TONE, waterQualityKey } from "../lib/beachChip";
 // PURE metro resolver for the cuisine sheet. lib/cuisine.js never fetches and
@@ -88,6 +93,9 @@ import { usePlaceProduct } from "../lib/placeProduct";
 // photoRef, so nothing on this page live-picks a hero photo any more.
 import { useBestPhoto } from "../lib/bestPhoto";
 import nextDynamic from "next/dynamic";
+// The community tools sit below the entire discovery feed. Keep their form
+// state and submission code out of the first screen bundle.
+const CommunityFooter = nextDynamic(() => import("./components/CommunityFooter"), { ssr: false });
 // v5.39 (July 2026 audit, Phase 7): the map bundle loads when the map
 // screen (or sidebar map) first renders, not on first paint.
 const MapView = nextDynamic(() => import("./components/MapView"), { ssr: false, loading: () => <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, color: "#CBD5E1", background: "#070C14", fontSize: 13, fontWeight: 700 }}><div aria-hidden="true" style={{ position: "relative", width: 126, height: 126, borderRadius: "50%", border: "1px solid rgba(249,115,22,.42)", boxShadow: "0 0 0 28px rgba(249,115,22,.08),0 0 0 56px rgba(249,115,22,.045)" }}><span style={{ position: "absolute", left: "50%", top: "50%", width: 15, height: 15, margin: "-7.5px", borderRadius: "50%", background: "#F97316", border: "3px solid #FFF7ED", boxShadow: "0 0 0 7px rgba(249,115,22,.18)" }} /></div><span>Setting the map…</span></div> });
@@ -280,7 +288,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.53.0";
+const BUILD_ID = "v8.54.0";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -4535,6 +4543,88 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // home.js — the browser was the first thing to run this line. The anchor
   // marks where the browse results start (jump-to-results, v8.11).
   const browseAnchorRef = useRef(null);
+  // v8.41 — WHILE THIS IS SET, A DELIBERATE LANDING OWNS THE SCROLL.
+  //
+  // Two mechanisms both steer this shell on a filter change and they were
+  // steering to different places: the reset effect below zeroes the scroller on
+  // every [cat, sub, vibe, ...] change (so a filter never strands you mid-list),
+  // and the nav's jump-to-results takes you DOWN to the browse block. v8.11
+  // shipped the second without telling the first, so the two raced — and the
+  // reset, being an effect rather than a frame callback, usually won. Holding
+  // the live landing's cancel function here is what lets the reset stand down
+  // for exactly as long as a landing is in flight, and not one moment longer.
+  const landingRef = useRef(null);
+  const cancelLanding = () => {
+    const l = landingRef.current;
+    landingRef.current = null;
+    if (l && l.cancel) { try { l.cancel(); } catch (e) {} }
+  };
+  // THE LANDING THE NAV OWES THE READER. `force` because a tap on a category
+  // must always visibly answer — "nothing happened" is the entire complaint
+  // this exists to close.
+  //
+  // The `live` flag is not ceremony: landOnResults calls onDone for a landing
+  // that could not start at all, and it may do so SYNCHRONOUSLY. Assigning the
+  // handle unconditionally would then leave a flag set for a landing that is
+  // already over, and the scroll reset below would stay stood down forever.
+  //
+  // `reveal` + the probe are what make "take me to the place cards" literally
+  // true rather than nearly true. MEASURED at 390x844 on a production build:
+  // landing the block at the top puts the first Stays card at 354px of a 590px
+  // scrollport, but the first FOOD card at 599px — one pixel under the fold,
+  // because Food's block carries the local read AND the bookable rail above its
+  // cards. The probe is the first REAL card (skeletons carry -sk and are
+  // deliberately excluded — landing on a grey placeholder is landing on nothing),
+  // and when it cannot fit the landing aligns its bottom to the fold instead,
+  // which still leaves the bookable rail directly above it on screen.
+  const firstBrowseCard = () => {
+    const root = browseAnchorRef.current;
+    try { return root ? root.querySelector(".wf-place-card:not(.wf-place-card-sk)") : null; }
+    catch (e) { return null; }
+  };
+  const landOnBrowse = () => {
+    cancelLanding();
+    const l = { cancel: null, live: true };
+    try {
+      l.cancel = landOnResults(() => browseAnchorRef.current, {
+        force: true,
+        reveal: true,
+        probe: firstBrowseCard,
+        // Longer than the rail's 4s because these cards come from a live Places
+        // search, not from an already-loaded drop: measured cold, they arrive
+        // 1-2s after the tap and, when the API throttles, later than 4s. The
+        // ceiling is a backstop, not a schedule — the landing ends the moment
+        // the card is on screen, and any wheel/touch/keypress ends it sooner.
+        ceiling: 6000,
+        onDone: () => { l.live = false; if (landingRef.current === l) landingRef.current = null; },
+      });
+    } catch (e) { l.live = false; }
+    if (l.live) landingRef.current = l;
+  };
+  useEffect(() => cancelLanding, []);
+  // v8.41 — ONE ENTRY POINT for "show me this category, on the feed, now".
+  //
+  // Every menu that can pick a category from somewhere other than the feed used
+  // to hand-roll this, and each copy got a different piece wrong: the nav tabs
+  // popped the screen but never landed; Itinerary's category row popped to a
+  // screen name that DOES NOT EXIST (`"home"` — the feed is `"suggested"`), so
+  // it left the reader on a blank scroller; the giveaway prompt's "Find a place
+  // to share" swapped the feed under a reader who was looking somewhere else
+  // entirely. One function, so a new caller cannot reinvent any of those.
+  //
+  // NON-TOGGLING on purpose: `pickBrowse` clears the category when it is tapped
+  // twice, which is right for a tab that must be able to close itself and wrong
+  // for a call that means "take me to food" — from off the feed that would land
+  // the reader on a browse block that is not there.
+  const openBrowse = (id) => {
+    if (!id) return;
+    if (screen !== "suggested") {
+      setScreen("suggested");
+      try { if (SCREEN_PATH[screen]) window.history.pushState({ wf: "screen" }, "", "/"); } catch (e) {}
+    }
+    if (browseCat !== id) { setMoodPick(id); setBrowseCat(id); setCat(id); setSub("all"); setVibe("all"); }
+    landOnBrowse();
+  };
   const scrollRestore = useRef(null); // v6.08 (PR-C): { key, top } captured when a place opens, restored on back
   const sheetDragRef = useRef({});
   const insightFullCache = useRef({});
@@ -5697,7 +5787,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // at changes — category, sub-filter, vibe, sort, intent, distance, or screen.
   // Without this, changing a filter leaves you stranded mid-list looking at
   // different content.
-  useEffect(() => { try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); } catch (e) {} setMapPreview(null); setEventPreview(null); setMapDrawer(false); }, [cat, sub, vibe, intent, searchRadius, screen, activeBadge]);
+  // v8.41: ...UNLESS a deliberate landing is in flight. The nav's jump-to-results
+  // is triggered by the very setters this effect watches, so an unconditional
+  // zero here is the thing that cancelled it — see landingRef above. Stranding
+  // is still impossible: a landing always ends (settled, abandoned to the reader,
+  // or the 4s ceiling) and every path that does not land still resets.
+  useEffect(() => { try { if (scrollRef.current && !landingRef.current) scrollRef.current.scrollTo({ top: 0 }); } catch (e) {} setMapPreview(null); setEventPreview(null); setMapDrawer(false); }, [cat, sub, vibe, intent, searchRadius, screen, activeBadge]);
   // v6.08 (PR-C): when a place detail closes (back), restore the list scroll
   // position captured on open. The list stays mounted behind the sheet so its
   // items already exist; a double rAF waits for the close re-render. Keyed by
@@ -8996,7 +9091,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // Favorites render site already walls the whole screen.
     personalize, setConsent, setTasteOpen, tasteVecState,
     // itinerary
-    activeTrip, setActiveTrip, trips, setTrips, tripNoteEdit, setTripNoteEdit, tripMoveFor, setTripMoveFor, sub, pickBrowse, reservations, removeRes, saveResConf,
+    activeTrip, setActiveTrip, trips, setTrips, tripNoteEdit, setTripNoteEdit, tripMoveFor, setTripMoveFor, sub, openBrowse, reservations, removeRes, saveResConf,
     // shared list
     sharedList, setSharedList,
     // events
@@ -9035,6 +9130,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // of them ends up forgetting a setter and leaving a stale list open behind
   // the new screen.
   const goDestination = (id, active) => {
+    // v8.41 — a destination is a DIFFERENT PLACE, so any landing still settling
+    // on the feed's results has been overruled and must let go of the scroll
+    // (this function does its own scroll-to-top two lines down). Without this
+    // the two would both be steering for the rest of the landing's ceiling.
+    cancelLanding();
     if (id === "home" && active) { setBrowseCat(null); setMoodPick(null); setSub("all"); }
     setActiveList(null); setSysFolder(null); setListMenu(null); setRenamingList(null);
     setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); setMapListOverride(null);
@@ -9435,14 +9535,31 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               // set the state and left the reader staring at the old screen.
               // Pop back to the feed (and restore "/" in history so Back
               // still returns to the standalone screen).
-              if (id && screen !== "suggested") {
-                setScreen("suggested");
-                try { if (SCREEN_PATH[screen]) window.history.pushState({ wf: "screen" }, "", "/"); } catch (e) {}
-              }
+              //
               // Same near-me search the map starts on category tap. Opening the
               // tray used to leave browseCat/cat untouched, so Shopping → All
               // on home showed empty organic while the map listed 15 places.
-              if (id && browseCat !== id) { setMoodPick(id); setBrowseCat(id); setCat(id); setSub("all"); setVibe("all"); }
+              //
+              // v8.41 — both of those, and the landing below, are now openBrowse.
+              // v8.41 (owner, 2026-08-23, screenshot of the homepage with Stays
+              // underlined and the amazon rail still filling the screen: "when i
+              // click on stays the page does not go to the area where the place
+              // cards are displayed ... this is something that was happening in
+              // other areas of the menu").
+              //
+              // v8.11 gave the SUB-CHIPS a jump-to-results and never gave the
+              // TABS one, so the first half of the reader's journey — the tap
+              // that actually chooses the category — answered with a tray of
+              // chips and a page that had not moved. The tab row lives in the
+              // header, OUTSIDE the scrolling box, so landing on the results
+              // keeps the tabs and the open tray on screen the whole time: the
+              // reader lands on their places with the controls still under
+              // their thumb.
+              //
+              // Only when a category is OPENED. Closing the tray (id === null)
+              // leaves the feed exactly as it is, so there is nothing to land on
+              // and moving the page would be a lie about what just happened.
+              openBrowse(id);
               try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "nav_open", opened: !!id }); } catch (e) {}
             }}
             onNavSub={(catId, subId, subLabel) => {
@@ -9465,24 +9582,23 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               // unchanged — tapping the category tab again closes it.
               try { logEvent("intent_chip", null, { intent: subLabel, layer: 2, src: "nav_sub", cat: catId }); } catch (e) {}
               // v8.11 (owner, 2026-08-18: "make the page jump to the area of
-              // the menu when the menu and submenu are selected"). Scroll to
-              // where the FILTERED RESULTS start, not to the top of the page —
+              // the menu when the menu and submenu are selected"). Land on
+              // where the FILTERED RESULTS start, not on the top of the page —
               // top:0 parked the reader on the header band with the answer
-              // below the fold. rAF because pickBrowse just flipped the
-              // branch and the anchor mounts on the next frame. Vertical
-              // scrollTo only — check-no-sideways-scroll bans inline-axis
-              // movement, and this must never cause any.
-              try {
-                requestAnimationFrame(() => {
-                  const sc = scrollRef.current, el = browseAnchorRef.current;
-                  if (sc && el) {
-                    const top = el.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop - 10;
-                    sc.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
-                  } else if (sc) {
-                    sc.scrollTo({ top: 0, behavior: "smooth" });
-                  }
-                });
-              } catch (e) {}
+              // below the fold.
+              //
+              // v8.41 — THIS WAS MEASURED AND VERIFIED DEAD IN PRODUCTION, not
+              // suspected. Instrumenting Element.prototype.scrollTo on
+              // gowayfind.com and tapping a sub-chip logged exactly ONE call,
+              // `scrollTo({top:0})` — the reset effect — and nothing else. Two
+              // reasons, both fixed by routing through the one landing:
+              //   (a) the reset effect fires on the same `sub` change and, being
+              //       an effect rather than a frame callback, ran AFTER this and
+              //       cancelled the smooth scroll it had just started;
+              //   (b) it measured the anchor in a SINGLE frame, before the
+              //       blocks above it unmounted and before the picks arrived, so
+              //       even when it survived it aimed at a stale offset.
+              landOnBrowse();
             }} />
         )}
         {wxOpen && weather && Array.isArray(weather.hourly) && weather.hourly.length > 0 && (
@@ -10305,8 +10421,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                 </div>
               )}
               {/* v6.22: when a category is being browsed from the mood menu, the feed under the weather becomes that category's ranked places. No navigation, the same PlaceCard used everywhere else. */}
+              {/* v8.41 — scrollMarginTop is the landing's breathing room, and it
+                  lives HERE rather than as a "-10" inside the scroll call: the
+                  same reason .wf8-menusec carries one (check-shell-scroll pins
+                  it). An offset that describes a layout belongs to the layout,
+                  or it goes stale the moment the layout changes. */}
               {browseCat && (
-                <div ref={browseAnchorRef} style={{ marginBottom: 16 }}>
+                <div ref={browseAnchorRef} style={{ marginBottom: 16, scrollMarginTop: 10 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
                     <div onClick={() => { setBrowseCat(null); setMoodPick(null); setSub("all"); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
                     {browseCat !== "attractions" && <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : ""} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />}
@@ -10521,7 +10642,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                               ) : (
                                 <button onClick={() => { gwPopClose("cta"); setAuthOpen(true); }} style={{ padding: "8px 14px", borderRadius: 999, background: "#E8B84B", border: "none", color: "#1B1405", fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>{gwCount > 0 ? "Sign in to lock your entry" : "Sign in to enter"}</button>
                               )}
-                              <button onClick={() => { gwPopClose("browse"); pickBrowse("food"); try { logEvent("giveaway_pop_browse"); } catch (e) {} }} style={{ padding: "8px 14px", borderRadius: 999, background: "transparent", border: "1px solid rgba(232,184,75,.45)", color: "#F2D48A", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Find a place to share ›</button>
+                              {/* v8.41: openBrowse, not pickBrowse — this button
+                                  means "take me to food", and pickBrowse would
+                                  CLEAR the category for a reader who was already
+                                  browsing food when the prompt opened. It lands
+                                  on the results too, because the prompt covers
+                                  the screen and the reader has no idea where the
+                                  feed was underneath it. */}
+                              <button onClick={() => { gwPopClose("browse"); openBrowse("food"); try { logEvent("giveaway_pop_browse"); } catch (e) {} }} style={{ padding: "8px 14px", borderRadius: 999, background: "transparent", border: "1px solid rgba(232,184,75,.45)", color: "#F2D48A", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Find a place to share ›</button>
                             </div>
                             <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 12 }}>
                               <button onClick={() => setGwOpen(true)} style={{ padding: 0, background: "transparent", border: "none", color: "#B99B4E", fontSize: 11.5, fontWeight: 700, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>How it works</button>
@@ -10587,6 +10715,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               {/* Inline ranked feed removed from home: browsing the full ranked list now happens inside the Wayfind Picks sheet, the Nearby tile, search, and categories. */}
               <div style={{ marginTop: 18, paddingTop: 14, borderTop: `1px solid ${C.border}`, textAlign: "center" }}>
               <div style={{ height: 24 }} />
+                {/* Community strip — Instagram, the creator call, and in-app
+                    feedback (to the DB, never email). Placed HERE, the one
+                    below-content area a phone user reaches on "/" (the layout
+                    footer is veiled here), and NOT in the side nav — owner's ask.
+                    Pinned by scripts/check-community-footer.mjs. */}
+                <CommunityFooter path="/" loc={locName || ""} build={BUILD_ID} userId={(user && user.id) || null} />
+                <div style={{ height: 18 }} />
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, marginBottom: 7 }}>
                   <a href="/privacy" style={{ fontSize: 12, fontWeight: 700, color: C.muted, textDecoration: "none" }}>Privacy</a>
                   <span style={{ color: C.border }}>·</span>

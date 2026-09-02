@@ -6,14 +6,23 @@ import { openExternal } from "../../../lib/links";
 import * as Trips from "../../../lib/trips";
 
 export default function ItineraryScreen({ ctx }) {
-  const { activeTrip, setActiveTrip, trips, setTrips, tripNoteEdit, setTripNoteEdit, tripMoveFor, setTripMoveFor, sub, logEvent, setScreen, pickBrowse, reservations, removeRes, saveResConf, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, giveawayMark, blurbs, openExperience, openCuisine, PlaceCard, CategoryMenu, StateBadge, requireAuth } = ctx;
+  const { activeTrip, setActiveTrip, trips, setTrips, tripNoteEdit, setTripNoteEdit, tripMoveFor, setTripMoveFor, sub, logEvent, openBrowse, reservations, removeRes, saveResConf, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, giveawayMark, blurbs, openExperience, openCuisine, PlaceCard, CategoryMenu, StateBadge, requireAuth } = ctx;
   return (
     <>
         {!activeTrip && (() => {
           const list = Trips.tripList(trips);
           return (
             <div>
-              <CategoryMenu activeCat={null} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "itinerary" }); } catch (e) {} setScreen("home"); setTimeout(() => pickBrowse(id), 60); }} onSub={() => {}} />
+              {/* v8.41 — THIS ROW WENT NOWHERE. It called setScreen("home"), and
+                  there is no screen called "home": the feed is "suggested"
+                  (app/home.js renders it under `screen === "suggested"`), so a
+                  category tap here left the reader on an empty scroller with no
+                  itinerary and no feed, and the bottom nav highlighted nothing.
+                  The 60ms setTimeout was covering for the same confusion — two
+                  state changes in one handler are batched, they never needed a
+                  timer. openBrowse switches to the feed, sets the category
+                  WITHOUT toggling, and lands the reader on the place cards. */}
+              <CategoryMenu activeCat={null} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "itinerary" }); } catch (e) {} openBrowse(id); }} onSub={() => {}} />
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6, paddingTop: 4 }}>
                 <div style={{ fontSize: 18, fontWeight: 700, color: C.text }}>Your trips</div>
                 {list.length > 0 && <span style={{ fontSize: 13, color: C.muted }}>{list.length} destination{list.length !== 1 ? "s" : ""}</span>}

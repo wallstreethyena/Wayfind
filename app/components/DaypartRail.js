@@ -200,14 +200,15 @@ export const PHOTO_WINDOW_STEP = 8;
 // created on a dev server or a preview deploy still carries the production host
 // (lib/site.js canonicalShareUrl — the "it previewed as localhost" bug).
 import { railShareIntent } from "../../lib/railShare.js";
+// v8.41 — the ONE landing, shared with the nav tabs in app/home.js. See the
+// effect below and lib/landOnResults.js for why it stopped being local code.
+import { landOnResults } from "../../lib/lazyLandOnResults.js";
 // v8.10 (owner, 2026-08-18: "there is no explanation of what the place is").
 // The ONE editorial resolver every place surface uses (#687 pattern) — known-for
 // research first, pool-cached blurb second, both fail-soft, no model in the
 // render path — and the ONE compressor. The drop's cards were the only place
 // cards on the site rendering without their editorial line.
 import useEditorialHooks from "./useEditorialHooks";
-import useIntentCandidates, { mergeCandidates } from "./useIntentCandidates";
-import { NIGHT_OUT_MAX_MI } from "../../lib/nightOutIntent.js";
 import { toHookLine } from "../../lib/editorialHook";
 import { formatBeachChipBits, waterQualityKey, WATER_TONE, WATER_PLAIN_LONG } from "../../lib/beachChip.js";
 import PlaceCardSkeleton from "./PlaceCardSkeleton";
@@ -878,44 +879,25 @@ export default function DaypartRail({
   // every height change and stops the instant the picks are on screen, on any
   // touch of the reader's own, or at a hard 4s ceiling. Our own scrolling never
   // resizes the drop, so this cannot feed itself.
+  //
+  // v8.41 — THE SETTLEMENT NOW LIVES IN lib/landOnResults.js, unchanged in
+  // behaviour and no longer unique to this component. The nav tabs had the same
+  // job and their own, weaker copy of it (one rAF, no observer, no abort), which
+  // is why the owner reported the identical "nothing happened" a second time
+  // from a different control. One implementation is the fix; this call site is
+  // deliberately left with its full history above it, because the history is
+  // what stops the next author rewriting a fourth version.
+  //
+  // `force` is OFF here on purpose: a drop that already sits in view should be
+  // left where the reader put it. The nav passes it, because a tab tap must
+  // always visibly answer.
   useEffect(() => {
     if (!selected || typeof window === "undefined") return undefined;
-    const sec = menuRef.current;
-    if (!sec) return undefined;
-    const reduced = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-    let f1 = 0, f2 = 0, ceiling = 0, ro = null, settled = false, userMoved = false;
-    const noteUser = () => { userMoved = true; };
-    const onScreen = () => {
-      const el = pcRef.current || sec;
-      const top = el.getBoundingClientRect().top;
-      return top >= -8 && top <= (window.innerHeight || 0) * 0.72;
-    };
-    const land = (behavior) => {
-      try { sec.scrollIntoView({ behavior, block: "start", inline: "nearest" }); }
-      catch (e) { try { sec.scrollIntoView(true); } catch (e2) {} }
-    };
-    const settle = (behavior) => {
-      if (settled || userMoved) return;
-      if (onScreen()) { settled = true; return; }
-      land(behavior);
-    };
-    const stop = () => { settled = true; if (ro) { try { ro.disconnect(); } catch (e) {} ro = null; } };
-    f1 = requestAnimationFrame(() => {
-      f2 = requestAnimationFrame(() => {
-        settle(reduced ? "auto" : "smooth");
-        if (reduced) { stop(); return; }
-        for (const ev of ["wheel", "touchmove", "keydown"]) window.addEventListener(ev, noteUser, { passive: true, once: true });
-        try { ro = new ResizeObserver(() => settle("auto")); ro.observe(sec); } catch (e) { ro = null; }
-        ceiling = window.setTimeout(stop, 4000);
-      });
-    });
+    if (!menuRef.current) return undefined;
+    const cancel = landOnResults(() => menuRef.current, { probe: () => pcRef.current });
     if (pcRef.current) pcRef.current.scrollLeft = 0;
     syncPc();
-    return () => {
-      cancelAnimationFrame(f1); cancelAnimationFrame(f2); window.clearTimeout(ceiling);
-      if (ro) { try { ro.disconnect(); } catch (e) {} }
-      for (const ev of ["wheel", "touchmove", "keydown"]) window.removeEventListener(ev, noteUser);
-    };
+    return cancel;
   }, [selected, syncPc]);
 
   useEffect(() => {
@@ -1142,27 +1124,17 @@ export default function DaypartRail({
   // Search every owned rail pool, dedupe by place id, and let the strict
   // composer admit only evidence-backed nightlife identities within 27 miles.
   //
-  // 2026-09-02 FIX — this union ALONE was the whole input, and Night Out has
-  // no home rail of its own: none of breakfast/family/beach/trending/etc were
-  // ever selected for a nightlife/dinner+entertainment identity, so the
-  // composer was starved of real candidates and printed an honest-looking
-  // "No verified event or venue within 27 miles" that was not actually
-  // honest — owner screenshot, Parrish, wf_inventory held 4,412 places within
-  // 27mi, 1,278 rated ≥4.3★/150+ reviews. useIntentCandidates fetches a real,
-  // governed-score-ranked owned-inventory pool (food/nightlife/attractions,
-  // $0, no Google — app/api/intent-candidates/route.js) and mergeCandidates
-  // unions it with the client pool below; a null/failed fetch leaves this
-  // exactly as it always was (fail-soft, never a regression from today).
-  const nightOutCenter = center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null);
-  const nightOutInventory = useIntentCandidates(nightOutCenter, {
-    cats: ["food", "nightlife", "attractions"],
-    radiusMi: NIGHT_OUT_MAX_MI,
-    active: selected === "tonight", // closed drop costs zero requests, same rule as every other lazy fetch in this file
-  });
+  // The dedicated Night Out endpoint owns the complete food, nightlife and
+  // attractions inventory. This client pool is only its fail-soft fallback,
+  // which avoids issuing a second inventory request for the same open drop.
   const nightOutPlaces = useMemo(() => {
-    const clientPool = Object.values(shown.places || {}).flatMap((rows) => Array.isArray(rows) ? rows : []);
-    return mergeCandidates(clientPool, nightOutInventory);
-  }, [shown, nightOutInventory]);
+    const seen = new Set();
+    return Object.values(shown.places || {}).flatMap((rows) => Array.isArray(rows) ? rows : []).filter((place) => {
+      if (!place?.id || seen.has(place.id)) return false;
+      seen.add(place.id);
+      return true;
+    });
+  }, [shown]);
   const [lunchBreakLive, setLunchBreakLive] = useState(null);
   useEffect(() => {
     if (selected !== "break" || !center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) return undefined;

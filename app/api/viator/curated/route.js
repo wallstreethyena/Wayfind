@@ -9,10 +9,11 @@ import { dropDeadLinkRows } from "../../../../lib/experienceLinkHealth.js";
 import { sbEnv } from "../../../../lib/serverCache.js";
 import { cachedExperienceCard, viatorProductCard } from "../../../../lib/viatorProductCard.js";
 import { isDeniedViatorSku } from "../../../../lib/viatorIntegrity.js";
+import { credential } from "../../../../lib/envPlaceholder.js";
 
 const TTL = 6 * 3600 * 1000;
 const mem = new Map();
-const getKey = () => String(process.env.VIATOR_API_KEY || "").trim();
+const getKey = () => credential(process.env.VIATOR_API_KEY);
 
 async function cachedCards(codes) {
   const s = sbEnv();

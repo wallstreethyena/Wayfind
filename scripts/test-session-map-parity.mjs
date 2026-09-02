@@ -84,8 +84,20 @@ ok(/from "\.\.\/lib\/nearMeQuery"/.test(home) && /nearMeQuery\(\{ cat, sub, vibe
   "the home/map/list search effect builds the shared nearMeQuery");
 ok(/if \(keyMissing \|\| !q \|\| searchMode\) return/.test(HOME),
   "the search effect fail-closes when nearMeQuery returns null — no Sarasota fill");
-ok(/if \(id && browseCat !== id\) \{ setMoodPick\(id\); setBrowseCat\(id\); setCat\(id\); setSub\("all"\); setVibe\("all"\); \}/.test(HOME),
-  "selecting a home category tab starts the same cat/sub search the map starts on tap");
+// v8.41 — the four setters moved OUT of the onNavOpen body and INTO openBrowse,
+// the one entry point every off-feed category control now shares (the Itinerary
+// row had its own copy and dispatched to a screen that does not exist). The
+// invariant is identical — a tab tap starts the same near-me search the map
+// starts — so the probe follows the call rather than assuming the body is
+// inline, and asserts BOTH halves: the setters exist, and the tab reaches them.
+ok(/if \(browseCat !== id\) \{ setMoodPick\(id\); setBrowseCat\(id\); setCat\(id\); setSub\("all"\); setVibe\("all"\); \}/.test(HOME),
+  "openBrowse starts the same cat/sub search the map starts on tap");
+{
+  const navOpen = HOME.split("onNavOpen={")[1]?.split("onNavSub={")[0] || "";
+  ok(navOpen.length > 0, "positive control — the onNavOpen handler is really in home.js, so the assertion below can fail");
+  ok(/openBrowse\(/.test(navOpen),
+    "selecting a home category tab goes through openBrowse, which is where those setters now live");
+}
 ok(/setMapBrowse\(true\); setCat\(id\); setSub\("all"\); setVibe\("all"\)/.test(MAP),
   "map category tap still writes the same cat/sub/vibe the home path writes");
 

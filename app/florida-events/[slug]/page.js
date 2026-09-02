@@ -13,6 +13,7 @@ import { fetchCuratedEvents, fetchCuratedEventBySlug, eventJsonLd, dateRangeLabe
 import { eventPhotos } from "../../../lib/eventPhotos";
 import { addressLine, directionsUrl } from "../../../lib/placeWhere";
 import ShareButton from "../../components/ShareButton";
+import { eventPairings, pairingHref } from "../../../lib/eventPairings";
 
 export const revalidate = 3600;
 
@@ -123,7 +124,25 @@ const S = {
   shareTop: { margin: "-8px 0 22px" },
   shareEnd: { margin: "28px 0 4px", padding: "18px 20px", borderRadius: 16, background: "#0E1520", border: "1px solid #1F2A3A" },
   shareAsk: { margin: "0 0 12px", fontSize: 15.5, lineHeight: 1.5, color: "#C9D1D9" },
+  // "Nearby & worth it" — compact place cards (thumbnail + text), the same
+  // visual language as the hub, linking into the app shell at /p/[id].
+  pgrid: { display: "grid", gridTemplateColumns: "1fr", gap: 10, margin: "6px 0 6px" },
+  pcard: { display: "flex", gap: 12, alignItems: "stretch", background: "#161B22", border: "1px solid #21262D", borderRadius: 12, overflow: "hidden", textDecoration: "none" },
+  pthumb: { width: 76, minWidth: 76, background: "linear-gradient(145deg,#1B2433,#0E1520)", objectFit: "cover", display: "block", alignSelf: "stretch" },
+  pbody: { flex: 1, minWidth: 0, padding: "10px 12px 10px 2px" },
+  pname: { fontSize: 15, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.25, marginBottom: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
+  pmetarow: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" },
+  pscore: { display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12.5, fontWeight: 800, color: "#0D1117", background: "#8ED6C4", borderRadius: 999, padding: "2px 8px" },
+  pmeta: { fontSize: 12.5, color: "#8B949E", fontWeight: 600 },
 };
+
+// A real thumbnail for every nearby place: the stored Google photo ref when we
+// have one, otherwise the venue's first photo by place_id (the same reliable,
+// cached /api/photo path the event heroes use). Falls back to the gradient the
+// <img> background paints if a place genuinely has no photo.
+const thumbUrl = (p) => (p.photoRef
+  ? "/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&w=220"
+  : "/api/photo?place=" + encodeURIComponent(p.id) + "&w=220");
 
 export default async function CuratedEventPage({ params }) {
   const e = await fetchCuratedEventBySlug(params.slug);
@@ -155,6 +174,9 @@ export default async function CuratedEventPage({ params }) {
   // "Directions" that drops you in the middle of a city is worse than none.
   const where = addressLine(e);
   const dirs = directionsUrl(e);
+  // Real nearby places worth an outing, ranked by Wayfind — [] (and no section)
+  // where there is nothing honestly nearby, so a page never shows a thin shelf.
+  const pairings = await eventPairings(e, {});
   const ld = eventJsonLd(e, { siteUrl: SITE_URL });
   const crumbs = {
     "@context": "https://schema.org", "@type": "BreadcrumbList",
@@ -285,7 +307,31 @@ export default async function CuratedEventPage({ params }) {
       {e.insider_tip ? (<><h2 style={S.h2}>The move</h2><p style={S.p}>{e.insider_tip}</p></>) : null}
       {e.parking_tip ? (<><h2 style={S.h2}>Getting there</h2><p style={S.p}>{e.parking_tip}</p></>) : null}
       {e.fun_fact ? (<><h2 style={S.h2}>One thing worth knowing</h2><p style={S.p}>{e.fun_fact}</p></>) : null}
-      {e.pairing ? (<><h2 style={S.h2}>Make a day of it</h2><p style={S.p}>{e.pairing}</p></>) : null}
+      {(pairings.length > 0 || e.pairing) ? (
+        <>
+          <h2 style={S.h2}>Nearby &amp; worth it</h2>
+          {e.pairing ? <p style={S.p}>{e.pairing}</p> : null}
+          {pairings.length > 0 ? (
+            <>
+              <p style={{ ...S.p, marginBottom: 8 }}>Real places near {e.venue || e.city}, ranked by Wayfind &mdash; make it a full outing.</p>
+              <div style={S.pgrid}>
+                {pairings.map((p) => (
+                  <a key={p.id} href={pairingHref(p)} style={S.pcard}>
+                    <img src={thumbUrl(p)} alt="" loading="lazy" style={S.pthumb} />
+                    <div style={S.pbody}>
+                      <div style={S.pname}>{p.name}</div>
+                      <div style={S.pmetarow}>
+                        <span style={S.pscore}>{(p.wfScore / 10).toFixed(1)}</span>
+                        <span style={S.pmeta}>{p.cat}{p.distMi != null ? " · " + p.distMi.toFixed(1) + " mi" : ""}</span>
+                      </div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </>
+          ) : null}
+        </>
+      ) : null}
 
       {e.official_event_url ? (
         <p style={S.p}>
