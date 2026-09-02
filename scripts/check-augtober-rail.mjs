@@ -114,8 +114,19 @@ const fallIntent = strip(readFileSync(path.join(ROOT, "lib/fallIntentRails.js"),
 const sharedCard = strip(readFileSync(path.join(ROOT, "app/components/RailCard.js"), "utf8"));
 ok(/FallIntentRails = dynamic/.test(rail) && /selRail\.id === "augtober"/.test(rail), "the drop lazy-loads its owned ten-rail answer only when Augtober opens");
 ok(/fetchJsonWithDeadline\("\/api\/events\/fall\?"/.test(fallComponent), "…and it reads /api/events/fall through the shared deadline helper");
-ok(/query\.set\("full", "1"\)/.test(fallComponent) && /timeoutMs: FALL_LOAD_TIMEOUT_MS/.test(fallComponent),
-  "the fall pool can expand on demand without surrendering its browser deadline");
+ok(/timeoutMs: FALL_LOAD_TIMEOUT_MS/.test(fallComponent),
+  "the fall pool's first-paint fetch carries its own browser deadline");
+// WO11 (2026-09-02): "expand on demand" is no longer a scroll-triggered
+// whole-blob `full=1` refetch of every rail at once — that mechanism is
+// gone. Every rail now pages independently through usePagedRail, whose own
+// page fetches go through fetchJsonWithDeadline too (lib/clientJson.js),
+// so the deadline guarantee holds for EVERY page, not only the first.
+const pagedRailHook = strip(readFileSync(path.join(ROOT, "app/components/usePagedRail.js"), "utf8"));
+ok(/usePagedRail\(/.test(fallComponent), "fall's rails expand on demand through the shared usePagedRail hook, not a whole-blob refetch");
+ok(!/query\.set\("full", "1"\)/.test(fallComponent) && !/railScrollNeedsMore/.test(fallComponent),
+  "the old scroll-triggered full=1 whole-blob loader is gone from fall, not merely unreachable");
+ok(/fetchJsonWithDeadline\(`\$\{endpoint\}\?\$\{q\.toString\(\)\}`\)/.test(pagedRailHook),
+  "…and each page usePagedRail fetches carries the same deadline helper, so expanding a rail can never surrender the browser deadline");
 ok(/result\.rails\.length !== 10/.test(fallComponent), "positive control: the complete ten-rail contract is required");
 ok(/when=\{isEvent \? card\.when : null\}/.test(fallComponent), "event cards wear the WHEN badge — an event never gets a fabricated score");
 ok(/className="wf-exploding-primary"/.test(fallComponent), "fall cards use the house card's responsive media contract");
