@@ -73,21 +73,82 @@ function parseIntent(url) {
   return { select, limit, minLat, maxLat, minLng, maxLng, category };
 }
 
-let seq = 0;
+// WO8b (2026-09-02) — A FIXED, POSITION-ADDRESSABLE WORLD, not a per-call
+// random scatter.
+//
+// The original fixture drew each row's lat/lng from Math.random() and named
+// it from a global, call-order-dependent counter. That was fine for a
+// calls/bytes budget (order never mattered) but makes an EQUIVALENCE snapshot
+// meaningless: consolidating many small box reads into fewer, larger ones
+// changes the NUMBER and ORDER of fetch calls, so the old generator would
+// mint an entirely different set of synthetic place_ids for the "after" run
+// even if the real code changed nothing a reader could see. Two runs of
+// DIFFERENT code could never produce identical output, and two runs of the
+// SAME code could — the exact inversion of what the equivalence check needs.
+//
+// So: build one deterministic "world" of candidate places per category ONCE
+// (a fixed seed, no Math.random(), no mutable global), covering every box any
+// scenario in this harness queries. A query is a FILTER over that world by
+// box + category, truncated at `limit` in a stable index order — the same
+// shape a real unbounded-order Postgres heap scan has (v8.49's own point: an
+// unbounded box can truncate in an order that changes with the heap). Two
+// different call patterns that end up covering the same geography now
+// legitimately retrieve the same underlying rows, which is what makes
+// "the equivalence snapshot is byte-identical before and after consolidation"
+// a real proof instead of a coincidence of matching random draws.
+const WORLD_BOUNDS = { minLat: 26.9, maxLat: 28.0, minLng: -83.0, maxLng: -81.8 };
+// Sized so a single city's own ~41mi box (tight radius) still comfortably
+// saturates its rankInventory cap (n=80, plenty above the 8-row tight/wide
+// threshold), while a MULTI-CITY union box (lib/inventoryBoxBatch.js, WO8b)
+// can never contain more than this many points for one category no matter
+// how large the union grows — which is what lets that file's consolidated
+// "sum of per-city caps" limit be proven to never truncate against this
+// fixture: the world itself is the hard ceiling. See that file's own header
+// for why truncation, not correctness of the box math, is the actual risk a
+// consolidated read has to rule out.
+const WORLD_SIZE_PER_CAT = 1500;
+const WORLD_SEED = 0xc0ffee;
+
+function mulberry32(seed) {
+  let s = seed >>> 0;
+  return function () {
+    s = (s + 0x6d2b79f5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function buildWorld() {
+  const rnd = mulberry32(WORLD_SEED);
+  const world = {};
+  for (const cat of CATS) {
+    const pts = [];
+    for (let i = 0; i < WORLD_SIZE_PER_CAT; i++) {
+      const lat = WORLD_BOUNDS.minLat + rnd() * (WORLD_BOUNDS.maxLat - WORLD_BOUNDS.minLat);
+      const lng = WORLD_BOUNDS.minLng + rnd() * (WORLD_BOUNDS.maxLng - WORLD_BOUNDS.minLng);
+      pts.push({ idx: i, lat, lng });
+    }
+    world[cat] = pts;
+  }
+  return world;
+}
+const WORLD = buildWorld();
+
 function fixtureRows(intent) {
   const n = Math.max(0, intent.limit || 0);
   const cat = intent.category && CATS.includes(intent.category) ? intent.category : "food";
   const wantsEditorial = /(^|,)editorial(,|$)/.test(intent.select);
   const hasBox = [intent.minLat, intent.maxLat, intent.minLng, intent.maxLng].every((v) => Number.isFinite(v));
-  const rows = [];
-  for (let i = 0; i < n; i++) {
-    seq += 1;
-    const lat = hasBox ? intent.minLat + Math.random() * (intent.maxLat - intent.minLat) : 27.4;
-    const lng = hasBox ? intent.minLng + Math.random() * (intent.maxLng - intent.minLng) : -82.44;
+  const pts = WORLD[cat] || [];
+  const matches = hasBox
+    ? pts.filter((p) => p.lat >= intent.minLat && p.lat <= intent.maxLat && p.lng >= intent.minLng && p.lng <= intent.maxLng)
+    : pts;
+  return matches.slice(0, n).map((p) => {
     const row = {
-      place_id: `fixture_${cat}_${seq}`,
-      name: `Fixture ${cat[0].toUpperCase()}${cat.slice(1)} Spot ${seq}`,
-      lat, lng,
+      place_id: `fixture_${cat}_${p.idx}`,
+      name: `Fixture ${cat[0].toUpperCase()}${cat.slice(1)} Spot ${p.idx}`,
+      lat: p.lat, lng: p.lng,
       category: cat,
       secondary_categories: [],
       primary_type: PRIMARY_BY_CAT[cat],
@@ -95,13 +156,12 @@ function fixtureRows(intent) {
       cuisines: cat === "food" ? ["american"] : [],
       status: "OPERATIONAL",
       excluded: false,
-      signals: { rating: 3.8 + (seq % 12) / 10, reviews: 40 + (seq % 900), priceNum: seq % 4 },
+      signals: { rating: 3.8 + (p.idx % 12) / 10, reviews: 40 + (p.idx % 900), priceNum: p.idx % 4 },
       photo_ref: null,
     };
     if (wantsEditorial) row.editorial = FIXTURE_EDITORIAL;
-    rows.push(row);
-  }
-  return rows;
+    return row;
+  });
 }
 
 function fixtureBeachWater(n) {
@@ -124,12 +184,30 @@ function jsonResponse(body, ok = true) {
 }
 
 /**
- * Runs one full loadRailPlaces("bradenton", {origin}) against a mocked
+ * WO8b (2026-09-02) — EQUIVALENCE PROOF. Turns one loadRailPlaces() result
+ * into a canonical, order-preserving snapshot: for every rail id, the
+ * ORDERED list of place ids that shipped. This is the thing "pool semantics,
+ * radii, predicates, ranking untouched" actually means in a form a diff can
+ * check — two runs producing byte-identical JSON here is the proof that a
+ * read-consolidation change did not move a single place into, out of, or
+ * within any rail. `thin` rails (no cards) are included as an empty array,
+ * not omitted, so a regression that silently emptied a rail still shows up
+ * as a snapshot diff rather than a missing key.
+ */
+export function snapshotRails(result) {
+  const out = {};
+  const ids = Object.keys(result.places || {}).sort();
+  for (const id of ids) out[id] = (result.places[id] || []).map((p) => p && p.id).filter(Boolean);
+  return out;
+}
+
+/**
+ * Runs one full loadRailPlaces(citySlug, {origin}) against a mocked
  * global.fetch. Returns { calls, restCalls, restBytes, ok, places, thin }.
  * `calls` is EVERY intercepted fetch (rest + anything else); `restCalls` is
  * the subset under /rest/v1/wf_inventory — the budget this WO is about.
  */
-export async function runComputeHarness({ beachRows = 6, unknownAsEmpty = true } = {}) {
+export async function runComputeHarness({ beachRows = 6, unknownAsEmpty = true, citySlug = "bradenton", origin = { lat: 27.3939, lng: -82.4436 }, band = "afternoon", entryPath = join(ROOT, "lib/railsData.js") } = {}) {
   const calls = [];
   const origFetch = globalThis.fetch;
   globalThis.fetch = async (input, init) => {
@@ -171,12 +249,12 @@ export async function runComputeHarness({ beachRows = 6, unknownAsEmpty = true }
   delete process.env.GOOGLE_MAPS_SERVER_KEY;
 
   try {
-    const mod = await loadComponent(join(ROOT, "lib/railsData.js"), ROOT);
+    const mod = await loadComponent(entryPath, ROOT);
     const t0 = Date.now();
-    const result = await mod.loadRailPlaces("bradenton", {
-      origin: { lat: 27.3939, lng: -82.4436 },
+    const result = await mod.loadRailPlaces(citySlug, {
+      origin,
       requireOrigin: true,
-      band: "afternoon",
+      band,
     });
     const ms = Date.now() - t0;
     const restCalls = calls.filter((c) => c.table === "wf_inventory" || c.table === "wf_beach_water_geo");
@@ -186,15 +264,48 @@ export async function runComputeHarness({ beachRows = 6, unknownAsEmpty = true }
       calls, restCalls, restBytes,
       restCallCount: restCalls.length,
       editorialCalls: restCalls.filter((c) => c.editorial).length,
+      snapshot: snapshotRails(result),
     };
   } finally {
     globalThis.fetch = origFetch;
   }
 }
 
-// CLI: print the baseline report. No pass/fail here — that is
+// WO8b (2026-09-02) — the two scenarios the equivalence snapshot covers: the
+// production regression's own reader (Lakewood Ranch, bradenton's metro pool)
+// plus a second, DIFFERENT metro (Parrish's own pool: parrish/ellenton/
+// palmetto/bradenton) so the consolidation logic is proven against more than
+// one city-set shape.
+export const EQUIVALENCE_SCENARIOS = {
+  "lakewood-ranch": { citySlug: "bradenton", origin: { lat: 27.3939, lng: -82.4436 }, band: "afternoon" },
+  parrish: { citySlug: "parrish", origin: { lat: 27.5876, lng: -82.4237 }, band: "afternoon" },
+};
+
+export const EQUIVALENCE_SNAPSHOT_PATH = join(ROOT, "scripts/fixtures/rail-compute-equivalence-snapshot.json");
+
+export async function computeEquivalenceSnapshot() {
+  const out = {};
+  for (const [key, scenario] of Object.entries(EQUIVALENCE_SCENARIOS)) {
+    const r = await runComputeHarness(scenario);
+    if (!r.ok) throw new Error(`equivalence scenario ${key} did not complete`);
+    out[key] = r.snapshot;
+  }
+  return out;
+}
+
+// CLI: print the baseline report, or (--write-snapshot) regenerate the
+// equivalence fixture. No pass/fail on the baseline report — that is
 // scripts/check-rail-compute-budget.mjs, which imports runComputeHarness.
 if (import.meta.url === `file://${process.argv[1]}`) {
+  if (process.argv.includes("--write-snapshot")) {
+    const { writeFileSync, mkdirSync } = await import("node:fs");
+    const snap = await computeEquivalenceSnapshot();
+    mkdirSync(join(ROOT, "scripts/fixtures"), { recursive: true });
+    writeFileSync(EQUIVALENCE_SNAPSHOT_PATH, JSON.stringify(snap, null, 2) + "\n");
+    const counts = Object.entries(snap).map(([k, v]) => `${k}: ${Object.values(v).reduce((s, a) => s + a.length, 0)} ids across ${Object.keys(v).length} rails`);
+    console.log(`test-rail-compute-budget: wrote ${EQUIVALENCE_SNAPSHOT_PATH}\n  ${counts.join("\n  ")}`);
+    process.exit(0);
+  }
   const r = await runComputeHarness();
   if (!r.ok) { console.error("test-rail-compute-budget: harness did not complete"); process.exit(1); }
   const byTable = {};
