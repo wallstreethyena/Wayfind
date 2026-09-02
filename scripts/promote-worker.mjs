@@ -93,7 +93,7 @@ const DETAILS_MASK = CORE_DETAILS_MASK;
 // wf_promote_config.month_cap IS the ceiling, counted down in the same
 // wf_spend_ledger row the cron uses. Two writers, one budget.
 for (const k of ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"]) if (!process.env[k]) process.env[k] = k === "SUPABASE_URL" ? SB_URL : SB_KEY;
-const { spendAllowCapped } = await import("../lib/spendGate.js");
+const { spendAllowCapped, effectiveCap, gateMode } = await import("../lib/spendGate.js");
 
 const H = { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, "Content-Type": "application/json" };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -291,7 +291,7 @@ while (T.claimed < TOTAL) {
     } else if (r.kind === "release") {
       // Budget refusal: back to pending, attempt refunded, parked — never a
       // failure against the place (see wf_promotion_release in the migration).
-      settle.push(rpc("wf_promotion_release", { p_place_id: r.item.place_id, p_delay_minutes: 60, p_note: `spend ledger: ${PROMOTE_SKU} month_cap ${MONTH_CAP} reached` }));
+      settle.push(rpc("wf_promotion_release", { p_place_id: r.item.place_id, p_delay_minutes: 60, p_note: `spend ledger: ${PROMOTE_SKU} ceiling ${effectiveCap(PROMOTE_SKU, MONTH_CAP)} reached (month_cap ${MONTH_CAP}, gate ${gateMode()})` }));
     } else {
       settle.push(rpc("wf_promotion_complete", { p_place_id: r.item.place_id, p_ok: false, p_error: r.error }));
     }

@@ -896,3 +896,7 @@ node scripts/check-community-footer.mjs
 # that every render site (RailCard, Detail, fall endpoint, single-event page)
 # routes through those calls — each red-proved by an applied mutation.
 node scripts/check-link-quarantine.mjs
+# 2026-09-02: the promotion drain idled 23h on Vercel (gate=free) while every
+# release note read "month_cap 7500 reached" — the real line was the free-tier
+# 4,800. effectiveCap() is now what both the cron and the worker print.
+node scripts/check-spend-effective-cap.mjs
