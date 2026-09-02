@@ -7,8 +7,8 @@
  *
  * WHY A GUARD AND NOT JUST A DELETED CONSTANT. A ceiling is the easiest thing
  * in this codebase to reintroduce by accident, because every one of its
- * disguises looks like tidy code: a `.slice(0, 12)` while rendering, a `limit`
- * while merging, a "sane default" while paginating. It also always LOOKS
+ * disguises looks like tidy code: a `.slice(0, 12)` while rendering or a
+ * `limit` while merging. It also always LOOKS
  * correct — a rail trimmed to twelve is a full, beautiful, correctly-ordered
  * rail. Exactly like a rail with no identity looked correct
  * (scripts/check-rail-identity.mjs), the damage is invisible: the cards that
@@ -25,7 +25,9 @@
  *   1. MAX_CARDS does not exist, under that name or any other.
  *   2. No module in the rail path trims a rail or a pool on the way out.
  *   3. A rail built from a deep pool is LONGER than the old ceiling — the
- *      property is demonstrated by execution, not by reading source.
+ *      property is demonstrated by execution, not by reading source. A wire
+ *      page is allowed only when its exact total and ordered next-page path
+ *      survive; scripts/check-rails-wire.mjs owns that separate contract.
  *   4. MIN_CARDS survives. The floor is a promise about HONESTY (a rail that
  *      cannot fill ships empty rather than borrowing) and is the opposite kind
  *      of rule from the ceiling. Deleting it in the name of "no max on

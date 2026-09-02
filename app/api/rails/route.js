@@ -29,7 +29,7 @@
 // unrecognised value is IGNORED rather than honoured, so there is still no
 // novel-key space to iterate over.
 import { NextResponse } from "next/server";
-import { dedupeWire } from "../../../lib/railsWire.js";
+import { dedupeWire, windowRailData } from "../../../lib/railsWire.js";
 import { LANDING_CITIES } from "../../../lib/landing";
 import { railMenuData } from "../../../lib/railsData";
 import { DAYPART_IDS } from "../../../lib/dayparts";
@@ -77,13 +77,17 @@ export async function GET(req) {
   // behind those rows. `eat`, `best`, `today` and `datenight` all legitimately
   // contain the same restaurant, and each one was shipping a full copy of it.
   //
-  // v=2 sends every place ONCE in `placeIndex` and each rail as a list of ids.
+  // v=2 sends every DELIVERED place once in `placeIndex` and each rail as ids.
+  // The first response is windowed; ordered per-rail pages deliver the rest.
   // It is opt-in on purpose rather than a straight shape change: a tab that was
   // opened before this deploy is still running the old client, and the CDN keys
   // on the query string, so v1 and v2 cache independently and an old tab keeps
   // getting the shape it understands until VersionWatch reloads it. Nobody sees
   // an empty rail during a rollout.
   const wire = sp.get("v") === "2" ? 2 : 1;
+  const requestedRail = String(sp.get("rail") || "").trim();
+  const offset = Math.max(0, Number.parseInt(sp.get("offset") || "0", 10) || 0);
+  const pageLimit = Math.max(1, Math.min(48, Number.parseInt(sp.get("limit") || (requestedRail ? "24" : "12"), 10) || 12));
   const askedBand = String(sp.get("band") || "");
   const band = DAYPART_IDS.includes(askedBand) ? askedBand : undefined;
   const asked = String(sp.get("city") || "");
@@ -119,7 +123,19 @@ export async function GET(req) {
     // the cell self-heals instead of latching. The successful answer keeps the
     // hour it earned.
     const degraded = !data || data.failed === true;
-    return NextResponse.json({ covered: true, data: wire === 2 ? dedupeWire(data) : data }, {
+    // v=2 is a compact, lossless delivery protocol. The first response carries
+    // only the first ranked window for every poster rail. A swipe near the end
+    // asks for one ordered page with `rail=<id>&offset=<n>`; `railTotals` keeps
+    // the full qualified count visible throughout. v1 remains full for tabs
+    // opened before this deploy.
+    const delivered = wire === 2
+      ? dedupeWire(windowRailData(data, {
+        railId: requestedRail || null,
+        offset,
+        limit: pageLimit,
+      }))
+      : data;
+    return NextResponse.json({ covered: true, data: delivered }, {
       headers: {
         "Cache-Control": degraded
           ? "no-store"

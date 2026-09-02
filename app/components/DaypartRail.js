@@ -83,7 +83,9 @@ import { servableRows, isNowRail } from "../../lib/daylight.js";
 // `cityLabel` is aliased because this component already takes a prop by that
 // name. The import is the LAW (never "you", never "your area"); the prop is a
 // string the caller handed down.
-import { emptyRailLive, liveFromRailsResponse, cityLabel as honestCityLabel } from "../../lib/locationHonesty.js";
+import { emptyRailLive, liveFromRailsResponse, mergeRailPage, cityLabel as honestCityLabel } from "../../lib/locationHonesty.js";
+import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
+import { railScrollNeedsMore } from "../../lib/railResponse.js";
 import { posterImgIsReady, bindPosterArtReady, posterImgInTile } from "../../lib/posterArtReady.js";
 // v8.46 — THE GREY BOX, AGAIN. lib/loadState.js was written on 2026-08-12 for
 // the owner's screenshot of THIS RAIL ("What Should We Do Today?" expanded over
@@ -464,6 +466,8 @@ export default function DaypartRail({
   // makes the "Try again" button a real button and not decoration.
   const [retryNonce, setRetryNonce] = useState(0);
   const [selected, setSelected] = useState(null);
+  const [railPageState, setRailPageState] = useState({});
+  const railPageInFlight = useRef(new Set());
   const trackRef = useRef(null);
   const pcRef = useRef(null);
   const menuRef = useRef(null);
@@ -481,7 +485,7 @@ export default function DaypartRail({
   // places:{} and every list rail in `thin` — an honest empty, not a flagship.
   // A caller that DOES pass places (/v8) is passing its own city's, and the
   // center effect still replaces them the instant the reader is somewhere else.
-  const shown = live || { places: places || {}, thin: thin || [], region: region || null, citySlug: citySlug || null, cityLabel: cityLabel || "" };
+  const shown = live || { places: places || {}, railTotals: {}, railHasMore: {}, thin: thin || [], region: region || null, citySlug: citySlug || null, cityLabel: cityLabel || "" };
   const thinSet = useMemo(() => new Set(shown.thin), [shown.thin]);
   // v8.93.2 — A PLACEHOLDER IS NOT A MEASUREMENT (owner, 2026-08-30, two
   // screenshots two minutes apart: Tonight's Move reading "Nothing near
@@ -743,7 +747,7 @@ export default function DaypartRail({
   // BEST BEACHES"). The tile is the picture. Its accessible name comes from
   // aria-label and the <img> alt, so nothing is lost to a screen reader.
   const [trackEnds, syncTrack] = useScrollEnds(trackRef, [order.length]);
-  const [pcEnds, syncPc] = useScrollEnds(pcRef, [selected]);
+  const [pcEnds, syncPc] = useScrollEnds(pcRef, [selected, selected ? (shown.places[selected] || []).length : 0]);
 
 
   const open = useCallback((id, src) => {
@@ -757,7 +761,7 @@ export default function DaypartRail({
       rail_id: targetId, rail_title: rail.title, daypart, region: shown.region, city: shown.citySlug,
       position: order.indexOf(targetId) + 1, src: src || "rail",
       redirected_from: targetId === id ? undefined : id,
-      has_places: (shown.places[targetId] || []).length,
+      has_places: Number(shown.railTotals?.[targetId]) || (shown.places[targetId] || []).length,
     });
     // The hero cards these replace fire eight named events that live dashboards
     // depend on. Keep emitting them for one release so nothing flatlines at
@@ -1092,6 +1096,49 @@ export default function DaypartRail({
     return base;
   }, [selected, chefPlaces, selPlaces, sponsorCard]);
 
+  const selectedLoaded = selected && Array.isArray(shown.places?.[selected]) ? shown.places[selected].length : 0;
+  const selectedTotal = selected
+    ? Math.max(selectedLoaded, Number(shown.railTotals?.[selected]) || 0)
+    : 0;
+  const selectedHasMore = !!(selected && !railOwnsItsOwnAnswer && selectedLoaded < selectedTotal);
+  const loadSelectedRailPage = useCallback(() => {
+    if (!selectedHasMore || !selected || !center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) return;
+    const offset = selectedLoaded;
+    const claim = `${selected}:${offset}`;
+    if (railPageInFlight.current.has(claim)) return;
+    railPageInFlight.current.add(claim);
+    setRailPageState((state) => ({ ...state, [selected]: "loading" }));
+    const q = new URLSearchParams({
+      lat: String(snapPre(center.lat)),
+      lng: String(snapPre(center.lng)),
+      band: daypart,
+      v: "2",
+      rail: selected,
+      offset: String(offset),
+      limit: "24",
+    });
+    fetchJsonWithDeadline("/api/rails?" + q.toString(), { timeoutMs: RAILS_LOAD_TIMEOUT_MS })
+      .then((payload) => {
+        setLive((previous) => mergeRailPage(previous, payload, selected));
+        setRailPageState((state) => ({ ...state, [selected]: "idle" }));
+      })
+      .catch(() => setRailPageState((state) => ({ ...state, [selected]: "failed" })))
+      .finally(() => railPageInFlight.current.delete(claim));
+  }, [selectedHasMore, selected, selectedLoaded, center && center.lat, center && center.lng, daypart]);
+
+  // The first shared response is deliberately small. Reaching the last two
+  // visible cards requests only the next ordered page for this rail; sibling
+  // rails are neither downloaded nor replaced if this request fails.
+  useEffect(() => {
+    const el = pcRef.current;
+    if (!el || !selectedHasMore) return undefined;
+    const onScroll = () => {
+      if (railScrollNeedsMore(el, Math.max(180, el.clientWidth * 0.75))) loadSelectedRailPage();
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, [selected, selectedHasMore, selectedLoaded, loadSelectedRailPage]);
+
   // Lunch is a format answer over the FOOD inventory, not merely the legacy
   // `break` selector. The latter is intentionally narrow (quick-service within
   // eight miles) and can fail its minimum-card floor as one empty array even
@@ -1383,7 +1430,7 @@ export default function DaypartRail({
       <section className="wf8-menusec" ref={menuRef} aria-label={selRail ? `${selRail.title} — picks` : "Picks"} aria-hidden={!selRail}>
         <div className="wf8-in">
           <div className="wf8-mbar">
-            <p className="wf8-mhd">Showing <b>{selRail ? selRail.title : ""}</b>{selRail && !selRail.guides && selRail.id !== "chef" && selRail.id !== "augtober" ? near : ""}</p>
+            <p className="wf8-mhd">Showing <b>{selRail ? selRail.title : ""}</b>{selRail && !selRail.guides && selRail.id !== "chef" && selRail.id !== "augtober" ? near : ""}{selRail && !railOwnsItsOwnAnswer && selectedTotal ? ` · ${selectedTotal} options` : ""}</p>
             <button type="button" className="wf8-mclose" onClick={close}>✕ Close</button>
           </div>
 
@@ -1833,8 +1880,14 @@ export default function DaypartRail({
               </ul>
               <button type="button" className="wf8-pnav l" aria-label="Previous places" disabled={pcEnds.atStart}
                 onClick={() => { scrollBy(pcRef, -1); syncPc(); }}><Chevron dir="l" /></button>
-              <button type="button" className="wf8-pnav r" aria-label="More places" disabled={pcEnds.atEnd}
-                onClick={() => { scrollBy(pcRef, 1); syncPc(); }}><Chevron dir="r" /></button>
+              <button type="button" className="wf8-pnav r" aria-label="More places" disabled={pcEnds.atEnd && !selectedHasMore}
+                onClick={() => { if (pcEnds.atEnd && selectedHasMore) loadSelectedRailPage(); else { scrollBy(pcRef, 1); syncPc(); } }}><Chevron dir="r" /></button>
+              {railPageState[selected] === "loading" ? <span className="wf8-page-state" role="status">Loading more places…</span> : null}
+              {railPageState[selected] === "failed" && selectedHasMore ? (
+                <button type="button" className="wf8-thinbtn wf8-page-retry" onClick={loadSelectedRailPage}>
+                  More places didn&apos;t load · Try again
+                </button>
+              ) : null}
             </div>
           ) : selRail && !railOwnsItsOwnAnswer && isPending(railLoad) ? (
             /* v8.46 — THE ONLY PLACE A SKELETON MAY RENDER. It is gated on an
