@@ -440,8 +440,8 @@ ok(nightOrder.includes("datenight"), "Date Night still exists in the night order
   // must not ALSO get the shared pool's. Date Night's drop ending in "nothing
   // near you clears this bar" underneath six full rails is the v8.82 empty-bar
   // screenshot arriving by a different road.
-  ok(/const railOwnsItsOwnAnswer = !!\(selRail && \(selRail\.id === "datenight" \|\| selRail\.id === "birthday" \|\| selRail\.id === "breakfast" \|\| selRail\.id === "break" \|\| selRail\.id === "eat" \|\| selRail\.id === "today" \|\| selRail\.id === "augtober" \|\| selRail\.id === "events"\)\)/.test(src),
-    "the drop knows Date Night, Birthday, Breakfast, Lunch Break, Actually Worth Eating, Today's Best Options, Augtober, and Events answer for themselves");
+  ok(/const railOwnsItsOwnAnswer = !!\(selRail && \(selRail\.id === "datenight" \|\| selRail\.id === "birthday" \|\| selRail\.id === "breakfast" \|\| selRail\.id === "break" \|\| selRail\.id === "eat" \|\| selRail\.id === "today" \|\| selRail\.id === "augtober" \|\| selRail\.id === "tonight"\)\)/.test(src),
+    "the drop knows Date Night, Birthday, Breakfast, Lunch Break, Actually Worth Eating, Today's Best Options, Augtober, and Night Out answer for themselves");
   const branches = src.match(/\) : selRail && [^?]*\?/g) || [];
   ok(branches.length === 4, `the pool ternary chain is readable (positive control: ${branches.length} branches after the cards)`);
   // The CARDS branch stays open to Date Night on purpose: the pool below the

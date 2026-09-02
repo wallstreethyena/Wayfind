@@ -189,6 +189,7 @@ import { sponsorRailNear, partnerCollectionById, hydratePartnerCollection } from
 import { toDisplayScore, pickEligibleByScore, cardComplete, displayableAt } from "../lib/score";
 import { stampOwnerPick } from "../lib/ownerBump.js";
 import { frontPageEvents, bestFirst } from "../lib/frontEvents";
+import { NIGHT_OUT_MAX_MI, NIGHT_OUT_RAIL_DEFS, nightOutDistanceMi, nightOutEventRail } from "../lib/nightOutIntent.js";
 import { pickHomeExp } from "../lib/homeExpPick";
 // July 2026 decomposition (wave 1): the homepage's ~520 lines of server-
 // rendered CSS live in their own shell file. They are still concatenated into
@@ -9094,8 +9095,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // CONTENT prop under scripts/test-first-screen.mjs's rule rather than a
   // callable read only inside the drop, alongside memberSignalsFor and
   // applyMemberSignal. Nothing here is allocated until the events tile opens.
-  const eventsRailSlot = () => {
+  const eventsRailSlot = (mode = "events") => {
     if (foryouEvents === null) {
+      if (mode === "night-out") return { pending: true, byRail: {} };
       return (
         <div className="wf-rail wf-rail-events" aria-hidden="true" role="status" aria-busy="true" style={{ minHeight: EV_RAIL_MIN_H, overflow: "hidden" }}>
           {[0, 1].map((i) => (
@@ -9111,6 +9113,37 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // ranks by stature then imminence; RAIL_CHAIN's category order is
     // still what the events TAB runs. See lib/frontEvents.js.
     const shown = bestFirst(fp.usable, eventBucket, fp.featured).filter((e) => eventSignals.disliked[e.id] !== true).slice(0, 24);
+    const renderEventCard = (e, rank) => (
+      <EventRailCard onLog={logEvent}
+        key={e.id}
+        event={e}
+        rank={rank}
+        relativeLabel={eventWhenLabel(e)}
+        saved={!!savedEvents[e.id]}
+        liked={eventSignals.liked[e.id] === true}
+        disliked={eventSignals.disliked[e.id] === true}
+        onSave={() => saveEventItem(e)}
+        onLike={() => toggleEventSignal(e, "liked")}
+        onDislike={() => toggleEventSignal(e, "disliked")}
+        onCategory={(bucket) => { try { logEvent("event_category_open", null, { bucket, src: "rail_chip" }); } catch (er) {} setEventCat(bucket === "community" ? "local" : bucket); setScreen("events"); }}
+        onCopied={() => showToast("Event link copied")}
+      />
+    );
+    if (mode === "night-out") {
+      const rows = Object.fromEntries(NIGHT_OUT_RAIL_DEFS.map((rail) => [rail.id, []]));
+      for (const event of shown) {
+        const railId = nightOutEventRail(event);
+        const distMi = nightOutDistanceMi(event, center || {});
+        if (railId && distMi != null && distMi <= NIGHT_OUT_MAX_MI) rows[railId].push(event);
+      }
+      return {
+        pending: false,
+        byRail: Object.fromEntries(NIGHT_OUT_RAIL_DEFS.map((rail) => [
+          rail.id,
+          rows[rail.id].map((event, index) => renderEventCard(event, index + 1)),
+        ])),
+      };
+    }
     if (!shown.length) return null;
     // v8.93 (owner, 2026-08-30): "events itself may need to have multiple rails
     // — also start with concert, then theater, than comedy, then sports."
@@ -9142,22 +9175,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         <div style={{ fontSize: 13.5, fontWeight: 800, color: "#E7EDF6", margin: "10px 0 4px" }}>{g.title}</div>
         <RailNav railId={"events-" + g.key} count={g.rows.length} unit={g.title.toLowerCase() + " near you"} />
         <div className={"wf-rail wf-rail-events"} data-rail={"events-" + g.key} tabIndex={0} role="region" aria-label={g.title} style={{ minHeight: EV_RAIL_MIN_H }}>
-          {g.rows.map((e, i) => (
-            <EventRailCard onLog={logEvent}
-              key={e.id}
-              event={e}
-              rank={i + 1}
-              relativeLabel={eventWhenLabel(e)}
-              saved={!!savedEvents[e.id]}
-              liked={eventSignals.liked[e.id] === true}
-              disliked={eventSignals.disliked[e.id] === true}
-              onSave={() => saveEventItem(e)}
-              onLike={() => toggleEventSignal(e, "liked")}
-              onDislike={() => toggleEventSignal(e, "disliked")}
-              onCategory={(bucket) => { try { logEvent("event_category_open", null, { bucket, src: "rail_chip" }); } catch (er) {} setEventCat(bucket === "community" ? "local" : bucket); setScreen("events"); }}
-              onCopied={() => showToast("Event link copied")}
-            />
-          ))}
+          {g.rows.map((e, i) => renderEventCard(e, i + 1))}
         </div>
         {g.rows.length > 1 ? <RailDots railId={"events-" + g.key} count={g.rows.length} /> : null}
       </div>
@@ -9223,18 +9241,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         sponsorCard={railSponsorCard}
         onOpenPartner={(pid) => { const c = partnerCollectionById(pid); if (c) openPartnerCollection(c); }}
         onCoverage={setRailsCoverage}
-        // v8.29.16 — the events tile opens the events screen rather than a drop
-        // of ticketed venues. What is behind it is the same feed the home rail
-        // runs, which now carries the curated schedule as its first provider.
-        //
-        // v8.87 — …and now it opens the EVENTS THEMSELVES, in place. `eventsSlot`
-        // is the dated, best-first, ticket-bearing rail (see the block above);
-        // DaypartRail opens the drop when it is given one and keeps this
-        // navigation for when it is not — a reader with no events near them, or
-        // /v8 mounting the rail without a feed, still gets somewhere to go
-        // rather than a tile that does nothing. The fallback is the point: this
-        // is the only branch that runs if the feed is empty.
-        onOpenEvents={() => { try { logEvent("events_see_all", null, { src: "rail_tile" }); } catch (er) {} setScreen("events"); }}
+        // Night Out requests the dated inventory as ten exclusive buckets;
+        // Date Night still requests the complete legacy event surface.
         eventsSlot={eventsRailSlot}
         isSaved={isSaved}
         isOnTrip={isOnTrip}

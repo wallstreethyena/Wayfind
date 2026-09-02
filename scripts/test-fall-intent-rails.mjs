@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { readFileSync } from "node:fs";
 import {
-  FALL_INTENT_RAIL_DEFS, FALL_RAIL_RADIUS_MI, fallEventRail, fallPhase,
+  FALL_INTENT_RAIL_DEFS, FALL_NEAR_MI, FALL_RAIL_RADIUS_MI, fallEventRail, fallPhase,
   fallRailOrder, composeFallIntentRails,
 } from "../lib/fallIntentRails.js";
 import { FALL_PLACE_IDS, FALL_PLACE_RAIL } from "../lib/fallPool.js";
@@ -23,7 +23,10 @@ ok(FALL_INTENT_RAIL_DEFS.length === 10, "the collection has exactly ten rails");
 ok(FALL_INTENT_RAIL_DEFS.map((rail) => rail.id).join("|") === expected.join("|"), "the ten approved base intents are present in order");
 ok(new Set(FALL_INTENT_RAIL_DEFS.map((rail) => rail.title)).size === 10, "every rail title is unique");
 ok(Object.keys(FALL_RAIL_RADIUS_MI).sort().join("|") === expected.slice().sort().join("|"), "every intent has an explicit radius law");
-ok(FALL_RAIL_RADIUS_MI["date-night"] === 120, "distinctive spooky nights keep a destination reach rather than disappearing just beyond a local-food radius");
+ok(FALL_NEAR_MI === 27, "the nearby ring ends at 27 miles");
+ok(["food", "family", "date-night"].every((id) => FALL_RAIL_RADIUS_MI[id] === 27), "food, family and spooky date night stay local at 27 miles");
+ok(["farms", "haunts", "oktoberfest", "festivals", "photos"].every((id) => FALL_RAIL_RADIUS_MI[id] === 45), "seasonal destinations widen only to 45 miles");
+ok(["theme-parks", "day-trips"].every((id) => FALL_RAIL_RADIUS_MI[id] === 60), "only theme parks and day trips reach the 60-mile ring");
 
 ok(fallPhase("2026-09-01") === "early", "September opens in the early fall phase");
 ok(fallPhase("2026-09-30") === "opening", "late September promotes farms and Oktoberfest");
@@ -70,6 +73,15 @@ ok(composed.rails.find((rail) => rail.id === "farms").cards.length === 1, "one e
 ok(composed.rails.find((rail) => rail.id === "food").cards.map((card) => card.id).join("|") === "food-near", "local food radius excludes a distant seasonal menu");
 ok(composed.rails.flatMap((rail) => rail.cards).length === new Set(composed.rails.flatMap((rail) => rail.cards.map((card) => card.id))).size, "no card appears in more than one rail");
 
+const distanceLaw = composeFallIntentRails([], [
+  { kind: "place", id: "farm-wide", name: "Wide Ring Farm", lat: 28.39, lng: -82.46, fallRail: "farms", wfScore: 9.9 },
+  { kind: "place", id: "farm-near", name: "Nearby Farm", lat: 28.20, lng: -82.46, fallRail: "farms", wfScore: 7.0 },
+  { kind: "place", id: "farm-unknown", name: "Unknown Farm", fallRail: "farms", wfScore: 10 },
+], { lat: 27.95, lng: -82.46, today: "2026-09-01", now });
+const farmCards = distanceLaw.rails.find((rail) => rail.id === "farms").cards;
+ok(farmCards.map((card) => card.id).join("|") === "farm-near|farm-wide", "a nearby card leads a higher-scoring wider-ring card");
+ok(!farmCards.some((card) => card.id === "farm-unknown"), "unknown distance is rejected rather than guessed nearby");
+
 ok(Object.keys(FALL_PLACE_IDS).sort().join("|") === Object.keys(FALL_PLACE_RAIL).sort().join("|"), "every vetted fall place has exactly one primary intent assignment");
 ok(Object.values(FALL_PLACE_RAIL).every((rail) => expected.includes(rail)), "every fall place assignment targets an approved rail");
 
@@ -84,7 +96,7 @@ ok(/Promise\.all\(\[/.test(route), "independent Supabase reads start in parallel
 ok(/FALL_PLACE_RAIL/.test(route) && /composeFallIntentRails/.test(route), "the API composes owned events and vetted places through one taxonomy");
 ok(/FallIntentRails = dynamic/.test(daypart), "the ten-rail component is lazy and absent from first paint");
 ok(/selRail\.id === "augtober"/.test(daypart) && /<FallIntentRails/.test(daypart), "the Augtober poster opens the specialized collection");
-ok(/selRail\.id === "augtober" \|\| selRail\.id === "events"/.test(daypart), "generic place fallback is suppressed for Augtober");
+ok(/selRail\.id === "augtober" \|\| selRail\.id === "tonight"/.test(daypart), "generic place fallback is suppressed for Augtober and Night Out");
 ok(!/fallEvents\.map|wf8-falltile/.test(daypart), "the old mixed inline fall strip is retired rather than duplicated");
 ok(/result\.rails\.length !== 10/.test(component), "the client fails closed on an incomplete rail contract");
 ok(/FALL_LOAD_TIMEOUT_MS = 12000/.test(component) && /controller\.abort\(\)/.test(component) && /signal: controller\.signal/.test(component), "the collection cannot leave a first-time reader on an endless skeleton");

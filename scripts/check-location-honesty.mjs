@@ -173,8 +173,8 @@ ok(/railMenuData\(\s*null\s*\)/.test(PAGE),
   "the ISR homepage asks railMenuData(null) — unknown, not the flagship");
 
 /* ── E. Exploding Trends tile is hidden; accordion stays unmounted ─────── */
-ok(/if \(r\.artStale\) return null/.test(RAIL),
-  "artStale rail tiles (Exploding Trends baked type) do not render");
+ok(/if \(r\.artStale \|\| r\.retiredInto\) return null/.test(RAIL),
+  "artStale and retired rail tiles do not render");
 const BEST = strip(read("app/components/BestNearby.js"));
 ok(!/<ExplodingNearby[\s/>]/.test(BEST),
   "ExplodingNearby is still unmounted — do not remount the accordion");

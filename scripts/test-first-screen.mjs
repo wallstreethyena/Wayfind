@@ -50,7 +50,7 @@ import { railArtSize } from "../lib/rails.js";
 // reason a delimiter like this is allowed to exist at all, and it is why the
 // probe is an assertion rather than a comment.
 const sliceEventsSlot = (src) => {
-  const a = src.indexOf("const eventsRailSlot = () => {");
+  const a = src.indexOf('const eventsRailSlot = (mode = "events") => {');
   const b = src.indexOf("\n  };\n", a);
   return a > -1 && b > a ? src.slice(a, b) : "";
 };
@@ -338,7 +338,7 @@ ok(/const EV_RAIL_MIN_H = \d+/.test(code), "EV_RAIL_MIN_H constant missing");
   // was the half of this sentence that was not true until now — it was built
   // once and handed to nothing; scripts/check-events-rail-renders.mjs is what
   // asserts the handing-over, which is the part this file never checked.
-  const slotStart = code.indexOf("const eventsRailSlot = () => {");
+  const slotStart = code.indexOf('const eventsRailSlot = (mode = "events") => {');
   ok(slotStart > -1, "the events rail is built once, as eventsRailSlot, and handed to the menu");
   const slot = sliceEventsSlot(code);
   ok(slot.length > 400, `PROBE: the events-rail slot was delimited (${slot.length} chars)`);

@@ -57,6 +57,8 @@ const homeRaw = readFileSync(join(ROOT, "app/home.js"), "utf8");
 const home = stripComments(homeRaw);
 const railRaw = readFileSync(join(ROOT, "app/components/DaypartRail.js"), "utf8");
 const rail = stripComments(railRaw);
+const nightOut = stripComments(readFileSync(join(ROOT, "app/components/NightOutRails.js"), "utf8"));
+const railMeta = stripComments(readFileSync(join(ROOT, "lib/rails.js"), "utf8"));
 
 // ── 1. THE GENERAL RULE ─────────────────────────────────────────────────────
 // Every component-depth const in app/home.js that RETURNS MARKUP must be
@@ -80,7 +82,7 @@ const rail = stripComments(railRaw);
     // Scoped to component depth (two spaces) so a nested helper inside a map
     // callback is not swept — a name declared inside a closure is read there
     // and this file has thousands of them.
-    const m = /^  const ([A-Za-z_$][\w$]*) = (?:\(\(\) => \{|\(\) => \{)\s*$/.exec(lines[i]);
+    const m = /^  const ([A-Za-z_$][\w$]*) = (?:\(\(\) => \{|\([^)]*\) => \{)\s*$/.exec(lines[i]);
     if (!m) continue;
     // …and only the ones that build MARKUP. An unused pure helper is lint's
     // job; a JSX-returning value that nothing reads is a surface the reader
@@ -115,18 +117,14 @@ const rail = stripComments(railRaw);
   // expression container that actually paints it.
   ok(/^\s*eventsSlot\s*=\s*null,\s*$/m.test(rail),
     "DaypartRail DESTRUCTURES eventsSlot in its props (defaulting to null, so /v8 and an empty feed keep the old behaviour)");
-  ok(/\{eventsSlot\(\)\}/.test(rail),
-    "…and CALLS it inside a JSX expression container — accepting a prop is not showing it, and the thunk is not a node until it is invoked");
-
-  // The tile must open the drop when there is one, and keep the hand-off when
-  // there is not. Both directions, because a guard that only pinned the new
-  // branch would go green on a version that navigated away every time.
-  ok(/if \(id === "events" && \(!eventsSlot \|\| !eventsSlot\(\)\) && onOpenEvents\)/.test(rail),
-    "the events tile navigates away when the slot has NOTHING to show — testing the prop alone would always be truthy (it is a function), so a reader with no events near them would meet a shelf of bars under a rail that promises dates (weaker check, source: DaypartRail imports next/dynamic and cannot be loaded into node)");
-  ok(/selRail\.id === "events" && eventsSlot/.test(rail),
-    "…and the drop paints the slot when the open rail IS events — the negative half: a slot rendered under every rail would be worse than none");
-  ok(/selRail\.id === "datenight" \|\| selRail\.id === "birthday" \|\| selRail\.id === "breakfast" \|\| selRail\.id === "break" \|\| selRail\.id === "eat" \|\| selRail\.id === "today" \|\| selRail\.id === "augtober" \|\| selRail\.id === "events"/.test(rail),
-    "Date Night, Birthday, Breakfast, Lunch Break, Actually Worth Eating, Today's Best Options, Augtober, and Events own their answers and cannot fall through into generic venue place cards");
+  ok(/eventsSlot\("night-out"\)/.test(nightOut),
+    "…and NightOutRails CALLS it in night-out mode — accepting a prop is not showing its dated inventory");
+  ok(/retiredInto: "tonight"/.test(railMeta) && /!r\.retiredInto/.test(rail),
+    "the standalone Events poster is retired into Night Out and hidden without deleting its inventory metadata");
+  ok(!/if \(id === "events"/.test(rail) && !/selRail\.id === "events" && eventsSlot/.test(rail),
+    "the obsolete Events tile branch and standalone drop are both gone");
+  ok(/selRail\.id === "datenight" \|\| selRail\.id === "birthday" \|\| selRail\.id === "breakfast" \|\| selRail\.id === "break" \|\| selRail\.id === "eat" \|\| selRail\.id === "today" \|\| selRail\.id === "augtober" \|\| selRail\.id === "tonight"/.test(rail),
+    "Date Night, Birthday, Breakfast, Lunch Break, Actually Worth Eating, Today's Best Options, Augtober, and Night Out own their answers and cannot fall through into generic venue place cards");
 }
 
 // ── 3. THE RAIL'S PROMISE MATCHES WHAT IS BEHIND IT ─────────────────────────
