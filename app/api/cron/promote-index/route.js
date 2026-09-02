@@ -1,4 +1,4 @@
-import { gateShut, spendAllowCapped } from "../../../../lib/spendGate";
+import { gateShut, spendAllowCapped, effectiveCap, gateMode } from "../../../../lib/spendGate";
 // app/api/cron/promote-index/route.js — drains wf_promotion_queue: index places
 // (wf_place_ids) become owned cards (wf_inventory), a bounded batch at a time.
 //
@@ -415,7 +415,7 @@ export async function GET(req) {
   // Budget refusals: back to pending, attempt refunded, parked — see the
   // migration. Deliberately NOT wf_promotion_complete(p_ok:false): that path
   // burns an attempt and would reject a good place after three empty months.
-  for (const id of released) settle.push(rpc(s, "wf_promotion_release", { p_place_id: id, p_delay_minutes: RELEASE_DELAY_MINUTES, p_note: `spend ledger: ${PROMOTE_SKU} month_cap ${monthCap} reached` }));
+  for (const id of released) settle.push(rpc(s, "wf_promotion_release", { p_place_id: id, p_delay_minutes: RELEASE_DELAY_MINUTES, p_note: `spend ledger: ${PROMOTE_SKU} ceiling ${effectiveCap(PROMOTE_SKU, monthCap)} reached (month_cap ${monthCap}, gate ${gateMode()})` }));
   await Promise.allSettled(settle);
 
   const attempted = claimed.length - released.length; // places we actually paid to look at
@@ -423,7 +423,7 @@ export async function GET(req) {
   const note = writeError
     ? `upsert failed: ${writeError.slice(0, 120)}`
     : budgetExhausted
-      ? `budget: ${PROMOTE_SKU} month_cap ${monthCap} reached; released ${released.length}/${claimed.length}`.slice(0, 200)
+      ? `budget: ${PROMOTE_SKU} ceiling ${effectiveCap(PROMOTE_SKU, monthCap)} reached (month_cap ${monthCap}, gate ${gateMode()}); released ${released.length}/${claimed.length}`.slice(0, 200)
       : (succeeded === 0 && attempted > 0 ? `0/${attempted} promoted; top reject: ${(rejects[0] && rejects[0].error) || "none"}`.slice(0, 200) : null);
   // attempted counts only what was bought. A run that released its whole batch
   // pulses as attempted 0 with the budget note, so job-watch reads it as IDLE
