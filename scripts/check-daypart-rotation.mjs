@@ -13,7 +13,8 @@
  *
  * What nobody asserted was the only thing the reader can actually perceive:
  * WHAT IS IN THE FIRST TILE. 'season' sat at index 0 in all four band arrays,
- * and a phone shows about 1.3 tiles (--wf8-tw: min(76vw,340px)) — so the reader
+ * and a phone shows the first tile plus the next-card cue (--wf8-tw is width
+ * bounded and viewport-height bounded) — so the reader
  * saw one card, and it was Summer Picks at 8am, noon, 4pm and 7pm. A four-band
  * reordering engine that never changes the visible slot is a feature that does
  * not exist, measured as if it did.
