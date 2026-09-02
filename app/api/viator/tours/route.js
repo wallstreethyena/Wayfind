@@ -19,8 +19,9 @@ import { resolveVerifiedMany } from "../../../../lib/bookingResolver.js";
 import { getFanoutCount, persistOffer } from "../../../../lib/verifiedOfferStore.js";
 import { offerBelongsToRequestedCity } from "../../../../lib/partnerGeo.js";
 import { isDeniedViatorSku, isViatorSearchOrHomeUrl } from "../../../../lib/viatorIntegrity.js";
+import { credential } from "../../../../lib/envPlaceholder.js";
 
-const getKey = () => ((process.env["VIATOR_API_KEY"] || "").trim());
+const getKey = () => credential(process.env["VIATOR_API_KEY"]);
 
 // Warm-instance memory cache: query -> { items, exp }
 const mem = new Map();

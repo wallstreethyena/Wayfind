@@ -614,6 +614,13 @@ node scripts/check-position-memory.mjs
 # three times: the rail drop must land with scrollIntoView, and the existing
 # window.scroll* debt list may only shrink.
 node scripts/check-shell-scroll.mjs
+# v8.41 — the BEHAVIOUR half of the same complaint: check-shell-scroll holds the
+# mechanism (never steer through window), this holds the outcome. Every control
+# that replaces the feed lands the reader on it, through ONE implementation
+# (lib/landOnResults.js), and no control dispatches to a screen that does not
+# render. The nav tabs had neither, and the owner reported "nothing happened"
+# for the third time in three days.
+node scripts/check-lands-on-results.mjs
 # v8.27 — a horizontal rail may not hand the reader's swipe to the browser. The
 # overscroll-behavior on <body> never applied (body is not a scroll container in
 # this shell), so rail swipes chained out and iOS claimed them as the back
@@ -667,6 +674,10 @@ node scripts/check-fall-is-calling.mjs
 # near-black card. This pins the warm palette, the id+date decision (never a
 # query parameter), and that every place-share sentence carries the marker.
 node scripts/check-fall-share.mjs
+# v8.42 — event pages get real "nearby & worth it" places (buildNearbyPool,
+# floor-gated, genuinely nearby, /p/ links) and the hub becomes visual place
+# cards whose badge is the DATE, never a Wayfind Score (an event is dated)
+node scripts/check-event-pairings.mjs
 # 2026-08-22 — the owner's handpicked board (lib/localPicks.js) IS the "What
 # Should We Do Today?" card, for one town and one hour. Four failures this
 # pins, none of which anything else in the suite would notice: a radius wide
@@ -839,3 +850,20 @@ node scripts/test-today-discovery-rails.mjs
 # a realistic owned-inventory feed is merged in.
 node scripts/check-intent-rail-inventory-fed.mjs
 node scripts/test-night-out-inventory-merge.mjs
+# A PLACEHOLDER IS NOT A CREDENTIAL. `vercel env pull` cannot read a var flagged
+# Sensitive — it writes the literal string "[SENSITIVE]", eleven characters that
+# pass every presence check. On 2026-07-31 that string went out as the Viator
+# pid on every affiliate URL: a working, unattributed link that converts and
+# pays nothing. Unset fails CLOSED (no CTA); junk fails OPEN. lib/envPlaceholder.js
+# ended it for lib/affiliates.js — but the other TWELVE reads of the same
+# variables were never converted, so app/api/viator/go (which stamps the pid
+# straight into searchFallback) could still emit pid=%5BSENSITIVE%5D. Found
+# 2026-08-22 while repairing a local .env.local holding that exact value in 24
+# vars. This pins every money-path credential read to credential().
+node scripts/check-credential-discipline.mjs
+# COMMUNITY FOOTER (owner 2026-08-22). Instagram surfaced in-app, an open
+# creator call (a good creator emails us and gets a spot), and an in-app FEEDBACK
+# control that writes to wf_feedback and NEVER email. Pins the Instagram handle
+# exact, creators=mailto while feedback never is, /api/feedback stores without a
+# mailer, and the component is mounted in the home footer beside Privacy/Terms.
+node scripts/check-community-footer.mjs

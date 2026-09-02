@@ -72,9 +72,19 @@ ok(live <= KNOWN_TOTAL, `window.scroll* call sites grew to ${live} (cap ${KNOWN_
 {
   const rel = "app/components/DaypartRail.js";
   const src = codeOnly(readFileSync(join(ROOT, rel), "utf8"));
-  ok(/scrollIntoView\s*\(/.test(src), `${rel} must land the open drop with scrollIntoView (window.scrollTo cannot move the shell)`);
+  // v8.41 — THE LANDING MOVED TO lib/landOnResults.js and the rail now calls it.
+  // The rule is unchanged and the assertion is not weakened, it is WIDENED: the
+  // same two properties are now asserted on the shared module, which the nav
+  // tabs in app/home.js also go through. (They did not, and the owner reported
+  // the identical "nothing happened" from the tabs on 2026-08-23 — see
+  // scripts/check-lands-on-results.mjs.)
+  ok(/landOnResults\s*\(/.test(src), `${rel} must land the open drop through lib/landOnResults.js`);
+  const landRel = "lib/landOnResults.js";
+  const land = codeOnly(readFileSync(join(ROOT, landRel), "utf8"));
+  ok(/scrollIntoView\s*\(/.test(land), `${landRel} must land with scrollIntoView (window.scrollTo cannot move the shell)`);
+  ok(!steers(land), `${landRel} must not steer the viewport through window.scroll*`);
   ok(!steers(src), `${rel} must not steer the viewport through window.scroll*`);
-  ok(/requestAnimationFrame/.test(src), `${rel} must wait a frame before landing: the drop flips display:none -> block in the same commit and wf8MenuIn starts mid-transform`);
+  ok(/requestAnimationFrame/.test(land), `${landRel} must wait a frame before landing: the drop flips display:none -> block in the same commit and wf8MenuIn starts mid-transform`);
   const css = readFileSync(join(ROOT, "app/components/railMenuCss.js"), "utf8");
   ok(/\.wf8-menusec\{[^}]*scroll-margin-top:/.test(css), "railMenuCss.js: .wf8-menusec needs scroll-margin-top so the landing offset lives with the layout, not as a magic number in JS");
 }

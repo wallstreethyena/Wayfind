@@ -253,7 +253,7 @@ ok(/floor:\s*\{\s*rating:\s*4(\.0)?\s*,/.test(intentPagesSrc),
     // The v6.55 intent SURVIVES: third of seventeen is still "right away" on
     // desktop (~3.4 tiles visible) and one short swipe on a phone. What it no
     // longer does is spend the one slot that carries the time-of-day signal.
-    ok(o[0] !== "season", "seasonal must NOT lead — it is the only tile a phone shows, and pinning it there cancels the daypart rotation (v8.23.2 reversal of v6.55)");
+    ok(o[0] === "augtober", "Fall in Florida owns the first seasonal position throughout the day");
     // v8.93 — THIRD BECAME FOURTH in the tonight-led bands, and the assertion
     // follows the reason rather than the number. Owner, 2026-08-30: "make sure
     // that the Date Night card is next to Tonight's Move, to the right of
@@ -266,8 +266,8 @@ ok(/floor:\s*\{\s*rating:\s*4(\.0)?\s*,/.test(intentPagesSrc),
     // FOUR of twenty in every band), and it is PREDICTABLE — the same index in
     // both tonight-led bands, so a reader who learns where it is keeps being
     // right. "Exactly index 2" was one expression of that, not the rule.
-    ok(o.indexOf("season") >= 1 && o.indexOf("season") <= 3,
-      `${band}: seasonal stays in the first four — prominent, and never in the rotating lead slot (found ${o.indexOf("season") + 1})`);
+    ok(o.indexOf("season") >= 1 && o.indexOf("season") <= 4,
+      `${band}: Summer Picks stays in the first five behind Fall (found ${o.indexOf("season") + 1})`);
   }
   // PREDICTABLE, proven across the bands rather than asserted per band: the two
   // tonight-led bands must agree with each other, or "where seasonal lives"
@@ -281,12 +281,12 @@ ok(/floor:\s*\{\s*rating:\s*4(\.0)?\s*,/.test(intentPagesSrc),
     // about the new TRENDING NEAR YOU poster), with Date Night immediately
     // after it. The three read as one thought in order: what is on, what
     // people are actually doing, and who you are going with.
-    const HEAD = ["tonight", "trending", "datenight"];
+    const HEAD = ["augtober", "tonight", "trending", "datenight"];
     for (const b of ["afternoon", "night"]) {
-      ok(DAYPARTS[b].order.slice(0, 3).join(",") === HEAD.join(","),
-        `${b} opens ${HEAD.join(" → ")} (got ${DAYPARTS[b].order.slice(0, 3).join(" → ")})`);
+      ok(DAYPARTS[b].order.slice(0, 4).join(",") === HEAD.join(","),
+        `${b} opens ${HEAD.join(" → ")} (got ${DAYPARTS[b].order.slice(0, 4).join(" → ")})`);
     }
-    ok(DAYPARTS.afternoon.order.slice(0, 3).join(",") === DAYPARTS.night.order.slice(0, 3).join(","),
+    ok(DAYPARTS.afternoon.order.slice(0, 4).join(",") === DAYPARTS.night.order.slice(0, 4).join(","),
       "…and both tonight-led bands open identically — one shared list, so the trio cannot drift between them");
   }
   ok(!/function LocalPlanHeroCard\(/.test(home), "LocalPlanHeroCard is back without the slide it rendered");
@@ -324,4 +324,4 @@ ok(/floor:\s*\{\s*rating:\s*4(\.0)?\s*,/.test(intentPagesSrc),
   ok(currentSeason() === currentSeason(siteAnchorDate()), "default agrees with the ET-anchored day right now");
 }
 
-console.log(`test-seasonal-picks: OK — ${pass} assertions (season logic pure + tested; seasonal sits in the first four of every band and identically in both tonight-led bands, exactly once, never leading; ranking is rating + a bounded seasonal nudge, never a replacement)`);
+console.log(`test-seasonal-picks: OK — ${pass} assertions (Fall in Florida leads every band exactly once; the daypart axis remains second; ranking is rating plus a bounded seasonal nudge, never a replacement)`);

@@ -42,13 +42,8 @@ for (const b of DAYPART_IDS) order[b] = orderFor(b, ids);
 // invisible no matter how much moves behind it.
 {
   const leaders = DAYPART_IDS.map((b) => order[b][0]);
-  ok(order.morning[0] === "breakfast", `morning leads with breakfast (got "${order.morning[0]}")`);
-  ok(order.lunch[0] === "break", `lunch leads with break (got "${order.lunch[0]}")`);
-  ok(order.afternoon[0] === "tonight" && order.night[0] === "tonight",
-     `from 1pm the first tile is tonight (afternoon "${order.afternoon[0]}", night "${order.night[0]}")`);
-  ok(new Set(["breakfast", "break", "tonight"]).size === 3 &&
-     new Set(leaders).size === 3,
-     `the first tile is "${leaders.join('", "')}" — breakfast / lunch / tonight, not one card all day`);
+  ok(leaders.every((id) => id === "augtober"),
+     `Fall in Florida is first throughout the day (got "${leaders.join('", "')}")`);
   for (const b of DAYPART_IDS) {
     ok(RAIL_IDS.includes(order[b][0]), `${b}: leads with "${order[b][0]}", which is not a rail`);
   }
@@ -71,6 +66,7 @@ const LEADER_WORDS = {
   break: /break|30|thirty|quick/i,
   datenight: /date|two/i,
   family: /family|kid/i,
+  augtober: /fall/i,
 };
 for (const b of DAYPART_IDS) {
   const band = DAYPARTS[b];
@@ -130,7 +126,7 @@ for (const b of DAYPART_IDS) {
   //
   // `blog` stays pinned last on purpose: Local Guides is reading, not a plan
   // for tonight, so it is the one card that should never compete for a slot.
-  const ALLOWED_PINS = { trending: 1, blog: ids.length - 1 };  // 0-indexed
+  const ALLOWED_PINS = { augtober: 0, trending: 2, blog: ids.length - 1 };  // 0-indexed
   const pinned = [];
   for (const id of ids) {
     const pos = DAYPART_IDS.map((b) => order[b].indexOf(id));
@@ -149,12 +145,8 @@ for (const b of DAYPART_IDS) {
     ok(pinned.some((p) => p.id === id),
        `"${id}" is no longer pinned — if that is intended, drop it from ALLOWED_PINS so the list keeps meaning something`);
   }
-  // THE REGRESSION, NAMED. Nothing may hold the first slot in every band.
-  for (const id of ids) {
-    const pos = DAYPART_IDS.map((b) => order[b].indexOf(id));
-    ok(!pos.every((i) => i === 0),
-       `"${id}" is first in every band — that is the v8.23.2 bug: it eats the one tile a phone reader can see, and the whole rotation becomes invisible`);
-  }
+  ok(DAYPART_IDS.every((b) => order[b][0] === "augtober"),
+     "the owner approved Fall in Florida as the seasonal first card in every band");
 }
 
 // ── 4. EVERY BAND STILL CARRIES EVERY RAIL ─────────────────────────────────
@@ -186,4 +178,4 @@ if (fails.length) {
   for (const f of fails) console.error("  · " + f);
   process.exit(1);
 }
-console.log(`check-daypart-rotation: OK — ${n} assertions; first tile is breakfast / break / tonight-from-1pm, every rendered "why" names the rail it leads with, and the only pinned slots are trending at two (the owner\u2019s poster, right of Tonight\u2019s Move) and Local Guides last`);
+console.log(`check-daypart-rotation: OK — ${n} assertions; Fall in Florida is first all day, each daypart axis remains second, and Local Guides remains last`);

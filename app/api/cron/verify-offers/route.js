@@ -14,8 +14,9 @@ export const maxDuration = 60;
 
 import { resolveVerified } from "../../../../lib/bookingResolver.js";
 import { getFanoutCount, getStaleLiveOffers, persistOffer, suppressOffer } from "../../../../lib/verifiedOfferStore.js";
+import { credential } from "../../../../lib/envPlaceholder.js";
 
-const getKey = () => ((process.env["VIATOR_API_KEY"] || "").trim());
+const getKey = () => credential(process.env["VIATOR_API_KEY"]);
 
 async function searchFreetext(term) {
   const KEY = getKey();

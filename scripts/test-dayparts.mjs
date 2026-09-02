@@ -57,24 +57,21 @@ for(const p of DAYPART_IDS){
   // in the same place in both bands a reader meets after 1pm.
   // test-seasonal-picks owns the cross-band agreement; this file owns the
   // per-band bound, because orderFor() is what it executes.
-  ok(o.indexOf('season')>=1&&o.indexOf('season')<=3,`${p}: Summer Picks stays in the first four (found ${o.indexOf('season')+1})`);
-  ok(o.indexOf('trending')<3,`${p}: Trending in the top 3 (is #${o.indexOf('trending')+1})`);
+  ok(o.indexOf('season')>=1&&o.indexOf('season')<=4,`${p}: Summer Picks stays in the first five behind Fall (found ${o.indexOf('season')+1})`);
+  ok(o.indexOf('trending')<4,`${p}: Trending stays in the first four behind Fall (is #${o.indexOf('trending')+1})`);
 }
 // the specific calls Gabe made
 // The owner's standing calls, re-expressed as RELATIONS rather than as five-item
 // snapshots. A positional snapshot is what let v8.15's two new rails slip past
 // this file; a relation survives an insertion.
-eq(orderFor('morning',ALL)[0],'breakfast','morning: breakfast leads (it IS the morning question)');
-eq(orderFor('lunch',ALL)[0],'break','lunch: the lunch poster leads — not breakfast, not tonight');
-eq(orderFor('afternoon',ALL)[0],'tonight','afternoon: tonight takes over at 1pm');
-eq(orderFor('night',ALL)[0],'tonight','night: tonight leads');
+for (const band of DAYPART_IDS) eq(orderFor(band,ALL)[0],'augtober',`${band}: Fall in Florida leads throughout the season`);
 ok(orderFor('lunch',ALL).indexOf('eat')<orderFor('lunch',ALL).indexOf('breakfast'),'lunch: Eat ahead of breakfast (morning is over)');
 ok(orderFor('night',ALL).indexOf('events')<orderFor('night',ALL).indexOf('eat'),
    'night: Events ahead of Eat — a show still open beats a table');
-eq(orderFor('morning',ALL)[0],'breakfast','morning leader is breakfast');
-eq(orderFor('lunch',ALL)[0],'break','lunch leader is break');
-ok(orderFor('afternoon',ALL)[0]==='tonight' && orderFor('night',ALL)[0]==='tonight',
-   'from 1pm both remaining bands lead with tonight (owner, 2026-08-29 12:25)');
+ok(orderFor('morning',ALL)[1]==='breakfast' && orderFor('lunch',ALL)[1]==='break',
+   'the daypart axis remains directly behind the seasonal Fall lead');
+ok(orderFor('afternoon',ALL)[1]==='tonight' && orderFor('night',ALL)[1]==='tonight',
+   'from 1pm Tonight remains directly behind the seasonal Fall lead');
 ok(orderFor('night',ALL).indexOf('break')>10,'night: Break parked at the back');
 ok(orderFor('morning',ALL).indexOf('events')>10,'morning: Events parked at the back');
 
@@ -84,16 +81,16 @@ eq(orderFor('morning',[]),[],'empty rail set -> empty');
 eq(orderFor('morning',['eat','zzz']),['eat','zzz'],'unknown ids kept, known ones prioritised');
 eq(orderFor('morning',['zzz']),['zzz'],'a rail not in any priority list still renders');
 ok(!orderFor('morning',['eat']).includes('today'),'never invents a rail that does not exist');
-eq(orderForHour(19,ALL)[0],'tonight','orderForHour composes (19:00 is night, and tonight leads from 1pm)');
+eq(orderForHour(19,ALL)[0],'augtober','orderForHour keeps Fall first at 19:00');
 // Owner-required first-poster clock (2026-08-29 12:25 ET). Hour in, first
 // rail out — not a regex over the order arrays.
-eq(orderForHour(8,ALL)[0],'breakfast','hour 8: breakfast first');
+eq(orderForHour(8,ALL)[0],'augtober','hour 8: Fall first');
 ok(orderForHour(11.6,ALL)[0]!=='breakfast','hour 11.6: not breakfast-first');
 ok(orderForHour(11.6,ALL)[0]!=='tonight','hour 11.6: not tonight-first');
-eq(orderForHour(13.1,ALL)[0],'tonight','hour 13.1: tonight first');
-eq(orderForHour(15,ALL)[0],'tonight','hour 15: tonight first');
-eq(orderForHour(22,ALL)[0],'tonight','hour 22: tonight first');
-eq(orderForHour(23,ALL)[0],'tonight','hour 23: tonight first');
+eq(orderForHour(13.1,ALL)[0],'augtober','hour 13.1: Fall first');
+eq(orderForHour(15,ALL)[0],'augtober','hour 15: Fall first');
+eq(orderForHour(22,ALL)[0],'augtober','hour 22: Fall first');
+eq(orderForHour(23,ALL)[0],'augtober','hour 23: Fall first');
 
 // ── regionFor
 eq(regionFor(28.5383,-81.3792),'orlando','downtown Orlando');

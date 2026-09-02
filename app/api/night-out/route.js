@@ -1,8 +1,9 @@
 export const runtime = "nodejs";
 export const maxDuration = 20;
 
-// Night Out owns nightlife inventory. It must never depend on the subset of
-// venues that happened to win a generic homepage rail.
+// Night Out owns its complete candidate universe. Dinner, shows and after
+// dark activities are not all stored under the nightlife category, so the
+// endpoint reads the three relevant owned categories in parallel.
 import { BROWSE_INVENTORY_N } from "../../../lib/browseInventory.js";
 import { NET_DEADLINE_MS } from "../../../lib/fetchDeadline.js";
 import { distMeters, serveFromInventory } from "../../../lib/inventoryServe.js";
@@ -39,15 +40,20 @@ export async function GET(request) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
     return Response.json({ error: "lat and lng are required" }, { status: 400, headers: { "cache-control": "no-store" } });
   }
-  const key = `night-out:v2:${geoCell(lat)}:${geoCell(lng)}`;
+  const key = `night-out:v3:${geoCell(lat)}:${geoCell(lng)}`;
   try {
     const cached = await fastCachedRail(key, async () => {
-      const raw = await serveFromInventory(
-        "nightlife", lat, lng, NIGHT_OUT_MAX_MI * 1609.34, BROWSE_INVENTORY_N, undefined,
-        { failLoud: true, primaryOnly: true, deadlineMs: NET_DEADLINE_MS },
-      );
+      const options = { failLoud: true, primaryOnly: true, deadlineMs: NET_DEADLINE_MS };
+      const pools = await Promise.all(["food", "nightlife", "attractions"].map((category) =>
+        serveFromInventory(category, lat, lng, NIGHT_OUT_MAX_MI * 1609.34, BROWSE_INVENTORY_N, undefined, options),
+      ));
       const origin = { lat, lng };
-      const places = raw.map((row) => toPlace(row, origin)).filter(Boolean);
+      const seen = new Set();
+      const places = pools.flat().map((row) => toPlace(row, origin)).filter((place) => {
+        if (!place || seen.has(place.id)) return false;
+        seen.add(place.id);
+        return true;
+      });
       return composeNightOutRails([], places, origin);
     }, {
       name: "night-out-rails",

@@ -9,12 +9,13 @@
 // 500). Nothing here builds a product URL — product_url is the API's own value.
 import { DESTS, CATEGORIES, productToRow } from "../../../../lib/experiencesData.js";
 import { sbEnv } from "../../../../lib/serverCache.js";
+import { credential } from "../../../../lib/envPlaceholder.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-const KEY = () => ((process.env.VIATOR_API_KEY || "").trim());
+const KEY = () => credential(process.env.VIATOR_API_KEY);
 const VH = () => ({ "exp-api-key": KEY(), "Accept": "application/json;version=2.0", "Accept-Language": "en-US", "Content-Type": "application/json" });
 const PER_CATEGORY = 50;
 

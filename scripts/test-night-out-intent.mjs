@@ -85,7 +85,7 @@ ok(/mode === "night-out"/.test(home) && /nightOutEventRail\(event\)/.test(home),
 ok(!/selRail\.id === "events" && eventsSlot/.test(daypart), "the obsolete standalone Events drop is gone");
 ok(/selRail\.id === "augtober" \|\| selRail\.id === "tonight"/.test(daypart), "Night Out owns its complete answer and cannot fall through to generic places");
 ok(/No verified event or venue within 27 miles/.test(component), "an empty intent tells the truth instead of using a look-alike");
-ok(/serveFromInventory\(\s*"nightlife"/.test(route), "Night Out reads the complete owned nightlife inventory instead of homepage survivors");
+ok(/\["food", "nightlife", "attractions"\]\.map/.test(route) && /Promise\.all/.test(route), "Night Out reads its complete owned dinner, nightlife and entertainment inventory in parallel");
 ok(/fetchJsonWithDeadline\("\/api\/night-out/.test(component), "Night Out has a bounded, retryable reader request");
 ok(/CLIENT_RAIL_DEADLINE_MS = 10000/.test(clientJson) && /AbortController/.test(clientJson), "reader-facing place rails cannot remain on a permanent skeleton");
 
