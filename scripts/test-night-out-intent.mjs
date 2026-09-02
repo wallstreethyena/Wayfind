@@ -5,6 +5,7 @@ import {
   composeNightOutRails, nightOutDistanceMi, nightOutEventRail, nightOutPlaceRail,
 } from "../lib/nightOutIntent.js";
 import { windowRailAnswer } from "../lib/railResponse.js";
+import { NIGHT_OUT_EDITORIAL_EVIDENCE, nightOutEditorialEvidence } from "../lib/nightOutEvidence.js";
 
 let pass = 0;
 const failures = [];
@@ -19,6 +20,9 @@ ok(NIGHT_OUT_NEAR_MI === 17, "the first Night Out ring ends at 17 miles");
 ok(NIGHT_OUT_MAX_MI === 27, "Night Out never widens beyond 27 miles");
 
 ok(nightOutPlaceRail(place({ primaryType: "night_club", description: "A real nightclub with DJs and a dance floor" })) === "clubs", "actual dancing evidence enters Clubs");
+ok(nightOutPlaceRail(place({ primaryType: "bar", editorial: "A lively room with a cozy dance floor and DJs" })) === "clubs", "a bar with direct dance-floor evidence enters Clubs");
+ok(nightOutPlaceRail(place({ primaryType: "bar", editorial: "A neighborhood bar with music" })) !== "clubs", "a generic bar does not become a dance club");
+ok(NIGHT_OUT_EDITORIAL_EVIDENCE.ChIJrYGdKBJAw4gRafewzUWWYnk?.source.startsWith("https://") && /dinner theatre/.test(nightOutEditorialEvidence("ChIJrYGdKBJAw4gRafewzUWWYnk")), "Dinner + Entertainment evidence is source-backed and addressable by inventory ID");
 ok(nightOutPlaceRail(place({ primaryType: "bar", description: "A friendly neighborhood bar" })) === "cocktails", "a real bar enters the broad Bars and Cocktails rail without being relabelled as a rooftop");
 ok(nightOutPlaceRail(place({ primaryType: "cocktail_bar", description: "Craft cocktails" })) === "cocktails", "a cocktail room enters Bars and Cocktails");
 ok(nightOutPlaceRail(place({ primaryType: "bar", description: "Patio drinks with city views" })) === "cocktails", "a patio remains a bar and is never used as rooftop evidence");
@@ -85,7 +89,8 @@ ok(/mode === "night-out"/.test(home) && /nightOutEventRail\(event\)/.test(home),
 ok(!/selRail\.id === "events" && eventsSlot/.test(daypart), "the obsolete standalone Events drop is gone");
 ok(/selRail\.id === "augtober" \|\| selRail\.id === "tonight"/.test(daypart), "Night Out owns its complete answer and cannot fall through to generic places");
 ok(/No verified event or venue within 27 miles/.test(component), "an empty intent tells the truth instead of using a look-alike");
-ok(/\["food", "nightlife", "attractions"\]\.map/.test(route) && /Promise\.all/.test(route), "Night Out reads its complete owned dinner, nightlife and entertainment inventory in parallel");
+ok(/\["food", "nightlife", "attractions"\]\.map/.test(route) && /Promise\.allSettled/.test(route), "Night Out reads owned categories in parallel without one stalled category blanking every shelf");
+ok(/primaryOnly: false/.test(route) && /nightOutEditorialEvidence/.test(route), "Night Out includes secondary category identity and governed dinner-show evidence");
 ok(/fetchJsonWithDeadline\("\/api\/night-out/.test(component), "Night Out has a bounded, retryable reader request");
 ok(/CLIENT_RAIL_DEADLINE_MS = 10000/.test(clientJson) && /AbortController/.test(clientJson), "reader-facing place rails cannot remain on a permanent skeleton");
 

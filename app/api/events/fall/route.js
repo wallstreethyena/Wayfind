@@ -21,6 +21,9 @@ import { cardImageSrc } from "../../../../lib/placePhoto.js";
 import { fastCachedRail, geoCell } from "../../../../lib/railFastCache.js";
 import { composeFallIntentRails } from "../../../../lib/fallIntentRails.js";
 import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../../../../lib/fallPhotoSpots.js";
+import { FALL_DISCOVERIES_2026 } from "../../../../lib/fallDiscoveries2026.js";
+
+const FALL_DB_DEADLINE_MS = 3500;
 
 function json(body, status = 200, cache = "public, s-maxage=900, stale-while-revalidate=86400") {
   return Response.json(body, { status, headers: { "cache-control": cache } });
@@ -33,28 +36,35 @@ export async function GET(request) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return json({ error: "lat and lng are required" }, 400, "no-store");
   try {
     const today = siteTodayStr();
-    const key = `fall-intents:v4:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    const key = `fall-intents:v5:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     const cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([...Object.keys(FALL_PLACE_IDS), ...FALL_PHOTO_PLACE_IDS])];
       const dealIds = [...new Set(Object.values(FALL_EVENT_TICKET_DEALS))];
+      const signal = AbortSignal.timeout(FALL_DB_DEADLINE_MS);
       // All three reads are independent. Start them together so a cold cache
       // costs one Supabase round trip rather than a waterfall of three.
       const [rows, placeResult, dealResult] = await Promise.all([
-        fetchCuratedEvents(),
+        fetchCuratedEvents({ signal }),
         supabase.from("wf_inventory")
           .select("place_id,name,lat,lng,metro,category,signals,editorial,photo_ref,status")
-          .in("place_id", ids),
+          .in("place_id", ids).abortSignal(signal),
         dealIds.length
-          ? supabase.from("wf_deals").select("id,affiliate_url,active,link_ok,provider").in("id", dealIds)
+          ? supabase.from("wf_deals").select("id,affiliate_url,active,link_ok,provider").in("id", dealIds).abortSignal(signal)
           : Promise.resolve({ data: [], error: null }),
       ]);
-      if (placeResult.error) throw placeResult.error;
+      const sourceFailures = Number(!!placeResult.error) + Number(!!dealResult.error);
+      if (placeResult.error) console.error("[api/events/fall] place inventory degraded", { message: String(placeResult.error.message || placeResult.error) });
 
       const byDealId = new Map((dealResult.data || [])
         .filter((deal) => deal.active && deal.link_ok && hasCjPid(deal.affiliate_url))
         .map((deal) => [deal.id, deal]));
-      const events = (rows || [])
+      // The owner-supplied discovery registry is publish-ready source data,
+      // not merely a seed script. Merge it at read time so a missed/lagging
+      // database seed cannot erase verified farms, cafes and spooky dates.
+      const eventRows = [...(rows || []), ...FALL_DISCOVERIES_2026]
+        .filter((row, index, all) => all.findIndex((other) => other.event_id === row.event_id) === index);
+      const events = eventRows
       // isTrusted, NOT a second inline copy of the status check. The line this
       // replaced asked only about event_status and therefore skipped the
       // source_tier and confidence gates that lib/curatedEvents has always
@@ -113,7 +123,7 @@ export async function GET(request) {
       if (src) { ev.image = src; ev.imageIsVenue = true; }  // "the venue", never "this event"
     }
 
-      const places = (placeResult.data || [])
+      const places = (placeResult.error ? [] : (placeResult.data || []))
         .filter((p) => (!p.status || p.status === "OPERATIONAL") && p.signals && typeof p.signals.rating === "number" && p.signals.rating > 0)
         .map((p) => ({
           kind: "place",
@@ -133,7 +143,7 @@ export async function GET(request) {
         .sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
 
       const composed = composeFallIntentRails(events, places, { lat, lng, today });
-      return { today, ...composed, sourceCount: events.length + places.length };
+      return { today, ...composed, sourceCount: events.length + places.length, sourceFailures };
     }, {
       name: "fall-intent-rails",
       usable: (value) => value?.rails?.length === 10 && Number(value?.sourceCount || 0) > 0,
