@@ -90,7 +90,7 @@ ok(FALL_PHOTO_PLACE_IDS.length >= 6, "the photo rail has a useful researched Gul
 ok(Object.values(FALL_PHOTO_SPOTS).every((spot) => spot.shotLocation && spot.visualProof && spot.fallReason && spot.bestTime && spot.accessNote && /^https:\/\//.test(spot.sourceUrl)), "every photo spot carries the exact shot, visible asset, fall reason, timing, access and proof source");
 
 const discoveryIds = FALL_DISCOVERIES_2026.map((row) => row.event_id);
-ok(FALL_DISCOVERIES_2026.length === 11 && new Set(discoveryIds).size === 11, "all 11 owner supplied Fall in Florida discoveries exist exactly once");
+ok(FALL_DISCOVERIES_2026.length === 12 && new Set(discoveryIds).size === 12, "all 12 owner supplied Fall in Florida discoveries exist exactly once");
 ok(Object.keys(FALL_DISCOVERY_RAIL).sort().join("|") === discoveryIds.slice().sort().join("|"), "every new discovery has one explicit primary intent");
 ok(FALL_DISCOVERIES_2026.every((row) => fallEventRail(row) === FALL_DISCOVERY_RAIL[row.event_id]), "every new discovery resolves to its approved rail");
 ok(FALL_DISCOVERIES_2026.every((row) => Number.isFinite(row.lat) && Number.isFinite(row.lng)), "every new discovery has verified coordinates for distance gating");
@@ -99,8 +99,8 @@ ok(FALL_DISCOVERIES_2026.every((row) => row.fun_fact && row.fun_fact.length <= 1
 ok(FALL_DISCOVERIES_2026.every((row) => row.card_hook.length <= 70 && row.editorial_summary.length <= 130), "every new card keeps its hook and value concise");
 ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "farms").length === 6, "the six farm festivals live in Pumpkin Patches and Fall Farms");
 ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "food").length === 2, "Rosallie and Perfect Press live in seasonal food");
-ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "date-night").length === 3, "Mangoni, Nueva and You Do the Dishes live in spooky date night");
-ok(FALL_DISCOVERIES_2026.filter((row) => row.verification_confidence === "high").length === 6, "all six dated farm programs carry first party high confidence verification");
+ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "date-night").length === 4, "Mangoni, Nueva, You Do the Dishes and Dead Coconut Club live in spooky date night");
+ok(FALL_DISCOVERIES_2026.filter((row) => row.verification_confidence === "high").length === 7, "all six dated farm programs plus Dead Coconut Club's Universal-sourced dates carry first party high confidence verification");
 
 const route = readFileSync(new URL("../app/api/events/fall/route.js", import.meta.url), "utf8");
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
