@@ -1,3 +1,13 @@
+## v8.53 - Eleven owner discovered Fall in Florida experiences, one intent each
+
+Owner, 2026-09-02: add the 11 restaurants, cafes, creative dates and farm festivals collected in the Fall in Florida research, and make sure each goes to the right place in Wayfind.
+
+- **All 11 discoveries are owned data.** `lib/fallDiscoveries2026.js` records the venue, verified location, 2026 season window, first party destination, editorial reason and evidence for every card. The six farm programs use their published 2026 dates. Open runs keep a null closing date instead of inventing one.
+- **One card, one intent.** Mangoni, Nueva Cantina and You Do the Dishes enter Spooky Date Night. Rosallie and Perfect Press enter Fall Drinks and Seasonal Bites. Showcase of Citrus, Amber Brooke, Green Meadows, Great Scott, Southern Hill and Hastings enter Pumpkin Patches and Fall Farms. An explicit registry prevents the same farm from leaking into family or photo rails.
+- **Zero Google spend.** Existing Wayfind place ids provide venue photos where owned inventory already has them. The remaining cards use the new Fall in Florida poster. Coordinates were verified from existing inventory or open map data, and the seed path never calls a paid provider.
+- **Reproducible production data.** `scripts/seed-fall-discoveries-2026.mjs` performs one idempotent upsert on `event_id`, returns every written row and fails if any of the 11 is missing. Dry mode prepares the exact payload without requiring credentials or writing data.
+- **Guarded.** The Fall intent suite now proves all 11 ids are unique, all have evidence, dates and coordinates, and every card resolves to its approved rail. The fall cache key advances to v4 so the additions cannot hide behind stale v3 data.
+
 ## v8.52 - Seven more birthday gifts, the card says how to get them, and the rail stops paying two hops per photo
 
 Owner, 2026-09-01, from his own phone: a $15 Cooper's Hawk reward, a Wahlburgers free-shake email, and five Toast-app "Happy Birthday" credits (Turmeric $10, Wheat + Water $10, Riviera French Café $8, K-Bob $5, Melao Bakery $5). Plus: "make sure the place card explains how to get the free gift" and "the load time on these place cards is very long."

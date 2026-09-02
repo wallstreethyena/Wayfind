@@ -5,6 +5,7 @@ import {
   fallRailOrder, composeFallIntentRails,
 } from "../lib/fallIntentRails.js";
 import { FALL_PLACE_IDS, FALL_PLACE_RAIL } from "../lib/fallPool.js";
+import { FALL_DISCOVERIES_2026, FALL_DISCOVERY_RAIL } from "../lib/fallDiscoveries2026.js";
 
 let pass = 0;
 const failures = [];
@@ -85,11 +86,24 @@ ok(!farmCards.some((card) => card.id === "farm-unknown"), "unknown distance is r
 ok(Object.keys(FALL_PLACE_IDS).sort().join("|") === Object.keys(FALL_PLACE_RAIL).sort().join("|"), "every vetted fall place has exactly one primary intent assignment");
 ok(Object.values(FALL_PLACE_RAIL).every((rail) => expected.includes(rail)), "every fall place assignment targets an approved rail");
 
+const discoveryIds = FALL_DISCOVERIES_2026.map((row) => row.event_id);
+ok(FALL_DISCOVERIES_2026.length === 11 && new Set(discoveryIds).size === 11, "all 11 owner supplied Fall in Florida discoveries exist exactly once");
+ok(Object.keys(FALL_DISCOVERY_RAIL).sort().join("|") === discoveryIds.slice().sort().join("|"), "every new discovery has one explicit primary intent");
+ok(FALL_DISCOVERIES_2026.every((row) => fallEventRail(row) === FALL_DISCOVERY_RAIL[row.event_id]), "every new discovery resolves to its approved rail");
+ok(FALL_DISCOVERIES_2026.every((row) => Number.isFinite(row.lat) && Number.isFinite(row.lng)), "every new discovery has verified coordinates for distance gating");
+ok(FALL_DISCOVERIES_2026.every((row) => /^https:\/\//.test(row.source_url) && /^https:\/\//.test(row.official_event_url)), "every new discovery has evidence and a working destination URL");
+ok(FALL_DISCOVERIES_2026.every((row) => row.fun_fact && row.fun_fact.length <= 130), "every new discovery carries one concise factual fun fact");
+ok(FALL_DISCOVERIES_2026.every((row) => row.card_hook.length <= 70 && row.editorial_summary.length <= 130), "every new card keeps its hook and value concise");
+ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "farms").length === 6, "the six farm festivals live in Pumpkin Patches and Fall Farms");
+ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "food").length === 2, "Rosallie and Perfect Press live in seasonal food");
+ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "date-night").length === 3, "Mangoni, Nueva and You Do the Dishes live in spooky date night");
+ok(FALL_DISCOVERIES_2026.filter((row) => row.verification_confidence === "high").length === 6, "all six dated farm programs carry first party high confidence verification");
+
 const route = readFileSync(new URL("../app/api/events/fall/route.js", import.meta.url), "utf8");
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(/fall-intents:v3:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key");
+ok(/fall-intents:v4:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key");
 ok(/take: FALL_PLACE_IDS\[p\.place_id\] \|\| p\.editorial/.test(route), "verified seasonal evidence wins over a generic inventory summary");
 ok(!/searchText|places\.googleapis|nearbySearch/.test(route), "the fall API makes no paid Google place call");
 ok(/Promise\.all\(\[/.test(route), "independent Supabase reads start in parallel");
