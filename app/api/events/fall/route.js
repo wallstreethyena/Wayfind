@@ -37,7 +37,10 @@ export async function GET(request) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return json({ error: "lat and lng are required" }, 400, "no-store");
   try {
     const today = siteTodayStr();
-    const key = `fall-intents:v5:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v6 invalidates payloads composed before verified registry identity won
+    // over stale database duplicates. Without the epoch bump, a corrected
+    // deploy could replay Nueva Cantina's no-photo v5 response for 15 minutes.
+    const key = `fall-intents:v6:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     const cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([...Object.keys(FALL_PLACE_IDS), ...FALL_PHOTO_PLACE_IDS])];
