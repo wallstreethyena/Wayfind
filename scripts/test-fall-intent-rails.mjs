@@ -6,6 +6,7 @@ import {
 } from "../lib/fallIntentRails.js";
 import { FALL_PLACE_IDS, FALL_PLACE_RAIL } from "../lib/fallPool.js";
 import { FALL_DISCOVERIES_2026, FALL_DISCOVERY_RAIL } from "../lib/fallDiscoveries2026.js";
+import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../lib/fallPhotoSpots.js";
 
 let pass = 0;
 const failures = [];
@@ -85,6 +86,8 @@ ok(!farmCards.some((card) => card.id === "farm-unknown"), "unknown distance is r
 
 ok(Object.keys(FALL_PLACE_IDS).sort().join("|") === Object.keys(FALL_PLACE_RAIL).sort().join("|"), "every vetted fall place has exactly one primary intent assignment");
 ok(Object.values(FALL_PLACE_RAIL).every((rail) => expected.includes(rail)), "every fall place assignment targets an approved rail");
+ok(FALL_PHOTO_PLACE_IDS.length >= 6, "the photo rail has a useful researched Gulf Coast starting set");
+ok(Object.values(FALL_PHOTO_SPOTS).every((spot) => spot.shotLocation && spot.visualProof && spot.fallReason && spot.bestTime && spot.accessNote && /^https:\/\//.test(spot.sourceUrl)), "every photo spot carries the exact shot, visible asset, fall reason, timing, access and proof source");
 
 const discoveryIds = FALL_DISCOVERIES_2026.map((row) => row.event_id);
 ok(FALL_DISCOVERIES_2026.length === 11 && new Set(discoveryIds).size === 11, "all 11 owner supplied Fall in Florida discoveries exist exactly once");
@@ -104,10 +107,11 @@ const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
 ok(/fall-intents:v4:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key");
-ok(/take: FALL_PLACE_IDS\[p\.place_id\] \|\| p\.editorial/.test(route), "verified seasonal evidence wins over a generic inventory summary");
+ok(/take: FALL_PLACE_IDS\[p\.place_id\] \|\| FALL_PHOTO_SPOTS\[p\.place_id\]\?\.visualProof \|\| p\.editorial/.test(route), "verified seasonal or visual evidence wins over a generic inventory summary");
 ok(!/searchText|places\.googleapis|nearbySearch/.test(route), "the fall API makes no paid Google place call");
 ok(/Promise\.all\(\[/.test(route), "independent Supabase reads start in parallel");
 ok(/FALL_PLACE_RAIL/.test(route) && /composeFallIntentRails/.test(route), "the API composes owned events and vetted places through one taxonomy");
+ok(/FALL_PHOTO_PLACE_IDS/.test(route) && /FALL_PHOTO_SPOTS/.test(route), "the photo rail reads the researched registry rather than trusting an Instagrammable label");
 ok(/FallIntentRails = dynamic/.test(daypart), "the ten-rail component is lazy and absent from first paint");
 ok(/selRail\.id === "augtober"/.test(daypart) && /<FallIntentRails/.test(daypart), "the Augtober poster opens the specialized collection");
 ok(/selRail\.id === "augtober" \|\| selRail\.id === "tonight"/.test(daypart), "generic place fallback is suppressed for Augtober and Night Out");

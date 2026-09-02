@@ -20,6 +20,7 @@ import { wayfindScore } from "../../../../lib/wayfindScore.js";
 import { cardImageSrc } from "../../../../lib/placePhoto.js";
 import { fastCachedRail, geoCell } from "../../../../lib/railFastCache.js";
 import { composeFallIntentRails } from "../../../../lib/fallIntentRails.js";
+import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../../../../lib/fallPhotoSpots.js";
 
 function json(body, status = 200, cache = "public, s-maxage=900, stale-while-revalidate=86400") {
   return Response.json(body, { status, headers: { "cache-control": cache } });
@@ -35,7 +36,7 @@ export async function GET(request) {
     const key = `fall-intents:v4:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     const cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
-      const ids = Object.keys(FALL_PLACE_IDS);
+      const ids = [...new Set([...Object.keys(FALL_PLACE_IDS), ...FALL_PHOTO_PLACE_IDS])];
       const dealIds = [...new Set(Object.values(FALL_EVENT_TICKET_DEALS))];
       // All three reads are independent. Start them together so a cold cache
       // costs one Supabase round trip rather than a waterfall of three.
@@ -124,9 +125,10 @@ export async function GET(request) {
           // This place is here because of its verified seasonal offering. The
           // generic inventory summary may still be useful elsewhere, but it
           // must never hide the evidence that earned this fall recommendation.
-          take: FALL_PLACE_IDS[p.place_id] || p.editorial || null,
+          take: FALL_PLACE_IDS[p.place_id] || FALL_PHOTO_SPOTS[p.place_id]?.visualProof || p.editorial || null,
           image: cardImageSrc({ place_id: p.place_id, photo_ref: p.photo_ref }, 640),
-          fallRail: FALL_PLACE_RAIL[p.place_id] || null,
+          fallRail: FALL_PLACE_RAIL[p.place_id] || (FALL_PHOTO_SPOTS[p.place_id] ? "photos" : null),
+          ...(FALL_PHOTO_SPOTS[p.place_id] || {}),
         }))
         .sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
 

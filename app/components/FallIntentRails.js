@@ -99,7 +99,12 @@ export default function FallIntentRails({
             const place = isEvent ? null : { ...card, id: card.id, photo: card.image || null, hook: card.take || null };
             const facts = isEvent
               ? [card.city || null, card.is_free ? "Free" : card.price_band || null, Number.isFinite(card.distMi) ? card.distMi + " mi" : null].filter(Boolean)
-              : [card.reviews ? compact(card.reviews) + " reviews" : null, Number.isFinite(card.distMi) ? card.distMi + " mi" : null].filter(Boolean);
+              : [card.bestTime || null, card.reviews ? compact(card.reviews) + " reviews" : null, Number.isFinite(card.distMi) ? card.distMi + " mi" : null].filter(Boolean);
+            const placeChips = !isEvent && card.shotLocation ? [
+              { key: "shot", icon: "📍", label: "Exact shot", title: card.shotLocation },
+              card.accessNote ? { key: "access", icon: "✓", label: "Check access", title: card.accessNote } : null,
+              card.sourceUrl ? { key: "proof", icon: "↗", label: "Proof source", title: "Open the official source", onClick: () => window.open(card.sourceUrl, "_blank", "noopener,noreferrer") } : null,
+            ].filter(Boolean) : [];
             const cta = isEvent ? eventCta(card, onTrack) : (() => { const href = directionsUrl(place); return href ? { label: "Directions ↗", href, external: true } : null; })();
             const openEventVenue = isEvent && card.place_id && onOpenPlace
               ? () => onOpenPlace({ id: card.place_id, name: card.venue || card.name, lat: card.lat, lng: card.lng, types: [], hook: card.hook })
@@ -107,8 +112,8 @@ export default function FallIntentRails({
             return <RailCard key={card.id} className="wf-exploding-primary" photo={card.image || null} place={place}
               title={card.title || card.name} eyebrow={rail.title} rank={rank}
               score={isEvent ? null : toDisplayScore(card.wfScore)} when={isEvent ? card.when : null}
-              facts={facts} chips={isEvent ? eventChips(card) : []}
-              take={card.hook || card.take || null} cta={cta}
+              facts={facts} chips={isEvent ? eventChips(card) : placeChips}
+              take={card.hook || (card.shotLocation ? `${card.shotLocation}. ${card.take} ${card.fallReason || ""}`.trim() : card.take) || null} cta={cta}
               href={isEvent && !openEventVenue ? (card.url || null) : null} external={isEvent}
               ariaLabel={`Open ${card.title || card.name}`} onOpen={openEventVenue || (place && onOpenPlace ? () => onOpenPlace(place) : undefined)}
               actionsReadOnly={isEvent}
