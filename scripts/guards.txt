@@ -388,6 +388,14 @@ node scripts/check-home-location.mjs
 node scripts/check-owner-curation-one-path.mjs
 node scripts/check-ranking-integrity.mjs
 node scripts/check-creator-video-boost.mjs
+# WO9, 2026-09-02 — the homepage bundle ratchet (scripts/check-bundle.mjs)
+# failed at 494.1KB against its 492KB budget because lib/creatorBoost.js and
+# lib/trendSignal.js (eager app-wide via lib/lawfulOrder.js) pulled the full
+# ~56KB-gz lib/creatorVideos.js registry in for a boolean and a reach number.
+# These two pin the fix: the lean mirror stays in sync, and the import edges
+# that made it work cannot be quietly rewired back to the heavy path.
+node scripts/check-creator-signals-fresh.mjs
+node scripts/check-creator-registry-bundle-wall.mjs
 node scripts/check-chef-picks.mjs
 node scripts/check-creator-events.mjs
 node scripts/check-guard-integrity.mjs

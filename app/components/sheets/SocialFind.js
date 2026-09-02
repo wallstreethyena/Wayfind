@@ -17,12 +17,18 @@
 // Same bottom-sheet chrome as sheets/Detail.js (sheetBg/sheet/Grabber/
 // history-back-to-close via ctx.sheetDragStart et al, wired in home.js the
 // same way DetailSheet is).
+import { useMemo } from "react";
 import { C, sheetBg, sheet, SHEET_EASE, Grabber, Icon } from "../kit";
-import { PLATFORM, PLATFORM_RGB, creatorStats, allCreators, hasCreatorPage } from "../../../lib/creatorVideos";
+import { PLATFORM, PLATFORM_RGB, creatorStats, allCreators, hasCreatorPage, creatorVideosFor, regionsWithFinds, spotsByCity, libraryStats } from "../../../lib/creatorVideos";
 import { captionFor } from "../../../lib/creatorCaptions";
 import CreatorAvatar from "../CreatorAvatar";
 import { creatorLabel, AFFILIATION_DISCLOSURE, REMOVAL_PROMPT, REMOVAL_CONTACT } from "../../../lib/creatorRights";
 import { summaryFor } from "../../../lib/creatorArchetypes";
+
+// Mirrors app/home.js's own module-scope promOf() — a one-line fallback
+// (wfProm, else wfScore, else 0), duplicated here rather than imported
+// because home.js doesn't export it and this sheet is the only other reader.
+const promOf = (p) => (p && p.wfProm != null ? p.wfProm : (p && p.wfScore != null ? p.wfScore : 0));
 
 const closeBtnOverlay = { position: "absolute", top: "max(10px, env(safe-area-inset-top))", right: 12, zIndex: 6, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: "50%", border: "1px solid rgba(255,255,255,.28)", background: "rgba(13,17,23,.55)", backdropFilter: "blur(6px)", color: "#fff", fontSize: 15, fontWeight: 700, cursor: "pointer" };
 const closeBtnPlain = { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.muted, fontSize: 15, fontWeight: 700, cursor: "pointer" };
@@ -52,7 +58,51 @@ function profileUrlFor(platform, handle) {
 const seeAllBtn = { display: "inline-flex", alignItems: "center", gap: 4, background: "none", border: "none", padding: 0, color: C.accent, fontSize: 12.5, fontWeight: 800, cursor: "pointer" };
 
 export default function SocialFindSheet({ ctx }) {
-  const { socialFind, setSocialFind, videoHeroPlaces, socialFindRegions, socialFindByCity, socialFindStats, sheetDragStart, sheetDragMove, sheetDragEnd, logEvent, openDetail, openExternal, locName } = ctx;
+  const { socialFind, setSocialFind, screen, center, suggested, places, dedupePlaces, sheetDragStart, sheetDragMove, sheetDragEnd, logEvent, openDetail, openExternal, locName } = ctx;
+
+  // v9 (2026-09-02, WO9 bundle fix) — these four used to be precomputed in
+  // app/home.js on every homepage render (four useMemo's touching
+  // lib/creatorVideos.js's full curated registry, url text and all) even
+  // though nothing read them until this sheet actually opened. Moved here —
+  // same functions, same inputs, same output, only WHEN they run changed —
+  // so app/home.js's own eager bundle no longer needs lib/creatorVideos.js
+  // at all. See app/home.js's ctx block and scripts/check-bundle.mjs.
+  //
+  // Hooks run unconditionally (before the `!socialFind` early return below)
+  // per the rules of hooks; this only actually renders when the sheet opens,
+  // so recomputing on an open/close toggle is not a hot path.
+  const videoHeroPlaces = useMemo(() => {
+    if (screen !== "suggested" || !center) return [];
+    const nearbyPool = dedupePlaces([...(suggested || []), ...(places || [])].filter(Boolean), true)
+      .filter((p) => p && p.id && (p.distMi == null || p.distMi <= 25));
+    const out = [];
+    const seen = new Set();
+    for (const p of nearbyPool) {
+      if (seen.has(p.id)) continue;
+      const vids = creatorVideosFor(p, locName);
+      if (!vids.length) continue;
+      seen.add(p.id);
+      out.push({ place: p, video: vids[0] });
+    }
+    // v6.93 (owner: "sort it by region") — closest first. Every entry here
+    // already passed the 25-mile + city-match gate above (all effectively
+    // "your region" already), so distance is the honest tie-break: the find
+    // that's actually nearest you leads, popularity a distant second.
+    out.sort((a, b) => (a.place.distMi ?? 1e9) - (b.place.distMi ?? 1e9) || promOf(b.place) - promOf(a.place));
+    return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, center, suggested, places, locName, dedupePlaces]);
+  // v6.93 — "if no videos are available for that region then we make a
+  // recommendation for areas where videos are available" (owner). Static
+  // over the curated library.
+  const socialFindRegions = useMemo(() => regionsWithFinds(), []);
+  // v6.94 — "make image 1 the default... organized by location" (owner). The
+  // browse-by-city default view the consolidated hero card opens into.
+  const socialFindByCity = useMemo(() => spotsByCity(center), [center]);
+  // v6.94 — one-line stats for the consolidated hero card teaser. Static
+  // over the curated library, same one-time-memo reasoning as above.
+  const socialFindStats = useMemo(() => libraryStats(), []);
+
   if (!socialFind) return null;
   const close = () => window.history.back();
 

@@ -44,7 +44,12 @@
 // .wf-rail-card-cta already uses to sit in that band.
 
 import CreatorAvatar from "./CreatorAvatar";
-import { PLATFORM, PLATFORM_RGB } from "../../lib/creatorVideos";
+// v9 (2026-09-02, WO9 bundle fix) — from lib/creatorPlatforms.js, not
+// lib/creatorVideos.js: this component only ever needed these two small
+// constants, and importing them from creatorVideos.js dragged its whole
+// ~56KB-gz curated registry into the eager "/" bundle alongside them. See
+// lib/creatorPlatforms.js's header.
+import { PLATFORM, PLATFORM_RGB } from "../../lib/creatorPlatforms";
 import { creatorLabel } from "../../lib/creatorRights";
 
 // At most two faces. A third head on a 96px column is 22px of mush; the count
