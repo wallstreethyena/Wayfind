@@ -71,6 +71,7 @@ const WorthEatingRails = dynamic(() => import("./WorthEatingRails"), { ssr: fals
 const LunchBreakRails = dynamic(() => import("./LunchBreakRails"), { ssr: false });
 const TodayDiscoveryRails = dynamic(() => import("./TodayDiscoveryRails"), { ssr: false });
 const FallIntentRails = dynamic(() => import("./FallIntentRails"), { ssr: false });
+const NightOutRails = dynamic(() => import("./NightOutRails"), { ssr: false });
 import { DAYPARTS, partForHour, orderFor, railHref, dateNightIntentHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES, railArtSize } from "../../lib/rails.js";
@@ -303,21 +304,10 @@ export default function DaypartRail({
   // machinery); without it the drop still explains itself, it just cannot
   // offer the fix.
   onRecenter = null,
-  // v8.29.16 — WHERE "SEE WHAT'S ON" ACTUALLY GOES. Every other tile opens a
-  // drop of place cards, which is the right payoff for "the best beaches near
-  // you". The events tile promises something a place card cannot be: concerts,
-  // festivals, shows and pop-ups — things with a DATE. Its drop was showing
-  // ticketed VENUES (the arena, the playhouse), which is a different question
-  // answered under a headline the owner drew himself.
-  //
-  // So this one tile hands off to the events screen, where the real feed lives
-  // — now including the hand-verified schedule in wf_events (v8.29.16,
-  // app/api/events). Nullable: /v8 mounts this component without it and keeps
-  // the old drop behaviour rather than breaking.
-  onOpenEvents = null,
-  // v8.87 — THE EVENTS DROP. A THUNK returning a node (app/home.js
-  // `eventsRailSlot`): the dated, best-first, ticket-bearing events near the
-  // reader, with their own save / like / dislike / share wiring.
+  // The dated, best-first, ticket-bearing inventory. Night Out requests its
+  // ten-way subdivision with eventsSlot("night-out"); Date Night calls the
+  // no-argument legacy surface below. Keeping the cards in home.js preserves
+  // their real save / like / dislike / share state without copying it here.
   //
   // A CALLABLE, for two reasons that point the same way. It is not evaluated
   // until the events drop is actually open, so a closed drop costs nothing —
@@ -334,9 +324,7 @@ export default function DaypartRail({
   // would be a second copy of that surface, which is how the date-night claim
   // ended up being three different rules (v8.82).
   //
-  // Nullable, and the null is load-bearing: with no slot the tile keeps the
-  // v8.29.16 hand-off to the events screen, so /v8 and a reader with an empty
-  // feed still get somewhere to go instead of a tile that opens nothing.
+  // Nullable for /v8, which has no live event feed.
   eventsSlot = null,
   // v8.4 — SAVE AND ITINERARY. This surface had NEITHER, and it is the one the
   // owner looks at most: the homepage rail drop. All four come from app/home.js
@@ -768,19 +756,23 @@ export default function DaypartRail({
 
 
   const open = useCallback((id, src) => {
-    const rail = railById.get(id);
+    const requested = railById.get(id);
+    if (!requested) return;
+    const targetId = requested.retiredInto || id;
+    const rail = railById.get(targetId);
     if (!rail) return;
-    setSelected(id);
+    setSelected(targetId);
     logEvent("rail_open", {
-      rail_id: id, rail_title: rail.title, daypart, region: shown.region, city: shown.citySlug,
-      position: order.indexOf(id) + 1, src: src || "rail",
-      has_places: (shown.places[id] || []).length,
+      rail_id: targetId, rail_title: rail.title, daypart, region: shown.region, city: shown.citySlug,
+      position: order.indexOf(targetId) + 1, src: src || "rail",
+      redirected_from: targetId === id ? undefined : id,
+      has_places: (shown.places[targetId] || []).length,
     });
     // The hero cards these replace fire eight named events that live dashboards
     // depend on. Keep emitting them for one release so nothing flatlines at
     // cutover; delete LEGACY_HERO_EVENT once the new series has history.
-    const legacy = LEGACY_HERO_EVENT[id];
-    if (legacy) logEvent(legacy, { src: "rail", rail_id: id });
+    const legacy = LEGACY_HERO_EVENT[targetId];
+    if (legacy) logEvent(legacy, { src: "rail", rail_id: targetId });
   }, [railById, daypart, shown, order]);
 
   const close = useCallback(() => setSelected(null), []);
@@ -969,22 +961,6 @@ export default function DaypartRail({
       if (_r && _r.opensPage) return;
       e.preventDefault();
     }
-    // v8.87 — the events tile opens its own drop when there is one to open,
-    // and otherwise keeps the v8.29.16 hand-off to the events screen.
-    //
-    // THE THUNK IS CALLED HERE ON PURPOSE, and the alternative is what makes it
-    // worth a paragraph. `eventsSlot` is a function, so it is ALWAYS truthy —
-    // testing the prop alone would open the drop even for a reader with nothing
-    // on near them, and what they would meet is a rail promising "the date — it
-    // happens once, then it is gone" over a shelf of bars that are open every
-    // night. That is precisely the drop of ticketed venues v8.29.16 replaced
-    // with this navigation, walked back in by accident.
-    //
-    // Asking the slot itself (it returns null when it has nothing to show) keeps
-    // ONE definition of "are there events tonight" instead of a second, cheaper,
-    // eventually-disagreeing copy here — the mistake that gave date night three
-    // different rules (v8.82). It costs one call, on the tap, on one tile.
-    if (id === "events" && (!eventsSlot || !eventsSlot()) && onOpenEvents) { onOpenEvents(); return; }
     // A sponsor/partner tile opens the curated partner sheet instead of the
     // in-rail drop — the whole tile is the ad; the payoff is the featured list.
     if (_r && _r.partner && onOpenPartner) { onOpenPartner(_r.partner); return; }
@@ -1033,7 +1009,7 @@ export default function DaypartRail({
   // Neither may fall through to the generic place pool: doing so made the
   // Events drop begin with real happenings and end with buildings where an
   // event might happen on some other date.
-  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "breakfast" || selRail.id === "break" || selRail.id === "eat" || selRail.id === "today" || selRail.id === "augtober" || selRail.id === "events"));
+  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "breakfast" || selRail.id === "break" || selRail.id === "eat" || selRail.id === "today" || selRail.id === "augtober" || selRail.id === "tonight"));
   // v8.22 (owner: "when the amazon rail card is selected make sure it becomes
   // the main focus on the screen"). The pulsing glow marks the card; this
   // brings it there — the open tile centers itself in the track, so the
@@ -1157,6 +1133,18 @@ export default function DaypartRail({
       if (!place?.id || seen.has(place.id)) return false;
       if (Number.isFinite(place.distMi) && place.distMi > 8) return false;
       seen.add(place.id);
+      return true;
+    });
+  }, [shown]);
+  // Night Out is an intent collection, not the legacy `tonight` selector.
+  // Search every owned rail pool, dedupe by place id, and let the strict
+  // composer admit only evidence-backed nightlife identities within 27 miles.
+  const nightOutPlaces = useMemo(() => {
+    const seen = new Set();
+    return Object.values(shown.places || {}).flatMap((rows) => Array.isArray(rows) ? rows : []).filter((place) => {
+      const id = place?.id || place?.placeId;
+      if (!id || seen.has(id)) return false;
+      seen.add(id);
       return true;
     });
   }, [shown]);
@@ -1327,11 +1315,11 @@ export default function DaypartRail({
             <div className="wf8-track" ref={trackRef}>
               {order.filter((id) => {
                 const r = railById.get(id);
-                return r && !r.artStale;
+                return r && !r.artStale && !r.retiredInto;
               }).map((id, i) => {
                 const r = railById.get(id);
                 if (!r) return null;
-                if (r.artStale) return null;
+                if (r.artStale || r.retiredInto) return null;
                 const base = railArt(r, shown.region);
                 const railDest = railHref(r, shown.region, shown.citySlug);
                 const href = id === "datenight"
@@ -1429,6 +1417,29 @@ export default function DaypartRail({
               matched to verified local places (daypart-gated inside the
               component). The ranked place cards below stay: trends answer
               "what's the thing", the cards answer "the best places, period". */}
+          {/* Night Out owns the retired Events inventory and the nightlife
+              venue inventory together. Its ten rails are mutually exclusive;
+              a dated event leads its shelf and an ordinary venue can never
+              stand in for a scheduled happening. */}
+          {selRail && selRail.id === "tonight" ? (
+            <NightOutRails
+              active
+              places={nightOutPlaces}
+              center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
+              city={shown.cityLabel || ""}
+              eventsSlot={eventsSlot}
+              onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
+              isSaved={isSaved || undefined}
+              liked={liked || undefined}
+              disliked={disliked || undefined}
+              isLiked={isLiked || undefined}
+              isDisliked={isDisliked || undefined}
+              onSave={onSave || undefined}
+              onLike={onLike || undefined}
+              onDislike={onDislike || undefined}
+              onShare={onShare || undefined}
+            />
+          ) : null}
           {/* v8.92 — DATE NIGHT'S INTENT RAILS, IN THE DROP (owner, 2026-08-30:
               "when the user clicks on it, it should look exactly like the
               Exploding Trends and have individual rails").
@@ -1596,17 +1607,6 @@ export default function DaypartRail({
               onLike={onLike || undefined}
               onDislike={onDislike || undefined}
             />
-          ) : null}
-          {/* v8.95 — THE EVENTS DROP IS EVENTS, FULL STOP. Dated happenings
-              render here; the generic place pool is suppressed by
-              railOwnsItsOwnAnswer. A venue is not evidence that something is
-              happening there on the date the reader asked about. Tonight's
-              Move remains the separate venue decision.
-
-              v8.86 put `events` at the front of the afternoon band precisely
-              so a ticket is met while it is still buyable. */}
-          {selRail && selRail.id === "events" && eventsSlot ? (
-            <div style={{ marginBottom: 12 }}>{eventsSlot()}</div>
           ) : null}
           {/* v8.93 (owner: "…and the events, which I don't see"). Date Night
               gets the dated rows too, from the SAME thunk the events tile

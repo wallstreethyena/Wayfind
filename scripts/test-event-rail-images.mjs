@@ -130,7 +130,7 @@ ok(/\.wf-rail-events>\.wf-rail-card\{min-height:245px\}/.test(css), "…and the 
   // <DaypartRail eventsSlot>, where it renders. Its loading box is unchanged
   // and every assertion below is the original. The PROBE is what turned this
   // into a one-line fix rather than four silent passes.
-  const slotStart = src.indexOf("const eventsRailSlot = () => {");
+  const slotStart = src.indexOf('const eventsRailSlot = (mode = "events") => {');
   ok(slotStart > -1, "PROBE: the events rail is built as eventsRailSlot (if this is -1 the checks below prove nothing)");
   const skel = src.slice(slotStart, src.indexOf("const discoveryMenu = (", slotStart));
   ok(/width: "100%"/.test(skel), "the skeleton blocks are full-width like the live card, so the swap moves nothing sideways either");

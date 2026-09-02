@@ -189,6 +189,7 @@ import { sponsorRailNear, partnerCollectionById, hydratePartnerCollection } from
 import { toDisplayScore, pickEligibleByScore, cardComplete, displayableAt } from "../lib/score";
 import { stampOwnerPick } from "../lib/ownerBump.js";
 import { frontPageEvents, bestFirst } from "../lib/frontEvents";
+import { NIGHT_OUT_MAX_MI, NIGHT_OUT_RAIL_DEFS, nightOutDistanceMi, nightOutEventRail } from "../lib/nightOutIntent.js";
 import { pickHomeExp } from "../lib/homeExpPick";
 // July 2026 decomposition (wave 1): the homepage's ~520 lines of server-
 // rendered CSS live in their own shell file. They are still concatenated into
@@ -5723,6049 +5724,48 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // ‚ïê‚ïê v8.23.4 ‚Äî DO NOT LOSE THE READER'S PLACE ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
   //
   // Owner, 2026-08-19: "let's say the user click and goes to google maps, when
-  // they go back they go back to the start of the page and they have to go
-  // through the taxonomy all over again... there is nothing more annoying than
-  // losing your place in the site."
-  //
-  // THE MECHANISM THAT WAS SUPPOSED TO STOP THIS WAS HALF-BUILT. v6.08 captured
-  // the list scroll on detail-open into BOTH an in-memory ref and
-  // sessionStorage("wf_sc_<key>") ‚Äî and only the ref was ever read back. A ref
-  // dies with the page. So the one path it protected was closing the detail
-  // sheet in-session; the moment the reader actually LEFT ‚Äî Google Maps, a
-  // booking hop, any outbound tap ‚Äî the surviving copy sat unread in
-  // sessionStorage and they came back to the top of a default tab.
-  //
-  // Scroll alone was never the whole loss either. The taxonomy IS the position:
-  // Night out > Speakeasy scrolled halfway down is four taps to rebuild, and
-  // none of screen/cat/browseCat/sub/vibe survived a reload.
-  //
-  // WHY sessionStorage AND NOT localStorage: this is "where I was a moment
-  // ago", not a preference. It must not resurrect a three-day-old tab state on
-  // a fresh visit, and the 30-minute ceiling below is a second belt on that.
-  const posRestore = useRef(null);
-  const posRead = useRef(false);
-  useEffect(() => {
-    if (posRead.current) return;
-    posRead.current = true;
-    try {
-      const raw = sessionStorage.getItem("wf_pos");
-      if (!raw) return;
-      const p = JSON.parse(raw);
-      if (!p || typeof p !== "object" || !p.ts || Date.now() - p.ts > 30 * 60000) {
-        sessionStorage.removeItem("wf_pos");
-        return;
-      }
-      if (p.screen) setScreen(p.screen);
-      if (p.cat) setCat(p.cat);
-      if (p.browseCat !== undefined) setBrowseCat(p.browseCat);
-      if (p.sub) setSub(p.sub);
-      if (p.vibe) setVibe(p.vibe);
-      posRestore.current = { top: Number(p.top) || 0, win: Number(p.win) || 0, at: Date.now() };
-    } catch (e) {}
-  }, []);
-  // APPLIED AFTER THE STATE SETTLES, and that ordering is the whole trick: the
-  // effect above this block zeroes the scroll on every [cat, sub, vibe, screen,
-  // ...] change, which includes the ones the restore itself just made. So the
-  // position is re-applied on the render those setters produce, behind a double
-  // rAF, and only within four seconds of the read ‚Äî long enough for the feed to
-  // mount, short enough that a later filter change is never hijacked.
-  useEffect(() => {
-    const r = posRestore.current;
-    if (!r) return undefined;
-    if (Date.now() - r.at > 4000) { posRestore.current = null; return undefined; }
-    let a = 0, b = 0;
-    a = requestAnimationFrame(() => {
-      b = requestAnimationFrame(() => {
-        try {
-          if (scrollRef.current && r.top) scrollRef.current.scrollTop = r.top;
-        } catch (e) {}
-        posRestore.current = null;
-      });
-    });
-    return () => { cancelAnimationFrame(a); cancelAnimationFrame(b); };
-  }, [screen, cat, browseCat, sub, vibe]);
-  // The writer. On every taxonomy change, on a throttled scroll, and ‚Äî the one
-  // that actually saves the Google Maps round trip ‚Äî on pagehide, which fires
-  // when the browser is leaving THIS document, including for an outbound link.
-  // ONE scroller is recorded, because there is only one. v8.23.4 also stored a
-  // `win: window.scrollY` alongside it "in case the feed moves back to the
-  // window" ‚Äî but in this shell window.scrollY is permanently 0 (the feed lives
-  // in div.wf-scrollarea, see v8.26), so that field saved 0 forever and its
-  // restore branch never once ran. A fallback that cannot fire is not
-  // resilience, it is a comment that lies. scripts/check-shell-scroll.mjs now
-  // fails the build on any new window.scroll* in the shell.
-  useEffect(() => {
-    const write = () => {
-      try {
-        sessionStorage.setItem("wf_pos", JSON.stringify({
-          screen, cat, browseCat, sub, vibe,
-          top: scrollRef.current ? scrollRef.current.scrollTop : 0,
-          ts: Date.now(),
-        }));
-      } catch (e) {}
-    };
-    write();
-    let t = null;
-    const onScroll = () => { if (t) return; t = setTimeout(() => { t = null; write(); }, 400); };
-    const el = scrollRef.current;
-    try { if (el) el.addEventListener("scroll", onScroll, { passive: true }); } catch (e) {}
-    try {
-      window.addEventListener("scroll", onScroll, { passive: true });
-      window.addEventListener("pagehide", write);
-    } catch (e) {}
-    return () => {
-      if (t) clearTimeout(t);
-      try { if (el) el.removeEventListener("scroll", onScroll); } catch (e) {}
-      try {
-        window.removeEventListener("scroll", onScroll);
-        window.removeEventListener("pagehide", write);
-      } catch (e) {}
-    };
-  }, [screen, cat, browseCat, sub, vibe]);
-
-  // Reset the explore list back to 5 whenever a new result set loads or search mode flips.
-  useEffect(() => { setVisibleCount(5); }, [places, searchMode]);
-  function pickSub(id) { setSub(id); setVibe("all"); try { logEvent("filter_changed", null, { cat, sub: id }); } catch (e) {} }
-
-  // Signal functions ‚Äî record engagement, drive personalised ranking, trigger sign-up.
-  function recordSignal(p, action) {
-    const pc = (primaryCategory(p) || "").toLowerCase();
-    const badges = experienceBadges(p, null, 6).map((b) => b.key);
-    const sig = { id: p.id, cat: pc, badges, rating: p.rating || null, action, ts: Date.now() };
-    const next = [sig, ...signals.filter((s) => !(s.id === p.id && s.action === action))].slice(0, 1000);
-    setSignals(next);
-    saveSignals(next);
-    recordTaste(action, p);
-  }
-  // THE TASTE MODEL (owner, 2026-07-22) ‚Äî explicit reactions learn locally.
-  // Projects an explicit signal into a decayed, PER-USER preference vector.
-  // Explicit like/dislike/save/share updates the first-party local vector;
-  // signed-in users ALSO persist to wf_taste (RLS binds it to their own uid ‚Äî
-  // never pooled, never another user's). 'open' is local-only (mild + high
-  // volume); the strong verbs persist. Never touches the Wayfind Score.
-  function recordTaste(action, p) {
-    try {
-      const cat = (primaryCategory(p) || p.category || "").toLowerCase();
-      const place = { category: cat, priceNum: p.priceNum != null ? p.priceNum : null, tags: [].concat(p.tags || [], p.google_types || [], p.types || []) };
-      const sig = tasteSignals(action, place);
-      if (!sig.length) return;
-      const now = Date.now();
-      // A passive open remains anonymous-neutral. A deliberate reaction is the
-      // visitor asking Wayfind to remember a preference, so it works before
-      // sign-in and turns personalization on unless they previously turned it
-      // off. The Saved screen exposes manage/turn-off/reset on the same device.
-      if (user || action !== "open") {
-        try {
-          const cur = JSON.parse(localStorage.getItem("wf_taste_local") || "null");
-          const nextLocal = applyLocalTaste(cur, sig, now);
-          setLocal("wf_taste_local", JSON.stringify(nextLocal));
-          const localVec = tasteLocalToVector(nextLocal, now);
-          const merged = { ...(tasteVecRef.current || {}) };
-          for (const [dim, values] of Object.entries(localVec || {})) merged[dim] = { ...(merged[dim] || {}), ...values };
-          tasteVecRef.current = merged;
-          setTasteVecState(merged);
-          if (action !== "open" && personalize == null) setConsent("on");
-        } catch (e) {}
-      }
-      if (action !== "open" && supabase && user) { try { supabase.rpc("wf_taste_bump", { p_signals: sig }).then(() => {}, () => {}); } catch (e) {} }
-    } catch (e) {}
-  }
-  // Pooled, anonymous engagement log. One fire-and-forget row per action into a
-  // shared Supabase "events" table ‚Äî this is the proprietary signal Google can't
-  // give us (what locals actually like, save, and share). Never throws, never
-  // blocks the UI, and only writes when a backend is configured.
-  // PostHog init moved to app/components/PostHogProvider.js (v5.50),
-  // mounted in the root layout so every route gets it, not just this one.
-  // v5.39 field Core Web Vitals -> PostHog (July 2026 audit, Phase 7). The
-  // hourly /api/cron/cwv job stores LAB metrics (PageSpeed API); this is the
-  // missing FIELD half ‚Äî real visits, tagged by route, device, location
-  // permission outcome, and signed-in state (read from window.__WF_CTX so
-  // the values are current at metric time, not frozen in this closure).
-  useEffect(() => {
-    if (typeof window === "undefined" || window._wfVitals) return;
-    window._wfVitals = true;
-    import("web-vitals/attribution").then(({ onLCP, onCLS, onINP, onTTFB, onFCP }) => {
-      // The ATTRIBUTION build. Same metrics, same event name, same base
-      // properties as before (the command-center panel keeps reading them) ‚Äî
-      // plus the debug fields that say WHICH element/shift is responsible, so a
-      // bad p75 is actionable instead of just a number.
-      // ONLY primitives cross this boundary: `attribution` also carries DOM
-      // nodes and PerformanceEntry objects (lcpEntry, largestShiftEntry,
-      // navigationEntry, entries[]) which must never be handed to
-      // posthog.capture ‚Äî they serialize to junk or blow the payload.
-      const num = (v) => Math.round(Number(v) || 0);
-      const str = (v, n) => (v == null ? null : String(v).slice(0, n));
-      const send = (m) => {
-        try {
-          if (!window.posthog) return;
-          const ctx = window.__WF_CTX || {};
-          const a = m.attribution || {};
-          const props = { metric: m.name, value: Math.round(m.name === "CLS" ? m.value * 1000 : m.value), rating: m.rating, route: window.location.pathname, device: window.innerWidth < 768 ? "mobile" : "desktop", loc_permission: ctx.locPermission || "unknown", signed_in: !!ctx.signedIn, build: BUILD_ID };
-          if (m.name === "LCP") {
-            // the four sub-parts sum to LCP ‚Äî they say whether to fix the server,
-            // the discovery of the image, its download, or the render that follows.
-            props.lcp_target = str(a.target, 300);
-            props.lcp_url = str(a.url, 300);
-            props.lcp_ttfb = num(a.timeToFirstByte);
-            props.lcp_resource_load_delay = num(a.resourceLoadDelay);
-            props.lcp_resource_load_duration = num(a.resourceLoadDuration);
-            props.lcp_element_render_delay = num(a.elementRenderDelay);
-          } else if (m.name === "CLS") {
-            props.cls_target = str(a.largestShiftTarget, 300);
-            props.cls_largest_shift = num((a.largestShiftValue || 0) * 1000);
-            props.cls_shift_time = num(a.largestShiftTime);
-            props.cls_load_state = str(a.loadState, 40);
-          } else if (m.name === "INP") {
-            props.inp_target = str(a.interactionTarget, 300);
-            props.inp_type = str(a.interactionType, 40);
-            props.inp_input_delay = num(a.inputDelay);
-            props.inp_processing = num(a.processingDuration);
-            props.inp_presentation = num(a.presentationDelay);
-            props.inp_load_state = str(a.loadState, 40);
-          }
-          window.posthog.capture("web_vitals", props);
-        } catch (e) {}
-      };
-      [onLCP, onCLS, onINP, onTTFB, onFCP].forEach((f) => { try { f(send); } catch (e) {} });
-    }).catch(() => {});
-  }, []);
-  useEffect(() => { try { window.__WF_CTX = { signedIn: !!user, locPermission: deviceLoc ? "granted" : locApprox ? "ip-fallback" : "pending" }; } catch (e) {} }, [user, deviceLoc, locApprox]);
-  // Screen views: this app switches screens via state, not URLs, so PostHog page autocapture misses them.
-  useEffect(() => { try { logEvent("screen_view", null, { screen }); } catch (e) {} }, [screen]);
-  function logEvent(action, place, extra) {
-    try { if (place && place.type) tasteBump(place); } catch (e) {}
-    const _exp = (() => { try { return experimentProps(); } catch (e) { return {}; } })();
-    try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture(action, Object.assign({ place_id: (place && place.id) || (extra && extra.place_id) || null, place_name: (place && place.name) || null }, extra || {}, _exp)); } catch (e0) {}
-    // Mirror to GA4 / Google Ads. One product action => one PostHog event (above)
-    // and at most one Google event (here); forwardToGoogle dedupes and decides
-    // on its own whether the action is worth an Ads conversion at all.
-    try {
-      forwardToGoogle(action, Object.assign({
-        place_id: (place && place.id) || (extra && extra.place_id) || null,
-        place_name: (place && place.name) || null,
-      }, extra || {}, attributionParams(), _exp));
-    } catch (e1) {}
-    // Session-scoped milestones ‚Äî the PRIMARY metric (activated sessions).
-    // Fires at most one first_intent and one session_activated per session.
-    // Strictly additive: no existing event name, payload, or history changes.
-    try { noteSessionProgress(action, Object.assign({}, extra || {}, attributionParams(), _exp)); } catch (e2) {}
-    try {
-      if (!supabase) return;
-      const row = {
-        action,
-        place_id: (place && place.id) || (extra && extra.place_id) || null,
-        place_name: (place && place.name) || null,
-        device_id: deviceId(),
-        user_id: user ? user.id : null,
-        meta: extra || null,
-      };
-      supabase.from("events").insert(row).then(() => {}, () => {});
-    } catch (e) {}
-  }
-  // Auto folders (Liked / Disliked / Shared). Saved on the server for signed-in users via saved_places reserved names; likes also use the existing likes table.
-  function svFolderUpsert(listName, p) {
-    if (supabase && user && p && p.id) supabase.from("saved_places").upsert({ user_id: user.id, place_id: p.id, place: p, list_name: listName }, { onConflict: "user_id,place_id,list_name" }).then(() => {}, () => {});
-  }
-  function svFolderDelete(listName, id) {
-    if (supabase && user && id) supabase.from("saved_places").delete().eq("user_id", user.id).eq("place_id", id).eq("list_name", listName).then(() => {}, () => {});
-  }
-  function addShared(p) {
-    if (!p || !p.id) return;
-    try { recordSignal(p, "share"); } catch (e) {}
-    const next = { ...sharedItems, [p.id]: { place: p, ts: Date.now() } };
-    setSharedItems(next);
-    try { setLocal("wf_shared_items", JSON.stringify(next)); } catch {}
-    svFolderUpsert("Shared", p);
-  }
-  // After a like/unlike write LANDS, refetch the server's ownerPick (fresh=1)
-  // and stamp ownerPick AND wfScore on list cards and the open sheet
-  // (8.1 ‚Üí 8.8). The client cannot mint: only the server owner map.
-  function patchOwnerPick(placeId, ownerPick) {
-    if (!placeId) return;
-    const patch = (cur) => (cur || []).map((pl) => (pl && pl.id === placeId ? stampOwnerPick(pl, ownerPick) : pl));
-    setPlaces(patch);
-    setExpPlaces(patch);
-    setDetail((cur) => (cur && cur.id === placeId ? stampOwnerPick(cur, ownerPick) : cur));
-  }
-  async function refreshOwnerPick(placeId) {
-    if (!placeId) return;
-    try {
-      const sig = await fetchMemberSignals(supabase, [{ id: placeId }], { fresh: true });
-      const ownerPick = !!(sig && sig[placeId] && sig[placeId].ownerPick);
-      patchOwnerPick(placeId, ownerPick);
-    } catch (e) {}
-  }
-  function toggleLike(e, p) {
-    e.stopPropagation();
-    const wasLiked = !!liked[p.id];
-    const nowLiked = !wasLiked;
-    const nextLiked = { ...liked }; const nextDis = { ...disliked };
-    const nextLikedItems = { ...likedItems }; const nextDisItems = { ...dislikedItems };
-    if (wasLiked) { delete nextLiked[p.id]; delete nextLikedItems[p.id]; }
-    else {
-      nextLiked[p.id] = true; delete nextDis[p.id];
-      nextLikedItems[p.id] = { place: p, ts: Date.now() }; delete nextDisItems[p.id];
-      recordSignal(p, "like");
-      logEvent("like", p);
-    }
-    setLiked(nextLiked); setDisliked(nextDis);
-    setLikedItems(nextLikedItems); setDislikedItems(nextDisItems);
-    try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); localStorage.setItem("wf_liked_items", JSON.stringify(nextLikedItems)); setLocal("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
-    if (supabase && user) {
-      if (wasLiked) {
-        supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id).then(() => refreshOwnerPick(p.id), () => {});
-      } else {
-        supabase.from("likes").upsert({ user_id: user.id, place_id: p.id, place: p }, { onConflict: "user_id,place_id" }).then(() => refreshOwnerPick(p.id), () => {});
-        svFolderDelete("Disliked", p.id);
-      }
-    }
-    if (!wasLiked) { showToast("Added to your taste"); offerAccountAfterSave("like"); }
-  }
-  function toggleDislike(e, p) {
-    e.stopPropagation();
-    const wasDis = !!disliked[p.id];
-    const nextLiked = { ...liked }; const nextDis = { ...disliked };
-    const nextLikedItems = { ...likedItems }; const nextDisItems = { ...dislikedItems };
-    if (wasDis) { delete nextDis[p.id]; delete nextDisItems[p.id]; svFolderDelete("Disliked", p.id); }
-    else {
-      nextDis[p.id] = true; delete nextLiked[p.id];
-      nextDisItems[p.id] = { place: p, ts: Date.now() }; delete nextLikedItems[p.id];
-      recordSignal(p, "dislike"); logEvent("dislike", p);
-      svFolderUpsert("Disliked", p);
-      if (supabase && user) supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id).then(() => refreshOwnerPick(p.id), () => {});
-    }
-    setLiked(nextLiked); setDisliked(nextDis);
-    setLikedItems(nextLikedItems); setDislikedItems(nextDisItems);
-    try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); localStorage.setItem("wf_liked_items", JSON.stringify(nextLikedItems)); setLocal("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
-    if (!wasDis) showToast("Got it ‚Äî fewer places like this");
-  }
-  function toggleHookLike(hookId) {
-    if (!requireAuth("Sign up free ‚Äî your spots, saved and synced to every device.")) return;
-    const next = new Set(hookLikes);
-    if (next.has(hookId)) next.delete(hookId);
-    else next.add(hookId);
-    setHookLikes(next);
-    try { setLocal("wf_hook_likes", JSON.stringify([...next])); } catch {}
-  }
-  function openHook(h) {
-    // If no place ID or we have a themed body, open the detail sheet.
-    // Otherwise fall through to the existing action handler.
-    if (h && (h.placeId || h.themeBody)) { setHookDetail(h); }
-    else handleHookAction(h);
-  }
-
-  // v5.22 ‚Äî Insider intel per place: cache-first server content (generated
-  // once per place per month). Fetched only when a detail sheet opens; any
-  // failure and the card simply doesn't render.
-  const [insider, setInsider] = useState({});
-  useEffect(() => {
-    if (!detail || !detail.id || detail._event || insider[detail.id]) return;
-    let cancelled = false;
-    const _c = (() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : ""; } catch { return ""; } })();
-    fetch("/api/insider?id=" + encodeURIComponent(detail.id) + "&name=" + encodeURIComponent(detail.name || "") + "&city=" + encodeURIComponent(_c) + "&type=" + encodeURIComponent(detail.type || "") + (detail.rating != null ? "&rating=" + detail.rating : "") + "&reviews=" + (detail.reviews || 0) + (detail.price ? "&price=" + encodeURIComponent(detail.price) : ""))
-      .then((r) => (r.ok ? r.json() : {}))
-      .then((d) => { if (!cancelled) setInsider((m) => ({ ...m, [detail.id]: d && (d.tip || d.special) ? d : { none: true } })); })
-      .catch(() => { if (!cancelled) setInsider((m) => ({ ...m, [detail.id]: { none: true } })); });
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail && detail.id]);
-
-  // v5.10: Tripadvisor enrichment ‚Äî a second independent trust signal on the
-  // detail sheet (rating + review count + link out). Server route caches 10
-  // days per place, so repeat opens cost no API quota. Fail-soft: no key or
-  // no match and the strip simply doesn't render.
-  const [taInfo, setTaInfo] = useState({});
-  useEffect(() => {
-    if (!detail || !detail.id || detail._event || taInfo[detail.id]) return;
-    let cancelled = false;
-    const _ll = detail.lat != null ? "&lat=" + detail.lat.toFixed(4) + "&lng=" + detail.lng.toFixed(4) : "";
-    const _city = (() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : ""; } catch { return ""; } })();
-    fetch("/api/ta/place?q=" + encodeURIComponent(detail.name || "") + _ll + (_city ? "&city=" + encodeURIComponent(_city) : ""))
-      .then((r) => (r.ok ? r.json() : {}))
-      .then((d) => { if (!cancelled) setTaInfo((m) => ({ ...m, [detail.id]: d && d.rating != null ? d : { none: true } })); })
-      .catch(() => { if (!cancelled) setTaInfo((m) => ({ ...m, [detail.id]: { none: true } })); });
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail && detail.id]);
-
-  // v5.22 ‚Äî "Perfect right now": for mood vibes only, once the structured
-  // engine has produced the gated, ranked, open-now candidates, ask the
-  // server route (cache-first Haiku) to pick 3-5 for THIS moment with one
-  // grounded why-line each. Strictly additive and fail-soft: any error or
-  // slowness and the normal list stands alone ‚Äî the page never waits.
-  const [momentPicks, setMomentPicks] = useState(null);
-  useEffect(() => {
-    const exp = EXPERIENCES[activeBadge];
-    if (screen !== "experience" || !exp || !exp.mood || !Array.isArray(expPlaces) || expPlaces.length < 3) { setMomentPicks(null); return; }
-    let cancelled = false;
-    const _nw = nowContext({ weather }); const _h = _nw.hour; const _d = _nw.dayOfWeek;
-    const tb = ["sun","mon","tue","wed","thu","fri","sat"][_d] + "-" + (_h < 6 ? "latenight" : _h < 11 ? "morning" : _h < 15 ? "midday" : _h < 18 ? "afternoon" : _h < 22 ? "evening" : "night");
-    const wx = weather ? ((weather.img || "na") + "-" + (weather.temp != null ? Math.round(weather.temp / 5) * 5 : "na")) : "na";
-    const cands = expPlaces.filter((p) => p && p.openNow !== false).slice(0, 12).map((p) => ({ id: p.id, name: p.name, type: p.type || "", rating: p.rating, reviews: p.reviews, distMi: p.distMi, openNow: p.openNow !== false, price: p.price || "" }));
-    if (cands.length < 3) { setMomentPicks(null); return; }
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 7000);
-    fetch("/api/moment/picks", { method: "POST", signal: ctrl.signal, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ intent: activeBadge, tb, wx, city: locName ? locName.split(",")[0] : "", candidates: cands }) })
-      .then((r) => {
-        // Moment fix (Phase 2): a 400 is a CONTRACT error (id drift / malformed
-        // request), not "no results" ‚Äî log it so the bug is visible, and hide
-        // the additive card without dressing an error as an empty. A real
-        // no-match comes back 200 with a reason envelope.
-        if (r.status === 400) { r.json().then((e) => { try { logEvent("moment_picks_contract_error", null, { intent: activeBadge, error: e && e.error }); } catch (er) {} }).catch(() => {}); return { picks: [], _contractError: true }; }
-        return r.ok ? r.json() : { picks: [] };
-      })
-      .then((d) => { if (!cancelled) setMomentPicks(Array.isArray(d.picks) && d.picks.length ? { badge: activeBadge, picks: d.picks } : null); })
-      .catch(() => { if (!cancelled) setMomentPicks(null); })
-      .finally(() => clearTimeout(timer));
-    return () => { cancelled = true; clearTimeout(timer); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, activeBadge, expPlaces]);
-
-  // v4.51: real Viator tour listings on attraction detail pages. Uses the
-  // place's own city (from its address) so an Orlando attraction viewed from
-  // Parrish still searches "Gatorland Orlando".
-  useEffect(() => {
-    if (!detail || !detail.id || detail._event) return;
-    const kinds = ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"];
-    if (!kinds.includes(placeKind(detail))) return;
-    if (viaTours[detail.id]) return;
-    const placeCity = (() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : ""; } catch { return ""; } })() || (locName ? locName.split(",")[0] : "");
-    const q = detail.name + (placeCity ? " " + placeCity : "");
-    let cancelled = false;
-    setViaTours((m) => ({ ...m, [detail.id]: { loading: true, items: [] } }));
-    fetch("/api/viator/tours?q=" + encodeURIComponent(q) + "&name=" + encodeURIComponent(detail.name) + "&kind=" + encodeURIComponent(placeKind(detail) || "") + "&placeId=" + encodeURIComponent(detail.id) + "&count=3&region=" + encodeURIComponent((() => { try { const _m = Culture.resolveMetro(locName); return [placeCity, _m && Culture.CULTURE_TITLES[_m] ? Culture.CULTURE_TITLES[_m] : ""].filter(Boolean).join(","); } catch { return placeCity || ""; } })()))
-      .then((r) => r.json())
-      .then((d) => { if (!cancelled) setViaTours((m) => ({ ...m, [detail.id]: { loading: false, items: (d && d.items) || [] } })); })
-      .catch(() => { if (!cancelled) setViaTours((m) => ({ ...m, [detail.id]: { loading: false, items: [] } })); });
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail && detail.id]);
-
-  // Load community votes for a place when its detail opens (drive widget)
-  useEffect(() => {
-    if (!detail || !detail.id) return;
-    if (detail.distMi == null || detail.distMi < 20) { if (detailContext !== "drive") return; }
-    fetch(`/api/vote?placeId=${encodeURIComponent(detail.id)}`)
-      .then((r) => r.json())
-      .then((data) => setCommunityVotes((prev) => ({ ...prev, [detail.id]: data })))
-      .catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail]);
-
-  async function handleVote(place, vote) {
-    if (!place || !place.id || myVotes[place.id]) return;
-    const next = { ...myVotes, [place.id]: vote };
-    setMyVotes(next);
-    try { setLocal("wf_drive_votes", JSON.stringify(next)); } catch {}
-    try {
-      const res = await fetch("/api/vote", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ placeId: place.id, vote, placeName: place.name, distMi: place.distMi }),
-      });
-      const data = await res.json();
-      if (data && !data.error) setCommunityVotes((prev) => ({ ...prev, [place.id]: data }));
-    } catch {}
-  }
-
-  async function submitSignup() {
-    const email = signupEmail.trim();
-    if (!email || signupDone) return;
-    try { await fetch("/api/signup", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email, likes: Object.keys(liked).length, signals: signals.length }) }); } catch {}
-    setSignupDone(true);
-    try { setLocal("wf_signed_up", "1"); } catch {}
-  }
-
-  // Open a place: pull deep data (cached), then run the AI grounded in it.
-  async function openDetail(p, context) {
-    try { sessionStorage.setItem("wf_value_seen", "1"); } catch (e) {} // v5.37: opening a place = value delivered
-    // v4.86: a Foursquare-sourced place upgrades to its Google twin on open
-    // when one exists (reviews, hours, photos come along); otherwise it
-    // renders honestly from the Foursquare data it arrived with.
-    if (p && typeof p.id === "string" && /^(fsq|osm|ridb):/.test(p.id)) {
-      try {
-        const up = await findPlace(p.name, { lat: p.lat, lng: p.lng });
-        if (up && up.id && up.lat != null) {
-          const dLat = up.lat - p.lat, dLng = up.lng - p.lng;
-          if (Math.sqrt(dLat * dLat + dLng * dLng) * 69 <= 0.25) p = { ...up, distMi: p.distMi != null ? p.distMi : up.distMi, sources: p.sources };
-        }
-      } catch (e) {}
-    }
-    try { const _aud = {}; experienceBadges(p, null, 99, _aud); logEvent("detail_open", p, { identity: _aud.identity || null, blocked: (_aud.blocked || []).length, ctx: typeof context === "string" ? context : null }); } catch (e) {}
-    // v6.08 (PR-C): remember where we were in the list so back returns here, not to the top.
-    try { if (scrollRef.current) { const _k = screen + "|" + cat + "|" + sub + "|" + vibe; const _t = scrollRef.current.scrollTop; scrollRestore.current = { key: _k, top: _t }; sessionStorage.setItem("wf_sc_" + _k, String(_t)); } } catch (e) {}
-    setDetail(p);
-    // /p/{id} and any card that skipped withMemberSignal still show the raw
-    // score until this overlay lands. Same function as the list path.
-    fetchMemberSignals(supabase, [p]).then((sig) => {
-      if (!sig) return;
-      const next = withMemberSignal([p], sig)[0];
-      if (!next || next.id !== p.id) return;
-      setDetail((cur) => (cur && cur.id === p.id ? { ...cur, wfScore: next.wfScore, _members: next._members, _wfScoreRaw: next._wfScoreRaw } : cur));
-      const patch = (cur) => (cur || []).map((pl) => (pl && pl.id === p.id ? { ...pl, wfScore: next.wfScore, _members: next._members, _wfScoreRaw: next._wfScoreRaw } : pl));
-      setPlaces(patch);
-      setExpPlaces(patch);
-    }).catch(() => {});
-    setDetailContext(context || null);
-    recordSignal(p, "open"); // implicit engagement signal
-    try { if (OFFERS[p.id]) logEvent("offer_impression", p, { offer_id: OFFERS[p.id].id }); } catch (e) {}
-    try { recentRef.current = [p.id, ...recentRef.current.filter((x) => x !== p.id)].slice(0, 20); } catch {}
-    setReviewsOpen(false);
-    setHoursOpen(false);
-    setVenueEvents(null);
-    setVenueEventsOpen(false);
-    setVenueEventsLoading(false);
-    setWhyOpen(false);
-    setShowMore(false);
-    setThemesOpen(false);
-    setVideos(videoCache.current[p.id] || null);
-    setInsightFull(insightFullCache.current[p.id] || getCachedInsight(p.id + "::full") || null);
-    setInsightFullLoading(false);
-    setDetailExtra(detailCache.current[p.id] || null);
-    setInsightLoading(true);
-    let extra = detailCache.current[p.id];
-    if (extra === undefined) {
-      setDetailExtra(null);
-      extra = await fetchPlaceDetail(p.id);
-      // v6.31: never cache a bare null ‚Äî that leaves the sheet stuck on
-      // "Loading hours‚Ä¶" forever (null reads as "still fetching"). A resolved
-      // sentinel settles the sheet into "Hours not listed" (or the search-time
-      // weekday text) instead of spinning. fetchPlaceDetail now always returns a
-      // resolved shape, so this line is defensive only.
-      if (!extra) extra = { ok: false, editorial: null, reviews: [], hours: null, phone: null, website: null, _resolved: true };
-      // v6.74: cache the ANSWER, never the FAILURE. Storing the failure sentinel
-      // froze one transient error for the whole session ‚Äî every reopen read the
-      // cache, so a place kept saying "Hours unavailable" long after the cause
-      // had passed. An unsuccessful fetch stays uncached so the next open really
-      // retries.
-      if (extra.ok) detailCache.current[p.id] = extra;
-    }
-    setDetailExtra(extra);
-    if (extra && extra.ok) {
-      setDetail((cur) => {
-        if (!cur || cur.id !== p.id) return cur;
-        return mergeHealedPlacePhotos(cur, extra);
-      });
-    }
-    if (extra) { const rt = Array.isArray(extra.reviews) ? extra.reviews.slice(0, 4).map((r) => (r.text || "").slice(0, 300)).filter(Boolean) : []; HINTS[p.id] = ((extra.editorial || "") + " " + rt.join(" ")).toLowerCase(); }
-    loadInsight(p, extra);
-  }
-  // Pull real upcoming ticketed events at or near a place from Ticketmaster.
-  // This is the honest way to answer "when is the live music here": actual show
-  // dates and times, never an invented weekly schedule. Empty is a valid answer.
-  async function loadVenueEvents(p) {
-    if (!p || p.lat == null || p.lng == null) { setVenueEvents([]); return; }
-    setVenueEventsLoading(true);
-    setVenueEvents(null);
-    try {
-      const res = await fetch("/api/events", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ lat: p.lat, lng: p.lng, radius: 2 }),
-      });
-      const data = await res.json();
-      let list = (data && Array.isArray(data.events) ? data.events : []).filter((e) => e && e.dest);
-      const nm = (p.name || "").toLowerCase();
-      const matches = list.filter((e) => {
-        const v = (e.venue || "").toLowerCase();
-        return v && (v.includes(nm) || nm.includes(v));
-      });
-      // Phase 2 (EVENTS_PIPELINE_DIAGNOSIS.md): the card says "at this
-      // venue" -- the old fallback padded it with ALL nearby events when
-      // the venue-name match came up empty, which is a wrong claim. No
-      // match now means the honest empty state.
-      setVenueEvents(matches.slice(0, 8));
-    } catch {
-      setVenueEvents([]);
-    } finally {
-      setVenueEventsLoading(false);
-    }
-  }
-  async function loadVideos(p) {
-    if (videoCache.current[p.id]) { setVideos(videoCache.current[p.id]); setVideosLoading(false); return; }
-    setVideos(null);
-    setVideosLoading(true);
-    try {
-      const res = await fetch("/api/youtube", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ name: p.name, city: locName, category: cat }),
-      });
-      const data = await res.json();
-      const vids = data && Array.isArray(data.videos) ? data.videos : [];
-      videoCache.current[p.id] = vids;
-      setVideos(vids);
-    } catch {
-      setVideos([]);
-    } finally {
-      setVideosLoading(false);
-    }
-  }
-  async function loadEvents() {
-    if (!center) return;
-    setEventsLoading(true);
-    setEventsError(false);
-    try {
-      const res = await fetch("/api/events", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ lat: center.lat, lng: center.lng, city: locName, radius: Math.max(Math.round((searchRadius || DEFAULT_RADIUS_M) / 1609.34), 60) }), // v4.87: events get a generous 60-mi floor ‚Äî people drive for events; a manual wider radius still wins
-      });
-      const data = await res.json();
-      setEventsUnavailable(!!data.unavailable);
-      setEventsError(!!data.error);
-      try { if (process.env.NODE_ENV !== "production" && data && data.counts) console.log("[wayfind events]", data.counts, "total", (data.events || []).length); } catch (e) {}
-      // Phase 1/2 contract (EVENTS_PIPELINE_DIAGNOSIS.md): only events with a
-      // resolved destination enter client state, so every count downstream is
-      // computed on exactly the list the cards render from.
-      const evs = (data && Array.isArray(data.events) ? data.events : []).filter((e) => e && e.dest);
-      setEvents(evs);
-      if (!data.unavailable && !data.error && evs.length === 0) logEvent("events_none", null, { loc: locName || "", lat: center.lat, lng: center.lng });
-    } catch {
-      setEventsError(true);
-      setEvents([]);
-    } finally {
-      setEventsLoading(false);
-    }
-  }
-  // v6.55 single-flight: ONE offers scan feeds every caller for 10 minutes.
-  // loadBlurbs has six call sites (feed, suggested √ó2, experiences, hooks √ó2)
-  // and each used to run its own full offers table scan ‚Äî same table, same
-  // rows, per load. A failed scan clears the slot so the next call retries.
-  const offersOnce = useRef({ at: 0, p: null });
-  function fetchOffersOnce() {
-    const now = Date.now();
-    if (offersOnce.current.p && now - offersOnce.current.at < 10 * 60 * 1000) return offersOnce.current.p;
-    const p = (async () => {
-      const { data: _rawOffers } = await supabase.from("offers").select("*");
-      // v6.17: offers.sql columns (coupon_code/affiliate_url/offer_title/...) are
-      // normalized ONCE to the app shape - dashboard rows could never render
-      // before this. v5.09 rule unchanged: undeliverable deals never reach a card.
-      return (_rawOffers || []).map(normalizeOfferRow).filter(Boolean).filter(offerRedeemable);
-    })();
-    offersOnce.current = { at: now, p };
-    p.catch(() => { if (offersOnce.current.p === p) offersOnce.current = { at: 0, p: null }; });
-    return p;
-  }
-  async function loadOffers(list) {
-    try {
-      if (!supabase || !Array.isArray(list) || !list.length) return;
-      const data = await fetchOffersOnce();
-      if (!data || !data.length) return;
-      const norm = (x) => (x || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-      const map = {};
-      list.forEach((p) => {
-        if (!p) return;
-        const off = data.find((o) => (o.google_place_id && o.google_place_id === p.id) || (o.normalized_business_name && o.normalized_business_name === norm(p.name)));
-        if (off) { map[p.id] = off; OFFERS[p.id] = off; }
-      });
-      if (Object.keys(map).length) setOffers((prev) => ({ ...prev, ...map }));
-    } catch (e) {}
-  }
-  const blurbsInFlight = useRef(new Set());
-  async function loadBlurbs(list) {
-    loadOffers(list);
-    if (!Array.isArray(list) || !list.length) { setBlurbs({}); return; }
-    // 1. Seed instantly from the 30-day on-device line cache. These cost nothing:
-    //    no Google call, no AI call. Repeat searches of the same area are free.
-    const seeded = {};
-    list.forEach((p) => { const c = getCachedLine(p.id); if (c) seeded[p.id] = c; });
-    // MERGE, never replace ‚Äî six sections share this map, and a late caller
-    // used to wipe every other section's lines mid-screen.
-    setBlurbs((prev) => ({ ...prev, ...seeded }));
-    // KNOWN FOR BEATS THE GENERATED LINE, ALWAYS. wf_editorial holds researched
-    // copy about THIS place ‚Äî what it is known for, what a regular would order,
-    // what a local would tell you. That is what a row should say. The generated
-    // blurb stays only as the fallback for places we hold no editorial on.
-    //
-    // Runs for the WHOLE list rather than the 3 the blurb path fetches: it is
-    // one query against our own table, so there is no reason to ration it, and
-    // rationing is exactly what left most rows reading generically.
-    //
-    // Fails soft on purpose ‚Äî if the lookup degrades the existing line stays. A
-    // card must never LOSE text it already had because a lookup blinked.
-    (async () => {
-      try {
-        const ids = list.map((p) => p.id).filter(Boolean).slice(0, 40);
-        if (!ids.length) return;
-        const kr = await fetch("/api/known-for", {
-          method: "POST", headers: { "content-type": "application/json" },
-          body: JSON.stringify({ ids }),
-        });
-        const kd = await kr.json();
-        if (kd && kd.lines && typeof kd.lines === "object" && Object.keys(kd.lines).length) {
-          setBlurbs((prev) => ({ ...prev, ...kd.lines }));
-          try { setCachedLines(kd.lines); } catch (e) {}
-        }
-      } catch (e) {}
-    })();
-    // 2. cacheOnly CARD_SUMMARY for the same id set as known-for (up to 40),
-    //    not just the top 3. Food > Caf√©s rank 4+ with a 30-day hook were blank
-    //    while a neighbor with wf_editorial showed copy ‚Äî that hides a sourced
-    //    hook, it is not the empty-slot law. cacheOnly never generates, so this
-    //    path does not pay Places details or invent a sentence. Known-for still
-    //    wins: we only fill ids that do not already have a line.
-    const need = list.filter((p) => p && p.id && !seeded[p.id] && !blurbsInFlight.current.has(p.id)).slice(0, 40);
-    if (!need.length) return;
-    need.forEach((p) => blurbsInFlight.current.add(p.id));
-    try {
-      // /api/blurbs slices `places` to 20 before the cache read. Chunk so the
-      // tail of a caf√© list is not silently dropped.
-      const BLURB_BATCH = 20;
-      for (let i = 0; i < need.length; i += BLURB_BATCH) {
-        const batch = need.slice(i, i + BLURB_BATCH);
-        try {
-          const res = await fetch("/api/blurbs", {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            // v6.63 cacheOnly: RENDER PATH. Reads the shared 30-day pool only ‚Äî
-            // a cold area falls back to no line rather than generating while
-            // the user waits. check-no-llm-in-render-path walks every client
-            // caller for this flag.
-            body: JSON.stringify({
-              cacheOnly: true,
-              city: locName,
-              places: batch.map((p) => ({ id: p.id, name: p.name, type: p.type, rating: p.rating, reviews: p.reviews })),
-            }),
-          });
-          const data = await res.json();
-          if (data && data.blurbs && typeof data.blurbs === "object") {
-            const cleaned = stripMdMap(data.blurbs);
-            setBlurbs((prev) => {
-              const next = { ...prev };
-              for (const id of Object.keys(cleaned)) {
-                if (!next[id] && cleaned[id]) next[id] = cleaned[id];
-              }
-              return next;
-            });
-            try { setCachedLines(data.blurbs); } catch (e) {}
-          }
-        } catch {}
-      }
-    } finally { need.forEach((p) => blurbsInFlight.current.delete(p.id)); }
-  }
-  async function loadInsight(p, extra) {
-    if (insightCache.current[p.id]) { setInsight(insightCache.current[p.id]); setInsightLoading(false); return; }
-    const cached = getCachedInsight(p.id);
-    if (cached) { insightCache.current[p.id] = cached; setInsight(cached); setInsightLoading(false); return; }
-    setInsight(null);
-    setInsightLoading(true);
-    try {
-      const res = await fetch("/api/insight", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          name: p.name, type: p.type, city: locName,
-          rating: p.rating, reviewCount: p.reviews, price: p.price, openNow: p.openNow,
-          category: cat, sub, mode: "compact", kind: (p._event ? "event" : (["Food", "Nightlife"].includes(primaryCategory(p) || "") ? "dining" : "attraction")),
-          editorial: extra ? extra.editorial : null,
-          reviews: extra && extra.reviews ? extra.reviews.map((r) => r.text).slice(0, 5) : [],
-          attributes: p.labels || [],
-        }),
-      });
-      const data = await res.json();
-      // v6.74: an insight computed from a FAILED detail fetch is not a fact
-      // about the place ‚Äî it is the shape of our own outage. /api/insight takes
-      // its no-reviews branch on an empty `reviews`, and that verdict was being
-      // persisted for THIRTY DAYS, so one broken fetch flattened "Why Wayfind
-      // picked this" to a single descriptive sentence long after the fetch was
-      // fixed. Render it (better than an empty block), but never memoise it and
-      // never persist it ‚Äî the next open re-asks with real reviews.
-      const detailFailed = !!(extra && extra.ok === false);
-      if (!detailFailed) insightCache.current[p.id] = data;
-      if (data && !data.error && !data.unavailable && !detailFailed) setCachedInsight(p.id, data);
-      setInsight(data);
-    } catch {
-      setInsight({ error: true });
-    } finally {
-      setInsightLoading(false);
-    }
-  }
-  // The heavier insight (themes, more tips, must-try). Only ever runs when the
-  // user expands a place, so most opens never pay for it. Cached 30 days.
-  async function loadFullInsight(p, extra) {
-    if (!p) return;
-    if (insightFullCache.current[p.id]) { setInsightFull(insightFullCache.current[p.id]); return; }
-    const cached = getCachedInsight(p.id + "::full");
-    if (cached) { insightFullCache.current[p.id] = cached; setInsightFull(cached); return; }
-    setInsightFullLoading(true);
-    try {
-      const res = await fetch("/api/insight", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          name: p.name, type: p.type, city: locName,
-          rating: p.rating, reviewCount: p.reviews, price: p.price, openNow: p.openNow,
-          category: cat, sub, mode: "full", kind: (p._event ? "event" : (["Food", "Nightlife"].includes(primaryCategory(p) || "") ? "dining" : "attraction")),
-          editorial: extra ? extra.editorial : null,
-          reviews: extra && extra.reviews ? extra.reviews.map((r) => r.text).slice(0, 5) : [],
-          attributes: p.labels || [],
-        }),
-      });
-      const data = await res.json();
-      // Same rule as loadInsight: do not turn our own failed fetch into a
-      // 30-day cached verdict about the place.
-      const detailFailedFull = !!(extra && extra.ok === false);
-      if (!detailFailedFull) insightFullCache.current[p.id] = data;
-      if (data && !data.error && !data.unavailable && !detailFailedFull) setCachedInsight(p.id + "::full", data);
-      setInsightFull(data);
-    } catch {
-      setInsightFull({ error: true });
-    } finally {
-      setInsightFullLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem("wayfind_lists");
-      if (raw) { const saved = JSON.parse(raw); const _m = { favorites: { id: "favorites", name: "Favorites", emoji: "‚ù§Ô∏è", places: [] }, ...saved }; if (_m.custom && !((_m.custom.places || []).length)) delete _m.custom; setLists(_m); }
-    } catch {}
-  }, []);
-
-  // Handle shared deep links: a single place or a shared list.
-  useEffect(() => {
-    let params;
-    try { params = new URLSearchParams(window.location.search); } catch { return; }
-    // v8.14 / v8.28: /p/{id} Back must restore the previous Wayfind surface
-    // (rail / homepage / guide / intent), not trap the reader on the place
-    // route after the sheet closes. placeRouteBackPlan is the callable
-    // contract ‚Äî same-origin referrer leaves the route; a leftover
-    // ?action=like share with nowhere to go closes onto "/".
-    const backPlan = placeRouteBackPlan({
-      pathname: window.location.pathname,
-      search: window.location.search,
-      referrer: typeof document !== "undefined" ? document.referrer : "",
-      origin: window.location.origin,
-    });
-    placeRouteReturnRef.current = backPlan.leavePlaceRoute;
-    placeActionHomeRef.current = backPlan.replaceHomeOnClose;
-    const listStr = params.get("list");
-    const pathId = (window.location.pathname.match(/^\/p\/([^/]+)/) || [])[1];
-    const placeId = params.get("place") || initialPlaceId || (pathId ? decodeURIComponent(pathId) : null);
-    const requestedAction = params.get("action") || initialPlaceAction;
-    const placeAction = ["save", "like", "dislike"].includes(requestedAction) ? requestedAction : null;
-    // Strip ?place= and ?action=like|dislike|save. Like is a signal, not a
-    // page ‚Äî leaving action=like in the address bar re-opens the sheet as
-    // the only UI on refresh. Never collapse /p/{id} to "/" here; Back does
-    // that via placeRouteBackPlan when it should.
-    if (params.get("place") || backPlan.stripAction || placeAction) {
-      try {
-        const _sp = new URLSearchParams(window.location.search);
-        _sp.delete("place");
-        _sp.delete("action");
-        const _qs = _sp.toString();
-        window.history.replaceState({}, "", window.location.pathname + (_qs ? "?" + _qs : ""));
-      } catch (e) {}
-    }
-    if (listStr) {
-      const pl = decodeList(listStr);
-      if (pl && pl.length) { setSharedList(pl); setScreen("shared"); logEvent("share_open", null, { kind: "list", n: pl.length }); markShareOpen(); }
-    } else if (placeId) {
-      logEvent("share_open", null, { kind: "place", place_id: placeId });
-      markShareOpen();
-      (async () => {
-        const p = await fetchPlaceById(placeId);
-        if (p) {
-          let opened = p;
-          try {
-            const sig = await fetchMemberSignals(supabase, [p]);
-            if (sig) opened = withMemberSignal([p], sig)[0] || p;
-          } catch (e) {}
-          if (placeAction === "save") quickSaveFavorite(opened);
-          else if (placeAction === "like") toggleLike({ stopPropagation() {} }, opened);
-          else if (placeAction === "dislike") toggleDislike({ stopPropagation() {} }, opened);
-          openDetail(opened);
-        }
-      })();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Part 4 measurement: count one "session" per tab (share_rate denominator) and
-  // fire "share_return" if a shared-card visitor is back within 7 days. Both are
-  // guarded/no-op-safe; `share` and `share_open` are already logged elsewhere.
-  useEffect(() => {
-    try { markSessionStart(logEvent); checkShareReturn(logEvent); } catch (e) {}
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  const listsHydrated = useRef(false);
-  useEffect(() => {
-    // Skip the first run so default empty lists never overwrite real saved data
-    // before the load effect above has hydrated from localStorage.
-    if (!listsHydrated.current) { listsHydrated.current = true; return; }
-    try { setLocal("wayfind_lists", JSON.stringify(lists)); } catch {}
-  }, [lists]);
-
-  // Trip planner store: load once on mount, then persist on every change.
-  useEffect(() => {
-    try { const raw = localStorage.getItem("wayfind_trips"); if (raw) setTrips(JSON.parse(raw) || {}); } catch {}
-  }, []);
-  const tripsHydrated = useRef(false);
-  useEffect(() => {
-    if (!tripsHydrated.current) { tripsHydrated.current = true; return; }
-    try { setLocal("wayfind_trips", JSON.stringify(trips)); } catch {}
-  }, [trips]);
-
-  useEffect(() => {
-    if (keyMissing) return;
-    let gotGPS = false;
-    // IP fallback (works on desktop with no GPS). Applied only if GPS hasn't
-    // already set a location, and never overrides a manual search.
-    const ipFallback = async () => {
-      try { if (!gotGPS) setLocApprox(true); } catch (e) {}
-      try {
-        const r = await fetch("/api/geo", { cache: "no-store" });
-        const d = await r.json();
-        if (d && d.ok && !gotGPS && !manualRef.current) {
-          const c = { lat: d.lat, lng: d.lng };
-          setDeviceLoc((prev) => prev || c);
-          setLocResolved(true);
-          // v8.46 ‚Äî ONE GUARD FOR ONE FACT. This was two:
-          //     setCenter((prev) => (isSeedCenter(prev) ? c : prev));
-          //     if (d.name) setLocName((prev) => prev || d.name);
-          // The center only moved when it was still the seed; the NAME moved
-          // whenever it happened to be blank. Two independent conditions on the
-          // two halves of a single answer ‚Äî so the halves could, and did,
-          // disagree: a center that stayed put picked up the IP service's city
-          // name, and the chrome started printing a town the ranking had never
-          // heard of. /api/rails then answered covered:false and every rail on
-          // the page went empty under a confident heading.
-          //
-          // The IP answer is now adopted WHOLE or not at all ‚Äî one decision,
-          // read off centerRef (the committed center, not a stale closure) and
-          // applied to both halves together.
-          if (isSeedCenter(centerRef.current)) {
-            setCenter(c);
-            if (d.name) setLocName(d.name);
-          }
-        }
-      } catch (e) {}
-    };
-    // Give GPS a head start; if it hasn't answered in 2.5s, use IP so the page
-    // isn't stuck empty. GPS, if it later resolves, still wins via the handler.
-    const ipTimer = setTimeout(ipFallback, 2500);
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          gotGPS = true;
-          clearTimeout(ipTimer);
-          try { setLocApprox(false); } catch (e) {}
-          const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-          setDeviceLoc(c);
-          if (manualRef.current) return;
-          // STABILITY (owner 2026-08-07: "every refresh I get something different,
-          // it switches back and forth"). Desktop geolocation is IP/Wi-Fi based and
-          // returns a slightly different point on each load; this handler used to
-          // setCenter() UNCONDITIONALLY, so the whole nearby list re-ranked around a
-          // new spot every refresh. Auto-geo now only SEEDS a first-ever visit: a
-          // returning device (a saved wf_center) keeps that center as the stable
-          // anchor, and the locate button recenters explicitly (it clears wf_center
-          // first, so it is not affected by this guard).
-          let savedOk = false;
-          try {
-            const raw = localStorage.getItem("wf_center");
-            const saved = raw ? JSON.parse(raw) : null;
-            savedOk = !!(saved && isFinite(saved.lat) && isFinite(saved.lng) && (!saved.ts || Date.now() - saved.ts < 6 * 3600 * 1000));
-            if (raw && !savedOk) localStorage.removeItem("wf_center");
-            // v8.17 (owner: "make sure we get the user exact location as soon
-            // as they land on the page") RECONCILED with the 2026-08-07
-            // stability rule ("every refresh I get something different"). The
-            // wobble that rule killed was desktop IP-geo scatter ‚Äî a few
-            // hundred meters per refresh. A fresh HIGH-ACCURACY fix more than
-            // ~2 miles from the saved anchor is not scatter, it is the user
-            // having MOVED, and pinning them to yesterday's anchor answers
-            // the wrong town. Within 2 miles the saved anchor still wins, so
-            // refresh stability is untouched.
-            if (savedOk) {
-              const dLat = (saved.lat - c.lat) * 69;
-              const dLng = (saved.lng - c.lng) * 69 * Math.cos((c.lat * Math.PI) / 180);
-              const movedMi = Math.sqrt(dLat * dLat + dLng * dLng);
-              if (movedMi <= 2) {
-                setCenter({ lat: saved.lat, lng: saved.lng });
-                setLocResolved(true);
-                if (saved.loc) setLocName((prev) => prev || saved.loc);
-                return;
-              }
-              try { localStorage.removeItem("wf_center"); } catch (e2) {}
-            }
-          } catch (e) {}
-          const name = await reverseGeocode(c.lat, c.lng);
-          setCenter(c);
-          setLocResolved(true);
-          setLocName(name);
-        },
-        () => { ipFallback(); },
-        // v8.17 ‚Äî the landing fix is the EXACT one (owner: "the exact
-        // pinpoint from the maps function"): high accuracy, same grade
-        // recenterToMe() runs. The 8s timeout and IP fallback are unchanged,
-        // so a denied prompt or slow GPS still resolves the page.
-        { enableHighAccuracy: true, timeout: 8000 }
-      );
-    } else {
-      ipFallback();
-    }
-    return () => clearTimeout(ipTimer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    const q = nearMeQuery({ cat, sub, vibe, center, radiusM: searchRadius || DEFAULT_RADIUS_M });
-    if (keyMissing || !q || searchMode) return;
-    let cancelled = false;
-    // Debounce: rapid category/filter switching fires searches that still bill even
-    // when abandoned. Wait 300ms so only the final selection actually searches.
-    const _debTimer = setTimeout(() => {
-    (async () => {
-      setLoading(true);
-      setErr("");
-      try {
-        // v6.24: widen the local feed. When browsing a whole category (sub "all"), fan out across
-        // every subcategory query and merge, so the feed surfaces far more of what actually exists
-        // locally instead of a single 20-result page. Costs one Google call per subcategory; results
-        // are deduped here and again by name in the view.
-        const ctr = { lat: q.lat, lng: q.lng };
-        // Cost fix: at most TWO Google searches per screen (was 6+). Browsing a whole
-        // category runs the broad search plus ONE context-relevant subfilter (meal by
-        // time of day for food, first subfilter otherwise) and merges. Any specific
-        // subfilter tap is a single search. ~67% fewer searches per load.
-        // v6.39 ‚Äî the "All is thinner than a sub" fix, universal ‚Äî now with the
-        // union rows NORMALIZED into the app's card shape. (v6.38 pushed the
-        // Google-shaped inventory rows straight into app-shaped lists, so
-        // Family/All showed nameless, photoless, Score-less cards.) Hotels use
-        // the richer owned-hotel endpoint; every other category pulls rows from
-        // wf_inventory via the free inv=1 serve, then maps name/photo/wfScore/
-        // distance BEFORE the rows ever meet a PlaceCard.
-        const _invAll = async (m) => {
-          try {
-            if (cat === "hotels") {
-              const hr = await fetch(`/api/hotels?lat=${center.lat}&lng=${center.lng}&limit=40`);
-              const hj = await hr.json();
-              return Array.isArray(hj.hotels) ? hj.hotels : [];
-            }
-            // v8.49 ‚Äî SEND THE CHIP. Without `sub` this asks for the whole
-            // category and gets the top 40 BY SCORE, then the chip filter runs
-            // on the client ‚Äî so a narrow chip competes against every
-            // restaurant in the metro for those 40 slots and loses. Measured
-            // near Parrish: 0 of the top 50 food rows are caf√©s, which is
-            // exactly why Food > Caf√©s rendered "Nothing here right now" while
-            // 111 admissible caf√©s sat in inventory 17 miles away.
-            const r = await fetch(`/api/places/search?q=inventory&lat=${center.lat.toFixed(4)}&lng=${center.lng.toFixed(4)}&radius=${m}&n=400&cat=${encodeURIComponent(cat)}&inv=1${sub && sub !== "all" ? `&sub=${encodeURIComponent(sub)}` : ""}`);
-            const j = await r.json();
-            const raw = Array.isArray(j.places) ? j.places : [];
-            return raw.map((x) => {
-              if (!x) return null;
-              if (x.name && !x.displayName) return x; // already app-shaped
-              const _la = x.location && x.location.latitude, _ln = x.location && x.location.longitude;
-              const _ph = x.photos && x.photos[0] && x.photos[0].name;
-              return {
-                id: x.id,
-                name: (x.displayName && x.displayName.text) || x.name || "",
-                lat: _la, lng: _ln,
-                distMi: _la != null ? distMeters(center, { lat: _la, lng: _ln }) / 1609.34 : null,
-                rating: typeof x.rating === "number" ? x.rating : null,
-                reviews: x.userRatingCount || 0,
-                wfScore: wayfindScore(typeof x.rating === "number" ? x.rating : 0, x.userRatingCount || 0),
-                types: Array.isArray(x.types) ? x.types : [],
-                primaryType: x.primaryType || x.primary_type || null,
-                photo: _ph ? "/api/photo?ref=" + encodeURIComponent(_ph) + "&w=640" : null,
-                openNow: null,
-                businessStatus: x.businessStatus || "OPERATIONAL",
-                _wfInventory: true,
-              };
-            }).filter((p) => p && p.name);
-          } catch (e) { _fetchErrs++; return []; }
-        };
-
-        // v6.43 no-result diagnosis: every Google/inventory call below swallows
-        // its own failure into an empty array, so an API error (quota, key
-        // restriction, network) has been INDISTINGUISHABLE from "there is
-        // genuinely nothing here". That ambiguity is why the places_none data
-        // could not tell a coverage gap from an outage. Count the swallowed
-        // failures so the event can say which one it was.
-        let _fetchErrs = 0;
-        const _subs = (SUBFILTERS[cat] || []).filter((x) => x && x.id && x.id !== "all");
-        const _fetchAt = async (m) => {
-          if (sub === "all" && _subs.length) {
-            let _second;
-            if (cat === "food") {
-              // THE VENUE'S CLOCK, not Eastern. v7.27 moved every nowContext()
-              // caller onto the searched place's timezone and missed this one,
-              // which is the main category path: a Seattle reader at 18:30 PT
-              // reads hour 21.5 ET, mealForHour returns late-night, and the
-              // second query becomes "dessert" instead of "dinner".
-              const _m = mealForHour(siteHourFloat(new Date(), tzForPoint(ctr && ctr.lat, ctr && ctr.lng)));
-              const _w = _m === "late-night" ? "dessert" : _m; _second = (_subs.find((x) => x.id === _w) || _subs[0]).id; }
-            // v6.15: Shopping "All" pairs the broad query with the markets/flea
-            // query so real destinations like Red Barn Flea Market are fetched.
-            else if (cat === "shopping") { _second = (_subs.find((x) => x.id === "markets") || _subs[0]).id; }
-            else { _second = _subs[0].id; }
-            const _b = await Promise.all([searchPlaces(cat, "all", ctr, m, vibe).catch(() => { _fetchErrs++; return []; }), searchPlaces(cat, _second, ctr, m, vibe).catch(() => { _fetchErrs++; return []; }), _invAll(m)]); // v6.38: owned inventory joins the union ‚Äî "All" is a superset everywhere
-            const _seen = new Set(); const _out = [];
-            _b.forEach((arr) => (arr || []).forEach((pp) => { if (pp && pp.id && !_seen.has(pp.id)) { _seen.add(pp.id); _out.push(pp); } }));
-            // v6.15: the markets query also pulls farm/grocery markets ‚Äî re-gate
-            // the merged pool at "all" so those (a Food identity) stay OUT of the
-            // Shopping "All" list; they remain available under the Markets tab.
-            if (cat === "shopping") return _out.filter((pp) => placeAllowed("shopping", "all", pp));
-            return _out;
-          }
-          // v8.50 ‚Äî identity chips read owned inventory. searchPlaces is
-          // Google Text Search, max 20; that cap is why Caf√©s printed 1 card.
-          if (sub && sub !== "all" && SUB_ALLOW[`${cat}:${sub}`]) {
-            const inv = await _invAll(m);
-            if (inv.length) return inv;
-          }
-          return await searchPlaces(cat, sub, ctr, m, vibe);
-        };
-        // v4.85 adaptive radius: start at the current radius (17-mi default)
-        // and auto-widen 30 ‚Üí 45 ‚Üí 60 while the category has fewer than 8
-        // places. Auto-widen only moves the STARTING point ‚Äî once the user
-        // touches the slider, their choice is law.
-        const _startM = q.radiusM;
-        let results = await _fetchAt(_startM);
-        let _usedM = _startM;
-        if (autoRadiusRef.current || _startM <= DEFAULT_RADIUS_M) {
-          for (const _m of RADIUS_LADDER_M) {
-            // v8.62 ‚Äî break on what the feed can SHOW at the radius actually
-            // in use, not on the raw fetch. The serve's gate is radius*1.15
-            // on a server radius that snaps UP the cost ladder, so rows
-            // arrive from beyond the display cut (`distMi <= sliderMi`) and
-            // a raw `.length` declares a thin shelf full. Live: Beaches near
-            // Parrish fetched 32, displayed 1, never widened. displayableAt
-            // (lib/score.js) is the view's own admission rule.
-            if (displayableAt(results, _usedM) >= ADAPT_MIN) break;
-            if (_m <= _usedM) continue;
-            results = await _fetchAt(_m); _usedM = _m;
-          }
-        }
-        if (!cancelled && _usedM > _startM) { autoRadiusRef.current = true; setSliderMi(Math.round(_usedM / 1609.34)); setSearchRadius(_usedM); }
-        if (!cancelled) { setPlaces(results); loadBlurbs(results); try { logEvent("result_count_shown", null, { count: (results || []).length, cat, sub }); } catch (e) {} if (!results || results.length === 0) logEvent("places_none", null, {
-            loc: locName || "", cat, lat: center.lat, lng: center.lng,
-            // v6.43 no-result diagnosis. The original payload was {loc,cat,lat,lng},
-            // which could not answer the two questions that decide the fix:
-            //   "did the search already widen and STILL find nothing?"  -> radiusMi/widened
-            //   "was it empty, or did the API just fail quietly?"        -> fetchErrs
-            // Without these, a coverage gap and an outage look identical.
-            sub: sub || "all",
-            radiusMi: Math.round(_usedM / 1609.34),      // radius actually searched, AFTER auto-widening
-            startRadiusMi: Math.round(_startM / 1609.34),
-            widened: _usedM > _startM,                   // did the 17->30->45->60 ladder run?
-            fetchErrs: _fetchErrs,                       // >0 means calls FAILED, not "nothing here"
-            vibe: vibe || null,
-            // locName drives the display string; when it is empty the reverse
-            // geocode had not resolved. 46% of no-result events carry an empty
-            // loc, so whether that correlates with fetch failures matters.
-            locState: locName ? "resolved" : "pending",
-          }); fetchMemberSignals(supabase, results).then((sig) => { if (!cancelled && sig) setPlaces((cur) => withMemberSignal(cur, sig)); }); }
-      } catch (e) {
-        if (!cancelled) { setErr("We couldn't load spots right now. Try again in a moment."); setPlaces([]); }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    }, 300);
-    return () => { cancelled = true; clearTimeout(_debTimer); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cat, sub, vibe, center, searchRadius, searchMode, feedRetry]);
-
-  // Load events when on the Events screen or when the location changes.
-  useEffect(() => {
-    if (screen !== "events" || !center) return;
-    loadEvents();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center]);
-
-  // Build a curated experience: wider 30 mile search, real filter, ranked by score.
-  const _expRunRef = useRef(null);
-  useEffect(() => {
-    if (screen !== "experience" || !activeBadge || !center) return;
-    const exp = EXPERIENCES[activeBadge];
-    if (!exp) return;
-    // v4.98: an endless "Curating the best spots" is banned, as a rule.
-    // Four guarantees: (1) the FIRST round that returns anything paints
-    // immediately and kills the spinner ‚Äî wider rounds refine the list in
-    // place instead of holding the whole page hostage; (2) a 12s watchdog
-    // force-clears the spinner no matter what a source does ‚Äî the honest
-    // empty state is allowed, an infinite spinner is not; (3) a short
-    // debounce coalesces rapid re-triggers; (4) when the startup location
-    // merely REFINES (IP city fix ‚Üí GPS fix in the same neighborhood,
-    // < 3 km apart) the in-flight run is ADOPTED, not thrown away ‚Äî the
-    // cancel-and-refetch on that flip is what doubled every vibe load.
-    const _prev = _expRunRef.current;
-    if (_prev && !_prev.done && _prev.badge === activeBadge && _prev.center && distMeters(_prev.center, center) < 3000) { _prev.tok.dead = false; return; }
-    const _tok = { dead: false };
-    const _rec = { badge: activeBadge, center: { lat: center.lat, lng: center.lng }, tok: _tok, done: false };
-    _expRunRef.current = _rec;
-    setExpLoading(true);
-    const _watch = setTimeout(() => { if (!_tok.dead) setExpLoading(false); }, 12000);
-    const _deb = setTimeout(() => {
-    if (_tok.dead) { _rec.done = true; return; }
-    (async () => {
-      try {
-        // v4.85 adaptive: every vibe STARTS at the 17-mile default (or its
-        // purpose-built wider radius, e.g. Bucket List) and auto-widens
-        // while fewer than 8 places pass the vibe's filter. Sparse markets
-        // like Parrish fill honestly instead of showing "0 curated picks" ‚Äî
-        // every card labels its true distance.
-        const _vibePass = (p) => { const c = curatedFor(p); if (c && Array.isArray(c.intents) && c.intents.includes(activeBadge)) return true; return exp.filter ? exp.filter(p) : true; };
-        // v4.81: curated picks get the same +15 lift here that applyAffinity
-        // gives them, so they rank near the top instead of mid-list.
-        // v5.25: vibes can carry their own context boost (exp.boost) ‚Äî e.g.
-        // Outside lifts real water venues, hardest when it's beach weather.
-        const _ctxBoost = (p) => { try { return exp.boost ? exp.boost(p, weather) : 0; } catch (e) { return 0; } };
-        const sortFit = (arr) => arr.slice().sort(byPlaceScore((p) => ({ quality: p.wfScore, unratedBase: UNRATED_LAST, featured: featuredBoost(p), curated: !!curatedFor(p), contextBoost: _ctxBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0, trend: p.trending ? TRENDING_BONUS : 0 })));
-        const _paint = (pool) => { if (_tok.dead || !pool.length) return; const passed = pool.filter(_vibePass); const quick = sortFit(passed.length >= 5 ? passed : pool).slice(0, 40); if (quick.length) { setExpPlaces(quick); setExpLoading(false); } };
-        const _startM = exp.radius || DEFAULT_RADIUS_M;
-        let radius = _startM;
-        let raw = [];
-        // v4.97 speed: a multi-query vibe refetching 30‚Üí45‚Üí60 was up to four
-        // sequential rounds (~9s spinners). One jump: default, then max.
-        for (const _m of [_startM, ...(_startM < 96560 ? [96560] : [])]) {
-          radius = _m;
-          const _qs = typeof exp.queries === "function" ? exp.queries() : exp.queries; // v4.80: time-aware query sets
-          if (_qs && _qs.length) {
-            const _b = await Promise.all(_qs.map((qd) => searchPlaces(qd.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, radius, "all", qd.keyword || "").catch(() => [])));
-            raw = dedupePlaces(_b.flat().filter(Boolean), true);
-          } else {
-            raw = await searchPlaces(exp.cat || "food", "all", { lat: center.lat, lng: center.lng }, radius, "all", exp.keyword || "");
-          }
-          _paint(raw);
-          if (raw.filter(_vibePass).length >= ADAPT_MIN) break;
-        }
-        // v4.81: guaranteed curated presence. Google's text search centered on a
-        // small town (Parrish) routinely skips first-party picks 15‚Äì25 mi out,
-        // so tagged curated places are resolved by name (findPlace is cached)
-        // and injected when the search missed them ‚Äî kept only if they resolve,
-        // are OPERATIONAL, and sit inside this vibe's radius of the user.
-        try {
-          const _tagged = CURATED.filter((c) => Array.isArray(c.intents) && c.intents.includes(activeBadge));
-          if (_tagged.length) {
-            const _have = new Set(raw.map((p) => _wfNorm(p.name)));
-            const _missing = _tagged.filter((c) => !_have.has(_wfNorm(c.name))).slice(0, 14);
-            if (_missing.length) {
-              const _res = await Promise.all(_missing.map((c) => findPlace(c.name + " " + (c.area || ""), { lat: center.lat, lng: center.lng }).catch(() => null)));
-              const _radMi = Math.max(radius / 1609.34, CURATED_REACH_MI); // first-party picks keep their reach past the 17-mi default; cards show distance honestly
-              const _inject = _res.filter(Boolean).filter((p) => (!p.status || p.status === "OPERATIONAL") && (p.distMi == null || p.distMi <= _radMi) && !_have.has(_wfNorm(p.name)));
-              if (_inject.length) raw = dedupePlaces([...raw, ..._inject], true);
-            }
-          }
-        } catch (e) {}
-        // 2026-08-08: decorate this vibe's pool with the unified trend signal
-        // BEFORE the final ranking, so sortFit's trend term and the card's üî•
-        // disclosure read the same flag. The progressive _paint above ran
-        // without flags ‚Äî consistently unflagged ‚Äî and this final ranking
-        // replaces it. Fails soft.
-        try { await attachTrendSignals(raw, { events: (foryouEvents && foryouEvents.length ? foryouEvents : events) || [] }); } catch (e) {}
-        let results;
-        if (exp.filter) {
-          const passed = raw.filter(_vibePass);
-          // Never show an embarrassingly thin curated list. If a hard filter leaves
-          // fewer than 5, backfill with the best unfiltered nearby picks so the
-          // page always feels full, filtered picks still ranked first.
-          if (passed.length >= 5) {
-            results = sortFit(passed);
-          } else {
-            const passedIds = new Set(passed.map((p) => p.id));
-            const backfill = sortFit(raw.filter((p) => !passedIds.has(p.id)));
-            results = [...sortFit(passed), ...backfill];
-          }
-        } else {
-          results = sortFit(raw);
-        }
-        results = results.slice(0, 40); // v4.81: more options per vibe
-        // TEMP (MOMENT_PICKS_DIAGNOSIS.md, Phase 0): one inert telemetry line
-        // per experience open so the exact divergence is measurable on the
-        // owner's device ‚Äî fetched vs kept, the radius actually searched, and
-        // the client clamp (expMi) that hides fetched-but-distant results.
-        try { logEvent("moment_open_diag", null, { intent: activeBadge, fetched: raw.length, kept: results.length, radiusMi: Math.round(radius / 1609.34), clampMi: expMi, within17: results.filter((p) => p.distMi != null && p.distMi <= 17).length }); } catch (e) {}
-        if (!_tok.dead) { setExpPlaces(results); loadBlurbs(results); fetchMemberSignals(supabase, results).then((sig) => { if (!_tok.dead && sig) setExpPlaces((cur) => withMemberSignal(cur, sig)); }); }
-        // v4.89: photo fix for the vibe rows ‚Äî resolve real photos for the
-        // top photoless multi-source entries (cached lookups), then repaint.
-        try {
-          const _missing = results.filter((p) => p && !p.photo && /^(fsq|osm|ridb|nps):/.test(String(p.id || ""))).slice(0, 10);
-          if (_missing.length) Promise.all(_missing.map(async (p) => { try { const g = await findPlace(p.name, { lat: p.lat, lng: p.lng }); if (g && g.photo && (_wfNorm(g.name).includes(_wfNorm(p.name)) || _wfNorm(p.name).includes(_wfNorm(g.name)))) { p.photo = g.photo; p.photos = g.photos || []; if (g.oh) { p.oh = g.oh; p.openNow = g.openNow; p.utcOffset = g.utcOffset; if (g.hoursAsOf != null) p.hoursAsOf = g.hoursAsOf; /* v6.34: stamp travels with the bundle */ } } } catch (e) {} })).then(() => { if (!_tok.dead) setExpPlaces((cur) => (Array.isArray(cur) ? [...cur] : cur)); });
-        } catch (e) {}
-      } catch {
-        if (!_tok.dead) setExpPlaces([]);
-      } finally {
-        _rec.done = true;
-        clearTimeout(_watch);
-        if (!_tok.dead) setExpLoading(false);
-      }
-    })();
-    }, 250);
-    // Cleanup only marks the token dead ‚Äî timers stay armed so a follow-up
-    // adoption (location refined < 3 km) can revive the very same run.
-    return () => { _tok.dead = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, activeBadge, center]);
-
-  // v4.84 Viator as a real activity source. The freetext endpoint is queried
-  // with the resolved METRO name (small towns like Parrish are not Viator
-  // destinations ‚Äî freetext on them returns keyword noise from other cities),
-  // pulling a 20-product pool that gets ranked client-side per vibe:
-  //   top  ‚Äî most popular, rating desc with review-count tiebreak (Bucket List)
-  //   gems ‚Äî high rating (4.7+) but LOW review count (‚â§300): under-the-radar
-  //          experiences locals book but tourists miss (Hidden Gems)
-  useEffect(() => {
-    if (screen !== "experience" || !(EXPERIENCES[activeBadge] && EXPERIENCES[activeBadge].viator)) { setExpTours(null); return; }
-    let cancelled = false;
-    (async () => {
-      try {
-        const _m = Culture.resolveMetro(locName);
-        const cityQ = (_m && Culture.CULTURE_TITLES[_m]) || (locName ? locName.split(",")[0] : "");
-        if (!cityQ) return;
-        const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=20" + _viatorCityParams(cityQ, center));
-        const d = await r.json();
-        const mode = EXPERIENCES[activeBadge].viatorMode || "top";
-        const pool = (d && Array.isArray(d.items) ? d.items : []);
-        const items = rankExperiences(mode === "gems"
-          ? pool.filter((t) => t.rating != null && t.rating >= 4.7 && (t.reviews || 0) > 0 && (t.reviews || 0) <= 300)
-          : pool.filter((t) => t.rating != null && t.rating >= 4.5)).slice(0, 8);
-        if (!cancelled) setExpTours(items);
-      } catch (e) { if (!cancelled) setExpTours(null); }
-    })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, activeBadge, locName]);
-
-  // v4.94: the experience "Within X mi" pill mirrors the sheets ‚Äî if the vibe
-  // pulled from farther than the 17-mi default (adaptive radius), bump the
-  // visible cap up the ladder so results aren't hidden behind a stale label.
-  useEffect(() => {
-    const pl = expPlaces;
-    if (!pl || !pl.length) return;
-    const _within = (mi) => pl.filter((p) => p.distMi == null || p.distMi <= mi).length;
-    setExpMi((cur) => {
-      const _t = Math.min(ADAPT_MIN, pl.length);
-      if (cur >= 60 || _within(cur) >= _t) return cur;
-      for (const mi of [30, 45, 60]) { if (mi > cur && _within(mi) >= _t) return mi; }
-      return 60;
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeBadge, expPlaces && expPlaces.length]);
-
-  // v4.84: bookable activities on the Things to do browse too ‚Äî Viator is a
-  // source, not just a booking-link decorator. v6.34 (owner ask): the Family
-  // browse gets the same rail.
-  useEffect(() => {
-    if ((browseCat !== "attractions" && browseCat !== "family") || !center) { setBrowseTours(null); return; }
-    let cancelled = false;
-    (async () => {
-      try {
-        const _m = Culture.resolveMetro(locName);
-        const cityQ = (_m && Culture.CULTURE_TITLES[_m]) || (locName ? locName.split(",")[0] : "");
-        if (!cityQ) return;
-        const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=20" + _viatorCityParams(cityQ, center));
-        const d = await r.json();
-        const items = rankExperiences((d && Array.isArray(d.items) ? d.items : [])
-          .filter((t) => t.rating != null && t.rating >= 4.5)).slice(0, 8);
-        if (!cancelled) setBrowseTours(items);
-      } catch (e) { if (!cancelled) setBrowseTours(null); }
-    })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [browseCat, locName, center && center.lat]);
-
-  // v6.14 ‚Äî bookable Viator experiences for the Events tab's "Tours" chip
-  // (the tab's default view). City-based, same verified-product source as
-  // the rest of the app; fail-soft to an empty list so the tab never breaks.
-  useEffect(() => {
-    if (screen !== "events") return;
-    let cancelled = false;
-    // Watchdog: the Tours view must never spin forever. If no city has resolved
-    // (reverse-geocode down) and nothing has loaded within 9s, fall to the
-    // graceful "no tours ‚Äî see events near me" state instead of an endless
-    // loader. In practice the real fetch lands in ~1-2s and this is a no-op.
-    const _watch = setTimeout(() => { if (!cancelled) setEventsTours((cur) => (cur == null ? [] : cur)); }, 9000);
-    (async () => {
-      try {
-        const _m = Culture.resolveMetro(locName);
-        const cityQ = (_m && Culture.CULTURE_TITLES[_m]) || (locName ? locName.split(",")[0] : "");
-        // No city resolved yet (reverse-geocode still in flight): stay in the
-        // loading state and let this effect re-fire when locName lands ‚Äî never
-        // flash "no tours" before we've even asked. Deps include locName.
-        if (!cityQ) return;
-        // v6.44 (owner): the FULL verified local inventory ‚Äî no 12-item slice,
-        // no 4.3 floor. Order is the visible Wayfind Score, highest to lowest.
-        // Selling-fast remains an honest badge/filter but never outranks a
-        // stronger recommendation; price and commission never enter the sort.
-        const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=60" + _viatorCityParams(cityQ, center));
-        const d = await r.json();
-        const items = rankExperiences(d && Array.isArray(d.items) ? d.items : []);
-        if (!cancelled) setEventsTours(items);
-      } catch (e) { if (!cancelled) setEventsTours([]); }
-    })();
-    return () => { cancelled = true; clearTimeout(_watch); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, locName]);
-
-  // v4.62: real nearby teasers under the intro CTA ‚Äî proof before the ask.
-  const introTeasers = useMemo(() => {
-    if (!introOpen) return [];
-    try {
-      const pool = dedupePlaces([...(suggested || []), ...(places || []), ...(homeTodo || [])].filter(Boolean), true).filter((p) => p && p.id && p.name);
-      if (!pool.length) return [];
-      const out = []; const used = new Set();
-      const add = (p, line) => { if (p && !used.has(p.id)) { used.add(p.id); out.push({ p, line }); } };
-      add(pool.filter((p) => (p.rating || 0) >= 4.6 && (p.reviews || 0) >= 40 && (p.reviews || 0) <= 600).sort((a, b) => (b.rating || 0) - (a.rating || 0))[0], "Locals keep this one quiet");
-      add(pool.filter((p) => (p.reviews || 0) >= 200).sort((a, b) => (b.rating || 0) - (a.rating || 0) || (b.reviews || 0) - (a.reviews || 0))[0], "The safest great call near you");
-      add(pool.filter((p) => p.openNow === true).sort((a, b) => (a.distMi ?? 1e9) - (b.distMi ?? 1e9))[0], "Open right now, minutes away");
-      add(pool.filter((p) => (p.reviews || 0) >= 60).sort((a, b) => (a.distMi ?? 1e9) - (b.distMi ?? 1e9))[0], "Worth knowing this close");
-      return out.slice(0, 4);
-    } catch (e) { return []; }
-  }, [introOpen, suggested, places, homeTodo]);
-
-  // THE WELCOME SHEET NO LONGER AUTO-OPENS (2026-08-06, owner decision).
-  //
-  // "What are you feeling?" was an interruption: it opened on a timer over a
-  // page the visitor had not asked to leave. Measured over 14 days, owner
-  // excluded, 36 of 58 dismissals were the X and only 15 were the CTA ‚Äî most
-  // people closed it rather than used it. A previous pass had already found the
-  // same thing for paid traffic (dismissal quality fell 78% -> 14% as paid
-  // volume ramped) and exempted paid and deep-link visits; this removes the
-  // timer for everyone rather than keeping a gate that only some visitors miss.
-  //
-  // The sheet itself is kept and is GOOD ‚Äî it moved to the discovery menu, where
-  // it is a thing you choose instead of a thing that happens to you. The whole
-  // auto-show gate is gone with it: the visible-time accumulator, the retry/
-  // stand-down ladder, the interrupt claim and the ?intro=1 QA door. The
-  // invariant is now simply that the intro opens ONLY from a user gesture,
-  // which check-intro-gate asserts directly.
-  // v5.37: mirror of "some dialog is open" for the prompt coordinator ‚Äî
-  // while ANY of these is up, no timed prompt may fire.
-  useEffect(() => {
-    dialogOpenRef.current = !!(introOpen || gwPop || gwOpen || authOpen || accountOpen || recoveryOpen);
-  }, [introOpen, gwPop, gwOpen, authOpen, accountOpen, recoveryOpen]);
-  // v5.37 dialog semantics: focus management for every modal overlay.
-  // G4 fix: introOpen/accountOpen/authOpen/recoveryOpen's dialogs now live in
-  // next/dynamic({ssr:false}) sheet components ‚Äî useDialogFocus's ref would be
-  // null on the tick this effect first ran (the chunk hadn't mounted its DOM
-  // yet), so those four now own useDialogFocus internally instead. Only the
-  // still-inline giveaway dialogs keep their refs/hook calls here.
-  const gwPopDlgRef = useRef(null);
-  const gwRulesDlgRef = useRef(null);
-  // v5.37: Escape closes the topmost user-invoked sheet too (the six main
-  // dialogs above trap their own Escape; this chain covers the rest, in
-  // z-order: lightbox 1000 > cuisine 95 > the zIndex-900 sheet family).
-  useEffect(() => {
-    const onKey = (e) => {
-      if (e.key !== "Escape") return;
-      if (lightbox) return setLightbox(null);
-      if (cuisineSheet) return setCuisineSheet(null);
-      if (diceChoose) return setDiceChoose(false);
-      if (hookDetail) return setHookDetail(null);
-      if (newListOpen) return setNewListOpen(false);
-      if (renamingList) return setRenamingList(null);
-      if (listMenu) return setListMenu(null);
-      if (saveTarget) return setSaveTarget(null);
-      if (radiusSheet) return setRadiusSheet(false);
-      if (menuSheet) return setMenuSheet(null);
-      if (wxOpen) return setWxOpen(false);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [lightbox, cuisineSheet, diceChoose, hookDetail, newListOpen, renamingList, listMenu, saveTarget, radiusSheet, menuSheet, wxOpen]);
-  useDialogFocus(gwPop, gwPopDlgRef, () => gwPopClose("esc"));
-  useDialogFocus(gwOpen, gwRulesDlgRef, () => setGwOpen(false));
-  // v5.37: results actually rendered for this visitor. The giveaway waits for
-  // this signal (see the coordinator by gwPop above).
-  //
-  // 2026-08-04 (owner decision) ‚Äî this used to write wf_value_seen, and that
-  // made wf_value_seen mean two very different things: "the feed painted" and
-  // "the visitor opened a place". The feed paints on essentially every
-  // successful homepage load within a few seconds, so the passive meaning
-  // always won. When the intro gate started standing down on wf_value_seen,
-  // that would have suppressed the overlay on 100% of visits rather than the
-  // intended ~88‚Äì90% ‚Äî a feature that ships dead.
-  //
-  // So the two signals are now separate keys. wf_value_seen means ONE thing:
-  // the visitor opened a place (home.js, openDetail). wf_results_seen is the
-  // weaker "results painted" signal, which is all the giveaway ever needed ‚Äî
-  // it is kept as a separate key precisely so the giveaway's reach does NOT
-  // change as a side effect of an intro-gate decision.
-  useEffect(() => {
-    if (suggested && suggested.length) { try { sessionStorage.setItem("wf_results_seen", "1"); } catch (e) {} }
-  }, [suggested]);
-
-  // v4.58: build number leaves the visible UI (launch polish) but stays
-  // machine-readable for deploy verification and diagnostics.
-  useEffect(() => { try { window.__WF_BUILD = BUILD_ID; document.documentElement.setAttribute("data-wf-build", BUILD_ID); } catch (e) {} }, []);
-
-  // v5.78 (B1): every standalone screen keeps the address bar in lockstep, not
-  // just /events ‚Äî so refresh, Back/Forward, and sharing restore the view
-  // instead of stripping to "/". SCREEN_PATH maps an internal screen name to its
-  // public path (note "saved" -> "/favorites"); PATH_SCREEN is the reverse.
-  const SCREEN_PATH = { events: "/events", map: "/map", coupons: "/coupons", saved: "/favorites", itinerary: "/itinerary" };
-  const PATH_SCREEN = { "/events": "events", "/map": "map", "/coupons": "coupons", "/favorites": "saved", "/itinerary": "itinerary" };
-
-  // v4.55: /events, /map, /favorites, /itinerary routes hand off here.
-  useEffect(() => {
-    try {
-      const sp = new URLSearchParams(window.location.search);
-      const go = sp.get("go");
-      if (!go) return;
-      const valid = { events: "events", map: "map", saved: "saved", favorites: "saved", itinerary: "itinerary", coupons: "coupons" };
-      if (valid[go]) setScreen(valid[go]);
-      // Coupon strips clip the exact deal before navigating here. Open the
-      // wallet immediately so the user lands on what they just saved instead
-      // of having to search the full inventory for it again.
-      if (go === "coupons" && sp.get("view") === "clipped") setWalletOpen(true);
-      if (go === "coupons" && sp.get("view") === "clipped" && sp.get("focus")) {
-        const handoff = { id: sp.get("focus"), saved: sp.get("saved") === "1" };
-        setCouponHandoff(handoff);
-        if (handoff.saved) showToast("‚úì Saved to Clipped");
-      }
-      if (go === "events") {
-        // v5.54 (events pipeline, Phase 3): restore filter state from the
-        // shared URL, then put /events back in the address bar instead of
-        // stripping to "/" ‚Äî the Events view and the URL must agree so the
-        // state survives refresh and sharing.
-        const d = sp.get("date") || "";
-        if (/^\d{4}-\d{2}-\d{2}$/.test(d)) setEventDate(d);
-        const c = (sp.get("cat") || "").slice(0, 24);
-        if (c) setEventCat(c);
-        const keep = new URLSearchParams();
-        if (/^\d{4}-\d{2}-\d{2}$/.test(d)) keep.set("date", d);
-        if (c) keep.set("cat", c);
-        window.history.replaceState({ wf: "screen" }, "", "/events" + (keep.toString() ? "?" + keep.toString() : ""));
-        return;
-      }
-      // v5.78 (B1): the other standalone screens restore their OWN path (was:
-      // stripped to "/", which lost the view on refresh/share).
-      const scr = valid[go];
-      if (scr && SCREEN_PATH[scr]) {
-        window.history.replaceState({ wf: "screen" }, "", SCREEN_PATH[scr]);
-        return;
-      }
-      const u = new URL(window.location.href); u.searchParams.delete("go");
-      window.history.replaceState({}, "", u.pathname + (u.search || "") + (u.hash || ""));
-    } catch (e) {}
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // v5.54 (events pipeline, Phase 3): the Events view and the address bar
-  // stay in lockstep ‚Äî /events (+ date/cat filter params) while the screen
-  // is open, back to "/" when it closes ‚Äî so refresh, Back/Forward, and
-  // sharing all restore exactly what was on screen.
-  const prevScreenRef = useRef(null);
-  useEffect(() => {
-    try {
-      if (typeof window === "undefined") return;
-      const prev = prevScreenRef.current;
-      prevScreenRef.current = screen;
-      if (SCREEN_PATH[screen]) {
-        // On a standalone screen -> put (and keep) its path in the address bar.
-        // events additionally carries its date/cat filter as query params.
-        let target = SCREEN_PATH[screen];
-        if (screen === "events") {
-          const sp = new URLSearchParams();
-          if (eventDate !== "all") sp.set("date", eventDate);
-          if (eventCat !== "auto") sp.set("cat", eventCat);
-          if (sp.toString()) target += "?" + sp.toString();
-        }
-        const cur = window.location.pathname + window.location.search;
-        if (cur === target) return;
-        // A new screen pushes a history entry; refining the same screen's filter
-        // replaces in place (no dead Back step).
-        if (window.location.pathname !== SCREEN_PATH[screen]) window.history.pushState({ wf: "screen" }, "", target);
-        else window.history.replaceState({ wf: "screen" }, "", target);
-      } else if (prev && SCREEN_PATH[prev] && PATH_SCREEN[window.location.pathname]) {
-        // Left a standalone screen for the feed/detail -> restore "/".
-        window.history.pushState({ wf: "screen" }, "", "/");
-      }
-    } catch (e) {}
-    try {
-      const titles = {
-        events: "Events near you ¬∑ Wayfind",
-        coupons: "Local coupons & deals ¬∑ Wayfind",
-        map: "Map ¬∑ Wayfind",
-      };
-      document.title = titles[screen] || "Wayfind ‚Äî Find the Best Things to Do Near You, Right Now";
-    } catch (e) {}
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, eventDate, eventCat]);
-
-  // Back/Forward traverse the entries the effect above creates. The detail
-  // sheet has its own popstate contract ({wf:"detail"} entries) ‚Äî this
-  // handler only reconciles the SCREEN with the pathname, which is a no-op
-  // while a detail entry pops (pathname unchanged).
-  useEffect(() => {
-    const onPop = () => {
-      try {
-        const p = window.location.pathname;
-        const scr = PATH_SCREEN[p];
-        if (scr === "events") {
-          const sp = new URLSearchParams(window.location.search);
-          const d = sp.get("date") || "";
-          setEventDate(/^\d{4}-\d{2}-\d{2}$/.test(d) ? d : "all");
-          setEventCat((sp.get("cat") || "auto").slice(0, 24));
-          setScreen("events");
-        } else if (scr) {
-          setScreen(scr); // Back/Forward onto /map, /coupons, /favorites, /itinerary
-        } else if (p === "/" && prevScreenRef.current && SCREEN_PATH[prevScreenRef.current]) {
-          setScreen("suggested"); // popped back to the feed from any standalone screen
-        }
-      } catch (e) {}
-    };
-    window.addEventListener("popstate", onPop);
-    return () => window.removeEventListener("popstate", onPop);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // PROTECTED (check-cards.mjs): themed-sheet lists for revenue cards fetch
-  // their own wide-radius results and never depend on the local food pool.
-  useEffect(() => {
-    const hd = hookDetail;
-    if (!hd || !hd.fetchKey || hd.places || !center) return;
-    const exp = EXPERIENCES[hd.fetchKey];
-    if (!exp) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        // v6.11 ‚Äî "Stay Tonight" reads Wayfind's OWNED lodging-only list FIRST,
-        // ranked by distance from the user: only real bookable hotels (no 55+/
-        // residential leak, stripped at ingest), and thin markets like Parrish
-        // borrow the nearest real hotels (Ellenton/Bradenton) instead of showing
-        // "0 / not enough data". Booking is monetized by the existing Stay22 CTA.
-        // Falls through to the legacy live search only if the owned list is empty.
-        if ((hd.fetchKey || hd.theme) === "stays") {
-          try {
-            const cityQ = locName ? String(locName).split(",")[0].trim() : "";
-            const hr = await fetch(`/api/hotels?lat=${center.lat}&lng=${center.lng}&city=${encodeURIComponent(cityQ)}&limit=40`);
-            const hj = await hr.json();
-            if (hj && Array.isArray(hj.hotels) && hj.hotels.length) {
-              const hotels = hj.hotels.slice(0, 20);
-              if (!cancelled) {
-                setHookDetail((cur) => (cur && cur.id === hd.id && !cur.places) ? { ...cur, places: hotels } : cur);
-                // Owned hotels carry Wayfind copy ‚Äî seed blurbs directly, no
-                // generator/Google call needed for these.
-                setBlurbs((prev) => { const m = { ...prev }; hotels.forEach((h) => { if (h.blurb) m[h.id] = h.blurb; }); return m; });
-                try { loadOffers(hotels); } catch (e) {}
-              }
-              return;
-            }
-          } catch (e) {}
-        }
-        const _rad = hd.radiusOverride || 110000;
-        const _kw = ((exp.keyword || "") + (hd.extraKeyword ? " " + hd.extraKeyword : "")).trim();
-        // v6.52 (Seasonal Picks): a sheet's experience MAY declare `queries` ‚Äî
-        // the same {cat,keyword}[] (or time/season-aware function) shape the
-        // legacy moment screen already supports for `outdoors`, `datenight`,
-        // etc. ‚Äî instead of one blended cat+keyword string. Absent for every
-        // pre-existing key, so this changes nothing for them.
-        const _qs = typeof exp.queries === "function" ? exp.queries() : exp.queries;
-        let raw;
-        if (_qs && _qs.length) {
-          const _b = await Promise.all(_qs.map((qd) => searchPlaces(qd.cat || exp.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, _rad, "all", ((qd.keyword || "") + (hd.extraKeyword ? " " + hd.extraKeyword : "")).trim()).catch(() => [])));
-          raw = dedupePlaces(_b.flat().filter(Boolean), true);
-        } else {
-          raw = await searchPlaces(exp.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, _rad, "all", _kw);
-        }
-        // v6.52: an experience MAY also declare a bounded context boost ‚Äî same
-        // exp.boost(place) shape the legacy moment screen honors via
-        // _ctxBoost (e.g. outdoors' weather boost). Absent for every
-        // pre-existing key, so `_ctxBoost` is 0 and sortFit is unchanged for
-        // them; Seasonal Picks is the first sheet-path experience to use it.
-        const _ctxBoost = (p) => { try { return exp.boost ? exp.boost(p) : 0; } catch (e) { return 0; } };
-        const sortFit = (arr) => arr.slice().sort(byPlaceScore((p) => ({ quality: p.wfScore, unratedBase: UNRATED_LAST, featured: featuredBoost(p), contextBoost: _ctxBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0, trend: p.trending ? TRENDING_BONUS : 0 })));
-        // 2026-08-08: same decoration as the vibe screen above ‚Äî the signal
-        // attaches before sortFit runs so rank and disclosure agree.
-        try { await attachTrendSignals(raw, { events: (foryouEvents && foryouEvents.length ? foryouEvents : events) || [] }); } catch (e) {}
-        let results;
-        if (exp.filter) {
-          const passed = raw.filter(exp.filter);
-          if (passed.length >= 5) results = sortFit(passed);
-          else { const ids = new Set(passed.map((p) => p.id)); results = [...sortFit(passed), ...sortFit(raw.filter((p) => !ids.has(p.id)))]; }
-        } else results = sortFit(raw);
-        if (hd.priceMax != null) results = results.filter((p) => { const pl = p.price_level ?? p.priceLevel; return pl == null || pl <= hd.priceMax; });
-        if (hd.openNowOnly) results = results.filter((p) => p.openNow !== false);
-        if (hd.indoorOnly) results = results.filter((p) => { try { return Ranking.venueLean(p).lean === "indoor"; } catch (e) { return true; } });
-        if ((hd.fetchKey || hd.theme) === "stays") results = results.filter(isTrueLodging);
-        results = results.slice(0, 20);
-        if (!cancelled) { setHookDetail((cur) => (cur && cur.id === hd.id && !cur.places) ? { ...cur, places: results } : cur); loadBlurbs(results); }
-      } catch (e) {
-        if (!cancelled) setHookDetail((cur) => (cur && cur.id === hd.id && !cur.places) ? { ...cur, places: [] } : cur);
-      }
-    })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hookDetail && hookDetail.id, hookDetail && hookDetail.fetchKey, hookDetail && hookDetail.places ? 1 : 0, center, locName]);
-
-  // Surprise Me: an honest curator. Picks one standout for right now using the
-  // signals we actually have: time of day, open status, distance, review quality.
-  useEffect(() => {
-    if (screen !== "surprise" || !center) return;
-    if (diceRouteRef.current) { diceRouteRef.current = false; setSurpriseLoading(false); return; }
-    let cancelled = false;
-    (async () => {
-      setSurpriseLoading(true);
-      const h = siteHourFloat();
-      let scat = "food";
-      let skeyword = "";
-      if (h < 11) skeyword = "breakfast";
-      else if (h >= 21) scat = "nightlife";
-      else if (h >= 17) skeyword = "dinner";
-      try {
-        const results = await searchPlaces(scat, "all", { lat: center.lat, lng: center.lng }, DEFAULT_RADIUS_M, "all", skeyword);
-        if (!cancelled) {
-          const pick = pickSurprise(results);
-          setSurprisePool(results);
-          setSurprisePick(pick);
-          loadBlurbs(results.slice(0, 6));
-          // The reason THIS place, right now. The route needs >=3 candidates to
-          // reason over, so it gets the pool and we keep only the line for the
-          // pick we actually show. Fail-soft and non-blocking: the screen never
-          // waits on the model, and a miss just leaves the block absent.
-          setSurpriseWhy(null);
-          if (pick && results.length >= 3) {
-            (async () => {
-              try {
-                const _n = nowContext({ lat: center.lat, lng: center.lng, city: locName, weather });
-                const r = await fetch("/api/moment/picks", {
-                  method: "POST", headers: { "content-type": "application/json" },
-                  body: JSON.stringify({
-                    intent: scat === "nightlife" ? "nightout" : "eatnow",
-                    city: (locName || "").split(",")[0],
-                    wx: _n.weather.known ? ((_n.weather.condition || (_n.weather.isWet ? "wet" : "clear")) + "-" + Math.round(_n.weather.tempF ?? 0)) : "",
-                    tb: _n.dayName.slice(0, 3).toLowerCase() + "-" + _n.timeBucket,
-                    candidates: results.slice(0, 12).map((x) => ({ id: x.id, name: x.name, rating: x.rating, reviews: x.reviews, distMi: x.distMi })),
-                  }),
-                });
-                const j = r.ok ? await r.json() : null;
-                const mine = j && Array.isArray(j.picks) ? j.picks.find((x) => x && x.id === pick.id) : null;
-                if (!cancelled && mine && mine.why) setSurpriseWhy(mine.why);
-              } catch (e) {}
-            })();
-          }
-        }
-      } catch {
-        if (!cancelled) { setSurprisePool([]); setSurprisePick(null); setSurpriseWhy(null); }
-      } finally {
-        if (!cancelled) setSurpriseLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center]);
-
-
-
-  // v6.92 (owner, 2026-08-02): "i want to feature all of the cards that has a
-  // link to an influencer video inside of the trending near you" ‚Äî a
-  // dedicated hero-rail slide for EVERY nearby place with a real, verified
-  // creator video (any platform/creator, not just Cindy/TikTok), separate
-  // from (and never replacing) the real-popularity buzzPick slide above. Not
-  // a day-rotated single winner ‚Äî every qualifying place gets its own card,
-  // swipeable in the SAME rail the Trending slide already lives in, so
-  // nothing new is added to the page outside that rail. Sourced from the
-  // already-loaded nearby pool (creatorVideosFor() needs name/city, which the
-  // wf_buzz_picks RPC rows don't carry).
-  const videoHeroPlaces = useMemo(() => {
-    if (screen !== "suggested" || !center) return [];
-    const nearbyPool = dedupePlaces([...(suggested || []), ...(places || [])].filter(Boolean), true)
-      .filter((p) => p && p.id && (p.distMi == null || p.distMi <= 25));
-    const out = [];
-    const seen = new Set();
-    for (const p of nearbyPool) {
-      if (seen.has(p.id)) continue;
-      const vids = creatorVideosFor(p, locName);
-      if (!vids.length) continue;
-      seen.add(p.id);
-      out.push({ place: p, video: vids[0] });
-    }
-    // v6.93 (owner: "sort it by region") ‚Äî closest first. Every entry here
-    // already passed the 25-mile + city-match gate above (all effectively
-    // "your region" already), so distance is the honest tie-break: the find
-    // that's actually nearest you leads, popularity a distant second.
-    out.sort((a, b) => (a.place.distMi ?? 1e9) - (b.place.distMi ?? 1e9) || promOf(b.place) - promOf(a.place));
-    return out;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center, suggested, places, locName]);
-
-  // v6.93 ‚Äî "if no videos are available for that region then we make a
-  // recommendation for areas where videos are available" (owner). Static
-  // over the curated library (module-scope, no network/render dependency),
-  // so a one-time useMemo is enough; recomputes only if the library itself
-  // is hot-reloaded.
-  const socialFindRegions = useMemo(() => regionsWithFinds(), []);
-
-  // v6.94 ‚Äî "make image 1 the default... organized by location" (owner). The
-  // browse-by-city default view the consolidated hero card below now opens
-  // into. `center` isn't in videoHeroPlaces's deps chain (that list already
-  // depends on it), so this stays a light, separate memo.
-  const socialFindByCity = useMemo(() => spotsByCity(center), [center]);
-  // Static over the curated library, same one-time-memo reasoning as
-  // socialFindRegions above.
-
-  // v8 (2026-08-15) ‚Äî FIVE PIECES OF STATE AND FOUR EFFECTS REMOVED WITH THE
-  // PROMO HERO DECK: bestBeach, dateHeroImg, gemHeroImg, buzzPick, buzzWhy.
-  // Nothing read them any more, but they were still FETCHING on every single
-  // homepage load, for cards that no longer render:
-  //
-  //     wf_nearest_beaches       Supabase RPC   (the beach slide)
-  //     wf_buzz_picks            Supabase RPC   (the trending slide)
-  //     /api/buzz/why            LLM call       (its why-line)
-  //     date-night hero photo    Places search  (metered)
-  //     hidden-gems hero photo   Places search + a vision-model call (metered)
-  //
-  // Dead code that costs money on every visit is worse than dead code. The
-  // rail's own places come from ONE server-side ranking pass at regeneration
-  // (lib/railsData.js), so none of this moved ‚Äî it went.
-
-  const socialFindStats = useMemo(() => libraryStats(), []);
-
-
-
-  // v6.61 (owner #3) / v6.92 hour-aware refresh: the homepage bookable pick.
-  // Fetch /api/experiences, keep only items carrying a real Viator pid= so
-  // nothing unattributed ships, then let the pure lib/homeExpPick rotate the
-  // hour-appropriate pick (never a night activity in the morning; changes
-  // through the day via the todBucket ticker above ‚Äî was a frozen static pick).
-  useEffect(() => {
-    if (screen !== "suggested" || !center) return;
-    let cancelled = false;
-    // v6.43 THE IDLE JUMP, part 2. A refresh may REPLACE the pick; it must never
-    // remove it. This used to `setHomeExp(null)` on any thrown fetch and on any
-    // momentarily empty inventory, collapsing a live ~124px card out of the
-    // middle of the feed and yanking everything below it upward while the user
-    // sat still ‚Äî one of the late shifts in the production CLS attribution.
-    // The card is cleared only when the search CENTER moves, where the entire
-    // feed is being replaced anyway (and the previous city's tour is simply the
-    // wrong answer), and where the shift follows a user action.
-    const key = String(center.lat) + "," + String(center.lng);
-    if (homeExpCenter.current !== key) { homeExpCenter.current = key; setHomeExp(null); }
-    (async () => {
-      try {
-        const q = new URLSearchParams({ lat: String(center.lat), lng: String(center.lng), mi: "60", cat: "all", limit: "12", page: "0" });
-        const r = await fetch("/api/experiences?" + q.toString());
-        const j = r.ok ? await r.json() : null;
-        const items = (j && Array.isArray(j.items) ? j.items : []).filter((t) => t && t.url && /pid=/.test(t.url) && t.image);
-        const next = pickHomeExp(items);
-        if (!cancelled && next) setHomeExp(next);
-      } catch (e) { /* keep whatever is already on screen ‚Äî see the note above */ }
-    })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center, todBucket]);
-
-  // Live local weather from the free, keyless Open-Meteo API. Drives the
-  // greeting chip and nudges the Suggested feed. Fails soft to no weather.
-  useEffect(() => {
-    if (!center) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const r = await fetch(`/api/weather?lat=${center.lat}&lng=${center.lng}`);
-        const d = await r.json();
-        let cur = d && d.current ? d.current : null;
-        if (!cur && d && d.hourly && d.hourly.time && d.hourly.time.length) { const _h = d.hourly; cur = { temperature_2m: _h.temperature_2m && _h.temperature_2m[0], apparent_temperature: _h.apparent_temperature && _h.apparent_temperature[0], weather_code: _h.weather_code && _h.weather_code[0], relative_humidity_2m: null, wind_speed_10m: null, dew_point_2m: null }; }
-        const day = d && d.daily ? d.daily : null;
-        if (cur && !cancelled) {
-          const w = weatherFromCode(cur.weather_code);
-          let sunset = null, sunsetMs = null, sunriseMs = null, updated = null;
-          try { if (day && day.sunset && day.sunset[0]) { const sd = new Date(day.sunset[0]); sunset = sd.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); sunsetMs = sd.getTime(); } } catch {}
-          try { if (day && day.sunrise && day.sunrise[0]) sunriseMs = new Date(day.sunrise[0]).getTime(); } catch {}
-          try { updated = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); } catch {}
-          setWeather({
-            temp: Math.round(cur.temperature_2m),
-            feels: cur.apparent_temperature != null ? Math.round(cur.apparent_temperature) : null,
-            humidity: cur.relative_humidity_2m != null ? Math.round(cur.relative_humidity_2m) : null,
-            wind: cur.wind_speed_10m != null ? Math.round(cur.wind_speed_10m) : null,
-            dew: cur.dew_point_2m != null ? Math.round(cur.dew_point_2m) : null,
-            hi: day && day.temperature_2m_max ? Math.round(day.temperature_2m_max[0]) : null,
-            lo: day && day.temperature_2m_min ? Math.round(day.temperature_2m_min[0]) : null,
-            rain: day && day.precipitation_probability_max ? day.precipitation_probability_max[0] : null,
-            uv: day && day.uv_index_max ? Math.round(day.uv_index_max[0]) : null,
-            sunset, sunsetMs, sunriseMs, updated,
-            icon: w.icon, img: w.img, label: w.label, warm: w.warm, wet: w.wet,
-            // v6.97: the raw Open-Meteo code rides along so nowContext's
-            // WET_CODES/SEVERE_CODES read the LIVE condition (storm warning,
-            // active rain) instead of only the daily rain%% ‚Äî the wet/code
-            // drop meant a storm could rank beaches with "clear" copy.
-            code: cur.weather_code != null ? Number(cur.weather_code) : null,
-            hourly: (() => {
-              try {
-                const h = d.hourly; if (!h || !h.time) return [];
-                const now = Date.now(); const out = [];
-                for (let i = 0; i < h.time.length; i++) {
-                  const t = new Date(h.time[i]).getTime();
-                  if (t < now - 3600000) continue;
-                  out.push({ ms: t, feels: h.apparent_temperature != null ? Math.round(h.apparent_temperature[i]) : Math.round(h.temperature_2m[i]), code: h.weather_code[i], day: h.is_day ? !!h.is_day[i] : true });
-                }
-                return out.filter((_, i) => i % 3 === 0).slice(0, 7);
-              } catch (e) { return []; }
-            })(),
-          });
-          // Only a wet/dry VERDICT flip rebuilds the Suggested feed (see wetRef).
-          if (!cancelled && !!w.wet !== wetRef.current) { wetRef.current = !!w.wet; setWetTick((t) => t + 1); }
-        }
-      } catch { if (!cancelled) setWeather(null); }
-    })();
-    return () => { cancelled = true; };
-  }, [center]);
-
-  // Suggested for Me: one intelligent feed that blends categories using the
-  // signals we honestly have now: time of day, today's weather, and what you
-  // have saved. It gets smarter as more signals come online.
-  useEffect(() => {
-    if (screen !== "suggested" || !center) return;
-    let cancelled = false;
-    (async () => {
-      setSuggestedLoading(true);
-      try {
-        const h = siteHourFloat();
-        const wet = wetRef.current; // ref, not state ‚Äî resolving weather must not double-bill the feed
-        // Serve a recent cached feed for this area + time so we do not re-bill
-        // Google every time the user returns to Home or nudges a filter.
-        const bucket = h < 11 ? "m" : h < 16 ? "l" : h < 21 ? "d" : "n";
-        const ckey = `wf_sug_${center.lat.toFixed(3)}_${center.lng.toFixed(3)}_${bucket}_${intent || "none"}_${wet ? "wet" : "dry"}`;
-        try {
-          const raw = localStorage.getItem(ckey);
-          if (raw) {
-            const obj = JSON.parse(raw);
-            if (obj && obj.ts && Date.now() - obj.ts < 45 * 60 * 1000 && Array.isArray(obj.places) && obj.places.length) {
-              if (!cancelled) { setSuggested(obj.places); loadBlurbs(obj.places.slice(0, 8)); }
-              return;
-            }
-          }
-        } catch {}
-        let plans;
-        const intentDef = intent ? INTENTS.find((x) => x.id === intent) : null;
-        if (intentDef) plans = intentDef.plans.slice();
-        else if (h < 11) plans = [
-          { cat: "food", kw: "breakfast" },
-          { cat: "food", kw: "coffee" },
-          { cat: "attractions", kw: "park" },
-          { cat: "attractions", kw: "things to do" },
-        ];
-        else if (h < 16) plans = [
-          { cat: "food", kw: "lunch" },
-          { cat: "food", kw: "" },
-          { cat: "attractions", kw: "things to do" },
-          { cat: "attractions", kw: "park" },
-          { cat: "nightlife", kw: "brewery" },
-          { cat: "shopping", kw: "" },
-        ];
-        else if (h < 21) plans = [
-          { cat: "food", kw: "dinner" },
-          { cat: "food", kw: "" },
-          { cat: "nightlife", kw: "cocktail bar" },
-          { cat: "nightlife", kw: "rooftop bar" },
-          { cat: "attractions", kw: "live music" },
-          { cat: "attractions", kw: "things to do" },
-        ];
-        else plans = [
-          { cat: "food", kw: "late night" },
-          { cat: "nightlife", kw: "night club" },
-          { cat: "nightlife", kw: "bar" },
-          { cat: "nightlife", kw: "rooftop bar" },
-          { cat: "food", kw: "" },
-        ];
-        if (wet) plans = plans.filter((p) => { const k = p.kw || ""; return !(k.includes("park") || k.includes("rooftop") || k.includes("outdoor")); });
-        plans = plans.slice(0, 3); // cap parallel Google searches per load to control cost
-        const results = await Promise.all(plans.map((pl) =>
-          searchPlaces(pl.cat, "all", { lat: center.lat, lng: center.lng }, 32000, "all", pl.kw).catch(() => [])
-        ));
-        const seen = new Set();
-        const buckets = [];
-        results.forEach((res) => {
-          const arr = (res || []).slice().sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
-          const picked = [];
-          for (const rr of arr) { if (rr && rr.id && !seen.has(rr.id)) { seen.add(rr.id); picked.push(rr); if (picked.length >= 6) break; } }
-          if (picked.length) buckets.push(picked);
-        });
-        let merged = [];
-        let ri = 0;
-        while (merged.length < 30) {
-          let added = false;
-          for (const b of buckets) { if (b[ri]) { merged.push(b[ri]); added = true; } }
-          if (!added) break;
-          ri++;
-        }
-        merged = merged.slice(0, 24);
-        try { localStorage.setItem(ckey, JSON.stringify({ ts: Date.now(), places: merged })); } catch {}
-        if (!cancelled) { setSuggested(merged); loadBlurbs(merged.slice(0, 8)); }
-      } catch {
-        if (!cancelled) setSuggested([]);
-      } finally {
-        if (!cancelled) setSuggestedLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center, wetTick, intent]);
-
-  // v1.1: fetch a small "things to do" set for the home area so the Top 10 things
-  // to do card shows real attractions, not the food feed. Cached ~24h per area,
-  // so it costs roughly one Google search per area per day.
-  useEffect(() => {
-    if (screen !== "suggested" || !center) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const ckey = `wf_todo_${center.lat.toFixed(3)}_${center.lng.toFixed(3)}`;
-        try {
-          const raw = localStorage.getItem(ckey);
-          if (raw) {
-            const obj = JSON.parse(raw);
-            if (obj && obj.ts && Date.now() - obj.ts < 24 * 60 * 60 * 1000 && Array.isArray(obj.places)) {
-              if (!cancelled) setHomeTodo(obj.places);
-              return;
-            }
-          }
-        } catch {}
-        let res = [];
-        try { res = await searchPlaces("attractions", "all", { lat: center.lat, lng: center.lng }, 32000, "all"); } catch {}
-        const arr = Array.isArray(res) ? res : [];
-        try { localStorage.setItem(ckey, JSON.stringify({ ts: Date.now(), places: arr })); } catch {}
-        if (!cancelled) setHomeTodo(arr);
-      } catch {
-        if (!cancelled) setHomeTodo([]);
-      }
-    })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center]);
-
-  // v1.3: make the browser/Safari back button (and swipe-back) close the detail
-  // sheet instead of leaving the app. Push one history entry when it opens; all
-  // close paths call history.back(), which fires popstate and closes it cleanly.
-  useEffect(() => {
-    if (!detail) return;
-    // Same path is kept (including /p/{id}). Back closes the overlay; the
-    // address bar does not collapse to "/".
-    window.history.pushState({ wf: "detail" }, "");
-    const onPop = () => {
-      setDetail(null);
-      // v8.14 / v8.28: first close leaves /p/{id} when the reader came from
-      // a same-origin surface (rail, homepage, guide). Consumed once.
-      if (placeRouteReturnRef.current) {
-        placeRouteReturnRef.current = false;
-        try { window.history.back(); } catch (e) {}
-      } else if (placeActionHomeRef.current) {
-        placeActionHomeRef.current = false;
-        try { window.history.replaceState({}, "", "/"); } catch (e) {}
-      }
-    };
-    window.addEventListener("popstate", onPop);
-    return () => window.removeEventListener("popstate", onPop);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [!!detail]);
-
-  // v6.93 ‚Äî same back-button/swipe-back close behavior for the Social Media
-  // Find sheet as the detail sheet above.
-  useEffect(() => {
-    if (!socialFind) return;
-    window.history.pushState({ wf: "socialFind" }, "");
-    const onPop = () => setSocialFind(null);
-    window.addEventListener("popstate", onPop);
-    return () => window.removeEventListener("popstate", onPop);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [!!socialFind]);
-
-  // v1.3: load the grounded dish/tip insight as soon as a place opens (once its
-  // reviews are in), so "What to order" shows up top, not only after expanding.
-  useEffect(() => {
-    if (detail && !detail._event && detailExtra) { try { loadFullInsight(detail, detailExtra); } catch (e) {} }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail && detail.id, detailExtra]);
-
-  // When the searched location changes, drop the AI hooks built for the previous
-  // place so the home cards never keep recommending where you used to be. They
-  // fall back to fresh generateHooks() until new AI hooks load for the new spot.
-  useEffect(() => {
-    setAiHooks(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [center && center.lat, center && center.lng]);
-
-  // Signature of the place set the hooks are grounded on. Changes whenever the
-  // actual places change (a new location search), even if the count is the same,
-  // so the AI hook fetch re-runs for the new spot instead of keeping stale cards.
-  const hookSrcSig = ((suggested && suggested.length > 0 ? suggested : places) || []).filter(Boolean).slice(0, 20).map((p) => p && p.id).join("|");
-
-  // Fetch AI-generated hooks once we have real place data to ground them on.
-  // Falls back to the static generateHooks() output if the API call fails.
-  useEffect(() => {
-    const src = (suggested && suggested.length > 0 ? suggested : places).filter(Boolean);
-    if (src.length < 3) return;
-    const _tb = bucketForHour(siteHourFloat()).charAt(0);
-    const _hkey = "wf_hooks_v1_" + _tb + "_" + hookSrcSig;
-    try { const raw = localStorage.getItem(_hkey); if (raw) { const o = JSON.parse(raw); if (o && o.t && Date.now() - o.t < 3 * 3600 * 1000 && Array.isArray(o.v) && o.v.length) { setAiHooks(o.v); return; } } } catch (e) {}
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch("/api/hooks", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            places: src.slice(0, 20).map((p) => ({ id: p.id, name: p.name, rating: p.rating, reviews: p.reviews, distMi: p.distMi, openNow: p.openNow, price: p.price, type: p.type })),
-            locName, hour: siteHourFloat(),
-            weather: weather ? { temp: weather.temp, label: weather.label } : null,
-            signals: signals.slice(0, 50),
-          }),
-        });
-        const data = await res.json();
-        if (!cancelled && data.hooks && data.hooks.length > 0) { const _nh = data.hooks.map(normalizeHook); setAiHooks(_nh); try { localStorage.setItem(_hkey, JSON.stringify({ t: Date.now(), v: _nh })); } catch (e) {} }
-      } catch { /* fall back to static hooks silently */ }
-    })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hookSrcSig]);
-
-  // Lightweight events strip for the For You screen. Fail-soft: any error just
-  // hides the strip and never blocks the picks.
-  useEffect(() => {
-    if (screen !== "suggested" || !center) return;
-    // #219 primer consume: an inline script in app/layout.js starts this exact
-    // fetch BEFORE hydration, using the SAME wf_center -> DEFAULT_CENTER
-    // resolution this client uses ‚Äî so on the common path the response is
-    // already in flight ~2-3s before this effect can even run. VALUE-matched to
-    // the live center and one-shot: any mismatch (URL center, geolocation moved,
-    // a city switch) falls through to a normal fetch. The primer is only ever a
-    // head start, never wrong content ‚Äî which is what the reverted #218 seed
-    // got wrong (it painted DEFAULT_CENTER events, then swapped).
-    const _prime = (typeof window !== "undefined" && window.__wfEvPrime) || null;
-    if (_prime) { try { delete window.__wfEvPrime; } catch (e) {} }
-    const _primeOk = !!(_prime && _prime.p && Math.abs(_prime.lat - center.lat) < 5e-4 && Math.abs(_prime.lng - center.lng) < 5e-4);
-    let cancelled = false;
-    (async () => {
-      try {
-        const data = _primeOk
-          ? await _prime.p
-          : await fetch("/api/events?lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=25&city=" + encodeURIComponent(locName || "")).then((r) => (r.ok ? r.json() : null)); // GET = CDN-cacheable (2dp ‚Äî the server cache key's own granularity)
-        if (!data) { if (!cancelled) setForyouEvents([]); return; }
-        const evs = ((data && data.events) || []).filter((e) => e && e.dest);
-        if (!cancelled) {
-          // v6.42 (owner, PERMANENT): the front page NEVER shows civic/community
-          // programs ‚Äî ticketed categories only (lib/frontEvents; locked by
-          // scripts/test-front-events.mjs). They still live on the Events tab
-          // under "Local events". Depth 24 so the priority rail has inventory.
-          setForyouEvents(frontPageEvents(evs, eventBucket).usable.slice(0, 24));
-          setLibraryEvents(evs.filter((e) => e.civic).slice(0, 6));
-        }
-      } catch { if (!cancelled) { setForyouEvents([]); setLibraryEvents([]); } }
-    })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center]);
-
-  // When the opened place is a beach, pull live wind + wave conditions (plus
-  // water quality/red tide/popularity ‚Äî see loadBeachConditions). Gated only
-  // on isBeach, not on lat/lng: the DB-keyed signals (water quality,
-  // popularity) still work by place_id alone when coordinates aren't present.
-  useEffect(() => {
-    if (!detail || !isBeach(detail)) { setBeachCond(null); setBeachCondLoading(false); return; }
-    let cancelled = false;
-    setBeachCond(null);
-    setBeachCondLoading(true);
-    (async () => {
-      const c = await loadBeachConditions(detail);
-      if (!cancelled) { setBeachCond(c); setBeachCondLoading(false); }
-    })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail]);
-
-  function onQueryChange(v) {
-    setQuery(v);
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (!v || v.trim().length < 3) { setSuggestions([]); return; }
-    debounceRef.current = setTimeout(() => fetchSuggestions(v.trim()), 250);
-  }
-
-  // v6.60 (2026-07-25 cost/scraping audit): the search box used to call Google
-  // DIRECTLY from the browser via the Maps JS library ‚Äî the one metered Places
-  // surface that never passed through middleware.js/apiGuard.js (no same-origin
-  // check, no per-IP rate limit), unlike every other paid Places proxy in this
-  // app. fetchSuggestions and pickSuggestion now go through guarded server
-  // routes (/api/places/autocomplete, /api/places/details) first, falling back
-  // to the original direct-to-Google SDK path ONLY when GOOGLE_MAPS_SERVER_KEY
-  // isn't configured (dev/local; never happens in production ‚Äî search already
-  // depends on that same key via /api/places/search).
-  async function fetchSuggestions(q) {
-    if (typeof tokenRef.current !== "string") {
-      tokenRef.current = (typeof crypto !== "undefined" && crypto.randomUUID)
-        ? crypto.randomUUID()
-        : (Math.random().toString(36).slice(2) + Date.now().toString(36));
-    }
-    try {
-      const r = await fetch("/api/places/autocomplete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          input: q,
-          sessionToken: tokenRef.current,
-          ...(center ? { lat: center.lat, lng: center.lng } : {}),
-        }),
-      });
-      if (r.status === 501) return fetchSuggestionsDirect(q); // server key not configured
-      if (!r.ok) { setSuggestions([]); return; }
-      const data = await r.json();
-      setSuggestions((data.suggestions || []).slice(0, 6));
-    } catch {
-      setSuggestions([]);
-    }
-  }
-
-  // Dev/local-only fallback ‚Äî the original direct-to-Google client path,
-  // preserved as-is. Never runs in production.
-  async function fetchSuggestionsDirect(q) {
-    try {
-      const { AutocompleteSuggestion, AutocompleteSessionToken } = await getLoader().importLibrary("places");
-      if (!(tokenRef.current instanceof AutocompleteSessionToken)) tokenRef.current = new AutocompleteSessionToken();
-      // Geographic types ‚Äî anything else is treated as an establishment/place.
-      const AREA_TYPES = new Set([
-        "locality", "administrative_area_level_1", "administrative_area_level_2",
-        "administrative_area_level_3", "administrative_area_level_4",
-        "postal_code", "country", "colloquial_area", "neighborhood",
-        "sublocality", "sublocality_level_1", "route", "geocode",
-      ]);
-      let res;
-      try {
-        // No type filter ‚Äî let Google surface both places and areas.
-        // Location bias keeps establishment results close to the current center.
-        res = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
-          input: q,
-          sessionToken: tokenRef.current,
-          ...(center ? { locationBias: { center: { lat: center.lat, lng: center.lng }, radius: 50000 } } : {}),
-        });
-      } catch {
-        res = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
-          input: q,
-          sessionToken: tokenRef.current,
-        });
-      }
-      const list = (res?.suggestions || [])
-        .map((s) => s.placePrediction)
-        .filter(Boolean)
-        .map((pp) => {
-          const text = (pp.text && (pp.text.text || pp.text)) || "";
-          const types = pp.types || [];
-          const kind = types.some((t) => AREA_TYPES.has(t)) ? "area" : "place";
-          return { text, placeId: pp.placeId, kind };
-        })
-        .filter((x) => x.text && x.placeId)
-        .slice(0, 6);
-      setSuggestions(list);
-    } catch {
-      setSuggestions([]);
-    }
-  }
-
-  // A photo entry is either { name: "places/.../photos/..." } from the guarded
-  // proxy (built into a URL through OUR OWN /api/photo route ‚Äî never Google
-  // directly) or { _directUri } from the dev-only SDK fallback (already a full
-  // URL, that path's original behavior, unchanged).
-  function photoUrlFor(ph) {
-    if (!ph) return null;
-    if (ph.name) return "/api/photo?ref=" + encodeURIComponent(ph.name) + "&w=640";
-    return ph._directUri || null;
-  }
-
-  // Fetches full Place Details for a suggestion ‚Äî guarded server proxy first
-  // (/api/places/details), dev/local-only SDK fallback second. Both paths
-  // normalize to the SAME plain-object shape so callers never branch on which
-  // one ran: { id, location:{lat,lng}, displayName, formattedAddress, types,
-  // rating, userRatingCount, photos:[{name}|{_directUri}], priceLevel,
-  // regularOpeningHours:{openNow}, businessStatus }.
-  async function resolvePlaceDetails(placeId, kind, sessionToken) {
-    const r = await fetch("/api/places/details", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ placeId, kind, sessionToken }),
-    });
-    if (r.status === 501) return resolvePlaceDetailsDirect(placeId, kind); // server key not configured
-    if (!r.ok) throw new Error("details upstream " + r.status);
-    const data = await r.json();
-    if (!data.place) throw new Error("no place");
-    return data.place;
-  }
-
-  // Dev/local-only fallback ‚Äî constructs a Place by id directly via the Maps
-  // JS SDK (no dependence on the autocomplete prediction object, unlike the
-  // original item.pp.toPlace() path) and maps it to the same plain-object
-  // shape resolvePlaceDetails returns. Never runs in production.
-  async function resolvePlaceDetailsDirect(placeId, kind) {
-    const { Place } = await getLoader().importLibrary("places");
-    const p = new Place({ id: placeId });
-    const fields = kind === "area"
-      ? ["location", "formattedAddress", "displayName"]
-      : ["id", "location", "displayName", "formattedAddress", "types", "rating", "userRatingCount", "photos", "priceLevel", "regularOpeningHours", "businessStatus"];
-    await p.fetchFields({ fields });
-    return {
-      id: p.id || placeId,
-      location: p.location ? { lat: p.location.lat(), lng: p.location.lng() } : null,
-      displayName: p.displayName,
-      formattedAddress: p.formattedAddress || "",
-      types: p.types || [],
-      rating: p.rating || null,
-      userRatingCount: p.userRatingCount || 0,
-      photos: (p.photos || []).slice(0, 6).map((ph) => ({ _directUri: ph.getURI?.({ maxWidth: 640 }) })),
-      priceLevel: p.priceLevel,
-      regularOpeningHours: { openNow: p.regularOpeningHours?.isOpen?.() ?? null },
-      businessStatus: p.businessStatus || null,
-    };
-  }
-
-  async function pickSuggestion(item) {
-    setSuggestions([]);
-    setQuery("");
-    const sessionToken = tokenRef.current;
-    tokenRef.current = null;
-
-    if (item.kind === "place") {
-      // Route straight to the place's detail sheet.
-      setLoading(true);
-      try {
-        const place = await resolvePlaceDetails(item.placeId, "place", sessionToken);
-        const photoList = (place.photos || []).slice(0, 6).map(photoUrlFor).filter(Boolean);
-        const photoUrl = photoList[0] || null;
-        const PRICE_LEVELS = ["FREE", "INEXPENSIVE", "MODERATE", "EXPENSIVE", "VERY_EXPENSIVE"];
-        const priceNum = place.priceLevel != null
-          ? (typeof place.priceLevel === "number" ? place.priceLevel : PRICE_LEVELS.indexOf(String(place.priceLevel)))
-          : null;
-        const loc = place.location || {};
-        const lat = typeof loc.lat === "number" ? loc.lat : loc.latitude;
-        const lng = typeof loc.lng === "number" ? loc.lng : loc.longitude;
-        const isOpenNow = typeof place.regularOpeningHours?.openNow === "boolean" ? place.regularOpeningHours.openNow : (place.regularOpeningHours?.openNow ?? null);
-        const placeObj = {
-          id: place.id,
-          name: (place.displayName?.text || place.displayName || item.text).split(",")[0].trim(),
-          lat,
-          lng,
-          address: place.formattedAddress || "",
-          type: (place.types || [])[0] || "",
-          types: place.types || [],
-          rating: place.rating || null,
-          reviews: place.userRatingCount || 0,
-          priceNum: priceNum >= 0 ? priceNum : null,
-          price: priceNum > 0 ? "$".repeat(priceNum) : null,
-          photo: photoUrl,
-          photos: photoList,
-          openNow: isOpenNow,
-          // v6.34: isOpen() is live at THIS instant ‚Äî stamp it so businessStatus
-          // may trust it inside the snapshot freshness window.
-          hoursAsOf: isOpenNow != null ? Date.now() : null,
-          mapsUrl: `https://www.google.com/maps/search/?api=1&query_place_id=${place.id}`,
-          labels: [],
-          wfScore: null,
-        };
-        // Recenter explore list to this place's area for the "similar spots" context.
-        if (typeof lat === "number" && typeof lng === "number") {
-          setCenter({ lat, lng });
-          setLocResolved(true);
-          manualRef.current = true;
-          // v8.46 ‚Äî this moves the RANKING to a business the reader tapped and
-          // never touched the label. Inside the same town that is harmless (the
-          // pairing law holds it). Tap a place in another city from the
-          // autosuggest and the chrome kept printing the old town over the new
-          // town's results. We do not have a city name for this point without
-          // spending a geocode, and the honest answer to "which city is this?"
-          // when we do not know is no city at all ‚Äî locationHonesty prints
-          // nothing rather than a guess or a "near you".
-          if (!centerAgreesWithLabel({ lat, lng }, locName)) setLocName("");
-        }
-        openDetail(placeObj);
-      } catch {
-        showToast("Could not load this place");
-      } finally {
-        setLoading(false);
-      }
-      return;
-    }
-
-    // Area / city ‚Äî recenter and reload the explore feed.
-    setLoading(true);
-    manualRef.current = true;
-    try {
-      const place = await resolvePlaceDetails(item.placeId, "area", sessionToken);
-      const loc = place.location || {};
-      const lat = typeof loc.lat === "number" ? loc.lat : loc.latitude;
-      const lng = typeof loc.lng === "number" ? loc.lng : loc.longitude;
-      if (typeof lat === "number" && typeof lng === "number") {
-        setCenter({ lat, lng });
-        setLocResolved(true);
-        const fa = place.formattedAddress || (place.displayName && (place.displayName.text || place.displayName)) || item.text;
-        setLocName(String(fa).split(",").slice(0, 2).join(",").trim());
-      }
-    } catch {
-      try {
-        const c = await geocodeCity(item.text);
-        if (c) { setCenter(c); setLocResolved(true); setLocName(c.name.split(",").slice(0, 2).join(",").trim()); }
-      } catch {}
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  // v7.17 ‚Äî "Search this area" from the Map tab: re-anchor the discovery
-  // engine at the panned-to coordinates. Same contract as jumpToArea: manual
-  // flag so a GPS fix doesn't silently yank the center back, and the label is
-  // honestly generic ‚Äî we hold no reverse-geocoded name for arbitrary
-  // coordinates and will not invent one (follow-up: reverse geocode is a
-  // metered-spend decision).
-  function searchMapArea(c) {
-    if (!c || !isFinite(c.lat) || !isFinite(c.lng)) return;
-    manualRef.current = true;
-    setCenter({ lat: c.lat, lng: c.lng });
-    setLocResolved(true);
-    setLocName("this map area");
-    try { logEvent("map_search_area", null, { lat: +Number(c.lat).toFixed(3), lng: +Number(c.lng).toFixed(3) }); } catch (e) {}
-  }
-
-  function jumpToArea(a) {
-    manualRef.current = true;
-    setSearchMode(false);
-    setCenter({ lat: a.lat, lng: a.lng, name: a.name });
-    setLocResolved(true);
-    setLocName(a.name);
-    setSearchRadius(a.radius || 24140);
-    setQuery("");
-    setSuggestions([]);
-    try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); } catch (e) {}
-  }
-
-  function clearSearchedLocation() {
-    manualRef.current = false; try { localStorage.removeItem("wf_center"); } catch (e) {}
-    // v8.46 ‚Äî BOTH HALVES OR NEITHER. `setLocName("")` was unconditional while
-    // the recenter was guarded on having a device fix, so with no fix yet the
-    // ranking stayed pinned to the city the reader had searched while the
-    // chrome went blank ‚Äî the app quietly claiming no location while serving
-    // one. Clearing the label is only honest once the coordinates have actually
-    // left that city.
-    if (deviceLoc && isFinite(deviceLoc.lat)) {
-      setCenter({ lat: deviceLoc.lat, lng: deviceLoc.lng });
-      setLocResolved(true);
-      setLocName("");
-    } else {
-      // No fix to fall back to: ask for one. recenterToMe clears wf_center,
-      // resolves the name and the point together, and is the same path the
-      // header's "Current location" runs.
-      try { recenterToMe(); } catch (e) {}
-    }
-  }
-
-  // v6.97 (owner: "a near me button to reset my location would be nice, I
-  // got stuck looking around and had no idea where I was") ‚Äî this file
-  // already had clearSearchedLocation() above: it resets a manual city
-  // search back toward GPS, but it was never wired to any button, never
-  // told the MAP to actually fly the camera anywhere (so the map view would
-  // stay wherever the user had panned), and left the location name blank
-  // instead of naming where "near me" now points. Finishing it into a real
-  // one-tap recenter: clears the manual override, re-fetches a fresh GPS fix
-  // if one isn't already held (same call/pattern as the initial-mount
-  // request below), snaps both the search center AND the map camera there,
-  // and names it via the same reverse geocode every other center-set uses.
-  async function recenterToMe() {
-    manualRef.current = false;
-    try { localStorage.removeItem("wf_center"); } catch (e) {}
-    // v8.14 (owner, 2026-08-18: "I need the current location to be precise ‚Äî
-    // leverage the map function so it shows exactly what is around the user").
-    // An IP-derived deviceLoc (locApprox) can sit MILES from the reader ‚Äî
-    // shortcutting to it here made "current location" precise-looking and
-    // wrong. Approximate fixes no longer shortcut: they fall through to a
-    // fresh enableHighAccuracy GPS fix, the same precision the map pin runs
-    // on. A real GPS deviceLoc still shortcuts ‚Äî it IS the precise answer.
-    if (!locApprox && deviceLoc && isFinite(deviceLoc.lat)) {
-      // v8.46 ‚Äî NAME FIRST, THEN COMMIT. This used to move the center, the map
-      // and locResolved immediately and only then `await` the reverse geocode
-      // inside a catch-all try ‚Äî so a throw, or simply a slow answer, left the
-      // ranking at the new point while the chrome still named the OLD city, and
-      // the writer effect persisted that pair to wf_center. Resolving the name
-      // before anything commits makes the two halves land in one render, which
-      // is the same order the mount GPS handler already uses.
-      const name = await reverseGeocode(deviceLoc.lat, deviceLoc.lng).catch(() => "");
-      setCenter({ lat: deviceLoc.lat, lng: deviceLoc.lng });
-      setLocResolved(true);
-      setMapFocus({ lat: deviceLoc.lat, lng: deviceLoc.lng, ts: Date.now() });
-      // No name is honest (locationHonesty prints no city rather than "you");
-      // a STALE name is a lie, so the old label never survives a move.
-      setLocName(name || "");
-      try { logEvent("recenter_to_me", null, { hadFix: true }); } catch (e) {}
-      return;
-    }
-    if (typeof navigator === "undefined" || !navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        setDeviceLoc(c);
-        setLocApprox(false);
-        // v8.46 ‚Äî name first, then commit (see the note above). Same defect,
-        // same fix: the label and the coordinates are one fact and land in one
-        // render, so a failed or slow geocode can never strand the old city's
-        // name on a new city's pin.
-        const name = await reverseGeocode(c.lat, c.lng).catch(() => "");
-        setCenter(c);
-        setLocResolved(true);
-        setMapFocus({ ...c, ts: Date.now() });
-        setLocName(name || "");
-        try { logEvent("recenter_to_me", null, { hadFix: false }); } catch (e) {}
-      },
-      () => { try { logEvent("recenter_to_me_denied", null, {}); } catch (e) {} },
-      // v8.14 ‚Äî map-grade precision (see the note above): a fresh
-      // high-accuracy fix, never a cached coarse one.
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-    );
-  }
-
-  // Coverage gate: ask the server whether this location is live / unlock / alert.
-  // One RPC; the result drives whether the feed or the CityGate door renders.
-  useEffect(() => {
-    if (screen !== "suggested" || !center || !supabase) { setGateStatus(null); return; }
-    let dead = false;
-    supabase.rpc("wf_gate_status", { p_lat: center.lat, p_lng: center.lng, p_user_id: (user && user.id) || null })
-      .then(({ data }) => { if (!dead) setGateStatus(typeof data === "string" ? data : null); }, () => { if (!dead) setGateStatus(null); });
-    return () => { dead = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center, user, gateBump]);
-
-  // Auto-fill coverage for ANY uncovered location (owner: works for the user's
-  // searched OR default location ‚Äî no tap, signed in or not). When the gate says
-  // this place isn't covered, kick /api/city/unlock ONCE per location cell; it
-  // pulls Google + Viator server-side, then we re-check so the door gives way to
-  // real content and a real "Things to do" rail. Cost is bounded server-side
-  // (per-city 90-day dedup + global hourly cap + same-origin guard).
-  const autoUnlockRef = useRef(new Set());
-  useEffect(() => {
-    if (screen !== "suggested" || !center) return;
-    if (gateStatus !== "unlock" && gateStatus !== "alert") return;
-    const cell = center.lat.toFixed(2) + "," + center.lng.toFixed(2);
-    if (autoUnlockRef.current.has(cell)) return; // one attempt per location per session
-    autoUnlockRef.current.add(cell);
-    let dead = false;
-    (async () => {
-      try {
-        const r = await fetch("/api/city/unlock", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ lat: center.lat, lng: center.lng, city: locName || "" }),
-        });
-        const j = r.ok ? await r.json() : null;
-        if (!dead && j && (j.status === "live" || j.added > 0 || j.experiences > 0)) setGateBump((x) => x + 1);
-      } catch (e) {}
-    })();
-    return () => { dead = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center, gateStatus]);
-
-
-  async function submitSearch(qOverride, opts) {
-    try { logEvent("search", null, { q: String(query || "").slice(0, 80) }); } catch (e) {}
-    const q = (typeof qOverride === "string" ? qOverride : query).trim();
-    if (!q) { openSurprise(); return; }
-    setSuggestions([]);
-    // Check if it's a Wayfind experience keyword first (burgers, rooftop, live music‚Ä¶).
-    const ql = q.toLowerCase();
-    const feel = feelingToMoment(ql);
-    if (feel) { setQuery(""); try { logEvent("feeling_search", null, { q: ql.slice(0, 40) }); } catch (e) {} openMoment(feel); return; }
-    if (ql.length >= 3) {
-      const expHit = Object.keys(EXPERIENCES).find((k) => {
-        const e = EXPERIENCES[k];
-        const lab = (e.label || "").toLowerCase();
-        // EXACT key/label match only ‚Äî label-substring matching swallowed CITY names
-        // that appear inside experience labels: typing "Sarasota" matched the
-        // "Best of Sarasota" label, opened that sheet, and the app never
-        // recentered (the exact bug #361 fixed then still exhibited). A bare
-        // city must fall through to the area-first search below.
-        return k === ql || lab === ql || (e.keyword && e.keyword.toLowerCase().includes(ql));
-      });
-      if (expHit) { setQuery(""); openExperience(expHit); return; }
-    }
-    // v6.60 (owner, 2026-07-25) -- CITY INTENT WINS.
-    //
-    // This function used to run a 20-mile nearby-BUSINESS search FIRST and
-    // `return` on any hit. Typing a nearby city therefore matched businesses
-    // that merely contain the word ("Sarasota" from Parrish -> Sarasota
-    // Memorial, Sarasota Bradenton Airport...), opened a "Results for X"
-    // sheet, and NEVER recentered -- the feed stayed on the old city. That is
-    // the "I searched and the cards stayed on Parrish" bug.
-    //
-    // Order is now: (1) a query that geocodes to a real AREA recenters the app,
-    // always; (2) otherwise a nearby-business search (McDonald's, a venue
-    // name); (3) otherwise a non-area geocode (a street address) still
-    // recenters rather than dead-ending. A city can no longer lose to a
-    // business that happens to share its name.
-    const userPickedLocation = manualRef.current;
-    setLoading(true);
-    manualRef.current = true;
-    // Prefer the location the USER CHOSE. Raw device GPS used to win here, so
-    // after navigating to another city a second search silently snapped the
-    // bias back to wherever the user physically was.
-    const searchCenter = (userPickedLocation && center)
-      ? { lat: center.lat, lng: center.lng }
-      : deviceLoc
-        ? { lat: deviceLoc.lat, lng: deviceLoc.lng }
-        : center ? { lat: center.lat, lng: center.lng } : null;
-    // v4.62: "best of {city}" opens the Best-of sheet for that city, and
-    // repeated-letter typos ("paaarrish") collapse before we give up. A
-    // user asking for a city must never hit a dead end over a prefix or a
-    // held-down key.
-    const collapse = (x) => [x, x.replace(/(.)\1{2,}/g, "$1$1"), x.replace(/(.)\1{1,}/g, "$1")];
-    const geoTry = async (name) => { for (const v of collapse(name)) { try { const g = await geocodeCity(v); if (g) return g; } catch (e) {} } return null; };
-    const goTo = (g) => {
-      setCenter(g);
-      setLocResolved(true);
-      setLocName(g.name.split(",").slice(0, 2).join(",").trim());
-      setSearchMode(false);
-      setSearchLabel("");
-      setQuery("");
-    };
-    try {
-      // GUIDE PLACE-INTENT (fix for "guides ‚Üí app converts 0%", 2026-08-07).
-      // A guide's "Open in Wayfind" declares intent=place: the query names one
-      // specific place, so the area-first rule below must NOT apply ‚Äî that rule
-      // is what geocoded "Airboat the Everglades headwaters" to Everglades
-      // City and dumped the reader on a generic recentered feed. Resolution
-      // order here is deliberately inverted: POI search near the guide's own
-      // region first, area handling only as the fallback. A query our own
-      // guide data marks as an area (", FL" suffix) skips this and recenters
-      // like any city search ‚Äî that IS its intent.
-      if (opts && opts.placeIntent && !/,\s*(fl|florida)\s*$/i.test(q)) {
-        const nearGeo = opts.near ? await geoTry(opts.near) : null;
-        const pinned = nearGeo ? { lat: nearGeo.lat, lng: nearGeo.lng } : searchCenter;
-        if (pinned) {
-          const hits = await searchNearbyPlaces(q, pinned, (opts && opts.miles) || 45);
-          if (hits && hits.length > 0) {
-            const sorted = hits.slice().sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
-            setQuery("");
-            // Recenter to the guide's region so the feed BEHIND the sheet
-            // matches what the reader was just reading about ‚Äî not their GPS.
-            if (nearGeo && nearGeo.isArea) goTo(nearGeo);
-            setSearchMode(true);
-            setLoading(false);
-            openDetail(sorted[0]);
-            // Arrival-side proof the bridge works ‚Äî click-side events on the
-            // static guide page die with the unload; this one cannot.
-            try { logEvent("guide_place_open", sorted[0], { q: q.slice(0, 80), matched: (sorted[0].name || "").slice(0, 80), near: (opts.near || "").slice(0, 40) }); } catch (e) {}
-            return;
-          }
-        }
-        // No POI matched ‚Äî fall through to the standard ladder rather than
-        // dead-ending the deep link.
-      }
-      const bo = q.match(/^\s*(?:the\s+)?best\s+of\s+(.{2,40})$/i);
-      if (bo) {
-        const g = await geoTry(bo[1].trim());
-        if (g) {
-          goTo(g);
-          setLoading(false);
-          setTimeout(() => { try { openCurated("today"); } catch (e) {} }, 60);
-          return;
-        }
-      }
-
-      // (1) CITY / AREA -- always wins, always recenters, always reloads the feed.
-      const area = await geoTry(q);
-      if (area && area.isArea) { goTo(area); return; }
-
-      // (2) NEARBY BUSINESS / CHAIN -- McDonald's, a specific restaurant, a venue.
-      if (searchCenter) {
-        const nearby = await searchNearbyPlaces(q, searchCenter, (opts && opts.miles) || 20);
-        if (nearby && nearby.length > 0) {
-          setQuery("");
-          if (nearby.length === 1) {
-            // Single match -- open detail directly
-            setSearchMode(true);
-            setLoading(false);
-            openDetail(nearby[0]);
-          } else {
-            // v4.63: multiple matches open in the modern themed sheet -- the
-            // legacy explore screen is retired as a search destination.
-            const sorted = nearby.slice().sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
-            setLoading(false);
-            setHookDetail({ id: "search-" + Date.now(), theme: "search", title: `Results for "${q}"`, themeTitle: `Results for "${q}"`, label: q, themeBody: "The closest matches near " + (locName ? locName.split(",")[0] : "this area") + ", ranked for right now.", emoji: "\uD83D\uDD0E", accent: C.accent, places: sorted, sections: null });
-            try { window.scrollTo(0, 0); } catch (e) {}
-          }
-          return;
-        }
-      }
-
-      // (3) A non-area geocode (street address, landmark) still beats a dead end.
-      if (area) { goTo(area); return; }
-      setErr("Nothing found. Try a restaurant name, chain, or city.");
-    } catch {
-      setErr("Search failed. Try again.");
-    } finally { setLoading(false); }
-  }
-
-  function saveToList(listId) {
-    if (!requireAuth("Sign up free ‚Äî your spots, saved and synced to every device.")) return;
-    if (!saveTarget) return;
-    const target = saveTarget;
-    const existing = lists[listId];
-    const wasAdd = existing && !existing.places.some((p) => p.id === target.id);
-    setLists((prev) => {
-      const l = prev[listId];
-      if (!l) return prev;
-      const has = l.places.some((p) => p.id === target.id);
-      return { ...prev, [listId]: { ...l, places: has ? l.places.filter((p) => p.id !== target.id) : [...l.places, target] } };
-    });
-    if (wasAdd) {
-      try {
-        const meta = Trips.tripMetaForPlace(target);
-        const already = trips[meta.key] && trips[meta.key].items.some((it) => it.id === target.id);
-        if (!already) {
-          if (!trips[meta.key]) logEvent("trip_create", null, { key: meta.key, city: meta.city, state: meta.state });
-          logEvent("stop_add", target, { key: meta.key, city: meta.city, state: meta.state, src: "list_save" });
-        }
-      } catch (e) {}
-      setTrips((prev) => Trips.addPlaceToTrips(prev, target, Date.now()));
-    }
-    setSaveTarget(null);
-  }
-  // v8.4 ‚Äî ADD TO ITINERARY, as its own verb.
-  //
-  // quickSaveFavorite already auto-files a saved place into its city trip, but
-  // that is a side effect of favouriting: there was no way to put a place on a
-  // plan WITHOUT favouriting it, and no state anywhere showing it was already
-  // on one. This is the explicit action, and it deliberately does not touch
-  // lists.favorites ‚Äî the trip is an independent, curated plan, which is the
-  // same reason unsaving does not remove a stop.
-  function isOnTrip(p) {
-    if (!p || !p.id) return false;
-    try {
-      const meta = Trips.tripMetaForPlace(p);
-      const t = trips[meta.key];
-      return !!(t && t.items && t.items.some((it) => it.id === p.id));
-    } catch (e) { return false; }
-  }
-  function addToItinerary(p) {
-    if (!p || !p.id) return;
-    if (isOnTrip(p)) { showToast("Already on your itinerary"); return; }
-    try {
-      const meta = Trips.tripMetaForPlace(p);
-      if (!trips[meta.key]) { try { logEvent("trip_create", null, { key: meta.key, city: meta.city, state: meta.state }); } catch (e) {} }
-      try { logEvent("stop_add", p, { key: meta.key, city: meta.city, state: meta.state, src: "card_itinerary" }); } catch (e) {}
-    } catch (e) {}
-    setTrips((prev) => Trips.addPlaceToTrips(prev, p, Date.now()));
-    showToast("üóìÔ∏è Added to your itinerary");
-  }
-
-  // One-tap save straight to Favorites from a card heart.
-  function quickSaveFavorite(p) {
-    if (!p) return;
-    const fav = lists.favorites || { id: "favorites", name: "Favorites", emoji: "‚ù§Ô∏è", places: [] };
-    const has = fav.places.some((x) => x.id === p.id);
-    setLists((prev) => {
-      const f = prev.favorites || { id: "favorites", name: "Favorites", emoji: "‚ù§Ô∏è", places: [] };
-      const h = f.places.some((x) => x.id === p.id);
-      if (!h) { try { recordSignal(p, "save"); } catch (e) {} }
-      return { ...prev, favorites: { ...f, places: h ? f.places.filter((x) => x.id !== p.id) : [...f.places, p] } };
-    });
-    showToast(has ? "Removed from Favorites" : "‚ù§Ô∏è Saved to Favorites");
-    if (!has) { logEvent("save", p); offerAccountAfterSave("favorite"); }
-    // Auto-file into the city trip on save only. Unsaving from Favorites must
-    // not remove it from a trip: the trip is an independent, curated plan.
-    if (!has) {
-      try {
-        const meta = Trips.tripMetaForPlace(p);
-        const already = trips[meta.key] && trips[meta.key].items.some((it) => it.id === p.id);
-        if (!already) {
-          if (!trips[meta.key]) logEvent("trip_create", null, { key: meta.key, city: meta.city, state: meta.state });
-          logEvent("stop_add", p, { key: meta.key, city: meta.city, state: meta.state, src: "quick_save" });
-        }
-      } catch (e) {}
-      setTrips((prev) => Trips.addPlaceToTrips(prev, p, Date.now()));
-    }
-    if (supabase && user) {
-      if (has) {
-        supabase.from("saved_places").delete().eq("user_id", user.id).eq("place_id", p.id).eq("list_name", "Favorites").then(() => {}, () => {});
-      } else {
-        supabase.from("saved_places").upsert({ user_id: user.id, place_id: p.id, place: p, list_name: "Favorites" }, { onConflict: "user_id,place_id,list_name" }).then(() => {}, () => {});
-      }
-    }
-  }
-  // Save a whole curated hook list as its own list under Favorites.
-  function saveHookList(hook, places) {
-    if (!requireAuth("Sign up free to save this somewhere you'll actually find it later.")) return;
-    if (!hook || !places || !places.length) return;
-    const key = "hook_" + hook.id;
-    const existed = !!lists[key];
-    setLists((prev) => {
-      if (prev[key]) { const next = { ...prev }; delete next[key]; return next; }
-      return { ...prev, [key]: { id: key, name: hook.themeTitle || hook.hook || "Saved list", emoji: hook.emoji || "‚ú®", places: places.map((x) => x) } };
-    });
-    showToast(existed ? "Removed from your lists" : "‚ù§Ô∏è Saved to your lists");
-  }
-
-  // Place-suggestion flow (v6.53) ‚Äî lets a user propose a real place for the
-  // themed list they're currently viewing. Deliberately mirrors
-  // fetchSuggestions/resolvePlaceDetails (same guarded /api/places/* proxy ‚Äî
-  // "Google Places API is the only source of identifiers" stays true here
-  // too) but with its OWN state, so opening this mini-search never disturbs
-  // the main search box if both happen to be mounted. Never writes the
-  // suggestion into any list itself ‚Äî it only POSTs to /api/place-suggestions
-  // for the owner to review (see supabase/place-suggestions.sql +
-  // scripts/review-place-suggestions.mjs).
-  async function sugFetchSuggestions(q) {
-    if (typeof sugTokenRef.current !== "string") {
-      sugTokenRef.current = (typeof crypto !== "undefined" && crypto.randomUUID)
-        ? crypto.randomUUID()
-        : (Math.random().toString(36).slice(2) + Date.now().toString(36));
-    }
-    try {
-      const r = await fetch("/api/places/autocomplete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input: q, sessionToken: sugTokenRef.current, ...(center ? { lat: center.lat, lng: center.lng } : {}) }),
-      });
-      if (!r.ok) { setSugSuggestions([]); return; }
-      const data = await r.json();
-      // Only real establishments belong in a themed list ‚Äî an "area" result
-      // (a city/neighborhood) from the same endpoint is filtered out here.
-      setSugSuggestions((data.suggestions || []).filter((s) => s && s.kind !== "area").slice(0, 6));
-    } catch { setSugSuggestions([]); }
-  }
-  function onSugQueryChange(v) {
-    setSugQuery(v);
-    setSugPicked(null);
-    if (sugDebounceRef.current) clearTimeout(sugDebounceRef.current);
-    if (!v || v.trim().length < 3) { setSugSuggestions([]); return; }
-    sugDebounceRef.current = setTimeout(() => sugFetchSuggestions(v.trim()), 250);
-  }
-  async function pickSugSuggestion(item) {
-    setSugSuggestions([]);
-    setSugBusy(true);
-    const sessionToken = sugTokenRef.current;
-    sugTokenRef.current = null;
-    try {
-      const place = await resolvePlaceDetails(item.placeId, "place", sessionToken);
-      const loc = place.location || {};
-      const name = ((place.displayName && (place.displayName.text || place.displayName)) || item.text || "").toString();
-      setSugPicked({
-        id: place.id,
-        name,
-        address: place.formattedAddress || "",
-        lat: typeof loc.lat === "number" ? loc.lat : loc.latitude,
-        lng: typeof loc.lng === "number" ? loc.lng : loc.longitude,
-      });
-      setSugQuery(name);
-    } catch {
-      showToast("Could not load that place ‚Äî try again");
-    } finally {
-      setSugBusy(false);
-    }
-  }
-  async function submitPlaceSuggestion() {
-    if (!sugPicked || !hookDetail || sugBusy) return;
-    setSugBusy(true);
-    try {
-      const r = await fetch("/api/place-suggestions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          placeId: sugPicked.id,
-          placeName: sugPicked.name,
-          lat: sugPicked.lat,
-          lng: sugPicked.lng,
-          experienceKey: hookDetail.id,
-          note: sugNote.trim().slice(0, 280),
-          city: locName || cityNow || null,
-          deviceId: deviceId(),
-        }),
-      });
-      if (!r.ok) throw new Error("submit failed");
-      const data = await r.json().catch(() => ({}));
-      if (data && data.ok === false) throw new Error(data.error || "submit failed");
-      setSugDone(true);
-      setSugOpen(false);
-      setSugQuery(""); setSugPicked(null); setSugNote(""); setSugSuggestions([]);
-      showToast("Thanks ‚Äî we'll take a look üôå");
-      try { logEvent("place_suggest", null, { exp: hookDetail.id }); } catch (e) {}
-    } catch {
-      showToast("Couldn't send that ‚Äî try again in a bit");
-    } finally {
-      setSugBusy(false);
-    }
-  }
-
-  // Heart on a recommendation card: like it AND save the full list to Favorites.
-  function onHookHeart(hookId) {
-    if (!requireAuth("Sign up free ‚Äî your spots, saved and synced to every device.")) return;
-    toggleHookLike(hookId);
-    const h = (hookCards || []).find((x) => x.id === hookId);
-    if (!h) return;
-    const allSrc = [...(suggested || []), ...places].filter(Boolean);
-    const pls = placesForHook(h, allSrc);
-    if (pls.length) saveHookList(h, pls);
-  }
-  const isSaved = (id) => Object.values(lists).some((l) => l.places.some((p) => p.id === id));
-
-  function createList() {
-    if (!requireAuth("Sign up free to build a list and open it from any device.")) return;
-    const name = newName.trim();
-    if (!name) return;
-    const id = "list_" + Date.now();
-    setLists((prev) => ({ ...prev, [id]: { id, name, emoji: newEmoji, places: [] } }));
-    setNewName(""); setNewEmoji("‚≠ê"); setNewListOpen(false);
-  }
-  function deleteList(id) {
-    if (!requireAuth("Sign up free to keep your lists tidy ‚Äî on every device.")) return;
-    if (id === "favorites") return;
-    setLists((prev) => { const next = { ...prev }; delete next[id]; return next; });
-    setActiveList(null);
-  }
-  function renameList() {
-    if (!requireAuth("Sign up free to keep your lists tidy ‚Äî on every device.")) return;
-    const name = newName.trim();
-    if (!name || !renamingList) return;
-    setLists((prev) => prev[renamingList] ? { ...prev, [renamingList]: { ...prev[renamingList], name } } : prev);
-    setNewName(""); setRenamingList(null);
-  }
-  function openRename(id) {
-    setListMenu(null); setRenamingList(id); setNewName((lists[id] && lists[id].name) || "");
-  }
-  // v4.7: share the current conditions as a clean text summary plus a link home.
-  // A weather-specific preview card is the next step; the text already carries the read.
-  function shareWeather() {
-    if (!weather) return;
-    const place = locName ? locName.split(",")[0] : "your area";
-    const when = isNightNow(weather) ? "Tonight" : "Right now";
-    const t = wayfindWeatherTake(weather);
-    const cond = (weather.label || "").toLowerCase();
-    let txt = `${when} in ${place}: ${weather.temp}¬∞`;
-    if (cond) txt += `, ${cond}`;
-    if (weather.feels != null) txt += `, feels ${weather.feels}¬∞`;
-    txt += ".";
-    if (t && t.good && t.good.length) txt += ` Good for ${t.good.join(", ")}.`;
-    txt += " via Wayfind";
-    const takeStr = (t && t.good && t.good.length) ? ("Good for " + t.good.join(", ")) : "";
-    let wurl = "/w?loc=" + encodeURIComponent(place);
-    if (weather.temp != null) wurl += "&temp=" + encodeURIComponent(weather.temp);
-    if (weather.label) wurl += "&cond=" + encodeURIComponent(weather.label);
-    if (takeStr) wurl += "&take=" + encodeURIComponent(takeStr.slice(0, 110));
-    shareLink(`${when} in ${place}`, originUrl(wurl), () => showToast("Copied"), txt);
-  }
-  // Build a shareable link. With Supabase we store the list and share a short
-  // code, so the URL is clean and unfurls into a rich preview. Without it we
-  // fall back to the long self-contained link.
-  async function buildListShareUrl(places, title) {
-    const payload = encodeList(places);
-    const n = (places || []).length;
-    const names = (places || []).map((p) => p && p.name).filter(Boolean);
-    const sub = names.slice(0, 2).join(", ") + (names.length > 2 ? " and " + (names.length - 2) + " more" : "");
-    const q = `t=${encodeURIComponent(title || "")}&loc=${encodeURIComponent(locName || "")}&n=${n}&sub=${encodeURIComponent(sub)}`;
-    if (supabase && payload) {
-      try {
-        const code = randCode();
-        const { error } = await supabase.from("shared_lists").insert({ code, payload, title: title || "", loc: locName || "", n });
-        if (!error) return originUrl(`/s/${code}?${q}`);
-      } catch {}
-    }
-    if (payload) return originUrl(`/s/${payload}?${q}`);
-    return originUrl("/");
-  }
-  async function shareList(places, title) {
-    if (!places || !places.length) return;
-    const url = await buildListShareUrl(places, title);
-    shareLink(`Wayfind list: ${title}`, url, () => showToast("Link copied"), `${title}. Help me wayfind it`, () => { try { logEvent("share", null, { kind: "list", n: places.length, title: title || "" }); } catch (e) {} giveawayMark("list:" + (title || "list")); });
-  }
-  // v6.23 ‚Äî share ONE coupon. The recipient's text carries a per-coupon image
-  // (who it's for, how much, when it expires) generated from the same encoded
-  // data the /c landing page and /api/og/coupon image both read.
-  function couponShareUrl(c) {
-    try {
-      const json = JSON.stringify({ b: c.business || "", t: c.title || "", x: c.expires ? String(c.expires).slice(0, 10) : "", c: c.code || "", a: c.area || "", id: c.id || "" });
-      const b64 = btoa(unescape(encodeURIComponent(json))).split("+").join("-").split("/").join("_").split("=").join("");
-      return originUrl("/c?d=" + b64);
-    } catch { return originUrl("/coupons"); }
-  }
-  async function shareCoupon(c) {
-    if (!c) return;
-    const url = couponShareUrl(c);
-    // v6.99 (owner): the share text SELLS ‚Äî value first, in one line, same
-    // numbers as the card (shared parser, lib/couponValue.js).
-    const v = parseCouponValue(c.title);
-    const seller = v
-      ? "üéüÔ∏è " + (c.business ? c.business + ": " : "") + "get " + v.getLabel + (v.what ? " of " + v.what : "") + " for " + v.payLabel + " ‚Äî " + v.pct + "% off"
-      : "üéüÔ∏è " + (c.business ? c.business + ": " : "") + (c.title || "A Wayfind deal");
-    const lines = [seller];
-    if (c.code) lines.push("Code: " + c.code);
-    if (c.expires) lines.push("Valid through " + String(c.expires).slice(0, 10));
-    lines.push("Grab it on Wayfind:");
-    const fallback = () => shareLink((c.business ? c.business + " ‚Äî " : "") + (c.title || "Wayfind coupon"), url, () => showToast("Link copied"), lines.join("\n"), () => { try { logEvent("coupon_share", null, { id: c.id }); } catch (e) {} });
-    // v6.99 (owner): "I want the actual card to be sent as a text message."
-    // Web Share Level 2: fetch the /api/og coupon card and hand the PNG to the
-    // native sheet, so Messages shows THE CARD, not a bare link. Every failure
-    // (no canShare, fetch miss, file share unsupported) falls to the existing
-    // text/link ladder; a user closing the sheet (AbortError) shares nothing ‚Äî
-    // never punished with a surprise clipboard write. Native (Capacitor) keeps
-    // its own sheet: nativeShare has no file lane.
-    try {
-      if (!isNative() && v && typeof navigator !== "undefined" && navigator.canShare && navigator.share) {
-        const qs = new URLSearchParams({ kind: "coupon", pay: String(v.pay), get: String(v.get), pct: String(v.pct), biz: c.business || "", what: v.what || "", exp: c.expires ? String(c.expires).slice(0, 10) : "" });
-        const r = await fetch("/api/og?" + qs.toString());
-        if (r.ok) {
-          const file = new File([await r.blob()], "wayfind-deal.png", { type: "image/png" });
-          if (navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file], text: lines.join("\n") + "\n" + url });
-            try { logEvent("coupon_share", null, { id: c.id, path: "card_image" }); } catch (e) {}
-            return;
-          }
-        }
-      }
-    } catch (e) { if (e && e.name === "AbortError") return; }
-    fallback();
-  }
-
-
-  const subs = SUBFILTERS[cat] || [];
-  const vibes = VIBES[cat] || [];
-  // One source of truth: the experience nav is generated from the badge
-  // registry itself, so every badge that can appear on a card is also tappable
-  // here. A lead order surfaces the most useful first; the rest follow.
-  // A short, curated row of the most useful experiences. Every other badge stays
-  // reachable through the "See all" chip, so the registry is still one source of
-  // truth without flooding the home row.
-  const HOME_CHIPS = ["gem", "family", "entertainment", "stays", "shows", "value", "budget", "instagram", "outdoor", "bestof"].filter((k) => EXPERIENCES[k]);
-  const _viewCtx = condCtxFromNow(nowContext({ weather }));
-  const _mealPool = cat === "food" ? mealGate(places, sub) : places;
-  // v4.25: every sort mode is real on the browse feed, the distance limit
-  // applies to all of them, and the near-first rule survives ranking.
-  const _distFiltered = [..._mealPool].filter((p) => sliderMi >= 60 || p.distMi == null || p.distMi <= sliderMi);
-  let viewBase;
-  if (sortBy === "near") {
-    viewBase = _distFiltered.sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
-  } else if (sortBy === "rated") {
-    // v6.30 (owner): "Top rated" ranks purely by the displayed Wayfind Score,
-    // highest first, so the badges read in order ‚Äî the score IS the model
-    // output. Distance has its own "Closest first" sort; reviews break ties.
-    viewBase = _distFiltered.sort(Ranking.byTopRated); // v6.42: THE shared Top-rated comparator (locked by test-top-rated)
-  } else if (sortBy === "price") {
-    viewBase = _distFiltered.sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
-  } else {
-    viewBase = Ranking.rankByConditions(_distFiltered, _viewCtx, (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_LAST, faveTier: faveTier(p), featured: featuredBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0, trend: p.trending ? TRENDING_BONUS : 0 }));
-    // Near-first rule: with 5+ options inside 12 miles, nothing past 20 may outrank them.
-    const _nc = viewBase.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
-    if (_nc >= 5) viewBase = [...viewBase.filter((p) => !(p.distMi != null && p.distMi > 20)), ...viewBase.filter((p) => p.distMi != null && p.distMi > 20)];
-  }
-  // v8.48 ‚Äî THE COUNT AND THE CARDS MUST BE THE SAME LIST (live incident,
-  // 2026-08-25, owner: "all of the menus are showing empty when we have sooo
-  // many place cards"). PlaceCard has refused rows with no rating signal since
-  // v6.39 (`if (!cardComplete(p)) return null`), but this list was never gated
-  // on the same rule ‚Äî so a pool of unrenderable rows produced a feed that
-  // counted 21 spots, rendered none, and printed "That's all 21 spots" under
-  // the blank. FREE MODE made that pool the common case (its Pro field mask
-  // omits the Enterprise-billed rating/userRatingCount), which is why the
-  // symptom was site-wide and looked like a total outage rather than thin data.
-  //
-  // Gating HERE, at the one place the browse pool is finalised, makes the
-  // failure honest on every surface that reads `view`: the result count, the
-  // "That's all N" line, the beach-conditions rows and the map all describe the
-  // cards actually on screen, and an empty pool now falls into the real
-  // "Nothing here right now" branch with a widen/relax action instead of
-  // rendering a silent void. A data regression can still lose places; it can no
-  // longer look like a broken page.
-  const view = dedupePlaces(dealsOnly ? viewBase.filter((p) => offers[p.id]) : viewBase, !searchMode).filter(cardComplete);
-  // Consolidate the FULL ranked pool before selecting the hero. Doing this
-  // after removing the hero stranded its children as peer recommendations:
-  // SeaWorld could become the hero while Bayside Stadium survived below as if
-  // it were an independently visitable destination. The parent keeps its
-  // original rank and carries its in-park highlights into both card and detail.
-  const consolidatedView = (() => {
-    try { return consolidateDestinations(view).places; }
-    catch (e) { return view; }
-  })();
-  // Explore now opens on a single standout, just like the home screen. Prefer a
-  // place you can actually go to now; the rest of the ranked list follows below.
-  const exHero = (!loading && consolidatedView.length > 0) ? (consolidatedView.find((p) => liveOpen(p) === true) || consolidatedView[0]) : null;
-  const exHeroSl = exHero ? scoreLabel(exHero.wfScore) : null;
-  const restView = exHero ? consolidatedView.filter((p) => p && p.id !== exHero.id) : consolidatedView;
-
-  // 2026-08-08: THE UNIFIED TREND SIGNAL on the home pool (lib/trendSignal.js
-  // ‚Äî real foot traffic + major-event proximity, never a paid input).
-  // attachTrendSignals MUTATES the place objects in `places`, so every list
-  // derived from them on the next render (applyAffinity's copies, viewBase,
-  // the sheets' pools) reads the same flag: the placeScore `trend` term ranks
-  // it, displayedWfScore shows it (shown == sorted), and the card renders the
-  // üî• reason. The tick only forces that re-render once decoration lands;
-  // everything fails soft to "nothing trends".
-  const [, setTrendTick] = useState(0);
-  const _trendIdsKey = (places || []).slice(0, 150).map((p) => p && p.id).join(",");
-  useEffect(() => {
-    const pool = (places || []).slice(0, 150).filter((p) => p && p.id);
-    if (!pool.length) return;
-    let dead = false;
-    (async () => {
-      try {
-        await attachTrendSignals(pool, { events: (foryouEvents && foryouEvents.length ? foryouEvents : events) || [] });
-        if (!dead) setTrendTick((t) => t + 1);
-      } catch (e) {}
-    })();
-    return () => { dead = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [_trendIdsKey]);
-
-  // v6.57: one batched read of water quality + popularity for every beach
-  // card currently on screen, instead of a fetch per card. Both signals are
-  // DB-backed (wf_beach_water / wf_place_popularity_scored) and safely
-  // batchable via .in(); live wind/wave/red-tide stay in the detail sheet
-  // only (those are single-point upstream APIs with no batch mode).
-  // v8.19 (owner, fifth report): the water read is GEO-based now. The old
-  // .in(place_id) join only lit the ~32 exact sampled ids while the same
-  // physical beach exists under many Google place_ids ‚Äî which is why "the
-  // water quality" kept not appearing however fresh the samples were. The
-  // wf_beach_water_geo view carries station coordinates; each on-screen
-  // beach card takes its exact row when one exists, else the nearest
-  // sampled station within 1.5mi (lib/waterStations.js ‚Äî never a guess,
-  // never a neighbor town's reading).
-  const _beachRows = view.filter((p) => p && p.id && isBeach(p)).slice(0, 80);
-  const _beachIds = Array.from(new Set(_beachRows.map((p) => p.id)));
-  useEffect(() => {
-    if (!_beachIds.length || !supabase) return;
-    let dead = false;
-    (async () => {
-      try {
-        const lats = _beachRows.map((p) => Number(p.lat)).filter(Number.isFinite);
-        const lngs = _beachRows.map((p) => Number(p.lng)).filter(Number.isFinite);
-        const pad = 0.05; // ~3.5mi ‚Äî covers NEAR_STATION_MI with margin
-        const wqQ = lats.length
-          ? supabase.from("wf_beach_water_geo").select("beach_place_id,result,advisory,sampled_at,lat,lng")
-              .gte("lat", Math.min(...lats) - pad).lte("lat", Math.max(...lats) + pad)
-              .gte("lng", Math.min(...lngs) - pad).lte("lng", Math.max(...lngs) + pad)
-          : supabase.from("wf_beach_water").select("beach_place_id,result,advisory,sampled_at").in("beach_place_id", _beachIds);
-        const [{ data: wq }, { data: pop }] = await Promise.all([
-          wqQ,
-          supabase.from("wf_place_popularity_scored").select("place_id,tier2_popularity").in("place_id", _beachIds),
-        ]);
-        if (dead) return;
-        const next = {};
-        const matched = waterForBeaches(_beachRows, wq || []);
-        Object.keys(matched).forEach((id) => { next[id] = { ...(next[id] || {}), water: matched[id] }; });
-        (pop || []).forEach((r) => { next[r.place_id] = { ...(next[r.place_id] || {}), popularityPct: r.tier2_popularity }; });
-        setBeachSignals((prev) => ({ ...prev, ...next }));
-      } catch (e) {}
-    })();
-    return () => { dead = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [_beachIds.join(",")]);
-
-
-  const exploreList = (
-    <>
-      {/* v3.7 Phase 2: "Good evening" header (greeting, weather, Pick for me, Experiences button, experience pills) hidden per request. The ranked list below is computed from the same place data, unaffected. Experiences moved to the ‚ú® Nearby control in the sort row. */}
-      <div style={{ padding: "10px 2px 6px" }}>
-        {loading ? <Loader label="Finding the best spots" pad="0" /> : (
-          <>
-            <div style={{ fontSize: 22, fontWeight: 800, color: C.text, letterSpacing: "-0.3px" }}>{searchLabel || picksHeader(cat)}</div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 2 }}>
-              <div style={{ fontSize: 12.5, color: C.muted }}>
-                {view.length} result{view.length === 1 ? "" : "s"} ¬∑{" "}
-                <span style={{ color: C.accent, fontWeight: 700 }}>
-                  {sortBy === "near" ? "nearest first" : sortBy === "rated" ? "Wayfind Score, best to worst" : "ranked by fit"}
-                </span>
-              </div>
-              {searchLabel && (
-                <button onClick={() => { setSearchMode(false); setSearchLabel(""); setSortBy("near"); }} style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: "3px 10px", cursor: "pointer" }}>Clear √ó</button>
-              )}
-            </div>
-          </>
-        )}
-      </div>
-      {!loading && (
-        <div style={{ padding: "0 2px 10px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, paddingBottom: 4 }}>
-            {browseCat !== "attractions" && <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : ""} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />}
-          </div>
-        </div>
-      )}
-      {exHero && (
-        <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, margin: "2px 2px 8px" }}>Best move right now</div>
-      )}
-      {exHero && (() => {
-        const open = liveOpen(exHero);
-        const badgeIcon = open === true ? "‚ú®" : "üìç";
-        const badgeText = open === true ? "Open now ¬∑ top pick" : "Top pick nearby";
-        return (
-          <div style={{ marginBottom: 16, border: `1.5px solid ${C.accent}`, borderRadius: 18, overflow: "hidden", background: `linear-gradient(160deg, rgba(255,150,70,.10) 0%, ${C.card} 60%)`, boxShadow: "0 6px 24px rgba(0,0,0,.35)" }}>
-            <div onClick={() => openDetail(exHero)} role="button" tabIndex={0} onKeyDown={KB_CLICK} aria-label={`Open ${exHero.name || "featured place"}`} style={{ cursor: "pointer" }}>
-              <div style={{ position: "relative" }}>
-                <FallbackImg src={exHero.photo} icon="üìç" style={{ width: "100%", height: 185, objectFit: "cover", display: "block" }} />
-                <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.62)", border: `1px solid ${C.accent}80`, borderRadius: 999, padding: "5px 11px", backdropFilter: "blur(4px)" }}>
-                  <span style={{ fontSize: 12 }}>{badgeIcon}</span>
-                  <span style={{ fontSize: 10, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.7px" }}>{badgeText}</span>
-                </div>
-              </div>
-              <div style={{ padding: 16 }}>
-                <div style={{ fontSize: 22, fontWeight: 800, color: C.text, lineHeight: 1.2 }}>{exHero.name}</div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
-                  {exHeroSl && <span style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{exHeroSl.word}</span>}
-                  {exHeroSl && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.muted }}>{exHeroSl.s}/10</span>}
-                  <PlaceScoreChip p={exHero} size={13} />
-                  {exHero.reviews != null && <span style={{ fontSize: 12, color: C.muted }}>¬∑ {exHero.reviews.toLocaleString()} reviews</span>}
-                  {open === true && <span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>¬∑ Open now</span>}
-                  {open === false && <span style={{ fontSize: 12, fontWeight: 700, color: exHero.nextOpen && exHero.nextOpen.today ? C.gold : C.red }}>¬∑ {exHero.nextOpen && exHero.nextOpen.today ? exHero.nextOpen.label : "Closed"}</span>}
-                  {exHero.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>¬∑ {exHero.distMi.toFixed(1)} mi</span>}
-                </div>
-                {blurbLine(blurbs[exHero.id]) && <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.5, marginTop: 10 }}><span style={{ color: C.accent, fontWeight: 800 }}>Why: </span>{blurbLine(blurbs[exHero.id])}</div>}
-              </div>
-            </div>
-          </div>
-        );
-      })()}
-      {err && <div style={{ color: C.red, fontSize: 13, padding: "4px 2px 12px" }}>{err} <span onClick={() => setFeedRetry((t) => t + 1)} style={{ color: C.accent, fontWeight: 800, cursor: "pointer", marginLeft: 6 }}>Retry ‚Üª</span></div>}
-      {!loading && !err && view.length === 0 && (
-        <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}><NavIcon name={cat} color={C.muted} size={38} /></div>
-          <strong style={{ display: "block", color: C.light }}>Nothing here yet</strong>
-          <span style={{ fontSize: 13 }}>We're adding great spots near you. Try another category, or search a bigger city nearby for the full list.</span>
-        </div>
-      )}
-      {restView.slice(0, 3).map((p, i) => (
-        <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
-      ))}
-      {restView.length > 3 && hookCards.length > 0 && (
-        <HooksBanner hooks={hookCards} likedIds={hookLikes} totalLiked={hookLikes.size} onOpen={openHook} onLike={onHookHeart} allPlaces={[...(suggested || []), ...places].filter(Boolean)} isDesktop={isDesktop} />
-      )}
-      {renderWorldCupCard(false)}
-      {renderUniqueFinds()}
-      {homeRolling && (
-        <>
-          <style dangerouslySetInnerHTML={{ __html: "@keyframes wfDiceSpin{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.14)}100%{transform:rotate(360deg) scale(1)}}" }} />
-          <div style={{ position: "fixed", bottom: "calc(84px + env(safe-area-inset-bottom))", right: 16, zIndex: 60, pointerEvents: "none", width: 62, height: 62, borderRadius: 16, background: "linear-gradient(135deg, #7C3AED, #4C1D95)", boxShadow: "0 10px 30px rgba(124,58,237,.55)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, animation: "wfDiceSpin .7s linear infinite" }}>{homeDiceFace}</div>
-        </>
-      )}
-      {restView.slice(3, visibleCount).map((p, i) => (
-        <PlaceCard key={p.id} p={p} rank={i + 4} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
-      ))}
-      {!loading && restView.length > visibleCount && (
-        <div style={{ padding: "2px 2px 10px" }}>
-          <div style={{ height: 1, background: C.border, margin: "0 0 12px" }} />
-          <button onClick={() => setVisibleCount((c) => c + 5)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, height: 50, borderRadius: 14, border: "none", background: "linear-gradient(180deg, #FB923C 0%, #F97316 52%, #EA580C 100%)", color: "#fff", fontSize: 14.5, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 14px rgba(249,115,22,.4)" }}>
-            Wayfind 5 more spots
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: "block" }}><path d="M5 12h13M13 6l6 6-6 6" /></svg>
-          </button>
-          <div style={{ textAlign: "center", fontSize: 11.5, color: C.muted, marginTop: 9 }}>More spots worth your time nearby</div>
-        </div>
-      )}
-    </>
-  );
-
-  // G1: fetch every extracted screen chunk at first idle, so the first tap on
-  // the dice, Saved, Itinerary, Coupons, or Events never waits on the network.
-  useEffect(() => {
-    const idle = window.requestIdleCallback || ((f) => setTimeout(f, 2500));
-    const h = idle(() => SCREEN_LOADERS.forEach((load) => { try { load().catch(() => {}); } catch (e) {} }));
-    return () => { try { (window.cancelIdleCallback || clearTimeout)(h); } catch (e) {} };
-  }, []);
-
-  // THE MISSING-KEY SCREEN, MOVED (2026-08-21). It used to return here from
-  // ~230 lines higher up, above four hooks ‚Äî useState(trendTick) and three
-  // useEffects. React counts hooks by call order, so a build where the key is
-  // absent runs a different number of them than one where it is present, and
-  // any flip mid-life unmounts the tree rather than warning. Everything between
-  // the old position and this one is pure derivation over state that is empty
-  // when there is no key, so the screen it paints is identical.
-  // scripts/check-hook-order.mjs is what keeps it here.
-  if (keyMissing) {
-    return (
-      <div style={shell}>
-        <div style={{ ...wrap, alignItems: "center", justifyContent: "center", padding: 24, textAlign: "center" }}>
-          <div>
-            <div style={{ fontSize: 40, marginBottom: 12 }}>üîë</div>
-            <h2 style={{ color: C.text, margin: "0 0 8px" }}>Almost there</h2>
-            <p style={{ color: C.light, maxWidth: 360, lineHeight: 1.6 }}>
-              Add your Google Maps API key as an environment variable named{" "}
-              <code style={{ color: C.accent }}>NEXT_PUBLIC_GOOGLE_MAPS_KEY</code> in Vercel, then redeploy.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // G1: the one ctx bag handed to the extracted screens. Every hook stays in
-  // PageInner ‚Äî screens are render-only and read state/callbacks/module
-  // helpers from here. Add members as later phases extract more surfaces.
-  const ctx = {
-    // shared navigation + card actions
-    setScreen, openDetail, openExperience, openCuisine, openVenue, quickSaveFavorite, isSaved, liked, disliked, toggleLike, toggleDislike, addShared, giveawayMark, blurbs, blurbLine, logEvent, requireAuth,
-    // module-scope components + helpers the screens render with
-    PlaceCard, CategoryMenu, StateBadge, Loader, FallbackImg, AreaInsight, experienceBadges, cityFixM, liveOpen, iconForPlace, openExternal,
-    // surprise
-    surprisePick, surprisePool, surpriseLoading, setSurprisePick, rerollSurprise, surpriseWhy,
-    // coupons
-    cpnOffers, savedCoupons, clipCoupon, toggleSaveCoupon, copyCouponCode, shareCoupon, walletOpen, setWalletOpen, couponHandoff,
-    // saved
-    activeList, setActiveList, sysFolder, setSysFolder, setNewListOpen, user, setAuthOpen, signOutUser, lists, setListMenu, likedItems, dislikedItems, sharedItems, shareList, deleteList, rollDice,
-    // personalization (v6.56): the taste consent + entry point live at the
-    // bottom of Favorites, not on the home feed ‚Äî and only for signed-in
-    // users, which is why nothing here needs the auth primitives: the
-    // Favorites render site already walls the whole screen.
-    personalize, setConsent, setTasteOpen, tasteVecState,
-    // itinerary
-    activeTrip, setActiveTrip, trips, setTrips, tripNoteEdit, setTripNoteEdit, tripMoveFor, setTripMoveFor, sub, pickBrowse, reservations, removeRes, saveResConf,
-    // shared list
-    sharedList, setSharedList,
-    // events
-    events, eventCat, setEventCat, eventDate, setEventDate, locName, center, submitSearch, eventsLoading, eventsUnavailable, eventsError, loadEvents, eventSegmentMeta, dedupeEvents, formatEventDate, eventCategory, recurrenceLabel, cleanVenueName, eventCTA, ticketUrl, eventUseImage,
-    eventsTours, eventBucket, EVENT_BUCKETS, // v6.14 Events redesign: Tours chip + Community bucket
-    // sheets (G2): drag-to-dismiss handlers shared by every sheet
-    sheetDragStart, sheetDragMove, sheetDragEnd,
-    // hookDetail sheet
-    hookDetail, setHookDetail, hookLikes, suggested, places, offers, isDesktop, hkSort, setHkSort, hkMi, setHkMi, hkDeals, setHkDeals, weather, cityNow, dedupePlaces, placesForHook, pickReason, isNightNow, toggleHookLike, saveHookList, setMapListOverride, listShareUrl, shareLink, showToast, buildListShareUrl, whyFirst, Critter, SortControl, openCurated,
-    // place-suggestion flow (v6.53) ‚Äî user-submitted places, stored pending review
-    sugOpen, setSugOpen, sugQuery, setSugQuery, onSugQueryChange, sugSuggestions, setSugSuggestions, sugPicked, setSugPicked, sugNote, setSugNote, sugBusy, sugDone, pickSugSuggestion, submitPlaceSuggestion,
-    // account sheet
-    accountOpen, setAccountOpen, wfShowDiag, BUILD_ID,
-    // menu sheet (6 sub-states incl. weather)
-    menuSheet, setMenuSheet, pickCat, openSurprise, libraryEvents, primaryCategory, foryouEvents, whyNow, searchRadius, setPendingRadius, setRadiusSheet, rollHomePick, homeRolling, homeDiceFace, rollHistory, INTENTS, intent, setIntent, moonImgName, weatherAdvisory, wayfindWeatherTake, uvLabel, shareWeather,
-    // auth + password-recovery sheets
-    authOpen, authMode, setAuthMode, isStandalone, signInWithProvider, authEmail, setAuthEmail, authPassword, setAuthPassword, passwordAuth, authSending, resetSending, sendPasswordReset, recoveryOpen, setRecoveryOpen, newPw, setNewPw, newPw2, setNewPw2, pwSaving, saveNewPassword, authReady,
-    // detail sheet (G3)
-    detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, placeKind, isBeach, beachSignals, weather,
-    // social find sheet (v6.93) ‚Äî the "bookshelf" of curated creator-video
-    // places: the place+video the user tapped in from, every other nearby
-    // find (for the "more near you" strip), and the region-availability list
-    // for the "not here yet" recommendation mode.
-    socialFind, setSocialFind, videoHeroPlaces, socialFindRegions, socialFindByCity, socialFindStats,
-    // map screen (G4)
-    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, map3D, setMap3D, mapRetryKey, setMapRetryKey, mapDefaultAppliedRef, cat, setCat, setSub, setVibe, sortBy, deviceLoc, searchMapArea, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, MapView, Hol, recenterToMe,
-    // experience badge screen (G4)
-    activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, ViatorRail, intentScopeLabel,
-    // intro overlay (G4) ‚Äî the 3.2s auto-show timer stays in PageInner, flips introOpen
-    introOpen, setIntroOpen, introSel, setIntroSel, introTriggerRef,
-  };
-
-  // v8.2 ‚Äî ONE destination handler for BOTH nav bars. The bottom bar owned this
-  // body inline; the top row needs the identical behaviour, and two copies of
-  // "reset every open sheet, then switch screen, then scroll to top" is how one
-  // of them ends up forgetting a setter and leaving a stale list open behind
-  // the new screen.
-  const goDestination = (id, active) => {
-    if (id === "home" && active) { setBrowseCat(null); setMoodPick(null); setSub("all"); }
-    setActiveList(null); setSysFolder(null); setListMenu(null); setRenamingList(null);
-    setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); setMapListOverride(null);
-    setNavShortcuts(false);
-    if (id === "home") { openSuggested(); } else { setScreen(id); }
-    try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); window.scrollTo(0, 0); } catch (e) {}
-  };
-
-  // v8.2 ‚Äî THE RAIL BAND, as one named expression, because it no longer renders
-  // inside .wf-col-main and a band that spans the page should not be indented
-  // three levels into a column it has left. Every prop is unchanged and every
-  // prop is still server data ‚Äî test-first-screen reads exactly this block to
-  // prove it.
-  // v8.87 ‚Äî THE EVENTS RAIL WAS BUILT, RANKED, MONETIZED, AND RENDERED FOR
-  // NOBODY. Owner, 2026-08-28, by voice: "we don't even have an events, uh,
-  // rail. Like, we gotta develop an events rail. for, like, concerts and
-  // tickets."
-  //
-  // He was right about the surface and wrong only about the cause. Every part
-  // of it exists and has for a year: the nine-provider feed
-  // (app/api/events/route.js), the owner's own best-first ranking
-  // (lib/frontEvents.js bestFirst ‚Äî "I want to display the best events"),
-  // EventRailCard with its save / like / dislike / share / category wiring, and
-  // EV_RAIL_MIN_H reserving its exact measured height so the skeleton swap
-  // moves nothing. What did not exist was a single JSX reference. `const
-  // eventsRailSlot = ‚Ä¶` was computed inside the `screen === "suggested"` IIFE
-  // and then dropped on the floor ‚Äî grep found the identifier exactly twice in
-  // 12k lines: the declaration, and a comment claiming it renders "as section
-  // nine of BestNearby". It renders in no section at all.
-  //
-  // THIS IS THE ¬ß"REACHABILITY IS TRANSITIVE" TRAP IN CLAUDE.md, in its purest
-  // form: the code is present, correct, imported, type-checked, bundled and
-  // dead. `next build` cannot see it ‚Äî an expression that is never rendered is
-  // legal JavaScript ‚Äî and no guard asked whether the value was USED.
-  //
-  // So it moves OUT to the component body, where the consumer is, and is handed
-  // to <DaypartRail> as the events tile's drop. That also answers the second
-  // half of the owner's message: v8.86 made `events` LEAD the afternoon, and a
-  // tile that leads a band must open something. Until now it navigated away to
-  // the events screen; now it opens concerts and tickets in place, and the
-  // navigation survives as the "See every event" button inside the drop.
-  //
-  // scripts/check-events-rail-renders.mjs fails the build if it goes dark
-  // again ‚Äî it asserts the value reaches JSX, not merely that it is declared.
-  // v7.06 ‚Äî THE EVENTS RAIL, built ONCE and handed to the menu (owner,
-  // 2026-08-09: "i also want to add events into this list"). Same
-  // pipeline it has always run ‚Äî dedupeEvents, the owner's
-  // frontPageEvents chain, the disliked filter ‚Äî and the same
-  // EventRailCard. It renders as section nine of BestNearby instead of
-  // as a separate heading below the promo deck.
-  //
-  // The RESERVE travels with it: EV_RAIL_MIN_H is the floor here now,
-  // and the loading state renders the same box, so the skeleton -> live
-  // swap inside the menu moves nothing.
-  // A THUNK, not a node. The rail is behind a tap, so building 24
-  // EventRailCards on every render of a 12k-line component would be work done
-  // for a drop that is closed ‚Äî and it is what would make `eventsSlot` a
-  // CONTENT prop under scripts/test-first-screen.mjs's rule rather than a
-  // callable read only inside the drop, alongside memberSignalsFor and
-  // applyMemberSignal. Nothing here is allocated until the events tile opens.
-  const eventsRailSlot = () => {
-    if (foryouEvents === null) {
-      return (
-        <div className="wf-rail wf-rail-events" aria-hidden="true" role="status" aria-busy="true" style={{ minHeight: EV_RAIL_MIN_H, overflow: "hidden" }}>
-          {[0, 1].map((i) => (
-            <div key={i} className="wf-sk" style={{ width: "100%", height: EV_RAIL_MIN_H, borderRadius: 17, flexShrink: 0, opacity: 1 - i * 0.22 }} />
-          ))}
-        </div>
-      );
-    }
-    const evs = dedupeEvents(foryouEvents || [], true);
-    const usable = evs.filter((e) => e && e.dest);
-    const fp = frontPageEvents(usable, eventBucket);
-    // v6.69 (owner: "I want to display the best events"). bestFirst
-    // ranks by stature then imminence; RAIL_CHAIN's category order is
-    // still what the events TAB runs. See lib/frontEvents.js.
-    const shown = bestFirst(fp.usable, eventBucket, fp.featured).filter((e) => eventSignals.disliked[e.id] !== true).slice(0, 24);
-    if (!shown.length) return null;
-    // v8.93 (owner, 2026-08-30): "events itself may need to have multiple rails
-    // ‚Äî also start with concert, then theater, than comedy, then sports."
-    //
-    // ONE rail of 24 mixed rows made the reader do the sorting: a symphony, a
-    // roller derby and an open mic in the same horizontal scroll, with nothing
-    // saying which was which until they read each card. These are not degrees
-    // of one thing, they are four different evenings, so they get four rails
-    // in HIS order ‚Äî which is also descending by how far ahead people plan.
-    //
-    // EVERYTHING STILL SHOWS. The four named buckets come first, in order;
-    // whatever falls outside them (community, family, film, markets, a
-    // business calendar) keeps its own rail at the end rather than being
-    // dropped, because a civic event nobody bucketed is still on tonight. An
-    // empty bucket renders nothing at all ‚Äî the empty-rail law.
-    const EVENT_RAIL_ORDER = [
-      { key: "concerts", title: "Concerts & live music" },
-      { key: "theater", title: "Theater & the arts" },
-      { key: "comedy", title: "Comedy" },
-      { key: "sports", title: "Sports" },
-    ];
-    const named = new Set(EVENT_RAIL_ORDER.map((r) => r.key));
-    const groups = EVENT_RAIL_ORDER
-      .map((r) => ({ ...r, rows: shown.filter((e) => eventBucket(e) === r.key) }))
-      .concat([{ key: "more", title: "Also happening", rows: shown.filter((e) => !named.has(eventBucket(e))) }])
-      .filter((g) => g.rows.length);
-    const eventRail = (g) => (
-      <div key={g.key} style={{ marginBottom: 6 }}>
-        <div style={{ fontSize: 13.5, fontWeight: 800, color: "#E7EDF6", margin: "10px 0 4px" }}>{g.title}</div>
-        <RailNav railId={"events-" + g.key} count={g.rows.length} unit={g.title.toLowerCase() + " near you"} />
-        <div className={"wf-rail wf-rail-events"} data-rail={"events-" + g.key} tabIndex={0} role="region" aria-label={g.title} style={{ minHeight: EV_RAIL_MIN_H }}>
-          {g.rows.map((e, i) => (
-            <EventRailCard onLog={logEvent}
-              key={e.id}
-              event={e}
-              rank={i + 1}
-              relativeLabel={eventWhenLabel(e)}
-              saved={!!savedEvents[e.id]}
-              liked={eventSignals.liked[e.id] === true}
-              disliked={eventSignals.disliked[e.id] === true}
-              onSave={() => saveEventItem(e)}
-              onLike={() => toggleEventSignal(e, "liked")}
-              onDislike={() => toggleEventSignal(e, "disliked")}
-              onCategory={(bucket) => { try { logEvent("event_category_open", null, { bucket, src: "rail_chip" }); } catch (er) {} setEventCat(bucket === "community" ? "local" : bucket); setScreen("events"); }}
-              onCopied={() => showToast("Event link copied")}
-            />
-          ))}
-        </div>
-        {g.rows.length > 1 ? <RailDots railId={"events-" + g.key} count={g.rows.length} /> : null}
-      </div>
-    );
-    return (
-      <>
-        {/* v7.09 (owner, 2026-08-09) is still in force: "on the last menu the
-            Happening near you should be named Events near you." The four
-            bucket rails below are a subdivision of that section, not a
-            replacement for it, so the section keeps his name and the total ‚Äî
-            and each rail then says which evening it is. */}
-        <h3 className="wf-events-railhd" style={{ margin: "2px 0 10px", fontSize: 15, fontWeight: 800, color: "#9AA7C0" }}>
-          Events near you <span style={{ fontWeight: 600, opacity: 0.75 }}>¬∑ {shown.length}</span>
-        </h3>
-        {groups.map((g) => eventRail(g))}
-        <button type="button" className="wf-railsec-more" onClick={() => { try { logEvent("events_see_all", null, { src: "menu_rail", shown: shown.length, rails: groups.map((g) => g.key).join(",") }); } catch (er) {} setScreen("events"); }}>
-          {"See every event \u2192"}
-        </button>
-      </>
-    );
-  };
-
-  // First-paint rails origin. `center` stays null until GPS / manual / geo
-  // ‚Äî that is still the visitor location. DaypartRail only needs a POINT so
-  // /api/rails can start before locResolved (owner iPhone, 2026-08-29: rails
-  // was 200 in 0.44s while the client sat on LOAD_PENDING). When a real
-  // center arrives, firstPaintRailOrigin returns it and the rail refetches.
-  const inlineRail = readInlineRailHints();
-  const railCenter = firstPaintRailOrigin({
-    resolved: center,
-    locResolved,
-    prime: inlineRail.prime,
-    stored: inlineRail.stored,
-  });
-
-  const railMenuBand = railMenu ? (
-    <div className="wf-fullbleed">
-      <DaypartRail
-        rails={RAILS}
-        places={railMenu.places}
-        thin={railMenu.thin}
-        guides={railMenu.guides}
-        region={railMenu.region}
-        citySlug={railMenu.citySlug}
-        cityLabel={railMenu.cityLabel}
-        lat={railMenu.lat}
-        lng={railMenu.lng}
-        initialDaypart={railMenu.daypart}
-        center={railCenter}
-        // v8.46 ‚Äî the drop names the reader's own town in its honest-empty
-        // copy, and can hand them the one-tap GPS fix. `recenterToMe` is also
-        // the SELF-HEAL for a stored pin whose label and coordinates disagree:
-        // it clears wf_center and re-asks the device.
-        locName={locName}
-        onRecenter={recenterToMe}
-        // Coconut Grove sponsor tile ‚Äî geo-gated (sponsorRailNear returns null
-        // outside the 20mi gate), pinned to the front of the amazon rail, opens
-        // the curated partner sheet on tap. Only when location has resolved.
-        sponsor={locResolved && center ? sponsorRailNear(center.lat, center.lng) : null}
-        // v8.69 ‚Äî the PAID place card at the front of its own rail's drop.
-        // Resolved in the sponsor effect above (geo gate + flight window +
-        // live Wayfind Score), null for every reader outside the bought radius.
-        sponsorCard={railSponsorCard}
-        onOpenPartner={(pid) => { const c = partnerCollectionById(pid); if (c) openPartnerCollection(c); }}
-        onCoverage={setRailsCoverage}
-        // v8.29.16 ‚Äî the events tile opens the events screen rather than a drop
-        // of ticketed venues. What is behind it is the same feed the home rail
-        // runs, which now carries the curated schedule as its first provider.
-        //
-        // v8.87 ‚Äî ‚Ä¶and now it opens the EVENTS THEMSELVES, in place. `eventsSlot`
-        // is the dated, best-first, ticket-bearing rail (see the block above);
-        // DaypartRail opens the drop when it is given one and keeps this
-        // navigation for when it is not ‚Äî a reader with no events near them, or
-        // /v8 mounting the rail without a feed, still gets somewhere to go
-        // rather than a tile that does nothing. The fallback is the point: this
-        // is the only branch that runs if the feed is empty.
-        onOpenEvents={() => { try { logEvent("events_see_all", null, { src: "rail_tile" }); } catch (er) {} setScreen("events"); }}
-        eventsSlot={eventsRailSlot}
-        isSaved={isSaved}
-        isOnTrip={isOnTrip}
-        onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }}
-        onItinerary={(e, p) => { try { addToItinerary(p); } catch (er) {} }}
-        liked={liked}
-        disliked={disliked}
-        // v8.17 ‚Äî a rail card opens the detail SHEET in place instead of a
-        // full /p/{id} navigation, so Back closes the sheet and the reader
-        // lands exactly where they were: rail still open, scroll intact.
-        // (The owner's "everything is gone when I go back" bug.)
-        onOpenPlace={(p) => { try { openDetail(p, "rail_menu"); } catch (er) {} }}
-        initialRail={initialRail}
-        // v8.23 ‚Äî the rail card's share goes through THE share function, not a
-        // second one. shareLink() already solves the ordering that makes this
-        // work on iOS (the native sheet must be the first activation-consuming
-        // call in the tap ‚Äî v4.07), prefers the Capacitor sheet inside the app
-        // shell, and falls back to the clipboard everywhere else.
-        //
-        // It returns TRUE when a sheet opened. Deliberately NO onCopied toast
-        // here: the card shows "Link copied" on itself, which is both more
-        // located and stops the two toasts this had in its first draft.
-        // v8.28 ‚Äî every action the card can render is wired here. Without a
-        // handler IconicPlaceCard falls back to <a href="/p/<id>?action=like">,
-        // which is why liking from the rail opened the detail page instead of
-        // registering the like (owner, 2026-08-20). scripts/check-card-actions.mjs
-        // now fails the build if any card surface leaves one dangling.
-        // v8.29.6 ‚Äî ONE onLike here, not two. The merge of PR #888 and this
-        // branch left <DaypartRail> carrying onLike and onDislike twice; JSX
-        // takes the last silently, so a duplicate is how a working handler is
-        // replaced without a diff that looks wrong. `liked`/`disliked` (the
-        // maps) and isLiked/isDisliked (the predicates) both stay ‚Äî the rail
-        // reads whichever it was given, and the two thumb surfaces inside it
-        // ask in different shapes.
-        isLiked={(id) => !!liked[id]}
-        isDisliked={(id) => !!disliked[id]}
-        onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }}
-        onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }}
-        memberSignalsFor={(list) => fetchMemberSignals(supabase, list)}
-        applyMemberSignal={withMemberSignal}
-        // v8.30.1 ‚Äî THE PLACE CARD'S SHARE, which was never wired (owner,
-        // 2026-08-22, screenshot: "the share button on the amazon rail place
-        // cards are not working"). `onShareRail` directly below is the TILE's
-        // share and has worked since v8.23; the CARD's share prop was simply
-        // never passed, so IconicPlaceCard's `if (onShare)` was false and every
-        // Share button in every rail drop was a live-looking no-op. On iOS the
-        // second, harder tap then produced the text-selection callout over the
-        // word "Share" instead of a sheet.
-        //
-        // Same shareLink() as everywhere else: it owns the iOS ordering (the
-        // native sheet must be the first activation-consuming call in the tap
-        // ‚Äî v4.07), prefers the Capacitor sheet inside the app shell, and falls
-        // back to the clipboard. The rail hands over the reader's real city and
-        // the card's sourced hook, so this link unfurls with both instead of
-        // the bare "restaurant ¬∑ 4.6‚òÖ" the share audit measured (S2).
-        onShare={(p, ctx) => {
-          if (!p || !p.id) return;
-          try { logEvent("share", p, { kind: "rail_place_card" }); } catch (er) {}
-          try {
-            shareLink(
-              p.name,
-              placeShareUrl(p, (ctx && ctx.city) || "", (ctx && ctx.hook) || ""),
-              () => showToast("Link copied"),
-              fallShareLine("Check out " + p.name + " on Wayfind", p.id, siteTodayStr()),
-              () => { try { giveawayMark(p.id); addShared(p); } catch (er) {} },
-            );
-          } catch (er) {}
-        }}
-        onShareRail={(intent) => {
-          try { return shareLink(intent.title, intent.url, null, intent.text); }
-          catch (e) { return false; }
-        }}
-      />
-    </div>
-  ) : null;
-
-  // Which cuisine sheet serves this location, if any. Null outside ~75mi of
-  // Orlando / Tampa / Sarasota, and null is the right answer there. Hoisted
-  // with discoveryMenu, which is its only reader.
-  const eatMetro = center ? cuisineMetroFor(center.lat, center.lng) : null;
-
-  // v8.2 ‚Äî DECLARED HERE so the header can render it. The Shortcuts row
-  // moved into the nav (public/lab/menu.html: body.scopen .scpanel), and the
-  // header is built well above the feed. Same component, same handlers, still
-  // exactly one render site ‚Äî see check-home-answer-first, which counts them.
-  const discoveryMenu = (
-    <DiscoveryMenu
-      locName={locName}
-      onBest={() => { try { logEvent("discovery_tile", null, { tile: "Best of " + (locName ? locName.split(",")[0] : "your area"), chip: "Top" }); } catch (e) {} goIntent("/best-of"); }}
-      onGems={() => { try { logEvent("discovery_tile", null, { tile: "Hidden gems", chip: "Hidden" }); } catch (e) {} goIntent("/hidden-gems"); }}
-      onFamily={() => { try { logEvent("discovery_tile", null, { tile: "Family favorites", chip: "Family" }); } catch (e) {} goIntent("/family"); }}
-      eatMetro={eatMetro}
-      onEat={() => { try { logEvent("discovery_tile", null, { tile: "Pick your mood", chip: "Cravings", metro: eatMetro }); } catch (e) {} goIntent("/eat/" + eatMetro); }}
-      onMood={() => { try { logEvent("discovery_tile", null, { tile: "What are you feeling?", chip: "Mood" }); } catch (e) {} setIntroSel([]); introTriggerRef.current = { trigger: "menu", visible_ms: null, attempt: 0 }; setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "discovery_menu" }); } catch (e) {} }}
-      onTonight={() => { try { logEvent("discovery_tile", null, { tile: "Perfect for tonight", chip: "Tonight" }); } catch (e) {} goIntent("/tonight"); }}
-      onDrive={() => { try { logEvent("discovery_tile", null, { tile: "Worth the drive", chip: "Drive" }); } catch (e) {} goIntent("/worth-the-drive"); }}
-      onBudget={() => { try { logEvent("discovery_tile", null, { tile: "Big fun, small budget", chip: "Bargains" }); } catch (e) {} goIntent("/budget"); }}
-      onSurprise={() => { try { logEvent("discovery_tile", null, { tile: "Surprise me", chip: "Surprise" }); } catch (e) {} setMenuSheet("pick"); }}
-    />
-  );
-
-  return (
-    <div style={shell}>
-    <div className="wf-shell" style={{ ...wrap, maxWidth: undefined }}>
-      <style dangerouslySetInnerHTML={{ __html: `@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}${WF_LAYOUT_CSS}${WF_SEARCH_CSS}${WF_PLACE_CARD_CSS}${WF_TASTE_CSS}${WF_RAIL_SECTION_CSS}${WF_RAIL_COLLAPSED_CSS}${WF_ASIDE_CSS}${WF_RAIL_MENU_CSS}` }} />
-      {/* Header */}
-      <div className="wf-topbar" style={{ background: "#040810", borderBottom: `1px solid ${C.border}`, padding: screen === "map" ? "8px 12px" : "12px 14px", paddingTop: screen === "map" ? "max(8px, env(safe-area-inset-top))" : "max(12px, env(safe-area-inset-top))", flexShrink: 0, position: "relative", zIndex: 20 }}>
-        {screen !== "map" && (
-        <div className="wf-topbar-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-            {/* v6.54 (spec 4): code wordmark ‚Äî the orange dot is the TITTLE of the
-                i (the PNG master bakes the pin after the d, which reads as a
-                period). The PNG stays
-                canonical for OG cards where it sits on its own dark band. */}
-            {/* THE LOGO (owner, 2026-07-22): the OFFICIAL asset, not a text lookalike.
-                Allowed here because the header background IS the logo's baked
-                #040810 ‚Äî the one placement the brand rule sanctions in-app. */}
-            <div className="wf-wordmark" role="img" aria-label="wayfind" onClick={openSuggested}>
-              <span className="wf-wordmark-text" aria-hidden="true" />
-              <span className="wf-wordmark-pin" aria-hidden="true" />
-            </div>
-            {/* The location used to sit HERE, and could not fit. Measured on
-                production at 390px: the row is 362px, the wordmark sprite is a
-                fixed 154px, and the weather (71px) and Sign in (86px) are both
-                flex-shrink:0 ‚Äî so `¬∑ Parrish, FL` was allotted 23px of the 72px
-                it needs and rendered as a bare ellipsis. Still clipped at 430px
-                (63/72). It is not a tuning problem: trimming the weather label
-                AND shrinking the brand 20% still only reached 69px, and
-                "Parrish, FL" is a SHORT name ‚Äî "St. Petersburg, FL" needs 118px.
-                A variable-length city cannot share this row, so it gets its own
-                (see below) where any name fits. Locked by check-home-location. */}
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-            {weather && (weather.feels != null || weather.temp != null) && (
-              <button className="wf-weather-button" onClick={() => setWxOpen((v) => !v)} aria-label="Weather forecast" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, background: "transparent", border: "none", color: C.text, cursor: "pointer", padding: "2px 4px" }}>
-                <span style={{ fontSize: 18 }}>{wxIconNow(weather)}</span>
-                <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "flex-start", lineHeight: 1.05 }}>
-                  <span style={{ fontSize: 15, fontWeight: 800 }}>{weather.feels != null ? weather.feels : weather.temp}¬∞</span>
-                  {weather.label ? <span style={{ fontSize: 8.5, fontWeight: 600, color: C.muted }}>{weather.label}</span> : null}
-                </span>
-                <span style={{ fontSize: 9, color: C.muted, transform: wxOpen ? "rotate(180deg)" : "none", transition: "transform .25s ease", marginLeft: 1 }}>‚ñº</span>
-              </button>
-            )}
-            {supabase && (user ? (
-              <button onClick={() => setAccountOpen(true)} aria-label="Account" title={user.email || "Signed in"} style={{ flexShrink: 0, width: 40, height: 40, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.accent, fontSize: 14, fontWeight: 800, cursor: "pointer", textTransform: "uppercase" }}>{(user.email || "?").slice(0, 1)}</button>
-            ) : (
-              <button className="wf-signin-button" onClick={() => setAuthOpen(true)} aria-label="Sign in" title="Sign in" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.light, fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="3.2" /><path d="M5.5 19.5c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5" /></svg>Sign in</button>
-            ))}
-          </div>
-        </div>
-        )}
-        {/* WHERE "near you" IS. Its own full-width line, so a long city name
-            ("St. Petersburg, FL") fits exactly as well as a short one ‚Äî the
-            failure the top row could not be tuned out of. Owner's report that
-            motivated the Near-me button was "I got stuck looking around and had
-            no idea where I was"; that button shipped while the label naming the
-            place stayed invisible on every phone. Not interactive on purpose:
-            search and Near-me are both one row below, and a status line should
-            not become a fourth sub-44px tap target. The approximate-location
-            caveat already has its own banner and is not duplicated here. */}
-        {/* v8.17 (owner: "we no longer need to have it displayed here ‚Äî make
-            sure it is displayed at the search bar drop down"). The location
-            line under the wordmark is GONE: the search row's scope control
-            (v8.14) already names the ranked-around place on every non-map
-            screen and owns switching it. One location display, one control.
-            check-home-location is re-pointed at the scope control. */}
-        {/* v8.2 ROW A ‚Äî THE SIX CATEGORIES, IN THE HEADER (public/lab/menu.html
-            lines 43‚Äì114, the `.tabs` strip). They used to be the BROWSE block in
-            the feed; the lab has no BROWSE block, it has tabs. Same component,
-            same CATEGORY_TILES, same pickBrowse ‚Äî see the `nav` branch in
-            CategoryMenu.
-
-            THE LAB PUTS THE CITY ON THIS ROW AND WE DO NOT, deliberately. The
-            lab is a 1512px mock; check-home-location pins the location to its
-            own full-width line off a 390px production measurement ‚Äî the top row
-            has 362px, of which a fixed sprite and two flex-shrink:0 controls
-            take all but 23px, and "St. Petersburg, FL" needs 118px. So row A is
-            two lines on a phone and reads as one band on a desk. */}
-        {screen !== "map" && (
-          <CategoryMenu nav activeCat={browseCat} sub={sub}
-            navRegion={landingSlugFromLoc(locName) === "orlando" ? "orlando" : (landingSlugFromLoc(locName) ? "fl" : undefined)}
-            navCitySlug={landingSlugFromLoc(locName) || null}
-            navOpenCat={navOpenCat}
-            onNavOpen={(id, label) => {
-              setNavOpenCat(id);
-              // v8.22 (owner: "when I click the submenu from another screen it
-              // does not take me to the place cards"). The tabs render on
-              // every non-map screen, but the browse feed only exists on
-              // "suggested" ‚Äî picking a category from Coupons/Events/Saved
-              // set the state and left the reader staring at the old screen.
-              // Pop back to the feed (and restore "/" in history so Back
-              // still returns to the standalone screen).
-              if (id && screen !== "suggested") {
-                setScreen("suggested");
-                try { if (SCREEN_PATH[screen]) window.history.pushState({ wf: "screen" }, "", "/"); } catch (e) {}
-              }
-              // Same near-me search the map starts on category tap. Opening the
-              // tray used to leave browseCat/cat untouched, so Shopping ‚Üí All
-              // on home showed empty organic while the map listed 15 places.
-              if (id && browseCat !== id) { setMoodPick(id); setBrowseCat(id); setCat(id); setSub("all"); setVibe("all"); }
-              try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "nav_open", opened: !!id }); } catch (e) {}
-            }}
-            onNavSub={(catId, subId, subLabel) => {
-              // v8.22 ‚Äî same screen-pop as onNavOpen above: a sub-filter tap
-              // from Coupons/Events/Saved must land the reader on the place
-              // cards it just filtered, not leave them on the old screen.
-              if (screen !== "suggested") {
-                setScreen("suggested");
-                try { if (SCREEN_PATH[screen]) window.history.pushState({ wf: "screen" }, "", "/"); } catch (e) {}
-              }
-              // THE CHOICE THAT ACTS. Same two setters the feed has always
-              // used, so a place filtered here is the same list the browse
-              // view produced before the tabs moved into the nav.
-              if (browseCat !== catId) pickBrowse(catId);
-              setSub(subId);
-              // v8.10 (owner, 2026-08-18: "the submenu also goes away ‚Äî i want
-              // the submenu to remain open"). The tray STAYS: the pick
-              // highlights in place (aria-pressed) and the reader can hop
-              // between sub-filters without reopening the row. Escape-hatch
-              // unchanged ‚Äî tapping the category tab again closes it.
-              try { logEvent("intent_chip", null, { intent: subLabel, layer: 2, src: "nav_sub", cat: catId }); } catch (e) {}
-              // v8.11 (owner, 2026-08-18: "make the page jump to the area of
-              // the menu when the menu and submenu are selected"). Scroll to
-              // where the FILTERED RESULTS start, not to the top of the page ‚Äî
-              // top:0 parked the reader on the header band with the answer
-              // below the fold. rAF because pickBrowse just flipped the
-              // branch and the anchor mounts on the next frame. Vertical
-              // scrollTo only ‚Äî check-no-sideways-scroll bans inline-axis
-              // movement, and this must never cause any.
-              try {
-                requestAnimationFrame(() => {
-                  const sc = scrollRef.current, el = browseAnchorRef.current;
-                  if (sc && el) {
-                    const top = el.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop - 10;
-                    sc.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
-                  } else if (sc) {
-                    sc.scrollTo({ top: 0, behavior: "smooth" });
-                  }
-                });
-              } catch (e) {}
-            }} />
-        )}
-        {wxOpen && weather && Array.isArray(weather.hourly) && weather.hourly.length > 0 && (
-          <div style={{ marginTop: -6, marginBottom: 12, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.panel} 62%)`, border: "none", borderRadius: "0 0 18px 18px", padding: "12px 8px 14px", boxShadow: "0 12px 26px rgba(0,0,0,.4)" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 8px 10px" }}>
-              <span style={{ fontSize: 12, fontWeight: 800, color: C.accent, letterSpacing: "0.5px", textTransform: "uppercase" }}>Next 18 hours</span>
-              <span style={{ fontSize: 11, color: C.muted }}>Feels-like ¬∑ every 3h</span>
-            </div>
-            <div style={{ display: "flex", gap: 4, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", padding: "0 6px" }}>
-              {weather.hourly.map((h, idx) => {
-                // v5.01: the "Now" tile must reflect the sky RIGHT NOW ‚Äî the
-                // hourly block's is_day flag describes when the block STARTED
-                // (a sun was showing at 9:45pm because the block began at 8pm).
-                const hi = idx === 0 ? { icon: wxIconNow({ ...weather, icon: weatherFromCode(h.code).icon, img: weatherFromCode(h.code).img }), label: weatherFromCode(h.code).label } : hourIcon(h.code, h.day, h.ms);
-                const dt = new Date(h.ms);
-                const tl = idx === 0 ? "Now" : dt.toLocaleTimeString([], { hour: "numeric" }).replace(" ", "");
-                return (
-                  <div key={h.ms} style={{ scrollSnapAlign: "center", flexShrink: 0, width: 64, textAlign: "center", padding: "8px 4px", borderRadius: 12, background: idx === 0 ? C.adim : "transparent", border: `1px solid ${idx === 0 ? C.accent : "transparent"}` }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: idx === 0 ? C.accent : C.muted, marginBottom: 5 }}>{tl}</div>
-                    <div style={{ fontSize: 23, lineHeight: 1, marginBottom: 5 }}>{hi.icon}</div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{h.feels}¬∞</div>
-                    <div style={{ fontSize: 8.5, fontWeight: 600, color: C.muted, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{weatherFromCode(h.code).label}</div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-        {/* map search moved onto the map as a floating control (see map overlay) */}
-        {/* v8.17 ‚Äî scopeOpen joins is-suggesting below: the location menu
-            rendered UNDER the tab row's text (the "Use current location /
-            Shortcuts" overlap the owner screenshotted) because only the
-            suggestions dropdown raised the search row's stacking context.
-            Same mechanism, both dropdowns. */}
-        {(screen !== "map" || mapSearchOpen) && (
-        <div className={"wf-search-row has-scope" + (suggestions.length || scopeOpen ? " is-suggesting" : "")} style={{ display: "flex", gap: 0, position: "relative", zIndex: suggestions.length || scopeOpen ? 40 : undefined }}>
-          {/* v8.14 ‚Äî THE LOCATION CONTROL (owner, 2026-08-18: "instead of
-              those categories there, which is weird, I want that place to show
-              the previous location and to house the current-location feature
-              ‚Ä¶ I need the current location to be precise ‚Äî leverage the map
-              function so it shows exactly what is around the user").
-              The category dropdown that stood here duplicated the six tabs
-              directly above it (it wrote the same browseCat state) ‚Äî the tabs
-              remain the ONE category control. This slot now owns WHERE:
-              ¬∑ the button names the place the feed is currently ranked around
-              ¬∑ "Use current location" runs the SAME precise recenter the map's
-                crosshair runs (recenterToMe ‚Äî high-accuracy GPS, never an
-                IP-approximate shortcut; see its v8.14 note)
-              ¬∑ below it, the reader's previous locations (wf_recent_locs),
-                one tap to re-rank the whole feed around any of them ‚Äî
-                best-to-worst ordering is the global score rule, unchanged.
-              Styling reuses .wf-scope / .wf-scope-menu wholesale: same slot,
-              same premium chrome, different ‚Äî and now honest ‚Äî job.
-              v8.19 ‚Äî rendered on EVERY screen, map included: the crosshair
-              is gone (owner), so this control is the one recenter. */}
-          {(
-            <div className="wf-scope-wrap">
-              <button type="button" className="wf-scope" aria-haspopup="listbox" aria-expanded={scopeOpen} onClick={() => setScopeOpen((v) => !v)} title="Location ‚Äî ranked around this point" aria-label={"Location: " + (cityNow || "not set") + ". Open to use your precise current location or a previous one."}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 21s-6.6-5.4-6.6-10.2A6.6 6.6 0 0 1 12 4.2a6.6 6.6 0 0 1 6.6 6.6C18.6 15.6 12 21 12 21Z" /><circle cx="12" cy="10.8" r="2.3" /></svg>
-                <span className="wf-scope-city">{cityNow || "Location"}</span>
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
-              </button>
-              {scopeOpen && (
-                <ul className="wf-scope-menu" role="listbox" aria-label="Choose the location to rank around">
-                  {/* v8.19 (owner: "I don't like the color of the Use current
-                      location, and I also don't like the little symbol ‚Ä¶
-                      make it one line, simplify, make it nice and premium").
-                      One line, two words, a real navigation glyph instead of
-                      the ‚óé dingbat, white ‚Äî and the menu surface itself got
-                      the premium treatment (blur, entrance animation, a
-                      RECENT group label) in .wf-scope-menu. */}
-                  <li className="wf-scope-cur" role="option" aria-selected={false}
-                      onMouseDown={(e) => { e.preventDefault(); setScopeOpen(false); recenterToMe(); }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M22 2 11 13" /><path d="M22 2 15 22l-4-9-9-4Z" /></svg>
-                    Current location
-                  </li>
-                  {recentLocs.some((r) => r && r.loc && isFinite(r.lat) && isFinite(r.lng) && (!locName || r.loc.split(",")[0] !== locName.split(",")[0])) && (
-                    <li className="wf-scope-label" role="presentation" aria-hidden="true">Recent</li>
-                  )}
-                  {recentLocs.filter((r) => r && r.loc && isFinite(r.lat) && isFinite(r.lng) && (!locName || r.loc.split(",")[0] !== locName.split(",")[0])).slice(0, 5).map((r) => (
-                    <li key={r.loc + r.ts} role="option" aria-selected={false}
-                        onMouseDown={(e) => {
-                          e.preventDefault(); setScopeOpen(false);
-                          // A previous location is a MANUAL pick: it must
-                          // survive the next auto-geo pass exactly like a
-                          // searched pin does.
-                          manualRef.current = true;
-                          setCenter({ lat: r.lat, lng: r.lng });
-                          setLocName(r.loc);
-                          setLocResolved(true);
-                          setMapFocus({ lat: r.lat, lng: r.lng, ts: Date.now() });
-                        }}>
-                      {r.loc.split(",")[0]}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
-          <div className="wf-search-field">
-            <span className="wf-search-icon" style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", opacity: 0.9, display: "inline-flex", zIndex: 1 }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.2 4.2" /></svg></span>
-            {/* v5.63 (audit P4): a real combobox ‚Äî the input owns the listbox
-                (aria-controls), announces its expanded state and the active
-                option (aria-activedescendant), and supports full keyboard
-                navigation (Down/Up move the highlight, Enter selects it,
-                Escape closes without selecting). */}
-            <input
-              value={query}
-              onChange={(e) => { onQueryChange(e.target.value); setSugIdx(-1); }}
-              onKeyDown={(e) => {
-                if (e.key === "ArrowDown" && suggestions.length) { e.preventDefault(); setSugIdx((i) => (i + 1) % suggestions.length); }
-                else if (e.key === "ArrowUp" && suggestions.length) { e.preventDefault(); setSugIdx((i) => (i <= 0 ? suggestions.length - 1 : i - 1)); }
-                else if (e.key === "Escape") { if (suggestions.length) { e.preventDefault(); setSuggestions([]); setSugIdx(-1); } }
-                else if (e.key === "Enter") {
-                  // v6.60 (owner, 2026-07-25): Enter used to auto-pick
-                  // suggestions[0] whenever the dropdown was open, even though
-                  // the user had highlighted NOTHING (sugIdx === -1). Typing a
-                  // city and hitting Enter therefore fired whatever Google
-                  // happened to rank first -- an airport, a beach, a random
-                  // business -- so the same keystroke did something different
-                  // every time and often left the feed on the old city. Enter
-                  // now only takes a suggestion the user actually arrowed onto;
-                  // otherwise it runs a real search. Locked by
-                  // scripts/test-city-search.mjs.
-                  e.preventDefault();
-                  if (sugIdx >= 0 && suggestions[sugIdx]) pickSuggestion(suggestions[sugIdx]);
-                  else submitSearch();
-                }
-              }}
-              onBlur={() => { setTimeout(() => { setSuggestions([]); setSugIdx(-1); }, 150); if (screen === "map") setTimeout(() => setMapSearchOpen(false), 220); }}
-              role="combobox" aria-expanded={suggestions.length > 0} aria-controls="wf-suggestions" aria-autocomplete="list"
-              aria-activedescendant={sugIdx >= 0 ? `wf-sug-${sugIdx}` : undefined}
-              aria-label="Search a place or city" placeholder="Search a place or city"
-              className="wf-search-input" style={{ width: "100%", boxSizing: "border-box", height: 48, padding: "0 14px 0 38px", background: C.card, border: `1.5px solid ${C.border}`, borderRight: "none", borderRadius: "14px 0 0 14px", color: C.text, fontSize: 16, outline: "none" }}
-            />
-            {suggestions.length > 0 && (
-              <ul id="wf-suggestions" role="listbox" aria-label="Search suggestions" style={{ listStyle: "none", margin: 0, padding: 0, position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", boxShadow: "0 10px 30px rgba(0,0,0,.5)", zIndex: 80 }}>
-                {suggestions.map((s, i) => (
-                  <li
-                    key={i}
-                    id={`wf-sug-${i}`}
-                    role="option"
-                    aria-selected={i === sugIdx}
-                    onMouseEnter={() => setSugIdx(i)}
-                    onMouseDown={(e) => { e.preventDefault(); pickSuggestion(s); }}
-                    style={{ padding: "11px 14px", fontSize: 14, color: C.text, background: i === sugIdx ? C.adim : "transparent", borderBottom: i < suggestions.length - 1 ? `1px solid ${C.border}` : "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}
-                  >
-                    <span style={{ color: s.kind === "place" ? C.accent : C.muted, fontSize: 16 }}>{s.kind === "place" ? iconForPlace({ name: s.text, types: s.types || [] }) : "üìç"}</span>
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.text}</div>
-                      {s.kind === "place" && <div style={{ fontSize: 11, color: C.muted, marginTop: 1 }}>Go to this place</div>}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-            {/* Live region: announce the highlighted suggestion to screen readers. */}
-            <div aria-live="polite" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>{sugIdx >= 0 && suggestions[sugIdx] ? `${suggestions[sugIdx].text}, ${sugIdx + 1} of ${suggestions.length}` : ""}</div>
-          </div>
-          <button className="wf-search-submit" onClick={submitSearch} aria-label="Search" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 54, height: 48, background: C.accent, border: "none", borderRadius: "0 14px 14px 0", color: "#0D1117", fontSize: 22, fontWeight: 800, cursor: "pointer" }}>‚Üí</button>
-          {/* v5.7x: "Take a chance" moved off the home-menu list and onto an
-              icon button beside search ‚Äî same visual weight as the sparkle
-              "Find my vibe" button in the header. */}
-          {/* Owner (2026-07-21, final call): the sparkle (Find my vibe) lives
-              beside search; the dice experiment is retired. */}
-          {/* v6.97 (owner: "a near me button to reset my location... I got
-              stuck looking around and had no idea where I was") ‚Äî one-tap
-              recenter back to the device's real GPS location, same row as
-              search since that is where the owner asked for it (it also
-              shows on the map's own floating search row when opened, via
-              the shared `screen !== "map" || mapSearchOpen` gate above). */}
-          {/* v8.19 (owner, on a screenshot of the crosshair beside the search
-              arrow: "get rid of this icon ‚Ä¶ we already put the location
-              inside of the search field"). The crosshair is GONE on every
-              screen. v8.17 had kept it on the map because the scope control
-              was hidden there; the scope control now renders on the map's
-              floating search row too, so "Current location" is the one
-              recenter everywhere and nothing is orphaned. */}
-          {/* The once-ever flag gates the AUTO-show only. This button opens the
-              sheet on demand, forever, and must never consult introSeen(). */}
-        </div>
-        )}
-        {/* v8.2 ROW C ‚Äî THE DESTINATIONS, AT THE TOP (public/lab/menu.html
-            `.dests`). The same six targets the bottom bar has always carried,
-            mapped from the one WF_DESTINATIONS list so the two bars cannot
-            disagree, plus the Shortcuts opener that reveals the shortcut row as
-            a panel.
-
-            THE BOTTOM BAR STAYS (owner's call, 2026-08-15). Most Wayfind traffic
-            is mobile and thumb-reach navigation is what those readers already
-            use; a top row that scrolls out of the viewport is not a replacement
-            for it. So this row is additive on a phone and is the primary nav on
-            a desk, where there is no thumb and the bottom bar is a floating pill
-            in the corner of the eye. */}
-        {screen !== "map" && (
-          <nav className="wf-dests" {...(suggestions.length ? { className: "wf-dests is-covered" } : null)} aria-label="Destinations" style={suggestions.length ? { pointerEvents: "none" } : undefined}>
-            <button type="button" className={"wf-dest wf-dest-opener" + (navShortcuts ? " is-on" : "")}
-                    aria-expanded={navShortcuts} aria-controls="wf-scpanel"
-                    onClick={() => setNavShortcuts((v) => !v)}>
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
-              <span>Shortcuts</span>
-            </button>
-            {WF_DESTINATIONS.map((d) => {
-              const active = (d.id === "home" && (screen === "suggested" || screen === "explore" || screen === "experience" || screen === "surprise")) || d.id === screen;
-              return (
-                <a key={d.id} className={"wf-dest" + (active ? " is-on" : "")} href={d.href} aria-current={active ? "page" : undefined}
-                   onClick={(e) => { e.preventDefault(); goDestination(d.id, active); }}>
-                  <NavIcon name={d.icon} color="currentColor" size={17} strokeWidth={1.8} />
-                  <span>{d.label}</span>
-                </a>
-              );
-            })}
-          </nav>
-        )}
-        {/* The shortcut row, as a panel (public/lab/menu.html: body.scopen
-            .scpanel). This is the SAME <DiscoveryMenu> that used to sit in the
-            feed under a "Shortcuts" heading ‚Äî it did not get rebuilt up here,
-            it got a door instead of a permanent seat. */}
-        {screen !== "map" && navShortcuts && (
-          <div className="wf-scpanel" id="wf-scpanel">{discoveryMenu}</div>
-        )}
-        {/* v6.56 (owner): personalization no longer appears in the home feed.
-            The consent prompt, the "taste active" expander and the "turn it
-            back on" nudge all lived here and all interrupted the same scroll ‚Äî
-            the one moment a visitor is deciding where to go. The whole surface
-            now sits at the BOTTOM of Favorites, behind sign-in, where someone
-            has already opted into having a profile at all. See Saved.js. */}
-        {screen === "suggested" && FEATURED_AREAS.length > 0 && (
-        <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 9, overflowX: "auto", overscrollBehaviorX: "contain", WebkitOverflowScrolling: "touch" }}>
-          <span style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, flexShrink: 0 }}>Explore other areas:</span>
-          {FEATURED_AREAS.map((a) => (
-            <button key={a.name} onClick={() => jumpToArea(a)} style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 11px", borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.light, fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
-              <span>üìç</span>{a.short}
-            </button>
-          ))}
-        </div>
-        )}
-      </div>
-
-      {/* v5.08 GLOBAL RULE (user direction): the old chip-bubble category
-          strip is gone FOREVER, everywhere. Every category surface uses the
-          one modern menu ‚Äî CategoryMenu (icon-on-top tiles, iOS style), with
-          the sub-row sliding down only after a primary category is chosen.
-          Surprise Me rides as a trailing tile. Coupons is its own tab and
-          carries no category menu at all. */}
-      {screen === "explore" && (
-        <div style={{ padding: "2px 12px 0", background: C.panel, flexShrink: 0 }}>
-          <CategoryMenu activeCat={cat} sub={sub} onCat={(id) => { pickCat(id); }} onSub={(v) => pickSub(v)} trailing={
-            <button onClick={openSurprise} aria-label="Surprise Me" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 0, background: "transparent", border: "none", cursor: "pointer", flex: 1, minWidth: 0 }}>
-              <span style={{ fontSize: 24, lineHeight: "26px" }}>üéÅ</span>
-              <span style={{ fontSize: 11, fontWeight: 600, color: C.purple, textAlign: "center", lineHeight: 1.15 }}>Surprise</span>
-            </button>
-          } />
-        </div>
-      )}
-
-      {/* Body */}
-      {/* v6.61 (owner, live desktop screenshot review): the footer disclosure
-          ("Wayfind may earn a commission...") was sitting partly BEHIND the
-          floating bottom nav on desktop. The 96px bottom padding here was
-          sized for the mobile nav (flush to the screen edge, ~66px tall); the
-          desktop nav is a floating pill offset 18px off the bottom AND taller
-          (72px min-height items + 9px top/bottom padding on the bar itself,
-          ~90px), so 96px of clearance ran out ~12-20px short. wf-scrollarea
-          gets a desktop-only padding-bottom bump in css.js rather than
-          raising the flat mobile value, which would add dead space on phones
-          that don't need it. */}
-      <div ref={scrollRef} className="wf-scrollarea" style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overscrollBehavior: "contain", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "7px 12px calc(28px + env(safe-area-inset-bottom))" }}>
-        <>
-            {screen === "explore" && <div className="wf-explore">{exploreList}</div>}
-            <MapErrorBoundary>{screen === "map" && <MapScreen ctx={ctx} />}</MapErrorBoundary>
-          </>
-
-        {/* v6.56 (owner, screenshot + "remove the item on image 2 ... put the
-            personalization under the favorites ... not in their face at the
-            main page that is too much and it messes with the flow").
-            Everything that used to live here ‚Äî the consent ask, the "Picked
-            for you" status strip, and the "personalization is off" strip ‚Äî
-            moved to the bottom of Favorites (app/components/screens/Saved.js).
-            The home feed is now the feed. Personalization is a SETTING about
-            the feed, and a setting interrupting the thing it configures, on
-            every single load, is exactly the clutter this removes.
-            The honesty rule is unchanged, only relocated: whenever the feed is
-            re-ranked by taste the app still says so in plain language and puts
-            the off switch one tap away ‚Äî see the Personalization row in
-            SavedScreen, locked by scripts/test-taste.mjs. */}
-        {/* Coverage door: alert (signed OUT) ‚Üí sign-in / notify; unlock (signed
-            IN) ‚Üí unlock-this-city. It re-fetches on sign-in (user is in the gate
-            effect deps) so the alert card swaps to the unlock card immediately ‚Äî
-            no lingering. */}
-        {/* v8.11 (owner, 2026-08-18, on a screenshot of the collapsed card:
-            "get rid of this"). The CityGate door ‚Äî "COMING TO YOUR AREA" /
-            unlock / waitlist ‚Äî no longer renders on the homepage, and the
-            'alert' wall below it is gone with it: EVERYONE gets the feed, in
-            or out of coverage, signed in or not, because the live-search feed
-            works anywhere. The component, the wf_gate_status effect and the
-            unlock RPC are intact (app/components/CityGate.js) for a future
-            deliberate placement; it simply has no render site on "/" ‚Äî the
-            same treatment HomeAside and BestNearby received. */}
-        {screen === "suggested" && (() => {
-          const list = suggested || [];
-          const affinities = computeAffinities(signals);
-          // Phase 2: fold the DURABLE per-user taste vector into the category
-          // weights so preference persists across sessions, not just this one.
-          // (category namespace matches catW; the visible Score is untouched.)
-          const _vec = tasteVecRef.current || {};
-          if (_vec.category) for (const [k, v] of Object.entries(_vec.category)) affinities.catW[k] = (affinities.catW[k] || 0) + v * 0.4;
-          // 2026-08-07: the durable TAG dims ride along too ‚Äî they are the
-          // discriminating signal within a category and were previously
-          // learned-but-never-applied (the dead-toggle root cause).
-          affinities.tagW = { ..._vec.tag };
-          const activeSignals = signals.filter((s) => s.action === "like" || s.action === "dislike");
-          // Personalize only after explicit opt-in or an explicit reaction.
-          // Without that, the feed is pure moment/Score order. The gate lives
-          // in lib/taste.js (hasLearnedTaste) so the test suite can CALL it ‚Äî
-          // and it counts every dimension applyAffinity consumes, not just
-          // category (the mismatch that made the toggle read as dead).
-          const hasTaste = hasLearnedTaste(_vec, activeSignals.length);
-          // The setting and reset controls are available in Favorites before
-          // sign-in. Signing in syncs the same private vector; it is not a
-          // prerequisite for on-device recommendations.
-          const personalized = personalize === "on" && hasTaste;
-          const displayList = dedupePlaces(personalized ? applyAffinity(list, affinities) : list, true);
-          const likeCount = Object.keys(liked).length;
-          const h = siteHourFloat();
-          const part = BUCKET_PHRASE[bucketForHour(h)];
-          const _ml = mealForHour(h);
-          const moment = _ml.charAt(0).toUpperCase() + _ml.slice(1);
-          const intentDef = intent ? INTENTS.find((x) => x.id === intent) : null;
-          const reasons = [];
-          reasons.push("the time of day");
-          if (weather) reasons.push("today's weather");
-          if (Object.values(lists).some((l) => (l.places || []).length)) reasons.push("places you have saved");
-          // THE LAW ‚Üî PERSONALIZATION SEAM, disclosed (2026-08-07). The
-          // governing law is "shown == sorted"; personalization is the ONE
-          // owner-approved exemption ("it never changes a place's Score ‚Äî
-          // only the order you see them in", the Favorites toggle's own copy).
-          // An exemption the reader can't see is indistinguishable from the
-          // hidden-term defect the law retired, so when the taste re-rank is
-          // ACTIVE the feed says so in its reasons line ‚Äî and because this
-          // string is gated on the same `personalized` flag that gates
-          // applyAffinity, the toggle now has visible feedback: flip it and
-          // this reason appears/disappears with the reorder itself.
-          if (personalized) reasons.push("your taste (on ‚Äî Favorites ‚ñ∏ Personalization)");
-          // ‚îÄ‚îÄ HERO PICK ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
-          // One standout to greet you. The feed is already tuned to time of day
-          // and today's weather upstream, so the hero draws from that tuned list
-          // and respects the active intent chip. Which angle greets you
-          // alternates by time bucket ‚Äî the top-ranked pick in some buckets, a
-          // strong but less-obvious gem in others ‚Äî so morning and afternoon
-          // never open on the same card. It is deterministic within a bucket, so
-          // it does not reshuffle on you; tapping "another angle" cycles between
-          // the two without refetching anything.
-          const heroBucket = h < 11 ? 0 : h < 15 ? 1 : h < 17 ? 2 : h < 22 ? 3 : 4;
-          // Trust fix (v4.2): the hero must be somewhere you can actually go right now.
-          // Prefer places confirmed open; if none are confirmed open, fall back to
-          // unknown-status places; only if neither exists do we surface a closed place,
-          // and the badge below drops the "start here" promise in that case.
-          const heroOpenNow = displayList.filter((p) => p && p.openNow === true);
-          const heroUnknown = displayList.filter((p) => p && p.openNow == null);
-          const heroBase = heroOpenNow.length ? heroOpenNow : (heroUnknown.length ? heroUnknown : displayList.filter(Boolean));
-          const heroTop = heroBase.length ? heroBase[0] : null;
-          // A true hidden gem is high quality but LOW review volume. A place with
-          // thousands of reviews is not a gem, so bound by review count before labeling.
-          const heroGemTrue = heroBase.length >= 3
-            ? heroBase.slice(2, 8).filter((p) => p && (p.rating || 0) >= 4.5 && (p.reviews || 0) > 0 && (p.reviews || 0) < 800).reduce((b, p) => (!b || (p.rating || 0) > (b.rating || 0) ? p : b), null)
-            : null;
-          // Fallback alternative for the rotation when there is no true gem: next strongest pick (not labeled a gem).
-          const heroGem = heroGemTrue || (heroBase.length >= 3 ? heroBase[2] : null);
-          let heroOrder = (heroBucket % 2 === 0) ? [heroTop, heroGem] : [heroGem, heroTop];
-          heroOrder = heroOrder.filter((p, i, a) => p && a.findIndex((x) => x && x.id === p.id) === i);
-          const heroPick = heroOrder.length ? heroOrder[heroNonce % heroOrder.length] : null;
-          const heroSl = heroPick ? scoreLabel(heroPick.wfScore) : null;
-          const heroHook = heroPick ? hookCards.find((hk) => hk && hk.placeId === heroPick.id) : null;
-          const sectionHooks = hookCards.filter((hk) => hk && hk.id !== "top5" && (!heroHook || hk.id !== heroHook.id)).slice(0, 5);
-          const sectionHookIds = new Set(sectionHooks.map((hk) => hk.id));
-          // v8.87 ‚Äî `picksHook` DELETED, computed and never rendered. It was a
-          // fallback twin of the `top5` hook card built ~7,000 lines up (the
-          // Wayfind Picks entry into the top-10 sheet, id "top5", theme "best"),
-          // written so the entry "works whether or not AI hooks are present" ‚Äî
-          // and then never referenced, so it worked in neither case. The live
-          // door is real and reachable: hookCards emits top5 whenever the feed
-          // has five scored places, and `sectionHooks` one line above filters it
-          // out precisely because the HERO already carries it. No surface is
-          // lost by removing this; the same sweep that found the dead events
-          // rail found this, and scripts/check-events-rail-renders.mjs keeps
-          // both classes from coming back.
-          const heroReason = heroPick ? ((heroHook && heroHook.hook) ? heroHook.hook : blurbLine(blurbs[heroPick.id])) : "";
-          const heroIsGem = !!(heroPick && heroGemTrue && heroPick.id === heroGemTrue.id && (!heroTop || heroGemTrue.id !== heroTop.id));
-          // Honest hero badge: only say "start here" when the place is genuinely open now.
-          // If it opens later today, set that expectation instead of implying it is ready.
-          // If status is unknown or it is closed, fall back to a neutral "top pick" label.
-          const heroOpenConfirmed = !!(heroPick && heroPick.openNow === true);
-          const heroOpensLater = !!(heroPick && heroPick.openNow === false && heroPick.nextOpen && heroPick.nextOpen.today);
-          let heroBadgeIcon = heroIsGem ? "üíé" : "üìç";
-          let heroBadgeText = heroIsGem ? "Hidden gem nearby" : "Top pick nearby";
-          if (heroOpenConfirmed) { heroBadgeIcon = heroIsGem ? "üíé" : "‚ú®"; heroBadgeText = heroIsGem ? "Hidden gem ¬∑ open now" : "Open now"; }
-          else if (heroOpensLater) { heroBadgeIcon = "‚è≥"; heroBadgeText = "Worth the wait ¬∑ " + heroPick.nextOpen.label; }
-          // v4.6: tighter, more confident reason line. Drops the rating parenthetical and the
-          // distance (both already shown above) and sharpens the weather and time fragments.
-          const whyPick = h < 11 ? "morning" : h < 15 ? "lunch" : h < 17 ? "afternoon" : h < 22 ? "evening" : "late-night";
-          const heroWhy = [];
-          if (heroPick) {
-            if (heroOpenConfirmed) heroWhy.push("open now");
-            if (heroPick.rating != null && heroPick.rating >= 4.5) heroWhy.push("loved locally");
-            else if (heroSl && heroSl.word) heroWhy.push(heroSl.word.toLowerCase() + " rated");
-            if (weather && weather.temp != null && weather.temp >= 58 && weather.temp <= 92 && !(weather.label && /rain|storm|snow|sleet/i.test(weather.label))) heroWhy.push("great weather match");
-            heroWhy.push("strong " + whyPick + " pick");
-            // 2026-08-08: disclosure for the trending component ‚Äî if the hero's
-            // number carries the bump, the why-line says so, first.
-            if (heroPick.trending && heroPick.trend_reason) heroWhy.unshift("üî• " + heroPick.trend_reason);
-          }
-          const feedList0 = heroPick ? displayList.filter((p) => p && p.id !== heroPick.id) : displayList;
-          // v4.24 near-first rule: with 5+ options inside 12 miles, nothing past
-          // 20 miles may outrank them. Sparse areas (fewer than 5 close) exempt.
-          const _nearCount = feedList0.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
-          const feedList0P = _nearCount >= 5 ? feedList0.slice().sort((a, b) => (((a.distMi != null && a.distMi > 20) ? 1 : 0) - ((b.distMi != null && b.distMi > 20) ? 1 : 0))) : feedList0;
-          const feedListS = sortBy === "rated" ? feedList0P.slice().sort(Ranking.byTopRated) : sortBy === "price" ? feedList0P.slice().sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0))) : feedList0P;
-          const feedListN = sortBy === "near" ? feedListS.filter((p) => p && (sliderMi >= 60 || p.distMi == null || p.distMi <= sliderMi)) : feedListS;
-          const feedList = dealsOnly ? feedListN.filter((p) => offers[p.id]) : feedListN;
-          // Trust fix (v4.3): closed places no longer hold the top slots. Sort by the
-          // chosen order first (score for Best, distance for Closest), then stably push
-          // open-now to the top, unknown-status next, opens-later below that, and closed
-          // last. Closed spots still appear, just never in the most valuable positions.
-          const homeOpenRank = (p) => !p ? 4 : p.openNow === true ? 0 : p.openNow == null ? 1 : (p.nextOpen && p.nextOpen.today) ? 2 : 3;
-          const homeBaseSorted = sortBy === "near" ? [...feedList].sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12)) : [...feedList];
-          const homeFeed = homeBaseSorted.sort((a, b) => homeOpenRank(a) - homeOpenRank(b));
-          return (
-            <>
-            {/* v8.2 ‚Äî THE BAND RUNS EDGE TO EDGE (owner, 2026-08-15; lab:
-                .railsec / .hero / .menusec are all full-bleed while .wrap caps
-                the CONTENT inside them at 1720px).
-
-                It moved OUT of .wf-col-main, which caps at the feed measure ‚Äî
-                that cap is what clipped the rail mid-card and made a 15-card
-                deck read as a broken row. The rail already had .wf8-in doing
-                exactly the lab's job, so nothing inside it changed: it just
-                stopped being nested in a column narrower than itself.
-
-                Still the FIRST thing in the feed, so the rail leads the page
-                exactly as it did in v8 ‚Äî see check-home-answer-first. */}
-            {railMenuBand}
-            <div className="wf-cols">
-              <div className="wf-col-main">
-              {/* v8.43 ‚Äî THE PAID SPONSOR CARD, first in the column.
-                  Wayfind's first direct advertiser bought this slot, and a
-                  bought slot that nobody scrolls to is worth nothing to them or
-                  to us ‚Äî so it leads the column rather than being buried where
-                  house inventory usually goes.
-
-                  IT IS SAFE THERE FOR ONE REASON: `sponsoredPick` is non-null
-                  ONLY inside the advertiser's own bought radius
-                  (lib/sponsoredPlaces.js, 15mi for Rio Body Wax Gastonia,
-                  pinned by scripts/check-sponsored-places.mjs). Every other
-                  reader on the planet renders nothing here and the rail band
-                  above is still the first thing they see, so
-                  check-home-answer-first's invariant is untouched.
-
-                  The disclosure is inside the card, twice, and the Wayfind
-                  Score it shows is recomputed by the same formula as every
-                  unpaid card. Money buys the position, never the number. */}
-              {!browseCat && sponsoredPick ? (
-                <SponsoredPlaceCard pick={sponsoredPick} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />
-              ) : null}
-              {/* v6.62 (2026-08-08, owner: "add this to the top of the page"),
-                  REVERSES v6.97's "MOVED BELOW THE ANSWER" call below. The six
-                  categories are back to being the first thing on the page,
-                  same as before 2026-08-06. Flagged the tradeoff to the owner
-                  before moving it ‚Äî the ranked list (BestNearby) below is
-                  UNCHANGED and still leads over the events rail, hero card and
-                  discovery grid (that ordering has real PostHog bounce-rate
-                  data behind it and the owner chose to keep it); only the
-                  categories' position relative to BestNearby/CreatorFinds
-                  changed, on a direct, explicit instruction. See the v6.97
-                  comment a few lines down for the superseded reasoning.
-                  Position asserted by scripts/check-home-answer-first.mjs
-                  (iCats < iBestNearby < iFinds). */}
-              {/* v8 (2026-08-15) ‚Äî THE RAIL MENU LEADS. It replaces the promo
-                  hero deck that used to sit inside the events section and
-                  consolidates its eight cards into fifteen.
-
-                  It is NAVIGATION, in the same class as the six category tiles
-                  below it and the discovery rail under those ‚Äî not a competing
-                  answer, which is what the v6.58 measurement behind
-                  "<BestNearby> leads every CONTENT surface" was about. The
-                  difference from the deck it replaces: picking a card drops
-                  eight real ranked place cards right here, so a visitor gets an
-                  answer in one tap instead of a page load ‚Äî and every tile is a
-                  real <a href>, so a crawler finally sees the fifteen pages
-                  this homepage has always been about. The old cards navigated
-                  with window.location.assign() inside onClick, which is why
-                  view-source contained no link to /best-beaches, /hidden-gems,
-                  /date-night, /family or /trending-now at all.
-
-                  railMenu is server-ranked at regeneration (app/page.js ->
-                  lib/railsData.js railMenuData). Renders nothing when the
-                  server had no data, so this can never be a blank band. */}
-
-              {/* v6.65 (owner, 2026-08-08: "the menu did not go to the top like
-                  i asked you to"). THE DISCOVERY RAIL NOW LEADS TOO.
-
-                  This is the menu the owner meant. v6.62 moved the six-category
-                  icon row to the top, which was the answer to an earlier
-                  clarifying question; the eight-tile discovery rail (Best of
-                  your area, Hidden gems, Pick your mood, Perfect for tonight,
-                  Worth the drive, Big fun small budget, Surprise me) stayed at
-                  the BOTTOM of the feed ‚Äî it was rendering at character offset
-                  ~1736 of the page text while the category row sat at ~104. Asked
-                  twice for "the menu at the top", the honest reading is both.
-
-                  ONE RENDER SITE NOW, not three. It used to render inside three
-                  mutually exclusive branches (events-loading, events-empty, and
-                  the events-present block), which is why it could only ever
-                  appear below the events rail. Hoisting it here and deleting the
-                  three conditional copies means it renders exactly once, in the
-                  same place, whatever the events state ‚Äî no duplicate, and no
-                  "it moved because there were no events today".
-
-                  THE RANKED LIST IS UNCHANGED and still leads over events, the
-                  hero rail and everything else (v6.58's measured decision). What
-                  moved above it is navigation ‚Äî two rows of controls a reader
-                  can skip past in one flick ‚Äî not another surface competing for
-                  the answer. Position asserted by check-home-answer-first.mjs. */}
-
-              {/* Home feed reorder (owner 2026-07-17): events above the fold, then Explore near you, then everything else. Pure layout move ‚Äî no ranking/data change. */}
-              {/* LOADING: events not back yet. Reserves the rail's exact
-                  geometry so the swap below is shift-free. Deliberately NOT
-                  gated on `suggested` ‚Äî the first screen must never be blank
-                  while a Places search runs. */}
-              {/* v6.58 (2026-08-06, owner): THE RANKED LIST LEADS THE FEED.
-              
-                  #624 opened this card by default; it was still rendered LAST, under the
-                  events rail, the hero carousel and the discovery grid, so a visitor who
-                  never scrolled still never saw it. Opening a thing nobody reaches only
-                  makes the thing nobody reaches look better.
-              
-                  MEASURED (PostHog, 14 days to 2026-08-05): 259 single-page sessions
-                  landed on "/", MEDIAN duration 10 seconds, 130 of them over inside those
-                  10 seconds. "/" bounced 84% of 373 visitors in 30 days, while everyone
-                  who got past the first screen went on to 9.5 pages. So the ordering
-                  below is the product decision, not a style one: ANSWER FIRST, controls
-                  after. Events, the hero rail and the discovery grid all still render,
-                  immediately underneath, unchanged.
-              
-                  It also MOVED OUT of the events-present branch it was nested in, so the
-                  ranked list now renders when there are no events nearby too ‚Äî the case
-                  where a visitor most needs something to look at.
-              
-                  Position asserted by scripts/check-home-answer-first.mjs. */}
-              {/* v8.8 (owner, 2026-08-18, screenshots): "the menus here should all be
-                  moved to the amazon rail cards categories ‚Ä¶ the menus should only
-                  show when the cards is clicked."
-
-                  <BestNearby> ‚Äî the Top-40 accordion, the eight section shells, the
-                  CreatorFinds shelf and the events slot ‚Äî NO LONGER RENDERS ON "/".
-                  The component is intact (other surfaces and its tests still use
-                  it); it simply has no render site on the homepage, the same
-                  treatment <HomeAside> got in v8.4 directly below.
-
-                  WHAT REPLACES IT: nothing needed to. The daypart rail above IS the
-                  menu now ‚Äî every one of its fifteen tiles opens the same ranked
-                  place cards in one tap (server-ranked, exact-origin distances since
-                  v8.7), and every category the accordion duplicated is a tile:
-                  best -> The Best Around You, eat -> Actually Worth Eating,
-                  break -> The 30-Minute Break, gems, locals (creator-sourced),
-                  tonight, drive, events. The accordion was a SECOND, stacked copy of
-                  that menu ‚Äî the duplication the owner has been photographing since
-                  v8.2 ("the accordion menu must leave the top of the feed").
-
-                  THE v6.58 ANSWER-FIRST MEASUREMENT (84% bounce when the answer hid
-                  behind a tap, below the fold) is not overruled ‚Äî it is re-housed:
-                  the rail band is the first screen, its tiles are real <a href>
-                  links, and the drop lands the ranked answer under the band without
-                  a navigation. scripts/check-home-answer-first.mjs was re-pointed at
-                  that invariant the day this render site was removed. */}
-              {/* v8.4 (owner, 2026-08-16): the weather card ("RIGHT NOW NEAR
-                  YOU") and "DEALS NEAR YOU" come off the homepage ‚Äî MOBILE AND
-                  DESKTOP, not one breakpoint.
-
-                  <HomeAside> is NOT deleted. The component, its copy and its
-                  dealTiers wiring are intact in app/components/HomeAside.js;
-                  it simply has no render site on "/" any more. Deals remains
-                  reachable from the nav's Coupons tab, which is its own screen
-                  and owns the vetted card, the proximate disclosure and the
-                  attribution (lib/commerce.js rule 2) ‚Äî so no affiliate
-                  inventory is orphaned by this, only un-merchandised on "/".
-
-                  Nothing is gated on viewport here: there is no render at all,
-                  at any width, so the banned `isDesktop && <Aside/>` pattern
-                  (test-layout-shift ¬ß5, the 0.4938 CLS incident) is not just
-                  avoided but unreachable. */}
-              {/* v7.05 ‚Äî the creator row MOVED INSIDE the menu (owner, 2026-08-09:
-                  "we would pretty much be adding to the existing menu we have and just
-                  reorganizing"). It is section 5 of eight, so it is now passed to
-                  <BestNearby> as `creatorSlot` rather than rendered as a ninth
-                  standalone heading below it. Nothing about the row itself changed ‚Äî
-                  same component, same videoPlaces array, same handlers; `bare` only
-                  tells it the accordion above already carries its heading.
-
-                  v6.97 (kept, still true): the list is computed ONCE, into
-                  `videoPlaces`, and BOTH readers take that same array, so they can
-                  never disagree about what a creator has filmed near you. */}
-              {/* v6.97 ‚Äî MOVED BELOW THE ANSWER (approved mockup: "the six
-                  categories still exist, untouched. They stop being the first thing a
-                  stranger has to solve"). SUPERSEDED in v6.62 ‚Äî the owner asked for the
-                  category row back at the top of the page (see the comment at the top
-                  of wf-col-main, where <CategoryMenu> now renders). Left this comment in
-                  place as the historical record of why it was here for ~2 days. */}
-
-              {/* v8 (2026-08-15) ‚Äî THE HERO PROMO DECK IS GONE. Its eight cards
-                  (discovery, social find, beach, hidden gems, date night,
-                  family, buzz, seasonal) are eight of the fifteen in
-                  <DaypartRail> at the top of this column now.
-
-                  WHY THE WHOLE THREE-STATE SECTION WENT WITH IT: those three
-                  branches existed ONLY to house the deck and reserve its
-                  248px. The real events rail is `eventsRailSlot` ‚Äî section
-                  nine of BestNearby, with its own EV_RAIL_MIN_H reserve ‚Äî and
-                  is untouched. Keeping a 284px reserve for a deck that no
-                  longer renders would have been a NEW layout shift in the
-                  opposite direction, which is the same defect
-                  scripts/test-first-screen.mjs was written for.
-
-                  What survives is the honest zero-events fallback below: it
-                  was never the deck, and it offers something the rail cannot ‚Äî
-                  an alternative intent when tonight is empty.
-
-                  Every legacy *_hero_open event still fires from the rail
-                  (lib/dayparts.js LEGACY_HERO_EVENT) for one release, so no
-                  dashboard flatlines at cutover. */}
-              {!browseCat && Array.isArray(foryouEvents) && foryouEvents.length === 0 && (
-                <div style={{ marginBottom: 10, boxSizing: "border-box" }}>
-                  {/* v8: no minHeight here any more. EV_SECTION_MIN_H reserved
-                      248px for the promo deck this block used to sit above;
-                      with the deck gone that reserve is 248px of empty column ‚Äî
-                      the same class of defect (a reserve that does not match
-                      what renders) that scripts/test-first-screen.mjs exists to
-                      catch, just pointing the other way. This block is a card
-                      and three chips, and it reserves itself. */}
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Events near you</div>
-                  </div>
-                  <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "12px 15px" }}>
-                    <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Nothing strong tonight nearby. Try one of these instead.</div>
-                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                      <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Date night", src: "events_empty" }); } catch (e) {} openExperience("romantic"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.adim, border: `1px solid ${C.accent}`, color: C.accent, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Date night</button>
-                      <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Rainy day", src: "events_empty" }); } catch (e) {} openRainy(); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Rainy day</button>
-                      <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Hidden gems", src: "events_empty" }); } catch (e) {} openExperience("gem"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Hidden gems</button>
-                    </div>
-                  </div>
-                </div>
-              )}
-                      {/* v6.61 (owner #3) / v6.92 hour-aware: ONE tasteful bookable card
-                          near the homepage top. homeExp.url is Viator's own product_url,
-                          rendered VERBATIM (pid intact) ‚Äî never hand-built, never routed
-                          through the resolver. The fetch effect above already drops any
-                          item missing pid=, so an unattributed link can never reach here. */}
-                      {!browseCat && homeExp && (() => {
-                        // v8.71 (owner, 2026-08-26, holding his Emerson Point
-                        // card next to this one: "i dont like the way it looks
-                        // i want it to look like our iconic place cards you
-                        // know the ones").
-                        //
-                        // It IS the iconic card now ‚Äî the real .wf-place-card
-                        // DOM contract, so every rule in WF_PLACE_CARD_CSS
-                        // applies with no second stylesheet to drift. What it
-                        // is NOT is a copy of IconicPlaceCard: that component
-                        // owns save/like/dislike/share, all of which key on a
-                        // GOOGLE PLACE ID. A Viator product has a product_code
-                        // and is in no place store, so those four buttons would
-                        // render enabled and do nothing ‚Äî the dead-affordance
-                        // bug RailCard documents at `actionsReadOnly`.
-                        //
-                        // AND THE SLOTS THIS DATA CANNOT HONESTLY FILL STAY
-                        // EMPTY, which is the whole reason this is hand-built:
-                        //   ‚Ä¢ no DISTANCE ‚Äî wf_experiences stores a dest_id and
-                        //     a city, never a per-product point. "2.4 mi" would
-                        //     be invented.
-                        //   ‚Ä¢ no RANK CHIP and no TOP-PICK band ‚Äî `rank={1}` on
-                        //     the old card existed only so rankBucket() would
-                        //     say "top3" in analytics. There is no visible
-                        //     ranked list behind it, so a "1" would assert one.
-                        //   ‚Ä¢ no EDITORIAL TAKE ‚Äî there is no sourced why-go for
-                        //     a tour product anywhere in wf_experiences, and the
-                        //     card-hook law forbids filling that slot with the
-                        //     house tagline. `is-no-take` collapses it honestly
-                        //     (css.js) rather than leaving a hole.
-                        //   ‚Ä¢ no OPEN/CLOSED ‚Äî a tour has no opening hours.
-                        //   ‚Ä¢ the price renders as a FACT ("from $37"), never
-                        //     through priceLabel() ‚Äî fromPrice is dollars, not
-                        //     a Google 0‚Äì4 priceLevel, and the two scales are
-                        //     not interchangeable.
-                        //
-                        // THE SCORE IS THE ONE FORMULA. wayfindScore(rating,
-                        // reviews) ‚Äî the same call the rest of the app ranks
-                        // with ‚Äî on Viator's own rating and review count. The
-                        // old card reached it accidentally, by handing
-                        // PlaceScoreChip a bare {rating, reviews} and letting
-                        // it self-heal; lib/experiencesData also carries a
-                        // SECOND copy of the same Bayesian maths for its server
-                        // sort. Calling it explicitly here means the number on
-                        // the card cannot drift from the number that ranked it.
-                        const wf = toDisplayScore(wayfindScore(Number(homeExp.rating), Number(homeExp.reviews)));
-                        const facts = [
-                          homeExp.reviews > 0 ? homeExp.reviews.toLocaleString() + " reviews" : null,
-                          homeExp.duration || null,
-                          homeExp.fromPrice != null ? "from $" + homeExp.fromPrice : null,
-                        ].filter(Boolean);
-                        return (
-                        <ViatorCommerceLink
-                          t={homeExp}
-                          surface="home_bookable_card"
-                          contentId={cityNow}
-                          rank={1}
-                          onClick={(e, clickId) => { try { logEvent("tickets_out", null, { kind: "home_bookable", code: homeExp.code, click_id: clickId }); } catch (er) {} }}
-                          className="wf-place-card is-no-take"
-                          // A SHORTER CARD, STILL A FIXED ONE. The iconic card
-                          // is 268px because it carries a two-line editorial
-                          // take; this one honestly has none, and at the full
-                          // height that shows up as a large void above the CTA.
-                          // The override is a FIXED px value, not a content
-                          // height, so the layout-shift guarantee section 7 of
-                          // test-layout-shift protects is untouched: whichever
-                          // pick the hourly refresh brings in, the box is the
-                          // same size and an idle reader's feed cannot jump.
-                          // 176px is measured, not picked: at 390px the gap
-                          // between the chip lane and the CTA bottoms out at
-                          // its natural 22px anywhere below ~172px and grows
-                          // from there, so this is the tightest height that
-                          // still leaves the content breathing room.
-                          style={{ display: "block", textDecoration: "none", color: "inherit", marginBottom: 14, "--wf-card-h": "176px" }}
-                        >
-                          {/* Top-right of the CARD, never on the photo ‚Äî the
-                              global placement law (owner, 2026-08-24). */}
-                          <div className="wf-place-card-score"><WayfindScoreBadge score={wf} /></div>
-                          <div className="wf-place-card-layout">
-                            <div className="wf-place-card-media">
-                              {/* EAGER, and measured rather than assumed.
-                                  On production 2026-08-27 this photo did not
-                                  load: scrolled to the centre of the viewport,
-                                  five seconds elapsed, complete:false and
-                                  currentSrc:"" ‚Äî then removeAttribute("loading")
-                                  painted the same url in 8ms. It is the same
-                                  symptom #985 fixed inside the rail's scroller,
-                                  and finding it HERE, in the ordinary feed
-                                  column, means the cause is broader than that
-                                  one container: 18 of the 19 lazy images on the
-                                  homepage had never loaded either.
-                                  That wider problem is NOT solved by this line
-                                  and is written up rather than half-fixed ‚Äî a
-                                  scroll-container hypothesis was tested against
-                                  a rooted IntersectionObserver and did not hold.
-                                  What is fixed here is the single most
-                                  monetised unit on the page, which was shipping
-                                  with an empty photo well. One image, high in
-                                  the feed, after a tap-free render ‚Äî the cost is
-                                  one fetch the reader was always going to make. */}
-                              <img src={homeExp.image} alt="" loading="eager" decoding="async" style={{ objectFit: "cover" }} />
-                            </div>
-                            <div className="wf-place-card-content" style={{ position: "relative" }}>
-                              <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start" }}>
-                                <div className="wf-place-card-heading">
-                                  {/* The eyebrow, with the card's orange tick.
-                                      The ‚ú® is gone: the CSS :before rule draws
-                                      the mark every other card wears, and two
-                                      marks on one line is the thing that made
-                                      this look like a different product. */}
-                                  <span className="wf-place-card-category">Make a day of it</span>
-                                  <span className="wf-place-card-name" style={{ display: "block" }}>{homeExp.title}</span>
-                                </div>
-                              </div>
-                              <div className="wf-place-card-meta" style={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}>
-                                {facts.map((f) => <span key={f}>{f}</span>)}
-                              </div>
-                              <div className="wf-place-card-highlights-wrap">
-                                <div className="wf-place-card-highlights">
-                                  {/* Disclosures first, decoration second ‚Äî
-                                      the lane clamps to one row and scrolls,
-                                      so anything after the chips can be
-                                      trimmed (IconicPlaceCard, v8.17). */}
-                                  {homeExp.sellingOut ? <span>{"\uD83D\uDD25 Selling out"}</span> : null}
-                                  {(homeExp.chips || []).map((c) => <span key={c.key}>{c.icon} {c.label}</span>)}
-                                </div>
-                              </div>
-                              {/* ONE action, and it is the monetised one. The
-                                  disclosure rides on it rather than in a footer
-                                  the reader never reaches: same words and same
-                                  posture as the ticket pill on the place card. */}
-                              <div className="wf-place-card-actions wf-sheet-card-actions">
-                                <span
-                                  className="wf-place-card-book"
-                                  title="Partner link. Wayfind may earn a commission; rankings never change."
-                                  aria-label={"Book " + homeExp.title + " with Viator"}
-                                  // nowrap because the action row is a grid and
-                                  // a two-word label broke onto three lines at
-                                  // 390px ‚Äî measured, not guessed.
-                                  style={{ whiteSpace: "nowrap" }}
-                                >Book with Viator ‚Üó</span>
-                              </div>
-                            </div>
-                          </div>
-                        </ViatorCommerceLink>
-                        );
-                      })()}
-              {/* v6.97 ‚Äî THE MISSING BRIDGE (owner's own note on the mockup). The
-                  guides pull real traffic from Google every month and every reader
-                  dead-ends there, because nothing on the home screen has ever linked
-                  to one. Renders only where a guide genuinely covers the reader's
-                  area ‚Äî see LOCAL_EDIT_RADIUS_MI ‚Äî so "local" stays a fact. */}
-              {!browseCat && <LocalEdit center={locResolved ? center : null} guides={localEditGuides} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
-              {a2hs && (
-                <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 12px" }}>
-                  <img src="/icon-192.png" alt="" width={34} height={34} style={{ borderRadius: 8 }} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12.5, fontWeight: 800, color: C.text }}>Put Wayfind on your home screen</div>
-                    <div style={{ fontSize: 11, color: C.muted, marginTop: 1 }}>{deferredPrompt ? "One tap to tonight's plan ‚Äî opens like an app." : "Tap Share, then Add to Home Screen."}</div>
-                  </div>
-                  {deferredPrompt && <button onClick={() => { try { deferredPrompt.prompt(); logEvent("a2hs_install"); } catch (e) {} setA2hs(false); }} style={{ flexShrink: 0, padding: "8px 14px", background: C.accent, border: "none", borderRadius: 10, color: "#0D1117", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Install</button>}
-                  <button onClick={() => { setA2hs(false); try { localStorage.setItem("wf_a2hs_dismissed", "1"); logEvent("a2hs_dismiss"); } catch (e) {} }} aria-label="Dismiss" style={{ flexShrink: 0, width: 30, height: 30, background: "transparent", border: "none", color: C.muted, fontSize: 16, cursor: "pointer" }}>‚úï</button>
-                </div>
-              )}
-              {/* v6.22: when a category is being browsed from the mood menu, the feed under the weather becomes that category's ranked places. No navigation, the same PlaceCard used everywhere else. */}
-              {browseCat && (
-                <div ref={browseAnchorRef} style={{ marginBottom: 16 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
-                    <div onClick={() => { setBrowseCat(null); setMoodPick(null); setSub("all"); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‚Äπ Back</div>
-                    {browseCat !== "attractions" && <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : ""} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />}
-                  </div>
-                  {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <AreaInsight onLog={logEvent} metro={_cm} cat={browseCat} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /> : null; })()}
-                  {/* v6.47 (owner via Cowork spec): the attractions browse is ONE ranked
-                      list (wf_things_to_do) ‚Äî the stacked Viator rail + Bookable
-                      Experiences chips are gone from this page; tours interleave and
-                      earn their rank. Family keeps its bookable rail. */}
-                  {browseCat === "family" && center && <UnifiedBrowseCommerceRail cat="family" sub="all" initialExperiences={browseTours} categories={["attractions"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
-                  {browseCat === "attractions" && center && <UnifiedBrowseCommerceRail cat="attractions" sub={sub} includeExperiences={!!(sub && sub !== "all")} categories={["attractions", "more"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
-                  {browseCat === "hotels" && center && view.length > 0 && <UnifiedBrowseCommerceRail cat="hotels" sub="all" categories={["stays"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
-                  {/* 2026-08-04 (owner: "I want every single Viator deeplink option showing up
-                      on my sheets... if it's for food give me food tours... I want this done
-                      everywhere"). Food, Nightlife, Shopping and Beach had NO bookable rail at
-                      all ‚Äî the rail mounted on three of seven browse categories. Food was the
-                      sharpest gap: 35 food tours across 11 markets sat in wf_experiences and
-                      could not surface under a food heading, because the harvest tags them
-                      `private`/`historical` and nothing could ask for "food". They now ride the
-                      derived concepts in lib/experienceConcepts.js via lib/browseCommerceMap.
-                      Each passes its OWN category so the chip map cannot cross-resolve ‚Äî "all"
-                      exists in all seven categories and "family" is both a sub-chip and a
-                      category. Ranking is unchanged: rankExperiences, highest score first. */}
-                  {browseCat === "food" && center && <UnifiedBrowseCommerceRail cat="food" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
-                  {browseCat === "nightlife" && center && <UnifiedBrowseCommerceRail cat="nightlife" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
-                  {browseCat === "shopping" && center && view.length > 0 && <UnifiedBrowseCommerceRail cat="shopping" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
-                  {browseCat === "beach" && center && <UnifiedBrowseCommerceRail cat="beach" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
-                  {/* The two NATIONAL categories. They had no render path at all, so both
-                      rows sat dark since 2026-07-22 despite being live attributed CJ links ‚Äî
-                      built, working, and earning nothing for want of a mount. Placed beside
-                      the local rail whose trip-planning moment they belong to: a car rental
-                      next to hotels, a movie ticket next to things to do. Both are
-                      scope='national', so geoFilterDeals keeps them for every user and
-                      orderDealsByScope holds them below the local inventory. */}
-                  {browseCat === "attractions" && (sub === "all" || !sub) && <ThingsToDoList center={center} city={cityNow} weather={weather} onOpenPlace={(p) => openDetail(p, "ttd")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} blurbs={blurbs} loadBlurbs={loadBlurbs} onSave={(p) => { try { quickSaveFavorite(p); } catch (e) {} }} liked={liked} disliked={disliked} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(r) => { try { const offer = r.product_code || r.code; const path = offer ? commerceHref({ provider: "viator", offerId: offer, surface: "ttd_share", contentId: cityNow }) : Aff.experienceGoUrl(r.title, cityNow, "attractions", r.id, { surface: "ttd_share", contentId: cityNow }); const u = r.kind === "experience" && path ? originUrl(path) : originUrl("/p/" + encodeURIComponent(r.id)); shareLink(r.title + " ‚Äî found on Wayfind", u, () => showToast("Link copied")); } catch (e) {} }} />}
-                  {/* v6.43 (sparse-category honesty): while the query lands, show card-shaped
-                      skeletons so the feed visibly COMPLETES instead of a spinner over a
-                      list that silently shrinks (Family 60->13 mid-render read as frozen). */}
-                  {loading ? (
-                    <div style={{ marginTop: 2 }} aria-busy="true" aria-label="Finding the best spots">
-                      <PlaceCardSkeleton count={5} as="div" />
-                    </div>
-                  ) : view.length === 0 ? (
-                    <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
-                      <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 10 }}><Critter size={46} /></div>
-                      <strong style={{ display: "block", color: C.light }}>Nothing here right now</strong>
-                      <span style={{ fontSize: 13 }}>Try another category ‚Äî or widen your search; the best spots are often a few miles out.</span>
-                    </div>
-                  ) : (
-                    <>
-                      {view.map((p, i) => (
-                        <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
-                      ))}
-                      {/* End-of-feed honesty: name the count + the city so a short list reads
-                          as complete, not broken. When sparse (<8) offer a real next step ‚Äî
-                          relax the sub-filter if one is on, else widen the search radius. */}
-                      {(() => {
-                        const _lbl = ((Cats.CATEGORY_TILES.find((t) => t.id === browseCat) || {}).label || "").toLowerCase();
-                        const _city = locName ? locName.split(",")[0] : "this area";
-                        const _canRelax = sub && sub !== "all";
-                        const _mi = Math.min(Math.round((sliderMi || DEFAULT_RADIUS_MI) + 15), 75);
-                        const _widen = () => { autoRadiusRef.current = false; setSliderMi(_mi); setSearchRadius(Math.round(_mi * 1609.34)); };
-                        const _relax = () => setSub("all");
-                        const _act = _canRelax ? _relax : _widen;
-                        return (
-                          <div style={{ textAlign: "center", padding: "16px 16px 6px", color: C.muted, fontSize: 13, lineHeight: 1.5 }}>
-                            <div>That's all {view.length} {_lbl ? _lbl + " " : ""}{view.length === 1 ? "spot" : "spots"} near {_city}{locApprox ? " (approximate location)" : ""}.</div>
-                            {view.length < 8 && (
-                              <div role="button" tabIndex={0} onClick={_act} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); _act(); } }}
-                                style={{ display: "inline-block", marginTop: 8, color: C.accent, fontWeight: 800, cursor: "pointer" }}>
-                                {_canRelax ? "Show all " + (_lbl || "spots") + " nearby" : "See more great spots ‚Äî " + _mi + " mi out ‚Üó"}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })()}
-                    </>
-                  )}
-                </div>
-              )}
-              {/* v6.21: the single hero is now the experience hero below (random themed curated list, the shareable anchor). The old place hero was removed to keep one hero. */}
-              {/* Wayfind Picks now renders as the first hook card inside the "Worth a look" section below, matching the editorial cards. */}
-              {/* "Worth a look near you": Wayfind Picks first, editorial hooks in the middle, Roll the Dice last. Same hook-card shape, different accent colors, so they blend. */}
-              {!browseCat && (suggested && suggested.length > 0) && (() => {
-                const shareHook = (hk, pl) => { if (!pl) return; askShareIntent({ name: pl.name, city: locName, id: pl.id, kind: placeKinds(pl), onPlain: () => shareLink(pl.name, placeShareUrl(pl, locName, blurbLine(blurbs[pl.id])), () => showToast("Link copied"), fallShareLine("Check out " + pl.name + " on Wayfind", pl.id, siteTodayStr()), () => { try { logEvent("share", pl, { kind: "hook" }); } catch (e) {} giveawayMark(pl.id); addShared(pl); }), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", pl, { kind: "invite", from: "hook" }); } catch (e) {} giveawayMark(pl.id); addShared(pl); }) }); };
-                // v5.11: the dice card rotates the TAKE A CHANCE bank; the
-                // classic line "I want to take a chance." stays as variant zero
-                // and the fallback (PROTECTED copy, check-ux).
-                const _bkChance = pickHook("chance", null);
-                if (_bkChance) heroImpression("chance", _bkChance.variant, _bkChance.text);
-                const diceHook = { id: "dice-roll", accent: C.purple, emoji: "üé≤", label: "Take a chance", hook: _bkChance ? _bkChance.text : "I want to take a chance.", _hookVar: _bkChance ? _bkChance.variant : null, highlightWord: _bkChance ? "" : "chance", subtitle: "Roll it ‚Äî Wayfind lands you somewhere great nearby", cta: "üé≤ Roll the dice ‚Üí" };
-                // One experience hero anchors the feed. The curated list it opens is the shareable anchor.
-                const THEME_ORDER = ["gem", "family", "bestof", "entertainment", "stays", "shows", "budget"];
-                const THEME_COLOR = { gem: C.teal, family: C.green, bestof: C.gold, entertainment: C.purple, stays: C.blue, shows: C.pink, budget: C.gold };
-                const expPool = [];
-                const seenPool = new Set();
-                for (const p of [...(displayList || []), ...(suggested || []), ...(places || [])]) { if (p && p.id && !seenPool.has(p.id)) { seenPool.add(p.id); expPool.push(p); } }
-                const poolKeys = new Map();
-                expPool.forEach((p) => { try { poolKeys.set(p.id, new Set(experienceBadges(p, null, 99).map((b) => b.key))); } catch (er) { poolKeys.set(p.id, new Set()); } });
-                const matchesExp = (p, key) => { const e = EXPERIENCES[key]; if (!e) return false; if (e.filter) { try { return !!e.filter(p); } catch (er) { return false; } } const ks = poolKeys.get(p.id); return ks ? ks.has(key) : false; };
-                const avail = [];
-                const usedHeroIds = new Set();
-                for (const key of THEME_ORDER) { const e = EXPERIENCES[key]; if (!e) continue; const match = expPool.filter((p) => p && p.photo && matchesExp(p, key) && !usedHeroIds.has(p.id)).sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0))[0]; if (match) { avail.push({ key, place: match, e }); usedHeroIds.add(match.id); } }
-                // v4.46: the revenue themes always render as hero cards. When the local
-                // pool has no matching place (it is food-heavy), a place-less hero card
-                // still shows ‚Äî HookSolo falls back to the accent gradient ‚Äî and tapping
-                // it opens the wide-radius experience search (Orlando attractions,
-                // hotels, shows). These are the surfaces that carry affiliate links.
-                const GUARANTEED = ["family", "entertainment", "stays", "shows", "budget"];
-                for (const key of GUARANTEED) { if (!avail.some((a) => a.key === key) && EXPERIENCES[key]) avail.push({ key, place: null, e: EXPERIENCES[key] }); }
-                { const _ord = new Map(THEME_ORDER.map((k, i) => [k, i])); avail.sort((a, b) => (_ord.get(a.key) ?? 99) - (_ord.get(b.key) ?? 99)); }
-                // v6.25: the hero is now the single best move for right now, ranked by
-                // quality + distance + today's weather + the time of day (see lib/ranking.js),
-                // so a stormy afternoon stops opening on an outdoor pick. The themed
-                // experiences (gems, value, waterfront...) all move into the stack below.
-                const condCtx = { weather, hour: h, isWeekend: [0, 6].includes(new Date().getDay()) };
-                const heroPhotoPool = expPool.filter((p) => p && p.photo);
-                const heroCandidates = heroPhotoPool.filter((p) => p.openNow !== false);
-                const condRanked = Ranking.rankByConditions(heroCandidates.length ? heroCandidates : heroPhotoPool, condCtx);
-                const heroPlace = condRanked[0] || null;
-                const cityHero = locName ? locName.split(",")[0] : "this area";
-                const heroHook = heroPlace ? {
-                  id: "top10now", accent: C.accent, emoji: "üß≠", label: "Your Next Move",
-                  theme: "best", placeId: heroPlace.id, highlightWord: "top 10", _ctx: condCtx,
-                  hook: Ranking.heroReason(heroPlace, condCtx),
-                  subtitle: "The best move near " + cityHero + " right now, ranked",
-                  cta: "See the top 10 ‚Üí",
-                  metaLine: Tags.requiresParkAdmission(heroPlace.types) ? "May require park admission" : null,
-                  themeTitle: "Wayfind Picks ¬∑ Top 10 near " + cityHero,
-                  themeBody: "The ten best spots near you for right now, ranked by quality, distance, today's weather, and the time of day. Rain pushes indoor picks up, clear skies favor the outdoors, and anything closed drops down. No ads, no paid placement.",
-                } : null;
-                const restExp = avail.filter((a) => !heroPlace || !a.place || a.place.id !== heroPlace.id);
-                const themeEng = {};
-                try { hookLikes.forEach((id) => { if (typeof id === "string" && id.indexOf("exp-") === 0) { const t = id.slice(4); themeEng[t] = (themeEng[t] || 0) + 1; } }); } catch (e) {}
-                restExp.sort((a, b) => ((themeEng[b.key] || 0) - (themeEng[a.key] || 0)) || (THEME_ORDER.indexOf(a.key) - THEME_ORDER.indexOf(b.key)));
-                const mkHook = (a) => {
-                  if (!a.place) {
-                    const m = revenueExpMeta(a.key, cityHero) || { hook: a.e.lead || a.e.title, hl: "", sub: a.e.lead || "", cta: "Explore \u2192" };
-                    // v5.09 persuasion engine: rotate the hook bank (random,
-                    // never the same line twice in a row) with live tokens;
-                    // fall back to the static meta hook when no bank exists.
-                    // Live context for data-gated lines: a "4.9‚òÖ" claim needs a
-                    // real 4.9‚òÖ place in the pool; "[mins] minutes away" uses the
-                    // actual nearest top-rated spot (~2 min/mile local driving).
-                    const _hh = siteHourFloat();
-                    const _nearTop = expPool.filter((p) => p && p.rating >= 4.5 && (p.reviews || 0) >= 100 && p.distMi != null).sort((x, y) => x.distMi - y.distMi)[0];
-                    const bk = pickHook(a.key, {
-                      temp: weather && weather.temp,
-                      time: _hh < 12 ? "morning" : _hh < 17 ? "afternoon" : _hh < 21 ? "golden hour" : "late",
-                      night: _hh >= 16 || _hh < 4, day: _hh >= 8 && _hh < 16,
-                      top49: expPool.some((p) => p && p.rating >= 4.9 && (p.reviews || 0) >= 15),
-                      mins: _nearTop && _nearTop.distMi <= 15 ? Math.max(4, Math.round(_nearTop.distMi * 2)) : null,
-                    });
-                    if (bk) heroImpression(a.key, bk.variant, bk.text);
-                    return { id: "exp-" + a.key, accent: THEME_COLOR[a.key] || m.accent || C.accent, emoji: a.e.icon, label: cityFix(a.e.label), theme: a.key, fetchKey: a.key, highlightWord: bk ? "" : m.hl, hook: bk ? bk.text : m.hook, _hookVar: bk ? bk.variant : null, subtitle: m.sub, cta: m.cta, metaLine: null, themeTitle: cityFix(a.e.title), themeBody: a.e.lead, places: null };
-                  }
-                  const t = themedHook(a.key, a.place);
-                  const members = placesForHook({ theme: a.key, placeId: a.place.id }, expPool);
-                  const cnt = members.length;
-                  const avg = Dining.avgCostForTwo(members);
-                  const meta = [cnt > 1 ? cnt + " spots" : null, avg ? avg.text : null].filter(Boolean).join("  ¬∑  ");
-                  return { id: "exp-" + a.key, accent: THEME_COLOR[a.key] || C.accent, emoji: a.e.icon, label: cityFix(a.e.label), theme: a.key, placeId: a.place.id, highlightWord: t.hl, hook: cityFix(t.hook), subtitle: cityFix(t.sub), cta: cnt > 1 ? ("See all " + cnt + " ‚Üí") : cityFix(t.cta), metaLine: meta || null, themeTitle: cityFix(a.e.title), themeBody: a.e.lead };
-                };
-                const dicePhotos = expPool.filter((p) => p && p.photo).slice(0, 4).map((p) => p.photo);
-                // v4.67: revenue hero cards show real nearby photos, not flat
-                // gradients. Each theme pulls its own kind of place; thin
-                // matches fall back to the best-rated photos around.
-                const EXP_COLLAGE_RX = { family: /amusement|aquarium|zoo|bowling|mini_golf|water_park|playground|park/, entertainment: /amusement|tourist|museum|bowling|theater|theatre|aquarium|zoo|attraction/, shows: /performing|theater|theatre|concert|stadium|night_club|movie/, budget: /park|beach|museum|tourist|amusement|trail/, bestof: null, gem: null };
-                const expCollage = (key) => {
-                  try {
-                    const rx = EXP_COLLAGE_RX[key];
-                    const byScore = (a, b) => (b.wfScore || 0) - (a.wfScore || 0);
-                    let pool2 = expPool.filter((p) => p && p.photo);
-                    if (key === "stays") pool2 = pool2.filter((p) => isTrueLodging(p));
-                    else if (rx) pool2 = pool2.filter((p) => rx.test(((p.types || []).join(" ") + " " + (p.name || "")).toLowerCase()));
-                    let out2 = pool2.sort(byScore).slice(0, 4).map((p) => p.photo);
-                    if (out2.length < 2) return []; // no themed photos nearby: gradient beats a lie
-                    return out2;
-                  } catch (e) { return []; }
-                };
-                return (
-                  <div style={{ marginBottom: 16 }}>
-                    {locApprox && !locBannerGone && (
-                      <div role="status" aria-label="Approximate location" style={{ display: "flex", justifyContent: "center", margin: "0 0 10px" }}>
-                        <div style={{ display: "inline-flex", alignItems: "center", gap: 7, maxWidth: "100%", background: "rgba(27,36,52,.78)", border: `1px solid ${C.border}`, borderRadius: 999, padding: "6px 9px 6px 11px" }}>
-                          <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: "50%", background: C.accent, flexShrink: 0 }} />
-                          <span style={{ minWidth: 0, color: C.light, fontSize: 10.5, lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Using {locName ? locName.split(",")[0] + " area" : "an approximate area"}</span>
-                          <button onClick={() => { try { const el = document.querySelector('input[placeholder="Search a place or city"]'); if (el) { el.focus({ preventScroll: true }); el.scrollIntoView({ block: "center", inline: "nearest" }); } } catch (e) {} }} style={{ background: "transparent", border: "none", color: C.accent, fontSize: 10.5, fontWeight: 850, cursor: "pointer", padding: 0 }}>Change</button>
-                          <button onClick={() => setLocBannerGone(true)} aria-label="Dismiss approximate location notice" style={{ background: "transparent", border: "none", color: C.muted, fontSize: 12, cursor: "pointer", padding: "0 2px", lineHeight: 1 }}>√ó</button>
-                        </div>
-                      </div>
-                    )}
-                    {heroPlace && (<>
-                      {/* "Best move right now" section removed (owner 2026-07-17). The giveaway / World Cup / holiday promo cards below are separate features and stay. */}
-                      {gwPop && (giveawayLive() || giveawaySoon()) && (
-                        <div onClick={() => gwPopClose("x")} style={{ position: "fixed", inset: 0, zIndex: 88, background: "rgba(0,0,0,.62)", backdropFilter: "blur(3px)", WebkitBackdropFilter: "blur(3px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 18 }}>
-                          <div ref={gwPopDlgRef} role="dialog" aria-modal="true" aria-label="Wayfind giveaway" tabIndex={-1} onClick={(e) => e.stopPropagation()} style={{ outline: "none", width: "100%", maxWidth: 400, borderRadius: 20, padding: "18px 17px 16px", background: "linear-gradient(135deg, #1B1405 0%, #2A1F08 60%, #1B1405 100%)", border: "1px solid rgba(232,184,75,.55)", boxShadow: "0 24px 60px rgba(0,0,0,.6)", position: "relative", overflow: "hidden" }}>
-                            <style dangerouslySetInnerHTML={{ __html: "@keyframes wfGold{0%,100%{opacity:.5}50%{opacity:1}}" }} />
-                            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "#E8B84B", animation: "wfGold 2.8s ease-in-out infinite" }} />
-                            <button onClick={() => gwPopClose("x")} aria-label="Close" style={{ position: "absolute", top: 10, right: 10, width: 30, height: 30, borderRadius: "50%", background: "rgba(0,0,0,.4)", border: "1px solid rgba(232,184,75,.4)", color: "#F2D48A", fontSize: 15, fontWeight: 700, cursor: "pointer", lineHeight: 1 }}>√ó</button>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, paddingRight: 34 }}>
-                              <span style={{ fontSize: 22, filter: "drop-shadow(0 0 8px rgba(232,184,75,.6))" }}>üèÜ</span>
-                              <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: "#F2D48A", textTransform: "uppercase" }}>Wayfind giveaway ¬∑ Annual</span>
-                            </div>
-                            <div style={{ fontSize: 21, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.15, letterSpacing: "-0.3px" }}>Win a 3-night stay at Hilton Orlando</div>
-                            <div style={{ fontSize: 12.5, color: "#E8D5A4", marginTop: 6, lineHeight: 1.5 }}>Share any 3 places or lists from Wayfind. One winner, drawn Nov 1. That is the whole entry.</div>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 13, flexWrap: "wrap" }}>
-                              {!giveawayLive() ? (
-                                <span style={{ display: "inline-flex", alignItems: "center", padding: "8px 14px", borderRadius: 999, background: "rgba(232,184,75,.14)", border: "1px solid rgba(232,184,75,.55)", color: "#F2D48A", fontSize: 12.5, fontWeight: 800 }}>Opens July 4</span>
-                              ) : user ? (
-                                <span style={{ display: "inline-flex", alignItems: "center", padding: "8px 14px", borderRadius: 999, background: gwCount >= 3 ? "#E8B84B" : "rgba(232,184,75,.14)", border: "1px solid rgba(232,184,75,.55)", color: gwCount >= 3 ? "#1B1405" : "#F2D48A", fontSize: 12.5, fontWeight: 800 }}>{gwCount >= 3 ? "You're entered ‚úì" : Math.min(gwCount, 3) + " of 3 shared"}</span>
-                              ) : (
-                                <button onClick={() => { gwPopClose("cta"); setAuthOpen(true); }} style={{ padding: "8px 14px", borderRadius: 999, background: "#E8B84B", border: "none", color: "#1B1405", fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>{gwCount > 0 ? "Sign in to lock your entry" : "Sign in to enter"}</button>
-                              )}
-                              <button onClick={() => { gwPopClose("browse"); pickBrowse("food"); try { logEvent("giveaway_pop_browse"); } catch (e) {} }} style={{ padding: "8px 14px", borderRadius: 999, background: "transparent", border: "1px solid rgba(232,184,75,.45)", color: "#F2D48A", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Find a place to share ‚Ä∫</button>
-                            </div>
-                            <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 12 }}>
-                              <button onClick={() => setGwOpen(true)} style={{ padding: 0, background: "transparent", border: "none", color: "#B99B4E", fontSize: 11.5, fontWeight: 700, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>How it works</button>
-                              <button onClick={() => gwPopClose("later")} style={{ padding: 0, background: "transparent", border: "none", color: "#B99B4E", fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>Keep exploring</button>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                      {gwOpen && (
-                        <div onClick={() => setGwOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(0,0,0,.6)", display: "flex", alignItems: "flex-end" }}>
-                          <div ref={gwRulesDlgRef} role="dialog" aria-modal="true" aria-label="Giveaway official rules" tabIndex={-1} onClick={(e) => e.stopPropagation()} style={{ outline: "none", background: C.panel, borderRadius: "18px 18px 0 0", width: "100%", maxHeight: "82vh", overflowY: "auto", padding: "18px 18px calc(20px + env(safe-area-inset-bottom))" }}>
-                            <div style={{ fontSize: 16, fontWeight: 800, color: C.text, marginBottom: 10 }}>Wayfind Annual Giveaway ¬∑ Official Rules (2026)</div>
-                            {["No purchase necessary. Free to enter.", "How to enter: create a free Wayfind account, then share any 3 different places or lists from the app between July 3 and October 31, 2026 (11:59 pm ET). Entries are counted on our server per account.", "Winner: one entrant selected at random on or about November 1, 2026, and notified via account email. Odds depend on the number of eligible entries.", "Prize: a 3-night stay at Hilton Orlando, provided by the sponsor. Approximate retail value $600 to $900. Dates subject to availability; no cash substitute. Taxes are the winner's responsibility.", "Eligibility: legal US residents 18 or older. Void where prohibited.", "Sponsor: Wayfind. This promotion is not sponsored, endorsed, or administered by Hilton or by Apple.", "Share progress shown on this device may differ from the server count if you share from multiple devices; the server count decides."].map((t, i) => (
-                              <div key={i} style={{ fontSize: 12.5, color: C.light, lineHeight: 1.6, marginBottom: 9 }}>{t}</div>
-                            ))}
-                            <button onClick={() => setGwOpen(false)} style={{ marginTop: 6, padding: "10px 18px", borderRadius: 12, background: C.accent, border: "none", color: "#0D1117", fontSize: 13.5, fontWeight: 800, cursor: "pointer" }}>Got it</button>
-                          </div>
-                        </div>
-                      )}
-                      {renderWorldCupCard(true)}
-                      {/* The Coconut Grove sponsor now lives in the amazon rail
-                          (DaypartRail sponsor tile), not here ‚Äî see sponsorRail
-                          + onOpenPartner below. */}
-                      {(() => { const _h = Hol.activeHoliday(new Date()); if (!_h) return null; const _c = Hol.themeFor(_h.key); const _ct = Hol.contentFor(_h.key, _h.name); return (
-                        <div style={{ borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _c.grad, border: `1px solid ${_c.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
-                          <button type="button" className="wf-holiday-open" onClick={() => openHoliday(_h)} aria-label={_ct.headline(locName)} style={{ position: "absolute", inset: 0, zIndex: 1, opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
-                          <style dangerouslySetInnerHTML={{ __html: "@keyframes wfBurst{0%{transform:scale(.15);opacity:.95}70%{opacity:.4}100%{transform:scale(1);opacity:0}}@keyframes wfGlow{0%,100%{opacity:.55}50%{opacity:1}}@keyframes wfTwinkle{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:1;transform:scale(1.2)}}@keyframes wfSweep{0%{transform:translateX(-140%) skewX(-18deg)}100%{transform:translateX(240%) skewX(-18deg)}}" }} />
-                          <span style={{ position: "absolute", top: -18, right: 26, width: 120, height: 120, borderRadius: "50%", border: "2px solid #FFD166", opacity: 0, animation: "wfBurst 2.4s ease-out infinite", pointerEvents: "none" }} />
-                          <span style={{ position: "absolute", top: 14, right: 96, width: 76, height: 76, borderRadius: "50%", border: "2px solid #FF6B6B", opacity: 0, animation: "wfBurst 2.4s ease-out .8s infinite", pointerEvents: "none" }} />
-                          <span style={{ position: "absolute", top: -6, right: 150, width: 54, height: 54, borderRadius: "50%", border: "1.5px solid #7EA6FF", opacity: 0, animation: "wfBurst 2.4s ease-out 1.5s infinite", pointerEvents: "none" }} />
-                          {[[18, 52, 4, "#FFD166", "2s", "0s"], [8, 122, 3, "#FFFFFF", "2.6s", ".5s"], [34, 88, 3, "#FF9EA0", "2.2s", "1s"], [5, 188, 4, "#FFD166", "2.4s", "1.4s"], [27, 152, 3, "#FFFFFF", "1.9s", ".8s"]].map(([t, r, sz, c, d, dl], _i) => (
-                            <span key={_i} style={{ position: "absolute", top: t, right: r, width: sz, height: sz, borderRadius: "50%", background: c, boxShadow: `0 0 6px ${c}`, animation: `wfTwinkle ${d} ease-in-out ${dl} infinite`, pointerEvents: "none" }} />
-                          ))}
-                          <span style={{ position: "absolute", top: 0, bottom: 0, left: 0, width: "46%", background: "linear-gradient(105deg, transparent 0%, rgba(255,255,255,.09) 44%, rgba(255,255,255,.16) 50%, rgba(255,255,255,.09) 56%, transparent 100%)", animation: "wfSweep 5.6s ease-in-out infinite", pointerEvents: "none" }} />
-                          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: _c.stripe, animation: "wfGlow 2.6s ease-in-out infinite" }} />
-                          <button onClick={(e) => { e.stopPropagation(); const _t = _ct.headline(locName); shareLink(_t, listShareUrl("hol-" + _h.key, _t, 0, locName, _h.key), () => showToast("Link copied"), "Check this out on Wayfind: " + _t, () => { try { logEvent("share", null, { kind: "list", theme: "hol-" + _h.key }); } catch (er) {} giveawayMark("list:hol-" + _h.key); }); }} aria-label="Share" title="Share" style={{ position: "absolute", top: 10, right: 10, width: 34, height: 34, borderRadius: "50%", background: "rgba(0,0,0,.35)", border: "1px solid rgba(255,255,255,.3)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", zIndex: 2 }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
-                          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                            <span style={{ fontSize: 24, filter: "drop-shadow(0 0 8px rgba(255,209,102,.6))" }}>{_h.emoji}</span>
-                            <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: _c.text, textTransform: "uppercase" }}>Holiday special ¬∑ {_ct.tag}</span>
-                          </div>
-                          <div style={{ fontSize: 21, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.15, letterSpacing: "-0.3px" }}>{_ct.headline(locName)}</div>
-                          <div style={{ fontSize: 12.5, color: _c.text, marginTop: 5, lineHeight: 1.4 }}>{_ct.sub}</div>
-                          <div style={{ display: "inline-flex", alignItems: "center", marginTop: 12, padding: "8px 16px", borderRadius: 999, background: _c.accent, color: "#0D1117", fontSize: 12.5, fontWeight: 800 }}>See the picks ‚Ä∫</div>
-                        </div>
-                      ); })()}
-                      
-                      {/* "Best move right now" hero body removed (owner 2026-07-17); it was already disabled. heroHook kept (harmless, unused). */}
-                    </>)}
-                    {/* v5.66: the "More ways to explore" image cards + the Take-a-chance card are now folded into the single iOS-style list menu above ‚Äî destinations + analytics preserved, no photos. */}
-                  </div>
-                );
-              })()}
-              {/* v3.7: mobile inline "You are exploring" card removed ‚Äî it duplicated the üìç This area tile sheet. Data is unchanged; it now loads only when the tile is opened. */}
-              {/* v4.1: standalone "Happening at the library" card removed from home ‚Äî this content now lives in the Community tile sheet (menuSheet === "community"). libraryEvents state and fetch are unchanged. */}
-              {/* v5.35 hydration: the moment phrase ("Friday evening") comes
-                  from post-mount state ‚Äî the SSR'd shell can be up to an hour
-                  old (ISR), so computing it at render made server and client
-                  disagree (this was the live React 418/423). Both sides render
-                  the generic line first; the moment arrives one paint later. */}
-              {!browseCat && suggested === null && <div style={{ minHeight: "62vh" }}><Loader label={bootMoment ? `Finding the best options for ${bootMoment} near ${locName ? locName.split(",")[0] : "this area"}‚Ä¶` : "Finding the best options‚Ä¶"} sub={`open now first ¬∑ within ${DEFAULT_RADIUS_MI} miles ¬∑ ranked by real reviews, not ads`} pad="8px 2px" /></div>}
-              {/* Wayfind Picks list removed from home: the ranked list now lives behind the Wayfind Picks hero card above, which opens the curated top 10 sheet. */}
-              {/* Roll the Dice now renders as the last hook card inside the "Worth a look" section above, matching the editorial cards. */}
-              {/* Inline ranked feed removed from home: browsing the full ranked list now happens inside the Wayfind Picks sheet, the Nearby tile, search, and categories. */}
-              <div style={{ marginTop: 18, paddingTop: 14, borderTop: `1px solid ${C.border}`, textAlign: "center" }}>
-              <div style={{ height: 24 }} />
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, marginBottom: 7 }}>
-                  <a href="/privacy" style={{ fontSize: 12, fontWeight: 700, color: C.muted, textDecoration: "none" }}>Privacy</a>
-                  <span style={{ color: C.border }}>¬∑</span>
-                  <a href="/terms" style={{ fontSize: 12, fontWeight: 700, color: C.muted, textDecoration: "none" }}>Terms</a>
-                </div>
-                <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.8, lineHeight: 1.5, maxWidth: 320, margin: "0 auto" }}>Some links, including tickets and tours, are affiliate links. Wayfind may earn a commission at no extra cost to you.</div>
-                <div onClick={() => { try { window.__wfv = (window.__wfv || 0) + 1; clearTimeout(window.__wfvT); window.__wfvT = setTimeout(() => { window.__wfv = 0; }, 2200); if (window.__wfv >= 5) { window.__wfv = 0; wfShowDiag(); } } catch (e) {} }} style={{ fontSize: 11, color: C.muted, opacity: 0.6, marginTop: 10, textAlign: "center", cursor: "pointer" }}>Wayfind ¬∑ {BUILD_ID}</div>
-              </div>
-              <div style={{ height: 20 }} />
-              </div>
-            </div>
-            </>
-          );
-        })()}
-
-        {screen === "surprise" && <SurpriseScreen ctx={ctx} />}
-
-        {screen === "experience" && activeBadge && EXPERIENCES[activeBadge] && <ExperienceScreen ctx={ctx} />}
-
-        {screen === "coupons" && <CouponsScreen ctx={ctx} />}
-        {/* Favorites is the on-device control center for explicit reactions.
-            It stays usable before sign-in; the screen offers sign-in only as
-            optional cloud sync. Itinerary remains account-backed. */}
-        {screen === "saved" && <SavedScreen ctx={ctx} />}
-        {screen === "itinerary" && (authReady && !user ? <AuthWall label="your Itinerary" onSignIn={() => setAuthOpen(true)} /> : <ItineraryScreen ctx={ctx} />)}
-
-        {screen === "shared" && sharedList && <SharedScreen ctx={ctx} />}
-        {screen === "events" && <EventsScreen ctx={ctx} />}
-      </div>
-
-      {/* Roll the dice */}
-      <style dangerouslySetInnerHTML={{ __html: "@keyframes wfroll{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.25)}100%{transform:rotate(360deg) scale(1)}}" }} />
-      {rolling && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 1100, background: "rgba(13,17,23,.88)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 18 }}>
-          <div style={{ fontSize: 92, lineHeight: 1, animation: "wfroll 0.5s linear infinite" }}>{diceFace}</div>
-          <div style={{ fontSize: 16, fontWeight: 800, color: "#fff" }}>Finding your spot‚Ä¶</div>
-          <div style={{ fontSize: 12.5, color: C.light }}>Letting the dice decide</div>
-        </div>
-      )}
-      {radiusSheet && (
-        <div style={sheetBg} onClick={() => setRadiusSheet(false)}>
-          <div style={{ ...sheet, padding: "6px 16px calc(20px + env(safe-area-inset-bottom))", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setRadiusSheet(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
-            <Grabber />
-            <div style={{ textAlign: "center", marginTop: 4 }}>
-              <div style={{ fontSize: 30 }}>üìç</div>
-              <div style={{ fontSize: 20, fontWeight: 800, color: C.text, marginTop: 4 }}>How far should we look?</div>
-              <div style={{ fontSize: 13, color: C.muted, marginTop: 4, lineHeight: 1.4 }}>Search distance from {locName || center.name || "you"}.</div>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginTop: 18 }}>
-              {[{ mi: 3, v: 4828 }, { mi: 5, v: 8047 }, { mi: 10, v: 16093 }, { mi: 15, v: 24140 }, { mi: 25, v: 40234 }, { mi: 30, v: 48280 }].map((r) => {
-                const on = pendingRadius === r.v;
-                return (
-                  <button key={r.v} onClick={() => setPendingRadius(r.v)} style={{ padding: "16px 8px", borderRadius: 14, border: `1.5px solid ${on ? C.accent : C.border}`, background: on ? C.adim : C.card, color: on ? C.accent : C.light, fontSize: 18, fontWeight: 800, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                    <span>{r.mi}</span>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: on ? C.accent : C.muted }}>miles</span>
-                  </button>
-                );
-              })}
-            </div>
-            <button onClick={() => { setSearchRadius(pendingRadius); setRadiusSheet(false); }} style={{ width: "100%", marginTop: 18, height: 52, borderRadius: 14, border: "none", background: "linear-gradient(180deg, #FB923C 0%, #F97316 52%, #EA580C 100%)", color: "#fff", fontSize: 15.5, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 14px rgba(249,115,22,.4)" }}>Search this area</button>
-            <div style={{ textAlign: "center", fontSize: 11.5, color: C.muted, marginTop: 10 }}>We only search again when you tap the button, to save data.</div>
-          </div>
-        </div>
-      )}
-      {diceChoose && !rolling && (
-        <div onClick={() => setDiceChoose(false)} style={{ position: "fixed", inset: 0, zIndex: 1100, background: "rgba(13,17,23,.85)", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
-          <div onClick={(ev) => ev.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setDiceChoose(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd} style={{ width: "100%", maxWidth: 480, maxHeight: "82vh", overflowY: "auto", overscrollBehaviorY: "contain", transition: SHEET_EASE, background: C.panel, borderTopLeftRadius: 20, borderTopRightRadius: 20, border: `1px solid ${C.border}`, padding: "6px 16px calc(22px + env(safe-area-inset-bottom))" }}>
-            <Grabber />
-            <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 3 }}>üé≤ Pick for me</div>
-            <div style={{ fontSize: 13, color: C.light, marginBottom: 14, lineHeight: 1.5 }}>Pick what you are in the mood for and the dice lands you on a top rated spot near you that is open now.</div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 9 }}>
-              {[
-                { label: "üçΩÔ∏è Food", cat: "food", kw: "" },
-                { label: "‚òï Coffee", cat: "food", kw: "coffee" },
-                { label: "üç∞ Dessert", cat: "food", kw: "dessert" },
-                { label: "üç∏ Bars & drinks", cat: "nightlife", kw: "bar" },
-                { label: "üç∫ Breweries", cat: "nightlife", kw: "brewery" },
-                { label: "üåÉ Nightlife", cat: "nightlife", kw: "night club" },
-                { label: "üéµ Live music", cat: "nightlife", kw: "live music" },
-                { label: "üåä Waterfront", cat: "food", kw: "waterfront" },
-                { label: "üíï Date night", cat: "food", kw: "romantic restaurant" },
-                { label: "üéØ Activities", cat: "attractions", kw: "things to do" },
-                // v6.44 (owner: "parks continue to show with a bug"). The keyword was
-                // the bare string "park", which Google's text search happily satisfies
-                // with theme parks, trampoline parks, arcades and any prominent
-                // tourist_attraction nearby ‚Äî and rollFor applied NO filter, it just
-                // sorted the raw result by wfScore. The single highest-scoring
-                // "attraction" in Orlando is an escape room with 26k reviews, so
-                // "Parks & outdoors" reliably rolled an indoor escape room.
-                // Fixed on both halves: a keyword that describes actual green space,
-                // and a predicate that rollFor now enforces (see rollFor).
-                { label: "üå≥ Parks & outdoors", cat: "attractions", kw: "park botanical garden nature preserve trail", filter: (p) => {
-                  const t = ((p.types || []).join(" ") + " " + (p.name || "")).toLowerCase();
-                  // Indoor/ticketed venues first ‚Äî several of them literally contain
-                  // the substring "park" (amusement_park, water_park, trampoline park).
-                  if (/amusement|theme_?park|water_?park|trampoline|escape|bowling|arcade|movie|cinema|casino|shopping_mall|parking|night_club|\bgym\b|museum|aquarium|\bzoo\b|axe|karting|go.?kart|mini.?golf/.test(t)) return false;
-                  return /\bpark\b|botanical|garden|nature|preserve|\btrail|greenway|boardwalk|\bpier\b|campground|natural_feature|scenic|lake|springs?\b/.test(t);
-                } },
-                { label: "üë®‚Äçüë©‚Äçüëß Family", cat: "attractions", kw: "family friendly" },
-                { label: "üõçÔ∏è Shopping", cat: "shopping", kw: "" },
-                { label: "üé≤ Anything", any: true },
-              ].map((d) => (
-                <button key={d.label} onClick={() => rollFor(d)} style={{ flex: d.any ? "1 1 100%" : "1 1 calc(50% - 5px)", padding: "13px 10px", borderRadius: 14, border: `1px solid ${d.any ? C.accent : C.border}`, background: d.any ? C.adim : C.card, color: d.any ? C.accent : C.text, fontSize: 14, fontWeight: d.any ? 800 : 700, cursor: "pointer" }}>{d.label}</button>
-              ))}
-            </div>
-            <button onClick={() => setDiceChoose(false)} style={{ width: "100%", marginTop: 12, padding: "11px 0", borderRadius: 12, border: "none", background: "transparent", color: C.muted, fontSize: 13.5, fontWeight: 700, cursor: "pointer" }}>Cancel</button>
-          </div>
-        </div>
-      )}
-
-      {/* v8.3 ‚Äî EXACTLY ONE NAV PER SCREEN. NEVER TWO. NEVER ZERO.
-          (owner, 2026-08-16, both halves of the same rule.)
-
-          FIRST HALF: "there is also two menus one on the bottom and one of them
-          top remove the one from the bottom and just keep it on the top‚Ä¶ that is
-          duplication we are only keeping one which is the one underneath the
-          search bar." Every screen that renders the top nav had the same six
-          WF_DESTINATIONS twice on one phone screen. Gone.
-
-          SECOND HALF, and it is why this is a CONDITION and not a deletion:
-          "look at this page ‚Äî how would we go back if we no longer have the
-          bottom menu here?" /map is a full-bleed immersive surface. All four top
-          rows are gated `screen !== "map"` (the map owns the viewport and has
-          its own floating chrome), so deleting the bar outright left that one
-          screen with NO way out at all. Swept every screen in the shell ‚Äî
-          coupons, events, experience, explore, itinerary, saved, shared,
-          suggested, surprise all render the top nav; map is the only one that
-          renders none, and this is the only exception.
-
-          NOT a viewport condition ‚Äî `screen` is content state, so this is not
-          the isDesktop-drives-geometry pattern test-layout-shift ¬ß5 bans.
-
-          Locked by scripts/check-one-nav-per-screen.mjs, which fails the build
-          if any screen renders zero navigation affordances or two. Nothing
-          checked that before, which is exactly how the stranding shipped. */}
-      {screen === "map" && (
-      <nav className="wf-bottom-nav" aria-label="Primary navigation" style={{ position: "fixed", bottom: 0, left: 0, right: 0, maxWidth: 480, margin: "0 auto", zIndex: 20, background: C.panel, borderTop: `1px solid ${C.border}`, display: "flex", paddingBottom: "env(safe-area-inset-bottom)" }}>
-        {WF_DESTINATIONS.map((d) => {
-          const active = d.id === screen;
-          return (
-          <a className={`wf-bottom-nav-item${active ? " is-active" : ""}`} key={d.id} href={d.href} aria-label={d.label} aria-current={active ? "page" : undefined} onClick={(e) => { e.preventDefault(); goDestination(d.id, active); }} style={{ flex: 1, padding: "9px 6px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "transparent", border: "none", borderRadius: 0, cursor: "pointer", textDecoration: "none" }}>
-            <span className="wf-bottom-nav-icon"><NavIcon name={d.icon} color={active ? C.accent : C.muted} size={25} strokeWidth={active ? 2.3 : 2} /></span>
-            <span className="wf-bottom-nav-label" style={{ fontSize: 11.2, fontWeight: active ? 800 : 600, color: active ? C.accent : C.muted }}>{d.label}</span>
-          </a>
-          );
-        })}
-      </nav>
-      )}
-
-      {/* Detail sheet */}
-      {detail && <DetailSheet ctx={ctx} />}
-      {socialFind && <SocialFindSheet ctx={ctx} />}
-
-
-      {/* Hook editorial page ‚Äî full-screen themed experience, not a sheet */}
-      {cuisineSheet && (() => {
-        const cs = cuisineSheet; const list = cs.list || [];
-        return (
-          <div onClick={() => setCuisineSheet(null)} style={{ position: "fixed", inset: 0, zIndex: 95, background: "rgba(0,0,0,.62)", backdropFilter: "blur(3px)", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
-            <div onClick={(e) => e.stopPropagation()} style={{ background: "#0D1117", width: "100%", maxWidth: 640, maxHeight: "82vh", overflowY: "auto", borderRadius: "20px 20px 0 0", border: `1px solid ${C.border}`, padding: "16px 16px 28px" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4, gap: 10 }}>
-                <div style={{ fontSize: 18, fontWeight: 800, color: C.text }}>{cs.title || ("Top " + cs.label + " near you")}</div>
-                <button onClick={() => setCuisineSheet(null)} aria-label="Close" style={{ background: "transparent", border: "none", color: C.muted, fontSize: 24, cursor: "pointer", lineHeight: 1, flexShrink: 0 }}>√ó</button>
-              </div>
-              <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>{list.length > 0 ? (cs.sub || ("The best " + cs.label.toLowerCase() + " spots loaded nearby, ranked by quality, distance and time.")) : (cs.title ? "Nothing loaded for this yet. Give the area a moment to finish loading, then try again." : "No " + cs.label.toLowerCase() + " spots loaded nearby yet. Try searching this cuisine.")}</div>
-              {list.map((p, i) => (
-                <div key={p.id} onClick={() => { setCuisineSheet(null); openDetail(p); }} role="button" tabIndex={0} onKeyDown={KB_CLICK} aria-label={`Open ${p.name}`} style={{ display: "flex", alignItems: "center", gap: 11, padding: "9px 0", borderBottom: i < list.length - 1 ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
-                  <div style={{ width: 22, textAlign: "center", fontSize: 13.5, fontWeight: 800, color: i < 3 ? C.accent : C.muted, flexShrink: 0 }}>{i + 1}</div>
-                  <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 46, height: 46, borderRadius: 10, objectFit: "cover", flexShrink: 0, display: "block" }} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 2, fontSize: 11.5 }}>
-                      <PlaceScoreChip p={p} size={12} />
-                      {(() => { const c = Dining.costForTwo(p); return c.listed ? <span style={{ color: C.green, fontWeight: 700 }}>{c.tier || "$$"}</span> : (p.price ? <span style={{ color: C.green, fontWeight: 700 }}>{p.price}</span> : null); })()}
-                      {(() => { const lo = liveOpen(p); return lo === true ? <span style={{ color: C.green, fontWeight: 700 }}>Open</span> : lo === false ? <span style={{ color: C.red, fontWeight: 700 }}>Closed</span> : null; })()}
-                      {p.distMi != null && <span style={{ color: C.muted }}>{p.distMi.toFixed(1)} mi</span>}
-                    </div>
-                  </div>
-                  <span style={{ color: C.muted, fontSize: 16, flexShrink: 0 }}>‚Ä∫</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      })()}
-      {hookDetail && <HookDetailSheet ctx={ctx} />}
-
-      {/* Copied toast */}
-      {toast && (
-        <div style={{ position: "fixed", bottom: 84, left: "50%", transform: "translateX(-50%)", zIndex: 1100, background: C.text, color: C.bg, fontSize: 13, fontWeight: 700, padding: "10px 18px", borderRadius: 999, boxShadow: "0 8px 24px rgba(0,0,0,.4)" }}>{toast}</div>
-      )}
-
-      {/* Full-screen photo viewer ‚Äî pages through the whole gallery (v6.43) */}
-      {lightbox && (() => {
-        const total = lightboxPhotos.length;
-        const canPage = total > 1 && lightboxIndex >= 0;
-        const arrow = (side) => ({
-          position: "absolute", top: "50%", transform: "translateY(-50%)",
-          [side]: "max(8px, env(safe-area-inset-" + side + "))",
-          width: 48, height: 48, borderRadius: "50%",
-          border: "1px solid rgba(255,255,255,.3)", background: "rgba(0,0,0,.55)",
-          color: "#fff", fontSize: 26, lineHeight: 1, cursor: "pointer", zIndex: 2,
-          display: "grid", placeItems: "center", padding: 0,
-        });
-        return (
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label={detail && detail.name ? "Photos of " + detail.name : "Photo viewer"}
-            onClick={closeLightbox}
-            onTouchStart={lightboxTouchStart}
-            onTouchMove={lightboxTouchMove}
-            onTouchEnd={lightboxTouchEnd}
-            onTouchCancel={lightboxTouchEnd}
-            style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.92)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 12, touchAction: "pan-y", overflow: "hidden" }}
-          >
-            <img
-              src={lightbox}
-              alt={detail && detail.name ? "Photo of " + detail.name : "Full-size photo"}
-              onClick={closeLightbox}
-              draggable={false}
-              style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: 8, transform: lbDrag ? "translateX(" + lbDrag + "px)" : undefined, transition: lbDrag ? "none" : "transform .18s ease-out", willChange: canPage ? "transform" : undefined }}
-            />
-            <button onClick={() => setLightbox(null)} aria-label="Close" style={{ position: "absolute", top: "max(16px, calc(env(safe-area-inset-top) + 10px))", right: 16, width: 44, height: 44, borderRadius: "50%", border: "1px solid rgba(255,255,255,.3)", background: "rgba(0,0,0,.55)", color: "#fff", fontSize: 20, cursor: "pointer", zIndex: 2 }}>‚úï</button>
-            {canPage && (
-              <>
-                <button onClick={(e) => { e.stopPropagation(); goLightbox(-1); }} aria-label="Previous photo" style={arrow("left")}>‚Äπ</button>
-                <button onClick={(e) => { e.stopPropagation(); goLightbox(1); }} aria-label="Next photo" style={arrow("right")}>‚Ä∫</button>
-              </>
-            )}
-            <div style={{ position: "absolute", bottom: "max(20px, calc(env(safe-area-inset-bottom) + 12px))", left: 0, right: 0, textAlign: "center", pointerEvents: "none" }}>
-              {(() => { const by = lightboxIndex >= 0 && detail && Array.isArray(detail.photoAttrs) ? (detail.photoAttrs[lightboxIndex] || "") : ""; return <div style={{ color: "rgba(255,255,255,.85)", fontSize: 11.5, fontWeight: 600, marginBottom: 3 }}>{by === "Wayfind" ? "Photo: Wayfind" : by ? "Photo: " + by + " ¬∑ via Google" : "Photo via Google"}</div>; })()}
-              {canPage && <div aria-live="polite" style={{ color: "rgba(255,255,255,.92)", fontSize: 12.5, fontWeight: 700, marginBottom: 3 }}>{lightboxIndex + 1} / {total}</div>}
-              <div style={{ color: "rgba(255,255,255,.6)", fontSize: 12 }}>{canPage ? "Swipe to browse ¬∑ tap to close" : "Tap anywhere to close"}</div>
-            </div>
-          </div>
-        );
-      })()}
-
-      {/* Account menu ‚Äî opens from the header avatar so a tap no longer signs you out by accident */}
-      {accountOpen && user && <AccountSheet ctx={ctx} />}
-      {tasteOpen && (() => {
-        // FILTER ON READ, LABEL, MERGE ‚Äî all three live in tasteChips()
-        // (lib/taste.js), not here. See that function for why each one exists;
-        // the short version is that the view must never render a raw taxonomy
-        // token, must never show two chips that mean the same thing, and must
-        // never trust that what is already in storage was written under the
-        // current rules. v6.56 moved the loop out of this closure so the
-        // Favorites entry row can count exactly what this panel will show.
-        const top = tasteChips(tasteVecState || {}).slice(0, 24);
-        return (
-          <div role="dialog" aria-label="Your taste" onClick={() => setTasteOpen(false)} style={{ ...sheetBg }}>
-            <div className="wf-taste-sheet" onClick={(e) => e.stopPropagation()} style={{ ...sheet, maxWidth: 480, maxHeight: "82vh", padding: "6px 18px calc(22px + env(safe-area-inset-bottom))", overscrollBehaviorY: "contain", transition: SHEET_EASE }}>
-              <Grabber />
-              <div className="wf-taste-body">
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 4 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 9, minWidth: 0 }}>
-                    <span className="wf-taste-mark" aria-hidden="true">‚ú¶</span>
-                    <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-.015em", color: C.text }}>Your taste</div>
-                  </div>
-                  <button onClick={() => setTasteOpen(false)} aria-label="Close" style={{ flexShrink: 0, minWidth: 40, minHeight: 40, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "transparent", border: "none", color: C.muted, fontSize: 20, cursor: "pointer" }}>‚úï</button>
-                </div>
-                <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "0 0 14px" }}>Everything Wayfind has learned from what you like, save, and share. Remove anything, or clear it all.</p>
-                {top.length ? (
-                  <div className="wf-taste-cloud">
-                    {top.map((c) => (
-                      /* The chip SHOWS tasteLabel but every action still carries
-                         the RAW stored value(s) in c.vals ‚Äî forgetting by the
-                         label alone would quietly delete nothing. A merged chip
-                         (e.g. "American") can carry more than one raw value
-                         (american_restaurant + californian_restaurant), and
-                         forgetTasteItem deletes all of them together. */
-                      <span key={c.dim + "|" + c.label} className={"wf-taste-chip" + (c.w >= 0 ? "" : " is-neg")}>
-                        {c.w >= 0 ? null : <span className="wf-taste-chip-neg">not</span>}
-                        {c.label}
-                        <button onClick={() => forgetTasteItem(c.dim, c.vals)} aria-label={"Forget " + c.label} className="wf-taste-x">‚úï</button>
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <p style={{ fontSize: 13, color: C.muted }}>Nothing learned yet. Like, save, and share a few places and your taste shows up here.</p>
-                )}
-                <div style={{ display: "flex", gap: 9, marginTop: 20 }}>
-                  {/* v6.56: "turn it off" and "erase it" were the SAME button
-                      until now ‚Äî resetTaste() sets consent to off AND wipes the
-                      vector. The Favorites row promises a person can stop the
-                      re-ranking, and a promise whose only implementation also
-                      deletes everything they taught the app is a lie by
-                      omission. Two buttons, two verbs, both honest. */}
-                  <button onClick={() => { setConsent("off"); setTasteOpen(false); try { logEvent("taste_consent", null, { v: "off", from: "sheet" }); } catch (e) {} }} className="wf-taste-btn is-quiet">Turn off</button>
-                  <button onClick={() => { resetTaste(); setTasteOpen(false); }} className="wf-taste-btn is-danger">Reset</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
-
-      {/* App-tile sheets: opened from the home navigation grid */}
-      {menuSheet && <MenuSheet ctx={ctx} />}
-
-      {/* Save-to-list sheet */}
-      {authOpen && <AuthSheet ctx={ctx} />}
-      {introOpen && <IntroSheet ctx={ctx} />}
-      {recoveryOpen && <AuthSheet ctx={ctx} />}
-      {saveTarget && (
-        <div style={sheetBg} onClick={() => setSaveTarget(null)}>
-          <div style={{ ...sheet, padding: "6px 16px 32px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setSaveTarget(null))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
-            <Grabber />
-            <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-              <div style={{ fontSize: 17, fontWeight: 700, color: C.text }}>Add to favorites</div>
-              <button onClick={() => { setSaveTarget(null); setNewListOpen(true); }} style={{ background: "none", border: `1px solid ${C.accent}`, color: C.accent, fontSize: 12, fontWeight: 700, padding: "6px 12px", borderRadius: 18, cursor: "pointer" }}>+ New list</button>
-            </div>
-            {Object.values(lists).map((l) => (
-              <div key={l.id} onClick={() => saveToList(l.id)} role="button" tabIndex={0} onKeyDown={KB_CLICK} aria-label={`Save to ${l.name || "list"}`} style={{ display: "flex", alignItems: "center", gap: 12, padding: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, marginBottom: 8, cursor: "pointer" }}>
-                <span style={{ fontSize: 26 }}>{l.emoji}</span>
-                <div>
-                  <div style={{ fontSize: 15, fontWeight: 600, color: C.text }}>{l.name}</div>
-                  <div style={{ fontSize: 13, color: C.muted }}>{l.places.length} places{l.places.some((p) => p.id === saveTarget.id) ? " ¬∑ Added ‚úì" : ""}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Create-list sheet */}
-      {listMenu && lists[listMenu] && (
-        <div style={sheetBg} onClick={() => setListMenu(null)}>
-          <div style={{ ...sheet, padding: "6px 16px 28px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setListMenu(null))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
-            <Grabber />
-            <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-              <span style={{ fontSize: 22 }}>{lists[listMenu].emoji}</span>
-              <span style={{ fontSize: 17, fontWeight: 700, color: C.text }}>{lists[listMenu].name}</span>
-            </div>
-            {[{ label: "Open", run: () => { const id = listMenu; setListMenu(null); setActiveList(id); } }, { label: "Share", run: () => { const l = lists[listMenu]; setListMenu(null); shareList(l.places, l.name); } }, { label: "Rename", run: () => { if (!requireAuth("Sign up free to keep your lists tidy ‚Äî on every device.")) return; openRename(listMenu); } }].map((a) => (
-              <button key={a.label} onClick={a.run} style={{ width: "100%", textAlign: "left", padding: "14px 14px", marginBottom: 8, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, fontWeight: 700, cursor: "pointer" }}>{a.label}</button>
-            ))}
-            {listMenu !== "favorites" && (
-              <button onClick={() => { const id = listMenu; setListMenu(null); deleteList(id); }} style={{ width: "100%", textAlign: "left", padding: "14px 14px", background: C.card, border: `1px solid ${C.red}55`, borderRadius: 12, color: C.red, fontSize: 15, fontWeight: 700, cursor: "pointer" }}>Delete list</button>
-            )}
-          </div>
-        </div>
-      )}
-      {renamingList && (
-        <div style={sheetBg} onClick={() => { setRenamingList(null); setNewName(""); }}>
-          <div style={{ ...sheet, padding: "6px 16px 32px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => { setRenamingList(null); setNewName(""); })} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
-            <Grabber />
-            <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
-            <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 14, color: C.text }}>Rename list</div>
-            <input value={newName} onChange={(e) => setNewName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && renameList()} placeholder="List name" style={{ width: "100%", boxSizing: "border-box", padding: "12px 14px", background: C.card, border: `1.5px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 16, outline: "none", marginBottom: 16 }} />
-            <button onClick={renameList} disabled={!newName.trim()} style={{ width: "100%", padding: 14, background: newName.trim() ? C.accent : C.card, border: "none", borderRadius: 12, color: newName.trim() ? "#fff" : C.muted, fontSize: 15, fontWeight: 700, cursor: newName.trim() ? "pointer" : "default" }}>Save</button>
-          </div>
-        </div>
-      )}
-      {newListOpen && (
-        <div style={sheetBg} onClick={() => setNewListOpen(false)}>
-          <div style={{ ...sheet, padding: "6px 16px 32px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setNewListOpen(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
-            <Grabber />
-            <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
-            <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 14, color: C.text }}>New list</div>
-            <input
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && createList()}
-              placeholder="List name (e.g. Date Night)"
-              style={{ width: "100%", boxSizing: "border-box", padding: "12px 14px", background: C.card, border: `1.5px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 16, outline: "none", marginBottom: 16 }}
-            />
-            <div style={{ fontSize: 13, color: C.muted, marginBottom: 10 }}>Pick an icon</div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: 8, marginBottom: 20 }}>
-              {EMOJIS.map((e) => (
-                <button key={e} onClick={() => setNewEmoji(e)} style={{ fontSize: 22, padding: "8px 0", borderRadius: 10, cursor: "pointer", background: newEmoji === e ? C.adim : C.card, border: `1.5px solid ${newEmoji === e ? C.accent : C.border}` }}>{e}</button>
-              ))}
-            </div>
-            <button onClick={createList} disabled={!newName.trim()} style={{ width: "100%", padding: 14, background: newName.trim() ? C.accent : C.card, border: "none", borderRadius: 12, color: newName.trim() ? "#fff" : C.muted, fontSize: 15, fontWeight: 700, cursor: newName.trim() ? "pointer" : "default" }}>Create list</button>
-          </div>
-        </div>
-      )}
-    </div>
-    </div>
-  );
-}
-
-function SwipeRow({ children, onDelete }) {
-  const REVEAL = 84;
-  const [dx, setDx] = useState(0);
-  const [drag, setDrag] = useState(false);
-  const sx = useRef(0); const sy = useRef(0); const base = useRef(0); const horiz = useRef(false);
-  function start(e) { const t = e.touches[0]; sx.current = t.clientX; sy.current = t.clientY; horiz.current = false; setDrag(true); }
-  function move(e) {
-    const t = e.touches[0]; const mx = t.clientX - sx.current; const my = t.clientY - sy.current;
-    if (!horiz.current) { if (Math.abs(mx) > 10 && Math.abs(mx) > Math.abs(my)) horiz.current = true; else return; }
-    let nd = base.current + mx; if (nd > 0) nd = 0; if (nd < -(REVEAL + 40)) nd = -(REVEAL + 40); setDx(nd);
-  }
-  function end() { setDrag(false); const open = dx < -REVEAL / 2; const nd = open ? -REVEAL : 0; base.current = nd; setDx(nd); }
-  return (
-    <div style={{ position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "absolute", inset: 0, display: "flex", justifyContent: "flex-end" }}>
-        <div onClick={(e) => { e.stopPropagation(); onDelete(); }} style={{ width: REVEAL, background: C.red, color: "#fff", fontWeight: 800, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>Delete</div>
-      </div>
-      <div onTouchStart={start} onTouchMove={move} onTouchEnd={end} style={{ transform: `translateX(${dx}px)`, transition: drag ? "none" : "transform .2s ease", background: C.bg, position: "relative", touchAction: "pan-y" }}>
-        {children}
-      </div>
-    </div>
-  );
-}
-// v4.84 ‚Äî the shared bookable-activities rail (Viator products). Used on the
-// viator-flagged vibes and the Things to do browse. Links carry partner
-// attribution from the API; taps go through openExternal (PWA-safe).
-// v6.44 (Experiences v3): the table-backed, categorised Viator rail for Things
-// to Do. Reads cached wf_experiences through the same-origin-guarded
-// /api/experiences ‚Äî a DB read, so the distance rungs reach 90/120mi with NO
-// per-mile Google Places cost (unlike the place-search radius, which stays 60mi
-// to protect against the Places bill). Ships DARK (renders null) until the
-// migration + cron populate the table. Every card href is pid-wrapped through
-// lib/affiliates.viatorDirectUrl, and the section carries the FTC commission
-// disclosure proximate to the earning cards ‚Äî test-experiences-v3 locks both.
-// Default 30mi = the user's home market only (honest "near you"); the rungs
-// widen EXPLICITLY (60‚Üí90‚Üí120 reaches Orlando from Sarasota). Every card also
-// names its market (t.city) so a widened, multi-market view never shows a
-// far-away tour with no location cue ‚Äî the same honesty bar as the browse feed.
-const EXP_MI_RUNGS = [30, 60, 90, 120];
-function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
-  const [cat, setCat] = useState("all");
-  const [mi, setMi] = useState(30);
-  const [st, setSt] = useState({ items: [], chipCounts: {}, hasMore: false, dark: null });
-  const [busy, setBusy] = useState(true);
-  const [more, setMore] = useState(false);
-  const pageRef = useRef(0);
-  const log = (a, x) => { try { logEvent && logEvent(a, null, x); } catch (e) {} };
-  const qstr = (p) => {
-    const q = new URLSearchParams();
-    if (metro) q.set("metro", metro);
-    if (typeof lat === "number" && typeof lng === "number") { q.set("lat", String(lat)); q.set("lng", String(lng)); q.set("mi", String(mi)); }
-    q.set("cat", cat); q.set("limit", "12"); q.set("page", String(p));
-    return q.toString();
-  };
-
-  useEffect(() => {
-    let dead = false; setBusy(true); pageRef.current = 0;
-    fetch("/api/experiences?" + qstr(0)).then((r) => (r.ok ? r.json() : null), () => null).then((res) => {
-      if (dead) return;
-      if (!res || res.dark) { setSt({ items: [], chipCounts: {}, hasMore: false, dark: true }); setBusy(false); return; }
-      setSt({ items: res.items || [], chipCounts: res.chipCounts || {}, hasMore: !!res.hasMore, dark: false }); setBusy(false);
-    });
-    return () => { dead = true; };
-  }, [cat, mi, metro, lat, lng]);
-
-  const loadMore = () => {
-    if (more) return; setMore(true);
-    const next = pageRef.current + 1;
-    fetch("/api/experiences?" + qstr(next)).then((r) => (r.ok ? r.json() : null), () => null).then((res) => {
-      pageRef.current = next; setMore(false);
-      if (res && !res.dark) setSt((s) => ({ ...s, items: [...s.items, ...(res.items || [])], hasMore: !!res.hasMore }));
-    });
-    log("exp_load_more", { cat, mi });
-  };
-
-  if (st.dark) return null; // ships dark until the table is populated
-
-  const chips = DISPLAY_CHIPS.filter((c) => c.key === "all" || (st.chipCounts[c.key] || 0) > 0);
-  return (
-    <div style={{ margin: "4px 0 18px" }}>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
-        <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>Bookable experiences</span>
-        <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
-      </div>
-      <div style={{ display: "flex", gap: 8, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 6, marginBottom: 4 }}>
-        {chips.map((c) => {
-          const on = c.key === cat;
-          return (
-            <button key={c.key} onClick={() => { setCat(c.key); log("exp_chip", { cat: c.key }); }} style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 5, padding: "7px 13px", borderRadius: 999, cursor: "pointer", whiteSpace: "nowrap", fontSize: 12.5, fontWeight: 700, border: `1px solid ${on ? C.accent : C.border}`, background: on ? C.adim : C.card, color: on ? C.accent : C.text }}>
-              <span aria-hidden="true">{c.icon}</span>{c.label}
-            </button>
-          );
-        })}
-      </div>
-      <div style={{ display: "flex", gap: 6, marginBottom: 10, alignItems: "center" }}>
-        <span style={{ fontSize: 11, color: C.muted }}>Within</span>
-        {EXP_MI_RUNGS.map((m) => (
-          <button key={m} onClick={() => setMi(m)} style={{ padding: "4px 10px", borderRadius: 999, cursor: "pointer", fontSize: 11.5, fontWeight: 700, border: `1px solid ${mi === m ? C.accent : C.border}`, background: mi === m ? C.adim : "transparent", color: mi === m ? C.accent : C.muted }}>{m} mi</button>
-        ))}
-      </div>
-      {busy && !st.items.length ? (
-        <div aria-busy="true" style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain" }}>
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="wf-skeleton" style={{ flex: "0 0 200px", height: 150, borderRadius: 12 }} aria-hidden="true" />
-          ))}
-        </div>
-      ) : st.items.length === 0 ? (
-        <div style={{ fontSize: 12.5, color: C.muted, padding: "8px 2px" }}>Nothing bookable in this one yet ‚Äî we&apos;d rather show none than pad it with another category&apos;s tours.</div>
-      ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 10 }}>
-          {st.items.map((t) => {
-            const href = Aff.viatorDirectUrl(t.url);
-            // v6.79 (AGENTS.md ¬ß6b): null means UNATTRIBUTABLE, so suppress the row entirely. Rendering <a> with href={null} would be a dead link that looks clickable ‚Äî worse than the untracked one it replaced.
-            if (!href) return null;
-            return (
-              <a key={t.code} href={href} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || href; log("tickets_out", { kind: "exp_rail", cat, code: t.code }); openExternal(_live); }} style={{ position: "relative", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none" }}>
-                {t.sellingOut ? <span style={{ position: "absolute", top: 7, left: 7, zIndex: 2, fontSize: 10, fontWeight: 800, padding: "2px 7px", borderRadius: 999, background: "rgba(13,17,23,.82)", color: "#FF8A3D", backdropFilter: "blur(4px)" }}>üî• Selling out</span> : null}
-                {t.image ? <img src={t.image} alt="" loading="lazy" style={{ width: "100%", height: 96, objectFit: "cover", display: "block" }} /> : <div style={{ width: "100%", height: 96, background: C.adim }} />}
-                <div style={{ padding: "8px 10px" }}>
-                  <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
-                  {t.city ? <div style={{ fontSize: 10.5, fontWeight: 700, color: C.light, marginTop: 4 }}>{t.city}</div> : null}
-                  {/* THE ONE SCORE (owner): Viator cards wear the Wayfind Score
-                      exactly like place cards ‚Äî green /10, then the honest meta. */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 3, flexWrap: "wrap" }}>
-                    {t.rating > 0 && t.reviews > 0 ? <PlaceScoreChip p={{ rating: t.rating, reviews: t.reviews }} size={12} /> : <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted }}>New</span>}
-                    <span style={{ fontSize: 11, color: C.muted }}>{t.fromPrice ? `from $${t.fromPrice}` : ""}{t.duration ? ` ¬∑ ${t.duration}` : ""}</span>
-                  </div>
-                </div>
-            </a>
-          );
-          })}
-        </div>
-      )}
-      <div style={{ fontSize: 10.5, color: C.muted, marginTop: 9, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
-      {st.hasMore ? (
-        <button onClick={loadMore} disabled={more} style={{ width: "100%", marginTop: 10, padding: "11px 0", borderRadius: 12, border: `1px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 13.5, fontWeight: 800, cursor: more ? "default" : "pointer", opacity: more ? 0.6 : 1 }}>{more ? "Loading‚Ä¶" : "Show more experiences"}</button>
-      ) : null}
-    </div>
-  );
-}
-
-
-// v6.56 (owner): the PERMANENT bookable-experiences rail on Things to do ‚Äî
-// "All" shows top trending; each sub-menu shows experiences themed to it
-// (lib/experiencesData catalog keys). Every href is affiliate-wrapped via
-// viatorDirectUrl (the ONE tracking builder). Fails soft to no rail.
-// 2026-08-02 ‚Äî the chip -> inventory decision moved OUT of this file into
-// lib/browseCommerceMap.js, so a guard can import and CALL it instead of
-// regexing a literal out of a 9,500-line client component. See that file for
-// why one catalogue key per chip was never enough. The three behaviours that
-// matter here:
-//   - a chip with no table inventory (spa) returns catalogParam === null and we
-//     skip the table read entirely rather than sending an empty cat= that the
-//     route's `|| "all"` default would silently widen back to everything;
-//   - a chip may name SEVERAL catalogues ("Outdoors" = nature+adventure+kayaking);
-//   - the live-search fallback uses the chip's own human query text, never a
-//     catalogue key, so an empty market searches "Sarasota family attractions
-//     and theme parks" instead of the literal "Sarasota theme".
-
-// One commerce rail per browse surface. It combines verified Viator inventory
-// and network deals before rendering, so provider boundaries never become
-// separate visual sections. Cards without real artwork fail closed.
-function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includeExperiences = true, initialExperiences, categories = [], lat, lng, onSave, onLog = NOLOG, city, region }) {
-  const plan = chipCommerce(browseCat, sub || "all");
-  const cat = plan.catalogParam;
-  const [experiences, setExperiences] = useState(() => Array.isArray(initialExperiences) ? initialExperiences : null);
-  const [deals, setDeals] = useState(null);
-
-  useEffect(() => {
-    if (Array.isArray(initialExperiences)) { setExperiences(initialExperiences); return; }
-    if (!includeExperiences || !Number.isFinite(lat) || !Number.isFinite(lng)) { setExperiences([]); return; }
-    let dead = false;
-    const searchText = chipSearchQuery(browseCat, sub || "all", city);
-    const liveSearch = async () => {
-      // GATED ON `city`, deliberately. With no known city this must
-      // never fall back to Florida markets for an out-of-region visitor ‚Äî
-      // that is the regression test-experiences-location exists to hold.
-      // `region` rides along for the same reason: the anti-foreign filter in
-      // /api/viator/tours returns 0 tours without it.
-      if (!city) return [];
-      try {
-        const live = await fetch("/api/viator/tours?q=" + encodeURIComponent(searchText) + "&region=" + encodeURIComponent(region || city) + "&lat=" + encodeURIComponent(lat) + "&lng=" + encodeURIComponent(lng) + "&intent=" + encodeURIComponent(sub || "all")).then((r) => (r.ok ? r.json() : null));
-        return rankExperiences(live && Array.isArray(live.items) ? live.items : []).slice(0, 12);
-      } catch (e) { return []; }
-    };
-    // cat === null means NOTHING in wf_experiences belongs under this chip.
-    // Going straight to search is the honest path; hitting the table would only
-    // ask a question whose only correct answer is "none".
-    if (cat === null) {
-      liveSearch().then((rows) => { if (!dead) setExperiences(rows); });
-      return () => { dead = true; };
-    }
-    const q = new URLSearchParams({ lat: String(lat), lng: String(lng), mi: "60", cat, limit: "12", page: "0" });
-    fetch("/api/experiences?" + q.toString()).then((r) => (r.ok ? r.json() : null), () => null).then(async (res) => {
-      if (dead) return;
-      let rows = rankExperiences(res && Array.isArray(res.items) ? res.items : []).slice(0, 12);
-      if (!rows.length) rows = await liveSearch();
-      setExperiences(rows);
-    });
-    return () => { dead = true; };
-  }, [initialExperiences, includeExperiences, cat, browseCat, sub, lat, lng, city, region]);
-
-  useEffect(() => {
-    // The deals lane never consulted `plan`. `categories` is a literal and `sub`
-    // was not even in the dep array, so every Activities chip fetched the same
-    // theme-park tickets and painted them under a heading naming that chip:
-    // "SPA & WELLNESS - BOOKABLE NEAR PARRISH" over LEGOLAND and Busch Gardens,
-    // on a live screenshot. The heading comment below already called this exact
-    // shape "a bug you can SEE". A chip that declares no bookable catalog now
-    // sells nothing here rather than the wrong thing under its own name.
-    const chipSellsNothing = !!(sub && sub !== "all" && plan.catalogParam === null);
-    if (chipSellsNothing || !categories.length || !Number.isFinite(lat) || !Number.isFinite(lng)) { setDeals([]); return; }
-    let dead = false;
-    const geo = "&lat=" + lat.toFixed(3) + "&lng=" + lng.toFixed(3);
-    Promise.all(categories.map((category) => fetch("/api/deals?category=" + encodeURIComponent(category) + geo).then((r) => (r.ok ? r.json() : null), () => null))).then((payloads) => {
-      if (dead) return;
-      const rows = [];
-      for (const payload of payloads) for (const rail of (payload && Array.isArray(payload.rails) ? payload.rails : [])) for (const deal of (Array.isArray(rail.items) ? rail.items : [])) rows.push(deal);
-      setDeals(rows);
-    });
-    return () => { dead = true; };
-  }, [categories.join("|"), lat, lng, sub, plan.catalogParam]);
-
-  // v6.90 ‚Äî owner: "make sure they are displayed by rating and discount,
-  // point based on the activity time of today." Same small, capped, order-
-  // only bonuses as IntentPartnerPick.js's evidenceScore, kept in sync so the
-  // two mixed-provider rails behave consistently ‚Äî see
-  // lib/experienceNowRank.js. Rating/quality10 stays the base term; unrated
-  // deals keep the exact -1 sentinel (sorts last, untouched by any bonus).
-  const nowHour = siteHourFloat();
-  const cards = useMemo(() => {
-    const rows = [];
-    for (const t of (Array.isArray(experiences) ? experiences : [])) {
-      if (!t?.image || !(t.code || t.product_code)) continue;
-      const offerId = t.code || t.product_code;
-      // THE WAYFIND SCORE, not a second opinion (owner: "they are not being
-      // displayed by highest to lowest score", 2026-08-05).
-      //
-      // rankExperiences() had already ordered these correctly ‚Äî by
-      // experienceWayfindScore, the Bayesian blend that weights review DEPTH.
-      // This line then re-sorted them by `rating * 2 + log10(reviews)`, where
-      // reviews contribute at most 0.4, so rating dominates and the correct
-      // order was destroyed immediately after being computed. Measured:
-      //
-      //   4.7 with 2000 reviews  ->  Score 94, railBase 9.73  (shown 3rd)
-      //   5.0 with 3 reviews     ->  Score 79, railBase 10.06 (shown 1st)
-      //
-      // A 5.0 from three people outranked a 4.7 from two thousand. Divided by
-      // 10 so the 0-100 Score shares the 0-10 scale the deal rows and the
-      // capped bonuses already use ‚Äî the bonuses stay proportionally what they
-      // were, and merit still decides the order.
-      const base = experienceWayfindScore(t) / 10;
-      // chipAffinityBonus is ORDER-ONLY and capped at 0.5 on the same ~0-10
-      // scale as `base`. It exists because every Food sub-chip draws from one
-      // pool of food tours ‚Äî Viator sells no "dessert catalogue" ‚Äî so Dessert
-      // used to render the identical list as Food/All. This lets a chocolate
-      // tour edge past an EQUALLY-rated generic food tour under Dessert without
-      // ever leapfrogging a clearly better one, which is what keeps the owner's
-      // "ranked from highest score" true.
-      rows.push({ key: `viator:${offerId}`, provider: "viator", merchant: "Viator", offerId, title: t.title, image: t.image, rating: Number(t.rating || 0), reviews: Number(t.reviews || 0), price: t.fromPrice ? `from $${Math.round(t.fromPrice)}` : "", duration: t.duration || "", score: base + timeOfDayBonus(String(t.title || ""), nowHour) + chipAffinityBonus(browseCat, sub || "all", t.title), kind: "experience" });
-    }
-    for (const d of (Array.isArray(deals) ? deals : [])) {
-      const image = d.image || (d.photoRef ? "/api/photo?ref=" + encodeURIComponent(d.photoRef) + "&w=600" : "");
-      if (!image || !d.id) continue;
-      const dBase = Number(d.quality10 || 0);
-      const discountText = d.discount || d.badge || "";
-      const dScore = dBase > 0 ? dBase + discountDepthBonus(discountText) + timeOfDayBonus(String(d.title || "") + " " + discountText, nowHour) : -1;
-      // ATTRIBUTION, not cosmetics. lib/dealsData.js shapes every row with
-      // surface:"deal_rail" baked into the href, because that is where deals
-      // were first served. Rendering that href here reported every browse-rail
-      // deal click as an intent-rail click, so the two surfaces could not be
-      // told apart in any revenue comparison. Same provider, same offer id,
-      // same redirect ‚Äî only the surface tag differs, and it is now the tag of
-      // the rail that actually rendered it. Falls back to the server's href if
-      // the row somehow lacks a provider, so a re-tag can never lose the link.
-      const dealHref = commerceHref({ provider: d.provider, offerId: d.id, surface: "browse_partner_rail", contentId: sub || "all" }) || d.href;
-      // v8.22 (owner: "some of them have no wayfind score"): a deal matched to
-      // a scored place (quality10, the SAME number its rank already uses)
-      // now SHOWS that score; a national deal with no place keeps no chip ‚Äî
-      // we never invent a score ‚Äî and still sorts last.
-      rows.push({ key: `${d.provider || "deal"}:${d.id}`, provider: d.provider, merchant: d.providerLabel || "Verified partner", offerId: d.id, title: d.title, image, discount: discountText, score: dScore, quality10: dBase > 0 ? dBase : null, href: dealHref, kind: "deal" });
-    }
-    const seen = new Set();
-    return rows.filter((row) => { const name = String(row.title || "").toLowerCase(); if (seen.has(name)) return false; seen.add(name); return true; }).sort((a, b) => b.score - a.score);
-  }, [experiences, deals, nowHour, sub, browseCat]);
-
-  // v8.22 (owner, live screenshots: "the rail starts mid-way ‚Ä¶ starting at the
-  // cards with no score on all of the submenus"). ROOT CAUSE: the scroller
-  // <div> is the same DOM node across chip/submenu switches ‚Äî React re-renders
-  // its children but never touches scrollLeft, so one right-swipe in any
-  // submenu leaves EVERY later submenu's rail opened mid-track. That reads as
-  // "unranked first" because unscored deals sort last (rightward). The rail
-  // must open at its own #1 whenever its content identity changes. GLOBAL
-  // RULE for horizontal rails whose content swaps under a persistent node;
-  // locked by scripts/check-rail-scroll-reset.mjs.
-  const laneRef = useRef(null);
-  const laneSig = (cards.length && cards[0].key) || "";
-  useEffect(() => { const el = laneRef.current; if (el) el.scrollLeft = 0; }, [browseCat, sub, laneSig]);
-
-  if (!cards.length) return null;
-  // The heading NAMES THE FILTER. It used to read "Bookable highlights near
-  // {city}" ‚Äî byte-identical to IntentPartnerPick's heading on the intent
-  // pages, so two rails with different inventory, different ranking and
-  // different providers were indistinguishable to a user and to anyone reading
-  // a screenshot. Naming the active chip also makes a mismatch self-evident:
-  // "Spa & wellness ‚Äî bookable near Sarasota" over a dolphin cruise is a bug
-  // you can SEE, where the old generic heading hid exactly that.
-  const chipLabel = (() => {
-    if (!sub || sub === "all") return null;
-    const hit = ((SUBFILTERS[browseCat] || SUBFILTERS.attractions) || []).find((x) => x && x.id === sub);
-    return hit ? hit.label : null;
-  })();
-  return (
-    <aside data-unified-browse-commerce-rail style={{ margin: "2px 0 14px" }}>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
-        <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>{chipLabel ? `${chipLabel} ‚Äî bookable near ${city || "you"}` : `Bookable near ${city || "you"}`}</span>
-        <span style={{ fontSize: 9.5, color: C.muted }}>Verified partners</span>
-      </div>
-      <div ref={laneRef} style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 4, scrollSnapType: "x proximity" }}>
-        {cards.map((card) => {
-          const href = card.kind === "experience" ? commerceHref({ provider: "viator", offerId: card.offerId, surface: "browse_partner_rail", contentId: sub || "all" }) : card.href;
-          if (!href) return null;
-          return (
-            <a key={card.key} href={href} target="_blank" rel="sponsored nofollow noopener" onClick={(e) => { e.preventDefault(); const live = (e.currentTarget && e.currentTarget.href) || href; try { onLog("tickets_out", null, { kind: "unified_browse_rail", provider: card.provider, id: card.offerId }); } catch (er) {} openExternal(live); }} style={{ flex: "0 0 200px", scrollSnapAlign: "start", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", color: "inherit" }}>
-              <div style={{ position: "relative", height: 86, overflow: "hidden", borderBottom: `1px solid ${C.border}` }}>
-                <img src={card.image} alt="" loading="lazy" onError={(e) => { const root = e.currentTarget.closest("a"); if (root) root.style.display = "none"; }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                <span style={{ position: "absolute", top: 7, right: 7, padding: "3px 7px", borderRadius: 999, background: "rgba(7,12,20,.82)", border: "1px solid rgba(255,255,255,.24)", color: "#fff", fontSize: 8.5, fontWeight: 800 }}>via {card.merchant}</span>
-              </div>
-              <div style={{ padding: "8px 10px" }}>
-                <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{card.title}</div>
-                <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 4, flexWrap: "wrap" }}>
-                  {card.rating > 0 && card.reviews > 0 ? <PlaceScoreChip p={{ rating: card.rating, reviews: card.reviews }} size={12} />
-                    : card.quality10 != null ? <PlaceScoreChip p={{ governed_score: Math.round(card.quality10 * 10) }} size={12} /> : null}
-                  <span style={{ fontSize: 11, fontWeight: card.discount ? 800 : 500, color: card.discount ? "#7DD3A8" : C.muted }}>{card.discount || card.price}{card.duration ? ` ¬∑ ${card.duration}` : ""}</span>
-                  <button aria-label={"Save " + card.title} onClick={(e) => { e.preventDefault(); e.stopPropagation(); try { onSave && onSave({ item_type: card.kind, item_id: card.offerId, item_title: card.title, item_image: card.image, item_url: href, provider: card.provider }); } catch (er) {} }} style={{ marginLeft: "auto", border: `1px solid ${C.border}`, background: "transparent", borderRadius: 999, color: C.light, fontSize: 12, padding: "3px 8px", cursor: "pointer" }}>‚ô°</button>
-                </div>
-              </div>
-            </a>
-          );
-        })}
-      </div>
-      <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through these links, at no extra cost to you. It never changes our scores or rankings.</div>
-    </aside>
-  );
-}
-
-
-// Undercover Tourist discount-ticket / theme-park-hotel deal rail (CJ, PID
-// 101643573 ‚Äî see lib/deals.js). Shipped v6.66, geo-gated v6.76, then silently
-// dropped from the homepage during the design-release-01 rewrite (merge
-// 46be253, 2026-07-24) ‚Äî the backend (lib/dealsData.js, /api/deals) was never
-// touched and is still live; only this component + its two render call sites
-// were lost. Restored 2026-07-25, card chrome matched 1:1 to what is now
-// UnifiedBrowseCommerceRail (BookableExpRail, the sibling Viator rail this
-// originally matched, was deleted 2026-08-02 ‚Äî it had zero mount sites and
-// check-unified-commerce-rail already forbade mounting it) ‚Äî same 200px card, same
-// <img> height 86 object-fit cover, same title clamp, same disclosure footer ‚Äî
-// the two rails should read as one visual system, not two different eras of UI.
-function UTDealsRail({ category, onSave, lat, lng, onLog = NOLOG }) {
-  const [rails, setRails] = useState(null);
-  useEffect(() => {
-    let dead = false;
-    setRails(null);
-    // Pass the user's location so /api/deals geo-gates ‚Äî a far-away region's deals
-    // (Orlando hotels in South Carolina) are filtered out and the rail hides.
-    const geo = (Number.isFinite(lat) && Number.isFinite(lng)) ? "&lat=" + lat.toFixed(3) + "&lng=" + lng.toFixed(3) : "";
-    fetch("/api/deals?category=" + encodeURIComponent(category) + geo).then((r) => (r.ok ? r.json() : null), () => null).then((res) => {
-      if (dead) return;
-      setRails(res && !res.dark && Array.isArray(res.rails) ? res.rails : []);
-    });
-    return () => { dead = true; };
-  }, [category, lat, lng]);
-  if (rails === null || !rails.length) return null; // no skeleton flash
-  const cta = category === "stays" ? "View hotels ‚Üó" : "Get tickets ‚Üó";
-  return (
-    <>
-      {rails.map((rail) => (
-        <div key={rail.subcategory} style={{ margin: "2px 0 14px" }}>
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
-            <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>{rail.label}</span>
-            <span style={{ fontSize: 9.5, color: C.muted }}>via Undercover Tourist</span>
-          </div>
-          <div style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 4 }}>
-            {rail.items.map((d) => (
-              <a key={d.id} href={d.href} target="_blank" rel="sponsored nofollow noopener" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || d.href; try { onLog("tickets_out", null, { kind: "ut_deal_rail", category, provider: d.provider, id: d.id }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 210px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", position: "relative" }}>
-                <div style={{ width: "100%", height: 96, background: d.image ? `center/cover no-repeat url(${d.image})` : d.photoRef ? `center/cover no-repeat url(/api/photo?ref=${encodeURIComponent(d.photoRef)}&w=600)` : (d.gradient || "linear-gradient(135deg,#1b2735,#2c3e50)"), display: "flex", alignItems: "flex-start", justifyContent: "flex-end", padding: 7 }}>
-                  {d.badge ? <span style={{ fontSize: 9.5, fontWeight: 800, color: "#0D1117", background: "rgba(255,255,255,.92)", borderRadius: 999, padding: "2px 8px" }}>{d.badge}</span> : null}
-                </div>
-                <div style={{ padding: "8px 10px" }}>
-                  <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{d.title}</div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 5, flexWrap: "wrap" }}>
-                    {/* v8.22 ‚Äî same rule as the browse rail: a place-matched
-                        deal shows the Wayfind score its rank already uses. */}
-                    {d.quality10 != null && Number(d.quality10) > 0 ? <PlaceScoreChip p={{ governed_score: Math.round(Number(d.quality10) * 10) }} size={11} /> : null}
-                    {d.discount ? <span style={{ fontSize: 11, fontWeight: 800, color: "#7DD3A8" }}>{d.discount}</span> : null}
-                    <span style={{ display: "inline-flex", alignItems: "center", background: C.accent, color: "#0D1117", borderRadius: 999, padding: "3px 9px", fontSize: 11, fontWeight: 800 }}>{cta}</span>
-                  </div>
-                  <div style={{ marginTop: 6, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
-                    <AffiliateChip provider={d.provider} label={d.providerLabel} />
-                    <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-                      <button aria-label={"Save " + d.title} onClick={(e) => { e.preventDefault(); e.stopPropagation(); try { onSave && onSave({ item_type: "deal", item_id: d.id, item_title: d.title, item_image: d.image || (d.photoRef ? "/api/photo?ref=" + encodeURIComponent(d.photoRef) + "&w=240" : null), item_url: d.href, provider: d.provider }); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", border: `1px solid ${C.border}`, background: "transparent", borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "3px 9px", cursor: "pointer" }}>‚ô°</button>
-                      <button aria-label={"Share " + d.title} onClick={(e) => { e.preventDefault(); e.stopPropagation(); try { shareLink(d.title, d.href, null, "Discount tickets on Wayfind"); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", border: `1px solid ${C.border}`, background: "transparent", borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "3px 9px", cursor: "pointer" }}>‚Üó</button>
-                    </div>
-                  </div>
-                </div>
-              </a>
-            ))}
-          </div>
-          <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
-        </div>
-      ))}
-    </>
-  );
-}
-
-// v6.42 (owner): bookable Activities cards carry the PAID booking link at card
-// level ‚Äî the same verified /api/viator/go gate the Detail sheet uses (exact
-// product with attribution, or the tracked pid search; every click attributed).
-// Kinds MUST stay identical to the Detail sheet's tour gate; scripts/
-// test-card-booking.mjs enforces the match so the surfaces never drift.
-// The place card can't confirm a VERIFIED Viator product at build time (no per-card
-// precompute), so it must NOT show a verified-sounding "Tickets & tours" ‚Äî that's the
-// booking-integrity over-promise. It renders a button only for a verified product.
-// (gated on Aff.isTicketyPlace so it only appears on ticketed venues, never free
-// parks/beaches). The /go route still upgrades to the exact product at click time when
-// one clears the geo-gated resolver; otherwise it's an honest Viator search.
-function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap, beachSignal, city }) {
-  // v6.86: vision-scored, people-free card photo ‚Äî must run BEFORE the
-  // cardComplete early return below (rules of hooks: this hook must run on
-  // every render, even for a card that ultimately renders nothing).
-  const cardPhoto = useBestPhoto(p && p.photo, p && p.photos);
-  // v8.49.1 (owner, 2026-08-25, Family ‚Üí Kids at Parrish): Kids Empire and
-  // Intense Escape both painted the same beach-sunset stock scene. That was
-  // rung 3 of the photo ladder ‚Äî /api/market-photo keyed on category+city ‚Äî
-  // so every photoless Activities card in one town reused one Pexels image.
-  // House cards now use the venue's own photo or the branded monogram.
-  // Never another place's photo. The Coupons market-level cards still use
-  // the stock rung; they are not a venue card.
-  // v4.89 ‚Äî photo fix. Non-Google (Foursquare) entries often arrive without a
-  // photo reference, so cards fell back to the logo. When a card renders
-  // photoless, resolve its Google twin once (findPlace is cached ~8 days) and
-  // attach the real photo. The logo is now the last resort, not the norm.
-  const [, _photoBump] = useState(0);
-  useEffect(() => {
-    if (!p || p.photo || !/^(fsq|osm|ridb|nps):/.test(String(p.id || "")) || p._noPhoto) return;
-    let c = false;
-    findPlace(p.name, { lat: p.lat, lng: p.lng }).then((g) => {
-      const ok = g && g.photo && (_wfNorm(g.name).includes(_wfNorm(p.name)) || _wfNorm(p.name).includes(_wfNorm(g.name)));
-      if (c) return;
-      if (ok) { p.photo = g.photo; p.photos = g.photos || []; p.photoAttr = g.photoAttr || ""; if (g.oh) { p.oh = g.oh; p.openNow = g.openNow; p.utcOffset = g.utcOffset; if (g.hoursAsOf != null) p.hoursAsOf = g.hoursAsOf; /* v6.34: the freshness stamp travels with the bundle */ } _photoBump((x) => x + 1); }
-      else p._noPhoto = true; // remember the miss so we never refetch
-    }).catch(() => {});
-    return () => { c = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [p && p.id]);
-  const cardProduct = usePlaceProduct(p && p.id);
-  // THE GATE COMES LAST. Every hook above runs on every render; `cardComplete`
-  // reads p.photo, which the heal effect above writes, so this gate genuinely
-  // flips mid-life. A hook below it would change React's hook count on that
-  // render and unmount the feed (2026-08-21; scripts/check-hook-order.mjs).
-  if (!cardComplete(p)) return null; // v6.39 GLOBAL guardrail: an incomplete card renders NOTHING (scripts/test-card-gate.mjs)
-  // v5.99 / v6.96: the "Creator video" badge is shown whenever a place HAS a
-  // renderable creator video. Until v6.96 that was the same set as "got the
-  // boost"; a quality floor now makes the boosted set a subset. The invariant
-  // this line exists to protect is one-directional and still holds: a boosted
-  // place is always labeled, so the ranking thumb is never silent.
-  // v7.15 (owner, 2026-08-11: "i told you i don't like the bubbles either"):
-  // the decorative experience-tag bubbles are GONE from every place card.
-  // experienceBadges stays the engine behind ?exp= collections, "known for"
-  // lines, similarity and telemetry ‚Äî it just never renders as chip pills
-  // anymore. The two chips that remain are RANKING DISCLOSURES (creator
-  // video +0.2, featured), which the score law requires to stay visible.
-  // v8.17 (owner, 2026-08-19: "the experience pills have also been removed ‚Ä¶
-  // i want the iconic place card everywhere the way we had it"). This
-  // completes the v8.5 reversal ("bring that everywhere"): the restore only
-  // reached IconicPlaceCard ‚Äî the BROWSE feed's canonical card (this one)
-  // stayed on the v7.15 no-bubbles state, so the two cards drifted apart and
-  // the owner saw pill-less cards under Breakfast/Caf√©s. Same engine, same
-  // evidence discipline, capped at 3; the two ranking DISCLOSURES stay first.
-  // check-collection-look ¬ß8 now asserts this render too.
-  const badges = [...(hasCreatorVideo(p) ? [{ key: "creatorvideo", icon: "üé¨", label: "Creator video" }] : []), ...(featuredBoost(p) > 0 ? [{ key: "featured", icon: "üèÖ", label: "Featured" }] : []), ...experienceBadges(p, selectedBadge, 3)];
-  // v8.33 (owner, 2026-08-22) ‚Äî the SAME resolved set the "Creator video" chip
-  // above is derived from (hasCreatorVideo() is creatorVideosFor().length > 0),
-  // so the face on the photo and the chip in the pills lane can never disagree
-  // about whether this place has a video. The chip stays: it is the ranking
-  // DISCLOSURE the score law requires to be visible, and a portrait discloses
-  // nothing on its own. See app/components/CreatorCardMark.js.
-  let cardCreatorVideos = [];
-  try { cardCreatorVideos = creatorVideosFor(p) || []; } catch (e) { cardCreatorVideos = []; }
-  const pcat = primaryCategory(p);
-  // v6.87 (owner): the rank-summary sentence ("Our #1 pick ‚Äî 4.8‚òÖ ¬∑ 1.4k
-  // reviews, and it holds up.") is GONE ‚Äî rating, reviews, rank, price,
-  // status and distance already render elsewhere on this card, and
-  // restating them here was the generic filler this rule exists to kill.
-  // Priority is now: a hand-written Wayfind hook (lib/curated.js, ~75
-  // places, real and substantive) beats a validated Anthropic CARD_SUMMARY
-  // (lib/editorialValidator.js already rejected anything generic, a
-  // fragment, or card-data-repeating before this ever reached the client).
-  // If NEITHER exists, this slot renders NOTHING ‚Äî no rankReason, no
-  // templateBlurb. Good evidence shows sharp copy; weak evidence shows
-  // nothing, rather than another line every place of this type could wear.
-  const curatedHook = ((curatedFor(p) || {}).hook) || "";
-  // v7.06 ‚Äî THE DEFECT THIS FIXES. /api/known-for returns a plain STRING per
-  // place (lib/knownFor.knownForMap). loadBlurbs merges those strings into
-  // `blurbs`, and every PlaceCard call site passes `line={blurbs[p.id]}`. But
-  // the ONLY branch that read `line` required `typeof line === "object"`, so
-  // every researched wf_editorial hook ‚Äî 668 rows, the same table the Top 40
-  // rail has rendered from since #687 ‚Äî was fetched, cached, and then silently
-  // dropped at render. Only curatedHook (~75 hand-written places in
-  // lib/curated.js) ever reached the slot. PlaceCard is also the map place card
-  // and the share card (both receive it through ctx), so one dropped branch
-  // cost the editorial line on three surfaces at once.
-  //
-  // Scoped to the STRING shape on purpose: an OBJECT `line` is a validated
-  // two-line CARD_SUMMARY and keeps its existing two-line render below.
-  // Compressing it to one line here would be a regression, not a fix.
-  //
-  // Precedence: hand-written Wayfind hook > researched wf_editorial hook >
-  // validated CARD_SUMMARY. Same order the ranked rows use ‚Äî researched copy
-  // beats generated copy, and both lose to a human. When none exists the slot
-  // renders NOTHING, which is the law.
-  const knownForHook = !curatedHook && typeof line === "string" ? editorialLine(line, p.name) : "";
-  const aiSummary = !curatedHook && !knownForHook && line && typeof line === "object" && line.card_line_1 && line.card_line_2 ? line : null;
-  const offer = OFFERS[p.id];
-  // v6.27 GLOBAL RULE: the Wayfind Score (Bayesian, 0‚Äì10) is THE headline number
-  // on every card. Invalid/missing wfScore -> null -> no badge (never a fake 0);
-  // killswitch restores the old layout.
-  // v6.40: a rated card ALWAYS carries the Wayfind Score badge. Rows that
-  // arrived from ANY source (inventory serve, skeleton index, imports) without
-  // a precomputed wfScore get it here from the same formula the ranking uses ‚Äî
-  // cardComplete above already refused rows with no rating signals at all, so
-  // past this line a Score is always computable and always shown.
-  if (p.wfScore == null && Number(p.rating) > 0) p.wfScore = wayfindScore(Number(p.rating), Number(p.reviews != null ? p.reviews : p.userRatingCount) || 0);
-  // v7.00 ‚Äî creator evidence is now VISIBLE on the card, not just in the sort.
-  // displayedWfScore() inherits the 4.2*/30-review floor and the 15% cap and
-  // clamps at 100; see the comment at its declaration for why the clamp is the
-  // whole fix rather than a nicety.
-  const dispScore = SCORE_BADGE_OFF ? null : toDisplayScore(displayedWfScore(p));
-  const cardInitials = String(p.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase();
-  const cardCuisine = Dining.cuisineLabel(p);
-  const cardShowsCuisine = (pcat === "Food" || pcat === "Nightlife") && cardCuisine;
-  const cardPrimaryLabel = cardShowsCuisine ? cardCuisine : pcat;
-  const cardCuisineCanTap = !!(cardShowsCuisine && onCuisineTap);
-  const cardRank = Number(rank);
-  const isCuratorPick = !!(p._members && p._members.ownerPick);
-  // v6.48: hoisted out of the meta row so the medallion on the thumbnail and any
-  // future consumer read ONE predicate. The gate is unchanged from the pill it
-  // replaces ‚Äî editorially curated AND either unscored or scoring high enough to
-  // deserve the seal, so a curated-but-weak place never wears it.
-  // The `!isCuratorPick` term is load-bearing and predates the medallion. It
-  // used to live on the meta-row chip this medallion replaced (v6.48), and it
-  // enforces one rule: an OWNER pick suppresses the generic editorial pick, so
-  // a card that is both never wears two "this is a pick" badges. Dropping it
-  // when the chip moved would have shipped the owl seal (bottom-left) and the
-  // medallion (top-left) on the same card ‚Äî different corners, so it would not
-  // have looked broken, just duplicated. test-curator-boost asserts this.
-  const isWayfindPick = !!(!isCuratorPick && curatedFor(p) && (dispScore == null || pickEligibleByScore(dispScore)));
-  // One credential slot, never a second curator badge. An owner like promotes
-  // this existing award to the quieter curator treatment; the rank number and
-  // Wayfind Score already communicate placement elsewhere on the card.
-  // Owner 2026-08-25: TOP {CATEGORY} PICK + rank, never BEST ‚Ä¶ PICK, never
-  // a gold trophy. Category is the section (Food / Activities), not cuisine
-  // ‚Äî cuisine stays a chip. lib/topPickAward.js is the only composer.
-  const cardAward = isCuratorPick
-    ? { rank: cardRank, label: "Wayfind curator's pick", curator: true }
-    : topPickAward({ category: pcat, rank: cardRank });
-  return (
-    <div className={`wf-place-card${fallCardClass(p && p.id, siteTodayStr())}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
-      <button type="button" className="wf-place-card-open" onClick={onDetail} aria-label={`Open ${p.name}`} style={{ position: "absolute", inset: 0, zIndex: 0, width: "100%", height: "100%", opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
-      {/* v8.62 (owner, 2026-08-26, live): "top right hand corner of the card,
-          not in front of the image." The score badge is a direct child of the
-          CARD, anchored to its top-right corner by the shared
-          .wf-place-card-score rule in css.js ‚Äî it never rides the photo
-          (#965/#958 superseded) and never crowds the title row (v6.34
-          superseded). Rank stays on the photo. The ‚ú¶ PICK seal (v8.17)
-          stays gone; check-pick-medallion.mjs still bans it. */}
-      {dispScore != null && <div className="wf-place-card-score"><WayfindScoreBadge score={dispScore} /></div>}
-      <div className="wf-place-card-layout" style={{ position: "relative", zIndex: 1, pointerEvents: "none" }}>
-        <div className="wf-place-card-media">
-          {(cardPhoto || (p && p.photo))
-            ? <FallbackImg src={cardPhoto || p.photo} icon={iconForPlace(p)} />
-            : <div className="wf-place-card-monogram" aria-hidden="true">{cardInitials}</div>}
-          {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
-        </div>
-        <div className="wf-place-card-content" style={{ position: "relative" }}>
-          <div className="wf-place-card-title-row">
-            <div className="wf-place-card-heading">
-              {pcat && (cardCuisineCanTap
-                ? <button type="button" className="wf-place-card-category is-tappable" style={{ pointerEvents: "auto" }} onClick={(e) => { e.stopPropagation(); onCuisineTap(cardCuisine, p); }}>{pcat} ‚Ä∫</button>
-                : <span className="wf-place-card-category">{pcat || cardPrimaryLabel}</span>
-              )}
-              <div className="wf-place-card-name">{p.name}</div>
-            </div>
-          </div>
-          <div className="wf-place-card-meta" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "7px 0 6px" }}>
-            {offer && <span style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>{offerLabel(offer)}</span>}
-            {!offer && (() => { const cpn = couponForPlaceName(p.name); /* v6.17: owner-curated coupon pill ‚Äî same slot as Supabase offers; placeholder chip until the badge logo lands */ return cpn ? <span title={cpn.title} style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>üè∑Ô∏è Deal</span> : null; })()}
-            {/* v6.48: the "‚òÖ Wayfind Pick" chip that used to sit HERE is now the
-                34px champagne medallion over the thumbnail (see the
-                isWayfindPick block at the top of this card). v6.56 had already
-                restyled it from an orange rectangle to a champagne pill, but the
-                real defect was positional, not cosmetic: sharing this flex-wrap
-                row with reviews, price, open/closed and distance meant it
-                wrapped to its own line on any narrow card. Off the row, it
-                cannot wrap. */}
-            {/* v6.30 GLOBAL RULE: the Wayfind Score badge (top-right) is the ONE
-                score on the card. The raw Google star is removed ‚Äî it competed
-                with the Bayesian score and confused the ranking. The review
-                COUNT stays as trust context (it's what the score is built on),
-                and shows the star only when we have no Wayfind Score to show. */}
-            {dispScore == null && p.rating && <span style={{ display: "inline-flex", alignItems: "center", gap: 3, background: p.rating >= 4.5 ? C.green : p.rating >= 4.0 ? "#3F8F4E" : C.card, color: p.rating >= 4.0 ? "#0D1117" : C.light, fontWeight: 800, fontSize: 14, padding: "2px 8px", borderRadius: 8 }}>‚òÖ {p.rating}</span>}
-            {p.reviews > 0 && (() => { const cf = confidenceOf(p.reviews); return (
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12, color: C.muted }}>
-                {cf && <span style={{ width: 7, height: 7, borderRadius: "50%", background: cf.color, flexShrink: 0 }} />}
-                {p.reviews.toLocaleString()} reviews
-              </span>
-            ); })()}
-            {p.priceNum != null ? <PriceMeter level={p.priceNum} word /> : (p.price && <span style={{ fontSize: 13, color: C.green, fontWeight: 700 }}>{p.price}</span>)}
-            {(() => { const lo = liveOpen(p); /* v4.67: hours-computed, never stale cache */ return lo != null ? <span style={{ fontSize: 11, fontWeight: 600, color: lo ? C.green : C.red }}>{lo ? "Open" : "Closed"}</span> : null; })()}
-            {p.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>¬∑ {p.distMi.toFixed(1)} mi</span>}
-          </div>
-          {/* v6.57: beach signals ‚Äî a "Trending" flame from the popularity cron
-              (wf_place_popularity_scored) and a water-quality read
-              (wf_beach_water), both batched once per screen (see the
-              `beachSignals` effect near `restView`) rather than per card. */}
-          {((p.trending && p.trend_reason) || (isBeach(p) && beachSignal && beachSignal.water)) && (
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 7 }}>
-              {/* 2026-08-08: the üî• is the UNIFIED trend signal (lib/trendSignal.js)
-                  and the mandatory disclosure for the +0.6 trending component the
-                  chip's displayedWfScore now carries. All categories, one meaning
-                  (the old beach-only popularity flame folded into it). */}
-              {p.trending && p.trend_reason && (
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, color: "#FB923C", background: "rgba(251,146,60,.12)", border: "1px solid rgba(251,146,60,.4)", borderRadius: 999, padding: "3px 9px" }} title={"Trending ‚Äî " + p.trend_reason}>üî• {p.trend_reason}</span>
-              )}
-              {isBeach(p) && beachSignal && beachSignal.water && (() => {
-                // v8.19 ‚Äî plain language + the sample date (owner: "I need
-                // the water quality to be accurate ‚Ä¶ tell the first-time
-                // user what it means"). One vocabulary, lib/beachChip.js
-                // WATER_PLAIN, everywhere water renders.
-                const w = beachSignal.water;
-                const key = waterQualityKey(w);
-                if (!key) return null;
-                const when = sampledShort(w.sampled_at);
-                return <span style={{ fontSize: 11, fontWeight: 700, color: WATER_TONE[key] }} title={when ? `FL Healthy Beaches sample, ${when}` : undefined}>üåä {WATER_PLAIN[key]}{when ? ` ¬∑ ${when}` : ""}</span>;
-              })()}
-            </div>
-          )}
-          {cardAward && (
-            <div className={`wf-place-card-award${cardAward.curator ? " is-curator" : ` is-rank-${cardAward.rank}`}`} aria-label={cardAward.curator ? "Personally selected by Wayfind's curator" : `Wayfind ranked this the number ${cardAward.rank} ${pcat || "local"} option`}>
-              <span className="wf-place-card-award-icon" aria-hidden="true">{cardAward.curator ? "‚ú¶" : cardAward.icon}</span>
-              <span>{cardAward.label}</span>
-            </div>
-          )}
-          <div className="wf-place-card-highlights" style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 7 }}>
-            {badges.map((b) => (
-              <button key={b.key} onClick={(e) => {
-                e.stopPropagation();
-                // v8.17 (owner: "i clicked on the creator video and nothing
-                // happened"). ROOT CAUSE: openExperience() no-ops on any key
-                // absent from EXPERIENCES, and "creatorvideo" is a score
-                // DISCLOSURE, not an experience ‚Äî so the tap died silently.
-                // The honest destination for that chip is the place's own
-                // detail, where the creator video actually plays.
-                if (b.key === "creatorvideo") { if (onDetail) onDetail(); return; }
-                if (onBadge) onBadge(b.key);
-              }} style={{ pointerEvents: "auto", display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {cityFixM(b.label)} ‚Ä∫</button>
-            ))}
-          </div>
-          {curatedHook ? (
-            <div className="wf-place-card-take" style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{curatedHook}</div>
-          ) : knownForHook ? (
-            <div className="wf-place-card-take" style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{knownForHook}</div>
-          ) : aiSummary ? (
-            <div className="wf-place-card-take" style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>
-              <div>{aiSummary.card_line_1}</div>
-              <div style={{ marginTop: 2 }}>{aiSummary.card_line_2}</div>
-            </div>
-          ) : null}
-          {/* v6.90 ‚Äî owner: "the button on the main menu look off, the share
-              button is way off to the side... can we make sure these cards
-              are the same everywhere, I like image 1 [the sheet cards]."
-              Root cause: css.js's .wf-place-card-share{margin-left:auto}
-              right-aligns Share in a plain flex row, but IconicPlaceCard.js's
-              sheet cards already cancel that via a second class,
-              wf-sheet-card-actions (a 4-column grid ‚Äî see css.js), which is
-              exactly the tight layout the owner is pointing at. Adding the
-              same class here makes every PlaceCard use that one layout
-              instead of two different ones. This row can render a 5th item
-              (Book on Viator) that the sheet cards never do; css.js adds a
-              :has(.wf-place-card-book) 5-column variant so that case stays
-              consistent too, rather than breaking under the 4-column grid. */}
-          {/* v8.34 ‚Äî the creator credit sits in the bottom band, directly above
-              the actions (see css.js .wf-place-card-credit). The sibling rule
-              there zeroes the inline marginTop below with !important, which is
-              why the credit's own margin-top:auto is what bottom-anchors the
-              pair. */}
-          <CreatorCardMark videos={cardCreatorVideos} />
-          <div className="wf-place-card-actions wf-sheet-card-actions" style={{ marginTop: 9, pointerEvents: "auto" }}>
-            {cardProduct && cardProduct.url && (
-              <ViatorCommerceLink
-                className="wf-place-card-book"
-                t={p}
-                city={city}
-                surface="place_card"
-                rank={rank}
-                onClick={(e) => { e.stopPropagation(); try { logEventAnon("tickets_out", p, { src: "place_card" }); } catch (er) {} }}
-                style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.adim, border: `1.5px solid ${C.accent}`, borderRadius: 999, color: C.accent, fontSize: 12, fontWeight: 800, padding: "5px 12px", textDecoration: "none", cursor: "pointer" }}
-              >{/* v8.23 (owner, on Robinson Preserve: "not sure why robinson
-                  preserve has a book it with viator link"). The product behind
-                  this button IS verified (wf_place_products rn=1) ‚Äî but on a
-                  free-entry place, "Book on Viator" read like an admission
-                  fee. The label now names WHAT the verified product books,
-                  derived from the product's own title ‚Äî never invented; falls
-                  back to the generic label when the title names no activity. */}
-              {(() => {
-                const t = String((cardProduct && cardProduct.title) || "");
-                if (/jet ?ski|waverunner/i.test(t)) return "üåä Book a jet ski tour ‚Üó";
-                if (/kayak/i.test(t)) return "üõ∂ Book a kayak tour ‚Üó";
-                if (/paddle/i.test(t)) return "üèÑ Book a paddle tour ‚Üó";
-                if (/cruise|boat/i.test(t)) return "üö§ Book a cruise ‚Üó";
-                if (/tour|safari|walk/i.test(t)) return "üéüÔ∏è Book a tour ‚Üó";
-                return "Book on Viator ‚Üó";
-              })()}</ViatorCommerceLink>
-            )}
-            <button className={`wf-place-card-save${saved ? " is-active" : ""}`} onClick={(e) => { e.stopPropagation(); onSave(); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: saved ? C.accent : "transparent", border: `1.5px solid ${saved ? C.accent : C.border}`, borderRadius: 999, color: saved ? "#0D1117" : C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>{saved ? "‚ô• Saved" : "‚ô° Save"}</button>
-            {onLike && (
-              <button className={`wf-place-card-like${liked ? " is-active" : ""}`} onClick={onLike} aria-label={liked ? "Remove like" : "Like this place"} aria-pressed={liked} title={liked ? "Remove like" : "Like this place"} style={{ display: "inline-flex", alignItems: "center", background: liked ? "#34D399" : "transparent", border: `1.5px solid ${liked ? "#34D399" : C.border}`, borderRadius: 999, color: liked ? "#06231A" : C.muted, padding: "5px 11px", cursor: "pointer" }}><svg viewBox="0 0 24 24" fill={liked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 10v10H4V10h4Z" /><path d="M8 18h8.5a2 2 0 0 0 1.9-1.4l1.3-4a2 2 0 0 0-1.9-2.6H14l.6-3.1A2.4 2.4 0 0 0 12.2 4L8 10v8Z" /></svg></button>
-            )}
-            {onDislike && (
-              <button className={`wf-place-card-dislike${disliked ? " is-active" : ""}`} onClick={onDislike} aria-label={disliked ? "Remove dislike" : "Not for me"} aria-pressed={disliked} title={disliked ? "Remove dislike" : "Not for me"} style={{ display: "inline-flex", alignItems: "center", background: disliked ? "#F87171" : "transparent", border: `1.5px solid ${disliked ? "#F87171" : C.border}`, borderRadius: 999, color: disliked ? "#2A0A0A" : C.muted, padding: "5px 11px", cursor: "pointer" }}><svg viewBox="0 0 24 24" fill={disliked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 4v10H4V4h4Z" /><path d="M8 6h8.5a2 2 0 0 1 1.9 1.4l1.3 4a2 2 0 0 1-1.9 2.6H14l.6 3.1a2.4 2.4 0 0 1-2.4 2.9L8 14V6Z" /></svg></button>
-            )}
-            <button className="wf-place-card-share" onClick={(e) => { e.stopPropagation(); logEventAnon("share", p, { kind: "place_card" }); try { onShareCard && onShareCard(p); } catch (er) {} askShareIntent({ name: p.name, city: "", id: p.id, kind: placeKinds(p), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEventAnon("share", p, { kind: "invite", from: "place_card" }); } catch (er) {} }), onPlain: () => shareLink(p.name, placeShareUrl(p, "", ""), () => { try { if (typeof window !== "undefined") { const _t = document.createElement("div"); _t.textContent = "Link copied"; _t.style.cssText = "position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:#161B22;color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:700;z-index:99999;border:1px solid #30363D;box-shadow:0 6px 24px rgba(0,0,0,.5)"; document.body.appendChild(_t); setTimeout(() => { try { document.body.removeChild(_t); } catch(e){} }, 1600); } } catch (e) {} }, fallShareLine("Check out " + p.name + " on Wayfind", p.id, siteTodayStr())) }); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", border: `1.5px solid ${C.border}`, borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>‚Üó Share</button>
-          </div>
-          {/* Restored 2026-07-25: the per-card affiliate disclosure (spec Sec.2,
-              shipped v6.67) was dropped from the homepage in the design-release-01
-              rewrite -- lib/cardAffiliate.js + AffiliateChip.js were untouched and
-              still work, only this render call was lost. Owner-audit mode
-              (NEXT_PUBLIC_WF_SHOW_AFFILIATE_AUDIT=1) still surfaces coverage gaps;
-              production hides an absent chip, so this is a pure disclosure add. */}
-          {(() => { const _prov = cardAffiliateProvider(p); return (_prov || AFFILIATE_AUDIT) ? <div style={{ marginTop: 8 }}><AffiliateChip provider={_prov} /></div> : null; })()}
-          {/* What's inside. Rides and in-park venues used to occupy their own
-              cards, so one theme park could fill half the feed and a visitor had
-              to scroll past four rows describing the same place. They live here
-              now: a ride is not somewhere you can go, it is a REASON to pick the
-              park. Tapping one opens the park (that is the bookable thing), so
-              this adds decision detail without adding dead ends. */}
-          {Array.isArray(p._children) && p._children.length ? (
-            <div style={{ marginTop: 10, paddingTop: 9, borderTop: `1px solid ${C.border}` }}>
-              <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".5px", textTransform: "uppercase", color: C.muted, marginBottom: 7 }}>
-                Top rated inside
-              </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {p._children.slice(0, 6).map((c) => (
-                  <span key={c.id || c.name} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.bg, border: `1px solid ${C.border}`, borderRadius: 999, padding: "5px 10px", fontSize: 12, fontWeight: 600, color: C.light, maxWidth: "100%" }}>
-                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 150 }}>{c.name}</span>
-                    {c.rating != null ? <span style={{ color: C.gold, fontWeight: 800, flexShrink: 0 }}>{c.rating}{"\u2605"}</span> : null}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ) : null}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-const wstat = { flexShrink: 0, whiteSpace: "nowrap", fontSize: 12, fontWeight: 700, color: C.light, background: "rgba(13,17,23,.5)", border: "1px solid rgba(249,115,22,.3)", borderRadius: 999, padding: "5px 11px" };
-// The events rail reserves its real geometry BEFORE the data lands, so the
-// skeleton and the loaded rail occupy identical space and the swap cannot shift
-// anything. Both the skeleton and the live rail read these same constants ‚Äî
-// that is the whole point; do not hardcode either number twice.
-const EV_HERO_H = 248; // Owner visual refinement: restore a taller, more cinematic hero while preserving the shared loading/live geometry.   // the featured hero <a> height
-const EV_RAIL_MIN_H = 245; // v7.03: measured on PRODUCTION at 390 and 1024 with the real webfonts loaded (243 / 245) ‚Äî the first pass measured 236 in a harness with system fonts, which under-reserved by 7px. Same number .wf-rail-events pins in css.js.
-// ALL THREE rail states (loading / empty / populated) reserve this same floor.
-// Measured 2026-07-21: without it, a sparse market where events resolve to []
-// collapsed the ~312px skeleton into a ~130px empty state and yanked the feed
-// 200px upward ‚Äî one 0.1281 shift, worse than the entire desktop CLS budget.
-// Reserving on the LOADING state alone is not enough; the state it swaps INTO
-// has to agree, or the reservation just relocates the shift.
-// v6.43 THE IDLE JUMP, part 3 ‚Äî the "Make a day of it" bookable card.
-// Its title is clamped to two lines, so a one-line pick rendered a card one
-// line SHORTER than a two-line pick. The hourly refresh swaps that title
-// underneath a reader who is not touching anything, so every swap between a
-// short and a long title moved the whole feed below it. Reserving both lines
-// makes the card's height identical for every possible pick ‚Äî the content can
-// change, the box cannot. Derived, not hardcoded, so editing the type below
-// cannot silently un-reserve it.
-// WF_LAYOUT_CSS lives in app/components/css.js (July 2026 decomposition).
-// Re-declaring it here renders the shell stylesheet ‚Äî and the wordmark ‚Äî twice.
-
-// WF_SEARCH_CSS lives in app/components/css.js (July 2026 decomposition).
-
-// WF_PLACE_CARD_CSS lives in app/components/css.js (July 2026 decomposition).
-
-const shell = { background: C.bg, height: "100dvh", minHeight: "100dvh", display: "flex", justifyContent: "center" };
-const wrap = { background: C.bg, color: C.text, height: "100dvh", width: "100%", maxWidth: 480, fontFamily: "var(--wf-sans)", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative", touchAction: "pan-y", overscrollBehavior: "none" };
-
-export default function Page({ initialEvents = null, localEditGuides = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null }) {
-  return (
-    <ErrorBoundary>
-      <PageInner initialEvents={initialEvents} localEditGuides={localEditGuides} railMenu={railMenu} initialPlaceId={initialPlaceId} initialPlaceAction={initialPlaceAction} />
-    </ErrorBoundary>
-  );
-}
+  // they go back they go back to the start of the page and they ﬂÆwÈº≠z &ä€^t(ÄÄÄÄººÅ›°ï∏ÅΩπîÅï·•Õ—ÃÄ°…ïŸ•ï›Ã∞Å°Ω’…Ã∞Å¡°Ω—ΩÃÅçΩµîÅÖ±Ωπú§ÏÅΩ—°ï…›•ÕîÅ•–(ÄÄÄÄººÅ…ïπëï…ÃÅ°ΩπïÕ—±‰Åô…Ω¥Å—°îÅΩ’…Õ≈’Ö…îÅëÖ—ÑÅ•–ÅÖ……•ŸïêÅ›•—†∏(ÄÄÄÅ•òÄ°¿ÄòòÅ—Â¡ïΩòÅ¿π•êÄÙÙÙÄâÕ—…•πúàÄòòÄΩx°ôÕ≈ÒΩÕµÒ…•ëà§Ëºπ—ïÕ–°¿π•ê§§ÅÏ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å’¿ÄÙÅÖ›Ö•–Åô•πëA±Öçî°¿ππÖµî∞ÅÏÅ±Ö–ËÅ¿π±Ö–∞Å±πúËÅ¿π±πúÅÙ§Ï(ÄÄÄÄÄÄÄÅ•òÄ°’¿ÄòòÅ’¿π•êÄòòÅ’¿π±Ö–ÄÑÙÅπ’±∞§ÅÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åë1Ö–ÄÙÅ’¿π±Ö–Ä¥Å¿π±Ö–∞Åë1πúÄÙÅ’¿π±πúÄ¥Å¿π±πúÏ(ÄÄÄÄÄÄÄÄÄÅ•òÄ°5Ö—†πÕ≈…–°ë1Ö–Ä®Åë1Ö–Ä¨Åë1πúÄ®Åë1πú§Ä®Äÿ‰ÄÙÄ¿∏»‘§Å¿ÄÙÅÏÄ∏∏π’¿∞Åë•Õ—5§ËÅ¿πë•Õ—5§ÄÑÙÅπ’±∞Ä¸Å¿πë•Õ—5§ÄËÅ’¿πë•Õ—5§∞ÅÕΩ’…çïÃËÅ¿πÕΩ’…çïÃÅÙÏ(ÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÅÙ(ÄÄÄÅ—…‰ÅÏÅçΩπÕ–Å}Ö’êÄÙÅÌÙÏÅï·¡ï…•ïπçï	ÖëùïÃ°¿∞Åπ’±∞∞Ä‰‰∞Å}Ö’ê§ÏÅ±ΩùŸïπ–†âëï—Ö•±}Ω¡ï∏à∞Å¿∞ÅÏÅ•ëïπ—•—‰ËÅ}Ö’êπ•ëïπ—•—‰ÅÒÅπ’±∞∞Åâ±Ωç≠ïêËÄ°}Ö’êπâ±Ωç≠ïêÅÒÅmt§π±ïπù—†∞Åç—‡ËÅ—Â¡ïΩòÅçΩπ—ï·–ÄÙÙÙÄâÕ—…•πúàÄ¸ÅçΩπ—ï·–ÄËÅπ’±∞ÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄººÅÿÿ∏¿‡Ä°AHµ§ËÅ…ïµïµâï»Å›°ï…îÅ›îÅ›ï…îÅ•∏Å—°îÅ±•Õ–ÅÕºÅâÖç¨Å…ï—’…πÃÅ°ï…î∞ÅπΩ–Å—ºÅ—°îÅ—Ω¿∏(ÄÄÄÅ—…‰ÅÏÅ•òÄ°Õç…Ω±±Iïòπç’……ïπ–§ÅÏÅçΩπÕ–Å}¨ÄÙÅÕç…ïï∏Ä¨ÄâàÄ¨ÅçÖ–Ä¨ÄâàÄ¨ÅÕ’àÄ¨ÄâàÄ¨ÅŸ•âîÏÅçΩπÕ–Å}–ÄÙÅÕç…Ω±±Iïòπç’……ïπ–πÕç…Ω±±QΩ¿ÏÅÕç…Ω±±IïÕ—Ω…îπç’……ïπ–ÄÙÅÏÅ≠ï‰ËÅ}¨∞Å—Ω¿ËÅ}–ÅÙÏÅÕïÕÕ•ΩπM—Ω…ÖùîπÕï—%—ï¥†â›ô}Õç|àÄ¨Å}¨∞ÅM—…•πú°}–§§ÏÅÙÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÅÕï—ï—Ö•∞°¿§Ï(ÄÄÄÄººÄΩ¿ΩÌ•ëÙÅÖπêÅÖπ‰ÅçÖ…êÅ—°Ö–ÅÕ≠•¡¡ïêÅ›•—°5ïµâï…M•ùπÖ∞ÅÕ—•±∞ÅÕ°Ω‹Å—°îÅ…Ö‹(ÄÄÄÄººÅÕçΩ…îÅ’π—•∞Å—°•ÃÅΩŸï…±Ö‰Å±ÖπëÃ∏ÅMÖµîÅô’πç—•Ω∏ÅÖÃÅ—°îÅ±•Õ–Å¡Ö—†∏(ÄÄÄÅôï—ç°5ïµâï…M•ùπÖ±Ã°Õ’¡ÖâÖÕî∞Åm¡t§π—°ï∏†°Õ•ú§ÄÙ¯ÅÏ(ÄÄÄÄÄÅ•òÄ†ÖÕ•ú§Å…ï—’…∏Ï(ÄÄÄÄÄÅçΩπÕ–Åπï·–ÄÙÅ›•—°5ïµâï…M•ùπÖ∞°m¡t∞ÅÕ•ú•l¡tÏ(ÄÄÄÄÄÅ•òÄ†Öπï·–ÅÒÅπï·–π•êÄÑÙÙÅ¿π•ê§Å…ï—’…∏Ï(ÄÄÄÄÄÅÕï—ï—Ö•∞†°ç’»§ÄÙ¯Ä°ç’»ÄòòÅç’»π•êÄÙÙÙÅ¿π•êÄ¸ÅÏÄ∏∏πç’»∞Å›ôMçΩ…îËÅπï·–π›ôMçΩ…î∞Å}µïµâï…ÃËÅπï·–π}µïµâï…Ã∞Å}›ôMçΩ…ïIÖ‹ËÅπï·–π}›ôMçΩ…ïIÖ‹ÅÙÄËÅç’»§§Ï(ÄÄÄÄÄÅçΩπÕ–Å¡Ö—ç†ÄÙÄ°ç’»§ÄÙ¯Ä°ç’»ÅÒÅmt§πµÖ¿†°¡∞§ÄÙ¯Ä°¡∞ÄòòÅ¡∞π•êÄÙÙÙÅ¿π•êÄ¸ÅÏÄ∏∏π¡∞∞Å›ôMçΩ…îËÅπï·–π›ôMçΩ…î∞Å}µïµâï…ÃËÅπï·–π}µïµâï…Ã∞Å}›ôMçΩ…ïIÖ‹ËÅπï·–π}›ôMçΩ…ïIÖ‹ÅÙÄËÅ¡∞§§Ï(ÄÄÄÄÄÅÕï—A±ÖçïÃ°¡Ö—ç†§Ï(ÄÄÄÄÄÅÕï—·¡A±ÖçïÃ°¡Ö—ç†§Ï(ÄÄÄÅÙ§πçÖ—ç†††§ÄÙ¯ÅÌÙ§Ï(ÄÄÄÅÕï—ï—Ö•±Ωπ—ï·–°çΩπ—ï·–ÅÒÅπ’±∞§Ï(ÄÄÄÅ…ïçΩ…ëM•ùπÖ∞°¿∞ÄâΩ¡ï∏à§ÏÄººÅ•µ¡±•ç•–ÅïπùÖùïµïπ–ÅÕ•ùπÖ∞(ÄÄÄÅ—…‰ÅÏÅ•òÄ°=IMm¿π•ët§Å±ΩùŸïπ–†âΩôôï…}•µ¡…ïÕÕ•Ω∏à∞Å¿∞ÅÏÅΩôôï…}•êËÅ=IMm¿π•ëtπ•êÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÅ—…‰ÅÏÅ…ïçïπ—Iïòπç’……ïπ–ÄÙÅm¿π•ê∞Ä∏∏π…ïçïπ—Iïòπç’……ïπ–πô•±—ï»†°‡§ÄÙ¯Å‡ÄÑÙÙÅ¿π•ê•tπÕ±•çî†¿∞Ä»¿§ÏÅÙÅçÖ—ç†ÅÌÙ(ÄÄÄÅÕï—IïŸ•ï›Õ=¡ï∏°ôÖ±Õî§Ï(ÄÄÄÅÕï—!Ω’…Õ=¡ï∏°ôÖ±Õî§Ï(ÄÄÄÅÕï—Yïπ’ïŸïπ—Ã°π’±∞§Ï(ÄÄÄÅÕï—Yïπ’ïŸïπ—Õ=¡ï∏°ôÖ±Õî§Ï(ÄÄÄÅÕï—Yïπ’ïŸïπ—Õ1ΩÖë•πú°ôÖ±Õî§Ï(ÄÄÄÅÕï—]°Â=¡ï∏°ôÖ±Õî§Ï(ÄÄÄÅÕï—M°Ω›5Ω…î°ôÖ±Õî§Ï(ÄÄÄÅÕï—Q°ïµïÕ=¡ï∏°ôÖ±Õî§Ï(ÄÄÄÅÕï—Y•ëïΩÃ°Ÿ•ëïΩÖç°îπç’……ïπ—m¿π•ëtÅÒÅπ’±∞§Ï(ÄÄÄÅÕï—%πÕ•ù°—’±∞°•πÕ•ù°—’±±Öç°îπç’……ïπ—m¿π•ëtÅÒÅùï—Öç°ïë%πÕ•ù°–°¿π•êÄ¨ÄàËÈô’±∞à§ÅÒÅπ’±∞§Ï(ÄÄÄÅÕï—%πÕ•ù°—’±±1ΩÖë•πú°ôÖ±Õî§Ï(ÄÄÄÅÕï—ï—Ö•±·—…Ñ°ëï—Ö•±Öç°îπç’……ïπ—m¿π•ëtÅÒÅπ’±∞§Ï(ÄÄÄÅÕï—%πÕ•ù°—1ΩÖë•πú°—…’î§Ï(ÄÄÄÅ±ï–Åï·—…ÑÄÙÅëï—Ö•±Öç°îπç’……ïπ—m¿π•ëtÏ(ÄÄÄÅ•òÄ°ï·—…ÑÄÙÙÙÅ’πëïô•πïê§ÅÏ(ÄÄÄÄÄÅÕï—ï—Ö•±·—…Ñ°π’±∞§Ï(ÄÄÄÄÄÅï·—…ÑÄÙÅÖ›Ö•–Åôï—ç°A±Öçïï—Ö•∞°¿π•ê§Ï(ÄÄÄÄÄÄººÅÿÿ∏ÃƒËÅπïŸï»ÅçÖç°îÅÑÅâÖ…îÅπ’±∞ÉäPÅ—°Ö–Å±ïÖŸïÃÅ—°îÅÕ°ïï–ÅÕ—’ç¨ÅΩ∏(ÄÄÄÄÄÄººÄâ1ΩÖë•πúÅ°Ω’…œäòàÅôΩ…ïŸï»Ä°π’±∞Å…ïÖëÃÅÖÃÄâÕ—•±∞Åôï—ç°•πúà§∏ÅÅ…ïÕΩ±Ÿïê(ÄÄÄÄÄÄººÅÕïπ—•πï∞ÅÕï——±ïÃÅ—°îÅÕ°ïï–Å•π—ºÄâ!Ω’…ÃÅπΩ–Å±•Õ—ïêàÄ°Ω»Å—°îÅÕïÖ…ç†µ—•µî(ÄÄÄÄÄÄººÅ›ïï≠ëÖ‰Å—ï·–§Å•πÕ—ïÖêÅΩòÅÕ¡•ππ•πú∏Åôï—ç°A±Öçïï—Ö•∞ÅπΩ‹ÅÖ±›ÖÂÃÅ…ï—’…πÃÅÑ(ÄÄÄÄÄÄººÅ…ïÕΩ±ŸïêÅÕ°Ö¡î∞ÅÕºÅ—°•ÃÅ±•πîÅ•ÃÅëïôïπÕ•ŸîÅΩπ±‰∏(ÄÄÄÄÄÅ•òÄ†Öï·—…Ñ§Åï·—…ÑÄÙÅÏÅΩ¨ËÅôÖ±Õî∞Åïë•—Ω…•Ö∞ËÅπ’±∞∞Å…ïŸ•ï›ÃËÅmt∞Å°Ω’…ÃËÅπ’±∞∞Å¡°ΩπîËÅπ’±∞∞Å›ïâÕ•—îËÅπ’±∞∞Å}…ïÕΩ±ŸïêËÅ—…’îÅÙÏ(ÄÄÄÄÄÄººÅÿÿ∏‹–ËÅçÖç°îÅ—°îÅ9M]H∞ÅπïŸï»Å—°îÅ%1UI∏ÅM—Ω…•πúÅ—°îÅôÖ•±’…îÅÕïπ—•πï∞(ÄÄÄÄÄÄººÅô…ΩÈîÅΩπîÅ—…ÖπÕ•ïπ–Åï……Ω»ÅôΩ»Å—°îÅ›°Ω±îÅÕïÕÕ•Ω∏ÉäPÅïŸï…‰Å…ïΩ¡ï∏Å…ïÖêÅ—°î(ÄÄÄÄÄÄººÅçÖç°î∞ÅÕºÅÑÅ¡±ÖçîÅ≠ï¡–ÅÕÖÂ•πúÄâ!Ω’…ÃÅ’πÖŸÖ•±Öâ±îàÅ±ΩπúÅÖô—ï»Å—°îÅçÖ’Õî(ÄÄÄÄÄÄººÅ°ÖêÅ¡ÖÕÕïê∏Å∏Å’πÕ’ççïÕÕô’∞Åôï—ç†ÅÕ—ÖÂÃÅ’πçÖç°ïêÅÕºÅ—°îÅπï·–ÅΩ¡ï∏Å…ïÖ±±‰(ÄÄÄÄÄÄººÅ…ï—…•ïÃ∏(ÄÄÄÄÄÅ•òÄ°ï·—…ÑπΩ¨§Åëï—Ö•±Öç°îπç’……ïπ—m¿π•ëtÄÙÅï·—…ÑÏ(ÄÄÄÅÙ(ÄÄÄÅÕï—ï—Ö•±·—…Ñ°ï·—…Ñ§Ï(ÄÄÄÅ•òÄ°ï·—…ÑÄòòÅï·—…ÑπΩ¨§ÅÏ(ÄÄÄÄÄÅÕï—ï—Ö•∞†°ç’»§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÅ•òÄ†Öç’»ÅÒÅç’»π•êÄÑÙÙÅ¿π•ê§Å…ï—’…∏Åç’»Ï(ÄÄÄÄÄÄÄÅ…ï—’…∏Åµï…ùï!ïÖ±ïëA±ÖçïA°Ω—ΩÃ°ç’»∞Åï·—…Ñ§Ï(ÄÄÄÄÄÅÙ§Ï(ÄÄÄÅÙ(ÄÄÄÅ•òÄ°ï·—…Ñ§ÅÏÅçΩπÕ–Å…–ÄÙÅ……Ö‰π•Õ……Ö‰°ï·—…Ñπ…ïŸ•ï›Ã§Ä¸Åï·—…Ñπ…ïŸ•ï›ÃπÕ±•çî†¿∞Ä–§πµÖ¿†°»§ÄÙ¯Ä°»π—ï·–ÅÒÄàà§πÕ±•çî†¿∞ÄÃ¿¿§§πô•±—ï»°	ΩΩ±ïÖ∏§ÄËÅmtÏÅ!%9QMm¿π•ëtÄÙÄ†°ï·—…Ñπïë•—Ω…•Ö∞ÅÒÄàà§Ä¨ÄàÄàÄ¨Å…–π©Ω•∏†àÄà§§π—Ω1Ω›ï…ÖÕî†§ÏÅÙ(ÄÄÄÅ±ΩÖë%πÕ•ù°–°¿∞Åï·—…Ñ§Ï(ÄÅÙ(ÄÄººÅA’±∞Å…ïÖ∞Å’¡çΩµ•πúÅ—•ç≠ï—ïêÅïŸïπ—ÃÅÖ–ÅΩ»ÅπïÖ»ÅÑÅ¡±ÖçîÅô…Ω¥ÅQ•ç≠ï—µÖÕ—ï»∏(ÄÄººÅQ°•ÃÅ•ÃÅ—°îÅ°ΩπïÕ–Å›Ö‰Å—ºÅÖπÕ›ï»Äâ›°ï∏Å•ÃÅ—°îÅ±•ŸîÅµ’Õ•åÅ°ï…îàËÅÖç—’Ö∞ÅÕ°Ω‹(ÄÄººÅëÖ—ïÃÅÖπêÅ—•µïÃ∞ÅπïŸï»ÅÖ∏Å•πŸïπ—ïêÅ›ïï≠±‰ÅÕç°ïë’±î∏Åµ¡—‰Å•ÃÅÑÅŸÖ±•êÅÖπÕ›ï»∏(ÄÅÖÕÂπåÅô’πç—•Ω∏Å±ΩÖëYïπ’ïŸïπ—Ã°¿§ÅÏ(ÄÄÄÅ•òÄ†Ö¿ÅÒÅ¿π±Ö–ÄÙÙÅπ’±∞ÅÒÅ¿π±πúÄÙÙÅπ’±∞§ÅÏÅÕï—Yïπ’ïŸïπ—Ã°mt§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÅÕï—Yïπ’ïŸïπ—Õ1ΩÖë•πú°—…’î§Ï(ÄÄÄÅÕï—Yïπ’ïŸïπ—Ã°π’±∞§Ï(ÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÅçΩπÕ–Å…ïÃÄÙÅÖ›Ö•–Åôï—ç††àΩÖ¡§ΩïŸïπ—Ãà∞ÅÏ(ÄÄÄÄÄÄÄÅµï—°ΩêËÄâA=MPà∞(ÄÄÄÄÄÄÄÅ°ïÖëï…ÃËÅÏÄâçΩπ—ïπ–µ—Â¡îàËÄâÖ¡¡±•çÖ—•Ω∏Ω©ÕΩ∏àÅÙ∞(ÄÄÄÄÄÄÄÅâΩë‰ËÅ)M=8πÕ—…•πù•ô‰°ÏÅ±Ö–ËÅ¿π±Ö–∞Å±πúËÅ¿π±πú∞Å…Öë•’ÃËÄ»ÅÙ§∞(ÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÅçΩπÕ–ÅëÖ—ÑÄÙÅÖ›Ö•–Å…ïÃπ©ÕΩ∏†§Ï(ÄÄÄÄÄÅ±ï–Å±•Õ–ÄÙÄ°ëÖ—ÑÄòòÅ……Ö‰π•Õ……Ö‰°ëÖ—ÑπïŸïπ—Ã§Ä¸ÅëÖ—ÑπïŸïπ—ÃÄËÅmt§πô•±—ï»†°î§ÄÙ¯ÅîÄòòÅîπëïÕ–§Ï(ÄÄÄÄÄÅçΩπÕ–Åπ¥ÄÙÄ°¿ππÖµîÅÒÄàà§π—Ω1Ω›ï…ÖÕî†§Ï(ÄÄÄÄÄÅçΩπÕ–ÅµÖ—ç°ïÃÄÙÅ±•Õ–πô•±—ï»†°î§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–ÅÿÄÙÄ°îπŸïπ’îÅÒÄàà§π—Ω1Ω›ï…ÖÕî†§Ï(ÄÄÄÄÄÄÄÅ…ï—’…∏ÅÿÄòòÄ°ÿπ•πç±’ëïÃ°π¥§ÅÒÅπ¥π•πç±’ëïÃ°ÿ§§Ï(ÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÄººÅA°ÖÕîÄ»Ä°Y9QM}A%A1%9}%9=M%Lπµê§ËÅ—°îÅçÖ…êÅÕÖÂÃÄâÖ–Å—°•Ã(ÄÄÄÄÄÄººÅŸïπ’îàÄ¥¥Å—°îÅΩ±êÅôÖ±±âÖç¨Å¡ÖëëïêÅ•–Å›•—†Å10ÅπïÖ…â‰ÅïŸïπ—ÃÅ›°ï∏(ÄÄÄÄÄÄººÅ—°îÅŸïπ’îµπÖµîÅµÖ—ç†ÅçÖµîÅ’¿Åïµ¡—‰∞Å›°•ç†Å•ÃÅÑÅ›…ΩπúÅç±Ö•¥∏Å9º(ÄÄÄÄÄÄººÅµÖ—ç†ÅπΩ‹ÅµïÖπÃÅ—°îÅ°ΩπïÕ–Åïµ¡—‰ÅÕ—Ö—î∏(ÄÄÄÄÄÅÕï—Yïπ’ïŸïπ—Ã°µÖ—ç°ïÃπÕ±•çî†¿∞Ä‡§§Ï(ÄÄÄÅÙÅçÖ—ç†ÅÏ(ÄÄÄÄÄÅÕï—Yïπ’ïŸïπ—Ã°mt§Ï(ÄÄÄÅÙÅô•πÖ±±‰ÅÏ(ÄÄÄÄÄÅÕï—Yïπ’ïŸïπ—Õ1ΩÖë•πú°ôÖ±Õî§Ï(ÄÄÄÅÙ(ÄÅÙ(ÄÅÖÕÂπåÅô’πç—•Ω∏Å±ΩÖëY•ëïΩÃ°¿§ÅÏ(ÄÄÄÅ•òÄ°Ÿ•ëïΩÖç°îπç’……ïπ—m¿π•ët§ÅÏÅÕï—Y•ëïΩÃ°Ÿ•ëïΩÖç°îπç’……ïπ—m¿π•ët§ÏÅÕï—Y•ëïΩÕ1ΩÖë•πú°ôÖ±Õî§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÅÕï—Y•ëïΩÃ°π’±∞§Ï(ÄÄÄÅÕï—Y•ëïΩÕ1ΩÖë•πú°—…’î§Ï(ÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÅçΩπÕ–Å…ïÃÄÙÅÖ›Ö•–Åôï—ç††àΩÖ¡§ΩÂΩ’—’âîà∞ÅÏ(ÄÄÄÄÄÄÄÅµï—°ΩêËÄâA=MPà∞(ÄÄÄÄÄÄÄÅ°ïÖëï…ÃËÅÏÄâçΩπ—ïπ–µ—Â¡îàËÄâÖ¡¡±•çÖ—•Ω∏Ω©ÕΩ∏àÅÙ∞(ÄÄÄÄÄÄÄÅâΩë‰ËÅ)M=8πÕ—…•πù•ô‰°ÏÅπÖµîËÅ¿ππÖµî∞Åç•—‰ËÅ±Ωç9Öµî∞ÅçÖ—ïùΩ…‰ËÅçÖ–ÅÙ§∞(ÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÅçΩπÕ–ÅëÖ—ÑÄÙÅÖ›Ö•–Å…ïÃπ©ÕΩ∏†§Ï(ÄÄÄÄÄÅçΩπÕ–ÅŸ•ëÃÄÙÅëÖ—ÑÄòòÅ……Ö‰π•Õ……Ö‰°ëÖ—ÑπŸ•ëïΩÃ§Ä¸ÅëÖ—ÑπŸ•ëïΩÃÄËÅmtÏ(ÄÄÄÄÄÅŸ•ëïΩÖç°îπç’……ïπ—m¿π•ëtÄÙÅŸ•ëÃÏ(ÄÄÄÄÄÅÕï—Y•ëïΩÃ°Ÿ•ëÃ§Ï(ÄÄÄÅÙÅçÖ—ç†ÅÏ(ÄÄÄÄÄÅÕï—Y•ëïΩÃ°mt§Ï(ÄÄÄÅÙÅô•πÖ±±‰ÅÏ(ÄÄÄÄÄÅÕï—Y•ëïΩÕ1ΩÖë•πú°ôÖ±Õî§Ï(ÄÄÄÅÙ(ÄÅÙ(ÄÅÖÕÂπåÅô’πç—•Ω∏Å±ΩÖëŸïπ—Ã†§ÅÏ(ÄÄÄÅ•òÄ†Öçïπ—ï»§Å…ï—’…∏Ï(ÄÄÄÅÕï—Ÿïπ—Õ1ΩÖë•πú°—…’î§Ï(ÄÄÄÅÕï—Ÿïπ—Õ……Ω»°ôÖ±Õî§Ï(ÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÅçΩπÕ–Å…ïÃÄÙÅÖ›Ö•–Åôï—ç††àΩÖ¡§ΩïŸïπ—Ãà∞ÅÏ(ÄÄÄÄÄÄÄÅµï—°ΩêËÄâA=MPà∞(ÄÄÄÄÄÄÄÅ°ïÖëï…ÃËÅÏÄâçΩπ—ïπ–µ—Â¡îàËÄâÖ¡¡±•çÖ—•Ω∏Ω©ÕΩ∏àÅÙ∞(ÄÄÄÄÄÄÄÅâΩë‰ËÅ)M=8πÕ—…•πù•ô‰°ÏÅ±Ö–ËÅçïπ—ï»π±Ö–∞Å±πúËÅçïπ—ï»π±πú∞Åç•—‰ËÅ±Ωç9Öµî∞Å…Öë•’ÃËÅ5Ö—†πµÖ‡°5Ö—†π…Ω’πê†°ÕïÖ…ç°IÖë•’ÃÅÒÅU1Q}I%UM}4§ÄºÄƒÿ¿‰∏Ã–§∞Äÿ¿§ÅÙ§∞ÄººÅÿ–∏‡‹ËÅïŸïπ—ÃÅùï–ÅÑÅùïπï…Ω’ÃÄÿ¿µµ§Åô±ΩΩ»ÉäPÅ¡ïΩ¡±îÅë…•ŸîÅôΩ»ÅïŸïπ—ÃÏÅÑÅµÖπ’Ö∞Å›•ëï»Å…Öë•’ÃÅÕ—•±∞Å›•πÃ(ÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÅçΩπÕ–ÅëÖ—ÑÄÙÅÖ›Ö•–Å…ïÃπ©ÕΩ∏†§Ï(ÄÄÄÄÄÅÕï—Ÿïπ—ÕUπÖŸÖ•±Öâ±î†ÑÖëÖ—Ñπ’πÖŸÖ•±Öâ±î§Ï(ÄÄÄÄÄÅÕï—Ÿïπ—Õ……Ω»†ÑÖëÖ—Ñπï……Ω»§Ï(ÄÄÄÄÄÅ—…‰ÅÏÅ•òÄ°¡…ΩçïÕÃπïπÿπ9=}9XÄÑÙÙÄâ¡…Ωë’ç—•Ω∏àÄòòÅëÖ—ÑÄòòÅëÖ—ÑπçΩ’π—Ã§ÅçΩπÕΩ±îπ±Ωú†âm›ÖÂô•πêÅïŸïπ—Õtà∞ÅëÖ—ÑπçΩ’π—Ã∞Äâ—Ω—Ö∞à∞Ä°ëÖ—ÑπïŸïπ—ÃÅÒÅmt§π±ïπù—†§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÄººÅA°ÖÕîÄƒº»ÅçΩπ—…Öç–Ä°Y9QM}A%A1%9}%9=M%Lπµê§ËÅΩπ±‰ÅïŸïπ—ÃÅ›•—†ÅÑ(ÄÄÄÄÄÄººÅ…ïÕΩ±ŸïêÅëïÕ—•πÖ—•Ω∏Åïπ—ï»Åç±•ïπ–ÅÕ—Ö—î∞ÅÕºÅïŸï…‰ÅçΩ’π–ÅëΩ›πÕ—…ïÖ¥Å•Ã(ÄÄÄÄÄÄººÅçΩµ¡’—ïêÅΩ∏Åï·Öç—±‰Å—°îÅ±•Õ–Å—°îÅçÖ…ëÃÅ…ïπëï»Åô…Ω¥∏(ÄÄÄÄÄÅçΩπÕ–ÅïŸÃÄÙÄ°ëÖ—ÑÄòòÅ……Ö‰π•Õ……Ö‰°ëÖ—ÑπïŸïπ—Ã§Ä¸ÅëÖ—ÑπïŸïπ—ÃÄËÅmt§πô•±—ï»†°î§ÄÙ¯ÅîÄòòÅîπëïÕ–§Ï(ÄÄÄÄÄÅÕï—Ÿïπ—Ã°ïŸÃ§Ï(ÄÄÄÄÄÅ•òÄ†ÖëÖ—Ñπ’πÖŸÖ•±Öâ±îÄòòÄÖëÖ—Ñπï……Ω»ÄòòÅïŸÃπ±ïπù—†ÄÙÙÙÄ¿§Å±ΩùŸïπ–†âïŸïπ—Õ}πΩπîà∞Åπ’±∞∞ÅÏÅ±ΩåËÅ±Ωç9ÖµîÅÒÄàà∞Å±Ö–ËÅçïπ—ï»π±Ö–∞Å±πúËÅçïπ—ï»π±πúÅÙ§Ï(ÄÄÄÅÙÅçÖ—ç†ÅÏ(ÄÄÄÄÄÅÕï—Ÿïπ—Õ……Ω»°—…’î§Ï(ÄÄÄÄÄÅÕï—Ÿïπ—Ã°mt§Ï(ÄÄÄÅÙÅô•πÖ±±‰ÅÏ(ÄÄÄÄÄÅÕï—Ÿïπ—Õ1ΩÖë•πú°ôÖ±Õî§Ï(ÄÄÄÅÙ(ÄÅÙ(ÄÄººÅÿÿ∏‘‘ÅÕ•πù±îµô±•ù°–ËÅ=9ÅΩôôï…ÃÅÕçÖ∏ÅôïïëÃÅïŸï…‰ÅçÖ±±ï»ÅôΩ»Äƒ¿Åµ•π’—ïÃ∏(ÄÄººÅ±ΩÖë	±’…âÃÅ°ÖÃÅÕ•‡ÅçÖ±∞ÅÕ•—ïÃÄ°ôïïê∞ÅÕ’ùùïÕ—ïêÉ\»∞Åï·¡ï…•ïπçïÃ∞Å°ΩΩ≠ÃÉ\»§(ÄÄººÅÖπêÅïÖç†Å’ÕïêÅ—ºÅ…’∏Å•—ÃÅΩ›∏Åô’±∞ÅΩôôï…ÃÅ—Öâ±îÅÕçÖ∏ÉäPÅÕÖµîÅ—Öâ±î∞ÅÕÖµî(ÄÄººÅ…Ω›Ã∞Å¡ï»Å±ΩÖê∏ÅÅôÖ•±ïêÅÕçÖ∏Åç±ïÖ…ÃÅ—°îÅÕ±Ω–ÅÕºÅ—°îÅπï·–ÅçÖ±∞Å…ï—…•ïÃ∏(ÄÅçΩπÕ–ÅΩôôï…Õ=πçîÄÙÅ’ÕïIïò°ÏÅÖ–ËÄ¿∞Å¿ËÅπ’±∞ÅÙ§Ï(ÄÅô’πç—•Ω∏Åôï—ç°=ôôï…Õ=πçî†§ÅÏ(ÄÄÄÅçΩπÕ–ÅπΩ‹ÄÙÅÖ—îππΩ‹†§Ï(ÄÄÄÅ•òÄ°Ωôôï…Õ=πçîπç’……ïπ–π¿ÄòòÅπΩ‹Ä¥ÅΩôôï…Õ=πçîπç’……ïπ–πÖ–ÄÄƒ¿Ä®Äÿ¿Ä®Äƒ¿¿¿§Å…ï—’…∏ÅΩôôï…Õ=πçîπç’……ïπ–π¿Ï(ÄÄÄÅçΩπÕ–Å¿ÄÙÄ°ÖÕÂπåÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÅçΩπÕ–ÅÏÅëÖ—ÑËÅ}…Ö›=ôôï…ÃÅÙÄÙÅÖ›Ö•–ÅÕ’¡ÖâÖÕîπô…Ω¥†âΩôôï…Ãà§πÕï±ïç–†à®à§Ï(ÄÄÄÄÄÄººÅÿÿ∏ƒ‹ËÅΩôôï…ÃπÕ≈∞ÅçΩ±’µπÃÄ°çΩ’¡Ωπ}çΩëîΩÖôô•±•Ö—ï}’…∞ΩΩôôï…}—•—±îº∏∏∏§ÅÖ…î(ÄÄÄÄÄÄººÅπΩ…µÖ±•ÈïêÅ=9Å—ºÅ—°îÅÖ¡¿ÅÕ°Ö¡îÄ¥ÅëÖÕ°âΩÖ…êÅ…Ω›ÃÅçΩ’±êÅπïŸï»Å…ïπëï»(ÄÄÄÄÄÄººÅâïôΩ…îÅ—°•Ã∏Åÿ‘∏¿‰Å…’±îÅ’πç°ÖπùïêËÅ’πëï±•Ÿï…Öâ±îÅëïÖ±ÃÅπïŸï»Å…ïÖç†ÅÑÅçÖ…ê∏(ÄÄÄÄÄÅ…ï—’…∏Ä°}…Ö›=ôôï…ÃÅÒÅmt§πµÖ¿°πΩ…µÖ±•Èï=ôôï…IΩ‹§πô•±—ï»°	ΩΩ±ïÖ∏§πô•±—ï»°Ωôôï…IïëïïµÖâ±î§Ï(ÄÄÄÅÙ§†§Ï(ÄÄÄÅΩôôï…Õ=πçîπç’……ïπ–ÄÙÅÏÅÖ–ËÅπΩ‹∞Å¿ÅÙÏ(ÄÄÄÅ¿πçÖ—ç†††§ÄÙ¯ÅÏÅ•òÄ°Ωôôï…Õ=πçîπç’……ïπ–π¿ÄÙÙÙÅ¿§ÅΩôôï…Õ=πçîπç’……ïπ–ÄÙÅÏÅÖ–ËÄ¿∞Å¿ËÅπ’±∞ÅÙÏÅÙ§Ï(ÄÄÄÅ…ï—’…∏Å¿Ï(ÄÅÙ(ÄÅÖÕÂπåÅô’πç—•Ω∏Å±ΩÖë=ôôï…Ã°±•Õ–§ÅÏ(ÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÅ•òÄ†ÖÕ’¡ÖâÖÕîÅÒÄÖ……Ö‰π•Õ……Ö‰°±•Õ–§ÅÒÄÖ±•Õ–π±ïπù—†§Å…ï—’…∏Ï(ÄÄÄÄÄÅçΩπÕ–ÅëÖ—ÑÄÙÅÖ›Ö•–Åôï—ç°=ôôï…Õ=πçî†§Ï(ÄÄÄÄÄÅ•òÄ†ÖëÖ—ÑÅÒÄÖëÖ—Ñπ±ïπù—†§Å…ï—’…∏Ï(ÄÄÄÄÄÅçΩπÕ–ÅπΩ…¥ÄÙÄ°‡§ÄÙ¯Ä°‡ÅÒÄàà§π—Ω1Ω›ï…ÖÕî†§π…ï¡±Öçî†ΩmyÑµË¿¥ÂtΩú∞Äàà§Ï(ÄÄÄÄÄÅçΩπÕ–ÅµÖ¿ÄÙÅÌÙÏ(ÄÄÄÄÄÅ±•Õ–πôΩ…Öç††°¿§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÅ•òÄ†Ö¿§Å…ï—’…∏Ï(ÄÄÄÄÄÄÄÅçΩπÕ–ÅΩôòÄÙÅëÖ—Ñπô•πê†°º§ÄÙ¯Ä°ºπùΩΩù±ï}¡±Öçï}•êÄòòÅºπùΩΩù±ï}¡±Öçï}•êÄÙÙÙÅ¿π•ê§ÅÒÄ°ºππΩ…µÖ±•Èïë}â’Õ•πïÕÕ}πÖµîÄòòÅºππΩ…µÖ±•Èïë}â’Õ•πïÕÕ}πÖµîÄÙÙÙÅπΩ…¥°¿ππÖµî§§§Ï(ÄÄÄÄÄÄÄÅ•òÄ°Ωôò§ÅÏÅµÖ¡m¿π•ëtÄÙÅΩôòÏÅ=IMm¿π•ëtÄÙÅΩôòÏÅÙ(ÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÅ•òÄ°=â©ïç–π≠ïÂÃ°µÖ¿§π±ïπù—†§ÅÕï—=ôôï…Ã†°¡…ïÿ§ÄÙ¯Ä°ÏÄ∏∏π¡…ïÿ∞Ä∏∏πµÖ¿ÅÙ§§Ï(ÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÅÙ(ÄÅçΩπÕ–Åâ±’…âÕ%π±•ù°–ÄÙÅ’ÕïIïò°πï‹ÅMï–†§§Ï(ÄÅÖÕÂπåÅô’πç—•Ω∏Å±ΩÖë	±’…âÃ°±•Õ–§ÅÏ(ÄÄÄÅ±ΩÖë=ôôï…Ã°±•Õ–§Ï(ÄÄÄÅ•òÄ†Ö……Ö‰π•Õ……Ö‰°±•Õ–§ÅÒÄÖ±•Õ–π±ïπù—†§ÅÏÅÕï—	±’…âÃ°ÌÙ§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÄººÄƒ∏ÅMïïêÅ•πÕ—Öπ—±‰Åô…Ω¥Å—°îÄÃ¿µëÖ‰ÅΩ∏µëïŸ•çîÅ±•πîÅçÖç°î∏ÅQ°ïÕîÅçΩÕ–ÅπΩ—°•πúË(ÄÄÄÄººÄÄÄÅπºÅΩΩù±îÅçÖ±∞∞ÅπºÅ$ÅçÖ±∞∏ÅIï¡ïÖ–ÅÕïÖ…ç°ïÃÅΩòÅ—°îÅÕÖµîÅÖ…ïÑÅÖ…îÅô…ïî∏(ÄÄÄÅçΩπÕ–ÅÕïïëïêÄÙÅÌÙÏ(ÄÄÄÅ±•Õ–πôΩ…Öç††°¿§ÄÙ¯ÅÏÅçΩπÕ–ÅåÄÙÅùï—Öç°ïë1•πî°¿π•ê§ÏÅ•òÄ°å§ÅÕïïëïëm¿π•ëtÄÙÅåÏÅÙ§Ï(ÄÄÄÄººÅ5I∞ÅπïŸï»Å…ï¡±ÖçîÉäPÅÕ•‡ÅÕïç—•ΩπÃÅÕ°Ö…îÅ—°•ÃÅµÖ¿∞ÅÖπêÅÑÅ±Ö—îÅçÖ±±ï»(ÄÄÄÄººÅ’ÕïêÅ—ºÅ›•¡îÅïŸï…‰ÅΩ—°ï»ÅÕïç—•Ω∏ùÃÅ±•πïÃÅµ•êµÕç…ïï∏∏(ÄÄÄÅÕï—	±’…âÃ†°¡…ïÿ§ÄÙ¯Ä°ÏÄ∏∏π¡…ïÿ∞Ä∏∏πÕïïëïêÅÙ§§Ï(ÄÄÄÄººÅ-9=]8Å=HÅ	QLÅQ!Å9IQÅ1%9∞Å1]eL∏Å›ô}ïë•—Ω…•Ö∞Å°Ω±ëÃÅ…ïÕïÖ…ç°ïê(ÄÄÄÄººÅçΩ¡‰ÅÖâΩ’–ÅQ!%LÅ¡±ÖçîÉäPÅ›°Ö–Å•–Å•ÃÅ≠πΩ›∏ÅôΩ»∞Å›°Ö–ÅÑÅ…ïù’±Ö»Å›Ω’±êÅΩ…ëï»∞(ÄÄÄÄººÅ›°Ö–ÅÑÅ±ΩçÖ∞Å›Ω’±êÅ—ï±∞ÅÂΩ‘∏ÅQ°Ö–Å•ÃÅ›°Ö–ÅÑÅ…Ω‹ÅÕ°Ω’±êÅÕÖ‰∏ÅQ°îÅùïπï…Ö—ïê(ÄÄÄÄººÅâ±’…àÅÕ—ÖÂÃÅΩπ±‰ÅÖÃÅ—°îÅôÖ±±âÖç¨ÅôΩ»Å¡±ÖçïÃÅ›îÅ°Ω±êÅπºÅïë•—Ω…•Ö∞ÅΩ∏∏(ÄÄÄÄºº(ÄÄÄÄººÅI’πÃÅôΩ»Å—°îÅ]!=1Å±•Õ–Å…Ö—°ï»Å—°Ö∏Å—°îÄÃÅ—°îÅâ±’…àÅ¡Ö—†Åôï—ç°ïÃËÅ•–Å•Ã(ÄÄÄÄººÅΩπîÅ≈’ï…‰ÅÖùÖ•πÕ–ÅΩ’»ÅΩ›∏Å—Öâ±î∞ÅÕºÅ—°ï…îÅ•ÃÅπºÅ…ïÖÕΩ∏Å—ºÅ…Ö—•Ω∏Å•–∞ÅÖπê(ÄÄÄÄººÅ…Ö—•Ωπ•πúÅ•ÃÅï·Öç—±‰Å›°Ö–Å±ïô–ÅµΩÕ–Å…Ω›ÃÅ…ïÖë•πúÅùïπï…•çÖ±±‰∏(ÄÄÄÄºº(ÄÄÄÄººÅÖ•±ÃÅÕΩô–ÅΩ∏Å¡’…¡ΩÕîÉäPÅ•òÅ—°îÅ±ΩΩ≠’¿Åëïù…ÖëïÃÅ—°îÅï·•Õ—•πúÅ±•πîÅÕ—ÖÂÃ∏Å(ÄÄÄÄººÅçÖ…êÅµ’Õ–ÅπïŸï»Å1=MÅ—ï·–Å•–ÅÖ±…ïÖë‰Å°ÖêÅâïçÖ’ÕîÅÑÅ±ΩΩ≠’¿Åâ±•π≠ïê∏(ÄÄÄÄ°ÖÕÂπåÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å•ëÃÄÙÅ±•Õ–πµÖ¿†°¿§ÄÙ¯Å¿π•ê§πô•±—ï»°	ΩΩ±ïÖ∏§πÕ±•çî†¿∞Ä–¿§Ï(ÄÄÄÄÄÄÄÅ•òÄ†Ö•ëÃπ±ïπù—†§Å…ï—’…∏Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å≠»ÄÙÅÖ›Ö•–Åôï—ç††àΩÖ¡§Ω≠πΩ›∏µôΩ»à∞ÅÏ(ÄÄÄÄÄÄÄÄÄÅµï—°ΩêËÄâA=MPà∞Å°ïÖëï…ÃËÅÏÄâçΩπ—ïπ–µ—Â¡îàËÄâÖ¡¡±•çÖ—•Ω∏Ω©ÕΩ∏àÅÙ∞(ÄÄÄÄÄÄÄÄÄÅâΩë‰ËÅ)M=8πÕ—…•πù•ô‰°ÏÅ•ëÃÅÙ§∞(ÄÄÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å≠êÄÙÅÖ›Ö•–Å≠»π©ÕΩ∏†§Ï(ÄÄÄÄÄÄÄÅ•òÄ°≠êÄòòÅ≠êπ±•πïÃÄòòÅ—Â¡ïΩòÅ≠êπ±•πïÃÄÙÙÙÄâΩâ©ïç–àÄòòÅ=â©ïç–π≠ïÂÃ°≠êπ±•πïÃ§π±ïπù—†§ÅÏ(ÄÄÄÄÄÄÄÄÄÅÕï—	±’…âÃ†°¡…ïÿ§ÄÙ¯Ä°ÏÄ∏∏π¡…ïÿ∞Ä∏∏π≠êπ±•πïÃÅÙ§§Ï(ÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏÅÕï—Öç°ïë1•πïÃ°≠êπ±•πïÃ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÅÙ§†§Ï(ÄÄÄÄººÄ»∏ÅçÖç°ï=π±‰ÅI}MU55IdÅôΩ»Å—°îÅÕÖµîÅ•êÅÕï–ÅÖÃÅ≠πΩ›∏µôΩ»Ä°’¿Å—ºÄ–¿§∞(ÄÄÄÄººÄÄÄÅπΩ–Å©’Õ–Å—°îÅ—Ω¿ÄÃ∏ÅΩΩêÄ¯ÅÖõ•ÃÅ…Öπ¨Ä–¨Å›•—†ÅÑÄÃ¿µëÖ‰Å°ΩΩ¨Å›ï…îÅâ±Öπ¨(ÄÄÄÄººÄÄÄÅ›°•±îÅÑÅπï•ù°âΩ»Å›•—†Å›ô}ïë•—Ω…•Ö∞ÅÕ°Ω›ïêÅçΩ¡‰ÉäPÅ—°Ö–Å°•ëïÃÅÑÅÕΩ’…çïê(ÄÄÄÄººÄÄÄÅ°ΩΩ¨∞Å•–Å•ÃÅπΩ–Å—°îÅïµ¡—‰µÕ±Ω–Å±Ö‹∏ÅçÖç°ï=π±‰ÅπïŸï»Åùïπï…Ö—ïÃ∞ÅÕºÅ—°•Ã(ÄÄÄÄººÄÄÄÅ¡Ö—†ÅëΩïÃÅπΩ–Å¡Ö‰ÅA±ÖçïÃÅëï—Ö•±ÃÅΩ»Å•πŸïπ–ÅÑÅÕïπ—ïπçî∏Å-πΩ›∏µôΩ»ÅÕ—•±∞(ÄÄÄÄººÄÄÄÅ›•πÃËÅ›îÅΩπ±‰Åô•±∞Å•ëÃÅ—°Ö–ÅëºÅπΩ–ÅÖ±…ïÖë‰Å°ÖŸîÅÑÅ±•πî∏(ÄÄÄÅçΩπÕ–ÅπïïêÄÙÅ±•Õ–πô•±—ï»†°¿§ÄÙ¯Å¿ÄòòÅ¿π•êÄòòÄÖÕïïëïëm¿π•ëtÄòòÄÖâ±’…âÕ%π±•ù°–πç’……ïπ–π°ÖÃ°¿π•ê§§πÕ±•çî†¿∞Ä–¿§Ï(ÄÄÄÅ•òÄ†Öπïïêπ±ïπù—†§Å…ï—’…∏Ï(ÄÄÄÅπïïêπôΩ…Öç††°¿§ÄÙ¯Åâ±’…âÕ%π±•ù°–πç’……ïπ–πÖëê°¿π•ê§§Ï(ÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄººÄΩÖ¡§Ωâ±’…âÃÅÕ±•çïÃÅÅ¡±ÖçïÕÄÅ—ºÄ»¿ÅâïôΩ…îÅ—°îÅçÖç°îÅ…ïÖê∏Å°’π¨ÅÕºÅ—°î(ÄÄÄÄÄÄººÅ—Ö•∞ÅΩòÅÑÅçÖõ§Å±•Õ–Å•ÃÅπΩ–ÅÕ•±ïπ—±‰Åë…Ω¡¡ïê∏(ÄÄÄÄÄÅçΩπÕ–Å	1UI	}	Q ÄÙÄ»¿Ï(ÄÄÄÄÄÅôΩ»Ä°±ï–Å§ÄÙÄ¿ÏÅ§ÄÅπïïêπ±ïπù—†ÏÅ§Ä¨ÙÅ	1UI	}	Q §ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–ÅâÖ—ç†ÄÙÅπïïêπÕ±•çî°§∞Å§Ä¨Å	1UI	}	Q §Ï(ÄÄÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å…ïÃÄÙÅÖ›Ö•–Åôï—ç††àΩÖ¡§Ωâ±’…âÃà∞ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÅµï—°ΩêËÄâA=MPà∞(ÄÄÄÄÄÄÄÄÄÄÄÅ°ïÖëï…ÃËÅÏÄâçΩπ—ïπ–µ—Â¡îàËÄâÖ¡¡±•çÖ—•Ω∏Ω©ÕΩ∏àÅÙ∞(ÄÄÄÄÄÄÄÄÄÄÄÄººÅÿÿ∏ÿÃÅçÖç°ï=π±‰ËÅI9HÅAQ ∏ÅIïÖëÃÅ—°îÅÕ°Ö…ïêÄÃ¿µëÖ‰Å¡ΩΩ∞ÅΩπ±‰ÉäP(ÄÄÄÄÄÄÄÄÄÄÄÄººÅÑÅçΩ±êÅÖ…ïÑÅôÖ±±ÃÅâÖç¨Å—ºÅπºÅ±•πîÅ…Ö—°ï»Å—°Ö∏Åùïπï…Ö—•πúÅ›°•±î(ÄÄÄÄÄÄÄÄÄÄÄÄººÅ—°îÅ’Õï»Å›Ö•—Ã∏Åç°ïç¨µπºµ±±¥µ•∏µ…ïπëï»µ¡Ö—†Å›Ö±≠ÃÅïŸï…‰Åç±•ïπ–(ÄÄÄÄÄÄÄÄÄÄÄÄººÅçÖ±±ï»ÅôΩ»Å—°•ÃÅô±Öú∏(ÄÄÄÄÄÄÄÄÄÄÄÅâΩë‰ËÅ)M=8πÕ—…•πù•ô‰°Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅçÖç°ï=π±‰ËÅ—…’î∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅç•—‰ËÅ±Ωç9Öµî∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ¡±ÖçïÃËÅâÖ—ç†πµÖ¿†°¿§ÄÙ¯Ä°ÏÅ•êËÅ¿π•ê∞ÅπÖµîËÅ¿ππÖµî∞Å—Â¡îËÅ¿π—Â¡î∞Å…Ö—•πúËÅ¿π…Ö—•πú∞Å…ïŸ•ï›ÃËÅ¿π…ïŸ•ï›ÃÅÙ§§∞(ÄÄÄÄÄÄÄÄÄÄÄÅÙ§∞(ÄÄÄÄÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅëÖ—ÑÄÙÅÖ›Ö•–Å…ïÃπ©ÕΩ∏†§Ï(ÄÄÄÄÄÄÄÄÄÅ•òÄ°ëÖ—ÑÄòòÅëÖ—Ñπâ±’…âÃÄòòÅ—Â¡ïΩòÅëÖ—Ñπâ±’…âÃÄÙÙÙÄâΩâ©ïç–à§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åç±ïÖπïêÄÙÅÕ—…•¡5ë5Ö¿°ëÖ—Ñπâ±’…âÃ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅÕï—	±’…âÃ†°¡…ïÿ§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åπï·–ÄÙÅÏÄ∏∏π¡…ïÿÅÙÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅôΩ»Ä°çΩπÕ–Å•êÅΩòÅ=â©ïç–π≠ïÂÃ°ç±ïÖπïê§§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ†Öπï·—m•ëtÄòòÅç±ïÖπïëm•ët§Åπï·—m•ëtÄÙÅç±ïÖπïëm•ëtÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏Åπï·–Ï(ÄÄÄÄÄÄÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏÅÕï—Öç°ïë1•πïÃ°ëÖ—Ñπâ±’…âÃ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÅÙÅçÖ—ç†ÅÌÙ(ÄÄÄÄÄÅÙ(ÄÄÄÅÙÅô•πÖ±±‰ÅÏÅπïïêπôΩ…Öç††°¿§ÄÙ¯Åâ±’…âÕ%π±•ù°–πç’……ïπ–πëï±ï—î°¿π•ê§§ÏÅÙ(ÄÅÙ(ÄÅÖÕÂπåÅô’πç—•Ω∏Å±ΩÖë%πÕ•ù°–°¿∞Åï·—…Ñ§ÅÏ(ÄÄÄÅ•òÄ°•πÕ•ù°—Öç°îπç’……ïπ—m¿π•ët§ÅÏÅÕï—%πÕ•ù°–°•πÕ•ù°—Öç°îπç’……ïπ—m¿π•ët§ÏÅÕï—%πÕ•ù°—1ΩÖë•πú°ôÖ±Õî§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÅçΩπÕ–ÅçÖç°ïêÄÙÅùï—Öç°ïë%πÕ•ù°–°¿π•ê§Ï(ÄÄÄÅ•òÄ°çÖç°ïê§ÅÏÅ•πÕ•ù°—Öç°îπç’……ïπ—m¿π•ëtÄÙÅçÖç°ïêÏÅÕï—%πÕ•ù°–°çÖç°ïê§ÏÅÕï—%πÕ•ù°—1ΩÖë•πú°ôÖ±Õî§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÅÕï—%πÕ•ù°–°π’±∞§Ï(ÄÄÄÅÕï—%πÕ•ù°—1ΩÖë•πú°—…’î§Ï(ÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÅçΩπÕ–Å…ïÃÄÙÅÖ›Ö•–Åôï—ç††àΩÖ¡§Ω•πÕ•ù°–à∞ÅÏ(ÄÄÄÄÄÄÄÅµï—°ΩêËÄâA=MPà∞(ÄÄÄÄÄÄÄÅ°ïÖëï…ÃËÅÏÄâçΩπ—ïπ–µ—Â¡îàËÄâÖ¡¡±•çÖ—•Ω∏Ω©ÕΩ∏àÅÙ∞(ÄÄÄÄÄÄÄÅâΩë‰ËÅ)M=8πÕ—…•πù•ô‰°Ï(ÄÄÄÄÄÄÄÄÄÅπÖµîËÅ¿ππÖµî∞Å—Â¡îËÅ¿π—Â¡î∞Åç•—‰ËÅ±Ωç9Öµî∞(ÄÄÄÄÄÄÄÄÄÅ…Ö—•πúËÅ¿π…Ö—•πú∞Å…ïŸ•ï›Ω’π–ËÅ¿π…ïŸ•ï›Ã∞Å¡…•çîËÅ¿π¡…•çî∞ÅΩ¡ïπ9Ω‹ËÅ¿πΩ¡ïπ9Ω‹∞(ÄÄÄÄÄÄÄÄÄÅçÖ—ïùΩ…‰ËÅçÖ–∞ÅÕ’à∞ÅµΩëîËÄâçΩµ¡Öç–à∞Å≠•πêËÄ°¿π}ïŸïπ–Ä¸ÄâïŸïπ–àÄËÄ°lâΩΩêà∞Äâ9•ù°—±•ôîâtπ•πç±’ëïÃ°¡…•µÖ…ÂÖ—ïùΩ…‰°¿§ÅÒÄàà§Ä¸Äâë•π•πúàÄËÄâÖ——…Öç—•Ω∏à§§∞(ÄÄÄÄÄÄÄÄÄÅïë•—Ω…•Ö∞ËÅï·—…ÑÄ¸Åï·—…Ñπïë•—Ω…•Ö∞ÄËÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÅ…ïŸ•ï›ÃËÅï·—…ÑÄòòÅï·—…Ñπ…ïŸ•ï›ÃÄ¸Åï·—…Ñπ…ïŸ•ï›ÃπµÖ¿†°»§ÄÙ¯Å»π—ï·–§πÕ±•çî†¿∞Ä‘§ÄËÅmt∞(ÄÄÄÄÄÄÄÄÄÅÖ——…•â’—ïÃËÅ¿π±Öâï±ÃÅÒÅmt∞(ÄÄÄÄÄÄÄÅÙ§∞(ÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÅçΩπÕ–ÅëÖ—ÑÄÙÅÖ›Ö•–Å…ïÃπ©ÕΩ∏†§Ï(ÄÄÄÄÄÄººÅÿÿ∏‹–ËÅÖ∏Å•πÕ•ù°–ÅçΩµ¡’—ïêÅô…Ω¥ÅÑÅ%1Åëï—Ö•∞Åôï—ç†Å•ÃÅπΩ–ÅÑÅôÖç–(ÄÄÄÄÄÄººÅÖâΩ’–Å—°îÅ¡±ÖçîÉäPÅ•–Å•ÃÅ—°îÅÕ°Ö¡îÅΩòÅΩ’»ÅΩ›∏ÅΩ’—Öùî∏ÄΩÖ¡§Ω•πÕ•ù°–Å—Ö≠ïÃ(ÄÄÄÄÄÄººÅ•—ÃÅπºµ…ïŸ•ï›ÃÅâ…Öπç†ÅΩ∏ÅÖ∏Åïµ¡—‰ÅÅ…ïŸ•ï›ÕÄ∞ÅÖπêÅ—°Ö–ÅŸï…ë•ç–Å›ÖÃÅâï•πú(ÄÄÄÄÄÄººÅ¡ï…Õ•Õ—ïêÅôΩ»ÅQ!%IQdÅeL∞ÅÕºÅΩπîÅâ…Ω≠ï∏Åôï—ç†Åô±Ö——ïπïêÄâ]°‰Å]ÖÂô•πê(ÄÄÄÄÄÄººÅ¡•ç≠ïêÅ—°•ÃàÅ—ºÅÑÅÕ•πù±îÅëïÕç…•¡—•ŸîÅÕïπ—ïπçîÅ±ΩπúÅÖô—ï»Å—°îÅôï—ç†Å›ÖÃ(ÄÄÄÄÄÄººÅô•·ïê∏ÅIïπëï»Å•–Ä°âï——ï»Å—°Ö∏ÅÖ∏Åïµ¡—‰Åâ±Ωç¨§∞Åâ’–ÅπïŸï»ÅµïµΩ•ÕîÅ•–ÅÖπê(ÄÄÄÄÄÄººÅπïŸï»Å¡ï…Õ•Õ–Å•–ÉäPÅ—°îÅπï·–ÅΩ¡ï∏Å…îµÖÕ≠ÃÅ›•—†Å…ïÖ∞Å…ïŸ•ï›Ã∏(ÄÄÄÄÄÅçΩπÕ–Åëï—Ö•±Ö•±ïêÄÙÄÑÑ°ï·—…ÑÄòòÅï·—…ÑπΩ¨ÄÙÙÙÅôÖ±Õî§Ï(ÄÄÄÄÄÅ•òÄ†Öëï—Ö•±Ö•±ïê§Å•πÕ•ù°—Öç°îπç’……ïπ—m¿π•ëtÄÙÅëÖ—ÑÏ(ÄÄÄÄÄÅ•òÄ°ëÖ—ÑÄòòÄÖëÖ—Ñπï……Ω»ÄòòÄÖëÖ—Ñπ’πÖŸÖ•±Öâ±îÄòòÄÖëï—Ö•±Ö•±ïê§ÅÕï—Öç°ïë%πÕ•ù°–°¿π•ê∞ÅëÖ—Ñ§Ï(ÄÄÄÄÄÅÕï—%πÕ•ù°–°ëÖ—Ñ§Ï(ÄÄÄÅÙÅçÖ—ç†ÅÏ(ÄÄÄÄÄÅÕï—%πÕ•ù°–°ÏÅï……Ω»ËÅ—…’îÅÙ§Ï(ÄÄÄÅÙÅô•πÖ±±‰ÅÏ(ÄÄÄÄÄÅÕï—%πÕ•ù°—1ΩÖë•πú°ôÖ±Õî§Ï(ÄÄÄÅÙ(ÄÅÙ(ÄÄººÅQ°îÅ°ïÖŸ•ï»Å•πÕ•ù°–Ä°—°ïµïÃ∞ÅµΩ…îÅ—•¡Ã∞Åµ’Õ–µ—…‰§∏Å=π±‰ÅïŸï»Å…’πÃÅ›°ï∏Å—°î(ÄÄººÅ’Õï»Åï·¡ÖπëÃÅÑÅ¡±Öçî∞ÅÕºÅµΩÕ–ÅΩ¡ïπÃÅπïŸï»Å¡Ö‰ÅôΩ»Å•–∏ÅÖç°ïêÄÃ¿ÅëÖÂÃ∏(ÄÅÖÕÂπåÅô’πç—•Ω∏Å±ΩÖë’±±%πÕ•ù°–°¿∞Åï·—…Ñ§ÅÏ(ÄÄÄÅ•òÄ†Ö¿§Å…ï—’…∏Ï(ÄÄÄÅ•òÄ°•πÕ•ù°—’±±Öç°îπç’……ïπ—m¿π•ët§ÅÏÅÕï—%πÕ•ù°—’±∞°•πÕ•ù°—’±±Öç°îπç’……ïπ—m¿π•ët§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÅçΩπÕ–ÅçÖç°ïêÄÙÅùï—Öç°ïë%πÕ•ù°–°¿π•êÄ¨ÄàËÈô’±∞à§Ï(ÄÄÄÅ•òÄ°çÖç°ïê§ÅÏÅ•πÕ•ù°—’±±Öç°îπç’……ïπ—m¿π•ëtÄÙÅçÖç°ïêÏÅÕï—%πÕ•ù°—’±∞°çÖç°ïê§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÅÕï—%πÕ•ù°—’±±1ΩÖë•πú°—…’î§Ï(ÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÅçΩπÕ–Å…ïÃÄÙÅÖ›Ö•–Åôï—ç††àΩÖ¡§Ω•πÕ•ù°–à∞ÅÏ(ÄÄÄÄÄÄÄÅµï—°ΩêËÄâA=MPà∞(ÄÄÄÄÄÄÄÅ°ïÖëï…ÃËÅÏÄâçΩπ—ïπ–µ—Â¡îàËÄâÖ¡¡±•çÖ—•Ω∏Ω©ÕΩ∏àÅÙ∞(ÄÄÄÄÄÄÄÅâΩë‰ËÅ)M=8πÕ—…•πù•ô‰°Ï(ÄÄÄÄÄÄÄÄÄÅπÖµîËÅ¿ππÖµî∞Å—Â¡îËÅ¿π—Â¡î∞Åç•—‰ËÅ±Ωç9Öµî∞(ÄÄÄÄÄÄÄÄÄÅ…Ö—•πúËÅ¿π…Ö—•πú∞Å…ïŸ•ï›Ω’π–ËÅ¿π…ïŸ•ï›Ã∞Å¡…•çîËÅ¿π¡…•çî∞ÅΩ¡ïπ9Ω‹ËÅ¿πΩ¡ïπ9Ω‹∞(ÄÄÄÄÄÄÄÄÄÅçÖ—ïùΩ…‰ËÅçÖ–∞ÅÕ’à∞ÅµΩëîËÄâô’±∞à∞Å≠•πêËÄ°¿π}ïŸïπ–Ä¸ÄâïŸïπ–àÄËÄ°lâΩΩêà∞Äâ9•ù°—±•ôîâtπ•πç±’ëïÃ°¡…•µÖ…ÂÖ—ïùΩ…‰°¿§ÅÒÄàà§Ä¸Äâë•π•πúàÄËÄâÖ——…Öç—•Ω∏à§§∞(ÄÄÄÄÄÄÄÄÄÅïë•—Ω…•Ö∞ËÅï·—…ÑÄ¸Åï·—…Ñπïë•—Ω…•Ö∞ÄËÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÅ…ïŸ•ï›ÃËÅï·—…ÑÄòòÅï·—…Ñπ…ïŸ•ï›ÃÄ¸Åï·—…Ñπ…ïŸ•ï›ÃπµÖ¿†°»§ÄÙ¯Å»π—ï·–§πÕ±•çî†¿∞Ä‘§ÄËÅmt∞(ÄÄÄÄÄÄÄÄÄÅÖ——…•â’—ïÃËÅ¿π±Öâï±ÃÅÒÅmt∞(ÄÄÄÄÄÄÄÅÙ§∞(ÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÅçΩπÕ–ÅëÖ—ÑÄÙÅÖ›Ö•–Å…ïÃπ©ÕΩ∏†§Ï(ÄÄÄÄÄÄººÅMÖµîÅ…’±îÅÖÃÅ±ΩÖë%πÕ•ù°–ËÅëºÅπΩ–Å—’…∏ÅΩ’»ÅΩ›∏ÅôÖ•±ïêÅôï—ç†Å•π—ºÅÑ(ÄÄÄÄÄÄººÄÃ¿µëÖ‰ÅçÖç°ïêÅŸï…ë•ç–ÅÖâΩ’–Å—°îÅ¡±Öçî∏(ÄÄÄÄÄÅçΩπÕ–Åëï—Ö•±Ö•±ïë’±∞ÄÙÄÑÑ°ï·—…ÑÄòòÅï·—…ÑπΩ¨ÄÙÙÙÅôÖ±Õî§Ï(ÄÄÄÄÄÅ•òÄ†Öëï—Ö•±Ö•±ïë’±∞§Å•πÕ•ù°—’±±Öç°îπç’……ïπ—m¿π•ëtÄÙÅëÖ—ÑÏ(ÄÄÄÄÄÅ•òÄ°ëÖ—ÑÄòòÄÖëÖ—Ñπï……Ω»ÄòòÄÖëÖ—Ñπ’πÖŸÖ•±Öâ±îÄòòÄÖëï—Ö•±Ö•±ïë’±∞§ÅÕï—Öç°ïë%πÕ•ù°–°¿π•êÄ¨ÄàËÈô’±∞à∞ÅëÖ—Ñ§Ï(ÄÄÄÄÄÅÕï—%πÕ•ù°—’±∞°ëÖ—Ñ§Ï(ÄÄÄÅÙÅçÖ—ç†ÅÏ(ÄÄÄÄÄÅÕï—%πÕ•ù°—’±∞°ÏÅï……Ω»ËÅ—…’îÅÙ§Ï(ÄÄÄÅÙÅô•πÖ±±‰ÅÏ(ÄÄÄÄÄÅÕï—%πÕ•ù°—’±±1ΩÖë•πú°ôÖ±Õî§Ï(ÄÄÄÅÙ(ÄÅÙ((ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÅçΩπÕ–Å…Ö‹ÄÙÅ±ΩçÖ±M—Ω…Öùîπùï—%—ï¥†â›ÖÂô•πë}±•Õ—Ãà§Ï(ÄÄÄÄÄÅ•òÄ°…Ö‹§ÅÏÅçΩπÕ–ÅÕÖŸïêÄÙÅ)M=8π¡Ö…Õî°…Ö‹§ÏÅçΩπÕ–Å}¥ÄÙÅÏÅôÖŸΩ…•—ïÃËÅÏÅ•êËÄâôÖŸΩ…•—ïÃà∞ÅπÖµîËÄâÖŸΩ…•—ïÃà∞ÅïµΩ©§ËÄãävìæ‚<à∞Å¡±ÖçïÃËÅmtÅÙ∞Ä∏∏πÕÖŸïêÅÙÏÅ•òÄ°}¥πç’Õ—Ω¥ÄòòÄÑ†°}¥πç’Õ—Ω¥π¡±ÖçïÃÅÒÅmt§π±ïπù—†§§Åëï±ï—îÅ}¥πç’Õ—Ω¥ÏÅÕï—1•Õ—Ã°}¥§ÏÅÙ(ÄÄÄÅÙÅçÖ—ç†ÅÌÙ(ÄÅÙ∞Åmt§Ï((ÄÄººÅ!Öπë±îÅÕ°Ö…ïêÅëïï¿Å±•π≠ÃËÅÑÅÕ•πù±îÅ¡±ÖçîÅΩ»ÅÑÅÕ°Ö…ïêÅ±•Õ–∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ±ï–Å¡Ö…ÖµÃÏ(ÄÄÄÅ—…‰ÅÏÅ¡Ö…ÖµÃÄÙÅπï‹ÅUI1MïÖ…ç°AÖ…ÖµÃ°›•πëΩ‹π±ΩçÖ—•Ω∏πÕïÖ…ç†§ÏÅÙÅçÖ—ç†ÅÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÄººÅÿ‡∏ƒ–ÄºÅÿ‡∏»‡ËÄΩ¿ΩÌ•ëÙÅ	Öç¨Åµ’Õ–Å…ïÕ—Ω…îÅ—°îÅ¡…ïŸ•Ω’ÃÅ]ÖÂô•πêÅÕ’…ôÖçî(ÄÄÄÄººÄ°…Ö•∞ÄºÅ°Ωµï¡ÖùîÄºÅù’•ëîÄºÅ•π—ïπ–§∞ÅπΩ–Å—…Ö¿Å—°îÅ…ïÖëï»ÅΩ∏Å—°îÅ¡±Öçî(ÄÄÄÄººÅ…Ω’—îÅÖô—ï»Å—°îÅÕ°ïï–Åç±ΩÕïÃ∏Å¡±ÖçïIΩ’—ï	Öç≠A±Ö∏Å•ÃÅ—°îÅçÖ±±Öâ±î(ÄÄÄÄººÅçΩπ—…Öç–ÉäPÅÕÖµîµΩ…•ù•∏Å…ïôï……ï»Å±ïÖŸïÃÅ—°îÅ…Ω’—îÏÅÑÅ±ïô—ΩŸï»(ÄÄÄÄººÄ˝Öç—•Ω∏ı±•≠îÅÕ°Ö…îÅ›•—†ÅπΩ›°ï…îÅ—ºÅùºÅç±ΩÕïÃÅΩπ—ºÄàºà∏(ÄÄÄÅçΩπÕ–ÅâÖç≠A±Ö∏ÄÙÅ¡±ÖçïIΩ’—ï	Öç≠A±Ö∏°Ï(ÄÄÄÄÄÅ¡Ö—°πÖµîËÅ›•πëΩ‹π±ΩçÖ—•Ω∏π¡Ö—°πÖµî∞(ÄÄÄÄÄÅÕïÖ…ç†ËÅ›•πëΩ‹π±ΩçÖ—•Ω∏πÕïÖ…ç†∞(ÄÄÄÄÄÅ…ïôï……ï»ËÅ—Â¡ïΩòÅëΩç’µïπ–ÄÑÙÙÄâ’πëïô•πïêàÄ¸ÅëΩç’µïπ–π…ïôï……ï»ÄËÄàà∞(ÄÄÄÄÄÅΩ…•ù•∏ËÅ›•πëΩ‹π±ΩçÖ—•Ω∏πΩ…•ù•∏∞(ÄÄÄÅÙ§Ï(ÄÄÄÅ¡±ÖçïIΩ’—ïIï—’…πIïòπç’……ïπ–ÄÙÅâÖç≠A±Ö∏π±ïÖŸïA±ÖçïIΩ’—îÏ(ÄÄÄÅ¡±Öçïç—•Ωπ!ΩµïIïòπç’……ïπ–ÄÙÅâÖç≠A±Ö∏π…ï¡±Öçï!Ωµï=π±ΩÕîÏ(ÄÄÄÅçΩπÕ–Å±•Õ—M—»ÄÙÅ¡Ö…ÖµÃπùï–†â±•Õ–à§Ï(ÄÄÄÅçΩπÕ–Å¡Ö—°%êÄÙÄ°›•πëΩ‹π±ΩçÖ—•Ω∏π¡Ö—°πÖµîπµÖ—ç††ΩypΩ¡pº°mxΩt¨§º§ÅÒÅmt•l≈tÏ(ÄÄÄÅçΩπÕ–Å¡±Öçï%êÄÙÅ¡Ö…ÖµÃπùï–†â¡±Öçîà§ÅÒÅ•π•—•Ö±A±Öçï%êÅÒÄ°¡Ö—°%êÄ¸ÅëïçΩëïUI%Ωµ¡Ωπïπ–°¡Ö—°%ê§ÄËÅπ’±∞§Ï(ÄÄÄÅçΩπÕ–Å…ï≈’ïÕ—ïëç—•Ω∏ÄÙÅ¡Ö…ÖµÃπùï–†âÖç—•Ω∏à§ÅÒÅ•π•—•Ö±A±Öçïç—•Ω∏Ï(ÄÄÄÅçΩπÕ–Å¡±Öçïç—•Ω∏ÄÙÅlâÕÖŸîà∞Äâ±•≠îà∞Äâë•Õ±•≠îâtπ•πç±’ëïÃ°…ï≈’ïÕ—ïëç—•Ω∏§Ä¸Å…ï≈’ïÕ—ïëç—•Ω∏ÄËÅπ’±∞Ï(ÄÄÄÄººÅM—…•¿Ä˝¡±ÖçîÙÅÖπêÄ˝Öç—•Ω∏ı±•≠ïÒë•Õ±•≠ïÒÕÖŸî∏Å1•≠îÅ•ÃÅÑÅÕ•ùπÖ∞∞ÅπΩ–ÅÑ(ÄÄÄÄººÅ¡ÖùîÉäPÅ±ïÖŸ•πúÅÖç—•Ω∏ı±•≠îÅ•∏Å—°îÅÖëë…ïÕÃÅâÖ»Å…îµΩ¡ïπÃÅ—°îÅÕ°ïï–ÅÖÃ(ÄÄÄÄººÅ—°îÅΩπ±‰ÅU$ÅΩ∏Å…ïô…ïÕ†∏Å9ïŸï»ÅçΩ±±Ö¡ÕîÄΩ¿ΩÌ•ëÙÅ—ºÄàºàÅ°ï…îÏÅ	Öç¨ÅëΩïÃ(ÄÄÄÄººÅ—°Ö–ÅŸ•ÑÅ¡±ÖçïIΩ’—ï	Öç≠A±Ö∏Å›°ï∏Å•–ÅÕ°Ω’±ê∏(ÄÄÄÅ•òÄ°¡Ö…ÖµÃπùï–†â¡±Öçîà§ÅÒÅâÖç≠A±Ö∏πÕ—…•¡ç—•Ω∏ÅÒÅ¡±Öçïç—•Ω∏§ÅÏ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å}Õ¿ÄÙÅπï‹ÅUI1MïÖ…ç°AÖ…ÖµÃ°›•πëΩ‹π±ΩçÖ—•Ω∏πÕïÖ…ç†§Ï(ÄÄÄÄÄÄÄÅ}Õ¿πëï±ï—î†â¡±Öçîà§Ï(ÄÄÄÄÄÄÄÅ}Õ¿πëï±ï—î†âÖç—•Ω∏à§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å}≈ÃÄÙÅ}Õ¿π—ΩM—…•πú†§Ï(ÄÄÄÄÄÄÄÅ›•πëΩ‹π°•Õ—Ω…‰π…ï¡±ÖçïM—Ö—î°ÌÙ∞Äàà∞Å›•πëΩ‹π±ΩçÖ—•Ω∏π¡Ö—°πÖµîÄ¨Ä°}≈ÃÄ¸Äà¸àÄ¨Å}≈ÃÄËÄàà§§Ï(ÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÅÙ(ÄÄÄÅ•òÄ°±•Õ—M—»§ÅÏ(ÄÄÄÄÄÅçΩπÕ–Å¡∞ÄÙÅëïçΩëï1•Õ–°±•Õ—M—»§Ï(ÄÄÄÄÄÅ•òÄ°¡∞ÄòòÅ¡∞π±ïπù—†§ÅÏÅÕï—M°Ö…ïë1•Õ–°¡∞§ÏÅÕï—Mç…ïï∏†âÕ°Ö…ïêà§ÏÅ±ΩùŸïπ–†âÕ°Ö…ï}Ω¡ï∏à∞Åπ’±∞∞ÅÏÅ≠•πêËÄâ±•Õ–à∞Å∏ËÅ¡∞π±ïπù—†ÅÙ§ÏÅµÖ…≠M°Ö…ï=¡ï∏†§ÏÅÙ(ÄÄÄÅÙÅï±ÕîÅ•òÄ°¡±Öçï%ê§ÅÏ(ÄÄÄÄÄÅ±ΩùŸïπ–†âÕ°Ö…ï}Ω¡ï∏à∞Åπ’±∞∞ÅÏÅ≠•πêËÄâ¡±Öçîà∞Å¡±Öçï}•êËÅ¡±Öçï%êÅÙ§Ï(ÄÄÄÄÄÅµÖ…≠M°Ö…ï=¡ï∏†§Ï(ÄÄÄÄÄÄ°ÖÕÂπåÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å¿ÄÙÅÖ›Ö•–Åôï—ç°A±Öçï	Â%ê°¡±Öçï%ê§Ï(ÄÄÄÄÄÄÄÅ•òÄ°¿§ÅÏ(ÄÄÄÄÄÄÄÄÄÅ±ï–ÅΩ¡ïπïêÄÙÅ¿Ï(ÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅÕ•úÄÙÅÖ›Ö•–Åôï—ç°5ïµâï…M•ùπÖ±Ã°Õ’¡ÖâÖÕî∞Åm¡t§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°Õ•ú§ÅΩ¡ïπïêÄÙÅ›•—°5ïµâï…M•ùπÖ∞°m¡t∞ÅÕ•ú•l¡tÅÒÅ¿Ï(ÄÄÄÄÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÄÄÄÄÅ•òÄ°¡±Öçïç—•Ω∏ÄÙÙÙÄâÕÖŸîà§Å≈’•ç≠MÖŸïÖŸΩ…•—î°Ω¡ïπïê§Ï(ÄÄÄÄÄÄÄÄÄÅï±ÕîÅ•òÄ°¡±Öçïç—•Ω∏ÄÙÙÙÄâ±•≠îà§Å—Ωùù±ï1•≠î°ÏÅÕ—Ω¡A…Ω¡ÖùÖ—•Ω∏†§ÅÌÙÅÙ∞ÅΩ¡ïπïê§Ï(ÄÄÄÄÄÄÄÄÄÅï±ÕîÅ•òÄ°¡±Öçïç—•Ω∏ÄÙÙÙÄâë•Õ±•≠îà§Å—Ωùù±ï•Õ±•≠î°ÏÅÕ—Ω¡A…Ω¡ÖùÖ—•Ω∏†§ÅÌÙÅÙ∞ÅΩ¡ïπïê§Ï(ÄÄÄÄÄÄÄÄÄÅΩ¡ïπï—Ö•∞°Ω¡ïπïê§Ï(ÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÅÙ§†§Ï(ÄÄÄÅÙ(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞Åmt§Ï((ÄÄººÅAÖ…–Ä–ÅµïÖÕ’…ïµïπ–ËÅçΩ’π–ÅΩπîÄâÕïÕÕ•Ω∏àÅ¡ï»Å—ÖàÄ°Õ°Ö…ï}…Ö—îÅëïπΩµ•πÖ—Ω»§ÅÖπê(ÄÄººÅô•…îÄâÕ°Ö…ï}…ï—’…∏àÅ•òÅÑÅÕ°Ö…ïêµçÖ…êÅŸ•Õ•—Ω»Å•ÃÅâÖç¨Å›•—°•∏Ä‹ÅëÖÂÃ∏Å	Ω—†ÅÖ…î(ÄÄººÅù’Ö…ëïêΩπºµΩ¿µÕÖôîÏÅÅÕ°Ö…ïÄÅÖπêÅÅÕ°Ö…ï}Ω¡ïπÄÅÖ…îÅÖ±…ïÖë‰Å±ΩùùïêÅï±Õï›°ï…î∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ—…‰ÅÏÅµÖ…≠MïÕÕ•ΩπM—Ö…–°±ΩùŸïπ–§ÏÅç°ïç≠M°Ö…ïIï—’…∏°±ΩùŸïπ–§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞Åmt§Ï(ÄÅçΩπÕ–Å±•Õ—Õ!Âë…Ö—ïêÄÙÅ’ÕïIïò°ôÖ±Õî§Ï(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÄººÅM≠•¿Å—°îÅô•…Õ–Å…’∏ÅÕºÅëïôÖ’±–Åïµ¡—‰Å±•Õ—ÃÅπïŸï»ÅΩŸï…›…•—îÅ…ïÖ∞ÅÕÖŸïêÅëÖ—Ñ(ÄÄÄÄººÅâïôΩ…îÅ—°îÅ±ΩÖêÅïôôïç–ÅÖâΩŸîÅ°ÖÃÅ°Âë…Ö—ïêÅô…Ω¥Å±ΩçÖ±M—Ω…Öùî∏(ÄÄÄÅ•òÄ†Ö±•Õ—Õ!Âë…Ö—ïêπç’……ïπ–§ÅÏÅ±•Õ—Õ!Âë…Ö—ïêπç’……ïπ–ÄÙÅ—…’îÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÅ—…‰ÅÏÅÕï—1ΩçÖ∞†â›ÖÂô•πë}±•Õ—Ãà∞Å)M=8πÕ—…•πù•ô‰°±•Õ—Ã§§ÏÅÙÅçÖ—ç†ÅÌÙ(ÄÅÙ∞Åm±•Õ—Õt§Ï((ÄÄººÅQ…•¿Å¡±Öππï»ÅÕ—Ω…îËÅ±ΩÖêÅΩπçîÅΩ∏ÅµΩ’π–∞Å—°ï∏Å¡ï…Õ•Õ–ÅΩ∏ÅïŸï…‰Åç°Öπùî∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ—…‰ÅÏÅçΩπÕ–Å…Ö‹ÄÙÅ±ΩçÖ±M—Ω…Öùîπùï—%—ï¥†â›ÖÂô•πë}—…•¡Ãà§ÏÅ•òÄ°…Ö‹§ÅÕï—Q…•¡Ã°)M=8π¡Ö…Õî°…Ö‹§ÅÒÅÌÙ§ÏÅÙÅçÖ—ç†ÅÌÙ(ÄÅÙ∞Åmt§Ï(ÄÅçΩπÕ–Å—…•¡Õ!Âë…Ö—ïêÄÙÅ’ÕïIïò°ôÖ±Õî§Ï(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ†Ö—…•¡Õ!Âë…Ö—ïêπç’……ïπ–§ÅÏÅ—…•¡Õ!Âë…Ö—ïêπç’……ïπ–ÄÙÅ—…’îÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÅ—…‰ÅÏÅÕï—1ΩçÖ∞†â›ÖÂô•πë}—…•¡Ãà∞Å)M=8πÕ—…•πù•ô‰°—…•¡Ã§§ÏÅÙÅçÖ—ç†ÅÌÙ(ÄÅÙ∞Åm—…•¡Õt§Ï((ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ°≠ïÂ5•ÕÕ•πú§Å…ï—’…∏Ï(ÄÄÄÅ±ï–ÅùΩ—ALÄÙÅôÖ±ÕîÏ(ÄÄÄÄººÅ%@ÅôÖ±±âÖç¨Ä°›Ω…≠ÃÅΩ∏ÅëïÕ≠—Ω¿Å›•—†ÅπºÅAL§∏Å¡¡±•ïêÅΩπ±‰Å•òÅALÅ°ÖÕ∏ù–(ÄÄÄÄººÅÖ±…ïÖë‰ÅÕï–ÅÑÅ±ΩçÖ—•Ω∏∞ÅÖπêÅπïŸï»ÅΩŸï……•ëïÃÅÑÅµÖπ’Ö∞ÅÕïÖ…ç†∏(ÄÄÄÅçΩπÕ–Å•¡Ö±±âÖç¨ÄÙÅÖÕÂπåÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÅ—…‰ÅÏÅ•òÄ†ÖùΩ—AL§ÅÕï—1Ωç¡¡…Ω‡°—…’î§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å»ÄÙÅÖ›Ö•–Åôï—ç††àΩÖ¡§Ωùïºà∞ÅÏÅçÖç°îËÄâπºµÕ—Ω…îàÅÙ§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–ÅêÄÙÅÖ›Ö•–Å»π©ÕΩ∏†§Ï(ÄÄÄÄÄÄÄÅ•òÄ°êÄòòÅêπΩ¨ÄòòÄÖùΩ—ALÄòòÄÖµÖπ’Ö±Iïòπç’……ïπ–§ÅÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅåÄÙÅÏÅ±Ö–ËÅêπ±Ö–∞Å±πúËÅêπ±πúÅÙÏ(ÄÄÄÄÄÄÄÄÄÅÕï—ïŸ•çï1Ωå†°¡…ïÿ§ÄÙ¯Å¡…ïÿÅÒÅå§Ï(ÄÄÄÄÄÄÄÄÄÅÕï—1ΩçIïÕΩ±Ÿïê°—…’î§Ï(ÄÄÄÄÄÄÄÄÄÄººÅÿ‡∏–ÿÉäPÅ=9ÅUIÅ=HÅ=9ÅP∏ÅQ°•ÃÅ›ÖÃÅ—›ºË(ÄÄÄÄÄÄÄÄÄÄººÄÄÄÄÅÕï—ïπ—ï»†°¡…ïÿ§ÄÙ¯Ä°•ÕMïïëïπ—ï»°¡…ïÿ§Ä¸ÅåÄËÅ¡…ïÿ§§Ï(ÄÄÄÄÄÄÄÄÄÄººÄÄÄÄÅ•òÄ°êππÖµî§ÅÕï—1Ωç9Öµî†°¡…ïÿ§ÄÙ¯Å¡…ïÿÅÒÅêππÖµî§Ï(ÄÄÄÄÄÄÄÄÄÄººÅQ°îÅçïπ—ï»ÅΩπ±‰ÅµΩŸïêÅ›°ï∏Å•–Å›ÖÃÅÕ—•±∞Å—°îÅÕïïêÏÅ—°îÅ95ÅµΩŸïê(ÄÄÄÄÄÄÄÄÄÄººÅ›°ïπïŸï»Å•–Å°Ö¡¡ïπïêÅ—ºÅâîÅâ±Öπ¨∏ÅQ›ºÅ•πëï¡ïπëïπ–ÅçΩπë•—•ΩπÃÅΩ∏Å—°î(ÄÄÄÄÄÄÄÄÄÄººÅ—›ºÅ°Ö±ŸïÃÅΩòÅÑÅÕ•πù±îÅÖπÕ›ï»ÉäPÅÕºÅ—°îÅ°Ö±ŸïÃÅçΩ’±ê∞ÅÖπêÅë•ê∞(ÄÄÄÄÄÄÄÄÄÄººÅë•ÕÖù…ïîËÅÑÅçïπ—ï»Å—°Ö–ÅÕ—ÖÂïêÅ¡’–Å¡•ç≠ïêÅ’¿Å—°îÅ%@ÅÕï…Ÿ•çîùÃÅç•—‰(ÄÄÄÄÄÄÄÄÄÄººÅπÖµî∞ÅÖπêÅ—°îÅç°…ΩµîÅÕ—Ö…—ïêÅ¡…•π—•πúÅÑÅ—Ω›∏Å—°îÅ…Öπ≠•πúÅ°ÖêÅπïŸï»(ÄÄÄÄÄÄÄÄÄÄººÅ°ïÖ…êÅΩò∏ÄΩÖ¡§Ω…Ö•±ÃÅ—°ï∏ÅÖπÕ›ï…ïêÅçΩŸï…ïêÈôÖ±ÕîÅÖπêÅïŸï…‰Å…Ö•∞ÅΩ∏(ÄÄÄÄÄÄÄÄÄÄººÅ—°îÅ¡ÖùîÅ›ïπ–Åïµ¡—‰Å’πëï»ÅÑÅçΩπô•ëïπ–Å°ïÖë•πú∏(ÄÄÄÄÄÄÄÄÄÄºº(ÄÄÄÄÄÄÄÄÄÄººÅQ°îÅ%@ÅÖπÕ›ï»Å•ÃÅπΩ‹ÅÖëΩ¡—ïêÅ]!=1ÅΩ»ÅπΩ–ÅÖ–ÅÖ±∞ÉäPÅΩπîÅëïç•Õ•Ω∏∞(ÄÄÄÄÄÄÄÄÄÄººÅ…ïÖêÅΩôòÅçïπ—ï…IïòÄ°—°îÅçΩµµ•——ïêÅçïπ—ï»∞ÅπΩ–ÅÑÅÕ—Ö±îÅç±ΩÕ’…î§ÅÖπê(ÄÄÄÄÄÄÄÄÄÄººÅÖ¡¡±•ïêÅ—ºÅâΩ—†Å°Ö±ŸïÃÅ—Ωùï—°ï»∏(ÄÄÄÄÄÄÄÄÄÅ•òÄ°•ÕMïïëïπ—ï»°çïπ—ï…Iïòπç’……ïπ–§§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÅÕï—ïπ—ï»°å§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°êππÖµî§ÅÕï—1Ωç9Öµî°êππÖµî§Ï(ÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÅÙÏ(ÄÄÄÄººÅ•ŸîÅALÅÑÅ°ïÖêÅÕ—Ö…–ÏÅ•òÅ•–Å°ÖÕ∏ù–ÅÖπÕ›ï…ïêÅ•∏Ä»∏’Ã∞Å’ÕîÅ%@ÅÕºÅ—°îÅ¡Öùî(ÄÄÄÄººÅ•Õ∏ù–ÅÕ—’ç¨Åïµ¡—‰∏ÅAL∞Å•òÅ•–Å±Ö—ï»Å…ïÕΩ±ŸïÃ∞ÅÕ—•±∞Å›•πÃÅŸ•ÑÅ—°îÅ°Öπë±ï»∏(ÄÄÄÅçΩπÕ–Å•¡Q•µï»ÄÙÅÕï—Q•µïΩ’–°•¡Ö±±âÖç¨∞Ä»‘¿¿§Ï(ÄÄÄÅ•òÄ°πÖŸ•ùÖ—Ω»πùïΩ±ΩçÖ—•Ω∏§ÅÏ(ÄÄÄÄÄÅπÖŸ•ùÖ—Ω»πùïΩ±ΩçÖ—•Ω∏πùï—’……ïπ—AΩÕ•—•Ω∏†(ÄÄÄÄÄÄÄÅÖÕÂπåÄ°¡ΩÃ§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÅùΩ—ALÄÙÅ—…’îÏ(ÄÄÄÄÄÄÄÄÄÅç±ïÖ…Q•µïΩ’–°•¡Q•µï»§Ï(ÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏÅÕï—1Ωç¡¡…Ω‡°ôÖ±Õî§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅåÄÙÅÏÅ±Ö–ËÅ¡ΩÃπçΩΩ…ëÃπ±Ö—•—’ëî∞Å±πúËÅ¡ΩÃπçΩΩ…ëÃπ±Ωπù•—’ëîÅÙÏ(ÄÄÄÄÄÄÄÄÄÅÕï—ïŸ•çï1Ωå°å§Ï(ÄÄÄÄÄÄÄÄÄÅ•òÄ°µÖπ’Ö±Iïòπç’……ïπ–§Å…ï—’…∏Ï(ÄÄÄÄÄÄÄÄÄÄººÅMQ	%1%QdÄ°Ω›πï»Ä»¿»ÿ¥¿‡¥¿‹ËÄâïŸï…‰Å…ïô…ïÕ†Å$Åùï–ÅÕΩµï—°•πúÅë•ôôï…ïπ–∞(ÄÄÄÄÄÄÄÄÄÄººÅ•–ÅÕ›•—ç°ïÃÅâÖç¨ÅÖπêÅôΩ…—†à§∏ÅïÕ≠—Ω¿ÅùïΩ±ΩçÖ—•Ω∏Å•ÃÅ%@Ω]§µ§ÅâÖÕïêÅÖπê(ÄÄÄÄÄÄÄÄÄÄººÅ…ï—’…πÃÅÑÅÕ±•ù°—±‰Åë•ôôï…ïπ–Å¡Ω•π–ÅΩ∏ÅïÖç†Å±ΩÖêÏÅ—°•ÃÅ°Öπë±ï»Å’ÕïêÅ—º(ÄÄÄÄÄÄÄÄÄÄººÅÕï—ïπ—ï»†§ÅU9=9%Q%=911d∞ÅÕºÅ—°îÅ›°Ω±îÅπïÖ…â‰Å±•Õ–Å…îµ…Öπ≠ïêÅÖ…Ω’πêÅÑ(ÄÄÄÄÄÄÄÄÄÄººÅπï‹ÅÕ¡Ω–ÅïŸï…‰Å…ïô…ïÕ†∏Å’—ºµùïºÅπΩ‹ÅΩπ±‰ÅMLÅÑÅô•…Õ–µïŸï»ÅŸ•Õ•–ËÅÑ(ÄÄÄÄÄÄÄÄÄÄººÅ…ï—’…π•πúÅëïŸ•çîÄ°ÑÅÕÖŸïêÅ›ô}çïπ—ï»§Å≠ïï¡ÃÅ—°Ö–Åçïπ—ï»ÅÖÃÅ—°îÅÕ—Öâ±î(ÄÄÄÄÄÄÄÄÄÄººÅÖπç°Ω»∞ÅÖπêÅ—°îÅ±ΩçÖ—îÅâ’——Ω∏Å…ïçïπ—ï…ÃÅï·¡±•ç•—±‰Ä°•–Åç±ïÖ…ÃÅ›ô}çïπ—ï»(ÄÄÄÄÄÄÄÄÄÄººÅô•…Õ–∞ÅÕºÅ•–Å•ÃÅπΩ–ÅÖôôïç—ïêÅâ‰Å—°•ÃÅù’Ö…ê§∏(ÄÄÄÄÄÄÄÄÄÅ±ï–ÅÕÖŸïë=¨ÄÙÅôÖ±ÕîÏ(ÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å…Ö‹ÄÙÅ±ΩçÖ±M—Ω…Öùîπùï—%—ï¥†â›ô}çïπ—ï»à§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅÕÖŸïêÄÙÅ…Ö‹Ä¸Å)M=8π¡Ö…Õî°…Ö‹§ÄËÅπ’±∞Ï(ÄÄÄÄÄÄÄÄÄÄÄÅÕÖŸïë=¨ÄÙÄÑÑ°ÕÖŸïêÄòòÅ•Õ•π•—î°ÕÖŸïêπ±Ö–§ÄòòÅ•Õ•π•—î°ÕÖŸïêπ±πú§ÄòòÄ†ÖÕÖŸïêπ—ÃÅÒÅÖ—îππΩ‹†§Ä¥ÅÕÖŸïêπ—ÃÄÄÿÄ®ÄÃÿ¿¿Ä®Äƒ¿¿¿§§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°…Ö‹ÄòòÄÖÕÖŸïë=¨§Å±ΩçÖ±M—Ω…Öùîπ…ïµΩŸï%—ï¥†â›ô}çïπ—ï»à§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄººÅÿ‡∏ƒ‹Ä°Ω›πï»ËÄâµÖ≠îÅÕ’…îÅ›îÅùï–Å—°îÅ’Õï»Åï·Öç–Å±ΩçÖ—•Ω∏ÅÖÃÅÕΩΩ∏(ÄÄÄÄÄÄÄÄÄÄÄÄººÅÖÃÅ—°ï‰Å±ÖπêÅΩ∏Å—°îÅ¡Öùîà§ÅI=9%1Å›•—†Å—°îÄ»¿»ÿ¥¿‡¥¿‹(ÄÄÄÄÄÄÄÄÄÄÄÄººÅÕ—Öâ•±•—‰Å…’±îÄ†âïŸï…‰Å…ïô…ïÕ†Å$Åùï–ÅÕΩµï—°•πúÅë•ôôï…ïπ–à§∏ÅQ°î(ÄÄÄÄÄÄÄÄÄÄÄÄººÅ›Ωââ±îÅ—°Ö–Å…’±îÅ≠•±±ïêÅ›ÖÃÅëïÕ≠—Ω¿Å%@µùïºÅÕçÖ——ï»ÉäPÅÑÅôï‹(ÄÄÄÄÄÄÄÄÄÄÄÄººÅ°’πë…ïêÅµï—ï…ÃÅ¡ï»Å…ïô…ïÕ†∏ÅÅô…ïÕ†Å!% µUIdÅô•‡ÅµΩ…îÅ—°Ö∏(ÄÄÄÄÄÄÄÄÄÄÄÄººÅ¯»Åµ•±ïÃÅô…Ω¥Å—°îÅÕÖŸïêÅÖπç°Ω»Å•ÃÅπΩ–ÅÕçÖ——ï»∞Å•–Å•ÃÅ—°îÅ’Õï»(ÄÄÄÄÄÄÄÄÄÄÄÄººÅ°ÖŸ•πúÅ5=Y∞ÅÖπêÅ¡•ππ•πúÅ—°ï¥Å—ºÅÂïÕ—ï…ëÖ‰ùÃÅÖπç°Ω»ÅÖπÕ›ï…Ã(ÄÄÄÄÄÄÄÄÄÄÄÄººÅ—°îÅ›…ΩπúÅ—Ω›∏∏Å]•—°•∏Ä»Åµ•±ïÃÅ—°îÅÕÖŸïêÅÖπç°Ω»ÅÕ—•±∞Å›•πÃ∞ÅÕº(ÄÄÄÄÄÄÄÄÄÄÄÄººÅ…ïô…ïÕ†ÅÕ—Öâ•±•—‰Å•ÃÅ’π—Ω’ç°ïê∏(ÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°ÕÖŸïë=¨§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åë1Ö–ÄÙÄ°ÕÖŸïêπ±Ö–Ä¥Ååπ±Ö–§Ä®Äÿ‰Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åë1πúÄÙÄ°ÕÖŸïêπ±πúÄ¥Ååπ±πú§Ä®Äÿ‰Ä®Å5Ö—†πçΩÃ†°åπ±Ö–Ä®Å5Ö—†πA$§ÄºÄƒ‡¿§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅµΩŸïë5§ÄÙÅ5Ö—†πÕ≈…–°ë1Ö–Ä®Åë1Ö–Ä¨Åë1πúÄ®Åë1πú§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°µΩŸïë5§ÄÙÄ»§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕï—ïπ—ï»°ÏÅ±Ö–ËÅÕÖŸïêπ±Ö–∞Å±πúËÅÕÖŸïêπ±πúÅÙ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕï—1ΩçIïÕΩ±Ÿïê°—…’î§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°ÕÖŸïêπ±Ωå§ÅÕï—1Ωç9Öµî†°¡…ïÿ§ÄÙ¯Å¡…ïÿÅÒÅÕÖŸïêπ±Ωå§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏÅ±ΩçÖ±M—Ω…Öùîπ…ïµΩŸï%—ï¥†â›ô}çïπ—ï»à§ÏÅÙÅçÖ—ç†Ä°î»§ÅÌÙ(ÄÄÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅπÖµîÄÙÅÖ›Ö•–Å…ïŸï…ÕïïΩçΩëî°åπ±Ö–∞Ååπ±πú§Ï(ÄÄÄÄÄÄÄÄÄÅÕï—ïπ—ï»°å§Ï(ÄÄÄÄÄÄÄÄÄÅÕï—1ΩçIïÕΩ±Ÿïê°—…’î§Ï(ÄÄÄÄÄÄÄÄÄÅÕï—1Ωç9Öµî°πÖµî§Ï(ÄÄÄÄÄÄÄÅÙ∞(ÄÄÄÄÄÄÄÄ†§ÄÙ¯ÅÏÅ•¡Ö±±âÖç¨†§ÏÅÙ∞(ÄÄÄÄÄÄÄÄººÅÿ‡∏ƒ‹ÉäPÅ—°îÅ±Öπë•πúÅô•‡Å•ÃÅ—°îÅaPÅΩπîÄ°Ω›πï»ËÄâ—°îÅï·Öç–(ÄÄÄÄÄÄÄÄººÅ¡•π¡Ω•π–Åô…Ω¥Å—°îÅµÖ¡ÃÅô’πç—•Ω∏à§ËÅ°•ù†ÅÖçç’…Öç‰∞ÅÕÖµîÅù…Öëî(ÄÄÄÄÄÄÄÄººÅ…ïçïπ—ï…QΩ5î†§Å…’πÃ∏ÅQ°îÄ·ÃÅ—•µïΩ’–ÅÖπêÅ%@ÅôÖ±±âÖç¨ÅÖ…îÅ’πç°Öπùïê∞(ÄÄÄÄÄÄÄÄººÅÕºÅÑÅëïπ•ïêÅ¡…Ωµ¡–ÅΩ»ÅÕ±Ω‹ÅALÅÕ—•±∞Å…ïÕΩ±ŸïÃÅ—°îÅ¡Öùî∏(ÄÄÄÄÄÄÄÅÏÅïπÖâ±ï!•ù°çç’…Öç‰ËÅ—…’î∞Å—•µïΩ’–ËÄ‡¿¿¿ÅÙ(ÄÄÄÄÄÄ§Ï(ÄÄÄÅÙÅï±ÕîÅÏ(ÄÄÄÄÄÅ•¡Ö±±âÖç¨†§Ï(ÄÄÄÅÙ(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯Åç±ïÖ…Q•µïΩ’–°•¡Q•µï»§Ï(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞Åmt§Ï((ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅçΩπÕ–ÅƒÄÙÅπïÖ…5ïE’ï…‰°ÏÅçÖ–∞ÅÕ’à∞ÅŸ•âî∞Åçïπ—ï»∞Å…Öë•’Õ4ËÅÕïÖ…ç°IÖë•’ÃÅÒÅU1Q}I%UM}4ÅÙ§Ï(ÄÄÄÅ•òÄ°≠ïÂ5•ÕÕ•πúÅÒÄÖƒÅÒÅÕïÖ…ç°5Ωëî§Å…ï—’…∏Ï(ÄÄÄÅ±ï–ÅçÖπçï±±ïêÄÙÅôÖ±ÕîÏ(ÄÄÄÄººÅïâΩ’πçîËÅ…Ö¡•êÅçÖ—ïùΩ…‰Ωô•±—ï»ÅÕ›•—ç°•πúÅô•…ïÃÅÕïÖ…ç°ïÃÅ—°Ö–ÅÕ—•±∞Åâ•±∞ÅïŸï∏(ÄÄÄÄººÅ›°ï∏ÅÖâÖπëΩπïê∏Å]Ö•–ÄÃ¿¡µÃÅÕºÅΩπ±‰Å—°îÅô•πÖ∞ÅÕï±ïç—•Ω∏ÅÖç—’Ö±±‰ÅÕïÖ…ç°ïÃ∏(ÄÄÄÅçΩπÕ–Å}ëïâQ•µï»ÄÙÅÕï—Q•µïΩ’–††§ÄÙ¯ÅÏ(ÄÄÄÄ°ÖÕÂπåÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÅÕï—1ΩÖë•πú°—…’î§Ï(ÄÄÄÄÄÅÕï—…»†àà§Ï(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÄººÅÿÿ∏»–ËÅ›•ëï∏Å—°îÅ±ΩçÖ∞Åôïïê∏Å]°ï∏Åâ…Ω›Õ•πúÅÑÅ›°Ω±îÅçÖ—ïùΩ…‰Ä°Õ’àÄâÖ±∞à§∞ÅôÖ∏ÅΩ’–ÅÖç…ΩÕÃ(ÄÄÄÄÄÄÄÄººÅïŸï…‰ÅÕ’âçÖ—ïùΩ…‰Å≈’ï…‰ÅÖπêÅµï…ùî∞ÅÕºÅ—°îÅôïïêÅÕ’…ôÖçïÃÅôÖ»ÅµΩ…îÅΩòÅ›°Ö–ÅÖç—’Ö±±‰Åï·•Õ—Ã(ÄÄÄÄÄÄÄÄººÅ±ΩçÖ±±‰Å•πÕ—ïÖêÅΩòÅÑÅÕ•πù±îÄ»¿µ…ïÕ’±–Å¡Öùî∏ÅΩÕ—ÃÅΩπîÅΩΩù±îÅçÖ±∞Å¡ï»ÅÕ’âçÖ—ïùΩ…‰ÏÅ…ïÕ’±—Ã(ÄÄÄÄÄÄÄÄººÅÖ…îÅëïë’¡ïêÅ°ï…îÅÖπêÅÖùÖ•∏Åâ‰ÅπÖµîÅ•∏Å—°îÅŸ•ï‹∏(ÄÄÄÄÄÄÄÅçΩπÕ–Åç—»ÄÙÅÏÅ±Ö–ËÅƒπ±Ö–∞Å±πúËÅƒπ±πúÅÙÏ(ÄÄÄÄÄÄÄÄººÅΩÕ–Åô•‡ËÅÖ–ÅµΩÕ–ÅQ]<ÅΩΩù±îÅÕïÖ…ç°ïÃÅ¡ï»ÅÕç…ïï∏Ä°›ÖÃÄÿ¨§∏Å	…Ω›Õ•πúÅÑÅ›°Ω±î(ÄÄÄÄÄÄÄÄººÅçÖ—ïùΩ…‰Å…’πÃÅ—°îÅâ…ΩÖêÅÕïÖ…ç†Å¡±’ÃÅ=9ÅçΩπ—ï·–µ…ï±ïŸÖπ–ÅÕ’âô•±—ï»Ä°µïÖ∞Åâ‰(ÄÄÄÄÄÄÄÄººÅ—•µîÅΩòÅëÖ‰ÅôΩ»ÅôΩΩê∞Åô•…Õ–ÅÕ’âô•±—ï»ÅΩ—°ï…›•Õî§ÅÖπêÅµï…ùïÃ∏Åπ‰ÅÕ¡ïç•ô•å(ÄÄÄÄÄÄÄÄººÅÕ’âô•±—ï»Å—Ö¿Å•ÃÅÑÅÕ•πù±îÅÕïÖ…ç†∏Å¯ÿ‹îÅôï›ï»ÅÕïÖ…ç°ïÃÅ¡ï»Å±ΩÖê∏(ÄÄÄÄÄÄÄÄººÅÿÿ∏Ã‰ÉäPÅ—°îÄâ±∞Å•ÃÅ—°•ππï»Å—°Ö∏ÅÑÅÕ’ààÅô•‡∞Å’π•Ÿï…ÕÖ∞ÉäPÅπΩ‹Å›•—†Å—°î(ÄÄÄÄÄÄÄÄººÅ’π•Ω∏Å…Ω›ÃÅ9=I51%iÅ•π—ºÅ—°îÅÖ¡¿ùÃÅçÖ…êÅÕ°Ö¡î∏Ä°ÿÿ∏Ã‡Å¡’Õ°ïêÅ—°î(ÄÄÄÄÄÄÄÄººÅΩΩù±îµÕ°Ö¡ïêÅ•πŸïπ—Ω…‰Å…Ω›ÃÅÕ—…Ö•ù°–Å•π—ºÅÖ¡¿µÕ°Ö¡ïêÅ±•Õ—Ã∞ÅÕº(ÄÄÄÄÄÄÄÄººÅÖµ•±‰Ω±∞ÅÕ°Ω›ïêÅπÖµï±ïÕÃ∞Å¡°Ω—Ω±ïÕÃ∞ÅMçΩ…îµ±ïÕÃÅçÖ…ëÃ∏§Å!Ω—ï±ÃÅ’Õî(ÄÄÄÄÄÄÄÄººÅ—°îÅ…•ç°ï»ÅΩ›πïêµ°Ω—ï∞Åïπë¡Ω•π–ÏÅïŸï…‰ÅΩ—°ï»ÅçÖ—ïùΩ…‰Å¡’±±ÃÅ…Ω›ÃÅô…Ω¥(ÄÄÄÄÄÄÄÄººÅ›ô}•πŸïπ—Ω…‰ÅŸ•ÑÅ—°îÅô…ïîÅ•πÿÙƒÅÕï…Ÿî∞Å—°ï∏ÅµÖ¡ÃÅπÖµîΩ¡°Ω—ºΩ›ôMçΩ…îº(ÄÄÄÄÄÄÄÄººÅë•Õ—ÖπçîÅ	=IÅ—°îÅ…Ω›ÃÅïŸï»Åµïï–ÅÑÅA±ÖçïÖ…ê∏(ÄÄÄÄÄÄÄÅçΩπÕ–Å}•πŸ±∞ÄÙÅÖÕÂπåÄ°¥§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°çÖ–ÄÙÙÙÄâ°Ω—ï±Ãà§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°»ÄÙÅÖ›Ö•–Åôï—ç†°ÄΩÖ¡§Ω°Ω—ï±Ã˝±Ö–ÙëÌçïπ—ï»π±Ö—Ùô±πúÙëÌçïπ—ï»π±πùÙô±•µ•–Ù–¡Ä§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°®ÄÙÅÖ›Ö•–Å°»π©ÕΩ∏†§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏Å……Ö‰π•Õ……Ö‰°°®π°Ω—ï±Ã§Ä¸Å°®π°Ω—ï±ÃÄËÅmtÏ(ÄÄÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÄººÅÿ‡∏–‰ÉäPÅM9ÅQ!Å!%@∏Å]•—°Ω’–ÅÅÕ’âÄÅ—°•ÃÅÖÕ≠ÃÅôΩ»Å—°îÅ›°Ω±î(ÄÄÄÄÄÄÄÄÄÄÄÄººÅçÖ—ïùΩ…‰ÅÖπêÅùï—ÃÅ—°îÅ—Ω¿Ä–¿Å	dÅM=I∞Å—°ï∏Å—°îÅç°•¿Åô•±—ï»Å…’πÃ(ÄÄÄÄÄÄÄÄÄÄÄÄººÅΩ∏Å—°îÅç±•ïπ–ÉäPÅÕºÅÑÅπÖ……Ω‹Åç°•¿ÅçΩµ¡ï—ïÃÅÖùÖ•πÕ–ÅïŸï…‰(ÄÄÄÄÄÄÄÄÄÄÄÄººÅ…ïÕ—Ö’…Öπ–Å•∏Å—°îÅµï—…ºÅôΩ»Å—°ΩÕîÄ–¿ÅÕ±Ω—ÃÅÖπêÅ±ΩÕïÃ∏Å5ïÖÕ’…ïê(ÄÄÄÄÄÄÄÄÄÄÄÄººÅπïÖ»ÅAÖ……•Õ†ËÄ¿ÅΩòÅ—°îÅ—Ω¿Ä‘¿ÅôΩΩêÅ…Ω›ÃÅÖ…îÅçÖõ•Ã∞Å›°•ç†Å•Ã(ÄÄÄÄÄÄÄÄÄÄÄÄººÅï·Öç—±‰Å›°‰ÅΩΩêÄ¯ÅÖõ•ÃÅ…ïπëï…ïêÄâ9Ω—°•πúÅ°ï…îÅ…•ù°–ÅπΩ‹àÅ›°•±î(ÄÄÄÄÄÄÄÄÄÄÄÄººÄƒƒƒÅÖëµ•ÕÕ•â±îÅçÖõ•ÃÅÕÖ–Å•∏Å•πŸïπ—Ω…‰Äƒ‹Åµ•±ïÃÅÖ›Ö‰∏(ÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å»ÄÙÅÖ›Ö•–Åôï—ç†°ÄΩÖ¡§Ω¡±ÖçïÃΩÕïÖ…ç†˝ƒı•πŸïπ—Ω…‰ô±Ö–ÙëÌçïπ—ï»π±Ö–π—Ω•·ïê†–•Ùô±πúÙëÌçïπ—ï»π±πúπ—Ω•·ïê†–•Ùô…Öë•’ÃÙëÌµÙô∏Ù–¿¿ôçÖ–ÙëÌïπçΩëïUI%Ωµ¡Ωπïπ–°çÖ–•Ùô•πÿÙƒëÌÕ’àÄòòÅÕ’àÄÑÙÙÄâÖ±∞àÄ¸ÅÄôÕ’àÙëÌïπçΩëïUI%Ωµ¡Ωπïπ–°Õ’à•ıÄÄËÄàâıÄ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å®ÄÙÅÖ›Ö•–Å»π©ÕΩ∏†§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å…Ö‹ÄÙÅ……Ö‰π•Õ……Ö‰°®π¡±ÖçïÃ§Ä¸Å®π¡±ÖçïÃÄËÅmtÏ(ÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏Å…Ö‹πµÖ¿†°‡§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ†Ö‡§Å…ï—’…∏Åπ’±∞Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°‡ππÖµîÄòòÄÖ‡πë•Õ¡±ÖÂ9Öµî§Å…ï—’…∏Å‡ÏÄººÅÖ±…ïÖë‰ÅÖ¡¿µÕ°Ö¡ïê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}±ÑÄÙÅ‡π±ΩçÖ—•Ω∏ÄòòÅ‡π±ΩçÖ—•Ω∏π±Ö—•—’ëî∞Å}±∏ÄÙÅ‡π±ΩçÖ—•Ω∏ÄòòÅ‡π±ΩçÖ—•Ω∏π±Ωπù•—’ëîÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}¡†ÄÙÅ‡π¡°Ω—ΩÃÄòòÅ‡π¡°Ω—ΩÕl¡tÄòòÅ‡π¡°Ω—ΩÕl¡tππÖµîÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•êËÅ‡π•ê∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅπÖµîËÄ°‡πë•Õ¡±ÖÂ9ÖµîÄòòÅ‡πë•Õ¡±ÖÂ9Öµîπ—ï·–§ÅÒÅ‡ππÖµîÅÒÄàà∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ±Ö–ËÅ}±Ñ∞Å±πúËÅ}±∏∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅë•Õ—5§ËÅ}±ÑÄÑÙÅπ’±∞Ä¸Åë•Õ—5ï—ï…Ã°çïπ—ï»∞ÅÏÅ±Ö–ËÅ}±Ñ∞Å±πúËÅ}±∏ÅÙ§ÄºÄƒÿ¿‰∏Ã–ÄËÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…Ö—•πúËÅ—Â¡ïΩòÅ‡π…Ö—•πúÄÙÙÙÄâπ’µâï»àÄ¸Å‡π…Ö—•πúÄËÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ïŸ•ï›ÃËÅ‡π’Õï…IÖ—•πùΩ’π–ÅÒÄ¿∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ›ôMçΩ…îËÅ›ÖÂô•πëMçΩ…î°—Â¡ïΩòÅ‡π…Ö—•πúÄÙÙÙÄâπ’µâï»àÄ¸Å‡π…Ö—•πúÄËÄ¿∞Å‡π’Õï…IÖ—•πùΩ’π–ÅÒÄ¿§∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—Â¡ïÃËÅ……Ö‰π•Õ……Ö‰°‡π—Â¡ïÃ§Ä¸Å‡π—Â¡ïÃÄËÅmt∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ¡…•µÖ…ÂQÂ¡îËÅ‡π¡…•µÖ…ÂQÂ¡îÅÒÅ‡π¡…•µÖ…Â}—Â¡îÅÒÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ¡°Ω—ºËÅ}¡†Ä¸ÄàΩÖ¡§Ω¡°Ω—º˝…ïòÙàÄ¨ÅïπçΩëïUI%Ωµ¡Ωπïπ–°}¡†§Ä¨Äàô‹Ùÿ–¿àÄËÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩ¡ïπ9Ω‹ËÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅâ’Õ•πïÕÕM—Ö—’ÃËÅ‡πâ’Õ•πïÕÕM—Ö—’ÃÅÒÄâ=AIQ%=90à∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ}›ô%πŸïπ—Ω…‰ËÅ—…’î∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙÏ(ÄÄÄÄÄÄÄÄÄÄÄÅÙ§πô•±—ï»†°¿§ÄÙ¯Å¿ÄòòÅ¿ππÖµî§Ï(ÄÄÄÄÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÏÅ}ôï—ç°……Ã¨¨ÏÅ…ï—’…∏ÅmtÏÅÙ(ÄÄÄÄÄÄÄÅÙÏ((ÄÄÄÄÄÄÄÄººÅÿÿ∏–ÃÅπºµ…ïÕ’±–Åë•ÖùπΩÕ•ÃËÅïŸï…‰ÅΩΩù±îΩ•πŸïπ—Ω…‰ÅçÖ±∞Åâï±Ω‹ÅÕ›Ö±±Ω›Ã(ÄÄÄÄÄÄÄÄººÅ•—ÃÅΩ›∏ÅôÖ•±’…îÅ•π—ºÅÖ∏Åïµ¡—‰ÅÖ……Ö‰∞ÅÕºÅÖ∏ÅA$Åï……Ω»Ä°≈’Ω—Ñ∞Å≠ï‰(ÄÄÄÄÄÄÄÄººÅ…ïÕ—…•ç—•Ω∏∞Åπï—›Ω…¨§Å°ÖÃÅâïï∏Å%9%MQ%9U%M!	1Åô…Ω¥Äâ—°ï…îÅ•Ã(ÄÄÄÄÄÄÄÄººÅùïπ’•πï±‰ÅπΩ—°•πúÅ°ï…îà∏ÅQ°Ö–ÅÖµâ•ù’•—‰Å•ÃÅ›°‰Å—°îÅ¡±ÖçïÕ}πΩπîÅëÖ—Ñ(ÄÄÄÄÄÄÄÄººÅçΩ’±êÅπΩ–Å—ï±∞ÅÑÅçΩŸï…ÖùîÅùÖ¿Åô…Ω¥ÅÖ∏ÅΩ’—Öùî∏ÅΩ’π–Å—°îÅÕ›Ö±±Ω›ïê(ÄÄÄÄÄÄÄÄººÅôÖ•±’…ïÃÅÕºÅ—°îÅïŸïπ–ÅçÖ∏ÅÕÖ‰Å›°•ç†ÅΩπîÅ•–Å›ÖÃ∏(ÄÄÄÄÄÄÄÅ±ï–Å}ôï—ç°……ÃÄÙÄ¿Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å}Õ’âÃÄÙÄ°MU	%1QIMmçÖ—tÅÒÅmt§πô•±—ï»†°‡§ÄÙ¯Å‡ÄòòÅ‡π•êÄòòÅ‡π•êÄÑÙÙÄâÖ±∞à§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å}ôï—ç°–ÄÙÅÖÕÂπåÄ°¥§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÅ•òÄ°Õ’àÄÙÙÙÄâÖ±∞àÄòòÅ}Õ’âÃπ±ïπù—†§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÅ±ï–Å}ÕïçΩπêÏ(ÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°çÖ–ÄÙÙÙÄâôΩΩêà§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅQ!ÅY9UùLÅ1=,∞ÅπΩ–ÅÖÕ—ï…∏∏Åÿ‹∏»‹ÅµΩŸïêÅïŸï…‰ÅπΩ›Ωπ—ï·–†§(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅçÖ±±ï»ÅΩπ—ºÅ—°îÅÕïÖ…ç°ïêÅ¡±ÖçîùÃÅ—•µïÈΩπîÅÖπêÅµ•ÕÕïêÅ—°•ÃÅΩπî∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ›°•ç†Å•ÃÅ—°îÅµÖ•∏ÅçÖ—ïùΩ…‰Å¡Ö—†ËÅÑÅMïÖ——±îÅ…ïÖëï»ÅÖ–Äƒ‡ËÃ¿ÅAP(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ…ïÖëÃÅ°Ω’»Ä»ƒ∏‘ÅP∞ÅµïÖ±Ω…!Ω’»Å…ï—’…πÃÅ±Ö—îµπ•ù°–∞ÅÖπêÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÕïçΩπêÅ≈’ï…‰ÅâïçΩµïÃÄâëïÕÕï…–àÅ•πÕ—ïÖêÅΩòÄâë•ππï»à∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}¥ÄÙÅµïÖ±Ω…!Ω’»°Õ•—ï!Ω’…±ΩÖ–°πï‹ÅÖ—î†§∞Å—ÈΩ…AΩ•π–°ç—»ÄòòÅç—»π±Ö–∞Åç—»ÄòòÅç—»π±πú§§§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}‹ÄÙÅ}¥ÄÙÙÙÄâ±Ö—îµπ•ù°–àÄ¸ÄâëïÕÕï…–àÄËÅ}¥ÏÅ}ÕïçΩπêÄÙÄ°}Õ’âÃπô•πê†°‡§ÄÙ¯Å‡π•êÄÙÙÙÅ}‹§ÅÒÅ}Õ’âÕl¡t§π•êÏÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÄººÅÿÿ∏ƒ‘ËÅM°Ω¡¡•πúÄâ±∞àÅ¡Ö•…ÃÅ—°îÅâ…ΩÖêÅ≈’ï…‰Å›•—†Å—°îÅµÖ…≠ï—ÃΩô±ïÑ(ÄÄÄÄÄÄÄÄÄÄÄÄººÅ≈’ï…‰ÅÕºÅ…ïÖ∞ÅëïÕ—•πÖ—•ΩπÃÅ±•≠îÅIïêÅ	Ö…∏Å±ïÑÅ5Ö…≠ï–ÅÖ…îÅôï—ç°ïê∏(ÄÄÄÄÄÄÄÄÄÄÄÅï±ÕîÅ•òÄ°çÖ–ÄÙÙÙÄâÕ°Ω¡¡•πúà§ÅÏÅ}ÕïçΩπêÄÙÄ°}Õ’âÃπô•πê†°‡§ÄÙ¯Å‡π•êÄÙÙÙÄâµÖ…≠ï—Ãà§ÅÒÅ}Õ’âÕl¡t§π•êÏÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÅï±ÕîÅÏÅ}ÕïçΩπêÄÙÅ}Õ’âÕl¡tπ•êÏÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}àÄÙÅÖ›Ö•–ÅA…Ωµ•ÕîπÖ±∞°mÕïÖ…ç°A±ÖçïÃ°çÖ–∞ÄâÖ±∞à∞Åç—»∞Å¥∞ÅŸ•âî§πçÖ—ç†††§ÄÙ¯ÅÏÅ}ôï—ç°……Ã¨¨ÏÅ…ï—’…∏ÅmtÏÅÙ§∞ÅÕïÖ…ç°A±ÖçïÃ°çÖ–∞Å}ÕïçΩπê∞Åç—»∞Å¥∞ÅŸ•âî§πçÖ—ç†††§ÄÙ¯ÅÏÅ}ôï—ç°……Ã¨¨ÏÅ…ï—’…∏ÅmtÏÅÙ§∞Å}•πŸ±∞°¥•t§ÏÄººÅÿÿ∏Ã‡ËÅΩ›πïêÅ•πŸïπ—Ω…‰Å©Ω•πÃÅ—°îÅ’π•Ω∏ÉäPÄâ±∞àÅ•ÃÅÑÅÕ’¡ï…Õï–ÅïŸï…Â›°ï…î(ÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}Õïï∏ÄÙÅπï‹ÅMï–†§ÏÅçΩπÕ–Å}Ω’–ÄÙÅmtÏ(ÄÄÄÄÄÄÄÄÄÄÄÅ}àπôΩ…Öç††°Ö…»§ÄÙ¯Ä°Ö…»ÅÒÅmt§πôΩ…Öç††°¡¿§ÄÙ¯ÅÏÅ•òÄ°¡¿ÄòòÅ¡¿π•êÄòòÄÖ}Õïï∏π°ÖÃ°¡¿π•ê§§ÅÏÅ}Õïï∏πÖëê°¡¿π•ê§ÏÅ}Ω’–π¡’Õ†°¡¿§ÏÅÙÅÙ§§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄººÅÿÿ∏ƒ‘ËÅ—°îÅµÖ…≠ï—ÃÅ≈’ï…‰ÅÖ±ÕºÅ¡’±±ÃÅôÖ…¥Ωù…Ωçï…‰ÅµÖ…≠ï—ÃÉäPÅ…îµùÖ—î(ÄÄÄÄÄÄÄÄÄÄÄÄººÅ—°îÅµï…ùïêÅ¡ΩΩ∞ÅÖ–ÄâÖ±∞àÅÕºÅ—°ΩÕîÄ°ÑÅΩΩêÅ•ëïπ—•—‰§ÅÕ—Ö‰Å=UPÅΩòÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÄººÅM°Ω¡¡•πúÄâ±∞àÅ±•Õ–ÏÅ—°ï‰Å…ïµÖ•∏ÅÖŸÖ•±Öâ±îÅ’πëï»Å—°îÅ5Ö…≠ï—ÃÅ—Öà∏(ÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°çÖ–ÄÙÙÙÄâÕ°Ω¡¡•πúà§Å…ï—’…∏Å}Ω’–πô•±—ï»†°¡¿§ÄÙ¯Å¡±Öçï±±Ω›ïê†âÕ°Ω¡¡•πúà∞ÄâÖ±∞à∞Å¡¿§§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏Å}Ω’–Ï(ÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÄÄÄººÅÿ‡∏‘¿ÉäPÅ•ëïπ—•—‰Åç°•¡ÃÅ…ïÖêÅΩ›πïêÅ•πŸïπ—Ω…‰∏ÅÕïÖ…ç°A±ÖçïÃÅ•Ã(ÄÄÄÄÄÄÄÄÄÄººÅΩΩù±îÅQï·–ÅMïÖ…ç†∞ÅµÖ‡Ä»¿ÏÅ—°Ö–ÅçÖ¿Å•ÃÅ›°‰ÅÖõ•ÃÅ¡…•π—ïêÄƒÅçÖ…ê∏(ÄÄÄÄÄÄÄÄÄÅ•òÄ°Õ’àÄòòÅÕ’àÄÑÙÙÄâÖ±∞àÄòòÅMU	}11=]mÄëÌçÖ—ÙËëÌÕ’âıÅt§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å•πÿÄÙÅÖ›Ö•–Å}•πŸ±∞°¥§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°•πÿπ±ïπù—†§Å…ï—’…∏Å•πÿÏ(ÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÄÄÅ…ï—’…∏ÅÖ›Ö•–ÅÕïÖ…ç°A±ÖçïÃ°çÖ–∞ÅÕ’à∞Åç—»∞Å¥∞ÅŸ•âî§Ï(ÄÄÄÄÄÄÄÅÙÏ(ÄÄÄÄÄÄÄÄººÅÿ–∏‡‘ÅÖëÖ¡—•ŸîÅ…Öë•’ÃËÅÕ—Ö…–ÅÖ–Å—°îÅç’……ïπ–Å…Öë•’ÃÄ†ƒ‹µµ§ÅëïôÖ’±–§(ÄÄÄÄÄÄÄÄººÅÖπêÅÖ’—ºµ›•ëï∏ÄÃ¿ÉäHÄ–‘ÉäHÄÿ¿Å›°•±îÅ—°îÅçÖ—ïùΩ…‰Å°ÖÃÅôï›ï»Å—°Ö∏Ä‡(ÄÄÄÄÄÄÄÄººÅ¡±ÖçïÃ∏Å’—ºµ›•ëï∏ÅΩπ±‰ÅµΩŸïÃÅ—°îÅMQIQ%9Å¡Ω•π–ÉäPÅΩπçîÅ—°îÅ’Õï»(ÄÄÄÄÄÄÄÄººÅ—Ω’ç°ïÃÅ—°îÅÕ±•ëï»∞Å—°ï•»Åç°Ω•çîÅ•ÃÅ±Ö‹∏(ÄÄÄÄÄÄÄÅçΩπÕ–Å}Õ—Ö…—4ÄÙÅƒπ…Öë•’Õ4Ï(ÄÄÄÄÄÄÄÅ±ï–Å…ïÕ’±—ÃÄÙÅÖ›Ö•–Å}ôï—ç°–°}Õ—Ö…—4§Ï(ÄÄÄÄÄÄÄÅ±ï–Å}’Õïë4ÄÙÅ}Õ—Ö…—4Ï(ÄÄÄÄÄÄÄÅ•òÄ°Ö’—ΩIÖë•’ÕIïòπç’……ïπ–ÅÒÅ}Õ—Ö…—4ÄÙÅU1Q}I%UM}4§ÅÏ(ÄÄÄÄÄÄÄÄÄÅôΩ»Ä°çΩπÕ–Å}¥ÅΩòÅI%UM}1I}4§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄººÅÿ‡∏ÿ»ÉäPÅâ…ïÖ¨ÅΩ∏Å›°Ö–Å—°îÅôïïêÅçÖ∏ÅM!=\ÅÖ–Å—°îÅ…Öë•’ÃÅÖç—’Ö±±‰(ÄÄÄÄÄÄÄÄÄÄÄÄººÅ•∏Å’Õî∞ÅπΩ–ÅΩ∏Å—°îÅ…Ö‹Åôï—ç†∏ÅQ°îÅÕï…ŸîùÃÅùÖ—îÅ•ÃÅ…Öë•’Ã®ƒ∏ƒ‘(ÄÄÄÄÄÄÄÄÄÄÄÄººÅΩ∏ÅÑÅÕï…Ÿï»Å…Öë•’ÃÅ—°Ö–ÅÕπÖ¡ÃÅU@Å—°îÅçΩÕ–Å±Öëëï»∞ÅÕºÅ…Ω›Ã(ÄÄÄÄÄÄÄÄÄÄÄÄººÅÖ……•ŸîÅô…Ω¥ÅâïÂΩπêÅ—°îÅë•Õ¡±Ö‰Åç’–Ä°Åë•Õ—5§ÄÙÅÕ±•ëï…5•Ä§ÅÖπê(ÄÄÄÄÄÄÄÄÄÄÄÄººÅÑÅ…Ö‹ÅÄπ±ïπù—°ÄÅëïç±Ö…ïÃÅÑÅ—°•∏ÅÕ°ï±òÅô’±∞∏Å1•ŸîËÅ	ïÖç°ïÃÅπïÖ»(ÄÄÄÄÄÄÄÄÄÄÄÄººÅAÖ……•Õ†Åôï—ç°ïêÄÃ»∞Åë•Õ¡±ÖÂïêÄƒ∞ÅπïŸï»Å›•ëïπïê∏Åë•Õ¡±ÖÂÖâ±ï–(ÄÄÄÄÄÄÄÄÄÄÄÄººÄ°±•àΩÕçΩ…îπ©Ã§Å•ÃÅ—°îÅŸ•ï‹ùÃÅΩ›∏ÅÖëµ•ÕÕ•Ω∏Å…’±î∏(ÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°ë•Õ¡±ÖÂÖâ±ï–°…ïÕ’±—Ã∞Å}’Õïë4§Ä¯ÙÅAQ}5%8§Åâ…ïÖ¨Ï(ÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°}¥ÄÙÅ}’Õïë4§ÅçΩπ—•π’îÏ(ÄÄÄÄÄÄÄÄÄÄÄÅ…ïÕ’±—ÃÄÙÅÖ›Ö•–Å}ôï—ç°–°}¥§ÏÅ}’Õïë4ÄÙÅ}¥Ï(ÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïêÄòòÅ}’Õïë4Ä¯Å}Õ—Ö…—4§ÅÏÅÖ’—ΩIÖë•’ÕIïòπç’……ïπ–ÄÙÅ—…’îÏÅÕï—M±•ëï…5§°5Ö—†π…Ω’πê°}’Õïë4ÄºÄƒÿ¿‰∏Ã–§§ÏÅÕï—MïÖ…ç°IÖë•’Ã°}’Õïë4§ÏÅÙ(ÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïê§ÅÏÅÕï—A±ÖçïÃ°…ïÕ’±—Ã§ÏÅ±ΩÖë	±’…âÃ°…ïÕ’±—Ã§ÏÅ—…‰ÅÏÅ±ΩùŸïπ–†â…ïÕ’±—}çΩ’π—}Õ°Ω›∏à∞Åπ’±∞∞ÅÏÅçΩ’π–ËÄ°…ïÕ’±—ÃÅÒÅmt§π±ïπù—†∞ÅçÖ–∞ÅÕ’àÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅ•òÄ†Ö…ïÕ’±—ÃÅÒÅ…ïÕ’±—Ãπ±ïπù—†ÄÙÙÙÄ¿§Å±ΩùŸïπ–†â¡±ÖçïÕ}πΩπîà∞Åπ’±∞∞ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÅ±ΩåËÅ±Ωç9ÖµîÅÒÄàà∞ÅçÖ–∞Å±Ö–ËÅçïπ—ï»π±Ö–∞Å±πúËÅçïπ—ï»π±πú∞(ÄÄÄÄÄÄÄÄÄÄÄÄººÅÿÿ∏–ÃÅπºµ…ïÕ’±–Åë•ÖùπΩÕ•Ã∏ÅQ°îÅΩ…•ù•πÖ∞Å¡ÖÂ±ΩÖêÅ›ÖÃÅÌ±Ωå±çÖ–±±Ö–±±πùÙ∞(ÄÄÄÄÄÄÄÄÄÄÄÄººÅ›°•ç†ÅçΩ’±êÅπΩ–ÅÖπÕ›ï»Å—°îÅ—›ºÅ≈’ïÕ—•ΩπÃÅ—°Ö–Åëïç•ëîÅ—°îÅô•‡Ë(ÄÄÄÄÄÄÄÄÄÄÄÄººÄÄÄâë•êÅ—°îÅÕïÖ…ç†ÅÖ±…ïÖë‰Å›•ëï∏ÅÖπêÅMQ%10Åô•πêÅπΩ—°•πú¸àÄÄ¥¯Å…Öë•’Õ5§Ω›•ëïπïê(ÄÄÄÄÄÄÄÄÄÄÄÄººÄÄÄâ›ÖÃÅ•–Åïµ¡—‰∞ÅΩ»Åë•êÅ—°îÅA$Å©’Õ–ÅôÖ•∞Å≈’•ï—±‰¸àÄÄÄÄÄÄÄÄ¥¯Åôï—ç°……Ã(ÄÄÄÄÄÄÄÄÄÄÄÄººÅ]•—°Ω’–Å—°ïÕî∞ÅÑÅçΩŸï…ÖùîÅùÖ¿ÅÖπêÅÖ∏ÅΩ’—ÖùîÅ±ΩΩ¨Å•ëïπ—•çÖ∞∏(ÄÄÄÄÄÄÄÄÄÄÄÅÕ’àËÅÕ’àÅÒÄâÖ±∞à∞(ÄÄÄÄÄÄÄÄÄÄÄÅ…Öë•’Õ5§ËÅ5Ö—†π…Ω’πê°}’Õïë4ÄºÄƒÿ¿‰∏Ã–§∞ÄÄÄÄÄÄººÅ…Öë•’ÃÅÖç—’Ö±±‰ÅÕïÖ…ç°ïê∞ÅQHÅÖ’—ºµ›•ëïπ•πú(ÄÄÄÄÄÄÄÄÄÄÄÅÕ—Ö…—IÖë•’Õ5§ËÅ5Ö—†π…Ω’πê°}Õ—Ö…—4ÄºÄƒÿ¿‰∏Ã–§∞(ÄÄÄÄÄÄÄÄÄÄÄÅ›•ëïπïêËÅ}’Õïë4Ä¯Å}Õ—Ö…—4∞ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅë•êÅ—°îÄƒ‹¥¯Ã¿¥¯–‘¥¯ÿ¿Å±Öëëï»Å…’∏¸(ÄÄÄÄÄÄÄÄÄÄÄÅôï—ç°……ÃËÅ}ôï—ç°……Ã∞ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÄ¯¿ÅµïÖπÃÅçÖ±±ÃÅ%1∞ÅπΩ–ÄâπΩ—°•πúÅ°ï…îà(ÄÄÄÄÄÄÄÄÄÄÄÅŸ•âîËÅŸ•âîÅÒÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÄÄÄººÅ±Ωç9ÖµîÅë…•ŸïÃÅ—°îÅë•Õ¡±Ö‰ÅÕ—…•πúÏÅ›°ï∏Å•–Å•ÃÅïµ¡—‰Å—°îÅ…ïŸï…Õî(ÄÄÄÄÄÄÄÄÄÄÄÄººÅùïΩçΩëîÅ°ÖêÅπΩ–Å…ïÕΩ±Ÿïê∏Ä–ÿîÅΩòÅπºµ…ïÕ’±–ÅïŸïπ—ÃÅçÖ……‰ÅÖ∏Åïµ¡—‰(ÄÄÄÄÄÄÄÄÄÄÄÄººÅ±Ωå∞ÅÕºÅ›°ï—°ï»Å—°Ö–ÅçΩ……ï±Ö—ïÃÅ›•—†Åôï—ç†ÅôÖ•±’…ïÃÅµÖ——ï…Ã∏(ÄÄÄÄÄÄÄÄÄÄÄÅ±ΩçM—Ö—îËÅ±Ωç9ÖµîÄ¸Äâ…ïÕΩ±ŸïêàÄËÄâ¡ïπë•πúà∞(ÄÄÄÄÄÄÄÄÄÅÙ§ÏÅôï—ç°5ïµâï…M•ùπÖ±Ã°Õ’¡ÖâÖÕî∞Å…ïÕ’±—Ã§π—°ï∏†°Õ•ú§ÄÙ¯ÅÏÅ•òÄ†ÖçÖπçï±±ïêÄòòÅÕ•ú§ÅÕï—A±ÖçïÃ†°ç’»§ÄÙ¯Å›•—°5ïµâï…M•ùπÖ∞°ç’»∞ÅÕ•ú§§ÏÅÙ§ÏÅÙ(ÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÏ(ÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïê§ÅÏÅÕï—…»†â]îÅçΩ’±ë∏ù–Å±ΩÖêÅÕ¡Ω—ÃÅ…•ù°–ÅπΩ‹∏ÅQ…‰ÅÖùÖ•∏Å•∏ÅÑÅµΩµïπ–∏à§ÏÅÕï—A±ÖçïÃ°mt§ÏÅÙ(ÄÄÄÄÄÅÙÅô•πÖ±±‰ÅÏ(ÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïê§ÅÕï—1ΩÖë•πú°ôÖ±Õî§Ï(ÄÄÄÄÄÅÙ(ÄÄÄÅÙ§†§Ï(ÄÄÄÅÙ∞ÄÃ¿¿§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅçÖπçï±±ïêÄÙÅ—…’îÏÅç±ïÖ…Q•µïΩ’–°}ëïâQ•µï»§ÏÅÙÏ(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞ÅmçÖ–∞ÅÕ’à∞ÅŸ•âî∞Åçïπ—ï»∞ÅÕïÖ…ç°IÖë•’Ã∞ÅÕïÖ…ç°5Ωëî∞ÅôïïëIï—…Ât§Ï((ÄÄººÅ1ΩÖêÅïŸïπ—ÃÅ›°ï∏ÅΩ∏Å—°îÅŸïπ—ÃÅÕç…ïï∏ÅΩ»Å›°ï∏Å—°îÅ±ΩçÖ—•Ω∏Åç°ÖπùïÃ∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ°Õç…ïï∏ÄÑÙÙÄâïŸïπ—ÃàÅÒÄÖçïπ—ï»§Å…ï—’…∏Ï(ÄÄÄÅ±ΩÖëŸïπ—Ã†§Ï(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞ÅmÕç…ïï∏∞Åçïπ—ï…t§Ï((ÄÄººÅ	’•±êÅÑÅç’…Ö—ïêÅï·¡ï…•ïπçîËÅ›•ëï»ÄÃ¿Åµ•±îÅÕïÖ…ç†∞Å…ïÖ∞Åô•±—ï»∞Å…Öπ≠ïêÅâ‰ÅÕçΩ…î∏(ÄÅçΩπÕ–Å}ï·¡I’πIïòÄÙÅ’ÕïIïò°π’±∞§Ï(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ°Õç…ïï∏ÄÑÙÙÄâï·¡ï…•ïπçîàÅÒÄÖÖç—•Ÿï	ÖëùîÅÒÄÖçïπ—ï»§Å…ï—’…∏Ï(ÄÄÄÅçΩπÕ–Åï·¿ÄÙÅaAI%9MmÖç—•Ÿï	ÖëùïtÏ(ÄÄÄÅ•òÄ†Öï·¿§Å…ï—’…∏Ï(ÄÄÄÄººÅÿ–∏‰‡ËÅÖ∏Åïπë±ïÕÃÄâ’…Ö—•πúÅ—°îÅâïÕ–ÅÕ¡Ω—ÃàÅ•ÃÅâÖππïê∞ÅÖÃÅÑÅ…’±î∏(ÄÄÄÄººÅΩ’»Åù’Ö…Öπ—ïïÃËÄ†ƒ§Å—°îÅ%IMPÅ…Ω’πêÅ—°Ö–Å…ï—’…πÃÅÖπÂ—°•πúÅ¡Ö•π—Ã(ÄÄÄÄººÅ•µµïë•Ö—ï±‰ÅÖπêÅ≠•±±ÃÅ—°îÅÕ¡•ππï»ÉäPÅ›•ëï»Å…Ω’πëÃÅ…ïô•πîÅ—°îÅ±•Õ–Å•∏(ÄÄÄÄººÅ¡±ÖçîÅ•πÕ—ïÖêÅΩòÅ°Ω±ë•πúÅ—°îÅ›°Ω±îÅ¡ÖùîÅ°ΩÕ—ÖùîÏÄ†»§ÅÑÄƒ…ÃÅ›Ö—ç°ëΩú(ÄÄÄÄººÅôΩ…çîµç±ïÖ…ÃÅ—°îÅÕ¡•ππï»ÅπºÅµÖ——ï»Å›°Ö–ÅÑÅÕΩ’…çîÅëΩïÃÉäPÅ—°îÅ°ΩπïÕ–(ÄÄÄÄººÅïµ¡—‰ÅÕ—Ö—îÅ•ÃÅÖ±±Ω›ïê∞ÅÖ∏Å•πô•π•—îÅÕ¡•ππï»Å•ÃÅπΩ–ÏÄ†Ã§ÅÑÅÕ°Ω…–(ÄÄÄÄººÅëïâΩ’πçîÅçΩÖ±ïÕçïÃÅ…Ö¡•êÅ…îµ—…•ùùï…ÃÏÄ†–§Å›°ï∏Å—°îÅÕ—Ö…—’¿Å±ΩçÖ—•Ω∏(ÄÄÄÄººÅµï…ï±‰ÅI%9LÄ°%@Åç•—‰Åô•‡ÉäHÅALÅô•‡Å•∏Å—°îÅÕÖµîÅπï•ù°âΩ…°ΩΩê∞(ÄÄÄÄººÄÄÃÅ≠¥ÅÖ¡Ö…–§Å—°îÅ•∏µô±•ù°–Å…’∏Å•ÃÅ=AQ∞ÅπΩ–Å—°…Ω›∏ÅÖ›Ö‰ÉäPÅ—°î(ÄÄÄÄººÅçÖπçï∞µÖπêµ…ïôï—ç†ÅΩ∏Å—°Ö–Åô±•¿Å•ÃÅ›°Ö–ÅëΩ’â±ïêÅïŸï…‰ÅŸ•âîÅ±ΩÖê∏(ÄÄÄÅçΩπÕ–Å}¡…ïÿÄÙÅ}ï·¡I’πIïòπç’……ïπ–Ï(ÄÄÄÅ•òÄ°}¡…ïÿÄòòÄÖ}¡…ïÿπëΩπîÄòòÅ}¡…ïÿπâÖëùîÄÙÙÙÅÖç—•Ÿï	ÖëùîÄòòÅ}¡…ïÿπçïπ—ï»ÄòòÅë•Õ—5ï—ï…Ã°}¡…ïÿπçïπ—ï»∞Åçïπ—ï»§ÄÄÃ¿¿¿§ÅÏÅ}¡…ïÿπ—Ω¨πëïÖêÄÙÅôÖ±ÕîÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÅçΩπÕ–Å}—Ω¨ÄÙÅÏÅëïÖêËÅôÖ±ÕîÅÙÏ(ÄÄÄÅçΩπÕ–Å}…ïåÄÙÅÏÅâÖëùîËÅÖç—•Ÿï	Öëùî∞Åçïπ—ï»ËÅÏÅ±Ö–ËÅçïπ—ï»π±Ö–∞Å±πúËÅçïπ—ï»π±πúÅÙ∞Å—Ω¨ËÅ}—Ω¨∞ÅëΩπîËÅôÖ±ÕîÅÙÏ(ÄÄÄÅ}ï·¡I’πIïòπç’……ïπ–ÄÙÅ}…ïåÏ(ÄÄÄÅÕï—·¡1ΩÖë•πú°—…’î§Ï(ÄÄÄÅçΩπÕ–Å}›Ö—ç†ÄÙÅÕï—Q•µïΩ’–††§ÄÙ¯ÅÏÅ•òÄ†Ö}—Ω¨πëïÖê§ÅÕï—·¡1ΩÖë•πú°ôÖ±Õî§ÏÅÙ∞Äƒ»¿¿¿§Ï(ÄÄÄÅçΩπÕ–Å}ëïàÄÙÅÕï—Q•µïΩ’–††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ°}—Ω¨πëïÖê§ÅÏÅ}…ïåπëΩπîÄÙÅ—…’îÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÄ°ÖÕÂπåÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÄººÅÿ–∏‡‘ÅÖëÖ¡—•ŸîËÅïŸï…‰ÅŸ•âîÅMQIQLÅÖ–Å—°îÄƒ‹µµ•±îÅëïôÖ’±–Ä°Ω»Å•—Ã(ÄÄÄÄÄÄÄÄººÅ¡’…¡ΩÕîµâ’•±–Å›•ëï»Å…Öë•’Ã∞Åîπú∏Å	’ç≠ï–Å1•Õ–§ÅÖπêÅÖ’—ºµ›•ëïπÃ(ÄÄÄÄÄÄÄÄººÅ›°•±îÅôï›ï»Å—°Ö∏Ä‡Å¡±ÖçïÃÅ¡ÖÕÃÅ—°îÅŸ•âîùÃÅô•±—ï»∏ÅM¡Ö…ÕîÅµÖ…≠ï—Ã(ÄÄÄÄÄÄÄÄººÅ±•≠îÅAÖ……•Õ†Åô•±∞Å°ΩπïÕ—±‰Å•πÕ—ïÖêÅΩòÅÕ°Ω›•πúÄà¿Åç’…Ö—ïêÅ¡•ç≠ÃàÉäP(ÄÄÄÄÄÄÄÄººÅïŸï…‰ÅçÖ…êÅ±Öâï±ÃÅ•—ÃÅ—…’îÅë•Õ—Öπçî∏(ÄÄÄÄÄÄÄÅçΩπÕ–Å}Ÿ•âïAÖÕÃÄÙÄ°¿§ÄÙ¯ÅÏÅçΩπÕ–ÅåÄÙÅç’…Ö—ïëΩ»°¿§ÏÅ•òÄ°åÄòòÅ……Ö‰π•Õ……Ö‰°åπ•π—ïπ—Ã§ÄòòÅåπ•π—ïπ—Ãπ•πç±’ëïÃ°Öç—•Ÿï	Öëùî§§Å…ï—’…∏Å—…’îÏÅ…ï—’…∏Åï·¿πô•±—ï»Ä¸Åï·¿πô•±—ï»°¿§ÄËÅ—…’îÏÅÙÏ(ÄÄÄÄÄÄÄÄººÅÿ–∏‡ƒËÅç’…Ö—ïêÅ¡•ç≠ÃÅùï–Å—°îÅÕÖµîÄ¨ƒ‘Å±•ô–Å°ï…îÅ—°Ö–ÅÖ¡¡±Âôô•π•—‰(ÄÄÄÄÄÄÄÄººÅù•ŸïÃÅ—°ï¥∞ÅÕºÅ—°ï‰Å…Öπ¨ÅπïÖ»Å—°îÅ—Ω¿Å•πÕ—ïÖêÅΩòÅµ•êµ±•Õ–∏(ÄÄÄÄÄÄÄÄººÅÿ‘∏»‘ËÅŸ•âïÃÅçÖ∏ÅçÖ……‰Å—°ï•»ÅΩ›∏ÅçΩπ—ï·–ÅâΩΩÕ–Ä°ï·¿πâΩΩÕ–§ÉäPÅîπú∏(ÄÄÄÄÄÄÄÄººÅ=’—Õ•ëîÅ±•ô—ÃÅ…ïÖ∞Å›Ö—ï»ÅŸïπ’ïÃ∞Å°Ö…ëïÕ–Å›°ï∏Å•–ùÃÅâïÖç†Å›ïÖ—°ï»∏(ÄÄÄÄÄÄÄÅçΩπÕ–Å}ç—·	ΩΩÕ–ÄÙÄ°¿§ÄÙ¯ÅÏÅ—…‰ÅÏÅ…ï—’…∏Åï·¿πâΩΩÕ–Ä¸Åï·¿πâΩΩÕ–°¿∞Å›ïÖ—°ï»§ÄËÄ¿ÏÅÙÅçÖ—ç†Ä°î§ÅÏÅ…ï—’…∏Ä¿ÏÅÙÅÙÏ(ÄÄÄÄÄÄÄÅçΩπÕ–ÅÕΩ…—•–ÄÙÄ°Ö…»§ÄÙ¯ÅÖ…»πÕ±•çî†§πÕΩ…–°âÂA±ÖçïMçΩ…î†°¿§ÄÙ¯Ä°ÏÅ≈’Ö±•—‰ËÅ¿π›ôMçΩ…î∞Å’π…Ö—ïë	ÖÕîËÅU9IQ}1MP∞ÅôïÖ—’…ïêËÅôïÖ—’…ïë	ΩΩÕ–°¿§∞Åç’…Ö—ïêËÄÑÖç’…Ö—ïëΩ»°¿§∞ÅçΩπ—ï·—	ΩΩÕ–ËÅ}ç—·	ΩΩÕ–°¿§∞ÅïŸ•ëïπçîËÅ°ÖÕ…ïÖ—Ω…Y•ëïΩ–°¿§Ä¸ÅIQ=I}Y%=}	=9ULÄËÄ¿∞Å—…ïπêËÅ¿π—…ïπë•πúÄ¸ÅQI9%9}	=9ULÄËÄ¿ÅÙ§§§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å}¡Ö•π–ÄÙÄ°¡ΩΩ∞§ÄÙ¯ÅÏÅ•òÄ°}—Ω¨πëïÖêÅÒÄÖ¡ΩΩ∞π±ïπù—†§Å…ï—’…∏ÏÅçΩπÕ–Å¡ÖÕÕïêÄÙÅ¡ΩΩ∞πô•±—ï»°}Ÿ•âïAÖÕÃ§ÏÅçΩπÕ–Å≈’•ç¨ÄÙÅÕΩ…—•–°¡ÖÕÕïêπ±ïπù—†Ä¯ÙÄ‘Ä¸Å¡ÖÕÕïêÄËÅ¡ΩΩ∞§πÕ±•çî†¿∞Ä–¿§ÏÅ•òÄ°≈’•ç¨π±ïπù—†§ÅÏÅÕï—·¡A±ÖçïÃ°≈’•ç¨§ÏÅÕï—·¡1ΩÖë•πú°ôÖ±Õî§ÏÅÙÅÙÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å}Õ—Ö…—4ÄÙÅï·¿π…Öë•’ÃÅÒÅU1Q}I%UM}4Ï(ÄÄÄÄÄÄÄÅ±ï–Å…Öë•’ÃÄÙÅ}Õ—Ö…—4Ï(ÄÄÄÄÄÄÄÅ±ï–Å…Ö‹ÄÙÅmtÏ(ÄÄÄÄÄÄÄÄººÅÿ–∏‰‹ÅÕ¡ïïêËÅÑÅµ’±—§µ≈’ï…‰ÅŸ•âîÅ…ïôï—ç°•πúÄÃ√äH–◊äHÿ¿Å›ÖÃÅ’¿Å—ºÅôΩ’»(ÄÄÄÄÄÄÄÄººÅÕï≈’ïπ—•Ö∞Å…Ω’πëÃÄ°¯ÂÃÅÕ¡•ππï…Ã§∏Å=πîÅ©’µ¿ËÅëïôÖ’±–∞Å—°ï∏ÅµÖ‡∏(ÄÄÄÄÄÄÄÅôΩ»Ä°çΩπÕ–Å}¥ÅΩòÅm}Õ—Ö…—4∞Ä∏∏∏°}Õ—Ö…—4ÄÄ‰ÿ‘ÿ¿Ä¸Ål‰ÿ‘ÿ¡tÄËÅmt•t§ÅÏ(ÄÄÄÄÄÄÄÄÄÅ…Öë•’ÃÄÙÅ}¥Ï(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}≈ÃÄÙÅ—Â¡ïΩòÅï·¿π≈’ï…•ïÃÄÙÙÙÄâô’πç—•Ω∏àÄ¸Åï·¿π≈’ï…•ïÃ†§ÄËÅï·¿π≈’ï…•ïÃÏÄººÅÿ–∏‡¿ËÅ—•µîµÖ›Ö…îÅ≈’ï…‰ÅÕï—Ã(ÄÄÄÄÄÄÄÄÄÅ•òÄ°}≈ÃÄòòÅ}≈Ãπ±ïπù—†§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}àÄÙÅÖ›Ö•–ÅA…Ωµ•ÕîπÖ±∞°}≈ÃπµÖ¿†°≈ê§ÄÙ¯ÅÕïÖ…ç°A±ÖçïÃ°≈êπçÖ–ÅÒÄâÖ——…Öç—•ΩπÃà∞ÄâÖ±∞à∞ÅÏÅ±Ö–ËÅçïπ—ï»π±Ö–∞Å±πúËÅçïπ—ï»π±πúÅÙ∞Å…Öë•’Ã∞ÄâÖ±∞à∞Å≈êπ≠ïÂ›Ω…êÅÒÄàà§πçÖ—ç†††§ÄÙ¯Åmt§§§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅ…Ö‹ÄÙÅëïë’¡ïA±ÖçïÃ°}àπô±Ö–†§πô•±—ï»°	ΩΩ±ïÖ∏§∞Å—…’î§Ï(ÄÄÄÄÄÄÄÄÄÅÙÅï±ÕîÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÅ…Ö‹ÄÙÅÖ›Ö•–ÅÕïÖ…ç°A±ÖçïÃ°ï·¿πçÖ–ÅÒÄâôΩΩêà∞ÄâÖ±∞à∞ÅÏÅ±Ö–ËÅçïπ—ï»π±Ö–∞Å±πúËÅçïπ—ï»π±πúÅÙ∞Å…Öë•’Ã∞ÄâÖ±∞à∞Åï·¿π≠ïÂ›Ω…êÅÒÄàà§Ï(ÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÄÄÅ}¡Ö•π–°…Ö‹§Ï(ÄÄÄÄÄÄÄÄÄÅ•òÄ°…Ö‹πô•±—ï»°}Ÿ•âïAÖÕÃ§π±ïπù—†Ä¯ÙÅAQ}5%8§Åâ…ïÖ¨Ï(ÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÄººÅÿ–∏‡ƒËÅù’Ö…Öπ—ïïêÅç’…Ö—ïêÅ¡…ïÕïπçî∏ÅΩΩù±îùÃÅ—ï·–ÅÕïÖ…ç†Åçïπ—ï…ïêÅΩ∏ÅÑ(ÄÄÄÄÄÄÄÄººÅÕµÖ±∞Å—Ω›∏Ä°AÖ……•Õ†§Å…Ω’—•πï±‰ÅÕ≠•¡ÃÅô•…Õ–µ¡Ö…—‰Å¡•ç≠ÃÄƒ◊äL»‘Åµ§ÅΩ’–∞(ÄÄÄÄÄÄÄÄººÅÕºÅ—ÖùùïêÅç’…Ö—ïêÅ¡±ÖçïÃÅÖ…îÅ…ïÕΩ±ŸïêÅâ‰ÅπÖµîÄ°ô•πëA±ÖçîÅ•ÃÅçÖç°ïê§(ÄÄÄÄÄÄÄÄººÅÖπêÅ•π©ïç—ïêÅ›°ï∏Å—°îÅÕïÖ…ç†Åµ•ÕÕïêÅ—°ï¥ÉäPÅ≠ï¡–ÅΩπ±‰Å•òÅ—°ï‰Å…ïÕΩ±Ÿî∞(ÄÄÄÄÄÄÄÄººÅÖ…îÅ=AIQ%=90∞ÅÖπêÅÕ•–Å•πÕ•ëîÅ—°•ÃÅŸ•âîùÃÅ…Öë•’ÃÅΩòÅ—°îÅ’Õï»∏(ÄÄÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}—ÖùùïêÄÙÅUIQπô•±—ï»†°å§ÄÙ¯Å……Ö‰π•Õ……Ö‰°åπ•π—ïπ—Ã§ÄòòÅåπ•π—ïπ—Ãπ•πç±’ëïÃ°Öç—•Ÿï	Öëùî§§Ï(ÄÄÄÄÄÄÄÄÄÅ•òÄ°}—Öùùïêπ±ïπù—†§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}°ÖŸîÄÙÅπï‹ÅMï–°…Ö‹πµÖ¿†°¿§ÄÙ¯Å}›ô9Ω…¥°¿ππÖµî§§§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}µ•ÕÕ•πúÄÙÅ}—Öùùïêπô•±—ï»†°å§ÄÙ¯ÄÖ}°ÖŸîπ°ÖÃ°}›ô9Ω…¥°åππÖµî§§§πÕ±•çî†¿∞Äƒ–§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°}µ•ÕÕ•πúπ±ïπù—†§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}…ïÃÄÙÅÖ›Ö•–ÅA…Ωµ•ÕîπÖ±∞°}µ•ÕÕ•πúπµÖ¿†°å§ÄÙ¯Åô•πëA±Öçî°åππÖµîÄ¨ÄàÄàÄ¨Ä°åπÖ…ïÑÅÒÄàà§∞ÅÏÅ±Ö–ËÅçïπ—ï»π±Ö–∞Å±πúËÅçïπ—ï»π±πúÅÙ§πçÖ—ç†††§ÄÙ¯Åπ’±∞§§§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}…Öë5§ÄÙÅ5Ö—†πµÖ‡°…Öë•’ÃÄºÄƒÿ¿‰∏Ã–∞ÅUIQ}I!}5$§ÏÄººÅô•…Õ–µ¡Ö…—‰Å¡•ç≠ÃÅ≠ïï¿Å—°ï•»Å…ïÖç†Å¡ÖÕ–Å—°îÄƒ‹µµ§ÅëïôÖ’±–ÏÅçÖ…ëÃÅÕ°Ω‹Åë•Õ—ÖπçîÅ°ΩπïÕ—±‰(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}•π©ïç–ÄÙÅ}…ïÃπô•±—ï»°	ΩΩ±ïÖ∏§πô•±—ï»†°¿§ÄÙ¯Ä†Ö¿πÕ—Ö—’ÃÅÒÅ¿πÕ—Ö—’ÃÄÙÙÙÄâ=AIQ%=90à§ÄòòÄ°¿πë•Õ—5§ÄÙÙÅπ’±∞ÅÒÅ¿πë•Õ—5§ÄÙÅ}…Öë5§§ÄòòÄÖ}°ÖŸîπ°ÖÃ°}›ô9Ω…¥°¿ππÖµî§§§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°}•π©ïç–π±ïπù—†§Å…Ö‹ÄÙÅëïë’¡ïA±ÖçïÃ°l∏∏π…Ö‹∞Ä∏∏π}•π©ïç—t∞Å—…’î§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÄÄÄººÄ»¿»ÿ¥¿‡¥¿‡ËÅëïçΩ…Ö—îÅ—°•ÃÅŸ•âîùÃÅ¡ΩΩ∞Å›•—†Å—°îÅ’π•ô•ïêÅ—…ïπêÅÕ•ùπÖ∞(ÄÄÄÄÄÄÄÄººÅ	=IÅ—°îÅô•πÖ∞Å…Öπ≠•πú∞ÅÕºÅÕΩ…—•–ùÃÅ—…ïπêÅ—ï…¥ÅÖπêÅ—°îÅçÖ…êùÃÉ¬~Rî(ÄÄÄÄÄÄÄÄººÅë•Õç±ΩÕ’…îÅ…ïÖêÅ—°îÅÕÖµîÅô±Öú∏ÅQ°îÅ¡…Ωù…ïÕÕ•ŸîÅ}¡Ö•π–ÅÖâΩŸîÅ…Ö∏(ÄÄÄÄÄÄÄÄººÅ›•—°Ω’–Åô±ÖùÃÉäPÅçΩπÕ•Õ—ïπ—±‰Å’πô±ÖùùïêÉäPÅÖπêÅ—°•ÃÅô•πÖ∞Å…Öπ≠•πú(ÄÄÄÄÄÄÄÄººÅ…ï¡±ÖçïÃÅ•–∏ÅÖ•±ÃÅÕΩô–∏(ÄÄÄÄÄÄÄÅ—…‰ÅÏÅÖ›Ö•–ÅÖ——Öç°Q…ïπëM•ùπÖ±Ã°…Ö‹∞ÅÏÅïŸïπ—ÃËÄ°ôΩ…ÂΩ’Ÿïπ—ÃÄòòÅôΩ…ÂΩ’Ÿïπ—Ãπ±ïπù—†Ä¸ÅôΩ…ÂΩ’Ÿïπ—ÃÄËÅïŸïπ—Ã§ÅÒÅmtÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÄÄÅ±ï–Å…ïÕ’±—ÃÏ(ÄÄÄÄÄÄÄÅ•òÄ°ï·¿πô•±—ï»§ÅÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å¡ÖÕÕïêÄÙÅ…Ö‹πô•±—ï»°}Ÿ•âïAÖÕÃ§Ï(ÄÄÄÄÄÄÄÄÄÄººÅ9ïŸï»ÅÕ°Ω‹ÅÖ∏ÅïµâÖ……ÖÕÕ•πù±‰Å—°•∏Åç’…Ö—ïêÅ±•Õ–∏Å%òÅÑÅ°Ö…êÅô•±—ï»Å±ïÖŸïÃ(ÄÄÄÄÄÄÄÄÄÄººÅôï›ï»Å—°Ö∏Ä‘∞ÅâÖç≠ô•±∞Å›•—†Å—°îÅâïÕ–Å’πô•±—ï…ïêÅπïÖ…â‰Å¡•ç≠ÃÅÕºÅ—°î(ÄÄÄÄÄÄÄÄÄÄººÅ¡ÖùîÅÖ±›ÖÂÃÅôïï±ÃÅô’±∞∞Åô•±—ï…ïêÅ¡•ç≠ÃÅÕ—•±∞Å…Öπ≠ïêÅô•…Õ–∏(ÄÄÄÄÄÄÄÄÄÅ•òÄ°¡ÖÕÕïêπ±ïπù—†Ä¯ÙÄ‘§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÅ…ïÕ’±—ÃÄÙÅÕΩ…—•–°¡ÖÕÕïê§Ï(ÄÄÄÄÄÄÄÄÄÅÙÅï±ÕîÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å¡ÖÕÕïë%ëÃÄÙÅπï‹ÅMï–°¡ÖÕÕïêπµÖ¿†°¿§ÄÙ¯Å¿π•ê§§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅâÖç≠ô•±∞ÄÙÅÕΩ…—•–°…Ö‹πô•±—ï»†°¿§ÄÙ¯ÄÖ¡ÖÕÕïë%ëÃπ°ÖÃ°¿π•ê§§§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅ…ïÕ’±—ÃÄÙÅl∏∏πÕΩ…—•–°¡ÖÕÕïê§∞Ä∏∏πâÖç≠ô•±±tÏ(ÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÅÙÅï±ÕîÅÏ(ÄÄÄÄÄÄÄÄÄÅ…ïÕ’±—ÃÄÙÅÕΩ…—•–°…Ö‹§Ï(ÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÅ…ïÕ’±—ÃÄÙÅ…ïÕ’±—ÃπÕ±•çî†¿∞Ä–¿§ÏÄººÅÿ–∏‡ƒËÅµΩ…îÅΩ¡—•ΩπÃÅ¡ï»ÅŸ•âî(ÄÄÄÄÄÄÄÄººÅQ5@Ä°5=59Q}A%-M}%9=M%Lπµê∞ÅA°ÖÕîÄ¿§ËÅΩπîÅ•πï…–Å—ï±ïµï—…‰Å±•πî(ÄÄÄÄÄÄÄÄººÅ¡ï»Åï·¡ï…•ïπçîÅΩ¡ï∏ÅÕºÅ—°îÅï·Öç–Åë•Ÿï…ùïπçîÅ•ÃÅµïÖÕ’…Öâ±îÅΩ∏Å—°î(ÄÄÄÄÄÄÄÄººÅΩ›πï»ùÃÅëïŸ•çîÉäPÅôï—ç°ïêÅŸÃÅ≠ï¡–∞Å—°îÅ…Öë•’ÃÅÖç—’Ö±±‰ÅÕïÖ…ç°ïê∞ÅÖπê(ÄÄÄÄÄÄÄÄººÅ—°îÅç±•ïπ–Åç±Öµ¿Ä°ï·¡5§§Å—°Ö–Å°•ëïÃÅôï—ç°ïêµâ’–µë•Õ—Öπ–Å…ïÕ’±—Ã∏(ÄÄÄÄÄÄÄÅ—…‰ÅÏÅ±ΩùŸïπ–†âµΩµïπ—}Ω¡ïπ}ë•Öúà∞Åπ’±∞∞ÅÏÅ•π—ïπ–ËÅÖç—•Ÿï	Öëùî∞Åôï—ç°ïêËÅ…Ö‹π±ïπù—†∞Å≠ï¡–ËÅ…ïÕ’±—Ãπ±ïπù—†∞Å…Öë•’Õ5§ËÅ5Ö—†π…Ω’πê°…Öë•’ÃÄºÄƒÿ¿‰∏Ã–§∞Åç±Öµ¡5§ËÅï·¡5§∞Å›•—°•∏ƒ‹ËÅ…ïÕ’±—Ãπô•±—ï»†°¿§ÄÙ¯Å¿πë•Õ—5§ÄÑÙÅπ’±∞ÄòòÅ¿πë•Õ—5§ÄÙÄƒ‹§π±ïπù—†ÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÄÄÅ•òÄ†Ö}—Ω¨πëïÖê§ÅÏÅÕï—·¡A±ÖçïÃ°…ïÕ’±—Ã§ÏÅ±ΩÖë	±’…âÃ°…ïÕ’±—Ã§ÏÅôï—ç°5ïµâï…M•ùπÖ±Ã°Õ’¡ÖâÖÕî∞Å…ïÕ’±—Ã§π—°ï∏†°Õ•ú§ÄÙ¯ÅÏÅ•òÄ†Ö}—Ω¨πëïÖêÄòòÅÕ•ú§ÅÕï—·¡A±ÖçïÃ†°ç’»§ÄÙ¯Å›•—°5ïµâï…M•ùπÖ∞°ç’»∞ÅÕ•ú§§ÏÅÙ§ÏÅÙ(ÄÄÄÄÄÄÄÄººÅÿ–∏‡‰ËÅ¡°Ω—ºÅô•‡ÅôΩ»Å—°îÅŸ•âîÅ…Ω›ÃÉäPÅ…ïÕΩ±ŸîÅ…ïÖ∞Å¡°Ω—ΩÃÅôΩ»Å—°î(ÄÄÄÄÄÄÄÄººÅ—Ω¿Å¡°Ω—Ω±ïÕÃÅµ’±—§µÕΩ’…çîÅïπ—…•ïÃÄ°çÖç°ïêÅ±ΩΩ≠’¡Ã§∞Å—°ï∏Å…ï¡Ö•π–∏(ÄÄÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}µ•ÕÕ•πúÄÙÅ…ïÕ’±—Ãπô•±—ï»†°¿§ÄÙ¯Å¿ÄòòÄÖ¿π¡°Ω—ºÄòòÄΩx°ôÕ≈ÒΩÕµÒ…•ëâÒπ¡Ã§Ëºπ—ïÕ–°M—…•πú°¿π•êÅÒÄàà§§§πÕ±•çî†¿∞Äƒ¿§Ï(ÄÄÄÄÄÄÄÄÄÅ•òÄ°}µ•ÕÕ•πúπ±ïπù—†§ÅA…Ωµ•ÕîπÖ±∞°}µ•ÕÕ•πúπµÖ¿°ÖÕÂπåÄ°¿§ÄÙ¯ÅÏÅ—…‰ÅÏÅçΩπÕ–ÅúÄÙÅÖ›Ö•–Åô•πëA±Öçî°¿ππÖµî∞ÅÏÅ±Ö–ËÅ¿π±Ö–∞Å±πúËÅ¿π±πúÅÙ§ÏÅ•òÄ°úÄòòÅúπ¡°Ω—ºÄòòÄ°}›ô9Ω…¥°úππÖµî§π•πç±’ëïÃ°}›ô9Ω…¥°¿ππÖµî§§ÅÒÅ}›ô9Ω…¥°¿ππÖµî§π•πç±’ëïÃ°}›ô9Ω…¥°úππÖµî§§§§ÅÏÅ¿π¡°Ω—ºÄÙÅúπ¡°Ω—ºÏÅ¿π¡°Ω—ΩÃÄÙÅúπ¡°Ω—ΩÃÅÒÅmtÏÅ•òÄ°úπΩ†§ÅÏÅ¿πΩ†ÄÙÅúπΩ†ÏÅ¿πΩ¡ïπ9Ω‹ÄÙÅúπΩ¡ïπ9Ω‹ÏÅ¿π’—ç=ôôÕï–ÄÙÅúπ’—ç=ôôÕï–ÏÅ•òÄ°úπ°Ω’…ÕÕ=òÄÑÙÅπ’±∞§Å¿π°Ω’…ÕÕ=òÄÙÅúπ°Ω’…ÕÕ=òÏÄº®Åÿÿ∏Ã–ËÅÕ—Öµ¿Å—…ÖŸï±ÃÅ›•—†Å—°îÅâ’πë±îÄ®ºÅÙÅÙÅÙÅçÖ—ç†Ä°î§ÅÌÙÅÙ§§π—°ï∏††§ÄÙ¯ÅÏÅ•òÄ†Ö}—Ω¨πëïÖê§ÅÕï—·¡A±ÖçïÃ†°ç’»§ÄÙ¯Ä°……Ö‰π•Õ……Ö‰°ç’»§Ä¸Ål∏∏πç’…tÄËÅç’»§§ÏÅÙ§Ï(ÄÄÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÅÙÅçÖ—ç†ÅÏ(ÄÄÄÄÄÄÄÅ•òÄ†Ö}—Ω¨πëïÖê§ÅÕï—·¡A±ÖçïÃ°mt§Ï(ÄÄÄÄÄÅÙÅô•πÖ±±‰ÅÏ(ÄÄÄÄÄÄÄÅ}…ïåπëΩπîÄÙÅ—…’îÏ(ÄÄÄÄÄÄÄÅç±ïÖ…Q•µïΩ’–°}›Ö—ç†§Ï(ÄÄÄÄÄÄÄÅ•òÄ†Ö}—Ω¨πëïÖê§ÅÕï—·¡1ΩÖë•πú°ôÖ±Õî§Ï(ÄÄÄÄÄÅÙ(ÄÄÄÅÙ§†§Ï(ÄÄÄÅÙ∞Ä»‘¿§Ï(ÄÄÄÄººÅ±ïÖπ’¿ÅΩπ±‰ÅµÖ…≠ÃÅ—°îÅ—Ω≠ï∏ÅëïÖêÉäPÅ—•µï…ÃÅÕ—Ö‰ÅÖ…µïêÅÕºÅÑÅôΩ±±Ω‹µ’¿(ÄÄÄÄººÅÖëΩ¡—•Ω∏Ä°±ΩçÖ—•Ω∏Å…ïô•πïêÄÄÃÅ≠¥§ÅçÖ∏Å…ïŸ•ŸîÅ—°îÅŸï…‰ÅÕÖµîÅ…’∏∏(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅ}—Ω¨πëïÖêÄÙÅ—…’îÏÅÙÏ(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞ÅmÕç…ïï∏∞ÅÖç—•Ÿï	Öëùî∞Åçïπ—ï…t§Ï((ÄÄººÅÿ–∏‡–ÅY•Ö—Ω»ÅÖÃÅÑÅ…ïÖ∞ÅÖç—•Ÿ•—‰ÅÕΩ’…çî∏ÅQ°îÅô…ïï—ï·–Åïπë¡Ω•π–Å•ÃÅ≈’ï…•ïê(ÄÄººÅ›•—†Å—°îÅ…ïÕΩ±ŸïêÅ5QI<ÅπÖµîÄ°ÕµÖ±∞Å—Ω›πÃÅ±•≠îÅAÖ……•Õ†ÅÖ…îÅπΩ–ÅY•Ö—Ω»(ÄÄººÅëïÕ—•πÖ—•ΩπÃÉäPÅô…ïï—ï·–ÅΩ∏Å—°ï¥Å…ï—’…πÃÅ≠ïÂ›Ω…êÅπΩ•ÕîÅô…Ω¥ÅΩ—°ï»Åç•—•ïÃ§∞(ÄÄººÅ¡’±±•πúÅÑÄ»¿µ¡…Ωë’ç–Å¡ΩΩ∞Å—°Ö–Åùï—ÃÅ…Öπ≠ïêÅç±•ïπ–µÕ•ëîÅ¡ï»ÅŸ•âîË(ÄÄººÄÄÅ—Ω¿ÄÉäPÅµΩÕ–Å¡Ω¡’±Ö»∞Å…Ö—•πúÅëïÕåÅ›•—†Å…ïŸ•ï‹µçΩ’π–Å—•ïâ…ïÖ¨Ä°	’ç≠ï–Å1•Õ–§(ÄÄººÄÄÅùïµÃÉäPÅ°•ù†Å…Ö—•πúÄ†–∏‹¨§Åâ’–Å1=\Å…ïŸ•ï‹ÅçΩ’π–Ä£ä&êÃ¿¿§ËÅ’πëï»µ—°îµ…ÖëÖ»(ÄÄººÄÄÄÄÄÄÄÄÄÅï·¡ï…•ïπçïÃÅ±ΩçÖ±ÃÅâΩΩ¨Åâ’–Å—Ω’…•Õ—ÃÅµ•ÕÃÄ°!•ëëï∏ÅïµÃ§(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ°Õç…ïï∏ÄÑÙÙÄâï·¡ï…•ïπçîàÅÒÄÑ°aAI%9MmÖç—•Ÿï	ÖëùïtÄòòÅaAI%9MmÖç—•Ÿï	ÖëùïtπŸ•Ö—Ω»§§ÅÏÅÕï—·¡QΩ’…Ã°π’±∞§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÅ±ï–ÅçÖπçï±±ïêÄÙÅôÖ±ÕîÏ(ÄÄÄÄ°ÖÕÂπåÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å}¥ÄÙÅ’±—’…îπ…ïÕΩ±Ÿï5ï—…º°±Ωç9Öµî§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Åç•—ÂDÄÙÄ°}¥ÄòòÅ’±—’…îπU1QUI}Q%Q1Mm}µt§ÅÒÄ°±Ωç9ÖµîÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à•l¡tÄËÄàà§Ï(ÄÄÄÄÄÄÄÅ•òÄ†Öç•—ÂD§Å…ï—’…∏Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å»ÄÙÅÖ›Ö•–Åôï—ç††àΩÖ¡§ΩŸ•Ö—Ω»Ω—Ω’…Ã˝ƒÙàÄ¨ÅïπçΩëïUI%Ωµ¡Ωπïπ–°ç•—ÂD§Ä¨ÄàôçΩ’π–Ù»¿àÄ¨Å}Ÿ•Ö—Ω…•—ÂAÖ…ÖµÃ°ç•—ÂD∞Åçïπ—ï»§§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–ÅêÄÙÅÖ›Ö•–Å»π©ÕΩ∏†§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–ÅµΩëîÄÙÅaAI%9MmÖç—•Ÿï	ÖëùïtπŸ•Ö—Ω…5ΩëîÅÒÄâ—Ω¿àÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å¡ΩΩ∞ÄÙÄ°êÄòòÅ……Ö‰π•Õ……Ö‰°êπ•—ïµÃ§Ä¸Åêπ•—ïµÃÄËÅmt§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å•—ïµÃÄÙÅ…Öπ≠·¡ï…•ïπçïÃ°µΩëîÄÙÙÙÄâùïµÃà(ÄÄÄÄÄÄÄÄÄÄ¸Å¡ΩΩ∞πô•±—ï»†°–§ÄÙ¯Å–π…Ö—•πúÄÑÙÅπ’±∞ÄòòÅ–π…Ö—•πúÄ¯ÙÄ–∏‹ÄòòÄ°–π…ïŸ•ï›ÃÅÒÄ¿§Ä¯Ä¿ÄòòÄ°–π…ïŸ•ï›ÃÅÒÄ¿§ÄÙÄÃ¿¿§(ÄÄÄÄÄÄÄÄÄÄËÅ¡ΩΩ∞πô•±—ï»†°–§ÄÙ¯Å–π…Ö—•πúÄÑÙÅπ’±∞ÄòòÅ–π…Ö—•πúÄ¯ÙÄ–∏‘§§πÕ±•çî†¿∞Ä‡§Ï(ÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïê§ÅÕï—·¡QΩ’…Ã°•—ïµÃ§Ï(ÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÏÅ•òÄ†ÖçÖπçï±±ïê§ÅÕï—·¡QΩ’…Ã°π’±∞§ÏÅÙ(ÄÄÄÅÙ§†§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅçÖπçï±±ïêÄÙÅ—…’îÏÅÙÏ(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞ÅmÕç…ïï∏∞ÅÖç—•Ÿï	Öëùî∞Å±Ωç9Öµït§Ï((ÄÄººÅÿ–∏‰–ËÅ—°îÅï·¡ï…•ïπçîÄâ]•—°•∏Å`Åµ§àÅ¡•±∞Åµ•……Ω…ÃÅ—°îÅÕ°ïï—ÃÉäPÅ•òÅ—°îÅŸ•âî(ÄÄººÅ¡’±±ïêÅô…Ω¥ÅôÖ…—°ï»Å—°Ö∏Å—°îÄƒ‹µµ§ÅëïôÖ’±–Ä°ÖëÖ¡—•ŸîÅ…Öë•’Ã§∞Åâ’µ¿Å—°î(ÄÄººÅŸ•Õ•â±îÅçÖ¿Å’¿Å—°îÅ±Öëëï»ÅÕºÅ…ïÕ’±—ÃÅÖ…ï∏ù–Å°•ëëï∏Åâï°•πêÅÑÅÕ—Ö±îÅ±Öâï∞∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅçΩπÕ–Å¡∞ÄÙÅï·¡A±ÖçïÃÏ(ÄÄÄÅ•òÄ†Ö¡∞ÅÒÄÖ¡∞π±ïπù—†§Å…ï—’…∏Ï(ÄÄÄÅçΩπÕ–Å}›•—°•∏ÄÙÄ°µ§§ÄÙ¯Å¡∞πô•±—ï»†°¿§ÄÙ¯Å¿πë•Õ—5§ÄÙÙÅπ’±∞ÅÒÅ¿πë•Õ—5§ÄÙÅµ§§π±ïπù—†Ï(ÄÄÄÅÕï—·¡5§†°ç’»§ÄÙ¯ÅÏ(ÄÄÄÄÄÅçΩπÕ–Å}–ÄÙÅ5Ö—†πµ•∏°AQ}5%8∞Å¡∞π±ïπù—†§Ï(ÄÄÄÄÄÅ•òÄ°ç’»Ä¯ÙÄÿ¿ÅÒÅ}›•—°•∏°ç’»§Ä¯ÙÅ}–§Å…ï—’…∏Åç’»Ï(ÄÄÄÄÄÅôΩ»Ä°çΩπÕ–Åµ§ÅΩòÅlÃ¿∞Ä–‘∞Äÿ¡t§ÅÏÅ•òÄ°µ§Ä¯Åç’»ÄòòÅ}›•—°•∏°µ§§Ä¯ÙÅ}–§Å…ï—’…∏Åµ§ÏÅÙ(ÄÄÄÄÄÅ…ï—’…∏Äÿ¿Ï(ÄÄÄÅÙ§Ï(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞ÅmÖç—•Ÿï	Öëùî∞Åï·¡A±ÖçïÃÄòòÅï·¡A±ÖçïÃπ±ïπù—°t§Ï((ÄÄººÅÿ–∏‡–ËÅâΩΩ≠Öâ±îÅÖç—•Ÿ•—•ïÃÅΩ∏Å—°îÅQ°•πùÃÅ—ºÅëºÅâ…Ω›ÕîÅ—ΩºÉäPÅY•Ö—Ω»Å•ÃÅÑ(ÄÄººÅÕΩ’…çî∞ÅπΩ–Å©’Õ–ÅÑÅâΩΩ≠•πúµ±•π¨ÅëïçΩ…Ö—Ω»∏Åÿÿ∏Ã–Ä°Ω›πï»ÅÖÕ¨§ËÅ—°îÅÖµ•±‰(ÄÄººÅâ…Ω›ÕîÅùï—ÃÅ—°îÅÕÖµîÅ…Ö•∞∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ†°â…Ω›ÕïÖ–ÄÑÙÙÄâÖ——…Öç—•ΩπÃàÄòòÅâ…Ω›ÕïÖ–ÄÑÙÙÄâôÖµ•±‰à§ÅÒÄÖçïπ—ï»§ÅÏÅÕï—	…Ω›ÕïQΩ’…Ã°π’±∞§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÅ±ï–ÅçÖπçï±±ïêÄÙÅôÖ±ÕîÏ(ÄÄÄÄ°ÖÕÂπåÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å}¥ÄÙÅ’±—’…îπ…ïÕΩ±Ÿï5ï—…º°±Ωç9Öµî§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Åç•—ÂDÄÙÄ°}¥ÄòòÅ’±—’…îπU1QUI}Q%Q1Mm}µt§ÅÒÄ°±Ωç9ÖµîÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à•l¡tÄËÄàà§Ï(ÄÄÄÄÄÄÄÅ•òÄ†Öç•—ÂD§Å…ï—’…∏Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å»ÄÙÅÖ›Ö•–Åôï—ç††àΩÖ¡§ΩŸ•Ö—Ω»Ω—Ω’…Ã˝ƒÙàÄ¨ÅïπçΩëïUI%Ωµ¡Ωπïπ–°ç•—ÂD§Ä¨ÄàôçΩ’π–Ù»¿àÄ¨Å}Ÿ•Ö—Ω…•—ÂAÖ…ÖµÃ°ç•—ÂD∞Åçïπ—ï»§§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–ÅêÄÙÅÖ›Ö•–Å»π©ÕΩ∏†§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å•—ïµÃÄÙÅ…Öπ≠·¡ï…•ïπçïÃ†°êÄòòÅ……Ö‰π•Õ……Ö‰°êπ•—ïµÃ§Ä¸Åêπ•—ïµÃÄËÅmt§(ÄÄÄÄÄÄÄÄÄÄπô•±—ï»†°–§ÄÙ¯Å–π…Ö—•πúÄÑÙÅπ’±∞ÄòòÅ–π…Ö—•πúÄ¯ÙÄ–∏‘§§πÕ±•çî†¿∞Ä‡§Ï(ÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïê§ÅÕï—	…Ω›ÕïQΩ’…Ã°•—ïµÃ§Ï(ÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÏÅ•òÄ†ÖçÖπçï±±ïê§ÅÕï—	…Ω›ÕïQΩ’…Ã°π’±∞§ÏÅÙ(ÄÄÄÅÙ§†§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅçÖπçï±±ïêÄÙÅ—…’îÏÅÙÏ(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞Åmâ…Ω›ÕïÖ–∞Å±Ωç9Öµî∞Åçïπ—ï»ÄòòÅçïπ—ï»π±Ö—t§Ï((ÄÄººÅÿÿ∏ƒ–ÉäPÅâΩΩ≠Öâ±îÅY•Ö—Ω»Åï·¡ï…•ïπçïÃÅôΩ»Å—°îÅŸïπ—ÃÅ—ÖàùÃÄâQΩ’…ÃàÅç°•¿(ÄÄººÄ°—°îÅ—ÖàùÃÅëïôÖ’±–ÅŸ•ï‹§∏Å•—‰µâÖÕïê∞ÅÕÖµîÅŸï…•ô•ïêµ¡…Ωë’ç–ÅÕΩ’…çîÅÖÃ(ÄÄººÅ—°îÅ…ïÕ–ÅΩòÅ—°îÅÖ¡¿ÏÅôÖ•∞µÕΩô–Å—ºÅÖ∏Åïµ¡—‰Å±•Õ–ÅÕºÅ—°îÅ—ÖàÅπïŸï»Åâ…ïÖ≠Ã∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ°Õç…ïï∏ÄÑÙÙÄâïŸïπ—Ãà§Å…ï—’…∏Ï(ÄÄÄÅ±ï–ÅçÖπçï±±ïêÄÙÅôÖ±ÕîÏ(ÄÄÄÄººÅ]Ö—ç°ëΩúËÅ—°îÅQΩ’…ÃÅŸ•ï‹Åµ’Õ–ÅπïŸï»ÅÕ¡•∏ÅôΩ…ïŸï»∏Å%òÅπºÅç•—‰Å°ÖÃÅ…ïÕΩ±Ÿïê(ÄÄÄÄººÄ°…ïŸï…ÕîµùïΩçΩëîÅëΩ›∏§ÅÖπêÅπΩ—°•πúÅ°ÖÃÅ±ΩÖëïêÅ›•—°•∏ÄÂÃ∞ÅôÖ±∞Å—ºÅ—°î(ÄÄÄÄººÅù…Öçïô’∞ÄâπºÅ—Ω’…ÃÉäPÅÕïîÅïŸïπ—ÃÅπïÖ»ÅµîàÅÕ—Ö—îÅ•πÕ—ïÖêÅΩòÅÖ∏Åïπë±ïÕÃ(ÄÄÄÄººÅ±ΩÖëï»∏Å%∏Å¡…Öç—•çîÅ—°îÅ…ïÖ∞Åôï—ç†Å±ÖπëÃÅ•∏Å¯ƒ¥…ÃÅÖπêÅ—°•ÃÅ•ÃÅÑÅπºµΩ¿∏(ÄÄÄÅçΩπÕ–Å}›Ö—ç†ÄÙÅÕï—Q•µïΩ’–††§ÄÙ¯ÅÏÅ•òÄ†ÖçÖπçï±±ïê§ÅÕï—Ÿïπ—ÕQΩ’…Ã†°ç’»§ÄÙ¯Ä°ç’»ÄÙÙÅπ’±∞Ä¸ÅmtÄËÅç’»§§ÏÅÙ∞Ä‰¿¿¿§Ï(ÄÄÄÄ°ÖÕÂπåÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å}¥ÄÙÅ’±—’…îπ…ïÕΩ±Ÿï5ï—…º°±Ωç9Öµî§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Åç•—ÂDÄÙÄ°}¥ÄòòÅ’±—’…îπU1QUI}Q%Q1Mm}µt§ÅÒÄ°±Ωç9ÖµîÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à•l¡tÄËÄàà§Ï(ÄÄÄÄÄÄÄÄººÅ9ºÅç•—‰Å…ïÕΩ±ŸïêÅÂï–Ä°…ïŸï…ÕîµùïΩçΩëîÅÕ—•±∞Å•∏Åô±•ù°–§ËÅÕ—Ö‰Å•∏Å—°î(ÄÄÄÄÄÄÄÄººÅ±ΩÖë•πúÅÕ—Ö—îÅÖπêÅ±ï–Å—°•ÃÅïôôïç–Å…îµô•…îÅ›°ï∏Å±Ωç9ÖµîÅ±ÖπëÃÉäPÅπïŸï»(ÄÄÄÄÄÄÄÄººÅô±ÖÕ†ÄâπºÅ—Ω’…ÃàÅâïôΩ…îÅ›îùŸîÅïŸï∏ÅÖÕ≠ïê∏Åï¡ÃÅ•πç±’ëîÅ±Ωç9Öµî∏(ÄÄÄÄÄÄÄÅ•òÄ†Öç•—ÂD§Å…ï—’…∏Ï(ÄÄÄÄÄÄÄÄººÅÿÿ∏––Ä°Ω›πï»§ËÅ—°îÅU10ÅŸï…•ô•ïêÅ±ΩçÖ∞Å•πŸïπ—Ω…‰ÉäPÅπºÄƒ»µ•—ï¥ÅÕ±•çî∞(ÄÄÄÄÄÄÄÄººÅπºÄ–∏ÃÅô±ΩΩ»∏Å=…ëï»Å•ÃÅ—°îÅŸ•Õ•â±îÅ]ÖÂô•πêÅMçΩ…î∞Å°•ù°ïÕ–Å—ºÅ±Ω›ïÕ–∏(ÄÄÄÄÄÄÄÄººÅMï±±•πúµôÖÕ–Å…ïµÖ•πÃÅÖ∏Å°ΩπïÕ–ÅâÖëùîΩô•±—ï»Åâ’–ÅπïŸï»ÅΩ’—…Öπ≠ÃÅÑ(ÄÄÄÄÄÄÄÄººÅÕ—…Ωπùï»Å…ïçΩµµïπëÖ—•Ω∏ÏÅ¡…•çîÅÖπêÅçΩµµ•ÕÕ•Ω∏ÅπïŸï»Åïπ—ï»Å—°îÅÕΩ…–∏(ÄÄÄÄÄÄÄÅçΩπÕ–Å»ÄÙÅÖ›Ö•–Åôï—ç††àΩÖ¡§ΩŸ•Ö—Ω»Ω—Ω’…Ã˝ƒÙàÄ¨ÅïπçΩëïUI%Ωµ¡Ωπïπ–°ç•—ÂD§Ä¨ÄàôçΩ’π–Ùÿ¿àÄ¨Å}Ÿ•Ö—Ω…•—ÂAÖ…ÖµÃ°ç•—ÂD∞Åçïπ—ï»§§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–ÅêÄÙÅÖ›Ö•–Å»π©ÕΩ∏†§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å•—ïµÃÄÙÅ…Öπ≠·¡ï…•ïπçïÃ°êÄòòÅ……Ö‰π•Õ……Ö‰°êπ•—ïµÃ§Ä¸Åêπ•—ïµÃÄËÅmt§Ï(ÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïê§ÅÕï—Ÿïπ—ÕQΩ’…Ã°•—ïµÃ§Ï(ÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÏÅ•òÄ†ÖçÖπçï±±ïê§ÅÕï—Ÿïπ—ÕQΩ’…Ã°mt§ÏÅÙ(ÄÄÄÅÙ§†§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅçÖπçï±±ïêÄÙÅ—…’îÏÅç±ïÖ…Q•µïΩ’–°}›Ö—ç†§ÏÅÙÏ(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞ÅmÕç…ïï∏∞Å±Ωç9Öµït§Ï((ÄÄººÅÿ–∏ÿ»ËÅ…ïÖ∞ÅπïÖ…â‰Å—ïÖÕï…ÃÅ’πëï»Å—°îÅ•π—…ºÅQÉäPÅ¡…ΩΩòÅâïôΩ…îÅ—°îÅÖÕ¨∏(ÄÅçΩπÕ–Å•π—…ΩQïÖÕï…ÃÄÙÅ’Õï5ïµº††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ†Ö•π—…Ω=¡ï∏§Å…ï—’…∏ÅmtÏ(ÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÅçΩπÕ–Å¡ΩΩ∞ÄÙÅëïë’¡ïA±ÖçïÃ°l∏∏∏°Õ’ùùïÕ—ïêÅÒÅmt§∞Ä∏∏∏°¡±ÖçïÃÅÒÅmt§∞Ä∏∏∏°°ΩµïQΩëºÅÒÅmt•tπô•±—ï»°	ΩΩ±ïÖ∏§∞Å—…’î§πô•±—ï»†°¿§ÄÙ¯Å¿ÄòòÅ¿π•êÄòòÅ¿ππÖµî§Ï(ÄÄÄÄÄÅ•òÄ†Ö¡ΩΩ∞π±ïπù—†§Å…ï—’…∏ÅmtÏ(ÄÄÄÄÄÅçΩπÕ–ÅΩ’–ÄÙÅmtÏÅçΩπÕ–Å’ÕïêÄÙÅπï‹ÅMï–†§Ï(ÄÄÄÄÄÅçΩπÕ–ÅÖëêÄÙÄ°¿∞Å±•πî§ÄÙ¯ÅÏÅ•òÄ°¿ÄòòÄÖ’Õïêπ°ÖÃ°¿π•ê§§ÅÏÅ’ÕïêπÖëê°¿π•ê§ÏÅΩ’–π¡’Õ†°ÏÅ¿∞Å±•πîÅÙ§ÏÅÙÅÙÏ(ÄÄÄÄÄÅÖëê°¡ΩΩ∞πô•±—ï»†°¿§ÄÙ¯Ä°¿π…Ö—•πúÅÒÄ¿§Ä¯ÙÄ–∏ÿÄòòÄ°¿π…ïŸ•ï›ÃÅÒÄ¿§Ä¯ÙÄ–¿ÄòòÄ°¿π…ïŸ•ï›ÃÅÒÄ¿§ÄÙÄÿ¿¿§πÕΩ…–†°Ñ∞Åà§ÄÙ¯Ä°àπ…Ö—•πúÅÒÄ¿§Ä¥Ä°Ñπ…Ö—•πúÅÒÄ¿§•l¡t∞Äâ1ΩçÖ±ÃÅ≠ïï¿Å—°•ÃÅΩπîÅ≈’•ï–à§Ï(ÄÄÄÄÄÅÖëê°¡ΩΩ∞πô•±—ï»†°¿§ÄÙ¯Ä°¿π…ïŸ•ï›ÃÅÒÄ¿§Ä¯ÙÄ»¿¿§πÕΩ…–†°Ñ∞Åà§ÄÙ¯Ä°àπ…Ö—•πúÅÒÄ¿§Ä¥Ä°Ñπ…Ö—•πúÅÒÄ¿§ÅÒÄ°àπ…ïŸ•ï›ÃÅÒÄ¿§Ä¥Ä°Ñπ…ïŸ•ï›ÃÅÒÄ¿§•l¡t∞ÄâQ°îÅÕÖôïÕ–Åù…ïÖ–ÅçÖ±∞ÅπïÖ»ÅÂΩ‘à§Ï(ÄÄÄÄÄÅÖëê°¡ΩΩ∞πô•±—ï»†°¿§ÄÙ¯Å¿πΩ¡ïπ9Ω‹ÄÙÙÙÅ—…’î§πÕΩ…–†°Ñ∞Åà§ÄÙ¯Ä°Ñπë•Õ—5§Ä¸¸Ä≈î‰§Ä¥Ä°àπë•Õ—5§Ä¸¸Ä≈î‰§•l¡t∞Äâ=¡ï∏Å…•ù°–ÅπΩ‹∞Åµ•π’—ïÃÅÖ›Ö‰à§Ï(ÄÄÄÄÄÅÖëê°¡ΩΩ∞πô•±—ï»†°¿§ÄÙ¯Ä°¿π…ïŸ•ï›ÃÅÒÄ¿§Ä¯ÙÄÿ¿§πÕΩ…–†°Ñ∞Åà§ÄÙ¯Ä°Ñπë•Õ—5§Ä¸¸Ä≈î‰§Ä¥Ä°àπë•Õ—5§Ä¸¸Ä≈î‰§•l¡t∞Äâ]Ω…—†Å≠πΩ›•πúÅ—°•ÃÅç±ΩÕîà§Ï(ÄÄÄÄÄÅ…ï—’…∏ÅΩ’–πÕ±•çî†¿∞Ä–§Ï(ÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÏÅ…ï—’…∏ÅmtÏÅÙ(ÄÅÙ∞Åm•π—…Ω=¡ï∏∞ÅÕ’ùùïÕ—ïê∞Å¡±ÖçïÃ∞Å°ΩµïQΩëΩt§Ï((ÄÄººÅQ!Å]1=5ÅM!PÅ9<Å1=9HÅUQ<µ=A9LÄ†»¿»ÿ¥¿‡¥¿ÿ∞ÅΩ›πï»Åëïç•Õ•Ω∏§∏(ÄÄºº(ÄÄººÄâ]°Ö–ÅÖ…îÅÂΩ‘Åôïï±•πú¸àÅ›ÖÃÅÖ∏Å•π—ï……’¡—•Ω∏ËÅ•–ÅΩ¡ïπïêÅΩ∏ÅÑÅ—•µï»ÅΩŸï»ÅÑ(ÄÄººÅ¡ÖùîÅ—°îÅŸ•Õ•—Ω»Å°ÖêÅπΩ–ÅÖÕ≠ïêÅ—ºÅ±ïÖŸî∏Å5ïÖÕ’…ïêÅΩŸï»Äƒ–ÅëÖÂÃ∞ÅΩ›πï»(ÄÄººÅï·ç±’ëïê∞ÄÃÿÅΩòÄ‘‡Åë•Õµ•ÕÕÖ±ÃÅ›ï…îÅ—°îÅ`ÅÖπêÅΩπ±‰Äƒ‘Å›ï…îÅ—°îÅQÉäPÅµΩÕ–(ÄÄººÅ¡ïΩ¡±îÅç±ΩÕïêÅ•–Å…Ö—°ï»Å—°Ö∏Å’ÕïêÅ•–∏ÅÅ¡…ïŸ•Ω’ÃÅ¡ÖÕÃÅ°ÖêÅÖ±…ïÖë‰ÅôΩ’πêÅ—°î(ÄÄººÅÕÖµîÅ—°•πúÅôΩ»Å¡Ö•êÅ—…Öôô•åÄ°ë•Õµ•ÕÕÖ∞Å≈’Ö±•—‰Åôï±∞Ä‹‡îÄ¥¯Äƒ–îÅÖÃÅ¡Ö•ê(ÄÄººÅŸΩ±’µîÅ…Öµ¡ïê§ÅÖπêÅï·ïµ¡—ïêÅ¡Ö•êÅÖπêÅëïï¿µ±•π¨ÅŸ•Õ•—ÃÏÅ—°•ÃÅ…ïµΩŸïÃÅ—°î(ÄÄººÅ—•µï»ÅôΩ»ÅïŸï…ÂΩπîÅ…Ö—°ï»Å—°Ö∏Å≠ïï¡•πúÅÑÅùÖ—îÅ—°Ö–ÅΩπ±‰ÅÕΩµîÅŸ•Õ•—Ω…ÃÅµ•ÕÃ∏(ÄÄºº(ÄÄººÅQ°îÅÕ°ïï–Å•—Õï±òÅ•ÃÅ≠ï¡–ÅÖπêÅ•ÃÅ==ÉäPÅ•–ÅµΩŸïêÅ—ºÅ—°îÅë•ÕçΩŸï…‰Åµïπ‘∞Å›°ï…î(ÄÄººÅ•–Å•ÃÅÑÅ—°•πúÅÂΩ‘Åç°ΩΩÕîÅ•πÕ—ïÖêÅΩòÅÑÅ—°•πúÅ—°Ö–Å°Ö¡¡ïπÃÅ—ºÅÂΩ‘∏ÅQ°îÅ›°Ω±î(ÄÄººÅÖ’—ºµÕ°Ω‹ÅùÖ—îÅ•ÃÅùΩπîÅ›•—†Å•–ËÅ—°îÅŸ•Õ•â±îµ—•µîÅÖçç’µ’±Ö—Ω»∞Å—°îÅ…ï—…‰º(ÄÄººÅÕ—ÖπêµëΩ›∏Å±Öëëï»∞Å—°îÅ•π—ï……’¡–Åç±Ö•¥ÅÖπêÅ—°îÄ˝•π—…ºÙƒÅEÅëΩΩ»∏ÅQ°î(ÄÄººÅ•πŸÖ…•Öπ–Å•ÃÅπΩ‹ÅÕ•µ¡±‰Å—°Ö–Å—°îÅ•π—…ºÅΩ¡ïπÃÅ=91dÅô…Ω¥ÅÑÅ’Õï»ÅùïÕ—’…î∞(ÄÄººÅ›°•ç†Åç°ïç¨µ•π—…ºµùÖ—îÅÖÕÕï…—ÃÅë•…ïç—±‰∏(ÄÄººÅÿ‘∏Ã‹ËÅµ•……Ω»ÅΩòÄâÕΩµîÅë•Ö±ΩúÅ•ÃÅΩ¡ï∏àÅôΩ»Å—°îÅ¡…Ωµ¡–ÅçΩΩ…ë•πÖ—Ω»ÉäP(ÄÄººÅ›°•±îÅ9dÅΩòÅ—°ïÕîÅ•ÃÅ’¿∞ÅπºÅ—•µïêÅ¡…Ωµ¡–ÅµÖ‰Åô•…î∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅë•Ö±Ωù=¡ïπIïòπç’……ïπ–ÄÙÄÑÑ°•π—…Ω=¡ï∏ÅÒÅù›AΩ¿ÅÒÅù›=¡ï∏ÅÒÅÖ’—°=¡ï∏ÅÒÅÖççΩ’π—=¡ï∏ÅÒÅ…ïçΩŸï…Â=¡ï∏§Ï(ÄÅÙ∞Åm•π—…Ω=¡ï∏∞Åù›AΩ¿∞Åù›=¡ï∏∞ÅÖ’—°=¡ï∏∞ÅÖççΩ’π—=¡ï∏∞Å…ïçΩŸï…Â=¡ïπt§Ï(ÄÄººÅÿ‘∏Ã‹Åë•Ö±ΩúÅÕïµÖπ—•çÃËÅôΩç’ÃÅµÖπÖùïµïπ–ÅôΩ»ÅïŸï…‰ÅµΩëÖ∞ÅΩŸï…±Ö‰∏(ÄÄººÅ–Åô•‡ËÅ•π—…Ω=¡ï∏ΩÖççΩ’π—=¡ï∏ΩÖ’—°=¡ï∏Ω…ïçΩŸï…Â=¡ï∏ùÃÅë•Ö±ΩùÃÅπΩ‹Å±•ŸîÅ•∏(ÄÄººÅπï·–ΩëÂπÖµ•å°ÌÕÕ»ÈôÖ±ÕïÙ§ÅÕ°ïï–ÅçΩµ¡Ωπïπ—ÃÉäPÅ’Õï•Ö±ΩùΩç’ÃùÃÅ…ïòÅ›Ω’±êÅâî(ÄÄººÅπ’±∞ÅΩ∏Å—°îÅ—•ç¨Å—°•ÃÅïôôïç–Åô•…Õ–Å…Ö∏Ä°—°îÅç°’π¨Å°Öë∏ù–ÅµΩ’π—ïêÅ•—ÃÅ=4(ÄÄººÅÂï–§∞ÅÕºÅ—°ΩÕîÅôΩ’»ÅπΩ‹ÅΩ›∏Å’Õï•Ö±ΩùΩç’ÃÅ•π—ï…πÖ±±‰Å•πÕ—ïÖê∏Å=π±‰Å—°î(ÄÄººÅÕ—•±∞µ•π±•πîÅù•ŸïÖ›Ö‰Åë•Ö±ΩùÃÅ≠ïï¿Å—°ï•»Å…ïôÃΩ°ΩΩ¨ÅçÖ±±ÃÅ°ï…î∏(ÄÅçΩπÕ–Åù›AΩ¡±ùIïòÄÙÅ’ÕïIïò°π’±∞§Ï(ÄÅçΩπÕ–Åù›I’±ïÕ±ùIïòÄÙÅ’ÕïIïò°π’±∞§Ï(ÄÄººÅÿ‘∏Ã‹ËÅÕçÖ¡îÅç±ΩÕïÃÅ—°îÅ—Ω¡µΩÕ–Å’Õï»µ•πŸΩ≠ïêÅÕ°ïï–Å—ΩºÄ°—°îÅÕ•‡ÅµÖ•∏(ÄÄººÅë•Ö±ΩùÃÅÖâΩŸîÅ—…Ö¿Å—°ï•»ÅΩ›∏ÅÕçÖ¡îÏÅ—°•ÃÅç°Ö•∏ÅçΩŸï…ÃÅ—°îÅ…ïÕ–∞Å•∏(ÄÄººÅËµΩ…ëï»ËÅ±•ù°—âΩ‡Äƒ¿¿¿Ä¯Åç’•Õ•πîÄ‰‘Ä¯Å—°îÅÈ%πëï‡¥‰¿¿ÅÕ°ïï–ÅôÖµ•±‰§∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅçΩπÕ–ÅΩπ-ï‰ÄÙÄ°î§ÄÙ¯ÅÏ(ÄÄÄÄÄÅ•òÄ°îπ≠ï‰ÄÑÙÙÄâÕçÖ¡îà§Å…ï—’…∏Ï(ÄÄÄÄÄÅ•òÄ°±•ù°—âΩ‡§Å…ï—’…∏ÅÕï—1•ù°—âΩ‡°π’±∞§Ï(ÄÄÄÄÄÅ•òÄ°ç’•Õ•πïM°ïï–§Å…ï—’…∏ÅÕï—’•Õ•πïM°ïï–°π’±∞§Ï(ÄÄÄÄÄÅ•òÄ°ë•çï°ΩΩÕî§Å…ï—’…∏ÅÕï—•çï°ΩΩÕî°ôÖ±Õî§Ï(ÄÄÄÄÄÅ•òÄ°°ΩΩ≠ï—Ö•∞§Å…ï—’…∏ÅÕï—!ΩΩ≠ï—Ö•∞°π’±∞§Ï(ÄÄÄÄÄÅ•òÄ°πï›1•Õ—=¡ï∏§Å…ï—’…∏ÅÕï—9ï›1•Õ—=¡ï∏°ôÖ±Õî§Ï(ÄÄÄÄÄÅ•òÄ°…ïπÖµ•πù1•Õ–§Å…ï—’…∏ÅÕï—IïπÖµ•πù1•Õ–°π’±∞§Ï(ÄÄÄÄÄÅ•òÄ°±•Õ—5ïπ‘§Å…ï—’…∏ÅÕï—1•Õ—5ïπ‘°π’±∞§Ï(ÄÄÄÄÄÅ•òÄ°ÕÖŸïQÖ…ùï–§Å…ï—’…∏ÅÕï—MÖŸïQÖ…ùï–°π’±∞§Ï(ÄÄÄÄÄÅ•òÄ°…Öë•’ÕM°ïï–§Å…ï—’…∏ÅÕï—IÖë•’ÕM°ïï–°ôÖ±Õî§Ï(ÄÄÄÄÄÅ•òÄ°µïπ’M°ïï–§Å…ï—’…∏ÅÕï—5ïπ’M°ïï–°π’±∞§Ï(ÄÄÄÄÄÅ•òÄ°›·=¡ï∏§Å…ï—’…∏ÅÕï—]·=¡ï∏°ôÖ±Õî§Ï(ÄÄÄÅÙÏ(ÄÄÄÅ›•πëΩ‹πÖëëŸïπ—1•Õ—ïπï»†â≠ïÂëΩ›∏à∞ÅΩπ-ï‰§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯Å›•πëΩ‹π…ïµΩŸïŸïπ—1•Õ—ïπï»†â≠ïÂëΩ›∏à∞ÅΩπ-ï‰§Ï(ÄÅÙ∞Åm±•ù°—âΩ‡∞Åç’•Õ•πïM°ïï–∞Åë•çï°ΩΩÕî∞Å°ΩΩ≠ï—Ö•∞∞Åπï›1•Õ—=¡ï∏∞Å…ïπÖµ•πù1•Õ–∞Å±•Õ—5ïπ‘∞ÅÕÖŸïQÖ…ùï–∞Å…Öë•’ÕM°ïï–∞Åµïπ’M°ïï–∞Å›·=¡ïπt§Ï(ÄÅ’Õï•Ö±ΩùΩç’Ã°ù›AΩ¿∞Åù›AΩ¡±ùIïò∞Ä†§ÄÙ¯Åù›AΩ¡±ΩÕî†âïÕåà§§Ï(ÄÅ’Õï•Ö±ΩùΩç’Ã°ù›=¡ï∏∞Åù›I’±ïÕ±ùIïò∞Ä†§ÄÙ¯ÅÕï—›=¡ï∏°ôÖ±Õî§§Ï(ÄÄººÅÿ‘∏Ã‹ËÅ…ïÕ’±—ÃÅÖç—’Ö±±‰Å…ïπëï…ïêÅôΩ»Å—°•ÃÅŸ•Õ•—Ω»∏ÅQ°îÅù•ŸïÖ›Ö‰Å›Ö•—ÃÅôΩ»(ÄÄººÅ—°•ÃÅÕ•ùπÖ∞Ä°ÕïîÅ—°îÅçΩΩ…ë•πÖ—Ω»Åâ‰Åù›AΩ¿ÅÖâΩŸî§∏(ÄÄºº(ÄÄººÄ»¿»ÿ¥¿‡¥¿–Ä°Ω›πï»Åëïç•Õ•Ω∏§ÉäPÅ—°•ÃÅ’ÕïêÅ—ºÅ›…•—îÅ›ô}ŸÖ±’ï}Õïï∏∞ÅÖπêÅ—°Ö–(ÄÄººÅµÖëîÅ›ô}ŸÖ±’ï}Õïï∏ÅµïÖ∏Å—›ºÅŸï…‰Åë•ôôï…ïπ–Å—°•πùÃËÄâ—°îÅôïïêÅ¡Ö•π—ïêàÅÖπê(ÄÄººÄâ—°îÅŸ•Õ•—Ω»ÅΩ¡ïπïêÅÑÅ¡±Öçîà∏ÅQ°îÅôïïêÅ¡Ö•π—ÃÅΩ∏ÅïÕÕïπ—•Ö±±‰ÅïŸï…‰(ÄÄººÅÕ’ççïÕÕô’∞Å°Ωµï¡ÖùîÅ±ΩÖêÅ›•—°•∏ÅÑÅôï‹ÅÕïçΩπëÃ∞ÅÕºÅ—°îÅ¡ÖÕÕ•ŸîÅµïÖπ•πú(ÄÄººÅÖ±›ÖÂÃÅ›Ω∏∏Å]°ï∏Å—°îÅ•π—…ºÅùÖ—îÅÕ—Ö…—ïêÅÕ—Öπë•πúÅëΩ›∏ÅΩ∏Å›ô}ŸÖ±’ï}Õïï∏∞(ÄÄººÅ—°Ö–Å›Ω’±êÅ°ÖŸîÅÕ’¡¡…ïÕÕïêÅ—°îÅΩŸï…±Ö‰ÅΩ∏Äƒ¿¿îÅΩòÅŸ•Õ•—ÃÅ…Ö—°ï»Å—°Ö∏Å—°î(ÄÄººÅ•π—ïπëïêÅ¯‡„äL‰¿îÉäPÅÑÅôïÖ—’…îÅ—°Ö–ÅÕ°•¡ÃÅëïÖê∏(ÄÄºº(ÄÄººÅMºÅ—°îÅ—›ºÅÕ•ùπÖ±ÃÅÖ…îÅπΩ‹ÅÕï¡Ö…Ö—îÅ≠ïÂÃ∏Å›ô}ŸÖ±’ï}Õïï∏ÅµïÖπÃÅ=9Å—°•πúË(ÄÄººÅ—°îÅŸ•Õ•—Ω»ÅΩ¡ïπïêÅÑÅ¡±ÖçîÄ°°Ωµîπ©Ã∞ÅΩ¡ïπï—Ö•∞§∏Å›ô}…ïÕ’±—Õ}Õïï∏Å•ÃÅ—°î(ÄÄººÅ›ïÖ≠ï»Äâ…ïÕ’±—ÃÅ¡Ö•π—ïêàÅÕ•ùπÖ∞∞Å›°•ç†Å•ÃÅÖ±∞Å—°îÅù•ŸïÖ›Ö‰ÅïŸï»ÅπïïëïêÉäP(ÄÄººÅ•–Å•ÃÅ≠ï¡–ÅÖÃÅÑÅÕï¡Ö…Ö—îÅ≠ï‰Å¡…ïç•Õï±‰ÅÕºÅ—°îÅù•ŸïÖ›Ö‰ùÃÅ…ïÖç†ÅëΩïÃÅ9=P(ÄÄººÅç°ÖπùîÅÖÃÅÑÅÕ•ëîÅïôôïç–ÅΩòÅÖ∏Å•π—…ºµùÖ—îÅëïç•Õ•Ω∏∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ°Õ’ùùïÕ—ïêÄòòÅÕ’ùùïÕ—ïêπ±ïπù—†§ÅÏÅ—…‰ÅÏÅÕïÕÕ•ΩπM—Ω…ÖùîπÕï—%—ï¥†â›ô}…ïÕ’±—Õ}Õïï∏à∞Äàƒà§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅÙ(ÄÅÙ∞ÅmÕ’ùùïÕ—ïët§Ï((ÄÄººÅÿ–∏‘‡ËÅâ’•±êÅπ’µâï»Å±ïÖŸïÃÅ—°îÅŸ•Õ•â±îÅU$Ä°±Ö’πç†Å¡Ω±•Õ†§Åâ’–ÅÕ—ÖÂÃ(ÄÄººÅµÖç°•πîµ…ïÖëÖâ±îÅôΩ»Åëï¡±Ω‰ÅŸï…•ô•çÖ—•Ω∏ÅÖπêÅë•ÖùπΩÕ—•çÃ∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏÅ—…‰ÅÏÅ›•πëΩ‹π}}]}	U%1ÄÙÅ	U%1}%ÏÅëΩç’µïπ–πëΩç’µïπ—±ïµïπ–πÕï———…•â’—î†âëÖ—Ñµ›òµâ’•±êà∞Å	U%1}%§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅÙ∞Åmt§Ï((ÄÄººÅÿ‘∏‹‡Ä°ƒ§ËÅïŸï…‰ÅÕ—ÖπëÖ±ΩπîÅÕç…ïï∏Å≠ïï¡ÃÅ—°îÅÖëë…ïÕÃÅâÖ»Å•∏Å±Ωç≠Õ—ï¿∞ÅπΩ–(ÄÄººÅ©’Õ–ÄΩïŸïπ—ÃÉäPÅÕºÅ…ïô…ïÕ†∞Å	Öç¨ΩΩ…›Ö…ê∞ÅÖπêÅÕ°Ö…•πúÅ…ïÕ—Ω…îÅ—°îÅŸ•ï‹(ÄÄººÅ•πÕ—ïÖêÅΩòÅÕ—…•¡¡•πúÅ—ºÄàºà∏ÅMI9}AQ ÅµÖ¡ÃÅÖ∏Å•π—ï…πÖ∞ÅÕç…ïï∏ÅπÖµîÅ—ºÅ•—Ã(ÄÄººÅ¡’â±•åÅ¡Ö—†Ä°πΩ—îÄâÕÖŸïêàÄ¥¯ÄàΩôÖŸΩ…•—ïÃà§ÏÅAQ!}MI8Å•ÃÅ—°îÅ…ïŸï…Õî∏(ÄÅçΩπÕ–ÅMI9}AQ ÄÙÅÏÅïŸïπ—ÃËÄàΩïŸïπ—Ãà∞ÅµÖ¿ËÄàΩµÖ¿à∞ÅçΩ’¡ΩπÃËÄàΩçΩ’¡ΩπÃà∞ÅÕÖŸïêËÄàΩôÖŸΩ…•—ïÃà∞Å•—•πï…Ö…‰ËÄàΩ•—•πï…Ö…‰àÅÙÏ(ÄÅçΩπÕ–ÅAQ!}MI8ÄÙÅÏÄàΩïŸïπ—ÃàËÄâïŸïπ—Ãà∞ÄàΩµÖ¿àËÄâµÖ¿à∞ÄàΩçΩ’¡ΩπÃàËÄâçΩ’¡ΩπÃà∞ÄàΩôÖŸΩ…•—ïÃàËÄâÕÖŸïêà∞ÄàΩ•—•πï…Ö…‰àËÄâ•—•πï…Ö…‰àÅÙÏ((ÄÄººÅÿ–∏‘‘ËÄΩïŸïπ—Ã∞ÄΩµÖ¿∞ÄΩôÖŸΩ…•—ïÃ∞ÄΩ•—•πï…Ö…‰Å…Ω’—ïÃÅ°ÖπêÅΩôòÅ°ï…î∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÅçΩπÕ–ÅÕ¿ÄÙÅπï‹ÅUI1MïÖ…ç°AÖ…ÖµÃ°›•πëΩ‹π±ΩçÖ—•Ω∏πÕïÖ…ç†§Ï(ÄÄÄÄÄÅçΩπÕ–ÅùºÄÙÅÕ¿πùï–†âùºà§Ï(ÄÄÄÄÄÅ•òÄ†Öùº§Å…ï—’…∏Ï(ÄÄÄÄÄÅçΩπÕ–ÅŸÖ±•êÄÙÅÏÅïŸïπ—ÃËÄâïŸïπ—Ãà∞ÅµÖ¿ËÄâµÖ¿à∞ÅÕÖŸïêËÄâÕÖŸïêà∞ÅôÖŸΩ…•—ïÃËÄâÕÖŸïêà∞Å•—•πï…Ö…‰ËÄâ•—•πï…Ö…‰à∞ÅçΩ’¡ΩπÃËÄâçΩ’¡ΩπÃàÅÙÏ(ÄÄÄÄÄÅ•òÄ°ŸÖ±•ëmùΩt§ÅÕï—Mç…ïï∏°ŸÖ±•ëmùΩt§Ï(ÄÄÄÄÄÄººÅΩ’¡Ω∏ÅÕ—…•¡ÃÅç±•¿Å—°îÅï·Öç–ÅëïÖ∞ÅâïôΩ…îÅπÖŸ•ùÖ—•πúÅ°ï…î∏Å=¡ï∏Å—°î(ÄÄÄÄÄÄººÅ›Ö±±ï–Å•µµïë•Ö—ï±‰ÅÕºÅ—°îÅ’Õï»Å±ÖπëÃÅΩ∏Å›°Ö–Å—°ï‰Å©’Õ–ÅÕÖŸïêÅ•πÕ—ïÖê(ÄÄÄÄÄÄººÅΩòÅ°ÖŸ•πúÅ—ºÅÕïÖ…ç†Å—°îÅô’±∞Å•πŸïπ—Ω…‰ÅôΩ»Å•–ÅÖùÖ•∏∏(ÄÄÄÄÄÅ•òÄ°ùºÄÙÙÙÄâçΩ’¡ΩπÃàÄòòÅÕ¿πùï–†âŸ•ï‹à§ÄÙÙÙÄâç±•¡¡ïêà§ÅÕï—]Ö±±ï—=¡ï∏°—…’î§Ï(ÄÄÄÄÄÅ•òÄ°ùºÄÙÙÙÄâçΩ’¡ΩπÃàÄòòÅÕ¿πùï–†âŸ•ï‹à§ÄÙÙÙÄâç±•¡¡ïêàÄòòÅÕ¿πùï–†âôΩç’Ãà§§ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å°ÖπëΩôòÄÙÅÏÅ•êËÅÕ¿πùï–†âôΩç’Ãà§∞ÅÕÖŸïêËÅÕ¿πùï–†âÕÖŸïêà§ÄÙÙÙÄàƒàÅÙÏ(ÄÄÄÄÄÄÄÅÕï—Ω’¡Ωπ!ÖπëΩôò°°ÖπëΩôò§Ï(ÄÄÄÄÄÄÄÅ•òÄ°°ÖπëΩôòπÕÖŸïê§ÅÕ°Ω›QΩÖÕ–†ãärLÅMÖŸïêÅ—ºÅ±•¡¡ïêà§Ï(ÄÄÄÄÄÅÙ(ÄÄÄÄÄÅ•òÄ°ùºÄÙÙÙÄâïŸïπ—Ãà§ÅÏ(ÄÄÄÄÄÄÄÄººÅÿ‘∏‘–Ä°ïŸïπ—ÃÅ¡•¡ï±•πî∞ÅA°ÖÕîÄÃ§ËÅ…ïÕ—Ω…îÅô•±—ï»ÅÕ—Ö—îÅô…Ω¥Å—°î(ÄÄÄÄÄÄÄÄººÅÕ°Ö…ïêÅUI0∞Å—°ï∏Å¡’–ÄΩïŸïπ—ÃÅâÖç¨Å•∏Å—°îÅÖëë…ïÕÃÅâÖ»Å•πÕ—ïÖêÅΩò(ÄÄÄÄÄÄÄÄººÅÕ—…•¡¡•πúÅ—ºÄàºàÉäPÅ—°îÅŸïπ—ÃÅŸ•ï‹ÅÖπêÅ—°îÅUI0Åµ’Õ–ÅÖù…ïîÅÕºÅ—°î(ÄÄÄÄÄÄÄÄººÅÕ—Ö—îÅÕ’…Ÿ•ŸïÃÅ…ïô…ïÕ†ÅÖπêÅÕ°Ö…•πú∏(ÄÄÄÄÄÄÄÅçΩπÕ–ÅêÄÙÅÕ¿πùï–†âëÖ—îà§ÅÒÄààÏ(ÄÄÄÄÄÄÄÅ•òÄ†ΩyqëÏ—ÙµqëÏ…ÙµqëÏ…Ùêºπ—ïÕ–°ê§§ÅÕï—Ÿïπ—Ö—î°ê§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–ÅåÄÙÄ°Õ¿πùï–†âçÖ–à§ÅÒÄàà§πÕ±•çî†¿∞Ä»–§Ï(ÄÄÄÄÄÄÄÅ•òÄ°å§ÅÕï—Ÿïπ—Ö–°å§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å≠ïï¿ÄÙÅπï‹ÅUI1MïÖ…ç°AÖ…ÖµÃ†§Ï(ÄÄÄÄÄÄÄÅ•òÄ†ΩyqëÏ—ÙµqëÏ…ÙµqëÏ…Ùêºπ—ïÕ–°ê§§Å≠ïï¿πÕï–†âëÖ—îà∞Åê§Ï(ÄÄÄÄÄÄÄÅ•òÄ°å§Å≠ïï¿πÕï–†âçÖ–à∞Åå§Ï(ÄÄÄÄÄÄÄÅ›•πëΩ‹π°•Õ—Ω…‰π…ï¡±ÖçïM—Ö—î°ÏÅ›òËÄâÕç…ïï∏àÅÙ∞Äàà∞ÄàΩïŸïπ—ÃàÄ¨Ä°≠ïï¿π—ΩM—…•πú†§Ä¸Äà¸àÄ¨Å≠ïï¿π—ΩM—…•πú†§ÄËÄàà§§Ï(ÄÄÄÄÄÄÄÅ…ï—’…∏Ï(ÄÄÄÄÄÅÙ(ÄÄÄÄÄÄººÅÿ‘∏‹‡Ä°ƒ§ËÅ—°îÅΩ—°ï»ÅÕ—ÖπëÖ±ΩπîÅÕç…ïïπÃÅ…ïÕ—Ω…îÅ—°ï•»Å=]8Å¡Ö—†Ä°›ÖÃË(ÄÄÄÄÄÄººÅÕ—…•¡¡ïêÅ—ºÄàºà∞Å›°•ç†Å±ΩÕ–Å—°îÅŸ•ï‹ÅΩ∏Å…ïô…ïÕ†ΩÕ°Ö…î§∏(ÄÄÄÄÄÅçΩπÕ–ÅÕç»ÄÙÅŸÖ±•ëmùΩtÏ(ÄÄÄÄÄÅ•òÄ°Õç»ÄòòÅMI9}AQ!mÕç…t§ÅÏ(ÄÄÄÄÄÄÄÅ›•πëΩ‹π°•Õ—Ω…‰π…ï¡±ÖçïM—Ö—î°ÏÅ›òËÄâÕç…ïï∏àÅÙ∞Äàà∞ÅMI9}AQ!mÕç…t§Ï(ÄÄÄÄÄÄÄÅ…ï—’…∏Ï(ÄÄÄÄÄÅÙ(ÄÄÄÄÄÅçΩπÕ–Å‘ÄÙÅπï‹ÅUI0°›•πëΩ‹π±ΩçÖ—•Ω∏π°…ïò§ÏÅ‘πÕïÖ…ç°AÖ…ÖµÃπëï±ï—î†âùºà§Ï(ÄÄÄÄÄÅ›•πëΩ‹π°•Õ—Ω…‰π…ï¡±ÖçïM—Ö—î°ÌÙ∞Äàà∞Å‘π¡Ö—°πÖµîÄ¨Ä°‘πÕïÖ…ç†ÅÒÄàà§Ä¨Ä°‘π°ÖÕ†ÅÒÄàà§§Ï(ÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞Åmt§Ï((ÄÄººÅÿ‘∏‘–Ä°ïŸïπ—ÃÅ¡•¡ï±•πî∞ÅA°ÖÕîÄÃ§ËÅ—°îÅŸïπ—ÃÅŸ•ï‹ÅÖπêÅ—°îÅÖëë…ïÕÃÅâÖ»(ÄÄººÅÕ—Ö‰Å•∏Å±Ωç≠Õ—ï¿ÉäPÄΩïŸïπ—ÃÄ†¨ÅëÖ—îΩçÖ–Åô•±—ï»Å¡Ö…ÖµÃ§Å›°•±îÅ—°îÅÕç…ïï∏(ÄÄººÅ•ÃÅΩ¡ï∏∞ÅâÖç¨Å—ºÄàºàÅ›°ï∏Å•–Åç±ΩÕïÃÉäPÅÕºÅ…ïô…ïÕ†∞Å	Öç¨ΩΩ…›Ö…ê∞ÅÖπê(ÄÄººÅÕ°Ö…•πúÅÖ±∞Å…ïÕ—Ω…îÅï·Öç—±‰Å›°Ö–Å›ÖÃÅΩ∏ÅÕç…ïï∏∏(ÄÅçΩπÕ–Å¡…ïŸMç…ïïπIïòÄÙÅ’ÕïIïò°π’±∞§Ï(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÅ•òÄ°—Â¡ïΩòÅ›•πëΩ‹ÄÙÙÙÄâ’πëïô•πïêà§Å…ï—’…∏Ï(ÄÄÄÄÄÅçΩπÕ–Å¡…ïÿÄÙÅ¡…ïŸMç…ïïπIïòπç’……ïπ–Ï(ÄÄÄÄÄÅ¡…ïŸMç…ïïπIïòπç’……ïπ–ÄÙÅÕç…ïï∏Ï(ÄÄÄÄÄÅ•òÄ°MI9}AQ!mÕç…ïïπt§ÅÏ(ÄÄÄÄÄÄÄÄººÅ=∏ÅÑÅÕ—ÖπëÖ±ΩπîÅÕç…ïï∏Ä¥¯Å¡’–Ä°ÖπêÅ≠ïï¿§Å•—ÃÅ¡Ö—†Å•∏Å—°îÅÖëë…ïÕÃÅâÖ»∏(ÄÄÄÄÄÄÄÄººÅïŸïπ—ÃÅÖëë•—•ΩπÖ±±‰ÅçÖ……•ïÃÅ•—ÃÅëÖ—îΩçÖ–Åô•±—ï»ÅÖÃÅ≈’ï…‰Å¡Ö…ÖµÃ∏(ÄÄÄÄÄÄÄÅ±ï–Å—Ö…ùï–ÄÙÅMI9}AQ!mÕç…ïïπtÏ(ÄÄÄÄÄÄÄÅ•òÄ°Õç…ïï∏ÄÙÙÙÄâïŸïπ—Ãà§ÅÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅÕ¿ÄÙÅπï‹ÅUI1MïÖ…ç°AÖ…ÖµÃ†§Ï(ÄÄÄÄÄÄÄÄÄÅ•òÄ°ïŸïπ—Ö—îÄÑÙÙÄâÖ±∞à§ÅÕ¿πÕï–†âëÖ—îà∞ÅïŸïπ—Ö—î§Ï(ÄÄÄÄÄÄÄÄÄÅ•òÄ°ïŸïπ—Ö–ÄÑÙÙÄâÖ’—ºà§ÅÕ¿πÕï–†âçÖ–à∞ÅïŸïπ—Ö–§Ï(ÄÄÄÄÄÄÄÄÄÅ•òÄ°Õ¿π—ΩM—…•πú†§§Å—Ö…ùï–Ä¨ÙÄà¸àÄ¨ÅÕ¿π—ΩM—…•πú†§Ï(ÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÅçΩπÕ–Åç’»ÄÙÅ›•πëΩ‹π±ΩçÖ—•Ω∏π¡Ö—°πÖµîÄ¨Å›•πëΩ‹π±ΩçÖ—•Ω∏πÕïÖ…ç†Ï(ÄÄÄÄÄÄÄÅ•òÄ°ç’»ÄÙÙÙÅ—Ö…ùï–§Å…ï—’…∏Ï(ÄÄÄÄÄÄÄÄººÅÅπï‹ÅÕç…ïï∏Å¡’Õ°ïÃÅÑÅ°•Õ—Ω…‰Åïπ—…‰ÏÅ…ïô•π•πúÅ—°îÅÕÖµîÅÕç…ïï∏ùÃÅô•±—ï»(ÄÄÄÄÄÄÄÄººÅ…ï¡±ÖçïÃÅ•∏Å¡±ÖçîÄ°πºÅëïÖêÅ	Öç¨ÅÕ—ï¿§∏(ÄÄÄÄÄÄÄÅ•òÄ°›•πëΩ‹π±ΩçÖ—•Ω∏π¡Ö—°πÖµîÄÑÙÙÅMI9}AQ!mÕç…ïïπt§Å›•πëΩ‹π°•Õ—Ω…‰π¡’Õ°M—Ö—î°ÏÅ›òËÄâÕç…ïï∏àÅÙ∞Äàà∞Å—Ö…ùï–§Ï(ÄÄÄÄÄÄÄÅï±ÕîÅ›•πëΩ‹π°•Õ—Ω…‰π…ï¡±ÖçïM—Ö—î°ÏÅ›òËÄâÕç…ïï∏àÅÙ∞Äàà∞Å—Ö…ùï–§Ï(ÄÄÄÄÄÅÙÅï±ÕîÅ•òÄ°¡…ïÿÄòòÅMI9}AQ!m¡…ïŸtÄòòÅAQ!}MI9m›•πëΩ‹π±ΩçÖ—•Ω∏π¡Ö—°πÖµït§ÅÏ(ÄÄÄÄÄÄÄÄººÅ1ïô–ÅÑÅÕ—ÖπëÖ±ΩπîÅÕç…ïï∏ÅôΩ»Å—°îÅôïïêΩëï—Ö•∞Ä¥¯Å…ïÕ—Ω…îÄàºà∏(ÄÄÄÄÄÄÄÅ›•πëΩ‹π°•Õ—Ω…‰π¡’Õ°M—Ö—î°ÏÅ›òËÄâÕç…ïï∏àÅÙ∞Äàà∞Äàºà§Ï(ÄÄÄÄÄÅÙ(ÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÅçΩπÕ–Å—•—±ïÃÄÙÅÏ(ÄÄÄÄÄÄÄÅïŸïπ—ÃËÄâŸïπ—ÃÅπïÖ»ÅÂΩ‘É
+‹Å]ÖÂô•πêà∞(ÄÄÄÄÄÄÄÅçΩ’¡ΩπÃËÄâ1ΩçÖ∞ÅçΩ’¡ΩπÃÄòÅëïÖ±ÃÉ
+‹Å]ÖÂô•πêà∞(ÄÄÄÄÄÄÄÅµÖ¿ËÄâ5Ö¿É
+‹Å]ÖÂô•πêà∞(ÄÄÄÄÄÅÙÏ(ÄÄÄÄÄÅëΩç’µïπ–π—•—±îÄÙÅ—•—±ïÕmÕç…ïïπtÅÒÄâ]ÖÂô•πêÉäPÅ•πêÅ—°îÅ	ïÕ–ÅQ°•πùÃÅ—ºÅºÅ9ïÖ»ÅeΩ‘∞ÅI•ù°–Å9Ω‹àÏ(ÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞ÅmÕç…ïï∏∞ÅïŸïπ—Ö—î∞ÅïŸïπ—Ö—t§Ï((ÄÄººÅ	Öç¨ΩΩ…›Ö…êÅ—…ÖŸï…ÕîÅ—°îÅïπ—…•ïÃÅ—°îÅïôôïç–ÅÖâΩŸîÅç…ïÖ—ïÃ∏ÅQ°îÅëï—Ö•∞(ÄÄººÅÕ°ïï–Å°ÖÃÅ•—ÃÅΩ›∏Å¡Ω¡Õ—Ö—îÅçΩπ—…Öç–Ä°Ì›òËâëï—Ö•∞âÙÅïπ—…•ïÃ§ÉäPÅ—°•Ã(ÄÄººÅ°Öπë±ï»ÅΩπ±‰Å…ïçΩπç•±ïÃÅ—°îÅMI8Å›•—†Å—°îÅ¡Ö—°πÖµî∞Å›°•ç†Å•ÃÅÑÅπºµΩ¿(ÄÄººÅ›°•±îÅÑÅëï—Ö•∞Åïπ—…‰Å¡Ω¡ÃÄ°¡Ö—°πÖµîÅ’πç°Öπùïê§∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅçΩπÕ–ÅΩπAΩ¿ÄÙÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å¿ÄÙÅ›•πëΩ‹π±ΩçÖ—•Ω∏π¡Ö—°πÖµîÏ(ÄÄÄÄÄÄÄÅçΩπÕ–ÅÕç»ÄÙÅAQ!}MI9m¡tÏ(ÄÄÄÄÄÄÄÅ•òÄ°Õç»ÄÙÙÙÄâïŸïπ—Ãà§ÅÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅÕ¿ÄÙÅπï‹ÅUI1MïÖ…ç°AÖ…ÖµÃ°›•πëΩ‹π±ΩçÖ—•Ω∏πÕïÖ…ç†§Ï(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅêÄÙÅÕ¿πùï–†âëÖ—îà§ÅÒÄààÏ(ÄÄÄÄÄÄÄÄÄÅÕï—Ÿïπ—Ö—î†ΩyqëÏ—ÙµqëÏ…ÙµqëÏ…Ùêºπ—ïÕ–°ê§Ä¸ÅêÄËÄâÖ±∞à§Ï(ÄÄÄÄÄÄÄÄÄÅÕï—Ÿïπ—Ö–†°Õ¿πùï–†âçÖ–à§ÅÒÄâÖ’—ºà§πÕ±•çî†¿∞Ä»–§§Ï(ÄÄÄÄÄÄÄÄÄÅÕï—Mç…ïï∏†âïŸïπ—Ãà§Ï(ÄÄÄÄÄÄÄÅÙÅï±ÕîÅ•òÄ°Õç»§ÅÏ(ÄÄÄÄÄÄÄÄÄÅÕï—Mç…ïï∏°Õç»§ÏÄººÅ	Öç¨ΩΩ…›Ö…êÅΩπ—ºÄΩµÖ¿∞ÄΩçΩ’¡ΩπÃ∞ÄΩôÖŸΩ…•—ïÃ∞ÄΩ•—•πï…Ö…‰(ÄÄÄÄÄÄÄÅÙÅï±ÕîÅ•òÄ°¿ÄÙÙÙÄàºàÄòòÅ¡…ïŸMç…ïïπIïòπç’……ïπ–ÄòòÅMI9}AQ!m¡…ïŸMç…ïïπIïòπç’……ïπ—t§ÅÏ(ÄÄÄÄÄÄÄÄÄÅÕï—Mç…ïï∏†âÕ’ùùïÕ—ïêà§ÏÄººÅ¡Ω¡¡ïêÅâÖç¨Å—ºÅ—°îÅôïïêÅô…Ω¥ÅÖπ‰ÅÕ—ÖπëÖ±ΩπîÅÕç…ïï∏(ÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÅÙÏ(ÄÄÄÅ›•πëΩ‹πÖëëŸïπ—1•Õ—ïπï»†â¡Ω¡Õ—Ö—îà∞ÅΩπAΩ¿§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯Å›•πëΩ‹π…ïµΩŸïŸïπ—1•Õ—ïπï»†â¡Ω¡Õ—Ö—îà∞ÅΩπAΩ¿§Ï(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞Åmt§Ï((ÄÄººÅAI=QQÄ°ç°ïç¨µçÖ…ëÃπµ©Ã§ËÅ—°ïµïêµÕ°ïï–Å±•Õ—ÃÅôΩ»Å…ïŸïπ’îÅçÖ…ëÃÅôï—ç†(ÄÄººÅ—°ï•»ÅΩ›∏Å›•ëîµ…Öë•’ÃÅ…ïÕ’±—ÃÅÖπêÅπïŸï»Åëï¡ïπêÅΩ∏Å—°îÅ±ΩçÖ∞ÅôΩΩêÅ¡ΩΩ∞∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅçΩπÕ–Å°êÄÙÅ°ΩΩ≠ï—Ö•∞Ï(ÄÄÄÅ•òÄ†Ö°êÅÒÄÖ°êπôï—ç°-ï‰ÅÒÅ°êπ¡±ÖçïÃÅÒÄÖçïπ—ï»§Å…ï—’…∏Ï(ÄÄÄÅçΩπÕ–Åï·¿ÄÙÅaAI%9Mm°êπôï—ç°-ïÂtÏ(ÄÄÄÅ•òÄ†Öï·¿§Å…ï—’…∏Ï(ÄÄÄÅ±ï–ÅçÖπçï±±ïêÄÙÅôÖ±ÕîÏ(ÄÄÄÄ°ÖÕÂπåÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÄººÅÿÿ∏ƒƒÉäPÄâM—Ö‰ÅQΩπ•ù°–àÅ…ïÖëÃÅ]ÖÂô•πêùÃÅ=]9Å±Ωëù•πúµΩπ±‰Å±•Õ–Å%IMP∞(ÄÄÄÄÄÄÄÄººÅ…Öπ≠ïêÅâ‰Åë•Õ—ÖπçîÅô…Ω¥Å—°îÅ’Õï»ËÅΩπ±‰Å…ïÖ∞ÅâΩΩ≠Öâ±îÅ°Ω—ï±ÃÄ°πºÄ‘‘¨º(ÄÄÄÄÄÄÄÄººÅ…ïÕ•ëïπ—•Ö∞Å±ïÖ¨∞ÅÕ—…•¡¡ïêÅÖ–Å•πùïÕ–§∞ÅÖπêÅ—°•∏ÅµÖ…≠ï—ÃÅ±•≠îÅAÖ……•Õ†(ÄÄÄÄÄÄÄÄººÅâΩ……Ω‹Å—°îÅπïÖ…ïÕ–Å…ïÖ∞Å°Ω—ï±ÃÄ°±±ïπ—Ω∏Ω	…Öëïπ—Ω∏§Å•πÕ—ïÖêÅΩòÅÕ°Ω›•πú(ÄÄÄÄÄÄÄÄººÄà¿ÄºÅπΩ–ÅïπΩ’ù†ÅëÖ—Ñà∏Å	ΩΩ≠•πúÅ•ÃÅµΩπï—•ÈïêÅâ‰Å—°îÅï·•Õ—•πúÅM—Ö‰»»ÅQ∏(ÄÄÄÄÄÄÄÄººÅÖ±±ÃÅ—°…Ω’ù†Å—ºÅ—°îÅ±ïùÖç‰Å±•ŸîÅÕïÖ…ç†ÅΩπ±‰Å•òÅ—°îÅΩ›πïêÅ±•Õ–Å•ÃÅïµ¡—‰∏(ÄÄÄÄÄÄÄÅ•òÄ†°°êπôï—ç°-ï‰ÅÒÅ°êπ—°ïµî§ÄÙÙÙÄâÕ—ÖÂÃà§ÅÏ(ÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åç•—ÂDÄÙÅ±Ωç9ÖµîÄ¸ÅM—…•πú°±Ωç9Öµî§πÕ¡±•–†à∞à•l¡tπ—…•¥†§ÄËÄààÏ(ÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°»ÄÙÅÖ›Ö•–Åôï—ç†°ÄΩÖ¡§Ω°Ω—ï±Ã˝±Ö–ÙëÌçïπ—ï»π±Ö—Ùô±πúÙëÌçïπ—ï»π±πùÙôç•—‰ÙëÌïπçΩëïUI%Ωµ¡Ωπïπ–°ç•—ÂD•Ùô±•µ•–Ù–¡Ä§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°®ÄÙÅÖ›Ö•–Å°»π©ÕΩ∏†§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°°®ÄòòÅ……Ö‰π•Õ……Ö‰°°®π°Ω—ï±Ã§ÄòòÅ°®π°Ω—ï±Ãπ±ïπù—†§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°Ω—ï±ÃÄÙÅ°®π°Ω—ï±ÃπÕ±•çî†¿∞Ä»¿§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïê§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕï—!ΩΩ≠ï—Ö•∞†°ç’»§ÄÙ¯Ä°ç’»ÄòòÅç’»π•êÄÙÙÙÅ°êπ•êÄòòÄÖç’»π¡±ÖçïÃ§Ä¸ÅÏÄ∏∏πç’»∞Å¡±ÖçïÃËÅ°Ω—ï±ÃÅÙÄËÅç’»§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ=›πïêÅ°Ω—ï±ÃÅçÖ……‰Å]ÖÂô•πêÅçΩ¡‰ÉäPÅÕïïêÅâ±’…âÃÅë•…ïç—±‰∞Åπº(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅùïπï…Ö—Ω»ΩΩΩù±îÅçÖ±∞ÅπïïëïêÅôΩ»Å—°ïÕî∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕï—	±’…âÃ†°¡…ïÿ§ÄÙ¯ÅÏÅçΩπÕ–Å¥ÄÙÅÏÄ∏∏π¡…ïÿÅÙÏÅ°Ω—ï±ÃπôΩ…Öç††°†§ÄÙ¯ÅÏÅ•òÄ°†πâ±’…à§Åµm†π•ëtÄÙÅ†πâ±’…àÏÅÙ§ÏÅ…ï—’…∏Å¥ÏÅÙ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏÅ±ΩÖë=ôôï…Ã°°Ω—ï±Ã§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏Ï(ÄÄÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÅçΩπÕ–Å}…ÖêÄÙÅ°êπ…Öë•’Õ=Ÿï……•ëîÅÒÄƒƒ¿¿¿¿Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å}≠‹ÄÙÄ†°ï·¿π≠ïÂ›Ω…êÅÒÄàà§Ä¨Ä°°êπï·—…Ö-ïÂ›Ω…êÄ¸ÄàÄàÄ¨Å°êπï·—…Ö-ïÂ›Ω…êÄËÄàà§§π—…•¥†§Ï(ÄÄÄÄÄÄÄÄººÅÿÿ∏‘»Ä°MïÖÕΩπÖ∞ÅA•ç≠Ã§ËÅÑÅÕ°ïï–ùÃÅï·¡ï…•ïπçîÅ5dÅëïç±Ö…îÅÅ≈’ï…•ïÕÄÉäP(ÄÄÄÄÄÄÄÄººÅ—°îÅÕÖµîÅÌçÖ–±≠ïÂ›Ω…ëımtÄ°Ω»Å—•µîΩÕïÖÕΩ∏µÖ›Ö…îÅô’πç—•Ω∏§ÅÕ°Ö¡îÅ—°î(ÄÄÄÄÄÄÄÄººÅ±ïùÖç‰ÅµΩµïπ–ÅÕç…ïï∏ÅÖ±…ïÖë‰ÅÕ’¡¡Ω…—ÃÅôΩ»ÅÅΩ’—ëΩΩ…ÕÄ∞ÅÅëÖ—ïπ•ù°—Ä∞(ÄÄÄÄÄÄÄÄººÅï—å∏ÉäPÅ•πÕ—ïÖêÅΩòÅΩπîÅâ±ïπëïêÅçÖ–≠≠ïÂ›Ω…êÅÕ—…•πú∏ÅâÕïπ–ÅôΩ»ÅïŸï…‰(ÄÄÄÄÄÄÄÄººÅ¡…îµï·•Õ—•πúÅ≠ï‰∞ÅÕºÅ—°•ÃÅç°ÖπùïÃÅπΩ—°•πúÅôΩ»Å—°ï¥∏(ÄÄÄÄÄÄÄÅçΩπÕ–Å}≈ÃÄÙÅ—Â¡ïΩòÅï·¿π≈’ï…•ïÃÄÙÙÙÄâô’πç—•Ω∏àÄ¸Åï·¿π≈’ï…•ïÃ†§ÄËÅï·¿π≈’ï…•ïÃÏ(ÄÄÄÄÄÄÄÅ±ï–Å…Ö‹Ï(ÄÄÄÄÄÄÄÅ•òÄ°}≈ÃÄòòÅ}≈Ãπ±ïπù—†§ÅÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}àÄÙÅÖ›Ö•–ÅA…Ωµ•ÕîπÖ±∞°}≈ÃπµÖ¿†°≈ê§ÄÙ¯ÅÕïÖ…ç°A±ÖçïÃ°≈êπçÖ–ÅÒÅï·¿πçÖ–ÅÒÄâÖ——…Öç—•ΩπÃà∞ÄâÖ±∞à∞ÅÏÅ±Ö–ËÅçïπ—ï»π±Ö–∞Å±πúËÅçïπ—ï»π±πúÅÙ∞Å}…Öê∞ÄâÖ±∞à∞Ä†°≈êπ≠ïÂ›Ω…êÅÒÄàà§Ä¨Ä°°êπï·—…Ö-ïÂ›Ω…êÄ¸ÄàÄàÄ¨Å°êπï·—…Ö-ïÂ›Ω…êÄËÄàà§§π—…•¥†§§πçÖ—ç†††§ÄÙ¯Åmt§§§Ï(ÄÄÄÄÄÄÄÄÄÅ…Ö‹ÄÙÅëïë’¡ïA±ÖçïÃ°}àπô±Ö–†§πô•±—ï»°	ΩΩ±ïÖ∏§∞Å—…’î§Ï(ÄÄÄÄÄÄÄÅÙÅï±ÕîÅÏ(ÄÄÄÄÄÄÄÄÄÅ…Ö‹ÄÙÅÖ›Ö•–ÅÕïÖ…ç°A±ÖçïÃ°ï·¿πçÖ–ÅÒÄâÖ——…Öç—•ΩπÃà∞ÄâÖ±∞à∞ÅÏÅ±Ö–ËÅçïπ—ï»π±Ö–∞Å±πúËÅçïπ—ï»π±πúÅÙ∞Å}…Öê∞ÄâÖ±∞à∞Å}≠‹§Ï(ÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÄººÅÿÿ∏‘»ËÅÖ∏Åï·¡ï…•ïπçîÅ5dÅÖ±ÕºÅëïç±Ö…îÅÑÅâΩ’πëïêÅçΩπ—ï·–ÅâΩΩÕ–ÉäPÅÕÖµî(ÄÄÄÄÄÄÄÄººÅï·¿πâΩΩÕ–°¡±Öçî§ÅÕ°Ö¡îÅ—°îÅ±ïùÖç‰ÅµΩµïπ–ÅÕç…ïï∏Å°ΩπΩ…ÃÅŸ•Ñ(ÄÄÄÄÄÄÄÄººÅ}ç—·	ΩΩÕ–Ä°îπú∏ÅΩ’—ëΩΩ…ÃúÅ›ïÖ—°ï»ÅâΩΩÕ–§∏ÅâÕïπ–ÅôΩ»ÅïŸï…‰(ÄÄÄÄÄÄÄÄººÅ¡…îµï·•Õ—•πúÅ≠ï‰∞ÅÕºÅÅ}ç—·	ΩΩÕ—ÄÅ•ÃÄ¿ÅÖπêÅÕΩ…—•–Å•ÃÅ’πç°ÖπùïêÅôΩ»(ÄÄÄÄÄÄÄÄººÅ—°ï¥ÏÅMïÖÕΩπÖ∞ÅA•ç≠ÃÅ•ÃÅ—°îÅô•…Õ–ÅÕ°ïï–µ¡Ö—†Åï·¡ï…•ïπçîÅ—ºÅ’ÕîÅ•–∏(ÄÄÄÄÄÄÄÅçΩπÕ–Å}ç—·	ΩΩÕ–ÄÙÄ°¿§ÄÙ¯ÅÏÅ—…‰ÅÏÅ…ï—’…∏Åï·¿πâΩΩÕ–Ä¸Åï·¿πâΩΩÕ–°¿§ÄËÄ¿ÏÅÙÅçÖ—ç†Ä°î§ÅÏÅ…ï—’…∏Ä¿ÏÅÙÅÙÏ(ÄÄÄÄÄÄÄÅçΩπÕ–ÅÕΩ…—•–ÄÙÄ°Ö…»§ÄÙ¯ÅÖ…»πÕ±•çî†§πÕΩ…–°âÂA±ÖçïMçΩ…î†°¿§ÄÙ¯Ä°ÏÅ≈’Ö±•—‰ËÅ¿π›ôMçΩ…î∞Å’π…Ö—ïë	ÖÕîËÅU9IQ}1MP∞ÅôïÖ—’…ïêËÅôïÖ—’…ïë	ΩΩÕ–°¿§∞ÅçΩπ—ï·—	ΩΩÕ–ËÅ}ç—·	ΩΩÕ–°¿§∞ÅïŸ•ëïπçîËÅ°ÖÕ…ïÖ—Ω…Y•ëïΩ–°¿§Ä¸ÅIQ=I}Y%=}	=9ULÄËÄ¿∞Å—…ïπêËÅ¿π—…ïπë•πúÄ¸ÅQI9%9}	=9ULÄËÄ¿ÅÙ§§§Ï(ÄÄÄÄÄÄÄÄººÄ»¿»ÿ¥¿‡¥¿‡ËÅÕÖµîÅëïçΩ…Ö—•Ω∏ÅÖÃÅ—°îÅŸ•âîÅÕç…ïï∏ÅÖâΩŸîÉäPÅ—°îÅÕ•ùπÖ∞(ÄÄÄÄÄÄÄÄººÅÖ——Öç°ïÃÅâïôΩ…îÅÕΩ…—•–Å…’πÃÅÕºÅ…Öπ¨ÅÖπêÅë•Õç±ΩÕ’…îÅÖù…ïî∏(ÄÄÄÄÄÄÄÅ—…‰ÅÏÅÖ›Ö•–ÅÖ——Öç°Q…ïπëM•ùπÖ±Ã°…Ö‹∞ÅÏÅïŸïπ—ÃËÄ°ôΩ…ÂΩ’Ÿïπ—ÃÄòòÅôΩ…ÂΩ’Ÿïπ—Ãπ±ïπù—†Ä¸ÅôΩ…ÂΩ’Ÿïπ—ÃÄËÅïŸïπ—Ã§ÅÒÅmtÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÄÄÅ±ï–Å…ïÕ’±—ÃÏ(ÄÄÄÄÄÄÄÅ•òÄ°ï·¿πô•±—ï»§ÅÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å¡ÖÕÕïêÄÙÅ…Ö‹πô•±—ï»°ï·¿πô•±—ï»§Ï(ÄÄÄÄÄÄÄÄÄÅ•òÄ°¡ÖÕÕïêπ±ïπù—†Ä¯ÙÄ‘§Å…ïÕ’±—ÃÄÙÅÕΩ…—•–°¡ÖÕÕïê§Ï(ÄÄÄÄÄÄÄÄÄÅï±ÕîÅÏÅçΩπÕ–Å•ëÃÄÙÅπï‹ÅMï–°¡ÖÕÕïêπµÖ¿†°¿§ÄÙ¯Å¿π•ê§§ÏÅ…ïÕ’±—ÃÄÙÅl∏∏πÕΩ…—•–°¡ÖÕÕïê§∞Ä∏∏πÕΩ…—•–°…Ö‹πô•±—ï»†°¿§ÄÙ¯ÄÖ•ëÃπ°ÖÃ°¿π•ê§§•tÏÅÙ(ÄÄÄÄÄÄÄÅÙÅï±ÕîÅ…ïÕ’±—ÃÄÙÅÕΩ…—•–°…Ö‹§Ï(ÄÄÄÄÄÄÄÅ•òÄ°°êπ¡…•çï5Ö‡ÄÑÙÅπ’±∞§Å…ïÕ’±—ÃÄÙÅ…ïÕ’±—Ãπô•±—ï»†°¿§ÄÙ¯ÅÏÅçΩπÕ–Å¡∞ÄÙÅ¿π¡…•çï}±ïŸï∞Ä¸¸Å¿π¡…•çï1ïŸï∞ÏÅ…ï—’…∏Å¡∞ÄÙÙÅπ’±∞ÅÒÅ¡∞ÄÙÅ°êπ¡…•çï5Ö‡ÏÅÙ§Ï(ÄÄÄÄÄÄÄÅ•òÄ°°êπΩ¡ïπ9Ω›=π±‰§Å…ïÕ’±—ÃÄÙÅ…ïÕ’±—Ãπô•±—ï»†°¿§ÄÙ¯Å¿πΩ¡ïπ9Ω‹ÄÑÙÙÅôÖ±Õî§Ï(ÄÄÄÄÄÄÄÅ•òÄ°°êπ•πëΩΩ…=π±‰§Å…ïÕ’±—ÃÄÙÅ…ïÕ’±—Ãπô•±—ï»†°¿§ÄÙ¯ÅÏÅ—…‰ÅÏÅ…ï—’…∏ÅIÖπ≠•πúπŸïπ’ï1ïÖ∏°¿§π±ïÖ∏ÄÙÙÙÄâ•πëΩΩ»àÏÅÙÅçÖ—ç†Ä°î§ÅÏÅ…ï—’…∏Å—…’îÏÅÙÅÙ§Ï(ÄÄÄÄÄÄÄÅ•òÄ†°°êπôï—ç°-ï‰ÅÒÅ°êπ—°ïµî§ÄÙÙÙÄâÕ—ÖÂÃà§Å…ïÕ’±—ÃÄÙÅ…ïÕ’±—Ãπô•±—ï»°•ÕQ…’ï1Ωëù•πú§Ï(ÄÄÄÄÄÄÄÅ…ïÕ’±—ÃÄÙÅ…ïÕ’±—ÃπÕ±•çî†¿∞Ä»¿§Ï(ÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïê§ÅÏÅÕï—!ΩΩ≠ï—Ö•∞†°ç’»§ÄÙ¯Ä°ç’»ÄòòÅç’»π•êÄÙÙÙÅ°êπ•êÄòòÄÖç’»π¡±ÖçïÃ§Ä¸ÅÏÄ∏∏πç’»∞Å¡±ÖçïÃËÅ…ïÕ’±—ÃÅÙÄËÅç’»§ÏÅ±ΩÖë	±’…âÃ°…ïÕ’±—Ã§ÏÅÙ(ÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÏ(ÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïê§ÅÕï—!ΩΩ≠ï—Ö•∞†°ç’»§ÄÙ¯Ä°ç’»ÄòòÅç’»π•êÄÙÙÙÅ°êπ•êÄòòÄÖç’»π¡±ÖçïÃ§Ä¸ÅÏÄ∏∏πç’»∞Å¡±ÖçïÃËÅmtÅÙÄËÅç’»§Ï(ÄÄÄÄÄÅÙ(ÄÄÄÅÙ§†§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅçÖπçï±±ïêÄÙÅ—…’îÏÅÙÏ(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞Åm°ΩΩ≠ï—Ö•∞ÄòòÅ°ΩΩ≠ï—Ö•∞π•ê∞Å°ΩΩ≠ï—Ö•∞ÄòòÅ°ΩΩ≠ï—Ö•∞πôï—ç°-ï‰∞Å°ΩΩ≠ï—Ö•∞ÄòòÅ°ΩΩ≠ï—Ö•∞π¡±ÖçïÃÄ¸ÄƒÄËÄ¿∞Åçïπ—ï»∞Å±Ωç9Öµït§Ï((ÄÄººÅM’…¡…•ÕîÅ5îËÅÖ∏Å°ΩπïÕ–Åç’…Ö—Ω»∏ÅA•ç≠ÃÅΩπîÅÕ—ÖπëΩ’–ÅôΩ»Å…•ù°–ÅπΩ‹Å’Õ•πúÅ—°î(ÄÄººÅÕ•ùπÖ±ÃÅ›îÅÖç—’Ö±±‰Å°ÖŸîËÅ—•µîÅΩòÅëÖ‰∞ÅΩ¡ï∏ÅÕ—Ö—’Ã∞Åë•Õ—Öπçî∞Å…ïŸ•ï‹Å≈’Ö±•—‰∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ°Õç…ïï∏ÄÑÙÙÄâÕ’…¡…•ÕîàÅÒÄÖçïπ—ï»§Å…ï—’…∏Ï(ÄÄÄÅ•òÄ°ë•çïIΩ’—ïIïòπç’……ïπ–§ÅÏÅë•çïIΩ’—ïIïòπç’……ïπ–ÄÙÅôÖ±ÕîÏÅÕï—M’…¡…•Õï1ΩÖë•πú°ôÖ±Õî§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÅ±ï–ÅçÖπçï±±ïêÄÙÅôÖ±ÕîÏ(ÄÄÄÄ°ÖÕÂπåÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÅÕï—M’…¡…•Õï1ΩÖë•πú°—…’î§Ï(ÄÄÄÄÄÅçΩπÕ–Å†ÄÙÅÕ•—ï!Ω’…±ΩÖ–†§Ï(ÄÄÄÄÄÅ±ï–ÅÕçÖ–ÄÙÄâôΩΩêàÏ(ÄÄÄÄÄÅ±ï–ÅÕ≠ïÂ›Ω…êÄÙÄààÏ(ÄÄÄÄÄÅ•òÄ°†ÄÄƒƒ§ÅÕ≠ïÂ›Ω…êÄÙÄââ…ïÖ≠ôÖÕ–àÏ(ÄÄÄÄÄÅï±ÕîÅ•òÄ°†Ä¯ÙÄ»ƒ§ÅÕçÖ–ÄÙÄâπ•ù°—±•ôîàÏ(ÄÄÄÄÄÅï±ÕîÅ•òÄ°†Ä¯ÙÄƒ‹§ÅÕ≠ïÂ›Ω…êÄÙÄâë•ππï»àÏ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å…ïÕ’±—ÃÄÙÅÖ›Ö•–ÅÕïÖ…ç°A±ÖçïÃ°ÕçÖ–∞ÄâÖ±∞à∞ÅÏÅ±Ö–ËÅçïπ—ï»π±Ö–∞Å±πúËÅçïπ—ï»π±πúÅÙ∞ÅU1Q}I%UM}4∞ÄâÖ±∞à∞ÅÕ≠ïÂ›Ω…ê§Ï(ÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïê§ÅÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å¡•ç¨ÄÙÅ¡•ç≠M’…¡…•Õî°…ïÕ’±—Ã§Ï(ÄÄÄÄÄÄÄÄÄÅÕï—M’…¡…•ÕïAΩΩ∞°…ïÕ’±—Ã§Ï(ÄÄÄÄÄÄÄÄÄÅÕï—M’…¡…•ÕïA•ç¨°¡•ç¨§Ï(ÄÄÄÄÄÄÄÄÄÅ±ΩÖë	±’…âÃ°…ïÕ’±—ÃπÕ±•çî†¿∞Äÿ§§Ï(ÄÄÄÄÄÄÄÄÄÄººÅQ°îÅ…ïÖÕΩ∏ÅQ!%LÅ¡±Öçî∞Å…•ù°–ÅπΩ‹∏ÅQ°îÅ…Ω’—îÅπïïëÃÄ¯ÙÃÅçÖπë•ëÖ—ïÃÅ—º(ÄÄÄÄÄÄÄÄÄÄººÅ…ïÖÕΩ∏ÅΩŸï»∞ÅÕºÅ•–Åùï—ÃÅ—°îÅ¡ΩΩ∞ÅÖπêÅ›îÅ≠ïï¿ÅΩπ±‰Å—°îÅ±•πîÅôΩ»Å—°î(ÄÄÄÄÄÄÄÄÄÄººÅ¡•ç¨Å›îÅÖç—’Ö±±‰ÅÕ°Ω‹∏ÅÖ•∞µÕΩô–ÅÖπêÅπΩ∏µâ±Ωç≠•πúËÅ—°îÅÕç…ïï∏ÅπïŸï»(ÄÄÄÄÄÄÄÄÄÄººÅ›Ö•—ÃÅΩ∏Å—°îÅµΩëï∞∞ÅÖπêÅÑÅµ•ÕÃÅ©’Õ–Å±ïÖŸïÃÅ—°îÅâ±Ωç¨ÅÖâÕïπ–∏(ÄÄÄÄÄÄÄÄÄÅÕï—M’…¡…•Õï]°‰°π’±∞§Ï(ÄÄÄÄÄÄÄÄÄÅ•òÄ°¡•ç¨ÄòòÅ…ïÕ’±—Ãπ±ïπù—†Ä¯ÙÄÃ§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄ°ÖÕÂπåÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}∏ÄÙÅπΩ›Ωπ—ï·–°ÏÅ±Ö–ËÅçïπ—ï»π±Ö–∞Å±πúËÅçïπ—ï»π±πú∞Åç•—‰ËÅ±Ωç9Öµî∞Å›ïÖ—°ï»ÅÙ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å»ÄÙÅÖ›Ö•–Åôï—ç††àΩÖ¡§ΩµΩµïπ–Ω¡•ç≠Ãà∞ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅµï—°ΩêËÄâA=MPà∞Å°ïÖëï…ÃËÅÏÄâçΩπ—ïπ–µ—Â¡îàËÄâÖ¡¡±•çÖ—•Ω∏Ω©ÕΩ∏àÅÙ∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅâΩë‰ËÅ)M=8πÕ—…•πù•ô‰°Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•π—ïπ–ËÅÕçÖ–ÄÙÙÙÄâπ•ù°—±•ôîàÄ¸Äâπ•ù°—Ω’–àÄËÄâïÖ—πΩ‹à∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅç•—‰ËÄ°±Ωç9ÖµîÅÒÄàà§πÕ¡±•–†à∞à•l¡t∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ›‡ËÅ}∏π›ïÖ—°ï»π≠πΩ›∏Ä¸Ä†°}∏π›ïÖ—°ï»πçΩπë•—•Ω∏ÅÒÄ°}∏π›ïÖ—°ï»π•Õ]ï–Ä¸Äâ›ï–àÄËÄâç±ïÖ»à§§Ä¨Äà¥àÄ¨Å5Ö—†π…Ω’πê°}∏π›ïÖ—°ï»π—ïµ¡Ä¸¸Ä¿§§ÄËÄàà∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—àËÅ}∏πëÖÂ9ÖµîπÕ±•çî†¿∞ÄÃ§π—Ω1Ω›ï…ÖÕî†§Ä¨Äà¥àÄ¨Å}∏π—•µï	’ç≠ï–∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçÖπë•ëÖ—ïÃËÅ…ïÕ’±—ÃπÕ±•çî†¿∞Äƒ»§πµÖ¿†°‡§ÄÙ¯Ä°ÏÅ•êËÅ‡π•ê∞ÅπÖµîËÅ‡ππÖµî∞Å…Ö—•πúËÅ‡π…Ö—•πú∞Å…ïŸ•ï›ÃËÅ‡π…ïŸ•ï›Ã∞Åë•Õ—5§ËÅ‡πë•Õ—5§ÅÙ§§∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙ§∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å®ÄÙÅ»πΩ¨Ä¸ÅÖ›Ö•–Å»π©ÕΩ∏†§ÄËÅπ’±∞Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åµ•πîÄÙÅ®ÄòòÅ……Ö‰π•Õ……Ö‰°®π¡•ç≠Ã§Ä¸Å®π¡•ç≠Ãπô•πê†°‡§ÄÙ¯Å‡ÄòòÅ‡π•êÄÙÙÙÅ¡•ç¨π•ê§ÄËÅπ’±∞Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïêÄòòÅµ•πîÄòòÅµ•πîπ›°‰§ÅÕï—M’…¡…•Õï]°‰°µ•πîπ›°‰§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÄÄÄÄÄÄÅÙ§†§Ï(ÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÅÙÅçÖ—ç†ÅÏ(ÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïê§ÅÏÅÕï—M’…¡…•ÕïAΩΩ∞°mt§ÏÅÕï—M’…¡…•ÕïA•ç¨°π’±∞§ÏÅÕï—M’…¡…•Õï]°‰°π’±∞§ÏÅÙ(ÄÄÄÄÄÅÙÅô•πÖ±±‰ÅÏ(ÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïê§ÅÕï—M’…¡…•Õï1ΩÖë•πú°ôÖ±Õî§Ï(ÄÄÄÄÄÅÙ(ÄÄÄÅÙ§†§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅçÖπçï±±ïêÄÙÅ—…’îÏÅÙÏ(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞ÅmÕç…ïï∏∞Åçïπ—ï…t§Ï((((ÄÄººÅÿÿ∏‰»Ä°Ω›πï»∞Ä»¿»ÿ¥¿‡¥¿»§ËÄâ§Å›Öπ–Å—ºÅôïÖ—’…îÅÖ±∞ÅΩòÅ—°îÅçÖ…ëÃÅ—°Ö–Å°ÖÃÅÑ(ÄÄººÅ±•π¨Å—ºÅÖ∏Å•πô±’ïπçï»ÅŸ•ëïºÅ•πÕ•ëîÅΩòÅ—°îÅ—…ïπë•πúÅπïÖ»ÅÂΩ‘àÉäPÅÑ(ÄÄººÅëïë•çÖ—ïêÅ°ï…ºµ…Ö•∞ÅÕ±•ëîÅôΩ»ÅYIdÅπïÖ…â‰Å¡±ÖçîÅ›•—†ÅÑÅ…ïÖ∞∞ÅŸï…•ô•ïê(ÄÄººÅç…ïÖ—Ω»ÅŸ•ëïºÄ°Öπ‰Å¡±Ö—ôΩ…¥Ωç…ïÖ—Ω»∞ÅπΩ–Å©’Õ–Å•πë‰ΩQ•≠QΩ¨§∞ÅÕï¡Ö…Ö—î(ÄÄººÅô…Ω¥Ä°ÖπêÅπïŸï»Å…ï¡±Öç•πú§Å—°îÅ…ïÖ∞µ¡Ω¡’±Ö…•—‰Åâ’ÈÈA•ç¨ÅÕ±•ëîÅÖâΩŸî∏Å9Ω–(ÄÄººÅÑÅëÖ‰µ…Ω—Ö—ïêÅÕ•πù±îÅ›•ππï»ÉäPÅïŸï…‰Å≈’Ö±•ôÂ•πúÅ¡±ÖçîÅùï—ÃÅ•—ÃÅΩ›∏ÅçÖ…ê∞(ÄÄººÅÕ›•¡ïÖâ±îÅ•∏Å—°îÅM5Å…Ö•∞Å—°îÅQ…ïπë•πúÅÕ±•ëîÅÖ±…ïÖë‰Å±•ŸïÃÅ•∏∞ÅÕº(ÄÄººÅπΩ—°•πúÅπï‹Å•ÃÅÖëëïêÅ—ºÅ—°îÅ¡ÖùîÅΩ’—Õ•ëîÅ—°Ö–Å…Ö•∞∏ÅMΩ’…çïêÅô…Ω¥Å—°î(ÄÄººÅÖ±…ïÖë‰µ±ΩÖëïêÅπïÖ…â‰Å¡ΩΩ∞Ä°ç…ïÖ—Ω…Y•ëïΩÕΩ»†§ÅπïïëÃÅπÖµîΩç•—‰∞Å›°•ç†Å—°î(ÄÄººÅ›ô}â’ÈÈ}¡•ç≠ÃÅIAÅ…Ω›ÃÅëΩ∏ù–ÅçÖ……‰§∏(ÄÅçΩπÕ–ÅŸ•ëïΩ!ï…ΩA±ÖçïÃÄÙÅ’Õï5ïµº††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ°Õç…ïï∏ÄÑÙÙÄâÕ’ùùïÕ—ïêàÅÒÄÖçïπ—ï»§Å…ï—’…∏ÅmtÏ(ÄÄÄÅçΩπÕ–ÅπïÖ…âÂAΩΩ∞ÄÙÅëïë’¡ïA±ÖçïÃ°l∏∏∏°Õ’ùùïÕ—ïêÅÒÅmt§∞Ä∏∏∏°¡±ÖçïÃÅÒÅmt•tπô•±—ï»°	ΩΩ±ïÖ∏§∞Å—…’î§(ÄÄÄÄÄÄπô•±—ï»†°¿§ÄÙ¯Å¿ÄòòÅ¿π•êÄòòÄ°¿πë•Õ—5§ÄÙÙÅπ’±∞ÅÒÅ¿πë•Õ—5§ÄÙÄ»‘§§Ï(ÄÄÄÅçΩπÕ–ÅΩ’–ÄÙÅmtÏ(ÄÄÄÅçΩπÕ–ÅÕïï∏ÄÙÅπï‹ÅMï–†§Ï(ÄÄÄÅôΩ»Ä°çΩπÕ–Å¿ÅΩòÅπïÖ…âÂAΩΩ∞§ÅÏ(ÄÄÄÄÄÅ•òÄ°Õïï∏π°ÖÃ°¿π•ê§§ÅçΩπ—•π’îÏ(ÄÄÄÄÄÅçΩπÕ–ÅŸ•ëÃÄÙÅç…ïÖ—Ω…Y•ëïΩÕΩ»°¿∞Å±Ωç9Öµî§Ï(ÄÄÄÄÄÅ•òÄ†ÖŸ•ëÃπ±ïπù—†§ÅçΩπ—•π’îÏ(ÄÄÄÄÄÅÕïï∏πÖëê°¿π•ê§Ï(ÄÄÄÄÄÅΩ’–π¡’Õ†°ÏÅ¡±ÖçîËÅ¿∞ÅŸ•ëïºËÅŸ•ëÕl¡tÅÙ§Ï(ÄÄÄÅÙ(ÄÄÄÄººÅÿÿ∏‰ÃÄ°Ω›πï»ËÄâÕΩ…–Å•–Åâ‰Å…ïù•Ω∏à§ÉäPÅç±ΩÕïÕ–Åô•…Õ–∏ÅŸï…‰Åïπ—…‰Å°ï…î(ÄÄÄÄººÅÖ±…ïÖë‰Å¡ÖÕÕïêÅ—°îÄ»‘µµ•±îÄ¨Åç•—‰µµÖ—ç†ÅùÖ—îÅÖâΩŸîÄ°Ö±∞Åïôôïç—•Ÿï±‰(ÄÄÄÄººÄâÂΩ’»Å…ïù•Ω∏àÅÖ±…ïÖë‰§∞ÅÕºÅë•Õ—ÖπçîÅ•ÃÅ—°îÅ°ΩπïÕ–Å—•îµâ…ïÖ¨ËÅ—°îÅô•πê(ÄÄÄÄººÅ—°Ö–ùÃÅÖç—’Ö±±‰ÅπïÖ…ïÕ–ÅÂΩ‘Å±ïÖëÃ∞Å¡Ω¡’±Ö…•—‰ÅÑÅë•Õ—Öπ–ÅÕïçΩπê∏(ÄÄÄÅΩ’–πÕΩ…–†°Ñ∞Åà§ÄÙ¯Ä°Ñπ¡±Öçîπë•Õ—5§Ä¸¸Ä≈î‰§Ä¥Ä°àπ¡±Öçîπë•Õ—5§Ä¸¸Ä≈î‰§ÅÒÅ¡…Ωµ=ò°àπ¡±Öçî§Ä¥Å¡…Ωµ=ò°Ñπ¡±Öçî§§Ï(ÄÄÄÅ…ï—’…∏ÅΩ’–Ï(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞ÅmÕç…ïï∏∞Åçïπ—ï»∞ÅÕ’ùùïÕ—ïê∞Å¡±ÖçïÃ∞Å±Ωç9Öµït§Ï((ÄÄººÅÿÿ∏‰ÃÉäPÄâ•òÅπºÅŸ•ëïΩÃÅÖ…îÅÖŸÖ•±Öâ±îÅôΩ»Å—°Ö–Å…ïù•Ω∏Å—°ï∏Å›îÅµÖ≠îÅÑ(ÄÄººÅ…ïçΩµµïπëÖ—•Ω∏ÅôΩ»ÅÖ…ïÖÃÅ›°ï…îÅŸ•ëïΩÃÅÖ…îÅÖŸÖ•±Öâ±îàÄ°Ω›πï»§∏ÅM—Ö—•å(ÄÄººÅΩŸï»Å—°îÅç’…Ö—ïêÅ±•â…Ö…‰Ä°µΩë’±îµÕçΩ¡î∞ÅπºÅπï—›Ω…¨Ω…ïπëï»Åëï¡ïπëïπç‰§∞(ÄÄººÅÕºÅÑÅΩπîµ—•µîÅ’Õï5ïµºÅ•ÃÅïπΩ’ù†ÏÅ…ïçΩµ¡’—ïÃÅΩπ±‰Å•òÅ—°îÅ±•â…Ö…‰Å•—Õï±ò(ÄÄººÅ•ÃÅ°Ω–µ…ï±ΩÖëïê∏(ÄÅçΩπÕ–ÅÕΩç•Ö±•πëIïù•ΩπÃÄÙÅ’Õï5ïµº††§ÄÙ¯Å…ïù•ΩπÕ]•—°•πëÃ†§∞Åmt§Ï((ÄÄººÅÿÿ∏‰–ÉäPÄâµÖ≠îÅ•µÖùîÄƒÅ—°îÅëïôÖ’±–∏∏∏ÅΩ…ùÖπ•ÈïêÅâ‰Å±ΩçÖ—•Ω∏àÄ°Ω›πï»§∏ÅQ°î(ÄÄººÅâ…Ω›Õîµâ‰µç•—‰ÅëïôÖ’±–ÅŸ•ï‹Å—°îÅçΩπÕΩ±•ëÖ—ïêÅ°ï…ºÅçÖ…êÅâï±Ω‹ÅπΩ‹ÅΩ¡ïπÃ(ÄÄººÅ•π—º∏ÅÅçïπ—ï…ÄÅ•Õ∏ù–Å•∏ÅŸ•ëïΩ!ï…ΩA±ÖçïÃùÃÅëï¡ÃÅç°Ö•∏Ä°—°Ö–Å±•Õ–ÅÖ±…ïÖë‰(ÄÄººÅëï¡ïπëÃÅΩ∏Å•–§∞ÅÕºÅ—°•ÃÅÕ—ÖÂÃÅÑÅ±•ù°–∞ÅÕï¡Ö…Ö—îÅµïµº∏(ÄÅçΩπÕ–ÅÕΩç•Ö±•πë	Â•—‰ÄÙÅ’Õï5ïµº††§ÄÙ¯ÅÕ¡Ω—Õ	Â•—‰°çïπ—ï»§∞Åmçïπ—ï…t§Ï(ÄÄººÅM—Ö—•åÅΩŸï»Å—°îÅç’…Ö—ïêÅ±•â…Ö…‰∞ÅÕÖµîÅΩπîµ—•µîµµïµºÅ…ïÖÕΩπ•πúÅÖÃ(ÄÄººÅÕΩç•Ö±•πëIïù•ΩπÃÅÖâΩŸî∏((ÄÄººÅÿ‡Ä†»¿»ÿ¥¿‡¥ƒ‘§ÉäPÅ%YÅA%LÅ=ÅMQQÅ9Å=UHÅQLÅI5=YÅ]%Q ÅQ!(ÄÄººÅAI=5<Å!I<Å,ËÅâïÕ—	ïÖç†∞ÅëÖ—ï!ï…Ω%µú∞Åùïµ!ï…Ω%µú∞Åâ’ÈÈA•ç¨∞Åâ’ÈÈ]°‰∏(ÄÄººÅ9Ω—°•πúÅ…ïÖêÅ—°ï¥ÅÖπ‰ÅµΩ…î∞Åâ’–Å—°ï‰Å›ï…îÅÕ—•±∞ÅQ!%9ÅΩ∏ÅïŸï…‰ÅÕ•πù±î(ÄÄººÅ°Ωµï¡ÖùîÅ±ΩÖê∞ÅôΩ»ÅçÖ…ëÃÅ—°Ö–ÅπºÅ±Ωπùï»Å…ïπëï»Ë(ÄÄºº(ÄÄººÄÄÄÄÅ›ô}πïÖ…ïÕ—}âïÖç°ïÃÄÄÄÄÄÄÅM’¡ÖâÖÕîÅIAÄÄÄ°—°îÅâïÖç†ÅÕ±•ëî§(ÄÄººÄÄÄÄÅ›ô}â’ÈÈ}¡•ç≠ÃÄÄÄÄÄÄÄÄÄÄÄÅM’¡ÖâÖÕîÅIAÄÄÄ°—°îÅ—…ïπë•πúÅÕ±•ëî§(ÄÄººÄÄÄÄÄΩÖ¡§Ωâ’ÈËΩ›°‰ÄÄÄÄÄÄÄÄÄÄÄÅ114ÅçÖ±∞ÄÄÄÄÄÄÄ°•—ÃÅ›°‰µ±•πî§(ÄÄººÄÄÄÄÅëÖ—îµπ•ù°–Å°ï…ºÅ¡°Ω—ºÄÄÄÅA±ÖçïÃÅÕïÖ…ç†ÄÄ°µï—ï…ïê§(ÄÄººÄÄÄÄÅ°•ëëï∏µùïµÃÅ°ï…ºÅ¡°Ω—ºÄÄÅA±ÖçïÃÅÕïÖ…ç†Ä¨ÅÑÅŸ•Õ•Ω∏µµΩëï∞ÅçÖ±∞Ä°µï—ï…ïê§(ÄÄºº(ÄÄººÅïÖêÅçΩëîÅ—°Ö–ÅçΩÕ—ÃÅµΩπï‰ÅΩ∏ÅïŸï…‰ÅŸ•Õ•–Å•ÃÅ›Ω…ÕîÅ—°Ö∏ÅëïÖêÅçΩëî∏ÅQ°î(ÄÄººÅ…Ö•∞ùÃÅΩ›∏Å¡±ÖçïÃÅçΩµîÅô…Ω¥Å=9ÅÕï…Ÿï»µÕ•ëîÅ…Öπ≠•πúÅ¡ÖÕÃÅÖ–Å…ïùïπï…Ö—•Ω∏(ÄÄººÄ°±•àΩ…Ö•±ÕÖ—Ñπ©Ã§∞ÅÕºÅπΩπîÅΩòÅ—°•ÃÅµΩŸïêÉäPÅ•–Å›ïπ–∏((ÄÅçΩπÕ–ÅÕΩç•Ö±•πëM—Ö—ÃÄÙÅ’Õï5ïµº††§ÄÙ¯Å±•â…Ö…ÂM—Ö—Ã†§∞Åmt§Ï((((ÄÄººÅÿÿ∏ÿƒÄ°Ω›πï»ÄåÃ§ÄºÅÿÿ∏‰»Å°Ω’»µÖ›Ö…îÅ…ïô…ïÕ†ËÅ—°îÅ°Ωµï¡ÖùîÅâΩΩ≠Öâ±îÅ¡•ç¨∏(ÄÄººÅï—ç†ÄΩÖ¡§Ωï·¡ï…•ïπçïÃ∞Å≠ïï¿ÅΩπ±‰Å•—ïµÃÅçÖ……Â•πúÅÑÅ…ïÖ∞ÅY•Ö—Ω»Å¡•êÙÅÕº(ÄÄººÅπΩ—°•πúÅ’πÖ——…•â’—ïêÅÕ°•¡Ã∞Å—°ï∏Å±ï–Å—°îÅ¡’…îÅ±•àΩ°Ωµï·¡A•ç¨Å…Ω—Ö—îÅ—°î(ÄÄººÅ°Ω’»µÖ¡¡…Ω¡…•Ö—îÅ¡•ç¨Ä°πïŸï»ÅÑÅπ•ù°–ÅÖç—•Ÿ•—‰Å•∏Å—°îÅµΩ…π•πúÏÅç°ÖπùïÃ(ÄÄººÅ—°…Ω’ù†Å—°îÅëÖ‰ÅŸ•ÑÅ—°îÅ—Ωë	’ç≠ï–Å—•ç≠ï»ÅÖâΩŸîÉäPÅ›ÖÃÅÑÅô…ΩÈï∏ÅÕ—Ö—•åÅ¡•ç¨§∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ°Õç…ïï∏ÄÑÙÙÄâÕ’ùùïÕ—ïêàÅÒÄÖçïπ—ï»§Å…ï—’…∏Ï(ÄÄÄÅ±ï–ÅçÖπçï±±ïêÄÙÅôÖ±ÕîÏ(ÄÄÄÄººÅÿÿ∏–ÃÅQ!Å%1Å)U5@∞Å¡Ö…–Ä»∏ÅÅ…ïô…ïÕ†ÅµÖ‰ÅIA1Å—°îÅ¡•ç¨ÏÅ•–Åµ’Õ–ÅπïŸï»(ÄÄÄÄººÅ…ïµΩŸîÅ•–∏ÅQ°•ÃÅ’ÕïêÅ—ºÅÅÕï—!Ωµï·¿°π’±∞•ÄÅΩ∏ÅÖπ‰Å—°…Ω›∏Åôï—ç†ÅÖπêÅΩ∏ÅÖπ‰(ÄÄÄÄººÅµΩµïπ—Ö…•±‰Åïµ¡—‰Å•πŸïπ—Ω…‰∞ÅçΩ±±Ö¡Õ•πúÅÑÅ±•ŸîÅ¯ƒ»—¡‡ÅçÖ…êÅΩ’–ÅΩòÅ—°î(ÄÄÄÄººÅµ•ëë±îÅΩòÅ—°îÅôïïêÅÖπêÅÂÖπ≠•πúÅïŸï…Â—°•πúÅâï±Ω‹Å•–Å’¡›Ö…êÅ›°•±îÅ—°îÅ’Õï»(ÄÄÄÄººÅÕÖ–ÅÕ—•±∞ÉäPÅΩπîÅΩòÅ—°îÅ±Ö—îÅÕ°•ô—ÃÅ•∏Å—°îÅ¡…Ωë’ç—•Ω∏Å1LÅÖ——…•â’—•Ω∏∏(ÄÄÄÄººÅQ°îÅçÖ…êÅ•ÃÅç±ïÖ…ïêÅΩπ±‰Å›°ï∏Å—°îÅÕïÖ…ç†Å9QHÅµΩŸïÃ∞Å›°ï…îÅ—°îÅïπ—•…î(ÄÄÄÄººÅôïïêÅ•ÃÅâï•πúÅ…ï¡±ÖçïêÅÖπÂ›Ö‰Ä°ÖπêÅ—°îÅ¡…ïŸ•Ω’ÃÅç•—‰ùÃÅ—Ω’»Å•ÃÅÕ•µ¡±‰Å—°î(ÄÄÄÄººÅ›…ΩπúÅÖπÕ›ï»§∞ÅÖπêÅ›°ï…îÅ—°îÅÕ°•ô–ÅôΩ±±Ω›ÃÅÑÅ’Õï»ÅÖç—•Ω∏∏(ÄÄÄÅçΩπÕ–Å≠ï‰ÄÙÅM—…•πú°çïπ—ï»π±Ö–§Ä¨Äà∞àÄ¨ÅM—…•πú°çïπ—ï»π±πú§Ï(ÄÄÄÅ•òÄ°°Ωµï·¡ïπ—ï»πç’……ïπ–ÄÑÙÙÅ≠ï‰§ÅÏÅ°Ωµï·¡ïπ—ï»πç’……ïπ–ÄÙÅ≠ï‰ÏÅÕï—!Ωµï·¿°π’±∞§ÏÅÙ(ÄÄÄÄ°ÖÕÂπåÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–ÅƒÄÙÅπï‹ÅUI1MïÖ…ç°AÖ…ÖµÃ°ÏÅ±Ö–ËÅM—…•πú°çïπ—ï»π±Ö–§∞Å±πúËÅM—…•πú°çïπ—ï»π±πú§∞Åµ§ËÄàÿ¿à∞ÅçÖ–ËÄâÖ±∞à∞Å±•µ•–ËÄàƒ»à∞Å¡ÖùîËÄà¿àÅÙ§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å»ÄÙÅÖ›Ö•–Åôï—ç††àΩÖ¡§Ωï·¡ï…•ïπçïÃ¸àÄ¨Åƒπ—ΩM—…•πú†§§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å®ÄÙÅ»πΩ¨Ä¸ÅÖ›Ö•–Å»π©ÕΩ∏†§ÄËÅπ’±∞Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å•—ïµÃÄÙÄ°®ÄòòÅ……Ö‰π•Õ……Ö‰°®π•—ïµÃ§Ä¸Å®π•—ïµÃÄËÅmt§πô•±—ï»†°–§ÄÙ¯Å–ÄòòÅ–π’…∞ÄòòÄΩ¡•êÙºπ—ïÕ–°–π’…∞§ÄòòÅ–π•µÖùî§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Åπï·–ÄÙÅ¡•ç≠!Ωµï·¿°•—ïµÃ§Ï(ÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïêÄòòÅπï·–§ÅÕï—!Ωµï·¿°πï·–§Ï(ÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÏÄº®Å≠ïï¿Å›°Ö—ïŸï»Å•ÃÅÖ±…ïÖë‰ÅΩ∏ÅÕç…ïï∏ÉäPÅÕïîÅ—°îÅπΩ—îÅÖâΩŸîÄ®ºÅÙ(ÄÄÄÅÙ§†§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅçÖπçï±±ïêÄÙÅ—…’îÏÅÙÏ(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞ÅmÕç…ïï∏∞Åçïπ—ï»∞Å—Ωë	’ç≠ï—t§Ï((ÄÄººÅ1•ŸîÅ±ΩçÖ∞Å›ïÖ—°ï»Åô…Ω¥Å—°îÅô…ïî∞Å≠ïÂ±ïÕÃÅ=¡ï∏µ5ï—ïºÅA$∏Å…•ŸïÃÅ—°î(ÄÄººÅù…ïï—•πúÅç°•¿ÅÖπêÅπ’ëùïÃÅ—°îÅM’ùùïÕ—ïêÅôïïê∏ÅÖ•±ÃÅÕΩô–Å—ºÅπºÅ›ïÖ—°ï»∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ†Öçïπ—ï»§Å…ï—’…∏Ï(ÄÄÄÅ±ï–ÅçÖπçï±±ïêÄÙÅôÖ±ÕîÏ(ÄÄÄÄ°ÖÕÂπåÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å»ÄÙÅÖ›Ö•–Åôï—ç†°ÄΩÖ¡§Ω›ïÖ—°ï»˝±Ö–ÙëÌçïπ—ï»π±Ö—Ùô±πúÙëÌçïπ—ï»π±πùıÄ§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–ÅêÄÙÅÖ›Ö•–Å»π©ÕΩ∏†§Ï(ÄÄÄÄÄÄÄÅ±ï–Åç’»ÄÙÅêÄòòÅêπç’……ïπ–Ä¸Åêπç’……ïπ–ÄËÅπ’±∞Ï(ÄÄÄÄÄÄÄÅ•òÄ†Öç’»ÄòòÅêÄòòÅêπ°Ω’…±‰ÄòòÅêπ°Ω’…±‰π—•µîÄòòÅêπ°Ω’…±‰π—•µîπ±ïπù—†§ÅÏÅçΩπÕ–Å}†ÄÙÅêπ°Ω’…±‰ÏÅç’»ÄÙÅÏÅ—ïµ¡ï…Ö—’…ï|…¥ËÅ}†π—ïµ¡ï…Ö—’…ï|…¥ÄòòÅ}†π—ïµ¡ï…Ö—’…ï|…µl¡t∞ÅÖ¡¡Ö…ïπ—}—ïµ¡ï…Ö—’…îËÅ}†πÖ¡¡Ö…ïπ—}—ïµ¡ï…Ö—’…îÄòòÅ}†πÖ¡¡Ö…ïπ—}—ïµ¡ï…Ö—’…ïl¡t∞Å›ïÖ—°ï…}çΩëîËÅ}†π›ïÖ—°ï…}çΩëîÄòòÅ}†π›ïÖ—°ï…}çΩëïl¡t∞Å…ï±Ö—•Ÿï}°’µ•ë•—Â|…¥ËÅπ’±∞∞Å›•πë}Õ¡ïïë|ƒ¡¥ËÅπ’±∞∞Åëï›}¡Ω•π—|…¥ËÅπ’±∞ÅÙÏÅÙ(ÄÄÄÄÄÄÄÅçΩπÕ–ÅëÖ‰ÄÙÅêÄòòÅêπëÖ•±‰Ä¸ÅêπëÖ•±‰ÄËÅπ’±∞Ï(ÄÄÄÄÄÄÄÅ•òÄ°ç’»ÄòòÄÖçÖπçï±±ïê§ÅÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å‹ÄÙÅ›ïÖ—°ï……ΩµΩëî°ç’»π›ïÖ—°ï…}çΩëî§Ï(ÄÄÄÄÄÄÄÄÄÅ±ï–ÅÕ’πÕï–ÄÙÅπ’±∞∞ÅÕ’πÕï—5ÃÄÙÅπ’±∞∞ÅÕ’π…•Õï5ÃÄÙÅπ’±∞∞Å’¡ëÖ—ïêÄÙÅπ’±∞Ï(ÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏÅ•òÄ°ëÖ‰ÄòòÅëÖ‰πÕ’πÕï–ÄòòÅëÖ‰πÕ’πÕï—l¡t§ÅÏÅçΩπÕ–ÅÕêÄÙÅπï‹ÅÖ—î°ëÖ‰πÕ’πÕï—l¡t§ÏÅÕ’πÕï–ÄÙÅÕêπ—Ω1ΩçÖ±ïQ•µïM—…•πú°mt∞ÅÏÅ°Ω’»ËÄâπ’µï…•åà∞Åµ•π’—îËÄà»µë•ù•–àÅÙ§ÏÅÕ’πÕï—5ÃÄÙÅÕêπùï—Q•µî†§ÏÅÙÅÙÅçÖ—ç†ÅÌÙ(ÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏÅ•òÄ°ëÖ‰ÄòòÅëÖ‰πÕ’π…•ÕîÄòòÅëÖ‰πÕ’π…•Õïl¡t§ÅÕ’π…•Õï5ÃÄÙÅπï‹ÅÖ—î°ëÖ‰πÕ’π…•Õïl¡t§πùï—Q•µî†§ÏÅÙÅçÖ—ç†ÅÌÙ(ÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏÅ’¡ëÖ—ïêÄÙÅπï‹ÅÖ—î†§π—Ω1ΩçÖ±ïQ•µïM—…•πú°mt∞ÅÏÅ°Ω’»ËÄâπ’µï…•åà∞Åµ•π’—îËÄà»µë•ù•–àÅÙ§ÏÅÙÅçÖ—ç†ÅÌÙ(ÄÄÄÄÄÄÄÄÄÅÕï—]ïÖ—°ï»°Ï(ÄÄÄÄÄÄÄÄÄÄÄÅ—ïµ¿ËÅ5Ö—†π…Ω’πê°ç’»π—ïµ¡ï…Ö—’…ï|…¥§∞(ÄÄÄÄÄÄÄÄÄÄÄÅôïï±ÃËÅç’»πÖ¡¡Ö…ïπ—}—ïµ¡ï…Ö—’…îÄÑÙÅπ’±∞Ä¸Å5Ö—†π…Ω’πê°ç’»πÖ¡¡Ö…ïπ—}—ïµ¡ï…Ö—’…î§ÄËÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÄÄÅ°’µ•ë•—‰ËÅç’»π…ï±Ö—•Ÿï}°’µ•ë•—Â|…¥ÄÑÙÅπ’±∞Ä¸Å5Ö—†π…Ω’πê°ç’»π…ï±Ö—•Ÿï}°’µ•ë•—Â|…¥§ÄËÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÄÄÅ›•πêËÅç’»π›•πë}Õ¡ïïë|ƒ¡¥ÄÑÙÅπ’±∞Ä¸Å5Ö—†π…Ω’πê°ç’»π›•πë}Õ¡ïïë|ƒ¡¥§ÄËÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÄÄÅëï‹ËÅç’»πëï›}¡Ω•π—|…¥ÄÑÙÅπ’±∞Ä¸Å5Ö—†π…Ω’πê°ç’»πëï›}¡Ω•π—|…¥§ÄËÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÄÄÅ°§ËÅëÖ‰ÄòòÅëÖ‰π—ïµ¡ï…Ö—’…ï|…µ}µÖ‡Ä¸Å5Ö—†π…Ω’πê°ëÖ‰π—ïµ¡ï…Ö—’…ï|…µ}µÖ·l¡t§ÄËÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÄÄÅ±ºËÅëÖ‰ÄòòÅëÖ‰π—ïµ¡ï…Ö—’…ï|…µ}µ•∏Ä¸Å5Ö—†π…Ω’πê°ëÖ‰π—ïµ¡ï…Ö—’…ï|…µ}µ•πl¡t§ÄËÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÄÄÅ…Ö•∏ËÅëÖ‰ÄòòÅëÖ‰π¡…ïç•¡•—Ö—•Ωπ}¡…ΩâÖâ•±•—Â}µÖ‡Ä¸ÅëÖ‰π¡…ïç•¡•—Ö—•Ωπ}¡…ΩâÖâ•±•—Â}µÖ·l¡tÄËÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÄÄÅ’ÿËÅëÖ‰ÄòòÅëÖ‰π’Ÿ}•πëï·}µÖ‡Ä¸Å5Ö—†π…Ω’πê°ëÖ‰π’Ÿ}•πëï·}µÖ·l¡t§ÄËÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÄÄÅÕ’πÕï–∞ÅÕ’πÕï—5Ã∞ÅÕ’π…•Õï5Ã∞Å’¡ëÖ—ïê∞(ÄÄÄÄÄÄÄÄÄÄÄÅ•çΩ∏ËÅ‹π•çΩ∏∞Å•µúËÅ‹π•µú∞Å±Öâï∞ËÅ‹π±Öâï∞∞Å›Ö…¥ËÅ‹π›Ö…¥∞Å›ï–ËÅ‹π›ï–∞(ÄÄÄÄÄÄÄÄÄÄÄÄººÅÿÿ∏‰‹ËÅ—°îÅ…Ö‹Å=¡ï∏µ5ï—ïºÅçΩëîÅ…•ëïÃÅÖ±ΩπúÅÕºÅπΩ›Ωπ—ï·–ùÃ(ÄÄÄÄÄÄÄÄÄÄÄÄººÅ]Q}=LΩMYI}=LÅ…ïÖêÅ—°îÅ1%YÅçΩπë•—•Ω∏Ä°Õ—Ω…¥Å›Ö…π•πú∞(ÄÄÄÄÄÄÄÄÄÄÄÄººÅÖç—•ŸîÅ…Ö•∏§Å•πÕ—ïÖêÅΩòÅΩπ±‰Å—°îÅëÖ•±‰Å…Ö•∏îîÉäPÅ—°îÅ›ï–ΩçΩëî(ÄÄÄÄÄÄÄÄÄÄÄÄººÅë…Ω¿ÅµïÖπ–ÅÑÅÕ—Ω…¥ÅçΩ’±êÅ…Öπ¨ÅâïÖç°ïÃÅ›•—†Äâç±ïÖ»àÅçΩ¡‰∏(ÄÄÄÄÄÄÄÄÄÄÄÅçΩëîËÅç’»π›ïÖ—°ï…}çΩëîÄÑÙÅπ’±∞Ä¸Å9’µâï»°ç’»π›ïÖ—°ï…}çΩëî§ÄËÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÄÄÅ°Ω’…±‰ËÄ††§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å†ÄÙÅêπ°Ω’…±‰ÏÅ•òÄ†Ö†ÅÒÄÖ†π—•µî§Å…ï—’…∏ÅmtÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅπΩ‹ÄÙÅÖ—îππΩ‹†§ÏÅçΩπÕ–ÅΩ’–ÄÙÅmtÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅôΩ»Ä°±ï–Å§ÄÙÄ¿ÏÅ§ÄÅ†π—•µîπ±ïπù—†ÏÅ§¨¨§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å–ÄÙÅπï‹ÅÖ—î°†π—•µïm•t§πùï—Q•µî†§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°–ÄÅπΩ‹Ä¥ÄÃÿ¿¿¿¿¿§ÅçΩπ—•π’îÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩ’–π¡’Õ†°ÏÅµÃËÅ–∞Åôïï±ÃËÅ†πÖ¡¡Ö…ïπ—}—ïµ¡ï…Ö—’…îÄÑÙÅπ’±∞Ä¸Å5Ö—†π…Ω’πê°†πÖ¡¡Ö…ïπ—}—ïµ¡ï…Ö—’…ïm•t§ÄËÅ5Ö—†π…Ω’πê°†π—ïµ¡ï…Ö—’…ï|…µm•t§∞ÅçΩëîËÅ†π›ïÖ—°ï…}çΩëïm•t∞ÅëÖ‰ËÅ†π•Õ}ëÖ‰Ä¸ÄÑÖ†π•Õ}ëÖÂm•tÄËÅ—…’îÅÙ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏ÅΩ’–πô•±—ï»†°|∞Å§§ÄÙ¯Å§ÄîÄÃÄÙÙÙÄ¿§πÕ±•çî†¿∞Ä‹§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÏÅ…ï—’…∏ÅmtÏÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÅÙ§†§∞(ÄÄÄÄÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÄÄÄÄÄººÅ=π±‰ÅÑÅ›ï–Ωë…‰ÅYI%PÅô±•¿Å…ïâ’•±ëÃÅ—°îÅM’ùùïÕ—ïêÅôïïêÄ°ÕïîÅ›ï—Iïò§∏(ÄÄÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïêÄòòÄÑÖ‹π›ï–ÄÑÙÙÅ›ï—Iïòπç’……ïπ–§ÅÏÅ›ï—Iïòπç’……ïπ–ÄÙÄÑÖ‹π›ï–ÏÅÕï—]ï—Q•ç¨†°–§ÄÙ¯Å–Ä¨Äƒ§ÏÅÙ(ÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÅÙÅçÖ—ç†ÅÏÅ•òÄ†ÖçÖπçï±±ïê§ÅÕï—]ïÖ—°ï»°π’±∞§ÏÅÙ(ÄÄÄÅÙ§†§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅçÖπçï±±ïêÄÙÅ—…’îÏÅÙÏ(ÄÅÙ∞Åmçïπ—ï…t§Ï((ÄÄººÅM’ùùïÕ—ïêÅôΩ»Å5îËÅΩπîÅ•π—ï±±•ùïπ–ÅôïïêÅ—°Ö–Åâ±ïπëÃÅçÖ—ïùΩ…•ïÃÅ’Õ•πúÅ—°î(ÄÄººÅÕ•ùπÖ±ÃÅ›îÅ°ΩπïÕ—±‰Å°ÖŸîÅπΩ‹ËÅ—•µîÅΩòÅëÖ‰∞Å—ΩëÖ‰ùÃÅ›ïÖ—°ï»∞ÅÖπêÅ›°Ö–ÅÂΩ‘(ÄÄººÅ°ÖŸîÅÕÖŸïê∏Å%–Åùï—ÃÅÕµÖ…—ï»ÅÖÃÅµΩ…îÅÕ•ùπÖ±ÃÅçΩµîÅΩπ±•πî∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ°Õç…ïï∏ÄÑÙÙÄâÕ’ùùïÕ—ïêàÅÒÄÖçïπ—ï»§Å…ï—’…∏Ï(ÄÄÄÅ±ï–ÅçÖπçï±±ïêÄÙÅôÖ±ÕîÏ(ÄÄÄÄ°ÖÕÂπåÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÅÕï—M’ùùïÕ—ïë1ΩÖë•πú°—…’î§Ï(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å†ÄÙÅÕ•—ï!Ω’…±ΩÖ–†§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å›ï–ÄÙÅ›ï—Iïòπç’……ïπ–ÏÄººÅ…ïò∞ÅπΩ–ÅÕ—Ö—îÉäPÅ…ïÕΩ±Ÿ•πúÅ›ïÖ—°ï»Åµ’Õ–ÅπΩ–ÅëΩ’â±îµâ•±∞Å—°îÅôïïê(ÄÄÄÄÄÄÄÄººÅMï…ŸîÅÑÅ…ïçïπ–ÅçÖç°ïêÅôïïêÅôΩ»Å—°•ÃÅÖ…ïÑÄ¨Å—•µîÅÕºÅ›îÅëºÅπΩ–Å…îµâ•±∞(ÄÄÄÄÄÄÄÄººÅΩΩù±îÅïŸï…‰Å—•µîÅ—°îÅ’Õï»Å…ï—’…πÃÅ—ºÅ!ΩµîÅΩ»Åπ’ëùïÃÅÑÅô•±—ï»∏(ÄÄÄÄÄÄÄÅçΩπÕ–Åâ’ç≠ï–ÄÙÅ†ÄÄƒƒÄ¸Äâ¥àÄËÅ†ÄÄƒÿÄ¸Äâ∞àÄËÅ†ÄÄ»ƒÄ¸ÄâêàÄËÄâ∏àÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Åç≠ï‰ÄÙÅÅ›ô}Õ’ù|ëÌçïπ—ï»π±Ö–π—Ω•·ïê†Ã•ı|ëÌçïπ—ï»π±πúπ—Ω•·ïê†Ã•ı|ëÌâ’ç≠ï—ı|ëÌ•π—ïπ–ÅÒÄâπΩπîâı|ëÌ›ï–Ä¸Äâ›ï–àÄËÄâë…‰âıÄÏ(ÄÄÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å…Ö‹ÄÙÅ±ΩçÖ±M—Ω…Öùîπùï—%—ï¥°ç≠ï‰§Ï(ÄÄÄÄÄÄÄÄÄÅ•òÄ°…Ö‹§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅΩâ®ÄÙÅ)M=8π¡Ö…Õî°…Ö‹§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°Ωâ®ÄòòÅΩâ®π—ÃÄòòÅÖ—îππΩ‹†§Ä¥ÅΩâ®π—ÃÄÄ–‘Ä®Äÿ¿Ä®Äƒ¿¿¿ÄòòÅ……Ö‰π•Õ……Ö‰°Ωâ®π¡±ÖçïÃ§ÄòòÅΩâ®π¡±ÖçïÃπ±ïπù—†§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïê§ÅÏÅÕï—M’ùùïÕ—ïê°Ωâ®π¡±ÖçïÃ§ÏÅ±ΩÖë	±’…âÃ°Ωâ®π¡±ÖçïÃπÕ±•çî†¿∞Ä‡§§ÏÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏Ï(ÄÄÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÅÙÅçÖ—ç†ÅÌÙ(ÄÄÄÄÄÄÄÅ±ï–Å¡±ÖπÃÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å•π—ïπ—ïòÄÙÅ•π—ïπ–Ä¸Å%9Q9QLπô•πê†°‡§ÄÙ¯Å‡π•êÄÙÙÙÅ•π—ïπ–§ÄËÅπ’±∞Ï(ÄÄÄÄÄÄÄÅ•òÄ°•π—ïπ—ïò§Å¡±ÖπÃÄÙÅ•π—ïπ—ïòπ¡±ÖπÃπÕ±•çî†§Ï(ÄÄÄÄÄÄÄÅï±ÕîÅ•òÄ°†ÄÄƒƒ§Å¡±ÖπÃÄÙÅl(ÄÄÄÄÄÄÄÄÄÅÏÅçÖ–ËÄâôΩΩêà∞Å≠‹ËÄââ…ïÖ≠ôÖÕ–àÅÙ∞(ÄÄÄÄÄÄÄÄÄÅÏÅçÖ–ËÄâôΩΩêà∞Å≠‹ËÄâçΩôôïîàÅÙ∞(ÄÄÄÄÄÄÄÄÄÅÏÅçÖ–ËÄâÖ——…Öç—•ΩπÃà∞Å≠‹ËÄâ¡Ö…¨àÅÙ∞(ÄÄÄÄÄÄÄÄÄÅÏÅçÖ–ËÄâÖ——…Öç—•ΩπÃà∞Å≠‹ËÄâ—°•πùÃÅ—ºÅëºàÅÙ∞(ÄÄÄÄÄÄÄÅtÏ(ÄÄÄÄÄÄÄÅï±ÕîÅ•òÄ°†ÄÄƒÿ§Å¡±ÖπÃÄÙÅl(ÄÄÄÄÄÄÄÄÄÅÏÅçÖ–ËÄâôΩΩêà∞Å≠‹ËÄâ±’πç†àÅÙ∞(ÄÄÄÄÄÄÄÄÄÅÏÅçÖ–ËÄâôΩΩêà∞Å≠‹ËÄààÅÙ∞(ÄÄÄÄÄÄÄÄÄÅÏÅçÖ–ËÄâÖ——…Öç—•ΩπÃà∞Å≠‹ËÄâ—°•πùÃÅ—ºÅëºàÅÙ∞(ÄÄÄÄÄÄÄÄÄÅÏÅçÖ–ËÄâÖ——…Öç—•ΩπÃà∞Å≠‹ËÄâ¡Ö…¨àÅÙ∞(ÄÄÄÄÄÄÄÄÄÅÏÅçÖ–ËÄâπ•ù°—±•ôîà∞Å≠‹ËÄââ…ï›ï…‰àÅÙ∞(ÄÄÄÄÄÄÄÄÄÅÏÅçÖ–ËÄâÕ°Ω¡¡•πúà∞Å≠‹ËÄààÅÙ∞(ÄÄÄÄÄÄÄÅtÏ(ÄÄÄÄÄÄÄÅï±ÕîÅ•òÄ°†ÄÄ»ƒ§Å¡±ÖπÃÄÙÅl(ÄÄÄÄÄÄÄÄÄÅÏÅçÖ–ËÄâôΩΩêà∞Å≠‹ËÄâë•ππï»àÅÙ∞(ÄÄÄÄÄÄÄÄÄÅÏÅçÖ–ËÄâôΩΩêà∞Å≠‹ËÄààÅÙ∞(ÄÄÄÄÄÄÄÄÄÅÏÅçÖ–ËÄâπ•ù°—±•ôîà∞Å≠‹ËÄâçΩç≠—Ö•∞ÅâÖ»àÅÙ∞(ÄÄÄÄÄÄÄÄÄÅÏÅçÖ–ËÄâπ•ù°—±•ôîà∞Å≠‹ËÄâ…ΩΩô—Ω¿ÅâÖ»àÅÙ∞(ÄÄÄÄÄÄÄÄÄÅÏÅçÖ–ËÄâÖ——…Öç—•ΩπÃà∞Å≠‹ËÄâ±•ŸîÅµ’Õ•åàÅÙ∞(ÄÄÄÄÄÄÄÄÄÅÏÅçÖ–ËÄâÖ——…Öç—•ΩπÃà∞Å≠‹ËÄâ—°•πùÃÅ—ºÅëºàÅÙ∞(ÄÄÄÄÄÄÄÅtÏ(ÄÄÄÄÄÄÄÅï±ÕîÅ¡±ÖπÃÄÙÅl(ÄÄÄÄÄÄÄÄÄÅÏÅçÖ–ËÄâôΩΩêà∞Å≠‹ËÄâ±Ö—îÅπ•ù°–àÅÙ∞(ÄÄÄÄÄÄÄÄÄÅÏÅçÖ–ËÄâπ•ù°—±•ôîà∞Å≠‹ËÄâπ•ù°–Åç±’ààÅÙ∞(ÄÄÄÄÄÄÄÄÄÅÏÅçÖ–ËÄâπ•ù°—±•ôîà∞Å≠‹ËÄââÖ»àÅÙ∞(ÄÄÄÄÄÄÄÄÄÅÏÅçÖ–ËÄâπ•ù°—±•ôîà∞Å≠‹ËÄâ…ΩΩô—Ω¿ÅâÖ»àÅÙ∞(ÄÄÄÄÄÄÄÄÄÅÏÅçÖ–ËÄâôΩΩêà∞Å≠‹ËÄààÅÙ∞(ÄÄÄÄÄÄÄÅtÏ(ÄÄÄÄÄÄÄÅ•òÄ°›ï–§Å¡±ÖπÃÄÙÅ¡±ÖπÃπô•±—ï»†°¿§ÄÙ¯ÅÏÅçΩπÕ–Å¨ÄÙÅ¿π≠‹ÅÒÄààÏÅ…ï—’…∏ÄÑ°¨π•πç±’ëïÃ†â¡Ö…¨à§ÅÒÅ¨π•πç±’ëïÃ†â…ΩΩô—Ω¿à§ÅÒÅ¨π•πç±’ëïÃ†âΩ’—ëΩΩ»à§§ÏÅÙ§Ï(ÄÄÄÄÄÄÄÅ¡±ÖπÃÄÙÅ¡±ÖπÃπÕ±•çî†¿∞ÄÃ§ÏÄººÅçÖ¿Å¡Ö…Ö±±ï∞ÅΩΩù±îÅÕïÖ…ç°ïÃÅ¡ï»Å±ΩÖêÅ—ºÅçΩπ—…Ω∞ÅçΩÕ–(ÄÄÄÄÄÄÄÅçΩπÕ–Å…ïÕ’±—ÃÄÙÅÖ›Ö•–ÅA…Ωµ•ÕîπÖ±∞°¡±ÖπÃπµÖ¿†°¡∞§ÄÙ¯(ÄÄÄÄÄÄÄÄÄÅÕïÖ…ç°A±ÖçïÃ°¡∞πçÖ–∞ÄâÖ±∞à∞ÅÏÅ±Ö–ËÅçïπ—ï»π±Ö–∞Å±πúËÅçïπ—ï»π±πúÅÙ∞ÄÃ»¿¿¿∞ÄâÖ±∞à∞Å¡∞π≠‹§πçÖ—ç†††§ÄÙ¯Åmt§(ÄÄÄÄÄÄÄÄ§§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–ÅÕïï∏ÄÙÅπï‹ÅMï–†§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Åâ’ç≠ï—ÃÄÙÅmtÏ(ÄÄÄÄÄÄÄÅ…ïÕ’±—ÃπôΩ…Öç††°…ïÃ§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅÖ…»ÄÙÄ°…ïÃÅÒÅmt§πÕ±•çî†§πÕΩ…–†°Ñ∞Åà§ÄÙ¯Ä°àπ›ôMçΩ…îÅÒÄ¿§Ä¥Ä°Ñπ›ôMçΩ…îÅÒÄ¿§§Ï(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å¡•ç≠ïêÄÙÅmtÏ(ÄÄÄÄÄÄÄÄÄÅôΩ»Ä°çΩπÕ–Å…»ÅΩòÅÖ…»§ÅÏÅ•òÄ°…»ÄòòÅ…»π•êÄòòÄÖÕïï∏π°ÖÃ°…»π•ê§§ÅÏÅÕïï∏πÖëê°…»π•ê§ÏÅ¡•ç≠ïêπ¡’Õ†°…»§ÏÅ•òÄ°¡•ç≠ïêπ±ïπù—†Ä¯ÙÄÿ§Åâ…ïÖ¨ÏÅÙÅÙ(ÄÄÄÄÄÄÄÄÄÅ•òÄ°¡•ç≠ïêπ±ïπù—†§Åâ’ç≠ï—Ãπ¡’Õ†°¡•ç≠ïê§Ï(ÄÄÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÄÄÅ±ï–Åµï…ùïêÄÙÅmtÏ(ÄÄÄÄÄÄÄÅ±ï–Å…§ÄÙÄ¿Ï(ÄÄÄÄÄÄÄÅ›°•±îÄ°µï…ùïêπ±ïπù—†ÄÄÃ¿§ÅÏ(ÄÄÄÄÄÄÄÄÄÅ±ï–ÅÖëëïêÄÙÅôÖ±ÕîÏ(ÄÄÄÄÄÄÄÄÄÅôΩ»Ä°çΩπÕ–ÅàÅΩòÅâ’ç≠ï—Ã§ÅÏÅ•òÄ°âm…•t§ÅÏÅµï…ùïêπ¡’Õ†°âm…•t§ÏÅÖëëïêÄÙÅ—…’îÏÅÙÅÙ(ÄÄÄÄÄÄÄÄÄÅ•òÄ†ÖÖëëïê§Åâ…ïÖ¨Ï(ÄÄÄÄÄÄÄÄÄÅ…§¨¨Ï(ÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÅµï…ùïêÄÙÅµï…ùïêπÕ±•çî†¿∞Ä»–§Ï(ÄÄÄÄÄÄÄÅ—…‰ÅÏÅ±ΩçÖ±M—Ω…ÖùîπÕï—%—ï¥°ç≠ï‰∞Å)M=8πÕ—…•πù•ô‰°ÏÅ—ÃËÅÖ—îππΩ‹†§∞Å¡±ÖçïÃËÅµï…ùïêÅÙ§§ÏÅÙÅçÖ—ç†ÅÌÙ(ÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïê§ÅÏÅÕï—M’ùùïÕ—ïê°µï…ùïê§ÏÅ±ΩÖë	±’…âÃ°µï…ùïêπÕ±•çî†¿∞Ä‡§§ÏÅÙ(ÄÄÄÄÄÅÙÅçÖ—ç†ÅÏ(ÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïê§ÅÕï—M’ùùïÕ—ïê°mt§Ï(ÄÄÄÄÄÅÙÅô•πÖ±±‰ÅÏ(ÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïê§ÅÕï—M’ùùïÕ—ïë1ΩÖë•πú°ôÖ±Õî§Ï(ÄÄÄÄÄÅÙ(ÄÄÄÅÙ§†§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅçÖπçï±±ïêÄÙÅ—…’îÏÅÙÏ(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞ÅmÕç…ïï∏∞Åçïπ—ï»∞Å›ï—Q•ç¨∞Å•π—ïπ—t§Ï((ÄÄººÅÿƒ∏ƒËÅôï—ç†ÅÑÅÕµÖ±∞Äâ—°•πùÃÅ—ºÅëºàÅÕï–ÅôΩ»Å—°îÅ°ΩµîÅÖ…ïÑÅÕºÅ—°îÅQΩ¿Äƒ¿Å—°•πùÃ(ÄÄººÅ—ºÅëºÅçÖ…êÅÕ°Ω›ÃÅ…ïÖ∞ÅÖ——…Öç—•ΩπÃ∞ÅπΩ–Å—°îÅôΩΩêÅôïïê∏ÅÖç°ïêÅ¯»—†Å¡ï»ÅÖ…ïÑ∞(ÄÄººÅÕºÅ•–ÅçΩÕ—ÃÅ…Ω’ù°±‰ÅΩπîÅΩΩù±îÅÕïÖ…ç†Å¡ï»ÅÖ…ïÑÅ¡ï»ÅëÖ‰∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ°Õç…ïï∏ÄÑÙÙÄâÕ’ùùïÕ—ïêàÅÒÄÖçïπ—ï»§Å…ï—’…∏Ï(ÄÄÄÅ±ï–ÅçÖπçï±±ïêÄÙÅôÖ±ÕîÏ(ÄÄÄÄ°ÖÕÂπåÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Åç≠ï‰ÄÙÅÅ›ô}—ΩëΩ|ëÌçïπ—ï»π±Ö–π—Ω•·ïê†Ã•ı|ëÌçïπ—ï»π±πúπ—Ω•·ïê†Ã•ıÄÏ(ÄÄÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å…Ö‹ÄÙÅ±ΩçÖ±M—Ω…Öùîπùï—%—ï¥°ç≠ï‰§Ï(ÄÄÄÄÄÄÄÄÄÅ•òÄ°…Ö‹§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅΩâ®ÄÙÅ)M=8π¡Ö…Õî°…Ö‹§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°Ωâ®ÄòòÅΩâ®π—ÃÄòòÅÖ—îππΩ‹†§Ä¥ÅΩâ®π—ÃÄÄ»–Ä®Äÿ¿Ä®Äÿ¿Ä®Äƒ¿¿¿ÄòòÅ……Ö‰π•Õ……Ö‰°Ωâ®π¡±ÖçïÃ§§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïê§ÅÕï—!ΩµïQΩëº°Ωâ®π¡±ÖçïÃ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏Ï(ÄÄÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÅÙÅçÖ—ç†ÅÌÙ(ÄÄÄÄÄÄÄÅ±ï–Å…ïÃÄÙÅmtÏ(ÄÄÄÄÄÄÄÅ—…‰ÅÏÅ…ïÃÄÙÅÖ›Ö•–ÅÕïÖ…ç°A±ÖçïÃ†âÖ——…Öç—•ΩπÃà∞ÄâÖ±∞à∞ÅÏÅ±Ö–ËÅçïπ—ï»π±Ö–∞Å±πúËÅçïπ—ï»π±πúÅÙ∞ÄÃ»¿¿¿∞ÄâÖ±∞à§ÏÅÙÅçÖ—ç†ÅÌÙ(ÄÄÄÄÄÄÄÅçΩπÕ–ÅÖ…»ÄÙÅ……Ö‰π•Õ……Ö‰°…ïÃ§Ä¸Å…ïÃÄËÅmtÏ(ÄÄÄÄÄÄÄÅ—…‰ÅÏÅ±ΩçÖ±M—Ω…ÖùîπÕï—%—ï¥°ç≠ï‰∞Å)M=8πÕ—…•πù•ô‰°ÏÅ—ÃËÅÖ—îππΩ‹†§∞Å¡±ÖçïÃËÅÖ…»ÅÙ§§ÏÅÙÅçÖ—ç†ÅÌÙ(ÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïê§ÅÕï—!ΩµïQΩëº°Ö…»§Ï(ÄÄÄÄÄÅÙÅçÖ—ç†ÅÏ(ÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïê§ÅÕï—!ΩµïQΩëº°mt§Ï(ÄÄÄÄÄÅÙ(ÄÄÄÅÙ§†§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅçÖπçï±±ïêÄÙÅ—…’îÏÅÙÏ(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞ÅmÕç…ïï∏∞Åçïπ—ï…t§Ï((ÄÄººÅÿƒ∏ÃËÅµÖ≠îÅ—°îÅâ…Ω›Õï»ΩMÖôÖ…§ÅâÖç¨Åâ’——Ω∏Ä°ÖπêÅÕ›•¡îµâÖç¨§Åç±ΩÕîÅ—°îÅëï—Ö•∞(ÄÄººÅÕ°ïï–Å•πÕ—ïÖêÅΩòÅ±ïÖŸ•πúÅ—°îÅÖ¡¿∏ÅA’Õ†ÅΩπîÅ°•Õ—Ω…‰Åïπ—…‰Å›°ï∏Å•–ÅΩ¡ïπÃÏÅÖ±∞(ÄÄººÅç±ΩÕîÅ¡Ö—°ÃÅçÖ±∞Å°•Õ—Ω…‰πâÖç¨†§∞Å›°•ç†Åô•…ïÃÅ¡Ω¡Õ—Ö—îÅÖπêÅç±ΩÕïÃÅ•–Åç±ïÖπ±‰∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ†Öëï—Ö•∞§Å…ï—’…∏Ï(ÄÄÄÄººÅMÖµîÅ¡Ö—†Å•ÃÅ≠ï¡–Ä°•πç±’ë•πúÄΩ¿ΩÌ•ëÙ§∏Å	Öç¨Åç±ΩÕïÃÅ—°îÅΩŸï…±Ö‰ÏÅ—°î(ÄÄÄÄººÅÖëë…ïÕÃÅâÖ»ÅëΩïÃÅπΩ–ÅçΩ±±Ö¡ÕîÅ—ºÄàºà∏(ÄÄÄÅ›•πëΩ‹π°•Õ—Ω…‰π¡’Õ°M—Ö—î°ÏÅ›òËÄâëï—Ö•∞àÅÙ∞Äàà§Ï(ÄÄÄÅçΩπÕ–ÅΩπAΩ¿ÄÙÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÅÕï—ï—Ö•∞°π’±∞§Ï(ÄÄÄÄÄÄººÅÿ‡∏ƒ–ÄºÅÿ‡∏»‡ËÅô•…Õ–Åç±ΩÕîÅ±ïÖŸïÃÄΩ¿ΩÌ•ëÙÅ›°ï∏Å—°îÅ…ïÖëï»ÅçÖµîÅô…Ω¥(ÄÄÄÄÄÄººÅÑÅÕÖµîµΩ…•ù•∏ÅÕ’…ôÖçîÄ°…Ö•∞∞Å°Ωµï¡Öùî∞Åù’•ëî§∏ÅΩπÕ’µïêÅΩπçî∏(ÄÄÄÄÄÅ•òÄ°¡±ÖçïIΩ’—ïIï—’…πIïòπç’……ïπ–§ÅÏ(ÄÄÄÄÄÄÄÅ¡±ÖçïIΩ’—ïIï—’…πIïòπç’……ïπ–ÄÙÅôÖ±ÕîÏ(ÄÄÄÄÄÄÄÅ—…‰ÅÏÅ›•πëΩ‹π°•Õ—Ω…‰πâÖç¨†§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÅÙÅï±ÕîÅ•òÄ°¡±Öçïç—•Ωπ!ΩµïIïòπç’……ïπ–§ÅÏ(ÄÄÄÄÄÄÄÅ¡±Öçïç—•Ωπ!ΩµïIïòπç’……ïπ–ÄÙÅôÖ±ÕîÏ(ÄÄÄÄÄÄÄÅ—…‰ÅÏÅ›•πëΩ‹π°•Õ—Ω…‰π…ï¡±ÖçïM—Ö—î°ÌÙ∞Äàà∞Äàºà§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÅÙ(ÄÄÄÅÙÏ(ÄÄÄÅ›•πëΩ‹πÖëëŸïπ—1•Õ—ïπï»†â¡Ω¡Õ—Ö—îà∞ÅΩπAΩ¿§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯Å›•πëΩ‹π…ïµΩŸïŸïπ—1•Õ—ïπï»†â¡Ω¡Õ—Ö—îà∞ÅΩπAΩ¿§Ï(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞ÅlÑÖëï—Ö•±t§Ï((ÄÄººÅÿÿ∏‰ÃÉäPÅÕÖµîÅâÖç¨µâ’——Ω∏ΩÕ›•¡îµâÖç¨Åç±ΩÕîÅâï°ÖŸ•Ω»ÅôΩ»Å—°îÅMΩç•Ö∞Å5ïë•Ñ(ÄÄººÅ•πêÅÕ°ïï–ÅÖÃÅ—°îÅëï—Ö•∞ÅÕ°ïï–ÅÖâΩŸî∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ†ÖÕΩç•Ö±•πê§Å…ï—’…∏Ï(ÄÄÄÅ›•πëΩ‹π°•Õ—Ω…‰π¡’Õ°M—Ö—î°ÏÅ›òËÄâÕΩç•Ö±•πêàÅÙ∞Äàà§Ï(ÄÄÄÅçΩπÕ–ÅΩπAΩ¿ÄÙÄ†§ÄÙ¯ÅÕï—MΩç•Ö±•πê°π’±∞§Ï(ÄÄÄÅ›•πëΩ‹πÖëëŸïπ—1•Õ—ïπï»†â¡Ω¡Õ—Ö—îà∞ÅΩπAΩ¿§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯Å›•πëΩ‹π…ïµΩŸïŸïπ—1•Õ—ïπï»†â¡Ω¡Õ—Ö—îà∞ÅΩπAΩ¿§Ï(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞ÅlÑÖÕΩç•Ö±•πët§Ï((ÄÄººÅÿƒ∏ÃËÅ±ΩÖêÅ—°îÅù…Ω’πëïêÅë•Õ†Ω—•¿Å•πÕ•ù°–ÅÖÃÅÕΩΩ∏ÅÖÃÅÑÅ¡±ÖçîÅΩ¡ïπÃÄ°ΩπçîÅ•—Ã(ÄÄººÅ…ïŸ•ï›ÃÅÖ…îÅ•∏§∞ÅÕºÄâ]°Ö–Å—ºÅΩ…ëï»àÅÕ°Ω›ÃÅ’¿Å—Ω¿∞ÅπΩ–ÅΩπ±‰ÅÖô—ï»Åï·¡Öπë•πú∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ°ëï—Ö•∞ÄòòÄÖëï—Ö•∞π}ïŸïπ–ÄòòÅëï—Ö•±·—…Ñ§ÅÏÅ—…‰ÅÏÅ±ΩÖë’±±%πÕ•ù°–°ëï—Ö•∞∞Åëï—Ö•±·—…Ñ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅÙ(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞Åmëï—Ö•∞ÄòòÅëï—Ö•∞π•ê∞Åëï—Ö•±·—…Öt§Ï((ÄÄººÅ]°ï∏Å—°îÅÕïÖ…ç°ïêÅ±ΩçÖ—•Ω∏Åç°ÖπùïÃ∞Åë…Ω¿Å—°îÅ$Å°ΩΩ≠ÃÅâ’•±–ÅôΩ»Å—°îÅ¡…ïŸ•Ω’Ã(ÄÄººÅ¡±ÖçîÅÕºÅ—°îÅ°ΩµîÅçÖ…ëÃÅπïŸï»Å≠ïï¿Å…ïçΩµµïπë•πúÅ›°ï…îÅÂΩ‘Å’ÕïêÅ—ºÅâî∏ÅQ°ï‰(ÄÄººÅôÖ±∞ÅâÖç¨Å—ºÅô…ïÕ†Åùïπï…Ö—ï!ΩΩ≠Ã†§Å’π—•∞Åπï‹Å$Å°ΩΩ≠ÃÅ±ΩÖêÅôΩ»Å—°îÅπï‹ÅÕ¡Ω–∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅÕï—•!ΩΩ≠Ã°π’±∞§Ï(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞Åmçïπ—ï»ÄòòÅçïπ—ï»π±Ö–∞Åçïπ—ï»ÄòòÅçïπ—ï»π±πùt§Ï((ÄÄººÅM•ùπÖ—’…îÅΩòÅ—°îÅ¡±ÖçîÅÕï–Å—°îÅ°ΩΩ≠ÃÅÖ…îÅù…Ω’πëïêÅΩ∏∏Å°ÖπùïÃÅ›°ïπïŸï»Å—°î(ÄÄººÅÖç—’Ö∞Å¡±ÖçïÃÅç°ÖπùîÄ°ÑÅπï‹Å±ΩçÖ—•Ω∏ÅÕïÖ…ç†§∞ÅïŸï∏Å•òÅ—°îÅçΩ’π–Å•ÃÅ—°îÅÕÖµî∞(ÄÄººÅÕºÅ—°îÅ$Å°ΩΩ¨Åôï—ç†Å…îµ…’πÃÅôΩ»Å—°îÅπï‹ÅÕ¡Ω–Å•πÕ—ïÖêÅΩòÅ≠ïï¡•πúÅÕ—Ö±îÅçÖ…ëÃ∏(ÄÅçΩπÕ–Å°ΩΩ≠M…çM•úÄÙÄ†°Õ’ùùïÕ—ïêÄòòÅÕ’ùùïÕ—ïêπ±ïπù—†Ä¯Ä¿Ä¸ÅÕ’ùùïÕ—ïêÄËÅ¡±ÖçïÃ§ÅÒÅmt§πô•±—ï»°	ΩΩ±ïÖ∏§πÕ±•çî†¿∞Ä»¿§πµÖ¿†°¿§ÄÙ¯Å¿ÄòòÅ¿π•ê§π©Ω•∏†âà§Ï((ÄÄººÅï—ç†Å$µùïπï…Ö—ïêÅ°ΩΩ≠ÃÅΩπçîÅ›îÅ°ÖŸîÅ…ïÖ∞Å¡±ÖçîÅëÖ—ÑÅ—ºÅù…Ω’πêÅ—°ï¥ÅΩ∏∏(ÄÄººÅÖ±±ÃÅâÖç¨Å—ºÅ—°îÅÕ—Ö—•åÅùïπï…Ö—ï!ΩΩ≠Ã†§ÅΩ’—¡’–Å•òÅ—°îÅA$ÅçÖ±∞ÅôÖ•±Ã∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅçΩπÕ–ÅÕ…åÄÙÄ°Õ’ùùïÕ—ïêÄòòÅÕ’ùùïÕ—ïêπ±ïπù—†Ä¯Ä¿Ä¸ÅÕ’ùùïÕ—ïêÄËÅ¡±ÖçïÃ§πô•±—ï»°	ΩΩ±ïÖ∏§Ï(ÄÄÄÅ•òÄ°Õ…åπ±ïπù—†ÄÄÃ§Å…ï—’…∏Ï(ÄÄÄÅçΩπÕ–Å}—àÄÙÅâ’ç≠ï—Ω…!Ω’»°Õ•—ï!Ω’…±ΩÖ–†§§πç°Ö…–†¿§Ï(ÄÄÄÅçΩπÕ–Å}°≠ï‰ÄÙÄâ›ô}°ΩΩ≠Õ}ÿ≈|àÄ¨Å}—àÄ¨Äâ|àÄ¨Å°ΩΩ≠M…çM•úÏ(ÄÄÄÅ—…‰ÅÏÅçΩπÕ–Å…Ö‹ÄÙÅ±ΩçÖ±M—Ω…Öùîπùï—%—ï¥°}°≠ï‰§ÏÅ•òÄ°…Ö‹§ÅÏÅçΩπÕ–ÅºÄÙÅ)M=8π¡Ö…Õî°…Ö‹§ÏÅ•òÄ°ºÄòòÅºπ–ÄòòÅÖ—îππΩ‹†§Ä¥Åºπ–ÄÄÃÄ®ÄÃÿ¿¿Ä®Äƒ¿¿¿ÄòòÅ……Ö‰π•Õ……Ö‰°ºπÿ§ÄòòÅºπÿπ±ïπù—†§ÅÏÅÕï—•!ΩΩ≠Ã°ºπÿ§ÏÅ…ï—’…∏ÏÅÙÅÙÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÅ±ï–ÅçÖπçï±±ïêÄÙÅôÖ±ÕîÏ(ÄÄÄÄ°ÖÕÂπåÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å…ïÃÄÙÅÖ›Ö•–Åôï—ç††àΩÖ¡§Ω°ΩΩ≠Ãà∞ÅÏ(ÄÄÄÄÄÄÄÄÄÅµï—°ΩêËÄâA=MPà∞(ÄÄÄÄÄÄÄÄÄÅ°ïÖëï…ÃËÅÏÄâçΩπ—ïπ–µ—Â¡îàËÄâÖ¡¡±•çÖ—•Ω∏Ω©ÕΩ∏àÅÙ∞(ÄÄÄÄÄÄÄÄÄÅâΩë‰ËÅ)M=8πÕ—…•πù•ô‰°Ï(ÄÄÄÄÄÄÄÄÄÄÄÅ¡±ÖçïÃËÅÕ…åπÕ±•çî†¿∞Ä»¿§πµÖ¿†°¿§ÄÙ¯Ä°ÏÅ•êËÅ¿π•ê∞ÅπÖµîËÅ¿ππÖµî∞Å…Ö—•πúËÅ¿π…Ö—•πú∞Å…ïŸ•ï›ÃËÅ¿π…ïŸ•ï›Ã∞Åë•Õ—5§ËÅ¿πë•Õ—5§∞ÅΩ¡ïπ9Ω‹ËÅ¿πΩ¡ïπ9Ω‹∞Å¡…•çîËÅ¿π¡…•çî∞Å—Â¡îËÅ¿π—Â¡îÅÙ§§∞(ÄÄÄÄÄÄÄÄÄÄÄÅ±Ωç9Öµî∞Å°Ω’»ËÅÕ•—ï!Ω’…±ΩÖ–†§∞(ÄÄÄÄÄÄÄÄÄÄÄÅ›ïÖ—°ï»ËÅ›ïÖ—°ï»Ä¸ÅÏÅ—ïµ¿ËÅ›ïÖ—°ï»π—ïµ¿∞Å±Öâï∞ËÅ›ïÖ—°ï»π±Öâï∞ÅÙÄËÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÄÄÅÕ•ùπÖ±ÃËÅÕ•ùπÖ±ÃπÕ±•çî†¿∞Ä‘¿§∞(ÄÄÄÄÄÄÄÄÄÅÙ§∞(ÄÄÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–ÅëÖ—ÑÄÙÅÖ›Ö•–Å…ïÃπ©ÕΩ∏†§Ï(ÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïêÄòòÅëÖ—Ñπ°ΩΩ≠ÃÄòòÅëÖ—Ñπ°ΩΩ≠Ãπ±ïπù—†Ä¯Ä¿§ÅÏÅçΩπÕ–Å}π†ÄÙÅëÖ—Ñπ°ΩΩ≠ÃπµÖ¿°πΩ…µÖ±•Èï!ΩΩ¨§ÏÅÕï—•!ΩΩ≠Ã°}π†§ÏÅ—…‰ÅÏÅ±ΩçÖ±M—Ω…ÖùîπÕï—%—ï¥°}°≠ï‰∞Å)M=8πÕ—…•πù•ô‰°ÏÅ–ËÅÖ—îππΩ‹†§∞ÅÿËÅ}π†ÅÙ§§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅÙ(ÄÄÄÄÄÅÙÅçÖ—ç†ÅÏÄº®ÅôÖ±∞ÅâÖç¨Å—ºÅÕ—Ö—•åÅ°ΩΩ≠ÃÅÕ•±ïπ—±‰Ä®ºÅÙ(ÄÄÄÅÙ§†§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅçÖπçï±±ïêÄÙÅ—…’îÏÅÙÏ(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞Åm°ΩΩ≠M…çM•ùt§Ï((ÄÄººÅ1•ù°—›ï•ù°–ÅïŸïπ—ÃÅÕ—…•¿ÅôΩ»Å—°îÅΩ»ÅeΩ‘ÅÕç…ïï∏∏ÅÖ•∞µÕΩô–ËÅÖπ‰Åï……Ω»Å©’Õ–(ÄÄººÅ°•ëïÃÅ—°îÅÕ—…•¿ÅÖπêÅπïŸï»Åâ±Ωç≠ÃÅ—°îÅ¡•ç≠Ã∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ°Õç…ïï∏ÄÑÙÙÄâÕ’ùùïÕ—ïêàÅÒÄÖçïπ—ï»§Å…ï—’…∏Ï(ÄÄÄÄººÄå»ƒ‰Å¡…•µï»ÅçΩπÕ’µîËÅÖ∏Å•π±•πîÅÕç…•¡–Å•∏ÅÖ¡¿Ω±ÖÂΩ’–π©ÃÅÕ—Ö…—ÃÅ—°•ÃÅï·Öç–(ÄÄÄÄººÅôï—ç†Å	=IÅ°Âë…Ö—•Ω∏∞Å’Õ•πúÅ—°îÅM5Å›ô}çïπ—ï»Ä¥¯ÅU1Q}9QH(ÄÄÄÄººÅ…ïÕΩ±’—•Ω∏Å—°•ÃÅç±•ïπ–Å’ÕïÃÉäPÅÕºÅΩ∏Å—°îÅçΩµµΩ∏Å¡Ö—†Å—°îÅ…ïÕ¡ΩπÕîÅ•Ã(ÄÄÄÄººÅÖ±…ïÖë‰Å•∏Åô±•ù°–Å¯»¥ÕÃÅâïôΩ…îÅ—°•ÃÅïôôïç–ÅçÖ∏ÅïŸï∏Å…’∏∏ÅY1UµµÖ—ç°ïêÅ—º(ÄÄÄÄººÅ—°îÅ±•ŸîÅçïπ—ï»ÅÖπêÅΩπîµÕ°Ω–ËÅÖπ‰Åµ•ÕµÖ—ç†Ä°UI0Åçïπ—ï»∞ÅùïΩ±ΩçÖ—•Ω∏ÅµΩŸïê∞(ÄÄÄÄººÅÑÅç•—‰ÅÕ›•—ç†§ÅôÖ±±ÃÅ—°…Ω’ù†Å—ºÅÑÅπΩ…µÖ∞Åôï—ç†∏ÅQ°îÅ¡…•µï»Å•ÃÅΩπ±‰ÅïŸï»ÅÑ(ÄÄÄÄººÅ°ïÖêÅÕ—Ö…–∞ÅπïŸï»Å›…ΩπúÅçΩπ—ïπ–ÉäPÅ›°•ç†Å•ÃÅ›°Ö–Å—°îÅ…ïŸï…—ïêÄå»ƒ‡ÅÕïïê(ÄÄÄÄººÅùΩ–Å›…ΩπúÄ°•–Å¡Ö•π—ïêÅU1Q}9QHÅïŸïπ—Ã∞Å—°ï∏ÅÕ›Ö¡¡ïê§∏(ÄÄÄÅçΩπÕ–Å}¡…•µîÄÙÄ°—Â¡ïΩòÅ›•πëΩ‹ÄÑÙÙÄâ’πëïô•πïêàÄòòÅ›•πëΩ‹π}}›ôŸA…•µî§ÅÒÅπ’±∞Ï(ÄÄÄÅ•òÄ°}¡…•µî§ÅÏÅ—…‰ÅÏÅëï±ï—îÅ›•πëΩ‹π}}›ôŸA…•µîÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅÙ(ÄÄÄÅçΩπÕ–Å}¡…•µï=¨ÄÙÄÑÑ°}¡…•µîÄòòÅ}¡…•µîπ¿ÄòòÅ5Ö—†πÖâÃ°}¡…•µîπ±Ö–Ä¥Åçïπ—ï»π±Ö–§ÄÄ’î¥–ÄòòÅ5Ö—†πÖâÃ°}¡…•µîπ±πúÄ¥Åçïπ—ï»π±πú§ÄÄ’î¥–§Ï(ÄÄÄÅ±ï–ÅçÖπçï±±ïêÄÙÅôÖ±ÕîÏ(ÄÄÄÄ°ÖÕÂπåÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–ÅëÖ—ÑÄÙÅ}¡…•µï=¨(ÄÄÄÄÄÄÄÄÄÄ¸ÅÖ›Ö•–Å}¡…•µîπ¿(ÄÄÄÄÄÄÄÄÄÄËÅÖ›Ö•–Åôï—ç††àΩÖ¡§ΩïŸïπ—Ã˝±Ö–ÙàÄ¨Åçïπ—ï»π±Ö–π—Ω•·ïê†»§Ä¨Äàô±πúÙàÄ¨Åçïπ—ï»π±πúπ—Ω•·ïê†»§Ä¨Äàô…Öë•’ÃÙ»‘ôç•—‰ÙàÄ¨ÅïπçΩëïUI%Ωµ¡Ωπïπ–°±Ωç9ÖµîÅÒÄàà§§π—°ï∏†°»§ÄÙ¯Ä°»πΩ¨Ä¸Å»π©ÕΩ∏†§ÄËÅπ’±∞§§ÏÄººÅPÄÙÅ8µçÖç°ïÖâ±îÄ†…ë¿ÉäPÅ—°îÅÕï…Ÿï»ÅçÖç°îÅ≠ï‰ùÃÅΩ›∏Åù…Öπ’±Ö…•—‰§(ÄÄÄÄÄÄÄÅ•òÄ†ÖëÖ—Ñ§ÅÏÅ•òÄ†ÖçÖπçï±±ïê§ÅÕï—Ω…ÂΩ’Ÿïπ—Ã°mt§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÄÄÄÄÅçΩπÕ–ÅïŸÃÄÙÄ†°ëÖ—ÑÄòòÅëÖ—ÑπïŸïπ—Ã§ÅÒÅmt§πô•±—ï»†°î§ÄÙ¯ÅîÄòòÅîπëïÕ–§Ï(ÄÄÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïê§ÅÏ(ÄÄÄÄÄÄÄÄÄÄººÅÿÿ∏–»Ä°Ω›πï»∞ÅAI599P§ËÅ—°îÅô…Ωπ–Å¡ÖùîÅ9YHÅÕ°Ω›ÃÅç•Ÿ•åΩçΩµµ’π•—‰(ÄÄÄÄÄÄÄÄÄÄººÅ¡…Ωù…ÖµÃÉäPÅ—•ç≠ï—ïêÅçÖ—ïùΩ…•ïÃÅΩπ±‰Ä°±•àΩô…Ωπ—Ÿïπ—ÃÏÅ±Ωç≠ïêÅâ‰(ÄÄÄÄÄÄÄÄÄÄººÅÕç…•¡—ÃΩ—ïÕ–µô…Ωπ–µïŸïπ—Ãπµ©Ã§∏ÅQ°ï‰ÅÕ—•±∞Å±•ŸîÅΩ∏Å—°îÅŸïπ—ÃÅ—Öà(ÄÄÄÄÄÄÄÄÄÄººÅ’πëï»Äâ1ΩçÖ∞ÅïŸïπ—Ãà∏Åï¡—†Ä»–ÅÕºÅ—°îÅ¡…•Ω…•—‰Å…Ö•∞Å°ÖÃÅ•πŸïπ—Ω…‰∏(ÄÄÄÄÄÄÄÄÄÅÕï—Ω…ÂΩ’Ÿïπ—Ã°ô…Ωπ—AÖùïŸïπ—Ã°ïŸÃ∞ÅïŸïπ—	’ç≠ï–§π’ÕÖâ±îπÕ±•çî†¿∞Ä»–§§Ï(ÄÄÄÄÄÄÄÄÄÅÕï—1•â…Ö…ÂŸïπ—Ã°ïŸÃπô•±—ï»†°î§ÄÙ¯Åîπç•Ÿ•å§πÕ±•çî†¿∞Äÿ§§Ï(ÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÅÙÅçÖ—ç†ÅÏÅ•òÄ†ÖçÖπçï±±ïê§ÅÏÅÕï—Ω…ÂΩ’Ÿïπ—Ã°mt§ÏÅÕï—1•â…Ö…ÂŸïπ—Ã°mt§ÏÅÙÅÙ(ÄÄÄÅÙ§†§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅçÖπçï±±ïêÄÙÅ—…’îÏÅÙÏ(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞ÅmÕç…ïï∏∞Åçïπ—ï…t§Ï((ÄÄººÅ]°ï∏Å—°îÅΩ¡ïπïêÅ¡±ÖçîÅ•ÃÅÑÅâïÖç†∞Å¡’±∞Å±•ŸîÅ›•πêÄ¨Å›ÖŸîÅçΩπë•—•ΩπÃÄ°¡±’Ã(ÄÄººÅ›Ö—ï»Å≈’Ö±•—‰Ω…ïêÅ—•ëîΩ¡Ω¡’±Ö…•—‰ÉäPÅÕïîÅ±ΩÖë	ïÖç°Ωπë•—•ΩπÃ§∏ÅÖ—ïêÅΩπ±‰(ÄÄººÅΩ∏Å•Õ	ïÖç†∞ÅπΩ–ÅΩ∏Å±Ö–Ω±πúËÅ—°îÅµ≠ïÂïêÅÕ•ùπÖ±ÃÄ°›Ö—ï»Å≈’Ö±•—‰∞(ÄÄººÅ¡Ω¡’±Ö…•—‰§ÅÕ—•±∞Å›Ω…¨Åâ‰Å¡±Öçï}•êÅÖ±ΩπîÅ›°ï∏ÅçΩΩ…ë•πÖ—ïÃÅÖ…ï∏ù–Å¡…ïÕïπ–∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ†Öëï—Ö•∞ÅÒÄÖ•Õ	ïÖç†°ëï—Ö•∞§§ÅÏÅÕï—	ïÖç°Ωπê°π’±∞§ÏÅÕï—	ïÖç°Ωπë1ΩÖë•πú°ôÖ±Õî§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÅ±ï–ÅçÖπçï±±ïêÄÙÅôÖ±ÕîÏ(ÄÄÄÅÕï—	ïÖç°Ωπê°π’±∞§Ï(ÄÄÄÅÕï—	ïÖç°Ωπë1ΩÖë•πú°—…’î§Ï(ÄÄÄÄ°ÖÕÂπåÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÅçΩπÕ–ÅåÄÙÅÖ›Ö•–Å±ΩÖë	ïÖç°Ωπë•—•ΩπÃ°ëï—Ö•∞§Ï(ÄÄÄÄÄÅ•òÄ†ÖçÖπçï±±ïê§ÅÏÅÕï—	ïÖç°Ωπê°å§ÏÅÕï—	ïÖç°Ωπë1ΩÖë•πú°ôÖ±Õî§ÏÅÙ(ÄÄÄÅÙ§†§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅçÖπçï±±ïêÄÙÅ—…’îÏÅÙÏ(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞Åmëï—Ö•±t§Ï((ÄÅô’πç—•Ω∏ÅΩπE’ï…Â°Öπùî°ÿ§ÅÏ(ÄÄÄÅÕï—E’ï…‰°ÿ§Ï(ÄÄÄÅ•òÄ°ëïâΩ’πçïIïòπç’……ïπ–§Åç±ïÖ…Q•µïΩ’–°ëïâΩ’πçïIïòπç’……ïπ–§Ï(ÄÄÄÅ•òÄ†ÖÿÅÒÅÿπ—…•¥†§π±ïπù—†ÄÄÃ§ÅÏÅÕï—M’ùùïÕ—•ΩπÃ°mt§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÅëïâΩ’πçïIïòπç’……ïπ–ÄÙÅÕï—Q•µïΩ’–††§ÄÙ¯Åôï—ç°M’ùùïÕ—•ΩπÃ°ÿπ—…•¥†§§∞Ä»‘¿§Ï(ÄÅÙ((ÄÄººÅÿÿ∏ÿ¿Ä†»¿»ÿ¥¿‹¥»‘ÅçΩÕ–ΩÕç…Ö¡•πúÅÖ’ë•–§ËÅ—°îÅÕïÖ…ç†ÅâΩ‡Å’ÕïêÅ—ºÅçÖ±∞ÅΩΩù±î(ÄÄººÅ%IQ1dÅô…Ω¥Å—°îÅâ…Ω›Õï»ÅŸ•ÑÅ—°îÅ5Ö¡ÃÅ)LÅ±•â…Ö…‰ÉäPÅ—°îÅΩπîÅµï—ï…ïêÅA±ÖçïÃ(ÄÄººÅÕ’…ôÖçîÅ—°Ö–ÅπïŸï»Å¡ÖÕÕïêÅ—°…Ω’ù†Åµ•ëë±ï›Ö…îπ©ÃΩÖ¡•’Ö…êπ©ÃÄ°πºÅÕÖµîµΩ…•ù•∏(ÄÄººÅç°ïç¨∞ÅπºÅ¡ï»µ%@Å…Ö—îÅ±•µ•–§∞Å’π±•≠îÅïŸï…‰ÅΩ—°ï»Å¡Ö•êÅA±ÖçïÃÅ¡…Ω·‰Å•∏Å—°•Ã(ÄÄººÅÖ¡¿∏Åôï—ç°M’ùùïÕ—•ΩπÃÅÖπêÅ¡•ç≠M’ùùïÕ—•Ω∏ÅπΩ‹ÅùºÅ—°…Ω’ù†Åù’Ö…ëïêÅÕï…Ÿï»(ÄÄººÅ…Ω’—ïÃÄ†ΩÖ¡§Ω¡±ÖçïÃΩÖ’—ΩçΩµ¡±ï—î∞ÄΩÖ¡§Ω¡±ÖçïÃΩëï—Ö•±Ã§Åô•…Õ–∞ÅôÖ±±•πúÅâÖç¨(ÄÄººÅ—ºÅ—°îÅΩ…•ù•πÖ∞Åë•…ïç–µ—ºµΩΩù±îÅM,Å¡Ö—†Å=91dÅ›°ï∏Å==1}5AM}MIYI}-d(ÄÄººÅ•Õ∏ù–ÅçΩπô•ù’…ïêÄ°ëïÿΩ±ΩçÖ∞ÏÅπïŸï»Å°Ö¡¡ïπÃÅ•∏Å¡…Ωë’ç—•Ω∏ÉäPÅÕïÖ…ç†ÅÖ±…ïÖë‰(ÄÄººÅëï¡ïπëÃÅΩ∏Å—°Ö–ÅÕÖµîÅ≠ï‰ÅŸ•ÑÄΩÖ¡§Ω¡±ÖçïÃΩÕïÖ…ç†§∏(ÄÅÖÕÂπåÅô’πç—•Ω∏Åôï—ç°M’ùùïÕ—•ΩπÃ°ƒ§ÅÏ(ÄÄÄÅ•òÄ°—Â¡ïΩòÅ—Ω≠ïπIïòπç’……ïπ–ÄÑÙÙÄâÕ—…•πúà§ÅÏ(ÄÄÄÄÄÅ—Ω≠ïπIïòπç’……ïπ–ÄÙÄ°—Â¡ïΩòÅç…Â¡—ºÄÑÙÙÄâ’πëïô•πïêàÄòòÅç…Â¡—ºπ…ÖπëΩµUU%§(ÄÄÄÄÄÄÄÄ¸Åç…Â¡—ºπ…ÖπëΩµUU%†§(ÄÄÄÄÄÄÄÄËÄ°5Ö—†π…ÖπëΩ¥†§π—ΩM—…•πú†Ãÿ§πÕ±•çî†»§Ä¨ÅÖ—îππΩ‹†§π—ΩM—…•πú†Ãÿ§§Ï(ÄÄÄÅÙ(ÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÅçΩπÕ–Å»ÄÙÅÖ›Ö•–Åôï—ç††àΩÖ¡§Ω¡±ÖçïÃΩÖ’—ΩçΩµ¡±ï—îà∞ÅÏ(ÄÄÄÄÄÄÄÅµï—°ΩêËÄâA=MPà∞(ÄÄÄÄÄÄÄÅ°ïÖëï…ÃËÅÏÄâΩπ—ïπ–µQÂ¡îàËÄâÖ¡¡±•çÖ—•Ω∏Ω©ÕΩ∏àÅÙ∞(ÄÄÄÄÄÄÄÅâΩë‰ËÅ)M=8πÕ—…•πù•ô‰°Ï(ÄÄÄÄÄÄÄÄÄÅ•π¡’–ËÅƒ∞(ÄÄÄÄÄÄÄÄÄÅÕïÕÕ•ΩπQΩ≠ï∏ËÅ—Ω≠ïπIïòπç’……ïπ–∞(ÄÄÄÄÄÄÄÄÄÄ∏∏∏°çïπ—ï»Ä¸ÅÏÅ±Ö–ËÅçïπ—ï»π±Ö–∞Å±πúËÅçïπ—ï»π±πúÅÙÄËÅÌÙ§∞(ÄÄÄÄÄÄÄÅÙ§∞(ÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÅ•òÄ°»πÕ—Ö—’ÃÄÙÙÙÄ‘¿ƒ§Å…ï—’…∏Åôï—ç°M’ùùïÕ—•ΩπÕ•…ïç–°ƒ§ÏÄººÅÕï…Ÿï»Å≠ï‰ÅπΩ–ÅçΩπô•ù’…ïê(ÄÄÄÄÄÅ•òÄ†Ö»πΩ¨§ÅÏÅÕï—M’ùùïÕ—•ΩπÃ°mt§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÄÄÅçΩπÕ–ÅëÖ—ÑÄÙÅÖ›Ö•–Å»π©ÕΩ∏†§Ï(ÄÄÄÄÄÅÕï—M’ùùïÕ—•ΩπÃ†°ëÖ—ÑπÕ’ùùïÕ—•ΩπÃÅÒÅmt§πÕ±•çî†¿∞Äÿ§§Ï(ÄÄÄÅÙÅçÖ—ç†ÅÏ(ÄÄÄÄÄÅÕï—M’ùùïÕ—•ΩπÃ°mt§Ï(ÄÄÄÅÙ(ÄÅÙ((ÄÄººÅïÿΩ±ΩçÖ∞µΩπ±‰ÅôÖ±±âÖç¨ÉäPÅ—°îÅΩ…•ù•πÖ∞Åë•…ïç–µ—ºµΩΩù±îÅç±•ïπ–Å¡Ö—†∞(ÄÄººÅ¡…ïÕï…ŸïêÅÖÃµ•Ã∏Å9ïŸï»Å…’πÃÅ•∏Å¡…Ωë’ç—•Ω∏∏(ÄÅÖÕÂπåÅô’πç—•Ω∏Åôï—ç°M’ùùïÕ—•ΩπÕ•…ïç–°ƒ§ÅÏ(ÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÅçΩπÕ–ÅÏÅ’—ΩçΩµ¡±ï—ïM’ùùïÕ—•Ω∏∞Å’—ΩçΩµ¡±ï—ïMïÕÕ•ΩπQΩ≠ï∏ÅÙÄÙÅÖ›Ö•–Åùï—1ΩÖëï»†§π•µ¡Ω…—1•â…Ö…‰†â¡±ÖçïÃà§Ï(ÄÄÄÄÄÅ•òÄ†Ñ°—Ω≠ïπIïòπç’……ïπ–Å•πÕ—ÖπçïΩòÅ’—ΩçΩµ¡±ï—ïMïÕÕ•ΩπQΩ≠ï∏§§Å—Ω≠ïπIïòπç’……ïπ–ÄÙÅπï‹Å’—ΩçΩµ¡±ï—ïMïÕÕ•ΩπQΩ≠ï∏†§Ï(ÄÄÄÄÄÄººÅïΩù…Ö¡°•åÅ—Â¡ïÃÉäPÅÖπÂ—°•πúÅï±ÕîÅ•ÃÅ—…ïÖ—ïêÅÖÃÅÖ∏ÅïÕ—Öâ±•Õ°µïπ–Ω¡±Öçî∏(ÄÄÄÄÄÅçΩπÕ–ÅI}QeALÄÙÅπï‹ÅMï–°l(ÄÄÄÄÄÄÄÄâ±ΩçÖ±•—‰à∞ÄâÖëµ•π•Õ—…Ö—•Ÿï}Ö…ïÖ}±ïŸï±|ƒà∞ÄâÖëµ•π•Õ—…Ö—•Ÿï}Ö…ïÖ}±ïŸï±|»à∞(ÄÄÄÄÄÄÄÄâÖëµ•π•Õ—…Ö—•Ÿï}Ö…ïÖ}±ïŸï±|Ãà∞ÄâÖëµ•π•Õ—…Ö—•Ÿï}Ö…ïÖ}±ïŸï±|–à∞(ÄÄÄÄÄÄÄÄâ¡ΩÕ—Ö±}çΩëîà∞ÄâçΩ’π—…‰à∞ÄâçΩ±±Ω≈’•Ö±}Ö…ïÑà∞Äâπï•ù°âΩ…°ΩΩêà∞(ÄÄÄÄÄÄÄÄâÕ’â±ΩçÖ±•—‰à∞ÄâÕ’â±ΩçÖ±•—Â}±ïŸï±|ƒà∞Äâ…Ω’—îà∞ÄâùïΩçΩëîà∞(ÄÄÄÄÄÅt§Ï(ÄÄÄÄÄÅ±ï–Å…ïÃÏ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÄººÅ9ºÅ—Â¡îÅô•±—ï»ÉäPÅ±ï–ÅΩΩù±îÅÕ’…ôÖçîÅâΩ—†Å¡±ÖçïÃÅÖπêÅÖ…ïÖÃ∏(ÄÄÄÄÄÄÄÄººÅ1ΩçÖ—•Ω∏Åâ•ÖÃÅ≠ïï¡ÃÅïÕ—Öâ±•Õ°µïπ–Å…ïÕ’±—ÃÅç±ΩÕîÅ—ºÅ—°îÅç’……ïπ–Åçïπ—ï»∏(ÄÄÄÄÄÄÄÅ…ïÃÄÙÅÖ›Ö•–Å’—ΩçΩµ¡±ï—ïM’ùùïÕ—•Ω∏πôï—ç°’—ΩçΩµ¡±ï—ïM’ùùïÕ—•ΩπÃ°Ï(ÄÄÄÄÄÄÄÄÄÅ•π¡’–ËÅƒ∞(ÄÄÄÄÄÄÄÄÄÅÕïÕÕ•ΩπQΩ≠ï∏ËÅ—Ω≠ïπIïòπç’……ïπ–∞(ÄÄÄÄÄÄÄÄÄÄ∏∏∏°çïπ—ï»Ä¸ÅÏÅ±ΩçÖ—•Ωπ	•ÖÃËÅÏÅçïπ—ï»ËÅÏÅ±Ö–ËÅçïπ—ï»π±Ö–∞Å±πúËÅçïπ—ï»π±πúÅÙ∞Å…Öë•’ÃËÄ‘¿¿¿¿ÅÙÅÙÄËÅÌÙ§∞(ÄÄÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÅÙÅçÖ—ç†ÅÏ(ÄÄÄÄÄÄÄÅ…ïÃÄÙÅÖ›Ö•–Å’—ΩçΩµ¡±ï—ïM’ùùïÕ—•Ω∏πôï—ç°’—ΩçΩµ¡±ï—ïM’ùùïÕ—•ΩπÃ°Ï(ÄÄÄÄÄÄÄÄÄÅ•π¡’–ËÅƒ∞(ÄÄÄÄÄÄÄÄÄÅÕïÕÕ•ΩπQΩ≠ï∏ËÅ—Ω≠ïπIïòπç’……ïπ–∞(ÄÄÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÅÙ(ÄÄÄÄÄÅçΩπÕ–Å±•Õ–ÄÙÄ°…ïÃ¸πÕ’ùùïÕ—•ΩπÃÅÒÅmt§(ÄÄÄÄÄÄÄÄπµÖ¿†°Ã§ÄÙ¯ÅÃπ¡±ÖçïA…ïë•ç—•Ω∏§(ÄÄÄÄÄÄÄÄπô•±—ï»°	ΩΩ±ïÖ∏§(ÄÄÄÄÄÄÄÄπµÖ¿†°¡¿§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å—ï·–ÄÙÄ°¡¿π—ï·–ÄòòÄ°¡¿π—ï·–π—ï·–ÅÒÅ¡¿π—ï·–§§ÅÒÄààÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å—Â¡ïÃÄÙÅ¡¿π—Â¡ïÃÅÒÅmtÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å≠•πêÄÙÅ—Â¡ïÃπÕΩµî†°–§ÄÙ¯ÅI}QeALπ°ÖÃ°–§§Ä¸ÄâÖ…ïÑàÄËÄâ¡±ÖçîàÏ(ÄÄÄÄÄÄÄÄÄÅ…ï—’…∏ÅÏÅ—ï·–∞Å¡±Öçï%êËÅ¡¿π¡±Öçï%ê∞Å≠•πêÅÙÏ(ÄÄÄÄÄÄÄÅÙ§(ÄÄÄÄÄÄÄÄπô•±—ï»†°‡§ÄÙ¯Å‡π—ï·–ÄòòÅ‡π¡±Öçï%ê§(ÄÄÄÄÄÄÄÄπÕ±•çî†¿∞Äÿ§Ï(ÄÄÄÄÄÅÕï—M’ùùïÕ—•ΩπÃ°±•Õ–§Ï(ÄÄÄÅÙÅçÖ—ç†ÅÏ(ÄÄÄÄÄÅÕï—M’ùùïÕ—•ΩπÃ°mt§Ï(ÄÄÄÅÙ(ÄÅÙ((ÄÄººÅÅ¡°Ω—ºÅïπ—…‰Å•ÃÅï•—°ï»ÅÏÅπÖµîËÄâ¡±ÖçïÃº∏∏∏Ω¡°Ω—ΩÃº∏∏∏àÅÙÅô…Ω¥Å—°îÅù’Ö…ëïê(ÄÄººÅ¡…Ω·‰Ä°â’•±–Å•π—ºÅÑÅUI0Å—°…Ω’ù†Å=UHÅ=]8ÄΩÖ¡§Ω¡°Ω—ºÅ…Ω’—îÉäPÅπïŸï»ÅΩΩù±î(ÄÄººÅë•…ïç—±‰§ÅΩ»ÅÏÅ}ë•…ïç—U…§ÅÙÅô…Ω¥Å—°îÅëïÿµΩπ±‰ÅM,ÅôÖ±±âÖç¨Ä°Ö±…ïÖë‰ÅÑÅô’±∞(ÄÄººÅUI0∞Å—°Ö–Å¡Ö—†ùÃÅΩ…•ù•πÖ∞Åâï°ÖŸ•Ω»∞Å’πç°Öπùïê§∏(ÄÅô’πç—•Ω∏Å¡°Ω—ΩU…±Ω»°¡†§ÅÏ(ÄÄÄÅ•òÄ†Ö¡†§Å…ï—’…∏Åπ’±∞Ï(ÄÄÄÅ•òÄ°¡†ππÖµî§Å…ï—’…∏ÄàΩÖ¡§Ω¡°Ω—º˝…ïòÙàÄ¨ÅïπçΩëïUI%Ωµ¡Ωπïπ–°¡†ππÖµî§Ä¨Äàô‹Ùÿ–¿àÏ(ÄÄÄÅ…ï—’…∏Å¡†π}ë•…ïç—U…§ÅÒÅπ’±∞Ï(ÄÅÙ((ÄÄººÅï—ç°ïÃÅô’±∞ÅA±ÖçîÅï—Ö•±ÃÅôΩ»ÅÑÅÕ’ùùïÕ—•Ω∏ÉäPÅù’Ö…ëïêÅÕï…Ÿï»Å¡…Ω·‰Åô•…Õ–(ÄÄººÄ†ΩÖ¡§Ω¡±ÖçïÃΩëï—Ö•±Ã§∞ÅëïÿΩ±ΩçÖ∞µΩπ±‰ÅM,ÅôÖ±±âÖç¨ÅÕïçΩπê∏Å	Ω—†Å¡Ö—°Ã(ÄÄººÅπΩ…µÖ±•ÈîÅ—ºÅ—°îÅM5Å¡±Ö•∏µΩâ©ïç–ÅÕ°Ö¡îÅÕºÅçÖ±±ï…ÃÅπïŸï»Åâ…Öπç†ÅΩ∏Å›°•ç†(ÄÄººÅΩπîÅ…Ö∏ËÅÏÅ•ê∞Å±ΩçÖ—•Ω∏ÈÌ±Ö–±±πùÙ∞Åë•Õ¡±ÖÂ9Öµî∞ÅôΩ…µÖ——ïëëë…ïÕÃ∞Å—Â¡ïÃ∞(ÄÄººÅ…Ö—•πú∞Å’Õï…IÖ—•πùΩ’π–∞Å¡°Ω—ΩÃÈmÌπÖµïıÒÌ}ë•…ïç—U…•ıt∞Å¡…•çï1ïŸï∞∞(ÄÄººÅ…ïù’±Ö…=¡ïπ•πù!Ω’…ÃÈÌΩ¡ïπ9Ω›Ù∞Åâ’Õ•πïÕÕM—Ö—’ÃÅÙ∏(ÄÅÖÕÂπåÅô’πç—•Ω∏Å…ïÕΩ±ŸïA±Öçïï—Ö•±Ã°¡±Öçï%ê∞Å≠•πê∞ÅÕïÕÕ•ΩπQΩ≠ï∏§ÅÏ(ÄÄÄÅçΩπÕ–Å»ÄÙÅÖ›Ö•–Åôï—ç††àΩÖ¡§Ω¡±ÖçïÃΩëï—Ö•±Ãà∞ÅÏ(ÄÄÄÄÄÅµï—°ΩêËÄâA=MPà∞(ÄÄÄÄÄÅ°ïÖëï…ÃËÅÏÄâΩπ—ïπ–µQÂ¡îàËÄâÖ¡¡±•çÖ—•Ω∏Ω©ÕΩ∏àÅÙ∞(ÄÄÄÄÄÅâΩë‰ËÅ)M=8πÕ—…•πù•ô‰°ÏÅ¡±Öçï%ê∞Å≠•πê∞ÅÕïÕÕ•ΩπQΩ≠ï∏ÅÙ§∞(ÄÄÄÅÙ§Ï(ÄÄÄÅ•òÄ°»πÕ—Ö—’ÃÄÙÙÙÄ‘¿ƒ§Å…ï—’…∏Å…ïÕΩ±ŸïA±Öçïï—Ö•±Õ•…ïç–°¡±Öçï%ê∞Å≠•πê§ÏÄººÅÕï…Ÿï»Å≠ï‰ÅπΩ–ÅçΩπô•ù’…ïê(ÄÄÄÅ•òÄ†Ö»πΩ¨§Å—°…Ω‹Åπï‹Å……Ω»†âëï—Ö•±ÃÅ’¡Õ—…ïÖ¥ÄàÄ¨Å»πÕ—Ö—’Ã§Ï(ÄÄÄÅçΩπÕ–ÅëÖ—ÑÄÙÅÖ›Ö•–Å»π©ÕΩ∏†§Ï(ÄÄÄÅ•òÄ†ÖëÖ—Ñπ¡±Öçî§Å—°…Ω‹Åπï‹Å……Ω»†âπºÅ¡±Öçîà§Ï(ÄÄÄÅ…ï—’…∏ÅëÖ—Ñπ¡±ÖçîÏ(ÄÅÙ((ÄÄººÅïÿΩ±ΩçÖ∞µΩπ±‰ÅôÖ±±âÖç¨ÉäPÅçΩπÕ—…’ç—ÃÅÑÅA±ÖçîÅâ‰Å•êÅë•…ïç—±‰ÅŸ•ÑÅ—°îÅ5Ö¡Ã(ÄÄººÅ)LÅM,Ä°πºÅëï¡ïπëïπçîÅΩ∏Å—°îÅÖ’—ΩçΩµ¡±ï—îÅ¡…ïë•ç—•Ω∏ÅΩâ©ïç–∞Å’π±•≠îÅ—°î(ÄÄººÅΩ…•ù•πÖ∞Å•—ï¥π¡¿π—ΩA±Öçî†§Å¡Ö—†§ÅÖπêÅµÖ¡ÃÅ•–Å—ºÅ—°îÅÕÖµîÅ¡±Ö•∏µΩâ©ïç–(ÄÄººÅÕ°Ö¡îÅ…ïÕΩ±ŸïA±Öçïï—Ö•±ÃÅ…ï—’…πÃ∏Å9ïŸï»Å…’πÃÅ•∏Å¡…Ωë’ç—•Ω∏∏(ÄÅÖÕÂπåÅô’πç—•Ω∏Å…ïÕΩ±ŸïA±Öçïï—Ö•±Õ•…ïç–°¡±Öçï%ê∞Å≠•πê§ÅÏ(ÄÄÄÅçΩπÕ–ÅÏÅA±ÖçîÅÙÄÙÅÖ›Ö•–Åùï—1ΩÖëï»†§π•µ¡Ω…—1•â…Ö…‰†â¡±ÖçïÃà§Ï(ÄÄÄÅçΩπÕ–Å¿ÄÙÅπï‹ÅA±Öçî°ÏÅ•êËÅ¡±Öçï%êÅÙ§Ï(ÄÄÄÅçΩπÕ–Åô•ï±ëÃÄÙÅ≠•πêÄÙÙÙÄâÖ…ïÑà(ÄÄÄÄÄÄ¸Ålâ±ΩçÖ—•Ω∏à∞ÄâôΩ…µÖ——ïëëë…ïÕÃà∞Äâë•Õ¡±ÖÂ9Öµîât(ÄÄÄÄÄÄËÅlâ•êà∞Äâ±ΩçÖ—•Ω∏à∞Äâë•Õ¡±ÖÂ9Öµîà∞ÄâôΩ…µÖ——ïëëë…ïÕÃà∞Äâ—Â¡ïÃà∞Äâ…Ö—•πúà∞Äâ’Õï…IÖ—•πùΩ’π–à∞Äâ¡°Ω—ΩÃà∞Äâ¡…•çï1ïŸï∞à∞Äâ…ïù’±Ö…=¡ïπ•πù!Ω’…Ãà∞Äââ’Õ•πïÕÕM—Ö—’ÃâtÏ(ÄÄÄÅÖ›Ö•–Å¿πôï—ç°•ï±ëÃ°ÏÅô•ï±ëÃÅÙ§Ï(ÄÄÄÅ…ï—’…∏ÅÏ(ÄÄÄÄÄÅ•êËÅ¿π•êÅÒÅ¡±Öçï%ê∞(ÄÄÄÄÄÅ±ΩçÖ—•Ω∏ËÅ¿π±ΩçÖ—•Ω∏Ä¸ÅÏÅ±Ö–ËÅ¿π±ΩçÖ—•Ω∏π±Ö–†§∞Å±πúËÅ¿π±ΩçÖ—•Ω∏π±πú†§ÅÙÄËÅπ’±∞∞(ÄÄÄÄÄÅë•Õ¡±ÖÂ9ÖµîËÅ¿πë•Õ¡±ÖÂ9Öµî∞(ÄÄÄÄÄÅôΩ…µÖ——ïëëë…ïÕÃËÅ¿πôΩ…µÖ——ïëëë…ïÕÃÅÒÄàà∞(ÄÄÄÄÄÅ—Â¡ïÃËÅ¿π—Â¡ïÃÅÒÅmt∞(ÄÄÄÄÄÅ…Ö—•πúËÅ¿π…Ö—•πúÅÒÅπ’±∞∞(ÄÄÄÄÄÅ’Õï…IÖ—•πùΩ’π–ËÅ¿π’Õï…IÖ—•πùΩ’π–ÅÒÄ¿∞(ÄÄÄÄÄÅ¡°Ω—ΩÃËÄ°¿π¡°Ω—ΩÃÅÒÅmt§πÕ±•çî†¿∞Äÿ§πµÖ¿†°¡†§ÄÙ¯Ä°ÏÅ}ë•…ïç—U…§ËÅ¡†πùï—UI$¸∏°ÏÅµÖ·]•ë—†ËÄÿ–¿ÅÙ§ÅÙ§§∞(ÄÄÄÄÄÅ¡…•çï1ïŸï∞ËÅ¿π¡…•çï1ïŸï∞∞(ÄÄÄÄÄÅ…ïù’±Ö…=¡ïπ•πù!Ω’…ÃËÅÏÅΩ¡ïπ9Ω‹ËÅ¿π…ïù’±Ö…=¡ïπ•πù!Ω’…Ã¸π•Õ=¡ï∏¸∏†§Ä¸¸Åπ’±∞ÅÙ∞(ÄÄÄÄÄÅâ’Õ•πïÕÕM—Ö—’ÃËÅ¿πâ’Õ•πïÕÕM—Ö—’ÃÅÒÅπ’±∞∞(ÄÄÄÅÙÏ(ÄÅÙ((ÄÅÖÕÂπåÅô’πç—•Ω∏Å¡•ç≠M’ùùïÕ—•Ω∏°•—ï¥§ÅÏ(ÄÄÄÅÕï—M’ùùïÕ—•ΩπÃ°mt§Ï(ÄÄÄÅÕï—E’ï…‰†àà§Ï(ÄÄÄÅçΩπÕ–ÅÕïÕÕ•ΩπQΩ≠ï∏ÄÙÅ—Ω≠ïπIïòπç’……ïπ–Ï(ÄÄÄÅ—Ω≠ïπIïòπç’……ïπ–ÄÙÅπ’±∞Ï((ÄÄÄÅ•òÄ°•—ï¥π≠•πêÄÙÙÙÄâ¡±Öçîà§ÅÏ(ÄÄÄÄÄÄººÅIΩ’—îÅÕ—…Ö•ù°–Å—ºÅ—°îÅ¡±ÖçîùÃÅëï—Ö•∞ÅÕ°ïï–∏(ÄÄÄÄÄÅÕï—1ΩÖë•πú°—…’î§Ï(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å¡±ÖçîÄÙÅÖ›Ö•–Å…ïÕΩ±ŸïA±Öçïï—Ö•±Ã°•—ï¥π¡±Öçï%ê∞Äâ¡±Öçîà∞ÅÕïÕÕ•ΩπQΩ≠ï∏§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å¡°Ω—Ω1•Õ–ÄÙÄ°¡±Öçîπ¡°Ω—ΩÃÅÒÅmt§πÕ±•çî†¿∞Äÿ§πµÖ¿°¡°Ω—ΩU…±Ω»§πô•±—ï»°	ΩΩ±ïÖ∏§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å¡°Ω—ΩU…∞ÄÙÅ¡°Ω—Ω1•Õ—l¡tÅÒÅπ’±∞Ï(ÄÄÄÄÄÄÄÅçΩπÕ–ÅAI%}1Y1LÄÙÅlâIà∞Äâ%9aA9M%Yà∞Äâ5=IQà∞ÄâaA9M%Yà∞ÄâYIe}aA9M%YâtÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å¡…•çï9’¥ÄÙÅ¡±Öçîπ¡…•çï1ïŸï∞ÄÑÙÅπ’±∞(ÄÄÄÄÄÄÄÄÄÄ¸Ä°—Â¡ïΩòÅ¡±Öçîπ¡…•çï1ïŸï∞ÄÙÙÙÄâπ’µâï»àÄ¸Å¡±Öçîπ¡…•çï1ïŸï∞ÄËÅAI%}1Y1Lπ•πëï·=ò°M—…•πú°¡±Öçîπ¡…•çï1ïŸï∞§§§(ÄÄÄÄÄÄÄÄÄÄËÅπ’±∞Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å±ΩåÄÙÅ¡±Öçîπ±ΩçÖ—•Ω∏ÅÒÅÌÙÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å±Ö–ÄÙÅ—Â¡ïΩòÅ±Ωåπ±Ö–ÄÙÙÙÄâπ’µâï»àÄ¸Å±Ωåπ±Ö–ÄËÅ±Ωåπ±Ö—•—’ëîÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å±πúÄÙÅ—Â¡ïΩòÅ±Ωåπ±πúÄÙÙÙÄâπ’µâï»àÄ¸Å±Ωåπ±πúÄËÅ±Ωåπ±Ωπù•—’ëîÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å•Õ=¡ïπ9Ω‹ÄÙÅ—Â¡ïΩòÅ¡±Öçîπ…ïù’±Ö…=¡ïπ•πù!Ω’…Ã¸πΩ¡ïπ9Ω‹ÄÙÙÙÄââΩΩ±ïÖ∏àÄ¸Å¡±Öçîπ…ïù’±Ö…=¡ïπ•πù!Ω’…ÃπΩ¡ïπ9Ω‹ÄËÄ°¡±Öçîπ…ïù’±Ö…=¡ïπ•πù!Ω’…Ã¸πΩ¡ïπ9Ω‹Ä¸¸Åπ’±∞§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å¡±Öçï=â®ÄÙÅÏ(ÄÄÄÄÄÄÄÄÄÅ•êËÅ¡±Öçîπ•ê∞(ÄÄÄÄÄÄÄÄÄÅπÖµîËÄ°¡±Öçîπë•Õ¡±ÖÂ9Öµî¸π—ï·–ÅÒÅ¡±Öçîπë•Õ¡±ÖÂ9ÖµîÅÒÅ•—ï¥π—ï·–§πÕ¡±•–†à∞à•l¡tπ—…•¥†§∞(ÄÄÄÄÄÄÄÄÄÅ±Ö–∞(ÄÄÄÄÄÄÄÄÄÅ±πú∞(ÄÄÄÄÄÄÄÄÄÅÖëë…ïÕÃËÅ¡±ÖçîπôΩ…µÖ——ïëëë…ïÕÃÅÒÄàà∞(ÄÄÄÄÄÄÄÄÄÅ—Â¡îËÄ°¡±Öçîπ—Â¡ïÃÅÒÅmt•l¡tÅÒÄàà∞(ÄÄÄÄÄÄÄÄÄÅ—Â¡ïÃËÅ¡±Öçîπ—Â¡ïÃÅÒÅmt∞(ÄÄÄÄÄÄÄÄÄÅ…Ö—•πúËÅ¡±Öçîπ…Ö—•πúÅÒÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÅ…ïŸ•ï›ÃËÅ¡±Öçîπ’Õï…IÖ—•πùΩ’π–ÅÒÄ¿∞(ÄÄÄÄÄÄÄÄÄÅ¡…•çï9’¥ËÅ¡…•çï9’¥Ä¯ÙÄ¿Ä¸Å¡…•çï9’¥ÄËÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÅ¡…•çîËÅ¡…•çï9’¥Ä¯Ä¿Ä¸Äàêàπ…ï¡ïÖ–°¡…•çï9’¥§ÄËÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÅ¡°Ω—ºËÅ¡°Ω—ΩU…∞∞(ÄÄÄÄÄÄÄÄÄÅ¡°Ω—ΩÃËÅ¡°Ω—Ω1•Õ–∞(ÄÄÄÄÄÄÄÄÄÅΩ¡ïπ9Ω‹ËÅ•Õ=¡ïπ9Ω‹∞(ÄÄÄÄÄÄÄÄÄÄººÅÿÿ∏Ã–ËÅ•Õ=¡ï∏†§Å•ÃÅ±•ŸîÅÖ–ÅQ!%LÅ•πÕ—Öπ–ÉäPÅÕ—Öµ¿Å•–ÅÕºÅâ’Õ•πïÕÕM—Ö—’Ã(ÄÄÄÄÄÄÄÄÄÄººÅµÖ‰Å—…’Õ–Å•–Å•πÕ•ëîÅ—°îÅÕπÖ¡Õ°Ω–Åô…ïÕ°πïÕÃÅ›•πëΩ‹∏(ÄÄÄÄÄÄÄÄÄÅ°Ω’…ÕÕ=òËÅ•Õ=¡ïπ9Ω‹ÄÑÙÅπ’±∞Ä¸ÅÖ—îππΩ‹†§ÄËÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÅµÖ¡ÕU…∞ËÅÅ°——¡ÃËºΩ››‹πùΩΩù±îπçΩ¥ΩµÖ¡ÃΩÕïÖ…ç†º˝Ö¡§Ùƒô≈’ï…Â}¡±Öçï}•êÙëÌ¡±Öçîπ•ëıÄ∞(ÄÄÄÄÄÄÄÄÄÅ±Öâï±ÃËÅmt∞(ÄÄÄÄÄÄÄÄÄÅ›ôMçΩ…îËÅπ’±∞∞(ÄÄÄÄÄÄÄÅÙÏ(ÄÄÄÄÄÄÄÄººÅIïçïπ—ï»Åï·¡±Ω…îÅ±•Õ–Å—ºÅ—°•ÃÅ¡±ÖçîùÃÅÖ…ïÑÅôΩ»Å—°îÄâÕ•µ•±Ö»ÅÕ¡Ω—ÃàÅçΩπ—ï·–∏(ÄÄÄÄÄÄÄÅ•òÄ°—Â¡ïΩòÅ±Ö–ÄÙÙÙÄâπ’µâï»àÄòòÅ—Â¡ïΩòÅ±πúÄÙÙÙÄâπ’µâï»à§ÅÏ(ÄÄÄÄÄÄÄÄÄÅÕï—ïπ—ï»°ÏÅ±Ö–∞Å±πúÅÙ§Ï(ÄÄÄÄÄÄÄÄÄÅÕï—1ΩçIïÕΩ±Ÿïê°—…’î§Ï(ÄÄÄÄÄÄÄÄÄÅµÖπ’Ö±Iïòπç’……ïπ–ÄÙÅ—…’îÏ(ÄÄÄÄÄÄÄÄÄÄººÅÿ‡∏–ÿÉäPÅ—°•ÃÅµΩŸïÃÅ—°îÅI9-%9Å—ºÅÑÅâ’Õ•πïÕÃÅ—°îÅ…ïÖëï»Å—Ö¡¡ïêÅÖπê(ÄÄÄÄÄÄÄÄÄÄººÅπïŸï»Å—Ω’ç°ïêÅ—°îÅ±Öâï∞∏Å%πÕ•ëîÅ—°îÅÕÖµîÅ—Ω›∏Å—°Ö–Å•ÃÅ°Ö…µ±ïÕÃÄ°—°î(ÄÄÄÄÄÄÄÄÄÄººÅ¡Ö•…•πúÅ±Ö‹Å°Ω±ëÃÅ•–§∏ÅQÖ¿ÅÑÅ¡±ÖçîÅ•∏ÅÖπΩ—°ï»Åç•—‰Åô…Ω¥Å—°î(ÄÄÄÄÄÄÄÄÄÄººÅÖ’—ΩÕ’ùùïÕ–ÅÖπêÅ—°îÅç°…ΩµîÅ≠ï¡–Å¡…•π—•πúÅ—°îÅΩ±êÅ—Ω›∏ÅΩŸï»Å—°îÅπï‹(ÄÄÄÄÄÄÄÄÄÄººÅ—Ω›∏ùÃÅ…ïÕ’±—Ã∏Å]îÅëºÅπΩ–Å°ÖŸîÅÑÅç•—‰ÅπÖµîÅôΩ»Å—°•ÃÅ¡Ω•π–Å›•—°Ω’–(ÄÄÄÄÄÄÄÄÄÄººÅÕ¡ïπë•πúÅÑÅùïΩçΩëî∞ÅÖπêÅ—°îÅ°ΩπïÕ–ÅÖπÕ›ï»Å—ºÄâ›°•ç†Åç•—‰Å•ÃÅ—°•Ã¸à(ÄÄÄÄÄÄÄÄÄÄººÅ›°ï∏Å›îÅëºÅπΩ–Å≠πΩ‹Å•ÃÅπºÅç•—‰ÅÖ–ÅÖ±∞ÉäPÅ±ΩçÖ—•Ωπ!ΩπïÕ—‰Å¡…•π—Ã(ÄÄÄÄÄÄÄÄÄÄººÅπΩ—°•πúÅ…Ö—°ï»Å—°Ö∏ÅÑÅù’ïÕÃÅΩ»ÅÑÄâπïÖ»ÅÂΩ‘à∏(ÄÄÄÄÄÄÄÄÄÅ•òÄ†Öçïπ—ï…ù…ïïÕ]•—°1Öâï∞°ÏÅ±Ö–∞Å±πúÅÙ∞Å±Ωç9Öµî§§ÅÕï—1Ωç9Öµî†àà§Ï(ÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÅΩ¡ïπï—Ö•∞°¡±Öçï=â®§Ï(ÄÄÄÄÄÅÙÅçÖ—ç†ÅÏ(ÄÄÄÄÄÄÄÅÕ°Ω›QΩÖÕ–†âΩ’±êÅπΩ–Å±ΩÖêÅ—°•ÃÅ¡±Öçîà§Ï(ÄÄÄÄÄÅÙÅô•πÖ±±‰ÅÏ(ÄÄÄÄÄÄÄÅÕï—1ΩÖë•πú°ôÖ±Õî§Ï(ÄÄÄÄÄÅÙ(ÄÄÄÄÄÅ…ï—’…∏Ï(ÄÄÄÅÙ((ÄÄÄÄººÅ…ïÑÄºÅç•—‰ÉäPÅ…ïçïπ—ï»ÅÖπêÅ…ï±ΩÖêÅ—°îÅï·¡±Ω…îÅôïïê∏(ÄÄÄÅÕï—1ΩÖë•πú°—…’î§Ï(ÄÄÄÅµÖπ’Ö±Iïòπç’……ïπ–ÄÙÅ—…’îÏ(ÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÅçΩπÕ–Å¡±ÖçîÄÙÅÖ›Ö•–Å…ïÕΩ±ŸïA±Öçïï—Ö•±Ã°•—ï¥π¡±Öçï%ê∞ÄâÖ…ïÑà∞ÅÕïÕÕ•ΩπQΩ≠ï∏§Ï(ÄÄÄÄÄÅçΩπÕ–Å±ΩåÄÙÅ¡±Öçîπ±ΩçÖ—•Ω∏ÅÒÅÌÙÏ(ÄÄÄÄÄÅçΩπÕ–Å±Ö–ÄÙÅ—Â¡ïΩòÅ±Ωåπ±Ö–ÄÙÙÙÄâπ’µâï»àÄ¸Å±Ωåπ±Ö–ÄËÅ±Ωåπ±Ö—•—’ëîÏ(ÄÄÄÄÄÅçΩπÕ–Å±πúÄÙÅ—Â¡ïΩòÅ±Ωåπ±πúÄÙÙÙÄâπ’µâï»àÄ¸Å±Ωåπ±πúÄËÅ±Ωåπ±Ωπù•—’ëîÏ(ÄÄÄÄÄÅ•òÄ°—Â¡ïΩòÅ±Ö–ÄÙÙÙÄâπ’µâï»àÄòòÅ—Â¡ïΩòÅ±πúÄÙÙÙÄâπ’µâï»à§ÅÏ(ÄÄÄÄÄÄÄÅÕï—ïπ—ï»°ÏÅ±Ö–∞Å±πúÅÙ§Ï(ÄÄÄÄÄÄÄÅÕï—1ΩçIïÕΩ±Ÿïê°—…’î§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–ÅôÑÄÙÅ¡±ÖçîπôΩ…µÖ——ïëëë…ïÕÃÅÒÄ°¡±Öçîπë•Õ¡±ÖÂ9ÖµîÄòòÄ°¡±Öçîπë•Õ¡±ÖÂ9Öµîπ—ï·–ÅÒÅ¡±Öçîπë•Õ¡±ÖÂ9Öµî§§ÅÒÅ•—ï¥π—ï·–Ï(ÄÄÄÄÄÄÄÅÕï—1Ωç9Öµî°M—…•πú°ôÑ§πÕ¡±•–†à∞à§πÕ±•çî†¿∞Ä»§π©Ω•∏†à∞à§π—…•¥†§§Ï(ÄÄÄÄÄÅÙ(ÄÄÄÅÙÅçÖ—ç†ÅÏ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–ÅåÄÙÅÖ›Ö•–ÅùïΩçΩëï•—‰°•—ï¥π—ï·–§Ï(ÄÄÄÄÄÄÄÅ•òÄ°å§ÅÏÅÕï—ïπ—ï»°å§ÏÅÕï—1ΩçIïÕΩ±Ÿïê°—…’î§ÏÅÕï—1Ωç9Öµî°åππÖµîπÕ¡±•–†à∞à§πÕ±•çî†¿∞Ä»§π©Ω•∏†à∞à§π—…•¥†§§ÏÅÙ(ÄÄÄÄÄÅÙÅçÖ—ç†ÅÌÙ(ÄÄÄÅÙÅô•πÖ±±‰ÅÏ(ÄÄÄÄÄÅÕï—1ΩÖë•πú°ôÖ±Õî§Ï(ÄÄÄÅÙ(ÄÅÙ((ÄÄººÅÿ‹∏ƒ‹ÉäPÄâMïÖ…ç†Å—°•ÃÅÖ…ïÑàÅô…Ω¥Å—°îÅ5Ö¿Å—ÖàËÅ…îµÖπç°Ω»Å—°îÅë•ÕçΩŸï…‰(ÄÄººÅïπù•πîÅÖ–Å—°îÅ¡Öππïêµ—ºÅçΩΩ…ë•πÖ—ïÃ∏ÅMÖµîÅçΩπ—…Öç–ÅÖÃÅ©’µ¡QΩ…ïÑËÅµÖπ’Ö∞(ÄÄººÅô±ÖúÅÕºÅÑÅALÅô•‡ÅëΩïÕ∏ù–ÅÕ•±ïπ—±‰ÅÂÖπ¨Å—°îÅçïπ—ï»ÅâÖç¨∞ÅÖπêÅ—°îÅ±Öâï∞Å•Ã(ÄÄººÅ°ΩπïÕ—±‰Åùïπï…•åÉäPÅ›îÅ°Ω±êÅπºÅ…ïŸï…ÕîµùïΩçΩëïêÅπÖµîÅôΩ»ÅÖ…â•—…Ö…‰(ÄÄººÅçΩΩ…ë•πÖ—ïÃÅÖπêÅ›•±∞ÅπΩ–Å•πŸïπ–ÅΩπîÄ°ôΩ±±Ω‹µ’¿ËÅ…ïŸï…ÕîÅùïΩçΩëîÅ•ÃÅÑ(ÄÄººÅµï—ï…ïêµÕ¡ïπêÅëïç•Õ•Ω∏§∏(ÄÅô’πç—•Ω∏ÅÕïÖ…ç°5Ö¡…ïÑ°å§ÅÏ(ÄÄÄÅ•òÄ†ÖåÅÒÄÖ•Õ•π•—î°åπ±Ö–§ÅÒÄÖ•Õ•π•—î°åπ±πú§§Å…ï—’…∏Ï(ÄÄÄÅµÖπ’Ö±Iïòπç’……ïπ–ÄÙÅ—…’îÏ(ÄÄÄÅÕï—ïπ—ï»°ÏÅ±Ö–ËÅåπ±Ö–∞Å±πúËÅåπ±πúÅÙ§Ï(ÄÄÄÅÕï—1ΩçIïÕΩ±Ÿïê°—…’î§Ï(ÄÄÄÅÕï—1Ωç9Öµî†â—°•ÃÅµÖ¿ÅÖ…ïÑà§Ï(ÄÄÄÅ—…‰ÅÏÅ±ΩùŸïπ–†âµÖ¡}ÕïÖ…ç°}Ö…ïÑà∞Åπ’±∞∞ÅÏÅ±Ö–ËÄ≠9’µâï»°åπ±Ö–§π—Ω•·ïê†Ã§∞Å±πúËÄ≠9’µâï»°åπ±πú§π—Ω•·ïê†Ã§ÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÅÙ((ÄÅô’πç—•Ω∏Å©’µ¡QΩ…ïÑ°Ñ§ÅÏ(ÄÄÄÅµÖπ’Ö±Iïòπç’……ïπ–ÄÙÅ—…’îÏ(ÄÄÄÅÕï—MïÖ…ç°5Ωëî°ôÖ±Õî§Ï(ÄÄÄÅÕï—ïπ—ï»°ÏÅ±Ö–ËÅÑπ±Ö–∞Å±πúËÅÑπ±πú∞ÅπÖµîËÅÑππÖµîÅÙ§Ï(ÄÄÄÅÕï—1ΩçIïÕΩ±Ÿïê°—…’î§Ï(ÄÄÄÅÕï—1Ωç9Öµî°ÑππÖµî§Ï(ÄÄÄÅÕï—MïÖ…ç°IÖë•’Ã°Ñπ…Öë•’ÃÅÒÄ»–ƒ–¿§Ï(ÄÄÄÅÕï—E’ï…‰†àà§Ï(ÄÄÄÅÕï—M’ùùïÕ—•ΩπÃ°mt§Ï(ÄÄÄÅ—…‰ÅÏÅ•òÄ°Õç…Ω±±Iïòπç’……ïπ–§ÅÕç…Ω±±Iïòπç’……ïπ–πÕç…Ω±±Qº°ÏÅ—Ω¿ËÄ¿ÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÅÙ((ÄÅô’πç—•Ω∏Åç±ïÖ…MïÖ…ç°ïë1ΩçÖ—•Ω∏†§ÅÏ(ÄÄÄÅµÖπ’Ö±Iïòπç’……ïπ–ÄÙÅôÖ±ÕîÏÅ—…‰ÅÏÅ±ΩçÖ±M—Ω…Öùîπ…ïµΩŸï%—ï¥†â›ô}çïπ—ï»à§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄººÅÿ‡∏–ÿÉäPÅ	=Q Å!1YLÅ=HÅ9%Q!H∏ÅÅÕï—1Ωç9Öµî†àà•ÄÅ›ÖÃÅ’πçΩπë•—•ΩπÖ∞Å›°•±î(ÄÄÄÄººÅ—°îÅ…ïçïπ—ï»Å›ÖÃÅù’Ö…ëïêÅΩ∏Å°ÖŸ•πúÅÑÅëïŸ•çîÅô•‡∞ÅÕºÅ›•—†ÅπºÅô•‡ÅÂï–Å—°î(ÄÄÄÄººÅ…Öπ≠•πúÅÕ—ÖÂïêÅ¡•ππïêÅ—ºÅ—°îÅç•—‰Å—°îÅ…ïÖëï»Å°ÖêÅÕïÖ…ç°ïêÅ›°•±îÅ—°î(ÄÄÄÄººÅç°…ΩµîÅ›ïπ–Åâ±Öπ¨ÉäPÅ—°îÅÖ¡¿Å≈’•ï—±‰Åç±Ö•µ•πúÅπºÅ±ΩçÖ—•Ω∏Å›°•±îÅÕï…Ÿ•πú(ÄÄÄÄººÅΩπî∏Å±ïÖ…•πúÅ—°îÅ±Öâï∞Å•ÃÅΩπ±‰Å°ΩπïÕ–ÅΩπçîÅ—°îÅçΩΩ…ë•πÖ—ïÃÅ°ÖŸîÅÖç—’Ö±±‰(ÄÄÄÄººÅ±ïô–Å—°Ö–Åç•—‰∏(ÄÄÄÅ•òÄ°ëïŸ•çï1ΩåÄòòÅ•Õ•π•—î°ëïŸ•çï1Ωåπ±Ö–§§ÅÏ(ÄÄÄÄÄÅÕï—ïπ—ï»°ÏÅ±Ö–ËÅëïŸ•çï1Ωåπ±Ö–∞Å±πúËÅëïŸ•çï1Ωåπ±πúÅÙ§Ï(ÄÄÄÄÄÅÕï—1ΩçIïÕΩ±Ÿïê°—…’î§Ï(ÄÄÄÄÄÅÕï—1Ωç9Öµî†àà§Ï(ÄÄÄÅÙÅï±ÕîÅÏ(ÄÄÄÄÄÄººÅ9ºÅô•‡Å—ºÅôÖ±∞ÅâÖç¨Å—ºËÅÖÕ¨ÅôΩ»ÅΩπî∏Å…ïçïπ—ï…QΩ5îÅç±ïÖ…ÃÅ›ô}çïπ—ï»∞(ÄÄÄÄÄÄººÅ…ïÕΩ±ŸïÃÅ—°îÅπÖµîÅÖπêÅ—°îÅ¡Ω•π–Å—Ωùï—°ï»∞ÅÖπêÅ•ÃÅ—°îÅÕÖµîÅ¡Ö—†Å—°î(ÄÄÄÄÄÄººÅ°ïÖëï»ùÃÄâ’……ïπ–Å±ΩçÖ—•Ω∏àÅ…’πÃ∏(ÄÄÄÄÄÅ—…‰ÅÏÅ…ïçïπ—ï…QΩ5î†§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÅÙ(ÄÅÙ((ÄÄººÅÿÿ∏‰‹Ä°Ω›πï»ËÄâÑÅπïÖ»ÅµîÅâ’——Ω∏Å—ºÅ…ïÕï–Åµ‰Å±ΩçÖ—•Ω∏Å›Ω’±êÅâîÅπ•çî∞Å$(ÄÄººÅùΩ–ÅÕ—’ç¨Å±ΩΩ≠•πúÅÖ…Ω’πêÅÖπêÅ°ÖêÅπºÅ•ëïÑÅ›°ï…îÅ$Å›ÖÃà§ÉäPÅ—°•ÃÅô•±î(ÄÄººÅÖ±…ïÖë‰Å°ÖêÅç±ïÖ…MïÖ…ç°ïë1ΩçÖ—•Ω∏†§ÅÖâΩŸîËÅ•–Å…ïÕï—ÃÅÑÅµÖπ’Ö∞Åç•—‰(ÄÄººÅÕïÖ…ç†ÅâÖç¨Å—Ω›Ö…êÅAL∞Åâ’–Å•–Å›ÖÃÅπïŸï»Å›•…ïêÅ—ºÅÖπ‰Åâ’——Ω∏∞ÅπïŸï»(ÄÄººÅ—Ω±êÅ—°îÅ5@Å—ºÅÖç—’Ö±±‰Åô±‰Å—°îÅçÖµï…ÑÅÖπÂ›°ï…îÄ°ÕºÅ—°îÅµÖ¿ÅŸ•ï‹Å›Ω’±ê(ÄÄººÅÕ—Ö‰Å›°ï…ïŸï»Å—°îÅ’Õï»Å°ÖêÅ¡Öππïê§∞ÅÖπêÅ±ïô–Å—°îÅ±ΩçÖ—•Ω∏ÅπÖµîÅâ±Öπ¨(ÄÄººÅ•πÕ—ïÖêÅΩòÅπÖµ•πúÅ›°ï…îÄâπïÖ»ÅµîàÅπΩ‹Å¡Ω•π—Ã∏Å•π•Õ°•πúÅ•–Å•π—ºÅÑÅ…ïÖ∞(ÄÄººÅΩπîµ—Ö¿Å…ïçïπ—ï»ËÅç±ïÖ…ÃÅ—°îÅµÖπ’Ö∞ÅΩŸï……•ëî∞Å…îµôï—ç°ïÃÅÑÅô…ïÕ†ÅALÅô•‡(ÄÄººÅ•òÅΩπîÅ•Õ∏ù–ÅÖ±…ïÖë‰Å°ï±êÄ°ÕÖµîÅçÖ±∞Ω¡Ö——ï…∏ÅÖÃÅ—°îÅ•π•—•Ö∞µµΩ’π–(ÄÄººÅ…ï≈’ïÕ–Åâï±Ω‹§∞ÅÕπÖ¡ÃÅâΩ—†Å—°îÅÕïÖ…ç†Åçïπ—ï»Å9Å—°îÅµÖ¿ÅçÖµï…ÑÅ—°ï…î∞(ÄÄººÅÖπêÅπÖµïÃÅ•–ÅŸ•ÑÅ—°îÅÕÖµîÅ…ïŸï…ÕîÅùïΩçΩëîÅïŸï…‰ÅΩ—°ï»Åçïπ—ï»µÕï–Å’ÕïÃ∏(ÄÅÖÕÂπåÅô’πç—•Ω∏Å…ïçïπ—ï…QΩ5î†§ÅÏ(ÄÄÄÅµÖπ’Ö±Iïòπç’……ïπ–ÄÙÅôÖ±ÕîÏ(ÄÄÄÅ—…‰ÅÏÅ±ΩçÖ±M—Ω…Öùîπ…ïµΩŸï%—ï¥†â›ô}çïπ—ï»à§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄººÅÿ‡∏ƒ–Ä°Ω›πï»∞Ä»¿»ÿ¥¿‡¥ƒ‡ËÄâ$ÅπïïêÅ—°îÅç’……ïπ–Å±ΩçÖ—•Ω∏Å—ºÅâîÅ¡…ïç•ÕîÉäP(ÄÄÄÄººÅ±ïŸï…ÖùîÅ—°îÅµÖ¿Åô’πç—•Ω∏ÅÕºÅ•–ÅÕ°Ω›ÃÅï·Öç—±‰Å›°Ö–Å•ÃÅÖ…Ω’πêÅ—°îÅ’Õï»à§∏(ÄÄÄÄººÅ∏Å%@µëï…•ŸïêÅëïŸ•çï1ΩåÄ°±Ωç¡¡…Ω‡§ÅçÖ∏ÅÕ•–Å5%1LÅô…Ω¥Å—°îÅ…ïÖëï»ÉäP(ÄÄÄÄººÅÕ°Ω…—ç’——•πúÅ—ºÅ•–Å°ï…îÅµÖëîÄâç’……ïπ–Å±ΩçÖ—•Ω∏àÅ¡…ïç•Õîµ±ΩΩ≠•πúÅÖπê(ÄÄÄÄººÅ›…Ωπú∏Å¡¡…Ω·•µÖ—îÅô•·ïÃÅπºÅ±Ωπùï»ÅÕ°Ω…—ç’–ËÅ—°ï‰ÅôÖ±∞Å—°…Ω’ù†Å—ºÅÑ(ÄÄÄÄººÅô…ïÕ†ÅïπÖâ±ï!•ù°çç’…Öç‰ÅALÅô•‡∞Å—°îÅÕÖµîÅ¡…ïç•Õ•Ω∏Å—°îÅµÖ¿Å¡•∏Å…’πÃ(ÄÄÄÄººÅΩ∏∏ÅÅ…ïÖ∞ÅALÅëïŸ•çï1ΩåÅÕ—•±∞ÅÕ°Ω…—ç’—ÃÉäPÅ•–Å%LÅ—°îÅ¡…ïç•ÕîÅÖπÕ›ï»∏(ÄÄÄÅ•òÄ†Ö±Ωç¡¡…Ω‡ÄòòÅëïŸ•çï1ΩåÄòòÅ•Õ•π•—î°ëïŸ•çï1Ωåπ±Ö–§§ÅÏ(ÄÄÄÄÄÄººÅÿ‡∏–ÿÉäPÅ95Å%IMP∞ÅQ!8Å=55%P∏ÅQ°•ÃÅ’ÕïêÅ—ºÅµΩŸîÅ—°îÅçïπ—ï»∞Å—°îÅµÖ¿(ÄÄÄÄÄÄººÅÖπêÅ±ΩçIïÕΩ±ŸïêÅ•µµïë•Ö—ï±‰ÅÖπêÅΩπ±‰Å—°ï∏ÅÅÖ›Ö•—ÄÅ—°îÅ…ïŸï…ÕîÅùïΩçΩëî(ÄÄÄÄÄÄººÅ•πÕ•ëîÅÑÅçÖ—ç†µÖ±∞Å—…‰ÉäPÅÕºÅÑÅ—°…Ω‹∞ÅΩ»ÅÕ•µ¡±‰ÅÑÅÕ±Ω‹ÅÖπÕ›ï»∞Å±ïô–Å—°î(ÄÄÄÄÄÄººÅ…Öπ≠•πúÅÖ–Å—°îÅπï‹Å¡Ω•π–Å›°•±îÅ—°îÅç°…ΩµîÅÕ—•±∞ÅπÖµïêÅ—°îÅ=1Åç•—‰∞ÅÖπê(ÄÄÄÄÄÄººÅ—°îÅ›…•—ï»Åïôôïç–Å¡ï…Õ•Õ—ïêÅ—°Ö–Å¡Ö•»Å—ºÅ›ô}çïπ—ï»∏ÅIïÕΩ±Ÿ•πúÅ—°îÅπÖµî(ÄÄÄÄÄÄººÅâïôΩ…îÅÖπÂ—°•πúÅçΩµµ•—ÃÅµÖ≠ïÃÅ—°îÅ—›ºÅ°Ö±ŸïÃÅ±ÖπêÅ•∏ÅΩπîÅ…ïπëï»∞Å›°•ç†(ÄÄÄÄÄÄººÅ•ÃÅ—°îÅÕÖµîÅΩ…ëï»Å—°îÅµΩ’π–ÅALÅ°Öπë±ï»ÅÖ±…ïÖë‰Å’ÕïÃ∏(ÄÄÄÄÄÅçΩπÕ–ÅπÖµîÄÙÅÖ›Ö•–Å…ïŸï…ÕïïΩçΩëî°ëïŸ•çï1Ωåπ±Ö–∞ÅëïŸ•çï1Ωåπ±πú§πçÖ—ç†††§ÄÙ¯Äàà§Ï(ÄÄÄÄÄÅÕï—ïπ—ï»°ÏÅ±Ö–ËÅëïŸ•çï1Ωåπ±Ö–∞Å±πúËÅëïŸ•çï1Ωåπ±πúÅÙ§Ï(ÄÄÄÄÄÅÕï—1ΩçIïÕΩ±Ÿïê°—…’î§Ï(ÄÄÄÄÄÅÕï—5Ö¡Ωç’Ã°ÏÅ±Ö–ËÅëïŸ•çï1Ωåπ±Ö–∞Å±πúËÅëïŸ•çï1Ωåπ±πú∞Å—ÃËÅÖ—îππΩ‹†§ÅÙ§Ï(ÄÄÄÄÄÄººÅ9ºÅπÖµîÅ•ÃÅ°ΩπïÕ–Ä°±ΩçÖ—•Ωπ!ΩπïÕ—‰Å¡…•π—ÃÅπºÅç•—‰Å…Ö—°ï»Å—°Ö∏ÄâÂΩ‘à§Ï(ÄÄÄÄÄÄººÅÑÅMQ1ÅπÖµîÅ•ÃÅÑÅ±•î∞ÅÕºÅ—°îÅΩ±êÅ±Öâï∞ÅπïŸï»ÅÕ’…Ÿ•ŸïÃÅÑÅµΩŸî∏(ÄÄÄÄÄÅÕï—1Ωç9Öµî°πÖµîÅÒÄàà§Ï(ÄÄÄÄÄÅ—…‰ÅÏÅ±ΩùŸïπ–†â…ïçïπ—ï…}—Ω}µîà∞Åπ’±∞∞ÅÏÅ°Öë•‡ËÅ—…’îÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÅ…ï—’…∏Ï(ÄÄÄÅÙ(ÄÄÄÅ•òÄ°—Â¡ïΩòÅπÖŸ•ùÖ—Ω»ÄÙÙÙÄâ’πëïô•πïêàÅÒÄÖπÖŸ•ùÖ—Ω»πùïΩ±ΩçÖ—•Ω∏§Å…ï—’…∏Ï(ÄÄÄÅπÖŸ•ùÖ—Ω»πùïΩ±ΩçÖ—•Ω∏πùï—’……ïπ—AΩÕ•—•Ω∏†(ÄÄÄÄÄÅÖÕÂπåÄ°¡ΩÃ§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–ÅåÄÙÅÏÅ±Ö–ËÅ¡ΩÃπçΩΩ…ëÃπ±Ö—•—’ëî∞Å±πúËÅ¡ΩÃπçΩΩ…ëÃπ±Ωπù•—’ëîÅÙÏ(ÄÄÄÄÄÄÄÅÕï—ïŸ•çï1Ωå°å§Ï(ÄÄÄÄÄÄÄÅÕï—1Ωç¡¡…Ω‡°ôÖ±Õî§Ï(ÄÄÄÄÄÄÄÄººÅÿ‡∏–ÿÉäPÅπÖµîÅô•…Õ–∞Å—°ï∏ÅçΩµµ•–Ä°ÕïîÅ—°îÅπΩ—îÅÖâΩŸî§∏ÅMÖµîÅëïôïç–∞(ÄÄÄÄÄÄÄÄººÅÕÖµîÅô•‡ËÅ—°îÅ±Öâï∞ÅÖπêÅ—°îÅçΩΩ…ë•πÖ—ïÃÅÖ…îÅΩπîÅôÖç–ÅÖπêÅ±ÖπêÅ•∏ÅΩπî(ÄÄÄÄÄÄÄÄººÅ…ïπëï»∞ÅÕºÅÑÅôÖ•±ïêÅΩ»ÅÕ±Ω‹ÅùïΩçΩëîÅçÖ∏ÅπïŸï»ÅÕ—…ÖπêÅ—°îÅΩ±êÅç•—‰ùÃ(ÄÄÄÄÄÄÄÄººÅπÖµîÅΩ∏ÅÑÅπï‹Åç•—‰ùÃÅ¡•∏∏(ÄÄÄÄÄÄÄÅçΩπÕ–ÅπÖµîÄÙÅÖ›Ö•–Å…ïŸï…ÕïïΩçΩëî°åπ±Ö–∞Ååπ±πú§πçÖ—ç†††§ÄÙ¯Äàà§Ï(ÄÄÄÄÄÄÄÅÕï—ïπ—ï»°å§Ï(ÄÄÄÄÄÄÄÅÕï—1ΩçIïÕΩ±Ÿïê°—…’î§Ï(ÄÄÄÄÄÄÄÅÕï—5Ö¡Ωç’Ã°ÏÄ∏∏πå∞Å—ÃËÅÖ—îππΩ‹†§ÅÙ§Ï(ÄÄÄÄÄÄÄÅÕï—1Ωç9Öµî°πÖµîÅÒÄàà§Ï(ÄÄÄÄÄÄÄÅ—…‰ÅÏÅ±ΩùŸïπ–†â…ïçïπ—ï…}—Ω}µîà∞Åπ’±∞∞ÅÏÅ°Öë•‡ËÅôÖ±ÕîÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÅÙ∞(ÄÄÄÄÄÄ†§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–†â…ïçïπ—ï…}—Ω}µï}ëïπ•ïêà∞Åπ’±∞∞ÅÌÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅÙ∞(ÄÄÄÄÄÄººÅÿ‡∏ƒ–ÉäPÅµÖ¿µù…ÖëîÅ¡…ïç•Õ•Ω∏Ä°ÕïîÅ—°îÅπΩ—îÅÖâΩŸî§ËÅÑÅô…ïÕ†(ÄÄÄÄÄÄººÅ°•ù†µÖçç’…Öç‰Åô•‡∞ÅπïŸï»ÅÑÅçÖç°ïêÅçΩÖ…ÕîÅΩπî∏(ÄÄÄÄÄÅÏÅïπÖâ±ï!•ù°çç’…Öç‰ËÅ—…’î∞Å—•µïΩ’–ËÄƒ¿¿¿¿∞ÅµÖ·•µ’µùîËÄ¿ÅÙ(ÄÄÄÄ§Ï(ÄÅÙ((ÄÄººÅΩŸï…ÖùîÅùÖ—îËÅÖÕ¨Å—°îÅÕï…Ÿï»Å›°ï—°ï»Å—°•ÃÅ±ΩçÖ—•Ω∏Å•ÃÅ±•ŸîÄºÅ’π±Ωç¨ÄºÅÖ±ï…–∏(ÄÄººÅ=πîÅIAÏÅ—°îÅ…ïÕ’±–Åë…•ŸïÃÅ›°ï—°ï»Å—°îÅôïïêÅΩ»Å—°îÅ•—ÂÖ—îÅëΩΩ»Å…ïπëï…Ã∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ°Õç…ïï∏ÄÑÙÙÄâÕ’ùùïÕ—ïêàÅÒÄÖçïπ—ï»ÅÒÄÖÕ’¡ÖâÖÕî§ÅÏÅÕï—Ö—ïM—Ö—’Ã°π’±∞§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÅ±ï–ÅëïÖêÄÙÅôÖ±ÕîÏ(ÄÄÄÅÕ’¡ÖâÖÕîπ…¡å†â›ô}ùÖ—ï}Õ—Ö—’Ãà∞ÅÏÅ¡}±Ö–ËÅçïπ—ï»π±Ö–∞Å¡}±πúËÅçïπ—ï»π±πú∞Å¡}’Õï…}•êËÄ°’Õï»ÄòòÅ’Õï»π•ê§ÅÒÅπ’±∞ÅÙ§(ÄÄÄÄÄÄπ—°ï∏†°ÏÅëÖ—ÑÅÙ§ÄÙ¯ÅÏÅ•òÄ†ÖëïÖê§ÅÕï—Ö—ïM—Ö—’Ã°—Â¡ïΩòÅëÖ—ÑÄÙÙÙÄâÕ—…•πúàÄ¸ÅëÖ—ÑÄËÅπ’±∞§ÏÅÙ∞Ä†§ÄÙ¯ÅÏÅ•òÄ†ÖëïÖê§ÅÕï—Ö—ïM—Ö—’Ã°π’±∞§ÏÅÙ§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅëïÖêÄÙÅ—…’îÏÅÙÏ(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞ÅmÕç…ïï∏∞Åçïπ—ï»∞Å’Õï»∞ÅùÖ—ï	’µ¡t§Ï((ÄÄººÅ’—ºµô•±∞ÅçΩŸï…ÖùîÅôΩ»Å9dÅ’πçΩŸï…ïêÅ±ΩçÖ—•Ω∏Ä°Ω›πï»ËÅ›Ω…≠ÃÅôΩ»Å—°îÅ’Õï»ùÃ(ÄÄººÅÕïÖ…ç°ïêÅ=HÅëïôÖ’±–Å±ΩçÖ—•Ω∏ÉäPÅπºÅ—Ö¿∞ÅÕ•ùπïêÅ•∏ÅΩ»ÅπΩ–§∏Å]°ï∏Å—°îÅùÖ—îÅÕÖÂÃ(ÄÄººÅ—°•ÃÅ¡±ÖçîÅ•Õ∏ù–ÅçΩŸï…ïê∞Å≠•ç¨ÄΩÖ¡§Ωç•—‰Ω’π±Ωç¨Å=9Å¡ï»Å±ΩçÖ—•Ω∏Åçï±∞ÏÅ•–(ÄÄººÅ¡’±±ÃÅΩΩù±îÄ¨ÅY•Ö—Ω»ÅÕï…Ÿï»µÕ•ëî∞Å—°ï∏Å›îÅ…îµç°ïç¨ÅÕºÅ—°îÅëΩΩ»Åù•ŸïÃÅ›Ö‰Å—º(ÄÄººÅ…ïÖ∞ÅçΩπ—ïπ–ÅÖπêÅÑÅ…ïÖ∞ÄâQ°•πùÃÅ—ºÅëºàÅ…Ö•∞∏ÅΩÕ–Å•ÃÅâΩ’πëïêÅÕï…Ÿï»µÕ•ëî(ÄÄººÄ°¡ï»µç•—‰Ä‰¿µëÖ‰Åëïë’¿Ä¨Åù±ΩâÖ∞Å°Ω’…±‰ÅçÖ¿Ä¨ÅÕÖµîµΩ…•ù•∏Åù’Ö…ê§∏(ÄÅçΩπÕ–ÅÖ’—ΩUπ±Ωç≠IïòÄÙÅ’ÕïIïò°πï‹ÅMï–†§§Ï(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ°Õç…ïï∏ÄÑÙÙÄâÕ’ùùïÕ—ïêàÅÒÄÖçïπ—ï»§Å…ï—’…∏Ï(ÄÄÄÅ•òÄ°ùÖ—ïM—Ö—’ÃÄÑÙÙÄâ’π±Ωç¨àÄòòÅùÖ—ïM—Ö—’ÃÄÑÙÙÄâÖ±ï…–à§Å…ï—’…∏Ï(ÄÄÄÅçΩπÕ–Åçï±∞ÄÙÅçïπ—ï»π±Ö–π—Ω•·ïê†»§Ä¨Äà∞àÄ¨Åçïπ—ï»π±πúπ—Ω•·ïê†»§Ï(ÄÄÄÅ•òÄ°Ö’—ΩUπ±Ωç≠Iïòπç’……ïπ–π°ÖÃ°çï±∞§§Å…ï—’…∏ÏÄººÅΩπîÅÖ——ïµ¡–Å¡ï»Å±ΩçÖ—•Ω∏Å¡ï»ÅÕïÕÕ•Ω∏(ÄÄÄÅÖ’—ΩUπ±Ωç≠Iïòπç’……ïπ–πÖëê°çï±∞§Ï(ÄÄÄÅ±ï–ÅëïÖêÄÙÅôÖ±ÕîÏ(ÄÄÄÄ°ÖÕÂπåÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å»ÄÙÅÖ›Ö•–Åôï—ç††àΩÖ¡§Ωç•—‰Ω’π±Ωç¨à∞ÅÏ(ÄÄÄÄÄÄÄÄÄÅµï—°ΩêËÄâA=MPà∞(ÄÄÄÄÄÄÄÄÄÅ°ïÖëï…ÃËÅÏÄâçΩπ—ïπ–µ—Â¡îàËÄâÖ¡¡±•çÖ—•Ω∏Ω©ÕΩ∏àÅÙ∞(ÄÄÄÄÄÄÄÄÄÅâΩë‰ËÅ)M=8πÕ—…•πù•ô‰°ÏÅ±Ö–ËÅçïπ—ï»π±Ö–∞Å±πúËÅçïπ—ï»π±πú∞Åç•—‰ËÅ±Ωç9ÖµîÅÒÄààÅÙ§∞(ÄÄÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å®ÄÙÅ»πΩ¨Ä¸ÅÖ›Ö•–Å»π©ÕΩ∏†§ÄËÅπ’±∞Ï(ÄÄÄÄÄÄÄÅ•òÄ†ÖëïÖêÄòòÅ®ÄòòÄ°®πÕ—Ö—’ÃÄÙÙÙÄâ±•ŸîàÅÒÅ®πÖëëïêÄ¯Ä¿ÅÒÅ®πï·¡ï…•ïπçïÃÄ¯Ä¿§§ÅÕï—Ö—ï	’µ¿†°‡§ÄÙ¯Å‡Ä¨Äƒ§Ï(ÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÅÙ§†§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅëïÖêÄÙÅ—…’îÏÅÙÏ(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞ÅmÕç…ïï∏∞Åçïπ—ï»∞ÅùÖ—ïM—Ö—’Õt§Ï(((ÄÅÖÕÂπåÅô’πç—•Ω∏ÅÕ’âµ•—MïÖ…ç†°≈=Ÿï……•ëî∞ÅΩ¡—Ã§ÅÏ(ÄÄÄÅ—…‰ÅÏÅ±ΩùŸïπ–†âÕïÖ…ç†à∞Åπ’±∞∞ÅÏÅƒËÅM—…•πú°≈’ï…‰ÅÒÄàà§πÕ±•çî†¿∞Ä‡¿§ÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÅçΩπÕ–ÅƒÄÙÄ°—Â¡ïΩòÅ≈=Ÿï……•ëîÄÙÙÙÄâÕ—…•πúàÄ¸Å≈=Ÿï……•ëîÄËÅ≈’ï…‰§π—…•¥†§Ï(ÄÄÄÅ•òÄ†Öƒ§ÅÏÅΩ¡ïπM’…¡…•Õî†§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÅÕï—M’ùùïÕ—•ΩπÃ°mt§Ï(ÄÄÄÄººÅ°ïç¨Å•òÅ•–ùÃÅÑÅ]ÖÂô•πêÅï·¡ï…•ïπçîÅ≠ïÂ›Ω…êÅô•…Õ–Ä°â’…ùï…Ã∞Å…ΩΩô—Ω¿∞Å±•ŸîÅµ’Õ•èäò§∏(ÄÄÄÅçΩπÕ–Å≈∞ÄÙÅƒπ—Ω1Ω›ï…ÖÕî†§Ï(ÄÄÄÅçΩπÕ–Åôïï∞ÄÙÅôïï±•πùQΩ5Ωµïπ–°≈∞§Ï(ÄÄÄÅ•òÄ°ôïï∞§ÅÏÅÕï—E’ï…‰†àà§ÏÅ—…‰ÅÏÅ±ΩùŸïπ–†âôïï±•πù}ÕïÖ…ç†à∞Åπ’±∞∞ÅÏÅƒËÅ≈∞πÕ±•çî†¿∞Ä–¿§ÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅΩ¡ïπ5Ωµïπ–°ôïï∞§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÅ•òÄ°≈∞π±ïπù—†Ä¯ÙÄÃ§ÅÏ(ÄÄÄÄÄÅçΩπÕ–Åï·¡!•–ÄÙÅ=â©ïç–π≠ïÂÃ°aAI%9L§πô•πê†°¨§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–ÅîÄÙÅaAI%9Mm≠tÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å±ÖàÄÙÄ°îπ±Öâï∞ÅÒÄàà§π—Ω1Ω›ï…ÖÕî†§Ï(ÄÄÄÄÄÄÄÄººÅaPÅ≠ï‰Ω±Öâï∞ÅµÖ—ç†ÅΩπ±‰ÉäPÅ±Öâï∞µÕ’âÕ—…•πúÅµÖ—ç°•πúÅÕ›Ö±±Ω›ïêÅ%QdÅπÖµïÃ(ÄÄÄÄÄÄÄÄººÅ—°Ö–ÅÖ¡¡ïÖ»Å•πÕ•ëîÅï·¡ï…•ïπçîÅ±Öâï±ÃËÅ—Â¡•πúÄâMÖ…ÖÕΩ—ÑàÅµÖ—ç°ïêÅ—°î(ÄÄÄÄÄÄÄÄººÄâ	ïÕ–ÅΩòÅMÖ…ÖÕΩ—ÑàÅ±Öâï∞∞ÅΩ¡ïπïêÅ—°Ö–ÅÕ°ïï–∞ÅÖπêÅ—°îÅÖ¡¿ÅπïŸï»(ÄÄÄÄÄÄÄÄººÅ…ïçïπ—ï…ïêÄ°—°îÅï·Öç–Åâ’úÄåÃÿƒÅô•·ïêÅ—°ï∏ÅÕ—•±∞Åï·°•â•—ïê§∏ÅÅâÖ…î(ÄÄÄÄÄÄÄÄººÅç•—‰Åµ’Õ–ÅôÖ±∞Å—°…Ω’ù†Å—ºÅ—°îÅÖ…ïÑµô•…Õ–ÅÕïÖ…ç†Åâï±Ω‹∏(ÄÄÄÄÄÄÄÅ…ï—’…∏Å¨ÄÙÙÙÅ≈∞ÅÒÅ±ÖàÄÙÙÙÅ≈∞ÅÒÄ°îπ≠ïÂ›Ω…êÄòòÅîπ≠ïÂ›Ω…êπ—Ω1Ω›ï…ÖÕî†§π•πç±’ëïÃ°≈∞§§Ï(ÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÅ•òÄ°ï·¡!•–§ÅÏÅÕï—E’ï…‰†àà§ÏÅΩ¡ïπ·¡ï…•ïπçî°ï·¡!•–§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÅÙ(ÄÄÄÄººÅÿÿ∏ÿ¿Ä°Ω›πï»∞Ä»¿»ÿ¥¿‹¥»‘§Ä¥¥Å%QdÅ%9Q9PÅ]%9L∏(ÄÄÄÄºº(ÄÄÄÄººÅQ°•ÃÅô’πç—•Ω∏Å’ÕïêÅ—ºÅ…’∏ÅÑÄ»¿µµ•±îÅπïÖ…â‰µ	UM%9MLÅÕïÖ…ç†Å%IMPÅÖπê(ÄÄÄÄººÅÅ…ï—’…πÄÅΩ∏ÅÖπ‰Å°•–∏ÅQÂ¡•πúÅÑÅπïÖ…â‰Åç•—‰Å—°ï…ïôΩ…îÅµÖ—ç°ïêÅâ’Õ•πïÕÕïÃ(ÄÄÄÄººÅ—°Ö–Åµï…ï±‰ÅçΩπ—Ö•∏Å—°îÅ›Ω…êÄ†âMÖ…ÖÕΩ—ÑàÅô…Ω¥ÅAÖ……•Õ†Ä¥¯ÅMÖ…ÖÕΩ—Ñ(ÄÄÄÄººÅ5ïµΩ…•Ö∞∞ÅMÖ…ÖÕΩ—ÑÅ	…Öëïπ—Ω∏Å•…¡Ω…–∏∏∏§∞ÅΩ¡ïπïêÅÑÄâIïÕ’±—ÃÅôΩ»Å`à(ÄÄÄÄººÅÕ°ïï–∞ÅÖπêÅ9YHÅ…ïçïπ—ï…ïêÄ¥¥Å—°îÅôïïêÅÕ—ÖÂïêÅΩ∏Å—°îÅΩ±êÅç•—‰∏ÅQ°Ö–Å•Ã(ÄÄÄÄººÅ—°îÄâ$ÅÕïÖ…ç°ïêÅÖπêÅ—°îÅçÖ…ëÃÅÕ—ÖÂïêÅΩ∏ÅAÖ……•Õ†àÅâ’ú∏(ÄÄÄÄºº(ÄÄÄÄººÅ=…ëï»Å•ÃÅπΩ‹ËÄ†ƒ§ÅÑÅ≈’ï…‰Å—°Ö–ÅùïΩçΩëïÃÅ—ºÅÑÅ…ïÖ∞ÅIÅ…ïçïπ—ï…ÃÅ—°îÅÖ¡¿∞(ÄÄÄÄººÅÖ±›ÖÂÃÏÄ†»§ÅΩ—°ï…›•ÕîÅÑÅπïÖ…â‰µâ’Õ•πïÕÃÅÕïÖ…ç†Ä°5çΩπÖ±êùÃ∞ÅÑÅŸïπ’î(ÄÄÄÄººÅπÖµî§ÏÄ†Ã§ÅΩ—°ï…›•ÕîÅÑÅπΩ∏µÖ…ïÑÅùïΩçΩëîÄ°ÑÅÕ—…ïï–ÅÖëë…ïÕÃ§ÅÕ—•±∞(ÄÄÄÄººÅ…ïçïπ—ï…ÃÅ…Ö—°ï»Å—°Ö∏ÅëïÖêµïπë•πú∏ÅÅç•—‰ÅçÖ∏ÅπºÅ±Ωπùï»Å±ΩÕîÅ—ºÅÑ(ÄÄÄÄººÅâ’Õ•πïÕÃÅ—°Ö–Å°Ö¡¡ïπÃÅ—ºÅÕ°Ö…îÅ•—ÃÅπÖµî∏(ÄÄÄÅçΩπÕ–Å’Õï…A•ç≠ïë1ΩçÖ—•Ω∏ÄÙÅµÖπ’Ö±Iïòπç’……ïπ–Ï(ÄÄÄÅÕï—1ΩÖë•πú°—…’î§Ï(ÄÄÄÅµÖπ’Ö±Iïòπç’……ïπ–ÄÙÅ—…’îÏ(ÄÄÄÄººÅA…ïôï»Å—°îÅ±ΩçÖ—•Ω∏Å—°îÅUMHÅ!=M∏ÅIÖ‹ÅëïŸ•çîÅALÅ’ÕïêÅ—ºÅ›•∏Å°ï…î∞ÅÕº(ÄÄÄÄººÅÖô—ï»ÅπÖŸ•ùÖ—•πúÅ—ºÅÖπΩ—°ï»Åç•—‰ÅÑÅÕïçΩπêÅÕïÖ…ç†ÅÕ•±ïπ—±‰ÅÕπÖ¡¡ïêÅ—°î(ÄÄÄÄººÅâ•ÖÃÅâÖç¨Å—ºÅ›°ï…ïŸï»Å—°îÅ’Õï»Å¡°ÂÕ•çÖ±±‰Å›ÖÃ∏(ÄÄÄÅçΩπÕ–ÅÕïÖ…ç°ïπ—ï»ÄÙÄ°’Õï…A•ç≠ïë1ΩçÖ—•Ω∏ÄòòÅçïπ—ï»§(ÄÄÄÄÄÄ¸ÅÏÅ±Ö–ËÅçïπ—ï»π±Ö–∞Å±πúËÅçïπ—ï»π±πúÅÙ(ÄÄÄÄÄÄËÅëïŸ•çï1Ωå(ÄÄÄÄÄÄÄÄ¸ÅÏÅ±Ö–ËÅëïŸ•çï1Ωåπ±Ö–∞Å±πúËÅëïŸ•çï1Ωåπ±πúÅÙ(ÄÄÄÄÄÄÄÄËÅçïπ—ï»Ä¸ÅÏÅ±Ö–ËÅçïπ—ï»π±Ö–∞Å±πúËÅçïπ—ï»π±πúÅÙÄËÅπ’±∞Ï(ÄÄÄÄººÅÿ–∏ÿ»ËÄââïÕ–ÅΩòÅÌç•—ÂÙàÅΩ¡ïπÃÅ—°îÅ	ïÕ–µΩòÅÕ°ïï–ÅôΩ»Å—°Ö–Åç•—‰∞ÅÖπê(ÄÄÄÄººÅ…ï¡ïÖ—ïêµ±ï——ï»Å—Â¡ΩÃÄ†â¡ÖÖÖ……•Õ†à§ÅçΩ±±Ö¡ÕîÅâïôΩ…îÅ›îÅù•ŸîÅ’¿∏Å(ÄÄÄÄººÅ’Õï»ÅÖÕ≠•πúÅôΩ»ÅÑÅç•—‰Åµ’Õ–ÅπïŸï»Å°•–ÅÑÅëïÖêÅïπêÅΩŸï»ÅÑÅ¡…ïô•‡ÅΩ»ÅÑ(ÄÄÄÄººÅ°ï±êµëΩ›∏Å≠ï‰∏(ÄÄÄÅçΩπÕ–ÅçΩ±±Ö¡ÕîÄÙÄ°‡§ÄÙ¯Åm‡∞Å‡π…ï¡±Öçî†º†∏•p≈Ï»±ÙΩú∞Äàêƒêƒà§∞Å‡π…ï¡±Öçî†º†∏•p≈Ïƒ±ÙΩú∞Äàêƒà•tÏ(ÄÄÄÅçΩπÕ–ÅùïΩQ…‰ÄÙÅÖÕÂπåÄ°πÖµî§ÄÙ¯ÅÏÅôΩ»Ä°çΩπÕ–ÅÿÅΩòÅçΩ±±Ö¡Õî°πÖµî§§ÅÏÅ—…‰ÅÏÅçΩπÕ–ÅúÄÙÅÖ›Ö•–ÅùïΩçΩëï•—‰°ÿ§ÏÅ•òÄ°ú§Å…ï—’…∏ÅúÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅÙÅ…ï—’…∏Åπ’±∞ÏÅÙÏ(ÄÄÄÅçΩπÕ–ÅùΩQºÄÙÄ°ú§ÄÙ¯ÅÏ(ÄÄÄÄÄÅÕï—ïπ—ï»°ú§Ï(ÄÄÄÄÄÅÕï—1ΩçIïÕΩ±Ÿïê°—…’î§Ï(ÄÄÄÄÄÅÕï—1Ωç9Öµî°úππÖµîπÕ¡±•–†à∞à§πÕ±•çî†¿∞Ä»§π©Ω•∏†à∞à§π—…•¥†§§Ï(ÄÄÄÄÄÅÕï—MïÖ…ç°5Ωëî°ôÖ±Õî§Ï(ÄÄÄÄÄÅÕï—MïÖ…ç°1Öâï∞†àà§Ï(ÄÄÄÄÄÅÕï—E’ï…‰†àà§Ï(ÄÄÄÅÙÏ(ÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄººÅU%ÅA1µ%9Q9PÄ°ô•‡ÅôΩ»Äâù’•ëïÃÉäHÅÖ¡¿ÅçΩπŸï…—ÃÄ¿îà∞Ä»¿»ÿ¥¿‡¥¿‹§∏(ÄÄÄÄÄÄººÅÅù’•ëîùÃÄâ=¡ï∏Å•∏Å]ÖÂô•πêàÅëïç±Ö…ïÃÅ•π—ïπ–ı¡±ÖçîËÅ—°îÅ≈’ï…‰ÅπÖµïÃÅΩπî(ÄÄÄÄÄÄººÅÕ¡ïç•ô•åÅ¡±Öçî∞ÅÕºÅ—°îÅÖ…ïÑµô•…Õ–Å…’±îÅâï±Ω‹Åµ’Õ–Å9=PÅÖ¡¡±‰ÉäPÅ—°Ö–Å…’±î(ÄÄÄÄÄÄººÅ•ÃÅ›°Ö–ÅùïΩçΩëïêÄâ•…âΩÖ–Å—°îÅŸï…ù±ÖëïÃÅ°ïÖë›Ö—ï…ÃàÅ—ºÅŸï…ù±ÖëïÃ(ÄÄÄÄÄÄººÅ•—‰ÅÖπêÅë’µ¡ïêÅ—°îÅ…ïÖëï»ÅΩ∏ÅÑÅùïπï…•åÅ…ïçïπ—ï…ïêÅôïïê∏ÅIïÕΩ±’—•Ω∏(ÄÄÄÄÄÄººÅΩ…ëï»Å°ï…îÅ•ÃÅëï±•âï…Ö—ï±‰Å•πŸï…—ïêËÅA=$ÅÕïÖ…ç†ÅπïÖ»Å—°îÅù’•ëîùÃÅΩ›∏(ÄÄÄÄÄÄººÅ…ïù•Ω∏Åô•…Õ–∞ÅÖ…ïÑÅ°Öπë±•πúÅΩπ±‰ÅÖÃÅ—°îÅôÖ±±âÖç¨∏ÅÅ≈’ï…‰ÅΩ’»ÅΩ›∏(ÄÄÄÄÄÄººÅù’•ëîÅëÖ—ÑÅµÖ…≠ÃÅÖÃÅÖ∏ÅÖ…ïÑÄ†à∞Å0àÅÕ’ôô•‡§ÅÕ≠•¡ÃÅ—°•ÃÅÖπêÅ…ïçïπ—ï…Ã(ÄÄÄÄÄÄººÅ±•≠îÅÖπ‰Åç•—‰ÅÕïÖ…ç†ÉäPÅ—°Ö–Å%LÅ•—ÃÅ•π—ïπ–∏(ÄÄÄÄÄÅ•òÄ°Ω¡—ÃÄòòÅΩ¡—Ãπ¡±Öçï%π—ïπ–ÄòòÄÑº±qÃ®°ô±Òô±Ω…•ëÑ•qÃ®êΩ§π—ïÕ–°ƒ§§ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–ÅπïÖ…ïºÄÙÅΩ¡—ÃππïÖ»Ä¸ÅÖ›Ö•–ÅùïΩQ…‰°Ω¡—ÃππïÖ»§ÄËÅπ’±∞Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å¡•ππïêÄÙÅπïÖ…ïºÄ¸ÅÏÅ±Ö–ËÅπïÖ…ïºπ±Ö–∞Å±πúËÅπïÖ…ïºπ±πúÅÙÄËÅÕïÖ…ç°ïπ—ï»Ï(ÄÄÄÄÄÄÄÅ•òÄ°¡•ππïê§ÅÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°•—ÃÄÙÅÖ›Ö•–ÅÕïÖ…ç°9ïÖ…âÂA±ÖçïÃ°ƒ∞Å¡•ππïê∞Ä°Ω¡—ÃÄòòÅΩ¡—Ãπµ•±ïÃ§ÅÒÄ–‘§Ï(ÄÄÄÄÄÄÄÄÄÅ•òÄ°°•—ÃÄòòÅ°•—Ãπ±ïπù—†Ä¯Ä¿§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅÕΩ…—ïêÄÙÅ°•—ÃπÕ±•çî†§πÕΩ…–†°Ñ∞Åà§ÄÙ¯Ä°Ñπë•Õ—5§Ä¸¸Ä≈îƒ»§Ä¥Ä°àπë•Õ—5§Ä¸¸Ä≈îƒ»§§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅÕï—E’ï…‰†àà§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄººÅIïçïπ—ï»Å—ºÅ—°îÅù’•ëîùÃÅ…ïù•Ω∏ÅÕºÅ—°îÅôïïêÅ	!%9Å—°îÅÕ°ïï–(ÄÄÄÄÄÄÄÄÄÄÄÄººÅµÖ—ç°ïÃÅ›°Ö–Å—°îÅ…ïÖëï»Å›ÖÃÅ©’Õ–Å…ïÖë•πúÅÖâΩ’–ÉäPÅπΩ–Å—°ï•»ÅAL∏(ÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°πïÖ…ïºÄòòÅπïÖ…ïºπ•Õ…ïÑ§ÅùΩQº°πïÖ…ïº§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅÕï—MïÖ…ç°5Ωëî°—…’î§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅÕï—1ΩÖë•πú°ôÖ±Õî§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅΩ¡ïπï—Ö•∞°ÕΩ…—ïël¡t§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄººÅ……•ŸÖ∞µÕ•ëîÅ¡…ΩΩòÅ—°îÅâ…•ëùîÅ›Ω…≠ÃÉäPÅç±•ç¨µÕ•ëîÅïŸïπ—ÃÅΩ∏Å—°î(ÄÄÄÄÄÄÄÄÄÄÄÄººÅÕ—Ö—•åÅù’•ëîÅ¡ÖùîÅë•îÅ›•—†Å—°îÅ’π±ΩÖêÏÅ—°•ÃÅΩπîÅçÖππΩ–∏(ÄÄÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏÅ±ΩùŸïπ–†âù’•ëï}¡±Öçï}Ω¡ï∏à∞ÅÕΩ…—ïël¡t∞ÅÏÅƒËÅƒπÕ±•çî†¿∞Ä‡¿§∞ÅµÖ—ç°ïêËÄ°ÕΩ…—ïël¡tππÖµîÅÒÄàà§πÕ±•çî†¿∞Ä‡¿§∞ÅπïÖ»ËÄ°Ω¡—ÃππïÖ»ÅÒÄàà§πÕ±•çî†¿∞Ä–¿§ÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏Ï(ÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÄººÅ9ºÅA=$ÅµÖ—ç°ïêÉäPÅôÖ±∞Å—°…Ω’ù†Å—ºÅ—°îÅÕ—ÖπëÖ…êÅ±Öëëï»Å…Ö—°ï»Å—°Ö∏(ÄÄÄÄÄÄÄÄººÅëïÖêµïπë•πúÅ—°îÅëïï¿Å±•π¨∏(ÄÄÄÄÄÅÙ(ÄÄÄÄÄÅçΩπÕ–ÅâºÄÙÅƒπµÖ—ç††ΩyqÃ®†¸È—°ïqÃ¨§˝âïÕ—qÃ≠ΩôqÃ¨†πÏ»∞–¡Ù§êΩ§§Ï(ÄÄÄÄÄÅ•òÄ°âº§ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–ÅúÄÙÅÖ›Ö•–ÅùïΩQ…‰°âΩl≈tπ—…•¥†§§Ï(ÄÄÄÄÄÄÄÅ•òÄ°ú§ÅÏ(ÄÄÄÄÄÄÄÄÄÅùΩQº°ú§Ï(ÄÄÄÄÄÄÄÄÄÅÕï—1ΩÖë•πú°ôÖ±Õî§Ï(ÄÄÄÄÄÄÄÄÄÅÕï—Q•µïΩ’–††§ÄÙ¯ÅÏÅ—…‰ÅÏÅΩ¡ïπ’…Ö—ïê†â—ΩëÖ‰à§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅÙ∞Äÿ¿§Ï(ÄÄÄÄÄÄÄÄÄÅ…ï—’…∏Ï(ÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÅÙ((ÄÄÄÄÄÄººÄ†ƒ§Å%QdÄºÅIÄ¥¥ÅÖ±›ÖÂÃÅ›•πÃ∞ÅÖ±›ÖÂÃÅ…ïçïπ—ï…Ã∞ÅÖ±›ÖÂÃÅ…ï±ΩÖëÃÅ—°îÅôïïê∏(ÄÄÄÄÄÅçΩπÕ–ÅÖ…ïÑÄÙÅÖ›Ö•–ÅùïΩQ…‰°ƒ§Ï(ÄÄÄÄÄÅ•òÄ°Ö…ïÑÄòòÅÖ…ïÑπ•Õ…ïÑ§ÅÏÅùΩQº°Ö…ïÑ§ÏÅ…ï—’…∏ÏÅÙ((ÄÄÄÄÄÄººÄ†»§Å9I	dÅ	UM%9MLÄºÅ!%8Ä¥¥Å5çΩπÖ±êùÃ∞ÅÑÅÕ¡ïç•ô•åÅ…ïÕ—Ö’…Öπ–∞ÅÑÅŸïπ’î∏(ÄÄÄÄÄÅ•òÄ°ÕïÖ…ç°ïπ—ï»§ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–ÅπïÖ…â‰ÄÙÅÖ›Ö•–ÅÕïÖ…ç°9ïÖ…âÂA±ÖçïÃ°ƒ∞ÅÕïÖ…ç°ïπ—ï»∞Ä°Ω¡—ÃÄòòÅΩ¡—Ãπµ•±ïÃ§ÅÒÄ»¿§Ï(ÄÄÄÄÄÄÄÅ•òÄ°πïÖ…â‰ÄòòÅπïÖ…â‰π±ïπù—†Ä¯Ä¿§ÅÏ(ÄÄÄÄÄÄÄÄÄÅÕï—E’ï…‰†àà§Ï(ÄÄÄÄÄÄÄÄÄÅ•òÄ°πïÖ…â‰π±ïπù—†ÄÙÙÙÄƒ§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄººÅM•πù±îÅµÖ—ç†Ä¥¥ÅΩ¡ï∏Åëï—Ö•∞Åë•…ïç—±‰(ÄÄÄÄÄÄÄÄÄÄÄÅÕï—MïÖ…ç°5Ωëî°—…’î§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅÕï—1ΩÖë•πú°ôÖ±Õî§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅΩ¡ïπï—Ö•∞°πïÖ…âÂl¡t§Ï(ÄÄÄÄÄÄÄÄÄÅÙÅï±ÕîÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄººÅÿ–∏ÿÃËÅµ’±—•¡±îÅµÖ—ç°ïÃÅΩ¡ï∏Å•∏Å—°îÅµΩëï…∏Å—°ïµïêÅÕ°ïï–Ä¥¥Å—°î(ÄÄÄÄÄÄÄÄÄÄÄÄººÅ±ïùÖç‰Åï·¡±Ω…îÅÕç…ïï∏Å•ÃÅ…ï—•…ïêÅÖÃÅÑÅÕïÖ…ç†ÅëïÕ—•πÖ—•Ω∏∏(ÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅÕΩ…—ïêÄÙÅπïÖ…â‰πÕ±•çî†§πÕΩ…–†°Ñ∞Åà§ÄÙ¯Ä°Ñπë•Õ—5§Ä¸¸Ä≈îƒ»§Ä¥Ä°àπë•Õ—5§Ä¸¸Ä≈îƒ»§§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅÕï—1ΩÖë•πú°ôÖ±Õî§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅÕï—!ΩΩ≠ï—Ö•∞°ÏÅ•êËÄâÕïÖ…ç†¥àÄ¨ÅÖ—îππΩ‹†§∞Å—°ïµîËÄâÕïÖ…ç†à∞Å—•—±îËÅÅIïÕ’±—ÃÅôΩ»ÄàëÌ≈ÙâÄ∞Å—°ïµïQ•—±îËÅÅIïÕ’±—ÃÅôΩ»ÄàëÌ≈ÙâÄ∞Å±Öâï∞ËÅƒ∞Å—°ïµï	Ωë‰ËÄâQ°îÅç±ΩÕïÕ–ÅµÖ—ç°ïÃÅπïÖ»ÄàÄ¨Ä°±Ωç9ÖµîÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à•l¡tÄËÄâ—°•ÃÅÖ…ïÑà§Ä¨Äà∞Å…Öπ≠ïêÅôΩ»Å…•ù°–ÅπΩ‹∏à∞ÅïµΩ©§ËÄâq’‡Õq’¡à∞ÅÖççïπ–ËÅπÖççïπ–∞Å¡±ÖçïÃËÅÕΩ…—ïê∞ÅÕïç—•ΩπÃËÅπ’±∞ÅÙ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏÅ›•πëΩ‹πÕç…Ω±±Qº†¿∞Ä¿§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÄÄÅ…ï—’…∏Ï(ÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÅÙ((ÄÄÄÄÄÄººÄ†Ã§ÅÅπΩ∏µÖ…ïÑÅùïΩçΩëîÄ°Õ—…ïï–ÅÖëë…ïÕÃ∞Å±ÖπëµÖ…¨§ÅÕ—•±∞ÅâïÖ—ÃÅÑÅëïÖêÅïπê∏(ÄÄÄÄÄÅ•òÄ°Ö…ïÑ§ÅÏÅùΩQº°Ö…ïÑ§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÄÄÅÕï—…»†â9Ω—°•πúÅôΩ’πê∏ÅQ…‰ÅÑÅ…ïÕ—Ö’…Öπ–ÅπÖµî∞Åç°Ö•∏∞ÅΩ»Åç•—‰∏à§Ï(ÄÄÄÅÙÅçÖ—ç†ÅÏ(ÄÄÄÄÄÅÕï—…»†âMïÖ…ç†ÅôÖ•±ïê∏ÅQ…‰ÅÖùÖ•∏∏à§Ï(ÄÄÄÅÙÅô•πÖ±±‰ÅÏÅÕï—1ΩÖë•πú°ôÖ±Õî§ÏÅÙ(ÄÅÙ((ÄÅô’πç—•Ω∏ÅÕÖŸïQΩ1•Õ–°±•Õ—%ê§ÅÏ(ÄÄÄÅ•òÄ†Ö…ï≈’•…ï’—††âM•ù∏Å’¿Åô…ïîÉäPÅÂΩ’»ÅÕ¡Ω—Ã∞ÅÕÖŸïêÅÖπêÅÕÂπçïêÅ—ºÅïŸï…‰ÅëïŸ•çî∏à§§Å…ï—’…∏Ï(ÄÄÄÅ•òÄ†ÖÕÖŸïQÖ…ùï–§Å…ï—’…∏Ï(ÄÄÄÅçΩπÕ–Å—Ö…ùï–ÄÙÅÕÖŸïQÖ…ùï–Ï(ÄÄÄÅçΩπÕ–Åï·•Õ—•πúÄÙÅ±•Õ—Õm±•Õ—%ëtÏ(ÄÄÄÅçΩπÕ–Å›ÖÕëêÄÙÅï·•Õ—•πúÄòòÄÖï·•Õ—•πúπ¡±ÖçïÃπÕΩµî†°¿§ÄÙ¯Å¿π•êÄÙÙÙÅ—Ö…ùï–π•ê§Ï(ÄÄÄÅÕï—1•Õ—Ã†°¡…ïÿ§ÄÙ¯ÅÏ(ÄÄÄÄÄÅçΩπÕ–Å∞ÄÙÅ¡…ïŸm±•Õ—%ëtÏ(ÄÄÄÄÄÅ•òÄ†Ö∞§Å…ï—’…∏Å¡…ïÿÏ(ÄÄÄÄÄÅçΩπÕ–Å°ÖÃÄÙÅ∞π¡±ÖçïÃπÕΩµî†°¿§ÄÙ¯Å¿π•êÄÙÙÙÅ—Ö…ùï–π•ê§Ï(ÄÄÄÄÄÅ…ï—’…∏ÅÏÄ∏∏π¡…ïÿ∞Åm±•Õ—%ëtËÅÏÄ∏∏π∞∞Å¡±ÖçïÃËÅ°ÖÃÄ¸Å∞π¡±ÖçïÃπô•±—ï»†°¿§ÄÙ¯Å¿π•êÄÑÙÙÅ—Ö…ùï–π•ê§ÄËÅl∏∏π∞π¡±ÖçïÃ∞Å—Ö…ùï—tÅÙÅÙÏ(ÄÄÄÅÙ§Ï(ÄÄÄÅ•òÄ°›ÖÕëê§ÅÏ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Åµï—ÑÄÙÅQ…•¡Ãπ—…•¡5ï—ÖΩ…A±Öçî°—Ö…ùï–§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–ÅÖ±…ïÖë‰ÄÙÅ—…•¡Õmµï—Ñπ≠ïÂtÄòòÅ—…•¡Õmµï—Ñπ≠ïÂtπ•—ïµÃπÕΩµî†°•–§ÄÙ¯Å•–π•êÄÙÙÙÅ—Ö…ùï–π•ê§Ï(ÄÄÄÄÄÄÄÅ•òÄ†ÖÖ±…ïÖë‰§ÅÏ(ÄÄÄÄÄÄÄÄÄÅ•òÄ†Ö—…•¡Õmµï—Ñπ≠ïÂt§Å±ΩùŸïπ–†â—…•¡}ç…ïÖ—îà∞Åπ’±∞∞ÅÏÅ≠ï‰ËÅµï—Ñπ≠ï‰∞Åç•—‰ËÅµï—Ñπç•—‰∞ÅÕ—Ö—îËÅµï—ÑπÕ—Ö—îÅÙ§Ï(ÄÄÄÄÄÄÄÄÄÅ±ΩùŸïπ–†âÕ—Ω¡}Öëêà∞Å—Ö…ùï–∞ÅÏÅ≠ï‰ËÅµï—Ñπ≠ï‰∞Åç•—‰ËÅµï—Ñπç•—‰∞ÅÕ—Ö—îËÅµï—ÑπÕ—Ö—î∞ÅÕ…åËÄâ±•Õ—}ÕÖŸîàÅÙ§Ï(ÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÅÕï—Q…•¡Ã†°¡…ïÿ§ÄÙ¯ÅQ…•¡ÃπÖëëA±ÖçïQΩQ…•¡Ã°¡…ïÿ∞Å—Ö…ùï–∞ÅÖ—îππΩ‹†§§§Ï(ÄÄÄÅÙ(ÄÄÄÅÕï—MÖŸïQÖ…ùï–°π’±∞§Ï(ÄÅÙ(ÄÄººÅÿ‡∏–ÉäPÅÅQ<Å%Q%9IId∞ÅÖÃÅ•—ÃÅΩ›∏ÅŸï…à∏(ÄÄºº(ÄÄººÅ≈’•ç≠MÖŸïÖŸΩ…•—îÅÖ±…ïÖë‰ÅÖ’—ºµô•±ïÃÅÑÅÕÖŸïêÅ¡±ÖçîÅ•π—ºÅ•—ÃÅç•—‰Å—…•¿∞Åâ’–(ÄÄººÅ—°Ö–Å•ÃÅÑÅÕ•ëîÅïôôïç–ÅΩòÅôÖŸΩ’…•—•πúËÅ—°ï…îÅ›ÖÃÅπºÅ›Ö‰Å—ºÅ¡’–ÅÑÅ¡±ÖçîÅΩ∏ÅÑ(ÄÄººÅ¡±Ö∏Å]%Q!=UPÅôÖŸΩ’…•—•πúÅ•–∞ÅÖπêÅπºÅÕ—Ö—îÅÖπÂ›°ï…îÅÕ°Ω›•πúÅ•–Å›ÖÃÅÖ±…ïÖë‰(ÄÄººÅΩ∏ÅΩπî∏ÅQ°•ÃÅ•ÃÅ—°îÅï·¡±•ç•–ÅÖç—•Ω∏∞ÅÖπêÅ•–Åëï±•âï…Ö—ï±‰ÅëΩïÃÅπΩ–Å—Ω’ç†(ÄÄººÅ±•Õ—ÃπôÖŸΩ…•—ïÃÉäPÅ—°îÅ—…•¿Å•ÃÅÖ∏Å•πëï¡ïπëïπ–∞Åç’…Ö—ïêÅ¡±Ö∏∞Å›°•ç†Å•ÃÅ—°î(ÄÄººÅÕÖµîÅ…ïÖÕΩ∏Å’πÕÖŸ•πúÅëΩïÃÅπΩ–Å…ïµΩŸîÅÑÅÕ—Ω¿∏(ÄÅô’πç—•Ω∏Å•Õ=πQ…•¿°¿§ÅÏ(ÄÄÄÅ•òÄ†Ö¿ÅÒÄÖ¿π•ê§Å…ï—’…∏ÅôÖ±ÕîÏ(ÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÅçΩπÕ–Åµï—ÑÄÙÅQ…•¡Ãπ—…•¡5ï—ÖΩ…A±Öçî°¿§Ï(ÄÄÄÄÄÅçΩπÕ–Å–ÄÙÅ—…•¡Õmµï—Ñπ≠ïÂtÏ(ÄÄÄÄÄÅ…ï—’…∏ÄÑÑ°–ÄòòÅ–π•—ïµÃÄòòÅ–π•—ïµÃπÕΩµî†°•–§ÄÙ¯Å•–π•êÄÙÙÙÅ¿π•ê§§Ï(ÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÏÅ…ï—’…∏ÅôÖ±ÕîÏÅÙ(ÄÅÙ(ÄÅô’πç—•Ω∏ÅÖëëQΩ%—•πï…Ö…‰°¿§ÅÏ(ÄÄÄÅ•òÄ†Ö¿ÅÒÄÖ¿π•ê§Å…ï—’…∏Ï(ÄÄÄÅ•òÄ°•Õ=πQ…•¿°¿§§ÅÏÅÕ°Ω›QΩÖÕ–†â±…ïÖë‰ÅΩ∏ÅÂΩ’»Å•—•πï…Ö…‰à§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÅçΩπÕ–Åµï—ÑÄÙÅQ…•¡Ãπ—…•¡5ï—ÖΩ…A±Öçî°¿§Ï(ÄÄÄÄÄÅ•òÄ†Ö—…•¡Õmµï—Ñπ≠ïÂt§ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–†â—…•¡}ç…ïÖ—îà∞Åπ’±∞∞ÅÏÅ≠ï‰ËÅµï—Ñπ≠ï‰∞Åç•—‰ËÅµï—Ñπç•—‰∞ÅÕ—Ö—îËÅµï—ÑπÕ—Ö—îÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅÙ(ÄÄÄÄÄÅ—…‰ÅÏÅ±ΩùŸïπ–†âÕ—Ω¡}Öëêà∞Å¿∞ÅÏÅ≠ï‰ËÅµï—Ñπ≠ï‰∞Åç•—‰ËÅµï—Ñπç•—‰∞ÅÕ—Ö—îËÅµï—ÑπÕ—Ö—î∞ÅÕ…åËÄâçÖ…ë}•—•πï…Ö…‰àÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÅÕï—Q…•¡Ã†°¡…ïÿ§ÄÙ¯ÅQ…•¡ÃπÖëëA±ÖçïQΩQ…•¡Ã°¡…ïÿ∞Å¿∞ÅÖ—îππΩ‹†§§§Ï(ÄÄÄÅÕ°Ω›QΩÖÕ–†ã¬~^Oæ‚<ÅëëïêÅ—ºÅÂΩ’»Å•—•πï…Ö…‰à§Ï(ÄÅÙ((ÄÄººÅ=πîµ—Ö¿ÅÕÖŸîÅÕ—…Ö•ù°–Å—ºÅÖŸΩ…•—ïÃÅô…Ω¥ÅÑÅçÖ…êÅ°ïÖ…–∏(ÄÅô’πç—•Ω∏Å≈’•ç≠MÖŸïÖŸΩ…•—î°¿§ÅÏ(ÄÄÄÅ•òÄ†Ö¿§Å…ï—’…∏Ï(ÄÄÄÅçΩπÕ–ÅôÖÿÄÙÅ±•Õ—ÃπôÖŸΩ…•—ïÃÅÒÅÏÅ•êËÄâôÖŸΩ…•—ïÃà∞ÅπÖµîËÄâÖŸΩ…•—ïÃà∞ÅïµΩ©§ËÄãävìæ‚<à∞Å¡±ÖçïÃËÅmtÅÙÏ(ÄÄÄÅçΩπÕ–Å°ÖÃÄÙÅôÖÿπ¡±ÖçïÃπÕΩµî†°‡§ÄÙ¯Å‡π•êÄÙÙÙÅ¿π•ê§Ï(ÄÄÄÅÕï—1•Õ—Ã†°¡…ïÿ§ÄÙ¯ÅÏ(ÄÄÄÄÄÅçΩπÕ–ÅòÄÙÅ¡…ïÿπôÖŸΩ…•—ïÃÅÒÅÏÅ•êËÄâôÖŸΩ…•—ïÃà∞ÅπÖµîËÄâÖŸΩ…•—ïÃà∞ÅïµΩ©§ËÄãävìæ‚<à∞Å¡±ÖçïÃËÅmtÅÙÏ(ÄÄÄÄÄÅçΩπÕ–Å†ÄÙÅòπ¡±ÖçïÃπÕΩµî†°‡§ÄÙ¯Å‡π•êÄÙÙÙÅ¿π•ê§Ï(ÄÄÄÄÄÅ•òÄ†Ö†§ÅÏÅ—…‰ÅÏÅ…ïçΩ…ëM•ùπÖ∞°¿∞ÄâÕÖŸîà§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅÙ(ÄÄÄÄÄÅ…ï—’…∏ÅÏÄ∏∏π¡…ïÿ∞ÅôÖŸΩ…•—ïÃËÅÏÄ∏∏πò∞Å¡±ÖçïÃËÅ†Ä¸Åòπ¡±ÖçïÃπô•±—ï»†°‡§ÄÙ¯Å‡π•êÄÑÙÙÅ¿π•ê§ÄËÅl∏∏πòπ¡±ÖçïÃ∞Å¡tÅÙÅÙÏ(ÄÄÄÅÙ§Ï(ÄÄÄÅÕ°Ω›QΩÖÕ–°°ÖÃÄ¸ÄâIïµΩŸïêÅô…Ω¥ÅÖŸΩ…•—ïÃàÄËÄãävìæ‚<ÅMÖŸïêÅ—ºÅÖŸΩ…•—ïÃà§Ï(ÄÄÄÅ•òÄ†Ö°ÖÃ§ÅÏÅ±ΩùŸïπ–†âÕÖŸîà∞Å¿§ÏÅΩôôï…ççΩ’π—ô—ï…MÖŸî†âôÖŸΩ…•—îà§ÏÅÙ(ÄÄÄÄººÅ’—ºµô•±îÅ•π—ºÅ—°îÅç•—‰Å—…•¿ÅΩ∏ÅÕÖŸîÅΩπ±‰∏ÅUπÕÖŸ•πúÅô…Ω¥ÅÖŸΩ…•—ïÃÅµ’Õ–(ÄÄÄÄººÅπΩ–Å…ïµΩŸîÅ•–Åô…Ω¥ÅÑÅ—…•¿ËÅ—°îÅ—…•¿Å•ÃÅÖ∏Å•πëï¡ïπëïπ–∞Åç’…Ö—ïêÅ¡±Ö∏∏(ÄÄÄÅ•òÄ†Ö°ÖÃ§ÅÏ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Åµï—ÑÄÙÅQ…•¡Ãπ—…•¡5ï—ÖΩ…A±Öçî°¿§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–ÅÖ±…ïÖë‰ÄÙÅ—…•¡Õmµï—Ñπ≠ïÂtÄòòÅ—…•¡Õmµï—Ñπ≠ïÂtπ•—ïµÃπÕΩµî†°•–§ÄÙ¯Å•–π•êÄÙÙÙÅ¿π•ê§Ï(ÄÄÄÄÄÄÄÅ•òÄ†ÖÖ±…ïÖë‰§ÅÏ(ÄÄÄÄÄÄÄÄÄÅ•òÄ†Ö—…•¡Õmµï—Ñπ≠ïÂt§Å±ΩùŸïπ–†â—…•¡}ç…ïÖ—îà∞Åπ’±∞∞ÅÏÅ≠ï‰ËÅµï—Ñπ≠ï‰∞Åç•—‰ËÅµï—Ñπç•—‰∞ÅÕ—Ö—îËÅµï—ÑπÕ—Ö—îÅÙ§Ï(ÄÄÄÄÄÄÄÄÄÅ±ΩùŸïπ–†âÕ—Ω¡}Öëêà∞Å¿∞ÅÏÅ≠ï‰ËÅµï—Ñπ≠ï‰∞Åç•—‰ËÅµï—Ñπç•—‰∞ÅÕ—Ö—îËÅµï—ÑπÕ—Ö—î∞ÅÕ…åËÄâ≈’•ç≠}ÕÖŸîàÅÙ§Ï(ÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÅÕï—Q…•¡Ã†°¡…ïÿ§ÄÙ¯ÅQ…•¡ÃπÖëëA±ÖçïQΩQ…•¡Ã°¡…ïÿ∞Å¿∞ÅÖ—îππΩ‹†§§§Ï(ÄÄÄÅÙ(ÄÄÄÅ•òÄ°Õ’¡ÖâÖÕîÄòòÅ’Õï»§ÅÏ(ÄÄÄÄÄÅ•òÄ°°ÖÃ§ÅÏ(ÄÄÄÄÄÄÄÅÕ’¡ÖâÖÕîπô…Ω¥†âÕÖŸïë}¡±ÖçïÃà§πëï±ï—î†§πïƒ†â’Õï…}•êà∞Å’Õï»π•ê§πïƒ†â¡±Öçï}•êà∞Å¿π•ê§πïƒ†â±•Õ—}πÖµîà∞ÄâÖŸΩ…•—ïÃà§π—°ï∏††§ÄÙ¯ÅÌÙ∞Ä†§ÄÙ¯ÅÌÙ§Ï(ÄÄÄÄÄÅÙÅï±ÕîÅÏ(ÄÄÄÄÄÄÄÅÕ’¡ÖâÖÕîπô…Ω¥†âÕÖŸïë}¡±ÖçïÃà§π’¡Õï…–°ÏÅ’Õï…}•êËÅ’Õï»π•ê∞Å¡±Öçï}•êËÅ¿π•ê∞Å¡±ÖçîËÅ¿∞Å±•Õ—}πÖµîËÄâÖŸΩ…•—ïÃàÅÙ∞ÅÏÅΩπΩπô±•ç–ËÄâ’Õï…}•ê±¡±Öçï}•ê±±•Õ—}πÖµîàÅÙ§π—°ï∏††§ÄÙ¯ÅÌÙ∞Ä†§ÄÙ¯ÅÌÙ§Ï(ÄÄÄÄÄÅÙ(ÄÄÄÅÙ(ÄÅÙ(ÄÄººÅMÖŸîÅÑÅ›°Ω±îÅç’…Ö—ïêÅ°ΩΩ¨Å±•Õ–ÅÖÃÅ•—ÃÅΩ›∏Å±•Õ–Å’πëï»ÅÖŸΩ…•—ïÃ∏(ÄÅô’πç—•Ω∏ÅÕÖŸï!ΩΩ≠1•Õ–°°ΩΩ¨∞Å¡±ÖçïÃ§ÅÏ(ÄÄÄÅ•òÄ†Ö…ï≈’•…ï’—††âM•ù∏Å’¿Åô…ïîÅ—ºÅÕÖŸîÅ—°•ÃÅÕΩµï›°ï…îÅÂΩ‘ù±∞ÅÖç—’Ö±±‰Åô•πêÅ•–Å±Ö—ï»∏à§§Å…ï—’…∏Ï(ÄÄÄÅ•òÄ†Ö°ΩΩ¨ÅÒÄÖ¡±ÖçïÃÅÒÄÖ¡±ÖçïÃπ±ïπù—†§Å…ï—’…∏Ï(ÄÄÄÅçΩπÕ–Å≠ï‰ÄÙÄâ°ΩΩ≠|àÄ¨Å°ΩΩ¨π•êÏ(ÄÄÄÅçΩπÕ–Åï·•Õ—ïêÄÙÄÑÖ±•Õ—Õm≠ïÂtÏ(ÄÄÄÅÕï—1•Õ—Ã†°¡…ïÿ§ÄÙ¯ÅÏ(ÄÄÄÄÄÅ•òÄ°¡…ïŸm≠ïÂt§ÅÏÅçΩπÕ–Åπï·–ÄÙÅÏÄ∏∏π¡…ïÿÅÙÏÅëï±ï—îÅπï·—m≠ïÂtÏÅ…ï—’…∏Åπï·–ÏÅÙ(ÄÄÄÄÄÅ…ï—’…∏ÅÏÄ∏∏π¡…ïÿ∞Åm≠ïÂtËÅÏÅ•êËÅ≠ï‰∞ÅπÖµîËÅ°ΩΩ¨π—°ïµïQ•—±îÅÒÅ°ΩΩ¨π°ΩΩ¨ÅÒÄâMÖŸïêÅ±•Õ–à∞ÅïµΩ©§ËÅ°ΩΩ¨πïµΩ©§ÅÒÄãär†à∞Å¡±ÖçïÃËÅ¡±ÖçïÃπµÖ¿†°‡§ÄÙ¯Å‡§ÅÙÅÙÏ(ÄÄÄÅÙ§Ï(ÄÄÄÅÕ°Ω›QΩÖÕ–°ï·•Õ—ïêÄ¸ÄâIïµΩŸïêÅô…Ω¥ÅÂΩ’»Å±•Õ—ÃàÄËÄãävìæ‚<ÅMÖŸïêÅ—ºÅÂΩ’»Å±•Õ—Ãà§Ï(ÄÅÙ((ÄÄººÅA±ÖçîµÕ’ùùïÕ—•Ω∏Åô±Ω‹Ä°ÿÿ∏‘Ã§ÉäPÅ±ï—ÃÅÑÅ’Õï»Å¡…Ω¡ΩÕîÅÑÅ…ïÖ∞Å¡±ÖçîÅôΩ»Å—°î(ÄÄººÅ—°ïµïêÅ±•Õ–Å—°ï‰ù…îÅç’……ïπ—±‰ÅŸ•ï›•πú∏Åï±•âï…Ö—ï±‰Åµ•……Ω…Ã(ÄÄººÅôï—ç°M’ùùïÕ—•ΩπÃΩ…ïÕΩ±ŸïA±Öçïï—Ö•±ÃÄ°ÕÖµîÅù’Ö…ëïêÄΩÖ¡§Ω¡±ÖçïÃº®Å¡…Ω·‰ÉäP(ÄÄººÄâΩΩù±îÅA±ÖçïÃÅA$Å•ÃÅ—°îÅΩπ±‰ÅÕΩ’…çîÅΩòÅ•ëïπ—•ô•ï…ÃàÅÕ—ÖÂÃÅ—…’îÅ°ï…î(ÄÄººÅ—Ωº§Åâ’–Å›•—†Å•—ÃÅ=]8ÅÕ—Ö—î∞ÅÕºÅΩ¡ïπ•πúÅ—°•ÃÅµ•π§µÕïÖ…ç†ÅπïŸï»Åë•Õ—’…âÃ(ÄÄººÅ—°îÅµÖ•∏ÅÕïÖ…ç†ÅâΩ‡Å•òÅâΩ—†Å°Ö¡¡ï∏Å—ºÅâîÅµΩ’π—ïê∏Å9ïŸï»Å›…•—ïÃÅ—°î(ÄÄººÅÕ’ùùïÕ—•Ω∏Å•π—ºÅÖπ‰Å±•Õ–Å•—Õï±òÉäPÅ•–ÅΩπ±‰ÅA=MQÃÅ—ºÄΩÖ¡§Ω¡±ÖçîµÕ’ùùïÕ—•ΩπÃ(ÄÄººÅôΩ»Å—°îÅΩ›πï»Å—ºÅ…ïŸ•ï‹Ä°ÕïîÅÕ’¡ÖâÖÕîΩ¡±ÖçîµÕ’ùùïÕ—•ΩπÃπÕ≈∞Ä¨(ÄÄººÅÕç…•¡—ÃΩ…ïŸ•ï‹µ¡±ÖçîµÕ’ùùïÕ—•ΩπÃπµ©Ã§∏(ÄÅÖÕÂπåÅô’πç—•Ω∏ÅÕ’ùï—ç°M’ùùïÕ—•ΩπÃ°ƒ§ÅÏ(ÄÄÄÅ•òÄ°—Â¡ïΩòÅÕ’ùQΩ≠ïπIïòπç’……ïπ–ÄÑÙÙÄâÕ—…•πúà§ÅÏ(ÄÄÄÄÄÅÕ’ùQΩ≠ïπIïòπç’……ïπ–ÄÙÄ°—Â¡ïΩòÅç…Â¡—ºÄÑÙÙÄâ’πëïô•πïêàÄòòÅç…Â¡—ºπ…ÖπëΩµUU%§(ÄÄÄÄÄÄÄÄ¸Åç…Â¡—ºπ…ÖπëΩµUU%†§(ÄÄÄÄÄÄÄÄËÄ°5Ö—†π…ÖπëΩ¥†§π—ΩM—…•πú†Ãÿ§πÕ±•çî†»§Ä¨ÅÖ—îππΩ‹†§π—ΩM—…•πú†Ãÿ§§Ï(ÄÄÄÅÙ(ÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÅçΩπÕ–Å»ÄÙÅÖ›Ö•–Åôï—ç††àΩÖ¡§Ω¡±ÖçïÃΩÖ’—ΩçΩµ¡±ï—îà∞ÅÏ(ÄÄÄÄÄÄÄÅµï—°ΩêËÄâA=MPà∞(ÄÄÄÄÄÄÄÅ°ïÖëï…ÃËÅÏÄâΩπ—ïπ–µQÂ¡îàËÄâÖ¡¡±•çÖ—•Ω∏Ω©ÕΩ∏àÅÙ∞(ÄÄÄÄÄÄÄÅâΩë‰ËÅ)M=8πÕ—…•πù•ô‰°ÏÅ•π¡’–ËÅƒ∞ÅÕïÕÕ•ΩπQΩ≠ï∏ËÅÕ’ùQΩ≠ïπIïòπç’……ïπ–∞Ä∏∏∏°çïπ—ï»Ä¸ÅÏÅ±Ö–ËÅçïπ—ï»π±Ö–∞Å±πúËÅçïπ—ï»π±πúÅÙÄËÅÌÙ§ÅÙ§∞(ÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÅ•òÄ†Ö»πΩ¨§ÅÏÅÕï—M’ùM’ùùïÕ—•ΩπÃ°mt§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÄÄÅçΩπÕ–ÅëÖ—ÑÄÙÅÖ›Ö•–Å»π©ÕΩ∏†§Ï(ÄÄÄÄÄÄººÅ=π±‰Å…ïÖ∞ÅïÕ—Öâ±•Õ°µïπ—ÃÅâï±ΩπúÅ•∏ÅÑÅ—°ïµïêÅ±•Õ–ÉäPÅÖ∏ÄâÖ…ïÑàÅ…ïÕ’±–(ÄÄÄÄÄÄººÄ°ÑÅç•—‰Ωπï•ù°âΩ…°ΩΩê§Åô…Ω¥Å—°îÅÕÖµîÅïπë¡Ω•π–Å•ÃÅô•±—ï…ïêÅΩ’–Å°ï…î∏(ÄÄÄÄÄÅÕï—M’ùM’ùùïÕ—•ΩπÃ†°ëÖ—ÑπÕ’ùùïÕ—•ΩπÃÅÒÅmt§πô•±—ï»†°Ã§ÄÙ¯ÅÃÄòòÅÃπ≠•πêÄÑÙÙÄâÖ…ïÑà§πÕ±•çî†¿∞Äÿ§§Ï(ÄÄÄÅÙÅçÖ—ç†ÅÏÅÕï—M’ùM’ùùïÕ—•ΩπÃ°mt§ÏÅÙ(ÄÅÙ(ÄÅô’πç—•Ω∏ÅΩπM’ùE’ï…Â°Öπùî°ÿ§ÅÏ(ÄÄÄÅÕï—M’ùE’ï…‰°ÿ§Ï(ÄÄÄÅÕï—M’ùA•ç≠ïê°π’±∞§Ï(ÄÄÄÅ•òÄ°Õ’ùïâΩ’πçïIïòπç’……ïπ–§Åç±ïÖ…Q•µïΩ’–°Õ’ùïâΩ’πçïIïòπç’……ïπ–§Ï(ÄÄÄÅ•òÄ†ÖÿÅÒÅÿπ—…•¥†§π±ïπù—†ÄÄÃ§ÅÏÅÕï—M’ùM’ùùïÕ—•ΩπÃ°mt§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÅÕ’ùïâΩ’πçïIïòπç’……ïπ–ÄÙÅÕï—Q•µïΩ’–††§ÄÙ¯ÅÕ’ùï—ç°M’ùùïÕ—•ΩπÃ°ÿπ—…•¥†§§∞Ä»‘¿§Ï(ÄÅÙ(ÄÅÖÕÂπåÅô’πç—•Ω∏Å¡•ç≠M’ùM’ùùïÕ—•Ω∏°•—ï¥§ÅÏ(ÄÄÄÅÕï—M’ùM’ùùïÕ—•ΩπÃ°mt§Ï(ÄÄÄÅÕï—M’ù	’Õ‰°—…’î§Ï(ÄÄÄÅçΩπÕ–ÅÕïÕÕ•ΩπQΩ≠ï∏ÄÙÅÕ’ùQΩ≠ïπIïòπç’……ïπ–Ï(ÄÄÄÅÕ’ùQΩ≠ïπIïòπç’……ïπ–ÄÙÅπ’±∞Ï(ÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÅçΩπÕ–Å¡±ÖçîÄÙÅÖ›Ö•–Å…ïÕΩ±ŸïA±Öçïï—Ö•±Ã°•—ï¥π¡±Öçï%ê∞Äâ¡±Öçîà∞ÅÕïÕÕ•ΩπQΩ≠ï∏§Ï(ÄÄÄÄÄÅçΩπÕ–Å±ΩåÄÙÅ¡±Öçîπ±ΩçÖ—•Ω∏ÅÒÅÌÙÏ(ÄÄÄÄÄÅçΩπÕ–ÅπÖµîÄÙÄ†°¡±Öçîπë•Õ¡±ÖÂ9ÖµîÄòòÄ°¡±Öçîπë•Õ¡±ÖÂ9Öµîπ—ï·–ÅÒÅ¡±Öçîπë•Õ¡±ÖÂ9Öµî§§ÅÒÅ•—ï¥π—ï·–ÅÒÄàà§π—ΩM—…•πú†§Ï(ÄÄÄÄÄÅÕï—M’ùA•ç≠ïê°Ï(ÄÄÄÄÄÄÄÅ•êËÅ¡±Öçîπ•ê∞(ÄÄÄÄÄÄÄÅπÖµî∞(ÄÄÄÄÄÄÄÅÖëë…ïÕÃËÅ¡±ÖçîπôΩ…µÖ——ïëëë…ïÕÃÅÒÄàà∞(ÄÄÄÄÄÄÄÅ±Ö–ËÅ—Â¡ïΩòÅ±Ωåπ±Ö–ÄÙÙÙÄâπ’µâï»àÄ¸Å±Ωåπ±Ö–ÄËÅ±Ωåπ±Ö—•—’ëî∞(ÄÄÄÄÄÄÄÅ±πúËÅ—Â¡ïΩòÅ±Ωåπ±πúÄÙÙÙÄâπ’µâï»àÄ¸Å±Ωåπ±πúÄËÅ±Ωåπ±Ωπù•—’ëî∞(ÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÅÕï—M’ùE’ï…‰°πÖµî§Ï(ÄÄÄÅÙÅçÖ—ç†ÅÏ(ÄÄÄÄÄÅÕ°Ω›QΩÖÕ–†âΩ’±êÅπΩ–Å±ΩÖêÅ—°Ö–Å¡±ÖçîÉäPÅ—…‰ÅÖùÖ•∏à§Ï(ÄÄÄÅÙÅô•πÖ±±‰ÅÏ(ÄÄÄÄÄÅÕï—M’ù	’Õ‰°ôÖ±Õî§Ï(ÄÄÄÅÙ(ÄÅÙ(ÄÅÖÕÂπåÅô’πç—•Ω∏ÅÕ’âµ•—A±ÖçïM’ùùïÕ—•Ω∏†§ÅÏ(ÄÄÄÅ•òÄ†ÖÕ’ùA•ç≠ïêÅÒÄÖ°ΩΩ≠ï—Ö•∞ÅÒÅÕ’ù	’Õ‰§Å…ï—’…∏Ï(ÄÄÄÅÕï—M’ù	’Õ‰°—…’î§Ï(ÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÅçΩπÕ–Å»ÄÙÅÖ›Ö•–Åôï—ç††àΩÖ¡§Ω¡±ÖçîµÕ’ùùïÕ—•ΩπÃà∞ÅÏ(ÄÄÄÄÄÄÄÅµï—°ΩêËÄâA=MPà∞(ÄÄÄÄÄÄÄÅ°ïÖëï…ÃËÅÏÄâΩπ—ïπ–µQÂ¡îàËÄâÖ¡¡±•çÖ—•Ω∏Ω©ÕΩ∏àÅÙ∞(ÄÄÄÄÄÄÄÅâΩë‰ËÅ)M=8πÕ—…•πù•ô‰°Ï(ÄÄÄÄÄÄÄÄÄÅ¡±Öçï%êËÅÕ’ùA•ç≠ïêπ•ê∞(ÄÄÄÄÄÄÄÄÄÅ¡±Öçï9ÖµîËÅÕ’ùA•ç≠ïêππÖµî∞(ÄÄÄÄÄÄÄÄÄÅ±Ö–ËÅÕ’ùA•ç≠ïêπ±Ö–∞(ÄÄÄÄÄÄÄÄÄÅ±πúËÅÕ’ùA•ç≠ïêπ±πú∞(ÄÄÄÄÄÄÄÄÄÅï·¡ï…•ïπçï-ï‰ËÅ°ΩΩ≠ï—Ö•∞π•ê∞(ÄÄÄÄÄÄÄÄÄÅπΩ—îËÅÕ’ù9Ω—îπ—…•¥†§πÕ±•çî†¿∞Ä»‡¿§∞(ÄÄÄÄÄÄÄÄÄÅç•—‰ËÅ±Ωç9ÖµîÅÒÅç•—Â9Ω‹ÅÒÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÅëïŸ•çï%êËÅëïŸ•çï%ê†§∞(ÄÄÄÄÄÄÄÅÙ§∞(ÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÅ•òÄ†Ö»πΩ¨§Å—°…Ω‹Åπï‹Å……Ω»†âÕ’âµ•–ÅôÖ•±ïêà§Ï(ÄÄÄÄÄÅçΩπÕ–ÅëÖ—ÑÄÙÅÖ›Ö•–Å»π©ÕΩ∏†§πçÖ—ç†††§ÄÙ¯Ä°ÌÙ§§Ï(ÄÄÄÄÄÅ•òÄ°ëÖ—ÑÄòòÅëÖ—ÑπΩ¨ÄÙÙÙÅôÖ±Õî§Å—°…Ω‹Åπï‹Å……Ω»°ëÖ—Ñπï……Ω»ÅÒÄâÕ’âµ•–ÅôÖ•±ïêà§Ï(ÄÄÄÄÄÅÕï—M’ùΩπî°—…’î§Ï(ÄÄÄÄÄÅÕï—M’ù=¡ï∏°ôÖ±Õî§Ï(ÄÄÄÄÄÅÕï—M’ùE’ï…‰†àà§ÏÅÕï—M’ùA•ç≠ïê°π’±∞§ÏÅÕï—M’ù9Ω—î†àà§ÏÅÕï—M’ùM’ùùïÕ—•ΩπÃ°mt§Ï(ÄÄÄÄÄÅÕ°Ω›QΩÖÕ–†âQ°Öπ≠ÃÉäPÅ›îù±∞Å—Ö≠îÅÑÅ±ΩΩ¨É¬~f0à§Ï(ÄÄÄÄÄÅ—…‰ÅÏÅ±ΩùŸïπ–†â¡±Öçï}Õ’ùùïÕ–à∞Åπ’±∞∞ÅÏÅï·¿ËÅ°ΩΩ≠ï—Ö•∞π•êÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÅÙÅçÖ—ç†ÅÏ(ÄÄÄÄÄÅÕ°Ω›QΩÖÕ–†âΩ’±ë∏ù–ÅÕïπêÅ—°Ö–ÉäPÅ—…‰ÅÖùÖ•∏Å•∏ÅÑÅâ•–à§Ï(ÄÄÄÅÙÅô•πÖ±±‰ÅÏ(ÄÄÄÄÄÅÕï—M’ù	’Õ‰°ôÖ±Õî§Ï(ÄÄÄÅÙ(ÄÅÙ((ÄÄººÅ!ïÖ…–ÅΩ∏ÅÑÅ…ïçΩµµïπëÖ—•Ω∏ÅçÖ…êËÅ±•≠îÅ•–Å9ÅÕÖŸîÅ—°îÅô’±∞Å±•Õ–Å—ºÅÖŸΩ…•—ïÃ∏(ÄÅô’πç—•Ω∏ÅΩπ!ΩΩ≠!ïÖ…–°°ΩΩ≠%ê§ÅÏ(ÄÄÄÅ•òÄ†Ö…ï≈’•…ï’—††âM•ù∏Å’¿Åô…ïîÉäPÅÂΩ’»ÅÕ¡Ω—Ã∞ÅÕÖŸïêÅÖπêÅÕÂπçïêÅ—ºÅïŸï…‰ÅëïŸ•çî∏à§§Å…ï—’…∏Ï(ÄÄÄÅ—Ωùù±ï!ΩΩ≠1•≠î°°ΩΩ≠%ê§Ï(ÄÄÄÅçΩπÕ–Å†ÄÙÄ°°ΩΩ≠Ö…ëÃÅÒÅmt§πô•πê†°‡§ÄÙ¯Å‡π•êÄÙÙÙÅ°ΩΩ≠%ê§Ï(ÄÄÄÅ•òÄ†Ö†§Å…ï—’…∏Ï(ÄÄÄÅçΩπÕ–ÅÖ±±M…åÄÙÅl∏∏∏°Õ’ùùïÕ—ïêÅÒÅmt§∞Ä∏∏π¡±ÖçïÕtπô•±—ï»°	ΩΩ±ïÖ∏§Ï(ÄÄÄÅçΩπÕ–Å¡±ÃÄÙÅ¡±ÖçïÕΩ…!ΩΩ¨°†∞ÅÖ±±M…å§Ï(ÄÄÄÅ•òÄ°¡±Ãπ±ïπù—†§ÅÕÖŸï!ΩΩ≠1•Õ–°†∞Å¡±Ã§Ï(ÄÅÙ(ÄÅçΩπÕ–Å•ÕMÖŸïêÄÙÄ°•ê§ÄÙ¯Å=â©ïç–πŸÖ±’ïÃ°±•Õ—Ã§πÕΩµî†°∞§ÄÙ¯Å∞π¡±ÖçïÃπÕΩµî†°¿§ÄÙ¯Å¿π•êÄÙÙÙÅ•ê§§Ï((ÄÅô’πç—•Ω∏Åç…ïÖ—ï1•Õ–†§ÅÏ(ÄÄÄÅ•òÄ†Ö…ï≈’•…ï’—††âM•ù∏Å’¿Åô…ïîÅ—ºÅâ’•±êÅÑÅ±•Õ–ÅÖπêÅΩ¡ï∏Å•–Åô…Ω¥ÅÖπ‰ÅëïŸ•çî∏à§§Å…ï—’…∏Ï(ÄÄÄÅçΩπÕ–ÅπÖµîÄÙÅπï›9Öµîπ—…•¥†§Ï(ÄÄÄÅ•òÄ†ÖπÖµî§Å…ï—’…∏Ï(ÄÄÄÅçΩπÕ–Å•êÄÙÄâ±•Õ—|àÄ¨ÅÖ—îππΩ‹†§Ï(ÄÄÄÅÕï—1•Õ—Ã†°¡…ïÿ§ÄÙ¯Ä°ÏÄ∏∏π¡…ïÿ∞Åm•ëtËÅÏÅ•ê∞ÅπÖµî∞ÅïµΩ©§ËÅπï›µΩ©§∞Å¡±ÖçïÃËÅmtÅÙÅÙ§§Ï(ÄÄÄÅÕï—9ï›9Öµî†àà§ÏÅÕï—9ï›µΩ©§†ãä∂@à§ÏÅÕï—9ï›1•Õ—=¡ï∏°ôÖ±Õî§Ï(ÄÅÙ(ÄÅô’πç—•Ω∏Åëï±ï—ï1•Õ–°•ê§ÅÏ(ÄÄÄÅ•òÄ†Ö…ï≈’•…ï’—††âM•ù∏Å’¿Åô…ïîÅ—ºÅ≠ïï¿ÅÂΩ’»Å±•Õ—ÃÅ—•ë‰ÉäPÅΩ∏ÅïŸï…‰ÅëïŸ•çî∏à§§Å…ï—’…∏Ï(ÄÄÄÅ•òÄ°•êÄÙÙÙÄâôÖŸΩ…•—ïÃà§Å…ï—’…∏Ï(ÄÄÄÅÕï—1•Õ—Ã†°¡…ïÿ§ÄÙ¯ÅÏÅçΩπÕ–Åπï·–ÄÙÅÏÄ∏∏π¡…ïÿÅÙÏÅëï±ï—îÅπï·—m•ëtÏÅ…ï—’…∏Åπï·–ÏÅÙ§Ï(ÄÄÄÅÕï—ç—•Ÿï1•Õ–°π’±∞§Ï(ÄÅÙ(ÄÅô’πç—•Ω∏Å…ïπÖµï1•Õ–†§ÅÏ(ÄÄÄÅ•òÄ†Ö…ï≈’•…ï’—††âM•ù∏Å’¿Åô…ïîÅ—ºÅ≠ïï¿ÅÂΩ’»Å±•Õ—ÃÅ—•ë‰ÉäPÅΩ∏ÅïŸï…‰ÅëïŸ•çî∏à§§Å…ï—’…∏Ï(ÄÄÄÅçΩπÕ–ÅπÖµîÄÙÅπï›9Öµîπ—…•¥†§Ï(ÄÄÄÅ•òÄ†ÖπÖµîÅÒÄÖ…ïπÖµ•πù1•Õ–§Å…ï—’…∏Ï(ÄÄÄÅÕï—1•Õ—Ã†°¡…ïÿ§ÄÙ¯Å¡…ïŸm…ïπÖµ•πù1•Õ—tÄ¸ÅÏÄ∏∏π¡…ïÿ∞Åm…ïπÖµ•πù1•Õ—tËÅÏÄ∏∏π¡…ïŸm…ïπÖµ•πù1•Õ—t∞ÅπÖµîÅÙÅÙÄËÅ¡…ïÿ§Ï(ÄÄÄÅÕï—9ï›9Öµî†àà§ÏÅÕï—IïπÖµ•πù1•Õ–°π’±∞§Ï(ÄÅÙ(ÄÅô’πç—•Ω∏ÅΩ¡ïπIïπÖµî°•ê§ÅÏ(ÄÄÄÅÕï—1•Õ—5ïπ‘°π’±∞§ÏÅÕï—IïπÖµ•πù1•Õ–°•ê§ÏÅÕï—9ï›9Öµî†°±•Õ—Õm•ëtÄòòÅ±•Õ—Õm•ëtππÖµî§ÅÒÄàà§Ï(ÄÅÙ(ÄÄººÅÿ–∏‹ËÅÕ°Ö…îÅ—°îÅç’……ïπ–ÅçΩπë•—•ΩπÃÅÖÃÅÑÅç±ïÖ∏Å—ï·–ÅÕ’µµÖ…‰Å¡±’ÃÅÑÅ±•π¨Å°Ωµî∏(ÄÄººÅÅ›ïÖ—°ï»µÕ¡ïç•ô•åÅ¡…ïŸ•ï‹ÅçÖ…êÅ•ÃÅ—°îÅπï·–ÅÕ—ï¿ÏÅ—°îÅ—ï·–ÅÖ±…ïÖë‰ÅçÖ……•ïÃÅ—°îÅ…ïÖê∏(ÄÅô’πç—•Ω∏ÅÕ°Ö…ï]ïÖ—°ï»†§ÅÏ(ÄÄÄÅ•òÄ†Ö›ïÖ—°ï»§Å…ï—’…∏Ï(ÄÄÄÅçΩπÕ–Å¡±ÖçîÄÙÅ±Ωç9ÖµîÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à•l¡tÄËÄâÂΩ’»ÅÖ…ïÑàÏ(ÄÄÄÅçΩπÕ–Å›°ï∏ÄÙÅ•Õ9•ù°—9Ω‹°›ïÖ—°ï»§Ä¸ÄâQΩπ•ù°–àÄËÄâI•ù°–ÅπΩ‹àÏ(ÄÄÄÅçΩπÕ–Å–ÄÙÅ›ÖÂô•πë]ïÖ—°ï…QÖ≠î°›ïÖ—°ï»§Ï(ÄÄÄÅçΩπÕ–ÅçΩπêÄÙÄ°›ïÖ—°ï»π±Öâï∞ÅÒÄàà§π—Ω1Ω›ï…ÖÕî†§Ï(ÄÄÄÅ±ï–Å—·–ÄÙÅÄëÌ›°ïπÙÅ•∏ÄëÌ¡±ÖçïÙËÄëÌ›ïÖ—°ï»π—ïµ¡˜
+¡ÄÏ(ÄÄÄÅ•òÄ°çΩπê§Å—·–Ä¨ÙÅÄ∞ÄëÌçΩπëıÄÏ(ÄÄÄÅ•òÄ°›ïÖ—°ï»πôïï±ÃÄÑÙÅπ’±∞§Å—·–Ä¨ÙÅÄ∞Åôïï±ÃÄëÌ›ïÖ—°ï»πôïï±Õ˜
+¡ÄÏ(ÄÄÄÅ—·–Ä¨ÙÄà∏àÏ(ÄÄÄÅ•òÄ°–ÄòòÅ–πùΩΩêÄòòÅ–πùΩΩêπ±ïπù—†§Å—·–Ä¨ÙÅÄÅΩΩêÅôΩ»ÄëÌ–πùΩΩêπ©Ω•∏†à∞Äà•ÙπÄÏ(ÄÄÄÅ—·–Ä¨ÙÄàÅŸ•ÑÅ]ÖÂô•πêàÏ(ÄÄÄÅçΩπÕ–Å—Ö≠ïM—»ÄÙÄ°–ÄòòÅ–πùΩΩêÄòòÅ–πùΩΩêπ±ïπù—†§Ä¸Ä†âΩΩêÅôΩ»ÄàÄ¨Å–πùΩΩêπ©Ω•∏†à∞Äà§§ÄËÄààÏ(ÄÄÄÅ±ï–Å›’…∞ÄÙÄàΩ‹˝±ΩåÙàÄ¨ÅïπçΩëïUI%Ωµ¡Ωπïπ–°¡±Öçî§Ï(ÄÄÄÅ•òÄ°›ïÖ—°ï»π—ïµ¿ÄÑÙÅπ’±∞§Å›’…∞Ä¨ÙÄàô—ïµ¿ÙàÄ¨ÅïπçΩëïUI%Ωµ¡Ωπïπ–°›ïÖ—°ï»π—ïµ¿§Ï(ÄÄÄÅ•òÄ°›ïÖ—°ï»π±Öâï∞§Å›’…∞Ä¨ÙÄàôçΩπêÙàÄ¨ÅïπçΩëïUI%Ωµ¡Ωπïπ–°›ïÖ—°ï»π±Öâï∞§Ï(ÄÄÄÅ•òÄ°—Ö≠ïM—»§Å›’…∞Ä¨ÙÄàô—Ö≠îÙàÄ¨ÅïπçΩëïUI%Ωµ¡Ωπïπ–°—Ö≠ïM—»πÕ±•çî†¿∞Äƒƒ¿§§Ï(ÄÄÄÅÕ°Ö…ï1•π¨°ÄëÌ›°ïπÙÅ•∏ÄëÌ¡±ÖçïıÄ∞ÅΩ…•ù•πU…∞°›’…∞§∞Ä†§ÄÙ¯ÅÕ°Ω›QΩÖÕ–†âΩ¡•ïêà§∞Å—·–§Ï(ÄÅÙ(ÄÄººÅ	’•±êÅÑÅÕ°Ö…ïÖâ±îÅ±•π¨∏Å]•—†ÅM’¡ÖâÖÕîÅ›îÅÕ—Ω…îÅ—°îÅ±•Õ–ÅÖπêÅÕ°Ö…îÅÑÅÕ°Ω…–(ÄÄººÅçΩëî∞ÅÕºÅ—°îÅUI0Å•ÃÅç±ïÖ∏ÅÖπêÅ’πô’…±ÃÅ•π—ºÅÑÅ…•ç†Å¡…ïŸ•ï‹∏Å]•—°Ω’–Å•–Å›î(ÄÄººÅôÖ±∞ÅâÖç¨Å—ºÅ—°îÅ±ΩπúÅÕï±òµçΩπ—Ö•πïêÅ±•π¨∏(ÄÅÖÕÂπåÅô’πç—•Ω∏Åâ’•±ë1•Õ—M°Ö…ïU…∞°¡±ÖçïÃ∞Å—•—±î§ÅÏ(ÄÄÄÅçΩπÕ–Å¡ÖÂ±ΩÖêÄÙÅïπçΩëï1•Õ–°¡±ÖçïÃ§Ï(ÄÄÄÅçΩπÕ–Å∏ÄÙÄ°¡±ÖçïÃÅÒÅmt§π±ïπù—†Ï(ÄÄÄÅçΩπÕ–ÅπÖµïÃÄÙÄ°¡±ÖçïÃÅÒÅmt§πµÖ¿†°¿§ÄÙ¯Å¿ÄòòÅ¿ππÖµî§πô•±—ï»°	ΩΩ±ïÖ∏§Ï(ÄÄÄÅçΩπÕ–ÅÕ’àÄÙÅπÖµïÃπÕ±•çî†¿∞Ä»§π©Ω•∏†à∞Äà§Ä¨Ä°πÖµïÃπ±ïπù—†Ä¯Ä»Ä¸ÄàÅÖπêÄàÄ¨Ä°πÖµïÃπ±ïπù—†Ä¥Ä»§Ä¨ÄàÅµΩ…îàÄËÄàà§Ï(ÄÄÄÅçΩπÕ–ÅƒÄÙÅÅ–ÙëÌïπçΩëïUI%Ωµ¡Ωπïπ–°—•—±îÅÒÄàà•Ùô±ΩåÙëÌïπçΩëïUI%Ωµ¡Ωπïπ–°±Ωç9ÖµîÅÒÄàà•Ùô∏ÙëÌπÙôÕ’àÙëÌïπçΩëïUI%Ωµ¡Ωπïπ–°Õ’à•ıÄÏ(ÄÄÄÅ•òÄ°Õ’¡ÖâÖÕîÄòòÅ¡ÖÂ±ΩÖê§ÅÏ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–ÅçΩëîÄÙÅ…ÖπëΩëî†§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–ÅÏÅï……Ω»ÅÙÄÙÅÖ›Ö•–ÅÕ’¡ÖâÖÕîπô…Ω¥†âÕ°Ö…ïë}±•Õ—Ãà§π•πÕï…–°ÏÅçΩëî∞Å¡ÖÂ±ΩÖê∞Å—•—±îËÅ—•—±îÅÒÄàà∞Å±ΩåËÅ±Ωç9ÖµîÅÒÄàà∞Å∏ÅÙ§Ï(ÄÄÄÄÄÄÄÅ•òÄ†Öï……Ω»§Å…ï—’…∏ÅΩ…•ù•πU…∞°ÄΩÃºëÌçΩëïÙ¸ëÌ≈ıÄ§Ï(ÄÄÄÄÄÅÙÅçÖ—ç†ÅÌÙ(ÄÄÄÅÙ(ÄÄÄÅ•òÄ°¡ÖÂ±ΩÖê§Å…ï—’…∏ÅΩ…•ù•πU…∞°ÄΩÃºëÌ¡ÖÂ±ΩÖëÙ¸ëÌ≈ıÄ§Ï(ÄÄÄÅ…ï—’…∏ÅΩ…•ù•πU…∞†àºà§Ï(ÄÅÙ(ÄÅÖÕÂπåÅô’πç—•Ω∏ÅÕ°Ö…ï1•Õ–°¡±ÖçïÃ∞Å—•—±î§ÅÏ(ÄÄÄÅ•òÄ†Ö¡±ÖçïÃÅÒÄÖ¡±ÖçïÃπ±ïπù—†§Å…ï—’…∏Ï(ÄÄÄÅçΩπÕ–Å’…∞ÄÙÅÖ›Ö•–Åâ’•±ë1•Õ—M°Ö…ïU…∞°¡±ÖçïÃ∞Å—•—±î§Ï(ÄÄÄÅÕ°Ö…ï1•π¨°Å]ÖÂô•πêÅ±•Õ–ËÄëÌ—•—±ïıÄ∞Å’…∞∞Ä†§ÄÙ¯ÅÕ°Ω›QΩÖÕ–†â1•π¨ÅçΩ¡•ïêà§∞ÅÄëÌ—•—±ïÙ∏Å!ï±¿ÅµîÅ›ÖÂô•πêÅ•—Ä∞Ä†§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–†âÕ°Ö…îà∞Åπ’±∞∞ÅÏÅ≠•πêËÄâ±•Õ–à∞Å∏ËÅ¡±ÖçïÃπ±ïπù—†∞Å—•—±îËÅ—•—±îÅÒÄààÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅù•ŸïÖ›ÖÂ5Ö…¨†â±•Õ–ËàÄ¨Ä°—•—±îÅÒÄâ±•Õ–à§§ÏÅÙ§Ï(ÄÅÙ(ÄÄººÅÿÿ∏»ÃÉäPÅÕ°Ö…îÅ=9ÅçΩ’¡Ω∏∏ÅQ°îÅ…ïç•¡•ïπ–ùÃÅ—ï·–ÅçÖ……•ïÃÅÑÅ¡ï»µçΩ’¡Ω∏Å•µÖùî(ÄÄººÄ°›°ºÅ•–ùÃÅôΩ»∞Å°Ω‹Åµ’ç†∞Å›°ï∏Å•–Åï·¡•…ïÃ§Åùïπï…Ö—ïêÅô…Ω¥Å—°îÅÕÖµîÅïπçΩëïê(ÄÄººÅëÖ—ÑÅ—°îÄΩåÅ±Öπë•πúÅ¡ÖùîÅÖπêÄΩÖ¡§ΩΩúΩçΩ’¡Ω∏Å•µÖùîÅâΩ—†Å…ïÖê∏(ÄÅô’πç—•Ω∏ÅçΩ’¡ΩπM°Ö…ïU…∞°å§ÅÏ(ÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÅçΩπÕ–Å©ÕΩ∏ÄÙÅ)M=8πÕ—…•πù•ô‰°ÏÅàËÅåπâ’Õ•πïÕÃÅÒÄàà∞Å–ËÅåπ—•—±îÅÒÄàà∞Å‡ËÅåπï·¡•…ïÃÄ¸ÅM—…•πú°åπï·¡•…ïÃ§πÕ±•çî†¿∞Äƒ¿§ÄËÄàà∞ÅåËÅåπçΩëîÅÒÄàà∞ÅÑËÅåπÖ…ïÑÅÒÄàà∞Å•êËÅåπ•êÅÒÄààÅÙ§Ï(ÄÄÄÄÄÅçΩπÕ–Åàÿ–ÄÙÅâ—ΩÑ°’πïÕçÖ¡î°ïπçΩëïUI%Ωµ¡Ωπïπ–°©ÕΩ∏§§§πÕ¡±•–†à¨à§π©Ω•∏†à¥à§πÕ¡±•–†àºà§π©Ω•∏†â|à§πÕ¡±•–†àÙà§π©Ω•∏†àà§Ï(ÄÄÄÄÄÅ…ï—’…∏ÅΩ…•ù•πU…∞†àΩå˝êÙàÄ¨Åàÿ–§Ï(ÄÄÄÅÙÅçÖ—ç†ÅÏÅ…ï—’…∏ÅΩ…•ù•πU…∞†àΩçΩ’¡ΩπÃà§ÏÅÙ(ÄÅÙ(ÄÅÖÕÂπåÅô’πç—•Ω∏ÅÕ°Ö…ïΩ’¡Ω∏°å§ÅÏ(ÄÄÄÅ•òÄ†Öå§Å…ï—’…∏Ï(ÄÄÄÅçΩπÕ–Å’…∞ÄÙÅçΩ’¡ΩπM°Ö…ïU…∞°å§Ï(ÄÄÄÄººÅÿÿ∏‰‰Ä°Ω›πï»§ËÅ—°îÅÕ°Ö…îÅ—ï·–ÅM11LÉäPÅŸÖ±’îÅô•…Õ–∞Å•∏ÅΩπîÅ±•πî∞ÅÕÖµî(ÄÄÄÄººÅπ’µâï…ÃÅÖÃÅ—°îÅçÖ…êÄ°Õ°Ö…ïêÅ¡Ö…Õï»∞Å±•àΩçΩ’¡ΩπYÖ±’îπ©Ã§∏(ÄÄÄÅçΩπÕ–ÅÿÄÙÅ¡Ö…ÕïΩ’¡ΩπYÖ±’î°åπ—•—±î§Ï(ÄÄÄÅçΩπÕ–ÅÕï±±ï»ÄÙÅÿ(ÄÄÄÄÄÄ¸Äã¬~:æ‚<ÄàÄ¨Ä°åπâ’Õ•πïÕÃÄ¸Ååπâ’Õ•πïÕÃÄ¨ÄàËÄàÄËÄàà§Ä¨Äâùï–ÄàÄ¨Åÿπùï—1Öâï∞Ä¨Ä°ÿπ›°Ö–Ä¸ÄàÅΩòÄàÄ¨Åÿπ›°Ö–ÄËÄàà§Ä¨ÄàÅôΩ»ÄàÄ¨Åÿπ¡ÖÂ1Öâï∞Ä¨ÄàÉäPÄàÄ¨Åÿπ¡ç–Ä¨ÄàîÅΩôòà(ÄÄÄÄÄÄËÄã¬~:æ‚<ÄàÄ¨Ä°åπâ’Õ•πïÕÃÄ¸Ååπâ’Õ•πïÕÃÄ¨ÄàËÄàÄËÄàà§Ä¨Ä°åπ—•—±îÅÒÄâÅ]ÖÂô•πêÅëïÖ∞à§Ï(ÄÄÄÅçΩπÕ–Å±•πïÃÄÙÅmÕï±±ï…tÏ(ÄÄÄÅ•òÄ°åπçΩëî§Å±•πïÃπ¡’Õ††âΩëîËÄàÄ¨ÅåπçΩëî§Ï(ÄÄÄÅ•òÄ°åπï·¡•…ïÃ§Å±•πïÃπ¡’Õ††âYÖ±•êÅ—°…Ω’ù†ÄàÄ¨ÅM—…•πú°åπï·¡•…ïÃ§πÕ±•çî†¿∞Äƒ¿§§Ï(ÄÄÄÅ±•πïÃπ¡’Õ††â…ÖàÅ•–ÅΩ∏Å]ÖÂô•πêËà§Ï(ÄÄÄÅçΩπÕ–ÅôÖ±±âÖç¨ÄÙÄ†§ÄÙ¯ÅÕ°Ö…ï1•π¨†°åπâ’Õ•πïÕÃÄ¸Ååπâ’Õ•πïÕÃÄ¨ÄàÉäPÄàÄËÄàà§Ä¨Ä°åπ—•—±îÅÒÄâ]ÖÂô•πêÅçΩ’¡Ω∏à§∞Å’…∞∞Ä†§ÄÙ¯ÅÕ°Ω›QΩÖÕ–†â1•π¨ÅçΩ¡•ïêà§∞Å±•πïÃπ©Ω•∏†âq∏à§∞Ä†§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–†âçΩ’¡Ωπ}Õ°Ö…îà∞Åπ’±∞∞ÅÏÅ•êËÅåπ•êÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅÙ§Ï(ÄÄÄÄººÅÿÿ∏‰‰Ä°Ω›πï»§ËÄâ$Å›Öπ–Å—°îÅÖç—’Ö∞ÅçÖ…êÅ—ºÅâîÅÕïπ–ÅÖÃÅÑÅ—ï·–ÅµïÕÕÖùî∏à(ÄÄÄÄººÅ]ïàÅM°Ö…îÅ1ïŸï∞Ä»ËÅôï—ç†Å—°îÄΩÖ¡§ΩΩúÅçΩ’¡Ω∏ÅçÖ…êÅÖπêÅ°ÖπêÅ—°îÅA9Å—ºÅ—°î(ÄÄÄÄººÅπÖ—•ŸîÅÕ°ïï–∞ÅÕºÅ5ïÕÕÖùïÃÅÕ°Ω›ÃÅQ!ÅI∞ÅπΩ–ÅÑÅâÖ…îÅ±•π¨∏ÅŸï…‰ÅôÖ•±’…î(ÄÄÄÄººÄ°πºÅçÖπM°Ö…î∞Åôï—ç†Åµ•ÕÃ∞Åô•±îÅÕ°Ö…îÅ’πÕ’¡¡Ω…—ïê§ÅôÖ±±ÃÅ—ºÅ—°îÅï·•Õ—•πú(ÄÄÄÄººÅ—ï·–Ω±•π¨Å±Öëëï»ÏÅÑÅ’Õï»Åç±ΩÕ•πúÅ—°îÅÕ°ïï–Ä°âΩ…—……Ω»§ÅÕ°Ö…ïÃÅπΩ—°•πúÉäP(ÄÄÄÄººÅπïŸï»Å¡’π•Õ°ïêÅ›•—†ÅÑÅÕ’…¡…•ÕîÅç±•¡âΩÖ…êÅ›…•—î∏Å9Ö—•ŸîÄ°Ö¡Öç•—Ω»§Å≠ïï¡Ã(ÄÄÄÄººÅ•—ÃÅΩ›∏ÅÕ°ïï–ËÅπÖ—•ŸïM°Ö…îÅ°ÖÃÅπºÅô•±îÅ±Öπî∏(ÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÅ•òÄ†Ö•Õ9Ö—•Ÿî†§ÄòòÅÿÄòòÅ—Â¡ïΩòÅπÖŸ•ùÖ—Ω»ÄÑÙÙÄâ’πëïô•πïêàÄòòÅπÖŸ•ùÖ—Ω»πçÖπM°Ö…îÄòòÅπÖŸ•ùÖ—Ω»πÕ°Ö…î§ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å≈ÃÄÙÅπï‹ÅUI1MïÖ…ç°AÖ…ÖµÃ°ÏÅ≠•πêËÄâçΩ’¡Ω∏à∞Å¡Ö‰ËÅM—…•πú°ÿπ¡Ö‰§∞Åùï–ËÅM—…•πú°ÿπùï–§∞Å¡ç–ËÅM—…•πú°ÿπ¡ç–§∞Åâ•ËËÅåπâ’Õ•πïÕÃÅÒÄàà∞Å›°Ö–ËÅÿπ›°Ö–ÅÒÄàà∞Åï·¿ËÅåπï·¡•…ïÃÄ¸ÅM—…•πú°åπï·¡•…ïÃ§πÕ±•çî†¿∞Äƒ¿§ÄËÄààÅÙ§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å»ÄÙÅÖ›Ö•–Åôï—ç††àΩÖ¡§ΩΩú¸àÄ¨Å≈Ãπ—ΩM—…•πú†§§Ï(ÄÄÄÄÄÄÄÅ•òÄ°»πΩ¨§ÅÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åô•±îÄÙÅπï‹Å•±î°mÖ›Ö•–Å»πâ±Ωà†•t∞Äâ›ÖÂô•πêµëïÖ∞π¡πúà∞ÅÏÅ—Â¡îËÄâ•µÖùîΩ¡πúàÅÙ§Ï(ÄÄÄÄÄÄÄÄÄÅ•òÄ°πÖŸ•ùÖ—Ω»πçÖπM°Ö…î°ÏÅô•±ïÃËÅmô•±ïtÅÙ§§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÅÖ›Ö•–ÅπÖŸ•ùÖ—Ω»πÕ°Ö…î°ÏÅô•±ïÃËÅmô•±ït∞Å—ï·–ËÅ±•πïÃπ©Ω•∏†âq∏à§Ä¨Äâq∏àÄ¨Å’…∞ÅÙ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏÅ±ΩùŸïπ–†âçΩ’¡Ωπ}Õ°Ö…îà∞Åπ’±∞∞ÅÏÅ•êËÅåπ•ê∞Å¡Ö—†ËÄâçÖ…ë}•µÖùîàÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏Ï(ÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÅÙ(ÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÏÅ•òÄ°îÄòòÅîππÖµîÄÙÙÙÄââΩ…—……Ω»à§Å…ï—’…∏ÏÅÙ(ÄÄÄÅôÖ±±âÖç¨†§Ï(ÄÅÙ(((ÄÅçΩπÕ–ÅÕ’âÃÄÙÅMU	%1QIMmçÖ—tÅÒÅmtÏ(ÄÅçΩπÕ–ÅŸ•âïÃÄÙÅY%	MmçÖ—tÅÒÅmtÏ(ÄÄººÅ=πîÅÕΩ’…çîÅΩòÅ—…’—†ËÅ—°îÅï·¡ï…•ïπçîÅπÖÿÅ•ÃÅùïπï…Ö—ïêÅô…Ω¥Å—°îÅâÖëùî(ÄÄººÅ…ïù•Õ—…‰Å•—Õï±ò∞ÅÕºÅïŸï…‰ÅâÖëùîÅ—°Ö–ÅçÖ∏ÅÖ¡¡ïÖ»ÅΩ∏ÅÑÅçÖ…êÅ•ÃÅÖ±ÕºÅ—Ö¡¡Öâ±î(ÄÄººÅ°ï…î∏ÅÅ±ïÖêÅΩ…ëï»ÅÕ’…ôÖçïÃÅ—°îÅµΩÕ–Å’Õïô’∞Åô•…Õ–ÏÅ—°îÅ…ïÕ–ÅôΩ±±Ω‹∏(ÄÄººÅÅÕ°Ω…–∞Åç’…Ö—ïêÅ…Ω‹ÅΩòÅ—°îÅµΩÕ–Å’Õïô’∞Åï·¡ï…•ïπçïÃ∏ÅŸï…‰ÅΩ—°ï»ÅâÖëùîÅÕ—ÖÂÃ(ÄÄººÅ…ïÖç°Öâ±îÅ—°…Ω’ù†Å—°îÄâMïîÅÖ±∞àÅç°•¿∞ÅÕºÅ—°îÅ…ïù•Õ—…‰Å•ÃÅÕ—•±∞ÅΩπîÅÕΩ’…çîÅΩò(ÄÄººÅ—…’—†Å›•—°Ω’–Åô±ΩΩë•πúÅ—°îÅ°ΩµîÅ…Ω‹∏(ÄÅçΩπÕ–Å!=5}!%ALÄÙÅlâùï¥à∞ÄâôÖµ•±‰à∞Äâïπ—ï…—Ö•πµïπ–à∞ÄâÕ—ÖÂÃà∞ÄâÕ°Ω›Ãà∞ÄâŸÖ±’îà∞Äââ’ëùï–à∞Äâ•πÕ—Öù…Ö¥à∞ÄâΩ’—ëΩΩ»à∞ÄââïÕ—Ωòâtπô•±—ï»†°¨§ÄÙ¯ÅaAI%9Mm≠t§Ï(ÄÅçΩπÕ–Å}Ÿ•ï›—‡ÄÙÅçΩπë—·…Ωµ9Ω‹°πΩ›Ωπ—ï·–°ÏÅ›ïÖ—°ï»ÅÙ§§Ï(ÄÅçΩπÕ–Å}µïÖ±AΩΩ∞ÄÙÅçÖ–ÄÙÙÙÄâôΩΩêàÄ¸ÅµïÖ±Ö—î°¡±ÖçïÃ∞ÅÕ’à§ÄËÅ¡±ÖçïÃÏ(ÄÄººÅÿ–∏»‘ËÅïŸï…‰ÅÕΩ…–ÅµΩëîÅ•ÃÅ…ïÖ∞ÅΩ∏Å—°îÅâ…Ω›ÕîÅôïïê∞Å—°îÅë•Õ—ÖπçîÅ±•µ•–(ÄÄººÅÖ¡¡±•ïÃÅ—ºÅÖ±∞ÅΩòÅ—°ï¥∞ÅÖπêÅ—°îÅπïÖ»µô•…Õ–Å…’±îÅÕ’…Ÿ•ŸïÃÅ…Öπ≠•πú∏(ÄÅçΩπÕ–Å}ë•Õ—•±—ï…ïêÄÙÅl∏∏π}µïÖ±AΩΩ±tπô•±—ï»†°¿§ÄÙ¯ÅÕ±•ëï…5§Ä¯ÙÄÿ¿ÅÒÅ¿πë•Õ—5§ÄÙÙÅπ’±∞ÅÒÅ¿πë•Õ—5§ÄÙÅÕ±•ëï…5§§Ï(ÄÅ±ï–ÅŸ•ï›	ÖÕîÏ(ÄÅ•òÄ°ÕΩ…—	‰ÄÙÙÙÄâπïÖ»à§ÅÏ(ÄÄÄÅŸ•ï›	ÖÕîÄÙÅ}ë•Õ—•±—ï…ïêπÕΩ…–†°Ñ∞Åà§ÄÙ¯Ä°Ñπë•Õ—5§Ä¸¸Ä≈îƒ»§Ä¥Ä°àπë•Õ—5§Ä¸¸Ä≈îƒ»§§Ï(ÄÅÙÅï±ÕîÅ•òÄ°ÕΩ…—	‰ÄÙÙÙÄâ…Ö—ïêà§ÅÏ(ÄÄÄÄººÅÿÿ∏Ã¿Ä°Ω›πï»§ËÄâQΩ¿Å…Ö—ïêàÅ…Öπ≠ÃÅ¡’…ï±‰Åâ‰Å—°îÅë•Õ¡±ÖÂïêÅ]ÖÂô•πêÅMçΩ…î∞(ÄÄÄÄººÅ°•ù°ïÕ–Åô•…Õ–∞ÅÕºÅ—°îÅâÖëùïÃÅ…ïÖêÅ•∏ÅΩ…ëï»ÉäPÅ—°îÅÕçΩ…îÅ%LÅ—°îÅµΩëï∞(ÄÄÄÄººÅΩ’—¡’–∏Å•Õ—ÖπçîÅ°ÖÃÅ•—ÃÅΩ›∏Äâ±ΩÕïÕ–Åô•…Õ–àÅÕΩ…–ÏÅ…ïŸ•ï›ÃÅâ…ïÖ¨Å—•ïÃ∏(ÄÄÄÅŸ•ï›	ÖÕîÄÙÅ}ë•Õ—•±—ï…ïêπÕΩ…–°IÖπ≠•πúπâÂQΩ¡IÖ—ïê§ÏÄººÅÿÿ∏–»ËÅQ!ÅÕ°Ö…ïêÅQΩ¿µ…Ö—ïêÅçΩµ¡Ö…Ö—Ω»Ä°±Ωç≠ïêÅâ‰Å—ïÕ–µ—Ω¿µ…Ö—ïê§(ÄÅÙÅï±ÕîÅ•òÄ°ÕΩ…—	‰ÄÙÙÙÄâ¡…•çîà§ÅÏ(ÄÄÄÅŸ•ï›	ÖÕîÄÙÅ}ë•Õ—•±—ï…ïêπÕΩ…–†°Ñ∞Åà§ÄÙ¯Ä††°Ñπ¡…•çï}±ïŸï∞Ä¸¸ÅÑπ¡…•çï1ïŸï∞Ä¸¸Ä‰§§Ä¥Ä†°àπ¡…•çï}±ïŸï∞Ä¸¸Åàπ¡…•çï1ïŸï∞Ä¸¸Ä‰§§§ÅÒÄ†°àπ…Ö—•πúÅÒÄ¿§Ä¥Ä°Ñπ…Ö—•πúÅÒÄ¿§§§Ï(ÄÅÙÅï±ÕîÅÏ(ÄÄÄÅŸ•ï›	ÖÕîÄÙÅIÖπ≠•πúπ…Öπ≠	ÂΩπë•—•ΩπÃ°}ë•Õ—•±—ï…ïê∞Å}Ÿ•ï›—‡∞Ä°¿§ÄÙ¯Å¡±ÖçïMçΩ…î°ÏÅ≈’Ö±•—‰ËÅ¿π›ôMçΩ…î∞Å’π…Ö—ïë	ÖÕîËÅU9IQ}1MP∞ÅôÖŸïQ•ï»ËÅôÖŸïQ•ï»°¿§∞ÅôïÖ—’…ïêËÅôïÖ—’…ïë	ΩΩÕ–°¿§∞ÅïŸ•ëïπçîËÅ°ÖÕ…ïÖ—Ω…Y•ëïΩ–°¿§Ä¸ÅIQ=I}Y%=}	=9ULÄËÄ¿∞Å—…ïπêËÅ¿π—…ïπë•πúÄ¸ÅQI9%9}	=9ULÄËÄ¿ÅÙ§§Ï(ÄÄÄÄººÅ9ïÖ»µô•…Õ–Å…’±îËÅ›•—†Ä‘¨ÅΩ¡—•ΩπÃÅ•πÕ•ëîÄƒ»Åµ•±ïÃ∞ÅπΩ—°•πúÅ¡ÖÕ–Ä»¿ÅµÖ‰ÅΩ’—…Öπ¨Å—°ï¥∏(ÄÄÄÅçΩπÕ–Å}πåÄÙÅŸ•ï›	ÖÕîπô•±—ï»†°¿§ÄÙ¯Å¿ÄòòÅ¿πë•Õ—5§ÄÑÙÅπ’±∞ÄòòÅ¿πë•Õ—5§ÄÙÄƒ»§π±ïπù—†Ï(ÄÄÄÅ•òÄ°}πåÄ¯ÙÄ‘§ÅŸ•ï›	ÖÕîÄÙÅl∏∏πŸ•ï›	ÖÕîπô•±—ï»†°¿§ÄÙ¯ÄÑ°¿πë•Õ—5§ÄÑÙÅπ’±∞ÄòòÅ¿πë•Õ—5§Ä¯Ä»¿§§∞Ä∏∏πŸ•ï›	ÖÕîπô•±—ï»†°¿§ÄÙ¯Å¿πë•Õ—5§ÄÑÙÅπ’±∞ÄòòÅ¿πë•Õ—5§Ä¯Ä»¿•tÏ(ÄÅÙ(ÄÄººÅÿ‡∏–‡ÉäPÅQ!Å=U9PÅ9ÅQ!ÅILÅ5UMPÅ	ÅQ!ÅM5Å1%MPÄ°±•ŸîÅ•πç•ëïπ–∞(ÄÄººÄ»¿»ÿ¥¿‡¥»‘∞ÅΩ›πï»ËÄâÖ±∞ÅΩòÅ—°îÅµïπ’ÃÅÖ…îÅÕ°Ω›•πúÅïµ¡—‰Å›°ï∏Å›îÅ°ÖŸîÅÕΩΩº(ÄÄººÅµÖπ‰Å¡±ÖçîÅçÖ…ëÃà§∏ÅA±ÖçïÖ…êÅ°ÖÃÅ…ïô’ÕïêÅ…Ω›ÃÅ›•—†ÅπºÅ…Ö—•πúÅÕ•ùπÖ∞ÅÕ•πçî(ÄÄººÅÿÿ∏Ã‰Ä°Å•òÄ†ÖçÖ…ëΩµ¡±ï—î°¿§§Å…ï—’…∏Åπ’±±Ä§∞Åâ’–Å—°•ÃÅ±•Õ–Å›ÖÃÅπïŸï»ÅùÖ—ïê(ÄÄººÅΩ∏Å—°îÅÕÖµîÅ…’±îÉäPÅÕºÅÑÅ¡ΩΩ∞ÅΩòÅ’π…ïπëï…Öâ±îÅ…Ω›ÃÅ¡…Ωë’çïêÅÑÅôïïêÅ—°Ö–(ÄÄººÅçΩ’π—ïêÄ»ƒÅÕ¡Ω—Ã∞Å…ïπëï…ïêÅπΩπî∞ÅÖπêÅ¡…•π—ïêÄâQ°Ö–ùÃÅÖ±∞Ä»ƒÅÕ¡Ω—ÃàÅ’πëï»(ÄÄººÅ—°îÅâ±Öπ¨∏ÅIÅ5=ÅµÖëîÅ—°Ö–Å¡ΩΩ∞Å—°îÅçΩµµΩ∏ÅçÖÕîÄ°•—ÃÅA…ºÅô•ï±êÅµÖÕ¨(ÄÄººÅΩµ•—ÃÅ—°îÅπ—ï…¡…•Õîµâ•±±ïêÅ…Ö—•πúΩ’Õï…IÖ—•πùΩ’π–§∞Å›°•ç†Å•ÃÅ›°‰Å—°î(ÄÄººÅÕÂµ¡—Ω¥Å›ÖÃÅÕ•—îµ›•ëîÅÖπêÅ±ΩΩ≠ïêÅ±•≠îÅÑÅ—Ω—Ö∞ÅΩ’—ÖùîÅ…Ö—°ï»Å—°Ö∏Å—°•∏ÅëÖ—Ñ∏(ÄÄºº(ÄÄººÅÖ—•πúÅ!I∞ÅÖ–Å—°îÅΩπîÅ¡±ÖçîÅ—°îÅâ…Ω›ÕîÅ¡ΩΩ∞Å•ÃÅô•πÖ±•Õïê∞ÅµÖ≠ïÃÅ—°î(ÄÄººÅôÖ•±’…îÅ°ΩπïÕ–ÅΩ∏ÅïŸï…‰ÅÕ’…ôÖçîÅ—°Ö–Å…ïÖëÃÅÅŸ•ï›ÄËÅ—°îÅ…ïÕ’±–ÅçΩ’π–∞Å—°î(ÄÄººÄâQ°Ö–ùÃÅÖ±∞Å8àÅ±•πî∞Å—°îÅâïÖç†µçΩπë•—•ΩπÃÅ…Ω›ÃÅÖπêÅ—°îÅµÖ¿ÅÖ±∞ÅëïÕç…•âîÅ—°î(ÄÄººÅçÖ…ëÃÅÖç—’Ö±±‰ÅΩ∏ÅÕç…ïï∏∞ÅÖπêÅÖ∏Åïµ¡—‰Å¡ΩΩ∞ÅπΩ‹ÅôÖ±±ÃÅ•π—ºÅ—°îÅ…ïÖ∞(ÄÄººÄâ9Ω—°•πúÅ°ï…îÅ…•ù°–ÅπΩ‹àÅâ…Öπç†Å›•—†ÅÑÅ›•ëï∏Ω…ï±Ö‡ÅÖç—•Ω∏Å•πÕ—ïÖêÅΩò(ÄÄººÅ…ïπëï…•πúÅÑÅÕ•±ïπ–ÅŸΩ•ê∏ÅÅëÖ—ÑÅ…ïù…ïÕÕ•Ω∏ÅçÖ∏ÅÕ—•±∞Å±ΩÕîÅ¡±ÖçïÃÏÅ•–ÅçÖ∏Åπº(ÄÄººÅ±Ωπùï»Å±ΩΩ¨Å±•≠îÅÑÅâ…Ω≠ï∏Å¡Öùî∏(ÄÅçΩπÕ–ÅŸ•ï‹ÄÙÅëïë’¡ïA±ÖçïÃ°ëïÖ±Õ=π±‰Ä¸ÅŸ•ï›	ÖÕîπô•±—ï»†°¿§ÄÙ¯ÅΩôôï…Õm¿π•ët§ÄËÅŸ•ï›	ÖÕî∞ÄÖÕïÖ…ç°5Ωëî§πô•±—ï»°çÖ…ëΩµ¡±ï—î§Ï(ÄÄººÅΩπÕΩ±•ëÖ—îÅ—°îÅU10Å…Öπ≠ïêÅ¡ΩΩ∞ÅâïôΩ…îÅÕï±ïç—•πúÅ—°îÅ°ï…º∏ÅΩ•πúÅ—°•Ã(ÄÄººÅÖô—ï»Å…ïµΩŸ•πúÅ—°îÅ°ï…ºÅÕ—…ÖπëïêÅ•—ÃÅç°•±ë…ï∏ÅÖÃÅ¡ïï»Å…ïçΩµµïπëÖ—•ΩπÃË(ÄÄººÅMïÖ]Ω…±êÅçΩ’±êÅâïçΩµîÅ—°îÅ°ï…ºÅ›°•±îÅ	ÖÂÕ•ëîÅM—Öë•’¥ÅÕ’…Ÿ•ŸïêÅâï±Ω‹ÅÖÃÅ•ò(ÄÄººÅ•–Å›ï…îÅÖ∏Å•πëï¡ïπëïπ—±‰ÅŸ•Õ•—Öâ±îÅëïÕ—•πÖ—•Ω∏∏ÅQ°îÅ¡Ö…ïπ–Å≠ïï¡ÃÅ•—Ã(ÄÄººÅΩ…•ù•πÖ∞Å…Öπ¨ÅÖπêÅçÖ……•ïÃÅ•—ÃÅ•∏µ¡Ö…¨Å°•ù°±•ù°—ÃÅ•π—ºÅâΩ—†ÅçÖ…êÅÖπêÅëï—Ö•∞∏(ÄÅçΩπÕ–ÅçΩπÕΩ±•ëÖ—ïëY•ï‹ÄÙÄ††§ÄÙ¯ÅÏ(ÄÄÄÅ—…‰ÅÏÅ…ï—’…∏ÅçΩπÕΩ±•ëÖ—ïïÕ—•πÖ—•ΩπÃ°Ÿ•ï‹§π¡±ÖçïÃÏÅÙ(ÄÄÄÅçÖ—ç†Ä°î§ÅÏÅ…ï—’…∏ÅŸ•ï‹ÏÅÙ(ÄÅÙ§†§Ï(ÄÄººÅ·¡±Ω…îÅπΩ‹ÅΩ¡ïπÃÅΩ∏ÅÑÅÕ•πù±îÅÕ—ÖπëΩ’–∞Å©’Õ–Å±•≠îÅ—°îÅ°ΩµîÅÕç…ïï∏∏ÅA…ïôï»ÅÑ(ÄÄººÅ¡±ÖçîÅÂΩ‘ÅçÖ∏ÅÖç—’Ö±±‰ÅùºÅ—ºÅπΩ‹ÏÅ—°îÅ…ïÕ–ÅΩòÅ—°îÅ…Öπ≠ïêÅ±•Õ–ÅôΩ±±Ω›ÃÅâï±Ω‹∏(ÄÅçΩπÕ–Åï·!ï…ºÄÙÄ†Ö±ΩÖë•πúÄòòÅçΩπÕΩ±•ëÖ—ïëY•ï‹π±ïπù—†Ä¯Ä¿§Ä¸Ä°çΩπÕΩ±•ëÖ—ïëY•ï‹πô•πê†°¿§ÄÙ¯Å±•Ÿï=¡ï∏°¿§ÄÙÙÙÅ—…’î§ÅÒÅçΩπÕΩ±•ëÖ—ïëY•ï›l¡t§ÄËÅπ’±∞Ï(ÄÅçΩπÕ–Åï·!ï…ΩM∞ÄÙÅï·!ï…ºÄ¸ÅÕçΩ…ï1Öâï∞°ï·!ï…ºπ›ôMçΩ…î§ÄËÅπ’±∞Ï(ÄÅçΩπÕ–Å…ïÕ—Y•ï‹ÄÙÅï·!ï…ºÄ¸ÅçΩπÕΩ±•ëÖ—ïëY•ï‹πô•±—ï»†°¿§ÄÙ¯Å¿ÄòòÅ¿π•êÄÑÙÙÅï·!ï…ºπ•ê§ÄËÅçΩπÕΩ±•ëÖ—ïëY•ï‹Ï((ÄÄººÄ»¿»ÿ¥¿‡¥¿‡ËÅQ!ÅU9%%ÅQI9ÅM%90ÅΩ∏Å—°îÅ°ΩµîÅ¡ΩΩ∞Ä°±•àΩ—…ïπëM•ùπÖ∞π©Ã(ÄÄººÉäPÅ…ïÖ∞ÅôΩΩ–Å—…Öôô•åÄ¨ÅµÖ©Ω»µïŸïπ–Å¡…Ω·•µ•—‰∞ÅπïŸï»ÅÑÅ¡Ö•êÅ•π¡’–§∏(ÄÄººÅÖ——Öç°Q…ïπëM•ùπÖ±ÃÅ5UQQLÅ—°îÅ¡±ÖçîÅΩâ©ïç—ÃÅ•∏ÅÅ¡±ÖçïÕÄ∞ÅÕºÅïŸï…‰Å±•Õ–(ÄÄººÅëï…•ŸïêÅô…Ω¥Å—°ï¥ÅΩ∏Å—°îÅπï·–Å…ïπëï»Ä°Ö¡¡±Âôô•π•—‰ùÃÅçΩ¡•ïÃ∞ÅŸ•ï›	ÖÕî∞(ÄÄººÅ—°îÅÕ°ïï—ÃúÅ¡ΩΩ±Ã§Å…ïÖëÃÅ—°îÅÕÖµîÅô±ÖúËÅ—°îÅ¡±ÖçïMçΩ…îÅÅ—…ïπëÄÅ—ï…¥Å…Öπ≠Ã(ÄÄººÅ•–∞Åë•Õ¡±ÖÂïë]ôMçΩ…îÅÕ°Ω›ÃÅ•–Ä°Õ°Ω›∏ÄÙÙÅÕΩ…—ïê§∞ÅÖπêÅ—°îÅçÖ…êÅ…ïπëï…ÃÅ—°î(ÄÄººÉ¬~RîÅ…ïÖÕΩ∏∏ÅQ°îÅ—•ç¨ÅΩπ±‰ÅôΩ…çïÃÅ—°Ö–Å…îµ…ïπëï»ÅΩπçîÅëïçΩ…Ö—•Ω∏Å±ÖπëÃÏ(ÄÄººÅïŸï…Â—°•πúÅôÖ•±ÃÅÕΩô–Å—ºÄâπΩ—°•πúÅ—…ïπëÃà∏(ÄÅçΩπÕ–Ål∞ÅÕï—Q…ïπëQ•ç≠tÄÙÅ’ÕïM—Ö—î†¿§Ï(ÄÅçΩπÕ–Å}—…ïπë%ëÕ-ï‰ÄÙÄ°¡±ÖçïÃÅÒÅmt§πÕ±•çî†¿∞Äƒ‘¿§πµÖ¿†°¿§ÄÙ¯Å¿ÄòòÅ¿π•ê§π©Ω•∏†à∞à§Ï(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅçΩπÕ–Å¡ΩΩ∞ÄÙÄ°¡±ÖçïÃÅÒÅmt§πÕ±•çî†¿∞Äƒ‘¿§πô•±—ï»†°¿§ÄÙ¯Å¿ÄòòÅ¿π•ê§Ï(ÄÄÄÅ•òÄ†Ö¡ΩΩ∞π±ïπù—†§Å…ï—’…∏Ï(ÄÄÄÅ±ï–ÅëïÖêÄÙÅôÖ±ÕîÏ(ÄÄÄÄ°ÖÕÂπåÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÅÖ›Ö•–ÅÖ——Öç°Q…ïπëM•ùπÖ±Ã°¡ΩΩ∞∞ÅÏÅïŸïπ—ÃËÄ°ôΩ…ÂΩ’Ÿïπ—ÃÄòòÅôΩ…ÂΩ’Ÿïπ—Ãπ±ïπù—†Ä¸ÅôΩ…ÂΩ’Ÿïπ—ÃÄËÅïŸïπ—Ã§ÅÒÅmtÅÙ§Ï(ÄÄÄÄÄÄÄÅ•òÄ†ÖëïÖê§ÅÕï—Q…ïπëQ•ç¨†°–§ÄÙ¯Å–Ä¨Äƒ§Ï(ÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÅÙ§†§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅëïÖêÄÙÅ—…’îÏÅÙÏ(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞Åm}—…ïπë%ëÕ-ïÂt§Ï((ÄÄººÅÿÿ∏‘‹ËÅΩπîÅâÖ—ç°ïêÅ…ïÖêÅΩòÅ›Ö—ï»Å≈’Ö±•—‰Ä¨Å¡Ω¡’±Ö…•—‰ÅôΩ»ÅïŸï…‰ÅâïÖç†(ÄÄººÅçÖ…êÅç’……ïπ—±‰ÅΩ∏ÅÕç…ïï∏∞Å•πÕ—ïÖêÅΩòÅÑÅôï—ç†Å¡ï»ÅçÖ…ê∏Å	Ω—†ÅÕ•ùπÖ±ÃÅÖ…î(ÄÄººÅµâÖç≠ïêÄ°›ô}âïÖç°}›Ö—ï»ÄºÅ›ô}¡±Öçï}¡Ω¡’±Ö…•—Â}ÕçΩ…ïê§ÅÖπêÅÕÖôï±‰(ÄÄººÅâÖ—ç°Öâ±îÅŸ•ÑÄπ•∏†§ÏÅ±•ŸîÅ›•πêΩ›ÖŸîΩ…ïêµ—•ëîÅÕ—Ö‰Å•∏Å—°îÅëï—Ö•∞ÅÕ°ïï–(ÄÄººÅΩπ±‰Ä°—°ΩÕîÅÖ…îÅÕ•πù±îµ¡Ω•π–Å’¡Õ—…ïÖ¥ÅA%ÃÅ›•—†ÅπºÅâÖ—ç†ÅµΩëî§∏(ÄÄººÅÿ‡∏ƒ‰Ä°Ω›πï»∞Åô•ô—†Å…ï¡Ω…–§ËÅ—°îÅ›Ö—ï»Å…ïÖêÅ•ÃÅ<µâÖÕïêÅπΩ‹∏ÅQ°îÅΩ±ê(ÄÄººÄπ•∏°¡±Öçï}•ê§Å©Ω•∏ÅΩπ±‰Å±•–Å—°îÅ¯Ã»Åï·Öç–ÅÕÖµ¡±ïêÅ•ëÃÅ›°•±îÅ—°îÅÕÖµî(ÄÄººÅ¡°ÂÕ•çÖ∞ÅâïÖç†Åï·•Õ—ÃÅ’πëï»ÅµÖπ‰ÅΩΩù±îÅ¡±Öçï}•ëÃÉäPÅ›°•ç†Å•ÃÅ›°‰Äâ—°î(ÄÄººÅ›Ö—ï»Å≈’Ö±•—‰àÅ≠ï¡–ÅπΩ–ÅÖ¡¡ïÖ…•πúÅ°Ω›ïŸï»Åô…ïÕ†Å—°îÅÕÖµ¡±ïÃÅ›ï…î∏ÅQ°î(ÄÄººÅ›ô}âïÖç°}›Ö—ï…}ùïºÅŸ•ï‹ÅçÖ……•ïÃÅÕ—Ö—•Ω∏ÅçΩΩ…ë•πÖ—ïÃÏÅïÖç†ÅΩ∏µÕç…ïï∏(ÄÄººÅâïÖç†ÅçÖ…êÅ—Ö≠ïÃÅ•—ÃÅï·Öç–Å…Ω‹Å›°ï∏ÅΩπîÅï·•Õ—Ã∞Åï±ÕîÅ—°îÅπïÖ…ïÕ–(ÄÄººÅÕÖµ¡±ïêÅÕ—Ö—•Ω∏Å›•—°•∏Äƒ∏’µ§Ä°±•àΩ›Ö—ï…M—Ö—•ΩπÃπ©ÃÉäPÅπïŸï»ÅÑÅù’ïÕÃ∞(ÄÄººÅπïŸï»ÅÑÅπï•ù°âΩ»Å—Ω›∏ùÃÅ…ïÖë•πú§∏(ÄÅçΩπÕ–Å}âïÖç°IΩ›ÃÄÙÅŸ•ï‹πô•±—ï»†°¿§ÄÙ¯Å¿ÄòòÅ¿π•êÄòòÅ•Õ	ïÖç†°¿§§πÕ±•çî†¿∞Ä‡¿§Ï(ÄÅçΩπÕ–Å}âïÖç°%ëÃÄÙÅ……Ö‰πô…Ω¥°πï‹ÅMï–°}âïÖç°IΩ›ÃπµÖ¿†°¿§ÄÙ¯Å¿π•ê§§§Ï(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ†Ö}âïÖç°%ëÃπ±ïπù—†ÅÒÄÖÕ’¡ÖâÖÕî§Å…ï—’…∏Ï(ÄÄÄÅ±ï–ÅëïÖêÄÙÅôÖ±ÕîÏ(ÄÄÄÄ°ÖÕÂπåÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å±Ö—ÃÄÙÅ}âïÖç°IΩ›ÃπµÖ¿†°¿§ÄÙ¯Å9’µâï»°¿π±Ö–§§πô•±—ï»°9’µâï»π•Õ•π•—î§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å±πùÃÄÙÅ}âïÖç°IΩ›ÃπµÖ¿†°¿§ÄÙ¯Å9’µâï»°¿π±πú§§πô•±—ï»°9’µâï»π•Õ•π•—î§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Å¡ÖêÄÙÄ¿∏¿‘ÏÄººÅ¯Ã∏’µ§ÉäPÅçΩŸï…ÃÅ9I}MQQ%=9}5$Å›•—†ÅµÖ…ù•∏(ÄÄÄÄÄÄÄÅçΩπÕ–Å›≈DÄÙÅ±Ö—Ãπ±ïπù—†(ÄÄÄÄÄÄÄÄÄÄ¸ÅÕ’¡ÖâÖÕîπô…Ω¥†â›ô}âïÖç°}›Ö—ï…}ùïºà§πÕï±ïç–†ââïÖç°}¡±Öçï}•ê±…ïÕ’±–±ÖëŸ•ÕΩ…‰±ÕÖµ¡±ïë}Ö–±±Ö–±±πúà§(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄπù—î†â±Ö–à∞Å5Ö—†πµ•∏†∏∏π±Ö—Ã§Ä¥Å¡Öê§π±—î†â±Ö–à∞Å5Ö—†πµÖ‡†∏∏π±Ö—Ã§Ä¨Å¡Öê§(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄπù—î†â±πúà∞Å5Ö—†πµ•∏†∏∏π±πùÃ§Ä¥Å¡Öê§π±—î†â±πúà∞Å5Ö—†πµÖ‡†∏∏π±πùÃ§Ä¨Å¡Öê§(ÄÄÄÄÄÄÄÄÄÄËÅÕ’¡ÖâÖÕîπô…Ω¥†â›ô}âïÖç°}›Ö—ï»à§πÕï±ïç–†ââïÖç°}¡±Öçï}•ê±…ïÕ’±–±ÖëŸ•ÕΩ…‰±ÕÖµ¡±ïë}Ö–à§π•∏†ââïÖç°}¡±Öçï}•êà∞Å}âïÖç°%ëÃ§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–ÅmÏÅëÖ—ÑËÅ›ƒÅÙ∞ÅÏÅëÖ—ÑËÅ¡Ω¿ÅıtÄÙÅÖ›Ö•–ÅA…Ωµ•ÕîπÖ±∞°l(ÄÄÄÄÄÄÄÄÄÅ›≈D∞(ÄÄÄÄÄÄÄÄÄÅÕ’¡ÖâÖÕîπô…Ω¥†â›ô}¡±Öçï}¡Ω¡’±Ö…•—Â}ÕçΩ…ïêà§πÕï±ïç–†â¡±Öçï}•ê±—•ï»…}¡Ω¡’±Ö…•—‰à§π•∏†â¡±Öçï}•êà∞Å}âïÖç°%ëÃ§∞(ÄÄÄÄÄÄÄÅt§Ï(ÄÄÄÄÄÄÄÅ•òÄ°ëïÖê§Å…ï—’…∏Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Åπï·–ÄÙÅÌÙÏ(ÄÄÄÄÄÄÄÅçΩπÕ–ÅµÖ—ç°ïêÄÙÅ›Ö—ï…Ω…	ïÖç°ïÃ°}âïÖç°IΩ›Ã∞Å›ƒÅÒÅmt§Ï(ÄÄÄÄÄÄÄÅ=â©ïç–π≠ïÂÃ°µÖ—ç°ïê§πôΩ…Öç††°•ê§ÄÙ¯ÅÏÅπï·—m•ëtÄÙÅÏÄ∏∏∏°πï·—m•ëtÅÒÅÌÙ§∞Å›Ö—ï»ËÅµÖ—ç°ïëm•ëtÅÙÏÅÙ§Ï(ÄÄÄÄÄÄÄÄ°¡Ω¿ÅÒÅmt§πôΩ…Öç††°»§ÄÙ¯ÅÏÅπï·—m»π¡±Öçï}•ëtÄÙÅÏÄ∏∏∏°πï·—m»π¡±Öçï}•ëtÅÒÅÌÙ§∞Å¡Ω¡’±Ö…•—ÂAç–ËÅ»π—•ï»…}¡Ω¡’±Ö…•—‰ÅÙÏÅÙ§Ï(ÄÄÄÄÄÄÄÅÕï—	ïÖç°M•ùπÖ±Ã†°¡…ïÿ§ÄÙ¯Ä°ÏÄ∏∏π¡…ïÿ∞Ä∏∏ππï·–ÅÙ§§Ï(ÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÅÙ§†§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅëïÖêÄÙÅ—…’îÏÅÙÏ(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞Åm}âïÖç°%ëÃπ©Ω•∏†à∞à•t§Ï(((ÄÅçΩπÕ–Åï·¡±Ω…ï1•Õ–ÄÙÄ†(ÄÄÄÄ¯(ÄÄÄÄÄÅÏº®ÅÿÃ∏‹ÅA°ÖÕîÄ»ËÄâΩΩêÅïŸïπ•πúàÅ°ïÖëï»Ä°ù…ïï—•πú∞Å›ïÖ—°ï»∞ÅA•ç¨ÅôΩ»Åµî∞Å·¡ï…•ïπçïÃÅâ’——Ω∏∞Åï·¡ï…•ïπçîÅ¡•±±Ã§Å°•ëëï∏Å¡ï»Å…ï≈’ïÕ–∏ÅQ°îÅ…Öπ≠ïêÅ±•Õ–Åâï±Ω‹Å•ÃÅçΩµ¡’—ïêÅô…Ω¥Å—°îÅÕÖµîÅ¡±ÖçîÅëÖ—Ñ∞Å’πÖôôïç—ïê∏Å·¡ï…•ïπçïÃÅµΩŸïêÅ—ºÅ—°îÉär†Å9ïÖ…â‰ÅçΩπ—…Ω∞Å•∏Å—°îÅÕΩ…–Å…Ω‹∏Ä®ΩÙ(ÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ¡Öëë•πúËÄàƒ¡¡‡Ä…¡‡ÄŸ¡‡àÅıÙ¯(ÄÄÄÄÄÄÄÅÌ±ΩÖë•πúÄ¸ÄÒ1ΩÖëï»Å±Öâï∞Ùâ•πë•πúÅ—°îÅâïÕ–ÅÕ¡Ω—ÃàÅ¡ÖêÙà¿àÄº¯ÄËÄ†(ÄÄÄÄÄÄÄÄÄÄ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄ»»∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÅπ—ï·–∞Å±ï——ï…M¡Öç•πúËÄà¥¿∏Õ¡‡àÅıÙ˘ÌÕïÖ…ç°1Öâï∞ÅÒÅ¡•ç≠Õ!ïÖëï»°çÖ–•ÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâÕ¡Öçîµâï—›ïï∏à∞ÅµÖ…ù•πQΩ¿ËÄ»ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅçΩ±Ω»ËÅπµ’—ïêÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌŸ•ï‹π±ïπù—°ÙÅ…ïÕ’±—ÌŸ•ï‹π±ïπù—†ÄÙÙÙÄƒÄ¸ÄààÄËÄâÃâÙÉ
+›ÏàÄâÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅçΩ±Ω»ËÅπÖççïπ–∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌÕΩ…—	‰ÄÙÙÙÄâπïÖ»àÄ¸ÄâπïÖ…ïÕ–Åô•…Õ–àÄËÅÕΩ…—	‰ÄÙÙÙÄâ…Ö—ïêàÄ¸Äâ]ÖÂô•πêÅMçΩ…î∞ÅâïÕ–Å—ºÅ›Ω…Õ–àÄËÄâ…Öπ≠ïêÅâ‰Åô•–âÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌÕïÖ…ç°1Öâï∞ÄòòÄ†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÏÅÕï—MïÖ…ç°5Ωëî°ôÖ±Õî§ÏÅÕï—MïÖ…ç°1Öâï∞†àà§ÏÅÕï—MΩ…—	‰†âπïÖ»à§ÏÅıÙÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒƒ∏‘∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞ÅçΩ±Ω»ËÅπµ’—ïê∞ÅâÖç≠ù…Ω’πêËÅπçÖ…ê∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞Å¡Öëë•πúËÄàÕ¡‡Äƒ¡¡‡à∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ˘±ïÖ»É\Ωâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄº¯(ÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÅÏÖ±ΩÖë•πúÄòòÄ†(ÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ¡Öëë•πúËÄà¿Ä…¡‡Äƒ¡¡‡àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‡∞Å¡Öëë•πù	Ω——Ω¥ËÄ–ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÅÌâ…Ω›ÕïÖ–ÄÑÙÙÄâÖ——…Öç—•ΩπÃàÄòòÄÒMΩ…—Ωπ—…Ω∞ÅÕΩ…—	‰ıÌÕΩ…—	ÂÙÅΩπMΩ…–ıÏ°¨§ÄÙ¯ÅÕï—MΩ…—	‰°¨•ÙÅµ§ıÌÕ±•ëï…5•ÙÅΩπ5§ıÏ°¥§ÄÙ¯ÅÏÅÖ’—ΩIÖë•’ÕIïòπç’……ïπ–ÄÙÅôÖ±ÕîÏÅÕï—M±•ëï…5§°¥§ÏÅçΩπÕ–Åµ¥ÄÙÅ5Ö—†π…Ω’πê°¥Ä®Äƒÿ¿‰∏Ã–§ÏÅ•òÄ°µ¥Ä¯Ä°ÕïÖ…ç°IÖë•’ÃÅÒÄ¿§§ÅÕï—MïÖ…ç°IÖë•’Ã°µ¥§ÏÅıÙÅ›°ï…îıÌ±Ωç9ÖµîÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à•l¡tÄËÄàâÙÅëïÖ±ÕŸÖ•±Öâ±îıÌ=â©ïç–π≠ïÂÃ°Ωôôï…Ã§π±ïπù—†Ä¯Ä¡ÙÅëïÖ±Õ=π±‰ıÌëïÖ±Õ=π±ÂÙÅΩπïÖ±ÃıÌÕï—ïÖ±Õ=π±ÂÙÄº˘Ù(ÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÅÌï·!ï…ºÄòòÄ†(ÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒƒ∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞Å±ï——ï…M¡Öç•πúËÄ¿∏‹∞Å—ï·—Q…ÖπÕôΩ…¥ËÄâ’¡¡ï…çÖÕîà∞ÅçΩ±Ω»ËÅπÖççïπ–∞ÅµÖ…ù•∏ËÄà…¡‡Ä…¡‡Ä·¡‡àÅıÙ˘	ïÕ–ÅµΩŸîÅ…•ù°–ÅπΩ‹Ωë•ÿ¯(ÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÅÌï·!ï…ºÄòòÄ††§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–ÅΩ¡ï∏ÄÙÅ±•Ÿï=¡ï∏°ï·!ï…º§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–ÅâÖëùï%çΩ∏ÄÙÅΩ¡ï∏ÄÙÙÙÅ—…’îÄ¸Äãär†àÄËÄã¬~N4àÏ(ÄÄÄÄÄÄÄÅçΩπÕ–ÅâÖëùïQï·–ÄÙÅΩ¡ï∏ÄÙÙÙÅ—…’îÄ¸Äâ=¡ï∏ÅπΩ‹É
+‹Å—Ω¿Å¡•ç¨àÄËÄâQΩ¿Å¡•ç¨ÅπïÖ…â‰àÏ(ÄÄÄÄÄÄÄÅ…ï—’…∏Ä†(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅµÖ…ù•π	Ω——Ω¥ËÄƒÿ∞ÅâΩ…ëï»ËÅÄƒ∏’¡‡ÅÕΩ±•êÄëÌπÖççïπ—ıÄ∞ÅâΩ…ëï…IÖë•’ÃËÄƒ‡∞ÅΩŸï…ô±Ω‹ËÄâ°•ëëï∏à∞ÅâÖç≠ù…Ω’πêËÅÅ±•πïÖ»µù…Öë•ïπ–†ƒÿ¡ëïú∞Å…ùâÑ†»‘‘∞ƒ‘¿∞‹¿∞∏ƒ¿§Ä¿î∞ÄëÌπçÖ…ëÙÄÿ¿î•Ä∞ÅâΩ·M°ÖëΩ‹ËÄà¿ÄŸ¡‡Ä»—¡‡Å…ùâÑ†¿∞¿∞¿∞∏Ã‘§àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅΩ¡ïπï—Ö•∞°ï·!ï…º•ÙÅ…Ω±îÙââ’——Ω∏àÅ—Öâ%πëï‡ıÏ¡ÙÅΩπ-ïÂΩ›∏ıÌ-	}1%-ÙÅÖ…•Ñµ±Öâï∞ıÌÅ=¡ï∏ÄëÌï·!ï…ºππÖµîÅÒÄâôïÖ—’…ïêÅ¡±ÖçîâıÅÙÅÕ—Â±îıÌÏÅç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâ…ï±Ö—•ŸîàÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÖ±±âÖç≠%µúÅÕ…åıÌï·!ï…ºπ¡°Ω—ΩÙÅ•çΩ∏Ùã¬~N4àÅÕ—Â±îıÌÏÅ›•ë—†ËÄàƒ¿¿îà∞Å°ï•ù°–ËÄƒ‡‘∞ÅΩâ©ïç—•–ËÄâçΩŸï»à∞Åë•Õ¡±Ö‰ËÄââ±Ωç¨àÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâÖâÕΩ±’—îà∞Å—Ω¿ËÄƒ»∞Å±ïô–ËÄƒ»∞Åë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄÿ∞ÅâÖç≠ù…Ω’πêËÄâ…ùâÑ†¿∞¿∞¿∞∏ÿ»§à∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπÖççïπ—Ù‡¡Ä∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞Å¡Öëë•πúËÄà’¡‡Äƒ≈¡‡à∞ÅâÖç≠ë…Ω¡•±—ï»ËÄââ±’»†—¡‡§àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»ÅıÙ˘ÌâÖëùï%çΩπÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ¿∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÅπÖççïπ–∞Å—ï·—Q…ÖπÕôΩ…¥ËÄâ’¡¡ï…çÖÕîà∞Å±ï——ï…M¡Öç•πúËÄà¿∏›¡‡àÅıÙ˘ÌâÖëùïQï·—ÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ¡Öëë•πúËÄƒÿÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄ»»∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÅπ—ï·–∞Å±•πï!ï•ù°–ËÄƒ∏»ÅıÙ˘Ìï·!ï…ºππÖµïÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‡∞Åô±ï·]…Ö¿ËÄâ›…Ö¿à∞ÅµÖ…ù•πQΩ¿ËÄ‡ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌï·!ï…ΩM∞ÄòòÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ–∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÅπ—ï·–ÅıÙ˘Ìï·!ï…ΩM∞π›Ω…ëÙΩÕ¡Ö∏˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌï·!ï…ΩM∞ÄòòÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒƒ∏‘∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞ÅçΩ±Ω»ËÅπµ’—ïêÅıÙ˘Ìï·!ï…ΩM∞πÕÙºƒ¿ΩÕ¡Ö∏˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒA±ÖçïMçΩ…ï°•¿Å¿ıÌï·!ï…ΩÙÅÕ•ÈîıÏƒÕÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌï·!ï…ºπ…ïŸ•ï›ÃÄÑÙÅπ’±∞ÄòòÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∞ÅçΩ±Ω»ËÅπµ’—ïêÅıÙ˚
+‹ÅÌï·!ï…ºπ…ïŸ•ï›Ãπ—Ω1ΩçÖ±ïM—…•πú†•ÙÅ…ïŸ•ï›ÃΩÕ¡Ö∏˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌΩ¡ï∏ÄÙÙÙÅ—…’îÄòòÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞ÅçΩ±Ω»ËÅπù…ïï∏ÅıÙ˚
+‹Å=¡ï∏ÅπΩ‹ΩÕ¡Ö∏˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌΩ¡ï∏ÄÙÙÙÅôÖ±ÕîÄòòÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞ÅçΩ±Ω»ËÅï·!ï…ºππï·—=¡ï∏ÄòòÅï·!ï…ºππï·—=¡ï∏π—ΩëÖ‰Ä¸ÅπùΩ±êÄËÅπ…ïêÅıÙ˚
+‹ÅÌï·!ï…ºππï·—=¡ï∏ÄòòÅï·!ï…ºππï·—=¡ï∏π—ΩëÖ‰Ä¸Åï·!ï…ºππï·—=¡ï∏π±Öâï∞ÄËÄâ±ΩÕïêâÙΩÕ¡Ö∏˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌï·!ï…ºπë•Õ—5§ÄÑÙÅπ’±∞ÄòòÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∞ÅçΩ±Ω»ËÅπµ’—ïêÅıÙ˚
+‹ÅÌï·!ï…ºπë•Õ—5§π—Ω•·ïê†ƒ•ÙÅµ§ΩÕ¡Ö∏˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌâ±’…â1•πî°â±’…âÕmï·!ï…ºπ•ët§ÄòòÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒÃ∏‘∞ÅçΩ±Ω»ËÅπ±•ù°–∞Å±•πï!ï•ù°–ËÄƒ∏‘∞ÅµÖ…ù•πQΩ¿ËÄƒ¿ÅıÙ¯ÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅçΩ±Ω»ËÅπÖççïπ–∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿ÅıÙ˘]°‰ËÄΩÕ¡Ö∏˘Ìâ±’…â1•πî°â±’…âÕmï·!ï…ºπ•ët•ÙΩë•ÿ˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄ§Ï(ÄÄÄÄÄÅÙ§†•Ù(ÄÄÄÄÄÅÌï…»ÄòòÄÒë•ÿÅÕ—Â±îıÌÏÅçΩ±Ω»ËÅπ…ïê∞ÅôΩπ—M•ÈîËÄƒÃ∞Å¡Öëë•πúËÄà—¡‡Ä…¡‡Äƒ…¡‡àÅıÙ˘Ìï……ÙÄÒÕ¡Ö∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—ïïëIï—…‰†°–§ÄÙ¯Å–Ä¨Äƒ•ÙÅÕ—Â±îıÌÏÅçΩ±Ω»ËÅπÖççïπ–∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞ÅµÖ…ù•π1ïô–ËÄÿÅıÙ˘Iï—…‰ÉäÏΩÕ¡Ö∏¯Ωë•ÿ˘Ù(ÄÄÄÄÄÅÏÖ±ΩÖë•πúÄòòÄÖï…»ÄòòÅŸ•ï‹π±ïπù—†ÄÙÙÙÄ¿ÄòòÄ†(ÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ—ï·—±•ù∏ËÄâçïπ—ï»à∞Å¡Öëë•πúËÄà–·¡‡Ä»—¡‡à∞ÅçΩ±Ω»ËÅπµ’—ïêÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâçïπ—ï»à∞ÅµÖ…ù•π	Ω——Ω¥ËÄƒ»ÅıÙ¯Ò9ÖŸ%çΩ∏ÅπÖµîıÌçÖ—ÙÅçΩ±Ω»ıÌπµ’—ïëÙÅÕ•ÈîıÏÃ·ÙÄº¯Ωë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÒÕ—…ΩπúÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄââ±Ωç¨à∞ÅçΩ±Ω»ËÅπ±•ù°–ÅıÙ˘9Ω—°•πúÅ°ï…îÅÂï–ΩÕ—…Ωπú¯(ÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒÃÅıÙ˘]îù…îÅÖëë•πúÅù…ïÖ–ÅÕ¡Ω—ÃÅπïÖ»ÅÂΩ‘∏ÅQ…‰ÅÖπΩ—°ï»ÅçÖ—ïùΩ…‰∞ÅΩ»ÅÕïÖ…ç†ÅÑÅâ•ùùï»Åç•—‰ÅπïÖ…â‰ÅôΩ»Å—°îÅô’±∞Å±•Õ–∏ΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÅÌ…ïÕ—Y•ï‹πÕ±•çî†¿∞ÄÃ§πµÖ¿†°¿∞Å§§ÄÙ¯Ä†(ÄÄÄÄÄÄÄÄÒA±ÖçïÖ…êÅ≠ï‰ıÌ¿π•ëÙÅ¿ıÌ¡ÙÅ…Öπ¨ıÌ§Ä¨Ä≈ÙÅÕÖŸïêıÌ•ÕMÖŸïê°¿π•ê•ÙÅ±•≠ïêıÏÑÖ±•≠ïëm¿π•ëuÙÅë•Õ±•≠ïêıÏÑÖë•Õ±•≠ïëm¿π•ëuÙÅΩπï—Ö•∞ıÏ†§ÄÙ¯ÅΩ¡ïπï—Ö•∞°¿•ÙÅΩπMÖŸîıÏ†§ÄÙ¯Å≈’•ç≠MÖŸïÖŸΩ…•—î°¿•ÙÅΩπ1•≠îıÏ°î§ÄÙ¯Å—Ωùù±ï1•≠î°î∞Å¿•ÙÅΩπ•Õ±•≠îıÏ°î§ÄÙ¯Å—Ωùù±ï•Õ±•≠î°î∞Å¿•ÙÅΩπM°Ö…ïÖ…êıÏ°¡∞§ÄÙ¯ÅÏÅ—…‰ÅÏÅÖëëM°Ö…ïê°¡∞§ÏÅù•ŸïÖ›ÖÂ5Ö…¨°¡∞π•ê§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅıÙÅ±•πîıÌâ±’…âÕm¿π•ëuÙÅΩπ	ÖëùîıÌΩ¡ïπ·¡ï…•ïπçïÙÅΩπ’•Õ•πïQÖ¿ıÌΩ¡ïπ’•Õ•πïÙÅâïÖç°M•ùπÖ∞ıÌâïÖç°M•ùπÖ±Õm¿π•ëuÙÅç•—‰ıÌç•—Â9Ω›ÙÄº¯(ÄÄÄÄÄÄ§•Ù(ÄÄÄÄÄÅÌ…ïÕ—Y•ï‹π±ïπù—†Ä¯ÄÃÄòòÅ°ΩΩ≠Ö…ëÃπ±ïπù—†Ä¯Ä¿ÄòòÄ†(ÄÄÄÄÄÄÄÄÒ!ΩΩ≠Õ	Öππï»Å°ΩΩ≠ÃıÌ°ΩΩ≠Ö…ëÕÙÅ±•≠ïë%ëÃıÌ°ΩΩ≠1•≠ïÕÙÅ—Ω—Ö±1•≠ïêıÌ°ΩΩ≠1•≠ïÃπÕ•ÈïÙÅΩπ=¡ï∏ıÌΩ¡ïπ!ΩΩ≠ÙÅΩπ1•≠îıÌΩπ!ΩΩ≠!ïÖ…—ÙÅÖ±±A±ÖçïÃıÌl∏∏∏°Õ’ùùïÕ—ïêÅÒÅmt§∞Ä∏∏π¡±ÖçïÕtπô•±—ï»°	ΩΩ±ïÖ∏•ÙÅ•ÕïÕ≠—Ω¿ıÌ•ÕïÕ≠—Ω¡ÙÄº¯(ÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÅÌ…ïπëï…]Ω…±ë’¡Ö…ê°ôÖ±Õî•Ù(ÄÄÄÄÄÅÌ…ïπëï…Uπ•≈’ï•πëÃ†•Ù(ÄÄÄÄÄÅÌ°ΩµïIΩ±±•πúÄòòÄ†(ÄÄÄÄÄÄÄÄ¯(ÄÄÄÄÄÄÄÄÄÄÒÕ—Â±îÅëÖπùï…Ω’Õ±ÂMï—%ππï…!Q50ıÌÏÅ}}°—µ∞ËÄâ≠ïÂô…ÖµïÃÅ›ô•çïM¡•πÏ¿ïÌ—…ÖπÕôΩ…¥È…Ω—Ö—î†¡ëïú§ÅÕçÖ±î†ƒ•Ù‘¿ïÌ—…ÖπÕôΩ…¥È…Ω—Ö—î†ƒ‡¡ëïú§ÅÕçÖ±î†ƒ∏ƒ–•Ùƒ¿¿ïÌ—…ÖπÕôΩ…¥È…Ω—Ö—î†Ãÿ¡ëïú§ÅÕçÖ±î†ƒ•ıÙàÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâô•·ïêà∞ÅâΩ——Ω¥ËÄâçÖ±å†‡—¡‡Ä¨Åïπÿ°ÕÖôîµÖ…ïÑµ•πÕï–µâΩ——Ω¥§§à∞Å…•ù°–ËÄƒÿ∞ÅÈ%πëï‡ËÄÿ¿∞Å¡Ω•π—ï…Ÿïπ—ÃËÄâπΩπîà∞Å›•ë—†ËÄÿ»∞Å°ï•ù°–ËÄÿ»∞ÅâΩ…ëï…IÖë•’ÃËÄƒÿ∞ÅâÖç≠ù…Ω’πêËÄâ±•πïÖ»µù…Öë•ïπ–†ƒÃ’ëïú∞Äå›Õ∞Äå—≈‰‘§à∞ÅâΩ·M°ÖëΩ‹ËÄà¿Äƒ¡¡‡ÄÃ¡¡‡Å…ùâÑ†ƒ»–∞‘‡∞»Ã‹∞∏‘‘§à∞Åë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâçïπ—ï»à∞ÅôΩπ—M•ÈîËÄÃ»∞ÅÖπ•µÖ—•Ω∏ËÄâ›ô•çïM¡•∏Ä∏›ÃÅ±•πïÖ»Å•πô•π•—îàÅıÙ˘Ì°Ωµï•çïÖçïÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄº¯(ÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÅÌ…ïÕ—Y•ï‹πÕ±•çî†Ã∞ÅŸ•Õ•â±ïΩ’π–§πµÖ¿†°¿∞Å§§ÄÙ¯Ä†(ÄÄÄÄÄÄÄÄÒA±ÖçïÖ…êÅ≠ï‰ıÌ¿π•ëÙÅ¿ıÌ¡ÙÅ…Öπ¨ıÌ§Ä¨Ä—ÙÅÕÖŸïêıÌ•ÕMÖŸïê°¿π•ê•ÙÅ±•≠ïêıÏÑÖ±•≠ïëm¿π•ëuÙÅë•Õ±•≠ïêıÏÑÖë•Õ±•≠ïëm¿π•ëuÙÅΩπï—Ö•∞ıÏ†§ÄÙ¯ÅΩ¡ïπï—Ö•∞°¿•ÙÅΩπMÖŸîıÏ†§ÄÙ¯Å≈’•ç≠MÖŸïÖŸΩ…•—î°¿•ÙÅΩπ1•≠îıÏ°î§ÄÙ¯Å—Ωùù±ï1•≠î°î∞Å¿•ÙÅΩπ•Õ±•≠îıÏ°î§ÄÙ¯Å—Ωùù±ï•Õ±•≠î°î∞Å¿•ÙÅΩπM°Ö…ïÖ…êıÏ°¡∞§ÄÙ¯ÅÏÅ—…‰ÅÏÅÖëëM°Ö…ïê°¡∞§ÏÅù•ŸïÖ›ÖÂ5Ö…¨°¡∞π•ê§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅıÙÅ±•πîıÌâ±’…âÕm¿π•ëuÙÅΩπ	ÖëùîıÌΩ¡ïπ·¡ï…•ïπçïÙÅΩπ’•Õ•πïQÖ¿ıÌΩ¡ïπ’•Õ•πïÙÅâïÖç°M•ùπÖ∞ıÌâïÖç°M•ùπÖ±Õm¿π•ëuÙÅç•—‰ıÌç•—Â9Ω›ÙÄº¯(ÄÄÄÄÄÄ§•Ù(ÄÄÄÄÄÅÏÖ±ΩÖë•πúÄòòÅ…ïÕ—Y•ï‹π±ïπù—†Ä¯ÅŸ•Õ•â±ïΩ’π–ÄòòÄ†(ÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ¡Öëë•πúËÄà…¡‡Ä…¡‡Äƒ¡¡‡àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ°ï•ù°–ËÄƒ∞ÅâÖç≠ù…Ω’πêËÅπâΩ…ëï»∞ÅµÖ…ù•∏ËÄà¿Ä¿Äƒ…¡‡àÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—Y•Õ•â±ïΩ’π–†°å§ÄÙ¯ÅåÄ¨Ä‘•ÙÅÕ—Â±îıÌÏÅ›•ë—†ËÄàƒ¿¿îà∞Åë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‡∞Å°ï•ù°–ËÄ‘¿∞ÅâΩ…ëï…IÖë•’ÃËÄƒ–∞ÅâΩ…ëï»ËÄâπΩπîà∞ÅâÖç≠ù…Ω’πêËÄâ±•πïÖ»µù…Öë•ïπ–†ƒ‡¡ëïú∞Äç‰»ÕÄ¿î∞Äç‰‹ÃƒÿÄ‘»î∞Äç‘‡¡Äƒ¿¿î§à∞ÅçΩ±Ω»ËÄàçôôòà∞ÅôΩπ—M•ÈîËÄƒ–∏‘∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞ÅâΩ·M°ÖëΩ‹ËÄà¿Ä—¡‡Äƒ—¡‡Å…ùâÑ†»–‰∞ƒƒ‘∞»»∞∏–§àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÅ]ÖÂô•πêÄ‘ÅµΩ…îÅÕ¡Ω—Ã(ÄÄÄÄÄÄÄÄÄÄÄÄÒÕŸúÅ›•ë—†Ùàƒ‘àÅ°ï•ù°–Ùàƒ‘àÅŸ•ï›	Ω‡Ùà¿Ä¿Ä»–Ä»–àÅô•±∞ÙâπΩπîàÅÕ—…Ω≠îÙàçôôòàÅÕ—…Ω≠ï]•ë—†Ùà»∏–àÅÕ—…Ω≠ï1•πïçÖ¿Ùâ…Ω’πêàÅÕ—…Ω≠ï1•πï©Ω•∏Ùâ…Ω’πêàÅÖ…•Ñµ°•ëëï∏Ùâ—…’îàÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄââ±Ωç¨àÅıÙ¯Ò¡Ö—†ÅêÙâ4‘Äƒ…†ƒÕ4ƒÃÄŸ∞ÿÄÿ¥ÿÄÿàÄº¯ΩÕŸú¯(ÄÄÄÄÄÄÄÄÄÄΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ—ï·—±•ù∏ËÄâçïπ—ï»à∞ÅôΩπ—M•ÈîËÄƒƒ∏‘∞ÅçΩ±Ω»ËÅπµ’—ïê∞ÅµÖ…ù•πQΩ¿ËÄ‰ÅıÙ˘5Ω…îÅÕ¡Ω—ÃÅ›Ω…—†ÅÂΩ’»Å—•µîÅπïÖ…â‰Ωë•ÿ¯(ÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄ•Ù(ÄÄÄÄº¯(ÄÄ§Ï((ÄÄººÅƒËÅôï—ç†ÅïŸï…‰Åï·—…Öç—ïêÅÕç…ïï∏Åç°’π¨ÅÖ–Åô•…Õ–Å•ë±î∞ÅÕºÅ—°îÅô•…Õ–Å—Ö¿ÅΩ∏(ÄÄººÅ—°îÅë•çî∞ÅMÖŸïê∞Å%—•πï…Ö…‰∞ÅΩ’¡ΩπÃ∞ÅΩ»ÅŸïπ—ÃÅπïŸï»Å›Ö•—ÃÅΩ∏Å—°îÅπï—›Ω…¨∏(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅçΩπÕ–Å•ë±îÄÙÅ›•πëΩ‹π…ï≈’ïÕ—%ë±ïÖ±±âÖç¨ÅÒÄ†°ò§ÄÙ¯ÅÕï—Q•µïΩ’–°ò∞Ä»‘¿¿§§Ï(ÄÄÄÅçΩπÕ–Å†ÄÙÅ•ë±î††§ÄÙ¯ÅMI9}1=ILπôΩ…Öç††°±ΩÖê§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩÖê†§πçÖ—ç†††§ÄÙ¯ÅÌÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅÙ§§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅ—…‰ÅÏÄ°›•πëΩ‹πçÖπçï±%ë±ïÖ±±âÖç¨ÅÒÅç±ïÖ…Q•µïΩ’–§°†§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅÙÏ(ÄÅÙ∞Åmt§Ï((ÄÄººÅQ!Å5%MM%9µ-dÅMI8∞Å5=YÄ†»¿»ÿ¥¿‡¥»ƒ§∏Å%–Å’ÕïêÅ—ºÅ…ï—’…∏Å°ï…îÅô…Ω¥(ÄÄººÅ¯»Ã¿Å±•πïÃÅ°•ù°ï»Å’¿∞ÅÖâΩŸîÅôΩ’»Å°ΩΩ≠ÃÉäPÅ’ÕïM—Ö—î°—…ïπëQ•ç¨§ÅÖπêÅ—°…ïî(ÄÄººÅ’Õïôôïç—Ã∏ÅIïÖç–ÅçΩ’π—ÃÅ°ΩΩ≠ÃÅâ‰ÅçÖ±∞ÅΩ…ëï»∞ÅÕºÅÑÅâ’•±êÅ›°ï…îÅ—°îÅ≠ï‰Å•Ã(ÄÄººÅÖâÕïπ–Å…’πÃÅÑÅë•ôôï…ïπ–Åπ’µâï»ÅΩòÅ—°ï¥Å—°Ö∏ÅΩπîÅ›°ï…îÅ•–Å•ÃÅ¡…ïÕïπ–∞ÅÖπê(ÄÄººÅÖπ‰Åô±•¿Åµ•êµ±•ôîÅ’πµΩ’π—ÃÅ—°îÅ—…ïîÅ…Ö—°ï»Å—°Ö∏Å›Ö…π•πú∏ÅŸï…Â—°•πúÅâï—›ïï∏(ÄÄººÅ—°îÅΩ±êÅ¡ΩÕ•—•Ω∏ÅÖπêÅ—°•ÃÅΩπîÅ•ÃÅ¡’…îÅëï…•ŸÖ—•Ω∏ÅΩŸï»ÅÕ—Ö—îÅ—°Ö–Å•ÃÅïµ¡—‰(ÄÄººÅ›°ï∏Å—°ï…îÅ•ÃÅπºÅ≠ï‰∞ÅÕºÅ—°îÅÕç…ïï∏Å•–Å¡Ö•π—ÃÅ•ÃÅ•ëïπ—•çÖ∞∏(ÄÄººÅÕç…•¡—ÃΩç°ïç¨µ°ΩΩ¨µΩ…ëï»πµ©ÃÅ•ÃÅ›°Ö–Å≠ïï¡ÃÅ•–Å°ï…î∏(ÄÅ•òÄ°≠ïÂ5•ÕÕ•πú§ÅÏ(ÄÄÄÅ…ï—’…∏Ä†(ÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÕ°ï±±Ù¯(ÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÄ∏∏π›…Ö¿∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâçïπ—ï»à∞Å¡Öëë•πúËÄ»–∞Å—ï·—±•ù∏ËÄâçïπ—ï»àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÒë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄ–¿∞ÅµÖ…ù•π	Ω——Ω¥ËÄƒ»ÅıÙ˚¬~RDΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒ†»ÅÕ—Â±îıÌÏÅçΩ±Ω»ËÅπ—ï·–∞ÅµÖ…ù•∏ËÄà¿Ä¿Ä·¡‡àÅıÙ˘±µΩÕ–Å—°ï…îΩ†»¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒ¿ÅÕ—Â±îıÌÏÅçΩ±Ω»ËÅπ±•ù°–∞ÅµÖ·]•ë—†ËÄÃÿ¿∞Å±•πï!ï•ù°–ËÄƒ∏ÿÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅëêÅÂΩ’»ÅΩΩù±îÅ5Ö¡ÃÅA$Å≠ï‰ÅÖÃÅÖ∏ÅïπŸ•…Ωπµïπ–ÅŸÖ…•Öâ±îÅπÖµïëÏàÄâÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒçΩëîÅÕ—Â±îıÌÏÅçΩ±Ω»ËÅπÖççïπ–ÅıÙ˘9aQ}AU	1%}==1}5AM}-dΩçΩëî¯Å•∏ÅYï…çï∞∞Å—°ï∏Å…ïëï¡±Ω‰∏(ÄÄÄÄÄÄÄÄÄÄÄÄΩ¿¯(ÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄ§Ï(ÄÅÙ((ÄÄººÅƒËÅ—°îÅΩπîÅç—‡ÅâÖúÅ°ÖπëïêÅ—ºÅ—°îÅï·—…Öç—ïêÅÕç…ïïπÃ∏ÅŸï…‰Å°ΩΩ¨ÅÕ—ÖÂÃÅ•∏(ÄÄººÅAÖùï%ππï»ÉäPÅÕç…ïïπÃÅÖ…îÅ…ïπëï»µΩπ±‰ÅÖπêÅ…ïÖêÅÕ—Ö—îΩçÖ±±âÖç≠ÃΩµΩë’±î(ÄÄººÅ°ï±¡ï…ÃÅô…Ω¥Å°ï…î∏ÅëêÅµïµâï…ÃÅÖÃÅ±Ö—ï»Å¡°ÖÕïÃÅï·—…Öç–ÅµΩ…îÅÕ’…ôÖçïÃ∏(ÄÅçΩπÕ–Åç—‡ÄÙÅÏ(ÄÄÄÄººÅÕ°Ö…ïêÅπÖŸ•ùÖ—•Ω∏Ä¨ÅçÖ…êÅÖç—•ΩπÃ(ÄÄÄÅÕï—Mç…ïï∏∞ÅΩ¡ïπï—Ö•∞∞ÅΩ¡ïπ·¡ï…•ïπçî∞ÅΩ¡ïπ’•Õ•πî∞ÅΩ¡ïπYïπ’î∞Å≈’•ç≠MÖŸïÖŸΩ…•—î∞Å•ÕMÖŸïê∞Å±•≠ïê∞Åë•Õ±•≠ïê∞Å—Ωùù±ï1•≠î∞Å—Ωùù±ï•Õ±•≠î∞ÅÖëëM°Ö…ïê∞Åù•ŸïÖ›ÖÂ5Ö…¨∞Åâ±’…âÃ∞Åâ±’…â1•πî∞Å±ΩùŸïπ–∞Å…ï≈’•…ï’—†∞(ÄÄÄÄººÅµΩë’±îµÕçΩ¡îÅçΩµ¡Ωπïπ—ÃÄ¨Å°ï±¡ï…ÃÅ—°îÅÕç…ïïπÃÅ…ïπëï»Å›•—†(ÄÄÄÅA±ÖçïÖ…ê∞ÅÖ—ïùΩ…Â5ïπ‘∞ÅM—Ö—ï	Öëùî∞Å1ΩÖëï»∞ÅÖ±±âÖç≠%µú∞Å…ïÖ%πÕ•ù°–∞Åï·¡ï…•ïπçï	ÖëùïÃ∞Åç•—Â•·4∞Å±•Ÿï=¡ï∏∞Å•çΩπΩ…A±Öçî∞ÅΩ¡ïπ·—ï…πÖ∞∞(ÄÄÄÄººÅÕ’…¡…•Õî(ÄÄÄÅÕ’…¡…•ÕïA•ç¨∞ÅÕ’…¡…•ÕïAΩΩ∞∞ÅÕ’…¡…•Õï1ΩÖë•πú∞ÅÕï—M’…¡…•ÕïA•ç¨∞Å…ï…Ω±±M’…¡…•Õî∞ÅÕ’…¡…•Õï]°‰∞(ÄÄÄÄººÅçΩ’¡ΩπÃ(ÄÄÄÅç¡π=ôôï…Ã∞ÅÕÖŸïëΩ’¡ΩπÃ∞Åç±•¡Ω’¡Ω∏∞Å—Ωùù±ïMÖŸïΩ’¡Ω∏∞ÅçΩ¡ÂΩ’¡ΩπΩëî∞ÅÕ°Ö…ïΩ’¡Ω∏∞Å›Ö±±ï—=¡ï∏∞ÅÕï—]Ö±±ï—=¡ï∏∞ÅçΩ’¡Ωπ!ÖπëΩôò∞(ÄÄÄÄººÅÕÖŸïê(ÄÄÄÅÖç—•Ÿï1•Õ–∞ÅÕï—ç—•Ÿï1•Õ–∞ÅÕÂÕΩ±ëï»∞ÅÕï—MÂÕΩ±ëï»∞ÅÕï—9ï›1•Õ—=¡ï∏∞Å’Õï»∞ÅÕï—’—°=¡ï∏∞ÅÕ•ùπ=’—UÕï»∞Å±•Õ—Ã∞ÅÕï—1•Õ—5ïπ‘∞Å±•≠ïë%—ïµÃ∞Åë•Õ±•≠ïë%—ïµÃ∞ÅÕ°Ö…ïë%—ïµÃ∞ÅÕ°Ö…ï1•Õ–∞Åëï±ï—ï1•Õ–∞Å…Ω±±•çî∞(ÄÄÄÄººÅ¡ï…ÕΩπÖ±•ÈÖ—•Ω∏Ä°ÿÿ∏‘ÿ§ËÅ—°îÅ—ÖÕ—îÅçΩπÕïπ–Ä¨Åïπ—…‰Å¡Ω•π–Å±•ŸîÅÖ–Å—°î(ÄÄÄÄººÅâΩ——Ω¥ÅΩòÅÖŸΩ…•—ïÃ∞ÅπΩ–ÅΩ∏Å—°îÅ°ΩµîÅôïïêÉäPÅÖπêÅΩπ±‰ÅôΩ»ÅÕ•ùπïêµ•∏(ÄÄÄÄººÅ’Õï…Ã∞Å›°•ç†Å•ÃÅ›°‰ÅπΩ—°•πúÅ°ï…îÅπïïëÃÅ—°îÅÖ’—†Å¡…•µ•—•ŸïÃËÅ—°î(ÄÄÄÄººÅÖŸΩ…•—ïÃÅ…ïπëï»ÅÕ•—îÅÖ±…ïÖë‰Å›Ö±±ÃÅ—°îÅ›°Ω±îÅÕç…ïï∏∏(ÄÄÄÅ¡ï…ÕΩπÖ±•Èî∞ÅÕï—ΩπÕïπ–∞ÅÕï—QÖÕ—ï=¡ï∏∞Å—ÖÕ—ïYïçM—Ö—î∞(ÄÄÄÄººÅ•—•πï…Ö…‰(ÄÄÄÅÖç—•ŸïQ…•¿∞ÅÕï—ç—•ŸïQ…•¿∞Å—…•¡Ã∞ÅÕï—Q…•¡Ã∞Å—…•¡9Ω—ïë•–∞ÅÕï—Q…•¡9Ω—ïë•–∞Å—…•¡5ΩŸïΩ»∞ÅÕï—Q…•¡5ΩŸïΩ»∞ÅÕ’à∞Å¡•ç≠	…Ω›Õî∞Å…ïÕï…ŸÖ—•ΩπÃ∞Å…ïµΩŸïIïÃ∞ÅÕÖŸïIïÕΩπò∞(ÄÄÄÄººÅÕ°Ö…ïêÅ±•Õ–(ÄÄÄÅÕ°Ö…ïë1•Õ–∞ÅÕï—M°Ö…ïë1•Õ–∞(ÄÄÄÄººÅïŸïπ—Ã(ÄÄÄÅïŸïπ—Ã∞ÅïŸïπ—Ö–∞ÅÕï—Ÿïπ—Ö–∞ÅïŸïπ—Ö—î∞ÅÕï—Ÿïπ—Ö—î∞Å±Ωç9Öµî∞Åçïπ—ï»∞ÅÕ’âµ•—MïÖ…ç†∞ÅïŸïπ—Õ1ΩÖë•πú∞ÅïŸïπ—ÕUπÖŸÖ•±Öâ±î∞ÅïŸïπ—Õ……Ω»∞Å±ΩÖëŸïπ—Ã∞ÅïŸïπ—Mïùµïπ—5ï—Ñ∞Åëïë’¡ïŸïπ—Ã∞ÅôΩ…µÖ—Ÿïπ—Ö—î∞ÅïŸïπ—Ö—ïùΩ…‰∞Å…ïç’……ïπçï1Öâï∞∞Åç±ïÖπYïπ’ï9Öµî∞ÅïŸïπ—Q∞Å—•ç≠ï—U…∞∞ÅïŸïπ—UÕï%µÖùî∞(ÄÄÄÅïŸïπ—ÕQΩ’…Ã∞ÅïŸïπ—	’ç≠ï–∞ÅY9Q}	U-QL∞ÄººÅÿÿ∏ƒ–ÅŸïπ—ÃÅ…ïëïÕ•ù∏ËÅQΩ’…ÃÅç°•¿Ä¨ÅΩµµ’π•—‰Åâ’ç≠ï–(ÄÄÄÄººÅÕ°ïï—ÃÄ°»§ËÅë…Öúµ—ºµë•Õµ•ÕÃÅ°Öπë±ï…ÃÅÕ°Ö…ïêÅâ‰ÅïŸï…‰ÅÕ°ïï–(ÄÄÄÅÕ°ïï—…ÖùM—Ö…–∞ÅÕ°ïï—…Öù5ΩŸî∞ÅÕ°ïï—…Öùπê∞(ÄÄÄÄººÅ°ΩΩ≠ï—Ö•∞ÅÕ°ïï–(ÄÄÄÅ°ΩΩ≠ï—Ö•∞∞ÅÕï—!ΩΩ≠ï—Ö•∞∞Å°ΩΩ≠1•≠ïÃ∞ÅÕ’ùùïÕ—ïê∞Å¡±ÖçïÃ∞ÅΩôôï…Ã∞Å•ÕïÕ≠—Ω¿∞Å°≠MΩ…–∞ÅÕï—!≠MΩ…–∞Å°≠5§∞ÅÕï—!≠5§∞Å°≠ïÖ±Ã∞ÅÕï—!≠ïÖ±Ã∞Å›ïÖ—°ï»∞Åç•—Â9Ω‹∞Åëïë’¡ïA±ÖçïÃ∞Å¡±ÖçïÕΩ…!ΩΩ¨∞Å¡•ç≠IïÖÕΩ∏∞Å•Õ9•ù°—9Ω‹∞Å—Ωùù±ï!ΩΩ≠1•≠î∞ÅÕÖŸï!ΩΩ≠1•Õ–∞ÅÕï—5Ö¡1•Õ—=Ÿï……•ëî∞Å±•Õ—M°Ö…ïU…∞∞ÅÕ°Ö…ï1•π¨∞ÅÕ°Ω›QΩÖÕ–∞Åâ’•±ë1•Õ—M°Ö…ïU…∞∞Å›°Â•…Õ–∞Å…•——ï»∞ÅMΩ…—Ωπ—…Ω∞∞ÅΩ¡ïπ’…Ö—ïê∞(ÄÄÄÄººÅ¡±ÖçîµÕ’ùùïÕ—•Ω∏Åô±Ω‹Ä°ÿÿ∏‘Ã§ÉäPÅ’Õï»µÕ’âµ•——ïêÅ¡±ÖçïÃ∞ÅÕ—Ω…ïêÅ¡ïπë•πúÅ…ïŸ•ï‹(ÄÄÄÅÕ’ù=¡ï∏∞ÅÕï—M’ù=¡ï∏∞ÅÕ’ùE’ï…‰∞ÅÕï—M’ùE’ï…‰∞ÅΩπM’ùE’ï…Â°Öπùî∞ÅÕ’ùM’ùùïÕ—•ΩπÃ∞ÅÕï—M’ùM’ùùïÕ—•ΩπÃ∞ÅÕ’ùA•ç≠ïê∞ÅÕï—M’ùA•ç≠ïê∞ÅÕ’ù9Ω—î∞ÅÕï—M’ù9Ω—î∞ÅÕ’ù	’Õ‰∞ÅÕ’ùΩπî∞Å¡•ç≠M’ùM’ùùïÕ—•Ω∏∞ÅÕ’âµ•—A±ÖçïM’ùùïÕ—•Ω∏∞(ÄÄÄÄººÅÖççΩ’π–ÅÕ°ïï–(ÄÄÄÅÖççΩ’π—=¡ï∏∞ÅÕï—ççΩ’π—=¡ï∏∞Å›ôM°Ω›•Öú∞Å	U%1}%∞(ÄÄÄÄººÅµïπ‘ÅÕ°ïï–Ä†ÿÅÕ’àµÕ—Ö—ïÃÅ•πç∞∏Å›ïÖ—°ï»§(ÄÄÄÅµïπ’M°ïï–∞ÅÕï—5ïπ’M°ïï–∞Å¡•ç≠Ö–∞ÅΩ¡ïπM’…¡…•Õî∞Å±•â…Ö…ÂŸïπ—Ã∞Å¡…•µÖ…ÂÖ—ïùΩ…‰∞ÅôΩ…ÂΩ’Ÿïπ—Ã∞Å›°Â9Ω‹∞ÅÕïÖ…ç°IÖë•’Ã∞ÅÕï—Aïπë•πùIÖë•’Ã∞ÅÕï—IÖë•’ÕM°ïï–∞Å…Ω±±!ΩµïA•ç¨∞Å°ΩµïIΩ±±•πú∞Å°Ωµï•çïÖçî∞Å…Ω±±!•Õ—Ω…‰∞Å%9Q9QL∞Å•π—ïπ–∞ÅÕï—%π—ïπ–∞ÅµΩΩπ%µù9Öµî∞Å›ïÖ—°ï…ëŸ•ÕΩ…‰∞Å›ÖÂô•πë]ïÖ—°ï…QÖ≠î∞Å’Ÿ1Öâï∞∞ÅÕ°Ö…ï]ïÖ—°ï»∞(ÄÄÄÄººÅÖ’—†Ä¨Å¡ÖÕÕ›Ω…êµ…ïçΩŸï…‰ÅÕ°ïï—Ã(ÄÄÄÅÖ’—°=¡ï∏∞ÅÖ’—°5Ωëî∞ÅÕï—’—°5Ωëî∞Å•ÕM—ÖπëÖ±Ωπî∞ÅÕ•ùπ%π]•—°A…ΩŸ•ëï»∞ÅÖ’—°µÖ•∞∞ÅÕï—’—°µÖ•∞∞ÅÖ’—°AÖÕÕ›Ω…ê∞ÅÕï—’—°AÖÕÕ›Ω…ê∞Å¡ÖÕÕ›Ω…ë’—†∞ÅÖ’—°Mïπë•πú∞Å…ïÕï—Mïπë•πú∞ÅÕïπëAÖÕÕ›Ω…ëIïÕï–∞Å…ïçΩŸï…Â=¡ï∏∞ÅÕï—IïçΩŸï…Â=¡ï∏∞Åπï›A‹∞ÅÕï—9ï›A‹∞Åπï›A‹»∞ÅÕï—9ï›A‹»∞Å¡›MÖŸ•πú∞ÅÕÖŸï9ï›AÖÕÕ›Ω…ê∞ÅÖ’—°IïÖë‰∞(ÄÄÄÄººÅëï—Ö•∞ÅÕ°ïï–Ä°Ã§(ÄÄÄÅëï—Ö•∞∞ÅÕï—ï—Ö•∞∞Åëï—Ö•±·—…Ñ∞ÅÕï—1•ù°—âΩ‡∞Å…ïŸ•ï›Õ=¡ï∏∞ÅÕï—IïŸ•ï›Õ=¡ï∏∞Å°Ω’…Õ=¡ï∏∞ÅÕï—!Ω’…Õ=¡ï∏∞ÅŸïπ’ïŸïπ—Ã∞ÅŸïπ’ïŸïπ—Õ1ΩÖë•πú∞ÅŸïπ’ïŸïπ—Õ=¡ï∏∞ÅÕï—Yïπ’ïŸïπ—Õ=¡ï∏∞ÅŸ•ëïΩÃ∞ÅŸ•ëïΩÕ1ΩÖë•πú∞ÅâïÖç°Ωπê∞ÅâïÖç°Ωπë1ΩÖë•πú∞Å•πÕ•ù°–∞Å•πÕ•ù°—1ΩÖë•πú∞Å•πÕ•ù°—’±∞∞Å•πÕ•ù°—’±±1ΩÖë•πú∞ÅÕ°Ω›5Ω…î∞ÅŸ•ÖQΩ’…Ã∞Åëïâ’ù=∏∞Å¡±ÖçïΩµµïπ—Ã∞ÅÕï—A±ÖçïΩµµïπ—Ã∞ÅçΩµµïπ—QÂ¡î∞ÅÕï—Ωµµïπ—QÂ¡î∞Å¡±ÖçïAΩÕ—Ã∞ÅÕï—A±ÖçïAΩÕ—Ã∞ÅçΩπô•…µï∞∞ÅÕï—Ωπô•…µï∞∞Å—Ö%πôº∞Å•πÕ•ëï»∞Åëï—Ö•±Ωπ—ï·–∞ÅµÂYΩ—ïÃ∞ÅçΩµµ’π•—ÂYΩ—ïÃ∞ÅùÖ±±ï…ÂIïò∞ÅπΩ—ïIïò∞ÅÕç…Ω±±Ö±±ï…‰∞Å±ΩÖë’±±%πÕ•ù°–∞ÅÖëëIïÕï…ŸÖ—•Ω∏∞Å°Öπë±ïYΩ—î∞Å±ΩÖëYïπ’ïŸïπ—Ã∞Å¡±ÖçïM°Ö…ïU…∞∞ÅïÖ—’…ïëQÖú∞Åç’…Ö—ïë9Ω—î∞Åç’…Ö—ïëΩ»∞Å›ÖÂô•πë9Ω—ïÃ∞Åâï——ï…±—ï…πÖ—•ŸïÃ∞ÅÕ•µ•±Ö…A±ÖçïÃ∞Å…ï±Ö—ïëA•ç≠Ã∞Å¡±Öçï-•πê∞Å•Õ	ïÖç†∞ÅâïÖç°M•ùπÖ±Ã∞Å›ïÖ—°ï»∞(ÄÄÄÄººÅÕΩç•Ö∞Åô•πêÅÕ°ïï–Ä°ÿÿ∏‰Ã§ÉäPÅ—°îÄââΩΩ≠Õ°ï±òàÅΩòÅç’…Ö—ïêÅç…ïÖ—Ω»µŸ•ëïº(ÄÄÄÄººÅ¡±ÖçïÃËÅ—°îÅ¡±Öçî≠Ÿ•ëïºÅ—°îÅ’Õï»Å—Ö¡¡ïêÅ•∏Åô…Ω¥∞ÅïŸï…‰ÅΩ—°ï»ÅπïÖ…â‰(ÄÄÄÄººÅô•πêÄ°ôΩ»Å—°îÄâµΩ…îÅπïÖ»ÅÂΩ‘àÅÕ—…•¿§∞ÅÖπêÅ—°îÅ…ïù•Ω∏µÖŸÖ•±Öâ•±•—‰Å±•Õ–(ÄÄÄÄººÅôΩ»Å—°îÄâπΩ–Å°ï…îÅÂï–àÅ…ïçΩµµïπëÖ—•Ω∏ÅµΩëî∏(ÄÄÄÅÕΩç•Ö±•πê∞ÅÕï—MΩç•Ö±•πê∞ÅŸ•ëïΩ!ï…ΩA±ÖçïÃ∞ÅÕΩç•Ö±•πëIïù•ΩπÃ∞ÅÕΩç•Ö±•πë	Â•—‰∞ÅÕΩç•Ö±•πëM—Ö—Ã∞(ÄÄÄÄººÅµÖ¿ÅÕç…ïï∏Ä°–§(ÄÄÄÅµÖ¡5Ωëî∞ÅÕï—5Ö¡5Ωëî∞ÅµÖ¡	…Ω›Õî∞ÅÕï—5Ö¡	…Ω›Õî∞ÅµÖ¡AΩΩ∞∞ÅµÖ¡1•Õ—=Ÿï……•ëî∞ÅµÖ¿Õ∞ÅÕï—5Ö¿Õ∞ÅµÖ¡Iï—…Â-ï‰∞ÅÕï—5Ö¡Iï—…Â-ï‰∞ÅµÖ¡ïôÖ’±—¡¡±•ïëIïò∞ÅçÖ–∞ÅÕï—Ö–∞ÅÕï—M’à∞ÅÕï—Y•âî∞ÅÕΩ…—	‰∞ÅëïŸ•çï1Ωå∞ÅÕïÖ…ç°5Ö¡…ïÑ∞ÅµÖ¡Ωç’Ã∞ÅÕï—5Ö¡Ωç’Ã∞ÅÕï—5Ö¡MïÖ…ç°=¡ï∏∞ÅµÖ¡Ö—î∞ÅÕï—5Ö¡Ö—î∞ÅµÖ¡A…ïŸ•ï‹∞ÅÕï—5Ö¡A…ïŸ•ï‹∞ÅµÖ¡…Ö›ï»∞ÅÕï—5Ö¡…Ö›ï»∞ÅïŸïπ—A…ïŸ•ï‹∞ÅÕï—Ÿïπ—A…ïŸ•ï‹∞ÅŸ•ï‹∞ÅôïÖ—’…ïë	ΩΩÕ–∞Å5Ö¡Y•ï‹∞Å!Ω∞∞Å…ïçïπ—ï…QΩ5î∞(ÄÄÄÄººÅï·¡ï…•ïπçîÅâÖëùîÅÕç…ïï∏Ä°–§(ÄÄÄÅÖç—•Ÿï	Öëùî∞ÅÕï—ç—•Ÿï	Öëùî∞ÅaAI%9L∞Åï·¡A±ÖçïÃ∞Åï·¡5§∞ÅÕï—·¡5§∞Åï·¡MΩ…–∞ÅÕï—·¡MΩ…–∞Åï·¡QΩ’…Ã∞Åï·¡1ΩÖë•πú∞ÅµΩµïπ—A•ç≠Ã∞ÅÕï—	…Ω›ÕïÖ–∞ÅY•Ö—Ω…IÖ•∞∞Å•π—ïπ—MçΩ¡ï1Öâï∞∞(ÄÄÄÄººÅ•π—…ºÅΩŸï…±Ö‰Ä°–§ÉäPÅ—°îÄÃ∏…ÃÅÖ’—ºµÕ°Ω‹Å—•µï»ÅÕ—ÖÂÃÅ•∏ÅAÖùï%ππï»∞Åô±•¡ÃÅ•π—…Ω=¡ï∏(ÄÄÄÅ•π—…Ω=¡ï∏∞ÅÕï—%π—…Ω=¡ï∏∞Å•π—…ΩMï∞∞ÅÕï—%π—…ΩMï∞∞Å•π—…ΩQ…•ùùï…Iïò∞(ÄÅÙÏ((ÄÄººÅÿ‡∏»ÉäPÅ=9ÅëïÕ—•πÖ—•Ω∏Å°Öπë±ï»ÅôΩ»Å	=Q ÅπÖÿÅâÖ…Ã∏ÅQ°îÅâΩ——Ω¥ÅâÖ»ÅΩ›πïêÅ—°•Ã(ÄÄººÅâΩë‰Å•π±•πîÏÅ—°îÅ—Ω¿Å…Ω‹ÅπïïëÃÅ—°îÅ•ëïπ—•çÖ∞Åâï°ÖŸ•Ω’»∞ÅÖπêÅ—›ºÅçΩ¡•ïÃÅΩò(ÄÄººÄâ…ïÕï–ÅïŸï…‰ÅΩ¡ï∏ÅÕ°ïï–∞Å—°ï∏ÅÕ›•—ç†ÅÕç…ïï∏∞Å—°ï∏ÅÕç…Ω±∞Å—ºÅ—Ω¿àÅ•ÃÅ°Ω‹ÅΩπî(ÄÄººÅΩòÅ—°ï¥ÅïπëÃÅ’¿ÅôΩ…ùï——•πúÅÑÅÕï——ï»ÅÖπêÅ±ïÖŸ•πúÅÑÅÕ—Ö±îÅ±•Õ–ÅΩ¡ï∏Åâï°•πê(ÄÄººÅ—°îÅπï‹ÅÕç…ïï∏∏(ÄÅçΩπÕ–ÅùΩïÕ—•πÖ—•Ω∏ÄÙÄ°•ê∞ÅÖç—•Ÿî§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ°•êÄÙÙÙÄâ°ΩµîàÄòòÅÖç—•Ÿî§ÅÏÅÕï—	…Ω›ÕïÖ–°π’±∞§ÏÅÕï—5ΩΩëA•ç¨°π’±∞§ÏÅÕï—M’à†âÖ±∞à§ÏÅÙ(ÄÄÄÅÕï—ç—•Ÿï1•Õ–°π’±∞§ÏÅÕï—MÂÕΩ±ëï»°π’±∞§ÏÅÕï—1•Õ—5ïπ‘°π’±∞§ÏÅÕï—IïπÖµ•πù1•Õ–°π’±∞§Ï(ÄÄÄÅÕï—ç—•ŸïQ…•¿°π’±∞§ÏÅÕï—Q…•¡9Ω—ïë•–°π’±∞§ÏÅÕï—Q…•¡5ΩŸïΩ»°π’±∞§ÏÅÕï—5Ö¡1•Õ—=Ÿï……•ëî°π’±∞§Ï(ÄÄÄÅÕï—9ÖŸM°Ω…—ç’—Ã°ôÖ±Õî§Ï(ÄÄÄÅ•òÄ°•êÄÙÙÙÄâ°Ωµîà§ÅÏÅΩ¡ïπM’ùùïÕ—ïê†§ÏÅÙÅï±ÕîÅÏÅÕï—Mç…ïï∏°•ê§ÏÅÙ(ÄÄÄÅ—…‰ÅÏÅ•òÄ°Õç…Ω±±Iïòπç’……ïπ–§ÅÕç…Ω±±Iïòπç’……ïπ–πÕç…Ω±±Qº°ÏÅ—Ω¿ËÄ¿ÅÙ§ÏÅ›•πëΩ‹πÕç…Ω±±Qº†¿∞Ä¿§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÅÙÏ((ÄÄººÅÿ‡∏»ÉäPÅQ!ÅI%0Å	9∞ÅÖÃÅΩπîÅπÖµïêÅï·¡…ïÕÕ•Ω∏∞ÅâïçÖ’ÕîÅ•–ÅπºÅ±Ωπùï»Å…ïπëï…Ã(ÄÄººÅ•πÕ•ëîÄπ›òµçΩ∞µµÖ•∏ÅÖπêÅÑÅâÖπêÅ—°Ö–ÅÕ¡ÖπÃÅ—°îÅ¡ÖùîÅÕ°Ω’±êÅπΩ–ÅâîÅ•πëïπ—ïê(ÄÄººÅ—°…ïîÅ±ïŸï±ÃÅ•π—ºÅÑÅçΩ±’µ∏Å•–Å°ÖÃÅ±ïô–∏ÅŸï…‰Å¡…Ω¿Å•ÃÅ’πç°ÖπùïêÅÖπêÅïŸï…‰(ÄÄººÅ¡…Ω¿Å•ÃÅÕ—•±∞ÅÕï…Ÿï»ÅëÖ—ÑÉäPÅ—ïÕ–µô•…Õ–µÕç…ïï∏Å…ïÖëÃÅï·Öç—±‰Å—°•ÃÅâ±Ωç¨Å—º(ÄÄººÅ¡…ΩŸîÅ•–∏(ÄÄººÅÿ‡∏‡‹ÉäPÅQ!ÅY9QLÅI%0Å]LÅ	U%1P∞ÅI9-∞Å5=9Q%i∞Å9ÅI9IÅ=H(ÄÄººÅ9=	=d∏Å=›πï»∞Ä»¿»ÿ¥¿‡¥»‡∞Åâ‰ÅŸΩ•çîËÄâ›îÅëΩ∏ù–ÅïŸï∏Å°ÖŸîÅÖ∏ÅïŸïπ—Ã∞Å’†∞(ÄÄººÅ…Ö•∞∏Å1•≠î∞Å›îÅùΩ——ÑÅëïŸï±Ω¿ÅÖ∏ÅïŸïπ—ÃÅ…Ö•∞∏ÅôΩ»∞Å±•≠î∞ÅçΩπçï…—ÃÅÖπê(ÄÄººÅ—•ç≠ï—Ã∏à(ÄÄºº(ÄÄººÅ!îÅ›ÖÃÅ…•ù°–ÅÖâΩ’–Å—°îÅÕ’…ôÖçîÅÖπêÅ›…ΩπúÅΩπ±‰ÅÖâΩ’–Å—°îÅçÖ’Õî∏ÅŸï…‰Å¡Ö…–(ÄÄººÅΩòÅ•–Åï·•Õ—ÃÅÖπêÅ°ÖÃÅôΩ»ÅÑÅÂïÖ»ËÅ—°îÅπ•πîµ¡…ΩŸ•ëï»Åôïïê(ÄÄººÄ°Ö¡¿ΩÖ¡§ΩïŸïπ—ÃΩ…Ω’—îπ©Ã§∞Å—°îÅΩ›πï»ùÃÅΩ›∏ÅâïÕ–µô•…Õ–Å…Öπ≠•πú(ÄÄººÄ°±•àΩô…Ωπ—Ÿïπ—Ãπ©ÃÅâïÕ—•…Õ–ÉäPÄâ$Å›Öπ–Å—ºÅë•Õ¡±Ö‰Å—°îÅâïÕ–ÅïŸïπ—Ãà§∞(ÄÄººÅŸïπ—IÖ•±Ö…êÅ›•—†Å•—ÃÅÕÖŸîÄºÅ±•≠îÄºÅë•Õ±•≠îÄºÅÕ°Ö…îÄºÅçÖ—ïùΩ…‰Å›•…•πú∞ÅÖπê(ÄÄººÅY}I%1}5%9} Å…ïÕï…Ÿ•πúÅ•—ÃÅï·Öç–ÅµïÖÕ’…ïêÅ°ï•ù°–ÅÕºÅ—°îÅÕ≠ï±ï—Ω∏ÅÕ›Ö¿(ÄÄººÅµΩŸïÃÅπΩ—°•πú∏Å]°Ö–Åë•êÅπΩ–Åï·•Õ–Å›ÖÃÅÑÅÕ•πù±îÅ)M`Å…ïôï…ïπçî∏ÅÅçΩπÕ–(ÄÄººÅïŸïπ—ÕIÖ•±M±Ω–ÄÙÉäôÄÅ›ÖÃÅçΩµ¡’—ïêÅ•πÕ•ëîÅ—°îÅÅÕç…ïï∏ÄÙÙÙÄâÕ’ùùïÕ—ïêâÄÅ%%(ÄÄººÅÖπêÅ—°ï∏Åë…Ω¡¡ïêÅΩ∏Å—°îÅô±ΩΩ»ÉäPÅù…ï¿ÅôΩ’πêÅ—°îÅ•ëïπ—•ô•ï»Åï·Öç—±‰Å—›•çîÅ•∏(ÄÄººÄƒ…¨Å±•πïÃËÅ—°îÅëïç±Ö…Ö—•Ω∏∞ÅÖπêÅÑÅçΩµµïπ–Åç±Ö•µ•πúÅ•–Å…ïπëï…ÃÄâÖÃÅÕïç—•Ω∏(ÄÄººÅπ•πîÅΩòÅ	ïÕ—9ïÖ…â‰à∏Å%–Å…ïπëï…ÃÅ•∏ÅπºÅÕïç—•Ω∏ÅÖ–ÅÖ±∞∏(ÄÄºº(ÄÄººÅQ!%LÅ%LÅQ!É
+úâI!	%1%QdÅ%LÅQI9M%Q%YàÅQI@Å%8Å1Uπµê∞Å•∏Å•—ÃÅ¡’…ïÕ–(ÄÄººÅôΩ…¥ËÅ—°îÅçΩëîÅ•ÃÅ¡…ïÕïπ–∞ÅçΩ……ïç–∞Å•µ¡Ω…—ïê∞Å—Â¡îµç°ïç≠ïê∞Åâ’πë±ïêÅÖπê(ÄÄººÅëïÖê∏ÅÅπï·–Åâ’•±ëÄÅçÖππΩ–ÅÕïîÅ•–ÉäPÅÖ∏Åï·¡…ïÕÕ•Ω∏Å—°Ö–Å•ÃÅπïŸï»Å…ïπëï…ïêÅ•Ã(ÄÄººÅ±ïùÖ∞Å)ÖŸÖMç…•¡–ÉäPÅÖπêÅπºÅù’Ö…êÅÖÕ≠ïêÅ›°ï—°ï»Å—°îÅŸÖ±’îÅ›ÖÃÅUM∏(ÄÄºº(ÄÄººÅMºÅ•–ÅµΩŸïÃÅ=UPÅ—ºÅ—°îÅçΩµ¡Ωπïπ–ÅâΩë‰∞Å›°ï…îÅ—°îÅçΩπÕ’µï»Å•Ã∞ÅÖπêÅ•ÃÅ°Öπëïê(ÄÄººÅ—ºÄÒÖÂ¡Ö…—IÖ•∞¯ÅÖÃÅ—°îÅïŸïπ—ÃÅ—•±îùÃÅë…Ω¿∏ÅQ°Ö–ÅÖ±ÕºÅÖπÕ›ï…ÃÅ—°îÅÕïçΩπê(ÄÄººÅ°Ö±òÅΩòÅ—°îÅΩ›πï»ùÃÅµïÕÕÖùîËÅÿ‡∏‡ÿÅµÖëîÅÅïŸïπ—ÕÄÅ1Å—°îÅÖô—ï…πΩΩ∏∞ÅÖπêÅÑ(ÄÄººÅ—•±îÅ—°Ö–Å±ïÖëÃÅÑÅâÖπêÅµ’Õ–ÅΩ¡ï∏ÅÕΩµï—°•πú∏ÅUπ—•∞ÅπΩ‹Å•–ÅπÖŸ•ùÖ—ïêÅÖ›Ö‰Å—º(ÄÄººÅ—°îÅïŸïπ—ÃÅÕç…ïï∏ÏÅπΩ‹Å•–ÅΩ¡ïπÃÅçΩπçï…—ÃÅÖπêÅ—•ç≠ï—ÃÅ•∏Å¡±Öçî∞ÅÖπêÅ—°î(ÄÄººÅπÖŸ•ùÖ—•Ω∏ÅÕ’…Ÿ•ŸïÃÅÖÃÅ—°îÄâMïîÅïŸï…‰ÅïŸïπ–àÅâ’——Ω∏Å•πÕ•ëîÅ—°îÅë…Ω¿∏(ÄÄºº(ÄÄººÅÕç…•¡—ÃΩç°ïç¨µïŸïπ—Ãµ…Ö•∞µ…ïπëï…Ãπµ©ÃÅôÖ•±ÃÅ—°îÅâ’•±êÅ•òÅ•–ÅùΩïÃÅëÖ…¨(ÄÄººÅÖùÖ•∏ÉäPÅ•–ÅÖÕÕï…—ÃÅ—°îÅŸÖ±’îÅ…ïÖç°ïÃÅ)M`∞ÅπΩ–Åµï…ï±‰Å—°Ö–Å•–Å•ÃÅëïç±Ö…ïê∏(ÄÄººÅÿ‹∏¿ÿÉäPÅQ!ÅY9QLÅI%0∞Åâ’•±–Å=9ÅÖπêÅ°ÖπëïêÅ—ºÅ—°îÅµïπ‘Ä°Ω›πï»∞(ÄÄººÄ»¿»ÿ¥¿‡¥¿‰ËÄâ§ÅÖ±ÕºÅ›Öπ–Å—ºÅÖëêÅïŸïπ—ÃÅ•π—ºÅ—°•ÃÅ±•Õ–à§∏ÅMÖµî(ÄÄººÅ¡•¡ï±•πîÅ•–Å°ÖÃÅÖ±›ÖÂÃÅ…’∏ÉäPÅëïë’¡ïŸïπ—Ã∞Å—°îÅΩ›πï»ùÃ(ÄÄººÅô…Ωπ—AÖùïŸïπ—ÃÅç°Ö•∏∞Å—°îÅë•Õ±•≠ïêÅô•±—ï»ÉäPÅÖπêÅ—°îÅÕÖµî(ÄÄººÅŸïπ—IÖ•±Ö…ê∏Å%–Å…ïπëï…ÃÅÖÃÅÕïç—•Ω∏Åπ•πîÅΩòÅ	ïÕ—9ïÖ…â‰Å•πÕ—ïÖêÅΩò(ÄÄººÅÖÃÅÑÅÕï¡Ö…Ö—îÅ°ïÖë•πúÅâï±Ω‹Å—°îÅ¡…ΩµºÅëïç¨∏(ÄÄºº(ÄÄººÅQ°îÅIMIYÅ—…ÖŸï±ÃÅ›•—†Å•–ËÅY}I%1}5%9} Å•ÃÅ—°îÅô±ΩΩ»Å°ï…îÅπΩ‹∞(ÄÄººÅÖπêÅ—°îÅ±ΩÖë•πúÅÕ—Ö—îÅ…ïπëï…ÃÅ—°îÅÕÖµîÅâΩ‡∞ÅÕºÅ—°îÅÕ≠ï±ï—Ω∏Ä¥¯Å±•Ÿî(ÄÄººÅÕ›Ö¿Å•πÕ•ëîÅ—°îÅµïπ‘ÅµΩŸïÃÅπΩ—°•πú∏(ÄÄººÅÅQ!U9,∞ÅπΩ–ÅÑÅπΩëî∏ÅQ°îÅ…Ö•∞Å•ÃÅâï°•πêÅÑÅ—Ö¿∞ÅÕºÅâ’•±ë•πúÄ»–(ÄÄººÅŸïπ—IÖ•±Ö…ëÃÅΩ∏ÅïŸï…‰Å…ïπëï»ÅΩòÅÑÄƒ…¨µ±•πîÅçΩµ¡Ωπïπ–Å›Ω’±êÅâîÅ›Ω…¨ÅëΩπî(ÄÄººÅôΩ»ÅÑÅë…Ω¿Å—°Ö–Å•ÃÅç±ΩÕïêÉäPÅÖπêÅ•–Å•ÃÅ›°Ö–Å›Ω’±êÅµÖ≠îÅÅïŸïπ—ÕM±Ω—ÄÅÑ(ÄÄººÅ=9Q9PÅ¡…Ω¿Å’πëï»ÅÕç…•¡—ÃΩ—ïÕ–µô•…Õ–µÕç…ïï∏πµ©ÃùÃÅ…’±îÅ…Ö—°ï»Å—°Ö∏ÅÑ(ÄÄººÅçÖ±±Öâ±îÅ…ïÖêÅΩπ±‰Å•πÕ•ëîÅ—°îÅë…Ω¿∞ÅÖ±ΩπùÕ•ëîÅµïµâï…M•ùπÖ±ÕΩ»ÅÖπê(ÄÄººÅÖ¡¡±Â5ïµâï…M•ùπÖ∞∏Å9Ω—°•πúÅ°ï…îÅ•ÃÅÖ±±ΩçÖ—ïêÅ’π—•∞Å—°îÅïŸïπ—ÃÅ—•±îÅΩ¡ïπÃ∏(ÄÅçΩπÕ–ÅïŸïπ—ÕIÖ•±M±Ω–ÄÙÄ°µΩëîÄÙÄâïŸïπ—Ãà§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ°ôΩ…ÂΩ’Ÿïπ—ÃÄÙÙÙÅπ’±∞§ÅÏ(ÄÄÄÄÄÅ•òÄ°µΩëîÄÙÙÙÄâπ•ù°–µΩ’–à§Å…ï—’…∏ÅÏÅ¡ïπë•πúËÅ—…’î∞ÅâÂIÖ•∞ËÅÌÙÅÙÏ(ÄÄÄÄÄÅ…ï—’…∏Ä†(ÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ…Ö•∞Å›òµ…Ö•∞µïŸïπ—ÃàÅÖ…•Ñµ°•ëëï∏Ùâ—…’îàÅ…Ω±îÙâÕ—Ö—’ÃàÅÖ…•Ñµâ’Õ‰Ùâ—…’îàÅÕ—Â±îıÌÏÅµ•π!ï•ù°–ËÅY}I%1}5%9} ∞ÅΩŸï…ô±Ω‹ËÄâ°•ëëï∏àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÅÌl¿∞Ä≈tπµÖ¿†°§§ÄÙ¯Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅ≠ï‰ıÌ•ÙÅç±ÖÕÕ9ÖµîÙâ›òµÕ¨àÅÕ—Â±îıÌÏÅ›•ë—†ËÄàƒ¿¿îà∞Å°ï•ù°–ËÅY}I%1}5%9} ∞ÅâΩ…ëï…IÖë•’ÃËÄƒ‹∞Åô±ï·M°…•π¨ËÄ¿∞ÅΩ¡Öç•—‰ËÄƒÄ¥Å§Ä®Ä¿∏»»ÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄ§•Ù(ÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄ§Ï(ÄÄÄÅÙ(ÄÄÄÅçΩπÕ–ÅïŸÃÄÙÅëïë’¡ïŸïπ—Ã°ôΩ…ÂΩ’Ÿïπ—ÃÅÒÅmt∞Å—…’î§Ï(ÄÄÄÅçΩπÕ–Å’ÕÖâ±îÄÙÅïŸÃπô•±—ï»†°î§ÄÙ¯ÅîÄòòÅîπëïÕ–§Ï(ÄÄÄÅçΩπÕ–Åô¿ÄÙÅô…Ωπ—AÖùïŸïπ—Ã°’ÕÖâ±î∞ÅïŸïπ—	’ç≠ï–§Ï(ÄÄÄÄººÅÿÿ∏ÿ‰Ä°Ω›πï»ËÄâ$Å›Öπ–Å—ºÅë•Õ¡±Ö‰Å—°îÅâïÕ–ÅïŸïπ—Ãà§∏ÅâïÕ—•…Õ–(ÄÄÄÄººÅ…Öπ≠ÃÅâ‰ÅÕ—Ö—’…îÅ—°ï∏Å•µµ•πïπçîÏÅI%1}!%8ùÃÅçÖ—ïùΩ…‰ÅΩ…ëï»Å•Ã(ÄÄÄÄººÅÕ—•±∞Å›°Ö–Å—°îÅïŸïπ—ÃÅQÅ…’πÃ∏ÅMïîÅ±•àΩô…Ωπ—Ÿïπ—Ãπ©Ã∏(ÄÄÄÅçΩπÕ–ÅÕ°Ω›∏ÄÙÅâïÕ—•…Õ–°ô¿π’ÕÖâ±î∞ÅïŸïπ—	’ç≠ï–∞Åô¿πôïÖ—’…ïê§πô•±—ï»†°î§ÄÙ¯ÅïŸïπ—M•ùπÖ±Ãπë•Õ±•≠ïëmîπ•ëtÄÑÙÙÅ—…’î§πÕ±•çî†¿∞Ä»–§Ï(ÄÄÄÅçΩπÕ–Å…ïπëï…Ÿïπ—Ö…êÄÙÄ°î∞Å…Öπ¨§ÄÙ¯Ä†(ÄÄÄÄÄÄÒŸïπ—IÖ•±Ö…êÅΩπ1ΩúıÌ±ΩùŸïπ—Ù(ÄÄÄÄÄÄÄÅ≠ï‰ıÌîπ•ëÙ(ÄÄÄÄÄÄÄÅïŸïπ–ıÌïÙ(ÄÄÄÄÄÄÄÅ…Öπ¨ıÌ…Öπ≠Ù(ÄÄÄÄÄÄÄÅ…ï±Ö—•Ÿï1Öâï∞ıÌïŸïπ—]°ïπ1Öâï∞°î•Ù(ÄÄÄÄÄÄÄÅÕÖŸïêıÏÑÖÕÖŸïëŸïπ—Õmîπ•ëuÙ(ÄÄÄÄÄÄÄÅ±•≠ïêıÌïŸïπ—M•ùπÖ±Ãπ±•≠ïëmîπ•ëtÄÙÙÙÅ—…’ïÙ(ÄÄÄÄÄÄÄÅë•Õ±•≠ïêıÌïŸïπ—M•ùπÖ±Ãπë•Õ±•≠ïëmîπ•ëtÄÙÙÙÅ—…’ïÙ(ÄÄÄÄÄÄÄÅΩπMÖŸîıÏ†§ÄÙ¯ÅÕÖŸïŸïπ—%—ï¥°î•Ù(ÄÄÄÄÄÄÄÅΩπ1•≠îıÏ†§ÄÙ¯Å—Ωùù±ïŸïπ—M•ùπÖ∞°î∞Äâ±•≠ïêà•Ù(ÄÄÄÄÄÄÄÅΩπ•Õ±•≠îıÏ†§ÄÙ¯Å—Ωùù±ïŸïπ—M•ùπÖ∞°î∞Äâë•Õ±•≠ïêà•Ù(ÄÄÄÄÄÄÄÅΩπÖ—ïùΩ…‰ıÏ°â’ç≠ï–§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–†âïŸïπ—}çÖ—ïùΩ…Â}Ω¡ï∏à∞Åπ’±∞∞ÅÏÅâ’ç≠ï–∞ÅÕ…åËÄâ…Ö•±}ç°•¿àÅÙ§ÏÅÙÅçÖ—ç†Ä°ï»§ÅÌÙÅÕï—Ÿïπ—Ö–°â’ç≠ï–ÄÙÙÙÄâçΩµµ’π•—‰àÄ¸Äâ±ΩçÖ∞àÄËÅâ’ç≠ï–§ÏÅÕï—Mç…ïï∏†âïŸïπ—Ãà§ÏÅıÙ(ÄÄÄÄÄÄÄÅΩπΩ¡•ïêıÏ†§ÄÙ¯ÅÕ°Ω›QΩÖÕ–†âŸïπ–Å±•π¨ÅçΩ¡•ïêà•Ù(ÄÄÄÄÄÄº¯(ÄÄÄÄ§Ï(ÄÄÄÅ•òÄ°µΩëîÄÙÙÙÄâπ•ù°–µΩ’–à§ÅÏ(ÄÄÄÄÄÅçΩπÕ–Å…Ω›ÃÄÙÅ=â©ïç–πô…Ωµπ—…•ïÃ°9%!Q}=UQ}I%1}LπµÖ¿†°…Ö•∞§ÄÙ¯Åm…Ö•∞π•ê∞Åmut§§Ï(ÄÄÄÄÄÅôΩ»Ä°çΩπÕ–ÅïŸïπ–ÅΩòÅÕ°Ω›∏§ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å…Ö•±%êÄÙÅπ•ù°—=’—Ÿïπ—IÖ•∞°ïŸïπ–§Ï(ÄÄÄÄÄÄÄÅçΩπÕ–Åë•Õ—5§ÄÙÅπ•ù°—=’—•Õ—Öπçï5§°ïŸïπ–∞Åçïπ—ï»ÅÒÅÌÙ§Ï(ÄÄÄÄÄÄÄÅ•òÄ°…Ö•±%êÄòòÅë•Õ—5§ÄÑÙÅπ’±∞ÄòòÅë•Õ—5§ÄÙÅ9%!Q}=UQ}5a}5$§Å…Ω›Õm…Ö•±%ëtπ¡’Õ†°ïŸïπ–§Ï(ÄÄÄÄÄÅÙ(ÄÄÄÄÄÅ…ï—’…∏ÅÏ(ÄÄÄÄÄÄÄÅ¡ïπë•πúËÅôÖ±Õî∞(ÄÄÄÄÄÄÄÅâÂIÖ•∞ËÅ=â©ïç–πô…Ωµπ—…•ïÃ°9%!Q}=UQ}I%1}LπµÖ¿†°…Ö•∞§ÄÙ¯Ål(ÄÄÄÄÄÄÄÄÄÅ…Ö•∞π•ê∞(ÄÄÄÄÄÄÄÄÄÅ…Ω›Õm…Ö•∞π•ëtπµÖ¿†°ïŸïπ–∞Å•πëï‡§ÄÙ¯Å…ïπëï…Ÿïπ—Ö…ê°ïŸïπ–∞Å•πëï‡Ä¨Äƒ§§∞(ÄÄÄÄÄÄÄÅt§§∞(ÄÄÄÄÄÅÙÏ(ÄÄÄÅÙ(ÄÄÄÅ•òÄ†ÖÕ°Ω›∏π±ïπù—†§Å…ï—’…∏Åπ’±∞Ï(ÄÄÄÄººÅÿ‡∏‰ÃÄ°Ω›πï»∞Ä»¿»ÿ¥¿‡¥Ã¿§ËÄâïŸïπ—ÃÅ•—Õï±òÅµÖ‰ÅπïïêÅ—ºÅ°ÖŸîÅµ’±—•¡±îÅ…Ö•±Ã(ÄÄÄÄººÉäPÅÖ±ÕºÅÕ—Ö…–Å›•—†ÅçΩπçï…–∞Å—°ï∏Å—°ïÖ—ï»∞Å—°Ö∏ÅçΩµïë‰∞Å—°ï∏ÅÕ¡Ω…—Ã∏à(ÄÄÄÄºº(ÄÄÄÄººÅ=9Å…Ö•∞ÅΩòÄ»–Åµ•·ïêÅ…Ω›ÃÅµÖëîÅ—°îÅ…ïÖëï»ÅëºÅ—°îÅÕΩ…—•πúËÅÑÅÕÂµ¡°Ωπ‰∞ÅÑ(ÄÄÄÄººÅ…Ω±±ï»Åëï…â‰ÅÖπêÅÖ∏ÅΩ¡ï∏Åµ•åÅ•∏Å—°îÅÕÖµîÅ°Ω…•ÈΩπ—Ö∞ÅÕç…Ω±∞∞Å›•—†ÅπΩ—°•πú(ÄÄÄÄººÅÕÖÂ•πúÅ›°•ç†Å›ÖÃÅ›°•ç†Å’π—•∞Å—°ï‰Å…ïÖêÅïÖç†ÅçÖ…ê∏ÅQ°ïÕîÅÖ…îÅπΩ–Åëïù…ïïÃ(ÄÄÄÄººÅΩòÅΩπîÅ—°•πú∞Å—°ï‰ÅÖ…îÅôΩ’»Åë•ôôï…ïπ–ÅïŸïπ•πùÃ∞ÅÕºÅ—°ï‰Åùï–ÅôΩ’»Å…Ö•±Ã(ÄÄÄÄººÅ•∏Å!%LÅΩ…ëï»ÉäPÅ›°•ç†Å•ÃÅÖ±ÕºÅëïÕçïπë•πúÅâ‰Å°Ω‹ÅôÖ»ÅÖ°ïÖêÅ¡ïΩ¡±îÅ¡±Ö∏∏(ÄÄÄÄºº(ÄÄÄÄººÅYIeQ!%9ÅMQ%10ÅM!=]L∏ÅQ°îÅôΩ’»ÅπÖµïêÅâ’ç≠ï—ÃÅçΩµîÅô•…Õ–∞Å•∏ÅΩ…ëï»Ï(ÄÄÄÄººÅ›°Ö—ïŸï»ÅôÖ±±ÃÅΩ’—Õ•ëîÅ—°ï¥Ä°çΩµµ’π•—‰∞ÅôÖµ•±‰∞Åô•±¥∞ÅµÖ…≠ï—Ã∞ÅÑ(ÄÄÄÄººÅâ’Õ•πïÕÃÅçÖ±ïπëÖ»§Å≠ïï¡ÃÅ•—ÃÅΩ›∏Å…Ö•∞ÅÖ–Å—°îÅïπêÅ…Ö—°ï»Å—°Ö∏Åâï•πú(ÄÄÄÄººÅë…Ω¡¡ïê∞ÅâïçÖ’ÕîÅÑÅç•Ÿ•åÅïŸïπ–ÅπΩâΩë‰Åâ’ç≠ï—ïêÅ•ÃÅÕ—•±∞ÅΩ∏Å—Ωπ•ù°–∏Å∏(ÄÄÄÄººÅïµ¡—‰Åâ’ç≠ï–Å…ïπëï…ÃÅπΩ—°•πúÅÖ–ÅÖ±∞ÉäPÅ—°îÅïµ¡—‰µ…Ö•∞Å±Ö‹∏(ÄÄÄÅçΩπÕ–ÅY9Q}I%1}=IHÄÙÅl(ÄÄÄÄÄÅÏÅ≠ï‰ËÄâçΩπçï…—Ãà∞Å—•—±îËÄâΩπçï…—ÃÄòÅ±•ŸîÅµ’Õ•åàÅÙ∞(ÄÄÄÄÄÅÏÅ≠ï‰ËÄâ—°ïÖ—ï»à∞Å—•—±îËÄâQ°ïÖ—ï»ÄòÅ—°îÅÖ…—ÃàÅÙ∞(ÄÄÄÄÄÅÏÅ≠ï‰ËÄâçΩµïë‰à∞Å—•—±îËÄâΩµïë‰àÅÙ∞(ÄÄÄÄÄÅÏÅ≠ï‰ËÄâÕ¡Ω…—Ãà∞Å—•—±îËÄâM¡Ω…—ÃàÅÙ∞(ÄÄÄÅtÏ(ÄÄÄÅçΩπÕ–ÅπÖµïêÄÙÅπï‹ÅMï–°Y9Q}I%1}=IHπµÖ¿†°»§ÄÙ¯Å»π≠ï‰§§Ï(ÄÄÄÅçΩπÕ–Åù…Ω’¡ÃÄÙÅY9Q}I%1}=IH(ÄÄÄÄÄÄπµÖ¿†°»§ÄÙ¯Ä°ÏÄ∏∏π»∞Å…Ω›ÃËÅÕ°Ω›∏πô•±—ï»†°î§ÄÙ¯ÅïŸïπ—	’ç≠ï–°î§ÄÙÙÙÅ»π≠ï‰§ÅÙ§§(ÄÄÄÄÄÄπçΩπçÖ–°mÏÅ≠ï‰ËÄâµΩ…îà∞Å—•—±îËÄâ±ÕºÅ°Ö¡¡ïπ•πúà∞Å…Ω›ÃËÅÕ°Ω›∏πô•±—ï»†°î§ÄÙ¯ÄÖπÖµïêπ°ÖÃ°ïŸïπ—	’ç≠ï–°î§§§Åıt§(ÄÄÄÄÄÄπô•±—ï»†°ú§ÄÙ¯Åúπ…Ω›Ãπ±ïπù—†§Ï(ÄÄÄÅçΩπÕ–ÅïŸïπ—IÖ•∞ÄÙÄ°ú§ÄÙ¯Ä†(ÄÄÄÄÄÄÒë•ÿÅ≠ï‰ıÌúπ≠ïÂÙÅÕ—Â±îıÌÏÅµÖ…ù•π	Ω——Ω¥ËÄÿÅıÙ¯(ÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒÃ∏‘∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÄàç›ÿà∞ÅµÖ…ù•∏ËÄàƒ¡¡‡Ä¿Ä—¡‡àÅıÙ˘Ìúπ—•—±ïÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÒIÖ•±9ÖÿÅ…Ö•±%êıÏâïŸïπ—Ã¥àÄ¨Åúπ≠ïÂÙÅçΩ’π–ıÌúπ…Ω›Ãπ±ïπù—°ÙÅ’π•–ıÌúπ—•—±îπ—Ω1Ω›ï…ÖÕî†§Ä¨ÄàÅπïÖ»ÅÂΩ‘âÙÄº¯(ÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîıÏâ›òµ…Ö•∞Å›òµ…Ö•∞µïŸïπ—ÃâÙÅëÖ—Ñµ…Ö•∞ıÏâïŸïπ—Ã¥àÄ¨Åúπ≠ïÂÙÅ—Öâ%πëï‡ıÏ¡ÙÅ…Ω±îÙâ…ïù•Ω∏àÅÖ…•Ñµ±Öâï∞ıÌúπ—•—±ïÙÅÕ—Â±îıÌÏÅµ•π!ï•ù°–ËÅY}I%1}5%9} ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÅÌúπ…Ω›ÃπµÖ¿†°î∞Å§§ÄÙ¯Å…ïπëï…Ÿïπ—Ö…ê°î∞Å§Ä¨Äƒ§•Ù(ÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÅÌúπ…Ω›Ãπ±ïπù—†Ä¯ÄƒÄ¸ÄÒIÖ•±Ω—ÃÅ…Ö•±%êıÏâïŸïπ—Ã¥àÄ¨Åúπ≠ïÂÙÅçΩ’π–ıÌúπ…Ω›Ãπ±ïπù—°ÙÄº¯ÄËÅπ’±±Ù(ÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄ§Ï(ÄÄÄÅ…ï—’…∏Ä†(ÄÄÄÄÄÄ¯(ÄÄÄÄÄÄÄÅÏº®Åÿ‹∏¿‰Ä°Ω›πï»∞Ä»¿»ÿ¥¿‡¥¿‰§Å•ÃÅÕ—•±∞Å•∏ÅôΩ…çîËÄâΩ∏Å—°îÅ±ÖÕ–Åµïπ‘Å—°î(ÄÄÄÄÄÄÄÄÄÄÄÅ!Ö¡¡ïπ•πúÅπïÖ»ÅÂΩ‘ÅÕ°Ω’±êÅâîÅπÖµïêÅŸïπ—ÃÅπïÖ»ÅÂΩ‘∏àÅQ°îÅôΩ’»(ÄÄÄÄÄÄÄÄÄÄÄÅâ’ç≠ï–Å…Ö•±ÃÅâï±Ω‹ÅÖ…îÅÑÅÕ’âë•Ÿ•Õ•Ω∏ÅΩòÅ—°Ö–ÅÕïç—•Ω∏∞ÅπΩ–ÅÑ(ÄÄÄÄÄÄÄÄÄÄÄÅ…ï¡±Öçïµïπ–ÅôΩ»Å•–∞ÅÕºÅ—°îÅÕïç—•Ω∏Å≠ïï¡ÃÅ°•ÃÅπÖµîÅÖπêÅ—°îÅ—Ω—Ö∞ÉäP(ÄÄÄÄÄÄÄÄÄÄÄÅÖπêÅïÖç†Å…Ö•∞Å—°ï∏ÅÕÖÂÃÅ›°•ç†ÅïŸïπ•πúÅ•–Å•Ã∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÒ†ÃÅç±ÖÕÕ9ÖµîÙâ›òµïŸïπ—Ãµ…Ö•±°êàÅÕ—Â±îıÌÏÅµÖ…ù•∏ËÄà…¡‡Ä¿Äƒ¡¡‡à∞ÅôΩπ—M•ÈîËÄƒ‘∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÄàåÂ›¿àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÅŸïπ—ÃÅπïÖ»ÅÂΩ‘ÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—]ï•ù°–ËÄÿ¿¿∞ÅΩ¡Öç•—‰ËÄ¿∏‹‘ÅıÙ˚
+‹ÅÌÕ°Ω›∏π±ïπù—°ÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄΩ†Ã¯(ÄÄÄÄÄÄÄÅÌù…Ω’¡ÃπµÖ¿†°ú§ÄÙ¯ÅïŸïπ—IÖ•∞°ú§•Ù(ÄÄÄÄÄÄÄÄÒâ’——Ω∏Å—Â¡îÙââ’——Ω∏àÅç±ÖÕÕ9ÖµîÙâ›òµ…Ö•±ÕïåµµΩ…îàÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–†âïŸïπ—Õ}Õïï}Ö±∞à∞Åπ’±∞∞ÅÏÅÕ…åËÄâµïπ’}…Ö•∞à∞ÅÕ°Ω›∏ËÅÕ°Ω›∏π±ïπù—†∞Å…Ö•±ÃËÅù…Ω’¡ÃπµÖ¿†°ú§ÄÙ¯Åúπ≠ï‰§π©Ω•∏†à∞à§ÅÙ§ÏÅÙÅçÖ—ç†Ä°ï»§ÅÌÙÅÕï—Mç…ïï∏†âïŸïπ—Ãà§ÏÅıÙ¯(ÄÄÄÄÄÄÄÄÄÅÏâMïîÅïŸï…‰ÅïŸïπ–Åq‘»ƒ‰»âÙ(ÄÄÄÄÄÄÄÄΩâ’——Ω∏¯(ÄÄÄÄÄÄº¯(ÄÄÄÄ§Ï(ÄÅÙÏ((ÄÄººÅ•…Õ–µ¡Ö•π–Å…Ö•±ÃÅΩ…•ù•∏∏ÅÅçïπ—ï…ÄÅÕ—ÖÂÃÅπ’±∞Å’π—•∞ÅALÄºÅµÖπ’Ö∞ÄºÅùïº(ÄÄººÉäPÅ—°Ö–Å•ÃÅÕ—•±∞Å—°îÅŸ•Õ•—Ω»Å±ΩçÖ—•Ω∏∏ÅÖÂ¡Ö…—IÖ•∞ÅΩπ±‰ÅπïïëÃÅÑÅA=%9PÅÕº(ÄÄººÄΩÖ¡§Ω…Ö•±ÃÅçÖ∏ÅÕ—Ö…–ÅâïôΩ…îÅ±ΩçIïÕΩ±ŸïêÄ°Ω›πï»Å•A°Ωπî∞Ä»¿»ÿ¥¿‡¥»‰ËÅ…Ö•±Ã(ÄÄººÅ›ÖÃÄ»¿¿Å•∏Ä¿∏–—ÃÅ›°•±îÅ—°îÅç±•ïπ–ÅÕÖ–ÅΩ∏Å1=}A9%9§∏Å]°ï∏ÅÑÅ…ïÖ∞(ÄÄººÅçïπ—ï»ÅÖ……•ŸïÃ∞Åô•…Õ—AÖ•π—IÖ•±=…•ù•∏Å…ï—’…πÃÅ•–ÅÖπêÅ—°îÅ…Ö•∞Å…ïôï—ç°ïÃ∏(ÄÅçΩπÕ–Å•π±•πïIÖ•∞ÄÙÅ…ïÖë%π±•πïIÖ•±!•π—Ã†§Ï(ÄÅçΩπÕ–Å…Ö•±ïπ—ï»ÄÙÅô•…Õ—AÖ•π—IÖ•±=…•ù•∏°Ï(ÄÄÄÅ…ïÕΩ±ŸïêËÅçïπ—ï»∞(ÄÄÄÅ±ΩçIïÕΩ±Ÿïê∞(ÄÄÄÅ¡…•µîËÅ•π±•πïIÖ•∞π¡…•µî∞(ÄÄÄÅÕ—Ω…ïêËÅ•π±•πïIÖ•∞πÕ—Ω…ïê∞(ÄÅÙ§Ï((ÄÅçΩπÕ–Å…Ö•±5ïπ’	ÖπêÄÙÅ…Ö•±5ïπ‘Ä¸Ä†(ÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµô’±±â±ïïêà¯(ÄÄÄÄÄÄÒÖÂ¡Ö…—IÖ•∞(ÄÄÄÄÄÄÄÅ…Ö•±ÃıÌI%1MÙ(ÄÄÄÄÄÄÄÅ¡±ÖçïÃıÌ…Ö•±5ïπ‘π¡±ÖçïÕÙ(ÄÄÄÄÄÄÄÅ—°•∏ıÌ…Ö•±5ïπ‘π—°•πÙ(ÄÄÄÄÄÄÄÅù’•ëïÃıÌ…Ö•±5ïπ‘πù’•ëïÕÙ(ÄÄÄÄÄÄÄÅ…ïù•Ω∏ıÌ…Ö•±5ïπ‘π…ïù•ΩπÙ(ÄÄÄÄÄÄÄÅç•—ÂM±’úıÌ…Ö•±5ïπ‘πç•—ÂM±’ùÙ(ÄÄÄÄÄÄÄÅç•—Â1Öâï∞ıÌ…Ö•±5ïπ‘πç•—Â1Öâï±Ù(ÄÄÄÄÄÄÄÅ±Ö–ıÌ…Ö•±5ïπ‘π±Ö—Ù(ÄÄÄÄÄÄÄÅ±πúıÌ…Ö•±5ïπ‘π±πùÙ(ÄÄÄÄÄÄÄÅ•π•—•Ö±ÖÂ¡Ö…–ıÌ…Ö•±5ïπ‘πëÖÂ¡Ö…—Ù(ÄÄÄÄÄÄÄÅçïπ—ï»ıÌ…Ö•±ïπ—ï…Ù(ÄÄÄÄÄÄÄÄººÅÿ‡∏–ÿÉäPÅ—°îÅë…Ω¿ÅπÖµïÃÅ—°îÅ…ïÖëï»ùÃÅΩ›∏Å—Ω›∏Å•∏Å•—ÃÅ°ΩπïÕ–µïµ¡—‰(ÄÄÄÄÄÄÄÄººÅçΩ¡‰∞ÅÖπêÅçÖ∏Å°ÖπêÅ—°ï¥Å—°îÅΩπîµ—Ö¿ÅALÅô•‡∏ÅÅ…ïçïπ—ï…QΩ5ïÄÅ•ÃÅÖ±Õº(ÄÄÄÄÄÄÄÄººÅ—°îÅM1µ!0ÅôΩ»ÅÑÅÕ—Ω…ïêÅ¡•∏Å›°ΩÕîÅ±Öâï∞ÅÖπêÅçΩΩ…ë•πÖ—ïÃÅë•ÕÖù…ïîË(ÄÄÄÄÄÄÄÄººÅ•–Åç±ïÖ…ÃÅ›ô}çïπ—ï»ÅÖπêÅ…îµÖÕ≠ÃÅ—°îÅëïŸ•çî∏(ÄÄÄÄÄÄÄÅ±Ωç9ÖµîıÌ±Ωç9ÖµïÙ(ÄÄÄÄÄÄÄÅΩπIïçïπ—ï»ıÌ…ïçïπ—ï…QΩ5ïÙ(ÄÄÄÄÄÄÄÄººÅΩçΩπ’–Å…ΩŸîÅÕ¡ΩπÕΩ»Å—•±îÉäPÅùïºµùÖ—ïêÄ°Õ¡ΩπÕΩ…IÖ•±9ïÖ»Å…ï—’…πÃÅπ’±∞(ÄÄÄÄÄÄÄÄººÅΩ’—Õ•ëîÅ—°îÄ»¡µ§ÅùÖ—î§∞Å¡•ππïêÅ—ºÅ—°îÅô…Ωπ–ÅΩòÅ—°îÅÖµÖÈΩ∏Å…Ö•∞∞ÅΩ¡ïπÃ(ÄÄÄÄÄÄÄÄººÅ—°îÅç’…Ö—ïêÅ¡Ö…—πï»ÅÕ°ïï–ÅΩ∏Å—Ö¿∏Å=π±‰Å›°ï∏Å±ΩçÖ—•Ω∏Å°ÖÃÅ…ïÕΩ±Ÿïê∏(ÄÄÄÄÄÄÄÅÕ¡ΩπÕΩ»ıÌ±ΩçIïÕΩ±ŸïêÄòòÅçïπ—ï»Ä¸ÅÕ¡ΩπÕΩ…IÖ•±9ïÖ»°çïπ—ï»π±Ö–∞Åçïπ—ï»π±πú§ÄËÅπ’±±Ù(ÄÄÄÄÄÄÄÄººÅÿ‡∏ÿ‰ÉäPÅ—°îÅA%Å¡±ÖçîÅçÖ…êÅÖ–Å—°îÅô…Ωπ–ÅΩòÅ•—ÃÅΩ›∏Å…Ö•∞ùÃÅë…Ω¿∏(ÄÄÄÄÄÄÄÄººÅIïÕΩ±ŸïêÅ•∏Å—°îÅÕ¡ΩπÕΩ»Åïôôïç–ÅÖâΩŸîÄ°ùïºÅùÖ—îÄ¨Åô±•ù°–Å›•πëΩ‹Ä¨(ÄÄÄÄÄÄÄÄººÅ±•ŸîÅ]ÖÂô•πêÅMçΩ…î§∞Åπ’±∞ÅôΩ»ÅïŸï…‰Å…ïÖëï»ÅΩ’—Õ•ëîÅ—°îÅâΩ’ù°–Å…Öë•’Ã∏(ÄÄÄÄÄÄÄÅÕ¡ΩπÕΩ…Ö…êıÌ…Ö•±M¡ΩπÕΩ…Ö…ëÙ(ÄÄÄÄÄÄÄÅΩπ=¡ïπAÖ…—πï»ıÏ°¡•ê§ÄÙ¯ÅÏÅçΩπÕ–ÅåÄÙÅ¡Ö…—πï…Ω±±ïç—•Ωπ	Â%ê°¡•ê§ÏÅ•òÄ°å§ÅΩ¡ïπAÖ…—πï…Ω±±ïç—•Ω∏°å§ÏÅıÙ(ÄÄÄÄÄÄÄÅΩπΩŸï…ÖùîıÌÕï—IÖ•±ÕΩŸï…ÖùïÙ(ÄÄÄÄÄÄÄÄººÅ9•ù°–Å=’–Å…ï≈’ïÕ—ÃÅ—°îÅëÖ—ïêÅ•πŸïπ—Ω…‰ÅÖÃÅ—ï∏Åï·ç±’Õ•ŸîÅâ’ç≠ï—ÃÏ(ÄÄÄÄÄÄÄÄººÅÖ—îÅ9•ù°–ÅÕ—•±∞Å…ï≈’ïÕ—ÃÅ—°îÅçΩµ¡±ï—îÅ±ïùÖç‰ÅïŸïπ–ÅÕ’…ôÖçî∏(ÄÄÄÄÄÄÄÅïŸïπ—ÕM±Ω–ıÌïŸïπ—ÕIÖ•±M±Ω—Ù(ÄÄÄÄÄÄÄÅ•ÕMÖŸïêıÌ•ÕMÖŸïëÙ(ÄÄÄÄÄÄÄÅ•Õ=πQ…•¿ıÌ•Õ=πQ…•¡Ù(ÄÄÄÄÄÄÄÅΩπMÖŸîıÏ°î∞Å¿§ÄÙ¯ÅÏÅ—…‰ÅÏÅ≈’•ç≠MÖŸïÖŸΩ…•—î°¿§ÏÅÙÅçÖ—ç†Ä°ï»§ÅÌÙÅıÙ(ÄÄÄÄÄÄÄÅΩπ%—•πï…Ö…‰ıÏ°î∞Å¿§ÄÙ¯ÅÏÅ—…‰ÅÏÅÖëëQΩ%—•πï…Ö…‰°¿§ÏÅÙÅçÖ—ç†Ä°ï»§ÅÌÙÅıÙ(ÄÄÄÄÄÄÄÅ±•≠ïêıÌ±•≠ïëÙ(ÄÄÄÄÄÄÄÅë•Õ±•≠ïêıÌë•Õ±•≠ïëÙ(ÄÄÄÄÄÄÄÄººÅÿ‡∏ƒ‹ÉäPÅÑÅ…Ö•∞ÅçÖ…êÅΩ¡ïπÃÅ—°îÅëï—Ö•∞ÅM!PÅ•∏Å¡±ÖçîÅ•πÕ—ïÖêÅΩòÅÑ(ÄÄÄÄÄÄÄÄººÅô’±∞ÄΩ¿ΩÌ•ëÙÅπÖŸ•ùÖ—•Ω∏∞ÅÕºÅ	Öç¨Åç±ΩÕïÃÅ—°îÅÕ°ïï–ÅÖπêÅ—°îÅ…ïÖëï»(ÄÄÄÄÄÄÄÄººÅ±ÖπëÃÅï·Öç—±‰Å›°ï…îÅ—°ï‰Å›ï…îËÅ…Ö•∞ÅÕ—•±∞ÅΩ¡ï∏∞ÅÕç…Ω±∞Å•π—Öç–∏(ÄÄÄÄÄÄÄÄººÄ°Q°îÅΩ›πï»ùÃÄâïŸï…Â—°•πúÅ•ÃÅùΩπîÅ›°ï∏Å$ÅùºÅâÖç¨àÅâ’ú∏§(ÄÄÄÄÄÄÄÅΩπ=¡ïπA±ÖçîıÏ°¿§ÄÙ¯ÅÏÅ—…‰ÅÏÅΩ¡ïπï—Ö•∞°¿∞Äâ…Ö•±}µïπ‘à§ÏÅÙÅçÖ—ç†Ä°ï»§ÅÌÙÅıÙ(ÄÄÄÄÄÄÄÅ•π•—•Ö±IÖ•∞ıÌ•π•—•Ö±IÖ•±Ù(ÄÄÄÄÄÄÄÄººÅÿ‡∏»ÃÉäPÅ—°îÅ…Ö•∞ÅçÖ…êùÃÅÕ°Ö…îÅùΩïÃÅ—°…Ω’ù†ÅQ!ÅÕ°Ö…îÅô’πç—•Ω∏∞ÅπΩ–ÅÑ(ÄÄÄÄÄÄÄÄººÅÕïçΩπêÅΩπî∏ÅÕ°Ö…ï1•π¨†§ÅÖ±…ïÖë‰ÅÕΩ±ŸïÃÅ—°îÅΩ…ëï…•πúÅ—°Ö–ÅµÖ≠ïÃÅ—°•Ã(ÄÄÄÄÄÄÄÄººÅ›Ω…¨ÅΩ∏Å•=LÄ°—°îÅπÖ—•ŸîÅÕ°ïï–Åµ’Õ–ÅâîÅ—°îÅô•…Õ–ÅÖç—•ŸÖ—•Ω∏µçΩπÕ’µ•πú(ÄÄÄÄÄÄÄÄººÅçÖ±∞Å•∏Å—°îÅ—Ö¿ÉäPÅÿ–∏¿‹§∞Å¡…ïôï…ÃÅ—°îÅÖ¡Öç•—Ω»ÅÕ°ïï–Å•πÕ•ëîÅ—°îÅÖ¡¿(ÄÄÄÄÄÄÄÄººÅÕ°ï±∞∞ÅÖπêÅôÖ±±ÃÅâÖç¨Å—ºÅ—°îÅç±•¡âΩÖ…êÅïŸï…Â›°ï…îÅï±Õî∏(ÄÄÄÄÄÄÄÄºº(ÄÄÄÄÄÄÄÄººÅ%–Å…ï—’…πÃÅQIUÅ›°ï∏ÅÑÅÕ°ïï–ÅΩ¡ïπïê∏Åï±•âï…Ö—ï±‰Å9<ÅΩπΩ¡•ïêÅ—ΩÖÕ–(ÄÄÄÄÄÄÄÄººÅ°ï…îËÅ—°îÅçÖ…êÅÕ°Ω›ÃÄâ1•π¨ÅçΩ¡•ïêàÅΩ∏Å•—Õï±ò∞Å›°•ç†Å•ÃÅâΩ—†ÅµΩ…î(ÄÄÄÄÄÄÄÄººÅ±ΩçÖ—ïêÅÖπêÅÕ—Ω¡ÃÅ—°îÅ—›ºÅ—ΩÖÕ—ÃÅ—°•ÃÅ°ÖêÅ•∏Å•—ÃÅô•…Õ–Åë…Öô–∏(ÄÄÄÄÄÄÄÄººÅÿ‡∏»‡ÉäPÅïŸï…‰ÅÖç—•Ω∏Å—°îÅçÖ…êÅçÖ∏Å…ïπëï»Å•ÃÅ›•…ïêÅ°ï…î∏Å]•—°Ω’–ÅÑ(ÄÄÄÄÄÄÄÄººÅ°Öπë±ï»Å%çΩπ•çA±ÖçïÖ…êÅôÖ±±ÃÅâÖç¨Å—ºÄÒÑÅ°…ïòÙàΩ¿ºÒ•ê¯˝Öç—•Ω∏ı±•≠îà¯∞(ÄÄÄÄÄÄÄÄººÅ›°•ç†Å•ÃÅ›°‰Å±•≠•πúÅô…Ω¥Å—°îÅ…Ö•∞ÅΩ¡ïπïêÅ—°îÅëï—Ö•∞Å¡ÖùîÅ•πÕ—ïÖêÅΩò(ÄÄÄÄÄÄÄÄººÅ…ïù•Õ—ï…•πúÅ—°îÅ±•≠îÄ°Ω›πï»∞Ä»¿»ÿ¥¿‡¥»¿§∏ÅÕç…•¡—ÃΩç°ïç¨µçÖ…êµÖç—•ΩπÃπµ©Ã(ÄÄÄÄÄÄÄÄººÅπΩ‹ÅôÖ•±ÃÅ—°îÅâ’•±êÅ•òÅÖπ‰ÅçÖ…êÅÕ’…ôÖçîÅ±ïÖŸïÃÅΩπîÅëÖπù±•πú∏(ÄÄÄÄÄÄÄÄººÅÿ‡∏»‰∏ÿÉäPÅ=9ÅΩπ1•≠îÅ°ï…î∞ÅπΩ–Å—›º∏ÅQ°îÅµï…ùîÅΩòÅAHÄå‡‡‡ÅÖπêÅ—°•Ã(ÄÄÄÄÄÄÄÄººÅâ…Öπç†Å±ïô–ÄÒÖÂ¡Ö…—IÖ•∞¯ÅçÖ……Â•πúÅΩπ1•≠îÅÖπêÅΩπ•Õ±•≠îÅ—›•çîÏÅ)M`(ÄÄÄÄÄÄÄÄººÅ—Ö≠ïÃÅ—°îÅ±ÖÕ–ÅÕ•±ïπ—±‰∞ÅÕºÅÑÅë’¡±•çÖ—îÅ•ÃÅ°Ω‹ÅÑÅ›Ω…≠•πúÅ°Öπë±ï»Å•Ã(ÄÄÄÄÄÄÄÄººÅ…ï¡±ÖçïêÅ›•—°Ω’–ÅÑÅë•ôòÅ—°Ö–Å±ΩΩ≠ÃÅ›…Ωπú∏ÅÅ±•≠ïëÄΩÅë•Õ±•≠ïëÄÄ°—°î(ÄÄÄÄÄÄÄÄººÅµÖ¡Ã§ÅÖπêÅ•Õ1•≠ïêΩ•Õ•Õ±•≠ïêÄ°—°îÅ¡…ïë•çÖ—ïÃ§ÅâΩ—†ÅÕ—Ö‰ÉäPÅ—°îÅ…Ö•∞(ÄÄÄÄÄÄÄÄººÅ…ïÖëÃÅ›°•ç°ïŸï»Å•–Å›ÖÃÅù•Ÿï∏∞ÅÖπêÅ—°îÅ—›ºÅ—°’µàÅÕ’…ôÖçïÃÅ•πÕ•ëîÅ•–(ÄÄÄÄÄÄÄÄººÅÖÕ¨Å•∏Åë•ôôï…ïπ–ÅÕ°Ö¡ïÃ∏(ÄÄÄÄÄÄÄÅ•Õ1•≠ïêıÏ°•ê§ÄÙ¯ÄÑÖ±•≠ïëm•ëuÙ(ÄÄÄÄÄÄÄÅ•Õ•Õ±•≠ïêıÏ°•ê§ÄÙ¯ÄÑÖë•Õ±•≠ïëm•ëuÙ(ÄÄÄÄÄÄÄÅΩπ1•≠îıÏ°î∞Å¿§ÄÙ¯ÅÏÅ—…‰ÅÏÅ—Ωùù±ï1•≠î°î∞Å¿§ÏÅÙÅçÖ—ç†Ä°ï»§ÅÌÙÅıÙ(ÄÄÄÄÄÄÄÅΩπ•Õ±•≠îıÏ°î∞Å¿§ÄÙ¯ÅÏÅ—…‰ÅÏÅ—Ωùù±ï•Õ±•≠î°î∞Å¿§ÏÅÙÅçÖ—ç†Ä°ï»§ÅÌÙÅıÙ(ÄÄÄÄÄÄÄÅµïµâï…M•ùπÖ±ÕΩ»ıÏ°±•Õ–§ÄÙ¯Åôï—ç°5ïµâï…M•ùπÖ±Ã°Õ’¡ÖâÖÕî∞Å±•Õ–•Ù(ÄÄÄÄÄÄÄÅÖ¡¡±Â5ïµâï…M•ùπÖ∞ıÌ›•—°5ïµâï…M•ùπÖ±Ù(ÄÄÄÄÄÄÄÄººÅÿ‡∏Ã¿∏ƒÉäPÅQ!ÅA1ÅIùLÅM!I∞Å›°•ç†Å›ÖÃÅπïŸï»Å›•…ïêÄ°Ω›πï»∞(ÄÄÄÄÄÄÄÄººÄ»¿»ÿ¥¿‡¥»»∞ÅÕç…ïïπÕ°Ω–ËÄâ—°îÅÕ°Ö…îÅâ’——Ω∏ÅΩ∏Å—°îÅÖµÖÈΩ∏Å…Ö•∞Å¡±Öçî(ÄÄÄÄÄÄÄÄººÅçÖ…ëÃÅÖ…îÅπΩ–Å›Ω…≠•πúà§∏ÅÅΩπM°Ö…ïIÖ•±ÄÅë•…ïç—±‰Åâï±Ω‹Å•ÃÅ—°îÅQ%1ùÃ(ÄÄÄÄÄÄÄÄººÅÕ°Ö…îÅÖπêÅ°ÖÃÅ›Ω…≠ïêÅÕ•πçîÅÿ‡∏»ÃÏÅ—°îÅIùÃÅÕ°Ö…îÅ¡…Ω¿Å›ÖÃÅÕ•µ¡±‰(ÄÄÄÄÄÄÄÄººÅπïŸï»Å¡ÖÕÕïê∞ÅÕºÅ%çΩπ•çA±ÖçïÖ…êùÃÅÅ•òÄ°ΩπM°Ö…î•ÄÅ›ÖÃÅôÖ±ÕîÅÖπêÅïŸï…‰(ÄÄÄÄÄÄÄÄººÅM°Ö…îÅâ’——Ω∏Å•∏ÅïŸï…‰Å…Ö•∞Åë…Ω¿Å›ÖÃÅÑÅ±•Ÿîµ±ΩΩ≠•πúÅπºµΩ¿∏Å=∏Å•=LÅ—°î(ÄÄÄÄÄÄÄÄººÅÕïçΩπê∞Å°Ö…ëï»Å—Ö¿Å—°ï∏Å¡…Ωë’çïêÅ—°îÅ—ï·–µÕï±ïç—•Ω∏ÅçÖ±±Ω’–ÅΩŸï»Å—°î(ÄÄÄÄÄÄÄÄººÅ›Ω…êÄâM°Ö…îàÅ•πÕ—ïÖêÅΩòÅÑÅÕ°ïï–∏(ÄÄÄÄÄÄÄÄºº(ÄÄÄÄÄÄÄÄººÅMÖµîÅÕ°Ö…ï1•π¨†§ÅÖÃÅïŸï…Â›°ï…îÅï±ÕîËÅ•–ÅΩ›πÃÅ—°îÅ•=LÅΩ…ëï…•πúÄ°—°î(ÄÄÄÄÄÄÄÄººÅπÖ—•ŸîÅÕ°ïï–Åµ’Õ–ÅâîÅ—°îÅô•…Õ–ÅÖç—•ŸÖ—•Ω∏µçΩπÕ’µ•πúÅçÖ±∞Å•∏Å—°îÅ—Ö¿(ÄÄÄÄÄÄÄÄººÉäPÅÿ–∏¿‹§∞Å¡…ïôï…ÃÅ—°îÅÖ¡Öç•—Ω»ÅÕ°ïï–Å•πÕ•ëîÅ—°îÅÖ¡¿ÅÕ°ï±∞∞ÅÖπêÅôÖ±±Ã(ÄÄÄÄÄÄÄÄººÅâÖç¨Å—ºÅ—°îÅç±•¡âΩÖ…ê∏ÅQ°îÅ…Ö•∞Å°ÖπëÃÅΩŸï»Å—°îÅ…ïÖëï»ùÃÅ…ïÖ∞Åç•—‰ÅÖπê(ÄÄÄÄÄÄÄÄººÅ—°îÅçÖ…êùÃÅÕΩ’…çïêÅ°ΩΩ¨∞ÅÕºÅ—°•ÃÅ±•π¨Å’πô’…±ÃÅ›•—†ÅâΩ—†Å•πÕ—ïÖêÅΩò(ÄÄÄÄÄÄÄÄººÅ—°îÅâÖ…îÄâ…ïÕ—Ö’…Öπ–É
+‹Ä–∏€äbàÅ—°îÅÕ°Ö…îÅÖ’ë•–ÅµïÖÕ’…ïêÄ°L»§∏(ÄÄÄÄÄÄÄÅΩπM°Ö…îıÏ°¿∞Åç—‡§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÅ•òÄ†Ö¿ÅÒÄÖ¿π•ê§Å…ï—’…∏Ï(ÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏÅ±ΩùŸïπ–†âÕ°Ö…îà∞Å¿∞ÅÏÅ≠•πêËÄâ…Ö•±}¡±Öçï}çÖ…êàÅÙ§ÏÅÙÅçÖ—ç†Ä°ï»§ÅÌÙ(ÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÅÕ°Ö…ï1•π¨†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ¿ππÖµî∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ¡±ÖçïM°Ö…ïU…∞°¿∞Ä°ç—‡ÄòòÅç—‡πç•—‰§ÅÒÄàà∞Ä°ç—‡ÄòòÅç—‡π°ΩΩ¨§ÅÒÄàà§∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ†§ÄÙ¯ÅÕ°Ω›QΩÖÕ–†â1•π¨ÅçΩ¡•ïêà§∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅôÖ±±M°Ö…ï1•πî†â°ïç¨ÅΩ’–ÄàÄ¨Å¿ππÖµîÄ¨ÄàÅΩ∏Å]ÖÂô•πêà∞Å¿π•ê∞ÅÕ•—ïQΩëÖÂM—»†§§∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ†§ÄÙ¯ÅÏÅ—…‰ÅÏÅù•ŸïÖ›ÖÂ5Ö…¨°¿π•ê§ÏÅÖëëM°Ö…ïê°¿§ÏÅÙÅçÖ—ç†Ä°ï»§ÅÌÙÅÙ∞(ÄÄÄÄÄÄÄÄÄÄÄÄ§Ï(ÄÄÄÄÄÄÄÄÄÅÙÅçÖ—ç†Ä°ï»§ÅÌÙ(ÄÄÄÄÄÄÄÅıÙ(ÄÄÄÄÄÄÄÅΩπM°Ö…ïIÖ•∞ıÏ°•π—ïπ–§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏÅ…ï—’…∏ÅÕ°Ö…ï1•π¨°•π—ïπ–π—•—±î∞Å•π—ïπ–π’…∞∞Åπ’±∞∞Å•π—ïπ–π—ï·–§ÏÅÙ(ÄÄÄÄÄÄÄÄÄÅçÖ—ç†Ä°î§ÅÏÅ…ï—’…∏ÅôÖ±ÕîÏÅÙ(ÄÄÄÄÄÄÄÅıÙ(ÄÄÄÄÄÄº¯(ÄÄÄÄΩë•ÿ¯(ÄÄ§ÄËÅπ’±∞Ï((ÄÄººÅ]°•ç†Åç’•Õ•πîÅÕ°ïï–ÅÕï…ŸïÃÅ—°•ÃÅ±ΩçÖ—•Ω∏∞Å•òÅÖπ‰∏Å9’±∞ÅΩ’—Õ•ëîÅ¯‹’µ§ÅΩò(ÄÄººÅ=…±ÖπëºÄºÅQÖµ¡ÑÄºÅMÖ…ÖÕΩ—Ñ∞ÅÖπêÅπ’±∞Å•ÃÅ—°îÅ…•ù°–ÅÖπÕ›ï»Å—°ï…î∏Å!Ω•Õ—ïê(ÄÄººÅ›•—†Åë•ÕçΩŸï…Â5ïπ‘∞Å›°•ç†Å•ÃÅ•—ÃÅΩπ±‰Å…ïÖëï»∏(ÄÅçΩπÕ–ÅïÖ—5ï—…ºÄÙÅçïπ—ï»Ä¸Åç’•Õ•πï5ï—…ΩΩ»°çïπ—ï»π±Ö–∞Åçïπ—ï»π±πú§ÄËÅπ’±∞Ï((ÄÄººÅÿ‡∏»ÉäPÅ1IÅ!IÅÕºÅ—°îÅ°ïÖëï»ÅçÖ∏Å…ïπëï»Å•–∏ÅQ°îÅM°Ω…—ç’—ÃÅ…Ω‹(ÄÄººÅµΩŸïêÅ•π—ºÅ—°îÅπÖÿÄ°¡’â±•åΩ±ÖàΩµïπ‘π°—µ∞ËÅâΩë‰πÕçΩ¡ï∏ÄπÕç¡Öπï∞§∞ÅÖπêÅ—°î(ÄÄººÅ°ïÖëï»Å•ÃÅâ’•±–Å›ï±∞ÅÖâΩŸîÅ—°îÅôïïê∏ÅMÖµîÅçΩµ¡Ωπïπ–∞ÅÕÖµîÅ°Öπë±ï…Ã∞ÅÕ—•±∞(ÄÄººÅï·Öç—±‰ÅΩπîÅ…ïπëï»ÅÕ•—îÉäPÅÕïîÅç°ïç¨µ°ΩµîµÖπÕ›ï»µô•…Õ–∞Å›°•ç†ÅçΩ’π—ÃÅ—°ï¥∏(ÄÅçΩπÕ–Åë•ÕçΩŸï…Â5ïπ‘ÄÙÄ†(ÄÄÄÄÒ•ÕçΩŸï…Â5ïπ‘(ÄÄÄÄÄÅ±Ωç9ÖµîıÌ±Ωç9ÖµïÙ(ÄÄÄÄÄÅΩπ	ïÕ–ıÏ†§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–†âë•ÕçΩŸï…Â}—•±îà∞Åπ’±∞∞ÅÏÅ—•±îËÄâ	ïÕ–ÅΩòÄàÄ¨Ä°±Ωç9ÖµîÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à•l¡tÄËÄâÂΩ’»ÅÖ…ïÑà§∞Åç°•¿ËÄâQΩ¿àÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅùΩ%π—ïπ–†àΩâïÕ–µΩòà§ÏÅıÙ(ÄÄÄÄÄÅΩπïµÃıÏ†§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–†âë•ÕçΩŸï…Â}—•±îà∞Åπ’±∞∞ÅÏÅ—•±îËÄâ!•ëëï∏ÅùïµÃà∞Åç°•¿ËÄâ!•ëëï∏àÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅùΩ%π—ïπ–†àΩ°•ëëï∏µùïµÃà§ÏÅıÙ(ÄÄÄÄÄÅΩπÖµ•±‰ıÏ†§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–†âë•ÕçΩŸï…Â}—•±îà∞Åπ’±∞∞ÅÏÅ—•±îËÄâÖµ•±‰ÅôÖŸΩ…•—ïÃà∞Åç°•¿ËÄâÖµ•±‰àÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅùΩ%π—ïπ–†àΩôÖµ•±‰à§ÏÅıÙ(ÄÄÄÄÄÅïÖ—5ï—…ºıÌïÖ—5ï—…ΩÙ(ÄÄÄÄÄÅΩπÖ–ıÏ†§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–†âë•ÕçΩŸï…Â}—•±îà∞Åπ’±∞∞ÅÏÅ—•±îËÄâA•ç¨ÅÂΩ’»ÅµΩΩêà∞Åç°•¿ËÄâ…ÖŸ•πùÃà∞Åµï—…ºËÅïÖ—5ï—…ºÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅùΩ%π—ïπ–†àΩïÖ–ºàÄ¨ÅïÖ—5ï—…º§ÏÅıÙ(ÄÄÄÄÄÅΩπ5ΩΩêıÏ†§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–†âë•ÕçΩŸï…Â}—•±îà∞Åπ’±∞∞ÅÏÅ—•±îËÄâ]°Ö–ÅÖ…îÅÂΩ‘Åôïï±•πú¸à∞Åç°•¿ËÄâ5ΩΩêàÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅÕï—%π—…ΩMï∞°mt§ÏÅ•π—…ΩQ…•ùùï…Iïòπç’……ïπ–ÄÙÅÏÅ—…•ùùï»ËÄâµïπ‘à∞ÅŸ•Õ•â±ï}µÃËÅπ’±∞∞ÅÖ——ïµ¡–ËÄ¿ÅÙÏÅÕï—%π—…Ω=¡ï∏°—…’î§ÏÅ—…‰ÅÏÅ±ΩùŸïπ–†â•π—…Ω}…ïΩ¡ï∏à∞Åπ’±∞∞ÅÏÅÕ…åËÄâë•ÕçΩŸï…Â}µïπ‘àÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅıÙ(ÄÄÄÄÄÅΩπQΩπ•ù°–ıÏ†§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–†âë•ÕçΩŸï…Â}—•±îà∞Åπ’±∞∞ÅÏÅ—•±îËÄâAï…ôïç–ÅôΩ»Å—Ωπ•ù°–à∞Åç°•¿ËÄâQΩπ•ù°–àÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅùΩ%π—ïπ–†àΩ—Ωπ•ù°–à§ÏÅıÙ(ÄÄÄÄÄÅΩπ…•ŸîıÏ†§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–†âë•ÕçΩŸï…Â}—•±îà∞Åπ’±∞∞ÅÏÅ—•±îËÄâ]Ω…—†Å—°îÅë…•Ÿîà∞Åç°•¿ËÄâ…•ŸîàÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅùΩ%π—ïπ–†àΩ›Ω…—†µ—°îµë…•Ÿîà§ÏÅıÙ(ÄÄÄÄÄÅΩπ	’ëùï–ıÏ†§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–†âë•ÕçΩŸï…Â}—•±îà∞Åπ’±∞∞ÅÏÅ—•±îËÄâ	•úÅô’∏∞ÅÕµÖ±∞Åâ’ëùï–à∞Åç°•¿ËÄâ	Ö…ùÖ•πÃàÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅùΩ%π—ïπ–†àΩâ’ëùï–à§ÏÅıÙ(ÄÄÄÄÄÅΩπM’…¡…•ÕîıÏ†§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–†âë•ÕçΩŸï…Â}—•±îà∞Åπ’±∞∞ÅÏÅ—•±îËÄâM’…¡…•ÕîÅµîà∞Åç°•¿ËÄâM’…¡…•ÕîàÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅÕï—5ïπ’M°ïï–†â¡•ç¨à§ÏÅıÙ(ÄÄÄÄº¯(ÄÄ§Ï((ÄÅ…ï—’…∏Ä†(ÄÄÄÄÒë•ÿÅÕ—Â±îıÌÕ°ï±±Ù¯(ÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµÕ°ï±∞àÅÕ—Â±îıÌÏÄ∏∏π›…Ö¿∞ÅµÖ·]•ë—†ËÅ’πëïô•πïêÅıÙ¯(ÄÄÄÄÄÄÒÕ—Â±îÅëÖπùï…Ω’Õ±ÂMï—%ππï…!Q50ıÌÏÅ}}°—µ∞ËÅÅ≠ïÂô…ÖµïÃÅ›ô¡’±ÕïÏ¿î∞ƒ¿¿ïÌ—…ÖπÕôΩ…¥ÈÕçÖ±î†∏‡§ÌΩ¡Öç•—‰Ë∏–’Ù‘¿ïÌ—…ÖπÕôΩ…¥ÈÕçÖ±î†ƒ∏¿‡§ÌΩ¡Öç•—‰Ë≈ıı≠ïÂô…ÖµïÃÅ›ôëΩ—Ï¿î∞‡¿î∞ƒ¿¿ïÌΩ¡Öç•—‰Ë∏»’Ù–¿ïÌΩ¡Öç•—‰Ë≈ıı≠ïÂô…ÖµïÃÅ›ôâΩâÏ¿î∞ƒ¿¿ïÌ—…ÖπÕôΩ…¥È—…ÖπÕ±Ö—ïd†¿§ÅÕçÖ±î†ƒ•Ù‘¿ïÌ—…ÖπÕôΩ…¥È—…ÖπÕ±Ö—ïd†¥Õ¡‡§ÅÕçÖ±î†ƒ∏¿ÿ•ıÙëÌ]}1e=UQ}MMÙëÌ]}MI!}MMÙëÌ]}A1}I}MMÙëÌ]}QMQ}MMÙëÌ]}I%1}MQ%=9}MMÙëÌ]}I%1}=11AM}MMÙëÌ]}M%}MMÙëÌ]}I%1}59U}MMıÄÅıÙÄº¯(ÄÄÄÄÄÅÏº®Å!ïÖëï»Ä®ΩÙ(ÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ—Ω¡âÖ»àÅÕ—Â±îıÌÏÅâÖç≠ù…Ω’πêËÄàå¿–¿‡ƒ¿à∞ÅâΩ…ëï…	Ω——Ω¥ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞Å¡Öëë•πúËÅÕç…ïï∏ÄÙÙÙÄâµÖ¿àÄ¸Äà·¡‡Äƒ…¡‡àÄËÄàƒ…¡‡Äƒ—¡‡à∞Å¡Öëë•πùQΩ¿ËÅÕç…ïï∏ÄÙÙÙÄâµÖ¿àÄ¸ÄâµÖ‡†·¡‡∞Åïπÿ°ÕÖôîµÖ…ïÑµ•πÕï–µ—Ω¿§§àÄËÄâµÖ‡†ƒ…¡‡∞Åïπÿ°ÕÖôîµÖ…ïÑµ•πÕï–µ—Ω¿§§à∞Åô±ï·M°…•π¨ËÄ¿∞Å¡ΩÕ•—•Ω∏ËÄâ…ï±Ö—•Ÿîà∞ÅÈ%πëï‡ËÄ»¿ÅıÙ¯(ÄÄÄÄÄÄÄÅÌÕç…ïï∏ÄÑÙÙÄâµÖ¿àÄòòÄ†(ÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ—Ω¡âÖ»µ…Ω‹àÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâÕ¡Öçîµâï—›ïï∏à∞ÅùÖ¿ËÄƒ¿∞ÅµÖ…ù•π	Ω——Ω¥ËÄƒ¿ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‡∞Åµ•π]•ë—†ËÄ¿ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿÿ∏‘–Ä°Õ¡ïåÄ–§ËÅçΩëîÅ›Ω…ëµÖ…¨ÉäPÅ—°îÅΩ…ÖπùîÅëΩ–Å•ÃÅ—°îÅQ%QQ1ÅΩòÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ§Ä°—°îÅA9ÅµÖÕ—ï»ÅâÖ≠ïÃÅ—°îÅ¡•∏ÅÖô—ï»Å—°îÅê∞Å›°•ç†Å…ïÖëÃÅÖÃÅÑ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ¡ï…•Ωê§∏ÅQ°îÅA9ÅÕ—ÖÂÃ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçÖπΩπ•çÖ∞ÅôΩ»Å=ÅçÖ…ëÃÅ›°ï…îÅ•–ÅÕ•—ÃÅΩ∏Å•—ÃÅΩ›∏ÅëÖ…¨ÅâÖπê∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÅÏº®ÅQ!Å1=<Ä°Ω›πï»∞Ä»¿»ÿ¥¿‹¥»»§ËÅ—°îÅ=%%0ÅÖÕÕï–∞ÅπΩ–ÅÑÅ—ï·–Å±ΩΩ≠Ö±•≠î∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ±±Ω›ïêÅ°ï…îÅâïçÖ’ÕîÅ—°îÅ°ïÖëï»ÅâÖç≠ù…Ω’πêÅ%LÅ—°îÅ±ΩùºùÃÅâÖ≠ïê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄå¿–¿‡ƒ¿ÉäPÅ—°îÅΩπîÅ¡±Öçïµïπ–Å—°îÅâ…ÖπêÅ…’±îÅÕÖπç—•ΩπÃÅ•∏µÖ¡¿∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ›Ω…ëµÖ…¨àÅ…Ω±îÙâ•µúàÅÖ…•Ñµ±Öâï∞Ùâ›ÖÂô•πêàÅΩπ±•ç¨ıÌΩ¡ïπM’ùùïÕ—ïëÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏Åç±ÖÕÕ9ÖµîÙâ›òµ›Ω…ëµÖ…¨µ—ï·–àÅÖ…•Ñµ°•ëëï∏Ùâ—…’îàÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏Åç±ÖÕÕ9ÖµîÙâ›òµ›Ω…ëµÖ…¨µ¡•∏àÅÖ…•Ñµ°•ëëï∏Ùâ—…’îàÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÅÏº®ÅQ°îÅ±ΩçÖ—•Ω∏Å’ÕïêÅ—ºÅÕ•–Å!I∞ÅÖπêÅçΩ’±êÅπΩ–Åô•–∏Å5ïÖÕ’…ïêÅΩ∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ¡…Ωë’ç—•Ω∏ÅÖ–ÄÃ‰¡¡‡ËÅ—°îÅ…Ω‹Å•ÃÄÃÿ…¡‡∞Å—°îÅ›Ω…ëµÖ…¨ÅÕ¡…•—îÅ•ÃÅÑ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅô•·ïêÄƒ‘—¡‡∞ÅÖπêÅ—°îÅ›ïÖ—°ï»Ä†‹≈¡‡§ÅÖπêÅM•ù∏Å•∏Ä†‡Ÿ¡‡§ÅÖ…îÅâΩ—†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅô±ï‡µÕ°…•π¨Ë¿ÉäPÅÕºÅÉ
+‹ÅAÖ……•Õ†∞Å1ÄÅ›ÖÃÅÖ±±Ω——ïêÄ»Õ¡‡ÅΩòÅ—°îÄ‹…¡‡(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•–ÅπïïëÃÅÖπêÅ…ïπëï…ïêÅÖÃÅÑÅâÖ…îÅï±±•¡Õ•Ã∏ÅM—•±∞Åç±•¡¡ïêÅÖ–Ä–Ã¡¡‡(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ†ÿÃº‹»§∏Å%–Å•ÃÅπΩ–ÅÑÅ—’π•πúÅ¡…Ωâ±ï¥ËÅ—…•µµ•πúÅ—°îÅ›ïÖ—°ï»Å±Öâï∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ9ÅÕ°…•π≠•πúÅ—°îÅâ…ÖπêÄ»¿îÅÕ—•±∞ÅΩπ±‰Å…ïÖç°ïêÄÿÂ¡‡∞ÅÖπê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄâAÖ……•Õ†∞Å0àÅ•ÃÅÑÅM!=IPÅπÖµîÉäPÄâM–∏ÅAï—ï…Õâ’…ú∞Å0àÅπïïëÃÄƒƒ·¡‡∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÅŸÖ…•Öâ±îµ±ïπù—†Åç•—‰ÅçÖππΩ–ÅÕ°Ö…îÅ—°•ÃÅ…Ω‹∞ÅÕºÅ•–Åùï—ÃÅ•—ÃÅΩ›∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ°ÕïîÅâï±Ω‹§Å›°ï…îÅÖπ‰ÅπÖµîÅô•—Ã∏Å1Ωç≠ïêÅâ‰Åç°ïç¨µ°Ωµîµ±ΩçÖ—•Ω∏∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‡∞Åô±ï·M°…•π¨ËÄ¿ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÅÌ›ïÖ—°ï»ÄòòÄ°›ïÖ—°ï»πôïï±ÃÄÑÙÅπ’±∞ÅÒÅ›ïÖ—°ï»π—ïµ¿ÄÑÙÅπ’±∞§ÄòòÄ†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏Åç±ÖÕÕ9ÖµîÙâ›òµ›ïÖ—°ï»µâ’——Ω∏àÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—]·=¡ï∏†°ÿ§ÄÙ¯ÄÖÿ•ÙÅÖ…•Ñµ±Öâï∞Ùâ]ïÖ—°ï»ÅôΩ…ïçÖÕ–àÅÕ—Â±îıÌÏÅô±ï·M°…•π¨ËÄ¿∞Åë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄÿ∞ÅâÖç≠ù…Ω’πêËÄâ—…ÖπÕ¡Ö…ïπ–à∞ÅâΩ…ëï»ËÄâπΩπîà∞ÅçΩ±Ω»ËÅπ—ï·–∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞Å¡Öëë•πúËÄà…¡‡Ä—¡‡àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ‡ÅıÙ˘Ì›·%çΩπ9Ω‹°›ïÖ—°ï»•ÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞Åô±ï·•…ïç—•Ω∏ËÄâçΩ±’µ∏à∞ÅÖ±•ùπ%—ïµÃËÄâô±ï‡µÕ—Ö…–à∞Å±•πï!ï•ù°–ËÄƒ∏¿‘ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ‘∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿ÅıÙ˘Ì›ïÖ—°ï»πôïï±ÃÄÑÙÅπ’±∞Ä¸Å›ïÖ—°ï»πôïï±ÃÄËÅ›ïÖ—°ï»π—ïµ¡˜
+¿ΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ›ïÖ—°ï»π±Öâï∞Ä¸ÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄ‡∏‘∞ÅôΩπ—]ï•ù°–ËÄÿ¿¿∞ÅçΩ±Ω»ËÅπµ’—ïêÅıÙ˘Ì›ïÖ—°ï»π±Öâï±ÙΩÕ¡Ö∏¯ÄËÅπ’±±Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄ‰∞ÅçΩ±Ω»ËÅπµ’—ïê∞Å—…ÖπÕôΩ…¥ËÅ›·=¡ï∏Ä¸Äâ…Ω—Ö—î†ƒ‡¡ëïú§àÄËÄâπΩπîà∞Å—…ÖπÕ•—•Ω∏ËÄâ—…ÖπÕôΩ…¥Ä∏»’ÃÅïÖÕîà∞ÅµÖ…ù•π1ïô–ËÄƒÅıÙ˚äZΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÄÄÅÌÕ’¡ÖâÖÕîÄòòÄ°’Õï»Ä¸Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—ççΩ’π—=¡ï∏°—…’î•ÙÅÖ…•Ñµ±Öâï∞ÙâççΩ’π–àÅ—•—±îıÌ’Õï»πïµÖ•∞ÅÒÄâM•ùπïêÅ•∏âÙÅÕ—Â±îıÌÏÅô±ï·M°…•π¨ËÄ¿∞Å›•ë—†ËÄ–¿∞Å°ï•ù°–ËÄ–¿∞ÅâΩ…ëï…IÖë•’ÃËÄà‘¿îà∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞ÅâÖç≠ù…Ω’πêËÅπçÖ…ê∞ÅçΩ±Ω»ËÅπÖççïπ–∞ÅôΩπ—M•ÈîËÄƒ–∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞Å—ï·—Q…ÖπÕôΩ…¥ËÄâ’¡¡ï…çÖÕîàÅıÙ˘Ï°’Õï»πïµÖ•∞ÅÒÄà¸à§πÕ±•çî†¿∞Äƒ•ÙΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄ§ÄËÄ†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏Åç±ÖÕÕ9ÖµîÙâ›òµÕ•ùπ•∏µâ’——Ω∏àÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—’—°=¡ï∏°—…’î•ÙÅÖ…•Ñµ±Öâï∞ÙâM•ù∏Å•∏àÅ—•—±îÙâM•ù∏Å•∏àÅÕ—Â±îıÌÏÅô±ï·M°…•π¨ËÄ¿∞Åë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄÿ∞Å¡Öëë•πúËÄà›¡‡Äƒ…¡‡à∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞ÅâÖç≠ù…Ω’πêËÅπçÖ…ê∞ÅçΩ±Ω»ËÅπ±•ù°–∞ÅôΩπ—M•ÈîËÄƒ»∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞Å›°•—ïM¡ÖçîËÄâπΩ›…Ö¿àÅıÙ¯ÒÕŸúÅ›•ë—†Ùàƒ–àÅ°ï•ù°–Ùàƒ–àÅŸ•ï›	Ω‡Ùà¿Ä¿Ä»–Ä»–àÅô•±∞ÙâπΩπîàÅÕ—…Ω≠îÙâç’……ïπ—Ω±Ω»àÅÕ—…Ω≠ï]•ë—†Ùà»àÅÕ—…Ω≠ï1•πïçÖ¿Ùâ…Ω’πêàÅÕ—…Ω≠ï1•πï©Ω•∏Ùâ…Ω’πêà¯Òç•…ç±îÅç‡Ùàƒ»àÅç‰Ùà‡àÅ»ÙàÃ∏»àÄº¯Ò¡Ö—†ÅêÙâ4‘∏‘Äƒ‰∏’å¿¥Ã∏ÃÄ»∏‰¥‘∏‘Äÿ∏‘¥‘∏’Ãÿ∏‘Ä»∏»Äÿ∏‘Ä‘∏‘àÄº¯ΩÕŸú˘M•ù∏Å•∏Ωâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄ§•Ù(ÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÅÏº®Å]!IÄâπïÖ»ÅÂΩ‘àÅ%L∏Å%—ÃÅΩ›∏Åô’±∞µ›•ë—†Å±•πî∞ÅÕºÅÑÅ±ΩπúÅç•—‰ÅπÖµî(ÄÄÄÄÄÄÄÄÄÄÄÄ†âM–∏ÅAï—ï…Õâ’…ú∞Å0à§Åô•—ÃÅï·Öç—±‰ÅÖÃÅ›ï±∞ÅÖÃÅÑÅÕ°Ω…–ÅΩπîÉäPÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÅôÖ•±’…îÅ—°îÅ—Ω¿Å…Ω‹ÅçΩ’±êÅπΩ–ÅâîÅ—’πïêÅΩ’–ÅΩò∏Å=›πï»ùÃÅ…ï¡Ω…–Å—°Ö–(ÄÄÄÄÄÄÄÄÄÄÄÅµΩ—•ŸÖ—ïêÅ—°îÅ9ïÖ»µµîÅâ’——Ω∏Å›ÖÃÄâ$ÅùΩ–ÅÕ—’ç¨Å±ΩΩ≠•πúÅÖ…Ω’πêÅÖπêÅ°Öê(ÄÄÄÄÄÄÄÄÄÄÄÅπºÅ•ëïÑÅ›°ï…îÅ$Å›ÖÃàÏÅ—°Ö–Åâ’——Ω∏ÅÕ°•¡¡ïêÅ›°•±îÅ—°îÅ±Öâï∞ÅπÖµ•πúÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÅ¡±ÖçîÅÕ—ÖÂïêÅ•πŸ•Õ•â±îÅΩ∏ÅïŸï…‰Å¡°Ωπî∏Å9Ω–Å•π—ï…Öç—•ŸîÅΩ∏Å¡’…¡ΩÕîË(ÄÄÄÄÄÄÄÄÄÄÄÅÕïÖ…ç†ÅÖπêÅ9ïÖ»µµîÅÖ…îÅâΩ—†ÅΩπîÅ…Ω‹Åâï±Ω‹∞ÅÖπêÅÑÅÕ—Ö—’ÃÅ±•πîÅÕ°Ω’±ê(ÄÄÄÄÄÄÄÄÄÄÄÅπΩ–ÅâïçΩµîÅÑÅôΩ’…—†ÅÕ’à¥–—¡‡Å—Ö¿Å—Ö…ùï–∏ÅQ°îÅÖ¡¡…Ω·•µÖ—îµ±ΩçÖ—•Ω∏(ÄÄÄÄÄÄÄÄÄÄÄÅçÖŸïÖ–ÅÖ±…ïÖë‰Å°ÖÃÅ•—ÃÅΩ›∏ÅâÖππï»ÅÖπêÅ•ÃÅπΩ–Åë’¡±•çÖ—ïêÅ°ï…î∏Ä®ΩÙ(ÄÄÄÄÄÄÄÅÏº®Åÿ‡∏ƒ‹Ä°Ω›πï»ËÄâ›îÅπºÅ±Ωπùï»ÅπïïêÅ—ºÅ°ÖŸîÅ•–Åë•Õ¡±ÖÂïêÅ°ï…îÉäPÅµÖ≠î(ÄÄÄÄÄÄÄÄÄÄÄÅÕ’…îÅ•–Å•ÃÅë•Õ¡±ÖÂïêÅÖ–Å—°îÅÕïÖ…ç†ÅâÖ»Åë…Ω¿ÅëΩ›∏à§∏ÅQ°îÅ±ΩçÖ—•Ω∏(ÄÄÄÄÄÄÄÄÄÄÄÅ±•πîÅ’πëï»Å—°îÅ›Ω…ëµÖ…¨Å•ÃÅ=9ËÅ—°îÅÕïÖ…ç†Å…Ω‹ùÃÅÕçΩ¡îÅçΩπ—…Ω∞(ÄÄÄÄÄÄÄÄÄÄÄÄ°ÿ‡∏ƒ–§ÅÖ±…ïÖë‰ÅπÖµïÃÅ—°îÅ…Öπ≠ïêµÖ…Ω’πêÅ¡±ÖçîÅΩ∏ÅïŸï…‰ÅπΩ∏µµÖ¿(ÄÄÄÄÄÄÄÄÄÄÄÅÕç…ïï∏ÅÖπêÅΩ›πÃÅÕ›•—ç°•πúÅ•–∏Å=πîÅ±ΩçÖ—•Ω∏Åë•Õ¡±Ö‰∞ÅΩπîÅçΩπ—…Ω∞∏(ÄÄÄÄÄÄÄÄÄÄÄÅç°ïç¨µ°Ωµîµ±ΩçÖ—•Ω∏Å•ÃÅ…îµ¡Ω•π—ïêÅÖ–Å—°îÅÕçΩ¡îÅçΩπ—…Ω∞∏Ä®ΩÙ(ÄÄÄÄÄÄÄÅÏº®Åÿ‡∏»ÅI=\ÅÉäPÅQ!ÅM%`ÅQ=I%L∞Å%8ÅQ!Å!HÄ°¡’â±•åΩ±ÖàΩµïπ‘π°—µ∞(ÄÄÄÄÄÄÄÄÄÄÄÅ±•πïÃÄ–œäLƒƒ–∞Å—°îÅÄπ—ÖâÕÄÅÕ—…•¿§∏ÅQ°ï‰Å’ÕïêÅ—ºÅâîÅ—°îÅ	I=]MÅâ±Ωç¨Å•∏(ÄÄÄÄÄÄÄÄÄÄÄÅ—°îÅôïïêÏÅ—°îÅ±ÖàÅ°ÖÃÅπºÅ	I=]MÅâ±Ωç¨∞Å•–Å°ÖÃÅ—ÖâÃ∏ÅMÖµîÅçΩµ¡Ωπïπ–∞(ÄÄÄÄÄÄÄÄÄÄÄÅÕÖµîÅQ=Ie}Q%1L∞ÅÕÖµîÅ¡•ç≠	…Ω›ÕîÉäPÅÕïîÅ—°îÅÅπÖŸÄÅâ…Öπç†Å•∏(ÄÄÄÄÄÄÄÄÄÄÄÅÖ—ïùΩ…Â5ïπ‘∏((ÄÄÄÄÄÄÄÄÄÄÄÅQ!Å1ÅAUQLÅQ!Å%QdÅ=8ÅQ!%LÅI=\Å9Å]Å<Å9=P∞Åëï±•âï…Ö—ï±‰∏ÅQ°î(ÄÄÄÄÄÄÄÄÄÄÄÅ±ÖàÅ•ÃÅÑÄƒ‘ƒ…¡‡ÅµΩç¨ÏÅç°ïç¨µ°Ωµîµ±ΩçÖ—•Ω∏Å¡•πÃÅ—°îÅ±ΩçÖ—•Ω∏Å—ºÅ•—Ã(ÄÄÄÄÄÄÄÄÄÄÄÅΩ›∏Åô’±∞µ›•ë—†Å±•πîÅΩôòÅÑÄÃ‰¡¡‡Å¡…Ωë’ç—•Ω∏ÅµïÖÕ’…ïµïπ–ÉäPÅ—°îÅ—Ω¿Å…Ω‹(ÄÄÄÄÄÄÄÄÄÄÄÅ°ÖÃÄÃÿ…¡‡∞ÅΩòÅ›°•ç†ÅÑÅô•·ïêÅÕ¡…•—îÅÖπêÅ—›ºÅô±ï‡µÕ°…•π¨Ë¿ÅçΩπ—…Ω±Ã(ÄÄÄÄÄÄÄÄÄÄÄÅ—Ö≠îÅÖ±∞Åâ’–Ä»Õ¡‡∞ÅÖπêÄâM–∏ÅAï—ï…Õâ’…ú∞Å0àÅπïïëÃÄƒƒ·¡‡∏ÅMºÅ…Ω‹ÅÅ•Ã(ÄÄÄÄÄÄÄÄÄÄÄÅ—›ºÅ±•πïÃÅΩ∏ÅÑÅ¡°ΩπîÅÖπêÅ…ïÖëÃÅÖÃÅΩπîÅâÖπêÅΩ∏ÅÑÅëïÕ¨∏Ä®ΩÙ(ÄÄÄÄÄÄÄÅÌÕç…ïï∏ÄÑÙÙÄâµÖ¿àÄòòÄ†(ÄÄÄÄÄÄÄÄÄÄÒÖ—ïùΩ…Â5ïπ‘ÅπÖÿÅÖç—•ŸïÖ–ıÌâ…Ω›ÕïÖ—ÙÅÕ’àıÌÕ’âÙ(ÄÄÄÄÄÄÄÄÄÄÄÅπÖŸIïù•Ω∏ıÌ±Öπë•πùM±’ù…Ωµ1Ωå°±Ωç9Öµî§ÄÙÙÙÄâΩ…±ÖπëºàÄ¸ÄâΩ…±ÖπëºàÄËÄ°±Öπë•πùM±’ù…Ωµ1Ωå°±Ωç9Öµî§Ä¸Äâô∞àÄËÅ’πëïô•πïê•Ù(ÄÄÄÄÄÄÄÄÄÄÄÅπÖŸ•—ÂM±’úıÌ±Öπë•πùM±’ù…Ωµ1Ωå°±Ωç9Öµî§ÅÒÅπ’±±Ù(ÄÄÄÄÄÄÄÄÄÄÄÅπÖŸ=¡ïπÖ–ıÌπÖŸ=¡ïπÖ—Ù(ÄÄÄÄÄÄÄÄÄÄÄÅΩπ9ÖŸ=¡ï∏ıÏ°•ê∞Å±Öâï∞§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕï—9ÖŸ=¡ïπÖ–°•ê§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÿ‡∏»»Ä°Ω›πï»ËÄâ›°ï∏Å$Åç±•ç¨Å—°îÅÕ’âµïπ‘Åô…Ω¥ÅÖπΩ—°ï»ÅÕç…ïï∏Å•–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅëΩïÃÅπΩ–Å—Ö≠îÅµîÅ—ºÅ—°îÅ¡±ÖçîÅçÖ…ëÃà§∏ÅQ°îÅ—ÖâÃÅ…ïπëï»ÅΩ∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅïŸï…‰ÅπΩ∏µµÖ¿ÅÕç…ïï∏∞Åâ’–Å—°îÅâ…Ω›ÕîÅôïïêÅΩπ±‰Åï·•Õ—ÃÅΩ∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÄâÕ’ùùïÕ—ïêàÉäPÅ¡•ç≠•πúÅÑÅçÖ—ïùΩ…‰Åô…Ω¥ÅΩ’¡ΩπÃΩŸïπ—ÃΩMÖŸïê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÕï–Å—°îÅÕ—Ö—îÅÖπêÅ±ïô–Å—°îÅ…ïÖëï»ÅÕ—Ö…•πúÅÖ–Å—°îÅΩ±êÅÕç…ïï∏∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅAΩ¿ÅâÖç¨Å—ºÅ—°îÅôïïêÄ°ÖπêÅ…ïÕ—Ω…îÄàºàÅ•∏Å°•Õ—Ω…‰ÅÕºÅ	Öç¨(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÕ—•±∞Å…ï—’…πÃÅ—ºÅ—°îÅÕ—ÖπëÖ±ΩπîÅÕç…ïï∏§∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°•êÄòòÅÕç…ïï∏ÄÑÙÙÄâÕ’ùùïÕ—ïêà§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕï—Mç…ïï∏†âÕ’ùùïÕ—ïêà§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏÅ•òÄ°MI9}AQ!mÕç…ïïπt§Å›•πëΩ‹π°•Õ—Ω…‰π¡’Õ°M—Ö—î°ÏÅ›òËÄâÕç…ïï∏àÅÙ∞Äàà∞Äàºà§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅMÖµîÅπïÖ»µµîÅÕïÖ…ç†Å—°îÅµÖ¿ÅÕ—Ö…—ÃÅΩ∏ÅçÖ—ïùΩ…‰Å—Ö¿∏Å=¡ïπ•πúÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ—…Ö‰Å’ÕïêÅ—ºÅ±ïÖŸîÅâ…Ω›ÕïÖ–ΩçÖ–Å’π—Ω’ç°ïê∞ÅÕºÅM°Ω¡¡•πúÉäHÅ±∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅΩ∏Å°ΩµîÅÕ°Ω›ïêÅïµ¡—‰ÅΩ…ùÖπ•åÅ›°•±îÅ—°îÅµÖ¿Å±•Õ—ïêÄƒ‘Å¡±ÖçïÃ∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°•êÄòòÅâ…Ω›ÕïÖ–ÄÑÙÙÅ•ê§ÅÏÅÕï—5ΩΩëA•ç¨°•ê§ÏÅÕï—	…Ω›ÕïÖ–°•ê§ÏÅÕï—Ö–°•ê§ÏÅÕï—M’à†âÖ±∞à§ÏÅÕï—Y•âî†âÖ±∞à§ÏÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏÅ±ΩùŸïπ–†â•π—ïπ—}ç°•¿à∞Åπ’±∞∞ÅÏÅ•π—ïπ–ËÅ±Öâï∞∞Å±ÖÂï»ËÄƒ∞ÅÕ…åËÄâπÖŸ}Ω¡ï∏à∞ÅΩ¡ïπïêËÄÑÖ•êÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÄÄÄÄÄÄÅıÙ(ÄÄÄÄÄÄÄÄÄÄÄÅΩπ9ÖŸM’àıÏ°çÖ—%ê∞ÅÕ’â%ê∞ÅÕ’â1Öâï∞§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÿ‡∏»»ÉäPÅÕÖµîÅÕç…ïï∏µ¡Ω¿ÅÖÃÅΩπ9ÖŸ=¡ï∏ÅÖâΩŸîËÅÑÅÕ’àµô•±—ï»Å—Ö¿(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅô…Ω¥ÅΩ’¡ΩπÃΩŸïπ—ÃΩMÖŸïêÅµ’Õ–Å±ÖπêÅ—°îÅ…ïÖëï»ÅΩ∏Å—°îÅ¡±Öçî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅçÖ…ëÃÅ•–Å©’Õ–Åô•±—ï…ïê∞ÅπΩ–Å±ïÖŸîÅ—°ï¥ÅΩ∏Å—°îÅΩ±êÅÕç…ïï∏∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°Õç…ïï∏ÄÑÙÙÄâÕ’ùùïÕ—ïêà§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕï—Mç…ïï∏†âÕ’ùùïÕ—ïêà§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏÅ•òÄ°MI9}AQ!mÕç…ïïπt§Å›•πëΩ‹π°•Õ—Ω…‰π¡’Õ°M—Ö—î°ÏÅ›òËÄâÕç…ïï∏àÅÙ∞Äàà∞Äàºà§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅQ!Å!=%ÅQ!PÅQL∏ÅMÖµîÅ—›ºÅÕï——ï…ÃÅ—°îÅôïïêÅ°ÖÃÅÖ±›ÖÂÃ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ’Õïê∞ÅÕºÅÑÅ¡±ÖçîÅô•±—ï…ïêÅ°ï…îÅ•ÃÅ—°îÅÕÖµîÅ±•Õ–Å—°îÅâ…Ω›Õî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅŸ•ï‹Å¡…Ωë’çïêÅâïôΩ…îÅ—°îÅ—ÖâÃÅµΩŸïêÅ•π—ºÅ—°îÅπÖÿ∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°â…Ω›ÕïÖ–ÄÑÙÙÅçÖ—%ê§Å¡•ç≠	…Ω›Õî°çÖ—%ê§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕï—M’à°Õ’â%ê§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÿ‡∏ƒ¿Ä°Ω›πï»∞Ä»¿»ÿ¥¿‡¥ƒ‡ËÄâ—°îÅÕ’âµïπ‘ÅÖ±ÕºÅùΩïÃÅÖ›Ö‰ÉäPÅ§Å›Öπ–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ—°îÅÕ’âµïπ‘Å—ºÅ…ïµÖ•∏ÅΩ¡ï∏à§∏ÅQ°îÅ—…Ö‰ÅMQeLËÅ—°îÅ¡•ç¨(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ°•ù°±•ù°—ÃÅ•∏Å¡±ÖçîÄ°Ö…•Ñµ¡…ïÕÕïê§ÅÖπêÅ—°îÅ…ïÖëï»ÅçÖ∏Å°Ω¿(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅâï—›ïï∏ÅÕ’àµô•±—ï…ÃÅ›•—°Ω’–Å…ïΩ¡ïπ•πúÅ—°îÅ…Ω‹∏ÅÕçÖ¡îµ°Ö—ç†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ’πç°ÖπùïêÉäPÅ—Ö¡¡•πúÅ—°îÅçÖ—ïùΩ…‰Å—ÖàÅÖùÖ•∏Åç±ΩÕïÃÅ•–∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏÅ±ΩùŸïπ–†â•π—ïπ—}ç°•¿à∞Åπ’±∞∞ÅÏÅ•π—ïπ–ËÅÕ’â1Öâï∞∞Å±ÖÂï»ËÄ»∞ÅÕ…åËÄâπÖŸ}Õ’àà∞ÅçÖ–ËÅçÖ—%êÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÿ‡∏ƒƒÄ°Ω›πï»∞Ä»¿»ÿ¥¿‡¥ƒ‡ËÄâµÖ≠îÅ—°îÅ¡ÖùîÅ©’µ¿Å—ºÅ—°îÅÖ…ïÑÅΩò(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ—°îÅµïπ‘Å›°ï∏Å—°îÅµïπ‘ÅÖπêÅÕ’âµïπ‘ÅÖ…îÅÕï±ïç—ïêà§∏ÅMç…Ω±∞Å—º(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ›°ï…îÅ—°îÅ%1QIÅIMU1QLÅÕ—Ö…–∞ÅπΩ–Å—ºÅ—°îÅ—Ω¿ÅΩòÅ—°îÅ¡ÖùîÉäP(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ—Ω¿Ë¿Å¡Ö…≠ïêÅ—°îÅ…ïÖëï»ÅΩ∏Å—°îÅ°ïÖëï»ÅâÖπêÅ›•—†Å—°îÅÖπÕ›ï»(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅâï±Ω‹Å—°îÅôΩ±ê∏Å…ÅâïçÖ’ÕîÅ¡•ç≠	…Ω›ÕîÅ©’Õ–Åô±•¡¡ïêÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅâ…Öπç†ÅÖπêÅ—°îÅÖπç°Ω»ÅµΩ’π—ÃÅΩ∏Å—°îÅπï·–Åô…Öµî∏ÅYï…—•çÖ∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÕç…Ω±±QºÅΩπ±‰ÉäPÅç°ïç¨µπºµÕ•ëï›ÖÂÃµÕç…Ω±∞ÅâÖπÃÅ•π±•πîµÖ·•Ã(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅµΩŸïµïπ–∞ÅÖπêÅ—°•ÃÅµ’Õ–ÅπïŸï»ÅçÖ’ÕîÅÖπ‰∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ï≈’ïÕ—π•µÖ—•Ωπ…Öµî††§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅÕåÄÙÅÕç…Ω±±Iïòπç’……ïπ–∞Åï∞ÄÙÅâ…Ω›Õïπç°Ω…Iïòπç’……ïπ–Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°ÕåÄòòÅï∞§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å—Ω¿ÄÙÅï∞πùï—	Ω’πë•πù±•ïπ—Iïç–†§π—Ω¿Ä¥ÅÕåπùï—	Ω’πë•πù±•ïπ—Iïç–†§π—Ω¿Ä¨ÅÕåπÕç…Ω±±QΩ¿Ä¥Äƒ¿Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕåπÕç…Ω±±Qº°ÏÅ—Ω¿ËÅ5Ö—†πµÖ‡†¿∞Å—Ω¿§∞Åâï°ÖŸ•Ω»ËÄâÕµΩΩ—†àÅÙ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙÅï±ÕîÅ•òÄ°Õå§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕåπÕç…Ω±±Qº°ÏÅ—Ω¿ËÄ¿∞Åâï°ÖŸ•Ω»ËÄâÕµΩΩ—†àÅÙ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÄÄÄÄÄÄÅıÙÄº¯(ÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÅÌ›·=¡ï∏ÄòòÅ›ïÖ—°ï»ÄòòÅ……Ö‰π•Õ……Ö‰°›ïÖ—°ï»π°Ω’…±‰§ÄòòÅ›ïÖ—°ï»π°Ω’…±‰π±ïπù—†Ä¯Ä¿ÄòòÄ†(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅµÖ…ù•πQΩ¿ËÄ¥ÿ∞ÅµÖ…ù•π	Ω——Ω¥ËÄƒ»∞ÅâÖç≠ù…Ω’πêËÅÅ±•πïÖ»µù…Öë•ïπ–†ƒÿ¡ëïú∞ÄëÌπÖë•µÙÄ¿î∞ÄëÌπ¡Öπï±ÙÄÿ»î•Ä∞ÅâΩ…ëï»ËÄâπΩπîà∞ÅâΩ…ëï…IÖë•’ÃËÄà¿Ä¿Äƒ·¡‡Äƒ·¡‡à∞Å¡Öëë•πúËÄàƒ…¡‡Ä·¡‡Äƒ—¡‡à∞ÅâΩ·M°ÖëΩ‹ËÄà¿Äƒ…¡‡Ä»Ÿ¡‡Å…ùâÑ†¿∞¿∞¿∞∏–§àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâÕ¡Öçîµâï—›ïï∏à∞Å¡Öëë•πúËÄà¿Ä·¡‡Äƒ¡¡‡àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÅπÖççïπ–∞Å±ï——ï…M¡Öç•πúËÄà¿∏’¡‡à∞Å—ï·—Q…ÖπÕôΩ…¥ËÄâ’¡¡ï…çÖÕîàÅıÙ˘9ï·–Äƒ‡Å°Ω’…ÃΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒƒ∞ÅçΩ±Ω»ËÅπµ’—ïêÅıÙ˘ïï±Ãµ±•≠îÉ
+‹ÅïŸï…‰ÄÕ†ΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅùÖ¿ËÄ–∞ÅΩŸï…ô±Ω›`ËÄâÖ’—ºà∞ÅΩŸï…Õç…Ω±±	ï°ÖŸ•Ω…`ËÄâçΩπ—Ö•∏à∞ÅÕç…Ω±±MπÖ¡QÂ¡îËÄâ‡ÅµÖπëÖ—Ω…‰à∞Å]ïâ≠•—=Ÿï…ô±Ω›Mç…Ω±±•πúËÄâ—Ω’ç†à∞ÅÕç…Ω±±âÖ…]•ë—†ËÄâπΩπîà∞Å¡Öëë•πúËÄà¿ÄŸ¡‡àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ›ïÖ—°ï»π°Ω’…±‰πµÖ¿†°†∞Å•ë‡§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÿ‘∏¿ƒËÅ—°îÄâ9Ω‹àÅ—•±îÅµ’Õ–Å…ïô±ïç–Å—°îÅÕ≠‰ÅI%!PÅ9=\ÉäPÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ°Ω’…±‰Åâ±Ωç¨ùÃÅ•Õ}ëÖ‰Åô±ÖúÅëïÕç…•âïÃÅ›°ï∏Å—°îÅâ±Ωç¨ÅMQIQ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÄ°ÑÅÕ’∏Å›ÖÃÅÕ°Ω›•πúÅÖ–Ä‰Ë–’¡¥ÅâïçÖ’ÕîÅ—°îÅâ±Ωç¨ÅâïùÖ∏ÅÖ–Ä·¡¥§∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°§ÄÙÅ•ë‡ÄÙÙÙÄ¿Ä¸ÅÏÅ•çΩ∏ËÅ›·%çΩπ9Ω‹°ÏÄ∏∏π›ïÖ—°ï»∞Å•çΩ∏ËÅ›ïÖ—°ï……ΩµΩëî°†πçΩëî§π•çΩ∏∞Å•µúËÅ›ïÖ—°ï……ΩµΩëî°†πçΩëî§π•µúÅÙ§∞Å±Öâï∞ËÅ›ïÖ—°ï……ΩµΩëî°†πçΩëî§π±Öâï∞ÅÙÄËÅ°Ω’…%çΩ∏°†πçΩëî∞Å†πëÖ‰∞Å†πµÃ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åë–ÄÙÅπï‹ÅÖ—î°†πµÃ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å—∞ÄÙÅ•ë‡ÄÙÙÙÄ¿Ä¸Äâ9Ω‹àÄËÅë–π—Ω1ΩçÖ±ïQ•µïM—…•πú°mt∞ÅÏÅ°Ω’»ËÄâπ’µï…•åàÅÙ§π…ï¡±Öçî†àÄà∞Äàà§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅ≠ï‰ıÌ†πµÕÙÅÕ—Â±îıÌÏÅÕç…Ω±±MπÖ¡±•ù∏ËÄâçïπ—ï»à∞Åô±ï·M°…•π¨ËÄ¿∞Å›•ë—†ËÄÿ–∞Å—ï·—±•ù∏ËÄâçïπ—ï»à∞Å¡Öëë•πúËÄà·¡‡Ä—¡‡à∞ÅâΩ…ëï…IÖë•’ÃËÄƒ»∞ÅâÖç≠ù…Ω’πêËÅ•ë‡ÄÙÙÙÄ¿Ä¸ÅπÖë•¥ÄËÄâ—…ÖπÕ¡Ö…ïπ–à∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌ•ë‡ÄÙÙÙÄ¿Ä¸ÅπÖççïπ–ÄËÄâ—…ÖπÕ¡Ö…ïπ–âıÄÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒƒ∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞ÅçΩ±Ω»ËÅ•ë‡ÄÙÙÙÄ¿Ä¸ÅπÖççïπ–ÄËÅπµ’—ïê∞ÅµÖ…ù•π	Ω——Ω¥ËÄ‘ÅıÙ˘Ì—±ÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄ»Ã∞Å±•πï!ï•ù°–ËÄƒ∞ÅµÖ…ù•π	Ω——Ω¥ËÄ‘ÅıÙ˘Ì°§π•çΩπÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ–∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÅπ—ï·–ÅıÙ˘Ì†πôïï±Õ˜
+¿Ωë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄ‡∏‘∞ÅôΩπ—]ï•ù°–ËÄÿ¿¿∞ÅçΩ±Ω»ËÅπµ’—ïê∞ÅµÖ…ù•πQΩ¿ËÄ»∞Å›°•—ïM¡ÖçîËÄâπΩ›…Ö¿à∞ÅΩŸï…ô±Ω‹ËÄâ°•ëëï∏à∞Å—ï·—=Ÿï…ô±Ω‹ËÄâï±±•¡Õ•ÃàÅıÙ˘Ì›ïÖ—°ï……ΩµΩëî°†πçΩëî§π±Öâï±ÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙ•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÅÏº®ÅµÖ¿ÅÕïÖ…ç†ÅµΩŸïêÅΩπ—ºÅ—°îÅµÖ¿ÅÖÃÅÑÅô±ΩÖ—•πúÅçΩπ—…Ω∞Ä°ÕïîÅµÖ¿ÅΩŸï…±Ö‰§Ä®ΩÙ(ÄÄÄÄÄÄÄÅÏº®Åÿ‡∏ƒ‹ÉäPÅÕçΩ¡ï=¡ï∏Å©Ω•πÃÅ•ÃµÕ’ùùïÕ—•πúÅâï±Ω‹ËÅ—°îÅ±ΩçÖ—•Ω∏Åµïπ‘(ÄÄÄÄÄÄÄÄÄÄÄÅ…ïπëï…ïêÅU9HÅ—°îÅ—ÖàÅ…Ω‹ùÃÅ—ï·–Ä°—°îÄâUÕîÅç’……ïπ–Å±ΩçÖ—•Ω∏Äº(ÄÄÄÄÄÄÄÄÄÄÄÅM°Ω…—ç’—ÃàÅΩŸï…±Ö¿Å—°îÅΩ›πï»ÅÕç…ïïπÕ°Ω——ïê§ÅâïçÖ’ÕîÅΩπ±‰Å—°î(ÄÄÄÄÄÄÄÄÄÄÄÅÕ’ùùïÕ—•ΩπÃÅë…Ω¡ëΩ›∏Å…Ö•ÕïêÅ—°îÅÕïÖ…ç†Å…Ω‹ùÃÅÕ—Öç≠•πúÅçΩπ—ï·–∏(ÄÄÄÄÄÄÄÄÄÄÄÅMÖµîÅµïç°Öπ•Õ¥∞ÅâΩ—†Åë…Ω¡ëΩ›πÃ∏Ä®ΩÙ(ÄÄÄÄÄÄÄÅÏ°Õç…ïï∏ÄÑÙÙÄâµÖ¿àÅÒÅµÖ¡MïÖ…ç°=¡ï∏§ÄòòÄ†(ÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîıÏâ›òµÕïÖ…ç†µ…Ω‹Å°ÖÃµÕçΩ¡îàÄ¨Ä°Õ’ùùïÕ—•ΩπÃπ±ïπù—†ÅÒÅÕçΩ¡ï=¡ï∏Ä¸ÄàÅ•ÃµÕ’ùùïÕ—•πúàÄËÄàà•ÙÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅùÖ¿ËÄ¿∞Å¡ΩÕ•—•Ω∏ËÄâ…ï±Ö—•Ÿîà∞ÅÈ%πëï‡ËÅÕ’ùùïÕ—•ΩπÃπ±ïπù—†ÅÒÅÕçΩ¡ï=¡ï∏Ä¸Ä–¿ÄËÅ’πëïô•πïêÅıÙ¯(ÄÄÄÄÄÄÄÄÄÅÏº®Åÿ‡∏ƒ–ÉäPÅQ!Å1=Q%=8Å=9QI=0Ä°Ω›πï»∞Ä»¿»ÿ¥¿‡¥ƒ‡ËÄâ•πÕ—ïÖêÅΩò(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°ΩÕîÅçÖ—ïùΩ…•ïÃÅ—°ï…î∞Å›°•ç†Å•ÃÅ›ï•…ê∞Å$Å›Öπ–Å—°Ö–Å¡±ÖçîÅ—ºÅÕ°Ω‹(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°îÅ¡…ïŸ•Ω’ÃÅ±ΩçÖ—•Ω∏ÅÖπêÅ—ºÅ°Ω’ÕîÅ—°îÅç’……ïπ–µ±ΩçÖ—•Ω∏ÅôïÖ—’…î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÉäòÅ$ÅπïïêÅ—°îÅç’……ïπ–Å±ΩçÖ—•Ω∏Å—ºÅâîÅ¡…ïç•ÕîÉäPÅ±ïŸï…ÖùîÅ—°îÅµÖ¿(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅô’πç—•Ω∏ÅÕºÅ•–ÅÕ°Ω›ÃÅï·Öç—±‰Å›°Ö–Å•ÃÅÖ…Ω’πêÅ—°îÅ’Õï»à§∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅQ°îÅçÖ—ïùΩ…‰Åë…Ω¡ëΩ›∏Å—°Ö–ÅÕ—ΩΩêÅ°ï…îÅë’¡±•çÖ—ïêÅ—°îÅÕ•‡Å—ÖâÃ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅë•…ïç—±‰ÅÖâΩŸîÅ•–Ä°•–Å›…Ω—îÅ—°îÅÕÖµîÅâ…Ω›ÕïÖ–ÅÕ—Ö—î§ÉäPÅ—°îÅ—ÖâÃ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ïµÖ•∏Å—°îÅ=9ÅçÖ—ïùΩ…‰ÅçΩπ—…Ω∞∏ÅQ°•ÃÅÕ±Ω–ÅπΩ‹ÅΩ›πÃÅ]!IË(ÄÄÄÄÄÄÄÄÄÄÄÄÄÉ
+‹Å—°îÅâ’——Ω∏ÅπÖµïÃÅ—°îÅ¡±ÖçîÅ—°îÅôïïêÅ•ÃÅç’……ïπ—±‰Å…Öπ≠ïêÅÖ…Ω’πê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÉ
+‹ÄâUÕîÅç’……ïπ–Å±ΩçÖ—•Ω∏àÅ…’πÃÅ—°îÅM5Å¡…ïç•ÕîÅ…ïçïπ—ï»Å—°îÅµÖ¿ùÃ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅç…ΩÕÕ°Ö•»Å…’πÃÄ°…ïçïπ—ï…QΩ5îÉäPÅ°•ù†µÖçç’…Öç‰ÅAL∞ÅπïŸï»ÅÖ∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ%@µÖ¡¡…Ω·•µÖ—îÅÕ°Ω…—ç’–ÏÅÕïîÅ•—ÃÅÿ‡∏ƒ–ÅπΩ—î§(ÄÄÄÄÄÄÄÄÄÄÄÄÄÉ
+‹Åâï±Ω‹Å•–∞Å—°îÅ…ïÖëï»ùÃÅ¡…ïŸ•Ω’ÃÅ±ΩçÖ—•ΩπÃÄ°›ô}…ïçïπ—}±ΩçÃ§∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩπîÅ—Ö¿Å—ºÅ…îµ…Öπ¨Å—°îÅ›°Ω±îÅôïïêÅÖ…Ω’πêÅÖπ‰ÅΩòÅ—°ï¥ÉäP(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅâïÕ–µ—ºµ›Ω…Õ–ÅΩ…ëï…•πúÅ•ÃÅ—°îÅù±ΩâÖ∞ÅÕçΩ…îÅ…’±î∞Å’πç°Öπùïê∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅM—Â±•πúÅ…ï’ÕïÃÄπ›òµÕçΩ¡îÄºÄπ›òµÕçΩ¡îµµïπ‘Å›°Ω±ïÕÖ±îËÅÕÖµîÅÕ±Ω–∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕÖµîÅ¡…ïµ•’¥Åç°…Ωµî∞Åë•ôôï…ïπ–ÉäPÅÖπêÅπΩ‹Å°ΩπïÕ–ÉäPÅ©Ωà∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÿ‡∏ƒ‰ÉäPÅ…ïπëï…ïêÅΩ∏ÅYIdÅÕç…ïï∏∞ÅµÖ¿Å•πç±’ëïêËÅ—°îÅç…ΩÕÕ°Ö•»(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•ÃÅùΩπîÄ°Ω›πï»§∞ÅÕºÅ—°•ÃÅçΩπ—…Ω∞Å•ÃÅ—°îÅΩπîÅ…ïçïπ—ï»∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÅÏ†(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµÕçΩ¡îµ›…Ö¿à¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏Å—Â¡îÙââ’——Ω∏àÅç±ÖÕÕ9ÖµîÙâ›òµÕçΩ¡îàÅÖ…•Ñµ°ÖÕ¡Ω¡’¿Ùâ±•Õ—âΩ‡àÅÖ…•Ñµï·¡ÖπëïêıÌÕçΩ¡ï=¡ïπÙÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—MçΩ¡ï=¡ï∏†°ÿ§ÄÙ¯ÄÖÿ•ÙÅ—•—±îÙâ1ΩçÖ—•Ω∏ÉäPÅ…Öπ≠ïêÅÖ…Ω’πêÅ—°•ÃÅ¡Ω•π–àÅÖ…•Ñµ±Öâï∞ıÏâ1ΩçÖ—•Ω∏ËÄàÄ¨Ä°ç•—Â9Ω‹ÅÒÄâπΩ–ÅÕï–à§Ä¨Äà∏Å=¡ï∏Å—ºÅ’ÕîÅÂΩ’»Å¡…ïç•ÕîÅç’……ïπ–Å±ΩçÖ—•Ω∏ÅΩ»ÅÑÅ¡…ïŸ•Ω’ÃÅΩπî∏âÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕŸúÅ›•ë—†ÙàƒÃàÅ°ï•ù°–ÙàƒÃàÅŸ•ï›	Ω‡Ùà¿Ä¿Ä»–Ä»–àÅô•±∞ÙâπΩπîàÅÕ—…Ω≠îÙâç’……ïπ—Ω±Ω»àÅÕ—…Ω≠ï]•ë—†Ùà»∏»àÅÕ—…Ω≠ï1•πïçÖ¿Ùâ…Ω’πêàÅÕ—…Ω≠ï1•πï©Ω•∏Ùâ…Ω’πêàÅÖ…•Ñµ°•ëëï∏Ùâ—…’îà¯Ò¡Ö—†ÅêÙâ4ƒ»Ä»≈Ã¥ÿ∏ÿ¥‘∏–¥ÿ∏ÿ¥ƒ¿∏…ÿ∏ÿÄÿ∏ÿÄ¿Ä¿ÄƒÄƒ»Ä–∏…Ñÿ∏ÿÄÿ∏ÿÄ¿Ä¿ÄƒÄÿ∏ÿÄÿ∏Ÿƒ‡∏ÿÄƒ‘∏ÿÄƒ»Ä»ƒÄƒ»Ä»≈hàÄº¯Òç•…ç±îÅç‡Ùàƒ»àÅç‰Ùàƒ¿∏‡àÅ»Ùà»∏ÃàÄº¯ΩÕŸú¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏Åç±ÖÕÕ9ÖµîÙâ›òµÕçΩ¡îµç•—‰à˘Ìç•—Â9Ω‹ÅÒÄâ1ΩçÖ—•Ω∏âÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕŸúÅ›•ë—†ÙàƒƒàÅ°ï•ù°–ÙàƒƒàÅŸ•ï›	Ω‡Ùà¿Ä¿Ä»–Ä»–àÅô•±∞ÙâπΩπîàÅÕ—…Ω≠îÙâç’……ïπ—Ω±Ω»àÅÕ—…Ω≠ï]•ë—†Ùà»∏ÿàÅÖ…•Ñµ°•ëëï∏Ùâ—…’îà¯Ò¡Ö—†ÅêÙâ4ÿÄÂ∞ÿÄÿÄÿ¥ÿàÄº¯ΩÕŸú¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌÕçΩ¡ï=¡ï∏ÄòòÄ†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒ’∞Åç±ÖÕÕ9ÖµîÙâ›òµÕçΩ¡îµµïπ‘àÅ…Ω±îÙâ±•Õ—âΩ‡àÅÖ…•Ñµ±Öâï∞Ùâ°ΩΩÕîÅ—°îÅ±ΩçÖ—•Ω∏Å—ºÅ…Öπ¨ÅÖ…Ω’πêà¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿ‡∏ƒ‰Ä°Ω›πï»ËÄâ$ÅëΩ∏ù–Å±•≠îÅ—°îÅçΩ±Ω»ÅΩòÅ—°îÅUÕîÅç’……ïπ–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ±ΩçÖ—•Ω∏∞ÅÖπêÅ$ÅÖ±ÕºÅëΩ∏ù–Å±•≠îÅ—°îÅ±•——±îÅÕÂµâΩ∞Éäò(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅµÖ≠îÅ•–ÅΩπîÅ±•πî∞ÅÕ•µ¡±•ô‰∞ÅµÖ≠îÅ•–Åπ•çîÅÖπêÅ¡…ïµ•’¥à§∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ=πîÅ±•πî∞Å—›ºÅ›Ω…ëÃ∞ÅÑÅ…ïÖ∞ÅπÖŸ•ùÖ—•Ω∏Åù±Â¡†Å•πÕ—ïÖêÅΩò(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°îÉä^8Åë•πùâÖ–∞Å›°•—îÉäPÅÖπêÅ—°îÅµïπ‘ÅÕ’…ôÖçîÅ•—Õï±òÅùΩ–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°îÅ¡…ïµ•’¥Å—…ïÖ—µïπ–Ä°â±’»∞Åïπ—…ÖπçîÅÖπ•µÖ—•Ω∏∞ÅÑ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅI9PÅù…Ω’¿Å±Öâï∞§Å•∏Äπ›òµÕçΩ¡îµµïπ‘∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒ±§Åç±ÖÕÕ9ÖµîÙâ›òµÕçΩ¡îµç’»àÅ…Ω±îÙâΩ¡—•Ω∏àÅÖ…•ÑµÕï±ïç—ïêıÌôÖ±ÕïÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩπ5Ω’ÕïΩ›∏ıÏ°î§ÄÙ¯ÅÏÅîπ¡…ïŸïπ—ïôÖ’±–†§ÏÅÕï—MçΩ¡ï=¡ï∏°ôÖ±Õî§ÏÅ…ïçïπ—ï…QΩ5î†§ÏÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕŸúÅ›•ë—†Ùàƒ–àÅ°ï•ù°–Ùàƒ–àÅŸ•ï›	Ω‡Ùà¿Ä¿Ä»–Ä»–àÅô•±∞ÙâπΩπîàÅÕ—…Ω≠îÙâç’……ïπ—Ω±Ω»àÅÕ—…Ω≠ï]•ë—†Ùà»∏»àÅÕ—…Ω≠ï1•πïçÖ¿Ùâ…Ω’πêàÅÕ—…Ω≠ï1•πï©Ω•∏Ùâ…Ω’πêàÅÖ…•Ñµ°•ëëï∏Ùâ—…’îà¯Ò¡Ö—†ÅêÙâ4»»Ä»ÄƒƒÄƒÃàÄº¯Ò¡Ö—†ÅêÙâ4»»Ä»Äƒ‘Ä»…∞¥–¥‰¥‰¥—hàÄº¯ΩÕŸú¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ’……ïπ–Å±ΩçÖ—•Ω∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩ±§¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ…ïçïπ—1ΩçÃπÕΩµî†°»§ÄÙ¯Å»ÄòòÅ»π±ΩåÄòòÅ•Õ•π•—î°»π±Ö–§ÄòòÅ•Õ•π•—î°»π±πú§ÄòòÄ†Ö±Ωç9ÖµîÅÒÅ»π±ΩåπÕ¡±•–†à∞à•l¡tÄÑÙÙÅ±Ωç9ÖµîπÕ¡±•–†à∞à•l¡t§§ÄòòÄ†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒ±§Åç±ÖÕÕ9ÖµîÙâ›òµÕçΩ¡îµ±Öâï∞àÅ…Ω±îÙâ¡…ïÕïπ—Ö—•Ω∏àÅÖ…•Ñµ°•ëëï∏Ùâ—…’îà˘Iïçïπ–Ω±§¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ…ïçïπ—1ΩçÃπô•±—ï»†°»§ÄÙ¯Å»ÄòòÅ»π±ΩåÄòòÅ•Õ•π•—î°»π±Ö–§ÄòòÅ•Õ•π•—î°»π±πú§ÄòòÄ†Ö±Ωç9ÖµîÅÒÅ»π±ΩåπÕ¡±•–†à∞à•l¡tÄÑÙÙÅ±Ωç9ÖµîπÕ¡±•–†à∞à•l¡t§§πÕ±•çî†¿∞Ä‘§πµÖ¿†°»§ÄÙ¯Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒ±§Å≠ï‰ıÌ»π±ΩåÄ¨Å»π—ÕÙÅ…Ω±îÙâΩ¡—•Ω∏àÅÖ…•ÑµÕï±ïç—ïêıÌôÖ±ÕïÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩπ5Ω’ÕïΩ›∏ıÏ°î§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅîπ¡…ïŸïπ—ïôÖ’±–†§ÏÅÕï—MçΩ¡ï=¡ï∏°ôÖ±Õî§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÅ¡…ïŸ•Ω’ÃÅ±ΩçÖ—•Ω∏Å•ÃÅÑÅ59U0Å¡•ç¨ËÅ•–Åµ’Õ–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÕ’…Ÿ•ŸîÅ—°îÅπï·–ÅÖ’—ºµùïºÅ¡ÖÕÃÅï·Öç—±‰Å±•≠îÅÑ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÕïÖ…ç°ïêÅ¡•∏ÅëΩïÃ∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅµÖπ’Ö±Iïòπç’……ïπ–ÄÙÅ—…’îÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕï—ïπ—ï»°ÏÅ±Ö–ËÅ»π±Ö–∞Å±πúËÅ»π±πúÅÙ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕï—1Ωç9Öµî°»π±Ωå§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕï—1ΩçIïÕΩ±Ÿïê°—…’î§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕï—5Ö¡Ωç’Ã°ÏÅ±Ö–ËÅ»π±Ö–∞Å±πúËÅ»π±πú∞Å—ÃËÅÖ—îππΩ‹†§ÅÙ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ»π±ΩåπÕ¡±•–†à∞à•l¡uÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩ±§¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ§•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩ’∞¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµÕïÖ…ç†µô•ï±êà¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏Åç±ÖÕÕ9ÖµîÙâ›òµÕïÖ…ç†µ•çΩ∏àÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâÖâÕΩ±’—îà∞Å±ïô–ËÄƒÃ∞Å—Ω¿ËÄà‘¿îà∞Å—…ÖπÕôΩ…¥ËÄâ—…ÖπÕ±Ö—ïd†¥‘¿î§à∞Å¡Ω•π—ï…Ÿïπ—ÃËÄâπΩπîà∞ÅΩ¡Öç•—‰ËÄ¿∏‰∞Åë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÈ%πëï‡ËÄƒÅıÙ¯ÒÕŸúÅ›•ë—†Ùàƒ‡àÅ°ï•ù°–Ùàƒ‡àÅŸ•ï›	Ω‡Ùà¿Ä¿Ä»–Ä»–àÅô•±∞ÙâπΩπîàÅÕ—…Ω≠îÙâç’……ïπ—Ω±Ω»àÅÕ—…Ω≠ï]•ë—†Ùà»àÅÕ—…Ω≠ï1•πïçÖ¿Ùâ…Ω’πêàÅÕ—…Ω≠ï1•πï©Ω•∏Ùâ…Ω’πêàÅÖ…•Ñµ°•ëëï∏Ùâ—…’îà¯Òç•…ç±îÅç‡ÙàƒƒàÅç‰ÙàƒƒàÅ»Ùàÿ∏‘àÄº¯Ò¡Ö—†ÅêÙâ¥ƒÿÄƒÿÄ–∏»Ä–∏»àÄº¯ΩÕŸú¯ΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿ‘∏ÿÃÄ°Ö’ë•–Å@–§ËÅÑÅ…ïÖ∞ÅçΩµâΩâΩ‡ÉäPÅ—°îÅ•π¡’–ÅΩ›πÃÅ—°îÅ±•Õ—âΩ‡(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ°Ö…•ÑµçΩπ—…Ω±Ã§∞ÅÖππΩ’πçïÃÅ•—ÃÅï·¡ÖπëïêÅÕ—Ö—îÅÖπêÅ—°îÅÖç—•Ÿî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩ¡—•Ω∏Ä°Ö…•ÑµÖç—•ŸïëïÕçïπëÖπ–§∞ÅÖπêÅÕ’¡¡Ω…—ÃÅô’±∞Å≠ïÂâΩÖ…ê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅπÖŸ•ùÖ—•Ω∏Ä°Ω›∏ΩU¿ÅµΩŸîÅ—°îÅ°•ù°±•ù°–∞Åπ—ï»ÅÕï±ïç—ÃÅ•–∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕçÖ¡îÅç±ΩÕïÃÅ›•—°Ω’–ÅÕï±ïç—•πú§∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÒ•π¡’–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅŸÖ±’îıÌ≈’ï…ÂÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩπ°ÖπùîıÏ°î§ÄÙ¯ÅÏÅΩπE’ï…Â°Öπùî°îπ—Ö…ùï–πŸÖ±’î§ÏÅÕï—M’ù%ë‡†¥ƒ§ÏÅıÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩπ-ïÂΩ›∏ıÏ°î§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°îπ≠ï‰ÄÙÙÙÄâ……Ω›Ω›∏àÄòòÅÕ’ùùïÕ—•ΩπÃπ±ïπù—†§ÅÏÅîπ¡…ïŸïπ—ïôÖ’±–†§ÏÅÕï—M’ù%ë‡†°§§ÄÙ¯Ä°§Ä¨Äƒ§ÄîÅÕ’ùùïÕ—•ΩπÃπ±ïπù—†§ÏÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅï±ÕîÅ•òÄ°îπ≠ï‰ÄÙÙÙÄâ……Ω›U¿àÄòòÅÕ’ùùïÕ—•ΩπÃπ±ïπù—†§ÅÏÅîπ¡…ïŸïπ—ïôÖ’±–†§ÏÅÕï—M’ù%ë‡†°§§ÄÙ¯Ä°§ÄÙÄ¿Ä¸ÅÕ’ùùïÕ—•ΩπÃπ±ïπù—†Ä¥ÄƒÄËÅ§Ä¥Äƒ§§ÏÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅï±ÕîÅ•òÄ°îπ≠ï‰ÄÙÙÙÄâÕçÖ¡îà§ÅÏÅ•òÄ°Õ’ùùïÕ—•ΩπÃπ±ïπù—†§ÅÏÅîπ¡…ïŸïπ—ïôÖ’±–†§ÏÅÕï—M’ùùïÕ—•ΩπÃ°mt§ÏÅÕï—M’ù%ë‡†¥ƒ§ÏÅÙÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅï±ÕîÅ•òÄ°îπ≠ï‰ÄÙÙÙÄâπ—ï»à§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÿÿ∏ÿ¿Ä°Ω›πï»∞Ä»¿»ÿ¥¿‹¥»‘§ËÅπ—ï»Å’ÕïêÅ—ºÅÖ’—ºµ¡•ç¨(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÕ’ùùïÕ—•ΩπÕl¡tÅ›°ïπïŸï»Å—°îÅë…Ω¡ëΩ›∏Å›ÖÃÅΩ¡ï∏∞ÅïŸï∏Å—°Ω’ù†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ—°îÅ’Õï»Å°ÖêÅ°•ù°±•ù°—ïêÅ9=Q!%9Ä°Õ’ù%ë‡ÄÙÙÙÄ¥ƒ§∏ÅQÂ¡•πúÅÑ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅç•—‰ÅÖπêÅ°•——•πúÅπ—ï»Å—°ï…ïôΩ…îÅô•…ïêÅ›°Ö—ïŸï»ÅΩΩù±î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ°Ö¡¡ïπïêÅ—ºÅ…Öπ¨Åô•…Õ–Ä¥¥ÅÖ∏ÅÖ•…¡Ω…–∞ÅÑÅâïÖç†∞ÅÑÅ…ÖπëΩ¥(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅâ’Õ•πïÕÃÄ¥¥ÅÕºÅ—°îÅÕÖµîÅ≠ïÂÕ—…Ω≠îÅë•êÅÕΩµï—°•πúÅë•ôôï…ïπ–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅïŸï…‰Å—•µîÅÖπêÅΩô—ï∏Å±ïô–Å—°îÅôïïêÅΩ∏Å—°îÅΩ±êÅç•—‰∏Åπ—ï»(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅπΩ‹ÅΩπ±‰Å—Ö≠ïÃÅÑÅÕ’ùùïÕ—•Ω∏Å—°îÅ’Õï»ÅÖç—’Ö±±‰ÅÖ……Ω›ïêÅΩπ—ºÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅΩ—°ï…›•ÕîÅ•–Å…’πÃÅÑÅ…ïÖ∞ÅÕïÖ…ç†∏Å1Ωç≠ïêÅâ‰(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÕç…•¡—ÃΩ—ïÕ–µç•—‰µÕïÖ…ç†πµ©Ã∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅîπ¡…ïŸïπ—ïôÖ’±–†§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°Õ’ù%ë‡Ä¯ÙÄ¿ÄòòÅÕ’ùùïÕ—•ΩπÕmÕ’ù%ë·t§Å¡•ç≠M’ùùïÕ—•Ω∏°Õ’ùùïÕ—•ΩπÕmÕ’ù%ë·t§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅï±ÕîÅÕ’âµ•—MïÖ…ç††§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅıÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩπ	±’»ıÏ†§ÄÙ¯ÅÏÅÕï—Q•µïΩ’–††§ÄÙ¯ÅÏÅÕï—M’ùùïÕ—•ΩπÃ°mt§ÏÅÕï—M’ù%ë‡†¥ƒ§ÏÅÙ∞Äƒ‘¿§ÏÅ•òÄ°Õç…ïï∏ÄÙÙÙÄâµÖ¿à§ÅÕï—Q•µïΩ’–††§ÄÙ¯ÅÕï—5Ö¡MïÖ…ç°=¡ï∏°ôÖ±Õî§∞Ä»»¿§ÏÅıÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…Ω±îÙâçΩµâΩâΩ‡àÅÖ…•Ñµï·¡ÖπëïêıÌÕ’ùùïÕ—•ΩπÃπ±ïπù—†Ä¯Ä¡ÙÅÖ…•ÑµçΩπ—…Ω±ÃÙâ›òµÕ’ùùïÕ—•ΩπÃàÅÖ…•ÑµÖ’—ΩçΩµ¡±ï—îÙâ±•Õ–à(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖ…•ÑµÖç—•ŸïëïÕçïπëÖπ–ıÌÕ’ù%ë‡Ä¯ÙÄ¿Ä¸ÅÅ›òµÕ’ú¥ëÌÕ’ù%ë·ıÄÄËÅ’πëïô•πïëÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖ…•Ñµ±Öâï∞ÙâMïÖ…ç†ÅÑÅ¡±ÖçîÅΩ»Åç•—‰àÅ¡±Öçï°Ω±ëï»ÙâMïÖ…ç†ÅÑÅ¡±ÖçîÅΩ»Åç•—‰à(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅç±ÖÕÕ9ÖµîÙâ›òµÕïÖ…ç†µ•π¡’–àÅÕ—Â±îıÌÏÅ›•ë—†ËÄàƒ¿¿îà∞ÅâΩ·M•È•πúËÄââΩ…ëï»µâΩ‡à∞Å°ï•ù°–ËÄ–‡∞Å¡Öëë•πúËÄà¿Äƒ—¡‡Ä¿ÄÃ·¡‡à∞ÅâÖç≠ù…Ω’πêËÅπçÖ…ê∞ÅâΩ…ëï»ËÅÄƒ∏’¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞ÅâΩ…ëï…I•ù°–ËÄâπΩπîà∞ÅâΩ…ëï…IÖë•’ÃËÄàƒ—¡‡Ä¿Ä¿Äƒ—¡‡à∞ÅçΩ±Ω»ËÅπ—ï·–∞ÅôΩπ—M•ÈîËÄƒÿ∞ÅΩ’—±•πîËÄâπΩπîàÅıÙ(ÄÄÄÄÄÄÄÄÄÄÄÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÅÌÕ’ùùïÕ—•ΩπÃπ±ïπù—†Ä¯Ä¿ÄòòÄ†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒ’∞Å•êÙâ›òµÕ’ùùïÕ—•ΩπÃàÅ…Ω±îÙâ±•Õ—âΩ‡àÅÖ…•Ñµ±Öâï∞ÙâMïÖ…ç†ÅÕ’ùùïÕ—•ΩπÃàÅÕ—Â±îıÌÏÅ±•Õ—M—Â±îËÄâπΩπîà∞ÅµÖ…ù•∏ËÄ¿∞Å¡Öëë•πúËÄ¿∞Å¡ΩÕ•—•Ω∏ËÄâÖâÕΩ±’—îà∞Å—Ω¿ËÄâçÖ±å†ƒ¿¿îÄ¨ÄŸ¡‡§à∞Å±ïô–ËÄ¿∞Å…•ù°–ËÄ¿∞ÅâÖç≠ù…Ω’πêËÅπ¡Öπï∞∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞ÅâΩ…ëï…IÖë•’ÃËÄƒ»∞ÅΩŸï…ô±Ω‹ËÄâ°•ëëï∏à∞ÅâΩ·M°ÖëΩ‹ËÄà¿Äƒ¡¡‡ÄÃ¡¡‡Å…ùâÑ†¿∞¿∞¿∞∏‘§à∞ÅÈ%πëï‡ËÄ‡¿ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌÕ’ùùïÕ—•ΩπÃπµÖ¿†°Ã∞Å§§ÄÙ¯Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒ±§(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ≠ï‰ıÌ•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•êıÌÅ›òµÕ’ú¥ëÌ•ıÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…Ω±îÙâΩ¡—•Ω∏à(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖ…•ÑµÕï±ïç—ïêıÌ§ÄÙÙÙÅÕ’ù%ë·Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩπ5Ω’Õïπ—ï»ıÏ†§ÄÙ¯ÅÕï—M’ù%ë‡°§•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩπ5Ω’ÕïΩ›∏ıÏ°î§ÄÙ¯ÅÏÅîπ¡…ïŸïπ—ïôÖ’±–†§ÏÅ¡•ç≠M’ùùïÕ—•Ω∏°Ã§ÏÅıÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕ—Â±îıÌÏÅ¡Öëë•πúËÄàƒ≈¡‡Äƒ—¡‡à∞ÅôΩπ—M•ÈîËÄƒ–∞ÅçΩ±Ω»ËÅπ—ï·–∞ÅâÖç≠ù…Ω’πêËÅ§ÄÙÙÙÅÕ’ù%ë‡Ä¸ÅπÖë•¥ÄËÄâ—…ÖπÕ¡Ö…ïπ–à∞ÅâΩ…ëï…	Ω——Ω¥ËÅ§ÄÅÕ’ùùïÕ—•ΩπÃπ±ïπù—†Ä¥ÄƒÄ¸ÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄÄËÄâπΩπîà∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞Åë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‡ÅıÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅçΩ±Ω»ËÅÃπ≠•πêÄÙÙÙÄâ¡±ÖçîàÄ¸ÅπÖççïπ–ÄËÅπµ’—ïê∞ÅôΩπ—M•ÈîËÄƒÿÅıÙ˘ÌÃπ≠•πêÄÙÙÙÄâ¡±ÖçîàÄ¸Å•çΩπΩ…A±Öçî°ÏÅπÖµîËÅÃπ—ï·–∞Å—Â¡ïÃËÅÃπ—Â¡ïÃÅÒÅmtÅÙ§ÄËÄã¬~N4âÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅµ•π]•ë—†ËÄ¿ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ›°•—ïM¡ÖçîËÄâπΩ›…Ö¿à∞ÅΩŸï…ô±Ω‹ËÄâ°•ëëï∏à∞Å—ï·—=Ÿï…ô±Ω‹ËÄâï±±•¡Õ•ÃàÅıÙ˘ÌÃπ—ï·—ÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌÃπ≠•πêÄÙÙÙÄâ¡±ÖçîàÄòòÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒƒ∞ÅçΩ±Ω»ËÅπµ’—ïê∞ÅµÖ…ù•πQΩ¿ËÄƒÅıÙ˘ºÅ—ºÅ—°•ÃÅ¡±ÖçîΩë•ÿ˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩ±§¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ§•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩ’∞¯(ÄÄÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÄÄÅÏº®Å1•ŸîÅ…ïù•Ω∏ËÅÖππΩ’πçîÅ—°îÅ°•ù°±•ù°—ïêÅÕ’ùùïÕ—•Ω∏Å—ºÅÕç…ïï∏Å…ïÖëï…Ã∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÖ…•Ñµ±•ŸîÙâ¡Ω±•—îàÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâÖâÕΩ±’—îà∞Å›•ë—†ËÄƒ∞Å°ï•ù°–ËÄƒ∞ÅΩŸï…ô±Ω‹ËÄâ°•ëëï∏à∞Åç±•¿ËÄâ…ïç–†¿Ä¿Ä¿Ä¿§àÅıÙ˘ÌÕ’ù%ë‡Ä¯ÙÄ¿ÄòòÅÕ’ùùïÕ—•ΩπÕmÕ’ù%ë·tÄ¸ÅÄëÌÕ’ùùïÕ—•ΩπÕmÕ’ù%ë·tπ—ï·—Ù∞ÄëÌÕ’ù%ë‡Ä¨Ä≈ÙÅΩòÄëÌÕ’ùùïÕ—•ΩπÃπ±ïπù—°ıÄÄËÄàâÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏Åç±ÖÕÕ9ÖµîÙâ›òµÕïÖ…ç†µÕ’âµ•–àÅΩπ±•ç¨ıÌÕ’âµ•—MïÖ…ç°ÙÅÖ…•Ñµ±Öâï∞ÙâMïÖ…ç†àÅÕ—Â±îıÌÏÅô±ï·M°…•π¨ËÄ¿∞Åë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâçïπ—ï»à∞Å›•ë—†ËÄ‘–∞Å°ï•ù°–ËÄ–‡∞ÅâÖç≠ù…Ω’πêËÅπÖççïπ–∞ÅâΩ…ëï»ËÄâπΩπîà∞ÅâΩ…ëï…IÖë•’ÃËÄà¿Äƒ—¡‡Äƒ—¡‡Ä¿à∞ÅçΩ±Ω»ËÄàå¡ƒƒƒ‹à∞ÅôΩπ—M•ÈîËÄ»»∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ˚äHΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÅÏº®Åÿ‘∏›‡ËÄâQÖ≠îÅÑÅç°ÖπçîàÅµΩŸïêÅΩôòÅ—°îÅ°Ωµîµµïπ‘Å±•Õ–ÅÖπêÅΩπ—ºÅÖ∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•çΩ∏Åâ’——Ω∏ÅâïÕ•ëîÅÕïÖ…ç†ÉäPÅÕÖµîÅŸ•Õ’Ö∞Å›ï•ù°–ÅÖÃÅ—°îÅÕ¡Ö…≠±î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄâ•πêÅµ‰ÅŸ•âîàÅâ’——Ω∏Å•∏Å—°îÅ°ïÖëï»∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÅÏº®Å=›πï»Ä†»¿»ÿ¥¿‹¥»ƒ∞Åô•πÖ∞ÅçÖ±∞§ËÅ—°îÅÕ¡Ö…≠±îÄ°•πêÅµ‰ÅŸ•âî§Å±•ŸïÃ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅâïÕ•ëîÅÕïÖ…ç†ÏÅ—°îÅë•çîÅï·¡ï…•µïπ–Å•ÃÅ…ï—•…ïê∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÅÏº®Åÿÿ∏‰‹Ä°Ω›πï»ËÄâÑÅπïÖ»ÅµîÅâ’——Ω∏Å—ºÅ…ïÕï–Åµ‰Å±ΩçÖ—•Ω∏∏∏∏Å$ÅùΩ–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕ—’ç¨Å±ΩΩ≠•πúÅÖ…Ω’πêÅÖπêÅ°ÖêÅπºÅ•ëïÑÅ›°ï…îÅ$Å›ÖÃà§ÉäPÅΩπîµ—Ö¿(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ïçïπ—ï»ÅâÖç¨Å—ºÅ—°îÅëïŸ•çîùÃÅ…ïÖ∞ÅALÅ±ΩçÖ—•Ω∏∞ÅÕÖµîÅ…Ω‹ÅÖÃ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕïÖ…ç†ÅÕ•πçîÅ—°Ö–Å•ÃÅ›°ï…îÅ—°îÅΩ›πï»ÅÖÕ≠ïêÅôΩ»Å•–Ä°•–ÅÖ±Õº(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕ°Ω›ÃÅΩ∏Å—°îÅµÖ¿ùÃÅΩ›∏Åô±ΩÖ—•πúÅÕïÖ…ç†Å…Ω‹Å›°ï∏ÅΩ¡ïπïê∞ÅŸ•Ñ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°îÅÕ°Ö…ïêÅÅÕç…ïï∏ÄÑÙÙÄâµÖ¿àÅÒÅµÖ¡MïÖ…ç°=¡ïπÄÅùÖ—îÅÖâΩŸî§∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÅÏº®Åÿ‡∏ƒ‰Ä°Ω›πï»∞ÅΩ∏ÅÑÅÕç…ïïπÕ°Ω–ÅΩòÅ—°îÅç…ΩÕÕ°Ö•»ÅâïÕ•ëîÅ—°îÅÕïÖ…ç†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖ……Ω‹ËÄâùï–Å…•êÅΩòÅ—°•ÃÅ•çΩ∏ÉäòÅ›îÅÖ±…ïÖë‰Å¡’–Å—°îÅ±ΩçÖ—•Ω∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•πÕ•ëîÅΩòÅ—°îÅÕïÖ…ç†Åô•ï±êà§∏ÅQ°îÅç…ΩÕÕ°Ö•»Å•ÃÅ=9ÅΩ∏ÅïŸï…‰(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕç…ïï∏∏Åÿ‡∏ƒ‹Å°ÖêÅ≠ï¡–Å•–ÅΩ∏Å—°îÅµÖ¿ÅâïçÖ’ÕîÅ—°îÅÕçΩ¡îÅçΩπ—…Ω∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ›ÖÃÅ°•ëëï∏Å—°ï…îÏÅ—°îÅÕçΩ¡îÅçΩπ—…Ω∞ÅπΩ‹Å…ïπëï…ÃÅΩ∏Å—°îÅµÖ¿ùÃ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅô±ΩÖ—•πúÅÕïÖ…ç†Å…Ω‹Å—Ωº∞ÅÕºÄâ’……ïπ–Å±ΩçÖ—•Ω∏àÅ•ÃÅ—°îÅΩπî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ïçïπ—ï»ÅïŸï…Â›°ï…îÅÖπêÅπΩ—°•πúÅ•ÃÅΩ…¡°Öπïê∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÅÏº®ÅQ°îÅΩπçîµïŸï»Åô±ÖúÅùÖ—ïÃÅ—°îÅUQ<µÕ°Ω‹ÅΩπ±‰∏ÅQ°•ÃÅâ’——Ω∏ÅΩ¡ïπÃÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕ°ïï–ÅΩ∏ÅëïµÖπê∞ÅôΩ…ïŸï»∞ÅÖπêÅµ’Õ–ÅπïŸï»ÅçΩπÕ’±–Å•π—…ΩMïï∏†§∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÅÏº®Åÿ‡∏»ÅI=\ÅÉäPÅQ!ÅMQ%9Q%=9L∞ÅPÅQ!ÅQ=@Ä°¡’â±•åΩ±ÖàΩµïπ‘π°—µ∞(ÄÄÄÄÄÄÄÄÄÄÄÅÄπëïÕ—ÕÄ§∏ÅQ°îÅÕÖµîÅÕ•‡Å—Ö…ùï—ÃÅ—°îÅâΩ——Ω¥ÅâÖ»Å°ÖÃÅÖ±›ÖÂÃÅçÖ……•ïê∞(ÄÄÄÄÄÄÄÄÄÄÄÅµÖ¡¡ïêÅô…Ω¥Å—°îÅΩπîÅ]}MQ%9Q%=9LÅ±•Õ–ÅÕºÅ—°îÅ—›ºÅâÖ…ÃÅçÖππΩ–(ÄÄÄÄÄÄÄÄÄÄÄÅë•ÕÖù…ïî∞Å¡±’ÃÅ—°îÅM°Ω…—ç’—ÃÅΩ¡ïπï»Å—°Ö–Å…ïŸïÖ±ÃÅ—°îÅÕ°Ω…—ç’–Å…Ω‹ÅÖÃ(ÄÄÄÄÄÄÄÄÄÄÄÅÑÅ¡Öπï∞∏((ÄÄÄÄÄÄÄÄÄÄÄÅQ!Å	=QQ=4Å	HÅMQeLÄ°Ω›πï»ùÃÅçÖ±∞∞Ä»¿»ÿ¥¿‡¥ƒ‘§∏Å5ΩÕ–Å]ÖÂô•πêÅ—…Öôô•å(ÄÄÄÄÄÄÄÄÄÄÄÅ•ÃÅµΩâ•±îÅÖπêÅ—°’µàµ…ïÖç†ÅπÖŸ•ùÖ—•Ω∏Å•ÃÅ›°Ö–Å—°ΩÕîÅ…ïÖëï…ÃÅÖ±…ïÖë‰(ÄÄÄÄÄÄÄÄÄÄÄÅ’ÕîÏÅÑÅ—Ω¿Å…Ω‹Å—°Ö–ÅÕç…Ω±±ÃÅΩ’–ÅΩòÅ—°îÅŸ•ï›¡Ω…–Å•ÃÅπΩ–ÅÑÅ…ï¡±Öçïµïπ–(ÄÄÄÄÄÄÄÄÄÄÄÅôΩ»Å•–∏ÅMºÅ—°•ÃÅ…Ω‹Å•ÃÅÖëë•—•ŸîÅΩ∏ÅÑÅ¡°ΩπîÅÖπêÅ•ÃÅ—°îÅ¡…•µÖ…‰ÅπÖÿÅΩ∏(ÄÄÄÄÄÄÄÄÄÄÄÅÑÅëïÕ¨∞Å›°ï…îÅ—°ï…îÅ•ÃÅπºÅ—°’µàÅÖπêÅ—°îÅâΩ——Ω¥ÅâÖ»Å•ÃÅÑÅô±ΩÖ—•πúÅ¡•±∞(ÄÄÄÄÄÄÄÄÄÄÄÅ•∏Å—°îÅçΩ…πï»ÅΩòÅ—°îÅïÂî∏Ä®ΩÙ(ÄÄÄÄÄÄÄÅÌÕç…ïï∏ÄÑÙÙÄâµÖ¿àÄòòÄ†(ÄÄÄÄÄÄÄÄÄÄÒπÖÿÅç±ÖÕÕ9ÖµîÙâ›òµëïÕ—ÃàÅÏ∏∏∏°Õ’ùùïÕ—•ΩπÃπ±ïπù—†Ä¸ÅÏÅç±ÖÕÕ9ÖµîËÄâ›òµëïÕ—ÃÅ•ÃµçΩŸï…ïêàÅÙÄËÅπ’±∞•ÙÅÖ…•Ñµ±Öâï∞ÙâïÕ—•πÖ—•ΩπÃàÅÕ—Â±îıÌÕ’ùùïÕ—•ΩπÃπ±ïπù—†Ä¸ÅÏÅ¡Ω•π—ï…Ÿïπ—ÃËÄâπΩπîàÅÙÄËÅ’πëïô•πïëÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏Å—Â¡îÙââ’——Ω∏àÅç±ÖÕÕ9ÖµîıÏâ›òµëïÕ–Å›òµëïÕ–µΩ¡ïπï»àÄ¨Ä°πÖŸM°Ω…—ç’—ÃÄ¸ÄàÅ•ÃµΩ∏àÄËÄàà•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖ…•Ñµï·¡ÖπëïêıÌπÖŸM°Ω…—ç’—ÕÙÅÖ…•ÑµçΩπ—…Ω±ÃÙâ›òµÕç¡Öπï∞à(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—9ÖŸM°Ω…—ç’—Ã†°ÿ§ÄÙ¯ÄÖÿ•Ù¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕŸúÅ›•ë—†Ùàƒ‹àÅ°ï•ù°–Ùàƒ‹àÅŸ•ï›	Ω‡Ùà¿Ä¿Ä»–Ä»–àÅô•±∞ÙâπΩπîàÅÕ—…Ω≠îÙâç’……ïπ—Ω±Ω»àÅÕ—…Ω≠ï]•ë—†Ùàƒ∏‹àÅÕ—…Ω≠ï1•πïçÖ¿Ùâ…Ω’πêàÅÖ…•Ñµ°•ëëï∏Ùâ—…’îà¯Ò¡Ö—†ÅêÙâ4–Ä›†ƒŸ4–Äƒ…†ƒŸ4–Äƒ›†ƒÿàÄº¯ΩÕŸú¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏˘M°Ω…—ç’—ÃΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÅÌ]}MQ%9Q%=9LπµÖ¿†°ê§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅÖç—•ŸîÄÙÄ°êπ•êÄÙÙÙÄâ°ΩµîàÄòòÄ°Õç…ïï∏ÄÙÙÙÄâÕ’ùùïÕ—ïêàÅÒÅÕç…ïï∏ÄÙÙÙÄâï·¡±Ω…îàÅÒÅÕç…ïï∏ÄÙÙÙÄâï·¡ï…•ïπçîàÅÒÅÕç…ïï∏ÄÙÙÙÄâÕ’…¡…•Õîà§§ÅÒÅêπ•êÄÙÙÙÅÕç…ïï∏Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÑÅ≠ï‰ıÌêπ•ëÙÅç±ÖÕÕ9ÖµîıÏâ›òµëïÕ–àÄ¨Ä°Öç—•ŸîÄ¸ÄàÅ•ÃµΩ∏àÄËÄàà•ÙÅ°…ïòıÌêπ°…ïôÙÅÖ…•Ñµç’……ïπ–ıÌÖç—•ŸîÄ¸Äâ¡ÖùîàÄËÅ’πëïô•πïëÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅÏÅîπ¡…ïŸïπ—ïôÖ’±–†§ÏÅùΩïÕ—•πÖ—•Ω∏°êπ•ê∞ÅÖç—•Ÿî§ÏÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒ9ÖŸ%çΩ∏ÅπÖµîıÌêπ•çΩπÙÅçΩ±Ω»Ùâç’……ïπ—Ω±Ω»àÅÕ•ÈîıÏƒ›ÙÅÕ—…Ω≠ï]•ë—†ıÏƒ∏·ÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏˘Ìêπ±Öâï±ÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩÑ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅÙ•Ù(ÄÄÄÄÄÄÄÄÄÄΩπÖÿ¯(ÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÅÏº®ÅQ°îÅÕ°Ω…—ç’–Å…Ω‹∞ÅÖÃÅÑÅ¡Öπï∞Ä°¡’â±•åΩ±ÖàΩµïπ‘π°—µ∞ËÅâΩë‰πÕçΩ¡ï∏(ÄÄÄÄÄÄÄÄÄÄÄÄπÕç¡Öπï∞§∏ÅQ°•ÃÅ•ÃÅ—°îÅM5ÄÒ•ÕçΩŸï…Â5ïπ‘¯Å—°Ö–Å’ÕïêÅ—ºÅÕ•–Å•∏Å—°î(ÄÄÄÄÄÄÄÄÄÄÄÅôïïêÅ’πëï»ÅÑÄâM°Ω…—ç’—ÃàÅ°ïÖë•πúÉäPÅ•–Åë•êÅπΩ–Åùï–Å…ïâ’•±–Å’¿Å°ï…î∞(ÄÄÄÄÄÄÄÄÄÄÄÅ•–ÅùΩ–ÅÑÅëΩΩ»Å•πÕ—ïÖêÅΩòÅÑÅ¡ï…µÖπïπ–ÅÕïÖ–∏Ä®ΩÙ(ÄÄÄÄÄÄÄÅÌÕç…ïï∏ÄÑÙÙÄâµÖ¿àÄòòÅπÖŸM°Ω…—ç’—ÃÄòòÄ†(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµÕç¡Öπï∞àÅ•êÙâ›òµÕç¡Öπï∞à˘Ìë•ÕçΩŸï…Â5ïπ’ÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÅÏº®Åÿÿ∏‘ÿÄ°Ω›πï»§ËÅ¡ï…ÕΩπÖ±•ÈÖ—•Ω∏ÅπºÅ±Ωπùï»ÅÖ¡¡ïÖ…ÃÅ•∏Å—°îÅ°ΩµîÅôïïê∏(ÄÄÄÄÄÄÄÄÄÄÄÅQ°îÅçΩπÕïπ–Å¡…Ωµ¡–∞Å—°îÄâ—ÖÕ—îÅÖç—•ŸîàÅï·¡Öπëï»ÅÖπêÅ—°îÄâ—’…∏Å•–(ÄÄÄÄÄÄÄÄÄÄÄÅâÖç¨ÅΩ∏àÅπ’ëùîÅÖ±∞Å±•ŸïêÅ°ï…îÅÖπêÅÖ±∞Å•π—ï……’¡—ïêÅ—°îÅÕÖµîÅÕç…Ω±∞ÉäP(ÄÄÄÄÄÄÄÄÄÄÄÅ—°îÅΩπîÅµΩµïπ–ÅÑÅŸ•Õ•—Ω»Å•ÃÅëïç•ë•πúÅ›°ï…îÅ—ºÅùº∏ÅQ°îÅ›°Ω±îÅÕ’…ôÖçî(ÄÄÄÄÄÄÄÄÄÄÄÅπΩ‹ÅÕ•—ÃÅÖ–Å—°îÅ	=QQ=4ÅΩòÅÖŸΩ…•—ïÃ∞Åâï°•πêÅÕ•ù∏µ•∏∞Å›°ï…îÅÕΩµïΩπî(ÄÄÄÄÄÄÄÄÄÄÄÅ°ÖÃÅÖ±…ïÖë‰ÅΩ¡—ïêÅ•π—ºÅ°ÖŸ•πúÅÑÅ¡…Ωô•±îÅÖ–ÅÖ±∞∏ÅMïîÅMÖŸïêπ©Ã∏Ä®ΩÙ(ÄÄÄÄÄÄÄÅÌÕç…ïï∏ÄÙÙÙÄâÕ’ùùïÕ—ïêàÄòòÅQUI}ILπ±ïπù—†Ä¯Ä¿ÄòòÄ†(ÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‹∞ÅµÖ…ù•πQΩ¿ËÄ‰∞ÅΩŸï…ô±Ω›`ËÄâÖ’—ºà∞ÅΩŸï…Õç…Ω±±	ï°ÖŸ•Ω…`ËÄâçΩπ—Ö•∏à∞Å]ïâ≠•—=Ÿï…ô±Ω›Mç…Ω±±•πúËÄâ—Ω’ç†àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒƒ∏‘∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞ÅçΩ±Ω»ËÅπµ’—ïê∞Åô±ï·M°…•π¨ËÄ¿ÅıÙ˘·¡±Ω…îÅΩ—°ï»ÅÖ…ïÖÃËΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÅÌQUI}ILπµÖ¿†°Ñ§ÄÙ¯Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏Å≠ï‰ıÌÑππÖµïÙÅΩπ±•ç¨ıÏ†§ÄÙ¯Å©’µ¡QΩ…ïÑ°Ñ•ÙÅÕ—Â±îıÌÏÅô±ï·M°…•π¨ËÄ¿∞Åë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‘∞Å¡Öëë•πúËÄà’¡‡Äƒ≈¡‡à∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞ÅâÖç≠ù…Ω’πêËÅπçÖ…ê∞ÅçΩ±Ω»ËÅπ±•ù°–∞ÅôΩπ—M•ÈîËÄƒ»∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞Å›°•—ïM¡ÖçîËÄâπΩ›…Ö¿àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏˚¬~N4ΩÕ¡Ö∏˘ÌÑπÕ°Ω…—Ù(ÄÄÄÄÄÄÄÄÄÄÄÄΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄ§•Ù(ÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄΩë•ÿ¯((ÄÄÄÄÄÅÏº®Åÿ‘∏¿‡Å1=	0ÅIU1Ä°’Õï»Åë•…ïç—•Ω∏§ËÅ—°îÅΩ±êÅç°•¿µâ’ââ±îÅçÖ—ïùΩ…‰(ÄÄÄÄÄÄÄÄÄÅÕ—…•¿Å•ÃÅùΩπîÅ=IYH∞ÅïŸï…Â›°ï…î∏ÅŸï…‰ÅçÖ—ïùΩ…‰ÅÕ’…ôÖçîÅ’ÕïÃÅ—°î(ÄÄÄÄÄÄÄÄÄÅΩπîÅµΩëï…∏Åµïπ‘ÉäPÅÖ—ïùΩ…Â5ïπ‘Ä°•çΩ∏µΩ∏µ—Ω¿Å—•±ïÃ∞Å•=LÅÕ—Â±î§∞Å›•—†(ÄÄÄÄÄÄÄÄÄÅ—°îÅÕ’àµ…Ω‹ÅÕ±•ë•πúÅëΩ›∏ÅΩπ±‰ÅÖô—ï»ÅÑÅ¡…•µÖ…‰ÅçÖ—ïùΩ…‰Å•ÃÅç°ΩÕï∏∏(ÄÄÄÄÄÄÄÄÄÅM’…¡…•ÕîÅ5îÅ…•ëïÃÅÖÃÅÑÅ—…Ö•±•πúÅ—•±î∏ÅΩ’¡ΩπÃÅ•ÃÅ•—ÃÅΩ›∏Å—ÖàÅÖπê(ÄÄÄÄÄÄÄÄÄÅçÖ……•ïÃÅπºÅçÖ—ïùΩ…‰Åµïπ‘ÅÖ–ÅÖ±∞∏Ä®ΩÙ(ÄÄÄÄÄÅÌÕç…ïï∏ÄÙÙÙÄâï·¡±Ω…îàÄòòÄ†(ÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ¡Öëë•πúËÄà…¡‡Äƒ…¡‡Ä¿à∞ÅâÖç≠ù…Ω’πêËÅπ¡Öπï∞∞Åô±ï·M°…•π¨ËÄ¿ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÒÖ—ïùΩ…Â5ïπ‘ÅÖç—•ŸïÖ–ıÌçÖ—ÙÅÕ’àıÌÕ’âÙÅΩπÖ–ıÏ°•ê§ÄÙ¯ÅÏÅ¡•ç≠Ö–°•ê§ÏÅıÙÅΩπM’àıÏ°ÿ§ÄÙ¯Å¡•ç≠M’à°ÿ•ÙÅ—…Ö•±•πúıÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÌΩ¡ïπM’…¡…•ÕïÙÅÖ…•Ñµ±Öâï∞ÙâM’…¡…•ÕîÅ5îàÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞Åô±ï·•…ïç—•Ω∏ËÄâçΩ±’µ∏à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄÿ∞Å¡Öëë•πúËÄàÂ¡‡ÄÕ¡‡Ä›¡‡à∞ÅâΩ…ëï…IÖë•’ÃËÄ¿∞ÅâÖç≠ù…Ω’πêËÄâ—…ÖπÕ¡Ö…ïπ–à∞ÅâΩ…ëï»ËÄâπΩπîà∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞Åô±ï‡ËÄƒ∞Åµ•π]•ë—†ËÄ¿ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄ»–∞Å±•πï!ï•ù°–ËÄà»Ÿ¡‡àÅıÙ˚¬~:ΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒƒ∞ÅôΩπ—]ï•ù°–ËÄÿ¿¿∞ÅçΩ±Ω»ËÅπ¡’…¡±î∞Å—ï·—±•ù∏ËÄâçïπ—ï»à∞Å±•πï!ï•ù°–ËÄƒ∏ƒ‘ÅıÙ˘M’…¡…•ÕîΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÅÙÄº¯(ÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄ•Ù((ÄÄÄÄÄÅÏº®Å	Ωë‰Ä®ΩÙ(ÄÄÄÄÄÅÏº®Åÿÿ∏ÿƒÄ°Ω›πï»∞Å±•ŸîÅëïÕ≠—Ω¿ÅÕç…ïïπÕ°Ω–Å…ïŸ•ï‹§ËÅ—°îÅôΩΩ—ï»Åë•Õç±ΩÕ’…î(ÄÄÄÄÄÄÄÄÄÄ†â]ÖÂô•πêÅµÖ‰ÅïÖ…∏ÅÑÅçΩµµ•ÕÕ•Ω∏∏∏∏à§Å›ÖÃÅÕ•——•πúÅ¡Ö…—±‰Å	!%9Å—°î(ÄÄÄÄÄÄÄÄÄÅô±ΩÖ—•πúÅâΩ——Ω¥ÅπÖÿÅΩ∏ÅëïÕ≠—Ω¿∏ÅQ°îÄ‰Ÿ¡‡ÅâΩ——Ω¥Å¡Öëë•πúÅ°ï…îÅ›ÖÃ(ÄÄÄÄÄÄÄÄÄÅÕ•ÈïêÅôΩ»Å—°îÅµΩâ•±îÅπÖÿÄ°ô±’Õ†Å—ºÅ—°îÅÕç…ïï∏Åïëùî∞Å¯ÿŸ¡‡Å—Ö±∞§ÏÅ—°î(ÄÄÄÄÄÄÄÄÄÅëïÕ≠—Ω¿ÅπÖÿÅ•ÃÅÑÅô±ΩÖ—•πúÅ¡•±∞ÅΩôôÕï–Äƒ·¡‡ÅΩôòÅ—°îÅâΩ——Ω¥Å9Å—Ö±±ï»(ÄÄÄÄÄÄÄÄÄÄ†‹…¡‡Åµ•∏µ°ï•ù°–Å•—ïµÃÄ¨ÄÂ¡‡Å—Ω¿ΩâΩ——Ω¥Å¡Öëë•πúÅΩ∏Å—°îÅâÖ»Å•—Õï±ò∞(ÄÄÄÄÄÄÄÄÄÅ¯‰¡¡‡§∞ÅÕºÄ‰Ÿ¡‡ÅΩòÅç±ïÖ…ÖπçîÅ…Ö∏ÅΩ’–Å¯ƒ»¥»¡¡‡ÅÕ°Ω…–∏Å›òµÕç…Ω±±Ö…ïÑ(ÄÄÄÄÄÄÄÄÄÅùï—ÃÅÑÅëïÕ≠—Ω¿µΩπ±‰Å¡Öëë•πúµâΩ——Ω¥Åâ’µ¿Å•∏ÅçÕÃπ©ÃÅ…Ö—°ï»Å—°Ö∏(ÄÄÄÄÄÄÄÄÄÅ…Ö•Õ•πúÅ—°îÅô±Ö–ÅµΩâ•±îÅŸÖ±’î∞Å›°•ç†Å›Ω’±êÅÖëêÅëïÖêÅÕ¡ÖçîÅΩ∏Å¡°ΩπïÃ(ÄÄÄÄÄÄÄÄÄÅ—°Ö–ÅëΩ∏ù–ÅπïïêÅ•–∏Ä®ΩÙ(ÄÄÄÄÄÄÒë•ÿÅ…ïòıÌÕç…Ω±±IïôÙÅç±ÖÕÕ9ÖµîÙâ›òµÕç…Ω±±Ö…ïÑàÅÕ—Â±îıÌÏÅô±ï‡ËÄƒ∞Åµ•π!ï•ù°–ËÄ¿∞Åë•Õ¡±Ö‰ËÄâô±ï‡à∞Åô±ï·•…ïç—•Ω∏ËÄâçΩ±’µ∏à∞ÅΩŸï…Õç…Ω±±	ï°ÖŸ•Ω»ËÄâçΩπ—Ö•∏à∞ÅΩŸï…ô±Ω›dËÅÕç…ïï∏ÄÙÙÙÄâµÖ¿àÄ¸Äâ°•ëëï∏àÄËÄâÖ’—ºà∞Å¡Öëë•πúËÅÕç…ïï∏ÄÙÙÙÄâµÖ¿àÄ¸Ä¿ÄËÄà›¡‡Äƒ…¡‡ÅçÖ±å†»·¡‡Ä¨Åïπÿ°ÕÖôîµÖ…ïÑµ•πÕï–µâΩ——Ω¥§§àÅıÙ¯(ÄÄÄÄÄÄÄÄ¯(ÄÄÄÄÄÄÄÄÄÄÄÅÌÕç…ïï∏ÄÙÙÙÄâï·¡±Ω…îàÄòòÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµï·¡±Ω…îà˘Ìï·¡±Ω…ï1•Õ—ÙΩë•ÿ˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÒ5Ö¡……Ω…	Ω’πëÖ…‰˘ÌÕç…ïï∏ÄÙÙÙÄâµÖ¿àÄòòÄÒ5Ö¡Mç…ïï∏Åç—‡ıÌç—·ÙÄº˘ÙΩ5Ö¡……Ω…	Ω’πëÖ…‰¯(ÄÄÄÄÄÄÄÄÄÄº¯((ÄÄÄÄÄÄÄÅÏº®Åÿÿ∏‘ÿÄ°Ω›πï»∞ÅÕç…ïïπÕ°Ω–Ä¨Äâ…ïµΩŸîÅ—°îÅ•—ï¥ÅΩ∏Å•µÖùîÄ»Ä∏∏∏Å¡’–Å—°î(ÄÄÄÄÄÄÄÄÄÄÄÅ¡ï…ÕΩπÖ±•ÈÖ—•Ω∏Å’πëï»Å—°îÅôÖŸΩ…•—ïÃÄ∏∏∏ÅπΩ–Å•∏Å—°ï•»ÅôÖçîÅÖ–Å—°î(ÄÄÄÄÄÄÄÄÄÄÄÅµÖ•∏Å¡ÖùîÅ—°Ö–Å•ÃÅ—ΩºÅµ’ç†ÅÖπêÅ•–ÅµïÕÕïÃÅ›•—†Å—°îÅô±Ω‹à§∏(ÄÄÄÄÄÄÄÄÄÄÄÅŸï…Â—°•πúÅ—°Ö–Å’ÕïêÅ—ºÅ±•ŸîÅ°ï…îÉäPÅ—°îÅçΩπÕïπ–ÅÖÕ¨∞Å—°îÄâA•ç≠ïê(ÄÄÄÄÄÄÄÄÄÄÄÅôΩ»ÅÂΩ‘àÅÕ—Ö—’ÃÅÕ—…•¿∞ÅÖπêÅ—°îÄâ¡ï…ÕΩπÖ±•ÈÖ—•Ω∏Å•ÃÅΩôòàÅÕ—…•¿ÉäP(ÄÄÄÄÄÄÄÄÄÄÄÅµΩŸïêÅ—ºÅ—°îÅâΩ——Ω¥ÅΩòÅÖŸΩ…•—ïÃÄ°Ö¡¿ΩçΩµ¡Ωπïπ—ÃΩÕç…ïïπÃΩMÖŸïêπ©Ã§∏(ÄÄÄÄÄÄÄÄÄÄÄÅQ°îÅ°ΩµîÅôïïêÅ•ÃÅπΩ‹Å—°îÅôïïê∏ÅAï…ÕΩπÖ±•ÈÖ—•Ω∏Å•ÃÅÑÅMQQ%9ÅÖâΩ’–(ÄÄÄÄÄÄÄÄÄÄÄÅ—°îÅôïïê∞ÅÖπêÅÑÅÕï——•πúÅ•π—ï……’¡—•πúÅ—°îÅ—°•πúÅ•–ÅçΩπô•ù’…ïÃ∞ÅΩ∏(ÄÄÄÄÄÄÄÄÄÄÄÅïŸï…‰ÅÕ•πù±îÅ±ΩÖê∞Å•ÃÅï·Öç—±‰Å—°îÅç±’——ï»Å—°•ÃÅ…ïµΩŸïÃ∏(ÄÄÄÄÄÄÄÄÄÄÄÅQ°îÅ°ΩπïÕ—‰Å…’±îÅ•ÃÅ’πç°Öπùïê∞ÅΩπ±‰Å…ï±ΩçÖ—ïêËÅ›°ïπïŸï»Å—°îÅôïïêÅ•Ã(ÄÄÄÄÄÄÄÄÄÄÄÅ…îµ…Öπ≠ïêÅâ‰Å—ÖÕ—îÅ—°îÅÖ¡¿ÅÕ—•±∞ÅÕÖÂÃÅÕºÅ•∏Å¡±Ö•∏Å±Öπù’ÖùîÅÖπêÅ¡’—Ã(ÄÄÄÄÄÄÄÄÄÄÄÅ—°îÅΩôòÅÕ›•—ç†ÅΩπîÅ—Ö¿ÅÖ›Ö‰ÉäPÅÕïîÅ—°îÅAï…ÕΩπÖ±•ÈÖ—•Ω∏Å…Ω‹Å•∏(ÄÄÄÄÄÄÄÄÄÄÄÅMÖŸïëMç…ïï∏∞Å±Ωç≠ïêÅâ‰ÅÕç…•¡—ÃΩ—ïÕ–µ—ÖÕ—îπµ©Ã∏Ä®ΩÙ(ÄÄÄÄÄÄÄÅÏº®ÅΩŸï…ÖùîÅëΩΩ»ËÅÖ±ï…–Ä°Õ•ùπïêÅ=UP§ÉäHÅÕ•ù∏µ•∏ÄºÅπΩ—•ô‰ÏÅ’π±Ωç¨Ä°Õ•ùπïê(ÄÄÄÄÄÄÄÄÄÄÄÅ%8§ÉäHÅ’π±Ωç¨µ—°•Ãµç•—‰∏Å%–Å…îµôï—ç°ïÃÅΩ∏ÅÕ•ù∏µ•∏Ä°’Õï»Å•ÃÅ•∏Å—°îÅùÖ—î(ÄÄÄÄÄÄÄÄÄÄÄÅïôôïç–Åëï¡Ã§ÅÕºÅ—°îÅÖ±ï…–ÅçÖ…êÅÕ›Ö¡ÃÅ—ºÅ—°îÅ’π±Ωç¨ÅçÖ…êÅ•µµïë•Ö—ï±‰ÉäP(ÄÄÄÄÄÄÄÄÄÄÄÅπºÅ±•πùï…•πú∏Ä®ΩÙ(ÄÄÄÄÄÄÄÅÏº®Åÿ‡∏ƒƒÄ°Ω›πï»∞Ä»¿»ÿ¥¿‡¥ƒ‡∞ÅΩ∏ÅÑÅÕç…ïïπÕ°Ω–ÅΩòÅ—°îÅçΩ±±Ö¡ÕïêÅçÖ…êË(ÄÄÄÄÄÄÄÄÄÄÄÄâùï–Å…•êÅΩòÅ—°•Ãà§∏ÅQ°îÅ•—ÂÖ—îÅëΩΩ»ÉäPÄâ=5%9ÅQ<Åe=UHÅIàÄº(ÄÄÄÄÄÄÄÄÄÄÄÅ’π±Ωç¨ÄºÅ›Ö•—±•Õ–ÉäPÅπºÅ±Ωπùï»Å…ïπëï…ÃÅΩ∏Å—°îÅ°Ωµï¡Öùî∞ÅÖπêÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÄùÖ±ï…–úÅ›Ö±∞Åâï±Ω‹Å•–Å•ÃÅùΩπîÅ›•—†Å•–ËÅYIe=9Åùï—ÃÅ—°îÅôïïê∞Å•∏(ÄÄÄÄÄÄÄÄÄÄÄÅΩ»ÅΩ’–ÅΩòÅçΩŸï…Öùî∞ÅÕ•ùπïêÅ•∏ÅΩ»ÅπΩ–∞ÅâïçÖ’ÕîÅ—°îÅ±•ŸîµÕïÖ…ç†Åôïïê(ÄÄÄÄÄÄÄÄÄÄÄÅ›Ω…≠ÃÅÖπÂ›°ï…î∏ÅQ°îÅçΩµ¡Ωπïπ–∞Å—°îÅ›ô}ùÖ—ï}Õ—Ö—’ÃÅïôôïç–ÅÖπêÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÅ’π±Ωç¨ÅIAÅÖ…îÅ•π—Öç–Ä°Ö¡¿ΩçΩµ¡Ωπïπ—ÃΩ•—ÂÖ—îπ©Ã§ÅôΩ»ÅÑÅô’—’…î(ÄÄÄÄÄÄÄÄÄÄÄÅëï±•âï…Ö—îÅ¡±Öçïµïπ–ÏÅ•–ÅÕ•µ¡±‰Å°ÖÃÅπºÅ…ïπëï»ÅÕ•—îÅΩ∏ÄàºàÉäPÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÅÕÖµîÅ—…ïÖ—µïπ–Å!ΩµïÕ•ëîÅÖπêÅ	ïÕ—9ïÖ…â‰Å…ïçï•Ÿïê∏Ä®ΩÙ(ÄÄÄÄÄÄÄÅÌÕç…ïï∏ÄÙÙÙÄâÕ’ùùïÕ—ïêàÄòòÄ††§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å±•Õ–ÄÙÅÕ’ùùïÕ—ïêÅÒÅmtÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅÖôô•π•—•ïÃÄÙÅçΩµ¡’—ïôô•π•—•ïÃ°Õ•ùπÖ±Ã§Ï(ÄÄÄÄÄÄÄÄÄÄººÅA°ÖÕîÄ»ËÅôΩ±êÅ—°îÅUI	1Å¡ï»µ’Õï»Å—ÖÕ—îÅŸïç—Ω»Å•π—ºÅ—°îÅçÖ—ïùΩ…‰(ÄÄÄÄÄÄÄÄÄÄººÅ›ï•ù°—ÃÅÕºÅ¡…ïôï…ïπçîÅ¡ï…Õ•Õ—ÃÅÖç…ΩÕÃÅÕïÕÕ•ΩπÃ∞ÅπΩ–Å©’Õ–Å—°•ÃÅΩπî∏(ÄÄÄÄÄÄÄÄÄÄººÄ°çÖ—ïùΩ…‰ÅπÖµïÕ¡ÖçîÅµÖ—ç°ïÃÅçÖ—\ÏÅ—°îÅŸ•Õ•â±îÅMçΩ…îÅ•ÃÅ’π—Ω’ç°ïê∏§(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}ŸïåÄÙÅ—ÖÕ—ïYïçIïòπç’……ïπ–ÅÒÅÌÙÏ(ÄÄÄÄÄÄÄÄÄÅ•òÄ°}ŸïåπçÖ—ïùΩ…‰§ÅôΩ»Ä°çΩπÕ–Åm¨∞ÅŸtÅΩòÅ=â©ïç–πïπ—…•ïÃ°}ŸïåπçÖ—ïùΩ…‰§§ÅÖôô•π•—•ïÃπçÖ—]m≠tÄÙÄ°Öôô•π•—•ïÃπçÖ—]m≠tÅÒÄ¿§Ä¨ÅÿÄ®Ä¿∏–Ï(ÄÄÄÄÄÄÄÄÄÄººÄ»¿»ÿ¥¿‡¥¿‹ËÅ—°îÅë’…Öâ±îÅQÅë•µÃÅ…•ëîÅÖ±ΩπúÅ—ΩºÉäPÅ—°ï‰ÅÖ…îÅ—°î(ÄÄÄÄÄÄÄÄÄÄººÅë•Õç…•µ•πÖ—•πúÅÕ•ùπÖ∞Å›•—°•∏ÅÑÅçÖ—ïùΩ…‰ÅÖπêÅ›ï…îÅ¡…ïŸ•Ω’Õ±‰(ÄÄÄÄÄÄÄÄÄÄººÅ±ïÖ…πïêµâ’–µπïŸï»µÖ¡¡±•ïêÄ°—°îÅëïÖêµ—Ωùù±îÅ…ΩΩ–ÅçÖ’Õî§∏(ÄÄÄÄÄÄÄÄÄÅÖôô•π•—•ïÃπ—Öù\ÄÙÅÏÄ∏∏π}Ÿïåπ—ÖúÅÙÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅÖç—•ŸïM•ùπÖ±ÃÄÙÅÕ•ùπÖ±Ãπô•±—ï»†°Ã§ÄÙ¯ÅÃπÖç—•Ω∏ÄÙÙÙÄâ±•≠îàÅÒÅÃπÖç—•Ω∏ÄÙÙÙÄâë•Õ±•≠îà§Ï(ÄÄÄÄÄÄÄÄÄÄººÅAï…ÕΩπÖ±•ÈîÅΩπ±‰ÅÖô—ï»Åï·¡±•ç•–ÅΩ¡–µ•∏ÅΩ»ÅÖ∏Åï·¡±•ç•–Å…ïÖç—•Ω∏∏(ÄÄÄÄÄÄÄÄÄÄººÅ]•—°Ω’–Å—°Ö–∞Å—°îÅôïïêÅ•ÃÅ¡’…îÅµΩµïπ–ΩMçΩ…îÅΩ…ëï»∏ÅQ°îÅùÖ—îÅ±•ŸïÃ(ÄÄÄÄÄÄÄÄÄÄººÅ•∏Å±•àΩ—ÖÕ—îπ©ÃÄ°°ÖÕ1ïÖ…πïëQÖÕ—î§ÅÕºÅ—°îÅ—ïÕ–ÅÕ’•—îÅçÖ∏Å10Å•–ÉäP(ÄÄÄÄÄÄÄÄÄÄººÅÖπêÅ•–ÅçΩ’π—ÃÅïŸï…‰Åë•µïπÕ•Ω∏ÅÖ¡¡±Âôô•π•—‰ÅçΩπÕ’µïÃ∞ÅπΩ–Å©’Õ–(ÄÄÄÄÄÄÄÄÄÄººÅçÖ—ïùΩ…‰Ä°—°îÅµ•ÕµÖ—ç†Å—°Ö–ÅµÖëîÅ—°îÅ—Ωùù±îÅ…ïÖêÅÖÃÅëïÖê§∏(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°ÖÕQÖÕ—îÄÙÅ°ÖÕ1ïÖ…πïëQÖÕ—î°}Ÿïå∞ÅÖç—•ŸïM•ùπÖ±Ãπ±ïπù—†§Ï(ÄÄÄÄÄÄÄÄÄÄººÅQ°îÅÕï——•πúÅÖπêÅ…ïÕï–ÅçΩπ—…Ω±ÃÅÖ…îÅÖŸÖ•±Öâ±îÅ•∏ÅÖŸΩ…•—ïÃÅâïôΩ…î(ÄÄÄÄÄÄÄÄÄÄººÅÕ•ù∏µ•∏∏ÅM•ùπ•πúÅ•∏ÅÕÂπçÃÅ—°îÅÕÖµîÅ¡…•ŸÖ—îÅŸïç—Ω»ÏÅ•–Å•ÃÅπΩ–ÅÑ(ÄÄÄÄÄÄÄÄÄÄººÅ¡…ï…ï≈’•Õ•—îÅôΩ»ÅΩ∏µëïŸ•çîÅ…ïçΩµµïπëÖ—•ΩπÃ∏(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å¡ï…ÕΩπÖ±•ÈïêÄÙÅ¡ï…ÕΩπÖ±•ÈîÄÙÙÙÄâΩ∏àÄòòÅ°ÖÕQÖÕ—îÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åë•Õ¡±ÖÂ1•Õ–ÄÙÅëïë’¡ïA±ÖçïÃ°¡ï…ÕΩπÖ±•ÈïêÄ¸ÅÖ¡¡±Âôô•π•—‰°±•Õ–∞ÅÖôô•π•—•ïÃ§ÄËÅ±•Õ–∞Å—…’î§Ï(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å±•≠ïΩ’π–ÄÙÅ=â©ïç–π≠ïÂÃ°±•≠ïê§π±ïπù—†Ï(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å†ÄÙÅÕ•—ï!Ω’…±ΩÖ–†§Ï(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å¡Ö…–ÄÙÅ	U-Q}A!IMmâ’ç≠ï—Ω…!Ω’»°†•tÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}µ∞ÄÙÅµïÖ±Ω…!Ω’»°†§Ï(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅµΩµïπ–ÄÙÅ}µ∞πç°Ö…–†¿§π—ΩU¡¡ï…ÖÕî†§Ä¨Å}µ∞πÕ±•çî†ƒ§Ï(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å•π—ïπ—ïòÄÙÅ•π—ïπ–Ä¸Å%9Q9QLπô•πê†°‡§ÄÙ¯Å‡π•êÄÙÙÙÅ•π—ïπ–§ÄËÅπ’±∞Ï(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å…ïÖÕΩπÃÄÙÅmtÏ(ÄÄÄÄÄÄÄÄÄÅ…ïÖÕΩπÃπ¡’Õ††â—°îÅ—•µîÅΩòÅëÖ‰à§Ï(ÄÄÄÄÄÄÄÄÄÅ•òÄ°›ïÖ—°ï»§Å…ïÖÕΩπÃπ¡’Õ††â—ΩëÖ‰ùÃÅ›ïÖ—°ï»à§Ï(ÄÄÄÄÄÄÄÄÄÅ•òÄ°=â©ïç–πŸÖ±’ïÃ°±•Õ—Ã§πÕΩµî†°∞§ÄÙ¯Ä°∞π¡±ÖçïÃÅÒÅmt§π±ïπù—†§§Å…ïÖÕΩπÃπ¡’Õ††â¡±ÖçïÃÅÂΩ‘Å°ÖŸîÅÕÖŸïêà§Ï(ÄÄÄÄÄÄÄÄÄÄººÅQ!Å1\ÉäPÅAIM=91%iQ%=8ÅM4∞Åë•Õç±ΩÕïêÄ†»¿»ÿ¥¿‡¥¿‹§∏ÅQ°î(ÄÄÄÄÄÄÄÄÄÄººÅùΩŸï…π•πúÅ±Ö‹Å•ÃÄâÕ°Ω›∏ÄÙÙÅÕΩ…—ïêàÏÅ¡ï…ÕΩπÖ±•ÈÖ—•Ω∏Å•ÃÅ—°îÅ=9(ÄÄÄÄÄÄÄÄÄÄººÅΩ›πï»µÖ¡¡…ΩŸïêÅï·ïµ¡—•Ω∏Ä†â•–ÅπïŸï»Åç°ÖπùïÃÅÑÅ¡±ÖçîùÃÅMçΩ…îÉäP(ÄÄÄÄÄÄÄÄÄÄººÅΩπ±‰Å—°îÅΩ…ëï»ÅÂΩ‘ÅÕïîÅ—°ï¥Å•∏à∞Å—°îÅÖŸΩ…•—ïÃÅ—Ωùù±îùÃÅΩ›∏ÅçΩ¡‰§∏(ÄÄÄÄÄÄÄÄÄÄººÅ∏Åï·ïµ¡—•Ω∏Å—°îÅ…ïÖëï»ÅçÖ∏ù–ÅÕïîÅ•ÃÅ•πë•Õ—•πù’•Õ°Öâ±îÅô…Ω¥Å—°î(ÄÄÄÄÄÄÄÄÄÄººÅ°•ëëï∏µ—ï…¥Åëïôïç–Å—°îÅ±Ö‹Å…ï—•…ïê∞ÅÕºÅ›°ï∏Å—°îÅ—ÖÕ—îÅ…îµ…Öπ¨Å•Ã(ÄÄÄÄÄÄÄÄÄÄººÅQ%YÅ—°îÅôïïêÅÕÖÂÃÅÕºÅ•∏Å•—ÃÅ…ïÖÕΩπÃÅ±•πîÉäPÅÖπêÅâïçÖ’ÕîÅ—°•Ã(ÄÄÄÄÄÄÄÄÄÄººÅÕ—…•πúÅ•ÃÅùÖ—ïêÅΩ∏Å—°îÅÕÖµîÅÅ¡ï…ÕΩπÖ±•ÈïëÄÅô±ÖúÅ—°Ö–ÅùÖ—ïÃ(ÄÄÄÄÄÄÄÄÄÄººÅÖ¡¡±Âôô•π•—‰∞Å—°îÅ—Ωùù±îÅπΩ‹Å°ÖÃÅŸ•Õ•â±îÅôïïëâÖç¨ËÅô±•¿Å•–ÅÖπê(ÄÄÄÄÄÄÄÄÄÄººÅ—°•ÃÅ…ïÖÕΩ∏ÅÖ¡¡ïÖ…ÃΩë•ÕÖ¡¡ïÖ…ÃÅ›•—†Å—°îÅ…ïΩ…ëï»Å•—Õï±ò∏(ÄÄÄÄÄÄÄÄÄÅ•òÄ°¡ï…ÕΩπÖ±•Èïê§Å…ïÖÕΩπÃπ¡’Õ††âÂΩ’»Å—ÖÕ—îÄ°Ω∏ÉäPÅÖŸΩ…•—ïÃÉäZ‡ÅAï…ÕΩπÖ±•ÈÖ—•Ω∏§à§Ï(ÄÄÄÄÄÄÄÄÄÄººÉäRäR Å!I<ÅA%,ÉäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäRäR (ÄÄÄÄÄÄÄÄÄÄººÅ=πîÅÕ—ÖπëΩ’–Å—ºÅù…ïï–ÅÂΩ‘∏ÅQ°îÅôïïêÅ•ÃÅÖ±…ïÖë‰Å—’πïêÅ—ºÅ—•µîÅΩòÅëÖ‰(ÄÄÄÄÄÄÄÄÄÄººÅÖπêÅ—ΩëÖ‰ùÃÅ›ïÖ—°ï»Å’¡Õ—…ïÖ¥∞ÅÕºÅ—°îÅ°ï…ºÅë…Ö›ÃÅô…Ω¥Å—°Ö–Å—’πïêÅ±•Õ–(ÄÄÄÄÄÄÄÄÄÄººÅÖπêÅ…ïÕ¡ïç—ÃÅ—°îÅÖç—•ŸîÅ•π—ïπ–Åç°•¿∏Å]°•ç†ÅÖπù±îÅù…ïï—ÃÅÂΩ‘(ÄÄÄÄÄÄÄÄÄÄººÅÖ±—ï…πÖ—ïÃÅâ‰Å—•µîÅâ’ç≠ï–ÉäPÅ—°îÅ—Ω¿µ…Öπ≠ïêÅ¡•ç¨Å•∏ÅÕΩµîÅâ’ç≠ï—Ã∞ÅÑ(ÄÄÄÄÄÄÄÄÄÄººÅÕ—…ΩπúÅâ’–Å±ïÕÃµΩâŸ•Ω’ÃÅùï¥Å•∏ÅΩ—°ï…ÃÉäPÅÕºÅµΩ…π•πúÅÖπêÅÖô—ï…πΩΩ∏(ÄÄÄÄÄÄÄÄÄÄººÅπïŸï»ÅΩ¡ï∏ÅΩ∏Å—°îÅÕÖµîÅçÖ…ê∏Å%–Å•ÃÅëï—ï…µ•π•Õ—•åÅ›•—°•∏ÅÑÅâ’ç≠ï–∞ÅÕº(ÄÄÄÄÄÄÄÄÄÄººÅ•–ÅëΩïÃÅπΩ–Å…ïÕ°’ôô±îÅΩ∏ÅÂΩ‘ÏÅ—Ö¡¡•πúÄâÖπΩ—°ï»ÅÖπù±îàÅçÂç±ïÃÅâï—›ïï∏(ÄÄÄÄÄÄÄÄÄÄººÅ—°îÅ—›ºÅ›•—°Ω’–Å…ïôï—ç°•πúÅÖπÂ—°•πú∏(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°ï…Ω	’ç≠ï–ÄÙÅ†ÄÄƒƒÄ¸Ä¿ÄËÅ†ÄÄƒ‘Ä¸ÄƒÄËÅ†ÄÄƒ‹Ä¸Ä»ÄËÅ†ÄÄ»»Ä¸ÄÃÄËÄ–Ï(ÄÄÄÄÄÄÄÄÄÄººÅQ…’Õ–Åô•‡Ä°ÿ–∏»§ËÅ—°îÅ°ï…ºÅµ’Õ–ÅâîÅÕΩµï›°ï…îÅÂΩ‘ÅçÖ∏ÅÖç—’Ö±±‰ÅùºÅ…•ù°–ÅπΩ‹∏(ÄÄÄÄÄÄÄÄÄÄººÅA…ïôï»Å¡±ÖçïÃÅçΩπô•…µïêÅΩ¡ï∏ÏÅ•òÅπΩπîÅÖ…îÅçΩπô•…µïêÅΩ¡ï∏∞ÅôÖ±∞ÅâÖç¨Å—º(ÄÄÄÄÄÄÄÄÄÄººÅ’π≠πΩ›∏µÕ—Ö—’ÃÅ¡±ÖçïÃÏÅΩπ±‰Å•òÅπï•—°ï»Åï·•Õ—ÃÅëºÅ›îÅÕ’…ôÖçîÅÑÅç±ΩÕïêÅ¡±Öçî∞(ÄÄÄÄÄÄÄÄÄÄººÅÖπêÅ—°îÅâÖëùîÅâï±Ω‹Åë…Ω¡ÃÅ—°îÄâÕ—Ö…–Å°ï…îàÅ¡…Ωµ•ÕîÅ•∏Å—°Ö–ÅçÖÕî∏(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°ï…Ω=¡ïπ9Ω‹ÄÙÅë•Õ¡±ÖÂ1•Õ–πô•±—ï»†°¿§ÄÙ¯Å¿ÄòòÅ¿πΩ¡ïπ9Ω‹ÄÙÙÙÅ—…’î§Ï(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°ï…ΩUπ≠πΩ›∏ÄÙÅë•Õ¡±ÖÂ1•Õ–πô•±—ï»†°¿§ÄÙ¯Å¿ÄòòÅ¿πΩ¡ïπ9Ω‹ÄÙÙÅπ’±∞§Ï(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°ï…Ω	ÖÕîÄÙÅ°ï…Ω=¡ïπ9Ω‹π±ïπù—†Ä¸Å°ï…Ω=¡ïπ9Ω‹ÄËÄ°°ï…ΩUπ≠πΩ›∏π±ïπù—†Ä¸Å°ï…ΩUπ≠πΩ›∏ÄËÅë•Õ¡±ÖÂ1•Õ–πô•±—ï»°	ΩΩ±ïÖ∏§§Ï(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°ï…ΩQΩ¿ÄÙÅ°ï…Ω	ÖÕîπ±ïπù—†Ä¸Å°ï…Ω	ÖÕïl¡tÄËÅπ’±∞Ï(ÄÄÄÄÄÄÄÄÄÄººÅÅ—…’îÅ°•ëëï∏Åùï¥Å•ÃÅ°•ù†Å≈’Ö±•—‰Åâ’–Å1=\Å…ïŸ•ï‹ÅŸΩ±’µî∏ÅÅ¡±ÖçîÅ›•—†(ÄÄÄÄÄÄÄÄÄÄººÅ—°Ω’ÕÖπëÃÅΩòÅ…ïŸ•ï›ÃÅ•ÃÅπΩ–ÅÑÅùï¥∞ÅÕºÅâΩ’πêÅâ‰Å…ïŸ•ï‹ÅçΩ’π–ÅâïôΩ…îÅ±Öâï±•πú∏(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°ï…ΩïµQ…’îÄÙÅ°ï…Ω	ÖÕîπ±ïπù—†Ä¯ÙÄÃ(ÄÄÄÄÄÄÄÄÄÄÄÄ¸Å°ï…Ω	ÖÕîπÕ±•çî†»∞Ä‡§πô•±—ï»†°¿§ÄÙ¯Å¿ÄòòÄ°¿π…Ö—•πúÅÒÄ¿§Ä¯ÙÄ–∏‘ÄòòÄ°¿π…ïŸ•ï›ÃÅÒÄ¿§Ä¯Ä¿ÄòòÄ°¿π…ïŸ•ï›ÃÅÒÄ¿§ÄÄ‡¿¿§π…ïë’çî†°à∞Å¿§ÄÙ¯Ä†ÖàÅÒÄ°¿π…Ö—•πúÅÒÄ¿§Ä¯Ä°àπ…Ö—•πúÅÒÄ¿§Ä¸Å¿ÄËÅà§∞Åπ’±∞§(ÄÄÄÄÄÄÄÄÄÄÄÄËÅπ’±∞Ï(ÄÄÄÄÄÄÄÄÄÄººÅÖ±±âÖç¨ÅÖ±—ï…πÖ—•ŸîÅôΩ»Å—°îÅ…Ω—Ö—•Ω∏Å›°ï∏Å—°ï…îÅ•ÃÅπºÅ—…’îÅùï¥ËÅπï·–ÅÕ—…ΩπùïÕ–Å¡•ç¨Ä°πΩ–Å±Öâï±ïêÅÑÅùï¥§∏(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°ï…Ωï¥ÄÙÅ°ï…ΩïµQ…’îÅÒÄ°°ï…Ω	ÖÕîπ±ïπù—†Ä¯ÙÄÃÄ¸Å°ï…Ω	ÖÕïl…tÄËÅπ’±∞§Ï(ÄÄÄÄÄÄÄÄÄÅ±ï–Å°ï…Ω=…ëï»ÄÙÄ°°ï…Ω	’ç≠ï–ÄîÄ»ÄÙÙÙÄ¿§Ä¸Åm°ï…ΩQΩ¿∞Å°ï…ΩïµtÄËÅm°ï…Ωï¥∞Å°ï…ΩQΩ¡tÏ(ÄÄÄÄÄÄÄÄÄÅ°ï…Ω=…ëï»ÄÙÅ°ï…Ω=…ëï»πô•±—ï»†°¿∞Å§∞ÅÑ§ÄÙ¯Å¿ÄòòÅÑπô•πë%πëï‡†°‡§ÄÙ¯Å‡ÄòòÅ‡π•êÄÙÙÙÅ¿π•ê§ÄÙÙÙÅ§§Ï(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°ï…ΩA•ç¨ÄÙÅ°ï…Ω=…ëï»π±ïπù—†Ä¸Å°ï…Ω=…ëï…m°ï…Ω9ΩπçîÄîÅ°ï…Ω=…ëï»π±ïπù—°tÄËÅπ’±∞Ï(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°ï…ΩM∞ÄÙÅ°ï…ΩA•ç¨Ä¸ÅÕçΩ…ï1Öâï∞°°ï…ΩA•ç¨π›ôMçΩ…î§ÄËÅπ’±∞Ï(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°ï…Ω!ΩΩ¨ÄÙÅ°ï…ΩA•ç¨Ä¸Å°ΩΩ≠Ö…ëÃπô•πê†°°¨§ÄÙ¯Å°¨ÄòòÅ°¨π¡±Öçï%êÄÙÙÙÅ°ï…ΩA•ç¨π•ê§ÄËÅπ’±∞Ï(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅÕïç—•Ωπ!ΩΩ≠ÃÄÙÅ°ΩΩ≠Ö…ëÃπô•±—ï»†°°¨§ÄÙ¯Å°¨ÄòòÅ°¨π•êÄÑÙÙÄâ—Ω¿‘àÄòòÄ†Ö°ï…Ω!ΩΩ¨ÅÒÅ°¨π•êÄÑÙÙÅ°ï…Ω!ΩΩ¨π•ê§§πÕ±•çî†¿∞Ä‘§Ï(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅÕïç—•Ωπ!ΩΩ≠%ëÃÄÙÅπï‹ÅMï–°Õïç—•Ωπ!ΩΩ≠ÃπµÖ¿†°°¨§ÄÙ¯Å°¨π•ê§§Ï(ÄÄÄÄÄÄÄÄÄÄººÅÿ‡∏‡‹ÉäPÅÅ¡•ç≠Õ!ΩΩ≠ÄÅ1Q∞ÅçΩµ¡’—ïêÅÖπêÅπïŸï»Å…ïπëï…ïê∏Å%–Å›ÖÃÅÑ(ÄÄÄÄÄÄÄÄÄÄººÅôÖ±±âÖç¨Å—›•∏ÅΩòÅ—°îÅÅ—Ω¿’ÄÅ°ΩΩ¨ÅçÖ…êÅâ’•±–Å¯‹∞¿¿¿Å±•πïÃÅ’¿Ä°—°î(ÄÄÄÄÄÄÄÄÄÄººÅ]ÖÂô•πêÅA•ç≠ÃÅïπ—…‰Å•π—ºÅ—°îÅ—Ω¿¥ƒ¿ÅÕ°ïï–∞Å•êÄâ—Ω¿‘à∞Å—°ïµîÄââïÕ–à§∞(ÄÄÄÄÄÄÄÄÄÄººÅ›…•——ï∏ÅÕºÅ—°îÅïπ—…‰Äâ›Ω…≠ÃÅ›°ï—°ï»ÅΩ»ÅπΩ–Å$Å°ΩΩ≠ÃÅÖ…îÅ¡…ïÕïπ–àÉäP(ÄÄÄÄÄÄÄÄÄÄººÅÖπêÅ—°ï∏ÅπïŸï»Å…ïôï…ïπçïê∞ÅÕºÅ•–Å›Ω…≠ïêÅ•∏Åπï•—°ï»ÅçÖÕî∏ÅQ°îÅ±•Ÿî(ÄÄÄÄÄÄÄÄÄÄººÅëΩΩ»Å•ÃÅ…ïÖ∞ÅÖπêÅ…ïÖç°Öâ±îËÅ°ΩΩ≠Ö…ëÃÅïµ•—ÃÅ—Ω¿‘Å›°ïπïŸï»Å—°îÅôïïê(ÄÄÄÄÄÄÄÄÄÄººÅ°ÖÃÅô•ŸîÅÕçΩ…ïêÅ¡±ÖçïÃ∞ÅÖπêÅÅÕïç—•Ωπ!ΩΩ≠ÕÄÅΩπîÅ±•πîÅÖâΩŸîÅô•±—ï…ÃÅ•–(ÄÄÄÄÄÄÄÄÄÄººÅΩ’–Å¡…ïç•Õï±‰ÅâïçÖ’ÕîÅ—°îÅ!I<ÅÖ±…ïÖë‰ÅçÖ……•ïÃÅ•–∏Å9ºÅÕ’…ôÖçîÅ•Ã(ÄÄÄÄÄÄÄÄÄÄººÅ±ΩÕ–Åâ‰Å…ïµΩŸ•πúÅ—°•ÃÏÅ—°îÅÕÖµîÅÕ›ïï¿Å—°Ö–ÅôΩ’πêÅ—°îÅëïÖêÅïŸïπ—Ã(ÄÄÄÄÄÄÄÄÄÄººÅ…Ö•∞ÅôΩ’πêÅ—°•Ã∞ÅÖπêÅÕç…•¡—ÃΩç°ïç¨µïŸïπ—Ãµ…Ö•∞µ…ïπëï…Ãπµ©ÃÅ≠ïï¡Ã(ÄÄÄÄÄÄÄÄÄÄººÅâΩ—†Åç±ÖÕÕïÃÅô…Ω¥ÅçΩµ•πúÅâÖç¨∏(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°ï…ΩIïÖÕΩ∏ÄÙÅ°ï…ΩA•ç¨Ä¸Ä†°°ï…Ω!ΩΩ¨ÄòòÅ°ï…Ω!ΩΩ¨π°ΩΩ¨§Ä¸Å°ï…Ω!ΩΩ¨π°ΩΩ¨ÄËÅâ±’…â1•πî°â±’…âÕm°ï…ΩA•ç¨π•ët§§ÄËÄààÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°ï…Ω%Õï¥ÄÙÄÑÑ°°ï…ΩA•ç¨ÄòòÅ°ï…ΩïµQ…’îÄòòÅ°ï…ΩA•ç¨π•êÄÙÙÙÅ°ï…ΩïµQ…’îπ•êÄòòÄ†Ö°ï…ΩQΩ¿ÅÒÅ°ï…ΩïµQ…’îπ•êÄÑÙÙÅ°ï…ΩQΩ¿π•ê§§Ï(ÄÄÄÄÄÄÄÄÄÄººÅ!ΩπïÕ–Å°ï…ºÅâÖëùîËÅΩπ±‰ÅÕÖ‰ÄâÕ—Ö…–Å°ï…îàÅ›°ï∏Å—°îÅ¡±ÖçîÅ•ÃÅùïπ’•πï±‰ÅΩ¡ï∏ÅπΩ‹∏(ÄÄÄÄÄÄÄÄÄÄººÅ%òÅ•–ÅΩ¡ïπÃÅ±Ö—ï»Å—ΩëÖ‰∞ÅÕï–Å—°Ö–Åï·¡ïç—Ö—•Ω∏Å•πÕ—ïÖêÅΩòÅ•µ¡±Â•πúÅ•–Å•ÃÅ…ïÖë‰∏(ÄÄÄÄÄÄÄÄÄÄººÅ%òÅÕ—Ö—’ÃÅ•ÃÅ’π≠πΩ›∏ÅΩ»Å•–Å•ÃÅç±ΩÕïê∞ÅôÖ±∞ÅâÖç¨Å—ºÅÑÅπï’—…Ö∞Äâ—Ω¿Å¡•ç¨àÅ±Öâï∞∏(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°ï…Ω=¡ïπΩπô•…µïêÄÙÄÑÑ°°ï…ΩA•ç¨ÄòòÅ°ï…ΩA•ç¨πΩ¡ïπ9Ω‹ÄÙÙÙÅ—…’î§Ï(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°ï…Ω=¡ïπÕ1Ö—ï»ÄÙÄÑÑ°°ï…ΩA•ç¨ÄòòÅ°ï…ΩA•ç¨πΩ¡ïπ9Ω‹ÄÙÙÙÅôÖ±ÕîÄòòÅ°ï…ΩA•ç¨ππï·—=¡ï∏ÄòòÅ°ï…ΩA•ç¨ππï·—=¡ï∏π—ΩëÖ‰§Ï(ÄÄÄÄÄÄÄÄÄÅ±ï–Å°ï…Ω	Öëùï%çΩ∏ÄÙÅ°ï…Ω%Õï¥Ä¸Äã¬~J8àÄËÄã¬~N4àÏ(ÄÄÄÄÄÄÄÄÄÅ±ï–Å°ï…Ω	ÖëùïQï·–ÄÙÅ°ï…Ω%Õï¥Ä¸Äâ!•ëëï∏Åùï¥ÅπïÖ…â‰àÄËÄâQΩ¿Å¡•ç¨ÅπïÖ…â‰àÏ(ÄÄÄÄÄÄÄÄÄÅ•òÄ°°ï…Ω=¡ïπΩπô•…µïê§ÅÏÅ°ï…Ω	Öëùï%çΩ∏ÄÙÅ°ï…Ω%Õï¥Ä¸Äã¬~J8àÄËÄãär†àÏÅ°ï…Ω	ÖëùïQï·–ÄÙÅ°ï…Ω%Õï¥Ä¸Äâ!•ëëï∏Åùï¥É
+‹ÅΩ¡ï∏ÅπΩ‹àÄËÄâ=¡ï∏ÅπΩ‹àÏÅÙ(ÄÄÄÄÄÄÄÄÄÅï±ÕîÅ•òÄ°°ï…Ω=¡ïπÕ1Ö—ï»§ÅÏÅ°ï…Ω	Öëùï%çΩ∏ÄÙÄãä>ÃàÏÅ°ï…Ω	ÖëùïQï·–ÄÙÄâ]Ω…—†Å—°îÅ›Ö•–É
+‹ÄàÄ¨Å°ï…ΩA•ç¨ππï·—=¡ï∏π±Öâï∞ÏÅÙ(ÄÄÄÄÄÄÄÄÄÄººÅÿ–∏ÿËÅ—•ù°—ï»∞ÅµΩ…îÅçΩπô•ëïπ–Å…ïÖÕΩ∏Å±•πî∏Å…Ω¡ÃÅ—°îÅ…Ö—•πúÅ¡Ö…ïπ—°ï—•çÖ∞ÅÖπêÅ—°î(ÄÄÄÄÄÄÄÄÄÄººÅë•Õ—ÖπçîÄ°âΩ—†ÅÖ±…ïÖë‰ÅÕ°Ω›∏ÅÖâΩŸî§ÅÖπêÅÕ°Ö…¡ïπÃÅ—°îÅ›ïÖ—°ï»ÅÖπêÅ—•µîÅô…Öùµïπ—Ã∏(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å›°ÂA•ç¨ÄÙÅ†ÄÄƒƒÄ¸ÄâµΩ…π•πúàÄËÅ†ÄÄƒ‘Ä¸Äâ±’πç†àÄËÅ†ÄÄƒ‹Ä¸ÄâÖô—ï…πΩΩ∏àÄËÅ†ÄÄ»»Ä¸ÄâïŸïπ•πúàÄËÄâ±Ö—îµπ•ù°–àÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°ï…Ω]°‰ÄÙÅmtÏ(ÄÄÄÄÄÄÄÄÄÅ•òÄ°°ï…ΩA•ç¨§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°°ï…Ω=¡ïπΩπô•…µïê§Å°ï…Ω]°‰π¡’Õ††âΩ¡ï∏ÅπΩ‹à§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°°ï…ΩA•ç¨π…Ö—•πúÄÑÙÅπ’±∞ÄòòÅ°ï…ΩA•ç¨π…Ö—•πúÄ¯ÙÄ–∏‘§Å°ï…Ω]°‰π¡’Õ††â±ΩŸïêÅ±ΩçÖ±±‰à§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅï±ÕîÅ•òÄ°°ï…ΩM∞ÄòòÅ°ï…ΩM∞π›Ω…ê§Å°ï…Ω]°‰π¡’Õ†°°ï…ΩM∞π›Ω…êπ—Ω1Ω›ï…ÖÕî†§Ä¨ÄàÅ…Ö—ïêà§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°›ïÖ—°ï»ÄòòÅ›ïÖ—°ï»π—ïµ¿ÄÑÙÅπ’±∞ÄòòÅ›ïÖ—°ï»π—ïµ¿Ä¯ÙÄ‘‡ÄòòÅ›ïÖ—°ï»π—ïµ¿ÄÙÄ‰»ÄòòÄÑ°›ïÖ—°ï»π±Öâï∞ÄòòÄΩ…Ö•πÒÕ—Ω…µÒÕπΩ›ÒÕ±ïï–Ω§π—ïÕ–°›ïÖ—°ï»π±Öâï∞§§§Å°ï…Ω]°‰π¡’Õ††âù…ïÖ–Å›ïÖ—°ï»ÅµÖ—ç†à§Ï(ÄÄÄÄÄÄÄÄÄÄÄÅ°ï…Ω]°‰π¡’Õ††âÕ—…ΩπúÄàÄ¨Å›°ÂA•ç¨Ä¨ÄàÅ¡•ç¨à§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄººÄ»¿»ÿ¥¿‡¥¿‡ËÅë•Õç±ΩÕ’…îÅôΩ»Å—°îÅ—…ïπë•πúÅçΩµ¡Ωπïπ–ÉäPÅ•òÅ—°îÅ°ï…ºùÃ(ÄÄÄÄÄÄÄÄÄÄÄÄººÅπ’µâï»ÅçÖ……•ïÃÅ—°îÅâ’µ¿∞Å—°îÅ›°‰µ±•πîÅÕÖÂÃÅÕº∞Åô•…Õ–∏(ÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°°ï…ΩA•ç¨π—…ïπë•πúÄòòÅ°ï…ΩA•ç¨π—…ïπë}…ïÖÕΩ∏§Å°ï…Ω]°‰π’πÕ°•ô–†ã¬~RîÄàÄ¨Å°ï…ΩA•ç¨π—…ïπë}…ïÖÕΩ∏§Ï(ÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åôïïë1•Õ–¿ÄÙÅ°ï…ΩA•ç¨Ä¸Åë•Õ¡±ÖÂ1•Õ–πô•±—ï»†°¿§ÄÙ¯Å¿ÄòòÅ¿π•êÄÑÙÙÅ°ï…ΩA•ç¨π•ê§ÄËÅë•Õ¡±ÖÂ1•Õ–Ï(ÄÄÄÄÄÄÄÄÄÄººÅÿ–∏»–ÅπïÖ»µô•…Õ–Å…’±îËÅ›•—†Ä‘¨ÅΩ¡—•ΩπÃÅ•πÕ•ëîÄƒ»Åµ•±ïÃ∞ÅπΩ—°•πúÅ¡ÖÕ–(ÄÄÄÄÄÄÄÄÄÄººÄ»¿Åµ•±ïÃÅµÖ‰ÅΩ’—…Öπ¨Å—°ï¥∏ÅM¡Ö…ÕîÅÖ…ïÖÃÄ°ôï›ï»Å—°Ö∏Ä‘Åç±ΩÕî§Åï·ïµ¡–∏(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}πïÖ…Ω’π–ÄÙÅôïïë1•Õ–¿πô•±—ï»†°¿§ÄÙ¯Å¿ÄòòÅ¿πë•Õ—5§ÄÑÙÅπ’±∞ÄòòÅ¿πë•Õ—5§ÄÙÄƒ»§π±ïπù—†Ï(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åôïïë1•Õ–¡@ÄÙÅ}πïÖ…Ω’π–Ä¯ÙÄ‘Ä¸Åôïïë1•Õ–¿πÕ±•çî†§πÕΩ…–†°Ñ∞Åà§ÄÙ¯Ä††°Ñπë•Õ—5§ÄÑÙÅπ’±∞ÄòòÅÑπë•Õ—5§Ä¯Ä»¿§Ä¸ÄƒÄËÄ¿§Ä¥Ä†°àπë•Õ—5§ÄÑÙÅπ’±∞ÄòòÅàπë•Õ—5§Ä¯Ä»¿§Ä¸ÄƒÄËÄ¿§§§ÄËÅôïïë1•Õ–¿Ï(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åôïïë1•Õ—LÄÙÅÕΩ…—	‰ÄÙÙÙÄâ…Ö—ïêàÄ¸Åôïïë1•Õ–¡@πÕ±•çî†§πÕΩ…–°IÖπ≠•πúπâÂQΩ¡IÖ—ïê§ÄËÅÕΩ…—	‰ÄÙÙÙÄâ¡…•çîàÄ¸Åôïïë1•Õ–¡@πÕ±•çî†§πÕΩ…–†°Ñ∞Åà§ÄÙ¯Ä††°Ñπ¡…•çï}±ïŸï∞Ä¸¸ÅÑπ¡…•çï1ïŸï∞Ä¸¸Ä‰§§Ä¥Ä†°àπ¡…•çï}±ïŸï∞Ä¸¸Åàπ¡…•çï1ïŸï∞Ä¸¸Ä‰§§§ÅÒÄ†°àπ…Ö—•πúÅÒÄ¿§Ä¥Ä°Ñπ…Ö—•πúÅÒÄ¿§§§ÄËÅôïïë1•Õ–¡@Ï(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åôïïë1•Õ—8ÄÙÅÕΩ…—	‰ÄÙÙÙÄâπïÖ»àÄ¸Åôïïë1•Õ—Lπô•±—ï»†°¿§ÄÙ¯Å¿ÄòòÄ°Õ±•ëï…5§Ä¯ÙÄÿ¿ÅÒÅ¿πë•Õ—5§ÄÙÙÅπ’±∞ÅÒÅ¿πë•Õ—5§ÄÙÅÕ±•ëï…5§§§ÄËÅôïïë1•Õ—LÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åôïïë1•Õ–ÄÙÅëïÖ±Õ=π±‰Ä¸Åôïïë1•Õ—8πô•±—ï»†°¿§ÄÙ¯ÅΩôôï…Õm¿π•ët§ÄËÅôïïë1•Õ—8Ï(ÄÄÄÄÄÄÄÄÄÄººÅQ…’Õ–Åô•‡Ä°ÿ–∏Ã§ËÅç±ΩÕïêÅ¡±ÖçïÃÅπºÅ±Ωπùï»Å°Ω±êÅ—°îÅ—Ω¿ÅÕ±Ω—Ã∏ÅMΩ…–Åâ‰Å—°î(ÄÄÄÄÄÄÄÄÄÄººÅç°ΩÕï∏ÅΩ…ëï»Åô•…Õ–Ä°ÕçΩ…îÅôΩ»Å	ïÕ–∞Åë•Õ—ÖπçîÅôΩ»Å±ΩÕïÕ–§∞Å—°ï∏ÅÕ—Öâ±‰Å¡’Õ†(ÄÄÄÄÄÄÄÄÄÄººÅΩ¡ï∏µπΩ‹Å—ºÅ—°îÅ—Ω¿∞Å’π≠πΩ›∏µÕ—Ö—’ÃÅπï·–∞ÅΩ¡ïπÃµ±Ö—ï»Åâï±Ω‹Å—°Ö–∞ÅÖπêÅç±ΩÕïê(ÄÄÄÄÄÄÄÄÄÄººÅ±ÖÕ–∏Å±ΩÕïêÅÕ¡Ω—ÃÅÕ—•±∞ÅÖ¡¡ïÖ»∞Å©’Õ–ÅπïŸï»Å•∏Å—°îÅµΩÕ–ÅŸÖ±’Öâ±îÅ¡ΩÕ•—•ΩπÃ∏(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°Ωµï=¡ïπIÖπ¨ÄÙÄ°¿§ÄÙ¯ÄÖ¿Ä¸Ä–ÄËÅ¿πΩ¡ïπ9Ω‹ÄÙÙÙÅ—…’îÄ¸Ä¿ÄËÅ¿πΩ¡ïπ9Ω‹ÄÙÙÅπ’±∞Ä¸ÄƒÄËÄ°¿ππï·—=¡ï∏ÄòòÅ¿ππï·—=¡ï∏π—ΩëÖ‰§Ä¸Ä»ÄËÄÃÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°Ωµï	ÖÕïMΩ…—ïêÄÙÅÕΩ…—	‰ÄÙÙÙÄâπïÖ»àÄ¸Ål∏∏πôïïë1•Õ—tπÕΩ…–†°Ñ∞Åà§ÄÙ¯Ä°Ñπë•Õ—5§Ä¸¸Ä≈îƒ»§Ä¥Ä°àπë•Õ—5§Ä¸¸Ä≈îƒ»§§ÄËÅl∏∏πôïïë1•Õ—tÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°ΩµïïïêÄÙÅ°Ωµï	ÖÕïMΩ…—ïêπÕΩ…–†°Ñ∞Åà§ÄÙ¯Å°Ωµï=¡ïπIÖπ¨°Ñ§Ä¥Å°Ωµï=¡ïπIÖπ¨°à§§Ï(ÄÄÄÄÄÄÄÄÄÅ…ï—’…∏Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄ¯(ÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿ‡∏»ÉäPÅQ!Å	9ÅIU9LÅÅQ<ÅÄ°Ω›πï»∞Ä»¿»ÿ¥¿‡¥ƒ‘ÏÅ±ÖàË(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄπ…Ö•±ÕïåÄºÄπ°ï…ºÄºÄπµïπ’ÕïåÅÖ…îÅÖ±∞Åô’±∞µâ±ïïêÅ›°•±îÄπ›…Ö¿ÅçÖ¡Ã(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°îÅ=9Q9PÅ•πÕ•ëîÅ—°ï¥ÅÖ–Äƒ‹»¡¡‡§∏((ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ%–ÅµΩŸïêÅ=UPÅΩòÄπ›òµçΩ∞µµÖ•∏∞Å›°•ç†ÅçÖ¡ÃÅÖ–Å—°îÅôïïêÅµïÖÕ’…îÉäP(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°Ö–ÅçÖ¿Å•ÃÅ›°Ö–Åç±•¡¡ïêÅ—°îÅ…Ö•∞Åµ•êµçÖ…êÅÖπêÅµÖëîÅÑÄƒ‘µçÖ…ê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅëïç¨Å…ïÖêÅÖÃÅÑÅâ…Ω≠ï∏Å…Ω‹∏ÅQ°îÅ…Ö•∞ÅÖ±…ïÖë‰Å°ÖêÄπ›ò‡µ•∏ÅëΩ•πú(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅï·Öç—±‰Å—°îÅ±ÖàùÃÅ©Ωà∞ÅÕºÅπΩ—°•πúÅ•πÕ•ëîÅ•–Åç°ÖπùïêËÅ•–Å©’Õ–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕ—Ω¡¡ïêÅâï•πúÅπïÕ—ïêÅ•∏ÅÑÅçΩ±’µ∏ÅπÖ……Ω›ï»Å—°Ö∏Å•—Õï±ò∏((ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅM—•±∞Å—°îÅ%IMPÅ—°•πúÅ•∏Å—°îÅôïïê∞ÅÕºÅ—°îÅ…Ö•∞Å±ïÖëÃÅ—°îÅ¡Öùî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅï·Öç—±‰ÅÖÃÅ•–Åë•êÅ•∏Åÿ‡ÉäPÅÕïîÅç°ïç¨µ°ΩµîµÖπÕ›ï»µô•…Õ–∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÅÌ…Ö•±5ïπ’	ÖπëÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµçΩ±Ãà¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµçΩ∞µµÖ•∏à¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿ‡∏–ÃÉäPÅQ!ÅA%ÅMA=9M=HÅI∞Åô•…Õ–Å•∏Å—°îÅçΩ±’µ∏∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ]ÖÂô•πêùÃÅô•…Õ–Åë•…ïç–ÅÖëŸï…—•Õï»ÅâΩ’ù°–Å—°•ÃÅÕ±Ω–∞ÅÖπêÅÑ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅâΩ’ù°–ÅÕ±Ω–Å—°Ö–ÅπΩâΩë‰ÅÕç…Ω±±ÃÅ—ºÅ•ÃÅ›Ω…—†ÅπΩ—°•πúÅ—ºÅ—°ï¥ÅΩ»(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—ºÅ’ÃÉäPÅÕºÅ•–Å±ïÖëÃÅ—°îÅçΩ±’µ∏Å…Ö—°ï»Å—°Ö∏Åâï•πúÅâ’…•ïêÅ›°ï…î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ°Ω’ÕîÅ•πŸïπ—Ω…‰Å’Õ’Ö±±‰ÅùΩïÃ∏((ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ%PÅ%LÅMÅQ!IÅ=HÅ=9ÅIM=8ËÅÅÕ¡ΩπÕΩ…ïëA•ç≠ÄÅ•ÃÅπΩ∏µπ’±∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ=91dÅ•πÕ•ëîÅ—°îÅÖëŸï…—•Õï»ùÃÅΩ›∏ÅâΩ’ù°–Å…Öë•’Ã(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ°±•àΩÕ¡ΩπÕΩ…ïëA±ÖçïÃπ©Ã∞Äƒ’µ§ÅôΩ»ÅI•ºÅ	Ωë‰Å]Ö‡ÅÖÕ—Ωπ•Ñ∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ¡•ππïêÅâ‰ÅÕç…•¡—ÃΩç°ïç¨µÕ¡ΩπÕΩ…ïêµ¡±ÖçïÃπµ©Ã§∏ÅŸï…‰ÅΩ—°ï»(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ïÖëï»ÅΩ∏Å—°îÅ¡±Öπï–Å…ïπëï…ÃÅπΩ—°•πúÅ°ï…îÅÖπêÅ—°îÅ…Ö•∞ÅâÖπê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖâΩŸîÅ•ÃÅÕ—•±∞Å—°îÅô•…Õ–Å—°•πúÅ—°ï‰ÅÕïî∞ÅÕº(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅç°ïç¨µ°ΩµîµÖπÕ›ï»µô•…Õ–ùÃÅ•πŸÖ…•Öπ–Å•ÃÅ’π—Ω’ç°ïê∏((ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅQ°îÅë•Õç±ΩÕ’…îÅ•ÃÅ•πÕ•ëîÅ—°îÅçÖ…ê∞Å—›•çî∞ÅÖπêÅ—°îÅ]ÖÂô•πê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅMçΩ…îÅ•–ÅÕ°Ω›ÃÅ•ÃÅ…ïçΩµ¡’—ïêÅâ‰Å—°îÅÕÖµîÅôΩ…µ’±ÑÅÖÃÅïŸï…‰(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ’π¡Ö•êÅçÖ…ê∏Å5Ωπï‰Åâ’ÂÃÅ—°îÅ¡ΩÕ•—•Ω∏∞ÅπïŸï»Å—°îÅπ’µâï»∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏÖâ…Ω›ÕïÖ–ÄòòÅÕ¡ΩπÕΩ…ïëA•ç¨Ä¸Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒM¡ΩπÕΩ…ïëA±ÖçïÖ…êÅ¡•ç¨ıÌÕ¡ΩπÕΩ…ïëA•ç≠ÙÅΩπ1ΩúıÏ°Ñ∞Å¿∞Åï·—…Ñ§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–°Ñ∞Å¿∞Åï·—…Ñ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ§ÄËÅπ’±±Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿÿ∏ÿ»Ä†»¿»ÿ¥¿‡¥¿‡∞ÅΩ›πï»ËÄâÖëêÅ—°•ÃÅ—ºÅ—°îÅ—Ω¿ÅΩòÅ—°îÅ¡Öùîà§∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅIYIMLÅÿÿ∏‰‹ùÃÄâ5=YÅ	1=\ÅQ!Å9M]HàÅçÖ±∞Åâï±Ω‹∏ÅQ°îÅÕ•‡(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçÖ—ïùΩ…•ïÃÅÖ…îÅâÖç¨Å—ºÅâï•πúÅ—°îÅô•…Õ–Å—°•πúÅΩ∏Å—°îÅ¡Öùî∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕÖµîÅÖÃÅâïôΩ…îÄ»¿»ÿ¥¿‡¥¿ÿ∏Å±ÖùùïêÅ—°îÅ—…ÖëïΩôòÅ—ºÅ—°îÅΩ›πï»(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅâïôΩ…îÅµΩŸ•πúÅ•–ÉäPÅ—°îÅ…Öπ≠ïêÅ±•Õ–Ä°	ïÕ—9ïÖ…â‰§Åâï±Ω‹Å•Ã(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅU9!9ÅÖπêÅÕ—•±∞Å±ïÖëÃÅΩŸï»Å—°îÅïŸïπ—ÃÅ…Ö•∞∞Å°ï…ºÅçÖ…êÅÖπê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅë•ÕçΩŸï…‰Åù…•êÄ°—°Ö–ÅΩ…ëï…•πúÅ°ÖÃÅ…ïÖ∞ÅAΩÕ—!ΩúÅâΩ’πçîµ…Ö—î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅëÖ—ÑÅâï°•πêÅ•–ÅÖπêÅ—°îÅΩ›πï»Åç°ΩÕîÅ—ºÅ≠ïï¿Å•–§ÏÅΩπ±‰Å—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçÖ—ïùΩ…•ïÃúÅ¡ΩÕ•—•Ω∏Å…ï±Ö—•ŸîÅ—ºÅ	ïÕ—9ïÖ…â‰Ω…ïÖ—Ω…•πëÃ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅç°Öπùïê∞ÅΩ∏ÅÑÅë•…ïç–∞Åï·¡±•ç•–Å•πÕ—…’ç—•Ω∏∏ÅMïîÅ—°îÅÿÿ∏‰‹(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩµµïπ–ÅÑÅôï‹Å±•πïÃÅëΩ›∏ÅôΩ»Å—°îÅÕ’¡ï…ÕïëïêÅ…ïÖÕΩπ•πú∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅAΩÕ•—•Ω∏ÅÖÕÕï…—ïêÅâ‰ÅÕç…•¡—ÃΩç°ïç¨µ°ΩµîµÖπÕ›ï»µô•…Õ–πµ©Ã(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ°•Ö—ÃÄÅ•	ïÕ—9ïÖ…â‰ÄÅ••πëÃ§∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿ‡Ä†»¿»ÿ¥¿‡¥ƒ‘§ÉäPÅQ!ÅI%0Å59TÅ1L∏Å%–Å…ï¡±ÖçïÃÅ—°îÅ¡…Ωµº(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ°ï…ºÅëïç¨Å—°Ö–Å’ÕïêÅ—ºÅÕ•–Å•πÕ•ëîÅ—°îÅïŸïπ—ÃÅÕïç—•Ω∏ÅÖπê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕΩ±•ëÖ—ïÃÅ•—ÃÅï•ù°–ÅçÖ…ëÃÅ•π—ºÅô•ô—ïï∏∏((ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ%–Å•ÃÅ9Y%Q%=8∞Å•∏Å—°îÅÕÖµîÅç±ÖÕÃÅÖÃÅ—°îÅÕ•‡ÅçÖ—ïùΩ…‰Å—•±ïÃ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅâï±Ω‹Å•–ÅÖπêÅ—°îÅë•ÕçΩŸï…‰Å…Ö•∞Å’πëï»Å—°ΩÕîÉäPÅπΩ–ÅÑÅçΩµ¡ï—•πú(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖπÕ›ï»∞Å›°•ç†Å•ÃÅ›°Ö–Å—°îÅÿÿ∏‘‡ÅµïÖÕ’…ïµïπ–Åâï°•πê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄàÒ	ïÕ—9ïÖ…â‰¯Å±ïÖëÃÅïŸï…‰Å=9Q9PÅÕ’…ôÖçîàÅ›ÖÃÅÖâΩ’–∏ÅQ°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅë•ôôï…ïπçîÅô…Ω¥Å—°îÅëïç¨Å•–Å…ï¡±ÖçïÃËÅ¡•ç≠•πúÅÑÅçÖ…êÅë…Ω¡Ã(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅï•ù°–Å…ïÖ∞Å…Öπ≠ïêÅ¡±ÖçîÅçÖ…ëÃÅ…•ù°–Å°ï…î∞ÅÕºÅÑÅŸ•Õ•—Ω»Åùï—ÃÅÖ∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖπÕ›ï»Å•∏ÅΩπîÅ—Ö¿Å•πÕ—ïÖêÅΩòÅÑÅ¡ÖùîÅ±ΩÖêÉäPÅÖπêÅïŸï…‰Å—•±îÅ•ÃÅÑ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ïÖ∞ÄÒÑÅ°…ïò¯∞ÅÕºÅÑÅç…Ö›±ï»Åô•πÖ±±‰ÅÕïïÃÅ—°îÅô•ô—ïï∏Å¡ÖùïÃ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°•ÃÅ°Ωµï¡ÖùîÅ°ÖÃÅÖ±›ÖÂÃÅâïï∏ÅÖâΩ’–∏ÅQ°îÅΩ±êÅçÖ…ëÃÅπÖŸ•ùÖ—ïê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ›•—†Å›•πëΩ‹π±ΩçÖ—•Ω∏πÖÕÕ•ù∏†§Å•πÕ•ëîÅΩπ±•ç¨∞Å›°•ç†Å•ÃÅ›°‰(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅŸ•ï‹µÕΩ’…çîÅçΩπ—Ö•πïêÅπºÅ±•π¨Å—ºÄΩâïÕ–µâïÖç°ïÃ∞ÄΩ°•ëëï∏µùïµÃ∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩëÖ—îµπ•ù°–∞ÄΩôÖµ•±‰ÅΩ»ÄΩ—…ïπë•πúµπΩ‹ÅÖ–ÅÖ±∞∏((ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…Ö•±5ïπ‘Å•ÃÅÕï…Ÿï»µ…Öπ≠ïêÅÖ–Å…ïùïπï…Ö—•Ω∏Ä°Ö¡¿Ω¡Öùîπ©ÃÄ¥¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ±•àΩ…Ö•±ÕÖ—Ñπ©ÃÅ…Ö•±5ïπ’Ö—Ñ§∏ÅIïπëï…ÃÅπΩ—°•πúÅ›°ï∏Å—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕï…Ÿï»Å°ÖêÅπºÅëÖ—Ñ∞ÅÕºÅ—°•ÃÅçÖ∏ÅπïŸï»ÅâîÅÑÅâ±Öπ¨ÅâÖπê∏Ä®ΩÙ((ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿÿ∏ÿ‘Ä°Ω›πï»∞Ä»¿»ÿ¥¿‡¥¿‡ËÄâ—°îÅµïπ‘Åë•êÅπΩ–ÅùºÅ—ºÅ—°îÅ—Ω¿Å±•≠î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ§ÅÖÕ≠ïêÅÂΩ‘Å—ºà§∏ÅQ!Å%M=YIdÅI%0Å9=\Å1LÅQ=<∏((ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅQ°•ÃÅ•ÃÅ—°îÅµïπ‘Å—°îÅΩ›πï»ÅµïÖπ–∏Åÿÿ∏ÿ»ÅµΩŸïêÅ—°îÅÕ•‡µçÖ—ïùΩ…‰(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•çΩ∏Å…Ω‹Å—ºÅ—°îÅ—Ω¿∞Å›°•ç†Å›ÖÃÅ—°îÅÖπÕ›ï»Å—ºÅÖ∏ÅïÖ…±•ï»(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅç±Ö…•ôÂ•πúÅ≈’ïÕ—•Ω∏ÏÅ—°îÅï•ù°–µ—•±îÅë•ÕçΩŸï…‰Å…Ö•∞Ä°	ïÕ–ÅΩò(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÂΩ’»ÅÖ…ïÑ∞Å!•ëëï∏ÅùïµÃ∞ÅA•ç¨ÅÂΩ’»ÅµΩΩê∞ÅAï…ôïç–ÅôΩ»Å—Ωπ•ù°–∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ]Ω…—†Å—°îÅë…•Ÿî∞Å	•úÅô’∏ÅÕµÖ±∞Åâ’ëùï–∞ÅM’…¡…•ÕîÅµî§ÅÕ—ÖÂïêÅÖ–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°îÅ	=QQ=4ÅΩòÅ—°îÅôïïêÉäPÅ•–Å›ÖÃÅ…ïπëï…•πúÅÖ–Åç°Ö…Öç—ï»ÅΩôôÕï–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ¯ƒ‹ÃÿÅΩòÅ—°îÅ¡ÖùîÅ—ï·–Å›°•±îÅ—°îÅçÖ—ïùΩ…‰Å…Ω‹ÅÕÖ–ÅÖ–Å¯ƒ¿–∏ÅÕ≠ïê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—›•çîÅôΩ»Äâ—°îÅµïπ‘ÅÖ–Å—°îÅ—Ω¿à∞Å—°îÅ°ΩπïÕ–Å…ïÖë•πúÅ•ÃÅâΩ—†∏((ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ=9ÅI9HÅM%QÅ9=\∞ÅπΩ–Å—°…ïî∏Å%–Å’ÕïêÅ—ºÅ…ïπëï»Å•πÕ•ëîÅ—°…ïî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅµ’—’Ö±±‰Åï·ç±’Õ•ŸîÅâ…Öπç°ïÃÄ°ïŸïπ—Ãµ±ΩÖë•πú∞ÅïŸïπ—Ãµïµ¡—‰∞ÅÖπê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°îÅïŸïπ—Ãµ¡…ïÕïπ–Åâ±Ωç¨§∞Å›°•ç†Å•ÃÅ›°‰Å•–ÅçΩ’±êÅΩπ±‰ÅïŸï»(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖ¡¡ïÖ»Åâï±Ω‹Å—°îÅïŸïπ—ÃÅ…Ö•∞∏Å!Ω•Õ—•πúÅ•–Å°ï…îÅÖπêÅëï±ï—•πúÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°…ïîÅçΩπë•—•ΩπÖ∞ÅçΩ¡•ïÃÅµïÖπÃÅ•–Å…ïπëï…ÃÅï·Öç—±‰ÅΩπçî∞Å•∏Å—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕÖµîÅ¡±Öçî∞Å›°Ö—ïŸï»Å—°îÅïŸïπ—ÃÅÕ—Ö—îÉäPÅπºÅë’¡±•çÖ—î∞ÅÖπêÅπº(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄâ•–ÅµΩŸïêÅâïçÖ’ÕîÅ—°ï…îÅ›ï…îÅπºÅïŸïπ—ÃÅ—ΩëÖ‰à∏((ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅQ!ÅI9-Å1%MPÅ%LÅU9!9ÅÖπêÅÕ—•±∞Å±ïÖëÃÅΩŸï»ÅïŸïπ—Ã∞Å—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ°ï…ºÅ…Ö•∞ÅÖπêÅïŸï…Â—°•πúÅï±ÕîÄ°ÿÿ∏‘‡ùÃÅµïÖÕ’…ïêÅëïç•Õ•Ω∏§∏Å]°Ö–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅµΩŸïêÅÖâΩŸîÅ•–Å•ÃÅπÖŸ•ùÖ—•Ω∏ÉäPÅ—›ºÅ…Ω›ÃÅΩòÅçΩπ—…Ω±ÃÅÑÅ…ïÖëï»(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçÖ∏ÅÕ≠•¿Å¡ÖÕ–Å•∏ÅΩπîÅô±•ç¨ÉäPÅπΩ–ÅÖπΩ—°ï»ÅÕ’…ôÖçîÅçΩµ¡ï—•πúÅôΩ»(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°îÅÖπÕ›ï»∏ÅAΩÕ•—•Ω∏ÅÖÕÕï…—ïêÅâ‰Åç°ïç¨µ°ΩµîµÖπÕ›ï»µô•…Õ–πµ©Ã∏Ä®ΩÙ((ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Å!ΩµîÅôïïêÅ…ïΩ…ëï»Ä°Ω›πï»Ä»¿»ÿ¥¿‹¥ƒ‹§ËÅïŸïπ—ÃÅÖâΩŸîÅ—°îÅôΩ±ê∞Å—°ï∏Å·¡±Ω…îÅπïÖ»ÅÂΩ‘∞Å—°ï∏ÅïŸï…Â—°•πúÅï±Õî∏ÅA’…îÅ±ÖÂΩ’–ÅµΩŸîÉäPÅπºÅ…Öπ≠•πúΩëÖ—ÑÅç°Öπùî∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Å1=%9ËÅïŸïπ—ÃÅπΩ–ÅâÖç¨ÅÂï–∏ÅIïÕï…ŸïÃÅ—°îÅ…Ö•∞ùÃÅï·Öç–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅùïΩµï—…‰ÅÕºÅ—°îÅÕ›Ö¿Åâï±Ω‹Å•ÃÅÕ°•ô–µô…ïî∏Åï±•âï…Ö—ï±‰Å9=P(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅùÖ—ïêÅΩ∏ÅÅÕ’ùùïÕ—ïëÄÉäPÅ—°îÅô•…Õ–ÅÕç…ïï∏Åµ’Õ–ÅπïŸï»ÅâîÅâ±Öπ¨(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ›°•±îÅÑÅA±ÖçïÃÅÕïÖ…ç†Å…’πÃ∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿÿ∏‘‡Ä†»¿»ÿ¥¿‡¥¿ÿ∞ÅΩ›πï»§ËÅQ!ÅI9-Å1%MPÅ1LÅQ!Å∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄåÿ»–ÅΩ¡ïπïêÅ—°•ÃÅçÖ…êÅâ‰ÅëïôÖ’±–ÏÅ•–Å›ÖÃÅÕ—•±∞Å…ïπëï…ïêÅ1MP∞Å’πëï»Å—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅïŸïπ—ÃÅ…Ö•∞∞Å—°îÅ°ï…ºÅçÖ…Ω’Õï∞ÅÖπêÅ—°îÅë•ÕçΩŸï…‰Åù…•ê∞ÅÕºÅÑÅŸ•Õ•—Ω»Å›°º(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅπïŸï»ÅÕç…Ω±±ïêÅÕ—•±∞ÅπïŸï»ÅÕÖ‹Å•–∏Å=¡ïπ•πúÅÑÅ—°•πúÅπΩâΩë‰Å…ïÖç°ïÃÅΩπ±‰(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅµÖ≠ïÃÅ—°îÅ—°•πúÅπΩâΩë‰Å…ïÖç°ïÃÅ±ΩΩ¨Åâï——ï»∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ5MUIÄ°AΩÕ—!Ωú∞Äƒ–ÅëÖÂÃÅ—ºÄ»¿»ÿ¥¿‡¥¿‘§ËÄ»‘‰ÅÕ•πù±îµ¡ÖùîÅÕïÕÕ•ΩπÃ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ±ÖπëïêÅΩ∏Äàºà∞Å5%8Åë’…Ö—•Ω∏Äƒ¿ÅÕïçΩπëÃ∞ÄƒÃ¿ÅΩòÅ—°ï¥ÅΩŸï»Å•πÕ•ëîÅ—°ΩÕî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄƒ¿ÅÕïçΩπëÃ∏ÄàºàÅâΩ’πçïêÄ‡–îÅΩòÄÃ‹ÃÅŸ•Õ•—Ω…ÃÅ•∏ÄÃ¿ÅëÖÂÃ∞Å›°•±îÅïŸï…ÂΩπî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ›°ºÅùΩ–Å¡ÖÕ–Å—°îÅô•…Õ–ÅÕç…ïï∏Å›ïπ–ÅΩ∏Å—ºÄ‰∏‘Å¡ÖùïÃ∏ÅMºÅ—°îÅΩ…ëï…•πú(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅâï±Ω‹Å•ÃÅ—°îÅ¡…Ωë’ç–Åëïç•Õ•Ω∏∞ÅπΩ–ÅÑÅÕ—Â±îÅΩπîËÅ9M]HÅ%IMP∞ÅçΩπ—…Ω±Ã(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖô—ï»∏ÅŸïπ—Ã∞Å—°îÅ°ï…ºÅ…Ö•∞ÅÖπêÅ—°îÅë•ÕçΩŸï…‰Åù…•êÅÖ±∞ÅÕ—•±∞Å…ïπëï»∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•µµïë•Ö—ï±‰Å’πëï…πïÖ—†∞Å’πç°Öπùïê∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ%–ÅÖ±ÕºÅ5=YÅ=UPÅΩòÅ—°îÅïŸïπ—Ãµ¡…ïÕïπ–Åâ…Öπç†Å•–Å›ÖÃÅπïÕ—ïêÅ•∏∞ÅÕºÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…Öπ≠ïêÅ±•Õ–ÅπΩ‹Å…ïπëï…ÃÅ›°ï∏Å—°ï…îÅÖ…îÅπºÅïŸïπ—ÃÅπïÖ…â‰Å—ΩºÉäPÅ—°îÅçÖÕî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ›°ï…îÅÑÅŸ•Õ•—Ω»ÅµΩÕ–ÅπïïëÃÅÕΩµï—°•πúÅ—ºÅ±ΩΩ¨ÅÖ–∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅAΩÕ•—•Ω∏ÅÖÕÕï…—ïêÅâ‰ÅÕç…•¡—ÃΩç°ïç¨µ°ΩµîµÖπÕ›ï»µô•…Õ–πµ©Ã∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿ‡∏‡Ä°Ω›πï»∞Ä»¿»ÿ¥¿‡¥ƒ‡∞ÅÕç…ïïπÕ°Ω—Ã§ËÄâ—°îÅµïπ’ÃÅ°ï…îÅÕ°Ω’±êÅÖ±∞Åâî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅµΩŸïêÅ—ºÅ—°îÅÖµÖÈΩ∏Å…Ö•∞ÅçÖ…ëÃÅçÖ—ïùΩ…•ïÃÉäòÅ—°îÅµïπ’ÃÅÕ°Ω’±êÅΩπ±‰(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕ°Ω‹Å›°ï∏Å—°îÅçÖ…ëÃÅ•ÃÅç±•ç≠ïê∏à((ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒ	ïÕ—9ïÖ…â‰¯ÉäPÅ—°îÅQΩ¿¥–¿ÅÖççΩ…ë•Ω∏∞Å—°îÅï•ù°–ÅÕïç—•Ω∏ÅÕ°ï±±Ã∞Å—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ïÖ—Ω…•πëÃÅÕ°ï±òÅÖπêÅ—°îÅïŸïπ—ÃÅÕ±Ω–ÉäPÅ9<Å1=9HÅI9ILÅ=8Äàºà∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅQ°îÅçΩµ¡Ωπïπ–Å•ÃÅ•π—Öç–Ä°Ω—°ï»ÅÕ’…ôÖçïÃÅÖπêÅ•—ÃÅ—ïÕ—ÃÅÕ—•±∞Å’Õî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•–§ÏÅ•–ÅÕ•µ¡±‰Å°ÖÃÅπºÅ…ïπëï»ÅÕ•—îÅΩ∏Å—°îÅ°Ωµï¡Öùî∞Å—°îÅÕÖµî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—…ïÖ—µïπ–ÄÒ!ΩµïÕ•ëî¯ÅùΩ–Å•∏Åÿ‡∏–Åë•…ïç—±‰Åâï±Ω‹∏((ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ]!PÅIA1LÅ%PËÅπΩ—°•πúÅπïïëïêÅ—º∏ÅQ°îÅëÖÂ¡Ö…–Å…Ö•∞ÅÖâΩŸîÅ%LÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅµïπ‘ÅπΩ‹ÉäPÅïŸï…‰ÅΩπîÅΩòÅ•—ÃÅô•ô—ïï∏Å—•±ïÃÅΩ¡ïπÃÅ—°îÅÕÖµîÅ…Öπ≠ïê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ¡±ÖçîÅçÖ…ëÃÅ•∏ÅΩπîÅ—Ö¿Ä°Õï…Ÿï»µ…Öπ≠ïê∞Åï·Öç–µΩ…•ù•∏Åë•Õ—ÖπçïÃÅÕ•πçî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÿ‡∏‹§∞ÅÖπêÅïŸï…‰ÅçÖ—ïùΩ…‰Å—°îÅÖççΩ…ë•Ω∏Åë’¡±•çÖ—ïêÅ•ÃÅÑÅ—•±îË(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅâïÕ–Ä¥¯ÅQ°îÅ	ïÕ–Å…Ω’πêÅeΩ‘∞ÅïÖ–Ä¥¯Åç—’Ö±±‰Å]Ω…—†ÅÖ—•πú∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅâ…ïÖ¨Ä¥¯ÅQ°îÄÃ¿µ5•π’—îÅ	…ïÖ¨∞ÅùïµÃ∞Å±ΩçÖ±ÃÄ°ç…ïÖ—Ω»µÕΩ’…çïê§∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—Ωπ•ù°–∞Åë…•Ÿî∞ÅïŸïπ—Ã∏ÅQ°îÅÖççΩ…ë•Ω∏Å›ÖÃÅÑÅM=9∞ÅÕ—Öç≠ïêÅçΩ¡‰ÅΩò(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°Ö–Åµïπ‘ÉäPÅ—°îÅë’¡±•çÖ—•Ω∏Å—°îÅΩ›πï»Å°ÖÃÅâïï∏Å¡°Ω—Ωù…Ö¡°•πúÅÕ•πçî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÿ‡∏»Ä†â—°îÅÖççΩ…ë•Ω∏Åµïπ‘Åµ’Õ–Å±ïÖŸîÅ—°îÅ—Ω¿ÅΩòÅ—°îÅôïïêà§∏((ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅQ!Åÿÿ∏‘‡Å9M]Hµ%IMPÅ5MUI59PÄ†‡–îÅâΩ’πçîÅ›°ï∏Å—°îÅÖπÕ›ï»Å°•ê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅâï°•πêÅÑÅ—Ö¿∞Åâï±Ω‹Å—°îÅôΩ±ê§Å•ÃÅπΩ–ÅΩŸï……’±ïêÉäPÅ•–Å•ÃÅ…îµ°Ω’ÕïêË(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°îÅ…Ö•∞ÅâÖπêÅ•ÃÅ—°îÅô•…Õ–ÅÕç…ïï∏∞Å•—ÃÅ—•±ïÃÅÖ…îÅ…ïÖ∞ÄÒÑÅ°…ïò¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ±•π≠Ã∞ÅÖπêÅ—°îÅë…Ω¿Å±ÖπëÃÅ—°îÅ…Öπ≠ïêÅÖπÕ›ï»Å’πëï»Å—°îÅâÖπêÅ›•—°Ω’–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÑÅπÖŸ•ùÖ—•Ω∏∏ÅÕç…•¡—ÃΩç°ïç¨µ°ΩµîµÖπÕ›ï»µô•…Õ–πµ©ÃÅ›ÖÃÅ…îµ¡Ω•π—ïêÅÖ–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°Ö–Å•πŸÖ…•Öπ–Å—°îÅëÖ‰Å—°•ÃÅ…ïπëï»ÅÕ•—îÅ›ÖÃÅ…ïµΩŸïê∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿ‡∏–Ä°Ω›πï»∞Ä»¿»ÿ¥¿‡¥ƒÿ§ËÅ—°îÅ›ïÖ—°ï»ÅçÖ…êÄ†âI%!PÅ9=\Å9H(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅe=Tà§ÅÖπêÄâ1LÅ9HÅe=TàÅçΩµîÅΩôòÅ—°îÅ°Ωµï¡ÖùîÉäPÅ5=	%1Å9(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅM-Q=@∞ÅπΩ–ÅΩπîÅâ…ïÖ≠¡Ω•π–∏((ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒ!ΩµïÕ•ëî¯Å•ÃÅ9=PÅëï±ï—ïê∏ÅQ°îÅçΩµ¡Ωπïπ–∞Å•—ÃÅçΩ¡‰ÅÖπêÅ•—Ã(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅëïÖ±Q•ï…ÃÅ›•…•πúÅÖ…îÅ•π—Öç–Å•∏ÅÖ¡¿ΩçΩµ¡Ωπïπ—ÃΩ!ΩµïÕ•ëîπ©ÃÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•–ÅÕ•µ¡±‰Å°ÖÃÅπºÅ…ïπëï»ÅÕ•—îÅΩ∏ÄàºàÅÖπ‰ÅµΩ…î∏ÅïÖ±ÃÅ…ïµÖ•πÃ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ïÖç°Öâ±îÅô…Ω¥Å—°îÅπÖÿùÃÅΩ’¡ΩπÃÅ—Öà∞Å›°•ç†Å•ÃÅ•—ÃÅΩ›∏ÅÕç…ïï∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖπêÅΩ›πÃÅ—°îÅŸï——ïêÅçÖ…ê∞Å—°îÅ¡…Ω·•µÖ—îÅë•Õç±ΩÕ’…îÅÖπêÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖ——…•â’—•Ω∏Ä°±•àΩçΩµµï…çîπ©ÃÅ…’±îÄ»§ÉäPÅÕºÅπºÅÖôô•±•Ö—î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•πŸïπ—Ω…‰Å•ÃÅΩ…¡°ÖπïêÅâ‰Å—°•Ã∞ÅΩπ±‰Å’∏µµï…ç°Öπë•ÕïêÅΩ∏Äàºà∏((ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ9Ω—°•πúÅ•ÃÅùÖ—ïêÅΩ∏ÅŸ•ï›¡Ω…–Å°ï…îËÅ—°ï…îÅ•ÃÅπºÅ…ïπëï»ÅÖ–ÅÖ±∞∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖ–ÅÖπ‰Å›•ë—†∞ÅÕºÅ—°îÅâÖππïêÅÅ•ÕïÕ≠—Ω¿ÄòòÄÒÕ•ëîº˘ÄÅ¡Ö——ï…∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ°—ïÕ–µ±ÖÂΩ’–µÕ°•ô–É
+ú‘∞Å—°îÄ¿∏–‰Ã‡Å1LÅ•πç•ëïπ–§Å•ÃÅπΩ–Å©’Õ–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖŸΩ•ëïêÅâ’–Å’π…ïÖç°Öâ±î∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿ‹∏¿‘ÉäPÅ—°îÅç…ïÖ—Ω»Å…Ω‹Å5=YÅ%9M%Å—°îÅµïπ‘Ä°Ω›πï»∞Ä»¿»ÿ¥¿‡¥¿‰Ë(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄâ›îÅ›Ω’±êÅ¡…ï——‰Åµ’ç†ÅâîÅÖëë•πúÅ—ºÅ—°îÅï·•Õ—•πúÅµïπ‘Å›îÅ°ÖŸîÅÖπêÅ©’Õ–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ïΩ…ùÖπ•È•πúà§∏Å%–Å•ÃÅÕïç—•Ω∏Ä‘ÅΩòÅï•ù°–∞ÅÕºÅ•–Å•ÃÅπΩ‹Å¡ÖÕÕïêÅ—º(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒ	ïÕ—9ïÖ…â‰¯ÅÖÃÅÅç…ïÖ—Ω…M±Ω—ÄÅ…Ö—°ï»Å—°Ö∏Å…ïπëï…ïêÅÖÃÅÑÅπ•π—†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕ—ÖπëÖ±ΩπîÅ°ïÖë•πúÅâï±Ω‹Å•–∏Å9Ω—°•πúÅÖâΩ’–Å—°îÅ…Ω‹Å•—Õï±òÅç°ÖπùïêÉäP(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕÖµîÅçΩµ¡Ωπïπ–∞ÅÕÖµîÅŸ•ëïΩA±ÖçïÃÅÖ……Ö‰∞ÅÕÖµîÅ°Öπë±ï…ÃÏÅÅâÖ…ïÄÅΩπ±‰(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—ï±±ÃÅ•–Å—°îÅÖççΩ…ë•Ω∏ÅÖâΩŸîÅÖ±…ïÖë‰ÅçÖ……•ïÃÅ•—ÃÅ°ïÖë•πú∏((ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÿÿ∏‰‹Ä°≠ï¡–∞ÅÕ—•±∞Å—…’î§ËÅ—°îÅ±•Õ–Å•ÃÅçΩµ¡’—ïêÅ=9∞Å•π—º(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÅŸ•ëïΩA±ÖçïÕÄ∞ÅÖπêÅ	=Q Å…ïÖëï…ÃÅ—Ö≠îÅ—°Ö–ÅÕÖµîÅÖ……Ö‰∞ÅÕºÅ—°ï‰ÅçÖ∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅπïŸï»Åë•ÕÖù…ïîÅÖâΩ’–Å›°Ö–ÅÑÅç…ïÖ—Ω»Å°ÖÃÅô•±µïêÅπïÖ»ÅÂΩ‘∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿÿ∏‰‹ÉäPÅ5=YÅ	1=\ÅQ!Å9M]HÄ°Ö¡¡…ΩŸïêÅµΩç≠’¿ËÄâ—°îÅÕ•‡(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçÖ—ïùΩ…•ïÃÅÕ—•±∞Åï·•Õ–∞Å’π—Ω’ç°ïê∏ÅQ°ï‰ÅÕ—Ω¿Åâï•πúÅ—°îÅô•…Õ–Å—°•πúÅÑ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕ—…Öπùï»Å°ÖÃÅ—ºÅÕΩ±Ÿîà§∏ÅMUAIMÅ•∏Åÿÿ∏ÿ»ÉäPÅ—°îÅΩ›πï»ÅÖÕ≠ïêÅôΩ»Å—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçÖ—ïùΩ…‰Å…Ω‹ÅâÖç¨ÅÖ–Å—°îÅ—Ω¿ÅΩòÅ—°îÅ¡ÖùîÄ°ÕïîÅ—°îÅçΩµµïπ–ÅÖ–Å—°îÅ—Ω¿(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩòÅ›òµçΩ∞µµÖ•∏∞Å›°ï…îÄÒÖ—ïùΩ…Â5ïπ‘¯ÅπΩ‹Å…ïπëï…Ã§∏Å1ïô–Å—°•ÃÅçΩµµïπ–Å•∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ¡±ÖçîÅÖÃÅ—°îÅ°•Õ—Ω…•çÖ∞Å…ïçΩ…êÅΩòÅ›°‰Å•–Å›ÖÃÅ°ï…îÅôΩ»Å¯»ÅëÖÂÃ∏Ä®ΩÙ((ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿ‡Ä†»¿»ÿ¥¿‡¥ƒ‘§ÉäPÅQ!Å!I<ÅAI=5<Å,Å%LÅ=9∏Å%—ÃÅï•ù°–ÅçÖ…ëÃ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ°ë•ÕçΩŸï…‰∞ÅÕΩç•Ö∞Åô•πê∞ÅâïÖç†∞Å°•ëëï∏ÅùïµÃ∞ÅëÖ—îÅπ•ù°–∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅôÖµ•±‰∞Åâ’ÈË∞ÅÕïÖÕΩπÖ∞§ÅÖ…îÅï•ù°–ÅΩòÅ—°îÅô•ô—ïï∏Å•∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÖÂ¡Ö…—IÖ•∞¯ÅÖ–Å—°îÅ—Ω¿ÅΩòÅ—°•ÃÅçΩ±’µ∏ÅπΩ‹∏((ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ]!dÅQ!Å]!=1ÅQ!IµMQQÅMQ%=8Å]9PÅ]%Q Å%PËÅ—°ΩÕîÅ—°…ïî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅâ…Öπç°ïÃÅï·•Õ—ïêÅ=91dÅ—ºÅ°Ω’ÕîÅ—°îÅëïç¨ÅÖπêÅ…ïÕï…ŸîÅ•—Ã(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ»–·¡‡∏ÅQ°îÅ…ïÖ∞ÅïŸïπ—ÃÅ…Ö•∞Å•ÃÅÅïŸïπ—ÕIÖ•±M±Ω—ÄÉäPÅÕïç—•Ω∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅπ•πîÅΩòÅ	ïÕ—9ïÖ…â‰∞Å›•—†Å•—ÃÅΩ›∏ÅY}I%1}5%9} Å…ïÕï…ŸîÉäPÅÖπê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•ÃÅ’π—Ω’ç°ïê∏Å-ïï¡•πúÅÑÄ»‡—¡‡Å…ïÕï…ŸîÅôΩ»ÅÑÅëïç¨Å—°Ö–Åπº(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ±Ωπùï»Å…ïπëï…ÃÅ›Ω’±êÅ°ÖŸîÅâïï∏ÅÑÅ9\Å±ÖÂΩ’–ÅÕ°•ô–Å•∏Å—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩ¡¡ΩÕ•—îÅë•…ïç—•Ω∏∞Å›°•ç†Å•ÃÅ—°îÅÕÖµîÅëïôïç–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕç…•¡—ÃΩ—ïÕ–µô•…Õ–µÕç…ïï∏πµ©ÃÅ›ÖÃÅ›…•——ï∏ÅôΩ»∏((ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ]°Ö–ÅÕ’…Ÿ•ŸïÃÅ•ÃÅ—°îÅ°ΩπïÕ–ÅÈï…ºµïŸïπ—ÃÅôÖ±±âÖç¨Åâï±Ω‹ËÅ•–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ›ÖÃÅπïŸï»Å—°îÅëïç¨∞ÅÖπêÅ•–ÅΩôôï…ÃÅÕΩµï—°•πúÅ—°îÅ…Ö•∞ÅçÖππΩ–ÉäP(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖ∏ÅÖ±—ï…πÖ—•ŸîÅ•π—ïπ–Å›°ï∏Å—Ωπ•ù°–Å•ÃÅïµ¡—‰∏((ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅŸï…‰Å±ïùÖç‰Ä©}°ï…Ω}Ω¡ï∏ÅïŸïπ–ÅÕ—•±∞Åô•…ïÃÅô…Ω¥Å—°îÅ…Ö•∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ°±•àΩëÖÂ¡Ö…—Ãπ©ÃÅ1e}!I=}Y9P§ÅôΩ»ÅΩπîÅ…ï±ïÖÕî∞ÅÕºÅπº(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅëÖÕ°âΩÖ…êÅô±Ö—±•πïÃÅÖ–Åç’—ΩŸï»∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏÖâ…Ω›ÕïÖ–ÄòòÅ……Ö‰π•Õ……Ö‰°ôΩ…ÂΩ’Ÿïπ—Ã§ÄòòÅôΩ…ÂΩ’Ÿïπ—Ãπ±ïπù—†ÄÙÙÙÄ¿ÄòòÄ†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅµÖ…ù•π	Ω——Ω¥ËÄƒ¿∞ÅâΩ·M•È•πúËÄââΩ…ëï»µâΩ‡àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿ‡ËÅπºÅµ•π!ï•ù°–Å°ï…îÅÖπ‰ÅµΩ…î∏ÅY}MQ%=9}5%9} Å…ïÕï…Ÿïê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ»–·¡‡ÅôΩ»Å—°îÅ¡…ΩµºÅëïç¨Å—°•ÃÅâ±Ωç¨Å’ÕïêÅ—ºÅÕ•–ÅÖâΩŸîÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ›•—†Å—°îÅëïç¨ÅùΩπîÅ—°Ö–Å…ïÕï…ŸîÅ•ÃÄ»–·¡‡ÅΩòÅïµ¡—‰ÅçΩ±’µ∏ÉäP(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°îÅÕÖµîÅç±ÖÕÃÅΩòÅëïôïç–Ä°ÑÅ…ïÕï…ŸîÅ—°Ö–ÅëΩïÃÅπΩ–ÅµÖ—ç†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ›°Ö–Å…ïπëï…Ã§Å—°Ö–ÅÕç…•¡—ÃΩ—ïÕ–µô•…Õ–µÕç…ïï∏πµ©ÃÅï·•Õ—ÃÅ—º(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçÖ—ç†∞Å©’Õ–Å¡Ω•π—•πúÅ—°îÅΩ—°ï»Å›Ö‰∏ÅQ°•ÃÅâ±Ωç¨Å•ÃÅÑÅçÖ…ê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖπêÅ—°…ïîÅç°•¡Ã∞ÅÖπêÅ•–Å…ïÕï…ŸïÃÅ•—Õï±ò∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâÕ¡Öçîµâï—›ïï∏à∞ÅµÖ…ù•π	Ω——Ω¥ËÄ‡ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ‘∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÅπ—ï·–∞Åë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‡ÅıÙ¯Ò%çΩ∏ÅπÖµîÙâ—•ç≠ï–àÅÕ•ÈîıÏƒ›ÙÅçΩ±Ω»ıÌπÖççïπ—ÙÄº˘Ÿïπ—ÃÅπïÖ»ÅÂΩ‘Ωë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅâÖç≠ù…Ω’πêËÅπçÖ…ê∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞ÅâΩ…ëï…IÖë•’ÃËÄƒÿ∞Å¡Öëë•πúËÄàƒ…¡‡Äƒ’¡‡àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅçΩ±Ω»ËÅπµ’—ïê∞Å±•πï!ï•ù°–ËÄƒ∏–‘∞ÅµÖ…ù•π	Ω——Ω¥ËÄƒ¿ÅıÙ˘9Ω—°•πúÅÕ—…ΩπúÅ—Ωπ•ù°–ÅπïÖ…â‰∏ÅQ…‰ÅΩπîÅΩòÅ—°ïÕîÅ•πÕ—ïÖê∏Ωë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅùÖ¿ËÄ‡∞Åô±ï·]…Ö¿ËÄâ›…Ö¿àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–†â•π—ïπ—}ç°•¿à∞Åπ’±∞∞ÅÏÅ•π—ïπ–ËÄâÖ—îÅπ•ù°–à∞ÅÕ…åËÄâïŸïπ—Õ}ïµ¡—‰àÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅΩ¡ïπ·¡ï…•ïπçî†â…ΩµÖπ—•åà§ÏÅıÙÅÕ—Â±îıÌÏÅ¡Öëë•πúËÄà·¡‡Äƒ—¡‡à∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞ÅâÖç≠ù…Ω’πêËÅπÖë•¥∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπÖççïπ—ıÄ∞ÅçΩ±Ω»ËÅπÖççïπ–∞ÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ˘Ö—îÅπ•ù°–Ωâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–†â•π—ïπ—}ç°•¿à∞Åπ’±∞∞ÅÏÅ•π—ïπ–ËÄâIÖ•π‰ÅëÖ‰à∞ÅÕ…åËÄâïŸïπ—Õ}ïµ¡—‰àÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅΩ¡ïπIÖ•π‰†§ÏÅıÙÅÕ—Â±îıÌÏÅ¡Öëë•πúËÄà·¡‡Äƒ—¡‡à∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞ÅâÖç≠ù…Ω’πêËÅπçÖ…ê∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞ÅçΩ±Ω»ËÅπ—ï·–∞ÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ˘IÖ•π‰ÅëÖ‰Ωâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–†â•π—ïπ—}ç°•¿à∞Åπ’±∞∞ÅÏÅ•π—ïπ–ËÄâ!•ëëï∏ÅùïµÃà∞ÅÕ…åËÄâïŸïπ—Õ}ïµ¡—‰àÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅΩ¡ïπ·¡ï…•ïπçî†âùï¥à§ÏÅıÙÅÕ—Â±îıÌÏÅ¡Öëë•πúËÄà·¡‡Äƒ—¡‡à∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞ÅâÖç≠ù…Ω’πêËÅπçÖ…ê∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞ÅçΩ±Ω»ËÅπ—ï·–∞ÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ˘!•ëëï∏ÅùïµÃΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿÿ∏ÿƒÄ°Ω›πï»ÄåÃ§ÄºÅÿÿ∏‰»Å°Ω’»µÖ›Ö…îËÅ=9Å—ÖÕ—ïô’∞ÅâΩΩ≠Öâ±îÅçÖ…ê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅπïÖ»Å—°îÅ°Ωµï¡ÖùîÅ—Ω¿∏Å°Ωµï·¿π’…∞Å•ÃÅY•Ö—Ω»ùÃÅΩ›∏Å¡…Ωë’ç—}’…∞∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ïπëï…ïêÅYI	Q%4Ä°¡•êÅ•π—Öç–§ÉäPÅπïŸï»Å°Öπêµâ’•±–∞ÅπïŸï»Å…Ω’—ïê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°…Ω’ù†Å—°îÅ…ïÕΩ±Ÿï»∏ÅQ°îÅôï—ç†Åïôôïç–ÅÖâΩŸîÅÖ±…ïÖë‰Åë…Ω¡ÃÅÖπ‰(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•—ï¥Åµ•ÕÕ•πúÅ¡•êÙ∞ÅÕºÅÖ∏Å’πÖ——…•â’—ïêÅ±•π¨ÅçÖ∏ÅπïŸï»Å…ïÖç†Å°ï…î∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏÖâ…Ω›ÕïÖ–ÄòòÅ°Ωµï·¿ÄòòÄ††§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÿ‡∏‹ƒÄ°Ω›πï»∞Ä»¿»ÿ¥¿‡¥»ÿ∞Å°Ω±ë•πúÅ°•ÃÅµï…ÕΩ∏ÅAΩ•π–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅçÖ…êÅπï·–Å—ºÅ—°•ÃÅΩπîËÄâ§ÅëΩπ–Å±•≠îÅ—°îÅ›Ö‰Å•–Å±ΩΩ≠Ã(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ§Å›Öπ–Å•–Å—ºÅ±ΩΩ¨Å±•≠îÅΩ’»Å•çΩπ•åÅ¡±ÖçîÅçÖ…ëÃÅÂΩ‘(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ≠πΩ‹Å—°îÅΩπïÃà§∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄºº(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ%–Å%LÅ—°îÅ•çΩπ•åÅçÖ…êÅπΩ‹ÉäPÅ—°îÅ…ïÖ∞Äπ›òµ¡±ÖçîµçÖ…ê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ=4ÅçΩπ—…Öç–∞ÅÕºÅïŸï…‰Å…’±îÅ•∏Å]}A1}I}ML(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÖ¡¡±•ïÃÅ›•—†ÅπºÅÕïçΩπêÅÕ—Â±ïÕ°ïï–Å—ºÅë…•ô–∏Å]°Ö–Å•–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ•ÃÅ9=PÅ•ÃÅÑÅçΩ¡‰ÅΩòÅ%çΩπ•çA±ÖçïÖ…êËÅ—°Ö–ÅçΩµ¡Ωπïπ–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅΩ›πÃÅÕÖŸîΩ±•≠îΩë•Õ±•≠îΩÕ°Ö…î∞ÅÖ±∞ÅΩòÅ›°•ç†Å≠ï‰ÅΩ∏ÅÑ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ==1ÅA1Å%∏ÅÅY•Ö—Ω»Å¡…Ωë’ç–Å°ÖÃÅÑÅ¡…Ωë’ç—}çΩëî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÖπêÅ•ÃÅ•∏ÅπºÅ¡±ÖçîÅÕ—Ω…î∞ÅÕºÅ—°ΩÕîÅôΩ’»Åâ’——ΩπÃÅ›Ω’±ê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ…ïπëï»ÅïπÖâ±ïêÅÖπêÅëºÅπΩ—°•πúÉäPÅ—°îÅëïÖêµÖôôΩ…ëÖπçî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅâ’úÅIÖ•±Ö…êÅëΩç’µïπ—ÃÅÖ–ÅÅÖç—•ΩπÕIïÖë=π±ÂÄ∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄºº(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ9ÅQ!ÅM1=QLÅQ!%LÅQÅ99=PÅ!=9MQ1dÅ%10ÅMQd(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ5AQd∞Å›°•ç†Å•ÃÅ—°îÅ›°Ω±îÅ…ïÖÕΩ∏Å—°•ÃÅ•ÃÅ°Öπêµâ’•±–Ë(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÄÄÉäàÅπºÅ%MQ9ÉäPÅ›ô}ï·¡ï…•ïπçïÃÅÕ—Ω…ïÃÅÑÅëïÕ—}•êÅÖπê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÄÄÄÄÅÑÅç•—‰∞ÅπïŸï»ÅÑÅ¡ï»µ¡…Ωë’ç–Å¡Ω•π–∏Äà»∏–Åµ§àÅ›Ω’±ê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÄÄÄÄÅâîÅ•πŸïπ—ïê∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÄÄÉäàÅπºÅI9,Å!%@ÅÖπêÅπºÅQ=@µA%,ÅâÖπêÉäPÅÅ…Öπ¨ıÏ≈ıÄÅΩ∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÄÄÄÄÅ—°îÅΩ±êÅçÖ…êÅï·•Õ—ïêÅΩπ±‰ÅÕºÅ…Öπ≠	’ç≠ï–†§Å›Ω’±ê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÄÄÄÄÅÕÖ‰Äâ—Ω¿ÃàÅ•∏ÅÖπÖ±Â—•çÃ∏ÅQ°ï…îÅ•ÃÅπºÅŸ•Õ•â±î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÄÄÄÄÅ…Öπ≠ïêÅ±•Õ–Åâï°•πêÅ•–∞ÅÕºÅÑÄàƒàÅ›Ω’±êÅÖÕÕï…–ÅΩπî∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÄÄÉäàÅπºÅ%Q=I%0ÅQ-ÉäPÅ—°ï…îÅ•ÃÅπºÅÕΩ’…çïêÅ›°‰µùºÅôΩ»(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÄÄÄÄÅÑÅ—Ω’»Å¡…Ωë’ç–ÅÖπÂ›°ï…îÅ•∏Å›ô}ï·¡ï…•ïπçïÃ∞ÅÖπêÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÄÄÄÄÅçÖ…êµ°ΩΩ¨Å±Ö‹ÅôΩ…â•ëÃÅô•±±•πúÅ—°Ö–ÅÕ±Ω–Å›•—†Å—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÄÄÄÄÅ°Ω’ÕîÅ—Öù±•πî∏ÅÅ•Ãµπºµ—Ö≠ïÄÅçΩ±±Ö¡ÕïÃÅ•–Å°ΩπïÕ—±‰(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÄÄÄÄÄ°çÕÃπ©Ã§Å…Ö—°ï»Å—°Ö∏Å±ïÖŸ•πúÅÑÅ°Ω±î∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÄÄÉäàÅπºÅ=A8Ω1=MÉäPÅÑÅ—Ω’»Å°ÖÃÅπºÅΩ¡ïπ•πúÅ°Ω’…Ã∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÄÄÉäàÅ—°îÅ¡…•çîÅ…ïπëï…ÃÅÖÃÅÑÅPÄ†âô…Ω¥ÄêÃ‹à§∞ÅπïŸï»(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÄÄÄÄÅ—°…Ω’ù†Å¡…•çï1Öâï∞†§ÉäPÅô…ΩµA…•çîÅ•ÃÅëΩ±±Ö…Ã∞ÅπΩ–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÄÄÄÄÅÑÅΩΩù±îÄ√äL–Å¡…•çï1ïŸï∞∞ÅÖπêÅ—°îÅ—›ºÅÕçÖ±ïÃÅÖ…î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÄÄÄÄÅπΩ–Å•π—ï…ç°ÖπùïÖâ±î∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄºº(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅQ!ÅM=IÅ%LÅQ!Å=9Å=I5U1∏Å›ÖÂô•πëMçΩ…î°…Ö—•πú∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ…ïŸ•ï›Ã§ÉäPÅ—°îÅÕÖµîÅçÖ±∞Å—°îÅ…ïÕ–ÅΩòÅ—°îÅÖ¡¿Å…Öπ≠Ã(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ›•—†ÉäPÅΩ∏ÅY•Ö—Ω»ùÃÅΩ›∏Å…Ö—•πúÅÖπêÅ…ïŸ•ï‹ÅçΩ’π–∏ÅQ°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅΩ±êÅçÖ…êÅ…ïÖç°ïêÅ•–ÅÖçç•ëïπ—Ö±±‰∞Åâ‰Å°Öπë•πú(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅA±ÖçïMçΩ…ï°•¿ÅÑÅâÖ…îÅÌ…Ö—•πú∞Å…ïŸ•ï›ÕÙÅÖπêÅ±ï——•πú(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ•–ÅÕï±òµ°ïÖ∞ÏÅ±•àΩï·¡ï…•ïπçïÕÖ—ÑÅÖ±ÕºÅçÖ……•ïÃÅÑ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅM=9ÅçΩ¡‰ÅΩòÅ—°îÅÕÖµîÅ	ÖÂïÕ•Ö∏ÅµÖ—°ÃÅôΩ»Å•—ÃÅÕï…Ÿï»(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÕΩ…–∏ÅÖ±±•πúÅ•–Åï·¡±•ç•—±‰Å°ï…îÅµïÖπÃÅ—°îÅπ’µâï»ÅΩ∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ—°îÅçÖ…êÅçÖππΩ–Åë…•ô–Åô…Ω¥Å—°îÅπ’µâï»Å—°Ö–Å…Öπ≠ïêÅ•–∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å›òÄÙÅ—Ω•Õ¡±ÖÂMçΩ…î°›ÖÂô•πëMçΩ…î°9’µâï»°°Ωµï·¿π…Ö—•πú§∞Å9’µâï»°°Ωµï·¿π…ïŸ•ï›Ã§§§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅôÖç—ÃÄÙÅl(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ°Ωµï·¿π…ïŸ•ï›ÃÄ¯Ä¿Ä¸Å°Ωµï·¿π…ïŸ•ï›Ãπ—Ω1ΩçÖ±ïM—…•πú†§Ä¨ÄàÅ…ïŸ•ï›ÃàÄËÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ°Ωµï·¿πë’…Ö—•Ω∏ÅÒÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ°Ωµï·¿πô…ΩµA…•çîÄÑÙÅπ’±∞Ä¸Äâô…Ω¥ÄêàÄ¨Å°Ωµï·¿πô…ΩµA…•çîÄËÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅtπô•±—ï»°	ΩΩ±ïÖ∏§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒY•Ö—Ω…Ωµµï…çï1•π¨(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ–ıÌ°Ωµï·¡Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕ’…ôÖçîÙâ°Ωµï}âΩΩ≠Öâ±ï}çÖ…êà(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπ—ïπ—%êıÌç•—Â9Ω›Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…Öπ¨ıÏ≈Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩπ±•ç¨ıÏ°î∞Åç±•ç≠%ê§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–†â—•ç≠ï—Õ}Ω’–à∞Åπ’±∞∞ÅÏÅ≠•πêËÄâ°Ωµï}âΩΩ≠Öâ±îà∞ÅçΩëîËÅ°Ωµï·¿πçΩëî∞Åç±•ç≠}•êËÅç±•ç≠%êÅÙ§ÏÅÙÅçÖ—ç†Ä°ï»§ÅÌÙÅıÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êÅ•Ãµπºµ—Ö≠îà(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÅM!=IQHÅI∞ÅMQ%10ÅÅ%aÅ=9∏ÅQ°îÅ•çΩπ•åÅçÖ…ê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ•ÃÄ»ÿ·¡‡ÅâïçÖ’ÕîÅ•–ÅçÖ……•ïÃÅÑÅ—›ºµ±•πîÅïë•—Ω…•Ö∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ—Ö≠îÏÅ—°•ÃÅΩπîÅ°ΩπïÕ—±‰Å°ÖÃÅπΩπî∞ÅÖπêÅÖ–Å—°îÅô’±∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ°ï•ù°–Å—°Ö–ÅÕ°Ω›ÃÅ’¿ÅÖÃÅÑÅ±Ö…ùîÅŸΩ•êÅÖâΩŸîÅ—°îÅQ∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅQ°îÅΩŸï……•ëîÅ•ÃÅÑÅ%aÅ¡‡ÅŸÖ±’î∞ÅπΩ–ÅÑÅçΩπ—ïπ–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ°ï•ù°–∞ÅÕºÅ—°îÅ±ÖÂΩ’–µÕ°•ô–Åù’Ö…Öπ—ïîÅÕïç—•Ω∏Ä‹ÅΩò(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ—ïÕ–µ±ÖÂΩ’–µÕ°•ô–Å¡…Ω—ïç—ÃÅ•ÃÅ’π—Ω’ç°ïêËÅ›°•ç°ïŸï»(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ¡•ç¨Å—°îÅ°Ω’…±‰Å…ïô…ïÕ†Åâ…•πùÃÅ•∏∞Å—°îÅâΩ‡Å•ÃÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÕÖµîÅÕ•ÈîÅÖπêÅÖ∏Å•ë±îÅ…ïÖëï»ùÃÅôïïêÅçÖππΩ–Å©’µ¿∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÄƒ‹Ÿ¡‡Å•ÃÅµïÖÕ’…ïê∞ÅπΩ–Å¡•ç≠ïêËÅÖ–ÄÃ‰¡¡‡Å—°îÅùÖ¿(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅâï—›ïï∏Å—°îÅç°•¿Å±ÖπîÅÖπêÅ—°îÅQÅâΩ——ΩµÃÅΩ’–ÅÖ–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ•—ÃÅπÖ—’…Ö∞Ä»…¡‡ÅÖπÂ›°ï…îÅâï±Ω‹Å¯ƒ‹…¡‡ÅÖπêÅù…Ω›Ã(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅô…Ω¥Å—°ï…î∞ÅÕºÅ—°•ÃÅ•ÃÅ—°îÅ—•ù°—ïÕ–Å°ï•ù°–Å—°Ö–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÕ—•±∞Å±ïÖŸïÃÅ—°îÅçΩπ—ïπ–Åâ…ïÖ—°•πúÅ…ΩΩ¥∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄââ±Ωç¨à∞Å—ï·—ïçΩ…Ö—•Ω∏ËÄâπΩπîà∞ÅçΩ±Ω»ËÄâ•π°ï…•–à∞ÅµÖ…ù•π	Ω——Ω¥ËÄƒ–∞Äà¥µ›òµçÖ…êµ†àËÄàƒ‹Ÿ¡‡àÅıÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®ÅQΩ¿µ…•ù°–ÅΩòÅ—°îÅI∞ÅπïŸï»ÅΩ∏Å—°îÅ¡°Ω—ºÉäPÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅù±ΩâÖ∞Å¡±Öçïµïπ–Å±Ö‹Ä°Ω›πï»∞Ä»¿»ÿ¥¿‡¥»–§∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµÕçΩ…îà¯Ò]ÖÂô•πëMçΩ…ï	ÖëùîÅÕçΩ…îıÌ›ôÙÄº¯Ωë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµ±ÖÂΩ’–à¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµµïë•Ñà¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®ÅH∞ÅÖπêÅµïÖÕ’…ïêÅ…Ö—°ï»Å—°Ö∏ÅÖÕÕ’µïê∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ=∏Å¡…Ωë’ç—•Ω∏Ä»¿»ÿ¥¿‡¥»‹Å—°•ÃÅ¡°Ω—ºÅë•êÅπΩ–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ±ΩÖêËÅÕç…Ω±±ïêÅ—ºÅ—°îÅçïπ—…îÅΩòÅ—°îÅŸ•ï›¡Ω…–∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅô•ŸîÅÕïçΩπëÃÅï±Ö¡Õïê∞ÅçΩµ¡±ï—îÈôÖ±ÕîÅÖπê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅç’……ïπ—M…åËààÉäPÅ—°ï∏Å…ïµΩŸï——…•â’—î†â±ΩÖë•πúà§(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ¡Ö•π—ïêÅ—°îÅÕÖµîÅ’…∞Å•∏Ä·µÃ∏Å%–Å•ÃÅ—°îÅÕÖµî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕÂµ¡—Ω¥Äå‰‡‘Åô•·ïêÅ•πÕ•ëîÅ—°îÅ…Ö•∞ùÃÅÕç…Ω±±ï»∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖπêÅô•πë•πúÅ•–Å!I∞Å•∏Å—°îÅΩ…ë•πÖ…‰Åôïïê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩ±’µ∏∞ÅµïÖπÃÅ—°îÅçÖ’ÕîÅ•ÃÅâ…ΩÖëï»Å—°Ö∏Å—°Ö–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩπîÅçΩπ—Ö•πï»ËÄƒ‡ÅΩòÅ—°îÄƒ‰Å±ÖÈ‰Å•µÖùïÃÅΩ∏Å—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ°Ωµï¡ÖùîÅ°ÖêÅπïŸï»Å±ΩÖëïêÅï•—°ï»∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅQ°Ö–Å›•ëï»Å¡…Ωâ±ï¥Å•ÃÅ9=PÅÕΩ±ŸïêÅâ‰Å—°•ÃÅ±•πî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖπêÅ•ÃÅ›…•——ï∏Å’¿Å…Ö—°ï»Å—°Ö∏Å°Ö±òµô•·ïêÉäPÅÑ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕç…Ω±∞µçΩπ—Ö•πï»Å°Â¡Ω—°ïÕ•ÃÅ›ÖÃÅ—ïÕ—ïêÅÖùÖ•πÕ–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÑÅ…ΩΩ—ïêÅ%π—ï…Õïç—•Ωπ=âÕï…Ÿï»ÅÖπêÅë•êÅπΩ–Å°Ω±ê∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ]°Ö–Å•ÃÅô•·ïêÅ°ï…îÅ•ÃÅ—°îÅÕ•πù±îÅµΩÕ–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅµΩπï—•ÕïêÅ’π•–ÅΩ∏Å—°îÅ¡Öùî∞Å›°•ç†Å›ÖÃÅÕ°•¡¡•πú(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ›•—†ÅÖ∏Åïµ¡—‰Å¡°Ω—ºÅ›ï±∞∏Å=πîÅ•µÖùî∞Å°•ù†Å•∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°îÅôïïê∞ÅÖô—ï»ÅÑÅ—Ö¿µô…ïîÅ…ïπëï»ÉäPÅ—°îÅçΩÕ–Å•Ã(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩπîÅôï—ç†Å—°îÅ…ïÖëï»Å›ÖÃÅÖ±›ÖÂÃÅùΩ•πúÅ—ºÅµÖ≠î∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒ•µúÅÕ…åıÌ°Ωµï·¿π•µÖùïÙÅÖ±–ÙààÅ±ΩÖë•πúÙâïÖùï»àÅëïçΩë•πúÙâÖÕÂπåàÅÕ—Â±îıÌÏÅΩâ©ïç—•–ËÄâçΩŸï»àÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµçΩπ—ïπ–àÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâ…ï±Ö—•ŸîàÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµ—•—±îµ…Ω‹àÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâô±ï‡µÕ—Ö…–àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµ°ïÖë•πúà¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®ÅQ°îÅïÂïâ…Ω‹∞Å›•—†Å—°îÅçÖ…êùÃÅΩ…ÖπùîÅ—•ç¨∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅQ°îÉär†Å•ÃÅùΩπîËÅ—°îÅMLÄÈâïôΩ…îÅ…’±îÅë…Ö›Ã(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°îÅµÖ…¨ÅïŸï…‰ÅΩ—°ï»ÅçÖ…êÅ›ïÖ…Ã∞ÅÖπêÅ—›º(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅµÖ…≠ÃÅΩ∏ÅΩπîÅ±•πîÅ•ÃÅ—°îÅ—°•πúÅ—°Ö–ÅµÖëî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°•ÃÅ±ΩΩ¨Å±•≠îÅÑÅë•ôôï…ïπ–Å¡…Ωë’ç–∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏Åç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµçÖ—ïùΩ…‰à˘5Ö≠îÅÑÅëÖ‰ÅΩòÅ•–ΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏Åç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµπÖµîàÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄââ±Ωç¨àÅıÙ˘Ì°Ωµï·¿π—•—±ïÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµµï—ÑàÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞Åô±ï·]…Ö¿ËÄâ›…Ö¿àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌôÖç—ÃπµÖ¿†°ò§ÄÙ¯ÄÒÕ¡Ö∏Å≠ï‰ıÌôÙ˘ÌôÙΩÕ¡Ö∏¯•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµ°•ù°±•ù°—Ãµ›…Ö¿à¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµ°•ù°±•ù°—Ãà¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Å•Õç±ΩÕ’…ïÃÅô•…Õ–∞ÅëïçΩ…Ö—•Ω∏ÅÕïçΩπêÉäP(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°îÅ±ÖπîÅç±Öµ¡ÃÅ—ºÅΩπîÅ…Ω‹ÅÖπêÅÕç…Ω±±Ã∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕºÅÖπÂ—°•πúÅÖô—ï»Å—°îÅç°•¡ÃÅçÖ∏Åâî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—…•µµïêÄ°%çΩπ•çA±ÖçïÖ…ê∞Åÿ‡∏ƒ‹§∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ°Ωµï·¿πÕï±±•πù=’–Ä¸ÄÒÕ¡Ö∏˘Ïâq’‡Õq’»‘ÅMï±±•πúÅΩ’–âÙΩÕ¡Ö∏¯ÄËÅπ’±±Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏ°°Ωµï·¿πç°•¡ÃÅÒÅmt§πµÖ¿†°å§ÄÙ¯ÄÒÕ¡Ö∏Å≠ï‰ıÌåπ≠ïÂÙ˘Ìåπ•çΩπÙÅÌåπ±Öâï±ÙΩÕ¡Ö∏¯•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Å=9ÅÖç—•Ω∏∞ÅÖπêÅ•–Å•ÃÅ—°îÅµΩπï—•ÕïêÅΩπî∏ÅQ°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅë•Õç±ΩÕ’…îÅ…•ëïÃÅΩ∏Å•–Å…Ö—°ï»Å—°Ö∏Å•∏ÅÑÅôΩΩ—ï»(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°îÅ…ïÖëï»ÅπïŸï»Å…ïÖç°ïÃËÅÕÖµîÅ›Ω…ëÃÅÖπêÅÕÖµî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ¡ΩÕ—’…îÅÖÃÅ—°îÅ—•ç≠ï–Å¡•±∞ÅΩ∏Å—°îÅ¡±ÖçîÅçÖ…ê∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµÖç—•ΩπÃÅ›òµÕ°ïï–µçÖ…êµÖç—•ΩπÃà¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµâΩΩ¨à(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—•—±îÙâAÖ…—πï»Å±•π¨∏Å]ÖÂô•πêÅµÖ‰ÅïÖ…∏ÅÑÅçΩµµ•ÕÕ•Ω∏ÏÅ…Öπ≠•πùÃÅπïŸï»Åç°Öπùî∏à(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖ…•Ñµ±Öâï∞ıÏâ	ΩΩ¨ÄàÄ¨Å°Ωµï·¿π—•—±îÄ¨ÄàÅ›•—†ÅY•Ö—Ω»âÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅπΩ›…Ö¿ÅâïçÖ’ÕîÅ—°îÅÖç—•Ω∏Å…Ω‹Å•ÃÅÑÅù…•êÅÖπê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÑÅ—›ºµ›Ω…êÅ±Öâï∞Åâ…Ω≠îÅΩπ—ºÅ—°…ïîÅ±•πïÃÅÖ–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÄÃ‰¡¡‡ÉäPÅµïÖÕ’…ïê∞ÅπΩ–Åù’ïÕÕïê∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕ—Â±îıÌÏÅ›°•—ïM¡ÖçîËÄâπΩ›…Ö¿àÅıÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ˘	ΩΩ¨Å›•—†ÅY•Ö—Ω»Éä\ΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩY•Ö—Ω…Ωµµï…çï1•π¨¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙ§†•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿÿ∏‰‹ÉäPÅQ!Å5%MM%9Å	I%Ä°Ω›πï»ùÃÅΩ›∏ÅπΩ—îÅΩ∏Å—°îÅµΩç≠’¿§∏ÅQ°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅù’•ëïÃÅ¡’±∞Å…ïÖ∞Å—…Öôô•åÅô…Ω¥ÅΩΩù±îÅïŸï…‰ÅµΩπ—†ÅÖπêÅïŸï…‰Å…ïÖëï»(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅëïÖêµïπëÃÅ—°ï…î∞ÅâïçÖ’ÕîÅπΩ—°•πúÅΩ∏Å—°îÅ°ΩµîÅÕç…ïï∏Å°ÖÃÅïŸï»Å±•π≠ïê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—ºÅΩπî∏ÅIïπëï…ÃÅΩπ±‰Å›°ï…îÅÑÅù’•ëîÅùïπ’•πï±‰ÅçΩŸï…ÃÅ—°îÅ…ïÖëï»ùÃ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖ…ïÑÉäPÅÕïîÅ1=1}%Q}I%UM}5$ÉäPÅÕºÄâ±ΩçÖ∞àÅÕ—ÖÂÃÅÑÅôÖç–∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏÖâ…Ω›ÕïÖ–ÄòòÄÒ1ΩçÖ±ë•–Åçïπ—ï»ıÌ±ΩçIïÕΩ±ŸïêÄ¸Åçïπ—ï»ÄËÅπ’±±ÙÅù’•ëïÃıÌ±ΩçÖ±ë•—’•ëïÕÙÅΩπ1ΩúıÏ°Ñ∞Å¿∞Åï·—…Ñ§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–°Ñ∞Å¿∞Åï·—…Ñ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅıÙÄº˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌÑ…°ÃÄòòÄ†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅµÖ…ù•π	Ω——Ω¥ËÄƒ»∞Åë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄƒ¿∞ÅâÖç≠ù…Ω’πêËÅπçÖ…ê∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞ÅâΩ…ëï…IÖë•’ÃËÄƒ–∞Å¡Öëë•πúËÄàƒ¡¡‡Äƒ…¡‡àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒ•µúÅÕ…åÙàΩ•çΩ∏¥ƒ‰»π¡πúàÅÖ±–ÙààÅ›•ë—†ıÏÃ—ÙÅ°ï•ù°–ıÏÃ—ÙÅÕ—Â±îıÌÏÅâΩ…ëï…IÖë•’ÃËÄ‡ÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅô±ï‡ËÄƒ∞Åµ•π]•ë—†ËÄ¿ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÅπ—ï·–ÅıÙ˘A’–Å]ÖÂô•πêÅΩ∏ÅÂΩ’»Å°ΩµîÅÕç…ïï∏Ωë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒƒ∞ÅçΩ±Ω»ËÅπµ’—ïê∞ÅµÖ…ù•πQΩ¿ËÄƒÅıÙ˘Ìëïôï……ïëA…Ωµ¡–Ä¸Äâ=πîÅ—Ö¿Å—ºÅ—Ωπ•ù°–ùÃÅ¡±Ö∏ÉäPÅΩ¡ïπÃÅ±•≠îÅÖ∏ÅÖ¡¿∏àÄËÄâQÖ¿ÅM°Ö…î∞Å—°ï∏ÅëêÅ—ºÅ!ΩµîÅMç…ïï∏∏âÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌëïôï……ïëA…Ωµ¡–ÄòòÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÏÅ—…‰ÅÏÅëïôï……ïëA…Ωµ¡–π¡…Ωµ¡–†§ÏÅ±ΩùŸïπ–†âÑ…°Õ}•πÕ—Ö±∞à§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅÕï—…°Ã°ôÖ±Õî§ÏÅıÙÅÕ—Â±îıÌÏÅô±ï·M°…•π¨ËÄ¿∞Å¡Öëë•πúËÄà·¡‡Äƒ—¡‡à∞ÅâÖç≠ù…Ω’πêËÅπÖççïπ–∞ÅâΩ…ëï»ËÄâπΩπîà∞ÅâΩ…ëï…IÖë•’ÃËÄƒ¿∞ÅçΩ±Ω»ËÄàå¡ƒƒƒ‹à∞ÅôΩπ—M•ÈîËÄƒ»∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ˘%πÕ—Ö±∞Ωâ’——Ω∏˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÏÅÕï—…°Ã°ôÖ±Õî§ÏÅ—…‰ÅÏÅ±ΩçÖ±M—Ω…ÖùîπÕï—%—ï¥†â›ô}Ñ…°Õ}ë•Õµ•ÕÕïêà∞Äàƒà§ÏÅ±ΩùŸïπ–†âÑ…°Õ}ë•Õµ•ÕÃà§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅıÙÅÖ…•Ñµ±Öâï∞Ùâ•Õµ•ÕÃàÅÕ—Â±îıÌÏÅô±ï·M°…•π¨ËÄ¿∞Å›•ë—†ËÄÃ¿∞Å°ï•ù°–ËÄÃ¿∞ÅâÖç≠ù…Ω’πêËÄâ—…ÖπÕ¡Ö…ïπ–à∞ÅâΩ…ëï»ËÄâπΩπîà∞ÅçΩ±Ω»ËÅπµ’—ïê∞ÅôΩπ—M•ÈîËÄƒÿ∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ˚ärTΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿÿ∏»»ËÅ›°ï∏ÅÑÅçÖ—ïùΩ…‰Å•ÃÅâï•πúÅâ…Ω›ÕïêÅô…Ω¥Å—°îÅµΩΩêÅµïπ‘∞Å—°îÅôïïêÅ’πëï»Å—°îÅ›ïÖ—°ï»ÅâïçΩµïÃÅ—°Ö–ÅçÖ—ïùΩ…‰ùÃÅ…Öπ≠ïêÅ¡±ÖçïÃ∏Å9ºÅπÖŸ•ùÖ—•Ω∏∞Å—°îÅÕÖµîÅA±ÖçïÖ…êÅ’ÕïêÅïŸï…Â›°ï…îÅï±Õî∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌâ…Ω›ÕïÖ–ÄòòÄ†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅ…ïòıÌâ…Ω›Õïπç°Ω…IïôÙÅÕ—Â±îıÌÏÅµÖ…ù•π	Ω——Ω¥ËÄƒÿÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‡∞ÅµÖ…ù•π	Ω——Ω¥ËÄƒ»∞Åô±ï·]…Ö¿ËÄâ›…Ö¿àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÏÅÕï—	…Ω›ÕïÖ–°π’±∞§ÏÅÕï—5ΩΩëA•ç¨°π’±∞§ÏÅÕï—M’à†âÖ±∞à§ÏÅıÙÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄÿ∞ÅâÖç≠ù…Ω’πêËÅπçÖ…ê∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞ÅçΩ±Ω»ËÅπÖççïπ–∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅôΩπ—M•ÈîËÄƒ–∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞Å¡Öëë•πúËÄà·¡‡Äƒ’¡‡àÅıÙ˚ä‰Å	Öç¨Ωë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌâ…Ω›ÕïÖ–ÄÑÙÙÄâÖ——…Öç—•ΩπÃàÄòòÄÒMΩ…—Ωπ—…Ω∞ÅÕΩ…—	‰ıÌÕΩ…—	ÂÙÅΩπMΩ…–ıÏ°¨§ÄÙ¯ÅÕï—MΩ…—	‰°¨•ÙÅµ§ıÌÕ±•ëï…5•ÙÅΩπ5§ıÏ°¥§ÄÙ¯ÅÏÅÖ’—ΩIÖë•’ÕIïòπç’……ïπ–ÄÙÅôÖ±ÕîÏÅÕï—M±•ëï…5§°¥§ÏÅçΩπÕ–Åµ¥ÄÙÅ5Ö—†π…Ω’πê°¥Ä®Äƒÿ¿‰∏Ã–§ÏÅ•òÄ°µ¥Ä¯Ä°ÕïÖ…ç°IÖë•’ÃÅÒÄ¿§§ÅÕï—MïÖ…ç°IÖë•’Ã°µ¥§ÏÅıÙÅ›°ï…îıÌ±Ωç9ÖµîÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à•l¡tÄËÄàâÙÅëïÖ±ÕŸÖ•±Öâ±îıÌ=â©ïç–π≠ïÂÃ°Ωôôï…Ã§π±ïπù—†Ä¯Ä¡ÙÅëïÖ±Õ=π±‰ıÌëïÖ±Õ=π±ÂÙÅΩπïÖ±ÃıÌÕï—ïÖ±Õ=π±ÂÙÄº˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏ††§ÄÙ¯ÅÏÅçΩπÕ–Å}ç¥ÄÙÅ’±—’…îπ…ïÕΩ±Ÿï5ï—…º°±Ωç9Öµî§ÏÅ…ï—’…∏Å}ç¥Ä¸ÄÒ…ïÖ%πÕ•ù°–ÅΩπ1ΩúıÌ±ΩùŸïπ—ÙÅµï—…ºıÌ}çµÙÅçÖ–ıÌâ…Ω›ÕïÖ—ÙÅ—Ω›∏ıÌ±Ωç9ÖµîÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à•l¡tÄËÅπ’±±ÙÅçïπ—ï»ıÌçïπ—ï…ÙÅΩπ•πêıÏ°ƒ§ÄÙ¯ÅÕ’âµ•—MïÖ…ç†°ƒ∞ÅÏÅµ•±ïÃËÄ–‘ÅÙ•ÙÄº¯ÄËÅπ’±∞ÏÅÙ§†•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿÿ∏–‹Ä°Ω›πï»ÅŸ•ÑÅΩ›Ω…¨ÅÕ¡ïå§ËÅ—°îÅÖ——…Öç—•ΩπÃÅâ…Ω›ÕîÅ•ÃÅ=9Å…Öπ≠ïê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ±•Õ–Ä°›ô}—°•πùÕ}—Ω}ëº§ÉäPÅ—°îÅÕ—Öç≠ïêÅY•Ö—Ω»Å…Ö•∞Ä¨Å	ΩΩ≠Öâ±î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ·¡ï…•ïπçïÃÅç°•¡ÃÅÖ…îÅùΩπîÅô…Ω¥Å—°•ÃÅ¡ÖùîÏÅ—Ω’…ÃÅ•π—ï…±ïÖŸîÅÖπê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅïÖ…∏Å—°ï•»Å…Öπ¨∏ÅÖµ•±‰Å≠ïï¡ÃÅ•—ÃÅâΩΩ≠Öâ±îÅ…Ö•∞∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌâ…Ω›ÕïÖ–ÄÙÙÙÄâôÖµ•±‰àÄòòÅçïπ—ï»ÄòòÄÒUπ•ô•ïë	…Ω›ÕïΩµµï…çïIÖ•∞ÅçÖ–ÙâôÖµ•±‰àÅÕ’àÙâÖ±∞àÅ•π•—•Ö±·¡ï…•ïπçïÃıÌâ…Ω›ÕïQΩ’…ÕÙÅçÖ—ïùΩ…•ïÃıÌlâÖ——…Öç—•ΩπÃâuÙÅΩπMÖŸîıÌÕÖŸï5Ωπï—•Èïë%—ïµÙÅ±Ö–ıÌçïπ—ï»π±Ö—ÙÅ±πúıÌçïπ—ï»π±πùÙÅç•—‰ıÌ±Ωç9ÖµîÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à•l¡tÄËÄàâÙÅ…ïù•Ω∏ıÌ±Ωç9ÖµîÄòòÅ±Ωç9ÖµîπÕ¡±•–†à∞à§π±ïπù—†Ä¯ÄƒÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à§π¡Ω¿†§π—…•¥†§ÄËÄàâÙÅΩπ1ΩúıÌ±ΩùŸïπ—ÙÄº˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌâ…Ω›ÕïÖ–ÄÙÙÙÄâÖ——…Öç—•ΩπÃàÄòòÅçïπ—ï»ÄòòÄÒUπ•ô•ïë	…Ω›ÕïΩµµï…çïIÖ•∞ÅçÖ–ÙâÖ——…Öç—•ΩπÃàÅÕ’àıÌÕ’âÙÅ•πç±’ëï·¡ï…•ïπçïÃıÏÑÑ°Õ’àÄòòÅÕ’àÄÑÙÙÄâÖ±∞à•ÙÅçÖ—ïùΩ…•ïÃıÌlâÖ——…Öç—•ΩπÃà∞ÄâµΩ…îâuÙÅΩπMÖŸîıÌÕÖŸï5Ωπï—•Èïë%—ïµÙÅ±Ö–ıÌçïπ—ï»π±Ö—ÙÅ±πúıÌçïπ—ï»π±πùÙÅç•—‰ıÌ±Ωç9ÖµîÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à•l¡tÄËÄàâÙÅ…ïù•Ω∏ıÌ±Ωç9ÖµîÄòòÅ±Ωç9ÖµîπÕ¡±•–†à∞à§π±ïπù—†Ä¯ÄƒÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à§π¡Ω¿†§π—…•¥†§ÄËÄàâÙÅΩπ1ΩúıÌ±ΩùŸïπ—ÙÄº˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌâ…Ω›ÕïÖ–ÄÙÙÙÄâ°Ω—ï±ÃàÄòòÅçïπ—ï»ÄòòÅŸ•ï‹π±ïπù—†Ä¯Ä¿ÄòòÄÒUπ•ô•ïë	…Ω›ÕïΩµµï…çïIÖ•∞ÅçÖ–Ùâ°Ω—ï±ÃàÅÕ’àÙâÖ±∞àÅçÖ—ïùΩ…•ïÃıÌlâÕ—ÖÂÃâuÙÅΩπMÖŸîıÌÕÖŸï5Ωπï—•Èïë%—ïµÙÅ±Ö–ıÌçïπ—ï»π±Ö—ÙÅ±πúıÌçïπ—ï»π±πùÙÅç•—‰ıÌ±Ωç9ÖµîÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à•l¡tÄËÄàâÙÅ…ïù•Ω∏ıÌ±Ωç9ÖµîÄòòÅ±Ωç9ÖµîπÕ¡±•–†à∞à§π±ïπù—†Ä¯ÄƒÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à§π¡Ω¿†§π—…•¥†§ÄËÄàâÙÅΩπ1ΩúıÌ±ΩùŸïπ—ÙÄº˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Ä»¿»ÿ¥¿‡¥¿–Ä°Ω›πï»ËÄâ$Å›Öπ–ÅïŸï…‰ÅÕ•πù±îÅY•Ö—Ω»Åëïï¡±•π¨ÅΩ¡—•Ω∏ÅÕ°Ω›•πúÅ’¿(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩ∏Åµ‰ÅÕ°ïï—Ã∏∏∏Å•òÅ•–ùÃÅôΩ»ÅôΩΩêÅù•ŸîÅµîÅôΩΩêÅ—Ω’…Ã∏∏∏Å$Å›Öπ–Å—°•ÃÅëΩπî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅïŸï…Â›°ï…îà§∏ÅΩΩê∞Å9•ù°—±•ôî∞ÅM°Ω¡¡•πúÅÖπêÅ	ïÖç†Å°ÖêÅ9<ÅâΩΩ≠Öâ±îÅ…Ö•∞ÅÖ–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖ±∞ÉäPÅ—°îÅ…Ö•∞ÅµΩ’π—ïêÅΩ∏Å—°…ïîÅΩòÅÕïŸï∏Åâ…Ω›ÕîÅçÖ—ïùΩ…•ïÃ∏ÅΩΩêÅ›ÖÃÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕ°Ö…¡ïÕ–ÅùÖ¿ËÄÃ‘ÅôΩΩêÅ—Ω’…ÃÅÖç…ΩÕÃÄƒƒÅµÖ…≠ï—ÃÅÕÖ–Å•∏Å›ô}ï·¡ï…•ïπçïÃÅÖπê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩ’±êÅπΩ–ÅÕ’…ôÖçîÅ’πëï»ÅÑÅôΩΩêÅ°ïÖë•πú∞ÅâïçÖ’ÕîÅ—°îÅ°Ö…ŸïÕ–Å—ÖùÃÅ—°ï¥(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÅ¡…•ŸÖ—ïÄΩÅ°•Õ—Ω…•çÖ±ÄÅÖπêÅπΩ—°•πúÅçΩ’±êÅÖÕ¨ÅôΩ»ÄâôΩΩêà∏ÅQ°ï‰ÅπΩ‹Å…•ëîÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅëï…•ŸïêÅçΩπçï¡—ÃÅ•∏Å±•àΩï·¡ï…•ïπçïΩπçï¡—Ãπ©ÃÅŸ•ÑÅ±•àΩâ…Ω›ÕïΩµµï…çï5Ö¿∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖç†Å¡ÖÕÕïÃÅ•—ÃÅ=]8ÅçÖ—ïùΩ…‰ÅÕºÅ—°îÅç°•¿ÅµÖ¿ÅçÖππΩ–Åç…ΩÕÃµ…ïÕΩ±ŸîÉäPÄâÖ±∞à(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅï·•Õ—ÃÅ•∏ÅÖ±∞ÅÕïŸï∏ÅçÖ—ïùΩ…•ïÃÅÖπêÄâôÖµ•±‰àÅ•ÃÅâΩ—†ÅÑÅÕ’àµç°•¿ÅÖπêÅÑ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçÖ—ïùΩ…‰∏ÅIÖπ≠•πúÅ•ÃÅ’πç°ÖπùïêËÅ…Öπ≠·¡ï…•ïπçïÃ∞Å°•ù°ïÕ–ÅÕçΩ…îÅô•…Õ–∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌâ…Ω›ÕïÖ–ÄÙÙÙÄâôΩΩêàÄòòÅçïπ—ï»ÄòòÄÒUπ•ô•ïë	…Ω›ÕïΩµµï…çïIÖ•∞ÅçÖ–ÙâôΩΩêàÅÕ’àıÌÕ’âÙÅΩπMÖŸîıÌÕÖŸï5Ωπï—•Èïë%—ïµÙÅ±Ö–ıÌçïπ—ï»π±Ö—ÙÅ±πúıÌçïπ—ï»π±πùÙÅç•—‰ıÌ±Ωç9ÖµîÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à•l¡tÄËÄàâÙÅ…ïù•Ω∏ıÌ±Ωç9ÖµîÄòòÅ±Ωç9ÖµîπÕ¡±•–†à∞à§π±ïπù—†Ä¯ÄƒÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à§π¡Ω¿†§π—…•¥†§ÄËÄàâÙÅΩπ1ΩúıÌ±ΩùŸïπ—ÙÄº˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌâ…Ω›ÕïÖ–ÄÙÙÙÄâπ•ù°—±•ôîàÄòòÅçïπ—ï»ÄòòÄÒUπ•ô•ïë	…Ω›ÕïΩµµï…çïIÖ•∞ÅçÖ–Ùâπ•ù°—±•ôîàÅÕ’àıÌÕ’âÙÅΩπMÖŸîıÌÕÖŸï5Ωπï—•Èïë%—ïµÙÅ±Ö–ıÌçïπ—ï»π±Ö—ÙÅ±πúıÌçïπ—ï»π±πùÙÅç•—‰ıÌ±Ωç9ÖµîÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à•l¡tÄËÄàâÙÅ…ïù•Ω∏ıÌ±Ωç9ÖµîÄòòÅ±Ωç9ÖµîπÕ¡±•–†à∞à§π±ïπù—†Ä¯ÄƒÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à§π¡Ω¿†§π—…•¥†§ÄËÄàâÙÅΩπ1ΩúıÌ±ΩùŸïπ—ÙÄº˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌâ…Ω›ÕïÖ–ÄÙÙÙÄâÕ°Ω¡¡•πúàÄòòÅçïπ—ï»ÄòòÅŸ•ï‹π±ïπù—†Ä¯Ä¿ÄòòÄÒUπ•ô•ïë	…Ω›ÕïΩµµï…çïIÖ•∞ÅçÖ–ÙâÕ°Ω¡¡•πúàÅÕ’àıÌÕ’âÙÅΩπMÖŸîıÌÕÖŸï5Ωπï—•Èïë%—ïµÙÅ±Ö–ıÌçïπ—ï»π±Ö—ÙÅ±πúıÌçïπ—ï»π±πùÙÅç•—‰ıÌ±Ωç9ÖµîÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à•l¡tÄËÄàâÙÅ…ïù•Ω∏ıÌ±Ωç9ÖµîÄòòÅ±Ωç9ÖµîπÕ¡±•–†à∞à§π±ïπù—†Ä¯ÄƒÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à§π¡Ω¿†§π—…•¥†§ÄËÄàâÙÅΩπ1ΩúıÌ±ΩùŸïπ—ÙÄº˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌâ…Ω›ÕïÖ–ÄÙÙÙÄââïÖç†àÄòòÅçïπ—ï»ÄòòÄÒUπ•ô•ïë	…Ω›ÕïΩµµï…çïIÖ•∞ÅçÖ–ÙââïÖç†àÅÕ’àıÌÕ’âÙÅΩπMÖŸîıÌÕÖŸï5Ωπï—•Èïë%—ïµÙÅ±Ö–ıÌçïπ—ï»π±Ö—ÙÅ±πúıÌçïπ—ï»π±πùÙÅç•—‰ıÌ±Ωç9ÖµîÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à•l¡tÄËÄàâÙÅ…ïù•Ω∏ıÌ±Ωç9ÖµîÄòòÅ±Ωç9ÖµîπÕ¡±•–†à∞à§π±ïπù—†Ä¯ÄƒÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à§π¡Ω¿†§π—…•¥†§ÄËÄàâÙÅΩπ1ΩúıÌ±ΩùŸïπ—ÙÄº˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®ÅQ°îÅ—›ºÅ9Q%=90ÅçÖ—ïùΩ…•ïÃ∏ÅQ°ï‰Å°ÖêÅπºÅ…ïπëï»Å¡Ö—†ÅÖ–ÅÖ±∞∞ÅÕºÅâΩ—†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…Ω›ÃÅÕÖ–ÅëÖ…¨ÅÕ•πçîÄ»¿»ÿ¥¿‹¥»»ÅëïÕ¡•—îÅâï•πúÅ±•ŸîÅÖ——…•â’—ïêÅ(Å±•π≠ÃÉäP(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅâ’•±–∞Å›Ω…≠•πú∞ÅÖπêÅïÖ…π•πúÅπΩ—°•πúÅôΩ»Å›Öπ–ÅΩòÅÑÅµΩ’π–∏ÅA±ÖçïêÅâïÕ•ëî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°îÅ±ΩçÖ∞Å…Ö•∞Å›°ΩÕîÅ—…•¿µ¡±Öππ•πúÅµΩµïπ–Å—°ï‰Åâï±ΩπúÅ—ºËÅÑÅçÖ»Å…ïπ—Ö∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅπï·–Å—ºÅ°Ω—ï±Ã∞ÅÑÅµΩŸ•îÅ—•ç≠ï–Åπï·–Å—ºÅ—°•πùÃÅ—ºÅëº∏Å	Ω—†ÅÖ…î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕçΩ¡îÙùπÖ—•ΩπÖ∞ú∞ÅÕºÅùïΩ•±—ï…ïÖ±ÃÅ≠ïï¡ÃÅ—°ï¥ÅôΩ»ÅïŸï…‰Å’Õï»ÅÖπê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩ…ëï…ïÖ±Õ	ÂMçΩ¡îÅ°Ω±ëÃÅ—°ï¥Åâï±Ω‹Å—°îÅ±ΩçÖ∞Å•πŸïπ—Ω…‰∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌâ…Ω›ÕïÖ–ÄÙÙÙÄâÖ——…Öç—•ΩπÃàÄòòÄ°Õ’àÄÙÙÙÄâÖ±∞àÅÒÄÖÕ’à§ÄòòÄÒQ°•πùÕQΩΩ1•Õ–Åçïπ—ï»ıÌçïπ—ï…ÙÅç•—‰ıÌç•—Â9Ω›ÙÅ›ïÖ—°ï»ıÌ›ïÖ—°ï…ÙÅΩπ=¡ïπA±ÖçîıÏ°¿§ÄÙ¯ÅΩ¡ïπï—Ö•∞°¿∞Äâ——êà•ÙÅΩπ1ΩúıÏ°Ñ∞Å¿∞Åï·—…Ñ§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–°Ñ∞Å¿∞Åï·—…Ñ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅıÙÅâ±’…âÃıÌâ±’…âÕÙÅ±ΩÖë	±’…âÃıÌ±ΩÖë	±’…âÕÙÅΩπMÖŸîıÏ°¿§ÄÙ¯ÅÏÅ—…‰ÅÏÅ≈’•ç≠MÖŸïÖŸΩ…•—î°¿§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅıÙÅ±•≠ïêıÌ±•≠ïëÙÅë•Õ±•≠ïêıÌë•Õ±•≠ïëÙÅΩπ1•≠îıÏ°î∞Å¿§ÄÙ¯ÅÏÅ—…‰ÅÏÅ—Ωùù±ï1•≠î°î∞Å¿§ÏÅÙÅçÖ—ç†Ä°ï»§ÅÌÙÅıÙÅΩπ•Õ±•≠îıÏ°î∞Å¿§ÄÙ¯ÅÏÅ—…‰ÅÏÅ—Ωùù±ï•Õ±•≠î°î∞Å¿§ÏÅÙÅçÖ—ç†Ä°ï»§ÅÌÙÅıÙÅΩπM°Ö…îıÏ°»§ÄÙ¯ÅÏÅ—…‰ÅÏÅçΩπÕ–ÅΩôôï»ÄÙÅ»π¡…Ωë’ç—}çΩëîÅÒÅ»πçΩëîÏÅçΩπÕ–Å¡Ö—†ÄÙÅΩôôï»Ä¸ÅçΩµµï…çï!…ïò°ÏÅ¡…ΩŸ•ëï»ËÄâŸ•Ö—Ω»à∞ÅΩôôï…%êËÅΩôôï»∞ÅÕ’…ôÖçîËÄâ——ë}Õ°Ö…îà∞ÅçΩπ—ïπ—%êËÅç•—Â9Ω‹ÅÙ§ÄËÅôòπï·¡ï…•ïπçïΩU…∞°»π—•—±î∞Åç•—Â9Ω‹∞ÄâÖ——…Öç—•ΩπÃà∞Å»π•ê∞ÅÏÅÕ’…ôÖçîËÄâ——ë}Õ°Ö…îà∞ÅçΩπ—ïπ—%êËÅç•—Â9Ω‹ÅÙ§ÏÅçΩπÕ–Å‘ÄÙÅ»π≠•πêÄÙÙÙÄâï·¡ï…•ïπçîàÄòòÅ¡Ö—†Ä¸ÅΩ…•ù•πU…∞°¡Ö—†§ÄËÅΩ…•ù•πU…∞†àΩ¿ºàÄ¨ÅïπçΩëïUI%Ωµ¡Ωπïπ–°»π•ê§§ÏÅÕ°Ö…ï1•π¨°»π—•—±îÄ¨ÄàÉäPÅôΩ’πêÅΩ∏Å]ÖÂô•πêà∞Å‘∞Ä†§ÄÙ¯ÅÕ°Ω›QΩÖÕ–†â1•π¨ÅçΩ¡•ïêà§§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅıÙÄº˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿÿ∏–ÃÄ°Õ¡Ö…ÕîµçÖ—ïùΩ…‰Å°ΩπïÕ—‰§ËÅ›°•±îÅ—°îÅ≈’ï…‰Å±ÖπëÃ∞ÅÕ°Ω‹ÅçÖ…êµÕ°Ö¡ïê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕ≠ï±ï—ΩπÃÅÕºÅ—°îÅôïïêÅŸ•Õ•â±‰Å=5A1QLÅ•πÕ—ïÖêÅΩòÅÑÅÕ¡•ππï»ÅΩŸï»ÅÑ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ±•Õ–Å—°Ö–ÅÕ•±ïπ—±‰ÅÕ°…•π≠ÃÄ°Öµ•±‰Äÿ¿¥¯ƒÃÅµ•êµ…ïπëï»Å…ïÖêÅÖÃÅô…ΩÈï∏§∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ±ΩÖë•πúÄ¸Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅµÖ…ù•πQΩ¿ËÄ»ÅıÙÅÖ…•Ñµâ’Õ‰Ùâ—…’îàÅÖ…•Ñµ±Öâï∞Ùâ•πë•πúÅ—°îÅâïÕ–ÅÕ¡Ω—Ãà¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒA±ÖçïÖ…ëM≠ï±ï—Ω∏ÅçΩ’π–ıÏ’ÙÅÖÃÙâë•ÿàÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ§ÄËÅŸ•ï‹π±ïπù—†ÄÙÙÙÄ¿Ä¸Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ—ï·—±•ù∏ËÄâçïπ—ï»à∞Å¡Öëë•πúËÄà–¡¡‡Ä»—¡‡à∞ÅçΩ±Ω»ËÅπµ’—ïêÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖπ•µÖ—•Ω∏ËÄâ›ôâΩàÄƒ∏—ÃÅïÖÕîµ•∏µΩ’–Å•πô•π•—îà∞ÅµÖ…ù•π	Ω——Ω¥ËÄƒ¿ÅıÙ¯Ò…•——ï»ÅÕ•ÈîıÏ–ŸÙÄº¯Ωë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ—…ΩπúÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄââ±Ωç¨à∞ÅçΩ±Ω»ËÅπ±•ù°–ÅıÙ˘9Ω—°•πúÅ°ï…îÅ…•ù°–ÅπΩ‹ΩÕ—…Ωπú¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒÃÅıÙ˘Q…‰ÅÖπΩ—°ï»ÅçÖ—ïùΩ…‰ÉäPÅΩ»Å›•ëï∏ÅÂΩ’»ÅÕïÖ…ç†ÏÅ—°îÅâïÕ–ÅÕ¡Ω—ÃÅÖ…îÅΩô—ï∏ÅÑÅôï‹Åµ•±ïÃÅΩ’–∏ΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ§ÄËÄ†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌŸ•ï‹πµÖ¿†°¿∞Å§§ÄÙ¯Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒA±ÖçïÖ…êÅ≠ï‰ıÌ¿π•ëÙÅ¿ıÌ¡ÙÅ…Öπ¨ıÌ§Ä¨Ä≈ÙÅÕÖŸïêıÌ•ÕMÖŸïê°¿π•ê•ÙÅ±•≠ïêıÏÑÖ±•≠ïëm¿π•ëuÙÅë•Õ±•≠ïêıÏÑÖë•Õ±•≠ïëm¿π•ëuÙÅΩπï—Ö•∞ıÏ†§ÄÙ¯ÅΩ¡ïπï—Ö•∞°¿•ÙÅΩπMÖŸîıÏ†§ÄÙ¯Å≈’•ç≠MÖŸïÖŸΩ…•—î°¿•ÙÅΩπ1•≠îıÏ°î§ÄÙ¯Å—Ωùù±ï1•≠î°î∞Å¿•ÙÅΩπ•Õ±•≠îıÏ°î§ÄÙ¯Å—Ωùù±ï•Õ±•≠î°î∞Å¿•ÙÅΩπM°Ö…ïÖ…êıÏ°¡∞§ÄÙ¯ÅÏÅ—…‰ÅÏÅÖëëM°Ö…ïê°¡∞§ÏÅù•ŸïÖ›ÖÂ5Ö…¨°¡∞π•ê§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅıÙÅ±•πîıÌâ±’…âÕm¿π•ëuÙÅΩπ	ÖëùîıÌΩ¡ïπ·¡ï…•ïπçïÙÅΩπ’•Õ•πïQÖ¿ıÌΩ¡ïπ’•Õ•πïÙÅâïÖç°M•ùπÖ∞ıÌâïÖç°M•ùπÖ±Õm¿π•ëuÙÅç•—‰ıÌç•—Â9Ω›ÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ§•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®ÅπêµΩòµôïïêÅ°ΩπïÕ—‰ËÅπÖµîÅ—°îÅçΩ’π–Ä¨Å—°îÅç•—‰ÅÕºÅÑÅÕ°Ω…–Å±•Õ–Å…ïÖëÃ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖÃÅçΩµ¡±ï—î∞ÅπΩ–Åâ…Ω≠ï∏∏Å]°ï∏ÅÕ¡Ö…ÕîÄ†‡§ÅΩôôï»ÅÑÅ…ïÖ∞Åπï·–ÅÕ—ï¿ÉäP(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ï±Ö‡Å—°îÅÕ’àµô•±—ï»Å•òÅΩπîÅ•ÃÅΩ∏∞Åï±ÕîÅ›•ëï∏Å—°îÅÕïÖ…ç†Å…Öë•’Ã∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏ††§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}±â∞ÄÙÄ†°Ö—ÃπQ=Ie}Q%1Lπô•πê†°–§ÄÙ¯Å–π•êÄÙÙÙÅâ…Ω›ÕïÖ–§ÅÒÅÌÙ§π±Öâï∞ÅÒÄàà§π—Ω1Ω›ï…ÖÕî†§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}ç•—‰ÄÙÅ±Ωç9ÖµîÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à•l¡tÄËÄâ—°•ÃÅÖ…ïÑàÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}çÖπIï±Ö‡ÄÙÅÕ’àÄòòÅÕ’àÄÑÙÙÄâÖ±∞àÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}µ§ÄÙÅ5Ö—†πµ•∏°5Ö—†π…Ω’πê†°Õ±•ëï…5§ÅÒÅU1Q}I%UM}5$§Ä¨Äƒ‘§∞Ä‹‘§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}›•ëï∏ÄÙÄ†§ÄÙ¯ÅÏÅÖ’—ΩIÖë•’ÕIïòπç’……ïπ–ÄÙÅôÖ±ÕîÏÅÕï—M±•ëï…5§°}µ§§ÏÅÕï—MïÖ…ç°IÖë•’Ã°5Ö—†π…Ω’πê°}µ§Ä®Äƒÿ¿‰∏Ã–§§ÏÅÙÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}…ï±Ö‡ÄÙÄ†§ÄÙ¯ÅÕï—M’à†âÖ±∞à§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}Öç–ÄÙÅ}çÖπIï±Ö‡Ä¸Å}…ï±Ö‡ÄËÅ}›•ëï∏Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ—ï·—±•ù∏ËÄâçïπ—ï»à∞Å¡Öëë•πúËÄàƒŸ¡‡ÄƒŸ¡‡ÄŸ¡‡à∞ÅçΩ±Ω»ËÅπµ’—ïê∞ÅôΩπ—M•ÈîËÄƒÃ∞Å±•πï!ï•ù°–ËÄƒ∏‘ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿ˘Q°Ö–ùÃÅÖ±∞ÅÌŸ•ï‹π±ïπù—°ÙÅÌ}±â∞Ä¸Å}±â∞Ä¨ÄàÄàÄËÄàâıÌŸ•ï‹π±ïπù—†ÄÙÙÙÄƒÄ¸ÄâÕ¡Ω–àÄËÄâÕ¡Ω—ÃâÙÅπïÖ»ÅÌ}ç•—ÂıÌ±Ωç¡¡…Ω‡Ä¸ÄàÄ°Ö¡¡…Ω·•µÖ—îÅ±ΩçÖ—•Ω∏§àÄËÄàâÙ∏Ωë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌŸ•ï‹π±ïπù—†ÄÄ‡ÄòòÄ†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅ…Ω±îÙââ’——Ω∏àÅ—Öâ%πëï‡ıÏ¡ÙÅΩπ±•ç¨ıÌ}Öç—ÙÅΩπ-ïÂΩ›∏ıÏ°î§ÄÙ¯ÅÏÅ•òÄ°îπ≠ï‰ÄÙÙÙÄâπ—ï»àÅÒÅîπ≠ï‰ÄÙÙÙÄàÄà§ÅÏÅîπ¡…ïŸïπ—ïôÖ’±–†§ÏÅ}Öç–†§ÏÅÙÅıÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâ•π±•πîµâ±Ωç¨à∞ÅµÖ…ù•πQΩ¿ËÄ‡∞ÅçΩ±Ω»ËÅπÖççïπ–∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ}çÖπIï±Ö‡Ä¸ÄâM°Ω‹ÅÖ±∞ÄàÄ¨Ä°}±â∞ÅÒÄâÕ¡Ω—Ãà§Ä¨ÄàÅπïÖ…â‰àÄËÄâMïîÅµΩ…îÅù…ïÖ–ÅÕ¡Ω—ÃÉäPÄàÄ¨Å}µ§Ä¨ÄàÅµ§ÅΩ’–Éä\âÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙ§†•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿÿ∏»ƒËÅ—°îÅÕ•πù±îÅ°ï…ºÅ•ÃÅπΩ‹Å—°îÅï·¡ï…•ïπçîÅ°ï…ºÅâï±Ω‹Ä°…ÖπëΩ¥Å—°ïµïêÅç’…Ö—ïêÅ±•Õ–∞Å—°îÅÕ°Ö…ïÖâ±îÅÖπç°Ω»§∏ÅQ°îÅΩ±êÅ¡±ÖçîÅ°ï…ºÅ›ÖÃÅ…ïµΩŸïêÅ—ºÅ≠ïï¿ÅΩπîÅ°ï…º∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Å]ÖÂô•πêÅA•ç≠ÃÅπΩ‹Å…ïπëï…ÃÅÖÃÅ—°îÅô•…Õ–Å°ΩΩ¨ÅçÖ…êÅ•πÕ•ëîÅ—°îÄâ]Ω…—†ÅÑÅ±ΩΩ¨àÅÕïç—•Ω∏Åâï±Ω‹∞ÅµÖ—ç°•πúÅ—°îÅïë•—Ω…•Ö∞ÅçÖ…ëÃ∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Äâ]Ω…—†ÅÑÅ±ΩΩ¨ÅπïÖ»ÅÂΩ‘àËÅ]ÖÂô•πêÅA•ç≠ÃÅô•…Õ–∞Åïë•—Ω…•Ö∞Å°ΩΩ≠ÃÅ•∏Å—°îÅµ•ëë±î∞ÅIΩ±∞Å—°îÅ•çîÅ±ÖÕ–∏ÅMÖµîÅ°ΩΩ¨µçÖ…êÅÕ°Ö¡î∞Åë•ôôï…ïπ–ÅÖççïπ–ÅçΩ±Ω…Ã∞ÅÕºÅ—°ï‰Åâ±ïπê∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏÖâ…Ω›ÕïÖ–ÄòòÄ°Õ’ùùïÕ—ïêÄòòÅÕ’ùùïÕ—ïêπ±ïπù—†Ä¯Ä¿§ÄòòÄ††§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅÕ°Ö…ï!ΩΩ¨ÄÙÄ°°¨∞Å¡∞§ÄÙ¯ÅÏÅ•òÄ†Ö¡∞§Å…ï—’…∏ÏÅÖÕ≠M°Ö…ï%π—ïπ–°ÏÅπÖµîËÅ¡∞ππÖµî∞Åç•—‰ËÅ±Ωç9Öµî∞Å•êËÅ¡∞π•ê∞Å≠•πêËÅ¡±Öçï-•πëÃ°¡∞§∞ÅΩπA±Ö•∏ËÄ†§ÄÙ¯ÅÕ°Ö…ï1•π¨°¡∞ππÖµî∞Å¡±ÖçïM°Ö…ïU…∞°¡∞∞Å±Ωç9Öµî∞Åâ±’…â1•πî°â±’…âÕm¡∞π•ët§§∞Ä†§ÄÙ¯ÅÕ°Ω›QΩÖÕ–†â1•π¨ÅçΩ¡•ïêà§∞ÅôÖ±±M°Ö…ï1•πî†â°ïç¨ÅΩ’–ÄàÄ¨Å¡∞ππÖµîÄ¨ÄàÅΩ∏Å]ÖÂô•πêà∞Å¡∞π•ê∞ÅÕ•—ïQΩëÖÂM—»†§§∞Ä†§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–†âÕ°Ö…îà∞Å¡∞∞ÅÏÅ≠•πêËÄâ°ΩΩ¨àÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅù•ŸïÖ›ÖÂ5Ö…¨°¡∞π•ê§ÏÅÖëëM°Ö…ïê°¡∞§ÏÅÙ§∞ÅΩπ%πŸ•—îËÄ°‘∞Å–§ÄÙ¯ÅÕ°Ö…ï1•π¨†âÅ≈’ïÕ—•Ω∏ÅôΩ»ÅÂΩ‘à∞Å‘∞Åπ’±∞∞Å–∞Ä†§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–†âÕ°Ö…îà∞Å¡∞∞ÅÏÅ≠•πêËÄâ•πŸ•—îà∞Åô…Ω¥ËÄâ°ΩΩ¨àÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅù•ŸïÖ›ÖÂ5Ö…¨°¡∞π•ê§ÏÅÖëëM°Ö…ïê°¡∞§ÏÅÙ§ÅÙ§ÏÅÙÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÿ‘∏ƒƒËÅ—°îÅë•çîÅçÖ…êÅ…Ω—Ö—ïÃÅ—°îÅQ-ÅÅ!9ÅâÖπ¨ÏÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅç±ÖÕÕ•åÅ±•πîÄâ$Å›Öπ–Å—ºÅ—Ö≠îÅÑÅç°Öπçî∏àÅÕ—ÖÂÃÅÖÃÅŸÖ…•Öπ–ÅÈï…º(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÖπêÅ—°îÅôÖ±±âÖç¨Ä°AI=QQÅçΩ¡‰∞Åç°ïç¨µ’‡§∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}â≠°ÖπçîÄÙÅ¡•ç≠!ΩΩ¨†âç°Öπçîà∞Åπ’±∞§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°}â≠°Öπçî§Å°ï…Ω%µ¡…ïÕÕ•Ω∏†âç°Öπçîà∞Å}â≠°ÖπçîπŸÖ…•Öπ–∞Å}â≠°Öπçîπ—ï·–§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åë•çï!ΩΩ¨ÄÙÅÏÅ•êËÄâë•çîµ…Ω±∞à∞ÅÖççïπ–ËÅπ¡’…¡±î∞ÅïµΩ©§ËÄã¬~:»à∞Å±Öâï∞ËÄâQÖ≠îÅÑÅç°Öπçîà∞Å°ΩΩ¨ËÅ}â≠°ÖπçîÄ¸Å}â≠°Öπçîπ—ï·–ÄËÄâ$Å›Öπ–Å—ºÅ—Ö≠îÅÑÅç°Öπçî∏à∞Å}°ΩΩ≠YÖ»ËÅ}â≠°ÖπçîÄ¸Å}â≠°ÖπçîπŸÖ…•Öπ–ÄËÅπ’±∞∞Å°•ù°±•ù°—]Ω…êËÅ}â≠°ÖπçîÄ¸ÄààÄËÄâç°Öπçîà∞ÅÕ’â—•—±îËÄâIΩ±∞Å•–ÉäPÅ]ÖÂô•πêÅ±ÖπëÃÅÂΩ‘ÅÕΩµï›°ï…îÅù…ïÖ–ÅπïÖ…â‰à∞Åç—ÑËÄã¬~:»ÅIΩ±∞Å—°îÅë•çîÉäHàÅÙÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ=πîÅï·¡ï…•ïπçîÅ°ï…ºÅÖπç°Ω…ÃÅ—°îÅôïïê∏ÅQ°îÅç’…Ö—ïêÅ±•Õ–Å•–ÅΩ¡ïπÃÅ•ÃÅ—°îÅÕ°Ö…ïÖâ±îÅÖπç°Ω»∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅQ!5}=IHÄÙÅlâùï¥à∞ÄâôÖµ•±‰à∞ÄââïÕ—Ωòà∞Äâïπ—ï…—Ö•πµïπ–à∞ÄâÕ—ÖÂÃà∞ÄâÕ°Ω›Ãà∞Äââ’ëùï–âtÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅQ!5}=1=HÄÙÅÏÅùï¥ËÅπ—ïÖ∞∞ÅôÖµ•±‰ËÅπù…ïï∏∞ÅâïÕ—ΩòËÅπùΩ±ê∞Åïπ—ï…—Ö•πµïπ–ËÅπ¡’…¡±î∞ÅÕ—ÖÂÃËÅπâ±’î∞ÅÕ°Ω›ÃËÅπ¡•π¨∞Åâ’ëùï–ËÅπùΩ±êÅÙÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åï·¡AΩΩ∞ÄÙÅmtÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅÕïïπAΩΩ∞ÄÙÅπï‹ÅMï–†§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅôΩ»Ä°çΩπÕ–Å¿ÅΩòÅl∏∏∏°ë•Õ¡±ÖÂ1•Õ–ÅÒÅmt§∞Ä∏∏∏°Õ’ùùïÕ—ïêÅÒÅmt§∞Ä∏∏∏°¡±ÖçïÃÅÒÅmt•t§ÅÏÅ•òÄ°¿ÄòòÅ¿π•êÄòòÄÖÕïïπAΩΩ∞π°ÖÃ°¿π•ê§§ÅÏÅÕïïπAΩΩ∞πÖëê°¿π•ê§ÏÅï·¡AΩΩ∞π¡’Õ†°¿§ÏÅÙÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å¡ΩΩ±-ïÂÃÄÙÅπï‹Å5Ö¿†§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅï·¡AΩΩ∞πôΩ…Öç††°¿§ÄÙ¯ÅÏÅ—…‰ÅÏÅ¡ΩΩ±-ïÂÃπÕï–°¿π•ê∞Åπï‹ÅMï–°ï·¡ï…•ïπçï	ÖëùïÃ°¿∞Åπ’±∞∞Ä‰‰§πµÖ¿†°à§ÄÙ¯Åàπ≠ï‰§§§ÏÅÙÅçÖ—ç†Ä°ï»§ÅÏÅ¡ΩΩ±-ïÂÃπÕï–°¿π•ê∞Åπï‹ÅMï–†§§ÏÅÙÅÙ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅµÖ—ç°ïÕ·¿ÄÙÄ°¿∞Å≠ï‰§ÄÙ¯ÅÏÅçΩπÕ–ÅîÄÙÅaAI%9Mm≠ïÂtÏÅ•òÄ†Öî§Å…ï—’…∏ÅôÖ±ÕîÏÅ•òÄ°îπô•±—ï»§ÅÏÅ—…‰ÅÏÅ…ï—’…∏ÄÑÖîπô•±—ï»°¿§ÏÅÙÅçÖ—ç†Ä°ï»§ÅÏÅ…ï—’…∏ÅôÖ±ÕîÏÅÙÅÙÅçΩπÕ–Å≠ÃÄÙÅ¡ΩΩ±-ïÂÃπùï–°¿π•ê§ÏÅ…ï—’…∏Å≠ÃÄ¸Å≠Ãπ°ÖÃ°≠ï‰§ÄËÅôÖ±ÕîÏÅÙÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅÖŸÖ•∞ÄÙÅmtÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å’Õïë!ï…Ω%ëÃÄÙÅπï‹ÅMï–†§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅôΩ»Ä°çΩπÕ–Å≠ï‰ÅΩòÅQ!5}=IH§ÅÏÅçΩπÕ–ÅîÄÙÅaAI%9Mm≠ïÂtÏÅ•òÄ†Öî§ÅçΩπ—•π’îÏÅçΩπÕ–ÅµÖ—ç†ÄÙÅï·¡AΩΩ∞πô•±—ï»†°¿§ÄÙ¯Å¿ÄòòÅ¿π¡°Ω—ºÄòòÅµÖ—ç°ïÕ·¿°¿∞Å≠ï‰§ÄòòÄÖ’Õïë!ï…Ω%ëÃπ°ÖÃ°¿π•ê§§πÕΩ…–†°Ñ∞Åà§ÄÙ¯Ä°àπ›ôMçΩ…îÅÒÄ¿§Ä¥Ä°Ñπ›ôMçΩ…îÅÒÄ¿§•l¡tÏÅ•òÄ°µÖ—ç†§ÅÏÅÖŸÖ•∞π¡’Õ†°ÏÅ≠ï‰∞Å¡±ÖçîËÅµÖ—ç†∞ÅîÅÙ§ÏÅ’Õïë!ï…Ω%ëÃπÖëê°µÖ—ç†π•ê§ÏÅÙÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÿ–∏–ÿËÅ—°îÅ…ïŸïπ’îÅ—°ïµïÃÅÖ±›ÖÂÃÅ…ïπëï»ÅÖÃÅ°ï…ºÅçÖ…ëÃ∏Å]°ï∏Å—°îÅ±ΩçÖ∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ¡ΩΩ∞Å°ÖÃÅπºÅµÖ—ç°•πúÅ¡±ÖçîÄ°•–Å•ÃÅôΩΩêµ°ïÖŸ‰§∞ÅÑÅ¡±Öçîµ±ïÕÃÅ°ï…ºÅçÖ…ê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÕ—•±∞ÅÕ°Ω›ÃÉäPÅ!ΩΩ≠MΩ±ºÅôÖ±±ÃÅâÖç¨Å—ºÅ—°îÅÖççïπ–Åù…Öë•ïπ–ÉäPÅÖπêÅ—Ö¡¡•πú(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ•–ÅΩ¡ïπÃÅ—°îÅ›•ëîµ…Öë•’ÃÅï·¡ï…•ïπçîÅÕïÖ…ç†Ä°=…±ÖπëºÅÖ——…Öç—•ΩπÃ∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ°Ω—ï±Ã∞ÅÕ°Ω›Ã§∏ÅQ°ïÕîÅÖ…îÅ—°îÅÕ’…ôÖçïÃÅ—°Ö–ÅçÖ……‰ÅÖôô•±•Ö—îÅ±•π≠Ã∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅUI9QÄÙÅlâôÖµ•±‰à∞Äâïπ—ï…—Ö•πµïπ–à∞ÄâÕ—ÖÂÃà∞ÄâÕ°Ω›Ãà∞Äââ’ëùï–âtÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅôΩ»Ä°çΩπÕ–Å≠ï‰ÅΩòÅUI9Q§ÅÏÅ•òÄ†ÖÖŸÖ•∞πÕΩµî†°Ñ§ÄÙ¯ÅÑπ≠ï‰ÄÙÙÙÅ≠ï‰§ÄòòÅaAI%9Mm≠ïÂt§ÅÖŸÖ•∞π¡’Õ†°ÏÅ≠ï‰∞Å¡±ÖçîËÅπ’±∞∞ÅîËÅaAI%9Mm≠ïÂtÅÙ§ÏÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏÅçΩπÕ–Å}Ω…êÄÙÅπï‹Å5Ö¿°Q!5}=IHπµÖ¿†°¨∞Å§§ÄÙ¯Åm¨∞Å•t§§ÏÅÖŸÖ•∞πÕΩ…–†°Ñ∞Åà§ÄÙ¯Ä°}Ω…êπùï–°Ñπ≠ï‰§Ä¸¸Ä‰‰§Ä¥Ä°}Ω…êπùï–°àπ≠ï‰§Ä¸¸Ä‰‰§§ÏÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÿÿ∏»‘ËÅ—°îÅ°ï…ºÅ•ÃÅπΩ‹Å—°îÅÕ•πù±îÅâïÕ–ÅµΩŸîÅôΩ»Å…•ù°–ÅπΩ‹∞Å…Öπ≠ïêÅâ‰(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ≈’Ö±•—‰Ä¨Åë•Õ—ÖπçîÄ¨Å—ΩëÖ‰ùÃÅ›ïÖ—°ï»Ä¨Å—°îÅ—•µîÅΩòÅëÖ‰Ä°ÕïîÅ±•àΩ…Öπ≠•πúπ©Ã§∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÕºÅÑÅÕ—Ω…µ‰ÅÖô—ï…πΩΩ∏ÅÕ—Ω¡ÃÅΩ¡ïπ•πúÅΩ∏ÅÖ∏ÅΩ’—ëΩΩ»Å¡•ç¨∏ÅQ°îÅ—°ïµïê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅï·¡ï…•ïπçïÃÄ°ùïµÃ∞ÅŸÖ±’î∞Å›Ö—ï…ô…Ωπ–∏∏∏§ÅÖ±∞ÅµΩŸîÅ•π—ºÅ—°îÅÕ—Öç¨Åâï±Ω‹∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅçΩπë—‡ÄÙÅÏÅ›ïÖ—°ï»∞Å°Ω’»ËÅ†∞Å•Õ]ïï≠ïπêËÅl¿∞ÄŸtπ•πç±’ëïÃ°πï‹ÅÖ—î†§πùï—Ö‰†§§ÅÙÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°ï…ΩA°Ω—ΩAΩΩ∞ÄÙÅï·¡AΩΩ∞πô•±—ï»†°¿§ÄÙ¯Å¿ÄòòÅ¿π¡°Ω—º§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°ï…ΩÖπë•ëÖ—ïÃÄÙÅ°ï…ΩA°Ω—ΩAΩΩ∞πô•±—ï»†°¿§ÄÙ¯Å¿πΩ¡ïπ9Ω‹ÄÑÙÙÅôÖ±Õî§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅçΩπëIÖπ≠ïêÄÙÅIÖπ≠•πúπ…Öπ≠	ÂΩπë•—•ΩπÃ°°ï…ΩÖπë•ëÖ—ïÃπ±ïπù—†Ä¸Å°ï…ΩÖπë•ëÖ—ïÃÄËÅ°ï…ΩA°Ω—ΩAΩΩ∞∞ÅçΩπë—‡§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°ï…ΩA±ÖçîÄÙÅçΩπëIÖπ≠ïël¡tÅÒÅπ’±∞Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åç•—Â!ï…ºÄÙÅ±Ωç9ÖµîÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à•l¡tÄËÄâ—°•ÃÅÖ…ïÑàÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°ï…Ω!ΩΩ¨ÄÙÅ°ï…ΩA±ÖçîÄ¸ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•êËÄâ—Ω¿ƒ¡πΩ‹à∞ÅÖççïπ–ËÅπÖççïπ–∞ÅïµΩ©§ËÄã¬~û¥à∞Å±Öâï∞ËÄâeΩ’»Å9ï·–Å5ΩŸîà∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°ïµîËÄââïÕ–à∞Å¡±Öçï%êËÅ°ï…ΩA±Öçîπ•ê∞Å°•ù°±•ù°—]Ω…êËÄâ—Ω¿Äƒ¿à∞Å}ç—‡ËÅçΩπë—‡∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ°ΩΩ¨ËÅIÖπ≠•πúπ°ï…ΩIïÖÕΩ∏°°ï…ΩA±Öçî∞ÅçΩπë—‡§∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕ’â—•—±îËÄâQ°îÅâïÕ–ÅµΩŸîÅπïÖ»ÄàÄ¨Åç•—Â!ï…ºÄ¨ÄàÅ…•ù°–ÅπΩ‹∞Å…Öπ≠ïêà∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅç—ÑËÄâMïîÅ—°îÅ—Ω¿Äƒ¿ÉäHà∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅµï—Ö1•πîËÅQÖùÃπ…ï≈’•…ïÕAÖ…≠ëµ•ÕÕ•Ω∏°°ï…ΩA±Öçîπ—Â¡ïÃ§Ä¸Äâ5Ö‰Å…ï≈’•…îÅ¡Ö…¨ÅÖëµ•ÕÕ•Ω∏àÄËÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°ïµïQ•—±îËÄâ]ÖÂô•πêÅA•ç≠ÃÉ
+‹ÅQΩ¿Äƒ¿ÅπïÖ»ÄàÄ¨Åç•—Â!ï…º∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°ïµï	Ωë‰ËÄâQ°îÅ—ï∏ÅâïÕ–ÅÕ¡Ω—ÃÅπïÖ»ÅÂΩ‘ÅôΩ»Å…•ù°–ÅπΩ‹∞Å…Öπ≠ïêÅâ‰Å≈’Ö±•—‰∞Åë•Õ—Öπçî∞Å—ΩëÖ‰ùÃÅ›ïÖ—°ï»∞ÅÖπêÅ—°îÅ—•µîÅΩòÅëÖ‰∏ÅIÖ•∏Å¡’Õ°ïÃÅ•πëΩΩ»Å¡•ç≠ÃÅ’¿∞Åç±ïÖ»ÅÕ≠•ïÃÅôÖŸΩ»Å—°îÅΩ’—ëΩΩ…Ã∞ÅÖπêÅÖπÂ—°•πúÅç±ΩÕïêÅë…Ω¡ÃÅëΩ›∏∏Å9ºÅÖëÃ∞ÅπºÅ¡Ö•êÅ¡±Öçïµïπ–∏à∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙÄËÅπ’±∞Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å…ïÕ—·¿ÄÙÅÖŸÖ•∞πô•±—ï»†°Ñ§ÄÙ¯ÄÖ°ï…ΩA±ÖçîÅÒÄÖÑπ¡±ÖçîÅÒÅÑπ¡±Öçîπ•êÄÑÙÙÅ°ï…ΩA±Öçîπ•ê§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å—°ïµïπúÄÙÅÌÙÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏÅ°ΩΩ≠1•≠ïÃπôΩ…Öç††°•ê§ÄÙ¯ÅÏÅ•òÄ°—Â¡ïΩòÅ•êÄÙÙÙÄâÕ—…•πúàÄòòÅ•êπ•πëï·=ò†âï·¿¥à§ÄÙÙÙÄ¿§ÅÏÅçΩπÕ–Å–ÄÙÅ•êπÕ±•çî†–§ÏÅ—°ïµïπùm—tÄÙÄ°—°ïµïπùm—tÅÒÄ¿§Ä¨ÄƒÏÅÙÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ïÕ—·¿πÕΩ…–†°Ñ∞Åà§ÄÙ¯Ä†°—°ïµïπùmàπ≠ïÂtÅÒÄ¿§Ä¥Ä°—°ïµïπùmÑπ≠ïÂtÅÒÄ¿§§ÅÒÄ°Q!5}=IHπ•πëï·=ò°Ñπ≠ï‰§Ä¥ÅQ!5}=IHπ•πëï·=ò°àπ≠ï‰§§§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åµ≠!ΩΩ¨ÄÙÄ°Ñ§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ†ÖÑπ¡±Öçî§ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å¥ÄÙÅ…ïŸïπ’ï·¡5ï—Ñ°Ñπ≠ï‰∞Åç•—Â!ï…º§ÅÒÅÏÅ°ΩΩ¨ËÅÑπîπ±ïÖêÅÒÅÑπîπ—•—±î∞Å°∞ËÄàà∞ÅÕ’àËÅÑπîπ±ïÖêÅÒÄàà∞Åç—ÑËÄâ·¡±Ω…îÅq‘»ƒ‰»àÅÙÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÿ‘∏¿‰Å¡ï…Õ’ÖÕ•Ω∏Åïπù•πîËÅ…Ω—Ö—îÅ—°îÅ°ΩΩ¨ÅâÖπ¨Ä°…ÖπëΩ¥∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅπïŸï»Å—°îÅÕÖµîÅ±•πîÅ—›•çîÅ•∏ÅÑÅ…Ω‹§Å›•—†Å±•ŸîÅ—Ω≠ïπÃÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅôÖ±∞ÅâÖç¨Å—ºÅ—°îÅÕ—Ö—•åÅµï—ÑÅ°ΩΩ¨Å›°ï∏ÅπºÅâÖπ¨Åï·•Õ—Ã∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ1•ŸîÅçΩπ—ï·–ÅôΩ»ÅëÖ—ÑµùÖ—ïêÅ±•πïÃËÅÑÄà–∏ÁäbàÅç±Ö•¥ÅπïïëÃÅÑ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ…ïÖ∞Ä–∏ÁäbÅ¡±ÖçîÅ•∏Å—°îÅ¡ΩΩ∞ÏÄâmµ•πÕtÅµ•π’—ïÃÅÖ›Ö‰àÅ’ÕïÃÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÖç—’Ö∞ÅπïÖ…ïÕ–Å—Ω¿µ…Ö—ïêÅÕ¡Ω–Ä°¯»Åµ•∏Ωµ•±îÅ±ΩçÖ∞Åë…•Ÿ•πú§∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}°†ÄÙÅÕ•—ï!Ω’…±ΩÖ–†§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å}πïÖ…QΩ¿ÄÙÅï·¡AΩΩ∞πô•±—ï»†°¿§ÄÙ¯Å¿ÄòòÅ¿π…Ö—•πúÄ¯ÙÄ–∏‘ÄòòÄ°¿π…ïŸ•ï›ÃÅÒÄ¿§Ä¯ÙÄƒ¿¿ÄòòÅ¿πë•Õ—5§ÄÑÙÅπ’±∞§πÕΩ…–†°‡∞Å‰§ÄÙ¯Å‡πë•Õ—5§Ä¥Å‰πë•Õ—5§•l¡tÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åâ¨ÄÙÅ¡•ç≠!ΩΩ¨°Ñπ≠ï‰∞ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—ïµ¿ËÅ›ïÖ—°ï»ÄòòÅ›ïÖ—°ï»π—ïµ¿∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—•µîËÅ}°†ÄÄƒ»Ä¸ÄâµΩ…π•πúàÄËÅ}°†ÄÄƒ‹Ä¸ÄâÖô—ï…πΩΩ∏àÄËÅ}°†ÄÄ»ƒÄ¸ÄâùΩ±ëï∏Å°Ω’»àÄËÄâ±Ö—îà∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅπ•ù°–ËÅ}°†Ä¯ÙÄƒÿÅÒÅ}°†ÄÄ–∞ÅëÖ‰ËÅ}°†Ä¯ÙÄ‡ÄòòÅ}°†ÄÄƒÿ∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—Ω¿–‰ËÅï·¡AΩΩ∞πÕΩµî†°¿§ÄÙ¯Å¿ÄòòÅ¿π…Ö—•πúÄ¯ÙÄ–∏‰ÄòòÄ°¿π…ïŸ•ï›ÃÅÒÄ¿§Ä¯ÙÄƒ‘§∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅµ•πÃËÅ}πïÖ…QΩ¿ÄòòÅ}πïÖ…QΩ¿πë•Õ—5§ÄÙÄƒ‘Ä¸Å5Ö—†πµÖ‡†–∞Å5Ö—†π…Ω’πê°}πïÖ…QΩ¿πë•Õ—5§Ä®Ä»§§ÄËÅπ’±∞∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°â¨§Å°ï…Ω%µ¡…ïÕÕ•Ω∏°Ñπ≠ï‰∞Åâ¨πŸÖ…•Öπ–∞Åâ¨π—ï·–§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏ÅÏÅ•êËÄâï·¿¥àÄ¨ÅÑπ≠ï‰∞ÅÖççïπ–ËÅQ!5}=1=ImÑπ≠ïÂtÅÒÅ¥πÖççïπ–ÅÒÅπÖççïπ–∞ÅïµΩ©§ËÅÑπîπ•çΩ∏∞Å±Öâï∞ËÅç•—Â•‡°Ñπîπ±Öâï∞§∞Å—°ïµîËÅÑπ≠ï‰∞Åôï—ç°-ï‰ËÅÑπ≠ï‰∞Å°•ù°±•ù°—]Ω…êËÅâ¨Ä¸ÄààÄËÅ¥π°∞∞Å°ΩΩ¨ËÅâ¨Ä¸Åâ¨π—ï·–ÄËÅ¥π°ΩΩ¨∞Å}°ΩΩ≠YÖ»ËÅâ¨Ä¸Åâ¨πŸÖ…•Öπ–ÄËÅπ’±∞∞ÅÕ’â—•—±îËÅ¥πÕ’à∞Åç—ÑËÅ¥πç—Ñ∞Åµï—Ö1•πîËÅπ’±∞∞Å—°ïµïQ•—±îËÅç•—Â•‡°Ñπîπ—•—±î§∞Å—°ïµï	Ωë‰ËÅÑπîπ±ïÖê∞Å¡±ÖçïÃËÅπ’±∞ÅÙÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å–ÄÙÅ—°ïµïë!ΩΩ¨°Ñπ≠ï‰∞ÅÑπ¡±Öçî§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åµïµâï…ÃÄÙÅ¡±ÖçïÕΩ…!ΩΩ¨°ÏÅ—°ïµîËÅÑπ≠ï‰∞Å¡±Öçï%êËÅÑπ¡±Öçîπ•êÅÙ∞Åï·¡AΩΩ∞§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åçπ–ÄÙÅµïµâï…Ãπ±ïπù—†Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅÖŸúÄÙÅ•π•πúπÖŸùΩÕ—Ω…Q›º°µïµâï…Ã§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åµï—ÑÄÙÅmçπ–Ä¯ÄƒÄ¸Åçπ–Ä¨ÄàÅÕ¡Ω—ÃàÄËÅπ’±∞∞ÅÖŸúÄ¸ÅÖŸúπ—ï·–ÄËÅπ’±±tπô•±—ï»°	ΩΩ±ïÖ∏§π©Ω•∏†àÄÉ
+‹ÄÄà§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏ÅÏÅ•êËÄâï·¿¥àÄ¨ÅÑπ≠ï‰∞ÅÖççïπ–ËÅQ!5}=1=ImÑπ≠ïÂtÅÒÅπÖççïπ–∞ÅïµΩ©§ËÅÑπîπ•çΩ∏∞Å±Öâï∞ËÅç•—Â•‡°Ñπîπ±Öâï∞§∞Å—°ïµîËÅÑπ≠ï‰∞Å¡±Öçï%êËÅÑπ¡±Öçîπ•ê∞Å°•ù°±•ù°—]Ω…êËÅ–π°∞∞Å°ΩΩ¨ËÅç•—Â•‡°–π°ΩΩ¨§∞ÅÕ’â—•—±îËÅç•—Â•‡°–πÕ’à§∞Åç—ÑËÅçπ–Ä¯ÄƒÄ¸Ä†âMïîÅÖ±∞ÄàÄ¨Åçπ–Ä¨ÄàÉäHà§ÄËÅç•—Â•‡°–πç—Ñ§∞Åµï—Ö1•πîËÅµï—ÑÅÒÅπ’±∞∞Å—°ïµïQ•—±îËÅç•—Â•‡°Ñπîπ—•—±î§∞Å—°ïµï	Ωë‰ËÅÑπîπ±ïÖêÅÙÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åë•çïA°Ω—ΩÃÄÙÅï·¡AΩΩ∞πô•±—ï»†°¿§ÄÙ¯Å¿ÄòòÅ¿π¡°Ω—º§πÕ±•çî†¿∞Ä–§πµÖ¿†°¿§ÄÙ¯Å¿π¡°Ω—º§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÿ–∏ÿ‹ËÅ…ïŸïπ’îÅ°ï…ºÅçÖ…ëÃÅÕ°Ω‹Å…ïÖ∞ÅπïÖ…â‰Å¡°Ω—ΩÃ∞ÅπΩ–Åô±Ö–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅù…Öë•ïπ—Ã∏ÅÖç†Å—°ïµîÅ¡’±±ÃÅ•—ÃÅΩ›∏Å≠•πêÅΩòÅ¡±ÖçîÏÅ—°•∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅµÖ—ç°ïÃÅôÖ±∞ÅâÖç¨Å—ºÅ—°îÅâïÕ–µ…Ö—ïêÅ¡°Ω—ΩÃÅÖ…Ω’πê∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅaA}=11}I`ÄÙÅÏÅôÖµ•±‰ËÄΩÖµ’Õïµïπ—ÒÖ≈’Ö…•’µÒÈΩΩÒâΩ›±•πùÒµ•π•}ùΩ±ôÒ›Ö—ï…}¡Ö…≠Ò¡±ÖÂù…Ω’πëÒ¡Ö…¨º∞Åïπ—ï…—Ö•πµïπ–ËÄΩÖµ’Õïµïπ—Ò—Ω’…•Õ—Òµ’Õï’µÒâΩ›±•πùÒ—°ïÖ—ï…Ò—°ïÖ—…ïÒÖ≈’Ö…•’µÒÈΩΩÒÖ——…Öç—•Ω∏º∞ÅÕ°Ω›ÃËÄΩ¡ï…ôΩ…µ•πùÒ—°ïÖ—ï…Ò—°ïÖ—…ïÒçΩπçï…—ÒÕ—Öë•’µÒπ•ù°—}ç±’âÒµΩŸ•îº∞Åâ’ëùï–ËÄΩ¡Ö…≠ÒâïÖç°Òµ’Õï’µÒ—Ω’…•Õ—ÒÖµ’Õïµïπ—Ò—…Ö•∞º∞ÅâïÕ—ΩòËÅπ’±∞∞Åùï¥ËÅπ’±∞ÅÙÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Åï·¡Ω±±ÖùîÄÙÄ°≠ï‰§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å…‡ÄÙÅaA}=11}Iam≠ïÂtÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅâÂMçΩ…îÄÙÄ°Ñ∞Åà§ÄÙ¯Ä°àπ›ôMçΩ…îÅÒÄ¿§Ä¥Ä°Ñπ›ôMçΩ…îÅÒÄ¿§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ±ï–Å¡ΩΩ∞»ÄÙÅï·¡AΩΩ∞πô•±—ï»†°¿§ÄÙ¯Å¿ÄòòÅ¿π¡°Ω—º§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°≠ï‰ÄÙÙÙÄâÕ—ÖÂÃà§Å¡ΩΩ∞»ÄÙÅ¡ΩΩ∞»πô•±—ï»†°¿§ÄÙ¯Å•ÕQ…’ï1Ωëù•πú°¿§§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅï±ÕîÅ•òÄ°…‡§Å¡ΩΩ∞»ÄÙÅ¡ΩΩ∞»πô•±—ï»†°¿§ÄÙ¯Å…‡π—ïÕ–††°¿π—Â¡ïÃÅÒÅmt§π©Ω•∏†àÄà§Ä¨ÄàÄàÄ¨Ä°¿ππÖµîÅÒÄàà§§π—Ω1Ω›ï…ÖÕî†§§§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ±ï–ÅΩ’–»ÄÙÅ¡ΩΩ∞»πÕΩ…–°âÂMçΩ…î§πÕ±•çî†¿∞Ä–§πµÖ¿†°¿§ÄÙ¯Å¿π¡°Ω—º§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°Ω’–»π±ïπù—†ÄÄ»§Å…ï—’…∏ÅmtÏÄººÅπºÅ—°ïµïêÅ¡°Ω—ΩÃÅπïÖ…â‰ËÅù…Öë•ïπ–ÅâïÖ—ÃÅÑÅ±•î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏ÅΩ’–»Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÏÅ…ï—’…∏ÅmtÏÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅµÖ…ù•π	Ω——Ω¥ËÄƒÿÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ±Ωç¡¡…Ω‡ÄòòÄÖ±Ωç	Öππï…ΩπîÄòòÄ†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅ…Ω±îÙâÕ—Ö—’ÃàÅÖ…•Ñµ±Öâï∞Ùâ¡¡…Ω·•µÖ—îÅ±ΩçÖ—•Ω∏àÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâçïπ—ï»à∞ÅµÖ…ù•∏ËÄà¿Ä¿Äƒ¡¡‡àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‹∞ÅµÖ·]•ë—†ËÄàƒ¿¿îà∞ÅâÖç≠ù…Ω’πêËÄâ…ùâÑ†»‹∞Ãÿ∞‘»∞∏‹‡§à∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞Å¡Öëë•πúËÄàŸ¡‡ÄÂ¡‡ÄŸ¡‡Äƒ≈¡‡àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÖ…•Ñµ°•ëëï∏Ùâ—…’îàÅÕ—Â±îıÌÏÅ›•ë—†ËÄÿ∞Å°ï•ù°–ËÄÿ∞ÅâΩ…ëï…IÖë•’ÃËÄà‘¿îà∞ÅâÖç≠ù…Ω’πêËÅπÖççïπ–∞Åô±ï·M°…•π¨ËÄ¿ÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅµ•π]•ë—†ËÄ¿∞ÅçΩ±Ω»ËÅπ±•ù°–∞ÅôΩπ—M•ÈîËÄƒ¿∏‘∞Å±•πï!ï•ù°–ËÄƒ∏»∞Å›°•—ïM¡ÖçîËÄâπΩ›…Ö¿à∞ÅΩŸï…ô±Ω‹ËÄâ°•ëëï∏à∞Å—ï·—=Ÿï…ô±Ω‹ËÄâï±±•¡Õ•ÃàÅıÙ˘UÕ•πúÅÌ±Ωç9ÖµîÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à•l¡tÄ¨ÄàÅÖ…ïÑàÄËÄâÖ∏ÅÖ¡¡…Ω·•µÖ—îÅÖ…ïÑâÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÏÅ—…‰ÅÏÅçΩπÕ–Åï∞ÄÙÅëΩç’µïπ–π≈’ï…ÂMï±ïç—Ω»†ù•π¡’—m¡±Öçï°Ω±ëï»ÙâMïÖ…ç†ÅÑÅ¡±ÖçîÅΩ»Åç•—‰âtú§ÏÅ•òÄ°ï∞§ÅÏÅï∞πôΩç’Ã°ÏÅ¡…ïŸïπ—Mç…Ω±∞ËÅ—…’îÅÙ§ÏÅï∞πÕç…Ω±±%π—ΩY•ï‹°ÏÅâ±Ωç¨ËÄâçïπ—ï»à∞Å•π±•πîËÄâπïÖ…ïÕ–àÅÙ§ÏÅÙÅÙÅçÖ—ç†Ä°î§ÅÌÙÅıÙÅÕ—Â±îıÌÏÅâÖç≠ù…Ω’πêËÄâ—…ÖπÕ¡Ö…ïπ–à∞ÅâΩ…ëï»ËÄâπΩπîà∞ÅçΩ±Ω»ËÅπÖççïπ–∞ÅôΩπ—M•ÈîËÄƒ¿∏‘∞ÅôΩπ—]ï•ù°–ËÄ‡‘¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞Å¡Öëë•πúËÄ¿ÅıÙ˘°ÖπùîΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—1Ωç	Öππï…Ωπî°—…’î•ÙÅÖ…•Ñµ±Öâï∞Ùâ•Õµ•ÕÃÅÖ¡¡…Ω·•µÖ—îÅ±ΩçÖ—•Ω∏ÅπΩ—•çîàÅÕ—Â±îıÌÏÅâÖç≠ù…Ω’πêËÄâ—…ÖπÕ¡Ö…ïπ–à∞ÅâΩ…ëï»ËÄâπΩπîà∞ÅçΩ±Ω»ËÅπµ’—ïê∞ÅôΩπ—M•ÈîËÄƒ»∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞Å¡Öëë•πúËÄà¿Ä…¡‡à∞Å±•πï!ï•ù°–ËÄƒÅıÙ˚\Ωâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ°ï…ΩA±ÖçîÄòòÄ†¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Äâ	ïÕ–ÅµΩŸîÅ…•ù°–ÅπΩ‹àÅÕïç—•Ω∏Å…ïµΩŸïêÄ°Ω›πï»Ä»¿»ÿ¥¿‹¥ƒ‹§∏ÅQ°îÅù•ŸïÖ›Ö‰ÄºÅ]Ω…±êÅ’¿ÄºÅ°Ω±•ëÖ‰Å¡…ΩµºÅçÖ…ëÃÅâï±Ω‹ÅÖ…îÅÕï¡Ö…Ö—îÅôïÖ—’…ïÃÅÖπêÅÕ—Ö‰∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌù›AΩ¿ÄòòÄ°ù•ŸïÖ›ÖÂ1•Ÿî†§ÅÒÅù•ŸïÖ›ÖÂMΩΩ∏†§§ÄòòÄ†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅΩπ±•ç¨ıÏ†§ÄÙ¯Åù›AΩ¡±ΩÕî†â‡à•ÙÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâô•·ïêà∞Å•πÕï–ËÄ¿∞ÅÈ%πëï‡ËÄ‡‡∞ÅâÖç≠ù…Ω’πêËÄâ…ùâÑ†¿∞¿∞¿∞∏ÿ»§à∞ÅâÖç≠ë…Ω¡•±—ï»ËÄââ±’»†Õ¡‡§à∞Å]ïâ≠•—	Öç≠ë…Ω¡•±—ï»ËÄââ±’»†Õ¡‡§à∞Åë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâçïπ—ï»à∞Å¡Öëë•πúËÄƒ‡ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅ…ïòıÌù›AΩ¡±ùIïôÙÅ…Ω±îÙâë•Ö±ΩúàÅÖ…•ÑµµΩëÖ∞Ùâ—…’îàÅÖ…•Ñµ±Öâï∞Ùâ]ÖÂô•πêÅù•ŸïÖ›Ö‰àÅ—Öâ%πëï‡ıÏ¥≈ÙÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅîπÕ—Ω¡A…Ω¡ÖùÖ—•Ω∏†•ÙÅÕ—Â±îıÌÏÅΩ’—±•πîËÄâπΩπîà∞Å›•ë—†ËÄàƒ¿¿îà∞ÅµÖ·]•ë—†ËÄ–¿¿∞ÅâΩ…ëï…IÖë•’ÃËÄ»¿∞Å¡Öëë•πúËÄàƒ·¡‡Äƒ›¡‡ÄƒŸ¡‡à∞ÅâÖç≠ù…Ω’πêËÄâ±•πïÖ»µù…Öë•ïπ–†ƒÃ’ëïú∞Äå≈ƒ–¿‘Ä¿î∞Äå…≈¿‡Äÿ¿î∞Äå≈ƒ–¿‘Äƒ¿¿î§à∞ÅâΩ…ëï»ËÄà≈¡‡ÅÕΩ±•êÅ…ùâÑ†»Ã»∞ƒ‡–∞‹‘∞∏‘‘§à∞ÅâΩ·M°ÖëΩ‹ËÄà¿Ä»—¡‡Äÿ¡¡‡Å…ùâÑ†¿∞¿∞¿∞∏ÿ§à∞Å¡ΩÕ•—•Ω∏ËÄâ…ï±Ö—•Ÿîà∞ÅΩŸï…ô±Ω‹ËÄâ°•ëëï∏àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ—Â±îÅëÖπùï…Ω’Õ±ÂMï—%ππï…!Q50ıÌÏÅ}}°—µ∞ËÄâ≠ïÂô…ÖµïÃÅ›ôΩ±ëÏ¿î∞ƒ¿¿ïÌΩ¡Öç•—‰Ë∏’Ù‘¿ïÌΩ¡Öç•—‰Ë≈ıÙàÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâÖâÕΩ±’—îà∞Å—Ω¿ËÄ¿∞Å±ïô–ËÄ¿∞Å…•ù°–ËÄ¿∞Å°ï•ù°–ËÄ–∞ÅâÖç≠ù…Ω’πêËÄàç·‡—à∞ÅÖπ•µÖ—•Ω∏ËÄâ›ôΩ±êÄ»∏·ÃÅïÖÕîµ•∏µΩ’–Å•πô•π•—îàÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯Åù›AΩ¡±ΩÕî†â‡à•ÙÅÖ…•Ñµ±Öâï∞Ùâ±ΩÕîàÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâÖâÕΩ±’—îà∞Å—Ω¿ËÄƒ¿∞Å…•ù°–ËÄƒ¿∞Å›•ë—†ËÄÃ¿∞Å°ï•ù°–ËÄÃ¿∞ÅâΩ…ëï…IÖë•’ÃËÄà‘¿îà∞ÅâÖç≠ù…Ω’πêËÄâ…ùâÑ†¿∞¿∞¿∞∏–§à∞ÅâΩ…ëï»ËÄà≈¡‡ÅÕΩ±•êÅ…ùâÑ†»Ã»∞ƒ‡–∞‹‘∞∏–§à∞ÅçΩ±Ω»ËÄàç…–·à∞ÅôΩπ—M•ÈîËÄƒ‘∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞Å±•πï!ï•ù°–ËÄƒÅıÙ˚\Ωâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‡∞ÅµÖ…ù•π	Ω——Ω¥ËÄ‡∞Å¡Öëë•πùI•ù°–ËÄÃ–ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄ»»∞Åô•±—ï»ËÄâë…Ω¿µÕ°ÖëΩ‹†¿Ä¿Ä·¡‡Å…ùâÑ†»Ã»∞ƒ‡–∞‹‘∞∏ÿ§§àÅıÙ˚¬~>ΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ¿∏‘∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞Å±ï——ï…M¡Öç•πúËÄà≈¡‡à∞ÅçΩ±Ω»ËÄàç…–·à∞Å—ï·—Q…ÖπÕôΩ…¥ËÄâ’¡¡ï…çÖÕîàÅıÙ˘]ÖÂô•πêÅù•ŸïÖ›Ö‰É
+‹Åππ’Ö∞ΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄ»ƒ∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÄàçà∞Å±•πï!ï•ù°–ËÄƒ∏ƒ‘∞Å±ï——ï…M¡Öç•πúËÄà¥¿∏Õ¡‡àÅıÙ˘]•∏ÅÑÄÃµπ•ù°–ÅÕ—Ö‰ÅÖ–Å!•±—Ω∏Å=…±ÖπëºΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅçΩ±Ω»ËÄàç·’–à∞ÅµÖ…ù•πQΩ¿ËÄÿ∞Å±•πï!ï•ù°–ËÄƒ∏‘ÅıÙ˘M°Ö…îÅÖπ‰ÄÃÅ¡±ÖçïÃÅΩ»Å±•Õ—ÃÅô…Ω¥Å]ÖÂô•πê∏Å=πîÅ›•ππï»∞Åë…Ö›∏Å9ΩÿÄƒ∏ÅQ°Ö–Å•ÃÅ—°îÅ›°Ω±îÅïπ—…‰∏Ωë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‡∞ÅµÖ…ù•πQΩ¿ËÄƒÃ∞Åô±ï·]…Ö¿ËÄâ›…Ö¿àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏÖù•ŸïÖ›ÖÂ1•Ÿî†§Ä¸Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞Å¡Öëë•πúËÄà·¡‡Äƒ—¡‡à∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞ÅâÖç≠ù…Ω’πêËÄâ…ùâÑ†»Ã»∞ƒ‡–∞‹‘∞∏ƒ–§à∞ÅâΩ…ëï»ËÄà≈¡‡ÅÕΩ±•êÅ…ùâÑ†»Ã»∞ƒ‡–∞‹‘∞∏‘‘§à∞ÅçΩ±Ω»ËÄàç…–·à∞ÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿ÅıÙ˘=¡ïπÃÅ)’±‰Ä–ΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ§ÄËÅ’Õï»Ä¸Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞Å¡Öëë•πúËÄà·¡‡Äƒ—¡‡à∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞ÅâÖç≠ù…Ω’πêËÅù›Ω’π–Ä¯ÙÄÃÄ¸Äàç·‡—àÄËÄâ…ùâÑ†»Ã»∞ƒ‡–∞‹‘∞∏ƒ–§à∞ÅâΩ…ëï»ËÄà≈¡‡ÅÕΩ±•êÅ…ùâÑ†»Ã»∞ƒ‡–∞‹‘∞∏‘‘§à∞ÅçΩ±Ω»ËÅù›Ω’π–Ä¯ÙÄÃÄ¸Äàå≈ƒ–¿‘àÄËÄàç…–·à∞ÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿ÅıÙ˘Ìù›Ω’π–Ä¯ÙÄÃÄ¸ÄâeΩ‘ù…îÅïπ—ï…ïêÉärLàÄËÅ5Ö—†πµ•∏°ù›Ω’π–∞ÄÃ§Ä¨ÄàÅΩòÄÃÅÕ°Ö…ïêâÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ§ÄËÄ†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÏÅù›AΩ¡±ΩÕî†âç—Ñà§ÏÅÕï—’—°=¡ï∏°—…’î§ÏÅıÙÅÕ—Â±îıÌÏÅ¡Öëë•πúËÄà·¡‡Äƒ—¡‡à∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞ÅâÖç≠ù…Ω’πêËÄàç·‡—à∞ÅâΩ…ëï»ËÄâπΩπîà∞ÅçΩ±Ω»ËÄàå≈ƒ–¿‘à∞ÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ˘Ìù›Ω’π–Ä¯Ä¿Ä¸ÄâM•ù∏Å•∏Å—ºÅ±Ωç¨ÅÂΩ’»Åïπ—…‰àÄËÄâM•ù∏Å•∏Å—ºÅïπ—ï»âÙΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÏÅù›AΩ¡±ΩÕî†ââ…Ω›Õîà§ÏÅ¡•ç≠	…Ω›Õî†âôΩΩêà§ÏÅ—…‰ÅÏÅ±ΩùŸïπ–†âù•ŸïÖ›ÖÂ}¡Ω¡}â…Ω›Õîà§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅıÙÅÕ—Â±îıÌÏÅ¡Öëë•πúËÄà·¡‡Äƒ—¡‡à∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞ÅâÖç≠ù…Ω’πêËÄâ—…ÖπÕ¡Ö…ïπ–à∞ÅâΩ…ëï»ËÄà≈¡‡ÅÕΩ±•êÅ…ùâÑ†»Ã»∞ƒ‡–∞‹‘∞∏–‘§à∞ÅçΩ±Ω»ËÄàç…–·à∞ÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ˘•πêÅÑÅ¡±ÖçîÅ—ºÅÕ°Ö…îÉäËΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄƒ–∞ÅµÖ…ù•πQΩ¿ËÄƒ»ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—›=¡ï∏°—…’î•ÙÅÕ—Â±îıÌÏÅ¡Öëë•πúËÄ¿∞ÅâÖç≠ù…Ω’πêËÄâ—…ÖπÕ¡Ö…ïπ–à∞ÅâΩ…ëï»ËÄâπΩπîà∞ÅçΩ±Ω»ËÄàç‰Â—à∞ÅôΩπ—M•ÈîËÄƒƒ∏‘∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞Å—ï·—ïçΩ…Ö—•Ω∏ËÄâ’πëï…±•πîà∞Å—ï·—Uπëï…±•πï=ôôÕï–ËÄÃÅıÙ˘!Ω‹Å•–Å›Ω…≠ÃΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯Åù›AΩ¡±ΩÕî†â±Ö—ï»à•ÙÅÕ—Â±îıÌÏÅ¡Öëë•πúËÄ¿∞ÅâÖç≠ù…Ω’πêËÄâ—…ÖπÕ¡Ö…ïπ–à∞ÅâΩ…ëï»ËÄâπΩπîà∞ÅçΩ±Ω»ËÄàç‰Â—à∞ÅôΩπ—M•ÈîËÄƒƒ∏‘∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ˘-ïï¿Åï·¡±Ω…•πúΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌù›=¡ï∏ÄòòÄ†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—›=¡ï∏°ôÖ±Õî•ÙÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâô•·ïêà∞Å•πÕï–ËÄ¿∞ÅÈ%πëï‡ËÄ‰¿∞ÅâÖç≠ù…Ω’πêËÄâ…ùâÑ†¿∞¿∞¿∞∏ÿ§à∞Åë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâô±ï‡µïπêàÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅ…ïòıÌù›I’±ïÕ±ùIïôÙÅ…Ω±îÙâë•Ö±ΩúàÅÖ…•ÑµµΩëÖ∞Ùâ—…’îàÅÖ…•Ñµ±Öâï∞Ùâ•ŸïÖ›Ö‰ÅΩôô•ç•Ö∞Å…’±ïÃàÅ—Öâ%πëï‡ıÏ¥≈ÙÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅîπÕ—Ω¡A…Ω¡ÖùÖ—•Ω∏†•ÙÅÕ—Â±îıÌÏÅΩ’—±•πîËÄâπΩπîà∞ÅâÖç≠ù…Ω’πêËÅπ¡Öπï∞∞ÅâΩ…ëï…IÖë•’ÃËÄàƒ·¡‡Äƒ·¡‡Ä¿Ä¿à∞Å›•ë—†ËÄàƒ¿¿îà∞ÅµÖ·!ï•ù°–ËÄà‡…Ÿ†à∞ÅΩŸï…ô±Ω›dËÄâÖ’—ºà∞Å¡Öëë•πúËÄàƒ·¡‡Äƒ·¡‡ÅçÖ±å†»¡¡‡Ä¨Åïπÿ°ÕÖôîµÖ…ïÑµ•πÕï–µâΩ——Ω¥§§àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒÿ∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÅπ—ï·–∞ÅµÖ…ù•π	Ω——Ω¥ËÄƒ¿ÅıÙ˘]ÖÂô•πêÅππ’Ö∞Å•ŸïÖ›Ö‰É
+‹Å=ôô•ç•Ö∞ÅI’±ïÃÄ†»¿»ÿ§Ωë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌlâ9ºÅ¡’…ç°ÖÕîÅπïçïÕÕÖ…‰∏Å…ïîÅ—ºÅïπ—ï»∏à∞Äâ!Ω‹Å—ºÅïπ—ï»ËÅç…ïÖ—îÅÑÅô…ïîÅ]ÖÂô•πêÅÖççΩ’π–∞Å—°ï∏ÅÕ°Ö…îÅÖπ‰ÄÃÅë•ôôï…ïπ–Å¡±ÖçïÃÅΩ»Å±•Õ—ÃÅô…Ω¥Å—°îÅÖ¡¿Åâï—›ïï∏Å)’±‰ÄÃÅÖπêÅ=ç—Ωâï»ÄÃƒ∞Ä»¿»ÿÄ†ƒƒË‘‰Å¡¥ÅP§∏Åπ—…•ïÃÅÖ…îÅçΩ’π—ïêÅΩ∏ÅΩ’»ÅÕï…Ÿï»Å¡ï»ÅÖççΩ’π–∏à∞Äâ]•ππï»ËÅΩπîÅïπ—…Öπ–ÅÕï±ïç—ïêÅÖ–Å…ÖπëΩ¥ÅΩ∏ÅΩ»ÅÖâΩ’–Å9ΩŸïµâï»Äƒ∞Ä»¿»ÿ∞ÅÖπêÅπΩ—•ô•ïêÅŸ•ÑÅÖççΩ’π–ÅïµÖ•∞∏Å=ëëÃÅëï¡ïπêÅΩ∏Å—°îÅπ’µâï»ÅΩòÅï±•ù•â±îÅïπ—…•ïÃ∏à∞ÄâA…•ÈîËÅÑÄÃµπ•ù°–ÅÕ—Ö‰ÅÖ–Å!•±—Ω∏Å=…±Öπëº∞Å¡…ΩŸ•ëïêÅâ‰Å—°îÅÕ¡ΩπÕΩ»∏Å¡¡…Ω·•µÖ—îÅ…ï—Ö•∞ÅŸÖ±’îÄêÿ¿¿Å—ºÄê‰¿¿∏ÅÖ—ïÃÅÕ’â©ïç–Å—ºÅÖŸÖ•±Öâ•±•—‰ÏÅπºÅçÖÕ†ÅÕ’âÕ—•—’—î∏ÅQÖ·ïÃÅÖ…îÅ—°îÅ›•ππï»ùÃÅ…ïÕ¡ΩπÕ•â•±•—‰∏à∞Äâ±•ù•â•±•—‰ËÅ±ïùÖ∞ÅULÅ…ïÕ•ëïπ—ÃÄƒ‡ÅΩ»ÅΩ±ëï»∏ÅYΩ•êÅ›°ï…îÅ¡…Ω°•â•—ïê∏à∞ÄâM¡ΩπÕΩ»ËÅ]ÖÂô•πê∏ÅQ°•ÃÅ¡…ΩµΩ—•Ω∏Å•ÃÅπΩ–ÅÕ¡ΩπÕΩ…ïê∞ÅïπëΩ…Õïê∞ÅΩ»ÅÖëµ•π•Õ—ï…ïêÅâ‰Å!•±—Ω∏ÅΩ»Åâ‰Å¡¡±î∏à∞ÄâM°Ö…îÅ¡…Ωù…ïÕÃÅÕ°Ω›∏ÅΩ∏Å—°•ÃÅëïŸ•çîÅµÖ‰Åë•ôôï»Åô…Ω¥Å—°îÅÕï…Ÿï»ÅçΩ’π–Å•òÅÂΩ‘ÅÕ°Ö…îÅô…Ω¥Åµ’±—•¡±îÅëïŸ•çïÃÏÅ—°îÅÕï…Ÿï»ÅçΩ’π–Åëïç•ëïÃ∏âtπµÖ¿†°–∞Å§§ÄÙ¯Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅ≠ï‰ıÌ•ÙÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅçΩ±Ω»ËÅπ±•ù°–∞Å±•πï!ï•ù°–ËÄƒ∏ÿ∞ÅµÖ…ù•π	Ω——Ω¥ËÄ‰ÅıÙ˘Ì—ÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ§•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—›=¡ï∏°ôÖ±Õî•ÙÅÕ—Â±îıÌÏÅµÖ…ù•πQΩ¿ËÄÿ∞Å¡Öëë•πúËÄàƒ¡¡‡Äƒ·¡‡à∞ÅâΩ…ëï…IÖë•’ÃËÄƒ»∞ÅâÖç≠ù…Ω’πêËÅπÖççïπ–∞ÅâΩ…ëï»ËÄâπΩπîà∞ÅçΩ±Ω»ËÄàå¡ƒƒƒ‹à∞ÅôΩπ—M•ÈîËÄƒÃ∏‘∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ˘Ω–Å•–Ωâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ…ïπëï…]Ω…±ë’¡Ö…ê°—…’î•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®ÅQ°îÅΩçΩπ’–Å…ΩŸîÅÕ¡ΩπÕΩ»ÅπΩ‹Å±•ŸïÃÅ•∏Å—°îÅÖµÖÈΩ∏Å…Ö•∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ°ÖÂ¡Ö…—IÖ•∞ÅÕ¡ΩπÕΩ»Å—•±î§∞ÅπΩ–Å°ï…îÉäPÅÕïîÅÕ¡ΩπÕΩ…IÖ•∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¨ÅΩπ=¡ïπAÖ…—πï»Åâï±Ω‹∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏ††§ÄÙ¯ÅÏÅçΩπÕ–Å}†ÄÙÅ!Ω∞πÖç—•Ÿï!Ω±•ëÖ‰°πï‹ÅÖ—î†§§ÏÅ•òÄ†Ö}†§Å…ï—’…∏Åπ’±∞ÏÅçΩπÕ–Å}åÄÙÅ!Ω∞π—°ïµïΩ»°}†π≠ï‰§ÏÅçΩπÕ–Å}ç–ÄÙÅ!Ω∞πçΩπ—ïπ—Ω»°}†π≠ï‰∞Å}†ππÖµî§ÏÅ…ï—’…∏Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅâΩ…ëï…IÖë•’ÃËÄƒ‡∞Å¡Öëë•πúËÄàƒ·¡‡ÄƒŸ¡‡ÄƒŸ¡‡à∞ÅµÖ…ù•π	Ω——Ω¥ËÄƒ»∞ÅâÖç≠ù…Ω’πêËÅ}åπù…Öê∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌ}åπâΩ…ëï…ıÄ∞ÅâΩ·M°ÖëΩ‹ËÄà¿Äƒ¡¡‡Ä»·¡‡Å…ùâÑ†¿∞¿∞¿∞∏–»§à∞Å¡ΩÕ•—•Ω∏ËÄâ…ï±Ö—•Ÿîà∞ÅΩŸï…ô±Ω‹ËÄâ°•ëëï∏àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏Å—Â¡îÙââ’——Ω∏àÅç±ÖÕÕ9ÖµîÙâ›òµ°Ω±•ëÖ‰µΩ¡ï∏àÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅΩ¡ïπ!Ω±•ëÖ‰°}†•ÙÅÖ…•Ñµ±Öâï∞ıÌ}ç–π°ïÖë±•πî°±Ωç9Öµî•ÙÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâÖâÕΩ±’—îà∞Å•πÕï–ËÄ¿∞ÅÈ%πëï‡ËÄƒ∞ÅΩ¡Öç•—‰ËÄ¿∞ÅâΩ…ëï»ËÄ¿∞Å¡Öëë•πúËÄ¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞ÅâÖç≠ù…Ω’πêËÄâ—…ÖπÕ¡Ö…ïπ–àÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ—Â±îÅëÖπùï…Ω’Õ±ÂMï—%ππï…!Q50ıÌÏÅ}}°—µ∞ËÄâ≠ïÂô…ÖµïÃÅ›ô	’…Õ—Ï¿ïÌ—…ÖπÕôΩ…¥ÈÕçÖ±î†∏ƒ‘§ÌΩ¡Öç•—‰Ë∏‰’Ù‹¿ïÌΩ¡Öç•—‰Ë∏—Ùƒ¿¿ïÌ—…ÖπÕôΩ…¥ÈÕçÖ±î†ƒ§ÌΩ¡Öç•—‰Ë¡ıı≠ïÂô…ÖµïÃÅ›ô±Ω›Ï¿î∞ƒ¿¿ïÌΩ¡Öç•—‰Ë∏‘’Ù‘¿ïÌΩ¡Öç•—‰Ë≈ıı≠ïÂô…ÖµïÃÅ›ôQ›•π≠±ïÏ¿î∞ƒ¿¿ïÌΩ¡Öç•—‰Ë∏ƒ‘Ì—…ÖπÕôΩ…¥ÈÕçÖ±î†∏‹•Ù‘¿ïÌΩ¡Öç•—‰ËƒÌ—…ÖπÕôΩ…¥ÈÕçÖ±î†ƒ∏»•ıı≠ïÂô…ÖµïÃÅ›ôM›ïï¡Ï¿ïÌ—…ÖπÕôΩ…¥È—…ÖπÕ±Ö—ï`†¥ƒ–¿î§ÅÕ≠ï›`†¥ƒ·ëïú•Ùƒ¿¿ïÌ—…ÖπÕôΩ…¥È—…ÖπÕ±Ö—ï`†»–¿î§ÅÕ≠ï›`†¥ƒ·ëïú•ıÙàÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâÖâÕΩ±’—îà∞Å—Ω¿ËÄ¥ƒ‡∞Å…•ù°–ËÄ»ÿ∞Å›•ë—†ËÄƒ»¿∞Å°ï•ù°–ËÄƒ»¿∞ÅâΩ…ëï…IÖë•’ÃËÄà‘¿îà∞ÅâΩ…ëï»ËÄà…¡‡ÅÕΩ±•êÄçƒÿÿà∞ÅΩ¡Öç•—‰ËÄ¿∞ÅÖπ•µÖ—•Ω∏ËÄâ›ô	’…Õ–Ä»∏—ÃÅïÖÕîµΩ’–Å•πô•π•—îà∞Å¡Ω•π—ï…Ÿïπ—ÃËÄâπΩπîàÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâÖâÕΩ±’—îà∞Å—Ω¿ËÄƒ–∞Å…•ù°–ËÄ‰ÿ∞Å›•ë—†ËÄ‹ÿ∞Å°ï•ù°–ËÄ‹ÿ∞ÅâΩ…ëï…IÖë•’ÃËÄà‘¿îà∞ÅâΩ…ëï»ËÄà…¡‡ÅÕΩ±•êÄçŸŸà∞ÅΩ¡Öç•—‰ËÄ¿∞ÅÖπ•µÖ—•Ω∏ËÄâ›ô	’…Õ–Ä»∏—ÃÅïÖÕîµΩ’–Ä∏·ÃÅ•πô•π•—îà∞Å¡Ω•π—ï…Ÿïπ—ÃËÄâπΩπîàÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâÖâÕΩ±’—îà∞Å—Ω¿ËÄ¥ÿ∞Å…•ù°–ËÄƒ‘¿∞Å›•ë—†ËÄ‘–∞Å°ï•ù°–ËÄ‘–∞ÅâΩ…ëï…IÖë•’ÃËÄà‘¿îà∞ÅâΩ…ëï»ËÄàƒ∏’¡‡ÅÕΩ±•êÄå›Ÿà∞ÅΩ¡Öç•—‰ËÄ¿∞ÅÖπ•µÖ—•Ω∏ËÄâ›ô	’…Õ–Ä»∏—ÃÅïÖÕîµΩ’–Äƒ∏’ÃÅ•πô•π•—îà∞Å¡Ω•π—ï…Ÿïπ—ÃËÄâπΩπîàÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌmlƒ‡∞Ä‘»∞Ä–∞Äàçƒÿÿà∞Äà…Ãà∞Äà¡Ãât∞Ål‡∞Äƒ»»∞ÄÃ∞Äàçà∞Äà»∏ŸÃà∞Äà∏’Ãât∞ÅlÃ–∞Ä‡‡∞ÄÃ∞ÄàçÂ¿à∞Äà»∏…Ãà∞Äà≈Ãât∞Ål‘∞Äƒ‡‡∞Ä–∞Äàçƒÿÿà∞Äà»∏—Ãà∞Äàƒ∏—Ãât∞Ål»‹∞Äƒ‘»∞ÄÃ∞Äàçà∞Äàƒ∏ÂÃà∞Äà∏·ÃâutπµÖ¿†°m–∞Å»∞ÅÕË∞Åå∞Åê∞Åë±t∞Å}§§ÄÙ¯Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏Å≠ï‰ıÌ}•ÙÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâÖâÕΩ±’—îà∞Å—Ω¿ËÅ–∞Å…•ù°–ËÅ»∞Å›•ë—†ËÅÕË∞Å°ï•ù°–ËÅÕË∞ÅâΩ…ëï…IÖë•’ÃËÄà‘¿îà∞ÅâÖç≠ù…Ω’πêËÅå∞ÅâΩ·M°ÖëΩ‹ËÅÄ¿Ä¿ÄŸ¡‡ÄëÌçıÄ∞ÅÖπ•µÖ—•Ω∏ËÅÅ›ôQ›•π≠±îÄëÌëÙÅïÖÕîµ•∏µΩ’–ÄëÌë±ÙÅ•πô•π•—ïÄ∞Å¡Ω•π—ï…Ÿïπ—ÃËÄâπΩπîàÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ§•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâÖâÕΩ±’—îà∞Å—Ω¿ËÄ¿∞ÅâΩ——Ω¥ËÄ¿∞Å±ïô–ËÄ¿∞Å›•ë—†ËÄà–ÿîà∞ÅâÖç≠ù…Ω’πêËÄâ±•πïÖ»µù…Öë•ïπ–†ƒ¿’ëïú∞Å—…ÖπÕ¡Ö…ïπ–Ä¿î∞Å…ùâÑ†»‘‘∞»‘‘∞»‘‘∞∏¿‰§Ä––î∞Å…ùâÑ†»‘‘∞»‘‘∞»‘‘∞∏ƒÿ§Ä‘¿î∞Å…ùâÑ†»‘‘∞»‘‘∞»‘‘∞∏¿‰§Ä‘ÿî∞Å—…ÖπÕ¡Ö…ïπ–Äƒ¿¿î§à∞ÅÖπ•µÖ—•Ω∏ËÄâ›ôM›ïï¿Ä‘∏ŸÃÅïÖÕîµ•∏µΩ’–Å•πô•π•—îà∞Å¡Ω•π—ï…Ÿïπ—ÃËÄâπΩπîàÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâÖâÕΩ±’—îà∞Å—Ω¿ËÄ¿∞Å±ïô–ËÄ¿∞Å…•ù°–ËÄ¿∞Å°ï•ù°–ËÄ–∞ÅâÖç≠ù…Ω’πêËÅ}åπÕ—…•¡î∞ÅÖπ•µÖ—•Ω∏ËÄâ›ô±Ω‹Ä»∏ŸÃÅïÖÕîµ•∏µΩ’–Å•πô•π•—îàÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅÏÅîπÕ—Ω¡A…Ω¡ÖùÖ—•Ω∏†§ÏÅçΩπÕ–Å}–ÄÙÅ}ç–π°ïÖë±•πî°±Ωç9Öµî§ÏÅÕ°Ö…ï1•π¨°}–∞Å±•Õ—M°Ö…ïU…∞†â°Ω∞¥àÄ¨Å}†π≠ï‰∞Å}–∞Ä¿∞Å±Ωç9Öµî∞Å}†π≠ï‰§∞Ä†§ÄÙ¯ÅÕ°Ω›QΩÖÕ–†â1•π¨ÅçΩ¡•ïêà§∞Äâ°ïç¨Å—°•ÃÅΩ’–ÅΩ∏Å]ÖÂô•πêËÄàÄ¨Å}–∞Ä†§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–†âÕ°Ö…îà∞Åπ’±∞∞ÅÏÅ≠•πêËÄâ±•Õ–à∞Å—°ïµîËÄâ°Ω∞¥àÄ¨Å}†π≠ï‰ÅÙ§ÏÅÙÅçÖ—ç†Ä°ï»§ÅÌÙÅù•ŸïÖ›ÖÂ5Ö…¨†â±•Õ–È°Ω∞¥àÄ¨Å}†π≠ï‰§ÏÅÙ§ÏÅıÙÅÖ…•Ñµ±Öâï∞ÙâM°Ö…îàÅ—•—±îÙâM°Ö…îàÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâÖâÕΩ±’—îà∞Å—Ω¿ËÄƒ¿∞Å…•ù°–ËÄƒ¿∞Å›•ë—†ËÄÃ–∞Å°ï•ù°–ËÄÃ–∞ÅâΩ…ëï…IÖë•’ÃËÄà‘¿îà∞ÅâÖç≠ù…Ω’πêËÄâ…ùâÑ†¿∞¿∞¿∞∏Ã‘§à∞ÅâΩ…ëï»ËÄà≈¡‡ÅÕΩ±•êÅ…ùâÑ†»‘‘∞»‘‘∞»‘‘∞∏Ã§à∞ÅçΩ±Ω»ËÄàçôôòà∞Åë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâçïπ—ï»à∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞ÅâÖç≠ë…Ω¡•±—ï»ËÄââ±’»†—¡‡§à∞ÅÈ%πëï‡ËÄ»ÅıÙ¯ÒÕŸúÅ›•ë—†Ùàƒ‘àÅ°ï•ù°–Ùàƒ‘àÅŸ•ï›	Ω‡Ùà¿Ä¿Ä»–Ä»–àÅô•±∞ÙâπΩπîàÅÕ—…Ω≠îÙàçôôòàÅÕ—…Ω≠ï]•ë—†Ùà»àÅÕ—…Ω≠ï1•πïçÖ¿Ùâ…Ω’πêàÅÕ—…Ω≠ï1•πï©Ω•∏Ùâ…Ω’πêà¯Ò¡Ö—†ÅêÙâ4ƒ»ÄÕÿƒ»àÄº¯Ò¡Ö—†ÅêÙâ4‡Ä›∞–¥–Ä–Ä–àÄº¯Ò¡Ö—†ÅêÙâ4ÿÄƒ…ÿ›ÑƒÄƒÄ¿Ä¿Ä¿ÄƒÄ≈†ƒ¡ÑƒÄƒÄ¿Ä¿Ä¿Äƒ¥≈ÿ¥‹àÄº¯ΩÕŸú¯Ωâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‡∞ÅµÖ…ù•π	Ω——Ω¥ËÄ‡ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄ»–∞Åô•±—ï»ËÄâë…Ω¿µÕ°ÖëΩ‹†¿Ä¿Ä·¡‡Å…ùâÑ†»‘‘∞»¿‰∞ƒ¿»∞∏ÿ§§àÅıÙ˘Ì}†πïµΩ©•ÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ¿∏‘∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞Å±ï——ï…M¡Öç•πúËÄà≈¡‡à∞ÅçΩ±Ω»ËÅ}åπ—ï·–∞Å—ï·—Q…ÖπÕôΩ…¥ËÄâ’¡¡ï…çÖÕîàÅıÙ˘!Ω±•ëÖ‰ÅÕ¡ïç•Ö∞É
+‹ÅÌ}ç–π—ÖùÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄ»ƒ∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÄàçà∞Å±•πï!ï•ù°–ËÄƒ∏ƒ‘∞Å±ï——ï…M¡Öç•πúËÄà¥¿∏Õ¡‡àÅıÙ˘Ì}ç–π°ïÖë±•πî°±Ωç9Öµî•ÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅçΩ±Ω»ËÅ}åπ—ï·–∞ÅµÖ…ù•πQΩ¿ËÄ‘∞Å±•πï!ï•ù°–ËÄƒ∏–ÅıÙ˘Ì}ç–πÕ’âÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅµÖ…ù•πQΩ¿ËÄƒ»∞Å¡Öëë•πúËÄà·¡‡ÄƒŸ¡‡à∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞ÅâÖç≠ù…Ω’πêËÅ}åπÖççïπ–∞ÅçΩ±Ω»ËÄàå¡ƒƒƒ‹à∞ÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿ÅıÙ˘MïîÅ—°îÅ¡•ç≠ÃÉäËΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ§ÏÅÙ§†•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Äâ	ïÕ–ÅµΩŸîÅ…•ù°–ÅπΩ‹àÅ°ï…ºÅâΩë‰Å…ïµΩŸïêÄ°Ω›πï»Ä»¿»ÿ¥¿‹¥ƒ‹§ÏÅ•–Å›ÖÃÅÖ±…ïÖë‰Åë•ÕÖâ±ïê∏Å°ï…Ω!ΩΩ¨Å≠ï¡–Ä°°Ö…µ±ïÕÃ∞Å’π’Õïê§∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄº¯•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿ‘∏ÿÿËÅ—°îÄâ5Ω…îÅ›ÖÂÃÅ—ºÅï·¡±Ω…îàÅ•µÖùîÅçÖ…ëÃÄ¨Å—°îÅQÖ≠îµÑµç°ÖπçîÅçÖ…êÅÖ…îÅπΩ‹ÅôΩ±ëïêÅ•π—ºÅ—°îÅÕ•πù±îÅ•=LµÕ—Â±îÅ±•Õ–Åµïπ‘ÅÖâΩŸîÉäPÅëïÕ—•πÖ—•ΩπÃÄ¨ÅÖπÖ±Â—•çÃÅ¡…ïÕï…Ÿïê∞ÅπºÅ¡°Ω—ΩÃ∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙ§†•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®ÅÿÃ∏‹ËÅµΩâ•±îÅ•π±•πîÄâeΩ‘ÅÖ…îÅï·¡±Ω…•πúàÅçÖ…êÅ…ïµΩŸïêÉäPÅ•–Åë’¡±•çÖ—ïêÅ—°îÉ¬~N4ÅQ°•ÃÅÖ…ïÑÅ—•±îÅÕ°ïï–∏ÅÖ—ÑÅ•ÃÅ’πç°ÖπùïêÏÅ•–ÅπΩ‹Å±ΩÖëÃÅΩπ±‰Å›°ï∏Å—°îÅ—•±îÅ•ÃÅΩ¡ïπïê∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿ–∏ƒËÅÕ—ÖπëÖ±ΩπîÄâ!Ö¡¡ïπ•πúÅÖ–Å—°îÅ±•â…Ö…‰àÅçÖ…êÅ…ïµΩŸïêÅô…Ω¥Å°ΩµîÉäPÅ—°•ÃÅçΩπ—ïπ–ÅπΩ‹Å±•ŸïÃÅ•∏Å—°îÅΩµµ’π•—‰Å—•±îÅÕ°ïï–Ä°µïπ’M°ïï–ÄÙÙÙÄâçΩµµ’π•—‰à§∏Å±•â…Ö…ÂŸïπ—ÃÅÕ—Ö—îÅÖπêÅôï—ç†ÅÖ…îÅ’πç°Öπùïê∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿ‘∏Ã‘Å°Âë…Ö—•Ω∏ËÅ—°îÅµΩµïπ–Å¡°…ÖÕîÄ†â…•ëÖ‰ÅïŸïπ•πúà§ÅçΩµïÃ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅô…Ω¥Å¡ΩÕ–µµΩ’π–ÅÕ—Ö—îÉäPÅ—°îÅMMHùêÅÕ°ï±∞ÅçÖ∏ÅâîÅ’¿Å—ºÅÖ∏Å°Ω’»(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩ±êÄ°%MH§∞ÅÕºÅçΩµ¡’—•πúÅ•–ÅÖ–Å…ïπëï»ÅµÖëîÅÕï…Ÿï»ÅÖπêÅç±•ïπ–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅë•ÕÖù…ïîÄ°—°•ÃÅ›ÖÃÅ—°îÅ±•ŸîÅIïÖç–Ä–ƒ‡º–»Ã§∏Å	Ω—†ÅÕ•ëïÃÅ…ïπëï»(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°îÅùïπï…•åÅ±•πîÅô•…Õ–ÏÅ—°îÅµΩµïπ–ÅÖ……•ŸïÃÅΩπîÅ¡Ö•π–Å±Ö—ï»∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏÖâ…Ω›ÕïÖ–ÄòòÅÕ’ùùïÕ—ïêÄÙÙÙÅπ’±∞ÄòòÄÒë•ÿÅÕ—Â±îıÌÏÅµ•π!ï•ù°–ËÄàÿ…Ÿ†àÅıÙ¯Ò1ΩÖëï»Å±Öâï∞ıÌâΩΩ—5Ωµïπ–Ä¸ÅÅ•πë•πúÅ—°îÅâïÕ–ÅΩ¡—•ΩπÃÅôΩ»ÄëÌâΩΩ—5Ωµïπ—ÙÅπïÖ»ÄëÌ±Ωç9ÖµîÄ¸Å±Ωç9ÖµîπÕ¡±•–†à∞à•l¡tÄËÄâ—°•ÃÅÖ…ïÑâ˜äôÄÄËÄâ•πë•πúÅ—°îÅâïÕ–ÅΩ¡—•ΩπœäòâÙÅÕ’àıÌÅΩ¡ï∏ÅπΩ‹Åô•…Õ–É
+‹Å›•—°•∏ÄëÌU1Q}I%UM}5%ÙÅµ•±ïÃÉ
+‹Å…Öπ≠ïêÅâ‰Å…ïÖ∞Å…ïŸ•ï›Ã∞ÅπΩ–ÅÖëÕÅÙÅ¡ÖêÙà·¡‡Ä…¡‡àÄº¯Ωë•ÿ˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Å]ÖÂô•πêÅA•ç≠ÃÅ±•Õ–Å…ïµΩŸïêÅô…Ω¥Å°ΩµîËÅ—°îÅ…Öπ≠ïêÅ±•Õ–ÅπΩ‹Å±•ŸïÃÅâï°•πêÅ—°îÅ]ÖÂô•πêÅA•ç≠ÃÅ°ï…ºÅçÖ…êÅÖâΩŸî∞Å›°•ç†ÅΩ¡ïπÃÅ—°îÅç’…Ö—ïêÅ—Ω¿Äƒ¿ÅÕ°ïï–∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®ÅIΩ±∞Å—°îÅ•çîÅπΩ‹Å…ïπëï…ÃÅÖÃÅ—°îÅ±ÖÕ–Å°ΩΩ¨ÅçÖ…êÅ•πÕ•ëîÅ—°îÄâ]Ω…—†ÅÑÅ±ΩΩ¨àÅÕïç—•Ω∏ÅÖâΩŸî∞ÅµÖ—ç°•πúÅ—°îÅïë•—Ω…•Ö∞ÅçÖ…ëÃ∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Å%π±•πîÅ…Öπ≠ïêÅôïïêÅ…ïµΩŸïêÅô…Ω¥Å°ΩµîËÅâ…Ω›Õ•πúÅ—°îÅô’±∞Å…Öπ≠ïêÅ±•Õ–ÅπΩ‹Å°Ö¡¡ïπÃÅ•πÕ•ëîÅ—°îÅ]ÖÂô•πêÅA•ç≠ÃÅÕ°ïï–∞Å—°îÅ9ïÖ…â‰Å—•±î∞ÅÕïÖ…ç†∞ÅÖπêÅçÖ—ïùΩ…•ïÃ∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅµÖ…ù•πQΩ¿ËÄƒ‡∞Å¡Öëë•πùQΩ¿ËÄƒ–∞ÅâΩ…ëï…QΩ¿ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞Å—ï·—±•ù∏ËÄâçïπ—ï»àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ°ï•ù°–ËÄ»–ÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâçïπ—ï»à∞ÅùÖ¿ËÄƒ–∞ÅµÖ…ù•π	Ω——Ω¥ËÄ‹ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÑÅ°…ïòÙàΩ¡…•ŸÖç‰àÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞ÅçΩ±Ω»ËÅπµ’—ïê∞Å—ï·—ïçΩ…Ö—•Ω∏ËÄâπΩπîàÅıÙ˘A…•ŸÖç‰ΩÑ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅçΩ±Ω»ËÅπâΩ…ëï»ÅıÙ˚
+‹ΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÑÅ°…ïòÙàΩ—ï…µÃàÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞ÅçΩ±Ω»ËÅπµ’—ïê∞Å—ï·—ïçΩ…Ö—•Ω∏ËÄâπΩπîàÅıÙ˘Qï…µÃΩÑ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ¿∏‘∞ÅçΩ±Ω»ËÅπµ’—ïê∞ÅΩ¡Öç•—‰ËÄ¿∏‡∞Å±•πï!ï•ù°–ËÄƒ∏‘∞ÅµÖ·]•ë—†ËÄÃ»¿∞ÅµÖ…ù•∏ËÄà¿ÅÖ’—ºàÅıÙ˘MΩµîÅ±•π≠Ã∞Å•πç±’ë•πúÅ—•ç≠ï—ÃÅÖπêÅ—Ω’…Ã∞ÅÖ…îÅÖôô•±•Ö—îÅ±•π≠Ã∏Å]ÖÂô•πêÅµÖ‰ÅïÖ…∏ÅÑÅçΩµµ•ÕÕ•Ω∏ÅÖ–ÅπºÅï·—…ÑÅçΩÕ–Å—ºÅÂΩ‘∏Ωë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÏÅ—…‰ÅÏÅ›•πëΩ‹π}}›ôÿÄÙÄ°›•πëΩ‹π}}›ôÿÅÒÄ¿§Ä¨ÄƒÏÅç±ïÖ…Q•µïΩ’–°›•πëΩ‹π}}›ôŸP§ÏÅ›•πëΩ‹π}}›ôŸPÄÙÅÕï—Q•µïΩ’–††§ÄÙ¯ÅÏÅ›•πëΩ‹π}}›ôÿÄÙÄ¿ÏÅÙ∞Ä»»¿¿§ÏÅ•òÄ°›•πëΩ‹π}}›ôÿÄ¯ÙÄ‘§ÅÏÅ›•πëΩ‹π}}›ôÿÄÙÄ¿ÏÅ›ôM°Ω›•Öú†§ÏÅÙÅÙÅçÖ—ç†Ä°î§ÅÌÙÅıÙÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒƒ∞ÅçΩ±Ω»ËÅπµ’—ïê∞ÅΩ¡Öç•—‰ËÄ¿∏ÿ∞ÅµÖ…ù•πQΩ¿ËÄƒ¿∞Å—ï·—±•ù∏ËÄâçïπ—ï»à∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ˘]ÖÂô•πêÉ
+‹ÅÌ	U%1}%ÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ°ï•ù°–ËÄ»¿ÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄº¯(ÄÄÄÄÄÄÄÄÄÄ§Ï(ÄÄÄÄÄÄÄÅÙ§†•Ù((ÄÄÄÄÄÄÄÅÌÕç…ïï∏ÄÙÙÙÄâÕ’…¡…•ÕîàÄòòÄÒM’…¡…•ÕïMç…ïï∏Åç—‡ıÌç—·ÙÄº˘Ù((ÄÄÄÄÄÄÄÅÌÕç…ïï∏ÄÙÙÙÄâï·¡ï…•ïπçîàÄòòÅÖç—•Ÿï	ÖëùîÄòòÅaAI%9MmÖç—•Ÿï	ÖëùïtÄòòÄÒ·¡ï…•ïπçïMç…ïï∏Åç—‡ıÌç—·ÙÄº˘Ù((ÄÄÄÄÄÄÄÅÌÕç…ïï∏ÄÙÙÙÄâçΩ’¡ΩπÃàÄòòÄÒΩ’¡ΩπÕMç…ïï∏Åç—‡ıÌç—·ÙÄº˘Ù(ÄÄÄÄÄÄÄÅÏº®ÅÖŸΩ…•—ïÃÅ•ÃÅ—°îÅΩ∏µëïŸ•çîÅçΩπ—…Ω∞Åçïπ—ï»ÅôΩ»Åï·¡±•ç•–Å…ïÖç—•ΩπÃ∏(ÄÄÄÄÄÄÄÄÄÄÄÅ%–ÅÕ—ÖÂÃÅ’ÕÖâ±îÅâïôΩ…îÅÕ•ù∏µ•∏ÏÅ—°îÅÕç…ïï∏ÅΩôôï…ÃÅÕ•ù∏µ•∏ÅΩπ±‰ÅÖÃ(ÄÄÄÄÄÄÄÄÄÄÄÅΩ¡—•ΩπÖ∞Åç±Ω’êÅÕÂπå∏Å%—•πï…Ö…‰Å…ïµÖ•πÃÅÖççΩ’π–µâÖç≠ïê∏Ä®ΩÙ(ÄÄÄÄÄÄÄÅÌÕç…ïï∏ÄÙÙÙÄâÕÖŸïêàÄòòÄÒMÖŸïëMç…ïï∏Åç—‡ıÌç—·ÙÄº˘Ù(ÄÄÄÄÄÄÄÅÌÕç…ïï∏ÄÙÙÙÄâ•—•πï…Ö…‰àÄòòÄ°Ö’—°IïÖë‰ÄòòÄÖ’Õï»Ä¸ÄÒ’—°]Ö±∞Å±Öâï∞ÙâÂΩ’»Å%—•πï…Ö…‰àÅΩπM•ùπ%∏ıÏ†§ÄÙ¯ÅÕï—’—°=¡ï∏°—…’î•ÙÄº¯ÄËÄÒ%—•πï…Ö…ÂMç…ïï∏Åç—‡ıÌç—·ÙÄº¯•Ù((ÄÄÄÄÄÄÄÅÌÕç…ïï∏ÄÙÙÙÄâÕ°Ö…ïêàÄòòÅÕ°Ö…ïë1•Õ–ÄòòÄÒM°Ö…ïëMç…ïï∏Åç—‡ıÌç—·ÙÄº˘Ù(ÄÄÄÄÄÄÄÅÌÕç…ïï∏ÄÙÙÙÄâïŸïπ—ÃàÄòòÄÒŸïπ—ÕMç…ïï∏Åç—‡ıÌç—·ÙÄº˘Ù(ÄÄÄÄÄÄΩë•ÿ¯((ÄÄÄÄÄÅÏº®ÅIΩ±∞Å—°îÅë•çîÄ®ΩÙ(ÄÄÄÄÄÄÒÕ—Â±îÅëÖπùï…Ω’Õ±ÂMï—%ππï…!Q50ıÌÏÅ}}°—µ∞ËÄâ≠ïÂô…ÖµïÃÅ›ô…Ω±±Ï¿ïÌ—…ÖπÕôΩ…¥È…Ω—Ö—î†¡ëïú§ÅÕçÖ±î†ƒ•Ù‘¿ïÌ—…ÖπÕôΩ…¥È…Ω—Ö—î†ƒ‡¡ëïú§ÅÕçÖ±î†ƒ∏»‘•Ùƒ¿¿ïÌ—…ÖπÕôΩ…¥È…Ω—Ö—î†Ãÿ¡ëïú§ÅÕçÖ±î†ƒ•ıÙàÅıÙÄº¯(ÄÄÄÄÄÅÌ…Ω±±•πúÄòòÄ†(ÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâô•·ïêà∞Å•πÕï–ËÄ¿∞ÅÈ%πëï‡ËÄƒƒ¿¿∞ÅâÖç≠ù…Ω’πêËÄâ…ùâÑ†ƒÃ∞ƒ‹∞»Ã∞∏‡‡§à∞Åë•Õ¡±Ö‰ËÄâô±ï‡à∞Åô±ï·•…ïç—•Ω∏ËÄâçΩ±’µ∏à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâçïπ—ï»à∞ÅùÖ¿ËÄƒ‡ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄ‰»∞Å±•πï!ï•ù°–ËÄƒ∞ÅÖπ•µÖ—•Ω∏ËÄâ›ô…Ω±∞Ä¿∏’ÃÅ±•πïÖ»Å•πô•π•—îàÅıÙ˘Ìë•çïÖçïÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒÿ∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÄàçôôòàÅıÙ˘•πë•πúÅÂΩ’»ÅÕ¡Ω”äòΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅçΩ±Ω»ËÅπ±•ù°–ÅıÙ˘1ï——•πúÅ—°îÅë•çîÅëïç•ëîΩë•ÿ¯(ÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÅÌ…Öë•’ÕM°ïï–ÄòòÄ†(ÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÕ°ïï—	ùÙÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—IÖë•’ÕM°ïï–°ôÖ±Õî•Ù¯(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÄ∏∏πÕ°ïï–∞Å¡Öëë•πúËÄàŸ¡‡ÄƒŸ¡‡ÅçÖ±å†»¡¡‡Ä¨Åïπÿ°ÕÖôîµÖ…ïÑµ•πÕï–µâΩ——Ω¥§§à∞ÅΩŸï…Õç…Ω±±	ï°ÖŸ•Ω…dËÄâçΩπ—Ö•∏à∞Å—…ÖπÕ•—•Ω∏ËÅM!Q}MÅıÙÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅîπÕ—Ω¡A…Ω¡ÖùÖ—•Ω∏†•ÙÅΩπQΩ’ç°M—Ö…–ıÏ°î§ÄÙ¯ÅÕ°ïï—…ÖùM—Ö…–°î∞Ä†§ÄÙ¯ÅÕï—IÖë•’ÕM°ïï–°ôÖ±Õî§•ÙÅΩπQΩ’ç°5ΩŸîıÌÕ°ïï—…Öù5ΩŸïÙÅΩπQΩ’ç°πêıÌÕ°ïï—…ÖùπëÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒ…Öââï»Äº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ—ï·—±•ù∏ËÄâçïπ—ï»à∞ÅµÖ…ù•πQΩ¿ËÄ–ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄÃ¿ÅıÙ˚¬~N4Ωë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄ»¿∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÅπ—ï·–∞ÅµÖ…ù•πQΩ¿ËÄ–ÅıÙ˘!Ω‹ÅôÖ»ÅÕ°Ω’±êÅ›îÅ±ΩΩ¨¸Ωë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒÃ∞ÅçΩ±Ω»ËÅπµ’—ïê∞ÅµÖ…ù•πQΩ¿ËÄ–∞Å±•πï!ï•ù°–ËÄƒ∏–ÅıÙ˘MïÖ…ç†Åë•Õ—ÖπçîÅô…Ω¥ÅÌ±Ωç9ÖµîÅÒÅçïπ—ï»ππÖµîÅÒÄâÂΩ‘âÙ∏Ωë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâù…•êà∞Åù…•ëQïµ¡±Ö—ïΩ±’µπÃËÄà≈ô»Ä≈ô»Ä≈ô»à∞ÅùÖ¿ËÄ‡∞ÅµÖ…ù•πQΩ¿ËÄƒ‡ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌmÏÅµ§ËÄÃ∞ÅÿËÄ–‡»‡ÅÙ∞ÅÏÅµ§ËÄ‘∞ÅÿËÄ‡¿–‹ÅÙ∞ÅÏÅµ§ËÄƒ¿∞ÅÿËÄƒÿ¿‰ÃÅÙ∞ÅÏÅµ§ËÄƒ‘∞ÅÿËÄ»–ƒ–¿ÅÙ∞ÅÏÅµ§ËÄ»‘∞ÅÿËÄ–¿»Ã–ÅÙ∞ÅÏÅµ§ËÄÃ¿∞ÅÿËÄ–‡»‡¿ÅıtπµÖ¿†°»§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅΩ∏ÄÙÅ¡ïπë•πùIÖë•’ÃÄÙÙÙÅ»πÿÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏Å≠ï‰ıÌ»πŸÙÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—Aïπë•πùIÖë•’Ã°»πÿ•ÙÅÕ—Â±îıÌÏÅ¡Öëë•πúËÄàƒŸ¡‡Ä·¡‡à∞ÅâΩ…ëï…IÖë•’ÃËÄƒ–∞ÅâΩ…ëï»ËÅÄƒ∏’¡‡ÅÕΩ±•êÄëÌΩ∏Ä¸ÅπÖççïπ–ÄËÅπâΩ…ëï…ıÄ∞ÅâÖç≠ù…Ω’πêËÅΩ∏Ä¸ÅπÖë•¥ÄËÅπçÖ…ê∞ÅçΩ±Ω»ËÅΩ∏Ä¸ÅπÖççïπ–ÄËÅπ±•ù°–∞ÅôΩπ—M•ÈîËÄƒ‡∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞Åë•Õ¡±Ö‰ËÄâô±ï‡à∞Åô±ï·•…ïç—•Ω∏ËÄâçΩ±’µ∏à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ»ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏˘Ì»πµ•ÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒƒ∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞ÅçΩ±Ω»ËÅΩ∏Ä¸ÅπÖççïπ–ÄËÅπµ’—ïêÅıÙ˘µ•±ïÃΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙ•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÏÅÕï—MïÖ…ç°IÖë•’Ã°¡ïπë•πùIÖë•’Ã§ÏÅÕï—IÖë•’ÕM°ïï–°ôÖ±Õî§ÏÅıÙÅÕ—Â±îıÌÏÅ›•ë—†ËÄàƒ¿¿îà∞ÅµÖ…ù•πQΩ¿ËÄƒ‡∞Å°ï•ù°–ËÄ‘»∞ÅâΩ…ëï…IÖë•’ÃËÄƒ–∞ÅâΩ…ëï»ËÄâπΩπîà∞ÅâÖç≠ù…Ω’πêËÄâ±•πïÖ»µù…Öë•ïπ–†ƒ‡¡ëïú∞Äç‰»ÕÄ¿î∞Äç‰‹ÃƒÿÄ‘»î∞Äç‘‡¡Äƒ¿¿î§à∞ÅçΩ±Ω»ËÄàçôôòà∞ÅôΩπ—M•ÈîËÄƒ‘∏‘∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞ÅâΩ·M°ÖëΩ‹ËÄà¿Ä—¡‡Äƒ—¡‡Å…ùâÑ†»–‰∞ƒƒ‘∞»»∞∏–§àÅıÙ˘MïÖ…ç†Å—°•ÃÅÖ…ïÑΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ—ï·—±•ù∏ËÄâçïπ—ï»à∞ÅôΩπ—M•ÈîËÄƒƒ∏‘∞ÅçΩ±Ω»ËÅπµ’—ïê∞ÅµÖ…ù•πQΩ¿ËÄƒ¿ÅıÙ˘]îÅΩπ±‰ÅÕïÖ…ç†ÅÖùÖ•∏Å›°ï∏ÅÂΩ‘Å—Ö¿Å—°îÅâ’——Ω∏∞Å—ºÅÕÖŸîÅëÖ—Ñ∏Ωë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÅÌë•çï°ΩΩÕîÄòòÄÖ…Ω±±•πúÄòòÄ†(ÄÄÄÄÄÄÄÄÒë•ÿÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—•çï°ΩΩÕî°ôÖ±Õî•ÙÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâô•·ïêà∞Å•πÕï–ËÄ¿∞ÅÈ%πëï‡ËÄƒƒ¿¿∞ÅâÖç≠ù…Ω’πêËÄâ…ùâÑ†ƒÃ∞ƒ‹∞»Ã∞∏‡‘§à∞Åë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâô±ï‡µïπêà∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâçïπ—ï»àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅΩπ±•ç¨ıÏ°ïÿ§ÄÙ¯ÅïÿπÕ—Ω¡A…Ω¡ÖùÖ—•Ω∏†•ÙÅΩπQΩ’ç°M—Ö…–ıÏ°î§ÄÙ¯ÅÕ°ïï—…ÖùM—Ö…–°î∞Ä†§ÄÙ¯ÅÕï—•çï°ΩΩÕî°ôÖ±Õî§•ÙÅΩπQΩ’ç°5ΩŸîıÌÕ°ïï—…Öù5ΩŸïÙÅΩπQΩ’ç°πêıÌÕ°ïï—…ÖùπëÙÅÕ—Â±îıÌÏÅ›•ë—†ËÄàƒ¿¿îà∞ÅµÖ·]•ë—†ËÄ–‡¿∞ÅµÖ·!ï•ù°–ËÄà‡…Ÿ†à∞ÅΩŸï…ô±Ω›dËÄâÖ’—ºà∞ÅΩŸï…Õç…Ω±±	ï°ÖŸ•Ω…dËÄâçΩπ—Ö•∏à∞Å—…ÖπÕ•—•Ω∏ËÅM!Q}M∞ÅâÖç≠ù…Ω’πêËÅπ¡Öπï∞∞ÅâΩ…ëï…QΩ¡1ïô—IÖë•’ÃËÄ»¿∞ÅâΩ…ëï…QΩ¡I•ù°—IÖë•’ÃËÄ»¿∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞Å¡Öëë•πúËÄàŸ¡‡ÄƒŸ¡‡ÅçÖ±å†»…¡‡Ä¨Åïπÿ°ÕÖôîµÖ…ïÑµ•πÕï–µâΩ——Ω¥§§àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒ…Öââï»Äº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ‡∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÅπ—ï·–∞ÅµÖ…ù•π	Ω——Ω¥ËÄÃÅıÙ˚¬~:»ÅA•ç¨ÅôΩ»ÅµîΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒÃ∞ÅçΩ±Ω»ËÅπ±•ù°–∞ÅµÖ…ù•π	Ω——Ω¥ËÄƒ–∞Å±•πï!ï•ù°–ËÄƒ∏‘ÅıÙ˘A•ç¨Å›°Ö–ÅÂΩ‘ÅÖ…îÅ•∏Å—°îÅµΩΩêÅôΩ»ÅÖπêÅ—°îÅë•çîÅ±ÖπëÃÅÂΩ‘ÅΩ∏ÅÑÅ—Ω¿Å…Ö—ïêÅÕ¡Ω–ÅπïÖ»ÅÂΩ‘Å—°Ö–Å•ÃÅΩ¡ï∏ÅπΩ‹∏Ωë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞Åô±ï·]…Ö¿ËÄâ›…Ö¿à∞ÅùÖ¿ËÄ‰ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌl(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏÅ±Öâï∞ËÄã¬~6˜æ‚<ÅΩΩêà∞ÅçÖ–ËÄâôΩΩêà∞Å≠‹ËÄààÅÙ∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏÅ±Öâï∞ËÄãäbTÅΩôôïîà∞ÅçÖ–ËÄâôΩΩêà∞Å≠‹ËÄâçΩôôïîàÅÙ∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏÅ±Öâï∞ËÄã¬~6¿ÅïÕÕï…–à∞ÅçÖ–ËÄâôΩΩêà∞Å≠‹ËÄâëïÕÕï…–àÅÙ∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏÅ±Öâï∞ËÄã¬~6‡Å	Ö…ÃÄòÅë…•π≠Ãà∞ÅçÖ–ËÄâπ•ù°—±•ôîà∞Å≠‹ËÄââÖ»àÅÙ∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏÅ±Öâï∞ËÄã¬~6ËÅ	…ï›ï…•ïÃà∞ÅçÖ–ËÄâπ•ù°—±•ôîà∞Å≠‹ËÄââ…ï›ï…‰àÅÙ∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏÅ±Öâï∞ËÄã¬~2Å9•ù°—±•ôîà∞ÅçÖ–ËÄâπ•ù°—±•ôîà∞Å≠‹ËÄâπ•ù°–Åç±’ààÅÙ∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏÅ±Öâï∞ËÄã¬~:‘Å1•ŸîÅµ’Õ•åà∞ÅçÖ–ËÄâπ•ù°—±•ôîà∞Å≠‹ËÄâ±•ŸîÅµ’Õ•åàÅÙ∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏÅ±Öâï∞ËÄã¬~2(Å]Ö—ï…ô…Ωπ–à∞ÅçÖ–ËÄâôΩΩêà∞Å≠‹ËÄâ›Ö—ï…ô…Ωπ–àÅÙ∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏÅ±Öâï∞ËÄã¬~JTÅÖ—îÅπ•ù°–à∞ÅçÖ–ËÄâôΩΩêà∞Å≠‹ËÄâ…ΩµÖπ—•åÅ…ïÕ—Ö’…Öπ–àÅÙ∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏÅ±Öâï∞ËÄã¬~:ºÅç—•Ÿ•—•ïÃà∞ÅçÖ–ËÄâÖ——…Öç—•ΩπÃà∞Å≠‹ËÄâ—°•πùÃÅ—ºÅëºàÅÙ∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÿÿ∏––Ä°Ω›πï»ËÄâ¡Ö…≠ÃÅçΩπ—•π’îÅ—ºÅÕ°Ω‹Å›•—†ÅÑÅâ’úà§∏ÅQ°îÅ≠ïÂ›Ω…êÅ›ÖÃ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ—°îÅâÖ…îÅÕ—…•πúÄâ¡Ö…¨à∞Å›°•ç†ÅΩΩù±îùÃÅ—ï·–ÅÕïÖ…ç†Å°Ö¡¡•±‰ÅÕÖ—•Õô•ïÃ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ›•—†Å—°ïµîÅ¡Ö…≠Ã∞Å—…Öµ¡Ω±•πîÅ¡Ö…≠Ã∞ÅÖ…çÖëïÃÅÖπêÅÖπ‰Å¡…Ωµ•πïπ–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ—Ω’…•Õ—}Ö——…Öç—•Ω∏ÅπïÖ…â‰ÉäPÅÖπêÅ…Ω±±Ω»ÅÖ¡¡±•ïêÅ9<Åô•±—ï»∞Å•–Å©’Õ–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÕΩ…—ïêÅ—°îÅ…Ö‹Å…ïÕ’±–Åâ‰Å›ôMçΩ…î∏ÅQ°îÅÕ•πù±îÅ°•ù°ïÕ–µÕçΩ…•πú(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÄâÖ——…Öç—•Ω∏àÅ•∏Å=…±ÖπëºÅ•ÃÅÖ∏ÅïÕçÖ¡îÅ…ΩΩ¥Å›•—†Ä»Ÿ¨Å…ïŸ•ï›Ã∞ÅÕº(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÄâAÖ…≠ÃÄòÅΩ’—ëΩΩ…ÃàÅ…ï±•Öâ±‰Å…Ω±±ïêÅÖ∏Å•πëΩΩ»ÅïÕçÖ¡îÅ…ΩΩ¥∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ•·ïêÅΩ∏ÅâΩ—†Å°Ö±ŸïÃËÅÑÅ≠ïÂ›Ω…êÅ—°Ö–ÅëïÕç…•âïÃÅÖç—’Ö∞Åù…ïï∏ÅÕ¡Öçî∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÖπêÅÑÅ¡…ïë•çÖ—îÅ—°Ö–Å…Ω±±Ω»ÅπΩ‹ÅïπôΩ…çïÃÄ°ÕïîÅ…Ω±±Ω»§∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏÅ±Öâï∞ËÄã¬~2ÃÅAÖ…≠ÃÄòÅΩ’—ëΩΩ…Ãà∞ÅçÖ–ËÄâÖ——…Öç—•ΩπÃà∞Å≠‹ËÄâ¡Ö…¨ÅâΩ—Öπ•çÖ∞ÅùÖ…ëï∏ÅπÖ—’…îÅ¡…ïÕï…ŸîÅ—…Ö•∞à∞Åô•±—ï»ËÄ°¿§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å–ÄÙÄ†°¿π—Â¡ïÃÅÒÅmt§π©Ω•∏†àÄà§Ä¨ÄàÄàÄ¨Ä°¿ππÖµîÅÒÄàà§§π—Ω1Ω›ï…ÖÕî†§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ%πëΩΩ»Ω—•ç≠ï—ïêÅŸïπ’ïÃÅô•…Õ–ÉäPÅÕïŸï…Ö∞ÅΩòÅ—°ï¥Å±•—ï…Ö±±‰ÅçΩπ—Ö•∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ—°îÅÕ’âÕ—…•πúÄâ¡Ö…¨àÄ°Öµ’Õïµïπ—}¡Ö…¨∞Å›Ö—ï…}¡Ö…¨∞Å—…Öµ¡Ω±•πîÅ¡Ö…¨§∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ†ΩÖµ’Õïµïπ—Ò—°ïµï|˝¡Ö…≠Ò›Ö—ï…|˝¡Ö…≠Ò—…Öµ¡Ω±•πïÒïÕçÖ¡ïÒâΩ›±•πùÒÖ…çÖëïÒµΩŸ•ïÒç•πïµÖÒçÖÕ•πΩÒÕ°Ω¡¡•πù}µÖ±±Ò¡Ö…≠•πùÒπ•ù°—}ç±’âÒqâùÂµqâÒµ’Õï’µÒÖ≈’Ö…•’µÒqâÈΩΩqâÒÖ·ïÒ≠Ö…—•πùÒùº∏˝≠Ö…—Òµ•π§∏˝ùΩ±òºπ—ïÕ–°–§§Å…ï—’…∏ÅôÖ±ÕîÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏ÄΩqâ¡Ö…≠qâÒâΩ—Öπ•çÖ±ÒùÖ…ëïπÒπÖ—’…ïÒ¡…ïÕï…ŸïÒqâ—…Ö•±Òù…ïïπ›ÖÂÒâΩÖ…ë›Ö±≠Òqâ¡•ï…qâÒçÖµ¡ù…Ω’πëÒπÖ—’…Ö±}ôïÖ—’…ïÒÕçïπ•çÒ±Ö≠ïÒÕ¡…•πùÃ˝qàºπ—ïÕ–°–§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙÅÙ∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏÅ±Öâï∞ËÄã¬~F£ä7¬~Fßä7¬~FúÅÖµ•±‰à∞ÅçÖ–ËÄâÖ——…Öç—•ΩπÃà∞Å≠‹ËÄâôÖµ•±‰Åô…•ïπë±‰àÅÙ∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏÅ±Öâï∞ËÄã¬~n7æ‚<ÅM°Ω¡¡•πúà∞ÅçÖ–ËÄâÕ°Ω¡¡•πúà∞Å≠‹ËÄààÅÙ∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏÅ±Öâï∞ËÄã¬~:»ÅπÂ—°•πúà∞ÅÖπ‰ËÅ—…’îÅÙ∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅtπµÖ¿†°ê§ÄÙ¯Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏Å≠ï‰ıÌêπ±Öâï±ÙÅΩπ±•ç¨ıÏ†§ÄÙ¯Å…Ω±±Ω»°ê•ÙÅÕ—Â±îıÌÏÅô±ï‡ËÅêπÖπ‰Ä¸ÄàƒÄƒÄƒ¿¿îàÄËÄàƒÄƒÅçÖ±å†‘¿îÄ¥Ä’¡‡§à∞Å¡Öëë•πúËÄàƒÕ¡‡Äƒ¡¡‡à∞ÅâΩ…ëï…IÖë•’ÃËÄƒ–∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌêπÖπ‰Ä¸ÅπÖççïπ–ÄËÅπâΩ…ëï…ıÄ∞ÅâÖç≠ù…Ω’πêËÅêπÖπ‰Ä¸ÅπÖë•¥ÄËÅπçÖ…ê∞ÅçΩ±Ω»ËÅêπÖπ‰Ä¸ÅπÖççïπ–ÄËÅπ—ï·–∞ÅôΩπ—M•ÈîËÄƒ–∞ÅôΩπ—]ï•ù°–ËÅêπÖπ‰Ä¸Ä‡¿¿ÄËÄ‹¿¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ˘Ìêπ±Öâï±ÙΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ§•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—•çï°ΩΩÕî°ôÖ±Õî•ÙÅÕ—Â±îıÌÏÅ›•ë—†ËÄàƒ¿¿îà∞ÅµÖ…ù•πQΩ¿ËÄƒ»∞Å¡Öëë•πúËÄàƒ≈¡‡Ä¿à∞ÅâΩ…ëï…IÖë•’ÃËÄƒ»∞ÅâΩ…ëï»ËÄâπΩπîà∞ÅâÖç≠ù…Ω’πêËÄâ—…ÖπÕ¡Ö…ïπ–à∞ÅçΩ±Ω»ËÅπµ’—ïê∞ÅôΩπ—M•ÈîËÄƒÃ∏‘∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ˘Öπçï∞Ωâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄ•Ù((ÄÄÄÄÄÅÏº®Åÿ‡∏ÃÉäPÅaQ1dÅ=9Å9XÅAHÅMI8∏Å9YHÅQ]<∏Å9YHÅiI<∏(ÄÄÄÄÄÄÄÄÄÄ°Ω›πï»∞Ä»¿»ÿ¥¿‡¥ƒÿ∞ÅâΩ—†Å°Ö±ŸïÃÅΩòÅ—°îÅÕÖµîÅ…’±î∏§((ÄÄÄÄÄÄÄÄÄÅ%IMPÅ!1ËÄâ—°ï…îÅ•ÃÅÖ±ÕºÅ—›ºÅµïπ’ÃÅΩπîÅΩ∏Å—°îÅâΩ——Ω¥ÅÖπêÅΩπîÅΩòÅ—°ï¥(ÄÄÄÄÄÄÄÄÄÅ—Ω¿Å…ïµΩŸîÅ—°îÅΩπîÅô…Ω¥Å—°îÅâΩ——Ω¥ÅÖπêÅ©’Õ–Å≠ïï¿Å•–ÅΩ∏Å—°îÅ—Ω√äòÅ—°Ö–Å•Ã(ÄÄÄÄÄÄÄÄÄÅë’¡±•çÖ—•Ω∏Å›îÅÖ…îÅΩπ±‰Å≠ïï¡•πúÅΩπîÅ›°•ç†Å•ÃÅ—°îÅΩπîÅ’πëï…πïÖ—†Å—°î(ÄÄÄÄÄÄÄÄÄÅÕïÖ…ç†ÅâÖ»∏àÅŸï…‰ÅÕç…ïï∏Å—°Ö–Å…ïπëï…ÃÅ—°îÅ—Ω¿ÅπÖÿÅ°ÖêÅ—°îÅÕÖµîÅÕ•‡(ÄÄÄÄÄÄÄÄÄÅ]}MQ%9Q%=9LÅ—›•çîÅΩ∏ÅΩπîÅ¡°ΩπîÅÕç…ïï∏∏ÅΩπî∏((ÄÄÄÄÄÄÄÄÄÅM=9Å!1∞ÅÖπêÅ•–Å•ÃÅ›°‰Å—°•ÃÅ•ÃÅÑÅ=9%Q%=8ÅÖπêÅπΩ–ÅÑÅëï±ï—•Ω∏Ë(ÄÄÄÄÄÄÄÄÄÄâ±ΩΩ¨ÅÖ–Å—°•ÃÅ¡ÖùîÉäPÅ°Ω‹Å›Ω’±êÅ›îÅùºÅâÖç¨Å•òÅ›îÅπºÅ±Ωπùï»Å°ÖŸîÅ—°î(ÄÄÄÄÄÄÄÄÄÅâΩ——Ω¥Åµïπ‘Å°ï…î¸àÄΩµÖ¿Å•ÃÅÑÅô’±∞µâ±ïïêÅ•µµï…Õ•ŸîÅÕ’…ôÖçî∏Å±∞ÅôΩ’»Å—Ω¿(ÄÄÄÄÄÄÄÄÄÅ…Ω›ÃÅÖ…îÅùÖ—ïêÅÅÕç…ïï∏ÄÑÙÙÄâµÖ¿âÄÄ°—°îÅµÖ¿ÅΩ›πÃÅ—°îÅŸ•ï›¡Ω…–ÅÖπêÅ°ÖÃ(ÄÄÄÄÄÄÄÄÄÅ•—ÃÅΩ›∏Åô±ΩÖ—•πúÅç°…Ωµî§∞ÅÕºÅëï±ï—•πúÅ—°îÅâÖ»ÅΩ’—…•ù°–Å±ïô–Å—°Ö–ÅΩπî(ÄÄÄÄÄÄÄÄÄÅÕç…ïï∏Å›•—†Å9<Å›Ö‰ÅΩ’–ÅÖ–ÅÖ±∞∏ÅM›ï¡–ÅïŸï…‰ÅÕç…ïï∏Å•∏Å—°îÅÕ°ï±∞ÉäP(ÄÄÄÄÄÄÄÄÄÅçΩ’¡ΩπÃ∞ÅïŸïπ—Ã∞Åï·¡ï…•ïπçî∞Åï·¡±Ω…î∞Å•—•πï…Ö…‰∞ÅÕÖŸïê∞ÅÕ°Ö…ïê∞(ÄÄÄÄÄÄÄÄÄÅÕ’ùùïÕ—ïê∞ÅÕ’…¡…•ÕîÅÖ±∞Å…ïπëï»Å—°îÅ—Ω¿ÅπÖÿÏÅµÖ¿Å•ÃÅ—°îÅΩπ±‰ÅΩπîÅ—°Ö–(ÄÄÄÄÄÄÄÄÄÅ…ïπëï…ÃÅπΩπî∞ÅÖπêÅ—°•ÃÅ•ÃÅ—°îÅΩπ±‰Åï·çï¡—•Ω∏∏((ÄÄÄÄÄÄÄÄÄÅ9=PÅÑÅŸ•ï›¡Ω…–ÅçΩπë•—•Ω∏ÉäPÅÅÕç…ïïπÄÅ•ÃÅçΩπ—ïπ–ÅÕ—Ö—î∞ÅÕºÅ—°•ÃÅ•ÃÅπΩ–(ÄÄÄÄÄÄÄÄÄÅ—°îÅ•ÕïÕ≠—Ω¿µë…•ŸïÃµùïΩµï—…‰Å¡Ö——ï…∏Å—ïÕ–µ±ÖÂΩ’–µÕ°•ô–É
+ú‘ÅâÖπÃ∏((ÄÄÄÄÄÄÄÄÄÅ1Ωç≠ïêÅâ‰ÅÕç…•¡—ÃΩç°ïç¨µΩπîµπÖÿµ¡ï»µÕç…ïï∏πµ©Ã∞Å›°•ç†ÅôÖ•±ÃÅ—°îÅâ’•±ê(ÄÄÄÄÄÄÄÄÄÅ•òÅÖπ‰ÅÕç…ïï∏Å…ïπëï…ÃÅÈï…ºÅπÖŸ•ùÖ—•Ω∏ÅÖôôΩ…ëÖπçïÃÅΩ»Å—›º∏Å9Ω—°•πú(ÄÄÄÄÄÄÄÄÄÅç°ïç≠ïêÅ—°Ö–ÅâïôΩ…î∞Å›°•ç†Å•ÃÅï·Öç—±‰Å°Ω‹Å—°îÅÕ—…Öπë•πúÅÕ°•¡¡ïê∏Ä®ΩÙ(ÄÄÄÄÄÅÌÕç…ïï∏ÄÙÙÙÄâµÖ¿àÄòòÄ†(ÄÄÄÄÄÄÒπÖÿÅç±ÖÕÕ9ÖµîÙâ›òµâΩ——Ω¥µπÖÿàÅÖ…•Ñµ±Öâï∞ÙâA…•µÖ…‰ÅπÖŸ•ùÖ—•Ω∏àÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâô•·ïêà∞ÅâΩ——Ω¥ËÄ¿∞Å±ïô–ËÄ¿∞Å…•ù°–ËÄ¿∞ÅµÖ·]•ë—†ËÄ–‡¿∞ÅµÖ…ù•∏ËÄà¿ÅÖ’—ºà∞ÅÈ%πëï‡ËÄ»¿∞ÅâÖç≠ù…Ω’πêËÅπ¡Öπï∞∞ÅâΩ…ëï…QΩ¿ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞Åë•Õ¡±Ö‰ËÄâô±ï‡à∞Å¡Öëë•πù	Ω——Ω¥ËÄâïπÿ°ÕÖôîµÖ…ïÑµ•πÕï–µâΩ——Ω¥§àÅıÙ¯(ÄÄÄÄÄÄÄÅÌ]}MQ%9Q%=9LπµÖ¿†°ê§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅÖç—•ŸîÄÙÅêπ•êÄÙÙÙÅÕç…ïï∏Ï(ÄÄÄÄÄÄÄÄÄÅ…ï—’…∏Ä†(ÄÄÄÄÄÄÄÄÄÄÒÑÅç±ÖÕÕ9ÖµîıÌÅ›òµâΩ——Ω¥µπÖÿµ•—ï¥ëÌÖç—•ŸîÄ¸ÄàÅ•ÃµÖç—•ŸîàÄËÄàâıÅÙÅ≠ï‰ıÌêπ•ëÙÅ°…ïòıÌêπ°…ïôÙÅÖ…•Ñµ±Öâï∞ıÌêπ±Öâï±ÙÅÖ…•Ñµç’……ïπ–ıÌÖç—•ŸîÄ¸Äâ¡ÖùîàÄËÅ’πëïô•πïëÙÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅÏÅîπ¡…ïŸïπ—ïôÖ’±–†§ÏÅùΩïÕ—•πÖ—•Ω∏°êπ•ê∞ÅÖç—•Ÿî§ÏÅıÙÅÕ—Â±îıÌÏÅô±ï‡ËÄƒ∞Å¡Öëë•πúËÄàÂ¡‡ÄŸ¡‡Ä·¡‡à∞Åë•Õ¡±Ö‰ËÄâô±ï‡à∞Åô±ï·•…ïç—•Ω∏ËÄâçΩ±’µ∏à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‘∞ÅâÖç≠ù…Ω’πêËÄâ—…ÖπÕ¡Ö…ïπ–à∞ÅâΩ…ëï»ËÄâπΩπîà∞ÅâΩ…ëï…IÖë•’ÃËÄ¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞Å—ï·—ïçΩ…Ö—•Ω∏ËÄâπΩπîàÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏Åç±ÖÕÕ9ÖµîÙâ›òµâΩ——Ω¥µπÖÿµ•çΩ∏à¯Ò9ÖŸ%çΩ∏ÅπÖµîıÌêπ•çΩπÙÅçΩ±Ω»ıÌÖç—•ŸîÄ¸ÅπÖççïπ–ÄËÅπµ’—ïëÙÅÕ•ÈîıÏ»’ÙÅÕ—…Ω≠ï]•ë—†ıÌÖç—•ŸîÄ¸Ä»∏ÃÄËÄ…ÙÄº¯ΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏Åç±ÖÕÕ9ÖµîÙâ›òµâΩ——Ω¥µπÖÿµ±Öâï∞àÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒƒ∏»∞ÅôΩπ—]ï•ù°–ËÅÖç—•ŸîÄ¸Ä‡¿¿ÄËÄÿ¿¿∞ÅçΩ±Ω»ËÅÖç—•ŸîÄ¸ÅπÖççïπ–ÄËÅπµ’—ïêÅıÙ˘Ìêπ±Öâï±ÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄΩÑ¯(ÄÄÄÄÄÄÄÄÄÄ§Ï(ÄÄÄÄÄÄÄÅÙ•Ù(ÄÄÄÄÄÄΩπÖÿ¯(ÄÄÄÄÄÄ•Ù((ÄÄÄÄÄÅÏº®Åï—Ö•∞ÅÕ°ïï–Ä®ΩÙ(ÄÄÄÄÄÅÌëï—Ö•∞ÄòòÄÒï—Ö•±M°ïï–Åç—‡ıÌç—·ÙÄº˘Ù(ÄÄÄÄÄÅÌÕΩç•Ö±•πêÄòòÄÒMΩç•Ö±•πëM°ïï–Åç—‡ıÌç—·ÙÄº˘Ù(((ÄÄÄÄÄÅÏº®Å!ΩΩ¨Åïë•—Ω…•Ö∞Å¡ÖùîÉäPÅô’±∞µÕç…ïï∏Å—°ïµïêÅï·¡ï…•ïπçî∞ÅπΩ–ÅÑÅÕ°ïï–Ä®ΩÙ(ÄÄÄÄÄÅÌç’•Õ•πïM°ïï–ÄòòÄ††§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–ÅçÃÄÙÅç’•Õ•πïM°ïï–ÏÅçΩπÕ–Å±•Õ–ÄÙÅçÃπ±•Õ–ÅÒÅmtÏ(ÄÄÄÄÄÄÄÅ…ï—’…∏Ä†(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—’•Õ•πïM°ïï–°π’±∞•ÙÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâô•·ïêà∞Å•πÕï–ËÄ¿∞ÅÈ%πëï‡ËÄ‰‘∞ÅâÖç≠ù…Ω’πêËÄâ…ùâÑ†¿∞¿∞¿∞∏ÿ»§à∞ÅâÖç≠ë…Ω¡•±—ï»ËÄââ±’»†Õ¡‡§à∞Åë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâô±ï‡µïπêà∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâçïπ—ï»àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅîπÕ—Ω¡A…Ω¡ÖùÖ—•Ω∏†•ÙÅÕ—Â±îıÌÏÅâÖç≠ù…Ω’πêËÄàå¡ƒƒƒ‹à∞Å›•ë—†ËÄàƒ¿¿îà∞ÅµÖ·]•ë—†ËÄÿ–¿∞ÅµÖ·!ï•ù°–ËÄà‡…Ÿ†à∞ÅΩŸï…ô±Ω›dËÄâÖ’—ºà∞ÅâΩ…ëï…IÖë•’ÃËÄà»¡¡‡Ä»¡¡‡Ä¿Ä¿à∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞Å¡Öëë•πúËÄàƒŸ¡‡ÄƒŸ¡‡Ä»·¡‡àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâÕ¡Öçîµâï—›ïï∏à∞ÅµÖ…ù•π	Ω——Ω¥ËÄ–∞ÅùÖ¿ËÄƒ¿ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ‡∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÅπ—ï·–ÅıÙ˘ÌçÃπ—•—±îÅÒÄ†âQΩ¿ÄàÄ¨ÅçÃπ±Öâï∞Ä¨ÄàÅπïÖ»ÅÂΩ‘à•ÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—’•Õ•πïM°ïï–°π’±∞•ÙÅÖ…•Ñµ±Öâï∞Ùâ±ΩÕîàÅÕ—Â±îıÌÏÅâÖç≠ù…Ω’πêËÄâ—…ÖπÕ¡Ö…ïπ–à∞ÅâΩ…ëï»ËÄâπΩπîà∞ÅçΩ±Ω»ËÅπµ’—ïê∞ÅôΩπ—M•ÈîËÄ»–∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞Å±•πï!ï•ù°–ËÄƒ∞Åô±ï·M°…•π¨ËÄ¿ÅıÙ˚\Ωâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅçΩ±Ω»ËÅπµ’—ïê∞ÅµÖ…ù•π	Ω——Ω¥ËÄƒ»ÅıÙ˘Ì±•Õ–π±ïπù—†Ä¯Ä¿Ä¸Ä°çÃπÕ’àÅÒÄ†âQ°îÅâïÕ–ÄàÄ¨ÅçÃπ±Öâï∞π—Ω1Ω›ï…ÖÕî†§Ä¨ÄàÅÕ¡Ω—ÃÅ±ΩÖëïêÅπïÖ…â‰∞Å…Öπ≠ïêÅâ‰Å≈’Ö±•—‰∞Åë•Õ—ÖπçîÅÖπêÅ—•µî∏à§§ÄËÄ°çÃπ—•—±îÄ¸Äâ9Ω—°•πúÅ±ΩÖëïêÅôΩ»Å—°•ÃÅÂï–∏Å•ŸîÅ—°îÅÖ…ïÑÅÑÅµΩµïπ–Å—ºÅô•π•Õ†Å±ΩÖë•πú∞Å—°ï∏Å—…‰ÅÖùÖ•∏∏àÄËÄâ9ºÄàÄ¨ÅçÃπ±Öâï∞π—Ω1Ω›ï…ÖÕî†§Ä¨ÄàÅÕ¡Ω—ÃÅ±ΩÖëïêÅπïÖ…â‰ÅÂï–∏ÅQ…‰ÅÕïÖ…ç°•πúÅ—°•ÃÅç’•Õ•πî∏à•ÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ±•Õ–πµÖ¿†°¿∞Å§§ÄÙ¯Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅ≠ï‰ıÌ¿π•ëÙÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÏÅÕï—’•Õ•πïM°ïï–°π’±∞§ÏÅΩ¡ïπï—Ö•∞°¿§ÏÅıÙÅ…Ω±îÙââ’——Ω∏àÅ—Öâ%πëï‡ıÏ¡ÙÅΩπ-ïÂΩ›∏ıÌ-	}1%-ÙÅÖ…•Ñµ±Öâï∞ıÌÅ=¡ï∏ÄëÌ¿ππÖµïıÅÙÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄƒƒ∞Å¡Öëë•πúËÄàÂ¡‡Ä¿à∞ÅâΩ…ëï…	Ω——Ω¥ËÅ§ÄÅ±•Õ–π±ïπù—†Ä¥ÄƒÄ¸ÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄÄËÄâπΩπîà∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ›•ë—†ËÄ»»∞Å—ï·—±•ù∏ËÄâçïπ—ï»à∞ÅôΩπ—M•ÈîËÄƒÃ∏‘∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÅ§ÄÄÃÄ¸ÅπÖççïπ–ÄËÅπµ’—ïê∞Åô±ï·M°…•π¨ËÄ¿ÅıÙ˘Ì§Ä¨Ä≈ÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÖ±±âÖç≠%µúÅÕ…åıÌ¿π¡°Ω—ΩÙÅ•çΩ∏ıÌ•çΩπΩ…A±Öçî°¿•ÙÅÕ—Â±îıÌÏÅ›•ë—†ËÄ–ÿ∞Å°ï•ù°–ËÄ–ÿ∞ÅâΩ…ëï…IÖë•’ÃËÄƒ¿∞ÅΩâ©ïç—•–ËÄâçΩŸï»à∞Åô±ï·M°…•π¨ËÄ¿∞Åë•Õ¡±Ö‰ËÄââ±Ωç¨àÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅô±ï‡ËÄƒ∞Åµ•π]•ë—†ËÄ¿ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ–∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞ÅçΩ±Ω»ËÅπ—ï·–∞Å›°•—ïM¡ÖçîËÄâπΩ›…Ö¿à∞ÅΩŸï…ô±Ω‹ËÄâ°•ëëï∏à∞Å—ï·—=Ÿï…ô±Ω‹ËÄâï±±•¡Õ•ÃàÅıÙ˘Ì¿ππÖµïÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‹∞Åô±ï·]…Ö¿ËÄâ›…Ö¿à∞ÅµÖ…ù•πQΩ¿ËÄ»∞ÅôΩπ—M•ÈîËÄƒƒ∏‘ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒA±ÖçïMçΩ…ï°•¿Å¿ıÌ¡ÙÅÕ•ÈîıÏƒ…ÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏ††§ÄÙ¯ÅÏÅçΩπÕ–ÅåÄÙÅ•π•πúπçΩÕ—Ω…Q›º°¿§ÏÅ…ï—’…∏Ååπ±•Õ—ïêÄ¸ÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅçΩ±Ω»ËÅπù…ïï∏∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿ÅıÙ˘Ìåπ—•ï»ÅÒÄàêêâÙΩÕ¡Ö∏¯ÄËÄ°¿π¡…•çîÄ¸ÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅçΩ±Ω»ËÅπù…ïï∏∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿ÅıÙ˘Ì¿π¡…•çïÙΩÕ¡Ö∏¯ÄËÅπ’±∞§ÏÅÙ§†•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏ††§ÄÙ¯ÅÏÅçΩπÕ–Å±ºÄÙÅ±•Ÿï=¡ï∏°¿§ÏÅ…ï—’…∏Å±ºÄÙÙÙÅ—…’îÄ¸ÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅçΩ±Ω»ËÅπù…ïï∏∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿ÅıÙ˘=¡ï∏ΩÕ¡Ö∏¯ÄËÅ±ºÄÙÙÙÅôÖ±ÕîÄ¸ÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅçΩ±Ω»ËÅπ…ïê∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿ÅıÙ˘±ΩÕïêΩÕ¡Ö∏¯ÄËÅπ’±∞ÏÅÙ§†•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ¿πë•Õ—5§ÄÑÙÅπ’±∞ÄòòÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅçΩ±Ω»ËÅπµ’—ïêÅıÙ˘Ì¿πë•Õ—5§π—Ω•·ïê†ƒ•ÙÅµ§ΩÕ¡Ö∏˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅçΩ±Ω»ËÅπµ’—ïê∞ÅôΩπ—M•ÈîËÄƒÿ∞Åô±ï·M°…•π¨ËÄ¿ÅıÙ˚äËΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ§•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄ§Ï(ÄÄÄÄÄÅÙ§†•Ù(ÄÄÄÄÄÅÌ°ΩΩ≠ï—Ö•∞ÄòòÄÒ!ΩΩ≠ï—Ö•±M°ïï–Åç—‡ıÌç—·ÙÄº˘Ù((ÄÄÄÄÄÅÏº®ÅΩ¡•ïêÅ—ΩÖÕ–Ä®ΩÙ(ÄÄÄÄÄÅÌ—ΩÖÕ–ÄòòÄ†(ÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâô•·ïêà∞ÅâΩ——Ω¥ËÄ‡–∞Å±ïô–ËÄà‘¿îà∞Å—…ÖπÕôΩ…¥ËÄâ—…ÖπÕ±Ö—ï`†¥‘¿î§à∞ÅÈ%πëï‡ËÄƒƒ¿¿∞ÅâÖç≠ù…Ω’πêËÅπ—ï·–∞ÅçΩ±Ω»ËÅπâú∞ÅôΩπ—M•ÈîËÄƒÃ∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞Å¡Öëë•πúËÄàƒ¡¡‡Äƒ·¡‡à∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞ÅâΩ·M°ÖëΩ‹ËÄà¿Ä·¡‡Ä»—¡‡Å…ùâÑ†¿∞¿∞¿∞∏–§àÅıÙ˘Ì—ΩÖÕ—ÙΩë•ÿ¯(ÄÄÄÄÄÄ•Ù((ÄÄÄÄÄÅÏº®Å’±∞µÕç…ïï∏Å¡°Ω—ºÅŸ•ï›ï»ÉäPÅ¡ÖùïÃÅ—°…Ω’ù†Å—°îÅ›°Ω±îÅùÖ±±ï…‰Ä°ÿÿ∏–Ã§Ä®ΩÙ(ÄÄÄÄÄÅÌ±•ù°—âΩ‡ÄòòÄ††§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å—Ω—Ö∞ÄÙÅ±•ù°—âΩ·A°Ω—ΩÃπ±ïπù—†Ï(ÄÄÄÄÄÄÄÅçΩπÕ–ÅçÖπAÖùîÄÙÅ—Ω—Ö∞Ä¯ÄƒÄòòÅ±•ù°—âΩ·%πëï‡Ä¯ÙÄ¿Ï(ÄÄÄÄÄÄÄÅçΩπÕ–ÅÖ……Ω‹ÄÙÄ°Õ•ëî§ÄÙ¯Ä°Ï(ÄÄÄÄÄÄÄÄÄÅ¡ΩÕ•—•Ω∏ËÄâÖâÕΩ±’—îà∞Å—Ω¿ËÄà‘¿îà∞Å—…ÖπÕôΩ…¥ËÄâ—…ÖπÕ±Ö—ïd†¥‘¿î§à∞(ÄÄÄÄÄÄÄÄÄÅmÕ•ëïtËÄâµÖ‡†·¡‡∞Åïπÿ°ÕÖôîµÖ…ïÑµ•πÕï–¥àÄ¨ÅÕ•ëîÄ¨Äà§§à∞(ÄÄÄÄÄÄÄÄÄÅ›•ë—†ËÄ–‡∞Å°ï•ù°–ËÄ–‡∞ÅâΩ…ëï…IÖë•’ÃËÄà‘¿îà∞(ÄÄÄÄÄÄÄÄÄÅâΩ…ëï»ËÄà≈¡‡ÅÕΩ±•êÅ…ùâÑ†»‘‘∞»‘‘∞»‘‘∞∏Ã§à∞ÅâÖç≠ù…Ω’πêËÄâ…ùâÑ†¿∞¿∞¿∞∏‘‘§à∞(ÄÄÄÄÄÄÄÄÄÅçΩ±Ω»ËÄàçôôòà∞ÅôΩπ—M•ÈîËÄ»ÿ∞Å±•πï!ï•ù°–ËÄƒ∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞ÅÈ%πëï‡ËÄ»∞(ÄÄÄÄÄÄÄÄÄÅë•Õ¡±Ö‰ËÄâù…•êà∞Å¡±Öçï%—ïµÃËÄâçïπ—ï»à∞Å¡Öëë•πúËÄ¿∞(ÄÄÄÄÄÄÄÅÙ§Ï(ÄÄÄÄÄÄÄÅ…ï—’…∏Ä†(ÄÄÄÄÄÄÄÄÄÄÒë•ÿ(ÄÄÄÄÄÄÄÄÄÄÄÅ…Ω±îÙâë•Ö±Ωúà(ÄÄÄÄÄÄÄÄÄÄÄÅÖ…•ÑµµΩëÖ∞Ùâ—…’îà(ÄÄÄÄÄÄÄÄÄÄÄÅÖ…•Ñµ±Öâï∞ıÌëï—Ö•∞ÄòòÅëï—Ö•∞ππÖµîÄ¸ÄâA°Ω—ΩÃÅΩòÄàÄ¨Åëï—Ö•∞ππÖµîÄËÄâA°Ω—ºÅŸ•ï›ï»âÙ(ÄÄÄÄÄÄÄÄÄÄÄÅΩπ±•ç¨ıÌç±ΩÕï1•ù°—âΩ·Ù(ÄÄÄÄÄÄÄÄÄÄÄÅΩπQΩ’ç°M—Ö…–ıÌ±•ù°—âΩ·QΩ’ç°M—Ö…—Ù(ÄÄÄÄÄÄÄÄÄÄÄÅΩπQΩ’ç°5ΩŸîıÌ±•ù°—âΩ·QΩ’ç°5ΩŸïÙ(ÄÄÄÄÄÄÄÄÄÄÄÅΩπQΩ’ç°πêıÌ±•ù°—âΩ·QΩ’ç°πëÙ(ÄÄÄÄÄÄÄÄÄÄÄÅΩπQΩ’ç°Öπçï∞ıÌ±•ù°—âΩ·QΩ’ç°πëÙ(ÄÄÄÄÄÄÄÄÄÄÄÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâô•·ïêà∞Å•πÕï–ËÄ¿∞ÅâÖç≠ù…Ω’πêËÄâ…ùâÑ†¿∞¿∞¿∞∏‰»§à∞ÅÈ%πëï‡ËÄƒ¿¿¿∞Åë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâçïπ—ï»à∞Å¡Öëë•πúËÄƒ»∞Å—Ω’ç°ç—•Ω∏ËÄâ¡Ö∏µ‰à∞ÅΩŸï…ô±Ω‹ËÄâ°•ëëï∏àÅıÙ(ÄÄÄÄÄÄÄÄÄÄ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒ•µú(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕ…åıÌ±•ù°—âΩ·Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖ±–ıÌëï—Ö•∞ÄòòÅëï—Ö•∞ππÖµîÄ¸ÄâA°Ω—ºÅΩòÄàÄ¨Åëï—Ö•∞ππÖµîÄËÄâ’±∞µÕ•ÈîÅ¡°Ω—ºâÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩπ±•ç¨ıÌç±ΩÕï1•ù°—âΩ·Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅë…ÖùùÖâ±îıÌôÖ±ÕïÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕ—Â±îıÌÏÅµÖ·]•ë—†ËÄàƒ¿¿îà∞ÅµÖ·!ï•ù°–ËÄàƒ¿¿îà∞ÅΩâ©ïç—•–ËÄâçΩπ—Ö•∏à∞ÅâΩ…ëï…IÖë•’ÃËÄ‡∞Å—…ÖπÕôΩ…¥ËÅ±â…ÖúÄ¸Äâ—…ÖπÕ±Ö—ï`†àÄ¨Å±â…ÖúÄ¨Äâ¡‡§àÄËÅ’πëïô•πïê∞Å—…ÖπÕ•—•Ω∏ËÅ±â…ÖúÄ¸ÄâπΩπîàÄËÄâ—…ÖπÕôΩ…¥Ä∏ƒ·ÃÅïÖÕîµΩ’–à∞Å›•±±°ÖπùîËÅçÖπAÖùîÄ¸Äâ—…ÖπÕôΩ…¥àÄËÅ’πëïô•πïêÅıÙ(ÄÄÄÄÄÄÄÄÄÄÄÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—1•ù°—âΩ‡°π’±∞•ÙÅÖ…•Ñµ±Öâï∞Ùâ±ΩÕîàÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâÖâÕΩ±’—îà∞Å—Ω¿ËÄâµÖ‡†ƒŸ¡‡∞ÅçÖ±å°ïπÿ°ÕÖôîµÖ…ïÑµ•πÕï–µ—Ω¿§Ä¨Äƒ¡¡‡§§à∞Å…•ù°–ËÄƒÿ∞Å›•ë—†ËÄ––∞Å°ï•ù°–ËÄ––∞ÅâΩ…ëï…IÖë•’ÃËÄà‘¿îà∞ÅâΩ…ëï»ËÄà≈¡‡ÅÕΩ±•êÅ…ùâÑ†»‘‘∞»‘‘∞»‘‘∞∏Ã§à∞ÅâÖç≠ù…Ω’πêËÄâ…ùâÑ†¿∞¿∞¿∞∏‘‘§à∞ÅçΩ±Ω»ËÄàçôôòà∞ÅôΩπ—M•ÈîËÄ»¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞ÅÈ%πëï‡ËÄ»ÅıÙ˚ärTΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÅÌçÖπAÖùîÄòòÄ†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅÏÅîπÕ—Ω¡A…Ω¡ÖùÖ—•Ω∏†§ÏÅùΩ1•ù°—âΩ‡†¥ƒ§ÏÅıÙÅÖ…•Ñµ±Öâï∞ÙâA…ïŸ•Ω’ÃÅ¡°Ω—ºàÅÕ—Â±îıÌÖ……Ω‹†â±ïô–à•Ù˚ä‰Ωâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅÏÅîπÕ—Ω¡A…Ω¡ÖùÖ—•Ω∏†§ÏÅùΩ1•ù°—âΩ‡†ƒ§ÏÅıÙÅÖ…•Ñµ±Öâï∞Ùâ9ï·–Å¡°Ω—ºàÅÕ—Â±îıÌÖ……Ω‹†â…•ù°–à•Ù˚äËΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâÖâÕΩ±’—îà∞ÅâΩ——Ω¥ËÄâµÖ‡†»¡¡‡∞ÅçÖ±å°ïπÿ°ÕÖôîµÖ…ïÑµ•πÕï–µâΩ——Ω¥§Ä¨Äƒ…¡‡§§à∞Å±ïô–ËÄ¿∞Å…•ù°–ËÄ¿∞Å—ï·—±•ù∏ËÄâçïπ—ï»à∞Å¡Ω•π—ï…Ÿïπ—ÃËÄâπΩπîàÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏ††§ÄÙ¯ÅÏÅçΩπÕ–Åâ‰ÄÙÅ±•ù°—âΩ·%πëï‡Ä¯ÙÄ¿ÄòòÅëï—Ö•∞ÄòòÅ……Ö‰π•Õ……Ö‰°ëï—Ö•∞π¡°Ω—Ω——…Ã§Ä¸Ä°ëï—Ö•∞π¡°Ω—Ω——…Õm±•ù°—âΩ·%πëï·tÅÒÄàà§ÄËÄààÏÅ…ï—’…∏ÄÒë•ÿÅÕ—Â±îıÌÏÅçΩ±Ω»ËÄâ…ùâÑ†»‘‘∞»‘‘∞»‘‘∞∏‡‘§à∞ÅôΩπ—M•ÈîËÄƒƒ∏‘∞ÅôΩπ—]ï•ù°–ËÄÿ¿¿∞ÅµÖ…ù•π	Ω——Ω¥ËÄÃÅıÙ˘Ìâ‰ÄÙÙÙÄâ]ÖÂô•πêàÄ¸ÄâA°Ω—ºËÅ]ÖÂô•πêàÄËÅâ‰Ä¸ÄâA°Ω—ºËÄàÄ¨Åâ‰Ä¨ÄàÉ
+‹ÅŸ•ÑÅΩΩù±îàÄËÄâA°Ω—ºÅŸ•ÑÅΩΩù±îâÙΩë•ÿ¯ÏÅÙ§†•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌçÖπAÖùîÄòòÄÒë•ÿÅÖ…•Ñµ±•ŸîÙâ¡Ω±•—îàÅÕ—Â±îıÌÏÅçΩ±Ω»ËÄâ…ùâÑ†»‘‘∞»‘‘∞»‘‘∞∏‰»§à∞ÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞ÅµÖ…ù•π	Ω——Ω¥ËÄÃÅıÙ˘Ì±•ù°—âΩ·%πëï‡Ä¨Ä≈ÙÄºÅÌ—Ω—Ö±ÙΩë•ÿ˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅçΩ±Ω»ËÄâ…ùâÑ†»‘‘∞»‘‘∞»‘‘∞∏ÿ§à∞ÅôΩπ—M•ÈîËÄƒ»ÅıÙ˘ÌçÖπAÖùîÄ¸ÄâM›•¡îÅ—ºÅâ…Ω›ÕîÉ
+‹Å—Ö¿Å—ºÅç±ΩÕîàÄËÄâQÖ¿ÅÖπÂ›°ï…îÅ—ºÅç±ΩÕîâÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄ§Ï(ÄÄÄÄÄÅÙ§†•Ù((ÄÄÄÄÄÅÏº®ÅççΩ’π–Åµïπ‘ÉäPÅΩ¡ïπÃÅô…Ω¥Å—°îÅ°ïÖëï»ÅÖŸÖ—Ö»ÅÕºÅÑÅ—Ö¿ÅπºÅ±Ωπùï»ÅÕ•ùπÃÅÂΩ‘ÅΩ’–Åâ‰ÅÖçç•ëïπ–Ä®ΩÙ(ÄÄÄÄÄÅÌÖççΩ’π—=¡ï∏ÄòòÅ’Õï»ÄòòÄÒççΩ’π—M°ïï–Åç—‡ıÌç—·ÙÄº˘Ù(ÄÄÄÄÄÅÌ—ÖÕ—ï=¡ï∏ÄòòÄ††§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄººÅ%1QHÅ=8ÅI∞Å1	0∞Å5IÉäPÅÖ±∞Å—°…ïîÅ±•ŸîÅ•∏Å—ÖÕ—ï°•¡Ã†§(ÄÄÄÄÄÄÄÄººÄ°±•àΩ—ÖÕ—îπ©Ã§∞ÅπΩ–Å°ï…î∏ÅMïîÅ—°Ö–Åô’πç—•Ω∏ÅôΩ»Å›°‰ÅïÖç†ÅΩπîÅï·•Õ—ÃÏ(ÄÄÄÄÄÄÄÄººÅ—°îÅÕ°Ω…–ÅŸï…Õ•Ω∏Å•ÃÅ—°Ö–Å—°îÅŸ•ï‹Åµ’Õ–ÅπïŸï»Å…ïπëï»ÅÑÅ…Ö‹Å—Ö·ΩπΩµ‰(ÄÄÄÄÄÄÄÄººÅ—Ω≠ï∏∞Åµ’Õ–ÅπïŸï»ÅÕ°Ω‹Å—›ºÅç°•¡ÃÅ—°Ö–ÅµïÖ∏Å—°îÅÕÖµîÅ—°•πú∞ÅÖπêÅµ’Õ–(ÄÄÄÄÄÄÄÄººÅπïŸï»Å—…’Õ–Å—°Ö–Å›°Ö–Å•ÃÅÖ±…ïÖë‰Å•∏ÅÕ—Ω…ÖùîÅ›ÖÃÅ›…•——ï∏Å’πëï»Å—°î(ÄÄÄÄÄÄÄÄººÅç’……ïπ–Å…’±ïÃ∏Åÿÿ∏‘ÿÅµΩŸïêÅ—°îÅ±ΩΩ¿ÅΩ’–ÅΩòÅ—°•ÃÅç±ΩÕ’…îÅÕºÅ—°î(ÄÄÄÄÄÄÄÄººÅÖŸΩ…•—ïÃÅïπ—…‰Å…Ω‹ÅçÖ∏ÅçΩ’π–Åï·Öç—±‰Å›°Ö–Å—°•ÃÅ¡Öπï∞Å›•±∞ÅÕ°Ω‹∏(ÄÄÄÄÄÄÄÅçΩπÕ–Å—Ω¿ÄÙÅ—ÖÕ—ï°•¡Ã°—ÖÕ—ïYïçM—Ö—îÅÒÅÌÙ§πÕ±•çî†¿∞Ä»–§Ï(ÄÄÄÄÄÄÄÅ…ï—’…∏Ä†(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅ…Ω±îÙâë•Ö±ΩúàÅÖ…•Ñµ±Öâï∞ÙâeΩ’»Å—ÖÕ—îàÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—QÖÕ—ï=¡ï∏°ôÖ±Õî•ÙÅÕ—Â±îıÌÏÄ∏∏πÕ°ïï—	úÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ—ÖÕ—îµÕ°ïï–àÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅîπÕ—Ω¡A…Ω¡ÖùÖ—•Ω∏†•ÙÅÕ—Â±îıÌÏÄ∏∏πÕ°ïï–∞ÅµÖ·]•ë—†ËÄ–‡¿∞ÅµÖ·!ï•ù°–ËÄà‡…Ÿ†à∞Å¡Öëë•πúËÄàŸ¡‡Äƒ·¡‡ÅçÖ±å†»…¡‡Ä¨Åïπÿ°ÕÖôîµÖ…ïÑµ•πÕï–µâΩ——Ω¥§§à∞ÅΩŸï…Õç…Ω±±	ï°ÖŸ•Ω…dËÄâçΩπ—Ö•∏à∞Å—…ÖπÕ•—•Ω∏ËÅM!Q}MÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒ…Öââï»Äº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ—ÖÕ—îµâΩë‰à¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâÕ¡Öçîµâï—›ïï∏à∞ÅùÖ¿ËÄƒ¿∞ÅµÖ…ù•π	Ω——Ω¥ËÄ–ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‰∞Åµ•π]•ë—†ËÄ¿ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏Åç±ÖÕÕ9ÖµîÙâ›òµ—ÖÕ—îµµÖ…¨àÅÖ…•Ñµ°•ëëï∏Ùâ—…’îà˚äròΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ‡∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞Å±ï——ï…M¡Öç•πúËÄà¥∏¿ƒ’ï¥à∞ÅçΩ±Ω»ËÅπ—ï·–ÅıÙ˘eΩ’»Å—ÖÕ—îΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—QÖÕ—ï=¡ï∏°ôÖ±Õî•ÙÅÖ…•Ñµ±Öâï∞Ùâ±ΩÕîàÅÕ—Â±îıÌÏÅô±ï·M°…•π¨ËÄ¿∞Åµ•π]•ë—†ËÄ–¿∞Åµ•π!ï•ù°–ËÄ–¿∞Åë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâçïπ—ï»à∞ÅâÖç≠ù…Ω’πêËÄâ—…ÖπÕ¡Ö…ïπ–à∞ÅâΩ…ëï»ËÄâπΩπîà∞ÅçΩ±Ω»ËÅπµ’—ïê∞ÅôΩπ—M•ÈîËÄ»¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ˚ärTΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒ¿ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅçΩ±Ω»ËÅπµ’—ïê∞Å±•πï!ï•ù°–ËÄƒ∏‘∞ÅµÖ…ù•∏ËÄà¿Ä¿Äƒ—¡‡àÅıÙ˘Ÿï…Â—°•πúÅ]ÖÂô•πêÅ°ÖÃÅ±ïÖ…πïêÅô…Ω¥Å›°Ö–ÅÂΩ‘Å±•≠î∞ÅÕÖŸî∞ÅÖπêÅÕ°Ö…î∏ÅIïµΩŸîÅÖπÂ—°•πú∞ÅΩ»Åç±ïÖ»Å•–ÅÖ±∞∏Ω¿¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ—Ω¿π±ïπù—†Ä¸Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ—ÖÕ—îµç±Ω’êà¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ—Ω¿πµÖ¿†°å§ÄÙ¯Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄº®ÅQ°îÅç°•¿ÅM!=]LÅ—ÖÕ—ï1Öâï∞Åâ’–ÅïŸï…‰ÅÖç—•Ω∏ÅÕ—•±∞ÅçÖ……•ïÃ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°îÅI\ÅÕ—Ω…ïêÅŸÖ±’î°Ã§Å•∏ÅåπŸÖ±ÃÉäPÅôΩ…ùï——•πúÅâ‰Å—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ±Öâï∞ÅÖ±ΩπîÅ›Ω’±êÅ≈’•ï—±‰Åëï±ï—îÅπΩ—°•πú∏ÅÅµï…ùïêÅç°•¿(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ°îπú∏Äâµï…•çÖ∏à§ÅçÖ∏ÅçÖ……‰ÅµΩ…îÅ—°Ö∏ÅΩπîÅ…Ö‹ÅŸÖ±’î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ°Öµï…•çÖπ}…ïÕ—Ö’…Öπ–Ä¨ÅçÖ±•ôΩ…π•Öπ}…ïÕ—Ö’…Öπ–§∞ÅÖπê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅôΩ…ùï—QÖÕ—ï%—ï¥Åëï±ï—ïÃÅÖ±∞ÅΩòÅ—°ï¥Å—Ωùï—°ï»∏Ä®º(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏Å≠ï‰ıÌåπë•¥Ä¨ÄâàÄ¨Ååπ±Öâï±ÙÅç±ÖÕÕ9ÖµîıÏâ›òµ—ÖÕ—îµç°•¿àÄ¨Ä°åπ‹Ä¯ÙÄ¿Ä¸ÄààÄËÄàÅ•Ãµπïúà•Ù¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌåπ‹Ä¯ÙÄ¿Ä¸Åπ’±∞ÄËÄÒÕ¡Ö∏Åç±ÖÕÕ9ÖµîÙâ›òµ—ÖÕ—îµç°•¿µπïúà˘πΩ–ΩÕ¡Ö∏˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌåπ±Öâï±Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅôΩ…ùï—QÖÕ—ï%—ï¥°åπë•¥∞ÅåπŸÖ±Ã•ÙÅÖ…•Ñµ±Öâï∞ıÏâΩ…ùï–ÄàÄ¨Ååπ±Öâï±ÙÅç±ÖÕÕ9ÖµîÙâ›òµ—ÖÕ—îµ‡à˚ärTΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ§•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ§ÄËÄ†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒ¿ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒÃ∞ÅçΩ±Ω»ËÅπµ’—ïêÅıÙ˘9Ω—°•πúÅ±ïÖ…πïêÅÂï–∏Å1•≠î∞ÅÕÖŸî∞ÅÖπêÅÕ°Ö…îÅÑÅôï‹Å¡±ÖçïÃÅÖπêÅÂΩ’»Å—ÖÕ—îÅÕ°Ω›ÃÅ’¿Å°ï…î∏Ω¿¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅùÖ¿ËÄ‰∞ÅµÖ…ù•πQΩ¿ËÄ»¿ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿÿ∏‘ÿËÄâ—’…∏Å•–ÅΩôòàÅÖπêÄâï…ÖÕîÅ•–àÅ›ï…îÅ—°îÅM5Åâ’——Ω∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ’π—•∞ÅπΩ‹ÉäPÅ…ïÕï—QÖÕ—î†§ÅÕï—ÃÅçΩπÕïπ–Å—ºÅΩôòÅ9Å›•¡ïÃÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅŸïç—Ω»∏ÅQ°îÅÖŸΩ…•—ïÃÅ…Ω‹Å¡…Ωµ•ÕïÃÅÑÅ¡ï…ÕΩ∏ÅçÖ∏ÅÕ—Ω¿Å—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…îµ…Öπ≠•πú∞ÅÖπêÅÑÅ¡…Ωµ•ÕîÅ›°ΩÕîÅΩπ±‰Å•µ¡±ïµïπ—Ö—•Ω∏ÅÖ±Õº(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅëï±ï—ïÃÅïŸï…Â—°•πúÅ—°ï‰Å—Ö’ù°–Å—°îÅÖ¡¿Å•ÃÅÑÅ±•îÅâ‰(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩµ•ÕÕ•Ω∏∏ÅQ›ºÅâ’——ΩπÃ∞Å—›ºÅŸï…âÃ∞ÅâΩ—†Å°ΩπïÕ–∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÏÅÕï—ΩπÕïπ–†âΩôòà§ÏÅÕï—QÖÕ—ï=¡ï∏°ôÖ±Õî§ÏÅ—…‰ÅÏÅ±ΩùŸïπ–†â—ÖÕ—ï}çΩπÕïπ–à∞Åπ’±∞∞ÅÏÅÿËÄâΩôòà∞Åô…Ω¥ËÄâÕ°ïï–àÅÙ§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅıÙÅç±ÖÕÕ9ÖµîÙâ›òµ—ÖÕ—îµâ—∏Å•Ãµ≈’•ï–à˘Q’…∏ÅΩôòΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÏÅ…ïÕï—QÖÕ—î†§ÏÅÕï—QÖÕ—ï=¡ï∏°ôÖ±Õî§ÏÅıÙÅç±ÖÕÕ9ÖµîÙâ›òµ—ÖÕ—îµâ—∏Å•ÃµëÖπùï»à˘IïÕï–Ωâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄ§Ï(ÄÄÄÄÄÅÙ§†•Ù((ÄÄÄÄÄÅÏº®Å¡¿µ—•±îÅÕ°ïï—ÃËÅΩ¡ïπïêÅô…Ω¥Å—°îÅ°ΩµîÅπÖŸ•ùÖ—•Ω∏Åù…•êÄ®ΩÙ(ÄÄÄÄÄÅÌµïπ’M°ïï–ÄòòÄÒ5ïπ’M°ïï–Åç—‡ıÌç—·ÙÄº˘Ù((ÄÄÄÄÄÅÏº®ÅMÖŸîµ—ºµ±•Õ–ÅÕ°ïï–Ä®ΩÙ(ÄÄÄÄÄÅÌÖ’—°=¡ï∏ÄòòÄÒ’—°M°ïï–Åç—‡ıÌç—·ÙÄº˘Ù(ÄÄÄÄÄÅÌ•π—…Ω=¡ï∏ÄòòÄÒ%π—…ΩM°ïï–Åç—‡ıÌç—·ÙÄº˘Ù(ÄÄÄÄÄÅÌ…ïçΩŸï…Â=¡ï∏ÄòòÄÒ’—°M°ïï–Åç—‡ıÌç—·ÙÄº˘Ù(ÄÄÄÄÄÅÌÕÖŸïQÖ…ùï–ÄòòÄ†(ÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÕ°ïï—	ùÙÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—MÖŸïQÖ…ùï–°π’±∞•Ù¯(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÄ∏∏πÕ°ïï–∞Å¡Öëë•πúËÄàŸ¡‡ÄƒŸ¡‡ÄÃ…¡‡à∞ÅΩŸï…Õç…Ω±±	ï°ÖŸ•Ω…dËÄâçΩπ—Ö•∏à∞Å—…ÖπÕ•—•Ω∏ËÅM!Q}MÅıÙÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅîπÕ—Ω¡A…Ω¡ÖùÖ—•Ω∏†•ÙÅΩπQΩ’ç°M—Ö…–ıÏ°î§ÄÙ¯ÅÕ°ïï—…ÖùM—Ö…–°î∞Ä†§ÄÙ¯ÅÕï—MÖŸïQÖ…ùï–°π’±∞§•ÙÅΩπQΩ’ç°5ΩŸîıÌÕ°ïï—…Öù5ΩŸïÙÅΩπQΩ’ç°πêıÌÕ°ïï—…ÖùπëÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒ…Öââï»Äº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ›•ë—†ËÄÃÿ∞Å°ï•ù°–ËÄ–∞ÅâÖç≠ù…Ω’πêËÅπâΩ…ëï»∞ÅâΩ…ëï…IÖë•’ÃËÄ»∞ÅµÖ…ù•∏ËÄà¿ÅÖ’—ºÄƒŸ¡‡àÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâÕ¡Öçîµâï—›ïï∏à∞ÅµÖ…ù•π	Ω——Ω¥ËÄƒÿÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ‹∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞ÅçΩ±Ω»ËÅπ—ï·–ÅıÙ˘ëêÅ—ºÅôÖŸΩ…•—ïÃΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÏÅÕï—MÖŸïQÖ…ùï–°π’±∞§ÏÅÕï—9ï›1•Õ—=¡ï∏°—…’î§ÏÅıÙÅÕ—Â±îıÌÏÅâÖç≠ù…Ω’πêËÄâπΩπîà∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπÖççïπ—ıÄ∞ÅçΩ±Ω»ËÅπÖççïπ–∞ÅôΩπ—M•ÈîËÄƒ»∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞Å¡Öëë•πúËÄàŸ¡‡Äƒ…¡‡à∞ÅâΩ…ëï…IÖë•’ÃËÄƒ‡∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ¯¨Å9ï‹Å±•Õ–Ωâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÅÌ=â©ïç–πŸÖ±’ïÃ°±•Õ—Ã§πµÖ¿†°∞§ÄÙ¯Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅ≠ï‰ıÌ∞π•ëÙÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕÖŸïQΩ1•Õ–°∞π•ê•ÙÅ…Ω±îÙââ’——Ω∏àÅ—Öâ%πëï‡ıÏ¡ÙÅΩπ-ïÂΩ›∏ıÌ-	}1%-ÙÅÖ…•Ñµ±Öâï∞ıÌÅMÖŸîÅ—ºÄëÌ∞ππÖµîÅÒÄâ±•Õ–âıÅÙÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄƒ»∞Å¡Öëë•πúËÄƒÃ∞ÅâÖç≠ù…Ω’πêËÅπçÖ…ê∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞ÅâΩ…ëï…IÖë•’ÃËÄƒ»∞ÅµÖ…ù•π	Ω——Ω¥ËÄ‡∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄ»ÿÅıÙ˘Ì∞πïµΩ©•ÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ‘∞ÅôΩπ—]ï•ù°–ËÄÿ¿¿∞ÅçΩ±Ω»ËÅπ—ï·–ÅıÙ˘Ì∞ππÖµïÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒÃ∞ÅçΩ±Ω»ËÅπµ’—ïêÅıÙ˘Ì∞π¡±ÖçïÃπ±ïπù—°ÙÅ¡±ÖçïÕÌ∞π¡±ÖçïÃπÕΩµî†°¿§ÄÙ¯Å¿π•êÄÙÙÙÅÕÖŸïQÖ…ùï–π•ê§Ä¸ÄàÉ
+‹ÅëëïêÉärLàÄËÄàâÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄ§•Ù(ÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄ•Ù((ÄÄÄÄÄÅÏº®Å…ïÖ—îµ±•Õ–ÅÕ°ïï–Ä®ΩÙ(ÄÄÄÄÄÅÌ±•Õ—5ïπ‘ÄòòÅ±•Õ—Õm±•Õ—5ïπ’tÄòòÄ†(ÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÕ°ïï—	ùÙÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—1•Õ—5ïπ‘°π’±∞•Ù¯(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÄ∏∏πÕ°ïï–∞Å¡Öëë•πúËÄàŸ¡‡ÄƒŸ¡‡Ä»·¡‡à∞ÅΩŸï…Õç…Ω±±	ï°ÖŸ•Ω…dËÄâçΩπ—Ö•∏à∞Å—…ÖπÕ•—•Ω∏ËÅM!Q}MÅıÙÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅîπÕ—Ω¡A…Ω¡ÖùÖ—•Ω∏†•ÙÅΩπQΩ’ç°M—Ö…–ıÏ°î§ÄÙ¯ÅÕ°ïï—…ÖùM—Ö…–°î∞Ä†§ÄÙ¯ÅÕï—1•Õ—5ïπ‘°π’±∞§•ÙÅΩπQΩ’ç°5ΩŸîıÌÕ°ïï—…Öù5ΩŸïÙÅΩπQΩ’ç°πêıÌÕ°ïï—…ÖùπëÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒ…Öââï»Äº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ›•ë—†ËÄÃÿ∞Å°ï•ù°–ËÄ–∞ÅâÖç≠ù…Ω’πêËÅπâΩ…ëï»∞ÅâΩ…ëï…IÖë•’ÃËÄ»∞ÅµÖ…ù•∏ËÄà¿ÅÖ’—ºÄƒŸ¡‡àÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄƒ¿∞ÅµÖ…ù•π	Ω——Ω¥ËÄƒ–ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄ»»ÅıÙ˘Ì±•Õ—Õm±•Õ—5ïπ’tπïµΩ©•ÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ‹∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞ÅçΩ±Ω»ËÅπ—ï·–ÅıÙ˘Ì±•Õ—Õm±•Õ—5ïπ’tππÖµïÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÅÌmÏÅ±Öâï∞ËÄâ=¡ï∏à∞Å…’∏ËÄ†§ÄÙ¯ÅÏÅçΩπÕ–Å•êÄÙÅ±•Õ—5ïπ‘ÏÅÕï—1•Õ—5ïπ‘°π’±∞§ÏÅÕï—ç—•Ÿï1•Õ–°•ê§ÏÅÙÅÙ∞ÅÏÅ±Öâï∞ËÄâM°Ö…îà∞Å…’∏ËÄ†§ÄÙ¯ÅÏÅçΩπÕ–Å∞ÄÙÅ±•Õ—Õm±•Õ—5ïπ’tÏÅÕï—1•Õ—5ïπ‘°π’±∞§ÏÅÕ°Ö…ï1•Õ–°∞π¡±ÖçïÃ∞Å∞ππÖµî§ÏÅÙÅÙ∞ÅÏÅ±Öâï∞ËÄâIïπÖµîà∞Å…’∏ËÄ†§ÄÙ¯ÅÏÅ•òÄ†Ö…ï≈’•…ï’—††âM•ù∏Å’¿Åô…ïîÅ—ºÅ≠ïï¿ÅÂΩ’»Å±•Õ—ÃÅ—•ë‰ÉäPÅΩ∏ÅïŸï…‰ÅëïŸ•çî∏à§§Å…ï—’…∏ÏÅΩ¡ïπIïπÖµî°±•Õ—5ïπ‘§ÏÅÙÅıtπµÖ¿†°Ñ§ÄÙ¯Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏Å≠ï‰ıÌÑπ±Öâï±ÙÅΩπ±•ç¨ıÌÑπ…’πÙÅÕ—Â±îıÌÏÅ›•ë—†ËÄàƒ¿¿îà∞Å—ï·—±•ù∏ËÄâ±ïô–à∞Å¡Öëë•πúËÄàƒ—¡‡Äƒ—¡‡à∞ÅµÖ…ù•π	Ω——Ω¥ËÄ‡∞ÅâÖç≠ù…Ω’πêËÅπçÖ…ê∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞ÅâΩ…ëï…IÖë•’ÃËÄƒ»∞ÅçΩ±Ω»ËÅπ—ï·–∞ÅôΩπ—M•ÈîËÄƒ‘∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ˘ÌÑπ±Öâï±ÙΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄ§•Ù(ÄÄÄÄÄÄÄÄÄÄÄÅÌ±•Õ—5ïπ‘ÄÑÙÙÄâôÖŸΩ…•—ïÃàÄòòÄ†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÏÅçΩπÕ–Å•êÄÙÅ±•Õ—5ïπ‘ÏÅÕï—1•Õ—5ïπ‘°π’±∞§ÏÅëï±ï—ï1•Õ–°•ê§ÏÅıÙÅÕ—Â±îıÌÏÅ›•ë—†ËÄàƒ¿¿îà∞Å—ï·—±•ù∏ËÄâ±ïô–à∞Å¡Öëë•πúËÄàƒ—¡‡Äƒ—¡‡à∞ÅâÖç≠ù…Ω’πêËÅπçÖ…ê∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπ…ïëÙ‘’Ä∞ÅâΩ…ëï…IÖë•’ÃËÄƒ»∞ÅçΩ±Ω»ËÅπ…ïê∞ÅôΩπ—M•ÈîËÄƒ‘∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ˘ï±ï—îÅ±•Õ–Ωâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÅÌ…ïπÖµ•πù1•Õ–ÄòòÄ†(ÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÕ°ïï—	ùÙÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÏÅÕï—IïπÖµ•πù1•Õ–°π’±∞§ÏÅÕï—9ï›9Öµî†àà§ÏÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÄ∏∏πÕ°ïï–∞Å¡Öëë•πúËÄàŸ¡‡ÄƒŸ¡‡ÄÃ…¡‡à∞ÅΩŸï…Õç…Ω±±	ï°ÖŸ•Ω…dËÄâçΩπ—Ö•∏à∞Å—…ÖπÕ•—•Ω∏ËÅM!Q}MÅıÙÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅîπÕ—Ω¡A…Ω¡ÖùÖ—•Ω∏†•ÙÅΩπQΩ’ç°M—Ö…–ıÏ°î§ÄÙ¯ÅÕ°ïï—…ÖùM—Ö…–°î∞Ä†§ÄÙ¯ÅÏÅÕï—IïπÖµ•πù1•Õ–°π’±∞§ÏÅÕï—9ï›9Öµî†àà§ÏÅÙ•ÙÅΩπQΩ’ç°5ΩŸîıÌÕ°ïï—…Öù5ΩŸïÙÅΩπQΩ’ç°πêıÌÕ°ïï—…ÖùπëÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒ…Öââï»Äº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ›•ë—†ËÄÃÿ∞Å°ï•ù°–ËÄ–∞ÅâÖç≠ù…Ω’πêËÅπâΩ…ëï»∞ÅâΩ…ëï…IÖë•’ÃËÄ»∞ÅµÖ…ù•∏ËÄà¿ÅÖ’—ºÄƒŸ¡‡àÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ‹∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞ÅµÖ…ù•π	Ω——Ω¥ËÄƒ–∞ÅçΩ±Ω»ËÅπ—ï·–ÅıÙ˘IïπÖµîÅ±•Õ–Ωë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒ•π¡’–ÅŸÖ±’îıÌπï›9ÖµïÙÅΩπ°ÖπùîıÏ°î§ÄÙ¯ÅÕï—9ï›9Öµî°îπ—Ö…ùï–πŸÖ±’î•ÙÅΩπ-ïÂΩ›∏ıÏ°î§ÄÙ¯Åîπ≠ï‰ÄÙÙÙÄâπ—ï»àÄòòÅ…ïπÖµï1•Õ–†•ÙÅ¡±Öçï°Ω±ëï»Ùâ1•Õ–ÅπÖµîàÅÕ—Â±îıÌÏÅ›•ë—†ËÄàƒ¿¿îà∞ÅâΩ·M•È•πúËÄââΩ…ëï»µâΩ‡à∞Å¡Öëë•πúËÄàƒ…¡‡Äƒ—¡‡à∞ÅâÖç≠ù…Ω’πêËÅπçÖ…ê∞ÅâΩ…ëï»ËÅÄƒ∏’¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞ÅâΩ…ëï…IÖë•’ÃËÄƒ»∞ÅçΩ±Ω»ËÅπ—ï·–∞ÅôΩπ—M•ÈîËÄƒÿ∞ÅΩ’—±•πîËÄâπΩπîà∞ÅµÖ…ù•π	Ω——Ω¥ËÄƒÿÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÌ…ïπÖµï1•Õ—ÙÅë•ÕÖâ±ïêıÏÖπï›9Öµîπ—…•¥†•ÙÅÕ—Â±îıÌÏÅ›•ë—†ËÄàƒ¿¿îà∞Å¡Öëë•πúËÄƒ–∞ÅâÖç≠ù…Ω’πêËÅπï›9Öµîπ—…•¥†§Ä¸ÅπÖççïπ–ÄËÅπçÖ…ê∞ÅâΩ…ëï»ËÄâπΩπîà∞ÅâΩ…ëï…IÖë•’ÃËÄƒ»∞ÅçΩ±Ω»ËÅπï›9Öµîπ—…•¥†§Ä¸ÄàçôôòàÄËÅπµ’—ïê∞ÅôΩπ—M•ÈîËÄƒ‘∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞Åç’…ÕΩ»ËÅπï›9Öµîπ—…•¥†§Ä¸Äâ¡Ω•π—ï»àÄËÄâëïôÖ’±–àÅıÙ˘MÖŸîΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÅÌπï›1•Õ—=¡ï∏ÄòòÄ†(ÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÕ°ïï—	ùÙÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—9ï›1•Õ—=¡ï∏°ôÖ±Õî•Ù¯(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÄ∏∏πÕ°ïï–∞Å¡Öëë•πúËÄàŸ¡‡ÄƒŸ¡‡ÄÃ…¡‡à∞ÅΩŸï…Õç…Ω±±	ï°ÖŸ•Ω…dËÄâçΩπ—Ö•∏à∞Å—…ÖπÕ•—•Ω∏ËÅM!Q}MÅıÙÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅîπÕ—Ω¡A…Ω¡ÖùÖ—•Ω∏†•ÙÅΩπQΩ’ç°M—Ö…–ıÏ°î§ÄÙ¯ÅÕ°ïï—…ÖùM—Ö…–°î∞Ä†§ÄÙ¯ÅÕï—9ï›1•Õ—=¡ï∏°ôÖ±Õî§•ÙÅΩπQΩ’ç°5ΩŸîıÌÕ°ïï—…Öù5ΩŸïÙÅΩπQΩ’ç°πêıÌÕ°ïï—…ÖùπëÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒ…Öââï»Äº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ›•ë—†ËÄÃÿ∞Å°ï•ù°–ËÄ–∞ÅâÖç≠ù…Ω’πêËÅπâΩ…ëï»∞ÅâΩ…ëï…IÖë•’ÃËÄ»∞ÅµÖ…ù•∏ËÄà¿ÅÖ’—ºÄƒŸ¡‡àÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ‹∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞ÅµÖ…ù•π	Ω——Ω¥ËÄƒ–∞ÅçΩ±Ω»ËÅπ—ï·–ÅıÙ˘9ï‹Å±•Õ–Ωë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒ•π¡’–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅŸÖ±’îıÌπï›9ÖµïÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩπ°ÖπùîıÏ°î§ÄÙ¯ÅÕï—9ï›9Öµî°îπ—Ö…ùï–πŸÖ±’î•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩπ-ïÂΩ›∏ıÏ°î§ÄÙ¯Åîπ≠ï‰ÄÙÙÙÄâπ—ï»àÄòòÅç…ïÖ—ï1•Õ–†•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ¡±Öçï°Ω±ëï»Ùâ1•Õ–ÅπÖµîÄ°îπú∏ÅÖ—îÅ9•ù°–§à(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕ—Â±îıÌÏÅ›•ë—†ËÄàƒ¿¿îà∞ÅâΩ·M•È•πúËÄââΩ…ëï»µâΩ‡à∞Å¡Öëë•πúËÄàƒ…¡‡Äƒ—¡‡à∞ÅâÖç≠ù…Ω’πêËÅπçÖ…ê∞ÅâΩ…ëï»ËÅÄƒ∏’¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞ÅâΩ…ëï…IÖë•’ÃËÄƒ»∞ÅçΩ±Ω»ËÅπ—ï·–∞ÅôΩπ—M•ÈîËÄƒÿ∞ÅΩ’—±•πîËÄâπΩπîà∞ÅµÖ…ù•π	Ω——Ω¥ËÄƒÿÅıÙ(ÄÄÄÄÄÄÄÄÄÄÄÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒÃ∞ÅçΩ±Ω»ËÅπµ’—ïê∞ÅµÖ…ù•π	Ω——Ω¥ËÄƒ¿ÅıÙ˘A•ç¨ÅÖ∏Å•çΩ∏Ωë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâù…•êà∞Åù…•ëQïµ¡±Ö—ïΩ±’µπÃËÄâ…ï¡ïÖ–†‡∞Ä≈ô»§à∞ÅùÖ¿ËÄ‡∞ÅµÖ…ù•π	Ω——Ω¥ËÄ»¿ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ5=)%LπµÖ¿†°î§ÄÙ¯Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏Å≠ï‰ıÌïÙÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—9ï›µΩ©§°î•ÙÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄ»»∞Å¡Öëë•πúËÄà·¡‡Ä¿à∞ÅâΩ…ëï…IÖë•’ÃËÄƒ¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞ÅâÖç≠ù…Ω’πêËÅπï›µΩ©§ÄÙÙÙÅîÄ¸ÅπÖë•¥ÄËÅπçÖ…ê∞ÅâΩ…ëï»ËÅÄƒ∏’¡‡ÅÕΩ±•êÄëÌπï›µΩ©§ÄÙÙÙÅîÄ¸ÅπÖççïπ–ÄËÅπâΩ…ëï…ıÄÅıÙ˘ÌïÙΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ§•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÌç…ïÖ—ï1•Õ—ÙÅë•ÕÖâ±ïêıÏÖπï›9Öµîπ—…•¥†•ÙÅÕ—Â±îıÌÏÅ›•ë—†ËÄàƒ¿¿îà∞Å¡Öëë•πúËÄƒ–∞ÅâÖç≠ù…Ω’πêËÅπï›9Öµîπ—…•¥†§Ä¸ÅπÖççïπ–ÄËÅπçÖ…ê∞ÅâΩ…ëï»ËÄâπΩπîà∞ÅâΩ…ëï…IÖë•’ÃËÄƒ»∞ÅçΩ±Ω»ËÅπï›9Öµîπ—…•¥†§Ä¸ÄàçôôòàÄËÅπµ’—ïê∞ÅôΩπ—M•ÈîËÄƒ‘∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞Åç’…ÕΩ»ËÅπï›9Öµîπ—…•¥†§Ä¸Äâ¡Ω•π—ï»àÄËÄâëïôÖ’±–àÅıÙ˘…ïÖ—îÅ±•Õ–Ωâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄ•Ù(ÄÄÄÄΩë•ÿ¯(ÄÄÄÄΩë•ÿ¯(ÄÄ§Ï)Ù()ô’πç—•Ω∏ÅM›•¡ïIΩ‹°ÏÅç°•±ë…ï∏∞ÅΩπï±ï—îÅÙ§ÅÏ(ÄÅçΩπÕ–ÅIY0ÄÙÄ‡–Ï(ÄÅçΩπÕ–Åmë‡∞ÅÕï—·tÄÙÅ’ÕïM—Ö—î†¿§Ï(ÄÅçΩπÕ–Åmë…Öú∞ÅÕï—…ÖùtÄÙÅ’ÕïM—Ö—î°ôÖ±Õî§Ï(ÄÅçΩπÕ–ÅÕ‡ÄÙÅ’ÕïIïò†¿§ÏÅçΩπÕ–ÅÕ‰ÄÙÅ’ÕïIïò†¿§ÏÅçΩπÕ–ÅâÖÕîÄÙÅ’ÕïIïò†¿§ÏÅçΩπÕ–Å°Ω…•ËÄÙÅ’ÕïIïò°ôÖ±Õî§Ï(ÄÅô’πç—•Ω∏ÅÕ—Ö…–°î§ÅÏÅçΩπÕ–Å–ÄÙÅîπ—Ω’ç°ïÕl¡tÏÅÕ‡πç’……ïπ–ÄÙÅ–πç±•ïπ—`ÏÅÕ‰πç’……ïπ–ÄÙÅ–πç±•ïπ—dÏÅ°Ω…•Ëπç’……ïπ–ÄÙÅôÖ±ÕîÏÅÕï—…Öú°—…’î§ÏÅÙ(ÄÅô’πç—•Ω∏ÅµΩŸî°î§ÅÏ(ÄÄÄÅçΩπÕ–Å–ÄÙÅîπ—Ω’ç°ïÕl¡tÏÅçΩπÕ–Åµ‡ÄÙÅ–πç±•ïπ—`Ä¥ÅÕ‡πç’……ïπ–ÏÅçΩπÕ–Åµ‰ÄÙÅ–πç±•ïπ—dÄ¥ÅÕ‰πç’……ïπ–Ï(ÄÄÄÅ•òÄ†Ö°Ω…•Ëπç’……ïπ–§ÅÏÅ•òÄ°5Ö—†πÖâÃ°µ‡§Ä¯Äƒ¿ÄòòÅ5Ö—†πÖâÃ°µ‡§Ä¯Å5Ö—†πÖâÃ°µ‰§§Å°Ω…•Ëπç’……ïπ–ÄÙÅ—…’îÏÅï±ÕîÅ…ï—’…∏ÏÅÙ(ÄÄÄÅ±ï–ÅπêÄÙÅâÖÕîπç’……ïπ–Ä¨Åµ‡ÏÅ•òÄ°πêÄ¯Ä¿§ÅπêÄÙÄ¿ÏÅ•òÄ°πêÄÄ¥°IY0Ä¨Ä–¿§§ÅπêÄÙÄ¥°IY0Ä¨Ä–¿§ÏÅÕï—‡°πê§Ï(ÄÅÙ(ÄÅô’πç—•Ω∏Åïπê†§ÅÏÅÕï—…Öú°ôÖ±Õî§ÏÅçΩπÕ–ÅΩ¡ï∏ÄÙÅë‡ÄÄµIY0ÄºÄ»ÏÅçΩπÕ–ÅπêÄÙÅΩ¡ï∏Ä¸ÄµIY0ÄËÄ¿ÏÅâÖÕîπç’……ïπ–ÄÙÅπêÏÅÕï—‡°πê§ÏÅÙ(ÄÅ…ï—’…∏Ä†(ÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâ…ï±Ö—•Ÿîà∞ÅΩŸï…ô±Ω‹ËÄâ°•ëëï∏àÅıÙ¯(ÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâÖâÕΩ±’—îà∞Å•πÕï–ËÄ¿∞Åë•Õ¡±Ö‰ËÄâô±ï‡à∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâô±ï‡µïπêàÅıÙ¯(ÄÄÄÄÄÄÄÄÒë•ÿÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅÏÅîπÕ—Ω¡A…Ω¡ÖùÖ—•Ω∏†§ÏÅΩπï±ï—î†§ÏÅıÙÅÕ—Â±îıÌÏÅ›•ë—†ËÅIY0∞ÅâÖç≠ù…Ω’πêËÅπ…ïê∞ÅçΩ±Ω»ËÄàçôôòà∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅôΩπ—M•ÈîËÄƒ–∞Åë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâçïπ—ï»à∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ˘ï±ï—îΩë•ÿ¯(ÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÒë•ÿÅΩπQΩ’ç°M—Ö…–ıÌÕ—Ö…—ÙÅΩπQΩ’ç°5ΩŸîıÌµΩŸïÙÅΩπQΩ’ç°πêıÌïπëÙÅÕ—Â±îıÌÏÅ—…ÖπÕôΩ…¥ËÅÅ—…ÖπÕ±Ö—ï`†ëÌë·ı¡‡•Ä∞Å—…ÖπÕ•—•Ω∏ËÅë…ÖúÄ¸ÄâπΩπîàÄËÄâ—…ÖπÕôΩ…¥Ä∏…ÃÅïÖÕîà∞ÅâÖç≠ù…Ω’πêËÅπâú∞Å¡ΩÕ•—•Ω∏ËÄâ…ï±Ö—•Ÿîà∞Å—Ω’ç°ç—•Ω∏ËÄâ¡Ö∏µ‰àÅıÙ¯(ÄÄÄÄÄÄÄÅÌç°•±ë…ïπÙ(ÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄΩë•ÿ¯(ÄÄ§Ï)Ù(ººÅÿ–∏‡–ÉäPÅ—°îÅÕ°Ö…ïêÅâΩΩ≠Öâ±îµÖç—•Ÿ•—•ïÃÅ…Ö•∞Ä°Y•Ö—Ω»Å¡…Ωë’ç—Ã§∏ÅUÕïêÅΩ∏Å—°î(ººÅŸ•Ö—Ω»µô±ÖùùïêÅŸ•âïÃÅÖπêÅ—°îÅQ°•πùÃÅ—ºÅëºÅâ…Ω›Õî∏Å1•π≠ÃÅçÖ……‰Å¡Ö…—πï»(ººÅÖ——…•â’—•Ω∏Åô…Ω¥Å—°îÅA$ÏÅ—Ö¡ÃÅùºÅ—°…Ω’ù†ÅΩ¡ïπ·—ï…πÖ∞Ä°A]µÕÖôî§∏(ººÅÿÿ∏––Ä°·¡ï…•ïπçïÃÅÿÃ§ËÅ—°îÅ—Öâ±îµâÖç≠ïê∞ÅçÖ—ïùΩ…•ÕïêÅY•Ö—Ω»Å…Ö•∞ÅôΩ»ÅQ°•πùÃ(ººÅ—ºÅº∏ÅIïÖëÃÅçÖç°ïêÅ›ô}ï·¡ï…•ïπçïÃÅ—°…Ω’ù†Å—°îÅÕÖµîµΩ…•ù•∏µù’Ö…ëïê(ººÄΩÖ¡§Ωï·¡ï…•ïπçïÃÉäPÅÑÅÅ…ïÖê∞ÅÕºÅ—°îÅë•Õ—ÖπçîÅ…’πùÃÅ…ïÖç†Ä‰¿ºƒ»¡µ§Å›•—†Å9<(ººÅ¡ï»µµ•±îÅΩΩù±îÅA±ÖçïÃÅçΩÕ–Ä°’π±•≠îÅ—°îÅ¡±ÖçîµÕïÖ…ç†Å…Öë•’Ã∞Å›°•ç†ÅÕ—ÖÂÃÄÿ¡µ§(ººÅ—ºÅ¡…Ω—ïç–ÅÖùÖ•πÕ–Å—°îÅA±ÖçïÃÅâ•±∞§∏ÅM°•¡ÃÅI,Ä°…ïπëï…ÃÅπ’±∞§Å’π—•∞Å—°î(ººÅµ•ù…Ö—•Ω∏Ä¨Åç…Ω∏Å¡Ω¡’±Ö—îÅ—°îÅ—Öâ±î∏ÅŸï…‰ÅçÖ…êÅ°…ïòÅ•ÃÅ¡•êµ›…Ö¡¡ïêÅ—°…Ω’ù†(ººÅ±•àΩÖôô•±•Ö—ïÃπŸ•Ö—Ω…•…ïç—U…∞∞ÅÖπêÅ—°îÅÕïç—•Ω∏ÅçÖ……•ïÃÅ—°îÅQÅçΩµµ•ÕÕ•Ω∏(ººÅë•Õç±ΩÕ’…îÅ¡…Ω·•µÖ—îÅ—ºÅ—°îÅïÖ…π•πúÅçÖ…ëÃÉäPÅ—ïÕ–µï·¡ï…•ïπçïÃµÿÃÅ±Ωç≠ÃÅâΩ—†∏(ººÅïôÖ’±–ÄÃ¡µ§ÄÙÅ—°îÅ’Õï»ùÃÅ°ΩµîÅµÖ…≠ï–ÅΩπ±‰Ä°°ΩπïÕ–ÄâπïÖ»ÅÂΩ‘à§ÏÅ—°îÅ…’πùÃ(ººÅ›•ëï∏ÅaA1%%Q1dÄ†ÿ√äH‰√äHƒ»¿Å…ïÖç°ïÃÅ=…±ÖπëºÅô…Ω¥ÅMÖ…ÖÕΩ—Ñ§∏ÅŸï…‰ÅçÖ…êÅÖ±Õº(ººÅπÖµïÃÅ•—ÃÅµÖ…≠ï–Ä°–πç•—‰§ÅÕºÅÑÅ›•ëïπïê∞Åµ’±—§µµÖ…≠ï–ÅŸ•ï‹ÅπïŸï»ÅÕ°Ω›ÃÅÑ(ººÅôÖ»µÖ›Ö‰Å—Ω’»Å›•—†ÅπºÅ±ΩçÖ—•Ω∏Åç’îÉäPÅ—°îÅÕÖµîÅ°ΩπïÕ—‰ÅâÖ»ÅÖÃÅ—°îÅâ…Ω›ÕîÅôïïê∏)çΩπÕ–ÅaA}5%}IU9LÄÙÅlÃ¿∞Äÿ¿∞Ä‰¿∞Äƒ»¡tÏ)ô’πç—•Ω∏Å·¡ï…•ïπçïÖ—ïùΩ…ÂIÖ•∞°ÏÅµï—…º∞Å±Ö–∞Å±πú∞Å±ΩùŸïπ–ÅÙ§ÅÏ(ÄÅçΩπÕ–ÅmçÖ–∞ÅÕï—Ö—tÄÙÅ’ÕïM—Ö—î†âÖ±∞à§Ï(ÄÅçΩπÕ–Åmµ§∞ÅÕï—5•tÄÙÅ’ÕïM—Ö—î†Ã¿§Ï(ÄÅçΩπÕ–ÅmÕ–∞ÅÕï—M—tÄÙÅ’ÕïM—Ö—î°ÏÅ•—ïµÃËÅmt∞Åç°•¡Ω’π—ÃËÅÌÙ∞Å°ÖÕ5Ω…îËÅôÖ±Õî∞ÅëÖ…¨ËÅπ’±∞ÅÙ§Ï(ÄÅçΩπÕ–Åmâ’Õ‰∞ÅÕï—	’ÕÂtÄÙÅ’ÕïM—Ö—î°—…’î§Ï(ÄÅçΩπÕ–ÅmµΩ…î∞ÅÕï—5Ω…ïtÄÙÅ’ÕïM—Ö—î°ôÖ±Õî§Ï(ÄÅçΩπÕ–Å¡ÖùïIïòÄÙÅ’ÕïIïò†¿§Ï(ÄÅçΩπÕ–Å±ΩúÄÙÄ°Ñ∞Å‡§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ–ÄòòÅ±ΩùŸïπ–°Ñ∞Åπ’±∞∞Å‡§ÏÅÙÅçÖ—ç†Ä°î§ÅÌÙÅÙÏ(ÄÅçΩπÕ–Å≈Õ—»ÄÙÄ°¿§ÄÙ¯ÅÏ(ÄÄÄÅçΩπÕ–ÅƒÄÙÅπï‹ÅUI1MïÖ…ç°AÖ…ÖµÃ†§Ï(ÄÄÄÅ•òÄ°µï—…º§ÅƒπÕï–†âµï—…ºà∞Åµï—…º§Ï(ÄÄÄÅ•òÄ°—Â¡ïΩòÅ±Ö–ÄÙÙÙÄâπ’µâï»àÄòòÅ—Â¡ïΩòÅ±πúÄÙÙÙÄâπ’µâï»à§ÅÏÅƒπÕï–†â±Ö–à∞ÅM—…•πú°±Ö–§§ÏÅƒπÕï–†â±πúà∞ÅM—…•πú°±πú§§ÏÅƒπÕï–†âµ§à∞ÅM—…•πú°µ§§§ÏÅÙ(ÄÄÄÅƒπÕï–†âçÖ–à∞ÅçÖ–§ÏÅƒπÕï–†â±•µ•–à∞Äàƒ»à§ÏÅƒπÕï–†â¡Öùîà∞ÅM—…•πú°¿§§Ï(ÄÄÄÅ…ï—’…∏Åƒπ—ΩM—…•πú†§Ï(ÄÅÙÏ((ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ±ï–ÅëïÖêÄÙÅôÖ±ÕîÏÅÕï—	’Õ‰°—…’î§ÏÅ¡ÖùïIïòπç’……ïπ–ÄÙÄ¿Ï(ÄÄÄÅôï—ç††àΩÖ¡§Ωï·¡ï…•ïπçïÃ¸àÄ¨Å≈Õ—»†¿§§π—°ï∏†°»§ÄÙ¯Ä°»πΩ¨Ä¸Å»π©ÕΩ∏†§ÄËÅπ’±∞§∞Ä†§ÄÙ¯Åπ’±∞§π—°ï∏†°…ïÃ§ÄÙ¯ÅÏ(ÄÄÄÄÄÅ•òÄ°ëïÖê§Å…ï—’…∏Ï(ÄÄÄÄÄÅ•òÄ†Ö…ïÃÅÒÅ…ïÃπëÖ…¨§ÅÏÅÕï—M–°ÏÅ•—ïµÃËÅmt∞Åç°•¡Ω’π—ÃËÅÌÙ∞Å°ÖÕ5Ω…îËÅôÖ±Õî∞ÅëÖ…¨ËÅ—…’îÅÙ§ÏÅÕï—	’Õ‰°ôÖ±Õî§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÄÄÅÕï—M–°ÏÅ•—ïµÃËÅ…ïÃπ•—ïµÃÅÒÅmt∞Åç°•¡Ω’π—ÃËÅ…ïÃπç°•¡Ω’π—ÃÅÒÅÌÙ∞Å°ÖÕ5Ω…îËÄÑÖ…ïÃπ°ÖÕ5Ω…î∞ÅëÖ…¨ËÅôÖ±ÕîÅÙ§ÏÅÕï—	’Õ‰°ôÖ±Õî§Ï(ÄÄÄÅÙ§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅëïÖêÄÙÅ—…’îÏÅÙÏ(ÄÅÙ∞ÅmçÖ–∞Åµ§∞Åµï—…º∞Å±Ö–∞Å±πùt§Ï((ÄÅçΩπÕ–Å±ΩÖë5Ω…îÄÙÄ†§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ°µΩ…î§Å…ï—’…∏ÏÅÕï—5Ω…î°—…’î§Ï(ÄÄÄÅçΩπÕ–Åπï·–ÄÙÅ¡ÖùïIïòπç’……ïπ–Ä¨ÄƒÏ(ÄÄÄÅôï—ç††àΩÖ¡§Ωï·¡ï…•ïπçïÃ¸àÄ¨Å≈Õ—»°πï·–§§π—°ï∏†°»§ÄÙ¯Ä°»πΩ¨Ä¸Å»π©ÕΩ∏†§ÄËÅπ’±∞§∞Ä†§ÄÙ¯Åπ’±∞§π—°ï∏†°…ïÃ§ÄÙ¯ÅÏ(ÄÄÄÄÄÅ¡ÖùïIïòπç’……ïπ–ÄÙÅπï·–ÏÅÕï—5Ω…î°ôÖ±Õî§Ï(ÄÄÄÄÄÅ•òÄ°…ïÃÄòòÄÖ…ïÃπëÖ…¨§ÅÕï—M–†°Ã§ÄÙ¯Ä°ÏÄ∏∏πÃ∞Å•—ïµÃËÅl∏∏πÃπ•—ïµÃ∞Ä∏∏∏°…ïÃπ•—ïµÃÅÒÅmt•t∞Å°ÖÕ5Ω…îËÄÑÖ…ïÃπ°ÖÕ5Ω…îÅÙ§§Ï(ÄÄÄÅÙ§Ï(ÄÄÄÅ±Ωú†âï·¡}±ΩÖë}µΩ…îà∞ÅÏÅçÖ–∞Åµ§ÅÙ§Ï(ÄÅÙÏ((ÄÅ•òÄ°Õ–πëÖ…¨§Å…ï—’…∏Åπ’±∞ÏÄººÅÕ°•¡ÃÅëÖ…¨Å’π—•∞Å—°îÅ—Öâ±îÅ•ÃÅ¡Ω¡’±Ö—ïê((ÄÅçΩπÕ–Åç°•¡ÃÄÙÅ%MA1e}!%ALπô•±—ï»†°å§ÄÙ¯Ååπ≠ï‰ÄÙÙÙÄâÖ±∞àÅÒÄ°Õ–πç°•¡Ω’π—Õmåπ≠ïÂtÅÒÄ¿§Ä¯Ä¿§Ï(ÄÅ…ï—’…∏Ä†(ÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅµÖ…ù•∏ËÄà—¡‡Ä¿Äƒ·¡‡àÅıÙ¯(ÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄââÖÕï±•πîà∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâÕ¡Öçîµâï—›ïï∏à∞ÅµÖ…ù•π	Ω——Ω¥ËÄ‡ÅıÙ¯(ÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÅπµ’—ïê∞Å—ï·—Q…ÖπÕôΩ…¥ËÄâ’¡¡ï…çÖÕîà∞Å±ï——ï…M¡Öç•πúËÄà∏—¡‡àÅıÙ˘	ΩΩ≠Öâ±îÅï·¡ï…•ïπçïÃΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄ‰∏‘∞ÅçΩ±Ω»ËÅπµ’—ïêÅıÙ˘Ÿ•ÑÅY•Ö—Ω»ΩÕ¡Ö∏¯(ÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅùÖ¿ËÄ‡∞ÅΩŸï…ô±Ω›`ËÄâÖ’—ºà∞ÅΩŸï…Õç…Ω±±	ï°ÖŸ•Ω…`ËÄâçΩπ—Ö•∏à∞Å¡Öëë•πù	Ω——Ω¥ËÄÿ∞ÅµÖ…ù•π	Ω——Ω¥ËÄ–ÅıÙ¯(ÄÄÄÄÄÄÄÅÌç°•¡ÃπµÖ¿†°å§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–ÅΩ∏ÄÙÅåπ≠ï‰ÄÙÙÙÅçÖ–Ï(ÄÄÄÄÄÄÄÄÄÅ…ï—’…∏Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏Å≠ï‰ıÌåπ≠ïÂÙÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÏÅÕï—Ö–°åπ≠ï‰§ÏÅ±Ωú†âï·¡}ç°•¿à∞ÅÏÅçÖ–ËÅåπ≠ï‰ÅÙ§ÏÅıÙÅÕ—Â±îıÌÏÅô±ï‡ËÄà¿Ä¿ÅÖ’—ºà∞Åë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‘∞Å¡Öëë•πúËÄà›¡‡ÄƒÕ¡‡à∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞Å›°•—ïM¡ÖçîËÄâπΩ›…Ö¿à∞ÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌΩ∏Ä¸ÅπÖççïπ–ÄËÅπâΩ…ëï…ıÄ∞ÅâÖç≠ù…Ω’πêËÅΩ∏Ä¸ÅπÖë•¥ÄËÅπçÖ…ê∞ÅçΩ±Ω»ËÅΩ∏Ä¸ÅπÖççïπ–ÄËÅπ—ï·–ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÖ…•Ñµ°•ëëï∏Ùâ—…’îà˘Ìåπ•çΩπÙΩÕ¡Ö∏˘Ìåπ±Öâï±Ù(ÄÄÄÄÄÄÄÄÄÄÄÄΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄ§Ï(ÄÄÄÄÄÄÄÅÙ•Ù(ÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅùÖ¿ËÄÿ∞ÅµÖ…ù•π	Ω——Ω¥ËÄƒ¿∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»àÅıÙ¯(ÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒƒ∞ÅçΩ±Ω»ËÅπµ’—ïêÅıÙ˘]•—°•∏ΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÅÌaA}5%}IU9LπµÖ¿†°¥§ÄÙ¯Ä†(ÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏Å≠ï‰ıÌµÙÅΩπ±•ç¨ıÏ†§ÄÙ¯ÅÕï—5§°¥•ÙÅÕ—Â±îıÌÏÅ¡Öëë•πúËÄà—¡‡Äƒ¡¡‡à∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞ÅôΩπ—M•ÈîËÄƒƒ∏‘∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌµ§ÄÙÙÙÅ¥Ä¸ÅπÖççïπ–ÄËÅπâΩ…ëï…ıÄ∞ÅâÖç≠ù…Ω’πêËÅµ§ÄÙÙÙÅ¥Ä¸ÅπÖë•¥ÄËÄâ—…ÖπÕ¡Ö…ïπ–à∞ÅçΩ±Ω»ËÅµ§ÄÙÙÙÅ¥Ä¸ÅπÖççïπ–ÄËÅπµ’—ïêÅıÙ˘ÌµÙÅµ§Ωâ’——Ω∏¯(ÄÄÄÄÄÄÄÄ§•Ù(ÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÅÌâ’Õ‰ÄòòÄÖÕ–π•—ïµÃπ±ïπù—†Ä¸Ä†(ÄÄÄÄÄÄÄÄÒë•ÿÅÖ…•Ñµâ’Õ‰Ùâ—…’îàÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅùÖ¿ËÄƒ¿∞ÅΩŸï…ô±Ω›`ËÄâÖ’—ºà∞ÅΩŸï…Õç…Ω±±	ï°ÖŸ•Ω…`ËÄâçΩπ—Ö•∏àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÅÌ……Ö‰πô…Ω¥°ÏÅ±ïπù—†ËÄ–ÅÙ§πµÖ¿†°|∞Å§§ÄÙ¯Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅ≠ï‰ıÌ•ÙÅç±ÖÕÕ9ÖµîÙâ›òµÕ≠ï±ï—Ω∏àÅÕ—Â±îıÌÏÅô±ï‡ËÄà¿Ä¿Ä»¿¡¡‡à∞Å°ï•ù°–ËÄƒ‘¿∞ÅâΩ…ëï…IÖë•’ÃËÄƒ»ÅıÙÅÖ…•Ñµ°•ëëï∏Ùâ—…’îàÄº¯(ÄÄÄÄÄÄÄÄÄÄ§•Ù(ÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄ§ÄËÅÕ–π•—ïµÃπ±ïπù—†ÄÙÙÙÄ¿Ä¸Ä†(ÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅçΩ±Ω»ËÅπµ’—ïê∞Å¡Öëë•πúËÄà·¡‡Ä…¡‡àÅıÙ˘9Ω—°•πúÅâΩΩ≠Öâ±îÅ•∏Å—°•ÃÅΩπîÅÂï–ÉäPÅ›îôÖ¡ΩÃÌêÅ…Ö—°ï»ÅÕ°Ω‹ÅπΩπîÅ—°Ö∏Å¡ÖêÅ•–Å›•—†ÅÖπΩ—°ï»ÅçÖ—ïùΩ…‰ôÖ¡ΩÃÌÃÅ—Ω’…Ã∏Ωë•ÿ¯(ÄÄÄÄÄÄ§ÄËÄ†(ÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâù…•êà∞Åù…•ëQïµ¡±Ö—ïΩ±’µπÃËÄâ…ï¡ïÖ–°Ö’—ºµô•±∞∞Åµ•πµÖ‡†ƒÿ¡¡‡∞Ä≈ô»§§à∞ÅùÖ¿ËÄƒ¿ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÅÌÕ–π•—ïµÃπµÖ¿†°–§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°…ïòÄÙÅôòπŸ•Ö—Ω…•…ïç—U…∞°–π’…∞§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄººÅÿÿ∏‹‰Ä°9QLπµêÉ
+úŸà§ËÅπ’±∞ÅµïÖπÃÅU9QQI%	UQ	1∞ÅÕºÅÕ’¡¡…ïÕÃÅ—°îÅ…Ω‹Åïπ—•…ï±‰∏ÅIïπëï…•πúÄÒÑ¯Å›•—†Å°…ïòıÌπ’±±ÙÅ›Ω’±êÅâîÅÑÅëïÖêÅ±•π¨Å—°Ö–Å±ΩΩ≠ÃÅç±•ç≠Öâ±îÉäPÅ›Ω…ÕîÅ—°Ö∏Å—°îÅ’π—…Öç≠ïêÅΩπîÅ•–Å…ï¡±Öçïê∏(ÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ†Ö°…ïò§Å…ï—’…∏Åπ’±∞Ï(ÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÑÅ≠ï‰ıÌ–πçΩëïÙÅ°…ïòıÌ°…ïôÙÅ—Ö…ùï–Ùâ}â±Öπ¨àÅ…ï∞ÙâπΩ…ïôï……ï»àÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅÏÅîπ¡…ïŸïπ—ïôÖ’±–†§ÏÅçΩπÕ–Å}±•ŸîÄÙÄ°îπç’……ïπ—QÖ…ùï–ÄòòÅîπç’……ïπ—QÖ…ùï–π°…ïò§ÅÒÅ°…ïòÏÅ±Ωú†â—•ç≠ï—Õ}Ω’–à∞ÅÏÅ≠•πêËÄâï·¡}…Ö•∞à∞ÅçÖ–∞ÅçΩëîËÅ–πçΩëîÅÙ§ÏÅΩ¡ïπ·—ï…πÖ∞°}±•Ÿî§ÏÅıÙÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâ…ï±Ö—•Ÿîà∞ÅâÖç≠ù…Ω’πêËÅπçÖ…ê∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞ÅâΩ…ëï…IÖë•’ÃËÄƒ»∞ÅΩŸï…ô±Ω‹ËÄâ°•ëëï∏à∞Å—ï·—ïçΩ…Ö—•Ω∏ËÄâπΩπîàÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ–πÕï±±•πù=’–Ä¸ÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâÖâÕΩ±’—îà∞Å—Ω¿ËÄ‹∞Å±ïô–ËÄ‹∞ÅÈ%πëï‡ËÄ»∞ÅôΩπ—M•ÈîËÄƒ¿∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞Å¡Öëë•πúËÄà…¡‡Ä›¡‡à∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞ÅâÖç≠ù…Ω’πêËÄâ…ùâÑ†ƒÃ∞ƒ‹∞»Ã∞∏‡»§à∞ÅçΩ±Ω»ËÄàç·Õà∞ÅâÖç≠ë…Ω¡•±—ï»ËÄââ±’»†—¡‡§àÅıÙ˚¬~RîÅMï±±•πúÅΩ’–ΩÕ¡Ö∏¯ÄËÅπ’±±Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ–π•µÖùîÄ¸ÄÒ•µúÅÕ…åıÌ–π•µÖùïÙÅÖ±–ÙààÅ±ΩÖë•πúÙâ±ÖÈ‰àÅÕ—Â±îıÌÏÅ›•ë—†ËÄàƒ¿¿îà∞Å°ï•ù°–ËÄ‰ÿ∞ÅΩâ©ïç—•–ËÄâçΩŸï»à∞Åë•Õ¡±Ö‰ËÄââ±Ωç¨àÅıÙÄº¯ÄËÄÒë•ÿÅÕ—Â±îıÌÏÅ›•ë—†ËÄàƒ¿¿îà∞Å°ï•ù°–ËÄ‰ÿ∞ÅâÖç≠ù…Ω’πêËÅπÖë•¥ÅıÙÄº˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ¡Öëë•πúËÄà·¡‡Äƒ¡¡‡àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅôΩπ—]ï•ù°–ËÄ‹‘¿∞ÅçΩ±Ω»ËÅπ—ï·–∞Å±•πï!ï•ù°–ËÄƒ∏Ã‘∞Åë•Õ¡±Ö‰ËÄàµ›ïâ≠•–µâΩ‡à∞Å]ïâ≠•—1•πï±Öµ¿ËÄ»∞Å]ïâ≠•—	Ω·=…•ïπ–ËÄâŸï…—•çÖ∞à∞ÅΩŸï…ô±Ω‹ËÄâ°•ëëï∏àÅıÙ˘Ì–π—•—±ïÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ–πç•—‰Ä¸ÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ¿∏‘∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞ÅçΩ±Ω»ËÅπ±•ù°–∞ÅµÖ…ù•πQΩ¿ËÄ–ÅıÙ˘Ì–πç•—ÂÙΩë•ÿ¯ÄËÅπ’±±Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®ÅQ!Å=9ÅM=IÄ°Ω›πï»§ËÅY•Ö—Ω»ÅçÖ…ëÃÅ›ïÖ»Å—°îÅ]ÖÂô•πêÅMçΩ…î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅï·Öç—±‰Å±•≠îÅ¡±ÖçîÅçÖ…ëÃÉäPÅù…ïï∏Äºƒ¿∞Å—°ï∏Å—°îÅ°ΩπïÕ–Åµï—Ñ∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‹∞ÅµÖ…ù•πQΩ¿ËÄÃ∞Åô±ï·]…Ö¿ËÄâ›…Ö¿àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ–π…Ö—•πúÄ¯Ä¿ÄòòÅ–π…ïŸ•ï›ÃÄ¯Ä¿Ä¸ÄÒA±ÖçïMçΩ…ï°•¿Å¿ıÌÏÅ…Ö—•πúËÅ–π…Ö—•πú∞Å…ïŸ•ï›ÃËÅ–π…ïŸ•ï›ÃÅıÙÅÕ•ÈîıÏƒ…ÙÄº¯ÄËÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ¿∏‘∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞ÅçΩ±Ω»ËÅπµ’—ïêÅıÙ˘9ï‹ΩÕ¡Ö∏˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒƒ∞ÅçΩ±Ω»ËÅπµ’—ïêÅıÙ˘Ì–πô…ΩµA…•çîÄ¸ÅÅô…Ω¥ÄêëÌ–πô…ΩµA…•çïıÄÄËÄàâıÌ–πë’…Ö—•Ω∏Ä¸ÅÄÉ
+‹ÄëÌ–πë’…Ö—•ΩπıÄÄËÄàâÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄΩÑ¯(ÄÄÄÄÄÄÄÄÄÄ§Ï(ÄÄÄÄÄÄÄÄÄÅÙ•Ù(ÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ¿∏‘∞ÅçΩ±Ω»ËÅπµ’—ïê∞ÅµÖ…ù•πQΩ¿ËÄ‰∞Å±•πï!ï•ù°–ËÄƒ∏–ÅıÙ˘]ÖÂô•πêÅµÖ‰ÅïÖ…∏ÅÑÅçΩµµ•ÕÕ•Ω∏Å›°ï∏ÅÂΩ‘ÅâΩΩ¨Å—°…Ω’ù†Å—°•ÃÅ±•π¨∞ÅÖ–ÅπºÅï·—…ÑÅçΩÕ–Å—ºÅÂΩ‘∏Å%–ÅπïŸï»Åç°ÖπùïÃÅΩ’»ÅÕçΩ…ïÃÅΩ»Å…Öπ≠•πùÃ∏Ωë•ÿ¯(ÄÄÄÄÄÅÌÕ–π°ÖÕ5Ω…îÄ¸Ä†(ÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅΩπ±•ç¨ıÌ±ΩÖë5Ω…ïÙÅë•ÕÖâ±ïêıÌµΩ…ïÙÅÕ—Â±îıÌÏÅ›•ë—†ËÄàƒ¿¿îà∞ÅµÖ…ù•πQΩ¿ËÄƒ¿∞Å¡Öëë•πúËÄàƒ≈¡‡Ä¿à∞ÅâΩ…ëï…IÖë•’ÃËÄƒ»∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπÖççïπ—ıÄ∞ÅâÖç≠ù…Ω’πêËÅπÖë•¥∞ÅçΩ±Ω»ËÅπÖççïπ–∞ÅôΩπ—M•ÈîËÄƒÃ∏‘∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞Åç’…ÕΩ»ËÅµΩ…îÄ¸ÄâëïôÖ’±–àÄËÄâ¡Ω•π—ï»à∞ÅΩ¡Öç•—‰ËÅµΩ…îÄ¸Ä¿∏ÿÄËÄƒÅıÙ˘ÌµΩ…îÄ¸Äâ1ΩÖë•πüäòàÄËÄâM°Ω‹ÅµΩ…îÅï·¡ï…•ïπçïÃâÙΩâ’——Ω∏¯(ÄÄÄÄÄÄ§ÄËÅπ’±±Ù(ÄÄÄÄΩë•ÿ¯(ÄÄ§Ï)Ù(((ººÅÿÿ∏‘ÿÄ°Ω›πï»§ËÅ—°îÅAI599PÅâΩΩ≠Öâ±îµï·¡ï…•ïπçïÃÅ…Ö•∞ÅΩ∏ÅQ°•πùÃÅ—ºÅëºÉäP(ººÄâ±∞àÅÕ°Ω›ÃÅ—Ω¿Å—…ïπë•πúÏÅïÖç†ÅÕ’àµµïπ‘ÅÕ°Ω›ÃÅï·¡ï…•ïπçïÃÅ—°ïµïêÅ—ºÅ•–(ººÄ°±•àΩï·¡ï…•ïπçïÕÖ—ÑÅçÖ—Ö±ΩúÅ≠ïÂÃ§∏ÅŸï…‰Å°…ïòÅ•ÃÅÖôô•±•Ö—îµ›…Ö¡¡ïêÅŸ•Ñ(ººÅŸ•Ö—Ω…•…ïç—U…∞Ä°—°îÅ=9Å—…Öç≠•πúÅâ’•±ëï»§∏ÅÖ•±ÃÅÕΩô–Å—ºÅπºÅ…Ö•∞∏(ººÄ»¿»ÿ¥¿‡¥¿»ÉäPÅ—°îÅç°•¿Ä¥¯Å•πŸïπ—Ω…‰Åëïç•Õ•Ω∏ÅµΩŸïêÅ=UPÅΩòÅ—°•ÃÅô•±îÅ•π—º(ººÅ±•àΩâ…Ω›ÕïΩµµï…çï5Ö¿π©Ã∞ÅÕºÅÑÅù’Ö…êÅçÖ∏Å•µ¡Ω…–ÅÖπêÅ10Å•–Å•πÕ—ïÖêÅΩò(ººÅ…ïùï·•πúÅÑÅ±•—ï…Ö∞ÅΩ’–ÅΩòÅÑÄ‰∞‘¿¿µ±•πîÅç±•ïπ–ÅçΩµ¡Ωπïπ–∏ÅMïîÅ—°Ö–Åô•±îÅôΩ»(ººÅ›°‰ÅΩπîÅçÖ—Ö±Ωù’îÅ≠ï‰Å¡ï»Åç°•¿Å›ÖÃÅπïŸï»ÅïπΩ’ù†∏ÅQ°îÅ—°…ïîÅâï°ÖŸ•Ω’…ÃÅ—°Ö–(ººÅµÖ——ï»Å°ï…îË(ººÄÄÄ¥ÅÑÅç°•¿Å›•—†ÅπºÅ—Öâ±îÅ•πŸïπ—Ω…‰Ä°Õ¡Ñ§Å…ï—’…πÃÅçÖ—Ö±ΩùAÖ…Ö¥ÄÙÙÙÅπ’±∞ÅÖπêÅ›î(ººÄÄÄÄÅÕ≠•¿Å—°îÅ—Öâ±îÅ…ïÖêÅïπ—•…ï±‰Å…Ö—°ï»Å—°Ö∏ÅÕïπë•πúÅÖ∏Åïµ¡—‰ÅçÖ–ÙÅ—°Ö–Å—°î(ººÄÄÄÄÅ…Ω’—îùÃÅÅÒÄâÖ±∞âÄÅëïôÖ’±–Å›Ω’±êÅÕ•±ïπ—±‰Å›•ëï∏ÅâÖç¨Å—ºÅïŸï…Â—°•πúÏ(ººÄÄÄ¥ÅÑÅç°•¿ÅµÖ‰ÅπÖµîÅMYI0ÅçÖ—Ö±Ωù’ïÃÄ†â=’—ëΩΩ…ÃàÄÙÅπÖ—’…î≠ÖëŸïπ—’…î≠≠ÖÂÖ≠•πú§Ï(ººÄÄÄ¥Å—°îÅ±•ŸîµÕïÖ…ç†ÅôÖ±±âÖç¨Å’ÕïÃÅ—°îÅç°•¿ùÃÅΩ›∏Å°’µÖ∏Å≈’ï…‰Å—ï·–∞ÅπïŸï»ÅÑ(ººÄÄÄÄÅçÖ—Ö±Ωù’îÅ≠ï‰∞ÅÕºÅÖ∏Åïµ¡—‰ÅµÖ…≠ï–ÅÕïÖ…ç°ïÃÄâMÖ…ÖÕΩ—ÑÅôÖµ•±‰ÅÖ——…Öç—•ΩπÃ(ººÄÄÄÄÅÖπêÅ—°ïµîÅ¡Ö…≠ÃàÅ•πÕ—ïÖêÅΩòÅ—°îÅ±•—ï…Ö∞ÄâMÖ…ÖÕΩ—ÑÅ—°ïµîà∏((ººÅ=πîÅçΩµµï…çîÅ…Ö•∞Å¡ï»Åâ…Ω›ÕîÅÕ’…ôÖçî∏Å%–ÅçΩµâ•πïÃÅŸï…•ô•ïêÅY•Ö—Ω»Å•πŸïπ—Ω…‰(ººÅÖπêÅπï—›Ω…¨ÅëïÖ±ÃÅâïôΩ…îÅ…ïπëï…•πú∞ÅÕºÅ¡…ΩŸ•ëï»ÅâΩ’πëÖ…•ïÃÅπïŸï»ÅâïçΩµî(ººÅÕï¡Ö…Ö—îÅŸ•Õ’Ö∞ÅÕïç—•ΩπÃ∏ÅÖ…ëÃÅ›•—°Ω’–Å…ïÖ∞ÅÖ…—›Ω…¨ÅôÖ•∞Åç±ΩÕïê∏)ô’πç—•Ω∏ÅUπ•ô•ïë	…Ω›ÕïΩµµï…çïIÖ•∞°ÏÅçÖ–ËÅâ…Ω›ÕïÖ–ÄÙÄâÖ——…Öç—•ΩπÃà∞ÅÕ’à∞Å•πç±’ëï·¡ï…•ïπçïÃÄÙÅ—…’î∞Å•π•—•Ö±·¡ï…•ïπçïÃ∞ÅçÖ—ïùΩ…•ïÃÄÙÅmt∞Å±Ö–∞Å±πú∞ÅΩπMÖŸî∞ÅΩπ1ΩúÄÙÅ9=1=∞Åç•—‰∞Å…ïù•Ω∏ÅÙ§ÅÏ(ÄÅçΩπÕ–Å¡±Ö∏ÄÙÅç°•¡Ωµµï…çî°â…Ω›ÕïÖ–∞ÅÕ’àÅÒÄâÖ±∞à§Ï(ÄÅçΩπÕ–ÅçÖ–ÄÙÅ¡±Ö∏πçÖ—Ö±ΩùAÖ…Ö¥Ï(ÄÅçΩπÕ–Åmï·¡ï…•ïπçïÃ∞ÅÕï—·¡ï…•ïπçïÕtÄÙÅ’ÕïM—Ö—î††§ÄÙ¯Å……Ö‰π•Õ……Ö‰°•π•—•Ö±·¡ï…•ïπçïÃ§Ä¸Å•π•—•Ö±·¡ï…•ïπçïÃÄËÅπ’±∞§Ï(ÄÅçΩπÕ–ÅmëïÖ±Ã∞ÅÕï—ïÖ±ÕtÄÙÅ’ÕïM—Ö—î°π’±∞§Ï((ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ°……Ö‰π•Õ……Ö‰°•π•—•Ö±·¡ï…•ïπçïÃ§§ÅÏÅÕï—·¡ï…•ïπçïÃ°•π•—•Ö±·¡ï…•ïπçïÃ§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÅ•òÄ†Ö•πç±’ëï·¡ï…•ïπçïÃÅÒÄÖ9’µâï»π•Õ•π•—î°±Ö–§ÅÒÄÖ9’µâï»π•Õ•π•—î°±πú§§ÅÏÅÕï—·¡ï…•ïπçïÃ°mt§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÅ±ï–ÅëïÖêÄÙÅôÖ±ÕîÏ(ÄÄÄÅçΩπÕ–ÅÕïÖ…ç°Qï·–ÄÙÅç°•¡MïÖ…ç°E’ï…‰°â…Ω›ÕïÖ–∞ÅÕ’àÅÒÄâÖ±∞à∞Åç•—‰§Ï(ÄÄÄÅçΩπÕ–Å±•ŸïMïÖ…ç†ÄÙÅÖÕÂπåÄ†§ÄÙ¯ÅÏ(ÄÄÄÄÄÄººÅQÅ=8ÅÅç•—ÂÄ∞Åëï±•âï…Ö—ï±‰∏Å]•—†ÅπºÅ≠πΩ›∏Åç•—‰Å—°•ÃÅµ’Õ–(ÄÄÄÄÄÄººÅπïŸï»ÅôÖ±∞ÅâÖç¨Å—ºÅ±Ω…•ëÑÅµÖ…≠ï—ÃÅôΩ»ÅÖ∏ÅΩ’–µΩòµ…ïù•Ω∏ÅŸ•Õ•—Ω»ÉäP(ÄÄÄÄÄÄººÅ—°Ö–Å•ÃÅ—°îÅ…ïù…ïÕÕ•Ω∏Å—ïÕ–µï·¡ï…•ïπçïÃµ±ΩçÖ—•Ω∏Åï·•Õ—ÃÅ—ºÅ°Ω±ê∏(ÄÄÄÄÄÄººÅÅ…ïù•ΩπÄÅ…•ëïÃÅÖ±ΩπúÅôΩ»Å—°îÅÕÖµîÅ…ïÖÕΩ∏ËÅ—°îÅÖπ—§µôΩ…ï•ù∏Åô•±—ï»Å•∏(ÄÄÄÄÄÄººÄΩÖ¡§ΩŸ•Ö—Ω»Ω—Ω’…ÃÅ…ï—’…πÃÄ¿Å—Ω’…ÃÅ›•—°Ω’–Å•–∏(ÄÄÄÄÄÅ•òÄ†Öç•—‰§Å…ï—’…∏ÅmtÏ(ÄÄÄÄÄÅ—…‰ÅÏ(ÄÄÄÄÄÄÄÅçΩπÕ–Å±•ŸîÄÙÅÖ›Ö•–Åôï—ç††àΩÖ¡§ΩŸ•Ö—Ω»Ω—Ω’…Ã˝ƒÙàÄ¨ÅïπçΩëïUI%Ωµ¡Ωπïπ–°ÕïÖ…ç°Qï·–§Ä¨Äàô…ïù•Ω∏ÙàÄ¨ÅïπçΩëïUI%Ωµ¡Ωπïπ–°…ïù•Ω∏ÅÒÅç•—‰§Ä¨Äàô±Ö–ÙàÄ¨ÅïπçΩëïUI%Ωµ¡Ωπïπ–°±Ö–§Ä¨Äàô±πúÙàÄ¨ÅïπçΩëïUI%Ωµ¡Ωπïπ–°±πú§Ä¨Äàô•π—ïπ–ÙàÄ¨ÅïπçΩëïUI%Ωµ¡Ωπïπ–°Õ’àÅÒÄâÖ±∞à§§π—°ï∏†°»§ÄÙ¯Ä°»πΩ¨Ä¸Å»π©ÕΩ∏†§ÄËÅπ’±∞§§Ï(ÄÄÄÄÄÄÄÅ…ï—’…∏Å…Öπ≠·¡ï…•ïπçïÃ°±•ŸîÄòòÅ……Ö‰π•Õ……Ö‰°±•Ÿîπ•—ïµÃ§Ä¸Å±•Ÿîπ•—ïµÃÄËÅmt§πÕ±•çî†¿∞Äƒ»§Ï(ÄÄÄÄÄÅÙÅçÖ—ç†Ä°î§ÅÏÅ…ï—’…∏ÅmtÏÅÙ(ÄÄÄÅÙÏ(ÄÄÄÄººÅçÖ–ÄÙÙÙÅπ’±∞ÅµïÖπÃÅ9=Q!%9Å•∏Å›ô}ï·¡ï…•ïπçïÃÅâï±ΩπùÃÅ’πëï»Å—°•ÃÅç°•¿∏(ÄÄÄÄººÅΩ•πúÅÕ—…Ö•ù°–Å—ºÅÕïÖ…ç†Å•ÃÅ—°îÅ°ΩπïÕ–Å¡Ö—†ÏÅ°•——•πúÅ—°îÅ—Öâ±îÅ›Ω’±êÅΩπ±‰(ÄÄÄÄººÅÖÕ¨ÅÑÅ≈’ïÕ—•Ω∏Å›°ΩÕîÅΩπ±‰ÅçΩ……ïç–ÅÖπÕ›ï»Å•ÃÄâπΩπîà∏(ÄÄÄÅ•òÄ°çÖ–ÄÙÙÙÅπ’±∞§ÅÏ(ÄÄÄÄÄÅ±•ŸïMïÖ…ç††§π—°ï∏†°…Ω›Ã§ÄÙ¯ÅÏÅ•òÄ†ÖëïÖê§ÅÕï—·¡ï…•ïπçïÃ°…Ω›Ã§ÏÅÙ§Ï(ÄÄÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅëïÖêÄÙÅ—…’îÏÅÙÏ(ÄÄÄÅÙ(ÄÄÄÅçΩπÕ–ÅƒÄÙÅπï‹ÅUI1MïÖ…ç°AÖ…ÖµÃ°ÏÅ±Ö–ËÅM—…•πú°±Ö–§∞Å±πúËÅM—…•πú°±πú§∞Åµ§ËÄàÿ¿à∞ÅçÖ–∞Å±•µ•–ËÄàƒ»à∞Å¡ÖùîËÄà¿àÅÙ§Ï(ÄÄÄÅôï—ç††àΩÖ¡§Ωï·¡ï…•ïπçïÃ¸àÄ¨Åƒπ—ΩM—…•πú†§§π—°ï∏†°»§ÄÙ¯Ä°»πΩ¨Ä¸Å»π©ÕΩ∏†§ÄËÅπ’±∞§∞Ä†§ÄÙ¯Åπ’±∞§π—°ï∏°ÖÕÂπåÄ°…ïÃ§ÄÙ¯ÅÏ(ÄÄÄÄÄÅ•òÄ°ëïÖê§Å…ï—’…∏Ï(ÄÄÄÄÄÅ±ï–Å…Ω›ÃÄÙÅ…Öπ≠·¡ï…•ïπçïÃ°…ïÃÄòòÅ……Ö‰π•Õ……Ö‰°…ïÃπ•—ïµÃ§Ä¸Å…ïÃπ•—ïµÃÄËÅmt§πÕ±•çî†¿∞Äƒ»§Ï(ÄÄÄÄÄÅ•òÄ†Ö…Ω›Ãπ±ïπù—†§Å…Ω›ÃÄÙÅÖ›Ö•–Å±•ŸïMïÖ…ç††§Ï(ÄÄÄÄÄÅÕï—·¡ï…•ïπçïÃ°…Ω›Ã§Ï(ÄÄÄÅÙ§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅëïÖêÄÙÅ—…’îÏÅÙÏ(ÄÅÙ∞Åm•π•—•Ö±·¡ï…•ïπçïÃ∞Å•πç±’ëï·¡ï…•ïπçïÃ∞ÅçÖ–∞Åâ…Ω›ÕïÖ–∞ÅÕ’à∞Å±Ö–∞Å±πú∞Åç•—‰∞Å…ïù•Ωπt§Ï((ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÄººÅQ°îÅëïÖ±ÃÅ±ÖπîÅπïŸï»ÅçΩπÕ’±—ïêÅÅ¡±ÖπÄ∏ÅÅçÖ—ïùΩ…•ïÕÄÅ•ÃÅÑÅ±•—ï…Ö∞ÅÖπêÅÅÕ’âÄ(ÄÄÄÄººÅ›ÖÃÅπΩ–ÅïŸï∏Å•∏Å—°îÅëï¿ÅÖ……Ö‰∞ÅÕºÅïŸï…‰Åç—•Ÿ•—•ïÃÅç°•¿Åôï—ç°ïêÅ—°îÅÕÖµî(ÄÄÄÄººÅ—°ïµîµ¡Ö…¨Å—•ç≠ï—ÃÅÖπêÅ¡Ö•π—ïêÅ—°ï¥Å’πëï»ÅÑÅ°ïÖë•πúÅπÖµ•πúÅ—°Ö–Åç°•¿Ë(ÄÄÄÄººÄâMAÄòÅ]119MLÄ¥Å	==-	1Å9HÅAII%M àÅΩŸï»Å1=19ÅÖπêÅ	’Õç†ÅÖ…ëïπÃ∞(ÄÄÄÄººÅΩ∏ÅÑÅ±•ŸîÅÕç…ïïπÕ°Ω–∏ÅQ°îÅ°ïÖë•πúÅçΩµµïπ–Åâï±Ω‹ÅÖ±…ïÖë‰ÅçÖ±±ïêÅ—°•ÃÅï·Öç–(ÄÄÄÄººÅÕ°Ö¡îÄâÑÅâ’úÅÂΩ‘ÅçÖ∏ÅMà∏ÅÅç°•¿Å—°Ö–Åëïç±Ö…ïÃÅπºÅâΩΩ≠Öâ±îÅçÖ—Ö±ΩúÅπΩ‹(ÄÄÄÄººÅÕï±±ÃÅπΩ—°•πúÅ°ï…îÅ…Ö—°ï»Å—°Ö∏Å—°îÅ›…ΩπúÅ—°•πúÅ’πëï»Å•—ÃÅΩ›∏ÅπÖµî∏(ÄÄÄÅçΩπÕ–Åç°•¡Mï±±Õ9Ω—°•πúÄÙÄÑÑ°Õ’àÄòòÅÕ’àÄÑÙÙÄâÖ±∞àÄòòÅ¡±Ö∏πçÖ—Ö±ΩùAÖ…Ö¥ÄÙÙÙÅπ’±∞§Ï(ÄÄÄÅ•òÄ°ç°•¡Mï±±Õ9Ω—°•πúÅÒÄÖçÖ—ïùΩ…•ïÃπ±ïπù—†ÅÒÄÖ9’µâï»π•Õ•π•—î°±Ö–§ÅÒÄÖ9’µâï»π•Õ•π•—î°±πú§§ÅÏÅÕï—ïÖ±Ã°mt§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÅ±ï–ÅëïÖêÄÙÅôÖ±ÕîÏ(ÄÄÄÅçΩπÕ–ÅùïºÄÙÄàô±Ö–ÙàÄ¨Å±Ö–π—Ω•·ïê†Ã§Ä¨Äàô±πúÙàÄ¨Å±πúπ—Ω•·ïê†Ã§Ï(ÄÄÄÅA…Ωµ•ÕîπÖ±∞°çÖ—ïùΩ…•ïÃπµÖ¿†°çÖ—ïùΩ…‰§ÄÙ¯Åôï—ç††àΩÖ¡§ΩëïÖ±Ã˝çÖ—ïùΩ…‰ÙàÄ¨ÅïπçΩëïUI%Ωµ¡Ωπïπ–°çÖ—ïùΩ…‰§Ä¨Åùïº§π—°ï∏†°»§ÄÙ¯Ä°»πΩ¨Ä¸Å»π©ÕΩ∏†§ÄËÅπ’±∞§∞Ä†§ÄÙ¯Åπ’±∞§§§π—°ï∏†°¡ÖÂ±ΩÖëÃ§ÄÙ¯ÅÏ(ÄÄÄÄÄÅ•òÄ°ëïÖê§Å…ï—’…∏Ï(ÄÄÄÄÄÅçΩπÕ–Å…Ω›ÃÄÙÅmtÏ(ÄÄÄÄÄÅôΩ»Ä°çΩπÕ–Å¡ÖÂ±ΩÖêÅΩòÅ¡ÖÂ±ΩÖëÃ§ÅôΩ»Ä°çΩπÕ–Å…Ö•∞ÅΩòÄ°¡ÖÂ±ΩÖêÄòòÅ……Ö‰π•Õ……Ö‰°¡ÖÂ±ΩÖêπ…Ö•±Ã§Ä¸Å¡ÖÂ±ΩÖêπ…Ö•±ÃÄËÅmt§§ÅôΩ»Ä°çΩπÕ–ÅëïÖ∞ÅΩòÄ°……Ö‰π•Õ……Ö‰°…Ö•∞π•—ïµÃ§Ä¸Å…Ö•∞π•—ïµÃÄËÅmt§§Å…Ω›Ãπ¡’Õ†°ëïÖ∞§Ï(ÄÄÄÄÄÅÕï—ïÖ±Ã°…Ω›Ã§Ï(ÄÄÄÅÙ§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅëïÖêÄÙÅ—…’îÏÅÙÏ(ÄÅÙ∞ÅmçÖ—ïùΩ…•ïÃπ©Ω•∏†âà§∞Å±Ö–∞Å±πú∞ÅÕ’à∞Å¡±Ö∏πçÖ—Ö±ΩùAÖ…Öµt§Ï((ÄÄººÅÿÿ∏‰¿ÉäPÅΩ›πï»ËÄâµÖ≠îÅÕ’…îÅ—°ï‰ÅÖ…îÅë•Õ¡±ÖÂïêÅâ‰Å…Ö—•πúÅÖπêÅë•ÕçΩ’π–∞(ÄÄººÅ¡Ω•π–ÅâÖÕïêÅΩ∏Å—°îÅÖç—•Ÿ•—‰Å—•µîÅΩòÅ—ΩëÖ‰∏àÅMÖµîÅÕµÖ±∞∞ÅçÖ¡¡ïê∞ÅΩ…ëï»¥(ÄÄººÅΩπ±‰ÅâΩπ’ÕïÃÅÖÃÅ%π—ïπ—AÖ…—πï…A•ç¨π©ÃùÃÅïŸ•ëïπçïMçΩ…î∞Å≠ï¡–Å•∏ÅÕÂπåÅÕºÅ—°î(ÄÄººÅ—›ºÅµ•·ïêµ¡…ΩŸ•ëï»Å…Ö•±ÃÅâï°ÖŸîÅçΩπÕ•Õ—ïπ—±‰ÉäPÅÕïî(ÄÄººÅ±•àΩï·¡ï…•ïπçï9Ω›IÖπ¨π©Ã∏ÅIÖ—•πúΩ≈’Ö±•—‰ƒ¿ÅÕ—ÖÂÃÅ—°îÅâÖÕîÅ—ï…¥ÏÅ’π…Ö—ïê(ÄÄººÅëïÖ±ÃÅ≠ïï¿Å—°îÅï·Öç–Ä¥ƒÅÕïπ—•πï∞Ä°ÕΩ…—ÃÅ±ÖÕ–∞Å’π—Ω’ç°ïêÅâ‰ÅÖπ‰ÅâΩπ’Ã§∏(ÄÅçΩπÕ–ÅπΩ›!Ω’»ÄÙÅÕ•—ï!Ω’…±ΩÖ–†§Ï(ÄÅçΩπÕ–ÅçÖ…ëÃÄÙÅ’Õï5ïµº††§ÄÙ¯ÅÏ(ÄÄÄÅçΩπÕ–Å…Ω›ÃÄÙÅmtÏ(ÄÄÄÅôΩ»Ä°çΩπÕ–Å–ÅΩòÄ°……Ö‰π•Õ……Ö‰°ï·¡ï…•ïπçïÃ§Ä¸Åï·¡ï…•ïπçïÃÄËÅmt§§ÅÏ(ÄÄÄÄÄÅ•òÄ†Ö–¸π•µÖùîÅÒÄÑ°–πçΩëîÅÒÅ–π¡…Ωë’ç—}çΩëî§§ÅçΩπ—•π’îÏ(ÄÄÄÄÄÅçΩπÕ–ÅΩôôï…%êÄÙÅ–πçΩëîÅÒÅ–π¡…Ωë’ç—}çΩëîÏ(ÄÄÄÄÄÄººÅQ!Å]e%9ÅM=I∞ÅπΩ–ÅÑÅÕïçΩπêÅΩ¡•π•Ω∏Ä°Ω›πï»ËÄâ—°ï‰ÅÖ…îÅπΩ–Åâï•πú(ÄÄÄÄÄÄººÅë•Õ¡±ÖÂïêÅâ‰Å°•ù°ïÕ–Å—ºÅ±Ω›ïÕ–ÅÕçΩ…îà∞Ä»¿»ÿ¥¿‡¥¿‘§∏(ÄÄÄÄÄÄºº(ÄÄÄÄÄÄººÅ…Öπ≠·¡ï…•ïπçïÃ†§Å°ÖêÅÖ±…ïÖë‰ÅΩ…ëï…ïêÅ—°ïÕîÅçΩ……ïç—±‰ÉäPÅâ‰(ÄÄÄÄÄÄººÅï·¡ï…•ïπçï]ÖÂô•πëMçΩ…î∞Å—°îÅ	ÖÂïÕ•Ö∏Åâ±ïπêÅ—°Ö–Å›ï•ù°—ÃÅ…ïŸ•ï‹ÅAQ ∏(ÄÄÄÄÄÄººÅQ°•ÃÅ±•πîÅ—°ï∏Å…îµÕΩ…—ïêÅ—°ï¥Åâ‰ÅÅ…Ö—•πúÄ®Ä»Ä¨Å±Ωúƒ¿°…ïŸ•ï›Ã•Ä∞Å›°ï…î(ÄÄÄÄÄÄººÅ…ïŸ•ï›ÃÅçΩπ—…•â’—îÅÖ–ÅµΩÕ–Ä¿∏–∞ÅÕºÅ…Ö—•πúÅëΩµ•πÖ—ïÃÅÖπêÅ—°îÅçΩ……ïç–(ÄÄÄÄÄÄººÅΩ…ëï»Å›ÖÃÅëïÕ—…ΩÂïêÅ•µµïë•Ö—ï±‰ÅÖô—ï»Åâï•πúÅçΩµ¡’—ïê∏Å5ïÖÕ’…ïêË(ÄÄÄÄÄÄºº(ÄÄÄÄÄÄººÄÄÄ–∏‹Å›•—†Ä»¿¿¿Å…ïŸ•ï›ÃÄÄ¥¯ÄÅMçΩ…îÄ‰–∞Å…Ö•±	ÖÕîÄ‰∏‹ÃÄÄ°Õ°Ω›∏ÄÕ…ê§(ÄÄÄÄÄÄººÄÄÄ‘∏¿Å›•—†ÄÃÅ…ïŸ•ï›ÃÄÄÄÄÄ¥¯ÄÅMçΩ…îÄ‹‰∞Å…Ö•±	ÖÕîÄƒ¿∏¿ÿÄ°Õ°Ω›∏Ä≈Õ–§(ÄÄÄÄÄÄºº(ÄÄÄÄÄÄººÅÄ‘∏¿Åô…Ω¥Å—°…ïîÅ¡ïΩ¡±îÅΩ’—…Öπ≠ïêÅÑÄ–∏‹Åô…Ω¥Å—›ºÅ—°Ω’ÕÖπê∏Å•Ÿ•ëïêÅâ‰(ÄÄÄÄÄÄººÄƒ¿ÅÕºÅ—°îÄ¿¥ƒ¿¿ÅMçΩ…îÅÕ°Ö…ïÃÅ—°îÄ¿¥ƒ¿ÅÕçÖ±îÅ—°îÅëïÖ∞Å…Ω›ÃÅÖπêÅ—°î(ÄÄÄÄÄÄººÅçÖ¡¡ïêÅâΩπ’ÕïÃÅÖ±…ïÖë‰Å’ÕîÉäPÅ—°îÅâΩπ’ÕïÃÅÕ—Ö‰Å¡…Ω¡Ω…—•ΩπÖ±±‰Å›°Ö–Å—°ï‰(ÄÄÄÄÄÄººÅ›ï…î∞ÅÖπêÅµï…•–ÅÕ—•±∞Åëïç•ëïÃÅ—°îÅΩ…ëï»∏(ÄÄÄÄÄÅçΩπÕ–ÅâÖÕîÄÙÅï·¡ï…•ïπçï]ÖÂô•πëMçΩ…î°–§ÄºÄƒ¿Ï(ÄÄÄÄÄÄººÅç°•¡ôô•π•—Â	Ωπ’ÃÅ•ÃÅ=IHµ=91dÅÖπêÅçÖ¡¡ïêÅÖ–Ä¿∏‘ÅΩ∏Å—°îÅÕÖµîÅ¯¿¥ƒ¿(ÄÄÄÄÄÄººÅÕçÖ±îÅÖÃÅÅâÖÕïÄ∏Å%–Åï·•Õ—ÃÅâïçÖ’ÕîÅïŸï…‰ÅΩΩêÅÕ’àµç°•¿Åë…Ö›ÃÅô…Ω¥ÅΩπî(ÄÄÄÄÄÄººÅ¡ΩΩ∞ÅΩòÅôΩΩêÅ—Ω’…ÃÉäPÅY•Ö—Ω»ÅÕï±±ÃÅπºÄâëïÕÕï…–ÅçÖ—Ö±Ωù’îàÉäPÅÕºÅïÕÕï…–(ÄÄÄÄÄÄººÅ’ÕïêÅ—ºÅ…ïπëï»Å—°îÅ•ëïπ—•çÖ∞Å±•Õ–ÅÖÃÅΩΩêΩ±∞∏ÅQ°•ÃÅ±ï—ÃÅÑÅç°ΩçΩ±Ö—î(ÄÄÄÄÄÄººÅ—Ω’»ÅïëùîÅ¡ÖÕ–ÅÖ∏ÅEU11dµ…Ö—ïêÅùïπï…•åÅôΩΩêÅ—Ω’»Å’πëï»ÅïÕÕï…–Å›•—°Ω’–(ÄÄÄÄÄÄººÅïŸï»Å±ïÖ¡ô…Ωùù•πúÅÑÅç±ïÖ…±‰Åâï——ï»ÅΩπî∞Å›°•ç†Å•ÃÅ›°Ö–Å≠ïï¡ÃÅ—°îÅΩ›πï»ùÃ(ÄÄÄÄÄÄººÄâ…Öπ≠ïêÅô…Ω¥Å°•ù°ïÕ–ÅÕçΩ…îàÅ—…’î∏(ÄÄÄÄÄÅ…Ω›Ãπ¡’Õ†°ÏÅ≠ï‰ËÅÅŸ•Ö—Ω»ËëÌΩôôï…%ëıÄ∞Å¡…ΩŸ•ëï»ËÄâŸ•Ö—Ω»à∞Åµï…ç°Öπ–ËÄâY•Ö—Ω»à∞ÅΩôôï…%ê∞Å—•—±îËÅ–π—•—±î∞Å•µÖùîËÅ–π•µÖùî∞Å…Ö—•πúËÅ9’µâï»°–π…Ö—•πúÅÒÄ¿§∞Å…ïŸ•ï›ÃËÅ9’µâï»°–π…ïŸ•ï›ÃÅÒÄ¿§∞Å¡…•çîËÅ–πô…ΩµA…•çîÄ¸ÅÅô…Ω¥ÄêëÌ5Ö—†π…Ω’πê°–πô…ΩµA…•çî•ıÄÄËÄàà∞Åë’…Ö—•Ω∏ËÅ–πë’…Ö—•Ω∏ÅÒÄàà∞ÅÕçΩ…îËÅâÖÕîÄ¨Å—•µï=ôÖÂ	Ωπ’Ã°M—…•πú°–π—•—±îÅÒÄàà§∞ÅπΩ›!Ω’»§Ä¨Åç°•¡ôô•π•—Â	Ωπ’Ã°â…Ω›ÕïÖ–∞ÅÕ’àÅÒÄâÖ±∞à∞Å–π—•—±î§∞Å≠•πêËÄâï·¡ï…•ïπçîàÅÙ§Ï(ÄÄÄÅÙ(ÄÄÄÅôΩ»Ä°çΩπÕ–ÅêÅΩòÄ°……Ö‰π•Õ……Ö‰°ëïÖ±Ã§Ä¸ÅëïÖ±ÃÄËÅmt§§ÅÏ(ÄÄÄÄÄÅçΩπÕ–Å•µÖùîÄÙÅêπ•µÖùîÅÒÄ°êπ¡°Ω—ΩIïòÄ¸ÄàΩÖ¡§Ω¡°Ω—º˝…ïòÙàÄ¨ÅïπçΩëïUI%Ωµ¡Ωπïπ–°êπ¡°Ω—ΩIïò§Ä¨Äàô‹Ùÿ¿¿àÄËÄàà§Ï(ÄÄÄÄÄÅ•òÄ†Ö•µÖùîÅÒÄÖêπ•ê§ÅçΩπ—•π’îÏ(ÄÄÄÄÄÅçΩπÕ–Åë	ÖÕîÄÙÅ9’µâï»°êπ≈’Ö±•—‰ƒ¿ÅÒÄ¿§Ï(ÄÄÄÄÄÅçΩπÕ–Åë•ÕçΩ’π—Qï·–ÄÙÅêπë•ÕçΩ’π–ÅÒÅêπâÖëùîÅÒÄààÏ(ÄÄÄÄÄÅçΩπÕ–ÅëMçΩ…îÄÙÅë	ÖÕîÄ¯Ä¿Ä¸Åë	ÖÕîÄ¨Åë•ÕçΩ’π—ï¡—°	Ωπ’Ã°ë•ÕçΩ’π—Qï·–§Ä¨Å—•µï=ôÖÂ	Ωπ’Ã°M—…•πú°êπ—•—±îÅÒÄàà§Ä¨ÄàÄàÄ¨Åë•ÕçΩ’π—Qï·–∞ÅπΩ›!Ω’»§ÄËÄ¥ƒÏ(ÄÄÄÄÄÄººÅQQI%	UQ%=8∞ÅπΩ–ÅçΩÕµï—•çÃ∏Å±•àΩëïÖ±ÕÖ—Ñπ©ÃÅÕ°Ö¡ïÃÅïŸï…‰Å…Ω‹Å›•—†(ÄÄÄÄÄÄººÅÕ’…ôÖçîËâëïÖ±}…Ö•∞àÅâÖ≠ïêÅ•π—ºÅ—°îÅ°…ïò∞ÅâïçÖ’ÕîÅ—°Ö–Å•ÃÅ›°ï…îÅëïÖ±Ã(ÄÄÄÄÄÄººÅ›ï…îÅô•…Õ–ÅÕï…Ÿïê∏ÅIïπëï…•πúÅ—°Ö–Å°…ïòÅ°ï…îÅ…ï¡Ω…—ïêÅïŸï…‰Åâ…Ω›Õîµ…Ö•∞(ÄÄÄÄÄÄººÅëïÖ∞Åç±•ç¨ÅÖÃÅÖ∏Å•π—ïπ–µ…Ö•∞Åç±•ç¨∞ÅÕºÅ—°îÅ—›ºÅÕ’…ôÖçïÃÅçΩ’±êÅπΩ–Åâî(ÄÄÄÄÄÄººÅ—Ω±êÅÖ¡Ö…–Å•∏ÅÖπ‰Å…ïŸïπ’îÅçΩµ¡Ö…•ÕΩ∏∏ÅMÖµîÅ¡…ΩŸ•ëï»∞ÅÕÖµîÅΩôôï»Å•ê∞(ÄÄÄÄÄÄººÅÕÖµîÅ…ïë•…ïç–ÉäPÅΩπ±‰Å—°îÅÕ’…ôÖçîÅ—ÖúÅë•ôôï…Ã∞ÅÖπêÅ•–Å•ÃÅπΩ‹Å—°îÅ—ÖúÅΩò(ÄÄÄÄÄÄººÅ—°îÅ…Ö•∞Å—°Ö–ÅÖç—’Ö±±‰Å…ïπëï…ïêÅ•–∏ÅÖ±±ÃÅâÖç¨Å—ºÅ—°îÅÕï…Ÿï»ùÃÅ°…ïòÅ•ò(ÄÄÄÄÄÄººÅ—°îÅ…Ω‹ÅÕΩµï°Ω‹Å±Öç≠ÃÅÑÅ¡…ΩŸ•ëï»∞ÅÕºÅÑÅ…îµ—ÖúÅçÖ∏ÅπïŸï»Å±ΩÕîÅ—°îÅ±•π¨∏(ÄÄÄÄÄÅçΩπÕ–ÅëïÖ±!…ïòÄÙÅçΩµµï…çï!…ïò°ÏÅ¡…ΩŸ•ëï»ËÅêπ¡…ΩŸ•ëï»∞ÅΩôôï…%êËÅêπ•ê∞ÅÕ’…ôÖçîËÄââ…Ω›Õï}¡Ö…—πï…}…Ö•∞à∞ÅçΩπ—ïπ—%êËÅÕ’àÅÒÄâÖ±∞àÅÙ§ÅÒÅêπ°…ïòÏ(ÄÄÄÄÄÄººÅÿ‡∏»»Ä°Ω›πï»ËÄâÕΩµîÅΩòÅ—°ï¥Å°ÖŸîÅπºÅ›ÖÂô•πêÅÕçΩ…îà§ËÅÑÅëïÖ∞ÅµÖ—ç°ïêÅ—º(ÄÄÄÄÄÄººÅÑÅÕçΩ…ïêÅ¡±ÖçîÄ°≈’Ö±•—‰ƒ¿∞Å—°îÅM5Åπ’µâï»Å•—ÃÅ…Öπ¨ÅÖ±…ïÖë‰Å’ÕïÃ§(ÄÄÄÄÄÄººÅπΩ‹ÅM!=]LÅ—°Ö–ÅÕçΩ…îÏÅÑÅπÖ—•ΩπÖ∞ÅëïÖ∞Å›•—†ÅπºÅ¡±ÖçîÅ≠ïï¡ÃÅπºÅç°•¿ÉäP(ÄÄÄÄÄÄººÅ›îÅπïŸï»Å•πŸïπ–ÅÑÅÕçΩ…îÉäPÅÖπêÅÕ—•±∞ÅÕΩ…—ÃÅ±ÖÕ–∏(ÄÄÄÄÄÅ…Ω›Ãπ¡’Õ†°ÏÅ≠ï‰ËÅÄëÌêπ¡…ΩŸ•ëï»ÅÒÄâëïÖ∞âÙËëÌêπ•ëıÄ∞Å¡…ΩŸ•ëï»ËÅêπ¡…ΩŸ•ëï»∞Åµï…ç°Öπ–ËÅêπ¡…ΩŸ•ëï…1Öâï∞ÅÒÄâYï…•ô•ïêÅ¡Ö…—πï»à∞ÅΩôôï…%êËÅêπ•ê∞Å—•—±îËÅêπ—•—±î∞Å•µÖùî∞Åë•ÕçΩ’π–ËÅë•ÕçΩ’π—Qï·–∞ÅÕçΩ…îËÅëMçΩ…î∞Å≈’Ö±•—‰ƒ¿ËÅë	ÖÕîÄ¯Ä¿Ä¸Åë	ÖÕîÄËÅπ’±∞∞Å°…ïòËÅëïÖ±!…ïò∞Å≠•πêËÄâëïÖ∞àÅÙ§Ï(ÄÄÄÅÙ(ÄÄÄÅçΩπÕ–ÅÕïï∏ÄÙÅπï‹ÅMï–†§Ï(ÄÄÄÅ…ï—’…∏Å…Ω›Ãπô•±—ï»†°…Ω‹§ÄÙ¯ÅÏÅçΩπÕ–ÅπÖµîÄÙÅM—…•πú°…Ω‹π—•—±îÅÒÄàà§π—Ω1Ω›ï…ÖÕî†§ÏÅ•òÄ°Õïï∏π°ÖÃ°πÖµî§§Å…ï—’…∏ÅôÖ±ÕîÏÅÕïï∏πÖëê°πÖµî§ÏÅ…ï—’…∏Å—…’îÏÅÙ§πÕΩ…–†°Ñ∞Åà§ÄÙ¯ÅàπÕçΩ…îÄ¥ÅÑπÕçΩ…î§Ï(ÄÅÙ∞Åmï·¡ï…•ïπçïÃ∞ÅëïÖ±Ã∞ÅπΩ›!Ω’»∞ÅÕ’à∞Åâ…Ω›ÕïÖ—t§Ï((ÄÄººÅÿ‡∏»»Ä°Ω›πï»∞Å±•ŸîÅÕç…ïïπÕ°Ω—ÃËÄâ—°îÅ…Ö•∞ÅÕ—Ö…—ÃÅµ•êµ›Ö‰ÉäòÅÕ—Ö…—•πúÅÖ–Å—°î(ÄÄººÅçÖ…ëÃÅ›•—†ÅπºÅÕçΩ…îÅΩ∏ÅÖ±∞ÅΩòÅ—°îÅÕ’âµïπ’Ãà§∏ÅI==PÅUMËÅ—°îÅÕç…Ω±±ï»(ÄÄººÄÒë•ÿ¯Å•ÃÅ—°îÅÕÖµîÅ=4ÅπΩëîÅÖç…ΩÕÃÅç°•¿ΩÕ’âµïπ‘ÅÕ›•—ç°ïÃÉäPÅIïÖç–Å…îµ…ïπëï…Ã(ÄÄººÅ•—ÃÅç°•±ë…ï∏Åâ’–ÅπïŸï»Å—Ω’ç°ïÃÅÕç…Ω±±1ïô–∞ÅÕºÅΩπîÅ…•ù°–µÕ›•¡îÅ•∏ÅÖπ‰(ÄÄººÅÕ’âµïπ‘Å±ïÖŸïÃÅYIdÅ±Ö—ï»ÅÕ’âµïπ‘ùÃÅ…Ö•∞ÅΩ¡ïπïêÅµ•êµ—…Öç¨∏ÅQ°Ö–Å…ïÖëÃÅÖÃ(ÄÄººÄâ’π…Öπ≠ïêÅô•…Õ–àÅâïçÖ’ÕîÅ’πÕçΩ…ïêÅëïÖ±ÃÅÕΩ…–Å±ÖÕ–Ä°…•ù°—›Ö…ê§∏ÅQ°îÅ…Ö•∞(ÄÄººÅµ’Õ–ÅΩ¡ï∏ÅÖ–Å•—ÃÅΩ›∏ÄåƒÅ›°ïπïŸï»Å•—ÃÅçΩπ—ïπ–Å•ëïπ—•—‰Åç°ÖπùïÃ∏Å1=	0(ÄÄººÅIU1ÅôΩ»Å°Ω…•ÈΩπ—Ö∞Å…Ö•±ÃÅ›°ΩÕîÅçΩπ—ïπ–ÅÕ›Ö¡ÃÅ’πëï»ÅÑÅ¡ï…Õ•Õ—ïπ–ÅπΩëîÏ(ÄÄººÅ±Ωç≠ïêÅâ‰ÅÕç…•¡—ÃΩç°ïç¨µ…Ö•∞µÕç…Ω±∞µ…ïÕï–πµ©Ã∏(ÄÅçΩπÕ–Å±ÖπïIïòÄÙÅ’ÕïIïò°π’±∞§Ï(ÄÅçΩπÕ–Å±ÖπïM•úÄÙÄ°çÖ…ëÃπ±ïπù—†ÄòòÅçÖ…ëÕl¡tπ≠ï‰§ÅÒÄààÏ(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏÅçΩπÕ–Åï∞ÄÙÅ±ÖπïIïòπç’……ïπ–ÏÅ•òÄ°ï∞§Åï∞πÕç…Ω±±1ïô–ÄÙÄ¿ÏÅÙ∞Åmâ…Ω›ÕïÖ–∞ÅÕ’à∞Å±ÖπïM•ùt§Ï((ÄÅ•òÄ†ÖçÖ…ëÃπ±ïπù—†§Å…ï—’…∏Åπ’±∞Ï(ÄÄººÅQ°îÅ°ïÖë•πúÅ95LÅQ!Å%1QH∏Å%–Å’ÕïêÅ—ºÅ…ïÖêÄâ	ΩΩ≠Öâ±îÅ°•ù°±•ù°—ÃÅπïÖ»(ÄÄººÅÌç•—ÂÙàÉäPÅâÂ—îµ•ëïπ—•çÖ∞Å—ºÅ%π—ïπ—AÖ…—πï…A•ç¨ùÃÅ°ïÖë•πúÅΩ∏Å—°îÅ•π—ïπ–(ÄÄººÅ¡ÖùïÃ∞ÅÕºÅ—›ºÅ…Ö•±ÃÅ›•—†Åë•ôôï…ïπ–Å•πŸïπ—Ω…‰∞Åë•ôôï…ïπ–Å…Öπ≠•πúÅÖπê(ÄÄººÅë•ôôï…ïπ–Å¡…ΩŸ•ëï…ÃÅ›ï…îÅ•πë•Õ—•πù’•Õ°Öâ±îÅ—ºÅÑÅ’Õï»ÅÖπêÅ—ºÅÖπÂΩπîÅ…ïÖë•πú(ÄÄººÅÑÅÕç…ïïπÕ°Ω–∏Å9Öµ•πúÅ—°îÅÖç—•ŸîÅç°•¿ÅÖ±ÕºÅµÖ≠ïÃÅÑÅµ•ÕµÖ—ç†ÅÕï±òµïŸ•ëïπ–Ë(ÄÄººÄâM¡ÑÄòÅ›ï±±πïÕÃÉäPÅâΩΩ≠Öâ±îÅπïÖ»ÅMÖ…ÖÕΩ—ÑàÅΩŸï»ÅÑÅëΩ±¡°•∏Åç…’•ÕîÅ•ÃÅÑÅâ’ú(ÄÄººÅÂΩ‘ÅçÖ∏ÅM∞Å›°ï…îÅ—°îÅΩ±êÅùïπï…•åÅ°ïÖë•πúÅ°•êÅï·Öç—±‰Å—°Ö–∏(ÄÅçΩπÕ–Åç°•¡1Öâï∞ÄÙÄ††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ†ÖÕ’àÅÒÅÕ’àÄÙÙÙÄâÖ±∞à§Å…ï—’…∏Åπ’±∞Ï(ÄÄÄÅçΩπÕ–Å°•–ÄÙÄ†°MU	%1QIMmâ…Ω›ÕïÖ—tÅÒÅMU	%1QILπÖ——…Öç—•ΩπÃ§ÅÒÅmt§πô•πê†°‡§ÄÙ¯Å‡ÄòòÅ‡π•êÄÙÙÙÅÕ’à§Ï(ÄÄÄÅ…ï—’…∏Å°•–Ä¸Å°•–π±Öâï∞ÄËÅπ’±∞Ï(ÄÅÙ§†§Ï(ÄÅ…ï—’…∏Ä†(ÄÄÄÄÒÖÕ•ëîÅëÖ—Ñµ’π•ô•ïêµâ…Ω›ÕîµçΩµµï…çîµ…Ö•∞ÅÕ—Â±îıÌÏÅµÖ…ù•∏ËÄà…¡‡Ä¿Äƒ—¡‡àÅıÙ¯(ÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄââÖÕï±•πîà∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâÕ¡Öçîµâï—›ïï∏à∞ÅµÖ…ù•π	Ω——Ω¥ËÄ‡ÅıÙ¯(ÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÅπµ’—ïê∞Å—ï·—Q…ÖπÕôΩ…¥ËÄâ’¡¡ï…çÖÕîà∞Å±ï——ï…M¡Öç•πúËÄà∏—¡‡àÅıÙ˘Ìç°•¡1Öâï∞Ä¸ÅÄëÌç°•¡1Öâï±ÙÉäPÅâΩΩ≠Öâ±îÅπïÖ»ÄëÌç•—‰ÅÒÄâÂΩ‘âıÄÄËÅÅ	ΩΩ≠Öâ±îÅπïÖ»ÄëÌç•—‰ÅÒÄâÂΩ‘âıÅÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄ‰∏‘∞ÅçΩ±Ω»ËÅπµ’—ïêÅıÙ˘Yï…•ô•ïêÅ¡Ö…—πï…ÃΩÕ¡Ö∏¯(ÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÒë•ÿÅ…ïòıÌ±ÖπïIïôÙÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅùÖ¿ËÄƒ¿∞ÅΩŸï…ô±Ω›`ËÄâÖ’—ºà∞ÅΩŸï…Õç…Ω±±	ï°ÖŸ•Ω…`ËÄâçΩπ—Ö•∏à∞Å¡Öëë•πù	Ω——Ω¥ËÄ–∞ÅÕç…Ω±±MπÖ¡QÂ¡îËÄâ‡Å¡…Ω·•µ•—‰àÅıÙ¯(ÄÄÄÄÄÄÄÅÌçÖ…ëÃπµÖ¿†°çÖ…ê§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å°…ïòÄÙÅçÖ…êπ≠•πêÄÙÙÙÄâï·¡ï…•ïπçîàÄ¸ÅçΩµµï…çï!…ïò°ÏÅ¡…ΩŸ•ëï»ËÄâŸ•Ö—Ω»à∞ÅΩôôï…%êËÅçÖ…êπΩôôï…%ê∞ÅÕ’…ôÖçîËÄââ…Ω›Õï}¡Ö…—πï…}…Ö•∞à∞ÅçΩπ—ïπ—%êËÅÕ’àÅÒÄâÖ±∞àÅÙ§ÄËÅçÖ…êπ°…ïòÏ(ÄÄÄÄÄÄÄÄÄÅ•òÄ†Ö°…ïò§Å…ï—’…∏Åπ’±∞Ï(ÄÄÄÄÄÄÄÄÄÅ…ï—’…∏Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÒÑÅ≠ï‰ıÌçÖ…êπ≠ïÂÙÅ°…ïòıÌ°…ïôÙÅ—Ö…ùï–Ùâ}â±Öπ¨àÅ…ï∞ÙâÕ¡ΩπÕΩ…ïêÅπΩôΩ±±Ω‹ÅπΩΩ¡ïπï»àÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅÏÅîπ¡…ïŸïπ—ïôÖ’±–†§ÏÅçΩπÕ–Å±•ŸîÄÙÄ°îπç’……ïπ—QÖ…ùï–ÄòòÅîπç’……ïπ—QÖ…ùï–π°…ïò§ÅÒÅ°…ïòÏÅ—…‰ÅÏÅΩπ1Ωú†â—•ç≠ï—Õ}Ω’–à∞Åπ’±∞∞ÅÏÅ≠•πêËÄâ’π•ô•ïë}â…Ω›Õï}…Ö•∞à∞Å¡…ΩŸ•ëï»ËÅçÖ…êπ¡…ΩŸ•ëï»∞Å•êËÅçÖ…êπΩôôï…%êÅÙ§ÏÅÙÅçÖ—ç†Ä°ï»§ÅÌÙÅΩ¡ïπ·—ï…πÖ∞°±•Ÿî§ÏÅıÙÅÕ—Â±îıÌÏÅô±ï‡ËÄà¿Ä¿Ä»¿¡¡‡à∞ÅÕç…Ω±±MπÖ¡±•ù∏ËÄâÕ—Ö…–à∞ÅâÖç≠ù…Ω’πêËÅπçÖ…ê∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞ÅâΩ…ëï…IÖë•’ÃËÄƒ–∞ÅΩŸï…ô±Ω‹ËÄâ°•ëëï∏à∞Å—ï·—ïçΩ…Ö—•Ω∏ËÄâπΩπîà∞ÅçΩ±Ω»ËÄâ•π°ï…•–àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâ…ï±Ö—•Ÿîà∞Å°ï•ù°–ËÄ‡ÿ∞ÅΩŸï…ô±Ω‹ËÄâ°•ëëï∏à∞ÅâΩ…ëï…	Ω——Ω¥ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒ•µúÅÕ…åıÌçÖ…êπ•µÖùïÙÅÖ±–ÙààÅ±ΩÖë•πúÙâ±ÖÈ‰àÅΩπ……Ω»ıÏ°î§ÄÙ¯ÅÏÅçΩπÕ–Å…ΩΩ–ÄÙÅîπç’……ïπ—QÖ…ùï–πç±ΩÕïÕ–†âÑà§ÏÅ•òÄ°…ΩΩ–§Å…ΩΩ–πÕ—Â±îπë•Õ¡±Ö‰ÄÙÄâπΩπîàÏÅıÙÅÕ—Â±îıÌÏÅ›•ë—†ËÄàƒ¿¿îà∞Å°ï•ù°–ËÄàƒ¿¿îà∞ÅΩâ©ïç—•–ËÄâçΩŸï»à∞Åë•Õ¡±Ö‰ËÄââ±Ωç¨àÅıÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâÖâÕΩ±’—îà∞Å—Ω¿ËÄ‹∞Å…•ù°–ËÄ‹∞Å¡Öëë•πúËÄàÕ¡‡Ä›¡‡à∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞ÅâÖç≠ù…Ω’πêËÄâ…ùâÑ†‹∞ƒ»∞»¿∞∏‡»§à∞ÅâΩ…ëï»ËÄà≈¡‡ÅÕΩ±•êÅ…ùâÑ†»‘‘∞»‘‘∞»‘‘∞∏»–§à∞ÅçΩ±Ω»ËÄàçôôòà∞ÅôΩπ—M•ÈîËÄ‡∏‘∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿ÅıÙ˘Ÿ•ÑÅÌçÖ…êπµï…ç°Öπ—ÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ¡Öëë•πúËÄà·¡‡Äƒ¡¡‡àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅôΩπ—]ï•ù°–ËÄ‹‘¿∞ÅçΩ±Ω»ËÅπ—ï·–∞Å±•πï!ï•ù°–ËÄƒ∏Ã‘∞Åë•Õ¡±Ö‰ËÄàµ›ïâ≠•–µâΩ‡à∞Å]ïâ≠•—1•πï±Öµ¿ËÄ»∞Å]ïâ≠•—	Ω·=…•ïπ–ËÄâŸï…—•çÖ∞à∞ÅΩŸï…ô±Ω‹ËÄâ°•ëëï∏àÅıÙ˘ÌçÖ…êπ—•—±ïÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‹∞ÅµÖ…ù•πQΩ¿ËÄ–∞Åô±ï·]…Ö¿ËÄâ›…Ö¿àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌçÖ…êπ…Ö—•πúÄ¯Ä¿ÄòòÅçÖ…êπ…ïŸ•ï›ÃÄ¯Ä¿Ä¸ÄÒA±ÖçïMçΩ…ï°•¿Å¿ıÌÏÅ…Ö—•πúËÅçÖ…êπ…Ö—•πú∞Å…ïŸ•ï›ÃËÅçÖ…êπ…ïŸ•ï›ÃÅıÙÅÕ•ÈîıÏƒ…ÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄËÅçÖ…êπ≈’Ö±•—‰ƒ¿ÄÑÙÅπ’±∞Ä¸ÄÒA±ÖçïMçΩ…ï°•¿Å¿ıÌÏÅùΩŸï…πïë}ÕçΩ…îËÅ5Ö—†π…Ω’πê°çÖ…êπ≈’Ö±•—‰ƒ¿Ä®Äƒ¿§ÅıÙÅÕ•ÈîıÏƒ…ÙÄº¯ÄËÅπ’±±Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒƒ∞ÅôΩπ—]ï•ù°–ËÅçÖ…êπë•ÕçΩ’π–Ä¸Ä‡¿¿ÄËÄ‘¿¿∞ÅçΩ±Ω»ËÅçÖ…êπë•ÕçΩ’π–Ä¸Äàå›Õ‡àÄËÅπµ’—ïêÅıÙ˘ÌçÖ…êπë•ÕçΩ’π–ÅÒÅçÖ…êπ¡…•çïıÌçÖ…êπë’…Ö—•Ω∏Ä¸ÅÄÉ
+‹ÄëÌçÖ…êπë’…Ö—•ΩπıÄÄËÄàâÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅÖ…•Ñµ±Öâï∞ıÏâMÖŸîÄàÄ¨ÅçÖ…êπ—•—±ïÙÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅÏÅîπ¡…ïŸïπ—ïôÖ’±–†§ÏÅîπÕ—Ω¡A…Ω¡ÖùÖ—•Ω∏†§ÏÅ—…‰ÅÏÅΩπMÖŸîÄòòÅΩπMÖŸî°ÏÅ•—ïµ}—Â¡îËÅçÖ…êπ≠•πê∞Å•—ïµ}•êËÅçÖ…êπΩôôï…%ê∞Å•—ïµ}—•—±îËÅçÖ…êπ—•—±î∞Å•—ïµ}•µÖùîËÅçÖ…êπ•µÖùî∞Å•—ïµ}’…∞ËÅ°…ïò∞Å¡…ΩŸ•ëï»ËÅçÖ…êπ¡…ΩŸ•ëï»ÅÙ§ÏÅÙÅçÖ—ç†Ä°ï»§ÅÌÙÅıÙÅÕ—Â±îıÌÏÅµÖ…ù•π1ïô–ËÄâÖ’—ºà∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞ÅâÖç≠ù…Ω’πêËÄâ—…ÖπÕ¡Ö…ïπ–à∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞ÅçΩ±Ω»ËÅπ±•ù°–∞ÅôΩπ—M•ÈîËÄƒ»∞Å¡Öëë•πúËÄàÕ¡‡Ä·¡‡à∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ˚äfÑΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄΩÑ¯(ÄÄÄÄÄÄÄÄÄÄ§Ï(ÄÄÄÄÄÄÄÅÙ•Ù(ÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ¿∞ÅçΩ±Ω»ËÅπµ’—ïê∞ÅµÖ…ù•πQΩ¿ËÄ‹∞Å±•πï!ï•ù°–ËÄƒ∏–ÅıÙ˘]ÖÂô•πêÅµÖ‰ÅïÖ…∏ÅÑÅçΩµµ•ÕÕ•Ω∏Å›°ï∏ÅÂΩ‘ÅâΩΩ¨Å—°…Ω’ù†Å—°ïÕîÅ±•π≠Ã∞ÅÖ–ÅπºÅï·—…ÑÅçΩÕ–Å—ºÅÂΩ‘∏Å%–ÅπïŸï»Åç°ÖπùïÃÅΩ’»ÅÕçΩ…ïÃÅΩ»Å…Öπ≠•πùÃ∏Ωë•ÿ¯(ÄÄÄÄΩÖÕ•ëî¯(ÄÄ§Ï)Ù(((ººÅUπëï…çΩŸï»ÅQΩ’…•Õ–Åë•ÕçΩ’π–µ—•ç≠ï–ÄºÅ—°ïµîµ¡Ö…¨µ°Ω—ï∞ÅëïÖ∞Å…Ö•∞Ä°(∞ÅA%(ººÄƒ¿ƒÿ–Ã‘‹ÃÉäPÅÕïîÅ±•àΩëïÖ±Ãπ©Ã§∏ÅM°•¡¡ïêÅÿÿ∏ÿÿ∞ÅùïºµùÖ—ïêÅÿÿ∏‹ÿ∞Å—°ï∏ÅÕ•±ïπ—±‰(ººÅë…Ω¡¡ïêÅô…Ω¥Å—°îÅ°Ωµï¡ÖùîÅë’…•πúÅ—°îÅëïÕ•ù∏µ…ï±ïÖÕî¥¿ƒÅ…ï›…•—îÄ°µï…ùî(ººÄ–Ÿâî»‘Ã∞Ä»¿»ÿ¥¿‹¥»–§ÉäPÅ—°îÅâÖç≠ïπêÄ°±•àΩëïÖ±ÕÖ—Ñπ©Ã∞ÄΩÖ¡§ΩëïÖ±Ã§Å›ÖÃÅπïŸï»(ººÅ—Ω’ç°ïêÅÖπêÅ•ÃÅÕ—•±∞Å±•ŸîÏÅΩπ±‰Å—°•ÃÅçΩµ¡Ωπïπ–Ä¨Å•—ÃÅ—›ºÅ…ïπëï»ÅçÖ±∞ÅÕ•—ïÃ(ººÅ›ï…îÅ±ΩÕ–∏ÅIïÕ—Ω…ïêÄ»¿»ÿ¥¿‹¥»‘∞ÅçÖ…êÅç°…ΩµîÅµÖ—ç°ïêÄƒËƒÅ—ºÅ›°Ö–Å•ÃÅπΩ‹(ººÅUπ•ô•ïë	…Ω›ÕïΩµµï…çïIÖ•∞Ä°	ΩΩ≠Öâ±ï·¡IÖ•∞∞Å—°îÅÕ•â±•πúÅY•Ö—Ω»Å…Ö•∞Å—°•Ã(ººÅΩ…•ù•πÖ±±‰ÅµÖ—ç°ïê∞Å›ÖÃÅëï±ï—ïêÄ»¿»ÿ¥¿‡¥¿»ÉäPÅ•–Å°ÖêÅÈï…ºÅµΩ’π–ÅÕ•—ïÃÅÖπê(ººÅç°ïç¨µ’π•ô•ïêµçΩµµï…çîµ…Ö•∞ÅÖ±…ïÖë‰ÅôΩ…âÖëîÅµΩ’π—•πúÅ•–§ÉäPÅÕÖµîÄ»¿¡¡‡ÅçÖ…ê∞ÅÕÖµî(ººÄÒ•µú¯Å°ï•ù°–Ä‡ÿÅΩâ©ïç–µô•–ÅçΩŸï»∞ÅÕÖµîÅ—•—±îÅç±Öµ¿∞ÅÕÖµîÅë•Õç±ΩÕ’…îÅôΩΩ—ï»ÉäP(ººÅ—°îÅ—›ºÅ…Ö•±ÃÅÕ°Ω’±êÅ…ïÖêÅÖÃÅΩπîÅŸ•Õ’Ö∞ÅÕÂÕ—ï¥∞ÅπΩ–Å—›ºÅë•ôôï…ïπ–Åï…ÖÃÅΩòÅU$∏)ô’πç—•Ω∏ÅUQïÖ±ÕIÖ•∞°ÏÅçÖ—ïùΩ…‰∞ÅΩπMÖŸî∞Å±Ö–∞Å±πú∞ÅΩπ1ΩúÄÙÅ9=1=ÅÙ§ÅÏ(ÄÅçΩπÕ–Åm…Ö•±Ã∞ÅÕï—IÖ•±ÕtÄÙÅ’ÕïM—Ö—î°π’±∞§Ï(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ±ï–ÅëïÖêÄÙÅôÖ±ÕîÏ(ÄÄÄÅÕï—IÖ•±Ã°π’±∞§Ï(ÄÄÄÄººÅAÖÕÃÅ—°îÅ’Õï»ùÃÅ±ΩçÖ—•Ω∏ÅÕºÄΩÖ¡§ΩëïÖ±ÃÅùïºµùÖ—ïÃÉäPÅÑÅôÖ»µÖ›Ö‰Å…ïù•Ω∏ùÃÅëïÖ±Ã(ÄÄÄÄººÄ°=…±ÖπëºÅ°Ω—ï±ÃÅ•∏ÅMΩ’—†ÅÖ…Ω±•πÑ§ÅÖ…îÅô•±—ï…ïêÅΩ’–ÅÖπêÅ—°îÅ…Ö•∞Å°•ëïÃ∏(ÄÄÄÅçΩπÕ–ÅùïºÄÙÄ°9’µâï»π•Õ•π•—î°±Ö–§ÄòòÅ9’µâï»π•Õ•π•—î°±πú§§Ä¸Äàô±Ö–ÙàÄ¨Å±Ö–π—Ω•·ïê†Ã§Ä¨Äàô±πúÙàÄ¨Å±πúπ—Ω•·ïê†Ã§ÄËÄààÏ(ÄÄÄÅôï—ç††àΩÖ¡§ΩëïÖ±Ã˝çÖ—ïùΩ…‰ÙàÄ¨ÅïπçΩëïUI%Ωµ¡Ωπïπ–°çÖ—ïùΩ…‰§Ä¨Åùïº§π—°ï∏†°»§ÄÙ¯Ä°»πΩ¨Ä¸Å»π©ÕΩ∏†§ÄËÅπ’±∞§∞Ä†§ÄÙ¯Åπ’±∞§π—°ï∏†°…ïÃ§ÄÙ¯ÅÏ(ÄÄÄÄÄÅ•òÄ°ëïÖê§Å…ï—’…∏Ï(ÄÄÄÄÄÅÕï—IÖ•±Ã°…ïÃÄòòÄÖ…ïÃπëÖ…¨ÄòòÅ……Ö‰π•Õ……Ö‰°…ïÃπ…Ö•±Ã§Ä¸Å…ïÃπ…Ö•±ÃÄËÅmt§Ï(ÄÄÄÅÙ§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅëïÖêÄÙÅ—…’îÏÅÙÏ(ÄÅÙ∞ÅmçÖ—ïùΩ…‰∞Å±Ö–∞Å±πùt§Ï(ÄÅ•òÄ°…Ö•±ÃÄÙÙÙÅπ’±∞ÅÒÄÖ…Ö•±Ãπ±ïπù—†§Å…ï—’…∏Åπ’±∞ÏÄººÅπºÅÕ≠ï±ï—Ω∏Åô±ÖÕ†(ÄÅçΩπÕ–Åç—ÑÄÙÅçÖ—ïùΩ…‰ÄÙÙÙÄâÕ—ÖÂÃàÄ¸ÄâY•ï‹Å°Ω—ï±ÃÉä\àÄËÄâï–Å—•ç≠ï—ÃÉä\àÏ(ÄÅ…ï—’…∏Ä†(ÄÄÄÄ¯(ÄÄÄÄÄÅÌ…Ö•±ÃπµÖ¿†°…Ö•∞§ÄÙ¯Ä†(ÄÄÄÄÄÄÄÄÒë•ÿÅ≠ï‰ıÌ…Ö•∞πÕ’âçÖ—ïùΩ…ÂÙÅÕ—Â±îıÌÏÅµÖ…ù•∏ËÄà…¡‡Ä¿Äƒ—¡‡àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄââÖÕï±•πîà∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâÕ¡Öçîµâï—›ïï∏à∞ÅµÖ…ù•π	Ω——Ω¥ËÄ‡ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÅπµ’—ïê∞Å—ï·—Q…ÖπÕôΩ…¥ËÄâ’¡¡ï…çÖÕîà∞Å±ï——ï…M¡Öç•πúËÄà∏—¡‡àÅıÙ˘Ì…Ö•∞π±Öâï±ÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄ‰∏‘∞ÅçΩ±Ω»ËÅπµ’—ïêÅıÙ˘Ÿ•ÑÅUπëï…çΩŸï»ÅQΩ’…•Õ–ΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅùÖ¿ËÄƒ¿∞ÅΩŸï…ô±Ω›`ËÄâÖ’—ºà∞ÅΩŸï…Õç…Ω±±	ï°ÖŸ•Ω…`ËÄâçΩπ—Ö•∏à∞Å¡Öëë•πù	Ω——Ω¥ËÄ–ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÅÌ…Ö•∞π•—ïµÃπµÖ¿†°ê§ÄÙ¯Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÑÅ≠ï‰ıÌêπ•ëÙÅ°…ïòıÌêπ°…ïôÙÅ—Ö…ùï–Ùâ}â±Öπ¨àÅ…ï∞ÙâÕ¡ΩπÕΩ…ïêÅπΩôΩ±±Ω‹ÅπΩΩ¡ïπï»àÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅÏÅîπ¡…ïŸïπ—ïôÖ’±–†§ÏÅçΩπÕ–Å}±•ŸîÄÙÄ°îπç’……ïπ—QÖ…ùï–ÄòòÅîπç’……ïπ—QÖ…ùï–π°…ïò§ÅÒÅêπ°…ïòÏÅ—…‰ÅÏÅΩπ1Ωú†â—•ç≠ï—Õ}Ω’–à∞Åπ’±∞∞ÅÏÅ≠•πêËÄâ’—}ëïÖ±}…Ö•∞à∞ÅçÖ—ïùΩ…‰∞Å¡…ΩŸ•ëï»ËÅêπ¡…ΩŸ•ëï»∞Å•êËÅêπ•êÅÙ§ÏÅÙÅçÖ—ç†Ä°ï»§ÅÌÙÅΩ¡ïπ·—ï…πÖ∞°}±•Ÿî§ÏÅıÙÅÕ—Â±îıÌÏÅô±ï‡ËÄà¿Ä¿Ä»ƒ¡¡‡à∞ÅâÖç≠ù…Ω’πêËÅπçÖ…ê∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞ÅâΩ…ëï…IÖë•’ÃËÄƒ–∞ÅΩŸï…ô±Ω‹ËÄâ°•ëëï∏à∞Å—ï·—ïçΩ…Ö—•Ω∏ËÄâπΩπîà∞Å¡ΩÕ•—•Ω∏ËÄâ…ï±Ö—•ŸîàÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ›•ë—†ËÄàƒ¿¿îà∞Å°ï•ù°–ËÄ‰ÿ∞ÅâÖç≠ù…Ω’πêËÅêπ•µÖùîÄ¸ÅÅçïπ—ï»ΩçΩŸï»Åπºµ…ï¡ïÖ–Å’…∞†ëÌêπ•µÖùïÙ•ÄÄËÅêπ¡°Ω—ΩIïòÄ¸ÅÅçïπ—ï»ΩçΩŸï»Åπºµ…ï¡ïÖ–Å’…∞†ΩÖ¡§Ω¡°Ω—º˝…ïòÙëÌïπçΩëïUI%Ωµ¡Ωπïπ–°êπ¡°Ω—ΩIïò•Ùô‹Ùÿ¿¿•ÄÄËÄ°êπù…Öë•ïπ–ÅÒÄâ±•πïÖ»µù…Öë•ïπ–†ƒÃ’ëïú∞å≈à»‹Ã‘∞å…åÕî‘¿§à§∞Åë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâô±ï‡µÕ—Ö…–à∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâô±ï‡µïπêà∞Å¡Öëë•πúËÄ‹ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌêπâÖëùîÄ¸ÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄ‰∏‘∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÄàå¡ƒƒƒ‹à∞ÅâÖç≠ù…Ω’πêËÄâ…ùâÑ†»‘‘∞»‘‘∞»‘‘∞∏‰»§à∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞Å¡Öëë•πúËÄà…¡‡Ä·¡‡àÅıÙ˘ÌêπâÖëùïÙΩÕ¡Ö∏¯ÄËÅπ’±±Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅ¡Öëë•πúËÄà·¡‡Äƒ¡¡‡àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅôΩπ—]ï•ù°–ËÄ‹‘¿∞ÅçΩ±Ω»ËÅπ—ï·–∞Å±•πï!ï•ù°–ËÄƒ∏Ã‘∞Åë•Õ¡±Ö‰ËÄàµ›ïâ≠•–µâΩ‡à∞Å]ïâ≠•—1•πï±Öµ¿ËÄ»∞Å]ïâ≠•—	Ω·=…•ïπ–ËÄâŸï…—•çÖ∞à∞ÅΩŸï…ô±Ω‹ËÄâ°•ëëï∏àÅıÙ˘Ìêπ—•—±ïÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄÿ∞ÅµÖ…ù•πQΩ¿ËÄ‘∞Åô±ï·]…Ö¿ËÄâ›…Ö¿àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿ‡∏»»ÉäPÅÕÖµîÅ…’±îÅÖÃÅ—°îÅâ…Ω›ÕîÅ…Ö•∞ËÅÑÅ¡±ÖçîµµÖ—ç°ïê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅëïÖ∞ÅÕ°Ω›ÃÅ—°îÅ]ÖÂô•πêÅÕçΩ…îÅ•—ÃÅ…Öπ¨ÅÖ±…ïÖë‰Å’ÕïÃ∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌêπ≈’Ö±•—‰ƒ¿ÄÑÙÅπ’±∞ÄòòÅ9’µâï»°êπ≈’Ö±•—‰ƒ¿§Ä¯Ä¿Ä¸ÄÒA±ÖçïMçΩ…ï°•¿Å¿ıÌÏÅùΩŸï…πïë}ÕçΩ…îËÅ5Ö—†π…Ω’πê°9’µâï»°êπ≈’Ö±•—‰ƒ¿§Ä®Äƒ¿§ÅıÙÅÕ•ÈîıÏƒ≈ÙÄº¯ÄËÅπ’±±Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌêπë•ÕçΩ’π–Ä¸ÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒƒ∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÄàå›Õ‡àÅıÙ˘Ìêπë•ÕçΩ’π—ÙΩÕ¡Ö∏¯ÄËÅπ’±±Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅâÖç≠ù…Ω’πêËÅπÖççïπ–∞ÅçΩ±Ω»ËÄàå¡ƒƒƒ‹à∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞Å¡Öëë•πúËÄàÕ¡‡ÄÂ¡‡à∞ÅôΩπ—M•ÈîËÄƒƒ∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿ÅıÙ˘Ìç—ÖÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅµÖ…ù•πQΩ¿ËÄÿ∞Åë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâÕ¡Öçîµâï—›ïï∏à∞ÅùÖ¿ËÄÿÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒôô•±•Ö—ï°•¿Å¡…ΩŸ•ëï»ıÌêπ¡…ΩŸ•ëï…ÙÅ±Öâï∞ıÌêπ¡…ΩŸ•ëï…1Öâï±ÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅùÖ¿ËÄÿ∞Åô±ï·M°…•π¨ËÄ¿ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅÖ…•Ñµ±Öâï∞ıÏâMÖŸîÄàÄ¨Åêπ—•—±ïÙÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅÏÅîπ¡…ïŸïπ—ïôÖ’±–†§ÏÅîπÕ—Ω¡A…Ω¡ÖùÖ—•Ω∏†§ÏÅ—…‰ÅÏÅΩπMÖŸîÄòòÅΩπMÖŸî°ÏÅ•—ïµ}—Â¡îËÄâëïÖ∞à∞Å•—ïµ}•êËÅêπ•ê∞Å•—ïµ}—•—±îËÅêπ—•—±î∞Å•—ïµ}•µÖùîËÅêπ•µÖùîÅÒÄ°êπ¡°Ω—ΩIïòÄ¸ÄàΩÖ¡§Ω¡°Ω—º˝…ïòÙàÄ¨ÅïπçΩëïUI%Ωµ¡Ωπïπ–°êπ¡°Ω—ΩIïò§Ä¨Äàô‹Ù»–¿àÄËÅπ’±∞§∞Å•—ïµ}’…∞ËÅêπ°…ïò∞Å¡…ΩŸ•ëï»ËÅêπ¡…ΩŸ•ëï»ÅÙ§ÏÅÙÅçÖ—ç†Ä°ï»§ÅÌÙÅıÙÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞ÅâÖç≠ù…Ω’πêËÄâ—…ÖπÕ¡Ö…ïπ–à∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞ÅçΩ±Ω»ËÅπ±•ù°–∞ÅôΩπ—M•ÈîËÄƒ»∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞Å¡Öëë•πúËÄàÕ¡‡ÄÂ¡‡à∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ˚äfÑΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏ÅÖ…•Ñµ±Öâï∞ıÏâM°Ö…îÄàÄ¨Åêπ—•—±ïÙÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅÏÅîπ¡…ïŸïπ—ïôÖ’±–†§ÏÅîπÕ—Ω¡A…Ω¡ÖùÖ—•Ω∏†§ÏÅ—…‰ÅÏÅÕ°Ö…ï1•π¨°êπ—•—±î∞Åêπ°…ïò∞Åπ’±∞∞Äâ•ÕçΩ’π–Å—•ç≠ï—ÃÅΩ∏Å]ÖÂô•πêà§ÏÅÙÅçÖ—ç†Ä°ï»§ÅÌÙÅıÙÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞ÅâÖç≠ù…Ω’πêËÄâ—…ÖπÕ¡Ö…ïπ–à∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞ÅçΩ±Ω»ËÅπ±•ù°–∞ÅôΩπ—M•ÈîËÄƒ»∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞Å¡Öëë•πúËÄàÕ¡‡ÄÂ¡‡à∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ˚ä\Ωâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩÑ¯(ÄÄÄÄÄÄÄÄÄÄÄÄ§•Ù(ÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ¿∞ÅçΩ±Ω»ËÅπµ’—ïê∞ÅµÖ…ù•πQΩ¿ËÄ‹∞Å±•πï!ï•ù°–ËÄƒ∏–ÅıÙ˘]ÖÂô•πêÅµÖ‰ÅïÖ…∏ÅÑÅçΩµµ•ÕÕ•Ω∏Å›°ï∏ÅÂΩ‘ÅâΩΩ¨Å—°…Ω’ù†Å—°•ÃÅ±•π¨∞ÅÖ–ÅπºÅï·—…ÑÅçΩÕ–Å—ºÅÂΩ‘∏Å%–ÅπïŸï»Åç°ÖπùïÃÅΩ’»ÅÕçΩ…ïÃÅΩ»Å…Öπ≠•πùÃ∏Ωë•ÿ¯(ÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄ§•Ù(ÄÄÄÄº¯(ÄÄ§Ï)Ù((ººÅÿÿ∏–»Ä°Ω›πï»§ËÅâΩΩ≠Öâ±îÅç—•Ÿ•—•ïÃÅçÖ…ëÃÅçÖ……‰Å—°îÅA%ÅâΩΩ≠•πúÅ±•π¨ÅÖ–ÅçÖ…ê(ººÅ±ïŸï∞ÉäPÅ—°îÅÕÖµîÅŸï…•ô•ïêÄΩÖ¡§ΩŸ•Ö—Ω»ΩùºÅùÖ—îÅ—°îÅï—Ö•∞ÅÕ°ïï–Å’ÕïÃÄ°ï·Öç–(ººÅ¡…Ωë’ç–Å›•—†ÅÖ——…•â’—•Ω∏∞ÅΩ»Å—°îÅ—…Öç≠ïêÅ¡•êÅÕïÖ…ç†ÏÅïŸï…‰Åç±•ç¨ÅÖ——…•â’—ïê§∏(ººÅ-•πëÃÅ5UMPÅÕ—Ö‰Å•ëïπ—•çÖ∞Å—ºÅ—°îÅï—Ö•∞ÅÕ°ïï–ùÃÅ—Ω’»ÅùÖ—îÏÅÕç…•¡—Ãº(ººÅ—ïÕ–µçÖ…êµâΩΩ≠•πúπµ©ÃÅïπôΩ…çïÃÅ—°îÅµÖ—ç†ÅÕºÅ—°îÅÕ’…ôÖçïÃÅπïŸï»Åë…•ô–∏(ººÅQ°îÅ¡±ÖçîÅçÖ…êÅçÖ∏ù–ÅçΩπô•…¥ÅÑÅYI%%ÅY•Ö—Ω»Å¡…Ωë’ç–ÅÖ–Åâ’•±êÅ—•µîÄ°πºÅ¡ï»µçÖ…ê(ººÅ¡…ïçΩµ¡’—î§∞ÅÕºÅ•–Åµ’Õ–Å9=PÅÕ°Ω‹ÅÑÅŸï…•ô•ïêµÕΩ’πë•πúÄâQ•ç≠ï—ÃÄòÅ—Ω’…ÃàÉäPÅ—°Ö–ùÃÅ—°î(ººÅâΩΩ≠•πúµ•π—ïù…•—‰ÅΩŸï»µ¡…Ωµ•Õî∏Å%–Å…ïπëï…ÃÅÑÅâ’——Ω∏ÅΩπ±‰ÅôΩ»ÅÑÅŸï…•ô•ïêÅ¡…Ωë’ç–∏(ººÄ°ùÖ—ïêÅΩ∏Åôòπ•ÕQ•ç≠ï—ÂA±ÖçîÅÕºÅ•–ÅΩπ±‰ÅÖ¡¡ïÖ…ÃÅΩ∏Å—•ç≠ï—ïêÅŸïπ’ïÃ∞ÅπïŸï»Åô…ïî(ººÅ¡Ö…≠ÃΩâïÖç°ïÃ§∏ÅQ°îÄΩùºÅ…Ω’—îÅÕ—•±∞Å’¡ù…ÖëïÃÅ—ºÅ—°îÅï·Öç–Å¡…Ωë’ç–ÅÖ–Åç±•ç¨Å—•µîÅ›°ï∏(ººÅΩπîÅç±ïÖ…ÃÅ—°îÅùïºµùÖ—ïêÅ…ïÕΩ±Ÿï»ÏÅΩ—°ï…›•ÕîÅ•–ùÃÅÖ∏Å°ΩπïÕ–ÅY•Ö—Ω»ÅÕïÖ…ç†∏)ô’πç—•Ω∏ÅA±ÖçïÖ…ê°ÏÅ¿∞Å…Öπ¨∞ÅÕÖŸïê∞Å±•≠ïê∞Åë•Õ±•≠ïê∞ÅΩπï—Ö•∞∞ÅΩπMÖŸî∞ÅΩπ1•≠î∞ÅΩπ•Õ±•≠î∞ÅΩπM°Ö…ïÖ…ê∞Å±•πî∞ÅΩπ	Öëùî∞ÅÕï±ïç—ïë	Öëùî∞ÅΩπ’•Õ•πïQÖ¿∞ÅâïÖç°M•ùπÖ∞∞Åç•—‰ÅÙ§ÅÏ(ÄÄººÅÿÿ∏‡ÿËÅŸ•Õ•Ω∏µÕçΩ…ïê∞Å¡ïΩ¡±îµô…ïîÅçÖ…êÅ¡°Ω—ºÉäPÅµ’Õ–Å…’∏Å	=IÅ—°î(ÄÄººÅçÖ…ëΩµ¡±ï—îÅïÖ…±‰Å…ï—’…∏Åâï±Ω‹Ä°…’±ïÃÅΩòÅ°ΩΩ≠ÃËÅ—°•ÃÅ°ΩΩ¨Åµ’Õ–Å…’∏ÅΩ∏(ÄÄººÅïŸï…‰Å…ïπëï»∞ÅïŸï∏ÅôΩ»ÅÑÅçÖ…êÅ—°Ö–Å’±—•µÖ—ï±‰Å…ïπëï…ÃÅπΩ—°•πú§∏(ÄÅçΩπÕ–ÅçÖ…ëA°Ω—ºÄÙÅ’Õï	ïÕ—A°Ω—º°¿ÄòòÅ¿π¡°Ω—º∞Å¿ÄòòÅ¿π¡°Ω—ΩÃ§Ï(ÄÄººÅÿ‡∏–‰∏ƒÄ°Ω›πï»∞Ä»¿»ÿ¥¿‡¥»‘∞ÅÖµ•±‰ÉäHÅ-•ëÃÅÖ–ÅAÖ……•Õ†§ËÅ-•ëÃÅµ¡•…îÅÖπê(ÄÄººÅ%π—ïπÕîÅÕçÖ¡îÅâΩ—†Å¡Ö•π—ïêÅ—°îÅÕÖµîÅâïÖç†µÕ’πÕï–ÅÕ—Ωç¨ÅÕçïπî∏ÅQ°Ö–Å›ÖÃ(ÄÄººÅ…’πúÄÃÅΩòÅ—°îÅ¡°Ω—ºÅ±Öëëï»ÉäPÄΩÖ¡§ΩµÖ…≠ï–µ¡°Ω—ºÅ≠ïÂïêÅΩ∏ÅçÖ—ïùΩ…‰≠ç•—‰ÉäP(ÄÄººÅÕºÅïŸï…‰Å¡°Ω—Ω±ïÕÃÅç—•Ÿ•—•ïÃÅçÖ…êÅ•∏ÅΩπîÅ—Ω›∏Å…ï’ÕïêÅΩπîÅAï·ï±ÃÅ•µÖùî∏(ÄÄººÅ!Ω’ÕîÅçÖ…ëÃÅπΩ‹Å’ÕîÅ—°îÅŸïπ’îùÃÅΩ›∏Å¡°Ω—ºÅΩ»Å—°îÅâ…ÖπëïêÅµΩπΩù…Ö¥∏(ÄÄººÅ9ïŸï»ÅÖπΩ—°ï»Å¡±ÖçîùÃÅ¡°Ω—º∏ÅQ°îÅΩ’¡ΩπÃÅµÖ…≠ï–µ±ïŸï∞ÅçÖ…ëÃÅÕ—•±∞Å’Õî(ÄÄººÅ—°îÅÕ—Ωç¨Å…’πúÏÅ—°ï‰ÅÖ…îÅπΩ–ÅÑÅŸïπ’îÅçÖ…ê∏(ÄÄººÅÿ–∏‡‰ÉäPÅ¡°Ω—ºÅô•‡∏Å9Ω∏µΩΩù±îÄ°Ω’…Õ≈’Ö…î§Åïπ—…•ïÃÅΩô—ï∏ÅÖ……•ŸîÅ›•—°Ω’–ÅÑ(ÄÄººÅ¡°Ω—ºÅ…ïôï…ïπçî∞ÅÕºÅçÖ…ëÃÅôï±∞ÅâÖç¨Å—ºÅ—°îÅ±Ωùº∏Å]°ï∏ÅÑÅçÖ…êÅ…ïπëï…Ã(ÄÄººÅ¡°Ω—Ω±ïÕÃ∞Å…ïÕΩ±ŸîÅ•—ÃÅΩΩù±îÅ—›•∏ÅΩπçîÄ°ô•πëA±ÖçîÅ•ÃÅçÖç°ïêÅ¯‡ÅëÖÂÃ§ÅÖπê(ÄÄººÅÖ——Öç†Å—°îÅ…ïÖ∞Å¡°Ω—º∏ÅQ°îÅ±ΩùºÅ•ÃÅπΩ‹Å—°îÅ±ÖÕ–Å…ïÕΩ…–∞ÅπΩ–Å—°îÅπΩ…¥∏(ÄÅçΩπÕ–Ål∞Å}¡°Ω—Ω	’µ¡tÄÙÅ’ÕïM—Ö—î†¿§Ï(ÄÅ’Õïôôïç–††§ÄÙ¯ÅÏ(ÄÄÄÅ•òÄ†Ö¿ÅÒÅ¿π¡°Ω—ºÅÒÄÑΩx°ôÕ≈ÒΩÕµÒ…•ëâÒπ¡Ã§Ëºπ—ïÕ–°M—…•πú°¿π•êÅÒÄàà§§ÅÒÅ¿π}πΩA°Ω—º§Å…ï—’…∏Ï(ÄÄÄÅ±ï–ÅåÄÙÅôÖ±ÕîÏ(ÄÄÄÅô•πëA±Öçî°¿ππÖµî∞ÅÏÅ±Ö–ËÅ¿π±Ö–∞Å±πúËÅ¿π±πúÅÙ§π—°ï∏†°ú§ÄÙ¯ÅÏ(ÄÄÄÄÄÅçΩπÕ–ÅΩ¨ÄÙÅúÄòòÅúπ¡°Ω—ºÄòòÄ°}›ô9Ω…¥°úππÖµî§π•πç±’ëïÃ°}›ô9Ω…¥°¿ππÖµî§§ÅÒÅ}›ô9Ω…¥°¿ππÖµî§π•πç±’ëïÃ°}›ô9Ω…¥°úππÖµî§§§Ï(ÄÄÄÄÄÅ•òÄ°å§Å…ï—’…∏Ï(ÄÄÄÄÄÅ•òÄ°Ω¨§ÅÏÅ¿π¡°Ω—ºÄÙÅúπ¡°Ω—ºÏÅ¿π¡°Ω—ΩÃÄÙÅúπ¡°Ω—ΩÃÅÒÅmtÏÅ¿π¡°Ω—Ω——»ÄÙÅúπ¡°Ω—Ω——»ÅÒÄààÏÅ•òÄ°úπΩ†§ÅÏÅ¿πΩ†ÄÙÅúπΩ†ÏÅ¿πΩ¡ïπ9Ω‹ÄÙÅúπΩ¡ïπ9Ω‹ÏÅ¿π’—ç=ôôÕï–ÄÙÅúπ’—ç=ôôÕï–ÏÅ•òÄ°úπ°Ω’…ÕÕ=òÄÑÙÅπ’±∞§Å¿π°Ω’…ÕÕ=òÄÙÅúπ°Ω’…ÕÕ=òÏÄº®Åÿÿ∏Ã–ËÅ—°îÅô…ïÕ°πïÕÃÅÕ—Öµ¿Å—…ÖŸï±ÃÅ›•—†Å—°îÅâ’πë±îÄ®ºÅÙÅ}¡°Ω—Ω	’µ¿†°‡§ÄÙ¯Å‡Ä¨Äƒ§ÏÅÙ(ÄÄÄÄÄÅï±ÕîÅ¿π}πΩA°Ω—ºÄÙÅ—…’îÏÄººÅ…ïµïµâï»Å—°îÅµ•ÕÃÅÕºÅ›îÅπïŸï»Å…ïôï—ç†(ÄÄÄÅÙ§πçÖ—ç†††§ÄÙ¯ÅÌÙ§Ï(ÄÄÄÅ…ï—’…∏Ä†§ÄÙ¯ÅÏÅåÄÙÅ—…’îÏÅÙÏ(ÄÄÄÄººÅïÕ±•π–µë•ÕÖâ±îµπï·–µ±•πîÅ…ïÖç–µ°ΩΩ≠ÃΩï·°Ö’Õ—•Ÿîµëï¡Ã(ÄÅÙ∞Åm¿ÄòòÅ¿π•ët§Ï(ÄÅçΩπÕ–ÅçÖ…ëA…Ωë’ç–ÄÙÅ’ÕïA±ÖçïA…Ωë’ç–°¿ÄòòÅ¿π•ê§Ï(ÄÄººÅQ!ÅQÅ=5LÅ1MP∏ÅŸï…‰Å°ΩΩ¨ÅÖâΩŸîÅ…’πÃÅΩ∏ÅïŸï…‰Å…ïπëï»ÏÅÅçÖ…ëΩµ¡±ï—ïÄ(ÄÄººÅ…ïÖëÃÅ¿π¡°Ω—º∞Å›°•ç†Å—°îÅ°ïÖ∞Åïôôïç–ÅÖâΩŸîÅ›…•—ïÃ∞ÅÕºÅ—°•ÃÅùÖ—îÅùïπ’•πï±‰(ÄÄººÅô±•¡ÃÅµ•êµ±•ôî∏ÅÅ°ΩΩ¨Åâï±Ω‹Å•–Å›Ω’±êÅç°ÖπùîÅIïÖç–ùÃÅ°ΩΩ¨ÅçΩ’π–ÅΩ∏Å—°Ö–(ÄÄººÅ…ïπëï»ÅÖπêÅ’πµΩ’π–Å—°îÅôïïêÄ†»¿»ÿ¥¿‡¥»ƒÏÅÕç…•¡—ÃΩç°ïç¨µ°ΩΩ¨µΩ…ëï»πµ©Ã§∏(ÄÅ•òÄ†ÖçÖ…ëΩµ¡±ï—î°¿§§Å…ï—’…∏Åπ’±∞ÏÄººÅÿÿ∏Ã‰Å1=	0Åù’Ö…ë…Ö•∞ËÅÖ∏Å•πçΩµ¡±ï—îÅçÖ…êÅ…ïπëï…ÃÅ9=Q!%9Ä°Õç…•¡—ÃΩ—ïÕ–µçÖ…êµùÖ—îπµ©Ã§(ÄÄººÅÿ‘∏‰‰ÄºÅÿÿ∏‰ÿËÅ—°îÄâ…ïÖ—Ω»ÅŸ•ëïºàÅâÖëùîÅ•ÃÅÕ°Ω›∏Å›°ïπïŸï»ÅÑÅ¡±ÖçîÅ!LÅÑ(ÄÄººÅ…ïπëï…Öâ±îÅç…ïÖ—Ω»ÅŸ•ëïº∏ÅUπ—•∞Åÿÿ∏‰ÿÅ—°Ö–Å›ÖÃÅ—°îÅÕÖµîÅÕï–ÅÖÃÄâùΩ–Å—°î(ÄÄººÅâΩΩÕ–àÏÅÑÅ≈’Ö±•—‰Åô±ΩΩ»ÅπΩ‹ÅµÖ≠ïÃÅ—°îÅâΩΩÕ—ïêÅÕï–ÅÑÅÕ’âÕï–∏ÅQ°îÅ•πŸÖ…•Öπ–(ÄÄººÅ—°•ÃÅ±•πîÅï·•Õ—ÃÅ—ºÅ¡…Ω—ïç–Å•ÃÅΩπîµë•…ïç—•ΩπÖ∞ÅÖπêÅÕ—•±∞Å°Ω±ëÃËÅÑÅâΩΩÕ—ïê(ÄÄººÅ¡±ÖçîÅ•ÃÅÖ±›ÖÂÃÅ±Öâï±ïê∞ÅÕºÅ—°îÅ…Öπ≠•πúÅ—°’µàÅ•ÃÅπïŸï»ÅÕ•±ïπ–∏(ÄÄººÅÿ‹∏ƒ‘Ä°Ω›πï»∞Ä»¿»ÿ¥¿‡¥ƒƒËÄâ§Å—Ω±êÅÂΩ‘Å§ÅëΩ∏ù–Å±•≠îÅ—°îÅâ’ââ±ïÃÅï•—°ï»à§Ë(ÄÄººÅ—°îÅëïçΩ…Ö—•ŸîÅï·¡ï…•ïπçîµ—ÖúÅâ’ââ±ïÃÅÖ…îÅ=9Åô…Ω¥ÅïŸï…‰Å¡±ÖçîÅçÖ…ê∏(ÄÄººÅï·¡ï…•ïπçï	ÖëùïÃÅÕ—ÖÂÃÅ—°îÅïπù•πîÅâï°•πêÄ˝ï·¿ÙÅçΩ±±ïç—•ΩπÃ∞Äâ≠πΩ›∏ÅôΩ»à(ÄÄººÅ±•πïÃ∞ÅÕ•µ•±Ö…•—‰ÅÖπêÅ—ï±ïµï—…‰ÉäPÅ•–Å©’Õ–ÅπïŸï»Å…ïπëï…ÃÅÖÃÅç°•¿Å¡•±±Ã(ÄÄººÅÖπÂµΩ…î∏ÅQ°îÅ—›ºÅç°•¡ÃÅ—°Ö–Å…ïµÖ•∏ÅÖ…îÅI9-%9Å%M1=MUILÄ°ç…ïÖ—Ω»(ÄÄººÅŸ•ëïºÄ¨¿∏»∞ÅôïÖ—’…ïê§∞Å›°•ç†Å—°îÅÕçΩ…îÅ±Ö‹Å…ï≈’•…ïÃÅ—ºÅÕ—Ö‰ÅŸ•Õ•â±î∏(ÄÄººÅÿ‡∏ƒ‹Ä°Ω›πï»∞Ä»¿»ÿ¥¿‡¥ƒ‰ËÄâ—°îÅï·¡ï…•ïπçîÅ¡•±±ÃÅ°ÖŸîÅÖ±ÕºÅâïï∏Å…ïµΩŸïêÉäò(ÄÄººÅ§Å›Öπ–Å—°îÅ•çΩπ•åÅ¡±ÖçîÅçÖ…êÅïŸï…Â›°ï…îÅ—°îÅ›Ö‰Å›îÅ°ÖêÅ•–à§∏ÅQ°•Ã(ÄÄººÅçΩµ¡±ï—ïÃÅ—°îÅÿ‡∏‘Å…ïŸï…ÕÖ∞Ä†ââ…•πúÅ—°Ö–ÅïŸï…Â›°ï…îà§ËÅ—°îÅ…ïÕ—Ω…îÅΩπ±‰(ÄÄººÅ…ïÖç°ïêÅ%çΩπ•çA±ÖçïÖ…êÉäPÅ—°îÅ	I=]MÅôïïêùÃÅçÖπΩπ•çÖ∞ÅçÖ…êÄ°—°•ÃÅΩπî§(ÄÄººÅÕ—ÖÂïêÅΩ∏Å—°îÅÿ‹∏ƒ‘Åπºµâ’ââ±ïÃÅÕ—Ö—î∞ÅÕºÅ—°îÅ—›ºÅçÖ…ëÃÅë…•ô—ïêÅÖ¡Ö…–ÅÖπê(ÄÄººÅ—°îÅΩ›πï»ÅÕÖ‹Å¡•±∞µ±ïÕÃÅçÖ…ëÃÅ’πëï»Å	…ïÖ≠ôÖÕ–ΩÖõ•Ã∏ÅMÖµîÅïπù•πî∞ÅÕÖµî(ÄÄººÅïŸ•ëïπçîÅë•Õç•¡±•πî∞ÅçÖ¡¡ïêÅÖ–ÄÃÏÅ—°îÅ—›ºÅ…Öπ≠•πúÅ%M1=MUILÅÕ—Ö‰Åô•…Õ–∏(ÄÄººÅç°ïç¨µçΩ±±ïç—•Ω∏µ±ΩΩ¨É
+ú‡ÅπΩ‹ÅÖÕÕï…—ÃÅ—°•ÃÅ…ïπëï»Å—Ωº∏(ÄÅçΩπÕ–ÅâÖëùïÃÄÙÅl∏∏∏°°ÖÕ…ïÖ—Ω…Y•ëïº°¿§Ä¸ÅmÏÅ≠ï‰ËÄâç…ïÖ—Ω…Ÿ•ëïºà∞Å•çΩ∏ËÄã¬~:∞à∞Å±Öâï∞ËÄâ…ïÖ—Ω»ÅŸ•ëïºàÅıtÄËÅmt§∞Ä∏∏∏°ôïÖ—’…ïë	ΩΩÕ–°¿§Ä¯Ä¿Ä¸ÅmÏÅ≠ï‰ËÄâôïÖ—’…ïêà∞Å•çΩ∏ËÄã¬~>à∞Å±Öâï∞ËÄâïÖ—’…ïêàÅıtÄËÅmt§∞Ä∏∏πï·¡ï…•ïπçï	ÖëùïÃ°¿∞ÅÕï±ïç—ïë	Öëùî∞ÄÃ•tÏ(ÄÄººÅÿ‡∏ÃÃÄ°Ω›πï»∞Ä»¿»ÿ¥¿‡¥»»§ÉäPÅ—°îÅM5Å…ïÕΩ±ŸïêÅÕï–Å—°îÄâ…ïÖ—Ω»ÅŸ•ëïºàÅç°•¿(ÄÄººÅÖâΩŸîÅ•ÃÅëï…•ŸïêÅô…Ω¥Ä°°ÖÕ…ïÖ—Ω…Y•ëïº†§Å•ÃÅç…ïÖ—Ω…Y•ëïΩÕΩ»†§π±ïπù—†Ä¯Ä¿§∞(ÄÄººÅÕºÅ—°îÅôÖçîÅΩ∏Å—°îÅ¡°Ω—ºÅÖπêÅ—°îÅç°•¿Å•∏Å—°îÅ¡•±±ÃÅ±ÖπîÅçÖ∏ÅπïŸï»Åë•ÕÖù…ïî(ÄÄººÅÖâΩ’–Å›°ï—°ï»Å—°•ÃÅ¡±ÖçîÅ°ÖÃÅÑÅŸ•ëïº∏ÅQ°îÅç°•¿ÅÕ—ÖÂÃËÅ•–Å•ÃÅ—°îÅ…Öπ≠•πú(ÄÄººÅ%M1=MUIÅ—°îÅÕçΩ…îÅ±Ö‹Å…ï≈’•…ïÃÅ—ºÅâîÅŸ•Õ•â±î∞ÅÖπêÅÑÅ¡Ω…—…Ö•–Åë•Õç±ΩÕïÃ(ÄÄººÅπΩ—°•πúÅΩ∏Å•—ÃÅΩ›∏∏ÅMïîÅÖ¡¿ΩçΩµ¡Ωπïπ—ÃΩ…ïÖ—Ω…Ö…ë5Ö…¨π©Ã∏(ÄÅ±ï–ÅçÖ…ë…ïÖ—Ω…Y•ëïΩÃÄÙÅmtÏ(ÄÅ—…‰ÅÏÅçÖ…ë…ïÖ—Ω…Y•ëïΩÃÄÙÅç…ïÖ—Ω…Y•ëïΩÕΩ»°¿§ÅÒÅmtÏÅÙÅçÖ—ç†Ä°î§ÅÏÅçÖ…ë…ïÖ—Ω…Y•ëïΩÃÄÙÅmtÏÅÙ(ÄÅçΩπÕ–Å¡çÖ–ÄÙÅ¡…•µÖ…ÂÖ—ïùΩ…‰°¿§Ï(ÄÄººÅÿÿ∏‡‹Ä°Ω›πï»§ËÅ—°îÅ…Öπ¨µÕ’µµÖ…‰ÅÕïπ—ïπçîÄ†â=’»ÄåƒÅ¡•ç¨ÉäPÄ–∏„äbÉ
+‹Äƒ∏—¨(ÄÄººÅ…ïŸ•ï›Ã∞ÅÖπêÅ•–Å°Ω±ëÃÅ’¿∏à§Å•ÃÅ=9ÉäPÅ…Ö—•πú∞Å…ïŸ•ï›Ã∞Å…Öπ¨∞Å¡…•çî∞(ÄÄººÅÕ—Ö—’ÃÅÖπêÅë•Õ—ÖπçîÅÖ±…ïÖë‰Å…ïπëï»Åï±Õï›°ï…îÅΩ∏Å—°•ÃÅçÖ…ê∞ÅÖπê(ÄÄººÅ…ïÕ—Ö—•πúÅ—°ï¥Å°ï…îÅ›ÖÃÅ—°îÅùïπï…•åÅô•±±ï»Å—°•ÃÅ…’±îÅï·•Õ—ÃÅ—ºÅ≠•±∞∏(ÄÄººÅA…•Ω…•—‰Å•ÃÅπΩ‹ËÅÑÅ°Öπêµ›…•——ï∏Å]ÖÂô•πêÅ°ΩΩ¨Ä°±•àΩç’…Ö—ïêπ©Ã∞Å¯‹‘(ÄÄººÅ¡±ÖçïÃ∞Å…ïÖ∞ÅÖπêÅÕ’âÕ—Öπ—•Ÿî§ÅâïÖ—ÃÅÑÅŸÖ±•ëÖ—ïêÅπ—°…Ω¡•åÅI}MU55Id(ÄÄººÄ°±•àΩïë•—Ω…•Ö±YÖ±•ëÖ—Ω»π©ÃÅÖ±…ïÖë‰Å…ï©ïç—ïêÅÖπÂ—°•πúÅùïπï…•å∞ÅÑ(ÄÄººÅô…Öùµïπ–∞ÅΩ»ÅçÖ…êµëÖ—Ñµ…ï¡ïÖ—•πúÅâïôΩ…îÅ—°•ÃÅïŸï»Å…ïÖç°ïêÅ—°îÅç±•ïπ–§∏(ÄÄººÅ%òÅ9%Q!HÅï·•Õ—Ã∞Å—°•ÃÅÕ±Ω–Å…ïπëï…ÃÅ9=Q!%9ÉäPÅπºÅ…Öπ≠IïÖÕΩ∏∞Åπº(ÄÄººÅ—ïµ¡±Ö—ï	±’…à∏ÅΩΩêÅïŸ•ëïπçîÅÕ°Ω›ÃÅÕ°Ö…¿ÅçΩ¡‰ÏÅ›ïÖ¨ÅïŸ•ëïπçîÅÕ°Ω›Ã(ÄÄººÅπΩ—°•πú∞Å…Ö—°ï»Å—°Ö∏ÅÖπΩ—°ï»Å±•πîÅïŸï…‰Å¡±ÖçîÅΩòÅ—°•ÃÅ—Â¡îÅçΩ’±êÅ›ïÖ»∏(ÄÅçΩπÕ–Åç’…Ö—ïë!ΩΩ¨ÄÙÄ†°ç’…Ö—ïëΩ»°¿§ÅÒÅÌÙ§π°ΩΩ¨§ÅÒÄààÏ(ÄÄººÅÿ‹∏¿ÿÉäPÅQ!ÅPÅQ!%LÅ%aL∏ÄΩÖ¡§Ω≠πΩ›∏µôΩ»Å…ï—’…πÃÅÑÅ¡±Ö•∏ÅMQI%9Å¡ï»(ÄÄººÅ¡±ÖçîÄ°±•àΩ≠πΩ›πΩ»π≠πΩ›πΩ…5Ö¿§∏Å±ΩÖë	±’…âÃÅµï…ùïÃÅ—°ΩÕîÅÕ—…•πùÃÅ•π—º(ÄÄººÅÅâ±’…âÕÄ∞ÅÖπêÅïŸï…‰ÅA±ÖçïÖ…êÅçÖ±∞ÅÕ•—îÅ¡ÖÕÕïÃÅÅ±•πîıÌâ±’…âÕm¿π•ëuıÄ∏Å	’–(ÄÄººÅ—°îÅ=91dÅâ…Öπç†Å—°Ö–Å…ïÖêÅÅ±•πïÄÅ…ï≈’•…ïêÅÅ—Â¡ïΩòÅ±•πîÄÙÙÙÄâΩâ©ïç–âÄ∞ÅÕº(ÄÄººÅïŸï…‰Å…ïÕïÖ…ç°ïêÅ›ô}ïë•—Ω…•Ö∞Å°ΩΩ¨ÉäPÄÿÿ‡Å…Ω›Ã∞Å—°îÅÕÖµîÅ—Öâ±îÅ—°îÅQΩ¿Ä–¿(ÄÄººÅ…Ö•∞Å°ÖÃÅ…ïπëï…ïêÅô…Ω¥ÅÕ•πçîÄåÿ‡‹ÉäPÅ›ÖÃÅôï—ç°ïê∞ÅçÖç°ïê∞ÅÖπêÅ—°ï∏ÅÕ•±ïπ—±‰(ÄÄººÅë…Ω¡¡ïêÅÖ–Å…ïπëï»∏Å=π±‰Åç’…Ö—ïë!ΩΩ¨Ä°¯‹‘Å°Öπêµ›…•——ï∏Å¡±ÖçïÃÅ•∏(ÄÄººÅ±•àΩç’…Ö—ïêπ©Ã§ÅïŸï»Å…ïÖç°ïêÅ—°îÅÕ±Ω–∏ÅA±ÖçïÖ…êÅ•ÃÅÖ±ÕºÅ—°îÅµÖ¿Å¡±ÖçîÅçÖ…ê(ÄÄººÅÖπêÅ—°îÅÕ°Ö…îÅçÖ…êÄ°âΩ—†Å…ïçï•ŸîÅ•–Å—°…Ω’ù†Åç—‡§∞ÅÕºÅΩπîÅë…Ω¡¡ïêÅâ…Öπç†(ÄÄººÅçΩÕ–Å—°îÅïë•—Ω…•Ö∞Å±•πîÅΩ∏Å—°…ïîÅÕ’…ôÖçïÃÅÖ–ÅΩπçî∏(ÄÄºº(ÄÄººÅMçΩ¡ïêÅ—ºÅ—°îÅMQI%9ÅÕ°Ö¡îÅΩ∏Å¡’…¡ΩÕîËÅÖ∏Å=	)PÅÅ±•πïÄÅ•ÃÅÑÅŸÖ±•ëÖ—ïê(ÄÄººÅ—›ºµ±•πîÅI}MU55IdÅÖπêÅ≠ïï¡ÃÅ•—ÃÅï·•Õ—•πúÅ—›ºµ±•πîÅ…ïπëï»Åâï±Ω‹∏(ÄÄººÅΩµ¡…ïÕÕ•πúÅ•–Å—ºÅΩπîÅ±•πîÅ°ï…îÅ›Ω’±êÅâîÅÑÅ…ïù…ïÕÕ•Ω∏∞ÅπΩ–ÅÑÅô•‡∏(ÄÄºº(ÄÄººÅA…ïçïëïπçîËÅ°Öπêµ›…•——ï∏Å]ÖÂô•πêÅ°ΩΩ¨Ä¯Å…ïÕïÖ…ç°ïêÅ›ô}ïë•—Ω…•Ö∞Å°ΩΩ¨Ä¯(ÄÄººÅŸÖ±•ëÖ—ïêÅI}MU55Id∏ÅMÖµîÅΩ…ëï»Å—°îÅ…Öπ≠ïêÅ…Ω›ÃÅ’ÕîÉäPÅ…ïÕïÖ…ç°ïêÅçΩ¡‰(ÄÄººÅâïÖ—ÃÅùïπï…Ö—ïêÅçΩ¡‰∞ÅÖπêÅâΩ—†Å±ΩÕîÅ—ºÅÑÅ°’µÖ∏∏Å]°ï∏ÅπΩπîÅï·•Õ—ÃÅ—°îÅÕ±Ω–(ÄÄººÅ…ïπëï…ÃÅ9=Q!%9∞Å›°•ç†Å•ÃÅ—°îÅ±Ö‹∏(ÄÅçΩπÕ–Å≠πΩ›πΩ…!ΩΩ¨ÄÙÄÖç’…Ö—ïë!ΩΩ¨ÄòòÅ—Â¡ïΩòÅ±•πîÄÙÙÙÄâÕ—…•πúàÄ¸Åïë•—Ω…•Ö±1•πî°±•πî∞Å¿ππÖµî§ÄËÄààÏ(ÄÅçΩπÕ–ÅÖ•M’µµÖ…‰ÄÙÄÖç’…Ö—ïë!ΩΩ¨ÄòòÄÖ≠πΩ›πΩ…!ΩΩ¨ÄòòÅ±•πîÄòòÅ—Â¡ïΩòÅ±•πîÄÙÙÙÄâΩâ©ïç–àÄòòÅ±•πîπçÖ…ë}±•πï|ƒÄòòÅ±•πîπçÖ…ë}±•πï|»Ä¸Å±•πîÄËÅπ’±∞Ï(ÄÅçΩπÕ–ÅΩôôï»ÄÙÅ=IMm¿π•ëtÏ(ÄÄººÅÿÿ∏»‹Å1=	0ÅIU1ËÅ—°îÅ]ÖÂô•πêÅMçΩ…îÄ°	ÖÂïÕ•Ö∏∞Ä√äLƒ¿§Å•ÃÅQ!Å°ïÖë±•πîÅπ’µâï»(ÄÄººÅΩ∏ÅïŸï…‰ÅçÖ…ê∏Å%πŸÖ±•êΩµ•ÕÕ•πúÅ›ôMçΩ…îÄ¥¯Åπ’±∞Ä¥¯ÅπºÅâÖëùîÄ°πïŸï»ÅÑÅôÖ≠îÄ¿§Ï(ÄÄººÅ≠•±±Õ›•—ç†Å…ïÕ—Ω…ïÃÅ—°îÅΩ±êÅ±ÖÂΩ’–∏(ÄÄººÅÿÿ∏–¿ËÅÑÅ…Ö—ïêÅçÖ…êÅ1]eLÅçÖ……•ïÃÅ—°îÅ]ÖÂô•πêÅMçΩ…îÅâÖëùî∏ÅIΩ›ÃÅ—°Ö–(ÄÄººÅÖ……•ŸïêÅô…Ω¥Å9dÅÕΩ’…çîÄ°•πŸïπ—Ω…‰ÅÕï…Ÿî∞ÅÕ≠ï±ï—Ω∏Å•πëï‡∞Å•µ¡Ω…—Ã§Å›•—°Ω’–(ÄÄººÅÑÅ¡…ïçΩµ¡’—ïêÅ›ôMçΩ…îÅùï–Å•–Å°ï…îÅô…Ω¥Å—°îÅÕÖµîÅôΩ…µ’±ÑÅ—°îÅ…Öπ≠•πúÅ’ÕïÃÉäP(ÄÄººÅçÖ…ëΩµ¡±ï—îÅÖâΩŸîÅÖ±…ïÖë‰Å…ïô’ÕïêÅ…Ω›ÃÅ›•—†ÅπºÅ…Ö—•πúÅÕ•ùπÖ±ÃÅÖ–ÅÖ±∞∞ÅÕº(ÄÄººÅ¡ÖÕ–Å—°•ÃÅ±•πîÅÑÅMçΩ…îÅ•ÃÅÖ±›ÖÂÃÅçΩµ¡’—Öâ±îÅÖπêÅÖ±›ÖÂÃÅÕ°Ω›∏∏(ÄÅ•òÄ°¿π›ôMçΩ…îÄÙÙÅπ’±∞ÄòòÅ9’µâï»°¿π…Ö—•πú§Ä¯Ä¿§Å¿π›ôMçΩ…îÄÙÅ›ÖÂô•πëMçΩ…î°9’µâï»°¿π…Ö—•πú§∞Å9’µâï»°¿π…ïŸ•ï›ÃÄÑÙÅπ’±∞Ä¸Å¿π…ïŸ•ï›ÃÄËÅ¿π’Õï…IÖ—•πùΩ’π–§ÅÒÄ¿§Ï(ÄÄººÅÿ‹∏¿¿ÉäPÅç…ïÖ—Ω»ÅïŸ•ëïπçîÅ•ÃÅπΩ‹ÅY%M%	1ÅΩ∏Å—°îÅçÖ…ê∞ÅπΩ–Å©’Õ–Å•∏Å—°îÅÕΩ…–∏(ÄÄººÅë•Õ¡±ÖÂïë]ôMçΩ…î†§Å•π°ï…•—ÃÅ—°îÄ–∏»®ºÃ¿µ…ïŸ•ï‹Åô±ΩΩ»ÅÖπêÅ—°îÄƒ‘îÅçÖ¿ÅÖπê(ÄÄººÅç±Öµ¡ÃÅÖ–Äƒ¿¿ÏÅÕïîÅ—°îÅçΩµµïπ–ÅÖ–Å•—ÃÅëïç±Ö…Ö—•Ω∏ÅôΩ»Å›°‰Å—°îÅç±Öµ¿Å•ÃÅ—°î(ÄÄººÅ›°Ω±îÅô•‡Å…Ö—°ï»Å—°Ö∏ÅÑÅπ•çï—‰∏(ÄÅçΩπÕ–Åë•Õ¡MçΩ…îÄÙÅM=I}	}=Ä¸Åπ’±∞ÄËÅ—Ω•Õ¡±ÖÂMçΩ…î°ë•Õ¡±ÖÂïë]ôMçΩ…î°¿§§Ï(ÄÅçΩπÕ–ÅçÖ…ë%π•—•Ö±ÃÄÙÅM—…•πú°¿ππÖµîÅÒÄâ]à§πÕ¡±•–†ΩqÃ¨º§πô•±—ï»°	ΩΩ±ïÖ∏§πÕ±•çî†¿∞Ä»§πµÖ¿†°›Ω…ê§ÄÙ¯Å›Ω…ël¡t§π©Ω•∏†àà§π—ΩU¡¡ï…ÖÕî†§Ï(ÄÅçΩπÕ–ÅçÖ…ë’•Õ•πîÄÙÅ•π•πúπç’•Õ•πï1Öâï∞°¿§Ï(ÄÅçΩπÕ–ÅçÖ…ëM°Ω›Õ’•Õ•πîÄÙÄ°¡çÖ–ÄÙÙÙÄâΩΩêàÅÒÅ¡çÖ–ÄÙÙÙÄâ9•ù°—±•ôîà§ÄòòÅçÖ…ë’•Õ•πîÏ(ÄÅçΩπÕ–ÅçÖ…ëA…•µÖ…Â1Öâï∞ÄÙÅçÖ…ëM°Ω›Õ’•Õ•πîÄ¸ÅçÖ…ë’•Õ•πîÄËÅ¡çÖ–Ï(ÄÅçΩπÕ–ÅçÖ…ë’•Õ•πïÖπQÖ¿ÄÙÄÑÑ°çÖ…ëM°Ω›Õ’•Õ•πîÄòòÅΩπ’•Õ•πïQÖ¿§Ï(ÄÅçΩπÕ–ÅçÖ…ëIÖπ¨ÄÙÅ9’µâï»°…Öπ¨§Ï(ÄÅçΩπÕ–Å•Õ’…Ö—Ω…A•ç¨ÄÙÄÑÑ°¿π}µïµâï…ÃÄòòÅ¿π}µïµâï…ÃπΩ›πï…A•ç¨§Ï(ÄÄººÅÿÿ∏–‡ËÅ°Ω•Õ—ïêÅΩ’–ÅΩòÅ—°îÅµï—ÑÅ…Ω‹ÅÕºÅ—°îÅµïëÖ±±•Ω∏ÅΩ∏Å—°îÅ—°’µâπÖ•∞ÅÖπêÅÖπ‰(ÄÄººÅô’—’…îÅçΩπÕ’µï»Å…ïÖêÅ=9Å¡…ïë•çÖ—î∏ÅQ°îÅùÖ—îÅ•ÃÅ’πç°ÖπùïêÅô…Ω¥Å—°îÅ¡•±∞Å•–(ÄÄººÅ…ï¡±ÖçïÃÉäPÅïë•—Ω…•Ö±±‰Åç’…Ö—ïêÅ9Åï•—°ï»Å’πÕçΩ…ïêÅΩ»ÅÕçΩ…•πúÅ°•ù†ÅïπΩ’ù†Å—º(ÄÄººÅëïÕï…ŸîÅ—°îÅÕïÖ∞∞ÅÕºÅÑÅç’…Ö—ïêµâ’–µ›ïÖ¨Å¡±ÖçîÅπïŸï»Å›ïÖ…ÃÅ•–∏(ÄÄººÅQ°îÅÄÖ•Õ’…Ö—Ω…A•ç≠ÄÅ—ï…¥Å•ÃÅ±ΩÖêµâïÖ…•πúÅÖπêÅ¡…ïëÖ—ïÃÅ—°îÅµïëÖ±±•Ω∏∏Å%–(ÄÄººÅ’ÕïêÅ—ºÅ±•ŸîÅΩ∏Å—°îÅµï—Ñµ…Ω‹Åç°•¿Å—°•ÃÅµïëÖ±±•Ω∏Å…ï¡±ÖçïêÄ°ÿÿ∏–‡§∞ÅÖπêÅ•–(ÄÄººÅïπôΩ…çïÃÅΩπîÅ…’±îËÅÖ∏Å=]9HÅ¡•ç¨ÅÕ’¡¡…ïÕÕïÃÅ—°îÅùïπï…•åÅïë•—Ω…•Ö∞Å¡•ç¨∞ÅÕº(ÄÄººÅÑÅçÖ…êÅ—°Ö–Å•ÃÅâΩ—†ÅπïŸï»Å›ïÖ…ÃÅ—›ºÄâ—°•ÃÅ•ÃÅÑÅ¡•ç¨àÅâÖëùïÃ∏Å…Ω¡¡•πúÅ•–(ÄÄººÅ›°ï∏Å—°îÅç°•¿ÅµΩŸïêÅ›Ω’±êÅ°ÖŸîÅÕ°•¡¡ïêÅ—°îÅΩ›∞ÅÕïÖ∞Ä°âΩ——Ω¥µ±ïô–§ÅÖπêÅ—°î(ÄÄººÅµïëÖ±±•Ω∏Ä°—Ω¿µ±ïô–§ÅΩ∏Å—°îÅÕÖµîÅçÖ…êÉäPÅë•ôôï…ïπ–ÅçΩ…πï…Ã∞ÅÕºÅ•–Å›Ω’±êÅπΩ–(ÄÄººÅ°ÖŸîÅ±ΩΩ≠ïêÅâ…Ω≠ï∏∞Å©’Õ–Åë’¡±•çÖ—ïê∏Å—ïÕ–µç’…Ö—Ω»µâΩΩÕ–ÅÖÕÕï…—ÃÅ—°•Ã∏(ÄÅçΩπÕ–Å•Õ]ÖÂô•πëA•ç¨ÄÙÄÑÑ†Ö•Õ’…Ö—Ω…A•ç¨ÄòòÅç’…Ö—ïëΩ»°¿§ÄòòÄ°ë•Õ¡MçΩ…îÄÙÙÅπ’±∞ÅÒÅ¡•ç≠±•ù•â±ï	ÂMçΩ…î°ë•Õ¡MçΩ…î§§§Ï(ÄÄººÅ=πîÅç…ïëïπ—•Ö∞ÅÕ±Ω–∞ÅπïŸï»ÅÑÅÕïçΩπêÅç’…Ö—Ω»ÅâÖëùî∏Å∏ÅΩ›πï»Å±•≠îÅ¡…ΩµΩ—ïÃ(ÄÄººÅ—°•ÃÅï·•Õ—•πúÅÖ›Ö…êÅ—ºÅ—°îÅ≈’•ï—ï»Åç’…Ö—Ω»Å—…ïÖ—µïπ–ÏÅ—°îÅ…Öπ¨Åπ’µâï»ÅÖπê(ÄÄººÅ]ÖÂô•πêÅMçΩ…îÅÖ±…ïÖë‰ÅçΩµµ’π•çÖ—îÅ¡±Öçïµïπ–Åï±Õï›°ï…îÅΩ∏Å—°îÅçÖ…ê∏(ÄÄººÅ=›πï»Ä»¿»ÿ¥¿‡¥»‘ËÅQ=@ÅÌQ=IeÙÅA%,Ä¨Å…Öπ¨∞ÅπïŸï»Å	MPÉäòÅA%,∞ÅπïŸï»(ÄÄººÅÑÅùΩ±êÅ—…Ω¡°‰∏ÅÖ—ïùΩ…‰Å•ÃÅ—°îÅÕïç—•Ω∏Ä°ΩΩêÄºÅç—•Ÿ•—•ïÃ§∞ÅπΩ–Åç’•Õ•πî(ÄÄººÉäPÅç’•Õ•πîÅÕ—ÖÂÃÅÑÅç°•¿∏Å±•àΩ—Ω¡A•ç≠›Ö…êπ©ÃÅ•ÃÅ—°îÅΩπ±‰ÅçΩµ¡ΩÕï»∏(ÄÅçΩπÕ–ÅçÖ…ë›Ö…êÄÙÅ•Õ’…Ö—Ω…A•ç¨(ÄÄÄÄ¸ÅÏÅ…Öπ¨ËÅçÖ…ëIÖπ¨∞Å±Öâï∞ËÄâ]ÖÂô•πêÅç’…Ö—Ω»ùÃÅ¡•ç¨à∞Åç’…Ö—Ω»ËÅ—…’îÅÙ(ÄÄÄÄËÅ—Ω¡A•ç≠›Ö…ê°ÏÅçÖ—ïùΩ…‰ËÅ¡çÖ–∞Å…Öπ¨ËÅçÖ…ëIÖπ¨ÅÙ§Ï(ÄÅ…ï—’…∏Ä†(ÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîıÌÅ›òµ¡±ÖçîµçÖ…êëÌôÖ±±Ö…ë±ÖÕÃ°¿ÄòòÅ¿π•ê∞ÅÕ•—ïQΩëÖÂM—»†§•ÙëÌ±•≠ïêÄ¸ÄàÅ•Ãµ±•≠ïêàÄËÄàâÙëÌë•Õ±•≠ïêÄ¸ÄàÅ•Ãµë•Õ±•≠ïêàÄËÄàâÙëÌ•Õ’…Ö—Ω…A•ç¨Ä¸ÄàÅ•Ãµç’…Ö—Ω»µ¡•ç¨àÄËÄàâÙëÏÑ°ç’…Ö—ïë!ΩΩ¨ÅÒÅ≠πΩ›πΩ…!ΩΩ¨ÅÒÅÖ•M’µµÖ…‰§Ä¸ÄàÅ•Ãµπºµ—Ö≠îàÄËÄàâıÅÙÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâ…ï±Ö—•ŸîàÅıÙ¯(ÄÄÄÄÄÄÒâ’——Ω∏Å—Â¡îÙââ’——Ω∏àÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµΩ¡ï∏àÅΩπ±•ç¨ıÌΩπï—Ö•±ÙÅÖ…•Ñµ±Öâï∞ıÌÅ=¡ï∏ÄëÌ¿ππÖµïıÅÙÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâÖâÕΩ±’—îà∞Å•πÕï–ËÄ¿∞ÅÈ%πëï‡ËÄ¿∞Å›•ë—†ËÄàƒ¿¿îà∞Å°ï•ù°–ËÄàƒ¿¿îà∞ÅΩ¡Öç•—‰ËÄ¿∞ÅâΩ…ëï»ËÄ¿∞Å¡Öëë•πúËÄ¿∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»à∞ÅâÖç≠ù…Ω’πêËÄâ—…ÖπÕ¡Ö…ïπ–àÅıÙÄº¯(ÄÄÄÄÄÅÏº®Åÿ‡∏ÿ»Ä°Ω›πï»∞Ä»¿»ÿ¥¿‡¥»ÿ∞Å±•Ÿî§ËÄâ—Ω¿Å…•ù°–Å°ÖπêÅçΩ…πï»ÅΩòÅ—°îÅçÖ…ê∞(ÄÄÄÄÄÄÄÄÄÅπΩ–Å•∏Åô…Ωπ–ÅΩòÅ—°îÅ•µÖùî∏àÅQ°îÅÕçΩ…îÅâÖëùîÅ•ÃÅÑÅë•…ïç–Åç°•±êÅΩòÅ—°î(ÄÄÄÄÄÄÄÄÄÅI∞ÅÖπç°Ω…ïêÅ—ºÅ•—ÃÅ—Ω¿µ…•ù°–ÅçΩ…πï»Åâ‰Å—°îÅÕ°Ö…ïê(ÄÄÄÄÄÄÄÄÄÄπ›òµ¡±ÖçîµçÖ…êµÕçΩ…îÅ…’±îÅ•∏ÅçÕÃπ©ÃÉäPÅ•–ÅπïŸï»Å…•ëïÃÅ—°îÅ¡°Ω—º(ÄÄÄÄÄÄÄÄÄÄ†å‰ÿ‘ºå‰‘‡ÅÕ’¡ï…Õïëïê§ÅÖπêÅπïŸï»Åç…Ω›ëÃÅ—°îÅ—•—±îÅ…Ω‹Ä°ÿÿ∏Ã–(ÄÄÄÄÄÄÄÄÄÅÕ’¡ï…Õïëïê§∏ÅIÖπ¨ÅÕ—ÖÂÃÅΩ∏Å—°îÅ¡°Ω—º∏ÅQ°îÉäròÅA%,ÅÕïÖ∞Ä°ÿ‡∏ƒ‹§(ÄÄÄÄÄÄÄÄÄÅÕ—ÖÂÃÅùΩπîÏÅç°ïç¨µ¡•ç¨µµïëÖ±±•Ω∏πµ©ÃÅÕ—•±∞ÅâÖπÃÅ•–∏Ä®ΩÙ(ÄÄÄÄÄÅÌë•Õ¡MçΩ…îÄÑÙÅπ’±∞ÄòòÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµÕçΩ…îà¯Ò]ÖÂô•πëMçΩ…ï	ÖëùîÅÕçΩ…îıÌë•Õ¡MçΩ…ïÙÄº¯Ωë•ÿ˘Ù(ÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµ±ÖÂΩ’–àÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâ…ï±Ö—•Ÿîà∞ÅÈ%πëï‡ËÄƒ∞Å¡Ω•π—ï…Ÿïπ—ÃËÄâπΩπîàÅıÙ¯(ÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµµïë•Ñà¯(ÄÄÄÄÄÄÄÄÄÅÏ°çÖ…ëA°Ω—ºÅÒÄ°¿ÄòòÅ¿π¡°Ω—º§§(ÄÄÄÄÄÄÄÄÄÄÄÄ¸ÄÒÖ±±âÖç≠%µúÅÕ…åıÌçÖ…ëA°Ω—ºÅÒÅ¿π¡°Ω—ΩÙÅ•çΩ∏ıÌ•çΩπΩ…A±Öçî°¿•ÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÄÄËÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµµΩπΩù…Ö¥àÅÖ…•Ñµ°•ëëï∏Ùâ—…’îà˘ÌçÖ…ë%π•—•Ö±ÕÙΩë•ÿ˘Ù(ÄÄÄÄÄÄÄÄÄÅÌ…Öπ¨Ä¸ÄÒÕ¡Ö∏Åç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµ…Öπ¨àÅÖ…•Ñµ±Öâï∞ıÏâIÖπ¨ÄàÄ¨Å…Öπ≠Ù˘Ì…Öπ≠ÙΩÕ¡Ö∏¯ÄËÅπ’±±Ù(ÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµçΩπ—ïπ–àÅÕ—Â±îıÌÏÅ¡ΩÕ•—•Ω∏ËÄâ…ï±Ö—•ŸîàÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµ—•—±îµ…Ω‹à¯(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµ°ïÖë•πúà¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ¡çÖ–ÄòòÄ°çÖ…ë’•Õ•πïÖπQÖ¿(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¸ÄÒâ’——Ω∏Å—Â¡îÙââ’——Ω∏àÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµçÖ—ïùΩ…‰Å•Ãµ—Ö¡¡Öâ±îàÅÕ—Â±îıÌÏÅ¡Ω•π—ï…Ÿïπ—ÃËÄâÖ’—ºàÅıÙÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅÏÅîπÕ—Ω¡A…Ω¡ÖùÖ—•Ω∏†§ÏÅΩπ’•Õ•πïQÖ¿°çÖ…ë’•Õ•πî∞Å¿§ÏÅıÙ˘Ì¡çÖ—ÙÉäËΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄËÄÒÕ¡Ö∏Åç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµçÖ—ïùΩ…‰à˘Ì¡çÖ–ÅÒÅçÖ…ëA…•µÖ…Â1Öâï±ÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµπÖµîà˘Ì¿ππÖµïÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµµï—ÑàÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‡∞Åô±ï·]…Ö¿ËÄâ›…Ö¿à∞ÅµÖ…ù•∏ËÄà›¡‡Ä¿ÄŸ¡‡àÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÅÌΩôôï»ÄòòÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒƒ∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÄàå¡ƒƒƒ‹à∞ÅâÖç≠ù…Ω’πêËÅπÖççïπ–∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞Å¡Öëë•πúËÄà…¡‡Ä·¡‡àÅıÙ˘ÌΩôôï…1Öâï∞°Ωôôï»•ÙΩÕ¡Ö∏˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÅÏÖΩôôï»ÄòòÄ††§ÄÙ¯ÅÏÅçΩπÕ–Åç¡∏ÄÙÅçΩ’¡ΩπΩ…A±Öçï9Öµî°¿ππÖµî§ÏÄº®Åÿÿ∏ƒ‹ËÅΩ›πï»µç’…Ö—ïêÅçΩ’¡Ω∏Å¡•±∞ÉäPÅÕÖµîÅÕ±Ω–ÅÖÃÅM’¡ÖâÖÕîÅΩôôï…ÃÏÅ¡±Öçï°Ω±ëï»Åç°•¿Å’π—•∞Å—°îÅâÖëùîÅ±ΩùºÅ±ÖπëÃÄ®ºÅ…ï—’…∏Åç¡∏Ä¸ÄÒÕ¡Ö∏Å—•—±îıÌç¡∏π—•—±ïÙÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒƒ∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÄàå¡ƒƒƒ‹à∞ÅâÖç≠ù…Ω’πêËÅπÖççïπ–∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞Å¡Öëë•πúËÄà…¡‡Ä·¡‡àÅıÙ˚¬~>ﬂæ‚<ÅïÖ∞ΩÕ¡Ö∏¯ÄËÅπ’±∞ÏÅÙ§†•Ù(ÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿÿ∏–‡ËÅ—°îÄãäbÅ]ÖÂô•πêÅA•ç¨àÅç°•¿Å—°Ö–Å’ÕïêÅ—ºÅÕ•–Å!IÅ•ÃÅπΩ‹Å—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÃ—¡‡Åç°Öµ¡ÖùπîÅµïëÖ±±•Ω∏ÅΩŸï»Å—°îÅ—°’µâπÖ•∞Ä°ÕïîÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•Õ]ÖÂô•πëA•ç¨Åâ±Ωç¨ÅÖ–Å—°îÅ—Ω¿ÅΩòÅ—°•ÃÅçÖ…ê§∏Åÿÿ∏‘ÿÅ°ÖêÅÖ±…ïÖë‰(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ïÕ—Â±ïêÅ•–Åô…Ω¥ÅÖ∏ÅΩ…ÖπùîÅ…ïç—Öπù±îÅ—ºÅÑÅç°Öµ¡ÖùπîÅ¡•±∞∞Åâ’–Å—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ïÖ∞Åëïôïç–Å›ÖÃÅ¡ΩÕ•—•ΩπÖ∞∞ÅπΩ–ÅçΩÕµï—•åËÅÕ°Ö…•πúÅ—°•ÃÅô±ï‡µ›…Ö¿(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…Ω‹Å›•—†Å…ïŸ•ï›Ã∞Å¡…•çî∞ÅΩ¡ï∏Ωç±ΩÕïêÅÖπêÅë•Õ—ÖπçîÅµïÖπ–Å•–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ›…Ö¡¡ïêÅ—ºÅ•—ÃÅΩ›∏Å±•πîÅΩ∏ÅÖπ‰ÅπÖ……Ω‹ÅçÖ…ê∏Å=ôòÅ—°îÅ…Ω‹∞Å•–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçÖππΩ–Å›…Ö¿∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÅÏº®Åÿÿ∏Ã¿Å1=	0ÅIU1ËÅ—°îÅ]ÖÂô•πêÅMçΩ…îÅâÖëùîÄ°—Ω¿µ…•ù°–§Å•ÃÅ—°îÅ=9(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕçΩ…îÅΩ∏Å—°îÅçÖ…ê∏ÅQ°îÅ…Ö‹ÅΩΩù±îÅÕ—Ö»Å•ÃÅ…ïµΩŸïêÉäPÅ•–ÅçΩµ¡ï—ïê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ›•—†Å—°îÅ	ÖÂïÕ•Ö∏ÅÕçΩ…îÅÖπêÅçΩπô’ÕïêÅ—°îÅ…Öπ≠•πú∏ÅQ°îÅ…ïŸ•ï‹(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ=U9PÅÕ—ÖÂÃÅÖÃÅ—…’Õ–ÅçΩπ—ï·–Ä°•–ùÃÅ›°Ö–Å—°îÅÕçΩ…îÅ•ÃÅâ’•±–ÅΩ∏§∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖπêÅÕ°Ω›ÃÅ—°îÅÕ—Ö»ÅΩπ±‰Å›°ï∏Å›îÅ°ÖŸîÅπºÅ]ÖÂô•πêÅMçΩ…îÅ—ºÅÕ°Ω‹∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÅÌë•Õ¡MçΩ…îÄÙÙÅπ’±∞ÄòòÅ¿π…Ö—•πúÄòòÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄÃ∞ÅâÖç≠ù…Ω’πêËÅ¿π…Ö—•πúÄ¯ÙÄ–∏‘Ä¸Åπù…ïï∏ÄËÅ¿π…Ö—•πúÄ¯ÙÄ–∏¿Ä¸ÄàåÕ·—àÄËÅπçÖ…ê∞ÅçΩ±Ω»ËÅ¿π…Ö—•πúÄ¯ÙÄ–∏¿Ä¸Äàå¡ƒƒƒ‹àÄËÅπ±•ù°–∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅôΩπ—M•ÈîËÄƒ–∞Å¡Öëë•πúËÄà…¡‡Ä·¡‡à∞ÅâΩ…ëï…IÖë•’ÃËÄ‡ÅıÙ˚äbÅÌ¿π…Ö—•πùÙΩÕ¡Ö∏˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÅÌ¿π…ïŸ•ï›ÃÄ¯Ä¿ÄòòÄ††§ÄÙ¯ÅÏÅçΩπÕ–ÅçòÄÙÅçΩπô•ëïπçï=ò°¿π…ïŸ•ï›Ã§ÏÅ…ï—’…∏Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ–∞ÅôΩπ—M•ÈîËÄƒ»∞ÅçΩ±Ω»ËÅπµ’—ïêÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌçòÄòòÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅ›•ë—†ËÄ‹∞Å°ï•ù°–ËÄ‹∞ÅâΩ…ëï…IÖë•’ÃËÄà‘¿îà∞ÅâÖç≠ù…Ω’πêËÅçòπçΩ±Ω»∞Åô±ï·M°…•π¨ËÄ¿ÅıÙÄº˘Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ¿π…ïŸ•ï›Ãπ—Ω1ΩçÖ±ïM—…•πú†•ÙÅ…ïŸ•ï›Ã(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄ§ÏÅÙ§†•Ù(ÄÄÄÄÄÄÄÄÄÄÄÅÌ¿π¡…•çï9’¥ÄÑÙÅπ’±∞Ä¸ÄÒA…•çï5ï—ï»Å±ïŸï∞ıÌ¿π¡…•çï9’µÙÅ›Ω…êÄº¯ÄËÄ°¿π¡…•çîÄòòÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒÃ∞ÅçΩ±Ω»ËÅπù…ïï∏∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿ÅıÙ˘Ì¿π¡…•çïÙΩÕ¡Ö∏¯•Ù(ÄÄÄÄÄÄÄÄÄÄÄÅÏ††§ÄÙ¯ÅÏÅçΩπÕ–Å±ºÄÙÅ±•Ÿï=¡ï∏°¿§ÏÄº®Åÿ–∏ÿ‹ËÅ°Ω’…ÃµçΩµ¡’—ïê∞ÅπïŸï»ÅÕ—Ö±îÅçÖç°îÄ®ºÅ…ï—’…∏Å±ºÄÑÙÅπ’±∞Ä¸ÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒƒ∞ÅôΩπ—]ï•ù°–ËÄÿ¿¿∞ÅçΩ±Ω»ËÅ±ºÄ¸Åπù…ïï∏ÄËÅπ…ïêÅıÙ˘Ì±ºÄ¸Äâ=¡ï∏àÄËÄâ±ΩÕïêâÙΩÕ¡Ö∏¯ÄËÅπ’±∞ÏÅÙ§†•Ù(ÄÄÄÄÄÄÄÄÄÄÄÅÌ¿πë•Õ—5§ÄÑÙÅπ’±∞ÄòòÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∞ÅçΩ±Ω»ËÅπµ’—ïêÅıÙ˚
+‹ÅÌ¿πë•Õ—5§π—Ω•·ïê†ƒ•ÙÅµ§ΩÕ¡Ö∏˘Ù(ÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÅÏº®Åÿÿ∏‘‹ËÅâïÖç†ÅÕ•ùπÖ±ÃÉäPÅÑÄâQ…ïπë•πúàÅô±ÖµîÅô…Ω¥Å—°îÅ¡Ω¡’±Ö…•—‰Åç…Ω∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ°›ô}¡±Öçï}¡Ω¡’±Ö…•—Â}ÕçΩ…ïê§ÅÖπêÅÑÅ›Ö—ï»µ≈’Ö±•—‰Å…ïÖê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ°›ô}âïÖç°}›Ö—ï»§∞ÅâΩ—†ÅâÖ—ç°ïêÅΩπçîÅ¡ï»ÅÕç…ïï∏Ä°ÕïîÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÅâïÖç°M•ùπÖ±ÕÄÅïôôïç–ÅπïÖ»ÅÅ…ïÕ—Y•ï›Ä§Å…Ö—°ï»Å—°Ö∏Å¡ï»ÅçÖ…ê∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÅÏ†°¿π—…ïπë•πúÄòòÅ¿π—…ïπë}…ïÖÕΩ∏§ÅÒÄ°•Õ	ïÖç†°¿§ÄòòÅâïÖç°M•ùπÖ∞ÄòòÅâïÖç°M•ùπÖ∞π›Ö—ï»§§ÄòòÄ†(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅùÖ¿ËÄÿ∞Åô±ï·]…Ö¿ËÄâ›…Ö¿à∞ÅµÖ…ù•π	Ω——Ω¥ËÄ‹ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏº®Ä»¿»ÿ¥¿‡¥¿‡ËÅ—°îÉ¬~RîÅ•ÃÅ—°îÅU9%%Å—…ïπêÅÕ•ùπÖ∞Ä°±•àΩ—…ïπëM•ùπÖ∞π©Ã§(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖπêÅ—°îÅµÖπëÖ—Ω…‰Åë•Õç±ΩÕ’…îÅôΩ»Å—°îÄ¨¿∏ÿÅ—…ïπë•πúÅçΩµ¡Ωπïπ–Å—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅç°•¿ùÃÅë•Õ¡±ÖÂïë]ôMçΩ…îÅπΩ‹ÅçÖ……•ïÃ∏Å±∞ÅçÖ—ïùΩ…•ïÃ∞ÅΩπîÅµïÖπ•πú(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ°—°îÅΩ±êÅâïÖç†µΩπ±‰Å¡Ω¡’±Ö…•—‰Åô±ÖµîÅôΩ±ëïêÅ•π—ºÅ•–§∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ¿π—…ïπë•πúÄòòÅ¿π—…ïπë}…ïÖÕΩ∏ÄòòÄ†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ–∞ÅôΩπ—M•ÈîËÄƒƒ∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞ÅçΩ±Ω»ËÄàç‰»Õà∞ÅâÖç≠ù…Ω’πêËÄâ…ùâÑ†»‘ƒ∞ƒ–ÿ∞ÿ¿∞∏ƒ»§à∞ÅâΩ…ëï»ËÄà≈¡‡ÅÕΩ±•êÅ…ùâÑ†»‘ƒ∞ƒ–ÿ∞ÿ¿∞∏–§à∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞Å¡Öëë•πúËÄàÕ¡‡ÄÂ¡‡àÅıÙÅ—•—±îıÏâQ…ïπë•πúÉäPÄàÄ¨Å¿π—…ïπë}…ïÖÕΩπÙ˚¬~RîÅÌ¿π—…ïπë}…ïÖÕΩπÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ•Õ	ïÖç†°¿§ÄòòÅâïÖç°M•ùπÖ∞ÄòòÅâïÖç°M•ùπÖ∞π›Ö—ï»ÄòòÄ††§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÿ‡∏ƒ‰ÉäPÅ¡±Ö•∏Å±Öπù’ÖùîÄ¨Å—°îÅÕÖµ¡±îÅëÖ—îÄ°Ω›πï»ËÄâ$Åπïïê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ—°îÅ›Ö—ï»Å≈’Ö±•—‰Å—ºÅâîÅÖçç’…Ö—îÉäòÅ—ï±∞Å—°îÅô•…Õ–µ—•µî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ’Õï»Å›°Ö–Å•–ÅµïÖπÃà§∏Å=πîÅŸΩçÖâ’±Ö…‰∞Å±•àΩâïÖç°°•¿π©Ã(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ]QI}A1%8∞ÅïŸï…Â›°ï…îÅ›Ö—ï»Å…ïπëï…Ã∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å‹ÄÙÅâïÖç°M•ùπÖ∞π›Ö—ï»Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å≠ï‰ÄÙÅ›Ö—ï…E’Ö±•—Â-ï‰°‹§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ†Ö≠ï‰§Å…ï—’…∏Åπ’±∞Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å›°ï∏ÄÙÅÕÖµ¡±ïëM°Ω…–°‹πÕÖµ¡±ïë}Ö–§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏ÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒƒ∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞ÅçΩ±Ω»ËÅ]QI}Q=9m≠ïÂtÅıÙÅ—•—±îıÌ›°ï∏Ä¸ÅÅ0Å!ïÖ±—°‰Å	ïÖç°ïÃÅÕÖµ¡±î∞ÄëÌ›°ïπıÄÄËÅ’πëïô•πïëÙ˚¬~2(ÅÌ]QI}A1%9m≠ïÂuıÌ›°ï∏Ä¸ÅÄÉ
+‹ÄëÌ›°ïπıÄÄËÄàâÙΩÕ¡Ö∏¯Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙ§†•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÅÌçÖ…ë›Ö…êÄòòÄ†(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîıÌÅ›òµ¡±ÖçîµçÖ…êµÖ›Ö…êëÌçÖ…ë›Ö…êπç’…Ö—Ω»Ä¸ÄàÅ•Ãµç’…Ö—Ω»àÄËÅÄÅ•Ãµ…Öπ¨¥ëÌçÖ…ë›Ö…êπ…Öπ≠ıÅıÅÙÅÖ…•Ñµ±Öâï∞ıÌçÖ…ë›Ö…êπç’…Ö—Ω»Ä¸ÄâAï…ÕΩπÖ±±‰ÅÕï±ïç—ïêÅâ‰Å]ÖÂô•πêùÃÅç’…Ö—Ω»àÄËÅÅ]ÖÂô•πêÅ…Öπ≠ïêÅ—°•ÃÅ—°îÅπ’µâï»ÄëÌçÖ…ë›Ö…êπ…Öπ≠ÙÄëÌ¡çÖ–ÅÒÄâ±ΩçÖ∞âÙÅΩ¡—•ΩπÅÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏Åç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµÖ›Ö…êµ•çΩ∏àÅÖ…•Ñµ°•ëëï∏Ùâ—…’îà˘ÌçÖ…ë›Ö…êπç’…Ö—Ω»Ä¸ÄãäròàÄËÅçÖ…ë›Ö…êπ•çΩπÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏˘ÌçÖ…ë›Ö…êπ±Öâï±ÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµ°•ù°±•ù°—ÃàÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞ÅùÖ¿ËÄÿ∞Åô±ï·]…Ö¿ËÄâ›…Ö¿à∞ÅµÖ…ù•π	Ω——Ω¥ËÄ‹ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÅÌâÖëùïÃπµÖ¿†°à§ÄÙ¯Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏Å≠ï‰ıÌàπ≠ïÂÙÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅîπÕ—Ω¡A…Ω¡ÖùÖ—•Ω∏†§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÿ‡∏ƒ‹Ä°Ω›πï»ËÄâ§Åç±•ç≠ïêÅΩ∏Å—°îÅç…ïÖ—Ω»ÅŸ•ëïºÅÖπêÅπΩ—°•πú(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ°Ö¡¡ïπïêà§∏ÅI==PÅUMËÅΩ¡ïπ·¡ï…•ïπçî†§ÅπºµΩ¡ÃÅΩ∏ÅÖπ‰Å≠ï‰(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅÖâÕïπ–Åô…Ω¥ÅaAI%9L∞ÅÖπêÄâç…ïÖ—Ω…Ÿ•ëïºàÅ•ÃÅÑÅÕçΩ…î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅ%M1=MUI∞ÅπΩ–ÅÖ∏Åï·¡ï…•ïπçîÉäPÅÕºÅ—°îÅ—Ö¿Åë•ïêÅÕ•±ïπ—±‰∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅQ°îÅ°ΩπïÕ–ÅëïÕ—•πÖ—•Ω∏ÅôΩ»Å—°Ö–Åç°•¿Å•ÃÅ—°îÅ¡±ÖçîùÃÅΩ›∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄººÅëï—Ö•∞∞Å›°ï…îÅ—°îÅç…ïÖ—Ω»ÅŸ•ëïºÅÖç—’Ö±±‰Å¡±ÖÂÃ∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°àπ≠ï‰ÄÙÙÙÄâç…ïÖ—Ω…Ÿ•ëïºà§ÅÏÅ•òÄ°Ωπï—Ö•∞§ÅΩπï—Ö•∞†§ÏÅ…ï—’…∏ÏÅÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ°Ωπ	Öëùî§ÅΩπ	Öëùî°àπ≠ï‰§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅıÙÅÕ—Â±îıÌÏÅ¡Ω•π—ï…Ÿïπ—ÃËÄâÖ’—ºà∞Åë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ–∞ÅôΩπ—M•ÈîËÄƒƒ∏‘∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞ÅçΩ±Ω»ËÅπÖççïπ–∞ÅâÖç≠ù…Ω’πêËÅπÖë•¥∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπÖççïπ—ıÄ∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞Å¡Öëë•πúËÄàÕ¡‡ÄÂ¡‡à∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ˘Ìàπ•çΩπÙÅÌç•—Â•·4°àπ±Öâï∞•ÙÉäËΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄ§•Ù(ÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÅÌç’…Ö—ïë!ΩΩ¨Ä¸Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµ—Ö≠îàÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅçΩ±Ω»ËÅπ±•ù°–∞Å±•πï!ï•ù°–ËÄƒ∏–‘ÅıÙ˘Ìç’…Ö—ïë!ΩΩ≠ÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄ§ÄËÅ≠πΩ›πΩ…!ΩΩ¨Ä¸Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµ—Ö≠îàÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅçΩ±Ω»ËÅπ±•ù°–∞Å±•πï!ï•ù°–ËÄƒ∏–‘ÅıÙ˘Ì≠πΩ›πΩ…!ΩΩ≠ÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄ§ÄËÅÖ•M’µµÖ…‰Ä¸Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµ—Ö≠îàÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ»∏‘∞ÅçΩ±Ω»ËÅπ±•ù°–∞Å±•πï!ï•ù°–ËÄƒ∏–‘ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿ˘ÌÖ•M’µµÖ…‰πçÖ…ë}±•πï|≈ÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅµÖ…ù•πQΩ¿ËÄ»ÅıÙ˘ÌÖ•M’µµÖ…‰πçÖ…ë}±•πï|…ÙΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄ§ÄËÅπ’±±Ù(ÄÄÄÄÄÄÄÄÄÅÏº®Åÿÿ∏‰¿ÉäPÅΩ›πï»ËÄâ—°îÅâ’——Ω∏ÅΩ∏Å—°îÅµÖ•∏Åµïπ‘Å±ΩΩ¨ÅΩôò∞Å—°îÅÕ°Ö…î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅâ’——Ω∏Å•ÃÅ›Ö‰ÅΩôòÅ—ºÅ—°îÅÕ•ëî∏∏∏ÅçÖ∏Å›îÅµÖ≠îÅÕ’…îÅ—°ïÕîÅçÖ…ëÃ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÖ…îÅ—°îÅÕÖµîÅïŸï…Â›°ï…î∞Å$Å±•≠îÅ•µÖùîÄƒÅm—°îÅÕ°ïï–ÅçÖ…ëÕt∏à(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅIΩΩ–ÅçÖ’ÕîËÅçÕÃπ©ÃùÃÄπ›òµ¡±ÖçîµçÖ…êµÕ°Ö…ïÌµÖ…ù•∏µ±ïô–ÈÖ’—ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…•ù°–µÖ±•ùπÃÅM°Ö…îÅ•∏ÅÑÅ¡±Ö•∏Åô±ï‡Å…Ω‹∞Åâ’–Å%çΩπ•çA±ÖçïÖ…êπ©ÃùÃ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕ°ïï–ÅçÖ…ëÃÅÖ±…ïÖë‰ÅçÖπçï∞Å—°Ö–ÅŸ•ÑÅÑÅÕïçΩπêÅç±ÖÕÃ∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ›òµÕ°ïï–µçÖ…êµÖç—•ΩπÃÄ°ÑÄ–µçΩ±’µ∏Åù…•êÉäPÅÕïîÅçÕÃπ©Ã§∞Å›°•ç†Å•Ã(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅï·Öç—±‰Å—°îÅ—•ù°–Å±ÖÂΩ’–Å—°îÅΩ›πï»Å•ÃÅ¡Ω•π—•πúÅÖ–∏Åëë•πúÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕÖµîÅç±ÖÕÃÅ°ï…îÅµÖ≠ïÃÅïŸï…‰ÅA±ÖçïÖ…êÅ’ÕîÅ—°Ö–ÅΩπîÅ±ÖÂΩ’–(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•πÕ—ïÖêÅΩòÅ—›ºÅë•ôôï…ïπ–ÅΩπïÃ∏ÅQ°•ÃÅ…Ω‹ÅçÖ∏Å…ïπëï»ÅÑÄ’—†Å•—ï¥(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ°	ΩΩ¨ÅΩ∏ÅY•Ö—Ω»§Å—°Ö–Å—°îÅÕ°ïï–ÅçÖ…ëÃÅπïŸï»ÅëºÏÅçÕÃπ©ÃÅÖëëÃÅÑ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÈ°ÖÃ†π›òµ¡±ÖçîµçÖ…êµâΩΩ¨§Ä‘µçΩ±’µ∏ÅŸÖ…•Öπ–ÅÕºÅ—°Ö–ÅçÖÕîÅÕ—ÖÂÃ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ•Õ—ïπ–Å—Ωº∞Å…Ö—°ï»Å—°Ö∏Åâ…ïÖ≠•πúÅ’πëï»Å—°îÄ–µçΩ±’µ∏Åù…•ê∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÅÏº®Åÿ‡∏Ã–ÉäPÅ—°îÅç…ïÖ—Ω»Åç…ïë•–ÅÕ•—ÃÅ•∏Å—°îÅâΩ——Ω¥ÅâÖπê∞Åë•…ïç—±‰ÅÖâΩŸî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°îÅÖç—•ΩπÃÄ°ÕïîÅçÕÃπ©ÃÄπ›òµ¡±ÖçîµçÖ…êµç…ïë•–§∏ÅQ°îÅÕ•â±•πúÅ…’±î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°ï…îÅÈï…ΩïÃÅ—°îÅ•π±•πîÅµÖ…ù•πQΩ¿Åâï±Ω‹Å›•—†ÄÖ•µ¡Ω…—Öπ–∞Å›°•ç†Å•Ã(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ›°‰Å—°îÅç…ïë•–ùÃÅΩ›∏ÅµÖ…ù•∏µ—Ω¿ÈÖ’—ºÅ•ÃÅ›°Ö–ÅâΩ——Ω¥µÖπç°Ω…ÃÅ—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ¡Ö•»∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÒ…ïÖ—Ω…Ö…ë5Ö…¨ÅŸ•ëïΩÃıÌçÖ…ë…ïÖ—Ω…Y•ëïΩÕÙÄº¯(ÄÄÄÄÄÄÄÄÄÄÒë•ÿÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµÖç—•ΩπÃÅ›òµÕ°ïï–µçÖ…êµÖç—•ΩπÃàÅÕ—Â±îıÌÏÅµÖ…ù•πQΩ¿ËÄ‰∞Å¡Ω•π—ï…Ÿïπ—ÃËÄâÖ’—ºàÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÅÌçÖ…ëA…Ωë’ç–ÄòòÅçÖ…ëA…Ωë’ç–π’…∞ÄòòÄ†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒY•Ö—Ω…Ωµµï…çï1•π¨(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµâΩΩ¨à(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ–ıÌ¡Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅç•—‰ıÌç•—ÂÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕ’…ôÖçîÙâ¡±Öçï}çÖ…êà(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…Öπ¨ıÌ…Öπ≠Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅÏÅîπÕ—Ω¡A…Ω¡ÖùÖ—•Ω∏†§ÏÅ—…‰ÅÏÅ±ΩùŸïπ—πΩ∏†â—•ç≠ï—Õ}Ω’–à∞Å¿∞ÅÏÅÕ…åËÄâ¡±Öçï}çÖ…êàÅÙ§ÏÅÙÅçÖ—ç†Ä°ï»§ÅÌÙÅıÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‘∞ÅâÖç≠ù…Ω’πêËÅπÖë•¥∞ÅâΩ…ëï»ËÅÄƒ∏’¡‡ÅÕΩ±•êÄëÌπÖççïπ—ıÄ∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞ÅçΩ±Ω»ËÅπÖççïπ–∞ÅôΩπ—M•ÈîËÄƒ»∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞Å¡Öëë•πúËÄà’¡‡Äƒ…¡‡à∞Å—ï·—ïçΩ…Ö—•Ω∏ËÄâπΩπîà∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ˘Ïº®Åÿ‡∏»ÃÄ°Ω›πï»∞ÅΩ∏ÅIΩâ•πÕΩ∏ÅA…ïÕï…ŸîËÄâπΩ–ÅÕ’…îÅ›°‰Å…Ωâ•πÕΩ∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ¡…ïÕï…ŸîÅ°ÖÃÅÑÅâΩΩ¨Å•–Å›•—†ÅŸ•Ö—Ω»Å±•π¨à§∏ÅQ°îÅ¡…Ωë’ç–Åâï°•πê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°•ÃÅâ’——Ω∏Å%LÅŸï…•ô•ïêÄ°›ô}¡±Öçï}¡…Ωë’ç—ÃÅ…∏Ùƒ§ÉäPÅâ’–ÅΩ∏ÅÑ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅô…ïîµïπ—…‰Å¡±Öçî∞Äâ	ΩΩ¨ÅΩ∏ÅY•Ö—Ω»àÅ…ïÖêÅ±•≠îÅÖ∏ÅÖëµ•ÕÕ•Ω∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅôïî∏ÅQ°îÅ±Öâï∞ÅπΩ‹ÅπÖµïÃÅ]!PÅ—°îÅŸï…•ô•ïêÅ¡…Ωë’ç–ÅâΩΩ≠Ã∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅëï…•ŸïêÅô…Ω¥Å—°îÅ¡…Ωë’ç–ùÃÅΩ›∏Å—•—±îÉäPÅπïŸï»Å•πŸïπ—ïêÏÅôÖ±±Ã(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅâÖç¨Å—ºÅ—°îÅùïπï…•åÅ±Öâï∞Å›°ï∏Å—°îÅ—•—±îÅπÖµïÃÅπºÅÖç—•Ÿ•—‰∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÏ††§ÄÙ¯ÅÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅçΩπÕ–Å–ÄÙÅM—…•πú†°çÖ…ëA…Ωë’ç–ÄòòÅçÖ…ëA…Ωë’ç–π—•—±î§ÅÒÄàà§Ï(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ†Ω©ï–Ä˝Õ≠•Ò›ÖŸï…’ππï»Ω§π—ïÕ–°–§§Å…ï—’…∏Äã¬~2(Å	ΩΩ¨ÅÑÅ©ï–ÅÕ≠§Å—Ω’»Éä\àÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ†Ω≠ÖÂÖ¨Ω§π—ïÕ–°–§§Å…ï—’…∏Äã¬~nÿÅ	ΩΩ¨ÅÑÅ≠ÖÂÖ¨Å—Ω’»Éä\àÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ†Ω¡Öëë±îΩ§π—ïÕ–°–§§Å…ï—’…∏Äã¬~>Å	ΩΩ¨ÅÑÅ¡Öëë±îÅ—Ω’»Éä\àÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ†Ωç…’•ÕïÒâΩÖ–Ω§π—ïÕ–°–§§Å…ï—’…∏Äã¬~jêÅ	ΩΩ¨ÅÑÅç…’•ÕîÉä\àÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ•òÄ†Ω—Ω’…ÒÕÖôÖ…•Ò›Ö±¨Ω§π—ïÕ–°–§§Å…ï—’…∏Äã¬~:æ‚<Å	ΩΩ¨ÅÑÅ—Ω’»Éä\àÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ï—’…∏Äâ	ΩΩ¨ÅΩ∏ÅY•Ö—Ω»Éä\àÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÙ§†•ÙΩY•Ö—Ω…Ωµµï…çï1•π¨¯(ÄÄÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏Åç±ÖÕÕ9ÖµîıÌÅ›òµ¡±ÖçîµçÖ…êµÕÖŸîëÌÕÖŸïêÄ¸ÄàÅ•ÃµÖç—•ŸîàÄËÄàâıÅÙÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅÏÅîπÕ—Ω¡A…Ω¡ÖùÖ—•Ω∏†§ÏÅΩπMÖŸî†§ÏÅıÙÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‘∞ÅâÖç≠ù…Ω’πêËÅÕÖŸïêÄ¸ÅπÖççïπ–ÄËÄâ—…ÖπÕ¡Ö…ïπ–à∞ÅâΩ…ëï»ËÅÄƒ∏’¡‡ÅÕΩ±•êÄëÌÕÖŸïêÄ¸ÅπÖççïπ–ÄËÅπâΩ…ëï…ıÄ∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞ÅçΩ±Ω»ËÅÕÖŸïêÄ¸Äàå¡ƒƒƒ‹àÄËÅπ±•ù°–∞ÅôΩπ—M•ÈîËÄƒ»∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞Å¡Öëë•πúËÄà’¡‡Äƒ…¡‡à∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ˘ÌÕÖŸïêÄ¸ÄãäfîÅMÖŸïêàÄËÄãäfÑÅMÖŸîâÙΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÅÌΩπ1•≠îÄòòÄ†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏Åç±ÖÕÕ9ÖµîıÌÅ›òµ¡±ÖçîµçÖ…êµ±•≠îëÌ±•≠ïêÄ¸ÄàÅ•ÃµÖç—•ŸîàÄËÄàâıÅÙÅΩπ±•ç¨ıÌΩπ1•≠ïÙÅÖ…•Ñµ±Öâï∞ıÌ±•≠ïêÄ¸ÄâIïµΩŸîÅ±•≠îàÄËÄâ1•≠îÅ—°•ÃÅ¡±ÖçîâÙÅÖ…•Ñµ¡…ïÕÕïêıÌ±•≠ïëÙÅ—•—±îıÌ±•≠ïêÄ¸ÄâIïµΩŸîÅ±•≠îàÄËÄâ1•≠îÅ—°•ÃÅ¡±ÖçîâÙÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅâÖç≠ù…Ω’πêËÅ±•≠ïêÄ¸ÄàåÃ—Ã‰‰àÄËÄâ—…ÖπÕ¡Ö…ïπ–à∞ÅâΩ…ëï»ËÅÄƒ∏’¡‡ÅÕΩ±•êÄëÌ±•≠ïêÄ¸ÄàåÃ—Ã‰‰àÄËÅπâΩ…ëï…ıÄ∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞ÅçΩ±Ω»ËÅ±•≠ïêÄ¸Äàå¿ÿ»Ã≈àÄËÅπµ’—ïê∞Å¡Öëë•πúËÄà’¡‡Äƒ≈¡‡à∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ¯ÒÕŸúÅŸ•ï›	Ω‡Ùà¿Ä¿Ä»–Ä»–àÅô•±∞ıÌ±•≠ïêÄ¸Äâç’……ïπ—Ω±Ω»àÄËÄâπΩπîâÙÅÕ—…Ω≠îÙâç’……ïπ—Ω±Ω»àÅÕ—…Ω≠ï]•ë—†Ùàƒ∏‰àÅÕ—…Ω≠ï1•πïçÖ¿Ùâ…Ω’πêàÅÕ—…Ω≠ï1•πï©Ω•∏Ùâ…Ω’πêàÅÖ…•Ñµ°•ëëï∏Ùâ—…’îà¯Ò¡Ö—†ÅêÙâ4‡Äƒ¡ÿƒ¡ —Xƒ¡†—hàÄº¯Ò¡Ö—†ÅêÙâ4‡Äƒ·†‡∏’Ñ»Ä»Ä¿Ä¿Ä¿Äƒ∏‰¥ƒ∏—∞ƒ∏Ã¥—Ñ»Ä»Ä¿Ä¿Ä¿¥ƒ∏‰¥»∏Ÿ ƒ—∞∏ÿ¥Ã∏≈»∏–Ä»∏–Ä¿Ä¿Ä¿Äƒ»∏»Ä—0‡Äƒ¡ÿ·hàÄº¯ΩÕŸú¯Ωâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÄÄÅÌΩπ•Õ±•≠îÄòòÄ†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏Åç±ÖÕÕ9ÖµîıÌÅ›òµ¡±ÖçîµçÖ…êµë•Õ±•≠îëÌë•Õ±•≠ïêÄ¸ÄàÅ•ÃµÖç—•ŸîàÄËÄàâıÅÙÅΩπ±•ç¨ıÌΩπ•Õ±•≠ïÙÅÖ…•Ñµ±Öâï∞ıÌë•Õ±•≠ïêÄ¸ÄâIïµΩŸîÅë•Õ±•≠îàÄËÄâ9Ω–ÅôΩ»ÅµîâÙÅÖ…•Ñµ¡…ïÕÕïêıÌë•Õ±•≠ïëÙÅ—•—±îıÌë•Õ±•≠ïêÄ¸ÄâIïµΩŸîÅë•Õ±•≠îàÄËÄâ9Ω–ÅôΩ»ÅµîâÙÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅâÖç≠ù…Ω’πêËÅë•Õ±•≠ïêÄ¸Äàç‡‹ƒ‹ƒàÄËÄâ—…ÖπÕ¡Ö…ïπ–à∞ÅâΩ…ëï»ËÅÄƒ∏’¡‡ÅÕΩ±•êÄëÌë•Õ±•≠ïêÄ¸Äàç‡‹ƒ‹ƒàÄËÅπâΩ…ëï…ıÄ∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞ÅçΩ±Ω»ËÅë•Õ±•≠ïêÄ¸Äàå…¡¡àÄËÅπµ’—ïê∞Å¡Öëë•πúËÄà’¡‡Äƒ≈¡‡à∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ¯ÒÕŸúÅŸ•ï›	Ω‡Ùà¿Ä¿Ä»–Ä»–àÅô•±∞ıÌë•Õ±•≠ïêÄ¸Äâç’……ïπ—Ω±Ω»àÄËÄâπΩπîâÙÅÕ—…Ω≠îÙâç’……ïπ—Ω±Ω»àÅÕ—…Ω≠ï]•ë—†Ùàƒ∏‰àÅÕ—…Ω≠ï1•πïçÖ¿Ùâ…Ω’πêàÅÕ—…Ω≠ï1•πï©Ω•∏Ùâ…Ω’πêàÅÖ…•Ñµ°•ëëï∏Ùâ—…’îà¯Ò¡Ö—†ÅêÙâ4‡Ä—ÿƒ¡ —X—†—hàÄº¯Ò¡Ö—†ÅêÙâ4‡ÄŸ†‡∏’Ñ»Ä»Ä¿Ä¿ÄƒÄƒ∏‰Äƒ∏—∞ƒ∏ÃÄ—Ñ»Ä»Ä¿Ä¿Äƒ¥ƒ∏‰Ä»∏Ÿ ƒ—∞∏ÿÄÃ∏≈Ñ»∏–Ä»∏–Ä¿Ä¿Äƒ¥»∏–Ä»∏Â0‡Äƒ—XŸhàÄº¯ΩÕŸú¯Ωâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄ•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÒâ’——Ω∏Åç±ÖÕÕ9ÖµîÙâ›òµ¡±ÖçîµçÖ…êµÕ°Ö…îàÅΩπ±•ç¨ıÏ°î§ÄÙ¯ÅÏÅîπÕ—Ω¡A…Ω¡ÖùÖ—•Ω∏†§ÏÅ±ΩùŸïπ—πΩ∏†âÕ°Ö…îà∞Å¿∞ÅÏÅ≠•πêËÄâ¡±Öçï}çÖ…êàÅÙ§ÏÅ—…‰ÅÏÅΩπM°Ö…ïÖ…êÄòòÅΩπM°Ö…ïÖ…ê°¿§ÏÅÙÅçÖ—ç†Ä°ï»§ÅÌÙÅÖÕ≠M°Ö…ï%π—ïπ–°ÏÅπÖµîËÅ¿ππÖµî∞Åç•—‰ËÄàà∞Å•êËÅ¿π•ê∞Å≠•πêËÅ¡±Öçï-•πëÃ°¿§∞ÅΩπ%πŸ•—îËÄ°‘∞Å–§ÄÙ¯ÅÕ°Ö…ï1•π¨†âÅ≈’ïÕ—•Ω∏ÅôΩ»ÅÂΩ‘à∞Å‘∞Åπ’±∞∞Å–∞Ä†§ÄÙ¯ÅÏÅ—…‰ÅÏÅ±ΩùŸïπ—πΩ∏†âÕ°Ö…îà∞Å¿∞ÅÏÅ≠•πêËÄâ•πŸ•—îà∞Åô…Ω¥ËÄâ¡±Öçï}çÖ…êàÅÙ§ÏÅÙÅçÖ—ç†Ä°ï»§ÅÌÙÅÙ§∞ÅΩπA±Ö•∏ËÄ†§ÄÙ¯ÅÕ°Ö…ï1•π¨°¿ππÖµî∞Å¡±ÖçïM°Ö…ïU…∞°¿∞Äàà∞Äàà§∞Ä†§ÄÙ¯ÅÏÅ—…‰ÅÏÅ•òÄ°—Â¡ïΩòÅ›•πëΩ‹ÄÑÙÙÄâ’πëïô•πïêà§ÅÏÅçΩπÕ–Å}–ÄÙÅëΩç’µïπ–πç…ïÖ—ï±ïµïπ–†âë•ÿà§ÏÅ}–π—ï·—Ωπ—ïπ–ÄÙÄâ1•π¨ÅçΩ¡•ïêàÏÅ}–πÕ—Â±îπçÕÕQï·–ÄÙÄâ¡ΩÕ•—•Ω∏Èô•·ïêÌ±ïô–Ë‘¿îÌâΩ——Ω¥Ë‡·¡‡Ì—…ÖπÕôΩ…¥È—…ÖπÕ±Ö—ï`†¥‘¿î§ÌâÖç≠ù…Ω’πêËåƒÿ≈»»ÌçΩ±Ω»ËçôôòÌ¡Öëë•πúËƒ¡¡‡Äƒ·¡‡ÌâΩ…ëï»µ…Öë•’ÃË‰‰Â¡‡ÌôΩπ–µÕ•ÈîËƒÕ¡‡ÌôΩπ–µ›ï•ù°–Ë‹¿¿ÌËµ•πëï‡Ë‰‰‰‰‰ÌâΩ…ëï»Ë≈¡‡ÅÕΩ±•êÄåÃ¿ÃÿÕÌâΩ‡µÕ°ÖëΩ‹Ë¿ÄŸ¡‡Ä»—¡‡Å…ùâÑ†¿∞¿∞¿∞∏‘§àÏÅëΩç’µïπ–πâΩë‰πÖ¡¡ïπë°•±ê°}–§ÏÅÕï—Q•µïΩ’–††§ÄÙ¯ÅÏÅ—…‰ÅÏÅëΩç’µïπ–πâΩë‰π…ïµΩŸï°•±ê°}–§ÏÅÙÅçÖ—ç†°î•ÌÙÅÙ∞Äƒÿ¿¿§ÏÅÙÅÙÅçÖ—ç†Ä°î§ÅÌÙÅÙ∞ÅôÖ±±M°Ö…ï1•πî†â°ïç¨ÅΩ’–ÄàÄ¨Å¿ππÖµîÄ¨ÄàÅΩ∏Å]ÖÂô•πêà∞Å¿π•ê∞ÅÕ•—ïQΩëÖÂM—»†§§§ÅÙ§ÏÅıÙÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‘∞ÅâÖç≠ù…Ω’πêËÄâ—…ÖπÕ¡Ö…ïπ–à∞ÅâΩ…ëï»ËÅÄƒ∏’¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞ÅçΩ±Ω»ËÅπ±•ù°–∞ÅôΩπ—M•ÈîËÄƒ»∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞Å¡Öëë•πúËÄà’¡‡Äƒ…¡‡à∞Åç’…ÕΩ»ËÄâ¡Ω•π—ï»àÅıÙ˚ä\ÅM°Ö…îΩâ’——Ω∏¯(ÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÅÏº®ÅIïÕ—Ω…ïêÄ»¿»ÿ¥¿‹¥»‘ËÅ—°îÅ¡ï»µçÖ…êÅÖôô•±•Ö—îÅë•Õç±ΩÕ’…îÄ°Õ¡ïåÅMïå∏»∞(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕ°•¡¡ïêÅÿÿ∏ÿ‹§Å›ÖÃÅë…Ω¡¡ïêÅô…Ω¥Å—°îÅ°Ωµï¡ÖùîÅ•∏Å—°îÅëïÕ•ù∏µ…ï±ïÖÕî¥¿ƒ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ…ï›…•—îÄ¥¥Å±•àΩçÖ…ëôô•±•Ö—îπ©ÃÄ¨Åôô•±•Ö—ï°•¿π©ÃÅ›ï…îÅ’π—Ω’ç°ïêÅÖπê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅÕ—•±∞Å›Ω…¨∞ÅΩπ±‰Å—°•ÃÅ…ïπëï»ÅçÖ±∞Å›ÖÃÅ±ΩÕ–∏Å=›πï»µÖ’ë•–ÅµΩëî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄ°9aQ}AU	1%}]}M!=]}%1%Q}U%PÙƒ§ÅÕ—•±∞ÅÕ’…ôÖçïÃÅçΩŸï…ÖùîÅùÖ¡ÃÏ(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ¡…Ωë’ç—•Ω∏Å°•ëïÃÅÖ∏ÅÖâÕïπ–Åç°•¿∞ÅÕºÅ—°•ÃÅ•ÃÅÑÅ¡’…îÅë•Õç±ΩÕ’…îÅÖëê∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÅÏ††§ÄÙ¯ÅÏÅçΩπÕ–Å}¡…ΩÿÄÙÅçÖ…ëôô•±•Ö—ïA…ΩŸ•ëï»°¿§ÏÅ…ï—’…∏Ä°}¡…ΩÿÅÒÅ%1%Q}U%P§Ä¸ÄÒë•ÿÅÕ—Â±îıÌÏÅµÖ…ù•πQΩ¿ËÄ‡ÅıÙ¯Òôô•±•Ö—ï°•¿Å¡…ΩŸ•ëï»ıÌ}¡…ΩŸÙÄº¯Ωë•ÿ¯ÄËÅπ’±∞ÏÅÙ§†•Ù(ÄÄÄÄÄÄÄÄÄÅÏº®Å]°Ö–ùÃÅ•πÕ•ëî∏ÅI•ëïÃÅÖπêÅ•∏µ¡Ö…¨ÅŸïπ’ïÃÅ’ÕïêÅ—ºÅΩçç’¡‰Å—°ï•»ÅΩ›∏(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅçÖ…ëÃ∞ÅÕºÅΩπîÅ—°ïµîÅ¡Ö…¨ÅçΩ’±êÅô•±∞Å°Ö±òÅ—°îÅôïïêÅÖπêÅÑÅŸ•Õ•—Ω»Å°Öê(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—ºÅÕç…Ω±∞Å¡ÖÕ–ÅôΩ’»Å…Ω›ÃÅëïÕç…•â•πúÅ—°îÅÕÖµîÅ¡±Öçî∏ÅQ°ï‰Å±•ŸîÅ°ï…î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅπΩ‹ËÅÑÅ…•ëîÅ•ÃÅπΩ–ÅÕΩµï›°ï…îÅÂΩ‘ÅçÖ∏Åùº∞Å•–Å•ÃÅÑÅIM=8Å—ºÅ¡•ç¨Å—°î(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ¡Ö…¨∏ÅQÖ¡¡•πúÅΩπîÅΩ¡ïπÃÅ—°îÅ¡Ö…¨Ä°—°Ö–Å•ÃÅ—°îÅâΩΩ≠Öâ±îÅ—°•πú§∞ÅÕº(ÄÄÄÄÄÄÄÄÄÄÄÄÄÅ—°•ÃÅÖëëÃÅëïç•Õ•Ω∏Åëï—Ö•∞Å›•—°Ω’–ÅÖëë•πúÅëïÖêÅïπëÃ∏Ä®ΩÙ(ÄÄÄÄÄÄÄÄÄÅÌ……Ö‰π•Õ……Ö‰°¿π}ç°•±ë…ï∏§ÄòòÅ¿π}ç°•±ë…ï∏π±ïπù—†Ä¸Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅµÖ…ù•πQΩ¿ËÄƒ¿∞Å¡Öëë•πùQΩ¿ËÄ‰∞ÅâΩ…ëï…QΩ¿ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅôΩπ—M•ÈîËÄƒ¿∏‘∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞Å±ï——ï…M¡Öç•πúËÄà∏’¡‡à∞Å—ï·—Q…ÖπÕôΩ…¥ËÄâ’¡¡ï…çÖÕîà∞ÅçΩ±Ω»ËÅπµ’—ïê∞ÅµÖ…ù•π	Ω——Ω¥ËÄ‹ÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅQΩ¿Å…Ö—ïêÅ•πÕ•ëî(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒë•ÿÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâô±ï‡à∞Åô±ï·]…Ö¿ËÄâ›…Ö¿à∞ÅùÖ¿ËÄÿÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌ¿π}ç°•±ë…ï∏πÕ±•çî†¿∞Äÿ§πµÖ¿†°å§ÄÙ¯Ä†(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏Å≠ï‰ıÌåπ•êÅÒÅåππÖµïÙÅÕ—Â±îıÌÏÅë•Õ¡±Ö‰ËÄâ•π±•πîµô±ï‡à∞ÅÖ±•ùπ%—ïµÃËÄâçïπ—ï»à∞ÅùÖ¿ËÄ‘∞ÅâÖç≠ù…Ω’πêËÅπâú∞ÅâΩ…ëï»ËÅÄ≈¡‡ÅÕΩ±•êÄëÌπâΩ…ëï…ıÄ∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞Å¡Öëë•πúËÄà’¡‡Äƒ¡¡‡à∞ÅôΩπ—M•ÈîËÄƒ»∞ÅôΩπ—]ï•ù°–ËÄÿ¿¿∞ÅçΩ±Ω»ËÅπ±•ù°–∞ÅµÖ·]•ë—†ËÄàƒ¿¿îàÅıÙ¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅΩŸï…ô±Ω‹ËÄâ°•ëëï∏à∞Å—ï·—=Ÿï…ô±Ω‹ËÄâï±±•¡Õ•Ãà∞Å›°•—ïM¡ÖçîËÄâπΩ›…Ö¿à∞ÅµÖ·]•ë—†ËÄƒ‘¿ÅıÙ˘ÌåππÖµïÙΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÅÌåπ…Ö—•πúÄÑÙÅπ’±∞Ä¸ÄÒÕ¡Ö∏ÅÕ—Â±îıÌÏÅçΩ±Ω»ËÅπùΩ±ê∞ÅôΩπ—]ï•ù°–ËÄ‡¿¿∞Åô±ï·M°…•π¨ËÄ¿ÅıÙ˘Ìåπ…Ö—•πùıÏâq‘»ÿ¿‘âÙΩÕ¡Ö∏¯ÄËÅπ’±±Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩÕ¡Ö∏¯(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ§•Ù(ÄÄÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄÄÄÄÄ§ÄËÅπ’±±Ù(ÄÄÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄÄÄΩë•ÿ¯(ÄÄÄÄΩë•ÿ¯(ÄÄ§Ï)Ù()çΩπÕ–Å›Õ—Ö–ÄÙÅÏÅô±ï·M°…•π¨ËÄ¿∞Å›°•—ïM¡ÖçîËÄâπΩ›…Ö¿à∞ÅôΩπ—M•ÈîËÄƒ»∞ÅôΩπ—]ï•ù°–ËÄ‹¿¿∞ÅçΩ±Ω»ËÅπ±•ù°–∞ÅâÖç≠ù…Ω’πêËÄâ…ùâÑ†ƒÃ∞ƒ‹∞»Ã∞∏‘§à∞ÅâΩ…ëï»ËÄà≈¡‡ÅÕΩ±•êÅ…ùâÑ†»–‰∞ƒƒ‘∞»»∞∏Ã§à∞ÅâΩ…ëï…IÖë•’ÃËÄ‰‰‰∞Å¡Öëë•πúËÄà’¡‡Äƒ≈¡‡àÅÙÏ(ººÅQ°îÅïŸïπ—ÃÅ…Ö•∞Å…ïÕï…ŸïÃÅ•—ÃÅ…ïÖ∞ÅùïΩµï—…‰Å	=IÅ—°îÅëÖ—ÑÅ±ÖπëÃ∞ÅÕºÅ—°î(ººÅÕ≠ï±ï—Ω∏ÅÖπêÅ—°îÅ±ΩÖëïêÅ…Ö•∞ÅΩçç’¡‰Å•ëïπ—•çÖ∞ÅÕ¡ÖçîÅÖπêÅ—°îÅÕ›Ö¿ÅçÖππΩ–ÅÕ°•ô–(ººÅÖπÂ—°•πú∏Å	Ω—†Å—°îÅÕ≠ï±ï—Ω∏ÅÖπêÅ—°îÅ±•ŸîÅ…Ö•∞Å…ïÖêÅ—°ïÕîÅÕÖµîÅçΩπÕ—Öπ—ÃÉäP(ººÅ—°Ö–Å•ÃÅ—°îÅ›°Ω±îÅ¡Ω•π–ÏÅëºÅπΩ–Å°Ö…ëçΩëîÅï•—°ï»Åπ’µâï»Å—›•çî∏)çΩπÕ–ÅY}!I=} ÄÙÄ»–‡ÏÄººÅ=›πï»ÅŸ•Õ’Ö∞Å…ïô•πïµïπ–ËÅ…ïÕ—Ω…îÅÑÅ—Ö±±ï»∞ÅµΩ…îÅç•πïµÖ—•åÅ°ï…ºÅ›°•±îÅ¡…ïÕï…Ÿ•πúÅ—°îÅÕ°Ö…ïêÅ±ΩÖë•πúΩ±•ŸîÅùïΩµï—…‰∏ÄÄÄººÅ—°îÅôïÖ—’…ïêÅ°ï…ºÄÒÑ¯Å°ï•ù°–)çΩπÕ–ÅY}I%1}5%9} ÄÙÄ»–‘ÏÄººÅÿ‹∏¿ÃËÅµïÖÕ’…ïêÅΩ∏ÅAI=UQ%=8ÅÖ–ÄÃ‰¿ÅÖπêÄƒ¿»–Å›•—†Å—°îÅ…ïÖ∞Å›ïâôΩπ—ÃÅ±ΩÖëïêÄ†»–ÃÄºÄ»–‘§ÉäPÅ—°îÅô•…Õ–Å¡ÖÕÃÅµïÖÕ’…ïêÄ»ÃÿÅ•∏ÅÑÅ°Ö…πïÕÃÅ›•—†ÅÕÂÕ—ï¥ÅôΩπ—Ã∞Å›°•ç†Å’πëï»µ…ïÕï…ŸïêÅâ‰Ä›¡‡∏ÅMÖµîÅπ’µâï»Äπ›òµ…Ö•∞µïŸïπ—ÃÅ¡•πÃÅ•∏ÅçÕÃπ©Ã∏(ººÅ10ÅQ!IÅ…Ö•∞ÅÕ—Ö—ïÃÄ°±ΩÖë•πúÄºÅïµ¡—‰ÄºÅ¡Ω¡’±Ö—ïê§Å…ïÕï…ŸîÅ—°•ÃÅÕÖµîÅô±ΩΩ»∏(ººÅ5ïÖÕ’…ïêÄ»¿»ÿ¥¿‹¥»ƒËÅ›•—°Ω’–Å•–∞ÅÑÅÕ¡Ö…ÕîÅµÖ…≠ï–Å›°ï…îÅïŸïπ—ÃÅ…ïÕΩ±ŸîÅ—ºÅmt(ººÅçΩ±±Ö¡ÕïêÅ—°îÅ¯Ãƒ…¡‡ÅÕ≠ï±ï—Ω∏Å•π—ºÅÑÅ¯ƒÃ¡¡‡Åïµ¡—‰ÅÕ—Ö—îÅÖπêÅÂÖπ≠ïêÅ—°îÅôïïê(ººÄ»¿¡¡‡Å’¡›Ö…êÉäPÅΩπîÄ¿∏ƒ»‡ƒÅÕ°•ô–∞Å›Ω…ÕîÅ—°Ö∏Å—°îÅïπ—•…îÅëïÕ≠—Ω¿Å1LÅâ’ëùï–∏(ººÅIïÕï…Ÿ•πúÅΩ∏Å—°îÅ1=%9ÅÕ—Ö—îÅÖ±ΩπîÅ•ÃÅπΩ–ÅïπΩ’ù†ÏÅ—°îÅÕ—Ö—îÅ•–ÅÕ›Ö¡ÃÅ%9Q<(ººÅ°ÖÃÅ—ºÅÖù…ïî∞ÅΩ»Å—°îÅ…ïÕï…ŸÖ—•Ω∏Å©’Õ–Å…ï±ΩçÖ—ïÃÅ—°îÅÕ°•ô–∏(ººÅÿÿ∏–ÃÅQ!Å%1Å)U5@∞Å¡Ö…–ÄÃÉäPÅ—°îÄâ5Ö≠îÅÑÅëÖ‰ÅΩòÅ•–àÅâΩΩ≠Öâ±îÅçÖ…ê∏(ººÅ%—ÃÅ—•—±îÅ•ÃÅç±Öµ¡ïêÅ—ºÅ—›ºÅ±•πïÃ∞ÅÕºÅÑÅΩπîµ±•πîÅ¡•ç¨Å…ïπëï…ïêÅÑÅçÖ…êÅΩπî(ººÅ±•πîÅM!=IQHÅ—°Ö∏ÅÑÅ—›ºµ±•πîÅ¡•ç¨∏ÅQ°îÅ°Ω’…±‰Å…ïô…ïÕ†ÅÕ›Ö¡ÃÅ—°Ö–Å—•—±î(ººÅ’πëï…πïÖ—†ÅÑÅ…ïÖëï»Å›°ºÅ•ÃÅπΩ–Å—Ω’ç°•πúÅÖπÂ—°•πú∞ÅÕºÅïŸï…‰ÅÕ›Ö¿Åâï—›ïï∏ÅÑ(ººÅÕ°Ω…–ÅÖπêÅÑÅ±ΩπúÅ—•—±îÅµΩŸïêÅ—°îÅ›°Ω±îÅôïïêÅâï±Ω‹Å•–∏ÅIïÕï…Ÿ•πúÅâΩ—†Å±•πïÃ(ººÅµÖ≠ïÃÅ—°îÅçÖ…êùÃÅ°ï•ù°–Å•ëïπ—•çÖ∞ÅôΩ»ÅïŸï…‰Å¡ΩÕÕ•â±îÅ¡•ç¨ÉäPÅ—°îÅçΩπ—ïπ–ÅçÖ∏(ººÅç°Öπùî∞Å—°îÅâΩ‡ÅçÖππΩ–∏Åï…•Ÿïê∞ÅπΩ–Å°Ö…ëçΩëïê∞ÅÕºÅïë•—•πúÅ—°îÅ—Â¡îÅâï±Ω‹(ººÅçÖππΩ–ÅÕ•±ïπ—±‰Å’∏µ…ïÕï…ŸîÅ•–∏(ººÅ]}1e=UQ}MLÅ±•ŸïÃÅ•∏ÅÖ¡¿ΩçΩµ¡Ωπïπ—ÃΩçÕÃπ©ÃÄ°)’±‰Ä»¿»ÿÅëïçΩµ¡ΩÕ•—•Ω∏§∏(ººÅIîµëïç±Ö…•πúÅ•–Å°ï…îÅ…ïπëï…ÃÅ—°îÅÕ°ï±∞ÅÕ—Â±ïÕ°ïï–ÉäPÅÖπêÅ—°îÅ›Ω…ëµÖ…¨ÉäPÅ—›•çî∏((ººÅ]}MI!}MLÅ±•ŸïÃÅ•∏ÅÖ¡¿ΩçΩµ¡Ωπïπ—ÃΩçÕÃπ©ÃÄ°)’±‰Ä»¿»ÿÅëïçΩµ¡ΩÕ•—•Ω∏§∏((ººÅ]}A1}I}MLÅ±•ŸïÃÅ•∏ÅÖ¡¿ΩçΩµ¡Ωπïπ—ÃΩçÕÃπ©ÃÄ°)’±‰Ä»¿»ÿÅëïçΩµ¡ΩÕ•—•Ω∏§∏()çΩπÕ–ÅÕ°ï±∞ÄÙÅÏÅâÖç≠ù…Ω’πêËÅπâú∞Å°ï•ù°–ËÄàƒ¿¡ëŸ†à∞Åµ•π!ï•ù°–ËÄàƒ¿¡ëŸ†à∞Åë•Õ¡±Ö‰ËÄâô±ï‡à∞Å©’Õ—•ôÂΩπ—ïπ–ËÄâçïπ—ï»àÅÙÏ)çΩπÕ–Å›…Ö¿ÄÙÅÏÅâÖç≠ù…Ω’πêËÅπâú∞ÅçΩ±Ω»ËÅπ—ï·–∞Å°ï•ù°–ËÄàƒ¿¡ëŸ†à∞Å›•ë—†ËÄàƒ¿¿îà∞ÅµÖ·]•ë—†ËÄ–‡¿∞ÅôΩπ—Öµ•±‰ËÄâŸÖ»†¥µ›òµÕÖπÃ§à∞Åë•Õ¡±Ö‰ËÄâô±ï‡à∞Åô±ï·•…ïç—•Ω∏ËÄâçΩ±’µ∏à∞ÅΩŸï…ô±Ω‹ËÄâ°•ëëï∏à∞Å¡ΩÕ•—•Ω∏ËÄâ…ï±Ö—•Ÿîà∞Å—Ω’ç°ç—•Ω∏ËÄâ¡Ö∏µ‰à∞ÅΩŸï…Õç…Ω±±	ï°ÖŸ•Ω»ËÄâπΩπîàÅÙÏ()ï·¡Ω…–ÅëïôÖ’±–Åô’πç—•Ω∏ÅAÖùî°ÏÅ•π•—•Ö±Ÿïπ—ÃÄÙÅπ’±∞∞Å±ΩçÖ±ë•—’•ëïÃÄÙÅπ’±∞∞Å…Ö•±5ïπ‘ÄÙÅπ’±∞∞Å•π•—•Ö±A±Öçï%êÄÙÅπ’±∞∞Å•π•—•Ö±A±Öçïç—•Ω∏ÄÙÅπ’±∞ÅÙ§ÅÏ(ÄÅ…ï—’…∏Ä†(ÄÄÄÄÒ……Ω…	Ω’πëÖ…‰¯(ÄÄÄÄÄÄÒAÖùï%ππï»Å•π•—•Ö±Ÿïπ—ÃıÌ•π•—•Ö±Ÿïπ—ÕÙÅ±ΩçÖ±ë•—’•ëïÃıÌ±ΩçÖ±ë•—’•ëïÕÙÅ…Ö•±5ïπ‘ıÌ…Ö•±5ïπ’ÙÅ•π•—•Ö±A±Öçï%êıÌ•π•—•Ö±A±Öçï%ëÙÅ•π•—•Ö±A±Öçïç—•Ω∏ıÌ•π•—•Ö±A±Öçïç—•ΩπÙÄº¯(ÄÄÄÄΩ……Ω…	Ω’πëÖ…‰¯(ÄÄ§Ï)Ù

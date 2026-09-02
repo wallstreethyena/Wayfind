@@ -154,7 +154,7 @@ const iMenuUse = HOME.indexOf("{discoveryMenu}");
 // for the component body and is now handed to <DaypartRail eventsSlot>, where
 // it opens as the events tile's drop — which is the first time it rendered at
 // all. See scripts/check-events-rail-renders.mjs.
-const iEventsSlot = HOME.indexOf("const eventsRailSlot = () => {");
+const iEventsSlot = HOME.indexOf('const eventsRailSlot = (mode = "events") => {');
 const iTopbar = HOME.indexOf('className="wf-topbar"');
 const iScrollArea = HOME.indexOf('className="wf-scrollarea"');
 

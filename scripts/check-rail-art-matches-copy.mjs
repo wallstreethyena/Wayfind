@@ -180,7 +180,11 @@ const PAIRS = {
   // live music, comedy & events", short "Ranked for right now".
   //
   // Read at 300px before re-pinning, which is what this file asks for.
-  tonight: { copy: "852c9b81e7b9c33d", art: "a1301677f237214b" },
+  // v9.00 — pixels re-read before pinning: NIGHT OUT / Clubs, cocktails,
+  // live music, shows, dining & experiences — ranked near you. / Tonight,
+  // actually sorted. The metadata carries those same three promises and the
+  // drop now renders the ten exclusive intent rails behind them.
+  tonight: { copy: "8559e889f59e2896", art: "c784dab2f3b0f30f" },
 };
 
 const railRow = (id) => (rails.match(new RegExp(`\\{ id: "${id}",[\\s\\S]*?\\},`)) || [""])[0];
