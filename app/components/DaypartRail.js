@@ -206,6 +206,8 @@ import { railShareIntent } from "../../lib/railShare.js";
 // render path — and the ONE compressor. The drop's cards were the only place
 // cards on the site rendering without their editorial line.
 import useEditorialHooks from "./useEditorialHooks";
+import useIntentCandidates, { mergeCandidates } from "./useIntentCandidates";
+import { NIGHT_OUT_MAX_MI } from "../../lib/nightOutIntent.js";
 import { toHookLine } from "../../lib/editorialHook";
 import { formatBeachChipBits, waterQualityKey, WATER_TONE, WATER_PLAIN_LONG } from "../../lib/beachChip.js";
 import PlaceCardSkeleton from "./PlaceCardSkeleton";
@@ -1139,15 +1141,28 @@ export default function DaypartRail({
   // Night Out is an intent collection, not the legacy `tonight` selector.
   // Search every owned rail pool, dedupe by place id, and let the strict
   // composer admit only evidence-backed nightlife identities within 27 miles.
+  //
+  // 2026-09-02 FIX — this union ALONE was the whole input, and Night Out has
+  // no home rail of its own: none of breakfast/family/beach/trending/etc were
+  // ever selected for a nightlife/dinner+entertainment identity, so the
+  // composer was starved of real candidates and printed an honest-looking
+  // "No verified event or venue within 27 miles" that was not actually
+  // honest — owner screenshot, Parrish, wf_inventory held 4,412 places within
+  // 27mi, 1,278 rated ≥4.3★/150+ reviews. useIntentCandidates fetches a real,
+  // governed-score-ranked owned-inventory pool (food/nightlife/attractions,
+  // $0, no Google — app/api/intent-candidates/route.js) and mergeCandidates
+  // unions it with the client pool below; a null/failed fetch leaves this
+  // exactly as it always was (fail-soft, never a regression from today).
+  const nightOutCenter = center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null);
+  const nightOutInventory = useIntentCandidates(nightOutCenter, {
+    cats: ["food", "nightlife", "attractions"],
+    radiusMi: NIGHT_OUT_MAX_MI,
+    active: selected === "tonight", // closed drop costs zero requests, same rule as every other lazy fetch in this file
+  });
   const nightOutPlaces = useMemo(() => {
-    const seen = new Set();
-    return Object.values(shown.places || {}).flatMap((rows) => Array.isArray(rows) ? rows : []).filter((place) => {
-      const id = place?.id || place?.placeId;
-      if (!id || seen.has(id)) return false;
-      seen.add(id);
-      return true;
-    });
-  }, [shown]);
+    const clientPool = Object.values(shown.places || {}).flatMap((rows) => Array.isArray(rows) ? rows : []);
+    return mergeCandidates(clientPool, nightOutInventory);
+  }, [shown, nightOutInventory]);
   const [lunchBreakLive, setLunchBreakLive] = useState(null);
   useEffect(() => {
     if (selected !== "break" || !center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) return undefined;

@@ -830,3 +830,12 @@ node scripts/check-scarcity-needs-an-answer.mjs
 node scripts/check-date-night-cacheable.mjs
 node scripts/check-no-imageless-card.mjs
 node scripts/test-today-discovery-rails.mjs
+# 2026-09-02 — Night Out pool starvation (owner screenshot, Parrish): an
+# intent rail composed client-side from shown.places alone never sees real
+# inventory when it has no home rail of its own. check-* pins that
+# composeNightOutRails' input is not sourced solely from shown.places
+# (asserts the MERGE, not just an import); test-* proves the composer itself
+# yields 0-1 date-dining candidates on a client-pool-only fixture and >1 once
+# a realistic owned-inventory feed is merged in.
+node scripts/check-intent-rail-inventory-fed.mjs
+node scripts/test-night-out-inventory-merge.mjs
