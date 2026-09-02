@@ -13,11 +13,11 @@
  * legitimately share the same restaurants and each rail was shipping a full
  * copy of every one, photo reference and type array included.
  *
- * That is a payload problem, not a product one, and it must be fixed as a
- * payload problem. Trimming rails to make the response smaller would be the
- * ceiling coming back through the back door (scripts/check-no-card-cap.mjs).
+ * That is a payload problem, not a product one. v=2 now combines deduplication
+ * with an ordered transport window: the first response is small, the true
+ * totals remain visible, and swiping fetches the rest one rail at a time.
  *
- * v=2 sends every place ONCE in `placeIndex` and each rail as a list of ids.
+ * v=2 sends each delivered place once in `placeIndex` and each rail as ids.
  *
  * WHY IT IS OPT-IN AND NOT A STRAIGHT SHAPE CHANGE. A tab opened before the
  * deploy is still running the old client, which reads `places[railId]` as an
@@ -37,8 +37,8 @@
  *   4. The client asks for v=2, or the whole thing is dead code.
  */
 import { readFileSync } from "node:fs";
-import { dedupeWire } from "../lib/railsWire.js";
-import { liveFromRailsResponse } from "../lib/locationHonesty.js";
+import { dedupeWire, windowRailData } from "../lib/railsWire.js";
+import { liveFromRailsResponse, mergeRailPage } from "../lib/locationHonesty.js";
 
 let failures = 0, asserts = 0;
 const ok = (cond, msg) => { asserts++; if (!cond) { failures++; console.error("  FAIL: " + msg); } };
@@ -123,6 +123,29 @@ ok(/sp\.get\("v"\) === "2"/.test(read("../app/api/rails/route.js")),
   "…and the route must read it");
 ok(/placeIndex/.test(read("../lib/locationHonesty.js")),
   "…and exactly one adapter rehydrates it");
+
+// ── 5. compact first response, complete ordered pagination ──────────────────
+{
+  const firstWire = dedupeWire(windowRailData(data, { limit: 12 }));
+  const first = liveFromRailsResponse({ covered: true, data: firstWire });
+  ok(first.places.eat.length === 12 && first.railTotals.eat === 200 && first.railHasMore.eat === true,
+    "the first response carries 12 ranked cards plus the truthful complete count");
+  ok(Object.keys(firstWire.placeIndex).length < Object.keys(wired.placeIndex).length,
+    "the first response does not smuggle the full catalogue through placeIndex");
+
+  const pageWire = dedupeWire(windowRailData(data, { railId: "eat", offset: 12, limit: 24 }));
+  const merged = mergeRailPage(first, { covered: true, data: pageWire }, "eat");
+  ok(merged.places.eat.length === 36 && merged.railTotals.eat === 200 && merged.railHasMore.eat === true,
+    "one rail appends its next page without losing the complete count");
+  ok(JSON.stringify(merged.places.eat.map((p) => p.id)) === JSON.stringify(data.places.eat.slice(0, 36).map((p) => p.id)),
+    "pagination preserves the ranking order exactly");
+  ok(JSON.stringify(merged.places.best) === JSON.stringify(first.places.best),
+    "a page for one rail cannot replace or erase a sibling rail");
+}
+ok(/windowRailData\(data/.test(read("../app/api/rails/route.js")),
+  "the v2 route must apply the compact delivery window");
+ok(/rail:\s*selected/.test(read("../app/components/DaypartRail.js")) && /offset:\s*String\(offset\)/.test(read("../app/components/DaypartRail.js")),
+  "the client must request the next page for only the selected rail");
 
 if (failures) {
   console.error(`\ncheck-rails-wire: ${failures} FAILED of ${asserts} assertions`);
