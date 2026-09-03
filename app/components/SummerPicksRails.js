@@ -34,7 +34,7 @@ export default function SummerPicksRails({ rails, city }) {
                   See availability ↗
                 </ViatorCommerceLink>} />;
             }
-            const photo = card.photo || cardImageSrc(card, 640);
+            const photo = card.photoUrl || card.photo_url || cardImageSrc(card, 640);
             const ctaHref = directionsUrl(card);
             const facts = [card.city || null, card.reviews ? `${compact(card.reviews)} reviews` : null, Number.isFinite(card.distMi) ? `${card.distMi} mi` : null].filter(Boolean);
             return <RailCard key={`place:${card.id}`} photo={photo} title={card.name} eyebrow={rail.title}

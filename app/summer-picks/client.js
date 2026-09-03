@@ -8,8 +8,47 @@ import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
 import { liveFromRailsResponse, originForCity } from "../../lib/locationHonesty.js";
 import { homeAffiliateActivities } from "../../lib/homeAffiliateActivities.js";
 import { composeSummerPickRails } from "../../lib/summerPicks.js";
+import { cardImageSrc } from "../../lib/placePhoto.js";
 
 const LOAD_TIMEOUT_MS = 10000;
+const PHOTO_TIMEOUT_MS = 4000;
+const PHOTO_WORKERS = 12;
+
+const ownedPhotoSrc = (place) => place?.photoUrl || place?.photo_url || cardImageSrc(place, 640);
+
+function imageLoads(src) {
+  return new Promise((resolve) => {
+    if (!src) return resolve(false);
+    const image = new Image();
+    let settled = false;
+    const finish = (ok) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      image.onload = null;
+      image.onerror = null;
+      resolve(ok);
+    };
+    const timer = setTimeout(() => finish(false), PHOTO_TIMEOUT_MS);
+    image.onload = () => finish(image.naturalWidth > 0 && image.naturalHeight > 0);
+    image.onerror = () => finish(false);
+    image.src = src;
+  });
+}
+
+async function placesWithWorkingPhotos(places) {
+  const rows = Array.isArray(places) ? places : [];
+  const sources = [...new Set(rows.map(ownedPhotoSrc).filter(Boolean))];
+  const working = new Set();
+  let cursor = 0;
+  await Promise.all(Array.from({ length: Math.min(PHOTO_WORKERS, sources.length) }, async () => {
+    while (cursor < sources.length) {
+      const src = sources[cursor++];
+      if (await imageLoads(src)) working.add(src);
+    }
+  }));
+  return rows.filter((place) => working.has(ownedPhotoSrc(place)));
+}
 
 function menuPlaces(payload) {
   const live = liveFromRailsResponse(payload);
@@ -62,7 +101,7 @@ export default function SummerPicksClient() {
       fetchJsonWithDeadline(`/api/summer/places?${summerQ}`, { timeoutMs: LOAD_TIMEOUT_MS }),
       fetchJsonWithDeadline(`/api/rails?${menuQ}`, { timeoutMs: LOAD_TIMEOUT_MS }),
       fetchJsonWithDeadline(`/api/experiences?${tourQ}`, { timeoutMs: LOAD_TIMEOUT_MS }),
-    ]).then((results) => {
+    ]).then(async (results) => {
       if (cancelled) return;
       const summer = results[0].status === "fulfilled" ? results[0].value : null;
       const menu = results[1].status === "fulfilled" ? results[1].value : null;
@@ -74,7 +113,9 @@ export default function SummerPicksClient() {
         placeMap.set(place.id, existing ? { ...place, ...existing, _sourceRails: [...new Set([...(place._sourceRails || []), ...(existing._sourceRails || [])])] } : place);
       }
       const tours = homeAffiliateActivities(experiences?.items, 100);
-      const composed = composeSummerPickRails([...placeMap.values()], tours);
+      const verifiedPlaces = await placesWithWorkingPhotos([...placeMap.values()]);
+      if (cancelled) return;
+      const composed = composeSummerPickRails(verifiedPlaces, tours);
       const usable = composed.some((rail) => rail.cards.length > 0);
       if (!usable) setFailed(true);
       else setRails(composed);
