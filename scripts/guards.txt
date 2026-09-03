@@ -840,6 +840,9 @@ node scripts/check-augtober-rail.mjs
 # 2026-09-03 — one event-affiliate registry (lib/eventTicketDeals.js), product-true,
 # routed through /api/commerce/go on the fall rail, the Events feed and the event page.
 node scripts/check-event-ticket-deals.mjs
+# 2026-09-03 — a live surface reads live: force-dynamic does not stop a route
+# from being handed the Data Cache entry an ISR page populated for the same URL.
+node scripts/check-live-reads.mjs
 node scripts/test-fall-intent-rails.mjs
 node scripts/test-night-out-intent.mjs
 node scripts/check-cget-envelope.mjs

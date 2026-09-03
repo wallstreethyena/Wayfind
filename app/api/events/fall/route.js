@@ -60,7 +60,9 @@ export async function GET(request) {
       // All three reads are independent. Start them together so a cold cache
       // costs one Supabase round trip rather than a waterfall of three.
       const [rows, placeResult, dealResult] = await Promise.all([
-        fetchCuratedEvents({ signal }),
+        // fresh: the rail retires an event the moment its date passes, so it
+        // must not read the ISR pages' hour-old cache entry (lib/supabase.js).
+        fetchCuratedEvents({ signal, fresh: true }),
         supabase.from("wf_inventory")
           .select("place_id,name,lat,lng,metro,category,primary_type,google_types,signals,editorial,photo_ref,status")
           .in("place_id", ids).abortSignal(signal),
