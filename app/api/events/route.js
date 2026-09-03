@@ -586,7 +586,10 @@ async function curatedSceneImage(e) {
 async function fromCuratedEvents(lat, lng) {
   if (lat == null || lng == null) return { configured: false, events: [] };
   try {
-    const rows = await fetchCuratedEvents({ limit: 200 });
+    // fresh: this feed is live. It reads a different PostgREST URL than the
+    // ISR pages (limit=200) and so was accidentally immune; the flag makes
+    // that a decision instead of a coincidence.
+    const rows = await fetchCuratedEvents({ limit: 200, fresh: true });
     if (!rows.length) return { configured: true, events: [] };
     // Filter to reach BEFORE resolving photos: a cold aggregation should cost
     // at most a handful of pool lookups, not one per row in the table.

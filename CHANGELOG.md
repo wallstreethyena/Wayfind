@@ -1,3 +1,12 @@
+## v8.55.1 - The fall rail was being served an ISR page's hour-old events
+
+Found while verifying v8.55 on production: the AUGTOBER rail showed HorsePower for Kids — a row de-dated to `unannounced` two hours earlier — and hid all 21 events seeded in the same window, while `/api/events` showed the correct set. The code was right; the read was stale.
+
+- **Root cause, one layer below the rail's own cache.** In the App Router `fetch` is cached by default and the Data Cache is keyed by REQUEST URL, shared across routes, and retained across deployments. `fetchCuratedEvents()` issues one PostgREST URL that three routes want: `/florida-events` and `/florida-events/[slug]` (both `revalidate = 3600`, which populate the entry) and `/api/events/fall`. `export const dynamic = "force-dynamic"` makes the ROUTE dynamic — it does not stop that route from being handed an entry another route already cached. The rail's `fall-intents:v8` epoch bump could not help, because the staleness was in the HTTP read beneath it. `/api/events` was accidentally immune: it passes `limit=200`, a different URL, so a different entry.
+- **A live surface reads live.** `lib/supabase.js` gains `supabaseLive`, a second client whose every request carries `cache: "no-store"`; `fetchCuratedEvents({ fresh: true })` selects it. The fall rail and the events feed pass it. The two ISR pages deliberately do not — they revalidate hourly by design and their job is to be cheap.
+- **Why it matters beyond this rail.** A retired event that keeps showing for an hour is exactly the false information the date discipline exists to prevent, and any newly seeded event was invisible for the same window.
+- **Guarded by CALL, not by regex.** `scripts/check-live-reads.mjs` invokes `liveFetch` against a stub and asserts it sets `no-store` while preserving method, headers, signal and URL; red-proved by removing the option and watching it go red.
+
 ## v8.55 - Fall in Florida audit: every card says when, every eligible ticket earns, and the Suncoast fills in
 
 Owner, 2026-09-03: "more places like it closer to Sarasota … every one of these must have all of the detail, I cannot afford to have a person click on it and have false information … I cannot have someone be interested and not know when they will be able to go … every single event that is eligible for affiliation needs to be deep linked globally."
