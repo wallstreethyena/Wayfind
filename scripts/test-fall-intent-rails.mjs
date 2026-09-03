@@ -134,7 +134,7 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(/fall-intents:v8:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key (v8: commerce-go tickets + schedule, after #1082's v7)");
+ok(/fall-intents:v9:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key (v9: retires keys computed before the live-read fix)");
 // 2026-09-03 — the partner URL never reaches the DOM. The route's ticket is
 // built by eventTicketCta (an /api/commerce/go href), and the raw affiliate_url
 // column is read only to GATE (active/link_ok/PID), never to render.

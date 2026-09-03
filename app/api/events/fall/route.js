@@ -45,8 +45,13 @@ export async function GET(request) {
     // cards. v8 (2026-09-03, this lane): ticket hrefs moved from the raw CJ URL
     // to /api/commerce/go and cards gained schedule/detailHref. Both v7 shapes
     // shipped, so this is a THIRD epoch, not a re-use — a stale v7 would serve
-    // the DOM-exposed affiliate link for 15 minutes after deploy.
-    const key = `fall-intents:v8:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // the DOM-exposed affiliate link for 15 minutes after deploy. v9
+    // (2026-09-03) retires every key computed BEFORE the live-read fix
+    // (#1084): those entries were written from an hour-old Data Cache read and
+    // hold a de-dated event plus none of that day's 21 new ones. The rail cache
+    // keeps a good answer for an hour, so without this bump the owner's own
+    // Parrish cell would have served the wrong set until it aged out.
+    const key = `fall-intents:v9:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     const cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
