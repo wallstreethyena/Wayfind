@@ -116,8 +116,14 @@ const fallRoute = strip(read("app/api/events/fall/route.js"));
 ok(/url: eventOutboundUrl\(e\) \|\| null,/.test(fallRoute) && !/e\.official_ticket_url \|\| e\.official_event_url/.test(fallRoute),
   "the fall events endpoint composes url via eventOutboundUrl, not a raw column fallback chain");
 const curated = strip(read("lib/curatedEvents.js"));
-ok(/url: eventOutboundUrl\(row\),/.test(curated) && (curated.match(/official_ticket_url \|\| (?:row|e)\.official_event_url/g) || []).length === 0,
-  "lib/curatedEvents composes every published URL via eventOutboundUrl — zero raw fallback chains remain");
+// 2026-09-03: the feed's url is the affiliate commerce redirect when one sells
+// the event (eventTicketHref — our own /api/commerce/go path, never a partner
+// URL) and otherwise eventOutboundUrl; officialUrl is always eventOutboundUrl.
+// Either way every OUTBOUND URL is composed by eventOutboundUrl.
+ok(/url: eventTicketHref\(row\.event_id, \{ surface: "events_feed" \}\) \|\| eventOutboundUrl\(row\),/.test(curated)
+  && /officialUrl: eventOutboundUrl\(row\),/.test(curated)
+  && (curated.match(/official_ticket_url \|\| (?:row|e)\.official_event_url/g) || []).length === 0,
+  "lib/curatedEvents composes every published outbound URL via eventOutboundUrl — zero raw fallback chains remain (the commerce redirect is our own path)");
 ok(/link_ok,link_verdict"/.test(curated), "lib/curatedEvents selects link_ok so the sweep's verdict reaches the composer");
 const flEvents = strip(read("app/florida-events/[slug]/page.js"));
 ok(/href=\{safeUrl\(e\.official_event_url\)\}/.test(flEvents) && !/href=\{e\.official_event_url\}/.test(flEvents), "the single-event page's official link passes through safeUrl");

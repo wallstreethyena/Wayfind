@@ -295,7 +295,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.54.0";
+const BUILD_ID = "v8.55.0";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -2501,6 +2501,9 @@ function eventCTA(e) {
   const u = url.toLowerCase();
   const src = (e.source || "").toLowerCase();
   const ticketHost = /ticketmaster|eventbrite|seatgeek|axs\.com|stubhub|ticketweb|etix|dice\.fm|tickets\./.test(u);
+  // An affiliate-sold event names its merchant (lib/eventTicketDeals.js via
+  // curatedToFeedEvent.ticketVia) so the reader knows where the tap lands.
+  if (e.ticketVia) return { show: true, label: "Tickets · " + e.ticketVia + " ↗" };
   if (e.ticketed === true || ticketHost) return { show: true, label: "Get tickets ↗" };
   if (e.ticketed === false) return { show: true, label: "View details ↗" };
   if (src.includes("google") || u.includes("google.")) return { show: true, label: "View on Google ↗" };
@@ -3009,6 +3012,7 @@ function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onS
         label: cta.show ? cta.label : "See event ↗",
         href: tix || href,
         external: !internal || !!tix,
+        sponsored: !!event.ticketVia,
         onClick: () => { try { onLog("ticket", null, { src: "rail_card", id: event.id }); } catch (e) {} },
       }}
       saved={saved}

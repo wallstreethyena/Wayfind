@@ -15,7 +15,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { isFallTagged, fallEventLive, fallWhenLabel, fallSkinLive, eventFranchiseKey, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_REJECTED_IDS, FALL_OFFERING_SOURCES, FALL_EVENT_TICKET_DEALS, OPEN_RUN_DAYS } from "../lib/fallPool.js";
+import { isFallTagged, fallEventLive, fallWhenLabel, fallScheduleChip, isOpenRun, fallSkinLive, eventFranchiseKey, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_REJECTED_IDS, FALL_OFFERING_SOURCES, FALL_EVENT_TICKET_DEALS, OPEN_RUN_DAYS } from "../lib/fallPool.js";
 import { FALL_CARD_IDS, fallCardClass, thanksgivingDayOfMonth } from "../lib/fallSkin.js";
 import { DAYPART_IDS, orderFor } from "../lib/dayparts.js";
 import { RAIL_IDS } from "../lib/rails.js";
@@ -34,14 +34,28 @@ ok(fallEventLive(hhn, "2026-10-15") === true, "HHN35 is live mid-run");
 ok(fallEventLive(hhn, "2026-11-01") === true, "HHN35 is live on its final night");
 ok(fallEventLive(hhn, "2026-11-02") === false, "HHN35 RETIRES the day after Nov 1 — acceptance test #14, executed");
 
-// open run: the real Tribute Store shape — end_date null, start Aug 26
-const store = { start_date: "2026-08-26", end_date: null };
+// open run: the real Tribute Store shape — end_date null, start Aug 26, and
+// the note that DECLARES the close unpublished (2026-09-03: without that
+// declaration a null end is a one-day event, see the next block).
+const store = { start_date: "2026-08-26", end_date: null, schedule_note: "Open during regular park hours. Universal has not published a closing date." };
 ok(fallEventLive(store, "2026-08-26") === true, "Tribute Store visible on opening day with NO end date");
 ok(fallEventLive(store, "2026-09-25") === true, "…and a month in — the open-run allowance, not a fabricated end");
 ok(fallEventLive(store, "2026-08-26".slice(0, 8) + "26") === true, "control repeats");
 ok(fallEventLive(store, "2027-01-15") === false, `…but an open run cannot outlive OPEN_RUN_DAYS (${OPEN_RUN_DAYS}) unre-verified`);
 const lbl = fallWhenLabel(store, "2026-09-01");
 ok(lbl.label === "Open now" && !/thru/i.test(lbl.label), "open-run label says 'Open now' — it NEVER claims an end date");
+// ONE-DAY ROW WITH A NULL END (the Wellen Oktoberfest / Boo at The Bay bug):
+// no declared open run -> live through its day, retired the morning after,
+// and labelled as the single date it is — never "Open now" for 90 days.
+const oneDay = { start_date: "2026-10-17", end_date: null, start_time: "17:00:00", schedule_note: "Saturday, October 17, 5–7:45pm. Rain date October 24." };
+ok(isOpenRun(store) === true && isOpenRun(oneDay) === false, "an open run is a CLAIM the note makes; a bare null end is not one");
+ok(fallEventLive(oneDay, "2026-10-01") === true && fallEventLive(oneDay, "2026-10-17") === true, "the one-day row is live up to and on its day");
+ok(fallEventLive(oneDay, "2026-10-18") === false, "…and retired the day after — it does NOT ride the open-run allowance");
+ok(fallWhenLabel(oneDay, "2026-10-01").label === "Oct 17" && /Saturday/.test(fallWhenLabel(oneDay, "2026-10-01").value), "…and its badge is the date and weekday, not 'Opens'");
+ok(fallWhenLabel(oneDay, "2026-10-17").label === "Today", "…and reads 'Today' on the day");
+ok(/Saturday · 5pm/.test(fallScheduleChip(oneDay)?.label || ""), "the schedule chip carries the weekday and the clock");
+ok(/Select nights · 7pm/.test(fallScheduleChip({ ...hhn, select_nights: true, start_time: "19:00:00", schedule_note: "Select nights. Event starts at 7 p.m." })?.label || ""), "…and 'Select nights · 7pm' for a select-night run with a clock");
+ok(fallScheduleChip({ start_date: "2026-10-01", end_date: "2026-10-31" }) === null, "no clock and no note -> no chip, never a template");
 ok(/Thru Nov 1/.test(fallWhenLabel(hhn, "2026-09-01").label) || /Select nights thru Nov 1/.test(fallWhenLabel({ ...hhn, select_nights: true }, "2026-09-01").label),
   "dated label states the real verified end");
 
@@ -90,8 +104,15 @@ ok(eventFranchiseKey("Vampire Penguin") !== eventFranchiseKey("Fantasy Fest"), "
 
 // ── 2c. Ticket monetization: PRODUCT integrity, pinned ─────────────────────
 ok(FALL_EVENT_TICKET_DEALS["mnsshp-2026"] === 8, "Not-So-Scary deep-links UT's ticket for THAT event (deal 8)");
-ok(!("hhn-orlando-2026" in FALL_EVENT_TICKET_DEALS) && !Object.keys(FALL_EVENT_TICKET_DEALS).some((k) => /howl-o-scream/.test(k)),
-  "separately-ticketed events (HHN, Howl-O-Scream) NEVER deep-link generic day tickets — wrong product is a trust bug wearing a commission");
+// 2026-09-03: HHN and both Howl-O-Screams ARE mapped now — to UT's single-night
+// EVENT tickets (deals 19/20/21, page bodies read that day), never to the park
+// admission rows (6/15/7). The product rule is unchanged; the inventory grew.
+// scripts/check-event-ticket-deals.mjs executes the pairing against the
+// UT_EVENT_DEAL_IDS pin; this line keeps the fall-side shape honest.
+ok(FALL_EVENT_TICKET_DEALS["hhn-orlando-2026"] === 19 && FALL_EVENT_TICKET_DEALS["howl-o-scream-tampa-2026"] === 20 && FALL_EVENT_TICKET_DEALS["howl-o-scream-seaworld-2026"] === 21,
+  "separately-ticketed events (HHN, Howl-O-Scream) deep-link UT's EVENT ticket rows, never a park day ticket");
+ok(![6, 15, 7].includes(FALL_EVENT_TICKET_DEALS["hhn-orlando-2026"]) && ![6, 15, 7].includes(FALL_EVENT_TICKET_DEALS["howl-o-scream-tampa-2026"]) && ![6, 15, 7].includes(FALL_EVENT_TICKET_DEALS["howl-o-scream-seaworld-2026"]),
+  "a park-admission row is the WRONG product for a separately-ticketed night — a trust bug wearing a commission");
 ok(Object.values(FALL_EVENT_TICKET_DEALS).every((v) => Number.isInteger(v) && v > 0), "every mapping points at a real wf_deals id");
 
 // ── 3. The wiring, in syntactic position — v8.66: the AUGTOBER surface is a

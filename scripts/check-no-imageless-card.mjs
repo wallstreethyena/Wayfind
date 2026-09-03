@@ -221,9 +221,11 @@ ok(/fallEventCardImageSrc\(e, 640(?:, inventoryById\.get\(e\.place_id\))?\)/.tes
 }
 ok(/mergeFallDiscoveryRows\(rows, FALL_DISCOVERIES_2026\)/.test(fallRoute),
   "the live endpoint merges verified identity before image resolution");
-ok(/fall-intents:v7:/.test(fallRoute),
-  "the Fall cache epoch cannot replay a pre-identity-fix image payload after deployment");
-
+// v6 was the identity fix; v7 (2026-09-03) is the commerce-go ticket + schedule
+// payload. Any epoch AT OR ABOVE v6 cannot replay the pre-identity payload.
+const fallEpoch = Number((/fall-intents:v(\d+):/.exec(fallRoute) || [])[1] || 0);
+ok(fallEpoch >= 6,
+  `the Fall cache epoch (v${fallEpoch}) cannot replay a pre-identity-fix image payload after deployment`);
 if (fail.length) {
   console.error("check-no-imageless-card: FAILED");
   for (const f of fail) console.error("  ✗ " + f);

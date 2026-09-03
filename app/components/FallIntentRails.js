@@ -13,25 +13,39 @@ const COLORS = { text: "#FFF7ED", muted: "#A99FA8" };
 export const FALL_LOAD_TIMEOUT_MS = 10000;
 const compact = (value) => Number(value) >= 1000 ? Math.round(Number(value) / 100) / 10 + "k" : String(Number(value) || 0);
 
-function eventChips(card) {
+function eventChips(card, { onOpenVenue = null } = {}) {
   const tags = Array.isArray(card.tags) ? card.tags : [];
   const audience = Array.isArray(card.audience) ? card.audience : [];
   const chips = [];
+  // THE SCHEDULE FIRST (owner, 2026-09-03: "I cannot have someone be
+  // interested and not know when they will be able to go"). Which days and
+  // what time, from the row's own clock and verified note; the full note is
+  // the title. No schedule on the row -> no chip, never a template.
+  if (card.schedule?.label) chips.push({ key: "schedule", icon: "🗓", label: card.schedule.label, title: card.schedule.title || card.schedule.label });
   if (tags.includes("scary")) chips.push({ key: "scary", icon: "👻", label: "Intense scares" });
   else if (audience.includes("families") || audience.includes("kids")) chips.push({ key: "family", icon: "🎃", label: "Family-friendly" });
   if (card.minimum_age) chips.push({ key: "age", icon: "✓", label: `${card.minimum_age}+` });
   if (card.is_free) chips.push({ key: "free", icon: "✓", label: "Free" });
-  if (card.select_nights) chips.push({ key: "nights", icon: "🌙", label: "Select nights" });
-  return chips.slice(0, 3);
+  // The venue keeps its door: the card body now opens the EVENT page, so the
+  // place sheet (saves, photos, directions) moves to a chip.
+  if (onOpenVenue) chips.push({ key: "venue", icon: "📍", label: "Venue", title: card.venue || card.name, onClick: onOpenVenue });
+  return chips.slice(0, 4);
 }
 
 function eventCta(card, onTrack) {
   if (card.ticket?.href) return {
-    label: `Tickets · ${card.ticket.via} ↗`, href: card.ticket.href, external: true, sponsored: true,
-    onClick: () => {
+    // /api/commerce/go, never the partner URL: the redirect mints the click
+    // id, refuses crawlers, and applies the CJ deep link server-side.
+    label: card.ticket.label || `Tickets · ${card.ticket.via} ↗`, href: card.ticket.href, external: true, sponsored: true,
+    onClick: (event) => {
       try { onTrack?.("tickets_out", { kind: "fall_intent_rail", id: card.id, name: card.name, deal: card.ticket.deal_id }); } catch {}
-      import("../../lib/commerce.js").then(({ emitCommerce, mintClickId }) => {
-        try { emitCommerce("commerce_cta_clicked", { surface: "fall_intent_rail", content_id: card.id, provider: "undercover_tourist", merchant: card.ticket.via, offer_id: String(card.ticket.deal_id), click_id: mintClickId(), disclosure_version: "fall-intent-v1" }); } catch {}
+      import("../../lib/commerce.js").then(({ commerceHref, emitCommerce, mintClickId }) => {
+        try {
+          const clickId = mintClickId();
+          const live = commerceHref({ provider: card.ticket.provider || "undercover_tourist", offerId: card.ticket.deal_id, surface: "fall_intent_rail", contentId: card.id, clickId });
+          if (live && event && event.currentTarget) event.currentTarget.href = live;
+          emitCommerce("commerce_cta_clicked", { surface: "fall_intent_rail", content_id: card.id, provider: card.ticket.provider || "undercover_tourist", merchant: card.ticket.via, offer_id: String(card.ticket.deal_id), click_id: clickId, disclosure_version: "fall-intent-v2" });
+        } catch {}
       }).catch(() => {});
     },
   };
@@ -110,13 +124,18 @@ export default function FallIntentRails({
             const openEventVenue = isEvent && card.place_id && onOpenPlace
               ? () => onOpenPlace({ id: card.place_id, name: card.venue || card.name, lat: card.lat, lng: card.lng, types: [], hook: card.hook })
               : null;
+            // The card BODY opens the event's own page (dates, hours, parking,
+            // why-go) when the row has one; the venue sheet is a chip. An
+            // event with no page keeps the old behaviour: venue, else official.
+            const eventBodyHref = isEvent ? (card.detailHref || (!openEventVenue ? card.url || null : null)) : null;
+            const eventBodyExternal = isEvent && !card.detailHref;
             return <RailCard key={card.id} className="wf-exploding-primary" photo={card.image || null} place={place}
               title={card.title || card.name} eyebrow={rail.title} rank={rank}
               score={isEvent ? null : toDisplayScore(card.wfScore)} when={isEvent ? card.when : null}
-              facts={facts} chips={isEvent ? eventChips(card) : placeChips}
+              facts={facts} chips={isEvent ? eventChips(card, { onOpenVenue: card.detailHref ? openEventVenue : null }) : placeChips}
               take={card.hook || (card.shotLocation ? `${card.shotLocation}. ${card.take} ${card.fallReason || ""}`.trim() : card.take) || null} cta={cta}
-              href={isEvent && !openEventVenue ? (card.url || null) : null} external={isEvent}
-              ariaLabel={`Open ${card.title || card.name}`} onOpen={openEventVenue || (place && onOpenPlace ? () => onOpenPlace(place) : undefined)}
+              href={eventBodyHref} external={eventBodyExternal}
+              ariaLabel={`Open ${card.title || card.name}`} onOpen={isEvent ? (card.detailHref ? undefined : openEventVenue || undefined) : (place && onOpenPlace ? () => onOpenPlace(place) : undefined)}
               actionsReadOnly={isEvent}
               saved={place && isSaved ? !!isSaved(place.id) : undefined}
               liked={place && (isLiked ? !!isLiked(place.id) : liked ? !!liked[place.id] : undefined)}

@@ -13,7 +13,8 @@ export const dynamic = "force-dynamic";
 // vetted year-round spooky PLACES ride along as normal scored place rows.
 import { fetchCuratedEvents, isTrusted, eventOutboundUrl } from "../../../../lib/curatedEvents.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
-import { isFallTagged, fallEventLive, fallWhenLabel, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_EVENT_TICKET_DEALS } from "../../../../lib/fallPool.js";
+import { isFallTagged, fallEventLive, fallWhenLabel, fallScheduleChip, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_EVENT_TICKET_DEALS } from "../../../../lib/fallPool.js";
+import { eventTicketCta } from "../../../../lib/eventTicketDeals.js";
 import { hasCjPid } from "../../../../lib/deals.js";
 import { supabase } from "../../../../lib/supabase.js";
 import { wayfindScore } from "../../../../lib/wayfindScore.js";
@@ -39,10 +40,13 @@ export async function GET(request) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return json({ error: "lat and lng are required" }, 400, "no-store");
   try {
     const today = siteTodayStr();
-    // v7 invalidates payloads composed before verified registry identity won
-    // over stale database duplicates. Without the epoch bump, a corrected
-    // deploy could replay Nueva Cantina's no-photo v5 response for 15 minutes.
-    const key = `fall-intents:v7:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v6 invalidated payloads composed before verified registry identity won
+    // over stale database duplicates. v7 (#1082) suppressed unresolved image
+    // cards. v8 (2026-09-03, this lane): ticket hrefs moved from the raw CJ URL
+    // to /api/commerce/go and cards gained schedule/detailHref. Both v7 shapes
+    // shipped, so this is a THIRD epoch, not a re-use — a stale v7 would serve
+    // the DOM-exposed affiliate link for 15 minutes after deploy.
+    const key = `fall-intents:v8:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     const cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
@@ -74,6 +78,11 @@ export async function GET(request) {
       // not merely a seed script. Merge it at read time so a missed/lagging
       // database seed cannot erase verified farms, cafes and spooky dates.
       const eventRows = mergeFallDiscoveryRows(rows, FALL_DISCOVERIES_2026);
+      // /florida-events/<slug> is served from wf_events by slug. A registry row
+      // whose database seed is lagging has no page yet, so it gets no
+      // detailHref — the card falls back to the venue sheet / official page
+      // rather than a 404 wearing the event's name.
+      const pageSlugs = new Set((rows || []).map((row) => row?.slug).filter(Boolean));
       const eligibleRows = eventRows
       // isTrusted, NOT a second inline copy of the status check. The line this
       // replaced asked only about event_status and therefore skipped the
@@ -88,7 +97,12 @@ export async function GET(request) {
       .filter((e) => !FALL_SEASONAL_PLACE_IDS.has(e.event_id))
       .map((e) => {
         const dealId = FALL_EVENT_TICKET_DEALS[e.event_id];
-        const deal = dealId ? byDealId.get(dealId) : null;
+        // liveDeal: undefined = no read attempted; null = the row failed the
+        // active/link_ok/PID gate (or the read degraded) -> no CTA. The CTA
+        // href is /api/commerce/go, never the raw affiliate URL (crawler
+        // clicks on a DOM-exposed CJ link are the account risk documented in
+        // lib/commerceProviders.js).
+        const ticket = dealId ? eventTicketCta(e.event_id, { surface: "fall_intent_rail", liveDeal: byDealId.get(dealId) || null }) : null;
         const image = fallEventCardImageSrc(e, 640, inventoryById.get(e.place_id));
         return ({
         ...e,
@@ -101,6 +115,15 @@ export async function GET(request) {
         lat: e.lat, lng: e.lng, place_id: e.place_id || null,
         start_date: e.start_date, end_date: e.end_date || null,
         when: fallWhenLabel(e, today),
+        // The schedule the reader acts on: which days, what time, straight
+        // from the row's clock columns and verified schedule_note.
+        schedule: fallScheduleChip(e),
+        schedule_note: e.schedule_note || null,
+        start_time: e.start_time || null, end_time: e.end_time || null,
+        // The event's OWN page (dates, hours, parking, why-go, JSON-LD) —
+        // the card body opens this, not the venue's place sheet.
+        slug: e.slug || null,
+        detailHref: e.slug && pageSlugs.has(e.slug) ? "/florida-events/" + e.slug : null,
         hook: e.card_hook,
         take: e.editorial_summary || null,
         // Collection art belongs on the collection tile, never on a named
@@ -111,7 +134,7 @@ export async function GET(request) {
         url: eventOutboundUrl(e) || null,   // 2026-09-02: link_ok + quarantine + safeUrl gated
         is_free: !!e.is_free, price_band: e.price_band || null,
         tags: e.tags || [],
-        ticket: deal ? { href: deal.affiliate_url, via: "Undercover Tourist", deal_id: deal.id } : null,
+        ticket,
       });
       })
       // A named destination never wears collection art and never ships with an

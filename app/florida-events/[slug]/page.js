@@ -15,6 +15,8 @@ import { eventPhotos } from "../../../lib/eventPhotos";
 import { addressLine, directionsUrl } from "../../../lib/placeWhere";
 import ShareButton from "../../components/ShareButton";
 import { eventPairings, pairingHref } from "../../../lib/eventPairings";
+import { eventTicketCta } from "../../../lib/eventTicketDeals.js";
+import { clockLabel } from "../../../lib/fallPool.js";
 
 export const revalidate = 3600;
 
@@ -122,6 +124,17 @@ const S = {
     fontSize: 14.5, fontWeight: 800, textDecoration: "none", lineHeight: 1,
   },
   addr: { color: "#C9D1D9", fontSize: 14, marginTop: 2 },
+  // The TICKET control (owner, 2026-09-03: every affiliate-eligible event is
+  // deep linked everywhere, not only on the fall rail). Same pill as
+  // directions, rendered only when lib/eventTicketDeals.js names the product
+  // that sells the way into THIS event. Goes through /api/commerce/go.
+  tix: {
+    display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7,
+    marginTop: 12, marginRight: 10, padding: "11px 18px", borderRadius: 12,
+    background: "#FF8A3D", border: "1px solid #FF8A3D", color: "#0D1117",
+    fontSize: 14.5, fontWeight: 800, textDecoration: "none", lineHeight: 1,
+  },
+  disclosure: { margin: "6px 0 0", fontSize: 11.5, color: "#8B949E" },
   shareTop: { margin: "-8px 0 22px" },
   shareEnd: { margin: "28px 0 4px", padding: "18px 20px", borderRadius: 16, background: "#0E1520", border: "1px solid #1F2A3A" },
   shareAsk: { margin: "0 0 12px", fontSize: 15.5, lineHeight: 1.5, color: "#C9D1D9" },
@@ -175,6 +188,7 @@ export default async function CuratedEventPage({ params }) {
   // "Directions" that drops you in the middle of a city is worse than none.
   const where = addressLine(e);
   const dirs = directionsUrl(e);
+  const ticket = eventTicketCta(e.event_id, { surface: "florida_event_page" });
   // Real nearby places worth an outing, ranked by Wayfind — [] (and no section)
   // where there is nothing honestly nearby, so a page never shows a thin shelf.
   const pairings = await eventPairings(e, {});
@@ -222,7 +236,7 @@ export default async function CuratedEventPage({ params }) {
 
       {/* The answer box. Date first, always. */}
       <div style={S.box}>
-        <div style={S.row}><span style={S.k}>When</span><span style={S.v}>{dateRangeLabel(e)}, {e.year}</span></div>
+        <div style={S.row}><span style={S.k}>When</span><span style={S.v}>{dateRangeLabel(e)}, {e.year}{clockLabel(e.start_time) ? ` · ${clockLabel(e.start_time)}${clockLabel(e.end_time) ? "–" + clockLabel(e.end_time) : ""}` : ""}</span></div>
         <div style={S.row}>
           <span style={S.k}>Where</span>
           <span style={S.v}>
@@ -248,12 +262,21 @@ export default async function CuratedEventPage({ params }) {
           find the Directions button themselves — the owner asked for the
           second tap to be gone, and those are two different Google endpoints.
           Absent entirely when the row cannot name a destination. */}
-      {dirs ? (
+      {dirs || ticket ? (
         <p style={{ margin: "-12px 0 22px" }}>
-          <a style={S.dirs} href={dirs} target="_blank" rel="noopener nofollow"
-            aria-label={"Get directions to " + (e.venue || e.event_name)}>
-            {"\u2192 Get directions"}
-          </a>
+          {ticket ? (
+            <a style={S.tix} href={ticket.href} target="_blank" rel="sponsored nofollow noopener"
+              aria-label={ticket.label.replace(" ↗", "") + " for " + e.event_name}>
+              {"\uD83C\uDF9F\uFE0F " + ticket.label}
+            </a>
+          ) : null}
+          {dirs ? (
+            <a style={S.dirs} href={dirs} target="_blank" rel="noopener nofollow"
+              aria-label={"Get directions to " + (e.venue || e.event_name)}>
+              {"\u2192 Get directions"}
+            </a>
+          ) : null}
+          {ticket ? <span style={{ display: "block" }}><span style={S.disclosure}>Ticket link is an affiliate link; Wayfind may earn a commission. It never changes what we recommend.</span></span> : null}
         </p>
       ) : null}
 

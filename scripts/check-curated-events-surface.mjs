@@ -62,7 +62,8 @@ ok(e.ticketed === true, "a row with an official ticket url is ticketed");
 const free = curatedToFeedEvent(FREE_ROW);
 ok(free.ticketed === false, "a free event is explicitly NOT ticketed — Gasparilla must never wear a ticket button");
 ok(free.price === "Free", "a free event prices as Free");
-const unknown = curatedToFeedEvent({ ...ROW, official_ticket_url: null, official_event_url: "https://example.com/", price_min: null, is_free: null });
+// (on an UNMAPPED event id — a mapped one is ticketed by the affiliate registry)
+const unknown = curatedToFeedEvent({ ...ROW, event_id: "unmapped-fixture-2026", official_ticket_url: null, official_event_url: "https://example.com/", price_min: null, is_free: null });
 ok(unknown.ticketed === undefined, "no ticket url and no price -> ticketed is left undefined, which reads as 'View details', not 'Get tickets'");
 
 // ── 2. the destination, by calling it ───────────────────────────────────────
@@ -70,7 +71,13 @@ const d = resolveDestination(e);
 ok(!!d && d.destKind === "internal", "a curated event resolves to an INTERNAL destination");
 ok(!!d && d.dest === "/florida-events/" + ROW.slug,
   "…and that destination is OUR event page — the one with the why-go, the parking and the JSON-LD (got " + (d && d.dest) + ")");
-ok(e.url === ROW.official_ticket_url, "the ticket url survives on the row, so the card's CTA can still sell");
+// 2026-09-03: this fixture is Howl-O-Scream Tampa, which an affiliate now sells
+// (lib/eventTicketDeals.js, deal 20) — so the row's ticket URL is OUR commerce
+// redirect for that deal and the official page survives as officialUrl. The
+// card's CTA still sells; it now also earns.
+ok(e.url === "/api/commerce/go?provider=undercover_tourist&offer=20&surface=events_feed&content=howl-o-scream-tampa-2026",
+  "the ticket url survives on the row as the commerce redirect, so the card's CTA can still sell (got " + e.url + ")");
+ok(e.officialUrl === ROW.official_ticket_url && e.ticketVia === "Undercover Tourist", "…and the official ticket page survives as officialUrl with the merchant named");
 
 // ── 3. the proximity decision, by calling it ────────────────────────────────
 // Parrish is the app's default centre. Tampa is ~32 miles away: outside the
