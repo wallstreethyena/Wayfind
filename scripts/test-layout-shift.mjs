@@ -131,8 +131,8 @@ ok(/if \(!cancelled && next\.length\) setHomeAffiliateItems\(next\)/.test(affili
   "only a non-empty validated replacement may update the rail");
 
 const affiliateComponent = readFileSync(new URL("../app/components/HomeAffiliateActivityRail.js", import.meta.url), "utf8");
-ok(/className="wf-place-card wf-rail-card is-no-take"/.test(affiliateComponent),
-  "every affiliate activity inherits the fixed iconic place-card geometry");
+ok(/<RailCard[\s\S]*photo=\{item\.image\}[\s\S]*title=\{item\.title\}/.test(affiliateComponent),
+  "every affiliate activity renders through the shared fixed iconic place-card component");
 ok(!/minHeight|fit-content|height:\s*["']?auto/.test(affiliateComponent),
   "the activity rail does not reintroduce content-driven card geometry");
 {

@@ -1,8 +1,7 @@
 "use client";
 
 import ViatorCommerceLink from "./ViatorCommerceLink";
-import { RailDots, RailNav } from "./RailCard";
-import { WayfindScoreBadge } from "./kit";
+import RailCard, { RailDots, RailNav } from "./RailCard";
 import { experienceWayfindScore } from "../../lib/experiencesData";
 import { toDisplayScore } from "../../lib/score";
 
@@ -33,49 +32,41 @@ export default function HomeAffiliateActivityRail({ items, contentId, onLog }) {
             item.fromPrice != null ? "from $" + item.fromPrice : null,
           ].filter(Boolean);
           return (
-            <ViatorCommerceLink
+            <RailCard
               key={item.code}
-              t={item}
-              surface="home_affiliate_activity_rail"
-              contentId={contentId}
+              photo={item.image}
+              title={item.title}
+              eyebrow="Bookable activity"
               rank={rank}
-              onClick={(event, clickId) => {
-                try { onLog?.("tickets_out", null, { kind: "home_affiliate_activity", code: item.code, rank, click_id: clickId }); } catch {}
+              score={score}
+              facts={facts}
+              chips={[
+                item.sellingOut ? { key: "selling-out", icon: "🔥", label: "Selling out" } : null,
+                ...(item.chips || []),
+              ].filter(Boolean)}
+              eagerMedia={rank <= 4}
+              actionsReadOnly
+              ariaLabel={`Book ${item.title} with Viator`}
+              onOpen={(event) => {
+                const link = event?.currentTarget?.querySelector?.("a[data-offer]");
+                if (link) link.click();
               }}
-              className="wf-place-card wf-rail-card is-no-take"
-              aria-label={`Book ${item.title} with Viator`}
-              style={{ color: "inherit", textDecoration: "none" }}
-            >
-              <div className="wf-place-card-score"><WayfindScoreBadge score={score} staticRoot /></div>
-              <div className="wf-place-card-layout">
-                <div className="wf-place-card-media">
-                  <img src={item.image} alt="" loading={rank <= 4 ? "eager" : "lazy"} decoding="async" style={{ objectFit: "cover" }} />
-                  <span className="wf-place-card-rank" aria-label={`Rank ${rank}`}>{rank}</span>
-                </div>
-                <div className="wf-place-card-content" style={{ position: "relative" }}>
-                  <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start" }}>
-                    <div className="wf-place-card-heading">
-                      <span className="wf-place-card-category">Bookable activity</span>
-                      <span className="wf-place-card-name" style={{ display: "block" }}>{item.title}</span>
-                    </div>
-                  </div>
-                  <div className="wf-place-card-meta" style={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}>
-                    {facts.map((fact) => <span key={fact}>{fact}</span>)}
-                  </div>
-                  <div className="wf-place-card-highlights-wrap">
-                    <div className="wf-place-card-highlights">
-                      {item.sellingOut ? <span>🔥 Selling out</span> : null}
-                      {(item.chips || []).map((chip) => <span key={chip.key}>{chip.icon} {chip.label}</span>)}
-                    </div>
-                  </div>
-                  <div className="wf-place-card-actions wf-sheet-card-actions">
-                    <span className="wf-place-card-book" title="Partner link. Wayfind may earn a commission; rankings never change.">
-                      Book with Viator ↗
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </ViatorCommerceLink>
+              ctaNode={(
+                <ViatorCommerceLink
+                  t={item}
+                  surface="home_affiliate_activity_rail"
+                  contentId={contentId}
+                  rank={rank}
+                  onClick={(event, clickId) => {
+                    try { onLog?.("tickets_out", null, { kind: "home_affiliate_activity", code: item.code, rank, click_id: clickId }); } catch {}
+                  }}
+                  className="wf-place-card-book wf-rail-card-cta"
+                  title="Partner link. Wayfind may earn a commission; rankings never change."
+                >
+                  Book with Viator ↗
+                </ViatorCommerceLink>
+              )}
+            />
           );
         })}
       </div>
