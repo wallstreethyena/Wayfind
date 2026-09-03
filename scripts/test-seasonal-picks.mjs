@@ -171,7 +171,7 @@ ok(/heroImage: heroImageOverride \|\| heroImage \|\| \(sm && sm\.heroImage\) \|\
   const rails = readFileSync(new URL("../lib/rails.js", import.meta.url), "utf8");
   const season = (rails.match(/\{ id: "season"[\s\S]*?\},/) || [""])[0];
   ok(season.length > 0, "the seasonal card still exists on the homepage, as a rail");
-  ok(/href: "\/seasonal"/.test(season), "the seasonal rail routes to the /seasonal LIST PAGE (the /family + /date-night template)");
+  ok(/href: "\/summer-picks"/.test(season), "the Summer Picks rail routes to its ten-rail destination page");
   ok(!home.includes('openExpSheet("seasonal")'), "…and the old sheet path is gone, not merely bypassed — one destination, no dead branch");
   ok(!/window\.location\.assign\("\/seasonal"/.test(home), "the old assign()-based seasonal hero is back — a crawler cannot follow it");
   ok(!/function seasonalHeroSlide/.test(home), "the seasonal hero slide helper is back alongside the rail — that is the seasonal card on the page twice");

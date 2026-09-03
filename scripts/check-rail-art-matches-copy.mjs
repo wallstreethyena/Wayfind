@@ -162,7 +162,11 @@ const PAIRS = {
   events: { copy: "12d73e13f0973f31", art: "70e5f6df7ebd983a" },
   family: { copy: "947a8d48e13dac62", art: "9e64f507ce5c39e6" },
   locals: { copy: "24b845b1d9114368", art: "78ea67914dee5c7b" },
-  season: { copy: "5e56e55d7648c697", art: "0396a099193ec768" },
+  // 2026-09-03 — RE-PINNED AFTER PIXEL REVIEW AT 760px. The owner-supplied
+  // poster reads “wayfind / BEST SUMMER EVER” over the pool-and-watermelon
+  // photograph. The rail names Summer Picks, repeats “Best summer ever,” and
+  // opens the ten summer decision rails promised by its subline and CTA.
+  season: { copy: "60c078eece82d3ae", art: "894b8ebf3f52cfb3" },
   // 2026-09-02 — the three competing homepage posters (Today, Best Around
   // You, Places You'd Never Find) are one decision surface now. Pixels read
   // at 760px before pinning: the owner's exact poster says "Make today a
