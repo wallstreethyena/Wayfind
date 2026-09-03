@@ -13,6 +13,7 @@ import { gateFree, spendAllow } from "../../../../lib/spendGate";
 import { cget, cset, upsertPlaceIds, cacheConfigured, lastWrite, memSize, DAY } from "../../../../lib/serverCache";
 import { serveFromInventory } from "../../../../lib/inventoryServe";
 import { hasScoreSignal } from "../../../../lib/score";
+import { mergeOwnedSignals, ownedLookupIds } from "../../../../lib/ownedLibrary";
 
 export const dynamic = "force-dynamic";
 
@@ -145,28 +146,21 @@ function invCfg() {
 }
 // Merge OWNED quality signals (wf_inventory.signals rating/reviews + status)
 // onto lean Pro-mask Google results, in ONE PostgREST call. Mutates in place.
+// The merge itself is lib/ownedLibrary.mergeOwnedSignals (pure, asserted by
+// call in check-owned-library-no-rebuy); this wrapper only does the read.
 async function enrichFromInventory(places) {
   try {
     const s = invCfg();
-    if (!s) return;
-    const ids = places.map((p) => p && p.id).filter((id) => typeof id === "string" && /^[A-Za-z0-9_-]+$/.test(id));
-    if (!ids.length) return;
+    if (!s) return 0;
+    const ids = ownedLookupIds(places);
+    if (!ids.length) return 0;
     const r = await fetch(
       s.url + "/rest/v1/wf_inventory?place_id=in.(" + ids.join(",") + ")&select=place_id,status,signals",
       { headers: { apikey: s.key, Authorization: "Bearer " + s.key }, cache: "no-store" }
     );
-    if (!r.ok) return;
-    const rows = await r.json();
-    const byId = new Map((Array.isArray(rows) ? rows : []).map((row) => [row.place_id, row]));
-    for (const p of places) {
-      const row = p && byId.get(p.id);
-      if (!row) continue;
-      const sig = row.signals || {};
-      if (p.rating == null && typeof sig.rating === "number") p.rating = sig.rating;
-      if (p.userRatingCount == null && typeof sig.reviews === "number") p.userRatingCount = sig.reviews;
-      if (!p.businessStatus && row.status) p.businessStatus = row.status;
-    }
-  } catch (e) { /* enrichment is best-effort; lean results still serve */ }
+    if (!r.ok) return 0;
+    return mergeOwnedSignals(places, await r.json());
+  } catch (e) { return 0; /* enrichment is best-effort; lean results still serve */ }
 }
 
 async function handleSearch(params, origin) {

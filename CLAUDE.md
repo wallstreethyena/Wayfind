@@ -434,6 +434,43 @@ twice, and another lane was nearly asked to fix a guard that was working.
 
 ---
 
+## 🏛️ The owned library never re-buys (owner law, 2026-09-03)
+
+> "The whole point was not to re-buy. It was to keep it at no cost, because we
+> created our own enriched library." — owner, 2026-09-03
+
+The law lives in **`lib/ownedLibrary.js`** and is locked by
+`scripts/check-owned-library-no-rebuy.mjs`. Read the module before touching
+anything under `lib/serverCache.js`, `lib/spendGate.js`, `/api/places/*` or a
+cron that talks to Google. The short form:
+
+- **`wf_inventory` is permanent.** Google is paid once, at discovery; the row
+  lands with OUR editorial, photo reference, category and captured signals,
+  and the rails serve it with **no age check** (asserted by call with a
+  400-day-old row). Never add a `refreshed_at` predicate to a serving path.
+- **Free mode buys lean and fills from the library.** `TEXT_PRO_MASK` has no
+  rating; `lib/ownedLibrary.mergeOwnedSignals` lays our rating / review count /
+  status onto every owned place before the answer is cached or served. A place
+  we don't own stays lean and the score law hides its chip — never an invented
+  number. Measured 2026-09-03: 96.9% of 16,111 free-mode result slots since
+  2026-08-25 carried an owned rating; September 100%.
+- **The rich `v1` cache answers before the ledger is consulted** (fresh or
+  stale inside the 30-day cap). Zero spend comes first.
+- **Three scheduled re-buy paths are OFF in free mode, on purpose:**
+  `/api/places/refresh` (the v6.35 refresh-ahead worker), `/api/cron/inventory-refresh`,
+  `/api/cron/atlas-build`. The jittered `refreshDue` math still runs (pure, free)
+  and its poke lands on a worker that says `skipped` — **that is the intended
+  state.** On 2026-09-02 a session read the green `test-cache-refresh` and
+  proposed letting the worker take a ledger grant "so the jitter spends the free
+  tier on renewal". That is re-buying with extra steps. Withdrawn. Don't.
+- **What "never goes old" does not cover:** the rating and review count in
+  `signals` were Google's at promotion time and the no-charge IDs-only SKU
+  cannot renew them. Whether an owned library may keep deriving a Wayfind Score
+  from numbers past Google's 30-day content window is a terms question for the
+  owner and counsel — not an engineering call, and not a reason to re-buy.
+
+---
+
 ## 🧠 Gotchas / patterns — do NOT re-break these
 
 - **"Today" / any date cutoff** → use `lib/siteTime.siteTodayStr()` (venue-local US Eastern,
