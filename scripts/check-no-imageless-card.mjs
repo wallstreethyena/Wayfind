@@ -221,7 +221,7 @@ ok(/fallEventCardImageSrc\(e, 640(?:, inventoryById\.get\(e\.place_id\))?\)/.tes
 }
 ok(/mergeFallDiscoveryRows\(rows, FALL_DISCOVERIES_2026\)/.test(fallRoute),
   "the live endpoint merges verified identity before image resolution");
-ok(/fall-intents:v6:/.test(fallRoute),
+ok(/fall-intents:v7:/.test(fallRoute),
   "the Fall cache epoch cannot replay a pre-identity-fix image payload after deployment");
 
 if (fail.length) {
