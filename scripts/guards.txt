@@ -846,6 +846,9 @@ node scripts/check-live-reads.mjs
 # 2026-09-03 — Instagram via the sanctioned Graph API only: ships dark, never
 # scrapes, and a caption is a LEAD (wf_social_candidates), never an event.
 node scripts/check-instagram-scout.mjs
+# 2026-09-03 — a failing event provider names its status and reason; `ok:false`
+# alone cannot tell a bad key from a quota from a quiet night.
+node scripts/check-provider-health-says-why.mjs
 node scripts/test-fall-intent-rails.mjs
 node scripts/test-night-out-intent.mjs
 node scripts/check-cget-envelope.mjs

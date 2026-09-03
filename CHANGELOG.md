@@ -1,3 +1,11 @@
+## v8.56.1 - A failing event provider now says why
+
+`/api/events` aggregates nine providers and every one collapsed its failure to `ok: false`. In Sarasota, Google (SerpAPI) and Google (OpenWebNinja) had both been answering `configured: true, ok: false, received: 0` — and that single bit cannot tell a bad key from a spent quota from a moved endpoint from a quiet night. OpenWebNinja sat broken long enough that the fall shelves were being hand-curated around a local-events firehose nobody knew was off.
+
+- **Every failure path now carries a status and/or a reason** — 6 `!r.ok` paths report `r.status`, 9 `catch` blocks report the thrown message, the deadline branch names the timeout, and `processEvents` passes them into the health block that is logged on every request.
+- **A healthy entry is byte-for-byte unchanged** — the same six keys, no new fields on success, so nothing downstream sees a different shape.
+- **Guarded by call.** `check-provider-health-says-why` runs real result shapes through `processEvents` and asserts a bare `ok:false` exists nowhere in the route; red-proved by removing the pass-through and watching three assertions go red.
+
 ## v8.56 - Instagram the sanctioned way, and the database stops eating itself
 
 Owner, 2026-09-03: get around Instagram's blocks on automated reads, find more local events and fall festivities, surface the popular videos — and use everything the new Supabase Pro plan makes available.
