@@ -1,3 +1,9 @@
+## v8.55.2 - Retire the fall keys that were computed from the stale read
+
+v8.55.1 stopped the fall rail reading an ISR page's hour-old rows, but it could not un-write the answers already cached under `fall-intents:v8`. Those entries were computed from the stale read, so they hold a de-dated event and none of the 21 seeded that day, and the rail cache keeps a good answer for an hour — the owner's own Parrish cell would have served the wrong set until it aged out.
+
+- **Epoch v8 → v9.** Every key computed before the fix is abandoned; the first request per cell recomputes from a live read. Verified on production: an untouched cell already returned the correct set (87 sources, Oktoberfest 6, Kids 5, Day Trips 2) while a previously-probed cell still served the poisoned one.
+
 ## v8.55.1 - The fall rail was being served an ISR page's hour-old events
 
 Found while verifying v8.55 on production: the AUGTOBER rail showed HorsePower for Kids — a row de-dated to `unannounced` two hours earlier — and hid all 21 events seeded in the same window, while `/api/events` showed the correct set. The code was right; the read was stale.
