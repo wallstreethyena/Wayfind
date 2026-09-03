@@ -265,11 +265,12 @@ export function RailDots({ railId, count }) {
  * @param {object[]} p.chips       [{ key, icon, label, onClick }] — onClick makes it a pill button
  * @param {node}     p.badge       caller-owned node in the chip row (a flame, a "Selling fast")
  * @param {object}   p.cta         { label, href, external, onClick } the money action
+ * @param {node}     p.ctaNode     tracked caller-owned CTA rendered in the same money-action slot
  * @param {func}     p.onOpen      card body activation (opens the sheet / the event)
  * @param {string}   p.href        when the card body is a link rather than a handler
  */
 export default function RailCard({
-  photo, photoFallback, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, badge, cta, take,
+  photo, photoFallback, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, badge, cta, ctaNode, take,
   onOpen, href, external, ariaLabel, className,
   // v8.70 — see the IconicPlaceCard note: inside .wf8-pcrail (the rail's
   // tap-expanded horizontal scroller) `loading="lazy"` never resolves, so a
@@ -420,14 +421,14 @@ export default function RailCard({
               filler. An empty slot is honest; a generic line is not. */}
           {take ? <div className="wf-place-card-take">{take}</div> : null}
 
-          {ctaHref || (cta && !cta.external) ? (
+          {ctaNode || (ctaHref || (cta && !cta.external) ? (
             <a
               className="wf-place-card-book wf-rail-card-cta"
               href={ctaHref || cta.href || "#"}
               {...(cta.external ? { target: "_blank", rel: cta.sponsored ? "sponsored nofollow noopener" : "noreferrer" } : {})}
               onClick={(e) => { e.stopPropagation(); if (cta.onClick) cta.onClick(e); }}
             >{cta.label}</a>
-          ) : null}
+          ) : null)}
 
           {/* v8.29.2 / v8.29.6 — A CONTROL THIS CARD CANNOT SERVICE DOES NOT
               RENDER, and the card says so in writing. A tour card (BestNearby's
