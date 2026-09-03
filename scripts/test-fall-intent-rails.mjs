@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { readFileSync } from "node:fs";
 import {
-  FALL_INTENT_RAIL_DEFS, FALL_MIN_RESULTS, FALL_NEAR_MI, FALL_RAIL_RADIUS_MI, FALL_STATEWIDE_MAX_MI, fallEventRail, fallPhase,
+  FALL_INTENT_RAIL_DEFS, FALL_MIN_RESULTS, FALL_NEAR_MI, FALL_RAIL_RADIUS_MI, fallEventRail, fallPhase,
   fallRailOrder, composeFallIntentRails,
 } from "../lib/fallIntentRails.js";
 import { FALL_PLACE_IDS, FALL_PLACE_RAIL } from "../lib/fallPool.js";
@@ -28,7 +28,7 @@ ok(FALL_INTENT_RAIL_DEFS.map((rail) => rail.id).join("|") === expected.join("|")
 ok(new Set(FALL_INTENT_RAIL_DEFS.map((rail) => rail.title)).size === 10, "every rail title is unique");
 ok(Object.keys(FALL_RAIL_RADIUS_MI).sort().join("|") === expected.slice().sort().join("|"), "every intent has an explicit radius law");
 ok(FALL_NEAR_MI === 27, "the nearby ring ends at 27 miles");
-ok(FALL_MIN_RESULTS === 8 && FALL_STATEWIDE_MAX_MI >= 350, "thin Florida rails widen to a useful statewide fallback");
+ok(FALL_MIN_RESULTS === 8, "eight remains the target depth, never a reason to violate the radius");
 ok(["food", "family", "date-night"].every((id) => FALL_RAIL_RADIUS_MI[id] === 27), "food, family and spooky date night stay local at 27 miles");
 ok(["farms", "haunts", "oktoberfest", "festivals", "photos"].every((id) => FALL_RAIL_RADIUS_MI[id] === 45), "seasonal destinations widen only to 45 miles");
 ok(["theme-parks", "day-trips"].every((id) => FALL_RAIL_RADIUS_MI[id] === 60), "only theme parks and day trips reach the 60-mile ring");
@@ -75,17 +75,17 @@ const composed = composeFallIntentRails(duplicateSeries, [
 ], { lat: 27.95, lng: -82.46, today: "2026-09-01", now });
 ok(composed.rails.length === 10, "composition always returns all ten rails, including honest empties");
 ok(composed.rails.find((rail) => rail.id === "farms").cards.length === 1, "one event series appears once");
-ok(composed.rails.find((rail) => rail.id === "food").cards.map((card) => card.id).join("|") === "food-near|food-far", "a thin local food rail appends verified Florida-wide inventory");
-ok(composed.rails.find((rail) => rail.id === "food").cards[1].fallbackTier === 1, "a statewide result is explicitly marked as fallback inventory");
+ok(composed.rails.find((rail) => rail.id === "food").cards.map((card) => card.id).join("|") === "food-near", "a thin local food rail stays local instead of padding with statewide inventory");
+ok(composed.rails.find((rail) => rail.id === "food").fallbackUsed === false, "there is no statewide fallback tier");
 ok(composed.rails.flatMap((rail) => rail.cards).length === new Set(composed.rails.flatMap((rail) => rail.cards.map((card) => card.id))).size, "no card appears in more than one rail");
 
 const distanceLaw = composeFallIntentRails([], [
-  { kind: "place", id: "farm-wide", name: "Wide Ring Farm", lat: 28.39, lng: -82.46, fallRail: "farms", wfScore: 9.9 },
+  { kind: "place", id: "farm-wide", name: "Wide Ring Farm", lat: 28.80, lng: -82.46, fallRail: "farms", wfScore: 9.9 },
   { kind: "place", id: "farm-near", name: "Nearby Farm", lat: 28.20, lng: -82.46, fallRail: "farms", wfScore: 7.0 },
   { kind: "place", id: "farm-unknown", name: "Unknown Farm", fallRail: "farms", wfScore: 10 },
 ], { lat: 27.95, lng: -82.46, today: "2026-09-01", now });
 const farmCards = distanceLaw.rails.find((rail) => rail.id === "farms").cards;
-ok(farmCards.map((card) => card.id).join("|") === "farm-near|farm-wide", "a nearby card leads a higher-scoring wider-ring card");
+ok(farmCards.map((card) => card.id).join("|") === "farm-near", "a farm beyond its 45-mile rail radius is rejected");
 ok(!farmCards.some((card) => card.id === "farm-unknown"), "unknown distance is rejected rather than guessed nearby");
 
 ok(Object.keys(FALL_PLACE_IDS).sort().join("|") === Object.keys(FALL_PLACE_RAIL).sort().join("|"), "every vetted fall place has exactly one primary intent assignment");
@@ -134,7 +134,10 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(/fall-intents:v9:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key (v9: retires keys computed before the live-read fix)");
+ok(/fall-intents:v10:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key (v10: retires statewide-fallback payloads)");
+ok(/hasImageProof[\s\S]{0,220}inventory\?\.photo_ref/.test(route)
+  && /filter\(\(p\) => !!p\.photo_ref\)/.test(route),
+  "Fall events and places require stored image proof before a card can ship");
 // 2026-09-03 — the partner URL never reaches the DOM. The route's ticket is
 // built by eventTicketCta (an /api/commerce/go href), and the raw affiliate_url
 // column is read only to GATE (active/link_ok/PID), never to render.

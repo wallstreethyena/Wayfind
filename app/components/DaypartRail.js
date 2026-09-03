@@ -71,6 +71,7 @@ const WorthEatingRails = dynamic(() => import("./WorthEatingRails"), { ssr: fals
 const LunchBreakRails = dynamic(() => import("./LunchBreakRails"), { ssr: false });
 const TodayDiscoveryRails = dynamic(() => import("./TodayDiscoveryRails"), { ssr: false });
 const FallIntentRails = dynamic(() => import("./FallIntentRails"), { ssr: false });
+const SummerIntentRails = dynamic(() => import("./SummerIntentRails"), { ssr: false });
 const NightOutRails = dynamic(() => import("./NightOutRails"), { ssr: false });
 import { DAYPARTS, partForHour, orderFor, railHref, dateNightIntentHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
@@ -985,7 +986,7 @@ export default function DaypartRail({
   // Neither may fall through to the generic place pool: doing so made the
   // Events drop begin with real happenings and end with buildings where an
   // event might happen on some other date.
-  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "breakfast" || selRail.id === "break" || selRail.id === "eat" || selRail.id === "today" || selRail.id === "augtober" || selRail.id === "tonight"));
+  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "season" || selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "breakfast" || selRail.id === "break" || selRail.id === "eat" || selRail.id === "today" || selRail.id === "augtober" || selRail.id === "tonight"));
   // v8.22 (owner: "when the amazon rail card is selected make sure it becomes
   // the main focus on the screen"). The pulsing glow marks the card; this
   // brings it there — the open tile centers itself in the track, so the
@@ -1067,7 +1068,7 @@ export default function DaypartRail({
   })), []);
   const dropList = useMemo(() => {
     const base = selected === "chef" ? chefPlaces
-      : selected === "augtober" ? []
+      : selected === "augtober" || selected === "season" ? []
       : selPlaces;
     // v8.69 (owner, 2026-08-26: "create a place card for them in our rail lists
     // — place them on the night is calling and add a sponsored feature on it").
@@ -1605,6 +1606,15 @@ export default function DaypartRail({
               onLike={onLike || undefined}
               onDislike={onDislike || undefined}
               onShare={onShare || undefined}
+            />
+          ) : null}
+
+          {selRail && selRail.id === "season" ? (
+            <SummerIntentRails
+              active
+              center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
+              city={shown.cityLabel || ""}
+              onTrack={(name, props) => logEvent(name, props)}
             />
           ) : null}
 

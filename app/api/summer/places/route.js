@@ -11,7 +11,6 @@ import { fastCachedRail, geoCell } from "../../../../lib/railFastCache.js";
 import { distMeters } from "../../../../lib/inventoryServe.js";
 
 const DB_DEADLINE_MS = 3500;
-const STATEWIDE_MAX_MI = 400;
 
 function permanentEntries() {
   return SUMMER_UNIVERSE.filter((entry) => !entry.window).map((entry) => ({
@@ -28,7 +27,7 @@ export async function GET(request) {
     return Response.json({ error: "lat and lng are required", places: [] }, { status: 400, headers: { "cache-control": "no-store" } });
   }
   try {
-    const cacheKey = `summer-places:v1:${geoCell(lat)}:${geoCell(lng)}`;
+    const cacheKey = `summer-places:v2:${geoCell(lat)}:${geoCell(lng)}`;
     const cached = await fastCachedRail(cacheKey, async () => {
       if (!supabase) throw new Error("Summer inventory configuration is unavailable");
       const entries = permanentEntries();
@@ -44,7 +43,10 @@ export async function GET(request) {
         const row = byId.get(entry.venue.placeId);
         if (!row || row.excluded === true || (row.status && row.status !== "OPERATIONAL") || !row.photo_ref) continue;
         const miles = distMeters(lat, lng, row.lat, row.lng) / 1609.34;
-        if (miles > (entry.icon ? STATEWIDE_MAX_MI : SUMMER_DAYTRIP_RADIUS_MI)) continue;
+        // The homepage is a local decision surface. “Iconic” affects ranking,
+        // never geography: no statewide exception may put a 200-mile card in
+        // front of someone who asked what to do near them.
+        if (miles > SUMMER_DAYTRIP_RADIUS_MI) continue;
         const signals = row.signals || {};
         if (!(typeof signals.rating === "number" && signals.rating > 0)) continue;
         places.push({

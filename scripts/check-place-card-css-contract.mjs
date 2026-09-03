@@ -118,6 +118,29 @@ for (const f of files) {
 if (renderSites < 3)
   fail(`sweep found only ${renderSites} render site(s) of the iconic card — the probe is broken (known: home.js, GuidePlaceCard, IntentPageClient, TrendingNowClient, ...)`);
 
+// 2026-09-03 visual regressions photographed on iPhone: fall copy inherited
+// the base gray palette, long event dates crowded their 98px badge, and the
+// full-card Viator anchor painted title/share browser blue. These are shared
+// card invariants, not one-page patches.
+{
+  const iconic = readFileSync("app/components/IconicPlaceCard.js", "utf8");
+  const rail = readFileSync("app/components/RailCard.js", "utf8");
+  const ttd = readFileSync("app/components/ThingsToDoList.js", "utf8");
+  if (!/wf-fall[^\n]*wf-place-card-meta[^\n]*#FFE5C2/i.test(cssSrc) || !/wf-fall[^\n]*wf-place-card-take[^\n]*#FFF2DF/i.test(cssSrc))
+    fail("fall cards must override the base gray meta and editorial copy with the high-contrast cream palette");
+  const whenLabel = (cssSrc.match(/\.wf-rail-when-label\{[^}]*\}/) || [""])[0];
+  const whenValue = (cssSrc.match(/\.wf-rail-when-value\{[^}]*\}/) || [""])[0];
+  if (!(whenLabel.includes("font-size:5.5px") && whenLabel.includes("letter-spacing:.42px"))
+      || !(whenValue.includes("font-size:12.25px") && whenValue.includes("overflow:hidden")))
+    fail("event when-badge typography must fit long verified date ranges inside the fixed score slot");
+  if (!/color:\s*"#F8F5EE"/.test(ttd) || !/wf-place-card-share" style=\{\{ color: "#DFE5EE"/.test(ttd))
+    fail("tracked full-card anchors must explicitly neutralize browser-blue title and Share text");
+  if (!/couponForPlace\(place, siteTodayStr\(\)\)/.test(iconic) || !/couponForPlace\(place, siteTodayStr\(\)\)/.test(rail))
+    fail("both shared card renderers must resolve identity-safe live deals themselves");
+  if (!/\.wf-place-card-deal\{[^}]*background:#FF7A1A!important[^}]*color:#17100A!important/.test(cssSrc))
+    fail("the shared Deal marker must keep its high-contrast orange pill contract");
+}
+
 // v8.19 (owner: "cut-off pills are driving me nuts"): the highlights row is a
 // single horizontal swipe lane — every pill reachable, none cropped. The
 // broken shape was wrap + a 30px crop, which shows a sliver of row two.

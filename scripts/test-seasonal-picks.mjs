@@ -73,13 +73,15 @@ const daypartRail = readFileSync(new URL("../app/components/DaypartRail.js", imp
 const railsSource = readFileSync(new URL("../lib/rails.js", import.meta.url), "utf8");
 ok(/import \{ currentSeason, seasonQueries, seasonalFit, SEASON_META \} from "\.\.\/lib\/seasons"/.test(home), "home.js imports the season helpers from lib/seasons — logic lives there, not re-implemented inline");
 
-// The Summer Picks poster is an entry to its dedicated ten-rail destination,
-// not the legacy generic homepage drop. Keep the destination a real link so
-// browser navigation, crawlers, and modifier-clicks all agree.
-ok(/id: "season"[\s\S]{0,420}href: "\/summer-picks"[\s\S]{0,80}opensPage: true/.test(railsSource),
-  "Summer Picks opts into direct page navigation instead of the legacy inline drop");
+// A normal click opens all ten rails in the homepage drop. The href remains
+// for crawlers, sharing and modifier-clicks, exactly like the other posters.
+ok(/id: "season"[\s\S]{0,420}href: "\/summer-picks"[\s\S]{0,100}list: true/.test(railsSource)
+  && !/id: "season"[\s\S]{0,420}opensPage: true/.test(railsSource),
+  "Summer Picks opens inline while retaining its crawlable destination href");
 ok(/id === "datenight" \|\| id === "season"[\s\S]{0,220}dateNightIntentHref\(/.test(daypartRail),
-  "Summer Picks carries the current city and coordinates into its dedicated page");
+  "Summer Picks carries the current city and coordinates in its modifier-click/share href");
+ok(/SummerIntentRails/.test(daypartRail) && /selRail\.id === "season"/.test(daypartRail),
+  "Summer Picks mounts its ten-rail answer inside the homepage drop");
 
 // 1. The EXPERIENCES entry exists and is wired for ranking "on top of
 //    rating" — a boost function, not a hardcoded reorder, and a query set

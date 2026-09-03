@@ -256,6 +256,9 @@ function leakSharedFallback() {
     "stale inventory photo_refs self-heal from the placeId inside the ref — a 400 must not erase a place that has a photo");
   ok(/redirect:\s*["']follow["']/.test(serve),
     "library-fill still uses the proven redirect-follow media path when skipHttpRedirect misses");
+  ok(!/trySelect\(\s*["']photo_url,photo_ref,signals/.test(serve)
+    && /select=photo_ref,signals/.test(serve),
+    "the resolver never queries the nonexistent wf_inventory.photo_url column");
 }
 
 // House-card call sites must not grow a client identity helper onto the homepage.
