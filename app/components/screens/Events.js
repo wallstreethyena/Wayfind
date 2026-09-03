@@ -73,7 +73,7 @@ function EventCard({ e, onVenue, ctx }) {
   const externalTickets = internal && e.url ? ticketUrl(e.url, { surface: "events_grid_tickets", offerId: e.id }) : null;
   const actionHref = externalTickets || href;
   const actionExternal = Boolean(externalTickets || !internal);
-  const actionLabel = e.ticketed ? "Get tickets" : (internal ? "Explore event" : "Official details");
+  const actionLabel = e.ticketVia ? "Tickets · " + e.ticketVia : e.ticketed ? "Get tickets" : (internal ? "Explore event" : "Official details");
   return (
     <div style={{ display: "flex", flexDirection: "column", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden" }}>
       <a
@@ -108,7 +108,7 @@ function EventCard({ e, onVenue, ctx }) {
         <div style={{ marginTop: "auto", paddingTop: 10 }}>
           <a
             href={actionHref}
-            {...(actionExternal ? { target: "_blank", rel: "noreferrer" } : {})}
+            {...(actionExternal ? { target: "_blank", rel: e.ticketVia ? "sponsored nofollow noopener" : "noreferrer" } : {})}
             onClick={() => { try { logEvent(e.ticketed ? "ticket" : "event_open", null, { id: e.id, kind: e.destKind, src: "events_grid_cta" }); } catch (er) {} }}
             style={{ minHeight: 38, borderRadius: 10, background: e.ticketed ? C.accent : C.panel, border: `1px solid ${e.ticketed ? C.accent : C.border}`, color: e.ticketed ? "#0D1117" : C.light, textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 850 }}
           >

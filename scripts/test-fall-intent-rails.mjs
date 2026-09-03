@@ -95,7 +95,15 @@ ok(Object.values(FALL_PHOTO_SPOTS).every((spot) => spot.shotLocation && spot.vis
 
 const discoveryIds = FALL_DISCOVERIES_2026.map((row) => row.event_id);
 ok(FALL_DISCOVERIES_2026.length === 16 && new Set(discoveryIds).size === 16, "all 16 owner supplied Fall in Florida discoveries exist exactly once");
-ok(Object.keys(FALL_DISCOVERY_RAIL).sort().join("|") === discoveryIds.slice().sort().join("|"), "every new discovery has one explicit primary intent");
+ok(discoveryIds.every((id) => id in FALL_DISCOVERY_RAIL), "every new discovery has one explicit primary intent");
+// 2026-09-03: the registry also pins the Sarasota-side rows seeded by
+// scripts/seed-fall-sarasota-2026.mjs — every pinned id is a discovery or one
+// of those seeded rows, and every pin targets an approved rail.
+const sarasotaSeed = readFileSync(new URL("../scripts/seed-fall-sarasota-2026.mjs", import.meta.url), "utf8");
+const seededIds = new Set([...sarasotaSeed.matchAll(/event_id: "([a-z0-9-]+-2026)"/g)].map((m) => m[1]));
+ok(Object.keys(FALL_DISCOVERY_RAIL).every((id) => discoveryIds.includes(id) || seededIds.has(id)), "every explicit rail pin names a discovery or a Sarasota-seed row");
+ok([...seededIds].filter((id) => !(id in FALL_DISCOVERY_RAIL)).length === 0 && seededIds.size >= 21, `every Sarasota-seed row (${seededIds.size}) is pinned to one shelf`);
+ok(Object.values(FALL_DISCOVERY_RAIL).every((rail) => expected.includes(rail)), "every explicit pin targets an approved rail");
 ok(FALL_DISCOVERIES_2026.every((row) => fallEventRail(row) === FALL_DISCOVERY_RAIL[row.event_id]), "every new discovery resolves to its approved rail");
 ok(FALL_DISCOVERIES_2026.every((row) => Number.isFinite(row.lat) && Number.isFinite(row.lng)), "every new discovery has verified coordinates for distance gating");
 ok(FALL_DISCOVERIES_2026.every((row) => /^https:\/\//.test(row.source_url) && /^https:\/\//.test(row.official_event_url)), "every new discovery has evidence and a working destination URL");
@@ -126,8 +134,14 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(/fall-intents:v7:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key");
-ok(/FALL_DISCOVERIES_2026/.test(route) && /eventRows/.test(route), "publish-ready fall discoveries are served even when their database seed lags");
+ok(/fall-intents:v8:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key (v8: commerce-go tickets + schedule, after #1082's v7)");
+// 2026-09-03 — the partner URL never reaches the DOM. The route's ticket is
+// built by eventTicketCta (an /api/commerce/go href), and the raw affiliate_url
+// column is read only to GATE (active/link_ok/PID), never to render.
+ok(/eventTicketCta\(e\.event_id/.test(route) && !/href:\s*deal\.affiliate_url/.test(route), "the fall ticket CTA is the commerce redirect, not the raw CJ link");
+ok(/schedule:\s*fallScheduleChip\(e\)/.test(route) && /detailHref:\s*e\.slug && pageSlugs\.has\(e\.slug\) \? "\/florida-events\/"/.test(route), "every fall event card ships its schedule chip and its own event page");
+ok(/key:\s*"schedule"/.test(component) && /card\.schedule\?\.label/.test(component), "the schedule chip is the first chip on an event card");
+ok(/href=\{eventBodyHref\}/.test(component) && /card\.detailHref/.test(component), "the card body opens the event page when the row has one");ok(/FALL_DISCOVERIES_2026/.test(route) && /eventRows/.test(route), "publish-ready fall discoveries are served even when their database seed lags");
 ok(/take: FALL_PLACE_IDS\[p\.place_id\] \|\| FALL_PHOTO_SPOTS\[p\.place_id\]\?\.visualProof \|\| p\.editorial/.test(route), "verified seasonal or visual evidence wins over a generic inventory summary");
 ok(!/searchText|places\.googleapis|nearbySearch/.test(route), "the fall API makes no paid Google place call");
 ok(/Promise\.all\(\[/.test(route), "independent Supabase reads start in parallel");
