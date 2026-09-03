@@ -119,7 +119,7 @@ async function fromTicketmaster(lat, lng, radius, keyword) {
     });
     _tmMem.set(ck, { events, exp: Date.now() + TM_TTL });
     return { configured: true, events };
-  } catch { return { configured: true, ok: false, events: [] }; }
+  } catch (e) { return { configured: true, ok: false, reason: String(e && e.message || e).slice(0, 160), events: [] }; }
 }
 
 function seatgeekSegment(type) {
@@ -146,7 +146,7 @@ async function fromSeatGeek(lat, lng, radius, keyword) {
     const secret = process.env.SEATGEEK_CLIENT_SECRET;
     if (secret) p.set("client_secret", secret);
     const r = await fetch(`https://api.seatgeek.com/2/events?${p.toString()}`);
-    if (!r.ok) return { configured: true, ok: false, events: [] };
+    if (!r.ok) return { configured: true, ok: false, status: r.status, reason: "http " + r.status, events: [] };
     const data = await r.json();
     const raw = data.events || [];
     const events = raw.map((e) => {
@@ -171,7 +171,7 @@ async function fromSeatGeek(lat, lng, radius, keyword) {
       };
     });
     return { configured: true, events };
-  } catch { return { configured: true, ok: false, events: [] }; }
+  } catch (e) { return { configured: true, ok: false, reason: String(e && e.message || e).slice(0, 160), events: [] }; }
 }
 
 function phqSegment(category) {
@@ -198,7 +198,7 @@ async function fromPredictHQ(lat, lng, radius, keyword) {
     const r = await fetch(`https://api.predicthq.com/v1/events/?${p.toString()}`, {
       headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
     });
-    if (!r.ok) return { configured: true, ok: false, events: [] };
+    if (!r.ok) return { configured: true, ok: false, status: r.status, reason: "http " + r.status, events: [] };
     const data = await r.json();
     const raw = data.results || [];
     const events = raw.map((e) => {
@@ -234,7 +234,7 @@ async function fromPredictHQ(lat, lng, radius, keyword) {
       };
     });
     return { configured: true, events };
-  } catch { return { configured: true, ok: false, events: [] }; }
+  } catch (e) { return { configured: true, ok: false, reason: String(e && e.message || e).slice(0, 160), events: [] }; }
 }
 
 // Bandsintown Partner Search API. Location-based concert discovery, gated by a
@@ -251,7 +251,7 @@ async function fromBandsintown(lat, lng, radius) {
     };
     const url = `https://search.bandsintown.com/search?query=${encodeURIComponent(JSON.stringify(q))}`;
     const r = await fetch(url, { headers: { "x-api-key": key, Accept: "application/json" } });
-    if (!r.ok) return { configured: true, ok: false, events: [] };
+    if (!r.ok) return { configured: true, ok: false, status: r.status, reason: "http " + r.status, events: [] };
     const data = await r.json();
     const rawEvents = data.events || (Array.isArray(data) ? data : []) || [];
     const venuesById = {};
@@ -281,7 +281,7 @@ async function fromBandsintown(lat, lng, radius) {
       };
     });
     return { configured: true, events };
-  } catch { return { configured: true, ok: false, events: [] }; }
+  } catch (e) { return { configured: true, ok: false, reason: String(e && e.message || e).slice(0, 160), events: [] }; }
 }
 
 
@@ -334,7 +334,7 @@ async function fromEventbriteOrgs(lat, lng, radius) {
       return true;
     });
     return { configured: true, events };
-  } catch { return { configured: true, ok: false, events: [] }; }
+  } catch (e) { return { configured: true, ok: false, reason: String(e && e.message || e).slice(0, 160), events: [] }; }
 }
 
 // Google Events via SerpAPI. This is the long tail: markets, festivals, free
@@ -364,7 +364,7 @@ async function fromSerpEvents(lat, lng, keyword, city) {
     const q = (keyword ? keyword + " events" : "events") + " in " + city;
     const p = new URLSearchParams({ engine: "google_events", q, hl: "en", gl: "us", api_key: key });
     const r = await fetch(`https://serpapi.com/search.json?${p.toString()}`);
-    if (!r.ok) return { configured: true, ok: false, events: [] };
+    if (!r.ok) return { configured: true, ok: false, status: r.status, reason: "http " + r.status, events: [] };
     const data = await r.json();
     // v8.29.9 — SERPAPI REPORTS FAILURE WITH HTTP 200 (2026-08-21). Out of
     // searches, bad key, invalid engine — all of them come back 200 with an
@@ -403,7 +403,7 @@ async function fromSerpEvents(lat, lng, keyword, city) {
       };
     }).filter((e) => e.name && e.date);
     return { configured: true, events };
-  } catch { return { configured: true, ok: false, events: [] }; }
+  } catch (e) { return { configured: true, ok: false, reason: String(e && e.message || e).slice(0, 160), events: [] }; }
 }
 
 async function fromOpenWebNinja(lat, lng, keyword, city) {
@@ -414,7 +414,7 @@ async function fromOpenWebNinja(lat, lng, keyword, city) {
     const q = (keyword ? keyword + " events" : "events") + " in " + city;
     const p = new URLSearchParams({ query: q, date: "month", is_virtual: "false" });
     const r = await fetch(`https://api.openwebninja.com/realtime-events-data/search-events?${p.toString()}`, { headers: { "x-api-key": key } });
-    if (!r.ok) return { configured: true, ok: false, events: [] };
+    if (!r.ok) return { configured: true, ok: false, status: r.status, reason: "http " + r.status, events: [] };
     const data = await r.json();
     const raw = data.data || data.events || (Array.isArray(data) ? data : []) || [];
     const events = raw.map((e, i) => {
@@ -444,7 +444,7 @@ async function fromOpenWebNinja(lat, lng, keyword, city) {
       };
     }).filter((e) => e.name && e.date);
     return { configured: true, events };
-  } catch { return { configured: true, ok: false, events: [] }; }
+  } catch (e) { return { configured: true, ok: false, reason: String(e && e.message || e).slice(0, 160), events: [] }; }
 }
 
 // --- Manatee County Public Library (LibCal) ---------------------------------
@@ -475,7 +475,7 @@ async function fromLibCal(lat, lng) {
   if (!inRegion) return { configured: true, events: [] };
   try {
     const r = await fetch(LIBCAL_FEED, { headers: { "User-Agent": "Wayfind/1.0 (+https://www.gowayfind.com)" } });
-    if (!r.ok) return { configured: true, ok: false, events: [] };
+    if (!r.ok) return { configured: true, ok: false, status: r.status, reason: "http " + r.status, events: [] };
     const text = await r.text();
     const raw = parseLibCalICS(text);
     const now = new Date();
@@ -515,7 +515,7 @@ async function fromLibCal(lat, lng) {
       if (out.length >= 40) break; // v4.87: raised from 12
     }
     return { configured: true, events: out };
-  } catch { return { configured: true, ok: false, events: [] }; }
+  } catch (e) { return { configured: true, ok: false, reason: String(e && e.message || e).slice(0, 160), events: [] }; }
 }
 
 // --- Business events (v6.21) ------------------------------------------------
@@ -539,7 +539,7 @@ async function fromBusinessFeeds(lat, lng, radius) {
       } catch { return []; }
     }));
     return { configured: true, events: [].concat(...lists) };
-  } catch { return { configured: true, ok: false, events: [] }; }
+  } catch (e) { return { configured: true, ok: false, reason: String(e && e.message || e).slice(0, 160), events: [] }; }
 }
 
 // Phase 1: partial-failure isolation. Each provider runs behind its own
@@ -610,15 +610,15 @@ async function fromCuratedEvents(lat, lng) {
     // satisfied whether or not Pexels answers. The scene photo is the more
     // specific truth when we can get it; the category art is the floor.
     return { configured: true, events: near };
-  } catch (err) { return { configured: true, ok: false, events: [] }; }
+  } catch (err) { return { configured: true, ok: false, reason: String(err && err.message || err).slice(0, 160), events: [] }; }
 }
 
 function withDeadline(provider, promise, ms = PROVIDER_TIMEOUT_MS) {
   const started = Date.now();
   return Promise.race([
     Promise.resolve(promise).then((r) => ({ provider, ...r, ms: Date.now() - started })),
-    new Promise((resolve) => setTimeout(() => resolve({ provider, configured: true, ok: false, timedOut: true, events: [], ms }), ms)),
-  ]).catch(() => ({ provider, configured: true, ok: false, events: [], ms: Date.now() - started }));
+    new Promise((resolve) => setTimeout(() => resolve({ provider, configured: true, ok: false, timedOut: true, reason: "deadline " + ms + "ms", events: [], ms }), ms)),
+  ]).catch((err) => ({ provider, configured: true, ok: false, reason: String(err && err.message || err).slice(0, 160), events: [], ms: Date.now() - started }));
 }
 
 // v5.90: shared cache. Events are time-sensitive, so we ALWAYS prefer a fresh
