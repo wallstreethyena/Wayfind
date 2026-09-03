@@ -23,7 +23,7 @@ import { composeFallIntentRails } from "../../../../lib/fallIntentRails.js";
 import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../../../../lib/fallPhotoSpots.js";
 import { FALL_DISCOVERIES_2026, FALL_DISCOVERY_RAIL, FALL_SEASONAL_PLACE_IDS } from "../../../../lib/fallDiscoveries2026.js";
 import { windowRailAnswer } from "../../../../lib/railResponse.js";
-import { FALL_COLLECTION_POSTER, fallEventCardImageSrc, mergeFallDiscoveryRows } from "../../../../lib/fallEventImage.js";
+import { FALL_COLLECTION_POSTER, FALL_EVENT_VENUE_PLACE_IDS, fallEventCardImageSrc, mergeFallDiscoveryRows } from "../../../../lib/fallEventImage.js";
 
 const FALL_DB_DEADLINE_MS = 3500;
 
@@ -39,16 +39,17 @@ export async function GET(request) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return json({ error: "lat and lng are required" }, 400, "no-store");
   try {
     const today = siteTodayStr();
-    // v6 invalidates payloads composed before verified registry identity won
+    // v7 invalidates payloads composed before verified registry identity won
     // over stale database duplicates. Without the epoch bump, a corrected
     // deploy could replay Nueva Cantina's no-photo v5 response for 15 minutes.
-    const key = `fall-intents:v6:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    const key = `fall-intents:v7:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     const cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
         ...Object.keys(FALL_PLACE_IDS),
         ...FALL_PHOTO_PLACE_IDS,
         ...FALL_DISCOVERIES_2026.map((row) => row.place_id).filter(Boolean),
+        ...Object.values(FALL_EVENT_VENUE_PLACE_IDS),
       ])];
       const dealIds = [...new Set(Object.values(FALL_EVENT_TICKET_DEALS))];
       const signal = AbortSignal.timeout(FALL_DB_DEADLINE_MS);
@@ -113,7 +114,10 @@ export async function GET(request) {
         ticket: deal ? { href: deal.affiliate_url, via: "Undercover Tourist", deal_id: deal.id } : null,
       });
       })
-      .filter((event) => event.url || event.place_id);
+      // A named destination never wears collection art and never ships with an
+      // empty media well. Unresolved identity stays off the customer rail until
+      // enrichment can prove a venue/photo; it is not papered over in the UI.
+      .filter((event) => event.image && (event.url || event.place_id));
 
     // THE IMAGE, DERIVED — NOT BACKFILLED (owner, 2026-08-30, on four blank
     // AUGTOBER tiles: "these places are missing the pictures").

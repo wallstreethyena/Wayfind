@@ -66,6 +66,7 @@ import { cardAffiliateProvider } from "../lib/cardAffiliate";
 // Tracked Viator link wrapper: routes every bookable card through /api/commerce/go
 // so the server records the handoff and echoes the client click_id.
 import ViatorCommerceLink from "./components/ViatorCommerceLink";
+import HomeAffiliateActivityRail from "./components/HomeAffiliateActivityRail";
 import { commerceHref } from "../lib/commerce";
 // v4.86: every place search flows through the multi-source aggregator
 // (Google + Foursquare, merged + deduped) — same signature, bigger pool.
@@ -198,7 +199,7 @@ import { toDisplayScore, pickEligibleByScore, cardComplete, displayableAt } from
 import { stampOwnerPick } from "../lib/ownerBump.js";
 import { frontPageEvents, bestFirst } from "../lib/frontEvents";
 import { NIGHT_OUT_MAX_MI, NIGHT_OUT_RAIL_DEFS, nightOutDistanceMi, nightOutEventRail } from "../lib/nightOutIntent.js";
-import { pickHomeExp } from "../lib/homeExpPick";
+import { HOME_AFFILIATE_ACTIVITY_FETCH_LIMIT, HOME_AFFILIATE_ACTIVITY_RADIUS_MI, homeAffiliateActivities } from "../lib/homeAffiliateActivities";
 // July 2026 decomposition (wave 1): the homepage's ~520 lines of server-
 // rendered CSS live in their own shell file. They are still concatenated into
 // the same single inline <style dangerouslySetInnerHTML> tag below, and
@@ -4044,36 +4045,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // this ref and only rebuilds when the wet/dry VERDICT actually flips.
   const wetRef = useRef(false);
   const [wetTick, setWetTick] = useState(0); // hidden-gems hero photo
-  // v6.61 (owner #3): ONE bookable card near the homepage top — the highest-
-  // traffic surface had no bookable inventory. Hour-aware pick (lib/homeExpPick);
-  // product_url rendered VERBATIM (pid) — never hand-built or resolver-routed.
-  const [homeExp, setHomeExp] = useState(null);
-  // The search center the pick on screen was fetched for. A refresh replaces
-  // the pick; only a real center move clears it. See the fetch effect below.
-  const homeExpCenter = useRef(null);
-  // Hour bucket — re-evaluated every 5 min and whenever the tab regains focus,
-  // so the "Make a day of it" pick refreshes with the time of day instead of
-  // staying frozen on last night's choice (owner report).
-  //
-  // v6.43 THE IDLE JUMP (owner: "you're stopped, and all of a sudden, it
-  // jumps"). This used to be a COUNTER — every tick and every visibilitychange
-  // produced a new value, so the dependent fetch below re-ran ~72×/day plus
-  // once per tab focus and re-set the card each time. lib/homeExpPick is a pure
-  // function of the HOUR (it rotates on `hour % pool.length`), so that value
-  // only changes 24×/day; the other ~50 runs were pure churn that could move
-  // the feed under a reader who was not touching anything. Holding the hour
-  // ITSELF makes React bail out when it has not changed, so the fetch re-runs
-  // at most once an hour — exactly as often as the pick can actually differ.
-  const [todBucket, setTodBucket] = useState(() => { try { return Math.floor(siteHourFloat()); } catch (e) { return 0; } });
-  useEffect(() => {
-    const tick = () => { try { setTodBucket(Math.floor(siteHourFloat())); } catch (e) {} };
-    // 5 min, not 20: each tick is now a cheap same-value compare that re-renders
-    // nothing, so polling more often only buys a tighter latch onto the hour turn.
-    const id = setInterval(tick, 5 * 60 * 1000);
-    const onVis = () => { try { if (document.visibilityState === "visible") tick(); } catch (e) {} };
-    try { document.addEventListener("visibilitychange", onVis); } catch (e) {}
-    return () => { clearInterval(id); try { document.removeEventListener("visibilitychange", onVis); } catch (e) {} };
-  }, []);
+  // A ranked window into the same owned affiliate catalogue used by Activities.
+  // A center move clears the previous city's rail; refresh failures keep an
+  // already-visible rail stable instead of collapsing the feed.
+  const [homeAffiliateItems, setHomeAffiliateItems] = useState([]);
+  const homeAffiliateCenter = useRef(null);
   // v6.53 (owner): closing a detail you arrived at from another Wayfind page
   // (/best-beaches, /date-night, city pages…) returns you THERE, not to the
   // homepage. ShareRedirect records the origin; this watcher fires on every
@@ -7577,37 +7553,34 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
 
 
 
-  // v6.61 (owner #3) / v6.92 hour-aware refresh: the homepage bookable pick.
-  // Fetch /api/experiences, keep only items carrying a real Viator pid= so
-  // nothing unattributed ships, then let the pure lib/homeExpPick rotate the
-  // hour-appropriate pick (never a night activity in the morning; changes
-  // through the day via the todBucket ticker above — was a frozen static pick).
+  // The homepage affiliate activity rail is a compact ranked window, not a
+  // random singleton. The endpoint ranks the owned catalogue; the pure client
+  // gate re-ranks defensively, removes duplicate/dead identities and keeps the
+  // top 30. Requesting 60 leaves enough headroom for that validation.
   useEffect(() => {
     if (screen !== "suggested" || !center) return;
     let cancelled = false;
-    // v6.43 THE IDLE JUMP, part 2. A refresh may REPLACE the pick; it must never
-    // remove it. This used to `setHomeExp(null)` on any thrown fetch and on any
-    // momentarily empty inventory, collapsing a live ~124px card out of the
-    // middle of the feed and yanking everything below it upward while the user
-    // sat still — one of the late shifts in the production CLS attribution.
-    // The card is cleared only when the search CENTER moves, where the entire
-    // feed is being replaced anyway (and the previous city's tour is simply the
-    // wrong answer), and where the shift follows a user action.
     const key = String(center.lat) + "," + String(center.lng);
-    if (homeExpCenter.current !== key) { homeExpCenter.current = key; setHomeExp(null); }
+    if (homeAffiliateCenter.current !== key) {
+      homeAffiliateCenter.current = key;
+      setHomeAffiliateItems([]);
+    }
     (async () => {
       try {
-        const q = new URLSearchParams({ lat: String(center.lat), lng: String(center.lng), mi: "60", cat: "all", limit: "12", page: "0" });
+        const q = new URLSearchParams({
+          lat: String(center.lat), lng: String(center.lng),
+          mi: String(HOME_AFFILIATE_ACTIVITY_RADIUS_MI), cat: "all",
+          limit: String(HOME_AFFILIATE_ACTIVITY_FETCH_LIMIT), page: "0",
+        });
         const r = await fetch("/api/experiences?" + q.toString());
         const j = r.ok ? await r.json() : null;
-        const items = (j && Array.isArray(j.items) ? j.items : []).filter((t) => t && t.url && /pid=/.test(t.url) && t.image);
-        const next = pickHomeExp(items);
-        if (!cancelled && next) setHomeExp(next);
+        const next = homeAffiliateActivities(j?.items);
+        if (!cancelled && next.length) setHomeAffiliateItems(next);
       } catch (e) { /* keep whatever is already on screen — see the note above */ }
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center, todBucket]);
+  }, [screen, center]);
 
   // Live local weather from the free, keyless Open-Meteo API. Drives the
   // greeting chip and nudges the Suggested feed. Fails soft to no weather.
@@ -10220,158 +10193,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   </div>
                 </div>
               )}
-                      {/* v6.61 (owner #3) / v6.92 hour-aware: ONE tasteful bookable card
-                          near the homepage top. homeExp.url is Viator's own product_url,
-                          rendered VERBATIM (pid intact) — never hand-built, never routed
-                          through the resolver. The fetch effect above already drops any
-                          item missing pid=, so an unattributed link can never reach here. */}
-                      {!browseCat && homeExp && (() => {
-                        // v8.71 (owner, 2026-08-26, holding his Emerson Point
-                        // card next to this one: "i dont like the way it looks
-                        // i want it to look like our iconic place cards you
-                        // know the ones").
-                        //
-                        // It IS the iconic card now — the real .wf-place-card
-                        // DOM contract, so every rule in WF_PLACE_CARD_CSS
-                        // applies with no second stylesheet to drift. What it
-                        // is NOT is a copy of IconicPlaceCard: that component
-                        // owns save/like/dislike/share, all of which key on a
-                        // GOOGLE PLACE ID. A Viator product has a product_code
-                        // and is in no place store, so those four buttons would
-                        // render enabled and do nothing — the dead-affordance
-                        // bug RailCard documents at `actionsReadOnly`.
-                        //
-                        // AND THE SLOTS THIS DATA CANNOT HONESTLY FILL STAY
-                        // EMPTY, which is the whole reason this is hand-built:
-                        //   • no DISTANCE — wf_experiences stores a dest_id and
-                        //     a city, never a per-product point. "2.4 mi" would
-                        //     be invented.
-                        //   • no RANK CHIP and no TOP-PICK band — `rank={1}` on
-                        //     the old card existed only so rankBucket() would
-                        //     say "top3" in analytics. There is no visible
-                        //     ranked list behind it, so a "1" would assert one.
-                        //   • no EDITORIAL TAKE — there is no sourced why-go for
-                        //     a tour product anywhere in wf_experiences, and the
-                        //     card-hook law forbids filling that slot with the
-                        //     house tagline. `is-no-take` collapses it honestly
-                        //     (css.js) rather than leaving a hole.
-                        //   • no OPEN/CLOSED — a tour has no opening hours.
-                        //   • the price renders as a FACT ("from $37"), never
-                        //     through priceLabel() — fromPrice is dollars, not
-                        //     a Google 0–4 priceLevel, and the two scales are
-                        //     not interchangeable.
-                        //
-                        // THE SCORE IS THE ONE FORMULA. wayfindScore(rating,
-                        // reviews) — the same call the rest of the app ranks
-                        // with — on Viator's own rating and review count. The
-                        // old card reached it accidentally, by handing
-                        // PlaceScoreChip a bare {rating, reviews} and letting
-                        // it self-heal; lib/experiencesData also carries a
-                        // SECOND copy of the same Bayesian maths for its server
-                        // sort. Calling it explicitly here means the number on
-                        // the card cannot drift from the number that ranked it.
-                        const wf = toDisplayScore(wayfindScore(Number(homeExp.rating), Number(homeExp.reviews)));
-                        const facts = [
-                          homeExp.reviews > 0 ? homeExp.reviews.toLocaleString() + " reviews" : null,
-                          homeExp.duration || null,
-                          homeExp.fromPrice != null ? "from $" + homeExp.fromPrice : null,
-                        ].filter(Boolean);
-                        return (
-                        <ViatorCommerceLink
-                          t={homeExp}
-                          surface="home_bookable_card"
-                          contentId={cityNow}
-                          rank={1}
-                          onClick={(e, clickId) => { try { logEvent("tickets_out", null, { kind: "home_bookable", code: homeExp.code, click_id: clickId }); } catch (er) {} }}
-                          className="wf-place-card is-no-take"
-                          // A SHORTER CARD, STILL A FIXED ONE. The iconic card
-                          // is 268px because it carries a two-line editorial
-                          // take; this one honestly has none, and at the full
-                          // height that shows up as a large void above the CTA.
-                          // The override is a FIXED px value, not a content
-                          // height, so the layout-shift guarantee section 7 of
-                          // test-layout-shift protects is untouched: whichever
-                          // pick the hourly refresh brings in, the box is the
-                          // same size and an idle reader's feed cannot jump.
-                          // 176px is measured, not picked: at 390px the gap
-                          // between the chip lane and the CTA bottoms out at
-                          // its natural 22px anywhere below ~172px and grows
-                          // from there, so this is the tightest height that
-                          // still leaves the content breathing room.
-                          style={{ display: "block", textDecoration: "none", color: "inherit", marginBottom: 14, "--wf-card-h": "176px" }}
-                        >
-                          {/* Top-right of the CARD, never on the photo — the
-                              global placement law (owner, 2026-08-24). */}
-                          <div className="wf-place-card-score"><WayfindScoreBadge score={wf} /></div>
-                          <div className="wf-place-card-layout">
-                            <div className="wf-place-card-media">
-                              {/* EAGER, and measured rather than assumed.
-                                  On production 2026-08-27 this photo did not
-                                  load: scrolled to the centre of the viewport,
-                                  five seconds elapsed, complete:false and
-                                  currentSrc:"" — then removeAttribute("loading")
-                                  painted the same url in 8ms. It is the same
-                                  symptom #985 fixed inside the rail's scroller,
-                                  and finding it HERE, in the ordinary feed
-                                  column, means the cause is broader than that
-                                  one container: 18 of the 19 lazy images on the
-                                  homepage had never loaded either.
-                                  That wider problem is NOT solved by this line
-                                  and is written up rather than half-fixed — a
-                                  scroll-container hypothesis was tested against
-                                  a rooted IntersectionObserver and did not hold.
-                                  What is fixed here is the single most
-                                  monetised unit on the page, which was shipping
-                                  with an empty photo well. One image, high in
-                                  the feed, after a tap-free render — the cost is
-                                  one fetch the reader was always going to make. */}
-                              <img src={homeExp.image} alt="" loading="eager" decoding="async" style={{ objectFit: "cover" }} />
-                            </div>
-                            <div className="wf-place-card-content" style={{ position: "relative" }}>
-                              <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start" }}>
-                                <div className="wf-place-card-heading">
-                                  {/* The eyebrow, with the card's orange tick.
-                                      The ✨ is gone: the CSS :before rule draws
-                                      the mark every other card wears, and two
-                                      marks on one line is the thing that made
-                                      this look like a different product. */}
-                                  <span className="wf-place-card-category">Make a day of it</span>
-                                  <span className="wf-place-card-name" style={{ display: "block" }}>{homeExp.title}</span>
-                                </div>
-                              </div>
-                              <div className="wf-place-card-meta" style={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}>
-                                {facts.map((f) => <span key={f}>{f}</span>)}
-                              </div>
-                              <div className="wf-place-card-highlights-wrap">
-                                <div className="wf-place-card-highlights">
-                                  {/* Disclosures first, decoration second —
-                                      the lane clamps to one row and scrolls,
-                                      so anything after the chips can be
-                                      trimmed (IconicPlaceCard, v8.17). */}
-                                  {homeExp.sellingOut ? <span>{"\uD83D\uDD25 Selling out"}</span> : null}
-                                  {(homeExp.chips || []).map((c) => <span key={c.key}>{c.icon} {c.label}</span>)}
-                                </div>
-                              </div>
-                              {/* ONE action, and it is the monetised one. The
-                                  disclosure rides on it rather than in a footer
-                                  the reader never reaches: same words and same
-                                  posture as the ticket pill on the place card. */}
-                              <div className="wf-place-card-actions wf-sheet-card-actions">
-                                <span
-                                  className="wf-place-card-book"
-                                  title="Partner link. Wayfind may earn a commission; rankings never change."
-                                  aria-label={"Book " + homeExp.title + " with Viator"}
-                                  // nowrap because the action row is a grid and
-                                  // a two-word label broke onto three lines at
-                                  // 390px — measured, not guessed.
-                                  style={{ whiteSpace: "nowrap" }}
-                                >Book with Viator ↗</span>
-                              </div>
-                            </div>
-                          </div>
-                        </ViatorCommerceLink>
-                        );
-                      })()}
+                      {!browseCat && <HomeAffiliateActivityRail
+                        items={homeAffiliateItems}
+                        contentId={cityNow}
+                        onLog={(action, place, extra) => { try { logEvent(action, place, extra); } catch (e) {} }}
+                      />}
               {/* v6.97 — THE MISSING BRIDGE (owner's own note on the mockup). The
                   guides pull real traffic from Google every month and every reader
                   dead-ends there, because nothing on the home screen has ever linked

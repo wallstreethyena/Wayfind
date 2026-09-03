@@ -113,94 +113,34 @@ ok(/window\.matchMedia\('\$\{RAILS_DESKTOP_MQ\}'\)\.matches/.test(layoutSrc),
 ok(!/isDesktop[^\n]*DEFAULT_COLLAPSED_RAILS/.test(src),
   "the collapsed default must never be selected from JS state — same rule as §5, one layer up: it decides how tall the feed is on first paint");
 
-// ─── 7. THE IDLE JUMP (v6.43) ────────────────────────────────────────────────
-// A SECOND, unrelated incident on the same page. Owner report: "you're
-// stopped, and all of a sudden, it jumps." Production web-vitals CLS
-// attribution confirmed it: shifts with cls_load_state="complete" landing
-// 17s to 8180s after load, almost all on route "/" with cls_target inside
-// #wf-main>…>div.wf-col-main — i.e. the feed moving while nobody touched it.
-//
-// The only timer-driven layout mutation on the homepage is the "Make a day of
-// it" bookable card. Three separate defects stacked:
-//   a) todBucket was a COUNTER, so its every tick (and every visibilitychange)
-//      re-ran the fetch and re-set the card — ~72×/day plus once per tab focus
-//      — even though lib/homeExpPick only rotates on the HOUR.
-//   b) the fetch nulled the pick on a thrown request or an empty response,
-//      deleting a live card out of the middle of the feed.
-//   c) the card's title is clamped to two lines but reserved none, so a short
-//      pick and a long pick were different heights.
-// Section 5 above bans geometry from isDesktop; this section bans the jump from
-// coming back through the refresh path.
-const HOME_EXP_NOTE = "\n  This is the v6.43 idle-jump fix — see the comments at each site in app/home.js.";
+// ─── 7. THE AFFILIATE RAIL CANNOT IDLE-JUMP ───────────────────────────────
+// The former hourly singleton mutated the middle of the feed on a timer. The
+// replacement is a stable ranked window: it fetches only when screen/center
+// changes, retains a live rail across transient refresh failures, and every card
+// inherits the fixed .wf-place-card geometry.
+ok(!/todBucket|setInterval\(tick, 5 \* 60 \* 1000\)|pickHomeExp/.test(src),
+  "the removed rotating singleton must not leave a timer-driven layout mutation behind");
 
-// a) The hour bucket holds the HOUR, so React bails out when it has not changed.
-//
-// v6.72: these two asserted the literal string `new Date().getHours()`. They
-// went red when the hour moved to its single source (lib/nowContext) even
-// though the invariant they exist for — "this value is an HOUR, so it changes
-// at most 24x/day" — was untouched. That is the "assert the invariant, not the
-// string" trap from CLAUDE.md, and the dangerous half is the inverse: the old
-// regex would have gone GREEN on any useState seeded from getHours() even if
-// the ticker had been switched back to a counter.
-//
-// So: accept EITHER hour source by name, and lean on the anti-counter assertion
-// below, which is the one that actually encodes the defect.
-const HOUR_SOURCE = "(?:new Date\\(\\)\\.getHours\\(\\)|siteHourFloat\\(\\))";
-ok(new RegExp("const \\[todBucket, setTodBucket\\] = useState\\(\\(\\) => \\{[^\\n]*" + HOUR_SOURCE).test(src),
-  "todBucket must be initialised to the current HOUR (new Date().getHours() or siteHourFloat()), not a counter seed." + HOME_EXP_NOTE);
-ok(new RegExp("setTodBucket\\((?:Math\\.floor\\()?" + HOUR_SOURCE).test(src),
-  "the todBucket ticker must set the current HOUR." + HOME_EXP_NOTE);
-ok(!/setTodBucket\(\s*\(\s*\w+\s*\)\s*=>/.test(src),
-  "todBucket must not be an incrementing counter again — every tick would produce a new value and re-run the /api/experiences fetch, re-setting the card ~72×/day for a pick that can only change 24×/day." + HOME_EXP_NOTE);
+const affiliateEffect = src.match(/const key = String\(center\.lat\)[\s\S]{0,1200}?\}, \[screen, center\]\);/);
+ok(!!affiliateEffect, "the home affiliate fetch remains scoped to screen and center");
+ok(/homeAffiliateCenter\.current !== key[\s\S]{0,160}?setHomeAffiliateItems\(\[\]\)/.test(affiliateEffect[0]),
+  "a real center move clears the old city's affiliate rail");
+ok(!/catch[^}]*setHomeAffiliateItems\(\[\]\)/.test(affiliateEffect[0]),
+  "a transient refresh failure cannot collapse an already-visible rail");
+ok(/if \(!cancelled && next\.length\) setHomeAffiliateItems\(next\)/.test(affiliateEffect[0]),
+  "only a non-empty validated replacement may update the rail");
 
-// b) A refresh may replace the pick; only a center move may clear it.
-const expEffect = src.match(/const q = new URLSearchParams\(\{ lat: String\(center\.lat\), lng: String\(center\.lng\), mi: "60"[\s\S]{0,700}?\}, \[screen, center, todBucket\]\);/);
-ok(!!expEffect, "the homeExp fetch effect moved or changed shape — re-point this assertion before shipping");
-ok(!/setHomeExp\(null\)/.test(expEffect[0]),
-  "the homeExp refresh must not null the pick — a thrown fetch or a momentarily empty inventory would delete a live card out of the middle of the feed. Clear it at the center-move check instead." + HOME_EXP_NOTE);
-ok(/if \(!cancelled && next\) setHomeExp\(next\)/.test(expEffect[0]),
-  "the homeExp refresh must only apply a real replacement pick." + HOME_EXP_NOTE);
-ok(/homeExpCenter\.current !== key\) \{ homeExpCenter\.current = key; setHomeExp\(null\); \}/.test(src),
-  "the homeExp pick must be cleared when the search center moves — otherwise the previous city's tour survives the move." + HOME_EXP_NOTE);
-
-// c) THE CARD CANNOT CHANGE HEIGHT WHEN IT REFRESHES.
-//
-// v8.71 — this used to be three assertions about a hand-reserved title box
-// (HOME_EXP_TITLE_MIN_H, derived from the font size and line height, applied as
-// a minHeight on a 2-line clamp). The bookable card is now the app's own
-// .wf-place-card, whose CSS gives it a FIXED height — `--wf-card-h:268px;
-// height:var(--wf-card-h)` — so the title cannot move the feed no matter how
-// long the next hour's pick is. That is a STRICTLY STRONGER guarantee than
-// reserving two lines of type, which is why the assertions FOLLOWED the code
-// instead of being deleted: the invariant they encode ("an idle reader's feed
-// must not jump when this card swaps at the top of the hour") is unchanged and
-// still has to be proven.
-//
-// Both halves are asserted, because either alone is a false green: the card
-// wearing the class proves nothing if the class stops fixing the height, and
-// the class fixing the height proves nothing if the card stops wearing it.
-const expBlock = src.slice(src.indexOf("{!browseCat && homeExp &&"), src.indexOf("<LocalEdit"));
-ok(expBlock.length > 500, `PROBE: the bookable-card block was delimited (${expBlock.length} chars) — a -1 here would scan the whole file and prove nothing`);
-ok(/className="wf-place-card is-no-take"/.test(expBlock),
-  "the bookable card must wear .wf-place-card — that class is what fixes its height, and a fixed height is what stops the hourly refresh moving the feed." + HOME_EXP_NOTE);
-// The card overrides the shared height because it honestly carries no editorial
-// take and the full 268px leaves a void. That override must stay a FIXED px
-// value — a content-driven height (auto/fit-content/min-content) would put the
-// idle-jump straight back, which is the whole point of this section.
-{
-  const h = expBlock.match(/"--wf-card-h":\s*"([^"]+)"/);
-  ok(!h || /^\d+(\.\d+)?px$/.test(h[1]),
-    `the bookable card's height override must be a fixed px value, never content-driven — got ${h && h[1]}` + HOME_EXP_NOTE);
-}
-ok(!/minHeight/.test(expBlock),
-  "…so it must NOT hand-reserve a title box any more; two competing height rules is how one silently stops matching the other." + HOME_EXP_NOTE);
+const affiliateComponent = readFileSync(new URL("../app/components/HomeAffiliateActivityRail.js", import.meta.url), "utf8");
+ok(/className="wf-place-card wf-rail-card is-no-take"/.test(affiliateComponent),
+  "every affiliate activity inherits the fixed iconic place-card geometry");
+ok(!/minHeight|fit-content|height:\s*["']?auto/.test(affiliateComponent),
+  "the activity rail does not reintroduce content-driven card geometry");
 {
   const cssSrc = readFileSync(new URL("../app/components/css.js", import.meta.url), "utf8").replace(/\s*\n\s*/g, "");
   const rule = (cssSrc.match(/\.wf-place-card\{[^}]*\}/) || [""])[0];
   ok(/--wf-card-h:\d+px/.test(rule) && /height:var\(--wf-card-h\)/.test(rule),
-    `.wf-place-card must still FIX its height — without it the class buys the card nothing and the reservation this section protects is gone. Got: ${rule.slice(0, 90)}` + HOME_EXP_NOTE);
+    ".wf-place-card still owns a fixed height");
 }
-ok(!/HOME_EXP_TITLE_MIN_H/.test(src),
-  "the superseded title-reservation constants must be GONE, not left declared and unread — a constant nothing reads is the next reader's false lead." + HOME_EXP_NOTE);
 
-console.log(`test-layout-shift: OK — ${passed} assertions (responsive layout is CSS-driven at the 900px breakpoint; isDesktop never sets geometry; the hourly bookable-card refresh cannot move the feed)`);
+
+console.log(`test-layout-shift: OK — ${passed} assertions (responsive layout is CSS-driven at the 900px breakpoint; isDesktop never sets geometry; the affiliate rail cannot idle-jump)`);

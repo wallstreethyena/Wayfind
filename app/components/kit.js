@@ -367,21 +367,22 @@ export function PlaceScoreChip({ p, size = 12 }) {
 // the big score with a small /10. Color is never the only signal — the number
 // always renders and the accessible name carries the score. Invalid scores
 // never reach here (callers gate on isValidScore); if one does, render nothing.
-export function WayfindScoreBadge({ score, confidence, modelVersion, onOpen, size = 1 }) {
+export function WayfindScoreBadge({ score, confidence, modelVersion, onOpen, size = 1, staticRoot = false }) {
   if (!isValidScore(score)) return null;
   const band = getScoreBand(score);
   const bandColor = BAND_COLOR[band];
   const glyph = pinGlyphColor(band);
   const s = (n) => Math.round(n * size);
   const aria = `Wayfind Score ${formatScore(score)} out of 10${isPerfectScore(score) ? ", a perfect score" : ""}${confidence ? `, ${confidence} confidence` : ""}`;
+  const Root = staticRoot ? "span" : "button";
   return (
-    <button
-      type="button"
+    <Root
+      {...(staticRoot ? { role: "img" } : { type: "button" })}
       className="wayfind-score-badge"
       data-score-band={band}
       data-model-version={modelVersion || undefined}
       aria-label={aria}
-      onClick={onOpen ? (e) => { e.stopPropagation(); onOpen(); } : (e) => e.stopPropagation()}
+      onClick={staticRoot ? undefined : (onOpen ? (e) => { e.stopPropagation(); onOpen(); } : (e) => e.stopPropagation())}
       style={{
         display: "inline-flex", alignItems: "stretch", padding: 0,
         background: SCORE_TOKENS.bg, border: `2px solid ${bandColor}`,
@@ -406,7 +407,7 @@ export function WayfindScoreBadge({ score, confidence, modelVersion, onOpen, siz
           {isPerfectScore(score) ? <span aria-hidden="true" style={{ fontSize: s(11), lineHeight: 1 }}>🔥</span> : null}
         </span>
       </span>
-    </button>
+    </Root>
   );
 }
 
