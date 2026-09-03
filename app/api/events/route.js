@@ -19,6 +19,7 @@ import { creatorEventsFor } from "../../../lib/creatorEvents.js";
 import { fetchCuratedEvents, curatedFeedEvents, CURATED_REACH_MI, CURATED_SOURCE } from "../../../lib/curatedEvents.js";
 import { stockPhotoPool, fromPool } from "../../../lib/stockPhoto.js";
 import { cget, cset, DAY } from "../../../lib/serverCache";
+import { breakerOpen, tripBreaker, classifyProviderFailure, BREAKER_COOLDOWN_MS } from "../../../lib/providerHealth.js";
 
 function isoNowZ() {
   return new Date().toISOString().slice(0, 19) + "Z";
@@ -356,7 +357,28 @@ function parseSerpDate(s) {
   const dd = String(dt.getDate()).padStart(2, "0");
   return `${dt.getFullYear()}-${mm}-${dd}`;
 }
+// PARKED 2026-09-03 — Google retired the Events experience this engine scraped,
+// so `engine=google_events` now answers HTTP 400 on every call. Measured that
+// day on the live health block in four cities at once: Sarasota, Tampa, Orlando
+// and Naples all returned `status: 400`.
+//
+// That is a DEAD PAID CALL on every uncached /api/events request — SerpApi bills
+// per search, and it also costs a round trip and leaves a permanently red
+// provider in the log. Parking returns `configured: false`, which keeps it OUT
+// of the health block entirely: an intentionally parked provider is not a
+// failing one, and logging it as failing is how a team learns to ignore real
+// provider failures.
+//
+// A kill switch, not a deletion — SerpApi have said they are working on a
+// replacement source, and when it lands this is a one-line revert.
+const SERP_EVENTS_PARKED = true;
+const SERP_EVENTS_PARKED_REASON =
+  "google_events engine retired upstream; measured HTTP 400 in 4 cities 2026-09-03";
+
 async function fromSerpEvents(lat, lng, keyword, city) {
+  if (SERP_EVENTS_PARKED) {
+    return { configured: false, parked: true, reason: SERP_EVENTS_PARKED_REASON, events: [] };
+  }
   const key = process.env.SERPAPI_KEY;
   if (!key) return { configured: false, events: [] };
   if (!city) return { configured: true, events: [] };
@@ -406,15 +428,53 @@ async function fromSerpEvents(lat, lng, keyword, city) {
   } catch (e) { return { configured: true, ok: false, reason: String(e && e.message || e).slice(0, 160), events: [] }; }
 }
 
+// A METERED PROVIDER THAT ANSWERED DETERMINISTICALLY MUST NOT BE ASKED AGAIN
+// ON THE VERY NEXT REQUEST. OpenWebNinja answered 429 in every city tested on
+// 2026-09-03 — Sarasota, Tampa, Orlando and Naples, same second. That rules out
+// a per-second rate limit and it rules out a bad key (an invalid key answers
+// 401, verified against the live endpoint): the account's QUOTA is spent, and
+// no retry inside the window can succeed. Without a breaker the route re-asks
+// on every uncached request: it spends a round trip of the reader's latency
+// budget it can never repay, and on a per-request plan it keeps the counter
+// pinned so the quota cannot recover.
+//
+// This reuses lib/providerHealth — the breaker written for the Anthropic
+// billing incident (579 identical 400s) — rather than a second, parallel
+// mechanism. It persists in the SHARED server cache, so one instance's
+// discovery is honoured by every warm lambda and the cooldown survives a cold
+// start. Fail-soft in both directions: an unreachable cache fails OPEN toward
+// calling the provider, because a broken cache must never take a healthy
+// provider offline.
+const DETERMINISTIC_HTTP = new Set([401, 402, 403, 429]);
+const OWN_BREAKER = "openwebninja";
+
+async function breakerNote(provider) {
+  const open = await breakerOpen(provider);
+  if (!open) return null;
+  // No `status` here on purpose: nothing was asked, so there is no HTTP status
+  // to report. The reason carries the code that tripped it.
+  return { configured: true, ok: false, reason: `breaker open (${open.kind}) — ${open.reason}`.slice(0, 200), events: [] };
+}
+async function tripOnDeterministic(provider, status, body) {
+  if (!DETERMINISTIC_HTTP.has(status)) return;
+  const kind = classifyProviderFailure(status, body) || (status === 429 ? "quota" : "auth");
+  await tripBreaker(provider, kind, `http ${status} — not retried for ${Math.round(BREAKER_COOLDOWN_MS / 60000)} min`);
+}
+
 async function fromOpenWebNinja(lat, lng, keyword, city) {
   const key = process.env.OPENWEBNINJA_KEY;
   if (!key) return { configured: false, events: [] };
   if (!city) return { configured: true, events: [] };
+  const held = await breakerNote(OWN_BREAKER);
+  if (held) return held;
   try {
     const q = (keyword ? keyword + " events" : "events") + " in " + city;
     const p = new URLSearchParams({ query: q, date: "month", is_virtual: "false" });
     const r = await fetch(`https://api.openwebninja.com/realtime-events-data/search-events?${p.toString()}`, { headers: { "x-api-key": key } });
-    if (!r.ok) return { configured: true, ok: false, status: r.status, reason: "http " + r.status, events: [] };
+    if (!r.ok) {
+      await tripOnDeterministic(OWN_BREAKER, r.status, await r.text().catch(() => ""));
+      return { configured: true, ok: false, status: r.status, reason: "http " + r.status, events: [] };
+    }
     const data = await r.json();
     const raw = data.data || data.events || (Array.isArray(data) ? data : []) || [];
     const events = raw.map((e, i) => {

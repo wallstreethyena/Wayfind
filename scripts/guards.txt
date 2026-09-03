@@ -912,3 +912,11 @@ node scripts/check-link-quarantine.mjs
 # release note read "month_cap 7500 reached" — the real line was the free-tier
 # 4,800. effectiveCap() is now what both the cron and the worker print.
 node scripts/check-spend-effective-cap.mjs
+# 2026-09-03 TWO DEAD PROVIDERS, found only once the health block said WHY.
+# SerpAPI's google_events engine 400s in every city (Google retired the source)
+# and SerpApi bills per search, so every uncached request bought a guaranteed
+# failure; OpenWebNinja 429s in every city in the same second (quota spent, not
+# a bad key — an invalid key answers 401). This locks that a parked provider
+# returns configured:false and leaves the health block, and that a deterministic
+# refusal trips the SHARED lib/providerHealth breaker BEFORE the next call.
+node scripts/check-dead-provider-parked.mjs
