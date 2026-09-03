@@ -920,3 +920,13 @@ node scripts/check-spend-effective-cap.mjs
 # returns configured:false and leaves the health block, and that a deterministic
 # refusal trips the SHARED lib/providerHealth breaker BEFORE the next call.
 node scripts/check-dead-provider-parked.mjs
+# 2026-09-03 THE DESKTOP INVERSION (owner, screenshot of "Best bookable
+# activities" at 2000px: "the place card r best bookable experiences are not
+# optimal for a desktop"). Measured: a card was 510px at 1280 and 357px at 1512
+# — narrower on the bigger screen, because --wf-rail-vis steps to 3.4 while the
+# photo column, padding and score-badge gutter are fixed pixels. The title
+# column fell to 109px and rendered "Cle... K..." on the rail that carries every
+# Viator booking link. This measures the real rail in Chromium from 390 to
+# 2000px: no title or price clipped, a width floor that beats the ladder, and a
+# read-only card no longer held at an action card's height.
+node scripts/check-rail-card-fits-its-content.mjs

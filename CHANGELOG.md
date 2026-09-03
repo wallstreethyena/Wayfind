@@ -1,3 +1,20 @@
+## v8.56.3 - The desktop card stops getting worse as the screen gets bigger
+
+Owner, 2026-09-03, with a 2000px screenshot of "Best bookable activities": "the place card r best bookable experiences are not optimal for a desktop." Measured in Chromium against the shipped stylesheet:
+
+```
+viewport 1280 -> card 510px, title column 262px, 2 lines, nothing clipped
+viewport 1512 -> card 357px, title column 109px, needs 4 lines, clamped to 2
+```
+
+- **A card got 30% narrower as the screen got wider.** `--wf-rail-vis` steps to 3.4 at 1400px, but the rail itself is capped at ~1270px and every piece of furniture inside the card is fixed pixels — a 108px photo column, 24px of padding, and a 104px score badge whose gutter the heading must clear. At 357px that leaves **109px of title**, so "Clear Kayak Glass Bottom Guided Tour" rendered as "Cle… K…" and the facts row cut mid-price. On the rail that carries every Viator booking link, an unreadable title is a lost commission.
+- **A width floor, not a fourth ladder value.** `min-width:min(440px,100%)` above 1100px. The constraint is a fact about the card — its furniture needs ~440px — not about any one viewport, so it holds for every rail on the site. `min()` keeps it honest inside a narrower column: there the card is full width, never wider than its own scroller.
+- **The floor had to land on both halves of the drop.** The trending drop renders trend cards through `.wf-rail` and place cards through `.wf8-pcrail` off one ladder, and `test-drop-rail-parity` holds them to the same measured width. Flooring only one broke that parity at 1440 — caught by the existing guard, fixed by flooring both.
+- **A tour name gets a third line.** Two lines of a 192px column is about 46 characters; a real Viator title is longer. `min-height` is unchanged, so a short-title card is exactly as tall as it was.
+- **A read-only card is no longer held at an action card's height.** The card height was sized for a card that carries the Save / Like / Dislike row. The Viator rails pass `actionsReadOnly` (v8.29.2 — a tour has no place row, so those controls would be live buttons over no-ops) and kept the height anyway: with the CTA bottom-pinned, the missing row became ~70px of empty panel in the middle of the money card. `:not(:has(.wf-place-card-actions))` asks the real question instead of hard-coding which rails are read-only.
+- **Below 560px the badge gutter shrinks to 88px.** Reserving 114px of a 240px content column was half the phone card's text width.
+- **Guarded by measurement.** `check-rail-card-fits-its-content` (51 assertions) renders the REAL rail with the REAL stylesheet in Chromium at 390–2000px and asserts no title or price is clipped above 900px, that the floor is what carries the width (the ladder still asks for ~357px there), and that a read-only card is shorter than the same card with an action row. Red-proved with six mutations, including two that fail by measurement rather than by grep.
+
 ## v8.56.2 - Two dead event providers stop being paid for
 
 The health block learned to say why in v8.56.1, and it immediately answered a question that had been guessed at for weeks. In Sarasota, Tampa, Orlando and Naples, in the same second: Google (SerpAPI) `status: 400`, Google (OpenWebNinja) `status: 429`.
