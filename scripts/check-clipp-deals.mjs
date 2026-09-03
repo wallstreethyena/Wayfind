@@ -36,7 +36,7 @@ const {
   CJ_PID, CJ_CLIPP_LINK_ID, CJ_CLIPP_ADVERTISER_ID,
   clippDeepLink, isClippDest, isDeadPixelForm, hasCjPid, affiliateForwards, destIsAlive,
 } = await import(path.resolve("lib/deals.js"));
-const { CLIPP_MARKETS, CLIPP_MERCHANT_OFFERS, clippOfferById, clippTrackedUrl } = await import(path.resolve("lib/clippOffers.js"));
+const { CLIPP_MARKETS, CLIPP_MERCHANT_OFFERS, CLIPP_INDEX_REVERIFIED, clippOfferById, clippTrackedUrl } = await import(path.resolve("lib/clippOffers.js"));
 const { COUPONS } = await import(path.resolve("lib/coupons.js"));
 
 const SARASOTA = "https://www.clipp.com/states/fl/cities/sarasota";
@@ -355,6 +355,23 @@ ok(CLIPP_MERCHANT_OFFERS.length > 0, "the merchant registry is non-empty (an emp
     ok(isClippDest(m.dest), `${m.offerId}: its destination passes the allowlist`);
     ok(/^https:\/\/www\.clipp\.com\/all-offers\/[a-z0-9-]+$/.test(String(m.dest)),
       `${m.offerId}: the dest is a per-merchant offer page, not a city page`);
+  }
+}
+
+// The September card-icon renewal is intentionally narrower than the merchant
+// catalogue: only exact place-identity rows with current Clipp evidence can
+// become a live card pill. The city landing links still expose the rotating
+// full catalogue without pretending every August certificate is current.
+{
+  const ids = new Set(CLIPP_MERCHANT_OFFERS.map((m) => m.offerId));
+  ok(/^\d{4}-\d{2}-\d{2}$/.test(CLIPP_INDEX_REVERIFIED.on), "indexed Clipp re-verification records its observation date");
+  ok(/^\d{4}-\d{2}-\d{2}$/.test(CLIPP_INDEX_REVERIFIED.expires), "indexed Clipp re-verification has a bounded expiry");
+  ok(CLIPP_INDEX_REVERIFIED.offerIds.length >= 10, "current identity-mapped renewal is material, not a one-card token pass");
+  ok(new Set(CLIPP_INDEX_REVERIFIED.offerIds).size === CLIPP_INDEX_REVERIFIED.offerIds.length, "current renewal ids are unique");
+  for (const id of CLIPP_INDEX_REVERIFIED.offerIds) {
+    const offer = CLIPP_MERCHANT_OFFERS.find((m) => m.offerId === id);
+    ok(ids.has(id), `${id}: renewed id exists in the guarded merchant registry`);
+    ok(offer && (offer.placeId || (Array.isArray(offer.match) && offer.match.length)), `${id}: renewed deal has exact place identity for a card icon`);
   }
 }
 

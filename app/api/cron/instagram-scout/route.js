@@ -21,12 +21,25 @@
 // for the one-time setup that lights it up.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 import { createClient } from "@supabase/supabase-js";
 import { igConfigured, hashtagIdUrl, hashtagMediaUrl, businessDiscoveryUrl, toCandidate, rankCandidates } from "../../../../lib/instagramGraph.js";
 import { IG_HANDLES, hashtagsForWeek } from "../../../../lib/instagramSources.js";
 
 const DEADLINE_MS = 8000;
+const GRAPH_WORKERS = 6;
+
+async function mapConcurrent(items, width, work) {
+  const rows = Array.isArray(items) ? items : [];
+  let cursor = 0;
+  await Promise.all(Array.from({ length: Math.min(Math.max(1, width), rows.length) }, async () => {
+    while (cursor < rows.length) {
+      const index = cursor++;
+      await work(rows[index], index);
+    }
+  }));
+}
 
 function json(body, status = 200) {
   return Response.json(body, { status, headers: { "cache-control": "no-store" } });
@@ -77,10 +90,10 @@ export async function GET(request) {
   const { data: health } = await db.from("wf_social_source_health").select("handle,ok,fail_count");
   const skip = new Set((health || []).filter((h) => !h.ok && h.fail_count >= 3).map((h) => h.handle));
 
-  for (const src of IG_HANDLES) {
-    if (skip.has(src.handle)) continue;
+  await mapConcurrent(IG_HANDLES, GRAPH_WORKERS, async (src) => {
+    if (skip.has(src.handle)) return;
     const url = businessDiscoveryUrl(src.handle, perAccount);
-    if (!url) continue;
+    if (!url) return;
     const res = await getJson(url);
     if (!res.ok) {
       errors.push({ handle: src.handle, error: res.error });
@@ -89,7 +102,7 @@ export async function GET(request) {
         fail_count: ((health || []).find((h) => h.handle === src.handle)?.fail_count || 0) + 1,
         last_checked_at: new Date().toISOString(),
       });
-      continue;
+      return;
     }
     const bd = res.body?.business_discovery;
     const followers = Number(bd?.followers_count || 0);
@@ -100,24 +113,25 @@ export async function GET(request) {
     await db.from("wf_social_source_health").upsert({
       handle: src.handle, ok: true, last_error: null, fail_count: 0, last_checked_at: new Date().toISOString(),
     });
-  }
+  });
 
   // ── 2. the hashtags, Meta-ranked by engagement ───────────────────────────
   // top_media IS the "popular posts" ranking the owner asked for. The weekly
   // slice keeps us inside Meta's 30-unique-tags-per-7-days account cap.
-  for (const tag of hashtagsForWeek(new Date(), tagCount)) {
+  const tags = hashtagsForWeek(new Date(), tagCount);
+  await mapConcurrent(tags, GRAPH_WORKERS, async (tag) => {
     const idUrl = hashtagIdUrl(tag);
-    if (!idUrl) continue;
+    if (!idUrl) return;
     const idRes = await getJson(idUrl);
     const hashtagId = idRes.ok ? idRes.body?.data?.[0]?.id : null;
-    if (!hashtagId) { errors.push({ hashtag: tag, error: idRes.error || "no id" }); continue; }
+    if (!hashtagId) { errors.push({ hashtag: tag, error: idRes.error || "no id" }); return; }
     const mediaRes = await getJson(hashtagMediaUrl(hashtagId, "top_media"));
-    if (!mediaRes.ok) { errors.push({ hashtag: tag, error: mediaRes.error }); continue; }
+    if (!mediaRes.ok) { errors.push({ hashtag: tag, error: mediaRes.error }); return; }
     for (const media of mediaRes.body?.data || []) {
       const c = toCandidate(media, { source: "hashtag", tag });
       if (c) candidates.push(c);
     }
-  }
+  });
 
   // ── 3. persist ───────────────────────────────────────────────────────────
   // last_seen_at moves on every sighting; review_status is never overwritten,

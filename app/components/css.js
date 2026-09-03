@@ -266,8 +266,12 @@ export const WF_PLACE_CARD_CSS = `
 // blanket `button`/`a` override inside a skin scope that lacks this guard.
 `.wf-fall .wf-place-card button:not(.is-active),.wf-place-card.wf-fall-card button:not(.is-active){background:rgba(59,26,5,.62)!important;border:1px solid rgba(255,196,110,.6)!important;color:#FFE9CB!important}
 .wf-fall .wf8-falltile{border:1.5px solid rgba(255,196,110,.7)!important;background:linear-gradient(150deg,#B8641B,#7A3C0D)!important;color:#FFF3E2!important}
-.wf-fall .wf-place-card .wf-place-card-category,.wf-place-card.wf-fall-card .wf-place-card-category{color:#4A2508!important;font-weight:900!important}
+.wf-fall .wf-place-card .wf-place-card-category,.wf-place-card.wf-fall-card .wf-place-card-category{color:#FFF0D5!important;font-weight:900!important;text-shadow:0 1px 1px rgba(76,28,0,.32)}
 .wf-fall .wf-place-card .wf-place-card-category:before,.wf-place-card.wf-fall-card .wf-place-card-category:before{content:"\\1F341";width:auto;height:auto;background:none;font-size:11px;line-height:1}
+.wf-fall .wf-place-card .wf-place-card-name,.wf-place-card.wf-fall-card .wf-place-card-name{color:#FFFDF8!important}
+.wf-fall .wf-place-card .wf-place-card-meta,.wf-place-card.wf-fall-card .wf-place-card-meta{color:#FFE5C2!important}
+.wf-fall .wf-place-card .wf-place-card-meta>span+span:before,.wf-place-card.wf-fall-card .wf-place-card-meta>span+span:before{color:#FFC47F!important}
+.wf-fall .wf-place-card .wf-place-card-take,.wf-place-card.wf-fall-card .wf-place-card-take {color:#FFF2DF!important;border-left-color:#FFB45E!important}
 .wf-fall .wf-place-card .wf-place-card-highlights>button,.wf-fall .wf-place-card .wf-place-card-highlights>span,.wf-fall .wf-place-card .wf-place-card-highlights>a,.wf-place-card.wf-fall-card .wf-place-card-highlights>button,.wf-place-card.wf-fall-card .wf-place-card-highlights>span,.wf-place-card.wf-fall-card .wf-place-card-highlights>a{background:rgba(59,26,5,.62)!important;border:1px solid rgba(255,196,110,.6)!important;color:#FFE9CB!important;box-shadow:none!important}
 .wf-fall .wf-place-card .wf-place-card-highlights,.wf-place-card.wf-fall-card .wf-place-card-highlights{mask-image:linear-gradient(90deg,#000 94%,transparent 100%);-webkit-mask-image:linear-gradient(90deg,#000 94%,transparent 100%)}
 
@@ -411,6 +415,24 @@ export const WF_PLACE_CARD_CSS = `
   letter-spacing:.07em;
   text-transform:uppercase;
   opacity:1!important;
+}
+.wf-place-card-deal{
+  display:inline-flex!important;
+  align-items:center;
+  width:max-content;
+  min-height:23px;
+  padding:2px 8px!important;
+  border-radius:999px!important;
+  border-color:#FF7A1A!important;
+  border-style:solid!important;
+  border-width:1px!important;
+  background:#FF7A1A!important;
+  color:#17100A!important;
+  font-size:9.5px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  white-space:nowrap;
+  box-shadow:0 4px 12px rgba(249,115,22,.22)!important;
 }
 .wf-place-card-take{
   overflow:hidden;
@@ -667,8 +689,13 @@ export const WF_PLACE_CARD_CSS = `
 }
 .wf-rail-when-rail svg{width:13px;height:13px}
 .wf-rail-when-body{display:flex;box-sizing:border-box;flex:1;min-width:0;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 5px;text-align:center}
-.wf-rail-when-label{width:100%;overflow:hidden;color:#B8C2D0;font-size:6.5px;font-weight:800;letter-spacing:.7px;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}
-.wf-rail-when-value{width:100%;color:#F8FAFC;font-size:13.5px;font-weight:800;line-height:.98;white-space:nowrap}
+.wf-rail-when-label{width:100%;overflow:hidden;color:#D4DCE7;font-size:5.5px;font-weight:850;letter-spacing:.42px;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}
+.wf-rail-when-value{width:100%;overflow:hidden;color:#F8FAFC;font-size:12.25px;font-weight:850;line-height:1;text-overflow:ellipsis;white-space:nowrap}
+
+/* An affiliate card may itself be wrapped by a tracked <a>. These explicit
+   descendants prevent browser link blue from leaking into the house card. */
+a:has(>.wf-place-card)>.wf-place-card .wf-place-card-name{color:#F8F5EE!important}
+a:has(>.wf-place-card)>.wf-place-card .wf-place-card-share{color:#DFE5EE!important}
 
 .wf-place-card-award.is-creator{border-color:rgba(244,114,182,.42);background:linear-gradient(110deg,rgba(244,114,182,.16),rgba(244,114,182,.03));color:#F9A8D4}
 .wf-place-card-award.is-creator .wf-place-card-award-icon{background:linear-gradient(145deg,#FDA4C8,#B83280);color:#2A0A18}

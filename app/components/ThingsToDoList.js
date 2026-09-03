@@ -140,7 +140,7 @@ function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, onLog, on
           <div className="wf-place-card-title-row">
             <div className="wf-place-card-heading">
               <span className="wf-place-card-category">Activities</span>
-              <div className="wf-place-card-name">{r.title}</div>
+              <div className="wf-place-card-name" style={{ color: "#F8F5EE" }}>{r.title}</div>
             </div>
           </div>
           {facts.length ? (
@@ -155,14 +155,17 @@ function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, onLog, on
           {r.selling_out ? <div className="wf-place-card-highlights"><span>Selling fast</span></div> : null}
           {take ? <div className="wf-place-card-take">{take}</div> : null}
           <div className="wf-place-card-actions wf-sheet-card-actions">
-            <span className="wf-place-card-book">Book ↗</span>
-            {onShare ? <span role="button" tabIndex={0} className="wf-place-card-share" onClick={(e) => { e.stopPropagation(); e.preventDefault(); onShare(r); }} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); e.preventDefault(); onShare(r); } }}>↗ Share</span> : null}
+            <span className="wf-place-card-book" style={{ color: "#FF9B50" }}>Book ↗</span>
+            {onShare ? <span role="button" tabIndex={0} className="wf-place-card-share" style={{ color: "#DFE5EE" }} onClick={(e) => { e.stopPropagation(); e.preventDefault(); onShare(r); }} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); e.preventDefault(); onShare(r); } }}>↗ Share</span> : null}
           </div>
         </div>
       </div>
     </article>
   );
-  const style = { display: "block", width: "100%", textAlign: "left", textDecoration: "none", padding: 0, border: 0, background: "transparent" };
+  // ViatorCommerceLink is the outer anchor. Set its inherited colour in
+  // writing so a browser's default blue can never paint card copy when a CSS
+  // chunk is late, missing, or reordered.
+  const style = { display: "block", width: "100%", textAlign: "left", textDecoration: "none", color: "#F8F5EE", padding: 0, border: 0, background: "transparent" };
   return (
     <ViatorCommerceLink t={r} city={city} surface="ttd_ranked_card" contentId={city} rank={rank} className="wf-ttd-focus" style={style} onClick={(e, clickId) => { try { onLog && onLog("ttd_book", { id: r.id, name: r.title }, { click_id: clickId }); } catch (er) {} }}>
       {body}

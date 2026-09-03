@@ -66,6 +66,7 @@ import { safeUrl } from "../../lib/links.js";
 // itself eager (app/home.js imports it directly).
 import { creatorVideosFor } from "../../lib/creatorSignals.js";
 import CreatorCardMark from "./CreatorCardMark";
+import { couponForPlace } from "../../lib/coupons.js";
 
 // Same glyphs as IconicPlaceCard's action row, so a thumb is one drawing in
 // this app rather than two that almost match.
@@ -320,6 +321,11 @@ export default function RailCard({
   const isDislikedNow = onDislike ? !!disliked : useFb ? !!fb.disliked[place.id] : !!disliked;
   const list = Array.isArray(facts) ? facts.filter(Boolean) : [];
   const pills = Array.isArray(chips) ? chips.filter(Boolean) : [];
+  // Deal ownership belongs to the shared card, not to whichever rail happened
+  // to remember the lookup. Exact place-id matching wins; the coupon resolver
+  // deliberately returns null for an ambiguous branch or expired offer.
+  const cardCoupon = place ? couponForPlace(place, siteTodayStr()) : null;
+  const hasCallerDeal = pills.some((chip) => chip && chip.key === "deal");
   // The card body is the tap target; every control inside it stops propagation
   // (same nested-interactive contract check-collection-look.mjs pins on
   // IconicPlaceCard). role/tabIndex/KB_CLICK give it the keyboard path
@@ -398,8 +404,9 @@ export default function RailCard({
             </div>
           ) : null}
 
-          {pills.length || badge ? (
+          {pills.length || badge || (cardCoupon && !hasCallerDeal) ? (
             <div className="wf-place-card-highlights" style={{ display: "flex", flexWrap: "wrap" }}>
+              {cardCoupon && !hasCallerDeal ? <span className="wf-place-card-deal" title={cardCoupon.title || "Deal available"}>🏷️ Deal</span> : null}
               {pills.map((chip) => (chip.onClick
                 /* v8.22: chips may carry a `title` — the long form of a
                    deliberately short label (e.g. "Trending" whose full trend

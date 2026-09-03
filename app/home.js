@@ -81,7 +81,7 @@ import { reconcileIds } from "../lib/syncReconcile";
 import { placeAllowed, SUB_ALLOW } from "../lib/placeFilter";
 import { parseCouponValue } from "../lib/couponValue";
 import { currentSeason, seasonQueries, seasonalFit, SEASON_META } from "../lib/seasons";
-import { COUPONS, couponForPlaceName, normalizeOfferRow } from "../lib/coupons";
+import { COUPONS, couponForPlace, couponForPlaceName, normalizeOfferRow } from "../lib/coupons";
 import { pickHook } from "../lib/hooks";
 import * as Meals from "../lib/meals";
 import * as Radius from "../lib/radius";
@@ -11502,7 +11502,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           </div>
           <div className="wf-place-card-meta" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "7px 0 6px" }}>
             {offer && <span style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>{offerLabel(offer)}</span>}
-            {!offer && (() => { const cpn = couponForPlaceName(p.name); /* v6.17: owner-curated coupon pill — same slot as Supabase offers; placeholder chip until the badge logo lands */ return cpn ? <span title={cpn.title} style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>🏷️ Deal</span> : null; })()}
+            {!offer && (() => { const cpn = couponForPlace(p); /* Identity-first, location-safe deal lookup shared with every other place-card renderer. */ return cpn ? <span className="wf-place-card-deal" title={cpn.title}>🏷️ Deal</span> : null; })()}
             {/* v6.48: the "★ Wayfind Pick" chip that used to sit HERE is now the
                 34px champagne medallion over the thumbnail (see the
                 isWayfindPick block at the top of this card). v6.56 had already

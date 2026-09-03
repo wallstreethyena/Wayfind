@@ -51,7 +51,7 @@ export async function GET(request) {
     // hold a de-dated event plus none of that day's 21 new ones. The rail cache
     // keeps a good answer for an hour, so without this bump the owner's own
     // Parrish cell would have served the wrong set until it aged out.
-    const key = `fall-intents:v9:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    const key = `fall-intents:v10:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     const cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
@@ -110,7 +110,9 @@ export async function GET(request) {
         // clicks on a DOM-exposed CJ link are the account risk documented in
         // lib/commerceProviders.js).
         const ticket = dealId ? eventTicketCta(e.event_id, { surface: "fall_intent_rail", liveDeal: byDealId.get(dealId) || null }) : null;
-        const image = fallEventCardImageSrc(e, 640, inventoryById.get(e.place_id));
+        const inventory = inventoryById.get(e.place_id) || null;
+        const hasImageProof = (!!e.hero_image && e.hero_image !== FALL_COLLECTION_POSTER) || !!inventory?.photo_ref;
+        const image = hasImageProof ? fallEventCardImageSrc(e, 640, inventory) : null;
         return ({
         ...e,
         kind: "event",
@@ -197,16 +199,18 @@ export async function GET(request) {
             wfScore: rating ? wayfindScore(rating, reviews) : null,
             take: row.editorial_summary || row.card_hook || null,
             hook: row.card_hook || null,
-            image: fallEventCardImageSrc({ ...row, hero_image: null }, 640, inventory),
+            image: inventory?.photo_ref ? fallEventCardImageSrc({ ...row, hero_image: null }, 640, inventory) : null,
             fallRail: FALL_DISCOVERY_RAIL[row.event_id],
             sourceUrl: row.source_url || null,
             seasonalThrough: row.end_date || null,
           };
-        });
+        })
+        .filter((place) => place.image);
 
       const seasonalPlaceIds = new Set(seasonalPlaces.map((place) => place.id));
       const places = [...seasonalPlaces, ...(placeResult.error ? [] : (placeResult.data || []))
         .filter((p) => !seasonalPlaceIds.has(p.place_id))
+        .filter((p) => !!p.photo_ref)
         .filter((p) => (!p.status || p.status === "OPERATIONAL") && p.signals && typeof p.signals.rating === "number" && p.signals.rating > 0)
         .map((p) => ({
           kind: "place",
@@ -223,6 +227,9 @@ export async function GET(request) {
           fallRail: FALL_PLACE_RAIL[p.place_id] || (FALL_PHOTO_SPOTS[p.place_id] ? "photos" : null),
           ...(FALL_PHOTO_SPOTS[p.place_id] || {}),
         }))]
+        // Seasonal rails promise a real image of the named destination. A
+        // missing/refused photo is an enrichment task, not a blank card.
+        .filter((place) => place.image)
         .sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
 
       const composed = composeFallIntentRails(events, places, { lat, lng, today });

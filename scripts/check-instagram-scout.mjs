@@ -129,6 +129,10 @@ ok(new Set(IG_HASHTAGS).size === IG_HASHTAGS.length, "no duplicate hashtags (a d
 ok(new Set(IG_HANDLES.map((h) => h.handle)).size === IG_HANDLES.length, "no duplicate handles");
 ok(IG_HANDLES.every((h) => /^[a-z0-9._]{1,30}$/.test(h.handle) && h.why), "every handle is lowercase-valid and carries the reason it is watched");
 ok(/wf_social_source_health/.test(routeRaw), "a handle that cannot be resolved is recorded, not retried forever");
+ok(/mapConcurrent\(IG_HANDLES,\s*GRAPH_WORKERS/.test(routeRaw)
+  && /mapConcurrent\(tags,\s*GRAPH_WORKERS/.test(routeRaw)
+  && /export const maxDuration = 60/.test(routeRaw),
+  "venue and hashtag reads use bounded concurrency inside the cron runtime");
 
 // ── 5. the setup path is documented ───────────────────────────────────────
 const doc = read("docs/INSTAGRAM_SETUP.md");

@@ -44,6 +44,7 @@ import { stayOnRailReaction } from "../../lib/railReaction.js";
 import { creatorVideosFor } from "../../lib/creatorVideos";
 import CreatorCardMark from "./CreatorCardMark";
 import { topPickAward } from "../../lib/topPickAward";
+import { couponForPlace } from "../../lib/coupons";
 
 // ---------------------------------------------------------------------------
 // Experience-tag chips (owner: "I need the cards to look like the cards from
@@ -309,6 +310,11 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   }, actionsLive);
   if (!place) return null;
   const expTags = experienceTags(place, 3);
+  // Resolve the offer in the shared card itself so every IconicPlaceCard
+  // surface (browse, map, saved, guides and intent pages) gets the same
+  // location-safe deal marker. couponForPlace is identity-first and fails
+  // closed; a same-name chain in another town never receives the pill.
+  const cardCoupon = couponForPlace(place, siteTodayStr());
   // THE GOVERNING LAW, shown == sorted (2026-08-07): a row ranked through
   // byVisibleScore carries governed_score (base +0.2 video −0.2 far +0.6
   // trending, disclosed below) — prefer it so the badge can never disagree
@@ -526,6 +532,9 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
                 "Nature & trails · Outdoor" and no water; the pier next to it
                 showed water only because it had one pill. Disclosures render
                 FIRST; the clamp trims decoration instead. */}
+            {cardCoupon ? (
+              <span className="wf-place-card-deal" title={cardCoupon.title || "Deal available"}>🏷️ Deal</span>
+            ) : null}
             {badge || null}
             {expTags.map((tag) => (
               <button
