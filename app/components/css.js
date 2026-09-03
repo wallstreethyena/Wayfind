@@ -589,12 +589,18 @@ export const WF_PLACE_CARD_CSS = `
   scroll-snap-align:start;
 }
 .wf-rail-card{display:flex;flex-direction:column;cursor:pointer}
+
+@media(min-width:1100px){ .wf-rail>.wf-rail-card{min-width:min(440px,100%)} }
+
 .wf-rail-events>.wf-rail-card{min-height:245px}
+
+.wf-rail-card:not(:has(.wf-place-card-actions)){--wf-card-h:236px}
 .wf-rail-card>.wf-place-card-layout{flex:1}
 .wf-rail-card .wf-place-card-content{padding:12px 12px 10px!important}
 .wf-rail-card .wf-place-card-name{
   display:-webkit-box;
-  -webkit-line-clamp:2;
+  
+  -webkit-line-clamp:3;
   -webkit-box-orient:vertical;
   overflow:hidden;
   min-height:2.3em;
@@ -602,6 +608,11 @@ export const WF_PLACE_CARD_CSS = `
   line-height:1.15!important;
 }
 .wf-rail-card .wf-place-card-meta{flex-wrap:nowrap!important;overflow:hidden;gap:4px 10px!important;margin:7px 0 6px!important}
+
+@media(max-width:560px){
+  
+  .wf-rail-card{--wf-card-badge-w:88px}
+}
 .wf-rail-card .wf-place-card-highlights{flex-wrap:nowrap!important;overflow:hidden}
 .wf-rail-top40 .wf-place-card-highlights{flex-wrap:wrap!important;overflow:visible;max-height:none;mask-image:none;-webkit-mask-image:none}
 .wf-rail-card .wf-place-card-award{margin-bottom:6px}
