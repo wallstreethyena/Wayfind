@@ -112,6 +112,7 @@ node scripts/test-experience-concepts.mjs
 node scripts/test-creator-archetypes.mjs
 node scripts/check-copy-no-empty-hype.mjs
 node scripts/test-rail-score-order.mjs
+node scripts/check-rail-rank-law.mjs
 node scripts/check-subfilter-experience-coverage.mjs
 node scripts/test-klook-coupons.mjs
 node scripts/test-sheet-booking.mjs
