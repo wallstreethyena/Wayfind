@@ -99,15 +99,60 @@ const bn = readFileSync(p("app/components/BestNearby.js"), "utf8");
 ok(/ensureLoaded\(sdef\.id\)/.test(bn) && /delete nx\[sdef\.id\]/.test(bn),
   "the failed-rail control must clear the slot AND call ensureLoaded — clearing alone leaves it blank, calling alone no-ops because the slot is still claimed");
 
-// ─── 5. THE OTHER TWO LOADERS ALREADY TERMINATE, AND MUST KEEP DOING SO ─────
-// IntentRail wraps its IIFE in try/catch; ExplodingNearby attaches .catch and
-// writes a terminal status. Neither routes through settleLoad (they own
-// different shapes), so assert the property directly.
-for (const [rel, needle, why] of [
-  ["app/components/IntentRail.js", /\(async \(\) => \{\s*\n\s*try \{/, "its async IIFE must open with try {"],
-  ["app/components/ExplodingNearby.js", /\.catch\(\(\) => \{[^}]*setResult\(/, "its fetch chain must .catch() into a terminal setResult"],
-]) {
-  ok(needle.test(readFileSync(p(rel), "utf8")), `${rel}: ${why} — otherwise it strands its own loading state exactly like BestNearby did`);
+// ─── 5. A .catch() IS NOT A TIMEOUT. ────────────────────────────────────────
+//
+// WHAT THIS SECTION USED TO SAY, AND WHY IT WAS WRONG (2026-09-04).
+//
+// It asserted that ExplodingNearby "must .catch() into a terminal setResult"
+// and that IntentRail's IIFE "must open with try {". Both are TRUE of a
+// REJECTION and say NOTHING about a HANG. lib/loadState.js's own header states
+// the law this file exists to enforce:
+//
+//     "A rejection is not the only way to hang: a fetch against a black-holed
+//      connection, a promise nothing ever resolves, or a device that slept
+//      mid-request all leave the await pending forever, and the reader sees
+//      the identical grey box."
+//
+// So this file was enforcing a WEAKER standard on the components most able to
+// hang than the doctrine it cites — and it was doing it in the file whose whole
+// subject is the permanent grey box. Measured on production 5bc262b3:
+// app/components/ExplodingNearby.js contained no setTimeout, no timer-driven
+// abort and no deadline of any kind (its only ctrl.abort() is unmount
+// cleanup), and lib/explodingLaunchSearch.js contained no timeout either. A
+// never-settling /api/places/search or /api/trends/nearby therefore left
+// status:"loading" forever with the retry control unreachable, because the
+// retry is gated behind a rejection that a hang never produces.
+//
+// RED-PROVE THE REASONING ITSELF, so this cannot be re-softened by argument:
+// a .catch() attached to a never-settling promise is shown to never run, while
+// settleLoad on the same promise reaches a decision.
+{
+  let caught = false;
+  const hang = new Promise(() => {});
+  hang.catch(() => { caught = true; });
+  const decided = await settleLoad(() => hang, { timeoutMs: 40 });
+  await new Promise((r) => setTimeout(r, 80));
+  ok(caught === false,
+    "a .catch() on a never-settling promise must NOT fire — if this fails the premise of this section is wrong and the assertions below are meaningless");
+  ok(decided.ok === false && decided.reason === "timeout",
+    "settleLoad on that SAME never-settling promise must reach a terminal decision — this is the difference the components below are required to have");
 }
 
-console.log(`check-no-stuck-loading: OK — ${pass} assertions (settleLoad EXECUTED against rejecting, throwing, null-resolving and never-settling work; ${OWNERS.length} section owners route through it; failed slots are retryable and rendered)`);
+// Every component that paints a height-reserved skeleton while awaiting the
+// network. Joining this list costs one line. Not joining it costs a reader
+// stranded on a grey box with no way out, which is this file's entire subject.
+const TIMED = [
+  "app/components/ExplodingNearby.js",   // owns the "Trending Near You" sheet
+  "app/components/IntentRail.js",        // homepage intent rail
+  "app/components/IntentPageClient.js",  // whole-page skeleton on SEO intent routes
+  "app/components/TrendingNowClient.js", // /trending-now
+];
+for (const rel of TIMED) {
+  const src = readFileSync(p(rel), "utf8");
+  ok(/from "(\.\.\/)+lib\/loadState\.js"/.test(src),
+    `${rel} paints a loading skeleton but does not import lib/loadState.js — a pending state must be written by something that guarantees it gets overwritten`);
+  ok(/settleLoad\s*\(/.test(src),
+    `${rel} must route its load through settleLoad. A try/catch or .catch() only ever sees the failure mode that THROWS; production's was the other one, and the reader cannot tell them apart.`);
+}
+
+console.log(`check-no-stuck-loading: OK — ${pass} assertions (settleLoad EXECUTED against rejecting, throwing, null-resolving and never-settling work; ${OWNERS.length} section owners + ${TIMED.length} skeleton painters route through it; a .catch() is proven not to catch a hang)`);

@@ -13,6 +13,24 @@ import { nowContext } from "../../lib/nowContext.js";
 import { gateOutdoor, coarseCat } from "../../lib/ranking.js";
 import { topPickAward } from "../../lib/topPickAward.js";
 import { explodingUiStatus, needsOwnerFloor, UNAVAILABLE_COPY } from "../../lib/explodingNearbyServe.js";
+import { settleLoad } from "../../lib/loadState.js";
+
+// v8.57 — THE TRENDS WALK MUST REACH A DECISION.
+//
+// This rail had a .catch() and no clock. A .catch() fires on a REJECTION;
+// production's failure was the other one — /api/places/search black-holed
+// behind an upstream 429, so the promise never settled, .then and .catch both
+// never ran, and status stayed "loading" forever. The retry control below is
+// gated behind that same catch, so the reader could not even retry: the only
+// exit was closing the sheet. See lib/loadState.js for the doctrine and
+// scripts/check-no-stuck-loading.mjs section 5, which now red-proves that a
+// .catch() cannot catch a hang.
+//
+// 14s, not loadState's 12s default: this walk is a MULTI-STEP search that
+// streams partials (onPartial below), so it is legitimately slower than the
+// single-RPC rails the 12s default was tuned for. Still far short of the ~30s
+// at which a reader has already decided the site is broken.
+export const TRENDS_LOAD_TIMEOUT_MS = 14000;
 
 // v8.27 (owner, 2026-08-20, on a screenshot of the ramen card: "these pills are
 // too long"). "One of the best nearby places to try it" is 39 characters — it
@@ -252,19 +270,42 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
       const u = new URL("/api/trends/nearby", typeof window !== "undefined" ? window.location.origin : "https://www.gowayfind.com");
       u.searchParams.set("lat", String(center.lat));
       u.searchParams.set("lng", String(center.lng));
-      const r = await fetch(u.toString(), { cache: "no-store", signal: ctrl.signal });
-      return r.json().catch(() => ({}));
+      // Its own clock: this runs on BOTH the success tail and the failure tail
+      // below, so an unbounded floor fetch would re-create the same hang one
+      // level down.
+      const res = await settleLoad(async () => {
+        const r = await fetch(u.toString(), { cache: "no-store", signal: ctrl.signal });
+        return r.json().catch(() => ({}));
+      }, { timeoutMs: TRENDS_LOAD_TIMEOUT_MS });
+      return res.ok ? (res.data || {}) : {};
     };
-    loadProvidedTrendList({
+    settleLoad(() => loadProvidedTrendList({
       center, city, signal: ctrl.signal,
       // v8.24 — trends render AS THE WALK FINDS THEM (owner: "always takes so
       // long to load"). Each partial is the ranked prefix of the final list,
       // so nothing reorders under the reader; `partial` keeps a small tail
       // skeleton up until the walk completes.
       onPartial: (body) => { if (!ctrl.signal.aborted && Array.isArray(body.trends) && body.trends.length) setResult({ status: "ok", trends: body.trends, partial: true }); },
-    })
-      .then(async (body) => {
+    }), { timeoutMs: TRENDS_LOAD_TIMEOUT_MS })
+      .then(async (settled) => {
         if (ctrl.signal.aborted) return;
+        // THE BRANCH THAT DID NOT EXIST. settleLoad cannot reject and cannot
+        // hang, so this runs even when the walk never answers.
+        if (!settled.ok) {
+          // A partial walk already painted real rows. Those rows are correct —
+          // they are the ranked prefix for this reader's own point — so keep
+          // them and just drop the tail skeleton. Blanking them would be the
+          // opposite bug (see DaypartRail's v8.73 note).
+          setResult((prev) => (prev && Array.isArray(prev.trends) && prev.trends.length
+            ? { ...prev, partial: false }
+            : explodingUiStatus({ status: "trend_data_error", trends: [], error: UNAVAILABLE_COPY })));
+          try {
+            const floor = await ownerFloor();
+            if (!ctrl.signal.aborted && floor && Array.isArray(floor.trends) && floor.trends.length) apply(floor);
+          } catch (e) { /* the terminal state above already stands */ }
+          return;
+        }
+        const body = settled.data;
         // v7.24 — THE GATE MOVED TO RENDER (see `gatedTrends` below). The
         // owner's rule is unchanged — "the result should be based on the time
         // of the day and weather also, use common sense", 2026-08-11 — but it
