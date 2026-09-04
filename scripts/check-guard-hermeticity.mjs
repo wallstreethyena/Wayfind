@@ -68,6 +68,8 @@ const EXEMPT = {
     "same shape as check-inventory-integrity.mjs: it talks to a live Supabase and the credentials are the CONNECTION, not the verdict. Without them it prints SKIPPED and exits 0; with them the verdict comes entirely from wf_promote_metros row data compared to lib/promoteIndex.js PROMOTE_METROS. It is also not wired into prebuild at all (see EXCLUDED in check-guard-manifest.mjs) — it runs in the scheduled canary workflow, because a row inserted straight into production must never be able to block a code deploy",
   "check-atlas-cache-batch.mjs":
     "same shape as check-env-value-overrides.mjs: reads ATLAS_BATCH_MODEL only to SAVE and restore it around a deliberate fixture mutation (proving resolveAtlasBatchModel() logs loud on an unrecognised-but-model-shaped override instead of silently substituting) — the assertions run against values it sets itself, and the saved value is restored in a finally",
+  "check-cache-refresh.mjs":
+    "2026-09-04 guard-honesty audit (docs/audits/guard-honesty-2026-09-04.md): WAYFIND_GATE and GOOGLE_MAPS_SERVER_KEY are SAVED, then set in-process to fixture values it chooses (shut/free/unset, with/without a key) to drive the real app/api/places/refresh route's GET handler through every gate branch, asserted against the handler's actual returned JSON, then restored in a finally — same shape as check-env-value-overrides.mjs. It cannot delegate to a child process because the assertion is that the SAME loaded module instance responds differently across gate states within one test run",
 };
 
 // This file is excluded from its own sweep. It is, by construction, full of

@@ -34,8 +34,22 @@
 //
 // This asserts the ORDER, not the formula — a future scoring change is free to
 // move the numbers as long as depth still beats a thin perfect rating.
+//
+// FIXED 2026-09-04 (guard-honesty audit, disease "scoped-by-name"). This guard
+// asserted the absence of the regression on TWO HARDCODED files —
+// app/home.js and app/components/IntentPartnerPick.js, the two that had the
+// bug on 2026-08-05. Every rail composer written or copy-pasted afterwards
+// (SummerPicksRails, HomeAffiliateActivityRail, ViatorRail, FoodTourRail,
+// TourStrip, BookingCTA, screens/Events — all of them call
+// experienceWayfindScore/rankExperiences) was completely unguarded: this file
+// would stay green even if one of THEM shipped the exact same rating-dominant
+// re-sort. Section 2 below now DISCOVERS every caller by walking app/ and
+// grepping for the real call syntax, so a new rail composer is covered the
+// day it is added — the guard's file list can only grow, never require a
+// human to remember to add a path to an array.
 import { experienceWayfindScore, rankExperiences } from "../lib/experiencesData.js";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import path from "node:path";
 
 let pass = 0;
 const fail = (m) => { console.error("test-rail-score-order: FAIL — " + m); process.exit(1); };
@@ -60,16 +74,53 @@ for (let i = 1; i < ranked.length; i += 1) {
 }
 ok(ranked[0].title === "deep strong", `the highest Score shows first (got "${ranked[0].title}")`);
 
-// THE REGRESSION: neither rail may re-sort by the old rating-dominant base.
-// Asserted as an absence in code with comments stripped, because both rails
-// compute their sort inline and the defect IS that expression.
+// THE REGRESSION: NO rail composer that scores cards with the Wayfind Score
+// may re-sort by the old rating-dominant base. Asserted as an absence in code
+// with comments stripped, across the DISCOVERED UNION of call sites — not a
+// hand-maintained list — because the defect is "some file, anywhere, computes
+// this inline expression", and any file that was never taught to the guard is
+// exactly as unprotected as if the guard did not exist.
 const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
-for (const f of ["app/home.js", "app/components/IntentPartnerPick.js"]) {
-  const code = strip(readFileSync(new URL("../" + f, import.meta.url), "utf8"));
-  ok(!/rating[^\n]{0,16}\*\s*2\s*\+\s*Math\.min\(\s*0?\.4/.test(code),
-     `${f} does not re-sort by the rating-dominant base (rating*2 + min(.4, log10(reviews))) — that formula is what put a 5.0-from-3 above a 4.7-from-2000`);
-  ok(/experienceWayfindScore\(/.test(code), `${f} scores its cards with experienceWayfindScore`);
+const REPO_ROOT = new URL("..", import.meta.url);
+const CALL_RX = /\b(?:experienceWayfindScore|rankExperiences)\s*\(/;
+
+// Walk app/ (the only tree that can render a rail) for every file whose CODE
+// — not a comment, not a string — actually CALLS one of the two guarded
+// functions. This is the "union of plausible locations" pattern CLAUDE.md
+// prescribes for exactly this failure mode ("assert the invariant, not the
+// file path").
+function walk(dir, out) {
+  for (const entry of readdirSync(dir)) {
+    if (entry === "node_modules" || entry === ".next" || entry.startsWith(".")) continue;
+    const full = path.join(dir, entry);
+    const st = statSync(full);
+    if (st.isDirectory()) walk(full, out);
+    else if (/\.(js|jsx)$/.test(entry)) out.push(full);
+  }
 }
+const candidates = [];
+walk(path.join(new URL(REPO_ROOT).pathname, "app"), candidates);
+
+const callers = [];
+for (const abs of candidates) {
+  const raw = readFileSync(abs, "utf8");
+  const code = strip(raw);
+  if (CALL_RX.test(code)) callers.push({ abs, code, rel: path.relative(new URL(REPO_ROOT).pathname, abs) });
+}
+
+// Discovery sanity floor: on 2026-09-04 nine files called one of these two
+// functions (home.js, IntentPartnerPick, SummerPicksRails,
+// HomeAffiliateActivityRail, ViatorRail, FoodTourRail, TourStrip,
+// BookingCTA, screens/Events). A walk that silently found zero — a wrong
+// root, a broken regex — would make every assertion below vacuously true,
+// which is worse than no guard because it would report OK. Guard the guard.
+ok(callers.length >= 5, `discovered ${callers.length} caller(s) of experienceWayfindScore/rankExperiences under app/ — expected at least 5 (a lower count than the known 9 means the walk broke, not that rails were deleted)`);
+
+for (const { code, rel } of callers) {
+  ok(!/rating[^\n]{0,16}\*\s*2\s*\+\s*Math\.min\(\s*0?\.4/.test(code),
+     `${rel} does not re-sort by the rating-dominant base (rating*2 + min(.4, log10(reviews))) — that formula is what put a 5.0-from-3 above a 4.7-from-2000`);
+}
+console.log(`test-rail-score-order: discovered and swept ${callers.length} caller(s): ${callers.map((c) => c.rel).join(", ")}`);
 
 // POSITIVE CONTROL: the banned pattern is detectable, so the absence above means something.
 // The first draft of this pattern excluded ")" and therefore did not match
