@@ -163,10 +163,6 @@
       "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
     },
     {
-      "file": "scripts/check-env.mjs",
-      "reason": "imports/execs real code but asserts nothing on what it returns (decorative)"
-    },
-    {
       "file": "scripts/check-events-rail-renders.mjs",
       "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
     },
