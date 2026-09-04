@@ -3,9 +3,9 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 import { createClient } from "@supabase/supabase-js";
-import atlasCards from "../../../../../data/atlas/editorial-cards.json";
-import { aiKey } from "../../../../../lib/aiKey.js";
-import { jobCannotRun } from "../../../../../lib/jobFail.js";
+import atlasCards from "../../../../data/atlas/editorial-cards.json";
+import { aiKey } from "../../../../lib/aiKey.js";
+import { jobCannotRun } from "../../../../lib/jobFail.js";
 
 const MODEL = "claude-haiku-4-5";
 const MAX_IMAGES = 8;
