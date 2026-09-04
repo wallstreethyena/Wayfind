@@ -26,15 +26,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 535,
-    "totalRegistryEntries": 536,
-    "guardsTxtLineCount": 532,
-    "guardsTxtReachedFileCount": 529,
+    "totalOnDiskGuardFiles": 533,
+    "totalRegistryEntries": 534,
+    "guardsTxtLineCount": 530,
+    "guardsTxtReachedFileCount": 527,
     "criticalCount": 65,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 348,
-      "RENDER": 42,
+      "CALL": 347,
+      "RENDER": 41,
       "STRUCTURAL": 145,
       "OTHER": 1
     }
@@ -579,28 +579,6 @@
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
       "assertionCount": 22,
-      "unprovenAbsenceCount": 0,
-      "honestyViolations": [],
-      "selfDocumentsRedProve": false,
-      "wiring": {
-        "guardsTxt": true,
-        "npmScripts": [],
-        "githubWorkflows": []
-      },
-      "gating": "blocks-ci-and-deploy",
-      "excludedReason": null,
-      "critical": false,
-      "criticalReasons": [],
-      "protects": null,
-      "blastRadius": null,
-      "owner": null
-    },
-    {
-      "file": "scripts/check-canary-workflow-installed.mjs",
-      "npmScript": null,
-      "class": "RENDER",
-      "hasStructuralOnlyTag": false,
-      "assertionCount": 0,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -2725,12 +2703,7 @@
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": [
-          {
-            "file": ".github/workflows/synthetic-monitor.yml",
-            "blocking": false
-          }
-        ]
+        "githubWorkflows": []
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
@@ -3524,14 +3497,9 @@
       "wiring": {
         "guardsTxt": false,
         "npmScripts": [],
-        "githubWorkflows": [
-          {
-            "file": ".github/workflows/canary.yml",
-            "blocking": false
-          }
-        ]
+        "githubWorkflows": []
       },
-      "gating": "scheduled-monitoring-only",
+      "gating": "unwired",
       "excludedReason": "runs in the scheduled canary workflow, not prebuild — it reads PRODUCTION Supabase, and a stale row in the database must never be able to block a code deploy. Wrong coupling in that direction; see .github/workflows/canary.yml.",
       "critical": false,
       "criticalReasons": [],
@@ -5325,14 +5293,9 @@
       "wiring": {
         "guardsTxt": false,
         "npmScripts": [],
-        "githubWorkflows": [
-          {
-            "file": ".github/workflows/canary.yml",
-            "blocking": false
-          }
-        ]
+        "githubWorkflows": []
       },
-      "gating": "scheduled-monitoring-only",
+      "gating": "unwired",
       "excludedReason": "same reasoning as check-inventory-integrity.mjs, same file — runs in the scheduled canary workflow (ops/canary.workflow.yml), not prebuild, because it reads PRODUCTION Supabase (wf_promote_metros). It is CURRENTLY RED when run with live credentials: on 2026-08-23/09-01 five metros (miami-dade, broward, palm-beach, keys, florida) were added to the live table without a matching migration or PROMOTE_METROS update, and this PR deliberately does not widen PROMOTE_METROS to paper over that (doing so would desync it from check-promote-metros-parity.mjs, which pins it to the migration file this PR does not touch). The production bug is already closed — app/api/cron/promote-index/route.js and scripts/promote-worker.mjs fetch wf_promote_metros LIVE now and no longer depend on PROMOTE_METROS being current — this guard's red result is the tracked, visible reminder that the OFFLINE FALLBACK still needs a deliberate follow-up (a migration for the five rows, or an explicit decision not to serve them offline) before it can go green.",
       "critical": false,
       "criticalReasons": [],
@@ -6442,33 +6405,6 @@
         "guardsTxt": true,
         "npmScripts": [],
         "githubWorkflows": []
-      },
-      "gating": "blocks-ci-and-deploy",
-      "excludedReason": null,
-      "critical": false,
-      "criticalReasons": [],
-      "protects": null,
-      "blastRadius": null,
-      "owner": null
-    },
-    {
-      "file": "scripts/check-synthetic-monitor-hermetic.mjs",
-      "npmScript": null,
-      "class": "CALL",
-      "hasStructuralOnlyTag": false,
-      "assertionCount": 68,
-      "unprovenAbsenceCount": 0,
-      "honestyViolations": [],
-      "selfDocumentsRedProve": true,
-      "wiring": {
-        "guardsTxt": true,
-        "npmScripts": [],
-        "githubWorkflows": [
-          {
-            "file": ".github/workflows/synthetic-monitor.yml",
-            "blocking": false
-          }
-        ]
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,

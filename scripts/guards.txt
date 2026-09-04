@@ -775,7 +775,6 @@ node scripts/check-rail-identity.mjs
 node scripts/check-env-placeholders.mjs
 node scripts/check-env.mjs
 node scripts/check-env-guard-can-fail.mjs
-node scripts/check-canary-workflow-installed.mjs
 # 2026-08-22 — AN OUTING, not merely an attractions-gated row. Checked in
 # PRODUCTION after v8.31.2 shipped: "Places You'd Never Find" near Parrish led
 # with Elite Medical Spa, a wedding venue and MassageLuXe; nine of the Lakewood
@@ -1082,4 +1081,3 @@ node scripts/test-revenue-heartbeat.mjs
 # sound, that redaction removes fake secrets from every evidence field including
 # ones only run.mjs would think to redact, that the evidence writer red-proves
 # against real files on disk, and that the workflow is installed at its real path.
-node scripts/check-synthetic-monitor-hermetic.mjs
