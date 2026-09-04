@@ -644,6 +644,7 @@ export const WF_PLACE_CARD_CSS = `
 .wf-rail-card .wf-place-card-actions>a,.wf-rail-card .wf-place-card-actions>button{padding:0 7px!important;font-size:10px!important}
 
 .wf-rail-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 7px}
+.wf-rail-deck{margin:0 0 8px;font-size:12.5px;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wf-rail-nav-hint{color:#8B97A8;font-size:11px;font-weight:700;letter-spacing:.2px}
 .wf-rail-nav-hint b{color:#CBD5E1;font-weight:800}
 .wf-rail-nav-btns{display:flex;gap:6px}

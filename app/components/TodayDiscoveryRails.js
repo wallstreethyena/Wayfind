@@ -32,7 +32,7 @@ function TodayRailSection({ rail, lat, lng, city, onOpenPlace, isSaved, liked, d
   const railId = "today-discovery-" + rail.id;
   return <section aria-label={rail.title} style={{ marginTop: 22 }}>
     <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 800, color: COLORS.text }}>{rail.title}</h2>
-    <p style={{ margin: "0 0 8px", fontSize: 12.5, lineHeight: 1.45, color: "#AEB8C6" }}>{rail.deck}</p>
+    <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>{rail.deck}</p>
     {!items.length ? <p style={{ margin: "8px 0 0", fontSize: 13, color: COLORS.muted }}>No nearby place has enough verified evidence for this rail yet. We will not fill it with a look-alike.</p> : <>
       <RailNav railId={railId} count={count} total={count} unit={count === 1 ? "ranked place" : "ranked places"} />
       <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>

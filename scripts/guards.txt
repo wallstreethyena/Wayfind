@@ -993,3 +993,7 @@ node scripts/check-social-extract-cannot-invent.mjs
 # (Universal Studios is [amusement_park, park]) and a VERIFIED product beats
 # both (Myakka's airboat tour is real inventory on a place typed [park]).
 node scripts/check-book-cta-needs-a-seller.mjs
+# 2026-09-04 OWNER LAW: every rail description is one immediate 5–8 word
+# benefit-led read. The guard scans all app/lib literal decks, rejects lists,
+# disclaimers and counts, and pins the one-line visual treatment everywhere.
+node scripts/check-rail-deck-copy.mjs

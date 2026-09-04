@@ -49,7 +49,7 @@ function NightOutRailSection({
   if (!count) return (
     <section aria-label={rail.title} style={{ marginTop: 22 }}>
       <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 850, color: C.text }}>{rail.title}</h2>
-      <p style={{ margin: "0 0 8px", fontSize: 12.5, lineHeight: 1.45, color: "#AEB8C6" }}>{rail.deck}</p>
+      <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>{rail.deck}</p>
       {eventsPending
         ? <div className="wf-sk" role="status" aria-busy="true" aria-label={`Finding ${rail.title}`} style={{ height: 88, borderRadius: 14, background: "#0B0E15" }} />
         : <p style={{ margin: "8px 0 0", fontSize: 13, color: C.muted }}>No verified event or venue within 27 miles clears this intent yet. Wayfind will not fill it with a look-alike.</p>}
@@ -58,7 +58,7 @@ function NightOutRailSection({
   return (
     <section aria-label={rail.title} style={{ marginTop: 22 }}>
       <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 850, color: C.text }}>{rail.title}</h2>
-      <p style={{ margin: "0 0 8px", fontSize: 12.5, lineHeight: 1.45, color: "#AEB8C6" }}>{rail.deck}</p>
+      <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>{rail.deck}</p>
       {/* Page 0's `total` (from the seed) is the count RailNav shows, never
           the merely-loaded length — the reader sees "130 ranked options" on
           first paint, not "10". */}

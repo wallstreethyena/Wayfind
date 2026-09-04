@@ -18,7 +18,7 @@ export default function LunchBreakRails({ places = [], city = "", onOpenPlace, i
     {rails.map((rail) => (
       <section key={rail.id} aria-label={rail.title} style={{ marginTop: 22 }}>
         <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 800, color: "#F1F5F9" }}>{rail.title}</h2>
-        <p style={{ margin: "0 0 8px", fontSize: 12.5, lineHeight: 1.45, color: "#AEB8C6" }}>{rail.deck}</p>
+        <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>{rail.deck}</p>
         {!rail.places.length ? <p style={{ margin: "8px 0 0", fontSize: 13, color: "#8b93a1" }}>No nearby quick-lunch place carries enough evidence for this rail yet.</p> : <>
           <RailNav railId={"lunch-break-" + rail.id} count={rail.places.length} unit={rail.places.length === 1 ? "ranked place" : "ranked places"} />
           <div className="wf-rail wf-rail-exploding" data-rail={"lunch-break-" + rail.id} tabIndex={0} role="region" aria-label={rail.title}>
@@ -48,4 +48,3 @@ export default function LunchBreakRails({ places = [], city = "", onOpenPlace, i
     ))}
   </>;
 }
-
