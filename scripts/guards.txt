@@ -997,3 +997,20 @@ node scripts/check-book-cta-needs-a-seller.mjs
 # benefit-led read. The guard scans all app/lib literal decks, rejects lists,
 # disclaimers and counts, and pins the one-line visual treatment everywhere.
 node scripts/check-rail-deck-copy.mjs
+# 2026-09-04 WO-D-atlas-cache-batch: prompt caching must be REAL, not
+# decorative — a cache_control block below the active model's documented
+# minimum is legal JSON that silently does nothing. Table-driven minimum
+# (fails loud on an unknown model), the cacheable prefix byte-identical
+# across places, cache_control ttl:"1h" on the LAST shared block only, a
+# batch result getting ZERO validation relief (same verifyAtlasEditorial as
+# the live path), and the cost estimator refusing to submit without
+# --confirm — all five red-proved by an applied mutation to a temp copy.
+node scripts/check-atlas-cache-batch.mjs
+# 2026-09-04 GUARD HONESTY AUDIT (docs/audits/guard-honesty-2026-09-04.md,
+# owner: "why does the guard keep lying to me"). The meta-guard: fails on any
+# NEW guard that is undeclared-STRUCTURAL, asserts an absence with no
+# same-file positive control, or has real import/render/exec capability but
+# zero assertions on a value code actually returned. Pre-existing offenders
+# are grandfathered in scripts/lib/guard-honesty-known-weak.json — that
+# ledger may shrink freely but only grows via a reviewed diff with a reason.
+node scripts/check-guard-honesty.mjs

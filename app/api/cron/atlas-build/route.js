@@ -104,12 +104,20 @@ import { classifyProviderFailure, breakerOpen, tripBreaker } from "../../../../l
 //                   disagree. Replaces this file's old local editorialRow(),
 //                   which hardcoded verified:false and left 169 clean rows
 //                   invisible to users.
-import { pageText, verifyAtlasEditorial } from "../../../../lib/atlasVerify";
+import { pageText, verifyAtlasEditorial, corpusOf } from "../../../../lib/atlasVerify";
 import { editorialRow } from "../../../../lib/atlasEditorial";
 import { extractModelJson } from "../../../../lib/atlasExtract";
 import { hostOfUrl, isDeniedHost } from "../../../../lib/nightlifeRail";
 import { isInsidePark } from "../../../../lib/parkZones";
 import { jobCannotRun } from "../../../../lib/jobFail";
+// WO-D-atlas-cache-batch (2026-09-04): the cacheable system block (the
+// atlas-590-v1 standard, inlined verbatim, + the JSON-shape/voice rules) and
+// the ride-level skip list now live in lib/atlasCache.js — the ONE place
+// scripts/atlas-batch.mjs shares with this route, so the two paths can never
+// send the model two different versions of "the standard". See that file's
+// header for why caching is honest here (cacheMinimumFor / assessCacheEligibility)
+// rather than a decorative cache_control that would be a no-op on Haiku.
+import { buildAtlasSystemBlocks, RIDE_RX } from "../../../../lib/atlasCache";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -159,47 +167,13 @@ const GKEY = () => (process.env.GOOGLE_MAPS_SERVER_KEY || "").trim();
 // fields; re-adding it is an explicit owner spend decision (check-spend-guard).
 const PLACE_FIELDS = "id,displayName,formattedAddress,rating,userRatingCount,websiteUri,regularOpeningHours,types,priceLevel,googleMapsUri";
 
-// Individual rides inside a park — the spec says skip these (merge into parent).
-// This is a denylist and needs upkeep: the original missed 9 of 11 sampled
-// headline rides, including Cosmic Rewind, which ranks as one of Orlando's
-// highest-reviewed "places". `coaster` is deliberately un-anchored so
-// VelociCoaster and Rip Ride Rockit match. scripts/test-atlas-ride-filter.mjs
-// locks the sample.
-const RIDE_RX = new RegExp([
-  // generic ride-shaped names
-  "coaster", "log flume", "water ?slide", "drop tower", "\\bthe ride\\b", "mine train",
-  "\\bsafaris?\\b", "river adventure", "motorbike adventure",
-  // Disney
-  "soarin", "flight of passage", "expedition everest", "space mountain", "tower of terror",
-  "rock ?n ?roller", "cosmic rewind", "guardians of the galaxy", "rise of the resistance",
-  "ratatouille", "\\bremy'?s\\b", "slinky dog", "tron lightcycle", "seven dwarfs",
-  "haunted mansion", "big thunder", "splash mountain", "thunder mountain", "test track",
-  "mission: ?space", "spaceship earth", "pirates of the caribbean", "jungle cruise",
-  "small world", "frozen ever after", "toy story mania", "star tours", "millennium falcon",
-  "smugglers run", "kilimanjaro",
-  // Universal / SeaWorld
-  "hagrid", "gringotts", "men in black", "revenge of the mummy", "incredible hulk",
-  "spider-?man", "rip ride rockit", "velocicoaster", "mako", "kraken", "montu",
-  "cheetah hunt", "cobra'?s curse", "sheikra", "manta", "ice breaker", "pipeline",
-].join("|"), "i");
-
-const SYSTEM =
-  "You write the Wayfind \"Atlas\" editorial for ONE place, to the atlas-590-v1 standard. " +
-  "Voice: specific, honest, a little wry, second person, no marketing fluff — give an OPINION, not a description. " +
-  "Return ONLY compact JSON, no prose, no code fence: " +
-  '{"hook":"one punchy concrete sentence — the single most distinctive thing",' +
-  '"why_here":"2-4 sentences on what actually makes it worth it, honest about who it is for",' +
-  '"know_before":"logistics: location, hours/closures, tickets/requirements",' +
-  '"best_time":"a specific, reasoned time to go",' +
-  '"local_tip":"one insider move",' +
-  '"facts":[{"claim":"...","source":"https://..."}]}. ' +
-  "Every facts[].claim MUST cite a REAL source URL — the official website you are given, or the place’s Google Maps URL. " +
-  "NEVER invent a fact, a source, a price, or hours you were not given. " +
-  "When official_page_text is present, prefer it: it is the venue's own words. " +
-  "Every number (price, year, time, count) and every proper name you write MUST appear literally in the context you were given — " +
-  "if a founding date is not there, do not state one. Omit rather than guess; an omitted detail is correct, an invented one is not. " +
-  "Ignore hygiene, cookie, privacy and accessibility boilerplate — it is not editorial. " +
-  'If you cannot source anything concrete about THIS specific place, return exactly {"pending":true}.';
+// RIDE_RX (individual rides inside a park skip their own editorial and merge
+// into the parent) and the atlas-590-v1 SYSTEM prompt now live in
+// lib/atlasCache.js (imported above) — moved there, verbatim, so
+// scripts/atlas-batch.mjs shares the exact same rules and skip list rather
+// than re-deriving a second copy that could drift. scripts/test-atlas-ride-filter.mjs
+// still locks the sample; scripts/test-atlas-build.mjs reads lib/atlasCache.js
+// as part of its source union for the prompt-content assertions.
 
 async function placeDetails(placeId, key, timeoutMs = 8000) {
   const ctrl = new AbortController();
@@ -269,18 +243,7 @@ async function officialPage(url, timeoutMs = 5000) {
   }
 }
 
-// Everything the model was shown, as one string — the corpus the verifier checks
-// each number and proper noun against. Google's own fields count as sources.
-function corpusOf(ctx, sources) {
-  return [
-    ctx.name, ctx.address, ctx.google_summary,
-    Array.isArray(ctx.hours) ? ctx.hours.join(" ") : "",
-    ctx.rating != null ? `rated ${ctx.rating} from ${ctx.reviews} reviews` : "",
-    ...(sources || []).map((s) => s.text),
-  ].filter(Boolean).join(" ");
-}
-
-async function writeEditorial(place, d, key, sources, stats, timeoutMs = 20000) {
+async function writeEditorial(place, d, key, sources, stats, systemBlocks, timeoutMs = 20000) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
   const ctx = {
@@ -304,7 +267,7 @@ async function writeEditorial(place, d, key, sources, stats, timeoutMs = 20000) 
       signal: ctrl.signal,
       headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({
-        model: MODEL(), max_tokens: 700, temperature: 0.4, system: SYSTEM,
+        model: MODEL(), max_tokens: 700, temperature: 0.4, system: systemBlocks,
         messages: [{ role: "user", content: "Write the atlas-590-v1 editorial for this place. Source every claim from the website or Google Maps URL provided; invent nothing.\n\n" + JSON.stringify(ctx) }],
       }),
     });
@@ -390,6 +353,21 @@ export async function GET(req) {
   if (!gkey || !akey) return jobCannotRun("atlas-build", "GOOGLE_MAPS_SERVER_KEY or ANTHROPIC_API_KEY is missing");
   const svcH = { apikey: s.key, Authorization: `Bearer ${s.key}`, "Content-Type": "application/json" };
 
+  // THE CACHE HONESTY GATE, computed ONCE per invocation (both blocks are
+  // place-independent — see lib/atlasCache.js). MODEL() here is the trickle
+  // path's own model (ATLAS_MODEL, default claude-haiku-4-5) — deliberately
+  // untouched by WO-D-atlas-cache-batch item 2: the batch path gets its own
+  // ATLAS_BATCH_MODEL default (claude-sonnet-5) precisely so it can clear the
+  // cache minimum without changing what runs here. sysInfo.eligible is
+  // usually FALSE on this path today (the inlined-standard prefix is ~2,650
+  // tokens against Haiku's documented 4,096-token minimum) — that is the
+  // honest answer, not a bug, and it is why cacheEligible is stamped into
+  // EVERY pulse note below (cachePulseFragment) rather than silently assumed
+  // either way. Computed before the circuit breaker so even an early-exit
+  // pulse states it.
+  const sysInfo = buildAtlasSystemBlocks(MODEL());
+  const cachePulseFragment = `cacheEligible=${sysInfo.eligible} tokens=${sysInfo.tokens} min=${sysInfo.min ?? "unknown"} model=${sysInfo.model}`;
+
   // CIRCUIT BREAKER (2026-08-25, after the 579-call billing incident). If a
   // previous run proved the provider is refusing for a deterministic reason
   // (billing/quota), skip the whole batch — no Places spend, no model calls —
@@ -400,7 +378,9 @@ export async function GET(req) {
     if (down) {
       await pulse({
         attempted: 1, succeeded: 0,
-        note: (down.kind === "billing" ? "billing: " : "quota: ") + "anthropic circuit open — " + (down.reason || ""),
+        // "billing:"/"quota:" MUST stay the first four-plus chars — classifyHealth
+        // pattern-matches the START of the note, so cachePulseFragment goes after.
+        note: ((down.kind === "billing" ? "billing: " : "quota: ") + "anthropic circuit open — " + (down.reason || "") + " | " + cachePulseFragment).slice(0, 200),
       });
       return Response.json({ ok: false, skipped: "anthropic-circuit-open", kind: down.kind, reason: down.reason, since: down.at });
     }
@@ -457,10 +437,13 @@ export async function GET(req) {
     // a selector that could not be reached is an error with a non-200, so
     // job-watch pages instead of recording a healthy no-op.
     if (selectorError) {
-      await pulse({ attempted: 0, succeeded: 0, note: "SELECTOR UNREACHABLE: " + selectorError });
+      await pulse({ attempted: 0, succeeded: 0, note: ("SELECTOR UNREACHABLE: " + selectorError + " | " + cachePulseFragment).slice(0, 200) });
       return Response.json({ ok: false, done: false, error: "selector-unreachable", detail: selectorError }, { status: 503 });
     }
-    await pulse({ attempted: 0, succeeded: 0, note: refreshMode ? "no verified editorial older than 21 days" : "no missing rows in target categories/metros" });
+    await pulse({
+      attempted: 0, succeeded: 0,
+      note: ((refreshMode ? "no verified editorial older than 21 days" : "no missing rows in target categories/metros") + " | " + cachePulseFragment).slice(0, 200),
+    });
     return Response.json({ ok: true, done: true, note: "no missing rows in target categories/metros" });
   }
 
@@ -520,7 +503,7 @@ export async function GET(req) {
     const sources = page ? [page] : [];
     if (page) withPage++;
 
-    const parsed = await writeEditorial(place, d, akey, sources, stats);
+    const parsed = await writeEditorial(place, d, akey, sources, stats, sysInfo.blocks);
     if (!parsed || parsed.pending === true || !parsed.hook) {
       // A venue whose only official source is a Disney host can NEVER be sourced
       // — §7 forbids the fetch, permanently. Labelling that PENDING SOURCE put it
@@ -644,18 +627,25 @@ export async function GET(req) {
   // classifyHealth() see "work existed, nothing succeeded" instead of "idle"
   // — job-watch pages after DEAD_RUN_THRESHOLD consecutive dead runs, which
   // is the correct outcome: this state does not clear on its own retry.
+  const failureNote = stats.providerHalt
+    // "billing:"/"quota:" prefix is the escalation hook: classifyHealth
+    // treats it as an incident after ONE dead run, not DEAD_RUN_THRESHOLD.
+    ? `${stats.providerHalt.kind}: ${stats.providerHalt.msg}`
+    : rows.length === 0
+      ? `budget: 0 of ${places.length} candidates written — ${deferred} deferred (spend gate / deadline)`
+      : publishedCount === 0 && rows.length > 0
+        ? `0 published of ${rows.length}: pending=${pending} unverified=${unverified} with_page=${withPage}`
+        : null;
+  // cachePulseFragment ALWAYS rides along — WO-D-atlas-cache-batch's binding
+  // requirement is that cacheEligible never be a silent no-op, on a healthy
+  // run exactly as much as a broken one. It goes AFTER the billing/quota
+  // prefix (never before it — classifyHealth's escalation match is anchored
+  // to the start of the note) and is the WHOLE note on an otherwise-quiet
+  // successful run, where the old code wrote `null`.
   await pulse({
     attempted: rows.length || places.length,
     succeeded: publishedCount,
-    note: stats.providerHalt
-      // "billing:"/"quota:" prefix is the escalation hook: classifyHealth
-      // treats it as an incident after ONE dead run, not DEAD_RUN_THRESHOLD.
-      ? `${stats.providerHalt.kind}: ${stats.providerHalt.msg}`
-      : rows.length === 0
-        ? `budget: 0 of ${places.length} candidates written — ${deferred} deferred (spend gate / deadline)`
-        : publishedCount === 0 && rows.length > 0
-          ? `0 published of ${rows.length}: pending=${pending} unverified=${unverified} with_page=${withPage}`
-          : null,
+    note: [failureNote, cachePulseFragment].filter(Boolean).join(" | ").slice(0, 200) || null,
   });
 
   return Response.json({
@@ -679,5 +669,8 @@ export async function GET(req) {
     provider_halt: stats.providerHalt || null,
     took_ms: Date.now() - startedAt,
     remaining_after: Array.isArray(left) ? left.length + "+ (paged)" : "?", error: upErr, model: MODEL(),
+    // Stated plainly on every response, not just the pulse note: whether the
+    // cache_control this run attached (if any) can do anything real.
+    cache: { eligible: sysInfo.eligible, prefix_tokens: sysInfo.tokens, model_minimum: sysInfo.min, reason: sysInfo.reason },
   }, { headers: { "Cache-Control": "no-store" } });
 }

@@ -42,6 +42,26 @@ export async function loadComponent(entryAbs, repoRoot) {
     // HTML the crawler gets — which is the thing these tests exist to check.
     // A lazy child's own behaviour belongs to that child's own guard.
     "next/dynamic": 'export default function dynamic() { return function DynamicStub() { return null; }; }\n',
+    // next/server — 2026-09-04 (guard-honesty audit). Route handlers (not just
+    // components) now get loaded here too, so a route's `import { NextResponse }
+    // from "next/server"` needs to resolve. next's package.json has no bare
+    // "server" export (only "server.js", and node's own resolver won't guess
+    // the extension), so plain node throws ERR_MODULE_NOT_FOUND before the
+    // route's own logic ever runs. This is NOT a no-op stub like next/dynamic
+    // above — NextResponse.json(...) is what every route branch under test
+    // returns, so the stub is a REAL implementation built on Node's native
+    // Response/Request (available since Node 18), not a mock of the shape.
+    "next/server": [
+      "export class NextResponse extends Response {",
+      "  static json(body, init) {",
+      "    const status = (init && init.status) || 200;",
+      "    const headers = Object.assign({ \"content-type\": \"application/json\" }, init && init.headers);",
+      "    return new NextResponse(JSON.stringify(body), Object.assign({}, init, { status, headers }));",
+      "  }",
+      "}",
+      "export class NextRequest extends Request {}",
+      "",
+    ].join("\n"),
   };
   const stubFor = (spec) => {
     const v = BROWSER_STUBS[spec];
