@@ -7,6 +7,7 @@ import path from "path";
 import { lunchRevealCookieValue, lunchRevealCount, lunchRevealLimit, lunchRevealRemaining } from "../lib/lunchReveal.js";
 import { RAILS } from "../lib/rails.js";
 import { DAYPART_IDS, orderFor, railHref } from "../lib/dayparts.js";
+import { LUNCH_LAUNCH_RECOVERY, RETIRED_LUNCH_PLACE_ID, retiredLunchLaunchTarget } from "../lib/lunchLaunch.js";
 
 let pass = 0;
 const fail = (m) => { console.error("check-lunch-in-my-city: FAIL — " + m); process.exit(1); };
@@ -24,6 +25,7 @@ const vercel = read("vercel.json");
 const challengePage = read("app/lunch-challenge/page.js");
 const challengeOpen = read("app/lunch-challenge/LunchChallengeOpen.js");
 const detail = read("app/components/sheets/Detail.js");
+const placePage = read("app/p/[id]/page.js");
 
 ok(home.includes('["dice", "Lunch in My City", onSurprise'), "the rightmost Shortcuts chip is named Lunch in My City");
 ok(/tile: "Surprise me", chip: "Lunch in My City", experience: "lunch_in_my_city"/.test(home), "the rename preserves the existing discovery funnel and adds the new experience identity");
@@ -72,6 +74,11 @@ const lunchRail = RAILS.find((rail) => rail.id === "lunchcity");
 ok(!!lunchRail && lunchRail.opensPage === true, "Lunch in My City is a visible page-launch tile on the Amazon rail");
 ok(railHref(lunchRail, "fl", "parrish") === "/?go=lunch", "the Amazon tile opens the location-aware lunch challenge");
 ok(!lunchRail.href.includes("ChIJ9RHZGx6H3YgRnWVYIWsHNPM"), "the lunch poster can never reopen Gatorland's place route");
+ok(retiredLunchLaunchTarget({ placeId: RETIRED_LUNCH_PLACE_ID, referrer: "https://www.gowayfind.com/" }) === LUNCH_LAUNCH_RECOVERY, "an old homepage Lunch poster hop is recovered server-side even when Safari keeps the retired anchor");
+ok(retiredLunchLaunchTarget({ placeId: RETIRED_LUNCH_PLACE_ID, referrer: "https://www.gowayfind.com/summer-picks" }) === null, "a legitimate Summer Picks link to Gatorland remains Gatorland");
+ok(retiredLunchLaunchTarget({ placeId: RETIRED_LUNCH_PLACE_ID, referrer: "https://example.com/shared" }) === null, "an external shared Gatorland link remains Gatorland");
+ok(retiredLunchLaunchTarget({ placeId: "another-place", referrer: "https://www.gowayfind.com/" }) === null, "the compatibility redirect can never capture another place");
+ok(/retiredLunchLaunchTarget\([\s\S]+if \(recoveredLunch\) redirect\(recoveredLunch\)[\s\S]+homeShellData\(\)/.test(placePage), "the place route applies the retired-link recovery before building the Gatorland sheet");
 ok(DAYPART_IDS.every((band) => orderFor(band, RAILS.map((rail) => rail.id)).includes("lunchcity")), "the Lunch in My City tile appears in every daypart");
 ok(lunchRail.short === "Tap the box to accept the challenge" && lunchRail.sub === "One lunch place around you, wherever you are now", "the Amazon tile carries the owner's challenge wording");
 for (const file of ["lunchcity-380.avif", "lunchcity-380.webp", "lunchcity-760.avif", "lunchcity-760.webp", "lunchcity-760.jpg"]) {
