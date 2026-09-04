@@ -9,7 +9,7 @@ import { toDisplayScore } from "../../lib/score.js";
 
 const compact = (value) => Number(value) >= 1000 ? `${Math.round(Number(value) / 100) / 10}k` : String(Number(value) || 0);
 
-export default function SummerPicksRails({ rails, city }) {
+export default function SummerPicksRails({ rails, city, onOpenPlace = null }) {
   return <>{(rails || []).map((rail) => {
     const railId = `summer-picks-${rail.id}`;
     return <section key={rail.id} aria-labelledby={`${railId}-title`} style={{ marginTop: 28 }}>
@@ -40,6 +40,7 @@ export default function SummerPicksRails({ rails, city }) {
             return <RailCard key={`place:${card.id}`} photo={photo} title={card.name} eyebrow={rail.title}
               rank={rank} score={toDisplayScore(card.wfScore)} facts={facts}
               take={card._summerWhy || card.editorial || card.hook || null} place={card} eagerMedia={rank <= 3}
+              onOpen={onOpenPlace ? () => onOpenPlace(card) : undefined}
               ariaLabel={`Open ${card.name}`} href={`/p/${encodeURIComponent(card.id)}`}
               cta={ctaHref ? { label: "Directions ↗", href: ctaHref, external: true } : null} />;
           })}

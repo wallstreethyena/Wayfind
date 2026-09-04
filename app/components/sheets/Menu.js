@@ -10,12 +10,15 @@
 // file. A new sub-state needs a write that is ITSELF reachable — the "menu"
 // block held the only setter for "experiences", which is how a live-looking
 // entry point turned out to open nothing.
-import { C, sheetBg, sheet, SHEET_EASE, Grabber, PlaceScoreChip } from "../kit";
+import { C, sheetBg, sheet, SHEET_EASE, Grabber } from "../kit";
 import CollectionHero from "../CollectionHero";
 import { CATEGORIES } from "../../../lib/google";
 
 export default function MenuSheet({ ctx }) {
-  const { menuSheet, setMenuSheet, sheetDragStart, sheetDragMove, sheetDragEnd, pickCat, suggested, places, openDetail, rollHomePick, homeRolling, homeDiceFace, rollHistory, FallbackImg, INTENTS, intent, setIntent } = ctx;
+  const { menuSheet, setMenuSheet, sheetDragStart, sheetDragMove, sheetDragEnd, pickCat, rollLunchPick, homeRolling, rollHistory, lunchAttemptsUsed, user, setAuthOpen, FallbackImg, INTENTS, intent, setIntent } = ctx;
+  const lunchPick = rollHistory[0] || null;
+  const lunchLimit = user ? 2 : 1;
+  const lunchExhausted = lunchAttemptsUsed >= lunchLimit;
   return (
         <div style={sheetBg} onClick={() => setMenuSheet(null)}>
           <div style={{ ...sheet, padding: "6px 16px 28px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setMenuSheet(null))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
@@ -23,45 +26,51 @@ export default function MenuSheet({ ctx }) {
             <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
             {menuSheet === "pick" && (
               <>
-                <style dangerouslySetInnerHTML={{ __html: "@keyframes wfRouletteFloat{0%,100%{transform:translateY(0) rotate(-9deg)}50%{transform:translateY(-7px) rotate(7deg)}}@keyframes wfRouletteGlow{0%,100%{opacity:.42;transform:scale(.92)}50%{opacity:1;transform:scale(1.08)}}@keyframes wfRouletteSpin{to{transform:rotate(360deg)}}" }} />
-                <section aria-label="Wayfind Roulette" style={{ position: "relative", overflow: "hidden", borderRadius: 22, padding: "22px 18px 18px", marginBottom: 16, background: "radial-gradient(circle at 84% 16%, rgba(148,163,184,.25), transparent 31%), linear-gradient(145deg, #172235 0%, #0E1622 58%, #0A1019 100%)", border: "1px solid rgba(148,163,184,.34)", boxShadow: "0 18px 44px rgba(0,0,0,.38)" }}>
-                  <div aria-hidden="true" style={{ position: "absolute", width: 188, height: 188, right: -64, top: -72, borderRadius: "50%", border: "1px solid rgba(148,163,184,.25)", animation: "wfRouletteSpin 18s linear infinite" }} />
-                  <div aria-hidden="true" style={{ position: "absolute", width: 126, height: 126, right: -33, top: -40, borderRadius: "50%", border: "1px dashed rgba(255,255,255,.16)", animation: "wfRouletteSpin 12s linear infinite reverse" }} />
-                  <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 14 }}>
-                    <div style={{ maxWidth: 245 }}>
-                      <div style={{ fontSize: 10.5, fontWeight: 850, letterSpacing: "1.15px", color: C.light }}>WAYFIND ROULETTE</div>
-                      <div style={{ fontSize: 25, lineHeight: 1.06, fontWeight: 850, letterSpacing: "-.55px", color: "#F8FAFC", marginTop: 6 }}>One great plan. No endless scrolling.</div>
-                      <div style={{ fontSize: 13, color: "#B7C4D6", lineHeight: 1.48, marginTop: 9 }}>We choose one standout nearby based on what is worth your time right now.</div>
-                    </div>
-                    <button aria-label={homeRolling ? "Choosing your Wayfind pick" : "Roll Wayfind Roulette"} onClick={() => rollHomePick(suggested || places || [])} disabled={homeRolling} style={{ position: "relative", flexShrink: 0, width: 92, height: 92, borderRadius: 28, border: "1px solid rgba(148,163,184,.88)", background: "linear-gradient(145deg, #2C394B, #111A26)", cursor: homeRolling ? "default" : "pointer", boxShadow: "0 12px 28px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.12)", display: "grid", placeItems: "center" }}>
-                      <span aria-hidden="true" style={{ position: "absolute", inset: -8, borderRadius: 34, border: "1px solid rgba(148,163,184,.36)", animation: "wfRouletteGlow 2.2s ease-in-out infinite" }} />
-                      {homeRolling ? <span style={{ position: "relative", zIndex: 1, color: "#fff", fontSize: 41, lineHeight: 1, animation: "wfroll .48s linear infinite" }}>{homeDiceFace}</span> : <span aria-hidden="true" style={{ position: "relative", zIndex: 1, width: 48, height: 48, borderRadius: 14, background: "linear-gradient(145deg, #F8FAFC, #B9C3D0)", boxShadow: "inset 0 1px 0 #fff, 0 7px 14px rgba(0,0,0,.26)", transform: "rotate(-9deg)", animation: "wfRouletteFloat 3.6s ease-in-out infinite", display: "block" }}><i style={{ position: "absolute", width: 7, height: 7, borderRadius: "50%", background: "#18202C", left: 10, top: 10 }} /><i style={{ position: "absolute", width: 7, height: 7, borderRadius: "50%", background: "#18202C", right: 10, top: 10 }} /><i style={{ position: "absolute", width: 7, height: 7, borderRadius: "50%", background: "#F97316", left: 20.5, top: 20.5 }} /><i style={{ position: "absolute", width: 7, height: 7, borderRadius: "50%", background: "#18202C", left: 10, bottom: 10 }} /><i style={{ position: "absolute", width: 7, height: 7, borderRadius: "50%", background: "#18202C", right: 10, bottom: 10 }} /></span>}
-                    </button>
+                <style dangerouslySetInnerHTML={{ __html: `
+                  @keyframes wfLunchGlow{0%,100%{box-shadow:0 0 0 4px rgba(255,255,255,.72),0 0 18px 7px rgba(249,115,22,.74),0 0 42px 15px rgba(251,191,36,.35);transform:scale(1)}50%{box-shadow:0 0 0 6px #fff,0 0 28px 12px rgba(249,115,22,.98),0 0 58px 24px rgba(251,191,36,.5);transform:scale(1.055)}}
+                  @keyframes wfLunchPress{0%,100%{transform:scale(1)}25%{transform:scale(.9) rotate(-3deg)}58%{transform:scale(1.12) rotate(3deg)}}
+                  @keyframes wfMarioPipe{0%{transform:translateY(0);opacity:0}12%{opacity:1}72%{transform:translateY(88px);opacity:1}100%{transform:translateY(116px);opacity:0}}
+                  @keyframes wfLunchRise{0%{opacity:0;transform:translateY(240px) scale(.72)}68%{opacity:1;transform:translateY(-10px) scale(1.02)}100%{opacity:1;transform:translateY(0) scale(1)}}
+                  @keyframes wfLunchSpark{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}35%{opacity:1}100%{opacity:0;transform:translate(var(--spark-x),var(--spark-y)) scale(1.15)}}
+                  @keyframes wfLunchDisclosure{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
+                  .wf-lunch-question:focus-visible{outline:3px solid #fff;outline-offset:7px}
+                  @media(prefers-reduced-motion:reduce){.wf-lunch-question,.wf-lunch-result,.wf-lunch-spark,.wf-lunch-mario,.wf-lunch-disclosure{animation:none!important}}
+                ` }} />
+                <section aria-label="Lunch in My City" style={{ position: "relative", height: "clamp(520px, 72dvh, 650px)", overflow: "hidden", borderRadius: 24, marginBottom: lunchPick ? 10 : 16, background: "#10151B", border: "1px solid rgba(251,146,60,.62)", boxShadow: "0 20px 52px rgba(0,0,0,.5), 0 0 30px rgba(249,115,22,.14)" }}>
+                  <img className="wf-lunch-scene" src="/cards/lunch-in-my-city.webp" alt="Pixel art question block and Mario above a green pipe on a city wall" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 38%", filter: homeRolling ? "brightness(.72)" : "none", transition: "filter 180ms ease" }} />
+                  {homeRolling && <img className="wf-lunch-mario" src="/cards/lunch-in-my-city.webp" alt="" aria-hidden="true" style={{ position: "absolute", zIndex: 2, inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 38%", clipPath: "polygon(34% 48%,66% 48%,66% 80%,34% 80%)", animation: "wfMarioPipe .9s cubic-bezier(.35,.05,.65,1) both" }} />}
+                  <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(3,7,12,.74) 0%,rgba(3,7,12,.18) 28%,rgba(3,7,12,.04) 52%,rgba(3,7,12,.78) 100%)" }} />
+                  <div style={{ position: "absolute", zIndex: 2, top: 18, left: 18, right: 18, color: "#fff", textShadow: "0 2px 14px rgba(0,0,0,.95)" }}>
+                    <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "1.3px", color: "#FDBA74" }}>LUNCH IN MY CITY</div>
+                    <div style={{ maxWidth: 320, marginTop: 5, fontSize: 27, lineHeight: 1.05, fontWeight: 800, letterSpacing: "-.5px" }}>Your next lunch is hiding here.</div>
                   </div>
-                  <div style={{ position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: 7, marginTop: 18 }}>
-                    {["Nearby", "Great reviews", "Best for now"].map((label, index) => <div key={label} style={{ borderTop: "1px solid rgba(255,255,255,.14)", paddingTop: 8, color: "#D7E0EC", fontSize: 11, fontWeight: 750, lineHeight: 1.2 }}><span style={{ color: C.light, marginRight: 5 }}>{["01", "02", "03"][index]}</span>{label}</div>)}
-                  </div>
-                  <button onClick={() => rollHomePick(suggested || places || [])} disabled={homeRolling} style={{ position: "relative", zIndex: 1, width: "100%", minHeight: 54, marginTop: 18, border: "none", borderRadius: 15, background: "linear-gradient(180deg,#FF963C,#F97316 58%,#E95A0C)", color: "#0B111A", fontSize: 15, fontWeight: 850, cursor: homeRolling ? "default" : "pointer", boxShadow: "0 10px 22px rgba(148,163,184,.28)", opacity: homeRolling ? .65 : 1 }}>{homeRolling ? "Finding your move…" : rollHistory.length ? "Roll a new plan →" : "Find my next move →"}</button>
-                </section>
-                {rollHistory.length > 0 && (
-                  <div style={{ marginTop: 10 }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 8 }}>Your rolls</div>
-                    {rollHistory.map((rp, i) => (
-                      <div key={rp.id + "-" + i} onClick={() => { setMenuSheet(null); openDetail(rp); }} style={{ display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "8px 10px", marginBottom: 7, cursor: "pointer" }}>
-                        <span style={{ flexShrink: 0, width: 22, height: 22, borderRadius: "50%", background: C.adim, color: C.light, fontSize: 11, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>{rollHistory.length - i}</span>
-                        <FallbackImg src={rp.photo} icon="🍽️" style={{ width: 40, height: 40, borderRadius: 8, objectFit: "cover", flexShrink: 0 }} />
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{rp.name}</div>
-                          <div style={{ display: "flex", gap: 6, marginTop: 2, alignItems: "center" }}>
-                            <PlaceScoreChip p={rp} size={11} />
-                            {rp.distMi != null && <span style={{ fontSize: 11, color: C.muted }}>· {rp.distMi.toFixed(1)} mi</span>}
-                          </div>
-                        </div>
-                        <span style={{ color: C.muted, fontSize: 16, flexShrink: 0 }}>›</span>
+                  <button
+                    type="button"
+                    className="wf-lunch-question"
+                    aria-label={homeRolling ? "Choosing a lunch place near you" : lunchExhausted ? "Today's lunch reveal has been used" : lunchPick ? "Reveal another lunch place near you" : "Reveal a lunch place near you"}
+                    onClick={rollLunchPick}
+                    disabled={homeRolling || lunchExhausted}
+                    style={{ position: "absolute", zIndex: 5, left: "39.5%", top: "31.5%", width: "22%", aspectRatio: "1 / 1", padding: 0, border: "none", borderRadius: 10, background: homeRolling ? "rgba(255,255,255,.32)" : "rgba(255,255,255,.06)", cursor: homeRolling ? "wait" : lunchExhausted ? "default" : "pointer", opacity: lunchExhausted ? .68 : 1, animation: homeRolling ? "wfLunchPress .55s ease-in-out infinite" : lunchExhausted ? "none" : "wfLunchGlow 1.65s ease-in-out infinite", WebkitTapHighlightColor: "transparent" }}
+                  >
+                    <span aria-hidden="true" style={{ position: "absolute", left: "50%", top: -34, transform: "translateX(-50%)", padding: "6px 10px", borderRadius: 999, background: lunchExhausted ? "#4B5563" : "#F97316", color: "#fff", boxShadow: "0 5px 16px rgba(0,0,0,.45)", fontSize: 12, fontWeight: 800, whiteSpace: "nowrap" }}>{homeRolling ? "Picking…" : lunchExhausted ? "Used today" : lunchPick ? "One more?" : "Tap me"}</span>
+                  </button>
+                  {homeRolling && [["-74px","-58px"],["84px","-34px"],["-88px","68px"],["96px","78px"]].map(([x,y], i) => <span key={i} className="wf-lunch-spark" aria-hidden="true" style={{ "--spark-x": x, "--spark-y": y, position: "absolute", zIndex: 4, left: "50%", top: "39%", width: 10, height: 10, borderRadius: 3, background: i % 2 ? "#FDBA74" : "#fff", boxShadow: "0 0 16px #F97316", animation: `wfLunchSpark .75s ease-out ${i * .08}s infinite` }} />)}
+                  {!lunchPick && !homeRolling && <div style={{ position: "absolute", zIndex: 2, left: 18, right: 18, bottom: 20, padding: "14px 16px", borderRadius: 16, background: "rgba(4,8,16,.78)", border: "1px solid rgba(255,255,255,.18)", color: "#F8FAFC", textAlign: "center", backdropFilter: "blur(10px)", fontSize: 15, fontWeight: 700, lineHeight: 1.35 }}>Tap the glowing question mark to reveal one standout lunch nearby.</div>}
+                  {lunchPick && !homeRolling && (
+                    <article key={lunchPick.id} className="wf-lunch-result" style={{ position: "absolute", zIndex: 6, left: 16, right: 16, bottom: 18, width: "calc(100% - 32px)", overflow: "hidden", borderRadius: 10, border: "6px solid #F8D447", background: "#5C8FEA", color: "#fff", boxShadow: "8px 8px 0 rgba(8,25,62,.78),0 20px 42px rgba(0,0,0,.55)", animation: "wfLunchRise .8s cubic-bezier(.2,.9,.25,1.08) both" }}>
+                      <FallbackImg src={lunchPick.photo || (lunchPick.photoRef ? "/api/photo?ref=" + encodeURIComponent(lunchPick.photoRef) + "&w=800" : null)} icon="🍽️" style={{ width: "100%", height: 156, borderRadius: 0, objectFit: "cover", background: "#E8DED0" }} />
+                      <div style={{ padding: "13px 15px 15px", borderTop: "5px solid #F8D447", background: "linear-gradient(180deg,#173979,#0B214D)" }}>
+                        <div style={{ fontSize: 21, lineHeight: 1.05, fontWeight: 900, letterSpacing: "-.3px" }}>{lunchPick.name}</div>
+                        <div style={{ marginTop: 8, fontSize: 13, lineHeight: 1.35, fontWeight: 700, color: "#FFF5C2" }}><span style={{ color: "#F8D447" }}>Must try:</span> {lunchPick.mustTry}</div>
                       </div>
-                    ))}
-                  </div>
-                )}
+                    </article>
+                  )}
+                </section>
+                {lunchPick && <div key={`disclosure-${lunchPick.id}`} className="wf-lunch-disclosure" style={{ padding: "12px 14px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.muted, fontSize: 12.5, lineHeight: 1.4, animation: "wfLunchDisclosure .25s ease 2.8s both" }}>
+                  {user
+                    ? lunchAttemptsUsed >= 2 ? "You've used both lunch reveals for today. A new pick unlocks tomorrow." : "You have one lunch reveal left today."
+                    : <>That was today&apos;s guest reveal. <button type="button" onClick={() => { setMenuSheet(null); setAuthOpen(true); }} style={{ padding: 0, border: 0, background: "transparent", color: C.light, font: "inherit", fontWeight: 800, textDecoration: "underline", cursor: "pointer" }}>Sign in for one more lunch pick today.</button></>}
+                </div>}
               </>
             )}
             {menuSheet === "experiences" && (

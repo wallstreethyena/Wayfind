@@ -47,7 +47,7 @@ async function withWorkingPhotos(places) {
   return rows.filter((place) => working.has(photoSrc(place)));
 }
 
-export default function SummerIntentRails({ active = true, center = null, city = "", onTrack = null }) {
+export default function SummerIntentRails({ active = true, center = null, city = "", onTrack = null, onOpenPlace = null }) {
   const [rails, setRails] = useState(null);
   const [failed, setFailed] = useState(false);
   const [retry, setRetry] = useState(0);
@@ -93,5 +93,5 @@ export default function SummerIntentRails({ active = true, center = null, city =
   if (!key) return <p style={{ color: "#A8B0BE", fontSize: 13 }}>Share your location to rank the ten summer rails near you.</p>;
   if (!rails && !failed) return <div role="status" aria-busy="true" aria-label="Ranking summer picks">{[0, 1, 2].map((index) => <div key={index} className="wf-sk" style={{ height: 88, borderRadius: 14, marginBottom: 12 }} />)}</div>;
   if (failed) return <div><p style={{ color: "#A8B0BE", fontSize: 13 }}>We could not reach Wayfind&apos;s photo-verified summer inventory. That is a service miss, not an empty town.</p><button type="button" onClick={() => setRetry((value) => value + 1)} style={{ border: "1px solid #F97316", borderRadius: 999, background: "#111827", color: "#F8FAFC", padding: "7px 12px", fontWeight: 800 }}>Try again</button></div>;
-  return <SummerPicksRails rails={rails} city={city || "Florida"} />;
+  return <SummerPicksRails rails={rails} city={city || "Florida"} onOpenPlace={onOpenPlace} />;
 }

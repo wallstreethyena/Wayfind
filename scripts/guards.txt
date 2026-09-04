@@ -61,6 +61,7 @@ node scripts/test-resolver-word-boundary.mjs
 node scripts/test-viator-fanout.mjs
 node scripts/test-events-contract.mjs
 node scripts/check-design.mjs
+node scripts/check-lunch-in-my-city.mjs
 node scripts/test-image-fallback.mjs
 node scripts/test-detail-hero.mjs
 node scripts/test-moment-contract.mjs
@@ -158,6 +159,7 @@ node scripts/test-vitals-attribution.mjs
 node scripts/test-layout-shift.mjs
 node scripts/test-lightbox-paging.mjs
 node scripts/test-first-screen.mjs
+node scripts/check-place-card-navigation.mjs
 node scripts/test-home-first-paint.mjs
 node scripts/check-daypart-art-ready.mjs
 node scripts/test-noresult-telemetry.mjs
