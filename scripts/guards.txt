@@ -773,6 +773,8 @@ node scripts/check-rail-identity.mjs
 # and the fail-soft UI rendered nothing. Same root cause as the rail bugs above,
 # and the same lesson the legacy Supabase JWT taught in #440, never generalised.
 node scripts/check-env-placeholders.mjs
+node scripts/check-env.mjs
+node scripts/check-env-guard-can-fail.mjs
 # 2026-08-22 — AN OUTING, not merely an attractions-gated row. Checked in
 # PRODUCTION after v8.31.2 shipped: "Places You'd Never Find" near Parrish led
 # with Elite Medical Spa, a wedding venue and MassageLuXe; nine of the Lakewood
