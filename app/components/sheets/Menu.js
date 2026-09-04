@@ -14,6 +14,7 @@ import { C, sheetBg, sheet, SHEET_EASE, Grabber } from "../kit";
 import CollectionHero from "../CollectionHero";
 import { CATEGORIES } from "../../../lib/google";
 import { useContentCardActions } from "../../../lib/contentCardActions";
+import { useEffect, useState } from "react";
 
 function playLunchCoin() {
   // Synthesized in the click gesture: no plug-in, downloaded audio, or
@@ -52,6 +53,26 @@ export default function MenuSheet({ ctx }) {
   } : null);
   const lunchLimit = user ? 2 : 1;
   const lunchExhausted = lunchAttemptsUsed >= lunchLimit;
+  const [wasChallenged, setWasChallenged] = useState(false);
+  useEffect(() => {
+    try {
+      const url = new URL(window.location.href);
+      if (url.searchParams.get("challenged") !== "1") return;
+      setWasChallenged(true);
+      url.searchParams.delete("challenged");
+      window.history.replaceState({}, "", url.pathname + (url.search ? url.search : "") + url.hash);
+    } catch {}
+  }, []);
+  const challengeUrl = typeof window !== "undefined" ? window.location.origin + "/lunch-challenge" : "https://www.gowayfind.com/lunch-challenge";
+  const shareLunchChallenge = () => {
+    const picked = lunchPick?.name ? ` I got ${lunchPick.name}.` : "";
+    shareLink(
+      "You’ve been challenged: Lunch in My City",
+      challengeUrl,
+      () => showToast("Challenge link copied"),
+      `Hey! I challenge you to Lunch in My City.${picked} Tap the question block and let Wayfind choose one standout lunch near you.`,
+    );
+  };
   return (
         <div style={sheetBg} onClick={() => setMenuSheet(null)}>
           <div style={{ ...sheet, padding: "6px 16px 28px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setMenuSheet(null))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
@@ -72,8 +93,8 @@ export default function MenuSheet({ ctx }) {
                   <img className="wf-lunch-scene" src="/cards/lunch-in-my-city.webp" alt="Pixel art question block and Mario above a green pipe on a city wall" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 38%", filter: homeRolling ? "brightness(.72)" : "none", transition: "filter 180ms ease" }} />
                   <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(3,7,12,.74) 0%,rgba(3,7,12,.18) 28%,rgba(3,7,12,.04) 52%,rgba(3,7,12,.78) 100%)" }} />
                   <div style={{ position: "absolute", zIndex: 2, top: 18, left: 18, right: 18, color: "#fff", textShadow: "0 2px 14px rgba(0,0,0,.95)" }}>
-                    <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "1.3px", color: "#FDBA74" }}>LUNCH IN MY CITY</div>
-                    <div style={{ maxWidth: 320, marginTop: 5, fontSize: 27, lineHeight: 1.05, fontWeight: 800, letterSpacing: "-.5px" }}>Your next lunch is hiding here.</div>
+                    <div style={{ display: "inline-flex", padding: "5px 9px", borderRadius: 999, background: wasChallenged ? "#F97316" : "rgba(4,8,16,.62)", border: "1px solid rgba(255,255,255,.28)", fontSize: 11, fontWeight: 900, letterSpacing: "1.2px", color: "#FFF7ED" }}>{wasChallenged ? "YOU’VE BEEN CHALLENGED" : "LUNCH IN MY CITY"}</div>
+                    <div style={{ maxWidth: 320, marginTop: 8, fontSize: 27, lineHeight: 1.05, fontWeight: 800, letterSpacing: "-.5px" }}>{wasChallenged ? "Tap the box. Your lunch challenge starts now." : "Your next lunch is hiding here."}</div>
                   </div>
                   <button
                     type="button"
@@ -97,7 +118,7 @@ export default function MenuSheet({ ctx }) {
                           <button type="button" aria-pressed={lunchActions.saved} onClick={(e) => { e.stopPropagation(); lunchActions.toggleSave(); }} style={{ minHeight: 40, border: "1px solid rgba(255,255,255,.34)", borderRadius: 9, background: lunchActions.saved ? "#F8D447" : "rgba(3,12,32,.48)", color: lunchActions.saved ? "#10151B" : "#fff", fontSize: 12, fontWeight: 850, cursor: "pointer" }}>{lunchActions.saved ? "♥ Saved" : "♡ Save"}</button>
                           <button type="button" aria-label={`Like ${lunchPick.name}`} aria-pressed={lunchActions.liked} onClick={(e) => { e.stopPropagation(); lunchActions.toggleLike(); }} style={{ minHeight: 40, border: "1px solid rgba(255,255,255,.34)", borderRadius: 9, background: lunchActions.liked ? "#F8D447" : "rgba(3,12,32,.48)", color: lunchActions.liked ? "#10151B" : "#fff", fontSize: 17, fontWeight: 900, cursor: "pointer" }}>↑</button>
                           <button type="button" aria-label={`Not for me: ${lunchPick.name}`} aria-pressed={lunchActions.disliked} onClick={(e) => { e.stopPropagation(); lunchActions.toggleDislike(); }} style={{ minHeight: 40, border: "1px solid rgba(255,255,255,.34)", borderRadius: 9, background: lunchActions.disliked ? "#F8D447" : "rgba(3,12,32,.48)", color: lunchActions.disliked ? "#10151B" : "#fff", fontSize: 17, fontWeight: 900, cursor: "pointer" }}>↓</button>
-                          <button type="button" onClick={(e) => { e.stopPropagation(); lunchActions.share(); }} style={{ minHeight: 40, border: "1px solid rgba(255,255,255,.34)", borderRadius: 9, background: "rgba(3,12,32,.48)", color: "#fff", fontSize: 12, fontWeight: 850, cursor: "pointer" }}>↗ Share</button>
+                          <button type="button" onClick={(e) => { e.stopPropagation(); shareLunchChallenge(); }} style={{ minHeight: 40, border: "1px solid #F8D447", borderRadius: 9, background: "#F97316", color: "#10151B", fontSize: 11.5, fontWeight: 900, cursor: "pointer" }}>⚡ Challenge</button>
                         </div>
                       </div>
                     </article>
@@ -108,11 +129,13 @@ export default function MenuSheet({ ctx }) {
                     ? lunchAttemptsUsed >= 2 ? "You've used both lunch reveals for today. A new pick unlocks tomorrow." : "You have one lunch reveal left today."
                     : <>That was today&apos;s guest reveal. <button type="button" onClick={() => { setMenuSheet(null); setAuthOpen(true); }} style={{ padding: 0, border: 0, background: "transparent", color: C.light, font: "inherit", fontWeight: 800, textDecoration: "underline", cursor: "pointer" }}>Sign in for one more lunch pick today.</button></>}
                 </div>}
-                {lunchPick && <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) auto", gap: 10, marginTop: 10 }}>
-                  <button type="button" onClick={() => {
-                    const url = typeof window !== "undefined" ? window.location.origin + "/?go=lunch" : "https://www.gowayfind.com/?go=lunch";
-                    shareLink("Lunch in My City — Wayfind", url, () => showToast("Challenge link copied"), `I got ${lunchPick.name}. Tap the question block and see where Wayfind sends you for lunch.`);
-                  }} style={{ minHeight: 46, padding: "0 16px", borderRadius: 12, border: "1px solid rgba(249,115,22,.55)", background: "linear-gradient(135deg,#F97316,#FB923C)", color: "#10151B", fontSize: 14, fontWeight: 900, cursor: "pointer" }}>↗ Challenge a friend</button>
+                {lunchPick && <div style={{ marginTop: 10, padding: 12, borderRadius: 16, border: "1px solid rgba(248,212,71,.55)", background: "linear-gradient(145deg,rgba(249,115,22,.18),rgba(11,33,77,.92))", boxShadow: "0 12px 28px rgba(0,0,0,.28)" }}>
+                  <div style={{ color: "#F8D447", fontSize: 11, fontWeight: 900, letterSpacing: "1px" }}>PASS THE CHALLENGE</div>
+                  <div style={{ marginTop: 3, color: C.text, fontSize: 14, fontWeight: 850 }}>Who should Wayfind send to lunch next?</div>
+                  <button type="button" onClick={shareLunchChallenge} style={{ width: "100%", minHeight: 50, marginTop: 10, padding: "0 16px", borderRadius: 13, border: "2px solid #F8D447", background: "linear-gradient(135deg,#F97316,#FBBF24)", color: "#10151B", boxShadow: "0 7px 0 #8A3E08", fontSize: 15, fontWeight: 950, cursor: "pointer" }}>⚡ Challenge someone</button>
+                  <a href={`/p/${encodeURIComponent(lunchPick.id)}?challenge=lunch&review=1`} style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 44, marginTop: 12, borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, textDecoration: "none", fontSize: 13, fontWeight: 850 }}>Completed it? Add your review + photos ›</a>
+                </div>}
+                {lunchPick && <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 10 }}>
                   <button type="button" onClick={() => setMenuSheet(null)} style={{ minHeight: 46, padding: "0 18px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>Close</button>
                 </div>}
               </>

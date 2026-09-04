@@ -112,6 +112,7 @@ node scripts/test-experience-concepts.mjs
 node scripts/test-creator-archetypes.mjs
 node scripts/check-copy-no-empty-hype.mjs
 node scripts/test-rail-score-order.mjs
+node scripts/check-rail-rank-law.mjs
 node scripts/check-subfilter-experience-coverage.mjs
 node scripts/test-klook-coupons.mjs
 node scripts/test-sheet-booking.mjs
@@ -136,6 +137,7 @@ node scripts/test-sync-reconcile.mjs
 node scripts/test-site-time.mjs
 node scripts/check-sitetime.mjs
 node scripts/test-classifier-veto.mjs
+node scripts/test-menu-taxonomy-audit.mjs
 node scripts/test-showtime-dedup.mjs
 node scripts/test-member-score.mjs
 node scripts/test-curator-boost.mjs
@@ -290,6 +292,7 @@ node scripts/check-atlas-diag-not-live.mjs
 node scripts/check-env-value-overrides.mjs
 node scripts/test-job-pulse.mjs
 node scripts/check-editorial-retry-state.mjs
+node scripts/check-editorial-coverage-pipeline.mjs
 node scripts/test-atlas-reclassify.mjs
 node scripts/check-art-assets.mjs
 node scripts/check-brand-derivatives.mjs
@@ -653,6 +656,18 @@ node scripts/check-overscroll-containment.mjs
 # the detail page. Keyed on the actionHref fallback itself, with a floor so the
 # guard cannot pass by losing its own subject.
 node scripts/check-card-actions.mjs
+# WO-B (2026-09-03, owner): "every rail card...should have the like, dislike,
+# share and save button — even if it is an event card...the guardrails that
+# have been created are not catching that." check-card-actions.mjs (above)
+# and PR #1097 cover RailCard.js/IconicPlaceCard.js's own render-site wiring
+# and the shared non-place content store; neither ever asked whether a card
+# component that resolves its OWN subject internally draws all four controls
+# at all — which is exactly how SponsoredPlaceCard.js shipped with ZERO of
+# them. This enumerates rail-card components FROM THE FILESYSTEM (never a
+# hand list), fails on any it has no render adapter for, and RENDERS each
+# real component x subject shape (place/event/sponsored/tour) asserting all
+# four controls are present in the output.
+node scripts/check-card-action-parity.mjs
 # v8.29.10 — every sub-chip either has a SUB_ALLOW contract or is declared
 # category-wide with a reason. Night out had SIX chips and ZERO contracts, so
 # picking "Clubs" filtered identically to "All" and a breakfast cafe led it.
@@ -853,6 +868,8 @@ node scripts/check-instagram-scout.mjs
 node scripts/check-provider-health-says-why.mjs
 node scripts/test-fall-intent-rails.mjs
 node scripts/test-night-out-intent.mjs
+node scripts/test-rail-paging.mjs
+node scripts/check-rail-paging-contract.mjs
 node scripts/check-cget-envelope.mjs
 node scripts/check-experiences-link-health.mjs
 node scripts/check-event-photo-rights.mjs
@@ -937,3 +954,15 @@ node scripts/check-rail-card-fits-its-content.mjs
 # from place ranking; event detail owns itinerary/save actions and three nearby
 # recommendation rails; the rejected global floating CTA cannot return.
 node scripts/check-premium-event-card-system.mjs
+# 2026-09-03 OWNER LAW: the owned library never re-buys. Locks, by call, that a
+# 400-day-old wf_inventory row still serves (age is not a predicate), that
+# lib/ownedLibrary.mergeOwnedSignals fills lean free-mode results from OUR
+# signals without inventing anything, that the rich cache answers before the
+# ledger, and that all three scheduled re-buy paths short-circuit on gateFree()
+# — each structural clause red-proved by an applied mutation.
+node scripts/check-owned-library-no-rebuy.mjs
+# 2026-09-04 POSTER OPEN CONTRACT. Every visible homepage poster must either
+# preserve native page navigation or open a real in-place answer. Collection
+# effects with a duplicate-request guard may never depend on inline callback
+# identity — that cancellation race permanently stranded Today's Best.
+node scripts/check-poster-open-contract.mjs

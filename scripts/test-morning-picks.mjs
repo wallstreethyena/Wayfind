@@ -36,15 +36,23 @@ const h = storyHeadline({ place_id: "b" });
 ok(MORNING_HEADLINES.includes(h) && !/best coffee|top cafe/i.test(h), "story headline, not 'Best Coffee'");
 ok(storyHeadline({ place_id: "b" }) === storyHeadline({ place_id: "b" }), "headline deterministic");
 
-// The Breakfast poster owns two mutually-exclusive ranked rails.
+// The Breakfast poster owns two mutually-exclusive ranked rails. Until the
+// 2026-09-03 rail-rank-law fix, splitBreakfastRails did not rank AT ALL — it
+// returned each bucket in raw input order while BreakfastRails.js rendered
+// an explicit 1/2/3 `rank` off that same array position. Caught by
+// scripts/check-rail-rank-law.mjs enumerating this file from the filesystem
+// (lib/*Rails*.js) rather than from a hand-written composer list. These two
+// fixtures now carry real rating/review evidence so the assertion proves an
+// actual score-descending sort, not an accident of input order.
 const split = splitBreakfastRails([
-  { id: "meal", name: "First Watch", primaryType: "breakfast_restaurant" },
-  { id: "cafe", name: "Buddy Brew Coffee", primaryType: "coffee_shop" },
-  { id: "named", name: "Downtown Café", primaryType: "restaurant" },
-  { id: "keke", name: "Keke's Breakfast Cafe", primaryType: "breakfast_restaurant" },
+  { id: "meal", name: "First Watch", primaryType: "breakfast_restaurant", rating: 4.2, reviews: 50 },
+  { id: "cafe", name: "Buddy Brew Coffee", primaryType: "coffee_shop", rating: 4.5, reviews: 300 },
+  { id: "named", name: "Downtown Café", primaryType: "restaurant", rating: 4.1, reviews: 20 },
+  { id: "keke", name: "Keke's Breakfast Cafe", primaryType: "breakfast_restaurant", rating: 4.8, reviews: 800 },
 ]);
 ok(split.length === 2 && split[0].id === "breakfast-restaurants" && split[1].id === "breakfast-cafes", "breakfast answer has exactly two named rails");
-ok(split[0].places.map((p) => p.id).join(",") === "meal,keke", "meal-first places remain in ranked input order");
+ok(split[0].places.map((p) => p.id).join(",") === "keke,meal", "meal-first places rank highest Wayfind Score first (Keke's 4.8/800 outranks First Watch's 4.2/50)");
+ok(split[1].places.map((p) => p.id).join(",") === "cafe,named", "café places rank highest Wayfind Score first (Buddy Brew's 4.5/300 outranks Downtown Café's 4.1/20)");
 ok(split[1].places.map((p) => p.id).join(",") === "cafe,named", "cafés remain in ranked input order");
 ok(isCafePlace({ name: "Breakfast Café", primaryType: "breakfast_restaurant" }) === false, "café in a breakfast restaurant name cannot demote its primary identity");
 ok(isCafePlace({ name: "Keke's Breakfast Cafe", primaryType: "restaurant" }) === false, "a meal-first breakfast name beats the generic café-name fallback");

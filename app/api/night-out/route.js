@@ -10,6 +10,7 @@ import { distMeters, serveFromInventory } from "../../../lib/inventoryServe.js";
 import { composeNightOutRails, NIGHT_OUT_MAX_MI } from "../../../lib/nightOutIntent.js";
 import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 import { windowRailAnswer } from "../../../lib/railResponse.js";
+import { pageOneRail } from "../../../lib/railPage.js";
 import { nightOutEditorialEvidence } from "../../../lib/nightOutEvidence.js";
 
 const NIGHT_OUT_DB_DEADLINE_MS = 3000;
@@ -40,6 +41,15 @@ export async function GET(request) {
   const lat = Number.parseFloat(searchParams.get("lat") || "");
   const lng = Number.parseFloat(searchParams.get("lng") || "");
   const full = searchParams.get("full") === "1";
+  // WO11 paging contract: ?rail=<id>&page=N&size=10 pages ONE named rail —
+  // the "as they scroll past the seventh card, load 10 more" request. This
+  // reads the SAME fast-cache entry as the bulk request below ("rank once,
+  // page many"): the full ranked list is already computed and cached the
+  // first time anyone asks for this metro cell, so a later page costs one
+  // cache read and a slice, never a second inventory build.
+  const railId = searchParams.get("rail") || "";
+  const page = searchParams.get("page");
+  const size = searchParams.get("size");
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
     return Response.json({ error: "lat and lng are required" }, { status: 400, headers: { "cache-control": "no-store" } });
   }
@@ -69,10 +79,16 @@ export async function GET(request) {
       usable: (value) => !!value?.rails?.some((rail) => rail.places?.length),
     });
     const total = cached.value.rails.reduce((sum, rail) => sum + rail.places.length, 0);
-    return Response.json(windowRailAnswer(cached.value, full), { headers: {
+    const headers = {
       "cache-control": total ? "public, s-maxage=3600, stale-while-revalidate=86400" : "no-store",
       "x-wayfind-fast-cache": cached.state,
-    } });
+    };
+    if (railId) {
+      const paged = pageOneRail(cached.value.rails, railId, { page, size });
+      if (!paged) return Response.json({ error: "unknown rail" }, { status: 404, headers: { "cache-control": "no-store" } });
+      return Response.json({ rail: railId, ...paged }, { headers });
+    }
+    return Response.json(windowRailAnswer(cached.value, full), { headers });
   } catch (error) {
     console.error("[api/night-out] inventory unavailable", { message: String(error?.message || error) });
     return Response.json({ error: "Night Out inventory is temporarily unavailable" }, { status: 503, headers: { "cache-control": "no-store" } });

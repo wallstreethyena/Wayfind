@@ -12,6 +12,7 @@ import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 import { nearestWater } from "../../../lib/waterStations.js";
 import { composeTodayDiscoveryRails, TODAY_NATURE_MI } from "../../../lib/todayDiscoveryRails.js";
 import { windowRailAnswer } from "../../../lib/railResponse.js";
+import { pageOneRail } from "../../../lib/railPage.js";
 
 function json(body, status = 200, cache = "public, s-maxage=3600, stale-while-revalidate=86400") {
   return Response.json(body, { status, headers: { "cache-control": cache } });
@@ -79,6 +80,10 @@ export async function GET(request) {
   const lng = Number.parseFloat(searchParams.get("lng") || "");
   const city = String(searchParams.get("city") || "").trim().slice(0, 80);
   const full = searchParams.get("full") === "1";
+  // WO11 paging contract — see app/api/night-out/route.js.
+  const railId = searchParams.get("rail") || "";
+  const page = searchParams.get("page");
+  const size = searchParams.get("size");
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return json({ error: "lat and lng are required" }, 400, "no-store");
 
   // Creator associations may use the resolved city as a strict secondary
@@ -114,12 +119,16 @@ export async function GET(request) {
       usable: (value) => !!value?.rails?.some((rail) => rail.places?.length),
     });
     const total = cached.value.rails.reduce((sum, rail) => sum + rail.places.length, 0);
-    return Response.json(windowRailAnswer(cached.value, full), {
-      headers: {
-        "cache-control": total ? "public, s-maxage=3600, stale-while-revalidate=86400" : "no-store",
-        "x-wayfind-fast-cache": cached.state,
-      },
-    });
+    const headers = {
+      "cache-control": total ? "public, s-maxage=3600, stale-while-revalidate=86400" : "no-store",
+      "x-wayfind-fast-cache": cached.state,
+    };
+    if (railId) {
+      const paged = pageOneRail(cached.value.rails, railId, { page, size });
+      if (!paged) return Response.json({ error: "unknown rail" }, { status: 404, headers: { "cache-control": "no-store" } });
+      return Response.json({ rail: railId, ...paged }, { headers });
+    }
+    return Response.json(windowRailAnswer(cached.value, full), { headers });
   } catch (error) {
     console.error("[api/today-discovery] inventory unavailable", { message: String(error?.message || error) });
     return json({ error: "Today inventory is temporarily unavailable" }, 503, "no-store");

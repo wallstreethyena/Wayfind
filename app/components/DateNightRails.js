@@ -53,7 +53,8 @@ import { topPickAward } from "../../lib/topPickAward.js";
 import { coarseCat } from "../../lib/ranking.js";
 import { priceLabel } from "../../lib/price.js";
 import { cardImageSrc } from "../../lib/placePhoto.js";
-import { railScrollNeedsMore } from "../../lib/railResponse.js";
+import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
+import { usePagedRail } from "./usePagedRail.js";
 
 const C = { text: "#F1F5F9", muted: "#8b93a1" };
 
@@ -62,6 +63,78 @@ const prettyType = (t) => {
   const s = String(t || "").replace(/_/g, " ").trim();
   return s ? s.charAt(0).toUpperCase() + s.slice(1) : "";
 };
+
+// WO11 (2026-09-02) — one rail, paged. Seeded from the bulk /api/date-night
+// fetch <DateNightRails> below already makes (no extra round trip for page
+// 0); scrolling past the 8th card fetches page 1 of THIS rail over the same
+// contract lib/railPage.js defines for every other poster/rail endpoint. This
+// replaces the old "Load every ranked option" button.
+function DateNightRailSection({ rail, lat, lng, city, hour, isFirstNightOut, onOpenPlace, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
+  const seedItems = useMemo(() => (rail.places || []).slice(0, RAIL_PAGE_SIZE), [rail]);
+  const seedTotal = Number.isFinite(rail.total) ? rail.total : (rail.places || []).length;
+  const params = useMemo(() => ({ lat, lng, city, hour: hour == null ? "" : hour, rail: rail.id }), [lat, lng, city, hour, rail.id]);
+  const { items, total, sentinelIndex, sentinelRef, loadingMore } = usePagedRail(
+    "/api/date-night", params, { seedItems, seedTotal, itemsKey: "places" },
+  );
+  const count = Number.isFinite(total) ? total : items.length;
+  const railId = "datenight-" + rail.id;
+  return (
+    <section aria-label={rail.title} style={{ marginTop: 22 }}>
+      {isFirstNightOut ? (
+        <p style={{ margin: "0 0 6px", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: C.muted, textTransform: "uppercase" }}>Night Out</p>
+      ) : null}
+      <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 800, color: C.text }}>{rail.title}</h2>
+      {rail.deck ? (
+        <p style={{ margin: "0 0 8px", fontSize: 12.5, lineHeight: 1.45, color: "#AEB8C6" }}>{rail.deck}</p>
+      ) : null}
+      <RailNav railId={railId} count={count} total={count}
+        unit={count === 1 ? "place for " + rail.title.toLowerCase() : "places for " + rail.title.toLowerCase()} />
+      <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>
+        {items.map((p, i) => {
+          const rank = i + 1;
+          const type = prettyType(p.primaryType || p.primary_type || p.category);
+          const facts = [
+            p.reviews ? compact(p.reviews) + " reviews" : null,
+            priceLabel(p.priceLevel != null ? p.priceLevel : p.priceNum) || null,
+            Number.isFinite(p.distMi) ? p.distMi + " mi" : null,
+          ].filter(Boolean);
+          const chips = [type ? { key: "type", icon: "📍", label: type, title: type } : null].filter(Boolean);
+          const href = directionsUrl(p);
+          return (
+            <RailCard
+              key={p.id}
+              className="wf-exploding-primary"
+              domRef={i === sentinelIndex ? sentinelRef : undefined}
+              photo={cardImageSrc(p, 640) || null}
+              place={p}
+              title={p.name}
+              eyebrow={type}
+              rank={rank}
+              score={toDisplayScore(wayfindScore(p.rating, p.reviews))}
+              facts={facts}
+              award={topPickAward({ category: coarseCat(p) || type || "date night", rank })}
+              chips={chips}
+              take={toHookLine(p.editorial, p.name) || null}
+              cta={href ? { label: "Directions ↗", href, external: true } : null}
+              ariaLabel={"Open " + p.name}
+              onOpen={onOpenPlace ? () => onOpenPlace(p) : undefined}
+              saved={isSaved ? !!isSaved(p.id) : undefined}
+              liked={isLiked ? !!isLiked(p.id) : liked ? !!liked[p.id] : undefined}
+              disliked={isDisliked ? !!isDisliked(p.id) : disliked ? !!disliked[p.id] : undefined}
+              onSave={onSave ? (e) => onSave(e, p) : undefined}
+              onLike={onLike ? (e) => onLike(e, p) : undefined}
+              onDislike={onDislike ? (e) => onDislike(e, p) : undefined}
+              onShare={onShare ? () => onShare(p, { city }) : undefined}
+            />
+          );
+        })}
+        {loadingMore ? <div className="wf-rail-card wf-exploding-primary" aria-busy="true" aria-label={`Loading more ${rail.title}`}
+          style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 88, color: C.muted, fontSize: 12.5 }}>Loading more…</div> : null}
+      </div>
+      {items.length > 1 ? <RailDots railId={railId} count={items.length} /> : null}
+    </section>
+  );
+}
 
 /**
  * Fetch and render the Date Night intent rails.
@@ -102,7 +175,6 @@ export default function DateNightRails({
 }) {
   const [payload, setPayload] = useState(null);
   const [failed, setFailed] = useState(false);
-  const [full, setFull] = useState(false);
   const asked = useRef("");
 
   const lat = center && Number.isFinite(center.lat) ? center.lat : null;
@@ -111,12 +183,16 @@ export default function DateNightRails({
   // The request key is the request. Re-fetching on every render of a parent
   // that re-renders on scroll is the defect the rail drop has paid for twice
   // (v8.27 beach conditions, v8.79 the memo key), so the effect is keyed on
-  // what actually changes the answer and nothing else.
+  // what actually changes the answer and nothing else. The bulk request
+  // still runs exactly once per (lat,lng,city,hour) — it hydrates every
+  // rail's page-0 SEED (DateNightRailSection above); paging beyond that goes
+  // through the shared per-rail contract instead of a second "load
+  // everything" request.
   const key = useMemo(
     () => (active && lat != null && lng != null
-      ? [lat.toFixed(3), lng.toFixed(3), city || "", hour == null ? "" : String(hour), full ? "full" : "first"].join("|")
+      ? [lat.toFixed(3), lng.toFixed(3), city || "", hour == null ? "" : String(hour)].join("|")
       : ""),
-    [active, lat, lng, city, hour, full],
+    [active, lat, lng, city, hour],
   );
 
   useEffect(() => {
@@ -126,7 +202,6 @@ export default function DateNightRails({
     const q = new URLSearchParams({ lat: String(lat), lng: String(lng) });
     if (city) q.set("city", city);
     if (hour != null && Number.isFinite(hour)) q.set("hour", String(hour));
-    if (full) q.set("full", "1");
     (async () => {
       try {
         const j = await fetchJsonWithDeadline("/api/date-night?" + q.toString());
@@ -180,113 +255,19 @@ export default function DateNightRails({
     );
   }
 
+  // v8.93 (owner, 2026-08-30): the rail is <RailNav> + `.wf-rail` +
+  // <RailCard> + <RailDots> — the exact structure ExplodingNearby's
+  // TrendBlock builds — and each one now pages independently through
+  // DateNightRailSection above (WO11), seeded from this same bulk fetch so
+  // first paint is unchanged.
   return (
     <>
       {rails.map((rail) => (
-        <section key={rail.id} aria-label={rail.title} style={{ marginTop: 22 }}>
-          {rail.id === firstNightOutId ? (
-            <p style={{ margin: "0 0 6px", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: C.muted, textTransform: "uppercase" }}>Night Out</p>
-          ) : null}
-          {/* v8.93 (owner, 2026-08-30, on his own screenshot of the open drop:
-              "the size of the cards is also wrong … since we will be displaying
-              multiple rails we need to use the style from Exploding Trends Near
-              You, I want the place card style to be like that").
-
-              THIS IS THE SAME CODE PATH, not a copy of its look. The rail is
-              <RailNav> + `.wf-rail` + <RailCard> + <RailDots> — the exact
-              structure ExplodingNearby's TrendBlock builds, so the card width,
-              the --wf-pcvis peek, the snap, the scroll affordances and the
-              Directions / Save / thumbs / Share row are inherited rather than
-              restated. The 300px inline box this replaced was a private guess
-              at a size the design system already owns, and it is why his
-              screenshot shows "Tikka Indi…" and a clipped action row: the name
-              had 108px to live in. */}
-          {/* v8.93.1 — THE RAIL TITLE CAME BACK. Swapping to the Exploding
-              Trends structure dropped the <h2> with the old markup, so the
-              owner's screenshot showed a Dinner rail with no word "Dinner" on
-              it: five cards under a divider that named nothing. RailNav's line
-              is a COUNT ("18 places for clubs · swipe or tap"), never a
-              heading — a rail that says how many and not what is the shape
-              check-rail-heading-truth exists for. */}
-          <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 800, color: C.text }}>{rail.title}</h2>
-          {/* v8.93.1 — THE RAIL SAYS WHAT IT IS FOR (owner, 2026-08-30,
-              comparing this drop to Exploding Trends, which has one and is why
-              he could read that surface without tapping anything). It is the
-              PROMISE, never the contents and never a count — RailNav's line
-              below already carries the number, and a number the rail cannot
-              keep is the "20 trends" claim this repo just deleted. Same size
-              and colour as the trend dek so the two surfaces read as one
-              product. */}
-          {rail.deck ? (
-            <p style={{ margin: "0 0 8px", fontSize: 12.5, lineHeight: 1.45, color: "#AEB8C6" }}>{rail.deck}</p>
-          ) : null}
-          <RailNav
-            railId={"datenight-" + rail.id}
-            count={rail.total || rail.places.length}
-            unit={(rail.total || rail.places.length) === 1 ? "place for " + rail.title.toLowerCase() : "places for " + rail.title.toLowerCase()}
-          />
-          <div
-            className="wf-rail wf-rail-exploding"
-            data-rail={"datenight-" + rail.id}
-            tabIndex={0}
-            role="region"
-            aria-label={rail.title}
-            onScroll={(event) => { if (!full && payload.hasMore && railScrollNeedsMore(event.currentTarget)) setFull(true); }}
-          >
-            {rail.places.map((p, i) => {
-              const rank = i + 1;
-              const type = prettyType(p.primaryType || p.primary_type || p.category);
-              // The card is handed the row itself, so an unwired caller still
-              // gets a working thumb from lib/cardActions rather than a button
-              // that does nothing (the v8.29.2 lesson from this same rail).
-              const facts = [
-                p.reviews ? compact(p.reviews) + " reviews" : null,
-                priceLabel(p.priceLevel != null ? p.priceLevel : p.priceNum) || null,
-                Number.isFinite(p.distMi) ? p.distMi + " mi" : null,
-              ].filter(Boolean);
-              const chips = [type ? { key: "type", icon: "\uD83D\uDCCD", label: type, title: type } : null].filter(Boolean);
-              const href = directionsUrl(p);
-              return (
-                <RailCard
-                  key={p.id}
-                  className="wf-exploding-primary"
-                  // A named venue may show only its own URL/ref/place-id
-                  // ladder. RailCard deliberately has no category-stock
-                  // fallback: one cocktail or dance-floor scene repeated
-                  // across different names looks like venue photography and
-                  // is therefore false.
-                  photo={cardImageSrc(p, 640) || null}
-                  place={p}
-                  title={p.name}
-                  eyebrow={type}
-                  rank={rank}
-                  score={toDisplayScore(wayfindScore(p.rating, p.reviews))}
-                  facts={facts}
-                  award={topPickAward({ category: coarseCat(p) || type || "date night", rank })}
-                  chips={chips}
-                  take={toHookLine(p.editorial, p.name) || null}
-                  cta={href ? { label: "Directions \u2197", href, external: true } : null}
-                  ariaLabel={"Open " + p.name}
-                  // In the DROP these are live and the card opens the sheet in
-                  // place; on the PAGE the parent passes none and RailCard's own
-                  // cardActions fallback keeps every thumb honest. Same
-                  // component, both ways.
-                  onOpen={onOpenPlace ? () => onOpenPlace(p) : undefined}
-                  saved={isSaved ? !!isSaved(p.id) : undefined}
-                  liked={isLiked ? !!isLiked(p.id) : liked ? !!liked[p.id] : undefined}
-                  disliked={isDisliked ? !!isDisliked(p.id) : disliked ? !!disliked[p.id] : undefined}
-                  onSave={onSave ? (e) => onSave(e, p) : undefined}
-                  onLike={onLike ? (e) => onLike(e, p) : undefined}
-                  onDislike={onDislike ? (e) => onDislike(e, p) : undefined}
-                  onShare={onShare ? () => onShare(p, { city }) : undefined}
-                />
-              );
-            })}
-          </div>
-          {rail.places.length > 1 ? <RailDots railId={"datenight-" + rail.id} count={rail.places.length} /> : null}
-        </section>
+        <DateNightRailSection key={rail.id} rail={rail} lat={lat} lng={lng} city={city} hour={hour}
+          isFirstNightOut={rail.id === firstNightOutId} onOpenPlace={onOpenPlace}
+          isSaved={isSaved} liked={liked} disliked={disliked} isLiked={isLiked} isDisliked={isDisliked}
+          onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />
       ))}
-      {payload.hasMore && !full ? <button type="button" onClick={() => setFull(true)} style={{ marginTop: 18, border: "1px solid #4B5563", borderRadius: 999, background: "#111827", color: C.text, padding: "9px 14px", fontWeight: 800 }}>Load every ranked option</button> : null}
     </>
   );
 }

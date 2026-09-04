@@ -290,6 +290,12 @@ export default function RailCard({
   // reactions into place ranking, so this prop no longer removes the row.
   actionsReadOnly = false,
   actionItem = null,
+  // WO11 — usePagedRail's IntersectionObserver watches ONE card (the loaded−3
+  // sentinel) to know when to fetch the next page. This is a plain prop, not
+  // React.forwardRef: every call site is ours, nothing renders
+  // `<RailCard ref={…}>`, so a prop avoids forwardRef's wrapper cost for the
+  // common case (every card that is NOT the sentinel passes nothing).
+  domRef = null,
 }) {
   // 2026-09-02 (hijacked-domain incident): an external CTA renders ONLY when
   // lib/links.safeUrl accepts its href — malformed, junk, or quarantined
@@ -338,6 +344,7 @@ export default function RailCard({
   // test-card-a11y.mjs requires of anything that opens a place.
   return (
     <article
+      ref={domRef}
       className={`wf-place-card wf-rail-card${fallCardClass(place && place.id, siteTodayStr())}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${className ? " " + className : ""}`}
       role="button"
       tabIndex={0}
