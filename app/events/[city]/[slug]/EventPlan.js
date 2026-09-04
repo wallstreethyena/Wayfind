@@ -5,6 +5,13 @@ import RailCard, { RailDots, RailNav } from "../../../components/RailCard";
 import { WF_PLACE_CARD_CSS } from "../../../components/css";
 import { cardImageSrc } from "../../../../lib/placePhoto";
 import { toDisplayScore } from "../../../../lib/score";
+import { fetchJsonWithDeadline } from "../../../../lib/clientJson";
+
+const EVENT_PLAN_RAILS = [
+  { kind: "food", title: "Eat nearby", deck: "The strongest meals close enough to fit before the event.", benefit: "A strong meal before the event" },
+  { kind: "after", title: "Keep the night going", deck: "Drinks, dessert, music, and worthwhile next stops nearby.", benefit: "A well-rated next stop close by" },
+  { kind: "stay", title: "Stay nearby", deck: "Top nearby stays when the night should not end with a long drive.", benefit: "A top-rated nearby base" },
+];
 
 function textName(place) {
   const d = place && place.displayName;
@@ -61,36 +68,44 @@ export default function EventPlan({ lat, lng, city, venue, time }) {
     const origin = { lat: Number(lat), lng: Number(lng) };
     if (!isFinite(origin.lat) || !isFinite(origin.lng)) return;
     let dead = false;
+    setRails(EVENT_PLAN_RAILS.map((rail) => ({ ...rail, places: null })));
+    const publish = (kind, places) => {
+      if (dead) return;
+      setRails((current) => current && current.map((rail) => rail.kind === kind ? { ...rail, places } : rail));
+    };
     const base = `lat=${origin.lat.toFixed(4)}&lng=${origin.lng.toFixed(4)}&radius=12000&n=10`;
     const search = async (q, cat) => {
       try {
-        const r = await fetch(`/api/places/search?${base}&q=${encodeURIComponent(q)}&cat=${encodeURIComponent(cat)}`);
-        const j = r.ok ? await r.json() : null;
+        const j = await fetchJsonWithDeadline(`/api/places/search?${base}&q=${encodeURIComponent(q)}&cat=${encodeURIComponent(cat)}`);
         return j && Array.isArray(j.places) ? j.places : [];
       } catch { return []; }
     };
     (async () => {
       const eventHour = Number(String(time || "").slice(0, 2));
       const afterQuery = isFinite(eventHour) && eventHour < 16 ? "coffee dessert local attraction" : "cocktail bar dessert live music";
-      const [foodRows, afterRows, ownedStay] = await Promise.all([
-        search("best local restaurant", "food"),
-        search(afterQuery, isFinite(eventHour) && eventHour < 16 ? "food" : "nightlife"),
-        fetch(`/api/hotels?lat=${origin.lat.toFixed(4)}&lng=${origin.lng.toFixed(4)}&city=${encodeURIComponent(city || "")}&limit=12`)
-          .then((r) => r.ok ? r.json() : null).then((j) => j && Array.isArray(j.hotels) ? j.hotels : []).catch(() => []),
-      ]);
-      let stayRows = ownedStay;
-      if (!stayRows.length) stayRows = await search(`best hotel near ${venue || city || "the event"}`, "hotels");
+      // Launch all three inventory reads together, then paint each rail as its
+      // result becomes usable. Hotels can be slower without hiding food and
+      // after-event choices or the section itself.
+      const foodRequest = search("best local restaurant", "food");
+      const afterRequest = search(afterQuery, isFinite(eventHour) && eventHour < 16 ? "food" : "nightlife");
+      const stayRequest = fetchJsonWithDeadline(`/api/hotels?lat=${origin.lat.toFixed(4)}&lng=${origin.lng.toFixed(4)}&city=${encodeURIComponent(city || "")}&limit=12`)
+        .then((j) => j && Array.isArray(j.hotels) ? j.hotels : []).catch(() => []);
       const used = new Set();
+
+      const foodRows = await foodRequest;
       const food = chooseBest(foodRows, origin, venue, used);
       food.forEach((place) => used.add(place.id));
+      publish("food", food);
+
+      const afterRows = await afterRequest;
       const after = chooseBest(afterRows, origin, venue, used);
       after.forEach((place) => used.add(place.id));
+      publish("after", after);
+
+      let stayRows = await stayRequest;
+      if (!stayRows.length) stayRows = await search(`best hotel near ${venue || city || "the event"}`, "hotels");
       const stay = chooseBest(stayRows, origin, venue, used);
-      if (!dead) setRails([
-        { kind: "food", title: "Eat nearby", deck: "The strongest meals close enough to fit before the event.", benefit: "A strong meal before the event", places: food },
-        { kind: "after", title: "Keep the night going", deck: "Drinks, dessert, music, and worthwhile next stops nearby.", benefit: "A well-rated next stop close by", places: after },
-        { kind: "stay", title: "Stay nearby", deck: "Top nearby stays when the night should not end with a long drive.", benefit: "A top-rated nearby base", places: stay },
-      ]);
+      publish("stay", stay);
     })();
     return () => { dead = true; };
   }, [lat, lng, city, venue, time]);
@@ -107,7 +122,7 @@ export default function EventPlan({ lat, lng, city, venue, time }) {
         return <section key={kind} aria-labelledby={`${railId}-title`} style={{ marginTop: 24 }}>
           <h3 id={`${railId}-title`} style={{ margin: 0, color: "#F8FAFC", fontSize: 19, lineHeight: 1.2 }}>{title}</h3>
           <p style={{ margin: "4px 0 8px", color: "#A8B2C2", fontSize: 12.5, lineHeight: 1.45 }}>{deck}</p>
-          {!places.length ? <p style={{ color: "#7F8A9C", fontSize: 12.5 }}>No nearby option clears Wayfind&apos;s quality bar yet.</p> : <>
+          {places === null ? <div role="status" style={{ color: "#7F8A9C", fontSize: 12.5, padding: "14px 0" }}>Finding nearby picks…</div> : !places.length ? <p style={{ color: "#7F8A9C", fontSize: 12.5 }}>No nearby option clears Wayfind&apos;s quality bar yet.</p> : <>
             <RailNav railId={railId} count={places.length} total={places.length} unit="ranked options" />
             <div className="wf-rail" data-rail={railId} tabIndex={0} role="region" aria-label={title}>
               {places.map((place, index) => {
@@ -132,7 +147,7 @@ export default function EventPlan({ lat, lng, city, venue, time }) {
           </>}
         </section>;
       })}
-      {rails.some((rail) => rail.kind === "stay" && rail.places.length) && <div style={{ color: "#64748B", fontSize: 10.5, lineHeight: 1.4, marginTop: 12 }}>Hotel booking may earn Wayfind a commission at no extra cost to you. It never changes the ranking.</div>}
+      {rails.some((rail) => rail.kind === "stay" && Array.isArray(rail.places) && rail.places.length) && <div style={{ color: "#64748B", fontSize: 10.5, lineHeight: 1.4, marginTop: 12 }}>Hotel booking may earn Wayfind a commission at no extra cost to you. It never changes the ranking.</div>}
     </section>
   );
 }

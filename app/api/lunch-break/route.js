@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 // Lunch Break reads Wayfind's owned food inventory only: zero Google calls,
 // one bounded Supabase read, then FastCache + CDN reuse for nearby readers.
 import { BROWSE_INVENTORY_N } from "../../../lib/browseInventory.js";
-import { NET_DEADLINE_MS } from "../../../lib/fetchDeadline.js";
+import { DB_DEADLINE_MS, NET_DEADLINE_MS, fetchDeadline } from "../../../lib/fetchDeadline.js";
 import { distMeters, serveFromInventory } from "../../../lib/inventoryServe.js";
 import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 import atlasCards from "../../../data/atlas/editorial-cards.json";
@@ -48,7 +48,7 @@ async function sessionUserId(s, request) {
   const anon = String(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
   if (!token || token.length < 20 || !anon) return null;
   try {
-    const response = await fetch(`${s.url}/auth/v1/user`, { headers: { apikey: anon, authorization: `Bearer ${token}` }, cache: "no-store" });
+    const response = await fetchDeadline(`${s.url}/auth/v1/user`, { headers: { apikey: anon, authorization: `Bearer ${token}` }, cache: "no-store" }, DB_DEADLINE_MS);
     if (!response.ok) return null;
     const account = await response.json();
     return account?.id ? String(account.id) : null;
@@ -63,14 +63,14 @@ function subjectKey(kind, value) {
 
 async function consumeReveal(s, deviceId, userId) {
   const headers = { apikey: s.key, authorization: `Bearer ${s.key}`, "content-type": "application/json" };
-  const response = await fetch(`${s.url}/rest/v1/rpc/wf_consume_lunch_reveal`, {
+  const response = await fetchDeadline(`${s.url}/rest/v1/rpc/wf_consume_lunch_reveal`, {
     method: "POST", headers, cache: "no-store",
     body: JSON.stringify({
       p_device_key: subjectKey("device", deviceId),
       p_user_key: userId ? subjectKey("user", userId) : null,
       p_site_day: siteTodayStr(),
     }),
-  });
+  }, DB_DEADLINE_MS);
   if (!response.ok) throw new Error(`allowance RPC returned ${response.status}`);
   return response.json();
 }
@@ -79,9 +79,9 @@ async function dishImagesFor(s, placeIds) {
   if (!placeIds.length) return new Map();
   try {
     const list = placeIds.map(encodeURIComponent).join(",");
-    const response = await fetch(`${s.url}/rest/v1/wf_lunch_dish_images?select=place_id,image_url&image_url=not.is.null&place_id=in.(${list})`, {
-      headers: { apikey: s.key, authorization: `Bearer ${s.key}` }, cache: "no-store", signal: AbortSignal.timeout(2500),
-    });
+    const response = await fetchDeadline(`${s.url}/rest/v1/wf_lunch_dish_images?select=place_id,image_url&image_url=not.is.null&place_id=in.(${list})`, {
+      headers: { apikey: s.key, authorization: `Bearer ${s.key}` }, cache: "no-store",
+    }, 2500);
     if (!response.ok) return new Map();
     return new Map((await response.json()).map((row) => [row.place_id, row.image_url]));
   } catch {

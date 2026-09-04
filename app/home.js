@@ -5502,6 +5502,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const iv = setInterval(() => setHomeDiceFace(faces[Math.floor(Math.random() * 6)]), 90);
     const started = Date.now();
     let reveal = null;
+    const revealController = new AbortController();
+    const revealTimer = setTimeout(() => revealController.abort(new Error("lunch reveal deadline")), 10000);
     try {
       const authHeaders = await likesAuthHeaders(supabase);
       const response = await fetch("/api/lunch-break", {
@@ -5513,10 +5515,15 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           deviceId: deviceId(),
           excludeIds: rollHistory.map((p) => p?.id).filter(Boolean).slice(0, 2),
         }),
+        signal: revealController.signal,
       });
       const data = await response.json().catch(() => null);
       reveal = { ok: response.ok, status: response.status, data };
-    } catch (e) {}
+    } catch (e) {
+      reveal = { ok: false, status: 0, data: { error: "Lunch reveals are taking too long. Please try again." } };
+    } finally {
+      clearTimeout(revealTimer);
+    }
     const remaining = Math.max(0, 900 - (Date.now() - started));
     setTimeout(() => {
       clearInterval(iv);

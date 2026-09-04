@@ -66,6 +66,7 @@ ok(/const db = fresh \? supabaseLive : supabase;/.test(curated) && /const query 
   "…and the flag actually selects the client the query runs on");
 ok(/export const supabaseLive =/.test(supa) && /global: \{ fetch: liveFetch \}/.test(supa), "supabaseLive is built with the no-store fetch");
 ok(/persistSession: false/.test(supa.slice(supa.indexOf("let live = null;"))), "the live client holds no session — it is a read path, not an auth path");
+ok(/storageKey: "wf-supabase-live-reader"/.test(supa.slice(supa.indexOf("let live = null;"))), "the live reader cannot contend with the signed-in client's auth storage key");
 
 console.log(fail ? `check-live-reads: FAIL — ${fail} failed, ${pass} passed` : `check-live-reads: OK — ${pass} assertions; the live rail cannot be served an ISR page's hour-old rows`);
 process.exit(fail ? 1 : 0);
