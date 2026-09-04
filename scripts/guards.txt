@@ -966,3 +966,12 @@ node scripts/check-owned-library-no-rebuy.mjs
 # effects with a duplicate-request guard may never depend on inline callback
 # identity — that cancellation race permanently stranded Today's Best.
 node scripts/check-poster-open-contract.mjs
+# 2026-09-04 WO-D-atlas-cache-batch: prompt caching must be REAL, not
+# decorative — a cache_control block below the active model's documented
+# minimum is legal JSON that silently does nothing. Table-driven minimum
+# (fails loud on an unknown model), the cacheable prefix byte-identical
+# across places, cache_control ttl:"1h" on the LAST shared block only, a
+# batch result getting ZERO validation relief (same verifyAtlasEditorial as
+# the live path), and the cost estimator refusing to submit without
+# --confirm — all five red-proved by an applied mutation to a temp copy.
+node scripts/check-atlas-cache-batch.mjs

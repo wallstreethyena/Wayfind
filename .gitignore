@@ -10,6 +10,10 @@ playwright-report
 .vercel
 .env*
 
+# scripts/atlas-batch.mjs — submitted-batch state (custom_id -> row map, so a
+# crash between submit and poll can --resume without resubmitting). Local, not committed.
+.atlas-batch-state*.json
+
 # local inventory dump (not committed)
 wf-inventory-list.txt
 
