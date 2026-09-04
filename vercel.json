@@ -66,6 +66,10 @@
       "schedule": "55 * * * *"
     },
     {
+      "path": "/api/cron/atlas-build?refresh=1&limit=3",
+      "schedule": "35 * * * *"
+    },
+    {
       "path": "/api/cron/cuisine-classify?limit=200",
       "schedule": "25 * * * *"
     },

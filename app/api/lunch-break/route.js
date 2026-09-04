@@ -11,6 +11,7 @@ import atlasCards from "../../../data/atlas/editorial-cards.json";
 import { atlasCardFor, atlasCardForName, indexAtlasCards } from "../../../lib/atlasCards.js";
 import { createHash } from "node:crypto";
 import { siteTodayStr } from "../../../lib/siteTime.js";
+import { cardImageSrc } from "../../../lib/placePhoto.js";
 
 const LUNCH_RADIUS_MI = 8;
 const ATLAS_BY_ID = indexAtlasCards(atlasCards);
@@ -24,6 +25,10 @@ function mustTryFor(place) {
   if (!move) return null;
   // These are useful visit notes, but not a specific thing a user can order.
   if (/\b(no concession|pack your own|eat a full meal before|food cannot|restaurants? (?:are|is) nearby)\b/i.test(move)) return null;
+  // Research notes and source caveats are not menu recommendations. This
+  // catches the Oar & Iron failure where an internal evidence memo was painted
+  // verbatim after “Must try”. Keep the postcard to one orderable choice.
+  if (move.length > 180 || /\b(official menu|menu html|this pass|does not (?:type|name|list)|allowed observer|sponsored|treat those|standing official|source page|could not verify|not independently verified)\b/i.test(move)) return null;
   return move;
 }
 
@@ -105,7 +110,7 @@ function toLunchPlace(raw, origin) {
     priceLevel: raw.priceLevel ?? raw.priceNum ?? null,
     priceNum: priceNum(raw.priceLevel ?? raw.priceNum),
     editorial: raw?.editorialSummary?.text || raw?.editorial || null,
-    photo: raw.photo_url || raw.photoUrl || null,
+    photo: cardImageSrc(raw, 800) || null,
     photoRef: raw?.photo_ref || raw?.photos?.[0]?.name || null,
     distMi: Math.round((distMeters(origin.lat, origin.lng, lat, lng) / 1609.34) * 10) / 10,
     _wfInventory: true,
@@ -178,10 +183,11 @@ export async function POST(request) {
     if (!allowance?.allowed) return json({ error: "limit", allowance }, 429, "no-store");
     let place = available[Math.floor(Math.random() * available.length)];
     const dishImageUrl = dishImages.get(place.id) || null;
+    const restaurantPhoto = place.photo || (place.photoRef ? "/api/photo?ref=" + encodeURIComponent(place.photoRef) + "&w=800" : null);
     if (dishImageUrl) {
-      place = { ...place, photo: dishImageUrl, imageKind: "must_try" };
+      place = { ...place, photo: dishImageUrl, restaurantPhoto, imageKind: "must_try" };
     } else {
-      place = { ...place, imageKind: "restaurant" };
+      place = { ...place, photo: restaurantPhoto, restaurantPhoto, imageKind: "restaurant" };
     }
     return json({ place, allowance }, 200, "no-store");
   } catch (error) {

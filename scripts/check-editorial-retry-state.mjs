@@ -83,8 +83,10 @@ ok(/comment on column public\.wf_editorial\.attempt_count/.test(mig),
       // exists in the function's definition, rather than demanding the column
       // names appear in the JS. Checking for the words in the caller would pass
       // on a comment; this checks the actual WHERE clause.
-      const delegated = [...src.matchAll(/rpc\/(?:\$\{[^}]*?["']([a-z_]+)["'][^}]*\}|([a-z_]+))/g)]
-        .flatMap((m) => [m[1], m[2]]).filter(Boolean);
+      const delegated = [
+        ...[...src.matchAll(/rpc\/(?:\$\{[^}]*?["']([a-z_]+)["'][^}]*\}|([a-z_]+))/g)].flatMap((m) => [m[1], m[2]]).filter(Boolean),
+        ...[...src.matchAll(/const selector\s*=\s*[^;]+/g)].flatMap((m) => [...m[0].matchAll(/["'](wf_[a-z_]+)["']/g)].map((x) => x[1])),
+      ];
       for (const fn of delegated) {
         if (!/retry|retryable/i.test(fn)) continue;
         const migDir = path.resolve("supabase/migrations");

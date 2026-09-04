@@ -88,10 +88,10 @@ ok(classifyHealth([]).incidents.length === 0 && classifyHealth(null).incidents.l
   // reach the pulse: if retry rolled up under "atlas-build", a healthy build
   // path would mask a dead retry path in the watcher, which is the same
   // masking this whole layer exists to prevent.
-  ok(/recordPulse\((?:"atlas-build"|retryMode \? "atlas-retry" : "atlas-build")/.test(atlas),
+  ok(/recordPulse\("atlas-refresh", opts\)/.test(atlas) && /recordPulse\("atlas-retry", opts\)/.test(atlas) && /recordPulse\("atlas-build", opts\)/.test(atlas),
     "atlas-build reports a pulse — a watcher with nothing reporting is the same blindness");
-  ok(/"atlas-retry"/.test(atlas) && /"atlas-build"/.test(atlas),
-    "build and retry pulse under DISTINCT job names — one healthy path must not mask the other");
+  ok(/"atlas-refresh"/.test(atlas) && /"atlas-retry"/.test(atlas) && /"atlas-build"/.test(atlas),
+    "build, retry, and refresh pulse under DISTINCT job names — one healthy path must not mask another");
   ok(/succeeded: publishedCount/.test(atlas),
     "the pulse's `succeeded` is PUBLISHED rows, not written rows — 525 written / 0 published is precisely the state that must register as failure");
   ok(/attempted: 0, succeeded: 0/.test(atlas), "the idle path pulses too, with attempted 0, so a self-terminating run is not an incident");

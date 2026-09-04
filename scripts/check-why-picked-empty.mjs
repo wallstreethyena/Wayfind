@@ -39,9 +39,9 @@ ok(whyWayfindPickedBody({ why_wayfind_picked_this: REAL }) === REAL, "a real two
   const detail = readFileSync(join(ROOT, "app/components/sheets/Detail.js"), "utf8");
   ok(/whyWayfindPickedBody/.test(detail), "positive control: Detail.js calls whyWayfindPickedBody");
   const code = strip(detail);
-  const BODY = "const body = whyWayfindPickedBody(insight);";
+  const BODY = "const body = whyWayfindPickedBody(insight) || whyWayfindPickedBody({ why_wayfind_picked_this: editorial?.why });";
   ok(code.includes(BODY),
-    "the Why-Wayfind body is whyWayfindPickedBody(insight) — validated paragraph or empty");
+    "the Why-Wayfind body is validated live insight or validated stored editorial — otherwise empty");
   ok(/if \(!body\) return null;/.test(code),
     "no body → the block is omitted (heading cannot ship alone)");
   ok(!/if \(insightLoading\)/.test(code),

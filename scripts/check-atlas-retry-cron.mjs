@@ -25,7 +25,8 @@ const atlas = crons.filter((c) => String(c.path || "").includes("/api/cron/atlas
 ok(atlas.length >= 2, `atlas-build is scheduled ${atlas.length} time(s) — the plain build and the retry pass are separate jobs`);
 const retry = atlas.filter((c) => /[?&]retry=1\b/.test(String(c.path)));
 ok(retry.length >= 1, "no cron runs ?retry=1 — the FAILED VERIFICATION backlog would never be worked");
-ok(atlas.some((c) => !/[?&]retry=1\b/.test(String(c.path))), "the plain (non-retry) atlas-build cron is gone — new places would stop getting editorial");
+ok(atlas.some((c) => !/[?&](?:retry|refresh)=1\b/.test(String(c.path))), "the plain atlas-build cron is gone — new places would stop getting editorial");
+ok(atlas.some((c) => /[?&]refresh=1\b/.test(String(c.path))), "no cron refreshes verified editorial after the 21-day freshness window");
 for (const c of retry) {
   ok(/[?&]limit=\d+/.test(String(c.path)), `retry cron has no limit — this path is metered per place (${c.path})`);
   const lim = Number((String(c.path).match(/[?&]limit=(\d+)/) || [])[1]);

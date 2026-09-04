@@ -360,20 +360,21 @@ function VerdictPill({ verdict }) {
 // one invented for this rail. Tapping the row opens OUR detail page for that
 // place (consistent with every other nearby rail on this sheet); the pill is
 // the one monetized affordance, exactly like IconicPlaceCard's card.
-function WhereToGoNextRow({ p, partner, openDetail, liveOpen, FallbackImg, ctaCity }) {
-  const commerceCtx = { surface: "detail_where_next", provider: partner.provider, merchant: partner.merchant, offer_id: partner.offerId, canonical_place_id: p.id, city_id: ctaCity || null };
+function WhereToGoNextRow({ p, partner, reason, pairDistMi, openDetail, liveOpen, FallbackImg, ctaCity }) {
+  const commerceCtx = partner ? { surface: "detail_where_next", provider: partner.provider, merchant: partner.merchant, offer_id: partner.offerId, canonical_place_id: p.id, city_id: ctaCity || null } : null;
   const impressionRef = useCommerceImpression(commerceCtx);
-  const baseHref = commerceHref({ provider: partner.provider, offerId: partner.offerId, surface: "detail_where_next", contentId: p.id });
+  const baseHref = partner ? commerceHref({ provider: partner.provider, offerId: partner.offerId, surface: "detail_where_next", contentId: p.id }) : null;
   return (
-    <div ref={impressionRef} style={{ display: "flex", gap: 11, alignItems: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 10, marginBottom: 8 }}>
-      <div onClick={() => openDetail(p)} style={{ display: "flex", gap: 11, alignItems: "center", flex: 1, minWidth: 0, cursor: "pointer" }}>
-        <FallbackImg src={p.photo} icon="📍" style={{ width: 58, height: 58, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />
+    <div ref={impressionRef} style={{ display: "flex", gap: 12, alignItems: "center", background: "linear-gradient(145deg,rgba(25,31,41,.98),rgba(11,15,22,.98))", border: `1px solid ${C.border}`, borderRadius: 16, padding: 11, marginBottom: 9, boxShadow: "0 10px 24px rgba(0,0,0,.2)" }}>
+      <div onClick={() => openDetail(p)} style={{ display: "flex", gap: 12, alignItems: "center", flex: 1, minWidth: 0, cursor: "pointer" }}>
+        <FallbackImg src={p.photo} icon="📍" style={{ width: 74, height: 74, borderRadius: 12, objectFit: "cover", flexShrink: 0 }} />
         <div style={{ minWidth: 0, flex: 1 }}>
           <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
+          {reason ? <div style={{ fontSize: 12, color: C.light, fontWeight: 650, lineHeight: 1.35, marginTop: 3 }}>{reason}</div> : null}
           <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 2 }}>
             <PlaceScoreChip p={p} size={12} />
             {(() => { const lo = typeof liveOpen === "function" ? liveOpen(p) : p.openNow; return lo === true ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>· Open</span> : lo === false ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.red }}>· Closed</span> : null; })()}
-            {p.distMi != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
+            {pairDistMi != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {pairDistMi} mi from here</span>}
           </div>
         </div>
       </div>
@@ -989,7 +990,7 @@ export default function DetailSheet({ ctx }) {
                 // through validateWhyParagraph. This gate is the render
                 // contract: whitespace / filler / error / still-loading
                 // all become "" and the block is omitted.
-                  const body = whyWayfindPickedBody(insight);
+                  const body = whyWayfindPickedBody(insight) || whyWayfindPickedBody({ why_wayfind_picked_this: editorial?.why });
                   if (!body) return null;
                 return (
                   <div style={{ marginBottom: 16, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 62%)`, border: `1px solid ${C.border}55`, borderRadius: 14, padding: "13px 14px" }}>
@@ -1019,32 +1020,24 @@ export default function DetailSheet({ ctx }) {
                   <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 7 }}>The signature picks, not just what gets mentioned most.</div>
                 </div>
               )}
-              {/* "Where to go next" (2026-08-01, owner). Real nearby places —
-                  same suggested/places pool "More like this" reads below —
-                  that ALSO clear lib/placePartnerPicks.js's exact-name
-                  registry, so every row here is a place we already have a
-                  verified partner ticket for, not a guess at what might be
-                  nearby. Deliberately placed up here beside "what to order"
-                  rather than buried with the non-monetized nearby rails at
-                  the bottom of the sheet. */}
+              {/* Place-specific discovery loop. Distance is measured from the
+                  current venue, not from the reader, and role-fit changes with
+                  the current place. Partner inventory decorates a good match;
+                  it never decides which match earns a slot. */}
               {!detail._event && (() => {
                 const nextPool = dedupePlaces([...(suggested || []), ...places]).filter((p) => p && p.id !== detail.id);
-                const seenOffers = new Set();
-                const picks = nextPool
-                  .map((p) => ({ p, partner: placePartnerPick(p) }))
-                  .filter((x) => x.partner)
-                  .filter((x) => { if (seenOffers.has(x.partner.offerId)) return false; seenOffers.add(x.partner.offerId); return true; })
-                  .sort((a, b) => (a.p.distMi ?? 1e9) - (b.p.distMi ?? 1e9))
-                  .slice(0, 3);
+                const picks = pairsWellWith(detail, nextPool, { max: 3, radiusMi: 8 })
+                  .map((pick) => ({ ...pick, partner: placePartnerPick(pick.p) }));
                 if (!picks.length) return null;
                 return (
-                  <div style={{ marginBottom: 16 }}>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 3 }}>Where to go next</div>
-                    <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Major attractions nearby with tickets we can book you into.</div>
-                    {picks.map(({ p, partner }) => (
-                      <WhereToGoNextRow key={"next-" + p.id} p={p} partner={partner} openDetail={openDetail} liveOpen={liveOpen} FallbackImg={FallbackImg} ctaCity={ctaCity} />
+                  <div style={{ marginBottom: 16 }} data-where-to-go-next>
+                    <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: "1.25px", textTransform: "uppercase", color: C.accent, marginBottom: 4 }}>Keep the day going</div>
+                    <div style={{ fontSize: 17, fontWeight: 850, color: C.text, marginBottom: 3 }}>Where to go next</div>
+                    <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Matched to this stop and measured from here—not a generic city list.</div>
+                    {picks.map(({ p, partner, reason, pairDistMi }) => (
+                      <WhereToGoNextRow key={"next-" + p.id} p={p} partner={partner} reason={reason} pairDistMi={pairDistMi} openDetail={openDetail} liveOpen={liveOpen} FallbackImg={FallbackImg} ctaCity={ctaCity} />
                     ))}
-                    <FTCDisclosure />
+                    {picks.some((pick) => pick.partner) ? <FTCDisclosure /> : null}
                   </div>
                 );
               })()}
@@ -1540,43 +1533,6 @@ export default function DetailSheet({ ctx }) {
                             <PlaceScoreChip p={p} size={12} />
                             {(() => { const lo = typeof liveOpen === "function" ? liveOpen(p) : p.openNow; return lo === true ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>· Open</span> : lo === false ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.red }}>· Closed</span> : null; })()}
                             {p.distMi != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
-                          </div>
-                        </div>
-                        <span style={{ fontSize: 18, color: C.muted, flexShrink: 0 }}>›</span>
-                      </div>
-                    ))}
-                  </div>
-                );
-              })()}
-
-              {/* "Pairs well with" (owner voice note, 2026-08-11) — the
-                  DISCOVERY LOOP. Complements, never the same kind: dinner
-                  leads to dessert leads to a nightcap; a museum leads to a
-                  cafe. Distance is from THIS place (the next stop on the same
-                  outing), the daypart comes from the one clock, the pool is
-                  the already-loaded places (zero fetches), and tapping a
-                  pairing opens ITS detail sheet — where its own pairings
-                  continue the loop. lib/pairsWellWith.js owns the law:
-                  role fit, then distance, then score. Commission is never
-                  an input. */}
-              {!detail._event && (() => {
-                const pairPool = dedupePlaces([...(suggested || []), ...places]);
-                const pairs = pairsWellWith(detail, pairPool, {});
-                if (!pairs.length) return null;
-                return (
-                  <div style={{ marginBottom: 16 }} data-pairs-well-with>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 3 }}>Pairs well with {detail.name}</div>
-                    <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Make it a plan: the stops nearby that go with this one at this hour.</div>
-                    {pairs.map(({ p, reason, pairDistMi }) => (
-                      <div key={"pair-" + p.id} onClick={() => openDetail(p)} style={{ display: "flex", gap: 11, alignItems: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 10, marginBottom: 8, cursor: "pointer" }}>
-                        <FallbackImg src={p.photo} icon="📍" style={{ width: 58, height: 58, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />
-                        <div style={{ minWidth: 0, flex: 1 }}>
-                          <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
-                          <div style={{ fontSize: 12, color: C.light, fontWeight: 600, lineHeight: 1.4, marginTop: 2 }}>{reason}</div>
-                          <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 2 }}>
-                            <PlaceScoreChip p={p} size={12} />
-                            {(() => { const lo = typeof liveOpen === "function" ? liveOpen(p) : p.openNow; return lo === true ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>· Open</span> : lo === false ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.red }}>· Closed</span> : null; })()}
-                            <span style={{ fontSize: 11.5, color: C.muted }}>· {pairDistMi} mi from here</span>
                           </div>
                         </div>
                         <span style={{ fontSize: 18, color: C.muted, flexShrink: 0 }}>›</span>
