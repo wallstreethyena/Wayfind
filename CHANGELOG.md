@@ -1,3 +1,15 @@
+## v8.56.6 - A Book button needs somebody selling entry
+
+Measured against production `wf_inventory` on 2026-09-04: **2,263 places passed `isTicketyPlace` and would render a Book CTA, and 829 of them were free public land.** Shamrock Park. Indian Mound Park. Deer Prairie Creek Preserve. Osprey Junction Trailhead. Sarasota National Cemetery. Epiphany Cathedral. A third of every Book button on the site pointed at ground you walk onto for nothing.
+
+- **The leak is one Google type.** `tourist_attraction` does not mean "you buy a ticket", it means "tourists go here", and Google hangs it on trailheads and cathedrals. v6.53 already fixed one instance of this exact shape (beaches carry `tourist_attraction` too). This is the same bug, one type family over.
+- **A SOLD type beats a ground type, and the order is the whole fix.** Universal Studios is `[amusement_park, park]`; Myakka Canopy Walkway is `[observation_deck, hiking_area, park]`; USF Botanical Gardens is `[botanical_garden, hiking_area]`. Checking free-land first would have killed all three, which is why the guard asserts the ordering directly.
+- **A VERIFIED product beats both.** `bookingResolve` gated its verified-product path on `isTicketyPlace`, a guess about whether anyone sells admission. `topItem` is not a guess: it is a Viator product that resolved for this place. Myakka River State Park types as `[park, hiking_area]` and its airboat tour is genuine inventory, so the verified path now gates on `isNeverBookable` alone. The unverified **search** fallback still requires the full type gate, because a search link with nothing behind it is the Coquina→Mumbai failure v6.60 fixed.
+- **`ticketsUrl` had silently drifted.** It tested `TICKETY` raw rather than calling `isTicketyPlace`, so a beach reached it and got a Viator search link while every other surface refused one. One predicate now.
+- **A name rule was tried and rejected by measurement.** Matching "park"/"preserve" in the NAME looked like another 8% and killed Sky Zone Trampoline Park, Urban Air, Xtreme Action Park, Hollywild Animal Preserve (a zoo) and Hatcher Garden and Woodland Preserve (a botanical garden). Types are evidence, names are vibes.
+- **Net: 739 false Book buttons removed, 33% of the bookable set**, with every genuinely ticketed venue in the Suncoast set kept.
+- **Guarded.** `check-book-cta-needs-a-seller` (52 assertions) uses the real leaking rows as fixtures on both sides. Red-proved with six mutations, including flipping the sold/free ordering and putting the verified product back behind the type gate.
+
 ## v8.56.5 - The Instagram lead reader, and why it cannot invent a date
 
 The scout finds leads. Reading them was still a human job, and that step is what stands between the Suncoast venues that announce on Instagram first (Hunsader, Fruitville Grove, Selby, The Bay) and the fall shelves.

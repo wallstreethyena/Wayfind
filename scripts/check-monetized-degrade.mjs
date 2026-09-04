@@ -126,6 +126,12 @@ const exports_ = [...src.matchAll(/^export function (\w+)/gm)].map((m) => m[1]);
 ok(exports_.length >= 8, `only ${exports_.length} exports parsed from lib/affiliates.js — the matcher is broken and completeness would be vacuous`);
 const KNOWN_UNMONETIZED = new Set([
   "isTicketyPlace",       // boolean predicate, returns no URL
+  // v8.56.6 — boolean predicate, same class as isTicketyPlace: it returns no
+  // URL and touches no env. It is the v6.53 beach rule lifted out on its own so
+  // a VERIFIED Viator product can be judged against it separately from the
+  // Google-type gate (lib/bookingResolve). Behaviour is pinned by
+  // check-book-cta-needs-a-seller, which red-proves removing it.
+  "isNeverBookable",
   // INTERNAL path builder; returns /api/viator/go?product=... and hard-rejects
   // any non-viator.com host. Attribution is applied server-side by that route.
   "viatorProductGoUrl",

@@ -984,3 +984,12 @@ node scripts/check-vendor-tag-cannot-throw.mjs
 # fact whose quote is not literally in the caption is deleted. This EXECUTES that
 # net against the shapes a helpful model really produces.
 node scripts/check-social-extract-cannot-invent.mjs
+# 2026-09-04 A BOOK BUTTON NEEDS SOMEBODY SELLING ENTRY. Measured on
+# wf_inventory: 2,263 rows passed isTicketyPlace and would render a Book CTA,
+# and 829 of them (33%) were free public land — parks, trailheads, preserves,
+# a cathedral and a national cemetery — all wearing Google's `tourist_attraction`
+# type, which means "tourists go here", not "you buy a ticket". Same shape as
+# the v6.53 beach leak, one type family over. A SOLD type beats a ground type
+# (Universal Studios is [amusement_park, park]) and a VERIFIED product beats
+# both (Myakka's airboat tour is real inventory on a place typed [park]).
+node scripts/check-book-cta-needs-a-seller.mjs
