@@ -4,6 +4,8 @@
 // merged. This is the "prove it" endpoint for the aggregation layer — hit
 // /api/sources/compare?lat=27.58&lng=-82.43&radius=27359 after deploy.
 // Read-only, no key material in the response, fail-soft per source.
+import { gateShut, spendAllow } from "../../../../lib/spendGate";
+
 export const runtime = "nodejs";
 
 const CATS = [
@@ -32,6 +34,9 @@ const sameVenue = (a, b) => {
 
 async function googleSearch(q, lat, lng, radius, key) {
   try {
+    // COST GUARD (2026-09-04): reached Google with NO gate and NO ledger.
+    // places:searchText is metered as text search; gated conservatively.
+    if (gateShut() || !(await spendAllow("text_pro"))) return null;
     const r = await fetch("https://places.googleapis.com/v1/places:searchText", {
       method: "POST",
       headers: { "content-type": "application/json", "X-Goog-Api-Key": key, "X-Goog-FieldMask": "places.displayName,places.location" },
