@@ -966,3 +966,21 @@ node scripts/check-owned-library-no-rebuy.mjs
 # effects with a duplicate-request guard may never depend on inline callback
 # identity — that cancellation race permanently stranded Today's Best.
 node scripts/check-poster-open-contract.mjs
+# 2026-09-03 SENTRY: two "Cannot read properties of null (reading 'parentNode')"
+# on /events in the same second — the signature of one first-interaction moment,
+# when both monetization tags load. Stay22's bundle runs Mozilla Readability
+# over a still-streaming React route and derefs a held node's parentNode after
+# React unmounts it; that is their DOM walk, not ours. This EXECUTES both inline
+# loaders against a script-less, head-hostile DOM (the shape the old
+# getElementsByTagName('script')[0].parentNode.insertBefore idiom died on) and
+# pins that vendor frames are denied by URL while our own still page.
+node scripts/check-vendor-tag-cannot-throw.mjs
+# 2026-09-03 THE INSTAGRAM LEAD EXTRACTOR CANNOT INVENT A DATE. The scout finds
+# leads; reading them was still a human job, and that is what stands between the
+# Suncoast venues that announce on Instagram first and the fall shelves. The
+# owner's two laws pull opposite ways: put the date on the card, never guess it.
+# lib/socialExtract resolves that by making a guess UNPROVABLE rather than
+# discouraged — every fact arrives with the substring it was read from, and any
+# fact whose quote is not literally in the caption is deleted. This EXECUTES that
+# net against the shapes a helpful model really produces.
+node scripts/check-social-extract-cannot-invent.mjs

@@ -1,3 +1,25 @@
+## v8.56.5 - The Instagram lead reader, and why it cannot invent a date
+
+The scout finds leads. Reading them was still a human job, and that step is what stands between the Suncoast venues that announce on Instagram first (Hunsader, Fruitville Grove, Selby, The Bay) and the fall shelves.
+
+Two owner laws pull in opposite directions: "i cannot have someone be interested and not know when they will be able to go to the event" wants dates on cards, and "i cannot afford to have a person click on it and have false information" forbids guessing one.
+
+- **`lib/socialExtract.js` makes a guess unprovable rather than discouraged.** Every extracted fact must arrive with the exact substring it was read from, and `normalizeExtraction()` **deletes any fact whose quote is not literally in the caption**. The prompt also says not to guess; that is useful and it is not the guarantee. A prompt can be talked out of a rule, a string comparison cannot.
+- **The post's timestamp is never sent to the model.** Handing it a "today" is handing it the tools to resolve "this weekend". The module reads no clock, no environment and makes no network call of its own, so it ships dark and the contract is testable offline.
+- **A year is never manufactured.** "October 12" states a month and a day, so `MM-DD` is the honest shape.
+- **Drops are recorded, not swallowed** — each rejected fact carries its reason, so a drifting extractor is visible.
+- **Measured against the live API on 2026-09-04**, `claude-haiku-4-5`, six real Suncoast caption shapes: "Fall Festival is BACK this weekend" kept the title and produced **no date**; "PUMPKIN PATCH OPENS FRIDAY" produced **no date**; a throwback post produced **nothing at all**; and the fully dated Selby caption produced title, both dates, time, venue and price. ~1,650 tokens per caption, about a fifth of a cent.
+- **Guarded by execution.** `check-social-extract-cannot-invent` (46 assertions), red-proved with six mutations.
+
+## v8.56.4 - A monetization tag cannot throw into the page, and a vendor's crash stops filing as ours
+
+Sentry, 2026-09-03: two issues, `TypeError: Cannot read properties of null (reading 'parentNode')` on `/events`, both stamped 18:21:43 UTC. The same second is the signature of one first-interaction moment, which is exactly when both interaction-gated tags load.
+
+- **What actually throws is Stay22's bundle.** `scripts.stay22.com/letmeallez.js` ships Mozilla's Readability and runs it over the live page. Readability walks the DOM holding node references across iterations and dereferences `node.parentNode` unguarded in several places. On a route that is still streaming, a held node is unmounted mid-walk and `parentNode` is null. Two unguarded sites in one pass is two issues in one second.
+- **Vendor frames now go in `DENY_URLS`, by URL and never by message** — same rule the Vercel Toolbar got in v8.29.7. A `parentNode` TypeError thrown by Wayfind's code must still page us.
+- **Our own loaders could have thrown the identical error, and no longer can.** Both inline tags used `getElementsByTagName('script')[0].parentNode.insertBefore(s, f)`, the only `.parentNode` dereference in Wayfind's client source. They now append to `document.head` (documentElement fallback) inside a `try/catch`, with an `onerror` no-op. Both stay gated on the first interaction.
+- **Guarded by execution.** `check-vendor-tag-cannot-throw` (37 assertions) runs both loaders in a VM against a DOM with no `<script>` element, a head that refuses `appendChild`, and no head at all. Red-proved with six mutations.
+
 ## v8.56.3 - The desktop card stops getting worse as the screen gets bigger
 
 Owner, 2026-09-03, with a 2000px screenshot of "Best bookable activities": "the place card r best bookable experiences are not optimal for a desktop." Measured in Chromium against the shipped stylesheet:
