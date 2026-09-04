@@ -8,47 +8,8 @@ import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
 import { originForCity } from "../../lib/locationHonesty.js";
 import { homeAffiliateActivities } from "../../lib/homeAffiliateActivities.js";
 import { composeSummerPickRails } from "../../lib/summerPicks.js";
-import { cardImageSrc } from "../../lib/placePhoto.js";
 
 const LOAD_TIMEOUT_MS = 10000;
-const PHOTO_TIMEOUT_MS = 4000;
-const PHOTO_WORKERS = 12;
-
-const ownedPhotoSrc = (place) => place?.photoUrl || place?.photo_url || cardImageSrc(place, 640);
-
-function imageLoads(src) {
-  return new Promise((resolve) => {
-    if (!src) return resolve(false);
-    const image = new Image();
-    let settled = false;
-    const finish = (ok) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      image.onload = null;
-      image.onerror = null;
-      resolve(ok);
-    };
-    const timer = setTimeout(() => finish(false), PHOTO_TIMEOUT_MS);
-    image.onload = () => finish(image.naturalWidth > 0 && image.naturalHeight > 0);
-    image.onerror = () => finish(false);
-    image.src = src;
-  });
-}
-
-async function placesWithWorkingPhotos(places) {
-  const rows = Array.isArray(places) ? places : [];
-  const sources = [...new Set(rows.map(ownedPhotoSrc).filter(Boolean))];
-  const working = new Set();
-  let cursor = 0;
-  await Promise.all(Array.from({ length: Math.min(PHOTO_WORKERS, sources.length) }, async () => {
-    while (cursor < sources.length) {
-      const src = sources[cursor++];
-      if (await imageLoads(src)) working.add(src);
-    }
-  }));
-  return rows.filter((place) => working.has(ownedPhotoSrc(place)));
-}
 
 export default function SummerPicksClient() {
   const sp = useSearchParams();
@@ -82,16 +43,16 @@ export default function SummerPicksClient() {
     Promise.allSettled([
       fetchJsonWithDeadline(`/api/summer/places?${summerQ}`, { timeoutMs: LOAD_TIMEOUT_MS }),
       fetchJsonWithDeadline(`/api/experiences?${tourQ}`, { timeoutMs: LOAD_TIMEOUT_MS }),
-    ]).then(async (results) => {
+    ]).then((results) => {
       if (cancelled) return;
       const summer = results[0].status === "fulfilled" ? results[0].value : null;
       const experiences = results[1].status === "fulfilled" ? results[1].value : null;
       const placeMap = new Map();
       for (const place of Array.isArray(summer?.places) ? summer.places : []) placeMap.set(place.id, place);
       const tours = homeAffiliateActivities(experiences?.items, 100);
-      const verifiedPlaces = await placesWithWorkingPhotos([...placeMap.values()]);
-      if (cancelled) return;
-      const composed = composeSummerPickRails(verifiedPlaces, tours);
+      // Render as soon as the APIs settle. RailCard owns per-image fallbacks;
+      // preloading every photo here made one slow image hold the entire page.
+      const composed = composeSummerPickRails([...placeMap.values()], tours);
       const usable = composed.some((rail) => rail.cards.length > 0);
       if (!usable) setFailed(true);
       else setRails(composed);
