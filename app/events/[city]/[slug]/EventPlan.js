@@ -8,9 +8,9 @@ import { toDisplayScore } from "../../../../lib/score";
 import { fetchJsonWithDeadline } from "../../../../lib/clientJson";
 
 const EVENT_PLAN_RAILS = [
-  { kind: "food", title: "Eat nearby", deck: "The strongest meals close enough to fit before the event.", benefit: "A strong meal before the event" },
-  { kind: "after", title: "Keep the night going", deck: "Drinks, dessert, music, and worthwhile next stops nearby.", benefit: "A well-rated next stop close by" },
-  { kind: "stay", title: "Stay nearby", deck: "Top nearby stays when the night should not end with a long drive.", benefit: "A top-rated nearby base" },
+  { kind: "food", title: "Eat nearby", deck: "Great meals that fit before showtime.", benefit: "A strong meal before the event" },
+  { kind: "after", title: "Keep the night going", deck: "The best next stops nearby.", benefit: "A well-rated next stop close by" },
+  { kind: "stay", title: "Stay nearby", deck: "Top stays for an easier night.", benefit: "A top-rated nearby base" },
 ];
 
 function textName(place) {
@@ -121,7 +121,7 @@ export default function EventPlan({ lat, lng, city, venue, time }) {
         const railId = `event-plan-${kind}`;
         return <section key={kind} aria-labelledby={`${railId}-title`} style={{ marginTop: 24 }}>
           <h3 id={`${railId}-title`} style={{ margin: 0, color: "#F8FAFC", fontSize: 19, lineHeight: 1.2 }}>{title}</h3>
-          <p style={{ margin: "4px 0 8px", color: "#A8B2C2", fontSize: 12.5, lineHeight: 1.45 }}>{deck}</p>
+          <p className="wf-rail-deck" style={{ marginTop: 4, color: "#A8B2C2" }}>{deck}</p>
           {places === null ? <div role="status" style={{ color: "#7F8A9C", fontSize: 12.5, padding: "14px 0" }}>Finding nearby picks…</div> : !places.length ? <p style={{ color: "#7F8A9C", fontSize: 12.5 }}>No nearby option clears Wayfind&apos;s quality bar yet.</p> : <>
             <RailNav railId={railId} count={places.length} total={places.length} unit="ranked options" />
             <div className="wf-rail" data-rail={railId} tabIndex={0} role="region" aria-label={title}>

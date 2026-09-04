@@ -69,7 +69,7 @@ function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin,
   const railId = "fall-intent-" + rail.id;
   return <section aria-label={rail.title} style={{ marginTop: 22 }}>
     <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 850, color: COLORS.text }}>{rail.title}</h2>
-    <p style={{ margin: "0 0 8px", fontSize: 12.5, lineHeight: 1.45, color: "#C9BFC6" }}>{rail.deck}</p>
+    <p className="wf-rail-deck" style={{ color: "#C9BFC6" }}>{rail.deck}</p>
     {!items.length ? <p style={{ margin: "8px 0 0", fontSize: 13, color: COLORS.muted }}>No nearby option has enough current evidence for this rail yet. Wayfind will not fill it with a seasonal look-alike.</p> : <>
       <RailNav railId={railId} count={cardCount} total={cardCount} unit={cardCount === 1 ? "ranked option" : "ranked options"} />
       <div className={`wf-rail wf-rail-exploding${fallSkin ? " wf-fall" : ""}`} data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>

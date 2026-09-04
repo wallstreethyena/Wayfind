@@ -14,7 +14,7 @@ export default function SummerPicksRails({ rails, city, onOpenPlace = null }) {
     const railId = `summer-picks-${rail.id}`;
     return <section key={rail.id} aria-labelledby={`${railId}-title`} style={{ marginTop: 28 }}>
       <h2 id={`${railId}-title`} style={{ margin: "0 0 4px", color: "#F8FAFC", fontSize: 20, fontWeight: 850 }}>{rail.title}</h2>
-      <p style={{ margin: "0 0 8px", color: "#A8B0BE", fontSize: 12.5, lineHeight: 1.5 }}>{rail.deck}</p>
+      <p className="wf-rail-deck" style={{ color: "#A8B0BE" }}>{rail.deck}</p>
       {!rail.cards.length ? (
         <p style={{ color: "#8B93A1", fontSize: 13 }}>No photo-verified option clears this rail yet. Wayfind will not pad it with an unrelated card.</p>
       ) : <>
