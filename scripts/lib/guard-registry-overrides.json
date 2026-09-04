@@ -1,0 +1,315 @@
+{
+  "_comment": "Hand-authored fields for CRITICAL guards (scripts/lib/build-guard-registry.mjs computes the critical set mechanically — top-20-audit citation + money-keyword match — and refuses to generate the registry if any critical guard is missing an entry here). Keyed by the guard's repo-relative path. protects = one plain sentence naming the invariant. blastRadius.category is one of revenue|trust|correctness|cosmetic. owner follows CLAUDE.md's 'AI Team Structure' (Qwen=Engineering, Llama=Editorial, Revenue QA=affiliate/monetization integrity) or 'owner (Gabriel)' where the call is a business/product decision rather than a technical one.",
+
+  "scripts/check-env.mjs": {
+    "protects": "Every revenue- or feature-critical env var (Viator PID, Supabase keys, provider keys) is present and not a placeholder, at build time, with a printed advisory.",
+    "blastRadius": { "category": "revenue", "detail": "Top-20 finding #1 (DECORATIVE): the check is non-fatal by design (always exits 0), so its own ENV WARNING for NEXT_PUBLIC_VIATOR_PID unset — which zeroes ALL Viator revenue — is invisible unless a human reads the build log." },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-spend-guard.mjs": {
+    "protects": "No API route calls the paid Google Places API with an unmasked field set or outside the per-place spend ledger — the $1,878.92 August 2026 overspend must not recur.",
+    "blastRadius": { "category": "revenue", "detail": "Top-20 finding #2: MASK_FILES/GATED_FILES are hardcoded arrays; three live routes that call Google Places directly (app/api/places/details, /autocomplete, /api/sources/compare) are in neither array today, so a real overspend of the exact shape this guard exists for is currently invisible to it." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-booking-integrity.mjs": {
+    "protects": "A 'Tickets & tours' CTA only ever resolves to a product actually located at the named place — geography is a positive, hard-gated whitelist, never a no-op or a blacklist (the Dalí->Barcelona / Ringling->Houston regression).",
+    "blastRadius": { "category": "trust", "detail": "Top-20 finding #3: the regression-lock regex (verifiedOffers|bookingResolver|...) has no fixture proving it can still catch a real violation, so a future rename could silently drop an alternation member and this would go green forever on the exact class of bug it exists to stop." },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-hydration-style.mjs": {
+    "protects": "No inline <style> tag is rendered as a JSX text child (React SSR does not decode entities inside <style>, so an unescaped quote desyncs server/client DOM).",
+    "blastRadius": { "category": "trust", "detail": "Top-20 finding #4: the 2026-07-25 outage from this exact defect tore down interactivity SITE-WIDE (search, map, radius controls all 'did nothing'); the probe is a bare substring match with no tolerance for `<style jsx>{` and no same-file positive-control fixture." },
+    "owner": "Qwen (Engineering)"
+  },
+  "scripts/check-unified-commerce-rail.mjs": {
+    "protects": "Every sheet/browse surface renders exactly one mixed-provider commerce rail with one card language, real art, and one disclosure — never a second, undisclosed monetized rail.",
+    "blastRadius": { "category": "trust", "detail": "Top-20 finding #5: the 3 checked surfaces are process.argv DEFAULTS, not a discovered set — a 4th surface mounting <IntentPartnerPick> is invisible to this guard." },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-direct-affiliate-urls.mjs": {
+    "protects": "No raw partner affiliate URL (Viator, Ticketmaster, etc.) is ever hand-built or hardcoded outside the server redirect layer, which is what keeps attribution traceable.",
+    "blastRadius": { "category": "revenue", "detail": "Top-20 finding #6: well-scoped recursive walk, but never proven capable of catching a real bad URL — no fixture with a known-bad raw affiliate URL has ever been added and deleted to red-prove it." },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-promote-spend-gate.mjs": {
+    "protects": "No cron route that calls places.googleapis.com does so without first checking the per-place spend ledger (spendAllow/spendAllowCapped) — the 2026-09-01 promotion-drain fix.",
+    "blastRadius": { "category": "revenue", "detail": "Top-20 finding #7: the metered-call gate check is a CALL guard with 2 unproven absence checks (no fixture proving the regex can catch an ungated call)." },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-commerce-redirect.mjs": {
+    "protects": "/api/commerce/go behaves correctly for every provider — proven by calling it — and its fallback redirect never leaks a literal `[bracket]` placeholder.",
+    "blastRadius": { "category": "revenue", "detail": "Top-20 finding #8: 2 unproven absence checks (the `[bracket]` leak probe has never been proven to fire on a real placeholder leak)." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-card-booking.mjs": {
+    "protects": "A place card shows a booking button ONLY when the place has a VERIFIED product — never a generic name-search link built for any ticketed venue.",
+    "blastRadius": { "category": "trust", "detail": "Top-20 finding #9: locks the exact booking-integrity rule CLAUDE.md names, via readFileSync + scoped regex only, no declared STRUCTURAL-ONLY tag and no proof the extracted PlaceCard block still exists after a refactor." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-sheet-booking.mjs": {
+    "protects": "Every bookable place can be booked from its detail sheet: the primary CTA always falls back to an honest tracked search (never null, never a guessed product), and the bookable-kind list stays byte-identical across card chip, sheet tour-fetch, and this CTA.",
+    "blastRadius": { "category": "trust", "detail": "Top-20 finding #10, count-blind: `.length >= 2` passes at 2, 3, or 200 occurrences; the real invariant ('primary AND list variant both call it, exactly once each') is not what's asserted." },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-guide-cta-honesty.mjs": {
+    "protects": "A guide's tour-intent CTA label ('Check tours & tickets') must not promise more than it delivers — it may only claim a named place's tickets when a real, verified product resolves for that place.",
+    "blastRadius": { "category": "trust", "detail": "Top-20 finding #11: protects the exact 'promised tickets, got a search page' bug CLAUDE.md documents (0/20 click-through on nine guides), but the em-dash/colon absence probe has no positive-control fixture." },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-cost-gate.mjs": {
+    "protects": "WAYFIND_GATE=\"shut\" actually suppresses the paid Google searchText call on a cache miss (serves cache/inventory instead), and the default mode still refreshes from Google — the kill-switch cannot be silently removed or left permanently on.",
+    "blastRadius": { "category": "revenue", "detail": "Top-20 finding #12: 27-line regex-only check on a cost-sensitive gate, no declared reason it can't execute the real gate function (a working CALL pattern already exists in check-spend-effective-cap.mjs)." },
+    "owner": "Qwen (Engineering)"
+  },
+  "scripts/test-city-gate.mjs": {
+    "protects": "The coverage 'clear door' contract: wf_gate_status decides live/unlock/alert, the feed shows unless the gate says otherwise (safe default), unlock records demand and triggers the fetch, and alert captures the waitlist.",
+    "blastRadius": { "category": "correctness", "detail": "Top-20 finding #13: regex-only, undeclared as STRUCTURAL-ONLY — a coverage-gate regression could ship invisible to this guard." },
+    "owner": "Qwen (Engineering)"
+  },
+  "scripts/check-geo-gated-boosts.mjs": {
+    "protects": "A first-party, name-keyed curated pick (best-of, local-fave, featured, gem) never applies its Florida badge/rank-boost/blurb to a same-named place OUTSIDE the curated region (the Denver 'Chart House' inheriting a Sarasota pick).",
+    "blastRadius": { "category": "trust", "detail": "Top-20 finding #14: regex-only, undeclared — a wrong-city badge is a visible, owner-embarrassing trust defect on exactly the surfaces meant to showcase curation quality." },
+    "owner": "Qwen (Engineering)"
+  },
+  "scripts/check-price-badge.mjs": {
+    "protects": "PriceBadge only ever DRAWS the price tier it is given — lib/price is the single source of truth, so a card can never show two disagreeing price signals ('$$$$' and 'Moderate' at once).",
+    "blastRadius": { "category": "trust", "detail": "Top-20 finding #15: regex-only, undeclared — the 2026-07-09 audit's three-maps-disagreeing defect is a visible, credibility-damaging inconsistency on every card that shows a price." },
+    "owner": "Qwen (Engineering)"
+  },
+  "scripts/check-spend-effective-cap.mjs": {
+    "protects": "effectiveCap() reports the REAL ceiling the spend ledger is checked against for the active gate mode — the 23-hour promotion-drain stall where the ledger read 6,426/7,500 while the ACTUAL limit hit was the free-tier 4,800.",
+    "blastRadius": { "category": "revenue", "detail": "Top-20 finding #16: otherwise a strong CALL guard (dynamic-imports lib/spendGate.js, asserts on real effectiveCap() returns) — the only gap is 3 error-message-string absence checks with no fixture, lowest severity of the top-20." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-booking-resolve-extraction.mjs": {
+    "protects": "Extracting bookingTargets()/hasBookingCTA() out of the client component BookingCTA.js and into lib/bookingResolve.js changed NOTHING observable — the server-side guide pages reach the identical predicate the client CTA uses.",
+    "blastRadius": { "category": "trust", "detail": "Top-20 finding #17: 4 absence checks (e.g. no bare `react` import in the extracted server-safe module) with no positive control." },
+    "owner": "Qwen (Engineering)"
+  },
+  "scripts/check-doc-ownership.mjs": {
+    "protects": "Rule-defining coordination files (CLAUDE.md, AGENTS.md, etc.) are owner-only edits — 11 of 29 branch-vs-main conflicts (38%, measured 2026-07-31) were on these files, not code.",
+    "blastRadius": { "category": "correctness", "detail": "Top-20 finding #18: flagged DECORATIVE by the automated analyzer but judged a FALSE POSITIVE on manual read (18 real execFileSync('git', ...) calls, branches via a wrapper the analyzer's single-hop tracer can't see through) — kept critical because it protects a real, high-conflict-rate invariant regardless of the analyzer's own limitation." },
+    "owner": "owner (Gabriel)"
+  },
+  "scripts/check-guide-share.mjs": {
+    "protects": "Every published guide has a working share button — the owner's 2026-08-19 finding that 39 live guides had none.",
+    "blastRadius": { "category": "trust", "detail": "Top-20 finding #19: CALL guard, 3 absence checks with no fixture proving the probes can fail." },
+    "owner": "Llama (Editorial)"
+  },
+  "scripts/check-editorial-everywhere.mjs": {
+    "protects": "THE EDITORIAL LAW app-wide: a place card must answer 'why should I choose this place' with something that would not be equally true of fifty other places — no generic filler copy.",
+    "blastRadius": { "category": "trust", "detail": "Top-20 finding #20: the most absence checks of any single CALL guard in the ledger (5), none with a positive control." },
+    "owner": "Llama (Editorial)"
+  },
+
+  "scripts/check-book-cta-needs-a-seller.mjs": {
+    "protects": "A Book CTA never renders on free public land (parks, preserves, cemeteries, trailheads) — only on inventory somebody actually sells entry to.",
+    "blastRadius": { "category": "trust", "detail": "Measured on production inventory 2026-09-04: 829 of 2,263 rows that passed isTicketyPlace were free public land — 33% of every Book button on the site pointed at ground you walk onto for free." },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-booking-cta.mjs": {
+    "protects": "app/components/BookingCTA.js is the ONLY place that turns Viator data into a clickable booking href, and the live/not-live confidence threshold (lib/verifiedOffers.js) is defined in exactly one place.",
+    "blastRadius": { "category": "trust", "detail": "A second inlined copy of either rule is the parallel-path shape CLAUDE.md's 'assert the invariant, not the file path' section names as the dangerous failure — it goes green, not red, the moment the logic is duplicated." },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-commerce-events.mjs": {
+    "protects": "Commerce measurement (impression/click events on monetized links) stays honest and never leaks into the ranking algorithm.",
+    "blastRadius": { "category": "revenue", "detail": "14 days of PostHog data showed zero non-owner clicks recorded on ANY monetized link before lib/commerce.js existed — revenue was flowing with no impression-side visibility to detect a leak." },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-env-discipline.mjs": {
+    "protects": "AGENTS.md §5: missing configuration fails LOUDLY, never silently via a `process.env.X || \"<real-looking-literal>\"` fallback that masks an absent credential.",
+    "blastRadius": { "category": "revenue", "detail": "A silent fallback to a real-looking literal is indistinguishable from a working credential in every dashboard — the exact shape of several 2026-08-25 revenue-path incidents in CLAUDE.md's postmortem." },
+    "owner": "Qwen (Engineering)"
+  },
+  "scripts/check-env-placeholders.mjs": {
+    "protects": "An env var being SET is not the same as being VALID — a redaction-pass literal like the 11-character string that disabled every AI block site-wide must be caught as a placeholder, not a working key.",
+    "blastRadius": { "category": "correctness", "detail": "2026-08-22 incident: ANTHROPIC_API_KEY was present everywhere but held the literal redacted string; every AI-generated block on the site went blank with no error." },
+    "owner": "Qwen (Engineering)"
+  },
+  "scripts/check-env-value-overrides.mjs": {
+    "protects": "An env var that SELECTS BEHAVIOUR (not just presence/absence, e.g. ATLAS_MODEL choosing which model runs) is audited on its actual VALUE, not just whether the key exists.",
+    "blastRadius": { "category": "correctness", "detail": "lib/envAudit.js classifies on presence only; a value-selecting var falls straight through that gap and can silently select the wrong behavior in production." },
+    "owner": "Qwen (Engineering)"
+  },
+  "scripts/check-monetized-degrade.mjs": {
+    "protects": "When a revenue env var is missing, the DEGRADE BEHAVIOUR matters, not just presence — some fallbacks are harmless (still attributed), others are a WORKING, UNATTRIBUTED link that bleeds free traffic to a partner.",
+    "blastRadius": { "category": "revenue", "detail": "2026-07-30: six revenue env vars missing from Vercel production; two (vrboUrl and, until deleted, uberEatsUrl) fell back to working links with zero attribution — free traffic to Expedia out of the highest-commission category." },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-untracked-affiliate-links.mjs": {
+    "protects": "An affiliate link we cannot attribute must not render at all — vrboUrl() must never fall back to a bare `return dest` when its tracking template env var is unset.",
+    "blastRadius": { "category": "revenue", "detail": "Verified missing in Vercel production 2026-07-30: the untracked fallback is a fully WORKING link the user can click and book through, earning Wayfind nothing." },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-viator-redirect-layer.mjs": {
+    "protects": "No monetized Viator link on /culture/[metro] reaches the DOM as a raw partner URL, and the exact-product passthrough can never become an open redirect.",
+    "blastRadius": { "category": "revenue", "detail": "2026-07-31: /culture/[metro] rendered viatorDirectUrl() straight into an <a href> — a live affiliate link sat in the DOM and every click bypassed the attributed redirect layer." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-affiliate-chip.mjs": {
+    "protects": "The per-card affiliate disclosure chip infers the right partner per card, an explicit provider tag wins over inference, an unaffiliated card resolves to no chip, and the chip actually renders on the browse PlaceCard.",
+    "blastRadius": { "category": "trust", "detail": "A wrong or missing disclosure chip on a monetized card is an FTC disclosure gap, the same class of issue CLAUDE.md's 'assert the invariant, not the file path' section calls out for the booking CTA's rel attribute." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-affiliates.mjs": {
+    "protects": "Outbound Viator URLs carry pid/mcid/medium EXACTLY once with consistent values, regardless of what the source URL already contains — string concatenation must never double them.",
+    "blastRadius": { "category": "revenue", "detail": "A doubled or malformed tracking parameter can silently break attribution on every Viator click the site sends." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-book-it-venues.mjs": {
+    "protects": "bookItTarget() resolves a real offer for named attractions and tours — audit finding F4 was that it returned null for EVERY attraction and EVERY tour, going dark on exactly the inventory it exists to serve.",
+    "blastRadius": { "category": "revenue", "detail": "A regression here silently zeroes the entire Book-it monetization layer for its target inventory with no visible error." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-book-it.mjs": {
+    "protects": "The detail-sheet 'Book it' affiliate target (lib/monetize.js bookItTarget) ships dark by default, resolves a provider only when a program is actually live, never duplicates the Viator CTA, and never wraps non-bookable inventory.",
+    "blastRadius": { "category": "revenue", "detail": "A false-positive 'live' program, or a duplicate CTA, either monetizes inventory that shouldn't be, or confuses the primary Viator CTA with a second, competing one." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-booking-audit.mjs": {
+    "protects": "isTicketyPlace() (the Viator watchdog) — the Coquina fix — keeps identifying ticketed places correctly so the Book CTA only ever appears where it should.",
+    "blastRadius": { "category": "trust", "detail": "isTicketyPlace also gates the beach exclusion CLAUDE.md names by number ('Do not weaken the beach exclusion') — a regression here can leak a Book CTA onto free public land, including beaches." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-booking-resolver.mjs": {
+    "protects": "Booking-CTA integrity golden fixtures: a free/generic place-name match never renders a CTA, a genuine venue-specific product does, a delisted offer suppresses, and a generic high-fan-out product never wins over a specific one.",
+    "blastRadius": { "category": "trust", "detail": "These are the acceptance fixtures for the original booking-integrity spec (BOOKING_INTEGRITY_DIAGNOSIS.md) — regressing any one reopens the Dalí->Barcelona class of wrong-place redirect." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-card-analytics.mjs": {
+    "protects": "The commerce_impression/commerce_click event family and the free-local-offer event family stay separate, carry the fields the UI decides on, and cannot double-fire.",
+    "blastRadius": { "category": "revenue", "detail": "Folding a free local offer into commerce_impression silently inflates the denominator of every revenue rate computed from these events — CTR, conversion, revenue-per-impression would all quietly fall as free inventory grows." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-cash-register-batch-2026-08-20.mjs": {
+    "protects": "Cash-register factory batch 1: every new Book hop is placePick -> commerceHref -> /api/commerce/go — never a raw viator.com URL, never searchResults, never a reminted click_id, never a silent rank change.",
+    "blastRadius": { "category": "revenue", "detail": "Locks a specific, owner-verified set of live monetized hops; a regression here silently reroutes real revenue-bearing clicks around attribution." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-cash-register-batch-2026-08-20b.mjs": {
+    "protects": "Three specific, owner-verified in-season Florida Book hops resolve to the exact live product (correct H1/title naming the actual place, not a nearby ramp, not searchResults, not another product).",
+    "blastRadius": { "category": "revenue", "detail": "Same class as batch 1 — a named, real product going stale or mis-resolving silently degrades a real, verified revenue path back to a generic search." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-composition-render.mjs": {
+    "protects": "The shared list-composition markup (coupon strip, 'Perfect right now', methodology block) — moved between modules in v6.72 — is proven by MOUNTING it, not by grepping for its text.",
+    "blastRadius": { "category": "correctness", "detail": "This is the mandatory RENDER half of the extraction-guard pair CLAUDE.md requires for any move between modules — the #486 class of bug (nothing ever called the component) is invisible to any source-as-text guard alone." },
+    "owner": "Qwen (Engineering)"
+  },
+  "scripts/test-deal-rails.mjs": {
+    "protects": "The Undercover Tourist deal rails: rows are shaped and grouped by subcategory in a fixed order, the affiliate link renders VERBATIM, the rail reads server-side (service role, not anon client), and the per-card disclosure chip discloses the partner.",
+    "blastRadius": { "category": "revenue", "detail": "A rewritten (non-verbatim) affiliate link, or a client-side read that drops the service-role scoping, both risk breaking attribution or the disclosure requirement on a live monetized rail." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-dupes-imports.mjs": {
+    "protects": "scripts/check-dupes.mjs (the deploy gate for duplicate top-level declarations) correctly counts an `import X` + `function X` collision as a real duplicate, not two unrelated single declarations.",
+    "blastRadius": { "category": "correctness", "detail": "The original bug: check-dupes.mjs counted only function/const/let, so an import-shadowed name collision printed 'no duplicate top-level declarations' while shipping exactly that." },
+    "owner": "Qwen (Engineering)"
+  },
+  "scripts/test-earning-handoff.mjs": {
+    "protects": "Every Book/commerce click navigates SAME-TAB through a go route, carries the identical click_id on both the client event and the go URL, and never puts a raw partner URL (viator.com, booking.com, ticketmaster.evyy.net) directly in an earning button's href.",
+    "blastRadius": { "category": "revenue", "detail": "Founder-flagged P0 (2026-08-19): 'dead money handoffs' — any one of these breaking silently loses the click_id linkage that ties a click to attributed revenue." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-guide-search-as-book.mjs": {
+    "protects": "A guide CTA that resolves to a generic Viator SEARCH destination must never paint with 'Book' styling/labeling — only an exact, verified product may.",
+    "blastRadius": { "category": "trust", "detail": "Live evidence 2026-08-26 (swim-with-manatees-crystal-river): a search-intent destination painted as Book, misrepresenting an unverified search result as a bookable product." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-home-bookable.mjs": {
+    "protects": "The home shell's rendered bookable-place surfaces stay correct across real render passes (renderToStaticMarkup over the actual component tree), not just a source-text approximation.",
+    "blastRadius": { "category": "trust", "detail": "A render-level regression in what counts as 'bookable' on the home surface is invisible to any guard that only reads source text." },
+    "owner": "Qwen (Engineering)"
+  },
+  "scripts/test-money-honest.mjs": {
+    "protects": "Ticketmaster attribution goes through the correct Impact redirect (ticketmaster.evyy.net), not the retired query-param approach; and the 'Why Wayfind picked this' block never stamps generic filler copy as if it were an actual opinion.",
+    "blastRadius": { "category": "revenue", "detail": "#294's query-param approach is retired — a regression back to it silently loses Ticketmaster attribution while looking like a normal link." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-promote-details.mjs": {
+    "protects": "The promotion-tier field-mask logic (lib/promoteDetails.js) and the gate-mode arithmetic of spendAllowCapped (lib/spendGate.js) compute the correct mask tier and spend ceiling together, offline, with no live network dependency.",
+    "blastRadius": { "category": "revenue", "detail": "A wrong mask tier bills the wrong Google Places SKU (the same class of defect behind the $1,878.92 August 2026 overspend named in check-spend-guard.mjs)." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-redirect-integrity.mjs": {
+    "protects": "Every paid click lands attributed, and a Book click never 302s to a bare searchResults page or unattributed viator.com — proven by calling the resolver, not by grepping it.",
+    "blastRadius": { "category": "revenue", "detail": "2026-08-16: a missing-query redirect dumped users on the unattributed homepage (free traffic to the partner). 2026-08-25: Book resolve was hardened to fail closed to Wayfind's own site rather than an unattributed partner page." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-resolver-word-boundary.mjs": {
+    "protects": "entityMatch() counts a hit only on exact TOKEN equality — never a substring — so a place whose only distinctive token happens to be a substring of its own region name cannot falsely earn a full entity match.",
+    "blastRadius": { "category": "trust", "detail": "Cowork's full-inventory simulation found two real places (Braden River Park: braden⊂bradenton; The Land: land⊂orlando) where the substring bug let a generic city-wide tour go live under a specific place's identity." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-shell-key-clear-kayak-pin.mjs": {
+    "protects": "One specific, founder-verified in-season Florida tour product (Clear Kayak Tour of Shell Key Preserve, SKU 173028P1) keeps resolving to its exact URL/title/city — a named regression pin, not a general rule.",
+    "blastRadius": { "category": "revenue", "detail": "A real, hand-verified live product silently drifting to a stale SKU or wrong title is a specific, already-caught-once revenue/trust defect (see test-place-page-book-click-id.mjs's #947 incident on the same product)." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-viator-fanout.mjs": {
+    "protects": "The geo-gated Viator candidate resolver pulls a wide enough pool (>=10 on /go) that real venue-specific products (Mote, Selby, Ca' d'Zan) can actually be found, rather than only generic city-wide tours.",
+    "blastRadius": { "category": "revenue", "detail": "With a narrow (top-3) pool, venue-specific products never enter the candidate set at all and every CTA silently falls back to 'Search Viator' — a resolver-capacity bug, not a matching-logic bug." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-viator-integrity-lock.mjs": {
+    "protects": "A denylisted or dead Viator SKU can never become a 'Book' CTA through ANY of isLiveEligible, placePartnerPick, resolveOffer, chooseViatorGoLocation, or inspectViatorProductPage — proven by calling each, not by grepping for the SKU string.",
+    "blastRadius": { "category": "revenue", "detail": "A dead/denylisted product reaching a live Book button sends users to a broken or wrong booking flow on a monetized CTA." },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-awin-links.mjs": {
+    "protects": "An AWIN affiliate link is never built for a programme Wayfind is not currently approved for.",
+    "blastRadius": { "category": "revenue", "detail": "awin1.com/cread.php 302s correctly and converts whether or not the programme is joined — an unapproved-programme link pays nothing while reading as a success in every dashboard, with no runtime symptom and no broken page to notice." },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-clipp-deals.mjs": {
+    "protects": "Every Clipp dining destination redirect carries Wayfind's PID — an unattributed clipp.com link fails the build (owner directive, 2026-07-29).",
+    "blastRadius": { "category": "revenue", "detail": "An unattributed affiliate link is invisible to every dashboard — the user still converts, Wayfind still earns nothing, and nothing looks broken." },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-credentialed-paths.mjs": {
+    "protects": "Every guard that claims it needs a live credential (e.g. NEXT_PUBLIC_VIATOR_PID) to exercise its assertions actually reaches code that behaves differently with the credential present vs absent — a credentialed pass whose assertions never actually execute is indistinguishable from a guard that trivially passes.",
+    "blastRadius": { "category": "revenue", "detail": "2026-08-06: lib/affiliates reads NEXT_PUBLIC_VIATOR_PID at module load, so a guard's 'without it, verifiedUrl is always X' premise can be silently vacuous — this is the meta-guard that verifies the credentialed re-run (scripts/run-guards.mjs's second pass) is real." },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-experiences-link-health.mjs": {
+    "protects": "A wf_experiences row's stored Viator URL still resolves to the SAME specific activity it was ingested for — never a retired product's 302 landing on Viator's generic 'similar experiences' search page.",
+    "blastRadius": { "category": "revenue", "detail": "2026-08-26 affiliate deep-link audit: the nightly ingest only refreshes what Viator's top-50 search still returns, so a retired product's row keeps serving a specific-activity card that silently degrades to a generic search landing on click." },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-guide-product-resolution.mjs": {
+    "protects": "A guide may only claim 'tickets' for a product it has actually, strongly verified at render time — never the generic Viator search that resolved for all nine tour-intent guides before #599.",
+    "blastRadius": { "category": "trust", "detail": "2026-08-05: all nine tour-intent guides resolved to a generic Viator search; 20 readers saw the CTA and zero clicked — the same 'promised tickets, got a search page' defect check-guide-cta-honesty.mjs locks from the label side." },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-hub-conversion.mjs": {
+    "protects": "/guides and /culture/[metro] are never dead ends, and their conversion instrumentation actually survives the commerce whitelist.",
+    "blastRadius": { "category": "revenue", "detail": "2026-07-31, measured in PostHog over 30 days (owner excluded): /guides had 12 sessions and /culture/tampa 10 — both 100% dead with 0.0 engagement events — while /culture/[metro] was shipping live commerce elsewhere, meaning the instrumentation gap was hiding real dead traffic on monetized pages." },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-intent-partner-picks.mjs": {
+    "protects": "Location-aware partner picks resolve to exact products with opaque client ids and honest placement — proven by calling the real selectors and server resolver, not by grepping for provider names.",
+    "blastRadius": { "category": "revenue", "detail": "A regression here can either leak a partner id in a way that breaks attribution privacy/opacity, or silently place an inexact/generic product where an exact one is claimed." },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-money-funnel.mjs": {
+    "protects": "The five-step money funnel (cuisine_chip -> cuisine_place_open -> detail_open -> commerce_impression -> commerce_cta_clicked) stays internally consistent across the three mechanisms and four surfaces that emit it, and any gap in the chain is NAMED, not silent.",
+    "blastRadius": { "category": "revenue", "detail": "This is the primary funnel used to compute real conversion/CTR numbers for revenue reporting — a silent gap anywhere in the chain corrupts every rate computed downstream of it." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-city-viator.mjs": {
+    "protects": "The on-demand, location-generic Viator pull fills 'Things to do' + booking buttons for the user's searched or default location, permanently, with no hardcoded destIds — including the quality10 lockstep, fail-soft behavior, and the unlock route's auth-optional + cost guards.",
+    "blastRadius": { "category": "revenue", "detail": "A regression here can silently empty booking buttons for any location outside a hardcoded set, or bypass the cost guards on the unlock route (a spend-adjacent surface)." },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-place-page-book-click-id.mjs": {
+    "protects": "The place page's painted Book href resolves to the correct product's own click_id, not a stale or unrelated one carried over from a different card/session.",
+    "blastRadius": { "category": "revenue", "detail": "2026-08-25 (#947, dfeba86): the painted /places href for the Shell Key kayak product (SKU 173028P1) carried the wrong click_id, breaking the attribution linkage between the click and the correct product." },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-ut-crawler-clicks.mjs": {
+    "protects": "No Undercover Tourist partner URL appears in crawlable DOM, and no crawler (bot) can reach a partner through Wayfind's own redirect — human clicks only reach the redirect layer.",
+    "blastRadius": { "category": "revenue", "detail": "CJ reporting incident, 2026-07-30: Undercover Tourist links took ~144 crawler clicks/day (1,146 over the measured window) against ~50 human visitors/day, with ZERO sales and 0% conversion — bot traffic was burning partner-reported click volume with no revenue, risking the partnership's standing." },
+    "owner": "Revenue QA"
+  }
+}
