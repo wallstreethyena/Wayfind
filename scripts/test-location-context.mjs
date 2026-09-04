@@ -146,7 +146,7 @@ ok(/index:\s*false/.test(PLACE), "/p/[id] stays noindex (share/app-state)");
 
 const HOME = strip(read("app/home.js"));
 ok(/initialPlaceId/.test(HOME) && /pathname\.match\(\/\^\\\/p\\\//.test(HOME),
-  "Home opens a place from /p/{id} without collapsing the path");
+  "Home opens a place from /p/{id} without collapsing the path before the reader closes it");
 
 const BEST = strip(read("app/best-of/page.js"));
 ok(/bestOfCanonical\(/.test(BEST) && /alternates:/.test(BEST),

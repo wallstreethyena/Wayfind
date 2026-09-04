@@ -163,12 +163,21 @@ ok(/<button[^>]*class="[^"]*wf-place-card-like/.test(railHtml), "RailCard like i
   });
   ok(!homepage.stripAction && !homepage.leavePlaceRoute && !homepage.replaceHomeOnClose,
     "homepage is not a place-route trap");
+
+  const directPlace = placeRouteBackPlan({
+    pathname: "/p/ChIJ9RHZGx6H3YgRnWVYIWsHNPM",
+    search: "",
+    referrer: "",
+    origin: "https://www.gowayfind.com",
+  });
+  ok(directPlace.replaceHomeOnClose === true && directPlace.leavePlaceRoute === false,
+    "an externally opened place closes onto / so Safari cannot restore and reopen it on every app launch");
 }
 
 // ── 5. Production call sites actually use the helper ──────────────────────
 const home = read("app/home.js");
 ok(/import \{ placeRouteBackPlan \} from ["']\.\.\/lib\/railReaction["']/.test(home),
-  "home.js imports placeRouteBackPlan — a re-derived inline would drift");
+  "home.js imports placeRouteBackPlan — re-derived inline behavior would drift");
 ok(/placeRouteBackPlan\(\{/.test(home), "home.js CALLS placeRouteBackPlan on /p/{id} arrival");
 ok(/placeRouteReturnRef\.current = backPlan\.leavePlaceRoute/.test(home),
   "home.js writes leavePlaceRoute onto the Back ref");

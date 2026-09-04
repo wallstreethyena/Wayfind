@@ -167,6 +167,12 @@ const PAIRS = {
   // photograph. The rail names Summer Picks, repeats “Best summer ever,” and
   // opens the ten summer decision rails promised by its subline and CTA.
   season: { copy: "60c078eece82d3ae", art: "894b8ebf3f52cfb3" },
+  // 2026-09-04 — generated deterministically from the owner's supplied wall
+  // photograph and read at 760px before pinning. Pixels say “LUNCH IN MY
+  // CITY”, “TAP THE BOX TO ACCEPT YOUR LUNCH IN MY CITY CHALLENGE”, and “One
+  // place around you—wherever you are now.” The metadata makes the same three
+  // promises and the tile follows the exact /p/ destination the owner supplied.
+  lunchcity: { copy: "3de0964362d069b7", art: "9244af0b50529515" },
   // 2026-09-02 — the three competing homepage posters (Today, Best Around
   // You, Places You'd Never Find) are one decision surface now. Pixels read
   // at 760px before pinning: the owner's exact poster says "Make today a

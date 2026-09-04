@@ -5,6 +5,8 @@
 import { existsSync, readFileSync, statSync } from "fs";
 import path from "path";
 import { lunchRevealCookieValue, lunchRevealCount, lunchRevealLimit, lunchRevealRemaining } from "../lib/lunchReveal.js";
+import { RAILS } from "../lib/rails.js";
+import { DAYPART_IDS, orderFor, railHref } from "../lib/dayparts.js";
 
 let pass = 0;
 const fail = (m) => { console.error("check-lunch-in-my-city: FAIL — " + m); process.exit(1); };
@@ -44,6 +46,7 @@ ok(/\/api\/cron\/lunch-images\?limit=6/.test(vercel), "the dish-image refresh is
 
 ok(menu.includes('aria-label="Lunch in My City"'), "the reveal is named for assistive technology");
 ok(menu.includes('src="/cards/lunch-in-my-city.webp"'), "the supplied city-wall image is the postcard art");
+ok(menu.includes("Tap the box to accept your Lunch in My City challenge—for one standout place around you, wherever you are now."), "the prompt uses the owner's challenge wording");
 ok(/className="wf-lunch-question"[\s\S]{0,520}onClick=\{\(\) => \{ playLunchCoin\(\); rollLunchPick\(\); \}\}/.test(menu), "the glowing question block is the reveal button and plays its coin cue in the click gesture");
 ok(/AudioContext|webkitAudioContext/.test(menu) && /createOscillator\(\)/.test(menu), "the coin cue is synthesized without a plug-in or downloaded audio asset");
 ok(/@keyframes wfLunchGlow/.test(menu) && /@keyframes wfLunchRise/.test(menu) && !/wfMarioPipe|wf-lunch-mario/.test(menu), "the trigger glows and the actual result card rises; Mario is never the animated layer");
@@ -54,6 +57,16 @@ ok(/wf-lunch-card-actions/.test(resultCard) && /Save/.test(resultCard) && /toggl
 ok(/wfLunchDisclosure \.25s ease 2\.8s both/.test(menu), "the attempt disclosure appears two seconds after the card settles");
 ok(menu.includes("Challenge a friend") && />Close<\/button>/.test(menu) && /\?go=lunch/.test(menu), "the settled postcard can challenge a friend or close, and the shared link opens the lunch reveal");
 ok(/prefers-reduced-motion:reduce/.test(menu), "the reveal respects reduced-motion preferences");
+
+const lunchRail = RAILS.find((rail) => rail.id === "lunchcity");
+ok(!!lunchRail && lunchRail.opensPage === true, "Lunch in My City is a visible page-launch tile on the Amazon rail");
+ok(railHref(lunchRail, "fl", "parrish") === "/p/ChIJ9RHZGx6H3YgRnWVYIWsHNPM", "the Amazon tile opens the owner's exact Wayfind place link");
+ok(DAYPART_IDS.every((band) => orderFor(band, RAILS.map((rail) => rail.id)).includes("lunchcity")), "the Lunch in My City tile appears in every daypart");
+ok(lunchRail.short === "Tap the box to accept the challenge" && lunchRail.sub === "One lunch place around you, wherever you are now", "the Amazon tile carries the owner's challenge wording");
+for (const file of ["lunchcity-380.avif", "lunchcity-380.webp", "lunchcity-760.avif", "lunchcity-760.webp", "lunchcity-760.jpg"]) {
+  const railAsset = path.join(root, "public/cards-v8", file);
+  ok(existsSync(railAsset) && statSync(railAsset).size > 20000, `Amazon rail art ${file} exists and carries real poster bytes`);
+}
 
 const day = "2026-09-04";
 const one = lunchRevealCookieValue(day, 1);
