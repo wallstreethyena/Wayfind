@@ -9,15 +9,16 @@ const fail = (m) => { console.error("test-events-tours: FAIL — " + m); process
 const ok = (c, m) => { if (!c) fail(m); pass++; };
 
 const src = readFileSync(new URL("../app/components/screens/Events.js", import.meta.url), "utf8");
+const rail = readFileSync(new URL("../app/components/ViatorRail.js", import.meta.url), "utf8");
 
-ok(/tours\.map\(\(t(?:,\s*i)?\)/.test(src), "the tours category renders the FULL list (tours.map), not only the pinned rail");
+ok(/<ViatorRail[^>]+items=\{tours\}/.test(src), "the tours category passes the FULL list into the canonical bookable rail");
 ok(/Everything bookable near you/.test(src) && /\{tours\.length\}/.test(src), "list header shows the real inventory count");
 ok(/!isBusiness && !isTours && !eventsLoading/.test(src), "date chips hidden on the tours view (they zeroed out and read as broken)");
-ok(!/<ViatorRail title="Everything bookable near you"/.test(src), "the old retitled-rail-only tours render is GONE");
+ok(!/\.slice\(/.test(src.slice(src.indexOf("{isTours && ("), src.indexOf("{/* Event grid"))), "the full tours category does not truncate its inventory");
 ok(/ViatorRail title="Bookable experiences near you"/.test(src), "the pinned rail on event categories is untouched");
-ok((src.match(/Wayfind may earn a commission at no extra cost to you/g) || []).length === 0, "Events does not repeat ViatorRail's built-in commission disclosure");
+ok((src.match(/Wayfind may earn a commission/g) || []).length === 0 && /Wayfind may earn a commission/.test(rail), "Events relies on ViatorRail's single built-in commission disclosure");
 ok(/No bookable tours are loading right now/.test(src), "honest empty state kept");
-ok(src.includes("ViatorCommerceLink") && /tours\.map\(\(t(?:,\s*i)?\)[\s\S]{0,800}ViatorCommerceLink/.test(src), "every tour card routes through ViatorCommerceLink so the click hits the server redirect layer");
+ok(/<RailCard[\s\S]+?ctaNode=\{<ViatorCommerceLink/.test(rail), "every tour uses RailCard while the booking CTA still routes through ViatorCommerceLink");
 
 // ── v6.44 + v6.88: full inventory, score-first, honest demand badge ─────────
 const route = readFileSync(new URL("../app/api/viator/tours/route.js", import.meta.url), "utf8");
@@ -33,17 +34,17 @@ ok(/rankExperiences\(d && Array\.isArray\(d\.items\)/.test(home), "Events invent
 ok(!/_bayes/.test(home.slice(home.indexOf("v6.44 (owner): the FULL verified"), home.indexOf("v6.44 (owner): the FULL verified") + 2000)), "Events does not carry a divergent local score formula");
 ok(!/rating >= 4\.3/.test(home.slice(home.indexOf("v6.44 (owner): the FULL verified"), home.indexOf("v6.44 (owner): the FULL verified") + 2000)), "no arbitrary rating floor — the owner asked for ALL verified local inventory");
 
-ok(/t\.sellingFast \?/.test(src) && /Selling fast/.test(src), "badge renders only for flagged products");
-ok(!/likelyToSellOut|LIKELY_TO_SELL_OUT/.test(src), "the screen never re-derives the flag — it trusts the API passthrough only");
+ok(/t\.sellingFast \|\| t\.sellingOut/.test(rail) && /Selling fast/.test(rail), "badge renders only for provider-flagged products");
+ok(!/likelyToSellOut|LIKELY_TO_SELL_OUT/.test(rail), "the rail never re-derives the flag — it trusts the API passthrough only");
 ok(/const tours = rankExperiences\(eventsTours\)/.test(src), "both the pinned rail and full Local tours grid consume a defensively score-ranked list");
-ok(/rank=\{i \+ 1\}/.test(src), "commerce analytics receives each card's real ranked position, not rank=1 for every card");
-ok(/PlaceScoreChip/.test(src), "the full Local tours grid displays the same Wayfind Score that determines its order");
+ok(/rank=\{i \+ 1\}/.test(rail), "commerce analytics receives each card's real ranked position, not rank=1 for every card");
+ok(/score=\{toDisplayScore\(experienceWayfindScore\(t\)\)\}/.test(rail), "every tour card displays the same Wayfind Score that determines its order");
 
 // ── v6.94: browse first, then book ─────────────────────────────────────────
 ok(/for \(let i = 0; i < 8; i\+\+\)/.test(src), "the date chooser stays focused on the immediate eight-day window");
 ok(src.indexOf("Choose a day") < src.indexOf('ViatorRail title="Bookable experiences near you"'), "date navigation appears before affiliate inventory");
 ok(/const actionLabel = e\.ticketVia \? "Tickets · " \+ e\.ticketVia : e\.ticketed \? "Get tickets"/.test(src), "ticketed event cards expose a clear Get tickets action (naming the merchant when an affiliate sells it)");
-ok(/rel: e\.ticketVia \? "sponsored nofollow noopener" : "noreferrer"/.test(src), "an affiliate-sold ticket link is marked sponsored");
-ok(/Availability from \{e\.source\}/.test(src), "ticket availability keeps its source visible beside the booking action");
+ok(/sponsored: !!e\.ticketVia/.test(src), "an affiliate-sold ticket link is marked sponsored");
+ok(/provider: e\.source \|\| null/.test(src), "event actions keep their source identity for saved-card persistence");
 
 console.log(`test-events-tours: OK — ${pass} assertions (full-list view; 60-item city inventory; visible-score order; honest demand badge)`);

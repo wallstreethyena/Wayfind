@@ -25,22 +25,26 @@
 // payload without the tracked server redirect, so every booking from that
 // surface lost the click-to-redirect join. The commerce wrapper below resolves
 // the destination server-side; the commission disclosure is load-bearing.
-import { C, PlaceScoreChip } from "./kit";
+import { C } from "./kit";
 import { eventCategoryArt } from "../../lib/eventCategoryArt";
-import { rankExperiences } from "../../lib/experiencesData";
+import { experienceWayfindScore, rankExperiences } from "../../lib/experiencesData";
+import { toDisplayScore } from "../../lib/score";
 import ViatorCommerceLink from "./ViatorCommerceLink";
+import RailCard, { RailDots, RailNav } from "./RailCard";
 
 export default function ViatorRail({ title, items, theme, onLog, onOpenExternal }) {
   if (!Array.isArray(items) || !items.length) return null;
   const rankedItems = rankExperiences(items);
   const categoryImage = theme === "events-tours" ? eventCategoryArt("tours") : "";
+  const railId = `viator-${String(theme || title || "experiences").replace(/[^a-z0-9]+/gi, "-").toLowerCase()}`;
   return (
     <div style={{ margin: "4px 0 14px" }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
         <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>{title}</span>
         <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
       </div>
-      <div style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 4 }}>
+      <RailNav railId={railId} count={rankedItems.length} total={rankedItems.length} unit="bookable experiences" />
+      <div className="wf-rail" data-rail={railId} role="region" tabIndex={0} aria-label={title}>
         {rankedItems.map((t, i) => (
           /* v6.44: this rail rendered a RAW t.url while its sibling rail used
              an affiliate wrapper. Both now use ViatorCommerceLink so the UI
@@ -51,31 +55,30 @@ export default function ViatorRail({ title, items, theme, onLog, onOpenExternal 
              list, so a braced comment would be a second top-level expression
              and the file stops parsing (TS2657 "JSX expressions must have one
              parent element"). Caught by npm run check:jsx, 2026-07-28. */
-          <ViatorCommerceLink key={t.code || t.url} t={t} surface="viator_rail" contentId={theme} rank={i + 1} onClick={(e, clickId) => { try { onLog && onLog("tickets_out", null, { kind: "vibe_tour", theme, code: t.code, click_id: clickId }); } catch (er) {} if (onOpenExternal) { e.preventDefault(); onOpenExternal(e.currentTarget.href); } }} style={{ flex: "0 0 200px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none" }}>
-            {(t.image || categoryImage) ? <div style={{ position: "relative", height: 86, overflow: "hidden" }}>
-              <img src={t.image || categoryImage} data-fallback={t.image ? categoryImage : ""} alt="" loading="lazy" onError={(ev) => { const fallback = ev.currentTarget.dataset.fallback; if (fallback && ev.currentTarget.src !== fallback) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fallback; } else { ev.currentTarget.style.display = "none"; } }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: t.image ? "none" : "saturate(.82) contrast(.96)" }} />
-              {!t.image && categoryImage ? <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(5,9,15,.12),rgba(5,9,15,.56))" }} /> : null}
-              {/* Demand badge rides ONLY on Viator's own flag as passed through
-                  verbatim by the API route (t.sellingFast) — same convention as
-                  the Local-tours grid in Events.js — never a computed guess.
-                  t.sellingOut also honored for the wf_experiences-backed source
-                  (lib/experiencesServe.js rowToCard) so this rail stays correct
-                  no matter which pipeline fed it. It is cosmetic only: per
-                  lib/experiencesData.js's Gate-2 isolation, this flag never
-                  enters rankExperiences and cannot move a card's position. */}
-              {(t.sellingFast || t.sellingOut) ? <span style={{ position: "absolute", top: 6, left: 6, zIndex: 1, background: "#B33A2B", color: "#fff", fontSize: 9.5, fontWeight: 800, letterSpacing: ".4px", textTransform: "uppercase", borderRadius: 999, padding: "3px 8px" }}>Selling fast</span> : null}
-            </div> : null}
-            <div style={{ padding: "8px 10px" }}>
-              <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
-              {/* THE ONE SCORE: same Wayfind treatment as every place card. */}
-              <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 4, flexWrap: "wrap" }}>
-                {t.rating > 0 && t.reviews > 0 ? <PlaceScoreChip p={{ rating: t.rating, reviews: t.reviews }} size={12} /> : <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted }}>New</span>}
-                <span style={{ fontSize: 11, color: C.muted }}>{t.fromPrice ? `from $${t.fromPrice}` : ""}{t.duration ? ` · ${t.duration}` : ""}</span>
-              </div>
-            </div>
-          </ViatorCommerceLink>
+          <RailCard
+            key={t.code || t.url}
+            photo={t.image || categoryImage}
+            photoFallback={t.image ? categoryImage : ""}
+            title={t.title}
+            eyebrow="Bookable experience"
+            rank={i + 1}
+            score={toDisplayScore(experienceWayfindScore(t))}
+            facts={[
+              t.rating > 0 ? `${Number(t.rating).toFixed(1)}★` : "New",
+              t.reviews > 0 ? `${Number(t.reviews).toLocaleString()} reviews` : null,
+              t.fromPrice ? `from $${t.fromPrice}` : null,
+              t.duration || null,
+            ].filter(Boolean)}
+            badge={(t.sellingFast || t.sellingOut) ? <span style={{ background: "#B33A2B", color: "#fff", fontSize: 9.5, fontWeight: 800, letterSpacing: ".4px", textTransform: "uppercase", borderRadius: 999, padding: "3px 8px" }}>Selling fast</span> : null}
+            actionItem={{ id: t.code || t.url, type: "experience", title: t.title, image: t.image || categoryImage, url: t.url, provider: "viator" }}
+            href={t.url}
+            external
+            ariaLabel={`Open ${t.title}`}
+            ctaNode={<ViatorCommerceLink t={t} surface="viator_rail" contentId={theme} rank={i + 1} onClick={(e, clickId) => { e.stopPropagation(); try { onLog && onLog("tickets_out", null, { kind: "vibe_tour", theme, code: t.code, click_id: clickId }); } catch (er) {} if (onOpenExternal) { e.preventDefault(); onOpenExternal(e.currentTarget.href); } }} className="wf-place-card-book wf-rail-card-cta">{t.fromPrice ? `Book from $${t.fromPrice}` : "Book now"} ↗</ViatorCommerceLink>}
+          />
         ))}
       </div>
+      <RailDots railId={railId} count={rankedItems.length} />
       <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
     </div>
   );

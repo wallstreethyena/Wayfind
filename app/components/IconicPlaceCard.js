@@ -25,6 +25,7 @@ import { toHookLine } from "../../lib/editorialHook.js";
 // which turned a like into a navigation on every surface that forgot. The card
 // now carries a working fallback instead of a link. See lib/cardActions.js.
 import { useCardActions, useActionBridge, replayEvent, ACTION_ATTR, PLACE_ATTR, toggleLike as fallbackLike, toggleDislike as fallbackDislike, toggleSave as fallbackSave, shareCard as fallbackShare } from "../../lib/cardActions";
+import { useContentCardActions } from "../../lib/contentCardActions";
 import { memo } from "react";
 // v8.29.6 — MERGED WITH main's PR #888 (lib/railReaction.js), which fixed the
 // same tap from the other end: it deletes the Like/Dislike anchor outright and
@@ -262,6 +263,13 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // most correctly wired. Three of four is not wired.
   const needsFallback = !cardActionsReadOnly && !(onSave && onLike && onDislike && onShare);
   const fb = useCardActions(needsFallback);
+  const content = useContentCardActions(cardActionsReadOnly && place ? {
+    id: place.id,
+    type: "experience",
+    title: place.name,
+    image: photoUrl(place),
+    url: href || "",
+  } : null);
   // ── EVERY HOOK LIVES ABOVE THE EARLY RETURN ────────────────────────────────
   // 2026-08-21. This component called useCardActions, returned on `!place`, and
   // then called useMarketPhotoFallback, useRef, useState and useEffect further
@@ -298,7 +306,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // visible ~6s before React can hear them on a normal phone connection; the
   // inline bridge in app/layout.js catches those taps and this replays them
   // into the same handlers a live tap uses. See lib/cardActions.js.
-  const actionsLive = cardActionsReadOnly ? true : (fb.hydrated || !!(onSave && onLike && onDislike));
+  const actionsLive = cardActionsReadOnly ? content.hydrated : (fb.hydrated || !!(onSave && onLike && onDislike));
   const handlersRef = useRef(null);
   const cardRef = useActionBridge(place && place.id, (action) => {
     const h = handlersRef.current;
@@ -381,18 +389,18 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // a real button happens on the render right after, which is an update, not a
   // mismatch. Net effect: the anchor exists only while the page cannot run the
   // handler anyway, and a tap after hydration can never be a navigation.
-  const doSave = onSave || (fb.hydrated ? (e, p) => fallbackSave(p, { surface }) : null);
-  const doLike = onLike || (fb.hydrated ? (e, p) => fallbackLike(p, { surface }) : null);
-  const doDislike = onDislike || (fb.hydrated ? (e, p) => fallbackDislike(p, { surface }) : null);
+  const doSave = onSave || (cardActionsReadOnly ? content.toggleSave : fb.hydrated ? (e, p) => fallbackSave(p, { surface }) : null);
+  const doLike = onLike || (cardActionsReadOnly ? content.toggleLike : fb.hydrated ? (e, p) => fallbackLike(p, { surface }) : null);
+  const doDislike = onDislike || (cardActionsReadOnly ? content.toggleDislike : fb.hydrated ? (e, p) => fallbackDislike(p, { surface }) : null);
   // v8.30.1 — share joins the other three. It is the only action in this row
   // that took the raw prop, so it was the only one a caller could leave dead —
   // and <DaypartRail> did exactly that on every rail drop. The card's share
   // contract is onShare(place): every render site in the app passes that shape,
   // so the fallback matches it rather than the (e, place) shape save/like use.
-  const doShare = onShare || (fb.hydrated ? (p) => fallbackShare(p, { surface }) : null);
-  const isSavedNow = onSave ? !!saved : fb.hydrated ? !!fb.saved[place.id] : !!saved;
-  const isLikedNow = onLike ? !!liked : fb.hydrated ? !!fb.liked[place.id] : !!liked;
-  const isDislikedNow = onDislike ? !!disliked : fb.hydrated ? !!fb.disliked[place.id] : !!disliked;
+  const doShare = onShare || (cardActionsReadOnly ? content.share : fb.hydrated ? (p) => fallbackShare(p, { surface }) : null);
+  const isSavedNow = onSave ? !!saved : cardActionsReadOnly ? content.saved : fb.hydrated ? !!fb.saved[place.id] : !!saved;
+  const isLikedNow = onLike ? !!liked : cardActionsReadOnly ? content.liked : fb.hydrated ? !!fb.liked[place.id] : !!liked;
+  const isDislikedNow = onDislike ? !!disliked : cardActionsReadOnly ? content.disliked : fb.hydrated ? !!fb.disliked[place.id] : !!disliked;
   // What the bridge replays into. Assigned during render, read only from the
   // layout effect, so a queued tap always meets the CURRENT handlers.
   handlersRef.current = { like: doLike, dislike: doDislike, save: doSave, place };
@@ -657,30 +665,26 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
                 stayOnRailReaction owns stopPropagation + preventDefault, so the
                 tap can never fall through to the surrounding list's navigation.
 
-                cardActionsReadOnly remains the written opt-out for a surface
-                that genuinely must not offer the control at all. */}
-            {cardActionsReadOnly ? null : (
-              <button
-                type="button"
-                className={"wf-place-card-like" + (isLikedNow ? " is-active" : "")}
-                {...{ [ACTION_ATTR]: "like", [PLACE_ATTR]: place.id }}
-                aria-label={isLikedNow ? "Remove like: " + place.name : "Like " + place.name}
-                aria-pressed={isLikedNow}
-                title={isLikedNow ? "Remove like" : "Like this place"}
-                onClick={(e) => stayOnRailReaction(e, doLike, place)}
-              ><ThumbIcon /></button>
-            )}
-            {cardActionsReadOnly ? null : (
-              <button
-                type="button"
-                className={"wf-place-card-dislike" + (isDislikedNow ? " is-active" : "")}
-                {...{ [ACTION_ATTR]: "dislike", [PLACE_ATTR]: place.id }}
-                aria-label={isDislikedNow ? "Remove dislike: " + place.name : "Not for me: " + place.name}
-                aria-pressed={isDislikedNow}
-                title={isDislikedNow ? "Remove dislike" : "Not for me"}
-                onClick={(e) => stayOnRailReaction(e, doDislike, place)}
-              ><ThumbIcon down /></button>
-            )}
+                Legacy read-only surfaces use the isolated content-action store
+                so the row stays complete without changing place ranking. */}
+            <button
+              type="button"
+              className={"wf-place-card-like" + (isLikedNow ? " is-active" : "")}
+              {...{ [ACTION_ATTR]: "like", [PLACE_ATTR]: place.id }}
+              aria-label={isLikedNow ? "Remove like: " + place.name : "Like " + place.name}
+              aria-pressed={isLikedNow}
+              title={isLikedNow ? "Remove like" : "Like this place"}
+              onClick={(e) => stayOnRailReaction(e, doLike, place)}
+            ><ThumbIcon /></button>
+            <button
+              type="button"
+              className={"wf-place-card-dislike" + (isDislikedNow ? " is-active" : "")}
+              {...{ [ACTION_ATTR]: "dislike", [PLACE_ATTR]: place.id }}
+              aria-label={isDislikedNow ? "Remove dislike: " + place.name : "Not for me: " + place.name}
+              aria-pressed={isDislikedNow}
+              title={isDislikedNow ? "Remove dislike" : "Not for me"}
+              onClick={(e) => stayOnRailReaction(e, doDislike, place)}
+            ><ThumbIcon down /></button>
             <button className="wf-place-card-share" type="button" aria-label={"Share " + place.name} onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (doShare) doShare(place); }}>↗ Share</button>
           </div>
         </div>

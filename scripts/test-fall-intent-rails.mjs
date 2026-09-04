@@ -165,7 +165,7 @@ ok(/rail\.total \|\| rail\.cards\.length/.test(component) && /Load every verifie
 ok(/railScrollNeedsMore\(event\.currentTarget\)/.test(component), "Fall fetches the remaining cached cards when a reader swipes near the end");
 ok(/service miss, not an empty city/.test(component), "a failed service is not misreported as an empty location");
 ok(/seasonal look-alike/.test(component), "thin rails render the approved honest empty state");
-ok(/actionsReadOnly=\{isEvent\}/.test(component), "dated events do not render dead place reactions");
+ok(/actionItem=\{isEvent \? \{[\s\S]{0,220}type: "event"/.test(component), "dated events receive live isolated content actions instead of dead place reactions");
 ok(/sponsored: true/.test(component) && /commerce_cta_clicked/.test(component), "affiliate tickets are disclosed and measured");
 ok(/cta\.sponsored \? "sponsored nofollow noopener"/.test(card), "the shared card emits sponsored rel on paid outbound links");
 

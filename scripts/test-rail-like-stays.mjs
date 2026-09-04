@@ -221,8 +221,8 @@ const iconicSrc = read("app/components/IconicPlaceCard.js");
 // lib/cardActions.js's shared store otherwise, so the contract this guard
 // exists for — the tap never navigates — is unchanged, and the tap now also
 // always does something. Both halves are asserted.
-ok(/const doLike = onLike \|\| \(fb\.hydrated \?/.test(iconicSrc) && /const doDislike = onDislike \|\| \(fb\.hydrated \?/.test(iconicSrc),
-  "IconicPlaceCard resolves doLike/doDislike from the prop with a hydrated fallback — the handler is never missing");
+ok(/const doLike = onLike \|\| \(cardActionsReadOnly \? content\.toggleLike : fb\.hydrated \?/.test(iconicSrc) && /const doDislike = onDislike \|\| \(cardActionsReadOnly \? content\.toggleDislike : fb\.hydrated \?/.test(iconicSrc),
+  "IconicPlaceCard resolves doLike/doDislike through the isolated content store or hydrated place fallback — the handler is never missing");
 ok(/onClick=\{\(e\) => stayOnRailReaction\(e, doLike, place\)\}/.test(iconicSrc),
   "IconicPlaceCard like button CALLS stayOnRailReaction — a comment is not a handler");
 ok(/onClick=\{\(e\) => stayOnRailReaction\(e, doDislike, place\)\}/.test(iconicSrc),

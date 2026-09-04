@@ -49,7 +49,8 @@ import { useEffect, useState } from "react";
 // 2026-08-20: "this button for the likes still not working under the exploding
 // trends near you" — DaypartRail renders <ExplodingNearby> with isSaved and
 // onSave and nothing else.
-import { useCardActions, toggleLike as fallbackLike, toggleDislike as fallbackDislike, toggleSave as fallbackSave } from "../../lib/cardActions";
+import { useCardActions, toggleLike as fallbackLike, toggleDislike as fallbackDislike, toggleSave as fallbackSave, shareCard as fallbackShare } from "../../lib/cardActions";
+import { useContentCardActions } from "../../lib/contentCardActions";
 import { railDotWindow, railDotIsEdge } from "../../lib/railDots.js";
 import { KB_CLICK, WayfindScoreBadge } from "./kit";
 import { fallCardClass } from "../../lib/fallSkin.js";
@@ -284,16 +285,11 @@ export default function RailCard({
   // events rail) keeps the old prop-only behaviour, and its thumbs now render
   // disabled rather than dead.
   place,
-  // v8.29.6 — the WRITTEN opt-out, for a card that is not a place: the Viator
-  // tour rail in BestNearby has no place row, no handlers and nothing to like.
-  // It used to draw Save / Like / Dislike / Share anyway, all four wired to
-  // `if (onX) onX(e)` — four live buttons over four no-ops. Hiding the row
-  // whenever nothing was wired was the first fix and it was too clever: it
-  // also hid the control on a card that simply had not hydrated yet, which is
-  // the state scripts/test-rail-like-stays.mjs probes. So the card says so in
-  // writing instead, and everything else renders its thumbs — disabled while
-  // they have no hands, which is honest and still unpressable.
+  // Legacy callers may still mark a card read-only. The shared non-place store
+  // now gives those event/experience cards real actions without writing their
+  // reactions into place ranking, so this prop no longer removes the row.
   actionsReadOnly = false,
+  actionItem = null,
 }) {
   // 2026-09-02 (hijacked-domain incident): an external CTA renders ONLY when
   // lib/links.safeUrl accepts its href — malformed, junk, or quarantined
@@ -304,21 +300,31 @@ export default function RailCard({
   // Hooks before the early return, always called (rules of hooks). Subscribes
   // only when this card actually needs the shared store.
   const canFallback = !!(place && place.id);
+  const contentSubject = !canFallback ? {
+    id: (actionItem && actionItem.id) || href || title,
+    type: (actionItem && actionItem.type) || "experience",
+    title: (actionItem && (actionItem.title || actionItem.name)) || title,
+    image: (actionItem && (actionItem.image || actionItem.photo)) || photo || null,
+    url: (actionItem && actionItem.url) || href || "",
+    provider: actionItem && actionItem.provider,
+  } : null;
   // v8.33 — the creator face. Guarded the same way IconicPlaceCard guards it:
   // a rail is the one surface where a single throw takes out a whole row.
   let railCreatorVideos = [];
   try { railCreatorVideos = place ? (creatorVideosFor(place) || []) : []; } catch (e) { railCreatorVideos = []; }
   const fb = useCardActions(canFallback && !(onSave && onLike && onDislike));
+  const content = useContentCardActions(contentSubject);
   if (!title) return null;
   // A wired handler always wins; the store is what an unwired card falls back
   // to, so no surface can ship a thumb that does nothing.
   const useFb = canFallback && fb.hydrated;
-  const doSave = onSave || (useFb ? () => fallbackSave(place, { surface: "rail_card" }) : null);
-  const doLike = onLike || (useFb ? () => fallbackLike(place, { surface: "rail_card" }) : null);
-  const doDislike = onDislike || (useFb ? () => fallbackDislike(place, { surface: "rail_card" }) : null);
-  const isSavedNow = onSave ? !!saved : useFb ? !!fb.saved[place.id] : !!saved;
-  const isLikedNow = onLike ? !!liked : useFb ? !!fb.liked[place.id] : !!liked;
-  const isDislikedNow = onDislike ? !!disliked : useFb ? !!fb.disliked[place.id] : !!disliked;
+  const doSave = onSave || (useFb ? () => fallbackSave(place, { surface: "rail_card" }) : content.toggleSave);
+  const doLike = onLike || (useFb ? () => fallbackLike(place, { surface: "rail_card" }) : content.toggleLike);
+  const doDislike = onDislike || (useFb ? () => fallbackDislike(place, { surface: "rail_card" }) : content.toggleDislike);
+  const doShare = onShare || (useFb ? () => fallbackShare(place, { surface: "rail_card" }) : content.share);
+  const isSavedNow = onSave ? !!saved : useFb ? !!fb.saved[place.id] : contentSubject ? content.saved : !!saved;
+  const isLikedNow = onLike ? !!liked : useFb ? !!fb.liked[place.id] : contentSubject ? content.liked : !!liked;
+  const isDislikedNow = onDislike ? !!disliked : useFb ? !!fb.disliked[place.id] : contentSubject ? content.disliked : !!disliked;
   const list = Array.isArray(facts) ? facts.filter(Boolean) : [];
   const pills = Array.isArray(chips) ? chips.filter(Boolean) : [];
   // Deal ownership belongs to the shared card, not to whichever rail happened
@@ -437,27 +443,19 @@ export default function RailCard({
             >{cta.label}</a>
           ) : null)}
 
-          {/* v8.29.2 / v8.29.6 — A CONTROL THIS CARD CANNOT SERVICE DOES NOT
-              RENDER, and the card says so in writing. A tour card (BestNearby's
-              Viator rail) has no place row and no handlers: it used to draw
-              Save / Like / Dislike / Share anyway, all four wired to
-              `if (onX) onX(e)` — four live buttons over four no-ops. Inferring
-              it from "nothing is wired" was the first attempt and it also hid
-              the control on a card that had simply not hydrated yet, so the
-              opt-out is explicit. */}
+          {/* Every card exposes the same four controls. Non-place cards use
+              contentCardActions; place cards keep the ranking-aware store. */}
           {/* v8.34 — the creator credit sits in the bottom band, directly above
               the actions (see css.js .wf-place-card-credit). It renders even on
               a read-only card: the credit is a fact about the place, not a
               control, and a tour card simply resolves no videos. */}
           <CreatorCardMark videos={railCreatorVideos} />
-          {actionsReadOnly ? null : (
           <div className="wf-place-card-actions wf-sheet-card-actions">
             <button
               type="button"
               className={"wf-place-card-save" + (isSavedNow ? " is-active" : "")}
               aria-label={isSavedNow ? "Remove from saved: " + title : "Save " + title}
               aria-pressed={isSavedNow}
-              disabled={!doSave}
               onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (doSave) doSave(e); }}
             >{isSavedNow ? "♥ Saved" : "♡ Save"}</button>
             <button
@@ -472,7 +470,6 @@ export default function RailCard({
               // that has neither a handler nor a place row (a Viator tour card):
               // stayOnRailReaction would return silently there, and a pressable
               // button that returns silently is the thing being fixed.
-              disabled={!doLike}
               onClick={(e) => stayOnRailReaction(e, doLike)}
             ><ThumbIcon /></button>
             <button
@@ -481,19 +478,15 @@ export default function RailCard({
               aria-label={isDislikedNow ? "Remove dislike: " + title : "Not for me: " + title}
               aria-pressed={isDislikedNow}
               title={isDislikedNow ? "Remove dislike" : "Not for me"}
-              disabled={!doDislike}
               onClick={(e) => stayOnRailReaction(e, doDislike)}
             ><ThumbIcon down /></button>
-            {onShare ? (
-              <button
-                type="button"
-                className="wf-place-card-share"
-                aria-label={"Share " + title}
-                onClick={(e) => { e.stopPropagation(); e.preventDefault(); onShare(e); }}
-              >↗ Share</button>
-            ) : null}
+            <button
+              type="button"
+              className="wf-place-card-share"
+              aria-label={"Share " + title}
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); doShare(e); }}
+            >↗ Share</button>
           </div>
-          )}
         </div>
       </div>
     </article>

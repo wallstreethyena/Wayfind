@@ -1238,9 +1238,7 @@ export default function BestNearby({
                       : list.map((r, i) => r.kind === "experience" ? (
                           <RailCard key={r.id} rank={i + 1}
                             photo={r.image_url || null} title={r.title} eyebrow="Tour"
-                            // A bookable tour product, not a place: nothing to
-                            // save, like or dislike, so the row does not render.
-                            actionsReadOnly
+                            actionItem={{ id: r.id, type: "experience", title: r.title, image: r.image_url || null, url: r.booking_url || "", provider: "viator" }}
                             score={toDisplayScore(r.governed_score)}
                             take={reasonLine([r.subtitle])}
                             badge={r.selling_out ? <SellingFast /> : null}

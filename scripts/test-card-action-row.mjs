@@ -67,10 +67,8 @@ const place = {
   distMi: 6.2, governed_score: 81, lat: 27.4214874, lng: -82.5367616,
 };
 
-// FOUR cases, and the pair that matters is `rail-full` vs `rail-readonly`:
-// same width, same CSS, one with thumbs and one without. That is the exact
-// difference between an ordinary card and the paid one in the owner's
-// screenshot, so if the read-only row is still broken the pair says so.
+// FOUR cases. Legacy read-only props must now preserve the same four-control
+// shape while routing through the isolated content-action store.
 const CASES = [
   { id: "card-full", rail: false, props: {} },
   { id: "card-readonly", rail: false, props: { cardActionsReadOnly: true } },
@@ -164,8 +162,8 @@ await browser.close();
 // applied.
 ok(measured["rail-full"].share && measured["card-full"].share,
   "positive control: the fixtures rendered and a Share control was found in both renderers");
-ok(measured["rail-full"].like && !measured["rail-readonly"].like,
-  "positive control: cardActionsReadOnly really does remove the thumbs, so the read-only case is a different shape and not a copy of the full one");
+ok(measured["rail-full"].like && measured["rail-readonly"].like,
+  "positive control: legacy cardActionsReadOnly can no longer remove Like or Dislike from a Wayfind card");
 ok(/share/i.test((measured["rail-full"].share || {}).text || ""),
   "positive control: the control found really is the Share button");
 
@@ -193,14 +191,11 @@ for (const c of CASES) {
     `${c.id}: every control in the row is the same height (spread ${spread.toFixed(1)}px across ${hs.map(([n, h]) => n + " " + h).join(", ")}) — a six-pixel step across four controls on one line is what "uniform size" was asking for`);
 }
 
-// ── 3. THE READ-ONLY ROW MAY NOT SQUEEZE SHARE INTO A THUMB TRACK ───────────
-// The mechanism, asserted directly: without the thumbs, Share must still get a
-// real column. 42px is the thumb track; anything near it means the grid is
-// still describing children it no longer has.
+// ── 3. LEGACY READ-ONLY CARDS KEEP THE CANONICAL FOUR-CONTROL GEOMETRY ──────
 for (const id of ["card-readonly", "rail-readonly"]) {
   const sh = measured[id].share;
   ok(sh && sh.w >= 56,
-    `${id}: Share keeps a real column when the thumbs are absent (${sh ? sh.w : "missing"}px) — the 4-column grid used to hand it the 42px track built for a single glyph`);
+    `${id}: Share keeps a real column alongside the complete action row (${sh ? sh.w : "missing"}px)`);
 }
 // …and the row without thumbs is not WIDER than the row with them, which would
 // mean the fix overshot into a second kind of wrong.
