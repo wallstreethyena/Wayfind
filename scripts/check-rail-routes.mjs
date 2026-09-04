@@ -89,7 +89,7 @@ for (const r of RAILS) {
   // v8.66 — `drop: true` is the third rail kind: a curated in-component drop
   // (chef testimony, the augtober fall pool). Its tile is a BUTTON — no href,
   // no destination to check — and its list never comes from railSelect pools.
-  if (!r.guides && !r.list && !r.drop) bad(`${r.id}: neither a ranked list, the guides rail, nor a curated drop`);
+  if (!r.guides && !r.list && !r.drop && !r.opensPage) bad(`${r.id}: neither a ranked list, the guides rail, a curated drop, nor an explicit page launch`);
   if (r.list && !RAIL_SELECT[r.id]) bad(`${r.id}: shows a list but lib/railSelect.js has no selector for it`);
   if (r.list && RAIL_SELECT[r.id] && !RAIL_SELECT[r.id].pools.length) bad(`${r.id}: selector reads no pools`);
 }
