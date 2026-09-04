@@ -993,3 +993,42 @@ node scripts/check-social-extract-cannot-invent.mjs
 # (Universal Studios is [amusement_park, park]) and a VERIFIED product beats
 # both (Myakka's airboat tour is real inventory on a place typed [park]).
 node scripts/check-book-cta-needs-a-seller.mjs
+# 2026-09-04 REVENUE-GUARD STACK, added after the check-env.mjs incident (a
+# guard protecting Viator revenue that ended in an unconditional
+# process.exit(0) and was never wired into this manifest, so it could never
+# fail). Three more layers, hermetic halves only — the live-network halves
+# (scripts/live-viator-smoke.mjs, app/api/cron/revenue-heartbeat) are
+# deliberately NOT here; see scripts/check-guard-hermeticity.mjs.
+#
+# Layer 1 (hermetic half): the PURE shape rule the live production smoke test
+# (scripts/live-viator-smoke.mjs) judges a real Viator redirect against —
+# host/pid/mcid/medium, every individual defect caught on its own, malformed
+# input never thrown on — plus proof the ABSOLUTE RULE (never print a real
+# credential) is enforced at RUNTIME, not by review, and that the live script
+# is actually wired to that enforcement.
+node scripts/test-secret-output-guard.mjs
+node scripts/test-viator-smoke-shape.mjs
+# Layer 2: THE INVERSE TEST. check-book-cta-needs-a-seller.mjs already locks
+# isTicketyPlace's type rules; this closes the one gap it leaves — it only
+# ever asserts ticketsUrl(beach) === null, never that ticketsUrl() actually
+# RETURNS a real, attributed URL for paid inventory on the SAME call. A
+# fixture pid is set before lib/affiliates.js is first imported (a WRITE,
+# not a read — hermeticity-legal) so the positive control is deterministic on
+# every machine instead of depending on what happened to be exported in the
+# shell. Ends with an APPLIED mutation of the v6.53 beach-exclusion return
+# line, verified written, exercised in a fresh child process, and restored
+# byte-for-byte before the guard can fail.
+node scripts/test-inverse-booking-cta.mjs
+# Layer 3: REVENUE HEARTBEAT. Detects affiliate CTA activity collapsing
+# toward zero WHILE TRAFFIC IS STILL PRESENT — the "silent zero" signature a
+# placeholder NEXT_PUBLIC_VIATOR_PID produces (lib/affiliates.js fails CLOSED;
+# nothing looks broken). RATIO-based against a trailing 14-day baseline, not
+# an absolute floor, so a quiet night where both numbers drop together never
+# pages — proven directly below, alongside the exact collapse-floor boundary
+# and an applied mutation of the comparison operator. Delivery is NOT a new
+# alert path: app/api/cron/revenue-heartbeat writes through the same
+# recordPulse() every metered job in this repo already uses, and the
+# existing app/api/cron/job-watch (the one that already escalates a
+# "billing:"/"quota:"-prefixed dead run after one run, per lib/jobPulse.js)
+# picks it up on its next run.
+node scripts/test-revenue-heartbeat.mjs
