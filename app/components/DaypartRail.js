@@ -1615,6 +1615,7 @@ export default function DaypartRail({
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
               city={shown.cityLabel || ""}
               onTrack={(name, props) => logEvent(name, props)}
+              onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
             />
           ) : null}
 

@@ -23,6 +23,7 @@
 // GOOGLE_MAPS_SERVER_KEY configured -> 501, client falls back to the direct
 // SDK path (see pickSuggestionDetails's fallback in app/home.js).
 import { NextResponse } from "next/server";
+import { getInventoryIdentity } from "../../../../lib/inventoryIdentity.js";
 
 export const dynamic = "force-dynamic";
 
@@ -35,9 +36,24 @@ const FIELDS = {
 // before it ever reaches a fetch (defense in depth, matches api/photo's REF_RX).
 const PLACE_ID_RX = /^[A-Za-z0-9_-]+$/;
 
+async function inventoryPlace(placeId) {
+  const row = await getInventoryIdentity(placeId);
+  if (!row || !Number.isFinite(row.lat) || !Number.isFinite(row.lng)) return null;
+  const signals = row.signals || {};
+  return {
+    id: row.place_id,
+    displayName: { text: row.name },
+    location: { latitude: row.lat, longitude: row.lng },
+    rating: typeof signals.rating === "number" ? signals.rating : null,
+    userRatingCount: Number(signals.reviews) || 0,
+    types: row.category ? [row.category] : [],
+    businessStatus: row.status || null,
+    photos: [{ _directUri: `/api/photo?place=${encodeURIComponent(row.place_id)}&w=640` }],
+  };
+}
+
 export async function POST(req) {
   const serverKey = process.env.GOOGLE_MAPS_SERVER_KEY;
-  if (!serverKey) return NextResponse.json({ error: "server key not configured" }, { status: 501 });
 
   let body;
   try { body = await req.json(); } catch { body = {}; }
@@ -45,13 +61,24 @@ export async function POST(req) {
   const kind = FIELDS[body.kind] ? body.kind : "place";
   const sessionToken = typeof body.sessionToken === "string" ? body.sessionToken.slice(0, 100) : undefined;
   if (!PLACE_ID_RX.test(placeId)) return NextResponse.json({ error: "bad request" }, { status: 400 });
+  if (!serverKey) {
+    const fallback = await inventoryPlace(placeId);
+    return fallback
+      ? NextResponse.json({ place: fallback, source: "inventory" })
+      : NextResponse.json({ error: "server key not configured" }, { status: 501 });
+  }
 
   const qs = sessionToken ? ("?sessionToken=" + encodeURIComponent(sessionToken)) : "";
   try {
     const r = await fetch("https://places.googleapis.com/v1/places/" + encodeURIComponent(placeId) + qs, {
       headers: { "X-Goog-Api-Key": serverKey, "X-Goog-FieldMask": FIELDS[kind] },
     });
-    if (!r.ok) return NextResponse.json({ error: "upstream " + r.status }, { status: 502 });
+    if (!r.ok) {
+      const fallback = await inventoryPlace(placeId);
+      return fallback
+        ? NextResponse.json({ place: fallback, source: "inventory" })
+        : NextResponse.json({ error: "upstream " + r.status }, { status: 502 });
+    }
     const place = await r.json();
     // The REST API returns fully-qualified enum strings ("PRICE_LEVEL_MODERATE");
     // the Maps JS SDK this route replaces returned the short form ("MODERATE").
@@ -62,6 +89,9 @@ export async function POST(req) {
     }
     return NextResponse.json({ place });
   } catch {
-    return NextResponse.json({ error: "upstream failure" }, { status: 502 });
+    const fallback = await inventoryPlace(placeId);
+    return fallback
+      ? NextResponse.json({ place: fallback, source: "inventory" })
+      : NextResponse.json({ error: "upstream failure" }, { status: 502 });
   }
 }

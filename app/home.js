@@ -5,6 +5,7 @@ import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks";
 import { fallCardClass, fallShareLine } from "../lib/fallSkin.js";
 import { siteTodayStr } from "../lib/siteTime";
+import { lunchRevealCookieValue, lunchRevealCount, lunchRevealLimit } from "../lib/lunchReveal";
 import { intentRadiusMi, intentScopeLabel } from "../lib/momentIntents";
 import { MAP_DEFAULT_CATEGORY } from "../lib/mapExplorer";
 import { nearMeQuery } from "../lib/nearMeQuery";
@@ -3130,7 +3131,7 @@ function DiscoveryMenu({ locName, onBest, onGems, onFamily, onMood, onTonight, o
         ["ticket", "Tonight", onTonight, "Perfect for tonight"],
         ["car", "Drive", onDrive, "Worth the drive"],
         ["wallet", "Bargains", onBudget, "Big fun, small budget"],
-        ["dice", "Surprise", onSurprise, "Surprise me"],
+        ["dice", "Lunch in My City", onSurprise, "Reveal one standout lunch near you"],
   // v6.65 (owner, 2026-08-08: "i asked for image one menu to be
   // combined with image 2 — i want it to be the same style as image 2").
   // Image 2 is BestNearby's mood row ("Right now / Date night / Family /
@@ -3909,6 +3910,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const [homeRolling, setHomeRolling] = useState(false); // dice animating in the panel
   const [homeDiceFace, setHomeDiceFace] = useState("🎲");
   const [rollHistory, setRollHistory] = useState([]); // session-only history of dice rolls
+  const [lunchAttemptsUsed, setLunchAttemptsUsed] = useState(0);
   const [center, setCenter] = useState(null);
   const [deviceLoc, setDeviceLoc] = useState(null);
   const [locName, setLocName] = useState("");
@@ -5473,22 +5475,63 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }, 1000);
   }
   function rollDice() { try { logEvent("dice", null); } catch (e) {} setDiceChoose(true); }
-  // In-place dice roll for the home Pick-for-me panel. Spins, lands on a random
-  // spot from the current feed, and pushes it onto a session roll history the
-  // user can scroll back through. Does not navigate away.
-  function rollHomePick(pool) {
-    const arr = (pool || []).filter(Boolean);
-    if (!arr.length) { showToast("Nothing to roll here yet"); return; }
+  useEffect(() => {
+    try { setLunchAttemptsUsed(lunchRevealCount(document.cookie, siteTodayStr())); } catch { setLunchAttemptsUsed(0); }
+  }, [menuSheet, user]);
+
+  // The endpoint is intentionally owned-inventory-only and already ranked by
+  // Wayfind. It also fails closed on missing menu editorial, because every
+  // revealed postcard promises a specific must-try order.
+  async function rollLunchPick() {
+    if (homeRolling) return;
+    if (!center) { showToast("Finding your location first"); return; }
+    if (!authReady) { showToast("Checking your lunch picks…"); return; }
+    const day = siteTodayStr();
+    const used = (() => { try { return lunchRevealCount(document.cookie, day); } catch { return lunchAttemptsUsed; } })();
+    const limit = lunchRevealLimit(!!user);
+    if (used >= limit) {
+      showToast(user ? "You've used both lunch picks for today" : "Sign in for one more lunch pick today");
+      return;
+    }
     setHomeRolling(true);
     const faces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
     const iv = setInterval(() => setHomeDiceFace(faces[Math.floor(Math.random() * 6)]), 90);
+    const started = Date.now();
+    let reveal = null;
+    try {
+      const authHeaders = await likesAuthHeaders(supabase);
+      const response = await fetch("/api/lunch-break", {
+        method: "POST",
+        headers: { "content-type": "application/json", ...authHeaders },
+        body: JSON.stringify({
+          lat: center.lat,
+          lng: center.lng,
+          deviceId: deviceId(),
+          excludeIds: rollHistory.map((p) => p?.id).filter(Boolean).slice(0, 2),
+        }),
+      });
+      const data = await response.json().catch(() => null);
+      reveal = { ok: response.ok, status: response.status, data };
+    } catch (e) {}
+    const remaining = Math.max(0, 900 - (Date.now() - started));
     setTimeout(() => {
       clearInterval(iv);
       setHomeDiceFace("🎲");
       setHomeRolling(false);
-      const pick = arr[Math.floor(Math.random() * arr.length)];
-      if (pick) setRollHistory((h) => [pick, ...h.filter((x) => x && x.id !== pick.id)].slice(0, 8));
-    }, 900);
+      const allowance = reveal?.data?.allowance;
+      if (Number.isInteger(allowance?.used)) {
+        try { document.cookie = lunchRevealCookieValue(day, allowance.used, window.location.protocol === "https:"); } catch {}
+        setLunchAttemptsUsed(allowance.used);
+      }
+      if (reveal?.status === 429) {
+        showToast(user ? "You've used both lunch picks for today" : "Sign in for one more lunch pick today");
+        return;
+      }
+      const pick = reveal?.ok ? reveal.data?.place : null;
+      if (!pick) { showToast(reveal?.data?.error || "Lunch reveals are temporarily unavailable"); return; }
+      setRollHistory((h) => [pick, ...h.filter((x) => x && x.id !== pick.id)].slice(0, 8));
+      try { logEvent("lunch_city_reveal", pick, { attempt: allowance?.used || used + 1, signed_in: !!user, enforced: "server" }); } catch (e) {}
+    }, remaining);
   }
   async function rollFor(spec) {
     setDiceChoose(false);
@@ -9047,7 +9090,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // account sheet
     accountOpen, setAccountOpen, wfShowDiag, BUILD_ID,
     // menu sheet (6 sub-states incl. weather)
-    menuSheet, setMenuSheet, pickCat, openSurprise, libraryEvents, primaryCategory, foryouEvents, whyNow, searchRadius, setPendingRadius, setRadiusSheet, rollHomePick, homeRolling, homeDiceFace, rollHistory, INTENTS, intent, setIntent, moonImgName, weatherAdvisory, wayfindWeatherTake, uvLabel, shareWeather,
+    menuSheet, setMenuSheet, pickCat, openSurprise, libraryEvents, primaryCategory, foryouEvents, whyNow, searchRadius, setPendingRadius, setRadiusSheet, rollLunchPick, homeRolling, homeDiceFace, rollHistory, lunchAttemptsUsed, INTENTS, intent, setIntent, moonImgName, weatherAdvisory, wayfindWeatherTake, uvLabel, shareWeather,
     // auth + password-recovery sheets
     authOpen, authMode, setAuthMode, isStandalone, signInWithProvider, authEmail, setAuthEmail, authPassword, setAuthPassword, passwordAuth, authSending, resetSending, sendPasswordReset, recoveryOpen, setRecoveryOpen, newPw, setNewPw, newPw2, setNewPw2, pwSaving, saveNewPassword, authReady,
     // detail sheet (G3)
@@ -9386,7 +9429,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       onTonight={() => { try { logEvent("discovery_tile", null, { tile: "Perfect for tonight", chip: "Tonight" }); } catch (e) {} goIntent("/tonight"); }}
       onDrive={() => { try { logEvent("discovery_tile", null, { tile: "Worth the drive", chip: "Drive" }); } catch (e) {} goIntent("/worth-the-drive"); }}
       onBudget={() => { try { logEvent("discovery_tile", null, { tile: "Big fun, small budget", chip: "Bargains" }); } catch (e) {} goIntent("/budget"); }}
-      onSurprise={() => { try { logEvent("discovery_tile", null, { tile: "Surprise me", chip: "Surprise" }); } catch (e) {} setMenuSheet("pick"); }}
+      onSurprise={() => { try { logEvent("discovery_tile", null, { tile: "Surprise me", chip: "Lunch in My City", experience: "lunch_in_my_city" }); } catch (e) {} setMenuSheet("pick"); }}
     />
   );
 
