@@ -993,3 +993,16 @@ node scripts/check-social-extract-cannot-invent.mjs
 # (Universal Studios is [amusement_park, park]) and a VERIFIED product beats
 # both (Myakka's airboat tour is real inventory on a place typed [park]).
 node scripts/check-book-cta-needs-a-seller.mjs
+# 2026-09-04 THE MACHINE-READABLE GUARD REGISTRY (owner: "why does the guard
+# keep lying to me" audit's follow-up). scripts/lib/guard-registry.json answers,
+# for every guard, what it protects, the blast radius if it fails, where it's
+# wired, whether it blocks CI/deploy or only warns, and who owns the invariant.
+# 62 guards are marked CRITICAL (the audit's top-20 + every guard that touches
+# money — spend/affiliate/booking/env/commerce, mechanically matched, never a
+# hand-typed list) and require every field. This guard re-enumerates the real
+# files and the real scripts/guards.txt wiring LIVE on every run — never from
+# the registry's own cached data — so a critical guard silently falling out of
+# guards.txt (the disconnected-guard failure the owner explicitly asked to
+# catch) cannot go unnoticed the way check-inventory-integrity's canary-only
+# wiring or the six EXCLUDED guards already do deliberately.
+node scripts/check-guard-registry.mjs
