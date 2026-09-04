@@ -291,6 +291,7 @@ node scripts/check-atlas-diag-not-live.mjs
 node scripts/check-env-value-overrides.mjs
 node scripts/test-job-pulse.mjs
 node scripts/check-editorial-retry-state.mjs
+node scripts/check-editorial-coverage-pipeline.mjs
 node scripts/test-atlas-reclassify.mjs
 node scripts/check-art-assets.mjs
 node scripts/check-brand-derivatives.mjs
