@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 202468)
-Total output lines: 11756
-
 "use client";
 import { Component, useEffect, useMemo, useRef, useState } from "react";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, getLoader, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, wayfindScore } from "../lib/google";
@@ -5217,7 +5214,1538 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           });
         }
         // F1 (extended): likes / disliked / shared reconcile against a BASE snapshot
-        // exactly like favorites, so a removal on an…22468 tokens truncated…ev) => prev || d.name);
+        // exactly like favorites, so a removal on another device is not resurrected by
+        // this device's push-up (the old union-pull + unconditional re-push below did
+        // exactly that). Each is an id-keyed item store {place,ts}; reconcileIds runs
+        // the 3-way merge (lib/syncReconcile). rowPlace(r) -> the place object.
+        const reconcileColl = async ({ table, listName, storeKey, baseKey, setItems, setBool, rows, rowPlace }) => {
+          if (cancelled || !rows) return;
+          let local = {}; try { local = JSON.parse(localStorage.getItem(storeKey) || "{}"); } catch {}
+          const remote = {}; rows.forEach((r) => { const p = rowPlace(r); if (p && p.id) remote[p.id] = p; });
+          let base = []; try { base = JSON.parse(localStorage.getItem(baseKey) || "[]"); } catch {}
+          const rec = reconcileIds(base, Object.keys(local), Object.keys(remote));
+          if (rec.deleteRemote.length) {
+            try { let q = supabase.from(table).delete().eq("user_id", user.id).in("place_id", rec.deleteRemote); if (listName) q = q.eq("list_name", listName); await q; } catch {}
+          }
+          const toPush = rec.pushUp.map((id) => local[id] && local[id].place).filter((p) => p && p.id);
+          if (toPush.length) {
+            try { await supabase.from(table).upsert(toPush.map((p) => (listName ? { user_id: user.id, place_id: p.id, place: p, list_name: listName } : { user_id: user.id, place_id: p.id, place: p })), { onConflict: listName ? "user_id,place_id,list_name" : "user_id,place_id", ignoreDuplicates: true }); } catch {}
+          }
+          const next = {};
+          rec.keep.forEach((id, i) => { const entry = local[id] || (remote[id] ? { place: remote[id], ts: Date.now() - i } : null); if (entry) next[id] = entry; });
+          try { localStorage.setItem(storeKey, JSON.stringify(next)); setLocal(baseKey, JSON.stringify(rec.keep)); } catch {}
+          if (!cancelled) {
+            if (setItems) setItems(next);
+            if (setBool) setBool(Object.fromEntries(rec.keep.map((id) => [id, true])));
+          }
+        };
+        const { data: likeRows } = await supabase.from("likes").select("place_id, place").eq("user_id", user.id);
+        await reconcileColl({ table: "likes", listName: null, storeKey: "wf_liked_items", baseKey: "wf_liked_base", setItems: setLikedItems, setBool: setLiked, rows: likeRows, rowPlace: (r) => (r.place && r.place.id ? r.place : (r.place_id ? { id: r.place_id } : null)) });
+        const { data: disRows } = await supabase.from("saved_places").select("place").eq("user_id", user.id).eq("list_name", "Disliked");
+        await reconcileColl({ table: "saved_places", listName: "Disliked", storeKey: "wf_disliked_items", baseKey: "wf_disliked_base", setItems: setDislikedItems, setBool: null, rows: disRows, rowPlace: (r) => r.place });
+        const { data: shrRows } = await supabase.from("saved_places").select("place").eq("user_id", user.id).eq("list_name", "Shared");
+        await reconcileColl({ table: "saved_places", listName: "Shared", storeKey: "wf_shared_items", baseKey: "wf_shared_base", setItems: setSharedItems, setBool: null, rows: shrRows, rowPlace: (r) => r.place });
+      } catch {}
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
+
+  // "Worth the Drive?" feature
+  const [detailContext, setDetailContext] = useState(null); // theme that opened the detail ("drive", "gem", etc.)
+  const [myVotes, setMyVotes] = useState({});
+  // v5.35: the loader's "Friday evening" moment phrase — post-mount only,
+  // so the (possibly hour-stale) ISR HTML and the client can't disagree.
+  const [bootMoment, setBootMoment] = useState(null);
+  useEffect(() => { try { const _n = nowContext({}); setBootMoment(`${_n.dayName} ${_n.timeBucket === "night" ? "evening" : _n.timeBucket}`); } catch (e) {} }, []);
+  // v5.33 hydration fix: every localStorage-backed state above used to be
+  // read in its useState initializer — the server rendered the empty
+  // fallback, a returning visitor's first client render produced real data,
+  // and React hydration failed (minified errors 418/423/425 → full client
+  // re-render of the root). All of them now start at the same deterministic
+  // fallback on both sides and load from storage after mount, in one place.
+  useEffect(() => {
+    try { setHookLikes(new Set(JSON.parse(localStorage.getItem("wf_hook_likes") || "[]"))); } catch {}
+    try { if (localStorage.getItem("wf_debug") === "1" || /[?&]debug=1/.test(window.location.search)) setDebugOn(true); } catch {}
+    try { const c = JSON.parse(localStorage.getItem("wf_place_comments") || "{}"); const legacy = JSON.parse(localStorage.getItem("wf_place_notes") || "{}"); for (const k in legacy) { if (legacy[k] && !c[k]) c[k] = { type: "Tip", text: legacy[k] }; } for (const k in c) { const t = c[k] && c[k].type; if (t === "Insider tip") c[k].type = "Tip"; else if (t === "Recommendation") c[k].type = "Review"; } setPlaceComments(c); } catch {}
+    try { setSignals(loadSignals()); } catch {}
+    try { setLiked(JSON.parse(localStorage.getItem("wf_liked") || "{}")); } catch {}
+    try { setDisliked(JSON.parse(localStorage.getItem("wf_disliked") || "{}")); } catch {}
+    try { setLikedItems(JSON.parse(localStorage.getItem("wf_liked_items") || "{}")); } catch {}
+    try { setSavedCoupons(JSON.parse(localStorage.getItem("wf_coupons") || "{}")); } catch {}
+    couponWalletHydrated.current = true;
+    // v7.02: on-device event thumbs (see toggleEventSignal). Shape-checked on
+    // read so a hand-edited or half-written key cannot crash the first paint.
+    try { const es = JSON.parse(localStorage.getItem("wf_event_signals") || "{}"); setEventSignals({ liked: (es && es.liked) || {}, disliked: (es && es.disliked) || {} }); } catch {}
+    try { setDislikedItems(JSON.parse(localStorage.getItem("wf_disliked_items") || "{}")); } catch {}
+    try { setSharedItems(JSON.parse(localStorage.getItem("wf_shared_items") || "{}")); } catch {}
+    try { setSignupDone(!!localStorage.getItem("wf_signed_up")); } catch {}
+    try { setMyVotes(JSON.parse(localStorage.getItem("wf_drive_votes") || "{}")); } catch {}
+  }, []);
+  // v7.02: the events rail's Save state is the SERVER's, not a local guess —
+  // a heart that resets on reload teaches the reader the save did not take.
+  // Declared here (not beside the state) because it reads `user`, which is
+  // declared further down; a dependency array referencing it earlier is a TDZ
+  // crash at render, not a lint nit.
+  useEffect(() => {
+    let dead = false;
+    if (!user) { setSavedEvents({}); return; }
+    fetchSavedItems(user.id).then((rows) => {
+      if (dead) return;
+      const next = {};
+      (rows || []).forEach((r) => { if (r && r.item_type === "event" && r.item_id) next[r.item_id] = true; });
+      setSavedEvents(next);
+    }, () => {});
+    return () => { dead = true; };
+  }, [user]);
+
+  // A public intent route can clip a coupon before this app shell mounts.
+  // Once an account session is available, mirror the local wallet into the
+  // private Coupons folder so every saved deal follows the member to their
+  // other devices. Upsert makes this safe to repeat after future clips.
+  useEffect(() => {
+    if (!couponWalletHydrated.current || !supabase || !user) return;
+    Object.values(savedCoupons || {}).forEach((entry) => {
+      const c = entry && entry.c;
+      if (!c || !c.id) return;
+      svFolderUpsert("Coupons", { id: "coupon:" + c.id, name: (c.business ? c.business + " — " : "") + c.title, address: c.details || "", types: ["coupon"], rating: null, reviews: 0, lat: null, lng: null, _coupon: c });
+    });
+  }, [user, savedCoupons]);
+  const [communityVotes, setCommunityVotes] = useState({});
+  const [searchMode, setSearchMode] = useState(false);
+  const [searchLabel, setSearchLabel] = useState("");
+  const galleryRef = useRef(null);
+  function scrollGallery(dir) {
+    const el = galleryRef.current;
+    if (el) el.scrollBy({ left: dir * Math.round(el.clientWidth * 0.85), behavior: "smooth" });
+  }
+
+  // ── Full-screen photo viewer paging (v6.43) ────────────────────────────────
+  // Owner report: "when you click on the picture and it gets bigger you cannot
+  // flip pictures — the only way is to go back to the small one and slide."
+  // The viewer only ever knew one URL, so there was nothing to page through.
+  // It now derives the same list the sheet gallery shows and moves within it
+  // by swipe, arrow key, or the on-screen arrows.
+  const lightboxPhotos = (detail && Array.isArray(detail.photos) && detail.photos.length)
+    ? detail.photos
+    : (detail && detail.photo ? [detail.photo] : []);
+  const lightboxIndex = lightbox ? lightboxPhotos.indexOf(lightbox) : -1;
+  // Wraps, so the last photo's "next" is the first — a dead-end arrow on a
+  // full-screen viewer reads as broken.
+  function goLightbox(dir) {
+    const n = lightboxPhotos.length;
+    if (n < 2 || lightboxIndex < 0) return;
+    setLbDrag(0);
+    setLightbox(lightboxPhotos[(lightboxIndex + dir + n) % n]);
+  }
+  // Keep the small gallery on whatever photo the viewer was left on, so
+  // closing does not teleport the user back to where they started.
+  useEffect(() => {
+    if (lightbox) return;
+    const i = lastLightboxIndex.current;
+    lastLightboxIndex.current = -1;
+    if (i <= 0) return;
+    const el = galleryRef.current;
+    // Slides are 100%-wide flex items with a 6px gap (see sheets/Detail.js).
+    if (el) el.scrollTo({ left: i * (el.clientWidth + 6), behavior: "auto" });
+  }, [lightbox]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (lightboxIndex >= 0) lastLightboxIndex.current = lightboxIndex; }, [lightboxIndex]);
+  // Arrow keys page; Escape is handled with the rest of the dialog stack below.
+  useEffect(() => {
+    if (!lightbox || lightboxPhotos.length < 2) return undefined;
+    const onKey = (e) => {
+      if (e.key === "ArrowRight") { e.preventDefault(); goLightbox(1); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); goLightbox(-1); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightbox, lightboxIndex, lightboxPhotos.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Preload the neighbours so a swipe lands on a painted image, not a flash.
+  useEffect(() => {
+    if (!lightbox || lightboxIndex < 0 || typeof window === "undefined") return;
+    const n = lightboxPhotos.length;
+    if (n < 2) return;
+    for (const d of [1, -1]) {
+      const src = lightboxPhotos[(lightboxIndex + d + n) % n];
+      if (src) { const img = new window.Image(); img.src = src; }
+    }
+  }, [lightbox, lightboxIndex]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function lightboxTouchStart(e) {
+    const t = e.touches && e.touches[0];
+    if (!t) return;
+    lbTouch.current = { x: t.clientX, y: t.clientY, axis: null };
+  }
+  function lightboxTouchMove(e) {
+    const g = lbTouch.current;
+    const t = e.touches && e.touches[0];
+    if (!g || !t) return;
+    const dx = t.clientX - g.x;
+    const dy = t.clientY - g.y;
+    // Lock the axis once past the noise floor so a diagonal drag does not
+    // fight the close gesture.
+    if (!g.axis && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) g.axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+    if (g.axis !== "x") return;
+    g.moved = true;
+    // The gesture's own record of how far it travelled. `lbDrag` is the VISUAL
+    // offset only: it is React state, so a flick whose touchmove and touchend
+    // land in the same task (a fast swipe, or a synthetic one) reaches touchend
+    // before React has committed it, and the swipe silently does nothing. The
+    // ref is written synchronously, so the decision below is never racy.
+    g.dx = dx;
+    if (lightboxPhotos.length > 1) setLbDrag(dx);
+  }
+  function lightboxTouchEnd() {
+    const g = lbTouch.current;
+    lbTouch.current = null;
+    const dx = g ? (g.dx || 0) : 0;
+    setLbDrag(0);
+    if (!g || g.axis !== "x") return;
+    if (g.moved) lbSwipeAt.current = Date.now();
+    // ~18% of the viewport, floored at 40px — the same feel as the sheet drag.
+    const threshold = Math.max(40, (typeof window !== "undefined" ? window.innerWidth : 390) * 0.18);
+    if (dx <= -threshold) goLightbox(1);
+    else if (dx >= threshold) goLightbox(-1);
+  }
+  // Only a real tap closes: a click within 500ms of a swipe is the browser's
+  // synthesised one, not intent.
+  function closeLightbox() {
+    if (Date.now() - lbSwipeAt.current < 500) return;
+    setLightbox(null);
+  }
+
+  // Detect viewport so desktop gets a wider, side-by-side layout.
+  const [vw, setVw] = useState(0);
+  useEffect(() => {
+    const onR = () => setVw(window.innerWidth);
+    onR();
+    window.addEventListener("resize", onR);
+    return () => window.removeEventListener("resize", onR);
+  }, []);
+  const isDesktop = vw >= 900;
+  const keyMissing = !process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
+
+  function openSurprise() {
+    setSurprisePick(null);
+    setScreen("surprise");
+    try { window.scrollTo(0, 0); } catch {}
+  }
+  function pickSurprise(pool) {
+    if (!pool || !pool.length) return null;
+    const open = pool.filter((p) => p.openNow === true);
+    const src = (open.length >= 3 ? open : pool).slice(0, 8);
+    return src[Math.floor(Math.random() * src.length)];
+  }
+  function rerollSurprise() {
+    const pool = (surprisePool || []).filter(Boolean);
+    if (!pool.length) { showToast("Nothing to roll here yet"); return; }
+    setRolling(true);
+    const faces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+    const iv = setInterval(() => setDiceFace(faces[Math.floor(Math.random() * 6)]), 85);
+    setTimeout(() => {
+      clearInterval(iv);
+      setRolling(false);
+      setDiceFace("🎲");
+      setSurprisePick(pool[Math.floor(Math.random() * pool.length)]);
+    }, 800);
+  }
+
+  // The pool the dice rolls from depends on where the user is: their favorites,
+  // their For You feed, a badge page, or the current list of nearby spots.
+  function rollDicePool() {
+    if (screen === "saved") {
+      if (activeList && lists[activeList]) return lists[activeList].places;
+      return Object.values(lists).flatMap((l) => l.places || []);
+    }
+    if (screen === "suggested") return suggested || [];
+    if (screen === "experience") return expPlaces || [];
+    return view;
+  }
+  function animateRollThenPick(rawPool) {
+    const pool = (rawPool || []).filter(Boolean);
+    if (!pool.length) { showToast("Nothing to roll here yet"); setRolling(false); return; }
+    setRolling(true);
+    const faces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+    const iv = setInterval(() => setDiceFace(faces[Math.floor(Math.random() * 6)]), 85);
+    setTimeout(() => {
+      clearInterval(iv);
+      setRolling(false);
+      setDiceFace("🎲");
+      const pick = pool[Math.floor(Math.random() * pool.length)];
+      if (pick) { diceRouteRef.current = true; setSurprisePool(pool); setSurprisePick(pick); setScreen("surprise"); try { window.scrollTo(0, 0); } catch {} }
+    }, 1000);
+  }
+  function rollDice() { try { logEvent("dice", null); } catch (e) {} setDiceChoose(true); }
+  useEffect(() => {
+    try { setLunchAttemptsUsed(lunchRevealCount(document.cookie, siteTodayStr())); } catch { setLunchAttemptsUsed(0); }
+  }, [menuSheet, user]);
+
+  // The endpoint is intentionally owned-inventory-only and already ranked by
+  // Wayfind. It also fails closed on missing menu editorial, because every
+  // revealed postcard promises a specific must-try order.
+  async function rollLunchPick() {
+    if (homeRolling) return;
+    if (!center) { showToast("Finding your location first"); return; }
+    if (!authReady) { showToast("Checking your lunch picks…"); return; }
+    const day = siteTodayStr();
+    const used = (() => { try { return lunchRevealCount(document.cookie, day); } catch { return lunchAttemptsUsed; } })();
+    const limit = lunchRevealLimit(!!user);
+    if (used >= limit) {
+      showToast(user ? "You've used both lunch picks for today" : "Sign in for one more lunch pick today");
+      return;
+    }
+    setHomeRolling(true);
+    const faces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+    const iv = setInterval(() => setHomeDiceFace(faces[Math.floor(Math.random() * 6)]), 90);
+    const started = Date.now();
+    let reveal = null;
+    try {
+      const authHeaders = await likesAuthHeaders(supabase);
+      const response = await fetch("/api/lunch-break", {
+        method: "POST",
+        headers: { "content-type": "application/json", ...authHeaders },
+        body: JSON.stringify({
+          lat: center.lat,
+          lng: center.lng,
+          deviceId: deviceId(),
+          excludeIds: rollHistory.map((p) => p?.id).filter(Boolean).slice(0, 2),
+        }),
+      });
+      const data = await response.json().catch(() => null);
+      reveal = { ok: response.ok, status: response.status, data };
+    } catch (e) {}
+    const remaining = Math.max(0, 900 - (Date.now() - started));
+    setTimeout(() => {
+      clearInterval(iv);
+      setHomeDiceFace("🎲");
+      setHomeRolling(false);
+      const allowance = reveal?.data?.allowance;
+      if (Number.isInteger(allowance?.used)) {
+        try { document.cookie = lunchRevealCookieValue(day, allowance.used, window.location.protocol === "https:"); } catch {}
+        setLunchAttemptsUsed(allowance.used);
+      }
+      if (reveal?.status === 429) {
+        showToast(user ? "You've used both lunch picks for today" : "Sign in for one more lunch pick today");
+        return;
+      }
+      const pick = reveal?.ok ? reveal.data?.place : null;
+      if (!pick) { showToast(reveal?.data?.error || "Lunch reveals are temporarily unavailable"); return; }
+      setRollHistory((h) => [pick, ...h.filter((x) => x && x.id !== pick.id)].slice(0, 8));
+      try { logEvent("lunch_city_reveal", pick, { attempt: allowance?.used || used + 1, signed_in: !!user, enforced: "server" }); } catch (e) {}
+    }, remaining);
+  }
+  async function rollFor(spec) {
+    setDiceChoose(false);
+    if (!spec || spec.any || !center) { animateRollThenPick(rollDicePool()); return; }
+    setRolling(true);
+    const faces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+    const iv = setInterval(() => setDiceFace(faces[Math.floor(Math.random() * 6)]), 85);
+    let res = [];
+    try { res = await searchPlaces(spec.cat, "all", { lat: center.lat, lng: center.lng }, 32000, "all", spec.kw || ""); } catch {}
+    // v6.44: a dice bucket may declare what actually belongs in it. This is a
+    // HARD filter on purpose — falling back to the unfiltered pool when nothing
+    // matches is what produced "Parks & outdoors -> escape room". If a bucket
+    // genuinely has nothing nearby, the honest answer is the "nothing found"
+    // toast below, not a confidently wrong pick.
+    let pool = (res || []).filter(Boolean);
+    if (typeof spec.filter === "function") { try { pool = pool.filter(spec.filter); } catch (e) {} }
+    pool = pool.sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+    const availToday = pool.filter((p) => p.openNow !== false || (p.nextOpen && p.nextOpen.today));
+    res = (availToday.length >= 3 ? availToday : pool).slice(0, 12);
+    setTimeout(() => {
+      clearInterval(iv);
+      setRolling(false);
+      setDiceFace("🎲");
+      if (res.length) { const pick = res[Math.floor(Math.random() * res.length)]; diceRouteRef.current = true; setSurprisePool(res); setSurprisePick(pick); setScreen("surprise"); try { window.scrollTo(0, 0); } catch {} }
+      else showToast("Nothing in that mood near you right now \u2014 roll again");
+    }, 900);
+  }
+
+  // PROTECTED (check-cards.mjs): revenue keys open the themed Best-of style
+  // sheet — never the legacy experience screen.
+  function openExpSheet(key) {
+    const e = EXPERIENCES[key]; if (!e) return;
+    const m = revenueExpMeta(key, cityNow) || {};
+    const heroImageOverride = arguments.length > 1 ? arguments[1] : null;
+    const heroImage = key === "gem"
+      ? "/cards/hidden-gems-adobestock-321810820.jpeg"
+      : key === "family"
+        ? "/cards/family-favorites-pool-hero.jpg"
+      : key === "budget"
+        ? "/cards/big-fun-budget-city-hero.jpg"
+      : key === "romantic"
+        ? "/cards/date-night-dining-hero.jpg"
+      : key === "entertainment"
+        ? "/cards/trending-near-you-adobestock-434128766.jpeg"
+        : null;
+    // v6.52: Seasonal Picks names itself after whatever season it actually is
+    // right now \u2014 computed at open time (never a stale hardcoded season) so
+    // "Fall Picks" only ever shows in fall. v6.55: uses SEASON_META's real
+    // photo when the current season has one (summer, so far); seasons without
+    // one still fall back to the sheet's existing accent-colored gradient
+    // header, same as outdoors/datenight/etc.
+    const seasonNow = key === "seasonal" ? currentSeason() : null;
+    const sm = seasonNow ? SEASON_META[seasonNow] : null;
+    const cityShort = locName ? String(locName).split(",")[0] : "your area";
+    setHookDetail({
+      id: "exp-" + key, theme: key, fetchKey: key, accent: m.accent || C.accent,
+      emoji: sm ? sm.emoji : e.icon,
+      label: sm ? sm.label + " Picks" : cityFix(e.label),
+      highlightWord: m.hl || "",
+      hook: sm ? "The best of " + cityShort + " for " + sm.label.toLowerCase() + " " + sm.emoji : (m.hook || e.lead || e.title),
+      subtitle: m.sub || "",
+      cta: m.cta || "Explore \u2192",
+      themeTitle: sm ? sm.label + " Picks Near You" : cityFix(e.title),
+      themeBody: e.lead,
+      heroImage: heroImageOverride || heroImage || (sm && sm.heroImage) || null,
+      places: null,
+    });
+    try { window.scrollTo(0, 0); } catch {}
+  }
+  // v6.55 (owner): "everyone loves a puppy!" — place Seasonal Picks where the
+  // user sees it right away (the very first slide, ahead of even the
+  // orientation card) AND repeat it as the last slide, a closing reminder —
+  // "engage with them technically twice." One implementation, reused at both
+  // ends of both hero rails, so the two placements can never drift apart.
+  // srcTag ("top" | "end") only distinguishes the two spots in analytics.
+  // v6.57, two changes here:
+  //  COPY — the subtitle read "What actually fits summer right now", which
+  //    describes the MECHANISM rather than the list. It states the filter now.
+  //    No hardcoded count or temperature: list length is dynamic per location
+  //    and the weather is live, so a literal "16 places" or "94°" would be a
+  //    number we cannot keep.
+  //  DESTINATION — routes to the /seasonal LIST PAGE (IntentPageClient, the
+  //    /family and /date-night template) instead of openExpSheet's
+  //    hero-card-plus-one-detail-card sheet, so Seasonal Picks is the same kind
+  //    of object as every other list surface. This was the ONLY caller of the
+  //    old seasonal sheet path, so that path is retired rather than bypassed.
+  //    scripts/test-seasonal-picks.mjs was re-pointed (not deleted) to lock the
+  //    new destination, on owner instruction: "Find the component /date-night
+  //    uses. Point the Summer Picks page at it."
+  //    NOTE: do not name the old sheet call literally in these comments — the
+  //    guard asserts that string is absent from this file, and a comment
+  //    mentioning it is indistinguishable from a live call to a text search.
+  // Both placements (top and end, per v6.55) route through this one helper, so
+  // they cannot drift apart.
+  // v6.58 — ONE destination helper for every list surface.
+  //
+  // Before this, the quick-link tiles and the hero cards opened openExpSheet:
+  // eyebrow, headline, "N curated picks", a Top-rated dropdown, then big
+  // stacked photo cards. IntentPageClient (/date-night, /family, /seasonal,
+  // /hidden-gems) is the list template. Both existed, so the SAME content had
+  // two looks — Date night was reachable as a sheet from its tile AND as a page
+  // at /date-night, which is the duplication in miniature.
+  //
+  // Every tile now routes here, and the city rides along so the page can name
+  // it (the pages read ?city=).
+  function goIntent(path) {
+    try {
+      const q = locName ? "?city=" + encodeURIComponent(locName.split(",")[0]) : "";
+      window.location.assign(path + q);
+    } catch (e) {}
+  }
+  function openMoment(sel) {
+    markIntroSeen(); // durable, once per device — see lib/introGate.js
+    setIntroOpen(false);
+    try { logEvent("intro_build", null, { chips: sel.join(",") }); } catch (e) {}
+    const spec = composeMoment(sel, cityNow);
+    if (spec.surprise) { setMenuSheet("pick"); return; }
+    const e = EXPERIENCES[spec.base] || EXPERIENCES.entertainment;
+    setHookDetail({ id: "moment-" + Date.now(), theme: spec.base, fetchKey: spec.base, radiusOverride: spec.radiusOverride, priceMax: spec.priceMax, openNowOnly: spec.openNowOnly, extraKeyword: spec.extraKeyword, accent: C.accent, emoji: e.icon, label: spec.title, highlightWord: "", hook: spec.title, subtitle: spec.body || "", cta: "", themeTitle: spec.title, themeBody: spec.body || e.lead, places: null });
+    try { window.scrollTo(0, 0); } catch (e2) {}
+  }
+  function openExperience(key) {
+    if (!EXPERIENCES[key]) return;
+    if (REVENUE_EXP_KEYS.includes(key)) { openExpSheet(key); return; }
+    setActiveBadge(key);
+    setExpPlaces(null);
+    setExpSort("rated");
+    // Moment fix (MOMENT_PICKS_DIAGNOSIS.md, Phase 1): open a moment view at
+    // the INTENT's real scope, not the app-wide 17mi default that hid the
+    // museums/cafés a mood day is made of. The effect still fetches wide; this
+    // is the visible-list radius, so the same intent shows the same places
+    // whether it's opened from a chip, the mood modal, or a deep link.
+    setExpMi(intentRadiusMi(key));
+    setScreen("experience");
+    try { window.scrollTo(0, 0); } catch {}
+  }
+
+  function openSuggested() {
+    setIntent(null);
+    setCat("food");
+    setSub("all");
+    setVibe("all");
+    setQuery("");
+    setEventCat("auto");
+    setEventDate("all");
+    setBrowseCat(null);
+    setMoodPick(null);
+    setScreen("suggested");
+    try { window.scrollTo(0, 0); } catch {}
+  }
+
+  // Tapping an event venue opens that venue as a real Wayfind place, so its AI
+  // tips (arrival, parking, what to know) come from the venue's own reviews.
+  async function openVenue(e) {
+    const q = [e.venue, e.city].filter(Boolean).join(" ");
+    if (!q) return;
+    showToast("Loading venue…");
+    const ctr = (e.lat != null && e.lng != null) ? { lat: e.lat, lng: e.lng } : center;
+    try {
+      const v = await findPlace(q, ctr);
+      if (v) {
+        if (v.lat != null && v.lng != null && center && center.lat != null) {
+          const d = miBetween(center.lat, center.lng, v.lat, v.lng);
+          if (d != null) v.distMi = d;
+        }
+        v._event = { name: e.name || "Event", date: e.date || "", time: e.time || "", url: e.url || "" };
+        openDetail(v);
+      } else showToast("Could not find this venue");
+    } catch { showToast("Could not load venue details"); }
+  }
+
+  // Swipe a bottom sheet down (from its top) to close it, shared across every pop-up
+  // sheet. Engages only when the sheet is scrolled to the top and the pull is clearly
+  // downward, so normal scrolling and any horizontal content keep working; each sheet
+  // passes its own close action. Tapping a Close button still works too.
+  function sheetDragStart(e, onClose) {
+    const el = e.currentTarget;
+    const t = e.touches[0];
+    sheetDragRef.current = { el, onClose, y0: t.clientY, x0: t.clientX, atTop: el.scrollTop <= 0, active: true, decided: false, dragging: false, dy: 0 };
+    el.style.transition = "none";
+  }
+  function sheetDragMove(e) {
+    const d = sheetDragRef.current;
+    if (!d || !d.active || !d.el) return;
+    const dy = e.touches[0].clientY - d.y0;
+    const dx = e.touches[0].clientX - d.x0;
+    if (!d.decided) {
+      if (Math.abs(dy) < 6 && Math.abs(dx) < 6) return;
+      d.decided = true;
+      d.dragging = d.atTop && dy > 0 && Math.abs(dy) > Math.abs(dx);
+      if (!d.dragging) { d.active = false; return; }
+    }
+    if (d.dragging && dy > 0) { d.dy = dy; d.el.style.transform = "translateY(" + dy + "px)"; }
+  }
+  function sheetDragEnd() {
+    const d = sheetDragRef.current;
+    const el = d && d.el;
+    if (!el) { sheetDragRef.current = {}; return; }
+    el.style.transition = SHEET_EASE;
+    if (d.dragging && d.dy > 90) {
+      el.style.transform = "translateY(110%)";
+      const oc = d.onClose;
+      setTimeout(() => { try { oc && oc(); } catch (er) {} }, 340);
+    } else {
+      el.style.transform = "translateY(0px)";
+    }
+    sheetDragRef.current = {};
+  }
+
+  const openGemPlace = async (g) => {
+    try {
+      showToast("Opening " + g.name + "\u2026");
+      const pl = await findPlace(g.name + " " + (g.area || "Orlando") + " FL", center);
+      if (pl && pl.id) openDetail(pl); else showToast("Couldn't find " + g.name + " right now");
+    } catch (e) { showToast("Couldn't open " + g.name + " right now"); }
+  };
+  // Unique finds: curated gems Google's prominence ranking buries. Renders from
+  // static data (zero passive Google calls); tapping a gem runs one cached
+  // findPlace and opens the detail sheet.
+  // v4.85 — VIATOR LOCATION FIX: every entry in Gems.GEMS is an Orlando-market
+  // venue. This rail used to render for EVERY user, so a Parrish user could
+  // tap into an Orlando detail sheet whose Viator links were Orlando products
+  // ("Explore Orlando"). It now renders only inside the Orlando metro.
+  const renderUniqueFinds = () => {
+    if (Culture.resolveMetro(locName) !== "orlando") return null;
+    return (
+    <div style={{ margin: "14px 0 4px" }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 8 }}>
+        <div style={{ fontSize: 15, fontWeight: 800, color: C.light }}>Unique finds near you</div>
+        <div style={{ fontSize: 10.5, fontWeight: 700, color: C.muted, letterSpacing: ".5px", textTransform: "uppercase" }}>curated</div>
+      </div>
+      <div style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 6, WebkitOverflowScrolling: "touch" }}>
+        {Gems.GEMS.map((g) => (
+          <div key={g.key} onClick={() => openGemPlace(g)} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ minWidth: 218, maxWidth: 218, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 13px", cursor: "pointer", flexShrink: 0 }}>
+            <div style={{ fontSize: 13.5, fontWeight: 800, color: C.light, lineHeight: 1.2 }}>{g.name}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 5, flexWrap: "wrap" }}>
+              {g.award ? <span style={{ fontSize: 9.5, fontWeight: 800, color: "#E8B84B", border: "1px solid rgba(232,184,75,.5)", borderRadius: 999, padding: "2px 8px", letterSpacing: ".4px" }}>{g.award.label}</span> : null}
+              <span style={{ fontSize: 10.5, fontWeight: 600, color: C.muted }}>{g.area}</span>
+            </div>
+            <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.45, marginTop: 7, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{g.note}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+    );
+  };
+
+  // World Cup hero card. topSlot=true renders only on match days (fixed
+  // knockout calendar); topSlot=false renders mid-feed on off days.
+  const renderWorldCupCard = (topSlot) => { const _w = Hol.worldCup(new Date()); if (!_w) return null; if (Hol.worldCupDaysToNext(new Date()) > 2) return null; if (!!topSlot !== Hol.worldCupMatchToday(new Date())) return null; const _wc = Hol.themeFor(_w.key); const _wct = Hol.contentFor(_w.key, _w.name); return (
+                      <div style={{ borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _wc.grad, border: `1px solid ${_wc.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
+                      <button type="button" className="wf-holiday-open" onClick={() => openHoliday(_w)} aria-label={_wct.headline(locName)} style={{ position: "absolute", inset: 0, zIndex: 1, opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
+                      <style dangerouslySetInnerHTML={{ __html: "@keyframes wcJuggle{0%{transform:translateY(0) rotate(0deg);animation-timing-function:cubic-bezier(.17,.84,.44,1)}45%{transform:translateY(-26px) rotate(180deg);animation-timing-function:cubic-bezier(.55,0,.85,.36)}90%{transform:translateY(0) rotate(360deg)}100%{transform:translateY(0) rotate(360deg)}}@keyframes wcBob{0%,86%,100%{transform:translateY(0)}93%{transform:translateY(2px)}}@keyframes wcGlow{0%,100%{opacity:.5}50%{opacity:1}}" }} />
+                      <span style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,.03) 26px, transparent 26px, transparent 52px)", pointerEvents: "none" }} />
+                      <span aria-hidden="true" style={{ position: "absolute", right: 12, bottom: 6, width: 64, height: 116, pointerEvents: "none", opacity: .97 }}><span style={{ position: "absolute", left: 35, bottom: 72, fontSize: 15, animation: "wcJuggle 1.5s infinite" }}>⚽</span><picture><source type="image/avif" srcSet="/opt/wf-player-142.avif" /><source type="image/webp" srcSet="/opt/wf-player-142.webp" /><img src="/wf-player.png" alt="" draggable={false} loading="lazy" decoding="async" style={{ position: "absolute", left: 32, bottom: 0, height: 74, width: "auto", animation: "wcBob 1.5s infinite", filter: "drop-shadow(0 3px 8px rgba(0,0,0,.5))" }} /></picture></span>
+                      
+                      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: _wc.stripe, animation: "wcGlow 2.8s ease-in-out infinite" }} />
+                      <button onClick={(e) => { e.stopPropagation(); const _rot = Math.floor(Math.random() * 10); const _wr = wcRotation(_rot); const _url = listShareUrl("worldcup", _wr.title, 0, locName, "worldcup") + "&rot=" + _rot; shareLink(_wr.title, _url, () => showToast("Link copied"), _wr.title + " — " + _wr.desc + "\nWorld Cup watch spots on Wayfind:", () => { try { logEvent("share", null, { kind: "list", theme: "hol-worldcup", rot: _rot }); } catch (er) {} }); }} aria-label="Share" title="Share" style={{ position: "absolute", top: 10, right: 10, width: 34, height: 34, borderRadius: "50%", background: "rgba(0,0,0,.35)", border: "1px solid rgba(255,255,255,.3)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", zIndex: 2 }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                      <span style={{ fontSize: 24, filter: "drop-shadow(0 0 8px rgba(232,184,75,.6))" }}>{_w.emoji}</span>
+                      <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: _wc.text, textTransform: "uppercase" }}>{_wct.tag}</span>
+                      </div>
+                      <div style={{ fontSize: 21, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.15, letterSpacing: "-0.3px" }}>{_wct.headline(locName)}</div>
+                      <div style={{ fontSize: 12.5, color: _wc.text, marginTop: 5, lineHeight: 1.4 }}>{_wct.sub}</div>
+                      <div style={{ display: "inline-flex", alignItems: "center", marginTop: 12, padding: "8px 16px", borderRadius: 999, background: _wc.accent, color: "#0D1117", fontSize: 12.5, fontWeight: 800 }}>See the watch parties ›</div>
+                      <div style={{ display: "flex", gap: 18, marginTop: 12, flexWrap: "wrap", paddingRight: 56 }}>
+                      <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ position: "relative", zIndex: 2, fontSize: 11.5, fontWeight: 700, color: _wc.text, textDecoration: "underline" }}>Schedule and tickets ↗</a>
+                      <a href="https://watchwc.com" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ position: "relative", zIndex: 2, fontSize: 11.5, fontWeight: 700, color: _wc.text, textDecoration: "underline" }}>Find tonight's game ↗</a>
+                      </div>
+                      </div>
+                      ); };
+
+  function shareApp() {
+    const url = CANON_ORIGIN;
+    shareLink("Wayfind", url, () => { setShareCopied(true); setTimeout(() => setShareCopied(false), 1800); }, "Find great things to do near you with Wayfind", () => { try { logEvent("share", null, { kind: "app" }); } catch (e) {} });
+  }
+  function pickCat(id) { setCat(id); setSub("all"); setVibe("all"); setQuickFilter(null); setSearchMode(false); setSearchLabel(""); setScreen("explore"); }
+  // Reset the scroll container to the top whenever the list the user is looking
+  // at changes — category, sub-filter, vibe, sort, intent, distance, or screen.
+  // Without this, changing a filter leaves you stranded mid-list looking at
+  // different content.
+  // v8.41: ...UNLESS a deliberate landing is in flight. The nav's jump-to-results
+  // is triggered by the very setters this effect watches, so an unconditional
+  // zero here is the thing that cancelled it — see landingRef above. Stranding
+  // is still impossible: a landing always ends (settled, abandoned to the reader,
+  // or the 4s ceiling) and every path that does not land still resets.
+  useEffect(() => { try { if (scrollRef.current && !landingRef.current) scrollRef.current.scrollTo({ top: 0 }); } catch (e) {} setMapPreview(null); setEventPreview(null); setMapDrawer(false); }, [cat, sub, vibe, intent, searchRadius, screen, activeBadge]);
+  // v6.08 (PR-C): when a place detail closes (back), restore the list scroll
+  // position captured on open. The list stays mounted behind the sheet so its
+  // items already exist; a double rAF waits for the close re-render. Keyed by
+  // the list identity so switching lists never cross-restores.
+  useEffect(() => {
+    if (detail != null) return;
+    // v8.23.4 — FALL BACK TO THE STORED COPY. v6.08 wrote wf_sc_<key> to
+    // sessionStorage next to this ref and nothing ever read it, so the write was
+    // dead the day it shipped: after any reload the ref is empty and the reader
+    // lost their row. Same key, so it still cannot cross-restore between lists.
+    const key = screen + "|" + cat + "|" + sub + "|" + vibe;
+    let s = scrollRestore.current;
+    if ((!s || s.key !== key) && scrollRef.current) {
+      try {
+        const stored = sessionStorage.getItem("wf_sc_" + key);
+        if (stored != null && Number.isFinite(Number(stored))) s = { key, top: Number(stored) };
+      } catch (e) {}
+    }
+    if (!s || !scrollRef.current || s.key !== key) return;
+    const top = s.top;
+    scrollRestore.current = null;
+    requestAnimationFrame(() => requestAnimationFrame(() => { try { if (scrollRef.current) scrollRef.current.scrollTop = top; } catch (e) {} }));
+  }, [detail]);
+  // ══ v8.23.4 — DO NOT LOSE THE READER'S PLACE ═══════════════════════════
+  //
+  // Owner, 2026-08-19: "let's say the user click and goes to google maps, when
+  // they go back they go back to the start of the page and they have to go
+  // through the taxonomy all over again... there is nothing more annoying than
+  // losing your place in the site."
+  //
+  // THE MECHANISM THAT WAS SUPPOSED TO STOP THIS WAS HALF-BUILT. v6.08 captured
+  // the list scroll on detail-open into BOTH an in-memory ref and
+  // sessionStorage("wf_sc_<key>") — and only the ref was ever read back. A ref
+  // dies with the page. So the one path it protected was closing the detail
+  // sheet in-session; the moment the reader actually LEFT — Google Maps, a
+  // booking hop, any outbound tap — the surviving copy sat unread in
+  // sessionStorage and they came back to the top of a default tab.
+  //
+  // Scroll alone was never the whole loss either. The taxonomy IS the position:
+  // Night out > Speakeasy scrolled halfway down is four taps to rebuild, and
+  // none of screen/cat/browseCat/sub/vibe survived a reload.
+  //
+  // WHY sessionStorage AND NOT localStorage: this is "where I was a moment
+  // ago", not a preference. It must not resurrect a three-day-old tab state on
+  // a fresh visit, and the 30-minute ceiling below is a second belt on that.
+  const posRestore = useRef(null);
+  const posRead = useRef(false);
+  useEffect(() => {
+    if (posRead.current) return;
+    posRead.current = true;
+    try {
+      const raw = sessionStorage.getItem("wf_pos");
+      if (!raw) return;
+      const p = JSON.parse(raw);
+      if (!p || typeof p !== "object" || !p.ts || Date.now() - p.ts > 30 * 60000) {
+        sessionStorage.removeItem("wf_pos");
+        return;
+      }
+      if (p.screen) setScreen(p.screen);
+      if (p.cat) setCat(p.cat);
+      if (p.browseCat !== undefined) setBrowseCat(p.browseCat);
+      if (p.sub) setSub(p.sub);
+      if (p.vibe) setVibe(p.vibe);
+      posRestore.current = { top: Number(p.top) || 0, win: Number(p.win) || 0, at: Date.now() };
+    } catch (e) {}
+  }, []);
+  // APPLIED AFTER THE STATE SETTLES, and that ordering is the whole trick: the
+  // effect above this block zeroes the scroll on every [cat, sub, vibe, screen,
+  // ...] change, which includes the ones the restore itself just made. So the
+  // position is re-applied on the render those setters produce, behind a double
+  // rAF, and only within four seconds of the read — long enough for the feed to
+  // mount, short enough that a later filter change is never hijacked.
+  useEffect(() => {
+    const r = posRestore.current;
+    if (!r) return undefined;
+    if (Date.now() - r.at > 4000) { posRestore.current = null; return undefined; }
+    let a = 0, b = 0;
+    a = requestAnimationFrame(() => {
+      b = requestAnimationFrame(() => {
+        try {
+          if (scrollRef.current && r.top) scrollRef.current.scrollTop = r.top;
+        } catch (e) {}
+        posRestore.current = null;
+      });
+    });
+    return () => { cancelAnimationFrame(a); cancelAnimationFrame(b); };
+  }, [screen, cat, browseCat, sub, vibe]);
+  // The writer. On every taxonomy change, on a throttled scroll, and — the one
+  // that actually saves the Google Maps round trip — on pagehide, which fires
+  // when the browser is leaving THIS document, including for an outbound link.
+  // ONE scroller is recorded, because there is only one. v8.23.4 also stored a
+  // `win: window.scrollY` alongside it "in case the feed moves back to the
+  // window" — but in this shell window.scrollY is permanently 0 (the feed lives
+  // in div.wf-scrollarea, see v8.26), so that field saved 0 forever and its
+  // restore branch never once ran. A fallback that cannot fire is not
+  // resilience, it is a comment that lies. scripts/check-shell-scroll.mjs now
+  // fails the build on any new window.scroll* in the shell.
+  useEffect(() => {
+    const write = () => {
+      try {
+        sessionStorage.setItem("wf_pos", JSON.stringify({
+          screen, cat, browseCat, sub, vibe,
+          top: scrollRef.current ? scrollRef.current.scrollTop : 0,
+          ts: Date.now(),
+        }));
+      } catch (e) {}
+    };
+    write();
+    let t = null;
+    const onScroll = () => { if (t) return; t = setTimeout(() => { t = null; write(); }, 400); };
+    const el = scrollRef.current;
+    try { if (el) el.addEventListener("scroll", onScroll, { passive: true }); } catch (e) {}
+    try {
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("pagehide", write);
+    } catch (e) {}
+    return () => {
+      if (t) clearTimeout(t);
+      try { if (el) el.removeEventListener("scroll", onScroll); } catch (e) {}
+      try {
+        window.removeEventListener("scroll", onScroll);
+        window.removeEventListener("pagehide", write);
+      } catch (e) {}
+    };
+  }, [screen, cat, browseCat, sub, vibe]);
+
+  // Reset the explore list back to 5 whenever a new result set loads or search mode flips.
+  useEffect(() => { setVisibleCount(5); }, [places, searchMode]);
+  function pickSub(id) { setSub(id); setVibe("all"); try { logEvent("filter_changed", null, { cat, sub: id }); } catch (e) {} }
+
+  // Signal functions — record engagement, drive personalised ranking, trigger sign-up.
+  function recordSignal(p, action) {
+    const pc = (primaryCategory(p) || "").toLowerCase();
+    const badges = experienceBadges(p, null, 6).map((b) => b.key);
+    const sig = { id: p.id, cat: pc, badges, rating: p.rating || null, action, ts: Date.now() };
+    const next = [sig, ...signals.filter((s) => !(s.id === p.id && s.action === action))].slice(0, 1000);
+    setSignals(next);
+    saveSignals(next);
+    recordTaste(action, p);
+  }
+  // THE TASTE MODEL (owner, 2026-07-22) — explicit reactions learn locally.
+  // Projects an explicit signal into a decayed, PER-USER preference vector.
+  // Explicit like/dislike/save/share updates the first-party local vector;
+  // signed-in users ALSO persist to wf_taste (RLS binds it to their own uid —
+  // never pooled, never another user's). 'open' is local-only (mild + high
+  // volume); the strong verbs persist. Never touches the Wayfind Score.
+  function recordTaste(action, p) {
+    try {
+      const cat = (primaryCategory(p) || p.category || "").toLowerCase();
+      const place = { category: cat, priceNum: p.priceNum != null ? p.priceNum : null, tags: [].concat(p.tags || [], p.google_types || [], p.types || []) };
+      const sig = tasteSignals(action, place);
+      if (!sig.length) return;
+      const now = Date.now();
+      // A passive open remains anonymous-neutral. A deliberate reaction is the
+      // visitor asking Wayfind to remember a preference, so it works before
+      // sign-in and turns personalization on unless they previously turned it
+      // off. The Saved screen exposes manage/turn-off/reset on the same device.
+      if (user || action !== "open") {
+        try {
+          const cur = JSON.parse(localStorage.getItem("wf_taste_local") || "null");
+          const nextLocal = applyLocalTaste(cur, sig, now);
+          setLocal("wf_taste_local", JSON.stringify(nextLocal));
+          const localVec = tasteLocalToVector(nextLocal, now);
+          const merged = { ...(tasteVecRef.current || {}) };
+          for (const [dim, values] of Object.entries(localVec || {})) merged[dim] = { ...(merged[dim] || {}), ...values };
+          tasteVecRef.current = merged;
+          setTasteVecState(merged);
+          if (action !== "open" && personalize == null) setConsent("on");
+        } catch (e) {}
+      }
+      if (action !== "open" && supabase && user) { try { supabase.rpc("wf_taste_bump", { p_signals: sig }).then(() => {}, () => {}); } catch (e) {} }
+    } catch (e) {}
+  }
+  // Pooled, anonymous engagement log. One fire-and-forget row per action into a
+  // shared Supabase "events" table — this is the proprietary signal Google can't
+  // give us (what locals actually like, save, and share). Never throws, never
+  // blocks the UI, and only writes when a backend is configured.
+  // PostHog init moved to app/components/PostHogProvider.js (v5.50),
+  // mounted in the root layout so every route gets it, not just this one.
+  // v5.39 field Core Web Vitals -> PostHog (July 2026 audit, Phase 7). The
+  // hourly /api/cron/cwv job stores LAB metrics (PageSpeed API); this is the
+  // missing FIELD half — real visits, tagged by route, device, location
+  // permission outcome, and signed-in state (read from window.__WF_CTX so
+  // the values are current at metric time, not frozen in this closure).
+  useEffect(() => {
+    if (typeof window === "undefined" || window._wfVitals) return;
+    window._wfVitals = true;
+    import("web-vitals/attribution").then(({ onLCP, onCLS, onINP, onTTFB, onFCP }) => {
+      // The ATTRIBUTION build. Same metrics, same event name, same base
+      // properties as before (the command-center panel keeps reading them) —
+      // plus the debug fields that say WHICH element/shift is responsible, so a
+      // bad p75 is actionable instead of just a number.
+      // ONLY primitives cross this boundary: `attribution` also carries DOM
+      // nodes and PerformanceEntry objects (lcpEntry, largestShiftEntry,
+      // navigationEntry, entries[]) which must never be handed to
+      // posthog.capture — they serialize to junk or blow the payload.
+      const num = (v) => Math.round(Number(v) || 0);
+      const str = (v, n) => (v == null ? null : String(v).slice(0, n));
+      const send = (m) => {
+        try {
+          if (!window.posthog) return;
+          const ctx = window.__WF_CTX || {};
+          const a = m.attribution || {};
+          const props = { metric: m.name, value: Math.round(m.name === "CLS" ? m.value * 1000 : m.value), rating: m.rating, route: window.location.pathname, device: window.innerWidth < 768 ? "mobile" : "desktop", loc_permission: ctx.locPermission || "unknown", signed_in: !!ctx.signedIn, build: BUILD_ID };
+          if (m.name === "LCP") {
+            // the four sub-parts sum to LCP — they say whether to fix the server,
+            // the discovery of the image, its download, or the render that follows.
+            props.lcp_target = str(a.target, 300);
+            props.lcp_url = str(a.url, 300);
+            props.lcp_ttfb = num(a.timeToFirstByte);
+            props.lcp_resource_load_delay = num(a.resourceLoadDelay);
+            props.lcp_resource_load_duration = num(a.resourceLoadDuration);
+            props.lcp_element_render_delay = num(a.elementRenderDelay);
+          } else if (m.name === "CLS") {
+            props.cls_target = str(a.largestShiftTarget, 300);
+            props.cls_largest_shift = num((a.largestShiftValue || 0) * 1000);
+            props.cls_shift_time = num(a.largestShiftTime);
+            props.cls_load_state = str(a.loadState, 40);
+          } else if (m.name === "INP") {
+            props.inp_target = str(a.interactionTarget, 300);
+            props.inp_type = str(a.interactionType, 40);
+            props.inp_input_delay = num(a.inputDelay);
+            props.inp_processing = num(a.processingDuration);
+            props.inp_presentation = num(a.presentationDelay);
+            props.inp_load_state = str(a.loadState, 40);
+          }
+          window.posthog.capture("web_vitals", props);
+        } catch (e) {}
+      };
+      [onLCP, onCLS, onINP, onTTFB, onFCP].forEach((f) => { try { f(send); } catch (e) {} });
+    }).catch(() => {});
+  }, []);
+  useEffect(() => { try { window.__WF_CTX = { signedIn: !!user, locPermission: deviceLoc ? "granted" : locApprox ? "ip-fallback" : "pending" }; } catch (e) {} }, [user, deviceLoc, locApprox]);
+  // Screen views: this app switches screens via state, not URLs, so PostHog page autocapture misses them.
+  useEffect(() => { try { logEvent("screen_view", null, { screen }); } catch (e) {} }, [screen]);
+  function logEvent(action, place, extra) {
+    try { if (place && place.type) tasteBump(place); } catch (e) {}
+    const _exp = (() => { try { return experimentProps(); } catch (e) { return {}; } })();
+    try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture(action, Object.assign({ place_id: (place && place.id) || (extra && extra.place_id) || null, place_name: (place && place.name) || null }, extra || {}, _exp)); } catch (e0) {}
+    // Mirror to GA4 / Google Ads. One product action => one PostHog event (above)
+    // and at most one Google event (here); forwardToGoogle dedupes and decides
+    // on its own whether the action is worth an Ads conversion at all.
+    try {
+      forwardToGoogle(action, Object.assign({
+        place_id: (place && place.id) || (extra && extra.place_id) || null,
+        place_name: (place && place.name) || null,
+      }, extra || {}, attributionParams(), _exp));
+    } catch (e1) {}
+    // Session-scoped milestones — the PRIMARY metric (activated sessions).
+    // Fires at most one first_intent and one session_activated per session.
+    // Strictly additive: no existing event name, payload, or history changes.
+    try { noteSessionProgress(action, Object.assign({}, extra || {}, attributionParams(), _exp)); } catch (e2) {}
+    try {
+      if (!supabase) return;
+      const row = {
+        action,
+        place_id: (place && place.id) || (extra && extra.place_id) || null,
+        place_name: (place && place.name) || null,
+        device_id: deviceId(),
+        user_id: user ? user.id : null,
+        meta: extra || null,
+      };
+      supabase.from("events").insert(row).then(() => {}, () => {});
+    } catch (e) {}
+  }
+  // Auto folders (Liked / Disliked / Shared). Saved on the server for signed-in users via saved_places reserved names; likes also use the existing likes table.
+  function svFolderUpsert(listName, p) {
+    if (supabase && user && p && p.id) supabase.from("saved_places").upsert({ user_id: user.id, place_id: p.id, place: p, list_name: listName }, { onConflict: "user_id,place_id,list_name" }).then(() => {}, () => {});
+  }
+  function svFolderDelete(listName, id) {
+    if (supabase && user && id) supabase.from("saved_places").delete().eq("user_id", user.id).eq("place_id", id).eq("list_name", listName).then(() => {}, () => {});
+  }
+  function addShared(p) {
+    if (!p || !p.id) return;
+    try { recordSignal(p, "share"); } catch (e) {}
+    const next = { ...sharedItems, [p.id]: { place: p, ts: Date.now() } };
+    setSharedItems(next);
+    try { setLocal("wf_shared_items", JSON.stringify(next)); } catch {}
+    svFolderUpsert("Shared", p);
+  }
+  // After a like/unlike write LANDS, refetch the server's ownerPick (fresh=1)
+  // and stamp ownerPick AND wfScore on list cards and the open sheet
+  // (8.1 → 8.8). The client cannot mint: only the server owner map.
+  function patchOwnerPick(placeId, ownerPick) {
+    if (!placeId) return;
+    const patch = (cur) => (cur || []).map((pl) => (pl && pl.id === placeId ? stampOwnerPick(pl, ownerPick) : pl));
+    setPlaces(patch);
+    setExpPlaces(patch);
+    setDetail((cur) => (cur && cur.id === placeId ? stampOwnerPick(cur, ownerPick) : cur));
+  }
+  async function refreshOwnerPick(placeId) {
+    if (!placeId) return;
+    try {
+      const sig = await fetchMemberSignals(supabase, [{ id: placeId }], { fresh: true });
+      const ownerPick = !!(sig && sig[placeId] && sig[placeId].ownerPick);
+      patchOwnerPick(placeId, ownerPick);
+    } catch (e) {}
+  }
+  function toggleLike(e, p) {
+    e.stopPropagation();
+    const wasLiked = !!liked[p.id];
+    const nowLiked = !wasLiked;
+    const nextLiked = { ...liked }; const nextDis = { ...disliked };
+    const nextLikedItems = { ...likedItems }; const nextDisItems = { ...dislikedItems };
+    if (wasLiked) { delete nextLiked[p.id]; delete nextLikedItems[p.id]; }
+    else {
+      nextLiked[p.id] = true; delete nextDis[p.id];
+      nextLikedItems[p.id] = { place: p, ts: Date.now() }; delete nextDisItems[p.id];
+      recordSignal(p, "like");
+      logEvent("like", p);
+    }
+    setLiked(nextLiked); setDisliked(nextDis);
+    setLikedItems(nextLikedItems); setDislikedItems(nextDisItems);
+    try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); localStorage.setItem("wf_liked_items", JSON.stringify(nextLikedItems)); setLocal("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
+    if (supabase && user) {
+      if (wasLiked) {
+        supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id).then(() => refreshOwnerPick(p.id), () => {});
+      } else {
+        supabase.from("likes").upsert({ user_id: user.id, place_id: p.id, place: p }, { onConflict: "user_id,place_id" }).then(() => refreshOwnerPick(p.id), () => {});
+        svFolderDelete("Disliked", p.id);
+      }
+    }
+    if (!wasLiked) { showToast("Added to your taste"); offerAccountAfterSave("like"); }
+  }
+  function toggleDislike(e, p) {
+    e.stopPropagation();
+    const wasDis = !!disliked[p.id];
+    const nextLiked = { ...liked }; const nextDis = { ...disliked };
+    const nextLikedItems = { ...likedItems }; const nextDisItems = { ...dislikedItems };
+    if (wasDis) { delete nextDis[p.id]; delete nextDisItems[p.id]; svFolderDelete("Disliked", p.id); }
+    else {
+      nextDis[p.id] = true; delete nextLiked[p.id];
+      nextDisItems[p.id] = { place: p, ts: Date.now() }; delete nextLikedItems[p.id];
+      recordSignal(p, "dislike"); logEvent("dislike", p);
+      svFolderUpsert("Disliked", p);
+      if (supabase && user) supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id).then(() => refreshOwnerPick(p.id), () => {});
+    }
+    setLiked(nextLiked); setDisliked(nextDis);
+    setLikedItems(nextLikedItems); setDislikedItems(nextDisItems);
+    try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); localStorage.setItem("wf_liked_items", JSON.stringify(nextLikedItems)); setLocal("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
+    if (!wasDis) showToast("Got it — fewer places like this");
+  }
+  function toggleHookLike(hookId) {
+    if (!requireAuth("Sign up free — your spots, saved and synced to every device.")) return;
+    const next = new Set(hookLikes);
+    if (next.has(hookId)) next.delete(hookId);
+    else next.add(hookId);
+    setHookLikes(next);
+    try { setLocal("wf_hook_likes", JSON.stringify([...next])); } catch {}
+  }
+  function openHook(h) {
+    // If no place ID or we have a themed body, open the detail sheet.
+    // Otherwise fall through to the existing action handler.
+    if (h && (h.placeId || h.themeBody)) { setHookDetail(h); }
+    else handleHookAction(h);
+  }
+
+  // v5.22 — Insider intel per place: cache-first server content (generated
+  // once per place per month). Fetched only when a detail sheet opens; any
+  // failure and the card simply doesn't render.
+  const [insider, setInsider] = useState({});
+  useEffect(() => {
+    if (!detail || !detail.id || detail._event || insider[detail.id]) return;
+    let cancelled = false;
+    const _c = (() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : ""; } catch { return ""; } })();
+    fetch("/api/insider?id=" + encodeURIComponent(detail.id) + "&name=" + encodeURIComponent(detail.name || "") + "&city=" + encodeURIComponent(_c) + "&type=" + encodeURIComponent(detail.type || "") + (detail.rating != null ? "&rating=" + detail.rating : "") + "&reviews=" + (detail.reviews || 0) + (detail.price ? "&price=" + encodeURIComponent(detail.price) : ""))
+      .then((r) => (r.ok ? r.json() : {}))
+      .then((d) => { if (!cancelled) setInsider((m) => ({ ...m, [detail.id]: d && (d.tip || d.special) ? d : { none: true } })); })
+      .catch(() => { if (!cancelled) setInsider((m) => ({ ...m, [detail.id]: { none: true } })); });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail && detail.id]);
+
+  // v5.10: Tripadvisor enrichment — a second independent trust signal on the
+  // detail sheet (rating + review count + link out). Server route caches 10
+  // days per place, so repeat opens cost no API quota. Fail-soft: no key or
+  // no match and the strip simply doesn't render.
+  const [taInfo, setTaInfo] = useState({});
+  useEffect(() => {
+    if (!detail || !detail.id || detail._event || taInfo[detail.id]) return;
+    let cancelled = false;
+    const _ll = detail.lat != null ? "&lat=" + detail.lat.toFixed(4) + "&lng=" + detail.lng.toFixed(4) : "";
+    const _city = (() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : ""; } catch { return ""; } })();
+    fetch("/api/ta/place?q=" + encodeURIComponent(detail.name || "") + _ll + (_city ? "&city=" + encodeURIComponent(_city) : ""))
+      .then((r) => (r.ok ? r.json() : {}))
+      .then((d) => { if (!cancelled) setTaInfo((m) => ({ ...m, [detail.id]: d && d.rating != null ? d : { none: true } })); })
+      .catch(() => { if (!cancelled) setTaInfo((m) => ({ ...m, [detail.id]: { none: true } })); });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail && detail.id]);
+
+  // v5.22 — "Perfect right now": for mood vibes only, once the structured
+  // engine has produced the gated, ranked, open-now candidates, ask the
+  // server route (cache-first Haiku) to pick 3-5 for THIS moment with one
+  // grounded why-line each. Strictly additive and fail-soft: any error or
+  // slowness and the normal list stands alone — the page never waits.
+  const [momentPicks, setMomentPicks] = useState(null);
+  useEffect(() => {
+    const exp = EXPERIENCES[activeBadge];
+    if (screen !== "experience" || !exp || !exp.mood || !Array.isArray(expPlaces) || expPlaces.length < 3) { setMomentPicks(null); return; }
+    let cancelled = false;
+    const _nw = nowContext({ weather }); const _h = _nw.hour; const _d = _nw.dayOfWeek;
+    const tb = ["sun","mon","tue","wed","thu","fri","sat"][_d] + "-" + (_h < 6 ? "latenight" : _h < 11 ? "morning" : _h < 15 ? "midday" : _h < 18 ? "afternoon" : _h < 22 ? "evening" : "night");
+    const wx = weather ? ((weather.img || "na") + "-" + (weather.temp != null ? Math.round(weather.temp / 5) * 5 : "na")) : "na";
+    const cands = expPlaces.filter((p) => p && p.openNow !== false).slice(0, 12).map((p) => ({ id: p.id, name: p.name, type: p.type || "", rating: p.rating, reviews: p.reviews, distMi: p.distMi, openNow: p.openNow !== false, price: p.price || "" }));
+    if (cands.length < 3) { setMomentPicks(null); return; }
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 7000);
+    fetch("/api/moment/picks", { method: "POST", signal: ctrl.signal, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ intent: activeBadge, tb, wx, city: locName ? locName.split(",")[0] : "", candidates: cands }) })
+      .then((r) => {
+        // Moment fix (Phase 2): a 400 is a CONTRACT error (id drift / malformed
+        // request), not "no results" — log it so the bug is visible, and hide
+        // the additive card without dressing an error as an empty. A real
+        // no-match comes back 200 with a reason envelope.
+        if (r.status === 400) { r.json().then((e) => { try { logEvent("moment_picks_contract_error", null, { intent: activeBadge, error: e && e.error }); } catch (er) {} }).catch(() => {}); return { picks: [], _contractError: true }; }
+        return r.ok ? r.json() : { picks: [] };
+      })
+      .then((d) => { if (!cancelled) setMomentPicks(Array.isArray(d.picks) && d.picks.length ? { badge: activeBadge, picks: d.picks } : null); })
+      .catch(() => { if (!cancelled) setMomentPicks(null); })
+      .finally(() => clearTimeout(timer));
+    return () => { cancelled = true; clearTimeout(timer); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, activeBadge, expPlaces]);
+
+  // v4.51: real Viator tour listings on attraction detail pages. Uses the
+  // place's own city (from its address) so an Orlando attraction viewed from
+  // Parrish still searches "Gatorland Orlando".
+  useEffect(() => {
+    if (!detail || !detail.id || detail._event) return;
+    const kinds = ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"];
+    if (!kinds.includes(placeKind(detail))) return;
+    if (viaTours[detail.id]) return;
+    const placeCity = (() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : ""; } catch { return ""; } })() || (locName ? locName.split(",")[0] : "");
+    const q = detail.name + (placeCity ? " " + placeCity : "");
+    let cancelled = false;
+    setViaTours((m) => ({ ...m, [detail.id]: { loading: true, items: [] } }));
+    fetch("/api/viator/tours?q=" + encodeURIComponent(q) + "&name=" + encodeURIComponent(detail.name) + "&kind=" + encodeURIComponent(placeKind(detail) || "") + "&placeId=" + encodeURIComponent(detail.id) + "&count=3&region=" + encodeURIComponent((() => { try { const _m = Culture.resolveMetro(locName); return [placeCity, _m && Culture.CULTURE_TITLES[_m] ? Culture.CULTURE_TITLES[_m] : ""].filter(Boolean).join(","); } catch { return placeCity || ""; } })()))
+      .then((r) => r.json())
+      .then((d) => { if (!cancelled) setViaTours((m) => ({ ...m, [detail.id]: { loading: false, items: (d && d.items) || [] } })); })
+      .catch(() => { if (!cancelled) setViaTours((m) => ({ ...m, [detail.id]: { loading: false, items: [] } })); });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail && detail.id]);
+
+  // Load community votes for a place when its detail opens (drive widget)
+  useEffect(() => {
+    if (!detail || !detail.id) return;
+    if (detail.distMi == null || detail.distMi < 20) { if (detailContext !== "drive") return; }
+    fetch(`/api/vote?placeId=${encodeURIComponent(detail.id)}`)
+      .then((r) => r.json())
+      .then((data) => setCommunityVotes((prev) => ({ ...prev, [detail.id]: data })))
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail]);
+
+  async function handleVote(place, vote) {
+    if (!place || !place.id || myVotes[place.id]) return;
+    const next = { ...myVotes, [place.id]: vote };
+    setMyVotes(next);
+    try { setLocal("wf_drive_votes", JSON.stringify(next)); } catch {}
+    try {
+      const res = await fetch("/api/vote", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ placeId: place.id, vote, placeName: place.name, distMi: place.distMi }),
+      });
+      const data = await res.json();
+      if (data && !data.error) setCommunityVotes((prev) => ({ ...prev, [place.id]: data }));
+    } catch {}
+  }
+
+  async function submitSignup() {
+    const email = signupEmail.trim();
+    if (!email || signupDone) return;
+    try { await fetch("/api/signup", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email, likes: Object.keys(liked).length, signals: signals.length }) }); } catch {}
+    setSignupDone(true);
+    try { setLocal("wf_signed_up", "1"); } catch {}
+  }
+
+  // Open a place: pull deep data (cached), then run the AI grounded in it.
+  async function openDetail(p, context) {
+    try { sessionStorage.setItem("wf_value_seen", "1"); } catch (e) {} // v5.37: opening a place = value delivered
+    // v4.86: a Foursquare-sourced place upgrades to its Google twin on open
+    // when one exists (reviews, hours, photos come along); otherwise it
+    // renders honestly from the Foursquare data it arrived with.
+    if (p && typeof p.id === "string" && /^(fsq|osm|ridb):/.test(p.id)) {
+      try {
+        const up = await findPlace(p.name, { lat: p.lat, lng: p.lng });
+        if (up && up.id && up.lat != null) {
+          const dLat = up.lat - p.lat, dLng = up.lng - p.lng;
+          if (Math.sqrt(dLat * dLat + dLng * dLng) * 69 <= 0.25) p = { ...up, distMi: p.distMi != null ? p.distMi : up.distMi, sources: p.sources };
+        }
+      } catch (e) {}
+    }
+    try { const _aud = {}; experienceBadges(p, null, 99, _aud); logEvent("detail_open", p, { identity: _aud.identity || null, blocked: (_aud.blocked || []).length, ctx: typeof context === "string" ? context : null }); } catch (e) {}
+    // v6.08 (PR-C): remember where we were in the list so back returns here, not to the top.
+    try { if (scrollRef.current) { const _k = screen + "|" + cat + "|" + sub + "|" + vibe; const _t = scrollRef.current.scrollTop; scrollRestore.current = { key: _k, top: _t }; sessionStorage.setItem("wf_sc_" + _k, String(_t)); } } catch (e) {}
+    setDetail(p);
+    // /p/{id} and any card that skipped withMemberSignal still show the raw
+    // score until this overlay lands. Same function as the list path.
+    fetchMemberSignals(supabase, [p]).then((sig) => {
+      if (!sig) return;
+      const next = withMemberSignal([p], sig)[0];
+      if (!next || next.id !== p.id) return;
+      setDetail((cur) => (cur && cur.id === p.id ? { ...cur, wfScore: next.wfScore, _members: next._members, _wfScoreRaw: next._wfScoreRaw } : cur));
+      const patch = (cur) => (cur || []).map((pl) => (pl && pl.id === p.id ? { ...pl, wfScore: next.wfScore, _members: next._members, _wfScoreRaw: next._wfScoreRaw } : pl));
+      setPlaces(patch);
+      setExpPlaces(patch);
+    }).catch(() => {});
+    setDetailContext(context || null);
+    recordSignal(p, "open"); // implicit engagement signal
+    try { if (OFFERS[p.id]) logEvent("offer_impression", p, { offer_id: OFFERS[p.id].id }); } catch (e) {}
+    try { recentRef.current = [p.id, ...recentRef.current.filter((x) => x !== p.id)].slice(0, 20); } catch {}
+    setReviewsOpen(false);
+    setHoursOpen(false);
+    setVenueEvents(null);
+    setVenueEventsOpen(false);
+    setVenueEventsLoading(false);
+    setWhyOpen(false);
+    setShowMore(false);
+    setThemesOpen(false);
+    setVideos(videoCache.current[p.id] || null);
+    setInsightFull(insightFullCache.current[p.id] || getCachedInsight(p.id + "::full") || null);
+    setInsightFullLoading(false);
+    setDetailExtra(detailCache.current[p.id] || null);
+    setInsightLoading(true);
+    let extra = detailCache.current[p.id];
+    if (extra === undefined) {
+      setDetailExtra(null);
+      extra = await fetchPlaceDetail(p.id);
+      // v6.31: never cache a bare null — that leaves the sheet stuck on
+      // "Loading hours…" forever (null reads as "still fetching"). A resolved
+      // sentinel settles the sheet into "Hours not listed" (or the search-time
+      // weekday text) instead of spinning. fetchPlaceDetail now always returns a
+      // resolved shape, so this line is defensive only.
+      if (!extra) extra = { ok: false, editorial: null, reviews: [], hours: null, phone: null, website: null, _resolved: true };
+      // v6.74: cache the ANSWER, never the FAILURE. Storing the failure sentinel
+      // froze one transient error for the whole session — every reopen read the
+      // cache, so a place kept saying "Hours unavailable" long after the cause
+      // had passed. An unsuccessful fetch stays uncached so the next open really
+      // retries.
+      if (extra.ok) detailCache.current[p.id] = extra;
+    }
+    setDetailExtra(extra);
+    if (extra && extra.ok) {
+      setDetail((cur) => {
+        if (!cur || cur.id !== p.id) return cur;
+        return mergeHealedPlacePhotos(cur, extra);
+      });
+    }
+    if (extra) { const rt = Array.isArray(extra.reviews) ? extra.reviews.slice(0, 4).map((r) => (r.text || "").slice(0, 300)).filter(Boolean) : []; HINTS[p.id] = ((extra.editorial || "") + " " + rt.join(" ")).toLowerCase(); }
+    loadInsight(p, extra);
+  }
+  // Pull real upcoming ticketed events at or near a place from Ticketmaster.
+  // This is the honest way to answer "when is the live music here": actual show
+  // dates and times, never an invented weekly schedule. Empty is a valid answer.
+  async function loadVenueEvents(p) {
+    if (!p || p.lat == null || p.lng == null) { setVenueEvents([]); return; }
+    setVenueEventsLoading(true);
+    setVenueEvents(null);
+    try {
+      const res = await fetch("/api/events", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ lat: p.lat, lng: p.lng, radius: 2 }),
+      });
+      const data = await res.json();
+      let list = (data && Array.isArray(data.events) ? data.events : []).filter((e) => e && e.dest);
+      const nm = (p.name || "").toLowerCase();
+      const matches = list.filter((e) => {
+        const v = (e.venue || "").toLowerCase();
+        return v && (v.includes(nm) || nm.includes(v));
+      });
+      // Phase 2 (EVENTS_PIPELINE_DIAGNOSIS.md): the card says "at this
+      // venue" -- the old fallback padded it with ALL nearby events when
+      // the venue-name match came up empty, which is a wrong claim. No
+      // match now means the honest empty state.
+      setVenueEvents(matches.slice(0, 8));
+    } catch {
+      setVenueEvents([]);
+    } finally {
+      setVenueEventsLoading(false);
+    }
+  }
+  async function loadVideos(p) {
+    if (videoCache.current[p.id]) { setVideos(videoCache.current[p.id]); setVideosLoading(false); return; }
+    setVideos(null);
+    setVideosLoading(true);
+    try {
+      const res = await fetch("/api/youtube", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ name: p.name, city: locName, category: cat }),
+      });
+      const data = await res.json();
+      const vids = data && Array.isArray(data.videos) ? data.videos : [];
+      videoCache.current[p.id] = vids;
+      setVideos(vids);
+    } catch {
+      setVideos([]);
+    } finally {
+      setVideosLoading(false);
+    }
+  }
+  async function loadEvents() {
+    if (!center) return;
+    setEventsLoading(true);
+    setEventsError(false);
+    try {
+      const res = await fetch("/api/events", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ lat: center.lat, lng: center.lng, city: locName, radius: Math.max(Math.round((searchRadius || DEFAULT_RADIUS_M) / 1609.34), 60) }), // v4.87: events get a generous 60-mi floor — people drive for events; a manual wider radius still wins
+      });
+      const data = await res.json();
+      setEventsUnavailable(!!data.unavailable);
+      setEventsError(!!data.error);
+      try { if (process.env.NODE_ENV !== "production" && data && data.counts) console.log("[wayfind events]", data.counts, "total", (data.events || []).length); } catch (e) {}
+      // Phase 1/2 contract (EVENTS_PIPELINE_DIAGNOSIS.md): only events with a
+      // resolved destination enter client state, so every count downstream is
+      // computed on exactly the list the cards render from.
+      const evs = (data && Array.isArray(data.events) ? data.events : []).filter((e) => e && e.dest);
+      setEvents(evs);
+      if (!data.unavailable && !data.error && evs.length === 0) logEvent("events_none", null, { loc: locName || "", lat: center.lat, lng: center.lng });
+    } catch {
+      setEventsError(true);
+      setEvents([]);
+    } finally {
+      setEventsLoading(false);
+    }
+  }
+  // v6.55 single-flight: ONE offers scan feeds every caller for 10 minutes.
+  // loadBlurbs has six call sites (feed, suggested ×2, experiences, hooks ×2)
+  // and each used to run its own full offers table scan — same table, same
+  // rows, per load. A failed scan clears the slot so the next call retries.
+  const offersOnce = useRef({ at: 0, p: null });
+  function fetchOffersOnce() {
+    const now = Date.now();
+    if (offersOnce.current.p && now - offersOnce.current.at < 10 * 60 * 1000) return offersOnce.current.p;
+    const p = (async () => {
+      const { data: _rawOffers } = await supabase.from("offers").select("*");
+      // v6.17: offers.sql columns (coupon_code/affiliate_url/offer_title/...) are
+      // normalized ONCE to the app shape - dashboard rows could never render
+      // before this. v5.09 rule unchanged: undeliverable deals never reach a card.
+      return (_rawOffers || []).map(normalizeOfferRow).filter(Boolean).filter(offerRedeemable);
+    })();
+    offersOnce.current = { at: now, p };
+    p.catch(() => { if (offersOnce.current.p === p) offersOnce.current = { at: 0, p: null }; });
+    return p;
+  }
+  async function loadOffers(list) {
+    try {
+      if (!supabase || !Array.isArray(list) || !list.length) return;
+      const data = await fetchOffersOnce();
+      if (!data || !data.length) return;
+      const norm = (x) => (x || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+      const map = {};
+      list.forEach((p) => {
+        if (!p) return;
+        const off = data.find((o) => (o.google_place_id && o.google_place_id === p.id) || (o.normalized_business_name && o.normalized_business_name === norm(p.name)));
+        if (off) { map[p.id] = off; OFFERS[p.id] = off; }
+      });
+      if (Object.keys(map).length) setOffers((prev) => ({ ...prev, ...map }));
+    } catch (e) {}
+  }
+  const blurbsInFlight = useRef(new Set());
+  async function loadBlurbs(list) {
+    loadOffers(list);
+    if (!Array.isArray(list) || !list.length) { setBlurbs({}); return; }
+    // 1. Seed instantly from the 30-day on-device line cache. These cost nothing:
+    //    no Google call, no AI call. Repeat searches of the same area are free.
+    const seeded = {};
+    list.forEach((p) => { const c = getCachedLine(p.id); if (c) seeded[p.id] = c; });
+    // MERGE, never replace — six sections share this map, and a late caller
+    // used to wipe every other section's lines mid-screen.
+    setBlurbs((prev) => ({ ...prev, ...seeded }));
+    // KNOWN FOR BEATS THE GENERATED LINE, ALWAYS. wf_editorial holds researched
+    // copy about THIS place — what it is known for, what a regular would order,
+    // what a local would tell you. That is what a row should say. The generated
+    // blurb stays only as the fallback for places we hold no editorial on.
+    //
+    // Runs for the WHOLE list rather than the 3 the blurb path fetches: it is
+    // one query against our own table, so there is no reason to ration it, and
+    // rationing is exactly what left most rows reading generically.
+    //
+    // Fails soft on purpose — if the lookup degrades the existing line stays. A
+    // card must never LOSE text it already had because a lookup blinked.
+    (async () => {
+      try {
+        const ids = list.map((p) => p.id).filter(Boolean).slice(0, 40);
+        if (!ids.length) return;
+        const kr = await fetch("/api/known-for", {
+          method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ ids }),
+        });
+        const kd = await kr.json();
+        if (kd && kd.lines && typeof kd.lines === "object" && Object.keys(kd.lines).length) {
+          setBlurbs((prev) => ({ ...prev, ...kd.lines }));
+          try { setCachedLines(kd.lines); } catch (e) {}
+        }
+      } catch (e) {}
+    })();
+    // 2. cacheOnly CARD_SUMMARY for the same id set as known-for (up to 40),
+    //    not just the top 3. Food > Cafés rank 4+ with a 30-day hook were blank
+    //    while a neighbor with wf_editorial showed copy — that hides a sourced
+    //    hook, it is not the empty-slot law. cacheOnly never generates, so this
+    //    path does not pay Places details or invent a sentence. Known-for still
+    //    wins: we only fill ids that do not already have a line.
+    const need = list.filter((p) => p && p.id && !seeded[p.id] && !blurbsInFlight.current.has(p.id)).slice(0, 40);
+    if (!need.length) return;
+    need.forEach((p) => blurbsInFlight.current.add(p.id));
+    try {
+      // /api/blurbs slices `places` to 20 before the cache read. Chunk so the
+      // tail of a café list is not silently dropped.
+      const BLURB_BATCH = 20;
+      for (let i = 0; i < need.length; i += BLURB_BATCH) {
+        const batch = need.slice(i, i + BLURB_BATCH);
+        try {
+          const res = await fetch("/api/blurbs", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            // v6.63 cacheOnly: RENDER PATH. Reads the shared 30-day pool only —
+            // a cold area falls back to no line rather than generating while
+            // the user waits. check-no-llm-in-render-path walks every client
+            // caller for this flag.
+            body: JSON.stringify({
+              cacheOnly: true,
+              city: locName,
+              places: batch.map((p) => ({ id: p.id, name: p.name, type: p.type, rating: p.rating, reviews: p.reviews })),
+            }),
+          });
+          const data = await res.json();
+          if (data && data.blurbs && typeof data.blurbs === "object") {
+            const cleaned = stripMdMap(data.blurbs);
+            setBlurbs((prev) => {
+              const next = { ...prev };
+              for (const id of Object.keys(cleaned)) {
+                if (!next[id] && cleaned[id]) next[id] = cleaned[id];
+              }
+              return next;
+            });
+            try { setCachedLines(data.blurbs); } catch (e) {}
+          }
+        } catch {}
+      }
+    } finally { need.forEach((p) => blurbsInFlight.current.delete(p.id)); }
+  }
+  async function loadInsight(p, extra) {
+    if (insightCache.current[p.id]) { setInsight(insightCache.current[p.id]); setInsightLoading(false); return; }
+    const cached = getCachedInsight(p.id);
+    if (cached) { insightCache.current[p.id] = cached; setInsight(cached); setInsightLoading(false); return; }
+    setInsight(null);
+    setInsightLoading(true);
+    try {
+      const res = await fetch("/api/insight", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          name: p.name, type: p.type, city: locName,
+          rating: p.rating, reviewCount: p.reviews, price: p.price, openNow: p.openNow,
+          category: cat, sub, mode: "compact", kind: (p._event ? "event" : (["Food", "Nightlife"].includes(primaryCategory(p) || "") ? "dining" : "attraction")),
+          editorial: extra ? extra.editorial : null,
+          reviews: extra && extra.reviews ? extra.reviews.map((r) => r.text).slice(0, 5) : [],
+          attributes: p.labels || [],
+        }),
+      });
+      const data = await res.json();
+      // v6.74: an insight computed from a FAILED detail fetch is not a fact
+      // about the place — it is the shape of our own outage. /api/insight takes
+      // its no-reviews branch on an empty `reviews`, and that verdict was being
+      // persisted for THIRTY DAYS, so one broken fetch flattened "Why Wayfind
+      // picked this" to a single descriptive sentence long after the fetch was
+      // fixed. Render it (better than an empty block), but never memoise it and
+      // never persist it — the next open re-asks with real reviews.
+      const detailFailed = !!(extra && extra.ok === false);
+      if (!detailFailed) insightCache.current[p.id] = data;
+      if (data && !data.error && !data.unavailable && !detailFailed) setCachedInsight(p.id, data);
+      setInsight(data);
+    } catch {
+      setInsight({ error: true });
+    } finally {
+      setInsightLoading(false);
+    }
+  }
+  // The heavier insight (themes, more tips, must-try). Only ever runs when the
+  // user expands a place, so most opens never pay for it. Cached 30 days.
+  async function loadFullInsight(p, extra) {
+    if (!p) return;
+    if (insightFullCache.current[p.id]) { setInsightFull(insightFullCache.current[p.id]); return; }
+    const cached = getCachedInsight(p.id + "::full");
+    if (cached) { insightFullCache.current[p.id] = cached; setInsightFull(cached); return; }
+    setInsightFullLoading(true);
+    try {
+      const res = await fetch("/api/insight", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          name: p.name, type: p.type, city: locName,
+          rating: p.rating, reviewCount: p.reviews, price: p.price, openNow: p.openNow,
+          category: cat, sub, mode: "full", kind: (p._event ? "event" : (["Food", "Nightlife"].includes(primaryCategory(p) || "") ? "dining" : "attraction")),
+          editorial: extra ? extra.editorial : null,
+          reviews: extra && extra.reviews ? extra.reviews.map((r) => r.text).slice(0, 5) : [],
+          attributes: p.labels || [],
+        }),
+      });
+      const data = await res.json();
+      // Same rule as loadInsight: do not turn our own failed fetch into a
+      // 30-day cached verdict about the place.
+      const detailFailedFull = !!(extra && extra.ok === false);
+      if (!detailFailedFull) insightFullCache.current[p.id] = data;
+      if (data && !data.error && !data.unavailable && !detailFailedFull) setCachedInsight(p.id + "::full", data);
+      setInsightFull(data);
+    } catch {
+      setInsightFull({ error: true });
+    } finally {
+      setInsightFullLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("wayfind_lists");
+      if (raw) { const saved = JSON.parse(raw); const _m = { favorites: { id: "favorites", name: "Favorites", emoji: "❤️", places: [] }, ...saved }; if (_m.custom && !((_m.custom.places || []).length)) delete _m.custom; setLists(_m); }
+    } catch {}
+  }, []);
+
+  // Handle shared deep links: a single place or a shared list.
+  useEffect(() => {
+    let params;
+    try { params = new URLSearchParams(window.location.search); } catch { return; }
+    // v8.14 / v8.28: /p/{id} Back must restore the previous Wayfind surface
+    // (rail / homepage / guide / intent), not trap the reader on the place
+    // route after the sheet closes. placeRouteBackPlan is the callable
+    // contract — same-origin referrer leaves the route; a leftover
+    // ?action=like share with nowhere to go closes onto "/".
+    const backPlan = placeRouteBackPlan({
+      pathname: window.location.pathname,
+      search: window.location.search,
+      referrer: typeof document !== "undefined" ? document.referrer : "",
+      origin: window.location.origin,
+    });
+    placeRouteReturnRef.current = backPlan.leavePlaceRoute;
+    placeActionHomeRef.current = backPlan.replaceHomeOnClose;
+    const listStr = params.get("list");
+    const pathId = (window.location.pathname.match(/^\/p\/([^/]+)/) || [])[1];
+    const placeId = params.get("place") || initialPlaceId || (pathId ? decodeURIComponent(pathId) : null);
+    const requestedAction = params.get("action") || initialPlaceAction;
+    const placeAction = ["save", "like", "dislike"].includes(requestedAction) ? requestedAction : null;
+    // Strip ?place= and ?action=like|dislike|save. Like is a signal, not a
+    // page — leaving action=like in the address bar re-opens the sheet as
+    // the only UI on refresh. Never collapse /p/{id} to "/" here; Back does
+    // that via placeRouteBackPlan when it should.
+    if (params.get("place") || backPlan.stripAction || placeAction) {
+      try {
+        const _sp = new URLSearchParams(window.location.search);
+        _sp.delete("place");
+        _sp.delete("action");
+        const _qs = _sp.toString();
+        window.history.replaceState({}, "", window.location.pathname + (_qs ? "?" + _qs : ""));
+      } catch (e) {}
+    }
+    if (listStr) {
+      const pl = decodeList(listStr);
+      if (pl && pl.length) { setSharedList(pl); setScreen("shared"); logEvent("share_open", null, { kind: "list", n: pl.length }); markShareOpen(); }
+    } else if (placeId) {
+      logEvent("share_open", null, { kind: "place", place_id: placeId });
+      markShareOpen();
+      (async () => {
+        const p = await fetchPlaceById(placeId);
+        if (p) {
+          let opened = p;
+          try {
+            const sig = await fetchMemberSignals(supabase, [p]);
+            if (sig) opened = withMemberSignal([p], sig)[0] || p;
+          } catch (e) {}
+          if (placeAction === "save") quickSaveFavorite(opened);
+          else if (placeAction === "like") toggleLike({ stopPropagation() {} }, opened);
+          else if (placeAction === "dislike") toggleDislike({ stopPropagation() {} }, opened);
+          openDetail(opened);
+        }
+      })();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Part 4 measurement: count one "session" per tab (share_rate denominator) and
+  // fire "share_return" if a shared-card visitor is back within 7 days. Both are
+  // guarded/no-op-safe; `share` and `share_open` are already logged elsewhere.
+  useEffect(() => {
+    try { markSessionStart(logEvent); checkShareReturn(logEvent); } catch (e) {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const listsHydrated = useRef(false);
+  useEffect(() => {
+    // Skip the first run so default empty lists never overwrite real saved data
+    // before the load effect above has hydrated from localStorage.
+    if (!listsHydrated.current) { listsHydrated.current = true; return; }
+    try { setLocal("wayfind_lists", JSON.stringify(lists)); } catch {}
+  }, [lists]);
+
+  // Trip planner store: load once on mount, then persist on every change.
+  useEffect(() => {
+    try { const raw = localStorage.getItem("wayfind_trips"); if (raw) setTrips(JSON.parse(raw) || {}); } catch {}
+  }, []);
+  const tripsHydrated = useRef(false);
+  useEffect(() => {
+    if (!tripsHydrated.current) { tripsHydrated.current = true; return; }
+    try { setLocal("wayfind_trips", JSON.stringify(trips)); } catch {}
+  }, [trips]);
+
+  useEffect(() => {
+    if (keyMissing) return;
+    let gotGPS = false;
+    // IP fallback (works on desktop with no GPS). Applied only if GPS hasn't
+    // already set a location, and never overrides a manual search.
+    const ipFallback = async () => {
+      try { if (!gotGPS) setLocApprox(true); } catch (e) {}
+      try {
+        const r = await fetch("/api/geo", { cache: "no-store" });
+        const d = await r.json();
+        if (d && d.ok && !gotGPS && !manualRef.current) {
+          const c = { lat: d.lat, lng: d.lng };
+          setDeviceLoc((prev) => prev || c);
+          setLocResolved(true);
+          // v8.46 — ONE GUARD FOR ONE FACT. This was two:
+          //     setCenter((prev) => (isSeedCenter(prev) ? c : prev));
+          //     if (d.name) setLocName((prev) => prev || d.name);
           // The center only moved when it was still the seed; the NAME moved
           // whenever it happened to be blank. Two independent conditions on the
           // two halves of a single answer — so the halves could, and did,
