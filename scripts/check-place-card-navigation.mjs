@@ -28,6 +28,11 @@ ok(/inventoryPlace\(placeId\)/.test(details) && /source: "inventory"/.test(detai
 const fastCache = read("lib/railFastCache.js");
 ok(/CACHE_READ_DEADLINE_MS\s*=\s*500/.test(fastCache) && /scheduleWrite\(key, value, name\)/.test(fastCache),
   "rail cache I/O must not sit on the reader-facing response path without a deadline");
+ok(!/new Image\(\)|withWorkingPhotos|PHOTO_WORKERS/.test(intent),
+  "Summer must not hold the whole collection behind a client-side image preflight");
+const railsData = read("lib/railsData.js");
+ok(/const beachWater = attachBeachWater/.test(railsData) && /pools\.beaches = await beachWater/.test(railsData),
+  "beach-water I/O must overlap unrelated rail pool work instead of serializing every rail");
 
 if (failures.length) {
   failures.forEach((failure) => console.error("check-place-card-navigation: FAIL — " + failure));
