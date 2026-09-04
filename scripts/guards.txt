@@ -997,3 +997,16 @@ node scripts/check-book-cta-needs-a-seller.mjs
 # benefit-led read. The guard scans all app/lib literal decks, rejects lists,
 # disclaimers and counts, and pins the one-line visual treatment everywhere.
 node scripts/check-rail-deck-copy.mjs
+# 2026-09-04 PRODUCTION-LIKE SYNTHETIC USER MONITORING. scripts/run-synthetic-monitor.mjs
+# drives real Chromium against production across 12 named flows (homepage, rails,
+# place-card controls, Today/Night Out/Fall, events, save/share, itinerary, Book
+# links, location, and a REAL 390px mobile viewport) and on any failure writes
+# reproducible evidence (URL, viewport, screenshot, failing assertion, console
+# errors, redacted network failures, a repro command) under synthetic-evidence/.
+# That runner is a live-network smoke test and deliberately stays OUT of this
+# suite (.github/workflows/synthetic-monitor.yml runs it on a schedule instead).
+# This guard proves — hermetically — that the scenario table is structurally
+# sound, that redaction removes fake secrets from every evidence field including
+# ones only run.mjs would think to redact, that the evidence writer red-proves
+# against real files on disk, and that the workflow is installed at its real path.
+node scripts/check-synthetic-monitor-hermetic.mjs
