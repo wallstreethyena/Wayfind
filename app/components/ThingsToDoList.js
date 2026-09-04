@@ -34,6 +34,26 @@ import { supabase } from "../../lib/supabase.js";
 import { waterForBeaches, sampledShort } from "../../lib/waterStations.js";
 import { WATER_PLAIN, waterQualityKey } from "../../lib/beachChip.js";
 import ViatorCommerceLink from "./ViatorCommerceLink";
+// WO-B (2026-09-03, owner, verbatim): "Every rail card, regardless of what it
+// is, should have the like, dislike, share and save button." This tour Card
+// had only Book and a conditionally-rendered Share — Save/Like/Dislike never
+// existed. A Viator tour row is not a Google place (no `place_id` this list
+// can save against), so it is wired the same way every other tour/experience
+// rail already wires a non-place row on main (BestNearby, SummerPicksRails,
+// HomeAffiliateActivityRail, ViatorRail's own RailCard `actionItem`): the
+// shared non-place content store, never the place-ranking store.
+import { useContentCardActions } from "../../lib/contentCardActions";
+
+// Same thumb glyph RailCard.js / IconicPlaceCard.js / SponsoredPlaceCard.js
+// already draw — a thumb is one drawing readers recognize, not a fourth shape
+// that almost matches.
+const ThumbGlyph = ({ down = false }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    {down
+      ? <><path d="M8 4v10H4V4h4Z" /><path d="M8 6h8.5a2 2 0 0 1 1.9 1.4l1.3 4a2 2 0 0 1-1.9 2.6H14l.6 3.1a2.4 2.4 0 0 1-2.4 2.9L8 14V6Z" /></>
+      : <><path d="M8 10v10H4V10h4Z" /><path d="M8 18h8.5a2 2 0 0 0 1.9-1.4l1.3-4a2 2 0 0 0-1.9-2.6H14l.6-3.1A2.4 2.4 0 0 0 12.2 4L8 10v8Z" /></>}
+  </svg>
+);
 
 // v6.47 (owner: "the little experience chip are also not workign i used to be
 // able to click on them and open a page"). The chips rendered as inert <span>s
@@ -74,9 +94,18 @@ export function ttdPlace(r) {
   };
 }
 
-function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, onLog, onSave, onShare, liked, disliked, onLike, onDislike }) {
+// Named export (WO-B, 2026-09-03) — scripts/check-card-action-parity.mjs
+// renders this in isolation to assert its four controls; it is otherwise
+// used only through ThingsToDoList's own default-export map below.
+export function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, onLog, onSave, onShare, liked, disliked, onLike, onDislike }) {
   const isTour = r.kind === "experience";
   const place = ttdPlace(r);
+  // Hooks run on EVERY render, unconditionally (rules of hooks) — the
+  // `if (!isTour)` early return below (delegating to IconicPlaceCard, which
+  // owns its own place-store wiring) must come after this, not before.
+  const content = useContentCardActions(isTour ? {
+    id: r.id, type: "experience", title: r.title, image: r.image_url || null, url: r.booking_url || r.url || "",
+  } : null);
   const open = () => {
     if (isTour) return;
     try { onLog && onLog("ttd_detail", { id: r.id, name: r.title }); } catch (e) {}
@@ -156,7 +185,43 @@ function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, onLog, on
           {take ? <div className="wf-place-card-take">{take}</div> : null}
           <div className="wf-place-card-actions wf-sheet-card-actions">
             <span className="wf-place-card-book" style={{ color: "#FF9B50" }}>Book ↗</span>
-            {onShare ? <span role="button" tabIndex={0} className="wf-place-card-share" style={{ color: "#DFE5EE" }} onClick={(e) => { e.stopPropagation(); e.preventDefault(); onShare(r); }} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); e.preventDefault(); onShare(r); } }}>↗ Share</span> : null}
+            {/* WO-B (2026-09-03) — a tour product has no place row, so these
+                write into the shared non-place content store (never the
+                place-ranking store), the same one every other tour/experience
+                rail on main already uses (BestNearby, SummerPicksRails,
+                HomeAffiliateActivityRail, ViatorRail). `<span role="button">`,
+                not `<button>`: the whole card is a `<ViatorCommerceLink>`
+                anchor, and a `<button>` nested inside an `<a>` is invalid
+                HTML — the working Share control just below already used this
+                pattern for exactly that reason. */}
+            <span
+              role="button" tabIndex={0}
+              className={"wf-place-card-save" + (content.saved ? " is-active" : "")}
+              aria-pressed={content.saved}
+              aria-label={content.saved ? "Remove from saved: " + r.title : "Save " + r.title}
+              style={{ color: content.saved ? "#FF9B50" : "#DFE5EE" }}
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); content.toggleSave(); }}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); e.preventDefault(); content.toggleSave(); } }}
+            >{content.saved ? "♥ Saved" : "♡ Save"}</span>
+            <span
+              role="button" tabIndex={0}
+              className={"wf-place-card-like" + (content.liked ? " is-active" : "")}
+              aria-pressed={content.liked}
+              aria-label={content.liked ? "Remove like: " + r.title : "Like " + r.title}
+              style={{ color: content.liked ? "#34D399" : "#DFE5EE" }}
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); content.toggleLike(); }}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); e.preventDefault(); content.toggleLike(); } }}
+            ><ThumbGlyph /></span>
+            <span
+              role="button" tabIndex={0}
+              className={"wf-place-card-dislike" + (content.disliked ? " is-active" : "")}
+              aria-pressed={content.disliked}
+              aria-label={content.disliked ? "Remove dislike: " + r.title : "Not for me: " + r.title}
+              style={{ color: content.disliked ? "#F87171" : "#DFE5EE" }}
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); content.toggleDislike(); }}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); e.preventDefault(); content.toggleDislike(); } }}
+            ><ThumbGlyph down /></span>
+            <span role="button" tabIndex={0} className="wf-place-card-share" style={{ color: "#DFE5EE" }} onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (onShare) onShare(r); else content.share(); }} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); e.preventDefault(); if (onShare) onShare(r); else content.share(); } }}>↗ Share</span>
           </div>
         </div>
       </div>

@@ -21,8 +21,16 @@
 //      (min-width floor), so the wider screen can never show the worse card;
 //   2. a tour name gets a third line — 2 lines of a 192px column is ~46
 //      characters and a real tour name is longer;
-//   3. a card with no action row is not held at the height of one that has one
-//      (the CTA is bottom-pinned, so the missing row was empty panel).
+//   3. a card whose row came from the tour rail is not held at a DIFFERENT
+//      height than a card whose row came from the control fixture below —
+//      updated for PR #1097 ("Unify premium cards..."): HomeAffiliateActivityRail
+//      switched from `actionsReadOnly` (no action row at all) to `actionItem`
+//      (RailCard's real, always-rendered four controls via
+//      lib/contentCardActions.js) the same day this rule was written, and
+//      WO-B (owner, 2026-09-03: "every rail card...should have the like,
+//      dislike, share and save button") makes that permanent — no rail card
+//      in this app renders without its action row anymore, so there is no
+//      longer an "empty panel" case to hold a DIFFERENT height than.
 //
 // It renders the REAL HomeAffiliateActivityRail with the REAL stylesheet — not
 // a hand-written approximation of either — because every version of this bug so
@@ -169,6 +177,10 @@ if (!launchOpts) {
       // assertion went red for the RIGHT reason. Deleting it would have re-opened
       // the empty-panel bug, so it is re-aimed at the same invariant under the new
       // law: same furniture, same height, and the furniture is really THERE.
+      // Also (WO-B / #1097): HomeAffiliateActivityRail's tour card now renders the
+      // same real, always-live four controls (via actionItem -> lib/contentCardActions.js)
+      // as the hand-built "acted" fixture, which is WHY the heights match. A real
+      // difference here means some rail card is again shipping without its action row.
       ok(got.cardActs === 4,
         `${w}px: the rail card renders all four controls (save/like/dislike/share) — got ${got.cardActs}`);
       ok(got.actedActs === 4,

@@ -654,6 +654,18 @@ node scripts/check-overscroll-containment.mjs
 # the detail page. Keyed on the actionHref fallback itself, with a floor so the
 # guard cannot pass by losing its own subject.
 node scripts/check-card-actions.mjs
+# WO-B (2026-09-03, owner): "every rail card...should have the like, dislike,
+# share and save button — even if it is an event card...the guardrails that
+# have been created are not catching that." check-card-actions.mjs (above)
+# and PR #1097 cover RailCard.js/IconicPlaceCard.js's own render-site wiring
+# and the shared non-place content store; neither ever asked whether a card
+# component that resolves its OWN subject internally draws all four controls
+# at all — which is exactly how SponsoredPlaceCard.js shipped with ZERO of
+# them. This enumerates rail-card components FROM THE FILESYSTEM (never a
+# hand list), fails on any it has no render adapter for, and RENDERS each
+# real component x subject shape (place/event/sponsored/tour) asserting all
+# four controls are present in the output.
+node scripts/check-card-action-parity.mjs
 # v8.29.10 — every sub-chip either has a SUB_ALLOW contract or is declared
 # category-wide with a reason. Night out had SIX chips and ZERO contracts, so
 # picking "Clubs" filtered identically to "All" and a breakfast cafe led it.
