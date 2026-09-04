@@ -8,44 +8,8 @@ import { composeSummerPickRails } from "../../lib/summerPicks.js";
 import { cardImageSrc } from "../../lib/placePhoto.js";
 
 export const SUMMER_LOAD_TIMEOUT_MS = 10000;
-const PHOTO_TIMEOUT_MS = 4000;
-const PHOTO_WORKERS = 8;
 
 const photoSrc = (place) => place?.photo || place?.photoUrl || place?.photo_url || cardImageSrc(place, 640);
-
-function imageLoads(src) {
-  return new Promise((resolve) => {
-    if (!src) return resolve(false);
-    const image = new Image();
-    let settled = false;
-    const finish = (ok) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      image.onload = null;
-      image.onerror = null;
-      resolve(ok);
-    };
-    const timer = setTimeout(() => finish(false), PHOTO_TIMEOUT_MS);
-    image.onload = () => finish(image.naturalWidth > 0 && image.naturalHeight > 0);
-    image.onerror = () => finish(false);
-    image.src = src;
-  });
-}
-
-async function withWorkingPhotos(places) {
-  const rows = (Array.isArray(places) ? places : []).filter((place) => photoSrc(place));
-  const sources = [...new Set(rows.map(photoSrc))];
-  const working = new Set();
-  let cursor = 0;
-  await Promise.all(Array.from({ length: Math.min(PHOTO_WORKERS, sources.length) }, async () => {
-    while (cursor < sources.length) {
-      const src = sources[cursor++];
-      if (await imageLoads(src)) working.add(src);
-    }
-  }));
-  return rows.filter((place) => working.has(photoSrc(place)));
-}
 
 export default function SummerIntentRails({ active = true, center = null, city = "", onTrack = null, onOpenPlace = null }) {
   const [rails, setRails] = useState(null);
@@ -72,12 +36,16 @@ export default function SummerIntentRails({ active = true, center = null, city =
     Promise.allSettled([
       fetchJsonWithDeadline(`/api/summer/places?${new URLSearchParams(location)}`, { timeoutMs: SUMMER_LOAD_TIMEOUT_MS }),
       fetchJsonWithDeadline(`/api/experiences?${tourQ}`, { timeoutMs: SUMMER_LOAD_TIMEOUT_MS }),
-    ]).then(async ([placeResult, tourResult]) => {
+    ]).then(([placeResult, tourResult]) => {
       if (cancelled) return;
       const placePayload = placeResult.status === "fulfilled" ? placeResult.value : null;
       const tourPayload = tourResult.status === "fulfilled" ? tourResult.value : null;
-      const places = await withWorkingPhotos(placePayload?.places);
-      if (cancelled) return;
+      // The route already admits only inventory rows carrying a place-owned
+      // photo reference. Preloading every photo here made the ENTIRE Summer
+      // collection wait for the slowest image (in 8-worker batches, up to many
+      // 4s rounds) before React could render one card. RailCard already owns a
+      // per-image error fallback, so render the valid URLs immediately.
+      const places = (Array.isArray(placePayload?.places) ? placePayload.places : []).filter(photoSrc);
       const tours = homeAffiliateActivities(tourPayload?.items, 100);
       const composed = composeSummerPickRails(places, tours);
       if (!composed.some((rail) => rail.cards.length)) { setFailed(true); return; }
