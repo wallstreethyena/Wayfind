@@ -125,6 +125,10 @@ if (!launchOpts) {
           card: +R(card).width.toFixed(1),
           cardH: +R(card).height.toFixed(1),
           actedH: acted ? +R(acted).height.toFixed(1) : null,
+          // v8.x card law (2026-09-03): BOTH variants must carry the four
+          // controls, so count them rather than inferring furniture from height.
+          cardActs: ["save", "like", "dislike", "share"].filter((k) => card.querySelector(".wf-place-card-" + k)).length,
+          actedActs: acted ? ["save", "like", "dislike", "share"].filter((k) => acted.querySelector(".wf-place-card-" + k)).length : null,
           nameClipped: name.scrollHeight > name.clientHeight + 1,
           longClipped: longName ? longName.scrollHeight > longName.clientHeight + 1 : null,
           longChars: longName ? longName.textContent.length : 0,
@@ -156,8 +160,21 @@ if (!launchOpts) {
         ok(got.card < got.rail, `phone: the floor never applies below 1100px — the card still fits its scroller (card ${got.card} of ${got.rail})`);
         ok(got.card > got.rail * 0.8, "phone: …and still fills most of it, so the peek that says the rail scrolls survives");
       }
-      ok(got.actedH != null && got.cardH < got.actedH,
-        `${w}px: a read-only card is SHORTER than the same card with an action row (${got.cardH} vs ${got.actedH}) — that difference used to be empty panel`);
+      // 2026-09-03 — THE PREMISE CHANGED, SO THE ASSERTION FOLLOWED THE CODE.
+      // This used to read `cardH < actedH`: a read-only card had no action row,
+      // so it had to be strictly shorter or the missing row was empty panel.
+      // #1097 unified the premium cards and the owner then made it law — EVERY
+      // rail card carries save/like/dislike/share, read-only or not — so the two
+      // variants now have identical furniture and identical height, and the old
+      // assertion went red for the RIGHT reason. Deleting it would have re-opened
+      // the empty-panel bug, so it is re-aimed at the same invariant under the new
+      // law: same furniture, same height, and the furniture is really THERE.
+      ok(got.cardActs === 4,
+        `${w}px: the rail card renders all four controls (save/like/dislike/share) — got ${got.cardActs}`);
+      ok(got.actedActs === 4,
+        `${w}px: the acted card renders all four controls too — got ${got.actedActs}`);
+      ok(got.actedH != null && Math.abs(got.cardH - got.actedH) <= 1,
+        `${w}px: identical furniture means identical height — no empty panel on either variant (${got.cardH} vs ${got.actedH})`);
     }
     // THE INVERSION ITSELF, which is the owner's actual complaint. The rail is
     // capped at ~1270px, so once --wf-rail-vis steps to 3.4 the ladder alone
@@ -182,4 +199,4 @@ if (fails.length) {
   fails.forEach((f) => console.error("  ✗ " + f));
   process.exit(1);
 }
-console.log(`check-rail-card-fits-its-content: OK — ${pass} assertions; the real rail MEASURED in Chromium at 390-2000px, no title or price clipped above 900px, the width floor beats a ladder still asking for ~357px, and a read-only card is not held at an action card's height`);
+console.log(`check-rail-card-fits-its-content: OK — ${pass} assertions; the real rail MEASURED in Chromium at 390-2000px, no title or price clipped above 900px, the width floor beats a ladder still asking for ~357px, and both card variants carry all four controls at one height (the 2026-09-03 card law)`);
