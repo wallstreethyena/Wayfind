@@ -89,8 +89,34 @@ export function auditEnv(env, { strict = false } = {}) {
 }
 
 // Running as the guard, not being imported by one.
+// STRICT MUST NEVER FAIL QUIET. `=== "1"` alone silently degrades to advisory
+// for ANY other value, which is the exact class of bug this whole file exists to
+// end: you believe you are protected and you are not. It is not hypothetical —
+// WAYFIND_ENV_STRICT was created in Vercel as a Sensitive variable on
+// 2026-09-04, and `vercel env pull` writes the literal "[SENSITIVE]" for those.
+// If anything ever handed that string to a build, `=== "1"` would read false and
+// the protection would evaporate with a green log line.
+//
+// So the flag is TRI-STATE: absent means advisory (the correct default on every
+// dev box and in CI), "1"/"true"/"yes"/"on" mean strict, and ANY OTHER VALUE is
+// a misconfiguration that is FATAL ON ITS OWN — a flag that is set but
+// unreadable is a louder problem than a flag that is off, because someone
+// believed they set it.
+export function strictModeFrom(env) {
+  const raw = env.WAYFIND_ENV_STRICT;
+  if (raw == null || String(raw).trim() === "") return { strict: false, bad: null };
+  const v = String(raw).trim().toLowerCase();
+  if (["1", "true", "yes", "on"].includes(v)) return { strict: true, bad: null };
+  if (["0", "false", "no", "off"].includes(v)) return { strict: false, bad: null };
+  return { strict: false, bad: v };
+}
+
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const strict = process.env.WAYFIND_ENV_STRICT === "1";
+  const { strict, bad } = strictModeFrom(process.env);
+  if (bad) {
+    console.error(`check-env: FAIL — WAYFIND_ENV_STRICT is set to an unrecognized value (${JSON.stringify(bad)}). Someone intended to turn revenue protection ON and it is silently OFF. Set it to 1, or unset it. If this reads "[sensitive]", the variable is flagged Sensitive in Vercel: un-flag it — it is a boolean switch, not a credential.`);
+    process.exit(1);
+  }
   const { lines, fatal, warned } = auditEnv(process.env, { strict });
   for (const l of lines) console.log(`${l.level === "fatal" ? "ENV FATAL   " : "ENV WARNING "} ${l.name} ${l.why}`);
   if (fatal) {

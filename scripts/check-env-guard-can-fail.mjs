@@ -16,7 +16,7 @@
 // build actually sees.
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { auditEnv, CHECKS, REVENUE_CRITICAL } from "./check-env.mjs";
+import { auditEnv, CHECKS, REVENUE_CRITICAL, strictModeFrom } from "./check-env.mjs";
 
 let pass = 0;
 const fail = [];
@@ -79,6 +79,21 @@ const noSupabase = auditEnv({ ...GOOD, NEXT_PUBLIC_SUPABASE_URL: undefined, NEXT
 ok(noSupabase.fatal === 0, `absent Supabase/Maps vars are NEVER fatal, even under strict (got fatal=${noSupabase.fatal}) — they degrade gracefully and every dev box lacks them`);
 ok(noSupabase.warned === 2, `…and both are still reported (got warned=${noSupabase.warned})`);
 
+// ── 3b. THE STRICT FLAG ITSELF CANNOT FAIL QUIET ────────────────────────────
+// `WAYFIND_ENV_STRICT === "1"` would silently degrade to advisory for every
+// other value. That is not hypothetical: the variable was created in Vercel as
+// SENSITIVE on 2026-09-04, and `vercel env pull` writes the literal
+// "[SENSITIVE]" for sensitive vars — which is not "1", so protection would have
+// evaporated behind a green log line. A flag that is set but unreadable is a
+// LOUDER problem than a flag that is off, because somebody believed they set it.
+ok(strictModeFrom({}).strict === false && strictModeFrom({}).bad === null, "an absent flag is advisory and not an error — the correct default on every dev box and in CI");
+ok(strictModeFrom({ WAYFIND_ENV_STRICT: "" }).bad === null, "…and so is an empty one");
+for (const on of ["1", "true", "YES", " on "]) ok(strictModeFrom({ WAYFIND_ENV_STRICT: on }).strict === true, `${JSON.stringify(on)} turns strict ON (case- and whitespace-tolerant, because a human types this into a dashboard)`);
+for (const off of ["0", "false", "no", "OFF"]) ok(strictModeFrom({ WAYFIND_ENV_STRICT: off }).strict === false && strictModeFrom({ WAYFIND_ENV_STRICT: off }).bad === null, `${JSON.stringify(off)} turns strict off explicitly, without being treated as garbage`);
+for (const junk of ["[SENSITIVE]", "yes please", "2", "enabled"]) {
+  const r = strictModeFrom({ WAYFIND_ENV_STRICT: junk });
+  ok(r.bad !== null && r.strict === false, `${JSON.stringify(junk)} is rejected as a MISCONFIGURATION rather than silently read as off (bad=${JSON.stringify(r.bad)})`);
+}
 // ── 4. THE EXIT CODE THE BUILD ACTUALLY SEES ────────────────────────────────
 // auditEnv returning fatal:1 proves the decision. It does not prove the process
 // exits non-zero — the original bug was precisely a correct decision followed by
@@ -103,6 +118,8 @@ const rcAbsentStrict = run({ ...GOOD, NEXT_PUBLIC_VIATOR_PID: "", WAYFIND_ENV_ST
 ok(rcAbsentStrict === 1, `SPAWNED: an absent PID under strict exits 1 (got ${rcAbsentStrict})`);
 const rcAbsentLoose = run({ ...GOOD, NEXT_PUBLIC_VIATOR_PID: "" });
 ok(rcAbsentLoose === 0, `SPAWNED: …and exits 0 without strict (got ${rcAbsentLoose}) — so wiring this into the suite cannot break a local or CI run`);
+const rcJunkFlag = run({ ...GOOD, WAYFIND_ENV_STRICT: "[SENSITIVE]" });
+ok(rcJunkFlag === 1, `SPAWNED: an unrecognized WAYFIND_ENV_STRICT exits 1 even when every credential is perfect (got ${rcJunkFlag}) — the flag being unreadable is itself the incident, not a reason to fall back to advisory`);
 
 if (fail.length) {
   console.error("check-env-guard-can-fail: FAIL");
