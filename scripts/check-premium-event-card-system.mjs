@@ -61,7 +61,10 @@ ok(/addPlaceToTrips\(/.test(eventActions), "Add to itinerary does not write thro
 for (const title of ["Eat nearby", "Keep the night going", "Stay nearby"]) {
   ok(plan.includes(`title: "${title}"`), `event plan lost the ${title} rail`);
 }
-ok(/Promise\.all\(\[/.test(plan), "independent event-plan inventory requests must start in parallel");
+ok(/const foodRequest = search[\s\S]+const afterRequest = search[\s\S]+const stayRequest = fetchJsonWithDeadline[\s\S]+await foodRequest/.test(plan), "all event-plan inventory requests start before the first await");
+ok(/setRails\(EVENT_PLAN_RAILS\.map[\s\S]+places: null/.test(plan) && /Finding nearby picks/.test(plan), "the event-plan section and its loading rails appear immediately");
+ok(/publish\("food", food\)[\s\S]+publish\("after", after\)[\s\S]+publish\("stay", stay\)/.test(plan), "each event-plan rail publishes progressively instead of waiting for the slowest source");
+ok(/fetchJsonWithDeadline\(`\/api\/places\/search/.test(plan) && /fetchJsonWithDeadline\(`\/api\/hotels/.test(plan), "every event-plan browser request has a deadline");
 ok(/const used = new Set\(\)/.test(plan), "event plan must deduplicate choices across all three rails");
 ok(/<RailCard/.test(plan) && /<RailNav/.test(plan) && /<RailDots/.test(plan), "event plan recommendations must use the canonical rail composition");
 

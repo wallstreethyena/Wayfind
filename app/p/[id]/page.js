@@ -1,6 +1,9 @@
 import Home from "../../home";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { SITE_URL } from "../../../lib/site";
 import { placeCanonical } from "../../../lib/locationHonesty";
+import { retiredLunchLaunchTarget } from "../../../lib/lunchLaunch";
 // v8.29 — the shell's server data, the SAME call app/page.js makes. Without it
 // this route rendered the homepage with its entire rail band missing, and since
 // every in-app destination is a state change inside the shell rather than a
@@ -79,6 +82,17 @@ export async function generateMetadata({ params, searchParams }) {
 
 export default async function PlaceSharePage({ params, searchParams }) {
   const id = s(params.id);
+  // A short-lived release accidentally made the Lunch in My City homepage
+  // poster a direct Gatorland link. Safari can keep that old anchor alive in
+  // a restored tab even after the corrected bundle deploys. Recover only the
+  // exact same-origin homepage hop at the server boundary; shared, searched,
+  // guide, and Summer Picks links to Gatorland remain real Gatorland pages.
+  const recoveredLunch = retiredLunchLaunchTarget({
+    placeId: id,
+    referrer: headers().get("referer") || "",
+    siteUrl: SITE_URL,
+  });
+  if (recoveredLunch) redirect(recoveredLunch);
   const requestedAction = s(searchParams.action);
   const action = ["save", "like", "dislike"].includes(requestedAction) ? requestedAction : "";
   // Overlay may be the presentation; URL + canonical stay /p/{id}. What is
