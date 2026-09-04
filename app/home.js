@@ -1216,7 +1216,7 @@ function randCode() {
   return out;
 }
 
-const LINE_TTL = 30 * 24 * 3600 * 1000; // 30 days
+const LINE_TTL = 21 * 24 * 3600 * 1000; // refresh after 3 weeks; server keeps the prior copy as fallback
 // v6.75: ONE knob that invalidates both client caches below. Bump it whenever a
 // bug UPSTREAM of them made their contents wrong, because a 30-day per-device
 // cache means "fixed in production" and "fixed for a given user" are different
@@ -1873,15 +1873,18 @@ function confidenceOf(reviews) {
 // The house media column is `.wf-place-card-layout > .wf-place-card-media`.
 // This helper fills that column — pass `wf-place-card-photo`, never a 96×96
 // inline size (that was Image-1 compact chrome). Leave dimensions to css.js.
-function FallbackImg({ src, alt, style, className, icon, onClick }) {
+function FallbackImg({ src, fallbackSrc, alt, style, className, icon, onClick }) {
   const [bad, setBad] = useState(false);
   const [loaded, setLoaded] = useState(false);
-  const state = imageDisplayState({ src, errored: bad, loaded });
+  const [usingFallback, setUsingFallback] = useState(false);
+  useEffect(() => { setBad(false); setLoaded(false); setUsingFallback(false); }, [src, fallbackSrc]);
+  const activeSrc = usingFallback ? fallbackSrc : src;
+  const state = imageDisplayState({ src: activeSrc, errored: bad, loaded });
   if (state === "fallback") return <BrandedImageFallback className={className} style={style} />;
   return (
     <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}>
       {state === "skeleton" && <div className="wf-skeleton" style={{ position: "absolute", inset: 0 }} aria-hidden="true" />}
-      <img decoding="async" src={src} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => setLoaded(true)} onError={() => setBad(true)} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />
+      <img decoding="async" src={activeSrc} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => setLoaded(true)} onError={() => { if (!usingFallback && fallbackSrc && fallbackSrc !== src) { setUsingFallback(true); setLoaded(false); } else setBad(true); }} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />
     </div>
   );
 }
@@ -7328,6 +7331,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       const go = sp.get("go");
       if (!go) return;
       const valid = { events: "events", map: "map", saved: "saved", favorites: "saved", itinerary: "itinerary", coupons: "coupons" };
+      if (go === "lunch") setMenuSheet("pick");
       if (valid[go]) setScreen(valid[go]);
       // Coupon strips clip the exact deal before navigating here. Open the
       // wallet immediately so the user lands on what they just saved instead

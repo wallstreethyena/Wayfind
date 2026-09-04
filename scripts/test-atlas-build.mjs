@@ -37,15 +37,17 @@ ok(/if \(!secret \|\| \(auth !== "Bearer " \+ secret/.test(r), "CRON_SECRET gate
 // two selectors are chosen by mode, and that the DESTRUCTIVE one is reachable
 // only under retryMode. A guard that just checked for the old literal would have
 // been satisfied by deleting the branch.
-ok(/rpc\/\$\{retryMode \? "wf_atlas_retryable" : "wf_atlas_missing"\}/.test(r),
-  "the selector is chosen by mode: wf_atlas_missing for the build path, wf_atlas_retryable for retry");
+ok(/refreshMode \? "wf_atlas_stale" : retryMode \? "wf_atlas_retryable" : "wf_atlas_missing"/.test(r),
+  "the selector is chosen by mode: missing, retryable, or verified-and-older-than-21-days");
 ok(/const retryMode = url\.searchParams\.get\("retry"\) === "1"/.test(r),
   "retry mode is opt-in per request and defaults OFF — the scheduled build path can never overwrite by accident");
-ok(/if \(retryMode\) \{[\s\S]{0,900}?\} else \{[\s\S]{0,300}?ignore-duplicates/.test(r),
-  "the OVERWRITING write is inside the retryMode branch; the default branch is still insert-with-ignore-duplicates");
+ok(/if \(retryMode\) \{[\s\S]{0,900}?wf_editorial_record_attempt/.test(r) && /else \{[\s\S]{0,300}?ignore-duplicates/.test(r),
+  "retry overwrites only through the attempt RPC; the default build branch remains insert-with-ignore-duplicates");
 ok(/wf_editorial_record_attempt/.test(r),
   "the overwrite goes through the attempt-recording RPC, so a retry cannot rewrite a row without also counting the attempt");
 ok(/on_conflict=place_id/.test(r) && /resolution=ignore-duplicates/.test(r), "ON CONFLICT (place_id) DO NOTHING — never overwrites existing rows");
+ok(/else if \(refreshMode\)[\s\S]{0,900}?resolution=merge-duplicates/.test(r) && /if \(!refreshMode\) rows\.push/.test(r),
+  "refresh replaces a stored row only after a successful verified rewrite; failure paths preserve the old copy");
 // v6.49: `verified` is DERIVED from the row's own issue list, not hardcoded.
 // It was `verified: false` and nothing ever set it true, so the fleet wrote 169
 // clean rows no user could see. scripts/check-editorial-publish.mjs owns the
@@ -78,6 +80,7 @@ ok(/problems\.length[\s\S]{0,260}?editorialRow\(place, null/.test(r), "a failed 
 // Bounded cost.
 ok(/Math\.min\(parseInt\(url\.searchParams\.get\("limit"[\s\S]*, 25\)/.test(r), "per-call batch is bounded (≤25)");
 ok(/maxDuration = 60/.test(r), "60s function ceiling");
+ok(/spendAllow\("details_enterprise"\)/.test(r), "every Atlas Details call is admitted by the shared free-tier ledger");
 
 // Affiliate opportunities flagged (the get-paid follow-up), fail-soft.
 ok(/wf_affiliate_opportunities/.test(r) && /suggested_partner/.test(r), "bookable-but-unlinked places flagged into wf_affiliate_opportunities");

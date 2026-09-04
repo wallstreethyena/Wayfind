@@ -15,7 +15,7 @@ import CollectionHero from "../CollectionHero";
 import { CATEGORIES } from "../../../lib/google";
 
 export default function MenuSheet({ ctx }) {
-  const { menuSheet, setMenuSheet, sheetDragStart, sheetDragMove, sheetDragEnd, pickCat, rollLunchPick, homeRolling, rollHistory, lunchAttemptsUsed, user, setAuthOpen, FallbackImg, INTENTS, intent, setIntent } = ctx;
+  const { menuSheet, setMenuSheet, sheetDragStart, sheetDragMove, sheetDragEnd, pickCat, rollLunchPick, homeRolling, rollHistory, lunchAttemptsUsed, user, setAuthOpen, FallbackImg, INTENTS, intent, setIntent, shareLink, showToast } = ctx;
   const lunchPick = rollHistory[0] || null;
   const lunchLimit = user ? 2 : 1;
   const lunchExhausted = lunchAttemptsUsed >= lunchLimit;
@@ -58,7 +58,7 @@ export default function MenuSheet({ ctx }) {
                   {!lunchPick && !homeRolling && <div style={{ position: "absolute", zIndex: 2, left: 18, right: 18, bottom: 20, padding: "14px 16px", borderRadius: 16, background: "rgba(4,8,16,.78)", border: "1px solid rgba(255,255,255,.18)", color: "#F8FAFC", textAlign: "center", backdropFilter: "blur(10px)", fontSize: 15, fontWeight: 700, lineHeight: 1.35 }}>Tap the glowing question mark to reveal one standout lunch nearby.</div>}
                   {lunchPick && !homeRolling && (
                     <article key={lunchPick.id} className="wf-lunch-result" style={{ position: "absolute", zIndex: 6, left: 16, right: 16, bottom: 18, width: "calc(100% - 32px)", overflow: "hidden", borderRadius: 10, border: "6px solid #F8D447", background: "#5C8FEA", color: "#fff", boxShadow: "8px 8px 0 rgba(8,25,62,.78),0 20px 42px rgba(0,0,0,.55)", animation: "wfLunchRise .8s cubic-bezier(.2,.9,.25,1.08) both" }}>
-                      <FallbackImg src={lunchPick.photo || (lunchPick.photoRef ? "/api/photo?ref=" + encodeURIComponent(lunchPick.photoRef) + "&w=800" : null)} icon="🍽️" style={{ width: "100%", height: 156, borderRadius: 0, objectFit: "cover", background: "#E8DED0" }} />
+                      <FallbackImg src={lunchPick.photo || (lunchPick.photoRef ? "/api/photo?ref=" + encodeURIComponent(lunchPick.photoRef) + "&w=800" : null)} fallbackSrc={lunchPick.restaurantPhoto || null} icon="🍽️" style={{ width: "100%", height: 156, borderRadius: 0, objectFit: "cover", background: "#E8DED0" }} />
                       <div style={{ padding: "13px 15px 15px", borderTop: "5px solid #F8D447", background: "linear-gradient(180deg,#173979,#0B214D)" }}>
                         <div style={{ fontSize: 21, lineHeight: 1.05, fontWeight: 900, letterSpacing: "-.3px" }}>{lunchPick.name}</div>
                         <div style={{ marginTop: 8, fontSize: 13, lineHeight: 1.35, fontWeight: 700, color: "#FFF5C2" }}><span style={{ color: "#F8D447" }}>Must try:</span> {lunchPick.mustTry}</div>
@@ -70,6 +70,13 @@ export default function MenuSheet({ ctx }) {
                   {user
                     ? lunchAttemptsUsed >= 2 ? "You've used both lunch reveals for today. A new pick unlocks tomorrow." : "You have one lunch reveal left today."
                     : <>That was today&apos;s guest reveal. <button type="button" onClick={() => { setMenuSheet(null); setAuthOpen(true); }} style={{ padding: 0, border: 0, background: "transparent", color: C.light, font: "inherit", fontWeight: 800, textDecoration: "underline", cursor: "pointer" }}>Sign in for one more lunch pick today.</button></>}
+                </div>}
+                {lunchPick && <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) auto", gap: 10, marginTop: 10 }}>
+                  <button type="button" onClick={() => {
+                    const url = typeof window !== "undefined" ? window.location.origin + "/?go=lunch" : "https://www.gowayfind.com/?go=lunch";
+                    shareLink("Lunch in My City — Wayfind", url, () => showToast("Challenge link copied"), `I got ${lunchPick.name}. Tap the question block and see where Wayfind sends you for lunch.`);
+                  }} style={{ minHeight: 46, padding: "0 16px", borderRadius: 12, border: "1px solid rgba(249,115,22,.55)", background: "linear-gradient(135deg,#F97316,#FB923C)", color: "#10151B", fontSize: 14, fontWeight: 900, cursor: "pointer" }}>↗ Challenge a friend</button>
+                  <button type="button" onClick={() => setMenuSheet(null)} style={{ minHeight: 46, padding: "0 18px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>Close</button>
                 </div>}
               </>
             )}

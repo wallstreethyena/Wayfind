@@ -47,10 +47,10 @@ ok(/attempt_count     = attempt_count \+ 1/.test(read("supabase/migrations/20260
 ok(/last_attempted_at = now\(\)/.test(mig), "every retry stamps last_attempted_at, so the cooldown means something");
 
 // ── the two jobs must be separately visible ───────────────────────────────
-ok(/recordPulse\(retryMode \? "atlas-retry" : "atlas-build"/.test(route),
-  "retry pulses under its OWN job name — a healthy atlas-build must not mask a dead atlas-retry in the spend-watch");
-ok((route.match(/recordPulse\(retryMode/g) || []).length >= 2, "both the completion and idle paths distinguish the job");
-ok(/mode: retryMode \? "retry" : "build"/.test(route), "the response says which mode ran");
+ok(/if \(refreshMode\) return recordPulse\("atlas-refresh", opts\)/.test(route) && /if \(retryMode\) return recordPulse\("atlas-retry", opts\)/.test(route) && /return recordPulse\("atlas-build", opts\)/.test(route),
+  "build, retry, and refresh each have their own pulse identity");
+ok((route.match(/await pulse\(/g) || []).length >= 2, "both the completion and idle paths use the mode-specific pulse helper");
+ok(/mode: refreshMode \? "refresh" : retryMode \? "retry" : "build"/.test(route), "the response says which mode ran");
 
 // ── it reuses the machinery, it does not fork it ──────────────────────────
 ok(/isDeniedHost\(hostOfUrl\(d\.websiteUri\)\)/.test(route), "the §7 gate is shared with the build path, not duplicated");

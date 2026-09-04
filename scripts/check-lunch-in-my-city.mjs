@@ -16,6 +16,7 @@ const menu = read("app/components/sheets/Menu.js");
 const route = read("app/api/lunch-break/route.js");
 const migration = read("supabase/migrations/20260904_wf_lunch_reveal_usage.sql");
 const imageMigration = read("supabase/migrations/20260904_wf_lunch_dish_images.sql");
+const repairMigration = read("supabase/migrations/20260904090000_preserve_editorial_and_lunch_images.sql");
 const imageCron = read("app/api/cron/lunch-images/route.js");
 const vercel = read("vercel.json");
 
@@ -32,10 +33,13 @@ ok(/pg_advisory_xact_lock/.test(migration) && /greatest\(u\.attempts, excluded\.
 ok(/revoke all on public\.wf_lunch_reveal_usage from anon, authenticated/.test(migration) && /grant execute on function public\.wf_consume_lunch_reveal\(text, text, date\) to service_role/.test(migration), "usage rows and the consume function are service-only");
 ok(/subjectKey\("device", deviceId\)/.test(route) && /createHash\("sha256"\)/.test(route), "raw device identifiers are never stored in the usage table");
 ok(/dishImagesFor\(s, available\.map/.test(route) && /imageKind: "must_try"/.test(route) && /imageKind: "restaurant"/.test(route), "a verified exact-dish image wins and the restaurant image is the explicit fallback");
+ok(/official menu\|menu html\|this pass/.test(route) && /move\.length > 180/.test(route), "research/source notes can never escape into the Must try line");
+ok(/cardImageSrc\(raw, 800\)/.test(route) && /restaurantPhoto/.test(route), "every card keeps a stable restaurant-photo fallback when an exact dish image is unavailable or expires");
 ok(/matches may be true only when the visible food is specifically consistent/.test(imageCron) && /confidence < 0\.75/.test(imageCron), "the cron conservatively vision-verifies the exact must-try item");
 ok(/officialWebsite/.test(imageCron) && /sourceUrls/.test(imageCron) && !/places\.googleapis\.com/.test(imageCron), "the cron checks restaurant-owned sources and never caches an expiring Google photo name");
 ok(/No restaurant-owned source image could be verified[^\n]+use the restaurant photo/.test(imageCron), "the cron never generates or substitutes an unverified food image");
 ok(/wf_lunch_dish_images/.test(imageMigration) && /revoke all[^\n]+anon, authenticated/.test(imageMigration), "dish-image decisions are server-owned");
+ok(/add column if not exists image_url text/.test(repairMigration) && /add column if not exists source_url text/.test(repairMigration), "schema drift is repaired even when the older lunch-image table already exists");
 ok(/\/api\/cron\/lunch-images\?limit=6/.test(vercel), "the dish-image refresh is scheduled daily");
 
 ok(menu.includes('aria-label="Lunch in My City"'), "the reveal is named for assistive technology");
@@ -46,6 +50,7 @@ const resultCard = menu.match(/<article key=\{lunchPick\.id\}[\s\S]*?<\/article>
 ok(resultCard.includes("<FallbackImg") && resultCard.includes("{lunchPick.name}") && resultCard.includes("{lunchPick.mustTry}"), "the place card contains the photo, name, and must-try recommendation");
 ok(!/PlaceScoreChip|distMi|reviews|Directions|Save|Share|Open the postcard/.test(resultCard), "the place card contains no score, distance, reviews, or action chrome");
 ok(/wfLunchDisclosure \.25s ease 2\.8s both/.test(menu), "the attempt disclosure appears two seconds after the card settles");
+ok(menu.includes("Challenge a friend") && />Close<\/button>/.test(menu) && /\?go=lunch/.test(menu), "the settled postcard can challenge a friend or close, and the shared link opens the lunch reveal");
 ok(/prefers-reduced-motion:reduce/.test(menu), "the reveal respects reduced-motion preferences");
 
 const day = "2026-09-04";

@@ -7,6 +7,7 @@ const root = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 const read = (file) => readFileSync(path.join(root, file), "utf8");
 const summer = read("app/components/SummerPicksRails.js");
 const intent = read("app/components/SummerIntentRails.js");
+const standaloneSummer = read("app/summer-picks/client.js");
 const daypart = read("app/components/DaypartRail.js");
 const google = read("lib/google.js");
 const details = read("app/api/places/details/route.js");
@@ -30,6 +31,8 @@ ok(/CACHE_READ_DEADLINE_MS\s*=\s*500/.test(fastCache) && /scheduleWrite\(key, va
   "rail cache I/O must not sit on the reader-facing response path without a deadline");
 ok(!/new Image\(\)|withWorkingPhotos|PHOTO_WORKERS/.test(intent),
   "Summer must not hold the whole collection behind a client-side image preflight");
+ok(!/new Image\(\)|placesWithWorkingPhotos|PHOTO_WORKERS|PHOTO_TIMEOUT_MS/.test(standaloneSummer),
+  "the standalone Summer page must not hold every card behind image preflights");
 const railsData = read("lib/railsData.js");
 ok(/const beachWater = attachBeachWater/.test(railsData) && /pools\.beaches = await beachWater/.test(railsData),
   "beach-water I/O must overlap unrelated rail pool work instead of serializing every rail");

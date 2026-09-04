@@ -17,10 +17,9 @@ import { validateWhyParagraph, filterSupportedItems, containsBannedPhrase, repea
 // Nothing else. Every field that ships passes through the validator; nothing
 // rides along unchecked.
 export async function POST(req) {
+  let stored = null;
   try {
     const p = await req.json();
-    const key = aiKey();
-    if (!key) return Response.json({ unavailable: true }, { status: 200 });
     const mode = p.mode === "full" ? "full" : "compact";
     const kind = p.kind === "event" ? "event" : p.kind === "attraction" ? "attraction" : "dining";
     // v6.55 shared pool (same wf_places_cache table as blurbs/search/events):
@@ -32,8 +31,15 @@ export async function POST(req) {
     // not be read as if it were the new one — same reasoning as CARD_SUMMARY's
     // blurb1| -> cardsum1| move in PR #548.
     const ckey = "insight2|" + String(p.name || "").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, " ").trim() + "|" + String(p.city || "").toLowerCase().slice(0, 30) + "|" + mode + "|" + kind;
-    const hit = p.name ? await cget(ckey) : null;
-    if (hit && hit.v && typeof hit.v === "object") return Response.json({ ...hit.v, cached: true }, { status: 200 });
+    // Editorial is an owned Wayfind asset, not disposable response-cache data.
+    // Keep expired rows readable as a fallback and refresh only after 21 days.
+    // A provider outage or rejected rewrite can therefore never erase good copy.
+    stored = p.name ? await cget(ckey, { staleMs: 10 * 365 * DAY }) : null;
+    if (stored && !stored.stale && stored.v && typeof stored.v === "object") {
+      return Response.json({ ...stored.v, cached: true }, { status: 200 });
+    }
+    const key = aiKey();
+    if (!key) return Response.json(stored?.v && typeof stored.v === "object" ? { ...stored.v, cached: true, stale: true } : { unavailable: true }, { status: 200 });
     // v6.9x — one universal field name, `what_to_order`, across all three
     // kinds (matches lib/editorialValidator.js's validateDetailEditorial
     // contract exactly, and keeps Detail.js from needing a kind-conditional
@@ -120,7 +126,7 @@ export async function POST(req) {
       if (![429, 500, 502, 503, 529].includes(r.status)) break;
       await new Promise((res) => setTimeout(res, 400 * (attempt + 1)));
     }
-    if (!r || !r.ok) return Response.json({ error: true }, { status: 200 });
+    if (!r || !r.ok) return Response.json(stored?.v && typeof stored.v === "object" ? { ...stored.v, cached: true, stale: true } : { error: true }, { status: 200 });
 
     const data = await r.json();
     let text = (data?.content || []).filter((b) => b.type === "text").map((b) => b.text).join("").trim();
@@ -157,10 +163,16 @@ export async function POST(req) {
       }
     }
 
-    try { if (p.name && parsed && !parsed.error && !parsed.unavailable) await cset(ckey, parsed, kind === "event" ? 3 * DAY : 14 * DAY); } catch (e) {}
+    const useful = mode === "compact"
+      ? !!String(parsed?.why_wayfind_picked_this || "").trim()
+      : !!(parsed && ((Array.isArray(parsed.what_to_order) && parsed.what_to_order.length) || String(parsed.pairs_well || "").trim() || String(parsed.caveat || "").trim()));
+    if (!useful && stored?.v && typeof stored.v === "object") {
+      return Response.json({ ...stored.v, cached: true, stale: true }, { status: 200 });
+    }
+    try { if (p.name && useful && !parsed.error && !parsed.unavailable) await cset(ckey, parsed, 21 * DAY); } catch (e) {}
     return Response.json(parsed, { status: 200 });
   } catch (e) {
-    return Response.json({ error: true }, { status: 200 });
+    return Response.json(stored?.v && typeof stored.v === "object" ? { ...stored.v, cached: true, stale: true } : { error: true }, { status: 200 });
   }
 }
 

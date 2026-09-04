@@ -40,10 +40,7 @@ ok(cronRoutes.length > 0, "found no app/api/cron/**/route.js — guard is inert,
 // mode via gateShut()||gateFree() (proven below, not trusted) and (b) carry a
 // reason. An entry here is a debt, not a permission: it says "this job spends
 // unmetered when the owner deliberately opens the gate", and nothing else.
-const EXCEPTIONS = {
-  "app/api/cron/atlas-build/route.js":
-    "runs Details (Enterprise mask) + Anthropic only when WAYFIND_GATE=open by the owner's deliberate act; refuses in shut AND free at the top of GET. Per-call metering is a follow-up (needs its own SKU/cap), tracked 2026-09-01.",
-};
+const EXCEPTIONS = {};
 for (const p of cronRoutes) {
   const src = readFileSync(p, "utf8");
   if (!/places\.googleapis\.com/.test(src)) continue;

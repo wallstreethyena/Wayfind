@@ -21,9 +21,12 @@ ok(tm.includes("u=https%3A%2F%2Fwww.ticketmaster.com%2Fevent%2Fabc123") && tm.in
 ok(ticketOutUrl("https://www.ticketmaster.com/event/x").includes("evyy.net") && !ticketOutUrl("https://seatgeek.com/e/x").includes("evyy.net"), "TM-family earns; non-TM (SeatGeek) passes through clean");
 ok(tmImpactLink("https://concerts.livenation.com/x").includes("evyy.net"), "Live Nation (TM-family) also routes through the Impact redirect");
 const d = readFileSync(new URL("../app/components/sheets/Detail.js", import.meta.url), "utf8");
+const insightRoute = readFileSync(new URL("../app/api/insight/route.js", import.meta.url), "utf8");
 ok(!d.includes("A highly reviewed nearby option with a strong rating.") && !d.includes("Worth a look while you are nearby."), "the generic FILLER fallbacks are gone — never stamped as a Wayfind opinion");
-ok(/const body = whyWayfindPickedBody\(insight\);\s*\n\s*if \(!body\) return null;/.test(d), "'Why Wayfind picked this' renders ONLY on a real grounded insight, else omits");
+ok(/const body = whyWayfindPickedBody\(insight\) \|\| whyWayfindPickedBody\(\{ why_wayfind_picked_this: editorial\?\.why \}\);\s*\n\s*if \(!body\) return null;/.test(d), "'Why Wayfind picked this' uses grounded live insight or stored verified Atlas editorial, else omits");
 ok(!/if \(insightLoading\) return \(/.test(d), "the Why-Wayfind block must not paint an LLM loading shell — empty stays empty, no heading while the model runs");
 ok(d.includes("the Ryan's Coffee House bug"), "the brand-integrity intent is documented at the block");
+ok(/cget\(ckey, \{ staleMs: 10 \* 365 \* DAY \}\)/.test(insightRoute) && /cset\(ckey, parsed, 21 \* DAY\)/.test(insightRoute), "generated detail editorial is stored for 21 days and old copy remains available as a durable fallback");
+ok(/if \(!useful && stored\?\.v/.test(insightRoute) && /cached: true, stale: true/.test(insightRoute), "a failed or empty Anthropic rewrite returns the prior stored editorial instead of throwing it away");
 console.log(`test-money-honest: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);

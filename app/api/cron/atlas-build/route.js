@@ -1,4 +1,4 @@
-import { gateShut, gateFree } from "../../../../lib/spendGate";
+import { gateShut, spendAllow } from "../../../../lib/spendGate";
 // app/api/cron/atlas-build/route.js — bulk-builds the Wayfind "Atlas" editorial
 // (atlas-590-v1) for places that don't have one yet. Sources facts from the
 // Google Places Details API, writes each entry with Claude, and upserts to
@@ -367,10 +367,19 @@ async function pool(items, limit, fn) {
 // back is publishable.
 
 export async function GET(req) {
-  // COST GUARD (2026-08-25): WAYFIND_GATE=shut stops ALL metered Google spend.
-  if (gateShut() || gateFree()) return Response.json({ skipped: "gate " + (gateShut() ? "shut" : "free: atlas spends Details+Anthropic; owner opens it deliberately") });
-  const secret = process.env.CRON_SECRET;
   const url = new URL(req.url);
+  const retryMode = url.searchParams.get("retry") === "1";
+  const refreshMode = !retryMode && url.searchParams.get("refresh") === "1";
+  const pulse = (opts) => {
+    if (refreshMode) return recordPulse("atlas-refresh", opts);
+    if (retryMode) return recordPulse("atlas-retry", opts);
+    return recordPulse("atlas-build", opts);
+  };
+  // Shut means zero metered calls. In free mode each Details call is admitted
+  // separately by the shared ledger below, so Atlas can run without crossing
+  // the configured Google free-tier ceiling.
+  if (gateShut()) return Response.json({ skipped: "gate shut" });
+  const secret = process.env.CRON_SECRET;
   const auth = req.headers.get("authorization") || "";
   if (!secret || (auth !== "Bearer " + secret && url.searchParams.get("key") !== secret)) {
     return Response.json({ error: "unauthorized" }, { status: 401 });
@@ -390,7 +399,7 @@ export async function GET(req) {
   {
     const down = await breakerOpen("anthropic");
     if (down) {
-      await recordPulse(url.searchParams.get("retry") === "1" ? "atlas-retry" : "atlas-build", {
+      await pulse({
         attempted: 1, succeeded: 0,
         note: (down.kind === "billing" ? "billing: " : "quota: ") + "anthropic circuit open — " + (down.reason || ""),
       });
@@ -407,7 +416,8 @@ export async function GET(req) {
   // cooldown, operational, ordered by reviews desc). Reusing this route rather
   // than forking one means the §7 gate, the verifier and the deadline guard
   // cannot drift between the two paths.
-  const retryMode = url.searchParams.get("retry") === "1";
+  // REFRESH MODE rewrites only verified rows older than 21 days. Failed
+  // refreshes never write, so the last good editorial remains publishable.
 
   // Pick the category to work: the requested one, else the first (in owner order)
   // that still has missing rows.
@@ -420,7 +430,8 @@ export async function GET(req) {
   let selectorError = null;
   async function missing(cat) {
     try {
-      const r = await fetch(`${s.url}/rest/v1/rpc/${retryMode ? "wf_atlas_retryable" : "wf_atlas_missing"}`, {
+      const selector = refreshMode ? "wf_atlas_stale" : retryMode ? "wf_atlas_retryable" : "wf_atlas_missing";
+      const r = await fetch(`${s.url}/rest/v1/rpc/${selector}`, {
         method: "POST", headers: svcH, cache: "no-store",
         body: JSON.stringify({ p_category: cat, p_metros: METROS, p_limit: limit }),
       });
@@ -447,10 +458,10 @@ export async function GET(req) {
     // a selector that could not be reached is an error with a non-200, so
     // job-watch pages instead of recording a healthy no-op.
     if (selectorError) {
-      await recordPulse(retryMode ? "atlas-retry" : "atlas-build", { attempted: 0, succeeded: 0, note: "SELECTOR UNREACHABLE: " + selectorError });
+      await pulse({ attempted: 0, succeeded: 0, note: "SELECTOR UNREACHABLE: " + selectorError });
       return Response.json({ ok: false, done: false, error: "selector-unreachable", detail: selectorError }, { status: 503 });
     }
-    await recordPulse(retryMode ? "atlas-retry" : "atlas-build", { attempted: 0, succeeded: 0, note: "no missing rows in target categories/metros" });
+    await pulse({ attempted: 0, succeeded: 0, note: refreshMode ? "no verified editorial older than 21 days" : "no missing rows in target categories/metros" });
     return Response.json({ ok: true, done: true, note: "no missing rows in target categories/metros" });
   }
 
@@ -498,11 +509,12 @@ export async function GET(req) {
     const parkZone = isInsidePark(place.lat, place.lng, place.name);
     if (RIDE_RX.test(String(place.name || "")) || parkZone) {
       rides++;
-      rows.push(editorialRow(place, null, nowIso, ["RIDE-LEVEL — merge into parent park"]));
+      if (!refreshMode) rows.push(editorialRow(place, null, nowIso, ["RIDE-LEVEL — merge into parent park"]));
       return;
     }
+    if (!(await spendAllow("details_enterprise"))) { deferred++; return; }
     const d = await placeDetails(place.place_id, gkey);
-    if (!d) { pending++; rows.push(editorialRow(place, null, nowIso, ["PENDING SOURCE"])); return; }
+    if (!d) { pending++; if (!refreshMode) rows.push(editorialRow(place, null, nowIso, ["PENDING SOURCE"])); return; }
 
     // The venue's own words, when we can get them. Fail-soft → Places-only.
     const page = await officialPage(d.websiteUri);
@@ -517,7 +529,7 @@ export async function GET(req) {
       // that still costs a Places call. Say which it is.
       const blocked = isDeniedHost(hostOfUrl(d.websiteUri));
       pending++;
-      rows.push(editorialRow(place, null, nowIso, [blocked ? "BLOCKED — §7 source" : "PENDING SOURCE"]));
+      if (!refreshMode) rows.push(editorialRow(place, null, nowIso, [blocked ? "BLOCKED — §7 source" : "PENDING SOURCE"]));
       return;
     }
 
@@ -541,7 +553,7 @@ export async function GET(req) {
     if (problems.length) {
       unverified++;
       const detail = problems.slice(0, 6).map((p) => `${p.check}:${p.field}:${p.value}`.slice(0, 90));
-      rows.push(editorialRow(place, null, nowIso, ["FAILED VERIFICATION", ...detail]));
+      if (!refreshMode) rows.push(editorialRow(place, null, nowIso, ["FAILED VERIFICATION", ...detail]));
       return;
     }
 
@@ -570,6 +582,13 @@ export async function GET(req) {
         } catch (e) { upErr = `retry update threw ${String(e && e.message).slice(0, 100)}`; }
       }
       written = okCount;
+    } else if (refreshMode) {
+      // Refresh rows are all verified (failure paths above do not enqueue a
+      // row). Merge replaces a 21-day-old card only after its replacement has
+      // cleared the same sourcing and verification gates as the original.
+      const h = { ...svcH, Prefer: "resolution=merge-duplicates,return=minimal" };
+      const r = await fetch(`${s.url}/rest/v1/wf_editorial?on_conflict=place_id`, { method: "POST", headers: h, body: JSON.stringify(rows), cache: "no-store" });
+      if (r.ok) written = rows.length; else upErr = `refresh upsert http ${r.status}: ${(await r.text()).slice(0, 160)}`;
     } else {
       const h = { ...svcH, Prefer: "resolution=ignore-duplicates,return=minimal" };
       const r = await fetch(`${s.url}/rest/v1/wf_editorial?on_conflict=place_id`, { method: "POST", headers: h, body: JSON.stringify(rows), cache: "no-store" });
@@ -605,7 +624,7 @@ export async function GET(req) {
   // every path including failures; a job that only pulses when it succeeds is
   // exactly as blind as one that never pulses.
   const publishedCount = rows.filter((r) => r.verified).length;
-  await recordPulse(retryMode ? "atlas-retry" : "atlas-build", {
+  await pulse({
     attempted: rows.length,
     succeeded: publishedCount,
     note: stats.providerHalt
@@ -622,7 +641,7 @@ export async function GET(req) {
     // places.length, which silently equalled the batch size even when the run
     // fell over — with the deadline guard live, `deferred` is the difference and
     // a persistently non-zero deferred is the signal to lower ?limit.
-    ok: !upErr, mode: retryMode ? "retry" : "build", category, processed: rows.length, deferred, written,
+    ok: !upErr, mode: refreshMode ? "refresh" : retryMode ? "retry" : "build", category, processed: rows.length, deferred, written,
     // `sourced` is "the model answered"; `published` is "it cleared the content
     // bar and a user will see it". They used to be the same number by
     // assumption; a gap between them is the run telling you the model is

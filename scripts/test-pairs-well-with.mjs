@@ -70,11 +70,11 @@ ok(PAIR_RADIUS_MI <= 5, "the pairing radius keeps the loop on the same outing");
 
 // UI wiring: the sheet renders the loop and a tap opens the NEXT detail.
 const ui = read("app/components/sheets/Detail.js");
-ok(ui.includes('pairsWellWith(detail, pairPool, {})') && ui.includes("data-pairs-well-with"),
-  "the detail sheet runs the pairing law over the already-loaded pool");
-ok(/data-pairs-well-with[\s\S]{0,600}Pairs well with \{detail\.name\}/.test(ui),
-  "the block is headed as the pairing block");
-ok(/pairs\.map\(\{?\s*\(?\{ p, reason, pairDistMi \}\)? =>[\s\S]{0,200}openDetail\(p\)/.test(ui) || /pairs\.map\(\(\{ p, reason, pairDistMi \}\) => \([\s\S]{0,300}openDetail\(p\)/.test(ui),
-  "tapping a pairing opens ITS detail sheet — one place leads to another leads to another");
+ok(ui.includes('pairsWellWith(detail, nextPool, { max: 3, radiusMi: 8 })') && ui.includes("data-where-to-go-next"),
+  "the detail sheet runs the pairing law over the already-loaded pool for Where to go next");
+ok(/data-where-to-go-next[\s\S]{0,700}Where to go next/.test(ui),
+  "the place-specific discovery loop is visibly named Where to go next");
+ok(/WhereToGoNextRow[\s\S]{0,300}openDetail=\{openDetail\}/.test(ui),
+  "tapping a next stop opens ITS detail sheet — one place leads to another");
 
 console.log(`test-pairs-well-with: OK — ${pass} assertions (roles from types, daypart pairings, radius, merit-only, loop wiring)`);
