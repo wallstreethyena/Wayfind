@@ -63,7 +63,11 @@ const fixtures = [
 const composed = composeNightOutRails([], fixtures, {});
 ok(composed.rails.length === 10, "composition always returns all ten rails, including honest empties");
 ok(composed.rails.every((rail) => expected.includes(rail.id)), "composition returns only approved intents");
-ok(composed.rails.find((rail) => rail.id === "clubs").places.map((row) => row.id).join("|") === "club-near|club", "nearby inventory leads a higher-scoring wider-ring card");
+// THE OWNER'S BUG, exactly: a 9.9-scored wider-ring club used to be exiled
+// below a 7.0-scored near one by a distance RING evaluated ahead of the
+// score. lib/railRank.js's law is score DESC first, distance a tie-break
+// only, so the higher score leads regardless of which ring it falls in.
+ok(composed.rails.find((rail) => rail.id === "clubs").places.map((row) => row.id).join("|") === "club|club-near", "the higher-scoring club leads even though it is in the wider ring — score first, distance only a tie-break");
 ok(!composed.rails.flatMap((rail) => rail.places).some((row) => row.id === "far"), "anything beyond 27 miles is rejected");
 ok(!composed.rails.flatMap((rail) => rail.places).some((row) => row.id === "unknown"), "unknown-distance places are rejected");
 ok(composed.rails.flatMap((rail) => rail.places).length === new Set(composed.rails.flatMap((rail) => rail.places.map((row) => row.id))).size, "each venue belongs to at most one Night Out rail");

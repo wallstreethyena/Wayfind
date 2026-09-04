@@ -21,6 +21,9 @@ const imageMigration = read("supabase/migrations/20260904_wf_lunch_dish_images.s
 const repairMigration = read("supabase/migrations/20260904090000_preserve_editorial_and_lunch_images.sql");
 const imageCron = read("app/api/cron/lunch-images/route.js");
 const vercel = read("vercel.json");
+const challengePage = read("app/lunch-challenge/page.js");
+const challengeOpen = read("app/lunch-challenge/LunchChallengeOpen.js");
+const detail = read("app/components/sheets/Detail.js");
 
 ok(home.includes('["dice", "Lunch in My City", onSurprise'), "the rightmost Shortcuts chip is named Lunch in My City");
 ok(/tile: "Surprise me", chip: "Lunch in My City", experience: "lunch_in_my_city"/.test(home), "the rename preserves the existing discovery funnel and adds the new experience identity");
@@ -53,14 +56,20 @@ ok(/@keyframes wfLunchGlow/.test(menu) && /@keyframes wfLunchRise/.test(menu) &&
 const resultCard = menu.match(/<article key=\{lunchPick\.id\}[\s\S]*?<\/article>/)?.[0] || "";
 ok(resultCard.includes("<FallbackImg") && resultCard.includes("{lunchPick.name}") && resultCard.includes("{lunchPick.mustTry}"), "the place card contains the photo, name, and must-try recommendation");
 ok(!/PlaceScoreChip|distMi|reviews|Directions|Open the postcard/.test(resultCard), "the place card contains no score, distance, reviews, or unrelated navigation chrome");
-ok(/wf-lunch-card-actions/.test(resultCard) && /Save/.test(resultCard) && /toggleLike/.test(resultCard) && /toggleDislike/.test(resultCard) && /Share/.test(resultCard), "the lunch postcard carries the same save, like, dislike, and share actions as every Wayfind card");
+ok(/wf-lunch-card-actions/.test(resultCard) && /Save/.test(resultCard) && /toggleLike/.test(resultCard) && /toggleDislike/.test(resultCard) && /Challenge/.test(resultCard), "the lunch postcard carries save, like, dislike, and a challenge-specific share action");
 ok(/wfLunchDisclosure \.25s ease 2\.8s both/.test(menu), "the attempt disclosure appears two seconds after the card settles");
-ok(menu.includes("Challenge a friend") && />Close<\/button>/.test(menu) && /\?go=lunch/.test(menu), "the settled postcard can challenge a friend or close, and the shared link opens the lunch reveal");
+ok(menu.includes("Challenge someone") && />Close<\/button>/.test(menu) && /\/lunch-challenge/.test(menu), "the settled postcard can challenge someone or close, and shares the dedicated challenge link");
+ok(menu.includes("YOU’VE BEEN CHALLENGED") && menu.includes("Completed it? Add your review + photos"), "the recipient sees the challenge state and the participant gets a post-lunch review door");
+ok(/\?challenge=lunch&review=1/.test(menu) && /wf-community-takes/.test(detail) && /setCommentType\("Review"\)/.test(detail), "the completion CTA opens the chosen place at its review and photo composer");
+ok(detail.includes("Challenge someone for Lunch in My City") && detail.includes("lunch_challenge_share"), "a lunch-result place keeps the challenge share treatment on its detail page");
+ok(challengePage.includes("/api/og/rail?id=lunchcity") && challengePage.includes("You’ve been challenged: Lunch in My City"), "text messages use the branded Lunch in My City poster and challenge headline");
+ok(challengeOpen.includes('window.location.replace("/?go=lunch&challenged=1")'), "a challenge recipient lands in the location-aware lunch reveal");
 ok(/prefers-reduced-motion:reduce/.test(menu), "the reveal respects reduced-motion preferences");
 
 const lunchRail = RAILS.find((rail) => rail.id === "lunchcity");
 ok(!!lunchRail && lunchRail.opensPage === true, "Lunch in My City is a visible page-launch tile on the Amazon rail");
-ok(railHref(lunchRail, "fl", "parrish") === "/p/ChIJ9RHZGx6H3YgRnWVYIWsHNPM", "the Amazon tile opens the owner's exact Wayfind place link");
+ok(railHref(lunchRail, "fl", "parrish") === "/?go=lunch", "the Amazon tile opens the location-aware lunch challenge");
+ok(!lunchRail.href.includes("ChIJ9RHZGx6H3YgRnWVYIWsHNPM"), "the lunch poster can never reopen Gatorland's place route");
 ok(DAYPART_IDS.every((band) => orderFor(band, RAILS.map((rail) => rail.id)).includes("lunchcity")), "the Lunch in My City tile appears in every daypart");
 ok(lunchRail.short === "Tap the box to accept the challenge" && lunchRail.sub === "One lunch place around you, wherever you are now", "the Amazon tile carries the owner's challenge wording");
 for (const file of ["lunchcity-380.avif", "lunchcity-380.webp", "lunchcity-760.avif", "lunchcity-760.webp", "lunchcity-760.jpg"]) {

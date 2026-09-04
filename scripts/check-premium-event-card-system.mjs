@@ -77,7 +77,8 @@ for (const file of walk(join(ROOT, "app"))) {
 ok(/playLunchCoin\(\); rollLunchPick\(\)/.test(menu), "the question block click lost its coin cue or reveal action");
 ok(/@keyframes wfLunchRise/.test(menu) && /className="wf-lunch-result"/.test(menu), "the actual lunch postcard is not the animated element");
 ok(!/wfMarioPipe|wf-lunch-mario/.test(menu), "Mario animation returned; only the result card should move");
-ok(/wf-lunch-card-actions/.test(menu) && /lunchActions\.toggleSave/.test(menu) && /lunchActions\.toggleLike/.test(menu) && /lunchActions\.toggleDislike/.test(menu) && /lunchActions\.share/.test(menu), "the lunch postcard lost one of its four card actions");
+ok(/wf-lunch-card-actions/.test(menu) && /lunchActions\.toggleSave/.test(menu) && /lunchActions\.toggleLike/.test(menu) && /lunchActions\.toggleDislike/.test(menu) && /shareLunchChallenge\(\)/.test(menu), "the lunch postcard lost one of its four card actions");
+ok(/shareLunchChallenge[\s\S]+?shareLink\(/.test(menu), "the lunch challenge action does not open the canonical native-share path");
 
 if (failures.length) {
   console.error("check-premium-event-card-system: FAIL");

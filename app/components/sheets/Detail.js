@@ -403,6 +403,23 @@ function WhereToGoNextRow({ p, partner, reason, pairDistMi, openDetail, liveOpen
 
 export default function DetailSheet({ ctx }) {
   const { detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, placeKind, isBeach, suggested, places, offers, locName, blurbs, blurbLine, liked, disliked, user, authReady, sheetDragStart, sheetDragMove, sheetDragEnd, quickSaveFavorite, isSaved, toggleLike, toggleDislike, addShared, giveawayMark, logEvent, openExternal, openCuisine, openExperience, openDetail, setAuthOpen, ticketUrl, formatEventDate, shareLink, showToast, dedupePlaces, primaryCategory, experienceBadges, Critter, FallbackImg, liveOpen, weather } = ctx;
+  const [lunchChallengeView, setLunchChallengeView] = useState(false);
+  useEffect(() => {
+    try {
+      const url = new URL(window.location.href);
+      const fromLunch = url.searchParams.get("challenge") === "lunch";
+      const openReview = fromLunch && url.searchParams.get("review") === "1";
+      setLunchChallengeView(fromLunch);
+      if (!openReview) return;
+      setCommentType("Review");
+      window.setTimeout(() => {
+        try { document.getElementById("wf-community-takes")?.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" }); } catch {}
+        try { noteRef.current?.focus({ preventScroll: true }); } catch {}
+      }, 450);
+      url.searchParams.delete("review");
+      window.history.replaceState({}, "", url.pathname + (url.search ? url.search : "") + url.hash);
+    } catch {}
+  }, [detail && detail.id, noteRef, setCommentType]);
 
   // 2026-09-02 (hijacked-domain incident): the venue website Google hands us
   // is a third-party destination we have never read. It renders ONLY after
@@ -895,7 +912,15 @@ export default function DetailSheet({ ctx }) {
                     <button onClick={(e) => toggleDislike(e, detail)} aria-label="Not for me" style={{ flexShrink: 0, width: 44, height: 44, background: "rgba(255,255,255,.035)", border: `1px solid ${disliked[detail.id] ? C.red : C.border}`, borderRadius: 12, color: disliked[detail.id] ? C.red : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "rotate(180deg)" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg></button>
                   </>)}
                   <button data-add-to-trip onClick={addToPlan} aria-label={isSaved(detail.id) ? "In your trip" : "Add to my trip"} style={{ flex: "1 1 46%", minWidth: 104, height: 44, padding: "0 10px", background: isSaved(detail.id) ? C.adim : "rgba(255,255,255,.035)", border: `1px solid ${isSaved(detail.id) ? C.light : C.border}`, borderRadius: 12, color: isSaved(detail.id) ? C.light : C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap" }}>{isSaved(detail.id) ? "\u2713 In my trip" : "\u2661 Add to my trip"}</button>
-                  <button onClick={() => { try { logEvent("share_intent_open", detail, { kind: "place" }); } catch (e) {} askShareIntent({ name: detail.name, city: locName, id: detail.id, kind: placeKinds(detail), onPlain: () => shareLink(detail.name, placeShareUrl(detail, locName, blurbLine(blurbs[detail.id])), () => showToast("Link copied"), fallShareLine(`Want to go to ${detail.name} together? Found it on Wayfind`, detail.id, siteTodayStr()), () => { try { logEvent("share", detail, { kind: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", detail, { kind: "invite", from: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }) }); }} aria-label="Share" style={{ flex: "1 1 46%", minWidth: 88, height: 44, padding: "0 10px", background: "rgba(255,255,255,.035)", border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 750, whiteSpace: "nowrap" }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg><span>Share</span></button>
+                  <button onClick={() => {
+                    if (lunchChallengeView) {
+                      const url = typeof window !== "undefined" ? window.location.origin + "/lunch-challenge" : "https://www.gowayfind.com/lunch-challenge";
+                      shareLink("You’ve been challenged: Lunch in My City", url, () => showToast("Challenge link copied"), `Hey! I challenge you to Lunch in My City. I got ${detail.name}. Tap the question block and let Wayfind choose one standout lunch near you.`, () => { try { logEvent("lunch_challenge_share", detail, { kind: "place" }); } catch (e) {} });
+                      return;
+                    }
+                    try { logEvent("share_intent_open", detail, { kind: "place" }); } catch (e) {}
+                    askShareIntent({ name: detail.name, city: locName, id: detail.id, kind: placeKinds(detail), onPlain: () => shareLink(detail.name, placeShareUrl(detail, locName, blurbLine(blurbs[detail.id])), () => showToast("Link copied"), fallShareLine(`Want to go to ${detail.name} together? Found it on Wayfind`, detail.id, siteTodayStr()), () => { try { logEvent("share", detail, { kind: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEvent("share", detail, { kind: "invite", from: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }) });
+                  }} aria-label={lunchChallengeView ? "Challenge someone for Lunch in My City" : "Share"} style={{ flex: "1 1 46%", minWidth: 88, height: 44, padding: "0 10px", background: lunchChallengeView ? "linear-gradient(135deg,#F97316,#FBBF24)" : "rgba(255,255,255,.035)", border: `1px solid ${lunchChallengeView ? "#F8D447" : C.border}`, borderRadius: 12, color: lunchChallengeView ? "#10151B" : C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: lunchChallengeView ? 900 : 750, whiteSpace: "nowrap" }}><span aria-hidden="true">{lunchChallengeView ? "⚡" : "↗"}</span><span>{lunchChallengeView ? "Challenge" : "Share"}</span></button>
                 </div>
               </div>
               {(() => { /* v6.37 — VRBO whole-home alternative for lodging. CoS HIGH (2026-08-19): no VRBO go route exists and we must not invent a PID. Fail-closed — render only if the href is already an existing go route. Keep-dark otherwise. */
@@ -1116,7 +1141,7 @@ export default function DetailSheet({ ctx }) {
               {!detail._event && <BookItLink detail={detail} city={locName ? locName.split(",")[0] : ""} logEvent={logEvent} addReservation={addReservation} />}
 
               {!detail._event && (
-                <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
+                <div id="wf-community-takes" style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 9 }}>
                     <span style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: "0.6px", textTransform: "uppercase" }}>Community takes</span>
                     {placePosts.length > 0 && <span style={{ fontSize: 10, color: C.muted }}>{placePosts.length}</span>}

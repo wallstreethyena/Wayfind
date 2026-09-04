@@ -14,6 +14,7 @@ import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 import { cgetMany } from "../../../lib/serverCache.js";
 import { PHOTO_REF_RX, isOwnedPhotoUrl, photoCacheKey } from "../../../lib/placePhotoServe.js";
 import { windowRailAnswer } from "../../../lib/railResponse.js";
+import { pageOneRail } from "../../../lib/railPage.js";
 
 const RAIL_PHOTO_W = 640; // must match BirthdayRails' /api/photo?w= so the cache key is the same one that route writes
 const PHOTO_CACHE_STALE_MS = 60 * 60 * 24 * 30 * 1000;
@@ -98,6 +99,10 @@ export async function GET(request) {
   const lat = Number.parseFloat(searchParams.get("lat") || "");
   const lng = Number.parseFloat(searchParams.get("lng") || "");
   const full = searchParams.get("full") === "1";
+  // WO11 paging contract — see app/api/night-out/route.js.
+  const railId = searchParams.get("rail") || "";
+  const page = searchParams.get("page");
+  const size = searchParams.get("size");
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
     return json({ error: "lat and lng are required" }, 400, "no-store");
   }
@@ -135,13 +140,16 @@ export async function GET(request) {
       usable: (value) => !!(value && Array.isArray(value.rails) && value.rails.some((rail) => rail.places?.length)),
     });
     const total = cached.value.rails.reduce((sum, rail) => sum + rail.places.length, 0);
-    return Response.json(windowRailAnswer(cached.value, full), {
-      status: 200,
-      headers: {
-        "cache-control": total ? "public, s-maxage=3600, stale-while-revalidate=86400" : "no-store",
-        "x-wayfind-fast-cache": cached.state,
-      },
-    });
+    const headers = {
+      "cache-control": total ? "public, s-maxage=3600, stale-while-revalidate=86400" : "no-store",
+      "x-wayfind-fast-cache": cached.state,
+    };
+    if (railId) {
+      const paged = pageOneRail(cached.value.rails, railId, { page, size });
+      if (!paged) return Response.json({ error: "unknown rail" }, { status: 404, headers: { "cache-control": "no-store" } });
+      return Response.json({ rail: railId, ...paged }, { status: 200, headers });
+    }
+    return Response.json(windowRailAnswer(cached.value, full), { status: 200, headers });
   } catch (error) {
     console.error("[api/birthday] inventory unavailable", { message: String(error?.message || error) });
     return json({ error: "Birthday inventory is temporarily unavailable" }, 503, "no-store");

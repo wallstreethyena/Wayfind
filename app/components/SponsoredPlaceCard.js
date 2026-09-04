@@ -41,6 +41,33 @@
 import { useCommerceImpression } from "./useCommerceImpression";
 import { emitCommerce } from "../../lib/commerce";
 import { C, RADII, SHADOW, TARGET, TYPE, PlaceScoreChip } from "./kit";
+// WO-B (2026-09-03, owner, verbatim): "Every rail card, regardless of what it
+// is, should have the like, dislike, share and save button — even if it is an
+// event card." This card had ZERO of the four. Wired the SAME way DaypartRail
+// already wires a paid IconicPlaceCard row (its `paidHasStoreKey` condition,
+// still current on main): a sponsor placement that carries a VERIFIED Google
+// place id (SPONSORED_PLACES requires `placeId` on every entry —
+// scripts/check-sponsored-places.mjs pins that) is treated as an ORDINARY
+// PLACE for these four controls — the real ranking-aware store, keyed by the
+// place id, so a save/like/dislike here is readable from /p/ and Favorites
+// exactly like an organic tap. The `useContentCardActions` branch below is the
+// same defensive floor IconicPlaceCard's own `cardActionsReadOnly` keeps for a
+// sponsor with no linked place — never reachable while the registry
+// invariant holds, kept so a violation of that invariant still renders four
+// real controls instead of silently reverting to zero.
+import { useCardActions, toggleSave as fallbackSave, toggleLike as fallbackLike, toggleDislike as fallbackDislike, shareCard as fallbackShare } from "../../lib/cardActions";
+import { useContentCardActions } from "../../lib/contentCardActions";
+import { stayOnRailReaction } from "../../lib/railReaction.js";
+
+// Same thumb glyph RailCard.js / IconicPlaceCard.js already draw — a thumb is
+// one drawing readers recognize, not a third shape that almost matches.
+const ThumbIcon = ({ down = false }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    {down
+      ? <><path d="M8 4v10H4V4h4Z" /><path d="M8 6h8.5a2 2 0 0 1 1.9 1.4l1.3 4a2 2 0 0 1-1.9 2.6H14l.6 3.1a2.4 2.4 0 0 1-2.4 2.9L8 14V6Z" /></>
+      : <><path d="M8 10v10H4V10h4Z" /><path d="M8 18h8.5a2 2 0 0 0 1.9-1.4l1.3-4a2 2 0 0 0-1.9-2.6H14l.6-3.1A2.4 2.4 0 0 0 12.2 4L8 10v8Z" /></>}
+  </svg>
+);
 
 /** Distance, in the same voice the rest of the app uses. */
 function miles(d) {
@@ -68,7 +95,26 @@ export default function SponsoredPlaceCard({ pick, onLog }) {
       }
     : null;
   const seenRef = useCommerceImpression(ctx);
+  // Hooks run on EVERY render, unconditionally (rules of hooks) — only the
+  // early `if (!pick) return null;` below may be conditional. Mirrors
+  // IconicPlaceCard's own hasStoreKey/cardActionsReadOnly split exactly.
+  const hasStoreKey = !!(pick && pick.placeId);
+  const actionPlace = hasStoreKey
+    ? { id: pick.placeId, name: pick.advertiser, lat: pick.lat, lng: pick.lng, rating: pick.rating, reviews: pick.reviews, photo: pick.photo || null }
+    : null;
+  const fb = useCardActions(hasStoreKey);
+  const content = useContentCardActions(!hasStoreKey && pick ? {
+    id: pick.id, type: "experience", title: pick.advertiser, image: pick.photo || null, url: pick.pagePath || pick.outboundHref || "",
+  } : null);
   if (!pick) return null;
+
+  const doSave = hasStoreKey ? (fb.hydrated ? () => fallbackSave(actionPlace, { surface: "home_sponsored_card" }) : null) : content.toggleSave;
+  const doLike = hasStoreKey ? (fb.hydrated ? () => fallbackLike(actionPlace, { surface: "home_sponsored_card" }) : null) : content.toggleLike;
+  const doDislike = hasStoreKey ? (fb.hydrated ? () => fallbackDislike(actionPlace, { surface: "home_sponsored_card" }) : null) : content.toggleDislike;
+  const doShare = hasStoreKey ? (fb.hydrated ? () => fallbackShare(actionPlace, { surface: "home_sponsored_card" }) : null) : content.share;
+  const isSavedNow = hasStoreKey ? (fb.hydrated && !!fb.saved[pick.placeId]) : content.saved;
+  const isLikedNow = hasStoreKey ? (fb.hydrated && !!fb.liked[pick.placeId]) : content.liked;
+  const isDislikedNow = hasStoreKey ? (fb.hydrated && !!fb.disliked[pick.placeId]) : content.disliked;
 
   const accent = pick.accent || C.purple;
   const accentLight = pick.accentLight || C.light;
@@ -251,6 +297,50 @@ export default function SponsoredPlaceCard({ pick, onLog }) {
           {pick.cta}
           <span aria-hidden="true">→</span>
         </a>
+
+        {/* WO-B (2026-09-03) — THE GLOBAL CARD LAW: save / like / dislike /
+            share, the same four controls every other rail card carries, same
+            classnames (wf-place-card-save/like/dislike/share) so nothing about
+            this card's markup is invisible to scripts/check-card-action-parity.mjs
+            or to a reader's expectation of what a Wayfind card offers. Rides
+            in its own row rather than adopting .wf-place-card's larger action
+            grid — this card's design language is a dominant CTA plus quiet
+            rows underneath it, not a four-up grid. */}
+        <div className="wf-place-card-actions" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 8 }}>
+          <button
+            type="button"
+            className={"wf-place-card-save" + (isSavedNow ? " is-active" : "")}
+            aria-label={isSavedNow ? "Remove from saved: " + pick.advertiser : "Save " + pick.advertiser}
+            aria-pressed={isSavedNow}
+            onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (doSave) doSave(e); log("save"); }}
+            style={{ display: "inline-flex", alignItems: "center", gap: 5, minHeight: TARGET, padding: "0 12px", borderRadius: 999, border: "1px solid " + (isSavedNow ? accent : C.border), background: isSavedNow ? accent : "transparent", color: isSavedNow ? "#FFFFFF" : C.muted, fontSize: 12.5, fontWeight: 700 }}
+          >{isSavedNow ? "♥ Saved" : "♡ Save"}</button>
+          <button
+            type="button"
+            className={"wf-place-card-like" + (isLikedNow ? " is-active" : "")}
+            aria-label={isLikedNow ? "Remove like: " + pick.advertiser : "Like " + pick.advertiser}
+            aria-pressed={isLikedNow}
+            title={isLikedNow ? "Remove like" : "Like this place"}
+            onClick={(e) => { stayOnRailReaction(e, doLike, actionPlace); log("like"); }}
+            style={{ display: "inline-flex", alignItems: "center", minHeight: TARGET, padding: "0 10px", borderRadius: 999, border: "1px solid " + (isLikedNow ? "#34D399" : C.border), background: isLikedNow ? "#34D399" : "transparent", color: isLikedNow ? "#06231A" : C.muted }}
+          ><ThumbIcon /></button>
+          <button
+            type="button"
+            className={"wf-place-card-dislike" + (isDislikedNow ? " is-active" : "")}
+            aria-label={isDislikedNow ? "Remove dislike: " + pick.advertiser : "Not for me: " + pick.advertiser}
+            aria-pressed={isDislikedNow}
+            title={isDislikedNow ? "Remove dislike" : "Not for me"}
+            onClick={(e) => { stayOnRailReaction(e, doDislike, actionPlace); log("dislike"); }}
+            style={{ display: "inline-flex", alignItems: "center", minHeight: TARGET, padding: "0 10px", borderRadius: 999, border: "1px solid " + (isDislikedNow ? "#F87171" : C.border), background: isDislikedNow ? "#F87171" : "transparent", color: isDislikedNow ? "#2A0A0A" : C.muted }}
+          ><ThumbIcon down /></button>
+          <button
+            type="button"
+            className="wf-place-card-share"
+            aria-label={"Share " + pick.advertiser}
+            onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (doShare) doShare(e); log("share"); }}
+            style={{ display: "inline-flex", alignItems: "center", gap: 5, minHeight: TARGET, padding: "0 12px", borderRadius: 999, border: "1px solid " + C.border, background: "transparent", color: C.muted, fontSize: 12.5, fontWeight: 700 }}
+          >↗ Share</button>
+        </div>
 
         {/* The quiet row. Available, never competing with the one filled
             button above it. */}

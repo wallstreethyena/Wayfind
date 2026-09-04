@@ -160,9 +160,17 @@ ok(/selRail\.id === "augtober" \|\| selRail\.id === "tonight"/.test(daypart), "g
 ok(!/fallEvents\.map|wf8-falltile/.test(daypart), "the old mixed inline fall strip is retired rather than duplicated");
 ok(/result\.rails\.length !== 10/.test(component), "the client fails closed on an incomplete rail contract");
 ok(/FALL_LOAD_TIMEOUT_MS = 10000/.test(component) && /fetchJsonWithDeadline/.test(component), "the collection cannot leave a first-time reader on an endless skeleton");
-ok(/\}, \[key, retry, full\]\);/.test(component) && !/\[key, city, retry, onTrack\]/.test(component), "parent telemetry re-renders cannot abort the rail request and strand its duplicate guard");
-ok(/rail\.total \|\| rail\.cards\.length/.test(component) && /Load every verified fall option/.test(component), "Fall shows the true option count and can fetch the remaining cached cards");
-ok(/railScrollNeedsMore\(event\.currentTarget\)/.test(component), "Fall fetches the remaining cached cards when a reader swipes near the end");
+ok(/\}, \[key, retry\]\);/.test(component) && !/\[key, city, retry, onTrack\]/.test(component), "parent telemetry re-renders cannot abort the rail request and strand its duplicate guard");
+// WO11 (2026-09-02): the whole-blob "Load every verified fall option" button
+// (a scroll-triggered `full=1` refetch of every rail at once) is gone. Every
+// rail pages independently, ten at a time, through usePagedRail — the same
+// contract night-out/date-night/today-discovery/birthday speak.
+ok(/function FallRailSection\(/.test(component) && /usePagedRail\(/.test(component),
+  "Fall's rails page independently through the shared usePagedRail hook");
+ok(/domRef=\{\w+ === sentinelIndex \? sentinelRef : undefined\}/.test(component),
+  "Fall wires the paging sentinel onto its cards, per the WO11 loaded−3 contract");
+ok(!/Load every verified fall option/.test(component) && !/setFull/.test(component) && !/railScrollNeedsMore/.test(component),
+  "the old whole-blob scroll-triggered full=1 loader is fully removed from Fall, not merely unreachable");
 ok(/service miss, not an empty city/.test(component), "a failed service is not misreported as an empty location");
 ok(/seasonal look-alike/.test(component), "thin rails render the approved honest empty state");
 ok(/actionItem=\{isEvent \? \{[\s\S]{0,220}type: "event"/.test(component), "dated events receive live isolated content actions instead of dead place reactions");

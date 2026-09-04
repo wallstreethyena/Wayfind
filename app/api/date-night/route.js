@@ -23,6 +23,7 @@ import {
 } from "../../../lib/dateNightIntent.js";
 import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 import { windowRailAnswer } from "../../../lib/railResponse.js";
+import { pageOneRail } from "../../../lib/railPage.js";
 
 const WX_URL =
   "https://api.open-meteo.com/v1/forecast?current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,dew_point_2m" +
@@ -139,6 +140,11 @@ export async function GET(req) {
   const hour = Number.isFinite(hourRaw) ? hourRaw : undefined;
   const city = String(searchParams.get("city") || "").slice(0, 40) || null;
   const full = searchParams.get("full") === "1";
+  // WO11 paging contract — see app/api/night-out/route.js for the full
+  // rationale (same "rank once, page many" shape, same fast-cache reuse).
+  const railId = searchParams.get("rail") || "";
+  const page = searchParams.get("page");
+  const size = searchParams.get("size");
   const hourBucket = Number.isFinite(hour) ? Math.floor(hour / 3) : "auto";
   const key = `date-night:${geoCell(lat)}:${geoCell(lng)}:${hourBucket}`;
   const cached = await fastCachedRail(key, () => buildDateNightAnswer({ lat, lng, city, hour }), {
@@ -158,8 +164,14 @@ export async function GET(req) {
   // very next request rebuilds and the cell self-heals; a real answer keeps
   // the hour it earned.
   const empty = !answer.rails || answer.rails.length === 0;
-  return Response.json(windowRailAnswer(answer, full), { status: 200, headers: {
+  const headers = {
     "cache-control": empty ? "no-store" : "public, s-maxage=3600, stale-while-revalidate=86400",
     "x-wayfind-fast-cache": cached.state,
-  } });
+  };
+  if (railId) {
+    const paged = pageOneRail(answer.rails, railId, { page, size });
+    if (!paged) return Response.json({ error: "unknown rail" }, { status: 404, headers: { "cache-control": "no-store" } });
+    return Response.json({ rail: railId, ...paged }, { status: 200, headers });
+  }
+  return Response.json(windowRailAnswer(answer, full), { status: 200, headers });
 }

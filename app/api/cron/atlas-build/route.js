@@ -1,4 +1,4 @@
-import { gateShut, spendAllow } from "../../../../lib/spendGate";
+import { gateFree, gateShut, spendAllow } from "../../../../lib/spendGate";
 // app/api/cron/atlas-build/route.js — bulk-builds the Wayfind "Atlas" editorial
 // (atlas-590-v1) for places that don't have one yet. Sources facts from the
 // Google Places Details API, writes each entry with Claude, and upserts to
@@ -367,6 +367,9 @@ async function pool(items, limit, fn) {
 // back is publishable.
 
 export async function GET(req) {
+  // The owned Atlas is permanent. Free mode serves that library and must not
+  // schedule paid Details + model calls to buy the same records again.
+  if (gateShut() || gateFree()) return Response.json({ skipped: "gate " + (gateShut() ? "shut" : "free: atlas re-buy is disabled") });
   const url = new URL(req.url);
   const retryMode = url.searchParams.get("retry") === "1";
   const refreshMode = !retryMode && url.searchParams.get("refresh") === "1";
@@ -375,10 +378,6 @@ export async function GET(req) {
     if (retryMode) return recordPulse("atlas-retry", opts);
     return recordPulse("atlas-build", opts);
   };
-  // Shut means zero metered calls. In free mode each Details call is admitted
-  // separately by the shared ledger below, so Atlas can run without crossing
-  // the configured Google free-tier ceiling.
-  if (gateShut()) return Response.json({ skipped: "gate shut" });
   const secret = process.env.CRON_SECRET;
   const auth = req.headers.get("authorization") || "";
   if (!secret || (auth !== "Bearer " + secret && url.searchParams.get("key") !== secret)) {
@@ -624,16 +623,39 @@ export async function GET(req) {
   // every path including failures; a job that only pulses when it succeeds is
   // exactly as blind as one that never pulses.
   const publishedCount = rows.filter((r) => r.verified).length;
+  // HONESTY FIX (2026-09-04, WO-C). `places.length > 0` is guaranteed here —
+  // the `!category || !places.length` branch above already returned for a
+  // genuinely empty queue, with its own note. So reaching this point with
+  // `rows.length === 0` means every candidate was DEFERRED (spend-gate
+  // ledger exhausted, the in-run deadline, or a mid-batch provider halt) —
+  // real work existed and none of it happened. The pulse used to read
+  // `attempted: rows.length` (0) with `note: null` in that case: identical,
+  // byte for byte, to a healthy idle run with nothing to do. That is the
+  // exact failure this repo already has a name for (job-watch's own docstring:
+  // "a job that ATTEMPTS work and SUCCEEDS at none of it... looks healthy from
+  // the outside") — just relocated one level down, from "the cron never runs"
+  // to "the cron runs and every candidate silently starves." Measured live
+  // 2026-09-04: five consecutive real runs (atlas-build/-retry/-refresh,
+  // 07:15-08:35 UTC) posted attempted:0/note:null while wf_spend_ledger shows
+  // details_enterprise at 950/950 for September — the shared free-tier SKU
+  // this route now draws from via spendAllow() (see the route header) was
+  // already maxed by live traffic before this route's per-call gate even
+  // shipped. `attempted: places.length` here (not rows.length) is what makes
+  // classifyHealth() see "work existed, nothing succeeded" instead of "idle"
+  // — job-watch pages after DEAD_RUN_THRESHOLD consecutive dead runs, which
+  // is the correct outcome: this state does not clear on its own retry.
   await pulse({
-    attempted: rows.length,
+    attempted: rows.length || places.length,
     succeeded: publishedCount,
     note: stats.providerHalt
       // "billing:"/"quota:" prefix is the escalation hook: classifyHealth
       // treats it as an incident after ONE dead run, not DEAD_RUN_THRESHOLD.
       ? `${stats.providerHalt.kind}: ${stats.providerHalt.msg}`
-      : publishedCount === 0 && rows.length > 0
-        ? `0 published of ${rows.length}: pending=${pending} unverified=${unverified} with_page=${withPage}`
-        : null,
+      : rows.length === 0
+        ? `budget: 0 of ${places.length} candidates written — ${deferred} deferred (spend gate / deadline)`
+        : publishedCount === 0 && rows.length > 0
+          ? `0 published of ${rows.length}: pending=${pending} unverified=${unverified} with_page=${withPage}`
+          : null,
   });
 
   return Response.json({

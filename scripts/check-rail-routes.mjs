@@ -42,7 +42,8 @@ const METROS = keysOf("lib/beaches.js", "export const BEACH_METROS");
 
 /** Resolve a URL path to a page file, honouring [param] segments. */
 function routeExists(urlPath) {
-  const segs = urlPath.split("/").filter(Boolean);
+  const pathname = new URL(urlPath, "https://www.gowayfind.com").pathname;
+  const segs = pathname.split("/").filter(Boolean);
   let dir = APP;
   for (const seg of segs) {
     const literal = path.join(dir, seg);
@@ -127,7 +128,7 @@ for (const r of RAILS) {
         continue;
       }
       if (!routeExists(href)) { bad(`${r.id} -> ${href}: no such route`); continue; }
-      const segs = href.split("/").filter(Boolean);
+      const segs = new URL(href, "https://www.gowayfind.com").pathname.split("/").filter(Boolean);
       if (segs[0] === "best-beaches" && !METROS.has(segs[1])) bad(`${r.id} -> ${href}: "${segs[1]}" is not a BEACH_METROS key (200-indexable soft-404)`);
       // v8.3: /nightlife joined SEGMENTED when the homepage category tabs
       // became real links. Same closed key set, same failure mode, so it joins

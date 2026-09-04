@@ -1,9 +1,26 @@
-// scripts/test-rail-score-order.mjs — the rails order by the WAYFIND SCORE.
+// scripts/test-rail-score-order.mjs — the EXPERIENCES rails order by the
+// WAYFIND SCORE. This file covers experienceWayfindScore / rankExperiences
+// ONLY (lib/experiencesData.js) — the Viator experiences collection. It does
+// NOT cover, and never has covered, any of Wayfind's poster rail composers
+// (nightOut, fall, dateNight, birthday, todayDiscovery, lunchBreak, worth
+// eating, breakfast, …). For the GLOBAL law that governs every one of those,
+// see lib/railRank.js and scripts/check-rail-rank-law.mjs.
 //
 // Owner, 2026-08-05: "they are not being displayed by highest to lowest score,
 // I want the highest score to show first."
 //
-// THE DEFECT. rankExperiences() ordered correctly — by experienceWayfindScore,
+// 2026-09-03 — the same complaint came back a third time, this time on Night
+// Out ("Joyland 8.5/16.8mi, La Jaula 7.7/14.9mi, Enigma 9.0/18mi" — a 9.0
+// sitting below a 7.7). This file's every assertion below targets
+// rankExperiences() and had been green the entire time: it was answering a
+// question about the Experiences rail while the real regression lived in
+// lib/nightOutIntent.js and lib/fallIntentRails.js, whose composers this file
+// never imports and never calls. THAT is scripts/check-rail-rank-law.mjs's
+// entire reason to exist — it enumerates every rail composer from the
+// filesystem (glob, not a hand-written list) instead of trusting that one
+// well-guarded rail means the rest are guarded too.
+//
+// THE DEFECT (the original, 2026-08-05 one). rankExperiences() ordered correctly — by experienceWayfindScore,
 // the Bayesian blend that weights review DEPTH. Both rails then RE-SORTED by
 // `rating * 2 + min(0.4, log10(reviews))`, in which reviews contribute at most
 // 0.4 and rating dominates. Measured on the real shape:

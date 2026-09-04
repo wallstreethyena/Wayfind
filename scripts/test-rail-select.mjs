@@ -700,10 +700,23 @@ const WIDEN_RADIUS_MI = 25;
   const geoIndex = readFileSync(new URL("../supabase/migrations/20260902_wf_inventory_category_geo_bounds.sql", import.meta.url), "utf8");
   ok(/on public\.wf_inventory \(category, lat, lng\)/.test(geoIndex),
     "the cold category + geographic-bounds read has one aligned composite index migration");
+  // WO11 (2026-09-02, owner): "load the top ten based on the Wayfind score,
+  // and as they scroll left, as they pass the seventh card, start loading 10
+  // more cards, and 10 more, instead of loading everything at once." Every
+  // converted rail pages independently through usePagedRail — ONE mechanism,
+  // not two. This used to assert the OTHER lane's crude whole-blob
+  // scroll-triggered `full=1` loader (railScrollNeedsMore); that mechanism
+  // was removed from every one of these components in favor of the paged
+  // contract below, so the assertion follows the code rather than pinning a
+  // pattern the repo no longer has.
   for (const file of ["TodayDiscoveryRails", "NightOutRails", "DateNightRails", "BirthdayRails", "FallIntentRails"]) {
     const railUi = readFileSync(new URL(`../app/components/${file}.js`, import.meta.url), "utf8");
-    ok(/railScrollNeedsMore\(event\.currentTarget\)/.test(railUi),
-      `${file} fetches the remaining ranked window when a swipe nears the end`);
+    ok(/usePagedRail\(/.test(railUi),
+      `${file} pages its rails through the shared usePagedRail hook`);
+    ok(/domRef=\{\w+ === sentinelIndex \? sentinelRef : undefined\}/.test(railUi),
+      `${file} wires the loaded−3 sentinel onto its cards so scrolling near the end fetches the next ten`);
+    ok(!/railScrollNeedsMore/.test(railUi) && !/setFull/.test(railUi),
+      `${file} no longer carries the other lane's whole-blob scroll-triggered full=1 loader`);
   }
 }
 
