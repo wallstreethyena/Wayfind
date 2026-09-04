@@ -932,3 +932,8 @@ node scripts/check-dead-provider-parked.mjs
 # 2000px: no title or price clipped, a width floor that beats the ladder, and a
 # read-only card no longer held at an action card's height.
 node scripts/check-rail-card-fits-its-content.mjs
+# 2026-09-04 ONE PREMIUM CARD SYSTEM. Event, tour, lunch and event-plan cards
+# all keep Save / Like / Dislike / Share; non-place reactions stay isolated
+# from place ranking; event detail owns itinerary/save actions and three nearby
+# recommendation rails; the rejected global floating CTA cannot return.
+node scripts/check-premium-event-card-system.mjs

@@ -44,11 +44,13 @@ ok(/\/api\/cron\/lunch-images\?limit=6/.test(vercel), "the dish-image refresh is
 
 ok(menu.includes('aria-label="Lunch in My City"'), "the reveal is named for assistive technology");
 ok(menu.includes('src="/cards/lunch-in-my-city.webp"'), "the supplied city-wall image is the postcard art");
-ok(/className="wf-lunch-question"[\s\S]{0,420}onClick=\{rollLunchPick\}/.test(menu), "the glowing question block is the reveal button");
-ok(/@keyframes wfLunchGlow/.test(menu) && /@keyframes wfMarioPipe/.test(menu) && /@keyframes wfLunchRise/.test(menu), "the trigger glows, Mario enters the pipe, and the result rises out");
+ok(/className="wf-lunch-question"[\s\S]{0,520}onClick=\{\(\) => \{ playLunchCoin\(\); rollLunchPick\(\); \}\}/.test(menu), "the glowing question block is the reveal button and plays its coin cue in the click gesture");
+ok(/AudioContext|webkitAudioContext/.test(menu) && /createOscillator\(\)/.test(menu), "the coin cue is synthesized without a plug-in or downloaded audio asset");
+ok(/@keyframes wfLunchGlow/.test(menu) && /@keyframes wfLunchRise/.test(menu) && !/wfMarioPipe|wf-lunch-mario/.test(menu), "the trigger glows and the actual result card rises; Mario is never the animated layer");
 const resultCard = menu.match(/<article key=\{lunchPick\.id\}[\s\S]*?<\/article>/)?.[0] || "";
 ok(resultCard.includes("<FallbackImg") && resultCard.includes("{lunchPick.name}") && resultCard.includes("{lunchPick.mustTry}"), "the place card contains the photo, name, and must-try recommendation");
-ok(!/PlaceScoreChip|distMi|reviews|Directions|Save|Share|Open the postcard/.test(resultCard), "the place card contains no score, distance, reviews, or action chrome");
+ok(!/PlaceScoreChip|distMi|reviews|Directions|Open the postcard/.test(resultCard), "the place card contains no score, distance, reviews, or unrelated navigation chrome");
+ok(/wf-lunch-card-actions/.test(resultCard) && /Save/.test(resultCard) && /toggleLike/.test(resultCard) && /toggleDislike/.test(resultCard) && /Share/.test(resultCard), "the lunch postcard carries the same save, like, dislike, and share actions as every Wayfind card");
 ok(/wfLunchDisclosure \.25s ease 2\.8s both/.test(menu), "the attempt disclosure appears two seconds after the card settles");
 ok(menu.includes("Challenge a friend") && />Close<\/button>/.test(menu) && /\?go=lunch/.test(menu), "the settled postcard can challenge a friend or close, and the shared link opens the lunch reveal");
 ok(/prefers-reduced-motion:reduce/.test(menu), "the reveal respects reduced-motion preferences");

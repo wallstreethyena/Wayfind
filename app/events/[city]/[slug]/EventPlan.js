@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import RailCard, { RailDots, RailNav } from "../../../components/RailCard";
+import { WF_PLACE_CARD_CSS } from "../../../components/css";
+import { cardImageSrc } from "../../../../lib/placePhoto";
+import { toDisplayScore } from "../../../../lib/score";
 
 function textName(place) {
   const d = place && place.displayName;
@@ -36,29 +40,22 @@ function quality(place) {
   return rating(place) * 20 + Math.min(12, Math.log10(reviews(place) + 1) * 4);
 }
 
-function chooseBest(rows, origin, venueName) {
+function chooseBest(rows, origin, venueName, excluded = new Set(), limit = 8) {
   const venue = String(venueName || "").toLowerCase();
   return (rows || [])
-    .filter((p) => p && p.id && textName(p) && textName(p).toLowerCase() !== venue)
+    .filter((p) => p && p.id && !excluded.has(p.id) && textName(p) && textName(p).toLowerCase() !== venue)
     .map((p) => ({ ...p, _name: textName(p), _miles: milesBetween(origin, point(p)) }))
     .filter((p) => p._miles == null || p._miles <= 12)
-    .sort((a, b) => quality(b) - quality(a) || reviews(b) - reviews(a) || (a._miles ?? 99) - (b._miles ?? 99))[0] || null;
+    .sort((a, b) => quality(b) - quality(a) || reviews(b) - reviews(a) || (a._miles ?? 99) - (b._miles ?? 99))
+    .slice(0, limit);
 }
 
 function detailHref(place) {
   return place && place.id ? `/p/${encodeURIComponent(place.id)}` : null;
 }
 
-function factLine(place, kind) {
-  const parts = [];
-  if (rating(place)) parts.push(`${rating(place).toFixed(1)}★`);
-  if (place && place._miles != null) parts.push(place._miles < 0.2 ? "Steps away" : `${place._miles.toFixed(1)} mi away`);
-  if (!parts.length) parts.push(kind === "stay" ? "A nearby place to stay" : "A nearby Wayfind pick");
-  return parts.join(" · ");
-}
-
 export default function EventPlan({ lat, lng, city, venue, time }) {
-  const [picks, setPicks] = useState(null);
+  const [rails, setRails] = useState(null);
 
   useEffect(() => {
     const origin = { lat: Number(lat), lng: Number(lng) };
@@ -83,33 +80,59 @@ export default function EventPlan({ lat, lng, city, venue, time }) {
       ]);
       let stayRows = ownedStay;
       if (!stayRows.length) stayRows = await search(`best hotel near ${venue || city || "the event"}`, "hotels");
-      if (!dead) setPicks([
-        { kind: "food", eyebrow: "Eat nearby", benefit: "A strong meal before the event", place: chooseBest(foodRows, origin, venue) },
-        { kind: "after", eyebrow: "Keep the night going", benefit: "A well-rated next stop close by", place: chooseBest(afterRows, origin, venue) },
-        { kind: "stay", eyebrow: "Stay nearby", benefit: "A top-rated nearby base", place: chooseBest(stayRows, origin, venue) },
-      ].filter((x) => x.place && detailHref(x.place)));
+      const used = new Set();
+      const food = chooseBest(foodRows, origin, venue, used);
+      food.forEach((place) => used.add(place.id));
+      const after = chooseBest(afterRows, origin, venue, used);
+      after.forEach((place) => used.add(place.id));
+      const stay = chooseBest(stayRows, origin, venue, used);
+      if (!dead) setRails([
+        { kind: "food", title: "Eat nearby", deck: "The strongest meals close enough to fit before the event.", benefit: "A strong meal before the event", places: food },
+        { kind: "after", title: "Keep the night going", deck: "Drinks, dessert, music, and worthwhile next stops nearby.", benefit: "A well-rated next stop close by", places: after },
+        { kind: "stay", title: "Stay nearby", deck: "Top nearby stays when the night should not end with a long drive.", benefit: "A top-rated nearby base", places: stay },
+      ]);
     })();
     return () => { dead = true; };
   }, [lat, lng, city, venue, time]);
 
-  if (!picks || !picks.length) return null;
+  if (!rails) return null;
   return (
-    <section aria-label="Complete the plan" style={{ marginTop: 18 }}>
-      <div style={{ fontSize: 11, fontWeight: 900, letterSpacing: "1.2px", textTransform: "uppercase", color: "#2EC9A6" }}>Complete the plan</div>
-      <div style={{ fontSize: 13, lineHeight: 1.45, color: "#94A3B8", marginTop: 4 }}>Useful nearby choices, ranked from the event—not paid placement.</div>
-      <div style={{ display: "grid", gap: 9, marginTop: 11 }}>
-        {picks.map(({ kind, eyebrow, benefit, place }) => (
-          <a key={kind} href={detailHref(place)} style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", gap: 12, padding: "13px 14px", borderRadius: 14, border: "1px solid #2A3546", background: "linear-gradient(145deg,#151E2B,#101722)", color: "inherit", textDecoration: "none" }}>
-            <span style={{ minWidth: 0 }}>
-              <span style={{ display: "block", color: "#94A3B8", fontSize: 10, lineHeight: 1.2, fontWeight: 900, textTransform: "uppercase", letterSpacing: "1px" }}>{eyebrow}</span>
-              <span style={{ display: "block", color: "#F1F5F9", fontSize: 15, lineHeight: 1.25, fontWeight: 850, marginTop: 4 }}>{place._name}</span>
-              <span style={{ display: "block", color: "#AAB6C8", fontSize: 11.5, lineHeight: 1.35, marginTop: 4 }}>{benefit} · {factLine(place, kind)}</span>
-            </span>
-            <span aria-hidden="true" style={{ color: "#2EC9A6", fontSize: 20, fontWeight: 900 }}>›</span>
-          </a>
-        ))}
-      </div>
-      {picks.some((x) => x.kind === "stay") && <div style={{ color: "#64748B", fontSize: 10.5, lineHeight: 1.4, marginTop: 8 }}>Hotel booking may earn Wayfind a commission at no extra cost to you. It never changes the ranking.</div>}
+    <section aria-label="Complete the plan" style={{ marginTop: 32 }}>
+      <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS }} />
+      <div style={{ fontSize: 12, fontWeight: 900, letterSpacing: "1.4px", textTransform: "uppercase", color: "#FB923C" }}>Complete the plan</div>
+      <h2 style={{ margin: "6px 0 0", color: "#F8FAFC", fontSize: 25, lineHeight: 1.1, letterSpacing: "-.35px" }}>Build the rest of your night.</h2>
+      <div style={{ fontSize: 14, lineHeight: 1.5, color: "#94A3B8", marginTop: 7 }}>Ranked from the event location — not paid placement.</div>
+      {rails.map(({ kind, title, deck, places }) => {
+        const railId = `event-plan-${kind}`;
+        return <section key={kind} aria-labelledby={`${railId}-title`} style={{ marginTop: 24 }}>
+          <h3 id={`${railId}-title`} style={{ margin: 0, color: "#F8FAFC", fontSize: 19, lineHeight: 1.2 }}>{title}</h3>
+          <p style={{ margin: "4px 0 8px", color: "#A8B2C2", fontSize: 12.5, lineHeight: 1.45 }}>{deck}</p>
+          {!places.length ? <p style={{ color: "#7F8A9C", fontSize: 12.5 }}>No nearby option clears Wayfind&apos;s quality bar yet.</p> : <>
+            <RailNav railId={railId} count={places.length} total={places.length} unit="ranked options" />
+            <div className="wf-rail" data-rail={railId} tabIndex={0} role="region" aria-label={title}>
+              {places.map((place, index) => {
+                const href = detailHref(place);
+                const score = Number(place.wfScore ?? place.score);
+                return <RailCard
+                  key={place.id}
+                  place={place}
+                  photo={place.photoUrl || place.photo_url || place.image || place.photo || cardImageSrc(place, 640)}
+                  title={place._name}
+                  eyebrow={title}
+                  rank={index + 1}
+                  score={Number.isFinite(score) && score > 0 ? toDisplayScore(score) : null}
+                  facts={[rating(place) ? `${rating(place).toFixed(1)}★` : null, reviews(place) ? `${reviews(place).toLocaleString()} reviews` : null, place._miles != null ? (place._miles < .2 ? "Steps away" : `${place._miles.toFixed(1)} mi`) : null].filter(Boolean)}
+                  href={href}
+                  ariaLabel={`Open ${place._name}`}
+                  eagerMedia={index < 3}
+                />;
+              })}
+            </div>
+            <RailDots railId={railId} count={places.length} />
+          </>}
+        </section>;
+      })}
+      {rails.some((rail) => rail.kind === "stay" && rail.places.length) && <div style={{ color: "#64748B", fontSize: 10.5, lineHeight: 1.4, marginTop: 12 }}>Hotel booking may earn Wayfind a commission at no extra cost to you. It never changes the ranking.</div>}
     </section>
   );
 }

@@ -45,7 +45,7 @@ export default function HomeAffiliateActivityRail({ items, contentId, onLog }) {
                 ...(item.chips || []),
               ].filter(Boolean)}
               eagerMedia={rank <= 4}
-              actionsReadOnly
+              actionItem={{ id: item.code, type: "experience", title: item.title, image: item.image || null, url: item.url || item.bookingUrl || "", provider: "viator" }}
               ariaLabel={`Book ${item.title} with Viator`}
               onOpen={(event) => {
                 const link = event?.currentTarget?.querySelector?.("a[data-offer]");

@@ -15,8 +15,11 @@ import TicketButton from "./TicketButton.js";
 import { addressLine, directionsUrl } from "../../../../lib/placeWhere.js";
 import EventStory from "./EventStory.js";
 import EventPlan from "./EventPlan.js";
-import OpenAppCTA from "../../../components/OpenAppCTA.js";
+import EventActions from "./EventActions.js";
 import { eventStoryEvidence, eventStoryFallback } from "../../../../lib/eventStory.js";
+import RailCard, { RailDots, RailNav } from "../../../components/RailCard.js";
+import { WF_PLACE_CARD_CSS } from "../../../components/css.js";
+import { eventCategoryArt } from "../../../../lib/eventCategoryArt.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -129,6 +132,7 @@ async function EventListPage({ params }) {
   };
   return (
     <div style={{ background: "#0D1117", minHeight: "100dvh", color: "#CBD5E1", fontFamily: "var(--wf-sans)" }}>
+      <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "20px 20px 48px" }}>
         <a href="/events" style={{ color: A, fontWeight: 800, textDecoration: "none", fontSize: 13.5 }}>‹ All events</a>
@@ -148,24 +152,27 @@ async function EventListPage({ params }) {
           </div>
         ) : (
           <div>
+            <RailNav railId={`event-window-${params.city}-${params.slug}`} count={events.length} total={events.length} unit="events" />
+            <div className="wf-rail" data-rail={`event-window-${params.city}-${params.slug}`} role="region" tabIndex={0} aria-label={`Events ${win.label.toLowerCase()} in ${city.name}`}>
             {events.map((e) => {
               const internal = e.destKind === "internal";
-              return (
-                <a key={e.id} href={internal ? e.dest : e.dest} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} style={{ display: "flex", gap: 12, alignItems: "center", textDecoration: "none", background: "#131A24", border: "1px solid #263041", borderRadius: 12, padding: "12px 14px", marginBottom: 9 }}>
-                  <div style={{ flexShrink: 0, width: 46, textAlign: "center" }}>
-                    <div style={{ fontSize: 10, fontWeight: 800, color: A, textTransform: "uppercase" }}>{fmtDay(e.date).split(" ")[1]}</div>
-                    <div style={{ fontSize: 18, fontWeight: 800, color: "#F1F5F9", lineHeight: 1 }}>{fmtDay(e.date).split(" ")[2]}</div>
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 14.5, fontWeight: 700, color: "#F1F5F9", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{e.name}</div>
-                    <div style={{ fontSize: 12.5, color: "#94A3B8", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{fmtDay(e.date)}{e.time ? " · " + e.time.slice(0, 5) : ""}{e.venue ? " · " + e.venue : ""}</div>
-                  </div>
-                  {e.ticketed
-                    ? <span style={{ flexShrink: 0, background: A, color: "#0D1117", borderRadius: 999, padding: "6px 12px", fontSize: 11.5, fontWeight: 800 }}>Get tickets ↗</span>
-                    : <span style={{ color: A, fontSize: 15, fontWeight: 800 }}>›</span>}
-                </a>
-              );
+              const image = e.image || eventCategoryArt(e.segment || e.genre || "events", e);
+              return <RailCard
+                key={e.id}
+                photo={image}
+                title={e.name}
+                eyebrow="Event"
+                when={{ label: fmtDay(e.date).toUpperCase(), value: e.time ? e.time.slice(0, 5) : "All day", tone: "later" }}
+                facts={[e.venue || city.name, e.price || null].filter(Boolean)}
+                href={e.dest}
+                external={!internal}
+                actionItem={{ id: e.id, type: "event", title: e.name, image, url: e.dest, provider: e.source || null }}
+                cta={{ label: e.ticketed ? "Get tickets ↗" : "Explore event", href: e.dest, external: !internal, sponsored: e.ticketed }}
+                ariaLabel={`Open ${e.name}`}
+              />;
             })}
+            </div>
+            <RailDots railId={`event-window-${params.city}-${params.slug}`} count={events.length} />
           </div>
         )}
         <div style={{ marginTop: 18, fontSize: 11.5, color: "#64748B" }}>Every listing is a real, validated event — no dead links, no past dates. Times can change; confirm before you go.</div>
@@ -206,23 +213,33 @@ export default async function EventPage({ params }) {
     ...(e.image ? { image: [e.image] } : {}),
     ...(e.url ? { url: e.url } : {}),
   };
-  const A = "#2EC9A6";
+  const A = "#F97316";
   return (
-    <div style={{ background: "#0D1117", minHeight: "100dvh", color: "#CBD5E1", fontFamily: "var(--wf-sans)" }}>
+    <div style={{ background: "radial-gradient(circle at 50% -10%,rgba(249,115,22,.16),transparent 34%),#080C12", minHeight: "100dvh", color: "#CBD5E1", fontFamily: "var(--wf-sans)" }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <div style={{ maxWidth: 640, margin: "0 auto", padding: "20px 20px 48px" }}>
-        <a href="/events" style={{ color: A, fontWeight: 800, textDecoration: "none", fontSize: 13.5 }}>‹ All events</a>
+      <div style={{ maxWidth: 960, margin: "0 auto", padding: "22px clamp(16px,4vw,40px) 64px" }}>
+        <nav style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, marginBottom: 18 }}>
+          <a href="/" aria-label="Wayfind home" style={{ display: "inline-flex", alignItems: "center" }}><img src="/brand/wayfind-official-white.png" alt="Wayfind" width="132" height="38" style={{ width: 132, height: "auto", display: "block" }} /></a>
+          <a href="/events" style={{ color: "#FDBA74", fontWeight: 850, textDecoration: "none", fontSize: 13.5 }}>‹ All events</a>
+        </nav>
         {e.image && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={e.image} alt="" style={{ width: "100%", maxHeight: 300, objectFit: "cover", borderRadius: 16, marginTop: 14, display: "block" }} />
+          <div style={{ position: "relative", overflow: "hidden", borderRadius: 24, border: "1px solid rgba(255,255,255,.1)", boxShadow: "0 28px 70px rgba(0,0,0,.42),0 0 0 1px rgba(249,115,22,.1)" }}>
+            <img src={e.image} alt="" style={{ width: "100%", height: "clamp(260px,42vw,430px)", objectFit: "cover", display: "block" }} />
+            <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,transparent 42%,rgba(4,8,14,.82))" }} />
+          </div>
         )}
         {cancelled && (
           <div style={{ marginTop: 14, background: "rgba(239,68,68,.12)", border: "1px solid rgba(239,68,68,.5)", borderRadius: 12, padding: "11px 14px", color: "#FCA5A5", fontWeight: 800, fontSize: 13.5 }}>
             This event has been {/postponed/i.test(e.status) ? "postponed" : "cancelled"} by the organizer. Check the official listing before making plans.
           </div>
         )}
-        <h1 style={{ fontSize: 26, fontWeight: 800, color: "#F1F5F9", lineHeight: 1.2, margin: "16px 0 6px" }}>{e.name}</h1>
-        <div style={{ fontSize: 15, fontWeight: 700, color: A }}>{fmtDate(e.date, e.time)}</div>
+        <div style={{ marginTop: e.image ? -58 : 0, position: "relative", zIndex: 2, padding: e.image ? "0 clamp(14px,3vw,28px)" : 0 }}>
+          <div style={{ display: "inline-flex", padding: "6px 10px", borderRadius: 999, background: "#F97316", color: "#111827", fontSize: 11, fontWeight: 900, letterSpacing: ".8px", textTransform: "uppercase" }}>Wayfind event pick</div>
+          <h1 style={{ fontSize: "clamp(30px,5vw,48px)", fontWeight: 900, letterSpacing: "-1.1px", color: "#F8FAFC", lineHeight: 1.04, margin: "10px 0 7px", textShadow: "0 4px 24px rgba(0,0,0,.65)" }}>{e.name}</h1>
+          <div style={{ fontSize: "clamp(15px,2vw,18px)", fontWeight: 800, color: "#FDBA74" }}>{fmtDate(e.date, e.time)}</div>
+        </div>
+        <EventActions event={{ ...e, url: `${CANON}/events/${params.city}/${params.slug}` }} />
         <EventStory eventId={e.id} initialStory={initialStory} />
         {where && (
           <div style={{ marginTop: 14, background: "#131A24", border: "1px solid #263041", borderRadius: 14, padding: "13px 15px" }}>
@@ -256,7 +273,6 @@ export default async function EventPage({ params }) {
         <div style={{ marginTop: 16, fontSize: 11.5, color: "#64748B" }}>
           Listing from {e.source}. Times and availability can change — confirm on the {e.ticketed ? "ticket page" : "official site"} before you go.
         </div>
-        <OpenAppCTA to="/events" label="Explore events" />
         <a href="/events" style={{ display: "inline-block", marginTop: 20, color: A, fontWeight: 800, fontSize: 13.5, textDecoration: "none" }}>‹ Back to all events</a>
       </div>
     </div>

@@ -11,7 +11,6 @@ import { LANDING_CITIES, rankedFor, whyLine } from "../../../lib/landing";
 import { SITE_URL } from "../../../lib/site";
 import { experienceSearchUrl, viatorProductGoUrl, experienceGoUrl } from "../../../lib/affiliates";
 import { resolveViatorProduct } from "../../../lib/viatorServer";
-import OpenAppCTA from "../../components/OpenAppCTA.js";
 import PremiumIntentHero from "../../components/PremiumIntentHero";
 import HubConversion from "../../components/HubConversion";
 import TrackedOfferLink from "../../components/TrackedOfferLink";
@@ -228,7 +227,6 @@ export default async function CulturePage({ params }) {
       <p style={{ fontSize: 15, color: "#C9D1D9", marginTop: 26 }}>
         Visiting {c.title}? <a href="/" style={S.footerLink}>Wayfind</a> ranks every restaurant, attraction, and hotel near you with live hours and honest scores{params.metro === "orlando" ? <>, and our <a href="/guides/things-to-do-orlando-not-theme-parks" style={S.footerLink}>non-theme-park Orlando guide</a> covers the days between parks</> : null}.
       </p>
-      <OpenAppCTA to="/" label="Open Wayfind" />
       </article>
     </main>
   );

@@ -292,7 +292,6 @@ import { placeCardHook } from "../../../lib/rankingWhy";
 // scripts/check-place-card-css-contract.mjs.
 import { WF_PLACE_CARD_CSS } from "../../components/css";
 import DiscoveryPaths from "../../components/DiscoveryPaths";
-import OpenAppCTA from "../../components/OpenAppCTA.js";
 import PremiumIntentHero from "../../components/PremiumIntentHero";
 // The floating pill stays (it catches people who DO read to the end). This adds
 // the above-the-fold handoff under a 50/50 experiment — measured dwell on these
@@ -944,7 +943,6 @@ export default async function GuidePage({ params }) {
       <p style={{ ...S.p, marginTop: 30 }}>
         Planning the rest of your trip? <a href="/" style={S.footerLink}>Wayfind</a> ranks every restaurant, attraction, and hotel near you with live hours and honest scores, and our <a href={"/culture/" + (g.region === "Tampa" ? "tampa" : g.region === "Sarasota" ? "sarasota" : "orlando")} style={S.footerLink}>{g.region || "Orlando"} culture guide</a> covers what to eat, say, and never skip.
       </p>
-      <OpenAppCTA to="/" label="Open Wayfind" />
       </article>
     </main>
   );

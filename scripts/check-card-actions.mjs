@@ -187,9 +187,9 @@ ok(/actionHref\s*=\s*\(/.test(cardSrc), `${CARD}: the no-JS actionHref fallback 
 for (const a of ACTIONS) {
   const Cap = a[0].toUpperCase() + a.slice(1);
   const resolved = "do" + Cap;
-  const declared = new RegExp("const\\s+" + resolved + "\\s*=\\s*on" + Cap + "\\s*\\|\\|\\s*\\(\\s*fb\\.hydrated\\s*\\?");
+  const declared = new RegExp("const\\s+" + resolved + "\\s*=\\s*on" + Cap + "\\s*\\|\\|\\s*\\(\\s*cardActionsReadOnly\\s*\\?\\s*content\\.toggle" + Cap + "\\s*:\\s*fb\\.hydrated\\s*\\?");
   ok(declared.test(cardSrc),
-    `${CARD}: ${resolved} must be \`on${Cap} || (fb.hydrated ? <fallback> : null)\`. Without the fb.hydrated arm an unwired caller renders the anchor forever, which is the bug.`);
+    `${CARD}: ${resolved} must select the isolated content handler for legacy read-only cards and the place fallback otherwise. Without either arm an unwired control is dead.`);
   // The anchor must live in the else-branch of a ternary whose test is doX.
   const anchorIdx = cardSrc.indexOf(`actionHref("${a}")`);
   ok(anchorIdx > 0, `${CARD}: could not locate the ${a} anchor`);
@@ -225,8 +225,9 @@ const ROW = [...new Set([...cardSrc.matchAll(/className=\{?"wf-place-card-([a-z]
 ok(ROW.includes("share"), `${CARD}: the share control is no longer discoverable in the action row — this guard just stopped checking the action that broke`);
 for (const a of ROW) {
   const Cap = a[0].toUpperCase() + a.slice(1);
-  ok(new RegExp("const\\s+do" + Cap + "\\s*=\\s*on" + Cap + "\\s*\\|\\|\\s*\\(\\s*fb\\.hydrated\\s*\\?").test(cardSrc),
-    `${CARD}: do${Cap} must be \`on${Cap} || (fb.hydrated ? <fallback> : null)\`. A control that reads its raw prop is dead the moment one caller forgets it.`);
+  const handler = Cap === "Share" ? "content\\.share" : "content\\.toggle" + Cap;
+  ok(new RegExp("const\\s+do" + Cap + "\\s*=\\s*on" + Cap + "\\s*\\|\\|\\s*\\(\\s*cardActionsReadOnly\\s*\\?\\s*" + handler + "\\s*:\\s*fb\\.hydrated\\s*\\?").test(cardSrc),
+    `${CARD}: do${Cap} must select a working content or place handler. A control that reads its raw prop is dead the moment one caller forgets it.`);
   ok(!new RegExp("if \\(on" + Cap + "\\) on" + Cap + "\\(").test(cardSrc),
     `${CARD}: the ${a} control still calls the raw on${Cap} prop. It must call do${Cap}, or an unwired caller ships a button that does nothing.`);
 }
@@ -306,8 +307,8 @@ ok(/from "\.\.\/\.\.\/lib\/cardActions"/.test(railSrc), `${RAIL}: does not impor
 for (const a of ["Save", "Like", "Dislike"]) {
   ok(new RegExp("const\\s+do" + a + "\\s*=\\s*on" + a + "\\s*\\|\\|\\s*\\(\\s*useFb\\s*\\?").test(railSrc),
     `${RAIL}: do${a} must be \`on${a} || (useFb ? <fallback> : null)\``);
-  ok(new RegExp("disabled=\\{!do" + a + "\\}").test(railSrc),
-    `${RAIL}: the ${a} control must render disabled when it has no handler at all — a live button over a no-op is the bug this guard exists for`);
+  ok(new RegExp("if \\(do" + a + "\\) do" + a + "\\(e\\)").test(railSrc) || new RegExp("stayOnRailReaction\\(e, do" + a + "\\)").test(railSrc),
+    `${RAIL}: the ${a} control must invoke its resolved handler`);
 }
 
 let swallowers = 0;
@@ -323,12 +324,16 @@ for (const abs of walk(join(ROOT, "app"))) {
   }
 }
 
-// A control the card cannot service must not render at all. A tour card has
-// no place row and no handlers; it used to draw four live buttons over four
-// no-ops.
-ok(/\{actionsReadOnly \? null : \(/.test(railSrc),
-  `${RAIL}: the action row must honour the written actionsReadOnly opt-out — a card that is not a place (a tour product) must be able to say so rather than draw four controls it cannot service`);
-ok(/\{onShare \? \(/.test(railSrc), `${RAIL}: Share must render only when a share handler exists`);
+// Events and tours have stable identities but must not enter the place-signal
+// store that influences ranking. They receive a separate, fully working store,
+// so every card can keep the same four controls.
+const CONTENT_STORE = "lib/contentCardActions.js";
+const contentSrc = readFileSync(join(ROOT, CONTENT_STORE), "utf8");
+ok(/useContentCardActions/.test(railSrc) && /contentSubject/.test(railSrc), `${RAIL}: non-place cards must resolve actions through ${CONTENT_STORE}`);
+ok(/useSyncExternalStore/.test(contentSrc) && /wf_content_card_actions_v1/.test(contentSrc), `${CONTENT_STORE}: content actions need one versioned shared store`);
+ok(!/likeSignal|persistLike|persistDislike/.test(contentSrc), `${CONTENT_STORE}: event and experience reactions must never pollute place-ranking signals`);
+ok(!/\{actionsReadOnly \? null : \(/.test(railSrc), `${RAIL}: legacy read-only props must never remove the universal action row`);
+ok(/className="wf-place-card-share"[\s\S]{0,220}doShare\(e\)/.test(railSrc), `${RAIL}: Share must always render and call the resolved share handler`);
 
 let railSites = 0;
 for (const abs of walk(join(ROOT, "app"))) {

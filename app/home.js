@@ -3026,6 +3026,7 @@ function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onS
       onLike={onLike}
       onDislike={onDislike}
       onShare={shareEvent}
+      actionItem={{ id: event.id, type: "event", title: event.name, image: railImage || null, url: href, provider: event.source || null }}
     />
   );
 }

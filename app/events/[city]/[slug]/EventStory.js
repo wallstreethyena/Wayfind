@@ -18,7 +18,7 @@ export default function EventStory({ eventId, initialStory }) {
   if (!story) return null;
   return (
     <section aria-label="Why this event may fit your plans" style={{ marginTop: 16, padding: "18px", borderRadius: 16, border: "1px solid #2B374A", background: "linear-gradient(145deg,#172130 0%,#101720 100%)", boxShadow: "0 14px 34px rgba(0,0,0,.22)" }}>
-      <div style={{ color: "#2EC9A6", fontSize: 11, fontWeight: 900, letterSpacing: ".14em", textTransform: "uppercase" }}>{story.eyebrow}</div>
+      <div style={{ color: "#FB923C", fontSize: 11, fontWeight: 900, letterSpacing: ".14em", textTransform: "uppercase" }}>{story.eyebrow}</div>
       <p style={{ margin: "9px 0 0", color: "#F1F5F9", fontSize: 16, fontWeight: 700, lineHeight: 1.48 }}>{story.whyGo}</p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 9, marginTop: 15 }}>
         <div style={{ minWidth: 0, padding: "11px 12px", borderRadius: 12, background: "rgba(255,255,255,.035)", border: "1px solid #2B374A" }}>

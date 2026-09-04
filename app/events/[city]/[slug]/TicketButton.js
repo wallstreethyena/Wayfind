@@ -20,7 +20,7 @@ import { emitCommerce, mintClickId } from "../../../../lib/commerce";
 import { withClickId } from "../../../../lib/hubConversion";
 
 export default function TicketButton({ url, label, eventId, provider = "event_official" }) {
-  const A = "#2EC9A6";
+  const A = "#F97316";
   const safe = safeUrl(url);
   const clickId = useRef(null);
   if (clickId.current === null) clickId.current = mintClickId();

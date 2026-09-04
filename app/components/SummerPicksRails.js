@@ -27,7 +27,7 @@ export default function SummerPicksRails({ rails, city, onOpenPlace = null }) {
               const facts = [card.city || null, card.reviews ? `${compact(card.reviews)} reviews` : null, card.duration || null, card.fromPrice != null ? `from $${card.fromPrice}` : null].filter(Boolean);
               return <RailCard key={`tour:${card.code}`} photo={card.image} title={card.title} eyebrow="Bookable activity"
                 rank={rank} score={score} facts={facts} chips={(card.chips || []).slice(0, 3)} eagerMedia={rank <= 3}
-                actionsReadOnly ariaLabel={`See availability for ${card.title}`}
+                actionItem={{ id: card.code, type: "experience", title: card.title, image: card.image || null, url: card.url || card.bookingUrl || "", provider: "viator" }} ariaLabel={`See availability for ${card.title}`}
                 onOpen={(event) => event?.currentTarget?.querySelector?.("a[data-offer]")?.click()}
                 ctaNode={<ViatorCommerceLink t={card} surface={`summer_picks_${rail.id}`} contentId={city} rank={rank}
                   className="wf-place-card-book wf-rail-card-cta" title="Affiliate partner link. Wayfind may earn a commission; ranking does not change.">

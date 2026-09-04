@@ -3,56 +3,11 @@
 // EventCard move too (this screen is their only consumer); the event helpers
 // they use stay in home.js — other surfaces share them — and arrive via ctx.
 import { useState } from "react";
-import { C, Icon, PlaceScoreChip, TARGET } from "../kit";
+import { C, TARGET } from "../kit";
 import * as Culture from "../../../lib/culture";
 import { eventCategoryArt } from "../../../lib/eventCategoryArt";
 import { rankExperiences } from "../../../lib/experiencesData";
-import ViatorCommerceLink from "../ViatorCommerceLink";
-
-function EventArt({ e, seg, height, ctx }) {
-  const { eventUseImage, eventBucket } = ctx;
-  const [failedImage, setFailedImage] = useState("");
-  const acc = (seg && seg.color) || C.accent;
-  const categoryImage = eventCategoryArt(eventBucket(e), e);
-  const providerImage = eventUseImage(e) ? e.image : "";
-  const image = providerImage && failedImage !== providerImage
-    ? providerImage
-    : (categoryImage && failedImage !== categoryImage ? categoryImage : "");
-  const usingCategoryImage = image === categoryImage;
-  if (image) {
-    return <div style={{ position: "relative", width: "100%", height, overflow: "hidden" }}>
-      <img src={image} alt="" loading="lazy" draggable={false} onError={() => setFailedImage(image)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: usingCategoryImage ? "saturate(.82) contrast(.96)" : "none" }} />
-      {usingCategoryImage ? <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(5,9,15,.08),rgba(5,9,15,.52))" }} /> : null}
-    </div>;
-  }
-  return (
-    <div style={{ width: "100%", height, position: "relative", overflow: "hidden", background: `linear-gradient(135deg, ${acc}30 0%, #131A24 56%, #0D1117 100%)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div style={{ position: "absolute", top: -24, right: -24, width: 110, height: 110, borderRadius: "50%", background: `radial-gradient(circle, ${acc}33 0%, transparent 70%)`, pointerEvents: "none" }} />
-      <Icon name={(seg && seg.iconName) || "ticket"} size={38} color={acc} strokeWidth={1.6} style={{ opacity: 0.92 }} />
-      <div style={{ position: "absolute", bottom: 7, left: 10, fontSize: 9.5, fontWeight: 800, letterSpacing: "0.7px", textTransform: "uppercase", color: acc, opacity: 0.92 }}>{seg ? seg.short : "Event"}</div>
-    </div>
-  );
-}
-
-function TourArt({ src, height = 96 }) {
-  const fallback = eventCategoryArt("tours");
-  const [providerFailed, setProviderFailed] = useState(false);
-  const image = src && !providerFailed ? src : fallback;
-  const usingFallback = image === fallback;
-  return (
-    <div style={{ position: "relative", height, overflow: "hidden" }}>
-      <img
-        src={image}
-        alt=""
-        loading="lazy"
-        draggable={false}
-        onError={() => { if (!usingFallback) setProviderFailed(true); }}
-        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: usingFallback ? "saturate(.82) contrast(.96)" : "none" }}
-      />
-      {usingFallback ? <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(5,9,15,.08),rgba(5,9,15,.5))" }} /> : null}
-    </div>
-  );
-}
+import RailCard, { RailDots, RailNav } from "../RailCard";
 // Events pipeline integrity, Phase 2 (EVENTS_PIPELINE_DIAGNOSIS.md): the
 // title, image, and body are ONE semantic link to the event's resolved
 // primary destination (e.dest, computed server-side -- internal detail
@@ -62,7 +17,7 @@ function TourArt({ src, height = 96 }) {
 // destination never renders (the API already excludes it; the guard here
 // is belt-and-braces for stale client state).
 function EventCard({ e, onVenue, ctx }) {
-  const { formatEventDate, eventCategory, recurrenceLabel, cleanVenueName, ticketUrl, logEvent } = ctx;
+  const { formatEventDate, eventCategory, recurrenceLabel, cleanVenueName, ticketUrl, logEvent, openExternal } = ctx;
   if (!e || !e.dest) return null;
   const f = formatEventDate(e.date, e.time);
   const seg = eventCategory(e);
@@ -74,51 +29,26 @@ function EventCard({ e, onVenue, ctx }) {
   const actionHref = externalTickets || href;
   const actionExternal = Boolean(externalTickets || !internal);
   const actionLabel = e.ticketVia ? "Tickets · " + e.ticketVia : e.ticketed ? "Get tickets" : (internal ? "Explore event" : "Official details");
-  return (
-    <div style={{ display: "flex", flexDirection: "column", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden" }}>
-      <a
-        href={href}
-        {...(internal ? {} : { target: "_blank", rel: "noreferrer" })}
-        onClick={() => { try { logEvent("event_open", null, { id: e.id, kind: e.destKind, src: "events_grid" }); } catch (er) {} }}
-        style={{ display: "flex", flexDirection: "column", textDecoration: "none", color: "inherit" }}
-      >
-        <div style={{ position: "relative" }}>
-          <EventArt ctx={ctx} e={e} seg={seg} height={120} />
-          <div style={{ position: "absolute", top: 8, left: 8, background: "rgba(13,17,23,.85)", borderRadius: 8, padding: "3px 7px", textAlign: "center", minWidth: 36, backdropFilter: "blur(3px)" }}>
-            <div style={{ fontSize: 9, fontWeight: 800, color: C.light, textTransform: "uppercase", letterSpacing: "0.5px" }}>{f.mo}</div>
-            <div style={{ fontSize: 16, fontWeight: 800, color: "#fff", lineHeight: 1 }}>{f.day}</div>
-          </div>
-          {(e.segment || e.genre) && <div style={{ position: "absolute", top: 8, right: 8, background: "rgba(13,17,23,.85)", color: seg.color, borderRadius: 999, padding: "3px 8px", fontSize: 10, fontWeight: 800, backdropFilter: "blur(3px)", display: "inline-flex", alignItems: "center", gap: 4 }}><Icon name={seg.iconName || "ticket"} size={11} color={seg.color} />{seg.short}</div>}
-        </div>
-        <div style={{ padding: "10px 11px 0", minWidth: 0 }}>
-          <div style={{ fontSize: 13.5, fontWeight: 700, color: C.text, lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.name}</div>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 5, alignItems: "center" }}>
-            {rec
-              ? <span style={{ fontSize: 10, fontWeight: 800, color: C.light, background: C.adim, borderRadius: 999, padding: "2px 8px", whiteSpace: "nowrap" }}>↻ {rec}</span>
-              : (f.wd && <span style={{ fontSize: 11, color: C.muted }}>{f.wd}</span>)}
-            {f.time && <span style={{ fontSize: 11, color: C.muted }}>{rec ? "" : "· "}{f.time}</span>}
-          </div>
-          {e.price && <div style={{ fontSize: 11.5, fontWeight: 700, color: C.green, marginTop: 4 }}>{e.price}</div>}
-        </div>
-      </a>
-      <div style={{ padding: "0 11px 11px", display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
-        {venue && (
-          <button onClick={() => onVenue && onVenue()} style={{ textAlign: "left", background: "transparent", border: "none", padding: 0, marginTop: 4, fontSize: 11.5, fontWeight: 700, color: C.light, cursor: "pointer", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}>📍 {venue} ›</button>
-        )}
-        <div style={{ marginTop: "auto", paddingTop: 10 }}>
-          <a
-            href={actionHref}
-            {...(actionExternal ? { target: "_blank", rel: e.ticketVia ? "sponsored nofollow noopener" : "noreferrer" } : {})}
-            onClick={() => { try { logEvent(e.ticketed ? "ticket" : "event_open", null, { id: e.id, kind: e.destKind, src: "events_grid_cta" }); } catch (er) {} }}
-            style={{ minHeight: 38, borderRadius: 10, background: e.ticketed ? C.accent : C.panel, border: `1px solid ${e.ticketed ? C.accent : C.border}`, color: e.ticketed ? "#0D1117" : C.light, textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 850 }}
-          >
-            {actionLabel} <span aria-hidden="true">↗</span>
-          </a>
-          {e.source && <div style={{ marginTop: 6, textAlign: "center", fontSize: 9, color: C.muted, fontWeight: 600 }}>Availability from {e.source}</div>}
-        </div>
-      </div>
-    </div>
-  );
+  const categoryImage = eventCategoryArt(ctx.eventBucket(e), e);
+  const image = (ctx.eventUseImage(e) ? (e.thumb || e.image) : "") || categoryImage;
+  return <RailCard
+    photo={image}
+    photoFallback={categoryImage}
+    title={e.name}
+    eyebrow={seg.short}
+    when={{ label: (rec || f.wd || f.mo || "Event").toUpperCase(), value: f.time || `${f.mo} ${f.day}`, tone: "later" }}
+    facts={[venue || null, e.price || null, e.source ? `via ${e.source}` : null].filter(Boolean)}
+    chips={venue && onVenue ? [{ key: "venue", icon: "📍", label: venue, onClick: onVenue }] : []}
+    href={href}
+    external={!internal}
+    actionItem={{ id: e.id, type: "event", title: e.name, image, url: href, provider: e.source || null }}
+    cta={{ label: `${actionLabel} ↗`, href: actionHref, external: actionExternal, sponsored: !!e.ticketVia, onClick: () => { try { logEvent(e.ticketed ? "ticket" : "event_open", null, { id: e.id, kind: e.destKind, src: "events_grid_cta" }); } catch {} } }}
+    ariaLabel={`Open ${e.name}`}
+    onOpen={() => {
+      try { logEvent("event_open", null, { id: e.id, kind: e.destKind, src: "events_grid" }); } catch {}
+      if (typeof window !== "undefined") internal ? window.location.assign(href) : openExternal(href);
+    }}
+  />;
 }
 
 // v6.20 — the ONE events filter (owner direction, image 3 style): a single
@@ -222,29 +152,11 @@ export default function EventsScreen({ ctx }) {
             <div style={{ fontSize: 13.5, fontWeight: 800, color: C.text }}>Worth planning for</div>
             <div style={{ marginTop: 2, fontSize: 11.5, lineHeight: 1.45, color: C.muted }}>Dates we checked ourselves — the ones worth putting in the calendar now.</div>
           </div>
-          <div style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 6, WebkitOverflowScrolling: "touch" }}>
-            {plannable.map((e) => {
-              const d = ctx.formatEventDate(e.date, e.time);
-              const when = [d.mo, d.day].filter(Boolean).join(" ");
-              const facts = [ctx.cleanVenueName(e.venue) || e.city, e.price].filter(Boolean).join(" · ");
-              return (
-                <a
-                  key={e.id}
-                  href={e.dest}
-                  onClick={() => { try { ctx.logEvent("event_open", null, { id: e.id, kind: "internal", src: "planahead_shelf" }); } catch (err) {} }}
-                  style={{ flexShrink: 0, width: 232, borderRadius: 16, overflow: "hidden", background: C.card, border: `1px solid ${C.border}`, textDecoration: "none", display: "block" }}
-                >
-                  <EventArt e={e} seg={ctx.eventSegmentMeta(e.segment, e.genre, e.name)} height={104} ctx={ctx} />
-                  <div style={{ padding: "9px 11px 11px" }}>
-                    {when ? <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".7px", textTransform: "uppercase", color: C.accent }}>{when}</div> : null}
-                    <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, marginTop: 2, lineHeight: 1.25 }}>{e.name}</div>
-                    {facts ? <div style={{ fontSize: 11.5, color: C.muted, marginTop: 3 }}>{facts}</div> : null}
-                    {e.hook ? <div style={{ fontSize: 12, color: C.light, marginTop: 5, lineHeight: 1.4 }}>{e.hook}</div> : null}
-                  </div>
-                </a>
-              );
-            })}
+          <RailNav railId="events-worth-planning" count={plannable.length} total={plannable.length} unit="events" />
+          <div className="wf-rail" data-rail="events-worth-planning" role="region" tabIndex={0} aria-label="Worth planning for">
+            {plannable.map((e) => <EventCard key={e.id} e={e} onVenue={() => openVenue(e)} ctx={ctx} />)}
           </div>
+          <RailDots railId="events-worth-planning" count={plannable.length} />
         </section>
       )}
 
@@ -314,39 +226,7 @@ export default function EventsScreen({ ctx }) {
         eventsTours === null ? <Loader label="Finding bookable experiences" pad="8px 2px" /> :
         tours.length > 0 ? (
           <div style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)" }}>
-            {/* v6.42 (owner): the Local-tours category owns the page — the FULL
-                bookable list, every card a paid affiliate link. The old render
-                repainted the same 3-card rail and zeroed the date chips, which
-                read as "nothing appears" (reproduced live). */}
-            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
-              <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>Everything bookable near you · {tours.length}</span>
-              <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
-              {tours.map((t, i) => (
-                <ViatorCommerceLink
-                  key={t.code || t.url}
-                  t={t}
-                  surface="events_tours_grid"
-                  rank={i + 1}
-                  style={{ display: "block", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", position: "relative" }}
-                >
-                  {/* v6.44: badge rides ONLY on Viator's own demand flag as passed
-                      through by the API route (t.sellingFast) — never a computed guess. */}
-                  {t.sellingFast ? <span style={{ position: "absolute", top: 6, left: 6, zIndex: 1, background: "#B33A2B", color: "#fff", fontSize: 9.5, fontWeight: 800, letterSpacing: ".4px", textTransform: "uppercase", borderRadius: 999, padding: "3px 8px" }}>Selling fast</span> : null}
-                  <TourArt src={t.image} />
-                  <div style={{ padding: "9px 11px" }}>
-                    <div style={{ fontSize: 12.5, fontWeight: 700, color: C.text, lineHeight: 1.3, minHeight: 33, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 4, flexWrap: "wrap" }}>
-                      {t.rating > 0 && t.reviews > 0 ? <PlaceScoreChip p={{ rating: t.rating, reviews: t.reviews }} size={11} /> : <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted }}>New</span>}
-                      {t.duration ? <span style={{ fontSize: 11, color: C.muted }}>{t.duration}</span> : null}
-                    </div>
-                    <div style={{ marginTop: 8, display: "inline-block", background: C.accent, color: "#0D1117", borderRadius: 999, padding: "6px 12px", fontSize: 11.5, fontWeight: 800 }}>{t.fromPrice ? `Book from $${t.fromPrice}` : "Book now"} ↗</div>
-                  </div>
-                </ViatorCommerceLink>
-              ))}
-            </div>
-            <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Tours &amp; activities are affiliate links; Wayfind may earn a commission at no cost to you. It never changes what we recommend.</div>
+            <ViatorRail title={`Everything bookable near you · ${tours.length}`} items={tours} theme="events-tours" />
           </div>
         ) : <div style={{ color: C.muted, fontSize: 13, padding: "8px 2px" }}>No bookable tours are loading right now — check back shortly.</div>
       )}
@@ -365,9 +245,11 @@ export default function EventsScreen({ ctx }) {
             </div>
             <span style={{ fontSize: 11, fontWeight: 750, color: C.muted }}>{shown.length}</span>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
+          <RailNav railId={`events-${activeFilter.key}`} count={shown.length} total={shown.length} unit="events" />
+          <div className="wf-rail" data-rail={`events-${activeFilter.key}`} role="region" tabIndex={0} aria-label={`${activeFilter.label} events`}>
             {shown.map((e) => <EventCard key={e.id} e={e} onVenue={() => openVenue(e)} ctx={ctx} />)}
           </div>
+          <RailDots railId={`events-${activeFilter.key}`} count={shown.length} />
         </section>
       )}
       {!isTours && !eventsLoading && !eventsError && shown.length === 0 && (
