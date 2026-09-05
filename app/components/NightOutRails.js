@@ -55,6 +55,54 @@ function NightOutRailSection({
         : <p style={{ margin: "8px 0 0", fontSize: 13, color: C.muted }}>No verified event or venue within 27 miles clears this intent yet. Wayfind will not fill it with a look-alike.</p>}
     </section>
   );
+  // ONE VERIFIED OPTION IS NOT A SHELF (v8.97c).
+  //
+  // A horizontal rail with a single card promises a choice and delivers one,
+  // and it reads worse than the honest empty state directly above. Measured at
+  // Parrish AFTER the retrieval fix: Dinner + Entertainment really does have
+  // exactly one qualifying place within 27 miles, so this is now genuine
+  // scarcity rather than the candidate starvation that used to produce it.
+  //
+  // The answer is presentation, never data. Nothing is padded, nothing is
+  // promoted from a neighbouring rail, and no predicate is loosened to find a
+  // second card — it says what it is: the one place that clears this intent.
+  // A rail whose thinness is a RETRIEVAL bug must be fixed upstream; this
+  // branch is only ever reached when the full owned pool really did yield one.
+  const soloItem = count === 1 && eventCards.length === 0 && items.length === 1 ? items[0] : null;
+  if (soloItem) {
+    const type = prettyType(soloItem.primaryType || soloItem.primary_type || soloItem.category);
+    const href = directionsUrl(soloItem);
+    return (
+      <section aria-label={rail.title} style={{ marginTop: 22 }} data-rail-solo={rail.id}>
+        <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 850, color: C.text }}>{rail.title}</h2>
+        <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>{rail.deck}</p>
+        <p style={{ margin: "6px 0 10px", fontSize: 12.5, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase", color: "#FB923C" }}>
+          Best match tonight — the only place within 27 miles that clears this
+        </p>
+        <RailCard className="wf-exploding-primary wf-rail-solo"
+          photo={cardImageSrc(soloItem, 640) || null} place={soloItem}
+          title={soloItem.name} eyebrow={type} rank={1}
+          score={toDisplayScore(wayfindScore(soloItem.rating, soloItem.reviews))}
+          facts={[
+            soloItem.reviews ? compact(soloItem.reviews) + " reviews" : null,
+            priceLabel(soloItem.priceLevel != null ? soloItem.priceLevel : soloItem.priceNum) || null,
+            Number.isFinite(soloItem.distMi) ? soloItem.distMi + " mi" : null,
+          ].filter(Boolean)}
+          take={toHookLine(soloItem.editorial, soloItem.name) || null}
+          cta={href ? { label: "Directions ↗", href, external: true } : null}
+          ariaLabel={`Open ${soloItem.name}`}
+          onOpen={onOpenPlace ? () => onOpenPlace(soloItem) : undefined}
+          saved={isSaved ? !!isSaved(soloItem.id) : undefined}
+          liked={isLiked ? !!isLiked(soloItem.id) : liked ? !!liked[soloItem.id] : undefined}
+          disliked={isDisliked ? !!isDisliked(soloItem.id) : disliked ? !!disliked[soloItem.id] : undefined}
+          onSave={onSave ? (event) => onSave(event, soloItem) : undefined}
+          onLike={onLike ? (event) => onLike(event, soloItem) : undefined}
+          onDislike={onDislike ? (event) => onDislike(event, soloItem) : undefined}
+          onShare={onShare ? () => onShare(soloItem, { city }) : undefined} />
+      </section>
+    );
+  }
+
   return (
     <section aria-label={rail.title} style={{ marginTop: 22 }}>
       <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 850, color: C.text }}>{rail.title}</h2>
