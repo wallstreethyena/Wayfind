@@ -30,6 +30,8 @@ const sameVenue = (a, b) => {
   return hit && _dist(a, b) <= 250;
 };
 
+import { fsqSearch as fsqProviderSearch } from "../../../../lib/foursquare";
+
 async function googleSearch(q, lat, lng, radius, key) {
   try {
     const r = await fetch("https://places.googleapis.com/v1/places:searchText", {
@@ -46,13 +48,12 @@ async function googleSearch(q, lat, lng, radius, key) {
 async function fsqSearch(q, lat, lng, radius, key) {
   try {
     const params = new URLSearchParams({ ll: lat.toFixed(4) + "," + lng.toFixed(4), radius: String(Math.min(radius, 100000)), query: q, limit: "50" }).toString();
-    let r = await fetch("https://api.foursquare.com/v3/places/search?" + params + "&fields=fsq_id,name,geocodes,distance", { headers: { Authorization: key, Accept: "application/json" } });
-    if (r.status === 401 || r.status === 403) {
-      r = await fetch("https://places-api.foursquare.com/places/search?" + params, { headers: { Authorization: "Bearer " + key, "X-Places-Api-Version": "2025-06-17", Accept: "application/json" } });
-    }
-    if (!r.ok) return null;
-    const d = await r.json();
-    return ((d && d.results) || []).map((p) => ({ name: p.name, lat: p.latitude != null ? p.latitude : p.geocodes && p.geocodes.main && p.geocodes.main.latitude, lng: p.longitude != null ? p.longitude : p.geocodes && p.geocodes.main && p.geocodes.main.longitude })).filter((p) => p.name && p.lat != null);
+    // Shared provider rule (lib/foursquare.js). This diagnostic used to carry
+    // its own copy of the try-v3-then-401/403 chain — the same enumerated list
+    // that went blind when the sunset v3 host started answering 429.
+    const res = await fsqProviderSearch(params, key, { fields: "fsq_id,name,geocodes,distance" });
+    if (!res.ok) return null;
+    return res.results.map((p) => ({ name: p.name, lat: p.latitude != null ? p.latitude : p.geocodes && p.geocodes.main && p.geocodes.main.latitude, lng: p.longitude != null ? p.longitude : p.geocodes && p.geocodes.main && p.geocodes.main.longitude })).filter((p) => p.name && p.lat != null);
   } catch (e) { return null; }
 }
 
