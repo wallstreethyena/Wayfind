@@ -30,6 +30,12 @@ const getKey = () => ((process.env["FOURSQUARE_API_KEY"] || "").trim());
 const FSQ_TTL_MS = 30 * DAY;
 
 const FIELDS = "fsq_id,name,geocodes,location,categories,distance,rating,stats,price,hours,photos";
+// A diagnostic must never be cacheable anywhere: not the CDN, not a proxy, not
+// the browser. Applies to 401s too, so an unauthorised answer cannot be served
+// from a cache to a later authorised caller (or vice versa).
+const NO_STORE = { "Cache-Control": "no-store" };
+// The probe's one fixed query: Sarasota FL, 20km, five restaurants.
+const PROBE_QUERY = new URLSearchParams({ ll: "27.34,-82.53", radius: "20000", query: "restaurants", limit: "5" }).toString();
 const PRICE = { 1: "$", 2: "$$", 3: "$$$", 4: "$$$$" };
 
 // Normalize one Foursquare place (either API generation) into the app shape
@@ -83,16 +89,26 @@ export async function GET(req) {
     // Bearer or ?key=, the same operator contract /api/sources/compare and
     // /api/ta/place?probe=2 already use, and FAIL-CLOSED: an unset secret
     // returns 401 rather than opening the endpoint.
+    // BEARER ONLY — deliberately NOT the `?key=` form used elsewhere in this
+    // repo. A secret in a query string leaks into access logs, browser history,
+    // proxies, analytics and any copied link; the header does not. The existing
+    // `?key=` routes are a separate, recorded finding
+    // (docs/audits/FINDING-query-string-secrets.md) and are NOT migrated here.
+    //
+    // Fail-closed on all three: no secret configured, no header, wrong header.
     const secret = process.env.CRON_SECRET;
     const auth = req.headers.get("authorization") || "";
-    if (!secret || (auth !== "Bearer " + secret && searchParams.get("key") !== secret)) {
-      return Response.json({ error: "unauthorized" }, { status: 401 });
+    if (!secret || auth !== "Bearer " + secret) {
+      return Response.json({ error: "unauthorized" }, { status: 401, headers: NO_STORE });
     }
     // Diagnostic: booleans + upstream status + which rich fields came back.
     // NEVER echoes the credential or any request authorization header.
-    if (!KEY) return Response.json({ hasKey: false });
+    if (!KEY) return Response.json({ hasKey: false }, { headers: NO_STORE });
     try {
-      const params = new URLSearchParams({ ll: "27.34,-82.53", radius: "20000", query: "restaurants", limit: "5" }).toString();
+      // FIXED and BOUNDED. The caller supplies nothing: an authenticated
+      // operator must not be able to turn a diagnostic into a general-purpose
+      // provider-consumption endpoint by passing their own radius/query/limit.
+      const params = PROBE_QUERY;
       const res = await fsqSearch(params, KEY, { fields: FIELDS });
       const arr = res.results;
       const n = arr.length;
@@ -101,10 +117,24 @@ export async function GET(req) {
       const gotPrice = arr.some((x) => x.price != null);
       // generation + attempts make a dead source name itself: a probe that only
       // said "0 results" is what let the post-sunset outage stay invisible.
+      // Sanitised diagnostics ONLY. Never the credential, never the caller's
+      // authorization header, never the raw upstream body (which can carry
+      // fields we have not vetted).
       const sample = arr.slice(0, 3).map((x) => String(x.name || "").slice(0, 60)).filter(Boolean);
-      return Response.json({ hasKey: true, upstreamStatus: res.status, generation: res.generation, outcome: fsqOutcomeLabel(res), attempts: res.attempts, results: n, sample, richData: { rating: gotRating, photos: gotPhotos, price: gotPrice } });
+      return Response.json({
+        hasKey: true,
+        upstreamStatus: res.status,
+        generation: res.generation,
+        outcome: fsqOutcomeLabel(res),
+        attempts: res.attempts,
+        empty: res.ok ? !!res.empty : null,
+        malformed: (res.attempts || []).some((a) => a.reason === "malformed"),
+        results: n,
+        sample,
+        richData: { rating: gotRating, photos: gotPhotos, price: gotPrice },
+      }, { headers: NO_STORE });
     } catch (e) {
-      return Response.json({ hasKey: true, upstreamStatus: "network_error" });
+      return Response.json({ hasKey: true, upstreamStatus: "network_error" }, { headers: NO_STORE });
     }
   }
 

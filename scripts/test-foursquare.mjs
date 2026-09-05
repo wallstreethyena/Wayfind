@@ -17,8 +17,9 @@
  * this bug and is worthless as a regression lock.
  */
 import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import {
-  fsqSearch, fsqAttemptChain, isLegacyFsqKey, fsqOutcomeLabel,
+  fsqSearch, fsqAttemptChain, isLegacyFsqKey, fsqOutcomeLabel, validateFsqPayload,
   FSQ_V3_URL, FSQ_CURRENT_URL, FSQ_PLACES_API_VERSION,
 } from "../lib/foursquare.js";
 
@@ -126,6 +127,25 @@ for (const status of [401, 403, 429, 500, 503]) {
   ok(r2.ok === false, "…both generations malformed fails soft rather than claiming an empty area");
 }
 
+// ── 5d. "malformed" means: fails the generation's DOCUMENTED contract ──────
+{
+  const cases = [
+    ["an error envelope", { message: "quota exceeded" }, false],
+    ["a renamed collection", { venues: [{ name: "x" }] }, false],
+    ["results not an array", { results: { name: "x" } }, false],
+    ["a bare array body", [{ name: "x" }], false],
+    ["results of primitives", { results: ["nope"] }, false],
+    ["a legacy v3 place", { results: [{ fsq_id: "a", name: "A" }] }, true],
+    ["a current-API place", { results: [{ fsq_place_id: "b", name: "B" }] }, true],
+    ["a legitimately empty answer", { results: [] }, true],
+  ];
+  for (const [label, body, shouldBeValid] of cases) {
+    const v = validateFsqPayload("current", body);
+    ok(v.valid === shouldBeValid, `contract: ${label} -> ${shouldBeValid ? "valid" : "MALFORMED"}`);
+  }
+  ok(validateFsqPayload("current", { results: [] }).empty === true, "…and only the empty-array case is flagged empty");
+}
+
 // ── 6. the request shapes each generation actually needs ────────────────────
 {
   const f = mockFetch(() => 200);
@@ -193,8 +213,10 @@ for (const status of [401, 403, 429, 500, 503]) {
   // These are CLIENT modules: lib/sources.js:109 returns [] when `window` is
   // undefined. Supplying that environment is a fixture, not a stub — no
   // Wayfind logic is replaced.
-  globalThis.window = globalThis.window || { location: { origin: "https://gowayfind.com" } };
-  globalThis.localStorage = globalThis.localStorage || { getItem: () => null, setItem: () => {}, removeItem: () => {} };
+  const HAD_WINDOW = "window" in globalThis, PREV_WINDOW = globalThis.window;
+  const HAD_LS = "localStorage" in globalThis, PREV_LS = globalThis.localStorage;
+  globalThis.window = { location: { origin: "https://gowayfind.com" } };
+  globalThis.localStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {} };
   const { register } = await import("node:module");
   register("./lib/nodeResolveHook.mjs", import.meta.url);
   const sources = await import("../lib/sources.js");
@@ -224,28 +246,87 @@ for (const status of [401, 403, 429, 500, 503]) {
   const failRun = await run(() => ({ ok: false, status: 500, json: async () => ({}) }));
   const emptyRun= await run(() => ({ ok: true,  json: async () => ({ places: [] }) }));
 
-  ok(okRun.google >= 1, "sanity: the Google leg really is exercised by this harness");
+  // POSITIVE CONTROL, exact not merely non-zero: three scenarios all reporting
+  // zero would satisfy an equality assertion while proving nothing.
+  ok(okRun.google === 1, "positive control: the Google leg is called EXACTLY once on the success path");
   ok(failRun.google === okRun.google,
      "BEHAVIOURAL: a Foursquare FAILURE produces the SAME number of Google requests — no compensating spend");
   ok(emptyRun.google === okRun.google,
      "BEHAVIOURAL: a Foursquare EMPTY result produces the same number of Google requests either");
   ok(failRun.fsq === 1 && emptyRun.fsq === 1, "…and the client never retries Foursquare itself on failure or emptiness");
+
+  // HYGIENE: hand the process back exactly as we found it, so this section
+  // cannot leak a fake `window` into any assertion that runs after it.
+  if (HAD_WINDOW) globalThis.window = PREV_WINDOW; else delete globalThis.window;
+  if (HAD_LS) globalThis.localStorage = PREV_LS; else delete globalThis.localStorage;
+  ok(!("window" in globalThis), "harness hygiene: the fake window global is removed after the run");
 }
 
-// ── 10. the probe performs real provider work, so it is operator-only ───────
+// ── 10. the probe is operator-only, Bearer-only, and uncacheable ───────────
+// Behavioural: the route's REAL GET handler runs. A secret in a query string
+// leaks into access logs, browser history, proxies, Referer headers and copied
+// links, so ?key= is NOT accepted here even though other routes in this repo
+// still take it (recorded in docs/audits/FINDING-query-string-secrets.md).
+//
+// HERMETIC BY CONSTRUCTION: each case runs in a CHILD PROCESS with an env built
+// from scratch, never inherited. This file therefore never reads the ambient
+// shell — the pattern check-guard-hermeticity.mjs requires, and the same one
+// scripts/check-monetized-degrade.mjs uses. A guard that consults the shell
+// answers differently in a clean terminal than in a sourced one.
 {
+  const SECRET = "test-cron-secret-value";
+  const FSQ_KEY = "test-fsq-key-value";
+
+  const CHILD = `
+    import { register } from "node:module";
+    register(${JSON.stringify(new URL("./lib/nodeResolveHook.mjs", import.meta.url).href)}, import.meta.url);
+    const route = await import(${JSON.stringify(new URL("../app/api/fsq/search/route.js", import.meta.url).href)});
+    globalThis.fetch = async () => ({ ok: true, status: 200, json: async () => ({ results: [{ fsq_place_id: "p1", name: "Probe Venue", rating: 8 }] }) });
+    const qs = process.env.__QS || "";
+    const headers = process.env.__AUTH ? { authorization: process.env.__AUTH } : {};
+    const res = await route.GET(new Request("https://gowayfind.com/api/fsq/search?probe=1" + qs, { headers }));
+    let body = ""; try { body = JSON.stringify(await res.json()); } catch (e) {}
+    console.log(JSON.stringify({ status: res.status, cache: res.headers.get("cache-control"), body }));
+  `;
+
+  const probeCase = (env) => {
+    // The child's env is built from NOTHING — this file never reads the ambient
+    // shell, so its verdict cannot change between a clean terminal and one with
+    // .env.production.local sourced. node is invoked by absolute path
+    // (process.execPath), so no PATH is needed.
+    const out = execFileSync(process.execPath, ["--input-type=module", "-e", CHILD], { env: { NODE_ENV: "test", ...env }, encoding: "utf8", timeout: 25000, stdio: ["ignore", "pipe", "pipe"] });
+    return JSON.parse(out.trim().split("\n").pop());
+  };
+
+  const WITH_KEY = { FOURSQUARE_API_KEY: FSQ_KEY };
+
+  ok(probeCase({ ...WITH_KEY, __AUTH: "Bearer " + SECRET }).status === 401,
+     "no CRON_SECRET configured -> 401 (fails CLOSED, never opens)");
+  ok(probeCase({ ...WITH_KEY, CRON_SECRET: SECRET }).status === 401,
+     "secret configured but NO authorization header -> 401");
+  ok(probeCase({ ...WITH_KEY, CRON_SECRET: SECRET, __AUTH: "Bearer wrong-value" }).status === 401,
+     "wrong Bearer -> 401");
+  ok(probeCase({ ...WITH_KEY, CRON_SECRET: SECRET, __AUTH: SECRET }).status === 401,
+     "a bare secret without the Bearer scheme -> 401");
+  ok(probeCase({ ...WITH_KEY, CRON_SECRET: SECRET, __QS: "&key=" + SECRET }).status === 401,
+     "QUERY-STRING secret alone -> 401 (secrets do not belong in URLs)");
+
+  const good = probeCase({ ...WITH_KEY, CRON_SECRET: SECRET, __AUTH: "Bearer " + SECRET });
+  ok(good.status === 200, "correct Bearer -> the probe executes");
+  ok(good.cache === "no-store", "an authorised probe response is no-store");
+  ok(probeCase({ ...WITH_KEY, CRON_SECRET: SECRET }).cache === "no-store", "…and so is the 401");
+
+  ok(!good.body.includes(FSQ_KEY), "the probe body never contains the Foursquare credential");
+  ok(!good.body.includes(SECRET), "the probe body never contains CRON_SECRET");
+  ok(!/authorization/i.test(good.body), "the probe body never echoes an authorization header");
+  ok(/"generation"|"outcome"|"attempts"/.test(good.body), "…while still reporting generation/outcome/attempts");
+
+  // the probe's query is fixed: a caller cannot widen it into a consumption endpoint
   const strip = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
-  const route = strip(readFileSync(new URL("../app/api/fsq/search/route.js", import.meta.url), "utf8"));
-  const i = route.indexOf('probe") === "1"');
-  ok(i > -1, "the probe branch is still present");
-  const gate = route.slice(i, i + 700);            // the branch's own auth preamble
-  ok(/CRON_SECRET/.test(gate), "probe=1 is gated on CRON_SECRET — it spends real Foursquare quota on every call");
-  ok(/!secret\s*\|\|/.test(gate), "…and FAILS CLOSED when the secret is unset, never opening the endpoint");
-  ok(/status:\s*401/.test(gate), "…returning 401 to an unauthorised caller");
-  // the credential and the caller's auth header must never appear in a response
-  const responses = route.match(/Response\.json\([^;]*\)/g) || [];
-  ok(responses.length > 0 && !responses.some((r) => /\bKEY\b|FOURSQUARE_API_KEY/.test(r)), "no response body echoes the credential");
-  ok(!responses.some((r) => /authorization/i.test(r)), "no response body echoes a request authorization header");
+  const src = strip(readFileSync(new URL("../app/api/fsq/search/route.js", import.meta.url), "utf8"));
+  const branch = src.slice(src.indexOf('probe") === "1"'), src.indexOf("const q = "));
+  ok(/PROBE_QUERY/.test(branch) && !/searchParams\.get\((?!"probe")/.test(branch), "the probe uses a FIXED bounded query and reads no caller parameters");
+  ok(!/searchParams\.get\("key"\)/.test(src), "the route accepts no query-string secret anywhere");
 }
 
 console.log(`test-foursquare: ${n - failn}/${n} passed`);
