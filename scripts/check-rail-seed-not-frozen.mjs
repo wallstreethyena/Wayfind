@@ -107,6 +107,26 @@ ok(/const payload = remote \|\| fallback;/.test(rails),
 ok(/usePagedRail\(/.test(rails),
   "NightOutRails no longer uses usePagedRail — follow the code rather than dropping this file");
 
+// ── one verified option is presented, never padded (v8.97c) ────────────────
+//
+// After the identity-first retrieval fix, Dinner + Entertainment at Parrish
+// really does hold exactly one qualifying place within 27 miles. A horizontal
+// rail with one card promises a choice and delivers one; the answer is a
+// compact treatment, and the thing to guard is that it is a PRESENTATION branch
+// and not a data one.
+ok(/count === 1 && eventCards\.length === 0 && items\.length === 1/.test(rails),
+  "the one-result branch no longer keys on a genuine single result — a rail with one card must not be rendered as a shelf");
+ok(/Best match tonight/.test(rails),
+  "the single-result treatment lost its label");
+ok(/the only place within 27 miles that clears this/.test(rails),
+  "the single-result copy no longer says WHY there is one — 'best match' without that reads like a ranking, not a count");
+// The empty state must survive alongside it: zero and one are different answers.
+ok(/No verified event or venue within 27 miles/.test(rails) && /will not fill it with a look-alike/.test(rails),
+  "the honest empty state was replaced rather than joined — zero options and one option are different answers and both must be tellable");
+// And nothing may pad. A second card can only come from the pool.
+ok(!/placeholder|filler|padTo|fillTo/i.test(rails),
+  "NightOutRails gained something that looks like padding — a rail is never topped up to make a shelf");
+
 if (bad.length) {
   for (const m of bad) console.error("  - " + m);
   console.error(`check-rail-seed-not-frozen: FAIL — ${bad.length}/${n} assertions`);

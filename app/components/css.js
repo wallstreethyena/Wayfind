@@ -582,6 +582,7 @@ export const WF_PLACE_CARD_CSS = `
 @media(min-width:900px){ .wf-rail{--wf-rail-vis:1.9} }
 @media(min-width:1100px){ .wf-rail{--wf-rail-vis:2.4} }
 @media(min-width:1400px){ .wf-rail{--wf-rail-vis:3.4} }
+.wf-rail-solo{max-width:min(100%,440px);margin:0}
 .wf-rail>.wf-rail-card{
   flex:0 0 calc((100% - (var(--wf-rail-vis) - 1) * var(--wf-rail-gap)) / var(--wf-rail-vis));
   width:auto;
