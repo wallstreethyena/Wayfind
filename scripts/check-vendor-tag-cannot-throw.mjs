@@ -48,6 +48,15 @@ const ok = (c, m) => { pass++; if (!c) fails.push(m); };
 const LAYOUT = readFileSync(join(ROOT, "app/layout.js"), "utf8");
 
 // ── 1. the idiom is gone from our own client source ───────────────────────
+// POSITIVE CONTROLS for the two absence probes below. An absence assertion is
+// only evidence if the probe can still FIND the thing it is looking for — a
+// regex that has rotted into one matching nothing reports "clean" forever. Each
+// is run against the exact idiom from the 2026-09-03 Sentry incident and
+// asserted to MATCH before it is asserted to be absent from the real file.
+ok(/\.parentNode/.test("var f=document.getElementsByTagName('script')[0];f.parentNode.insertBefore(s,f);"),
+  "POSITIVE CONTROL: the .parentNode probe matches the original crashing idiom, so its absence below is a real finding");
+ok(/getElementsByTagName\('script'\)\[0\]/.test("var f=document.getElementsByTagName('script')[0];"),
+  "POSITIVE CONTROL: the getElementsByTagName('script')[0] probe matches that same idiom");
 ok(!/\.parentNode/.test(LAYOUT),
   "app/layout.js dereferences .parentNode nowhere — that was the only one we owned, and it is what made a parentNode TypeError ambiguous");
 ok(!/getElementsByTagName\('script'\)\[0\]/.test(LAYOUT),

@@ -1,0 +1,758 @@
+{
+  "generated": "2026-09-04",
+  "note": "Grandfathered pre-existing guard-honesty offenders as of the 2026-09-04 audit (docs/audits/guard-honesty-2026-09-04.md). Each entry is a guard that scripts/check-guard-honesty.mjs's static analyzer (scripts/lib/guardHonestyAnalysis.mjs) flags today, with a one-line reason. This list is a debt ledger, not a to-do list: an entry is silently accepted as long as the file still matches its reason. It may only shrink (a guard fixed for real, or found to be a false positive) or grow via a reviewed diff adding a NEW entry with a NEW reason for a genuinely new offender. It must never grow via bulk regeneration.",
+  "entries": [
+    {
+      "file": "scripts/check-anchors.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-app-viewport.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-area-seasonal-context.mjs",
+      "reason": "2 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-atlas-diag-not-live.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-atlas-retry-cron.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-banned-art.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-brand-assets.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-brand-derivatives.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-brand-pin.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-build-lifecycle.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag; 2 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-cache-epoch.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-card-actions.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-census-tos-boundary.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-cget-envelope.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-client-writes-have-policies.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-collection-look.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-commerce-events.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-commerce-redirect.mjs",
+      "reason": "2 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-community-footer.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-copy-no-empty-hype.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-cost-gate.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-creator-registry-bundle-wall.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-creator-signals-fresh.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-cron-failclosed.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-cron-honesty.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag; 4 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-cron-post-nostore.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag; 2 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-css-comment-bytes.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-cuisine-sheet.mjs",
+      "reason": "1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-cwv.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-date-night-cacheable.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-deal-art.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-design.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-direct-affiliate-urls.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-doc-ownership.mjs",
+      "reason": "ANALYZER LIMITATION, not a hollow guard: every assertion runs through a local git(...args) wrapper around execFileSync; the derived-value tracer only follows single-line `const x = call(...)` assignments and this wrapper's body is multi-line, so it never sees that inside.ok/out etc. trace back to a real execFileSync call. The guard itself is a real CALL guard (18 git invocations, branches on stdout/exit throughout)."
+    },
+    {
+      "file": "scripts/check-drop-photo-window.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-editorial-everywhere.mjs",
+      "reason": "5 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-editorial-publish.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-editorial-retry-state.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-editorial-template.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag; 2 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-env-discipline.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-events-rail-renders.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-exploding-nearby-floor.mjs",
+      "reason": "1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-floor-derivation.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-geo-gated-boosts.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-guard-hermeticity.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-guard-integrity.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-guard-manifest.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-guards-can-fail.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-guide-cta-honesty.mjs",
+      "reason": "1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-guide-share.mjs",
+      "reason": "3 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-hero-chrome.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-home-location.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-hook-order.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-hydration-style.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-imports.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-ingest-never-blanks.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-intent-copy-matches-filter.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag; 1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-intent-hero-fits.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-intent-rail-inventory-fed.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-intro-instrumentation.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-invisible-text.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-job-pulse-contract.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-kit-focus.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-lands-on-results.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-legal.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-lib-call-imports.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-libs.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-live-reads.mjs",
+      "reason": "2 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-location-fail-open.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag; 5 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-map-controls.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-map-filter-panel.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-map-place-card.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-maps-deferral.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-market-photo-honesty.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-metered-matcher.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-mobile-poster-fit.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-narrow-chip-inventory.mjs",
+      "reason": "2 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-no-disney-sources.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-no-llm-in-render-path.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-no-sideways-scroll.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-no-terminal-loading.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-og-absolute.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-one-clock.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-one-main.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-one-nav-per-screen.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-os-state.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag; 1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-outdoors-cache-first.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag; 1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-overscroll-containment.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-owner-batch-schema.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-owner-curation-one-path.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag; 1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-parity-formula-lock.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag; 1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-photos.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-pick-medallion.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag; 2 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-place-card-css-contract.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-place-card-navigation.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag; 1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-place-detail-honest.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-position-memory.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-premium-event-card-system.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-price-badge.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-promote-spend-gate.mjs",
+      "reason": "2 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-push-registration.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag; 1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-rail-art-matches-copy.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-rail-compute-budget.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-rail-scroll-reset.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-response-imports.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-scarcity-needs-an-answer.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-seo.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-shell-routes.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-shell-scroll.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-sitetime.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-skeleton-has-a-voice.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag; 1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-soft-404.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-spend-effective-cap.mjs",
+      "reason": "3 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-spend-guard.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-sub-contracts.mjs",
+      "reason": "1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-trend-integrity.mjs",
+      "reason": "2 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-trend-score.mjs",
+      "reason": "2 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-trend-signal.mjs",
+      "reason": "1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-ttd-dedup.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-unbound-refs.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-unified-commerce-rail.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag; 1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-ut-crawler-clicks.mjs",
+      "reason": "2 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-version-watch.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-version.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-weather-code-plumbed.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/check-weather-race.mjs",
+      "reason": "2 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/check-writes-fail-loudly.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-analytics.mjs",
+      "reason": "1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-atlas-build.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-atlas-place-pages.mjs",
+      "reason": "2 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-atlas-retry.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-atlas-ride-filter.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-autocomplete-proxy.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-blurbs-cache.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-booking-integrity.mjs",
+      "reason": "1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-booking-resolve-extraction.mjs",
+      "reason": "4 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-brand.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-card-a11y.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-card-booking.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-city-fetch.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-city-gate.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-closed-policy.mjs",
+      "reason": "1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-comment-photos.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-creator-archetypes.mjs",
+      "reason": "2 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-curator-boost.mjs",
+      "reason": "1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-detail-take.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-device-id.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-dynamic-daily.mjs",
+      "reason": "5 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-eat-ssg-failsoft.mjs",
+      "reason": "4 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-event-rail-images.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-events-prime.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-events-tours.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-experience-now-rank.mjs",
+      "reason": "4 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-experiment.mjs",
+      "reason": "1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-explore-menu.mjs",
+      "reason": "1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-fall-intent-rails.mjs",
+      "reason": "1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-food-collections.mjs",
+      "reason": "1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-hero-image.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag; 1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-image-score.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-klook-coupons.mjs",
+      "reason": "1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-landing-card-photo.mjs",
+      "reason": "2 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-landing-tours.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-lightbox-paging.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-local-store.mjs",
+      "reason": "1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-map-cost.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag; 2 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-noresult-telemetry.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-owner-places-2026-08-29d.mjs",
+      "reason": "1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-paid-landing.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag; 3 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-place-products.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-place-suggestions.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-ranked-experience-rails.mjs",
+      "reason": "2 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-searched-location.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-sentry-lazy.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag; 4 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-session-map-parity.mjs",
+      "reason": "1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-sheet-booking.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag; 2 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-shell-key-guide-deeplinks.mjs",
+      "reason": "1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-shopping.mjs",
+      "reason": "1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-showtime-dedup.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-site-time.mjs",
+      "reason": "1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-sparse-category.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-subfilters.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-things-to-do.mjs",
+      "reason": "1 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-travelpayouts.mjs",
+      "reason": "3 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-trend-rights.mjs",
+      "reason": "2 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-trend-vocab.mjs",
+      "reason": "3 absence check(s) with no same-file positive control"
+    },
+    {
+      "file": "scripts/test-trending-page.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-viator-fanout.mjs",
+      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
+    },
+    {
+      "file": "scripts/test-vitals-attribution.mjs",
+      "reason": "1 absence check(s) with no same-file positive control"
+    }
+  ]
+}

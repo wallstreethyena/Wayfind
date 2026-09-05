@@ -264,6 +264,8 @@ node scripts/test-prominence.mjs
 node scripts/test-idle-defer.mjs
 node scripts/check-pick-medallion.mjs
 node scripts/check-editorial-publish.mjs
+node scripts/check-editorial-publish-symmetry.mjs
+node scripts/check-editorial-read-gate.mjs
 node scripts/test-atlas-editorial-row.mjs
 node scripts/test-atlas-extract.mjs
 node scripts/check-no-disney-sources.mjs
@@ -773,6 +775,8 @@ node scripts/check-rail-identity.mjs
 # and the fail-soft UI rendered nothing. Same root cause as the rail bugs above,
 # and the same lesson the legacy Supabase JWT taught in #440, never generalised.
 node scripts/check-env-placeholders.mjs
+node scripts/check-env.mjs
+node scripts/check-env-guard-can-fail.mjs
 # 2026-08-22 — AN OUTING, not merely an attractions-gated row. Checked in
 # PRODUCTION after v8.31.2 shipped: "Places You'd Never Find" near Parrish led
 # with Elite Medical Spa, a wedding venue and MassageLuXe; nine of the Lakewood
@@ -998,3 +1002,84 @@ node scripts/check-book-cta-needs-a-seller.mjs
 # benefit-led read. The guard scans all app/lib literal decks, rejects lists,
 # disclaimers and counts, and pins the one-line visual treatment everywhere.
 node scripts/check-rail-deck-copy.mjs
+# 2026-09-04 WO-D-atlas-cache-batch: prompt caching must be REAL, not
+# decorative — a cache_control block below the active model's documented
+# minimum is legal JSON that silently does nothing. Table-driven minimum
+# (fails loud on an unknown model), the cacheable prefix byte-identical
+# across places, cache_control ttl:"1h" on the LAST shared block only, a
+# batch result getting ZERO validation relief (same verifyAtlasEditorial as
+# the live path), and the cost estimator refusing to submit without
+# --confirm — all five red-proved by an applied mutation to a temp copy.
+node scripts/check-atlas-cache-batch.mjs
+# 2026-09-04 GUARD HONESTY AUDIT (docs/audits/guard-honesty-2026-09-04.md,
+# owner: "why does the guard keep lying to me"). The meta-guard: fails on any
+# NEW guard that is undeclared-STRUCTURAL, asserts an absence with no
+# same-file positive control, or has real import/render/exec capability but
+# zero assertions on a value code actually returned. Pre-existing offenders
+# are grandfathered in scripts/lib/guard-honesty-known-weak.json — that
+# ledger may shrink freely but only grows via a reviewed diff with a reason.
+node scripts/check-guard-honesty.mjs
+# 2026-09-04 THE MACHINE-READABLE GUARD REGISTRY (owner: "why does the guard
+# keep lying to me" audit's follow-up). scripts/lib/guard-registry.json answers,
+# for every guard, what it protects, the blast radius if it fails, where it's
+# wired, whether it blocks CI/deploy or only warns, and who owns the invariant.
+# 62 guards are marked CRITICAL (the audit's top-20 + every guard that touches
+# money — spend/affiliate/booking/env/commerce, mechanically matched, never a
+# hand-typed list) and require every field. This guard re-enumerates the real
+# files and the real scripts/guards.txt wiring LIVE on every run — never from
+# the registry's own cached data — so a critical guard silently falling out of
+# guards.txt (the disconnected-guard failure the owner explicitly asked to
+# catch) cannot go unnoticed the way check-inventory-integrity's canary-only
+# wiring or the six EXCLUDED guards already do deliberately.
+node scripts/check-guard-registry.mjs
+# 2026-09-04 REVENUE-GUARD STACK, added after the check-env.mjs incident (a
+# guard protecting Viator revenue that ended in an unconditional
+# process.exit(0) and was never wired into this manifest, so it could never
+# fail). Three more layers, hermetic halves only — the live-network halves
+# (scripts/live-viator-smoke.mjs, app/api/cron/revenue-heartbeat) are
+# deliberately NOT here; see scripts/check-guard-hermeticity.mjs.
+#
+# Layer 1 (hermetic half): the PURE shape rule the live production smoke test
+# (scripts/live-viator-smoke.mjs) judges a real Viator redirect against —
+# host/pid/mcid/medium, every individual defect caught on its own, malformed
+# input never thrown on — plus proof the ABSOLUTE RULE (never print a real
+# credential) is enforced at RUNTIME, not by review, and that the live script
+# is actually wired to that enforcement.
+node scripts/test-secret-output-guard.mjs
+node scripts/test-viator-smoke-shape.mjs
+# Layer 2: THE INVERSE TEST. check-book-cta-needs-a-seller.mjs already locks
+# isTicketyPlace's type rules; this closes the one gap it leaves — it only
+# ever asserts ticketsUrl(beach) === null, never that ticketsUrl() actually
+# RETURNS a real, attributed URL for paid inventory on the SAME call. A
+# fixture pid is set before lib/affiliates.js is first imported (a WRITE,
+# not a read — hermeticity-legal) so the positive control is deterministic on
+# every machine instead of depending on what happened to be exported in the
+# shell. Ends with an APPLIED mutation of the v6.53 beach-exclusion return
+# line, verified written, exercised in a fresh child process, and restored
+# byte-for-byte before the guard can fail.
+node scripts/test-inverse-booking-cta.mjs
+# Layer 3: REVENUE HEARTBEAT. Detects affiliate CTA activity collapsing
+# toward zero WHILE TRAFFIC IS STILL PRESENT — the "silent zero" signature a
+# placeholder NEXT_PUBLIC_VIATOR_PID produces (lib/affiliates.js fails CLOSED;
+# nothing looks broken). RATIO-based against a trailing 14-day baseline, not
+# an absolute floor, so a quiet night where both numbers drop together never
+# pages — proven directly below, alongside the exact collapse-floor boundary
+# and an applied mutation of the comparison operator. Delivery is NOT a new
+# alert path: app/api/cron/revenue-heartbeat writes through the same
+# recordPulse() every metered job in this repo already uses, and the
+# existing app/api/cron/job-watch (the one that already escalates a
+# "billing:"/"quota:"-prefixed dead run after one run, per lib/jobPulse.js)
+# picks it up on its next run.
+node scripts/test-revenue-heartbeat.mjs
+# 2026-09-04 PRODUCTION-LIKE SYNTHETIC USER MONITORING. scripts/run-synthetic-monitor.mjs
+# drives real Chromium against production across 12 named flows (homepage, rails,
+# place-card controls, Today/Night Out/Fall, events, save/share, itinerary, Book
+# links, location, and a REAL 390px mobile viewport) and on any failure writes
+# reproducible evidence (URL, viewport, screenshot, failing assertion, console
+# errors, redacted network failures, a repro command) under synthetic-evidence/.
+# That runner is a live-network smoke test and deliberately stays OUT of this
+# suite (.github/workflows/synthetic-monitor.yml runs it on a schedule instead).
+# This guard proves — hermetically — that the scenario table is structurally
+# sound, that redaction removes fake secrets from every evidence field including
+# ones only run.mjs would think to redact, that the evidence writer red-proves
+# against real files on disk, and that the workflow is installed at its real path.

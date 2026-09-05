@@ -103,6 +103,11 @@ ok(/const verifiedUrl = \(topItem && topItem\.url && !Aff\.isNeverBookable\(deta
   "a VERIFIED Viator product is gated on isNeverBookable, not on the Google type — Myakka's airboat tour is real inventory on a place typed [park, hiking_area]");
 ok(/const permitted = !verifiedUrl && BOOKABLE_KINDS\.includes\(kind\) && Aff\.isTicketyPlace\(detail\)/.test(SRC),
   "…while the unverified SEARCH fallback still requires the full type gate (the Coquina->Mumbai rule)");
+// POSITIVE CONTROL: an absence claim is evidence only if the probe can still
+// find the thing. Run it against the exact pre-fix line it exists to catch.
+ok(/verifiedUrl = \(topItem && topItem\.url && Aff\.isTicketyPlace/.test(
+  "  const verifiedUrl = (topItem && topItem.url && Aff.isTicketyPlace(detail)) ? topItem.url : null;"),
+  "POSITIVE CONTROL: the old-type-gate probe matches the pre-fix line verbatim, so its absence below is a real finding");
 ok(!/verifiedUrl = \(topItem && topItem\.url && Aff\.isTicketyPlace/.test(SRC),
   "…and the old type gate on the verified path is gone, not merely widened");
 
@@ -111,10 +116,14 @@ const AFF = readFileSync(join(ROOT, "lib/affiliates.js"), "utf8");
 const tu = AFF.slice(AFF.indexOf("export function ticketsUrl"));
 ok(/if \(!isTicketyPlace\(place\)\) return null;/.test(tu.slice(0, 600)),
   "ticketsUrl asks the SAME predicate the card CTA asks — it used to test TICKETY raw and would hand a beach a search link");
+ok(/if \(!TICKETY\.test\(types\)\) return null;/.test("  if (!TICKETY.test(types)) return null;"),
+  "POSITIVE CONTROL: the drifted-raw-test probe matches that exact line");
 ok(!/if \(!TICKETY\.test\(types\)\) return null;/.test(AFF), "…and the drifted raw test is gone");
 const fn = AFF.slice(AFF.indexOf("export function isTicketyPlace"), AFF.indexOf("export function isTicketyPlace") + 700);
 ok(fn.indexOf("SOLD_TYPES") < fn.indexOf("FREE_LAND_TYPES"),
   "SOLD is checked BEFORE FREE_LAND — the other order kills Universal Studios, and this is the ordering bug this guard exists to hold");
+ok(/\bname\b.*test\(|test\(.*\.name/.test("  if (/preserve/i.test(place.name)) return false;"),
+  "POSITIVE CONTROL: the reads-the-NAME probe matches a real name rule of the shape that killed Sky Zone, Urban Air and a zoo called a Preserve");
 ok(!/\bname\b.*test\(|test\(.*\.name/.test(fn),
   "the gate never reads the NAME — measured: a name rule killed Sky Zone, Urban Air and a zoo called a Preserve");
 

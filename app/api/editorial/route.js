@@ -36,7 +36,7 @@ async function wfEditorialFor(id) {
   const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
   if (!base || !anon || !id) return null;
   try {
-    const r = await fetch(base + "/rest/v1/wf_editorial?place_id=eq." + encodeURIComponent(id) + "&verified=is.true&limit=1", {
+    const r = await fetch(base + "/rest/v1/wf_editorial_servable?place_id=eq." + encodeURIComponent(id) + "&verified=is.true&limit=1", {
       headers: { apikey: anon, Authorization: "Bearer " + anon },
       next: { revalidate: 3600 },
     });

@@ -19,7 +19,7 @@
 //      or define the identical local gate (search route), so WAYFIND_GATE=shut
 //      always means ZERO paid Google calls.
 //   3. The radius ladder must stay in /api/places/search.
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 
 let failed = 0;
 const die = (msg) => { console.error("check-spend-guard: FAIL — " + msg); failed++; };
@@ -48,17 +48,66 @@ for (const f of MASK_FILES) {
   }
 }
 
-// 2 — every metered call site is gated
-const GATED_FILES = [
-  "lib/placeDetails.js",
-  "app/api/photo/route.js",
-  "app/api/places/refresh/route.js",
-  "app/api/cron/scout/route.js",
-  "app/api/cron/promote-index/route.js",
-  "app/api/cron/inventory-refresh/route.js",
-  "app/api/cron/atlas-build/route.js",
-  "app/api/city/unlock/route.js",
-];
+// 2 — every metered call site is gated.
+//
+// 2026-09-04 — THIS LIST USED TO BE HARDCODED, AND THAT IS HOW THREE LIVE
+// GOOGLE CALLERS SHIPPED WITH NO GATE AT ALL: app/api/places/details,
+// app/api/places/autocomplete and app/api/sources/compare. The first two are
+// wired to the home search box, so autocomplete billed on typing. The guard
+// was green the entire time because those files were simply not in the array —
+// the same scoped-by-name disease CLAUDE.md names, and the same shape as the
+// $1,878 August bill this guard exists to prevent.
+//
+// The list is now DISCOVERED: every route/lib file that actually names
+// places.googleapis.com must hold a gate. A new metered caller is therefore
+// guarded the day it is written, whether or not anyone remembers this file.
+function discoverGoogleCallers() {
+  const roots = ["app", "lib", "scripts/lib"];
+  const out = [];
+  const walk = (dir) => {
+    let entries = [];
+    try { entries = readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const e of entries) {
+      const full = dir + "/" + e.name;
+      if (e.isDirectory()) { if (e.name !== "node_modules" && e.name !== ".next") walk(full); continue; }
+      if (!/\.(js|mjs)$/.test(e.name)) continue;
+      const src = read(full);
+      // Comments are prose, not calls — this repo documents the API constantly.
+      const code = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+      if (!/places\.googleapis\.com/.test(code)) continue;
+      // A GUARD THAT FIRES ON CORRECT CODE IS WORSE THAN NO GUARD (CLAUDE.md),
+      // and the first draft of this discovery fired on three of them:
+      //   - app/layout.js  <link rel="preconnect" href="https://places.googleapis.com">
+      //     is a DNS hint, not a request. Only a fetch spends money.
+      //   - lib/placePhotoServe.js takes gateShut/spendAllowed as INJECTED
+      //     PARAMETERS so it stays pure and unit-testable; its caller holds the
+      //     gate. Gating by injection is gating.
+      // So: flag only a real fetch to that host, and accept either an imported
+      // gate or an injected one.
+      // DETECT BROADLY, EXCLUDE PRECISELY. A first draft required the URL to sit
+      // literally inside a fetch(...) call and MISSED lib/nightlifeCensus.js,
+      // which stores the URL in a const and calls it as `f(NEARBY, …)` through an
+      // injected fetch. Narrow detection is how the original hardcoded list
+      // failed in the first place, so the rule is: any places.googleapis.com in
+      // CODE counts, and only two things excuse it.
+      //   1. a preconnect/dns-prefetch <link> — a DNS hint, not a request.
+      //   2. gating by INJECTION — lib/placePhotoServe.js takes gateShut /
+      //      spendAllowed as parameters so it stays pure; its caller holds the
+      //      gate. Gating by injection is gating.
+      const onlyPreconnect = !/places\.googleapis\.com/.test(
+        code.replace(/<link[^>]*places\.googleapis\.com[^>]*>/g, " ")
+      );
+      if (onlyPreconnect) continue;
+      const injected = /\binput\s*&&\s*input\.gateShut|\bgateShut\s*=\s*!!\(?\s*input|\bspendAllowed\b/.test(code);
+      if (injected) continue;
+      out.push(full);
+    }
+  };
+  roots.forEach(walk);
+  return out.sort();
+}
+
+const GATED_FILES = discoverGoogleCallers();
 for (const f of GATED_FILES) {
   const src = read(f);
   if (!/spendGate/.test(src)) die(`${f} calls Google but does not import lib/spendGate.js — WAYFIND_GATE=shut would leak spend here.`);
