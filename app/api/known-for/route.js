@@ -46,7 +46,7 @@ export async function POST(req) {
     // Atlas lines still return — they did not depend on this lookup.
     if (!url || !anon) return Response.json({ lines: atlas, found: Object.keys(atlas).length, degraded: "no-supabase-config" }, { status: 200 });
 
-    const q = url + "/rest/v1/wf_editorial?select=place_id,hook,why_here,local_tip,issues,verified&verified=is.true&place_id=in.("
+    const q = url + "/rest/v1/wf_editorial_servable?select=place_id,hook,why_here,local_tip,issues,verified&verified=is.true&place_id=in.("
       + need.map((i) => '"' + encodeURIComponent(i) + '"').join(",") + ")";
     const r = await fetch(q, {
       headers: { apikey: anon, Authorization: "Bearer " + anon },

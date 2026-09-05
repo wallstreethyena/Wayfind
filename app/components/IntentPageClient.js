@@ -352,7 +352,7 @@ export default function IntentPageClient({ intent }) {
       // wf_editorial hooks, one anon in() call) — never Google's summary text.
       try {
         if (supabase && ranked.length) {
-          const { data: eds } = await supabase.from("wf_editorial").select("place_id,hook").eq("verified", true).in("place_id", ranked.map((r) => r.id));
+          const { data: eds } = await supabase.from("wf_editorial_servable").select("place_id,hook").eq("verified", true).in("place_id", ranked.map((r) => r.id));
           const byId = new Map((eds || []).map((e) => [e.place_id, e.hook]));
           for (const r of ranked) r.editorial_hook = byId.get(r.id) || null;
         }
