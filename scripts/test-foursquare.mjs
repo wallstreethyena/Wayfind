@@ -101,6 +101,31 @@ for (const status of [401, 403, 429, 500, 503]) {
   ok(r.ok === false && (r.attempts[0] || {}).reason === "bad_json", "an unparseable 200 fails soft rather than surfacing as success");
 }
 
+// ── 5b. THE SUBTLE ONE: a valid EMPTY 200 is a real answer ─────────────────
+// Without this, "usable response" quietly becomes "response containing at least
+// one place", and every quiet query in a sparse area buys a second provider
+// request it did not need.
+{
+  const f = mockFetch(() => 200, { results: [] });
+  const r = await fsqSearch(PARAMS, LEGACY, { fetchImpl: f, timeoutMs: 0 });
+  ok(r.ok === true, "a 200 with results:[] is a SUCCESSFUL attempt, not a failure");
+  ok(r.results.length === 0, "…carrying zero results");
+  ok(r.empty === true, "…flagged as legitimately empty, distinct from unavailable");
+  ok(f.calls.length === 1, "…and NO second Foursquare request is bought (this is the quota leak the naive rule would create)");
+  ok(r.attempts.length === 1 && r.attempts[0].reason === "ok", "…recorded as one successful attempt");
+}
+
+// ── 5c. a 200 that is not a recognisable shape is NOT an empty answer ──────
+{
+  const f = mockFetch(() => 200, { error: "quota exceeded" });      // no results array
+  const r = await fsqSearch(PARAMS, LEGACY, { fetchImpl: f, timeoutMs: 0 });
+  ok(f.calls.length === 2, "a 200 with no results ARRAY advances the chain rather than reporting zero rows");
+  ok((r.attempts[0] || {}).reason === "malformed", "…and names itself 'malformed', not 'ok'");
+  const f2 = mockFetch((u) => (isV3(u) ? 200 : 200), { error: "x" });
+  const r2 = await fsqSearch(PARAMS, LEGACY, { fetchImpl: f2, timeoutMs: 0 });
+  ok(r2.ok === false, "…both generations malformed fails soft rather than claiming an empty area");
+}
+
 // ── 6. the request shapes each generation actually needs ────────────────────
 {
   const f = mockFetch(() => 200);
@@ -151,12 +176,76 @@ for (const status of [401, 403, 429, 500, 503]) {
   }
 }
 
-// ── 9. Foursquare failing must not trigger a compensating Google call ───────
+// ── 9. BEHAVIOURAL: Foursquare failing must not cause an extra Google call ──
+// Not a regex on lib/sources.js — the REAL module is imported (only the
+// third-party Maps SDK is stubbed; searchPlaces reaches Google through
+// fetch("/api/places/search"), lib/google.js:531) and every outbound request is
+// trapped. If any future edit turns a Foursquare failure into compensating
+// Google spend, the trap throws and this guard goes red.
+//
+// RED-PROVED 2026-09-04: a copy of lib/sources.js with a compensating call
+// injected ("if the merged pool is empty, re-query Google at 2x radius")
+// measured 1 Google request on the success path and 2 on the Foursquare-failure
+// path. The equality assertion below therefore discriminates — it is not
+// satisfied vacuously by both counts being zero, which is what the
+// `okRun.google >= 1` sanity line guards against.
 {
-  const src = readFileSync(new URL("../lib/sources.js", import.meta.url), "utf8");
-  ok(/Promise\.all\(\[[\s\S]{0,400}searchGooglePlaces[\s\S]{0,400}fsqSearch/.test(src),
-     "Google and Foursquare are dispatched in PARALLEL — Foursquare's outcome can never cause an extra Google call");
-  ok(/fsqSearch\([^)]*\)[\s\S]{0,40}\.catch\(/.test(src), "…and the Foursquare leg fails soft on its own");
+  // These are CLIENT modules: lib/sources.js:109 returns [] when `window` is
+  // undefined. Supplying that environment is a fixture, not a stub — no
+  // Wayfind logic is replaced.
+  globalThis.window = globalThis.window || { location: { origin: "https://gowayfind.com" } };
+  globalThis.localStorage = globalThis.localStorage || { getItem: () => null, setItem: () => {}, removeItem: () => {} };
+  const { register } = await import("node:module");
+  register("./lib/nodeResolveHook.mjs", import.meta.url);
+  const sources = await import("../lib/sources.js");
+
+  const GOOGLE_ROWS = { places: [{ id: "g1", name: "Google Venue", lat: 27.34, lng: -82.53, rating: 4.5, reviews: 200, types: ["restaurant"] }] };
+  const FSQ_ROWS = { places: [{ id: "fsq:1", name: "Fsq Venue", lat: 27.341, lng: -82.531, rating: 4.2, reviews: 90, types: ["restaurant"], src: "fsq" }] };
+
+  async function run(fsqBehaviour) {
+    let google = 0, fsq = 0;
+    const orig = globalThis.fetch;
+    globalThis.fetch = async (url) => {
+      const u = String(url);
+      if (/^https?:\/\//.test(u)) throw new Error("TRAP: an EXTERNAL host was contacted from the client path: " + u);
+      if (u.includes("/api/places/search")) { google++; return { ok: true, json: async () => GOOGLE_ROWS }; }
+      if (u.includes("/api/fsq/search")) { fsq++; return fsqBehaviour(); }
+      return { ok: true, json: async () => ({}) }; // other internal endpoints, uncounted
+    };
+    try {
+      await sources.searchPlaces("food", null, { lat: 27.3364, lng: -82.5307 }, 20000, "all", "");
+    } catch (e) {
+      if (/^TRAP:/.test(e.message)) throw e;
+    } finally { globalThis.fetch = orig; }
+    return { google, fsq };
+  }
+
+  const okRun   = await run(() => ({ ok: true,  json: async () => FSQ_ROWS }));
+  const failRun = await run(() => ({ ok: false, status: 500, json: async () => ({}) }));
+  const emptyRun= await run(() => ({ ok: true,  json: async () => ({ places: [] }) }));
+
+  ok(okRun.google >= 1, "sanity: the Google leg really is exercised by this harness");
+  ok(failRun.google === okRun.google,
+     "BEHAVIOURAL: a Foursquare FAILURE produces the SAME number of Google requests — no compensating spend");
+  ok(emptyRun.google === okRun.google,
+     "BEHAVIOURAL: a Foursquare EMPTY result produces the same number of Google requests either");
+  ok(failRun.fsq === 1 && emptyRun.fsq === 1, "…and the client never retries Foursquare itself on failure or emptiness");
+}
+
+// ── 10. the probe performs real provider work, so it is operator-only ───────
+{
+  const strip = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  const route = strip(readFileSync(new URL("../app/api/fsq/search/route.js", import.meta.url), "utf8"));
+  const i = route.indexOf('probe") === "1"');
+  ok(i > -1, "the probe branch is still present");
+  const gate = route.slice(i, i + 700);            // the branch's own auth preamble
+  ok(/CRON_SECRET/.test(gate), "probe=1 is gated on CRON_SECRET — it spends real Foursquare quota on every call");
+  ok(/!secret\s*\|\|/.test(gate), "…and FAILS CLOSED when the secret is unset, never opening the endpoint");
+  ok(/status:\s*401/.test(gate), "…returning 401 to an unauthorised caller");
+  // the credential and the caller's auth header must never appear in a response
+  const responses = route.match(/Response\.json\([^;]*\)/g) || [];
+  ok(responses.length > 0 && !responses.some((r) => /\bKEY\b|FOURSQUARE_API_KEY/.test(r)), "no response body echoes the credential");
+  ok(!responses.some((r) => /authorization/i.test(r)), "no response body echoes a request authorization header");
 }
 
 console.log(`test-foursquare: ${n - failn}/${n} passed`);

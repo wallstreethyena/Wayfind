@@ -77,7 +77,19 @@ export async function GET(req) {
   const KEY = getKey();
 
   if (searchParams.get("probe") === "1") {
+    // OPERATOR-ONLY. This diagnostic performs a REAL provider request, so an
+    // anonymous caller looping it burns Foursquare quota — the same cost-DoS
+    // shape middleware.js exists for, one layer in. Gated on CRON_SECRET via
+    // Bearer or ?key=, the same operator contract /api/sources/compare and
+    // /api/ta/place?probe=2 already use, and FAIL-CLOSED: an unset secret
+    // returns 401 rather than opening the endpoint.
+    const secret = process.env.CRON_SECRET;
+    const auth = req.headers.get("authorization") || "";
+    if (!secret || (auth !== "Bearer " + secret && searchParams.get("key") !== secret)) {
+      return Response.json({ error: "unauthorized" }, { status: 401 });
+    }
     // Diagnostic: booleans + upstream status + which rich fields came back.
+    // NEVER echoes the credential or any request authorization header.
     if (!KEY) return Response.json({ hasKey: false });
     try {
       const params = new URLSearchParams({ ll: "27.34,-82.53", radius: "20000", query: "restaurants", limit: "5" }).toString();
@@ -89,7 +101,8 @@ export async function GET(req) {
       const gotPrice = arr.some((x) => x.price != null);
       // generation + attempts make a dead source name itself: a probe that only
       // said "0 results" is what let the post-sunset outage stay invisible.
-      return Response.json({ hasKey: true, upstreamStatus: res.status, generation: res.generation, outcome: fsqOutcomeLabel(res), attempts: res.attempts, results: n, richData: { rating: gotRating, photos: gotPhotos, price: gotPrice } });
+      const sample = arr.slice(0, 3).map((x) => String(x.name || "").slice(0, 60)).filter(Boolean);
+      return Response.json({ hasKey: true, upstreamStatus: res.status, generation: res.generation, outcome: fsqOutcomeLabel(res), attempts: res.attempts, results: n, sample, richData: { rating: gotRating, photos: gotPhotos, price: gotPrice } });
     } catch (e) {
       return Response.json({ hasKey: true, upstreamStatus: "network_error" });
     }
