@@ -93,8 +93,65 @@ ok(/mode === "night-out"/.test(home) && /nightOutEventRail\(event\)/.test(home),
 ok(!/selRail\.id === "events" && eventsSlot/.test(daypart), "the obsolete standalone Events drop is gone");
 ok(/selRail\.id === "augtober" \|\| selRail\.id === "tonight"/.test(daypart), "Night Out owns its complete answer and cannot fall through to generic places");
 ok(/No verified event or venue within 27 miles/.test(component), "an empty intent tells the truth instead of using a look-alike");
-ok(/\["food", "nightlife", "attractions"\]\.map/.test(route) && /Promise\.allSettled/.test(route), "Night Out reads owned categories in parallel without one stalled category blanking every shelf");
-ok(/primaryOnly: false/.test(route) && /nightOutEditorialEvidence/.test(route), "Night Out includes secondary category identity and governed dinner-show evidence");
+// v8.97b — FOLLOWED, NOT LOOSENED. Both assertions below used to read the ROUTE
+// for strings the retrieval happened to contain. The retrieval moved into
+// lib/nightOutPool.js (identity before the cost bound), so a path-pinned check
+// would have gone red on a correct move — and, far worse, would have gone GREEN
+// on a version that kept the strings in the route and dropped the behaviour.
+//
+// The first one earned its keep during that move: the new reader was written
+// with Promise.all, which turns ONE slow category into a 503 for the whole
+// surface. That is the exact regression this assertion exists to prevent, and
+// it caught it. So it is now asserted on the UNION of the two files, and the
+// resilience is asserted by CALLING the reader with a failing category rather
+// than by matching the word "allSettled".
+const pool = readFileSync(new URL("../lib/nightOutPool.js", import.meta.url), "utf8");
+const retrieval = route + "\n" + pool;
+ok(/\["food", "nightlife", "attractions"\]/.test(retrieval) && /Promise\.allSettled/.test(retrieval),
+  "Night Out no longer reads its three owned categories with allSettled — one stalled category would blank every shelf");
+{
+  const { fetchNightOutPool } = await import("../lib/nightOutPool.js");
+  const env = { url: "https://example.invalid", key: "k" };
+  const page = (rows) => ({ ok: true, json: async () => rows });
+  const okRow = { place_id: "cc1", name: "Comedy Cellar", lat: 27.60, lng: -82.43, primary_type: "comedy_club", google_types: [], status: "OPERATIONAL", signals: { rating: 4.7, reviews: 900 } };
+  let calls = 0;
+  const urls = [];
+  const oneCategoryDies = async (url) => {
+    calls++;
+    urls.push(url);
+    if (/category\.eq\.attractions|secondary_categories\.cs\.\{attractions\}/.test(url)) throw new Error("attractions timed out");
+    return page(/nightlife/.test(url) ? [okRow] : []);
+  };
+  let served = null;
+  try { served = await fetchNightOutPool(27.5949, -82.4265, { env, fetchImpl: oneCategoryDies }); } catch (e) { served = { error: String(e.message) }; }
+  ok(calls > 0, "positive control: the injected fetch was actually called");
+  ok(served && Array.isArray(served.places) && served.places.some((p) => p.id === "cc1"),
+    `one failed category blanked the whole Night Out pool — the surviving categories must still serve (${served && served.error ? served.error : "no places"})`);
+  ok(served && served.stats && served.stats.sourceFailures === 1,
+    "the failed category is not reported in stats — a degraded answer must say it is degraded");
+  const allDie = async () => { throw new Error("db down"); };
+  let threw = false;
+  try { await fetchNightOutPool(27.5949, -82.4265, { env, fetchImpl: allDie }); } catch (e) { threw = true; }
+  ok(threw, "every category failing returned an EMPTY answer instead of throwing — an empty rail set is a claim about the town, and the caller must be able to 503 instead");
+
+  // EVIDENCE STARVATION IS THE LATERAL MOVE. isShow / isLiveMusic / isDateDining
+  // and the rest match against name + types + EDITORIAL, so a reader that trims
+  // `editorial` out of its select to save bytes would cure candidate starvation
+  // by causing evidence starvation — and every count would still look better.
+  // Asserted on the REQUEST the reader actually issued, not on the field list as
+  // a string, because the string is what a well-meaning payload optimisation
+  // edits. (Added after a mutation that removed `editorial` left this suite
+  // green.)
+  ok(urls.length > 0 && urls.every((u) => /select=[^&]*\beditorial\b/.test(u)),
+    "the Night Out read no longer selects `editorial` — the predicates read editorial text, so trimming it starves the evidence instead of the candidates");
+  ok(urls.every((u) => /order=place_id\.asc/.test(u)),
+    "the Night Out read is no longer ordered — an unordered paged read returns an arbitrary heap slice, which is the upstream half of the starvation bug");
+  ok(urls.some((u) => /secondary_categories\.cs\.\{/.test(u)),
+    "the issued query dropped secondary-category membership");
+}
+ok(/secondary_categories\.cs\.\{/.test(retrieval), "Night Out no longer includes secondary-category membership — clubs, cabarets and dinner shows are commonly stored under their venue's primary type");
+ok(/nightOutEditorialEvidence/.test(route) && /editorialOverride/.test(retrieval),
+  "the governed dinner-show evidence override is no longer handed to the reader — a place whose only night-evidence is curated would be refused at admission");
 ok(/fetchJsonWithDeadline\("\/api\/night-out/.test(component), "Night Out has a bounded, retryable reader request");
 ok(/CLIENT_RAIL_DEADLINE_MS = 10000/.test(clientJson) && /AbortController/.test(clientJson), "reader-facing place rails cannot remain on a permanent skeleton");
 

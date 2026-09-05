@@ -4,37 +4,31 @@ export const maxDuration = 20;
 // Night Out owns its complete candidate universe. Dinner, shows and after
 // dark activities are not all stored under the nightlife category, so the
 // endpoint reads the three relevant owned categories in parallel.
-import { BROWSE_INVENTORY_N } from "../../../lib/browseInventory.js";
+//
+// v8.97b — IDENTITY BEFORE THE COST BOUND. This route used to ask the shared
+// reader for the top BROWSE_INVENTORY_N (400) of each broad category and only
+// then ask which Night Out rail a row belonged to. Measured near Parrish
+// (scripts/diagnose-night-out-funnel.mjs): 1,168 of 3,575 admissible owned rows
+// reached the classifier, and 126 QUALIFYING candidates — the Straz Center, Van
+// Wezel, Tampa Theatre, both LALA karaoke rooms — never competed. The shared
+// reader also issues its box query with limit=1000 and no ORDER BY, so the
+// upstream thousand was an arbitrary heap slice that reshuffles on any UPDATE.
+//
+// lib/nightOutPool.js replaces both cuts with the order lib/browseInventory.js
+// already prescribed: deterministic exhaustive paging, then Night Out's own
+// exact 27-mile law, then the REAL nightOutPlaceRail predicate, and only then
+// the composer's Wayfind Score ranking. No provider calls, no widened
+// predicates, and serveFromInventory's semantics are untouched for the cafés,
+// hotels and Family rails that depend on them.
 import { NET_DEADLINE_MS } from "../../../lib/fetchDeadline.js";
-import { distMeters, serveFromInventory } from "../../../lib/inventoryServe.js";
-import { composeNightOutRails, NIGHT_OUT_MAX_MI } from "../../../lib/nightOutIntent.js";
+import { composeNightOutRails } from "../../../lib/nightOutIntent.js";
+import { fetchNightOutPool } from "../../../lib/nightOutPool.js";
 import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 import { windowRailAnswer } from "../../../lib/railResponse.js";
 import { pageOneRail } from "../../../lib/railPage.js";
 import { nightOutEditorialEvidence } from "../../../lib/nightOutEvidence.js";
 
 const NIGHT_OUT_DB_DEADLINE_MS = 3000;
-
-function toPlace(raw, origin) {
-  const id = String(raw?.id || "");
-  const name = String(raw?.displayName?.text || raw?.name || "").trim();
-  const lat = Number(raw?.location?.latitude ?? raw?.lat);
-  const lng = Number(raw?.location?.longitude ?? raw?.lng);
-  if (!id || !name || !Number.isFinite(lat) || !Number.isFinite(lng)) return null;
-  return {
-    id, name, lat, lng,
-    rating: typeof raw.rating === "number" ? raw.rating : null,
-    reviews: Number(raw.userRatingCount || raw.reviews || 0),
-    types: Array.isArray(raw.types) ? raw.types : [],
-    primaryType: raw.primaryType || raw.primary_type || null,
-    priceLevel: raw.priceLevel ?? raw.priceNum ?? null,
-    editorial: nightOutEditorialEvidence(id) || raw?.editorialSummary?.text || raw?.editorial || null,
-    photo: raw.photo_url || raw.photoUrl || null,
-    photoRef: raw?.photo_ref || raw?.photos?.[0]?.name || null,
-    distMi: Math.round((distMeters(origin.lat, origin.lng, lat, lng) / 1609.34) * 10) / 10,
-    _wfInventory: true,
-  };
-}
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -56,24 +50,18 @@ export async function GET(request) {
   const key = `night-out:v4:${geoCell(lat)}:${geoCell(lng)}`;
   try {
     const cached = await fastCachedRail(key, async () => {
-      const options = { failLoud: true, primaryOnly: false, deadlineMs: Math.min(NET_DEADLINE_MS, NIGHT_OUT_DB_DEADLINE_MS) };
-      // One slow category must not hold every already-ready shelf hostage.
-      // Secondary-category membership is included because clubs, cabarets and
-      // dinner shows are commonly stored under their venue's primary type.
-      const settled = await Promise.allSettled(["food", "nightlife", "attractions"].map((category) =>
-        serveFromInventory(category, lat, lng, NIGHT_OUT_MAX_MI * 1609.34, BROWSE_INVENTORY_N, undefined, options),
-      ));
-      const pools = settled.filter((result) => result.status === "fulfilled").map((result) => result.value);
-      if (!pools.length) throw new Error("All Night Out inventory reads failed");
       const origin = { lat, lng };
-      const seen = new Set();
-      const places = pools.flat().map((row) => toPlace(row, origin)).filter((place) => {
-        if (!place || seen.has(place.id)) return false;
-        seen.add(place.id);
-        return true;
+      // nightOutEditorialEvidence is handed IN rather than looked up later:
+      // the ten predicates read editorial text, so the curated override has to
+      // be present at ADMISSION time or a place whose only night-evidence is
+      // curated would be refused before anything could restore it. Curing
+      // candidate starvation by creating evidence starvation is a lateral move.
+      const pool = await fetchNightOutPool(lat, lng, {
+        deadlineMs: Math.min(NET_DEADLINE_MS, NIGHT_OUT_DB_DEADLINE_MS),
+        editorialOverride: nightOutEditorialEvidence,
       });
-      const composed = composeNightOutRails([], places, origin);
-      return { ...composed, sourceCount: places.length, sourceFailures: settled.filter((result) => result.status === "rejected").length };
+      const composed = composeNightOutRails([], pool.places, origin);
+      return { ...composed, sourceCount: pool.places.length, sourceStats: pool.stats, sourceFailures: pool.stats.sourceFailures || 0 };
     }, {
       name: "night-out-rails",
       usable: (value) => !!value?.rails?.some((rail) => rail.places?.length),

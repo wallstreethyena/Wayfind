@@ -1,191 +1,129 @@
 #!/usr/bin/env node
 /**
- * diagnose-night-out-funnel — WHERE DO NIGHT OUT'S THIN RAILS LOSE THEIR
- * CANDIDATES?
+ * diagnose-night-out-funnel — the Night Out candidate funnel, measured.
  *
- * Owner review, 2026-09-05: Dinner + Entertainment = 1, Date-Night Dining = 1
- * and Waterfront = 1 near Parrish. Before any presentation change, decide which
- * of four things is true, because the fix is different for each:
+ * Owner review, 2026-09-05: before changing any presentation, decide which of
+ * four things a one-card rail is —
+ *   A GENUINE SCARCITY · B CANDIDATE STARVATION · C EVIDENCE STARVATION
+ *   D TAXONOMY STARVATION
+ * — because the fix is different for each.
  *
- *   A. GENUINE SCARCITY   only one qualifying place exists within 27 miles
- *   B. CANDIDATE STARVATION  more qualifying owned rows exist, but they never
- *      enter the pool the classifier sees
- *   C. EVIDENCE STARVATION   the row IS in the pool, but Wayfind holds too
- *      little owned evidence for the predicate to recognise it
- *   D. TAXONOMY STARVATION   the row exists with evidence, but sits outside the
- *      three broad categories the route reads
+ * v2 CORRECTS A REAL FLAW IN v1, and the flaw is worth keeping in writing.
+ * v1 compared the route's pool against "ALL admissible rows <= 27mi", but the
+ * two sides did not mean the same thing:
+ *   · the route side came through rankInventory(), whose gate is
+ *     radius x 1.15 — about 31 miles at 27 — and which ALSO refuses rows that
+ *     are closed, excluded, or unrated
+ *   · the ALL side applied an exact 27-mile cut and none of those row filters
+ * So the two columns measured different universes, which is why Cocktails read
+ * 203 vs 202 — a NEGATIVE loss, which is impossible if one set contains the
+ * other, and the tell that the comparison was wrong.
  *
- * B is the suspicion, and it has a name in this repo already:
- * lib/browseInventory.js, "identity ∩ anchor top-N is thin BY CONSTRUCTION".
- * /api/night-out reads food + nightlife + attractions, each capped, and only
- * THEN asks whether a row is a dinner-show. A qualifying row ranked #437 in the
- * broad category never gets to compete.
+ * The correction is structural rather than careful: BOTH columns now end in the
+ * SAME function — admitNightOutRows() from lib/nightOutPool.js, which applies
+ * the row filters, the exact 27-mile law and the real nightOutPlaceRail
+ * predicate. A mismatch is no longer possible to write by accident.
  *
- * THIS SCRIPT MEASURES; IT CHANGES NOTHING. It reproduces the route's own read
- * (same helper, same radius, same cap) and, beside it, the FULL admissible set
- * — every owned row inside the same bounding box, paged past PostgREST's limit
- * — then runs the SAME classifier over both and diffs them. The gap between the
- * two columns is the answer, and it is measured rather than argued.
+ * So this now measures OLD vs NEW retrieval with one shared definition of
+ * "qualifies", which makes it both the diagnosis and the re-measurement:
+ *   OLD  serveFromInventory(top 400 of 3 broad categories) -> admit
+ *   NEW  fetchNightOutPool(deterministic exhaustive paging) -> admit
  *
- * Read-only. No provider calls. Requires SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY.
+ * Read-only. No provider calls. Needs SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY.
  *
  *   node scripts/diagnose-night-out-funnel.mjs [lat] [lng]
  */
 import { BROWSE_INVENTORY_N } from "../lib/browseInventory.js";
-import { serveFromInventory, invRowToPlace, distMeters } from "../lib/inventoryServe.js";
+import { serveFromInventory } from "../lib/inventoryServe.js";
 import { sbEnv } from "../lib/serverCache.js";
-import {
-  NIGHT_OUT_MAX_MI, NIGHT_OUT_RAIL_DEFS,
-  composeNightOutRails, nightOutPlaceRail,
-} from "../lib/nightOutIntent.js";
+import { NIGHT_OUT_MAX_MI, NIGHT_OUT_RAIL_DEFS, nightOutPlaceRail } from "../lib/nightOutIntent.js";
+import { nightOutEditorialEvidence } from "../lib/nightOutEvidence.js";
+import { admitNightOutRows, fetchNightOutPool, NIGHT_OUT_CATEGORIES } from "../lib/nightOutPool.js";
 
 const LAT = Number(process.argv[2] || 27.5949); // Parrish, the owner's own spot
 const LNG = Number(process.argv[3] || -82.4265);
-const CATS = ["food", "nightlife", "attractions"];
-const RADIUS_M = NIGHT_OUT_MAX_MI * 1609.34;
+const origin = { lat: LAT, lng: LNG };
 
-const env = sbEnv();
-if (!env) {
-  console.error("diagnose-night-out-funnel: SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are not set — this script reads owned inventory and cannot run without them.");
+if (!sbEnv()) {
+  console.error("diagnose-night-out-funnel: SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are not set — this reads owned inventory and cannot run without them.");
   process.exit(2);
 }
-const H = { apikey: env.key, Authorization: `Bearer ${env.key}` };
 
-// The route's own bounding box, copied from inventoryServe's boxForRadius so
-// the FULL read below covers EXACTLY the same ground as the capped read. A
-// wider box here would invent candidates the route never had a chance at and
-// overstate the loss; a narrower one would hide it.
-function box(lat, lng, radiusM) {
-  const mi = (Number(radiusM) || 27000) / 1609.34 * 1.15 + 1;
-  const dLat = mi / 69;
-  const dLng = mi / Math.max(5, 69 * Math.cos((lat * Math.PI) / 180));
-  return { minLat: lat - dLat, maxLat: lat + dLat, minLng: lng - dLng, maxLng: lng + dLng };
-}
+// serveFromInventory returns rows already mapped into the Google-ish shape
+// (invRowToPlace). admitNightOutRows expects raw wf_inventory rows, so map back
+// — field for field, no interpretation — and let the SHARED admission decide.
+// This is the seam where v1 went wrong; keeping it a dumb rename is the point.
+const toRawRow = (p) => ({
+  place_id: p.id,
+  name: p?.displayName?.text || p.name,
+  lat: p?.location?.latitude ?? p.lat,
+  lng: p?.location?.longitude ?? p.lng,
+  category: p.category || null,
+  primary_type: p.primaryType || p.primary_type || null,
+  google_types: Array.isArray(p.types) ? p.types : [],
+  status: p.businessStatus || "OPERATIONAL",
+  excluded: p.excluded,
+  editorial: p?.editorialSummary?.text || p.editorial || null,
+  photo_ref: p.photo_ref || null,
+  signals: { rating: typeof p.rating === "number" ? p.rating : null, reviews: Number(p.userRatingCount || p.reviews || 0) },
+});
 
-const FIELDS = "place_id,name,lat,lng,category,secondary_categories,primary_type,google_types,cuisines,status,excluded,signals,editorial,photo_ref";
+// ── OLD: the shipped retrieval, top-N of three broad categories ─────────────
+const oldServed = await Promise.all(NIGHT_OUT_CATEGORIES.map((c) =>
+  serveFromInventory(c, LAT, LNG, NIGHT_OUT_MAX_MI * 1609.34, BROWSE_INVENTORY_N, undefined, { failLoud: true, primaryOnly: false })));
+const oldAdmit = admitNightOutRows(oldServed.flat().map(toRawRow), origin, { editorialOverride: nightOutEditorialEvidence });
 
-/** Every owned row of one category inside the box — paged past PostgREST's cap. */
-async function readAll(category) {
-  const b = box(LAT, LNG, RADIUS_M);
-  const geo = `&lat=gte.${b.minLat.toFixed(4)}&lat=lte.${b.maxLat.toFixed(4)}`
-    + `&lng=gte.${b.minLng.toFixed(4)}&lng=lte.${b.maxLng.toFixed(4)}`;
-  const url = `${env.url}/rest/v1/wf_inventory?select=${FIELDS}${geo}`
-    + `&or=(category.eq.${category},secondary_categories.cs.{${category}})&order=place_id.asc`;
-  const out = [];
-  const PAGE = 1000;
-  for (let from = 0; ; from += PAGE) {
-    const r = await fetch(url, { headers: { ...H, Range: `${from}-${from + PAGE - 1}`, "Range-Unit": "items" } });
-    if (!r.ok) throw new Error(`${category} full read ${r.status}`);
-    const rows = await r.json();
-    out.push(...rows);
-    if (rows.length < PAGE) break;
-    if (from > 40000) break; // sanity stop; a category this large means the box is wrong
-  }
-  return out;
-}
+// ── NEW: identity-first, deterministic, exhaustive ─────────────────────────
+const next = await fetchNightOutPool(LAT, LNG, { editorialOverride: nightOutEditorialEvidence });
 
-// The route's own row -> place shaping, so the classifier sees identical input
-// on both sides of the comparison. (app/api/night-out/route.js toPlace().)
-function toPlace(raw, origin) {
-  const id = String(raw?.id || "");
-  const name = String(raw?.displayName?.text || raw?.name || "").trim();
-  const lat = Number(raw?.location?.latitude ?? raw?.lat);
-  const lng = Number(raw?.location?.longitude ?? raw?.lng);
-  if (!id || !name || !Number.isFinite(lat) || !Number.isFinite(lng)) return null;
-  return {
-    id, name, lat, lng,
-    rating: typeof raw.rating === "number" ? raw.rating : null,
-    reviews: Number(raw.userRatingCount || raw.reviews || 0),
-    types: Array.isArray(raw.types) ? raw.types : [],
-    primaryType: raw.primaryType || raw.primary_type || null,
-    editorial: raw?.editorialSummary?.text || raw?.editorial || null,
-    distMi: Math.round((distMeters(origin.lat, origin.lng, lat, lng) / 1609.34) * 10) / 10,
-    _wfInventory: true,
-  };
-}
-
-const origin = { lat: LAT, lng: LNG };
-const dedupe = (places) => {
-  const seen = new Set(); const out = [];
-  for (const p of places) { if (!p || seen.has(p.id)) continue; seen.add(p.id); out.push(p); }
-  return out;
-};
-
-// ── column 1: what the ROUTE actually sees ──────────────────────────────────
-const opts = { failLoud: true, primaryOnly: false };
-const served = await Promise.all(CATS.map((c) =>
-  serveFromInventory(c, LAT, LNG, RADIUS_M, BROWSE_INVENTORY_N, undefined, opts)));
-const routePlaces = dedupe(served.flat().map((r) => toPlace(r, origin)));
-
-// ── column 2: EVERY owned row in the same box, within the same radius ───────
-const allRaw = await Promise.all(CATS.map(readAll));
-const allPlaces = dedupe(
-  allRaw.flat()
-    .filter((r) => String(r?.status || "OPERATIONAL") === "OPERATIONAL" && !r?.excluded)
-    .map((r) => toPlace(invRowToPlace(r), origin))
-    .filter((p) => p && p.distMi != null && p.distMi <= NIGHT_OUT_MAX_MI),
-);
-
-// The classifier, run over both pools. nightOutPlaceRail IS the membership
-// function the route uses — called, not re-implemented, so this cannot disagree
-// with production about what qualifies.
 const tally = (places) => {
   const by = Object.fromEntries(NIGHT_OUT_RAIL_DEFS.map((r) => [r.id, []]));
   for (const p of places) { const id = nightOutPlaceRail(p); if (id && by[id]) by[id].push(p); }
   return by;
 };
-const routeQual = tally(routePlaces);
-const allQual = tally(allPlaces);
+const oldBy = tally(oldAdmit.places);
+const newBy = tally(next.places);
 
-// …and the real composed answer, so "final ranked count" is the shipped number
-// rather than a re-derivation of it.
-const composed = composeNightOutRails([], routePlaces, origin);
-const finalBy = Object.fromEntries((composed.rails || []).map((r) => [r.id, (r.places || []).length]));
-
-const perCatAll = Object.fromEntries(CATS.map((c, i) => [c, allRaw[i].length]));
-const perCatServed = Object.fromEntries(CATS.map((c, i) => [c, served[i].length]));
-
-console.log(`\nNIGHT OUT FUNNEL — ${LAT}, ${LNG} — radius ${NIGHT_OUT_MAX_MI}mi — cap ${BROWSE_INVENTORY_N}/category\n`);
-console.log("owned rows in box, by category:", JSON.stringify(perCatAll));
-console.log("rows the route's read ADMITTED:", JSON.stringify(perCatServed));
-console.log(`rows entering composeNightOutRails: ${routePlaces.length}`);
-console.log(`ALL admissible owned rows <=${NIGHT_OUT_MAX_MI}mi: ${allPlaces.length}`);
+console.log(`\nNIGHT OUT FUNNEL — ${LAT}, ${LNG} — exactly <= ${NIGHT_OUT_MAX_MI}mi — both columns share ONE admission (admitNightOutRows)\n`);
+console.log(`OLD  rows the top-${BROWSE_INVENTORY_N} read returned : ${oldServed.flat().length}   (${NIGHT_OUT_CATEGORIES.map((c, i) => c + " " + oldServed[i].length).join(", ")})`);
+console.log(`OLD  qualifying after the shared admission : ${oldAdmit.places.length}`);
+console.log("");
+console.log(`NEW  owned rows read in the box           : ${next.stats.rows}   (${Object.entries(next.stats.perCategory).map(([k, v]) => k + " " + v).join(", ")})${next.stats.truncated ? "  [TRUNCATED — raise NIGHT_OUT_POOL_MAX_ROWS]" : ""}`);
+console.log(`NEW  servable (open, not excluded, rated) : ${next.stats.servable}`);
+console.log(`NEW  within exactly ${NIGHT_OUT_MAX_MI}mi                 : ${next.stats.withinRadius}`);
+console.log(`NEW  qualifying for a Night Out rail      : ${next.stats.qualified}`);
 console.log("");
 
-const W = [34, 9, 9, 9, 9];
-const pad = (s, n) => String(s).padEnd(n);
-console.log(pad("rail", W[0]) + pad("qual/route", 12) + pad("qual/ALL", 10) + pad("lost", 8) + "final");
-console.log("-".repeat(78));
-const lost = {};
+const pad = (s, w) => String(s).padEnd(w);
+console.log(pad("rail", 36) + pad("OLD", 7) + pad("NEW", 7) + "gained");
+console.log("-".repeat(60));
+let gained = 0;
 for (const def of NIGHT_OUT_RAIL_DEFS) {
-  const r = routeQual[def.id].length;
-  const a = allQual[def.id].length;
-  lost[def.id] = a - r;
-  console.log(pad(def.title.slice(0, 32), W[0]) + pad(r, 12) + pad(a, 10) + pad(a - r, 8) + (finalBy[def.id] ?? 0));
+  const o = oldBy[def.id].length, w = newBy[def.id].length;
+  gained += Math.max(0, w - o);
+  console.log(pad(def.title.slice(0, 34), 36) + pad(o, 7) + pad(w, 7) + (w - o > 0 ? "+" + (w - o) : w - o));
 }
-console.log("-".repeat(78));
+console.log("-".repeat(60));
+console.log(`\nQualifying candidates recovered: ${gained}`);
 
-const starved = NIGHT_OUT_RAIL_DEFS.filter((d) => lost[d.id] > 0);
-console.log(`\nCandidates excluded specifically because they fell outside the ${BROWSE_INVENTORY_N}-row read: ${Object.values(lost).reduce((a, b) => a + b, 0)}`);
-if (starved.length) {
-  console.log("\nCANDIDATE STARVATION (B) — qualifying owned rows that never reached the classifier:");
-  for (const d of starved) {
-    const missing = allQual[d.id].filter((p) => !routeQual[d.id].some((q) => q.id === p.id));
-    console.log(`\n  ${d.title}  +${lost[d.id]}`);
-    for (const p of missing.slice(0, 12)) console.log(`    - ${p.name} (${p.distMi}mi, ${p.reviews} reviews, ${p.primaryType || "no primary_type"})`);
-    if (missing.length > 12) console.log(`    …and ${missing.length - 12} more`);
-  }
+// A rail that is still zero after identity-first retrieval is NOT candidate
+// starvation. Naming them keeps the next investigation honest — they need an
+// evidence or taxonomy answer, and no amount of retrieval will move them.
+const stillEmpty = NIGHT_OUT_RAIL_DEFS.filter((d) => newBy[d.id].length === 0).map((d) => d.title);
+if (stillEmpty.length) {
+  console.log(`\nStill zero WITH the full owned pool — not candidate starvation (A/C/D, never B):\n  ${stillEmpty.join("\n  ")}`);
+}
+const thin = NIGHT_OUT_RAIL_DEFS.filter((d) => newBy[d.id].length === 1).map((d) => `${d.title} (${newBy[d.id][0].name})`);
+if (thin.length) {
+  console.log(`\nGenuinely ONE verified option — a presentation question, not a data one:\n  ${thin.join("\n  ")}`);
+}
+
+// Regression watch: a fix that thins a dense rail is not a fix.
+const lost = NIGHT_OUT_RAIL_DEFS.filter((d) => newBy[d.id].length < oldBy[d.id].length);
+if (lost.length) {
+  console.log(`\n!! RAILS THAT LOST CANDIDATES — investigate before shipping:`);
+  for (const d of lost) console.log(`  ${d.title}: ${oldBy[d.id].length} -> ${newBy[d.id].length}`);
 } else {
-  console.log("\nNo candidate starvation: every qualifying owned row already reaches the classifier.");
-  console.log("A one-card rail here is genuine scarcity (A), evidence starvation (C) or taxonomy starvation (D).");
+  console.log(`\nNo rail lost candidates. The dense control (Bars, Cocktails & Rooftops) holds at ${newBy.cocktails.length}.`);
 }
-
-// Evidence starvation (C) is visible as rows the predicate ALMOST matches. It
-// is reported as a count of rows whose primary_type is night-relevant but which
-// carry no editorial text at all, because the predicates read name + types +
-// editorial and an empty editorial is the commonest missing input.
-const NIGHTY = /^(bar|night_club|dance_club|cocktail_bar|wine_bar|lounge_bar|pub|brewery|beer_garden|comedy_club|performing_arts_theater|theater|concert_hall|amphitheater|live_music_venue|jazz_club|piano_bar|event_venue)$/;
-const thinEvidence = allPlaces.filter((p) => NIGHTY.test(String(p.primaryType || "")) && !p.editorial && !nightOutPlaceRail(p));
-console.log(`\nEVIDENCE WATCH (C): ${thinEvidence.length} night-typed owned rows within ${NIGHT_OUT_MAX_MI}mi match NO rail and carry NO editorial text.`);
-for (const p of thinEvidence.slice(0, 10)) console.log(`    - ${p.name} (${p.primaryType}, ${p.distMi}mi, ${p.reviews} reviews)`);
 console.log("");

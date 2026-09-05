@@ -425,6 +425,7 @@ node scripts/test-creator-pages.mjs
 node scripts/check-creator-tile-navigates.mjs
 node scripts/check-creator-summary-counts.mjs
 node scripts/check-rail-seed-not-frozen.mjs
+node scripts/test-night-out-identity-first.mjs
 node scripts/test-creator-corroboration.mjs
 node scripts/check-brand-pin.mjs
 node scripts/check-score-law.mjs
