@@ -34,6 +34,11 @@ let pass = 0;
 const fail = [];
 const ok = (cond, msg) => (cond ? pass++ : fail.push(msg));
 const read = (rel) => readFileSync(new URL(rel, import.meta.url), "utf8");
+// Comments are legal JS and can contain anything this file greps for without
+// the code doing it — strip before any position check (CLAUDE.md).
+const stripComments = (src) => src
+  .replace(/\/\*[\s\S]*?\*\//g, "")
+  .replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
 
 const NOW = "2026-09-04T00:00:00.000Z";
 const PLACE = { place_id: "ChIJtest", name: "Test Place" };
@@ -116,6 +121,52 @@ for (const [name, src] of [["editorial-publish-backfill.sql", backfill], ["20260
   ok(WHY_RX.test(src),   `${name}: tests the why_here >= 120 threshold`);
   ok(FACTS_RX.test(src), `${name}: tests the facts >= 1 threshold`);
 }
+
+// ── 2b. PUBLISHABILITY HAS MORE THAN ONE AXIS ───────────────────────────────
+// 2026-09-05. The content bar above asks "does this row carry what it claims".
+// It never asked "is this place still one we serve". Eight rows were published
+// for places that were EXCLUDED (4), CLOSED_PERMANENTLY (2), CLOSED_TEMPORARILY
+// (1) or had no wf_inventory row at all (1) — and they were REACHABLE, because
+// app/api/editorial/route.js matches on place_id + verified and nothing else.
+// Same bug class as the demote asymmetry, one dimension over: a gate that tests
+// one axis of publishability and not the others.
+//
+// The rule is cross-table so it cannot be a CHECK constraint; it is a trigger,
+// in supabase/migrations/20260905_editorial_requires_servable_place.sql. This
+// asserts the migration encodes it — and, critically, that the SERVING path is
+// the reason it has to (a status filter on the read would be the alternative
+// fix, and its ABSENCE is what makes the trigger load-bearing).
+const servable = read("../supabase/migrations/20260905_editorial_requires_servable_place.sql");
+const OPERATIONAL_RX = /i\.status\s*=\s*'OPERATIONAL'/;
+ok(OPERATIONAL_RX.test("where i.place_id = new.place_id and i.status = 'OPERATIONAL'"),
+  "POSITIVE CONTROL: the OPERATIONAL-status probe matches a known-good clause");
+ok(!OPERATIONAL_RX.test("where i.place_id = new.place_id"),
+  "RED-PROVE: a place_id match with no status test does NOT satisfy the rule");
+ok(/create or replace function public\.wf_editorial_requires_servable_place/.test(servable),
+  "the servable-place rule exists as a FUNCTION (a CHECK constraint cannot reference wf_inventory, so this must be a trigger)");
+ok(/create trigger wf_editorial_servable_place[\s\S]{0,160}before insert or update/.test(servable),
+  "…fired BEFORE insert or update, so a bad write is refused rather than recorded and cleaned up later");
+// SCOPE TO THE FUNCTION BODY, NOT THE FILE. The first version of this assertion
+// tested OPERATIONAL_RX against the whole migration and PASSED a mutation that
+// deleted the status test from the trigger — because the same string still
+// appears in the file's UPDATE statement and its verification SELECT. That is
+// CLAUDE.md's role-vs-substring trap, committed while writing a guard against
+// exactly that class of bug. The gate lives inside the function; assert there.
+const fnBody = (servable.match(/create or replace function public\.wf_editorial_requires_servable_place[\s\S]*?\$\$;/) || [""])[0];
+ok(fnBody.length > 0, "the trigger function body is locatable (without it every assertion below is scoped to nothing)");
+ok(/new\.verified is true/.test(fnBody), "the trigger gates on verified=true");
+ok(OPERATIONAL_RX.test(fnBody),
+  "…and the OPERATIONAL status test is INSIDE THE FUNCTION BODY, not merely somewhere in the file — the whole-file version of this assertion passed a mutation that deleted it from the trigger");
+ok(/errcode = 'check_violation'/.test(servable),
+  "…raising check_violation, the errcode the live probe catches — a bare RAISE would be indistinguishable from an unrelated failure");
+// The serving path is the REASON this trigger is load-bearing. If a future
+// change adds a status filter to the read, this assertion goes red and whoever
+// does it is told to re-examine the trigger rather than leaving two half-rules.
+const editorialRoute = stripComments(read("../app/api/editorial/route.js"));
+ok(/verified=is\.true/.test(editorialRoute),
+  "app/api/editorial still gates on verified=is.true (the flag this whole file governs)");
+ok(!/status=eq\.OPERATIONAL/.test(editorialRoute),
+  "…and still does NOT filter on inventory status — which is exactly why the trigger has to hold the line. POSITIVE CONTROL for this absence: the assertion above proves the probe reads real query text from the same file.");
 
 // The demote side specifically. A file that only ever promotes is how this bug
 // happened, so assert the DEMOTING statement exists and that it is guarded by
