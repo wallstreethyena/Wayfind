@@ -424,6 +424,7 @@ node scripts/check-creator-avatars.mjs
 node scripts/test-creator-card-mark.mjs
 node scripts/test-creator-pages.mjs
 node scripts/check-creator-tile-navigates.mjs
+node scripts/check-creator-summary-counts.mjs
 node scripts/test-creator-corroboration.mjs
 node scripts/check-brand-pin.mjs
 node scripts/check-score-law.mjs
