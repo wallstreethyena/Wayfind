@@ -15,9 +15,9 @@
 // `domRef={sentinelRef}` (RailCard forwards it straight onto its root
 // `<article>`, the same node `.wf-rail>.wf-rail-card` sizes) and the hook
 // fetches page N+1 the moment that ONE card intersects the viewport.
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
-import { RAIL_PAGE_SIZE, pageOf } from "../../lib/railPage.js";
+import { RAIL_PAGE_SIZE, pageOf, seedSignature } from "../../lib/railPage.js";
 
 export const RAIL_LOAD_MORE_OFFSET = 3;
 
@@ -61,7 +61,34 @@ export function usePagedRail(endpoint, params, {
   source = null,
 } = {}) {
   const local = Array.isArray(source);
-  const key = enabled && (local || endpoint) ? `${local ? "local" : endpoint}|${JSON.stringify(params || {})}` : "";
+  // v8.97 — THE SEED IS PART OF THE KEY, BY CONTENT.
+  //
+  // The seed was captured once per key, and the key was endpoint + params. That
+  // is correct against a fresh ARRAY IDENTITY carrying the same content (the
+  // case the comment below still protects). It is wrong against a fresh
+  // CONTENT, and NightOutRails does exactly that: it mounts every rail against
+  // a client-side fail-soft fallback and then swaps in the real /api/night-out
+  // payload — same endpoint, same params, same key. The hook therefore stayed
+  // pinned to the fallback for the life of the rail.
+  //
+  // Measured on production, Parrish, 2026-09-05: Bars, Cocktails & Rooftops
+  // rendered 5 cards while the network had delivered 188, and Date-Night Dining
+  // rendered 1 of 7. Worse, hasMore was computed from the frozen seed
+  // (1 < 1 = false), so the rail could not even heal by being scrolled — the
+  // reader was locked out of data the browser had already received.
+  //
+  // The signature is the seed's LENGTH, TOTAL and ITEM IDS — not its identity.
+  // Same content therefore still yields the same key and still does not re-seed
+  // a reader who has scrolled past page 0; different content yields a new key
+  // and re-seeds. Both halves are what the original comment wanted.
+  // seedSignature lives in lib/railPage.js so a guard can CALL it rather than
+  // read this file — the rule that "a structural regex tells you the code looks
+  // right; a call tells you it behaves right".
+  const seedSig = useMemo(
+    () => (local ? "" : seedSignature(seedItems, seedTotal, getId)),
+    [local, seedItems, seedTotal, getId],
+  );
+  const key = enabled && (local || endpoint) ? `${local ? "local" : endpoint}|${JSON.stringify(params || {})}|${seedSig}` : "";
   // Seed is captured once per key so a parent re-render with a fresh array
   // identity (but the same content) does not re-seed a rail the reader has
   // already scrolled past page 0 of.
