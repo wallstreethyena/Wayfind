@@ -45,6 +45,15 @@ import { canonicalShareUrl } from "../../lib/site";
 import { askShareIntent } from "./shareIntentSheet";
 import { placeKinds } from "../../lib/dateInvite";
 import { resolveLocationContext, locationSurface } from "../../lib/locationHonesty";
+import { settleLoad } from "../../lib/loadState.js";
+// v8.57 — THIS SURFACE PAINTS A SKELETON, SO IT MUST REACH A DECISION.
+// A try/catch (or .catch) only ever sees the failure mode that THROWS. The one
+// that stranded production was the other one: a fetch that neither resolves nor
+// rejects, which leaves every await pending, skips catch AND finally, and
+// leaves the reader on a permanent grey box. settleLoad (lib/loadState.js) arms
+// its clock BEFORE the work, so the pending state is always overwritten.
+// Locked by scripts/check-no-stuck-loading.mjs section 5.
+const INTENT_PAGE_LOAD_TIMEOUT_MS = 12000;
 
 const PHOTO_REF = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
 
@@ -224,7 +233,7 @@ export default function IntentPageClient({ intent }) {
     // beat of loading.
     if (!now) return;
     let dead = false;
-    (async () => {
+    settleLoad(() => (async () => {
       const clock = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
       const startedAt = clock();
       const traceId = (() => {
@@ -401,7 +410,11 @@ export default function IntentPageClient({ intent }) {
           if (!dead) setRows([...ranked]);
         }
       } catch (e) {}
-    })();
+    })(), { timeoutMs: INTENT_PAGE_LOAD_TIMEOUT_MS }).then((settled) => {
+      if (!settled.ok) {
+        if (!dead) setRows((prev) => (prev == null ? [] : prev));
+      }
+    });
     return () => { dead = true; };
     // `now` IS a dependency and leaving it out is not a style question: the
     // effect returns early while the context is still null (it waits for

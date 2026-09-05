@@ -298,6 +298,13 @@ node scripts/check-art-assets.mjs
 node scripts/check-brand-derivatives.mjs
 node scripts/check-coupon-place-match.mjs
 node scripts/check-no-stuck-loading.mjs
+node scripts/check-promo-location-honesty.mjs
+# v8.57 — a promo may not promise a town it has nothing in. EXECUTES
+# lib/promoLocation.js against a covered positive control and an uncovered
+# negative control (Hoffman, NJ verbatim), and asserts both location-promo
+# surfaces in app/home.js are actually wired to it. A law nothing calls is
+# decoration, so the wiring is asserted, not assumed.
+
 # v8.46 — check-no-stuck-loading executes lib/loadState.js's own contract but
 # never asked whether anything USED it. DaypartRail did not, and shipped the
 # same permanent grey box the module was written for. This one scans the

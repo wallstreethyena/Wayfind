@@ -188,6 +188,7 @@ import { chipAffinityBonus } from "../lib/experienceConcepts";
 import { discountDepthBonus, timeOfDayBonus } from "../lib/experienceNowRank";
 import { safeUrl, openExternal as safeOpenExternal } from "../lib/links";
 import * as Hol from "../lib/holidays";
+import { locationPromoAllowed } from "../lib/promoLocation.js";
 import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
@@ -5792,7 +5793,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
 
   // World Cup hero card. topSlot=true renders only on match days (fixed
   // knockout calendar); topSlot=false renders mid-feed on off days.
-  const renderWorldCupCard = (topSlot) => { const _w = Hol.worldCup(new Date()); if (!_w) return null; if (Hol.worldCupDaysToNext(new Date()) > 2) return null; if (!!topSlot !== Hol.worldCupMatchToday(new Date())) return null; const _wc = Hol.themeFor(_w.key); const _wct = Hol.contentFor(_w.key, _w.name); return (
+  const renderWorldCupCard = (topSlot) => { const _w = Hol.worldCup(new Date()); if (!_w) return null;
+    // Same law as the holiday card, same module — "Where to watch near {loc}"
+    // is the same promise and needs the same evidence. See lib/promoLocation.js.
+    if (!locationPromoAllowed({ coverage: railsCoverage })) return null; if (Hol.worldCupDaysToNext(new Date()) > 2) return null; if (!!topSlot !== Hol.worldCupMatchToday(new Date())) return null; const _wc = Hol.themeFor(_w.key); const _wct = Hol.contentFor(_w.key, _w.name); return (
                       <div style={{ borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _wc.grad, border: `1px solid ${_wc.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
                       <button type="button" className="wf-holiday-open" onClick={() => openHoliday(_w)} aria-label={_wct.headline(locName)} style={{ position: "absolute", inset: 0, zIndex: 1, opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
                       <style dangerouslySetInnerHTML={{ __html: "@keyframes wcJuggle{0%{transform:translateY(0) rotate(0deg);animation-timing-function:cubic-bezier(.17,.84,.44,1)}45%{transform:translateY(-26px) rotate(180deg);animation-timing-function:cubic-bezier(.55,0,.85,.36)}90%{transform:translateY(0) rotate(360deg)}100%{transform:translateY(0) rotate(360deg)}}@keyframes wcBob{0%,86%,100%{transform:translateY(0)}93%{transform:translateY(2px)}}@keyframes wcGlow{0%,100%{opacity:.5}50%{opacity:1}}" }} />
@@ -10527,7 +10531,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                       {/* The Coconut Grove sponsor now lives in the amazon rail
                           (DaypartRail sponsor tile), not here — see sponsorRail
                           + onOpenPartner below. */}
-                      {(() => { const _h = Hol.activeHoliday(new Date()); if (!_h) return null; const _c = Hol.themeFor(_h.key); const _ct = Hol.contentFor(_h.key, _h.name); return (
+                      {(() => { const _h = Hol.activeHoliday(new Date()); if (!_h) return null;
+                        /* v8.57 — A PROMO MAY NOT PROMISE A TOWN IT HAS NOTHING IN.
+                           Hol.activeHoliday() is pure date math: true for every visitor
+                           on earth for the 28 days before every federal holiday. It says
+                           nothing about whether THIS centre has a single qualifying place.
+                           Owner session 2026-09-04, centre = Hoffman, NJ (zero inventory):
+                           every rail rendered its honest empty state and this card still
+                           read "The best of Labor Day weekend in Hoffman, NJ / Top picks
+                           for the holiday, near you". openHoliday() already knew — it bails
+                           with "Nothing found ... nearby yet" — but only AFTER the promise
+                           and the tap. The check now runs before the paint, from the one
+                           definition in lib/promoLocation.js. */
+                        if (!locationPromoAllowed({ coverage: railsCoverage })) return null;
+                        const _c = Hol.themeFor(_h.key); const _ct = Hol.contentFor(_h.key, _h.name); return (
                         <div style={{ borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _c.grad, border: `1px solid ${_c.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
                           <button type="button" className="wf-holiday-open" onClick={() => openHoliday(_h)} aria-label={_ct.headline(locName)} style={{ position: "absolute", inset: 0, zIndex: 1, opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
                           <style dangerouslySetInnerHTML={{ __html: "@keyframes wfBurst{0%{transform:scale(.15);opacity:.95}70%{opacity:.4}100%{transform:scale(1);opacity:0}}@keyframes wfGlow{0%,100%{opacity:.55}50%{opacity:1}}@keyframes wfTwinkle{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:1;transform:scale(1.2)}}@keyframes wfSweep{0%{transform:translateX(-140%) skewX(-18deg)}100%{transform:translateX(240%) skewX(-18deg)}}" }} />
