@@ -15,13 +15,39 @@
  * old algorithm is re-implemented here and must FAIL the 429 case that the new
  * one passes. A control that both implementations pass would not have caught
  * this bug and is worthless as a regression lock.
+ *
+ * HERMETIC WHOLE-FILE HARNESS (2026-09-06). After the shared Foursquare
+ * breaker shipped, sections 2–9 still ran in the ambient process. On Vercel a
+ * real production `provider-breaker|v1|foursquare` quota row therefore made
+ * mocked fsqSearch() calls return breaker_open before their mock fetch ran. A
+ * deterministic guard was reading live production state — and §5 could then
+ * call resetBreaker() against that same live row. The outer invocation now
+ * re-execs this entire file once in a child whose environment is built from
+ * NOTHING. Runtime breaker behavior is still exercised in §11, but only
+ * against that child's in-memory cache. A deploy test can no longer observe or
+ * mutate the production breaker.
  */
 import { readFileSync } from "node:fs";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import {
   fsqSearch, fsqAttemptChain, isLegacyFsqKey, fsqOutcomeLabel, validateFsqPayload,
   FSQ_V3_URL, FSQ_CURRENT_URL, FSQ_PLACES_API_VERSION,
 } from "../lib/foursquare.js";
+
+const HERMETIC_ARG = "--wf-foursquare-hermetic-child";
+if (process.argv[2] !== HERMETIC_ARG) {
+  const child = spawnSync(process.execPath, [fileURLToPath(import.meta.url), HERMETIC_ARG], {
+    env: { NODE_ENV: "test", WF_SUPPRESS_ANALYTICS: "1" },
+    stdio: "inherit",
+    timeout: 120000,
+  });
+  if (child.error) {
+    console.error("test-foursquare: FAIL — hermetic child could not run: " + child.error.message);
+    process.exit(1);
+  }
+  process.exit(child.status === 0 ? 0 : (child.status || 1));
+}
 
 let n = 0, failn = 0;
 const ok = (cond, msg) => { n++; if (!cond) { failn++; console.error("  ✗ " + msg); } };
