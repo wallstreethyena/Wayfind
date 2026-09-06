@@ -29,6 +29,7 @@ import { IG_HANDLES, hashtagsForWeek } from "../../../../lib/instagramSources.js
 import { qualifySocialPost, observedCount, sourceRetryDue, safeSocialJson } from "../../../../lib/socialQualification.js";
 import { recordPulse } from "../../../../lib/jobPulse.js";
 import { normalizedSocialHandle } from "../../../../lib/socialIdentity.js";
+import { reserveFreeProviderCall } from "../../../../lib/providerMeter.js";
 
 const DEADLINE_MS = 8000;
 const GRAPH_WORKERS = 6;
@@ -54,7 +55,9 @@ function admin() {
   return url && key ? createClient(url, key, { auth: { persistSession: false } }) : null;
 }
 
-async function getJson(url) {
+async function getJson(db, url, capability, observedAt) {
+  const meter = await reserveFreeProviderCall(db, capability, { now: observedAt });
+  if (!meter.allowed) return { ok: false, error: `provider_meter_${meter.reason}`, body: null };
   return safeSocialJson(url, { timeoutMs: DEADLINE_MS, headers: { authorization: `Bearer ${igToken()}` } });
 }
 
@@ -83,6 +86,7 @@ export async function GET(request) {
   const rejected = {};
   const observedAt = Date.now();
   let inspected = 0;
+  let freeCalls = 0;
   const { data: creatorRows, error: creatorError } = await db.from("wf_social_creators")
     .select("platform,handle,status,evidence_url,reviewed_at,expires_at,canonical_place_id")
     .eq("platform", "instagram");
@@ -123,7 +127,8 @@ export async function GET(request) {
     if (skip.has(src.handle)) return;
     const url = businessDiscoveryUrl(src.handle, perAccount);
     if (!url) return;
-    const res = await getJson(url);
+    const res = await getJson(db, url, "business_discovery", observedAt);
+    if (!res.error?.startsWith("provider_meter_")) freeCalls++;
     if (!res.ok) {
       errors.push({ handle: src.handle, error: res.error });
       await db.from("wf_social_source_health").upsert({
@@ -150,10 +155,12 @@ export async function GET(request) {
   await mapConcurrent(tags, GRAPH_WORKERS, async (tag) => {
     const idUrl = hashtagIdUrl(tag);
     if (!idUrl) return;
-    const idRes = await getJson(idUrl);
+    const idRes = await getJson(db, idUrl, "hashtag_search", observedAt);
+    if (!idRes.error?.startsWith("provider_meter_")) freeCalls++;
     const hashtagId = idRes.ok ? idRes.body?.data?.[0]?.id : null;
     if (!hashtagId) { errors.push({ hashtag: tag, error: idRes.error || "no id" }); return; }
-    const mediaRes = await getJson(hashtagMediaUrl(hashtagId, "top_media"));
+    const mediaRes = await getJson(db, hashtagMediaUrl(hashtagId, "top_media"), "media_metadata", observedAt);
+    if (!mediaRes.error?.startsWith("provider_meter_")) freeCalls++;
     if (!mediaRes.ok) { errors.push({ hashtag: tag, error: mediaRes.error }); return; }
     for (const media of mediaRes.body?.data || []) {
       consider(media, { source: "hashtag", tag });
@@ -178,7 +185,7 @@ export async function GET(request) {
   return json({
     configured: true, ok: errors.length === 0,
     status: errors.length ? "partial_or_failed" : "completed",
-    inspected, rejected, paid_provider_calls: 0,
+    inspected, rejected, free_provider_calls: freeCalls, paid_provider_calls: 0,
     publication_enabled: false,
     next_stage: "verify_florida_destination",
     handles_read: IG_HANDLES.length - skip.size,

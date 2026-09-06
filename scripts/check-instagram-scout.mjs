@@ -119,6 +119,7 @@ ok(rankCandidates([uc, dc, uc]).map((c) => c.media_id).join(",") === "a,c", "ran
 // the boundary that matters
 ok(/wf_social_candidates/.test(routeRaw) && !/wf_events/.test(route), "the scout writes wf_social_candidates and NEVER wf_events (code, not the comment saying so)");
 ok(/ignoreDuplicates: false/.test(routeRaw), "re-seeing a lead updates it rather than resurrecting a rejected one");
+ok(/reserveFreeProviderCall/.test(routeRaw) && /free_provider_calls/.test(routeRaw), "every official Meta request is reserved in the free-call ledger and reported");
 
 // ── 4. inside Meta's cap ──────────────────────────────────────────────────
 ok(HASHTAG_WEEKLY_LIMIT === 30, "the documented Meta cap is pinned in code");

@@ -34,6 +34,8 @@ assert.doesNotMatch(route, /api\.anthropic\.com/);
 assert.match(route, /buildSocialReviewQueue/);
 assert.doesNotMatch(route, /from\("wf_events"\)/);
 assert.doesNotMatch(route, /wf_inventory[^\n]*state/, "the live inventory table has no state column");
+assert.doesNotMatch(route, /readSocialPages\(db,\s*["']wf_inventory/, "preflight must not page the entire owned inventory");
+assert.match(route, /healthy empty: no stored social leads/);
 const migration = readFileSync(new URL("../supabase/migrations/20260906022518_social_intelligence_control_plane.sql", import.meta.url), "utf8");
 for (const table of ["wf_social_creators", "wf_source_evidence", "wf_social_trend_reports"]) {
   assert.match(migration, new RegExp(`alter table public\\.${table} enable row level security`));
@@ -53,7 +55,7 @@ assert.equal(isFloridaInventory({ state: "GA", lat: 30.8, lng: -84 }), false);
 assert.equal(resolveSocialPlace({ caption: "Sunshine Pumpkin Farm", location_city: "Atlanta" }, { inventory, now }).status, "unresolved");
 assert.match(route, /social_preflight_incomplete/);
 
-const { readSocialPages, buildSocialReviewQueue } = await import('../lib/socialReviewQueue.js');
+const { readSocialPages, readSocialIdentityInventory, socialIdentityHints, buildSocialReviewQueue } = await import('../lib/socialReviewQueue.js');
 const corpus = Array.from({ length: 1201 }, (_, i) => ({ place_id: String(i).padStart(5, '0') }));
 const requests = [];
 const db = { from(table) {
@@ -67,6 +69,11 @@ const db = { from(table) {
 assert.equal((await readSocialPages(db, 'wf_inventory', '*', 'place_id')).length, 1201);
 assert.equal(requests.length, 8, 'server-capped short pages do not terminate the read');
 await assert.rejects(readSocialPages(db, 'wf_inventory', '*', 'place_id', { ceiling: 1000 }), /ceiling/);
+assert.deepEqual(socialIdentityHints([{ platform:'instagram',handle:'fixture',source_place_id:'farm-1',location_name:'Sunshine Pumpkin Farm' }],[creator]),{ids:['farm-1'],names:['Sunshine Pumpkin Farm']});
+const inventoryCalls=[];
+const inventoryDb={from(){const q={select(){return q;},eq(){return q;},in(field,values){inventoryCalls.push({field,values});return q;},limit(){return q;},then(resolve){resolve({data:[inventory[0]],error:null});}};return q;}};
+assert.deepEqual(await readSocialIdentityInventory(inventoryDb,[{source_place_id:'farm-1',location_name:'Sunshine Pumpkin Farm'}],[]),[inventory[0]]);
+assert.deepEqual(inventoryCalls.map(x=>x.field),['place_id','name']);
 const lead = { platform: 'instagram', media_id: '1', caption: 'Sunshine Pumpkin Farm corn maze', like_count: 1001 };
 const queue = buildSocialReviewQueue([lead, lead, { ...lead, media_id: '2', like_count: 1000 }], inventory, { now });
 assert.equal(queue.duplicates, 1);
