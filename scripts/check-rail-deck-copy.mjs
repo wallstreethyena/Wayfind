@@ -10,6 +10,9 @@
  */
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+// The law itself lives in lib/railDeckCopy.js so this guard CALLS shared code
+// rather than re-encoding the rules it is supposed to be checking.
+import { deckProblems, deckWordCount } from "../lib/railDeckCopy.js";
 
 let assertions = 0;
 const failures = [];
@@ -30,7 +33,25 @@ function sourceFiles(root) {
 
 const allFiles = [...sourceFiles("app"), ...sourceFiles("lib")];
 const files = allFiles.filter((file) => /\bdeck\s*:/.test(readFileSync(file, "utf8")));
-const wordCount = (value) => (value.match(/[\p{L}\p{N}]+(?:['’\-][\p{L}\p{N}]+)*/gu) || []).length;
+const wordCount = deckWordCount;
+
+// ── CONTROLS: prove the rules discriminate BEFORE trusting them on real files ──
+const GOOD = "Late tables with room to talk.";
+ok(deckProblems(GOOD, "Night Out").length === 0,
+  `POSITIVE CONTROL: a compliant deck yields zero problems (got ${JSON.stringify(deckProblems(GOOD, "Night Out"))}) — without this, every "no problems" below is equally consistent with rules that catch nothing`);
+for (const [bad, expect, why] of [
+  ["Too short here.", "length-words", "under five words"],
+  ["A deck that simply keeps going and going well past the ceiling.", "length-words", "over eight words"],
+  ["Late tables — room to talk.", "clause-punctuation", "an em dash"],
+  ["Not the usual tourist traps.", "disclaimer", "a disclaimer"],
+  ["Late tables with room. Two sentences.", "not-one-sentence", "two sentences"],
+  ["Late tables for 12 hungry people.", "states-a-count", "a count"],
+  ["Night out with room to talk.", "repeats-title", "repeating its own title"],
+]) ok(deckProblems(bad, "Night out").some((x) => x === expect || x.startsWith(expect + ":")),
+  `NEGATIVE CONTROL: ${why} is caught as ${expect} (got ${JSON.stringify(deckProblems(bad, "Night out"))})`);
+ok(deckProblems("A".repeat(70) + " b c d e.", "x").some((x) => x.startsWith("length-chars")),
+  "NEGATIVE CONTROL: an over-58-character deck is caught");
+
 let decks = 0;
 
 for (const file of files) {
@@ -38,20 +59,15 @@ for (const file of files) {
   for (const match of source.matchAll(/deck:\s*"([^"]+)"/g)) {
     decks += 1;
     const deck = match[1].trim();
-    const words = wordCount(deck);
     const label = `${file}: \"${deck}\"`;
-    ok(words >= 5 && words <= 8, `${label} has ${words} words; rail decks require 5–8`);
-    ok(deck.length <= 58, `${label} has ${deck.length} characters; maximum is 58`);
-    ok(!/[—;:]/.test(deck), `${label} uses clause/list punctuation; keep one simple read`);
-    ok(!/\b(?:not|never|no)\b/i.test(deck), `${label} is a disclaimer; state the positive promise`);
-    ok((deck.match(/[.!?]/g) || []).length === 1 && /[.!?]$/.test(deck), `${label} must be exactly one sentence`);
-    ok(!/\d/.test(deck), `${label} states a count; rail navigation owns counts`);
+    const problems = deckProblems(deck, null);
+    ok(problems.length === 0, `${label} breaks the rail-deck copy law: ${problems.join(", ")}`);
   }
 
   for (const match of source.matchAll(/\{[^{}]*title:\s*"([^"]+)"[^{}]*deck:\s*"([^"]+)"[^{}]*\}/gs)) {
     const title = match[1].trim().toLowerCase();
     const deck = match[2].trim().toLowerCase();
-    ok(title !== deck && !deck.includes(title), `${file}: deck repeats its rail title: \"${match[2]}\"`);
+    ok(!deckProblems(match[2], match[1]).includes("repeats-title"), `${file}: deck repeats its rail title: \"${match[2]}\"`);
   }
 }
 

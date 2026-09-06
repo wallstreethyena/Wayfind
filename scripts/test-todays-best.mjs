@@ -310,7 +310,33 @@ import("../lib/editorialRule.js").then((er) => {
 });
 const edRoute = readFileSync(new URL("../app/api/editorial/route.js", import.meta.url), "utf8");
 ok(edRoute.indexOf("CARD_BY_ID.has(id)") < edRoute.indexOf("await wfEditorialFor("), "precedence: Atlas card beats the fleet row (hand curation wins)");
-ok(edRoute.includes("s-maxage=3600"), "fleet rows surface within the hour (not a day)");
+// ASSERT THE CEILING, NOT THE LITERAL (2026-09-05). This read
+// `includes("s-maxage=3600")`, so it went red when the route TIGHTENED its cache
+// from 3600s to 300s — a change that satisfies this assertion's own stated
+// intent ("within the hour, not a day") more strictly than the value it was
+// pinned to. An exact-literal assertion cannot tell an improvement from a
+// regression; it just knows the string moved. The invariant is a CEILING, so
+// parse the numbers and compare.
+{
+  const HOUR = 3600;
+  // STRIP COMMENTS FIRST. The route's own header comment explains what the
+  // values USED to be ("these were s-maxage=86400 with stale-while-revalidate
+  // =604800"), and the first version of this check read raw source and failed on
+  // that prose — reporting a day-long cache that does not exist in any header.
+  // CLAUDE.md names this exact trap; a guard that greps raw source fails on its
+  // own explanatory comment.
+  const edCode = edRoute
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1");
+  const cacheHeaders = [...edCode.matchAll(/s-maxage=(\d+)/g)].map((m) => Number(m[1]));
+  ok(cacheHeaders.length > 0,
+    "POSITIVE CONTROL: the route declares at least one s-maxage — a zero-match parse would make the ceiling check below vacuously true forever");
+  ok(cacheHeaders.every((v) => v <= HOUR),
+    `fleet rows surface within the hour, not a day (found s-maxage values ${JSON.stringify(cacheHeaders)}; all must be <= ${HOUR})`);
+  const swr = [...edCode.matchAll(/stale-while-revalidate=(\d+)/g)].map((m) => Number(m[1]));
+  ok(swr.every((v) => v <= HOUR),
+    `…and STALE serving is bounded too (found ${JSON.stringify(swr)}) — the original 604800 meant a week-old "go here" could outlive a closure, which is the hole the 2026-09-05 servability gate closed`);
+}
 
 console.log(`test-todays-best: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);

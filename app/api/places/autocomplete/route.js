@@ -16,6 +16,7 @@
 // client path (see fetchSuggestionsDirect in app/home.js) so nothing breaks in
 // an environment where the server key isn't set.
 import { NextResponse } from "next/server";
+import { gateShut, spendAllowCapped, autocompleteCap } from "../../../../lib/spendGate";
 
 export const dynamic = "force-dynamic";
 
@@ -49,6 +50,11 @@ export async function POST(req) {
   };
 
   try {
+    // COST GUARD (2026-09-04): until today this route reached Google with NO gate
+    // and NO ledger — the home search box bills on typing. gateShut() is the kill
+    // switch; spendAllowCapped meters every request against a FINITE ceiling.
+    if (gateShut()) return NextResponse.json({ suggestions: [] }, { status: 200 });
+    if (!(await spendAllowCapped("autocomplete", autocompleteCap()))) return NextResponse.json({ suggestions: [] }, { status: 200 });
     const r = await fetch("https://places.googleapis.com/v1/places:autocomplete", {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Goog-Api-Key": serverKey },

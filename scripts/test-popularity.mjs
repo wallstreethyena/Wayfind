@@ -48,7 +48,19 @@ const lib = readFileSync(new URL("../lib/popularity.js", import.meta.url), "utf8
 ok(/besttime[\s\S]{0,200}address/i.test(lib), "besttime absence is documented (needs addresses we do not store), not silent");
 ok(/ticketmaster\/predicthq — event demand/.test(lib), "event-demand sources documented as follow-ups, not faked");
 ok(/typeof m\.cand\.popularity !== "number"\)\s*\{[^}]*return null/.test(lib), "foursquare popularity is used only when the API returns it (tier-gate intact through the 2026 dual-endpoint migration)");
-ok(lib.includes("places-api.foursquare.com/places/search") && lib.includes('"X-Places-Api-Version": "2025-06-17"'), "foursquare fetcher reaches the post-sunset Places API (legacy v3 died 2026-05-15 — the silent zero-rows root cause)");
+// v8.96 — the host/header/generation rule MOVED to lib/foursquare.js so all
+// three Foursquare call sites share one copy (the drift that kept /api/fsq/search
+// and /api/sources/compare blind to the post-sunset 429 for four months after
+// this fetcher was fixed alone in #892). The invariant is unchanged and is
+// asserted in two halves: this fetcher must ROUTE THROUGH the shared rule, and
+// the shared rule must reach the post-sunset host. Asserting only the string
+// here would have gone green against a file that no longer makes the call.
+ok(/fsqAttemptChain\(|fsqRequest\(/.test(lib) && lib.includes('from "./foursquare.js"'), "foursquare fetcher routes through the ONE shared provider rule, not a private copy");
+ok(!lib.includes("api.foursquare.com/v3"), "…and no longer hardcodes the sunset v3 host");
+{
+  const fsq = readFileSync(new URL("../lib/foursquare.js", import.meta.url), "utf8");
+  ok(fsq.includes("places-api.foursquare.com/places/search") && fsq.includes('FSQ_PLACES_API_VERSION = "2025-06-17"'), "the shared rule reaches the post-sunset Places API (legacy v3 died 2026-05-15 — the silent zero-rows root cause)");
+}
 ok(lib.includes("r.fsq_place_id || r.fsq_id"), "both response generations parse (fsq_place_id new, fsq_id legacy)");
 ok(/export const POP_DIAG/.test(lib) && /notePop\(/.test(lib), "per-source outcome diagnostics exist — a dead source must name itself in the cron log");
 const route = readFileSync(new URL("../app/api/cron/popularity/route.js", import.meta.url), "utf8");

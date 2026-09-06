@@ -6,16 +6,25 @@
 // among Orlando's highest-reviewed entries in wf_place_ids and would otherwise
 // have been written to wf_editorial as a destination.
 //
-// Read the live regex out of the route so this can never drift from what ships.
+// Read the live regex out of lib/atlasCache.js — WO-D-atlas-cache-batch
+// (2026-09-04) moved RIDE_RX there (from the route, verbatim) so
+// scripts/atlas-batch.mjs shares the exact same skip list rather than
+// re-deriving a second copy. The route still USES RIDE_RX (imported), so
+// this stays the single source of truth for what ships on both paths.
 import { readFileSync } from "fs";
 
 let pass = 0;
 const fail = (m) => { console.error("test-atlas-ride-filter: FAIL — " + m); process.exit(1); };
 const ok = (c, m) => { if (!c) fail(m); pass++; };
 
-const src = readFileSync(new URL("../app/api/cron/atlas-build/route.js", import.meta.url), "utf8");
-const m = src.match(/const RIDE_RX = new RegExp\(\[([\s\S]*?)\]\.join\("\|"\), "i"\);/);
-ok(!!m, "RIDE_RX is a maintainable array-joined RegExp in the route");
+const routeSrc = readFileSync(new URL("../app/api/cron/atlas-build/route.js", import.meta.url), "utf8");
+ok(/import\s*\{[^}]*\bRIDE_RX\b[^}]*\}\s*from\s*"\.\.\/\.\.\/\.\.\/\.\.\/lib\/atlasCache"/.test(routeSrc),
+  "the route imports RIDE_RX from lib/atlasCache rather than declaring its own copy");
+ok(/RIDE_RX\.test\(/.test(routeSrc), "the route actually CALLS RIDE_RX.test(...), not just imports it unused");
+
+const cacheSrc = readFileSync(new URL("../lib/atlasCache.js", import.meta.url), "utf8");
+const m = cacheSrc.match(/export const RIDE_RX = new RegExp\(\[([\s\S]*?)\]\.join\("\|"\), "i"\);/);
+ok(!!m, "RIDE_RX is a maintainable array-joined RegExp, exported from lib/atlasCache.js");
 // eslint-disable-next-line no-eval
 const RIDE_RX = new RegExp(eval("[" + m[1] + "]").join("|"), "i");
 
@@ -55,17 +64,17 @@ for (const name of [
 // So they now accept either shape and assert the BEHAVIOUR — a budget exists,
 // it is read inside the pool, it leaves headroom under maxDuration, and what it
 // drops is counted. A deadline nothing reads is not a deadline.
-const dispatchMs = (src.match(/const DISPATCH_DEADLINE_MS = ([\d_]+);/) || [])[1];
-const absoluteMs = (src.match(/const deadline = Date\.now\(\) \+ ([\d_]+);/) || [])[1];
+const dispatchMs = (routeSrc.match(/const DISPATCH_DEADLINE_MS = ([\d_]+);/) || [])[1];
+const absoluteMs = (routeSrc.match(/const deadline = Date\.now\(\) \+ ([\d_]+);/) || [])[1];
 ok(!!(dispatchMs || absoluteMs), "batch carries a wall-clock deadline");
-ok(/Date\.now\(\) > deadline/.test(src) || /Date\.now\(\) - startedAt > DISPATCH_DEADLINE_MS/.test(src),
+ok(/Date\.now\(\) > deadline/.test(routeSrc) || /Date\.now\(\) - startedAt > DISPATCH_DEADLINE_MS/.test(routeSrc),
   "the deadline actually gates new work — it is read inside the pool, not just declared");
 const budget = parseInt(String(dispatchMs || absoluteMs || "0").replace(/_/g, ""), 10);
 ok(budget > 0 && budget <= 50000, `deadline leaves headroom under maxDuration=60 (got ${budget}ms)`);
-ok((/skipped\+\+/.test(src) && /skipped,/.test(src)) || (/deferred\+\+/.test(src) && /deferred,/.test(src)),
+ok((/skipped\+\+/.test(routeSrc) && /skipped,/.test(routeSrc)) || (/deferred\+\+/.test(routeSrc) && /deferred,/.test(routeSrc)),
   "places dropped to the deadline are counted AND reported, so a persistently non-zero count is visible");
 
 // Unbounded response bodies must never be pulled into the function.
-ok(/content-length[\s\S]{0,120}?return null;/.test(src), "the page fetch caps response size");
+ok(/content-length[\s\S]{0,120}?return null;/.test(routeSrc), "the page fetch caps response size");
 
 console.log(`test-atlas-ride-filter: OK — ${pass} assertions (rides filtered, destinations kept, batch bounded)`);
