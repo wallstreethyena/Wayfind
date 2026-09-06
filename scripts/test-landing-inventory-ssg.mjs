@@ -278,8 +278,27 @@ async function rankedForHead(catSlug, city, opts) {
 
   const guide = strip(readFileSync(join(ROOT, "app/guides/[slug]/page.js"), "utf8"));
   ok(/isSsgBuild\(\)/.test(guide), "guides page consults isSsgBuild");
-  ok(guide.indexOf("if (isSsgBuild()) return \"unconfigured\"") >= 0 || /if \(isSsgBuild\(\)\) return "unconfigured"/.test(guide),
-    "inventorySocial returns the unconfigured sentinel at SSG — it does not wait on the network");
+  // v8.99 (2026-09-06) — REVERSED from the original assertion here, which
+  // required `if (isSsgBuild()) return "unconfigured"` and thereby locked in
+  // the bug: every production `next build` on Vercel carries real Supabase
+  // env, so that line made inventorySocial() (and its siblings
+  // inventoryPlaceByStem/inventoryPlace/inventoryPlacesForRegion) skip a
+  // FREE wf_inventory read on every deploy purely because of the build
+  // phase, baking out guides with zero place cards for up to 900s until ISR
+  // caught up. See scripts/check-guide-ssg-not-phase-gated.mjs for the guard
+  // that now pins this against the built HTML. The correct law — argued in
+  // the function's own comment — is "no Supabase credentials", which the
+  // land-script worktrees this was written for still trip.
+  ok(!/if \(isSsgBuild\(\)\) return "unconfigured"/.test(guide),
+    "inventorySocial must NOT bail on build phase alone — a real Supabase read is free and must run at SSG when credentials exist");
+  ok(/if \(!url \|\| !anon\) return "unconfigured"/.test(guide),
+    "inventorySocial bails on missing Supabase credentials, not on isSsgBuild()");
+  ok(!/if \(isSsgBuild\(\)\) return null/.test(guide),
+    "inventoryPlaceByStem must NOT bail on build phase alone");
+  ok(!/if \(isSsgBuild\(\)\) return \[\]/.test(guide),
+    "inventoryPlacesForRegion must NOT bail on build phase alone");
+  ok(!/pick\.placeId && !isSsgBuild\(\)/.test(guide),
+    "inventoryPlace's placeId fast path must NOT bail on build phase alone");
   ok(/!isSsgBuild\(\) && guideIntent\(g\) === "tour"/.test(guide),
     "resolveGuideProduct (Viator) is skipped at SSG — do not invent a Places enrich");
   ok(/bridgeCity && !isSsgBuild\(\)/.test(guide),
