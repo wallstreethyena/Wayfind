@@ -130,7 +130,13 @@ ok(/url: eventTicketHref\(row\.event_id, \{ surface: "events_feed" \}\) \|\| eve
     "lib/curatedEvents selects link_ok so the sweep's verdict reaches the composer");
 }
 const flEvents = strip(read("app/florida-events/[slug]/page.js"));
-ok(/href=\{safeUrl\(e\.official_event_url\)\}/.test(flEvents) && !/href=\{e\.official_event_url\}/.test(flEvents), "the single-event page's official link passes through safeUrl");
+// v8.99 — the official link is `site`, derived ONCE from eventWebsiteUrl(e)
+// (link_ok gate + safeUrl), and every href on the page uses that gated value.
+// A raw column must never reach an href.
+ok(/const site = eventWebsiteUrl\(e\)/.test(flEvents) && /href=\{site\}/.test(flEvents) && !/href=\{e\.official_event_url\}|href=\{safeUrl\(e\.official_event_url\)\}/.test(flEvents),
+  "the single-event page's official link is the gated `site` from eventWebsiteUrl (link_ok + safeUrl), never the raw column");
+ok(/export function eventWebsiteUrl[\s\S]*?link_ok === false\) return ""[\s\S]*?safeUrl\(raw\)/.test(curated),
+  "lib/curatedEvents.eventWebsiteUrl honours link_ok and safeUrl exactly like eventOutboundUrl");
 const mw = strip(read("middleware.js"));
 ok(/"\/api\/outbound\/verdict",/.test(mw), "middleware rate-limits /api/outbound/verdict (it fetches third-party pages on request)");
 const crons = JSON.parse(read("vercel.json")).crons.map((c) => c.path);

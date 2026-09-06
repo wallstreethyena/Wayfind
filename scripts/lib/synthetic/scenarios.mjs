@@ -28,6 +28,21 @@
 // assertion named "scenario did not throw" — it does not abort the run.
 import { STABLE_PLACE_ID, SARASOTA, ORLANDO } from "./fixtures.mjs";
 
+/**
+ * HOW LONG THE HOMEPAGE MAY TAKE TO SHOW ITS FIRST REAL PLACE CARD.
+ *
+ * Not a guess. Measured against production on 2026-09-06: the poster grid
+ * (.wf8-tile) paints at ~1s and the .wf-place-card rails at 2.4-2.9s, because
+ * the cards wait on /api/rails. A cold rail cache cell answers in 4-6s. The
+ * client's own give-up points sit above that: DaypartRail budgets 10s and
+ * /api/rails carries maxDuration 12.
+ *
+ * 8s therefore sits above every healthy value we have measured and below the
+ * point where the app itself stops waiting — so a failure here means the page
+ * genuinely did not deliver a card, never that the monitor looked too early.
+ */
+export const HOMEPAGE_CARD_BUDGET_MS = 8000;
+
 export const REQUIRED_FLOWS = Object.freeze([
   "homepage",
   "rails-render-cards",
@@ -106,6 +121,7 @@ export const SCENARIOS = [
     async run(ctx) {
       const page = await ctx.openPage({ viewport: { width: 1280, height: 900 } });
       const url = ctx.baseUrl + "/";
+      const startedAt = Date.now();
       await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
       ctx.setUrl(url);
 
@@ -115,12 +131,41 @@ export const SCENARIOS = [
         visible = true;
       } catch {}
       ctx.ok("a place card or tile becomes visible within 20s", visible, "visible", visible ? "visible" : "not visible");
-      // The two rail systems (.wf-place-card rails, .wf8-tile poster grid)
-      // do not necessarily paint on the same tick — the check above is
-      // satisfied by whichever comes first, so give the other a moment
-      // before counting, or a real page can read as 0 place cards on a
-      // run that just happened to sample between the two paints.
-      await page.waitForTimeout(1200);
+
+      // ── WAIT FOR THE CARD, DO NOT SLEEP AND HOPE (2026-09-06) ───────────
+      // A fixed sleep used to stand here, followed by the card count, and it
+      // made this check a coin flip on a page that was working.
+      //
+      // MEASURED against production, 2026-09-06. The poster grid (.wf8-tile)
+      // paints at ~0.9s. The .wf-place-card rails paint at 0.84-1.4s when the
+      // reader's rail cache cell is WARM, and at ~2.7s when it is cold, since
+      // the cards wait on /api/rails and a cold cell costs that route 4-6s to
+      // rebuild. The visibility wait above is satisfied by whichever surface
+      // comes FIRST — the tile — so the count happened at roughly tile + 1.2s,
+      // which is 2.4-2.9s: exactly where a cold-cell load puts the cards. On a
+      // cold cell the stopwatch and the page finished together.
+      //
+      // Three loads in the same minute, counted at that old checkpoint:
+      // 30 cards at 2411ms, 0 cards at 2497ms (they appeared 256ms later),
+      // 30 cards at 2861ms. The 17:15Z scheduled run reported "0 place cards"
+      // and a re-run of the identical commit passed with nothing changed.
+      //
+      // A monitor that fails half the time on a healthy page is worse than no
+      // monitor, because it teaches the reader to ignore it. So we wait on the
+      // card surface itself against a stated budget and record how long it
+      // took. A failure now means one true thing: the homepage did not put a
+      // card in front of a reader inside HOMEPAGE_CARD_BUDGET_MS.
+      let cardsAt = null;
+      try {
+        const left = Math.max(500, HOMEPAGE_CARD_BUDGET_MS - (Date.now() - startedAt));
+        await page.locator(".wf-place-card").first().waitFor({ state: "visible", timeout: left });
+        cardsAt = Date.now() - startedAt;
+      } catch {}
+      ctx.note(
+        cardsAt === null
+          ? `first .wf-place-card: not visible within ${HOMEPAGE_CARD_BUDGET_MS}ms`
+          : `first .wf-place-card visible at ${cardsAt}ms`,
+      );
 
       const bodyText = await page.locator("body").innerText().catch(() => "");
       ctx.ok("the page has real body content, not an empty shell", bodyText.length > 400, "> 400 chars", bodyText.length);
@@ -130,7 +175,14 @@ export const SCENARIOS = [
       ctx.ok("the homepage body is not a soft-404", !soft, false, soft);
 
       const cardCount = await page.locator(".wf-place-card").count().catch(() => 0);
-      ctx.ok("at least one real .wf-place-card rendered", cardCount > 0, "> 0", cardCount);
+      ctx.ok(
+        `at least one real .wf-place-card rendered within ${Math.round(HOMEPAGE_CARD_BUDGET_MS / 1000)}s`,
+        cardCount > 0,
+        `> 0 within ${HOMEPAGE_CARD_BUDGET_MS}ms`,
+        cardCount > 0
+          ? `${cardCount} card(s), first visible at ${cardsAt}ms`
+          : `0 cards after ${Date.now() - startedAt}ms`,
+      );
     },
   },
 

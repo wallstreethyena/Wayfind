@@ -86,7 +86,13 @@ ok(!/PlaceScoreChip|wayfindScore\s*\(/.test(hub), "the hub never renders a Wayfi
 // 7. SOURCE — the event page wires the nearby module and only renders it when non-empty.
 const slug = readFileSync(path.join(ROOT, "app/florida-events/[slug]/page.js"), "utf8");
 ok(/eventPairings\(/.test(slug) && /pairingHref\(/.test(slug), "the event page fetches pairings and links them");
-ok(/pairings\.length\s*>\s*0/.test(slug), "the event page renders the nearby section only when there are pairings");
+// v8.99 — the nearby cards render INSIDE the shared <EventWhere> block (with
+// the map pins), so the never-a-thin-shelf gate lives there now: the page must
+// hand its pairings to EventWhere, and EventWhere must render the shelf only
+// when it has pins.
+ok(/<EventWhere[\s\S]*?picks=\{pairings\}/.test(slug), "the event page hands its pairings to <EventWhere>");
+const whereSrc = readFileSync(path.join(ROOT, "app/components/EventWhere.js"), "utf8");
+ok(/pins\.length\s*>\s*0\s*\?/.test(whereSrc), "EventWhere renders the nearby section only when there are pairings");
 
 // ── red-proofs ──────────────────────────────────────────────────────────────
 {
