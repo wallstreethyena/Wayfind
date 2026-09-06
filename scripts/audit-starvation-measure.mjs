@@ -173,7 +173,8 @@ const oldAdmitStats = oldAdmit.stats;
 const oldBuckets = surface.bucket(oldAdmit.places, origin);
 const newBuckets = surface.bucket(next.places, origin);
 
-const railRows = surface.rails.map((id) => ({
+const notMeasured = surface.railsNotMeasured || {};
+const railRows = surface.rails.filter((id) => !notMeasured[id]).map((id) => ({
   id,
   title: (surface.railTitles && surface.railTitles[id]) || id,
   old: oldBuckets[id] || 0,
@@ -189,6 +190,7 @@ const report = {
   radiusMi: surface.radiusMi,
   categories: surface.categories,
   overlappingRails: !!surface.overlappingRails,
+  railsNotMeasured: notMeasured,
   old: {
     reads: oldReads,
     reachedClassifier: oldRows.length,

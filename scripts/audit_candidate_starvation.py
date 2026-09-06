@@ -382,6 +382,9 @@ def write_markdown(report: dict, path: Path) -> None:
                 d = r["next"] - r["old"]
                 a(f"| {r['title']} | {r['old']} | {r['next']} | {'+' if d > 0 else ''}{d} |")
             a("")
+            for rid, reason in (m.get("railsNotMeasured") or {}).items():
+                a(f"`{rid}` is not measured here: {reason}")
+                a("")
             if m["stillZero"]:
                 a(f"Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of "
                   f"retrieval will move it: `{', '.join(m['stillZero'])}`")

@@ -97,6 +97,11 @@ export const SURFACES = [
       spa: "chip contract", tours: "chip contract", museums: "chip contract", beaches: "chip contract",
     },
     rails: DATE_NIGHT_RAIL_ORDER,
+    // composeDateNightRails hides `beach` unless the live weather/marine signals
+    // say the water is worth it, and hides `museums` when they do. The audit
+    // passes no signals, so `beach` is always hidden here — a zero that is a
+    // property of the harness, not of the town.
+    railsNotMeasured: { beach: "weather-gated by dateNightBeachOk(); the audit passes no marine signals, so this rail is always hidden in the measurement" },
     claims: (p) => DATE_NIGHT_RAIL_ORDER.find((id) => { try { return dateNightMembership(id, p); } catch (e) { return false; } }) || null,
     bucket: (places) => countRails(composeDateNightRails(places, {})),
     railTitles: Object.fromEntries(DATE_NIGHT_RAIL_DEFS.map((d) => [d.id, d.title])),
@@ -112,6 +117,11 @@ export const SURFACES = [
     oldN: BROWSE_INVENTORY_N,
     oldSubs: {},
     rails: BIRTHDAY_RAIL_ORDER,
+    // Rails this measurement cannot speak to, named so a zero here is not read
+    // as a broken rail. `gifts` is fed by serveInventoryByPlaceIds — a governed
+    // list of exact place ids — which is outside the candidate pool by design
+    // and cannot be starved by a category cap.
+    railsNotMeasured: { gifts: "fed by an exact place-id read (BIRTHDAY_REWARD_PLACE_IDS), outside the candidate pool by design" },
     // The owner-curated attributes are EVIDENCE the predicates read
     // (`_birthdayAttributes.rooftop` short-circuits isRooftop), so a measurement
     // that omitted them would undercount both columns and read as scarcity.
