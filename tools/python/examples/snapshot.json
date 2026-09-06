@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "source_kind": "fixture",
+  "scope": "synthetic cases only",
+  "captured_at": "2026-09-05T12:00:00+00:00",
+  "consistency": "single_statement",
+  "since": "2026-09-01T00:00:00+00:00",
+  "until": "2026-09-05T12:00:00+00:00",
+  "datasets": {
+    "places": {
+      "columns": [
+        "place_id",
+        "name",
+        "lat",
+        "lng",
+        "metro",
+        "category",
+        "status",
+        "excluded",
+        "needs_review",
+        "editorial_exists",
+        "verified",
+        "has_issues",
+        "hook_chars",
+        "why_chars",
+        "sourced_facts"
+      ],
+      "rows": [
+        [
+          "demo-good",
+          "Harbor Cafe",
+          27.0,
+          -82.0,
+          "test-metro",
+          "food",
+          "OPERATIONAL",
+          false,
+          false,
+          true,
+          true,
+          false,
+          25,
+          150,
+          1
+        ],
+        [
+          "demo-duplicate",
+          "Harbor Cafe",
+          27.0,
+          -82.0,
+          "test-metro",
+          "food",
+          "OPERATIONAL",
+          false,
+          false,
+          true,
+          true,
+          false,
+          25,
+          150,
+          1
+        ],
+        [
+          "demo-thin",
+          "Harbor Cafe",
+          27.0,
+          -82.0,
+          "test-metro",
+          "food",
+          "OPERATIONAL",
+          false,
+          false,
+          true,
+          true,
+          false,
+          25,
+          0,
+          1
+        ],
+        [
+          "demo-missing",
+          "Garden Walk",
+          27.0,
+          -82.0,
+          "test-metro",
+          "food",
+          "OPERATIONAL",
+          false,
+          false,
+          false,
+          null,
+          false,
+          25,
+          150,
+          1
+        ],
+        [
+          "demo-closed",
+          "Closed Test",
+          27.0,
+          -82.0,
+          "test-metro",
+          "food",
+          "CLOSED_PERMANENTLY",
+          false,
+          false,
+          true,
+          true,
+          false,
+          25,
+          150,
+          1
+        ]
+      ]
+    },
+    "ledger": {
+      "columns": [
+        "month",
+        "sku",
+        "used",
+        "cap"
+      ],
+      "rows": [
+        [
+          "2026-09",
+          "text_pro",
+          7,
+          10
+        ]
+      ]
+    },
+    "jobs": {
+      "columns": [
+        "id",
+        "job",
+        "ran_at",
+        "attempted",
+        "succeeded",
+        "failed"
+      ],
+      "rows": [
+        [
+          1,
+          "test-job",
+          "2026-09-04T12:00:00+00:00",
+          5,
+          3,
+          2
+        ]
+      ]
+    }
+  },
+  "expected_counts": {
+    "places": 5,
+    "ledger": 1,
+    "jobs": 1
+  }
+}
