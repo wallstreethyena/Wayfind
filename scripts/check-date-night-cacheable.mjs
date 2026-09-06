@@ -75,10 +75,16 @@ ok(/fastCachedRail\(key,[\s\S]*usable: completeAnswersOnly\(\(value\) => Array\.
 {
   const { completeAnswersOnly } = await import("../lib/railFastCache.js");
   const usable = completeAnswersOnly((v) => Array.isArray(v.rails) && v.rails.length);
-  ok(usable({ rails: [1] }) === true, "EXECUTED: a complete, non-empty answer is cacheable (positive control)");
+  ok(usable({ rails: [1], degraded: false }) === true,
+    "EXECUTED: a complete, non-empty answer is cacheable (positive control) — if this fails the rule rejects everything and the fix is a cache-disabling patch");
   ok(usable({ rails: [1], degraded: true }) === false,
     "EXECUTED: a DEGRADED answer is cacheable — a pool that read only some of its categories would be pinned on every reader in the cell for an hour");
-  ok(usable({ rails: [] }) === false, "EXECUTED: an empty compose is cacheable (v8.74)");
+  ok(usable({ rails: [], degraded: false }) === false, "EXECUTED: an empty compose is cacheable (v8.74)");
+  // …and the entries ALREADY in the drawer. The namespace and this route's key
+  // are unchanged and entries live seven days, so an answer written before the
+  // flag existed must not pass by omission.
+  ok(usable({ rails: [1] }) === false,
+    "EXECUTED: a LEGACY entry with no `degraded` field is cacheable — every answer written before this shipped would be read back and served as healthy for the rest of its seven-day life");
 }
 ok(/, 400, "no-store"\)/.test(src),
   "the 400 path stays no-store");
@@ -99,4 +105,4 @@ if (fails.length) {
   fails.forEach((f) => console.error("  ✗ " + f));
   process.exit(1);
 }
-console.log(`check-date-night-cacheable: OK — ${pass} assertions; the intent rails are publicly cacheable with the same numbers /api/rails uses, neither an empty compose NOR a partial owned pool is ever cached as the truth (the combinator is CALLED over three shapes, not matched by name), and the default-vs-undefined fallback is EXECUTED rather than assumed`);
+console.log(`check-date-night-cacheable: OK — ${pass} assertions; the intent rails are publicly cacheable with the same numbers /api/rails uses, neither an empty compose NOR a partial owned pool is ever cached as the truth (the combinator is CALLED over four shapes including a LEGACY entry with no flag, not matched by name), and the default-vs-undefined fallback is EXECUTED rather than assumed`);
