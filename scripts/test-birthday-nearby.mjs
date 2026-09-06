@@ -35,9 +35,13 @@ const hav = (aLat, aLng, bLat, bLng) => 2 * R * Math.asin(Math.sqrt(
 // landing.js carries JSX — do not import it from a node guard. Read the
 // Parrish point out of the source and assert the numbers, same way
 // check-location-fail-open pins DEFAULT_CENTER.
-const landingSrc = readFileSync(new URL("../lib/landing.js", import.meta.url), "utf8");
+//
+// v8.99 (2026-09-06) — the LANDING_CITIES literal itself moved to
+// lib/landingCities.js (a zero-import file DaypartRail.js, "use client", also
+// reads); lib/landing.js now only re-exports the name. Read from its new home.
+const landingSrc = readFileSync(new URL("../lib/landingCities.js", import.meta.url), "utf8");
 const parrishHit = landingSrc.match(/"parrish":\s*\{\s*name:\s*"Parrish",\s*state:\s*"FL",\s*lat:\s*([\d.]+),\s*lng:\s*([-\d.]+)\s*\}/);
-ok(parrishHit, "landing.js still declares the Parrish point this lock measures from");
+ok(parrishHit, "lib/landingCities.js still declares the Parrish point this lock measures from");
 const PARRISH = { lat: Number(parrishHit && parrishHit[1]), lng: Number(parrishHit && parrishHit[2]) };
 ok(Number.isFinite(PARRISH.lat) && Number.isFinite(PARRISH.lng),
   "Parrish is a real LANDING_CITIES point — the acceptance origin");

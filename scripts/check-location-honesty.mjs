@@ -128,7 +128,6 @@ ok(!/citySlug = "sarasota"/.test(RAIL),
 
 /* ── B. unknown slug is not sarasota ───────────────────────────────────── */
 const RD = strip(read("lib/railsData.js"));
-const LANDING = strip(read("lib/landing.js"));
 const RAILS_API = strip(read("app/api/rails/route.js"));
 ok(/resolveRailCity\(citySlug,\s*LANDING_CITIES\)/.test(RD),
   "railMenuData resolves the slug through resolveRailCity");
@@ -136,7 +135,14 @@ ok(!/LANDING_CITIES\[citySlug\] \|\| LANDING_CITIES\.sarasota/.test(RD),
   "the unknown-slug → LANDING_CITIES.sarasota fallback is gone");
 ok(!/const slug = LANDING_CITIES\[citySlug\] \? citySlug : "sarasota"/.test(RD),
   "an unknown slug is no longer rewritten to the string \"sarasota\"");
-ok(/"miami":\s*\{\s*name:\s*"Miami"/.test(LANDING),
+// v8.99 (2026-09-06) — LANDING_CITIES itself (this literal included) moved to
+// lib/landingCities.js, so DaypartRail.js ("use client") can read the same
+// town table the server does without pulling lib/landing.js's React/server
+// imports into a client bundle. lib/landing.js still re-exports the name
+// unchanged (asserted by scripts/check-rails-geo-grid.mjs), but the literal
+// itself now lives only in the new file — assert it there.
+const LANDING_CITIES_SRC = strip(read("lib/landingCities.js"));
+ok(/"miami":\s*\{\s*name:\s*"Miami"/.test(LANDING_CITIES_SRC),
   "Miami is an explicit landing/rail market, backed by its own coordinates");
 ok(/miami:\s*\["miami"\]/.test(RD),
   "Miami has its own rail pool and never borrows Orlando or Sarasota");

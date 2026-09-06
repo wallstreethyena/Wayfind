@@ -838,6 +838,15 @@ node scripts/check-no-card-cap.mjs
 # they understand until VersionWatch reloads them.
 node scripts/check-rails-wire.mjs
 
+# COLD-RAIL-CACHE GRID (2026-09-06). /api/rails' client coordinate snap was
+# measured against a coarser candidate grid to cut CDN key cardinality; the
+# candidate visibly changed rail membership and, worse, could relabel a
+# reader into a neighboring town (LANDING_CITIES pairs as close as 1.56mi).
+# Pins the grid at its measured-safe value and, executed against the live
+# city table, proves the &city= fix that closes the relabeling risk actually
+# has teeth. See scripts/check-rails-geo-grid.mjs for the full measurement.
+node scripts/check-rails-geo-grid.mjs
+
 # NEIGHBORHOOD PARTNER RAILS (owner 2026-08-22). Geo-gated, paid local
 # placements (lib/partnerCollections.js). First is the Coconut Grove
 # Neighborhood Association: a branded card shows ONLY within 20 miles of the
