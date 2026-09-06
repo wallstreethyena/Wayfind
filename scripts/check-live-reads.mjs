@@ -55,15 +55,19 @@ const hub = read("app/florida-events/page.js");
 const detail = read("app/florida-events/[slug]/page.js");
 ok(/fetchCuratedEvents\(\{[^}]*fresh:\s*true[^}]*\}\)/.test(fallRoute), "the fall rail reads fresh");
 ok(/fetchCuratedEvents\(\{[^}]*fresh:\s*true[^}]*\}\)/.test(eventsRoute), "the events feed reads fresh");
-ok(/export const revalidate = 3600/.test(hub) && !/fresh:\s*true/.test(hub), "the /florida-events hub keeps its hourly cache on purpose");
+ok(/unstable_cache\(/.test(hub) && /revalidate: 3600/.test(hub), "the hub caches validated rows for one hour");
+ok(/noStore\(\)/.test(hub) && /fetchCuratedEvents\(\{ fresh: true/.test(hub), "the hub renders at runtime and its cached loader reads fresh");
 ok(/export const revalidate = 3600/.test(detail) && !/fresh:\s*true/.test(detail), "the event page keeps its hourly cache on purpose");
 
 // ── 3. the plumbing, in syntactic position ────────────────────────────────
 const curated = read("lib/curatedEvents.js");
 const supa = read("lib/supabase.js");
 ok(/export async function fetchCuratedEvents\(\{[^}]*fresh = false[^}]*\}/.test(curated), "fetchCuratedEvents accepts `fresh`, defaulting to the cached client");
-ok(/const db = fresh \? supabaseLive : supabase;/.test(curated) && /const query = db\s*\n?\s*\.from\("wf_events"\)/.test(curated),
-  "…and the flag actually selects the client the query runs on");
+ok(/const db = fresh \? supabaseLive : supabase;/.test(curated), "the flag selects the cached vs live client");
+ok(/const reader = dbOverride !== undefined \? dbOverride : db;/.test(curated),
+  "production uses that client; tests may inject a reader");
+ok(/const query = reader\s*\n?\s*\.from\("wf_events"\)/.test(curated),
+  "…and the reader is the one the query runs on");
 ok(/export const supabaseLive =/.test(supa) && /global: \{ fetch: liveFetch \}/.test(supa), "supabaseLive is built with the no-store fetch");
 ok(/persistSession: false/.test(supa.slice(supa.indexOf("let live = null;"))), "the live client holds no session — it is a read path, not an auth path");
 ok(/storageKey: "wf-supabase-live-reader"/.test(supa.slice(supa.indexOf("let live = null;"))), "the live reader cannot contend with the signed-in client's auth storage key");
