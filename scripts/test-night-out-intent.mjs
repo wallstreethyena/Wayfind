@@ -106,7 +106,19 @@ ok(/No verified event or venue within 27 miles/.test(component), "an empty inten
 // resilience is asserted by CALLING the reader with a failing category rather
 // than by matching the word "allSettled".
 const pool = readFileSync(new URL("../lib/nightOutPool.js", import.meta.url), "utf8");
-const retrieval = route + "\n" + pool;
+// v8.98 — the retrieval spans THREE files now. lib/ownedPool.js holds the one
+// definition of "page wf_inventory deterministically and exhaustively", which
+// nightOutPool delegates to; the SHAPE (rowToNightOutPlace) and the LAW
+// (nightOutPlaceRail, exactly 27 miles) stayed here. Following the code rather
+// than deleting the assertions is the rule (CLAUDE.md): a guard that reads one
+// path goes GREEN the moment the code leaves it, which is the dangerous half.
+const owned = readFileSync(new URL("../lib/ownedPool.js", import.meta.url), "utf8");
+const retrieval = route + "\n" + pool + "\n" + owned;
+// …and the union is only honest while the delegation is real, so that is
+// asserted rather than assumed. Without this line, every source assertion below
+// could be satisfied by ownedPool.js alone while Night Out read some other way.
+ok(/from "\.\/ownedPool\.js"/.test(pool) && /readOwnedCategory\(env, category, box,/.test(pool),
+  "lib/nightOutPool.js no longer delegates its read to lib/ownedPool.js — the source assertions below would then be satisfied by a module Night Out does not use");
 ok(/\["food", "nightlife", "attractions"\]/.test(retrieval) && /Promise\.allSettled/.test(retrieval),
   "Night Out no longer reads its three owned categories with allSettled — one stalled category would blank every shelf");
 {
