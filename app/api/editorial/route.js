@@ -19,17 +19,30 @@ import atlasCards from "../../../data/atlas/editorial-cards.json";
 import { mapWfEditorial } from "../../../lib/editorialRule";
 import { cardToEditorial, resolveAtlasId, atlasCardForName } from "../../../lib/atlasCards";
 import { editorialNameCandidates } from "../../../lib/editorialLookup";
+import { editorialServable, UNVERIFIABLE_NAME_ONLY } from "../../../lib/placeServable";
 
 export const dynamic = "force-dynamic";
 
-const HEADERS = { "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=604800" };
+// CACHE BOUNDED BY THE PROMISE (2026-09-05). These were s-maxage=86400 with
+// stale-while-revalidate=604800: a day of edge caching plus SEVEN DAYS of stale
+// serving. Every tier now depends on live inventory status, and a cached
+// response cannot re-check anything — so a "you should go here" computed while
+// a venue was open could be replayed for a week after it shut. That is the same
+// class of failure as the tiers that never checked at all, just with a timer on
+// it. 5 minutes fresh, 5 more stale, bounds the worst case to ~10 minutes.
+// The status lookup itself is cache: "no-store" (lib/placeServable) — caching
+// the safety check would defeat the whole gate.
+const HEADERS = { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=300" };
+// A REFUSAL is never cached. If a place is reopened or a status is corrected,
+// the fix must take effect on the next request, not after an edge TTL.
+const HEADERS_REFUSED = { "Cache-Control": "no-store" };
 
 const CARD_BY_ID = new Map();
 for (const c of atlasCards) if (c && c.placeId) CARD_BY_ID.set(c.placeId, c);
 
 // v6.54: the fleet writes wf_editorial continuously — cache one hour (was a
 // day), long SWR, so new verified rows surface without a deploy.
-const HEADERS_LIVE = { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=604800" };
+const HEADERS_LIVE = { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=300" };
 
 async function wfEditorialFor(id) {
   const base = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
@@ -38,7 +51,9 @@ async function wfEditorialFor(id) {
   try {
     const r = await fetch(base + "/rest/v1/wf_editorial_servable?place_id=eq." + encodeURIComponent(id) + "&verified=is.true&limit=1", {
       headers: { apikey: anon, Authorization: "Bearer " + anon },
-      next: { revalidate: 3600 },
+      // no-store, not revalidate:3600. This read is gated on live inventory
+      // status; an hour-old copy is exactly what the gate exists to prevent.
+      cache: "no-store",
     });
     if (!r.ok) return null;
     const rows = await r.json();
@@ -49,6 +64,23 @@ async function wfEditorialFor(id) {
 export async function GET(req) {
   const u = new URL(req.url);
   const id = String(u.searchParams.get("id") || "").trim();
+  const rawName = String(u.searchParams.get("name") || "").slice(0, 140).trim();
+  const rawAlso = String(u.searchParams.get("also") || "").slice(0, 400);
+  const allNames = editorialNameCandidates(rawName, rawAlso);
+
+  // THE GATE, BEFORE EVERY TIER (2026-09-05). It used to sit inside tier 2
+  // only, which meant tiers 1, 3 and 4 could recommend a place Wayfind does
+  // not serve — measured: 4 of the 264 Atlas cards already point at EXCLUDED,
+  // CLOSED_TEMPORARILY or absent places, and tier 1 returned them with no
+  // database call at all. One check, applied once, inherited by all four.
+  const gate = await editorialServable({ id, names: allNames });
+  if (!gate.ok) {
+    return NextResponse.json(
+      { none: true, refused: gate.reason },
+      { headers: HEADERS_REFUSED },
+    );
+  }
+
   // Tier 1: the owner's Atlas card always wins — hand curation beats machine.
   // Same-place aliases (review-same-place.tsv) resolve to the id that holds the card.
   const atlasId = id && (CARD_BY_ID.has(id) ? id : resolveAtlasId(id));
@@ -58,9 +90,7 @@ export async function GET(req) {
     const fleet = await wfEditorialFor(id);
     if (fleet) return NextResponse.json({ editorial: fleet, sources: fleet.sources || [] }, { headers: HEADERS_LIVE });
   }
-  const name = String(u.searchParams.get("name") || "").slice(0, 140).trim();
-  const also = String(u.searchParams.get("also") || "").slice(0, 400);
-  const names = editorialNameCandidates(name, also);
+  const names = allNames;
   // Tier 3: Atlas by exact name — event/venue listings often arrive with a
   // different id than the card's key. Exact name only; never a fuzzy attach.
   for (const n of names) {

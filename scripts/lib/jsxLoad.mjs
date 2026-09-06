@@ -85,6 +85,18 @@ export async function loadComponent(entryAbs, repoRoot) {
 
   const emit = (abs) => {
     if (done.has(abs)) return done.get(abs);
+    // JSON imports — 2026-09-05. A route may `import data from "../x.json"`
+    // (app/api/editorial imports data/atlas/editorial-cards.json). Running that
+    // file through the TypeScript transpiler produced an .mjs with NO default
+    // export, so the importing module died at link time with "does not provide
+    // an export named 'default'" before a single assertion ran. JSON is data,
+    // not code: emit it as a real default export instead of transpiling it.
+    if (/\.json$/i.test(abs)) {
+      const jsonFile = path.join(out, path.basename(abs) + "-" + done.size + ".mjs");
+      writeFileSync(jsonFile, "export default " + readFileSync(abs, "utf8") + ";\n");
+      done.set(abs, jsonFile);
+      return jsonFile;
+    }
     const src = readFileSync(abs, "utf8");
     // Rewrite relative specifiers: local JSX deps get compiled too, everything
     // else points back at the ORIGINAL file with an explicit .js so node resolves
