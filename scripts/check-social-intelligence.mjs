@@ -29,9 +29,11 @@ assert.deepEqual(report.categories.map((x) => x.category), ["hayride", "pumpkin_
 
 const route = readFileSync(new URL("../app/api/cron/social-intelligence/route.js", import.meta.url), "utf8");
 assert.match(route, /publication_enabled:\s*false/);
+assert.match(route, /recordPulse\("social-intelligence"/);
 assert.doesNotMatch(route, /api\.anthropic\.com/);
 assert.match(route, /buildSocialReviewQueue/);
 assert.doesNotMatch(route, /from\("wf_events"\)/);
+assert.doesNotMatch(route, /wf_inventory[^\n]*state/, "the live inventory table has no state column");
 const migration = readFileSync(new URL("../supabase/migrations/20260906022518_social_intelligence_control_plane.sql", import.meta.url), "utf8");
 for (const table of ["wf_social_creators", "wf_source_evidence", "wf_social_trend_reports"]) {
   assert.match(migration, new RegExp(`alter table public\\.${table} enable row level security`));
@@ -77,4 +79,6 @@ assert.equal(approvedQueue.candidates.length, 1, 'the deployed reviewed-creator 
 assert.equal(approvedQueue.candidates[0].qualification, 'qualified_creator');
 assert.equal(approvedQueue.candidates[0].identity.method, 'reviewed_creator_place');
 assert.match(route, /creators_read:\s*creators\.length/);
+const vercel = readFileSync(new URL("../vercel.json", import.meta.url), "utf8");
+assert.match(vercel, /\/api\/cron\/social-intelligence/);
 console.log('Social preflight: capped paging, ceiling failure, fresh qualification and duplicate controls passed');
