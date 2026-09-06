@@ -124,7 +124,11 @@ ok(/url: eventTicketHref\(row\.event_id, \{ surface: "events_feed" \}\) \|\| eve
   && /officialUrl: eventOutboundUrl\(row\),/.test(curated)
   && (curated.match(/official_ticket_url \|\| (?:row|e)\.official_event_url/g) || []).length === 0,
   "lib/curatedEvents composes every published outbound URL via eventOutboundUrl — zero raw fallback chains remain (the commerce redirect is our own path)");
-ok(/link_ok,link_verdict"/.test(curated), "lib/curatedEvents selects link_ok so the sweep's verdict reaches the composer");
+{
+  const colDecl = curated.match(/const EVENT_COLUMNS =\s*([\s\S]*?);/);
+  ok(!!colDecl && /\blink_ok\b/.test(colDecl[1]) && /\blink_verdict\b/.test(colDecl[1]),
+    "lib/curatedEvents selects link_ok so the sweep's verdict reaches the composer");
+}
 const flEvents = strip(read("app/florida-events/[slug]/page.js"));
 ok(/href=\{safeUrl\(e\.official_event_url\)\}/.test(flEvents) && !/href=\{e\.official_event_url\}/.test(flEvents), "the single-event page's official link passes through safeUrl");
 const mw = strip(read("middleware.js"));
