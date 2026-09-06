@@ -12,10 +12,11 @@
 //   2. directionsUrl sends the FULL line to Maps, never a bare street.
 //   3. BOTH event pages render the one shared <EventWhere> block, and that
 //      block draws the map only with real coordinates, never Null Island.
-//   4. THE MAP COSTS NOTHING: no Google Maps JS / Directions API in it (the
-//      spend law), tiles are OpenFreeMap, routing host is in the CSP, and the
+//   4. THE MAP COSTS NOTHING AND SENDS THE READER NOWHERE: no Google Maps JS /
+//      Directions API (the spend law), tiles are OpenFreeMap, NO public demo
+//      routing host anywhere in app code or the CSP (PR #1129 review), and the
 //      reader-pin vocabulary is kept (📍 is the user, teardrops are places).
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { addressLine, directionsUrl, websiteUrl, websiteHost } from "../lib/placeWhere.js";
@@ -64,18 +65,40 @@ ok(/pins\.length\s*>\s*0/.test(where), "nearby shelf only renders with pins");
 ok(!/\/\*/.test(where.slice(where.indexOf("const CSS"), where.indexOf("`;", where.indexOf("const CSS")))), "no block comments inside the shipped CSS template (check-css-comment-bytes rule)");
 ok(!/\/\*/.test(map.slice(map.indexOf("const CSS"), map.indexOf("`;", map.indexOf("const CSS")))), "no block comments inside the map's shipped CSS template");
 
-// 4. the map is free, keyed to nothing, and keeps the pin vocabulary
+// 4. the map is free, keyed to nothing, sends the reader nowhere, and keeps
+//    the pin vocabulary
 ok(!/maps\.googleapis\.com|google\.maps|@googlemaps/.test(map), "the event map never loads Google Maps JS (spend law)");
-ok(/tiles\.openfreemap\.org/.test(map), "tiles come from OpenFreeMap");
-ok(/router\.project-osrm\.org/.test(map), "routing goes to the free OSRM router");
-ok(/straight/.test(map) && /line-dasharray/.test(map), "when the router is down the map draws an honest dashed straight line, never a fake drive time");
+ok(/tiles\.openfreemap\.org/.test(map), "tiles come from OpenFreeMap (commercial use permitted, no request limit)");
+// PR #1129 review (2026-09-06): the first cut routed through the public OSRM
+// demo server — non-commercial terms, 1 req/s, no uptime promise — and shipped
+// the reader's GPS point to it. A public demo router is never a production
+// dependency, and the reader's coordinates leave the browser for nothing but
+// Wayfind's own /api/geo. Scanned across ALL app code and the CSP, not just
+// this component, so the host cannot come back through a side door.
+const DEMO_ROUTERS = /router\.project-osrm\.org|valhalla1?\.openstreetmap\.de|api\.openrouteservice\.org|routing\.openstreetmap\.de|graphhopper\.com\/api|nominatim\.openstreetmap\.org/i;
+const appFiles = [];
+(function walk(d) {
+  for (const f of readdirSync(path.join(ROOT, d), { withFileTypes: true })) {
+    const rel = path.join(d, f.name);
+    if (f.isDirectory()) walk(rel);
+    else if (/\.(js|mjs|jsx|ts|tsx)$/.test(f.name)) appFiles.push(rel);
+  }
+})("app");
+for (const f of [...appFiles, "lib/placeWhere.js", "lib/eventPairings.js", "next.config.js", "middleware.js"]) {
+  ok(!DEMO_ROUTERS.test(read(f)), `${f} references a public demo routing/geocoding host — not a production dependency (PR #1129 review)`);
+}
+ok(!/\/route\/v1\/|geometries=geojson/.test(map), "the map holds no routing-API call at all");
+ok(!/fetch\((?!"\/api\/geo")/.test(map), "the map's only fetch is Wayfind's own /api/geo — the reader's position goes nowhere else");
+ok(/line-dasharray/.test(map) && /straight line/.test(map), "the you->venue line is dashed and labelled a straight line, never presented as a route");
+ok(!/drive|Mapping your route/i.test(map), "no drive time is claimed anywhere in the map — the page has no source for one");
 ok(/approx/.test(map) && /\/api\/geo/.test(map), "a declined GPS falls back to /api/geo and is labelled approximate");
+ok(/nothing about where you are is sent anywhere/.test(where), "the block tells the reader their location is used on-device only");
 ok(/\\u\{1F4CD\}/.test(map), "the reader is the 📍 emoji (check-brand-pin vocabulary), never a teardrop");
 ok(/setWorkerUrl\("\/maplibre\/maplibre-gl-worker\.mjs"\)/.test(map), "same vendored worker URL as MapView (v6.43 blank-map fix)");
 ok(/safeRemoveMap\(/.test(map), "the map is torn down through lib/mapTeardown");
 ok(/prefers-reduced-motion/.test(map), "reduced motion is honoured");
 const csp = read("next.config.js");
-ok(/connect-src[^"]*https:\/\/router\.project-osrm\.org/.test(csp), "the OSRM router is in the CSP connect-src");
+ok(!/osrm/i.test(csp), "the CSP carries no routing host in any directive");
 const pair = read("lib/eventPairings.js");
 ok(/lat: r\.lat,\s*\n\s*lng: r\.lng,/.test(pair), "eventPairings keeps lat/lng so the picks can be pinned");
 
@@ -84,4 +107,4 @@ if (fail.length) {
   for (const f of fail) console.error("  FAIL: " + f);
   process.exit(1);
 }
-console.log(`check-event-where: OK — ${pass} assertions (address carries the town, both event pages share one Where block with a free map, route and nearby pins).`);
+console.log(`check-event-where: OK — ${pass} assertions (address carries the town, both event pages share one Where block with a free map, an honest straight-line distance, no third-party routing, and nearby pins).`);

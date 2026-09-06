@@ -16,18 +16,22 @@
 //     and a recommendation is never the emoji; the two must not converge.
 //   · NEARBY & WORTH IT — smaller teal teardrops numbered in the same order as
 //     the list under the map, so pin 2 and card 2 are the same place.
-//   · THE ROUTE — the driving line from you to the door, with drive time and
-//     distance in the corner chip. Drawn from a free OSRM router; when that
-//     router is slow or down the map falls back to a straight dashed line and
-//     an as-the-crow-flies distance and SAYS SO ("straight line") rather than
-//     printing a drive time it does not have.
+//   · YOU -> THE VENUE — a dashed straight line and the as-the-crow-flies
+//     distance in the corner chip, labelled "straight line". NOT a driving
+//     route: review of PR #1129 (2026-09-06) found the first cut fetched one
+//     from the public OSRM demo router, whose terms restrict it to non-commercial
+//     use at 1 req/s with no uptime promise. Wayfind is commercial, and that
+//     call also shipped the reader's exact GPS point to a third party the
+//     page never named. Both are gone. The reader's coordinates now leave the
+//     browser for NOTHING: /api/geo is Wayfind's own route and only a
+//     fallback. Turn-by-turn navigation opens in Google Maps through the
+//     "Get directions" button beside the map, a plain link (free).
+//     check-event-where.mjs forbids public demo routing hosts in app code.
 //
-// WHAT IT COSTS: nothing. Tiles are OpenFreeMap (no key, no meter — the same
-// basemap MapView has used since v6.99), routing is the public OSRM demo, and
-// the reader's position comes from the browser or from /api/geo. No Google
+// WHAT IT COSTS: nothing. Tiles are OpenFreeMap (no key, no meter, commercial
+// use permitted — the same basemap MapView has used since v6.99). No Google
 // Maps JavaScript, no Directions API — the spend law (WAYFIND_GATE) is not
-// touched. Turn-by-turn navigation still opens in Google Maps through the
-// "Get directions" button beside the map, which is a plain link.
+// touched.
 //
 // LOCATION HONESTY. GPS is asked for once. If the reader declines or the fix
 // times out, /api/geo (IP-based, city-level) stands in and the chip is
@@ -42,7 +46,6 @@ import { safeRemoveMap } from "../../lib/mapTeardown";
 setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
 
 const STYLE = "https://tiles.openfreemap.org/styles/bright";
-const OSRM = "https://router.project-osrm.org/route/v1/driving/";
 const ACCENT = "#F97316";
 const PICK = "#2EC9A6";
 
@@ -51,13 +54,6 @@ function milesBetween(a, b) {
   const dLat = rad(b.lat - a.lat), dLng = rad(b.lng - a.lng);
   const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
   return 3958.8 * 2 * Math.asin(Math.sqrt(h));
-}
-
-function fmtMinutes(sec) {
-  const m = Math.round(sec / 60);
-  if (m < 60) return `${m} min`;
-  const h = Math.floor(m / 60), r = m % 60;
-  return r ? `${h} hr ${r} min` : `${h} hr`;
 }
 
 // A teardrop the reader can tell apart from the basemap at a glance: white
@@ -150,17 +146,7 @@ async function locateReader() {
   return null;
 }
 
-async function fetchRoute(from, to) {
-  const url = `${OSRM}${from.lng},${from.lat};${to.lng},${to.lat}?overview=full&geometries=geojson&steps=false`;
-  const r = await fetch(url, { signal: AbortSignal.timeout(6000) });
-  if (!r.ok) throw new Error("osrm " + r.status);
-  const d = await r.json();
-  const route = d && d.routes && d.routes[0];
-  if (!route || !route.geometry || !Array.isArray(route.geometry.coordinates) || route.geometry.coordinates.length < 2) throw new Error("no route");
-  return { coords: route.geometry.coordinates, miles: route.distance / 1609.344, seconds: route.duration };
-}
-
-function setLine(map, coords, dashed) {
+function setLine(map, coords) {
   const data = { type: "Feature", geometry: { type: "LineString", coordinates: coords } };
   const src = map.getSource("wfev-route");
   if (src) { src.setData(data); }
@@ -169,7 +155,7 @@ function setLine(map, coords, dashed) {
     map.addLayer({ id: "wfev-route-casing", type: "line", source: "wfev-route", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": "#0B0F14", "line-width": 9, "line-opacity": 0.55 } });
     map.addLayer({ id: "wfev-route-line", type: "line", source: "wfev-route", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": ACCENT, "line-width": 5 } });
   }
-  map.setPaintProperty("wfev-route-line", "line-dasharray", dashed ? [1.2, 1.6] : [1, 0]);
+  map.setPaintProperty("wfev-route-line", "line-dasharray", [1.2, 1.6]);
 }
 
 function fitTo(map, points, pad) {
@@ -200,8 +186,8 @@ export default function EventVenueMap({ venue, picks = [], onSelect }) {
   const [failed, setFailed] = useState(false);
   const [gen, setGen] = useState(0);
   const [you, setYou] = useState(null);        // {lat,lng,approx}
-  const [trip, setTrip] = useState(null);      // {miles, seconds|null, straight:boolean}
-  const [phase, setPhase] = useState("idle");  // idle | locating | routing | done | nowhere
+  const [trip, setTrip] = useState(null);      // {miles} straight-line
+  const [phase, setPhase] = useState("idle");  // idle | locating | done | nowhere
   const [sel, setSel] = useState(null);
 
   const pins = picks.filter((p) => p && Number.isFinite(p.lat) && Number.isFinite(p.lng));
@@ -253,7 +239,7 @@ export default function EventVenueMap({ venue, picks = [], onSelect }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gen, venue && venue.lat, venue && venue.lng]);
 
-  // WHERE YOU ARE. Runs once the map is up; the route waits on it.
+  // WHERE YOU ARE. Runs once the map is up; the distance line waits on it.
   useEffect(() => {
     if (!ready || phase !== "idle") return;
     // No cleanup flag here: this effect re-runs when `phase` moves off idle,
@@ -268,13 +254,12 @@ export default function EventVenueMap({ venue, picks = [], onSelect }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, phase]);
 
-  // THE ROUTE. You -> venue. Real driving line when the router answers,
-  // straight dashed line (and an honest label) when it does not.
+  // YOU -> THE VENUE. A dashed straight line and the crow-flies distance.
+  // No routing service (see the header): the line is drawn from two points
+  // the browser already holds, and nothing about the reader leaves the page.
   useEffect(() => {
     const map = mapRef.current;
     if (!ready || !you || !map) return;
-    let alive = true;
-    setPhase("routing");
     if (!youRef.current) {
       const el = document.createElement("div");
       el.className = "wfev-you"; el.setAttribute("role", "img");
@@ -282,22 +267,10 @@ export default function EventVenueMap({ venue, picks = [], onSelect }) {
       el.textContent = "\u{1F4CD}";
       youRef.current = new Marker({ element: el, anchor: "bottom" }).setLngLat([you.lng, you.lat]).addTo(map);
     } else youRef.current.setLngLat([you.lng, you.lat]);
-    const straight = () => {
-      if (!alive) return;
-      setLine(map, [[you.lng, you.lat], [venue.lng, venue.lat]], true);
-      setTrip({ miles: milesBetween(you, venue), seconds: null, straight: true });
-      fitTo(map, [you, venue, ...pins], { top: 80, bottom: 70, left: 50, right: 50 });
-      setPhase("done");
-    };
-    fetchRoute(you, venue).then((r) => {
-      if (!alive) return;
-      setLine(map, r.coords, false);
-      setTrip({ miles: r.miles, seconds: r.seconds, straight: false });
-      const pts = r.coords.filter((_, i) => i % 8 === 0).map(([lng, lat]) => ({ lng, lat }));
-      fitTo(map, [you, venue, ...pts, ...pins], { top: 80, bottom: 70, left: 50, right: 50 });
-      setPhase("done");
-    }).catch(straight);
-    return () => { alive = false; };
+    setLine(map, [[you.lng, you.lat], [venue.lng, venue.lat]]);
+    setTrip({ miles: milesBetween(you, venue) });
+    fitTo(map, [you, venue, ...pins], { top: 80, bottom: 70, left: 50, right: 50 });
+    setPhase("done");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, you]);
 
@@ -313,18 +286,16 @@ export default function EventVenueMap({ venue, picks = [], onSelect }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sel]);
 
-  // A known position survives a retry; the route effect redraws it on the
+  // A known position survives a retry; the distance effect redraws it on the
   // fresh map because `ready` flips again.
   const retry = () => { setFailed(false); setReady(false); setPhase(you ? "done" : "idle"); setTrip(null); setSel(null); setGen((g) => g + 1); };
   const selected = sel ? pins.find((p) => p.id === sel) : null;
   const chip = (() => {
     if (trip) {
-      const mi = trip.miles < 10 ? trip.miles.toFixed(1) : Math.round(trip.miles);
-      if (trip.straight) return { big: `${mi} mi away`, small: (you && you.approx ? "approximate · " : "") + "straight line" };
-      return { big: `${fmtMinutes(trip.seconds)} drive`, small: `${mi} mi` + (you && you.approx ? " · from your approximate location" : " · from your location") };
+      const mi = trip.miles < 10 ? trip.miles.toFixed(1) : String(Math.round(trip.miles));
+      return { big: `${mi} mi away`, small: (you && you.approx ? "approximate, " : "") + "straight line from you" };
     }
-    if (phase === "locating") return { big: "Finding you…", small: "so the route can be drawn" };
-    if (phase === "routing") return { big: "Mapping your route…", small: "" };
+    if (phase === "locating") return { big: "Finding you…", small: "to show how far it is" };
     return null;
   })();
 
@@ -334,12 +305,12 @@ export default function EventVenueMap({ venue, picks = [], onSelect }) {
       <div ref={hostRef} className="wfev-canvas" />
       {chip ? (
         <div className="wfev-chip" aria-live="polite">
-          <i aria-hidden="true">{trip && !trip.straight ? "🚗" : "📍"}</i>
+          <i aria-hidden="true">📍</i>
           <span style={{ minWidth: 0 }}><b>{chip.big}</b>{chip.small ? <small>{chip.small}</small> : null}</span>
         </div>
       ) : null}
       {ready && phase === "nowhere" ? (
-        <button type="button" className="wfev-loc" onClick={() => setPhase("idle")}>{"\u{1F4CD}"} Show my route</button>
+        <button type="button" className="wfev-loc" onClick={() => setPhase("idle")}>{"\u{1F4CD}"} How far from me?</button>
       ) : null}
       {ready && pins.length > 0 && !selected ? (
         <div className="wfev-legend" aria-hidden="true">

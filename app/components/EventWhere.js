@@ -135,7 +135,7 @@ export default function EventWhere({ venue, address, directionsHref, website, la
             </div>
           </div>
         ) : null}
-        {hasPoint ? <div className="wfw-foot">Drive time and route are estimates from your current location. Turn-by-turn navigation opens in Google Maps.</div> : null}
+        {hasPoint ? <div className="wfw-foot">The dashed line is the straight-line distance from your location, worked out on your device; nothing about where you are is sent anywhere. Turn-by-turn directions open in Google Maps.</div> : null}
       </div>
     </section>
   );
