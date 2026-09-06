@@ -90,7 +90,7 @@ ok(r.restBytes <= MAX_BYTES,
   // reads rather than one per city.
   if (readCache) {
     await primeConsolidatedInventoryReads(
-      jobs.map(({ cat, city }) => ({ catSlug: cat, city: LANDING_CITIES[city] })),
+      jobs.map(({ cat, center }) => ({ catSlug: cat, city: center })),
       readCache
     ).catch(() => {});
   }
