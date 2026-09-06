@@ -91,6 +91,11 @@ for (const status of [401, 403, 429, 500, 503]) {
   ok(r.attempts.length === 2, "…with BOTH attempts recorded");
   ok(r.reason === "exhausted", "…and a reason naming what happened");
   ok(/v3:http_429/.test(fsqOutcomeLabel(r)) && /current:http_429/.test(fsqOutcomeLabel(r)), "the outcome label names each generation's failure — a dead source names itself");
+  // This scenario's current-generation 429 is a real (fixture) breaker trip —
+  // see §11. Clear it immediately so it cannot leak into every section below
+  // that expects a real network call against a closed breaker.
+  const { resetBreaker } = await import("../lib/providerHealth.js");
+  await resetBreaker("foursquare");
 }
 {
   const r = await fsqSearch(PARAMS, "", { fetchImpl: mockFetch(() => 200), timeoutMs: 0 });
@@ -327,6 +332,132 @@ for (const status of [401, 403, 429, 500, 503]) {
   const branch = src.slice(src.indexOf('probe") === "1"'), src.indexOf("const q = "));
   ok(/PROBE_QUERY/.test(branch) && !/searchParams\.get\((?!"probe")/.test(branch), "the probe uses a FIXED bounded query and reads no caller parameters");
   ok(!/searchParams\.get\("key"\)/.test(src), "the route accepts no query-string secret anywhere");
+}
+
+// ── 11. THE QUOTA/BILLING BREAKER ───────────────────────────────────────────
+// THE INCIDENT THIS LOCKS (2026-09-06). §7 above proved this file's own
+// routing fix — merged as #1118 — closes the dead-v3-fallback bug. Production
+// deployed it and STILL measured 0 results: wf_job_pulse showed the fetcher in
+// lib/popularity.js (already on the fixed key-prefix chain since #892, so
+// immune to the #1118 bug) taking http_429 on ALL ~30 calls/run for 3+
+// continuous days at unchanged volume. A bad key returns 401 (verified by
+// call), so #1118 fixed a REAL bug that was never the incident's actual cause:
+// the CURRENT, non-sunset, correctly-routed Places API is itself
+// quota/plan-exhausted. No code makes an exhausted account answer — what code
+// CAN do is stop re-discovering the same 429 at full request cost and make the
+// discovery loud instead of silent. That is this section.
+//
+// CHILD PROCESS, HERMETIC BY CONSTRUCTION: the breaker is process-global state
+// (lib/serverCache's in-memory tier), so every fixture here needs a scenario
+// that could otherwise poison every fsqSearch() call for the rest of THIS
+// file. One clean, from-scratch env per case — never the ambient shell
+// (check-guard-hermeticity) — is what makes that safe.
+{
+  const FSQ_MOD = JSON.stringify(new URL("../lib/foursquare.js", import.meta.url).href);
+  const PH_MOD = JSON.stringify(new URL("../lib/providerHealth.js", import.meta.url).href);
+  const CHILD = `
+    import { fsqSearch } from ${FSQ_MOD};
+    import { breakerOpen, resetBreaker } from ${PH_MOD};
+    const PARAMS = "ll=27.34%2C-82.53&radius=20000&query=restaurants&limit=5";
+    const LEGACY = "fsq3LEGACYKEYEXAMPLE";
+    const isV3 = (u) => u.startsWith(${JSON.stringify(FSQ_V3_URL)});
+    function mockFetch(statusFor) {
+      const calls = [];
+      const impl = async (url) => { calls.push(url); const s = statusFor(url);
+        return { ok: s >= 200 && s < 300, status: s, json: async () => ({ results: [] }) }; };
+      impl.calls = calls; return impl;
+    }
+    const out = {};
+
+    out.closedByDefault = (await breakerOpen("foursquare")) === null;
+
+    // a) BOTH generations 429 -> exhausted -> the breaker TRIPS on current's status.
+    const f1 = mockFetch(() => 429);
+    const r1 = await fsqSearch(PARAMS, LEGACY, { fetchImpl: f1, timeoutMs: 0 });
+    out.tripCalls = f1.calls.length;
+    out.tripReason = r1.reason;
+    const held1 = await breakerOpen("foursquare");
+    out.trippedKind = held1 && held1.kind;
+    out.trippedNamesCurrent = !!(held1 && /current/i.test(held1.reason || ""));
+
+    // b) breaker now OPEN: the very next call must cost ZERO network requests.
+    const f2 = mockFetch(() => 200);
+    const r2 = await fsqSearch(PARAMS, LEGACY, { fetchImpl: f2, timeoutMs: 0 });
+    out.skippedCalls = f2.calls.length;
+    out.skippedReason = r2.reason;
+    out.skippedOk = r2.ok;
+    out.skippedResultsIsArray = Array.isArray(r2.results) && r2.results.length === 0;
+
+    await resetBreaker("foursquare");
+    out.closedAfterReset = (await breakerOpen("foursquare")) === null;
+
+    // c) v3 429 alone, CURRENT SUCCEEDS -> must NOT trip. v3 is permanently
+    // gone post-sunset; its 429 proves nothing about account quota.
+    const f3 = mockFetch((u) => (isV3(u) ? 429 : 200));
+    const r3 = await fsqSearch(PARAMS, LEGACY, { fetchImpl: f3, timeoutMs: 0 });
+    out.v3okRun = r3.ok && r3.generation === "current";
+    out.closedAfterV3Only429 = (await breakerOpen("foursquare")) === null;
+
+    // d) both generations down, but the LAST (current) failure is a 500, not
+    // 429 -> a transient error must stay retryable, never trip the breaker.
+    const f4 = mockFetch(() => 500);
+    const r4 = await fsqSearch(PARAMS, LEGACY, { fetchImpl: f4, timeoutMs: 0 });
+    out.exhausted500 = r4.reason === "exhausted";
+    out.closedAfter500 = (await breakerOpen("foursquare")) === null;
+
+    // e) after a real reset, normal chain execution resumes (proves the skip
+    // in (b) was the breaker, not something else silently short-circuiting).
+    const f5 = mockFetch(() => 200);
+    const r5 = await fsqSearch(PARAMS, LEGACY, { fetchImpl: f5, timeoutMs: 0 });
+    out.resumesAfterReset = f5.calls.length === 1 && r5.ok === true;
+
+    console.log(JSON.stringify(out));
+  `;
+  const R = JSON.parse(
+    execFileSync(process.execPath, ["--input-type=module", "-e", CHILD], { env: { NODE_ENV: "test" }, encoding: "utf8", timeout: 30000 })
+      .trim().split("\n").pop()
+  );
+
+  ok(R.closedByDefault === true, "the foursquare breaker starts closed — nothing is blocked until a real failure earns it");
+  ok(R.tripCalls === 2, "the tripping scenario still makes both real attempts — this is a discovery run, not a skip");
+  ok(R.tripReason === "exhausted", "…exhausted, same as before the breaker existed (§5) — the RETURN SHAPE is unchanged");
+  ok(R.trippedKind === "quota", "a current-generation 429 trips the breaker as 'quota' (Foursquare's 429 body carries no recognisable text, so this is a deliberate provider-specific override — the same one app/api/events/route.js already applies for OpenWebNinja, not a guess)");
+  ok(R.trippedNamesCurrent === true, "…and the stored reason names the CURRENT generation specifically, so an operator reading the breaker knows what actually failed");
+
+  ok(R.skippedCalls === 0, "BUDGET: once tripped, the very next call makes ZERO network requests — this is the entire point, not merely detection");
+  ok(R.skippedReason === "breaker_open", "…reported as breaker_open, distinct from 'exhausted' — a human (or job-watch) can tell 'known dead' from 'just failed'");
+  ok(R.skippedOk === false, "a skipped call is still ok:false — callers need no new branch to handle it");
+  ok(R.skippedResultsIsArray === true, "…and still an empty array, never null — the no-network path returns the SAME shape as the network path");
+
+  ok(R.closedAfterReset === true, "resetBreaker (the SAME operator tool already wired for anthropic) clears the foursquare breaker too");
+
+  ok(R.v3okRun === true, "v3 429 + current success still succeeds normally (unchanged from §3)");
+  ok(R.closedAfterV3Only429 === true, "NEGATIVE CONTROL: v3's 429 alone — with current answering fine — must NOT trip the breaker. v3 is permanently gone post-sunset regardless of account health; tripping on its status would arm the breaker on every legacy-key call whether or not the account can serve anything");
+
+  ok(R.exhausted500 === true, "a 500 on current still exhausts the chain (unchanged from §5's shape)");
+  ok(R.closedAfter500 === true, "NEGATIVE CONTROL: a plain 500 does not trip the breaker — a transient server error must stay retryable, exactly like providerHealth's own 'a plain rate-limit 429 does NOT classify' control");
+
+  ok(R.resumesAfterReset === true, "after resetBreaker, the very next call reaches the network again — proves (b)'s zero calls was the breaker, not an unrelated fixture bug");
+}
+
+// ── 12. the breaker is reachable by an operator, and it is the SHARED one ──
+{
+  const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  const fsq = strip(readFileSync(new URL("../lib/foursquare.js", import.meta.url), "utf8"));
+  const pop = strip(readFileSync(new URL("../lib/popularity.js", import.meta.url), "utf8"));
+  const reset = readFileSync(new URL("../app/api/cron/breaker-reset/route.js", import.meta.url), "utf8");
+
+  ok(fsq.includes('from "./providerHealth.js"'), "lib/foursquare.js's breaker is lib/providerHealth's — one mechanism, not a second parallel one (the exact hand-rolled-breaker mistake check-dead-provider-parked.mjs already forbids for OpenWebNinja)");
+  ok(pop.includes('from "./providerHealth.js"'), "lib/popularity.js's fetcher wires the SAME shared breaker, not a private copy — the drift class this whole incident is about");
+  ok(fsq.includes("FSQ_BREAKER") && pop.includes("FSQ_BREAKER"), "both callers key the breaker with the SAME exported constant — a typo'd literal in either would silently create two unrelated breakers");
+
+  const breakerCheckIdx = fsq.indexOf("breakerOpen(FSQ_BREAKER)");
+  const firstFetchIdx = fsq.indexOf("doFetch(url");
+  ok(breakerCheckIdx > -1 && firstFetchIdx > -1 && breakerCheckIdx < firstFetchIdx,
+     "the breaker is consulted BEFORE the outbound call in fsqSearch — an open breaker costs zero requests, not one");
+
+  ok(/KNOWN_PROVIDERS\s*=\s*new Set\(\[[^\]]*"foursquare"[^\]]*\]\)/.test(reset),
+     "an operator can clear the foursquare breaker early via /api/cron/breaker-reset — without this, fixing the account's quota still leaves the app blind for the full cooldown");
 }
 
 console.log(`test-foursquare: ${n - failn}/${n} passed`);

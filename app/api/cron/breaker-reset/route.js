@@ -35,7 +35,12 @@ import { recordPulse } from "../../../../lib/jobPulse.js";
 
 // Known breaker keys only — this must never become a way to write an
 // arbitrary cache key from a URL param.
-const KNOWN_PROVIDERS = new Set(["anthropic"]);
+// "foursquare" added 2026-09-06: lib/foursquare.js and lib/popularity.js now
+// trip the SAME shared breaker on a persistent current-generation 429 (see
+// FSQ_BREAKER in lib/foursquare.js). Without an entry here an operator who
+// fixes the account's quota/plan has no way to clear the breaker early and
+// sits blind for the rest of FSQ_BREAKER_COOLDOWN_MS.
+const KNOWN_PROVIDERS = new Set(["anthropic", "foursquare"]);
 
 export async function GET(req) {
   const secret = process.env.CRON_SECRET;

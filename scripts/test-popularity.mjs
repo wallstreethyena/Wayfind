@@ -67,6 +67,27 @@ ok(!lib.includes("api.foursquare.com/v3"), "…and no longer hardcodes the sunse
   ok(fsq.includes("places-api.foursquare.com/places/search") && fsq.includes('FSQ_PLACES_API_VERSION = "2025-06-17"'), "the shared rule reaches the post-sunset Places API (legacy v3 died 2026-05-15 — the silent zero-rows root cause)");
 }
 ok(lib.includes("r.fsq_place_id || r.fsq_id"), "both response generations parse (fsq_place_id new, fsq_id legacy)");
+// 2026-09-06 — QUOTA/BILLING BREAKER. #1118's routing fix shipped and
+// production STILL measured 0 results: this exact fetcher (already immune to
+// #1118's bug, since it has branched on key prefix since #892) pulsed
+// http_429 on ALL ~30 calls/run for 3+ continuous days in wf_job_pulse — proof
+// the CURRENT, correctly-routed Places API is itself quota/plan-exhausted, not
+// merely mis-routed. See lib/foursquare.js FSQ_BREAKER for the full incident.
+{
+  const stripped = lib.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  ok(stripped.includes('from "./providerHealth.js"'), "the popularity fetcher wires the SAME shared breaker as lib/foursquare.js and app/api/events/route.js's OpenWebNinja breaker — not a private copy");
+  ok(stripped.includes("FSQ_BREAKER") && stripped.includes('from "./foursquare.js"'), "…keyed by the ONE shared constant, so a typo'd literal cannot silently create a second, unrelated breaker");
+  const fnStart = stripped.indexOf("export async function fetchFoursquare");
+  const fnBody = stripped.slice(fnStart, stripped.indexOf("\nexport async function fetchTripadvisor"));
+  const breakerCheckIdx = fnBody.indexOf("breakerOpen(FSQ_BREAKER)");
+  const loopIdx = fnBody.indexOf("for (const gen of fsqAttemptChain");
+  ok(breakerCheckIdx > -1 && loopIdx > -1 && breakerCheckIdx < loopIdx,
+     "the breaker is checked BEFORE the fetch loop — an open breaker must cost the cron zero requests for this place, not one");
+  ok(/gen === "current"[\s\S]{0,400}tripBreaker\(/.test(fnBody),
+     "the trip is scoped to the CURRENT generation only — v3 is permanently gone post-sunset and its 429 proves nothing about account quota, so tripping on v3's status would arm the breaker on every legacy-key call regardless of whether the account can serve anything");
+  ok(!/gen === "v3"[\s\S]{0,120}tripBreaker\(/.test(fnBody),
+     "…and NEGATIVELY: v3's branch never calls tripBreaker directly");
+}
 ok(/export const POP_DIAG/.test(lib) && /notePop\(/.test(lib), "per-source outcome diagnostics exist — a dead source must name itself in the cron log");
 const route = readFileSync(new URL("../app/api/cron/popularity/route.js", import.meta.url), "utf8");
 ok(route.includes('auth !== "Bearer " + secret'), "cron is CRON_SECRET-gated");
