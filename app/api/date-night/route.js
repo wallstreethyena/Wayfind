@@ -116,13 +116,15 @@ async function buildDateNightAnswer({ lat, lng, city, hour }) {
     deadlineMs: NET_DEADLINE_MS,
     toPlace: (row, o) => toDateNightPlace(invRowToPlace(row), o),
     identity: isDateDinner,
-  }).then((pool) => pool.places).catch((error) => {
-    // The other eight reads already degrade to [] on a database problem, so this
-    // one does too rather than 503-ing a surface that can still answer. It says
-    // so out loud: a silent [] here and a genuinely empty town look identical.
-    console.error("[api/date-night] dinner pool unavailable", { message: String(error?.message || error) });
-    return [];
-  });
+  }).then((pool) => pool.places);
+  // NOT `.catch(() => [])` (owner review, 2026-09-06). The first version swallowed
+  // a failed dinner pool into an empty list, on the reasoning that the other eight
+  // reads already degrade that way. That reasoning was wrong twice over: an empty
+  // Dinner rail is Date Night's PRIMARY answer, and "[] because the database
+  // hiccuped" is indistinguishable from "[] because this town has no date
+  // restaurants" — the exact silent degradation this change exists to remove.
+  // It now propagates to the route's handler, which 503s and, because
+  // fastCachedRail's `usable` refuses an empty rail set, caches nothing.
 
   const pools = await Promise.all([
     dinnerPool,
@@ -183,10 +185,20 @@ export async function GET(req) {
   const size = searchParams.get("size");
   const hourBucket = Number.isFinite(hour) ? Math.floor(hour / 3) : "auto";
   const key = `date-night:${geoCell(lat)}:${geoCell(lng)}:${hourBucket}`;
-  const cached = await fastCachedRail(key, () => buildDateNightAnswer({ lat, lng, city, hour }), {
-    name: "date-night-rails",
-    usable: (value) => !!(value && Array.isArray(value.rails) && value.rails.length),
-  });
+  let cached;
+  try {
+    cached = await fastCachedRail(key, () => buildDateNightAnswer({ lat, lng, city, hour }), {
+      name: "date-night-rails",
+      usable: (value) => !!(value && Array.isArray(value.rails) && value.rails.length),
+    });
+  } catch (error) {
+    // An inventory read that failed, or an owned pool that came back incomplete,
+    // is a 503 — the same answer birthday, lunch-break and today-discovery give.
+    // The alternative is a 500 with a stack trace, or worse, a plausible answer
+    // built on a slice of the library.
+    console.error("[api/date-night] inventory unavailable", { message: String(error?.message || error) });
+    return json({ error: "Date Night inventory is temporarily unavailable" }, 503, "no-store");
+  }
   const answer = cached.value;
 
   // …AND A DEGRADED ANSWER IS STILL NOT CACHED AS THE TRUTH (the v8.74 rule

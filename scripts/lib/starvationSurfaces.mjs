@@ -61,7 +61,13 @@ export const SURFACES = [
     title: "Tonight's Move (Night Out)",
     route: "app/api/night-out/route.js",
     reader: "lib/nightOutPool.js",
-    status: "FIXED",              // v8.97b — identity-first, deterministic, exhaustive
+    status: "FIXED",
+    // ALREADY IN PRODUCTION. Night Out's repair shipped in #1116 (v8.97b), before
+    // this branch existed. Its recovery is real and it is NOT a gain from merging
+    // this change, so the report counts it separately. Presenting a shipped win
+    // as a pending one is the same class of error as the stale historical claims
+    // #1112 was written to stop.
+    shippedIn: "#1116 (v8.97b), merged 2026-09-05",
     categories: ["food", "nightlife", "attractions"],
     radiusMi: NIGHT_OUT_MAX_MI,
     oldN: BROWSE_INVENTORY_N,

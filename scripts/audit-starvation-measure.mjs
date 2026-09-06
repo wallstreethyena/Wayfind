@@ -169,6 +169,7 @@ const next = {
   },
 };
 const oldAdmitStats = oldAdmit.stats;
+const oldAdmittedIds = new Set(oldAdmit.places.map((p) => p.id));
 
 const oldBuckets = surface.bucket(oldAdmit.places, origin);
 const newBuckets = surface.bucket(next.places, origin);
@@ -209,7 +210,14 @@ const report = {
     broadByDesign: next.stats.broadByDesign || [],
     byRail: newBuckets,
   },
+  // TWO DIFFERENT NUMBERS, AND THEY ARE NOT INTERCHANGEABLE (owner review,
+  // 2026-09-06). `recovered` counts RAIL SLOTS — a place on two rails counts
+  // twice, and summing it across overlapping surfaces and overlapping metro
+  // boxes counts one restaurant many times over. `recoveredPlaces` is the set of
+  // distinct place ids the complete read reaches and the shipped cut did not,
+  // which is the only one that can honestly be called "places we were hiding".
   recovered: railRows.reduce((n, r) => n + Math.max(0, r.next - r.old), 0),
+  recoveredPlaceIds: [...new Set(nextAdmit.places.map((p) => p.id))].filter((id) => !oldAdmittedIds.has(id)),
   // A fix that thins a rail is not a fix. Named, not summarised.
   railsThatLost: railRows.filter((r) => r.next < r.old).map((r) => ({ id: r.id, old: r.old, next: r.next })),
   // Still zero WITH the complete owned pool is NOT candidate starvation. It is
@@ -236,7 +244,7 @@ if (asJson) {
   console.log("-".repeat(58));
   for (const r of railRows) console.log(pad(String(r.title).slice(0, 32), 34) + pad(r.old, 7) + pad(r.next, 7) + (r.next - r.old > 0 ? "+" + (r.next - r.old) : r.next - r.old));
   console.log("-".repeat(58));
-  console.log(`\nQualifying candidates recovered: ${report.recovered}`);
+  console.log(`\nRail slots recovered: ${report.recovered}   ·   DISTINCT places recovered: ${report.recoveredPlaceIds.length}`);
   if (report.railsThatLost.length) console.log(`!! RAILS THAT LOST: ${report.railsThatLost.map((r) => `${r.id} ${r.old}->${r.next}`).join(", ")}`);
   if (report.stillZero.length) console.log(`Still zero with the FULL owned pool (A/C/D, never B): ${report.stillZero.join(", ")}`);
   if (report.genuinelyOne.length) console.log(`Genuinely one verified option: ${report.genuinelyOne.join(", ")}`);

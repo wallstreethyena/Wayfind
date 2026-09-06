@@ -144,6 +144,32 @@ ok(!byId.has("far-comedy"),
 ok(byId.has("near-comedy"),
   "the 26.5-mile twin was ALSO refused, so the previous assertion proves nothing about distance — comedy clubs may simply not qualify");
 
+// THE 27-MILE LAW IS MEASURED, NOT READ OFF THE CARD (owner review, 2026-09-06).
+//
+// admitNightOutRows tested `place.distMi`, and rowToNightOutPlace rounds that to
+// one decimal for the card. A row at 27.02 miles renders "27" and was ADMITTED.
+// That is a small number of feet and not a small kind of error: the solo-result
+// copy this rail ships says "the only place within 27 miles that clears this",
+// and NIGHT_OUT_MAX_MI is the sentence's warrant.
+//
+// Due north, so the offset is exact: R * pi/180 = 69.0932 miles per degree. The
+// fixture is only a rounding trap at that precision, which the control proves
+// before the assertion is allowed to mean anything.
+{
+  const MI_PER_DEG_LAT = 3958.8 * (Math.PI / 180);
+  const atExact = (mi) => ({ lat: ORIGIN.lat + mi / MI_PER_DEG_LAT, lng: ORIGIN.lng });
+  const edge = row({ id: "edge-club", name: "Edge Comedy Club", pt: "comedy_club", cat: "nightlife", ...atExact(27.02) });
+  const trueMi = milesBetween(ORIGIN.lat, ORIGIN.lng, edge.lat, edge.lng);
+  const shownMi = rowToNightOutPlace(edge, ORIGIN).distMi;
+  ok(trueMi > NIGHT_OUT_MAX_MI && shownMi === NIGHT_OUT_MAX_MI,
+    `positive control: the boundary fixture is not a rounding trap (true ${trueMi.toFixed(4)}mi, card shows ${shownMi}) — the assertion below would be vacuous`);
+  ok(!admitNightOutRows([edge], ORIGIN).places.length,
+    `a venue ${trueMi.toFixed(4)} miles away was admitted because its CARD distance rounds to ${NIGHT_OUT_MAX_MI} — the rail promises "within ${NIGHT_OUT_MAX_MI} miles" in its own copy`);
+  const just = row({ id: "just-in-club", name: "Just Inside Comedy Club", pt: "comedy_club", cat: "nightlife", ...atExact(26.98) });
+  ok(admitNightOutRows([just], ORIGIN).places.length === 1,
+    "the 26.98-mile twin was ALSO refused, so the refusal above proves nothing about distance");
+}
+
 // Row-level refusals.
 ok(!byId.has("closed-club"), "a permanently closed venue was admitted");
 ok(!byId.has("excluded-club"), "a classifier-excluded row was admitted");
@@ -183,4 +209,4 @@ if (bad.length) {
   console.error(`test-night-out-identity-first: FAIL — ${bad.length}/${n} assertions`);
   process.exit(1);
 }
-console.log(`test-night-out-identity-first: OK — ${n} assertions over a ${corpus.length}-row synthetic corpus, admission CALLED (no network). The qualifying candidate at index ${corpus.indexOf(BURIED)} survives identity-first and is proven UNREACHABLE under cap-before-identity in the same run; Cocktails holds 40/40; an ordinary restaurant and a 28-mile candidate stay out while a 26.5-mile twin stays in, so the ${NIGHT_OUT_MAX_MI}-mile cut is proven to be about distance.`);
+console.log(`test-night-out-identity-first: OK — ${n} assertions over a ${corpus.length}-row synthetic corpus, admission CALLED (no network). The qualifying candidate at index ${corpus.indexOf(BURIED)} survives identity-first and is proven UNREACHABLE under cap-before-identity in the same run; Cocktails holds 40/40; an ordinary restaurant and a 28-mile candidate stay out while a 26.5-mile twin stays in, so the ${NIGHT_OUT_MAX_MI}-mile cut is proven to be about distance; and the cut is proven to be MEASURED rather than read off the card, by a fixture whose true distance is past ${NIGHT_OUT_MAX_MI} while its rounded card value is exactly ${NIGHT_OUT_MAX_MI}.`);

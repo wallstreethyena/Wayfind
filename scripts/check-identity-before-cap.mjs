@@ -48,7 +48,7 @@
  * NO NETWORK.
  */
 import { readFileSync } from "node:fs";
-import { admitOwnedRows, fetchOwnedPool, isServableRow, readOwnedCategory, OWNED_POOL_FIELDS, OWNED_POOL_PAGE } from "../lib/ownedPool.js";
+import { admitOwnedRows, fetchOwnedPool, isServableRow, milesBetween, readOwnedCategory, rowToOwnedPlace, OWNED_POOL_FIELDS, OWNED_POOL_PAGE } from "../lib/ownedPool.js";
 import { SURFACES } from "./lib/starvationSurfaces.mjs";
 import { BROWSE_INVENTORY_N } from "../lib/browseInventory.js";
 import { wayfindScore } from "../lib/wayfindScore.js";
@@ -186,9 +186,112 @@ for (const surface of SURFACES) {
   }
 }
 
+// ── THE THREE READER DEFECTS FOUND IN REVIEW (owner, 2026-09-06) ───────────
+//
+// Every guard in this file was green while all three were live, which is the
+// only reason they are asserted separately and by CALL rather than folded into
+// the assertions above.
+{
+  const ORIGIN = { lat: 27.5949, lng: -82.4265 };
+  const env = { url: "https://example.invalid", key: "k" };
+  // Due north, so the offset is exact: milesBetween along a meridian is
+  // R * dLatRad, and R * pi/180 = 69.0932 miles per degree. `mi / 69` is close
+  // enough for a corpus and NOT close enough for a boundary fixture — the first
+  // version of this block asked for 27.05 and got 27.0869, which rounds to 27.1
+  // and is therefore not a rounding trap at all. The positive control below said
+  // so rather than letting a fixture-shaped pass through.
+  const MI_PER_DEG_LAT = 3958.8 * (Math.PI / 180);
+  const bar = (id, mi) => ({
+    place_id: id, name: "Edge Bar", lat: ORIGIN.lat + mi / MI_PER_DEG_LAT, lng: ORIGIN.lng,
+    category: "nightlife", primary_type: "bar", google_types: [],
+    status: "OPERATIONAL", signals: { rating: 4.5, reviews: 500 },
+  });
+  const admit = (row, extra) => admitOwnedRows([row], ORIGIN, { maxMi: 27, ...extra }).places.length;
+
+  // 1. THE RADIUS IS MEASURED, NOT READ OFF THE CARD.
+  //
+  // Admission used to test `place.distMi`, which every mapper rounds to one
+  // decimal for display, so a row at 27.0498 miles rendered "27" and was let in.
+  // The fixture is chosen by MEASURING: the row below is past 27 miles and its
+  // rounded display value is exactly 27.0, which is the whole trap.
+  const past = bar("past", 27.02);
+  const trueMi = milesBetween(ORIGIN.lat, ORIGIN.lng, past.lat, past.lng);
+  const shownMi = rowToOwnedPlace(past, ORIGIN).distMi;
+  ok(trueMi > 27 && shownMi === 27,
+    `positive control: the boundary fixture is not actually a rounding trap (true ${trueMi.toFixed(4)}mi, shown ${shownMi}) — the assertion below would prove nothing`);
+  ok(admit(past) === 0,
+    `a row ${trueMi.toFixed(4)} miles out was admitted under a 27-mile law because its DISPLAY distance rounds to 27 — the rail's own copy says "the only place within 27 miles that clears this"`);
+  ok(admit(bar("inside", 26.5)) === 1,
+    "the 26.5-mile control was ALSO refused, so the refusal above proves nothing about distance");
+
+  // …and the law must not be reachable from the caller's mapper. Four routes
+  // pass their own toPlace; a cut that reads a field they compute is a cut any
+  // of them could move by accident.
+  const liar = (row, o) => ({ ...rowToOwnedPlace(row, o), distMi: 1 });
+  ok(admit(past, { toPlace: liar }) === 0,
+    "a caller's toPlace can move the radius law by reporting a different distMi — admission must come from the row's own coordinates");
+  ok(admit(bar("inside2", 26.5), { toPlace: liar }) === 1,
+    "positive control: the lying mapper refuses everything, so the assertion above is about the mapper and not about the fixture");
+
+  // 2. A MALFORMED 200 IS A FAILURE, NOT AN EMPTY TOWN.
+  //
+  // This was `Array.isArray(list) ? list : []`, which turns a PostgREST error
+  // object served with a 200, or an HTML interstitial, into "no places" — and it
+  // gets cached for an hour like any real answer.
+  const box = { minLat: 27, maxLat: 28, minLng: -83, maxLng: -82 };
+  for (const [label, body] of [
+    ["a PostgREST error object", { message: "JWT expired" }],
+    ["an HTML interstitial", "<html>502</html>"],
+    ["a null body", null],
+  ]) {
+    let threw = false, got = null;
+    try { got = await readOwnedCategory(env, "food", box, { fetchImpl: async () => ({ ok: true, json: async () => body }) }); }
+    catch (e) { threw = true; }
+    ok(threw, `a 200 carrying ${label} was accepted as ${got && got.rows ? `${got.rows.length} rows` : "an empty list"} — an empty pool and a broken read must never be the same answer`);
+  }
+  {
+    // positive control: a well-formed short page is still a normal, silent success
+    const okRead = await readOwnedCategory(env, "food", box, { fetchImpl: async () => ({ ok: true, json: async () => [bar("a", 1)] }) });
+    ok(okRead.rows.length === 1 && okRead.truncated === false,
+      "a well-formed short page no longer reads cleanly — the assertions above would then be about any response, not a malformed one");
+  }
+
+  // 3. AN INCOMPLETE POOL IS NOT A NORMAL ANSWER.
+  //
+  // OWNED_POOL_MAX_ROWS is a runaway guard, and it used to be merely REPORTED as
+  // `stats.truncated`. No route read that flag, so a metro whose library outgrew
+  // the cap would have served identity over a SLICE and cached it for an hour.
+  const neverShort = async () => ({ ok: true, json: async () => Array.from({ length: 1000 }, (_, i) => bar("p" + i, 1)) });
+  let poolThrew = false;
+  try { await fetchOwnedPool(ORIGIN.lat, ORIGIN.lng, { categories: ["food"], radiusMi: 27, env, fetchImpl: neverShort, maxRows: 3000 }); }
+  catch (e) { poolThrew = true; }
+  ok(poolThrew, "a pool that hit its row cap returned a partial answer instead of failing — identity ran on a slice and the caller could not tell");
+
+  const degraded = await fetchOwnedPool(ORIGIN.lat, ORIGIN.lng, {
+    categories: ["food"], radiusMi: 27, env, fetchImpl: neverShort, maxRows: 3000, allowTruncated: true,
+  });
+  ok(degraded.stats.degraded === true && degraded.stats.truncated === true,
+    "allowTruncated no longer marks the answer degraded — an opt-in to a partial pool has to be visible to whoever opted in");
+
+  // …and no route may opt in without saying something honest about it. Nothing
+  // opts in today; this is the assertion that notices when one starts.
+  for (const surface of SURFACES) {
+    const src = strip(read(surface.route));
+    ok(!/allowTruncated/.test(src) || /degraded/.test(src),
+      `${surface.id}: ${surface.route} passes allowTruncated but never mentions \`degraded\` — opting into a partial pool obliges the route to tell the reader`);
+  }
+
+  // Every repaired route must have somewhere for these throws to land.
+  for (const surface of SURFACES) {
+    const src = strip(read(surface.route));
+    ok(/catch\s*\([\s\S]{0,40}\)\s*\{[\s\S]{0,600}?50[03]/.test(src) || /catch\s*\([\s\S]{0,40}\)\s*\{[\s\S]{0,600}?temporarily unavailable/.test(src),
+      `${surface.id}: ${surface.route} has no failure path that turns a thrown inventory read into a service error — the throws asserted above would surface as a 500 with a stack trace`);
+  }
+}
+
 if (bad.length) {
   for (const m of bad) console.error("  - " + m);
   console.error(`check-identity-before-cap: FAIL — ${bad.length}/${n} assertions`);
   process.exit(1);
 }
-console.log(`check-identity-before-cap: OK — ${n} assertions. readOwnedCategory EXECUTED against an injected fetch over a 1,500-row box (order=, sequential Range paging to exhaustion, editorial + secondary-category membership asserted on the ISSUED urls); admission proven to run before the cost bound by a buried row that identity-first finds and cap-first cannot, in the same process; and ${SURFACES.length} registered surfaces asserted to call fetchOwnedPool WITH an identity at the call site. False-positive surface: a surface that deliberately stops using the owned pool goes red here and should be re-declared in scripts/lib/starvationSurfaces.mjs rather than have this assertion deleted.`);
+console.log(`check-identity-before-cap: OK — ${n} assertions, all by CALL. readOwnedCategory EXECUTED against an injected fetch over a 1,500-row box (order=, sequential Range paging to exhaustion, editorial + secondary-category membership asserted on the ISSUED urls); admission proven to run before the cost bound by a buried row that identity-first finds and cap-first cannot, in the same process; the ${SURFACES.length} registered surfaces asserted to call fetchOwnedPool WITH an identity at the call site and to have a failure path for a thrown read. Plus the three reader defects found in owner review, each with its own positive control: the radius cut is MEASURED from the row rather than read off a display-rounded distMi (fixture true 27.02mi, card 27.0) and cannot be moved by a caller's own toPlace; a 200 carrying a non-array body THROWS across three shapes instead of reading as an empty town; and a pool that hits its row cap throws unless the caller opts in, and is then told it is degraded. False-positive surface: a surface that deliberately stops using the owned pool, or a route that legitimately opts into a partial pool, goes red here and should be re-declared in scripts/lib/starvationSurfaces.mjs rather than have the assertion deleted.`);

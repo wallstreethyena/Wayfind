@@ -257,7 +257,7 @@ def surfaces() -> list[dict]:
          "import('./scripts/lib/starvationSurfaces.mjs').then(m=>console.log(JSON.stringify("
          "m.SURFACES.map(s=>({id:s.id,title:s.title,route:s.route,reader:s.reader,status:s.status,"
          "categories:s.categories,radiusMi:s.radiusMi,rails:s.rails,oldN:s.oldN,"
-         "vulnerableRails:s.vulnerableRails||null,overlappingRails:!!s.overlappingRails,"
+         "vulnerableRails:s.vulnerableRails||null,overlappingRails:!!s.overlappingRails,shippedIn:s.shippedIn||null,"
          "broadByDesign:s.broadByDesign||null})))))"],
         cwd=ROOT, capture_output=True, text=True,
     )
@@ -355,12 +355,37 @@ def write_markdown(report: dict, path: Path) -> None:
     a("         -> Wayfind Score -> output bound")
     a("```")
     a("")
+    sm = report.get("summary") or {}
+    if sm.get("distinctPlacesRecoveredPending") is not None:
+        a("## What this change recovers")
+        a("")
+        a("| | distinct places | rail slots |")
+        a("|---|---|---|")
+        a(f"| pending in this change | **{sm['distinctPlacesRecoveredPending']}** | {sm['railSlotsPending']} |")
+        a(f"| already shipped earlier | {sm['distinctPlacesRecoveredAlreadyShipped']} | {sm['railSlotsAlreadyShipped']} |")
+        a("")
+        a("**Read the left column.** A rail slot is not a place: one restaurant that qualifies for two")
+        a("rails counts twice, and the metro boxes overlap, so summing slots counts the same venue")
+        a("several times over. Distinct place ids are the honest unit. Surfaces marked *already shipped*")
+        a("were repaired in an earlier PR and their recovery is in production already.")
+        a("")
+    a("## How the \"shipped read\" column is produced, and what is modelled")
+    a("")
+    a("Both columns read the SAME owned rows. Only the cut differs: the shipped column re-applies the")
+    a("cut the route used to make (the database window, the chip contract where the route carried one,")
+    a("then the real `rankInventory` top-N) to those same rows.")
+    a("")
+    a("One part of that is a **model, not a measurement**: the old `limit=1000` carried no `ORDER BY`,")
+    a("so which thousand Postgres returned is unknowable after the fact. It is modelled here as the")
+    a("first 1,000 by `place_id`. Any deterministic stand-in is arbitrary. What is *not* arbitrary is")
+    a("that a thousand arrived and the rest did not.")
+    a("")
     a("## Surfaces")
     a("")
     a("| surface | route | radius | categories | verdict |")
     a("|---|---|---|---|---|")
     for s in report["surfaces"]:
-        a(f"| {s['title']} | `{s['route']}` | {s['radiusMi']} mi | {', '.join(s['categories'])} | **{s['verdict']}** |")
+        a(f"| {s['title']} | `{s['route']}` | {s['radiusMi']} mi | {', '.join(s['categories'])} | **{s['verdict']}**{' (shipped ' + s['shippedIn'] + ')' if s.get('shippedIn') else ''} |")
     a("")
     for s in report["surfaces"]:
         a(f"### {s['title']} — {s['verdict']}")
@@ -547,10 +572,33 @@ def main() -> int:
         "surfaces": out_surfaces,
     }
     verdicts = {s["id"]: s["verdict"] for s in out_surfaces}
+
+    # THE HONEST TOTALS. Rail SLOTS double-count a place that sits on two rails
+    # and, summed across overlapping metro boxes, count one restaurant many times.
+    # Distinct place ids are the number that can be called "places we were
+    # hiding". And a surface already repaired in an earlier PR is counted apart
+    # from what merging THIS change would add.
+    pending, shipped = set(), set()
+    slots_pending = slots_shipped = 0
+    for s in out_surfaces:
+        already = bool(s.get("shippedIn"))
+        for m in (s.get("measurements") or {}).values():
+            if not isinstance(m, dict):
+                continue
+            ids = set(m.get("recoveredPlaceIds") or [])
+            (shipped if already else pending).update(ids)
+            if already:
+                slots_shipped += m.get("recovered", 0)
+            else:
+                slots_pending += m.get("recovered", 0)
     report["summary"] = {
         "vulnerable": [k for k, v in verdicts.items() if v == "VULNERABLE"],
         "fixed": [k for k, v in verdicts.items() if v == "FIXED"],
         "safe": [k for k, v in verdicts.items() if v == "SAFE"],
+        "distinctPlacesRecoveredPending": len(pending),
+        "distinctPlacesRecoveredAlreadyShipped": len(shipped - pending),
+        "railSlotsPending": slots_pending,
+        "railSlotsAlreadyShipped": slots_shipped,
     }
 
     (ROOT / "artifacts").mkdir(exist_ok=True)
