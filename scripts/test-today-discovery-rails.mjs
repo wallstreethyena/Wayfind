@@ -98,8 +98,32 @@ for (const [band, definition] of Object.entries(DAYPARTS)) {
 
 const route = fs.readFileSync(new URL("../app/api/today-discovery/route.js", import.meta.url), "utf8");
 ok(/fastCachedRail\(key/.test(route) && /serveFromInventory/.test(route) && !/searchPlaces|places\.googleapis/.test(route), "the endpoint is FastCache-backed, owned-inventory-only, and makes no Google search");
-ok(/Promise\.all\(categories\.map/.test(route), "all six inventory categories load in parallel instead of a serial waterfall");
-ok(/today-discovery:v2:/.test(route) && /cityKey/.test(route) && /inventoryCategories\?\.includes\("beach"\)/.test(route), "versioned cache identity includes creator city and duplicated beach inventory still receives water evidence");
+
+// v8.98 — THE READ SPLIT IN TWO, SO THIS ASSERTION FOLLOWED IT.
+//
+// It used to read `Promise.all(categories.map(...))` and the invariant it was
+// protecting was never that literal: it was that the inventory reads are
+// CONCURRENT, not a serial waterfall. attractions + beach now come through
+// lib/ownedPool.js identity-first (the narrow nature rails were starving behind
+// a top-400-of-75-miles cut) while the other four stay on the shared reader, and
+// both halves still start together inside ONE Promise.all. Following the code is
+// the rule; deleting the assertion would re-open the waterfall it was written
+// for, and — worse — a path-shaped assertion goes GREEN the moment code leaves
+// it, which is the dangerous half (CLAUDE.md).
+const readBlock = (route.match(/await Promise\.all\(\[[\s\S]*?\]\);/) || [""])[0];
+ok(!!readBlock, "positive control: the endpoint no longer has an `await Promise.all([...])` read block at all");
+ok(/fetchOwnedPool\(/.test(readBlock) && /broadCategories\.map\(/.test(readBlock),
+  "the identity-first pool and the broad category reads no longer start together in one Promise.all — a serial waterfall doubles the cold miss");
+ok(/serveFromInventory\(category, lat, lng, radiusM, BROWSE_INVENTORY_N/.test(readBlock),
+  "the four broad category reads changed shape without this guard being re-read");
+ok(/identity:\s*\(place\)\s*=>\s*claimsTodayRail\(/.test(route),
+  "the attractions/beach read lost its identity predicate — the narrow nature rails would go back to competing for the top 400 of a 75-mile box");
+// The cache key must stay VERSIONED and carry the city. The number itself is not
+// asserted: pinning v2 is what sent this guard red on a correct bump. What is
+// asserted is that a version segment exists at all, because FastCache is shared
+// across deployments and a membership change that inherits an earlier
+// generation's answer is invisible.
+ok(/today-discovery:v\d+:/.test(route) && /cityKey/.test(route) && /inventoryCategories\?\.includes\("beach"\)/.test(route), "versioned cache identity includes creator city and duplicated beach inventory still receives water evidence");
 const component = fs.readFileSync(new URL("../app/components/TodayDiscoveryRails.js", import.meta.url), "utf8");
 ok(/fetchJsonWithDeadline\("\/api\/today-discovery\?"/.test(component) && /payload\.rails\.map/.test(component), "the lazy drop fetches and renders the dedicated ten-rail answer through the bounded client helper");
 
