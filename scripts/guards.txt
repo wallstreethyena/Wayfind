@@ -868,6 +868,7 @@ node scripts/check-live-reads.mjs
 # 2026-09-03 — Instagram via the sanctioned Graph API only: ships dark, never
 # scrapes, and a caption is a LEAD (wf_social_candidates), never an event.
 node scripts/check-instagram-scout.mjs
+node scripts/check-social-qualification.mjs
 # 2026-09-03 — a failing event provider names its status and reason; `ok:false`
 # alone cannot tell a bad key from a quota from a quiet night.
 node scripts/check-provider-health-says-why.mjs
@@ -989,6 +990,12 @@ node scripts/check-vendor-tag-cannot-throw.mjs
 # fact whose quote is not literally in the caption is deleted. This EXECUTES that
 # net against the shapes a helpful model really produces.
 node scripts/check-social-extract-cannot-invent.mjs
+# 2026-09-06 Social discovery is selective and private. Reviewed creator/place
+# identity must be current; literal or LLM-extracted names remain candidates;
+# trend reports count only qualified observations; rights default closed; and
+# neither enrichment route can write an event or publish a card.
+node scripts/check-social-qualification.mjs
+node scripts/check-social-intelligence.mjs
 # 2026-09-04 A BOOK BUTTON NEEDS SOMEBODY SELLING ENTRY. Measured on
 # wf_inventory: 2,263 rows passed isTicketyPlace and would render a Book CTA,
 # and 829 of them (33%) were free public land — parks, trailheads, preserves,

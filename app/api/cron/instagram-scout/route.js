@@ -24,8 +24,11 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 import { createClient } from "@supabase/supabase-js";
-import { igConfigured, hashtagIdUrl, hashtagMediaUrl, businessDiscoveryUrl, toCandidate, rankCandidates } from "../../../../lib/instagramGraph.js";
+import { igConfigured, igToken, hashtagIdUrl, hashtagMediaUrl, businessDiscoveryUrl, toCandidate, rankCandidates } from "../../../../lib/instagramGraph.js";
 import { IG_HANDLES, hashtagsForWeek } from "../../../../lib/instagramSources.js";
+import { qualifySocialPost, observedCount, sourceRetryDue, safeSocialJson } from "../../../../lib/socialQualification.js";
+import { recordPulse } from "../../../../lib/jobPulse.js";
+import { normalizedSocialHandle } from "../../../../lib/socialIdentity.js";
 
 const DEADLINE_MS = 8000;
 const GRAPH_WORKERS = 6;
@@ -52,13 +55,7 @@ function admin() {
 }
 
 async function getJson(url) {
-  const r = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(DEADLINE_MS) });
-  const body = await r.json().catch(() => null);
-  if (!r.ok || (body && body.error)) {
-    const msg = body?.error?.message || `http ${r.status}`;
-    return { ok: false, error: String(msg).slice(0, 300) };
-  }
-  return { ok: true, body };
+  return safeSocialJson(url, { timeoutMs: DEADLINE_MS, headers: { authorization: `Bearer ${igToken()}` } });
 }
 
 export async function GET(request) {
@@ -67,12 +64,12 @@ export async function GET(request) {
   // days account budget, which is an account-level limit we cannot buy back.
   const secret = process.env.CRON_SECRET;
   const auth = request.headers.get("authorization") || "";
-  const manual = new URL(request.url).searchParams.get("key");
-  if (!secret || (auth !== "Bearer " + secret && manual !== secret)) {
+  if (!secret || auth !== "Bearer " + secret) {
     return json({ error: "unauthorized" }, 401);
   }
   if (!igConfigured()) {
-    return json({ configured: false, reason: "IG_GRAPH_TOKEN / IG_BUSINESS_ACCOUNT_ID not set — see docs/INSTAGRAM_SETUP.md" });
+    await recordPulse("instagram-scout", { attempted: 1, succeeded: 0, note: "configuration: missing Instagram credentials" });
+    return json({ configured: false, ok: false, reason: "IG_GRAPH_TOKEN / IG_BUSINESS_ACCOUNT_ID not set — see docs/INSTAGRAM_SETUP.md" }, 503);
   }
   const db = admin();
   if (!db) return json({ configured: true, ok: false, reason: "no service role" }, 503);
@@ -83,12 +80,40 @@ export async function GET(request) {
 
   const candidates = [];
   const errors = [];
+  const rejected = {};
+  const observedAt = Date.now();
+  let inspected = 0;
+  const { data: creatorRows, error: creatorError } = await db.from("wf_social_creators")
+    .select("platform,handle,status,evidence_url,reviewed_at,expires_at,canonical_place_id")
+    .eq("platform", "instagram");
+  if (creatorError) return json({ configured: true, ok: false, reason: "creator_registry_read_failed" }, 503);
+  const creators = new Map((creatorRows || []).map((row) => [normalizedSocialHandle(row.handle), row]));
+  function consider(media, context) {
+    inspected++;
+    const handle = normalizedSocialHandle(context.handle || media?.username);
+    const decision = qualifySocialPost({ ...media, platform: "instagram", handle }, { now: observedAt, creator: creators.get(handle) || null });
+    if (!decision.eligible) {
+      rejected[decision.reason] = (rejected[decision.reason] || 0) + 1;
+      return;
+    }
+    const candidate = toCandidate(media, context);
+    if (candidate) candidates.push({
+      ...candidate,
+      like_count: observedCount(media.like_count), comments_count: observedCount(media.comments_count),
+      qualification_policy: decision.policy,
+      qualification_reason: decision.reason,
+      qualification_evidence: decision.evidence,
+      creator_qualified: decision.creator_qualified,
+    });
+    else rejected.normalization_failed = (rejected.normalization_failed || 0) + 1;
+  }
 
   // ── 1. the venues, by handle ─────────────────────────────────────────────
   // A handle that cannot be resolved is recorded, not retried forever: a wrong
   // or private account costs one call once.
-  const { data: health } = await db.from("wf_social_source_health").select("handle,ok,fail_count");
-  const skip = new Set((health || []).filter((h) => !h.ok && h.fail_count >= 3).map((h) => h.handle));
+  const { data: health, error: healthError } = await db.from("wf_social_source_health").select("handle,ok,fail_count,last_checked_at");
+  if (healthError) return json({ ok: false, reason: "source_health_read_failed" }, 503);
+  const skip = new Set((health || []).filter((h) => !sourceRetryDue(h, observedAt)).map((h) => h.handle));
 
   await mapConcurrent(IG_HANDLES, GRAPH_WORKERS, async (src) => {
     if (skip.has(src.handle)) return;
@@ -107,8 +132,7 @@ export async function GET(request) {
     const bd = res.body?.business_discovery;
     const followers = Number(bd?.followers_count || 0);
     for (const media of bd?.media?.data || []) {
-      const c = toCandidate(media, { source: "business_discovery", handle: src.handle, followers });
-      if (c) candidates.push(c);
+      consider(media, { source: "business_discovery", handle: src.handle, followers });
     }
     await db.from("wf_social_source_health").upsert({
       handle: src.handle, ok: true, last_error: null, fail_count: 0, last_checked_at: new Date().toISOString(),
@@ -128,8 +152,7 @@ export async function GET(request) {
     const mediaRes = await getJson(hashtagMediaUrl(hashtagId, "top_media"));
     if (!mediaRes.ok) { errors.push({ hashtag: tag, error: mediaRes.error }); return; }
     for (const media of mediaRes.body?.data || []) {
-      const c = toCandidate(media, { source: "hashtag", tag });
-      if (c) candidates.push(c);
+      consider(media, { source: "hashtag", tag });
     }
   });
 
@@ -147,8 +170,13 @@ export async function GET(request) {
     written = rows.length;
   }
 
+  await recordPulse("instagram-scout", { attempted: inspected + errors.length, succeeded: inspected, failed: errors.length, note: `metadata inspected:${inspected}; qualified:${written}; source_errors:${errors.length}` });
   return json({
-    configured: true, ok: true,
+    configured: true, ok: errors.length === 0,
+    status: errors.length ? "partial_or_failed" : "completed",
+    inspected, rejected, paid_provider_calls: 0,
+    publication_enabled: false,
+    next_stage: "verify_florida_destination",
     handles_read: IG_HANDLES.length - skip.size,
     hashtags_read: tagCount,
     candidates: ranked.length,

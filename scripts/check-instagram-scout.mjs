@@ -65,6 +65,8 @@ const lit = probe({ IG_GRAPH_TOKEN: "TESTTOKEN", IG_BUSINESS_ACCOUNT_ID: "178414
 ok(lit.configured === true, "configured -> igConfigured() is true");
 ok(/^https:\/\/graph\.facebook\.com\/v\d+\.\d+\/ig_hashtag_search\?/.test(lit.hashtag), "hashtag lookup hits graph.facebook.com");
 ok(lit.hashtag.includes("q=pumpkinpatch"), "…with the tag normalised (# stripped, lowercased)");
+ok(!lit.hashtag.includes("TESTTOKEN") && !lit.media.includes("TESTTOKEN") && !lit.discovery.includes("TESTTOKEN"),
+  "the access token never enters a Graph URL");
 ok(/business_discovery\.username\(hunsaderfarms\)/.test(decodeURIComponent(lit.discovery)), "business discovery normalises the handle (@ stripped, lowercased)");
 ok(lit.badHandle === null && lit.badTag === null, "a malformed handle or tag builds no URL at all");
 
@@ -129,6 +131,8 @@ ok(new Set(IG_HASHTAGS).size === IG_HASHTAGS.length, "no duplicate hashtags (a d
 ok(new Set(IG_HANDLES.map((h) => h.handle)).size === IG_HANDLES.length, "no duplicate handles");
 ok(IG_HANDLES.every((h) => /^[a-z0-9._]{1,30}$/.test(h.handle) && h.why), "every handle is lowercase-valid and carries the reason it is watched");
 ok(/wf_social_source_health/.test(routeRaw), "a handle that cannot be resolved is recorded, not retried forever");
+ok(!/searchParams\.get\(["']key["']\)/.test(route), "the cron secret is accepted only in the Authorization header, never a query string");
+ok(/authorization:\s*`Bearer \$\{igToken\(\)\}`/.test(routeRaw), "Graph calls send their token in the Authorization header");
 ok(/mapConcurrent\(IG_HANDLES,\s*GRAPH_WORKERS/.test(routeRaw)
   && /mapConcurrent\(tags,\s*GRAPH_WORKERS/.test(routeRaw)
   && /export const maxDuration = 60/.test(routeRaw),
