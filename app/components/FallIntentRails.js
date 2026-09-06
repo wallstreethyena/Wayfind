@@ -146,7 +146,7 @@ export default function FallIntentRails({
         try { onTrack?.("fall_intent_collection_open", { city, phase: result.phase, rails: result.rails.map((rail) => rail.id).join(","), cards: result.rails.reduce((sum, rail) => sum + rail.cards.length, 0) }); } catch {}
       })
       .catch(() => { if (!cancelled) setFailed(true); });
-    return () => { cancelled = true; };
+    return () => { cancelled = true; asked.current = ""; };
     // `onTrack` is intentionally not a dependency. The parent supplies an
     // inline telemetry callback and can re-render while this request is in
     // flight; treating that callback identity as data aborts the request, then

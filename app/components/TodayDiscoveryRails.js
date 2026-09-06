@@ -87,7 +87,7 @@ export default function TodayDiscoveryRails({
     let dead = false;
     const [queryLat, queryLng] = key.split("|");
     const query = new URLSearchParams({ lat: queryLat, lng: queryLng, city, v: "1" });
-    fetchJsonWithDeadline("/api/today-discovery?" + query.toString())
+    fetchJsonWithDeadline("/api/today-discovery?" + query.toString(), { retries: 1 })
       .then((result) => {
         if (dead) return;
         if (!result || !Array.isArray(result.rails)) { setFailed(true); return; }
@@ -95,7 +95,7 @@ export default function TodayDiscoveryRails({
         try { onTrack?.("today_discovery_open", { city, rails: result.rails.map((rail) => rail.id).join(","), places: result.rails.reduce((sum, rail) => sum + rail.places.length, 0) }); } catch {}
       })
       .catch(() => { if (!dead) setFailed(true); });
-    return () => { dead = true; };
+    return () => { dead = true; asked.current = ""; };
     // The parent's onTrack prop is an inline analytics callback, not request
     // identity. Including it here lets an ordinary parent render run this
     // cleanup (`dead = true`) while the request is in flight; asked.current
