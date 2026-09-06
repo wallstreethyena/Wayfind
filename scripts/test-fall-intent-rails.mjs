@@ -94,7 +94,7 @@ ok(FALL_PHOTO_PLACE_IDS.length >= 6, "the photo rail has a useful researched Gul
 ok(Object.values(FALL_PHOTO_SPOTS).every((spot) => spot.shotLocation && spot.visualProof && spot.fallReason && spot.bestTime && spot.accessNote && /^https:\/\//.test(spot.sourceUrl)), "every photo spot carries the exact shot, visible asset, fall reason, timing, access and proof source");
 
 const discoveryIds = FALL_DISCOVERIES_2026.map((row) => row.event_id);
-ok(FALL_DISCOVERIES_2026.length === 16 && new Set(discoveryIds).size === 16, "all 16 owner supplied Fall in Florida discoveries exist exactly once");
+ok(FALL_DISCOVERIES_2026.length === 33 && new Set(discoveryIds).size === 33, "all 33 Fall in Florida discoveries exist exactly once");
 ok(discoveryIds.every((id) => id in FALL_DISCOVERY_RAIL), "every new discovery has one explicit primary intent");
 // 2026-09-03: the registry also pins the Sarasota-side rows seeded by
 // scripts/seed-fall-sarasota-2026.mjs — every pinned id is a discovery or one
@@ -109,12 +109,31 @@ ok(FALL_DISCOVERIES_2026.every((row) => Number.isFinite(row.lat) && Number.isFin
 ok(FALL_DISCOVERIES_2026.every((row) => /^https:\/\//.test(row.source_url) && /^https:\/\//.test(row.official_event_url)), "every new discovery has evidence and a working destination URL");
 ok(FALL_DISCOVERIES_2026.every((row) => row.fun_fact && row.fun_fact.length <= 130), "every new discovery carries one concise factual fun fact");
 ok(FALL_DISCOVERIES_2026.every((row) => row.card_hook.length <= 70 && row.editorial_summary.length <= 130), "every new card keeps its hook and value concise");
-ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "farms").length === 6, "the six farm festivals live in Pumpkin Patches and Fall Farms");
-ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "food").length === 3, "Rosallie, Perfect Press and Haraz House live in seasonal food");
-ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "date-night").length === 7, "Mangoni, Nueva, You Do the Dishes, Dead Coconut Club, both All Fired Up studios and Sirens of Helena live in spooky date night");
-ok(FALL_DISCOVERIES_2026.filter((row) => row.verification_confidence === "high").length === 8, "the six dated farm programs plus Dead Coconut Club and Mangoni's venue-confirmed dates carry first party high confidence verification");
+ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "farms").length === 8, "the eight farm festivals live in Pumpkin Patches and Fall Farms");
+ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "food").length === 4, "Rosallie, Perfect Press, Haraz House and Palace Fall Harvest live in seasonal food");
+ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "date-night").length === 8, "Mangoni, Nueva, You Do the Dishes, Dead Coconut Club, both All Fired Up studios, Sirens of Helena and Faena live in spooky date night");
+ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "haunts").length === 3, "Horrorland, House of Horror and Nightmare Village live in haunts");
+ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "family").length === 6, "six Miami-side family Halloween programs live in Halloween With the Kids");
+ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "oktoberfest").length === 2, "Oktoberfest Miami and Weekend at BerryHaus live in Oktoberfest");
+ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "festivals").length === 1, "Deerfield Beach Fall Festival lives in outdoor festivals");
+ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "theme-parks").length === 1, "Zoo Miami Monster Masquerade lives in Halloween Theme Parks");
+ok(FALL_DISCOVERIES_2026.filter((row) => row.verification_confidence === "high").length === 22, "eight original first-party rows plus fourteen Miami official-organizer programs carry high confidence");
 ok(FALL_SEASONAL_PLACE_IDS.size === 10, "the ten permanent-business discoveries are explicitly modeled as seasonal places");
-ok(FALL_DISCOVERIES_2026.filter((row) => !FALL_SEASONAL_PLACE_IDS.has(row.event_id)).length === 6, "only the six dated farm programs remain events");
+ok(FALL_DISCOVERIES_2026.filter((row) => !FALL_SEASONAL_PLACE_IDS.has(row.event_id)).length === 23, "dated farm and Miami programs remain events; Palace stays an event because it is press-verified with no owned place_id");
+const miamiPackIds = [
+  "the-berry-farm-harvest-festival-2026", "bedners-fall-festival-2026",
+  "the-horrorland-jungle-island-2026", "house-of-horror-carnival-2026",
+  "nightmare-village-xtreme-action-park-2026", "oktoberfest-miami-german-american-social-club-2026",
+  "weekend-at-berryhaus-2026", "not-so-scary-halloween-bash-miami-childrens-museum-2026",
+  "zoo-boo-zoo-miami-2026", "boo-bash-pompano-beach-2026",
+  "bonnet-house-halloween-fest-2026", "boo-in-bloom-fruit-spice-park-2026",
+  "roars-smores-snores-spooktacular-campout-zoo-miami-2026", "deerfield-beach-fall-festival-2026",
+  "zoo-miami-monster-masquerade-2026", "halloween-at-faena-miami-beach-2026",
+  "palace-miami-beach-fall-harvest-menu-2026",
+];
+ok(miamiPackIds.length === 17 && miamiPackIds.every((id) => discoveryIds.includes(id)), "the Miami Fall 2026 pack is all seventeen named event_ids");
+ok(miamiPackIds.every((id) => FALL_DISCOVERIES_2026.find((row) => row.event_id === id)?.place_id == null), "Miami pack rows keep place_id null until an owned Places id exists");
+ok(!discoveryIds.includes("american-german-club-lake-worth-2026"), "American German Club of Lake Worth is skipped on purpose");
 ok(FALL_DISCOVERIES_2026.every((row) => !/\/cards-v8\/augtober-/i.test(String(row.hero_image || ""))), "no place or event wears the Fall collection poster as if it were a real photo");
 const photoOwner = "ChIJTzoiienhwogRbPa3GpuvBQU";
 const ownedPhotoRef = `places/${photoOwner}/photos/fall-owned-photo`;
