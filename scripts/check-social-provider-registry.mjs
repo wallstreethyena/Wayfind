@@ -17,6 +17,8 @@ const yes=await reserveFreeProviderCall(db,"hashtag_search",{now:Date.parse("202
 assert.equal(yes.allowed,true); assert.equal(yes.calls,3);
 assert.equal(args.name,"wf_reserve_free_provider_call");
 assert.equal(args.input.p_usage_date,"2026-09-06");
+await reserveFreeProviderCall(db,"hashtag_search",{now:Date.parse("2026-09-07T01:00:00Z")});
+assert.equal(args.input.p_usage_date,"2026-09-06","daily provider budget must remain on the Florida calendar day after UTC midnight");
 assert.equal((await reserveFreeProviderCall({rpc:async()=>({data:null,error:new Error("down")})},"x",{now:Date.now()})).allowed,false);
 assert.equal((await reserveFreeProviderCall(db,"x",{})).allowed,false);
 console.log("check-social-provider-registry: OK — rights, zero-cost gate, atomic ceiling and client fail-closed controls passed");

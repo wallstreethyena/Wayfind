@@ -26,8 +26,9 @@ scrape social sites and it never publishes a place or event by itself.
   no commercial API exposure. A private seven-day Florida category report is stored
   after enrichment and available only through the secret-protected internal route.
 - The Meta adapter is registered in `wf_source_registry`. Every Graph request must
-  atomically reserve one zero-cost unit before it runs. A single 50-call UTC daily
-  ceiling covers all Meta capabilities together; paid fallback is refused.
+  atomically reserve one zero-cost unit before it runs. A single 50-call
+  Florida/Eastern calendar-day ceiling covers all Meta capabilities together;
+  paid fallback is refused.
 
 ## Still requires deployment/configuration
 
