@@ -55,7 +55,8 @@ const hub = read("app/florida-events/page.js");
 const detail = read("app/florida-events/[slug]/page.js");
 ok(/fetchCuratedEvents\(\{[^}]*fresh:\s*true[^}]*\}\)/.test(fallRoute), "the fall rail reads fresh");
 ok(/fetchCuratedEvents\(\{[^}]*fresh:\s*true[^}]*\}\)/.test(eventsRoute), "the events feed reads fresh");
-ok(/export const revalidate = 3600/.test(hub) && !/fresh:\s*true/.test(hub), "the /florida-events hub keeps its hourly cache on purpose");
+ok(/unstable_cache\(/.test(hub) && /revalidate: 3600/.test(hub), "the hub caches validated rows for one hour");
+ok(/noStore\(\)/.test(hub) && /fetchCuratedEvents\(\{ fresh: true/.test(hub), "the hub renders at runtime and its cached loader reads fresh");
 ok(/export const revalidate = 3600/.test(detail) && !/fresh:\s*true/.test(detail), "the event page keeps its hourly cache on purpose");
 
 // ── 3. the plumbing, in syntactic position ────────────────────────────────

@@ -6,6 +6,7 @@
 // which is the whole difference between this page and a municipal calendar.
 import { SITE_URL } from "../../lib/site";
 import { isSsgBuild } from "../../lib/landingInventory";
+import { unstable_cache, unstable_noStore as noStore } from "next/cache";
 import {
   fetchCuratedEvents,
   dateRangeLabel,
@@ -14,6 +15,15 @@ import {
 } from "../../lib/curatedEvents";
 
 export const revalidate = 3600;
+
+// Render at request time: a skipped build read must never become the first
+// cached page. Cache only validated rows for the same hourly lifetime. The
+// fresh inner read avoids a second, independently stale HTTP cache layer.
+const fetchHubEvents = unstable_cache(
+  () => fetchCuratedEvents({ fresh: true, signal: AbortSignal.timeout(8000) }),
+  ["florida-events-hub-validated-v1"],
+  { revalidate: 3600, tags: ["curated-events"] },
+);
 
 const TITLE = "Florida Events 2026: What's Actually Worth Going To";
 const DESC = "Verified dates for Florida's best festivals and events — Halloween Horror Nights, Fantasy Fest, Hulaween, EDC Orlando, Gasparilla and more. Checked against official sources, never rolled forward from last year.";
@@ -68,9 +78,10 @@ const S = {
 const RAILS = ["this-weekend", "spooky-season", "coming-up", "florida-icons", "major-music-festivals", "only-in-florida", "live-music", "bring-the-kids", "food-festivals"];
 
 export default async function FloridaEventsHub() {
+  noStore();
   // Throws CuratedEventsUnavailableError on an outage. Do not catch — a
   // failed list read must not render (or ISR-cache) the empty-success page.
-  const all = await fetchCuratedEvents();
+  const all = await fetchHubEvents();
   const now = new Date();
   const model = floridaEventsHubPageModel({ ok: true, rows: all }, {
     now, railKeys: RAILS, ssg: isSsgBuild(),

@@ -387,6 +387,7 @@ export default async function CuratedEventPage({ params }) {
 
       <p style={S.foot}>
         Verified {e.last_verified_at ? String(e.last_verified_at).slice(0, 10) : "recently"} against the organiser&rsquo;s own listing.
+        {safeUrl(e.source_url) ? <>{" "}<a style={S.link} href={safeUrl(e.source_url)} rel="nofollow noopener" target="_blank">Verification source</a>.</> : null}
         {" "}More in <a style={S.link} href="/florida-events">Florida Events</a>.
       </p>
     </main>

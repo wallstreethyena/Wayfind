@@ -73,14 +73,14 @@ function mockEventsDb({
     eq() { return chain; },
     limit() {
       if (limitError) return result({ data: null, error: { message: limitError } });
-      return result({ data: pages[0] || [], error: null });
+      return result({ data: pages[0], error: null });
     },
     range() {
       rangeCalls += 1;
       if (rangeError && (rangeErrorOn == null || rangeCalls === rangeErrorOn)) {
         return result({ data: null, error: { message: rangeError } });
       }
-      return result({ data: pages[rangeCalls - 1] || [], error: null });
+      return result({ data: (rangeCalls <= pages.length ? pages[rangeCalls - 1] : []), error: null });
     },
     maybeSingle() {
       if (slugError) return result({ data: null, error: { message: slugError } });
@@ -158,6 +158,32 @@ await okAsync("SSG skip is still [] and does not throw (build must not hang)", a
     delete process.env.NEXT_PHASE;
   }
 });
+
+// Invalid success envelopes must fail before they reach a cache or page model.
+for (const payload of [null, {}, { message: "unexpected response" }, "html", [null], [{}]]) {
+  for (const limit of [null, 10]) {
+    await okAsync(`malformed list is unavailable (${JSON.stringify(payload)}, limit=${limit})`, async () => {
+      await assert.rejects(
+        () => fetchCuratedEvents({ limit, db: mockEventsDb({ pages: [payload] }) }),
+        (err) => isUnavailable(err, "malformed-response"),
+      );
+    });
+  }
+}
+await okAsync("malformed second page cannot publish a partial list", async () => {
+  await assert.rejects(
+    () => fetchCuratedEvents({ db: mockEventsDb({ pages: [Array(500).fill(howl), {}] }) }),
+    (err) => isUnavailable(err, "malformed-response"),
+  );
+});
+for (const payload of [{}, [], "html"]) {
+  await okAsync("malformed slug is unavailable, never a false 404", async () => {
+    await assert.rejects(
+      () => fetchCuratedEventBySlug("howl", { db: mockEventsDb({ slugRow: payload }) }),
+      (err) => isUnavailable(err, "malformed-response"),
+    );
+  });
+}
 
 /* 2 — slug: outage throws; honest miss is null */
 await okAsync("slug outage throws — a live event must not 404 because the read failed", async () => {
@@ -240,7 +266,9 @@ ok("an SSG skip is not a healthy empty — no empty copy, no ItemList:0", () => 
   });
   ok("the hub fetches then models a successful read — it cannot wrap a failure as ok:true/[]", () => {
     const body = strip(hubFn[0]);
-    assert.match(body, /const all = await fetchCuratedEvents\(\)/);
+    assert.match(body, /noStore\(\)/);
+    assert.match(body, /const all = await fetchHubEvents\(\)/);
+    assert.ok(body.indexOf("noStore()") < body.indexOf("await fetchHubEvents()"));
     assert.match(body, /floridaEventsHubPageModel\(\{\s*ok:\s*true,\s*rows:\s*all/);
     assert.doesNotMatch(body, /\bcatch\b/);
     assert.doesNotMatch(body, /\btry\b/);
