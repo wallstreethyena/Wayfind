@@ -1,23 +1,36 @@
-# Parked: ops/canary.workflow.yml
+# Canary workflow — installation history
 
-This belongs at `.github/workflows/canary.yml`. It is parked here because GitHub
-refuses any push that creates or edits a workflow file unless the pushing token
-carries the `workflow` OAuth scope, and neither credential on this machine has it
-(both are `gist, read:org, repo`).
+`.github/workflows/canary.yml` (the `routes` / `inventory` / `promote-metros`
+jobs — production route contract, inventory data integrity, promote-metros
+live drift, all on a 30-minute clock) was authored and committed here as
+`ops/canary.workflow.yml` because the credentials available at the time could
+not push a NEW `.github/workflows/*.yml` file — GitHub refuses that specific
+push shape without the `workflow` OAuth scope.
 
-To install it:
+**2026-09-04 extended guard-honesty audit — found and closed.** The file sat
+parked at this path for an unmeasured stretch of time while every doc that
+named it (`check-guard-manifest.mjs`'s EXCLUDED reasons for
+`check-inventory-integrity.mjs` and `check-promote-metros-live-drift.mjs`,
+this file's own original text) said it "runs in the scheduled canary
+workflow" as if it did. It did not: GitHub Actions only picks up workflow
+files that live under `.github/workflows/`, so `routes` / `inventory` /
+`promote-metros` never ran on a single push or a single 30-minute tick.
+Nothing exercised the render-level, live-production, and Supabase-drift
+checks the guard suite is structurally blind to (see this workflow's own
+header comment for the 2026-08-20 incident that motivated it) — for however
+long the file sat here.
+
+Moved to `.github/workflows/canary.yml` in that audit
+(`git mv ops/canary.workflow.yml .github/workflows/canary.yml`) and added
+`scripts/check-canary-workflow-installed.mjs` (wired into
+`scripts/guards.txt`) so this cannot silently regress back to a parked file
+without failing every future prebuild.
+
+If a future push of `.github/workflows/canary.yml` is ever rejected for the
+same OAuth-scope reason, the fix is still:
 
     gh auth refresh -s workflow          # approve in the browser
-    git mv ops/canary.workflow.yml .github/workflows/canary.yml
-    git commit -m "ops: install the canary workflow"
     git push
 
-Nothing it runs is blocked. All three checks are on this branch and run standalone:
-
-    E2E_BASE_URL=https://www.gowayfind.com npx playwright test tests/e2e/shell-route-contract.spec.js
-    SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... node scripts/check-inventory-integrity.mjs
-    SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... node scripts/check-promote-metros-live-drift.mjs
-
-The last one is currently RED against production — see its own header comment
-and its entry in check-guard-manifest.mjs's EXCLUDED list for why, and what
-closes it.
+not moving the file back out of `.github/workflows/` — that quietly
+recreates this exact gap.

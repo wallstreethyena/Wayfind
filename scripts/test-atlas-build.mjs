@@ -18,7 +18,13 @@ const ok = (c, m) => { if (!c) fail(m); pass++; };
 // comment nearby quoted it — a green test asserting the opposite of the truth,
 // which is worse than no test.
 const src = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
-const r = [src("../app/api/cron/atlas-build/route.js"), src("../lib/atlasEditorial.js")]
+// WO-D-atlas-cache-batch (2026-09-04): the RIDE_RX skip list and the
+// atlas-590-v1 SYSTEM prompt (NEVER invent a fact / {"pending":true} / the
+// JSON-shape rules) moved to lib/atlasCache.js so scripts/atlas-batch.mjs can
+// share them byte-for-byte with this route instead of re-deriving a second
+// copy. Follow the code: the assertions below are unchanged, the union of
+// files they read now includes where the content actually lives.
+const r = [src("../app/api/cron/atlas-build/route.js"), src("../lib/atlasEditorial.js"), src("../lib/atlasCache.js")]
   .join("\n")
   .split("\n")
   .filter((l) => !/^\s*\/\//.test(l))

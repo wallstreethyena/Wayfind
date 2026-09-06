@@ -61,6 +61,14 @@ const CONFIG_MODULE = "lib/config.js";
 const PROTECTED_CREDENTIAL_DEFAULTS = new Map([
   ["lib/travelpayouts.js", "TP_MARKER literal 750791 — env var MISSING in production; this literal is what attributes 4 live programs"],
   ["lib/affiliates.js", "TM_IMPACT_SID/CAMPAIGN/AD/DESTPARAM literals — env vars MISSING in production; these attribute Ticketmaster"],
+  // 2026-09-04 (revenue-guard stack, layer 1). Not a credential, but the same
+  // shape: WF_SMOKE_BASE_URL's fallback is the CORRECT, public production
+  // domain, and the whole point is that the post-deployment smoke test still
+  // targets the right site when nobody bothered to set an override. There is
+  // no "configured vs unconfigured" ambiguity to hide — the fallback is not
+  // secret, not a stand-in, and is only ever overridden for local testing
+  // against a preview URL.
+  ["scripts/live-viator-smoke.mjs", "WF_SMOKE_BASE_URL literal https://www.gowayfind.com — the correct default target for the opt-in post-deploy Viator smoke test; overridable for a preview URL, never silently wrong"],
 ]);
 
 // ── Grandfather A: genuine silent fallbacks. DRIVE THIS TO ZERO. ─────────────

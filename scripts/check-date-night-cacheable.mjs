@@ -46,12 +46,46 @@ ok(!!sig && /stale-while-revalidate=\d+/.test(sig[1]),
   "…and stale-while-revalidate, so the first reader after expiry is served instantly while the rebuild happens behind them");
 
 // The safety property. Without it, caching makes a transient miss permanent.
-ok(/const empty = !answer\.rails \|\| answer\.rails\.length === 0;/.test(src),
-  "the route knows whether it composed anything");
-ok(/"cache-control": empty \? "no-store" : "public, s-maxage=3600, stale-while-revalidate=86400"/.test(src),
-  "an EMPTY answer is no-store — a cached empty is a claim about the reader's town made out of one stalled read (v8.74)");
-ok(/fastCachedRail\(key,[\s\S]*usable: \(value\) => !!\(value && Array\.isArray\(value\.rails\) && value\.rails\.length\)/.test(src),
-  "the runtime cache keeps only a non-empty last-known-good answer");
+//
+// v8.98j WIDENED THIS PROPERTY AND THESE ASSERTIONS FOLLOWED THE CODE.
+//
+// The three checks here used to pin exact literals — `const empty = …`, the
+// ternary spelled out character for character, and `usable: (value) => !!(…)`.
+// All three went red when the route learned about a SECOND way to be unsafe: a
+// pool that read only some of its categories composes plenty of rails, so the
+// old "did it compose anything" test called that answer healthy and granted it
+// the full hour. The invariant was never those literals. It is:
+//
+//   (a) the route can tell a complete answer from an incomplete one,
+//   (b) an incomplete answer is no-store, and
+//   (c) the runtime cache stores only complete, non-empty answers.
+//
+// Deleting them would have re-opened v8.74. Pinning them again would go GREEN
+// the next time the safety test moves, which is the dangerous half.
+ok(/const incomplete = [^\n]*answer\.rails\.length === 0[^\n]*answer\.degraded === true;/.test(src),
+  "the route no longer distinguishes a complete answer from an incomplete one — it must know about BOTH an empty compose and a partial pool");
+ok(/"cache-control": incomplete \? "no-store" : "public, s-maxage=3600, stale-while-revalidate=86400"/.test(src),
+  "an INCOMPLETE answer is no-store — a cached empty, or a cached pool that read only some of its categories, is a claim about the reader's town made out of one stalled read (v8.74)");
+ok(/fastCachedRail\(key,[\s\S]*usable: completeAnswersOnly\(\(value\) => Array\.isArray\(value\.rails\) && value\.rails\.length\)/.test(src),
+  "the runtime cache no longer keeps only a COMPLETE, non-empty last-known-good answer");
+
+// …and (c) is asserted by CALLING the combinator, not by matching its name. A
+// route could import completeAnswersOnly from a version that returns true for
+// everything and every source check above would still pass.
+{
+  const { completeAnswersOnly } = await import("../lib/railFastCache.js");
+  const usable = completeAnswersOnly((v) => Array.isArray(v.rails) && v.rails.length);
+  ok(usable({ rails: [1], degraded: false }) === true,
+    "EXECUTED: a complete, non-empty answer is cacheable (positive control) — if this fails the rule rejects everything and the fix is a cache-disabling patch");
+  ok(usable({ rails: [1], degraded: true }) === false,
+    "EXECUTED: a DEGRADED answer is cacheable — a pool that read only some of its categories would be pinned on every reader in the cell for an hour");
+  ok(usable({ rails: [], degraded: false }) === false, "EXECUTED: an empty compose is cacheable (v8.74)");
+  // …and the entries ALREADY in the drawer. The namespace and this route's key
+  // are unchanged and entries live seven days, so an answer written before the
+  // flag existed must not pass by omission.
+  ok(usable({ rails: [1] }) === false,
+    "EXECUTED: a LEGACY entry with no `degraded` field is cacheable — every answer written before this shipped would be read back and served as healthy for the rest of its seven-day life");
+}
 ok(/, 400, "no-store"\)/.test(src),
   "the 400 path stays no-store");
 
@@ -71,4 +105,4 @@ if (fails.length) {
   fails.forEach((f) => console.error("  ✗ " + f));
   process.exit(1);
 }
-console.log(`check-date-night-cacheable: OK — ${pass} assertions; the intent rails are publicly cacheable with the same numbers /api/rails uses, an empty compose is never cached as the truth, and the default-vs-undefined fallback is EXECUTED rather than assumed`);
+console.log(`check-date-night-cacheable: OK — ${pass} assertions; the intent rails are publicly cacheable with the same numbers /api/rails uses, neither an empty compose NOR a partial owned pool is ever cached as the truth (the combinator is CALLED over four shapes including a LEGACY entry with no flag, not matched by name), and the default-vs-undefined fallback is EXECUTED rather than assumed`);

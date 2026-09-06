@@ -12,16 +12,19 @@ export const runtime = "nodejs";
 // for the rest of the app and WRONG here. dateNightBeachOk requires
 // weather.known AND outdoorOK AND beach.show. Any unknown → Museums, hide Beach.
 
-import { serveFromInventory } from "../../../lib/inventoryServe.js";
+import { invRowToPlace, serveFromInventory } from "../../../lib/inventoryServe.js";
+import { fetchOwnedPool } from "../../../lib/ownedPool.js";
+import { NET_DEADLINE_MS } from "../../../lib/fetchDeadline.js";
 import { getBeachConditions } from "../../../lib/marine.js";
 import { nowContext } from "../../../lib/nowContext.js";
 import { BROWSE_INVENTORY_N } from "../../../lib/browseInventory.js";
 import {
   DATE_NIGHT_WIDEN_MI,
   composeDateNightRails,
+  isDateDinner,
   toDateNightPlace,
 } from "../../../lib/dateNightIntent.js";
-import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
+import { completeAnswersOnly, fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 import { windowRailAnswer } from "../../../lib/railResponse.js";
 import { pageOneRail } from "../../../lib/railPage.js";
 
@@ -88,8 +91,45 @@ async function buildDateNightAnswer({ lat, lng, city, hour }) {
     };
   }).catch(() => {});
 
+  /**
+   * v8.98 — THE DINNER RAIL ASKS BEFORE THE COST BOUND.
+   *
+   * Eight of these nine reads carry a chip contract, and serveFromInventory has
+   * applied those BEFORE its top-N cut since v8.49 — dessert, speakeasy, music,
+   * clubs, spa, tours, museums, beaches are already identity-first and are left
+   * exactly as they are. The NINTH was the bare `food` read, and the `dinner`
+   * rail is what eats from it: isDateDinner requires a real date-dinner signal
+   * (price level 2+, a room word in the name, or an occasion primary type) and,
+   * by this file's own measurement, 68% of food rows are price-blind and room
+   * words are rare. So a narrow predicate competed against all 2,417 food rows
+   * in the 27-mile box for 400 slots and lost — "identity ∩ anchor top-N is thin
+   * BY CONSTRUCTION" (lib/browseInventory.js), for the seventh time.
+   *
+   * isDateDinner itself is handed to the reader, so this route still holds one
+   * opinion about what a date dinner is, and the read is deterministic
+   * (order=place_id.asc) and exhaustive instead of an arbitrary unordered
+   * thousand. Radius, shape, ranking and the other eight reads are unchanged.
+   */
+  const dinnerPool = fetchOwnedPool(lat, lng, {
+    categories: ["food"],
+    radiusMi: DATE_NIGHT_WIDEN_MI,
+    deadlineMs: NET_DEADLINE_MS,
+    toPlace: (row, o) => toDateNightPlace(invRowToPlace(row), o),
+    identity: isDateDinner,
+  });
+  const dinnerPlaces = dinnerPool.then((pool) => pool.places);
+  const dinnerStats = dinnerPool.then((pool) => pool.stats).catch(() => ({}));
+  // NOT `.catch(() => [])` (owner review, 2026-09-06). The first version swallowed
+  // a failed dinner pool into an empty list, on the reasoning that the other eight
+  // reads already degrade that way. That reasoning was wrong twice over: an empty
+  // Dinner rail is Date Night's PRIMARY answer, and "[] because the database
+  // hiccuped" is indistinguishable from "[] because this town has no date
+  // restaurants" — the exact silent degradation this change exists to remove.
+  // It now propagates to the route's handler, which 503s and, because
+  // fastCachedRail's `usable` refuses an empty rail set, caches nothing.
+
   const pools = await Promise.all([
-    serveFromInventory("food", lat, lng, radiusM, n),
+    dinnerPlaces,
     serveFromInventory("food", lat, lng, radiusM, n, "dessert"),
     serveFromInventory("nightlife", lat, lng, radiusM, n, "speakeasy"),
     serveFromInventory("nightlife", lat, lng, radiusM, n, "music"),
@@ -116,8 +156,13 @@ async function buildDateNightAnswer({ lat, lng, city, hour }) {
     outdoorOK: wxSignals.outdoorOK,
     beachShow: wxSignals.beachShow,
   });
+  const dinnerPoolStats = await dinnerStats;
   return {
     rails: composed.rails,
+    // A partial or capped dinner pool must not be cached as this town's answer
+    // — see completeAnswersOnly in lib/railFastCache.js.
+    degraded: !!dinnerPoolStats.degraded,
+    sourceStats: dinnerPoolStats,
     beachOk: composed.beachOk,
     hidden: composed.hidden,
     weather: {
@@ -147,10 +192,20 @@ export async function GET(req) {
   const size = searchParams.get("size");
   const hourBucket = Number.isFinite(hour) ? Math.floor(hour / 3) : "auto";
   const key = `date-night:${geoCell(lat)}:${geoCell(lng)}:${hourBucket}`;
-  const cached = await fastCachedRail(key, () => buildDateNightAnswer({ lat, lng, city, hour }), {
-    name: "date-night-rails",
-    usable: (value) => !!(value && Array.isArray(value.rails) && value.rails.length),
-  });
+  let cached;
+  try {
+    cached = await fastCachedRail(key, () => buildDateNightAnswer({ lat, lng, city, hour }), {
+      name: "date-night-rails",
+      usable: completeAnswersOnly((value) => Array.isArray(value.rails) && value.rails.length),
+    });
+  } catch (error) {
+    // An inventory read that failed, or an owned pool that came back incomplete,
+    // is a 503 — the same answer birthday, lunch-break and today-discovery give.
+    // The alternative is a 500 with a stack trace, or worse, a plausible answer
+    // built on a slice of the library.
+    console.error("[api/date-night] inventory unavailable", { message: String(error?.message || error) });
+    return json({ error: "Date Night inventory is temporarily unavailable" }, 503, "no-store");
+  }
   const answer = cached.value;
 
   // …AND A DEGRADED ANSWER IS STILL NOT CACHED AS THE TRUTH (the v8.74 rule
@@ -163,9 +218,14 @@ export async function GET(req) {
   // sometimes it doesn't" report that rule was written for. no-store means the
   // very next request rebuilds and the cell self-heals; a real answer keeps
   // the hour it earned.
-  const empty = !answer.rails || answer.rails.length === 0;
+  //
+  // v8.98j widens this from "empty" to "not a complete answer". A pool that read
+  // only some of its categories is degraded even when it composed plenty of
+  // rails, and that case never reached this line before — the rails looked
+  // healthy, so the hour was granted.
+  const incomplete = !answer.rails || answer.rails.length === 0 || answer.degraded === true;
   const headers = {
-    "cache-control": empty ? "no-store" : "public, s-maxage=3600, stale-while-revalidate=86400",
+    "cache-control": incomplete ? "no-store" : "public, s-maxage=3600, stale-while-revalidate=86400",
     "x-wayfind-fast-cache": cached.state,
   };
   if (railId) {

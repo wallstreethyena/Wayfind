@@ -4,13 +4,13 @@ export const runtime = "nodejs";
 // Places search: it composes the seven rails from Wayfind's owned inventory,
 // and every qualitative category is evidence-gated in lib/birthdayIntent.
 
-import { BROWSE_INVENTORY_N } from "../../../lib/browseInventory.js";
 import { birthdayAttributesFor } from "../../../lib/birthdayAttributes.js";
-import { distMeters, serveFromInventory, serveInventoryByPlaceIds } from "../../../lib/inventoryServe.js";
+import { distMeters, invRowToPlace, serveInventoryByPlaceIds } from "../../../lib/inventoryServe.js";
+import { fetchOwnedPool } from "../../../lib/ownedPool.js";
 import { NET_DEADLINE_MS } from "../../../lib/fetchDeadline.js";
-import { BIRTHDAY_WIDEN_MI, composeBirthdayRails } from "../../../lib/birthdayIntent.js";
+import { BIRTHDAY_WIDEN_MI, BIRTHDAY_RAIL_ORDER, birthdayRailMembership, composeBirthdayRails } from "../../../lib/birthdayIntent.js";
 import { BIRTHDAY_REWARD_PLACE_IDS, birthdayRewardFor } from "../../../lib/birthdayRewards.js";
-import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
+import { completeAnswersOnly, fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 import { cgetMany } from "../../../lib/serverCache.js";
 import { PHOTO_REF_RX, isOwnedPhotoUrl, photoCacheKey } from "../../../lib/placePhotoServe.js";
 import { windowRailAnswer } from "../../../lib/railResponse.js";
@@ -107,26 +107,61 @@ export async function GET(request) {
     return json({ error: "lat and lng are required" }, 400, "no-store");
   }
 
-  const key = `birthday:${geoCell(lat)}:${geoCell(lng)}`;
+  const key = `birthday:v2:${geoCell(lat)}:${geoCell(lng)}`;
   try {
     const cached = await fastCachedRail(key, async () => {
       const radiusM = BIRTHDAY_WIDEN_MI * 1609.34;
-      const n = BROWSE_INVENTORY_N;
       const origin = { lat, lng };
-      const broadRead = { failLoud: true, primaryOnly: true, deadlineMs: NET_DEADLINE_MS };
       const exactRead = { failLoud: true, deadlineMs: NET_DEADLINE_MS };
+
+      /**
+       * v8.98 — THE SIX EVIDENCE-GATED RAILS ASK BEFORE THE COST BOUND.
+       *
+       * These two reads used to be `serveFromInventory("food"/"nightlife", …,
+       * BROWSE_INVENTORY_N)`: the top 400 of each broad category by Wayfind
+       * Score, with the narrow questions — is there a PRIVATE DINING ROOM, is
+       * this a ROOFTOP, is it BEACHFRONT, is it genuinely UPSCALE — asked
+       * afterwards in composeBirthdayRails. Those are evidence-gated predicates
+       * that only a small slice of any food pool can satisfy, and they were
+       * competing for 400 slots against every ordinary well-reviewed restaurant
+       * within 27 miles. Measured near Parrish, that box holds 2,417 food rows,
+       * so a real private-dining room ranked #500 never reached the question.
+       *
+       * Same failure class as the cafés (v8.49) and Night Out (v8.97b):
+       * "identity ∩ anchor top-N is thin BY CONSTRUCTION" (lib/browseInventory.js).
+       *
+       * The predicate handed to the reader is birthdayRailMembership itself, so
+       * this file still holds no second opinion about what makes a birthday
+       * venue. The gifts rail is NOT part of it — a reward is admitted by exact
+       * place id below, never by a rail predicate.
+       *
+       * Unchanged: the 27-mile radius, `primaryOnly`, the photo requirement, and
+       * composeBirthdayRails' ranking.
+       */
+      const birthdayClaims = (place) => BIRTHDAY_RAIL_ORDER.find((id) => {
+        try { return birthdayRailMembership(id, place); } catch (e) { return false; }
+      }) || null;
+
       // One bounded attempt per read. Retrying the same cold query doubled the
       // wait and made a 6s miss look like a broken page.
-      const pools = await Promise.all([
-        serveFromInventory("food", lat, lng, radiusM, n, undefined, broadRead),
-        serveFromInventory("nightlife", lat, lng, radiusM, n, undefined, broadRead),
+      const [pool, rewards] = await Promise.all([
+        fetchOwnedPool(lat, lng, {
+          categories: ["food", "nightlife"],
+          radiusMi: BIRTHDAY_WIDEN_MI,
+          primaryOnly: true,
+          deadlineMs: NET_DEADLINE_MS,
+          toPlace: (row, o) => toBirthdayPlace(invRowToPlace(row), o),
+          identity: birthdayClaims,
+        }),
         serveInventoryByPlaceIds(BIRTHDAY_REWARD_PLACE_IDS, lat, lng, radiusM, exactRead),
       ]);
 
       const seen = new Set();
       const places = [];
-      for (const raw of pools.flat()) {
-        const place = toBirthdayPlace(raw, origin);
+      // Rewards first: a governed birthday gift is admitted by id and must never
+      // be displaced by a dedupe against a broad row of the same place.
+      for (const raw of rewards.map((r) => toBirthdayPlace(r, origin)).concat(pool.places)) {
+        const place = raw;
         if (!place || seen.has(place.id)) continue;
         seen.add(place.id);
         if (!place.photo && !place.photoRef) continue;
@@ -134,14 +169,16 @@ export async function GET(request) {
       }
       const composed = composeBirthdayRails(places);
       if (composed && Array.isArray(composed.rails)) await attachCachedPhotos(composed.rails);
-      return composed;
+      // A partial owned pool (food read but nightlife failed, or the reverse)
+      // must not be cached as this town's answer — see completeAnswersOnly.
+      return { ...composed, degraded: !!pool.stats.degraded, sourceStats: pool.stats };
     }, {
       name: "birthday-rails",
-      usable: (value) => !!(value && Array.isArray(value.rails) && value.rails.some((rail) => rail.places?.length)),
+      usable: completeAnswersOnly((value) => Array.isArray(value.rails) && value.rails.some((rail) => rail.places?.length)),
     });
     const total = cached.value.rails.reduce((sum, rail) => sum + rail.places.length, 0);
     const headers = {
-      "cache-control": total ? "public, s-maxage=3600, stale-while-revalidate=86400" : "no-store",
+      "cache-control": total && !cached.value.degraded ? "public, s-maxage=3600, stale-while-revalidate=86400" : "no-store",
       "x-wayfind-fast-cache": cached.state,
     };
     if (railId) {

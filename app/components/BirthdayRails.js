@@ -144,7 +144,7 @@ export default function BirthdayRails({
     let dead = false;
     const [queryLat, queryLng] = key.split("|");
     const query = new URLSearchParams({ lat: queryLat, lng: queryLng, v: "2" });
-    fetchJsonWithDeadline("/api/birthday?" + query.toString())
+    fetchJsonWithDeadline("/api/birthday?" + query.toString(), { retries: 1 })
       .then((result) => {
         if (dead) return;
         if (!result || !Array.isArray(result.rails)) { setFailed(true); return; }
@@ -160,7 +160,7 @@ export default function BirthdayRails({
         }
       })
       .catch(() => { if (!dead) setFailed(true); });
-    return () => { dead = true; };
+    return () => { dead = true; asked.current = ""; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, retry]);
 

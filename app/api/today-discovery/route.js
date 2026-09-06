@@ -7,10 +7,11 @@ export const runtime = "nodejs";
 
 import { BROWSE_INVENTORY_N } from "../../../lib/browseInventory.js";
 import { NET_DEADLINE_MS, fetchDeadline } from "../../../lib/fetchDeadline.js";
-import { distMeters, serveFromInventory } from "../../../lib/inventoryServe.js";
-import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
+import { distMeters, invRowToPlace, serveFromInventory } from "../../../lib/inventoryServe.js";
+import { fetchOwnedPool } from "../../../lib/ownedPool.js";
+import { completeAnswersOnly, fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 import { nearestWater } from "../../../lib/waterStations.js";
-import { composeTodayDiscoveryRails, TODAY_NATURE_MI } from "../../../lib/todayDiscoveryRails.js";
+import { claimsTodayRail, composeTodayDiscoveryRails, TODAY_NATURE_MI } from "../../../lib/todayDiscoveryRails.js";
 import { windowRailAnswer } from "../../../lib/railResponse.js";
 import { pageOneRail } from "../../../lib/railPage.js";
 
@@ -92,20 +93,62 @@ export async function GET(request) {
   // v2 retires payloads composed before the venue-identity veto. FastCache is
   // shared beyond one deployment, so code fixes that change membership must
   // never inherit an earlier generation's answer.
-  const key = `today-discovery:v2:${geoCell(lat)}:${geoCell(lng)}:${cityKey}`;
+  const key = `today-discovery:v3:${geoCell(lat)}:${geoCell(lng)}:${cityKey}`;
   try {
     const cached = await fastCachedRail(key, async () => {
       const radiusM = TODAY_NATURE_MI * 1609.34;
       const options = { failLoud: true, primaryOnly: true, deadlineMs: NET_DEADLINE_MS };
-      const categories = ["attractions", "beach", "food", "nightlife", "hotels", "shopping"];
-      const pools = await Promise.all(categories.map((category) =>
-        serveFromInventory(category, lat, lng, radiusM, BROWSE_INVENTORY_N, undefined, options),
-      ));
       const origin = { lat, lng };
+      /**
+       * v8.98 — THE NATURE RAILS ASK BEFORE THE COST BOUND.
+       *
+       * Springs, Water, Parks, Nature, Golf and Pickleball are narrow, evidence-
+       * gated slices of `attractions` and `beach`, and they used to be asked
+       * AFTER `serveFromInventory(category, …, BROWSE_INVENTORY_N)` had already
+       * kept the top 400 of the whole category by Wayfind Score across a
+       * SEVENTY-FIVE MILE box. Measured 2026-09-05: that box holds 2,611
+       * attraction rows near Tampa, so more than eight in ten never reached the
+       * question — a real golf course or a real spring simply did not compete.
+       * Upstream of that, the shared reader's `limit=1000` carries no `order=`,
+       * so which 1,000 arrived was Postgres heap order and changed with any
+       * UPDATE. Same failure class as the cafés (v8.49) and Night Out (v8.97b).
+       *
+       * These two categories now come through the deterministic, exhaustive,
+       * identity-first reader, with claimsTodayRail — which runs the REAL
+       * composer over one row — as the predicate, so this route holds no second
+       * opinion about what a spring is. 2,722 rows near Tampa is three round
+       * trips, not a firehose.
+       *
+       * The other four categories are deliberately UNCHANGED. `food` reaches
+       * only `isBestFood`, which is a SCORE FLOOR (>= 82) inside 17 miles — a
+       * top-N-by-score read is aligned with a score-floor predicate rather than
+       * starving it — and nightlife/hotels/shopping are vetoed out of every
+       * activity rail by isTopActivity's own venue-identity check. Widening
+       * those reads would cost five more page-throughs of the largest categories
+       * in the library to recover rows the rails cannot use.
+       */
+      const IDENTITY_FIRST = ["attractions", "beach"];
+      const broadCategories = ["food", "nightlife", "hotels", "shopping"];
+      const [narrow, ...pools] = await Promise.all([
+        fetchOwnedPool(lat, lng, {
+          categories: IDENTITY_FIRST,
+          radiusMi: TODAY_NATURE_MI,
+          primaryOnly: true,
+          deadlineMs: NET_DEADLINE_MS,
+          toPlace: (row, o) => toPlace(invRowToPlace(row), o, row.category === "beach" ? "beach" : "attractions"),
+          identity: (place) => claimsTodayRail(place, { city }),
+        }),
+        ...broadCategories.map((category) =>
+          serveFromInventory(category, lat, lng, radiusM, BROWSE_INVENTORY_N, undefined, options)),
+      ]);
       const byId = new Map();
+      for (const place of narrow.places) {
+        if (!place || (!place.photo && !place.photoRef)) continue;
+        if (!byId.has(place.id)) byId.set(place.id, place);
+      }
       pools.forEach((pool, index) => {
         for (const raw of pool) {
-          const place = toPlace(raw, origin, categories[index]);
+          const place = toPlace(raw, origin, broadCategories[index]);
           if (!place || (!place.photo && !place.photoRef)) continue;
           const prior = byId.get(place.id);
           if (!prior) byId.set(place.id, place);
@@ -113,14 +156,16 @@ export async function GET(request) {
         }
       });
       const places = await attachWater([...byId.values()]);
-      return composeTodayDiscoveryRails(places, { city });
+      // A partial owned pool (one of attractions/beach failed to read) must not
+      // be cached as this town's answer — see completeAnswersOnly below.
+      return { ...composeTodayDiscoveryRails(places, { city }), degraded: !!narrow.stats.degraded, sourceStats: narrow.stats };
     }, {
       name: "today-discovery",
-      usable: (value) => !!value?.rails?.some((rail) => rail.places?.length),
+      usable: completeAnswersOnly((value) => value.rails?.some((rail) => rail.places?.length)),
     });
     const total = cached.value.rails.reduce((sum, rail) => sum + rail.places.length, 0);
     const headers = {
-      "cache-control": total ? "public, s-maxage=3600, stale-while-revalidate=86400" : "no-store",
+      "cache-control": total && !cached.value.degraded ? "public, s-maxage=3600, stale-while-revalidate=86400" : "no-store",
       "x-wayfind-fast-cache": cached.state,
     };
     if (railId) {

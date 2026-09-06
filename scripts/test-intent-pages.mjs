@@ -96,7 +96,20 @@ ok(!home.includes("setFamilyHeroImg"), "the owned family artwork no longer trigg
 // that both calls exist — the regression was valid code in the wrong order.
 {
   const firstRankedPaint = ic.indexOf("setRows(ranked)");
-  const editorialRead = ic.indexOf('.from("wf_editorial")');
+  // Match the editorial read by its ROLE, not by one literal table name. On
+  // 2026-09-05 every serving path moved from wf_editorial to the gated view
+  // wf_editorial_servable, and this assertion went red purely because the name
+  // changed — the ordering it protects was never violated. CLAUDE.md: when a
+  // guard goes red because code moved, follow the code; deleting the assertion
+  // re-opens whatever it was written for. The regex accepts either name so the
+  // ordering invariant survives the rename, and a POSITIVE CONTROL below proves
+  // it still matches something rather than silently returning -1 forever.
+  const EDITORIAL_READ_RX = /\.from\(\s*["']wf_editorial(?:_servable)?["']\s*\)/;
+  ok(EDITORIAL_READ_RX.test('.from("wf_editorial")') && EDITORIAL_READ_RX.test('.from("wf_editorial_servable")'),
+    "POSITIVE CONTROL: the editorial-read probe matches both the raw table and the gated view, so this ordering check cannot rot into -1 when the source is renamed");
+  const editorialMatch = ic.match(EDITORIAL_READ_RX);
+  const editorialRead = editorialMatch ? editorialMatch.index : -1;
+  ok(editorialRead > -1, "IntentPageClient actually reads editorial at all (a -1 here would make the ordering assertion below vacuously false and unfixable by reordering)");
   const atlasRead = ic.indexOf('fetch("/api/known-for"');
   ok(firstRankedPaint > -1, "intent pages publish the minimum viable ranked list");
   ok(editorialRead > firstRankedPaint && atlasRead > firstRankedPaint,

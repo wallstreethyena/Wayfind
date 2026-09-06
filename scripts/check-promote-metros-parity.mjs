@@ -46,6 +46,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const MIGRATIONS = [
   "supabase/migrations/20260813_wf_promote_metros.sql",
   "supabase/migrations/20260902_wf_promote_global_bucket_opt_in.sql",
+  "supabase/migrations/20260906_wf_promote_existing_metros_mirror.sql",
 ];
 let fails = 0;
 const ok = (cond, msg) => { if (!cond) { console.error("  FAIL: " + msg); fails++; } };

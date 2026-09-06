@@ -29,7 +29,7 @@ async function editorialsFor(ids) {
   const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
   if (!url || !anon || !ids.length) return {};
   try {
-    const r = await fetch(url + "/rest/v1/wf_editorial?verified=is.true&place_id=in.(" + ids.map(encodeURIComponent).join(",") + ")", {
+    const r = await fetch(url + "/rest/v1/wf_editorial_servable?verified=is.true&place_id=in.(" + ids.map(encodeURIComponent).join(",") + ")", {
       headers: { apikey: anon, Authorization: "Bearer " + anon },
       next: { revalidate: 3600 },
     });

@@ -14,7 +14,7 @@
 // poster/rail endpoint speaks (lib/railPage.js). This replaces the old
 // "Load every ranked option" button, which fetched all ~130 rows for every
 // rail in one blob the instant a reader tapped it.
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import RailCard, { RailDots, RailNav } from "./RailCard";
 import { directionsUrl } from "./kit";
 import { toHookLine } from "../../lib/editorialHook";
@@ -55,6 +55,54 @@ function NightOutRailSection({
         : <p style={{ margin: "8px 0 0", fontSize: 13, color: C.muted }}>No verified event or venue within 27 miles clears this intent yet. Wayfind will not fill it with a look-alike.</p>}
     </section>
   );
+  // ONE VERIFIED OPTION IS NOT A SHELF (v8.97c).
+  //
+  // A horizontal rail with a single card promises a choice and delivers one,
+  // and it reads worse than the honest empty state directly above. Measured at
+  // Parrish AFTER the retrieval fix: Dinner + Entertainment really does have
+  // exactly one qualifying place within 27 miles, so this is now genuine
+  // scarcity rather than the candidate starvation that used to produce it.
+  //
+  // The answer is presentation, never data. Nothing is padded, nothing is
+  // promoted from a neighbouring rail, and no predicate is loosened to find a
+  // second card — it says what it is: the one place that clears this intent.
+  // A rail whose thinness is a RETRIEVAL bug must be fixed upstream; this
+  // branch is only ever reached when the full owned pool really did yield one.
+  const soloItem = count === 1 && eventCards.length === 0 && items.length === 1 ? items[0] : null;
+  if (soloItem) {
+    const type = prettyType(soloItem.primaryType || soloItem.primary_type || soloItem.category);
+    const href = directionsUrl(soloItem);
+    return (
+      <section aria-label={rail.title} style={{ marginTop: 22 }} data-rail-solo={rail.id}>
+        <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 850, color: C.text }}>{rail.title}</h2>
+        <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>{rail.deck}</p>
+        <p style={{ margin: "6px 0 10px", fontSize: 12.5, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase", color: "#FB923C" }}>
+          Best match tonight — the only place within 27 miles that clears this
+        </p>
+        <RailCard className="wf-exploding-primary wf-rail-solo"
+          photo={cardImageSrc(soloItem, 640) || null} place={soloItem}
+          title={soloItem.name} eyebrow={type} rank={1}
+          score={toDisplayScore(wayfindScore(soloItem.rating, soloItem.reviews))}
+          facts={[
+            soloItem.reviews ? compact(soloItem.reviews) + " reviews" : null,
+            priceLabel(soloItem.priceLevel != null ? soloItem.priceLevel : soloItem.priceNum) || null,
+            Number.isFinite(soloItem.distMi) ? soloItem.distMi + " mi" : null,
+          ].filter(Boolean)}
+          take={toHookLine(soloItem.editorial, soloItem.name) || null}
+          cta={href ? { label: "Directions ↗", href, external: true } : null}
+          ariaLabel={`Open ${soloItem.name}`}
+          onOpen={onOpenPlace ? () => onOpenPlace(soloItem) : undefined}
+          saved={isSaved ? !!isSaved(soloItem.id) : undefined}
+          liked={isLiked ? !!isLiked(soloItem.id) : liked ? !!liked[soloItem.id] : undefined}
+          disliked={isDisliked ? !!isDisliked(soloItem.id) : disliked ? !!disliked[soloItem.id] : undefined}
+          onSave={onSave ? (event) => onSave(event, soloItem) : undefined}
+          onLike={onLike ? (event) => onLike(event, soloItem) : undefined}
+          onDislike={onDislike ? (event) => onDislike(event, soloItem) : undefined}
+          onShare={onShare ? () => onShare(soloItem, { city }) : undefined} />
+      </section>
+    );
+  }
+
   return (
     <section aria-label={rail.title} style={{ marginTop: 22 }}>
       <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 850, color: C.text }}>{rail.title}</h2>
@@ -108,12 +156,11 @@ export default function NightOutRails({
   onSave, onLike, onDislike, onShare,
 }) {
   const fallback = useMemo(() => composeNightOutRails([], places, center || {}), [places, center]);
-  const [remote, setRemote] = useState(null);
+  const [remoteResult, setRemote] = useState(null);
   const [failed, setFailed] = useState(false);
   const [retry, setRetry] = useState(0);
-  const asked = useRef("");
-  const lat = Number(center?.lat);
-  const lng = Number(center?.lng);
+  const lat = center && Number.isFinite(center.lat) ? center.lat : null;
+  const lng = center && Number.isFinite(center.lng) ? center.lng : null;
   // The bulk request still runs, unchanged: it hydrates the fail-soft
   // fallback path and gives every rail its page-0 SEED (see
   // NightOutRailSection above), which is what keeps first paint exactly as
@@ -121,20 +168,27 @@ export default function NightOutRails({
   // ten cards.
   const key = active && Number.isFinite(lat) && Number.isFinite(lng) ? `${lat.toFixed(2)}|${lng.toFixed(2)}|${retry}` : "";
   useEffect(() => {
-    if (!key || asked.current === key) return;
-    asked.current = key;
+    if (!key) return;
     let dead = false;
+    setRemote(null);
     setFailed(false);
-    const query = new URLSearchParams({ lat: lat.toFixed(2), lng: lng.toFixed(2) });
-    fetchJsonWithDeadline("/api/night-out?" + query.toString())
-      .then((value) => { if (!dead && Array.isArray(value?.rails)) setRemote(value); })
+    const [queryLat, queryLng] = key.split("|");
+    const query = new URLSearchParams({ lat: queryLat, lng: queryLng });
+    fetchJsonWithDeadline("/api/night-out?" + query.toString(), { retries: 1 })
+      .then((value) => {
+        if (dead) return;
+        if (!Array.isArray(value?.rails)) { setFailed(true); return; }
+        setRemote({ key, value });
+      })
       .catch(() => { if (!dead) setFailed(true); });
     return () => { dead = true; };
-  }, [key, lat, lng]);
+  }, [key]);
+  const remote = remoteResult?.key === key ? remoteResult.value : null;
   const payload = remote || fallback;
   const eventSurface = active && eventsSlot ? eventsSlot("night-out") : null;
 
   if (!active) return null;
+  if (!key) return <p style={{ color: C.muted, fontSize: 13 }}>Choose a location to see Night Out places near you.</p>;
 
   if (!remote && !failed && !payload.rails.some((rail) => rail.places.length)) {
     return <div role="status" aria-busy="true" aria-label="Building Night Out">{[0, 1, 2].map((index) => <div key={index} className="wf-sk" style={{ height: 88, borderRadius: 14, marginBottom: 12, background: "#0B0E15" }} />)}</div>;
