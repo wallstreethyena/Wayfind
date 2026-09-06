@@ -48,8 +48,6 @@ import { wayfindScore } from "../../../lib/wayfindScore";
  * Reads via REST rather than a client library so this stays server-safe.
  */
 async function inventorySocial(placeName) {
-  // SSG: skip the ilike storm. Editorial shell still renders; ISR fills proof.
-  if (isSsgBuild()) return "unconfigured";
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
   const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
   const name = String(placeName || "").trim();
@@ -60,6 +58,19 @@ async function inventorySocial(placeName) {
   // doctrine: absent = feature off), not a degraded lookup — return a
   // distinct sentinel so the caller can log it quietly, once, and keep the
   // loud console.error for lookups that fail WITH keys present.
+  //
+  // 2026-09-06 (v8.99): this bailed on isSsgBuild() alone, which is a BUILD
+  // PHASE, not a credentials state — a wf_inventory read is a free Supabase
+  // REST call (this file's own budget comment two lines up), never a metered
+  // Google Places request, so there was never a cost reason to skip it when
+  // .env.local IS present. Every production `next build` on Vercel carries
+  // real Supabase env, so this ran "unconfigured" on every deploy and baked
+  // out guide pages with zero place cards until the first 900s revalidation
+  // caught up — proven: 0 real `.wf-place-card` elements in the prerendered
+  // HTML for things-to-do-sarasota with credentials present, non-zero after
+  // removing this line. The condition this guard now stands for is exactly
+  // what the log-spam fix actually needed: missing credentials, checked
+  // directly below, the same test the land-script worktrees still trip.
   if (!url || !anon) return "unconfigured";
   if (!name) return false;
   // The CTA's `place` can be a merchant string with qualifiers ("Gecko's Grill &
@@ -101,9 +112,12 @@ async function inventorySocial(placeName) {
 // gets no card rather than a stock photo. Same >=15 review floor as the social
 // path — below that a rating is noise.
 async function inventoryPlaceByStem(stem, near) {
-  if (isSsgBuild()) return null;
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
   const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
+  // 2026-09-06 (v8.99) — was `if (isSsgBuild()) return null`, the same
+  // phase-not-credentials bail as inventorySocial() above (see its comment).
+  // wf_inventory is a free Supabase read; the guard this line now enforces is
+  // "no URL/key", which the very next line already checked for.
   if (!url || !anon || !stem) return null;
   // v8.29.8 — THE APOSTROPHE (owner: "another blog that does not have the place
   // cards", screenshot of Gecko's Grill & Pub rendering as a bare button).
@@ -175,7 +189,13 @@ async function inventoryPlace(pick, near) {
   // ids) resolves on it directly: exact, no ilike ambiguity, no geo gate
   // needed (the id IS the identity). The name path below stays the fallback
   // for the older guides. Same >=15-review floor via the shared row shaper.
-  if (pick.placeId && !isSsgBuild()) {
+  //
+  // 2026-09-06 (v8.99) — dropped the `&& !isSsgBuild()` half of this
+  // condition. Same class of bug as inventorySocial()/inventoryPlaceByStem()
+  // above: a free wf_inventory read gated on build phase instead of the
+  // `url && anon` credential check two lines below, which already covers the
+  // land-script worktrees this was written to protect.
+  if (pick.placeId) {
     const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
     const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
     if (url && anon) {
@@ -251,10 +271,16 @@ async function inventoryPlace(pick, near) {
 // production error). Inventory already contains the score/photo/editorial
 // fields these modules need and costs no Places request.
 async function inventoryPlacesForRegion(region, limit = 80) {
-  if (isSsgBuild()) return [];
   const center = regionCoords(region);
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
   const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
+  // 2026-09-06 (v8.99) — was `if (isSsgBuild()) return []`. Both call sites
+  // below (the weather-fallback indoor rail and the region->landing bridge)
+  // keep their own `!isSsgBuild()` gate for a DIFFERENT, still-valid reason —
+  // baking a build-time weather read into a static page — so removing the
+  // bail here does not add a build-time call from either of them. This
+  // function's own condition is now what it always should have been: no
+  // Supabase credentials, checked directly below.
   if (!center || !url || !anon) return [];
   const pad = 0.75;
   const query = `lat=gte.${(center.lat - pad).toFixed(4)}&lat=lte.${(center.lat + pad).toFixed(4)}&lng=gte.${(center.lng - pad).toFixed(4)}&lng=lte.${(center.lng + pad).toFixed(4)}`;

@@ -26,14 +26,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 550,
-    "totalRegistryEntries": 551,
-    "guardsTxtLineCount": 549,
-    "guardsTxtReachedFileCount": 545,
+    "totalOnDiskGuardFiles": 551,
+    "totalRegistryEntries": 552,
+    "guardsTxtLineCount": 550,
+    "guardsTxtReachedFileCount": 546,
     "criticalCount": 65,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 364,
+      "CALL": 365,
       "RENDER": 43,
       "STRUCTURAL": 143,
       "OTHER": 1
@@ -3093,6 +3093,28 @@
         "detail": "Top-20 finding #19: CALL guard, 3 absence checks with no fixture proving the probes can fail."
       },
       "owner": "Llama (Editorial)"
+    },
+    {
+      "file": "scripts/check-guide-ssg-not-phase-gated.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 21,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
     },
     {
       "file": "scripts/check-guide-teasers.mjs",
@@ -9876,7 +9898,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 61,
+      "assertionCount": 81,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
@@ -10363,7 +10385,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 60,
+      "assertionCount": 64,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
@@ -11428,7 +11450,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 30,
+      "assertionCount": 35,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

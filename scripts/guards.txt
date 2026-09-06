@@ -232,6 +232,16 @@ node scripts/test-analytics.mjs
 node scripts/test-paid-landing.mjs
 node scripts/test-landing-inventory-ssg.mjs
 node scripts/test-eat-ssg-failsoft.mjs
+
+# v8.99 (2026-09-06) — every /guides/[slug] page baked out with ZERO place
+# cards on every production deploy for up to 900s: inventorySocial(),
+# inventoryPlaceByStem(), inventoryPlace()'s placeId path, and
+# inventoryPlacesForRegion() bailed on isSsgBuild() alone (a build PHASE),
+# not on missing Supabase credentials, for a read that is FREE. This CALLS
+# the four functions (extracted out of the JSX page they live in) under a
+# real production-build phase with/without credentials, plus a red-prove
+# mutation, so this cannot silently return.
+node scripts/check-guide-ssg-not-phase-gated.mjs
 node scripts/test-activation.mjs
 node scripts/test-containment.mjs
 node scripts/test-experiment.mjs
