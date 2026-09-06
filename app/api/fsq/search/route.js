@@ -4,9 +4,12 @@
 // Fail-soft everywhere: no key, bad tier, or upstream error returns an empty
 // list and the app keeps running on its other sources.
 //
-// Supports BOTH Foursquare key generations: the legacy v3 API (fsq3… keys,
-// plain Authorization header) and the 2025+ Places API (service keys, Bearer
-// + X-Places-Api-Version). We try v3 first and fall through on 401/403.
+// Supports BOTH Foursquare key generations. The selection rule itself lives in
+// lib/foursquare.js and is shared with lib/popularity.js and
+// /api/sources/compare — this route used to hand-roll its own copy that fell
+// through only on 401/403, so when v3 was sunset (2026-05-15) and began
+// answering 429 the fallthrough never fired and this endpoint returned an
+// empty list for ~4 months while still looking configured.
 //
 // HONESTY / TIER NOTE: rating, stats, price, hours, and photos are Foursquare
 // "rich data" fields — some plans return them as null or reject the request.
@@ -16,6 +19,7 @@
 // keep this to one request per search; revisit if the plan includes them.
 export const runtime = "nodejs";
 import { cget, cset, DAY } from "../../../../lib/serverCache";
+import { fsqSearch, fsqOutcomeLabel } from "../../../../lib/foursquare";
 
 const getKey = () => ((process.env["FOURSQUARE_API_KEY"] || "").trim());
 
@@ -26,19 +30,13 @@ const getKey = () => ((process.env["FOURSQUARE_API_KEY"] || "").trim());
 const FSQ_TTL_MS = 30 * DAY;
 
 const FIELDS = "fsq_id,name,geocodes,location,categories,distance,rating,stats,price,hours,photos";
+// A diagnostic must never be cacheable anywhere: not the CDN, not a proxy, not
+// the browser. Applies to 401s too, so an unauthorised answer cannot be served
+// from a cache to a later authorised caller (or vice versa).
+const NO_STORE = { "Cache-Control": "no-store" };
+// The probe's one fixed query: Sarasota FL, 20km, five restaurants.
+const PROBE_QUERY = new URLSearchParams({ ll: "27.34,-82.53", radius: "20000", query: "restaurants", limit: "5" }).toString();
 const PRICE = { 1: "$", 2: "$$", 3: "$$$", 4: "$$$$" };
-
-async function fsqFetch(params, key) {
-  let r = await fetch("https://api.foursquare.com/v3/places/search?" + params + "&fields=" + encodeURIComponent(FIELDS), {
-    headers: { Authorization: key, Accept: "application/json" },
-  });
-  if (r.status === 401 || r.status === 403) {
-    r = await fetch("https://places-api.foursquare.com/places/search?" + params, {
-      headers: { Authorization: "Bearer " + key, "X-Places-Api-Version": "2025-06-17", Accept: "application/json" },
-    });
-  }
-  return r;
-}
 
 // Normalize one Foursquare place (either API generation) into the app shape
 // lib/google.js normalize() produces. Ratings: Foursquare scores 0–10; the
@@ -85,23 +83,58 @@ export async function GET(req) {
   const KEY = getKey();
 
   if (searchParams.get("probe") === "1") {
+    // OPERATOR-ONLY. This diagnostic performs a REAL provider request, so an
+    // anonymous caller looping it burns Foursquare quota — the same cost-DoS
+    // shape middleware.js exists for, one layer in. Gated on CRON_SECRET via
+    // Bearer or ?key=, the same operator contract /api/sources/compare and
+    // /api/ta/place?probe=2 already use, and FAIL-CLOSED: an unset secret
+    // returns 401 rather than opening the endpoint.
+    // BEARER ONLY — deliberately NOT the `?key=` form used elsewhere in this
+    // repo. A secret in a query string leaks into access logs, browser history,
+    // proxies, analytics and any copied link; the header does not. The existing
+    // `?key=` routes are a separate, recorded finding
+    // (docs/audits/FINDING-query-string-secrets.md) and are NOT migrated here.
+    //
+    // Fail-closed on all three: no secret configured, no header, wrong header.
+    const secret = process.env.CRON_SECRET;
+    const auth = req.headers.get("authorization") || "";
+    if (!secret || auth !== "Bearer " + secret) {
+      return Response.json({ error: "unauthorized" }, { status: 401, headers: NO_STORE });
+    }
     // Diagnostic: booleans + upstream status + which rich fields came back.
-    if (!KEY) return Response.json({ hasKey: false });
+    // NEVER echoes the credential or any request authorization header.
+    if (!KEY) return Response.json({ hasKey: false }, { headers: NO_STORE });
     try {
-      const params = new URLSearchParams({ ll: "27.34,-82.53", radius: "20000", query: "restaurants", limit: "5" }).toString();
-      const r = await fsqFetch(params, KEY);
-      let gotRating = false, gotPhotos = false, gotPrice = false, n = 0;
-      if (r.ok) {
-        const d = await r.json();
-        const arr = (d && d.results) || [];
-        n = arr.length;
-        gotRating = arr.some((x) => typeof x.rating === "number");
-        gotPhotos = arr.some((x) => Array.isArray(x.photos) && x.photos.length);
-        gotPrice = arr.some((x) => x.price != null);
-      }
-      return Response.json({ hasKey: true, upstreamStatus: r.status, results: n, richData: { rating: gotRating, photos: gotPhotos, price: gotPrice } });
+      // FIXED and BOUNDED. The caller supplies nothing: an authenticated
+      // operator must not be able to turn a diagnostic into a general-purpose
+      // provider-consumption endpoint by passing their own radius/query/limit.
+      const params = PROBE_QUERY;
+      const res = await fsqSearch(params, KEY, { fields: FIELDS });
+      const arr = res.results;
+      const n = arr.length;
+      const gotRating = arr.some((x) => typeof x.rating === "number");
+      const gotPhotos = arr.some((x) => Array.isArray(x.photos) && x.photos.length);
+      const gotPrice = arr.some((x) => x.price != null);
+      // generation + attempts make a dead source name itself: a probe that only
+      // said "0 results" is what let the post-sunset outage stay invisible.
+      // Sanitised diagnostics ONLY. Never the credential, never the caller's
+      // authorization header, never the raw upstream body (which can carry
+      // fields we have not vetted).
+      const sample = arr.slice(0, 3).map((x) => String(x.name || "").slice(0, 60)).filter(Boolean);
+      return Response.json({
+        hasKey: true,
+        upstreamStatus: res.status,
+        generation: res.generation,
+        outcome: fsqOutcomeLabel(res),
+        attempts: res.attempts,
+        empty: res.ok ? !!res.empty : null,
+        malformed: (res.attempts || []).some((a) => a.reason === "malformed"),
+        results: n,
+        sample,
+        richData: { rating: gotRating, photos: gotPhotos, price: gotPrice },
+      }, { headers: NO_STORE });
     } catch (e) {
-      return Response.json({ hasKey: true, upstreamStatus: "network_error" });
+      return Response.json({ hasKey: true, upstreamStatus: "network_error" }, { headers: NO_STORE });
     }
   }
 
@@ -120,20 +153,18 @@ export async function GET(req) {
   // On a limit/error, degrade to the last cached result instead of an empty list.
   const serveStale = async () => { const s = await cget(ck, { staleMs: FSQ_TTL_MS }); return s ? Response.json({ places: s.v, cached: true, stale: true }, { headers: EDGE }) : Response.json({ places: [] }); };
 
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 5000);
   try {
     if (forceErr) return await serveStale();
     const params = new URLSearchParams({ ll: lat.toFixed(4) + "," + lng.toFixed(4), radius: String(radius), query: q, limit: String(limit) }).toString();
-    const r = await fsqFetch(params, KEY);
-    if (!r.ok) return await serveStale();
-    const data = await r.json();
-    const places = ((data && data.results) || []).map(normalize).filter(Boolean);
+    // The shared rule owns host order, headers and its own 5s timeout, and it
+    // fails soft — an exhausted chain is ok:false with an empty results array,
+    // never a throw, so the stale-serve path below stays the only degradation.
+    const res = await fsqSearch(params, KEY, { fields: FIELDS });
+    if (!res.ok) return await serveStale();
+    const places = res.results.map(normalize).filter(Boolean);
     if (places.length) await cset(ck, places, FSQ_TTL_MS);
     return Response.json({ places, cached: false }, { headers: EDGE });
   } catch (e) {
     return await serveStale();
-  } finally {
-    clearTimeout(timer);
   }
 }

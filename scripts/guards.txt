@@ -1109,9 +1109,10 @@ node scripts/test-revenue-heartbeat.mjs
 # sound, that redaction removes fake secrets from every evidence field including
 # ones only run.mjs would think to redact, that the evidence writer red-proves
 # against real files on disk, and that the workflow is installed at its real path.
+node scripts/test-foursquare.mjs
 
-# Restored production safety workflows
 node scripts/check-canary-workflow-installed.mjs
+
 node scripts/check-synthetic-monitor-hermetic.mjs
 
 # v8.99 (owner 2026-09-06): every event page states the FULL address (street + town),
