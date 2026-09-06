@@ -12,7 +12,9 @@ import { isTicketmasterFamily } from "../../../../lib/affiliates.js";
 import { isEventWindow, EVENT_WINDOWS, windowRange, filterByWindow } from "../../../../lib/eventsList.js";
 import { LANDING_CITIES } from "../../../../lib/landing.js";
 import TicketButton from "./TicketButton.js";
-import { addressLine, directionsUrl } from "../../../../lib/placeWhere.js";
+import { addressLine, directionsUrl, websiteUrl } from "../../../../lib/placeWhere.js";
+import { eventPairings, pairingHref } from "../../../../lib/eventPairings.js";
+import EventWhere from "../../../components/EventWhere.js";
 import EventStory from "./EventStory.js";
 import EventPlan from "./EventPlan.js";
 import EventActions from "./EventActions.js";
@@ -201,6 +203,19 @@ export default async function EventPage({ params }) {
   // Pass the official URL. TicketButton wraps Ticketmaster-family through
   // /api/ticketmaster/go so the Impact URL never sits in the DOM (founder P0).
   const external = e.url || null;
+  // v8.99 — the "Official site" button in <EventWhere>. A Ticketmaster-family
+  // URL is an AFFILIATE destination and must only ever leave through
+  // TicketButton's /api/ticketmaster/go wrapper (founder P0 above), so it is
+  // never handed to the plain website button; the organiser sites the local
+  // seeds carry (frrm.org, mywatersideplace.com) are.
+  const site = external && !isTicketmasterFamily(external) ? websiteUrl({ url: external }) : null;
+  // Ranked nearby places for the map pins + numbered cards — [] when there is
+  // nothing honestly nearby (lib/eventPairings.js), and then no shelf at all.
+  const lat = e.lat == null || e.lat === "" ? NaN : Number(e.lat);
+  const lng = e.lng == null || e.lng === "" ? NaN : Number(e.lng);
+  const picks = Number.isFinite(lat) && Number.isFinite(lng)
+    ? (await eventPairings({ lat, lng, city: e.city, place_id: e.place_id || e.placeId }, {}).catch(() => [])).map((p) => ({ ...p, href: pairingHref(p) }))
+    : [];
   const storyEvent = eventStoryEvidence(e);
   const initialStory = eventStoryFallback(storyEvent);
   const jsonLd = {
@@ -241,18 +256,18 @@ export default async function EventPage({ params }) {
         </div>
         <EventActions event={{ ...e, url: `${CANON}/events/${params.city}/${params.slug}` }} />
         <EventStory eventId={e.id} initialStory={initialStory} />
+        {/* v8.99 — the shared WHERE block (address, official site, map with
+            your route, nearby picks). Same component as /florida-events. */}
         {where && (
-          <div style={{ marginTop: 14, background: "#131A24", border: "1px solid #263041", borderRadius: 14, padding: "13px 15px" }}>
-            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.6px", textTransform: "uppercase", color: "#94A3B8" }}>Venue</div>
-            <div style={{ fontSize: 15, fontWeight: 700, color: "#F1F5F9", marginTop: 3 }}>{e.venue || e.city}</div>
-            {/* The street, when the provider gave us one. Falls back to the
-                city — the old behaviour — so nothing that rendered before
-                stops rendering. */}
-            {streetLine && streetLine !== (e.venue || e.city)
-              ? <div style={{ fontSize: 13, color: "#94A3B8", marginTop: 1 }}>{streetLine}</div>
-              : (e.city && e.venue ? <div style={{ fontSize: 13, color: "#94A3B8", marginTop: 1 }}>{e.city}</div> : null)}
-            {mapsUrl && <a href={mapsUrl} target="_blank" rel="noreferrer" aria-label={"Get directions to " + (e.venue || e.name)} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", marginTop: 10, padding: "10px 16px", borderRadius: 11, background: A, border: `1px solid ${A}`, color: "#0D1117", fontWeight: 800, fontSize: 13.5, lineHeight: 1, textDecoration: "none" }}>{"\u2192 Get directions"}</a>}
-          </div>
+          <EventWhere
+            venue={e.venue || e.city}
+            address={streetLine}
+            directionsHref={mapsUrl}
+            website={site}
+            lat={lat}
+            lng={lng}
+            picks={picks}
+          />
         )}
         {e.description && (
           <details style={{ marginTop: 14, borderTop: "1px solid #263041", paddingTop: 12 }}>

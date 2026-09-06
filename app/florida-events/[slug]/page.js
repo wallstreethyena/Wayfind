@@ -10,10 +10,11 @@
 import { notFound } from "next/navigation";
 import { safeUrl } from "../../../lib/links.js";
 import { SITE_URL } from "../../../lib/site";
-import { fetchCuratedEvents, fetchCuratedEventBySlug, eventJsonLd, dateRangeLabel } from "../../../lib/curatedEvents";
+import { fetchCuratedEvents, fetchCuratedEventBySlug, eventJsonLd, dateRangeLabel, eventWebsiteUrl } from "../../../lib/curatedEvents";
 import { eventPhotos } from "../../../lib/eventPhotos";
 import { addressLine, directionsUrl } from "../../../lib/placeWhere";
 import ShareButton from "../../components/ShareButton";
+import EventWhere from "../../components/EventWhere";
 import { eventPairings, pairingHref } from "../../../lib/eventPairings";
 import { eventTicketCta } from "../../../lib/eventTicketDeals.js";
 import { clockLabel } from "../../../lib/fallPool.js";
@@ -153,14 +154,6 @@ const S = {
   pmeta: { fontSize: 12.5, color: "#8B949E", fontWeight: 600 },
 };
 
-// A real thumbnail for every nearby place: the stored Google photo ref when we
-// have one, otherwise the venue's first photo by place_id (the same reliable,
-// cached /api/photo path the event heroes use). Falls back to the gradient the
-// <img> background paints if a place genuinely has no photo.
-const thumbUrl = (p) => (p.photoRef
-  ? "/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&w=220"
-  : "/api/photo?place=" + encodeURIComponent(p.id) + "&w=220");
-
 export default async function CuratedEventPage({ params }) {
   // Throws on a failed read. notFound() is only the honest miss (row
   // absent or not displayable). An outage must not 404 a live event.
@@ -193,10 +186,16 @@ export default async function CuratedEventPage({ params }) {
   // "Directions" that drops you in the middle of a city is worse than none.
   const where = addressLine(e);
   const dirs = directionsUrl(e);
+  // v8.99 — the venue's own site, gated exactly like every other outbound
+  // link on the row (link_ok, quarantine, safeUrl). Rendered as a BUTTON
+  // beside directions, not a text link at the foot of the page — owner,
+  // 2026-09-06: "does not have the address nor the website for the place".
+  const site = eventWebsiteUrl(e) || null;
   const ticket = eventTicketCta(e.event_id, { surface: "florida_event_page" });
   // Real nearby places worth an outing, ranked by Wayfind — [] (and no section)
   // where there is nothing honestly nearby, so a page never shows a thin shelf.
-  const pairings = await eventPairings(e, {});
+  // They render inside <EventWhere> (numbered cards + the same numbers as pins).
+  const pairings = (await eventPairings(e, {})).map((p) => ({ ...p, href: pairingHref(p) }));
   const ld = eventJsonLd(e, { siteUrl: SITE_URL });
   const crumbs = {
     "@context": "https://schema.org", "@type": "BreadcrumbList",
@@ -255,6 +254,7 @@ export default async function CuratedEventPage({ params }) {
               : (!e.venue ? <div style={S.addr}>{e.city}, {e.state}</div> : null)}
           </span>
         </div>
+        {site ? <div style={S.row}><span style={S.k}>Website</span><span style={S.v}><a style={S.link} href={site} rel="nofollow noopener" target="_blank">{site.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}</a></span></div> : null}
         <div style={S.row}><span style={S.k}>Cost</span><span style={S.v}>{e.is_free ? "Free" : (e.price_band || "Ticketed — see the organiser")}</span></div>
         {e.minimum_age ? <div style={S.row}><span style={S.k}>Age</span><span style={S.v}>{e.minimum_age}+</span></div> : null}
         {e.duration_recommendation ? <div style={S.row}><span style={S.k}>Time needed</span><span style={S.v}>{e.duration_recommendation}</span></div> : null}
@@ -303,6 +303,20 @@ export default async function CuratedEventPage({ params }) {
         />
       </div>
 
+      {/* v8.99 — WHERE IT IS, ON A MAP, WITH YOUR ROUTE AND WHAT IS NEARBY.
+          One shared block (app/components/EventWhere.js) — the rule for every
+          event page, curated or live. Sits right under the answer box because
+          "where" is part of the answer. */}
+      <EventWhere
+        venue={e.venue || e.event_name}
+        address={where}
+        directionsHref={dirs}
+        website={site}
+        lat={e.lat == null || e.lat === "" ? NaN : Number(e.lat)}
+        lng={e.lng == null || e.lng === "" ? NaN : Number(e.lng)}
+        picks={pairings}
+      />
+
       {e.schedule_note ? <p style={S.note}>{e.schedule_note}</p> : null}
       {e.editorial_summary ? <p style={S.p}>{e.editorial_summary}</p> : null}
 
@@ -336,35 +350,14 @@ export default async function CuratedEventPage({ params }) {
       {e.insider_tip ? (<><h2 style={S.h2}>The move</h2><p style={S.p}>{e.insider_tip}</p></>) : null}
       {e.parking_tip ? (<><h2 style={S.h2}>Getting there</h2><p style={S.p}>{e.parking_tip}</p></>) : null}
       {e.fun_fact ? (<><h2 style={S.h2}>One thing worth knowing</h2><p style={S.p}>{e.fun_fact}</p></>) : null}
-      {(pairings.length > 0 || e.pairing) ? (
-        <>
-          <h2 style={S.h2}>Nearby &amp; worth it</h2>
-          {e.pairing ? <p style={S.p}>{e.pairing}</p> : null}
-          {pairings.length > 0 ? (
-            <>
-              <p style={{ ...S.p, marginBottom: 8 }}>Real places near {e.venue || e.city}, ranked by Wayfind &mdash; make it a full outing.</p>
-              <div style={S.pgrid}>
-                {pairings.map((p) => (
-                  <a key={p.id} href={pairingHref(p)} style={S.pcard}>
-                    <img src={thumbUrl(p)} alt="" loading="lazy" style={S.pthumb} />
-                    <div style={S.pbody}>
-                      <div style={S.pname}>{p.name}</div>
-                      <div style={S.pmetarow}>
-                        <span style={S.pscore}>{(p.wfScore / 10).toFixed(1)}</span>
-                        <span style={S.pmeta}>{p.cat}{p.distMi != null ? " · " + p.distMi.toFixed(1) + " mi" : ""}</span>
-                      </div>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </>
-          ) : null}
-        </>
-      ) : null}
+      {/* v8.99 — the ranked nearby cards moved INTO <EventWhere> above (numbered
+          to match the map pins). The editorial pairing sentence stays here as
+          the outing note it always was. */}
+      {e.pairing ? (<><h2 style={S.h2}>Make it an outing</h2><p style={S.p}>{e.pairing}</p></>) : null}
 
-      {safeUrl(e.official_event_url) ? (
+      {site ? (
         <p style={S.p}>
-          <a style={S.link} href={safeUrl(e.official_event_url)} rel="nofollow noopener" target="_blank">
+          <a style={S.link} href={site} rel="nofollow noopener" target="_blank">
             Official site — confirm dates and tickets before you travel
           </a>
         </p>
