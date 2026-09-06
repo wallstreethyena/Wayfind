@@ -404,6 +404,18 @@ def write_markdown(report: dict, path: Path) -> None:
         for f in c.get("failures") or []:
             a(f"- **FAILED**: {f}")
         a("")
+    a("## Watchlist — the same shape, not repaired in this pass")
+    a("")
+    a("A systemic audit fails by producing a clean report that quietly covers a smaller system than the")
+    a("reader thinks. These are written down for that reason.")
+    a("")
+    for w in report.get("watchlist", []):
+        a(f"**`{w['file']}`**")
+        a("")
+        a(f"- the cut: {w['cut']}")
+        a(f"- what it costs: {w['impact']}")
+        a(f"- why it was left: {w['why_deferred']}")
+        a("")
     a("## Raw reads with no `order=`")
     a("")
     a("An unordered `limit=` read returns an arbitrary slice in Postgres heap order, which any UPDATE "
@@ -414,6 +426,56 @@ def write_markdown(report: dict, path: Path) -> None:
         a(f"- `{h['file']}:{h['line']}` — {h.get('limit') or 'no limit found'}")
     a("")
     path.write_text("\n".join(L), encoding="utf8")
+
+
+
+# ---------------------------------------------------------------------------
+# THE WATCHLIST
+#
+# Owned-inventory consumers with the same SHAPE that this pass did NOT repair.
+# They are written down rather than left implicit, because the failure mode of a
+# systemic audit is a clean report that quietly covers a smaller system than the
+# reader thinks. Each entry names the file, what the cut is, and why it was left.
+# ---------------------------------------------------------------------------
+
+WATCHLIST = [
+    {
+        "file": "app/api/intent-candidates/route.js:70",
+        "cut": "per-category top-400, then a GLOBAL `places.slice(0, limit)` (400, max 600) by raw Wayfind Score before any rail identity runs",
+        "why_deferred": "its consumers apply their own identity downstream, and its largest consumer — Night Out — now has its own identity-first route, so this is the client's fail-soft fallback rather than the shipped answer",
+        "impact": "a niche venue that did not crack the global top-400 by score is invisible to every rail that would have wanted it",
+    },
+    {
+        "file": "lib/inventoryBoxBatch.js:93",
+        "cut": "a consolidated union read across a metro cluster's WIDE boxes with `limit = min(1000 * cities, 20000)` and NO `order=`",
+        "why_deferred": "it is a hot path feeding the landing pools, where the sub is always 'all' and no narrow identity follows — the damage is nondeterminism rather than starvation, and it deserves its own change with its own measurement",
+        "impact": "a cluster whose union exceeds the limit is ranked over an arbitrary heap slice, so the same query returns a different top list after any UPDATE",
+    },
+    {
+        "file": "lib/railsData.js:993-994",
+        "cut": "buildIdentityPool for breakfast and quickeats passes no `typeOv`, so its tier-2 read has no category or type filter at all: every row in the box, ordered by review count, top 300, and only then isBreakfastPlace / isQuickService",
+        "why_deferred": "ordered (so deterministic) and on a small radius, and it sits inside the rail-menu compute where a change needs its own latency measurement",
+        "impact": "a genuine breakfast cafe with modest review count, in a dense box holding 300 more-reviewed rows of any category, never reaches the predicate",
+    },
+    {
+        "file": "lib/nearbyPool.js:258",
+        "cut": "`limit=400` per ring ordered by review count, with identity applied after the read but before any further cut",
+        "why_deferred": "identity already runs before every count-based cut, and the ring ladder widens when the identity-passed count is short — the mildest form of the shape",
+        "impact": "a long-tail identity match outside the 400 most-reviewed rows of a dense ring is still excluded",
+    },
+    {
+        "file": "app/api/date-night/route.js",
+        "cut": "not a retrieval bug — the `shopping` rail is declared in DATE_NIGHT_RAIL_DEFS but no `shopping` category is ever read, so it can never populate",
+        "why_deferred": "found by this audit, fixed separately: adding a read is a product change, not a retrieval fix",
+        "impact": "one Date Night rail is permanently empty everywhere",
+    },
+    {
+        "file": "app/api/today-discovery/route.js",
+        "cut": "not a retrieval bug — the Instagram rail's evidence is a curated creator-video set, and the places carrying it are still reached only through the broad food/nightlife/hotels/shopping reads",
+        "why_deferred": "the honest fix is an exact place-id read for the curated set, like Birthday's rewards, which is a small change with its own proof",
+        "impact": "an Instagram-corroborated place outside the top 400 of its category is invisible to the rail built for it",
+    },
+]
 
 
 def main() -> int:
@@ -478,6 +540,7 @@ def main() -> int:
             "exactIdReads": len(exact_id_reads),
         },
         "controls": controls,
+        "watchlist": WATCHLIST,
         "surfaces": out_surfaces,
     }
     verdicts = {s["id"]: s["verdict"] for s in out_surfaces}
