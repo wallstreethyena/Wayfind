@@ -10,11 +10,34 @@ REQUIRE  complete nearby owned universe -> serviceability gates -> exact identit
          -> Wayfind Score -> output bound
 ```
 
+## What this change recovers
+
+| | distinct places | rail slots |
+|---|---|---|
+| pending in this change | **3287** | 5128 |
+| already shipped earlier | 104 | 364 |
+
+**Read the left column.** A rail slot is not a place: one restaurant that qualifies for two
+rails counts twice, and the metro boxes overlap, so summing slots counts the same venue
+several times over. Distinct place ids are the honest unit. Surfaces marked *already shipped*
+were repaired in an earlier PR and their recovery is in production already.
+
+## How the "shipped read" column is produced, and what is modelled
+
+Both columns read the SAME owned rows. Only the cut differs: the shipped column re-applies the
+cut the route used to make (the database window, the chip contract where the route carried one,
+then the real `rankInventory` top-N) to those same rows.
+
+One part of that is a **model, not a measurement**: the old `limit=1000` carried no `ORDER BY`,
+so which thousand Postgres returned is unknowable after the fact. It is modelled here as the
+first 1,000 by `place_id`. Any deterministic stand-in is arbitrary. What is *not* arbitrary is
+that a thousand arrived and the rest did not.
+
 ## Surfaces
 
 | surface | route | radius | categories | verdict |
 |---|---|---|---|---|
-| Tonight's Move (Night Out) | `app/api/night-out/route.js` | 27 mi | food, nightlife, attractions | **FIXED** |
+| Tonight's Move (Night Out) | `app/api/night-out/route.js` | 27 mi | food, nightlife, attractions | **FIXED** (shipped #1116 (v8.97b), merged 2026-09-05) |
 | Date Night | `app/api/date-night/route.js` | 27 mi | food, nightlife, attractions | **FIXED** |
 | Birthday | `app/api/birthday/route.js` | 27 mi | food, nightlife | **FIXED** |
 | Lunch in My City | `app/api/lunch-break/route.js` | 8 mi | food | **FIXED** |
@@ -23,14 +46,14 @@ REQUIRE  complete nearby owned universe -> serviceability gates -> exact identit
 ### Tonight's Move (Night Out) — FIXED
 
 - reads through lib/nightOutPool.js, which delegates to lib/ownedPool.js
-- measured at 27.5949,-82.4265: 292 qualifying under a cap-first read vs 427 under a complete owned read (+128)
+- measured at 27.5949,-82.4265: 291 qualifying under a cap-first read vs 426 under a complete owned read (+128)
 
-**parrish** — owned rows in box 4272, servable 4209, within 27mi 3531, qualifying 427
+**parrish** — owned rows in box 4272, servable 4209, within 27mi 3526, qualifying 426
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
 | clubs | 15 | 16 | +1 |
-| cocktails | 186 | 197 | +11 |
+| cocktails | 185 | 196 | +11 |
 | live-music | 23 | 58 | +35 |
 | dinner-entertainment | 0 | 2 | +2 |
 | date-dining | 11 | 29 | +18 |
@@ -42,7 +65,7 @@ REQUIRE  complete nearby owned universe -> serviceability gates -> exact identit
 
 Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `districts`
 
-**tampa** — owned rows in box 3234, servable 3192, within 27mi 2697, qualifying 344
+**tampa** — owned rows in box 3234, servable 3192, within 27mi 2695, qualifying 344
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
@@ -59,7 +82,7 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 
 Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `districts`
 
-**sarasota** — owned rows in box 2816, servable 2767, within 27mi 2071, qualifying 194
+**sarasota** — owned rows in box 2816, servable 2767, within 27mi 2066, qualifying 194
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
@@ -76,7 +99,7 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 
 Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `dinner-entertainment, districts`
 
-**orlando** — owned rows in box 2530, servable 2518, within 27mi 2425, qualifying 332
+**orlando** — owned rows in box 2530, servable 2518, within 27mi 2423, qualifying 332
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
@@ -91,7 +114,7 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 | night-tours | 1 | 2 | +1 |
 | social-play | 32 | 53 | +21 |
 
-**miami** — owned rows in box 2471, servable 2471, within 27mi 2262, qualifying 263
+**miami** — owned rows in box 2471, servable 2471, within 27mi 2260, qualifying 263
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
@@ -111,26 +134,26 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 ### Date Night — FIXED
 
 - 1 identity-first read(s) through lib/ownedPool.js at app/api/date-night/route.js (deterministic order=place_id.asc, paged to exhaustion, predicate applied before any cost bound)
-- measured at 27.5949,-82.4265: 501 qualifying under a cap-first read vs 1366 under a complete owned read (+864)
+- measured at 27.5949,-82.4265: 500 qualifying under a cap-first read vs 1364 under a complete owned read (+863)
 
-**parrish** — owned rows in box 4272, servable 4209, within 27mi 3531, qualifying 1366
+**parrish** — owned rows in box 4272, servable 4209, within 27mi 3526, qualifying 1364
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
-| Dinner | 150 | 734 | +584 |
+| Dinner | 150 | 733 | +583 |
 | Dessert | 129 | 311 | +182 |
 | Speakeasies | 1 | 2 | +1 |
 | Live Music | 1 | 9 | +8 |
 | Clubs | 6 | 6 | 0 |
 | Things To Do Together | 135 | 193 | +58 |
-| Museum | 79 | 110 | +31 |
+| Museum | 78 | 109 | +31 |
 | Shopping | 0 | 0 | 0 |
 
 `beach` is not measured here: weather-gated by dateNightBeachOk(); the audit passes no marine signals, so this rail is always hidden in the measurement
 
 Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `shopping`
 
-**tampa** — owned rows in box 3234, servable 3192, within 27mi 2697, qualifying 979
+**tampa** — owned rows in box 3234, servable 3192, within 27mi 2695, qualifying 979
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
@@ -147,11 +170,11 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 
 Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `shopping`
 
-**sarasota** — owned rows in box 2816, servable 2767, within 27mi 2071, qualifying 790
+**sarasota** — owned rows in box 2816, servable 2767, within 27mi 2066, qualifying 789
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
-| Dinner | 165 | 416 | +251 |
+| Dinner | 165 | 415 | +250 |
 | Dessert | 131 | 195 | +64 |
 | Speakeasies | 1 | 1 | 0 |
 | Live Music | 1 | 5 | +4 |
@@ -164,7 +187,7 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 
 Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `shopping`
 
-**orlando** — owned rows in box 2530, servable 2518, within 27mi 2425, qualifying 862
+**orlando** — owned rows in box 2530, servable 2518, within 27mi 2423, qualifying 862
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
@@ -179,7 +202,7 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 
 `beach` is not measured here: weather-gated by dateNightBeachOk(); the audit passes no marine signals, so this rail is always hidden in the measurement
 
-**miami** — owned rows in box 2471, servable 2471, within 27mi 2262, qualifying 547
+**miami** — owned rows in box 2471, servable 2471, within 27mi 2260, qualifying 546
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
@@ -189,7 +212,7 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 | Live Music | 0 | 3 | +3 |
 | Clubs | 9 | 9 | 0 |
 | Things To Do Together | 79 | 79 | 0 |
-| Museum | 71 | 71 | 0 |
+| Museum | 70 | 70 | 0 |
 | Shopping | 0 | 0 | 0 |
 
 `beach` is not measured here: weather-gated by dateNightBeachOk(); the audit passes no marine signals, so this rail is always hidden in the measurement
@@ -201,7 +224,7 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 - 1 identity-first read(s) through lib/ownedPool.js at app/api/birthday/route.js (deterministic order=place_id.asc, paged to exhaustion, predicate applied before any cost bound)
 - measured at 27.5949,-82.4265: 32 qualifying under a cap-first read vs 106 under a complete owned read (+73)
 
-**parrish** — owned rows in box 2832, servable 2803, within 27mi 2312, qualifying 106
+**parrish** — owned rows in box 2832, servable 2803, within 27mi 2308, qualifying 106
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
@@ -214,7 +237,7 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 
 `gifts` is not measured here: fed by an exact place-id read (BIRTHDAY_REWARD_PLACE_IDS), outside the candidate pool by design
 
-**tampa** — owned rows in box 2228, servable 2208, within 27mi 1914, qualifying 73
+**tampa** — owned rows in box 2228, servable 2208, within 27mi 1913, qualifying 73
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
@@ -227,7 +250,7 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 
 `gifts` is not measured here: fed by an exact place-id read (BIRTHDAY_REWARD_PLACE_IDS), outside the candidate pool by design
 
-**sarasota** — owned rows in box 1729, servable 1707, within 27mi 1254, qualifying 47
+**sarasota** — owned rows in box 1729, servable 1707, within 27mi 1250, qualifying 47
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
@@ -242,7 +265,7 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 
 Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `rooftops`
 
-**orlando** — owned rows in box 1695, servable 1690, within 27mi 1639, qualifying 86
+**orlando** — owned rows in box 1695, servable 1690, within 27mi 1637, qualifying 86
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
@@ -275,9 +298,9 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 ### Lunch in My City — FIXED
 
 - 1 identity-first read(s) through lib/ownedPool.js at app/api/lunch-break/route.js (deterministic order=place_id.asc, paged to exhaustion, predicate applied before any cost bound)
-- measured at 27.5949,-82.4265: 50 qualifying under a cap-first read vs 50 under a complete owned read (+0)
+- measured at 27.5949,-82.4265: 49 qualifying under a cap-first read vs 49 under a complete owned read (+0)
 
-**parrish** — owned rows in box 323, servable 316, within 8mi 127, qualifying 50
+**parrish** — owned rows in box 323, servable 316, within 8mi 124, qualifying 49
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
@@ -287,11 +310,11 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 | Mexican Bowls, Burritos & Tacos | 7 | 7 | 0 |
 | Pizza by the Slice & Quick Italian | 9 | 9 | 0 |
 | Smash Burgers & Burgers | 7 | 7 | 0 |
-| Healthy Fast Options | 9 | 9 | 0 |
+| Healthy Fast Options | 8 | 8 | 0 |
 
 Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `cuban-caribbean`
 
-**tampa** — owned rows in box 764, servable 758, within 8mi 576, qualifying 136
+**tampa** — owned rows in box 764, servable 758, within 8mi 565, qualifying 136
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
@@ -303,19 +326,19 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 | Smash Burgers & Burgers | 11 | 13 | +2 |
 | Healthy Fast Options | 20 | 27 | +7 |
 
-**sarasota** — owned rows in box 737, servable 731, within 8mi 545, qualifying 113
+**sarasota** — owned rows in box 737, servable 731, within 8mi 543, qualifying 112
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
 | American Deli & Sandwiches | 22 | 32 | +10 |
-| Chicken Favorites | 1 | 2 | +1 |
+| Chicken Favorites | 1 | 1 | 0 |
 | Cuban & Caribbean | 10 | 17 | +7 |
 | Mexican Bowls, Burritos & Tacos | 10 | 13 | +3 |
 | Pizza by the Slice & Quick Italian | 16 | 17 | +1 |
 | Smash Burgers & Burgers | 3 | 11 | +8 |
 | Healthy Fast Options | 11 | 21 | +10 |
 
-**orlando** — owned rows in box 872, servable 868, within 8mi 609, qualifying 141
+**orlando** — owned rows in box 872, servable 868, within 8mi 605, qualifying 140
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
@@ -323,11 +346,11 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 | Chicken Favorites | 7 | 10 | +3 |
 | Cuban & Caribbean | 11 | 34 | +23 |
 | Mexican Bowls, Burritos & Tacos | 26 | 27 | +1 |
-| Pizza by the Slice & Quick Italian | 10 | 17 | +7 |
+| Pizza by the Slice & Quick Italian | 10 | 16 | +6 |
 | Smash Burgers & Burgers | 5 | 12 | +7 |
 | Healthy Fast Options | 14 | 18 | +4 |
 
-**miami** — owned rows in box 841, servable 841, within 8mi 655, qualifying 120
+**miami** — owned rows in box 841, servable 841, within 8mi 654, qualifying 120
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
@@ -348,7 +371,7 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 - `shopping` is read broad BY DESIGN: vetoed out of every activity rail by isTopActivity's venue-identity check
 - measured at 27.5949,-82.4265: 449 qualifying under a cap-first read vs 987 under a complete owned read (+536)
 
-**parrish** — owned rows in box 4314, servable 4264, within 75mi 3296, qualifying 987
+**parrish** — owned rows in box 4314, servable 4264, within 75mi 3294, qualifying 987
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
@@ -363,7 +386,7 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 | Golf | 9 | 24 | +15 |
 | Pickleball | 3 | 6 | +3 |
 
-**tampa** — owned rows in box 4322, servable 4272, within 75mi 3744, qualifying 1403
+**tampa** — owned rows in box 4322, servable 4272, within 75mi 3743, qualifying 1403
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
@@ -393,13 +416,13 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 | Golf | 7 | 20 | +13 |
 | Pickleball | 3 | 5 | +2 |
 
-**orlando** — owned rows in box 4027, servable 3983, within 75mi 2437, qualifying 1216
+**orlando** — owned rows in box 4027, servable 3983, within 75mi 2435, qualifying 1215
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
 | Top Activities | 133 | 298 | +165 |
 | Instagram Places | 2 | 2 | 0 |
-| Florida Springs | 4 | 17 | +13 |
+| Florida Springs | 3 | 16 | +13 |
 | Best Beach Today | 8 | 8 | 0 |
 | Best of the Best Food | 449 | 470 | +21 |
 | Water Activities | 10 | 14 | +4 |
