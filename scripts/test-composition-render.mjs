@@ -94,8 +94,26 @@ ok(!/Bradenton|Sarasota|Lakewood Ranch/.test(orl),
     .map((c) => String(c.business));
   ok(sarNames.length > 0,
     "GEO positive control has sarasota-metro nightout inventory to look for — an empty list would make the next assertion vacuous");
-  ok(sarNames.some((n) => n && sar.includes(n)),
-    "GEO: the Sarasota strip MUST still show its own regional deals — the gate must not be a mute (positive control)");
+  // COMPARE ON THE SAME ENCODING. `sarNames` are raw registry strings; `sar` is
+  // rendered markup, where React escapes `&` and `'`. Every current
+  // sarasota-metro nightout deal is a "Gecko's Grill & Pub" and contains both,
+  // so a raw `includes` can never match one.
+  //
+  // This was latent from the day it was written and only bit on 2026-09-06: the
+  // Bradenton/Palmetto inventory the 2026-08-07 note describes had
+  // punctuation-free names that DID match raw, and it expired at the date
+  // rollover. The render was correct throughout — verified by printing the
+  // strip, which names all three Gecko's deals — and the guard was comparing
+  // escaped markup against unescaped text. A guard that fires on correct code is
+  // worse than no guard, and this one blocked main for every lane.
+  const escaped = (n) => n.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
+  ok(sarNames.some((n) => n && (sar.includes(n) || sar.includes(escaped(n)))),
+    `GEO: the Sarasota strip MUST still show its own regional deals — the gate must not be a mute (positive control). Looked for: ${sarNames.map((n) => n.slice(0, 40)).join(" | ")}`);
+  // …and the escaping must not have turned the check into a tautology: a name
+  // that is NOT in the registry must still be absent from the strip.
+  ok(!sar.includes(escaped("Bananas' Axe Cabana")) && !sar.includes("Bananas"),
+    "negative control: an Orlando business appears in the Sarasota strip — the escaped comparison matches too much");
 }
 // NO LOCATION: main's rule is that an unknown viewer does NOT filter — every
 // live deal for the intent shows. This test locks THAT, not a preference.
