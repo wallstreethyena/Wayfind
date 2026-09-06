@@ -1,0 +1,12 @@
+{
+  "owens-official-facts-20260906": {
+    "deriveFacts": true,
+    "displayOriginalVerdict": true,
+    "retainRawContent": false,
+    "commercialRedistribution": false,
+    "urls": ["https://owensfishcamp.com/"],
+    "reviewedAt": "2026-09-06T00:00:00Z",
+    "expiresAt": "2026-10-06T00:00:00Z",
+    "basis": "Narrow editorial use of independently checked public operational facts, expressed in original language with a source link. This is not a license to copy site prose, ingest reviews, or resell source content. Review again before expanding use."
+  }
+}
