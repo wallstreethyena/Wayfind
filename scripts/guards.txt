@@ -529,6 +529,10 @@ node scripts/test-promote-backfill.mjs
 node scripts/check-supabase-key-live.mjs
 node scripts/test-promote-decision.mjs
 node scripts/check-curated-events.mjs
+# A failed wf_events list read is not a healthy empty hub. Soft-fail → []
+# used to ISR-cache "Nothing verified…" + numberOfItems:0 while detail
+# pages and /api/events still had the same rows.
+node scripts/check-curated-events-read.mjs
 
 # V8 rail menu (the homepage's daypart rail). Two failure modes it exists for:
 # (a) a rail card pointing at a segmented route without its segment — 200,

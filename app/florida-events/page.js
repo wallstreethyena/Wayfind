@@ -5,9 +5,25 @@
 // here is hand-verified against a Tier 1 source and carries an editorial hook,
 // which is the whole difference between this page and a municipal calendar.
 import { SITE_URL } from "../../lib/site";
-import { fetchCuratedEvents, buildRail, dateRangeLabel, isEligible } from "../../lib/curatedEvents";
+import { isSsgBuild } from "../../lib/landingInventory";
+import { unstable_cache, unstable_noStore as noStore } from "next/cache";
+import {
+  fetchCuratedEvents,
+  dateRangeLabel,
+  floridaEventsHubPageModel,
+  FLORIDA_EVENTS_HUB_EMPTY_COPY,
+} from "../../lib/curatedEvents";
 
 export const revalidate = 3600;
+
+// Render at request time: a skipped build read must never become the first
+// cached page. Cache only validated rows for the same hourly lifetime. The
+// fresh inner read avoids a second, independently stale HTTP cache layer.
+const fetchHubEvents = unstable_cache(
+  () => fetchCuratedEvents({ fresh: true, signal: AbortSignal.timeout(8000) }),
+  ["florida-events-hub-validated-v1"],
+  { revalidate: 3600, tags: ["curated-events"] },
+);
 
 const TITLE = "Florida Events 2026: What's Actually Worth Going To";
 const DESC = "Verified dates for Florida's best festivals and events — Halloween Horror Nights, Fantasy Fest, Hulaween, EDC Orlando, Gasparilla and more. Checked against official sources, never rolled forward from last year.";
@@ -62,21 +78,24 @@ const S = {
 const RAILS = ["this-weekend", "spooky-season", "coming-up", "florida-icons", "major-music-festivals", "only-in-florida", "live-music", "bring-the-kids", "food-festivals"];
 
 export default async function FloridaEventsHub() {
-  const all = await fetchCuratedEvents();
+  noStore();
+  // Throws CuratedEventsUnavailableError on an outage. Do not catch — a
+  // failed list read must not render (or ISR-cache) the empty-success page.
+  const all = await fetchHubEvents();
   const now = new Date();
-  const ctx = { now, size: 8 };
-
-  const rails = RAILS.map((k) => buildRail(k, all, ctx)).filter(Boolean);
-  const eligible = all.filter((e) => isEligible(e, { now }));
+  const model = floridaEventsHubPageModel({ ok: true, rows: all }, {
+    now, railKeys: RAILS, ssg: isSsgBuild(),
+  });
 
   // ItemList on the hub; the individual Event schema lives on each event page,
-  // which is what Google asks for.
-  const jsonLd = {
+  // which is what Google asks for. Omitted on an SSG skip so next build cannot
+  // bake numberOfItems:0 as the ISR artifact of a read that never happened.
+  const jsonLd = model.skipped ? null : {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: TITLE,
-    numberOfItems: eligible.length,
-    itemListElement: eligible.slice(0, 30).map((e, i) => ({
+    numberOfItems: model.numberOfItems,
+    itemListElement: model.eligible.slice(0, 30).map((e, i) => ({
       "@type": "ListItem", position: i + 1, name: e.event_name,
       url: `${SITE_URL}/florida-events/${e.slug}`,
     })),
@@ -84,7 +103,7 @@ export default async function FloridaEventsHub() {
 
   return (
     <main style={S.page}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      {jsonLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} /> : null}
       <a style={S.back} href="/">&lsaquo; Back to Wayfind</a>
       <div style={S.kicker}>Wayfind Events</div>
       <h1 style={S.h1}>Florida Events</h1>
@@ -93,11 +112,11 @@ export default async function FloridaEventsHub() {
         announced its next edition, we say so rather than moving last year&rsquo;s date forward twelve months.
       </p>
 
-      {rails.length === 0 ? (
-        <p style={S.sub}>Nothing verified is coming up right now. Rather than pad this page, we have left it empty.</p>
+      {model.empty ? (
+        <p style={S.sub}>{FLORIDA_EVENTS_HUB_EMPTY_COPY}</p>
       ) : null}
 
-      {rails.map((rail) => (
+      {model.rails.map((rail) => (
         <section key={rail.key}>
           <div style={S.railTitle}>{rail.title}</div>
           {rail.subtitle ? <p style={S.railSub}>{rail.subtitle}</p> : null}
