@@ -100,6 +100,24 @@ const P = (over) => ({ id: "g_" + (over.name || "x"), displayName: { text: over.
   ok("categoryCounts tallies per category", c.hotels === 2 && c.attractions === 1);
 }
 
+// ── v8.99 (2026-09-06): primary_type is a serving key — never blank, never a broad parent on a beach ──
+{
+  const now = "2026-09-06T18:00:00.000Z";
+  const g = (over) => ({ id: "x", displayName: { text: "X" }, location: { latitude: 27.3, longitude: -82.5 }, businessStatus: "OPERATIONAL", ...over });
+  const ride = buildInventoryRow(g({ id: "r1", displayName: { text: "Slinky Dog Dash" }, types: ["tourist_attraction", "point_of_interest", "establishment"] }), "orlando", { nowIso: now }).row;
+  ok("no Google primaryType → first specific type (tourist_attraction)", ride && ride.primary_type === "tourist_attraction");
+  const cafe = buildInventoryRow(g({ id: "r2", displayName: { text: "Plaza Premium Lounge" }, types: ["restaurant", "food", "point_of_interest", "establishment"] }), "orlando", { nowIso: now }).row;
+  ok("no primaryType, [restaurant, food, …] → restaurant, never the generic `food`", cafe && cafe.primary_type === "restaurant");
+  const beachPark = buildInventoryRow(g({ id: "r3", displayName: { text: "Hollywood North Beach Park" }, primaryType: "park", types: ["park", "tourist_attraction", "point_of_interest", "establishment"] }), "broward", { nowIso: now }).row;
+  ok("beach category with a `park` primary is re-typed `beach`", beachPark && beachPark.category === "beach" && beachPark.primary_type === "beach");
+  const bare = buildInventoryRow(g({ id: "r4", displayName: { text: "Manasota Key Beach" }, types: ["point_of_interest", "establishment"] }), "florida", { nowIso: now }).row;
+  ok("name-recovered beach with only generic types gets primary_type `beach`", bare && bare.primary_type === "beach" && bare.needs_review === true);
+  const keep = buildInventoryRow(g({ id: "r5", displayName: { text: "Bocas Grill" }, primaryType: "latin_american_restaurant", types: ["latin_american_restaurant", "restaurant", "food"] }), "manatee-sarasota", { nowIso: now }).row;
+  ok("a real Google primaryType is kept verbatim", keep && keep.primary_type === "latin_american_restaurant");
+  const anchorRow = buildInventoryRow(g({ id: "r6", displayName: { text: "Anchor Beach" }, types: ["point_of_interest", "establishment"] }), "manatee-sarasota", { nowIso: now, anchor: { category: "beach", tags: ["beaches"] } }).row;
+  ok("an anchor row is normalised too", anchorRow && anchorRow.primary_type === "beach");
+}
+
 console.log(`\ntest-seed: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);
 console.log("test-seed: OK — re-classification, name-recovery flagging, anchor override, non-operational gate, dedup, diff, and grid all hold");
