@@ -19,7 +19,7 @@ import atlasCards from "../../../data/atlas/editorial-cards.json";
 import { mapWfEditorial } from "../../../lib/editorialRule";
 import { cardToEditorial, resolveAtlasId, atlasCardForName } from "../../../lib/atlasCards";
 import { editorialNameCandidates } from "../../../lib/editorialLookup";
-import { editorialServable, UNVERIFIABLE_NAME_ONLY } from "../../../lib/placeServable";
+import { approveCandidate } from "../../../lib/placeServable";
 
 export const dynamic = "force-dynamic";
 
@@ -66,41 +66,64 @@ export async function GET(req) {
   const id = String(u.searchParams.get("id") || "").trim();
   const rawName = String(u.searchParams.get("name") || "").slice(0, 140).trim();
   const rawAlso = String(u.searchParams.get("also") || "").slice(0, 400);
-  const allNames = editorialNameCandidates(rawName, rawAlso);
+  const names = editorialNameCandidates(rawName, rawAlso);
 
-  // THE GATE, BEFORE EVERY TIER (2026-09-05). It used to sit inside tier 2
-  // only, which meant tiers 1, 3 and 4 could recommend a place Wayfind does
-  // not serve — measured: 4 of the 264 Atlas cards already point at EXCLUDED,
-  // CLOSED_TEMPORARILY or absent places, and tier 1 returned them with no
-  // database call at all. One check, applied once, inherited by all four.
-  const gate = await editorialServable({ id, names: allNames });
-  if (!gate.ok) {
-    return NextResponse.json(
-      { none: true, refused: gate.reason },
-      { headers: HEADERS_REFUSED },
-    );
-  }
+  // PER-CANDIDATE APPROVAL (2026-09-05). The previous version ran one gate up
+  // front on the request's id or its first matching name, then let tier 3 and
+  // tier 4 iterate EVERY name candidate and return whichever card matched — a
+  // card keyed to a DIFFERENT place than the one approved. Checking one identity
+  // and serving another is not a gate.
+  //
+  // Now each tier resolves the editorial it is ABOUT TO RETURN to a canonical
+  // place and approves THAT place. `serve` is the only way a body leaves this
+  // route, so a tier cannot forget: the approval and the payload are one call.
+  const refuse = (reason) => NextResponse.json({ none: true, refused: reason }, { headers: HEADERS_REFUSED });
+  const serve = async (candidate, payload, headers) => {
+    const verdict = await approveCandidate(candidate);
+    return verdict.ok ? NextResponse.json(payload, { headers }) : refuse(verdict.reason);
+  };
 
   // Tier 1: the owner's Atlas card always wins — hand curation beats machine.
-  // Same-place aliases (review-same-place.tsv) resolve to the id that holds the card.
+  // Same-place aliases (review-same-place.tsv) resolve to the id that holds the
+  // card, so the card's OWN placeId is the identity judged, not the request's.
   const atlasId = id && (CARD_BY_ID.has(id) ? id : resolveAtlasId(id));
-  if (atlasId && CARD_BY_ID.has(atlasId)) return NextResponse.json({ editorial: cardToEditorial(CARD_BY_ID.get(atlasId)) }, { headers: HEADERS });
-  // Tier 2: the research fleet's verified card (wf_editorial), same shape.
+  if (atlasId && CARD_BY_ID.has(atlasId)) {
+    const card = CARD_BY_ID.get(atlasId);
+    return serve({ placeId: card.placeId || atlasId, name: card.name },
+      { editorial: cardToEditorial(card) }, HEADERS);
+  }
+
+  // Tier 2: the research fleet's verified card (wf_editorial_servable). The view
+  // already joins OPERATIONAL, but it does NOT know about the `excluded`
+  // boolean, so the row is still approved by place_id like every other tier.
   if (id) {
     const fleet = await wfEditorialFor(id);
-    if (fleet) return NextResponse.json({ editorial: fleet, sources: fleet.sources || [] }, { headers: HEADERS_LIVE });
+    if (fleet) {
+      return serve({ placeId: id, name: fleet.name || rawName },
+        { editorial: fleet, sources: fleet.sources || [] }, HEADERS_LIVE);
+    }
   }
-  const names = allNames;
+
   // Tier 3: Atlas by exact name — event/venue listings often arrive with a
   // different id than the card's key. Exact name only; never a fuzzy attach.
+  // The card carries its own placeId, and THAT is what gets approved.
   for (const n of names) {
     const byName = atlasCardForName(atlasCards, n);
-    if (byName) return NextResponse.json({ editorial: cardToEditorial(byName) }, { headers: HEADERS });
+    if (byName) {
+      return serve({ placeId: byName.placeId, name: byName.name || n },
+        { editorial: cardToEditorial(byName) }, HEADERS);
+    }
   }
+
   if (!names.length) return NextResponse.json({ none: true, count: EDITORIAL_COUNT }, { headers: HEADERS });
+
+  // Tier 4: the 295 handwritten entries, keyed by name. The content is KEPT and
+  // is what resolves the identity; it is simply withheld until that identity
+  // resolves to a place we serve. An unresolved name refuses — "we cannot verify
+  // it" does not establish that recommending it is safe.
   for (const n of names) {
     const e = editorialFor(n);
-    if (e) return NextResponse.json({ editorial: e }, { headers: HEADERS });
+    if (e) return serve({ placeId: null, name: e.name || n }, { editorial: e }, HEADERS);
   }
   return NextResponse.json({ none: true }, { headers: HEADERS });
 }

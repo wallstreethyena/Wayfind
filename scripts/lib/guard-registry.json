@@ -9186,7 +9186,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 16,
+      "assertionCount": 28,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

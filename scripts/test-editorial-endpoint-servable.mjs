@@ -42,7 +42,19 @@ process.env.NEXT_PUBLIC_SUPABASE_URL = "https://fixture.invalid";
 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "fixture-anon-key-not-a-secret";
 
 // ── THE FIXTURE ─────────────────────────────────────────────────────────────
-const state = { status: "OPERATIONAL", editorialRows: [], calls: [] };
+// Per-PLACE fixture, not one global status. The bug this file now covers is
+// "approve place A, serve place B", which a single-status fixture cannot express.
+const state = {
+  byId: new Map(),      // place_id -> { status, excluded }
+  byName: new Map(),    // name     -> { place_id, status, excluded }
+  editorialRows: [],
+  calls: [],
+  malformInventory: false, // return a PostgREST error envelope instead of an array
+};
+const setPlace = (placeId, name, row) => {
+  state.byId.set(placeId, { place_id: placeId, status: "OPERATIONAL", excluded: false, ...row });
+  if (name) state.byName.set(name, { place_id: placeId, status: "OPERATIONAL", excluded: false, ...row });
+};
 
 function jsonResponse(body) {
   return { ok: true, status: 200, json: async () => body };
@@ -57,10 +69,23 @@ globalThis.fetch = async (url) => {
   const u = String(url);
   state.calls.push(u);
   if (u.includes("/wf_inventory?")) {
-    return jsonResponse(state.status === null ? [] : [{ status: state.status }]);
+    // A PostgREST error is a JSON OBJECT, not an array, and json() parses it
+    // happily. The old gate read that as "no such place" and fell through to the
+    // allow-unverified branch. Modelled here so the refusal can be asserted.
+    if (state.malformInventory) return jsonResponse({ message: "syntax error", code: "42601" });
+    const idm = /place_id=eq\.([^&]+)/.exec(u);
+    const nm = /name=eq\.([^&]+)/.exec(u);
+    if (idm) { const r = state.byId.get(decodeURIComponent(idm[1])); return jsonResponse(r ? [r] : []); }
+    if (nm)  { const r = state.byName.get(decodeURIComponent(nm[1])); return jsonResponse(r ? [r] : []); }
+    return jsonResponse([]);
   }
   if (u.includes("/wf_editorial_servable?")) {
-    return jsonResponse(state.status === "OPERATIONAL" ? state.editorialRows : []);
+    // Model the real view: rows only while the place is OPERATIONAL.
+    const idm = /place_id=eq\.([^&]+)/.exec(u);
+    const pid = idm ? decodeURIComponent(idm[1]) : null;
+    const inv = pid ? state.byId.get(pid) : null;
+    const live = inv && inv.status === "OPERATIONAL";
+    return jsonResponse(live ? state.editorialRows : []);
   }
   if (u.includes("/wf_editorial?")) {
     throw new Error("the route read the RAW table — the read gate was bypassed");
@@ -68,12 +93,6 @@ globalThis.fetch = async (url) => {
   return jsonResponse([]);
 };
 
-// Loaded through the repo's own harness. Plain node cannot resolve a route's
-// `import { NextResponse } from "next/server"` (next's package.json has no bare
-// "server" export), so scripts/lib/jsxLoad.mjs supplies a REAL NextResponse
-// built on Node's native Response — not a shape mock. This is the same harness
-// the other route-calling guards use; it compiles and imports the REAL route
-// file, it does not re-implement it.
 const { loadComponent } = await import(new URL("./lib/jsxLoad.mjs", import.meta.url).href);
 const routeMod = await loadComponent(fileURLToPath(new URL("../app/api/editorial/route.js", import.meta.url)), ROOT);
 const GET = routeMod.GET;
@@ -96,100 +115,178 @@ const STATIC_NAMES = ["Mote Marine Laboratory & Aquarium", "The Ringling", "Sies
 const staticName = STATIC_NAMES.find((n) => editorialFor(n));
 ok(!!staticName, `a known static editorial entry was found to drive tier 4 (tried ${STATIC_NAMES.length})`);
 
+// ── FIXTURES ────────────────────────────────────────────────────────────────
+const CARD_ID = card.placeId;
+const CARD_NAME = card.name;
+// A second Atlas card with a DIFFERENT place — the "approve A, serve B" case.
+const other = atlasCards.find((c) => c && c.placeId && c.name && c.placeId !== CARD_ID);
+ok(!!other, "a SECOND distinct Atlas card exists, to drive the approve-one-serve-another case");
+
+const reset = () => {
+  state.byId.clear(); state.byName.clear();
+  state.editorialRows = []; state.malformInventory = false;
+};
+
 const TIERS = [
-  { n: 1, label: "Atlas card by place_id", qs: `id=${encodeURIComponent(card.placeId)}` },
-  { n: 2, label: "wf_editorial via the servable view", qs: "id=ChIJfixture-tier2", setup: () => {
+  { n: 1, label: "Atlas card by place_id", qs: `id=${encodeURIComponent(CARD_ID)}`,
+    place: () => setPlace(CARD_ID, CARD_NAME, {}) },
+  { n: 2, label: "wf_editorial via the servable view", qs: "id=ChIJfixture-tier2",
+    place: () => {
+      setPlace("ChIJfixture-tier2", "Fixture Two", {});
       state.editorialRows = [{ place_id: "ChIJfixture-tier2", hook: "A hook of at least twenty characters here.",
         why_here: "W".repeat(200), local_tip: "Ask for the corner table.", facts: [], verified: true }];
     } },
-  { n: 3, label: "Atlas card by exact name", qs: `name=${encodeURIComponent(card.name)}` },
-  { n: 4, label: "static lib/editorial.js by name", qs: staticName ? `name=${encodeURIComponent(staticName)}` : "name=none" },
+  { n: 3, label: "Atlas card by exact name", qs: `name=${encodeURIComponent(CARD_NAME)}`,
+    place: () => setPlace(CARD_ID, CARD_NAME, {}) },
+  { n: 4, label: "static lib/editorial.js by name", qs: `name=${encodeURIComponent(staticName)}`,
+    place: () => setPlace("ChIJfixture-static", staticName, {}) },
 ];
 
 // ── 1. OPEN: every tier SERVES (the positive control) ───────────────────────
-// Without this, "nothing was served" below is equally consistent with an
-// endpoint that serves nothing for anything, which would pass every refusal
-// assertion while protecting no one.
 const openResults = {};
 for (const t of TIERS) {
-  state.status = "OPERATIONAL";
-  state.editorialRows = [];
-  if (t.setup) t.setup();
+  reset(); t.place();
   const r = await call(t.qs);
   openResults[t.n] = r;
-  ok(r.served, `POSITIVE CONTROL tier ${t.n} (${t.label}): serves editorial while the place is OPERATIONAL (got ${JSON.stringify(r.body).slice(0, 90)})`);
+  ok(r.served, `POSITIVE CONTROL tier ${t.n} (${t.label}): serves while OPERATIONAL and not excluded (got ${JSON.stringify(r.body).slice(0, 100)})`);
 }
 
-// ── 2. CLOSED: every tier REFUSES ──────────────────────────────────────────
-for (const closedStatus of ["CLOSED_PERMANENTLY", "CLOSED_TEMPORARILY", "EXCLUDED"]) {
+// ── 2. CLOSED / EXCLUDED-BY-STATUS: every tier REFUSES ─────────────────────
+for (const bad of ["CLOSED_PERMANENTLY", "CLOSED_TEMPORARILY", "EXCLUDED"]) {
   for (const t of TIERS) {
-    state.status = closedStatus;
-    state.editorialRows = [];
-    if (t.setup) t.setup();
+    reset(); t.place();
+    for (const [k, v] of state.byId) state.byId.set(k, { ...v, status: bad });
+    for (const [k, v] of state.byName) state.byName.set(k, { ...v, status: bad });
     const r = await call(t.qs);
-    ok(!r.served,
-      `tier ${t.n} (${t.label}): serves NOTHING when the place is ${closedStatus} — got ${JSON.stringify(r.body).slice(0, 120)}`);
-    ok(r.body && r.body.none === true,
-      `tier ${t.n} (${closedStatus}): answers an explicit none, not an empty 200 a client might render as a blank card`);
+    ok(!r.served, `tier ${t.n} (${t.label}): serves NOTHING when the place is ${bad} — got ${JSON.stringify(r.body).slice(0, 110)}`);
+    ok(r.body && r.body.none === true, `tier ${t.n} (${bad}): answers an explicit none, not an empty 200`);
   }
 }
 
-// A place absent from inventory entirely, addressed by id, is refused too.
-for (const t of TIERS.filter((x) => x.qs.startsWith("id="))) {
-  state.status = null; // fixture: no inventory row
-  state.editorialRows = [];
-  if (t.setup) t.setup();
+// ── 3. OPERATIONAL BUT `excluded = true` ───────────────────────────────────
+// wf_inventory carries BOTH `status` (text) and `excluded` (boolean). The gate
+// used to select only `status`, so this row would have been approved. Measured
+// 2026-09-05: production has 0 such rows, so this is a LATENT hole and the
+// fixture is necessarily synthetic — which is the reason to test it, not a
+// reason to skip it.
+for (const t of TIERS) {
+  reset(); t.place();
+  for (const [k, v] of state.byId) state.byId.set(k, { ...v, status: "OPERATIONAL", excluded: true });
+  for (const [k, v] of state.byName) state.byName.set(k, { ...v, status: "OPERATIONAL", excluded: true });
   const r = await call(t.qs);
-  ok(!r.served, `tier ${t.n}: an id with NO inventory row is refused (${JSON.stringify(r.body).slice(0, 80)})`);
-  ok(r.body.refused === "refused-unknown-id", `tier ${t.n}: …and says why (${r.body.refused})`);
+  ok(!r.served, `tier ${t.n} (${t.label}): an OPERATIONAL row with excluded=true is REFUSED (got ${JSON.stringify(r.body).slice(0, 110)})`);
+  ok(r.body.refused === "refused-excluded", `tier ${t.n}: …and names the exclusion (${r.body.refused})`);
 }
 
-// ── 3. THE LOOKUP FAILING MUST FAIL CLOSED ─────────────────────────────────
+// ── 4. APPROVE ONE IDENTITY, SERVE ANOTHER ─────────────────────────────────
+// THE CENTRAL CASE. The request carries an OPERATIONAL id that holds no Atlas
+// card, plus a fallback NAME whose card belongs to a CLOSED place. The old gate
+// approved the id and then let tier 3 return the other place's card.
 {
+  reset();
+  setPlace("ChIJopen-decoy", "Open Decoy", { status: "OPERATIONAL" });      // the id: fine
+  setPlace(other.placeId, other.name, { status: "CLOSED_PERMANENTLY" });     // the card: closed
+  const r = await call(`id=ChIJopen-decoy&name=${encodeURIComponent(other.name)}`);
+  ok(!r.served,
+    `an OPERATIONAL id paired with a CLOSED place's fallback name serves NOTHING — the identity APPROVED must be the identity SERVED (got ${JSON.stringify(r.body).slice(0, 140)})`);
+  ok(r.body.refused === "refused-status", `…and refuses on the CARD's place, not the request's id (${r.body.refused})`);
+}
+// Same shape, excluded instead of closed.
+{
+  reset();
+  setPlace("ChIJopen-decoy", "Open Decoy", { status: "OPERATIONAL" });
+  setPlace(other.placeId, other.name, { status: "OPERATIONAL", excluded: true });
+  const r = await call(`id=ChIJopen-decoy&name=${encodeURIComponent(other.name)}`);
+  ok(!r.served && r.body.refused === "refused-excluded",
+    `…and the same for an EXCLUDED fallback place (got ${JSON.stringify(r.body).slice(0, 120)})`);
+}
+// The control: when the fallback card's place IS servable, it still serves —
+// otherwise the two assertions above would pass on a route that refuses always.
+{
+  reset();
+  setPlace("ChIJopen-decoy", "Open Decoy", { status: "OPERATIONAL" });
+  setPlace(other.placeId, other.name, { status: "OPERATIONAL" });
+  const r = await call(`id=ChIJopen-decoy&name=${encodeURIComponent(other.name)}`);
+  ok(r.served, "POSITIVE CONTROL: the same request serves when the FALLBACK card's own place is operational");
+}
+
+// ── 5. UNRESOLVED IDENTITY REFUSES ─────────────────────────────────────────
+// "We cannot verify it" does not establish that recommending it is safe. The
+// handwritten content is retained and is what resolves the identity; it is
+// withheld until that identity resolves.
+{
+  reset(); // inventory knows nothing
+  const r = await call(`name=${encodeURIComponent(staticName)}`);
+  ok(!r.served, `a handwritten entry whose name resolves to NO place is withheld (got ${JSON.stringify(r.body).slice(0, 110)})`);
+  ok(r.body.refused === "refused-unresolved-identity", `…and says the identity is unresolved (${r.body.refused})`);
+  ok(!!editorialFor(staticName), "…while the handwritten CONTENT is still present in lib/editorial.js — withheld, not deleted");
+}
+{
+  // An id that DOES reach a tier (it holds an Atlas card) but has no inventory
+  // row. The first draft of this case used an id no tier matches, so nothing was
+  // served and there was no refusal to report — it asserted the wrong thing and
+  // said so by failing. Nothing served is correct there; it is just not evidence
+  // about the gate.
+  reset(); // inventory empty, but CARD_ID still holds a card
+  const r = await call(`id=${encodeURIComponent(CARD_ID)}`);
+  ok(!r.served, "an id that reaches tier 1 but has NO inventory row serves nothing");
+  ok(r.body.refused === "refused-unknown-place", `…and names it (${r.body.refused})`);
+
+  const r2 = await call("id=ChIJreaches-no-tier-at-all");
+  ok(!r2.served, "…and an id no tier matches also serves nothing (no refusal to report — nothing was a candidate)");
+}
+
+// ── 6. MALFORMED LOOKUPS REFUSE ────────────────────────────────────────────
+// PostgREST returns a JSON OBJECT on a bad query and json() parses it happily.
+// The old code read that as "no matching row", which for a name lookup reached
+// the allow-unverified branch and SERVED.
+for (const t of TIERS) {
+  reset(); t.place();
+  state.malformInventory = true;
+  const r = await call(t.qs);
+  ok(!r.served, `tier ${t.n} (${t.label}): a MALFORMED inventory response refuses rather than reading as "no such place" (got ${JSON.stringify(r.body).slice(0, 110)})`);
+  ok(r.body.refused === "refused-malformed", `tier ${t.n}: …and names it (${r.body.refused})`);
+}
+
+// ── 7. LOOKUP FAILURE FAILS CLOSED ─────────────────────────────────────────
+{
+  reset(); TIERS[0].place();
   const saved = globalThis.fetch;
   globalThis.fetch = async () => { throw new Error("network down"); };
-  const r = await call(`id=${encodeURIComponent(card.placeId)}`);
-  ok(!r.served, "a FAILED status lookup refuses rather than falling through to an unchecked tier — a check that fails open is not a check");
+  const r = await call(TIERS[0].qs);
+  ok(!r.served, "a FAILED lookup refuses rather than falling through — a check that fails open is not a check");
   ok(r.body.refused === "refused-lookup-failed", `…and names the failure (${r.body.refused})`);
   globalThis.fetch = saved;
 }
 
-// ── 4. CACHE CANNOT OUTLIVE A CLOSURE ──────────────────────────────────────
-// The old headers were s-maxage=86400 + stale-while-revalidate=604800: a day
-// fresh and SEVEN DAYS stale. A response computed while a venue was open could
-// be replayed for a week after it shut, and no view or trigger can re-check a
-// request that never reaches the server.
+// ── 8. CACHE CANNOT OUTLIVE A CLOSURE ──────────────────────────────────────
 const parseCache = (h) => {
   const g = (k) => { const m = new RegExp(k + "=(\\d+)").exec(h || ""); return m ? Number(m[1]) : 0; };
   return { sMaxAge: g("s-maxage"), swr: g("stale-while-revalidate"), noStore: /no-store/.test(h || "") };
 };
-const MAX_EXPOSURE_S = 1800; // 30 minutes, generous; the old value was 691200
+const MAX_EXPOSURE_S = 1800;
 for (const t of TIERS) {
   const c = parseCache(openResults[t.n].cache);
   ok(c.sMaxAge + c.swr <= MAX_EXPOSURE_S,
-    `tier ${t.n} (${t.label}): total cache exposure ${c.sMaxAge + c.swr}s is within ${MAX_EXPOSURE_S}s — a stale "go here" cannot outlive a closure by days (header: ${openResults[t.n].cache})`);
-  ok(c.sMaxAge > 0, `tier ${t.n}: …while still caching something, so this is a bound and not an accidental no-cache regression`);
+    `tier ${t.n} (${t.label}): cache exposure ${c.sMaxAge + c.swr}s <= ${MAX_EXPOSURE_S}s (header: ${openResults[t.n].cache})`);
+  ok(c.sMaxAge > 0, `tier ${t.n}: …while still caching, so this is a bound and not an accidental no-cache regression`);
 }
 {
-  state.status = "CLOSED_PERMANENTLY";
-  const r = await call(`id=${encodeURIComponent(card.placeId)}`);
-  ok(parseCache(r.cache).noStore,
-    `a REFUSAL is no-store (got ${JSON.stringify(r.cache)}) — a place that reopens must serve again on the next request, not after an edge TTL`);
+  reset(); TIERS[0].place();
+  for (const [k, v] of state.byId) state.byId.set(k, { ...v, status: "CLOSED_PERMANENTLY" });
+  const r = await call(TIERS[0].qs);
+  ok(parseCache(r.cache).noStore, `a REFUSAL is no-store (got ${JSON.stringify(r.cache)}) — a reopened place serves again on the next request`);
 }
 
-// ── 5. WARMED: a real cache replaying an OPEN answer is what we are bounding ─
-// Node cannot exercise Vercel's edge cache, so rather than claim coverage this
-// asserts the property that BOUNDS it, and says plainly what is not proven.
+// ── 9. THE STATUS IS RE-READ PER REQUEST ───────────────────────────────────
 {
-  state.status = "OPERATIONAL"; state.editorialRows = [];
-  const warm1 = await call(`id=${encodeURIComponent(card.placeId)}`);
-  const warm2 = await call(`id=${encodeURIComponent(card.placeId)}`);
-  ok(warm1.served && warm2.served, "repeated identical requests both serve while open (the handler is deterministic, so an edge cache is replaying a value this test can reason about)");
+  reset(); TIERS[0].place();
+  const a = await call(TIERS[0].qs);
   const before = state.calls.length;
-  state.status = "EXCLUDED";
-  const after = await call(`id=${encodeURIComponent(card.placeId)}`);
-  ok(!after.served, "…and the very next request after the status flips is refused, with no restart and no cache purge inside the handler");
-  ok(state.calls.length > before, "…because the status was re-read on that request rather than memoised in module scope");
+  for (const [k, v] of state.byId) state.byId.set(k, { ...v, status: "EXCLUDED" });
+  const b = await call(TIERS[0].qs);
+  ok(a.served && !b.served, "the very next request after the status flips is refused — no restart, no cache purge inside the handler");
+  ok(state.calls.length > before, "…because inventory was re-read on that request rather than memoised in module scope");
 }
 
 if (fail.length) {
@@ -197,4 +294,4 @@ if (fail.length) {
   for (const m of fail) console.error("  - " + m);
   process.exit(1);
 }
-console.log(`test-editorial-endpoint-servable: OK — ${pass} assertions; the REAL /api/editorial handler was CALLED across all 4 tiers, each serving while OPERATIONAL (positive control) and refusing under CLOSED_PERMANENTLY / CLOSED_TEMPORARILY / EXCLUDED / no-inventory-row / lookup-failure, with cache exposure bounded to <=${MAX_EXPOSURE_S}s and refusals no-store. NOT PROVEN HERE: Vercel's actual edge cache (node cannot exercise it) — this asserts the header bound that limits it, not the CDN's behaviour.`);
+console.log(`test-editorial-endpoint-servable: OK — ${pass} assertions; the REAL /api/editorial handler CALLED across all 4 tiers: serving while operational (positive controls) and refusing on closed/temporarily-closed/status-excluded, OPERATIONAL-but-excluded=true, an operational id paired with a CLOSED fallback name (approve-one-serve-another), unresolved identity, unknown id, MALFORMED lookup bodies and lookup failure — with cache exposure bounded to <=${MAX_EXPOSURE_S}s and refusals no-store. NOT PROVEN HERE: Vercel's edge cache (node cannot exercise it) — the header bound is asserted, not the CDN's behaviour.`);
