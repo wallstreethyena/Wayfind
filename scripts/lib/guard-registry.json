@@ -26,14 +26,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 549,
-    "totalRegistryEntries": 550,
-    "guardsTxtLineCount": 548,
-    "guardsTxtReachedFileCount": 544,
+    "totalOnDiskGuardFiles": 550,
+    "totalRegistryEntries": 551,
+    "guardsTxtLineCount": 549,
+    "guardsTxtReachedFileCount": 545,
     "criticalCount": 65,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 363,
+      "CALL": 364,
       "RENDER": 43,
       "STRUCTURAL": 143,
       "OTHER": 1
@@ -2450,7 +2450,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 33,
+      "assertionCount": 37,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -6012,6 +6012,28 @@
       "owner": null
     },
     {
+      "file": "scripts/check-rails-geo-grid.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 20,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-rails-wire.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -6670,7 +6692,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 68,
+      "assertionCount": 76,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,

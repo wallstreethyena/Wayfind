@@ -33,7 +33,7 @@ import { dedupeWire, windowRailData } from "../../../lib/railsWire.js";
 import { LANDING_CITIES } from "../../../lib/landing";
 import { railMenuData } from "../../../lib/railsData";
 import { DAYPART_IDS } from "../../../lib/dayparts";
-import { nearestCoveredCity } from "../../../lib/railCoverage";
+import { nearestCoveredCity, COVERAGE_MI } from "../../../lib/railCoverage";
 import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 
 export const revalidate = 3600;
@@ -47,7 +47,10 @@ export const maxDuration = 12;
 // Past this, the reader is not in a market Wayfind has ranked inventory for and
 // the honest answer is the flagship, not the nearest-by-arithmetic town 400
 // miles away. Same spirit as the beach rule: near means near.
-const COVERAGE_MI = 90;
+//
+// COVERAGE_MI now lives in lib/railCoverage.js (2026-09-06) — DaypartRail.js
+// needs the identical value client-side, and a route file cannot be imported
+// there. See that constant's own comment for why.
 
 /** Nearest LANDING_CITIES slug to a point, or null when nothing is close. */
 export function nearestCity(lat, lng) {

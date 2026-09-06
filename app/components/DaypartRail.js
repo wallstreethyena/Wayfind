@@ -97,6 +97,14 @@ import { posterImgIsReady, bindPosterArtReady, posterImgInTile } from "../../lib
 // failed fetch, and a genuinely uncovered location all look like. Three
 // different facts, one indistinguishable grey box, no way out of it.
 import { settleLoad, LOAD_PENDING, LOAD_FAILED, LOAD_TIMEOUT_MS, isPending, isFailed } from "../../lib/loadState.js";
+// v8.99 — city resolution, EXACT, before any coordinate gets snapped. See the
+// "WHY THE CITY IS RESOLVED HERE" comment beside resolveCitySlug() below.
+// lib/landingCities.js and lib/railCoverage.js are both plain data/math with
+// zero imports — safe in this "use client" file, unlike lib/landing.js
+// (server-only: React components and DB access at module scope) which the
+// route this component calls actually reads its city table from.
+import { LANDING_CITIES } from "../../lib/landingCities.js";
+import { nearestCoveredCity, COVERAGE_MI } from "../../lib/railCoverage.js";
 
 // Reader-facing rails are inventory-only now. Ten seconds is the visible
 // browser deadline; it sits outside the server's 9s compute budget and still
@@ -540,7 +548,76 @@ export default function DaypartRail({
   // distinguishable from "we have one and it is for right here".
   // ~0.7mi. One definition, read by the move test and by the request URL, so a
   // reader can never be judged "moved" at a precision the CDN key does not share.
+  //
+  // WHY THIS IS STILL 0.01° AND NOT COARSER (measured 2026-09-06, cold-rail-
+  // cache investigation). /api/rails cold-cell latency is real and repeatedly
+  // measured (this file's own comments below, plus three project docs on
+  // 2026-08-27 and 2026-08-30): 4-9s typical, one production request observed
+  // past 30s. The obvious fix is a coarser client snap — fewer distinct CDN
+  // keys per metro means a cell is more likely to already be warm — and that
+  // was the working hypothesis going in, with 0.05° (~3.4mi, comfortably under
+  // the tightest reader-origin gate in the product, `break`'s 8mi in
+  // lib/railSelect.js) proposed as the replacement.
+  //
+  // IT DOES NOT HOLD UP. Compared against real production /api/rails
+  // responses — exact coordinate vs. the same point snapped, `&city=` pinned
+  // so the comparison is pure re-ranking, not a city change — across Sarasota,
+  // Parrish, Tampa, Orlando, Venice and Bradenton, 12 sample points each:
+  //
+  //     grid    rails touched      card-slot diffs     order diffs
+  //     0.01°   0 / 180 (0%)       0 / 3,586 (0%)       0      <- today, unchanged
+  //     0.02°   51 / 180 (28%)     175 / 3,596 (4.9%)   228
+  //     0.05°   101 / 180 (56%)    452 / 3,608 (12.5%)  484
+  //
+  // Today's grid is invisible — 0/180 rails differed from the unsnapped
+  // answer across every sample. Doubling it to 0.02° already changes what a
+  // reader sees on the majority of sample locations, well before reaching the
+  // originally proposed 0.05°. The mechanism is not a slow continuous drift:
+  // lib/railSelect.js's pickNearThenWiden() is an ALL-OR-NOTHING cliff (enough
+  // candidates within `nearMi` and the widened set never runs at all), and
+  // lib/wayfindScore.js's FAR_MILES=17 score term is a second cliff — a
+  // reader's snapped origin moving by as little as a mile can flip a
+  // borderline place across either one and swap a rail's membership between
+  // "everything within a few miles" and "the widened list reaching 25+ miles
+  // away". This is a property of the ranking, not of exactly how coarse the
+  // snap is: it costs some visible drift long before it buys the ~25x
+  // CDN-key reduction the wider grid was chosen for.
+  //
+  // A SEPARATE, MORE SERIOUS DEFECT the same measurement surfaced: nearestCity
+  // (app/api/rails/route.js) picks among LANDING_CITIES by raw distance, and
+  // several of those towns sit far closer together than the ~13km "break"
+  // gate this change was originally scoped against — Palmetto and Bradenton
+  // are 1.56 MILES apart. A 0.05° snap (max positional error ~2.3mi) can move
+  // a reader standing in one of those towns across the boundary into the
+  // OTHER town's whole answer — not a re-ranked card, a different city label,
+  // different curated board, different everything. Measured directly: a
+  // realistic point near Sarasota snapped straight into Siesta Key's payload.
+  // That is exactly the claim lib/locationHonesty.js and this file's own
+  // comments elsewhere exist to prevent ("Sarasota-as-you" for a Parrish
+  // reader), and it gets WORSE, not better, the coarser the shared grid gets.
+  //
+  // THE FIX SHIPPED INSTEAD (resolveCitySlug, below) closes that second
+  // defect for good — city selection now runs on the reader's EXACT point,
+  // never on a coordinate that is about to be rounded for cache-key reasons —
+  // and this comment is the reason the numeric grid itself stays put rather
+  // than widening on the strength of the original arithmetic alone.
+  // scripts/check-rails-geo-grid.mjs pins both halves of this: the grid
+  // constant, and that every /api/rails request carries an exact `city=`.
   const snapPre = (v) => Math.round(v * 100) / 100;
+  // WHY THE CITY IS RESOLVED HERE, EXACTLY, BEFORE THE SNAP ABOVE. This is the
+  // identical call app/api/rails/route.js makes server-side —
+  // nearestCoveredCity(LANDING_CITIES, lat, lng, COVERAGE_MI) — run here on
+  // `center`'s real value, before `snapPre` rounds it for the request URL. The
+  // route already prefers an explicit `&city=` over its own nearestCity(la,
+  // ln) (`asked = sp.get("city"); slug = LANDING_CITIES[asked] ? asked :
+  // nearestCity(la, ln)`), so sending it is enough: city selection stops being
+  // sensitive to the snap grid at all, at any width, forever — closing the
+  // Palmetto/Bradenton-class defect above without touching the ranking
+  // precision the rest of this file depends on. A point outside every city's
+  // COVERAGE_MI resolves to `null` and is simply not sent, so the server's own
+  // out-of-coverage fallback (nearestCity(la, ln) on the snapped point, honest
+  // `covered:false` past that) is untouched.
+  const resolveCitySlug = useCallback((la, ln) => nearestCoveredCity(LANDING_CITIES, la, ln, COVERAGE_MI), []);
   const lastPointRef = useRef(null);
   useEffect(() => {
     if (!center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) {
@@ -615,6 +692,9 @@ export default function DaypartRail({
     // Snapped to ~0.7mi so the CDN sees a countable set of URLs per metro, not
     // one per GPS fix. The server re-measures every distance from this point.
     const snap = snapPre;
+    // Resolved from the UNSNAPPED center, on purpose — see resolveCitySlug's
+    // own comment above. `null` (out of coverage) sends no override at all.
+    const citySlug = resolveCitySlug(center.lat, center.lng);
     // v8.46 — SETTLED, ALWAYS. Through lib/loadState.js, the module written for
     // this exact grey box: the 12s timer is armed BEFORE the request, so a
     // black-holed connection, a sleeping device and a promise nothing ever
@@ -656,7 +736,7 @@ export default function DaypartRail({
       setRailLoad(covered ? "live" : "uncovered");
       try { onCoverage && onCoverage(covered ? "covered" : "uncovered"); } catch (e) {}
     };
-    const inflight = fetch(`/api/rails?lat=${encodeURIComponent(snap(center.lat))}&lng=${encodeURIComponent(snap(center.lng))}&band=${encodeURIComponent(daypart)}&v=2`)
+    const inflight = fetch(`/api/rails?lat=${encodeURIComponent(snap(center.lat))}&lng=${encodeURIComponent(snap(center.lng))}&band=${encodeURIComponent(daypart)}&v=2${citySlug ? `&city=${encodeURIComponent(citySlug)}` : ""}`)
       .then((r2) => (r2.ok ? r2.json() : Promise.reject(new Error("http " + r2.status))));
     // The late lane: whatever the deadline decides, a real answer still wins.
     inflight.then(apply, () => {});
@@ -683,7 +763,7 @@ export default function DaypartRail({
       apply(res.data);
     });
     return () => { cancelled = true; };
-  }, [center && center.lat, center && center.lng, lat, lng, daypart, initialDaypart, retryNonce]);
+  }, [center && center.lat, center && center.lng, lat, lng, daypart, initialDaypart, retryNonce, resolveCitySlug]);
 
   // Birthday is the only heavy composed poster that was still completely
   // cold until the tap. Warm its exact two-decimal cell during browser idle,
@@ -1109,6 +1189,10 @@ export default function DaypartRail({
     if (railPageInFlight.current.has(claim)) return;
     railPageInFlight.current.add(claim);
     setRailPageState((state) => ({ ...state, [selected]: "loading" }));
+    // city= resolved from the unsnapped center — same reason as the main
+    // fetch above: a page request must land on the same city its first
+    // response did, never on whichever town the snapped lat/lng round to.
+    const citySlug = resolveCitySlug(center.lat, center.lng);
     const q = new URLSearchParams({
       lat: String(snapPre(center.lat)),
       lng: String(snapPre(center.lng)),
@@ -1117,6 +1201,7 @@ export default function DaypartRail({
       rail: selected,
       offset: String(offset),
       limit: "24",
+      ...(citySlug ? { city: citySlug } : {}),
     });
     fetchJsonWithDeadline("/api/rails?" + q.toString(), { timeoutMs: RAILS_LOAD_TIMEOUT_MS })
       .then((payload) => {
@@ -1125,7 +1210,7 @@ export default function DaypartRail({
       })
       .catch(() => setRailPageState((state) => ({ ...state, [selected]: "failed" })))
       .finally(() => railPageInFlight.current.delete(claim));
-  }, [selectedHasMore, selected, selectedLoaded, center && center.lat, center && center.lng, daypart]);
+  }, [selectedHasMore, selected, selectedLoaded, center && center.lat, center && center.lng, daypart, resolveCitySlug]);
 
   // The first shared response is deliberately small. Reaching the last two
   // visible cards requests only the next ordered page for this rail; sibling

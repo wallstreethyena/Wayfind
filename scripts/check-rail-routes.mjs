@@ -37,7 +37,11 @@ function keysOf(file, constName) {
   const body = src.slice(open + 1, end);
   return new Set([...body.matchAll(/^\s*["']?([a-z0-9-]+)["']?\s*:/gim)].map((m) => m[1]));
 }
-const CITIES = keysOf("lib/landing.js", "export const LANDING_CITIES");
+// v8.99 (2026-09-06) — LANDING_CITIES's own literal moved to
+// lib/landingCities.js (a zero-import file DaypartRail.js, "use client", can
+// also read); lib/landing.js now only re-exports the name. Read the literal
+// from its new home.
+const CITIES = keysOf("lib/landingCities.js", "export const LANDING_CITIES");
 const METROS = keysOf("lib/beaches.js", "export const BEACH_METROS");
 
 /** Resolve a URL path to a page file, honouring [param] segments. */
