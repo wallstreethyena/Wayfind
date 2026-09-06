@@ -48,13 +48,13 @@
  * NO NETWORK.
  */
 import { readFileSync } from "node:fs";
+import ts from "typescript";
 import { admitOwnedRows, fetchOwnedPool, isServableRow, milesBetween, readOwnedCategory, rowToOwnedPlace, OWNED_POOL_FIELDS, OWNED_POOL_PAGE } from "../lib/ownedPool.js";
 import { SURFACES } from "./lib/starvationSurfaces.mjs";
 import { BROWSE_INVENTORY_N } from "../lib/browseInventory.js";
 import { wayfindScore } from "../lib/wayfindScore.js";
 
 let n = 0;
-let cacheRoundTrips = false;
 const bad = [];
 const ok = (c, m) => { n++; if (!c) bad.push(m); };
 const read = (p) => readFileSync(new URL("../" + p, import.meta.url), "utf8");
@@ -350,7 +350,29 @@ for (const surface of SURFACES) {
   ok(noHealthy.stats.degraded === false, "Night Out marks a fully healthy read degraded");
 
   // …AND THE CALLERS MUST ACT ON IT. A flag no route reads is the bug.
-  const { completeAnswersOnly, fastCachedRail } = await import("../lib/railFastCache.js");
+  // Execute the real module with only the platform cache replaced. A successful
+  // probe against Runtime Cache cannot guarantee the next write is visible: the
+  // production build on 2026-09-06 passed the probe then failed the legacy seed.
+  // This fixture makes every lifetime assertion run, on every build, without
+  // touching the production cache or changing the product's async-write policy.
+  const cacheRows = new Map();
+  const pendingWrites = [];
+  const platform = {
+    getCache: () => ({
+      get: async (key) => cacheRows.get(key),
+      set: async (key, value) => { cacheRows.set(key, structuredClone(value)); },
+    }),
+    waitUntil: (promise) => { pendingWrites.push(promise); },
+  };
+  const exports = {};
+  const compiled = ts.transpileModule(read("lib/railFastCache.js"), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+  }).outputText;
+  new Function("require", "exports", compiled)((id) => {
+    if (id !== "@vercel/functions") throw new Error(`unmocked cache import: ${id}`);
+    return platform;
+  }, exports);
+  const { completeAnswersOnly, fastCachedRail } = exports;
   const u = completeAnswersOnly((v) => v.rails.length);
   ok(u({ rails: [1], degraded: false }) === true, "positive control: completeAnswersOnly rejects a healthy answer");
   ok(u({ rails: [1], degraded: true }) === false,
@@ -378,28 +400,9 @@ for (const surface of SURFACES) {
   ok(usable(HEALTHY) === true,
     "a healthy answer is not cacheable — requiring an explicit flag must not turn every surface uncacheable, which would be a cache-disabling patch wearing a correctness patch's clothes");
 
-  // …AND THE CACHE ROUND TRIP, WHERE THE BACKEND SUPPORTS ONE.
-  //
-  // Whether a write is readable by the next call is a property of the BACKEND,
-  // not of this rule. Locally getCache falls back to an in-memory map and a
-  // write is visible immediately; on Vercel's real Runtime Cache during a build
-  // it is not, because writeGood is dispatched through waitUntil and does not
-  // land before the next read. The first version of this block asserted the
-  // round trip unconditionally, passed on every dev box, and FAILED the deploy —
-  // a guard that fires on correct code, caught by CI rather than by me.
-  //
-  // So the round trip is gated on a CONTROL that measures the backend, and the
-  // skip is LOUD: `cacheRoundTrips` is reported in the success line, so a run
-  // that could not exercise this path says so instead of reading as proof.
-  const probeKey = `guard:probe:${Date.now()}:${Math.random()}`;
-  let probeBuilds = 0;
-  const probeLoad = async () => { probeBuilds++; return HEALTHY; };
-  await fastCachedRail(probeKey, probeLoad, { name: "guard-probe", usable: Boolean });
-  const probeRead = await fastCachedRail(probeKey, probeLoad, { name: "guard-probe", usable: Boolean });
-  cacheRoundTrips = probeRead.state === "hit" && probeBuilds === 1;
-  ok(probeBuilds >= 1, "positive control: the cache probe never ran its loader, so nothing below is measuring a cache");
-
-  if (cacheRoundTrips) {
+  // A controlled in-memory backend makes the round trip mandatory. No probe
+  // can skip the assertions, and every call still executes fastCachedRail.
+  {
     // 1. Seed a legacy entry exactly as the pre-fix code did — permissive
     //    `usable`, which is what it actually used — rather than by reaching into
     //    cache internals a guard has no business knowing.
@@ -432,12 +435,10 @@ for (const surface of SURFACES) {
     const peek = await fastCachedRail(badKey, async () => { probe2++; return HEALTHY; }, { name: "guard-degraded", usable: Boolean });
     ok(peek.state === "miss" && probe2 === 1,
       `a degraded answer was WRITTEN to the cache (a permissive read found it: state=${peek.state}) — the next reader in the cell inherits a partial pool`);
-  } else {
-    // Not a pass by omission: the four pure assertions above already hold, and
-    // the success line reports that the round trip could not be exercised here.
-    ok(usable({ ...HEALTHY, degraded: true }) === false,
-      "this environment's cache does not round-trip within a process, so the lifetime assertions are reported as skipped — but a degraded answer must STILL be refused by the rule itself");
   }
+  await Promise.all(pendingWrites);
+  ok(pendingWrites.length >= 3,
+    "positive control: the real module never scheduled its healthy cache writes");
 
   for (const surface of SURFACES) {
     const src = strip(read(surface.route));
@@ -457,4 +458,4 @@ if (bad.length) {
   console.error(`check-identity-before-cap: FAIL — ${bad.length}/${n} assertions`);
   process.exit(1);
 }
-console.log(`check-identity-before-cap: OK — ${n} assertions, all by CALL. readOwnedCategory EXECUTED against an injected fetch over a 1,500-row box (order=, sequential Range paging to exhaustion, editorial + secondary-category membership asserted on the ISSUED urls); admission proven to run before the cost bound by a buried row that identity-first finds and cap-first cannot, in the same process; the ${SURFACES.length} registered surfaces asserted to call fetchOwnedPool WITH an identity at the call site, to gate BOTH their fast cache and their CDN header on \`degraded\`, and to have a failure path for a thrown read. The reader defects found in owner review, each with its own positive control: the radius cut is MEASURED from the row rather than read off a display-rounded distMi (fixture true 27.02mi, card 27.0) and cannot be moved by a caller's own toPlace; a 200 carrying a non-array body THROWS across three shapes; a pool that hits its row cap throws unless the caller opts in; and ONE FAILED CATEGORY ALONGSIDE HEALTHY ONES is driven through BOTH fetchOwnedPool and fetchNightOutPool. completeAnswersOnly is CALLED over the four shapes that matter, a LEGACY entry with no flag among them. ${cacheRoundTrips ? "fastCachedRail's lifetimes were exercised too: a legacy entry read back as a HIT under the old permissive rule and REBUILDS under this one, and a degraded answer is proven unwritten by a PERMISSIVE re-read rather than by a strict one that would rebuild either way." : "NOTE: this environment's cache does not round-trip within a process (getCache's write lands through waitUntil), so the fastCachedRail lifetime assertions were SKIPPED — the rule itself is still proven by call above."} False-positive surface: a surface that deliberately stops using the owned pool, or a route that legitimately opts into a partial pool, goes red here and should be re-declared in scripts/lib/starvationSurfaces.mjs rather than have the assertion deleted.`);
+console.log(`check-identity-before-cap: OK — ${n} assertions, all by CALL. readOwnedCategory EXECUTED against an injected fetch over a 1,500-row box (order=, sequential Range paging to exhaustion, editorial + secondary-category membership asserted on the ISSUED urls); admission proven to run before the cost bound by a buried row that identity-first finds and cap-first cannot, in the same process; the ${SURFACES.length} registered surfaces asserted to call fetchOwnedPool WITH an identity at the call site, to gate BOTH their fast cache and their CDN header on \`degraded\`, and to have a failure path for a thrown read. The reader defects found in owner review, each with its own positive control: the radius cut is MEASURED from the row rather than read off a display-rounded distMi (fixture true 27.02mi, card 27.0) and cannot be moved by a caller's own toPlace; a 200 carrying a non-array body THROWS across three shapes; a pool that hits its row cap throws unless the caller opts in; and ONE FAILED CATEGORY ALONGSIDE HEALTHY ONES is driven through BOTH fetchOwnedPool and fetchNightOutPool. completeAnswersOnly is CALLED over the four shapes that matter, a LEGACY entry with no flag among them. fastCachedRail's lifetimes were exercised with the real module and an isolated cache backend: a legacy entry read back as a HIT under the old permissive rule and REBUILDS under this one, and a degraded answer is proven unwritten by a PERMISSIVE re-read. No lifetime assertions were skipped. False-positive surface: a surface that deliberately stops using the owned pool, or a route that legitimately opts into a partial pool, goes red here and should be re-declared in scripts/lib/starvationSurfaces.mjs rather than have the assertion deleted.`);
