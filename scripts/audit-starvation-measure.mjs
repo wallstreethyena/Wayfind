@@ -89,11 +89,42 @@ const oldRaw = oldSettled.flatMap((r) => r.rows.map(toRawRow));
 const oldAdmit = admitOwnedRows(oldRaw, origin, { maxMi: surface.radiusMi, identity: surface.claims });
 
 // ── NEW: identity-first, deterministic, exhaustive ─────────────────────────
-const next = await fetchOwnedPool(LAT, LNG, {
-  categories: surface.categories,
+//
+// A category the registry declares broad BY DESIGN is read the OLD way in BOTH
+// columns, so the delta below is exactly what the SHIPPED code recovers rather
+// than a ceiling nobody built. Today, for instance, reads attractions and beach
+// identity-first and deliberately leaves food/nightlife/hotels/shopping on the
+// shared reader (isBestFood is a score floor, which a top-N-by-score read serves
+// rather than starves). Measuring all six as if they were identity-first would
+// report a recovery the product does not actually make.
+const byDesign = surface.broadByDesign || {};
+const identityFirstCats = surface.categories.filter((c) => !byDesign[c]);
+const stillBroadCats = surface.categories.filter((c) => byDesign[c]);
+
+const pool = await fetchOwnedPool(LAT, LNG, {
+  categories: identityFirstCats,
   radiusMi: surface.radiusMi,
   identity: surface.claims,
 });
+let nextPlaces = pool.places;
+let nextStats = pool.stats;
+if (stillBroadCats.length) {
+  const extra = await Promise.all(stillBroadCats.map((cat) =>
+    serveFromInventory(cat, LAT, LNG, radiusM, surface.oldN, undefined, { failLoud: false, primaryOnly: false })
+      .catch(() => [])));
+  const admitted = admitOwnedRows(extra.flat().map(toRawRow), origin, { maxMi: surface.radiusMi, identity: surface.claims });
+  const seen = new Set(nextPlaces.map((p) => p.id));
+  nextPlaces = nextPlaces.concat(admitted.places.filter((p) => !seen.has(p.id)));
+  nextStats = {
+    ...nextStats,
+    rows: nextStats.rows + admitted.stats.rows,
+    servable: nextStats.servable + admitted.stats.servable,
+    withinRadius: nextStats.withinRadius + admitted.stats.withinRadius,
+    qualified: nextPlaces.length,
+    broadByDesign: stillBroadCats,
+  };
+}
+const next = { places: nextPlaces, stats: nextStats };
 
 const oldBuckets = surface.bucket(oldAdmit.places, origin);
 const newBuckets = surface.bucket(next.places, origin);
@@ -128,6 +159,7 @@ const report = {
     qualified: next.stats.qualified,
     truncated: next.stats.truncated,
     sourceFailures: next.stats.sourceFailures,
+    broadByDesign: next.stats.broadByDesign || [],
     byRail: newBuckets,
   },
   recovered: railRows.reduce((n, r) => n + Math.max(0, r.next - r.old), 0),

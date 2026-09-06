@@ -73,7 +73,13 @@ export const SURFACES = [
     // `dinner` rail is the one that eats from it.
     oldSubs: { food: [undefined, "dessert"], nightlife: ["speakeasy", "music", "clubs"], attractions: ["spa", "tours", "museums", "beaches"] },
     vulnerableRails: ["dinner"],
-    broadByDesign: {
+    // NOTE: Date Night's broad-by-design reads are CHIPS, not categories — all
+    // three categories participate in the identity-first measurement, because the
+    // dinner rail's food read is the one that changed. `chipsBroadByDesign` is a
+    // different field from `broadByDesign` on purpose: the auditor's classifier
+    // reads one and the measurement reads the other, and collapsing them would
+    // make a category look exempt because a chip was.
+    chipsBroadByDesign: {
       dessert: "chip contract — serveFromInventory applies it before its own cap (v8.49)",
       speakeasy: "chip contract", music: "chip contract", clubs: "chip contract",
       spa: "chip contract", tours: "chip contract", museums: "chip contract", beaches: "chip contract",
