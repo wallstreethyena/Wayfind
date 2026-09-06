@@ -226,8 +226,6 @@ export default function EventVenueMap({ venue, picks = [], onSelect }) {
     map.on("load", () => {
       if (dead) return;
       clearTimeout(watchdog);
-      new Marker({ element: pinEl({ label: `Venue: ${venue.name}`, cls: "wfev-pin", svg: teardropSvg({ w: 44, h: 58, fill: ACCENT, glyph: "★", glyphSize: 16 }) }), anchor: "bottom" })
-        .setLngLat([venue.lng, venue.lat]).addTo(map);
       pins.forEach((p, i) => {
         const el = pinEl({ label: `${i + 1}. ${p.name}`, cls: "wfev-pick", svg: teardropSvg({ w: 32, h: 42, fill: PICK, glyph: String(i + 1), glyphSize: 12 }) });
         el.setAttribute("role", "button"); el.tabIndex = 0;
@@ -237,6 +235,12 @@ export default function EventVenueMap({ venue, picks = [], onSelect }) {
         pickEls.current.set(p.id, el);
         new Marker({ element: el, anchor: "bottom" }).setLngLat([p.lng, p.lat]).addTo(map);
       });
+      // THE VENUE IS ADDED LAST so it paints ABOVE the picks. Seen on the
+      // preview build: 3 Daughters sits 0.1 mi from pick #1, and drawn first
+      // the star was buried under three teal pins — the one pin the page is
+      // about was the one you could not see.
+      new Marker({ element: pinEl({ label: `Venue: ${venue.name}`, cls: "wfev-pin", svg: teardropSvg({ w: 44, h: 58, fill: ACCENT, glyph: "★", glyphSize: 16 }) }), anchor: "bottom" })
+        .setLngLat([venue.lng, venue.lat]).addTo(map);
       fitTo(map, [venue, ...pins], { top: 70, bottom: 60, left: 50, right: 50 });
       setReady(true);
     });
