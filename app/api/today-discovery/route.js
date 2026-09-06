@@ -9,7 +9,7 @@ import { BROWSE_INVENTORY_N } from "../../../lib/browseInventory.js";
 import { NET_DEADLINE_MS, fetchDeadline } from "../../../lib/fetchDeadline.js";
 import { distMeters, invRowToPlace, serveFromInventory } from "../../../lib/inventoryServe.js";
 import { fetchOwnedPool } from "../../../lib/ownedPool.js";
-import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
+import { completeAnswersOnly, fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 import { nearestWater } from "../../../lib/waterStations.js";
 import { claimsTodayRail, composeTodayDiscoveryRails, TODAY_NATURE_MI } from "../../../lib/todayDiscoveryRails.js";
 import { windowRailAnswer } from "../../../lib/railResponse.js";
@@ -156,14 +156,16 @@ export async function GET(request) {
         }
       });
       const places = await attachWater([...byId.values()]);
-      return composeTodayDiscoveryRails(places, { city });
+      // A partial owned pool (one of attractions/beach failed to read) must not
+      // be cached as this town's answer — see completeAnswersOnly below.
+      return { ...composeTodayDiscoveryRails(places, { city }), degraded: !!narrow.stats.degraded, sourceStats: narrow.stats };
     }, {
       name: "today-discovery",
-      usable: (value) => !!value?.rails?.some((rail) => rail.places?.length),
+      usable: completeAnswersOnly((value) => value.rails?.some((rail) => rail.places?.length)),
     });
     const total = cached.value.rails.reduce((sum, rail) => sum + rail.places.length, 0);
     const headers = {
-      "cache-control": total ? "public, s-maxage=3600, stale-while-revalidate=86400" : "no-store",
+      "cache-control": total && !cached.value.degraded ? "public, s-maxage=3600, stale-while-revalidate=86400" : "no-store",
       "x-wayfind-fast-cache": cached.state,
     };
     if (railId) {

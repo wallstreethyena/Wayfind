@@ -23,7 +23,7 @@ export const maxDuration = 20;
 import { NET_DEADLINE_MS } from "../../../lib/fetchDeadline.js";
 import { composeNightOutRails } from "../../../lib/nightOutIntent.js";
 import { fetchNightOutPool } from "../../../lib/nightOutPool.js";
-import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
+import { completeAnswersOnly, fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 import { windowRailAnswer } from "../../../lib/railResponse.js";
 import { pageOneRail } from "../../../lib/railPage.js";
 import { nightOutEditorialEvidence } from "../../../lib/nightOutEvidence.js";
@@ -61,14 +61,18 @@ export async function GET(request) {
         editorialOverride: nightOutEditorialEvidence,
       });
       const composed = composeNightOutRails([], pool.places, origin);
-      return { ...composed, sourceCount: pool.places.length, sourceStats: pool.stats, sourceFailures: pool.stats.sourceFailures || 0 };
+      // `degraded` rides on the ANSWER, not only in sourceStats, because that is
+      // where fastCachedRail's `usable` and the cache-control header below can
+      // both see it. A pool missing a whole category is a fact about the
+      // database, never about the reader's town.
+      return { ...composed, degraded: !!pool.stats.degraded, sourceCount: pool.places.length, sourceStats: pool.stats, sourceFailures: pool.stats.sourceFailures || 0 };
     }, {
       name: "night-out-rails",
-      usable: (value) => !!value?.rails?.some((rail) => rail.places?.length),
+      usable: completeAnswersOnly((value) => value.rails?.some((rail) => rail.places?.length)),
     });
     const total = cached.value.rails.reduce((sum, rail) => sum + rail.places.length, 0);
     const headers = {
-      "cache-control": total ? "public, s-maxage=3600, stale-while-revalidate=86400" : "no-store",
+      "cache-control": total && !cached.value.degraded ? "public, s-maxage=3600, stale-while-revalidate=86400" : "no-store",
       "x-wayfind-fast-cache": cached.state,
     };
     if (railId) {

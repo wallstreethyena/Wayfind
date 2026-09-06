@@ -1002,3 +1002,5 @@ node scripts/check-book-cta-needs-a-seller.mjs
 # benefit-led read. The guard scans all app/lib literal decks, rejects lists,
 # disclaimers and counts, and pins the one-line visual treatment everywhere.
 node scripts/check-rail-deck-copy.mjs
+
+node scripts/test-poster-recovery.mjs

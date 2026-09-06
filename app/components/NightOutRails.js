@@ -14,7 +14,7 @@
 // poster/rail endpoint speaks (lib/railPage.js). This replaces the old
 // "Load every ranked option" button, which fetched all ~130 rows for every
 // rail in one blob the instant a reader tapped it.
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import RailCard, { RailDots, RailNav } from "./RailCard";
 import { directionsUrl } from "./kit";
 import { toHookLine } from "../../lib/editorialHook";
@@ -156,12 +156,11 @@ export default function NightOutRails({
   onSave, onLike, onDislike, onShare,
 }) {
   const fallback = useMemo(() => composeNightOutRails([], places, center || {}), [places, center]);
-  const [remote, setRemote] = useState(null);
+  const [remoteResult, setRemote] = useState(null);
   const [failed, setFailed] = useState(false);
   const [retry, setRetry] = useState(0);
-  const asked = useRef("");
-  const lat = Number(center?.lat);
-  const lng = Number(center?.lng);
+  const lat = center && Number.isFinite(center.lat) ? center.lat : null;
+  const lng = center && Number.isFinite(center.lng) ? center.lng : null;
   // The bulk request still runs, unchanged: it hydrates the fail-soft
   // fallback path and gives every rail its page-0 SEED (see
   // NightOutRailSection above), which is what keeps first paint exactly as
@@ -169,20 +168,27 @@ export default function NightOutRails({
   // ten cards.
   const key = active && Number.isFinite(lat) && Number.isFinite(lng) ? `${lat.toFixed(2)}|${lng.toFixed(2)}|${retry}` : "";
   useEffect(() => {
-    if (!key || asked.current === key) return;
-    asked.current = key;
+    if (!key) return;
     let dead = false;
+    setRemote(null);
     setFailed(false);
-    const query = new URLSearchParams({ lat: lat.toFixed(2), lng: lng.toFixed(2) });
-    fetchJsonWithDeadline("/api/night-out?" + query.toString())
-      .then((value) => { if (!dead && Array.isArray(value?.rails)) setRemote(value); })
+    const [queryLat, queryLng] = key.split("|");
+    const query = new URLSearchParams({ lat: queryLat, lng: queryLng });
+    fetchJsonWithDeadline("/api/night-out?" + query.toString(), { retries: 1 })
+      .then((value) => {
+        if (dead) return;
+        if (!Array.isArray(value?.rails)) { setFailed(true); return; }
+        setRemote({ key, value });
+      })
       .catch(() => { if (!dead) setFailed(true); });
     return () => { dead = true; };
-  }, [key, lat, lng]);
+  }, [key]);
+  const remote = remoteResult?.key === key ? remoteResult.value : null;
   const payload = remote || fallback;
   const eventSurface = active && eventsSlot ? eventsSlot("night-out") : null;
 
   if (!active) return null;
+  if (!key) return <p style={{ color: C.muted, fontSize: 13 }}>Choose a location to see Night Out places near you.</p>;
 
   if (!remote && !failed && !payload.rails.some((rail) => rail.places.length)) {
     return <div role="status" aria-busy="true" aria-label="Building Night Out">{[0, 1, 2].map((index) => <div key={index} className="wf-sk" style={{ height: 88, borderRadius: 14, marginBottom: 12, background: "#0B0E15" }} />)}</div>;
