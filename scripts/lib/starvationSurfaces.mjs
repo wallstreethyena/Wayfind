@@ -28,8 +28,18 @@ import { TODAY_NATURE_MI, TODAY_DISCOVERY_RAIL_DEFS, composeTodayDiscoveryRails 
 
 const LUNCH_RADIUS_MI = 8; // app/api/lunch-break/route.js — LUNCH_RADIUS_MI
 
-/** Count a composer's output without caring which shape of rail list it returns. */
-const countRails = (rails) => Object.fromEntries((rails || []).map((r) => [r.id, (r.places || []).length]));
+/**
+ * Count a composer's output without caring which shape it returns. Wayfind's
+ * composers disagree — composeLunchBreakRails returns an ARRAY, the other four
+ * return `{ rails: [...] }` — and a helper that assumed one shape crashed three
+ * of five live measurements on the first full run. Normalising here beats making
+ * every registry entry remember which kind its composer is.
+ */
+const countRails = (out) => {
+  const rails = Array.isArray(out) ? out : (out && Array.isArray(out.rails) ? out.rails : null);
+  if (!rails) throw new TypeError("composer returned neither an array of rails nor { rails: [...] }");
+  return Object.fromEntries(rails.map((r) => [r.id, (r.places || []).length]));
+};
 
 /**
  * Today's rails deliberately OVERLAP (a spring is also nature, a beach is also
@@ -86,7 +96,7 @@ export const SURFACES = [
     },
     rails: DATE_NIGHT_RAIL_ORDER,
     claims: (p) => DATE_NIGHT_RAIL_ORDER.find((id) => { try { return dateNightMembership(id, p); } catch (e) { return false; } }) || null,
-    bucket: (places, origin) => countRails(composeDateNightRails(places, {}, { origin })),
+    bucket: (places) => countRails(composeDateNightRails(places, {})),
     railTitles: Object.fromEntries(DATE_NIGHT_RAIL_DEFS.map((d) => [d.id, d.title])),
   },
   {
@@ -142,7 +152,7 @@ export const SURFACES = [
     rails: TODAY_DISCOVERY_RAIL_DEFS.map((d) => d.id),
     overlappingRails: true,
     claims: todayClaims,
-    bucket: (places) => countRails(composeTodayDiscoveryRails(places, { city: "" }).rails),
+    bucket: (places) => countRails(composeTodayDiscoveryRails(places, { city: "" })),
     railTitles: Object.fromEntries(TODAY_DISCOVERY_RAIL_DEFS.map((d) => [d.id, d.title])),
   },
 ];
