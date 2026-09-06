@@ -19,16 +19,17 @@
  * admitOwnedRows() with the SAME identity function, so a mismatch is not
  * something you can write by accident.
  *
- *   OLD  serveFromInventory(top-N of the surface's broad categories) -> admit
- *   NEW  fetchOwnedPool(deterministic, exhaustive, identity-first)   -> admit
+ *   OLD  the shipped CUT (the unordered database window, the chip contract where
+ *        the route carried one, then rankInventory's top-N) -> admit
+ *   NEW  every owned row that was read, identity-first          -> admit
  *
  * Read-only. No provider calls. Needs SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY.
  *
  *   node scripts/audit-starvation-measure.mjs --surface=lunch-break --lat=27.5949 --lng=-82.4265
  */
 import { SURFACE_BY_ID, SURFACES } from "./lib/starvationSurfaces.mjs";
-import { serveFromInventory } from "../lib/inventoryServe.js";
-import { admitOwnedRows, fetchOwnedPool } from "../lib/ownedPool.js";
+import { rankInventory } from "../lib/inventoryServe.js";
+import { admitOwnedRows, readOwnedCategory } from "../lib/ownedPool.js";
 import { sbEnv } from "../lib/serverCache.js";
 
 const arg = (k, d) => {
@@ -52,79 +53,122 @@ if (!sbEnv()) {
 
 const surface = SURFACE_BY_ID[surfaceId];
 const origin = { lat: LAT, lng: LNG };
-
-// serveFromInventory returns rows already mapped into the Google-ish shape
-// (invRowToPlace). admitOwnedRows expects RAW wf_inventory rows, so map back —
-// field for field, no interpretation. This seam is where the first funnel went
-// wrong; keeping it a dumb rename is the point.
-const toRawRow = (p) => ({
-  place_id: p.id,
-  name: p?.displayName?.text || p.name,
-  lat: p?.location?.latitude ?? p.lat,
-  lng: p?.location?.longitude ?? p.lng,
-  category: p.category || null,
-  primary_type: p.primaryType || p.primary_type || null,
-  google_types: Array.isArray(p.types) ? p.types : [],
-  cuisines: Array.isArray(p.cuisines) ? p.cuisines : [],
-  status: p.businessStatus || "OPERATIONAL",
-  excluded: p.excluded,
-  editorial: p?.editorialSummary?.text || p.editorial || null,
-  photo_ref: p.photo_ref || null,
-  signals: { rating: typeof p.rating === "number" ? p.rating : null, reviews: Number(p.userRatingCount || p.reviews || 0) },
-});
-
-// ── OLD: the shipped retrieval, exactly as the route issues it ──────────────
 const radiusM = surface.radiusMi * 1609.34;
-const reads = [];
+
+/**
+ * BOTH COLUMNS READ THE SAME ROWS. Only the CUT differs.
+ *
+ * v3 of this diagnostic, and each version was corrected because the previous one
+ * compared two different universes:
+ *
+ *   v1  the route side came through rankInventory (gate radius x 1.15, plus row
+ *       filters) and the other side applied an exact cut with none of them, so a
+ *       rail read 203 vs 202 — a NEGATIVE loss, impossible when one set contains
+ *       the other, and the only tell that the comparison was wrong.
+ *   v2  both sides ended in one admission, but the OLD side was reconstructed
+ *       from serveFromInventory's OUTPUT, and invRowToPlace does not carry
+ *       `category` and re-expresses priceNum as the PRICE_LEVEL_* enum. Rebuilding
+ *       a raw row from it silently dropped both. isSpecialDateDinner reads
+ *       priceNum >= 2, so the OLD column lost most of Date Night's dinner rail,
+ *       dinner therefore consumed fewer places, and a Sarasota speakeasy dinner
+ *       should have claimed appeared as "a rail that LOST a candidate". A
+ *       product regression that was really a measurement artifact.
+ *   v3  reads the complete owned rows ONCE and derives both columns from them.
+ *       The OLD column is the shipped CUT applied to those same rows — the real
+ *       rankInventory selecting real ids, and the same chipIdentity contract the
+ *       route's `sub` reads carried. Nothing is re-mapped, so nothing can be
+ *       lost in the mapping.
+ *
+ * What remains a MODEL rather than a measurement, stated so it is not read as
+ * more than it is: the shipped `limit=1000` had no ORDER BY, so which thousand
+ * arrived was Postgres heap order and is unknowable after the fact. It is
+ * modelled here as the first 1,000 by place_id. Any deterministic stand-in is
+ * arbitrary; what is NOT arbitrary is that a thousand of them arrived and the
+ * rest did not.
+ */
+const { chipIdentity, CHIP_IDENTITY } = await import("../lib/chipIdentity.js");
+const { SUB_ALLOW } = await import("../lib/placeFilter.js");
+
+const OLD_DB_LIMIT = 1000;  // lib/inventoryServe.js — `&limit=1000`, no order=
+
+const rawByCat = {};
+const readStats = {};
+{
+  const { boxForRadius } = await import("../lib/inventoryServe.js");
+  const box = boxForRadius(LAT, LNG, radiusM);
+  const env = sbEnv();
+  const settled = await Promise.allSettled(surface.categories.map((c) => readOwnedCategory(env, c, box, {})));
+  settled.forEach((r, i) => {
+    const cat = surface.categories[i];
+    rawByCat[cat] = r.status === "fulfilled" ? r.value.rows : [];
+    readStats[cat] = r.status === "fulfilled" ? r.value.rows.length : null;
+  });
+  if (Object.values(readStats).every((v) => v === null)) {
+    console.error("audit-starvation-measure: every owned read failed");
+    process.exit(5);
+  }
+}
+
+// ── OLD: the shipped CUT, over those same rows ──────────────────────────────
+const oldReads = [];
+const oldIds = new Set();
 for (const cat of surface.categories) {
   const subs = (surface.oldSubs && surface.oldSubs[cat]) || [undefined];
-  for (const sub of subs) reads.push({ cat, sub });
+  for (const sub of subs) {
+    let rows = rawByCat[cat] || [];
+    // 1. the unordered database window (modelled — see the header)
+    const truncated = rows.length > OLD_DB_LIMIT;
+    rows = rows.slice(0, OLD_DB_LIMIT);
+    // 2. the chip contract, when the route's read carried one (v8.49 applies it
+    //    BEFORE the cap, so it is applied here in the same place). chipIdentity
+    //    is IMPORTED and CALLED; this file holds no copy of a chip's rule.
+    const subId = String(sub || "").toLowerCase();
+    if (subId && (CHIP_IDENTITY[`${cat}:${subId}`] || SUB_ALLOW[`${cat}:${subId}`])) {
+      rows = rows.filter((row) => {
+        try {
+          return chipIdentity(cat, subId, {
+            name: row.name, types: row.google_types || [], primary_type: row.primary_type,
+            primaryType: row.primary_type, category: row.category,
+          });
+        } catch (e) { return true; }
+      });
+    }
+    // 3. rankInventory's real row filters, 1.15 gate, score and top-N. Called,
+    //    not restated — it returns mapped places, and only the IDS are taken,
+    //    so the rows admitted below are the ORIGINAL rows.
+    const kept = rankInventory(rows, LAT, LNG, radiusM, surface.oldN);
+    for (const p of kept) oldIds.add(p.id);
+    oldReads.push({ cat, sub: sub || null, inBox: (rawByCat[cat] || []).length, afterChip: rows.length, kept: kept.length, dbTruncated: truncated });
+  }
 }
-const oldSettled = await Promise.all(reads.map((r) =>
-  serveFromInventory(r.cat, LAT, LNG, radiusM, surface.oldN, r.sub, { failLoud: false, primaryOnly: false })
-    .then((rows) => ({ ...r, rows }))
-    .catch(() => ({ ...r, rows: [], failed: true }))));
-
-const oldRaw = oldSettled.flatMap((r) => r.rows.map(toRawRow));
-const oldAdmit = admitOwnedRows(oldRaw, origin, { maxMi: surface.radiusMi, identity: surface.claims });
-
-// ── NEW: identity-first, deterministic, exhaustive ─────────────────────────
-//
-// A category the registry declares broad BY DESIGN is read the OLD way in BOTH
-// columns, so the delta below is exactly what the SHIPPED code recovers rather
-// than a ceiling nobody built. Today, for instance, reads attractions and beach
-// identity-first and deliberately leaves food/nightlife/hotels/shopping on the
-// shared reader (isBestFood is a score floor, which a top-N-by-score read serves
-// rather than starves). Measuring all six as if they were identity-first would
-// report a recovery the product does not actually make.
-const byDesign = surface.broadByDesign || {};
-const identityFirstCats = surface.categories.filter((c) => !byDesign[c]);
-const stillBroadCats = surface.categories.filter((c) => byDesign[c]);
-
-const pool = await fetchOwnedPool(LAT, LNG, {
-  categories: identityFirstCats,
-  radiusMi: surface.radiusMi,
-  identity: surface.claims,
+const oldRows = surface.categories.flatMap((c) => (rawByCat[c] || []).filter((r) => oldIds.has(r.place_id)));
+const oldAdmit = admitOwnedRows(oldRows, origin, {
+  maxMi: surface.radiusMi, identity: surface.claims, toPlace: surface.toPlace,
 });
-let nextPlaces = pool.places;
-let nextStats = pool.stats;
-if (stillBroadCats.length) {
-  const extra = await Promise.all(stillBroadCats.map((cat) =>
-    serveFromInventory(cat, LAT, LNG, radiusM, surface.oldN, undefined, { failLoud: false, primaryOnly: false })
-      .catch(() => [])));
-  const admitted = admitOwnedRows(extra.flat().map(toRawRow), origin, { maxMi: surface.radiusMi, identity: surface.claims });
-  const seen = new Set(nextPlaces.map((p) => p.id));
-  nextPlaces = nextPlaces.concat(admitted.places.filter((p) => !seen.has(p.id)));
-  nextStats = {
-    ...nextStats,
-    rows: nextStats.rows + admitted.stats.rows,
-    servable: nextStats.servable + admitted.stats.servable,
-    withinRadius: nextStats.withinRadius + admitted.stats.withinRadius,
-    qualified: nextPlaces.length,
-    broadByDesign: stillBroadCats,
-  };
-}
-const next = { places: nextPlaces, stats: nextStats };
+
+// ── NEW: identity-first over every row that was read ────────────────────────
+//
+// A category the registry declares broad BY DESIGN keeps the OLD cut in this
+// column too, so the delta is exactly what the SHIPPED code recovers rather than
+// a ceiling nobody built. Today reads attractions and beach identity-first and
+// deliberately leaves food/nightlife/hotels/shopping on the shared reader.
+const byDesign = surface.broadByDesign || {};
+const newRows = surface.categories.flatMap((c) =>
+  (byDesign[c] ? (rawByCat[c] || []).filter((r) => oldIds.has(r.place_id)) : (rawByCat[c] || [])));
+const nextAdmit = admitOwnedRows(newRows, origin, {
+  maxMi: surface.radiusMi, identity: surface.claims, toPlace: surface.toPlace,
+});
+const next = {
+  places: nextAdmit.places,
+  stats: {
+    ...nextAdmit.stats,
+    perCategory: readStats,
+    truncated: false,
+    sourceFailures: Object.values(readStats).filter((v) => v === null).length,
+    broadByDesign: Object.keys(byDesign),
+  },
+};
+const oldAdmitStats = oldAdmit.stats;
 
 const oldBuckets = surface.bucket(oldAdmit.places, origin);
 const newBuckets = surface.bucket(next.places, origin);
@@ -146,10 +190,11 @@ const report = {
   categories: surface.categories,
   overlappingRails: !!surface.overlappingRails,
   old: {
-    reads: oldSettled.map((r) => ({ cat: r.cat, sub: r.sub || null, rows: r.rows.length, failed: !!r.failed })),
-    reachedClassifier: oldRaw.length,
-    qualified: oldAdmit.stats.qualified,
+    reads: oldReads,
+    reachedClassifier: oldRows.length,
+    qualified: oldAdmitStats.qualified,
     byRail: oldBuckets,
+    dbWindowTruncated: oldReads.some((r) => r.dbTruncated),
   },
   next: {
     rowsRead: next.stats.perCategory,
@@ -178,7 +223,7 @@ if (asJson) {
 } else {
   const pad = (s, w) => String(s).padEnd(w);
   console.log(`\n${surface.title} — ${LAT}, ${LNG} — exactly <= ${surface.radiusMi}mi — both columns share ONE admission\n`);
-  console.log(`OLD  rows the shipped read returned : ${report.old.reachedClassifier}   (${report.old.reads.map((r) => `${r.cat}${r.sub ? ":" + r.sub : ""} ${r.rows}`).join(", ")})`);
+  console.log(`OLD  rows the shipped cut let through: ${report.old.reachedClassifier}   (${report.old.reads.map((r) => `${r.cat}${r.sub ? ":" + r.sub : ""} ${r.kept}/${r.inBox}${r.dbTruncated ? "*" : ""}`).join(", ")})${report.old.dbWindowTruncated ? "   * the unordered limit=1000 window also bit" : ""}`);
   console.log(`OLD  qualifying after admission     : ${report.old.qualified}`);
   console.log("");
   console.log(`NEW  owned rows read in the box     : ${report.next.rows}   (${Object.entries(report.next.rowsRead).map(([k, v]) => k + " " + v).join(", ")})${report.next.truncated ? "  [TRUNCATED]" : ""}`);

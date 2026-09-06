@@ -23,6 +23,8 @@ import { BROWSE_INVENTORY_N } from "../../lib/browseInventory.js";
 import { NIGHT_OUT_MAX_MI, NIGHT_OUT_RAIL_DEFS, nightOutPlaceRail, composeNightOutRails } from "../../lib/nightOutIntent.js";
 import { DATE_NIGHT_WIDEN_MI, DATE_NIGHT_RAIL_DEFS, DATE_NIGHT_RAIL_ORDER, railMembership as dateNightMembership, composeDateNightRails } from "../../lib/dateNightIntent.js";
 import { BIRTHDAY_WIDEN_MI, BIRTHDAY_RAIL_DEFS, BIRTHDAY_RAIL_ORDER, birthdayRailMembership, composeBirthdayRails } from "../../lib/birthdayIntent.js";
+import { birthdayAttributesFor } from "../../lib/birthdayAttributes.js";
+import { rowToOwnedPlace } from "../../lib/ownedPool.js";
 import { LUNCH_BREAK_RAILS, lunchRailMembership, composeLunchBreakRails } from "../../lib/lunchBreakRails.js";
 import { TODAY_NATURE_MI, TODAY_DISCOVERY_RAIL_DEFS, composeTodayDiscoveryRails } from "../../lib/todayDiscoveryRails.js";
 
@@ -110,6 +112,16 @@ export const SURFACES = [
     oldN: BROWSE_INVENTORY_N,
     oldSubs: {},
     rails: BIRTHDAY_RAIL_ORDER,
+    // The owner-curated attributes are EVIDENCE the predicates read
+    // (`_birthdayAttributes.rooftop` short-circuits isRooftop), so a measurement
+    // that omitted them would undercount both columns and read as scarcity.
+    toPlace: (row, o) => {
+      const place = rowToOwnedPlace(row, o);
+      if (!place) return null;
+      const attributes = birthdayAttributesFor(place.id);
+      if (attributes) place._birthdayAttributes = attributes;
+      return place;
+    },
     claims: (p) => BIRTHDAY_RAIL_ORDER.find((id) => { try { return birthdayRailMembership(id, p); } catch (e) { return false; } }) || null,
     bucket: (places) => countRails(composeBirthdayRails(places)),
     railTitles: Object.fromEntries(BIRTHDAY_RAIL_DEFS.map((d) => [d.id, d.title])),
