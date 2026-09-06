@@ -12,13 +12,16 @@ export const runtime = "nodejs";
 // for the rest of the app and WRONG here. dateNightBeachOk requires
 // weather.known AND outdoorOK AND beach.show. Any unknown → Museums, hide Beach.
 
-import { serveFromInventory } from "../../../lib/inventoryServe.js";
+import { invRowToPlace, serveFromInventory } from "../../../lib/inventoryServe.js";
+import { fetchOwnedPool } from "../../../lib/ownedPool.js";
+import { NET_DEADLINE_MS } from "../../../lib/fetchDeadline.js";
 import { getBeachConditions } from "../../../lib/marine.js";
 import { nowContext } from "../../../lib/nowContext.js";
 import { BROWSE_INVENTORY_N } from "../../../lib/browseInventory.js";
 import {
   DATE_NIGHT_WIDEN_MI,
   composeDateNightRails,
+  isDateDinner,
   toDateNightPlace,
 } from "../../../lib/dateNightIntent.js";
 import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
@@ -88,8 +91,41 @@ async function buildDateNightAnswer({ lat, lng, city, hour }) {
     };
   }).catch(() => {});
 
+  /**
+   * v8.98 — THE DINNER RAIL ASKS BEFORE THE COST BOUND.
+   *
+   * Eight of these nine reads carry a chip contract, and serveFromInventory has
+   * applied those BEFORE its top-N cut since v8.49 — dessert, speakeasy, music,
+   * clubs, spa, tours, museums, beaches are already identity-first and are left
+   * exactly as they are. The NINTH was the bare `food` read, and the `dinner`
+   * rail is what eats from it: isDateDinner requires a real date-dinner signal
+   * (price level 2+, a room word in the name, or an occasion primary type) and,
+   * by this file's own measurement, 68% of food rows are price-blind and room
+   * words are rare. So a narrow predicate competed against all 2,417 food rows
+   * in the 27-mile box for 400 slots and lost — "identity ∩ anchor top-N is thin
+   * BY CONSTRUCTION" (lib/browseInventory.js), for the seventh time.
+   *
+   * isDateDinner itself is handed to the reader, so this route still holds one
+   * opinion about what a date dinner is, and the read is deterministic
+   * (order=place_id.asc) and exhaustive instead of an arbitrary unordered
+   * thousand. Radius, shape, ranking and the other eight reads are unchanged.
+   */
+  const dinnerPool = fetchOwnedPool(lat, lng, {
+    categories: ["food"],
+    radiusMi: DATE_NIGHT_WIDEN_MI,
+    deadlineMs: NET_DEADLINE_MS,
+    toPlace: (row, o) => toDateNightPlace(invRowToPlace(row), o),
+    identity: isDateDinner,
+  }).then((pool) => pool.places).catch((error) => {
+    // The other eight reads already degrade to [] on a database problem, so this
+    // one does too rather than 503-ing a surface that can still answer. It says
+    // so out loud: a silent [] here and a genuinely empty town look identical.
+    console.error("[api/date-night] dinner pool unavailable", { message: String(error?.message || error) });
+    return [];
+  });
+
   const pools = await Promise.all([
-    serveFromInventory("food", lat, lng, radiusM, n),
+    dinnerPool,
     serveFromInventory("food", lat, lng, radiusM, n, "dessert"),
     serveFromInventory("nightlife", lat, lng, radiusM, n, "speakeasy"),
     serveFromInventory("nightlife", lat, lng, radiusM, n, "music"),

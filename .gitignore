@@ -46,3 +46,4 @@ tmp/
 trend-export*.csv
 !scripts/fixtures/trends/*.csv
 .rail-shots/
+artifacts/

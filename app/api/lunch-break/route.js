@@ -1,11 +1,13 @@
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// Lunch Break reads Wayfind's owned food inventory only: zero Google calls,
-// one bounded Supabase read, then FastCache + CDN reuse for nearby readers.
-import { BROWSE_INVENTORY_N } from "../../../lib/browseInventory.js";
+// Lunch Break reads Wayfind's owned food inventory only: zero Google calls, a
+// bounded, deterministic, identity-first Supabase read (lib/ownedPool.js), then
+// FastCache + CDN reuse for nearby readers.
 import { DB_DEADLINE_MS, NET_DEADLINE_MS, fetchDeadline } from "../../../lib/fetchDeadline.js";
-import { distMeters, serveFromInventory } from "../../../lib/inventoryServe.js";
+import { distMeters, invRowToPlace } from "../../../lib/inventoryServe.js";
+import { fetchOwnedPool } from "../../../lib/ownedPool.js";
+import { lunchRailMembership } from "../../../lib/lunchBreakRails.js";
 import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 import atlasCards from "../../../data/atlas/editorial-cards.json";
 import { atlasCardFor, atlasCardForName, indexAtlasCards } from "../../../lib/atlasCards.js";
@@ -117,22 +119,58 @@ function toLunchPlace(raw, origin) {
   };
 }
 
+/**
+ * v8.98 — THE SEVEN CUISINE RAILS ASK BEFORE THE COST BOUND, NOT AFTER IT.
+ *
+ * This read used to be `serveFromInventory("food", …, BROWSE_INVENTORY_N)`: the
+ * top 400 of ALL food by Wayfind Score, with the seven narrow rails —
+ * Cuban & Caribbean, Chicken, Mexican, Pizza, Burgers, Healthy, Deli — asking
+ * their question afterwards, on the client. Every cuisine competed against every
+ * other cuisine (and against every ordinary restaurant) for those 400 slots, so
+ * a genuinely excellent Cuban sandwich counter ranked #430 among all food was
+ * invisible to Cuban & Caribbean however perfectly it qualified.
+ *
+ * It is the café bug (v8.49) and the Night Out bug (v8.97b) in a third costume,
+ * and lib/browseInventory.js named the shape years of fixes ago:
+ * "identity ∩ anchor top-N is thin BY CONSTRUCTION".
+ *
+ * Now the reader is handed lunchRailMembership — the SAME function the composer
+ * uses, imported rather than restated — so the only rows read are rows a rail
+ * actually wants, and the pool is read deterministically (order=place_id.asc)
+ * and to exhaustion instead of as an arbitrary unordered thousand.
+ *
+ * Unchanged on purpose: the 8-mile radius, `primaryOnly` (secondary-category
+ * food rows stay out of Lunch, as before — this change is about DEPTH, not about
+ * widening what counts), the photo requirement, and the composer's ranking.
+ */
 async function loadLunchPlaces(lat, lng) {
-  const key = `lunch-break:v3:${geoCell(lat)}:${geoCell(lng)}`;
+  const key = `lunch-break:v4:${geoCell(lat)}:${geoCell(lng)}`;
   const cached = await fastCachedRail(key, async () => {
-      const raw = await serveFromInventory("food", lat, lng, LUNCH_RADIUS_MI * 1609.34, BROWSE_INVENTORY_N, undefined, {
-        failLoud: true, primaryOnly: true, deadlineMs: NET_DEADLINE_MS,
-      });
       const origin = { lat, lng };
+      // The pool's mapper is the route's OWN mapper, fed the exact shape the
+      // previous read produced (invRowToPlace), so a card is built from the same
+      // fields it always was and the only thing that changed is which rows reach
+      // it. The identity below then runs on a real Lunch place, not on a
+      // second, drifting projection of one.
+      const pool = await fetchOwnedPool(lat, lng, {
+        categories: ["food"],
+        radiusMi: LUNCH_RADIUS_MI,
+        primaryOnly: true,
+        deadlineMs: NET_DEADLINE_MS,
+        toPlace: (row, o) => toLunchPlace(invRowToPlace(row), o),
+        identity: lunchRailMembership,
+      });
       const seen = new Set();
       const places = [];
-      for (const row of raw) {
-        const place = toLunchPlace(row, origin);
+      for (const place of pool.places) {
+        // Presentation, not identity: a card with no image is not a card. It
+        // stays AFTER admission so the funnel below reports honest candidate
+        // counts rather than photo counts.
         if (!place || seen.has(place.id) || (!place.photo && !place.photoRef)) continue;
         seen.add(place.id);
         places.push(place);
       }
-      return { places };
+      return { places, sourceStats: pool.stats };
     }, { name: "lunch-break", usable: (value) => !!value?.places?.length });
   return cached;
 }
