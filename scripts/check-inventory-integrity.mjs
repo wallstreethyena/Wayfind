@@ -37,9 +37,9 @@ if (!URL_ || !KEY) {
 // Documented allowances. These are CEILINGS on known, triaged debt — not targets.
 // Lowering them as the debt is paid is the point; raising one requires a human to
 // look at why and say so here.
-const MAX_NULL_PRIMARY_TYPE = 20;   // 18 remain: generic Google types, no curated category. Manual pass pending.
+const MAX_NULL_PRIMARY_TYPE = 0;    // paid down 2026-09-06 (v8.99): ingest now normalises primary_type; any new one is an ingest fault
 const MAX_SPLIT_VENUE_GROUPS = 0;   // resolved 2026-08-20; any new one is a fresh ingest fault
-const MAX_NON_DESTINATION = 9;      // 9 triaged rows pending a retire sweep (verified live 2026-08-20)
+const MAX_NON_DESTINATION = 0;      // paid down 2026-09-06 (v8.99): medical primaries excluded at classify(); 24 retired
 
 const NON_DESTINATION = /(dentist|doctor|lawyer|insurance|bank|atm|storage|car_repair|auto_parts|car_dealer|real_estate|hospital|pharmacy|gas_station|laundry|hair_|nail_|barber|funeral|veterinar|plumber|electrician|roofing|accounting|moving_company|chiropractor|medical_clinic|dry_clean|locksmith|pest_control)/;
 
@@ -49,7 +49,10 @@ const ok = (c, m) => { checks++; if (!c) { bad++; console.error("check-inventory
 const rows = [];
 for (let from = 0; ; from += 1000) {
   const r = await fetch(
-    `${URL_}/rest/v1/wf_inventory?select=place_id,name,metro,lat,lng,primary_type,category,photo_ref,status&status=eq.OPERATIONAL`,
+    // v8.99: `excluded=true` rows are skipped by the read path (lib/inventoryServe)
+    // and by retirement (status=EXCLUDED), so this guard measures what can SERVE,
+    // the same population the user sees — not rows already taken off the board.
+    `${URL_}/rest/v1/wf_inventory?select=place_id,name,metro,lat,lng,primary_type,category,photo_ref,status,signals&status=eq.OPERATIONAL&excluded=not.is.true`,
     { headers: { apikey: KEY, Authorization: `Bearer ${KEY}`, Range: `${from}-${from + 999}` } }
   );
   if (!r.ok) { console.error(`check-inventory-integrity: FAIL — Supabase ${r.status}`); process.exit(1); }
@@ -80,7 +83,13 @@ for (const [k, g] of groups) {
     (Math.max(...g.map((x) => x.lat)) - Math.min(...g.map((x) => x.lat))) * 111320,
     (Math.max(...g.map((x) => x.lng)) - Math.min(...g.map((x) => x.lng))) * 111320 * Math.cos((g[0].lat * Math.PI) / 180)
   );
-  if (spread <= 800) split.push(`${g[0].name} (${g.length}x, ${Math.round(spread)}m)`);
+  // v8.99: two records of one name 400–800m apart that are BOTH well-reviewed are
+  // branches (maman Brickell / maman Downtown, 662m, 958 and 1,010 reviews), not a
+  // split. A split shows as one strong record shadowed by a weak one (Lake Eola
+  // Park: 24,631 vs 78) or as pins on top of each other (Dezerland, 5m).
+  const reviews = g.map((x) => Number((x.signals && x.signals.reviews) || 0)).sort((a, b) => b - a);
+  const shadowed = reviews[0] > 0 && reviews[1] < reviews[0] * 0.25;
+  if (spread <= 800 && (spread <= 400 || shadowed)) split.push(`${g[0].name} (${g.length}x, ${Math.round(spread)}m)`);
 }
 ok(split.length <= MAX_SPLIT_VENUE_GROUPS,
   `${split.length} venues are stored as multiple records under 800m apart — one place will render as several cards: ${split.slice(0, 5).join("; ")}`);
