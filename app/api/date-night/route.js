@@ -24,7 +24,7 @@ import {
   isDateDinner,
   toDateNightPlace,
 } from "../../../lib/dateNightIntent.js";
-import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
+import { completeAnswersOnly, fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 import { windowRailAnswer } from "../../../lib/railResponse.js";
 import { pageOneRail } from "../../../lib/railPage.js";
 
@@ -116,7 +116,9 @@ async function buildDateNightAnswer({ lat, lng, city, hour }) {
     deadlineMs: NET_DEADLINE_MS,
     toPlace: (row, o) => toDateNightPlace(invRowToPlace(row), o),
     identity: isDateDinner,
-  }).then((pool) => pool.places);
+  });
+  const dinnerPlaces = dinnerPool.then((pool) => pool.places);
+  const dinnerStats = dinnerPool.then((pool) => pool.stats).catch(() => ({}));
   // NOT `.catch(() => [])` (owner review, 2026-09-06). The first version swallowed
   // a failed dinner pool into an empty list, on the reasoning that the other eight
   // reads already degrade that way. That reasoning was wrong twice over: an empty
@@ -127,7 +129,7 @@ async function buildDateNightAnswer({ lat, lng, city, hour }) {
   // fastCachedRail's `usable` refuses an empty rail set, caches nothing.
 
   const pools = await Promise.all([
-    dinnerPool,
+    dinnerPlaces,
     serveFromInventory("food", lat, lng, radiusM, n, "dessert"),
     serveFromInventory("nightlife", lat, lng, radiusM, n, "speakeasy"),
     serveFromInventory("nightlife", lat, lng, radiusM, n, "music"),
@@ -154,8 +156,13 @@ async function buildDateNightAnswer({ lat, lng, city, hour }) {
     outdoorOK: wxSignals.outdoorOK,
     beachShow: wxSignals.beachShow,
   });
+  const dinnerPoolStats = await dinnerStats;
   return {
     rails: composed.rails,
+    // A partial or capped dinner pool must not be cached as this town's answer
+    // — see completeAnswersOnly in lib/railFastCache.js.
+    degraded: !!dinnerPoolStats.degraded,
+    sourceStats: dinnerPoolStats,
     beachOk: composed.beachOk,
     hidden: composed.hidden,
     weather: {
@@ -189,7 +196,7 @@ export async function GET(req) {
   try {
     cached = await fastCachedRail(key, () => buildDateNightAnswer({ lat, lng, city, hour }), {
       name: "date-night-rails",
-      usable: (value) => !!(value && Array.isArray(value.rails) && value.rails.length),
+      usable: completeAnswersOnly((value) => Array.isArray(value.rails) && value.rails.length),
     });
   } catch (error) {
     // An inventory read that failed, or an owned pool that came back incomplete,
@@ -211,9 +218,14 @@ export async function GET(req) {
   // sometimes it doesn't" report that rule was written for. no-store means the
   // very next request rebuilds and the cell self-heals; a real answer keeps
   // the hour it earned.
-  const empty = !answer.rails || answer.rails.length === 0;
+  //
+  // v8.98j widens this from "empty" to "not a complete answer". A pool that read
+  // only some of its categories is degraded even when it composed plenty of
+  // rails, and that case never reached this line before — the rails looked
+  // healthy, so the hour was granted.
+  const incomplete = !answer.rails || answer.rails.length === 0 || answer.degraded === true;
   const headers = {
-    "cache-control": empty ? "no-store" : "public, s-maxage=3600, stale-while-revalidate=86400",
+    "cache-control": incomplete ? "no-store" : "public, s-maxage=3600, stale-while-revalidate=86400",
     "x-wayfind-fast-cache": cached.state,
   };
   if (railId) {
