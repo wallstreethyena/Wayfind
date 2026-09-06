@@ -26,6 +26,9 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }) {
+  // Throws on a failed read. Do not catch — an outage is not "this event
+  // has no metadata", and catching would hide the same soft-fail the hub
+  // used to cache as a successful empty page.
   const e = await fetchCuratedEventBySlug(params.slug);
   if (!e) return {};
   const title = `${e.event_name} ${e.year}: Dates, Tickets & What to Know`;
@@ -159,6 +162,8 @@ const thumbUrl = (p) => (p.photoRef
   : "/api/photo?place=" + encodeURIComponent(p.id) + "&w=220");
 
 export default async function CuratedEventPage({ params }) {
+  // Throws on a failed read. notFound() is only the honest miss (row
+  // absent or not displayable). An outage must not 404 a live event.
   const e = await fetchCuratedEventBySlug(params.slug);
   if (!e) notFound();
 
