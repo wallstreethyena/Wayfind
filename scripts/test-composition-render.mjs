@@ -94,8 +94,18 @@ ok(!/Bradenton|Sarasota|Lakewood Ranch/.test(orl),
     .map((c) => String(c.business));
   ok(sarNames.length > 0,
     "GEO positive control has sarasota-metro nightout inventory to look for — an empty list would make the next assertion vacuous");
-  ok(sarNames.some((n) => n && sar.includes(n)),
+  // Compare HTML with HTML: React escapes apostrophes and ampersands in a
+  // business name. The old raw-name probe failed on correctly rendered
+  // Gecko's Grill & Pub after the other regional offers expired.
+  const htmlName = (name) => render(createElement("span", null, name)).slice(6, -7);
+  ok(htmlName("Gecko's Grill & Pub") === "Gecko&#x27;s Grill &amp; Pub",
+    "name probe uses the same HTML escaping as the real component");
+  ok(sarNames.some((n) => n && sar.includes(htmlName(n))),
     "GEO: the Sarasota strip MUST still show its own regional deals — the gate must not be a mute (positive control)");
+  // …and the escaping must not have turned the check into a tautology: a name
+  // that is NOT in the registry must still be absent from the strip.
+  ok(!sar.includes(htmlName("Bananas' Axe Cabana")) && !sar.includes("Bananas"),
+    "negative control: an Orlando business appears in the Sarasota strip — the escaped comparison matches too much");
 }
 // NO LOCATION: main's rule is that an unknown viewer does NOT filter — every
 // live deal for the intent shows. This test locks THAT, not a preference.

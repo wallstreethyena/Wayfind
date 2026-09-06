@@ -8,7 +8,7 @@ import { DB_DEADLINE_MS, NET_DEADLINE_MS, fetchDeadline } from "../../../lib/fet
 import { distMeters, invRowToPlace } from "../../../lib/inventoryServe.js";
 import { fetchOwnedPool } from "../../../lib/ownedPool.js";
 import { lunchRailMembership } from "../../../lib/lunchBreakRails.js";
-import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
+import { completeAnswersOnly, fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 import atlasCards from "../../../data/atlas/editorial-cards.json";
 import { atlasCardFor, atlasCardForName, indexAtlasCards } from "../../../lib/atlasCards.js";
 import { createHash } from "node:crypto";
@@ -170,8 +170,8 @@ async function loadLunchPlaces(lat, lng) {
         seen.add(place.id);
         places.push(place);
       }
-      return { places, sourceStats: pool.stats };
-    }, { name: "lunch-break", usable: (value) => !!value?.places?.length });
+      return { places, degraded: !!pool.stats.degraded, sourceStats: pool.stats };
+    }, { name: "lunch-break", usable: completeAnswersOnly((value) => value.places?.length) });
   return cached;
 }
 
@@ -184,7 +184,7 @@ export async function GET(request) {
     const cached = await loadLunchPlaces(lat, lng);
     return Response.json(cached.value, {
       headers: {
-        "cache-control": cached.value.places.length ? "public, s-maxage=3600, stale-while-revalidate=86400" : "no-store",
+        "cache-control": cached.value.places.length && !cached.value.degraded ? "public, s-maxage=3600, stale-while-revalidate=86400" : "no-store",
         "x-wayfind-fast-cache": cached.state,
       },
     });

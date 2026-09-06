@@ -1,0 +1,1297 @@
+{
+  "generated": "2026-09-06T04:13:39.064697+00:00",
+  "posters": {
+    "Fall in Florida": "fall",
+    "Night Out": "night-out",
+    "Trending Near You": "trending",
+    "Date Night": "date-night",
+    "Summer Picks": "summer",
+    "Today's Best Options": "today",
+    "Lunch in My City": "lunch-challenge",
+    "Actually Worth Eating": "shared",
+    "Chef Ron Duprat's Top 7": "curated",
+    "Locals Know": "shared",
+    "Worth the Drive": "shared",
+    "Birthday Plans, Solved": "birthday",
+    "Family Day, Decided": "shared",
+    "Beach Day": "shared",
+    "The 30-Minute Break": "lunch-break",
+    "Best Breakfast Picks": "shared",
+    "Your Next Coffee Spot": "creator",
+    "Local Guides": "guides"
+  },
+  "expected_probes": 27,
+  "results": [
+    {
+      "city": "Parrish",
+      "surface": "night-out",
+      "url": "https://www.gowayfind.com/api/night-out?lat=27.58&lng=-82.43&city=Parrish",
+      "started": "2026-09-06T04:13:39.067691+00:00",
+      "status": 200,
+      "bytes": 83795,
+      "cache": "miss",
+      "keys": [
+        "hasMore",
+        "rails",
+        "sourceCount",
+        "sourceFailures",
+        "sourceStats"
+      ],
+      "error": null,
+      "sourceFailures": 0,
+      "sourceStats": {
+        "rows": 4182,
+        "servable": 4119,
+        "withinRadius": 3477,
+        "qualified": 418,
+        "truncated": false,
+        "degraded": false,
+        "sourceFailures": 0,
+        "perCategory": {
+          "food": 2345,
+          "nightlife": 407,
+          "attractions": 1430
+        }
+      },
+      "rails": [
+        {
+          "id": "clubs",
+          "cards": 12,
+          "total": 15
+        },
+        {
+          "id": "cocktails",
+          "cards": 12,
+          "total": 194
+        },
+        {
+          "id": "live-music",
+          "cards": 12,
+          "total": 58
+        },
+        {
+          "id": "dinner-entertainment",
+          "cards": 2,
+          "total": 2
+        },
+        {
+          "id": "date-dining",
+          "cards": 12,
+          "total": 28
+        },
+        {
+          "id": "shows",
+          "cards": 12,
+          "total": 46
+        },
+        {
+          "id": "districts",
+          "cards": 0,
+          "total": 0
+        },
+        {
+          "id": "waterfront",
+          "cards": 12,
+          "total": 14
+        },
+        {
+          "id": "night-tours",
+          "cards": 3,
+          "total": 3
+        },
+        {
+          "id": "social-play",
+          "cards": 12,
+          "total": 48
+        }
+      ],
+      "places": 0,
+      "ui_verified": false,
+      "seconds": 12.017
+    },
+    {
+      "city": "Parrish",
+      "surface": "birthday",
+      "url": "https://www.gowayfind.com/api/birthday?lat=27.58&lng=-82.43&city=Parrish",
+      "started": "2026-09-06T04:13:39.068628+00:00",
+      "status": 200,
+      "bytes": 53274,
+      "cache": "miss",
+      "keys": [
+        "hasMore",
+        "rails"
+      ],
+      "error": null,
+      "sourceFailures": null,
+      "sourceStats": null,
+      "rails": [
+        {
+          "id": "gifts",
+          "cards": 12,
+          "total": 20
+        },
+        {
+          "id": "upscale",
+          "cards": 12,
+          "total": 75
+        },
+        {
+          "id": "private",
+          "cards": 3,
+          "total": 3
+        },
+        {
+          "id": "rooftops",
+          "cards": 6,
+          "total": 6
+        },
+        {
+          "id": "beachfront",
+          "cards": 8,
+          "total": 8
+        },
+        {
+          "id": "clubs",
+          "cards": 6,
+          "total": 6
+        },
+        {
+          "id": "speakeasies",
+          "cards": 3,
+          "total": 3
+        }
+      ],
+      "places": 0,
+      "ui_verified": false,
+      "seconds": 11.935
+    },
+    {
+      "city": "Parrish",
+      "surface": "date-night",
+      "url": "https://www.gowayfind.com/api/date-night?lat=27.58&lng=-82.43&city=Parrish",
+      "started": "2026-09-06T04:13:51.003520+00:00",
+      "status": 200,
+      "bytes": 54280,
+      "cache": "miss",
+      "keys": [
+        "beachOk",
+        "hasMore",
+        "hidden",
+        "rails",
+        "weather"
+      ],
+      "error": null,
+      "sourceFailures": null,
+      "sourceStats": null,
+      "rails": [
+        {
+          "id": "dinner",
+          "cards": 12,
+          "total": 717
+        },
+        {
+          "id": "dessert",
+          "cards": 12,
+          "total": 146
+        },
+        {
+          "id": "speakeasies",
+          "cards": 1,
+          "total": 1
+        },
+        {
+          "id": "livemusic",
+          "cards": 1,
+          "total": 1
+        },
+        {
+          "id": "clubs",
+          "cards": 6,
+          "total": 6
+        },
+        {
+          "id": "together",
+          "cards": 12,
+          "total": 141
+        },
+        {
+          "id": "beach",
+          "cards": 12,
+          "total": 45
+        }
+      ],
+      "places": 0,
+      "ui_verified": false,
+      "seconds": 7.144
+    },
+    {
+      "city": "Parrish",
+      "surface": "today",
+      "url": "https://www.gowayfind.com/api/today-discovery?lat=27.58&lng=-82.43&city=Parrish",
+      "started": "2026-09-06T04:13:51.084799+00:00",
+      "status": 200,
+      "bytes": 105072,
+      "cache": "miss",
+      "keys": [
+        "hasMore",
+        "rails"
+      ],
+      "error": null,
+      "sourceFailures": null,
+      "sourceStats": null,
+      "rails": [
+        {
+          "id": "activities",
+          "cards": 12,
+          "total": 159
+        },
+        {
+          "id": "instagram",
+          "cards": 9,
+          "total": 9
+        },
+        {
+          "id": "springs",
+          "cards": 12,
+          "total": 13
+        },
+        {
+          "id": "beaches",
+          "cards": 12,
+          "total": 55
+        },
+        {
+          "id": "food",
+          "cards": 12,
+          "total": 358
+        },
+        {
+          "id": "water",
+          "cards": 12,
+          "total": 96
+        },
+        {
+          "id": "parks",
+          "cards": 12,
+          "total": 63
+        },
+        {
+          "id": "nature",
+          "cards": 12,
+          "total": 346
+        },
+        {
+          "id": "golf",
+          "cards": 12,
+          "total": 24
+        },
+        {
+          "id": "pickleball",
+          "cards": 5,
+          "total": 5
+        }
+      ],
+      "places": 0,
+      "ui_verified": false,
+      "seconds": 8.654
+    },
+    {
+      "city": "Parrish",
+      "surface": "fall",
+      "url": "https://www.gowayfind.com/api/events/fall?lat=27.58&lng=-82.43&city=Parrish",
+      "started": "2026-09-06T04:13:58.147122+00:00",
+      "status": 200,
+      "bytes": 117211,
+      "cache": "miss",
+      "keys": [
+        "hasMore",
+        "phase",
+        "rails",
+        "sourceCount",
+        "sourceFailures",
+        "today"
+      ],
+      "error": null,
+      "sourceFailures": 0,
+      "sourceStats": null,
+      "rails": [
+        {
+          "id": "food",
+          "cards": 3,
+          "total": 3
+        },
+        {
+          "id": "theme-parks",
+          "cards": 2,
+          "total": 2
+        },
+        {
+          "id": "date-night",
+          "cards": 9,
+          "total": 9
+        },
+        {
+          "id": "farms",
+          "cards": 5,
+          "total": 5
+        },
+        {
+          "id": "oktoberfest",
+          "cards": 6,
+          "total": 6
+        },
+        {
+          "id": "festivals",
+          "cards": 4,
+          "total": 4
+        },
+        {
+          "id": "photos",
+          "cards": 7,
+          "total": 7
+        },
+        {
+          "id": "haunts",
+          "cards": 2,
+          "total": 2
+        },
+        {
+          "id": "family",
+          "cards": 4,
+          "total": 4
+        },
+        {
+          "id": "day-trips",
+          "cards": 0,
+          "total": 0
+        }
+      ],
+      "places": 0,
+      "ui_verified": false,
+      "seconds": 8.183
+    },
+    {
+      "city": "Parrish",
+      "surface": "summer",
+      "url": "https://www.gowayfind.com/api/summer/places?lat=27.58&lng=-82.43&city=Parrish",
+      "started": "2026-09-06T04:13:59.739328+00:00",
+      "status": 200,
+      "bytes": 72744,
+      "cache": "miss",
+      "keys": [
+        "places"
+      ],
+      "error": null,
+      "sourceFailures": null,
+      "sourceStats": null,
+      "rails": [],
+      "places": 45,
+      "ui_verified": false,
+      "seconds": 6.436
+    },
+    {
+      "city": "Parrish",
+      "surface": "shared",
+      "url": "https://www.gowayfind.com/api/rails?lat=27.58&lng=-82.43&city=Parrish&v=2&band=evening",
+      "started": "2026-09-06T04:14:06.175772+00:00",
+      "status": 200,
+      "bytes": 132512,
+      "cache": "miss",
+      "keys": [
+        "covered",
+        "data"
+      ],
+      "error": null,
+      "sourceFailures": null,
+      "sourceStats": null,
+      "rails": [],
+      "places": 0,
+      "ui_verified": false,
+      "seconds": 13.412
+    },
+    {
+      "city": "Parrish",
+      "surface": "lunch-break",
+      "url": "https://www.gowayfind.com/api/lunch-break?lat=27.58&lng=-82.43&city=Parrish",
+      "started": "2026-09-06T04:14:06.330750+00:00",
+      "status": 200,
+      "bytes": 86742,
+      "cache": "miss",
+      "keys": [
+        "places",
+        "sourceStats"
+      ],
+      "error": null,
+      "sourceFailures": 0,
+      "sourceStats": {
+        "rows": 395,
+        "servable": 388,
+        "withinRadius": 145,
+        "qualified": 57,
+        "truncated": false,
+        "degraded": false,
+        "sourceFailures": 0,
+        "perCategory": {
+          "food": 395
+        }
+      },
+      "rails": [],
+      "places": 57,
+      "ui_verified": false,
+      "seconds": 5.736
+    },
+    {
+      "city": "Parrish",
+      "surface": "trending",
+      "url": "https://www.gowayfind.com/api/trends/nearby?lat=27.58&lng=-82.43&city=Parrish",
+      "started": "2026-09-06T04:14:12.067220+00:00",
+      "status": 403,
+      "error": "HTTP Error 403: Forbidden",
+      "seconds": 5.34
+    },
+    {
+      "city": "Tampa",
+      "surface": "night-out",
+      "url": "https://www.gowayfind.com/api/night-out?lat=27.95&lng=-82.46&city=Tampa",
+      "started": "2026-09-06T04:14:17.407657+00:00",
+      "status": 200,
+      "bytes": 79047,
+      "cache": "miss",
+      "keys": [
+        "hasMore",
+        "rails",
+        "sourceCount",
+        "sourceFailures",
+        "sourceStats"
+      ],
+      "error": null,
+      "sourceFailures": 0,
+      "sourceStats": {
+        "rows": 3236,
+        "servable": 3194,
+        "withinRadius": 2699,
+        "qualified": 344,
+        "truncated": false,
+        "degraded": false,
+        "sourceFailures": 0,
+        "perCategory": {
+          "food": 1867,
+          "nightlife": 362,
+          "attractions": 1007
+        }
+      },
+      "rails": [
+        {
+          "id": "clubs",
+          "cards": 12,
+          "total": 15
+        },
+        {
+          "id": "cocktails",
+          "cards": 12,
+          "total": 176
+        },
+        {
+          "id": "live-music",
+          "cards": 12,
+          "total": 33
+        },
+        {
+          "id": "dinner-entertainment",
+          "cards": 2,
+          "total": 2
+        },
+        {
+          "id": "date-dining",
+          "cards": 12,
+          "total": 20
+        },
+        {
+          "id": "shows",
+          "cards": 12,
+          "total": 34
+        },
+        {
+          "id": "districts",
+          "cards": 0,
+          "total": 0
+        },
+        {
+          "id": "waterfront",
+          "cards": 8,
+          "total": 8
+        },
+        {
+          "id": "night-tours",
+          "cards": 2,
+          "total": 2
+        },
+        {
+          "id": "social-play",
+          "cards": 12,
+          "total": 49
+        }
+      ],
+      "places": 0,
+      "ui_verified": false,
+      "seconds": 7.075
+    },
+    {
+      "city": "Tampa",
+      "surface": "birthday",
+      "url": "https://www.gowayfind.com/api/birthday?lat=27.95&lng=-82.46&city=Tampa",
+      "started": "2026-09-06T04:14:19.587753+00:00",
+      "status": 200,
+      "bytes": 30333,
+      "cache": "miss",
+      "keys": [
+        "hasMore",
+        "rails"
+      ],
+      "error": null,
+      "sourceFailures": null,
+      "sourceStats": null,
+      "rails": [
+        {
+          "id": "gifts",
+          "cards": 0,
+          "total": 0
+        },
+        {
+          "id": "upscale",
+          "cards": 12,
+          "total": 55
+        },
+        {
+          "id": "private",
+          "cards": 1,
+          "total": 1
+        },
+        {
+          "id": "rooftops",
+          "cards": 6,
+          "total": 6
+        },
+        {
+          "id": "beachfront",
+          "cards": 4,
+          "total": 4
+        },
+        {
+          "id": "clubs",
+          "cards": 6,
+          "total": 6
+        },
+        {
+          "id": "speakeasies",
+          "cards": 2,
+          "total": 2
+        }
+      ],
+      "places": 0,
+      "ui_verified": false,
+      "seconds": 5.168
+    },
+    {
+      "city": "Tampa",
+      "surface": "date-night",
+      "url": "https://www.gowayfind.com/api/date-night?lat=27.95&lng=-82.46&city=Tampa",
+      "started": "2026-09-06T04:14:24.482514+00:00",
+      "status": 200,
+      "bytes": 51735,
+      "cache": "miss",
+      "keys": [
+        "beachOk",
+        "hasMore",
+        "hidden",
+        "rails",
+        "weather"
+      ],
+      "error": null,
+      "sourceFailures": null,
+      "sourceStats": null,
+      "rails": [
+        {
+          "id": "dinner",
+          "cards": 12,
+          "total": 562
+        },
+        {
+          "id": "dessert",
+          "cards": 12,
+          "total": 84
+        },
+        {
+          "id": "clubs",
+          "cards": 6,
+          "total": 6
+        },
+        {
+          "id": "together",
+          "cards": 12,
+          "total": 106
+        },
+        {
+          "id": "beach",
+          "cards": 12,
+          "total": 12
+        }
+      ],
+      "places": 0,
+      "ui_verified": false,
+      "seconds": 5.767
+    },
+    {
+      "city": "Tampa",
+      "surface": "today",
+      "url": "https://www.gowayfind.com/api/today-discovery?lat=27.95&lng=-82.46&city=Tampa",
+      "started": "2026-09-06T04:14:24.755916+00:00",
+      "status": 200,
+      "bytes": 106541,
+      "cache": "miss",
+      "keys": [
+        "hasMore",
+        "rails"
+      ],
+      "error": null,
+      "sourceFailures": null,
+      "sourceStats": null,
+      "rails": [
+        {
+          "id": "activities",
+          "cards": 12,
+          "total": 224
+        },
+        {
+          "id": "instagram",
+          "cards": 12,
+          "total": 19
+        },
+        {
+          "id": "springs",
+          "cards": 12,
+          "total": 15
+        },
+        {
+          "id": "beaches",
+          "cards": 12,
+          "total": 57
+        },
+        {
+          "id": "food",
+          "cards": 12,
+          "total": 247
+        },
+        {
+          "id": "water",
+          "cards": 12,
+          "total": 101
+        },
+        {
+          "id": "parks",
+          "cards": 12,
+          "total": 136
+        },
+        {
+          "id": "nature",
+          "cards": 12,
+          "total": 375
+        },
+        {
+          "id": "golf",
+          "cards": 12,
+          "total": 13
+        },
+        {
+          "id": "pickleball",
+          "cards": 4,
+          "total": 4
+        }
+      ],
+      "places": 0,
+      "ui_verified": false,
+      "seconds": 6.835
+    },
+    {
+      "city": "Tampa",
+      "surface": "fall",
+      "url": "https://www.gowayfind.com/api/events/fall?lat=27.95&lng=-82.46&city=Tampa",
+      "started": "2026-09-06T04:14:30.249362+00:00",
+      "status": 200,
+      "bytes": 94860,
+      "cache": "miss",
+      "keys": [
+        "hasMore",
+        "phase",
+        "rails",
+        "sourceCount",
+        "sourceFailures",
+        "today"
+      ],
+      "error": null,
+      "sourceFailures": 0,
+      "sourceStats": null,
+      "rails": [
+        {
+          "id": "food",
+          "cards": 4,
+          "total": 4
+        },
+        {
+          "id": "theme-parks",
+          "cards": 2,
+          "total": 2
+        },
+        {
+          "id": "date-night",
+          "cards": 7,
+          "total": 7
+        },
+        {
+          "id": "farms",
+          "cards": 6,
+          "total": 6
+        },
+        {
+          "id": "oktoberfest",
+          "cards": 5,
+          "total": 5
+        },
+        {
+          "id": "festivals",
+          "cards": 3,
+          "total": 3
+        },
+        {
+          "id": "photos",
+          "cards": 5,
+          "total": 5
+        },
+        {
+          "id": "haunts",
+          "cards": 3,
+          "total": 3
+        },
+        {
+          "id": "family",
+          "cards": 1,
+          "total": 1
+        },
+        {
+          "id": "day-trips",
+          "cards": 0,
+          "total": 0
+        }
+      ],
+      "places": 0,
+      "ui_verified": false,
+      "seconds": 4.733
+    },
+    {
+      "city": "Tampa",
+      "surface": "summer",
+      "url": "https://www.gowayfind.com/api/summer/places?lat=27.95&lng=-82.46&city=Tampa",
+      "started": "2026-09-06T04:14:31.590659+00:00",
+      "status": 200,
+      "bytes": 75989,
+      "cache": "miss",
+      "keys": [
+        "places"
+      ],
+      "error": null,
+      "sourceFailures": null,
+      "sourceStats": null,
+      "rails": [],
+      "places": 47,
+      "ui_verified": false,
+      "seconds": 3.243
+    },
+    {
+      "city": "Tampa",
+      "surface": "shared",
+      "url": "https://www.gowayfind.com/api/rails?lat=27.95&lng=-82.46&city=Tampa&v=2&band=evening",
+      "started": "2026-09-06T04:14:34.833475+00:00",
+      "status": 200,
+      "bytes": 111866,
+      "cache": "miss",
+      "keys": [
+        "covered",
+        "data"
+      ],
+      "error": null,
+      "sourceFailures": null,
+      "sourceStats": null,
+      "rails": [],
+      "places": 0,
+      "ui_verified": false,
+      "seconds": 10.045
+    },
+    {
+      "city": "Tampa",
+      "surface": "lunch-break",
+      "url": "https://www.gowayfind.com/api/lunch-break?lat=27.95&lng=-82.46&city=Tampa",
+      "started": "2026-09-06T04:14:34.982137+00:00",
+      "status": 200,
+      "bytes": 199258,
+      "cache": "miss",
+      "keys": [
+        "places",
+        "sourceStats"
+      ],
+      "error": null,
+      "sourceFailures": 0,
+      "sourceStats": {
+        "rows": 763,
+        "servable": 757,
+        "withinRadius": 563,
+        "qualified": 136,
+        "truncated": false,
+        "degraded": false,
+        "sourceFailures": 0,
+        "perCategory": {
+          "food": 763
+        }
+      },
+      "rails": [],
+      "places": 136,
+      "ui_verified": false,
+      "seconds": 6.696
+    },
+    {
+      "city": "Tampa",
+      "surface": "trending",
+      "url": "https://www.gowayfind.com/api/trends/nearby?lat=27.95&lng=-82.46&city=Tampa",
+      "started": "2026-09-06T04:14:41.678165+00:00",
+      "status": 403,
+      "error": "HTTP Error 403: Forbidden",
+      "seconds": 4.707
+    },
+    {
+      "city": "Miami",
+      "surface": "night-out",
+      "url": "https://www.gowayfind.com/api/night-out?lat=25.76&lng=-80.19&city=Miami",
+      "started": "2026-09-06T04:14:44.878637+00:00",
+      "status": 200,
+      "bytes": 62163,
+      "cache": "miss",
+      "keys": [
+        "hasMore",
+        "rails",
+        "sourceCount",
+        "sourceFailures",
+        "sourceStats"
+      ],
+      "error": null,
+      "sourceFailures": 0,
+      "sourceStats": {
+        "rows": 2465,
+        "servable": 2465,
+        "withinRadius": 2258,
+        "qualified": 263,
+        "truncated": false,
+        "degraded": false,
+        "sourceFailures": 0,
+        "perCategory": {
+          "food": 1651,
+          "nightlife": 264,
+          "attractions": 550
+        }
+      },
+      "rails": [
+        {
+          "id": "clubs",
+          "cards": 12,
+          "total": 16
+        },
+        {
+          "id": "cocktails",
+          "cards": 12,
+          "total": 166
+        },
+        {
+          "id": "live-music",
+          "cards": 5,
+          "total": 5
+        },
+        {
+          "id": "dinner-entertainment",
+          "cards": 1,
+          "total": 1
+        },
+        {
+          "id": "date-dining",
+          "cards": 12,
+          "total": 30
+        },
+        {
+          "id": "shows",
+          "cards": 11,
+          "total": 11
+        },
+        {
+          "id": "districts",
+          "cards": 0,
+          "total": 0
+        },
+        {
+          "id": "waterfront",
+          "cards": 1,
+          "total": 1
+        },
+        {
+          "id": "night-tours",
+          "cards": 3,
+          "total": 3
+        },
+        {
+          "id": "social-play",
+          "cards": 12,
+          "total": 28
+        }
+      ],
+      "places": 0,
+      "ui_verified": false,
+      "seconds": 4.677
+    },
+    {
+      "city": "Miami",
+      "surface": "birthday",
+      "url": "https://www.gowayfind.com/api/birthday?lat=25.76&lng=-80.19&city=Miami",
+      "started": "2026-09-06T04:14:46.384986+00:00",
+      "status": 200,
+      "bytes": 30712,
+      "cache": "miss",
+      "keys": [
+        "hasMore",
+        "rails"
+      ],
+      "error": null,
+      "sourceFailures": null,
+      "sourceStats": null,
+      "rails": [
+        {
+          "id": "gifts",
+          "cards": 0,
+          "total": 0
+        },
+        {
+          "id": "upscale",
+          "cards": 5,
+          "total": 5
+        },
+        {
+          "id": "private",
+          "cards": 0,
+          "total": 0
+        },
+        {
+          "id": "rooftops",
+          "cards": 12,
+          "total": 12
+        },
+        {
+          "id": "beachfront",
+          "cards": 3,
+          "total": 3
+        },
+        {
+          "id": "clubs",
+          "cards": 9,
+          "total": 9
+        },
+        {
+          "id": "speakeasies",
+          "cards": 3,
+          "total": 3
+        }
+      ],
+      "places": 0,
+      "ui_verified": false,
+      "seconds": 8.232
+    },
+    {
+      "city": "Miami",
+      "surface": "date-night",
+      "url": "https://www.gowayfind.com/api/date-night?lat=25.76&lng=-80.19&city=Miami",
+      "started": "2026-09-06T04:14:49.555965+00:00",
+      "status": 200,
+      "bytes": 57830,
+      "cache": "miss",
+      "keys": [
+        "beachOk",
+        "hasMore",
+        "hidden",
+        "rails",
+        "weather"
+      ],
+      "error": null,
+      "sourceFailures": null,
+      "sourceStats": null,
+      "rails": [
+        {
+          "id": "dinner",
+          "cards": 12,
+          "total": 167
+        },
+        {
+          "id": "dessert",
+          "cards": 12,
+          "total": 108
+        },
+        {
+          "id": "speakeasies",
+          "cards": 3,
+          "total": 3
+        },
+        {
+          "id": "clubs",
+          "cards": 9,
+          "total": 9
+        },
+        {
+          "id": "together",
+          "cards": 12,
+          "total": 79
+        },
+        {
+          "id": "museums",
+          "cards": 12,
+          "total": 70
+        }
+      ],
+      "places": 0,
+      "ui_verified": false,
+      "seconds": 4.994
+    },
+    {
+      "city": "Miami",
+      "surface": "today",
+      "url": "https://www.gowayfind.com/api/today-discovery?lat=25.76&lng=-80.19&city=Miami",
+      "started": "2026-09-06T04:14:54.550089+00:00",
+      "status": 200,
+      "bytes": 79527,
+      "cache": "miss",
+      "keys": [
+        "hasMore",
+        "rails"
+      ],
+      "error": null,
+      "sourceFailures": null,
+      "sourceStats": null,
+      "rails": [
+        {
+          "id": "activities",
+          "cards": 12,
+          "total": 170
+        },
+        {
+          "id": "instagram",
+          "cards": 12,
+          "total": 29
+        },
+        {
+          "id": "springs",
+          "cards": 1,
+          "total": 1
+        },
+        {
+          "id": "beaches",
+          "cards": 0,
+          "total": 0
+        },
+        {
+          "id": "food",
+          "cards": 12,
+          "total": 533
+        },
+        {
+          "id": "water",
+          "cards": 9,
+          "total": 9
+        },
+        {
+          "id": "parks",
+          "cards": 12,
+          "total": 48
+        },
+        {
+          "id": "nature",
+          "cards": 12,
+          "total": 184
+        },
+        {
+          "id": "golf",
+          "cards": 8,
+          "total": 8
+        },
+        {
+          "id": "pickleball",
+          "cards": 6,
+          "total": 6
+        }
+      ],
+      "places": 0,
+      "ui_verified": false,
+      "seconds": 7.418
+    },
+    {
+      "city": "Miami",
+      "surface": "fall",
+      "url": "https://www.gowayfind.com/api/events/fall?lat=25.76&lng=-80.19&city=Miami",
+      "started": "2026-09-06T04:14:54.617102+00:00",
+      "status": 200,
+      "bytes": 1554,
+      "cache": "miss",
+      "keys": [
+        "hasMore",
+        "phase",
+        "rails",
+        "sourceCount",
+        "sourceFailures",
+        "today"
+      ],
+      "error": null,
+      "sourceFailures": 0,
+      "sourceStats": null,
+      "rails": [
+        {
+          "id": "food",
+          "cards": 0,
+          "total": 0
+        },
+        {
+          "id": "theme-parks",
+          "cards": 0,
+          "total": 0
+        },
+        {
+          "id": "date-night",
+          "cards": 0,
+          "total": 0
+        },
+        {
+          "id": "farms",
+          "cards": 0,
+          "total": 0
+        },
+        {
+          "id": "oktoberfest",
+          "cards": 0,
+          "total": 0
+        },
+        {
+          "id": "festivals",
+          "cards": 0,
+          "total": 0
+        },
+        {
+          "id": "photos",
+          "cards": 0,
+          "total": 0
+        },
+        {
+          "id": "haunts",
+          "cards": 0,
+          "total": 0
+        },
+        {
+          "id": "family",
+          "cards": 0,
+          "total": 0
+        },
+        {
+          "id": "day-trips",
+          "cards": 0,
+          "total": 0
+        }
+      ],
+      "places": 0,
+      "ui_verified": false,
+      "seconds": 6.401
+    },
+    {
+      "city": "Miami",
+      "surface": "summer",
+      "url": "https://www.gowayfind.com/api/summer/places?lat=25.76&lng=-80.19&city=Miami",
+      "started": "2026-09-06T04:15:01.018538+00:00",
+      "status": 200,
+      "bytes": 11048,
+      "cache": "miss",
+      "keys": [
+        "places"
+      ],
+      "error": null,
+      "sourceFailures": null,
+      "sourceStats": null,
+      "rails": [],
+      "places": 7,
+      "ui_verified": false,
+      "seconds": 6.04
+    },
+    {
+      "city": "Miami",
+      "surface": "shared",
+      "url": "https://www.gowayfind.com/api/rails?lat=25.76&lng=-80.19&city=Miami&v=2&band=evening",
+      "started": "2026-09-06T04:15:01.968462+00:00",
+      "status": 200,
+      "bytes": 99490,
+      "cache": "miss",
+      "keys": [
+        "covered",
+        "data"
+      ],
+      "error": null,
+      "sourceFailures": null,
+      "sourceStats": null,
+      "rails": [],
+      "places": 0,
+      "ui_verified": false,
+      "seconds": 9.602
+    },
+    {
+      "city": "Miami",
+      "surface": "lunch-break",
+      "url": "https://www.gowayfind.com/api/lunch-break?lat=25.76&lng=-80.19&city=Miami",
+      "started": "2026-09-06T04:15:07.059101+00:00",
+      "status": 200,
+      "bytes": 171016,
+      "cache": "miss",
+      "keys": [
+        "places",
+        "sourceStats"
+      ],
+      "error": null,
+      "sourceFailures": 0,
+      "sourceStats": {
+        "rows": 841,
+        "servable": 841,
+        "withinRadius": 654,
+        "qualified": 120,
+        "truncated": false,
+        "degraded": false,
+        "sourceFailures": 0,
+        "perCategory": {
+          "food": 841
+        }
+      },
+      "rails": [],
+      "places": 120,
+      "ui_verified": false,
+      "seconds": 5.216
+    },
+    {
+      "city": "Miami",
+      "surface": "trending",
+      "url": "https://www.gowayfind.com/api/trends/nearby?lat=25.76&lng=-80.19&city=Miami",
+      "started": "2026-09-06T04:15:11.570631+00:00",
+      "status": 403,
+      "error": "HTTP Error 403: Forbidden",
+      "seconds": 5.154
+    }
+  ],
+  "limits": [
+    "Public endpoint audit, not a browser or image-rendering certification.",
+    "Curated, creator, guide and lunch-challenge flows require separate UI checks.",
+    "A 200 with zero cards requires investigation; it is not automatically success."
+  ]
+}

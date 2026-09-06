@@ -26,16 +26,16 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 539,
-    "totalRegistryEntries": 540,
-    "guardsTxtLineCount": 537,
-    "guardsTxtReachedFileCount": 534,
+    "totalOnDiskGuardFiles": 546,
+    "totalRegistryEntries": 547,
+    "guardsTxtLineCount": 545,
+    "guardsTxtReachedFileCount": 541,
     "criticalCount": 65,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 353,
-      "RENDER": 42,
-      "STRUCTURAL": 144,
+      "CALL": 360,
+      "RENDER": 43,
+      "STRUCTURAL": 143,
       "OTHER": 1
     }
   },
@@ -579,6 +579,28 @@
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
       "assertionCount": 22,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-canary-workflow-installed.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 0,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -1655,13 +1677,11 @@
     {
       "file": "scripts/check-date-night-cacheable.mjs",
       "npmScript": null,
-      "class": "STRUCTURAL",
+      "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 13,
+      "assertionCount": 17,
       "unprovenAbsenceCount": 0,
-      "honestyViolations": [
-        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
-      ],
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
@@ -2747,7 +2767,12 @@
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": []
+        "githubWorkflows": [
+          {
+            "file": ".github/workflows/synthetic-monitor.yml",
+            "blocking": false
+          }
+        ]
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
@@ -3294,7 +3319,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 41,
+      "assertionCount": 64,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
@@ -3364,7 +3389,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 38,
+      "assertionCount": 42,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
@@ -3561,9 +3586,14 @@
       "wiring": {
         "guardsTxt": false,
         "npmScripts": [],
-        "githubWorkflows": []
+        "githubWorkflows": [
+          {
+            "file": ".github/workflows/canary.yml",
+            "blocking": false
+          }
+        ]
       },
-      "gating": "unwired",
+      "gating": "scheduled-monitoring-only",
       "excludedReason": "runs in the scheduled canary workflow, not prebuild — it reads PRODUCTION Supabase, and a stale row in the database must never be able to block a code deploy. Wrong coupling in that direction; see .github/workflows/canary.yml.",
       "critical": false,
       "criticalReasons": [],
@@ -4661,10 +4691,10 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 22,
+      "assertionCount": 25,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
-      "selfDocumentsRedProve": false,
+      "selfDocumentsRedProve": true,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
@@ -5324,6 +5354,28 @@
       "owner": "Qwen (Engineering)"
     },
     {
+      "file": "scripts/check-promo-location-honesty.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 19,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-promote-batch-clamp.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -5357,9 +5409,14 @@
       "wiring": {
         "guardsTxt": false,
         "npmScripts": [],
-        "githubWorkflows": []
+        "githubWorkflows": [
+          {
+            "file": ".github/workflows/canary.yml",
+            "blocking": false
+          }
+        ]
       },
-      "gating": "unwired",
+      "gating": "scheduled-monitoring-only",
       "excludedReason": "same reasoning as check-inventory-integrity.mjs, same file — runs in the scheduled canary workflow (ops/canary.workflow.yml), not prebuild, because it reads PRODUCTION Supabase (wf_promote_metros). It is CURRENTLY RED when run with live credentials: on 2026-08-23/09-01 five metros (miami-dade, broward, palm-beach, keys, florida) were added to the live table without a matching migration or PROMOTE_METROS update, and this PR deliberately does not widen PROMOTE_METROS to paper over that (doing so would desync it from check-promote-metros-parity.mjs, which pins it to the migration file this PR does not touch). The production bug is already closed — app/api/cron/promote-index/route.js and scripts/promote-worker.mjs fetch wf_promote_metros LIVE now and no longer depend on PROMOTE_METROS being current — this guard's red result is the tracked, visible reminder that the OFFLINE FALLBACK still needs a deliberate follow-up (a migration for the five rows, or an explicit decision not to serve them offline) before it can go green.",
       "critical": false,
       "criticalReasons": [],
@@ -6304,6 +6361,72 @@
       "owner": null
     },
     {
+      "file": "scripts/check-social-intelligence.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 50,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-social-provider-registry.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 13,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-social-qualification.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 27,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-soft-404.mjs",
       "npmScript": null,
       "class": "STRUCTURAL",
@@ -6491,6 +6614,33 @@
         "guardsTxt": true,
         "npmScripts": [],
         "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-synthetic-monitor-hermetic.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 68,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": [
+          {
+            "file": ".github/workflows/synthetic-monitor.yml",
+            "blocking": false
+          }
+        ]
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
@@ -8426,7 +8576,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 39,
+      "assertionCount": 41,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -11210,6 +11360,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-poster-recovery.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 30,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-price.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -11329,7 +11501,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 63,
+      "assertionCount": 65,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

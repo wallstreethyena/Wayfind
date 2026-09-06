@@ -1,4 +1,4 @@
-# Instagram, without getting blocked — the 15-minute setup
+# Instagram, without getting blocked — official Meta setup
 
 **The short version:** there is no loophole worth taking, and there is a free
 official API that does exactly what we want. Everything below is Meta's own
@@ -43,7 +43,7 @@ only available in `/insights` on media *you own*. So the ranking uses
 "what time?" and "is this still on?" live). Nothing in the code pretends to a
 share count; inventing one would be the same class of lie as a fabricated date.
 
-## Setup (one time, ~15 minutes, free)
+## Setup (one time, free)
 
 1. **Make the Wayfind Instagram account a Business or Creator account.**
    Instagram app → Settings → Account type and tools → Switch to professional.
@@ -62,7 +62,7 @@ share count; inventing one would be the same class of lie as a fabricated date.
 6. **Get a long-lived token.** The Explorer gives a short-lived user token;
    exchange it:
    ```
-   GET https://graph.facebook.com/v21.0/oauth/access_token
+   GET https://graph.facebook.com/v26.0/oauth/access_token
        ?grant_type=fb_exchange_token
        &client_id={app-id}
        &client_secret={app-secret}
@@ -78,10 +78,13 @@ share count; inventing one would be the same class of lie as a fabricated date.
 The scout lights up on the next run. Until then it returns
 `{ configured: false }` and makes zero network calls.
 
-> **Token refresh.** The long-lived token lasts ~60 days and is refreshable by
-> calling the same endpoint again before it expires. Set a calendar reminder, or
-> the scout will simply start reporting errors and writing nothing — it fails
-> closed, it never publishes stale or fabricated data.
+> **Token lifecycle.** Record the token's real expiry and replace it before that
+> date using Meta's supported token flow. Do not assume a token is permanent or
+> that exchanging the same expired token will renew it. The scout reports auth
+> failures and publishes nothing when access expires.
+
+The access token is sent in the `Authorization` header. It is never placed in a
+URL, where it could enter request logs, copied links, analytics, or screenshots.
 
 ## What happens then
 

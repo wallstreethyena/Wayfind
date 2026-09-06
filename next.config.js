@@ -205,6 +205,7 @@ const nextConfig = {
 // SentryClient.js instead, keeping the 325KB bundle ceiling enforced.
 module.exports = withSentryConfig(nextConfig, {
   silent: true,
+  telemetry: false,               // no build metadata leaves the verification environment
   disableLogger: true,            // tree-shake Sentry's debug logging from the bundle
   widenClientFileUpload: false,
   sourcemaps: { disable: true },  // source-map upload deferred (needs SENTRY_AUTH_TOKEN) — follow-up

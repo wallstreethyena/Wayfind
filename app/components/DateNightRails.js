@@ -175,6 +175,7 @@ export default function DateNightRails({
 }) {
   const [payload, setPayload] = useState(null);
   const [failed, setFailed] = useState(false);
+  const [retry, setRetry] = useState(0);
   const asked = useRef("");
 
   const lat = center && Number.isFinite(center.lat) ? center.lat : null;
@@ -190,21 +191,23 @@ export default function DateNightRails({
   // everything" request.
   const key = useMemo(
     () => (active && lat != null && lng != null
-      ? [lat.toFixed(3), lng.toFixed(3), city || "", hour == null ? "" : String(hour)].join("|")
+      ? [lat.toFixed(3), lng.toFixed(3), city || "", hour == null ? "" : String(hour), retry].join("|")
       : ""),
-    [active, lat, lng, city, hour],
+    [active, lat, lng, city, hour, retry],
   );
 
   useEffect(() => {
     if (!key || asked.current === key) return;
     asked.current = key;
     let dead = false;
+    setPayload(null);
+    setFailed(false);
     const q = new URLSearchParams({ lat: String(lat), lng: String(lng) });
     if (city) q.set("city", city);
     if (hour != null && Number.isFinite(hour)) q.set("hour", String(hour));
     (async () => {
       try {
-        const j = await fetchJsonWithDeadline("/api/date-night?" + q.toString());
+        const j = await fetchJsonWithDeadline("/api/date-night?" + q.toString(), { retries: 1 });
         if (dead) return;
         if (!j || !Array.isArray(j.rails)) { setFailed(true); return; }
         setPayload(j);
@@ -220,11 +223,12 @@ export default function DateNightRails({
         if (!dead) setFailed(true);
       }
     })();
-    return () => { dead = true; };
+    return () => { dead = true; asked.current = ""; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 
   if (!active) return null;
+  if (!key) return <p>Choose a location to build your date night.</p>;
 
   const rails = (payload && payload.rails) || [];
   // The first nightlife rail carries the "Night Out" divider — the journey has
@@ -242,9 +246,9 @@ export default function DateNightRails({
   }
   if (failed) {
     return (
-      <p style={{ marginTop: 4, fontSize: 13, color: C.muted }}>
+      <div><p style={{ marginTop: 4, fontSize: 13, color: C.muted }}>
         We could not build tonight&apos;s date from owned inventory. That is a miss on our side, not an empty town.
-      </p>
+      </p><button type="button" onClick={() => setRetry((value) => value + 1)}>Try again</button></div>
     );
   }
   if (!rails.length) {

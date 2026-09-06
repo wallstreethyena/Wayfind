@@ -301,6 +301,13 @@ node scripts/check-art-assets.mjs
 node scripts/check-brand-derivatives.mjs
 node scripts/check-coupon-place-match.mjs
 node scripts/check-no-stuck-loading.mjs
+node scripts/check-promo-location-honesty.mjs
+# v8.57 — a promo may not promise a town it has nothing in. EXECUTES
+# lib/promoLocation.js against a covered positive control and an uncovered
+# negative control (Hoffman, NJ verbatim), and asserts both location-promo
+# surfaces in app/home.js are actually wired to it. A law nothing calls is
+# decoration, so the wiring is asserted, not assumed.
+
 # v8.46 — check-no-stuck-loading executes lib/loadState.js's own contract but
 # never asked whether anything USED it. DaypartRail did not, and shipped the
 # same permanent grey box the module was written for. This one scans the
@@ -873,6 +880,7 @@ node scripts/check-live-reads.mjs
 # 2026-09-03 — Instagram via the sanctioned Graph API only: ships dark, never
 # scrapes, and a caption is a LEAD (wf_social_candidates), never an event.
 node scripts/check-instagram-scout.mjs
+node scripts/check-social-qualification.mjs
 # 2026-09-03 — a failing event provider names its status and reason; `ok:false`
 # alone cannot tell a bad key from a quota from a quiet night.
 node scripts/check-provider-health-says-why.mjs
@@ -994,6 +1002,13 @@ node scripts/check-vendor-tag-cannot-throw.mjs
 # fact whose quote is not literally in the caption is deleted. This EXECUTES that
 # net against the shapes a helpful model really produces.
 node scripts/check-social-extract-cannot-invent.mjs
+# 2026-09-06 Social discovery is selective and private. Reviewed creator/place
+# identity must be current; literal or LLM-extracted names remain candidates;
+# trend reports count only qualified observations; rights default closed; and
+# neither enrichment route can write an event or publish a card.
+node scripts/check-social-qualification.mjs
+node scripts/check-social-intelligence.mjs
+node scripts/check-social-provider-registry.mjs
 # 2026-09-04 A BOOK BUTTON NEEDS SOMEBODY SELLING ENTRY. Measured on
 # wf_inventory: 2,263 rows passed isTicketyPlace and would render a Book CTA,
 # and 829 of them (33%) were free public land — parks, trailheads, preserves,
@@ -1007,6 +1022,8 @@ node scripts/check-book-cta-needs-a-seller.mjs
 # benefit-led read. The guard scans all app/lib literal decks, rejects lists,
 # disclaimers and counts, and pins the one-line visual treatment everywhere.
 node scripts/check-rail-deck-copy.mjs
+
+node scripts/test-poster-recovery.mjs
 # 2026-09-04 WO-D-atlas-cache-batch: prompt caching must be REAL, not
 # decorative — a cache_control block below the active model's documented
 # minimum is legal JSON that silently does nothing. Table-driven minimum
@@ -1088,3 +1105,7 @@ node scripts/test-revenue-heartbeat.mjs
 # sound, that redaction removes fake secrets from every evidence field including
 # ones only run.mjs would think to redact, that the evidence writer red-proves
 # against real files on disk, and that the workflow is installed at its real path.
+
+# Restored production safety workflows
+node scripts/check-canary-workflow-installed.mjs
+node scripts/check-synthetic-monitor-hermetic.mjs

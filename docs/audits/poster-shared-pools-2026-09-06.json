@@ -1,0 +1,142 @@
+{
+  "generated": "2026-09-06T04:17:52.254622+00:00",
+  "posters": {
+    "Fall in Florida": "fall",
+    "Night Out": "night-out",
+    "Trending Near You": "trending",
+    "Date Night": "date-night",
+    "Summer Picks": "summer",
+    "Today's Best Options": "today",
+    "Lunch in My City": "lunch-challenge",
+    "Actually Worth Eating": "shared",
+    "Chef Ron Duprat's Top 7": "curated",
+    "Locals Know": "shared",
+    "Worth the Drive": "shared",
+    "Birthday Plans, Solved": "birthday",
+    "Family Day, Decided": "shared",
+    "Beach Day": "shared",
+    "The 30-Minute Break": "lunch-break",
+    "Best Breakfast Picks": "shared",
+    "Your Next Coffee Spot": "creator",
+    "Local Guides": "guides"
+  },
+  "expected_probes": 3,
+  "results": [
+    {
+      "city": "Parrish",
+      "surface": "shared",
+      "url": "https://www.gowayfind.com/api/rails?lat=27.58&lng=-82.43&city=Parrish&v=2&band=evening",
+      "started": "2026-09-06T04:17:52.255560+00:00",
+      "status": 200,
+      "bytes": 132512,
+      "cache": "miss",
+      "keys": [
+        "covered",
+        "data"
+      ],
+      "error": null,
+      "sourceFailures": null,
+      "sourceStats": null,
+      "covered": true,
+      "rails": [],
+      "pools": {
+        "season": 0,
+        "today": 12,
+        "trending": 12,
+        "eat": 12,
+        "beach": 12,
+        "family": 12,
+        "locals": 12,
+        "cindy": 6,
+        "drive": 12,
+        "tonight": 12,
+        "datenight": 12,
+        "events": 9,
+        "break": 12,
+        "breakfast": 12,
+        "birthday": 12
+      },
+      "ui_verified": false,
+      "seconds": 6.437
+    },
+    {
+      "city": "Tampa",
+      "surface": "shared",
+      "url": "https://www.gowayfind.com/api/rails?lat=27.95&lng=-82.46&city=Tampa&v=2&band=evening",
+      "started": "2026-09-06T04:17:52.256270+00:00",
+      "status": 200,
+      "bytes": 111866,
+      "cache": "miss",
+      "keys": [
+        "covered",
+        "data"
+      ],
+      "error": null,
+      "sourceFailures": null,
+      "sourceStats": null,
+      "covered": true,
+      "rails": [],
+      "pools": {
+        "season": 0,
+        "today": 12,
+        "trending": 12,
+        "eat": 12,
+        "beach": 0,
+        "family": 12,
+        "locals": 12,
+        "cindy": 0,
+        "drive": 12,
+        "tonight": 12,
+        "datenight": 12,
+        "events": 12,
+        "break": 12,
+        "breakfast": 12,
+        "birthday": 12
+      },
+      "ui_verified": false,
+      "seconds": 6.365
+    },
+    {
+      "city": "Miami",
+      "surface": "shared",
+      "url": "https://www.gowayfind.com/api/rails?lat=25.76&lng=-80.19&city=Miami&v=2&band=evening",
+      "started": "2026-09-06T04:17:58.620977+00:00",
+      "status": 200,
+      "bytes": 99490,
+      "cache": "miss",
+      "keys": [
+        "covered",
+        "data"
+      ],
+      "error": null,
+      "sourceFailures": null,
+      "sourceStats": null,
+      "covered": true,
+      "rails": [],
+      "pools": {
+        "season": 0,
+        "today": 12,
+        "trending": 12,
+        "eat": 12,
+        "beach": 0,
+        "family": 12,
+        "locals": 12,
+        "cindy": 0,
+        "drive": 0,
+        "tonight": 12,
+        "datenight": 12,
+        "events": 12,
+        "break": 12,
+        "breakfast": 12,
+        "birthday": 12
+      },
+      "ui_verified": false,
+      "seconds": 4.982
+    }
+  ],
+  "limits": [
+    "Public endpoint audit, not a browser or image-rendering certification.",
+    "Curated, creator, guide and lunch-challenge flows require separate UI checks.",
+    "A 200 with zero cards requires investigation; it is not automatically success."
+  ]
+}

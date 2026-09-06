@@ -34,7 +34,7 @@ export default function SummerIntentRails({ active = true, center = null, city =
     // Two dedicated, bounded reads. Summer no longer wakes the shared
     // homepage /api/rails catalogue just to build its own collection.
     Promise.allSettled([
-      fetchJsonWithDeadline(`/api/summer/places?${new URLSearchParams(location)}`, { timeoutMs: SUMMER_LOAD_TIMEOUT_MS }),
+      fetchJsonWithDeadline(`/api/summer/places?${new URLSearchParams(location)}`, { timeoutMs: SUMMER_LOAD_TIMEOUT_MS, retries: 1 }),
       fetchJsonWithDeadline(`/api/experiences?${tourQ}`, { timeoutMs: SUMMER_LOAD_TIMEOUT_MS }),
     ]).then(([placeResult, tourResult]) => {
       if (cancelled) return;
@@ -48,11 +48,17 @@ export default function SummerIntentRails({ active = true, center = null, city =
       const places = (Array.isArray(placePayload?.places) ? placePayload.places : []).filter(photoSrc);
       const tours = homeAffiliateActivities(tourPayload?.items, 100);
       const composed = composeSummerPickRails(places, tours);
-      if (!composed.some((rail) => rail.cards.length)) { setFailed(true); return; }
+      if (!composed.some((rail) => rail.cards.length)) {
+        // Two healthy empty reads mean no qualified local inventory. A failed
+        // or malformed source remains a service failure, never an empty town.
+        if (!Array.isArray(placePayload?.places) || !Array.isArray(tourPayload?.items)) setFailed(true);
+        else setRails([]);
+        return;
+      }
       setRails(composed);
       try { onTrack?.("summer_intent_collection_open", { city, rails: composed.length, cards: composed.reduce((sum, rail) => sum + rail.cards.length, 0) }); } catch {}
     }).catch(() => { if (!cancelled) setFailed(true); });
-    return () => { cancelled = true; };
+    return () => { cancelled = true; asked.current = ""; };
     // The parent's inline telemetry callback is not request identity.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, retry]);
@@ -61,5 +67,6 @@ export default function SummerIntentRails({ active = true, center = null, city =
   if (!key) return <p style={{ color: "#A8B0BE", fontSize: 13 }}>Share your location to rank the ten summer rails near you.</p>;
   if (!rails && !failed) return <div role="status" aria-busy="true" aria-label="Ranking summer picks">{[0, 1, 2].map((index) => <div key={index} className="wf-sk" style={{ height: 88, borderRadius: 14, marginBottom: 12 }} />)}</div>;
   if (failed) return <div><p style={{ color: "#A8B0BE", fontSize: 13 }}>We could not reach Wayfind&apos;s photo-verified summer inventory. That is a service miss, not an empty town.</p><button type="button" onClick={() => setRetry((value) => value + 1)} style={{ border: "1px solid #F97316", borderRadius: 999, background: "#111827", color: "#F8FAFC", padding: "7px 12px", fontWeight: 800 }}>Try again</button></div>;
+  if (!rails.length) return <p style={{ color: "#A8B0BE", fontSize: 13 }}>No nearby summer options have enough verified evidence yet.</p>;
   return <SummerPicksRails rails={rails} city={city || "Florida"} onOpenPlace={onOpenPlace} />;
 }

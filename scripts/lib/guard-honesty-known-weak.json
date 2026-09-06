@@ -119,10 +119,6 @@
       "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
     },
     {
-      "file": "scripts/check-date-night-cacheable.mjs",
-      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
-    },
-    {
       "file": "scripts/check-deal-art.mjs",
       "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
     },
@@ -232,10 +228,6 @@
     },
     {
       "file": "scripts/check-intent-hero-fits.mjs",
-      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
-    },
-    {
-      "file": "scripts/check-intent-rail-inventory-fed.mjs",
       "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
     },
     {

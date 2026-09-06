@@ -54,6 +54,7 @@ import { BROWSE_INVENTORY_N } from "../lib/browseInventory.js";
 import { wayfindScore } from "../lib/wayfindScore.js";
 
 let n = 0;
+let cacheRoundTrips = false;
 const bad = [];
 const ok = (c, m) => { n++; if (!c) bad.push(m); };
 const read = (p) => readFileSync(new URL("../" + p, import.meta.url), "utf8");
@@ -289,9 +290,171 @@ for (const surface of SURFACES) {
   }
 }
 
+// ── PARTIAL CATEGORY FAILURE (owner review, 2026-09-06, post-#1117) ────────
+//
+// THE DEFECT THAT SHIPPED. `degraded` was set from `truncated` alone, so the
+// commonest incomplete answer of all reported itself as healthy: ONE category
+// failing while the others succeed returns a real pool, `sourceFailures: 1`,
+// and `degraded: false`. Night Out reads food + nightlife + attractions, so a
+// stalled `attractions` read silently costs Shows, Night Tours, Waterfront and
+// Social-Play their candidates — and the route then cached that for an hour,
+// pinning it on every reader in the cell.
+//
+// Serving the surviving categories stays deliberate and is locked elsewhere
+// ("one stalled category must not blank every shelf"). What is asserted here is
+// that the answer SAYS it is partial and that the caller ACTS on it — a flag no
+// route reads is the shape of the bug, not the fix.
+{
+  const ORIGIN = { lat: 27.5949, lng: -82.4265 };
+  const env = { url: "https://example.invalid", key: "k" };
+  const okRow = {
+    place_id: "cc1", name: "Comedy Cellar", lat: ORIGIN.lat + 0.02, lng: ORIGIN.lng,
+    category: "nightlife", primary_type: "comedy_club", google_types: [],
+    status: "OPERATIONAL", signals: { rating: 4.7, reviews: 900 },
+  };
+  const page = (rows) => ({ ok: true, json: async () => rows });
+  const oneCategoryDies = async (url) => {
+    if (/category\.eq\.attractions|secondary_categories\.cs\.\{attractions\}/.test(url)) throw new Error("attractions timed out");
+    return page(/nightlife/.test(url) ? [okRow] : []);
+  };
+  const allHealthy = async (url) => page(/nightlife/.test(url) ? [okRow] : []);
+  const cats = ["food", "nightlife", "attractions"];
+
+  // lib/ownedPool.js. Wrapped, because a reader that stops surviving a partial
+  // failure THROWS here, and an uncaught throw would take the other 80-odd
+  // assertions in this file down with it — a crash reads as "the guard is
+  // broken" rather than "the product regressed".
+  const call = async (fn, label) => {
+    try { return await fn(); } catch (e) { bad.push(`${label} THREW instead of serving its surviving categories: ${e.message}`); n++; return { places: [], stats: {} }; }
+  };
+  const partial = await call(() => fetchOwnedPool(ORIGIN.lat, ORIGIN.lng, { categories: cats, radiusMi: 27, env, fetchImpl: oneCategoryDies }), "fetchOwnedPool with one failed category");
+  const healthy = await call(() => fetchOwnedPool(ORIGIN.lat, ORIGIN.lng, { categories: cats, radiusMi: 27, env, fetchImpl: allHealthy }), "fetchOwnedPool with all categories healthy");
+  ok(partial.places.some((p) => p.id === "cc1"),
+    "positive control: one failed category blanked the whole owned pool — the surviving categories must still serve, and every assertion below would be about an empty answer");
+  ok(partial.stats.sourceFailures === 1, `the failed category is not counted (sourceFailures=${partial.stats.sourceFailures})`);
+  ok(partial.stats.degraded === true,
+    `ONE CATEGORY FAILED AND THE POOL SAYS degraded=${partial.stats.degraded}. A partial pool reporting itself healthy is cached for an hour as this town's answer.`);
+  ok(healthy.stats.degraded === false && healthy.stats.sourceFailures === 0,
+    "a fully healthy read is marked degraded — a flag that is always true is discarded by whoever reads it");
+  ok(healthy.places.length === partial.places.length,
+    "positive control: the healthy and partial reads differ in row count here, so degraded is not being inferred from the row count");
+
+  // lib/nightOutPool.js — its own aggregation, so its own proof.
+  const { fetchNightOutPool } = await import("../lib/nightOutPool.js");
+  const noPartial = await call(() => fetchNightOutPool(ORIGIN.lat, ORIGIN.lng, { env, fetchImpl: oneCategoryDies }), "fetchNightOutPool with one failed category");
+  const noHealthy = await call(() => fetchNightOutPool(ORIGIN.lat, ORIGIN.lng, { env, fetchImpl: allHealthy }), "fetchNightOutPool with all categories healthy");
+  ok(noPartial.places.some((p) => p.id === "cc1"),
+    "positive control: one failed category blanked the whole Night Out pool");
+  ok(noPartial.stats.degraded === true && noPartial.stats.sourceFailures === 1,
+    `Night Out's pool reports degraded=${noPartial.stats.degraded} with ${noPartial.stats.sourceFailures} failed categor(ies) — it has its own aggregation and needs its own proof`);
+  ok(noHealthy.stats.degraded === false, "Night Out marks a fully healthy read degraded");
+
+  // …AND THE CALLERS MUST ACT ON IT. A flag no route reads is the bug.
+  const { completeAnswersOnly, fastCachedRail } = await import("../lib/railFastCache.js");
+  const u = completeAnswersOnly((v) => v.rails.length);
+  ok(u({ rails: [1], degraded: false }) === true, "positive control: completeAnswersOnly rejects a healthy answer");
+  ok(u({ rails: [1], degraded: true }) === false,
+    "completeAnswersOnly accepts a DEGRADED answer — fastCachedRail would then store a partial pool as this cell's answer for an hour");
+  ok(u({ rails: [], degraded: false }) === false && u(null) === false,
+    "completeAnswersOnly stopped applying the caller's own emptiness test");
+
+  // THE ENTRIES ALREADY IN THE DRAWER (owner review, 2026-09-06).
+  //
+  // The first version rejected `degraded === true` and ACCEPTED an answer with
+  // no such field — which is every entry written before this shipped. The
+  // namespace and every key are unchanged and entries live for seven days, so a
+  // partial answer cached minutes before the deploy would have been read back,
+  // passed by omission, and served as healthy for the rest of its life. New
+  // copies correct, old copies still in the drawer.
+  //
+  // THE PURE HALF RUNS EVERYWHERE. `completeAnswersOnly` is a function, so the
+  // four shapes it has to separate are asserted by CALLING it, with no cache and
+  // no timing. These are the assertions that must never be conditional.
+  const usable = completeAnswersOnly((v) => v.rails.length);
+  const HEALTHY = { rails: [{ id: "r", places: [{ id: "p" }] }], degraded: false };
+  const LEGACY = { rails: [{ id: "r", places: [{ id: "p" }] }] };            // no field — the old shape
+  ok(usable(LEGACY) === false,
+    "A LEGACY ENTRY WITH NO `degraded` FIELD IS CACHEABLE. Every answer written before this shipped would be read back, pass by omission, and be served as healthy for the seven days it lives.");
+  ok(usable(HEALTHY) === true,
+    "a healthy answer is not cacheable — requiring an explicit flag must not turn every surface uncacheable, which would be a cache-disabling patch wearing a correctness patch's clothes");
+
+  // …AND THE CACHE ROUND TRIP, WHERE THE BACKEND SUPPORTS ONE.
+  //
+  // Whether a write is readable by the next call is a property of the BACKEND,
+  // not of this rule. Locally getCache falls back to an in-memory map and a
+  // write is visible immediately; on Vercel's real Runtime Cache during a build
+  // it is not, because writeGood is dispatched through waitUntil and does not
+  // land before the next read. The first version of this block asserted the
+  // round trip unconditionally, passed on every dev box, and FAILED the deploy —
+  // a guard that fires on correct code, caught by CI rather than by me.
+  //
+  // So the round trip is gated on a CONTROL that measures the backend, and the
+  // skip is LOUD: `cacheRoundTrips` is reported in the success line, so a run
+  // that could not exercise this path says so instead of reading as proof.
+  const probeKey = `guard:probe:${Date.now()}:${Math.random()}`;
+  let probeBuilds = 0;
+  const probeLoad = async () => { probeBuilds++; return HEALTHY; };
+  await fastCachedRail(probeKey, probeLoad, { name: "guard-probe", usable: Boolean });
+  const probeRead = await fastCachedRail(probeKey, probeLoad, { name: "guard-probe", usable: Boolean });
+  cacheRoundTrips = probeRead.state === "hit" && probeBuilds === 1;
+  ok(probeBuilds >= 1, "positive control: the cache probe never ran its loader, so nothing below is measuring a cache");
+
+  if (cacheRoundTrips) {
+    // 1. Seed a legacy entry exactly as the pre-fix code did — permissive
+    //    `usable`, which is what it actually used — rather than by reaching into
+    //    cache internals a guard has no business knowing.
+    const legacyKey = `guard:legacy:${Date.now()}:${Math.random()}`;
+    let builds = 0;
+    const loader = (value) => async () => { builds++; return value; };
+    await fastCachedRail(legacyKey, loader(LEGACY), { name: "guard-legacy", usable: Boolean });
+    const reread = await fastCachedRail(legacyKey, loader(LEGACY), { name: "guard-legacy", usable: Boolean });
+    ok(reread.state === "hit" && builds === 1,
+      `positive control: the seeded legacy entry does not read back as a HIT under the old permissive rule (state=${reread.state}, builds=${builds}) — the assertion below would be about a cache that never held anything`);
+
+    // 2. …and under the new rule that same entry must REBUILD, not be served.
+    const before = builds;
+    const strict = await fastCachedRail(legacyKey, loader(HEALTHY), { name: "guard-legacy", usable });
+    ok(builds === before + 1 && strict.state === "miss",
+      `an entry cached before this shipped was SERVED (state=${strict.state}, builds=${builds}) instead of being rebuilt`);
+    ok(strict.value.degraded === false, "the rebuild did not produce a complete answer");
+
+    // 3. A DEGRADED answer must never be WRITTEN. Re-reading with the same
+    //    strict `usable` proves nothing — the read-side rule rebuilds either
+    //    way, and removing the write gate left that version green, which makes
+    //    it decoration. A PERMISSIVE reader is what finds it in the drawer.
+    const badKey = `guard:degraded:${Date.now()}:${Math.random()}`;
+    let db = 0;
+    const dLoad = async () => { db++; return { ...HEALTHY, degraded: true }; };
+    const served = await fastCachedRail(badKey, dLoad, { name: "guard-degraded", usable });
+    ok(db === 1 && served.value.degraded === true,
+      "positive control: the degraded answer was not returned to the caller who asked for it — it must still be SERVED, just never stored");
+    let probe2 = 0;
+    const peek = await fastCachedRail(badKey, async () => { probe2++; return HEALTHY; }, { name: "guard-degraded", usable: Boolean });
+    ok(peek.state === "miss" && probe2 === 1,
+      `a degraded answer was WRITTEN to the cache (a permissive read found it: state=${peek.state}) — the next reader in the cell inherits a partial pool`);
+  } else {
+    // Not a pass by omission: the four pure assertions above already hold, and
+    // the success line reports that the round trip could not be exercised here.
+    ok(usable({ ...HEALTHY, degraded: true }) === false,
+      "this environment's cache does not round-trip within a process, so the lifetime assertions are reported as skipped — but a degraded answer must STILL be refused by the rule itself");
+  }
+
+  for (const surface of SURFACES) {
+    const src = strip(read(surface.route));
+    ok(/usable:\s*completeAnswersOnly\(/.test(src),
+      `${surface.id}: ${surface.route} does not gate its fast cache with completeAnswersOnly — a degraded pool would be cached as this cell's answer`);
+    ok(/degraded/.test(src),
+      `${surface.id}: ${surface.route} never mentions \`degraded\`, so the pool's own report of being partial is discarded`);
+    // …and the CDN header too. The fast cache and the CDN are two different
+    // caches; gating only one leaves the other holding the partial answer.
+    ok(/cache-control[^\n]*degraded|incomplete \? "no-store"/.test(src),
+      `${surface.id}: ${surface.route} sends a public cache-control without consulting \`degraded\` — the fast cache is guarded and the CDN is not`);
+  }
+}
+
 if (bad.length) {
   for (const m of bad) console.error("  - " + m);
   console.error(`check-identity-before-cap: FAIL — ${bad.length}/${n} assertions`);
   process.exit(1);
 }
-console.log(`check-identity-before-cap: OK — ${n} assertions, all by CALL. readOwnedCategory EXECUTED against an injected fetch over a 1,500-row box (order=, sequential Range paging to exhaustion, editorial + secondary-category membership asserted on the ISSUED urls); admission proven to run before the cost bound by a buried row that identity-first finds and cap-first cannot, in the same process; the ${SURFACES.length} registered surfaces asserted to call fetchOwnedPool WITH an identity at the call site and to have a failure path for a thrown read. Plus the three reader defects found in owner review, each with its own positive control: the radius cut is MEASURED from the row rather than read off a display-rounded distMi (fixture true 27.02mi, card 27.0) and cannot be moved by a caller's own toPlace; a 200 carrying a non-array body THROWS across three shapes instead of reading as an empty town; and a pool that hits its row cap throws unless the caller opts in, and is then told it is degraded. False-positive surface: a surface that deliberately stops using the owned pool, or a route that legitimately opts into a partial pool, goes red here and should be re-declared in scripts/lib/starvationSurfaces.mjs rather than have the assertion deleted.`);
+console.log(`check-identity-before-cap: OK — ${n} assertions, all by CALL. readOwnedCategory EXECUTED against an injected fetch over a 1,500-row box (order=, sequential Range paging to exhaustion, editorial + secondary-category membership asserted on the ISSUED urls); admission proven to run before the cost bound by a buried row that identity-first finds and cap-first cannot, in the same process; the ${SURFACES.length} registered surfaces asserted to call fetchOwnedPool WITH an identity at the call site, to gate BOTH their fast cache and their CDN header on \`degraded\`, and to have a failure path for a thrown read. The reader defects found in owner review, each with its own positive control: the radius cut is MEASURED from the row rather than read off a display-rounded distMi (fixture true 27.02mi, card 27.0) and cannot be moved by a caller's own toPlace; a 200 carrying a non-array body THROWS across three shapes; a pool that hits its row cap throws unless the caller opts in; and ONE FAILED CATEGORY ALONGSIDE HEALTHY ONES is driven through BOTH fetchOwnedPool and fetchNightOutPool. completeAnswersOnly is CALLED over the four shapes that matter, a LEGACY entry with no flag among them. ${cacheRoundTrips ? "fastCachedRail's lifetimes were exercised too: a legacy entry read back as a HIT under the old permissive rule and REBUILDS under this one, and a degraded answer is proven unwritten by a PERMISSIVE re-read rather than by a strict one that would rebuild either way." : "NOTE: this environment's cache does not round-trip within a process (getCache's write lands through waitUntil), so the fastCachedRail lifetime assertions were SKIPPED — the rule itself is still proven by call above."} False-positive surface: a surface that deliberately stops using the owned pool, or a route that legitimately opts into a partial pool, goes red here and should be re-declared in scripts/lib/starvationSurfaces.mjs rather than have the assertion deleted.`);

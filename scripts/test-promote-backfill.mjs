@@ -79,16 +79,13 @@ ok(read("scripts/enqueue-inbox.mjs").includes(PROMOTE_BACKFILL_RPC),
 const vercel = read("vercel.json");
 ok(!/promote-backfill/.test(vercel), "vercel.json does not schedule promote-backfill (switch stays off)");
 
-// ── 3. five promote boxes, "global" opt-in only (parity lock is a separate guard) ──
-// WO7 (2026-09-02) added "global" — a whole-planet catch-all for curated
-// (creator-sourced) places outside the four served metros. It is not a fifth
-// AUTOMATED market: both enqueue paths (wf_enqueue_promotion's trigger,
-// wf_promotion_backfill's sweep) skip a 'global' bucket unless asked for by
-// name — see supabase/migrations/20260902_wf_promote_global_bucket_opt_in.sql.
-// This assertion is updated honestly, not loosened: it still fails the moment
-// an UNANNOUNCED box appears.
-ok(Object.keys(PROMOTE_METROS).sort().join(",") === "global,manatee-sarasota,orlando,st-pete,tampa",
-  "PROMOTE_METROS is the four served boxes plus the opt-in 'global' catch-all — this PR does not widen AUTOMATED geo");
+// ── 3. mirror the observed active boxes; global remains opt-in ──────────
+// Read-only production snapshot, 2026-09-06: these ten rows are already
+// active. The five newly mirrored fallback entries do not alter the seed
+// grid, backfill scheduling, live reader, global opt-in rule or spend gates.
+// An unreviewed extra box still fails this exact-set assertion.
+ok(Object.keys(PROMOTE_METROS).sort().join(",") === "broward,florida,global,keys,manatee-sarasota,miami-dade,orlando,palm-beach,st-pete,tampa",
+  "PROMOTE_METROS exactly mirrors the ten observed active production boxes");
 
 // ── 4. category placement uses existing signals, not a stored list name ─────
 ok(JSON.stringify(existingTypeSignals({ google_types: [], primary_type: "cafe" })) === JSON.stringify(["cafe"]),
@@ -124,4 +121,4 @@ if (fail) {
   console.error(`test-promote-backfill: ${fail} failure(s), ${pass} passed`);
   process.exit(1);
 }
-console.log(`test-promote-backfill: OK — ${pass} assertions (kill-switch default off, no Google, four boxes, existing-signal category)`);
+console.log(`test-promote-backfill: OK — ${pass} assertions (kill-switch default off, no Google, ten observed active boxes, existing-signal category)`);

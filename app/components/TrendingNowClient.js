@@ -24,6 +24,15 @@ import { track } from "../../lib/track";
 import { readLocalLikeState, readLocalSavedState, persistLike, persistDislike, persistSave, recordLikeEvent, recordTasteSignal } from "../../lib/likeSignal";
 import { askShareIntent } from "./shareIntentSheet";
 import { placeKinds } from "../../lib/dateInvite";
+import { settleLoad } from "../../lib/loadState.js";
+// v8.57 — THIS SURFACE PAINTS A SKELETON, SO IT MUST REACH A DECISION.
+// A try/catch (or .catch) only ever sees the failure mode that THROWS. The one
+// that stranded production was the other one: a fetch that neither resolves nor
+// rejects, which leaves every await pending, skips catch AND finally, and
+// leaves the reader on a permanent grey box. settleLoad (lib/loadState.js) arms
+// its clock BEFORE the work, so the pending state is always overwritten.
+// Locked by scripts/check-no-stuck-loading.mjs section 5.
+const TRENDING_NOW_LOAD_TIMEOUT_MS = 12000;
 
 const PHOTO_REF = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
 
@@ -99,7 +108,7 @@ export default function TrendingNowClient() {
   useEffect(() => {
     if (!supabase || !isFinite(loc.lat)) { setRows([]); return; }
     let dead = false;
-    (async () => {
+    settleLoad(() => (async () => {
       let picks = [];
       try {
         const { data } = await supabase.rpc("wf_buzz_picks", { p_lat: loc.lat, p_lng: loc.lng, p_radius_mi: 25, p_max: 12 });
@@ -130,7 +139,11 @@ export default function TrendingNowClient() {
       // rankByHour's hour-fit order is preserved (decoration mutates in place).
       try { await attachTrendSignals(withWhy, {}); byVisibleScore(withWhy); } catch (e) {}
       if (!dead) setRows(withWhy);
-    })();
+    })(), { timeoutMs: TRENDING_NOW_LOAD_TIMEOUT_MS }).then((settled) => {
+      if (!settled.ok) {
+        if (!dead) setRows((prev) => (prev == null ? [] : prev));
+      }
+    });
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

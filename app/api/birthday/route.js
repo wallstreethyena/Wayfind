@@ -10,7 +10,7 @@ import { fetchOwnedPool } from "../../../lib/ownedPool.js";
 import { NET_DEADLINE_MS } from "../../../lib/fetchDeadline.js";
 import { BIRTHDAY_WIDEN_MI, BIRTHDAY_RAIL_ORDER, birthdayRailMembership, composeBirthdayRails } from "../../../lib/birthdayIntent.js";
 import { BIRTHDAY_REWARD_PLACE_IDS, birthdayRewardFor } from "../../../lib/birthdayRewards.js";
-import { fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
+import { completeAnswersOnly, fastCachedRail, geoCell } from "../../../lib/railFastCache.js";
 import { cgetMany } from "../../../lib/serverCache.js";
 import { PHOTO_REF_RX, isOwnedPhotoUrl, photoCacheKey } from "../../../lib/placePhotoServe.js";
 import { windowRailAnswer } from "../../../lib/railResponse.js";
@@ -169,14 +169,16 @@ export async function GET(request) {
       }
       const composed = composeBirthdayRails(places);
       if (composed && Array.isArray(composed.rails)) await attachCachedPhotos(composed.rails);
-      return composed;
+      // A partial owned pool (food read but nightlife failed, or the reverse)
+      // must not be cached as this town's answer — see completeAnswersOnly.
+      return { ...composed, degraded: !!pool.stats.degraded, sourceStats: pool.stats };
     }, {
       name: "birthday-rails",
-      usable: (value) => !!(value && Array.isArray(value.rails) && value.rails.some((rail) => rail.places?.length)),
+      usable: completeAnswersOnly((value) => Array.isArray(value.rails) && value.rails.some((rail) => rail.places?.length)),
     });
     const total = cached.value.rails.reduce((sum, rail) => sum + rail.places.length, 0);
     const headers = {
-      "cache-control": total ? "public, s-maxage=3600, stale-while-revalidate=86400" : "no-store",
+      "cache-control": total && !cached.value.degraded ? "public, s-maxage=3600, stale-while-revalidate=86400" : "no-store",
       "x-wayfind-fast-cache": cached.state,
     };
     if (railId) {
