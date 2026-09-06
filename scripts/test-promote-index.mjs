@@ -21,16 +21,13 @@ const NOW = "2026-07-15T18:00:00.000Z";
 eq(bucketMetro(28.538, -81.379), "orlando", "downtown Orlando → orlando");
 eq(bucketMetro(27.336, -82.531), "manatee-sarasota", "Sarasota → manatee-sarasota");
 eq(bucketMetro(27.947, -82.459), "tampa", "Tampa → tampa");
-// WO7 (2026-09-02) added the "global" whole-planet catch-all to PROMOTE_METROS
-// (see lib/promoteIndex.js), so a point outside the four named metros now
-// buckets to 'global' rather than null — a discovery-time fact, not an
-// automated-promotion instruction (both enqueue paths skip 'global' by
-// design; see supabase/migrations/20260902_wf_promote_global_bucket_opt_in.sql).
-// "no box at all" is still a real, testable case against the four NAMED
-// metros alone.
-eq(bucketMetro(25.761, -80.191), "global", "Miami → global (no NAMED box, but the catch-all)");
+// The fallback mirrors the ten active production rows observed 2026-09-06.
+// Global remains the opt-in catch-all; a point outside Florida still proves
+// that removing global makes an out-of-market point unbucketable.
+eq(bucketMetro(25.761, -80.191), "miami-dade", "Miami retains its active named metro during a failed live read");
 const NAMED_ONLY = Object.fromEntries(Object.entries(PROMOTE_METROS).filter(([k]) => k !== "global"));
-eq(bucketMetro(25.761, -80.191, NAMED_ONLY), null, "Miami → null against the four named boxes alone");
+eq(bucketMetro(40.713, -74.006), "global", "New York uses the opt-in global catch-all");
+eq(bucketMetro(40.713, -74.006, NAMED_ONLY), null, "New York is outside every named production box");
 eq(bucketMetro(null, -81), null, "null lat → null");
 ok(inBounds(28.5, -81.4, PROMOTE_METROS.orlando), "inBounds true for Orlando point");
 ok(!inBounds(28.5, -81.4, PROMOTE_METROS.tampa), "inBounds false for wrong box");
@@ -145,15 +142,15 @@ ok(KNOWN_CATEGORIES.length === 6, "six known categories");
 // lib/promoteIndex.js decidePromotion history).
 {
   const rows = [
-    { metro: "miami-dade", min_lat: 25.5, max_lat: 25.98, min_lng: -80.5, max_lng: -80.1, active: true },
+    { metro: "fixture-live-only", min_lat: 25.5, max_lat: 25.98, min_lng: -80.5, max_lng: -80.1, active: true },
     { metro: "inactive-metro", min_lat: 1, max_lat: 2, min_lng: 1, max_lng: 2, active: false },
     { metro: "bad-bounds", min_lat: 5, max_lat: 1, min_lng: 1, max_lng: 2, active: true }, // minLat > maxLat
     { metro: null, min_lat: 1, max_lat: 2, min_lng: 1, max_lng: 2, active: true },
     "not an object",
   ];
   const metros = metrosFromRows(rows);
-  eq(Object.keys(metros).join(","), "miami-dade", "metrosFromRows keeps only active, well-formed rows");
-  eq(metros["miami-dade"].minLat, 25.5, "metrosFromRows carries bounds through as numbers");
+  eq(Object.keys(metros).join(","), "fixture-live-only", "metrosFromRows keeps only active, well-formed rows");
+  eq(metros["fixture-live-only"].minLat, 25.5, "metrosFromRows carries bounds through as numbers");
   eq(Object.keys(metrosFromRows([])).length, 0, "metrosFromRows([]) is an empty map, not a throw");
   eq(Object.keys(metrosFromRows(null)).length, 0, "metrosFromRows(null) degrades to an empty map");
 
@@ -164,17 +161,18 @@ ok(KNOWN_CATEGORIES.length === 6, "six known categories");
     types: ["museum", "point_of_interest"], primaryType: "museum",
     rating: 4.5, userRatingCount: 500, businessStatus: "OPERATIONAL",
   };
-  // Reproduces the 2026-08-23/09-01 outage exactly: PROMOTE_METROS alone
-  // (the pre-fix behaviour — no 5th arg) does not know "miami-dade", so the
-  // place is rejected even though it is otherwise perfectly valid.
-  const withoutLive = decidePromotion(miamiPlace, "miami-dade", NOW);
-  ok(withoutLive.action === "reject" && /unknown metro: miami-dade/.test(withoutLive.error),
+  // A synthetic live-only metro keeps this negative control meaningful
+  // after the real Miami box has been added to the fallback.
+  const knownFallback = decidePromotion(miamiPlace, "miami-dade", NOW);
+  ok(knownFallback.action === "promote", "the observed active Miami metro works without the live map: " + (knownFallback.error || ""));
+  const withoutLive = decidePromotion(miamiPlace, "fixture-live-only", NOW);
+  ok(withoutLive.action === "reject" && /unknown metro: fixture-live-only/.test(withoutLive.error),
     "without a live metros map, a real place in a DB-only metro is rejected as unknown — this is the bug");
   // Pass the DB-fetched map through (metrosFromRows(rows) from above) — the
   // SAME place now promotes.
-  const withLive = decidePromotion(miamiPlace, "miami-dade", NOW, null, metros);
+  const withLive = decidePromotion(miamiPlace, "fixture-live-only", NOW, null, metros);
   ok(withLive.action === "promote", "with the live metros map threaded through, the fix promotes it: " + (withLive.error || ""));
-  eq(withLive.row.metro, "miami-dade", "the promoted row is stamped with the live-only metro");
+  eq(withLive.row.metro, "fixture-live-only", "the promoted row is stamped with the live-only metro");
   // Existing 3-arg callers (route.js's pre-fix shape is gone, but the default
   // must still work for every caller that has not been updated to pass a 5th
   // arg) are unaffected — PROMOTE_METROS is still the implicit default.

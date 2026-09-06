@@ -61,7 +61,7 @@ jobs:
         with: { node-version: 22, cache: npm }
       - run: npm ci --no-audit --no-fund
       # Missing credentials fail the job before the optional local-script skip.
-      - name: Inventory integrity
+      - name: Require inventory credentials
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -70,7 +70,11 @@ jobs:
             echo "::error::Database canary requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY. Check not performed."
             exit 1
           fi
-          node scripts/check-inventory-integrity.mjs
+      - name: Inventory integrity
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/check-inventory-integrity.mjs
 
   promote-metros:
     name: promotion metro live parity
@@ -84,7 +88,7 @@ jobs:
       # Catches the 2026-09-01 defect class: a metro added straight to
       # wf_promote_metros with no matching migration, silently un-mirrored by
       # lib/promoteIndex.js PROMOTE_METROS. Missing secrets fail this job.
-      - name: Promote-metros live drift
+      - name: Require metro-check credentials
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -93,4 +97,8 @@ jobs:
             echo "::error::Database canary requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY. Check not performed."
             exit 1
           fi
-          node scripts/check-promote-metros-live-drift.mjs
+      - name: Promote-metros live drift
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/check-promote-metros-live-drift.mjs

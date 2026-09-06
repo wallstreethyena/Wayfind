@@ -3590,10 +3590,6 @@
           {
             "file": ".github/workflows/canary.yml",
             "blocking": false
-          },
-          {
-            "file": "ops/canary.workflow.yml",
-            "blocking": false
           }
         ]
       },
@@ -5416,10 +5412,6 @@
         "githubWorkflows": [
           {
             "file": ".github/workflows/canary.yml",
-            "blocking": false
-          },
-          {
-            "file": "ops/canary.workflow.yml",
             "blocking": false
           }
         ]
@@ -11531,7 +11523,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 63,
+      "assertionCount": 65,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
