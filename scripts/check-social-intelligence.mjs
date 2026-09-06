@@ -41,6 +41,8 @@ assert.match(migration, /internal_use boolean not null default false/);
 assert.match(migration, /derived_facts_allowed boolean not null default false/);
 assert.match(migration, /alter column like_count drop not null/);
 assert.match(migration, /alter column comments_count drop not null/);
+assert.match(migration, /creator_follower_count bigint/);
+assert.match(migration, /wf_social_candidates_follower_observation_ck/);
 assert.match(migration, /location_lat is not null and location_lng is not null/);
 console.log("check-social-intelligence: OK; identity, trends, rights, privacy and no-publication controls executed");
 

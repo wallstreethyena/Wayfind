@@ -5,8 +5,9 @@ scrape social sites and it never publishes a place or event by itself.
 
 ## Implemented
 
-- Existing Instagram cron applies explicit seasonal-offering and strictly >1000
-  observed-like gates before candidate storage. Watching a handle does not approve it.
+- Existing Instagram cron requires an explicit seasonal offering, then one quality
+  path: current owner review; at least 10,000 followers observed by Meta Business
+  Discovery; or strictly >1000 observed likes. Watching a handle does not approve it.
 - The scout loads an expiring, evidence-backed `wf_social_creators` registry.
   Watched handles are not trusted unless the owner review is current.
 - Missing engagement stays unknown. Exceptions do not expose provider tokens.
@@ -70,8 +71,8 @@ against existing production columns. It reads inventory with OPERATIONAL status,
 continues keyset pagination through server-capped short pages, and fails on a ceiling
 or malformed cursor. It rechecks the strict likes gate, excludes previously rejected
 leads, deduplicates posts and returns private location candidates. It makes no model
-calls and writes nothing. Creator auto-approval is explicitly unavailable in this
-preflight until the reviewed registry is deployed. This supersedes the 503-only hold
+calls and writes nothing. Current reviewed creators and official follower observations
+can qualify acquisition; neither can approve publication. This supersedes the 503-only hold
 for the handler, but publication and automated acquisition release remain blocked.
 
 Production read on 2026-09-06: wf_social_candidates=0 and wf_social_source_health=0.

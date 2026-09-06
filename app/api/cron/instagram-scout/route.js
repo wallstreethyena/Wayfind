@@ -91,7 +91,9 @@ export async function GET(request) {
   function consider(media, context) {
     inspected++;
     const handle = normalizedSocialHandle(context.handle || media?.username);
-    const decision = qualifySocialPost({ ...media, platform: "instagram", handle }, { now: observedAt, creator: creators.get(handle) || null });
+    const creatorFollowerCount = context.source === "business_discovery" ? observedCount(context.followers) : null;
+    const decision = qualifySocialPost({ ...media, platform: "instagram", handle,
+      source: context.source, creator_follower_count: creatorFollowerCount }, { now: observedAt, creator: creators.get(handle) || null });
     if (!decision.eligible) {
       rejected[decision.reason] = (rejected[decision.reason] || 0) + 1;
       return;
@@ -100,6 +102,8 @@ export async function GET(request) {
     if (candidate) candidates.push({
       ...candidate,
       like_count: observedCount(media.like_count), comments_count: observedCount(media.comments_count),
+      creator_follower_count: creatorFollowerCount,
+      follower_observed_at: creatorFollowerCount === null ? null : new Date(observedAt).toISOString(),
       qualification_policy: decision.policy,
       qualification_reason: decision.reason,
       qualification_evidence: decision.evidence,

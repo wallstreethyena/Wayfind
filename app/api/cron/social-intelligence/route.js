@@ -18,7 +18,7 @@ export async function GET(req) {
   try {
     const signal = AbortSignal.timeout(45000);
     const [leads, inventory, creators] = await Promise.all([
-      readSocialPages(db, "wf_social_candidates", "media_id,platform,handle,caption,permalink,like_count,review_status", "media_id", { signal }),
+      readSocialPages(db, "wf_social_candidates", "media_id,platform,source,handle,caption,permalink,like_count,creator_follower_count,follower_observed_at,review_status", "media_id", { signal }),
       readSocialPages(db, "wf_inventory", "place_id,name,lat,lng,metro,state,status", "place_id", { signal }),
       readSocialPages(db, "wf_social_creators", "id,platform,handle,status,evidence_url,reviewed_at,expires_at,canonical_place_id", "id", { ceiling: 5000, signal }),
     ]);

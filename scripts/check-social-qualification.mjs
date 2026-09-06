@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { qualifySocialPost, creatorQualified, observedCount, seasonalEvidence, safeSocialJson, sourceRetryDue } from "../lib/socialQualification.js";
+import { ESTABLISHED_CREATOR_FOLLOWER_MIN, qualifySocialPost, creatorQualified, observedCount, seasonalEvidence, safeSocialJson, sourceRetryDue } from "../lib/socialQualification.js";
 const now = Date.parse("2026-09-05T12:00:00Z");
 const post = { platform: "instagram", handle: "fixture", caption: "Florida pumpkin patch opens soon", like_count: 1001 };
 const creator = { platform: "instagram", handle: "fixture", status: "approved", evidence_url: "https://example.org/review", reviewed_at: "2026-09-01", expires_at: "2026-10-01" };
@@ -15,6 +15,12 @@ assert.equal(creatorQualified({ ...creator, platform: "tiktok" }, "instagram", "
 assert.equal(creatorQualified({ ...creator, expires_at: "2026-09-04" }, "instagram", "fixture", now), false);
 assert.equal(creatorQualified({ ...creator, reviewed_at: "2026-09-06" }, "instagram", "fixture", now), false);
 assert.equal(qualifySocialPost({ ...post, caption: "fall vibes #fall" }, { now, creator }).eligible, false);
+const established = { ...post, source: "business_discovery", creator_follower_count: ESTABLISHED_CREATOR_FOLLOWER_MIN, like_count: null };
+assert.equal(qualifySocialPost(established, { now }).eligible, true);
+assert.equal(qualifySocialPost(established, { now }).reason, "established_creator_followers");
+assert.equal(qualifySocialPost({ ...established, creator_follower_count: ESTABLISHED_CREATOR_FOLLOWER_MIN - 1 }, { now }).eligible, false);
+assert.equal(qualifySocialPost({ ...established, source: "hashtag" }, { now }).eligible, false, "hashtag fields cannot assert creator reach");
+assert.equal(qualifySocialPost({ ...established, platform: "tiktok" }, { now }).eligible, false, "other platforms cannot spoof Meta Business Discovery");
 assert.equal(observedCount(null), null);
 assert.equal(observedCount(0), 0);
 assert.throws(() => qualifySocialPost(post), /observation time/);

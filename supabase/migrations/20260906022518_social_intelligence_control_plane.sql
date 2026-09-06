@@ -59,6 +59,8 @@ alter table if exists public.wf_social_candidates
   add column if not exists qualification_reason text,
   add column if not exists qualification_evidence jsonb,
   add column if not exists creator_qualified boolean not null default false,
+  add column if not exists creator_follower_count bigint,
+  add column if not exists follower_observed_at timestamptz,
   add column if not exists source_place_id text,
   add column if not exists location_name text,
   add column if not exists location_city text,
@@ -70,6 +72,14 @@ alter table if exists public.wf_social_candidates
   add column if not exists candidate_place_id text,
   add column if not exists extracted_facts jsonb,
   add column if not exists enriched_at timestamptz;
+
+alter table if exists public.wf_social_candidates
+  drop constraint if exists wf_social_candidates_follower_observation_ck;
+alter table if exists public.wf_social_candidates
+  add constraint wf_social_candidates_follower_observation_ck check (
+    (creator_follower_count is null and follower_observed_at is null) or
+    (creator_follower_count >= 0 and follower_observed_at is not null)
+  );
 
 -- Meta does not guarantee engagement fields for every media object. Preserve
 -- that distinction: NULL means "not observed" while 0 means an observed zero.
