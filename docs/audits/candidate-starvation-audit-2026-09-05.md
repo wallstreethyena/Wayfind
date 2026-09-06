@@ -123,11 +123,12 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 | Live Music | 1 | 9 | +8 |
 | Clubs | 6 | 6 | 0 |
 | Things To Do Together | 135 | 193 | +58 |
-| Beach | 0 | 0 | 0 |
 | Museum | 79 | 110 | +31 |
 | Shopping | 0 | 0 | 0 |
 
-Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `beach, shopping`
+`beach` is not measured here: weather-gated by dateNightBeachOk(); the audit passes no marine signals, so this rail is always hidden in the measurement
+
+Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `shopping`
 
 **tampa** — owned rows in box 3234, servable 3192, within 27mi 2697, qualifying 979
 
@@ -139,11 +140,12 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 | Live Music | 0 | 6 | +6 |
 | Clubs | 6 | 6 | 0 |
 | Things To Do Together | 108 | 109 | +1 |
-| Beach | 0 | 0 | 0 |
 | Museum | 77 | 77 | 0 |
 | Shopping | 0 | 0 | 0 |
 
-Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `beach, shopping`
+`beach` is not measured here: weather-gated by dateNightBeachOk(); the audit passes no marine signals, so this rail is always hidden in the measurement
+
+Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `shopping`
 
 **sarasota** — owned rows in box 2816, servable 2767, within 27mi 2071, qualifying 790
 
@@ -155,11 +157,12 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 | Live Music | 1 | 5 | +4 |
 | Clubs | 1 | 1 | 0 |
 | Things To Do Together | 110 | 114 | +4 |
-| Beach | 0 | 0 | 0 |
 | Museum | 52 | 57 | +5 |
 | Shopping | 0 | 0 | 0 |
 
-Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `beach, shopping`
+`beach` is not measured here: weather-gated by dateNightBeachOk(); the audit passes no marine signals, so this rail is always hidden in the measurement
+
+Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `shopping`
 
 **orlando** — owned rows in box 2530, servable 2518, within 27mi 2425, qualifying 862
 
@@ -171,11 +174,10 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 | Live Music | 1 | 9 | +8 |
 | Clubs | 10 | 10 | 0 |
 | Things To Do Together | 87 | 87 | 0 |
-| Beach | 0 | 0 | 0 |
 | Museum | 66 | 66 | 0 |
 | Shopping | 0 | 1 | +1 |
 
-Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `beach`
+`beach` is not measured here: weather-gated by dateNightBeachOk(); the audit passes no marine signals, so this rail is always hidden in the measurement
 
 **miami** — owned rows in box 2471, servable 2471, within 27mi 2262, qualifying 547
 
@@ -187,11 +189,12 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 | Live Music | 0 | 3 | +3 |
 | Clubs | 9 | 9 | 0 |
 | Things To Do Together | 79 | 79 | 0 |
-| Beach | 0 | 0 | 0 |
 | Museum | 71 | 71 | 0 |
 | Shopping | 0 | 0 | 0 |
 
-Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `beach, shopping`
+`beach` is not measured here: weather-gated by dateNightBeachOk(); the audit passes no marine signals, so this rail is always hidden in the measurement
+
+Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `shopping`
 
 ### Birthday — FIXED
 
@@ -202,7 +205,6 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
-| Birthday Free Gifts | 0 | 0 | 0 |
 | Upscale Birthday Dinner | 17 | 79 | +62 |
 | Private Dining Rooms | 0 | 3 | +3 |
 | Rooftops | 3 | 6 | +3 |
@@ -210,13 +212,12 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 | Dance Clubs | 6 | 6 | 0 |
 | Speakeasies | 2 | 3 | +1 |
 
-Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `gifts`
+`gifts` is not measured here: fed by an exact place-id read (BIRTHDAY_REWARD_PLACE_IDS), outside the candidate pool by design
 
 **tampa** — owned rows in box 2228, servable 2208, within 27mi 1914, qualifying 73
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
-| Birthday Free Gifts | 0 | 0 | 0 |
 | Upscale Birthday Dinner | 21 | 55 | +34 |
 | Private Dining Rooms | 0 | 1 | +1 |
 | Rooftops | 3 | 6 | +3 |
@@ -224,13 +225,12 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 | Dance Clubs | 6 | 6 | 0 |
 | Speakeasies | 0 | 2 | +2 |
 
-Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `gifts`
+`gifts` is not measured here: fed by an exact place-id read (BIRTHDAY_REWARD_PLACE_IDS), outside the candidate pool by design
 
 **sarasota** — owned rows in box 1729, servable 1707, within 27mi 1254, qualifying 47
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
-| Birthday Free Gifts | 0 | 0 | 0 |
 | Upscale Birthday Dinner | 19 | 37 | +18 |
 | Private Dining Rooms | 0 | 2 | +2 |
 | Rooftops | 0 | 0 | 0 |
@@ -238,13 +238,14 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 | Dance Clubs | 1 | 1 | 0 |
 | Speakeasies | 2 | 2 | 0 |
 
-Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `gifts, rooftops`
+`gifts` is not measured here: fed by an exact place-id read (BIRTHDAY_REWARD_PLACE_IDS), outside the candidate pool by design
+
+Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `rooftops`
 
 **orlando** — owned rows in box 1695, servable 1690, within 27mi 1639, qualifying 86
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
-| Birthday Free Gifts | 0 | 0 | 0 |
 | Upscale Birthday Dinner | 19 | 61 | +42 |
 | Private Dining Rooms | 0 | 0 | 0 |
 | Rooftops | 4 | 7 | +3 |
@@ -252,13 +253,14 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 | Dance Clubs | 10 | 10 | 0 |
 | Speakeasies | 4 | 5 | +1 |
 
-Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `gifts, private`
+`gifts` is not measured here: fed by an exact place-id read (BIRTHDAY_REWARD_PLACE_IDS), outside the candidate pool by design
+
+Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `private`
 
 **miami** — owned rows in box 1921, servable 1921, within 27mi 1749, qualifying 30
 
 | rail | shipped read | complete read | gained |
 |---|---|---|---|
-| Birthday Free Gifts | 0 | 0 | 0 |
 | Upscale Birthday Dinner | 2 | 5 | +3 |
 | Private Dining Rooms | 0 | 0 | 0 |
 | Rooftops | 8 | 12 | +4 |
@@ -266,7 +268,9 @@ Still zero with the COMPLETE owned pool — not candidate starvation, so no amou
 | Dance Clubs | 9 | 9 | 0 |
 | Speakeasies | 3 | 3 | 0 |
 
-Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `gifts, private`
+`gifts` is not measured here: fed by an exact place-id read (BIRTHDAY_REWARD_PLACE_IDS), outside the candidate pool by design
+
+Still zero with the COMPLETE owned pool — not candidate starvation, so no amount of retrieval will move it: `private`
 
 ### Lunch in My City — FIXED
 
