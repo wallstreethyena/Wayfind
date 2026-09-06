@@ -190,8 +190,24 @@ ok(/EVENTS ARE EXCLUDED/.test(read("app/components/useEditorialHooks.js")),
   "useEditorialHooks still states the list-surface events exclusion");
 
 // The route reads the same candidate helper the client fills.
-ok(/editorialNameCandidates\(name, also\)/.test(code("app/api/editorial/route.js")),
-  "/api/editorial CALLS editorialNameCandidates — matching lives in one function");
+// ASSERT THE CALL, NOT THE ARGUMENT NAMES. This pinned the literal
+// `editorialNameCandidates(name, also)` and went red on 2026-09-05 when the
+// route renamed its locals to rawName/rawAlso while hoisting the call above the
+// servability gate — the invariant ("matching lives in one function") never
+// moved. An assertion that encodes a variable name cannot tell a rename from a
+// removal. Match the call with any two arguments, and prove the probe still
+// discriminates.
+{
+  const CALLS_HELPER = /editorialNameCandidates\s*\(\s*[A-Za-z_$][\w$]*\s*,\s*[A-Za-z_$][\w$]*\s*\)/;
+  ok(CALLS_HELPER.test("const names = editorialNameCandidates(name, also);"),
+    "POSITIVE CONTROL: the helper-call probe matches the original argument names");
+  ok(CALLS_HELPER.test("const allNames = editorialNameCandidates(rawName, rawAlso);"),
+    "…and the renamed ones, so a rename is not mistaken for a removal");
+  ok(!CALLS_HELPER.test("const names = someOtherMatcher(rawName, rawAlso);"),
+    "RED-PROVE: a DIFFERENT matcher does not satisfy it — this is still asserting that matching lives in the one shared helper");
+  ok(CALLS_HELPER.test(code("app/api/editorial/route.js")),
+    "/api/editorial CALLS editorialNameCandidates — matching lives in one function");
+}
 ok(/atlasCardForName\(atlasCards, n\)/.test(code("app/api/editorial/route.js")),
   "/api/editorial CALLS atlasCardForName after the id miss — name fallback is a read, not a rewrite");
 

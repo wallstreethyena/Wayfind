@@ -23,6 +23,7 @@
 // GOOGLE_MAPS_SERVER_KEY configured -> 501, client falls back to the direct
 // SDK path (see pickSuggestionDetails's fallback in app/home.js).
 import { NextResponse } from "next/server";
+import { gateShut, spendAllow } from "../../../../lib/spendGate";
 import { getInventoryIdentity } from "../../../../lib/inventoryIdentity.js";
 
 export const dynamic = "force-dynamic";
@@ -70,6 +71,14 @@ export async function POST(req) {
 
   const qs = sessionToken ? ("?sessionToken=" + encodeURIComponent(sessionToken)) : "";
   try {
+    // COST GUARD (2026-09-04): this route reached Google with NO gate and NO
+    // ledger. FIELDS.place carries rating/userRatingCount/priceLevel — the
+    // ENTERPRISE tier whose editorialSummary sibling cost $1,198 in August.
+    // FIELDS.area is location/address/name only, which bills at Pro.
+    if (gateShut()) return NextResponse.json({ error: "gate shut" }, { status: 200 });
+    if (!(await spendAllow(kind === "area" ? "details_pro" : "details_enterprise"))) {
+      return NextResponse.json({ error: "budget" }, { status: 200 });
+    }
     const r = await fetch("https://places.googleapis.com/v1/places/" + encodeURIComponent(placeId) + qs, {
       headers: { "X-Goog-Api-Key": serverKey, "X-Goog-FieldMask": FIELDS[kind] },
     });
