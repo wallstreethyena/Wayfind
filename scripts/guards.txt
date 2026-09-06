@@ -889,6 +889,7 @@ node scripts/check-social-qualification.mjs
 # alone cannot tell a bad key from a quota from a quiet night.
 node scripts/check-provider-health-says-why.mjs
 node scripts/test-fall-intent-rails.mjs
+node scripts/test-fall-venue-identity.mjs
 node scripts/test-night-out-intent.mjs
 node scripts/test-rail-paging.mjs
 node scripts/check-rail-paging-contract.mjs
