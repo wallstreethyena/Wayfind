@@ -34,6 +34,31 @@ let pass = 0;
 const fail = (m) => { console.error("check-no-stuck-loading: FAIL — " + m); process.exit(1); };
 const ok = (c, m) => { if (!c) fail(m); pass++; };
 
+// A timeout can exist syntactically and still be a hang in practice. This is
+// the exact guard-honesty gap found after #1114: TRENDS_LOAD_TIMEOUT_MS could
+// be changed from 14s to 999999999ms and the old guard still passed because it
+// only proved that settleLoad existed. Reader-facing skeleton clocks must be
+// real deadlines: at least 1s (not an accidental immediate failure) and no
+// more than 30s (after that the reader has already experienced the bug).
+const MIN_SKELETON_TIMEOUT_MS = 1000;
+const MAX_SKELETON_TIMEOUT_MS = 30000;
+const loadTimeoutDefs = (src) =>
+  [...src.matchAll(/\b(?:export\s+)?const\s+([A-Z0-9_]+_LOAD_TIMEOUT_MS)\s*=\s*([0-9][0-9_]*)\s*;/g)]
+    .map((m) => ({ name: m[1], ms: Number(m[2].replaceAll("_", "")) }));
+const auditLoadTimeouts = (src) => {
+  const defs = loadTimeoutDefs(src);
+  if (!defs.length) return { ok: false, reason: "declares no *_LOAD_TIMEOUT_MS deadline" };
+  for (const d of defs) {
+    if (!Number.isFinite(d.ms) || d.ms < MIN_SKELETON_TIMEOUT_MS || d.ms > MAX_SKELETON_TIMEOUT_MS) {
+      return { ok: false, reason: `${d.name}=${d.ms}ms is outside ${MIN_SKELETON_TIMEOUT_MS}..${MAX_SKELETON_TIMEOUT_MS}ms` };
+    }
+    if (!(new RegExp(`timeoutMs\\s*:\\s*${d.name}\\b`)).test(src)) {
+      return { ok: false, reason: `${d.name} is declared but is not the timeoutMs passed to settleLoad` };
+    }
+  }
+  return { ok: true, defs };
+};
+
 const { settleLoad, canClaim, isPending, isFailed, LOAD_PENDING, LOAD_FAILED, LOAD_TIMEOUT_MS } =
   await import(new URL("../lib/loadState.js", import.meta.url));
 
@@ -138,6 +163,19 @@ ok(/ensureLoaded\(sdef\.id\)/.test(bn) && /delete nx\[sdef\.id\]/.test(bn),
     "settleLoad on that SAME never-settling promise must reach a terminal decision — this is the difference the components below are required to have");
 }
 
+// The decision above must reject the exact bad edits this guard is meant to
+// prevent. These are in-memory mutations of the same syntax used by the real
+// components, so CI proves the checker turns red conceptually before it trusts
+// the current files.
+{
+  const good = "export const TRENDS_LOAD_TIMEOUT_MS = 14000; settleLoad(work, { timeoutMs: TRENDS_LOAD_TIMEOUT_MS });";
+  const zero = "export const TRENDS_LOAD_TIMEOUT_MS = 0; settleLoad(work, { timeoutMs: TRENDS_LOAD_TIMEOUT_MS });";
+  const elevenDays = "export const TRENDS_LOAD_TIMEOUT_MS = 999999999; settleLoad(work, { timeoutMs: TRENDS_LOAD_TIMEOUT_MS });";
+  ok(auditLoadTimeouts(good).ok === true, "positive control: a real 14s skeleton deadline must pass the timeout audit");
+  ok(auditLoadTimeouts(zero).ok === false, "red-prove: a 0ms skeleton deadline must fail the timeout audit");
+  ok(auditLoadTimeouts(elevenDays).ok === false, "red-prove: an effectively endless 999999999ms deadline must fail the timeout audit");
+}
+
 // Every component that paints a height-reserved skeleton while awaiting the
 // network. Joining this list costs one line. Not joining it costs a reader
 // stranded on a grey box with no way out, which is this file's entire subject.
@@ -153,6 +191,8 @@ for (const rel of TIMED) {
     `${rel} paints a loading skeleton but does not import lib/loadState.js — a pending state must be written by something that guarantees it gets overwritten`);
   ok(/settleLoad\s*\(/.test(src),
     `${rel} must route its load through settleLoad. A try/catch or .catch() only ever sees the failure mode that THROWS; production's was the other one, and the reader cannot tell them apart.`);
+  const deadlineAudit = auditLoadTimeouts(src);
+  ok(deadlineAudit.ok, `${rel}: ${deadlineAudit.reason || "skeleton load timeout audit failed"}`);
 }
 
-console.log(`check-no-stuck-loading: OK — ${pass} assertions (settleLoad EXECUTED against rejecting, throwing, null-resolving and never-settling work; ${OWNERS.length} section owners + ${TIMED.length} skeleton painters route through it; a .catch() is proven not to catch a hang)`);
+console.log(`check-no-stuck-loading: OK — ${pass} assertions (settleLoad EXECUTED against rejecting, throwing, null-resolving and never-settling work; ${OWNERS.length} section owners + ${TIMED.length} skeleton painters route through it; every named skeleton deadline is 1–30s and wired into settleLoad; 0ms and 999999999ms mutations are red-proved)`);
