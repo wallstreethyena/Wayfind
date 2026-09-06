@@ -39,6 +39,8 @@ for (const table of ["wf_social_creators", "wf_source_evidence", "wf_social_tren
 }
 assert.match(migration, /internal_use boolean not null default false/);
 assert.match(migration, /derived_facts_allowed boolean not null default false/);
+assert.match(migration, /alter column like_count drop not null/);
+assert.match(migration, /alter column comments_count drop not null/);
 assert.match(migration, /location_lat is not null and location_lng is not null/);
 console.log("check-social-intelligence: OK; identity, trends, rights, privacy and no-publication controls executed");
 

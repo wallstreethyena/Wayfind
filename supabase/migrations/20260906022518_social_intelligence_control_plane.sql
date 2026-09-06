@@ -71,6 +71,13 @@ alter table if exists public.wf_social_candidates
   add column if not exists extracted_facts jsonb,
   add column if not exists enriched_at timestamptz;
 
+-- Meta does not guarantee engagement fields for every media object. Preserve
+-- that distinction: NULL means "not observed" while 0 means an observed zero.
+-- Qualification must never turn an unavailable metric into a viral signal.
+alter table if exists public.wf_social_candidates
+  alter column like_count drop not null,
+  alter column comments_count drop not null;
+
 alter table if exists public.wf_social_candidates
   drop constraint if exists wf_social_candidates_location_pair_ck;
 alter table if exists public.wf_social_candidates
