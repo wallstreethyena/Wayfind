@@ -44,7 +44,7 @@ import path from "node:path";
 import os from "node:os";
 import assert from "node:assert/strict";
 
-import { SCENARIOS, REQUIRED_FLOWS } from "./lib/synthetic/scenarios.mjs";
+import { SCENARIOS, REQUIRED_FLOWS, HOMEPAGE_CARD_BUDGET_MS } from "./lib/synthetic/scenarios.mjs";
 import {
   redactUrl,
   redactUrlsInText,
@@ -83,6 +83,57 @@ for (const s of SCENARIOS) {
   ok(typeof s.description === "string" && s.description.length > 20, `${s.id}: description is a real sentence, not a placeholder`);
   ok(typeof s.run === "function", `${s.id}: run is a callable function`);
   ok(s.run.constructor.name === "AsyncFunction", `${s.id}: run is declared async (the runner awaits it)`);
+}
+
+// ── 1b. THE HOMEPAGE CARD CHECK IS A BUDGET, NOT A SLEEP ────────────────────
+// 2026-09-06. The homepage scenario counted .wf-place-card after a flat sleep.
+// The poster grid paints at ~0.9s and the card rails at 0.84-1.4s warm / ~2.7s
+// on a cold rail cache cell, and the visibility wait ahead of the sleep is
+// satisfied by the tile — so the count landed at tile + 1.2s, which is
+// 2.4-2.9s: exactly where a cold-cell load puts the cards. Measured on
+// production in one minute: 30 cards at a 2411ms checkpoint, 0 at 2497ms (they
+// appeared 256ms later), 30 at 2861ms. The 17:15Z scheduled run failed and an
+// unchanged re-run passed.
+//
+// A monitor that fails half the time on a healthy page trains its reader to
+// ignore it, so this pins the shape of the fix: the homepage waits for the
+// card SURFACE against a stated budget and never on a clock.
+{
+  // Function.prototype.toString() keeps comments, and the scenario's own
+  // comment names the sleep it replaced — so read the CODE, not the prose.
+  // "//" inside a URL (https://) is not a comment and must survive.
+  const stripComments = (s) => String(s)
+    .replace(/\/\*[\s\S]*?\*\//g, " ")
+    .replace(/(^|[^:])\/\/[^\n]*/g, "$1 ");
+
+  const homepage = SCENARIOS.find((s) => s.id === "homepage");
+  ok(!!homepage, "the homepage scenario still exists (this law has something to bind to)");
+  const raw = String(homepage?.run || "");
+  const code = stripComments(raw);
+  ok(!/waitForTimeout/.test(code),
+    "homepage scenario never gates its card count on a fixed sleep — it waits on the card locator (2026-09-06 coin-flip regression)");
+  ok(/HOMEPAGE_CARD_BUDGET_MS/.test(code),
+    "homepage scenario measures its card wait against HOMEPAGE_CARD_BUDGET_MS rather than an inline number");
+  ok(Number.isInteger(HOMEPAGE_CARD_BUDGET_MS),
+    `HOMEPAGE_CARD_BUDGET_MS is a whole number of milliseconds — got ${JSON.stringify(HOMEPAGE_CARD_BUDGET_MS)}`);
+  // Above every healthy value measured (0.84-1.4s warm, ~2.7s on a cold rail
+  // cache cell, 4-6s for the /api/rails rebuild behind it) and below the
+  // client's own give-up point (DaypartRail budgets 10s, /api/rails carries
+  // maxDuration 12) — so a failure means the page did not deliver, never that
+  // the app was still legitimately waiting.
+  ok(HOMEPAGE_CARD_BUDGET_MS >= 6000 && HOMEPAGE_CARD_BUDGET_MS <= 10000,
+    `HOMEPAGE_CARD_BUDGET_MS sits between the measured cold-cell cost and the client's own 10s budget — got ${HOMEPAGE_CARD_BUDGET_MS}`);
+
+  // Self-tests: prove the detector has teeth, and that stripping comments
+  // cannot HIDE a real sleep — the failure mode that would make this law
+  // pass vacuously forever.
+  const sleepingFixture = async (pageLike) => { await pageLike.waitForTimeout(1200); };
+  ok(/waitForTimeout/.test(stripComments(String(sleepingFixture))),
+    "self-test: a function that really sleeps is still detected after comments are stripped");
+  ok(!/waitForTimeout/.test(stripComments("// this comment merely mentions waitForTimeout\nconst x = 1;")),
+    "self-test: a comment that merely NAMES the sleep is correctly ignored");
+  ok(/wf-place-card/.test(stripComments("const u = 'https://example.com/x'; el.querySelector('.wf-place-card');")),
+    "self-test: stripping comments leaves a URL's // intact and does not eat the code after it");
 }
 
 // Negative control: prove the structural checks above can actually fail, not
