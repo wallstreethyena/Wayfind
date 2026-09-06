@@ -1137,3 +1137,5 @@ node scripts/check-synthetic-monitor-hermetic.mjs
 # v8.99 (owner 2026-09-06): every event page states the FULL address (street + town),
 # the venue website, and draws the free map with the reader's route and the nearby picks.
 node scripts/check-event-where.mjs
+
+node scripts/test-event-experience.mjs

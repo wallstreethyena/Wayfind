@@ -45,7 +45,7 @@ import { safeRemoveMap } from "../../lib/mapTeardown";
 // import.meta.url, which Next rewrites to a file:// literal. Vendored copy.
 setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
 
-const STYLE = "https://tiles.openfreemap.org/styles/bright";
+const STYLE = "https://tiles.openfreemap.org/styles/positron";
 const ACCENT = "#F97316";
 const PICK = "#2EC9A6";
 

@@ -5,6 +5,7 @@
 // shows real, current data; an id that no longer resolves 404s via
 // notFound() — never a silent redirect to the homepage. This implements
 // the /events/[city]/[event-slug] leg of the audit prompt's URL scheme.
+import EventExperienceStyles from "../../../components/EventExperienceStyles.js";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { resolveEventById, idFromSlug } from "../../../../lib/eventResolve.js";
@@ -230,31 +231,37 @@ export default async function EventPage({ params }) {
   };
   const A = "#F97316";
   return (
-    <div style={{ background: "radial-gradient(circle at 50% -10%,rgba(249,115,22,.16),transparent 34%),#080C12", minHeight: "100dvh", color: "#CBD5E1", fontFamily: "var(--wf-sans)" }}>
+    <div className="wf-event-experience"><EventExperienceStyles />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <div style={{ maxWidth: 960, margin: "0 auto", padding: "22px clamp(16px,4vw,40px) 64px" }}>
+      <div className="wf-event-wrap">
         <nav style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, marginBottom: 18 }}>
           <a href="/" aria-label="Wayfind home" style={{ display: "inline-flex", alignItems: "center" }}><img src="/brand/wayfind-official-white.png" alt="Wayfind" width="132" height="38" style={{ width: 132, height: "auto", display: "block" }} /></a>
           <a href="/events" style={{ color: "#FDBA74", fontWeight: 850, textDecoration: "none", fontSize: 13.5 }}>‹ All events</a>
         </nav>
-        {e.image && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <div style={{ position: "relative", overflow: "hidden", borderRadius: 24, border: "1px solid rgba(255,255,255,.1)", boxShadow: "0 28px 70px rgba(0,0,0,.42),0 0 0 1px rgba(249,115,22,.1)" }}>
-            <img src={e.image} alt="" style={{ width: "100%", height: "clamp(260px,42vw,430px)", objectFit: "cover", display: "block" }} />
-            <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,transparent 42%,rgba(4,8,14,.82))" }} />
-          </div>
-        )}
+        <div className={"wf-event-hero" + (e.image ? "" : " wf-event-hero--no-photo")}>
+          {e.image ? <div className="wf-event-photo"><img src={e.image} alt={e.name} /></div> : null}
+          <aside className="wf-event-booking" aria-label="Event details and booking">
+          <div className="wf-event-eyebrow">Your next good plan</div>
         {cancelled && (
           <div style={{ marginTop: 14, background: "rgba(239,68,68,.12)", border: "1px solid rgba(239,68,68,.5)", borderRadius: 12, padding: "11px 14px", color: "#FCA5A5", fontWeight: 800, fontSize: 13.5 }}>
             This event has been {/postponed/i.test(e.status) ? "postponed" : "cancelled"} by the organizer. Check the official listing before making plans.
           </div>
         )}
-        <div style={{ marginTop: e.image ? -58 : 0, position: "relative", zIndex: 2, padding: e.image ? "0 clamp(14px,3vw,28px)" : 0 }}>
-          <div style={{ display: "inline-flex", padding: "6px 10px", borderRadius: 999, background: "#F97316", color: "#111827", fontSize: 11, fontWeight: 900, letterSpacing: ".8px", textTransform: "uppercase" }}>Wayfind event pick</div>
-          <h1 style={{ fontSize: "clamp(30px,5vw,48px)", fontWeight: 900, letterSpacing: "-1.1px", color: "#F8FAFC", lineHeight: 1.04, margin: "10px 0 7px", textShadow: "0 4px 24px rgba(0,0,0,.65)" }}>{e.name}</h1>
-          <div style={{ fontSize: "clamp(15px,2vw,18px)", fontWeight: 800, color: "#FDBA74" }}>{fmtDate(e.date, e.time)}</div>
-        </div>
+        <h1>{e.name}</h1>
+        <p className="wf-event-date">{fmtDate(e.date, e.time)}</p>
+        <p className="wf-event-booking-note">{where}</p>
         <EventActions event={{ ...e, url: `${CANON}/events/${params.city}/${params.slug}` }} />
+        {e.price && <div className="wf-event-price">{e.price}</div>}
+        {!cancelled && external && (
+          <TicketButton
+            url={external}
+            label={e.ticketed ? "Get tickets ↗" : "Official site ↗"}
+            eventId={e.id}
+            provider={isTicketmasterFamily(external) ? "ticketmaster" : "event_official"}
+          />
+        )}
+        <p className="wf-event-booking-note">{e.ticketed ? "Confirm availability and booking terms with the ticket provider before paying." : "Confirm dates and availability on the official listing."}</p>
+        </aside></div>
         <EventStory eventId={e.id} initialStory={initialStory} />
         {/* v8.99 — the shared WHERE block (address, official site, map with
             your route, nearby picks). Same component as /florida-events. */}
@@ -274,15 +281,6 @@ export default async function EventPage({ params }) {
             <summary style={{ color: "#CBD5E1", fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Organizer notes</summary>
             <p style={{ fontSize: 13, lineHeight: 1.6, color: "#94A3B8", margin: "9px 0 0" }}>{String(e.description).slice(0, 600)}</p>
           </details>
-        )}
-        {e.price && <div style={{ marginTop: 12, fontSize: 14, fontWeight: 700, color: "#22C55E" }}>{e.price}</div>}
-        {!cancelled && external && (
-          <TicketButton
-            url={external}
-            label={e.ticketed ? "Get tickets ↗" : "Official site ↗"}
-            eventId={e.id}
-            provider={isTicketmasterFamily(external) ? "ticketmaster" : "event_official"}
-          />
         )}
         {!cancelled && <EventPlan lat={e.lat} lng={e.lng} city={e.city} venue={e.venue} time={e.time} />}
         <div style={{ marginTop: 16, fontSize: 11.5, color: "#64748B" }}>
