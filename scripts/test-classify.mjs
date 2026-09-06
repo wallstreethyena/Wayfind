@@ -114,6 +114,36 @@ t("existingTypeSignals prefers a non-empty types[] over primary", existingTypeSi
 t("existingTypeSignals never invents from category", existingTypeSignals({ category: "food", name: "Acme" }), []);
 t("empty types + primaryType beach lands on the beach list", classify({ types: [], primaryType: "beach", name: "Siesta Key" }).category, "beach");
 
+// ── v8.99 (2026-09-06): what the first database canary found, pinned as REAL rows ──
+// Medical primaryTypes are services, whatever wellness/spa types ride along.
+const chiro = classify({ types: ["chiropractor", "wellness_center", "health", "point_of_interest", "establishment"], primaryType: "chiropractor", name: "The Wellness Way- Sarasota" });
+t("chiropractor + wellness_center is excluded, not an attraction", chiro.excluded, true);
+t("chiropractor exclusion reason is service", chiro.reason, EXCLUSION.SERVICE);
+const clinic = classify({ types: ["medical_clinic", "skin_care_clinic", "wellness_center", "spa", "health", "point_of_interest", "service", "establishment"], primaryType: "medical_clinic", name: "Aspire for Wellness Together" });
+t("medical_clinic + spa is excluded", clinic.category, null);
+t("doctor + spa is excluded", classify({ types: ["doctor", "spa", "medical_clinic", "point_of_interest", "health", "establishment"], primaryType: "doctor", name: "1 Healthplace International" }).excluded, true);
+// …but a medical primary Google ALSO calls a tourist_attraction is a destination.
+const turtle = classify({ types: ["tourist_attraction", "veterinary_care", "pet_care", "point_of_interest", "establishment"], primaryType: "veterinary_care", name: "Turtle Hospital" });
+t("Turtle Hospital (veterinary_care + tourist_attraction) survives", turtle.excluded, false);
+t("Turtle Hospital is an attraction", turtle.category, "attractions");
+// A real spa is still an attraction (regression guard for the medical rule).
+t("a spa with primaryType spa stays attractions", classify({ types: ["spa", "wellness_center", "point_of_interest", "establishment"], primaryType: "spa", name: "Serenity Day Spa" }).category, "attractions");
+
+// The beach NAME net: a business named after a beach town is not a beach.
+const glass = classify({ types: ["tourist_attraction", "art_studio", "gift_shop", "home_goods_store", "clothing_store", "store", "point_of_interest", "service", "establishment"], primaryType: "tourist_attraction", name: "Shattered Glass DIY St. Pete Beach" });
+t("art studio named after St. Pete Beach is not a beach", glass.category, "attractions");
+t("tour boat named after Fort Walton Beach is not a beach", classify({ types: ["tourist_attraction", "tour_agency", "travel_agency", "service", "point_of_interest", "establishment"], primaryType: "tourist_attraction", name: "Sea Blaster Fort Walton Beach" }).category, "attractions");
+t("Miami Beach Sign is a landmark, not a beach", classify({ types: ["tourist_attraction", "point_of_interest", "establishment"], primaryType: "tourist_attraction", name: "Miami Beach Sign" }).category, "attractions");
+t("Madeira Beach Dog Park is a park, not a beach", classify({ types: ["park", "tourist_attraction", "point_of_interest", "establishment"], primaryType: "park", name: "Madeira Beach Dog Park" }).category, "attractions");
+t("Cocoa Beach Pier Arch (restaurant types) is not a beach", classify({ types: ["tourist_attraction", "restaurant", "point_of_interest", "food", "establishment"], primaryType: "tourist_attraction", name: "Cocoa Beach Pier Arch" }).category, "attractions");
+// …and real shorelines still land on the beach list.
+t("Skyway Beach (park primary) is a beach", classify({ types: ["park", "point_of_interest", "establishment"], primaryType: "park", name: "Skyway Beach" }).category, "beach");
+t("Hollywood North Beach Park is a beach", classify({ types: ["park", "tourist_attraction", "point_of_interest", "establishment"], primaryType: "park", name: "Hollywood North Beach Park" }).category, "beach");
+t("Miramar Beach Regional Access is a beach", classify({ types: ["park", "tourist_attraction", "point_of_interest", "establishment"], primaryType: "park", name: "Miramar Beach Regional Access" }).category, "beach");
+t("Sombrero Beach is a beach", classify({ types: ["tourist_attraction", "point_of_interest", "establishment"], primaryType: "tourist_attraction", name: "Sombrero Beach" }).category, "beach");
+t("a bare name ending in Beach with no types still recovers beach", classify({ types: ["point_of_interest", "establishment"], primaryType: null, name: "Manasota Key Beach" }).category, "beach");
+t("a real `beach` google type decides regardless of name", classify({ types: ["beach", "point_of_interest"], primaryType: "beach", name: "Coquina Beach Boardwalk" }).category, "beach");
+
 console.log(`test-classify: ${pass} passed, ${fail} failed`);
 if (fail) { console.error("\nFAILURES:\n" + failures.join("\n")); process.exit(1); }
 console.log("test-classify: OK — one classifier, pinned to REAL Google types; junk excluded, real places survive");
