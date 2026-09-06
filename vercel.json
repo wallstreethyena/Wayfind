@@ -107,7 +107,11 @@
     },
     {
       "path": "/api/cron/instagram-scout",
-      "schedule": "35 11 * * *"
+      "schedule": "40 6 * * *"
+    },
+    {
+      "path": "/api/cron/social-intelligence",
+      "schedule": "50 6 * * *"
     }
   ]
 }
