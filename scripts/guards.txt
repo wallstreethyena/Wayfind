@@ -996,6 +996,7 @@ node scripts/check-social-extract-cannot-invent.mjs
 # neither enrichment route can write an event or publish a card.
 node scripts/check-social-qualification.mjs
 node scripts/check-social-intelligence.mjs
+node scripts/check-social-provider-registry.mjs
 # 2026-09-04 A BOOK BUTTON NEEDS SOMEBODY SELLING ENTRY. Measured on
 # wf_inventory: 2,263 rows passed isTicketyPlace and would render a Book CTA,
 # and 829 of them (33%) were free public land — parks, trailheads, preserves,
