@@ -26,14 +26,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 547,
-    "totalRegistryEntries": 548,
-    "guardsTxtLineCount": 546,
-    "guardsTxtReachedFileCount": 542,
+    "totalOnDiskGuardFiles": 548,
+    "totalRegistryEntries": 549,
+    "guardsTxtLineCount": 547,
+    "guardsTxtReachedFileCount": 543,
     "criticalCount": 65,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 361,
+      "CALL": 362,
       "RENDER": 43,
       "STRUCTURAL": 143,
       "OTHER": 1
@@ -9828,6 +9828,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-foursquare.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 61,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-front-events.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -11362,7 +11384,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 28,
+      "assertionCount": 30,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
