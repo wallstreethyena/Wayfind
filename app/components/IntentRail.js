@@ -53,6 +53,16 @@ import { recommendationIds, uniqueRecommendations } from "../../lib/recommendati
 import { lawfulSort } from "../../lib/lawfulOrder.js";
 import PlaceCardSkeleton from "./PlaceCardSkeleton";
 import { topPickAward } from "../../lib/topPickAward";
+import { settleLoad } from "../../lib/loadState.js";
+// v8.57 — THIS RAIL PAINTS A SKELETON, SO IT MUST REACH A DECISION.
+// The try/catch/finally below is intact and still does the work. What it could
+// NOT do is see a fetch that neither resolves nor rejects: every await stays
+// pending, so catch never runs AND `finally` never runs — which left
+// inFlight.current latched on this pool key forever, so no later load() for it
+// could ever start again. settleLoad (lib/loadState.js) arms its clock BEFORE
+// the work, so the pending state is always overwritten and the latch is always
+// released. Locked by scripts/check-no-stuck-loading.mjs section 5.
+const INTENT_RAIL_LOAD_TIMEOUT_MS = 12000;
 
 // Measured against the Top 40 rail, which renders the identical card with the
 // identical chip and action rows. One constant so the skeleton and the live
@@ -209,7 +219,7 @@ export default function IntentRailBody({
     if (inFlight.current === key) return;
     inFlight.current = key;
     setRows("loading");
-    (async () => {
+    settleLoad(() => (async () => {
       try {
         const bankRaw = typeof def.queries === "function" ? def.queries(ctx) : def.queries;
         const bank = Array.isArray(bankRaw) ? bankRaw : [];
@@ -383,7 +393,14 @@ export default function IntentRailBody({
       } finally {
         inFlight.current = null;
       }
-    })();
+    })(), { timeoutMs: INTENT_RAIL_LOAD_TIMEOUT_MS }).then((settled) => {
+      if (!settled.ok) {
+        // The hang path. `finally` never ran, so the latch is still held:
+        // release it or this pool key can never load again this session.
+        inFlight.current = null;
+        setRows((prev) => (prev === "loading" ? [] : prev));
+      }
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [intent, center && center.lat, center && center.lng, city, weather && weather.temp, weather && weather.label]);
 
