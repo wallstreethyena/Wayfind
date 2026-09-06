@@ -148,7 +148,6 @@ await okAsync("a successful list returns the rows", async () => {
   assert.equal(rows[0].event_id, howl.event_id);
 });
 await okAsync("SSG skip is still [] and does not throw (build must not hang)", async () => {
-  const prev = process.env.NEXT_PHASE;
   process.env.NEXT_PHASE = "phase-production-build";
   try {
     const rows = await fetchCuratedEvents({ db: null });
@@ -156,8 +155,7 @@ await okAsync("SSG skip is still [] and does not throw (build must not hang)", a
     assert.deepEqual(rows, []);
     assert.equal(one, null);
   } finally {
-    if (prev === undefined) delete process.env.NEXT_PHASE;
-    else process.env.NEXT_PHASE = prev;
+    delete process.env.NEXT_PHASE;
   }
 });
 
