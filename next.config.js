@@ -38,7 +38,7 @@ const CSP_REPORT_ONLY = [
   // place photos. Only media.tacdn.com was allowlisted, so every card whose
   // photo came back on the media-cdn host rendered an empty frame — confirmed
   // live on 2026-07-28 via csp-report (directive img-src, page "/").
-  "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://lh3.googleusercontent.com https://*.ggpht.com https://s1.ticketm.net https://*.ticketm.net https://cache-graphicslib.viator.com https://media.tacdn.com https://media-cdn.tripadvisor.com https://tiles.openfreemap.org https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://www.google.com https://googleads.g.doubleclick.net",
+  "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://lh3.googleusercontent.com https://*.ggpht.com https://s1.ticketm.net https://*.ticketm.net https://cache-graphicslib.viator.com https://media.tacdn.com https://media-cdn.tripadvisor.com https://tiles.openfreemap.org https://router.project-osrm.org https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://www.google.com https://googleads.g.doubleclick.net",
   // Sentry error beacons go to the project's ingest host (errors-only, no tunnel).
   // GA4 beacons to google-analytics.com and a region1.* shard; Ads conversions
   // beacon to google.com/pagead + googleads.g.doubleclick.net.
@@ -50,7 +50,7 @@ const CSP_REPORT_ONLY = [
   // NOT adding securepubads / pagead2 / static.doubleclick: those are ad-SERVING
   // and viewability endpoints, and Wayfind serves no ads — blocking them is
   // correct and keeps the policy tight.
-  "connect-src 'self' https://*.googleapis.com https://*.supabase.co wss://*.supabase.co https://api.open-meteo.com https://marine-api.open-meteo.com https://us.i.posthog.com https://us.posthog.com https://us-assets.i.posthog.com https://*.stay22.com https://tp-em.com https://o4511751348486144.ingest.us.sentry.io https://tiles.openfreemap.org https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.google.com https://googleads.g.doubleclick.net https://ad.doubleclick.net",
+  "connect-src 'self' https://*.googleapis.com https://*.supabase.co wss://*.supabase.co https://api.open-meteo.com https://marine-api.open-meteo.com https://us.i.posthog.com https://us.posthog.com https://us-assets.i.posthog.com https://*.stay22.com https://tp-em.com https://o4511751348486144.ingest.us.sentry.io https://tiles.openfreemap.org https://router.project-osrm.org https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.google.com https://googleads.g.doubleclick.net https://ad.doubleclick.net",
   "worker-src 'self' blob:",
   // v5.94: the /trending/[city] pages load click-to-load creator-video embeds by
   // id (TikTok player, YouTube-nocookie, Instagram). CSP is Report-Only today, so a
