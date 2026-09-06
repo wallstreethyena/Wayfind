@@ -41,7 +41,12 @@ ok(CONFIDENCE_FLOOR >= 0.5, "confidence floor is real");
 }
 ok(sourcesFor("beach").includes("wikipedia") && sourcesFor("attractions").includes("wikipedia"), "attractions/beaches -> wikipedia");
 ok(sourcesFor("shopping").includes("foursquare"), "everything -> foursquare");
-ok(SOURCE_CAPS.tripadvisor <= 25, "tripadvisor per-run cap respects the 5k/month tier");
+// v8.99.15 — tripadvisor retired 2026-09-06 (legacy Content API sunset
+// 2026-08-31, verified live: byte-identical 403 with and without the
+// v8.29.14 referer/domain headers). A retired source makes no calls, so it
+// has no per-run budget left to bound — the cap's absence IS the pinned
+// state now, not a regression of it.
+ok(SOURCE_CAPS.tripadvisor === undefined, "tripadvisor is retired — no per-run cap for a source that makes no calls");
 
 // source contract
 const lib = readFileSync(new URL("../lib/popularity.js", import.meta.url), "utf8");
@@ -78,7 +83,11 @@ ok((vj.crons || []).some((c) => c.path === "/api/cron/popularity" && /\*\/[12]\b
 {
   const lp = readFileSync(new URL("../lib/popularity.js", import.meta.url), "utf8");
   ok(lp.includes('"user-agent": "WayfindBot/1.0'), "wikipedia fetcher lost its User-Agent — prod harvests silently zero out");
-  ok((lp.match(/WIKI_UA\)/g) || []).length >= 2, "both wikimedia calls (search + pageviews) must carry the UA");
+  // v8.99.15 — both wikiOpensearch call sites (full-name query, then the
+  // qualifier-stripped retry) now pass a diagSrc third argument too
+  // (jf(url, WIKI_UA, "wikipedia")), so the literal "WIKI_UA)" this used to
+  // grep for no longer appears; WIKI_UA is still the second arg to both.
+  ok((lp.match(/WIKI_UA[,)]/g) || []).length >= 2, "both wikimedia calls (search + pageviews) must carry the UA");
 }
 
 console.log(`test-popularity: ${n - failn}/${n} passed`);
