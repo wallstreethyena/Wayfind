@@ -551,5 +551,13 @@
       "detail": "An uncapped public provider route can convert anonymous request volume directly into quota exhaustion or charges."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/test-autocomplete-proxy.mjs": {
+    "protects": "Autocomplete uses the guarded server proxy and reports disabled or denied spending distinctly from a legitimate empty result.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A regression could bypass finite autocomplete budgets or disguise a denied provider as successful empty search suggestions."
+    },
+    "owner": "Revenue QA"
   }
 }

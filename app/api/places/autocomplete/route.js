@@ -11,14 +11,20 @@
 // route closes that gap: same shape as /api/places/search, guarded in
 // middleware.js, GOOGLE_MAPS_SERVER_KEY (no referrer restriction) server-side.
 //
-// Fail-soft, same contract as /api/places/search: no GOOGLE_MAPS_SERVER_KEY
-// configured -> 501, and the client falls back to the original direct-to-Google
-// client path (see fetchSuggestionsDirect in app/home.js) so nothing breaks in
-// an environment where the server key isn't set.
+// No GOOGLE_MAPS_SERVER_KEY configured remains a distinct 501 setup response.
+// Spend denials are explicit 503s so an exhausted or missing budget cannot look
+// like a normal empty suggestion list to operators or caches.
 import { NextResponse } from "next/server";
 import { gateShut, spendAllowCapped, autocompleteCap } from "../../../../lib/spendGate";
 
 export const dynamic = "force-dynamic";
+
+function unavailable(reason) {
+  return NextResponse.json(
+    { error: "autocomplete_unavailable", reason },
+    { status: 503, headers: { "Cache-Control": "no-store" } },
+  );
+}
 
 // Geographic types — anything else is treated as an establishment/place. Kept
 // in sync with the client's former local copy of this same set.
@@ -50,11 +56,12 @@ export async function POST(req) {
   };
 
   try {
-    // COST GUARD (2026-09-04): until today this route reached Google with NO gate
-    // and NO ledger — the home search box bills on typing. gateShut() is the kill
-    // switch; spendAllowCapped meters every request against a FINITE ceiling.
-    if (gateShut()) return NextResponse.json({ suggestions: [] }, { status: 200 });
-    if (!(await spendAllowCapped("autocomplete", autocompleteCap()))) return NextResponse.json({ suggestions: [] }, { status: 200 });
+    // COST GUARD (2026-09-04): the home search box bills on typing. Every
+    // enabled request needs a finite operator cap and an atomic ledger grant.
+    if (gateShut()) return unavailable("gate_shut");
+    const cap = autocompleteCap();
+    if (!cap) return unavailable("missing_or_invalid_AUTOCOMPLETE_MONTH_CAP");
+    if (!(await spendAllowCapped("autocomplete", cap))) return unavailable("monthly_cap_reached_or_ledger_unavailable");
     const r = await fetch("https://places.googleapis.com/v1/places:autocomplete", {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Goog-Api-Key": serverKey },
