@@ -4,6 +4,8 @@
 // `ssr: false` from a client module, so this thin shim exists to hold it —
 // EventWhere stays a server component and both event pages stay SSR.
 import dynamic from "next/dynamic";
+import { useEffect, useRef, useState } from "react";
+import EventDrivingRoute from "./EventDrivingRoute.js";
 
 const EventVenueMap = dynamic(() => import("./EventVenueMap"), {
   ssr: false,
@@ -15,5 +17,18 @@ const EventVenueMap = dynamic(() => import("./EventVenueMap"), {
 });
 
 export default function EventVenueMapLoader(props) {
-  return <EventVenueMap {...props} />;
+  const host = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    if (!host.current || typeof IntersectionObserver === "undefined") { setVisible(true); return; }
+    const observer = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting)) { setVisible(true); observer.disconnect(); }
+    }, { rootMargin: "300px" });
+    observer.observe(host.current);
+    return () => observer.disconnect();
+  }, []);
+  return <div ref={host}>
+    {visible ? <EventVenueMap {...props} /> : <div className="wfev wfev-h" style={{ minHeight: 340 }} aria-label="Venue map loads as you scroll" />}
+    <EventDrivingRoute venue={props.venue} directionsHref={props.directionsHref} />
+  </div>;
 }

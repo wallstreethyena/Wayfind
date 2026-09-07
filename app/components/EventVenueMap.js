@@ -1,42 +1,7 @@
 "use client";
 
-// app/components/EventVenueMap.js — WHERE THE EVENT IS, HOW FAR YOU ARE FROM
-// IT, AND WHAT IS WORTH STOPPING AT ON THE WAY. One map, every event page.
-//
-// Owner, 2026-09-06, on the 3 Daughters Oktoberfest page: "i asked for a map to
-// be displayed in the events page showing the location of the place and the
-// direction already mapped out to the place based on the users current
-// location additionally i want the recommendation of nearby worth it to be
-// display in the map also make this look premium … this will be the rule
-// globally to every event page".
-//
-// WHAT IT DRAWS, and the vocabulary it keeps (check-brand-pin, MapView.js):
-//   · THE VENUE — one large orange teardrop with a star. The destination.
-//   · YOU — the 📍 emoji with the pulsing glow. The user is never a teardrop
-//     and a recommendation is never the emoji; the two must not converge.
-//   · NEARBY & WORTH IT — smaller teal teardrops numbered in the same order as
-//     the list under the map, so pin 2 and card 2 are the same place.
-//   · YOU -> THE VENUE — a dashed straight line and the as-the-crow-flies
-//     distance in the corner chip, labelled "straight line". NOT a driving
-//     route: review of PR #1129 (2026-09-06) found the first cut fetched one
-//     from the public OSRM demo router, whose terms restrict it to non-commercial
-//     use at 1 req/s with no uptime promise. Wayfind is commercial, and that
-//     call also shipped the reader's exact GPS point to a third party the
-//     page never named. Both are gone. The reader's coordinates now leave the
-//     browser for NOTHING: /api/geo is Wayfind's own route and only a
-//     fallback. Turn-by-turn navigation opens in Google Maps through the
-//     "Get directions" button beside the map, a plain link (free).
-//     check-event-where.mjs forbids public demo routing hosts in app code.
-//
-// WHAT IT COSTS: nothing. Tiles are OpenFreeMap (no key, no meter, commercial
-// use permitted — the same basemap MapView has used since v6.99). No Google
-// Maps JavaScript, no Directions API — the spend law (WAYFIND_GATE) is not
-// touched.
-//
-// LOCATION HONESTY. GPS is asked for once. If the reader declines or the fix
-// times out, /api/geo (IP-based, city-level) stands in and the chip is
-// labelled "approximate" — a route from a guessed point is still useful for
-// "how far is this", and the label keeps it from being read as exact.
+// Nearby venue map. Actual driving directions live in EventDrivingRoute;
+// this map never substitutes a two-point line for a road route.
 import { useEffect, useRef, useState } from "react";
 import { Map as MapLibreMap, Marker, NavigationControl, LngLatBounds, setWorkerUrl } from "maplibre-gl";
 import { safeRemoveMap } from "../../lib/mapTeardown";
@@ -48,13 +13,6 @@ setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
 const STYLE = "https://tiles.openfreemap.org/styles/positron";
 const ACCENT = "#F97316";
 const PICK = "#2EC9A6";
-
-function milesBetween(a, b) {
-  const rad = (n) => (n * Math.PI) / 180;
-  const dLat = rad(b.lat - a.lat), dLng = rad(b.lng - a.lng);
-  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
-  return 3958.8 * 2 * Math.asin(Math.sqrt(h));
-}
 
 // A teardrop the reader can tell apart from the basemap at a glance: white
 // stroke, soft shadow, and a white disc in the head that carries either the
@@ -121,43 +79,6 @@ const CSS = `
 @media (max-width:600px){.wfev-legend{display:none}.wfev-card .wfev-go{display:none}}
 `;
 
-async function locateReader() {
-  // GPS first, once, with a real timeout. Any miss (declined, no fix, no
-  // API) falls to /api/geo — city-level, from the connection — flagged approx.
-  const gps = await new Promise((resolve) => {
-    if (typeof navigator === "undefined" || !navigator.geolocation) return resolve(null);
-    let done = false;
-    const finish = (v) => { if (!done) { done = true; resolve(v); } };
-    const t = setTimeout(() => finish(null), 8000);
-    try {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => { clearTimeout(t); finish({ lat: pos.coords.latitude, lng: pos.coords.longitude, approx: false }); },
-        () => { clearTimeout(t); finish(null); },
-        { enableHighAccuracy: false, timeout: 7500, maximumAge: 5 * 60 * 1000 },
-      );
-    } catch (e) { clearTimeout(t); finish(null); }
-  });
-  if (gps) return gps;
-  try {
-    const r = await fetch("/api/geo", { cache: "no-store", signal: AbortSignal.timeout(4000) });
-    const d = await r.json();
-    if (d && d.ok && Number.isFinite(d.lat) && Number.isFinite(d.lng)) return { lat: d.lat, lng: d.lng, approx: true };
-  } catch (e) {}
-  return null;
-}
-
-function setLine(map, coords) {
-  const data = { type: "Feature", geometry: { type: "LineString", coordinates: coords } };
-  const src = map.getSource("wfev-route");
-  if (src) { src.setData(data); }
-  else {
-    map.addSource("wfev-route", { type: "geojson", data });
-    map.addLayer({ id: "wfev-route-casing", type: "line", source: "wfev-route", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": "#0B0F14", "line-width": 9, "line-opacity": 0.55 } });
-    map.addLayer({ id: "wfev-route-line", type: "line", source: "wfev-route", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": ACCENT, "line-width": 5 } });
-  }
-  map.setPaintProperty("wfev-route-line", "line-dasharray", [1.2, 1.6]);
-}
-
 function fitTo(map, points, pad) {
   if (!points.length) return;
   const b = new LngLatBounds([points[0].lng, points[0].lat], [points[0].lng, points[0].lat]);
@@ -167,8 +88,8 @@ function fitTo(map, points, pad) {
 }
 
 const thumb = (p) => (p.photoRef
-  ? "/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&w=160"
-  : "/api/photo?place=" + encodeURIComponent(p.id) + "&w=160");
+  ? "/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&w=640"
+  : "/api/photo?place=" + encodeURIComponent(p.id) + "&w=640");
 
 /**
  * @param {{ venue: {name:string, lat:number, lng:number},
@@ -178,16 +99,12 @@ const thumb = (p) => (p.photoRef
 export default function EventVenueMap({ venue, picks = [], onSelect }) {
   const hostRef = useRef(null);
   const mapRef = useRef(null);
-  const youRef = useRef(null);
   const pickEls = useRef(new Map());
   const mounted = useRef(true);
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [gen, setGen] = useState(0);
-  const [you, setYou] = useState(null);        // {lat,lng,approx}
-  const [trip, setTrip] = useState(null);      // {miles} straight-line
-  const [phase, setPhase] = useState("idle");  // idle | locating | done | nowhere
   const [sel, setSel] = useState(null);
 
   const pins = picks.filter((p) => p && Number.isFinite(p.lat) && Number.isFinite(p.lng));
@@ -233,46 +150,11 @@ export default function EventVenueMap({ venue, picks = [], onSelect }) {
     return () => {
       dead = true; clearTimeout(watchdog);
       pickEls.current = new Map();
-      youRef.current = null; mapRef.current = null;
+      mapRef.current = null;
       safeRemoveMap(map);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gen, venue && venue.lat, venue && venue.lng]);
-
-  // WHERE YOU ARE. Runs once the map is up; the distance line waits on it.
-  useEffect(() => {
-    if (!ready || phase !== "idle") return;
-    // No cleanup flag here: this effect re-runs when `phase` moves off idle,
-    // and a cleanup would cancel the very lookup it just started. Unmount is
-    // caught by the mounted ref instead.
-    setPhase("locating");
-    locateReader().then((loc) => {
-      if (!mounted.current) return;
-      if (!loc) { setPhase("nowhere"); return; }
-      setYou(loc);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, phase]);
-
-  // YOU -> THE VENUE. A dashed straight line and the crow-flies distance.
-  // No routing service (see the header): the line is drawn from two points
-  // the browser already holds, and nothing about the reader leaves the page.
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!ready || !you || !map) return;
-    if (!youRef.current) {
-      const el = document.createElement("div");
-      el.className = "wfev-you"; el.setAttribute("role", "img");
-      el.setAttribute("aria-label", you.approx ? "Your approximate location" : "Your location");
-      el.textContent = "\u{1F4CD}";
-      youRef.current = new Marker({ element: el, anchor: "bottom" }).setLngLat([you.lng, you.lat]).addTo(map);
-    } else youRef.current.setLngLat([you.lng, you.lat]);
-    setLine(map, [[you.lng, you.lat], [venue.lng, venue.lat]]);
-    setTrip({ miles: milesBetween(you, venue) });
-    fitTo(map, [you, venue, ...pins], { top: 80, bottom: 70, left: 50, right: 50 });
-    setPhase("done");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, you]);
 
   // Selection: the pin lifts, the card shows, the list under the map hears it.
   useEffect(() => {
@@ -286,37 +168,18 @@ export default function EventVenueMap({ venue, picks = [], onSelect }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sel]);
 
-  // A known position survives a retry; the distance effect redraws it on the
-  // fresh map because `ready` flips again.
-  const retry = () => { setFailed(false); setReady(false); setPhase(you ? "done" : "idle"); setTrip(null); setSel(null); setGen((g) => g + 1); };
+  // Retry creates a fresh map and clears the previous selection.
+  const retry = () => { setFailed(false); setReady(false); setSel(null); setGen((g) => g + 1); };
   const selected = sel ? pins.find((p) => p.id === sel) : null;
-  const chip = (() => {
-    if (trip) {
-      const mi = trip.miles < 10 ? trip.miles.toFixed(1) : String(Math.round(trip.miles));
-      return { big: `${mi} mi away`, small: (you && you.approx ? "approximate, " : "") + "straight line from you" };
-    }
-    if (phase === "locating") return { big: "Finding you…", small: "to show how far it is" };
-    return null;
-  })();
 
   return (
     <div className="wfev wfev-h" aria-label={`Map of ${venue.name}`}>
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <div ref={hostRef} className="wfev-canvas" />
-      {chip ? (
-        <div className="wfev-chip" aria-live="polite">
-          <i aria-hidden="true">📍</i>
-          <span style={{ minWidth: 0 }}><b>{chip.big}</b>{chip.small ? <small>{chip.small}</small> : null}</span>
-        </div>
-      ) : null}
-      {ready && phase === "nowhere" ? (
-        <button type="button" className="wfev-loc" onClick={() => setPhase("idle")}>{"\u{1F4CD}"} How far from me?</button>
-      ) : null}
       {ready && pins.length > 0 && !selected ? (
         <div className="wfev-legend" aria-hidden="true">
           <span><em style={{ background: ACCENT }} />Venue</span>
           <span><em style={{ background: PICK }} />Nearby &amp; worth it</span>
-          {you ? <span>{"\u{1F4CD}"} You</span> : null}
         </div>
       ) : null}
       {selected ? (

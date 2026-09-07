@@ -106,6 +106,14 @@ export function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, on
   const content = useContentCardActions(isTour ? {
     id: r.id, type: "experience", title: r.title, image: r.image_url || null, url: r.booking_url || r.url || "",
   } : null);
+  // GUARD-HONESTY 2026-09-07 — same class as RailCard.js / IconicPlaceCard.js:
+  // this tour row's <img src={r.image_url}> had no onError at all, so a
+  // Viator image that fails to load left `.wf-place-card-media` fully sized
+  // (CSS height:100%!important;min-height:176px!important) and empty — a
+  // blank panel, never the monogram this same branch already draws when
+  // r.image_url is absent. Declared unconditionally (rules of hooks): the
+  // `if (!isTour)` branch below returns before this would otherwise run.
+  const [imgFailed, setImgFailed] = useState("");
   const open = () => {
     if (isTour) return;
     try { onLog && onLog("ttd_detail", { id: r.id, name: r.title }); } catch (e) {}
@@ -160,8 +168,8 @@ export function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, on
       {ds != null ? <div className="wf-place-card-score"><WayfindScoreBadge score={ds} /></div> : null}
       <div className="wf-place-card-layout">
         <div className="wf-place-card-media">
-          {r.image_url
-            ? <img src={r.image_url} alt="" loading="lazy" style={{ objectFit: "cover" }} />
+          {r.image_url && imgFailed !== r.image_url
+            ? <img src={r.image_url} alt="" loading="lazy" onError={() => setImgFailed(r.image_url)} style={{ objectFit: "cover" }} />
             : <div className="wf-place-card-monogram" aria-hidden="true">WF</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
         </div>

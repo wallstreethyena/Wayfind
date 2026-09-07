@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "mode": "dry_run",
+  "places": [
+    {
+      "place_id": "replace-with-owned-place-id",
+      "name": "Example Civic Museum",
+      "lat": 27.5,
+      "lng": -82.5,
+      "category": "attractions",
+      "status": "OPERATIONAL",
+      "excluded": false,
+      "needs_review": false
+    }
+  ],
+  "sources": [
+    {
+      "source_id": "example-civic-calendar",
+      "source_class": "government",
+      "status": "approved",
+      "format": "ics",
+      "url": "https://calendar.example.gov/events.ics",
+      "approved_hosts": ["calendar.example.gov"],
+      "place_ids": ["replace-with-owned-place-id"],
+      "cost_after_free_micros": 0,
+      "hard_fetch_ceiling_daily": 1,
+      "max_records": 100,
+      "retention_days": 30,
+      "rights_verified_at": "2026-09-07",
+      "rights_documentation_url": "https://calendar.example.gov/terms",
+      "rights": {
+        "internal_use": true,
+        "display_allowed": false,
+        "derived_facts_allowed": true,
+        "store_derived": true,
+        "raw_redistribution_allowed": false,
+        "commercial_api_allowed": false
+      }
+    }
+  ]
+}

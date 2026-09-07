@@ -15,10 +15,18 @@ import { fetchCuratedEvents, fetchCuratedEventBySlug, eventJsonLd, dateRangeLabe
 import { eventPhotos } from "../../../lib/eventPhotos";
 import { addressLine, directionsUrl } from "../../../lib/placeWhere";
 import ShareButton from "../../components/ShareButton";
+import SaveEventButton from "./SaveEventButton.js";
 import EventWhere from "../../components/EventWhere";
 import { eventPairings, pairingHref } from "../../../lib/eventPairings";
 import { eventTicketCta } from "../../../lib/eventTicketDeals.js";
 import { clockLabel } from "../../../lib/fallPool.js";
+
+// Same two-letter monogram convention as RailCard/IconicPlaceCard's card
+// fallback (app/components/css.js .wf-place-card-monogram) — the letters an
+// event with no photo shows instead of a blank panel (S.heroFallback below).
+function heroInitials(name) {
+  return String(name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+}
 
 export const revalidate = 3600;
 
@@ -65,7 +73,13 @@ export async function generateMetadata({ params }) {
 const S = {
   page: { maxWidth: 720, margin: "0 auto", padding: "28px 18px 60px", background: "#0D1117", color: "#E6EDF3", fontFamily: "var(--wf-sans)", lineHeight: 1.65 },
   kicker: { fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#FF8A3D" },
-  h1: { fontSize: 30, lineHeight: 1.2, margin: "10px 0 14px", fontWeight: 800, color: "#FFFFFF" },
+  h1: { fontSize: 30, lineHeight: 1.2, margin: "10px 0 8px", fontWeight: 800, color: "#FFFFFF" },
+  // v9.00 — THE CONCISE REASON TO GO, right under the title. card_hook is a
+  // line every curated row already carries (isTrusted requires one) and it
+  // used to surface nowhere on this page until "Why it's worth going" much
+  // further down — so a reader deciding whether to keep scrolling never saw
+  // the one sentence written specifically to make that decision for them.
+  hook: { fontSize: 16.5, lineHeight: 1.5, color: "#C9D1D9", margin: "0 0 18px", fontWeight: 600 },
   box: { background: "#161B22", border: "1px solid #21262D", borderRadius: 14, padding: "14px 16px", margin: "0 0 22px" },
   row: { display: "flex", gap: 10, fontSize: 14.5, margin: "2px 0" },
   k: { color: "#8B949E", minWidth: 100, fontWeight: 700 },
@@ -80,6 +94,31 @@ const S = {
   // horizontally and shows phone photos at the portrait aspect they were shot
   // at, because letterboxing a 2:3 photo into a 2:1 slot crops the subject out.
   hero: { width: "100%", height: "auto", aspectRatio: "1200 / 631", objectFit: "cover", borderRadius: 14, display: "block", margin: "0 0 16px", background: "#161B22" },
+  // v9.00 — A HERO MUST NEVER RENDER AS NOTHING. Before this, an event with no
+  // owned-photography consent record (lib/eventPhotos.js — most events, by
+  // design, since consent defaults to NO) got no hero at all: the page opened
+  // straight on the kicker and h1, which is exactly the "text document, not a
+  // premium event page" the owner named. The ladder is now: (1) owned,
+  // consented photography (shots.hero); (2) a real photo the row already
+  // holds (hero_image — a PLACE photo, often Google's own, so it is not
+  // gated by the person-likeness consent law eventPhotos.js enforces); (3)
+  // only when neither exists, this monogram panel, in the same visual
+  // language as app/components/css.js's .wf-place-card-monogram fallback —
+  // never a giant empty rectangle, and never a stretched stock photo standing
+  // in for an event we hold no rights to. Same failure shape PR #1151 fixes
+  // for place cards; this is that fix applied to the event hero.
+  heroFallback: {
+    width: "100%", aspectRatio: "1200 / 631", borderRadius: 14, margin: "0 0 16px",
+    display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden",
+    background: "radial-gradient(circle at 32% 22%,rgba(255,138,61,.22),transparent 45%),linear-gradient(155deg,#1B2433 0%,#131A25 55%,#0D1117 100%)",
+    border: "1px solid rgba(255,142,61,.16)",
+  },
+  heroFallbackRing: {
+    width: 84, height: 84, borderRadius: 22, display: "flex", alignItems: "center", justifyContent: "center",
+    border: "1px solid rgba(255,142,61,.34)", background: "rgba(255,255,255,.02)",
+    boxShadow: "0 18px 40px rgba(0,0,0,.35), inset 0 1px rgba(255,255,255,.06)",
+  },
+  heroFallbackMark: { fontSize: 28, fontWeight: 900, letterSpacing: ".06em", color: "#FFC08F" },
   // v8.70 — THE RAIL, REBUILT SO IT CANNOT STRETCH.
   //
   // The first version put width + aspect-ratio directly on the <img> inside a
@@ -117,29 +156,26 @@ const S = {
     marginBottom: 18,
   },
   backRow: { display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" },
-  // v8.88 — the DIRECTIONS control. A pill, not a text link, because the owner
-  // asked for "the little button that allows you to click on it and get
-  // directions" and because this is the one action on the page a reader takes
-  // with their body. Full-width on a phone: it is the last thing you tap
-  // before you drive.
-  dirs: {
-    display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7,
-    marginTop: 12, padding: "11px 18px", borderRadius: 12,
-    background: "#F97316", border: "1px solid #F97316", color: "#0D1117",
-    fontSize: 14.5, fontWeight: 800, textDecoration: "none", lineHeight: 1,
-  },
   addr: { color: "#C9D1D9", fontSize: 14, marginTop: 2 },
-  // The TICKET control (owner, 2026-09-03: every affiliate-eligible event is
-  // deep linked everywhere, not only on the fall rail). Same pill as
-  // directions, rendered only when lib/eventTicketDeals.js names the product
-  // that sells the way into THIS event. Goes through /api/commerce/go.
+  // v9.00 (owner, 2026-09-07: "not a premium Wayfind event page … directions
+  // are duplicated"). Directions now lives in EXACTLY ONE place — the shared
+  // <EventWhere> block below — so this page no longer defines its own pill
+  // for it (the old S.dirs is gone). The TICKET control is what stays here,
+  // because it is the PRIMARY action on an event you have to buy your way
+  // into: full width, the strongest weight on the page, so a reader's thumb
+  // finds it before anything else. Directions is deliberately the SECONDARY
+  // action, one level down inside EventWhere — the hierarchy the owner asked
+  // for. scripts/check-event-hero-and-directions.mjs proves the count of one.
+  ticketWrap: { margin: "-8px 0 24px" },
   tix: {
-    display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7,
-    marginTop: 12, marginRight: 10, padding: "11px 18px", borderRadius: 12,
-    background: "#FF8A3D", border: "1px solid #FF8A3D", color: "#0D1117",
-    fontSize: 14.5, fontWeight: 800, textDecoration: "none", lineHeight: 1,
+    display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+    width: "100%", boxSizing: "border-box", maxWidth: "100%", textAlign: "center", overflowWrap: "anywhere", padding: "16px 20px", borderRadius: 14,
+    background: "linear-gradient(180deg,#FFA35C,#F97316)", border: "1px solid #F97316", color: "#111827",
+    fontSize: 16, fontWeight: 850, textDecoration: "none", lineHeight: 1.4,
+    boxShadow: "0 16px 34px rgba(249,115,22,.32)",
   },
-  disclosure: { margin: "6px 0 0", fontSize: 11.5, color: "#8B949E" },
+  disclosure: { margin: "10px 0 0", fontSize: 11.5, color: "#8B949E", textAlign: "center" },
+  actionsRow: { display: "flex", gap: 10, flexWrap: "wrap" },
   shareTop: { margin: "-8px 0 22px" },
   shareEnd: { margin: "28px 0 4px", padding: "18px 20px", borderRadius: 16, background: "#0E1520", border: "1px solid #1F2A3A" },
   shareAsk: { margin: "0 0 12px", fontSize: 15.5, lineHeight: 1.5, color: "#C9D1D9" },
@@ -229,15 +265,24 @@ export default async function CuratedEventPage({ params }) {
       </div>
 
       </div>
-      <div className={"wf-event-hero" + (shots && shots.hero ? "" : " wf-event-hero--no-photo")}>
+      <div className="wf-event-hero">
 
-      {/* Owned photography only. eventPhotos() fails closed when there is no
-          consent record, so an event without one renders no photo at all
-          rather than falling back to someone else's image. */}
+      {/* Owned photography leads — eventPhotos() fails closed when there is
+          no consent record, so a person never appears on this page without
+          one. hero_image is a PLACE photo (often Google's own), not of a
+          person, so it is not gated by that same law and is the second rung.
+          Only when NEITHER exists does the page fall to the monogram (v9.00,
+          S.heroFallback below): a hero must never render as nothing. */}
       {shots && shots.hero ? (
         // eslint-disable-next-line @next/next/no-img-element
         <div className="wf-event-photo"><img src={shots.hero.src} alt={shots.hero.alt} width={shots.hero.w} height={shots.hero.h} /></div>
-      ) : null}
+      ) : e.hero_image ? (
+        <div className="wf-event-photo"><img src={e.hero_image} alt={e.image_alt || `${e.event_name} at ${e.venue || e.city}`} /></div>
+      ) : (
+        <div className="wf-event-photo" style={S.heroFallback} role="img" aria-label={`${e.event_name} — no photo available yet`}>
+          <div style={S.heroFallbackRing}><span style={S.heroFallbackMark}>{heroInitials(e.short_title || e.event_name)}</span></div>
+        </div>
+      )}
 
       <aside className="wf-event-booking" aria-label="Event details and booking">
       <div className="wf-event-eyebrow">Your next good plan</div>
@@ -258,7 +303,13 @@ export default async function CuratedEventPage({ params }) {
               : (!e.venue ? <div style={S.addr}>{e.city}, {e.state}</div> : null)}
           </span>
         </div>
-        {site ? <div style={S.row}><span style={S.k}>Website</span><span style={S.v}><a style={S.link} href={site} rel="nofollow noopener" target="_blank">{site.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}</a></span></div> : null}
+        {/* v9.00 — the Website row that lived here is gone. It printed the
+            raw path ("buschgardens.com/tampa/events/howl-o-scream") as link
+            text with no width limit — the exact "raw URL wraps badly" defect
+            the owner named — and it duplicated the "Official site" button
+            <EventWhere> already renders below with a clean, host-only
+            caption. One official-site affordance, not two, and never a raw
+            path as visible text. */}
         <div style={S.row}><span style={S.k}>Cost</span><span style={S.v}>{e.is_free ? "Free" : (e.price_band || "Ticketed — see the organiser")}</span></div>
         {e.minimum_age ? <div style={S.row}><span style={S.k}>Age</span><span style={S.v}>{e.minimum_age}+</span></div> : null}
         {e.duration_recommendation ? <div style={S.row}><span style={S.k}>Time needed</span><span style={S.v}>{e.duration_recommendation}</span></div> : null}
@@ -266,45 +317,53 @@ export default async function CuratedEventPage({ params }) {
         {e.wayfind_verdict ? <div style={S.row}><span style={S.k}>Verdict</span><span style={S.v}>{e.wayfind_verdict}</span></div> : null}
       </div>
 
-      {/* The button you tap right before you drive. It opens turn-by-turn
-          DIRECTIONS (maps/dir), not a map search that then asks the reader to
-          find the Directions button themselves — the owner asked for the
-          second tap to be gone, and those are two different Google endpoints.
-          Absent entirely when the row cannot name a destination. */}
-      {dirs || ticket ? (
-        <p style={{ margin: "-12px 0 22px" }}>
-          {ticket ? (
-            <a style={S.tix} href={ticket.href} target="_blank" rel="sponsored nofollow noopener"
-              aria-label={ticket.label.replace(" ↗", "") + " for " + e.event_name}>
-              {"\uD83C\uDF9F\uFE0F " + ticket.label}
-            </a>
-          ) : null}
-          {dirs ? (
-            <a style={S.dirs} href={dirs} target="_blank" rel="noopener nofollow"
-              aria-label={"Get directions to " + (e.venue || e.event_name)}>
-              {"\u2192 Get directions"}
-            </a>
-          ) : null}
-          {ticket ? <span style={{ display: "block" }}><span style={S.disclosure}>Ticket link is an affiliate link; Wayfind may earn a commission. It never changes what we recommend.</span></span> : null}
-        </p>
+      {/* v9.00 — THE PRIMARY ACTION, and only that one. Directions used to
+          render TWICE — once as its own pill here, once inside <EventWhere>
+          below — which is the exact "directions are duplicated" defect the
+          owner named (2026-09-07). Get Directions now renders from EXACTLY
+          ONE place (EventWhere, handed `dirs` below): it is the SECONDARY
+          action, because the primary thing a reader does on an event they
+          have to BUY a ticket to is buy the ticket. Absent entirely when no
+          affiliate sells the way in — the button never outruns inventory. */}
+      {ticket ? (
+        <div style={S.ticketWrap}>
+          <a style={S.tix} href={ticket.href} target="_blank" rel="sponsored nofollow noopener"
+            aria-label={ticket.label.replace(" ↗", "") + " for " + e.event_name}>
+            {"🎟️ " + ticket.label}
+          </a>
+          <p style={S.disclosure}>Ticket link is an affiliate link; Wayfind may earn a commission. It never changes what we recommend.</p>
+        </div>
       ) : null}
 
-      {/* Two share controls, the guide rule applied to an event
+      {/* Save + share, together, near the top — the owner's premium-event
+          list (2026-09-07). Save runs through the SAME lib/contentCardActions
+          store RailCard, IconicPlaceCard and the aggregator event page's
+          EventActions all use, so a save made here shows up as saved
+          everywhere else — no second save mechanism invented for this page.
+          Two share controls is the guide rule applied to an event
           (scripts/check-guide-share.mjs): this one catches the reader who knew
           they wanted to send it the moment they saw the date, and the one at
           the foot catches the far larger group who only know after reading. An
           event is the strongest share case on the site — the whole point of
           "Friday, free, 7pm" is the person you are going with. */}
       <div style={S.shareTop}>
-        <ShareButton
-          url={shareUrl}
-          title={`${e.event_name} ${e.year}`}
-          text={shareText}
-          label="Share"
-          tone="dark"
-          event="event_share"
-          meta={{ slug: params.slug, event_id: e.event_id || null, city: e.city || null, placement: "hero" }}
-        />
+        <div style={S.actionsRow}>
+          <SaveEventButton
+            id={`wfc:${e.event_id}`}
+            name={e.event_name}
+            image={shots && shots.hero ? shots.hero.src : (e.hero_image || null)}
+            url={shareUrl}
+          />
+          <ShareButton
+            url={shareUrl}
+            title={`${e.event_name} ${e.year}`}
+            text={shareText}
+            label="Share"
+            tone="dark"
+            event="event_share"
+            meta={{ slug: params.slug, event_id: e.event_id || null, city: e.city || null, placement: "hero" }}
+          />
+        </div>
       </div>
 
       <p className="wf-event-booking-note">{e.is_free ? "Confirm dates and availability on the official listing." : "Confirm availability and booking terms with the ticket provider before paying."}</p>

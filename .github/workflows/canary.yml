@@ -34,6 +34,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  incident-delivery:
+    name: production incident delivery
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      # Independent of the email/Sentry credentials used by the watcher.
+      # A failed or missing heartbeat must produce a visible red canary.
+      - name: Latest job-watch outcome and freshness
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/check-job-watch-delivery.mjs
   routes:
     name: production route contract
     runs-on: ubuntu-latest
@@ -102,3 +117,36 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/check-promote-metros-live-drift.mjs
+
+  deploy-contract:
+    name: RPC + migration contract vs production
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci --no-audit --no-fund
+      # 2026-09-07: #1153 shipped a 5-arg RPC caller against a still-3-arg
+      # production function (its migration was reviewed, merged, and never
+      # applied) — the 08:23 UTC popularity cron did zero work across all four
+      # providers. Repo-only guards could not see that production drift.
+      - name: Require deploy-contract credentials
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::error::Database canary requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY. Check not performed."
+            exit 1
+          fi
+      - name: RPC schema contract (call sites vs production pg_proc)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/check-rpc-schema-contract.mjs
+      - name: Migration reconciliation (repo files vs applied ledger)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/check-migration-reconciliation.mjs

@@ -101,6 +101,18 @@ ok(isBreakfastPlace({ name: "Counter Room", primaryType: "restaurant", types: ["
 ok(isBreakfastPlace({ name: "Counter Room", primaryType: "diner", types: ["diner", "restaurant"] }) === true,
   "…while a place whose primary type IS diner is admitted");
 
+// v9.0 — the live Cortez leaks (2026-09-07), each with its keeper control.
+ok(isBreakfastPlace({ name: "Pane e Amore Italian Cafe", primaryType: "italian_restaurant", types: ["italian_restaurant", "restaurant", "food"] }) === false,
+  "a cuisine restaurant with NO breakfast token is not breakfast on the word 'Cafe' alone (live Cortez #1)");
+ok(isBreakfastPlace({ name: "Arte Caffè", primaryType: "italian_restaurant", types: ["italian_restaurant", "bakery", "cafe", "restaurant"] }) === true,
+  "…while the Italian bakery-café the carve-out was written for (bakery in types) is still admitted");
+ok(isBreakfastPlace({ name: "BAYSHORE NUTRITION - Herbalife Nutrition Smoothie Bar", primaryType: "restaurant", types: ["acai_shop", "brazilian_restaurant", "tea_house", "coffee_shop", "cafe", "food_store"] }) === false,
+  "an Herbalife nutrition club is not a café, whatever Google typed it (live Cortez Best Cafés leak)");
+ok(isBreakfastPlace({ name: "Seabreeze Healthy Cafe", primaryType: "food", types: ["acai_shop", "tea_house", "brazilian_restaurant", "breakfast_restaurant", "restaurant", "food"] }) === true,
+  "…while a real healthy café with a breakfast_restaurant token stays");
+ok(isBreakfastPlace({ name: "Joy Coffee", types: ["coffee_shop", "cafe", "food_store", "store", "food"] }) === true,
+  "a coffee shop with no primary at all is still admitted on its types");
+
 // Null/undefined safety — the pool builder calls this on every row it sees.
 for (const bad of [null, undefined, {}, { name: null }, { types: null }]) {
   ok(isBreakfastPlace(bad) === false, "a malformed row is refused, never thrown on");

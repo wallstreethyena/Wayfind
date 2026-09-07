@@ -126,6 +126,30 @@ export async function GET(req) {
     // the cell self-heals instead of latching. The successful answer keeps the
     // hour it earned.
     const degraded = !data || data.failed === true;
+    // A FAILED BUILD IS NOT A COVERED CITY (v9.0, owner's phone 2026-09-07
+    // 09:19, "Showing Best Breakfast Picks near Cortez" over two empty rails
+    // reading "No nearby place clearly qualifies for this rail yet").
+    //
+    // v8.73 taught railMenuData to carry `failed: true` out when the 9s
+    // inventory deadline blew, and v8.74 stopped this route from caching that
+    // answer. Neither changed the one field the client actually reads: this
+    // response still said `covered: true` and handed over a payload whose
+    // rails were empty and whose cityLabel was the reader's town. The
+    // browser's liveFromRailsResponse saw covered:true + data and adopted it
+    // as a successful ranking of Cortez — so every composer rail printed its
+    // "nothing qualifies" sentence, and the reader was told his town had no
+    // breakfast while Supabase was timing out (/api/birthday logged "All
+    // owned inventory reads failed: timeout" at 08:51 the same morning).
+    //
+    // Now the top level says what happened: `failed: true`, `covered: false`,
+    // no data. The client maps `failed` to LOAD_FAILED ("we couldn't reach the
+    // ranking service", with Try again) — not to "uncovered" ("Wayfind isn't
+    // live here yet"), which would be a second lie about the same outage.
+    // scripts/test-rails-failed-is-not-covered.mjs pins the whole chain.
+    if (degraded) {
+      const noStore = { "Cache-Control": "no-store", "x-wayfind-fast-cache": cached.state };
+      return NextResponse.json({ covered: false, failed: true, data: null }, { status: 503, headers: noStore });
+    }
     // v=2 is a compact, lossless delivery protocol. The first response carries
     // only the first ranked window for every poster rail. A swipe near the end
     // asks for one ordered page with `rail=<id>&offset=<n>`; `railTotals` keeps
@@ -140,9 +164,7 @@ export async function GET(req) {
       : data;
     return NextResponse.json({ covered: true, data: delivered }, {
       headers: {
-        "Cache-Control": degraded
-          ? "no-store"
-          : "public, s-maxage=3600, stale-while-revalidate=86400",
+        "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
         "x-wayfind-fast-cache": cached.state,
       },
     });
@@ -152,7 +174,9 @@ export async function GET(req) {
     // Same rule as the degraded path above: an exception is not a fact about
     // the reader's town, so it must never be cached as one. This response
     // previously carried no Cache-Control at all, which left the decision to
-    // whatever default the edge applied.
-    return NextResponse.json({ covered: false, data: null }, { status: 200, headers: { "Cache-Control": "no-store" } });
+    // whatever default the edge applied. `failed: true` for the same reason
+    // the degraded branch carries it — a throw is an outage, not a coverage
+    // fact, and the client must say "couldn't reach", never "not live here".
+    return NextResponse.json({ covered: false, failed: true, data: null }, { status: 503, headers: { "Cache-Control": "no-store" } });
   }
 }

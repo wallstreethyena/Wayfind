@@ -9,7 +9,7 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 let event, curated, photographs;
 const leaf = () => null;
-const style = () => React.createElement('style',null,'/* shared event presentation */');
+
 function page(file) {
  const src=fs.readFileSync(file,'utf8');
  const code=ts.transpileModule(src,{compilerOptions:{jsx:ts.JsxEmit.React,module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
@@ -22,14 +22,17 @@ function page(file) {
   eventPhotos:()=>photographs,addressLine:()=> '123 Test St, Sarasota, FL',
   directionsUrl:()=> 'https://www.google.com/maps/dir/?api=1&destination=test',
   websiteUrl:()=>null,safeUrl:()=>null,SITE_URL:'https://www.gowayfind.com',
-  eventPairings:async()=>[],pairingHref:()=>null,clockLabel:()=>null,
+  eventPairings:async()=>Array.from({length:6},(_,i)=>({id:'fixture-place-'+i,name:['A long nearby restaurant name that should wrap cleanly','Nearby coffee and breakfast','A nearby dinner spot'][i%3],lat:27.3+i*.01,lng:-82.5,cat:'Restaurant',wfScore:98,distMi:1.2})),pairingHref:()=>'/p/fixture',clockLabel:()=>null,
   eventTicketCta:()=>curated?.is_free?null:{href:'/api/commerce/go?offer=test',label:'Get tickets ↗'},
   isTicketmasterFamily:()=>true,eventStoryEvidence:x=>x,eventStoryFallback:()=>({whyGo:'Fixture story'}),
  };
  const require=(spec)=>{
-  if(spec.includes('EventExperienceStyles'))return {default:style};
+  if(spec==='react')return React;
+  if(spec.includes('EventExperienceStyles'))return {default:page('app/components/EventExperienceStyles.js')};
+  if(spec.includes('EventPlacePhoto'))return {default:page('app/components/EventPlacePhoto.js')};
+  if(spec.includes('EventVenueMapLoader'))return {default:()=>React.createElement('div',{style:{height:420,display:'grid',placeItems:'center',background:'#17202b'}},'Map area · layout fixture')};
   if(spec.includes('TicketButton'))return {default:p=>React.createElement('a',{'data-ticket':p.provider,href:p.url},p.label)};
-  if(spec.includes('EventWhere'))return {default:p=>React.createElement('section',{'data-where':true},p.address)};
+  if(spec.includes('EventWhere'))return {default:page('app/components/EventWhere.js')};
   return new Proxy({...stubs,default:leaf},{get:(o,k)=>k in o?o[k]:leaf});
  };
  vm.runInNewContext(code,{exports,require,React,console,URL,Date,Number,String,JSON},{filename:file});
@@ -56,5 +59,11 @@ for(const free of [false,true])for(const hasPhoto of [false,true]){
  assert.equal(html.includes('/api/commerce/go?offer=test'),!free);
  assert.equal(html.includes('src="/owned-photo.jpg"'),hasPhoto);
  assert.ok(!html.includes('$59'));checks+=6;
+ if(process.env.WF_EVENT_REVIEW_DIR && !free && hasPhoto){
+  fs.mkdirSync(process.env.WF_EVENT_REVIEW_DIR,{recursive:true});
+  const document='<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Event layout fixture</title></head><body style="margin:0;background:#080b10">'+html.replaceAll('/owned-photo.jpg','/brand/orlando-roller-coaster-portrait.jpg').replaceAll(/src="\/api\/photo[^"]*"/g,'src="/fixture-intentionally-missing.jpg"')+'</body></html>';
+  fs.writeFileSync(path.join(process.env.WF_EVENT_REVIEW_DIR,'event-fixture.html'),document);
+  fs.writeFileSync(path.join(process.env.WF_EVENT_REVIEW_DIR,'event-mobile-review.html'),'<!doctype html><html><head><title>Mobile layout review</title></head><body style="margin:0;background:#1b2330;color:white;font-family:Arial"><p>Layout verification fixture. Fictional event; map and booking integrations are stubbed.</p>'+[320,390,430].map(w=>'<iframe title="'+w+'px mobile layout" src="event-fixture.html" style="display:inline-block;vertical-align:top;width:'+w+'px;height:860px;border:1px solid #536070;margin:5px"></iframe>').join('')+'</body></html>');
+ }
 }
 console.log(`test-event-experience: OK — ${checks} assertions across 8 real page renders; live/cancelled, paid/free, owned/missing photos. Provider/map internals remain covered separately.`);

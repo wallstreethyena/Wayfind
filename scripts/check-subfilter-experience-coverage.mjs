@@ -25,7 +25,7 @@
 // lib/experiencesServe.js so the widening bug can be exercised against real row
 // shapes rather than inferred from source.
 import { readFileSync } from "fs";
-import { CHIP_COMMERCE, chipCommerce, chipSearchQuery } from "../lib/browseCommerceMap.js";
+import { CHIP_COMMERCE, chipCommerce, chipSearchQuery, NO_TOUR_COMMERCE } from "../lib/browseCommerceMap.js";
 import { CONCEPTS } from "../lib/experienceConcepts.js";
 import { filterByChip } from "../lib/experiencesServe.js";
 import { CATEGORY_BY_KEY, SELLING_OUT_KEY } from "../lib/experiencesData.js";
@@ -143,27 +143,46 @@ ok(chipCommerce("attractions", "this-chip-does-not-exist").known === false,
 ok(filterByChip(ROWS, "nature").length !== ROWS.length,
    "negative control: filtering by a real catalogue does NOT return every row (if it did, every assertion above would be vacuous)");
 
-// ── 8. CONCEPTS: the food fix, asserted on real behaviour ────────────────
-// The owner ask: "if it's for food give me food tours". Viator has no food TAG,
-// so this rides the derived concept — and the assertion has to prove the
-// derived path actually selects food, not merely that a key exists.
+// ── 8. CONCEPTS: Food sells NO generic tour, table or live search ─────────
+// 2026-08-04's "if it's for food give me food tours" wired every Food chip to
+// the derived `food` concept. 2026-09-07 reversed it (owner, live repro at
+// Tampa: a wine-tasting tour and a Riverwalk walking food tour rendered ABOVE
+// the restaurant results under Dinner) — see lib/browseCommerceMap.js
+// NO_TOUR_COMMERCE. This section now asserts the REVERSAL, not the original
+// wiring: Food must ask Viator for nothing, on every sub-chip, and the CROWS
+// fixture below is kept (rather than deleted) so a future re-wiring of Food
+// to the `food` concept would immediately fail here on the exact trap rows
+// that made the original ship look correct.
 const CROWS = [
   { product_code: "f1", title: "Sarasota Kayak and Food Tour", categories: ["kayaking"] },
   { product_code: "f2", title: "VIP Full Day Wineries Tour", categories: ["private"] },
   { product_code: "n1", title: "Haunted Pub Crawl Downtown", categories: ["historical"] },
   { product_code: "w1", title: "Clear Kayak Ecotour", categories: ["kayaking"] },
   { product_code: "w2", title: "Beer Can Island Boat Tour", categories: ["water"] },
+  // The two products from the actual owner repro, so a regression is caught on
+  // the CONCRETE rows that shipped it, not only a synthetic fixture.
+  { product_code: "r1", title: "The Tour and Wine Tasting Experience at Aspirations Winery", categories: ["private"] },
+  { product_code: "r2", title: "Tampa Riverwalk Street Food by the Bay 3 Hour Walking Food Tour", categories: ["walking"] },
 ];
-const food = chipCommerce("food", "all");
-ok(food.known, "the Food category has its own commerce plan");
-ok(food.concepts.includes("food"), "the Food chip rides the derived `food` concept — Viator publishes no food tag");
-ok(food.catalogParam === "concept:food", `the Food chip asks the serve layer for the food concept (got ${food.catalogParam})`);
-const foodRows = filterByChip(CROWS, food.catalogParam);
-ok(foodRows.length === 2, `the Food chip selects the food tours and nothing else (got ${foodRows.map((r) => r.product_code).join(",") || "none"})`);
-ok(foodRows.every((r) => /Food Tour|Wineries/.test(r.title)), "every row the Food chip selects is genuinely a food tour");
-// THE TRAP: "Beer Can Island" is a sandbar, not a brewery.
-ok(!foodRows.some((r) => r.product_code === "w2"), "\"Beer Can Island Boat Tour\" is NOT served as food — a bare beer token would have matched it");
-ok(!foodRows.some((r) => r.product_code === "w1"), "a kayak ecotour is not served as food");
+for (const sub of ["all", "breakfast", "cafes", "lunch", "dinner", "quickbites", "delivery", "dessert"]) {
+  const plan = chipCommerce("food", sub);
+  ok(plan.known, `the Food:${sub} chip has its own commerce plan`);
+  ok(!plan.concepts.includes("food"), `the Food:${sub} chip does NOT ride the derived \`food\` concept (that concept is genuinely, correctly matched by tours, not restaurants — see NO_TOUR_COMMERCE)`);
+  ok(plan.catalogParam === null, `the Food:${sub} chip asks the serve layer for nothing (got ${plan.catalogParam})`);
+  ok(plan.noExperiences === true, `the Food:${sub} chip declares noExperiences — a null catalogParam ALONE would still permit the live-search fallback, which is the second leak vector`);
+}
+ok(NO_TOUR_COMMERCE.food && NO_TOUR_COMMERCE.food.length > 20, "NO_TOUR_COMMERCE states a real reason for food, not a placeholder");
+// THE OLD CLAIM, PROVEN FALSE ON PURPOSE: if Food's catalogParam were still
+// "concept:food" (the pre-2026-09-07 wiring), filterByChip would select every
+// one of the genuinely-food-tagged rows below, INCLUDING the two the owner's
+// screenshot showed. This is the negative control for section 8 — it proves
+// the concept itself was never broken (a regex fix could not have helped) and
+// that the fix above is a real category-level cutoff, not a coincidence of an
+// empty concepts array resolving to the same thing filterByChip would anyway.
+const wouldStillMatch = filterByChip(CROWS, "concept:food");
+ok(wouldStillMatch.some((r) => r.product_code === "r1") && wouldStillMatch.some((r) => r.product_code === "r2"),
+   "negative control: the `food` concept still (correctly) matches the winery tour and the Riverwalk walking tour — proving Food's fix is the WIRING, not the regex");
+ok(!wouldStillMatch.some((r) => r.product_code === "w2"), "negative control unaffected: \"Beer Can Island Boat Tour\" still does not match `food`");
 const night = chipCommerce("nightlife", "bars");
 ok(night.catalogParam === "concept:nightlife", "the Nightlife chips ride the nightlife concept");
 ok(filterByChip(CROWS, night.catalogParam).map((r) => r.product_code).join(",") === "n1", "the Nightlife chip selects the pub crawl only");

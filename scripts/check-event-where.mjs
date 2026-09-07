@@ -89,11 +89,13 @@ for (const f of [...appFiles, "lib/placeWhere.js", "lib/eventPairings.js", "next
 }
 ok(!/\/route\/v1\/|geometries=geojson/.test(map), "the map holds no routing-API call at all");
 ok(!/fetch\((?!"\/api\/geo")/.test(map), "the map's only fetch is Wayfind's own /api/geo — the reader's position goes nowhere else");
-ok(/line-dasharray/.test(map) && /straight line/.test(map), "the you->venue line is dashed and labelled a straight line, never presented as a route");
-ok(!/drive|Mapping your route/i.test(map), "no drive time is claimed anywhere in the map — the page has no source for one");
-ok(/approx/.test(map) && /\/api\/geo/.test(map), "a declined GPS falls back to /api/geo and is labelled approximate");
-ok(/nothing about where you are is sent anywhere/.test(where), "the block tells the reader their location is used on-device only");
-ok(/\\u\{1F4CD\}/.test(map), "the reader is the 📍 emoji (check-brand-pin vocabulary), never a teardrop");
+ok(!/setLine\(|line-dasharray/.test(map), "venue map does not invent a two-point route");
+ok(!/getCurrentPosition/.test(map), "nearby map never asks for location automatically");
+const driving = read("app/components/EventDrivingRoute.js");
+ok(/onClick=\{showRoute\}/.test(driving) && /Uses your location with Google Maps/.test(driving), "driving preview requires a disclosed user action");
+ok(/referrerPolicy="strict-origin-when-cross-origin"/.test(driving), "embed sends only the site's origin for browser-key restrictions");
+ok(/Numbered teal pins/.test(where), "map legend describes the actual nearby pins");
+ok(/glyph: "★"/.test(map) && /glyph: String\(i \+ 1\)/.test(map), "venue star and numbered nearby pins remain distinct");
 ok(/setWorkerUrl\("\/maplibre\/maplibre-gl-worker\.mjs"\)/.test(map), "same vendored worker URL as MapView (v6.43 blank-map fix)");
 ok(/safeRemoveMap\(/.test(map), "the map is torn down through lib/mapTeardown");
 ok(/prefers-reduced-motion/.test(map), "reduced motion is honoured");
@@ -107,4 +109,4 @@ if (fail.length) {
   for (const f of fail) console.error("  FAIL: " + f);
   process.exit(1);
 }
-console.log(`check-event-where: OK — ${pass} assertions (address carries the town, both event pages share one Where block with a free map, an honest straight-line distance, no third-party routing, and nearby pins).`);
+console.log(`check-event-where: OK — ${pass} assertions (address carries the town, both event pages share one Where block with a free map, nearby pins and a separately consented driving preview).`);

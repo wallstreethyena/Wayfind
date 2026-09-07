@@ -52,13 +52,13 @@ export async function GET(req) {
   }
 
   const shut = gateShut();
-  const spendAllowed = !shut && (await spendAllow("photos"));
   const result = await resolvePlacePhoto({
     ref,
     place,
     w,
     gateShut: shut,
-    spendAllowed,
+    // Cache hits must not wait on (or increment) a paid-request ledger.
+    authorizeSpend: () => !shut && spendAllow("photos"),
     serverKey: process.env.GOOGLE_MAPS_SERVER_KEY || "",
   });
 

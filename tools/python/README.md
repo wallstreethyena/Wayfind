@@ -1,9 +1,15 @@
-# Wayfind Python audit tools
+# Wayfind Python audit and scout tools
 
 Read-only batch analysis of inventory/editorial coverage, recorded provider usage,
 job outcomes, and possible duplicate places. The web application continues to use
 its existing JavaScript code. No changes to ranking, publication, refresh, shuffle,
 spend caps, or database records are made by this package.
+
+The same locked package also includes `wayfind-scout`, a separate private
+dry-run tool for approved official JSON-LD, ICS, RSS and Atom sources. It blocks
+Yelp/Tripadvisor pages, makes no paid-provider calls, creates candidates rather
+than published records, and leaves the application untouched. See
+[`docs/WAYFIND_FREE_SOURCE_SCOUT.md`](../../docs/WAYFIND_FREE_SOURCE_SCOUT.md).
 
 ## Start here
 
