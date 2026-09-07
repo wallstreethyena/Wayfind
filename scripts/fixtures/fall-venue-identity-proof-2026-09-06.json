@@ -1,0 +1,15 @@
+{
+  "_provenance": "Read from LIVE wf_inventory (Supabase gbhtoehdxkzjsmmkisgu) on 2026-09-06 by the Lane C identity pass. Columns: place_id, name, lat, lng, status, excluded, has_photo (photo_ref non-empty). Re-read the database, never edit these by hand, when a mapping changes.",
+  "verified_at": "2026-09-06",
+  "rows": {
+    "ChIJkWXRuBC02YgRripCIoUAN9g": { "name": "Jungle Island", "lat": 25.7862, "lng": -80.175, "status": "OPERATIONAL", "excluded": false, "has_photo": true },
+    "ChIJcxJRMYe42YgRDSlj6Z_CDxk": { "name": "Tropical Park", "lat": 25.7261, "lng": -80.3244, "status": "OPERATIONAL", "excluded": false, "has_photo": true },
+    "ChIJhdEC7MUD2YgRWqeIwaYujc4": { "name": "Xtreme Action Park", "lat": 26.1916, "lng": -80.1537, "status": "OPERATIONAL", "excluded": false, "has_photo": true },
+    "ChIJoVWX_Rm02YgRllHsIZGN16c": { "name": "Miami Children's Museum", "lat": 25.7847, "lng": -80.1765, "status": "OPERATIONAL", "excluded": false, "has_photo": true },
+    "ChIJFY7wCsjD2YgRn8R_2IMRjtw": { "name": "Zoo Miami", "lat": 25.6095, "lng": -80.3964, "status": "OPERATIONAL", "excluded": false, "has_photo": true },
+    "ChIJOzaIz9AB2YgRJozqXFy4BIw": { "name": "Bonnet House Museum & Gardens", "lat": 26.1364, "lng": -80.1069, "status": "OPERATIONAL", "excluded": false, "has_photo": true },
+    "ChIJM6cv59Pn2YgRdXaKYZKWWms": { "name": "Fruit & Spice Park", "lat": 25.5352, "lng": -80.4937, "status": "OPERATIONAL", "excluded": false, "has_photo": true },
+    "ChIJBVShAmez2YgRvNWv6nIzzzY": { "name": "Faena Miami Beach", "lat": 25.8074, "lng": -80.1235, "status": "OPERATIONAL", "excluded": false, "has_photo": true },
+    "ChIJb2lV-JgC2YgRBh1dLP6EQlw": { "name": "Pompano Community Park", "lat": 26.2403, "lng": -80.1059, "status": "OPERATIONAL", "excluded": false, "has_photo": true }
+  }
+}
