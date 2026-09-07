@@ -72,6 +72,7 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { privilegedRpcFailures } from "./lib/privilegedRpcContract.mjs";
 
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 
@@ -306,6 +307,32 @@ const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVIC
 if (!URL_ || !KEY) {
   console.log("check-rpc-schema-contract: SKIPPED — no Supabase credentials in env (set SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY to enforce)");
   process.exit(0);
+}
+
+// Privileged writers are an independent live contract, including cron-only RPCs
+// which never appear in application call sites. Missing evidence fails closed.
+const privilegeResponse = await fetch(`${URL_}/rest/v1/rpc/wf_privileged_rpc_contract`, {
+  method: "POST", headers: { apikey: KEY, Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" },
+  body: "{}", cache: "no-store", signal: AbortSignal.timeout(15000),
+});
+if (!privilegeResponse.ok) throw new Error(`RPC permission audit unavailable: HTTP ${privilegeResponse.status}`);
+const privilegeFailures = privilegedRpcFailures(await privilegeResponse.json());
+if (privilegeFailures.length) {
+  console.error('check-rpc-schema-contract: FAIL — ' + privilegeFailures.join('; '));
+  process.exit(1);
+}
+console.log('check-rpc-schema-contract: privileged RPC permissions verified in production');
+const schemaResponse = await fetch(`${URL_}/rest/v1/rpc/wf_schema_audit`, {
+  method: "POST", headers: { apikey: KEY, Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" },
+  body: "{}", cache: "no-store", signal: AbortSignal.timeout(15000),
+});
+if (!schemaResponse.ok) throw new Error(`Schema audit unavailable: HTTP ${schemaResponse.status}`);
+const schemaRows = await schemaResponse.json();
+if (!Array.isArray(schemaRows)) throw new Error('Malformed schema audit');
+const schemaFailures = schemaRows.filter(r => r.severity !== 'info');
+if (schemaFailures.length) {
+  console.error('check-rpc-schema-contract: FAIL — schema security findings: ' + JSON.stringify(schemaFailures));
+  process.exit(1);
 }
 
 // ── D. Real call sites, app/ and lib/ (recursively) ─────────────────────────
