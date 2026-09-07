@@ -1,7 +1,8 @@
 {
   "generated": "2026-09-07",
   "generator": "scripts/lib/build-guard-registry.mjs",
-  "schemaNotes": "Mechanically-derived fields (class/assertionCount/wiring/gating/critical/criticalReasons) are regenerated every run from scripts/guards.txt, package.json, .github/workflows/*.yml, ops/*.workflow.yml and scripts/lib/guardHonestyAnalysis.mjs — editing them by hand will be overwritten on the next `node scripts/lib/build-guard-registry.mjs`. Hand-authored fields (protects/blastRadius/owner) live in scripts/lib/guard-registry-overrides.json and are merged in; they are REQUIRED for every entry with critical:true and optional elsewhere. scripts/check-guard-registry.mjs (the CI guard) re-derives guards.txt wiring LIVE rather than trusting this file's cached `wiring.guardsTxt` — this snapshot is for humans reading the registry.",
+  "derivation": "scripts/lib/deriveGuardRegistry.mjs",
+  "schemaNotes": "Mechanically-derived fields (class/assertionCount/wiring/gating/critical/criticalReasons) are regenerated every run from scripts/guards.txt, package.json, .github/workflows/*.yml, ops/*.workflow.yml and scripts/lib/guardHonestyAnalysis.mjs — editing them by hand will be overwritten on the next `node scripts/lib/build-guard-registry.mjs`. Hand-authored fields (protects/blastRadius/owner) live in scripts/lib/guard-registry-overrides.json and are merged in; they are REQUIRED for every entry with critical:true and optional elsewhere. scripts/check-guard-registry.mjs (the CI guard) re-derives guards.txt wiring LIVE rather than trusting this file's cached `wiring.guardsTxt` — and since 2026-09-07 it also re-derives EVERY mechanically-derived field via scripts/lib/deriveGuardRegistry.mjs and fails when the committed snapshot disagrees, so a stale registry can no longer be merged unnoticed.",
   "moneyKeywordRegexSource": "\\b(spend\\w*|affiliat\\w*|book(?:ing)?\\w*|env(?:ironment)?|commerce\\w*|viator|monet\\w*)\\b",
   "top20AuditFiles": [
     "check-env.mjs",
@@ -26,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 559,
-    "totalRegistryEntries": 560,
-    "guardsTxtLineCount": 556,
-    "guardsTxtReachedFileCount": 552,
+    "totalOnDiskGuardFiles": 560,
+    "totalRegistryEntries": 561,
+    "guardsTxtLineCount": 557,
+    "guardsTxtReachedFileCount": 553,
     "criticalCount": 65,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 367,
+      "CALL": 368,
       "RENDER": 45,
       "STRUCTURAL": 147,
       "OTHER": 1
@@ -4489,6 +4490,28 @@
       "owner": null
     },
     {
+      "file": "scripts/check-migration-apply-canonical-path.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 45,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-migration-reconciliation.mjs",
       "npmScript": null,
       "class": "STRUCTURAL",
@@ -4502,9 +4525,14 @@
       "wiring": {
         "guardsTxt": false,
         "npmScripts": [],
-        "githubWorkflows": []
+        "githubWorkflows": [
+          {
+            "file": ".github/workflows/canary.yml",
+            "blocking": false
+          }
+        ]
       },
-      "gating": "unwired",
+      "gating": "scheduled-monitoring-only",
       "excludedReason": "same reasoning as check-rpc-schema-contract.mjs, same incident — runs in the scheduled canary workflow, not prebuild, because it reads PRODUCTION Supabase (wf_migration_ledger(), wf_schema_objects()) to confirm every supabase/migrations/*.sql file was actually applied, not merely merged. Added 2026-09-07.",
       "critical": false,
       "criticalReasons": [],
@@ -6249,9 +6277,14 @@
       "wiring": {
         "guardsTxt": false,
         "npmScripts": [],
-        "githubWorkflows": []
+        "githubWorkflows": [
+          {
+            "file": ".github/workflows/canary.yml",
+            "blocking": false
+          }
+        ]
       },
-      "gating": "unwired",
+      "gating": "scheduled-monitoring-only",
       "excludedReason": "runs in the scheduled canary workflow, not prebuild — it reads PRODUCTION Supabase (wf_rpc_signatures()) to compare every db/supabase.rpc() call site's argument names against the live function signature, and a stale production schema must never be able to block a code deploy. Wrong coupling in that direction; see .github/workflows/canary.yml. Added 2026-09-07 after #1153 shipped a 5-arg RPC caller against a still-3-arg production function (the 08:23 UTC popularity cron did zero work across all four providers) — see supabase/migrations/20260907_wf_deploy_contract_audit.sql.",
       "critical": false,
       "criticalReasons": [],
@@ -9986,7 +10019,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 75,
+      "assertionCount": 87,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -11630,7 +11663,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 43,
+      "assertionCount": 59,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
