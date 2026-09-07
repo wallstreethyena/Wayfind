@@ -1177,3 +1177,5 @@ node scripts/check-wikipedia-identity-verification.mjs
 # a premium Wayfind event page" — no hero, a raw URL that wrapped badly, Get
 # Directions rendered twice, nearby picks that could be mistaken for the venue.
 node scripts/check-event-hero-and-directions.mjs
+
+node scripts/test-privileged-rpc-contract.mjs
