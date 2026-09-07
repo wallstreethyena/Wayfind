@@ -111,8 +111,8 @@ const nextConfig = {
   // changes, so this flag alone does little there — the actual back-restores-
   // scroll fix is the sessionStorage capture/restore on the inner scroll
   // container in app/home.js. This covers genuine navigations (e.g. /places).
-  // instrumentationHook: enables instrumentation.js (server+edge Sentry init) on Next 14.
-  experimental: { scrollRestoration: true, instrumentationHook: true },
+  // instrumentation.js is loaded by default on Next 15 (no experimental flag needed).
+  experimental: { scrollRestoration: true },
   async headers() {
     return [
       {

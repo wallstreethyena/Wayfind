@@ -2,6 +2,7 @@ export const runtime = "nodejs";
 
 import { createHash } from "node:crypto";
 import { aiKey } from "../../../../lib/aiKey.js";
+import { paidAnthropicRequest } from "../../../../lib/paidAi.js";
 import { cget, cset, DAY } from "../../../../lib/serverCache.js";
 import { eventStoryEvidence, eventStoryFallback, validateEventStory } from "../../../../lib/eventStory.js";
 import { resolveEventById } from "../../../../lib/eventResolve.js";
@@ -33,7 +34,7 @@ export async function POST(req) {
       "Avoid hype, commands, exclamation points, and phrases such as must-see, iconic, unforgettable, world-class, or everyone will love it.",
       "Return only JSON with eyebrow, whyGo, bestFor, expect. eyebrow <=5 words; whyGo <=48 words; bestFor <=12 words; expect <=24 words.",
     ].join(" ");
-    const r = await fetch("https://api.anthropic.com/v1/messages", {
+    const r = await paidAnthropicRequest({
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({

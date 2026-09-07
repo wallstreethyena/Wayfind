@@ -28,6 +28,7 @@ import {
 
 export { sanitizeClientClickId };
 import { credential } from "../../../../lib/envPlaceholder.js";
+import { providerSpendAllow } from "../../../../lib/providerSpend.js";
 
 // v4.29: bracket-notation env reads inside call time. Next inlines dot-access
 // process.env.NEXT_PUBLIC_* at build; bracket access forces a true runtime
@@ -114,6 +115,7 @@ async function resolveProduct(searchTerm, name, region, kind, placeId) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 4500);
   try {
+    if (!(await providerSpendAllow("viator"))) return null;
     const res = await fetch("https://api.viator.com/partner/search/freetext", {
       method: "POST",
       signal: ctrl.signal,
@@ -235,17 +237,11 @@ export async function GET(req) {
     return Response.redirect(url, 302);
   };
 
-  // Diagnostic probe: booleans + upstream status only. Never echoes values.
+  // The provider-health probe used to be public and made a real metered
+  // Partner API request. Operator health checks belong in authenticated
+  // command-center/cron surfaces, never in a customer redirect route.
   if (searchParams.get("probe") === "1") {
-    const KEY = getKey();
-    let upstream = null;
-    if (KEY) {
-      try {
-        const r = await fetch("https://api.viator.com/partner/search/freetext", { method: "POST", headers: { "exp-api-key": KEY, "Accept": "application/json;version=2.0", "Accept-Language": "en-US", "Content-Type": "application/json" }, body: JSON.stringify({ searchTerm: "orlando tour", currency: "USD", searchTypes: [{ searchType: "PRODUCTS", pagination: { start: 1, count: 1 } }] }) });
-        upstream = r.status;
-      } catch (e) { upstream = "network_error"; }
-    }
-    return Response.json({ hasKey: !!KEY, keyLooksValid: KEY.length >= 20, hasPid: !!getPid(), upstreamStatus: upstream });
+    return Response.json({ error: "retired" }, { status: 410, headers: { "Cache-Control": "no-store" } });
   }
 
   const intent = (searchParams.get("intent") || "").trim();

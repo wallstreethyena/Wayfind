@@ -8,6 +8,7 @@ export const runtime = "nodejs";
 // proxy — this path MUST stay in middleware.js's matcher (the
 // /api/bestmove/why lesson).
 import { aiKey } from "../../../../lib/aiKey";
+import { paidAnthropicRequest } from "../../../../lib/paidAi";
 import { cget, cset, DAY } from "../../../../lib/serverCache";
 
 // The Atlas-590 voice, distilled for a single trending line (docs/
@@ -43,7 +44,7 @@ export async function POST(req) {
       by_source: p.by_source && typeof p.by_source === "object" ? p.by_source : null,
       signals_updated: String(p.freshest || "").slice(0, 24),
     };
-    const r = await fetch("https://api.anthropic.com/v1/messages", {
+    const r = await paidAnthropicRequest({
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({ model: "claude-haiku-4-5", max_tokens: 120, temperature: 0.4, system: SYSTEM, messages: [{ role: "user", content: JSON.stringify(evidence) }] }),

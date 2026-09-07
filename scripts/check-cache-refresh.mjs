@@ -90,12 +90,12 @@ try {
     ok(!!json.skipped, `WAYFIND_GATE=free must also return {skipped:...} (got ${JSON.stringify(json)})`);
   }
 
-  // 3c. GATE OPEN (unset — the CI/default state) — the worker MUST run past
+  // 3c. GATE OPEN (explicit) — the worker MUST run past
   // the gate and reach real logic. Proven by giving it no server key: if the
   // gate silently ate this request too, the response would be the SAME
   // {skipped} shape as 3a/3b. It is not — it is a DIFFERENT, later failure,
   // which is only possible if execution actually passed the gate check.
-  delete process.env.WAYFIND_GATE;
+  process.env.WAYFIND_GATE = "open";
   delete process.env.GOOGLE_MAPS_SERVER_KEY;
   { const { json } = await body("q=coffee&lat=27.9&lng=-82.5");
     ok(json.reason === "no server key" && !json.skipped,

@@ -14,13 +14,7 @@ function sb() {
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   if (searchParams.get("probe") === "1") {
-    const s = sb();
-    if (!s) return Response.json({ error: "no cache backend" });
-    try {
-      const r = await fetch(`${s.url}/rest/v1/wf_places_cache?k=like.ins1%7C*&select=k`, { headers: { apikey: s.key, Authorization: `Bearer ${s.key}`, Prefer: "count=exact", Range: "0-0" }, cache: "no-store" });
-      const cr = r.headers.get("content-range") || "";
-      return Response.json({ places: cr.includes("/") ? parseInt(cr.split("/")[1], 10) : null });
-    } catch { return Response.json({ places: null }); }
+    return Response.json({ error: "retired" }, { status: 410, headers: { "Cache-Control": "no-store" } });
   }
   const p = {
     id: searchParams.get("id") || "",

@@ -1,6 +1,7 @@
 export const runtime = "nodejs";
 export const maxDuration = 15;
 import { aiKey } from "../../../../lib/aiKey";
+import { paidAnthropicRequest } from "../../../../lib/paidAi";
 
 // Local Trends — the owner's "special report on everything happening today"
 // (2026-07-21). The model WRITES the brief; it never SOURCES it. Everything
@@ -48,7 +49,7 @@ export async function POST(req) {
       "Shape: lead with the single most interesting real thing (a tonight event, a great beach reading, a sunset worth catching), then one supporting fact, then stop. No exclamation points, no dashes. " +
       "Return ONLY valid JSON (no markdown): {\"report\": \"...\"} — or {\"report\": null} if the facts are too thin to say anything real.";
 
-    const r = await fetch("https://api.anthropic.com/v1/messages", {
+    const r = await paidAnthropicRequest({
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({

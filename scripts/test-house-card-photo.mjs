@@ -131,32 +131,28 @@ function leakSharedFallback() {
 }
 
 {
-  // Ledger exhausted, no inventory photo_url — library-fill still returns
-  // each place's own Google photo, never one SVG.
-  const filled = {};
+  // Ledger exhausted, no inventory photo_url — the budget denial must be a
+  // hard stop. The former library-fill path fetched every Google ref anyway,
+  // which turned a spent ledger into unmetered provider calls.
+  let paidFetches = 0;
+  let cacheWrites = 0;
   const deps = {
     async inventoryGet() { return null; },
     async cacheGet() { return null; },
-    async cacheSet(k, v) { filled[k] = v; },
-    async fetchOwnedUri(ref) {
-      const placeId = String(ref).split("/")[1];
-      return "https://lh3.googleusercontent.com/p/fill-" + placeId;
-    },
+    async cacheSet() { cacheWrites++; },
+    async fetchOwnedUri() { paidFetches++; return "https://lh3.googleusercontent.com/p/should-not-run"; },
   };
-  const finals = [];
   for (const p of FAMILY_RAIL) {
-    const src = "https://www.gowayfind.com/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&w=640";
     const r = await resolvePlacePhoto({
       ref: p.photoRef, w: 640, gateShut: false, spendAllowed: false, serverKey: "test-key",
     }, deps);
-    finals.push(finalPhotoUrl(r, src));
-    ok(r.type === "redirect" && r.reason === "library-fill",
-      p.name + " library-fills its own photo when the ledger is exhausted (got " + (r && r.reason) + ")");
+    ok(r.type === "empty",
+      p.name + " is cache/inventory-only when the photo ledger is exhausted (got " + (r && r.reason) + ")");
   }
-  ok(!sameFinalUrl(finals) && new Set(finals).size === 3,
-    "library-fill of three owned refs must yield three FINAL urls, not one SVG");
-  ok(Object.keys(filled).length === 3,
-    "library-fill writes each owned photo into the 30-day cache so the next hit is free");
+  ok(paidFetches === 0,
+    "an exhausted photo ledger performs zero Google media fetches");
+  ok(cacheWrites === 0,
+    "an exhausted photo ledger cannot fill the cache with an unpaid media response");
 }
 
 {

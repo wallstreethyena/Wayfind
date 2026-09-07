@@ -22,8 +22,8 @@ const season = daypart.match(/selRail && selRail\.id === "season"[\s\S]*?<Summer
 ok(/onOpenPlace=\{\(p\)/.test(season) && /onOpenPlace\(p\)/.test(season),
   "The Summer drop must receive DaypartRail's in-place detail opener");
 const deepLink = google.slice(google.indexOf("export async function fetchPlaceById"));
-ok(deepLink.indexOf('fetch("/api/places/details"') < deepLink.indexOf("getLoader().importLibrary"),
-  "Deep links must try the guarded server details route before the browser SDK");
+ok(deepLink.includes('fetch("/api/places/details"') && !/getLoader\(\)\.importLibrary|new Place\(/.test(deepLink),
+  "Deep links must use the guarded server details route with no browser SDK fallback");
 ok(/inventoryPlace\(placeId\)/.test(details) && /source: "inventory"/.test(details),
   "The server detail route must preserve an owned-inventory fallback");
 const fastCache = read("lib/railFastCache.js");

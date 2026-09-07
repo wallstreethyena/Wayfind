@@ -38,10 +38,8 @@ ok(guardAt > 0, "cacheOnly returns EARLY rather than merely being read");
 // positions rather than trusting the comment.
 const keyAt = route.indexOf("if (!key)");
 ok(keyAt > guardAt, "the cacheOnly return precedes the no-key branch — i.e. it is above the generation block");
-for (const spend of ["anthropic", "messages", "fetch(\"https://"]) {
-  const at = route.toLowerCase().indexOf(spend.toLowerCase());
-  if (at > 0) ok(at > guardAt, `the cacheOnly return precedes the model call ("${spend}") — a render-path caller can never reach it`);
-}
+const modelCall = route.indexOf("paidAnthropicRequest(");
+ok(modelCall > guardAt, "the cacheOnly return precedes the shared paid model call — a render-path caller can never reach it");
 
 // --- every render-path caller opts in ---------------------------------------
 // A "render path" is a client component. Server jobs (api/cron, scripts) may

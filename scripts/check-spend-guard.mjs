@@ -142,5 +142,81 @@ if (!/enrichFromInventory\(places\)/.test(search)) die("free mode lost inventory
 // red-prove ourselves: the atmosphere regex must actually catch the original sin
 if (!ATMOSPHERE.test('const FIELDS = "id,editorialSummary";')) die("self-test: atmosphere regex is broken");
 
+// 6 — Anthropic requests are discovered, then exercised entirely behind a
+// fetch stub. The billing incident was not a route-specific problem: a new
+// provider caller must be impossible to add without this shared gate.
+function discoverAnthropicEndpointLiterals() {
+  const out = [];
+  const walk = (dir) => {
+    let entries = [];
+    try { entries = readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const entry of entries) {
+      const full = dir + "/" + entry.name;
+      if (entry.isDirectory()) { if (entry.name !== "node_modules" && entry.name !== ".next") walk(full); continue; }
+      if (!/\.js$/.test(entry.name)) continue;
+      const code = read(full).replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+      if (/api\.anthropic\.com\/v1\/messages/.test(code)) out.push(full);
+    }
+  };
+  ["app/api", "lib"].forEach(walk);
+  return out.sort();
+}
+const ok = (condition, message) => { if (!condition) die(message); };
+const ANTHROPIC_LITERAL_CALLERS = discoverAnthropicEndpointLiterals();
+if (JSON.stringify(ANTHROPIC_LITERAL_CALLERS) !== JSON.stringify(["lib/paidAi.js"])) {
+  die(`Anthropic endpoint literals must live only in lib/paidAi.js; found ${ANTHROPIC_LITERAL_CALLERS.join(", ") || "none"}`);
+}
+
+const { spawnSync } = await import("node:child_process");
+const paidAiProbe = (env) => {
+  const code = `
+    const calls = [];
+    globalThis.fetch = async (url, init = {}) => {
+      const target = String(url); calls.push({ target, init: { method: init.method, redirect: init.redirect, cache: init.cache } });
+      if (target.includes("/rest/v1/rpc/wf_spend_take")) return new Response(process.env.LEDGER === "true" ? "true" : "false", { status: 200, headers: { "content-type": "application/json" } });
+      if (target === "https://api.anthropic.com/v1/messages") return new Response('{"content":[]}', { status: 200, headers: { "content-type": "application/json" } });
+      throw new Error("unexpected network target: " + target);
+    };
+    const { paidAnthropicRequest } = await import("./lib/paidAi.js");
+    const kind = process.env.PROBE_KIND;
+    const payload = kind === "bad_shape"
+      ? { model: "claude-haiku-4-5", max_tokens: 10, messages: [] }
+      : { model: "claude-haiku-4-5", max_tokens: kind === "bad_max" ? 4097 : 10, messages: [{ role: "user", content: kind === "oversize" ? "x".repeat(65_537) : "test" }] };
+    const response = await paidAnthropicRequest({
+      method: "POST",
+      headers: { "content-type": "application/json", "x-api-key": "test-key", "anthropic-version": "2023-06-01" },
+      body: JSON.stringify(payload),
+    });
+    console.log(JSON.stringify({ status: response.status, calls }));
+  `;
+  const result = spawnSync(process.execPath, ["--input-type=module", "-e", code], {
+    cwd: process.cwd(),
+    env: { ...env }, encoding: "utf8",
+  });
+  if (result.status !== 0) throw new Error(`paid AI probe failed: ${(result.stderr || result.stdout).slice(0, 500)}`);
+  return JSON.parse(result.stdout.trim());
+};
+const ledgerEnv = { SUPABASE_URL: "https://ledger.test", SUPABASE_SERVICE_ROLE_KEY: "test-service-key", ANTHROPIC_MONTHLY_REQUEST_CAP: "17" };
+const invalidShape = paidAiProbe({ ...ledgerEnv, PROBE_KIND: "bad_shape", LEDGER: "true" });
+ok(invalidShape.status === 400 && invalidShape.calls.length === 0, "paid AI: malformed Messages payload blocks before the ledger");
+const invalidMax = paidAiProbe({ ...ledgerEnv, PROBE_KIND: "bad_max", LEDGER: "true" });
+ok(invalidMax.status === 400 && invalidMax.calls.length === 0, "paid AI: max_tokens above the hard ceiling blocks before the ledger");
+const oversized = paidAiProbe({ ...ledgerEnv, PROBE_KIND: "oversize", LEDGER: "true" });
+ok(oversized.status === 400 && oversized.calls.length === 0, "paid AI: oversized payload blocks before the ledger");
+const missingCap = paidAiProbe({ ...ledgerEnv, ANTHROPIC_MONTHLY_REQUEST_CAP: "", LEDGER: "true" });
+ok(missingCap.status === 503 && missingCap.calls.length === 0, "paid AI: missing ANTHROPIC_MONTHLY_REQUEST_CAP blocks before any network call");
+const invalidCap = paidAiProbe({ ...ledgerEnv, ANTHROPIC_MONTHLY_REQUEST_CAP: "17.5", LEDGER: "true" });
+ok(invalidCap.status === 503 && invalidCap.calls.length === 0, "paid AI: invalid ANTHROPIC_MONTHLY_REQUEST_CAP blocks before any network call");
+const unsetGate = paidAiProbe({ ...ledgerEnv, LEDGER: "true" });
+ok(unsetGate.status === 503 && unsetGate.calls.length === 0, "paid AI: an unset WAYFIND_GATE fails closed before ledger or provider network");
+const typoGate = paidAiProbe({ ...ledgerEnv, WAYFIND_GATE: "enabled", LEDGER: "true" });
+ok(typoGate.status === 503 && typoGate.calls.length === 0, "paid AI: an unrecognized WAYFIND_GATE fails closed before ledger or provider network");
+const shut = paidAiProbe({ ...ledgerEnv, WAYFIND_GATE: "shut", LEDGER: "true" });
+ok(shut.status === 503 && shut.calls.length === 0, "paid AI: WAYFIND_GATE=shut blocks before ledger or provider network");
+const denied = paidAiProbe({ ...ledgerEnv, WAYFIND_GATE: "free", LEDGER: "false" });
+ok(denied.status === 503 && denied.calls.length === 1 && /wf_spend_take$/.test(denied.calls[0].target), "paid AI: denied atomic ledger grant never reaches Anthropic");
+const granted = paidAiProbe({ ...ledgerEnv, WAYFIND_GATE: "open", LEDGER: "true" });
+ok(granted.status === 200 && granted.calls.length === 2 && /wf_spend_take$/.test(granted.calls[0].target) && granted.calls[1].target === "https://api.anthropic.com/v1/messages" && granted.calls[1].init.redirect === "error" && granted.calls[1].init.cache === "no-store", "paid AI: granted request takes the ledger then reaches Anthropic with redirect:error and no-store");
+
 if (failed) { console.error(`check-spend-guard: ${failed} failure(s)`); process.exit(1); }
-console.log("check-spend-guard: OK — masks lean, every metered call site gated, radius ladder present, free-mode budgets pinned");
+console.log("check-spend-guard: OK — Google and Anthropic requests are discovered, fail-closed, and capped");
