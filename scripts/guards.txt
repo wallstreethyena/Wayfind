@@ -189,6 +189,24 @@ node scripts/test-popularity.mjs
 # see 20260907_wf_popularity_attempt_ledger.sql. This guard structurally
 # locks the fix and simulates both orderings at the measured scale.
 node scripts/check-popularity-attempt-ledger.mjs
+# 2026-09-07 (PR #1159) — wf_job_pulse measured, TWICE two hours apart:
+# popularity:wikipedia attempted=100 succeeded=17 failed=83 note="http_429 x52"
+# (10:23 UTC) and attempted=100 succeeded=18 failed=82 (12:23 UTC). Wikimedia
+# throttled over half of every batch, and the pre-fix route stamped every one
+# of those throttled candidates into wf_popularity_attempts as a plain
+# "no_data" — indistinguishable from a genuine miss, and enough to rotate an
+# UNOBSERVED candidate to the back of the same 19,000+ row queue
+# check-popularity-attempt-ledger.mjs exists to keep fair. Fixed by
+# lib/wikimediaFetchPolicy.js + two gates in app/api/cron/popularity/route.js
+# (TRANSPORT ONLY — lib/popularity.js, where matching/confidence/identity
+# live, is untouched: same git blob hash as origin/main). This guard
+# red-proves the two claims a structural grep alone cannot: that the ledger
+# write is actually skipped for a throttled candidate (including the one that
+# received the ACTUAL 429, not just the ones queued behind it), and that
+# doing so actually leaves it selectable in the very next stale-batch call
+# instead of buried. Verified to fail against the real pre-fix route.js and
+# against Gate 2 removed in isolation before being registered here.
+node scripts/check-wikimedia-backoff-ledger-truth.mjs
 node scripts/check-one-clock.mjs
 node scripts/test-now-context.mjs
 node scripts/check-weather-code-plumbed.mjs

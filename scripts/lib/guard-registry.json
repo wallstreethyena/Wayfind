@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 562,
-    "totalRegistryEntries": 563,
-    "guardsTxtLineCount": 559,
-    "guardsTxtReachedFileCount": 555,
+    "totalOnDiskGuardFiles": 563,
+    "totalRegistryEntries": 564,
+    "guardsTxtLineCount": 560,
+    "guardsTxtReachedFileCount": 556,
     "criticalCount": 65,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 371,
+      "CALL": 372,
       "RENDER": 45,
       "STRUCTURAL": 146,
       "OTHER": 1
@@ -7440,6 +7440,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 33,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-wikimedia-backoff-ledger-truth.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 39,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
