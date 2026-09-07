@@ -218,6 +218,13 @@ const allPages = () => true;
   ok(imports(lane, "worthTheDrive"), "…its band comes from lib/worthTheDrive.js (the 30–180 destination class)");
   ok(!imports(route, "railsData") && !/loadRailPlaces|railMenuData|buildDrivePool/.test(route), "/api/extra-miles never touches the rails pipeline");
   ok(/from\("wf_inventory"\)/.test(route) && /getSkeleton\(/.test(route) && !/googleapis|searchText/.test(route), "the route reads owned inventory + wf_place_ids only — no Google path");
+  // The image law at serve time: the route proves each photo SERVES (cache
+  // only, gateShut:true, spendAllowed:false) and holds back the rest.
+  ok(/gateShut:\s*true/.test("resolvePlacePhoto({ ref, gateShut: true, spendAllowed: false })"), "CONTROL: the cache-only detector fires on a gateShut:true call");
+  ok(/resolvePlacePhoto\(\{[^}]*gateShut:\s*true[^}]*spendAllowed:\s*false/.test(route.replace(/\s+/g, " ")), "the route resolves each card's photo in CACHE-ONLY mode (no Google, no spend)");
+  ok(/type === "redirect"/.test(route) && /heldForPhoto/.test(route), "…ships only cards whose photo is served from cache, and counts the held ones");
+  ok(!/photoRef/.test(JSON.stringify(Object.keys(extraMilesFrom(ORIGIN, [park(0, 60)], allPages)[0]).filter((k) => k !== "photoRef"))), "CONTROL: photoRef is a selector-side field");
+  ok(/\(\{ photoRef, \.\.\.c \}\) => c/.test(route), "…and the raw photo_ref never ships to the browser");
   ok(/dynamic\(\(\) => import\("\.\/ExtraMilesTail"\)/.test(rail), "DaypartRail mounts the tail as its own lazy chunk");
   ok(/selected === "drive"[^\n]*<ExtraMilesTail/.test(rail.replace(/\n\s*/g, " ")), "…only when the drive drop is open");
   ok(!/<ExtraMilesTail[^>]*(places|dropList|shown)/.test(rail.replace(/\n\s*/g, " ")), "…and hands it only the reader's point — never the drive rail's cards");

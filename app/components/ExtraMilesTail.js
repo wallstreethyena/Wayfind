@@ -69,7 +69,11 @@ export default function ExtraMilesTail({ lat, lng }) {
           <li key={c.id} style={{ display: "contents" }}>
             <a className="wf8-xm-card" href={c.href}
               onClick={() => track("extra_miles_open", { place_id: c.id, dist_mi: c.distMi })}>
-              <img src={c.image} alt={c.title} loading="lazy" decoding="async" />
+              {/* The API already proved this photo serves from cache; if the
+                  world changes between that check and this paint, hide the
+                  broken glyph rather than show a wrong picture. */}
+              <img src={c.image} alt={c.title} loading="lazy" decoding="async"
+                onError={(e) => { try { e.currentTarget.style.display = "none"; } catch (_) {} }} />
               <div className="wf8-xm-b">
                 <span className="wf8-xm-k">{c.drive} · {c.distMi} mi</span>
                 <span className="wf8-xm-n">{c.title}</span>

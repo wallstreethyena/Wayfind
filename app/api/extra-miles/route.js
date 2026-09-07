@@ -12,6 +12,7 @@
 import { NextResponse } from "next/server";
 import { supabase } from "../../../lib/supabase.js";
 import { getSkeleton } from "../../../lib/placeIndex.js";
+import { resolvePlacePhoto } from "../../../lib/placePhotoServe.js";
 import { EXTRA_MILES_PLACE_IDS, EXTRA_MILES_TITLE, EXTRA_MILES_SUB, EXTRA_MILES_BAND, extraMilesFrom } from "../../../lib/extraMiles.js";
 
 export const runtime = "nodejs";
@@ -45,7 +46,18 @@ export async function GET(req) {
     ]);
     if (inv.error) throw inv.error;
     const pages = new Set(skeletons.filter(Boolean).map((s) => s.place_id));
-    const cards = extraMilesFrom(origin, inv.data || [], (id) => pages.has(id));
+    const selected = extraMilesFrom(origin, inv.data || [], (id) => pages.has(id));
+    // THE IMAGE LAW, applied at serve time (2026-09-07, measured on the Lane E
+    // preview and on production): an OWNED photo_ref is not the same as a
+    // SERVABLE photo. With the monthly photo allowance exhausted, /api/photo
+    // answers an uncached ref with 404 "no photo", and a card would render a
+    // broken image. So each card's photo is resolved here in CACHE-ONLY mode
+    // (gateShut: true → no Google, no spend): served from cache → the card
+    // ships; otherwise it is held back and counted, never shown imageless.
+    // The tail grows on its own the moment those refs are cached again.
+    const photo = await Promise.all(selected.map((c) =>
+      resolvePlacePhoto({ ref: c.photoRef, w: 640, gateShut: true, spendAllowed: false }).catch(() => null)));
+    const cards = selected.filter((c, i) => photo[i] && photo[i].type === "redirect").map(({ photoRef, ...c }) => c);
     return NextResponse.json({
       ok: true,
       title: EXTRA_MILES_TITLE,
@@ -53,6 +65,8 @@ export async function GET(req) {
       band: EXTRA_MILES_BAND,
       origin,
       cards,
+      inBand: selected.length,
+      heldForPhoto: selected.length - cards.length,
     }, { headers: CACHE });
   } catch (e) {
     // A failed read is not "nothing is worth the miles". Say so, don't cache it.
