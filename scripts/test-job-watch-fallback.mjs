@@ -143,9 +143,11 @@ const CHILD = `
   const rows = JSON.parse(process.env.__WF_ROWS);
   const resendMode = process.env.__WF_RESEND_MODE;
   const pulseWrites = [];
+  const healthReads = [];
   globalThis.fetch = async (url, opts) => {
     const u = String(url);
     if (u.includes("/rest/v1/rpc/wf_job_health")) {
+      healthReads.push({ cache: opts.cache, bounded: !!opts.signal });
       return { ok: true, status: 200, json: async () => rows };
     }
     if (u.includes("/rest/v1/wf_job_pulse")) {
@@ -174,6 +176,7 @@ const CHILD = `
     sentryCalls: globalThis.__wfSentryStubCalls || [],
     flushCalls: globalThis.__wfSentryFlushCalls || [],
     pulseWrites,
+    healthReads,
   }));
 `;
 
@@ -207,6 +210,7 @@ const HEALTHY_ROWS = [
   const r = runScenario({ rows: HEALTHY_ROWS, resendMode: "unset", resendKeySet: false });
   ok(r.status === 200, `healthy: status is 200 (got ${r.status})`);
   ok(r.body.ok === true && r.body.incidents === 0, "healthy: ok:true, incidents:0");
+  ok(r.healthReads.length === 1 && r.healthReads[0].cache === "no-store" && r.healthReads[0].bounded, "health decisions use a fresh, time-bounded database read");
   ok((r.sentryCalls || []).length === 0, "healthy: NO Sentry event — this is the negative control the whole guard exists to prove");
   const heartbeat = (r.pulseWrites || []).find((p) => p.job === "job-watch");
   ok(heartbeat && heartbeat.attempted === 0 && heartbeat.failed === 0, "healthy: a zero-work heartbeat distinguishes a healthy watcher from a stopped watcher");
