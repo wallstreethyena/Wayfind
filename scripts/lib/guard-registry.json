@@ -27,16 +27,16 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 561,
-    "totalRegistryEntries": 562,
-    "guardsTxtLineCount": 558,
-    "guardsTxtReachedFileCount": 554,
+    "totalOnDiskGuardFiles": 562,
+    "totalRegistryEntries": 563,
+    "guardsTxtLineCount": 559,
+    "guardsTxtReachedFileCount": 555,
     "criticalCount": 65,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 369,
+      "CALL": 371,
       "RENDER": 45,
-      "STRUCTURAL": 147,
+      "STRUCTURAL": 146,
       "OTHER": 1
     }
   },
@@ -6266,13 +6266,11 @@
     {
       "file": "scripts/check-rpc-schema-contract.mjs",
       "npmScript": null,
-      "class": "STRUCTURAL",
+      "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 1,
       "unprovenAbsenceCount": 0,
-      "honestyViolations": [
-        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
-      ],
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": false,
@@ -11730,6 +11728,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 19,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-privileged-rpc-contract.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 10,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

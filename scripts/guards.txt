@@ -1186,6 +1186,7 @@ node scripts/check-wikipedia-identity-verification.mjs
 # Directions rendered twice, nearby picks that could be mistaken for the venue.
 node scripts/check-event-hero-and-directions.mjs
 
+node scripts/test-privileged-rpc-contract.mjs
 # 2026-09-07 — two migration failures, same day, same root cause (a migration
 # handled partially). #1153's 5-arg RPC migration was merged and never
 # applied (08:23 UTC popularity cron did zero work across all four
