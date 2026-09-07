@@ -10300,15 +10300,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   {browseCat === "hotels" && center && view.length > 0 && <UnifiedBrowseCommerceRail cat="hotels" sub="all" categories={["stays"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {/* 2026-08-04 (owner: "I want every single Viator deeplink option showing up
                       on my sheets... if it's for food give me food tours... I want this done
-                      everywhere"). Food, Nightlife, Shopping and Beach had NO bookable rail at
-                      all — the rail mounted on three of seven browse categories. Food was the
-                      sharpest gap: 35 food tours across 11 markets sat in wf_experiences and
-                      could not surface under a food heading, because the harvest tags them
-                      `private`/`historical` and nothing could ask for "food". They now ride the
-                      derived concepts in lib/experienceConcepts.js via lib/browseCommerceMap.
-                      Each passes its OWN category so the chip map cannot cross-resolve — "all"
-                      exists in all seven categories and "family" is both a sub-chip and a
-                      category. Ranking is unchanged: rankExperiences, highest score first. */}
+                      everywhere") wired Food to the derived `food` concept in
+                      lib/experienceConcepts.js via lib/browseCommerceMap. 2026-09-07 REVERSED
+                      that for Food specifically (owner, live repro at Tampa: a wine-tasting
+                      tour and a Riverwalk walking food tour rendered ABOVE the restaurant
+                      results under Dinner) — see lib/browseCommerceMap.js NO_TOUR_COMMERCE for
+                      the measured evidence and exactly where the line sits. The component below
+                      still mounts (so a future genuinely restaurant-specific offer has
+                      somewhere to render), but `plan.noExperiences` inside it now hard-stops
+                      both the table read and the live-search fallback for every Food sub-chip —
+                      this is a category-level rule, not a per-daypart patch, so Breakfast,
+                      Cafés, Lunch and Quick bites are covered by the same line, not a second
+                      copy of it. Nightlife/Shopping/Beach are unaffected: only Food declares
+                      NO_TOUR_COMMERCE. Ranking is unchanged for every category that still
+                      sells experiences: rankExperiences, highest score first. */}
                   {browseCat === "food" && center && <UnifiedBrowseCommerceRail cat="food" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {browseCat === "nightlife" && center && <UnifiedBrowseCommerceRail cat="nightlife" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {browseCat === "shopping" && center && view.length > 0 && <UnifiedBrowseCommerceRail cat="shopping" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
@@ -11148,7 +11153,18 @@ function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includ
 
   useEffect(() => {
     if (Array.isArray(initialExperiences)) { setExperiences(initialExperiences); return; }
-    if (!includeExperiences || !Number.isFinite(lat) || !Number.isFinite(lng)) { setExperiences([]); return; }
+    // 2026-09-07 — THE EAT-INTENT BOUNDARY (owner: wine tours and Riverwalk
+    // walking tours were rendering ABOVE the restaurant results under Food ->
+    // Dinner). `plan.noExperiences` (lib/browseCommerceMap.js NO_TOUR_COMMERCE)
+    // is checked BEFORE `cat`, not folded into it, because a null `cat` alone
+    // still falls through to the live Viator search below — the exact second
+    // path that can hand a thin market a generic tour just as easily as the
+    // table did. Food declares noExperiences, so this return fires before
+    // either the table read or the live search ever runs, for every sub-chip
+    // (Breakfast/Cafés/Lunch/Dinner/Quick bites included, not a two-item
+    // blocklist). See lib/browseCommerceMap.js for the measured repro and
+    // where the restaurant-specific-commerce line actually sits.
+    if (!includeExperiences || plan.noExperiences || !Number.isFinite(lat) || !Number.isFinite(lng)) { setExperiences([]); return; }
     let dead = false;
     const searchText = chipSearchQuery(browseCat, sub || "all", city);
     const liveSearch = async () => {
@@ -11189,7 +11205,11 @@ function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includ
     // shape "a bug you can SEE". A chip that declares no bookable catalog now
     // sells nothing here rather than the wrong thing under its own name.
     const chipSellsNothing = !!(sub && sub !== "all" && plan.catalogParam === null);
-    if (chipSellsNothing || !categories.length || !Number.isFinite(lat) || !Number.isFinite(lng)) { setDeals([]); return; }
+    // plan.noExperiences (Food, 2026-09-07) belt-and-suspenders: Food already
+    // passes categories=[] above, which alone short-circuits this effect, but
+    // a future call site that adds a `categories` prop for Food must not
+    // silently regain the deals lane on a category declared to sell nothing.
+    if (chipSellsNothing || plan.noExperiences || !categories.length || !Number.isFinite(lat) || !Number.isFinite(lng)) { setDeals([]); return; }
     let dead = false;
     const geo = "&lat=" + lat.toFixed(3) + "&lng=" + lng.toFixed(3);
     Promise.all(categories.map((category) => fetch("/api/deals?category=" + encodeURIComponent(category) + geo).then((r) => (r.ok ? r.json() : null), () => null))).then((payloads) => {
