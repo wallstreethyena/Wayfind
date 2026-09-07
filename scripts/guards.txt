@@ -314,6 +314,14 @@ node scripts/check-census-tos-boundary.mjs
 node scripts/check-atlas-diag-not-live.mjs
 node scripts/check-env-value-overrides.mjs
 node scripts/test-job-pulse.mjs
+# v8.99.16 — THE WATCHER MUST BE WATCHED, LAYER TWO. RESEND_API_KEY was never
+# set in Vercel: job-watch detected real incidents correctly every hour all day
+# 2026-09-07 and every run still answered HTTP 200, because Resend was the only
+# channel it had for saying delivery failed. Locks the fix: a high-severity
+# Sentry event and a non-200 status now accompany the existing failed
+# self-pulse whenever incidents are detected and nothing could be delivered —
+# so Resend is one alarm channel, not the single point of failure.
+node scripts/test-job-watch-fallback.mjs
 node scripts/check-editorial-retry-state.mjs
 node scripts/check-editorial-coverage-pipeline.mjs
 node scripts/test-atlas-reclassify.mjs
