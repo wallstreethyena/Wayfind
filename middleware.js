@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { guardPaidRoute } from "./lib/apiGuard";
+import { guardPaidRoute, isOperatorDiagnostic } from "./lib/apiGuard";
 
 // Cost-leak fix (the $735 Google Places incident): these routes are public,
 // unauthenticated proxies to METERED third-party APIs — Google Places
@@ -155,6 +155,15 @@ const IMAGE_ROUTES = new Set(["/api/photo", "/api/creator-avatar"]);
 
 export function middleware(req) {
   const path = req.nextUrl && req.nextUrl.pathname;
-  const rateLimitOnly = NAV_302_ROUTES.has(path) || IMAGE_ROUTES.has(path);
+  // Operator diagnostics join the EXISTING rateLimitOnly population — the same
+  // mechanism NAV_302_ROUTES and IMAGE_ROUTES use for legitimate callers that
+  // cannot carry browser-origin headers. This recognises the request SHAPE
+  // (lib/apiGuard.isOperatorDiagnostic), never the credential: middleware must
+  // not validate CRON_SECRET or the auth contract would live in two layers and
+  // drift. The route's own Bearer check stays the only authority on 401 vs
+  // success, and the per-IP limiter still applies. See apiGuard.js for the
+  // measured 403-before-401 failure this repairs.
+  const rateLimitOnly = NAV_302_ROUTES.has(path) || IMAGE_ROUTES.has(path)
+    || isOperatorDiagnostic(path, req.nextUrl && req.nextUrl.searchParams);
   return guardPaidRoute(req, { rateLimitOnly }) || NextResponse.next();
 }
