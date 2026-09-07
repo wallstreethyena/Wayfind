@@ -322,6 +322,18 @@ if (privilegeFailures.length) {
   process.exit(1);
 }
 console.log('check-rpc-schema-contract: privileged RPC permissions verified in production');
+const schemaResponse = await fetch(`${URL_}/rest/v1/rpc/wf_schema_audit`, {
+  method: "POST", headers: { apikey: KEY, Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" },
+  body: "{}", cache: "no-store", signal: AbortSignal.timeout(15000),
+});
+if (!schemaResponse.ok) throw new Error(`Schema audit unavailable: HTTP ${schemaResponse.status}`);
+const schemaRows = await schemaResponse.json();
+if (!Array.isArray(schemaRows)) throw new Error('Malformed schema audit');
+const schemaFailures = schemaRows.filter(r => r.severity !== 'info');
+if (schemaFailures.length) {
+  console.error('check-rpc-schema-contract: FAIL — schema security findings: ' + JSON.stringify(schemaFailures));
+  process.exit(1);
+}
 
 // ── D. Real call sites, app/ and lib/ (recursively) ─────────────────────────
 const files = [];
