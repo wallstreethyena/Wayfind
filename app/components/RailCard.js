@@ -320,6 +320,20 @@ export default function RailCard({
   try { railCreatorVideos = place ? (creatorVideosFor(place) || []) : []; } catch (e) { railCreatorVideos = []; }
   const fb = useCardActions(canFallback && !(onSave && onLike && onDislike));
   const content = useContentCardActions(contentSubject);
+  // GUARD-HONESTY 2026-09-07 — the fallback-less half of the "photo fails to
+  // load" path. Before this, a failed <img> with no photoFallback (every
+  // place card: photoFallback is wired only for Events.js and ViatorRail.js,
+  // never here) hid the broken <img> by toggling its CSS visibility off —
+  // the image vanishes but `.wf-place-card-media` keeps its CSS-forced height:100%!important;
+  // min-height:176px!important, so the box stays fully sized and paints
+  // nothing: the owner's exact "entire image area renders as a blank panel".
+  // Keyed to `photo` (not a bare boolean) so a different card reusing this
+  // instance, or a fresh photo replacing a stale one, gets its own attempt
+  // before ever falling back. See IconicPlaceCard.js for the same fix and
+  // the live 2026-09-07 measurement (ChIJJZq0DJ1Bw4gRcuZ5y_XuNxM: one photo
+  // ref 302→ok, a second 404 "owned-miss" — a currently-real, intermittent
+  // failure of a well-formed ref, not a bad record).
+  const [imgFailed, setImgFailed] = useState("");
   if (!title) return null;
   // A wired handler always wins; the store is what an unwired card falls back
   // to, so no surface can ship a thumb that does nothing.
@@ -376,7 +390,12 @@ export default function RailCard({
         : when ? <div className="wf-place-card-score"><RailWhenBadge {...when} /></div> : null}
       <div className="wf-place-card-layout">
         <div className="wf-place-card-media">
-          {photo
+          {/* GUARD-HONESTY 2026-09-07 — on a second (or only) failure this
+              swaps to the monogram instead of the old `visibility:hidden`,
+              which left the fully-sized media box painting nothing. Keyed
+              to the ORIGINAL `photo` prop, not the fallback src that just
+              replaced it, so this still flips once the fallback also fails. */}
+          {photo && imgFailed !== photo
             ? <img
                 src={photo}
                 data-fallback={photoFallback || ""}
@@ -387,7 +406,7 @@ export default function RailCard({
                 onError={(ev) => {
                   const fb = ev.currentTarget.dataset.fallback;
                   if (fb) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fb; }
-                  else { ev.currentTarget.style.visibility = "hidden"; }
+                  else { setImgFailed(photo); }
                 }}
                 style={{ objectFit: "cover" }}
               />

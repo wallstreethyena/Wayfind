@@ -36,7 +36,11 @@ for (const file of HOUSE) {
   ok(calls.length === 0, `${file}: house cards must not call the shared stock-photo ladder (got ${JSON.stringify(calls)})`);
 }
 
-ok(/\{photo\s*\?/.test(rail) && /src=\{photo\}/.test(rail),
+// 2026-09-07 (GUARD-HONESTY): the gate now also re-checks `imgFailed` so a
+// verified photo that fails to LOAD falls to the monogram too — `[^?]*`
+// tolerates that extra `&& imgFailed !== photo` clause without loosening
+// what this proves: only a real <img src={photo}> stands before the monogram.
+ok(/\{photo[^?]*\?/.test(rail) && /src=\{photo\}/.test(rail),
   "RailCard renders only the caller's verified photo and otherwise uses its branded monogram");
 
 console.log(fail === 0

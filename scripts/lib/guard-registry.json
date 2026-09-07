@@ -26,16 +26,16 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 553,
-    "totalRegistryEntries": 554,
-    "guardsTxtLineCount": 552,
-    "guardsTxtReachedFileCount": 548,
+    "totalOnDiskGuardFiles": 554,
+    "totalRegistryEntries": 555,
+    "guardsTxtLineCount": 553,
+    "guardsTxtReachedFileCount": 549,
     "criticalCount": 65,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 365,
       "RENDER": 44,
-      "STRUCTURAL": 144,
+      "STRUCTURAL": 145,
       "OTHER": 1
     }
   },
@@ -713,6 +713,28 @@
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
       "assertionCount": 18,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-card-photo-error-fallback.mjs",
+      "npmScript": null,
+      "class": "STRUCTURAL",
+      "hasStructuralOnlyTag": true,
+      "assertionCount": 15,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
