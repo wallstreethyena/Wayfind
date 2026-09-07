@@ -31,12 +31,12 @@
     "totalRegistryEntries": 577,
     "guardsTxtLineCount": 574,
     "guardsTxtReachedFileCount": 569,
-    "criticalCount": 68,
+    "criticalCount": 69,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 383,
+      "CALL": 384,
       "RENDER": 46,
-      "STRUCTURAL": 147,
+      "STRUCTURAL": 146,
       "OTHER": 1
     }
   },
@@ -7996,13 +7996,11 @@
     {
       "file": "scripts/test-autocomplete-proxy.mjs",
       "npmScript": null,
-      "class": "STRUCTURAL",
+      "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 16,
+      "assertionCount": 31,
       "unprovenAbsenceCount": 0,
-      "honestyViolations": [
-        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
-      ],
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
@@ -8011,11 +8009,16 @@
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
-      "critical": false,
-      "criticalReasons": [],
-      "protects": null,
-      "blastRadius": null,
-      "owner": null
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-import:../lib/spendGate.js"
+      ],
+      "protects": "Autocomplete uses the guarded server proxy and reports disabled or denied spending distinctly from a legitimate empty result.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "A regression could bypass finite autocomplete budgets or disguise a denied provider as successful empty search suggestions."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/test-beach-decision.mjs",

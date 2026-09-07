@@ -34,6 +34,10 @@ jobs:
           cache: npm
       - name: Install
         run: npm ci --no-audit --no-fund
+      # Build tooling also executes in trusted CI. Audit the whole lockfile,
+      # not only production dependencies, before running the application checks.
+      - name: Dependency security audit
+        run: npm audit --audit-level=moderate
       # These guards measure real rendered cards. Without a browser they
       # explicitly skip, which is insufficient evidence for a merge review.
       - name: Install Chromium for rendered guards
