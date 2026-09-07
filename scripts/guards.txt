@@ -1146,3 +1146,18 @@ node scripts/check-synthetic-monitor-hermetic.mjs
 # v8.99 (owner 2026-09-06): every event page states the FULL address (street + town),
 # the venue website, and draws the free map with the reader's route and the nearby picks.
 node scripts/check-event-where.mjs
+
+# 2026-09-07 — title similarity is not entity identity. Owner: "An exact
+# title match like June, Petrichor or Annapurna cannot automatically become
+# confidence 1.0." A loose matcher's 61 accepted matches were audited: only
+# 10 correct, 7 disambiguation, 7 chain-brand, 37 flat wrong (junk:signal
+# 4.4:1). Fixed with verifyWikiIdentity (lib/popularity.js) — disambiguation
+# / redirect-target similarity / chain-brand / geographic agreement (the
+# same 80mi gate as app/guides/[slug]/page.js) / place-type evidence — run
+# BEFORE the pageviews fetch, plus a companion migration quarantining 22
+# existing poisoned rows and an eligibility pre-filter (primary_type +
+# reviews>=400) that composes with PR #1150's per-source stale-batch
+# selector. This guard runs the real verifyWikiIdentity against fixtures
+# built from this session's live evidence, and structurally locks the
+# migrations' predicates in sync with lib/popularity.js's own exports.
+node scripts/check-wikipedia-identity-verification.mjs

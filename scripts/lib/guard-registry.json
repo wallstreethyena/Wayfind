@@ -26,14 +26,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 552,
-    "totalRegistryEntries": 553,
-    "guardsTxtLineCount": 551,
-    "guardsTxtReachedFileCount": 547,
+    "totalOnDiskGuardFiles": 553,
+    "totalRegistryEntries": 554,
+    "guardsTxtLineCount": 552,
+    "guardsTxtReachedFileCount": 548,
     "criticalCount": 65,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 364,
+      "CALL": 365,
       "RENDER": 44,
       "STRUCTURAL": 144,
       "OTHER": 1
@@ -7295,6 +7295,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 33,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-wikipedia-identity-verification.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 42,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
