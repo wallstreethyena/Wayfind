@@ -117,4 +117,7 @@ ok(classifyHealth([]).incidents.length === 0 && classifyHealth(null).incidents.l
   ok(/attempted > 0 and .*succeeded = 0/.test(mig), "the RPC's dead-run definition requires attempted work — idle is not dead");
 }
 
+ok(classifyHealth([{job:"config-failure",attempted:0,succeeded:0,consecutive_zero:2,last_note:"cannot run"}]).incidents.length === 1, "explicit failures before any request are incidents, not idle");
+ok(classifyHealth([{job:"empty",attempted:0,succeeded:0,consecutive_zero:0}]).idle.length === 1, "a healthy zero-work run remains idle");
+
 console.log(`test-job-pulse: OK — ${pass} assertions (incident vs healthy vs idle, threshold binds both ways, generic not atlas-specific, succeeded=published, empty table is not health)`);
