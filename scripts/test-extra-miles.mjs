@@ -42,6 +42,8 @@ delete process.env.GOOGLE_MAPS_SERVER_KEY;
 const xm = await loadComponent(join(ROOT, "lib/extraMiles.js"), ROOT);
 const { EXTRA_MILES_PLACE_IDS, EXTRA_MILES_BAND, extraMilesFrom, extraMilesEditorial, inExtraMilesBand } = xm;
 const railsMod = await loadComponent(join(ROOT, "lib/railsData.js"), ROOT);
+const photoMod = await import("../lib/placePhoto.js");
+const routeMod = await loadComponent(join(ROOT, "app/api/extra-miles/route.js"), ROOT);
 const landingMod = await loadComponent(join(ROOT, "lib/landing.js"), ROOT);
 const { buildDrivePool } = railsMod;
 const LANDING_CITIES = landingMod.LANDING_CITIES;
@@ -82,7 +84,7 @@ const hav = (a, b, c, d) => R * 2 * Math.asin(Math.sqrt(Math.sin(rad(c - a) / 2)
 const MI_PER_DEG = R * Math.PI / 180;
 const at = (mi) => ({ lat: ORIGIN.lat + mi / MI_PER_DEG, lng: ORIGIN.lng });
 const IDS = Object.keys(EXTRA_MILES_PLACE_IDS);
-const park = (i, mi, extra) => ({ place_id: IDS[i], name: proof.rows[IDS[i]].name, ...at(mi), photo_ref: "AVoNoX-owned", status: "OPERATIONAL", excluded: false, ...extra });
+const park = (i, mi, extra) => ({ place_id: IDS[i], name: proof.rows[IDS[i]].name, ...at(mi), photo_ref: `places/${IDS[i]}/photos/AVoNoX-owned-${i}`, status: "OPERATIONAL", excluded: false, ...extra });
 const allPages = () => true;
 
 // ── 2. Band arithmetic, by call ───────────────────────────────────────────
@@ -111,8 +113,15 @@ const allPages = () => true;
   const noPages = extraMilesFrom(ORIGIN, [park(0, 60)], () => false);
   eq(noPages, [], "a park whose /places/ page is not proven is not eligible, whatever else is true");
   const card = extraMilesFrom(ORIGIN, [park(0, 60)], allPages)[0];
-  ok(card && card.href === `/places/${IDS[0]}` && /^\/api\/photo\?place=/.test(card.image) && card.kind === "extra-miles",
-    "a card links to its real /places/<id> page and its owned photo, and is typed extra-miles");
+  ok(card && card.href === `/places/${IDS[0]}` && card.kind === "extra-miles", "a card links to its real /places/<id> page and is typed extra-miles");
+  // The image goes through the ONE owned-photo path every card uses
+  // (/api/photo?ref=<owned photo_ref>), and the card law's own checker agrees
+  // the picture belongs to THIS place. (`?place=<id>` 404'd on the preview.)
+  ok(card && /^\/api\/photo\?ref=/.test(card.image) && photoMod.isLandingCardImageAllowed(card.image, IDS[0]),
+    "the card's image is the owned photo_ref via /api/photo?ref= and passes isLandingCardImageAllowed for its own place id");
+  ok(card && !photoMod.isLandingCardImageAllowed(card.image, IDS[1]), "CONTROL: the same image is NOT allowed for a different place id (no neighbour's photo can ever wear this card)");
+  const noRef = extraMilesFrom(ORIGIN, [park(0, 60, { photo_ref: "" })], allPages);
+  eq(noRef, [], "an empty photo_ref is 'no owned photo' → not eligible");
   ok(card && !("affiliate" in card) && !("deal" in card) && !("_s" in card), "no affiliate or score fields ride on a tail card — distance is the only order");
   const five = extraMilesFrom(ORIGIN, [park(0, 40), park(1, 50), park(2, 60), park(3, 70), park(4, 80), park(0, 40)], allPages);
   eq(five.length, 5, "five distinct parks in band → five cards, the duplicate collapsed (none of the five can appear twice)");
@@ -162,6 +171,22 @@ const allPages = () => true;
     eq(withGap.map((p) => p.id), [], "28-mile control: rejected by the ordinary band (>27)");
     eq(extraMilesFrom(ORIGIN, [park(0, 28)], allPages), [], "28-mile control: rejected by Extra Miles too (<30)");
     ok(calls >= 2, "CONTROL: the ordinary pool was actually computed twice through the injected ranker");
+  } finally {
+    globalThis.fetch = prevFetch;
+  }
+}
+
+// ── 4b. The route refuses a missing or nonsense point BEFORE any read ─────
+{
+  const call = (qs) => routeMod.GET(new Request(`https://fixture.local/api/extra-miles${qs}`));
+  const prevFetch = globalThis.fetch;
+  globalThis.fetch = () => { throw new Error("NETWORK REACHED before validation"); };
+  try {
+    for (const [qs, why] of [["", "no coordinates"], ["?lat=&lng=", "empty coordinates"], ["?lat=abc&lng=-80", "non-numeric"], ["?lat=95&lng=-80", "out-of-range latitude"]]) {
+      const res = await call(qs);
+      ok(res.status === 400, `${why} → 400 (got ${res.status}) — Number(null) is 0, and 0,0 is not a reader`);
+      ok(/no-store/.test(res.headers.get("cache-control") || ""), `${why} → no-store`);
+    }
   } finally {
     globalThis.fetch = prevFetch;
   }

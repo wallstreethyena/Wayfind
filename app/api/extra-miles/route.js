@@ -23,8 +23,11 @@ const IDS = Object.keys(EXTRA_MILES_PLACE_IDS);
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
-  const lat = Number(searchParams.get("lat"));
-  const lng = Number(searchParams.get("lng"));
+  // Absent is not zero: Number(null) is 0, a point in the Gulf of Guinea, and
+  // the preview answered it 200. A missing coordinate is a 400.
+  const latRaw = searchParams.get("lat"), lngRaw = searchParams.get("lng");
+  const lat = latRaw == null || latRaw === "" ? NaN : Number(latRaw);
+  const lng = lngRaw == null || lngRaw === "" ? NaN : Number(lngRaw);
   if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) {
     return NextResponse.json({ ok: false, error: "lat/lng required" }, { status: 400, headers: NO_STORE });
   }
