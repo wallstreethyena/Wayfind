@@ -13,6 +13,7 @@ import {
   isUpscaleBirthdayDinner,
 } from "../lib/birthdayIntent.js";
 import { birthdayAttributesFor } from "../lib/birthdayAttributes.js";
+import { isBirthdayPlace } from "../lib/birthdayPlace.js";
 import { BIRTHDAY_REWARD_MAX_AGE_DAYS, BIRTHDAY_REWARD_PLACE_IDS, birthdayRewardFor } from "../lib/birthdayRewards.js";
 
 let passed = 0;
@@ -99,5 +100,18 @@ const batch = JSON.parse(readFileSync(new URL("../data/birthday/enrichment-batch
 ok(batch.places.length === 50, "owner enrichment batch preserves all 50 candidates");
 ok(new Set(batch.places.map((place) => place.name + "|" + place.city)).size === 50, "enrichment batch has no duplicate name/city pair");
 ok(batch.status === "needs_place_id_and_first_party_evidence", "enrichment candidates cannot publish by name alone");
+
+// v9.0 — the plain rail identity, on the rows that leaked into the 9pm rail
+// (audit 2026-09-07: First Watch in Parrish, Keke's in Cortez, band=night).
+ok(!isBirthdayPlace({ name: "Keke's Breakfast Cafe", primaryType: "breakfast_restaurant", types: ["breakfast_restaurant", "brunch_restaurant", "cafe", "diner", "restaurant"] }),
+  "a breakfast-PRIMARY cafe is not a birthday plan even with a secondary brunch_restaurant tag (live Cortez night rail)");
+ok(!isBirthdayPlace({ name: "First Watch", primaryType: "breakfast_restaurant", types: ["breakfast_restaurant", "brunch_restaurant", "family_restaurant", "restaurant"] }),
+  "First Watch (closes 2:30pm) is not a birthday plan (live Parrish night rail)");
+ok(!isBirthdayPlace({ name: "Back Alley Treasures", primaryType: "coffee_shop", types: ["coffee_shop", "wine_bar", "gift_shop", "cafe", "bar"] }),
+  "a coffee-shop primary with a secondary wine_bar tag is not a birthday plan");
+ok(isBirthdayPlace({ name: "The Garden Brunch", primaryType: "brunch_restaurant", types: ["brunch_restaurant", "cafe", "restaurant"] }),
+  "a PRIMARY brunch room (the owner's garden-brunch shape) still qualifies");
+ok(isBirthdayPlace({ name: "Ocean Prime", primaryType: "steak_house", types: ["steak_house", "fine_dining_restaurant", "restaurant"] }),
+  "a steakhouse still qualifies");
 
 console.log(`test-birthday-intent: OK — ${passed}/${passed} assertions`);
