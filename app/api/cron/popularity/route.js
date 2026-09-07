@@ -37,7 +37,7 @@ export const dynamic = "force-dynamic";
 // lib/popularity.js) now that it gets a dedicated food/nightlife batch
 // instead of whatever happened to land in the old shared one.
 import { createClient } from "@supabase/supabase-js";
-import { FETCHERS, categoriesForSource, SOURCE_CAPS, CONFIDENCE_FLOOR, POP_DIAG, resetPopDiag } from "../../../../lib/popularity";
+import { FETCHERS, categoriesForSource, primaryTypesForSource, minReviewsForSource, SOURCE_CAPS, CONFIDENCE_FLOOR, POP_DIAG, resetPopDiag } from "../../../../lib/popularity";
 import { recordPulse } from "../../../../lib/jobPulse";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail";
 
@@ -65,6 +65,11 @@ export async function GET(req) {
       p_source: src,
       p_categories: categoriesForSource(src),
       p_n: BATCH,
+      // v9.1 (2026-09-07) — eligibility pre-filter, wikipedia only (both
+      // null/no-op for every other source): see primaryTypesForSource /
+      // minReviewsForSource in lib/popularity.js for the measured evidence.
+      p_primary_types: primaryTypesForSource(src),
+      p_min_reviews: minReviewsForSource(src),
     });
     if (error || !Array.isArray(data)) return jobFailed("popularity", `wf_popularity_stale_batch(${src}) returned no batch`);
     bySourcePlaces[src] = data;
