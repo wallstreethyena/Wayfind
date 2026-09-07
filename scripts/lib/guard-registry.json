@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 564,
-    "totalRegistryEntries": 565,
-    "guardsTxtLineCount": 561,
-    "guardsTxtReachedFileCount": 557,
+    "totalOnDiskGuardFiles": 567,
+    "totalRegistryEntries": 568,
+    "guardsTxtLineCount": 563,
+    "guardsTxtReachedFileCount": 559,
     "criticalCount": 65,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 373,
-      "RENDER": 45,
+      "CALL": 375,
+      "RENDER": 46,
       "STRUCTURAL": 146,
       "OTHER": 1
     }
@@ -1217,7 +1217,7 @@
       "npmScript": null,
       "class": "STRUCTURAL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 13,
+      "assertionCount": 17,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
@@ -1242,6 +1242,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 21,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-creator-signal-equivalence.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 46,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -3820,6 +3842,35 @@
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-job-watch-delivery.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 0,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [
+        "has a real import/render/exec capability but zero assertions whose subject is a value RETURNED by code — every check reads source text only"
+      ],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": false,
+        "npmScripts": [],
+        "githubWorkflows": [
+          {
+            "file": ".github/workflows/canary.yml",
+            "blocking": false
+          }
+        ]
+      },
+      "gating": "scheduled-monitoring-only",
+      "excludedReason": "Runs in .github/workflows/canary.yml against production with required credentials. Provider/email outages must fail the operational canary without blocking repair deploys; test-job-watch-delivery.mjs exercises the same evaluator in prebuild.",
       "critical": false,
       "criticalReasons": [],
       "protects": null,
@@ -10566,11 +10617,33 @@
       "owner": null
     },
     {
+      "file": "scripts/test-job-watch-delivery.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 10,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-job-watch-fallback.mjs",
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 40,
+      "assertionCount": 41,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,

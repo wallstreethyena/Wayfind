@@ -97,6 +97,7 @@ export async function GET(req) {
     return Response.json({ ok: false, incidents: null, note: reason }, { status: 503, headers: { "cache-control": "no-store" } });
   }
   if (!incidents.length) {
+    await recordPulse("job-watch", { attempted: 0, succeeded: 0, failed: 0, note: "healthy: no incidents" });
     return Response.json({ ok: true, incidents: 0, healthy: healthy.length, idle: idle.length });
   }
 

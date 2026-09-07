@@ -32,4 +32,4 @@ const fresh = renderModule(lean);
 if (committed !== fresh) {
   fail("lib/creatorSignalsData.generated.js is stale against lib/creatorVideos.js's CURATED registry — run: node scripts/gen-creator-signals.mjs and commit the result");
 }
-console.log(`check-creator-signals-fresh: OK — ${lean.length} entries, in sync`);
+console.log(`check-creator-signals-fresh: OK — ${lean.entries.length} entries, ${lean.platforms.length} platforms, in sync`);
