@@ -1185,3 +1185,19 @@ node scripts/check-wikipedia-identity-verification.mjs
 # a premium Wayfind event page" — no hero, a raw URL that wrapped badly, Get
 # Directions rendered twice, nearby picks that could be mistaken for the venue.
 node scripts/check-event-hero-and-directions.mjs
+
+# 2026-09-07 — two migration failures, same day, same root cause (a migration
+# handled partially). #1153's 5-arg RPC migration was merged and never
+# applied (08:23 UTC popularity cron did zero work across all four
+# providers). Applying PR #1155's wf_deploy_contract_audit.sql, an operator
+# reconstructed wf_schema_objects() from three grep/sed samples that missed
+# the middle — shipped 4 object kinds instead of 7, and
+# check-migration-reconciliation.mjs correctly reported two real, live
+# editorial-publish-gate objects (a constraint, a trigger) as missing. The
+# guard was right; the input to production was wrong. scripts/apply-migration.mjs
+# is now the one canonical path: whole committed file only, SHA-256 recorded
+# before execution, reconciliation chained into the same operation. This
+# guard proves that path structurally refuses fragments and that its
+# SHA-256 recording is real, not decorative — see scripts/lib/migrationApply.mjs
+# for the full incident writeup.
+node scripts/check-migration-apply-canonical-path.mjs

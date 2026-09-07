@@ -109,7 +109,14 @@ export function workflowsReferencing(root, basename, npmScriptNamesReferencing) 
   const hits = [];
   for (const dir of dirs) {
     if (!existsSync(dir)) continue;
-    for (const f of readdirSync(dir)) {
+    // .sort() is LOAD-BEARING, not tidiness. readdirSync returns entries in
+    // filesystem order, which differs between the owner's macOS clone and a
+    // Linux CI runner. scripts/check-guard-registry.mjs compares the committed
+    // registry against a fresh derivation field-by-field, so an unsorted array
+    // here would make a registry generated on one machine read as "stale" on
+    // the other — a guard going red on correct code, which is worse than no
+    // guard. Sorted output is the same on every machine.
+    for (const f of readdirSync(dir).sort()) {
       if (!/\.ya?ml$/.test(f)) continue;
       const full = path.join(dir, f);
       const src = readFileSync(full, "utf8");
