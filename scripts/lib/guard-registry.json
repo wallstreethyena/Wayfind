@@ -29,8 +29,8 @@
   "counts": {
     "totalOnDiskGuardFiles": 568,
     "totalRegistryEntries": 569,
-    "guardsTxtLineCount": 564,
-    "guardsTxtReachedFileCount": 560,
+    "guardsTxtLineCount": 565,
+    "guardsTxtReachedFileCount": 561,
     "criticalCount": 65,
     "unwiredCriticalCount": 0,
     "classCounts": {
