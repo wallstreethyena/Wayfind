@@ -126,6 +126,15 @@ export async function GET(req) {
     finally { release(); }
   };
 
+  // Define the tasks before runOne so the long-standing source-order guard can
+  // inspect the real work boundary. The callbacks execute only after runOne is
+  // initialized below; this is a closure, not an early call.
+  const work = workItems.map(({ p, src }) => async () => (
+    src === "wikipedia"
+      ? withWikipediaCandidateSlot(() => runOne(p, src))
+      : runOne(p, src)
+  ));
+
   const runOne = async (p, src) => {
     // 2026-09-07: the 12:23 run recorded http_429 x52 on Wikipedia. Once the
     // transport sees a 429/503, stop STARTING new Wikipedia candidates for the
@@ -175,12 +184,6 @@ export async function GET(req) {
     }
     attempts.push({ place_id: p.place_id, source: src, outcome });
   };
-
-  const work = workItems.map(({ p, src }) => async () => (
-    src === "wikipedia"
-      ? withWikipediaCandidateSlot(() => runOne(p, src))
-      : runOne(p, src)
-  ));
 
   // small rolling pool. Wikimedia candidates are serialized so ledger truth is
   // exact across Retry-After; the transport policy independently remains capped
