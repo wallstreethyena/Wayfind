@@ -8,6 +8,7 @@ import ts from 'typescript';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 let event, curated, photographs;
+const reviewDir = process.argv.includes("--write-review") ? "public/design" : null;
 const leaf = () => null;
 
 function page(file) {
@@ -59,11 +60,11 @@ for(const free of [false,true])for(const hasPhoto of [false,true]){
  assert.equal(html.includes('/api/commerce/go?offer=test'),!free);
  assert.equal(html.includes('src="/owned-photo.jpg"'),hasPhoto);
  assert.ok(!html.includes('$59'));checks+=6;
- if(process.env.WF_EVENT_REVIEW_DIR && !free && hasPhoto){
-  fs.mkdirSync(process.env.WF_EVENT_REVIEW_DIR,{recursive:true});
+ if(reviewDir && !free && hasPhoto){
+  fs.mkdirSync(reviewDir,{recursive:true});
   const document='<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Event layout fixture</title></head><body style="margin:0;background:#080b10">'+html.replaceAll('/owned-photo.jpg','/brand/orlando-roller-coaster-portrait.jpg').replaceAll(/src="\/api\/photo[^"]*"/g,'src="/fixture-intentionally-missing.jpg"')+'</body></html>';
-  fs.writeFileSync(path.join(process.env.WF_EVENT_REVIEW_DIR,'event-fixture.html'),document);
-  fs.writeFileSync(path.join(process.env.WF_EVENT_REVIEW_DIR,'event-mobile-review.html'),'<!doctype html><html><head><title>Mobile layout review</title></head><body style="margin:0;background:#1b2330;color:white;font-family:Arial"><p>Layout verification fixture. Fictional event; map and booking integrations are stubbed.</p>'+[320,390,430].map(w=>'<iframe title="'+w+'px mobile layout" src="event-fixture.html" style="display:inline-block;vertical-align:top;width:'+w+'px;height:860px;border:1px solid #536070;margin:5px"></iframe>').join('')+'</body></html>');
+  fs.writeFileSync(path.join(reviewDir,'event-fixture.html'),document);
+  fs.writeFileSync(path.join(reviewDir,'event-mobile-review.html'),'<!doctype html><html><head><title>Mobile layout review</title></head><body style="margin:0;background:#1b2330;color:white;font-family:Arial"><p>Layout verification fixture. Fictional event; map and booking integrations are stubbed.</p>'+[320,390,430].map(w=>'<iframe title="'+w+'px mobile layout" src="event-fixture.html" style="display:inline-block;vertical-align:top;width:'+w+'px;height:860px;border:1px solid #536070;margin:5px"></iframe>').join('')+'</body></html>');
  }
 }
 console.log(`test-event-experience: OK — ${checks} assertions across 8 real page renders; live/cancelled, paid/free, owned/missing photos. Provider/map internals remain covered separately.`);
