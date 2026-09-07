@@ -75,6 +75,45 @@ ok(placeAllowed("food", "dinner", p("Fleming’s Prime Steakhouse & Wine Bar",
   ["steak_house", "bar_and_grill", "wine_bar", "fine_dining_restaurant", "brunch_restaurant", "bar", "restaurant", "food"], "steak_house")),
   "…and Fleming's keeps its real home under Dinner");
 
+// ── v9.0 — Dinner / Brunch / Coffee / Drinks have contracts and mean them ──
+// Owner, 2026-09-07: "I saw one that was for dinners and it was thinking it
+// was for diners … we don't want to see a breakfast place in the dinner
+// spot." MEASURED before the fix: none of these four chips had a SUB_ALLOW
+// entry, so all four fell through to CAT_ALLOW.food and Keke's passed Dinner,
+// a smokehouse passed Coffee and Brunch, a tavern passed Coffee. Every row
+// below is a real production shape (types from the live Parrish/Cortez rails).
+for (const k of ["food:dinner", "food:brunch", "food:coffee", "food:drinks"]) ok(!!SUB_ALLOW[k], `${k} HAS a SUB_ALLOW contract — no fall-through to Food · All`);
+const kekes = p("Keke's Breakfast Cafe", ["breakfast_restaurant", "brunch_restaurant", "cafe", "diner", "american_restaurant", "family_restaurant", "restaurant", "food"], "breakfast_restaurant");
+const ihop = p("IHOP", ["breakfast_restaurant", "restaurant", "food"], "breakfast_restaurant");
+const bbq = p("C & K Smokehouse BBQ", ["barbecue_restaurant", "restaurant", "food"], "barbecue_restaurant");
+const tavern = p("The Loaded Barrel Tavern", ["bar", "restaurant", "food"], "bar");
+const coffee = p("Spinning Coffee", ["coffee_shop", "cafe", "food_store", "store", "food"], "coffee_shop");
+const cracker = p("Cracker Barrel Old Country Store", ["american_restaurant", "breakfast_restaurant", "restaurant", "food"], "american_restaurant");
+const nyDiner = p("Uncle Joe's New York Diner", ["restaurant", "diner", "food"], "restaurant");
+const brewery = p("Motorworks Brewing", ["brewery", "bar", "food"], "brewery");
+// Dinner
+ok(!placeAllowed("food", "dinner", kekes), "Dinner refuses a breakfast-primary cafe — the owner's 'breakfast place in the dinner spot'");
+ok(!placeAllowed("food", "dinner", ihop), "Dinner refuses IHOP (breakfast_restaurant primary)");
+ok(!placeAllowed("food", "dinner", coffee), "Dinner refuses a coffee shop");
+ok(placeAllowed("food", "dinner", cracker), "Dinner keeps Cracker Barrel — an american_restaurant primary that ALSO serves breakfast is a dinner room");
+ok(placeAllowed("food", "dinner", nyDiner), "Dinner keeps a restaurant-primary diner open for dinner — `diner` is a format, not a meal; only a breakfast PRIMARY contradicts the label");
+ok(placeAllowed("food", "dinner", tavern), "Dinner keeps a tavern with a kitchen");
+ok(placeAllowed("food", "dinner", p("Gulley's", ["seafood_restaurant", "restaurant", "food"], "seafood_restaurant")), "Dinner keeps a seafood restaurant");
+// Brunch
+ok(!placeAllowed("food", "brunch", bbq), "Brunch refuses a BBQ smokehouse");
+ok(placeAllowed("food", "brunch", p("First Watch", ["breakfast_restaurant", "brunch_restaurant", "cafe", "restaurant"], "breakfast_restaurant")), "Brunch keeps First Watch");
+ok(!placeAllowed("food", "brunch", p("Fleming’s Prime Steakhouse & Wine Bar", ["steak_house", "brunch_restaurant", "bar", "restaurant", "food"], "steak_house")), "Brunch refuses a steakhouse with a secondary brunch tag (same rule as Breakfast)");
+// Coffee
+ok(!placeAllowed("food", "coffee", bbq), "Coffee refuses a BBQ smokehouse");
+ok(!placeAllowed("food", "coffee", tavern), "Coffee refuses a tavern");
+ok(placeAllowed("food", "coffee", coffee), "Coffee keeps a coffee shop");
+ok(placeAllowed("food", "coffee", p("Ryan's Coffee House", ["coffee_shop", "cafe", "food"], "coffee_shop")), "Coffee keeps Ryan's Coffee House (leads the live Parrish morning rail)");
+// Drinks
+ok(!placeAllowed("food", "drinks", bbq), "Drinks refuses a BBQ smokehouse");
+ok(!placeAllowed("food", "drinks", coffee), "Drinks refuses a coffee shop");
+ok(placeAllowed("food", "drinks", tavern), "Drinks keeps a tavern");
+ok(placeAllowed("food", "drinks", brewery), "Drinks keeps a brewery");
+
 // ── The other chips the leakers legitimately belong to stay intact ─────────
 ok(placeAllowed("attractions", "tours", p("Tampa Fishing Charters, Inc.", ["fishing_charter", "tour_agency", "point_of_interest"])),
   "the charter still belongs to Tours — narrowing Arts must not orphan it");

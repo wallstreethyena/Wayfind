@@ -79,6 +79,21 @@ const lib2 = readFileSync(new URL("../lib/todaysBest.js", import.meta.url), "utf
 ok(lib2.includes('supabase.rpc("wf_things_to_do"'), "lib calls the real merge engine");
 // Owner: menus read best-to-worst by the VISIBLE Wayfind Score
 import("../lib/todaysBest.js").then((m2) => {
+  // v9.0 — dinner's contradiction tier is 0, like every other meal's
+  // (owner, 2026-09-07: no breakfast place in the dinner spot). Executed.
+  if (typeof m2.mealCompose === "function") {
+    const dinnerRows = [
+      { name: "Keke's Breakfast Cafe", primary_type: "breakfast_restaurant" },
+      { name: "Gulley's", primary_type: "seafood_restaurant" },
+      { name: "Ocean Prime", primary_type: "steak_house" },
+      { name: "Pier 22", primary_type: "american_restaurant" },
+    ];
+    const composed = m2.mealCompose(dinnerRows, { meal: "dinner" }, 1);
+    ok(!composed.some((r) => r.primary_type === "breakfast_restaurant"), "mealCompose(dinner) admits ZERO breakfast_restaurant rows (was max 1)");
+    ok(composed.length === 3, "…and keeps the three real dinner rooms");
+    const bfRows = [{ name: "Ocean Prime", primary_type: "steak_house" }, { name: "First Watch", primary_type: "breakfast_restaurant" }];
+    ok(!m2.mealCompose(bfRows, { meal: "breakfast" }, 1).some((r) => r.primary_type === "steak_house"), "control: breakfast still refuses a steak_house");
+  }
   const rows = [{ name: "A", rating: 4.6, reviews: 5000 }, { name: "B", rating: 4.9, reviews: 12 }, { name: "C", rating: 4.8, reviews: 2000 }];
   const o = m2.byVisibleScore(rows).map((r) => r.name).join("");
   if (o !== "CAB") { console.error("FAIL: byVisibleScore orders by review-weighted score (got " + o + ")"); process.exit(1); }

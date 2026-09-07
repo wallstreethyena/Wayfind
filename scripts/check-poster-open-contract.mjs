@@ -37,7 +37,11 @@ const ownerMatch = daypart.match(/const railOwnsItsOwnAnswer =[^;]+;/);
 ok(!!ownerMatch, "the dedicated-answer registry disappeared");
 const ownedIds = ownerMatch ? [...ownerMatch[0].matchAll(/selRail\.id === "([^"]+)"/g)].map((match) => match[1]) : [];
 for (const id of ownedIds) {
-  ok(daypart.includes(`selRail.id === "${id}" ? (`), `${id}: marked as owning its answer but mounts no answer component`);
+  // v9.0 — a composer fed by /api/rails (breakfast, eat) mounts only once the
+  // rails answer is live (`&& !composerWaiting`); until then the shared load
+  // chain speaks for it. Either shape is an answer component being mounted.
+  const mounts = new RegExp(`selRail\\.id === "${id}"( && !composerWaiting)? \\? \\(`).test(daypart);
+  ok(mounts, `${id}: marked as owning its answer but mounts no answer component`);
 }
 
 const componentDir = new URL("app/components/", ROOT);

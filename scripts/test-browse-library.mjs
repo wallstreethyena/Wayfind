@@ -154,7 +154,17 @@ ok(browseChipUsesInventory("food", "breakfast") === true, "Breakfast chip uses o
 // inventory like Cafés and Lunch do.
 ok(browseChipUsesInventory("food", "dessert") === true,
   "Desserts chip uses owned inventory — its v8.63 contract exists, so it must not fall back to the Google top-20");
-ok(browseChipUsesInventory("food", "dinner") === false, "Dinner stays named debt on the client — CHIP_IDENTITY is server-side so the 496KB ratchet holds");
+// v9.0 — the debt this line used to name is PAID (owner, 2026-09-07: a
+// breakfast diner under the Dinner label). food:dinner now has a real
+// SUB_ALLOW contract plus a primary-token veto for morning identities, so the
+// Dinner chip reads owned inventory like Lunch and Desserts do. Brunch, Coffee
+// and Drinks got contracts in the same change; test-chip-contracts.mjs
+// executes the leaker/keeper verdicts for all four.
+ok(browseChipUsesInventory("food", "dinner") === true,
+  "Dinner chip uses owned inventory — its v9.0 contract exists, so it must not fall back to Food · All");
+ok(browseChipUsesInventory("food", "brunch") === true, "Brunch chip has a contract (v9.0)");
+ok(browseChipUsesInventory("food", "coffee") === true, "Coffee chip has a contract (v9.0)");
+ok(browseChipUsesInventory("food", "drinks") === true, "Drinks chip has a contract (v9.0)");
 ok(browseChipUsesInventory("food", "quickbites") === false,
   "Quick bites stays named debt — no contract, so we must not dump unfiltered food into it");
 ok(browseChipUsesInventory("food", "delivery") === false,
