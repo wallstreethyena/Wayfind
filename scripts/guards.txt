@@ -1179,6 +1179,11 @@ node scripts/check-wikipedia-identity-verification.mjs
 node scripts/check-event-hero-and-directions.mjs
 
 node scripts/test-privileged-rpc-contract.mjs
+# WAYFIND DATA ENGINE: a $0-plan preflight plus the atomic provider ledger
+# guards every indexed-short search. Results enter a private discovery inbox;
+# observed views never masquerade as likes, and no discovery writes cards or
+# events. This is the provider-independent entrance to the social conveyor.
+node scripts/social-acquisition-conveyor-regression.mjs
 # 2026-09-07 — two migration failures, same day, same root cause (a migration
 # handled partially). #1153's 5-arg RPC migration was merged and never
 # applied (08:23 UTC popularity cron did zero work across all four
