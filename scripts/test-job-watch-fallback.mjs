@@ -103,7 +103,7 @@ const undeliveredWithoutFailStatus = (call) => /sent:\s*false/.test(call) && !/s
   const hasDef = /function\s+reportUndelivered\(/.test(src);
   ok(hasDef, "reportUndelivered is defined as a function — a single place, not duplicated inline logic per branch");
   const callSites = totalOccurrences - (hasDef ? 1 : 0);
-  ok(callSites === 2, `reportUndelivered( is called at exactly 2 call sites, excluding its own definition (found ${callSites} call sites, ${totalOccurrences} total occurrences) — one per undelivered path: missing config, and a real send that failed`);
+  ok(callSites === 3, `reportUndelivered( is called at exactly 3 call sites, excluding its own definition (found ${callSites} call sites, ${totalOccurrences} total occurrences) — health-feed failure, missing config, and a real send that failed`);
 }
 ok((src.match(/status:\s*500/g) || []).length === 2, "exactly two `status: 500` responses exist — one per undelivered branch");
 {
@@ -172,6 +172,7 @@ const CHILD = `
     status: res.status,
     body,
     sentryCalls: globalThis.__wfSentryStubCalls || [],
+    flushCalls: globalThis.__wfSentryFlushCalls || [],
     pulseWrites,
   }));
 `;
@@ -209,12 +210,13 @@ const HEALTHY_ROWS = [
   ok((r.sentryCalls || []).length === 0, "healthy: NO Sentry event — this is the negative control the whole guard exists to prove");
   ok((r.pulseWrites || []).length === 0, "healthy: job-watch files no self-pulse — nothing to alarm about");
 }
-// STATE 1b: healthy — the empty-table case (also must not alarm).
+// Missing health evidence must not masquerade as a healthy empty fleet.
 {
   const r = runScenario({ rows: [], resendMode: "unset", resendKeySet: false });
-  ok(r.status === 200, `empty table: status is 200 (got ${r.status})`);
+  ok(r.status === 503 && r.body.ok === false, `empty table: must fail closed (got ${r.status})`);
   ok(/no pulse rows in window/.test(r.body.note || ""), "empty table: reported as 'nothing is reporting', not as a clean bill of health");
-  ok((r.sentryCalls || []).length === 0, "empty table: NO Sentry event");
+  ok((r.sentryCalls || []).length === 1, "empty table: report health-feed failure");
+  ok(r.flushCalls.length === 1 && r.flushCalls[0] === 2000, "health-feed alarm is flushed with bounded wait");
 }
 // STATE 2: incidents > 0, delivery SUCCEEDS.
 {
@@ -233,6 +235,7 @@ const HEALTHY_ROWS = [
   ok(r.status === 500, `no key: status is 500, NOT 200 (got ${r.status}) — this is the exact production lie being fixed`);
   ok(r.body.ok === false && r.body.sent === false, "no key: ok:false, sent:false");
   const calls = r.sentryCalls || [];
+  ok(r.flushCalls.length === 1 && r.flushCalls[0] === 2000, "missing-key alarm flushes before returning");
   ok(calls.length === 1, `no key: exactly one Sentry event (got ${calls.length})`);
   ok(calls[0] && calls[0].opts && calls[0].opts.level === "fatal", "no key: the event is high-severity ('fatal')");
   ok(calls[0] && calls[0].opts && calls[0].opts.tags && calls[0].opts.tags.job === "job-watch", "no key: the event is tagged with the job name");

@@ -30,3 +30,8 @@ export function captureMessage(msg, opts) {
   return "wf-sentry-stub-id";
 }
 export function init() {}
+
+export async function flush(timeout) {
+  (globalThis.__wfSentryFlushCalls ||= []).push(timeout);
+  return true;
+}

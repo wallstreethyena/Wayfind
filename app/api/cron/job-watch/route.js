@@ -63,7 +63,7 @@ function emailHtml(incidents, idle, healthy) {
 //
 // Fail-soft on purpose, same as recordPulse: Sentry itself must never be the
 // reason this route fails to answer its caller.
-function reportUndelivered(reason, incidents) {
+async function reportUndelivered(reason, incidents) {
   try {
     Sentry.captureException(
       new Error(`job-watch: ${incidents.length} incident(s) undelivered — ${reason}`),
@@ -73,6 +73,7 @@ function reportUndelivered(reason, incidents) {
         extra: { reason, incidentCount: incidents.length, incidents: incidents.map(incidentLine) },
       }
     );
+    await Sentry.flush(2000);
   } catch (e) {
     /* telemetry is best-effort; it must never take the response down with it */
   }
@@ -90,7 +91,10 @@ export async function GET(req) {
   // "0 incidents" — an empty table and a healthy fleet are different facts, and
   // conflating them is the exact mistake this route exists to stop.
   if (!rows.length) {
-    return Response.json({ ok: true, incidents: 0, note: "no pulse rows in window — nothing is reporting, which is NOT the same as nothing being wrong" });
+    const reason = "no pulse rows in window — health feed unavailable or nothing is reporting";
+    await recordPulse("job-watch", { attempted: 0, succeeded: 0, failed: 1, note: reason });
+    await reportUndelivered(reason, []);
+    return Response.json({ ok: false, incidents: null, note: reason }, { status: 503, headers: { "cache-control": "no-store" } });
   }
   if (!incidents.length) {
     return Response.json({ ok: true, incidents: 0, healthy: healthy.length, idle: idle.length });
@@ -121,7 +125,7 @@ export async function GET(req) {
     // level up.
     const reason = "RESEND_API_KEY or DIGEST_EMAIL not set";
     await recordPulse("job-watch", { attempted: Math.max(1, incidents.length), succeeded: 0, note: "CANNOT SEND: " + reason + " — " + incidents.length + " incident(s) undelivered" });
-    reportUndelivered(reason, incidents);
+    await reportUndelivered(reason, incidents);
     // 500, not 200: job-watch RAN and its detection worked (these are real
     // incidents, correctly classified) — this is the "ran but the work
     // failed" shape lib/jobFail.js's jobFailed() already answers with 500
@@ -166,7 +170,7 @@ export async function GET(req) {
     // same reason: a key that IS set but a send that fails (Resend down, rate
     // limited, bad address) is just as undelivered as a key that was never
     // set, and must not read as success either.
-    reportUndelivered(`Resend send failed (status=${sendStatus ?? "n/a"})`, incidents);
+    await reportUndelivered(`Resend send failed (status=${sendStatus ?? "n/a"})`, incidents);
     return Response.json(
       { ok: false, incidents: incidents.length, sent, sendStatus, detail: incidents.map(incidentLine) },
       { status: 500, headers: { "cache-control": "no-store" } }
