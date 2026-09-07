@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 561,
-    "totalRegistryEntries": 562,
-    "guardsTxtLineCount": 558,
-    "guardsTxtReachedFileCount": 554,
+    "totalOnDiskGuardFiles": 562,
+    "totalRegistryEntries": 563,
+    "guardsTxtLineCount": 559,
+    "guardsTxtReachedFileCount": 555,
     "criticalCount": 65,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 370,
-      "RENDER": 45,
+      "RENDER": 46,
       "STRUCTURAL": 146,
       "OTHER": 1
     }
@@ -1217,7 +1217,7 @@
       "npmScript": null,
       "class": "STRUCTURAL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 13,
+      "assertionCount": 17,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
@@ -1242,6 +1242,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 21,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-creator-signal-equivalence.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 46,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

@@ -440,6 +440,14 @@ node scripts/check-creator-video-boost.mjs
 # that made it work cannot be quietly rewired back to the heavy path.
 node scripts/check-creator-signals-fresh.mjs
 node scripts/check-creator-registry-bundle-wall.mjs
+# 2026-09-07 — the lean mirror's DATA FORMAT compacted further (positional
+# tuples + a sentinel + an interned platform table, replacing pretty-printed
+# object literals — see scripts/gen-creator-signals.mjs's header). This guard
+# is the proof the new encoding is representation-only: it runs an
+# independent reference implementation of the OLD full-registry resolver
+# against the REAL lib/creatorSignals.js, across the whole curated corpus,
+# and red-proves five ways the comparison could otherwise be vacuous.
+node scripts/check-creator-signal-equivalence.mjs
 node scripts/check-chef-picks.mjs
 node scripts/check-creator-events.mjs
 node scripts/check-guard-integrity.mjs
