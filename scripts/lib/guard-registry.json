@@ -26,8 +26,8 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 556,
-    "totalRegistryEntries": 557,
+    "totalOnDiskGuardFiles": 558,
+    "totalRegistryEntries": 559,
     "guardsTxtLineCount": 555,
     "guardsTxtReachedFileCount": 551,
     "criticalCount": 65,
@@ -35,7 +35,7 @@
     "classCounts": {
       "CALL": 367,
       "RENDER": 44,
-      "STRUCTURAL": 145,
+      "STRUCTURAL": 147,
       "OTHER": 1
     }
   },
@@ -4489,6 +4489,30 @@
       "owner": null
     },
     {
+      "file": "scripts/check-migration-reconciliation.mjs",
+      "npmScript": null,
+      "class": "STRUCTURAL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 0,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [
+        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
+      ],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": false,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "unwired",
+      "excludedReason": "same reasoning as check-rpc-schema-contract.mjs, same incident — runs in the scheduled canary workflow, not prebuild, because it reads PRODUCTION Supabase (wf_migration_ledger(), wf_schema_objects()) to confirm every supabase/migrations/*.sql file was actually applied, not merely merged. Added 2026-09-07.",
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-mobile-poster-fit.mjs",
       "npmScript": null,
       "class": "STRUCTURAL",
@@ -6205,6 +6229,30 @@
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-rpc-schema-contract.mjs",
+      "npmScript": null,
+      "class": "STRUCTURAL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 1,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [
+        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
+      ],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": false,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "unwired",
+      "excludedReason": "runs in the scheduled canary workflow, not prebuild — it reads PRODUCTION Supabase (wf_rpc_signatures()) to compare every db/supabase.rpc() call site's argument names against the live function signature, and a stale production schema must never be able to block a code deploy. Wrong coupling in that direction; see .github/workflows/canary.yml. Added 2026-09-07 after #1153 shipped a 5-arg RPC caller against a still-3-arg production function (the 08:23 UTC popularity cron did zero work across all four providers) — see supabase/migrations/20260907_wf_deploy_contract_audit.sql.",
       "critical": false,
       "criticalReasons": [],
       "protects": null,
