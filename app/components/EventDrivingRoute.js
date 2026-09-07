@@ -52,7 +52,7 @@ export default function EventDrivingRoute({ venue, directionsHref, mapController
     <button type="button" className="wfw-btn wfw-dir" disabled={busy || !mapController} onClick={showLocation}>{busy ? "Calculating route…" : "Use my location"}</button>
     <form onSubmit={submit} style={{ display: "flex", flexWrap: "wrap", gap: 8, margin: "12px 0" }}>
       <input aria-label="Starting city or address" placeholder="Or enter a starting city or address" value={start} onChange={(event) => setStart(event.target.value)} maxLength={200} required style={{ flex: "1 1 220px", minWidth: 0, padding: 12, border: "1px solid #3c4959", borderRadius: 10, color: "#f5f4ef", background: "#0d141e", font: "inherit" }} />
-      <button className="wfw-btn wfw-site" type="submit" disabled={busy || !mapController}>Preview drive</button>
+      <button className="wfw-btn wfw-site" type="submit" disabled={busy || !mapController} style={{ flex: "0 0 auto", whiteSpace: "nowrap", minWidth: 132, minHeight: 44 }}>Preview drive</button>
     </form>
     {summary ? <p role="status" style={{ margin: "8px 0", fontWeight: 800, color: "#8ED6C4" }}>Driving route: {summary.distanceLabel} · about {summary.etaLabel}</p> : null}
     {message ? <p role="status" style={{ margin: "8px 0", color: "#FDBA74" }}>{message}</p> : null}
