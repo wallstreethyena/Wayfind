@@ -9,6 +9,11 @@ import { eventProviderCap, eventProviderSpendAllow } from "../lib/eventProviderS
 const envKeys = [
   "WAYFIND_GATE", "SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY",
   "TICKETMASTER_API_KEY", "EVENT_TICKETMASTER_MONTH_CAP",
+  // Vercel supplies integration credentials during builds. Isolate every
+  // route provider so this Ticketmaster fixture cannot enable another one.
+  "SEATGEEK_CLIENT_ID", "SEATGEEK_CLIENT_SECRET", "PREDICTHQ_TOKEN",
+  "BANDSINTOWN_PARTNER_KEY", "EVENTBRITE_PRIVATE_TOKEN", "EVENTBRITE_ORG_IDS",
+  "SERPAPI_KEY", "OPENWEBNINJA_KEY",
 ];
 const savedFetch = globalThis.fetch;
 for (const key of envKeys) delete process.env[key];
