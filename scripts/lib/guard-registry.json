@@ -26,14 +26,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 554,
-    "totalRegistryEntries": 555,
-    "guardsTxtLineCount": 553,
-    "guardsTxtReachedFileCount": 549,
+    "totalOnDiskGuardFiles": 555,
+    "totalRegistryEntries": 556,
+    "guardsTxtLineCount": 554,
+    "guardsTxtReachedFileCount": 550,
     "criticalCount": 65,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 365,
+      "CALL": 366,
       "RENDER": 44,
       "STRUCTURAL": 145,
       "OTHER": 1
@@ -2731,6 +2731,28 @@
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-food-no-tour-rail.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 23,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],

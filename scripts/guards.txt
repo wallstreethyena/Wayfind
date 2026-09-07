@@ -114,6 +114,7 @@ node scripts/check-copy-no-empty-hype.mjs
 node scripts/test-rail-score-order.mjs
 node scripts/check-rail-rank-law.mjs
 node scripts/check-subfilter-experience-coverage.mjs
+node scripts/check-food-no-tour-rail.mjs
 node scripts/test-klook-coupons.mjs
 node scripts/test-sheet-booking.mjs
 node scripts/test-card-booking.mjs
