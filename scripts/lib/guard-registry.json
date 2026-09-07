@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 563,
-    "totalRegistryEntries": 564,
-    "guardsTxtLineCount": 560,
-    "guardsTxtReachedFileCount": 556,
+    "totalOnDiskGuardFiles": 564,
+    "totalRegistryEntries": 565,
+    "guardsTxtLineCount": 561,
+    "guardsTxtReachedFileCount": 557,
     "criticalCount": 65,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 372,
+      "CALL": 373,
       "RENDER": 45,
       "STRUCTURAL": 146,
       "OTHER": 1
@@ -7457,6 +7457,28 @@
       "owner": null
     },
     {
+      "file": "scripts/check-wikimedia-backoff-ledger-truth.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 39,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-wikipedia-identity-verification.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -11705,7 +11727,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 43,
+      "assertionCount": 72,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
