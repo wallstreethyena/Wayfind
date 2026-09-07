@@ -1,0 +1,11 @@
+{
+  "_provenance": "Read from LIVE wf_inventory LEFT JOIN wf_place_ids (Supabase gbhtoehdxkzjsmmkisgu) on 2026-09-07 by Lane E. in_place_ids=true means /places/<id> is a real page (all five returned 200 on www.gowayfind.com the same day). Re-read the tables, never hand-edit, when the registry changes.",
+  "verified_at": "2026-09-07",
+  "rows": {
+    "ChIJM5Edegyx0IgRuF7SUFDyj5o": { "name": "Ernest F. Coe Visitor Center", "lat": 25.3953, "lng": -80.5831, "status": "OPERATIONAL", "excluded": false, "has_photo": true, "in_place_ids": true },
+    "ChIJx_pUcNiK2YgR4JfT3ovTKIw": { "name": "Shark Valley Visitor Center", "lat": 25.7569, "lng": -80.7654, "status": "OPERATIONAL", "excluded": false, "has_photo": true, "in_place_ids": true },
+    "ChIJK4Wkv7jb2YgRv7LTOSIRIRI": { "name": "Biscayne National Park", "lat": 25.5003, "lng": -80.1828, "status": "OPERATIONAL", "excluded": false, "has_photo": true, "in_place_ids": true },
+    "ChIJrfjUyddl14gRpyfE65Uk9ug": { "name": "John Pennekamp Coral Reef State Park", "lat": 25.1567, "lng": -80.3754, "status": "OPERATIONAL", "excluded": false, "has_photo": true, "in_place_ids": true },
+    "ChIJxVcTIQ7i0IgRgYa6c5TNrgk": { "name": "Bahia Honda State Park", "lat": 24.669, "lng": -81.2591, "status": "OPERATIONAL", "excluded": false, "has_photo": true, "in_place_ids": true }
+  }
+}

@@ -50,6 +50,14 @@ const IconicPlaceCard = dynamic(() => import("./IconicPlaceCard"), {
   ssr: false,
   loading: () => <PlaceCardSkeleton count={1} />,
 });
+// Lane E (2026-09-07) — "Worth the Extra Miles", the long-distance tail
+// UNDER the Worth the Drive drop. Its own chunk, its own route
+// (/api/extra-miles), its own selector (lib/extraMiles.js): it never reads
+// `shown.places.drive` and buildDrivePool never reads it, so the 12–27 mile
+// cards above it are byte-identical with or without it. Renders nothing
+// until it has a real answer, and nothing at all when the reader is outside
+// its 30–180 mile band of every governed park.
+const ExtraMilesTail = dynamic(() => import("./ExtraMilesTail"), { ssr: false, loading: () => null });
 // v8.12 — the owner's top-20 trends, back on the page (owner, 2026-08-18:
 // "the exploding trends do not have the 20 top trending items"). Mounted
 // INSIDE the trending drop only — behind a click, so it stays off the
@@ -2081,6 +2089,13 @@ export default function DaypartRail({
               </div>
             </div>
           ) : null}
+          {/* Lane E — the tail is OUTSIDE the ternary above on purpose: it is
+              not one of the drive rail's states (results / pending / thin /
+              failed). It is a second, separate thing that appears after
+              whatever the 12–27 mile rail decided, and it decides for itself. */}
+          {selected === "drive" && center && Number.isFinite(center.lat) && Number.isFinite(center.lng)
+            ? <ExtraMilesTail lat={center.lat} lng={center.lng} />
+            : null}
         </div>
       </section>
     </div>
