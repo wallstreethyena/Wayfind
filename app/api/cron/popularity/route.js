@@ -83,6 +83,9 @@ export async function GET(req) {
       await recordPulse('popularity:' + src, { attempted: 0, succeeded: 0, failed: availability.failure ? 1 : 0, note: availability.reason });
       continue;
     }
+  }
+  for (const src of SOURCES) {
+    if (Object.hasOwn(unavailable, src)) continue;
     const { data, error } = await db.rpc("wf_popularity_stale_batch", {
       p_source: src,
       p_categories: categoriesForSource(src),
