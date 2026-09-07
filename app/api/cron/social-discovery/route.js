@@ -9,7 +9,7 @@ import { siteTodayStr } from "../../../../lib/siteTime.js";
 import {
   SOCIAL_SEARCH_PROVIDER, boundedQueryCount, normalizeIndexedBatch, plannedSocialQueries, qualifiedCandidateRows,
   readAcquisitionInventory, resolveDiscoveryLocations, searchIndexedShorts,
-  socialSearchKey, sourceEvidenceRows, verifySerpFreeInventory,
+  runInstagramProfileSourceProof, socialSearchKey, sourceEvidenceRows, verifySerpFreeInventory,
 } from "../../../../lib/socialAcquisition.js";
 
 const headers = { "cache-control": "no-store" };
@@ -25,9 +25,20 @@ export async function GET(req) {
   if (!secret || req.headers.get("authorization") !== `Bearer ${secret}`) {
     return Response.json({ error: "unauthorized" }, { status: 401, headers });
   }
+  const mode = new URL(req.url).searchParams.get("mode");
+  if (mode !== null && mode !== "source-proof") {
+    return Response.json({ error: "unsupported_mode" }, { status: 400, headers });
+  }
   const db = admin();
   if (!db) return Response.json({ ok: false, error: "supabase_unconfigured" }, { status: 503, headers });
   const key = socialSearchKey();
+  if (mode === "source-proof") {
+    const proof = await runInstagramProfileSourceProof(db, key);
+    return Response.json({ ...proof, mode: "source_proof", publication_enabled: false,
+      acquisition_writes: 0, paid_calls: 0,
+      spend_status: proof.free_plan_verified ? "free_plan_verified" : "not_attempted_or_unverified",
+      estimated_spend_usd: proof.free_plan_verified ? 0 : null }, { status: proof.ok ? 200 : 503, headers });
+  }
   const requested = boundedQueryCount(new URL(req.url).searchParams.get("queries") || 2);
   const free = await verifySerpFreeInventory(key, requested);
   if (!free.ok) {

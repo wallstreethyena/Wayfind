@@ -81,3 +81,21 @@ for the handler, but publication and automated acquisition release remain blocke
 
 Production read on 2026-09-06: wf_social_candidates=0 and wf_social_source_health=0.
 No new card can be truthfully attributed to automated acquisition yet.
+
+## Instagram profile source-proof diagnostic
+
+`/api/cron/social-discovery?mode=source-proof` is an authenticated, one-request
+SerpApi Instagram Profile diagnostic for the fixed, previously reviewed
+`@whenintampa` handle. It does not write discovery, candidate, evidence, event,
+or inventory tables; only the existing provider-usage reservation may write.
+It explicitly permits SerpApi cache reuse (`no_cache=false`), has no retry, and
+returns sanitized counters only. `liked_by_count` and
+`media_preview_likes_count` remain separate and never qualify a post while their
+semantics are unreviewed; views are never treated as likes.
+
+This diagnostic is intentionally blocked by the seeded registry with
+`profile_source_rights_unreviewed`: the registry only authorizes indexed-short
+search, not the distinct Instagram Profile API capability. It makes zero SerpApi
+account or profile calls until a separately reviewed registry capability and
+rights decision is deployed. This change does not check live registry state or
+make a live profile-source proof.
