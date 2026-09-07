@@ -107,6 +107,7 @@ export const config = {
     // assembles keyless marine + UV + NWS-alert + tide data. ANTI-SCRAPING, not a
     // cost gate — every upstream is free — but the assembled view is ours.
     "/api/beach/conditions",
+    "/api/beach/planning",
     // Live Picks v2: /api/events/demand is a same-origin XHR reading aggregated
     // first-party demand (event_open / tickets_out) from public.events via the
     // service role. ANTI-SCRAPING, not a cost gate — no metered upstream, it is

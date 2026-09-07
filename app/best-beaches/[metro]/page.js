@@ -183,6 +183,7 @@ export default async function BeachesPage({ params }) {
       />
 
       <div style={{ maxWidth: 680, margin: "0 auto", padding: "18px 20px 60px" }}>
+        {params.metro === "manatee-sarasota" ? <a href="/beach-conditions" style={{ display: "block", padding: 18, border: "1px solid #2dd4bf", borderRadius: 14, color: "#2dd4bf", textDecoration: "none" }}><strong>Beach conditions ↗</strong><br /><span style={{ fontSize: 13 }}>Weather, swimming reports and red tide for five local beaches. See sources and sample dates.</span></a> : null}
         <ol style={{ listStyle: "none", margin: "18px 0 0", padding: 0 }}>
           {beaches.map((b, i) => (
             <li key={b.id} style={{ margin: "14px 0 0" }}>
