@@ -38,6 +38,7 @@ export const dynamic = "force-dynamic";
 // instead of whatever happened to land in the old shared one.
 import { createClient } from "@supabase/supabase-js";
 import { FETCHERS, categoriesForSource, primaryTypesForSource, minReviewsForSource, SOURCE_CAPS, CONFIDENCE_FLOOR, POP_DIAG, resetPopDiag } from "../../../../lib/popularity";
+import { installWikimediaFetchPolicy } from "../../../../lib/wikimediaFetchPolicy";
 import { recordPulse } from "../../../../lib/jobPulse";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail";
 
@@ -54,6 +55,12 @@ export async function GET(req) {
   const svc = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
   if (!url || !svc) return jobCannotRun("popularity", "SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL is missing");
   const db = createClient(url, svc, { auth: { persistSession: false } });
+
+  // Wikimedia's 2026 API limits are a provider transport concern, not a
+  // matching concern. The controller wraps global fetch only for Wikimedia
+  // hosts: max 2 in-flight, maxlag=5 on Action API, and Retry-After backoff.
+  // Every other provider still sees the native fetch unchanged.
+  const wikimediaPolicy = installWikimediaFetchPolicy();
 
   // one stale-batch selection PER SOURCE — see the v9.0 note above for why a
   // single shared batch cannot correctly drive four independently-throttled,
@@ -82,7 +89,7 @@ export async function GET(req) {
   const workItems = [];
   for (const src of SOURCES) for (const p of bySourcePlaces[src]) workItems.push({ p, src });
 
-  const spent = {}; // per-source call budget used this run
+  const spent = {}; // per-source candidate budget used this run
   resetPopDiag(); // per-run outcome tally — see lib/popularity POP_DIAG
   const stats = {
     unique_places: uniquePlaces.size,
@@ -90,15 +97,30 @@ export async function GET(req) {
     upserts: 0,
     skipped_low_confidence: 0,
     skipped_no_data: 0,
+    skipped_rate_limit_backoff: 0,
     by_source: {},
   };
   const rows = [];
   // Every (place, source) pair actually invoked below, whatever it returned —
-  // THIS is the attempt ledger write. A cap-skipped pair below never reaches
-  // this array: it was never asked, so it must not look "just tried".
+  // THIS is the attempt ledger write. A cap-skipped pair or a Wikipedia pair
+  // held BEFORE invocation by Retry-After never reaches this array: it was never
+  // asked, so it must not look "just tried". That distinction is the whole
+  // reason throttled rows remain unobserved candidates rather than negatives.
   const attempts = [];
 
   const work = workItems.map(({ p, src }) => async () => {
+    // 2026-09-07: the 12:23 run recorded http_429 x52 on Wikipedia. Once the
+    // transport sees a 429/503, stop STARTING new Wikipedia candidates for the
+    // Retry-After window. Calls already inside the 5-wide worker pool are capped
+    // to two actual Wikimedia requests by lib/wikimediaFetchPolicy; the rest are
+    // refused locally. Crucially this check is BEFORE spent++ and attempts.push,
+    // so a row held only because the provider told us to back off stays eligible
+    // for a later run instead of being stamped as if Wikipedia answered it.
+    if (src === "wikipedia" && !wikimediaPolicy.canRequest()) {
+      stats.skipped_rate_limit_backoff++;
+      return;
+    }
+
     const cap = SOURCE_CAPS[src];
     if (cap != null && (spent[src] || 0) >= cap) return; // budget spent — untouched, no ledger write, stays eligible
     spent[src] = (spent[src] || 0) + 1;
@@ -127,7 +149,9 @@ export async function GET(req) {
     attempts.push({ place_id: p.place_id, source: src, outcome });
   });
 
-  // small rolling pool — kind to every rate limit involved
+  // small rolling pool. Wikimedia is additionally capped to two WIRE requests
+  // by lib/wikimediaFetchPolicy; PARALLEL stays 5 so provider-independent work
+  // does not get slower just because one source has a stricter policy.
   let i = 0;
   const runners = Array.from({ length: PARALLEL }, async () => {
     while (i < work.length) { const j = i++; await work[j](); }
@@ -152,14 +176,14 @@ export async function GET(req) {
   }
   stats.attempt_write_errors = attemptWriteErrors;
 
-  try { console.log(JSON.stringify({ tag: "popularity_cron", ...stats, outcomes: POP_DIAG })); } catch (e) {}
+  try { console.log(JSON.stringify({ tag: "popularity_cron", ...stats, outcomes: POP_DIAG, wikimedia_transport: wikimediaPolicy.state() })); } catch (e) {}
   // ── the self-healing loop's alarm (2026-08-08) ────────────────────────────
   // The trend-signal audit found Foursquare's fetcher dead for ~3 MONTHS (v3
   // API sunset) while the cron returned 200 and wikipedia's trickle kept the
   // aggregate "upserts" number nonzero — the exact atlas-build failure shape
   // jobPulse exists for, one level down: the JOB looked alive while whole
   // SOURCES were dead. So each source records its OWN pulse:
-  //   attempted  = real API calls made for that source this run
+  //   attempted  = candidate fetches invoked for that source this run
   //   succeeded  = calls that produced a metric row ("ok" in POP_DIAG)
   //   note       = the dominant failure outcome (http_401, network, no_match…)
   // A source with a missing key pulses attempted:0 (idle — "not configured"
