@@ -1277,3 +1277,5 @@ node scripts/test-known-city-geocode.mjs
 # Non-Google provider credentials are also finite budgets: each actual Viator,
 # Foursquare, Tripadvisor, YouTube, or Pexels request needs an atomic grant.
 node scripts/test-provider-spend-caps.mjs
+
+node scripts/test-beach-planning.mjs

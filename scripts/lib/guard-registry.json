@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 579,
-    "totalRegistryEntries": 580,
-    "guardsTxtLineCount": 577,
-    "guardsTxtReachedFileCount": 572,
+    "totalOnDiskGuardFiles": 580,
+    "totalRegistryEntries": 581,
+    "guardsTxtLineCount": 578,
+    "guardsTxtReachedFileCount": 573,
     "criticalCount": 69,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 386,
+      "CALL": 387,
       "RENDER": 47,
       "STRUCTURAL": 146,
       "OTHER": 1
@@ -8048,6 +8048,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 65,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-beach-planning.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 31,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
