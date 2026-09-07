@@ -1220,3 +1220,5 @@ node scripts/test-privileged-rpc-contract.mjs
 # SHA-256 recording is real, not decorative — see scripts/lib/migrationApply.mjs
 # for the full incident writeup.
 node scripts/check-migration-apply-canonical-path.mjs
+
+node scripts/test-known-city-geocode.mjs
