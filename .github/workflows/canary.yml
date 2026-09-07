@@ -34,6 +34,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  incident-delivery:
+    name: production incident delivery
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      # Independent of the email/Sentry credentials used by the watcher.
+      # A failed or missing heartbeat must produce a visible red canary.
+      - name: Latest job-watch outcome and freshness
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/check-job-watch-delivery.mjs
   routes:
     name: production route contract
     runs-on: ubuntu-latest

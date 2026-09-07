@@ -18,6 +18,7 @@ import path from "node:path";
 
 // Every exclusion needs a reason. Keep this list short and argued.
 const EXCLUDED = {
+  "check-job-watch-delivery.mjs": "Runs in .github/workflows/canary.yml against production with required credentials. Provider/email outages must fail the operational canary without blocking repair deploys; test-job-watch-delivery.mjs exercises the same evaluator in prebuild.",
   "check-bundle.mjs": "runs in `npm run audit:regression` — needs a completed next build, too slow for every prebuild",
   "check-headers.mjs": "runs in `npm run audit:regression` — asserts deployed response headers, needs a live origin",
   "check-moment.mjs": "STALE as of 2026-07-28: fails on 'trust copy must appear in overlay AND sheet'. The UI it guards changed in the design release; needs triage — either the copy regressed or the guard is obsolete. Deliberately not wired in while red.",

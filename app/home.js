@@ -3918,6 +3918,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const [lunchAttemptsUsed, setLunchAttemptsUsed] = useState(0);
   const [center, setCenter] = useState(null);
   const [deviceLoc, setDeviceLoc] = useState(null);
+  // v9.0 — WHEN the GPS fix in deviceLoc was taken. recenterToMe() shortcuts
+  // to deviceLoc instead of asking the device again, which is right for a fix
+  // taken seconds ago and wrong for a tab that has been open since this
+  // morning in another town: "Use my current location" must mean NOW. Only a
+  // real GPS fix stamps this; the IP fallback never does (it is locApprox and
+  // already excluded from the shortcut).
+  const deviceLocAtRef = useRef(0);
+  const GPS_FIX_FRESH_MS = 120000;
   const [locName, setLocName] = useState("");
   const [locResolved, setLocResolved] = useState(false);
   // v8.46 — the committed center, readable from async callbacks. The geo
@@ -6790,6 +6798,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           try { setLocApprox(false); } catch (e) {}
           const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
           setDeviceLoc(c);
+          deviceLocAtRef.current = Date.now();
           if (manualRef.current) return;
           // STABILITY (owner 2026-08-07: "every refresh I get something different,
           // it switches back and forth"). Desktop geolocation is IP/Wi-Fi based and
@@ -8263,7 +8272,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // wrong. Approximate fixes no longer shortcut: they fall through to a
     // fresh enableHighAccuracy GPS fix, the same precision the map pin runs
     // on. A real GPS deviceLoc still shortcuts — it IS the precise answer.
-    if (!locApprox && deviceLoc && isFinite(deviceLoc.lat)) {
+    // v9.0 — the shortcut is for a FRESH fix only. A deviceLoc taken when the
+    // tab was opened hours ago, somewhere else, is not the reader's current
+    // location, and this button is the one control on the page that promises
+    // exactly that. Older than GPS_FIX_FRESH_MS falls through to the fresh
+    // enableHighAccuracy request below, same as an approximate fix does.
+    const fixFresh = deviceLocAtRef.current > 0 && Date.now() - deviceLocAtRef.current < GPS_FIX_FRESH_MS;
+    if (!locApprox && fixFresh && deviceLoc && isFinite(deviceLoc.lat)) {
       // v8.46 — NAME FIRST, THEN COMMIT. This used to move the center, the map
       // and locResolved immediately and only then `await` the reverse geocode
       // inside a catch-all try — so a throw, or simply a slow answer, left the
@@ -8286,6 +8301,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       async (pos) => {
         const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setDeviceLoc(c);
+        deviceLocAtRef.current = Date.now();
         setLocApprox(false);
         // v8.46 — name first, then commit (see the note above). Same defect,
         // same fix: the label and the coordinates are one fact and land in one
