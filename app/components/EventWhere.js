@@ -43,8 +43,10 @@ const CSS = `
 .wfw-site:hover{border-color:rgba(249,115,22,.6);color:#FDBA74}
 .wfw-site small{font-weight:700;color:#94A3B8;font-size:12px}
 .wfw-map{padding:0 10px 10px}
-.wfw-near{padding:6px 18px 18px}
-.wfw-near h3{margin:12px 0 4px;font-size:17px;font-weight:850;color:#F8FAFC;letter-spacing:-.2px}
+.wfw-nearcard{margin-top:14px;border-radius:22px;border:1px solid rgba(46,201,166,.26);background:linear-gradient(180deg,rgba(46,201,166,.06),rgba(13,19,28,.95));box-shadow:0 18px 44px rgba(0,0,0,.32);overflow:hidden}
+.wfw-near{padding:18px 18px 18px}
+.wfw-near-k{font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:${PICK};margin:0 0 6px}
+.wfw-near h3{margin:0 0 4px;font-size:17px;font-weight:850;color:#F8FAFC;letter-spacing:-.2px}
 .wfw-near p{margin:0 0 12px;font-size:13.5px;line-height:1.5;color:#94A3B8}
 .wfw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
 .wfw-p{display:flex;gap:12px;align-items:center;padding:8px;border-radius:14px;background:rgba(148,163,184,.06);border:1px solid rgba(148,163,184,.14);text-decoration:none;color:#F8FAFC;transition:border-color .15s ease,background .15s ease}
@@ -57,7 +59,7 @@ const CSS = `
 .wfw-b small{display:flex;align-items:center;gap:7px;margin-top:4px;font-size:12.5px;font-weight:700;color:#94A3B8}
 .wfw-b u{text-decoration:none;color:#0D1117;background:${PICK};border-radius:999px;padding:2px 8px;font-size:12px;font-weight:800}
 .wfw-foot{padding:0 18px 16px;font-size:11.5px;color:#64748B}
-@media (max-width:560px){.wfw-head{padding:16px 14px 12px}.wfw-acts{width:100%}.wfw-btn{flex:1}.wfw-map{padding:0 6px 6px}.wfw-near{padding:6px 14px 14px}}
+@media (max-width:560px){.wfw-head{padding:16px 14px 12px}.wfw-acts{width:100%}.wfw-btn{flex:1}.wfw-map{padding:0 6px 6px}.wfw-near{padding:14px 14px 14px}}
 `;
 
 const thumbUrl = (p) => (p.photoRef
@@ -112,10 +114,25 @@ export default function EventWhere({ venue, address, directionsHref, website, la
             <EventVenueMapLoader venue={{ name: venue || address, lat, lng }} picks={pins} />
           </div>
         ) : null}
-        {pins.length > 0 ? (
+        {hasPoint ? <div className="wfw-foot">The dashed line is the straight-line distance from your location, worked out on your device; nothing about where you are is sent anywhere. Turn-by-turn directions open in Google Maps.</div> : null}
+      </div>
+      {/* v9.00 (owner, 2026-09-07, on the premium event page): "near this
+          event" recommendations must be "clearly separated … and cannot be
+          mistaken for the venue the user is buying a ticket to". Before this
+          the nearby cards sat INSIDE the same .wfw-card as the venue's own
+          address and buttons — one bordered box, one accent color, nothing
+          telling a reader that photo #2 in the grid is a different business
+          down the street, not part of what they are about to pay for. This
+          is now its own card: a different accent (teal, the same color as
+          the numbered pins, never the venue card's orange), its own border
+          and background, and a heading that says in words that these are
+          not the venue. */}
+      {pins.length > 0 ? (
+        <div className="wfw-nearcard" aria-label={"Other places near " + (venue || "the venue") + " — not the venue itself"}>
           <div className="wfw-near">
-            <h3>Nearby &amp; worth it</h3>
-            <p>Real places near {venue || "the venue"}, ranked by Wayfind. The numbers match the pins on the map.</p>
+            <p className="wfw-near-k">Nearby — not the venue</p>
+            <h3>Worth a stop near {venue || "here"}</h3>
+            <p>Separate places, not part of {venue || "the event"} — ranked by Wayfind. The numbers match the pins on the map above.</p>
             <div className="wfw-grid">
               {pins.map((p, i) => (
                 <a key={p.id} className="wfw-p" href={p.href}>
@@ -134,9 +151,8 @@ export default function EventWhere({ venue, address, directionsHref, website, la
               ))}
             </div>
           </div>
-        ) : null}
-        {hasPoint ? <div className="wfw-foot">The dashed line is the straight-line distance from your location, worked out on your device; nothing about where you are is sent anywhere. Turn-by-turn directions open in Google Maps.</div> : null}
-      </div>
+        </div>
+      ) : null}
     </section>
   );
 }

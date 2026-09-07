@@ -26,14 +26,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 555,
-    "totalRegistryEntries": 556,
-    "guardsTxtLineCount": 554,
-    "guardsTxtReachedFileCount": 550,
+    "totalOnDiskGuardFiles": 556,
+    "totalRegistryEntries": 557,
+    "guardsTxtLineCount": 555,
+    "guardsTxtReachedFileCount": 551,
     "criticalCount": 65,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 366,
+      "CALL": 367,
       "RENDER": 44,
       "STRUCTURAL": 145,
       "OTHER": 1
@@ -2388,6 +2388,28 @@
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-event-hero-and-directions.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 21,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
