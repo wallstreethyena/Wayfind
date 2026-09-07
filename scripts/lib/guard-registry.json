@@ -27,16 +27,16 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 571,
-    "totalRegistryEntries": 572,
-    "guardsTxtLineCount": 568,
-    "guardsTxtReachedFileCount": 564,
-    "criticalCount": 65,
+    "totalOnDiskGuardFiles": 579,
+    "totalRegistryEntries": 580,
+    "guardsTxtLineCount": 577,
+    "guardsTxtReachedFileCount": 572,
+    "criticalCount": 68,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 378,
+      "CALL": 385,
       "RENDER": 47,
-      "STRUCTURAL": 146,
+      "STRUCTURAL": 147,
       "OTHER": 1
     }
   },
@@ -1100,7 +1100,7 @@
       "npmScript": null,
       "class": "STRUCTURAL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 6,
+      "assertionCount": 4,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
@@ -2517,7 +2517,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 38,
+      "assertionCount": 39,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -4407,10 +4407,11 @@
       "npmScript": null,
       "class": "STRUCTURAL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 18,
-      "unprovenAbsenceCount": 0,
+      "assertionCount": 17,
+      "unprovenAbsenceCount": 3,
       "honestyViolations": [
-        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
+        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines",
+        "3 absence assertion(s) with no positive control in the same file (e.g. \"!/importLibrary\\(|Place\\.searchByText|new Place\\(/.test(s), fn + \"\")"
       ],
       "selfDocumentsRedProve": false,
       "wiring": {
@@ -5422,10 +5423,9 @@
       "class": "STRUCTURAL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 9,
-      "unprovenAbsenceCount": 1,
+      "unprovenAbsenceCount": 0,
       "honestyViolations": [
-        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines",
-        "1 absence assertion(s) with no positive control in the same file (e.g. \"!/new Image\\(\\)|placesWithWorkingPhotos|PHOTO_WORKERS|PHOTO_TIMEOUT_MS/.test(sta\")"
+        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
       ],
       "selfDocumentsRedProve": false,
       "wiring": {
@@ -5468,7 +5468,7 @@
       "npmScript": null,
       "class": "STRUCTURAL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 23,
+      "assertionCount": 12,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
@@ -6759,7 +6759,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 10,
+      "assertionCount": 11,
       "unprovenAbsenceCount": 3,
       "honestyViolations": [
         "3 absence assertion(s) with no positive control in the same file (e.g. \"(route.match(/ceiling \\$\\{effectiveCap\\(PROMOTE_SKU, monthCap\\)\\} reached \\(mont\")"
@@ -6788,12 +6788,12 @@
     {
       "file": "scripts/check-spend-guard.mjs",
       "npmScript": null,
-      "class": "STRUCTURAL",
+      "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 0,
+      "assertionCount": 10,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [
-        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
+        "has a real import/render/exec capability but zero assertions whose subject is a value RETURNED by code — every check reads source text only"
       ],
       "selfDocumentsRedProve": true,
       "wiring": {
@@ -7972,6 +7972,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-auth-admin-tombstones.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 9,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-autocomplete-proxy.mjs",
       "npmScript": null,
       "class": "STRUCTURAL",
@@ -8739,7 +8761,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 27,
+      "assertionCount": 28,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -8848,6 +8870,31 @@
       "protects": null,
       "blastRadius": null,
       "owner": null
+    },
+    {
+      "file": "scripts/test-client-paid-boundary.mjs",
+      "npmScript": null,
+      "class": "STRUCTURAL",
+      "hasStructuralOnlyTag": true,
+      "assertionCount": 0,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": "Browser code cannot contain paid-provider endpoints, a public Google credential, or a direct Places SDK fallback.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "A browser fallback bypasses the atomic server ledger and lets anonymous traffic consume provider quota against an exposed credential."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/test-closed-policy.mjs",
@@ -9788,6 +9835,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-event-apple-maps.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 20,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-event-category-art.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -9836,7 +9905,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 21,
+      "assertionCount": 18,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -9944,6 +10013,33 @@
       "protects": null,
       "blastRadius": null,
       "owner": null
+    },
+    {
+      "file": "scripts/test-events-spend.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 18,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:spend"
+      ],
+      "protects": "Every external event-provider HTTP request consumes its own finite monthly ledger grant, while default feeds read shared cache before provider fanout.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "A public events request previously multiplied into Ticketmaster, SeatGeek, PredictHQ, Bandsintown, Eventbrite, SerpAPI, and OpenWebNinja requests with no shared hard ceiling."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/test-events-tours.mjs",
@@ -10755,7 +10851,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 13,
+      "assertionCount": 8,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -11049,7 +11145,7 @@
       "npmScript": null,
       "class": "STRUCTURAL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 14,
+      "assertionCount": 15,
       "unprovenAbsenceCount": 2,
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines",
@@ -11478,6 +11574,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 0,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-outbound-ssrf.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 6,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -12109,6 +12227,55 @@
       "owner": null
     },
     {
+      "file": "scripts/test-provider-spend-caps.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 10,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:spend"
+      ],
+      "protects": "Every client-reachable Viator, Foursquare, Tripadvisor, YouTube, and Pexels request requires an explicit finite monthly cap and atomic ledger grant.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "An uncapped public provider route can convert anonymous request volume directly into quota exhaustion or charges."
+      },
+      "owner": "Revenue QA"
+    },
+    {
+      "file": "scripts/test-public-diagnostics-retired.mjs",
+      "npmScript": null,
+      "class": "STRUCTURAL",
+      "hasStructuralOnlyTag": true,
+      "assertionCount": 6,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-rail-compute-budget.mjs",
       "npmScript": null,
       "class": "RENDER",
@@ -12589,7 +12756,7 @@
       "npmScript": null,
       "class": "STRUCTURAL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 21,
+      "assertionCount": 22,
       "unprovenAbsenceCount": 4,
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines",
@@ -12832,6 +12999,34 @@
       "protects": null,
       "blastRadius": null,
       "owner": null
+    },
+    {
+      "file": "scripts/test-spend-bypass-regression.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 38,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:spend",
+        "money-keyword-in-import:../lib/spendGate.js"
+      ],
+      "protects": "Every client-reachable Google spend path fails closed on missing or denied configuration, and no cache or inventory fallback can bypass the atomic ledger.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "A regression can recreate the exposed-key cost incident by allowing anonymous photo, search, autocomplete, or geocoding requests to reach Google after the monthly ceiling is exhausted."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/test-sports-rail.mjs",

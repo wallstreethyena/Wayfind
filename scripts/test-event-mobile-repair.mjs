@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { resolvePlacePhoto, photoCacheKey } from "../lib/placePhotoServe.js";
-import { drivingEmbedUrl } from "../lib/eventDrivingRoute.js";
+import { routeSummary, validateRouteInput } from "../lib/appleEventRouting.js";
 
 const ref = "places/ChIJFixturePlace/photos/FixturePhoto";
 const uri = "https://lh3.googleusercontent.com/fixture-photo";
@@ -24,16 +24,12 @@ await resolvePlacePhoto({ ...input, gateShut: true }, { ...deps, cacheGet: async
 assert.equal(ledger, 1); assert.equal(upstream, 1);
 
 const origin = { lat: 27.34, lng: -82.55 }, destination = { lat: 28.04, lng: -82.42 };
-const url = new URL(drivingEmbedUrl("test-browser-key", origin, destination));
-assert.equal(url.origin, "https://www.google.com");
-assert.equal(url.pathname, "/maps/embed/v1/directions");
-assert.equal(url.searchParams.get("mode"), "driving");
-assert.equal(url.searchParams.get("origin"), "27.34,-82.55");
-assert.equal(url.searchParams.get("destination"), "28.04,-82.42");
+assert.deepEqual(validateRouteInput(origin, destination), { ok: true, origin, destination });
+assert.equal(validateRouteInput("Sarasota", destination).ok, true);
 for (const invalid of [null, {}, { lat: NaN, lng: 1 }, { lat: 0, lng: 0 }, { lat: 91, lng: 1 }, { lat: 1, lng: 181 }]) {
-  assert.equal(drivingEmbedUrl("test-browser-key", invalid, destination), null);
-  assert.equal(drivingEmbedUrl("test-browser-key", origin, invalid), null);
+  assert.equal(validateRouteInput(invalid, destination).ok, false);
+  assert.equal(validateRouteInput(origin, invalid).ok, false);
 }
-assert.equal(drivingEmbedUrl("", origin, destination), null);
-assert.equal(drivingEmbedUrl("e2e-placeholder-not-a-real-key", origin, destination), null);
-console.log("test-event-mobile-repair: OK — cached-size reuse, no cache-hit spending/renewal, gate-shut control, and actual driving embed contract");
+assert.equal(routeSummary({ polyline: {}, distance: 1609.344, expectedTravelTime: 600 }).distanceLabel, "1.0 mi");
+assert.equal(routeSummary({ distance: 1609.344, expectedTravelTime: 600 }), null);
+console.log("test-event-mobile-repair: OK — cached-size reuse, no cache-hit spending/renewal, gate-shut control, and Apple in-page route validation contract");

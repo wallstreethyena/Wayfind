@@ -5,6 +5,7 @@ export const runtime = "nodejs";
 // CACHES the verdict per photo ref for 30 days — each photo is scored at most
 // once, ever. METERED Anthropic proxy → MUST stay in middleware.js's matcher.
 import { aiKey } from "../../../lib/aiKey";
+import { paidAnthropicRequest } from "../../../lib/paidAi";
 import { cget, cgetMany, cset, DAY } from "../../../lib/serverCache";
 
 const SITE = (process.env.NEXT_PUBLIC_SITE_URL || "https://www.gowayfind.com").replace(/\/+$/, "");
@@ -42,7 +43,7 @@ const MAX_REFS_PER_BATCH = 120;
 
 async function scoreOne(ref, key) {
   const imageUrl = SITE + "/api/photo?ref=" + encodeURIComponent(ref) + "&w=400";
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
+  const r = await paidAnthropicRequest({
     method: "POST",
     headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
     body: JSON.stringify({
@@ -101,7 +102,7 @@ export async function POST(req) {
   const imageUrl = SITE + "/api/photo?ref=" + encodeURIComponent(ref) + "&w=400";
 
   try {
-    const r = await fetch("https://api.anthropic.com/v1/messages", {
+    const r = await paidAnthropicRequest({
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({

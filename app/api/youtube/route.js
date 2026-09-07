@@ -1,5 +1,7 @@
 export const runtime = "nodejs";
 
+import { providerSpendAllow } from "../../../lib/providerSpend.js";
+
 // Finds real YouTube videos about a place using the official YouTube Data API.
 // Returns channel name, title, thumbnail, and a watch link. No transcripts.
 // Fails soft: if the key is missing or the call errors, returns an empty list
@@ -23,6 +25,7 @@ export async function POST(req) {
       "&maxResults=3&relevanceLanguage=en&safeSearch=moderate&videoEmbeddable=true" +
       `&q=${encodeURIComponent(q)}&key=${key}`;
 
+    if (!(await providerSpendAllow("youtube"))) return Response.json({ unavailable: true, videos: [] }, { status: 200 });
     const r = await fetch(url);
     if (!r.ok) return Response.json({ error: true, videos: [] }, { status: 200 });
     const data = await r.json();

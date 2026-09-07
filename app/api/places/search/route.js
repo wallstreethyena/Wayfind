@@ -9,7 +9,7 @@
 // index); all OTHER place content must not be cached beyond 30 days. Fresh TTL is
 // ~10 days for accuracy; the stale-serve fallback is hard-capped at 30 days.
 import { NextResponse } from "next/server";
-import { gateFree, spendAllow } from "../../../../lib/spendGate";
+import { gateFree, gateShut, spendAllow, spendAllowCapped, textEnterpriseCap } from "../../../../lib/spendGate";
 import { cget, cset, upsertPlaceIds, cacheConfigured, lastWrite, memSize, DAY } from "../../../../lib/serverCache";
 import { serveFromInventory } from "../../../../lib/inventoryServe";
 import { hasScoreSignal } from "../../../../lib/score";
@@ -134,10 +134,6 @@ function skeletons(googlePlaces) {
 //                                  paid searches while the warmed cache carries the
 //                                  site. Flip it back to "open" any time.
 // Set it in Vercel → Project → Settings → Environment Variables (no code change).
-function gateShut() {
-  return String(process.env.WAYFIND_GATE || "").trim().toLowerCase() === "shut";
-}
-
 function invCfg() {
   const raw = String(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/^['"]+|['"]+$/g, "").replace(/\/+$/, "");
   const url = raw ? (/^https?:\/\//i.test(raw) ? raw.replace(/^http:\/\//i, "https://") : "https://" + raw) : "";
@@ -261,8 +257,12 @@ async function handleSearch(params, origin) {
     // THE GATE (shut): never pay Google on a miss — lean on the warmed cache and
     // owned inventory. Serve stale (≤30d) → inventory → empty. Zero new searches.
     if (gateShut()) return await gateBlocked("shut");
-    // FREE MODE: pay only on a monthly text_pro ledger grant (fail-closed ledger).
+    // Every enabled mode is ledger-backed. Rich Text Search additionally
+    // requires an explicit operator ceiling; missing configuration is off.
     if (freeMode && !(await spendAllow("text_pro"))) return await gateBlocked("free-budget");
+    if (!freeMode && !(await spendAllowCapped("text_enterprise", textEnterpriseCap()))) {
+      return await gateBlocked("open-budget");
+    }
     const r = await fetch("https://places.googleapis.com/v1/places:searchText", {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Goog-Api-Key": serverKey, "X-Goog-FieldMask": freeMode ? TEXT_PRO_MASK : FIELD_MASK },
@@ -323,64 +323,16 @@ async function handleSearch(params, origin) {
   }
 }
 
-// v6.05 — diagnostic for the candidate-set seeder (PR-B slice 2). searchNearby
-// (New) is a DIFFERENT endpoint from the searchText proxy above — different body
-// (locationRestriction, not locationBias), rankPreference, and includedTypes
-// validity rules — and the seeder will be built on it, so its shape must be
-// verified against reality before 400 lines wrap around a guess. This confirms:
-// the request body is accepted, `primaryType` comes back in the field mask (the
-// mapper's primaryType path has never run in prod), the includedTypes list is
-// valid (an invalid Table-A type 400s the WHOLE call, silently zeroing a
-// category), and whether searchNearby paginates (no nextPageToken => the grid is
-// mandatory). Flexible by URL so any type list can be validated without redeploy.
-// Default field mask — places.* only. NO nextPageToken: Nearby Search (New)
-// does NOT paginate, so requesting it is an invalid field mask (the v6.05 probe
-// 400'd every call on exactly that). The `fields` URL param overrides this, so
-// any further mask question is answerable without another redeploy.
-const NEARBY_MASK = [
-  "places.id", "places.displayName", "places.primaryType", "places.types",
-  "places.location", "places.rating", "places.userRatingCount", "places.businessStatus",
-].join(",");
-async function probeNearby(params) {
-  // COST GUARD: nearby is metered (Enterprise SKU) - gate shut serves nothing new.
-  if (gateShut()) return NextResponse.json({ places: [], gate: "shut" }, { headers: EDGE_HEADERS });
-  const serverKey = process.env.GOOGLE_MAPS_SERVER_KEY;
-  if (!serverKey) return NextResponse.json({ error: "server key not configured" }, { status: 501 });
-  const types = String(params.types || "restaurant").split(",").map((s) => s.trim()).filter(Boolean).slice(0, 50);
-  const lat = Number(params.lat) || 27.3364, lng = Number(params.lng) || -82.5307;
-  const radius = Math.min(Math.max(Number(params.radius) || 15000, 500), 50000);
-  const rankPreference = String(params.rank || "POPULARITY").toUpperCase() === "DISTANCE" ? "DISTANCE" : "POPULARITY";
-  const fieldMask = String(params.fields || NEARBY_MASK);
-  try {
-    const r = await fetch("https://places.googleapis.com/v1/places:searchNearby", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Goog-Api-Key": serverKey, "X-Goog-FieldMask": fieldMask },
-      body: JSON.stringify({ includedTypes: types, maxResultCount: 20, rankPreference, locationRestriction: { circle: { center: { latitude: lat, longitude: lng }, radius } } }),
-    });
-    const raw = await r.text();
-    let data = {}; try { data = JSON.parse(raw); } catch {}
-    if (!r.ok) return NextResponse.json({ ok: false, status: r.status, includedTypes: types, fieldMask, error: data.error || raw.slice(0, 600) }, { status: 200 });
-    const places = data.places || [];
-    const sample = places.slice(0, 12).map((p) => ({
-      name: (p.displayName && p.displayName.text) || null,
-      primaryType: p.primaryType || null,
-      types: p.types || [],
-    }));
-    return NextResponse.json({
-      ok: true, status: 200, includedTypes: types, rankPreference,
-      count: places.length,
-      hasPrimaryType: places.length ? places.every((p) => !!p.primaryType) : null,
-      sample,
-    }, { status: 200 });
-  } catch (e) {
-    return NextResponse.json({ ok: false, error: String(e && e.message || e) }, { status: 200 });
-  }
-}
-
+// The former `?probe=nearby` route called Google Nearby Search directly from a
+// public endpoint, with a caller-selected field mask and no ledger grant. The
+// diagnostic is retired rather than protected by a best-effort browser guard:
+// no deployed request may revive that paid path.
 export async function GET(req) {
   const u = new URL(req.url);
   const params = Object.fromEntries(u.searchParams);
-  if (params.probe === "nearby") return probeNearby(params);
+  if (params.probe === "nearby") {
+    return NextResponse.json({ error: "nearby probe retired" }, { status: 410, headers: { "Cache-Control": "no-store" } });
+  }
   return handleSearch(params, u.origin);
 }
 

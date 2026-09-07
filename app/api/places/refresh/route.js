@@ -1,4 +1,4 @@
-import { gateShut, gateFree } from "../../../../lib/spendGate";
+import { gateShut, gateFree, spendAllowCapped, textEnterpriseCap } from "../../../../lib/spendGate";
 // app/api/places/refresh/route.js — v6.35 REFRESH-AHEAD worker.
 //
 // Poked fire-and-forget by /api/places/search when it serves a fresh-but-aging
@@ -55,6 +55,9 @@ async function handle(params) {
   if (cur.ageMs != null && cur.ageMs < MIN_GAP_MS) return NextResponse.json({ ok: true, skipped: true, reason: "recently refreshed" });
 
   try {
+    if (!(await spendAllowCapped("text_enterprise", textEnterpriseCap()))) {
+      return NextResponse.json({ ok: false, skipped: "text search budget unavailable" });
+    }
     const r = await fetch("https://places.googleapis.com/v1/places:searchText", {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Goog-Api-Key": serverKey, "X-Goog-FieldMask": FIELD_MASK },

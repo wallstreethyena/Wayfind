@@ -88,10 +88,11 @@ const google = readFileSync(new URL("../lib/google.js", import.meta.url), "utf8"
 const fn = google.indexOf("export async function fetchPlaceDetail(");
 ok(fn >= 0, "fetchPlaceDetail is still in lib/google.js");
 const body = google.slice(fn, google.indexOf("\n}", google.indexOf("catch", fn)));
-const fieldsM = body.match(/fields:\s*\[([^\]]+)\]/);
-ok(!!fieldsM, "fetchPlaceDetail still passes a fields array");
-ok(fieldsM && fieldsM[1].includes('"photos"'),
-  "fetchPlaceDetail asks for photos so a photoless list row can heal");
+ok(/kind:\s*"detail"/.test(body),
+  "fetchPlaceDetail asks the guarded rich-detail route for healing data");
+const detailsRoute = readFileSync(new URL("../app/api/places/details/route.js", import.meta.url), "utf8");
+ok(/detail:\s*"[^"]*photos/.test(detailsRoute),
+  "the fixed rich-detail field mask asks for photos so a photoless list row can heal");
 
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 ok(/mergeHealedPlacePhotos\s*\(/.test(home),

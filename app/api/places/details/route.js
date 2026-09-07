@@ -31,6 +31,7 @@ export const dynamic = "force-dynamic";
 const FIELDS = {
   place: "id,location,displayName,formattedAddress,types,rating,userRatingCount,photos,priceLevel,regularOpeningHours,businessStatus",
   area: "location,formattedAddress,displayName",
+  detail: "editorialSummary,reviews,regularOpeningHours,nationalPhoneNumber,websiteUri,photos",
 };
 
 // Real Google place IDs are alnum/underscore/hyphen only — reject anything else

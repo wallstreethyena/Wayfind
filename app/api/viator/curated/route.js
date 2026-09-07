@@ -10,6 +10,7 @@ import { sbEnv } from "../../../../lib/serverCache.js";
 import { cachedExperienceCard, viatorProductCard } from "../../../../lib/viatorProductCard.js";
 import { isDeniedViatorSku } from "../../../../lib/viatorIntegrity.js";
 import { credential } from "../../../../lib/envPlaceholder.js";
+import { providerSpendAllow } from "../../../../lib/providerSpend.js";
 
 const TTL = 6 * 3600 * 1000;
 const mem = new Map();
@@ -39,6 +40,7 @@ async function liveCard(code, key) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 4500);
   try {
+    if (!(await providerSpendAllow("viator"))) return null;
     const res = await fetch(`https://api.viator.com/partner/products/${encodeURIComponent(code)}`, {
       signal: controller.signal,
       headers: {

@@ -225,9 +225,7 @@ export default function RootLayout({ children }) {
           // since an inline font-size overrides this rule.
           + "input,select,textarea{font-size:16px}"
         }} />
-        <link rel="preconnect" href="https://maps.googleapis.com" />
         <link rel="preconnect" href="https://lh3.googleusercontent.com" />
-        <link rel="preconnect" href="https://places.googleapis.com" />
         <link rel="preconnect" href="https://api.open-meteo.com" />
         {/* The map tiles. Without this the DNS + TLS handshake for the tile host
             starts cold, AFTER ~1MB of maplibre has downloaded and mounted —

@@ -26,7 +26,6 @@ const SCRIPT = fileURLToPath(new URL("./check-env.mjs", import.meta.url));
 const GOOD = {
   NEXT_PUBLIC_SUPABASE_URL: "https://abc123.supabase.co",
   NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.aaaaaaaaaaaa",
-  NEXT_PUBLIC_GOOGLE_MAPS_KEY: "AIzaSyAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
   NEXT_PUBLIC_VIATOR_PID: "P00012345",
 };
 
@@ -75,9 +74,9 @@ ok(malformed.fatal === 1, `a malformed PID ("x", under the length floor) is fata
 // ── 3. NON-REVENUE VARS NEVER FAIL A BUILD ──────────────────────────────────
 // The hardened Supabase client and the API routes degrade gracefully. Turning
 // their absence fatal would go red on every correct local run.
-const noSupabase = auditEnv({ ...GOOD, NEXT_PUBLIC_SUPABASE_URL: undefined, NEXT_PUBLIC_GOOGLE_MAPS_KEY: undefined }, { strict: true });
-ok(noSupabase.fatal === 0, `absent Supabase/Maps vars are NEVER fatal, even under strict (got fatal=${noSupabase.fatal}) — they degrade gracefully and every dev box lacks them`);
-ok(noSupabase.warned === 2, `…and both are still reported (got warned=${noSupabase.warned})`);
+const noSupabase = auditEnv({ ...GOOD, NEXT_PUBLIC_SUPABASE_URL: undefined }, { strict: true });
+ok(noSupabase.fatal === 0, `an absent Supabase URL is NEVER fatal, even under strict (got fatal=${noSupabase.fatal}) — it degrades gracefully and every dev box lacks it`);
+ok(noSupabase.warned === 1, `…and it is still reported (got warned=${noSupabase.warned})`);
 
 // ── 3b. THE STRICT FLAG ITSELF CANNOT FAIL QUIET ────────────────────────────
 // `WAYFIND_ENV_STRICT === "1"` would silently degrade to advisory for every

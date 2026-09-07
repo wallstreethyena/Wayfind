@@ -1,16 +1,10 @@
 // app/api/geocode/route.js — server-side reverse geocode proxy (P1 speed, v6.99).
 //
-// WHY THIS EXISTS. reverseGeocode() ran through the Maps JS SDK, so the FIRST
-// visit of every located user pulled the whole maps.googleapis.com bootstrap
-// onto the discovery homepage just to turn a lat/lng into "Bradenton, FL"
-// (the localStorage cell cache from v6.41 only saves REPEAT visits). This
-// proxy answers the same question server-side with the SERVER key and a
-// SHARED cell-keyed cache, so no visitor pays the SDK download and the paid
-// upstream call is made once per ~1.1km cell per 30 days SITE-WIDE, not once
-// per browser. The client keeps its localStorage layer on top (test-map-cost
-// locks that contract) and falls back to the SDK path if this route fails.
-// Guarded in middleware.js (same-origin + per-IP rate limit — metered upstream).
+// The shared cache is always consulted first. A cold lookup has an explicit,
+// finite GOOGLE_GEOCODING_MONTH_CAP in front of it; absent configuration,
+// ledger failure, and every closed gate mode fail without contacting Google.
 import { cget, cset } from "../../../lib/serverCache";
+import { geocodingCap, spendAllowCapped } from "../../../lib/spendGate";
 
 export const dynamic = "force-dynamic";
 const THIRTY_DAYS = 2592000;
@@ -36,6 +30,31 @@ function nameFrom(results) {
   return null;
 }
 
+export function geocodeCacheKey(lat, lng) {
+  return "revgeo|" + lat.toFixed(2) + "|" + lng.toFixed(2);
+}
+
+// Kept dependency-injectable so the cost boundary is executable without a
+// provider request. GET below supplies the production cache, ledger, and fetch.
+export async function resolveReverseGeocode({ lat, lng, serverKey, cacheGet, cacheSet, spendAllow, fetchImpl }) {
+  const key = geocodeCacheKey(lat, lng);
+  const hit = await cacheGet(key).catch(() => null);
+  if (hit && hit.v && hit.v.name) return { status: 200, value: hit.v, cached: true };
+  if (!serverKey) return { status: 501, value: { name: null }, reason: "server key not configured" };
+  if (!(await spendAllow())) return { status: 503, value: { name: null }, reason: "budget unavailable" };
+
+  const r = await fetchImpl(
+    "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat.toFixed(5) + "," + lng.toFixed(5) + "&key=" + serverKey
+  );
+  if (!r.ok) return { status: 502, value: { name: null }, reason: "upstream" };
+  const d = await r.json();
+  const name = nameFrom(d && d.results);
+  if (!name) return { status: 404, value: { name: null }, reason: "not found" };
+  const value = { name };
+  try { await cacheSet(key, value, THIRTY_DAYS * 1000); } catch (e) {}
+  return { status: 200, value, cached: false };
+}
+
 export async function GET(req) {
   try {
     const sp = new URL(req.url).searchParams;
@@ -43,23 +62,19 @@ export async function GET(req) {
     if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) {
       return Response.json({ name: null }, { status: 400 });
     }
-    // ~1.1km cell — the same rounding the client cache uses, so the shared
-    // key space matches the browser's mental model of the cache.
-    const key = "revgeo|" + lat.toFixed(2) + "|" + lng.toFixed(2);
-    const hit = await cget(key).catch(() => null);
-    if (hit && hit.v && hit.v.name) {
-      return Response.json(hit.v, { headers: { "Cache-Control": "public, s-maxage=" + THIRTY_DAYS + ", stale-while-revalidate=" + THIRTY_DAYS } });
-    }
-    const k = process.env.GOOGLE_MAPS_SERVER_KEY;
-    if (!k) return Response.json({ name: null }, { status: 501 });
-    const r = await fetch("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + lat.toFixed(5) + "," + lng.toFixed(5) + "&key=" + k);
-    if (!r.ok) return Response.json({ name: null }, { status: 502 });
-    const d = await r.json();
-    const name = nameFrom(d && d.results);
-    if (!name) return Response.json({ name: null }, { status: 404 });
-    const v = { name };
-    try { await cset(key, v, THIRTY_DAYS * 1000); } catch (e) {}
-    return Response.json(v, { headers: { "Cache-Control": "public, s-maxage=" + THIRTY_DAYS + ", stale-while-revalidate=" + THIRTY_DAYS } });
+    const result = await resolveReverseGeocode({
+      lat,
+      lng,
+      serverKey: process.env.GOOGLE_MAPS_SERVER_KEY,
+      cacheGet: cget,
+      cacheSet: cset,
+      spendAllow: () => spendAllowCapped("geocoding", geocodingCap()),
+      fetchImpl: fetch,
+    });
+    const headers = result.status === 200
+      ? { "Cache-Control": "public, s-maxage=" + THIRTY_DAYS + ", stale-while-revalidate=" + THIRTY_DAYS }
+      : undefined;
+    return Response.json(result.value, { status: result.status, headers });
   } catch (e) {
     return Response.json({ name: null }, { status: 502 });
   }

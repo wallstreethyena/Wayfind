@@ -21,6 +21,7 @@
 // Server component. The map is client-only behind EventVenueMapLoader.
 import EventPlacePhoto from "./EventPlacePhoto.js";
 import EventVenueMapLoader from "./EventVenueMapLoader.js";
+import EventRouteJump from "./EventRouteJump.js";
 import { websiteHost } from "../../lib/placeWhere.js";
 
 const ACCENT = "#F97316";
@@ -98,10 +99,15 @@ export default function EventWhere({ venue, address, directionsHref, website, la
                 : address}</p>
             ) : null}
           </div>
-          {directionsHref || website ? (
+          {hasPoint || directionsHref || website ? (
             <div className="wfw-acts">
-              {directionsHref ? (
+              {hasPoint ? (
+                <EventRouteJump>→ Plan your drive</EventRouteJump>
+              ) : directionsHref ? (
                 <a className="wfw-btn wfw-dir" href={directionsHref} target="_blank" rel="noopener nofollow" aria-label={"Get directions to " + (venue || address)}>{"→ Get directions"}</a>
+              ) : null}
+              {hasPoint && directionsHref ? (
+                <a className="wfw-btn wfw-site" href={directionsHref} target="_blank" rel="noopener nofollow" aria-label={"Open external directions to " + (venue || address)}>Open navigation ↗</a>
               ) : null}
               {website ? (
                 <a className="wfw-btn wfw-site" href={website} target="_blank" rel={(sponsoredWebsite ? "sponsored " : "") + "nofollow noopener"} aria-label={"Official site for " + (venue || address)}>

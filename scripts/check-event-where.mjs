@@ -12,10 +12,10 @@
 //   2. directionsUrl sends the FULL line to Maps, never a bare street.
 //   3. BOTH event pages render the one shared <EventWhere> block, and that
 //      block draws the map only with real coordinates, never Null Island.
-//   4. THE MAP COSTS NOTHING AND SENDS THE READER NOWHERE: no Google Maps JS /
-//      Directions API (the spend law), tiles are OpenFreeMap, NO public demo
-//      routing host anywhere in app code or the CSP (PR #1129 review), and the
-//      reader-pin vocabulary is kept (📍 is the user, teardrops are places).
+//   4. THE MAP USES APPLE MAPKIT JS: the public token is domain-restricted,
+//      routing is an explicit user action, real Apple road geometry is drawn on
+//      the same map as the venue/picks, and no public demo router or paid Google
+//      route API can return through a side door.
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -54,6 +54,7 @@ const fl = read("app/florida-events/[slug]/page.js");
 const live = read("app/events/[city]/[slug]/page.js");
 const where = read("app/components/EventWhere.js");
 const map = read("app/components/EventVenueMap.js");
+const appleRuntime = read("lib/appleMapsRuntime.js");
 ok(/import EventWhere from/.test(fl) && /<EventWhere/.test(fl), "/florida-events/[slug] renders <EventWhere>");
 ok(/import EventWhere from/.test(live) && /<EventWhere/.test(live), "/events/[city]/[slug] renders <EventWhere>");
 ok(/website=\{site\}/.test(fl) && /website=\{site\}/.test(live), "both pages hand the gated website to the block");
@@ -68,7 +69,8 @@ ok(!/\/\*/.test(map.slice(map.indexOf("const CSS"), map.indexOf("`;", map.indexO
 // 4. the map is free, keyed to nothing, sends the reader nowhere, and keeps
 //    the pin vocabulary
 ok(!/maps\.googleapis\.com|google\.maps|@googlemaps/.test(map), "the event map never loads Google Maps JS (spend law)");
-ok(/tiles\.openfreemap\.org/.test(map), "tiles come from OpenFreeMap (commercial use permitted, no request limit)");
+ok(/cdn\.apple-mapkit\.com/.test(appleRuntime) && /NEXT_PUBLIC_APPLE_MAPS_TOKEN/.test(map), "event maps load MapKit JS with the domain-restricted public token env");
+ok(!/maplibre|openfreemap/i.test(map), "event maps no longer use the event-only MapLibre/OpenFreeMap surface");
 // PR #1129 review (2026-09-06): the first cut routed through the public OSRM
 // demo server — non-commercial terms, 1 req/s, no uptime promise — and shipped
 // the reader's GPS point to it. A public demo router is never a production
@@ -87,18 +89,18 @@ const appFiles = [];
 for (const f of [...appFiles, "lib/placeWhere.js", "lib/eventPairings.js", "next.config.js", "middleware.js"]) {
   ok(!DEMO_ROUTERS.test(read(f)), `${f} references a public demo routing/geocoding host — not a production dependency (PR #1129 review)`);
 }
-ok(!/\/route\/v1\/|geometries=geojson/.test(map), "the map holds no routing-API call at all");
-ok(!/fetch\((?!"\/api\/geo")/.test(map), "the map's only fetch is Wayfind's own /api/geo — the reader's position goes nowhere else");
-ok(!/setLine\(|line-dasharray/.test(map), "venue map does not invent a two-point route");
+ok(!/\/route\/v1\/|geometries=geojson|router\.project-osrm/.test(map), "the map does not invent or call a public routing endpoint");
 ok(!/getCurrentPosition/.test(map), "nearby map never asks for location automatically");
 const driving = read("app/components/EventDrivingRoute.js");
-ok(/onClick=\{showRoute\}/.test(driving) && /Uses your location with Google Maps/.test(driving), "driving preview requires a disclosed user action");
-ok(/referrerPolicy="strict-origin-when-cross-origin"/.test(driving), "embed sends only the site's origin for browser-key restrictions");
+ok(/onClick=\{showLocation\}/.test(driving) && /Use my location/.test(driving) && /searchAndRoute/.test(driving), "Apple driving preview requires an explicit location or typed starting point action");
+ok(/event-route/.test(driving) && /distanceLabel/.test(driving) && /etaLabel/.test(driving), "route controls expose a stable in-page target and Apple distance/ETA summary");
+ok(/starting point is shared with Apple/.test(driving), "route controls disclose sharing the opted-in starting point with Apple");
+ok(/prefers-reduced-motion/.test(read("app/components/EventRouteJump.js")), "in-page route jump respects reduced-motion preference");
+ok(/The map preview is unavailable right now/.test(map) && !/The .*token/i.test(map), "reader-facing map fallback does not expose configuration jargon");
 ok(/Numbered teal pins/.test(where), "map legend describes the actual nearby pins");
-ok(/glyph: "★"/.test(map) && /glyph: String\(i \+ 1\)/.test(map), "venue star and numbered nearby pins remain distinct");
-ok(/setWorkerUrl\("\/maplibre\/maplibre-gl-worker\.mjs"\)/.test(map), "same vendored worker URL as MapView (v6.43 blank-map fix)");
-ok(/safeRemoveMap\(/.test(map), "the map is torn down through lib/mapTeardown");
-ok(/prefers-reduced-motion/.test(map), "reduced motion is honoured");
+ok(/glyphText: "★"/.test(read("lib/appleMapsRuntime.js")) && /glyphText: String\(i \+ 1\)/.test(read("lib/appleMapsRuntime.js")), "venue star and numbered nearby pins remain distinct");
+ok(/createAppleMapController/.test(map) && /destroy\(\)/.test(read("lib/appleMapsRuntime.js")), "the MapKit session is torn down on unmount");
+ok(/routeSummary/.test(read("lib/appleMapsRuntime.js")) && /polyline/.test(read("lib/appleMapsRuntime.js")), "Apple route responses require real polyline geometry");
 const csp = read("next.config.js");
 ok(!/osrm/i.test(csp), "the CSP carries no routing host in any directive");
 const pair = read("lib/eventPairings.js");

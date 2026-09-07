@@ -88,10 +88,8 @@ const DETAILS_MASK = CORE_DETAILS_MASK;
 // THE MONEY GUARD, shared with the cron. lib/spendGate.js reads process.env, and
 // this script deliberately loads .env.local into ENV (never process.env) so a
 // value can never leak into a child process or a stack trace — so hand the gate
-// exactly the two names it needs, then import it. WAYFIND_GATE is left as
-// whatever the shell has: locally that is normally unset ("open"), which means
-// wf_promote_config.month_cap IS the ceiling, counted down in the same
-// wf_spend_ledger row the cron uses. Two writers, one budget.
+// exactly the two names it needs, then import it. WAYFIND_GATE must be set
+// explicitly to free or open; an unset or mistyped value shuts spend down.
 for (const k of ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"]) if (!process.env[k]) process.env[k] = k === "SUPABASE_URL" ? SB_URL : SB_KEY;
 const { spendAllowCapped, effectiveCap, gateMode } = await import("../lib/spendGate.js");
 
@@ -203,7 +201,7 @@ console.log(cfgRow
 // The monthly budget. Missing row/column reads as the free tier, never unlimited
 // (spendAllowCapped also fails closed on anything that is not a positive number).
 const MONTH_CAP = cfgRow && cfgRow.month_cap != null ? Number(cfgRow.month_cap) : 4800;
-console.log(`budget: ${PROMOTE_SKU} month_cap ${MONTH_CAP} (wf_promote_config.month_cap; WAYFIND_GATE ${process.env.WAYFIND_GATE ? "set" : "unset -> open: month_cap is the ceiling"})`);
+console.log(`budget: ${PROMOTE_SKU} month_cap ${MONTH_CAP} (wf_promote_config.month_cap; WAYFIND_GATE ${process.env.WAYFIND_GATE ? "set" : "unset -> shut"})`);
 
 // fetchIndexSignals — rating/reviews for a batch, from wf_place_ids (the index),
 // which is where they come from now instead of the Details call. Same fallback

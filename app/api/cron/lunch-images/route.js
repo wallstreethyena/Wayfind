@@ -5,6 +5,7 @@ export const maxDuration = 60;
 import { createClient } from "@supabase/supabase-js";
 import atlasCards from "../../../../data/atlas/editorial-cards.json";
 import { aiKey } from "../../../../lib/aiKey.js";
+import { paidAnthropicRequest } from "../../../../lib/paidAi.js";
 import { jobCannotRun } from "../../../../lib/jobFail.js";
 
 const MODEL = "claude-haiku-4-5";
@@ -44,7 +45,7 @@ async function imagesFromPage(pageUrl) {
 }
 
 async function matchesDish(imageUrl, restaurant, mustTry, key) {
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
+  const response = await paidAnthropicRequest({
     method: "POST",
     cache: "no-store",
     headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
