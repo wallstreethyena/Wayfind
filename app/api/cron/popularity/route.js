@@ -39,6 +39,9 @@ export const dynamic = "force-dynamic";
 import { createClient } from "@supabase/supabase-js";
 import { FETCHERS, categoriesForSource, primaryTypesForSource, minReviewsForSource, SOURCE_CAPS, CONFIDENCE_FLOOR, POP_DIAG, resetPopDiag } from "../../../../lib/popularity";
 import { installWikimediaFetchPolicy } from "../../../../lib/wikimediaFetchPolicy";
+import { popularityAvailability } from "../../../../lib/popularity";
+import { breakerOpen } from "../../../../lib/providerHealth";
+import { FSQ_BREAKER } from "../../../../lib/foursquare";
 import { recordPulse } from "../../../../lib/jobPulse";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail";
 
@@ -67,7 +70,19 @@ export async function GET(req) {
   // independently-successful sources.
   const bySourcePlaces = {};
   const uniquePlaces = new Set();
+  const unavailable = {};
   for (const src of SOURCES) {
+    let availability = popularityAvailability(src, process.env);
+    if (src === 'foursquare' && availability.ready) {
+      const held = await breakerOpen(FSQ_BREAKER);
+      if (held) availability = { ready: false, failure: true, reason: `${held.kind || 'quota'}: breaker_open` };
+    }
+    if (!availability.ready) {
+      bySourcePlaces[src] = [];
+      unavailable[src] = availability.reason;
+      await recordPulse('popularity:' + src, { attempted: 0, succeeded: 0, failed: availability.failure ? 1 : 0, note: availability.reason });
+      continue;
+    }
     const { data, error } = await db.rpc("wf_popularity_stale_batch", {
       p_source: src,
       p_categories: categoriesForSource(src),
@@ -92,6 +107,7 @@ export async function GET(req) {
   const spent = {}; // per-source candidate fetches invoked this run
   resetPopDiag(); // per-run outcome tally — see lib/popularity POP_DIAG
   const stats = {
+    unavailable_sources: unavailable,
     unique_places: uniquePlaces.size,
     candidates_by_source: Object.fromEntries(SOURCES.map((s) => [s, bySourcePlaces[s].length])),
     upserts: 0,

@@ -4,6 +4,7 @@
 // category, the TripAdvisor budget cap, service-only batch fn, cron auth.
 import { readFileSync } from "fs";
 import { nameSim, matchConfidence, bestMatch, sourcesFor, categoriesForSource, SOURCE_CAPS, CONFIDENCE_FLOOR } from "../lib/popularity.js";
+import { popularityAvailability, FETCHERS, primaryTypesForSource, minReviewsForSource } from "../lib/popularity.js";
 import {
   createWikimediaFetchPolicy,
   retryAfterMs,
@@ -14,6 +15,13 @@ import {
 
 let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
+ok(popularityAvailability('tripadvisor', {}).ready === false, 'retired provider does not select candidate work');
+ok(popularityAvailability('tripadvisor', {}).failure === false, 'explicit retirement is disclosed, not a fake failed request');
+ok(popularityAvailability('yelp', {YELP_API_KEY:'a'.repeat(127)}).failure === true, 'malformed key is a failed preflight');
+ok(popularityAvailability('yelp', {YELP_API_KEY:'a'.repeat(128)}).ready === true, 'valid-shaped key reaches the provider');
+ok(popularityAvailability('yelp', {}).reason === 'no_key', 'absent optional key stays explicit');
+ok(popularityAvailability('foursquare', {}).ready === false, 'unconfigured Foursquare does not select work');
+ok(popularityAvailability('wikipedia', {}).ready === true, 'keyless Wikimedia stays enabled');
 
 // matching
 ok(nameSim("Anna Maria Oyster Bar", "Anna Maria Oyster Bar Ellenton") > 0.7, "near-identical names score high");
@@ -127,7 +135,29 @@ ok(route.includes("SUPABASE_SERVICE_ROLE_KEY"), "writes go through the service r
 ok(route.includes('onConflict: "place_id,source"'), "one row per place per source (upsert)");
 ok(route.includes("wf_popularity_stale_batch"), "batch = the stalest places, not a random scan");
 // v9.0 — per-source batching and the attempt ledger (20260907_wf_popularity_attempt_ledger.sql)
-ok(/for \(const src of SOURCES\)[\s\S]{0,200}wf_popularity_stale_batch/.test(route), "wf_popularity_stale_batch is called ONCE PER SOURCE — a single shared batch cannot correctly drive four independently-throttled sources");
+// Execute the actual selection loop. A fixed 200-character source window
+// stopped recognizing it when preflight was added; call counts prove its intent.
+{
+  const start = route.indexOf('  const bySourcePlaces = {}');
+  const end = route.indexOf('  // flatten', start);
+  ok(start >= 0 && end > start, 'real per-source selection body is present');
+  const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
+  const select = new AsyncFunction('db','SOURCES','popularityAvailability','process','breakerOpen','FSQ_BREAKER','recordPulse','categoriesForSource','primaryTypesForSource','minReviewsForSource','BATCH','jobFailed', route.slice(start,end) + '\nreturn {bySourcePlaces,unavailable};');
+  const run = async (env, held) => {
+    const calls = [], pulses = [];
+    const result = await select({rpc:async (fn,args)=>{calls.push({fn,args});return {data:[]};}}, Object.keys(FETCHERS), popularityAvailability, {env}, async()=>held, 'foursquare', async(job,pulse)=>pulses.push({job,...pulse}), categoriesForSource, primaryTypesForSource, minReviewsForSource, 100, ()=>{throw new Error('unexpected batch failure')});
+    return {calls,pulses,result};
+  };
+  const configured = await run({YELP_API_KEY:'a'.repeat(128), FOURSQUARE_API_KEY:'fixture'}, null);
+  ok(configured.calls.length === 3 && new Set(configured.calls.map(c=>c.args.p_source)).size === 3, 'each of the three active sources gets its OWN batch');
+  ok(configured.calls.every(c=>c.fn === 'wf_popularity_stale_batch'), 'each selected batch calls the real stale-batch RPC');
+  const unavailable = await run({YELP_API_KEY:'a'.repeat(127), FOURSQUARE_API_KEY:'fixture'}, {kind:'quota'});
+  ok(unavailable.calls.length === 1 && unavailable.calls[0].args.p_source === 'wikipedia', 'malformed, retired and quota-held sources select no place work');
+  ok(unavailable.pulses.length === 3 && unavailable.pulses.every(p=>p.attempted === 0), 'unavailable sources record no invented provider attempts');
+  ok(unavailable.pulses.find(p=>p.job==='popularity:yelp').failed === 1, 'malformed key remains a visible preflight failure');
+  ok(unavailable.pulses.find(p=>p.job==='popularity:tripadvisor').failed === 0, 'retirement is explicit idle state');
+}
+
 ok(route.includes("p_categories: categoriesForSource(src)"), "each source's batch is category-scoped through categoriesForSource, not a hardcoded list duplicated here");
 ok(route.includes('db.rpc("wf_popularity_record_attempts"'), "THE FIX: every (place, source) pair actually tried is recorded to the attempt ledger, success or failure — a failed lookup is still an attempt");
 {
