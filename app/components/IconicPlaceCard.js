@@ -290,6 +290,27 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // server render carries none (measurement is a client fact).
   const laneRef = useRef(null);
   const [laneMore, setLaneMore] = useState(false);
+  // GUARD-HONESTY 2026-09-07 — the missing half of the v8.95 ladder. That
+  // ladder made the SRC almost always resolve to something; it never asked
+  // what happens when the browser actually tries to LOAD that src and the
+  // request fails. This component had NO onError at all, so a card whose
+  // photoUrl(place) was truthy at render time (rung 2 or rung 3) but whose
+  // `/api/photo` request then 404s or errors keeps the `<img>` mounted,
+  // broken, inside `.wf-place-card-media` — a box CSS forces to
+  // height:100%!important;min-height:176px!important REGARDLESS of whether
+  // anything painted inside it. `alt=""` means no broken-icon glyph either:
+  // the result is a full-size, perfectly empty panel — the owner's exact
+  // report ("the entire image area renders as a blank panel"), on cards
+  // whose photo_ref is valid and whose /api/photo endpoint works on demand.
+  // Measured live 2026-09-07 against production: the SAME place id
+  // (ChIJJZq0DJ1Bw4gRcuZ5y_XuNxM) served one photo ref 302→ok and a second
+  // 404 ("owned-miss", lib/placePhotoServe.js) in the same session — proof
+  // this is a real, current, intermittent failure of a well-formed ref, not
+  // a bad record. `imgFailed` is keyed to the resolved src (not just a
+  // boolean) so a different place reusing this instance never inherits a
+  // stale failure, and a source swap (e.g. a re-rank bringing a fresh photo)
+  // gets its own fair shot at loading before falling back.
+  const [imgFailed, setImgFailed] = useState("");
   useEffect(() => {
     const el = laneRef.current;
     if (!el) return undefined;
@@ -453,7 +474,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
             left behind — same bug, different component.
             Default stays lazy: this card also renders far below the
             fold on landing pages, where lazy works and matters. */}
-          {photoUrl(place)
+          {photoUrl(place) && imgFailed !== photoUrl(place)
             ? (
               <img
                 src={photoUrl(place)}
@@ -461,6 +482,11 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
                 loading={eagerMedia ? "eager" : "lazy"}
                 decoding="async"
                 {...(mediaPriority ? { fetchpriority: mediaPriority } : null)}
+                // GUARD-HONESTY 2026-09-07 — the fallback the ladder never
+                // had: a resolved src that then fails to LOAD (404/5xx/
+                // network) swaps to the same monogram a missing src already
+                // gets, instead of leaving a blank, full-size media box.
+                onError={() => setImgFailed(photoUrl(place))}
                 style={{ objectFit: "cover" }}
               />
             )

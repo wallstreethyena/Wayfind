@@ -940,6 +940,16 @@ node scripts/check-rail-card-width-is-global.mjs
 node scripts/check-scarcity-needs-an-answer.mjs
 node scripts/check-date-night-cacheable.mjs
 node scripts/check-no-imageless-card.mjs
+# 2026-09-07 — owner-reported blank panel (Shake Station, Chick-fil-A,
+# Pomegranate Frozen Yogurt): valid photo_ref + a live-verified 302 image
+# response does not guarantee the browser render succeeds — a transient
+# /api/photo 404 ("owned-miss") or network failure left the CSS-forced-size
+# .wf-place-card-media box empty because RailCard/IconicPlaceCard/
+# ThingsToDoList picked <img> vs monogram once at render time and never
+# re-checked after a real load failure. check-no-imageless-card proves a src
+# STRING resolves; this proves the render reacts when that src's request
+# actually fails.
+node scripts/check-card-photo-error-fallback.mjs
 node scripts/test-today-discovery-rails.mjs
 # 2026-09-02 — Night Out pool starvation (owner screenshot, Parrish): an
 # intent rail composed client-side from shown.places alone never sees real
