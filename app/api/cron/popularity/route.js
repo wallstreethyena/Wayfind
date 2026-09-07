@@ -89,7 +89,7 @@ export async function GET(req) {
   const workItems = [];
   for (const src of SOURCES) for (const p of bySourcePlaces[src]) workItems.push({ p, src });
 
-  const spent = {}; // per-source candidate budget used this run
+  const spent = {}; // per-source candidate fetches invoked this run
   resetPopDiag(); // per-run outcome tally — see lib/popularity POP_DIAG
   const stats = {
     unique_places: uniquePlaces.size,
@@ -101,21 +101,37 @@ export async function GET(req) {
     by_source: {},
   };
   const rows = [];
-  // Every (place, source) pair actually invoked below, whatever it returned —
-  // THIS is the attempt ledger write. A cap-skipped pair or a Wikipedia pair
-  // held BEFORE invocation by Retry-After never reaches this array: it was never
-  // asked, so it must not look "just tried". That distinction is the whole
-  // reason throttled rows remain unobserved candidates rather than negatives.
+  // Every (place, source) pair for which the provider actually gave us a
+  // completed answer path below, success or failure, lands here. A cap-skipped
+  // pair or a Wikipedia pair blocked by Retry-After never reaches this array.
+  // Critically, the Wikipedia candidate that RECEIVES the 429/503 is also left
+  // out: a provider throttle is not an observed negative and must not move that
+  // place to the back of the attempt queue.
   const attempts = [];
 
-  const work = workItems.map(({ p, src }) => async () => {
+  // The cron has five generic workers. A fetch-level semaphore alone is not
+  // enough to protect ledger truth: five Wikipedia candidates can all pass the
+  // preflight before the first 429 arrives, then three can be refused locally
+  // by the fetch policy but still look "attempted" to the route. Serialize the
+  // Wikipedia CANDIDATE lifecycle so the moment one candidate arms Retry-After,
+  // every following candidate sees the closed window before spent++ or ledger
+  // work. Yelp/Foursquare/Tripadvisor remain fully parallel.
+  let wikipediaCandidateTail = Promise.resolve();
+  const withWikipediaCandidateSlot = async (fn) => {
+    let release;
+    const previous = wikipediaCandidateTail;
+    wikipediaCandidateTail = new Promise((resolve) => { release = resolve; });
+    await previous;
+    try { return await fn(); }
+    finally { release(); }
+  };
+
+  const runOne = async (p, src) => {
     // 2026-09-07: the 12:23 run recorded http_429 x52 on Wikipedia. Once the
     // transport sees a 429/503, stop STARTING new Wikipedia candidates for the
-    // Retry-After window. Calls already inside the 5-wide worker pool are capped
-    // to two actual Wikimedia requests by lib/wikimediaFetchPolicy; the rest are
-    // refused locally. Crucially this check is BEFORE spent++ and attempts.push,
-    // so a row held only because the provider told us to back off stays eligible
-    // for a later run instead of being stamped as if Wikipedia answered it.
+    // Retry-After window. This check is BEFORE spent++ and attempts.push, so a
+    // row held only because the provider told us to back off stays eligible for
+    // a later run instead of being stamped as if Wikipedia answered it.
     if (src === "wikipedia" && !wikimediaPolicy.canRequest()) {
       stats.skipped_rate_limit_backoff++;
       return;
@@ -126,6 +142,17 @@ export async function GET(req) {
     spent[src] = (spent[src] || 0) + 1;
     let out = null;
     try { out = await FETCHERS[src](p); } catch (e) { out = null; }
+
+    // A Wikipedia 429/503 can happen at opensearch, identity-info, or pageviews.
+    // In every case fetchWikipedia returns null, while the transport policy has
+    // armed Retry-After. That candidate is UNOBSERVED, not "no_data": do not
+    // increment no-data, do not push an attempt row, and therefore do not rotate
+    // it away from the next eligible batch merely because Wikimedia throttled us.
+    if (src === "wikipedia" && !out && !wikimediaPolicy.canRequest()) {
+      stats.skipped_rate_limit_backoff++;
+      return;
+    }
+
     let outcome;
     if (!out || out.metric_value == null) {
       stats.skipped_no_data++;
@@ -147,11 +174,18 @@ export async function GET(req) {
       stats.by_source[src] = (stats.by_source[src] || 0) + 1;
     }
     attempts.push({ place_id: p.place_id, source: src, outcome });
-  });
+  };
 
-  // small rolling pool. Wikimedia is additionally capped to two WIRE requests
-  // by lib/wikimediaFetchPolicy; PARALLEL stays 5 so provider-independent work
-  // does not get slower just because one source has a stricter policy.
+  const work = workItems.map(({ p, src }) => async () => (
+    src === "wikipedia"
+      ? withWikipediaCandidateSlot(() => runOne(p, src))
+      : runOne(p, src)
+  ));
+
+  // small rolling pool. Wikimedia candidates are serialized so ledger truth is
+  // exact across Retry-After; the transport policy independently remains capped
+  // at two wire requests for defense-in-depth/future call shapes. PARALLEL stays
+  // 5 so provider-independent work does not get slower.
   let i = 0;
   const runners = Array.from({ length: PARALLEL }, async () => {
     while (i < work.length) { const j = i++; await work[j](); }
@@ -163,9 +197,10 @@ export async function GET(req) {
     if (!upErr) stats.upserts += Math.min(200, rows.length - k);
   }
 
-  // THE FIX, persisted — a failed attempt is still an attempt. Bulk (200 per
-  // call, same chunking as the upsert above), never per-row: a run now
-  // attempts on the order of a few hundred (place, source) pairs.
+  // Persist completed observations in bulk (200 per call, same chunking as the
+  // metric upsert above). A genuine provider answer that yields no match is still
+  // an attempt. A transport throttle is not — that distinction is what prevents
+  // rate limiting from masquerading as matching evidence.
   let attemptWriteErrors = 0;
   for (let k = 0; k < attempts.length; k += 200) {
     const { error: attErr } = await db.rpc("wf_popularity_record_attempts", { p_attempts: attempts.slice(k, k + 200) });
