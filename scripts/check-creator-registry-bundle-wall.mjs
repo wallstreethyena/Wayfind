@@ -75,5 +75,32 @@ ok(/const\s+videoHeroPlaces\s*=\s*useMemo/.test(SOCIAL_FIND),
 ok(/creatorVideosFor[^;]*from\s+["']\.\.\/\.\.\/\.\.\/lib\/creatorVideos["']/.test(SOCIAL_FIND),
   "app/components/sheets/SocialFind.js may freely import the FULL lib/creatorVideos — it is already next/dynamic(ssr:false), off the eager path");
 
+// 2026-09-07 — SECOND PASS: the lean mirror itself got a compact ENCODING
+// (positional tuples + a sentinel + a platform-interning table), not just a
+// lean field set. The invariant this guard exists to hold widened along with
+// it: it is no longer enough that the eager path avoids the full registry —
+// it must consume ONLY the generated compact signal module, and that
+// generated module must actually STAY compact, or the whole second saving
+// regresses silently the next time someone "helpfully" reformats it.
+ok(/from\s+["']\.\/creatorSignals\.js["']/.test(BOOST) && /from\s+["']\.\/creatorSignals\.js["']/.test(TREND),
+  "the eager ranking path (lib/creatorBoost.js, lib/trendSignal.js) must consume ONLY the generated compact signal module (lib/creatorSignals.js), never lib/creatorVideos.js directly");
+
+const GENERATED = read("lib/creatorSignalsData.generated.js");
+ok(/export const PLATFORMS = \[/.test(GENERATED) && /export const LEAN_CURATED = \[/.test(GENERATED),
+  "lib/creatorSignalsData.generated.js exports PLATFORMS and LEAN_CURATED — the compact tuple encoding scripts/gen-creator-signals.mjs writes");
+// COMPACTNESS, asserted directly rather than trusted: a pretty-printed
+// LEAN_CURATED (JSON.stringify(x, null, 2)) alone cost ~450 bytes gz for
+// nothing — no human reads a generated file — and nothing else here would
+// catch a reformat that silently gave that back. Two independent signals:
+// no indentation before a LEAN_CURATED entry, and the whole array sits on
+// very few lines relative to its entry count (a pretty-printed array spends
+// several lines PER entry; a compact one spends a small constant number of
+// lines total, regardless of corpus size).
+ok(!/\n {2,}\[/.test(GENERATED) && !/\n {2,}"/.test(GENERATED.split("export const LEAN_CURATED")[1] || ""),
+  "lib/creatorSignalsData.generated.js is NOT pretty-printed — LEAN_CURATED must be emitted as compact JSON.stringify(x), not JSON.stringify(x, null, 2), or the saving this guard exists to protect regresses silently");
+const leanLines = GENERATED.split("\n").length;
+ok(leanLines < 20,
+  `lib/creatorSignalsData.generated.js is ${leanLines} lines for a ${(GENERATED.match(/\],\[/g) || []).length + 1}+ -entry corpus — a compact encoding stays on a handful of lines regardless of corpus size; this many lines means something is no longer compact`);
+
 if (failures) process.exit(1);
 console.log("check-creator-registry-bundle-wall: OK");

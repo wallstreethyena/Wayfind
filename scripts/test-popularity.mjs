@@ -4,9 +4,24 @@
 // category, the TripAdvisor budget cap, service-only batch fn, cron auth.
 import { readFileSync } from "fs";
 import { nameSim, matchConfidence, bestMatch, sourcesFor, categoriesForSource, SOURCE_CAPS, CONFIDENCE_FLOOR } from "../lib/popularity.js";
+import { popularityAvailability, FETCHERS, primaryTypesForSource, minReviewsForSource } from "../lib/popularity.js";
+import {
+  createWikimediaFetchPolicy,
+  retryAfterMs,
+  WIKIMEDIA_MAX_CONCURRENCY,
+  WIKIMEDIA_RETRY_FALLBACK_MS,
+  WIKIMEDIA_MAXLAG,
+} from "../lib/wikimediaFetchPolicy.js";
 
 let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
+ok(popularityAvailability('tripadvisor', {}).ready === false, 'retired provider does not select candidate work');
+ok(popularityAvailability('tripadvisor', {}).failure === false, 'explicit retirement is disclosed, not a fake failed request');
+ok(popularityAvailability('yelp', {YELP_API_KEY:'a'.repeat(127)}).failure === true, 'malformed key is a failed preflight');
+ok(popularityAvailability('yelp', {YELP_API_KEY:'a'.repeat(128)}).ready === true, 'valid-shaped key reaches the provider');
+ok(popularityAvailability('yelp', {}).reason === 'no_key', 'absent optional key stays explicit');
+ok(popularityAvailability('foursquare', {}).ready === false, 'unconfigured Foursquare does not select work');
+ok(popularityAvailability('wikipedia', {}).ready === true, 'keyless Wikimedia stays enabled');
 
 // matching
 ok(nameSim("Anna Maria Oyster Bar", "Anna Maria Oyster Bar Ellenton") > 0.7, "near-identical names score high");
@@ -16,7 +31,7 @@ ok(matchConfidence(place, { name: "Siesta Beach", lat: 27.2676, lng: -82.5498 })
 ok(matchConfidence(place, { name: "Siesta Beach", lat: 27.4, lng: -82.4 }) < 0.75, "same name 10mi away loses the proximity share");
 ok(matchConfidence(place, { name: "Siesta Beach", lat: null, lng: null }) <= 0.7, "no coords never scores higher than with coords");
 ok(bestMatch(place, [{ name: "Turtle Beach", lat: 27.22, lng: -82.51 }]) === null, "weak best match -> null, not a bad row");
-ok(CONFIDENCE_FLOOR >= 0.5, "confidence floor is real");
+ok(CONFIDENCE_FLOOR === 0.55, "Wikipedia transport repair must not loosen the 0.55 confidence floor — throttled candidates are unobserved, not permission to tune matching");
 
 // routing
 // v8.6 — RE-POINTED, NOT RELAXED. This asserted that food NEVER routes to
@@ -120,16 +135,44 @@ ok(route.includes("SUPABASE_SERVICE_ROLE_KEY"), "writes go through the service r
 ok(route.includes('onConflict: "place_id,source"'), "one row per place per source (upsert)");
 ok(route.includes("wf_popularity_stale_batch"), "batch = the stalest places, not a random scan");
 // v9.0 — per-source batching and the attempt ledger (20260907_wf_popularity_attempt_ledger.sql)
-ok(/for \(const src of SOURCES\)[\s\S]{0,200}wf_popularity_stale_batch/.test(route), "wf_popularity_stale_batch is called ONCE PER SOURCE — a single shared batch cannot correctly drive four independently-throttled sources");
+// Execute the actual selection loop. A fixed 200-character source window
+// stopped recognizing it when preflight was added; call counts prove its intent.
+{
+  const start = route.indexOf('  const bySourcePlaces = {}');
+  const end = route.indexOf('  // flatten', start);
+  ok(start >= 0 && end > start, 'real per-source selection body is present');
+  const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
+  const select = new AsyncFunction('db','SOURCES','popularityAvailability','process','breakerOpen','FSQ_BREAKER','recordPulse','categoriesForSource','primaryTypesForSource','minReviewsForSource','BATCH','jobFailed', route.slice(start,end) + '\nreturn {bySourcePlaces,unavailable};');
+  const run = async (env, held) => {
+    const calls = [], pulses = [];
+    const result = await select({rpc:async (fn,args)=>{calls.push({fn,args});return {data:[]};}}, Object.keys(FETCHERS), popularityAvailability, {env}, async()=>held, 'foursquare', async(job,pulse)=>pulses.push({job,...pulse}), categoriesForSource, primaryTypesForSource, minReviewsForSource, 100, ()=>{throw new Error('unexpected batch failure')});
+    return {calls,pulses,result};
+  };
+  const configured = await run({YELP_API_KEY:'a'.repeat(128), FOURSQUARE_API_KEY:'fixture'}, null);
+  ok(configured.calls.length === 3 && new Set(configured.calls.map(c=>c.args.p_source)).size === 3, 'each of the three active sources gets its OWN batch');
+  ok(configured.calls.every(c=>c.fn === 'wf_popularity_stale_batch'), 'each selected batch calls the real stale-batch RPC');
+  const unavailable = await run({YELP_API_KEY:'a'.repeat(127), FOURSQUARE_API_KEY:'fixture'}, {kind:'quota'});
+  ok(unavailable.calls.length === 1 && unavailable.calls[0].args.p_source === 'wikipedia', 'malformed, retired and quota-held sources select no place work');
+  ok(unavailable.pulses.length === 3 && unavailable.pulses.every(p=>p.attempted === 0), 'unavailable sources record no invented provider attempts');
+  ok(unavailable.pulses.find(p=>p.job==='popularity:yelp').failed === 1, 'malformed key remains a visible preflight failure');
+  ok(unavailable.pulses.find(p=>p.job==='popularity:tripadvisor').failed === 0, 'retirement is explicit idle state');
+}
+
 ok(route.includes("p_categories: categoriesForSource(src)"), "each source's batch is category-scoped through categoriesForSource, not a hardcoded list duplicated here");
 ok(route.includes('db.rpc("wf_popularity_record_attempts"'), "THE FIX: every (place, source) pair actually tried is recorded to the attempt ledger, success or failure — a failed lookup is still an attempt");
 {
   const workFnStart = route.indexOf("const work = workItems.map(");
+  const backoffCheckIdx = route.indexOf('src === "wikipedia" && !wikimediaPolicy.canRequest()', workFnStart);
   const capCheckIdx = route.indexOf("if (cap != null && (spent[src] || 0) >= cap) return;", workFnStart);
+  const spentIdx = route.indexOf("spent[src] = (spent[src] || 0) + 1;", workFnStart);
   const pushIdx = route.indexOf("attempts.push(", workFnStart);
   ok(workFnStart > -1 && capCheckIdx > -1 && pushIdx > -1 && capCheckIdx < pushIdx,
     "a source that hit its per-run cap this run must be SKIPPED (return) BEFORE attempts.push runs — it was never asked, so it must not look 'just tried'");
+  ok(backoffCheckIdx > -1 && spentIdx > -1 && pushIdx > -1 && backoffCheckIdx < spentIdx && backoffCheckIdx < pushIdx,
+    "Wikipedia Retry-After must be checked BEFORE spent++ and attempts.push — a candidate held by provider backoff was not observed and must remain eligible rather than being stamped as a negative");
 }
+ok(route.includes("installWikimediaFetchPolicy"), "popularity cron must install the Wikimedia transport policy before provider work starts");
+ok(route.includes("skipped_rate_limit_backoff"), "rate-limit-held Wikipedia candidates must be visible in cron stats, not silently disappear");
 ok(route.includes('recordPulse("popularity:" + src'), "every source records its OWN jobPulse — a dead source flatlines its pulse and job-watch emails it by name (the 3-month silent Foursquare death can never recur)");
 ok(/onlyNoKey \? 0 : spent\[src\]/.test(route), "a missing key pulses idle (not configured != failing) — deliberate key removal never pages");
 const vj = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
@@ -145,6 +188,72 @@ ok((vj.crons || []).some((c) => c.path === "/api/cron/popularity" && /\*\/[12]\b
   // (jf(url, WIKI_UA, "wikipedia")), so the literal "WIKI_UA)" this used to
   // grep for no longer appears; WIKI_UA is still the second arg to both.
   ok((lp.match(/WIKI_UA[,)]/g) || []).length >= 2, "both wikimedia calls (search + pageviews) must carry the UA");
+}
+
+// v9.2 (2026-09-07) — Wikimedia transport backoff. Production's 12:23 run
+// recorded 52 HTTP 429s out of 100 Wikipedia candidates. Those are unobserved
+// candidates, not a matching-quality sample. Test the transport separately so
+// nobody can "fix" this later by weakening identity or confidence rules.
+{
+  ok(WIKIMEDIA_MAX_CONCURRENCY === 2 && WIKIMEDIA_MAX_CONCURRENCY <= 3,
+    `Wikimedia wire concurrency must stay at 2 (and never exceed Wikimedia's <=3 guidance) — got ${WIKIMEDIA_MAX_CONCURRENCY}`);
+  ok(WIKIMEDIA_RETRY_FALLBACK_MS >= 5000,
+    `missing Retry-After must back off at least 5 seconds per Wikimedia guidance — got ${WIKIMEDIA_RETRY_FALLBACK_MS}ms`);
+  ok(WIKIMEDIA_MAXLAG === 5, `background Action API reads must use maxlag=5 — got ${WIKIMEDIA_MAXLAG}`);
+  ok(retryAfterMs("3", 1000) === 3000, "numeric Retry-After is seconds and must convert to milliseconds exactly");
+  ok(retryAfterMs(null, 1000) === WIKIMEDIA_RETRY_FALLBACK_MS, "missing Retry-After uses the conservative fallback, not zero");
+  ok(retryAfterMs(new Date(8000).toUTCString(), 3000) === 5000, "HTTP-date Retry-After is honored relative to the current clock");
+
+  // Executed concurrency proof: six simultaneous Wikimedia callers, fake wire
+  // sleeps 5ms, maximum in-flight provider requests must still be exactly two.
+  let active = 0, maxActive = 0;
+  const concurrencyPolicy = createWikimediaFetchPolicy(async () => {
+    active++;
+    maxActive = Math.max(maxActive, active);
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    active--;
+    return new Response("{}", { status: 200, headers: { "content-type": "application/json" } });
+  });
+  await Promise.all(Array.from({ length: 6 }, () => concurrencyPolicy.fetch("https://wikimedia.org/api/rest_v1/test")));
+  ok(maxActive === 2, `executed limiter must never put >2 Wikimedia requests on the wire — observed max ${maxActive}`);
+
+  // Retry-After proof with a fake clock. The second call during the window must
+  // be local-only: if baseCalls becomes 2, the policy is still hammering Wikimedia.
+  let clock = 1000, baseCalls = 0;
+  const backoffPolicy = createWikimediaFetchPolicy(async () => {
+    baseCalls++;
+    return new Response("rate limited", { status: 429, headers: { "retry-after": "7" } });
+  }, { now: () => clock });
+  const first429 = await backoffPolicy.fetch("https://wikimedia.org/api/rest_v1/test");
+  ok(first429.status === 429 && baseCalls === 1 && !backoffPolicy.canRequest() && backoffPolicy.remainingBackoffMs() === 7000,
+    "real 429 must arm the exact Retry-After window after one provider call");
+  const held429 = await backoffPolicy.fetch("https://wikimedia.org/api/rest_v1/test");
+  ok(baseCalls === 1 && held429.status === 429 && held429.headers.get("x-wayfind-wikimedia-backoff") === "1",
+    "a request arriving during active backoff must be refused locally — zero additional Wikimedia traffic");
+  clock += 7000;
+  ok(backoffPolicy.canRequest(), "provider window reopens after the exact Retry-After duration");
+
+  // maxlag is HTTP-200 JSON at the Action API. It must become a transport
+  // failure and arm Retry-After, otherwise downstream code sees an object and
+  // can misclassify a stressed backend as no_match/no_views.
+  let seenActionUrl = "";
+  const maxlagPolicy = createWikimediaFetchPolicy(async (input) => {
+    seenActionUrl = String(input);
+    return new Response(JSON.stringify({ error: { code: "maxlag" } }), {
+      status: 200,
+      headers: { "content-type": "application/json", "retry-after": "3" },
+    });
+  }, { now: () => 1000 });
+  const maxlagResponse = await maxlagPolicy.fetch("https://en.wikipedia.org/w/api.php?action=query&format=json");
+  ok(seenActionUrl.includes("maxlag=5"), `Action API transport must inject maxlag=5 — got ${seenActionUrl}`);
+  ok(maxlagResponse.status === 503 && !maxlagPolicy.canRequest(), "maxlag JSON must become a backoff-visible 503 and close the provider window");
+
+  // Non-Wikimedia traffic is a strict pass-through. This is what makes it safe
+  // to install the policy around the whole popularity cron without changing Yelp/FSQ.
+  let passthroughCalls = 0;
+  const passthrough = createWikimediaFetchPolicy(async () => { passthroughCalls++; return new Response("ok", { status: 200 }); });
+  await passthrough.fetch("https://example.com/not-wikimedia");
+  ok(passthroughCalls === 1 && passthrough.canRequest(), "non-Wikimedia fetches pass through once and never arm the limiter");
 }
 
 console.log(`test-popularity: ${n - failn}/${n} passed`);

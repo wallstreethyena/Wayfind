@@ -148,7 +148,7 @@ export async function GET(req) {
     // scripts/test-rails-failed-is-not-covered.mjs pins the whole chain.
     if (degraded) {
       const noStore = { "Cache-Control": "no-store", "x-wayfind-fast-cache": cached.state };
-      return NextResponse.json({ covered: false, failed: true, data: null }, { status: 200, headers: noStore });
+      return NextResponse.json({ covered: false, failed: true, data: null }, { status: 503, headers: noStore });
     }
     // v=2 is a compact, lossless delivery protocol. The first response carries
     // only the first ranked window for every poster rail. A swipe near the end
@@ -177,6 +177,6 @@ export async function GET(req) {
     // whatever default the edge applied. `failed: true` for the same reason
     // the degraded branch carries it — a throw is an outage, not a coverage
     // fact, and the client must say "couldn't reach", never "not live here".
-    return NextResponse.json({ covered: false, failed: true, data: null }, { status: 200, headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json({ covered: false, failed: true, data: null }, { status: 503, headers: { "Cache-Control": "no-store" } });
   }
 }
