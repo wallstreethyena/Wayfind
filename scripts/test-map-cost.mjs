@@ -67,6 +67,7 @@ const prev = readFileSync(new URL("../app/components/MapPreview.js", import.meta
 ok(!/googlemaps|google\.maps|importLibrary|js-api-loader/.test(prev), "MapPreview touches NO Google SDK — zero billed loads");
 
 const gg = readFileSync(new URL("../lib/google.js", import.meta.url), "utf8");
+ok(!/js-api-loader|importLibrary\(|NEXT_PUBLIC_GOOGLE_MAPS_KEY/.test(gg), "place and geocode data cannot call Google directly from the browser");
 ok(/wf_revgeo\|/.test(gg), "reverseGeocode caches by rounded coordinate cell");
 ok(/_reverseGeocodeUncached/.test(gg), "reverseGeocode wraps the paid call behind the cache");
 ok(/30 \* 86400000/.test(gg), "reverse-geocode cache holds for 30 days");

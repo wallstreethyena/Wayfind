@@ -1237,3 +1237,36 @@ node scripts/social-acquisition-conveyor-regression.mjs
 node scripts/check-migration-apply-canonical-path.mjs
 
 node scripts/test-known-city-geocode.mjs
+# 2026-09-07 security audit: public Admin auth routes allowed arbitrary email
+# confirmation, so both routes are inert tombstones and the client uses
+# Supabase's ownership-verifying confirmation flow.
+node scripts/test-auth-admin-tombstones.mjs
+
+# 2026-09-07 security audit: every enabled paid-provider path needs an atomic
+# finite ledger. This executes the photo, Nearby, geocoding, and gate-default
+# boundaries with fetch traps and positive controls.
+node scripts/test-spend-bypass-regression.mjs
+
+# 2026-09-07 security audit: public event aggregation fanned out to provider
+# APIs before cache and without finite per-request budgets.
+node scripts/test-events-spend.mjs
+
+# 2026-09-07 security audit: public operational probes exposed provider state
+# or made a live partner request; these endpoints stay retired.
+node scripts/test-public-diagnostics-retired.mjs
+
+# 2026-09-07 security audit: /api/outbound/verdict accepted arbitrary URLs.
+# Every DNS result and redirect hop must stay on public HTTP(S) addresses.
+node scripts/test-outbound-ssrf.mjs
+
+# 2026-09-07 security audit: browser modules cannot carry paid-provider
+# endpoints, a public Google credential, or the Places SDK fallback.
+node scripts/test-client-paid-boundary.mjs
+
+# Supported city submission resolves against owned coordinates after the
+# browser geocoder was removed; unknown text fails soft without provider spend.
+node scripts/test-known-city-geocode.mjs
+
+# Non-Google provider credentials are also finite budgets: each actual Viator,
+# Foursquare, Tripadvisor, YouTube, or Pexels request needs an atomic grant.
+node scripts/test-provider-spend-caps.mjs

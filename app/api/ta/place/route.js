@@ -14,6 +14,8 @@
 // cost zero quota. Fail-soft everywhere; ?debug=1 exposes upstream detail.
 export const runtime = "nodejs";
 
+import { providerSpendAllow } from "../../../../lib/providerSpend.js";
+
 const getKey = () => ((process.env["TRIPADVISOR_API_KEY"] || process.env["TA_API_KEY"] || process.env["TRIPADVISOR_KEY"] || "").trim());
 
 const BASE = "https://terra.tripadvisor.com/api";
@@ -101,12 +103,14 @@ export async function GET(req) {
     const doSearch = async (query) => {
       const sp = new URLSearchParams({ query, size: "20" });
       if (city) sp.set("geo_name", city);
+      if (!(await providerSpendAllow("tripadvisor"))) return { blocked: true, list: [] };
       const sr = await fetch(`${BASE}/catalog/locations/search?` + sp.toString(), { headers: H });
       if (!sr.ok) return { err: sr };
       const sd = await sr.json();
       return { list: (sd && (sd.data || sd.content || sd.results || sd.items)) || (Array.isArray(sd) ? sd : []) };
     };
     let res = await doSearch(q);
+    if (res.blocked) return Response.json({});
     if (res.err) { const t = await res.err.text().catch(() => ""); return Response.json(debug ? { step: "search", upstream: res.err.status, detail: t.slice(0, 300) } : {}); }
     let list = res.list;
     const qn = _nn(q);
@@ -137,6 +141,7 @@ export async function GET(req) {
     let d = best;
     let ov = overallOf(best);
     if (!ov || !urlOf(best)) {
+      if (!(await providerSpendAllow("tripadvisor"))) return Response.json({});
       const dr = await fetch(`${BASE}/catalog/locations/${idOf(best)}`, { headers: H });
       if (dr.ok) { d = await dr.json(); ov = overallOf(d) || ov; }
       else if (debug) { const t = await dr.text().catch(() => ""); return Response.json({ step: "details", upstream: dr.status, detail: t.slice(0, 300) }); }

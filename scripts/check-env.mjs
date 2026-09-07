@@ -46,7 +46,6 @@ import { isPlaceholderCredential } from "../lib/envPlaceholder.js";
 export const CHECKS = [
   ["NEXT_PUBLIC_SUPABASE_URL", (v) => /^https:\/\/[a-z0-9]+\.supabase\.co\/?$/.test(v || ""), "expected https://<ref>.supabase.co"],
   ["NEXT_PUBLIC_SUPABASE_ANON_KEY", (v) => (v || "").length > 20, "expected the anon key (eyJ... JWT or sb_publishable_...)"],
-  ["NEXT_PUBLIC_GOOGLE_MAPS_KEY", (v) => (v || "").length > 20, "Places/Maps features need this"],
   // v6.79: absence must be LOUD. Every Viator link is attributed through this
   // PID; with it unset, ticketsUrl()/experienceSearchUrl() correctly return null
   // and every Viator CTA silently disappears — revenue going to zero with a

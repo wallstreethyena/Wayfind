@@ -1,14 +1,12 @@
 #!/usr/bin/env node
 // scripts/check-maps-deferral.mjs — v6.99, P1 homepage speed.
 //
-// THE INVARIANT: the Maps JS SDK is a FALLBACK, never a boot cost. The owner
+// THE INVARIANT: the Maps JS SDK is absent, never a boot cost or spend bypass. The owner
 // measured ~6.2s DOM-ready with the full maps.googleapis.com stack loading on
 // a homepage that is not a map — because the three search functions imported
 // the Places library BEFORE trying the server proxy, and reverseGeocode
 // pulled the geocoding library on every located first visit. The fix moved
-// every importLibrary call behind the proxy attempt. This guard pins the
-// ORDER (per function: proxy attempt strictly before importLibrary) so a
-// refactor cannot quietly re-eagerize the SDK.
+// every paid data call behind a server proxy. This guard pins that boundary.
 //
 // Order is asserted per-FUNCTION SLICE, not per-file — a file-wide indexOf
 // would pass with one compliant function and five regressed ones.
@@ -30,11 +28,10 @@ const fnSlice = (name, next) => {
 for (const [fn, next] of [["_searchPlaces", "fetchPlaceDetail"], ["_searchNearbyPlaces", "_findPlace"], ["_findPlace", "_searchPlaces"]]) {
   const s = fnSlice(fn, null);
   const proxyAt = s.indexOf("await proxySearch(");
-  const sdkAt = s.indexOf('importLibrary("places")');
   ok(proxyAt >= 0, fn + " still tries the server proxy");
-  ok(sdkAt >= 0, fn + " keeps the SDK fallback (deleting it breaks proxy outages)");
-  ok(proxyAt < sdkAt, fn + " imports the Maps SDK ONLY after the proxy attempt — eager import re-adds the maps bootstrap to every homepage boot");
+  ok(!/importLibrary\(|Place\.searchByText|new Place\(/.test(s), fn + " has no paid browser SDK fallback after a proxy denial");
 }
+ok(!/@googlemaps\/js-api-loader|NEXT_PUBLIC_GOOGLE_MAPS_KEY/.test(g), "the client data module has no Google browser loader or public key");
 
 // reverseGeocode: the server proxy is consulted before the SDK path.
 {
@@ -42,10 +39,8 @@ for (const [fn, next] of [["_searchPlaces", "fetchPlaceDetail"], ["_searchNearby
   ok(at >= 0, "positive control: _reverseGeocodeUncached exists");
   const s = g.slice(at, at + 2500);
   const proxyAt = s.indexOf('"/api/geocode?lat="');
-  const sdkAt = s.indexOf('importLibrary("geocoding")');
   ok(proxyAt >= 0, "reverseGeocode consults the shared server proxy first");
-  ok(sdkAt >= 0, "reverseGeocode keeps the SDK fallback");
-  ok(proxyAt < sdkAt, "reverseGeocode tries the proxy BEFORE the SDK");
+  ok(!/importLibrary\(|Geocoder/.test(s), "reverseGeocode has no paid browser SDK fallback");
 }
 
 // The proxy route exists, is cache-headed, and is matcher-guarded (metered).
@@ -77,4 +72,4 @@ for (const [fn, next] of [["_searchPlaces", "fetchPlaceDetail"], ["_searchNearby
   ok(/requestIdleCallback\(boot/.test(ph) && /setTimeout\(boot/.test(ph), "PostHog inits at idle with a timer fallback, off the image critical path");
 }
 
-console.log("check-maps-deferral: OK — " + pass + " assertions (SDK strictly proxy-fallback in 3 search fns + reverse geocode; geocode proxy guarded+cacheable; TM thumbs ship+render; TP/PostHog off the critical path)");
+console.log("check-maps-deferral: OK — " + pass + " assertions (browser SDK absent; place/geocode data server-guarded; TM thumbs ship+render; TP/PostHog off the critical path)");

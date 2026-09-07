@@ -47,6 +47,10 @@ export const config = {
     "/api/buzz/why",
     // Vision card-photo scoring: metered Anthropic proxy — same-origin guarded.
     "/api/image-score",
+    // Insider copy can call Anthropic on a cache miss when the feature is
+    // enabled. Keep it behind the same browser-origin friction and burst cap
+    // as every other model-backed customer route.
+    "/api/insider",
     // Metered proxies that shipped OPEN (audit 2026-07-23): YouTube Data API
     // (100 quota units/call — quota-DoS) and TripAdvisor Terra (metered + a
     // service-role census under ?probe). Both are same-origin XHRs → full guard.

@@ -44,11 +44,11 @@ ok(!/NAV_302_ROUTES[\s\S]{0,200}places\/details/.test(mw), "/api/places/details 
 const home = readFileSync(join(ROOT, "app/home.js"), "utf8");
 ok(/fetch\("\/api\/places\/autocomplete"/.test(home), "home.js fetchSuggestions calls the guarded autocomplete proxy");
 ok(/fetch\("\/api\/places\/details"/.test(home), "home.js resolvePlaceDetails calls the guarded details proxy");
-ok(/fetchSuggestionsDirect/.test(home), "the direct-to-Google SDK path still exists as a dev/local fallback (server key unset)");
+ok(!/fetchSuggestionsDirect|resolvePlaceDetailsDirect|importLibrary\("places"\)/.test(home), "home.js contains no direct-to-Google fallback");
 // Photos from the proxied path must route through OUR /api/photo proxy, never
 // straight at Google (the same key-exposure gap /api/photo's own header
 // describes fixing for card images).
 ok(/photoUrlFor[\s\S]{0,400}\/api\/photo\?ref=/.test(home), "picked-suggestion photos build URLs through /api/photo, not Google directly");
 
 if (fails) process.exit(1);
-console.log("test-autocomplete-proxy: OK — search box autocomplete + suggestion-detail are guarded server proxies with a dev-only fallback");
+console.log("test-autocomplete-proxy: OK — search box autocomplete + suggestion-detail are guarded server proxies with no browser fallback");

@@ -82,7 +82,7 @@ ok(!/CATEGORY_TILES[\s\S]{0,200}id: "all"/.test(readFileSync(new URL("../lib/cat
 /* ── home starts the same search when the category is selected ──────────── */
 ok(/from "\.\.\/lib\/nearMeQuery"/.test(home) && /nearMeQuery\(\{ cat, sub, vibe, center/.test(HOME),
   "the home/map/list search effect builds the shared nearMeQuery");
-ok(/if \(keyMissing \|\| !q \|\| searchMode\) return/.test(HOME),
+ok(/if \(!q \|\| searchMode\) return/.test(HOME),
   "the search effect fail-closes when nearMeQuery returns null — no Sarasota fill");
 // v8.41 — the four setters moved OUT of the onNavOpen body and INTO openBrowse,
 // the one entry point every off-feed category control now shares (the Itinerary

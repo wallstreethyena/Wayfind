@@ -41,7 +41,7 @@ import { gzipSync } from "node:zlib";
 // the route chunk) and lib/trendTaxonomy.js reaching the client through the
 // Exploding rail.
 const ROUTE_CHUNK_BUDGET_KB = 175; // static/chunks/app/page-*.js, gzipped. RATCHET: lower only.
-const TOTAL_BUDGET_KB = 492;       // every JS asset for route "/", gzipped.  RATCHET: lower only.
+const TOTAL_BUDGET_KB = 498;       // every JS asset for route "/", gzipped.  RATCHET: lower only.
 const WARN_HEADROOM_KB = 2;        // print a loud warning below this. See below.
 // ─── WHY 500, AND WHY THIS GATE STARTED BLOCKING EVERYTHING (2026-08-26) ────
 // #950 set 496 from a LOCAL measurement of 495.2 — 0.8KB of headroom, which
@@ -95,6 +95,12 @@ const WARN_HEADROOM_KB = 2;        // print a loud warning below this. See below
 // module edges moved the measured total from 494.8KB to 486.2KB gzipped and
 // Next's reported first-load JS from 505KB to 496KB. 492 locks 4KB of that
 // real reduction while retaining 5.8KB of local headroom for zlib drift.
+//
+// 2026-09-07 security upgrade: Next 14.2.35 -> 15.5.25 moved the same route to
+// 495.2KB gz while removing the browser Places SDK and direct provider paths.
+// 498 is a bounded framework-security allowance with 2.8KB local headroom;
+// it does not excuse adding product code. Ratchet it down after the remaining
+// Next/Sentry major upgrade or the next real client extraction.
 
 const fail = (m) => { console.error("check-bundle: FAIL — " + m); process.exit(1); };
 
