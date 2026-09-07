@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 559,
-    "totalRegistryEntries": 560,
-    "guardsTxtLineCount": 556,
-    "guardsTxtReachedFileCount": 552,
+    "totalOnDiskGuardFiles": 560,
+    "totalRegistryEntries": 561,
+    "guardsTxtLineCount": 557,
+    "guardsTxtReachedFileCount": 553,
     "criticalCount": 65,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 367,
+      "CALL": 368,
       "RENDER": 45,
       "STRUCTURAL": 147,
       "OTHER": 1
@@ -4476,6 +4476,28 @@
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
       ],
       "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-migration-apply-canonical-path.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 45,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
