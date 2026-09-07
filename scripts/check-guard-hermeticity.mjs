@@ -48,6 +48,8 @@ const ok = (c, m) => { if (c) pass++; else fails.push(m); };
 // Every exemption names a file and argues for itself. An exemption that stops
 // being true is itself a failure below, so this list cannot quietly rot.
 const EXEMPT = {
+  "check-job-watch-delivery.mjs":
+    "Scheduled production canary: ambient Supabase credentials provide the connection, while persisted heartbeat freshness and outcome decide the verdict. Missing credentials fail, never skip. Hermetic prebuild coverage lives in test-job-watch-delivery.mjs.",
   "check-env.mjs":
     "its entire purpose is reporting on the ambient environment; it asserts nothing and always exits 0",
   "check-env-value-overrides.mjs":

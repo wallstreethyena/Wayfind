@@ -340,6 +340,7 @@ node scripts/test-job-pulse.mjs
 # self-pulse whenever incidents are detected and nothing could be delivered —
 # so Resend is one alarm channel, not the single point of failure.
 node scripts/test-job-watch-fallback.mjs
+node scripts/test-job-watch-delivery.mjs
 node scripts/check-editorial-retry-state.mjs
 node scripts/check-editorial-coverage-pipeline.mjs
 node scripts/test-atlas-reclassify.mjs

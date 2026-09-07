@@ -208,7 +208,8 @@ const HEALTHY_ROWS = [
   ok(r.status === 200, `healthy: status is 200 (got ${r.status})`);
   ok(r.body.ok === true && r.body.incidents === 0, "healthy: ok:true, incidents:0");
   ok((r.sentryCalls || []).length === 0, "healthy: NO Sentry event — this is the negative control the whole guard exists to prove");
-  ok((r.pulseWrites || []).length === 0, "healthy: job-watch files no self-pulse — nothing to alarm about");
+  const heartbeat = (r.pulseWrites || []).find((p) => p.job === "job-watch");
+  ok(heartbeat && heartbeat.attempted === 0 && heartbeat.failed === 0, "healthy: a zero-work heartbeat distinguishes a healthy watcher from a stopped watcher");
 }
 // Missing health evidence must not masquerade as a healthy empty fleet.
 {
