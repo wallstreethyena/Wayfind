@@ -593,6 +593,7 @@ node scripts/test-date-night-intent.mjs
 node scripts/test-birthday-intent.mjs
 node scripts/test-rail-daylight.mjs
 node scripts/test-rail-select.mjs
+node scripts/test-extra-miles.mjs
 node scripts/test-summer-universe.mjs
 node scripts/test-birthday-universe.mjs
 node scripts/test-birthday-nearby.mjs

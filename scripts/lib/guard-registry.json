@@ -26,15 +26,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 558,
-    "totalRegistryEntries": 559,
-    "guardsTxtLineCount": 555,
-    "guardsTxtReachedFileCount": 551,
+    "totalOnDiskGuardFiles": 559,
+    "totalRegistryEntries": 560,
+    "guardsTxtLineCount": 556,
+    "guardsTxtReachedFileCount": 552,
     "criticalCount": 65,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 367,
-      "RENDER": 44,
+      "RENDER": 45,
       "STRUCTURAL": 147,
       "OTHER": 1
     }
@@ -9967,6 +9967,28 @@
       "honestyViolations": [
         "1 absence assertion(s) with no positive control in the same file (e.g. \"!t.sub || BANNED.test(t.sub)\")"
       ],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-extra-miles.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 75,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
