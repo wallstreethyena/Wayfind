@@ -121,9 +121,27 @@ as $function$
 $function$;
 
 -- The selector, rebuilt per-source. Signature changed (p_n integer) -> (text,
--- text[], integer), so the old one-shared-batch shape cannot be called by
--- accident from anywhere still expecting it.
-drop function if exists public.wf_popularity_stale_batch(integer);
+-- text[], integer).
+--
+-- THE DROP IS DEFERRED ON PURPOSE (2026-09-07, owner review). This migration
+-- and app/api/cron/popularity/route.js are one logical change across two
+-- systems that cannot commit together: the database applies in seconds, the
+-- Vercel deploy takes minutes. Dropping the old signature here makes the two
+-- orderings both broken — migrate first and the still-deployed route calls a
+-- function that no longer exists; deploy first and the new route calls one
+-- that does not exist yet. Either way the popularity cron errors inside that
+-- window.
+--
+-- Postgres overloads on the argument list, and these two signatures are
+-- distinct: (integer) versus (text, text[], integer). Keeping both lets this
+-- migration go out AHEAD of the deploy with zero broken window, because the
+-- old route keeps calling the old shape until the new code replaces it.
+--
+-- The old signature is then dead code with no caller. Dropping it is a
+-- one-line follow-up migration, safe to run any time after this deploy is
+-- confirmed live, and check-popularity-attempt-ledger.mjs pins the new shape
+-- either way. Tracked as a follow-up, not forgotten:
+--   drop function if exists public.wf_popularity_stale_batch(integer);
 
 create or replace function public.wf_popularity_stale_batch(p_source text, p_categories text[] default null, p_n integer default 100)
 returns table(place_id text, name text, lat double precision, lng double precision, category text, metro text,
