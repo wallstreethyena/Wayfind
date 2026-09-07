@@ -179,6 +179,15 @@ node scripts/test-shopping.mjs
 node scripts/test-events-prime.mjs
 node scripts/test-todays-best.mjs
 node scripts/test-popularity.mjs
+# 2026-09-07 — wf_popularity_stale_batch ordered by fetched_at (success-only),
+# nulls first: a place that never matched sorted first FOREVER and 19,673 of
+# 20,086 eligible places held no popularity row at all (National Aviary, San
+# Diego Zoo, the Smithsonian NMNH and Fort De Soto measured unreachable at
+# ranks ~9,917-18,782 behind a batch of 100). Fixed with a separate attempt
+# ledger (wf_popularity_attempts) ordered on independently of success data —
+# see 20260907_wf_popularity_attempt_ledger.sql. This guard structurally
+# locks the fix and simulates both orderings at the measured scale.
+node scripts/check-popularity-attempt-ledger.mjs
 node scripts/check-one-clock.mjs
 node scripts/test-now-context.mjs
 node scripts/check-weather-code-plumbed.mjs

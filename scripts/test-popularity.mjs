@@ -3,7 +3,7 @@
 // and NEVER fabricated (missing field or weak match -> no row), routing by
 // category, the TripAdvisor budget cap, service-only batch fn, cron auth.
 import { readFileSync } from "fs";
-import { nameSim, matchConfidence, bestMatch, sourcesFor, SOURCE_CAPS, CONFIDENCE_FLOOR } from "../lib/popularity.js";
+import { nameSim, matchConfidence, bestMatch, sourcesFor, categoriesForSource, SOURCE_CAPS, CONFIDENCE_FLOOR } from "../lib/popularity.js";
 
 let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
@@ -47,6 +47,31 @@ ok(sourcesFor("shopping").includes("foursquare"), "everything -> foursquare");
 // has no per-run budget left to bound — the cap's absence IS the pinned
 // state now, not a regression of it.
 ok(SOURCE_CAPS.tripadvisor === undefined, "tripadvisor is retired — no per-run cap for a source that makes no calls");
+
+// v9.0 (2026-09-07) — categoriesForSource is the INVERSE of sourcesFor, and
+// they must never drift apart (both live in lib/popularity.js, side by
+// side). Checked for every category sourcesFor branches on, plus one
+// default-arm category, against every source in FETCHERS.
+{
+  const CATS = ["food", "nightlife", "attractions", "beach", "shopping"]; // shopping exercises the default arm
+  for (const src of Object.keys({ yelp: 1, foursquare: 1, tripadvisor: 1, wikipedia: 1 })) {
+    const allowed = categoriesForSource(src);
+    for (const cat of CATS) {
+      const routed = sourcesFor(cat).includes(src);
+      const permitted = allowed === null || allowed.includes(cat);
+      ok(routed === permitted, `categoriesForSource(${src}) disagrees with sourcesFor(${cat}) — routed=${routed} permitted=${permitted}`);
+    }
+  }
+  ok(categoriesForSource("yelp") && categoriesForSource("yelp").length === 2, "yelp is the only source restricted at all — everything else is universal (null)");
+  ok(categoriesForSource("wikipedia") === null && categoriesForSource("foursquare") === null && categoriesForSource("tripadvisor") === null,
+    "wikipedia/foursquare/tripadvisor are universal — present in every sourcesFor branch including the default arm");
+}
+// v9.0 — yelp is capped now that the stale-batch selector is per-source and
+// yelp gets its OWN dedicated food/nightlife batch instead of whatever
+// happened to land in the old shared one (12,290 eligible places route to
+// it — an uncapped dedicated batch could reach 1,200 calls/day against the
+// ~500/day free tier, the exact shape that already burned Foursquare's).
+ok(SOURCE_CAPS.yelp > 0 && SOURCE_CAPS.yelp < 100, "yelp has a real per-run cap now that its batch is dedicated, not incidental");
 
 // source contract
 const lib = readFileSync(new URL("../lib/popularity.js", import.meta.url), "utf8");
@@ -94,6 +119,17 @@ ok(route.includes('auth !== "Bearer " + secret'), "cron is CRON_SECRET-gated");
 ok(route.includes("SUPABASE_SERVICE_ROLE_KEY"), "writes go through the service role");
 ok(route.includes('onConflict: "place_id,source"'), "one row per place per source (upsert)");
 ok(route.includes("wf_popularity_stale_batch"), "batch = the stalest places, not a random scan");
+// v9.0 — per-source batching and the attempt ledger (20260907_wf_popularity_attempt_ledger.sql)
+ok(/for \(const src of SOURCES\)[\s\S]{0,200}wf_popularity_stale_batch/.test(route), "wf_popularity_stale_batch is called ONCE PER SOURCE — a single shared batch cannot correctly drive four independently-throttled sources");
+ok(route.includes("p_categories: categoriesForSource(src)"), "each source's batch is category-scoped through categoriesForSource, not a hardcoded list duplicated here");
+ok(route.includes('db.rpc("wf_popularity_record_attempts"'), "THE FIX: every (place, source) pair actually tried is recorded to the attempt ledger, success or failure — a failed lookup is still an attempt");
+{
+  const workFnStart = route.indexOf("const work = workItems.map(");
+  const capCheckIdx = route.indexOf("if (cap != null && (spent[src] || 0) >= cap) return;", workFnStart);
+  const pushIdx = route.indexOf("attempts.push(", workFnStart);
+  ok(workFnStart > -1 && capCheckIdx > -1 && pushIdx > -1 && capCheckIdx < pushIdx,
+    "a source that hit its per-run cap this run must be SKIPPED (return) BEFORE attempts.push runs — it was never asked, so it must not look 'just tried'");
+}
 ok(route.includes('recordPulse("popularity:" + src'), "every source records its OWN jobPulse — a dead source flatlines its pulse and job-watch emails it by name (the 3-month silent Foursquare death can never recur)");
 ok(/onlyNoKey \? 0 : spent\[src\]/.test(route), "a missing key pulses idle (not configured != failing) — deliberate key removal never pages");
 const vj = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));

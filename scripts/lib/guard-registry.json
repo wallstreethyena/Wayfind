@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-06",
+  "generated": "2026-09-07",
   "generator": "scripts/lib/build-guard-registry.mjs",
   "schemaNotes": "Mechanically-derived fields (class/assertionCount/wiring/gating/critical/criticalReasons) are regenerated every run from scripts/guards.txt, package.json, .github/workflows/*.yml, ops/*.workflow.yml and scripts/lib/guardHonestyAnalysis.mjs — editing them by hand will be overwritten on the next `node scripts/lib/build-guard-registry.mjs`. Hand-authored fields (protects/blastRadius/owner) live in scripts/lib/guard-registry-overrides.json and are merged in; they are REQUIRED for every entry with critical:true and optional elsewhere. scripts/check-guard-registry.mjs (the CI guard) re-derives guards.txt wiring LIVE rather than trusting this file's cached `wiring.guardsTxt` — this snapshot is for humans reading the registry.",
   "moneyKeywordRegexSource": "\\b(spend\\w*|affiliat\\w*|book(?:ing)?\\w*|env(?:ironment)?|commerce\\w*|viator|monet\\w*)\\b",
@@ -26,16 +26,16 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 551,
-    "totalRegistryEntries": 552,
-    "guardsTxtLineCount": 550,
-    "guardsTxtReachedFileCount": 546,
+    "totalOnDiskGuardFiles": 552,
+    "totalRegistryEntries": 553,
+    "guardsTxtLineCount": 551,
+    "guardsTxtReachedFileCount": 547,
     "criticalCount": 65,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 365,
-      "RENDER": 43,
-      "STRUCTURAL": 143,
+      "CALL": 364,
+      "RENDER": 44,
+      "STRUCTURAL": 144,
       "OTHER": 1
     }
   },
@@ -4755,7 +4755,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 25,
+      "assertionCount": 29,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
@@ -5319,6 +5319,28 @@
       "owner": null
     },
     {
+      "file": "scripts/check-popularity-attempt-ledger.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 31,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-position-memory.mjs",
       "npmScript": null,
       "class": "STRUCTURAL",
@@ -5748,12 +5770,12 @@
       "npmScript": null,
       "class": "STRUCTURAL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 16,
+      "assertionCount": 0,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
       ],
-      "selfDocumentsRedProve": true,
+      "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
@@ -7440,9 +7462,9 @@
     {
       "file": "scripts/test-api-guard.mjs",
       "npmScript": null,
-      "class": "CALL",
+      "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 26,
+      "assertionCount": 49,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -9826,12 +9848,12 @@
     {
       "file": "scripts/test-fall-intent-rails.mjs",
       "npmScript": null,
-      "class": "CALL",
+      "class": "STRUCTURAL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 100,
-      "unprovenAbsenceCount": 1,
+      "assertionCount": 0,
+      "unprovenAbsenceCount": 0,
       "honestyViolations": [
-        "1 absence assertion(s) with no positive control in the same file (e.g. \"fallOwnedImage.includes(encodeURIComponent(ownedPhotoRef)) && !/augtober-760/.te\")"
+        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
       ],
       "selfDocumentsRedProve": false,
       "wiring": {
@@ -11450,7 +11472,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 35,
+      "assertionCount": 43,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
