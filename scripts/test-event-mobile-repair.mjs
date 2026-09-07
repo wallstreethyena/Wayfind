@@ -18,10 +18,12 @@ assert.deepEqual(reads, [photoCacheKey(ref, 220), photoCacheKey(ref, 640)]);
 assert.equal(ledger, 0); assert.equal(upstream, 0); assert.equal(writes, 0);
 assert.equal((await resolvePlacePhoto({ ...input, gateShut: true }, deps)).location, uri);
 assert.equal((await resolvePlacePhoto({ ...input, w: 1200, gateShut: true }, deps)).type, "empty");
-assert.equal((await resolvePlacePhoto(input, { ...deps, cacheGet: async () => null })).type, "miss");
-assert.equal(ledger, 1); assert.equal(upstream, 1);
+assert.equal((await resolvePlacePhoto(input, { ...deps, cacheGet: async () => null })).type, "empty");
+assert.equal(ledger, 1); assert.equal(upstream, 0);
 await resolvePlacePhoto({ ...input, gateShut: true }, { ...deps, cacheGet: async () => null });
-assert.equal(ledger, 1); assert.equal(upstream, 1);
+assert.equal(ledger, 1); assert.equal(upstream, 0);
+assert.equal((await resolvePlacePhoto({ ...input, authorizeSpend: async () => { ledger++; return true; } }, { ...deps, cacheGet: async () => null })).type, "miss");
+assert.equal(ledger, 2); assert.equal(upstream, 1);
 
 const origin = { lat: 27.34, lng: -82.55 }, destination = { lat: 28.04, lng: -82.42 };
 assert.deepEqual(validateRouteInput(origin, destination), { ok: true, origin, destination });

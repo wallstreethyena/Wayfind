@@ -8,7 +8,7 @@
 // "csp-violation" line each in the Vercel function logs). After SEVEN DAYS
 // of production traffic with zero same-origin violations, rename the header
 // to Content-Security-Policy and remove this note.
-const { withSentryConfig } = require("@sentry/nextjs");
+const { withSentryConfig } = require("@sentry/nextjs/config");
 
 const CSP_REPORT_ONLY = [
   "default-src 'self'",
@@ -206,7 +206,9 @@ const nextConfig = {
 module.exports = withSentryConfig(nextConfig, {
   silent: true,
   telemetry: false,               // no build metadata leaves the verification environment
-  disableLogger: true,            // tree-shake Sentry's debug logging from the bundle
+  webpack: {
+    treeshake: { removeDebugLogging: true }, // remove Sentry debug logging from the bundle
+  },
   widenClientFileUpload: false,
   sourcemaps: { disable: true },  // source-map upload deferred (needs SENTRY_AUTH_TOKEN) — follow-up
   // no tunnelRoute — beacons go direct to the CSP-allowlisted ingest host

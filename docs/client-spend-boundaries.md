@@ -18,3 +18,26 @@ DNS-rebinding destinations and validate every redirect hop.
 The executable regression scripts use injected transports. They prove denial
 and positive controls without contacting a paid provider or changing production
 data. Run the complete policy with `node scripts/run-guards.mjs`.
+
+Autocomplete returns a non-cacheable HTTP 503 with an explicit reason when the
+gate is closed, `AUTOCOMPLETE_MONTH_CAP` is absent or invalid, or the ledger
+denies the request. Only a successful provider response can be a normal HTTP
+200 empty suggestion list. A missing server key retains its HTTP 501 response.
+
+The required GitHub `guards` job runs `npm audit --audit-level=moderate` over
+the entire lockfile, including build and native development tooling, before
+the application guards and production build. A known moderate-or-higher
+advisory or an unavailable audit service blocks that job; do not bypass it by
+excluding development dependencies.
+
+Production confirmation settings were checked on September 7, 2026: email
+signup is enabled and automatic email confirmation is disabled. The spending
+ledger RPC is executable by `service_role`, not `anon` or `authenticated`.
+These configuration checks do not prove SMTP delivery or provider availability.
+
+The unused `@capacitor/assets` generator was removed because its current
+dependency chain contains known vulnerabilities. Committed iOS icon and splash
+assets remain in place; Capacitor CLI and iOS sync remain supported. Future
+automated artwork regeneration needs a maintained generator rather than
+reinstalling the vulnerable package. The scoped `xcode` UUID override retains
+its CommonJS `v4()` interface and is verified by parsing the native project.
