@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 561,
-    "totalRegistryEntries": 562,
-    "guardsTxtLineCount": 558,
-    "guardsTxtReachedFileCount": 554,
+    "totalOnDiskGuardFiles": 562,
+    "totalRegistryEntries": 563,
+    "guardsTxtLineCount": 559,
+    "guardsTxtReachedFileCount": 555,
     "criticalCount": 65,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 370,
+      "CALL": 371,
       "RENDER": 45,
       "STRUCTURAL": 146,
       "OTHER": 1
@@ -10553,6 +10553,28 @@
       "honestyViolations": [
         "1 absence assertion(s) with no positive control in the same file (e.g. \"!codes.includes(cut),\n    cut + \"\")"
       ],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-known-city-geocode.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 13,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
