@@ -9,6 +9,7 @@ import { FALL_DISCOVERIES_2026, FALL_DISCOVERY_RAIL, FALL_SEASONAL_PLACE_IDS } f
 import { railScrollNeedsMore, windowRailAnswer } from "../lib/railResponse.js";
 import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../lib/fallPhotoSpots.js";
 import { FALL_COLLECTION_POSTER, fallEventCardImageSrc } from "../lib/fallEventImage.js";
+import { DISPLAYABLE_STATUS } from "../lib/curatedEvents.js";
 
 let pass = 0;
 const failures = [];
@@ -117,7 +118,18 @@ ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "
 ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "oktoberfest").length === 2, "Oktoberfest Miami and Weekend at BerryHaus live in Oktoberfest");
 ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "festivals").length === 1, "Deerfield Beach Fall Festival lives in outdoor festivals");
 ok(FALL_DISCOVERIES_2026.filter((row) => FALL_DISCOVERY_RAIL[row.event_id] === "theme-parks").length === 1, "Zoo Miami Monster Masquerade lives in Halloween Theme Parks");
-ok(FALL_DISCOVERIES_2026.filter((row) => row.verification_confidence === "high").length === 22, "eight original first-party rows plus fourteen Miami official-organizer programs carry high confidence");
+ok(FALL_DISCOVERIES_2026.filter((row) => row.verification_confidence === "high").length === 21, "eight original first-party rows plus thirteen Miami official-organizer programs carry high confidence (Faena dropped to medium 2026-09-07: its only official page is the 2025 edition)");
+// Lane D hold (2026-09-07) — a row whose only source is a PRIOR year's page
+// must not be shown as a confirmed 2026 event. `unannounced` sits outside
+// DISPLAYABLE_STATUS, so the rail's isTrusted gate hides it. Both halves are
+// asserted: the registry state AND the gate's verdict on that exact row.
+{
+  const faena = FALL_DISCOVERIES_2026.find((row) => row.event_id === "halloween-at-faena-miami-beach-2026");
+  ok(faena && faena.event_status === "unannounced", "Halloween at Faena is held as unannounced until a dated 2026 page exists (official page reads 'Friday, October 31', which is 2025)");
+  ok(faena && !DISPLAYABLE_STATUS.has(faena.event_status), "…and that status is outside DISPLAYABLE_STATUS, so no rail can show it as a 2026 date");
+  const scheduledTwin = { ...faena, event_status: "scheduled" };
+  ok(DISPLAYABLE_STATUS.has(scheduledTwin.event_status), "CONTROL: the same row flipped back to scheduled would be displayable again — the hold is the status, nothing else");
+}
 ok(FALL_SEASONAL_PLACE_IDS.size === 10, "the ten permanent-business discoveries are explicitly modeled as seasonal places");
 ok(FALL_DISCOVERIES_2026.filter((row) => !FALL_SEASONAL_PLACE_IDS.has(row.event_id)).length === 23, "dated farm and Miami programs remain events; Palace stays an event because it is press-verified with no owned place_id");
 const miamiPackIds = [
