@@ -6,6 +6,7 @@ import {
 } from "../lib/fallIntentRails.js";
 import { FALL_PLACE_IDS, FALL_PLACE_RAIL } from "../lib/fallPool.js";
 import { FALL_DISCOVERIES_2026, FALL_DISCOVERY_RAIL, FALL_SEASONAL_PLACE_IDS } from "../lib/fallDiscoveries2026.js";
+import { GULF_COAST_FALL_2026_ROWS } from "../lib/gulfCoastFall2026.js";
 import { railScrollNeedsMore, windowRailAnswer } from "../lib/railResponse.js";
 import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../lib/fallPhotoSpots.js";
 import { FALL_COLLECTION_POSTER, fallEventCardImageSrc } from "../lib/fallEventImage.js";
@@ -98,11 +99,14 @@ const discoveryIds = FALL_DISCOVERIES_2026.map((row) => row.event_id);
 ok(FALL_DISCOVERIES_2026.length === 33 && new Set(discoveryIds).size === 33, "all 33 Fall in Florida discoveries exist exactly once");
 ok(discoveryIds.every((id) => id in FALL_DISCOVERY_RAIL), "every new discovery has one explicit primary intent");
 // 2026-09-03: the registry also pins the Sarasota-side rows seeded by
-// scripts/seed-fall-sarasota-2026.mjs — every pinned id is a discovery or one
-// of those seeded rows, and every pin targets an approved rail.
+// scripts/seed-fall-sarasota-2026.mjs or the reviewed Gulf Coast package —
+// every pinned id belongs to canonical source data and every pin targets an
+// approved rail.
 const sarasotaSeed = readFileSync(new URL("../scripts/seed-fall-sarasota-2026.mjs", import.meta.url), "utf8");
 const seededIds = new Set([...sarasotaSeed.matchAll(/event_id: "([a-z0-9-]+-2026)"/g)].map((m) => m[1]));
-ok(Object.keys(FALL_DISCOVERY_RAIL).every((id) => discoveryIds.includes(id) || seededIds.has(id)), "every explicit rail pin names a discovery or a Sarasota-seed row");
+const gulfCoastIds = new Set(GULF_COAST_FALL_2026_ROWS.map((row) => row.event_id));
+ok(Object.keys(FALL_DISCOVERY_RAIL).every((id) => discoveryIds.includes(id) || seededIds.has(id) || gulfCoastIds.has(id)), "every explicit rail pin names canonical discovery source data");
+ok([...gulfCoastIds].every((id) => id in FALL_DISCOVERY_RAIL), "every reviewed Gulf Coast event has one explicit primary intent");
 ok([...seededIds].filter((id) => !(id in FALL_DISCOVERY_RAIL)).length === 0 && seededIds.size >= 21, `every Sarasota-seed row (${seededIds.size}) is pinned to one shelf`);
 ok(Object.values(FALL_DISCOVERY_RAIL).every((rail) => expected.includes(rail)), "every explicit pin targets an approved rail");
 ok(FALL_DISCOVERIES_2026.every((row) => fallEventRail(row) === FALL_DISCOVERY_RAIL[row.event_id]), "every new discovery resolves to its approved rail");
