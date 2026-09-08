@@ -30,6 +30,7 @@ export function runEvidenceDir(baseDir, date = new Date()) {
  * @param {string} args.url - the exact URL the scenario was checking (redacted before writing)
  * @param {{width:number,height:number}|null} args.viewport
  * @param {Array<{name:string, pass:boolean, expected?:any, actual?:any}>} args.assertions
+ * @param {string[]} args.notes - scenario diagnostic facts (redacted before writing)
  * @param {string[]} args.consoleErrors
  * @param {Array<object>} args.networkFailures - raw (unredacted) rows; redacted here
  * @param {Buffer|null} args.screenshot
@@ -39,7 +40,7 @@ export function runEvidenceDir(baseDir, date = new Date()) {
 export function writeScenarioFailureEvidence(args) {
   const {
     runDir, scenarioId, scenarioName, baseUrl, url, viewport,
-    assertions, consoleErrors, networkFailures, screenshot, reproCommand,
+    assertions, notes, consoleErrors, networkFailures, screenshot, reproCommand,
   } = args;
   if (!runDir) throw new Error("writeScenarioFailureEvidence: runDir is required");
   if (!scenarioId) throw new Error("writeScenarioFailureEvidence: scenarioId is required");
@@ -63,6 +64,11 @@ export function writeScenarioFailureEvidence(args) {
       actual: a.actual === undefined ? undefined : a.actual,
     })),
     failingCount: failing.length,
+    // Notes carry the monitor's compact reconciliation facts (counts and place
+    // ids) that explain a failed assertion. They may still include URLs from a
+    // future scenario, so use the exact same URL-in-text redaction as console
+    // output before persisting them.
+    notes: redactTextList((notes || []).slice(0, 100)),
     // consoleErrors are free text straight from Chromium's console — a fetch
     // failure logs its own full request URL, credentials and all. Scrub any
     // URL embedded in the text before it ever reaches disk (see

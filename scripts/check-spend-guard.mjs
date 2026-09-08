@@ -129,6 +129,12 @@ if (!/TEXT_PRO_MASK/.test(search)) die("search route lost TEXT_PRO_MASK - free m
 const proMask = search.match(/const TEXT_PRO_MASK = \[([^\]]*)\]/);
 if (!proMask) die("TEXT_PRO_MASK not parseable");
 else if (/rating|priceLevel|priceRange|regularOpeningHours|businessStatus/.test(proMask[1])) die("TEXT_PRO_MASK carries an Enterprise-tier field - free mode would bill.");
+if (!/places\.primaryType/.test(proMask?.[1] || "")) die("TEXT_PRO_MASK dropped primaryType - category identity becomes source-mode dependent.");
+const richMask = search.match(/const FIELD_MASK = \[([^\]]*)\]/);
+if (!richMask || !/places\.primaryType/.test(richMask[1])) die("rich Text Search dropped primaryType - category identity becomes source-mode dependent.");
+const refreshMask = read("app/api/places/refresh/route.js").match(/const FIELD_MASK = \[([^\]]*)\]/);
+if (!refreshMask || !/places\.primaryType/.test(refreshMask[1])) die("refresh Text Search dropped primaryType - refreshed cards can change category.");
+if (!/place:\s*"[^"]*primaryType/.test(read("app/api/places/details/route.js"))) die("Place Details dropped primaryType - selected cards can change category.");
 if (!/spendAllow\("text_pro"\)/.test(search)) die("search route can pay Google without a text_pro ledger grant.");
 if (!/spendAllow\("details_enterprise"\)/.test(read("lib/placeDetails.js"))) die("placeDetails can pay Google without a details_enterprise ledger grant.");
 if (!/spendAllow\("photos"\)/.test(read("app/api/photo/route.js"))) die("photo route can pay Google without a photos ledger grant.");

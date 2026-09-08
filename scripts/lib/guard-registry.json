@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 581,
-    "totalRegistryEntries": 582,
-    "guardsTxtLineCount": 579,
-    "guardsTxtReachedFileCount": 574,
+    "totalOnDiskGuardFiles": 582,
+    "totalRegistryEntries": 583,
+    "guardsTxtLineCount": 580,
+    "guardsTxtReachedFileCount": 575,
     "criticalCount": 69,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 388,
+      "CALL": 389,
       "RENDER": 47,
       "STRUCTURAL": 146,
       "OTHER": 1
@@ -6886,11 +6886,9 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 5,
-      "unprovenAbsenceCount": 1,
-      "honestyViolations": [
-        "1 absence assertion(s) with no positive control in the same file (e.g. \"!/(?<!\\\\b)\\|(bar|pub|club|disco)\\|/.test(src),\n    `\")"
-      ],
+      "assertionCount": 7,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
@@ -6954,7 +6952,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 76,
+      "assertionCount": 97,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
@@ -7860,7 +7858,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 75,
+      "assertionCount": 77,
       "unprovenAbsenceCount": 2,
       "honestyViolations": [
         "2 absence assertion(s) with no positive control in the same file (e.g. \"/planAtlasAllowlistSeed\\(/.test(ingest) && /atlasAllowlistApplyGate\\(/.test(inge\")"
@@ -11438,6 +11436,28 @@
       "owner": "Revenue QA"
     },
     {
+      "file": "scripts/test-morning-identity.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 88,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-morning-picks.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -12393,10 +12413,10 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 44,
+      "assertionCount": 80,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
-      "selfDocumentsRedProve": false,
+      "selfDocumentsRedProve": true,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],

@@ -359,6 +359,7 @@ export default function RailCard({
   return (
     <article
       ref={domRef}
+      data-place-id={place?.id || undefined}
       className={`wf-place-card wf-rail-card${fallCardClass(place && place.id, siteTodayStr())}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${className ? " " + className : ""}`}
       role="button"
       tabIndex={0}

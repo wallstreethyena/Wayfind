@@ -27,6 +27,18 @@
 // A scenario throwing is caught by the runner and recorded as one failing
 // assertion named "scenario did not throw" — it does not abort the run.
 import { STABLE_PLACE_ID, SARASOTA, ORLANDO } from "./fixtures.mjs";
+import {
+  EXPECTED_VISIBLE_POSTER_IDS,
+  posterMenuDiff,
+  railWindowFromCapturedPayload,
+  rowsForRailWindow,
+  mergeCapturedRailWindows,
+  composedRows,
+  reconcileRenderedCards,
+  exactRenderedIdSet,
+} from "./menuPosterIntegrity.mjs";
+import { splitBreakfastRails } from "../../../lib/breakfastRails.js";
+import { composeWorthEatingRails } from "../../../lib/worthEatingRails.js";
 
 /**
  * HOW LONG THE HOMEPAGE MAY TAKE TO SHOW ITS FIRST REAL PLACE CARD.
@@ -57,6 +69,7 @@ export const REQUIRED_FLOWS = Object.freeze([
   "book-links",
   "location-behavior",
   "mobile-390",
+  "menu-poster-integrity",
 ]);
 
 /**
@@ -110,6 +123,187 @@ async function toggledAfterClick(locator) {
   const after = await read();
   const changed = before.ariaPressed !== after.ariaPressed || before.cls !== after.cls || before.text !== after.text;
   return { changed, before, after };
+}
+
+// The Breakfast and Actually Worth Eating posters are special: each receives
+// the shared compact /api/rails response, then composes it into several
+// visible rails.  This observer keeps the browser response as the source of
+// truth — it makes no second data request and therefore cannot compare a card
+// to a different cache generation.
+async function verifyComposedPoster({ ctx, page, payload, posterId, dataRailId, railPrefix, compose, componentSelectors }) {
+  const initialWindow = railWindowFromCapturedPayload(payload, dataRailId);
+  ctx.ok(`${posterId}: paging metadata is present on the captured /api/rails response`, initialWindow.metadataPresent, "total + hasMore", {
+    total: initialWindow.expectedCount, hasMore: initialWindow.hasMore,
+  });
+  ctx.ok(`${posterId}: initial paging metadata is internally consistent`, initialWindow.metadataConsistent, "consistent", {
+    returned: initialWindow.returnedCount, total: initialWindow.expectedCount, hasMore: initialWindow.hasMore,
+  });
+
+  const tile = page.locator(`.wf8-tile[data-id="${posterId}"] .wf8-tlink`).first();
+  ctx.ok(`${posterId}: its poster remains an interactive tile`, await tile.count() === 1, "one tile link/button", await tile.count());
+  if (await tile.count()) await tile.click();
+
+  // The lazy composer has either mounted its named sections, produced a real
+  // card rail, or reached an explicit error.  Waiting on one of those states
+  // prevents a fast, empty pre-hydration snapshot from becoming a false green.
+  const terminal = await page.waitForFunction(({ prefix, selectors }) => {
+    const root = document.querySelector(".wf8-menusec");
+    if (!root) return false;
+    const text = root.innerText || "";
+    const hasCards = root.querySelectorAll(`[data-rail^="${prefix}"] .wf-place-card`).length > 0;
+    const hasComponent = selectors.some((selector) => !!root.querySelector(selector));
+    const error = /couldn['’]t reach|try again|still ranking|more places didn['’]t load/i.test(text);
+    return hasCards || hasComponent || error;
+  }, { prefix: railPrefix, selectors: componentSelectors }, { timeout: 18000 }).then(() => true, () => false);
+  ctx.ok(`${posterId}: its post-click card surface settled (cards, a complete empty, or a visible failure)`, terminal, "settled within 18s", terminal ? "settled" : "not settled");
+
+  // Use the ACTUAL continuation affordance a reader sees.  The continuation
+  // response is captured from that click in this same browser/context; no
+  // direct fetch is made and no provider call is added.  A healthy >12 rail
+  // must therefore reach its full metadata total rather than fail merely for
+  // being deliberately compact on first paint.
+  const capturedPayloads = [payload];
+  let nextWindow = initialWindow;
+  let continuationSteps = 0;
+  while (nextWindow.hasMore === true && continuationSteps < 20) {
+    const more = page.getByRole("button", { name: "Show more ranked places" }).first();
+    const hasMoreButton = await more.count() === 1;
+    ctx.ok(`${posterId}: a real continuation control is available while paging metadata says more`, hasMoreButton, "Show more ranked places button", hasMoreButton ? "present" : "absent");
+    if (!hasMoreButton) break;
+    const expectedOffset = nextWindow.returnedCount;
+    const continuationResponse = page.waitForResponse((response) => {
+      try {
+        const url = new URL(response.url());
+        return url.pathname === "/api/rails"
+          && url.searchParams.get("v") === "2"
+          && url.searchParams.get("rail") === dataRailId
+          && Number(url.searchParams.get("offset")) === expectedOffset;
+      } catch { return false; }
+    }, { timeout: 18000 }).catch(() => null);
+    // Arm this BEFORE the click. A normal button immediately after
+    // response.json() can still be the pre-merge button; observing the loading
+    // transition stops the next loop from clicking it twice against stale UI.
+    const loadingSeen = page.waitForFunction(() => {
+      const root = document.querySelector(".wf8-menusec");
+      const text = root?.innerText || "";
+      const button = [...(root?.querySelectorAll("button") || [])]
+        .find((candidate) => /show more ranked places|loading more places/i.test(candidate.textContent || ""));
+      return /couldn['’]t reach|try again|more places didn['’]t load/i.test(text)
+        || !!button && (button.disabled || /loading more places/i.test(button.textContent || ""));
+    }, undefined, { timeout: 5000 }).then(() => true, () => false);
+    await more.click();
+    const response = await continuationResponse;
+    ctx.ok(`${posterId}: clicking continuation produced its matching browser network response`, !!response, `rail=${dataRailId}, offset=${expectedOffset}`, response ? response.status() : "not captured");
+    if (!response) break;
+    const nextPayload = await response.json().catch(() => null);
+    ctx.ok(`${posterId}: continuation response is a healthy covered rail payload`, response.status() === 200 && !!nextPayload && nextPayload.covered === true && !!nextPayload.data && nextPayload.failed !== true, "200 covered data payload", {
+      status: response.status(), covered: nextPayload?.covered, failed: nextPayload?.failed,
+    });
+    if (!nextPayload || response.status() !== 200 || nextPayload.covered !== true || !nextPayload.data || nextPayload.failed === true) break;
+    capturedPayloads.push(nextPayload);
+    // The route's offset is the number of rows already delivered.  Reading it
+    // back from the merged capture catches a response that repeats page one.
+    const merged = mergeCapturedRailWindows(capturedPayloads, dataRailId);
+    nextWindow = { ...railWindowFromCapturedPayload(nextPayload, dataRailId), returnedCount: merged.returnedCount };
+    const didShowLoading = await loadingSeen;
+    ctx.note(`menu-poster-integrity ${posterId}: continuation ${continuationSteps + 1} loading lifecycle observed=${didShowLoading}`);
+    // Response bodies are not rendered cards.  After every captured page wait
+    // for the merged source's current exact card set before another click can
+    // be considered safe.  This is usually the decisive state change (and is
+    // necessarily so for the card-13 regression); if a page adds only rows a
+    // composer correctly rejects, the button-state wait below remains the
+    // observable continuation contract.
+    const partialExpectedIds = composedRows(compose(rowsForRailWindow(merged).rows)).map((row) => String(row?.id || "")).filter(Boolean);
+    const mergedRenderApplied = await page.waitForFunction(({ prefix, expectedIds }) => {
+      const root = document.querySelector(".wf8-menusec");
+      const text = root?.innerText || "";
+      if (/couldn['’]t reach|try again|more places didn['’]t load/i.test(text)) return true;
+      const ids = [...(root?.querySelectorAll(`[data-rail^="${prefix}"] .wf-place-card`) || [])]
+        .map((card) => card.getAttribute("data-place-id") || "")
+        .filter(Boolean);
+      return ids.length === expectedIds.length && new Set(ids).size === ids.length && ids.every((id) => expectedIds.includes(id));
+    }, { prefix: railPrefix, expectedIds: partialExpectedIds }, { timeout: 12000 }).then(() => true, () => false);
+    ctx.ok(`${posterId}: the captured continuation was applied to the current merged DOM card set`, mergedRenderApplied, "merged data-place-id set or visible failure", mergedRenderApplied);
+    if (nextWindow.hasMore === true) {
+      const nextControlSettled = await page.waitForFunction(() => {
+        const root = document.querySelector(".wf8-menusec");
+        const text = root?.innerText || "";
+        if (/couldn['’]t reach|try again|more places didn['’]t load/i.test(text)) return true;
+        const button = [...(root?.querySelectorAll("button") || [])]
+          .find((candidate) => /show more ranked places|loading more places/i.test(candidate.textContent || ""));
+        return !!button && !button.disabled && !/loading more places/i.test(button.textContent || "");
+      }, undefined, { timeout: 12000 }).then(() => true, () => false);
+      ctx.ok(`${posterId}: continuation control settled back to an enabled next-page state`, nextControlSettled, "enabled Show more ranked places or visible failure", nextControlSettled);
+    }
+    continuationSteps++;
+  }
+  ctx.ok(`${posterId}: paging reached a terminal response before the monitor safety cap`, nextWindow.hasMore !== true, "hasMore=false", {
+    hasMore: nextWindow.hasMore, continuationSteps,
+  });
+  const mergedWindow = mergeCapturedRailWindows(capturedPayloads, dataRailId);
+  ctx.ok(`${posterId}: all captured paging metadata agrees on one total`, !mergedWindow.totalChanged, "one stable total", mergedWindow.totalChanged ? "changed total" : mergedWindow.expectedCount);
+  ctx.ok(`${posterId}: browser-captured pages are complete, never truncated`, mergedWindow.complete, "all ids through total, final hasMore=false", {
+    returned: mergedWindow.returnedCount, total: mergedWindow.expectedCount, hasMore: mergedWindow.hasMore,
+    pages: mergedWindow.pageCount, duplicateIds: mergedWindow.duplicateIds, missingRowIds: mergedWindow.missingRowIds,
+  });
+  const source = rowsForRailWindow(mergedWindow);
+  ctx.ok(`${posterId}: every returned place id resolves in the merged same-browser placeIndex`, source.missingRowIds.length === 0, "0 missing indexed rows", source.missingRowIds);
+  const expectedRows = composedRows(compose(source.rows));
+  const expectedIds = expectedRows.map((row) => String(row?.id || "")).filter(Boolean);
+  // Do not inspect a just-received response and call it rendered.  The React
+  // merge happens asynchronously after response.json(); wait until the final
+  // exact DOM identity set is present, or until a reader-visible error says why
+  // it could not happen. This is the card-13 proof for a >12 rail.
+  const finalRenderSettled = await page.waitForFunction(({ prefix, expectedIds }) => {
+    const root = document.querySelector(".wf8-menusec");
+    const text = root?.innerText || "";
+    if (/couldn['’]t reach|try again|more places didn['’]t load/i.test(text)) return true;
+    const ids = [...(root?.querySelectorAll(`[data-rail^="${prefix}"] .wf-place-card`) || [])]
+      .map((card) => card.getAttribute("data-place-id") || "")
+      .filter(Boolean);
+    return ids.length === expectedIds.length
+      && new Set(ids).size === ids.length
+      && ids.every((id) => expectedIds.includes(id));
+  }, { prefix: railPrefix, expectedIds }, { timeout: 15000 }).then(() => true, () => false);
+  ctx.ok(`${posterId}: final DOM card ids settled to the fully merged source (including card 13 when present)`, finalRenderSettled, "exact final data-place-id set or visible failure", finalRenderSettled);
+
+  const surface = await page.evaluate(({ prefix }) => {
+    const root = document.querySelector(".wf8-menusec");
+    if (!root) return { cards: [], busy: false, error: true, text: "missing menu" };
+    const cards = [...root.querySelectorAll(`[data-rail^="${prefix}"] .wf-place-card`)];
+    const renderedCards = cards.map((card) => ({
+      id: card.getAttribute("data-place-id") || "",
+      name: (card.querySelector(".wf-place-card-name")?.textContent || "").trim(),
+    }));
+    const text = root.innerText || "";
+    return {
+      cards: renderedCards,
+      busy: !!root.querySelector('[aria-busy="true"]'),
+      error: /couldn['’]t reach|try again|more places didn['’]t load/i.test(text),
+      text: text.slice(0, 220),
+    };
+  }, { prefix: railPrefix });
+  ctx.ok(`${posterId}: no loading state remains after the source settled`, !surface.busy, false, surface.busy);
+  ctx.ok(`${posterId}: no ranking/load error is presented as cards`, !surface.error, false, surface.error ? surface.text : "none");
+
+  const reconciliation = reconcileRenderedCards(expectedRows, surface.cards);
+  ctx.ok(`${posterId}: every rendered card exposes an exact data-place-id`, reconciliation.missingDomIds.length === 0, "0 cards without data-place-id", reconciliation.missingDomIds);
+  ctx.ok(`${posterId}: every rendered card maps to a captured place id`, reconciliation.unknownNames.length === 0, "0 unknown fallback card names", reconciliation.unknownNames);
+  ctx.ok(`${posterId}: rendered cards exactly match the captured response's composed ids`, reconciliation.missingIds.length === 0 && reconciliation.extraIds.length === 0 && reconciliation.duplicateRenderedIds.length === 0, "no missing, extra, or duplicate ids", {
+    missingIds: reconciliation.missingIds,
+    extraIds: reconciliation.extraIds,
+    duplicateIds: reconciliation.duplicateRenderedIds,
+  });
+  ctx.ok(`${posterId}: an empty card surface is accepted only for a truly complete empty source`, expectedRows.length > 0 || mergedWindow.trulyEmpty, "cards, or total=0 + hasMore=false", {
+    expectedCards: expectedRows.length,
+    total: mergedWindow.expectedCount,
+    hasMore: mergedWindow.hasMore,
+  });
+
+  // Notes are persisted into failure evidence.  They are deliberately ids and
+  // counts only: enough to diagnose a missing/extra card without a raw URL,
+  // place payload, query string, or any provider credential.
+  ctx.note(`menu-poster-integrity ${posterId}: expected(total)=${mergedWindow.expectedCount ?? "missing"}; returned(merged)=${mergedWindow.returnedCount}; composedExpected=${expectedRows.length}; rendered=${reconciliation.renderedCount}; pages=${mergedWindow.pageCount}; missingIds=${JSON.stringify(reconciliation.missingIds)}; extraIds=${JSON.stringify(reconciliation.extraIds)}`);
 }
 
 export const SCENARIOS = [
@@ -234,6 +428,74 @@ export const SCENARIOS = [
       );
       const totalCards = bandInfo.reduce((s, r) => s + r.cards, 0);
       ctx.ok("the bands carry a substantial number of cards in total", totalCards >= 10, ">= 10", totalCards);
+    },
+  },
+
+  // ── 2b. poster menu + composed-card integrity ──────────────────────────
+  {
+    id: "menu-poster-integrity",
+    flow: "menu-poster-integrity",
+    name: "All 18 homepage posters and their meal-card answers are intact",
+    description: "The live menu exposes exactly its 18 approved poster ids, and Breakfast plus Actually Worth Eating render the exact cards from the same captured /api/rails response with truthful paging metadata.",
+    async run(ctx) {
+      const page = await ctx.openPage({ viewport: { width: 1280, height: 900 } });
+      // Register before navigation: a production cache hit can answer before
+      // a post-goto listener is attached, and a monitor that misses its own
+      // evidence source must fail rather than infer a result from the DOM.
+      const railsResponse = page.waitForResponse((response) => {
+        try {
+          const url = new URL(response.url());
+          return url.pathname === "/api/rails" && url.searchParams.get("v") === "2";
+        } catch { return false; }
+      }, { timeout: 20000 }).catch(() => null);
+
+      const url = ctx.baseUrl + "/";
+      await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
+      ctx.setUrl(url);
+      await page.locator(".wf8-tile").first().waitFor({ state: "visible", timeout: 20000 }).catch(() => {});
+
+      const visibleIds = await page.evaluate(() => [...document.querySelectorAll(".wf8-tile")]
+        .filter((tile) => {
+          const style = getComputedStyle(tile);
+          return style.display !== "none" && style.visibility !== "hidden";
+        })
+        .map((tile) => tile.getAttribute("data-id")));
+      const posters = posterMenuDiff(visibleIds);
+      ctx.ok("the homepage renders exactly the 18 approved visible poster ids", posters.missingIds.length === 0 && posters.extraIds.length === 0 && posters.duplicateIds.length === 0 && posters.returned.length === EXPECTED_VISIBLE_POSTER_IDS.length, EXPECTED_VISIBLE_POSTER_IDS, {
+        returned: posters.returned,
+        missingIds: posters.missingIds,
+        extraIds: posters.extraIds,
+        duplicateIds: posters.duplicateIds,
+      });
+      const tileShapes = await page.locator(".wf8-tile").evaluateAll((tiles) => tiles.map((tile) => ({
+        id: tile.getAttribute("data-id"),
+        links: tile.querySelectorAll(".wf8-tlink").length,
+        images: tile.querySelectorAll("img.wf8-tim").length,
+      })));
+      ctx.ok("every visible poster is an interactive tile with its own poster image", tileShapes.length === EXPECTED_VISIBLE_POSTER_IDS.length && tileShapes.every((tile) => tile.links === 1 && tile.images === 1), "18 interactive tiles each with one image", tileShapes);
+      ctx.note(`menu-poster-integrity menu: expected=${EXPECTED_VISIBLE_POSTER_IDS.length}; returned=${posters.returned.length}; rendered=${visibleIds.length}; missingIds=${JSON.stringify(posters.missingIds)}; extraIds=${JSON.stringify(posters.extraIds)}`);
+
+      const response = await railsResponse;
+      ctx.ok("the browser captured the homepage's own compact /api/rails response", !!response, "captured v=2 response", response ? response.status() : "not captured");
+      if (!response) return;
+      const payload = await response.json().catch(() => null);
+      ctx.ok("the captured /api/rails response succeeded", response.status() === 200 && !!payload && payload.covered === true && !!payload.data && payload.failed !== true, "200 covered data payload", {
+        status: response.status(), covered: payload?.covered, failed: payload?.failed,
+      });
+      if (!payload || response.status() !== 200 || payload.covered !== true || !payload.data || payload.failed === true) return;
+
+      await verifyComposedPoster({
+        ctx, page, payload,
+        posterId: "breakfast", dataRailId: "breakfast", railPrefix: "breakfast-",
+        compose: splitBreakfastRails,
+        componentSelectors: ['section[aria-label="Best Breakfast"]', 'section[aria-label="Best Cafés"]'],
+      });
+      await verifyComposedPoster({
+        ctx, page, payload,
+        posterId: "eat", dataRailId: "eat", railPrefix: "worth-eating-",
+        compose: composeWorthEatingRails,
+        componentSelectors: ['section[aria-label="American & Contemporary"]', 'section[aria-label="Mexican & Latin American"]', 'section[aria-label="Italian & Pizza"]'],
+      });
     },
   },
 
