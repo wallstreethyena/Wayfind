@@ -229,14 +229,14 @@
     ],
     [
      "food",
-     "breakfast"
-    ],
-    [
-     "food",
      "all"
     ]
    ],
    "chipsBlock": [
+    [
+     "food",
+     "breakfast"
+    ],
     [
      "attractions",
      "beaches"

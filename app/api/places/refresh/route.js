@@ -28,7 +28,7 @@ const FIELD_MASK = [
   "places.id", "places.displayName", "places.location", "places.rating",
   "places.userRatingCount", "places.priceLevel", "places.priceRange",
   "places.formattedAddress", "places.regularOpeningHours",
-  "places.utcOffsetMinutes", "places.types", "places.photos", "places.businessStatus",
+  "places.utcOffsetMinutes", "places.types", "places.primaryType", "places.photos", "places.businessStatus",
 ].join(",");
 
 const keyFor = (q, lat, lng, radius, n) =>

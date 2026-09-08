@@ -9,10 +9,11 @@ import { toDisplayScore } from "../../lib/score.js";
 import { wayfindScore } from "../../lib/wayfindScore.js";
 import { topPickAward } from "../../lib/topPickAward.js";
 import { priceLabel } from "../../lib/price.js";
+import { railScrollNeedsMore } from "../../lib/railResponse.js";
 
 const compact = (n) => Number(n) >= 1000 ? Math.round(Number(n) / 100) / 10 + "k" : String(Number(n) || 0);
 
-export default function BreakfastRails({ places = [], city = "", onOpenPlace, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
+export default function BreakfastRails({ places = [], city = "", hasMore = false, loadingMore = false, onLoadMore, onOpenPlace, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
   const rails = useMemo(() => splitBreakfastRails(places), [places]);
   return (
     <>
@@ -25,7 +26,10 @@ export default function BreakfastRails({ places = [], city = "", onOpenPlace, is
           ) : (
             <>
               <RailNav railId={rail.id} count={rail.places.length} unit={rail.places.length === 1 ? "ranked place" : "ranked places"} />
-              <div className="wf-rail wf-rail-exploding" data-rail={rail.id} tabIndex={0} role="region" aria-label={rail.title}>
+              <div className="wf-rail wf-rail-exploding" data-rail={rail.id} tabIndex={0} role="region" aria-label={rail.title}
+                onScroll={(event) => {
+                  if (hasMore && !loadingMore && railScrollNeedsMore(event.currentTarget, Math.max(180, event.currentTarget.clientWidth * 0.75))) onLoadMore?.();
+                }}>
                 {rail.places.map((place, index) => {
                   const rank = index + 1;
                   const photo = place.photo || place.photoUrl || (place.photoRef || place.photo_ref
@@ -66,6 +70,9 @@ export default function BreakfastRails({ places = [], city = "", onOpenPlace, is
           )}
         </section>
       ))}
+      {hasMore ? <button type="button" className="wf8-thinbtn" disabled={loadingMore} onClick={() => onLoadMore?.()}>
+        {loadingMore ? "Loading more places…" : "Show more ranked places"}
+      </button> : null}
     </>
   );
 }

@@ -94,7 +94,7 @@ import { servableRows, isNowRail } from "../../lib/daylight.js";
 // string the caller handed down.
 import { emptyRailLive, liveFromRailsResponse, mergeRailPage, isFailedRailsResponse, cityLabel as honestCityLabel } from "../../lib/locationHonesty.js";
 import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
-import { railScrollNeedsMore } from "../../lib/railResponse.js";
+import { railScrollNeedsMore, railUsesSharedPaging, railHasNextPage, railPageScope, isCurrentRailPageScope, settleRailPageStateForScope, SHARED_POOL_COMPOSER_RAILS } from "../../lib/railResponse.js";
 import { posterImgIsReady, bindPosterArtReady, posterImgInTile } from "../../lib/posterArtReady.js";
 // v8.46 — THE GREY BOX, AGAIN. lib/loadState.js was written on 2026-08-12 for
 // the owner's screenshot of THIS RAIL ("What Should We Do Today?" expanded over
@@ -485,6 +485,10 @@ export default function DaypartRail({
   const [selected, setSelected] = useState(null);
   const [railPageState, setRailPageState] = useState({});
   const railPageInFlight = useRef(new Set());
+  // A page response may outlive a city, daypart, or selected-poster change.
+  // Keep the latest scope outside the request closure so its late answer is
+  // rejected rather than appended to a different reader's ranked answer.
+  const railPageScopeRef = useRef("");
   const trackRef = useRef(null);
   const pcRef = useRef(null);
   const menuRef = useRef(null);
@@ -1106,7 +1110,7 @@ export default function DaypartRail({
   // date night, today, fall, summer, trending, night out, lunch break) own a
   // fetch and a load state of their own and are untouched.
   // scripts/test-rails-failed-is-not-covered.mjs pins the set and the gate.
-  const RAILS_FED_COMPOSERS = ["breakfast", "eat"];
+  const RAILS_FED_COMPOSERS = SHARED_POOL_COMPOSER_RAILS;
   const composerWaiting = !!(selRail && RAILS_FED_COMPOSERS.includes(selRail.id) && railLoad !== "live");
   // v8.22 (owner: "when the amazon rail card is selected make sure it becomes
   // the main focus on the screen"). The pulsing glow marks the card; this
@@ -1222,14 +1226,28 @@ export default function DaypartRail({
   const selectedTotal = selected
     ? Math.max(selectedLoaded, Number(shown.railTotals?.[selected]) || 0)
     : 0;
-  const selectedHasMore = !!(selected && !railOwnsItsOwnAnswer && selectedLoaded < selectedTotal);
+  // A composer can own how its cards are displayed while the shared rail owns
+  // where additional ranked source rows come from. Conflating those axes was
+  // the 12-card ceiling: breakfast/eat had server hasMore=true but were
+  // excluded here solely because they render their own subrails.
+  const selectedUsesSharedPaging = !!(selected && railUsesSharedPaging(selected, railOwnsItsOwnAnswer));
+  const selectedHasMore = !!(selectedUsesSharedPaging && railHasNextPage(
+    selectedLoaded,
+    selectedTotal,
+    shown.railHasMore?.[selected],
+  ));
+  const selectedPageScope = selected && center && Number.isFinite(center.lat) && Number.isFinite(center.lng)
+    ? railPageScope(selected, `${snapPre(center.lat)},${snapPre(center.lng)}`, daypart, resolveCitySlug(center.lat, center.lng))
+    : "";
+  railPageScopeRef.current = selectedPageScope;
   const loadSelectedRailPage = useCallback(() => {
-    if (!selectedHasMore || !selected || !center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) return;
+    const requestScope = selectedPageScope;
+    if (!selectedHasMore || !selected || !requestScope || !center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) return;
     const offset = selectedLoaded;
-    const claim = `${selected}:${offset}`;
+    const claim = `${requestScope}:${offset}`;
     if (railPageInFlight.current.has(claim)) return;
     railPageInFlight.current.add(claim);
-    setRailPageState((state) => ({ ...state, [selected]: "loading" }));
+    setRailPageState((state) => settleRailPageStateForScope(state, railPageScopeRef.current, requestScope, "loading"));
     // city= resolved from the unsnapped center — same reason as the main
     // fetch above: a page request must land on the same city its first
     // response did, never on whichever town the snapped lat/lng round to.
@@ -1246,12 +1264,18 @@ export default function DaypartRail({
     });
     fetchJsonWithDeadline("/api/rails?" + q.toString(), { timeoutMs: RAILS_LOAD_TIMEOUT_MS })
       .then((payload) => {
+        if (!isCurrentRailPageScope(railPageScopeRef.current, requestScope)) {
+          setRailPageState((state) => settleRailPageStateForScope(state, railPageScopeRef.current, requestScope, "idle"));
+          return;
+        }
         setLive((previous) => mergeRailPage(previous, payload, selected));
-        setRailPageState((state) => ({ ...state, [selected]: "idle" }));
+        setRailPageState((state) => settleRailPageStateForScope(state, railPageScopeRef.current, requestScope, "idle"));
       })
-      .catch(() => setRailPageState((state) => ({ ...state, [selected]: "failed" })))
+      .catch(() => {
+        setRailPageState((state) => settleRailPageStateForScope(state, railPageScopeRef.current, requestScope, "failed"));
+      })
       .finally(() => railPageInFlight.current.delete(claim));
-  }, [selectedHasMore, selected, selectedLoaded, center && center.lat, center && center.lng, daypart, resolveCitySlug]);
+  }, [selectedHasMore, selected, selectedLoaded, selectedPageScope, center && center.lat, center && center.lng, daypart, resolveCitySlug]);
 
   // The first shared response is deliberately small. Reaching the last two
   // visible cards requests only the next ordered page for this rail; sibling
@@ -1650,6 +1674,9 @@ export default function DaypartRail({
             <BreakfastRails
               places={dropList}
               city={shown.cityLabel || ""}
+              hasMore={selectedHasMore}
+              loadingMore={railPageState[selectedPageScope] === "loading"}
+              onLoadMore={loadSelectedRailPage}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
               liked={liked || undefined}
@@ -1684,6 +1711,9 @@ export default function DaypartRail({
             <WorthEatingRails
               places={dropList}
               city={shown.cityLabel || ""}
+              hasMore={selectedHasMore}
+              loadingMore={railPageState[selectedPageScope] === "loading"}
+              onLoadMore={loadSelectedRailPage}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
               liked={liked || undefined}
@@ -2019,8 +2049,8 @@ export default function DaypartRail({
                 onClick={() => { scrollBy(pcRef, -1); syncPc(); }}><Chevron dir="l" /></button>
               <button type="button" className="wf8-pnav r" aria-label="More places" disabled={pcEnds.atEnd && !selectedHasMore}
                 onClick={() => { if (pcEnds.atEnd && selectedHasMore) loadSelectedRailPage(); else { scrollBy(pcRef, 1); syncPc(); } }}><Chevron dir="r" /></button>
-              {railPageState[selected] === "loading" ? <span className="wf8-page-state" role="status">Loading more places…</span> : null}
-              {railPageState[selected] === "failed" && selectedHasMore ? (
+              {railPageState[selectedPageScope] === "loading" ? <span className="wf8-page-state" role="status">Loading more places…</span> : null}
+              {railPageState[selectedPageScope] === "failed" && selectedHasMore ? (
                 <button type="button" className="wf8-thinbtn wf8-page-retry" onClick={loadSelectedRailPage}>
                   More places didn&apos;t load · Try again
                 </button>

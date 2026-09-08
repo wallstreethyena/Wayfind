@@ -92,8 +92,7 @@ const failIdx = applyBody.search(/isFailedRailsResponse\x28j\x29/);
 const coveredClientIdx = applyBody.search(/const covered = /);
 ok(failIdx !== -1 && coveredClientIdx !== -1 && failIdx < coveredClientIdx, "apply(): the failed check runs BEFORE the covered/uncovered decision");
 
-const fed = (RAIL.match(/const RAILS_FED_COMPOSERS = \[([^\]]*)\]/) || [])[1] || "";
-ok(/.breakfast./.test(fed) && /.eat./.test(fed), "RAILS_FED_COMPOSERS names breakfast and eat (the composers with no fetch of their own)");
+ok(/const RAILS_FED_COMPOSERS = SHARED_POOL_COMPOSER_RAILS/.test(RAIL), "RAILS_FED_COMPOSERS uses the shared source-paging identity list (the composers with no fetch of their own)");
 ok(/const composerWaiting = !!\x28selRail && RAILS_FED_COMPOSERS\.includes\x28selRail\.id\x29 && railLoad !== .live.\x29/.test(RAIL),
   "composerWaiting is true until the rails request has actually landed");
 ok(/\{selRail && selRail\.id === .breakfast. && !composerWaiting \? \x28\s*<BreakfastRails/.test(RAIL),

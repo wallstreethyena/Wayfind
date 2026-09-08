@@ -1284,3 +1284,9 @@ node scripts/test-known-city-geocode.mjs
 node scripts/test-provider-spend-caps.mjs
 
 node scripts/test-beach-planning.mjs
+
+# Menu and breakfast-poster taxonomy share one morning identity decision.
+# This proves both precision (wrong cards stay out) and recall (eligible
+# breakfast, coffee and bakery-cafe cards remain reachable), including rows
+# whose provider omitted primaryType.
+node scripts/test-morning-identity.mjs
