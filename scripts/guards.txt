@@ -1195,6 +1195,7 @@ node scripts/check-synthetic-monitor-hermetic.mjs
 # the venue website, and draws the free map with the reader's route and the nearby picks.
 node scripts/check-event-where.mjs
 
+node scripts/test-event-experience.mjs
 # 2026-09-07 — title similarity is not entity identity. Owner: "An exact
 # title match like June, Petrichor or Annapurna cannot automatically become
 # confidence 1.0." A loose matcher's 61 accepted matches were audited: only
@@ -1237,6 +1238,12 @@ node scripts/social-acquisition-conveyor-regression.mjs
 node scripts/check-migration-apply-canonical-path.mjs
 
 node scripts/test-known-city-geocode.mjs
+
+node scripts/test-event-mobile-repair.mjs
+
+node scripts/test-inventory-batch-concurrency.mjs
+
+node scripts/test-event-apple-maps.mjs
 # 2026-09-07 security audit: public Admin auth routes allowed arbitrary email
 # confirmation, so both routes are inert tombstones and the client uses
 # Supabase's ownership-verifying confirmation flow.

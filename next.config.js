@@ -22,7 +22,7 @@ const CSP_REPORT_ONLY = [
   // only because this header is Report-Only. On the enforce-flip the tag would
   // have died silently and taken every conversion with it. googleadservices.com
   // is the Ads conversion-tracking script gtag pulls in when a conversion fires.
-  "script-src 'self' 'unsafe-inline' https://scripts.stay22.com https://tp-em.com https://maps.googleapis.com https://maps.gstatic.com https://us-assets.i.posthog.com https://www.googletagmanager.com https://www.googleadservices.com",
+  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://scripts.stay22.com https://tp-em.com https://maps.googleapis.com https://maps.gstatic.com https://cdn.apple-mapkit.com https://us-assets.i.posthog.com https://www.googletagmanager.com https://www.googleadservices.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   // v5.56 (premium redesign, Phase 3 — image pipeline): the event + booking
@@ -38,7 +38,7 @@ const CSP_REPORT_ONLY = [
   // place photos. Only media.tacdn.com was allowlisted, so every card whose
   // photo came back on the media-cdn host rendered an empty frame — confirmed
   // live on 2026-07-28 via csp-report (directive img-src, page "/").
-  "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://lh3.googleusercontent.com https://*.ggpht.com https://s1.ticketm.net https://*.ticketm.net https://cache-graphicslib.viator.com https://media.tacdn.com https://media-cdn.tripadvisor.com https://tiles.openfreemap.org https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://www.google.com https://googleads.g.doubleclick.net",
+  "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://lh3.googleusercontent.com https://*.ggpht.com https://s1.ticketm.net https://*.ticketm.net https://cache-graphicslib.viator.com https://media.tacdn.com https://media-cdn.tripadvisor.com https://tiles.openfreemap.org https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://www.google.com https://googleads.g.doubleclick.net https://cdn.apple-mapkit.com https://*.apple-mapkit.com",
   // Sentry error beacons go to the project's ingest host (errors-only, no tunnel).
   // GA4 beacons to google-analytics.com and a region1.* shard; Ads conversions
   // beacon to google.com/pagead + googleads.g.doubleclick.net.
@@ -50,12 +50,12 @@ const CSP_REPORT_ONLY = [
   // NOT adding securepubads / pagead2 / static.doubleclick: those are ad-SERVING
   // and viewability endpoints, and Wayfind serves no ads — blocking them is
   // correct and keeps the policy tight.
-  "connect-src 'self' https://*.googleapis.com https://*.supabase.co wss://*.supabase.co https://api.open-meteo.com https://marine-api.open-meteo.com https://us.i.posthog.com https://us.posthog.com https://us-assets.i.posthog.com https://*.stay22.com https://tp-em.com https://o4511751348486144.ingest.us.sentry.io https://tiles.openfreemap.org https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.google.com https://googleads.g.doubleclick.net https://ad.doubleclick.net",
-  "worker-src 'self' blob:",
+  "connect-src 'self' https://*.googleapis.com https://*.supabase.co wss://*.supabase.co https://api.open-meteo.com https://marine-api.open-meteo.com https://us.i.posthog.com https://us.posthog.com https://us-assets.i.posthog.com https://*.stay22.com https://tp-em.com https://o4511751348486144.ingest.us.sentry.io https://tiles.openfreemap.org https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.google.com https://googleads.g.doubleclick.net https://ad.doubleclick.net https://cdn.apple-mapkit.com https://*.apple-mapkit.com",
+  "worker-src 'self' blob: https://*.apple-mapkit.com",
   // v5.94: the /trending/[city] pages load click-to-load creator-video embeds by
   // id (TikTok player, YouTube-nocookie, Instagram). CSP is Report-Only today, so a
   // missing origin here fails SILENTLY — the future enforce-flip DEPENDS on this list.
-  "frame-src 'self' https://www.tiktok.com https://www.youtube-nocookie.com https://www.instagram.com",
+  "frame-src 'self' https://www.google.com https://www.tiktok.com https://www.youtube-nocookie.com https://www.instagram.com https://*.apple-mapkit.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

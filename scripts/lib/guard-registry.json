@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 576,
-    "totalRegistryEntries": 577,
-    "guardsTxtLineCount": 574,
-    "guardsTxtReachedFileCount": 569,
+    "totalOnDiskGuardFiles": 580,
+    "totalRegistryEntries": 581,
+    "guardsTxtLineCount": 578,
+    "guardsTxtReachedFileCount": 573,
     "criticalCount": 69,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 384,
-      "RENDER": 46,
+      "CALL": 387,
+      "RENDER": 47,
       "STRUCTURAL": 146,
       "OTHER": 1
     }
@@ -2517,7 +2517,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 37,
+      "assertionCount": 39,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -9860,11 +9860,77 @@
       "owner": null
     },
     {
+      "file": "scripts/test-event-apple-maps.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 20,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-event-category-art.mjs",
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 6,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-event-experience.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 14,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-event-mobile-repair.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 21,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -10627,6 +10693,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 47,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-inventory-batch-concurrency.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 9,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
