@@ -11,7 +11,18 @@ ok(/(?:setItem|setLocal)\("wf_center", JSON\.stringify\(\{ lat: center\.lat, lng
 
 // mount restore: only a fresh MANUAL search, and it marks manualRef so GPS stands down
 ok(/const raw = localStorage\.getItem\("wf_center"\);/.test(h), "on mount it reads back the last location");
-ok(/c\.manual && isFinite\(c\.lat\) && isFinite\(c\.lng\) && \(!c\.ts \|\| Date\.now\(\) - c\.ts < 6 \* 3600 \* 1000\)/.test(h), "restores ONLY a manual search, and only if recent (<6h)");
+// v9.0.1 (location-integrity audit, 2026-09-08) — the recency rule moved into
+// lib/locationHonesty.storedPinFresh(), and it is STRICTER than the inline
+// expression this line used to pin: `!c.ts ||` trusted a record with no
+// timestamp forever. Asserted on the call site AND by executing the helper.
+ok(/c\.manual && storedPinFresh\(c\)/.test(h), "restores ONLY a manual search, and only through storedPinFresh (recent <6h, timestamp REQUIRED)");
+{
+  const { storedPinFresh } = await import("../lib/locationHonesty.js");
+  const now = Date.now();
+  ok(storedPinFresh({ lat: 27.6, lng: -82.4, ts: now - 3600e3 }, now) === true, "storedPinFresh: an hour-old pin restores");
+  ok(storedPinFresh({ lat: 27.6, lng: -82.4, ts: now - 7 * 3600e3 }, now) === false, "storedPinFresh: a 7h-old pin does not");
+  ok(storedPinFresh({ lat: 27.6, lng: -82.4 }, now) === false, "storedPinFresh: a pin with no timestamp does not (was: trusted forever)");
+}
 ok(/manualRef\.current = true;\s*\n\s*setCenter\(\{ lat: c\.lat, lng: c\.lng \}\);/.test(h), "restoring a search marks manualRef so the geolocation effect won't override it");
 
 // geolocation still stands down on a manual search

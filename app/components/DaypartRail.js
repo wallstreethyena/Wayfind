@@ -870,13 +870,18 @@ export default function DaypartRail({
       position: order.indexOf(targetId) + 1, src: src || "rail",
       redirected_from: targetId === id ? undefined : id,
       has_places: Number(shown.railTotals?.[targetId]) || (shown.places[targetId] || []).length,
+      // v9.0.1 — the header's city beside the rail's slug, so a disagreement
+      // between what the chrome names and what the ranking was pooled for is
+      // visible in analytics instead of only on a screenshot (2026-09-07:
+      // "near Cortez" could not be checked against the header after the fact).
+      header_city: honestCityLabel(locName) || null,
     });
     // The hero cards these replace fire eight named events that live dashboards
     // depend on. Keep emitting them for one release so nothing flatlines at
     // cutover; delete LEGACY_HERO_EVENT once the new series has history.
     const legacy = LEGACY_HERO_EVENT[targetId];
     if (legacy) logEvent(legacy, { src: "rail", rail_id: targetId });
-  }, [railById, daypart, shown, order]);
+  }, [railById, daypart, shown, order, locName]);
 
   const close = useCallback(() => setSelected(null), []);
 

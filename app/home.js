@@ -265,7 +265,7 @@ import { canonicalShareUrl } from "../lib/site";
 import { askShareIntent } from "./components/shareIntentSheet";
 import { placeKinds } from "../lib/dateInvite";
 import { isDateRoom } from "../lib/dateRoom.js";
-import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin } from "../lib/locationHonesty";
+import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin, localityFromFormattedAddress, storedPinFresh } from "../lib/locationHonesty";
 
 const BUILD = "beta";
 
@@ -4194,7 +4194,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try {
       const raw = localStorage.getItem("wf_center");
       const c = raw ? JSON.parse(raw) : null;
-      if (c && c.manual && isFinite(c.lat) && isFinite(c.lng) && (!c.ts || Date.now() - c.ts < 6 * 3600 * 1000)) {
+      // v9.0.1 — storedPinFresh REQUIRES a timestamp. `!c.ts ||` trusted a
+      // record with no `ts` forever (location-integrity audit, 2026-09-08).
+      if (c && c.manual && storedPinFresh(c)) {
         // v8.46 — THE PAIRING LAW, ENFORCED AT THE DOOR. This is the record
         // that broke the owner's homepage (2026-08-23), read off his browser:
         //   { lat: 35.2619678, lng: -81.126481, loc: "Parrish, FL", manual: true }
@@ -6821,7 +6823,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           try {
             const raw = localStorage.getItem("wf_center");
             const saved = raw ? JSON.parse(raw) : null;
-            savedOk = !!(saved && isFinite(saved.lat) && isFinite(saved.lng) && (!saved.ts || Date.now() - saved.ts < 6 * 3600 * 1000));
+            // v9.0.1 — same rule as the manual hydration: no timestamp, no trust.
+            savedOk = storedPinFresh(saved);
             if (raw && !savedOk) localStorage.removeItem("wf_center");
             // v8.17 (owner: "make sure we get the user exact location as soon
             // as they land on the page") RECONCILED with the 2026-08-07
@@ -8099,7 +8102,21 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           // spending a geocode, and the honest answer to "which city is this?"
           // when we do not know is no city at all — locationHonesty prints
           // nothing rather than a guess or a "near you".
-          if (!centerAgreesWithLabel({ lat, lng }, locName)) setLocName("");
+          //
+          // v9.0.1 (location-integrity audit, 2026-09-08) — WE DO HAVE A CITY
+          // FOR THIS POINT, for free: Google's formattedAddress names it. The
+          // 40-mile pairing check above was sized for a Florida label on a
+          // North Carolina pin; inside one metro every covered town passes it
+          // (Parrish→Cortez is 18 miles), so tapping a Cortez restaurant from
+          // Parrish kept "Parrish" in the header while the map and the rails
+          // moved to Cortez — and the writer effect persisted that pair. The
+          // label now follows the coordinates in the same commit: the
+          // address's locality when it parses, otherwise the old rule (keep
+          // the label only if it still plausibly describes the point, else
+          // print no city). scripts/test-location-pairing-integrity.mjs.
+          const placeCity = localityFromFormattedAddress(place.formattedAddress);
+          if (placeCity) setLocName(placeCity);
+          else if (!centerAgreesWithLabel({ lat, lng }, locName)) setLocName("");
         }
         openDetail(placeObj);
       } catch {
