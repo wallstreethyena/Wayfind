@@ -57,7 +57,10 @@ export async function GET(req) {
     place,
     w,
     gateShut: shut,
-    // Cache hits must not wait on (or increment) a paid-request ledger.
+    // Ask the ledger only after resolvePlacePhoto has missed both the shared
+    // photo cache and the inventory-owned URL. An earlier merge moved this
+    // call above the resolver, so every cached <img> unnecessarily took a
+    // grant and any denied cold request collapsed to the fallback SVG.
     authorizeSpend: () => !shut && spendAllow("photos"),
     serverKey: process.env.GOOGLE_MAPS_SERVER_KEY || "",
   });
@@ -68,14 +71,17 @@ export async function GET(req) {
       : new URL(result.location, req.url);
     return NextResponse.redirect(dest, {
       status: 302,
-      headers: { "Cache-Control": result.cacheControl || ("public, max-age=" + THIRTY_DAYS + ", s-maxage=" + THIRTY_DAYS + ", immutable") },
+      headers: {
+        "Cache-Control": result.cacheControl || ("public, max-age=" + THIRTY_DAYS + ", s-maxage=" + THIRTY_DAYS + ", immutable"),
+        "x-wayfind-photo-result": result.reason || "redirect",
+      },
     });
   }
 
   if (result.type === "empty") {
     return NextResponse.redirect(new URL(FALLBACK_PATH, req.url), {
       status: 302,
-      headers: { "Cache-Control": "private, no-store" },
+      headers: { "Cache-Control": "private, no-store", "x-wayfind-photo-result": result.reason || "no-photo" },
     });
   }
 
@@ -83,6 +89,6 @@ export async function GET(req) {
   // 404 — not a shared SVG. Distinct refs stay distinct finals.
   return NextResponse.json(
     { error: "no photo" },
-    { status: 404, headers: { "Cache-Control": "private, no-store" } }
+    { status: 404, headers: { "Cache-Control": "private, no-store", "x-wayfind-photo-result": result.reason || "owned-miss" } }
   );
 }

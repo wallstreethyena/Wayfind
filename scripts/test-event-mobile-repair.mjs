@@ -12,7 +12,7 @@ const deps = {
   inventoryGet: async () => null,
   fetchOwnedUri: async () => { upstream++; return null; },
 };
-const input = { ref, w: 220, gateShut: false, authorizeSpend: async () => { ledger++; return false; } };
+const input = { ref, w: 220, serverKey: "fixture-key", gateShut: false, authorizeSpend: async () => { ledger++; return false; } };
 assert.equal((await resolvePlacePhoto(input, deps)).location, uri);
 assert.deepEqual(reads, [photoCacheKey(ref, 220), photoCacheKey(ref, 640)]);
 assert.equal(ledger, 0); assert.equal(upstream, 0); assert.equal(writes, 0);
