@@ -1,0 +1,914 @@
+[
+  {
+    "version": "20260718024003",
+    "name": "wayfind_command_center_rpcs_v1",
+    "statements_sha256": "7a4e97ddd32193d20e73f5cb8502372b7b4ca40f4b9c74304b59a6a8d17a56a0",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Command Center aggregate KPI RPCs and server-only grants.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260718024714",
+    "name": "wayfind_command_center_rpcs_v1_lab_cwv",
+    "statements_sha256": "cd3b95aa35e6b1dd11d490bf702232a4eedfeb2d7454ff44cdfbe7c4b7283dd6",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Command Center synthetic Web Vitals panel RPC and server-only grant.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260718034446",
+    "name": "wayfind_command_center_retention_v1_1_single_pass",
+    "statements_sha256": "aa66c0a76d5fa85dc8474db6f164601931e0afd6bf2cc87d2c4a2feb14d48a1b",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Rewrites retention measurement to a single-pass query while preserving the RPC contract.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260718034546",
+    "name": "wayfind_command_center_events_device_created_idx",
+    "statements_sha256": "31107564ccb80c9f032b00157271075ac9b2c00ddb886f2431bd835bc310cd18",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds the device/time index needed by retention and returning-device scans.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260718034919",
+    "name": "wayfind_command_center_owner_identity_panels",
+    "statements_sha256": "a523bb032f04d816bd0dd2923091ac2c4bccaa0cc9178679d9886437dd9a1a51",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds owner-only signup and share attribution panels to Command Center.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260718042243",
+    "name": "wayfind_command_center_internal_traffic_exclusion",
+    "statements_sha256": "b178d96f17660562a17b56a507ac76544a4580b5be4aef441619cce3de5dcc2f",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds private internal-traffic settings and exclusion tables used by Command Center metrics.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260718042345",
+    "name": "wayfind_command_center_exclusion_wired_into_metrics",
+    "statements_sha256": "d32a977bfabb9d16a5a94ac73a0a47350493d1450cd7be9ac962c2b32985c617",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Wires excluded users/devices into all Command Center metric RPCs.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260718043540",
+    "name": "wayfind_command_center_discovery_tta_coverage",
+    "statements_sha256": "cd6ca3d76c8b292a6143a89adc6d45fb7ad5e2669a654b4672913c9b52277c1c",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds discovery success, time-to-action, score coverage, and no-result dashboard RPCs.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260718043652",
+    "name": "wayfind_command_center_no_result_address_privacy",
+    "statements_sha256": "fbca9eb82038be828041cf09851b2119ee746eeb66df33175ecc9e055353ffcf",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Redacts street-level address fragments from no-result dashboard breakdowns.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260718234842",
+    "name": "add_editorial_card_to_wf_inventory",
+    "statements_sha256": "9fa65095ff3a02f6bdefe9f33599319d6af655daed5d3175dcf6db01defdb6cf",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds the inventory editorial-card JSON column used by Atlas content.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260721185544",
+    "name": "wf_is_beach_classifier",
+    "statements_sha256": "cd6cfe3cad772e27c6adefc33bc04aefb84157f878121c40608c273c9d745edf",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates the canonical beach classifier used by beach retrieval and quality checks.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260721185753",
+    "name": "wf_nearest_beaches_rpc_and_guardrail",
+    "statements_sha256": "76b328e6c4fc1a98909fc2906710f24f2fefb36e87983691874cf8fca6a98600",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates distance-ranked nearest-beach retrieval and its quality-issue recorder.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260721185927",
+    "name": "wf_beach_security_hardening",
+    "statements_sha256": "a53a7203c8f39fb82bd9725c124e8717e49517a6a84429a428e2106ac086dc5b",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Pins beach function search paths, hardens beach RPC access, and snapshots bad inventory before cleanup.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260721195116",
+    "name": "wf_place_popularity_pipeline",
+    "statements_sha256": "e348536936db386a9740210647b044b92ef148e7cb26cb867867f15e5f7f9e91",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates place/source popularity storage and scored view for tier-2 discovery.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260721210441",
+    "name": "wf_best_picks_time_weather_ranker",
+    "statements_sha256": "f3b91834c6153e30453f0ba0876444c3f7fbae7b491d95bce51e60f9bb81a278",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates the time and weather aware best-picks ranker.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260721210724",
+    "name": "wf_best_picks_with_tier2",
+    "statements_sha256": "9020f6b449b5f192d08f46fa5c8bf2faed76de23180c22667bbb589b85560c64",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Extends best-picks ranking with tier-2 popularity candidates.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260721213201",
+    "name": "wf_best_picks_category_and_boost",
+    "statements_sha256": "79f6eb3baee7feec1845c0a2fdd30c6d744cc2b74676816eef1375857fdbe2e6",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds category filtering and category-specific ranking boosts to best picks.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260721234330",
+    "name": "wf_best_picks_things_to_do_group",
+    "statements_sha256": "6958bcc07e9ce84213ca8754682891d49bdf326f58b1bba04356773f7850852f",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Groups best picks into the things-to-do result contract.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260721234636",
+    "name": "wf_things_to_do_with_experiences",
+    "statements_sha256": "81b371eeac424532c6191829b1b9b0b8cacb16d6bd5de1ac8f7ff48849446408",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Combines attractions, beaches, and bookable experiences in the things-to-do RPC.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260721234847",
+    "name": "wf_things_to_do_city_match_fix",
+    "statements_sha256": "e9507b5b027ae8f87ae6d7acecf3dfb619c8bdac3cde4354a2d83b1f33ff783d",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds city-distance matching so things-to-do results stay geographically relevant.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722001112",
+    "name": "recategorize_entertainment_venues_out_of_food",
+    "statements_sha256": "c06d9ea8aeb81a803b9193c6c322d45ad5ba47545f650ce6ba9eeb37293a4e78",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: updates wf_inventory so entertainment-primary venues leave category food while restaurant-primary eatertainment remains eligible.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722002723",
+    "name": "dynamic_coverage_freshness_and_gap_log",
+    "statements_sha256": "2eecb0ffa446b1f9de9a267a85125e06c38a33f803c95682ac815ecf921621b2",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds inventory refresh timestamps and an out-of-coverage demand-gap logger.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722002818",
+    "name": "daily_deterministic_shuffle",
+    "statements_sha256": "972dcb4fa6ea287abeb30d38a78b7aa70a8d0bfc7a2542b0db61824f42312023",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds deterministic daily near-tie rotation to best-picks and things-to-do ordering.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722002932",
+    "name": "plug_and_play_metros_and_coverage_status",
+    "statements_sha256": "e53133e8ef0f144aa0ff522114a1e2405a94599cbe92124836f87c3bf540eb16",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates coverage status and metro-distance gating for serve/coming-soon decisions.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722003119",
+    "name": "popularity_stale_batch_helper",
+    "statements_sha256": "5c005d756dca347c7a8ae1e3a4e1f882ed99f1e9484b9502c8041fe7e6d0222a",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates the service-role-only selector for oldest or never-fetched popularity rows.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722003120",
+    "name": "remove_ranking_jitter_cache_owns_freshness",
+    "statements_sha256": "6cf89156ebea2972575c9ea5c1fc2acbb7b3bab0802fc27489f1f0a1d97909f3",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Removes ranking jitter so cache freshness owns rotation and ranking stays signal-driven.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722013103",
+    "name": "beach_editorial_atlas_voice_fill",
+    "statements_sha256": "2263c4424d1c4208f37afad43625ef63f5a72e419cc4795105e589451c19437b",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Backfills factual Atlas voice lines only for beaches missing editorial text.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722021621",
+    "name": "wf_editorial_table",
+    "statements_sha256": "b5bc38db459bd7c102c048bed0afa4229ef10f215cf0b71e8629829597309d41",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates the place editorial table and its content fields.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722022632",
+    "name": "beach_water_quality_table",
+    "statements_sha256": "58f13d3bb0518cc2e369707596abb5e04f0ce1c44b01bdb2c5e216ac8bd5e96d",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates latest-station beach-water storage for the beach-water cron.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722143718",
+    "name": "create_blog_posts_and_settings",
+    "statements_sha256": "124a7e9769dee03c1e4eba748a362668e1e07265f8915f010229c8945ffccbf0",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates blog post/settings storage and its publication metadata.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722150114",
+    "name": "excluded_status_for_junk_pins",
+    "statements_sha256": "c190d624cede020229ea39279a7a312ff962597785511537d49a3d9356c071b3",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds the EXCLUDED inventory status for junk, duplicate, and non-destination pins.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722150153",
+    "name": "excluded_status_best_picks",
+    "statements_sha256": "6f44116dac82dc9eff4710e790b14889739675fa7b2b464b46942970df6502e2",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Applies EXCLUDED filtering to best-picks results.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722152256",
+    "name": "wf_beach_water_enable_rls",
+    "statements_sha256": "2506fff3636d723786f8e01c30afe4ff0f8e3ec471fc142f80b64bc9380b2f9c",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Enables private beach-water storage with service-role-only writes.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722162903",
+    "name": "wf_cc_data_freshness",
+    "statements_sha256": "be0cf7a82b1936a2af607c62f221da2fca6c136842b911ba962d94306954a18b",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates the Command Center freshness watchdog over core pipeline tables.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722173422",
+    "name": "buzz_picks_and_hero_images",
+    "statements_sha256": "f9fb6bde44f48817d34206fe48b04c6452b9827ae57a96e19579bdfbac48de2d",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates the buzz-picks and hero-image retrieval contracts from popularity signals.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722175523",
+    "name": "auto_curation_queue_and_capture",
+    "statements_sha256": "3d096ca29f04b85971202651c825823df648f530917def055570ea3703122df7",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates capture and queue functions for places served from live inventory.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722194036",
+    "name": "wf_taste_model_phase1",
+    "statements_sha256": "a8f25377036a367235fd3bf2c0ef73afb017747fd4cfd19e7fa31bc665d12d7e",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates per-user decayed taste signals with isolated bump and wipe RPCs.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722203125",
+    "name": "waitlist_for_out_of_coverage",
+    "statements_sha256": "5cfd619d4ef0de9969f2c1119ec88714b07cd22eb1775899b718dfc71f360899",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates the out-of-coverage waitlist insert path.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722203648",
+    "name": "wf_booking_audit",
+    "statements_sha256": "fa6da34f549b45f85a02b4ef5ee8061aaed60d9601e59a96df387682865fb378",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates the booking-CTA mismatch audit log for place/provider geography checks.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722211023",
+    "name": "wf_waitlist",
+    "statements_sha256": "cfa1b9a89cb39b898139a875cf88ac5be1faad25ab67b4aa5079b09fc5fa9a95",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Hardens the waitlist table and signed-in/anonymous insert boundary.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722232201",
+    "name": "wf_experiences_add_maps_to",
+    "statements_sha256": "957bf8151c988046740af20c4d3acedabdc402e91d38dae5b402393357597c4a",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds canonical attraction mapping for non-Viator experience products.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722232635",
+    "name": "affiliation_model_and_deals_with_expiry",
+    "statements_sha256": "bbf5dacbc405883425c49b74d61fe7fec0df5cd83b472953e3a835066c546d15",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates expiring deal records and affiliate-provider metadata.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722233122",
+    "name": "wf_deals_unique_provider_dest",
+    "statements_sha256": "36ff38de6930adc87cfbbca4d48228c9786b30d9ba910c3ccc4dcf5ecfd5305e",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds deal provider/destination idempotency to prevent duplicate offers.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722234919",
+    "name": "affiliate_quality_gate_rules",
+    "statements_sha256": "6210743856f81f2b6931164568082188d0e0aa1a6c4d99b9a32cc844e017833a",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates the shared quality score and affiliate provider quality gates.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260722235134",
+    "name": "wf_deals_quality_and_ranked_view",
+    "statements_sha256": "351945312a80b8ccbb5f93fa68b2fb42b5550bead88022ba8244a103e374ca46",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds quality scoring columns and ranked/live deal views.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260723001711",
+    "name": "enable_link_monitor_extensions",
+    "statements_sha256": "ebcacabbda86478058aac3be595f395f19ee227267e0c24f0ef6bced1d5c5507",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Enables HTTP/cron extensions and deal failure counters for link monitoring.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260723001923",
+    "name": "wf_affiliate_link_integrity_monitor",
+    "statements_sha256": "1e94a68ac379acd835a50e8c1c9a7187ebaf40226a2a00a60efd7723d1ce8e5a",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates the self-healing affiliate destination verifier and failure updates.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260723002011",
+    "name": "wf_link_health_views",
+    "statements_sha256": "b50f58f8e3cc99d57cd47a426d3224e70d8b1ac09714f29a665c9036969295a9",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates the deal and broken-link health views.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260723002416",
+    "name": "wf_deals_add_fail_count",
+    "statements_sha256": "21be49b91ef05b269392a67a72794b6f37ce41605915c6eb5f72bf236bc97e23",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds consecutive-failure tracking used before disabling a deal.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260723002430",
+    "name": "wf_experiences_link_health_columns",
+    "statements_sha256": "3a36df2979bca9e2494c3cb817c486d188b9c54ce4462e8939cb2c5f7cd2d2b6",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds link-health timestamps and failure counters to experiences.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260723002921",
+    "name": "global_gate_and_universal_guardian",
+    "statements_sha256": "4d99fc850d858931183ddaa38c844b4b746c7458471938aa77b832e238ca273c",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates the shared affiliate guardian over deals and experiences.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260723004417",
+    "name": "wf_experiences_one_provider_per_table_guard",
+    "statements_sha256": "5f08f2814fbdf7721009210b3ef258ac04955cdcc6b7867c2bf8c05d21e5a040",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Constrains experiences to experience providers and blocks deal-provider contamination.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260723005051",
+    "name": "atlas_queue_include_experiences",
+    "statements_sha256": "d33a0106f6a3e87c43ea41c01da0f07634e852b8da21b43344155259d0731b01",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Extends Atlas curation queue eligibility to quality-checked experiences.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260723021124",
+    "name": "wf_add_inventory_place_mechanism",
+    "statements_sha256": "12567b4c1b92cdd3ad10b604054b62e6564a64ed0fe966506aae72a6661efb49",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates the server function that promotes a verified attraction into inventory.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260723023524",
+    "name": "wf_deals_photo_ref",
+    "statements_sha256": "c5268e63c9f117f6c84da44a9ebb5b8f08cbd7009ac462572c8ab96f0c658e88",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds the deal photo reference used by card rendering.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260723024346",
+    "name": "wf_saved_items_and_pill_categories",
+    "statements_sha256": "00ad9a42e624f493dec5cc2c0db03ddbf83457b04046d7371602a5f47e4daca9",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates saved-item storage and category-pill behavior with RLS.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260723024812",
+    "name": "wf_place_products_verified_only",
+    "statements_sha256": "c7ac41cbbd734b6cabd1e2b9fe808f80a9971542e73c5e583483480ec4b38573",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates the verified bookable place-product contract used to render CTAs.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260723030417",
+    "name": "wf_city_requests_gated_door",
+    "statements_sha256": "7e60d02de3f38a168b93c4f81b13d4f1f96bd76cf0ed1dd2051830941c2182fe",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates the signed-in uncovered-city request table and gate.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260723030611",
+    "name": "wf_expansion_demand_combined",
+    "statements_sha256": "230e81014466f7afd35efb3d74fb7279401c60df03404d8e8042f6b4d90ac633",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Combines city-request demand signals for expansion decisions.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260723032734",
+    "name": "wf_gate_status_signin_aware",
+    "statements_sha256": "f21cda7571154654eda2cbae8f9b70d20d509ccdeb4a515a2f23b56d14fdeb81",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds sign-in aware coverage gate status.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260723033030",
+    "name": "wf_core_metros_and_stale_refresh",
+    "statements_sha256": "7105e2669b5066eb177b4d30597a8690420e6d983b2a2bfbe3258a2f1a0f3946",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates core metro coverage and stale-refresh controls.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260723033048",
+    "name": "wf_ttl_22_days",
+    "statements_sha256": "8a54b3a7ed302fb8d80416217ba1b83854028a2d1c0598261aa27de0ef279413",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Sets the inventory freshness lifecycle used by stale refresh.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260723055926",
+    "name": "wf_user_media_uploads",
+    "statements_sha256": "533226cdfb5027c7c8afda681e7fb8e03246a4753bdc823a7fbfd8311c5aaf60",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates private user-media metadata storage and upload constraints.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260723061048",
+    "name": "wf_media_reports_and_queue",
+    "statements_sha256": "e1fe910080f501b61c8476c93cf49a70381f224065b61445f67f33a48da96282",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates media report intake and moderation queue storage.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260723135750",
+    "name": "wf_atlas_missing_selector",
+    "statements_sha256": "73dbcb6b9485baf4e2e980b7ff1425496ba9f5d849bad81268ad1397f095f58f",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates the selector for missing Atlas editorial work.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260727043128",
+    "name": "security_hardening_v1",
+    "statements_sha256": "ed7cc55dd1ff1f9dd515bfd2c41e293e0a49f036d8c0e7286ffbf3c6e6457349",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: applies the first security-hardening pass: pins search_path on eight functions, enables RLS on three tables, revokes anon/authenticated privileges from 15 admin views, and revokes their write privileges on place_signals.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260727043321",
+    "name": "security_hardening_v2_definer_functions",
+    "statements_sha256": "1a0ba64d1ad7dd363a05d573adac70701b5cdda17401ccd1492befebb9cad050",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: pins SECURITY DEFINER function search paths and removes unsafe client execution grants.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260727043725",
+    "name": "security_hardening_v3_revoke_public_execute",
+    "statements_sha256": "55dbd50e682f59e95e54aa63ee74e6a69479b478cb85eb8b4a3a16e812cd4ea5",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: revokes implicit PUBLIC execution from the four privileged functions identified in the security review.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260728173420",
+    "name": "comment_photos_v654",
+    "statements_sha256": "21254bd7e6b4462413b72b4e30df138ba993cc89bcce863c4630196d2aa5007f",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds comment photo storage and comment integrity constraints.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260728173427",
+    "name": "place_suggestions_v653",
+    "statements_sha256": "faa793ebd1881b6486d55044331003437602f162996eb0b11216bad091dfd443",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates review-gated place suggestion storage.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260728173530",
+    "name": "comment_photos_drop_redundant_public_read_policy",
+    "statements_sha256": "82d08c4fdb0c8fdce146ab19e18573903cecabd69daa3b758b387c2fb784236a",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Removes the redundant public storage read policy for comment photos.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260728220644",
+    "name": "security_hardening_v4_grant_cleanup_and_events_integrity",
+    "statements_sha256": "50e005162178f17155346551c037774974e7e9da74f6ab24177763c125534dac",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Cleans client grants and adds integrity protections across events and operational tables.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260729192501",
+    "name": "wf_job_pulse_spend_watch",
+    "statements_sha256": "f484969af2e59fa3a85131c1163d4468f12ea0c97c5e1dd6006e08e2aac54697",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates job heartbeat storage and health reporting for metered work.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260729194414",
+    "name": "wf_atlas_retryable_category_param",
+    "statements_sha256": "6bc3a3cdb69845eb87a56485588f493505b3f44e2c1ba91608170f321f459e57",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds category-scoped retry selection to the Atlas retry function.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260729230531",
+    "name": "wf_cuisine_backfill_fn",
+    "statements_sha256": "0e8b600668fe5a65a6464049647c41e2ae3fb0731da541bd23228101b22829b5",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates the cuisine backfill function used by the classifier cron.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260729233040",
+    "name": "wf_cuisine_chips_floor",
+    "statements_sha256": "288a041efc475c8997a66cf4b720ee8dc6681c9b080c044992db518f92a74419",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates derived cuisine chips with a minimum result floor.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260730025143",
+    "name": "wf_inventory_cuisine_per_label_confidence",
+    "statements_sha256": "152ceabf70442c7db872f4fbd7eb34b60ddd06cca1808ded8fcdd882d7db85f5",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds per-label cuisine confidence and backfills it from inventory evidence.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260730031646",
+    "name": "wf_cuisine_places",
+    "statements_sha256": "6c038fc98e1366d24b7977009b479ad78d9a64707ed3eee6556b015638b18c60",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates the cuisine place result RPC.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260730032323",
+    "name": "wf_cuisine_places_with_score_v2",
+    "statements_sha256": "d7756296be9c7e08ae46ce0619b29457916c6f564f52ba0cd6377c8f554b90fe",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Returns Wayfind Score from the cuisine place RPC while preserving the result contract.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260730220005",
+    "name": "wf_deals_add_scope_column",
+    "statements_sha256": "11d1d2a742049afd84594f129b7c68bd35909fded0144bd67689c706a43e5ff9",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds local versus national deal scope and backfills existing deal rows.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260730220334",
+    "name": "wf_deals_views_carry_scope_append_only",
+    "statements_sha256": "127e15071d304d8c3fd7650bd5c11ca64d290df7feb2d70576fe54875ff31193",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Appends scope to live and ranked deal views without reordering existing columns.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260803021427",
+    "name": "place_products_geo_constrain_viator",
+    "statements_sha256": "8e04b8b4696100b50d2d42ceec195aa003a4193f2dcf530b198080bacbc4c52c",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Constrains Viator products to the matched place geography.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260805113646",
+    "name": "secure_job_pulse_rls_and_drop_place_signals_view",
+    "statements_sha256": "08a997d592cfc9bf87cb7d84c8e9806ad1e1e460c93105bd0a85d9fb57d464db",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Enables private job-pulse storage and removes the exposed place-signals view.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260806004819",
+    "name": "device_push_tokens",
+    "statements_sha256": "aaebfdfeb811e112074dcf5ac8a3ace78a0f718e8ebfe434ad4c735c99d3e39c",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates device push-token storage and registration RPC.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260806020956",
+    "name": "push_token_register_heartbeat_and_lockdown",
+    "statements_sha256": "c7fe38d00af4e14c1b11b1658ab76863f724bcf4fae08da238b90d08794da696",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Hardens push registration and records its heartbeat under service-role controls.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260806231037",
+    "name": "wf_best_picks_family_virtual_category",
+    "statements_sha256": "77de53320eca668caace355dbb7eb8180d558b659557d81571c88902e41645d3",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds a family virtual category based on destination eligibility.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260806231202",
+    "name": "wf_best_picks_family_tighten_to_destinations",
+    "statements_sha256": "e115e3781c649a770795977ca3be54ffe762315bf6b2aa1b832aaee61fd1f431",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Tightens family eligibility to destination places rather than generic food/retail rows.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260807023541",
+    "name": "wf_email_signups",
+    "statements_sha256": "6abaa6d2dd836662f64d10e89d21edadab5e219343c6fcca7bf59eb499bb2667",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates server-side guide email signup storage.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260807023653",
+    "name": "wf_email_signups_plain_unique",
+    "statements_sha256": "7a6cc45cd50f7275582145dc7bd18b87cea3c2dfecce4c760c9762c6ce584e50",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Replaces expression uniqueness with a plain email/slug uniqueness contract.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260808140039",
+    "name": "welcome_email_webhook_trigger",
+    "statements_sha256": "27b61ddee975705c9aae0233cd4734c1c7c4a04262a1fd496309f181f428b0e7",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds asynchronous welcome-email delivery on signup.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260809033506",
+    "name": "giveaway_entries_and_emails",
+    "statements_sha256": "75fc8fba86d7130c9092f9a3c5f6045bfbfc149aaef276df87f2e5f9383a13b0",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates giveaway entry storage and notification trigger.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260809035701",
+    "name": "notify_new_signup_on_auth_users",
+    "statements_sha256": "26cd74208a61115cd647c63e5e9d3fec6a3de700a5bec2b31ac90424e454b6fa",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds the auth-user signup notification trigger.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260809035940",
+    "name": "notify_webhooks_raise_pg_net_timeout",
+    "statements_sha256": "00e0d0ceb290c065c5dfc15488e3d4e1de673bd1153f44b9df849c4dc43e013b",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Raises pg_net timeout for asynchronous signup and giveaway webhooks.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260813165059",
+    "name": "wf_promotion_cron_jobs",
+    "statements_sha256": "e1c2fbb7ac13e0f80e79055a77eff841abdc82c1e325ec7dedb7067586c5d609",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds nightly promotion housekeeping jobs.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260813165147",
+    "name": "wf_promotion_lockdown",
+    "statements_sha256": "3d5296dc240d1e9b9e1e95af66bd3f2ac7cd6f15722fef2292d1eefd4b9f7dab",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Locks promotion queue tables and worker RPCs to internal service-role use.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260813165215",
+    "name": "wf_promotion_lockdown_revoke_public",
+    "statements_sha256": "5e3bff4d11602082276b8c1d92b29fbd02200f2d91d382b1f5cc9d2038642003",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Removes residual PUBLIC execution from promotion functions after the first lockdown.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260813213816",
+    "name": "create_wf_events",
+    "statements_sha256": "fcd0bd0e295685c01c3c984b9d668e92e2add45a1f29f80ac1aae16070928aa0",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates verified event storage distinct from analytics telemetry.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260814154701",
+    "name": "wf_best_picks_indoor_weather_fix",
+    "statements_sha256": "5b9565dcc66760ff29619eae61368f11589de4bb04f15b5eee4758ce6b2d3f2b",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Corrects indoor/weather ranking predicates and removes the tourist-attraction token inversion.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260819131354",
+    "name": "wf_beach_water_geo_view",
+    "statements_sha256": "8987e69d13a122d3396db9b6e2a70c92a8c3380837bfc231edc12eb8d19a8e41",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates the geo-joined beach-water view across multiple place IDs.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260819200040",
+    "name": "place_products_manual_verified_operators",
+    "statements_sha256": "c95aa637bc79b8569c3b80e70956666bf813b7614e70ec9e4f5423cec42d4bb0",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates hand-verified operator product mappings for otherwise unmatchable bookable places.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260820221350",
+    "name": "dedupe_split_venue_records_20260820",
+    "statements_sha256": "4e5a148bb473b13ac5acb23bb8cc0c122f0a38190f5c94d090607bd5e48fe8cb",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Marks duplicate venue records EXCLUDED and snapshots affected inventory for reversible repair.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260820221452",
+    "name": "backfill_null_primary_type_20260820",
+    "statements_sha256": "7c1d3b645ba3e5c29661d52827f09bcae8ca5e338147727bd499905e789dd438",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Backfills missing primary types from Google type evidence while preserving operational rows.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260820221527",
+    "name": "beach_category_beats_generic_parent_20260820",
+    "statements_sha256": "ea2cc39e7b34ec0708f71f6faefc17654738a7672ba26baab030dea9a23b66b1",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Corrects beach category precedence over generic parent types.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260820234819",
+    "name": "assign_remaining_types_and_gate_adult_20260820",
+    "statements_sha256": "4aa58815ec195001e3c93d7d5cd44189bc25da3e0a36bc88a1c39acf3c230e76",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Assigns remaining typed inventory and excludes adult venues from served categories.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260821234927",
+    "name": "earn_law_v830_place_products_manual_and_opportunity_queue",
+    "statements_sha256": "10807036d903b108475f5f17f90da24572768cba6ffdd28ef6c6ea3a1fb9c34b",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates manual place-product verification and affiliate opportunity queue storage.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260822013443",
+    "name": "earn_law_v830_experiences_supplier_column",
+    "statements_sha256": "7918f2372fda3dee9978e2ed443a4555679e5150014a5e049da646f2757113ed",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds supplier attribution and geo indexing to experiences.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260822015610",
+    "name": "earn_law_v830_affiliate_coverage_food_path",
+    "statements_sha256": "e84f811c143ce96b4a5e7a86e21c3355448ea6f8bdf000083895f046574094a6",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds affiliate coverage reporting for food and nightlife inventory.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260822163358",
+    "name": "earn_law_v830_ut_branch_attraction_places_only",
+    "statements_sha256": "ed48ec6dc4971adec310f62bfc21e3d7d8e0c56fefc36e07f295b5906d91f128",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Restricts Undercover Tourist matching to attraction places and removes hotel false matches.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260822164708",
+    "name": "scout_verdicts_and_candidates",
+    "statements_sha256": "167d7f979e82c004dfe5d511ee2aa23d1303c290ba8c6172d2d431309c7ed388",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates durable scout verdict/candidate memory to avoid repeat adjudication.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260822171833",
+    "name": "wf_promotion_enqueue_by_score",
+    "statements_sha256": "91cab9febac14b826418939c794ab5e3cce8d5c77c5e390bda6b943f95f5364b",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Adds score-ordered promotion enqueue for the best unserved places.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260823190119",
+    "name": "wf_gate_status_match_serve_radius",
+    "statements_sha256": "0f0de45719e9aba39e4413c6e2ed092a2dfe66bb11a1eeb330f40211d70f60a1",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Matches coverage gate status to the configured serve radius.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260825133012",
+    "name": "wf_coverage_audit",
+    "statements_sha256": "9c8adfb3b69dc6ae705d031dd4a8556072ad9e50bc54dd70c481d016c94eb00e",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates metro coverage audit reporting over inventory and requests.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260825142143",
+    "name": "wf_spend_ledger_free_tier",
+    "statements_sha256": "a0274e2e3f39528dcccc0ab7f7ad5b949d1d2709ccc9dbb346fc053e3016cd6c",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates the atomic monthly free-tier spend ledger and take/refuse function.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260825213558",
+    "name": "security_hardening_v5_definer_views_and_rpc_lockdown",
+    "statements_sha256": "f650407cdf404e3b35abf5bcbcf3915afd9fc3304b7cea4c43bec04e90e012a3",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Locks down SECURITY DEFINER views/RPCs created since the prior hardening pass.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260825213646",
+    "name": "security_hardening_v5_table_grants_least_privilege",
+    "statements_sha256": "d6f5ba53458259a4d3846c8aeb14f42494ee18e79a4595e5b353ce8231b69f2c",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Removes client write grants from operational tables under the least-privilege review.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260825213707",
+    "name": "security_hardening_v5_net_schema_and_default_privileges",
+    "statements_sha256": "a603b3bf98fbd2ce20029ba421b4b9b7e0482148257829d5939772d30772ed91",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Hardens pg_net schema access and default privileges for future objects.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260825213724",
+    "name": "fix_two_silent_rls_denials_comments_delete_and_waitlist_signed_in",
+    "statements_sha256": "4b6b763ac6cdc1d19217a514c8875911931b9a2d5a4ae85e4833d9e3ba7c4ee7",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Repairs silent RLS denials for comment deletion and signed-in waitlist writes.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260825220627",
+    "name": "wf_schema_audit_exposure_watchdog",
+    "statements_sha256": "016c0dfb02959aba84dc71271c67814ff75c616920a9ec8e502d99ecb4348717",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates the schema exposure watchdog used by the schema-watch cron.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260825221345",
+    "name": "wf_client_permissions_snapshot_source",
+    "statements_sha256": "231da5d3475e73045197563aba1c12cf8c22801fd04e8f6eb6f4061e13fced69",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates the privileged client-permission snapshot RPC.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260825221906",
+    "name": "start_date_required_only_when_displayable",
+    "statements_sha256": "1d2befa9c778947e9677099361b91050a8b8ee27c8bea9c30e3a9cfedab0b67a",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Allows recorded events without invented dates while requiring dates for displayable events.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260826030742",
+    "name": "wf_events_cannot_hold_a_false_statement",
+    "statements_sha256": "1ac33f93a8e487d1d6b8ea4f1c8046371e9498fe1fd5a1052208206d8618eeb9",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: adds 13 storage constraints to prevent contradictory or unrenderable wf_events rows.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260828012148",
+    "name": "wf_events_no_unverified_dates",
+    "statements_sha256": "295fac52ebf4c1f862cc26843c6d2766097c8d85a874dc002640ae36fbdd5029",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: forbids dates on low-confidence wf_events rows at the storage layer.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260902152216",
+    "name": "wf_promote_global_bucket_opt_in_trigger_guard",
+    "statements_sha256": "62276c86d7c7fe8697ad206877be001517271d4e72b341a99352414835bb8992",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Makes trigger-path promotion enqueue opt-in for global buckets.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260903073534",
+    "name": "bound_affiliate_link_verifier_to_a_batch",
+    "statements_sha256": "e970ef18f8826f59d7eed370b175a5749a0890ee0618682ec54f28260b92b7d4",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Bounds affiliate link verification to an explicit batch to stop unbounded scans.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260903073625",
+    "name": "drop_unbounded_affiliate_verifier_overload",
+    "statements_sha256": "082fdef8ce8dbcddf20e203752159069c759ee1ac95bd64bba0a6e17a597cbdc",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Drops the zero-argument affiliate verifier overload so cron cannot bypass batch bounds.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260903074253",
+    "name": "wf_social_candidates_instagram_leads",
+    "statements_sha256": "337d95698151f59b89ea1f1419f445588c57d91a677e57f881ba6e624ae678dd",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates private Instagram lead storage and source-health tracking; leads never publish directly.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260904054154",
+    "name": "wf_lunch_dish_images",
+    "statements_sha256": "cae76a14b5c9707acf9fa69c56b5bebdd3d38bd37aad9b3f9c2218aeb0b6123a",
+    "reason": "First of two applied rows named wf_lunch_dish_images: creates the server-only, RLS-enabled dish verification table with photo_ref and a Google photo-name constraint. Explicitly mapped to the surviving canonical file as historical lineage, not SQL equivalence; the later ledger row uses different image/source URL columns. Preserve both exact hashes without replay.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08",
+    "canonical_file": "20260904_wf_lunch_dish_images.sql"
+  },
+  {
+    "version": "20260904055226",
+    "name": "wf_lunch_dish_images",
+    "statements_sha256": "44d664ccf2f65c4c156a1993b3cb44970fe494bb4c1f9016f34c149cc0082ab4",
+    "reason": "Second applied row named wf_lunch_dish_images: CREATE TABLE IF NOT EXISTS describes image_url/source_url storage with HTTP URL checks, RLS and service-role grants. The earlier row described photo_ref; this statement does not prove it altered an already-existing table. Both distinct ledger bodies are reviewed and pinned to preserve actual history, with the surviving canonical file mapped explicitly.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08",
+    "canonical_file": "20260904_wf_lunch_dish_images.sql"
+  },
+  {
+    "version": "20260906061307",
+    "name": "social_creator_follower_evidence",
+    "statements_sha256": "17efb8029e236d2e4d9b16f08483a49d8375694186596ce0337fbdd24a61eb41",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: Creates private creator/follower evidence tables for qualified social discovery.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "version": "20260907114404",
+    "name": "wf_schema_objects_full_catalog_fix",
+    "statements_sha256": "d17237b9f9c2622bb4f64ec04cae88ecd0688082b06718651ea4bba0225a2903",
+    "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: repairs wf_schema_objects to enumerate all seven catalog kinds and restricts execution to service_role; this is the PR #1161 incident repair.",
+    "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  }
+]

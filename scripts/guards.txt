@@ -1279,3 +1279,5 @@ node scripts/test-known-city-geocode.mjs
 node scripts/test-provider-spend-caps.mjs
 
 node scripts/test-beach-planning.mjs
+
+node scripts/check-reverse-migration-reconciliation.mjs
