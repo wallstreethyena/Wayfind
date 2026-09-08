@@ -1,4 +1,4 @@
-// /go/[city] — the PAID landing route.
+// /go/[city] — paid city landings + registry-only social shortlinks.
 //
 // Deliberately separate from /things-to-do/[city] rather than a "paid mode" on
 // it. Two reasons:
@@ -9,9 +9,15 @@
 //      organic page for the same query. Splitting the routes lets each be
 //      optimized honestly for what it is.
 //
-// The organic content is untouched and linked from the bottom of this page, so
+// The dynamic segment keeps its historical [city] name, but resolution now has
+// one closed contract: registered social shortlink first, known city second,
+// real notFound() third. lib/goShortlinks.js never accepts a destination URL.
+//
+// The organic content is untouched and linked from the bottom of city pages, so
 // nothing of SEO value is deleted or hidden.
+import { notFound, redirect } from "next/navigation";
 import { LANDING_CITIES, LANDING_CATS, rankedFor } from "../../../lib/landing";
+import { resolveGoSlug } from "../../../lib/goShortlinks.js";
 import { SITE_URL } from "../../../lib/site";
 import PaidLanding from "../../components/PaidLanding";
 
@@ -41,8 +47,16 @@ export function generateStaticParams() {
 }
 
 export function generateMetadata({ params }) {
-  const city = LANDING_CITIES[params.city];
-  if (!city) return { title: "Not found", robots: { index: false, follow: false } };
+  const resolved = resolveGoSlug(params.city);
+  if (resolved.kind === "not-found") notFound();
+  // A social shortlink exists only to perform a server redirect. Keep it out of
+  // search results even if a crawler declines to follow the redirect itself.
+  if (resolved.kind === "shortlink") {
+    return { title: "Wayfind tickets", robots: { index: false, follow: false } };
+  }
+
+  const city = resolved.city;
+  const citySlug = resolved.slug;
   const title = `Things to do in ${city.name} right now — Wayfind`;
   const description = `Real guest reviews, ranked on merit. No ads and no paid placement — find something worth doing in ${city.name}, ${city.state} today.`;
   return {
@@ -52,21 +66,19 @@ export function generateMetadata({ params }) {
     // query. Canonical points at the indexable one; this route stays out of the
     // index entirely.
     robots: { index: false, follow: true },
-    alternates: { canonical: `${SITE_URL}/things-to-do/${params.city}` },
+    alternates: { canonical: `${SITE_URL}/things-to-do/${citySlug}` },
   };
 }
 
 export default async function Page({ params }) {
-  const citySlug = params.city;
-  const city = LANDING_CITIES[citySlug];
-  if (!city) {
-    return (
-      <main style={{ padding: 28, background: "#040810", color: "#E6EDF3", minHeight: "100dvh" }}>
-        <h1>Not found</h1>
-        <p><a href="/" style={{ color: "#F97316" }}>Back to Wayfind</a></p>
-      </main>
-    );
-  }
+  const resolved = resolveGoSlug(params.city);
+  // Server-side redirect to our own commerce endpoint. The browser never
+  // receives the partner/CJ destination in this page's HTML.
+  if (resolved.kind === "shortlink") redirect(resolved.href);
+  if (resolved.kind === "not-found") notFound();
+
+  const citySlug = resolved.slug;
+  const city = resolved.city;
 
   // Photos + open-now come from the paid-only field mask (see lib/landing.js).
   // A null list means no server key / upstream down — PaidLanding renders its
