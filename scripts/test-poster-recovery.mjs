@@ -68,6 +68,35 @@ await new Promise(resolve => setTimeout(resolve, 0));
 clock += 21000;
 ok((await fastCachedRail('hung-cell', async () => 'recovered')).value === 'recovered', 'a loader that never settles cannot poison later requests permanently');
 
+// Reproduce a slow cache read with a healthy exact-cell answer while the
+// inventory build is still pending. This used to discard the answer at 500ms.
+let lateRead, lateBuild;
+const writes = [];
+cache.get = () => new Promise(resolve => { lateRead = resolve; });
+cache.set = async (key, value) => { writes.push({key, value}); };
+const delayed = fastCachedRail('miami:25.76:-80.19:evening',
+  () => new Promise(resolve => { lateBuild = resolve; }),
+  {usable: v => !!v && v.failed !== true});
+await new Promise(resolve => setTimeout(resolve, 550));
+ok(typeof lateBuild === 'function', 'cold compute begins after quick cache budget');
+lateRead({savedAt:clock, value:{rails:['Miami'],failed:false}});
+const lateAnswer = await delayed;
+ok(lateAnswer.state === 'late-hit' && lateAnswer.value.rails[0] === 'Miami',
+  'slow exact-cell last-good answer wins before stalled compute');
+lateBuild({failed:true});
+await new Promise(resolve => setTimeout(resolve, 0));
+ok(writes.length === 0, 'failed refresh never overwrites recovered good output');
+for (const [label, entry] of [
+  ['expired', {savedAt:clock - 8*86400000,value:{rails:['old']}}],
+  ['future', {savedAt:clock + 1,value:{rails:['future']}}],
+  ['invalid', {savedAt:'broken',value:{rails:['invalid']}}],
+]) {
+  cache.get = async () => entry;
+  const result = await fastCachedRail(label, async () => ({rails:['new']}));
+  ok(result.state === 'miss' && result.value.rails[0] === 'new', `${label} cache entry cannot be served`);
+}
+cache.get = async () => null;
+
 // Execute the REAL component with a deterministic hook scheduler. Child cards
 // are left as elements: the invariant under test is which payload they receive.
 function componentHarness(name) {
