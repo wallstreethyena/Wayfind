@@ -10,6 +10,7 @@ import { GULF_COAST_FALL_2026_ROWS } from "../lib/gulfCoastFall2026.js";
 import { railScrollNeedsMore, windowRailAnswer } from "../lib/railResponse.js";
 import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../lib/fallPhotoSpots.js";
 import { FALL_COLLECTION_POSTER, fallEventCardImageSrc } from "../lib/fallEventImage.js";
+import { FALL_EVENT_VENUE_PLACE_IDS } from "../lib/fallEventImage.js";
 import { DISPLAYABLE_STATUS } from "../lib/curatedEvents.js";
 
 let pass = 0;
@@ -25,6 +26,7 @@ const event = (over = {}) => ({
 });
 
 const expected = ["food", "farms", "theme-parks", "haunts", "family", "oktoberfest", "date-night", "festivals", "photos", "day-trips"];
+const sarasotaAudit = JSON.parse(readFileSync(new URL("./fixtures/fall-sarasota-audit-2026-09-08.json", import.meta.url), "utf8"));
 ok(FALL_INTENT_RAIL_DEFS.length === 10, "the collection has exactly ten rails");
 ok(FALL_INTENT_RAIL_DEFS.map((rail) => rail.id).join("|") === expected.join("|"), "the ten approved base intents are present in order");
 ok(new Set(FALL_INTENT_RAIL_DEFS.map((rail) => rail.title)).size === 10, "every rail title is unique");
@@ -111,6 +113,65 @@ const seedSources = ["seed-fall-sarasota-2026.mjs", "seed-fall-instagram-finds-s
   .map((name) => readFileSync(new URL("../scripts/" + name, import.meta.url), "utf8"));
 const seededIds = new Set(seedSources.flatMap((src) => [...src.matchAll(/event_id: "([a-z0-9-]+-2026)"/g)].map((m) => m[1])));
 const gulfCoastIds = new Set(GULF_COAST_FALL_2026_ROWS.map((row) => row.event_id));
+const gulfById = new Map(GULF_COAST_FALL_2026_ROWS.map((row) => [row.event_id, row]));
+const auditSelected = Array.isArray(sarasotaAudit.selected) ? sarasotaAudit.selected : [];
+const auditDisposition = sarasotaAudit.source_dispositions || {};
+const auditSelectedIds = auditSelected.map((row) => row.id);
+const dispositionGroups = [
+  auditDisposition.selected || [],
+  (auditDisposition.canonical_alias_to_selected || []).map((row) => row.source_id),
+  (auditDisposition.already_represented || []).map((row) => row.source_id),
+  auditDisposition.verified_pending_identity || [],
+  auditDisposition.verified_taxonomy_mismatch || [],
+  auditDisposition.out_of_scope || [],
+  auditDisposition.hold || [],
+  auditDisposition.reject || [],
+  auditDisposition.place_menu || [],
+];
+const dispositionIds = dispositionGroups.flat();
+const nonPublishDispositionIds = [
+  ...(auditDisposition.verified_pending_identity || []),
+  ...(auditDisposition.verified_taxonomy_mismatch || []),
+  ...(auditDisposition.out_of_scope || []),
+  ...(auditDisposition.hold || []),
+  ...(auditDisposition.reject || []),
+  ...(auditDisposition.place_menu || []),
+];
+ok(auditSelected.length === 8 && new Set(auditSelectedIds).size === auditSelectedIds.length, "the Sarasota audit has exactly eight unique publish selections");
+ok(Array.isArray(sarasotaAudit.master_ids) && sarasotaAudit.master_ids.length === 75 && new Set(sarasotaAudit.master_ids).size === 75, "the fixture carries all 75 distinct master source IDs exactly once");
+ok(dispositionIds.length === 75 && new Set(dispositionIds).size === 75, "every master source ID has exactly one disposition with no overlap");
+ok(dispositionIds.every((id) => sarasotaAudit.master_ids.includes(id)) && sarasotaAudit.master_ids.every((id) => dispositionIds.includes(id)), "the source-disposition union reconciles exactly to the 75-ID master list");
+ok(auditSelectedIds.every((id) => !nonPublishDispositionIds.includes(id)), "no held, rejected, pending, out-of-scope, or place-menu candidate is selected for publication");
+ok((auditDisposition.already_represented || []).every((row) => (row.canonical_event_id || row.canonical_slug) || (row.canonical_provider && row.provider_event_id && /^https:\/\/www\.gowayfind\.com\//.test(row.live_url))), "every already-represented source records either a canonical event identity or a provider-backed live Wayfind route");
+ok(auditSelected.every((audit) => {
+  const row = gulfById.get(audit.id);
+  return row
+    && FALL_DISCOVERY_RAIL[audit.id] === audit.rail
+    && FALL_EVENT_VENUE_PLACE_IDS[audit.id] === audit.place_id
+    && row.place_id === audit.place_id
+    && audit.source_urls.some((url) => [row.source_url, row.official_event_url, row.official_ticket_url].includes(url));
+}), "every selected Sarasota event has one audited rail, its owned venue identity, and a checked source URL");
+ok(nonPublishDispositionIds.every((id) => !gulfById.has(id)), "held, rejected, pending, out-of-scope, and place-menu audit candidates are absent from the publish registry");
+const ghostbusters = gulfById.get("ghostbusters-in-concert-van-wezel-2026");
+ok(ghostbusters && FALL_DISCOVERY_RAIL[ghostbusters.event_id] === "date-night" && !ghostbusters.audience.includes("families") && !ghostbusters.audience.includes("kids"), "Ghostbusters stays a date-night concert, never a family Halloween card");
+ok(!gulfById.has("3-daughters-fall-bouquet-workshop-2026-09-09") && !("3-daughters-fall-bouquet-workshop-2026-09-09" in FALL_DISCOVERY_RAIL), "3 Daughters' non-spooky floral workshop stays out of every Fall intent rail");
+const sarasotaSelected = composeFallIntentRails(
+  GULF_COAST_FALL_2026_ROWS.filter((row) => auditSelectedIds.includes(row.event_id)),
+  [],
+  { lat: 27.3364, lng: -82.5307, today: "2026-09-08", now: new Date("2026-09-08T12:00:00Z") },
+);
+const sarasotaSelectedByRail = Object.fromEntries(sarasotaSelected.rails.map((rail) => [rail.id, rail.cards.map((card) => card.event_id || card.id).sort()]));
+ok(sarasotaSelectedByRail["date-night"].join("|") === "ghostbusters-in-concert-van-wezel-2026", "Sarasota composition places only the spooky Ghostbusters concert in date night");
+ok(sarasotaSelectedByRail.family.join("|") === "trick-or-treat-on-the-lake-benderson-2026", "Sarasota composition places only Benderson trick-or-treat in family");
+ok(sarasotaSelectedByRail.festivals.join("|") === [
+  "night-of-wonder-ringling-2026",
+  "sun-fiesta-venice-2026",
+  "uf-ifas-edfest-plant-sale-2026",
+  "utc-night-market-tailgate-2026-09-17",
+  "venice-night-market-halloween-2026",
+  "wellen-park-wine-festival-2026",
+].sort().join("|"), "Sarasota composition returns the exact six audited outdoor-night and festival cards");
+ok(sarasotaSelected.rails.flatMap((rail) => rail.cards).map((card) => card.event_id || card.id).sort().join("|") === auditSelectedIds.slice().sort().join("|"), "Sarasota composition renders every selected audit card exactly once");
 ok(Object.keys(FALL_DISCOVERY_RAIL).every((id) => discoveryIds.includes(id) || seededIds.has(id) || gulfCoastIds.has(id)), "every explicit rail pin names canonical discovery source data");
 ok([...gulfCoastIds].every((id) => id in FALL_DISCOVERY_RAIL), "every reviewed Gulf Coast event has one explicit primary intent");
 ok([...seededIds].filter((id) => !(id in FALL_DISCOVERY_RAIL)).length === 0 && seededIds.size >= 22, `every seeded row (${seededIds.size}) is pinned to one shelf`);
@@ -175,7 +236,7 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(/fall-intents:v10:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key (v10: retires statewide-fallback payloads)");
+ok(/fall-intents:v11:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key (v11: publishes the audited Sarasota inventory immediately)");
 ok(/hasImageProof[\s\S]{0,220}inventory\?\.photo_ref/.test(route)
   && /filter\(\(p\) => !!p\.photo_ref\)/.test(route),
   "Fall events and places require stored image proof before a card can ship");
