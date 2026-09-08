@@ -50,6 +50,14 @@ const IconicPlaceCard = dynamic(() => import("./IconicPlaceCard"), {
   ssr: false,
   loading: () => <PlaceCardSkeleton count={1} />,
 });
+// Lane E (2026-09-07) — "Worth the Extra Miles", the long-distance tail
+// UNDER the Worth the Drive drop. Its own chunk, its own route
+// (/api/extra-miles), its own selector (lib/extraMiles.js): it never reads
+// `shown.places.drive` and buildDrivePool never reads it, so the 12–27 mile
+// cards above it are byte-identical with or without it. Renders nothing
+// until it has a real answer, and nothing at all when the reader is outside
+// its 30–180 mile band of every governed park.
+const ExtraMilesTail = dynamic(() => import("./ExtraMilesTail"), { ssr: false, loading: () => null });
 // v8.12 — the owner's top-20 trends, back on the page (owner, 2026-08-18:
 // "the exploding trends do not have the 20 top trending items"). Mounted
 // INSIDE the trending drop only — behind a click, so it stays off the
@@ -84,7 +92,7 @@ import { servableRows, isNowRail } from "../../lib/daylight.js";
 // `cityLabel` is aliased because this component already takes a prop by that
 // name. The import is the LAW (never "you", never "your area"); the prop is a
 // string the caller handed down.
-import { emptyRailLive, liveFromRailsResponse, mergeRailPage, cityLabel as honestCityLabel } from "../../lib/locationHonesty.js";
+import { emptyRailLive, liveFromRailsResponse, mergeRailPage, isFailedRailsResponse, cityLabel as honestCityLabel } from "../../lib/locationHonesty.js";
 import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
 import { railScrollNeedsMore } from "../../lib/railResponse.js";
 import { posterImgIsReady, bindPosterArtReady, posterImgInTile } from "../../lib/posterArtReady.js";
@@ -731,6 +739,21 @@ export default function DaypartRail({
     const apply = (j) => {
       if (cancelled || landed) return;
       landed = true;
+      // A FAILED RANKING IS AN OUTAGE, NOT A COVERAGE FACT (v9.0). The route
+      // now says `failed: true` when the inventory build blew its deadline or
+      // threw. Before this, that answer arrived as covered:true with empty
+      // rails and the reader's own city label, and this function adopted it
+      // as a successful ranking — every composer then printed "No nearby
+      // place clearly qualifies" about a town Supabase had simply not
+      // answered for (owner's phone, Cortez, 2026-09-07 09:19). Same rule as
+      // the deadline branch below: keep whatever good payload is already on
+      // screen, land on LOAD_FAILED, offer Try again.
+      if (isFailedRailsResponse(j)) {
+        setLive((prev) => (prev == null ? emptyRailLive() : prev));
+        setRailLoad(LOAD_FAILED);
+        try { onCoverage && onCoverage("error"); } catch (e) {}
+        return;
+      }
       const covered = !!(j && j.covered === true && j.data);
       setLive(liveFromRailsResponse(j));
       setRailLoad(covered ? "live" : "uncovered");
@@ -1067,6 +1090,24 @@ export default function DaypartRail({
   // Events drop begin with real happenings and end with buildings where an
   // event might happen on some other date.
   const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "season" || selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "breakfast" || selRail.id === "break" || selRail.id === "eat" || selRail.id === "today" || selRail.id === "augtober" || selRail.id === "tonight"));
+  // A COMPOSER FED BY /api/rails HAS NO ANSWER UNTIL /api/rails DOES (v9.0).
+  // Breakfast and Actually Worth Eating do not fetch anything of their own:
+  // they split `shown.places` into identity rails. So while the rails request
+  // is pending, failed, unlocated or uncovered, their input is an empty array
+  // — and an empty array rendered through BreakfastRails reads "No nearby
+  // place clearly qualifies for this rail yet", which is a claim about the
+  // town, not about the request. That sentence sat on the owner's phone over
+  // a Cortez cell whose API answer carried 12 breakfast places (2026-09-07).
+  //
+  // So these two wait. Until railLoad is "live" they render NOTHING of their
+  // own and the shared load chain below speaks for them — skeleton while
+  // pending, "couldn't reach the ranking service · Try again" on failure, the
+  // location sentence when there is no pin. The other composers (birthday,
+  // date night, today, fall, summer, trending, night out, lunch break) own a
+  // fetch and a load state of their own and are untouched.
+  // scripts/test-rails-failed-is-not-covered.mjs pins the set and the gate.
+  const RAILS_FED_COMPOSERS = ["breakfast", "eat"];
+  const composerWaiting = !!(selRail && RAILS_FED_COMPOSERS.includes(selRail.id) && railLoad !== "live");
   // v8.22 (owner: "when the amazon rail card is selected make sure it becomes
   // the main focus on the screen"). The pulsing glow marks the card; this
   // brings it there — the open tile centers itself in the track, so the
@@ -1605,7 +1646,7 @@ export default function DaypartRail({
             />
           ) : null}
 
-          {selRail && selRail.id === "breakfast" ? (
+          {selRail && selRail.id === "breakfast" && !composerWaiting ? (
             <BreakfastRails
               places={dropList}
               city={shown.cityLabel || ""}
@@ -1639,7 +1680,7 @@ export default function DaypartRail({
             />
           ) : null}
 
-          {selRail && selRail.id === "eat" ? (
+          {selRail && selRail.id === "eat" && !composerWaiting ? (
             <WorthEatingRails
               places={dropList}
               city={shown.cityLabel || ""}
@@ -1985,7 +2026,7 @@ export default function DaypartRail({
                 </button>
               ) : null}
             </div>
-          ) : selRail && !railOwnsItsOwnAnswer && isPending(railLoad) ? (
+          ) : selRail && (!railOwnsItsOwnAnswer || composerWaiting) && isPending(railLoad) ? (
             /* v8.46 — THE ONLY PLACE A SKELETON MAY RENDER. It is gated on an
                explicit in-flight flag that lib/loadState.js guarantees will be
                overwritten within 12s, by data or by LOAD_FAILED. It is no
@@ -2029,7 +2070,7 @@ export default function DaypartRail({
                 </div>
               ) : null}
             </div>
-          ) : selRail && !railOwnsItsOwnAnswer && answered && thinSet.has(selRail.id) ? (
+          ) : selRail && (!railOwnsItsOwnAnswer || composerWaiting) && answered && thinSet.has(selRail.id) ? (
             <div className="wf8-thin">
               <p>
                 {`Nothing${near} clears this bar right now — ${selRail.emptyWhy || "nothing nearby clears the bar"}. Padding it with places that don't belong would make the rail worthless.`}
@@ -2038,7 +2079,7 @@ export default function DaypartRail({
                 <a href={railHref(selRail, shown.region, shown.citySlug)}>{selRail.cta} →</a>
               ) : null}
             </div>
-          ) : selRail && !railOwnsItsOwnAnswer ? (
+          ) : selRail && (!railOwnsItsOwnAnswer || composerWaiting) ? (
             /* THE HONEST TERMINAL STATE. Whatever else went wrong, the reader
                gets a sentence that is true, and at least one thing to press.
                Never a grey box. */
@@ -2081,6 +2122,13 @@ export default function DaypartRail({
               </div>
             </div>
           ) : null}
+          {/* Lane E — the tail is OUTSIDE the ternary above on purpose: it is
+              not one of the drive rail's states (results / pending / thin /
+              failed). It is a second, separate thing that appears after
+              whatever the 12–27 mile rail decided, and it decides for itself. */}
+          {selected === "drive" && center && Number.isFinite(center.lat) && Number.isFinite(center.lng)
+            ? <ExtraMilesTail lat={center.lat} lng={center.lng} />
+            : null}
         </div>
       </section>
     </div>

@@ -13,6 +13,7 @@
 // SSRF guard, same shape as the Places proxy's ref-pattern allowlist: the
 // upstream URL must resolve to images.pexels.com over https, nothing else.
 import { NextResponse } from "next/server";
+import { providerSpendAllow } from "../../../lib/providerSpend.js";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +35,14 @@ export async function GET(req) {
   }
 
   try {
-    const r = await fetch(upstream.toString());
+    if (!(await providerSpendAllow("pexels"))) {
+      return NextResponse.json({ error: "provider budget unavailable" }, { status: 503 });
+    }
+    const r = await fetch(upstream.toString(), {
+      cache: "no-store",
+      redirect: "error",
+      signal: AbortSignal.timeout(8000),
+    });
     if (!r.ok || !r.body) {
       return NextResponse.json(
         { error: "upstream " + r.status },

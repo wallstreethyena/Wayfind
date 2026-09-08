@@ -15,7 +15,7 @@
 // { ok:false } (no button) with a 200, never a 500.
 import { NextResponse } from "next/server";
 import { sbEnv } from "../../../../lib/serverCache.js";
-import { probeAndClassify } from "../../../../lib/linkProbe.js";
+import { probeAndClassify, validateOutboundUrl } from "../../../../lib/linkProbe.js";
 import { hostOfUrl, isBadVerdict, isQuarantinedHost } from "../../../../lib/linkQuarantine.js";
 
 export const runtime = "nodejs";
@@ -34,11 +34,20 @@ function answer(ok, verdict, source) {
 export async function POST(req) {
   let body = {};
   try { body = await req.json(); } catch {}
-  const url = typeof body.url === "string" ? body.url.trim().slice(0, 2048) : "";
+  let url = typeof body.url === "string" ? body.url.trim().slice(0, 2048) : "";
   const names = Array.isArray(body.names) ? body.names.filter((n) => typeof n === "string").map((n) => n.slice(0, 120)).slice(0, 4) : [];
-  const host = hostOfUrl(url);
+  let host = hostOfUrl(url);
   if (!host) return answer(false, "invalid", "input");
   if (isQuarantinedHost(host)) return answer(false, "hijacked", "quarantine-ledger");
+  // This endpoint must work for signed-out readers opening a public detail
+  // sheet, so requiring a user session would break the existing public flow.
+  // Fetch-metadata/rate limiting in middleware is abuse friction, not the SSRF
+  // boundary. Validate DNS here before even a cached verdict can approve the
+  // URL; probeAndClassify repeats the check at request time and on every hop.
+  const safe = await validateOutboundUrl(url);
+  if (!safe.ok) return answer(false, "invalid", "input");
+  url = safe.url;
+  host = hostOfUrl(url);
 
   const s = sbEnv();
   const h = s ? { apikey: s.key, Authorization: `Bearer ${s.key}`, "Content-Type": "application/json" } : null;

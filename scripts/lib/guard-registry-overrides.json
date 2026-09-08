@@ -519,5 +519,45 @@
       "detail": "This is the deterministic half of the post-deploy smoke test. If it rots, the live smoke test can pass on an unattributed or placeholder-stamped redirect \u2014 traffic reaches Viator, converts, and pays us nothing, which is exactly the ?pid=%5BSENSITIVE%5D incident."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/test-spend-bypass-regression.mjs": {
+    "protects": "Every client-reachable Google spend path fails closed on missing or denied configuration, and no cache or inventory fallback can bypass the atomic ledger.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A regression can recreate the exposed-key cost incident by allowing anonymous photo, search, autocomplete, or geocoding requests to reach Google after the monthly ceiling is exhausted."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-events-spend.mjs": {
+    "protects": "Every external event-provider HTTP request consumes its own finite monthly ledger grant, while default feeds read shared cache before provider fanout.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A public events request previously multiplied into Ticketmaster, SeatGeek, PredictHQ, Bandsintown, Eventbrite, SerpAPI, and OpenWebNinja requests with no shared hard ceiling."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-client-paid-boundary.mjs": {
+    "protects": "Browser code cannot contain paid-provider endpoints, a public Google credential, or a direct Places SDK fallback.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A browser fallback bypasses the atomic server ledger and lets anonymous traffic consume provider quota against an exposed credential."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-provider-spend-caps.mjs": {
+    "protects": "Every client-reachable Viator, Foursquare, Tripadvisor, YouTube, and Pexels request requires an explicit finite monthly cap and atomic ledger grant.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "An uncapped public provider route can convert anonymous request volume directly into quota exhaustion or charges."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-autocomplete-proxy.mjs": {
+    "protects": "Autocomplete uses the guarded server proxy and reports disabled or denied spending distinctly from a legitimate empty result.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A regression could bypass finite autocomplete budgets or disguise a denied provider as successful empty search suggestions."
+    },
+    "owner": "Revenue QA"
   }
 }

@@ -114,6 +114,7 @@ node scripts/check-copy-no-empty-hype.mjs
 node scripts/test-rail-score-order.mjs
 node scripts/check-rail-rank-law.mjs
 node scripts/check-subfilter-experience-coverage.mjs
+node scripts/check-food-no-tour-rail.mjs
 node scripts/test-klook-coupons.mjs
 node scripts/test-sheet-booking.mjs
 node scripts/test-card-booking.mjs
@@ -179,6 +180,33 @@ node scripts/test-shopping.mjs
 node scripts/test-events-prime.mjs
 node scripts/test-todays-best.mjs
 node scripts/test-popularity.mjs
+# 2026-09-07 — wf_popularity_stale_batch ordered by fetched_at (success-only),
+# nulls first: a place that never matched sorted first FOREVER and 19,673 of
+# 20,086 eligible places held no popularity row at all (National Aviary, San
+# Diego Zoo, the Smithsonian NMNH and Fort De Soto measured unreachable at
+# ranks ~9,917-18,782 behind a batch of 100). Fixed with a separate attempt
+# ledger (wf_popularity_attempts) ordered on independently of success data —
+# see 20260907_wf_popularity_attempt_ledger.sql. This guard structurally
+# locks the fix and simulates both orderings at the measured scale.
+node scripts/check-popularity-attempt-ledger.mjs
+# 2026-09-07 (PR #1159) — wf_job_pulse measured, TWICE two hours apart:
+# popularity:wikipedia attempted=100 succeeded=17 failed=83 note="http_429 x52"
+# (10:23 UTC) and attempted=100 succeeded=18 failed=82 (12:23 UTC). Wikimedia
+# throttled over half of every batch, and the pre-fix route stamped every one
+# of those throttled candidates into wf_popularity_attempts as a plain
+# "no_data" — indistinguishable from a genuine miss, and enough to rotate an
+# UNOBSERVED candidate to the back of the same 19,000+ row queue
+# check-popularity-attempt-ledger.mjs exists to keep fair. Fixed by
+# lib/wikimediaFetchPolicy.js + two gates in app/api/cron/popularity/route.js
+# (TRANSPORT ONLY — lib/popularity.js, where matching/confidence/identity
+# live, is untouched: same git blob hash as origin/main). This guard
+# red-proves the two claims a structural grep alone cannot: that the ledger
+# write is actually skipped for a throttled candidate (including the one that
+# received the ACTUAL 429, not just the ones queued behind it), and that
+# doing so actually leaves it selectable in the very next stale-batch call
+# instead of buried. Verified to fail against the real pre-fix route.js and
+# against Gate 2 removed in isolation before being registered here.
+node scripts/check-wikimedia-backoff-ledger-truth.mjs
 node scripts/check-one-clock.mjs
 node scripts/test-now-context.mjs
 node scripts/check-weather-code-plumbed.mjs
@@ -304,6 +332,15 @@ node scripts/check-census-tos-boundary.mjs
 node scripts/check-atlas-diag-not-live.mjs
 node scripts/check-env-value-overrides.mjs
 node scripts/test-job-pulse.mjs
+# v8.99.16 — THE WATCHER MUST BE WATCHED, LAYER TWO. RESEND_API_KEY was never
+# set in Vercel: job-watch detected real incidents correctly every hour all day
+# 2026-09-07 and every run still answered HTTP 200, because Resend was the only
+# channel it had for saying delivery failed. Locks the fix: a high-severity
+# Sentry event and a non-200 status now accompany the existing failed
+# self-pulse whenever incidents are detected and nothing could be delivered —
+# so Resend is one alarm channel, not the single point of failure.
+node scripts/test-job-watch-fallback.mjs
+node scripts/test-job-watch-delivery.mjs
 node scripts/check-editorial-retry-state.mjs
 node scripts/check-editorial-coverage-pipeline.mjs
 node scripts/test-atlas-reclassify.mjs
@@ -430,6 +467,14 @@ node scripts/check-creator-video-boost.mjs
 # that made it work cannot be quietly rewired back to the heavy path.
 node scripts/check-creator-signals-fresh.mjs
 node scripts/check-creator-registry-bundle-wall.mjs
+# 2026-09-07 — the lean mirror's DATA FORMAT compacted further (positional
+# tuples + a sentinel + an interned platform table, replacing pretty-printed
+# object literals — see scripts/gen-creator-signals.mjs's header). This guard
+# is the proof the new encoding is representation-only: it runs an
+# independent reference implementation of the OLD full-registry resolver
+# against the REAL lib/creatorSignals.js, across the whole curated corpus,
+# and red-proves five ways the comparison could otherwise be vacuous.
+node scripts/check-creator-signal-equivalence.mjs
 node scripts/check-chef-picks.mjs
 node scripts/check-creator-events.mjs
 node scripts/check-guard-integrity.mjs
@@ -567,6 +612,7 @@ node scripts/check-trend-section-honesty.mjs
 # search / IP geo; do not advertise Exploding Trends while the accordion is dark.
 node scripts/check-location-fail-open.mjs
 node scripts/check-location-honesty.mjs
+node scripts/test-rails-failed-is-not-covered.mjs
 # The rail tile headline is PIXELS. Renaming a rail in code changes nothing
 # the reader sees until the art is redrawn — pin copy and art together.
 node scripts/check-rail-art-matches-copy.mjs
@@ -583,6 +629,7 @@ node scripts/test-date-night-intent.mjs
 node scripts/test-birthday-intent.mjs
 node scripts/test-rail-daylight.mjs
 node scripts/test-rail-select.mjs
+node scripts/test-extra-miles.mjs
 node scripts/test-summer-universe.mjs
 node scripts/test-birthday-universe.mjs
 node scripts/test-birthday-nearby.mjs
@@ -723,6 +770,11 @@ node scripts/check-hook-order.mjs
 # starved. This guard EXECUTES the chain — map, destination, proximity, rank,
 # render — rather than matching text on it.
 node scripts/check-curated-events-surface.mjs
+# 2026-09-07 — isTrusted/isEligible check status, tier, confidence, hook and
+# city but never geography. This EXECUTES isFloridaEvent and the two surfaces
+# it gates (the hub model, the single-event page) so a Chicago or a UK row
+# can never reach a hub whose own title and JSON-LD say "Florida Events".
+node scripts/check-florida-events-are-florida.mjs
 # v8.40 — the owner's marquee music inventory reaches a reader, and an
 # unannounced row (derived Memorial-Day dates) never reaches a card
 node scripts/check-major-music-festivals.mjs
@@ -931,6 +983,16 @@ node scripts/check-rail-card-width-is-global.mjs
 node scripts/check-scarcity-needs-an-answer.mjs
 node scripts/check-date-night-cacheable.mjs
 node scripts/check-no-imageless-card.mjs
+# 2026-09-07 — owner-reported blank panel (Shake Station, Chick-fil-A,
+# Pomegranate Frozen Yogurt): valid photo_ref + a live-verified 302 image
+# response does not guarantee the browser render succeeds — a transient
+# /api/photo 404 ("owned-miss") or network failure left the CSS-forced-size
+# .wf-place-card-media box empty because RailCard/IconicPlaceCard/
+# ThingsToDoList picked <img> vs monogram once at render time and never
+# re-checked after a real load failure. check-no-imageless-card proves a src
+# STRING resolves; this proves the render reacts when that src's request
+# actually fails.
+node scripts/check-card-photo-error-fallback.mjs
 node scripts/test-today-discovery-rails.mjs
 # 2026-09-02 — Night Out pool starvation (owner screenshot, Parrish): an
 # intent rail composed client-side from shown.places alone never sees real
@@ -1138,3 +1200,88 @@ node scripts/check-synthetic-monitor-hermetic.mjs
 # the venue website, and draws the free map with the reader's route and the nearby picks.
 node scripts/check-event-where.mjs
 node scripts/test-score-explanation.mjs
+
+node scripts/test-event-experience.mjs
+# 2026-09-07 — title similarity is not entity identity. Owner: "An exact
+# title match like June, Petrichor or Annapurna cannot automatically become
+# confidence 1.0." A loose matcher's 61 accepted matches were audited: only
+# 10 correct, 7 disambiguation, 7 chain-brand, 37 flat wrong (junk:signal
+# 4.4:1). Fixed with verifyWikiIdentity (lib/popularity.js) — disambiguation
+# / redirect-target similarity / chain-brand / geographic agreement (the
+# same 80mi gate as app/guides/[slug]/page.js) / place-type evidence — run
+# BEFORE the pageviews fetch, plus a companion migration quarantining 22
+# existing poisoned rows and an eligibility pre-filter (primary_type +
+# reviews>=400) that composes with PR #1150's per-source stale-batch
+# selector. This guard runs the real verifyWikiIdentity against fixtures
+# built from this session's live evidence, and structurally locks the
+# migrations' predicates in sync with lib/popularity.js's own exports.
+node scripts/check-wikipedia-identity-verification.mjs
+# v9.00 (owner 2026-09-07): the Howl-O-Scream page read as "a text document, not
+# a premium Wayfind event page" — no hero, a raw URL that wrapped badly, Get
+# Directions rendered twice, nearby picks that could be mistaken for the venue.
+node scripts/check-event-hero-and-directions.mjs
+
+node scripts/test-privileged-rpc-contract.mjs
+# WAYFIND DATA ENGINE: a $0-plan preflight plus the atomic provider ledger
+# guards every indexed-short search. Results enter a private discovery inbox;
+# observed views never masquerade as likes, and no discovery writes cards or
+# events. This is the provider-independent entrance to the social conveyor.
+node scripts/social-acquisition-conveyor-regression.mjs
+# 2026-09-07 — two migration failures, same day, same root cause (a migration
+# handled partially). #1153's 5-arg RPC migration was merged and never
+# applied (08:23 UTC popularity cron did zero work across all four
+# providers). Applying PR #1155's wf_deploy_contract_audit.sql, an operator
+# reconstructed wf_schema_objects() from three grep/sed samples that missed
+# the middle — shipped 4 object kinds instead of 7, and
+# check-migration-reconciliation.mjs correctly reported two real, live
+# editorial-publish-gate objects (a constraint, a trigger) as missing. The
+# guard was right; the input to production was wrong. scripts/apply-migration.mjs
+# is now the one canonical path: whole committed file only, SHA-256 recorded
+# before execution, reconciliation chained into the same operation. This
+# guard proves that path structurally refuses fragments and that its
+# SHA-256 recording is real, not decorative — see scripts/lib/migrationApply.mjs
+# for the full incident writeup.
+node scripts/check-migration-apply-canonical-path.mjs
+
+node scripts/test-known-city-geocode.mjs
+
+node scripts/test-event-mobile-repair.mjs
+
+node scripts/test-inventory-batch-concurrency.mjs
+
+node scripts/test-event-apple-maps.mjs
+# 2026-09-07 security audit: public Admin auth routes allowed arbitrary email
+# confirmation, so both routes are inert tombstones and the client uses
+# Supabase's ownership-verifying confirmation flow.
+node scripts/test-auth-admin-tombstones.mjs
+
+# 2026-09-07 security audit: every enabled paid-provider path needs an atomic
+# finite ledger. This executes the photo, Nearby, geocoding, and gate-default
+# boundaries with fetch traps and positive controls.
+node scripts/test-spend-bypass-regression.mjs
+
+# 2026-09-07 security audit: public event aggregation fanned out to provider
+# APIs before cache and without finite per-request budgets.
+node scripts/test-events-spend.mjs
+
+# 2026-09-07 security audit: public operational probes exposed provider state
+# or made a live partner request; these endpoints stay retired.
+node scripts/test-public-diagnostics-retired.mjs
+
+# 2026-09-07 security audit: /api/outbound/verdict accepted arbitrary URLs.
+# Every DNS result and redirect hop must stay on public HTTP(S) addresses.
+node scripts/test-outbound-ssrf.mjs
+
+# 2026-09-07 security audit: browser modules cannot carry paid-provider
+# endpoints, a public Google credential, or the Places SDK fallback.
+node scripts/test-client-paid-boundary.mjs
+
+# Supported city submission resolves against owned coordinates after the
+# browser geocoder was removed; unknown text fails soft without provider spend.
+node scripts/test-known-city-geocode.mjs
+
+# Non-Google provider credentials are also finite budgets: each actual Viator,
+# Foursquare, Tripadvisor, YouTube, or Pexels request needs an atomic grant.
+node scripts/test-provider-spend-caps.mjs
+
+node scripts/test-beach-planning.mjs

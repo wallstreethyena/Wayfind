@@ -7,6 +7,7 @@
 // betterAlternatives/similarPlaces/relatedPicks, which close over the
 // module-scope EXPERIENCES table) stays in home.js and flows through ctx,
 // same as every other extraction phase.
+import { pilotForPlace } from "../../../lib/beachPlanning";
 import { useEffect, useRef, useState } from "react";
 import ScoreExplanation from "../ScoreExplanation.js";
 import { safeUrl } from "../../../lib/links.js";
@@ -1485,6 +1486,7 @@ export default function DetailSheet({ ctx }) {
                       <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, color: "#FB923C", background: "rgba(251,146,60,.12)", border: "1px solid rgba(251,146,60,.4)", borderRadius: 999, padding: "3px 9px" }}>🔥 Trending</span>
                     )}
                   </div>
+                  {pilotForPlace(detail) ? <a href={"/beach-conditions?beach=" + pilotForPlace(detail).slug} style={{ display: "block", color: "#2DD4BF", padding: "10px 0", fontSize: 14 }}>View official reports, weather alerts and sample dates ↗</a> : null}
                   {beachCondLoading && <div style={{ fontSize: 13, color: C.muted }}>Checking wind, water and water quality…</div>}
                   {/* v6.57: water quality (wf_beach_water) + red tide (FWC) now ride
                       along with wind/wave/water-temp — previously this panel was

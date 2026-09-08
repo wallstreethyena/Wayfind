@@ -122,7 +122,7 @@ for (const [id, ref] of Object.entries(CURATED_PHOTO_REFS)) {
 // the card still resolved to nothing. Only the call catches that.
 for (const e of RON_DUPRAT_TOP7.entries) {
   let seenRef = null;
-  const r = await resolvePlacePhoto({ place: e.placeId, w: 640 }, {
+  const r = await resolvePlacePhoto({ place: e.placeId, w: 640, spendAllowed: true, serverKey: "test-key" }, {
     cacheGet: async () => null,
     cacheSet: async () => {},
     inventoryGet: async () => null,   // not in wf_inventory, and never will be

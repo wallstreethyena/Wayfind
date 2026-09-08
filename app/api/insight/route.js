@@ -1,5 +1,6 @@
 export const runtime = "nodejs";
 import { aiKey } from "../../../lib/aiKey";
+import { paidAnthropicRequest } from "../../../lib/paidAi";
 import { cget, cset, DAY } from "../../../lib/serverCache";
 import { validateWhyParagraph, filterSupportedItems, containsBannedPhrase, repeatsCardFacts, repeatsPlaceName } from "../../../lib/editorialValidator";
 
@@ -121,7 +122,7 @@ export async function POST(req) {
 
     let r;
     for (let attempt = 0; attempt < 3; attempt++) {
-      r = await fetch("https://api.anthropic.com/v1/messages", reqInit);
+      r = await paidAnthropicRequest(reqInit);
       if (r.ok) break;
       if (![429, 500, 502, 503, 529].includes(r.status)) break;
       await new Promise((res) => setTimeout(res, 400 * (attempt + 1)));

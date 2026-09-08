@@ -20,6 +20,7 @@ import { getFanoutCount, persistOffer } from "../../../../lib/verifiedOfferStore
 import { offerBelongsToRequestedCity } from "../../../../lib/partnerGeo.js";
 import { isDeniedViatorSku, isViatorSearchOrHomeUrl } from "../../../../lib/viatorIntegrity.js";
 import { credential } from "../../../../lib/envPlaceholder.js";
+import { providerSpendAllow } from "../../../../lib/providerSpend.js";
 
 const getKey = () => credential(process.env["VIATOR_API_KEY"]);
 
@@ -82,6 +83,7 @@ export async function GET(req) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 5000);
   try {
+    if (!(await providerSpendAllow("viator"))) return Response.json({ items: [] });
     const res = await fetch("https://api.viator.com/partner/search/freetext", {
       method: "POST",
       signal: ctrl.signal,
@@ -112,17 +114,21 @@ export async function GET(req) {
     // fewer items, never an error.
     if (count > 50 && results.length === 50) {
       try {
-        const res2 = await fetch("https://api.viator.com/partner/search/freetext", {
-          method: "POST",
-          signal: ctrl.signal,
-          headers: { "exp-api-key": KEY, "Accept": "application/json;version=2.0", "Accept-Language": "en-US", "Content-Type": "application/json" },
-          body: JSON.stringify({ searchTerm: q, currency: "USD", searchTypes: [{ searchType: "PRODUCTS", pagination: { start: 51, count: 50 } }] }),
-        });
-        if (res2.ok) {
-          const d2 = await res2.json();
-          const more = d2 && d2.products && Array.isArray(d2.products.results) ? d2.products.results : [];
-          const seen = new Set(results.map((r) => r && (r.productCode || r.productUrl)));
-          results = results.concat(more.filter((r) => r && !seen.has(r.productCode || r.productUrl)));
+        // The first page remains a useful result if the second request cannot
+        // obtain a new grant; do not discard it just because pagination stops.
+        if (await providerSpendAllow("viator")) {
+          const res2 = await fetch("https://api.viator.com/partner/search/freetext", {
+            method: "POST",
+            signal: ctrl.signal,
+            headers: { "exp-api-key": KEY, "Accept": "application/json;version=2.0", "Accept-Language": "en-US", "Content-Type": "application/json" },
+            body: JSON.stringify({ searchTerm: q, currency: "USD", searchTypes: [{ searchType: "PRODUCTS", pagination: { start: 51, count: 50 } }] }),
+          });
+          if (res2.ok) {
+            const d2 = await res2.json();
+            const more = d2 && d2.products && Array.isArray(d2.products.results) ? d2.products.results : [];
+            const seen = new Set(results.map((r) => r && (r.productCode || r.productUrl)));
+            results = results.concat(more.filter((r) => r && !seen.has(r.productCode || r.productUrl)));
+          }
         }
       } catch (e) {}
     }

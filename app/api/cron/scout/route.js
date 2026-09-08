@@ -54,6 +54,7 @@ import { sbEnv } from "../../../../lib/serverCache";
 import { recordPulse } from "../../../../lib/jobPulse";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail";
 import { aiKey } from "../../../../lib/aiKey";
+import { paidAnthropicRequest } from "../../../../lib/paidAi";
 import { classify } from "../../../../lib/placeCategory";
 import {
   SCOUT_FLOOR, ADJUDICATE_SYSTEM, buildAdjudicationBatch,
@@ -85,7 +86,7 @@ async function adjudicateBatch(key, rows) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), MODEL_TIMEOUT_MS);
   try {
-    const r = await fetch("https://api.anthropic.com/v1/messages", {
+    const r = await paidAnthropicRequest({
       method: "POST", signal: ctrl.signal, cache: "no-store",
       headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({

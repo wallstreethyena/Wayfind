@@ -219,11 +219,11 @@ function harness() {
 
   const home = readFileSync(join(ROOT, "app/home.js"), "utf8");
   ok(home.indexOf("forwardToGoogle(action") >= 0, "home.js logEvent forwards to Google");
-  ok((home.match(/logEvent\("signup_completed"/g) || []).length >= 1, "signup_completed is fired on real completion");
+  ok(/logEvent\(authMode === "signup" \? "signup_completed" : "login_completed"/.test(home), "signup_completed is fired only on a real session");
   ok(home.indexOf('logEvent("signup_started")') >= 0, "signup_started is fired as intent");
   // The confirmation-email branch creates an account WITHOUT a session — it is
   // not a completed signup and must not convert.
-  const emailBranch = home.indexOf("Account created. Check your email to confirm");
+  const emailBranch = home.indexOf("Check your email to confirm your account");
   ok(emailBranch > 0, "the unconfirmed-signup branch still exists");
   const around = home.slice(emailBranch - 400, emailBranch);
   ok(around.indexOf("signup_completed") < 0, "an unconfirmed signup does NOT report a conversion");

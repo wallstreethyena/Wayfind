@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { guardPaidRoute } from "./lib/apiGuard";
+import { guardPaidRoute, isOperatorDiagnostic } from "./lib/apiGuard";
 
 // Cost-leak fix (the $735 Google Places incident): these routes are public,
 // unauthenticated proxies to METERED third-party APIs — Google Places
@@ -47,6 +47,10 @@ export const config = {
     "/api/buzz/why",
     // Vision card-photo scoring: metered Anthropic proxy — same-origin guarded.
     "/api/image-score",
+    // Insider copy can call Anthropic on a cache miss when the feature is
+    // enabled. Keep it behind the same browser-origin friction and burst cap
+    // as every other model-backed customer route.
+    "/api/insider",
     // Metered proxies that shipped OPEN (audit 2026-07-23): YouTube Data API
     // (100 quota units/call — quota-DoS) and TripAdvisor Terra (metered + a
     // service-role census under ?probe). Both are same-origin XHRs → full guard.
@@ -103,6 +107,7 @@ export const config = {
     // assembles keyless marine + UV + NWS-alert + tide data. ANTI-SCRAPING, not a
     // cost gate — every upstream is free — but the assembled view is ours.
     "/api/beach/conditions",
+    "/api/beach/planning",
     // Live Picks v2: /api/events/demand is a same-origin XHR reading aggregated
     // first-party demand (event_open / tickets_out) from public.events via the
     // service role. ANTI-SCRAPING, not a cost gate — no metered upstream, it is
@@ -155,6 +160,15 @@ const IMAGE_ROUTES = new Set(["/api/photo", "/api/creator-avatar"]);
 
 export function middleware(req) {
   const path = req.nextUrl && req.nextUrl.pathname;
-  const rateLimitOnly = NAV_302_ROUTES.has(path) || IMAGE_ROUTES.has(path);
+  // Operator diagnostics join the EXISTING rateLimitOnly population — the same
+  // mechanism NAV_302_ROUTES and IMAGE_ROUTES use for legitimate callers that
+  // cannot carry browser-origin headers. This recognises the request SHAPE
+  // (lib/apiGuard.isOperatorDiagnostic), never the credential: middleware must
+  // not validate CRON_SECRET or the auth contract would live in two layers and
+  // drift. The route's own Bearer check stays the only authority on 401 vs
+  // success, and the per-IP limiter still applies. See apiGuard.js for the
+  // measured 403-before-401 failure this repairs.
+  const rateLimitOnly = NAV_302_ROUTES.has(path) || IMAGE_ROUTES.has(path)
+    || isOperatorDiagnostic(path, req.nextUrl && req.nextUrl.searchParams);
   return guardPaidRoute(req, { rateLimitOnly }) || NextResponse.next();
 }

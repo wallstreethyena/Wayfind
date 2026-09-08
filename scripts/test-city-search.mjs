@@ -21,6 +21,7 @@ import { readFileSync } from "fs";
 // REAL behavioural import — lib/geoAreaTypes is dependency-free on purpose so
 // this cannot silently degrade into a no-op the way importing lib/google did.
 import { isAreaResult, GEO_AREA_TYPES } from "../lib/geoAreaTypes.js";
+import { knownCityGeocode } from "../lib/knownCityGeocode.js";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 
@@ -28,12 +29,12 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 let fails = 0;
 const ok = (c, m) => { if (!c) { console.error("test-city-search: FAIL — " + m); fails++; } };
 
-// ── the geocoder exposes area-ness, and prefers a real area hit ──────────────
+// ── owned city identity is local and never invokes a browser provider ───────
 const g = readFileSync(join(ROOT, "lib/google.js"), "utf8");
-ok(/from "\.\/geoAreaTypes"/.test(g), "lib/google sources the predicate from the pure, testable module");
-ok(/isArea:\s*isAreaResult\(types\)/.test(g), "geocodeCity returns an isArea flag");
-ok(/results\.find\(\(x\) => isAreaResult\(x\.types\)\) \|\| results\[0\]/.test(g),
-   "geocodeCity prefers an AREA result over Google's biased first result");
+ok(/from "\.\/knownCityGeocode\.js"/.test(g), "lib/google sources owned-city identity from the pure module");
+ok(/return knownCityGeocode\(query\)/.test(g), "geocodeCity returns the owned-city result with its isArea flag");
+ok(!/Geocoder|importLibrary\("geocoding"\)/.test(g), "city fallback cannot spend through the browser Google SDK");
+ok(knownCityGeocode("Sarasota")?.isArea === true, "a supported city resolves as an area without a provider");
 for (const t of ["locality", "administrative_area_level_1", "neighborhood", "postal_code"]) {
   ok(GEO_AREA_TYPES.includes(t), `area types include ${t}`);
 }

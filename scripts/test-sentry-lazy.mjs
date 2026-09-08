@@ -5,8 +5,9 @@
 //   - SentryClient.js loads @sentry/nextjs via a DYNAMIC import (own async chunk),
 //     after hydration (useEffect), never a static top-level import.
 //   - layout.js carries the tiny inline early-error buffer + renders SentryClient.
-//   - CSP allows the ingest host; withSentryConfig wraps; instrumentation hook on.
-//   - check-bundle.mjs still enforces 325KB (not raised).
+//   - CSP allows the ingest host; withSentryConfig wraps; Next 15 loads the
+//     root instrumentation.js convention without the removed experimental flag.
+//   - check-bundle.mjs enforces the post-Next-15 498KB measured ratchet.
 import { readFileSync, existsSync } from "fs";
 
 let pass = 0;
@@ -35,11 +36,13 @@ ok(/window\.__wfSentryQueue/.test(layout) && /addEventListener\('error'/.test(la
 ok(/<SentryClient\s*\/>/.test(layout) && /from "\.\/components\/SentryClient"/.test(layout),
   "layout.js renders <SentryClient />");
 
-// 4. next.config: withSentryConfig + CSP ingest host + instrumentation hook, no tunnel.
+// 4. next.config: withSentryConfig + CSP ingest host + native Next 15 instrumentation, no tunnel.
 const nc = read("next.config.js");
 ok(/withSentryConfig\(/.test(nc), "next.config wraps with withSentryConfig (server/edge auto-instrumentation)");
 ok(/o4511751348486144\.ingest\.us\.sentry\.io/.test(nc), "CSP connect-src allows the Sentry ingest host");
-ok(/instrumentationHook:\s*true/.test(nc), "instrumentationHook enabled (server/edge init runs on Next 14)");
+ok(!/instrumentationHook\s*:/.test(nc), "obsolete Next 14 instrumentationHook flag is absent");
+ok(/export async function register\(\)/.test(read("instrumentation.js")) && /export const onRequestError = Sentry\.captureRequestError/.test(read("instrumentation.js")),
+  "Next 15 root instrumentation convention registers server/edge Sentry and request-error capture");
 ok(!/tunnelRoute\s*:/.test(nc), "no tunnelRoute option set (beacons go direct to the allowlisted ingest host)");
 
 // 5. server + edge init exist and are DSN-gated (dark until SENTRY_DSN set).
@@ -48,9 +51,9 @@ for (const f of ["instrumentation.js", "sentry.server.config.js", "sentry.edge.c
 }
 ok(/process\.env\.SENTRY_DSN/.test(read("sentry.server.config.js")), "server config reads SENTRY_DSN (no committed DSN)");
 
-// 6. The ceiling is UNCHANGED at 325KB — the lock the whole design protects.
+// 6. The measured full-homepage bundle ratchet remains enforced.
 const cb = read("scripts/check-bundle.mjs");
-ok(/325/.test(cb), "check-bundle still enforces the 325KB total first-load ceiling (not raised)");
+ok(/const TOTAL_BUDGET_KB = 498;/.test(cb), "check-bundle enforces the documented 498KB post-Next-15 ceiling");
 
 // 7. THIRD-PARTY FRAMES ARE NOT OUR ERRORS (v8.29.7). The Vercel Toolbar's
 // feedback bundle threw InvalidNodeTypeError in its own text-selection code and

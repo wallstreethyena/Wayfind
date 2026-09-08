@@ -92,6 +92,7 @@ import { gateFree, gateShut, spendAllow } from "../../../../lib/spendGate";
 //      issues=['FAILED VERIFICATION'] instead of published. This is what stops the
 //      invented founding date (three seen across two runs) reaching a row.
 import { aiKey } from "../../../../lib/aiKey";
+import { paidAnthropicRequest } from "../../../../lib/paidAi";
 import { sbEnv } from "../../../../lib/serverCache";
 import { resolveOverride } from "../../../../lib/envAudit";
 import { recordPulse } from "../../../../lib/jobPulse";
@@ -261,7 +262,7 @@ async function writeEditorial(place, d, key, sources, stats, systemBlocks, timeo
     official_page_text: (sources || []).map((s) => `--- ${s.url}\n${s.text}`).join("\n\n") || null,
   };
   try {
-    const r = await fetch("https://api.anthropic.com/v1/messages", {
+    const r = await paidAnthropicRequest({
       method: "POST",
       cache: "no-store",
       signal: ctrl.signal,

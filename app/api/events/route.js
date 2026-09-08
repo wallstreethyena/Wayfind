@@ -20,6 +20,7 @@ import { fetchCuratedEvents, curatedFeedEvents, CURATED_REACH_MI, CURATED_SOURCE
 import { stockPhotoPool, fromPool } from "../../../lib/stockPhoto.js";
 import { cget, cset, DAY } from "../../../lib/serverCache";
 import { breakerOpen, tripBreaker, classifyProviderFailure, BREAKER_COOLDOWN_MS } from "../../../lib/providerHealth.js";
+import { eventProviderCap, eventProviderSpendAllow } from "../../../lib/eventProviderSpend.js";
 
 function isoNowZ() {
   return new Date().toISOString().slice(0, 19) + "Z";
@@ -56,10 +57,14 @@ async function fromTicketmaster(lat, lng, radius, keyword) {
       if (extra) p.set("classificationName", extra);
       return p;
     };
-    const calls = [null, ...(keyword ? [] : TM_SEGMENTS)].map((seg) =>
-      fetch(`https://app.ticketmaster.com/discovery/v2/events.json?${baseParams(seg).toString()}`)
+    if (!eventProviderCap("ticketmaster")) return { configured: true, ok: false, reason: "spend cap unavailable", events: [] };
+    let requested = false;
+    const calls = [null, ...(keyword ? [] : TM_SEGMENTS)].map(async (seg) => {
+      if (!(await eventProviderSpendAllow("ticketmaster"))) return null;
+      requested = true;
+      return fetch(`https://app.ticketmaster.com/discovery/v2/events.json?${baseParams(seg).toString()}`)
         .then((r) => (r.ok ? r.json() : null)).catch(() => null)
-    );
+    });
     const pages = await Promise.all(calls);
     const seen = new Set();
     const raw = [];
@@ -118,7 +123,9 @@ async function fromTicketmaster(lat, lng, radius, keyword) {
         status: e.dates && e.dates.status && e.dates.status.code ? e.dates.status.code : "",
       };
     });
-    _tmMem.set(ck, { events, exp: Date.now() + TM_TTL });
+    // A denied budget did not ask Ticketmaster, so it must not poison the
+    // provider's warm cache and suppress a later ledger-authorized request.
+    if (requested) _tmMem.set(ck, { events, exp: Date.now() + TM_TTL });
     return { configured: true, events };
   } catch (e) { return { configured: true, ok: false, reason: String(e && e.message || e).slice(0, 160), events: [] }; }
 }
@@ -137,6 +144,7 @@ function seatgeekSegment(type) {
 async function fromSeatGeek(lat, lng, radius, keyword) {
   const id = process.env.SEATGEEK_CLIENT_ID;
   if (!id) return { configured: false, events: [] };
+  if (!eventProviderCap("seatgeek")) return { configured: true, ok: false, reason: "spend cap unavailable", events: [] };
   try {
     const p = new URLSearchParams({
       client_id: id, lat: String(lat), lon: String(lng), range: `${radius || 60}mi`,
@@ -146,6 +154,7 @@ async function fromSeatGeek(lat, lng, radius, keyword) {
     if (keyword) p.set("q", keyword);
     const secret = process.env.SEATGEEK_CLIENT_SECRET;
     if (secret) p.set("client_secret", secret);
+    if (!(await eventProviderSpendAllow("seatgeek"))) return { configured: true, ok: false, reason: "spend denied", events: [] };
     const r = await fetch(`https://api.seatgeek.com/2/events?${p.toString()}`);
     if (!r.ok) return { configured: true, ok: false, status: r.status, reason: "http " + r.status, events: [] };
     const data = await r.json();
@@ -189,6 +198,7 @@ function phqSegment(category) {
 async function fromPredictHQ(lat, lng, radius, keyword) {
   const token = process.env.PREDICTHQ_TOKEN;
   if (!token) return { configured: false, events: [] };
+  if (!eventProviderCap("predicthq")) return { configured: true, ok: false, reason: "spend cap unavailable", events: [] };
   try {
     const p = new URLSearchParams({
       within: `${radius || 50}mi@${lat},${lng}`,
@@ -196,6 +206,7 @@ async function fromPredictHQ(lat, lng, radius, keyword) {
       category: "concerts,festivals,performing-arts,sports,community,expos",
     });
     if (keyword) p.set("q", keyword);
+    if (!(await eventProviderSpendAllow("predicthq"))) return { configured: true, ok: false, reason: "spend denied", events: [] };
     const r = await fetch(`https://api.predicthq.com/v1/events/?${p.toString()}`, {
       headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
     });
@@ -245,12 +256,14 @@ async function fromPredictHQ(lat, lng, radius, keyword) {
 async function fromBandsintown(lat, lng, radius) {
   const key = process.env.BANDSINTOWN_PARTNER_KEY;
   if (!key) return { configured: false, events: [] };
+  if (!eventProviderCap("bandsintown")) return { configured: true, ok: false, reason: "spend cap unavailable", events: [] };
   try {
     const q = {
       entities: [{ type: "event", order: "start_date", limit: 50, offset: 0 }],
       region: { latitude: Number(lat), longitude: Number(lng), radius: Math.min(Number(radius) || 50, 200) },
     };
     const url = `https://search.bandsintown.com/search?query=${encodeURIComponent(JSON.stringify(q))}`;
+    if (!(await eventProviderSpendAllow("bandsintown"))) return { configured: true, ok: false, reason: "spend denied", events: [] };
     const r = await fetch(url, { headers: { "x-api-key": key, Accept: "application/json" } });
     if (!r.ok) return { configured: true, ok: false, status: r.status, reason: "http " + r.status, events: [] };
     const data = await r.json();
@@ -294,9 +307,11 @@ async function fromEventbriteOrgs(lat, lng, radius) {
   const token = (process.env["EVENTBRITE_PRIVATE_TOKEN"] || "").trim();
   const orgIds = (process.env["EVENTBRITE_ORG_IDS"] || "").split(",").map((x) => x.trim()).filter(Boolean);
   if (!token || !orgIds.length) return { configured: false, events: [] };
+  if (!eventProviderCap("eventbrite")) return { configured: true, ok: false, reason: "spend cap unavailable", events: [] };
   try {
     const lists = await Promise.all(orgIds.slice(0, 10).map(async (org) => {
       try {
+        if (!(await eventProviderSpendAllow("eventbrite"))) return [];
         const r = await fetch(`https://www.eventbriteapi.com/v3/organizations/${encodeURIComponent(org)}/events/?status=live&order_by=start_asc&expand=venue&page_size=50`, { headers: { Authorization: `Bearer ${token}` } });
         if (!r.ok) return [];
         const data = await r.json();
@@ -382,9 +397,11 @@ async function fromSerpEvents(lat, lng, keyword, city) {
   const key = process.env.SERPAPI_KEY;
   if (!key) return { configured: false, events: [] };
   if (!city) return { configured: true, events: [] };
+  if (!eventProviderCap("serpapi")) return { configured: true, ok: false, reason: "spend cap unavailable", events: [] };
   try {
     const q = (keyword ? keyword + " events" : "events") + " in " + city;
     const p = new URLSearchParams({ engine: "google_events", q, hl: "en", gl: "us", api_key: key });
+    if (!(await eventProviderSpendAllow("serpapi"))) return { configured: true, ok: false, reason: "spend denied", events: [] };
     const r = await fetch(`https://serpapi.com/search.json?${p.toString()}`);
     if (!r.ok) return { configured: true, ok: false, status: r.status, reason: "http " + r.status, events: [] };
     const data = await r.json();
@@ -465,11 +482,13 @@ async function fromOpenWebNinja(lat, lng, keyword, city) {
   const key = process.env.OPENWEBNINJA_KEY;
   if (!key) return { configured: false, events: [] };
   if (!city) return { configured: true, events: [] };
+  if (!eventProviderCap("openwebninja")) return { configured: true, ok: false, reason: "spend cap unavailable", events: [] };
   const held = await breakerNote(OWN_BREAKER);
   if (held) return held;
   try {
     const q = (keyword ? keyword + " events" : "events") + " in " + city;
     const p = new URLSearchParams({ query: q, date: "month", is_virtual: "false" });
+    if (!(await eventProviderSpendAllow("openwebninja"))) return { configured: true, ok: false, reason: "spend denied", events: [] };
     const r = await fetch(`https://api.openwebninja.com/realtime-events-data/search-events?${p.toString()}`, { headers: { "x-api-key": key } });
     if (!r.ok) {
       await tripOnDeterministic(OWN_BREAKER, r.status, await r.text().catch(() => ""));
@@ -606,6 +625,45 @@ async function fromBusinessFeeds(lat, lng, radius) {
 // deadline; a hung provider yields { timedOut } after `ms` instead of
 // stalling the whole response, and never touches the other providers.
 const PROVIDER_TIMEOUT_MS = 6000;
+const MAX_CITY_LENGTH = 80;
+const MAX_KEYWORD_LENGTH = 80;
+
+function invalidInput(message) {
+  return { error: message };
+}
+
+// Keep the public route's request shape small and numeric.  In particular, do
+// not let a giant search string create a distinct provider/cache key or let an
+// unbounded radius amplify a paid provider query.
+function normalizeEventInput(value, { query = false } = {}) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return invalidInput("invalid request");
+  const numeric = (name, min, max, fallback = null) => {
+    const raw = value[name];
+    if (raw == null) return { value: fallback };
+    const n = query ? Number(raw) : raw;
+    if ((query ? !Number.isFinite(n) : typeof n !== "number" || !Number.isFinite(n)) || n < min || n > max) {
+      return invalidInput(`invalid ${name}`);
+    }
+    return { value: n };
+  };
+  const lat = numeric("lat", -90, 90);
+  if (lat.error) return lat;
+  const lng = numeric("lng", -180, 180);
+  if (lng.error) return lng;
+  const radius = numeric("radius", 1, 100, 25);
+  if (radius.error) return radius;
+  const text = (name, max) => {
+    const raw = value[name];
+    if (raw == null) return { value: "" };
+    if (typeof raw !== "string" || raw.length > max) return invalidInput(`invalid ${name}`);
+    return { value: raw.trim() };
+  };
+  const city = text("city", MAX_CITY_LENGTH);
+  if (city.error) return city;
+  const keyword = text("keyword", MAX_KEYWORD_LENGTH);
+  if (keyword.error) return keyword;
+  return { lat: lat.value, lng: lng.value, radius: radius.value, city: city.value, keyword: keyword.value || null };
+}
 // ── WAYFIND CURATED (v8.29.16) ──────────────────────────────────────────────
 //
 // The owner, handing over the new tile art: "wire this card into the events we
@@ -673,12 +731,19 @@ async function fromCuratedEvents(lat, lng) {
   } catch (err) { return { configured: true, ok: false, reason: String(err && err.message || err).slice(0, 160), events: [] }; }
 }
 
-function withDeadline(provider, promise, ms = PROVIDER_TIMEOUT_MS) {
+async function withDeadline(provider, promise, ms = PROVIDER_TIMEOUT_MS) {
   const started = Date.now();
-  return Promise.race([
-    Promise.resolve(promise).then((r) => ({ provider, ...r, ms: Date.now() - started })),
-    new Promise((resolve) => setTimeout(() => resolve({ provider, configured: true, ok: false, timedOut: true, reason: "deadline " + ms + "ms", events: [], ms }), ms)),
-  ]).catch((err) => ({ provider, configured: true, ok: false, reason: String(err && err.message || err).slice(0, 160), events: [], ms: Date.now() - started }));
+  let timer;
+  try {
+    return await Promise.race([
+      Promise.resolve(promise).then((r) => ({ provider, ...r, ms: Date.now() - started })),
+      new Promise((resolve) => { timer = setTimeout(() => resolve({ provider, configured: true, ok: false, timedOut: true, reason: "deadline " + ms + "ms", events: [], ms }), ms); }),
+    ]);
+  } catch (err) {
+    return { provider, configured: true, ok: false, reason: String(err && err.message || err).slice(0, 160), events: [], ms: Date.now() - started };
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 // v5.90: shared cache. Events are time-sensitive, so we ALWAYS prefer a fresh
@@ -715,7 +780,17 @@ async function aggregateEvents({ lat, lng, keyword, radius, city }) {
     // visitor inside one cell was always going to receive substantially the
     // same event set; the finer key bought nothing and billed for it. Same bug
     // shape as the city-unlock metro fallback fixed in v8.29.8, different meter.
-    evK = "ev1|" + Number(lat).toFixed(1) + "|" + Number(lng).toFixed(1) + "|" + (radius || 25) + "|" + String(city || "").toLowerCase().slice(0, 40) + "|" + String(keyword || "").toLowerCase().slice(0, 40);
+    evK = "ev1|" + Number(lat).toFixed(1) + "|" + Number(lng).toFixed(1) + "|" + (radius || 25) + "|" + String(city || "").toLowerCase().slice(0, MAX_CITY_LENGTH) + "|" + String(keyword || "").toLowerCase().slice(0, MAX_KEYWORD_LENGTH);
+    // A normal/default feed is shared, so the 21-day fresh cache is the first
+    // source consulted.  Interactive keyword searches deliberately continue
+    // to refresh, while still retaining the existing stale fallback below.
+    if (!keyword) {
+      const fresh = await cget(evK);
+      if (fresh && Array.isArray(fresh.v)) {
+        const events = upcoming(fresh.v);
+        if (events.length) return { events, cached: true, sources: [], counts: {}, health: [] };
+      }
+    }
     if (keyword === "__forceErr__") { const s = await staleEvents(); return s || { events: [] }; } // test hook
 
     const results = await Promise.all([
@@ -769,9 +844,11 @@ async function aggregateEvents({ lat, lng, keyword, radius, city }) {
 export async function POST(req) {
   try {
     const body = await req.json();
-    return Response.json(await aggregateEvents(body || {}), { status: 200 });
+    const input = normalizeEventInput(body || {});
+    if (input.error) return Response.json({ error: input.error, events: [] }, { status: 400 });
+    return Response.json(await aggregateEvents(input), { status: 200 });
   } catch (e) {
-    return Response.json({ error: true, events: [] }, { status: 200 });
+    return Response.json({ error: "invalid request", events: [] }, { status: 400 });
   }
 }
 
@@ -784,10 +861,12 @@ export async function POST(req) {
 // the payload is date-filtered and TTL << a day.
 export async function GET(req) {
   const sp = new URL(req.url).searchParams;
-  const lat = parseFloat(sp.get("lat")), lng = parseFloat(sp.get("lng"));
-  const radius = Math.max(1, Math.min(100, parseInt(sp.get("radius") || "25", 10) || 25));
-  const city = String(sp.get("city") || "").slice(0, 40);
-  const payload = await aggregateEvents({ lat: isFinite(lat) ? lat : null, lng: isFinite(lng) ? lng : null, keyword: null, radius, city });
+  const input = normalizeEventInput({
+    lat: sp.get("lat"), lng: sp.get("lng"), radius: sp.get("radius"),
+    city: sp.get("city"), keyword: null,
+  }, { query: true });
+  if (input.error) return Response.json({ error: input.error, events: [] }, { status: 400 });
+  const payload = await aggregateEvents(input);
   return Response.json(payload, {
     status: 200,
     headers: { "cache-control": "public, s-maxage=900, stale-while-revalidate=3600" },

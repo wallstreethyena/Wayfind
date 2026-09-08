@@ -2,6 +2,7 @@
 // data-grounded discovery hooks from real nearby place data.
 // Each hook is tied to a real place and includes a themed "detail sheet" body.
 import { aiKey } from "../../../lib/aiKey";
+import { paidAnthropicRequest } from "../../../lib/paidAi";
 import { cget, cset } from "../../../lib/serverCache";
 import { siteHourFloat, bucketForHour } from "../../../lib/nowContext.js";
 
@@ -95,7 +96,7 @@ Return a JSON array of exactly 8 objects:
   }
 ]`;
 
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
+    const res = await paidAnthropicRequest({
       method: "POST",
       headers: {
         "x-api-key": key,

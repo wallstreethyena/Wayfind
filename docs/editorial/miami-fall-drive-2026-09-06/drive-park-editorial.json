@@ -1,0 +1,92 @@
+{
+  "fetched_at": "2026-09-06",
+  "note": "Docs only. No place_id. No LANDING_CITIES / METRO_COORD_KEY / BEACH_METROS edits. Architect attaches these once South Florida place inventory and landings exist.",
+  "parks": [
+    {
+      "id": "everglades-coe",
+      "name": "Everglades National Park — Ernest F. Coe Visitor Center",
+      "hook": "UNESCO World Heritage gate at Coe; then the Anhinga boardwalk four miles in through sawgrass.",
+      "whyGo": "Start at the main Homestead entrance when the day is about seeing the River of Grass, not just crossing it on the Tamiami Trail.",
+      "knownFor": "The Coe Visitor Center is the park's primary south entrance. Royal Palm and the Anhinga Trail sit a short drive inside the gate.",
+      "funFact": "Everglades National Park is a UNESCO World Heritage site. NPS wet-season guidance (May–November) is to plan for heat and mosquitoes.",
+      "officialWebsite": "https://www.nps.gov/ever/",
+      "sourceUrls": [
+        "https://www.nps.gov/ever/"
+      ]
+    },
+    {
+      "id": "everglades-shark-valley",
+      "name": "Everglades National Park — Shark Valley",
+      "hook": "Heart of the freshwater marsh on a 15-mile loop; climb the 70-foot observation tower at the midpoint.",
+      "whyGo": "Choose Shark Valley when the Everglades need to be a loop you can bike or tram, not a boardwalk stop.",
+      "knownFor": "A paved 15-mile tram/bike loop through sawgrass marsh, with the observation tower at the halfway point.",
+      "funFact": "NPS lists the Shark Valley tower as the highest elevation a visitor can reach by foot in the park, at 70 feet, with views up to 20 miles.",
+      "officialWebsite": "https://www.nps.gov/ever/",
+      "sourceUrls": [
+        "https://www.nps.gov/ever/planyourvisit/svdirections.htm",
+        "https://www.nps.gov/ever/planyourvisit/shark-valley-trails.htm",
+        "https://www.nps.gov/places/shark-valley-observation-tower.htm"
+      ]
+    },
+    {
+      "id": "biscayne-np",
+      "name": "Biscayne National Park",
+      "hook": "A park that is 95 percent water; walk the Jetty boardwalk over Biscayne Bay from Convoy Point.",
+      "whyGo": "Come here when the national-park day should be the bay and the reef, not another trail through sawgrass.",
+      "knownFor": "Coral reefs, mangrove shoreline, Biscayne Bay, and 10,000 years of human history. Most of the park is on the water.",
+      "funFact": "The official NPS homepage states the park is 95% water. Guided eco-adventures leave from the Dante Fascell Visitor Center.",
+      "officialWebsite": "https://www.nps.gov/bisc/",
+      "sourceUrls": [
+        "https://www.nps.gov/bisc/"
+      ]
+    },
+    {
+      "id": "big-cypress",
+      "name": "Big Cypress National Preserve",
+      "hook": "America's first national preserve; stretch on the H.P. Williams boardwalk over the Tamiami cypress.",
+      "whyGo": "Stop on the Tamiami when the Everglades day needs cypress strand, not only open marsh.",
+      "knownFor": "Scenic drives, boardwalk talks, and eight campgrounds across the preserve.",
+      "funFact": "Big Cypress was designated the first national preserve in the U.S. National Park System. NPS lists discovery hikes, boardwalk talks, and interpretive canoe programs.",
+      "officialWebsite": "https://www.nps.gov/bicy/",
+      "sourceUrls": [
+        "https://www.nps.gov/bicy/"
+      ]
+    },
+    {
+      "id": "john-pennekamp",
+      "name": "John Pennekamp Coral Reef State Park",
+      "hook": "America's first undersea park; swim the beach or start at the visitor-center aquariums in Key Largo.",
+      "whyGo": "Drive to Key Largo when the reef is the reason, and you want a state-park gate rather than a private boat-only day.",
+      "knownFor": "The first undersea park in the United States, protecting living coral reef off Key Largo.",
+      "funFact": "Florida State Parks identifies Pennekamp as America's first undersea park. The visitor-center aquariums are the landside start when you are not getting in the water.",
+      "officialWebsite": "https://www.floridastateparks.org/park/Pennekamp",
+      "sourceUrls": [
+        "https://www.floridastateparks.org/park/Pennekamp"
+      ]
+    },
+    {
+      "id": "bahia-honda",
+      "name": "Bahia Honda State Park",
+      "hook": "Flagler's Old Bahia Honda Bridge as overlook; then the park's sandy beaches below.",
+      "whyGo": "Keep driving when the Keys day should end on sand you can walk, with the old railroad bridge as the overlook.",
+      "knownFor": "Beaches on a small Keys island and the remnant of Henry Flagler's Overseas Railroad bridge.",
+      "funFact": "The Old Bahia Honda Bridge is the park's landmark overlook; the beaches sit below the abandoned rail span.",
+      "officialWebsite": "https://www.floridastateparks.org/BahiaHonda",
+      "sourceUrls": [
+        "https://www.floridastateparks.org/BahiaHonda"
+      ]
+    },
+    {
+      "id": "jonathan-dickinson",
+      "name": "Jonathan Dickinson State Park",
+      "hook": "Southeast Florida's largest state park; hike Hobe Mountain, the ancient sand-dune overlook.",
+      "whyGo": "Head north when the drive should be pine flatwoods and a dune overlook, not another bay park.",
+      "knownFor": "The largest state park in Southeast Florida, with the Hobe Mountain observation point on an ancient sand dune.",
+      "funFact": "Florida State Parks identifies Jonathan Dickinson as Southeast Florida's largest state park. Hobe Mountain is the park's sand-dune overlook.",
+      "officialWebsite": "https://www.floridastateparks.org/index.php/parks-and-trails/jonathan-dickinson-state-park",
+      "sourceUrls": [
+        "https://www.floridastateparks.org/index.php/parks-and-trails/jonathan-dickinson-state-park"
+      ]
+    }
+  ]
+}

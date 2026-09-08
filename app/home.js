@@ -1,6 +1,6 @@
 "use client";
 import { Component, useEffect, useMemo, useRef, useState } from "react";
-import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, getLoader, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, wayfindScore } from "../lib/google";
+import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, wayfindScore } from "../lib/google";
 import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks";
 import { fallCardClass, fallShareLine } from "../lib/fallSkin.js";
@@ -3918,6 +3918,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const [lunchAttemptsUsed, setLunchAttemptsUsed] = useState(0);
   const [center, setCenter] = useState(null);
   const [deviceLoc, setDeviceLoc] = useState(null);
+  // v9.0 — WHEN the GPS fix in deviceLoc was taken. recenterToMe() shortcuts
+  // to deviceLoc instead of asking the device again, which is right for a fix
+  // taken seconds ago and wrong for a tab that has been open since this
+  // morning in another town: "Use my current location" must mean NOW. Only a
+  // real GPS fix stamps this; the IP fallback never does (it is locApprox and
+  // already excluded from the shortcut).
+  const deviceLocAtRef = useRef(0);
+  const GPS_FIX_FRESH_MS = 120000;
   const [locName, setLocName] = useState("");
   const [locResolved, setLocResolved] = useState(false);
   // v8.46 — the committed center, readable from async callbacks. The geo
@@ -5082,8 +5090,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       showToast(e && e.message ? `Sign-in error: ${e.message}` : "Could not sign in");
     }
   }
-  // Email + password. Works with no email sending at all if "Confirm email" is
-  // turned off in Supabase. Sign in for existing accounts, sign up for new ones.
+  // Email + password uses Supabase's standard signup and confirmation-email flow.
   function fixEmailTypos(raw) {
     let e = String(raw || "").trim().toLowerCase();
     if (!e || e.indexOf("@") < 0) return null;
@@ -5092,6 +5099,15 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     e = e.replace(/@gmial\./, "@gmail.").replace(/@gamil\./, "@gmail.").replace(/@gnail\./, "@gmail.").replace(/@hotmial\./, "@hotmail.").replace(/@iclod\./, "@icloud.").replace(/@icoud\./, "@icloud.").replace(/@yahooo\./, "@yahoo.");
     return e !== before ? e : null;
   }
+  async function resendSignupConfirmation(email) {
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: { emailRedirectTo: CANON_ORIGIN },
+    });
+    return error;
+  }
+
   async function passwordAuth() {
     if (!supabase || !authEmail || !authPassword) return;
     const fixed = fixEmailTypos(authEmail);
@@ -5101,47 +5117,50 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // deliberately NOT an Ads conversion — submitting a form is not an account.
     if (authMode === "signup") { try { logEvent("signup_started"); } catch (e) {} }
     try {
-      const creds = { email: authEmail.trim(), password: authPassword };
-      // v5.05: signup goes through OUR server route (admin-created, email
-      // pre-confirmed) \u2014 live testing caught Supabase's mailer 500ing on
-      // "Error sending confirmation email", which silently blocked ALL
-      // signups. Server-side creation removes the email dependency entirely;
-      // the user is signed in with their password immediately after. If the
-      // route is unavailable (501), fall back to the classic email flow.
-      if (authMode === "signup") {
-        let viaRoute = false;
-        try {
-          const r = await fetch("/api/auth/signup", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(creds) });
-          if (r.status === 409) { setAuthMode("signin"); showToast("This email already has an account \u2014 sign in below."); setAuthSending(false); return; }
-          if (r.ok) viaRoute = true;
-          else if (r.status !== 501) { const d = await r.json().catch(() => ({})); showToast("Could not create account" + (d && d.error ? ": " + d.error : "")); setAuthSending(false); return; }
-        } catch (e) {}
-        if (viaRoute) {
-          const res = await supabase.auth.signInWithPassword(creds);
-          if (res.error) showToast("Account created \u2014 now sign in: " + res.error.message);
-          // A real account that is really signed in: the PRIMARY conversion.
-          else { try { logEvent("signup_completed", null, { method: "server_route" }); noteExplodingSignup(logEvent); } catch (e) {} showToast("Account created \u2014 you're signed in."); setAuthOpen(false); setAuthEmail(""); setAuthPassword(""); }
-          setAuthSending(false); return;
+      const email = authEmail.trim();
+      const creds = { email, password: authPassword };
+      const res = authMode === "signup"
+        ? await supabase.auth.signUp({ ...creds, options: { emailRedirectTo: CANON_ORIGIN } })
+        : await supabase.auth.signInWithPassword(creds);
+
+      if (res.error) {
+        // A password alone must never confirm an email. Ask Supabase to send a
+        // fresh ownership-proof link, then leave the account unsigned-in.
+        if (authMode !== "signup" && /not confirmed/i.test(res.error.message || "")) {
+          const resendError = await resendSignupConfirmation(email);
+          showToast(resendError
+            ? "Please confirm your email, then try signing in again."
+            : "Please confirm your email. We sent a fresh confirmation link.");
+        } else {
+          showToast(`Sign-in error: ${res.error.message}`);
         }
       }
-      let res = authMode === "signup"
-        ? await supabase.auth.signUp(creds)
-        : await supabase.auth.signInWithPassword(creds);
-      // v5.05: accounts created while the confirmation mailer was broken sit
-      // unconfirmed forever — confirm them server-side and retry once.
-      if (res.error && /not confirmed/i.test(res.error.message || "") && authMode !== "signup") {
+      // A session is the proof that Supabase completed the authentication flow.
+      // Only then is a signup counted as a completed conversion.
+      else if (res.data && res.data.session) {
         try {
-          const cr = await fetch("/api/auth/confirm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: creds.email }) });
-          if (cr.ok) res = await supabase.auth.signInWithPassword(creds);
+          logEvent(authMode === "signup" ? "signup_completed" : "login_completed", null, { method: "password" });
+          if (authMode === "signup") noteExplodingSignup(logEvent);
         } catch (e) {}
+        showToast("Signed in");
+        setAuthOpen(false);
+        setAuthEmail("");
+        setAuthPassword("");
       }
-      if (res.error) { showToast(`Sign-in error: ${res.error.message}`); }
-      // A session here means the credentials really worked. Only the signup
-      // branch is a conversion; an existing user signing in is not new business,
-      // so it stays analytics-only (login_completed).
-      else if (res.data && res.data.session) { try { logEvent(authMode === "signup" ? "signup_completed" : "login_completed", null, { method: "password" }); if (authMode === "signup") noteExplodingSignup(logEvent); } catch (e) {} showToast("Signed in"); setAuthOpen(false); setAuthEmail(""); setAuthPassword(""); }
-      else if (authMode === "signup" && res.data && res.data.user && Array.isArray(res.data.user.identities) && res.data.user.identities.length === 0) { setAuthMode("signin"); showToast("This email already has an account \u2014 sign in below."); }
-      else { showToast((isStandalone ? "Account created. Confirm from the email, then come back here and sign in with your password. The email link opens Safari, not this app \u2014 that is normal." : "Account created. Check your email to confirm, then sign in.")); }
+      // With email confirmation enabled, signUp deliberately returns a user but
+      // no session. The original confirmation email is already sent; resend one
+      // for an existing unconfirmed account without revealing whether it exists.
+      else if (authMode === "signup") {
+        if (res.data && res.data.user && Array.isArray(res.data.user.identities) && res.data.user.identities.length === 0) {
+          await resendSignupConfirmation(email);
+        }
+        showToast(isStandalone
+          ? "Check your email to confirm your account, then come back and sign in. The link opens Safari \u2014 that is normal."
+          : "Check your email to confirm your account, then sign in.");
+      }
+      else {
+        showToast("Sign-in did not create a session. Please try again.");
+      }
     } catch (e) { showToast(e && e.message ? `Sign-in error: ${e.message}` : "Could not sign in"); }
     setAuthSending(false);
   }
@@ -5427,7 +5446,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     return () => window.removeEventListener("resize", onR);
   }, []);
   const isDesktop = vw >= 900;
-  const keyMissing = !process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
 
   function openSurprise() {
     setSurprisePick(null);
@@ -6745,7 +6763,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   }, [trips]);
 
   useEffect(() => {
-    if (keyMissing) return;
     let gotGPS = false;
     // IP fallback (works on desktop with no GPS). Applied only if GPS hasn't
     // already set a location, and never overrides a manual search.
@@ -6790,6 +6807,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           try { setLocApprox(false); } catch (e) {}
           const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
           setDeviceLoc(c);
+          deviceLocAtRef.current = Date.now();
           if (manualRef.current) return;
           // STABILITY (owner 2026-08-07: "every refresh I get something different,
           // it switches back and forth"). Desktop geolocation is IP/Wi-Fi based and
@@ -6848,7 +6866,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
 
   useEffect(() => {
     const q = nearMeQuery({ cat, sub, vibe, center, radiusM: searchRadius || DEFAULT_RADIUS_M });
-    if (keyMissing || !q || searchMode) return;
+    if (!q || searchMode) return;
     let cancelled = false;
     // Debounce: rapid category/filter switching fires searches that still bill even
     // when abandoned. Wait 300ms so only the final selection actually searches.
@@ -7975,10 +7993,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // surface that never passed through middleware.js/apiGuard.js (no same-origin
   // check, no per-IP rate limit), unlike every other paid Places proxy in this
   // app. fetchSuggestions and pickSuggestion now go through guarded server
-  // routes (/api/places/autocomplete, /api/places/details) first, falling back
-  // to the original direct-to-Google SDK path ONLY when GOOGLE_MAPS_SERVER_KEY
-  // isn't configured (dev/local; never happens in production — search already
-  // depends on that same key via /api/places/search).
+  // routes (/api/places/autocomplete, /api/places/details). A server denial is
+  // final: the browser never retries the same paid request with its public key.
   async function fetchSuggestions(q) {
     if (typeof tokenRef.current !== "string") {
       tokenRef.current = (typeof crypto !== "undefined" && crypto.randomUUID)
@@ -7995,7 +8011,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           ...(center ? { lat: center.lat, lng: center.lng } : {}),
         }),
       });
-      if (r.status === 501) return fetchSuggestionsDirect(q); // server key not configured
       if (!r.ok) { setSuggestions([]); return; }
       const data = await r.json();
       setSuggestions((data.suggestions || []).slice(0, 6));
@@ -8004,66 +8019,17 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }
   }
 
-  // Dev/local-only fallback — the original direct-to-Google client path,
-  // preserved as-is. Never runs in production.
-  async function fetchSuggestionsDirect(q) {
-    try {
-      const { AutocompleteSuggestion, AutocompleteSessionToken } = await getLoader().importLibrary("places");
-      if (!(tokenRef.current instanceof AutocompleteSessionToken)) tokenRef.current = new AutocompleteSessionToken();
-      // Geographic types — anything else is treated as an establishment/place.
-      const AREA_TYPES = new Set([
-        "locality", "administrative_area_level_1", "administrative_area_level_2",
-        "administrative_area_level_3", "administrative_area_level_4",
-        "postal_code", "country", "colloquial_area", "neighborhood",
-        "sublocality", "sublocality_level_1", "route", "geocode",
-      ]);
-      let res;
-      try {
-        // No type filter — let Google surface both places and areas.
-        // Location bias keeps establishment results close to the current center.
-        res = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
-          input: q,
-          sessionToken: tokenRef.current,
-          ...(center ? { locationBias: { center: { lat: center.lat, lng: center.lng }, radius: 50000 } } : {}),
-        });
-      } catch {
-        res = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
-          input: q,
-          sessionToken: tokenRef.current,
-        });
-      }
-      const list = (res?.suggestions || [])
-        .map((s) => s.placePrediction)
-        .filter(Boolean)
-        .map((pp) => {
-          const text = (pp.text && (pp.text.text || pp.text)) || "";
-          const types = pp.types || [];
-          const kind = types.some((t) => AREA_TYPES.has(t)) ? "area" : "place";
-          return { text, placeId: pp.placeId, kind };
-        })
-        .filter((x) => x.text && x.placeId)
-        .slice(0, 6);
-      setSuggestions(list);
-    } catch {
-      setSuggestions([]);
-    }
-  }
-
   // A photo entry is either { name: "places/.../photos/..." } from the guarded
-  // proxy (built into a URL through OUR OWN /api/photo route — never Google
-  // directly) or { _directUri } from the dev-only SDK fallback (already a full
-  // URL, that path's original behavior, unchanged).
+  // proxy (built into a URL through OUR OWN /api/photo route).
   function photoUrlFor(ph) {
     if (!ph) return null;
     if (ph.name) return "/api/photo?ref=" + encodeURIComponent(ph.name) + "&w=640";
     return ph._directUri || null;
   }
 
-  // Fetches full Place Details for a suggestion — guarded server proxy first
-  // (/api/places/details), dev/local-only SDK fallback second. Both paths
-  // normalize to the SAME plain-object shape so callers never branch on which
-  // one ran: { id, location:{lat,lng}, displayName, formattedAddress, types,
-  // rating, userRatingCount, photos:[{name}|{_directUri}], priceLevel,
+  // Fetches full Place Details for a suggestion through the guarded server
+  // proxy. It normalizes to { id, location:{lat,lng}, displayName,
+  // formattedAddress, types, rating, userRatingCount, photos:[{name}], priceLevel,
   // regularOpeningHours:{openNow}, businessStatus }.
   async function resolvePlaceDetails(placeId, kind, sessionToken) {
     const r = await fetch("/api/places/details", {
@@ -8071,37 +8037,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ placeId, kind, sessionToken }),
     });
-    if (r.status === 501) return resolvePlaceDetailsDirect(placeId, kind); // server key not configured
     if (!r.ok) throw new Error("details upstream " + r.status);
     const data = await r.json();
     if (!data.place) throw new Error("no place");
     return data.place;
-  }
-
-  // Dev/local-only fallback — constructs a Place by id directly via the Maps
-  // JS SDK (no dependence on the autocomplete prediction object, unlike the
-  // original item.pp.toPlace() path) and maps it to the same plain-object
-  // shape resolvePlaceDetails returns. Never runs in production.
-  async function resolvePlaceDetailsDirect(placeId, kind) {
-    const { Place } = await getLoader().importLibrary("places");
-    const p = new Place({ id: placeId });
-    const fields = kind === "area"
-      ? ["location", "formattedAddress", "displayName"]
-      : ["id", "location", "displayName", "formattedAddress", "types", "rating", "userRatingCount", "photos", "priceLevel", "regularOpeningHours", "businessStatus"];
-    await p.fetchFields({ fields });
-    return {
-      id: p.id || placeId,
-      location: p.location ? { lat: p.location.lat(), lng: p.location.lng() } : null,
-      displayName: p.displayName,
-      formattedAddress: p.formattedAddress || "",
-      types: p.types || [],
-      rating: p.rating || null,
-      userRatingCount: p.userRatingCount || 0,
-      photos: (p.photos || []).slice(0, 6).map((ph) => ({ _directUri: ph.getURI?.({ maxWidth: 640 }) })),
-      priceLevel: p.priceLevel,
-      regularOpeningHours: { openNow: p.regularOpeningHours?.isOpen?.() ?? null },
-      businessStatus: p.businessStatus || null,
-    };
   }
 
   async function pickSuggestion(item) {
@@ -8263,7 +8202,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // wrong. Approximate fixes no longer shortcut: they fall through to a
     // fresh enableHighAccuracy GPS fix, the same precision the map pin runs
     // on. A real GPS deviceLoc still shortcuts — it IS the precise answer.
-    if (!locApprox && deviceLoc && isFinite(deviceLoc.lat)) {
+    // v9.0 — the shortcut is for a FRESH fix only. A deviceLoc taken when the
+    // tab was opened hours ago, somewhere else, is not the reader's current
+    // location, and this button is the one control on the page that promises
+    // exactly that. Older than GPS_FIX_FRESH_MS falls through to the fresh
+    // enableHighAccuracy request below, same as an approximate fix does.
+    const fixFresh = deviceLocAtRef.current > 0 && Date.now() - deviceLocAtRef.current < GPS_FIX_FRESH_MS;
+    if (!locApprox && fixFresh && deviceLoc && isFinite(deviceLoc.lat)) {
       // v8.46 — NAME FIRST, THEN COMMIT. This used to move the center, the map
       // and locResolved immediately and only then `await` the reverse geocode
       // inside a catch-all try — so a throw, or simply a slow answer, left the
@@ -8286,6 +8231,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       async (pos) => {
         const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setDeviceLoc(c);
+        deviceLocAtRef.current = Date.now();
         setLocApprox(false);
         // v8.46 — name first, then commit (see the note above). Same defect,
         // same fix: the label and the coordinates are one fact and land in one
@@ -9045,31 +8991,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const h = idle(() => SCREEN_LOADERS.forEach((load) => { try { load().catch(() => {}); } catch (e) {} }));
     return () => { try { (window.cancelIdleCallback || clearTimeout)(h); } catch (e) {} };
   }, []);
-
-  // THE MISSING-KEY SCREEN, MOVED (2026-08-21). It used to return here from
-  // ~230 lines higher up, above four hooks — useState(trendTick) and three
-  // useEffects. React counts hooks by call order, so a build where the key is
-  // absent runs a different number of them than one where it is present, and
-  // any flip mid-life unmounts the tree rather than warning. Everything between
-  // the old position and this one is pure derivation over state that is empty
-  // when there is no key, so the screen it paints is identical.
-  // scripts/check-hook-order.mjs is what keeps it here.
-  if (keyMissing) {
-    return (
-      <div style={shell}>
-        <div style={{ ...wrap, alignItems: "center", justifyContent: "center", padding: 24, textAlign: "center" }}>
-          <div>
-            <div style={{ fontSize: 40, marginBottom: 12 }}>🔑</div>
-            <h2 style={{ color: C.text, margin: "0 0 8px" }}>Almost there</h2>
-            <p style={{ color: C.light, maxWidth: 360, lineHeight: 1.6 }}>
-              Add your Google Maps API key as an environment variable named{" "}
-              <code style={{ color: C.accent }}>NEXT_PUBLIC_GOOGLE_MAPS_KEY</code> in Vercel, then redeploy.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // G1: the one ctx bag handed to the extracted screens. Every hook stays in
   // PageInner — screens are render-only and read state/callbacks/module
@@ -10300,15 +10221,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   {browseCat === "hotels" && center && view.length > 0 && <UnifiedBrowseCommerceRail cat="hotels" sub="all" categories={["stays"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {/* 2026-08-04 (owner: "I want every single Viator deeplink option showing up
                       on my sheets... if it's for food give me food tours... I want this done
-                      everywhere"). Food, Nightlife, Shopping and Beach had NO bookable rail at
-                      all — the rail mounted on three of seven browse categories. Food was the
-                      sharpest gap: 35 food tours across 11 markets sat in wf_experiences and
-                      could not surface under a food heading, because the harvest tags them
-                      `private`/`historical` and nothing could ask for "food". They now ride the
-                      derived concepts in lib/experienceConcepts.js via lib/browseCommerceMap.
-                      Each passes its OWN category so the chip map cannot cross-resolve — "all"
-                      exists in all seven categories and "family" is both a sub-chip and a
-                      category. Ranking is unchanged: rankExperiences, highest score first. */}
+                      everywhere") wired Food to the derived `food` concept in
+                      lib/experienceConcepts.js via lib/browseCommerceMap. 2026-09-07 REVERSED
+                      that for Food specifically (owner, live repro at Tampa: a wine-tasting
+                      tour and a Riverwalk walking food tour rendered ABOVE the restaurant
+                      results under Dinner) — see lib/browseCommerceMap.js NO_TOUR_COMMERCE for
+                      the measured evidence and exactly where the line sits. The component below
+                      still mounts (so a future genuinely restaurant-specific offer has
+                      somewhere to render), but `plan.noExperiences` inside it now hard-stops
+                      both the table read and the live-search fallback for every Food sub-chip —
+                      this is a category-level rule, not a per-daypart patch, so Breakfast,
+                      Cafés, Lunch and Quick bites are covered by the same line, not a second
+                      copy of it. Nightlife/Shopping/Beach are unaffected: only Food declares
+                      NO_TOUR_COMMERCE. Ranking is unchanged for every category that still
+                      sells experiences: rankExperiences, highest score first. */}
                   {browseCat === "food" && center && <UnifiedBrowseCommerceRail cat="food" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {browseCat === "nightlife" && center && <UnifiedBrowseCommerceRail cat="nightlife" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {browseCat === "shopping" && center && view.length > 0 && <UnifiedBrowseCommerceRail cat="shopping" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
@@ -11148,7 +11074,18 @@ function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includ
 
   useEffect(() => {
     if (Array.isArray(initialExperiences)) { setExperiences(initialExperiences); return; }
-    if (!includeExperiences || !Number.isFinite(lat) || !Number.isFinite(lng)) { setExperiences([]); return; }
+    // 2026-09-07 — THE EAT-INTENT BOUNDARY (owner: wine tours and Riverwalk
+    // walking tours were rendering ABOVE the restaurant results under Food ->
+    // Dinner). `plan.noExperiences` (lib/browseCommerceMap.js NO_TOUR_COMMERCE)
+    // is checked BEFORE `cat`, not folded into it, because a null `cat` alone
+    // still falls through to the live Viator search below — the exact second
+    // path that can hand a thin market a generic tour just as easily as the
+    // table did. Food declares noExperiences, so this return fires before
+    // either the table read or the live search ever runs, for every sub-chip
+    // (Breakfast/Cafés/Lunch/Dinner/Quick bites included, not a two-item
+    // blocklist). See lib/browseCommerceMap.js for the measured repro and
+    // where the restaurant-specific-commerce line actually sits.
+    if (!includeExperiences || plan.noExperiences || !Number.isFinite(lat) || !Number.isFinite(lng)) { setExperiences([]); return; }
     let dead = false;
     const searchText = chipSearchQuery(browseCat, sub || "all", city);
     const liveSearch = async () => {
@@ -11189,7 +11126,11 @@ function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includ
     // shape "a bug you can SEE". A chip that declares no bookable catalog now
     // sells nothing here rather than the wrong thing under its own name.
     const chipSellsNothing = !!(sub && sub !== "all" && plan.catalogParam === null);
-    if (chipSellsNothing || !categories.length || !Number.isFinite(lat) || !Number.isFinite(lng)) { setDeals([]); return; }
+    // plan.noExperiences (Food, 2026-09-07) belt-and-suspenders: Food already
+    // passes categories=[] above, which alone short-circuits this effect, but
+    // a future call site that adds a `categories` prop for Food must not
+    // silently regain the deals lane on a category declared to sell nothing.
+    if (chipSellsNothing || plan.noExperiences || !categories.length || !Number.isFinite(lat) || !Number.isFinite(lng)) { setDeals([]); return; }
     let dead = false;
     const geo = "&lat=" + lat.toFixed(3) + "&lng=" + lng.toFixed(3);
     Promise.all(categories.map((category) => fetch("/api/deals?category=" + encodeURIComponent(category) + geo).then((r) => (r.ok ? r.json() : null), () => null))).then((payloads) => {
