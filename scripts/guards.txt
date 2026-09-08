@@ -770,6 +770,11 @@ node scripts/check-hook-order.mjs
 # starved. This guard EXECUTES the chain — map, destination, proximity, rank,
 # render — rather than matching text on it.
 node scripts/check-curated-events-surface.mjs
+# 2026-09-07 — isTrusted/isEligible check status, tier, confidence, hook and
+# city but never geography. This EXECUTES isFloridaEvent and the two surfaces
+# it gates (the hub model, the single-event page) so a Chicago or a UK row
+# can never reach a hub whose own title and JSON-LD say "Florida Events".
+node scripts/check-florida-events-are-florida.mjs
 # v8.40 — the owner's marquee music inventory reaches a reader, and an
 # unannounced row (derived Memorial-Day dates) never reaches a card
 node scripts/check-major-music-festivals.mjs
@@ -1281,3 +1286,8 @@ node scripts/test-provider-spend-caps.mjs
 node scripts/test-beach-planning.mjs
 
 node scripts/check-reverse-migration-reconciliation.mjs
+# Menu and breakfast-poster taxonomy share one morning identity decision.
+# This proves both precision (wrong cards stay out) and recall (eligible
+# breakfast, coffee and bakery-cafe cards remain reachable), including rows
+# whose provider omitted primaryType.
+node scripts/test-morning-identity.mjs

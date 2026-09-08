@@ -73,7 +73,7 @@ const thumbUrl = (p) => (p.photoRef
  * @param {{
  *   venue: string,                 // venue name (falls back to the event name)
  *   address: string,               // lib/placeWhere.addressLine(row)
- *   directionsHref: string|null,   // lib/placeWhere.directionsUrl(row)
+ *   directionsHref: string|null,   // lib/placeWhere.appleDirectionsUrl(row)
  *   website: string|null,          // gated URL, or null
  *   lat?: number, lng?: number,
  *   picks?: object[],              // lib/eventPairings rows + href
@@ -95,7 +95,7 @@ export default function EventWhere({ venue, address, directionsHref, website, la
             <h2 className="wfw-name">{venue || address}</h2>
             {address && address !== venue ? (
               <p className="wfw-addr">{directionsHref
-                ? <a href={directionsHref} target="_blank" rel="noopener nofollow" aria-label={"Open " + address + " in Maps"}>{address}</a>
+                ? <a href={directionsHref} target="_blank" rel="noopener nofollow" aria-label={"Open " + address + " in Apple Maps"}>{address}</a>
                 : address}</p>
             ) : null}
           </div>
@@ -107,7 +107,7 @@ export default function EventWhere({ venue, address, directionsHref, website, la
                 <a className="wfw-btn wfw-dir" href={directionsHref} target="_blank" rel="noopener nofollow" aria-label={"Get directions to " + (venue || address)}>{"→ Get directions"}</a>
               ) : null}
               {hasPoint && directionsHref ? (
-                <a className="wfw-btn wfw-site" href={directionsHref} target="_blank" rel="noopener nofollow" aria-label={"Open external directions to " + (venue || address)}>Open navigation ↗</a>
+                <a className="wfw-btn wfw-site" href={directionsHref} target="_blank" rel="noopener nofollow" aria-label={"Open directions to " + (venue || address) + " in Apple Maps"}>Open in Apple Maps ↗</a>
               ) : null}
               {website ? (
                 <a className="wfw-btn wfw-site" href={website} target="_blank" rel={(sponsoredWebsite ? "sponsored " : "") + "nofollow noopener"} aria-label={"Official site for " + (venue || address)}>

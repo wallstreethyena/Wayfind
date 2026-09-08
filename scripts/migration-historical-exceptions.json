@@ -910,5 +910,21 @@
     "statements_sha256": "d17237b9f9c2622bb4f64ec04cae88ecd0688082b06718651ea4bba0225a2903",
     "reason": "Historical production-only record; no unique canonical migration correspondence. Reviewed purpose: repairs wf_schema_objects to enumerate all seven catalog kinds and restricts execution to service_role; this is the PR #1161 incident repair.",
     "reviewed_by": "Codex, owner-requested production ledger review 2026-09-08"
+  },
+  {
+    "name": "wf_migration_ledger_hashes",
+    "statements_sha256": "fd77e79d5659447c5122ee4aee6a65566648dcf0a9de1beaa4c4a8c84740a2b7",
+    "version": "20260908133130",
+    "reason": "Reviewed duplicate application of the canonical introspection RPC. Both September 8 bodies create the same stable SECURITY DEFINER function with pg_catalog search_path, hash the statement array, revoke PUBLIC/anon/authenticated execution and grant service_role. The second body differs by a trailing newline. Pin each exact ledger hash and map both to the canonical file; do not replay either migration.",
+    "reviewed_by": "Wayfind owner-requested production reconciliation, 2026-09-08",
+    "canonical_file": "20260907165437_wf_migration_ledger_hashes.sql"
+  },
+  {
+    "name": "wf_migration_ledger_hashes",
+    "statements_sha256": "6f7715b057efffcbaf4c22c651bf653b82b7d09b07af338d165332b50713a871",
+    "version": "20260908171836",
+    "reason": "Reviewed duplicate application of the canonical introspection RPC. Both September 8 bodies create the same stable SECURITY DEFINER function with pg_catalog search_path, hash the statement array, revoke PUBLIC/anon/authenticated execution and grant service_role. The second body differs by a trailing newline. Pin each exact ledger hash and map both to the canonical file; do not replay either migration.",
+    "reviewed_by": "Wayfind owner-requested production reconciliation, 2026-09-08",
+    "canonical_file": "20260907165437_wf_migration_ledger_hashes.sql"
   }
 ]

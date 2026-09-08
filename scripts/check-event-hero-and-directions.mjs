@@ -39,10 +39,11 @@ import { fileURLToPath } from "node:url";
 // The real functions BEHIND the two source-checked rungs above — not just a
 // regex over the JSX that calls them. websiteHost is what the "Official
 // site" caption in EventWhere.js actually renders (rung 2), and
-// directionsUrl is what the one Get-directions button's href actually
-// resolves to (rung 1). Executing them here proves the underlying behavior,
-// not merely that the right function name appears in the source text.
-import { websiteHost, directionsUrl } from "../lib/placeWhere.js";
+// appleDirectionsUrl is what the one Get-directions button's href actually
+// resolves to on the event pages (rung 1; Apple, permanently — owner
+// 2026-09-08). Executing them here proves the underlying behavior, not
+// merely that the right function name appears in the source text.
+import { websiteHost, appleDirectionsUrl } from "../lib/placeWhere.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(path.join(ROOT, p), "utf8");
@@ -133,9 +134,13 @@ function nearbySeparatedFromVenue(where) {
    raw, wrapping URL structurally impossible, not merely absent today. */
 
 const buschGardens = { venue: "Busch Gardens Tampa Bay", address: "10165 N McKinley Dr", city: "Tampa", state: "FL", lat: 28.0371, lng: -82.4195 };
-const dirHref = directionsUrl(buschGardens);
-ok(typeof dirHref === "string" && dirHref.startsWith("https://www.google.com/maps/dir/?"),
-  `directionsUrl (the one Get-directions button's href) resolves to the turn-by-turn /maps/dir endpoint for a real venue shape, not /maps/search (got ${dirHref})`);
+const dirHref = appleDirectionsUrl(buschGardens);
+ok(typeof dirHref === "string" && dirHref.startsWith("https://maps.apple.com/?daddr=") && /&dirflg=d\b/.test(dirHref),
+  `appleDirectionsUrl (the one Get-directions button's href) resolves to an Apple Maps turn-by-turn DIRECTIONS link (daddr + driving), not a map search (got ${dirHref})`);
+ok(/daddr=10165%20N%20McKinley%20Dr%2C%20Tampa%2C%20FL/.test(dirHref) && /&q=Busch%20Gardens%20Tampa%20Bay/.test(dirHref),
+  `the Apple link carries the FULL street + town line as the destination and the venue name as the card label (got ${dirHref})`);
+ok(/appleDirectionsUrl\(e\)/.test(read(PAGE_PATH)) && !/[^a-zA-Z]directionsUrl\(/.test(read(PAGE_PATH)),
+  `${PAGE_PATH} builds its directions href through appleDirectionsUrl, never the Google ladder (Apple permanently, owner 2026-09-08)`);
 
 const rawOfficialUrl = "https://buschgardens.com/tampa/events/howl-o-scream/";
 const captionHost = websiteHost(rawOfficialUrl);

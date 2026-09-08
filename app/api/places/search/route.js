@@ -25,7 +25,7 @@ const FIELD_MASK = [
   "places.id", "places.displayName", "places.location", "places.rating",
   "places.userRatingCount", "places.priceLevel", "places.priceRange",
   "places.formattedAddress", "places.regularOpeningHours",
-  "places.utcOffsetMinutes", "places.types", "places.photos", "places.businessStatus",
+  "places.utcOffsetMinutes", "places.types", "places.primaryType", "places.photos", "places.businessStatus",
 ].join(",");
 
 // FREE MODE mask - Pro-tier fields ONLY (Text Search Pro: 5,000 free/month).

@@ -7,6 +7,12 @@
 // regex over the source (see CLAUDE.md, "assert on the CALL, not the
 // string").
 import { pageOf, pageOneRail, pageAllRails, pageRailMenuRail, RAIL_PAGE_SIZE } from "../lib/railPage.js";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { liveFromRailsResponse, mergeRailPage } from "../lib/locationHonesty.js";
+import { railHasNextPage, railUsesSharedPaging, railPageScope, isCurrentRailPageScope, settleRailPageStateForScope } from "../lib/railResponse.js";
+import { splitBreakfastRails } from "../lib/breakfastRails.js";
+import { composeWorthEatingRails } from "../lib/worthEatingRails.js";
 
 let pass = 0, fail = 0;
 const ok = (cond, msg) => { cond ? pass++ : (fail++, console.error("  FAIL: " + msg)); };
@@ -122,6 +128,132 @@ eq(RAIL_PAGE_SIZE, 10, "the shared page size is 10, matching the owner's literal
   const seasonPage0 = pageRailMenuRail(placesById, "season", { page: 0 });
   ok(!!seasonPage0 && seasonPage0.places.length === 0 && seasonPage0.hasMore === false, "an empty-but-KNOWN rail (season, thin) pages to an honest empty, not null");
   eq(pageRailMenuRail(placesById, "nope", { page: 0 }), null, "an unknown rail id is null, distinct from a known-but-empty one");
+}
+
+// ── 10. COMPOSER PAGING — rendering a subrail never owns its source pages ──
+// The production defect was not page math. /api/rails truthfully sent 12/25
+// and hasMore:true, but BreakfastRails / WorthEatingRails render their own
+// display rails, so DaypartRail read that as "do not page." These calls pin
+// the distinction: the display can be composer-owned while the source still
+// pages from the shared ranked rail.
+{
+  ok(railUsesSharedPaging("breakfast", true), "Breakfast renders its own subrails but still uses the shared source pager");
+  ok(railUsesSharedPaging("eat", true), "Actually Worth Eating renders its own subrails but still uses the shared source pager");
+  ok(!railUsesSharedPaging("datenight", true), "an independently fetched intent does not accidentally use /api/rails paging");
+  ok(railUsesSharedPaging("best", false), "a normal shared-pool rail still pages normally");
+  ok(railHasNextPage(12, 25, true), "the route's explicit hasMore:true keeps a 12/25 composer pageable");
+  ok(railHasNextPage(12, 25, false), "a legacy response with only a truthful total remains pageable");
+  ok(!railHasNextPage(25, 25, false), "the final composer page stops paging exactly at its total");
+
+  const parrishBreakfast = railPageScope("breakfast", "27.58,-82.43", "morning", "parrish");
+  const bradentonBreakfast = railPageScope("breakfast", "27.58,-82.43", "morning", "bradenton");
+  ok(isCurrentRailPageScope(parrishBreakfast, parrishBreakfast), "a continuation page for the current city/rail/daypart is accepted");
+  ok(!isCurrentRailPageScope(bradentonBreakfast, parrishBreakfast), "a late continuation page for another city is rejected, even inside the same snapped cell");
+  ok(!isCurrentRailPageScope(railPageScope("eat", "27.58,-82.43", "morning", "parrish"), parrishBreakfast), "a late page for another poster is rejected");
+
+  // Actual lifecycle: Breakfast starts loading in Parrish; the reader moves to
+  // Bradenton before it settles. The late completion clears only the old
+  // scope, so reopening Breakfast at the new location starts usable (idle),
+  // not permanently disabled behind the old poster-id loading flag.
+  let lifecycle = settleRailPageStateForScope({}, parrishBreakfast, parrishBreakfast, "loading");
+  eq(lifecycle[parrishBreakfast], "loading", "page lifecycle records loading under the complete request scope");
+  lifecycle = settleRailPageStateForScope(lifecycle, bradentonBreakfast, parrishBreakfast, "idle");
+  ok(!Object.prototype.hasOwnProperty.call(lifecycle, parrishBreakfast), "late old-city completion removes the stale loading state");
+  ok(lifecycle[bradentonBreakfast] == null, "the new city's same poster is idle and can page or retry immediately");
+  lifecycle = settleRailPageStateForScope(lifecycle, bradentonBreakfast, bradentonBreakfast, "loading");
+  lifecycle = settleRailPageStateForScope(lifecycle, bradentonBreakfast, bradentonBreakfast, "failed");
+  eq(lifecycle[bradentonBreakfast], "failed", "a current-city failure remains visible so the retry control is enabled");
+
+  // RED-PROVE: the pre-repair predicate conflated render ownership with page
+  // ownership, exactly reproducing the unreachable-card defect.
+  const preRepairMutant = (railId, renderOwnsAnswer) => !renderOwnsAnswer;
+  ok(!preRepairMutant("breakfast", true) && railUsesSharedPaging("breakfast", true),
+    "RED-PROVE: restoring `!renderOwnsAnswer` makes breakfast 12/25 unpageable and fails this distinction");
+}
+
+// ── 11. REAL COMPOSERS REACH CARD 13 AND THE FINAL CARD ───────────────────
+// Run the actual response merge plus each actual composer. Every source row is
+// intentionally a known-good member of its respective rail; if page two is
+// not requested/merged, both 13 and 25 disappear from the displayed answer.
+function pagePayload(railId, rows, total = rows.length) {
+  return { covered: true, data: { places: { [railId]: rows }, railTotals: { [railId]: total }, railHasMore: { [railId]: rows.length < total } } };
+}
+function mergedRows(railId, rows) {
+  const first = liveFromRailsResponse(pagePayload(railId, rows.slice(0, 12), rows.length));
+  ok(railHasNextPage(first.places[railId].length, first.railTotals[railId], first.railHasMore[railId]),
+    `${railId}: first response is 12/${rows.length} and actually requests its next page`);
+  const merged = mergeRailPage(first, pagePayload(railId, rows.slice(12), rows.length), railId);
+  return merged.places[railId];
+}
+
+{
+  const breakfastRows = Array.from({ length: 25 }, (_, i) => ({
+    id: `breakfast-${i + 1}`, name: `Breakfast House ${i + 1}`,
+    primaryType: "breakfast_restaurant", rating: 4.9, reviews: 1000 - i,
+  }));
+  const displayed = splitBreakfastRails(mergedRows("breakfast", breakfastRows))
+    .find((rail) => rail.id === "breakfast-restaurants").places.map((place) => place.id);
+  ok(displayed.includes("breakfast-13"), "Breakfast: card 13 reaches the displayed Best Breakfast rail");
+  ok(displayed.includes("breakfast-25"), "Breakfast: the final available card reaches the displayed Best Breakfast rail");
+  eq(displayed.join(","), breakfastRows.map((place) => place.id).join(","), "Breakfast: paging preserves ranked order and neither skips nor duplicates cards");
+}
+
+{
+  const worthRows = Array.from({ length: 25 }, (_, i) => ({
+    id: `worth-${i + 1}`, name: `American Kitchen ${i + 1}`, cuisines: ["american"],
+    primaryType: "restaurant", rating: 4.9, reviews: 1000 - i,
+  }));
+  const displayed = composeWorthEatingRails(mergedRows("eat", worthRows))
+    .find((rail) => rail.id === "american-contemporary").places.map((place) => place.id);
+  ok(displayed.includes("worth-13"), "Actually Worth Eating: card 13 reaches its displayed cuisine rail");
+  ok(displayed.includes("worth-25"), "Actually Worth Eating: the final available card reaches its displayed cuisine rail");
+  eq(displayed.join(","), worthRows.map((place) => place.id).join(","), "Actually Worth Eating: paging preserves ranked order and neither skips nor duplicates cards");
+}
+
+// ── 12. THE REAL RENDERERS REQUEST THE NEXT SHARED SOURCE PAGE ────────────
+// The pure contract above catches a broken decision. These narrow wiring
+// checks catch the other half: dropping the callback between DaypartRail and a
+// composer would make all of the correct page math unreachable again. The
+// positive controls ensure the probes themselves can match; the mutation
+// controls prove they reject the old ownership-only predicate and an unwired
+// callback rather than merely finding a word in a comment.
+{
+  const root = fileURLToPath(new URL("../", import.meta.url));
+  const read = (rel) => readFileSync(new URL(rel, new URL("./", `file://${root}/`)), "utf8");
+  const daypart = read("app/components/DaypartRail.js");
+  const breakfast = read("app/components/BreakfastRails.js");
+  const worthEating = read("app/components/WorthEatingRails.js");
+  const sharedPagingCall = /railUsesSharedPaging\(selected, railOwnsItsOwnAnswer\)/;
+  const staleScopeCall = /isCurrentRailPageScope\(railPageScopeRef\.current, requestScope\)/;
+  const scopedStateCall = /settleRailPageStateForScope\(state, railPageScopeRef\.current, requestScope,/;
+  const callbackProp = /hasMore=\{selectedHasMore\}[\s\S]{0,140}onLoadMore=\{loadSelectedRailPage\}/;
+  const rendererCallback = /onScroll=\{\(event\) => \{[\s\S]{0,220}onLoadMore\?\.\(\)/;
+  const callbackPropCount = (source) => [...source.matchAll(new RegExp(callbackProp.source, "g"))].length;
+
+  ok(sharedPagingCall.test("const selectedUsesSharedPaging = railUsesSharedPaging(selected, railOwnsItsOwnAnswer);"),
+    "POSITIVE CONTROL: the shared-paging probe matches the real decision shape");
+  ok(callbackProp.test("<BreakfastRails hasMore={selectedHasMore} loadingMore={busy} onLoadMore={loadSelectedRailPage} />"),
+    "POSITIVE CONTROL: the parent-to-composer callback probe matches a wired fixture");
+  ok(rendererCallback.test('<div onScroll={(event) => { if (hasMore) onLoadMore?.(); }} />'),
+    "POSITIVE CONTROL: the composer scroll probe matches a real callback fixture");
+
+  ok(sharedPagingCall.test(daypart), "DaypartRail calls the render/page ownership separator");
+  ok((daypart.match(new RegExp(staleScopeCall.source, "g")) || []).length === 1, "DaypartRail prevents a stale response from merging into the new city, poster, or daypart");
+  ok((daypart.match(new RegExp(scopedStateCall.source, "g")) || []).length === 4, "DaypartRail stores continuation state by scope and clears it through both stale completion paths");
+  ok(callbackPropCount(daypart) === 2, "both Breakfast and Actually Worth Eating receive hasMore plus the real next-page callback");
+  ok(rendererCallback.test(breakfast), "Breakfast scroll end asks for the next shared source page");
+  ok(rendererCallback.test(worthEating), "Actually Worth Eating scroll end asks for the next shared source page");
+  ok(/Show more ranked places/.test(breakfast) && /Show more ranked places/.test(worthEating),
+    "both composers expose a retryable, keyboard-accessible next-page control");
+
+  const ownershipMutant = daypart.replace("railUsesSharedPaging(selected, railOwnsItsOwnAnswer)", "!railOwnsItsOwnAnswer");
+  const staleCityMutant = daypart.replace("isCurrentRailPageScope(railPageScopeRef.current, requestScope)", "true");
+  const posterStateMutant = daypart.replace("railPageState[selectedPageScope]", "railPageState[selected]");
+  const unwiredMutant = daypart.replace("onLoadMore={loadSelectedRailPage}", "onLoadMore={undefined}");
+  ok(!sharedPagingCall.test(ownershipMutant), "RED-PROVE: the old ownership-only gate does not satisfy the shared-paging wire");
+  ok((staleCityMutant.match(new RegExp(staleScopeCall.source, "g")) || []).length === 0, "RED-PROVE: removing the stale-city gate from a page response makes the rejection check fail");
+  ok((posterStateMutant.match(/railPageState\[selectedPageScope\]/g) || []).length === 3, "RED-PROVE: reading one state site by poster id instead of scope makes the lifecycle wiring check fail");
+  ok(callbackPropCount(unwiredMutant) === 1, "RED-PROVE: removing one composer callback makes the two-renderer wiring check fail");
 }
 
 if (fail) {

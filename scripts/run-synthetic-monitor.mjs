@@ -295,6 +295,7 @@ async function main() {
         url: ctx.lastUrl,
         viewport: ctx.lastViewport,
         assertions: ctx.results,
+        notes: ctx.notes,
         consoleErrors: ctx.consoleErrors,
         networkFailures: ctx.networkFailures,
         screenshot: shot,

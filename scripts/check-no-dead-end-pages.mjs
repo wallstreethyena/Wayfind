@@ -32,7 +32,7 @@
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { addressLine, directionsUrl, canNavigate } from "../lib/placeWhere.js";
+import { addressLine, directionsUrl, appleDirectionsUrl, canNavigate } from "../lib/placeWhere.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 let pass = 0, fail = 0;
@@ -105,6 +105,17 @@ ok(CASES.filter((c) => c.nav).every((c) => directionsUrl(c.row).startsWith("http
   "every url is the /maps/dir endpoint — /maps/search drops a pin the reader then has to tap Directions on, which is the tap this release deletes");
 ok(CASES.filter((c) => c.nav).every((c) => !/\s/.test(directionsUrl(c.row))),
   "…and every url is encoded (a raw space in an href is a link some clients truncate)");
+// 2026-09-08 — THE EVENT PAGES NOW LINK TO APPLE MAPS (owner: "permanently,
+// not temporarily"). Same verdicts, same honesty: every row the Google ladder
+// refuses, the Apple ladder refuses; every row it accepts is a real Apple
+// DIRECTIONS link (daddr + driving), encoded, and never a Google host. The
+// place-id rung has no Apple equivalent and is skipped, never translated.
+ok(CASES.every((c) => (appleDirectionsUrl(c.row) != null) === c.nav),
+  "the Apple ladder agrees with canNavigate on every fixture — a row that cannot honestly name a destination gets NO button on either map");
+ok(CASES.filter((c) => c.nav).every((c) => appleDirectionsUrl(c.row).startsWith("https://maps.apple.com/?daddr=") && /&dirflg=d\b/.test(appleDirectionsUrl(c.row))),
+  "every Apple url is a directions request with driving preselected, not a map search");
+ok(CASES.filter((c) => c.nav).every((c) => !/\s/.test(appleDirectionsUrl(c.row)) && !/google\./.test(appleDirectionsUrl(c.row))),
+  "…and every Apple url is encoded and carries no Google host");
 
 // ── 2. ONE RULE, NOT ONE PER PAGE (weaker check, source) ────────────────────
 // Both event pages must CALL it. A page that rebuilt its own maps URL would be
@@ -116,8 +127,8 @@ const PAGES = [
 ];
 for (const rel of PAGES) {
   const src = stripComments(readFileSync(join(ROOT, rel), "utf8"));
-  ok(/directionsUrl\(/.test(src),
-    `${rel} builds its map link by CALLING directionsUrl (weaker check, source: these are async server components that node cannot import)`);
+  ok(/appleDirectionsUrl\(/.test(src) && !/[^a-zA-Z]directionsUrl\(/.test(src),
+    `${rel} builds its map link by CALLING appleDirectionsUrl — the one Apple rule, never the Google ladder (weaker check, source: these are async server components that node cannot import)`);
   ok(!/maps\/search/.test(src),
     `${rel} no longer hand-builds a /maps/search URL — that endpoint ignores the address and coordinates on the very row it is describing`);
   ok(/addressLine\(/.test(src),

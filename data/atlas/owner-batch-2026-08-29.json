@@ -26,14 +26,14 @@
         ],
         [
           "food",
-          "breakfast"
-        ],
-        [
-          "food",
           "all"
         ]
       ],
       "chipsBlock": [
+        [
+          "food",
+          "breakfast"
+        ],
         [
           "attractions",
           "beaches"
@@ -86,13 +86,13 @@
         [
           "food",
           "dessert"
-        ],
-        [
-          "food",
-          "breakfast"
         ]
       ],
       "chipsBlock": [
+        [
+          "food",
+          "breakfast"
+        ],
         [
           "attractions",
           "beaches"
@@ -144,13 +144,13 @@
         [
           "food",
           "dessert"
-        ],
-        [
-          "food",
-          "breakfast"
         ]
       ],
       "chipsBlock": [
+        [
+          "food",
+          "breakfast"
+        ],
         [
           "attractions",
           "beaches"
@@ -471,14 +471,14 @@
         ],
         [
           "food",
-          "cafes"
-        ],
-        [
-          "food",
           "all"
         ]
       ],
       "chipsBlock": [
+        [
+          "food",
+          "cafes"
+        ],
         [
           "nightlife",
           "clubs"
@@ -654,7 +654,7 @@
         ],
         [
           "food",
-          "breakfast"
+          "cafes"
         ],
         [
           "food",
@@ -662,6 +662,10 @@
         ]
       ],
       "chipsBlock": [
+        [
+          "food",
+          "breakfast"
+        ],
         [
           "attractions",
           "beaches"

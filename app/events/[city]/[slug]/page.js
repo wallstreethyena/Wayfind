@@ -13,7 +13,7 @@ import { isTicketmasterFamily } from "../../../../lib/affiliates.js";
 import { isEventWindow, EVENT_WINDOWS, windowRange, filterByWindow } from "../../../../lib/eventsList.js";
 import { LANDING_CITIES } from "../../../../lib/landing.js";
 import TicketButton from "./TicketButton.js";
-import { addressLine, directionsUrl, websiteUrl } from "../../../../lib/placeWhere.js";
+import { addressLine, appleDirectionsUrl, websiteUrl } from "../../../../lib/placeWhere.js";
 import { eventPairings, pairingHref } from "../../../../lib/eventPairings.js";
 import EventWhere from "../../../components/EventWhere.js";
 import EventStory from "./EventStory.js";
@@ -199,7 +199,11 @@ export default async function EventPage({ params }) {
   // maps/dir instead of maps/search removes that second tap; the ladder in
   // placeWhere picks the exact destination, and returns null when the row
   // genuinely cannot name one, in which case no button renders at all.
-  const mapsUrl = directionsUrl(e);
+  //
+  // 2026-09-08 — Apple, permanently (owner). The in-page map is Apple MapKit
+  // (#1144); the outbound link now is too, so the event surface is one map
+  // vocabulary end to end. Same ladder, same null-means-no-button rule.
+  const mapsUrl = appleDirectionsUrl(e);
   const streetLine = addressLine(e);
   // Pass the official URL. TicketButton wraps Ticketmaster-family through
   // /api/ticketmaster/go so the Impact URL never sits in the DOM (founder P0).
