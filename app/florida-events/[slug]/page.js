@@ -7,6 +7,7 @@
 // namespace.
 //
 // The answer box comes FIRST. Nobody wants 500 words before the date.
+import EventExperienceStyles from "../../components/EventExperienceStyles.js";
 import { notFound } from "next/navigation";
 import { safeUrl } from "../../../lib/links.js";
 import { SITE_URL } from "../../../lib/site";
@@ -168,9 +169,9 @@ const S = {
   ticketWrap: { margin: "-8px 0 24px" },
   tix: {
     display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-    width: "100%", padding: "16px 20px", borderRadius: 14,
+    width: "100%", boxSizing: "border-box", maxWidth: "100%", textAlign: "center", overflowWrap: "anywhere", padding: "16px 20px", borderRadius: 14,
     background: "linear-gradient(180deg,#FFA35C,#F97316)", border: "1px solid #F97316", color: "#111827",
-    fontSize: 16, fontWeight: 850, textDecoration: "none", lineHeight: 1,
+    fontSize: 16, fontWeight: 850, textDecoration: "none", lineHeight: 1.4,
     boxShadow: "0 16px 34px rgba(249,115,22,.32)",
   },
   disclosure: { margin: "10px 0 0", fontSize: 11.5, color: "#8B949E", textAlign: "center" },
@@ -243,7 +244,7 @@ export default async function CuratedEventPage({ params }) {
   };
 
   return (
-    <main style={S.page}>
+    <main className="wf-event-experience"><EventExperienceStyles /><div className="wf-event-wrap">
       {ld ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} /> : null}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbs) }} />
 
@@ -258,14 +259,13 @@ export default async function CuratedEventPage({ params }) {
 
           Two doors, because they answer different questions: the product, and
           the shelf this event sits on. */}
-      <div style={S.backRow}>
+      <div className="wf-event-brand"><a href="/" aria-label="Wayfind home"><img src="/brand/wayfind-official-white.png" alt="Wayfind" width="145" height="42" /></a><div style={S.backRow}>
         <a style={S.back} href="/">&lsaquo; Back to Wayfind</a>
         <a style={S.back} href="/florida-events">&lsaquo; Florida Events</a>
       </div>
 
-      <div style={S.kicker}>Wayfind Events</div>
-      <h1 style={S.h1}>{e.event_name} {e.year}</h1>
-      {e.card_hook ? <p style={S.hook}>{e.card_hook}</p> : null}
+      </div>
+      <div className="wf-event-hero">
 
       {/* Owned photography leads — eventPhotos() fails closed when there is
           no consent record, so a person never appears on this page without
@@ -275,18 +275,20 @@ export default async function CuratedEventPage({ params }) {
           S.heroFallback below): a hero must never render as nothing. */}
       {shots && shots.hero ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={shots.hero.src} alt={shots.hero.alt} width={shots.hero.w} height={shots.hero.h} style={S.hero} />
+        <div className="wf-event-photo"><img src={shots.hero.src} alt={shots.hero.alt} width={shots.hero.w} height={shots.hero.h} /></div>
       ) : e.hero_image ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={e.hero_image} alt={e.image_alt || `${e.event_name} at ${e.venue || e.city}`} style={S.hero} />
+        <div className="wf-event-photo"><img src={e.hero_image} alt={e.image_alt || `${e.event_name} at ${e.venue || e.city}`} /></div>
       ) : (
-        <div style={S.heroFallback} role="img" aria-label={`${e.event_name} — no photo available yet`}>
+        <div className="wf-event-photo" style={S.heroFallback} role="img" aria-label={`${e.event_name} — no photo available yet`}>
           <div style={S.heroFallbackRing}><span style={S.heroFallbackMark}>{heroInitials(e.short_title || e.event_name)}</span></div>
         </div>
       )}
 
+      <aside className="wf-event-booking" aria-label="Event details and booking">
+      <div className="wf-event-eyebrow">Your next good plan</div>
+      <h1 style={S.h1}>{e.event_name} {e.year}</h1>
       {/* The answer box. Date first, always. */}
-      <div style={S.box}>
+      <div className="wf-event-summary">
         <div style={S.row}><span style={S.k}>When</span><span style={S.v}>{dateRangeLabel(e)}, {e.year}{clockLabel(e.start_time) ? ` · ${clockLabel(e.start_time)}${clockLabel(e.end_time) ? "–" + clockLabel(e.end_time) : ""}` : ""}</span></div>
         <div style={S.row}>
           <span style={S.k}>Where</span>
@@ -364,6 +366,8 @@ export default async function CuratedEventPage({ params }) {
         </div>
       </div>
 
+      <p className="wf-event-booking-note">{e.is_free ? "Confirm dates and availability on the official listing." : "Confirm availability and booking terms with the ticket provider before paying."}</p>
+      </aside></div>
       {/* v8.99 — WHERE IT IS, ON A MAP, WITH YOUR ROUTE AND WHAT IS NEARBY.
           One shared block (app/components/EventWhere.js) — the rule for every
           event page, curated or live. Sits right under the answer box because
@@ -378,6 +382,7 @@ export default async function CuratedEventPage({ params }) {
         picks={pairings}
       />
 
+      <div className="wf-event-content">
       {e.schedule_note ? <p style={S.note}>{e.schedule_note}</p> : null}
       {e.editorial_summary ? <p style={S.p}>{e.editorial_summary}</p> : null}
 
@@ -444,6 +449,7 @@ export default async function CuratedEventPage({ params }) {
         {safeUrl(e.source_url) ? <>{" "}<a style={S.link} href={safeUrl(e.source_url)} rel="nofollow noopener" target="_blank">Verification source</a>.</> : null}
         {" "}More in <a style={S.link} href="/florida-events">Florida Events</a>.
       </p>
+      </div></div>
     </main>
   );
 }
