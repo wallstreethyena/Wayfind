@@ -5,6 +5,7 @@
 // only the controls and summary shown below this map.
 import { useEffect, useRef, useState } from "react";
 import { createAppleMapController, loadAppleMapKit } from "../../lib/appleMapsRuntime.js";
+import { appleMapsTokenUsable } from "../../lib/appleMapsToken.js";
 
 const ACCENT = "#F97316";
 const PICK = "#2EC9A6";
@@ -58,7 +59,9 @@ export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady 
   useEffect(() => { if (onSelect) onSelect(sel); }, [sel, onSelect]);
   const retry = () => { setFailed(false); setReady(false); setSel(null); setGen((g) => g + 1); };
   const selected = sel ? pins.find((p) => p.id === sel) : null;
-  const unavailable = !token || /placeholder/i.test(token);
+  // Missing, placeholder, or already-expired: render the fallback at once and
+  // never start MapKit (lib/appleMapsToken.js reads the expiry from the JWT).
+  const unavailable = !appleMapsTokenUsable(token);
   return (
     <div className="wfev wfev-h" aria-label={`Apple map of ${venue.name}`}>
       <style dangerouslySetInnerHTML={{ __html: CSS }} />

@@ -56,6 +56,6 @@ export default function EventDrivingRoute({ venue, directionsHref, mapController
     </form>
     {summary ? <p role="status" style={{ margin: "8px 0", fontWeight: 800, color: "#8ED6C4" }}>Driving route: {summary.distanceLabel} · about {summary.etaLabel}</p> : null}
     {message ? <p role="status" style={{ margin: "8px 0", color: "#FDBA74" }}>{message}</p> : null}
-    {directionsHref ? <a href={directionsHref} target="_blank" rel="noopener nofollow" style={{ display: "inline-block", color: "#ff9a55", fontSize: 13, marginTop: 10 }}>Open navigation in Google Maps ↗</a> : null}
+    {directionsHref ? <a href={directionsHref} target="_blank" rel="noopener nofollow" style={{ display: "inline-block", color: "#ff9a55", fontSize: 13, marginTop: 10 }}>Open in Apple Maps ↗</a> : null}
   </section>;
 }

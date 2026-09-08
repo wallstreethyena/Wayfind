@@ -19,7 +19,8 @@
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { addressLine, directionsUrl, websiteUrl, websiteHost } from "../lib/placeWhere.js";
+import { addressLine, directionsUrl, appleDirectionsUrl, websiteUrl, websiteHost } from "../lib/placeWhere.js";
+import { describeAppleMapsToken, appleMapsTokenHealth, appleMapsTokenUsable, APPLE_MAPS_TOKEN_WARN_DAYS } from "../lib/appleMapsToken.js";
 import { eventWebsiteUrl } from "../lib/curatedEvents.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -42,6 +43,17 @@ const dir = directionsUrl({ address: "222 22nd St S", city: "St. Petersburg", st
 ok(dir && /destination=222\+22nd\+St\+S%2C\+St\.\+Petersburg%2C\+FL/.test(dir), `Maps gets the full line, not a bare street (got ${dir})`);
 ok(directionsUrl(three).includes("destination_place_id=ChIJ28aBEDHiwogRzv5VMM80mE0"), "a place id still wins the ladder");
 
+// 2b. APPLE, PERMANENTLY (owner, 2026-09-08). The event pages' outbound link is
+//     the Apple ladder: full line first, coordinate second, venue+town third,
+//     null when nothing honest exists. Same rules, different map.
+const appleDir = appleDirectionsUrl({ address: "222 22nd St S", city: "St. Petersburg", state: "FL" });
+ok(appleDir === "https://maps.apple.com/?daddr=222%2022nd%20St%20S%2C%20St.%20Petersburg%2C%20FL&dirflg=d", `Apple gets the full street + town line as daddr with driving preselected (got ${appleDir})`);
+const appleCoord = appleDirectionsUrl({ venue: "Coachman Park", city: "Clearwater", state: "FL", lat: 27.9659, lng: -82.8001 });
+ok(appleCoord === "https://maps.apple.com/?daddr=27.9659,-82.8001&dirflg=d&q=Coachman%20Park", `no street -> the coordinate pair with a literal comma, labelled with the venue (got ${appleCoord})`);
+ok(appleDirectionsUrl({ venue: "Somewhere", city: "Tampa", state: "FL" }) === "https://maps.apple.com/?daddr=Somewhere%2C%20Tampa%2C%20FL&dirflg=d&q=Somewhere", "venue + town is the floor");
+ok(appleDirectionsUrl({ venue: "Only a name" }) === null && appleDirectionsUrl({ lat: 0, lng: 0, venue: "Null", city: "Island" }) !== null && !appleDirectionsUrl({ lat: 0, lng: 0, venue: "Null" }), "no destination -> null (no button); Null Island is never a coordinate destination");
+ok(!/google\./.test(appleDirectionsUrl(three)), "the Apple link never carries a Google host");
+
 // website gate
 ok(websiteUrl({ url: "https://www.3dbrewing.com/events/" }) === "https://www.3dbrewing.com/events/", "https website passes");
 ok(websiteUrl({ url: "javascript:alert(1)" }) === null && websiteUrl({ url: "notaurl" }) === null && websiteUrl(null) === null, "junk never becomes a button");
@@ -56,6 +68,15 @@ const where = read("app/components/EventWhere.js");
 const map = read("app/components/EventVenueMap.js");
 const appleRuntime = read("lib/appleMapsRuntime.js");
 ok(/import EventWhere from/.test(fl) && /<EventWhere/.test(fl), "/florida-events/[slug] renders <EventWhere>");
+ok(/appleDirectionsUrl\(e\)/.test(fl) && /appleDirectionsUrl\(e\)/.test(live), "BOTH event pages build their directions href with appleDirectionsUrl (Apple permanently, owner 2026-09-08)");
+ok(!/[^a-zA-Z]directionsUrl\(/.test(fl) && !/[^a-zA-Z]directionsUrl\(/.test(live), "neither event page calls the Google directions ladder any more");
+const driving0 = read("app/components/EventDrivingRoute.js");
+ok(/Open in Apple Maps/.test(driving0) && !/Google Maps/.test(driving0), "the route controls' outbound link is labelled Apple Maps, and nothing on the event surface says Google Maps");
+ok(/Open in Apple Maps/.test(where) && !/Google/.test(where), "the Where block's outbound button is labelled Apple Maps");
+for (const f of ["lib/eventDrivingRoute.js"]) {
+  let exists = true; try { read(f); } catch { exists = false; }
+  ok(!exists, `${f} (the unused Google Maps Embed directions helper) stays deleted — no Google route surface can return through a side door`);
+}
 ok(/import EventWhere from/.test(live) && /<EventWhere/.test(live), "/events/[city]/[slug] renders <EventWhere>");
 ok(/website=\{site\}/.test(fl) && /website=\{site\}/.test(live), "both pages hand the gated website to the block");
 ok(/eventWebsiteUrl\(e\)/.test(fl), "the curated page gates the website through eventWebsiteUrl");
@@ -70,6 +91,38 @@ ok(!/\/\*/.test(map.slice(map.indexOf("const CSS"), map.indexOf("`;", map.indexO
 //    the pin vocabulary
 ok(!/maps\.googleapis\.com|google\.maps|@googlemaps/.test(map), "the event map never loads Google Maps JS (spend law)");
 ok(/cdn\.apple-mapkit\.com/.test(appleRuntime) && /NEXT_PUBLIC_APPLE_MAPS_TOKEN/.test(map), "event maps load MapKit JS with the domain-restricted public token env");
+
+// 4b. THE TOKEN HAS A CLOCK, AND THE APP CAN READ IT (2026-09-08). #1144 went
+//     live on a portal token with a 7-day exp (2026-09-15) and no origin —
+//     nothing in the repo could tell. lib/appleMapsToken.js reads the JWT
+//     lifetime; the map refuses an expired one before loading MapKit; and
+//     /api/health/apple-maps + the synthetic monitor turn "expires soon" into a
+//     red run on a clock. Executed here with fixture tokens, not regexed.
+const b64u = (o) => Buffer.from(JSON.stringify(o)).toString("base64url");
+const mint = (payload) => `${b64u({ kid: "K", typ: "JWT", alg: "ES256" })}.${b64u(payload)}.sig`;
+const NOW = Date.UTC(2026, 8, 8, 12, 0, 0);
+const sevenDay = mint({ iss: "T", iat: 1788800487, exp: 1789455599, scope: "mapkit_js" }); // the real 09-07 shape: exp 2026-09-15T06:59:59Z, no origin
+const d7 = describeAppleMapsToken(sevenDay, NOW);
+ok(d7.configured && d7.format === "jwt" && d7.expiresAt === "2026-09-15T06:59:59.000Z" && d7.daysLeft === 6 && !d7.expired && !d7.originRestricted, `the 09-07 portal token reads as a 7-day, origin-less JWT (got ${JSON.stringify(d7)})`);
+const h7 = appleMapsTokenHealth(sevenDay, NOW);
+ok(h7.ok && h7.warning && /expires in 6 day/.test(h7.reason), `a token inside the ${APPLE_MAPS_TOKEN_WARN_DAYS}-day window is ok-but-WARNING with a human reason (got ${JSON.stringify({ ok: h7.ok, warning: h7.warning, reason: h7.reason })})`);
+const dead = describeAppleMapsToken(sevenDay, Date.UTC(2026, 8, 16));
+ok(dead.expired && dead.daysLeft < 0 && !appleMapsTokenUsable(sevenDay, Date.UTC(2026, 8, 16)) && !appleMapsTokenHealth(sevenDay, Date.UTC(2026, 8, 16)).ok, "on 2026-09-16 the same token is expired, unusable, and NOT ok");
+const forever = mint({ iss: "T", iat: 1788800487, scope: "mapkit_js", origin: "https://www.gowayfind.com,https://gowayfind.com" });
+const df = describeAppleMapsToken(forever, NOW);
+ok(df.nonExpiring && !df.expired && df.daysLeft === null && df.originRestricted && df.origins.length === 2 && appleMapsTokenHealth(forever, NOW).ok && !appleMapsTokenHealth(forever, NOW).warning, `a non-expiring, domain-restricted token is ok with no warning (got ${JSON.stringify(df)})`);
+const opaque = describeAppleMapsToken("not-a-jwt-but-configured-value-0123456789", NOW);
+ok(opaque.configured && opaque.format === "opaque" && !opaque.expired && appleMapsTokenUsable("not-a-jwt-but-configured-value-0123456789", NOW), "an unreadable token is treated as configured and usable (Apple's format is Apple's; the render check judges it)");
+for (const v of ["", null, undefined, "   "]) ok(!describeAppleMapsToken(v, NOW).configured && describeAppleMapsToken(v, NOW).format === "missing" && !appleMapsTokenUsable(v, NOW), `empty (${JSON.stringify(v)}) is missing, not usable`);
+for (const v of ["placeholder", "your-token-here", "xxx", "changeme", "<paste token>"]) ok(!describeAppleMapsToken(v, NOW).configured && describeAppleMapsToken(v, NOW).format === "placeholder" && appleMapsTokenHealth(v, NOW).reason === "placeholder token", `${JSON.stringify(v)} is a placeholder, not a token`);
+ok(describeAppleMapsToken("a.b.c", NOW).format === "opaque" && describeAppleMapsToken(`${b64u({ alg: "ES256" })}.!!!.sig`, NOW).format === "opaque", "a malformed three-part value never throws and never reads as a JWT");
+ok(/appleMapsTokenUsable\(token\)/.test(appleRuntime) && /appleMapsTokenUsable\(token\)/.test(map), "both the loader and the map refuse an unusable (missing/placeholder/expired) token before MapKit is fetched");
+const healthRoute = read("app/api/health/apple-maps/route.js");
+ok(/appleMapsTokenHealth\(process\.env\.NEXT_PUBLIC_APPLE_MAPS_TOKEN\)/.test(healthRoute) && /force-dynamic/.test(healthRoute) && /no-store/.test(healthRoute), "/api/health/apple-maps reads the shipped token at REQUEST time and is never cached");
+ok(!/process\.env\.NEXT_PUBLIC_APPLE_MAPS_TOKEN\s*[,}]/.test(healthRoute) && !/token:\s*/.test(healthRoute), "the health route describes the token and never echoes it");
+ok(/expiresAt/.test(healthRoute) && /daysLeft/.test(healthRoute) && /originRestricted/.test(healthRoute) && /warning/.test(healthRoute), "the health payload carries the lifetime fields the monitor asserts on");
+const scenarios = read("scripts/lib/synthetic/scenarios.mjs");
+ok(/id: "event-apple-maps"/.test(scenarios) && /\/api\/health\/apple-maps/.test(scenarios) && /mk-map-view/.test(scenarios), "the synthetic monitor owns an event-apple-maps scenario: health endpoint + a REAL MapKit render on a real event page, every 30 minutes");
 ok(!/maplibre|openfreemap/i.test(map), "event maps no longer use the event-only MapLibre/OpenFreeMap surface");
 // PR #1129 review (2026-09-06): the first cut routed through the public OSRM
 // demo server — non-commercial terms, 1 req/s, no uptime promise — and shipped
@@ -111,4 +164,4 @@ if (fail.length) {
   for (const f of fail) console.error("  FAIL: " + f);
   process.exit(1);
 }
-console.log(`check-event-where: OK — ${pass} assertions (address carries the town, both event pages share one Where block with a free map, nearby pins and a separately consented driving preview).`);
+console.log(`check-event-where: OK — ${pass} assertions (address carries the town, both event pages share one Where block with a free Apple map, an Apple outbound link, a token whose clock the app can read, nearby pins and a separately consented driving preview).`);
