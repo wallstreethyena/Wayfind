@@ -133,7 +133,8 @@ async function sourceModule(path, prelude) {
   );
   eq(deniedAuthorizations, 1, "cold photo asks the ledger exactly once");
   eq(deniedFetches, 0, "denied photo budget performs zero paid fetches");
-  eq(denied.type, "empty", "denied uncached catalogued ref does not masquerade as a fetched photo");
+  eq(denied.type, "miss", "denied uncached catalogued ref becomes an honest image miss, not a shared fallback");
+  eq(denied.location, null, "denied uncached catalogued ref has no shared fallback location");
   eq(denied.reason, "spend-denied", "denied cold photo is distinguishable from a place with no photo");
 
   let grantedAuthorizations = 0;
