@@ -146,7 +146,7 @@ function leakSharedFallback() {
     const r = await resolvePlacePhoto({
       ref: p.photoRef, w: 640, gateShut: false, spendAllowed: false, serverKey: "test-key",
     }, deps);
-    ok(r.type === "empty",
+    ok(r.type === "miss" && !r.location,
       p.name + " is cache/inventory-only when the photo ledger is exhausted (got " + (r && r.reason) + ")");
   }
   ok(paidFetches === 0,
@@ -169,8 +169,8 @@ function leakSharedFallback() {
     cacheSet: async () => {},
     fetchOwnedUri: async () => { fail("gateShut must not call Google"); return null; },
   });
-  ok(shut.type === "empty",
-    "WAYFIND_GATE=shut still means zero Google photo calls on a cache/inventory miss");
+  ok(shut.type === "miss" && !shut.location && shut.reason === "gate-shut",
+    "WAYFIND_GATE=shut returns an honest owned-photo miss with zero Google calls");
 }
 
 // ── RENDER three Family house cards, then resolve each <img src>. ──

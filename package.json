@@ -45,7 +45,7 @@
     "@sentry/nextjs": "^10.73.0",
     "@supabase/supabase-js": "^2.45.0",
     "@vercel/functions": "3.9.5",
-    "maplibre-gl": "^6.0.0",
+    "maplibre-gl": "^6.8.0",
     "next": "15.5.25",
     "posthog-js": "^1.161.6",
     "react": "18.3.1",
