@@ -11,6 +11,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60; // v5.04: the OSM warm below fans out over 16 markets
 
+import { resolveOverride } from "../../../lib/envAudit.js";
+
 // v5.35: health canaries hit the canonical domain — the old deployment URL
 // only tested the redirect, not the site (caught by the widened check-canon).
 const CANON = "https://www.gowayfind.com";
@@ -111,16 +113,16 @@ export async function GET(req) {
 
   const failing = checks.filter((c) => !c.ok);
   const lines = [
-    "Wayfind daily digest \u2014 " + dateKey,
+    "Wayfind daily digest — " + dateKey,
     "",
-    "Health: " + (failing.length ? "ISSUES \u2014 " + failing.map((c) => c.name + " (" + c.status + ")").join(", ") : "all checks passing (" + checks.map((c) => c.name).join(", ") + ")"),
+    "Health: " + (failing.length ? "ISSUES — " + failing.map((c) => c.name + " (" + c.status + ")").join(", ") : "all checks passing (" + checks.map((c) => c.name).join(", ") + ")"),
     "Signups: " + (users ? users.confirmed + " confirmed of " + users.total + " total (+" + users.new_24h + " in 24h)" : "needs user_stats SQL function + service key"),
     "Last 24h: " + [
       comments24 != null ? comments24 + " community takes" : "takes n/a",
       shares24 != null ? shares24 + " shared lists" : "shared lists n/a",
       events24 != null ? events24 + " events (shares/saves)" : "events count needs SUPABASE_SERVICE_ROLE_KEY",
-    ].join(" \u00b7 "),
-    "Traffic: PostHog dashboard \u2014 https://us.posthog.com (subscription email covers visitor counts)",
+    ].join(" · "),
+    "Traffic: PostHog dashboard — https://us.posthog.com (subscription email covers visitor counts)",
     ...(osmWarm ? ["OSM warm: " + osmWarm.live + " live / " + osmWarm.cached + " cached / " + osmWarm.missed + " missed of " + osmWarm.total + " markets"] : []),
   ];
   if (notes.length) lines.push("", "Today: " + notes.join(" | "));
@@ -130,12 +132,13 @@ export async function GET(req) {
   const rk = process.env.RESEND_API_KEY;
   if (rk) {
     try {
-      const to = process.env.DIGEST_EMAIL || "gabrielpereira@me.com";
+      const to = resolveOverride("DIGEST_EMAIL").value;
+      const from = resolveOverride("WF_ALERT_FROM").value;
       const r = await fetch("https://api.resend.com/emails", {
         method: "POST",
         cache: "no-store",
         headers: { Authorization: "Bearer " + rk, "Content-Type": "application/json" },
-        body: JSON.stringify({ from: "Wayfind <onboarding@resend.dev>", to: [to], subject: "Wayfind digest \u2014 " + dateKey + (failing.length ? " \u26a0\ufe0f" : " \u2713"), text: body }),
+        body: JSON.stringify({ from, to: [to], subject: "Wayfind digest — " + dateKey + (failing.length ? " ⚠️" : " ✓"), text: body }),
       });
       emailed = r.ok;
     } catch (e) {}
