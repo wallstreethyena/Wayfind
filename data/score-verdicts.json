@@ -1,0 +1,18 @@
+[
+  {
+    "version": 1,
+    "placeId": "ChIJ5ab4TmtAw4gROiDA30SjNWY",
+    "status": "reviewed",
+    "reviewedBy": "codex-source-check",
+    "reviewedAt": "2026-09-06T00:00:00Z",
+    "expiresAt": "2026-09-13T00:00:00Z",
+    "coverage": "venue_information",
+    "sentences": [
+      { "text": "For a casual seafood dinner with old Florida character, the Burns Court location is a strong fit: its own site describes local fish, Southern dishes and a backyard tire swing.", "sourceIds": ["owens-official"] },
+      { "text": "It does not accept reservations and seats parties of up to eight, so choose another option if booking ahead or accommodating a larger group matters.", "sourceIds": ["owens-official"] }
+    ],
+    "sources": [
+      { "id": "owens-official", "placeId": "ChIJ5ab4TmtAw4gROiDA30SjNWY", "title": "Owen's Fish Camp official website", "url": "https://owensfishcamp.com/", "checkedAt": "2026-09-06T00:00:00Z", "expiresAt": "2026-09-13T00:00:00Z", "policyId": "owens-official-facts-20260906" }
+    ]
+  }
+]
