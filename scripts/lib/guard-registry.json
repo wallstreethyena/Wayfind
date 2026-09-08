@@ -13052,7 +13052,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 38,
+      "assertionCount": 56,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
