@@ -51,6 +51,7 @@ export const REQUIRED_FLOWS = Object.freeze([
   "night-out",
   "fall",
   "events",
+  "event-apple-maps",
   "save-share-actions",
   "itinerary-actions",
   "book-links",
@@ -342,6 +343,59 @@ export const SCENARIOS = [
       const railCardCount = await page.locator(".wf-rail-card, .wf-place-card").count().catch(() => 0);
       ctx.ok("the listing rendered at least one real event/place card", railCardCount > 0, "> 0", railCardCount);
       ctx.ok("the listing has substantial body content", bodyText.length > 300, "> 300 chars", bodyText.length);
+    },
+  },
+
+  // ── 7b. the event map is Apple, and it has a clock ───────────────────
+  {
+    id: "event-apple-maps",
+    flow: "event-apple-maps",
+    name: "Apple Maps renders on a real event page and its token is not dying",
+    description: "/api/health/apple-maps must report a configured, unexpired MapKit token with real runway (or no expiry at all), AND a real /florida-events page with venue coordinates must paint an actual Apple MapKit map (.mk-map-view) — not the 'map preview is unavailable' fallback. 2026-09-08: #1144 shipped on a 7-day portal token nothing could see expiring; this is the alarm that fires a fortnight early and on the day, on a clock.",
+    async run(ctx) {
+      // 1. the token's own clock, from the server that ships it
+      const health = await ctx.fetchJson("/api/health/apple-maps");
+      const h = health.json || {};
+      ctx.ok("the Apple Maps health endpoint answered", health.status === 200 || health.status === 503, "200|503", health.status);
+      ctx.ok("a MapKit token is configured on production", h.configured === true, true, h.configured);
+      ctx.ok("the token is not expired", h.expired === false, false, h.expired);
+      ctx.ok("the token is not inside its warning window (install a non-expiring, domain-restricted token)", h.ok === true && h.warning !== true, "ok, no warning", `ok=${h.ok} warning=${h.warning} reason=${h.reason || ""} daysLeft=${h.daysLeft} expiresAt=${h.expiresAt || "none"}`);
+      ctx.note(`token: format=${h.format} nonExpiring=${h.nonExpiring} originRestricted=${h.originRestricted} expiresAt=${h.expiresAt || "none"} daysLeft=${h.daysLeft}`);
+
+      // 2. a real reader's map: a curated Florida event with coordinates
+      const page = await ctx.openPage({ viewport: { width: 1280, height: 900 } });
+      const listUrl = ctx.baseUrl + "/florida-events";
+      await page.goto(listUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
+      ctx.setUrl(listUrl);
+      const hrefs = await page.evaluate(() => [...new Set([...document.querySelectorAll('a[href^="/florida-events/"]')].map((a) => a.getAttribute("href")).filter((h) => /^\/florida-events\/[^/?#]+$/.test(h)))]);
+      ctx.ok("the Florida events listing links to real event pages", hrefs.length > 0, "> 0", hrefs.length);
+
+      // Not every event stores coordinates (an address-only row renders the
+      // Where card with no map, by design). Walk the listing until one page
+      // mounts the map host, then judge THAT page.
+      let mapped = null;
+      for (const href of hrefs.slice(0, 8)) {
+        const url = ctx.baseUrl + href;
+        await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
+        const hosts = await page.locator('[aria-label="Venue map loads as you scroll"], .wfev').count().catch(() => 0);
+        if (hosts > 0) { mapped = url; break; }
+      }
+      ctx.ok("at least one of the first eight event pages carries a venue map (coordinates on record)", !!mapped, "a mapped event", mapped || "none in the first 8");
+      if (!mapped) return;
+      ctx.setUrl(mapped);
+
+      // The map is lazy: scroll its host into view, then wait for MapKit's
+      // own root element, which only exists once Apple accepted the token.
+      await page.locator('[aria-label="Venue map loads as you scroll"], .wfev').first().scrollIntoViewIfNeeded().catch(() => {});
+      let painted = false;
+      try { await page.locator(".wfev .mk-map-view").first().waitFor({ state: "attached", timeout: 25000 }); painted = true; } catch {}
+      ctx.ok("Apple MapKit painted a real map inside the event's map frame (.mk-map-view attached)", painted, true, painted);
+      const fallbackVisible = await page.locator(".wfev-fb").count().catch(() => 0);
+      ctx.ok("the reader is not looking at the 'map preview is unavailable' fallback", fallbackVisible === 0, 0, fallbackVisible);
+      const appleLink = await page.locator('a[href^="https://maps.apple.com/?daddr="]').count().catch(() => 0);
+      ctx.ok("the page's outbound navigation link opens Apple Maps directions", appleLink > 0, "> 0", appleLink);
+      const googleLink = await page.locator('a[href*="google.com/maps"]').count().catch(() => 0);
+      ctx.ok("no Google Maps link remains on the event page", googleLink === 0, 0, googleLink);
     },
   },
 

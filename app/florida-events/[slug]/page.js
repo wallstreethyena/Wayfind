@@ -13,7 +13,7 @@ import { safeUrl } from "../../../lib/links.js";
 import { SITE_URL } from "../../../lib/site";
 import { fetchCuratedEvents, fetchCuratedEventBySlug, eventJsonLd, dateRangeLabel, eventWebsiteUrl } from "../../../lib/curatedEvents";
 import { eventPhotos } from "../../../lib/eventPhotos";
-import { addressLine, directionsUrl } from "../../../lib/placeWhere";
+import { addressLine, appleDirectionsUrl } from "../../../lib/placeWhere";
 import ShareButton from "../../components/ShareButton";
 import SaveEventButton from "./SaveEventButton.js";
 import EventWhere from "../../components/EventWhere";
@@ -222,7 +222,9 @@ export default async function CuratedEventPage({ params }) {
   // anywhere (7 of 89 rows), and the button is simply not rendered — a dead
   // "Directions" that drops you in the middle of a city is worse than none.
   const where = addressLine(e);
-  const dirs = directionsUrl(e);
+  // 2026-09-08 — Apple, permanently (owner): the same ladder addressed to
+  // Apple Maps, matching the in-page MapKit map and its Apple driving route.
+  const dirs = appleDirectionsUrl(e);
   // v8.99 — the venue's own site, gated exactly like every other outbound
   // link on the row (link_ok, quarantine, safeUrl). Rendered as a BUTTON
   // beside directions, not a text link at the foot of the page — owner,
