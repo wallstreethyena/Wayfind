@@ -59,7 +59,7 @@ export async function GET(request) {
     // hold a de-dated event plus none of that day's 21 new ones. The rail cache
     // keeps a good answer for an hour, so without this bump the owner's own
     // Parrish cell would have served the wrong set until it aged out.
-    const key = `fall-intents:v10:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    const key = `fall-intents:v11:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     const cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
