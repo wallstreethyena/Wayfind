@@ -6,10 +6,13 @@
 //   - the quick filters point at deep links the app actually supports
 //   - attribution rides every internal navigation
 //   - /go is noindex and canonicals to the organic page (no cannibalization)
+//   - registered social /go slugs resolve only through governed commerce
+//   - unknown/arbitrary /go slugs are real 404s, never open redirects
 //   - the organic /things-to-do route and its cached search rows are untouched
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+import { resolveGoSlug, GO_SHORTLINKS, RESERVED_GO_SLUGS } from "../lib/goShortlinks.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 let failures = 0;
@@ -21,6 +24,7 @@ const route = read("app/go/[city]/page.js");
 const comp = read("app/components/PaidLanding.js");
 const landing = read("lib/landing.js");
 const organic = read("app/things-to-do/[city]/page.js");
+const shortlinks = read("lib/goShortlinks.js");
 
 /* ── the route ─────────────────────────────────────────────────────────── */
 {
@@ -32,6 +36,53 @@ const organic = read("app/things-to-do/[city]/page.js");
   ok(route.indexOf("PaidLanding") >= 0, "the route renders the interactive experience");
   // Link walls must come after the interactive part in source order.
   ok(route.indexOf("<PaidLanding") < route.indexOf("Read the full ranked guide"), "SEO links render BELOW the interactive experience");
+}
+
+/* ── social /go shortlinks are registry-only and fail closed ───────────── */
+{
+  const known = resolveGoSlug("howl-o-scream");
+  ok(known.kind === "shortlink", "known social slug resolves as a shortlink");
+  ok(known.eventId === "howl-o-scream-tampa-2026", "shortlink names the canonical event, not a duplicated deal/url");
+  ok(typeof known.href === "string" && known.href.startsWith("/api/commerce/go?"), "shortlink resolves only to Wayfind's commerce redirect");
+  const qs = new URLSearchParams(String(known.href || "").split("?")[1] || "");
+  ok(qs.get("provider") === "undercover_tourist", "existing event mapping supplies the provider");
+  ok(qs.get("offer") === "20", "existing event mapping supplies deal 20");
+  ok(qs.get("surface") === "social_shortlink", "social shortlink attribution surface is stamped");
+  ok(qs.get("content") === "howl-o-scream-tampa-2026", "canonical event id rides as content attribution");
+
+  const city = resolveGoSlug("orlando");
+  ok(city.kind === "city" && city.city && city.city.name === "Orlando", "known city still resolves to the paid landing");
+  ok(RESERVED_GO_SLUGS.includes("orlando"), "city slugs are reserved from shortlink registration");
+  ok(!Object.prototype.hasOwnProperty.call(GO_SHORTLINKS, "orlando"), "no shortlink collides with a reserved city");
+
+  for (const probe of [
+    "not-a-real-wayfind-slug",
+    "https://evil.example/phish",
+    "//evil.example/phish",
+    "javascript:alert(1)",
+    "constructor",
+    "__proto__",
+  ]) {
+    const r = resolveGoSlug(probe);
+    ok(r.kind === "not-found", `unregistered/arbitrary input is refused: ${probe}`);
+    ok(!("href" in r), `refused input never receives a redirect href: ${probe}`);
+  }
+
+  // Positive control: the resolver must not be a blanket deny.
+  ok(resolveGoSlug("howl-o-scream").kind !== "not-found", "positive control proves the registry can resolve a real entry");
+  ok(/import\s*\{[^}]*\bnotFound\b[^}]*\bredirect\b[^}]*\}\s*from\s*["']next\/navigation["']/.test(route)
+    || /import\s*\{[^}]*\bredirect\b[^}]*\bnotFound\b[^}]*\}\s*from\s*["']next\/navigation["']/.test(route),
+    "/go route imports both redirect and notFound from next/navigation");
+  ok(/resolved\.kind\s*===\s*["']shortlink["']\)\s*redirect\(resolved\.href\)/.test(route),
+    "known shortlinks redirect server-side through the resolved first-party href");
+  ok((route.match(/resolved\.kind\s*===\s*["']not-found["'][^\n;]*notFound\(\)/g) || []).length >= 2,
+    "unknown slugs call notFound() in metadata and page execution — no soft 404");
+  ok(!/affiliate_url|anrdoezrs\.net|dpbolvw\.net|qksrv\.net|jdoqocy\.com|kqzyfj\.com|emjcd\.com|dotomi\.com/i.test(route),
+    "the /go page source contains no affiliate destination or CJ host");
+  ok(!/affiliate_url|anrdoezrs\.net|dpbolvw\.net|qksrv\.net|jdoqocy\.com|kqzyfj\.com|emjcd\.com|dotomi\.com/i.test(shortlinks),
+    "the social registry contains no affiliate destination or CJ host");
+  ok(!/\b(url|dest|destination|provider|offer|deal)\s*:/.test(JSON.stringify(GO_SHORTLINKS)),
+    "registry entries store only canonical event identity, not redirect material");
 }
 
 /* ── above the fold ────────────────────────────────────────────────────── */
