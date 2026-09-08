@@ -17,6 +17,13 @@
  * pointing Google at the root. Unbounded URL space, and the canonical made all
  * of it look like homepage duplication.
  *
+ * 2026-09-08: /go/[city] had the same class of bug plus a revenue/security
+ * wrinkle. Unknown slugs hand-rendered a "Not found" page with HTTP 200. Social
+ * shortlinks now share that segment, so resolution must stay CLOSED: approved
+ * shortlink first, known landing city second, real notFound() third. The social
+ * registry may name only a canonical event id; it must never hold a raw partner
+ * URL/provider/offer that could turn /go into an open redirect.
+ *
  * WHY THIS IS ITS OWN GUARD: check-canon asserts share-URL shape, and
  * check-og-absolute asserts metadata shape. Both are green on a soft-404 —
  * the page's metadata is perfectly well-formed, it is the STATUS that is wrong.
@@ -63,6 +70,45 @@ for (const { file, key } of CLOSED) {
   }
 }
 
+// /go has TWO closed namespaces (social registry + landing cities), so it cannot
+// use the simple literal-map pattern above. Pin the architecture explicitly.
+{
+  const routeFile = path.join(ROOT, "app/go/[city]/page.js");
+  const registryFile = path.join(ROOT, "lib/goShortlinks.js");
+  if (!existsSync(routeFile)) fails.push("app/go/[city]/page.js: MISSING");
+  if (!existsSync(registryFile)) fails.push("lib/goShortlinks.js: MISSING");
+  if (existsSync(routeFile) && existsSync(registryFile)) {
+    checked++;
+    const route = readFileSync(routeFile, "utf8");
+    const registry = readFileSync(registryFile, "utf8");
+    const cleanRoute = route.replace(/\/\/[^\n]*/g, " ").replace(/\/\*[\s\S]*?\*\//g, " ");
+
+    if (!/import\s*\{[^}]*\bnotFound\b[^}]*\bredirect\b[^}]*\}\s*from\s*["']next\/navigation["']/.test(cleanRoute)
+      && !/import\s*\{[^}]*\bredirect\b[^}]*\bnotFound\b[^}]*\}\s*from\s*["']next\/navigation["']/.test(cleanRoute)) {
+      fails.push("app/go/[city]/page.js: must import both redirect and notFound from next/navigation");
+    }
+    const goMisses = cleanRoute.match(/resolved\.kind\s*===\s*["']not-found["'][^\n;]*notFound\s*\(/g) || [];
+    if (goMisses.length < 2) {
+      fails.push(`app/go/[city]/page.js: unknown /go slug must call notFound() in BOTH metadata and page execution; found ${goMisses.length}`);
+    }
+    if (!/resolved\.kind\s*===\s*["']shortlink["'][^\n;]*redirect\s*\(\s*resolved\.href\s*\)/.test(cleanRoute)) {
+      fails.push("app/go/[city]/page.js: registered social shortlink must server-redirect only to its resolved first-party href");
+    }
+    if (!/"howl-o-scream"\s*:\s*Object\.freeze\(\{\s*eventId:\s*"howl-o-scream-tampa-2026"/.test(registry)) {
+      fails.push("lib/goShortlinks.js: howl-o-scream must resolve through the canonical Howl-O-Scream Tampa event id");
+    }
+    if (!/eventTicketHref\(entry\.eventId,\s*\{\s*surface:\s*"social_shortlink"\s*\}\)/.test(registry)) {
+      fails.push("lib/goShortlinks.js: social slug must reuse eventTicketHref with surface=social_shortlink");
+    }
+    if (/affiliate_url|anrdoezrs\.net|dpbolvw\.net|qksrv\.net|jdoqocy\.com|kqzyfj\.com|emjcd\.com|dotomi\.com/i.test(route + registry)) {
+      fails.push("/go route/registry: raw affiliate URL material must never reach the page or social registry");
+    }
+    if (/\b(?:url|dest|destination|provider|offer|deal)\s*:/.test(registry.replace(/\/\/[^\n]*/g, " ").replace(/\/\*[\s\S]*?\*\//g, " "))) {
+      fails.push("lib/goShortlinks.js: registry entries may store canonical event identity only — no URL/provider/offer/deal fields");
+    }
+  }
+}
+
 // POSITIVE CONTROL: if the pattern matches nothing, this guard proves nothing.
 if (checked === 0) {
   console.error("check-soft-404: FAIL — zero routes checked. The CLOSED list is empty or every path is stale.");
@@ -79,4 +125,4 @@ if (fails.length) {
   process.exit(1);
 }
 
-console.log(`check-soft-404: OK — ${checked} closed-key dynamic route(s); unknown keys call notFound() in both generateMetadata and the component`);
+console.log(`check-soft-404: OK — ${checked} closed-key dynamic route(s); unknown keys call notFound() in both entry points; /go social slugs are registry-only and contain no affiliate destination material`);
