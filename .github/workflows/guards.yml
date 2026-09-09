@@ -15,6 +15,12 @@
 # rules, just nowhere left to skip them.
 name: guards
 on:
+  # Recovery path for a PR whose latest head commit was created by
+  # github-actions[bot]. GitHub suppresses workflow recursion for events emitted
+  # by the default GITHUB_TOKEN, which can otherwise leave the required `guards`
+  # check with no runnable job and deadlock auto-merge. Manual dispatch gives the
+  # owner a no-tree-churn escape hatch while preserving the exact same guard job.
+  workflow_dispatch:
   pull_request:
   push:
     branches: [main]
