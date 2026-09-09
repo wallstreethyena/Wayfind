@@ -4,7 +4,7 @@
 // category, the TripAdvisor budget cap, service-only batch fn, cron auth.
 import { readFileSync } from "fs";
 import { nameSim, matchConfidence, bestMatch, sourcesFor, categoriesForSource, SOURCE_CAPS, CONFIDENCE_FLOOR } from "../lib/popularity.js";
-import { popularityAvailability, FETCHERS, primaryTypesForSource, minReviewsForSource, FOURSQUARE_PARKED_REASON } from "../lib/popularity.js";
+import { popularityAvailability, FETCHERS, primaryTypesForSource, minReviewsForSource, FOURSQUARE_PARKED_REASON, FOURSQUARE_PARKED, fetchFoursquare } from "../lib/popularity.js";
 import {
   createWikimediaFetchPolicy,
   retryAfterMs,
@@ -80,6 +80,43 @@ ok(popularityAvailability('foursquare', {}).reason === FOURSQUARE_PARKED_REASON,
     await FETCHERS.wikipedia({ name: 'Siesta Beach', lat: 27.2675, lng: -82.5497 });
     ok(calls > 0, `positive control: the same stub records calls from a LIVE fetcher (got ${calls}) — the zero above is real`);
   } finally { globalThis.fetch = savedFetch; delete process.env.FOURSQUARE_API_KEY; }
+}
+// ── THE SWITCH WORKS IN BOTH DIRECTIONS ────────────────────────────────────
+// A park is only reversible if flipping ONE thing moves BOTH layers. The first
+// version of this failed that: the reason STRING was the switch, availability
+// parked unconditionally without consulting it, and the fetcher gated on the
+// string's truthiness — so emptying it left availability parked while the
+// fetcher resumed calling the API, and deleting it threw ReferenceError. Both
+// were reproduced. These assertions exist so that cannot come back.
+ok(FOURSQUARE_PARKED === true, 'the switch is an explicit boolean and production ships PARKED');
+{
+  const KEY = { FOURSQUARE_API_KEY: 'fixture-key-not-real' };
+  const netCalls = async (parked) => {
+    const savedFetch = globalThis.fetch;
+    let calls = 0;
+    globalThis.fetch = async () => { calls++; return { ok: true, status: 200, json: async () => ({ results: [] }) }; };
+    process.env.FOURSQUARE_API_KEY = 'fixture-key-not-real';
+    try { await fetchFoursquare({ name: 'Anna Maria Oyster Bar', lat: 27.34, lng: -82.53 }, { parked }); }
+    finally { globalThis.fetch = savedFetch; delete process.env.FOURSQUARE_API_KEY; }
+    return calls;
+  };
+  // PARKED (what production runs): neither layer does anything.
+  const parkedAvail = popularityAvailability('foursquare', KEY, { parked: true });
+  ok(parkedAvail.ready === false && parkedAvail.reason === FOURSQUARE_PARKED_REASON,
+    'SWITCH ON: the availability layer parks and names the park');
+  ok((await netCalls(true)) === 0, 'SWITCH ON: the fetcher layer issues ZERO network calls');
+  // ENABLED (the recovery procedure): the SAME single flag revives BOTH layers.
+  const liveAvail = popularityAvailability('foursquare', KEY, { parked: false });
+  ok(liveAvail.ready === true,
+    `SWITCH OFF: a configured Foursquare becomes selectable again (got ${JSON.stringify(liveAvail)}) — this is the one-line recovery, proven by call`);
+  ok((await netCalls(false)) === 1,
+    'SWITCH OFF: the fetcher reaches its real request path — the same flag moves BOTH layers, so they can never disagree');
+  // ...and un-parking must not paper over a genuinely absent key: the original
+  // key-based behaviour has to survive underneath the park, or "reversible"
+  // would mean "reverts to something else".
+  const liveNoKey = popularityAvailability('foursquare', {}, { parked: false });
+  ok(liveNoKey.ready === false && liveNoKey.reason === 'no_key' && liveNoKey.failure === false,
+    `SWITCH OFF: the pre-park key check is intact underneath (got ${JSON.stringify(liveNoKey)}) — the park suspends the provider, it does not replace its logic`);
 }
 // DORMANT, NOT DELETED. Re-enabling must stay a one-line change, so the working
 // Foursquare surfaces and the breaker wiring have to survive this park.
@@ -237,6 +274,22 @@ ok(route.includes("wf_popularity_stale_batch"), "batch = the stalest places, not
   ok(unavailable.calls.length === 1 && unavailable.calls[0].args.p_source === 'wikipedia', 'malformed, retired and quota-held sources select no place work');
   ok(unavailable.pulses.length === 3 && unavailable.pulses.every(p=>p.attempted === 0), 'unavailable sources record no invented provider attempts');
   ok(unavailable.pulses.find(p=>p.job==='popularity:foursquare').failed === 0, 'PARKED: even with the quota breaker HELD, the park answers first and stays a non-failing idle state — a parked provider never pages');
+{
+  // And the CRON body itself, not just the helper: injected with the switch off,
+  // the real selection code must select Foursquare work again.
+  const start = route.indexOf('  const bySourcePlaces = {}');
+  const end = route.indexOf('  // flatten', start);
+  const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
+  const select = new AsyncFunction('db','SOURCES','popularityAvailability','process','breakerOpen','FSQ_BREAKER','recordPulse','categoriesForSource','primaryTypesForSource','minReviewsForSource','BATCH','jobFailed', route.slice(start,end) + '\nreturn {bySourcePlaces,unavailable};');
+  const calls = [];
+  await select({rpc:async (fn,args)=>{calls.push(args.p_source);return {data:[]};}}, Object.keys(FETCHERS),
+    (src, env) => popularityAvailability(src, env, { parked: false }),
+    {env:{YELP_API_KEY:'a'.repeat(128), FOURSQUARE_API_KEY:'fixture'}}, async()=>null, 'foursquare',
+    async()=>{}, categoriesForSource, primaryTypesForSource, minReviewsForSource, 100, ()=>{throw new Error('unexpected')});
+  ok(calls.includes('foursquare') && calls.length === 3,
+    `SWITCH OFF: the REAL cron selection body selects Foursquare work again (sources: ${calls.join(', ')}) — recovery is not just a helper returning true`);
+}
+
   ok(unavailable.pulses.find(p=>p.job==='popularity:yelp').failed === 1, 'malformed key remains a visible preflight failure');
   ok(unavailable.pulses.find(p=>p.job==='popularity:tripadvisor').failed === 0, 'retirement is explicit idle state');
 }
