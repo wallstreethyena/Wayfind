@@ -188,6 +188,8 @@ ok(!claimsAffiliation(index), "the index makes no affiliation claim either");
 const meta = creatorMetadata(FEATURED_CREATOR);
 ok(meta.alternates && typeof meta.alternates.canonical === "string" && meta.alternates.canonical.includes("/creators/"),
    "the page self-canonicals");
+ok(meta.openGraph.images[0].url.includes("/api/og/rail?id=cindy&creator=1&v=23"), "Cindy shares her portrait card rather than the generic homepage image");
+ok(html.includes("← Back to Wayfind"), "Cindy page has a prominent return to the main page");
 ok(meta.title.includes(FEATURED_CREATOR), "the title names the creator");
 ok(creatorMetadata("someone-with-no-page").robots.index === false, "a handle with no page is noindex, never a soft-404 200");
 
@@ -198,7 +200,9 @@ ok(creatorMetadata("someone-with-no-page").robots.index === false, "a handle wit
   ok(html.includes('aria-label="Bradenton videos"'), "city videos render in a labeled horizontal rail");
   ok(html.includes('/api/photo?place='), "video covers request the actual place photo");
   ok(/aria-pressed="true"[^>]*><span>All places/.test(html), "All places is selected on initial render");
-  const { createCreatorAppleMap } = await import("../lib/creatorAppleMap.js");
+  const { createCreatorAppleMap, creatorMapGlyph } = await import("../lib/creatorAppleMap.js");
+  ok(html.includes("Cindy Selects · Video guide"), "creator portrait fallback identifies itself as a video guide, never a venue photo");
+  ok(creatorMapGlyph({ primary_type: "unknown", category: "food" }) !== "•", "an unknown food subtype uses a food symbol, not a generic dot");
   let drawn = [], fitted = [], listener, destroyed = false;
   const mapkit = {
     Map: class { addAnnotations(a) { drawn = a; } showItems(a) { fitted = a; } addEventListener(t, fn) { listener = fn; } removeEventListener() {} destroy() { destroyed = true; } },

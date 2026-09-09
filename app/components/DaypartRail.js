@@ -1530,7 +1530,6 @@ export default function DaypartRail({
                         onError={() => markArtReady(id)}
                       />
                     </picture>
-                    {id === "cindy" ? <span style={{ position: "absolute", inset: "auto 0 0", padding: "70px 22px 24px", background: "linear-gradient(transparent,rgba(7,18,15,.94))", color: "#fff5e4", pointerEvents: "none" }}><span style={{ display: "block", fontSize: 11, letterSpacing: ".18em", fontWeight: 800 }}>CINDY SELECTS</span><strong style={{ display: "block", fontFamily: "Georgia,serif", fontSize: 32, lineHeight: 1.08, marginTop: 10 }}>{r.title}</strong><span style={{ display: "block", fontSize: 13, marginTop: 12 }}>{r.cta} →</span></span> : null}
                     </>
                 );
                 const label = `${r.title} — ${r.short}`;
