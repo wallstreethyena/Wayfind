@@ -42,6 +42,12 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
     ok(spec.known.includes("claude-haiku-4-5") && spec.known.includes("claude-sonnet-5"),
       "the known list covers the default and the documented upgrade (ATLAS_MODEL=claude-sonnet-5)");
   }
+  const sender = VALUE_OVERRIDES.find((o) => o.key === "WF_ALERT_FROM");
+  ok(!!sender, "WF_ALERT_FROM is declared as a value override");
+  if (sender) {
+    ok(sender.fallback === "Wayfind Alerts <alerts@gowayfind.com>", `the alert sender fallback is the verified Wayfind domain (got ${sender.fallback})`);
+    ok(!/resend\.dev/i.test(sender.fallback), "the production alert sender fallback never uses Resend's sandbox domain");
+  }
   // Every override must say what breaks, not just that something might.
   for (const o of VALUE_OVERRIDES) {
     ok(typeof o.consequence === "string" && o.consequence.length > 20,
