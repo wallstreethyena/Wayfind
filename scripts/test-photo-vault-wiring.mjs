@@ -40,9 +40,13 @@
 //      guard → F1 (401 without CRON_SECRET) goes red.
 //   8. app/api/cron/place-photos/route.js: drop the empty-path recordPulse
 //      call → F2 (empty run still pulses honestly) goes red.
+//   9. lib/placePhotoBackfill.js: make describeAtRisk return the old
+//      `at-risk ${taken}/${scanned}` unconditionally → H3/H5/H6 go red.
+//  10. vercel.json: put the at-risk drain back on `50 4 * * *` → H9
+//      (capacity) goes red while every other assertion stays green.
 import { readFileSync } from "node:fs";
 import { findFreePhoto } from "../lib/freePhoto.js";
-import { runBackfill } from "../lib/placePhotoBackfill.js";
+import { runBackfill, describeAtRisk } from "../lib/placePhotoBackfill.js";
 
 let failures = 0;
 const ok = (condition, message) => {
@@ -574,10 +578,188 @@ const PHOTO = (id) => ({
   console.log("test-photo-vault-wiring: Section G OK — the inventory scan pages past the server row cap with a strictly advancing keyset cursor");
 }
 
+// ── SECTION H — THE DRAIN MUST BE FAST ENOUGH TO BEAT THE CLIFF, AND A LOST
+//    WORKLIST MUST NOT READ LIKE AN IDLE ONE ────────────────────────────────
+//
+//   MEASURED AGAINST PRODUCTION, 2026-09-09: wf_photo_at_risk holds 4,967
+//   places with a live Google photo cache row and no active vault row; 4,448
+//   of them have never been decided at all. The earliest cached-photo expiry
+//   is 2026-09-25 — sixteen days out. The cron was ONE run a day at limit=25,
+//   which is 25 decisions a day, which is 178 days to work through 4,448
+//   places. Every place the drain does not reach before its cache row expires
+//   falls back to the compass on a card that had a real photo the day before.
+//   A backfill that cannot finish before the thing it is backfilling expires
+//   is not a slow backfill, it is a decorative one.
+//
+//   H1-H3 pin lib/placePhotoBackfill.js#describeAtRisk (pure). H4-H6 prove the
+//   cron route's pulse note actually goes through it, so the three states stay
+//   distinguishable to an operator reading wf_job_pulse. H7-H10 pin the
+//   SCHEDULE CAPACITY in vercel.json as arithmetic — runs-per-day x the
+//   entry's own limit= — not as a literal schedule string, so any future
+//   schedule that still clears the bar is free to land.
+{
+  // H1-H3 — the three states that used to render byte-identically.
+  {
+    eq(
+      describeAtRisk({ atRiskUnavailable: false, atRiskTaken: 3, atRiskScanned: 1000, source: undefined }),
+      "at-risk 3/1000",
+      "H1: an ordinary combined run reports taken/scanned"
+    );
+    eq(
+      describeAtRisk({ atRiskUnavailable: false, atRiskTaken: 0, atRiskScanned: 0, source: "all" }),
+      "at-risk skipped (source=all)",
+      "H2: a general-only run says it SKIPPED the worklist — it did not find it empty"
+    );
+    const lost = describeAtRisk({ atRiskUnavailable: true, atRiskTaken: 0, atRiskScanned: 0, source: undefined });
+    ok(lost.includes("UNAVAILABLE"), `H3 (THE HEADLINE INVARIANT): a worklist read that FAILED says so out loud (got ${JSON.stringify(lost)})`);
+    ok(lost.includes("wf_photo_at_risk"), "H3: and names the view that could not be read, so the operator knows where to look");
+    ok(
+      describeAtRisk({ atRiskUnavailable: true, atRiskTaken: 0, atRiskScanned: 0, source: "all" }).includes("UNAVAILABLE"),
+      "H3: a failed read OUTRANKS source= — an outage is the more urgent fact even when the caller asked for something narrower"
+    );
+  }
+
+  // H4-H6 — the route's pulse note is built through describeAtRisk, proven by
+  // executing the real route source with doubles (same technique as Section F).
+  {
+    const raw = readFileSync(new URL("../app/api/cron/place-photos/route.js", import.meta.url), "utf8");
+    const stripped = raw.replace(/^import[^;]+;\n/gm, "");
+    const prelude = `
+      const runBackfill = (...a) => globalThis.__wfDrainNoteTest.runBackfill(...a);
+      const describeAtRisk = (...a) => globalThis.__wfDrainNoteTest.describeAtRisk(...a);
+      const recordPulse = (...a) => globalThis.__wfDrainNoteTest.recordPulse(...a);
+      const jobCannotRun = (...a) => { throw new Error("jobCannotRun must not be called: " + a[1]); };
+      const jobFailed = (...a) => { throw new Error("jobFailed must not be called: " + a[1]); };
+    `;
+    const route = await import("data:text/javascript," + encodeURIComponent(prelude + "\n" + stripped));
+
+    const pulses = [];
+    const describeCalls = [];
+    const result = {
+      ok: true, attempted: 3, active: 1, rejected: 2, failed: 0, vaulted: 1, vaultSkipped: 0,
+      scanned: 900, atRiskScanned: 1000, atRiskTaken: 3, atRiskUnavailable: false, atRiskStatus: null,
+      alreadyCovered: 12,
+    };
+    globalThis.__wfDrainNoteTest = {
+      runBackfill: async () => result,
+      // The REAL pure function, not a stub — H1-H3 already pin its behaviour,
+      // so wrapping it here proves the ROUTE calls it (and with what), without
+      // re-encoding its output as a fixture that could drift from the source.
+      describeAtRisk: (arg) => {
+        describeCalls.push(arg);
+        return describeAtRisk(arg);
+      },
+      recordPulse: async (job, stats) => { pulses.push({ job, stats }); return true; },
+    };
+
+    const savedSecret = process.env.CRON_SECRET;
+    const savedUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const savedSvc = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    process.env.CRON_SECRET = "drain-note-secret";
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://drain-note.test.invalid";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "test-key";
+    const hit = (qs) =>
+      route.GET(new Request("https://x/api/cron/place-photos" + qs, { headers: { authorization: "Bearer drain-note-secret" } }));
+
+    // H4 — the ordinary case still reads exactly as it always did. This is
+    // ALSO the positive control for H6's absence assertion: it proves this
+    // note-building path CAN emit an `at-risk <n>/<n>` string at all, so H6's
+    // "must not contain at-risk 0/0" cannot pass merely because the note went
+    // blank or the pulse stopped being filed.
+    await hit("");
+    eq(pulses.length, 1, "H4: the run files exactly one pulse");
+    const okNote = String((pulses[0].stats || {}).note || "");
+    ok(okNote.includes("at-risk 3/1000"), `H4 (positive control): an ordinary run's note carries the taken/scanned pair (got ${JSON.stringify(okNote)})`);
+    eq(describeCalls.length, 1, "H4: the route asked describeAtRisk once — the note is not hand-rolled alongside it");
+    eq(describeCalls[0] && describeCalls[0].atRiskScanned, 1000, "H4: and handed it the worker's real counters");
+
+    // H5 — source=all is reported as a SKIP, not as an empty worklist.
+    pulses.length = 0;
+    describeCalls.length = 0;
+    result.atRiskScanned = 0;
+    result.atRiskTaken = 0;
+    await hit("?source=all");
+    eq(describeCalls[0] && describeCalls[0].source, "all", "H5: the route passes the REQUEST's source= into the note, not the worker's echo of it");
+    ok(String((pulses[0].stats || {}).note || "").includes("skipped (source=all)"), "H5: a general-only run's pulse says the worklist was skipped on purpose");
+
+    // H6 (THE HEADLINE INVARIANT) — a worklist read that failed can no longer
+    // hide behind the same `at-risk 0/0` text an idle or skipped run emits.
+    pulses.length = 0;
+    result.atRiskUnavailable = true;
+    result.atRiskStatus = null;
+    await hit("");
+    const lostNote = String((pulses[0].stats || {}).note || "");
+    ok(lostNote.includes("UNAVAILABLE"), `H6: a lost worklist is named in the pulse an operator actually reads (got ${JSON.stringify(lostNote)})`);
+    ok(!lostNote.includes("at-risk 0/0"), `H6: and is NOT rendered as the idle-run text (got ${JSON.stringify(lostNote)})`);
+    result.atRiskUnavailable = false;
+
+    process.env.CRON_SECRET = savedSecret;
+    process.env.NEXT_PUBLIC_SUPABASE_URL = savedUrl;
+    process.env.SUPABASE_SERVICE_ROLE_KEY = savedSvc;
+    delete globalThis.__wfDrainNoteTest;
+  }
+
+  // H7-H10 — schedule capacity, as arithmetic.
+  {
+    // Deliberately narrow: only the plain "every day" cron shapes this repo
+    // actually uses are understood, and anything else returns null and FAILS
+    // the assertion loudly rather than being silently scored as fast enough.
+    const runsPerDay = (schedule) => {
+      const parts = String(schedule || "").trim().split(/\s+/);
+      if (parts.length !== 5) return null;
+      const [minute, hour, dom, month, dow] = parts;
+      if (dom !== "*" || month !== "*" || dow !== "*") return null;
+      const count = (field, max) => {
+        if (field === "*") return max;
+        const step = /^\*\/(\d+)$/.exec(field);
+        if (step) return Number(step[1]) > 0 ? Math.ceil(max / Number(step[1])) : null;
+        if (/^\d+(,\d+)*$/.test(field)) return field.split(",").length;
+        return null;
+      };
+      const m = count(minute, 60);
+      const h = count(hour, 24);
+      return m == null || h == null ? null : m * h;
+    };
+    eq(runsPerDay("50 4 * * *"), 1, "H7 (self-test): a once-daily schedule is 1 run/day");
+    eq(runsPerDay("35 * * * *"), 24, "H7 (self-test): an hourly schedule is 24 runs/day");
+    eq(runsPerDay("0 */4 * * *"), 6, "H7 (self-test): every-4-hours is 6 runs/day");
+    eq(runsPerDay("30 3 * * 1"), null, "H7 (self-test): a weekday-restricted schedule is refused, never guessed");
+
+    const vercel = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
+    const crons = Array.isArray(vercel.crons) ? vercel.crons : [];
+    const photoCrons = crons.filter((c) => String((c && c.path) || "").startsWith("/api/cron/place-photos"));
+    ok(photoCrons.length >= 2, `H8: vercel.json schedules BOTH place-photos worklists (found ${photoCrons.length})`);
+
+    const atRisk = photoCrons.filter((c) => /[?&]source=at-risk(?:&|$)/.test(c.path));
+    eq(atRisk.length, 1, "H8: exactly one at-risk drain entry — two would double-spend the same worklist against Wikimedia");
+    ok(
+      photoCrons.some((c) => /[?&]source=all(?:&|$)/.test(c.path)),
+      "H8: the general beach/attractions fill is still scheduled — the at-risk drain did not replace it"
+    );
+
+    // THE ARITHMETIC. 4,448 undecided at-risk places on 2026-09-09 against a
+    // 2026-09-25 first expiry: 4448/16 = 278 decisions a day just to break
+    // even, before any new place ever caches a photo. 500 is that with room.
+    const MIN_DECISIONS_PER_DAY = 500;
+    const entry = atRisk[0] || { path: "", schedule: "" };
+    const perRun = Number((/[?&]limit=(\d+)/.exec(entry.path) || [])[1] || 25);
+    const rpd = runsPerDay(entry.schedule);
+    ok(rpd != null, `H9: the at-risk schedule ${JSON.stringify(entry.schedule)} is a shape this guard can score — an unscoreable schedule is not assumed adequate`);
+    const capacity = (rpd || 0) * perRun;
+    ok(
+      capacity >= MIN_DECISIONS_PER_DAY,
+      `H9 (THE HEADLINE INVARIANT): the at-risk drain must clear at least ${MIN_DECISIONS_PER_DAY} decisions/day to finish 4,448 places before the 2026-09-25 cache cliff — ${JSON.stringify(entry.schedule)} x limit=${perRun} is only ${capacity}/day`
+    );
+    ok(perRun <= 100, `H10: and stays inside the route's own limit cap of 100 (got ${perRun}) — a larger number would be silently clamped and quietly halve the capacity this guard just scored`);
+  }
+
+  console.log("test-photo-vault-wiring: Section H OK — a lost at-risk worklist is named in the pulse instead of hiding as `at-risk 0/0`, and the drain is scheduled fast enough to finish before the cache cliff");
+}
+
 if (failures) {
   console.error(`test-photo-vault-wiring: FAIL — ${failures} assertion(s) failed`);
   process.exit(1);
 }
 console.log(
-  "test-photo-vault-wiring: OK — lib/freePhoto.js prefers the vault URL once storage_path is set; lib/placePhotoBackfill.js upserts THEN vaults, records a licence refusal honestly with zero uploads, never re-fetches an already-vaulted place, drains wf_photo_at_risk before the general scan, and app/api/cron/place-photos stays fail-closed and honest on an empty run"
+  "test-photo-vault-wiring: OK — lib/freePhoto.js prefers the vault URL once storage_path is set; lib/placePhotoBackfill.js upserts THEN vaults, records a licence refusal honestly with zero uploads, never re-fetches an already-vaulted place, drains wf_photo_at_risk before the general scan, app/api/cron/place-photos stays fail-closed and honest on an empty run, a LOST at-risk worklist is named in the pulse instead of hiding as `at-risk 0/0`, and vercel.json schedules enough drain capacity to beat the cache cliff"
 );
