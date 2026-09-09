@@ -467,6 +467,8 @@ node scripts/check-creator-video-boost.mjs
 # that made it work cannot be quietly rewired back to the heavy path.
 node scripts/check-creator-signals-fresh.mjs
 node scripts/check-creator-registry-bundle-wall.mjs
+# 2026-09-08 — Supabase must never re-enter the homepage eager static graph.
+node scripts/check-home-eager-supabase.mjs
 # 2026-09-07 — the lean mirror's DATA FORMAT compacted further (positional
 # tuples + a sentinel + an interned platform table, replacing pretty-printed
 # object literals — see scripts/gen-creator-signals.mjs's header). This guard

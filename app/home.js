@@ -88,7 +88,8 @@ import * as Meals from "../lib/meals";
 import * as Radius from "../lib/radius";
 import { isTrueLodging } from "../lib/lodging";
 import * as Fam from "../lib/family";
-import { supabase } from "../lib/supabase";
+import { getSupabase } from "../lib/lazySupabase";
+let supabase = null;
 import { usePlaceProduct } from "../lib/placeProduct";
 // v8: heroRefFromPlaces went with the date-night and hidden-gem hero photo
 // effects — the rail uses owned artwork and the place cards carry their own
@@ -3718,6 +3719,19 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
 // reveals the live community tally.
 
 function PageInner({ initialEvents = null, localEditGuides = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null }) {
+  const [supabaseReady, setSupabaseReady] = useState(false);
+  // PERF 2026-09-08: Supabase is not part of the homepage eager graph. Load it
+  // after hydration, then rerun only effects whose dependency lists were
+  // mechanically amended below because their callbacks actually read it.
+  useEffect(() => {
+    let active = true;
+    getSupabase().then((client) => {
+      if (!active) return;
+      supabase = client;
+      if (client) setSupabaseReady(true);
+    });
+    return () => { active = false; };
+  }, []);
   const [screen, setScreen] = useState("suggested");
   const [cat, setCat] = useState(MAP_DEFAULT_CATEGORY);
   const [wxOpen, setWxOpen] = useState(false); // header weather forecast wheel
@@ -4444,7 +4458,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       if (live && Array.isArray(data)) setPlacePosts(data);
     } catch (e) {} })();
     return () => { live = false; };
-  }, [detail && detail.id]);
+  }, [detail && detail.id, supabaseReady]);
   const [hookDetail, setHookDetail] = useState(null);
   const [viaTours, setViaTours] = useState({});
   // Sheet-local filter: the browse-style SortControl inside every themed list.
@@ -4637,7 +4651,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const onVis = () => { try { if (document.visibilityState === "visible") supabase.auth.getSession(); } catch (e) {} };
     document.addEventListener("visibilitychange", onVis);
     return () => document.removeEventListener("visibilitychange", onVis);
-  }, []);
+  }, [supabaseReady]);
   useEffect(() => {
     try {
       if (!detail || detail._wfPhotosAdded || !detail.name) return;
@@ -4666,7 +4680,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // v6.55: same single-flight scan as loadOffers (fetchOffersOnce already
     // returns normalizeOfferRow-mapped, redeemable rows — the v6.17 shape).
     fetchOffersOnce().then((rows) => setCpnOffers(rows || []), () => {});
-  }, [screen]);
+  }, [screen, supabaseReady]);
   function clipCoupon(c) {
     if (!c || !c.id) return;
     const entry = { c, ts: Date.now() };
@@ -4882,7 +4896,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     })();
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, tasteVer]);
+  }, [user, tasteVer, supabaseReady]);
   function setConsent(v) { setPersonalize(v); try { setLocal("wf_personalize", v); } catch (e) {} if (v === "on") setTasteVer((n) => n + 1); }
   // v6.55: `val` may now be a single raw value OR an array of raw values —
   // the taste panel merges multiple raw Google tags onto one clean chip (see
@@ -4980,7 +4994,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     window.addEventListener("visibilitychange", revalidate);
     window.addEventListener("focus", revalidate);
     return () => { active = false; if (retryTimer) clearTimeout(retryTimer); window.removeEventListener("visibilitychange", revalidate); window.removeEventListener("focus", revalidate); if (sub && sub.subscription) sub.subscription.unsubscribe(); };
-  }, []);
+  }, [supabaseReady]);
 
   // v5.49: the single sign-in gate for every favorite-like persistence action
   // (save, like, dislike, hook-save, share-to-list, coupon-save, custom
@@ -5274,7 +5288,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       } catch {}
     })();
     return () => { cancelled = true; };
-  }, [user]);
+  }, [user, supabaseReady]);
 
   // "Worth the Drive?" feature
   const [detailContext, setDetailContext] = useState(null); // theme that opened the detail ("drive", "gem", etc.)
@@ -5335,7 +5349,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       if (!c || !c.id) return;
       svFolderUpsert("Coupons", { id: "coupon:" + c.id, name: (c.business ? c.business + " — " : "") + c.title, address: c.details || "", types: ["coupon"], rating: null, reviews: 0, lat: null, lng: null, _coupon: c });
     });
-  }, [user, savedCoupons]);
+  }, [user, savedCoupons, supabaseReady]);
   const [communityVotes, setCommunityVotes] = useState({});
   const [searchMode, setSearchMode] = useState(false);
   const [searchLabel, setSearchLabel] = useState("");
@@ -6737,7 +6751,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       })();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [supabaseReady]);
 
   // Part 4 measurement: count one "session" per tab (share_rate denominator) and
   // fire "share_return" if a shared-card visitor is back within 7 days. Both are
@@ -7024,7 +7038,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }, 300);
     return () => { cancelled = true; clearTimeout(_debTimer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cat, sub, vibe, center, searchRadius, searchMode, feedRetry]);
+  }, [cat, sub, vibe, center, searchRadius, searchMode, feedRetry, supabaseReady]);
 
   // Load events when on the Events screen or when the location changes.
   useEffect(() => {
@@ -7156,7 +7170,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // adoption (location refined < 3 km) can revive the very same run.
     return () => { _tok.dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, activeBadge, center]);
+  }, [screen, activeBadge, center, supabaseReady]);
 
   // v4.84 Viator as a real activity source. The freetext endpoint is queried
   // with the resolved METRO name (small towns like Parrish are not Viator
@@ -8277,7 +8291,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       .then(({ data }) => { if (!dead) setGateStatus(typeof data === "string" ? data : null); }, () => { if (!dead) setGateStatus(null); });
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center, user, gateBump]);
+  }, [screen, center, user, gateBump, supabaseReady]);
 
   // Auto-fill coverage for ANY uncovered location (owner: works for the user's
   // searched OR default location — no tap, signed in or not). When the gate says
@@ -8898,7 +8912,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     })();
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [_beachIds.join(",")]);
+  }, [_beachIds.join(","), supabaseReady]);
 
 
   const exploreList = (
