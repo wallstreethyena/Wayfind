@@ -16,6 +16,8 @@ const ALLOW = new Set([
   "app/api/cron/route.js",                        // internal health-metric day key, never user-facing
   "lib/popularity.js",                            // Wikipedia pageviews API date param (YYYYMMDD)
   "lib/commandCenter/sources/travelpayouts.js",   // Travelpayouts API date-range param
+  "lib/photoCoverage.js",                         // pulseVerdict's alert-dedup incident key is spec'd as UTC (re-arms at UTC rollover, matches the wf_job_pulse ran_at clock) — never rendered to a user
+  "lib/photoRepair.js",                            // photosLedgerHasHeadroom keys wf_spend_ledger's `(month, sku)` lookup (amendment A6) off a UTC calendar month, matching the column's own definition — never rendered to a user, never a "today"
 ]);
 const RE = /\.toISOString\(\)\.slice\(0, ?(?:10|7)\)/;
 

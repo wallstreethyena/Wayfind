@@ -40,7 +40,24 @@ export async function GET(req) {
   //
   // Order: exact cache → inventory → fresh SAME-PLACE older cache → ledger →
   // Google. Every recovery read is free, read-only, identity-scoped, and keeps
-  // the source row's remaining expiry instead of minting a fresh 30-day clock.
+  // the source row's remaining expiry instead of minting a fresh 30-day clock
+  // (lib/photoCacheRecovery.js, #1184).
+  //
+  // x-wayfind-photo-result values: cache | inventory | inventory-ref-cache |
+  // google | same-place-cache (redirect, 302) | spend-denied | gate-shut |
+  // probe-no-spend | owned-miss | unconfigured (404 JSON — #1182: a
+  // catalogued ref is not the same thing as a genuinely photoless place, so
+  // the card's own <img> error path renders a per-title monogram instead of
+  // one shared branded SVG) | no-photo (302 to /wf-photo-fallback.svg,
+  // private no-store — genuinely no photo at all for this place).
+  //
+  // probe-no-spend (v8.56.12): a monitor probe (x-wayfind-photo-probe: 1) hit
+  // an uncached ref and never asked the ledger at all — the resolver never
+  // even calls authorizeSpend while probing, so labelling that
+  // "spend-denied" would claim a denial that never happened. It is added to
+  // the recovery-eligible reasons below so a probe still sees a free
+  // same-place recovery exactly like a real denied/shut/unconfigured reader
+  // would.
   const { searchParams } = new URL(req.url);
   const ref = searchParams.get("ref") || "";
   const place = searchParams.get("place") || "";
@@ -53,6 +70,12 @@ export async function GET(req) {
   }
 
   const shut = gateShut();
+  // A probe (scripts/photo-monitor.mjs) sees cache/inventory/recovery truth
+  // WITHOUT taking a photos grant. Unauthenticated on purpose: the header can
+  // only ever DENY spend, never grant it — lib/placePhotoServe's resolver
+  // never even calls authorizeSpend while probing, so this is provable by
+  // call count, not merely "asked and denied".
+  const probe = req.headers.get("x-wayfind-photo-probe") === "1";
   const recoveryPlaceId = placeIdFromRef(ref) || (PLACE_RX.test(place) ? place : "");
   let recoveryPromise = null;
   const getRecovery = () => {
@@ -68,6 +91,7 @@ export async function GET(req) {
     place,
     w,
     gateShut: shut,
+    probe,
     // Ask the ledger only after resolvePlacePhoto has missed both the exact
     // shared cache and inventory. Immediately before a real spend, give the
     // existing cache one identity-scoped chance to reuse an older ref for this
@@ -86,15 +110,17 @@ export async function GET(req) {
       headers: {
         "Cache-Control": result.cacheControl || ("public, max-age=" + THIRTY_DAYS + ", s-maxage=" + THIRTY_DAYS + ", immutable"),
         "x-wayfind-photo-result": result.reason || "redirect",
+        "x-wayfind-photo-probe": probe ? "1" : "0",
       },
     });
   }
 
-  // `gate-shut` and `unconfigured` stop before authorizeSpend runs. A budget
-  // denial with a recovery hit returns `spend-denied` because the wrapper above
-  // deliberately refused the grant. In all three cases, serve only a fresh
-  // same-place cached photo if one exists. This never writes or calls Google.
-  if (result.type === "miss" && ["spend-denied", "gate-shut", "unconfigured"].includes(result.reason)) {
+  // `gate-shut`, `unconfigured` and `probe-no-spend` stop before authorizeSpend
+  // runs (or, for a probe, never reach it at all). A budget denial with a
+  // recovery hit returns `spend-denied` because the wrapper above deliberately
+  // refused the grant. In every case, serve only a fresh same-place cached
+  // photo if one exists. This never writes or calls Google.
+  if (result.type === "miss" && ["spend-denied", "gate-shut", "unconfigured", "probe-no-spend"].includes(result.reason)) {
     const recovery = await getRecovery();
     if (recovery && recovery.uri) {
       return NextResponse.redirect(recovery.uri, {
@@ -102,6 +128,7 @@ export async function GET(req) {
         headers: {
           "Cache-Control": recovery.cacheControl,
           "x-wayfind-photo-result": "same-place-cache",
+          "x-wayfind-photo-probe": probe ? "1" : "0",
         },
       });
     }
@@ -110,14 +137,28 @@ export async function GET(req) {
   if (result.type === "empty") {
     return NextResponse.redirect(new URL(FALLBACK_PATH, req.url), {
       status: 302,
-      headers: { "Cache-Control": "private, no-store", "x-wayfind-photo-result": result.reason || "no-photo" },
+      headers: {
+        "Cache-Control": "private, no-store",
+        "x-wayfind-photo-result": result.reason || "no-photo",
+        "x-wayfind-photo-probe": probe ? "1" : "0",
+      },
     });
   }
 
-  // Owned ref whose bytes we could not fetch (stale, no key, upstream).
-  // 404 — not a shared SVG. Distinct refs stay distinct finals.
+  // Owned ref whose bytes we could not fetch (stale, no key, upstream) — or
+  // #1182's honest miss for a denied/shut/unconfigured/probed catalogued ref
+  // with no free recovery available. 404, not a shared SVG: the card's own
+  // <img> error path renders its title-specific monogram, and distinct refs
+  // stay distinct finals.
   return NextResponse.json(
     { error: "no photo" },
-    { status: 404, headers: { "Cache-Control": "private, no-store", "x-wayfind-photo-result": result.reason || "owned-miss" } }
+    {
+      status: 404,
+      headers: {
+        "Cache-Control": "private, no-store",
+        "x-wayfind-photo-result": result.reason || "owned-miss",
+        "x-wayfind-photo-probe": probe ? "1" : "0",
+      },
+    }
   );
 }

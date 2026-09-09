@@ -120,6 +120,10 @@
     {
       "path": "/api/cron/revenue-heartbeat",
       "schedule": "5 */3 * * *"
+    },
+    {
+      "path": "/api/cron/photo-repair",
+      "schedule": "20 4 * * *"
     }
   ]
 }
