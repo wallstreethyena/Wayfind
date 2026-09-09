@@ -44,7 +44,18 @@
 // even naming it plainly in a comment here would trip that guard).
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
+// 300s, with the worker held to WORK_BUDGET_MS below it. The two numbers are a
+// pair: the platform ceiling is what the function is ALLOWED, the budget is
+// what the worker will USE, and the gap between them is the room the run needs
+// to finish its in-flight candidates, write their rows, and file its pulse. A
+// ceiling without a budget is just a longer silence — see the 504 described in
+// lib/placePhotoBackfill.js's `deadlineAt`.
+export const maxDuration = 300;
+
+// 45s of headroom under maxDuration. Sized for the worst tail this route has:
+// the last POOL_SIZE candidates already in flight when the budget expires, each
+// possibly mid-Commons-download, plus their upserts and the pulse write.
+const WORK_BUDGET_MS = 255_000;
 
 import { runBackfill, describeAtRisk } from "../../../../lib/placePhotoBackfill";
 import { recordPulse } from "../../../../lib/jobPulse";
@@ -59,6 +70,7 @@ export async function GET(req) {
   const svc = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
   if (!url || !svc) return jobCannotRun("place-photos", "SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL is missing");
 
+  const startedAt = Date.now();
   const u = new URL(req.url);
   const limit = Math.max(1, Math.min(100, Number(u.searchParams.get("limit")) || 25));
   const scanLimit = Math.max(1, Math.min(5000, Number(u.searchParams.get("scan")) || 1000));
@@ -67,7 +79,7 @@ export async function GET(req) {
 
   let result;
   try {
-    result = await runBackfill({ limit, scanLimit, source, sbEnv: { url: /^https?:\/\//i.test(url) ? url : "https://" + url, key: svc } });
+    result = await runBackfill({ limit, scanLimit, source, deadlineAt: startedAt + WORK_BUDGET_MS, sbEnv: { url: /^https?:\/\//i.test(url) ? url : "https://" + url, key: svc } });
   } catch (e) {
     return jobFailed("place-photos", "worker threw: " + (e && e.message ? e.message : String(e)));
   }
@@ -77,7 +89,7 @@ export async function GET(req) {
     ? `place-photos: table unavailable (${result.tableStatus != null ? result.tableStatus : "error"})`
     : result.note
       ? `place-photos: ${result.note}`
-      : `place-photos: ${result.active} active (${result.vaulted || 0} vaulted), ${result.rejected} rejected, ${result.failed} failed, ${result.deferred || 0} deferred (${describeAtRisk({ ...result, source })}, general scanned ${result.scanned}, ${result.alreadyCovered} already covered)`;
+      : `place-photos: ${result.active} active (${result.vaulted || 0} vaulted), ${result.rejected} rejected, ${result.failed} failed, ${result.deferred || 0} deferred${result.partial ? ` — PARTIAL: stopped on its own ${Math.round(WORK_BUDGET_MS / 1000)}s budget with ${result.deadlineStopped} candidate(s) unstarted` : ""} (${describeAtRisk({ ...result, source })}, general scanned ${result.scanned}, ${result.alreadyCovered} already covered)`;
 
   if (!result.tableUnavailable && result.attempted > 0 && result.failed === result.attempted) {
     return jobFailed("place-photos", note, { attempted: result.attempted, succeeded: 0 });

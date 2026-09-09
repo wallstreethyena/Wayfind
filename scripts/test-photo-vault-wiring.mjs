@@ -944,10 +944,218 @@ const PHOTO = (id) => ({
   console.log("test-photo-vault-wiring: Section I OK — an unobservable Wikimedia answer is deferred, never written as a permanent rejection; an open backoff window starts no candidates at all; and deferrals do not page the owner while real failures still do");
 }
 
+// ── SECTION J — THE RUN MUST END BY CHOOSING TO STOP, NEVER BY BEING KILLED ──
+//
+//   MEASURED IN PRODUCTION, 2026-09-09. The first scheduled hourly run after
+//   v8.56.14 returned **504** and wrote NOTHING — no pulse, no decisions, no
+//   trace but a Vercel status code. `maxDuration` was 60s; 25 candidates, each
+//   up to four Wikimedia calls at POOL_SIZE 2 plus a full-resolution Commons
+//   download and upload per hit, on top of an at-risk view read measured at
+//   4.7s warm / 12.4s cold, does not fit. The platform killed the function
+//   mid-flight, and because the route does not pulse until runBackfill
+//   RETURNS, the job could not report that it had been killed. The capacity
+//   fix was delivering 0 decisions an hour, invisibly, while every dashboard
+//   showed a healthy schedule.
+//
+//   Raising maxDuration alone buys the same silent failure a bigger clock.
+//   What is pinned here is the PAIR: a platform ceiling, and a budget the
+//   worker owns strictly inside it, so the run always ends on its own terms
+//   and always gets to say what it finished.
+{
+  const mkPlaces = (n, prefix) =>
+    Array.from({ length: n }, (_, i) => ({ place_id: `${prefix}${String(i).padStart(4, "0")}xxxxxxxxxx`, name: `P${i}`, category: "beach" }));
+
+  // J1 — a budget that has ALREADY expired starts nothing and says so.
+  {
+    const places = mkPlaces(5, "jdead");
+    const db = makeDb({ atRisk: places });
+    let started = 0;
+    const result = await runBackfill({
+      limit: 25,
+      sbEnv: SB,
+      deadlineAt: Date.now() - 1,
+      resolvePhoto: async () => { started++; return null; },
+      storePhoto: null,
+      dryRun: false,
+    });
+    db.restore();
+    eq(started, 0, "J1 (THE HEADLINE INVARIANT): with the budget already spent, ZERO candidates are started — proven by call count on the resolver");
+    eq(db.upsertCalls.length, 0, "J1: and zero rows are written");
+    eq(result.deadlineStopped, 5, "J1: every candidate is recorded as unstarted-on-deadline");
+    eq(result.attempted, 0, "J1: `attempted` excludes them — a place we never looked at was not attempted");
+    eq(result.partial, true, "J1: and the run reports itself PARTIAL, so no caller can read it as a complete drain");
+    eq(result.skipped, 0, "J1: a deadline stop is not misreported as a Wikimedia backoff skip — the operator's next move differs for each");
+    ok((result.details || []).every((d) => d.outcome !== "unstarted" || d.reason === "deadline"), "J1: each unstarted entry names the deadline as its reason");
+  }
+
+  // J2 — a budget that expires PART WAY THROUGH keeps everything already
+  // finished and leaves the rest untouched. This is the resumability
+  // precondition: unstarted places get no row, so they stay in the worklist.
+  {
+    const places = mkPlaces(8, "jpart");
+    const db = makeDb({ atRisk: places });
+    const started = [];
+    const result = await runBackfill({
+      limit: 25,
+      sbEnv: SB,
+      deadlineAt: Date.now() + 60,
+      resolvePhoto: async (place, deps) => {
+        started.push(place.place_id);
+        await new Promise((r) => setTimeout(r, 45));
+        deps.onReject("no_lead_image"); // a DEFINITIVE miss: writes a real row
+        return null;
+      },
+      storePhoto: null,
+      dryRun: false,
+    });
+    db.restore();
+
+    ok(started.length > 0, `J2: work did begin before the budget expired (started ${started.length})`);
+    ok(result.deadlineStopped > 0, `J2: and the budget did expire mid-run (stopped ${result.deadlineStopped})`);
+    eq(started.length + result.deadlineStopped, places.length, "J2: every candidate is accounted for — started or explicitly unstarted, never silently dropped");
+    eq(db.upsertCalls.length, started.length, "J2 (THE HEADLINE INVARIANT): every candidate that STARTED still had its row written — an in-flight candidate is allowed to finish, not aborted");
+    eq(result.rejected, started.length, "J2: and its decision is counted");
+    eq(result.attempted, started.length, "J2: `attempted` equals the work actually done");
+    eq(result.partial, true, "J2: the run is PARTIAL");
+    const unstartedIds = (result.details || []).filter((d) => d.outcome === "unstarted").map((d) => d.placeId);
+    ok(unstartedIds.every((id) => !db.upsertCalls.some((r) => r.place_id === id)), "J2: NO row exists for any unstarted place — which is precisely what leaves it in the worklist for the next run");
+  }
+
+  // J3 — resumability, proven by running twice. The second run sees the first
+  // run's rows as already-decided and works on exactly what was left.
+  {
+    const places = mkPlaces(6, "jresu");
+    const db1 = makeDb({ atRisk: places });
+    const run1 = await runBackfill({
+      limit: 25,
+      sbEnv: SB,
+      deadlineAt: Date.now() + 55,
+      resolvePhoto: async (_p, deps) => { await new Promise((r) => setTimeout(r, 40)); deps.onReject("no_lead_image"); return null; },
+      storePhoto: null,
+      dryRun: false,
+    });
+    const decidedInRun1 = db1.upsertCalls.map((r) => r.place_id);
+    db1.restore();
+    ok(run1.deadlineStopped > 0, "J3 (setup): run 1 genuinely stopped short");
+
+    // Run 2: same worklist, but the db now holds run 1's decisions.
+    const db2 = makeDb({ atRisk: places, existingRows: decidedInRun1.map((place_id) => ({ place_id })) });
+    const started2 = [];
+    const run2 = await runBackfill({
+      limit: 25,
+      sbEnv: SB,
+      resolvePhoto: async (place, deps) => { started2.push(place.place_id); deps.onReject("no_lead_image"); return null; },
+      storePhoto: null,
+      dryRun: false,
+    });
+    db2.restore();
+
+    eq(started2.length, places.length - decidedInRun1.length, "J3 (THE HEADLINE INVARIANT): run 2 picks up exactly the candidates run 1 never started — no work is lost and none is redone");
+    ok(started2.every((id) => !decidedInRun1.includes(id)), "J3: and it re-decides none of run 1's places (the one-shot-write invariant still holds across a partial run)");
+    eq(run2.partial, false, "J3: run 2, given no budget, reports a complete pass");
+    eq(run2.deadlineStopped, 0, "J3: with nothing left unstarted");
+  }
+
+  // J4 — the route: it must DECLARE a platform ceiling, HOLD the worker to a
+  // strictly smaller budget, actually pass that budget down (asserted on the
+  // CALL, not on the source text), and still pulse on a partial run.
+  {
+    const raw = readFileSync(new URL("../app/api/cron/place-photos/route.js", import.meta.url), "utf8");
+    const maxMatch = /export const maxDuration = (\d+);/.exec(raw);
+    const budgetMatch = /const WORK_BUDGET_MS = ([\d_]+);/.exec(raw);
+    ok(!!maxMatch, "J4: the route declares an explicit maxDuration");
+    ok(!!budgetMatch, "J4: and an explicit WORK_BUDGET_MS the worker is held to");
+    const maxMs = Number(maxMatch ? maxMatch[1] : 0) * 1000;
+    const budgetMs = Number((budgetMatch ? budgetMatch[1] : "0").replace(/_/g, ""));
+    ok(
+      budgetMs > 0 && budgetMs < maxMs,
+      `J4 (THE HEADLINE INVARIANT): the worker's budget (${budgetMs}ms) must sit strictly INSIDE the platform ceiling (${maxMs}ms) — a ceiling without a budget is just a longer silence`
+    );
+    ok(
+      maxMs - budgetMs >= 30_000,
+      `J4: with at least 30s of headroom for in-flight candidates, their writes and the pulse (got ${maxMs - budgetMs}ms)`
+    );
+
+    const stripped = raw.replace(/^import[^;]+;\n/gm, "");
+    const prelude = `
+      const runBackfill = (...a) => globalThis.__wfDeadlineTest.runBackfill(...a);
+      const describeAtRisk = (...a) => globalThis.__wfDeadlineTest.describeAtRisk(...a);
+      const recordPulse = (...a) => globalThis.__wfDeadlineTest.recordPulse(...a);
+      const jobCannotRun = (...a) => { throw new Error("jobCannotRun must not fire: " + a[1]); };
+      const jobFailed = (...a) => { throw new Error("jobFailed must not fire: " + a[1]); };
+    `;
+    const route = await import("data:text/javascript," + encodeURIComponent(prelude + "\n" + stripped));
+    const pulses = [];
+    let seenArgs = null;
+    globalThis.__wfDeadlineTest = {
+      runBackfill: async (args) => {
+        seenArgs = args;
+        return {
+          ok: true, attempted: 4, active: 0, rejected: 4, failed: 0, deferred: 0, vaulted: 0,
+          vaultSkipped: 0, scanned: 0, atRiskScanned: 1000, atRiskTaken: 4, atRiskUnavailable: false,
+          alreadyCovered: 0, deadlineStopped: 21, partial: true,
+        };
+      },
+      describeAtRisk,
+      recordPulse: async (job, stats) => { pulses.push({ job, stats }); return true; },
+    };
+    const savedSecret = process.env.CRON_SECRET;
+    const savedUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const savedSvc = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    process.env.CRON_SECRET = "deadline-test-secret";
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://deadline.test.invalid";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "test-key";
+
+    const before = Date.now();
+    const res = await route.GET(new Request("https://x/api/cron/place-photos?source=at-risk", { headers: { authorization: "Bearer deadline-test-secret" } }));
+    const after = Date.now();
+
+    eq(res.status, 200, "J4: a partial run still answers 200 — it is a short run, not a failure");
+    ok(seenArgs && typeof seenArgs.deadlineAt === "number", "J4: the route PASSES deadlineAt down to the worker (asserted on the call, not on the source text)");
+    ok(
+      seenArgs.deadlineAt >= before + budgetMs - 1000 && seenArgs.deadlineAt <= after + budgetMs,
+      `J4: and it is WORK_BUDGET_MS from the request's own start, not a constant or a far-future value (got ${seenArgs && seenArgs.deadlineAt}, expected ~${before + budgetMs})`
+    );
+    eq(pulses.length, 1, "J4 (THE OTHER HEADLINE INVARIANT): a partial run STILL files its pulse — the 504 wrote nothing at all, which is what made it invisible");
+    const note = String((pulses[0].stats || {}).note || "");
+    ok(note.includes("PARTIAL"), `J4: and the note says so out loud (got ${JSON.stringify(note)})`);
+    ok(note.includes("21"), "J4: naming how many candidates were left unstarted");
+    eq(pulses[0].stats.attempted, 4, "J4: the pulse reports the work actually done, not the batch it was handed");
+
+    process.env.CRON_SECRET = savedSecret;
+    process.env.NEXT_PUBLIC_SUPABASE_URL = savedUrl;
+    process.env.SUPABASE_SERVICE_ROLE_KEY = savedSvc;
+    delete globalThis.__wfDeadlineTest;
+  }
+
+  // J5 (POSITIVE CONTROL) — with no budget given, nothing changes. The CLI
+  // runs this way on purpose (no platform ceiling to sit inside), so a bug
+  // that made every run look partial would be caught here rather than in
+  // production.
+  {
+    const places = mkPlaces(3, "jnobu");
+    const db = makeDb({ atRisk: places });
+    const result = await runBackfill({
+      limit: 25,
+      sbEnv: SB,
+      resolvePhoto: async (_p, deps) => { deps.onReject("no_lead_image"); return null; },
+      storePhoto: null,
+      dryRun: false,
+    });
+    db.restore();
+    eq(result.deadlineStopped, 0, "J5 (positive control): with no deadlineAt, nothing is stopped");
+    eq(result.partial, false, "J5: and the run is not reported partial");
+    eq(result.attempted, 3, "J5: every candidate is attempted");
+    eq(db.upsertCalls.length, 3, "J5: and every decision is written");
+  }
+
+  console.log("test-photo-vault-wiring: Section J OK — the run stops on its own budget inside the platform ceiling, finishes what it started, writes those rows, always pulses, reports PARTIAL honestly, and the next run picks up exactly what was left");
+}
+
 if (failures) {
   console.error(`test-photo-vault-wiring: FAIL — ${failures} assertion(s) failed`);
   process.exit(1);
 }
 console.log(
-  "test-photo-vault-wiring: OK — lib/freePhoto.js prefers the vault URL once storage_path is set; lib/placePhotoBackfill.js upserts THEN vaults, records a licence refusal honestly with zero uploads, never re-fetches an already-vaulted place, drains wf_photo_at_risk before the general scan, app/api/cron/place-photos stays fail-closed and honest on an empty run, a LOST at-risk worklist is named in the pulse instead of hiding as `at-risk 0/0`, vercel.json schedules enough drain capacity to beat the cache cliff, and an unobservable Wikimedia answer is deferred rather than written as a permanent rejection"
+  "test-photo-vault-wiring: OK — lib/freePhoto.js prefers the vault URL once storage_path is set; lib/placePhotoBackfill.js upserts THEN vaults, records a licence refusal honestly with zero uploads, never re-fetches an already-vaulted place, drains wf_photo_at_risk before the general scan, app/api/cron/place-photos stays fail-closed and honest on an empty run, a LOST at-risk worklist is named in the pulse instead of hiding as `at-risk 0/0`, vercel.json schedules enough drain capacity to beat the cache cliff, an unobservable Wikimedia answer is deferred rather than written as a permanent rejection, and the cron run stops on its own budget inside the platform ceiling instead of being killed at 504 with nothing written"
 );
