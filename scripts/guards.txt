@@ -1409,3 +1409,9 @@ node scripts/test-beach-alert-recovery.mjs
 node scripts/test-editorial-retry-content.mjs
 
 node scripts/test-photo-queue-batch.mjs
+
+# Dated local flags must match the beach and remain fresh at request time.
+node scripts/test-beach-local-conditions.mjs
+
+# Reviewed source-backed prose fills only verified empty editorial slots.
+node scripts/test-owned-editorial-review.mjs

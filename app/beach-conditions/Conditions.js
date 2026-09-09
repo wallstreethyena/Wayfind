@@ -29,15 +29,27 @@ export default function Conditions({ initialSlug = 'coquina' }) {
   }, [slug]);
   const beach = BEACH_PILOT.find(b => b.slug === slug);
   const local = localBeachSources(beach);
+  const localReport = data?.localConditions;
+  const localCurrent = localReport?.age === 'current';
+  const localFlag = localCurrent ? localReport.flagLabel : 'Unknown';
+  const waterClosure = localCurrent && localReport.waterClosure === 'closed' ? 'Closed' : 'Unknown';
+  let localStatus;
+  if (!beach.visitBeachId) localStatus = 'Wayfind cannot verify when the linked local report was submitted, so its flag and closure details stay Unknown here.';
+  else if (!data) localStatus = error ? 'The dated local report is unavailable. Open the official report before you travel.' : 'Checking the dated local report…';
+  else if (data.sources.local.status !== 'available') localStatus = 'The dated Mote / Visit Beaches report is unavailable. Open the official report before you travel.';
+  else if (localReport.age === 'stale') localStatus = `The latest Mote / Visit Beaches report was submitted ${stamp(localReport.reportedAt)}, but it is from another local day or more than 12 hours old, so Wayfind shows Unknown.`;
+  else if (!localReport.reportedAt) localStatus = 'Mote / Visit Beaches returned no dated report for this beach, so Wayfind shows Unknown.';
+  else if (!localCurrent || localReport.flag === 'unknown') localStatus = `The latest Mote / Visit Beaches report${localReport.reportedAt ? `, submitted ${stamp(localReport.reportedAt)},` : ''} did not include a usable current flag.`;
+  else localStatus = `Mote / Visit Beaches report ${localReport.reportId}, submitted ${stamp(localReport.reportedAt)}. Retrieved by Wayfind ${stamp(data.sources.local.retrievedAt)}.`;
   const forecastUrl = `https://forecast.weather.gov/MapClick.php?lat=${beach.lat}&lon=${beach.lng}`;
   return <>
     <label className="beach-label" htmlFor="pilot-beach">Choose a beach</label>
     <select id="pilot-beach" value={slug} onChange={e => setSlug(e.target.value)}>{BEACH_PILOT.map(b => <option key={b.slug} value={b.slug}>{b.name}</option>)}</select>
     <div className="notice"><strong>Look, listen, and follow lifeguard instructions.</strong><p>If you hear thunder, get into a substantial building or enclosed vehicle. Remain sheltered for at least 30 minutes after the last thunder. An expired warning does not start that clock. <a href={BEACH_SOURCES.lightning}>NWS guidance ↗</a></p></div>
     <section className="evidence local-conditions"><h2>Local flags & closures</h2>
-      <p className="unknown">Current flag: Unknown · Closure status: Unknown.</p>
+      <p className="unknown">Latest reported flag: {localFlag} · Water closure: {waterClosure} · Beach closure: Unknown.</p>
       <p>{local.instructions}</p>
-      <p>Live local flags are not connected to Wayfind yet. Open the local report before you travel.</p>
+      <p>{localStatus}</p>
       <div className="local-links"><a href={local.conditionsUrl} target="_blank" rel="noreferrer">Check local beach report ↗</a><a href={local.url} target="_blank" rel="noreferrer">{local.title} ↗</a></div>
     </section>
     {!data ? <p role="status">{error ? 'Conditions unavailable. Check the official sources and local beach signs before you go.' : 'Loading official beach evidence…'}</p> : <>
@@ -46,7 +58,7 @@ export default function Conditions({ initialSlug = 'coquina' }) {
       </div>
       <div className="evidence-grid">
         <Source title="Weather outlook" href={forecastUrl} source={data.sources.weather}>
-          <p>{data.better ? `Lower forecast rain chance around ${stamp(data.better.start)}: ${data.better.rain}%.` : 'No better forecast period identified from the available evidence.'}</p>
+          <p>{data.sources.weather.age === 'stale' ? 'Unknown. The NWS forecast issuance is older than six hours.' : data.sources.weather.age !== 'current' ? 'Unknown. A current NWS forecast is unavailable.' : data.better ? `Lower forecast rain chance around ${stamp(data.better.start)}: ${data.better.rain}%.` : 'No better forecast period identified from the current available evidence.'}</p>
           <p className="muted">Forecast issued: {stamp(data.sources.weather.issuedAt)}. Forecast periods are not swimming clearance.</p>
           {data.periods.length > 0 && <details><summary>Hourly forecast</summary><ul>{data.periods.slice(0,12).map(p => <li key={p.start}>{stamp(p.start)}: {p.summary}; rain {p.rain === null ? 'Unknown' : p.rain + '%'}; wind {p.wind}.</li>)}</ul></details>}
         </Source>
