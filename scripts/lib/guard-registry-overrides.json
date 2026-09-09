@@ -559,5 +559,13 @@
       "detail": "A regression could bypass finite autocomplete budgets or disguise a denied provider as successful empty search suggestions."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/check-affiliate-opportunity-refresh.mjs": {
+    "protects": "A monetization opportunity seen again is recorded as seen again: the Atlas writer goes through the atomic wf_affiliate_opportunity_seen RPC, so hits increments, last_seen_at refreshes and resolved_at clears, first_seen_at never moves, the function stays revoked from anon/authenticated, and the route reports the database's own effect counts rather than the size of the batch it sent.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "Measured on production 2026-09-08: the queue's only writer used PostgREST resolution=ignore-duplicates, which SKIPS an existing row. All 63 rows sat at hits=1, frozen at first_seen_at = last_seen_at = 2026-08-21, and wf_affiliate_worklist orders by hits DESC \u2014 so the ranking signal for which unmonetized places we walk past most often was structurally pinned at 1, and a place that was resolved and later lost its product could never reappear. The 21-day Atlas cycle was due to start re-seeing that cohort around 2026-09-11, at which point every re-sighting would have been a silent no-op."
+    },
+    "owner": "Revenue QA"
   }
 }

@@ -1303,3 +1303,14 @@ node scripts/check-reverse-migration-reconciliation.mjs
 # breakfast, coffee and bakery-cafe cards remain reachable), including rows
 # whose provider omitted primaryType.
 node scripts/test-morning-identity.mjs
+# 2026-09-09 (owner's affiliate deep-link audit): the only writer of
+# wf_affiliate_opportunities used PostgREST `resolution=ignore-duplicates`, which
+# SKIPS an existing row rather than updating it — so a place already in the queue
+# could never increment `hits`, refresh `last_seen_at`, or clear `resolved_at`.
+# Measured on production: 63 rows, every one at hits=1 and frozen at
+# first_seen_at = last_seen_at = 2026-08-21, with the 21-day Atlas cycle about to
+# start re-seeing that cohort around 09-11. The worklist orders by `hits DESC`, so
+# the ranking signal was structurally stuck at 1. The route also reported
+# `opps = oppRows.length` — rows SENT — which stayed truthful-looking while the
+# database accepted none of them. Replaced by an atomic server-only RPC.
+node scripts/check-affiliate-opportunity-refresh.mjs
