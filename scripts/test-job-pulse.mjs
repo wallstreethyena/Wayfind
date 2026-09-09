@@ -12,6 +12,7 @@
 // it regressing.
 import { readFileSync } from "fs";
 import { classifyHealth, incidentLine, DEAD_RUN_THRESHOLD } from "../lib/jobPulse.js";
+import { pulseFor } from "./record-workflow-pulse.mjs";
 
 let pass = 0;
 const fail = (m) => { console.error("test-job-pulse: FAIL — " + m); process.exit(1); };
@@ -115,6 +116,106 @@ ok(classifyHealth([]).incidents.length === 0 && classifyHealth(null).incidents.l
   ok(/create table if not exists public\.wf_job_pulse/.test(mig), "the pulse table is versioned in the repo");
   ok(/wf_job_health/.test(mig), "the health RPC ships with it");
   ok(/attempted > 0 and .*succeeded = 0/.test(mig), "the RPC's dead-run definition requires attempted work — idle is not dead");
+}
+
+// ── SCHEDULED WORKFLOWS MUST LEAVE A BEAT (2026-09-09) ────────────────────
+// The hole this closes, measured the same day: `canary` and
+// `synthetic-monitor` had failed on EVERY run for 36 and 21 hours and nothing
+// said so. A workflow that fails inside GitHub writes no wf_job_pulse row, and
+// classifyHealth above can only classify rows that EXIST — so a failing
+// monitor and an absent one both read as silence, and silence reads as health.
+//
+// They also run far less often than they claim: measured against a declared
+// */30, canary ran 10 times in 36 hours and synthetic 8 in 27. GitHub drops
+// scheduled invocations under load. So the absence of a run is a real, routine
+// state that has to be observable, not an edge case.
+//
+// This asserts the WRITING side — every scheduled workflow beats every run,
+// pass or fail. Alerting on an OVERDUE beat is the reading side and is a
+// separate piece; it has nothing to read until this exists.
+{
+  const wf = (p) => read(".github/workflows/" + p);
+  // Strip full-line comments first: both files' new comments quote the very
+  // literals asserted below, so a raw grep would pass on the prose alone.
+  const strip = (s) => s.split("\n").filter((l) => !/^\s*#/.test(l)).join("\n");
+
+  for (const [file, job] of [["canary.yml", "canary"], ["synthetic-monitor.yml", "synthetic-monitor"]]) {
+    const code = strip(wf(file));
+    ok(new RegExp(`record-workflow-pulse\\.mjs[^\\n]*--job=${job}`).test(code),
+      `${file}: records a wf_job_pulse heartbeat for "${job}" in a run: step — without it, this workflow's silence is undetectable`);
+    ok(/if:\s*always\(\)/.test(code),
+      `${file}: the heartbeat runs with if: always() — a beat that only fires on success is not a heartbeat, it is a success notification`);
+    ok(/SUPABASE_SERVICE_ROLE_KEY/.test(code),
+      `${file}: the heartbeat step is given SUPABASE_SERVICE_ROLE_KEY, or it silently records nothing`);
+  }
+
+  // The canary fans out into five jobs; its beat must reflect ALL of them, or
+  // a single red job would still beat green. That is the exact failure mode
+  // that hid the migration drift behind the RPC parser bug.
+  const canary = strip(wf("canary.yml"));
+  ok(/needs:\s*\[incident-delivery,\s*routes,\s*inventory,\s*promote-metros,\s*deploy-contract\]/.test(canary),
+    "canary.yml: the heartbeat job needs all five canary jobs, so its beat is the aggregate rather than one job's luck");
+  ok(/outcome=failure/.test(canary) && /jobs not green/.test(canary),
+    "canary.yml: a non-green job produces a FAILURE beat naming which jobs were not green");
+
+  // Self-tests for the stripper, so a future edit cannot satisfy these checks
+  // with a comment.
+  ok(!/record-workflow-pulse\.mjs/.test(strip("# node scripts/record-workflow-pulse.mjs --job=canary\njobs: {}")),
+    "self-test: a commented-out heartbeat does NOT satisfy the check");
+  ok(/record-workflow-pulse\.mjs/.test(strip("  run: node scripts/record-workflow-pulse.mjs --job=canary")),
+    "self-test: a real run: step IS detected after stripping (not vacuously false)");
+
+  // pulseFor: only an unambiguous pass beats healthy. "cancelled" and
+  // "skipped" mean the check did not happen, and a monitor that did not happen
+  // must never look like one that passed.
+  ok(pulseFor("success").succeeded === 1 && pulseFor("success").failed === 0, "pulseFor: success is a healthy beat");
+  for (const bad of ["failure", "cancelled", "skipped", "", undefined, "SUCCESS_ISH"]) {
+    const p = pulseFor(bad);
+    ok(p.succeeded === 0 && p.failed === 1 && p.attempted === 1,
+      `pulseFor: "${bad}" must beat as a FAILURE — anything that is not an unambiguous pass means the check did not happen`);
+  }
+  ok(pulseFor("SUCCESS").succeeded === 1, "pulseFor: the outcome comparison is case-insensitive");
+
+  // ── A TIMED-OUT WRITE IS NOT A REFUSED WRITE ─────────────────────────────
+  // 2026-09-09, observed live. A heartbeat printed "NOT RECORDED" and the row
+  // was already in the table (wf_job_pulse id 8788). recordPulse returns a
+  // bare boolean, and that boolean collapsed three states into one: written,
+  // refused, and never-completed. The abort is CLIENT-side — the server may
+  // have committed — so reporting it as "not recorded" is the instrument
+  // lying about itself, which is the defect class this whole lane exists to
+  // catch. recordPulseDetailed keeps the three states apart; recordPulse
+  // still returns the same boolean for every existing caller.
+  {
+    const src = read("lib/jobPulse.js");
+    const code = src.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
+    ok(/export async function recordPulseDetailed/.test(code),
+      "lib/jobPulse.js exports recordPulseDetailed — anything that REPORTS on a pulse write needs the outcome, not a boolean");
+    ok(/indeterminate/.test(code),
+      "recordPulseDetailed distinguishes an INDETERMINATE write (timeout / socket death, row may exist) from a refusal");
+    ok(/const r = await recordPulseDetailed\(job, opts\);\s*return r\.ok;/.test(code.replace(/\s+/g, " ").replace(/ /g, " ")) || /return r\.ok/.test(code),
+      "recordPulse delegates to recordPulseDetailed and still returns a plain boolean — no existing caller changes behaviour");
+    ok(/AbortSignal\.timeout\(15000\)/.test(code),
+      "the write timeout is 15s, not 10s — a cold process pays DNS + TLS first (measured 3.8s on an ordinary connection) and an abort here reports a committed row as lost");
+    // Self-test: the comment stripper must not let the prose above satisfy
+    // these checks on its own.
+    ok(!/recordPulseDetailed/.test(("// recordPulseDetailed named only in a comment\nconst x=1;").replace(/^\s*\/\/.*$/gm, " ")),
+      "self-test: the identifier named only in a comment does NOT satisfy the check");
+
+    // The reporting CLI must use the detailed form, or the distinction is
+    // academic — this is where the false "NOT RECORDED" was printed.
+    const cli = read("scripts/record-workflow-pulse.mjs").replace(/^\s*\/\/.*$/gm, " ");
+    ok(/recordPulseDetailed/.test(cli),
+      "scripts/record-workflow-pulse.mjs uses recordPulseDetailed — the caller that PRINTS the outcome must know it");
+    ok(/WRITE OUTCOME UNKNOWN/.test(cli),
+      "…and says the outcome is UNKNOWN on an indeterminate write rather than claiming the beat was lost");
+    ok(/NOT RECORDED \(/.test(cli),
+      "…and reserves NOT RECORDED for a definite refusal, with the status alongside it");
+  }
+  // And the beat has to be classifiable by the machinery above, or it is inert.
+  ok(classifyHealth([{ job: "canary", attempted: 1, succeeded: 0, consecutive_zero: DEAD_RUN_THRESHOLD, last_note: "jobs not green: routes=failure" }]).incidents.length === 1,
+    "a repeated failure beat is classified as an INCIDENT by the existing watcher — the heartbeat reaches the alert path already proven in #1183/#1195");
+  ok(classifyHealth([{ job: "canary", attempted: 1, succeeded: 1, consecutive_zero: 0, last_note: "workflow run completed: success" }]).healthy.length === 1,
+    "a passing beat is classified healthy, not idle — attempted work that succeeded is health");
 }
 
 ok(classifyHealth([{job:"config-failure",attempted:0,succeeded:0,consecutive_zero:2,last_note:"cannot run"}]).incidents.length === 1, "explicit failures before any request are incidents, not idle");

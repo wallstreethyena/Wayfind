@@ -108,8 +108,8 @@ ok(/length\(btrim\(hook\)\), 0\) >= 20/.test(sql) && /length\(btrim\(why_here\)\
 ok((sql.match(/coalesce\(array_length\(issues, 1\), 0\) = 0/g) || []).length >= 2,
   "the backfill's preview and its UPDATE share the issues predicate — a preview that does not match the statement it is previewing is worse than no preview");
 
-ok(/published: rows\.filter\(\(r\) => r\.verified\)\.length/.test(atlas),
-  "the response separates `published` from `sourced` — a widening gap is the run reporting that the model has started producing thin cards, and it is invisible if the two are assumed equal");
+ok(/published: persistedPublished/.test(atlas) && /const publishedCount = persistedPublished/.test(atlas) && /persistedPublished \+= result\.published/.test(atlas),
+  "the response and pulse report persisted publications, separately from generated/sourced candidates; retry effects come from the database (behavior tested in test-editorial-retry-content)");
 
 // ─── 2. Every reader STILL gates on verified ────────────────────────────────
 // Re-point, never weaken: this list is the full set of places that publish

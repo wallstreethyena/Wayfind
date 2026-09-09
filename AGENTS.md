@@ -66,9 +66,16 @@ git fetch origin
 gh pr list --state open        # or open github.com/wallstreethyena/Wayfind/pulls
 ```
 
-If an open PR already covers the task you were handed, **say so and stop.** Do not open a
-second one. Today two agents independently reconciled PR #393 and reached *opposite*
-conclusions about the same code. That is worse than either one working alone.
+If an open PR already covers the task you were handed, **inspect that work instead of
+stopping the task.** Do not create a duplicate implementation PR or overwrite another
+writer\'s branch. Read the exact current head, its diff and CI results, and verify whether
+it actually solves the user\'s problem. If the PR has merged, audit the merged commit,
+current main and the deployed version under §13. An existing PR or merge is evidence to
+inspect, not proof of correctness and not a reason to abandon the user\'s task.
+
+Keep overlapping implementation coordinated; perform read-only review or use an isolated
+worktree while another writer owns the branch. Report actionable findings with evidence
+and continue authorized verification or narrowly scoped follow-up work.
 
 ## 3. Branch from `origin/main`, and stay close to it
 
@@ -296,3 +303,26 @@ A wrong-city result is worse than no result. A mismatched CTA is worse than no C
   exists, fall back to Directions or hide the CTA — never render a null or wrong CTA.
 - If the data needed to make a correct CTA or location match is missing, the failure must be
   distinguishable from a legitimate empty state.
+
+
+## 13. Verify existing and merged work before declaring completion
+
+When a requested task overlaps an existing, merged or reportedly deployed change:
+
+1. Identify the PR, exact head or merge SHA, current main, and production deployment SHA.
+   Distinguish open, merged, deployed and verified; never infer one from another.
+2. Inspect the actual diff and relevant callers, including browser/server deadlines,
+   response completeness, photo identity, cache behavior and shared consumers as applicable.
+3. Read CI results for the exact revision. Run focused checks that exercise the original
+   failure and healthy controls. Reproduce suspected defects before reporting them as facts.
+   A green build or HTTP 200 alone does not prove complete, usable results.
+4. If deployed, run the narrow production checks that prove the user-facing behavior and
+   inspect relevant telemetry. If not deployed or access is unavailable, state the missing
+   verification explicitly; do not label the work complete.
+5. Preserve another writer's work. Do not create a competing implementation or replay an
+   already merged patch. Continue review and authorized verification; where a defect is
+   proven, prepare a focused follow-up on current main or coordinate the existing branch.
+   Existing authorization persists; honor §11 for outward actions not already authorized.
+6. Report what was verified, the exact revision, remaining defects or verification gaps,
+   and the next concrete action. “Already merged” is a starting point for this audit,
+   never a substitute for it.

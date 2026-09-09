@@ -405,25 +405,62 @@ async function fetchExistingQueueRows(s, placeIds) {
   return out;
 }
 
+// ONE REQUEST PER KEY SIGNATURE (2026-09-09). PostgREST refuses a
+// `resolution=merge-duplicates` POST whose objects do not all carry the same
+// keys:
+//
+//     400 PGRST102 — "All object keys must match"
+//
+// mergeQueueUpsert deliberately OMITS `status` for a row whose operator
+// verdict must not be touched (retired, unresolved, already-open — case 8),
+// so its output is heterogeneous by design the moment the queue holds
+// anything. The first run wrote 233 rows because every row was new and
+// therefore carried `status`; every run after it 400'd the whole batch. The
+// monitor is fail-soft about the queue (case 11), so this was SILENT: the
+// instrument kept measuring while its findings reached nobody and the 04:20
+// repair worker chewed a frozen snapshot.
+//
+// The fix belongs HERE, in the transport, not in mergeQueueUpsert: the
+// payload semantics are correct and case 8 pins them. Group by key signature
+// and send each homogeneous group. Two groups in practice ("with status" and
+// "without"), so this is one extra request, not N.
+export function groupByKeySignature(rows) {
+  const groups = new Map();
+  for (const row of Array.isArray(rows) ? rows : []) {
+    if (!row || typeof row !== "object") continue;
+    const sig = Object.keys(row).sort().join(",");
+    if (!groups.has(sig)) groups.set(sig, []);
+    groups.get(sig).push(row);
+  }
+  return [...groups.values()];
+}
+
 export async function upsertQueueRows(s, candidates) {
   if (!candidates.length) return 0;
   const nowIso = new Date().toISOString();
   const existing = await fetchExistingQueueRows(s, candidates.map((c) => c.placeId));
   const body = mergeQueueUpsert(existing, candidates, nowIso);
   if (!body.length) return 0;
-  const r = await fetch(`${s.url}/rest/v1/wf_photo_repair_queue`, {
-    method: "POST",
-    cache: "no-store",
-    headers: {
-      apikey: s.key,
-      Authorization: "Bearer " + s.key,
-      "content-type": "application/json",
-      Prefer: "resolution=merge-duplicates,return=minimal",
-    },
-    body: JSON.stringify(body),
-  });
-  if (!r.ok) throw queueError(r.status, `wf_photo_repair_queue upsert failed: HTTP ${r.status}`);
-  return body.length;
+  let written = 0;
+  for (const group of groupByKeySignature(body)) {
+    const r = await fetch(`${s.url}/rest/v1/wf_photo_repair_queue`, {
+      method: "POST",
+      cache: "no-store",
+      headers: {
+        apikey: s.key,
+        Authorization: "Bearer " + s.key,
+        "content-type": "application/json",
+        Prefer: "resolution=merge-duplicates,return=minimal",
+      },
+      body: JSON.stringify(group),
+    });
+    // Still throws on the first bad group. A partial write is honest — the
+    // rows already accepted are real findings — and the caller reports the
+    // queue as unavailable for the run either way.
+    if (!r.ok) throw queueError(r.status, `wf_photo_repair_queue upsert failed: HTTP ${r.status} (${group.length} row(s), keys: ${Object.keys(group[0] || {}).sort().join(",")})`);
+    written += group.length;
+  }
+  return written;
 }
 
 async function lastPhotoMonitorPulses(s, limit = 6) {
@@ -440,9 +477,18 @@ async function lastPhotoMonitorPulses(s, limit = 6) {
   }
 }
 
+// "open" here means "still actively waiting on this lane" — 2026-09-09
+// widened from status=eq.open alone to open+budget_blocked. A budget-blocked
+// row is still an unresolved placeholder from a reader's perspective; it
+// just moved from a next_attempt_at-scheduled row to a ledger-gated one
+// (see the same date's migration + lib/photoRepair.js). Counting it out of
+// this breadcrumb would make the 2026-09-09 status split read as a 42%
+// drop in the backlog that never actually happened, and would blind
+// openGrowthRatio to a real re-block later (a row released today and
+// re-blocked next week must still show up as growth here).
 async function currentOpenCount(s) {
   try {
-    const r = await fetch(`${s.url}/rest/v1/wf_photo_repair_queue?select=place_id&status=eq.open`, {
+    const r = await fetch(`${s.url}/rest/v1/wf_photo_repair_queue?select=place_id&status=in.(open,budget_blocked)`, {
       headers: { apikey: s.key, Authorization: "Bearer " + s.key, Prefer: "count=exact", Range: "0-0" },
       cache: "no-store",
     });
@@ -484,7 +530,12 @@ async function renderedPlaceholderRate(baseUrl) {
           Array.from(document.querySelectorAll(".wf-place-card img, .wf8-tile img")).map((img) => img.currentSrc || img.src)
         );
         for (const src of srcs) {
-          if (/googleusercontent\.com/i.test(src)) real++;
+          // #1188: upload.wikimedia.org is the free PERMANENT photo lane
+          // (lib/freePhoto.js) — a real photo, same as a googleusercontent.com
+          // one, just not rented from Google. See lib/photoCoverage.js's
+          // REAL_HOST_RX, which classifies the synthetic /api/photo probe the
+          // same way.
+          if (/googleusercontent\.com/i.test(src) || /upload\.wikimedia\.org/i.test(src)) real++;
           else if (/wf-photo-fallback\.svg/i.test(src)) placeholder++;
         }
       } finally {

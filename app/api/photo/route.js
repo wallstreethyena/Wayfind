@@ -14,6 +14,7 @@ import { gateShut, spendAllow, spendAllowPhotos } from "../../../lib/spendGate";
 import { NextResponse } from "next/server";
 import { FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, resolvePlacePhoto } from "../../../lib/placePhotoServe";
 import { findSamePlaceCachedPhoto } from "../../../lib/photoCacheRecovery";
+import { findFreePhoto } from "../../../lib/freePhoto";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,10 @@ export const dynamic = "force-dynamic";
 const REF_RX = PHOTO_REF_RX;
 
 const THIRTY_DAYS = 60 * 60 * 24 * 30;
+// wf_place_photo rows are FREE and PERMANENT (Wayfind is licensed to keep
+// them indefinitely) — unlike a Google photo, which is a 30-day rental, so
+// this URL earns a cache lifetime the rented ones never get.
+const ONE_YEAR = 60 * 60 * 24 * 365;
 
 // v8.19 — ?place=<placeId> mode: the CURRENT first photo of a place, no
 // stored ref needed. Deal cards key their artwork on the venue's placeId
@@ -42,10 +47,26 @@ export async function GET(req) {
   // (spendAllowPhotos for `photos`, spendAllow(sku) for everything else) →
   // Google. Every recovery read is free, read-only, identity-scoped, and
   // keeps the source row's remaining expiry instead of minting a fresh
-  // 30-day clock (lib/photoCacheRecovery.js, #1184).
+  // 30-day clock (lib/photoCacheRecovery.js, #1184). A denied/shut/
+  // unconfigured/probed miss then gets ONE MORE free, read-only chance: the
+  // FREE PERMANENT lane (lib/freePhoto.js, wf_place_photo) — checked AFTER
+  // same-place recovery, because a Google photo of the actual venue that is
+  // already paid for still wins over a substitute, even a free one.
+  //
+  // The free rung then runs for EVERY remaining dead end, not only a budget
+  // denial: `empty`/no-photo (a place Google never photographed at all — the
+  // single biggest coverage win in the lane, since a park or beach with no
+  // Google photo is exactly what Commons covers best) and `owned-miss` (an
+  // owned ref whose bytes would not fetch). Before v8.57 both of those
+  // painted a blank while a licensed photo of the place sat unused.
+  // Locked by scripts/test-free-photo-serving.mjs section B7.
   //
   // x-wayfind-photo-result values: cache | inventory | inventory-ref-cache |
-  // google | same-place-cache (redirect, 302) | spend-denied | gate-shut |
+  // google | same-place-cache (redirect, 302 — a fresher/older cached Google
+  // photo of this same venue) | owned-free (redirect, 302 — a FREE,
+  // PERMANENTLY-licensed Wikimedia photo of this same venue from
+  // wf_place_photo; served only when same-place recovery has nothing, and
+  // its 302 never took a photos-ledger grant) | spend-denied | gate-shut |
   // probe-no-spend | owned-miss | unconfigured (404 JSON — #1182: a
   // catalogued ref is not the same thing as a genuinely photoless place, so
   // the card's own <img> error path renders a per-title monogram instead of
@@ -57,8 +78,9 @@ export async function GET(req) {
   // even calls authorizeSpend while probing, so labelling that
   // "spend-denied" would claim a denial that never happened. It is added to
   // the recovery-eligible reasons below so a probe still sees a free
-  // same-place recovery exactly like a real denied/shut/unconfigured reader
-  // would.
+  // same-place recovery (or, failing that, a free PERMANENT photo) exactly
+  // like a real denied/shut/unconfigured reader would — neither lookup ever
+  // takes a ledger grant, so a probe reading them spends nothing either way.
   const { searchParams } = new URL(req.url);
   const ref = searchParams.get("ref") || "";
   const place = searchParams.get("place") || "";
@@ -86,6 +108,24 @@ export async function GET(req) {
     }
     return recoveryPromise;
   };
+  // Same memoized-promise shape as getRecovery(), and the same identity
+  // scope (recoveryPlaceId — never a neighbour). Read-only: lib/freePhoto.js
+  // never writes wf_place_photo, so a probe hitting this is exactly as safe
+  // as a probe hitting getRecovery(). The .catch is defence in depth on top
+  // of findFreePhoto's own "never throws" contract: this closure is awaited
+  // from inside authorizeSpend (itself awaited from inside resolvePlacePhoto)
+  // AND from the miss-handling block below, so a rejection here — today
+  // impossible, but this is exactly the seam a future edit could break —
+  // must fail closed to "no free photo", never surface as a 500 that a
+  // free-photo LOOKUP problem has no business causing.
+  let freePhotoPromise = null;
+  const getFreePhoto = () => {
+    if (!recoveryPlaceId) return Promise.resolve(null);
+    if (!freePhotoPromise) {
+      freePhotoPromise = findFreePhoto({ placeId: recoveryPlaceId, width: w }).catch(() => null);
+    }
+    return freePhotoPromise;
+  };
 
   const result = await resolvePlacePhoto({
     ref,
@@ -106,8 +146,20 @@ export async function GET(req) {
     // other SKU. The expired-ref self-heal's Place Details lookup takes a
     // metered `details_ids_only` grant through the ordinary ledger path, so no
     // path to Google runs without a counter in front of it.
-    authorizeSpend: (sku = "photos") => getRecovery().then((hit) => {
+    //
+    // FREE LANE (2026-09-09, #1188): a `photos` grant is refused outright when
+    // wf_place_photo already holds an active free photo for this exact place —
+    // same reasoning as the recovery hit above, and the SAME closure this
+    // resolver already calls before ANY outbound Google request, so the rung
+    // is genuinely free: no ledger grant is ever taken, no Google call is ever
+    // made, when a free photo exists. Scoped to `photos` ONLY — the expired-ref
+    // self-heal's `details_ids_only` Place Details lookup must behave exactly
+    // as it did before this change, free-photo or not, because a Details
+    // response is what would let a FUTURE `photos` request find a fresher ref;
+    // refusing it here would make the free lane quietly worse at healing.
+    authorizeSpend: (sku = "photos") => Promise.all([getRecovery(), getFreePhoto()]).then(([hit, free]) => {
       if (hit || shut) return false;
+      if (sku === "photos" && free) return false;
       return sku === "photos" ? spendAllowPhotos() : spendAllow(sku);
     }),
     serverKey: process.env.GOOGLE_MAPS_SERVER_KEY || "",
@@ -131,7 +183,13 @@ export async function GET(req) {
   // runs (or, for a probe, never reach it at all). A budget denial with a
   // recovery hit returns `spend-denied` because the wrapper above deliberately
   // refused the grant. In every case, serve only a fresh same-place cached
-  // photo if one exists. This never writes or calls Google.
+  // photo if one exists — and, failing that, this exact place's FREE,
+  // PERMANENT photo if wf_place_photo has one. Same-place Google recovery is
+  // tried FIRST: it is a photo of the actual venue that Wayfind already paid
+  // for, so it outranks a substitute even a free one. Neither read ever
+  // writes or calls Google, and neither ever takes a photos-ledger grant —
+  // authorizeSpend above already refused the grant on a free-photo hit before
+  // this block runs, so this is just serving what was already decided.
   if (result.type === "miss" && ["spend-denied", "gate-shut", "unconfigured", "probe-no-spend"].includes(result.reason)) {
     const recovery = await getRecovery();
     if (recovery && recovery.uri) {
@@ -144,6 +202,32 @@ export async function GET(req) {
         },
       });
     }
+  }
+
+  // The free permanent rung, for EVERY remaining outcome — not just a budget
+  // denial. Three cases reach here and all three used to end in a blank:
+  //   miss/spend-denied etc. with no same-place recovery (handled above first,
+  //     because a cached photo of this venue beats a Commons photo of it),
+  //   empty/no-photo — the place has no Google photo AT ALL. This is the
+  //     biggest win in the lane: a park or beach Google never photographed can
+  //     now carry a real, verified, permanently-licensed picture instead of the
+  //     branded compass, and it costs nothing, forever.
+  //   owned-miss — an owned ref whose bytes we could not fetch.
+  // Law #3 (lib/placePhotoServe.js) is satisfied: findFreePhoto is keyed on
+  // THIS placeId and lib/commonsPhotos.js attaches nothing it has not identity-
+  // verified against this exact entity. It is this place's own photo, never a
+  // shared stock pool.
+  const free = await getFreePhoto();
+  if (free && free.url) {
+    return NextResponse.redirect(free.url, {
+      status: 302,
+      headers: {
+        // Permanent, unlike a rented Google photo — a full year, not 30 days.
+        "Cache-Control": "public, max-age=" + ONE_YEAR + ", s-maxage=" + ONE_YEAR + ", immutable",
+        "x-wayfind-photo-result": "owned-free",
+        "x-wayfind-photo-probe": probe ? "1" : "0",
+      },
+    });
   }
 
   if (result.type === "empty") {

@@ -1159,8 +1159,8 @@ export default function CommandCenter() {
       <header className={styles.header}>
         <div className={styles.headerMain}>
           <a href="#today" onClick={() => setActiveGroup("today")} className={styles.brand} aria-label="Wayfind Command Center home">
-            <span className={styles.brandMark}>W</span>
-            <span>Wayfind <b>Command Center</b></span>
+            <img className={styles.brandLogo} src="/brand/wayfind-wordmark-transparent-v2.png" width="1707" height="441" alt="" aria-hidden="true" />
+            <b>Command Center</b>
           </a>
           <span className={styles.ownerBadge}>Owner</span>
           <span className={styles.headerSpacer} />

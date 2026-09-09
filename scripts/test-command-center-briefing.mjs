@@ -2,6 +2,7 @@
 import {
   buildOwnerBriefing, gatherOwnerBriefing, briefingText, briefingHtml, sendOwnerBriefingEmail,
 } from "../lib/commandCenter/briefing.js";
+import { tpStats } from "../lib/commandCenter/sources/travelpayouts.js";
 
 let failures = 0;
 const ok = (value, message) => { if (!value) { console.error(`test-command-center-briefing: FAIL — ${message}`); failures++; } };
@@ -12,7 +13,7 @@ const normalResults = () => ({
   kpis: { source: source("First party"), data: { active_devices: 120, sessions: 150, detail_opens: 42, saves: 8, shares: 5, directions: 4, out_clicks: 3 } },
   signups: { source: source("Signups"), data: [{ day: "2026-09-08", signups: 6 }] },
   health: { source: source("Automatic checks"), data: { checks: [{ key: "home", label: "Homepage", ok: true, status: 200, ms: 80 }] } },
-  affiliate: { source: source("Travelpayouts"), data: { confirmed_bookings: 2, revenue_paid_usd: 14.5, revenue_pending_usd: 3, fields_used: ["action_id", "state", "paid_profit_usd"] } },
+  affiliate: { source: source("Travelpayouts"), data: { confirmed_bookings: 2, revenue_paid_usd: 14.5, revenue_pending_usd: 3, fields_used: ["action_id", "state", "paid_profit_usd", "profit_usd"] } },
 });
 const now = new Date("2026-09-09T16:00:00.000Z");
 
@@ -42,7 +43,60 @@ ok(disconnectedReport.metrics.traffic.deviceCount === null, "data attached to a 
 const unpaidField = normalResults();
 unpaidField.affiliate.data.fields_used = ["action_id", "state"];
 const unpaidReport = buildOwnerBriefing({ now, results: unpaidField });
-ok(unpaidReport.metrics.affiliate.paidEarningsUsd === null && unpaidReport.needsChanges.some((card) => card.id === "missing-affiliate"), "earnings stay unknown when the provider dropped its paid field");
+const unpaidCard = unpaidReport.needsChanges.find((card) => card.id === "missing-affiliate");
+ok(unpaidReport.metrics.affiliate.confirmedBookings === 2 && unpaidReport.metrics.affiliate.paidEarningsUsd === null && unpaidCard && unpaidCard.title === "Paid earnings are unknown" && /confirmed 2 bookings/.test(unpaidCard.detail), "known bookings survive when paid earnings are unavailable");
+ok(unpaidReport.summary.headline === "Traffic is reporting. Earnings need attention.", "affiliate-only gaps get a precise owner headline");
+
+const unconfigured = normalResults();
+unconfigured.affiliate = { source: { name: "Travelpayouts", connected: false, reason: "not_configured", nextStep: "Add TRAVELPAYOUTS_TOKEN to Vercel.", confidence: "unavailable" }, data: null };
+const unconfiguredCard = buildOwnerBriefing({ now, results: unconfigured }).needsChanges.find((card) => card.id === "missing-affiliate");
+ok(unconfiguredCard && unconfiguredCard.title === "Travelpayouts reporting is not configured" && /TRAVELPAYOUTS_TOKEN/.test(unconfiguredCard.detail) && !/did not confirm/.test(unconfiguredCard.detail), "missing configuration reports its actual reason and remedy");
+
+const providerError = normalResults();
+providerError.affiliate = { source: { name: "Travelpayouts", connected: false, reason: "error", note: "travelpayouts request failed with HTTP 401", confidence: "unavailable" }, data: null };
+const providerErrorCard = buildOwnerBriefing({ now, results: providerError }).needsChanges.find((card) => card.id === "missing-affiliate");
+ok(providerErrorCard && providerErrorCard.title === "Travelpayouts reporting failed" && /HTTP 401/.test(providerErrorCard.detail) && !/did not confirm/.test(providerErrorCard.detail), "provider errors are distinct from unsupported commission fields");
+
+const tpFields = ["action_id", "date", "state", "price_usd", "paid_profit_usd", "profit_usd", "campaign_id"];
+const jsonResponse = (payload, status = 200) => new Response(typeof payload === "string" ? payload : JSON.stringify(payload), { status, headers: { "content-type": "application/json" } });
+const tpDates = (date) => [new Date(`${date}T00:00:00.000Z`), new Date(`${date}T23:59:59.999Z`)];
+
+const paidAndPending = await tpStats(...tpDates("2026-08-01"), { env: { TRAVELPAYOUTS_TOKEN: "test" }, fetchImpl: async (_url, init) => {
+  const body = JSON.parse(init.body);
+  ok(body.offset === 0 && body.limit === 10000 && body.filters.some((filter) => filter.field === "type" && filter.value === "action"), "statistics query requests action rows with explicit pagination");
+  return jsonResponse({ results: [
+    { action_id: "paid-1", date: "2026-08-01", state: "paid", price_usd: "100", paid_profit_usd: "10", profit_usd: "999", campaign_id: 1 },
+    { action_id: "pending-1", date: "2026-08-01", state: "processing", price_usd: "50", paid_profit_usd: "777", profit_usd: "4.5", campaign_id: 1 },
+  ], fields: tpFields, total_rows: 2, offset: 0, limit: 10000 });
+} });
+ok(paidAndPending.source.connected && paidAndPending.data.revenue_paid_usd === 10 && paidAndPending.data.revenue_pending_usd === 4.5, "paid rows use paid_profit_usd while processing rows use their unconfirmed profit field");
+
+let partialCalls = 0;
+const partial = await tpStats(...tpDates("2026-08-02"), { env: { TRAVELPAYOUTS_TOKEN: "test" }, fetchImpl: async (_url, init) => {
+  partialCalls += 1;
+  const body = JSON.parse(init.body);
+  if (body.fields.includes("paid_profit_usd")) return jsonResponse("wrong field: paid_profit_usd", 400);
+  return jsonResponse({ results: [
+    { action_id: "known-paid", date: "2026-08-02", state: "paid", price_usd: "30", profit_usd: "2", campaign_id: 1 },
+    { action_id: "known-processing", date: "2026-08-02", state: "processing", price_usd: "40", profit_usd: "3", campaign_id: 1 },
+  ], fields: body.fields, total_rows: 2, offset: 0, limit: 10000 });
+} });
+ok(partialCalls === 2 && partial.source.connected && partial.source.reason === "commission_fields_unavailable" && partial.source.missingFields.includes("paid_profit_usd"), "a rejected paid field becomes an explicit partial source");
+ok(partial.data.confirmed_bookings === 2 && partial.data.revenue_paid_usd === null && partial.data.revenue_pending_usd === 3, "a rejected paid field preserves known bookings and pending income without inventing paid revenue");
+
+const malformed = await tpStats(...tpDates("2026-08-03"), { env: { TRAVELPAYOUTS_TOKEN: "test" }, fetchImpl: async () => jsonResponse({}) });
+ok(!malformed.source.connected && malformed.source.reason === "error" && malformed.source.category === "invalid_response" && malformed.data === null, "malformed provider objects fail visibly instead of becoming measured zeroes");
+
+const pageOffsets = [];
+const paginated = await tpStats(...tpDates("2026-08-04"), { env: { TRAVELPAYOUTS_TOKEN: "test" }, pageLimit: 2, fetchImpl: async (_url, init) => {
+  const body = JSON.parse(init.body);
+  pageOffsets.push(body.offset);
+  const results = body.offset === 0
+    ? [{ action_id: "page-1", date: "2026-08-04", state: "paid", price_usd: "10", paid_profit_usd: "1", profit_usd: "1", campaign_id: 1 }, { action_id: "page-2", date: "2026-08-04", state: "paid", price_usd: "20", paid_profit_usd: "2", profit_usd: "2", campaign_id: 1 }]
+    : [{ action_id: "page-3", date: "2026-08-04", state: "processing", price_usd: "30", paid_profit_usd: "99", profit_usd: "3", campaign_id: 1 }];
+  return jsonResponse({ results, fields: tpFields, total_rows: 3, offset: body.offset, limit: 2 });
+} });
+ok(pageOffsets.join(",") === "0,2" && paginated.data.rows_seen === 3 && paginated.data.pages_fetched === 2 && paginated.data.confirmed_bookings === 3, "all pages are fetched when total_rows exceeds the page limit");
 
 const failing = normalResults();
 failing.health.data.checks = [{ key: "home", label: "Homepage", ok: false, status: 503, ms: 100 }];
