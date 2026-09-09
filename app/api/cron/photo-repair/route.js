@@ -19,7 +19,7 @@
 //
 // NEVER CALLS GOOGLE. No import of lib/spendGate.js, no reference to the
 // Places media host (googleapis dot com/v1/.../media) anywhere in this file
-// — scripts/test-photo-protection.mjs case 9 checks this file by name.
+// — scripts/test-photo-protection.mjs case 5 checks this file by name.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
