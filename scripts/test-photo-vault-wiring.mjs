@@ -516,6 +516,64 @@ const PHOTO = (id) => ({
   console.log("test-photo-vault-wiring: Section F OK — the cron route still 401s without CRON_SECRET and still pulses honestly on an empty run; ?source= is threaded through correctly");
 }
 
+// ── SECTION G — THE SCAN MUST PAGE PAST THE SERVER'S ROW CAP ─────────────
+//   PostgREST caps EVERY response at its `max-rows` setting (1000 on this
+//   project) no matter what `limit` the URL asks for. The scan is ordered by
+//   place_id, so without a cursor it re-read the SAME first 1000 rows on
+//   every run, forever. Measured in production 2026-09-09: 5,757 eligible
+//   beach/attractions rows, `--scan=5000` reported `scanned=1000`, and the
+//   yield decayed from 9 active per 100 to 1 per 100 as that single window
+//   filled with rejected rows. 4,757 places were unreachable by ANY
+//   invocation, and the lane read as "Commons has no more coverage" when it
+//   had only run out of rows it was able to see.
+//
+//   Section B-F's makeDb stub returns the whole inventory array for any
+//   wf_inventory request, so it could never have caught this: the stub was
+//   more generous than the server. This stub enforces the real cap.
+{
+  const CAP = 1000;
+  const TOTAL = 2500;
+  const all = Array.from({ length: TOTAL }, (_, i) => ({
+    place_id: "P" + String(i).padStart(5, "0"),
+    name: "Place " + i, lat: 27.3, lng: -82.5, category: "attractions", tags: [],
+  }));
+  const invRequests = [];
+  const savedFetch = globalThis.fetch;
+  globalThis.fetch = async (url, init) => {
+    const u = String(url);
+    const method = (init && init.method) || "GET";
+    if (u.startsWith(SB.url + "/rest/v1/wf_photo_at_risk")) return { ok: true, json: async () => [] };
+    if (u.startsWith(SB.url + "/rest/v1/wf_inventory")) {
+      invRequests.push(u);
+      const gt = decodeURIComponent((u.match(/place_id=gt\.([^&]*)/) || [])[1] || "");
+      const asked = parseInt((u.match(/limit=(\d+)/) || [])[1] || "0", 10) || CAP;
+      // THE SERVER'S CAP: never more than CAP rows, whatever `limit` says.
+      const page = all.filter((r) => r.place_id > gt).slice(0, Math.min(asked, CAP));
+      return { ok: true, json: async () => page };
+    }
+    if (u.startsWith(SB.url + "/rest/v1/wf_place_photo") && method === "GET") return { ok: true, json: async () => [] };
+    if (u.startsWith(SB.url + "/rest/v1/wf_place_photo") && method === "POST") return { ok: true, json: async () => [] };
+    throw new Error("UNEXPECTED NETWORK CALL: " + method + " " + u);
+  };
+  let result;
+  try {
+    result = await runBackfill({
+      limit: 1, scanLimit: TOTAL, dryRun: true, source: "all", sbEnv: SB,
+      resolvePhoto: async () => null,
+      storePhoto: async () => ({ stored: false, reason: "dry" }),
+    });
+  } finally {
+    globalThis.fetch = savedFetch;
+  }
+  ok(result && result.ok, "G: the paged scan completes");
+  eq(result.scanned, TOTAL, "G: the scan reaches ALL " + TOTAL + " eligible rows, not just the server's " + CAP + "-row cap");
+  ok(invRequests.length >= 3, "G: it took MULTIPLE wf_inventory requests (got " + invRequests.length + ") — a single request can never see past the cap");
+  const cursors = invRequests.map((u) => decodeURIComponent((u.match(/place_id=gt\.([^&]*)/) || [])[1] || ""));
+  ok(cursors[0] === "", "G: the first page asks for no cursor");
+  ok(cursors.slice(1).every((c, i) => c > (cursors[i] || "")), "G: every later page advances the place_id cursor strictly forward (got " + JSON.stringify(cursors.slice(0, 4)) + ")");
+  console.log("test-photo-vault-wiring: Section G OK — the inventory scan pages past the server row cap with a strictly advancing keyset cursor");
+}
+
 if (failures) {
   console.error(`test-photo-vault-wiring: FAIL — ${failures} assertion(s) failed`);
   process.exit(1);
