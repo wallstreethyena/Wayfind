@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 597,
-    "totalRegistryEntries": 598,
-    "guardsTxtLineCount": 595,
-    "guardsTxtReachedFileCount": 590,
+    "totalOnDiskGuardFiles": 599,
+    "totalRegistryEntries": 600,
+    "guardsTxtLineCount": 597,
+    "guardsTxtReachedFileCount": 592,
     "criticalCount": 72,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 406,
+      "CALL": 408,
       "RENDER": 47,
       "STRUCTURAL": 144,
       "OTHER": 1
@@ -8155,6 +8155,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-beach-local-conditions.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 33,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-beach-planning.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -11892,6 +11914,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 6,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-owned-editorial-review.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 18,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
