@@ -122,7 +122,13 @@ export async function collect() {
   try {
     const { computePhotoCoverage } = await import("../lib/photoCoverage.js");
     const activeWithRef = await count(s, "wf_inventory?select=place_id&status=eq.OPERATIONAL&or=(excluded.is.null,excluded.is.false)&photo_ref=not.is.null");
-    const openRows = await count(s, "wf_photo_repair_queue?select=place_id&status=eq.open");
+    // 2026-09-09: open+budget_blocked, not open alone. A budget_blocked row
+    // is a live-dependency wait (lib/photoRepair.js re-checks wf_spend_ledger
+    // every drain), not a resolved one — counting it out would print a
+    // backlog drop that never happened the day this status split shipped.
+    // See scripts/photo-monitor.mjs's currentOpenCount, fixed the same day.
+    const openRows = await count(s, "wf_photo_repair_queue?select=place_id&status=in.(open,budget_blocked)");
+    const blockedRows = await count(s, "wf_photo_repair_queue?select=place_id&status=eq.budget_blocked");
     const unresolvedRows = await count(s, "wf_photo_repair_queue?select=place_id&status=eq.unresolved");
     const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
     const recoveries7d = await count(s, `wf_photo_repair_queue?select=place_id&status=eq.recovered&updated_at=gte.${encodeURIComponent(sevenDaysAgo)}`);
@@ -154,7 +160,7 @@ export async function collect() {
     ]);
     out.rows.push(["Active refs in scope", `${fmt(coverage.activeWithRef)} active rows carry a \`photo_ref\``, "`wf_inventory` live count"]);
 
-    out.rows.push(["Photo repair queue", `${fmt(openRows)} open · ${fmt(unresolvedRows)} unresolved`, "`wf_photo_repair_queue` live count"]);
+    out.rows.push(["Photo repair queue", `${fmt(openRows)} open (${fmt(blockedRows)} budget-blocked) · ${fmt(unresolvedRows)} unresolved`, "`wf_photo_repair_queue` live count"]);
     out.rows.push(["Photo recoveries (7d)", fmt(recoveries7d), "`wf_photo_repair_queue` `status=recovered&updated_at=gte.<7d>`"]);
   } catch (e) { out.warnings.push(`wf_photo_repair_queue / photo coverage: ${e.message}`); }
   return out;
