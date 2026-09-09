@@ -72,15 +72,8 @@ const PAIRS = {
   chef: { copy: "0b5d7b04d1dce6fd", art: "3df8871be0a36cc1" },
   augtober: { copy: "e7191fc07c1f6cd9", art: "a967d61a38691881" },
   beach: { copy: "bc2e671d898c25b0", art: "10af9b34c86feb0b" },
-  // v8.33 — the featured-creator rail. Pixels opened and read before pinning:
-  // the tile carries the Wayfind wordmark, a circular photo of the creator with
-  // "@cindy.selects" beside it, then "Your next COFFEE SPOT?", "WE ALREADY
-  // FOUND THE GOOD ONES.", three proof rows (HANDPICKED / CLOSE TO YOU / REAL
-  // REVIEWS), "The best cafés near you — ranked by Wayfind." and the button
-  // "FIND YOUR CAFE". Every one of those claims is one this rail can support:
-  // the places really are cafés she filmed, they really are ranked by the same
-  // engine as everything else, and no placement on it is paid.
-  cindy: { copy: "30d97235cfc066b7", art: "4599502d37a1f184" },
+  // Owner portrait, September 9: no baked text; DaypartRail overlays the live title and CTA.
+  cindy: { copy: "30d97235cfc066b7", art: "fe3b84712e304f67" },
   // v8.16 (owner, 2026-08-19: "when I give you a card for the amazon rail use
   // it EXACTLY as I provided it"): the v8.15 tiles were REDRAWN flat mocks of
   // the owner's posters. Replaced with the owner's own artwork, byte-derived
@@ -216,7 +209,8 @@ const withArt = [...new Set(
 for (const id of withArt) {
   const row = railRow(id);
   const stale = /\bartStale: true\b/.test(row);
-  const artPath = `public/cards-v8/${id}-760.jpg`;
+  const artBase = id === "cindy" ? /art: "([^"]+)"/.exec(row)?.[1] : id;
+  const artPath = `public/cards-v8/${artBase}-760.jpg`;
   if (!existsSync(artPath)) { fail.push(`${artPath} is missing — the tile has copy but no fallback art`); continue; }
 
   const copyHash = sha(readerCopy(row));

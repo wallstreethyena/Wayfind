@@ -1493,7 +1493,7 @@ export default function DaypartRail({
             <div className="wf8-track" ref={trackRef}>
               {order.filter((id) => {
                 const r = railById.get(id);
-                return r && !r.artStale && !r.retiredInto;
+                return r && !r.posterHidden && !r.artStale && !r.retiredInto;
               }).map((id, i) => {
                 const r = railById.get(id);
                 if (!r) return null;
@@ -1512,6 +1512,7 @@ export default function DaypartRail({
                 const tileClass = `wf8-tile${selected === id ? " is-sel" : ""}${artReady[id] ? " is-art-ready" : ""}`;
                 const artBox = railArtSize(id);
                 const art = (
+                    <>
                     <picture>
                       <source type="image/avif" srcSet={railArtSrcSet(base, "avif")} sizes={RAIL_ART_SIZES} />
                       <source type="image/webp" srcSet={railArtSrcSet(base, "webp")} sizes={RAIL_ART_SIZES} />
@@ -1529,6 +1530,8 @@ export default function DaypartRail({
                         onError={() => markArtReady(id)}
                       />
                     </picture>
+                    {id === "cindy" ? <span style={{ position: "absolute", inset: "auto 0 0", padding: "70px 22px 24px", background: "linear-gradient(transparent,rgba(7,18,15,.94))", color: "#fff5e4", pointerEvents: "none" }}><span style={{ display: "block", fontSize: 11, letterSpacing: ".18em", fontWeight: 800 }}>CINDY SELECTS</span><strong style={{ display: "block", fontFamily: "Georgia,serif", fontSize: 32, lineHeight: 1.08, marginTop: 10 }}>{r.title}</strong><span style={{ display: "block", fontSize: 13, marginTop: 12 }}>{r.cta} →</span></span> : null}
+                    </>
                 );
                 const label = `${r.title} — ${r.short}`;
                 // THE TILE IS THE BOX; THE LINK INSIDE IT IS THE DESTINATION.
