@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 584,
-    "totalRegistryEntries": 585,
-    "guardsTxtLineCount": 582,
-    "guardsTxtReachedFileCount": 577,
+    "totalOnDiskGuardFiles": 585,
+    "totalRegistryEntries": 586,
+    "guardsTxtLineCount": 583,
+    "guardsTxtReachedFileCount": 578,
     "criticalCount": 69,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 393,
+      "CALL": 394,
       "RENDER": 47,
       "STRUCTURAL": 144,
       "OTHER": 1
@@ -10413,6 +10413,28 @@
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-guide-event-ticket-cta.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 23,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],

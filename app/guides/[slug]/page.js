@@ -613,6 +613,20 @@ export default async function GuidePage({ params }) {
   }
   // v4.18: FAQ structured data — makes these guides eligible for expanded
   // FAQ rich results in search, which lifts click-through beyond position.
+  const guideUrl = SITE_URL + "/guides/" + params.slug;
+  const itemListLd = Array.isArray(g.picks) && g.picks.length >= 3 ? {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: g.title,
+    numberOfItems: g.picks.length,
+    itemListOrder: "https://schema.org/ItemListOrderAscending",
+    itemListElement: Array.from(g.picks, (pick, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: pick.name,
+      url: pick.eventSlug ? SITE_URL + "/florida-events/" + encodeURIComponent(pick.eventSlug) : guideUrl + "#pick-" + (i + 1),
+    })),
+  } : null;
   const faqLd = g.faq && g.faq.length ? {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -711,6 +725,7 @@ export default async function GuidePage({ params }) {
         ${WF_PLACE_CARD_CSS}
       ` }} />
       {faqLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} /> : null}
+      {itemListLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }} /> : null}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: g.title, description: g.description, datePublished: g.updated || "2026-06-01", dateModified: g.updated || "2026-06-01", author: { "@type": "Person", name: "Gabriel Pereira", url: SITE_URL + "/about" }, publisher: { "@type": "Organization", name: "WAYFIND LLC", logo: { "@type": "ImageObject", url: SITE_URL + "/icon-512.png" } }, mainEntityOfPage: SITE_URL + "/guides/" + params.slug }) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL }, { "@type": "ListItem", position: 2, name: "Guides", item: SITE_URL + "/guides" }, { "@type": "ListItem", position: 3, name: g.title, item: SITE_URL + "/guides/" + params.slug }] }) }} />
       <PremiumIntentHero
@@ -858,7 +873,7 @@ export default async function GuidePage({ params }) {
       {g.picks.map((pick, i) => {
         const resolved = pickPlaces[i];
         return (
-          <section key={i} className="wf-guide-pick">
+          <section key={i} id={"pick-" + (i + 1)} className="wf-guide-pick">
             <div className="wf-guide-number">{String(i + 1).padStart(2, "0")}</div>
             <div>
               <div style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: "1.7px", textTransform: "uppercase", color: "#F97316" }}>{pick.eyebrow || (i === 0 ? "The essential" : "The local edit")}</div>
@@ -894,6 +909,7 @@ export default async function GuidePage({ params }) {
               <div className="wf-guide-actions">
                 {pick.placeId ? <a href={"/places/" + encodeURIComponent(pick.placeId)} style={{ ...S.btnGhost, marginLeft: 0 }}>Place page</a> : null}
                 {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name)} style={{ ...S.btnGhost, marginLeft: 0 }}>Open in Wayfind</a> : null}
+                {pick.eventSlug ? <a href={"/florida-events/" + encodeURIComponent(pick.eventSlug)} style={{ ...S.btnGhost, marginLeft: 0 }}>Dates, tickets &amp; verdict</a> : null}
               </div>
             </div>
           </section>
