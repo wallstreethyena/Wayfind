@@ -520,6 +520,14 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/test-photos-paid-cap.mjs": {
+    "protects": "The photo-only paid switch (WAYFIND_PHOTOS_PAID + GOOGLE_PHOTOS_MONTH_CAP) raises the photos ledger ceiling alone, fails closed on shut or garbage config, and every Place Photo media or Details request inside the resolver's self-heal fan-out takes its own atomic ledger grant.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A regression could let the photo allowance widen other Google SKUs, or let one 2,000-event budget become several thousand billable media requests because the ledger metered decisions instead of requests."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/test-spend-bypass-regression.mjs": {
     "protects": "Every client-reachable Google spend path fails closed on missing or denied configuration, and no cache or inventory fallback can bypass the atomic ledger.",
     "blastRadius": {
@@ -557,6 +565,14 @@
     "blastRadius": {
       "category": "revenue",
       "detail": "A regression could bypass finite autocomplete budgets or disguise a denied provider as successful empty search suggestions."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-affiliate-opportunity-refresh.mjs": {
+    "protects": "A monetization opportunity seen again is recorded as seen again: the Atlas writer goes through the atomic wf_affiliate_opportunity_seen RPC, so hits increments, last_seen_at refreshes and resolved_at clears, first_seen_at never moves, the function stays revoked from anon/authenticated, and the route reports the database's own effect counts rather than the size of the batch it sent.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "Measured on production 2026-09-08: the queue's only writer used PostgREST resolution=ignore-duplicates, which SKIPS an existing row. All 63 rows sat at hits=1, frozen at first_seen_at = last_seen_at = 2026-08-21, and wf_affiliate_worklist orders by hits DESC \u2014 so the ranking signal for which unmonetized places we walk past most often was structurally pinned at 1, and a place that was resolved and later lost its product could never reappear. The 21-day Atlas cycle was due to start re-seeing that cohort around 2026-09-11, at which point every re-sighting would have been a silent no-op."
     },
     "owner": "Revenue QA"
   }

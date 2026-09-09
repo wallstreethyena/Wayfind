@@ -161,7 +161,13 @@ async function sourceModule(path, prelude) {
   eq(noKey.reason, "unconfigured", "missing photo server key remains operationally distinguishable");
 
   const route = readFileSync("app/api/photo/route.js", "utf8");
-  ok(/authorizeSpend:\s*\(\)\s*=>[^\n]*spendAllow\("photos"\)/.test(route), "photo route injects lazy ledger authorization into the resolver");
+  // 2026-09-09: the authorizer is per-SKU so the resolver's self-heal fan-out can
+  // take one grant per outbound request; `photos` goes through spendAllowPhotos
+  // (free tier, or the owner's photo-only cap), every other SKU through spendAllow.
+  const authorizer = route.match(/authorizeSpend:\s*\(sku\s*=\s*"photos"\)\s*=>\s*getRecovery\(\)\.then\(\(hit\)\s*=>\s*\{([\s\S]*?)\}\),/);
+  ok(!!authorizer, "photo route injects lazy per-SKU ledger authorization (recovery first) into the resolver");
+  ok(!!authorizer && /if \(hit \|\| shut\) return false;/.test(authorizer[1]), "photo route's authorizer refuses on a same-place recovery hit and on a shut gate");
+  ok(!!authorizer && /return sku === "photos" \? spendAllowPhotos\(\) : spendAllow\(sku\);/.test(authorizer[1]), "photo route's authorizer routes photos through spendAllowPhotos and every other SKU through spendAllow");
   ok(!/const\s+spendAllowed\s*=\s*!shut\s*&&\s*\(await\s+spendAllow\("photos"\)\)/.test(route), "photo route cannot consume a grant before cache and inventory are checked");
 }
 

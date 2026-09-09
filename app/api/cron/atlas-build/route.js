@@ -94,6 +94,7 @@ import { gateFree, gateShut, spendAllow } from "../../../../lib/spendGate";
 import { aiKey } from "../../../../lib/aiKey";
 import { paidAnthropicRequest } from "../../../../lib/paidAi";
 import { sbEnv } from "../../../../lib/serverCache";
+import { recordAffiliateOpportunities, toOpportunityRow } from "../../../../lib/affiliateOpportunity";
 import { resolveOverride } from "../../../../lib/envAudit";
 import { recordPulse } from "../../../../lib/jobPulse";
 import { classifyProviderFailure, breakerOpen, tripBreaker } from "../../../../lib/providerHealth.js";
@@ -582,6 +583,7 @@ export async function GET(req) {
   // Affiliate opportunities: bookable places (attractions/hotels) with no verified
   // product yet get flagged for follow-up. Bounded to this batch. Fail-soft.
   let opps = 0;
+  let oppDetail = null;
   if (!upErr && (category === "attractions" || category === "hotels")) {
     try {
       const ids = rows.filter((r) => !r.issues).map((r) => r.place_id);
@@ -590,10 +592,24 @@ export async function GET(req) {
         const have = new Set((pr.ok ? await pr.json() : []).map((x) => x.place_id));
         const oppRows = places
           .filter((p) => ids.includes(p.place_id) && !have.has(p.place_id))
-          .map((p) => ({ place_id: p.place_id, name: p.name, category: p.category, reason: "atlas: bookable, no verified product", suggested_partner: category === "hotels" ? "stay22" : "viator" }));
+          .map((p) => toOpportunityRow(p, { reason: "atlas: bookable, no verified product", suggestedPartner: category === "hotels" ? "stay22" : "viator" }))
+          .filter(Boolean);
         if (oppRows.length) {
-          const or = await fetch(`${s.url}/rest/v1/wf_affiliate_opportunities?on_conflict=place_id`, { method: "POST", headers: { ...svcH, Prefer: "resolution=ignore-duplicates,return=minimal" }, body: JSON.stringify(oppRows), cache: "no-store" });
-          if (or.ok) opps = oppRows.length;
+          // Was: a PostgREST write with `resolution=ignore-duplicates`, which
+          // SKIPS an existing row. Every re-sighting of a place already queued
+          // was discarded — 63 production rows frozen at hits = 1 since
+          // 2026-08-21, and the 21-day Atlas cycle was about to start re-seeing
+          // them. The RPC increments, refreshes last_seen_at, and reopens a
+          // resolved place, atomically, preserving first_seen_at.
+          const rec = await recordAffiliateOpportunities(oppRows);
+          // EFFECTS, NOT ATTEMPTS. `opps = oppRows.length` was the count of rows
+          // SENT, so it read 63 while the database was accepting none of them.
+          // This is what the database actually did.
+          opps = rec.seen;
+          oppDetail = rec.ok
+            ? `opportunities +${rec.inserted} new / ${rec.incremented} re-seen / ${rec.reopened} reopened`
+            : `opportunity queue write FAILED: ${rec.reason}`;
+          if (!rec.ok) console.error(`[atlas-build] ${oppDetail}`);
         }
       }
     } catch (e) {}
@@ -666,7 +682,7 @@ export async function GET(req) {
     // the venue's own words to check against at all — a low with_page is why a
     // batch verifies badly, so losing it would hide the cause.
     unverified, with_page: withPage,
-    sourced, pending, rides, salvaged: stats.salvaged, opportunities: opps,
+    sourced, pending, rides, salvaged: stats.salvaged, opportunities: opps, opportunityDetail: oppDetail,
     provider_halt: stats.providerHalt || null,
     took_ms: Date.now() - startedAt,
     remaining_after: Array.isArray(left) ? left.length + "+ (paged)" : "?", error: upErr, model: MODEL(),

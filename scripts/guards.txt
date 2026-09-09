@@ -1000,6 +1000,13 @@ node scripts/check-no-imageless-card.mjs
 # STRING resolves; this proves the render reacts when that src's request
 # actually fails.
 node scripts/check-card-photo-error-fallback.mjs
+# 2026-09-08 / v8.56.12: the photos ledger exhausted on Sep 1 and 15,088 active
+# refs had no cache row, so every uncached card served the compass (or, after
+# #1182/#1184, a per-title miss / a free same-place recovery). This executes
+# the probe short-circuit, the classifier, the queue, and the worker with
+# injected deps — no network, no lib/spendGate.js import anywhere in this
+# lane, no occurrence of "places.googleapis.com".
+node scripts/test-photo-protection.mjs
 node scripts/test-today-discovery-rails.mjs
 # 2026-09-02 — Night Out pool starvation (owner screenshot, Parrish): an
 # intent rail composed client-side from shown.places alone never sees real
@@ -1266,6 +1273,12 @@ node scripts/test-auth-admin-tombstones.mjs
 # boundaries with fetch traps and positive controls.
 node scripts/test-spend-bypass-regression.mjs
 
+# 2026-09-09 photo-only paid allowance: WAYFIND_PHOTOS_PAID + GOOGLE_PHOTOS_MONTH_CAP
+# may raise the `photos` ledger ceiling ONLY; every other Google SKU asks the
+# ledger for the same numbers with the switch on. One grant == one outbound
+# Google request across the whole media/Details/self-heal fan-out.
+node scripts/test-photos-paid-cap.mjs
+
 # 2026-09-07 security audit: public event aggregation fanned out to provider
 # APIs before cache and without finite per-request budgets.
 node scripts/test-events-spend.mjs
@@ -1298,3 +1311,22 @@ node scripts/check-reverse-migration-reconciliation.mjs
 # breakfast, coffee and bakery-cafe cards remain reachable), including rows
 # whose provider omitted primaryType.
 node scripts/test-morning-identity.mjs
+# 2026-09-09 (owner's affiliate deep-link audit): the only writer of
+# wf_affiliate_opportunities used PostgREST `resolution=ignore-duplicates`, which
+# SKIPS an existing row rather than updating it — so a place already in the queue
+# could never increment `hits`, refresh `last_seen_at`, or clear `resolved_at`.
+# Measured on production: 63 rows, every one at hits=1 and frozen at
+# first_seen_at = last_seen_at = 2026-08-21, with the 21-day Atlas cycle about to
+# start re-seeing that cohort around 09-11. The worklist orders by `hits DESC`, so
+# the ranking signal was structurally stuck at 1. The route also reported
+# `opps = oppRows.length` — rows SENT — which stayed truthful-looking while the
+# database accepted none of them. Replaced by an atomic server-only RPC.
+node scripts/check-affiliate-opportunity-refresh.mjs
+
+# Shared owner briefing contract: email and Command Center expose the same
+# plain-English evidence and exactly three actionable improvements.
+node scripts/test-command-center-briefing.mjs
+
+# Command Center panel requests cancel superseded work and ignore responses
+# that arrive out of order.
+node scripts/test-command-center-requests.mjs
