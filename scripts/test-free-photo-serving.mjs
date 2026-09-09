@@ -441,6 +441,59 @@ async function run() {
     }
   }
 
+  // ── B7 — THE FREE RUNG COVERS EVERY DEAD END, NOT JUST A BUDGET DENIAL.
+  //      The first cut of this lane wired the free photo ONLY into the
+  //      spend-denied/gate-shut/unconfigured/probe-no-spend block. That left
+  //      the two outcomes where a free photo is worth the MOST still painting
+  //      a blank:
+  //        `empty`/no-photo — the place has no Google photo at all. A park or
+  //          beach Google never photographed is exactly the place Wikimedia
+  //          Commons covers best, and it was being sent to the branded
+  //          compass while we held a real, licensed picture of it.
+  //        `owned-miss` — an owned ref whose bytes would not fetch, 404ing to
+  //          a monogram with a free photo sitting unused.
+  //      Both are locked here, each against a same-shaped control proving the
+  //      old behaviour is intact when no free photo exists. ──
+  {
+    globalThis.__wfFreePhotoTest.findSamePlaceCachedPhoto = NO_RECOVERY;
+    const FREE_URL = "https://upload.wikimedia.org/wikipedia/commons/a/ab/FreePhoto.jpg";
+
+    // ---- empty / no-photo ----
+    globalThis.__wfFreePhotoTest.resolvePlacePhoto = async () => ({ type: "empty", location: null, cacheControl: "private, no-store", reason: "no-photo" });
+
+    ledgerCalls = []; ledgerAnswer = true; // the ledger WOULD grant; nothing may ask it
+    globalThis.__wfFreePhotoTest.findFreePhoto = NO_FREE;
+    const emptyControl = await route.GET(req());
+    eq(emptyControl.status, 302, "B7 (empty control): with no free photo, a genuinely photoless place still 302s");
+    eq(emptyControl.headers.get("x-wayfind-photo-result"), "no-photo", "B7 (empty control): …still reported as no-photo…");
+    ok(String(emptyControl.headers.get("location") || "").includes("wf-photo-fallback.svg"), "B7 (empty control): …still to the branded fallback SVG — pre-existing behaviour is untouched");
+
+    ledgerCalls = []; ledgerAnswer = true;
+    globalThis.__wfFreePhotoTest.findFreePhoto = HAS_FREE;
+    const emptyFree = await route.GET(req());
+    eq(emptyFree.status, 302, "B7 (empty): a photoless place WITH a free photo redirects");
+    eq(emptyFree.headers.get("x-wayfind-photo-result"), "owned-free", "B7 (empty): …reported as owned-free, not no-photo…");
+    eq(emptyFree.headers.get("location"), FREE_URL, "B7 (empty): …straight to the Commons file, never to the branded compass");
+    eq(ledgerCalls.length, 0, "B7 (empty): and the photos ledger is never asked — a free photo on the empty path costs nothing");
+
+    // ---- owned-miss (a terminal miss OUTSIDE the recovery-eligible reasons) ----
+    globalThis.__wfFreePhotoTest.resolvePlacePhoto = async (input) => miss("owned-miss", input);
+
+    ledgerCalls = []; ledgerAnswer = true;
+    globalThis.__wfFreePhotoTest.findFreePhoto = NO_FREE;
+    const missControl = await route.GET(req());
+    eq(missControl.status, 404, "B7 (owned-miss control): with no free photo, an unfetchable owned ref still 404s so the card paints its own monogram");
+    eq(missControl.headers.get("x-wayfind-photo-result"), "owned-miss", "B7 (owned-miss control): …still labelled owned-miss");
+
+    ledgerCalls = []; ledgerAnswer = true;
+    globalThis.__wfFreePhotoTest.findFreePhoto = HAS_FREE;
+    const missFree = await route.GET(req());
+    eq(missFree.status, 302, "B7 (owned-miss): an unfetchable owned ref WITH a free photo redirects instead of 404ing");
+    eq(missFree.headers.get("x-wayfind-photo-result"), "owned-free", "B7 (owned-miss): …reported as owned-free");
+    eq(missFree.headers.get("location"), FREE_URL, "B7 (owned-miss): …to the Commons file");
+    eq(ledgerCalls.length, 0, "B7 (owned-miss): still no photos grant taken");
+  }
+
   restoreEnv();
   globalThis.fetch = savedFetch;
   delete globalThis.__wfFreePhotoTest;

@@ -53,6 +53,14 @@ export async function GET(req) {
   // same-place recovery, because a Google photo of the actual venue that is
   // already paid for still wins over a substitute, even a free one.
   //
+  // The free rung then runs for EVERY remaining dead end, not only a budget
+  // denial: `empty`/no-photo (a place Google never photographed at all — the
+  // single biggest coverage win in the lane, since a park or beach with no
+  // Google photo is exactly what Commons covers best) and `owned-miss` (an
+  // owned ref whose bytes would not fetch). Before v8.57 both of those
+  // painted a blank while a licensed photo of the place sat unused.
+  // Locked by scripts/test-free-photo-serving.mjs section B7.
+  //
   // x-wayfind-photo-result values: cache | inventory | inventory-ref-cache |
   // google | same-place-cache (redirect, 302 — a fresher/older cached Google
   // photo of this same venue) | owned-free (redirect, 302 — a FREE,
@@ -194,18 +202,32 @@ export async function GET(req) {
         },
       });
     }
-    const free = await getFreePhoto();
-    if (free && free.url) {
-      return NextResponse.redirect(free.url, {
-        status: 302,
-        headers: {
-          // Permanent, unlike a rented Google photo — a full year, not 30 days.
-          "Cache-Control": "public, max-age=" + ONE_YEAR + ", s-maxage=" + ONE_YEAR + ", immutable",
-          "x-wayfind-photo-result": "owned-free",
-          "x-wayfind-photo-probe": probe ? "1" : "0",
-        },
-      });
-    }
+  }
+
+  // The free permanent rung, for EVERY remaining outcome — not just a budget
+  // denial. Three cases reach here and all three used to end in a blank:
+  //   miss/spend-denied etc. with no same-place recovery (handled above first,
+  //     because a cached photo of this venue beats a Commons photo of it),
+  //   empty/no-photo — the place has no Google photo AT ALL. This is the
+  //     biggest win in the lane: a park or beach Google never photographed can
+  //     now carry a real, verified, permanently-licensed picture instead of the
+  //     branded compass, and it costs nothing, forever.
+  //   owned-miss — an owned ref whose bytes we could not fetch.
+  // Law #3 (lib/placePhotoServe.js) is satisfied: findFreePhoto is keyed on
+  // THIS placeId and lib/commonsPhotos.js attaches nothing it has not identity-
+  // verified against this exact entity. It is this place's own photo, never a
+  // shared stock pool.
+  const free = await getFreePhoto();
+  if (free && free.url) {
+    return NextResponse.redirect(free.url, {
+      status: 302,
+      headers: {
+        // Permanent, unlike a rented Google photo — a full year, not 30 days.
+        "Cache-Control": "public, max-age=" + ONE_YEAR + ", s-maxage=" + ONE_YEAR + ", immutable",
+        "x-wayfind-photo-result": "owned-free",
+        "x-wayfind-photo-probe": probe ? "1" : "0",
+      },
+    });
   }
 
   if (result.type === "empty") {
