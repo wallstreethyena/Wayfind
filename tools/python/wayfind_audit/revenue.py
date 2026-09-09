@@ -282,7 +282,7 @@ def tracking(row, provider):
         return False
 
 
-def audit_revenue(data):
+def audit_revenue(data, policy=None):
     validate(data)
     d, now = data["datasets"], timestamp(data["captured_at"])
     links = []
@@ -318,6 +318,35 @@ def audit_revenue(data):
                     "candidate_count": sum(r["status"] == "candidate" for r in records),
                 }
             )
+    pin_checks = []
+    if policy is not None:
+        if not isinstance(policy, dict) or not isinstance(policy.get("pins"), list):
+            raise AuditError("Invalid pin policy")
+        products = {str(r["product_code"]): r for r in d["experiences"]}
+        deals = {str(r["id"]): r for r in d["deals"]}
+        for pin in policy["pins"]:
+            if not isinstance(pin, dict) or not all(
+                isinstance(pin.get(k), str) and pin[k]
+                for k in ("entity_type", "entity_id", "provider", "offer_id")
+            ):
+                raise AuditError("Malformed pin reference")
+            provider = pin["provider"]
+            catalog = (
+                products
+                if provider == "viator"
+                else deals
+                if provider == "undercover_tourist"
+                else None
+            )
+            record = catalog.get(pin["offer_id"]) if catalog is not None else None
+            state = (
+                "unknown_provider_inventory"
+                if catalog is None
+                else "missing_inventory"
+                if record is None
+                else link_health(record, now)
+            )
+            pin_checks.append({**pin, "state": state, "account_eligibility": "unknown"})
     return {
         "schema_version": "revenue-report-1",
         "source_kind": data["source_kind"],
@@ -328,6 +357,8 @@ def audit_revenue(data):
         "counts": data["expected_counts"],
         "pages": data["pages"],
         "links": links,
+        "pin_checks": pin_checks,
+        "pin_source_sha": policy.get("source_sha") if policy else None,
         "entities": gaps,
         "health_counts": dict(Counter(x["health"] for x in links)),
         "candidates": [r for r in d["coverage"] if r["status"] == "candidate"],

@@ -29,6 +29,13 @@ independent counts, unique IDs, terminal-page proof, timeouts and a row ceiling.
 No dynamic place-product join or affiliate request runs. A failed census never
 writes a successful partial snapshot.
 
+The daily job also executes scripts/export-revenue-pins.mjs against the snapshot
+using the current placePartnerPick and eventTicketDeal implementations. The report
+flags Viator/Undercover Tourist pins missing their backing inventory, records
+cached health for present products, and labels other partner inventories unknown.
+The pin export is bound to the exact snapshot SHA-256 and records its source commit.
+This checks known code references, not every dynamically rendered card surface.
+
 The existing Python workflow now runs an independent revenue job on its daily
 schedule, manual dispatch and relevant main pushes. It reuses the canary's
 SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY with `--transport rest`: GET-only,

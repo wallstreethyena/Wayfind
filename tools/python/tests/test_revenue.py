@@ -1,6 +1,8 @@
 import copy
 import json
+import subprocess
 from datetime import datetime, timezone
+from pathlib import Path
 
 import pytest
 
@@ -177,3 +179,60 @@ def test_rest_keyset_crosses_page_boundary(monkeypatch):
     assert result["pages"]["places"] == [1000, 1]
     assert result["expected_counts"]["places"] == 1001
     assert seen_cursors == [None, "gt.p0999"]
+
+
+def test_actual_code_pins_and_missing_product(tmp_path):
+    from wayfind_audit.cli import main
+
+    data = fixture()
+    data["datasets"]["places"] = [
+        {
+            "place_id": "shell-key",
+            "name": "Shell Key Preserve",
+            "category": "parks",
+            "metro": "Tampa",
+        }
+    ]
+    data["expected_counts"]["places"] = 1
+    data["pages"]["places"] = [1]
+    snapshot, pins = tmp_path / "snapshot.json", tmp_path / "pins.json"
+    snapshot.write_text(json.dumps(data))
+    repo = Path(__file__).resolve().parents[3]
+    subprocess.run(
+        ["node", str(repo / "scripts/export-revenue-pins.mjs"), str(snapshot), str(pins)],
+        check=True,
+        cwd=repo,
+    )
+    policy = json.loads(pins.read_text())
+    assert policy["pins"][0]["offer_id"] == "173028P1"
+    report = audit_revenue(data, policy)
+    assert report["pin_checks"][0]["state"] == "missing_inventory"
+    assert (
+        main(
+            [
+                "revenue-report",
+                "--input",
+                str(snapshot),
+                "--pins",
+                str(pins),
+                "--out",
+                str(tmp_path / "out"),
+            ]
+        )
+        == 0
+    )
+    snapshot.write_text(json.dumps(data) + " ")
+    assert (
+        main(
+            [
+                "revenue-report",
+                "--input",
+                str(snapshot),
+                "--pins",
+                str(pins),
+                "--out",
+                str(tmp_path / "bad"),
+            ]
+        )
+        == 2
+    )

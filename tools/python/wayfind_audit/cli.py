@@ -1,6 +1,7 @@
 """Command-line entrypoint. Offline by default; collection is explicit."""
 
 import argparse
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -144,6 +145,7 @@ def main(argv=None):
     )
     money_report.add_argument("--input", type=Path, required=True)
     money_report.add_argument("--out", type=Path, required=True)
+    money_report.add_argument("--pins", type=Path)
     args = parser.parse_args(argv)
     try:
         if args.command == "revenue-collect":
@@ -155,7 +157,15 @@ def main(argv=None):
         elif args.command == "revenue-report":
             if args.out.exists() or args.input.stat().st_size > 100_000_000:
                 raise AuditError("Output exists or input exceeds 100 MB")
-            result = audit_revenue(json.loads(args.input.read_text()))
+            raw = args.input.read_bytes()
+            policy = None
+            if args.pins:
+                if args.pins.stat().st_size > 10_000_000:
+                    raise AuditError("Pin policy exceeds size ceiling")
+                policy = json.loads(args.pins.read_text())
+                if policy.get("snapshot_sha256") != hashlib.sha256(raw).hexdigest():
+                    raise AuditError("Pin policy belongs to a different snapshot")
+            result = audit_revenue(json.loads(raw), policy)
             args.out.mkdir(parents=True, exist_ok=False)
             write_json(args.out / "report.json", result)
             lines = [
@@ -166,6 +176,8 @@ def main(argv=None):
                 "Inventory counts: " + cell(result["counts"]),
                 "",
                 "Health evidence: " + cell(result["health_counts"]),
+                "",
+                f"Current-code pin references: {len(result['pin_checks'])}; missing inventory: {sum(p['state'] == 'missing_inventory' for p in result['pin_checks'])}.",
                 "",
                 f"Candidate rows: {len(result['candidates'])}. Eligible coverage incomplete.",
                 "",
