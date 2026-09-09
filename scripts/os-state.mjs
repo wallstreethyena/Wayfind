@@ -120,7 +120,7 @@ export async function collect() {
   // app/api/health/photos and scripts/photo-monitor.mjs use, so this doc can
   // never disagree with either about how the percentage is derived.
   try {
-    const { computePhotoCoverage } = await import("../lib/photoCoverage.js");
+    const { computePhotoCoverage, computePhotoRunway } = await import("../lib/photoCoverage.js");
     const activeWithRef = await count(s, "wf_inventory?select=place_id&status=eq.OPERATIONAL&or=(excluded.is.null,excluded.is.false)&photo_ref=not.is.null");
     // 2026-09-09: open+budget_blocked, not open alone. A budget_blocked row
     // is a live-dependency wait (lib/photoRepair.js re-checks wf_spend_ledger
@@ -162,6 +162,25 @@ export async function collect() {
 
     out.rows.push(["Photo repair queue", `${fmt(openRows)} open (${fmt(blockedRows)} budget-blocked) · ${fmt(unresolvedRows)} unresolved`, "`wf_photo_repair_queue` live count"]);
     out.rows.push(["Photo recoveries (7d)", fmt(recoveries7d), "`wf_photo_repair_queue` `status=recovered&updated_at=gte.<7d>`"]);
+
+    // Burn rate / runway (2026-09-09) — the same lib/photoCoverage.js
+    // computePhotoRunway() app/api/health/photos/route.js reads, over the
+    // same two most recent photo-repair pulse notes, so this doc can never
+    // print a different runway than the health endpoint the owner's weekly
+    // loop cross-checks it against. Null-safe: computePhotoRunway itself
+    // returns null/null on fewer than two parseable notes, never a
+    // fabricated 0 or a fabricated date.
+    const repairPulseR = await fetch(`${s.url}/rest/v1/wf_job_pulse?job=eq.photo-repair&select=note,ran_at&order=ran_at.desc&limit=2`,
+      { headers: { apikey: s.key, Authorization: `Bearer ${s.key}` }, cache: "no-store" });
+    const repairPulseRows = repairPulseR.ok ? await repairPulseR.json() : [];
+    const runway = computePhotoRunway(repairPulseRows.map((r) => ({ note: r.note, ranAt: r.ran_at })));
+    out.rows.push([
+      "Photo budget runway",
+      runway.burn24h != null && runway.runwayDays != null
+        ? `~${fmt(Math.round(runway.runwayDays))}d left at ~${fmt(Math.round(runway.burn24h))} grants/24h`
+        : "not measured yet — fewer than two `photo-repair` pulses with a readable allowance",
+      "`wf_job_pulse` last two `photo-repair` notes' `allowance=used/cap` (`lib/photoCoverage.js` `computePhotoRunway`)",
+    ]);
   } catch (e) { out.warnings.push(`wf_photo_repair_queue / photo coverage: ${e.message}`); }
   return out;
 }
