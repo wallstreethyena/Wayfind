@@ -38,7 +38,7 @@ import {
   parseOpenTotal,
   pulseVerdict,
 } from "../lib/photoCoverage.js";
-import { createPacer, fetchWithRetry, queueCandidates, sampleCells, summarize, upsertQueueRows } from "./photo-monitor.mjs";
+import { createPacer, fetchWithRetry, groupByKeySignature, queueCandidates, sampleCells, summarize, upsertQueueRows } from "./photo-monitor.mjs";
 import { decideRowOutcome, runRepair, statusFor } from "../lib/photoRepair.js";
 import { findSamePlaceCachedPhoto } from "../lib/photoCacheRecovery.js";
 
@@ -782,6 +782,86 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
     "case 17: scripts/guards.txt has no COMMAND line invoking the network-touching monitor — a flaky CDN must never block a merge");
   ok(guardCommandLines.some((l) => /test-photo-protection\.mjs/.test(l)),
     "case 17: scripts/guards.txt has a COMMAND line wiring in THIS hermetic guard");
+}
+
+// ── case 18 — the upsert TRANSPORT sends homogeneous batches (PGRST102) ──
+// 2026-09-09, found by reading the monitor's own pulse notes: run one wrote
+// 233 queue rows, and every run after it carried `queue unavailable`.
+//
+// Cause: PostgREST refuses a `resolution=merge-duplicates` POST whose objects
+// do not all carry the same keys — 400 PGRST102, "All object keys must
+// match". Reproduced against the live table: a two-row batch where both rows
+// carry `status` is accepted; the same batch with `status` dropped from one
+// row returns exactly that 400. Case 8 above is why the body is heterogeneous
+// in the first place, and case 8 is RIGHT — a retired or unresolved row is an
+// operator verdict the monitor must not write over, and an already-open row
+// needs no status write. So the payload stays as it is and the TRANSPORT
+// groups it. Run one worked only because every row was new and therefore
+// carried `status`; the queue has been frozen ever since.
+//
+// It was silent because the monitor is fail-soft about the queue (case 11):
+// it logs, files its pulse, and exits 0. The instrument kept measuring
+// correctly while its findings reached nobody.
+{
+  const nowIso = "2026-09-09T14:00:00.000Z";
+  const candidates = [
+    { placeId: "P_NEW", currentRef: "places/P_NEW/photos/A", failureReason: "source-unavailable" },
+    { placeId: "P_RECOVERED", currentRef: "places/P_RECOVERED/photos/B", failureReason: "source-unavailable" },
+    { placeId: "P_OPEN", currentRef: null, failureReason: "no-source" },
+    { placeId: "P_UNRESOLVED", currentRef: null, failureReason: "no-source" },
+    { placeId: "P_RETIRED", currentRef: null, failureReason: "no-source" },
+  ];
+  const existing = [
+    { place_id: "P_RECOVERED", status: "recovered", detections: 3 },
+    { place_id: "P_OPEN", status: "open", detections: 7 },
+    { place_id: "P_UNRESOLVED", status: "unresolved", detections: 9 },
+    { place_id: "P_RETIRED", status: "retired", detections: 2 },
+  ];
+  const body = mergeQueueUpsert(existing, candidates, nowIso);
+
+  // The precondition this whole case exists for. If mergeQueueUpsert ever
+  // became homogeneous on its own, the grouping would be dead code and this
+  // assertion says so loudly rather than passing vacuously.
+  const bodySignatures = new Set(body.map((r) => Object.keys(r).sort().join(",")));
+  ok(bodySignatures.size > 1,
+    `case 18 PRECONDITION: mergeQueueUpsert's output really is heterogeneous (case 8 requires it) — got ${bodySignatures.size} signature(s), so the grouping below is load-bearing`);
+
+  const groups = groupByKeySignature(body);
+  ok(groups.length === bodySignatures.size,
+    `case 18: one group per distinct key signature — expected ${bodySignatures.size}, got ${groups.length}`);
+  for (const g of groups) {
+    const sigs = new Set(g.map((r) => Object.keys(r).sort().join(",")));
+    ok(sigs.size === 1,
+      `case 18: every row WITHIN a group carries an identical key set — this is the exact shape PostgREST accepts. Got ${sigs.size}: ${[...sigs].join(" || ")}`);
+  }
+  const regrouped = groups.flat().map((r) => r.place_id).sort();
+  ok(regrouped.join(",") === body.map((r) => r.place_id).sort().join(","),
+    "case 18: grouping loses nothing and invents nothing — every candidate row is sent exactly once across the groups");
+  ok(groups.reduce((n, g) => n + g.length, 0) === body.length,
+    `case 18: the group row counts sum to the body length (${body.length})`);
+
+  // MUTATION RED with teeth: the pre-fix transport sent `body` as ONE batch.
+  // Assert that that single batch is exactly what PostgREST rejects.
+  const singleBatchSignatures = new Set(body.map((r) => Object.keys(r).sort().join(",")));
+  ok(singleBatchSignatures.size > 1,
+    "case 18 MUTATION RED: sending the whole body as one request (the pre-fix behaviour) submits more than one key signature — 400 PGRST102");
+
+  // Self-tests: the grouper must not merge unlike rows, must keep like rows
+  // together, and must survive junk.
+  const mixed = groupByKeySignature([{ a: 1 }, { a: 2 }, { a: 3, b: 4 }]);
+  ok(mixed.length === 2, `case 18 self-test: two shapes produce two groups, got ${mixed.length}`);
+  ok(mixed.some((g) => g.length === 2) && mixed.some((g) => g.length === 1),
+    "case 18 self-test: like rows stay together (2) and the odd one out is its own group (1)");
+  ok(groupByKeySignature([{ b: 1, a: 2 }, { a: 3, b: 4 }]).length === 1,
+    "case 18 self-test: key ORDER is not a signature — the same keys declared in a different order are one group");
+  ok(groupByKeySignature([]).length === 0 && groupByKeySignature(null).length === 0,
+    "case 18 self-test: an empty or non-array input produces no groups rather than throwing");
+  ok(groupByKeySignature([null, undefined, "x", { a: 1 }]).length === 1,
+    "case 18 self-test: non-object entries are dropped, never sent as a row");
+
+  // The transport must still send nothing when there is nothing to send.
+  ok(groupByKeySignature(mergeQueueUpsert([], [], nowIso)).length === 0,
+    "case 18: no candidates means no groups and therefore no request");
 }
 
 if (fail.length) {

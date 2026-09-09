@@ -83,5 +83,7 @@ sourced editorial expansion remain separate work, not claimed complete.
   production function privileges verified (anon/authenticated false, service true).
 - Photo queue regression reproduced HTTP 400 with a mixed-key fixture before
   the change, then passed with both records retained and retired status omitted.
-- 78 Python tests pass with the locked all-extras test environment.
+- 79 Python tests pass with the locked all-extras test environment.
 - Full guard/build/CI and production verification are required before completion.
+
+The follow-up snapshot at 14:55 UTC validated 20,086 places, 2,938 job runs, and 14 ledger records. Four excluded-record pairs were separated. The Sadelle’s/Isabelle’s decision is now identity-scoped in the package; if their names or category change, the pair returns to review. Raw snapshot deleted after analysis.

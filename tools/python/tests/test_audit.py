@@ -332,3 +332,17 @@ def test_recent_jobs_excludes_old_failures_and_compares_timezones():
     assert result["recent_jobs"][0]["runs"] == 1
     assert result["recent_jobs"][0]["idle_runs"] == 1
     assert result["recent_jobs"][0]["zero_output_runs"] == 0
+
+
+def test_distinct_restaurants_review_is_identity_scoped():
+    rows = [
+        place("ChIJJ-YCrau32YgRrR2M1W_RPF4", name="Sadelle's Coconut Grove"),
+        place("ChIJgW_5qc632YgRJp09efZfDEg", name="Isabelle's Coconut Grove"),
+    ]
+    result = audit(sample(rows))["duplicates"]
+    assert result["candidate_pairs"] == []
+    assert len(result["reviewed_distinct_pairs"]) == 1
+    rows[1][1] = "Sadelle's Coconut Grove"
+    result = audit(sample(rows))["duplicates"]
+    assert len(result["candidate_pairs"]) == 1
+    assert result["reviewed_distinct_pairs"] == []

@@ -8,6 +8,7 @@ from difflib import SequenceMatcher
 
 import duckdb
 
+from .duplicate_reviews import distinct_review
 from .snapshot import AuditError, timestamp, validate
 
 
@@ -231,6 +232,8 @@ def duplicates(db, rows, max_pairs):
         )
     out = []
     inactive = []
+    reviewed = []
+    categories = {r[0]: r[5] for r in rows}
     state = {r[0]: (r[6], r[7]) for r in rows}
     for left, right, a, b, distance in candidates:
         # Symmetric ratio avoids SequenceMatcher's argument-order sensitivity.
@@ -239,6 +242,10 @@ def duplicates(db, rows, max_pairs):
             SequenceMatcher(None, b, a, autojunk=False).ratio(),
         )
         if ratio >= 0.92:
+            review = distinct_review(left, right, a, b, categories[left])
+            if review:
+                reviewed.append({"left_id": left, "right_id": right, **review})
+                continue
             # Retain inactive pairs as evidence, but do not send deliberately
             # excluded records back to the active duplicate review queue.
             target = (
@@ -263,6 +270,7 @@ def duplicates(db, rows, max_pairs):
     return {
         "candidate_pairs": out,
         "inactive_pairs": inactive,
+        "reviewed_distinct_pairs": reviewed,
         "compared_pairs": len(candidates),
         "located_named_records": len(points),
         "skipped_records": missing,

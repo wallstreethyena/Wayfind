@@ -1,5 +1,11 @@
 import assert from 'node:assert/strict';
+import { mergeQueueUpsert } from '../lib/photoCoverage.js';
 import { upsertQueueRows } from './photo-monitor.mjs';
+const merged = mergeQueueUpsert([{place_id:'retired',status:'retired',detections:2}], [
+  {placeId:'retired',failureReason:'no-source'}, {placeId:'new',failureReason:'no-source'},
+], '2026-09-09T00:00:00Z');
+assert.equal(Object.hasOwn(merged[0],'status'),false);
+assert.equal(merged[1].status,'open');
 const previous=globalThis.fetch;
 const writes=[];
 try {
