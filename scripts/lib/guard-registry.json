@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 602,
-    "totalRegistryEntries": 603,
-    "guardsTxtLineCount": 600,
-    "guardsTxtReachedFileCount": 595,
+    "totalOnDiskGuardFiles": 603,
+    "totalRegistryEntries": 604,
+    "guardsTxtLineCount": 601,
+    "guardsTxtReachedFileCount": 596,
     "criticalCount": 73,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 411,
+      "CALL": 412,
       "RENDER": 47,
       "STRUCTURAL": 144,
       "OTHER": 1
@@ -9837,6 +9837,28 @@
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
       ],
       "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-doc-ownership-shallow.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 28,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
