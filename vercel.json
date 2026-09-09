@@ -126,7 +126,11 @@
       "schedule": "20 4 * * *"
     },
     {
-      "path": "/api/cron/place-photos",
+      "path": "/api/cron/place-photos?source=at-risk&limit=25",
+      "schedule": "35 * * * *"
+    },
+    {
+      "path": "/api/cron/place-photos?source=all&limit=25",
       "schedule": "50 4 * * *"
     }
   ]

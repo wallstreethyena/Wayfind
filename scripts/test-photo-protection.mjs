@@ -25,6 +25,7 @@
 import { readFileSync } from "node:fs";
 import { resolvePlacePhoto } from "../lib/placePhotoServe.js";
 import {
+  allowanceFromLedger,
   backoffMs,
   classifyProbe,
   computeBreach,
@@ -41,6 +42,7 @@ import {
 import { createPacer, fetchWithRetry, groupByKeySignature, queueCandidates, sampleCells, summarize, upsertQueueRows } from "./photo-monitor.mjs";
 import { decideRowOutcome, runRepair, statusFor } from "../lib/photoRepair.js";
 import { findSamePlaceCachedPhoto } from "../lib/photoCacheRecovery.js";
+import { findFreePhoto } from "../lib/freePhoto.js";
 
 let pass = 0;
 const fail = [];
@@ -153,23 +155,55 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
   ok(classifyProbe({}) === "error", "case 2: an empty/unclassifiable response must classify as error");
 }
 
-// ── case 3 — backoff math ────────────────────────────────────────────────────
+// ── case 3 — backoff math (REWRITTEN 2026-09-09 — the calendar branch is GONE) ─
+//
+// THE BUG THE OLD ASSERTION ENCODED AS CORRECT. Production measured
+// 2026-09-09: 173 rows sat `spend-restricted` with next_attempt_at PINNED to
+// 2026-10-01T00:00:00Z while wf_spend_ledger already showed real headroom
+// (used=968, cap=2000) the SAME DAY the owner raised the cap. That pin came
+// from exactly the assertion this case used to carry:
+// `nextAttemptAt(t,n,"spend-restricted") === firstOfNextMonthUTC(t)`. A
+// calendar date can never see an intraday budget change; a live ledger read
+// can. No status may schedule through firstOfNextMonthUTC any more.
 {
   const expectedHours = [1, 4, 24, 72, 168, 168];
   for (let i = 0; i < expectedHours.length; i++) {
     ok(backoffMs(i) === expectedHours[i] * 3600 * 1000, `case 3: backoffMs(${i}) expected ${expectedHours[i]}h, got ${backoffMs(i) / 3600000}h`);
   }
+
   const t = Date.parse("2026-09-08T18:00:00Z");
-  const expectedFirst = firstOfNextMonthUTC(t).getTime();
-  ok(expectedFirst === Date.parse("2026-10-01T00:00:00Z"), `case 3: firstOfNextMonthUTC sanity — expected 2026-10-01T00:00:00Z, got ${new Date(expectedFirst).toISOString()}`);
-  for (let n = 0; n <= 8; n++) {
-    const next = nextAttemptAt(t, n, "spend-restricted").getTime();
-    ok(next === expectedFirst, `case 3: nextAttemptAt(t, ${n}, "spend-restricted") must equal firstOfNextMonthUTC(t), got ${new Date(next).toISOString()}`);
-    ok(next >= expectedFirst, `case 3: spend-restricted retry must never be scheduled before next month (n=${n})`);
+  const expectedFirstOfMonth = Date.parse("2026-10-01T00:00:00Z");
+  ok(firstOfNextMonthUTC(t).getTime() === expectedFirstOfMonth,
+    "case 3: firstOfNextMonthUTC itself is unchanged (kept exported for reporting only) — sanity, expected 2026-10-01T00:00:00Z");
+
+  // nextAttemptAt's WHOLE new contract: for EVERY reason string — retired,
+  // current, or invented — the result never exceeds t + backoffMs(n), and
+  // never lands anywhere near the calendar reset the old bug pinned to.
+  const reasons = ["spend-restricted", "budget_blocked", "no-source", "stale-reference", "source-unavailable", undefined, "made-up-reason"];
+  for (const reason of reasons) {
+    for (let n = 0; n <= 8; n++) {
+      const got = nextAttemptAt(t, n, reason).getTime();
+      const ceiling = t + backoffMs(n);
+      ok(got === ceiling, `case 3: nextAttemptAt(t, ${n}, ${JSON.stringify(reason)}) must equal t + backoffMs(${n}) (${new Date(ceiling).toISOString()}), got ${new Date(got).toISOString()}`);
+      ok(got < expectedFirstOfMonth, `case 3: nextAttemptAt(t, ${n}, ${JSON.stringify(reason)}) must never reach the 2026-10-01 calendar reset regardless of reason, got ${new Date(got).toISOString()}`);
+    }
   }
+
   ok(statusFor({ recovered: false, attempts: MAX_ATTEMPTS }) === "unresolved", `case 3: statusFor at attempts===MAX_ATTEMPTS(${MAX_ATTEMPTS}) must be "unresolved"`);
   ok(statusFor({ recovered: false, attempts: MAX_ATTEMPTS + 3 }) === "unresolved", "case 3: statusFor must stay unresolved past MAX_ATTEMPTS, not flip back");
   ok(statusFor({ recovered: false, attempts: MAX_ATTEMPTS - 1 }) === "open", "case 3: statusFor below MAX_ATTEMPTS must remain open");
+
+  // NEW (2026-09-09): `blocked` outranks the attempts count entirely — a row
+  // waiting on money must never read as "unresolved" no matter how many
+  // real attempts it has on record, because attempts is frozen while blocked.
+  ok(statusFor({ recovered: false, blocked: true, attempts: MAX_ATTEMPTS }) === "budget_blocked",
+    "case 3: statusFor with blocked:true must be budget_blocked even AT MAX_ATTEMPTS — waiting on money is never a failed attempt");
+  ok(statusFor({ recovered: false, blocked: true, attempts: MAX_ATTEMPTS + 10 }) === "budget_blocked",
+    "case 3: statusFor with blocked:true must be budget_blocked no matter how far attempts has drifted");
+  ok(statusFor({ recovered: true, blocked: true, attempts: MAX_ATTEMPTS }) === "recovered",
+    "case 3: recovered still outranks blocked — a recovered row is never reported as still blocked");
+  ok(statusFor({ recovered: false, blocked: false, attempts: 0 }) === "open",
+    "case 3: blocked:false with low attempts is ordinary open, unchanged");
 }
 
 // ── case 4 — sampling determinism ───────────────────────────────────────────
@@ -212,6 +246,38 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
   }
   ok(!NO_SPEND_RX.test(stripComments('// spendGate\nconst x = 1;')), "case 5 self-test: a line comment naming spendGate must be stripped before scanning");
   ok(NO_SPEND_RX.test(stripComments('const bad = "this file uses lib/spendGate.js directly";')), "case 5 self-test: a real reference to spendGate must still be caught outside a comment");
+}
+
+// ── case 5b — the 950 pin: lib/photoCoverage.js and lib/spendGate.js agree ──
+//
+// lib/photoCoverage.js cannot import lib/spendGate.js (case 5 forbids it —
+// this whole lane must stay free of any Google-spend dependency, even a
+// read-only one). So PHOTOS_OPERATING_FREE_CAP is a DUPLICATED literal, and
+// a duplicated literal can silently drift: someone raises CAPS.photos in
+// lib/spendGate.js without touching this file, and allowanceFromLedger keeps
+// reporting "paid" 50 grants early (or late). This is a STRUCTURAL assertion
+// (reads both files' source), not a call — there is no runtime import to
+// call through, by design — so it is scoped narrowly to the two exact
+// declaration sites, never a bare substring search.
+{
+  const coverageSrc = readFileSync(new URL("../lib/photoCoverage.js", import.meta.url), "utf8");
+  const spendGateSrc = readFileSync(new URL("../lib/spendGate.js", import.meta.url), "utf8");
+
+  const coverageMatch = /export const PHOTOS_OPERATING_FREE_CAP\s*=\s*(\d+)\s*;/.exec(coverageSrc);
+  ok(!!coverageMatch, "case 5b: lib/photoCoverage.js must declare `export const PHOTOS_OPERATING_FREE_CAP = <number>;` — the pin has nothing to read otherwise");
+
+  // CAPS is an object literal (`const CAPS = { ..., photos: 950, ... }`) —
+  // match the KEY, not a bare "950" (a bare number match would happily pass
+  // against any OTHER sku's cap that happened to equal 950 too).
+  const spendGateMatch = /\bphotos:\s*(\d+)\b/.exec(spendGateSrc);
+  ok(!!spendGateMatch, "case 5b: lib/spendGate.js must declare a `photos: <number>` entry in its CAPS object — the pin has nothing to compare against otherwise");
+
+  if (coverageMatch && spendGateMatch) {
+    ok(coverageMatch[1] === spendGateMatch[1],
+      `case 5b: PHOTOS_OPERATING_FREE_CAP (${coverageMatch[1]}) must equal lib/spendGate.js's CAPS.photos (${spendGateMatch[1]}) — a raised paid cap that forgets this file makes every "paid"/"exhausted" phase verdict wrong by the drift amount`);
+    ok(coverageMatch[1] === "950" && spendGateMatch[1] === "950",
+      `case 5b: today's known-correct value for BOTH is 950 — got PHOTOS_OPERATING_FREE_CAP=${coverageMatch[1]}, CAPS.photos=${spendGateMatch[1]} (a correlated typo in both files at once would slip past the equality check alone)`);
+  }
 }
 
 // ── case 6 — coverage math ──────────────────────────────────────────────────
@@ -288,17 +354,25 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
     { placeId: "P_OPEN", currentRef: null, failureReason: "no-source" },
     { placeId: "P_UNRESOLVED", currentRef: null, failureReason: "no-source" },
     { placeId: "P_RETIRED", currentRef: null, failureReason: "no-source" },
+    { placeId: "P_BUDGET_BLOCKED", currentRef: "places/P_BUDGET_BLOCKED/photos/C", failureReason: "source-unavailable" },
   ];
   const existing = [
     { place_id: "P_RECOVERED", status: "recovered", detections: 3 },
     { place_id: "P_OPEN", status: "open", detections: 7 },
     { place_id: "P_UNRESOLVED", status: "unresolved", detections: 9 },
     { place_id: "P_RETIRED", status: "retired", detections: 2 },
+    { place_id: "P_BUDGET_BLOCKED", status: "budget_blocked", detections: 5 },
   ];
   const body = mergeQueueUpsert(existing, candidates, nowIso);
   const byId = Object.fromEntries(body.map((b) => [b.place_id, b]));
 
-  ok(body.length === 5, `case 8: every candidate must yield exactly one upsert body, got ${body.length}`);
+  ok(body.length === 6, `case 8: every candidate must yield exactly one upsert body, got ${body.length}`);
+  // 2026-09-09: a budget_blocked prior gets the SAME treatment as
+  // retired/unresolved — the monitor re-detecting the compass on an
+  // already-blocked row is not new information about WHY it is blocked;
+  // only lib/photoRepair.js's own ledger read may move it off budget_blocked.
+  ok(!("status" in byId.P_BUDGET_BLOCKED), "case 8: a BUDGET_BLOCKED row must have its status OMITTED — a monitor re-detection must never overturn the worker's own budget verdict");
+  ok(byId.P_BUDGET_BLOCKED.detections === 6, `case 8: detections still increments on a budget_blocked row (5 -> 6), got ${byId.P_BUDGET_BLOCKED.detections}`);
   ok(byId.P_NEW.detections === 1, `case 8: a first detection starts detections at 1, got ${byId.P_NEW.detections}`);
   ok(byId.P_OPEN.detections === 8, `case 8: a re-detection must INCREMENT detections (7 -> 8), got ${byId.P_OPEN.detections} — a counter that cannot count is worse than no counter`);
   ok(byId.P_RECOVERED.detections === 4, `case 8: detections increments on a recovered row too, got ${byId.P_RECOVERED.detections}`);
@@ -363,12 +437,36 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
   ok(same.outcome === "recovered" && same.recoverySource === "same-place-cache", `case 10: a recovery ref DIFFERENT from the live ref must be "same-place-cache", got outcome "${same.outcome}" source "${same.recoverySource}"`);
   ok(same.recoveryRef === olderRef, "case 10: the same-place recovery must carry the OLDER ref, not the live one");
 
+  // ORDER, at the pure-function level: when BOTH a same-place recovery AND a
+  // vault hit are present simultaneously, the cache recovery must win —
+  // decideRowOutcome checks `recovery` before `vaultHit`. runRepair itself
+  // never actually produces this exact combination (it only calls findFree
+  // when the cache already missed), so this is the one place that pins the
+  // PURE function's own precedence directly, independent of that call-site
+  // short-circuit (which case 23b pins separately, at the runRepair level).
+  const bothPresent = decideRowOutcome({
+    row, livePhotoRef: liveRef,
+    recovery: { ref: liveRef, uri: "https://lh3.googleusercontent.com/p/live", expMs: freshExpMs },
+    vaultHit: { source: "wikimedia-commons", license: "CC0", attributionText: "x", attributionUrl: "https://example.test" },
+    ledgerHasHeadroom: false,
+  });
+  ok(bothPresent.outcome === "recovered" && bothPresent.recoverySource === "exact-ref-cache",
+    `case 10: when both a same-place recovery AND a vault hit are present, the same-place/cache path must win (checked first) — got source "${bothPresent.recoverySource}"`);
+
   const noRecoveryHeadroom = decideRowOutcome({ row, livePhotoRef: liveRef, recovery: null, ledgerHasHeadroom: true });
   ok(noRecoveryHeadroom.outcome === "classified" && noRecoveryHeadroom.failureReason === "source-unavailable",
     `case 10: no recovery + ledger headroom -> "source-unavailable", got outcome "${noRecoveryHeadroom.outcome}" reason "${noRecoveryHeadroom.failureReason}"`);
+  // 2026-09-09: NEVER "spend-restricted" any more — the STATUS column now
+  // carries the budget distinction (see case 21/22), and failure_reason
+  // stays the same honest "source-unavailable" whether headroom exists or
+  // not.
   const noRecoveryExhausted = decideRowOutcome({ row, livePhotoRef: liveRef, recovery: null, ledgerHasHeadroom: false });
-  ok(noRecoveryExhausted.outcome === "classified" && noRecoveryExhausted.failureReason === "spend-restricted",
-    `case 10: no recovery + exhausted ledger -> "spend-restricted", got outcome "${noRecoveryExhausted.outcome}" reason "${noRecoveryExhausted.failureReason}"`);
+  ok(noRecoveryExhausted.outcome === "classified" && noRecoveryExhausted.failureReason === "source-unavailable",
+    `case 10: no recovery + exhausted ledger -> "source-unavailable" (never "spend-restricted"), got outcome "${noRecoveryExhausted.outcome}" reason "${noRecoveryExhausted.failureReason}"`);
+  ok(noRecoveryExhausted.blocked === true, `case 10: no recovery + exhausted ledger must carry blocked:true, got ${noRecoveryExhausted.blocked}`);
+  const noRecoveryUnknown = decideRowOutcome({ row, livePhotoRef: liveRef, recovery: null, ledgerHasHeadroom: undefined });
+  ok(noRecoveryUnknown.outcome === "needs-headroom",
+    `case 10: with ledgerHasHeadroom left undefined (not yet checked), decideRowOutcome must say "needs-headroom" rather than guess, got outcome "${noRecoveryUnknown.outcome}"`);
 
   const staleRow = { place_id: placeId, current_ref: olderRef, attempts: 2 };
   const stale = decideRowOutcome({ row: staleRow, livePhotoRef: liveRef, recovery: null, ledgerHasHeadroom: true });
@@ -388,8 +486,17 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
   const savedFetch = globalThis.fetch;
   globalThis.fetch = async (url, init = {}) => {
     const target = String(url);
-    if (/wf_photo_repair_queue\?status=eq\.open/.test(target)) {
-      return new Response(JSON.stringify([{ place_id: placeId, current_ref: liveRef, attempts: 0 }]), { status: 200, headers: { "content-type": "application/json" } });
+    if (/wf_photo_repair_queue\?status=eq\.open&next_attempt_at/.test(target)) {
+      return new Response(
+        JSON.stringify([{ place_id: placeId, current_ref: liveRef, attempts: 0, status: "open", blocked_since: null, failure_reason: null }]),
+        { status: 200, headers: { "content-type": "application/json" } }
+      );
+    }
+    // The budget-blocked-eligible select (2026-09-09) — this fixture has no
+    // blocked/legacy rows, so it comes back empty. Its own selection is
+    // exercised in case 20/21/22.
+    if (/wf_photo_repair_queue\?or=\(status\.eq\.budget_blocked/.test(target)) {
+      return new Response(JSON.stringify([]), { status: 200, headers: { "content-type": "application/json" } });
     }
     if (/wf_inventory\?place_id=eq\./.test(target)) {
       return new Response(JSON.stringify([{ photo_ref: liveRef }]), { status: 200, headers: { "content-type": "application/json" } });
@@ -862,6 +969,467 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
   // The transport must still send nothing when there is nothing to send.
   ok(groupByKeySignature(mergeQueueUpsert([], [], nowIso)).length === 0,
     "case 18: no candidates means no groups and therefore no request");
+}
+
+// Shared fetch stub for cases 20-23, all of which drive the REAL runRepair()
+// end-to-end. Mirrors case 10's exact endpoint shapes (the same two SELECTs,
+// the inventory lookup, the PATCH) so every case checks against the actual
+// query strings lib/photoRepair.js issues, not a hand-rolled approximation
+// that could drift from them independently.
+function makeQueueFetchStub({ dueOpen = [], blocked = [], refs = {}, patches = [], capturedUrls = [] } = {}) {
+  return async (url, init = {}) => {
+    const target = String(url);
+    capturedUrls.push(target);
+    if (/wf_photo_repair_queue\?status=eq\.open&next_attempt_at/.test(target)) {
+      return new Response(JSON.stringify(dueOpen), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    if (/wf_photo_repair_queue\?or=\(status\.eq\.budget_blocked/.test(target)) {
+      return new Response(JSON.stringify(blocked), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    const invMatch = /wf_inventory\?place_id=eq\.([^&]+)/.exec(target);
+    if (invMatch) {
+      const pid = decodeURIComponent(invMatch[1]);
+      const ref = Object.prototype.hasOwnProperty.call(refs, pid) ? refs[pid] : null;
+      return new Response(JSON.stringify(ref ? [{ photo_ref: ref }] : []), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    const patchMatch = /wf_photo_repair_queue\?place_id=eq\.([^&]+)/.exec(target);
+    if (init.method === "PATCH" && patchMatch) {
+      const pid = decodeURIComponent(patchMatch[1]);
+      const body = JSON.parse(init.body);
+      patches.push({ placeId: pid, body });
+      return new Response(null, { status: 204 });
+    }
+    throw new Error("queue fetch stub reached an unexpected endpoint: " + target);
+  };
+}
+
+// ── case 19 — allowanceFromLedger: measured facts vs an operator-visible ───
+// unknown, never a fabricated 0 (AGENTS.md §5's corollary).
+{
+  const paid = allowanceFromLedger({ used: 968, cap: 2000 });
+  ok(paid.phase === "paid", `case 19: used=968 (>= the 950 operating cap) with real headroom must be phase "paid", got "${paid.phase}"`);
+  ok(paid.used === 968 && paid.cap === 2000 && paid.headroom === 1032,
+    `case 19: a paid allowance must carry the measured used/cap/headroom verbatim, got used=${paid.used} cap=${paid.cap} headroom=${paid.headroom}`);
+  ok(paid.nearPaid === false, "case 19: nearPaid only means something in the free phase — must be false once already paid");
+
+  const exhausted = allowanceFromLedger({ used: 2000, cap: 2000 });
+  ok(exhausted.phase === "exhausted" && exhausted.headroom === 0,
+    `case 19: used===cap must be phase "exhausted" with headroom exactly 0 (measured, not a guess), got phase "${exhausted.phase}" headroom ${exhausted.headroom}`);
+
+  const overCap = allowanceFromLedger({ used: 2100, cap: 2000 });
+  ok(overCap.phase === "exhausted" && overCap.headroom === 0,
+    `case 19: used > cap must still floor headroom at 0, never negative, got ${overCap.headroom}`);
+
+  const free = allowanceFromLedger({ used: 100, cap: 2000 });
+  ok(free.phase === "free" && free.headroom === 1900 && free.nearPaid === false,
+    `case 19: used well under the 950 operating cap must be phase "free" with nearPaid false, got phase "${free.phase}" nearPaid ${free.nearPaid}`);
+
+  const nearPaid = allowanceFromLedger({ used: 940, cap: 2000 });
+  ok(nearPaid.phase === "free" && nearPaid.nearPaid === true,
+    `case 19: used=940 is inside the ~5% margin under the 950 operating cap and still "free" — nearPaid must be true, got phase "${nearPaid.phase}" nearPaid ${nearPaid.nearPaid}`);
+
+  // UNKNOWN, for every shape of bad input — including the one real bug this
+  // case caught while it was being written: Number(null) === 0, so a naive
+  // "coerce-then-check-finite" implementation reads a missing field as a
+  // MEASURED zero rather than an unmeasured unknown. Fixed in
+  // lib/photoCoverage.js's isMeasured() — this loop is what would have
+  // caught it, and is what keeps it caught.
+  for (const bad of [{}, { used: null, cap: 950 }, { used: "not-a-number", cap: 950 }, { used: -5, cap: 950 }, undefined, { used: 10, cap: -1 }, { used: [], cap: 950 }, { used: true, cap: 950 }]) {
+    const a = allowanceFromLedger(bad);
+    ok(a.phase === "unknown", `case 19: allowanceFromLedger(${JSON.stringify(bad)}) must be phase "unknown", got "${a.phase}"`);
+    ok(a.used === null && a.cap === null && a.headroom === null && a.freeLineRemaining === null && a.nearPaid === null,
+      `case 19: an unknown allowance must carry null in EVERY numeric field for ${JSON.stringify(bad)} (used=${a.used} cap=${a.cap} headroom=${a.headroom} freeLineRemaining=${a.freeLineRemaining} nearPaid=${a.nearPaid}) — never a fabricated 0`);
+  }
+
+  // A REAL, MEASURED zero is not "unknown" — the two causes of a 0 get
+  // opposite treatment, which is the entire reason the split exists.
+  const zeroUsed = allowanceFromLedger({ used: 0, cap: 2000 });
+  ok(zeroUsed.phase === "free" && zeroUsed.used === 0 && zeroUsed.headroom === 2000,
+    `case 19: used=0/cap=2000 is a REAL measurement, not unknown — phase must be "free" with used exactly 0, got phase "${zeroUsed.phase}" used ${zeroUsed.used}`);
+
+  ok(allowanceFromLedger({ used: 5, cap: 5 }).googleFreeLine === 1000 && allowanceFromLedger({ used: 5, cap: 5 }).operatingFreeCap === 950,
+    "case 19: googleFreeLine/operatingFreeCap are always reported, even at the extremes");
+}
+
+// ── case 20 — allowance-linked selection through the REAL runRepair() ──────
+//
+// The injected readLedger parameter means these scenarios need no
+// wf_spend_ledger fetch stub at all — that is the point of the injection.
+{
+  const placeId = "ChIJAllowanceSel0001";
+  const liveRef = `places/${placeId}/photos/LIVE`;
+
+  // (a) headroom present: a budget_blocked candidate releases in THIS drain.
+  {
+    const patches = [];
+    const savedFetch = globalThis.fetch;
+    globalThis.fetch = makeQueueFetchStub({
+      dueOpen: [],
+      blocked: [{ place_id: placeId, current_ref: liveRef, attempts: 3, status: "budget_blocked", blocked_since: "2026-09-01T00:00:00.000Z", failure_reason: "source-unavailable" }],
+      refs: { [placeId]: liveRef },
+      patches,
+    });
+    try {
+      const result = await runRepair({
+        sbEnv: { url: "https://ledger.test", key: "test-key" },
+        findSamePlace: async () => null,
+        findFree: async () => null,
+        readLedger: async () => ({ used: 968, cap: 2000 }),
+      });
+      ok(result.attempted === 1 && result.released === 1,
+        `case 20a: a headroom-positive drain must fetch and release the one budget_blocked candidate, got attempted=${result.attempted} released=${result.released}`);
+      ok(patches.length === 1 && patches[0].body.status === "open",
+        `case 20a: the released row's patch must flip status to "open", got ${patches[0] && patches[0].body.status}`);
+      ok(patches[0].body.attempts === 3, `case 20a: a release must NOT touch attempts (still 3), got ${patches[0].body.attempts}`);
+      ok(patches[0].body.blocked_since === null, `case 20a: a release must clear blocked_since, got ${patches[0].body.blocked_since}`);
+    } finally {
+      globalThis.fetch = savedFetch;
+    }
+  }
+
+  // (b) headroom exhausted: the SAME candidate is excluded before it is even
+  // fetched into the per-row loop — attempted stays 0, nothing is patched.
+  {
+    const patches = [];
+    const savedFetch = globalThis.fetch;
+    globalThis.fetch = makeQueueFetchStub({
+      dueOpen: [],
+      blocked: [{ place_id: placeId, current_ref: liveRef, attempts: 3, status: "budget_blocked", blocked_since: "2026-09-01T00:00:00.000Z", failure_reason: "source-unavailable" }],
+      refs: { [placeId]: liveRef },
+      patches,
+    });
+    try {
+      const result = await runRepair({
+        sbEnv: { url: "https://ledger.test", key: "test-key" },
+        findSamePlace: async () => null,
+        findFree: async () => null,
+        readLedger: async () => ({ used: 2000, cap: 2000 }),
+      });
+      ok(result.attempted === 0 && result.released === 0,
+        `case 20b: an exhausted ledger must exclude the budget_blocked candidate entirely (never even attempted), got attempted=${result.attempted} released=${result.released}`);
+      ok(patches.length === 0, `case 20b: an excluded candidate must never be patched, got ${patches.length} patch(es)`);
+    } finally {
+      globalThis.fetch = savedFetch;
+    }
+  }
+
+  // (c) readLedger THROWS: the candidate is excluded (unknown never
+  // releases) AND a co-drained ordinary open row stays open — never
+  // budget_blocked — proving an unreadable ledger cannot MANUFACTURE a new
+  // block either. One memoized read: readLedgerCalls must be exactly 1.
+  {
+    const openPlaceId = "ChIJAllowanceSel0002";
+    const openLiveRef = `places/${openPlaceId}/photos/LIVE`;
+    const patches = [];
+    const savedFetch = globalThis.fetch;
+    globalThis.fetch = makeQueueFetchStub({
+      dueOpen: [{ place_id: openPlaceId, current_ref: openLiveRef, attempts: 1, status: "open", blocked_since: null, failure_reason: null }],
+      blocked: [{ place_id: placeId, current_ref: liveRef, attempts: 3, status: "budget_blocked", blocked_since: "2026-09-01T00:00:00.000Z", failure_reason: "source-unavailable" }],
+      refs: { [placeId]: liveRef, [openPlaceId]: openLiveRef },
+      patches,
+    });
+    let readLedgerCalls = 0;
+    try {
+      const result = await runRepair({
+        sbEnv: { url: "https://ledger.test", key: "test-key" },
+        findSamePlace: async () => null,
+        findFree: async () => null,
+        readLedger: async () => { readLedgerCalls++; throw new Error("ledger unreachable"); },
+      });
+      ok(result.attempted === 1, `case 20c: the throwing-ledger drain must process only the co-drained OPEN row, never the excluded budget_blocked one — got attempted=${result.attempted}`);
+      ok(result.blocked === 0, `case 20c: a throwing ledger must write NO new budget_blocked rows, got blocked=${result.blocked}`);
+      ok(patches.length === 1 && patches[0].placeId === openPlaceId && patches[0].body.status === "open",
+        `case 20c: the ordinary open row must stay "open" (unknown reads as "has headroom" for classification), got ${patches[0] && patches[0].body.status}`);
+      ok(readLedgerCalls === 1, `case 20c: the ledger is read at most once per run even though two different questions consult it, got ${readLedgerCalls} call(s)`);
+    } finally {
+      globalThis.fetch = savedFetch;
+    }
+  }
+
+  // (d) THE PRODUCTION BUG, restated as a test: a LEGACY row (status=open,
+  // failure_reason='spend-restricted', next_attempt_at PINNED to a real
+  // future calendar date — the exact shape #1186's 173 rows were measured
+  // in) must still release the SAME drain headroom appears, because release
+  // is gated on the ledger alone and must never depend on next_attempt_at.
+  // Captured via the real URLs the stub actually received, not a
+  // source-text grep — if a regression re-adds a next_attempt_at filter to
+  // the release-eligible query, this fails on the URL content directly.
+  {
+    const legacyPlaceId = "ChIJLegacyPinned0008";
+    const legacyLiveRef = `places/${legacyPlaceId}/photos/LIVE`;
+    const patches = [];
+    const capturedUrls = [];
+    const savedFetch = globalThis.fetch;
+    globalThis.fetch = makeQueueFetchStub({
+      dueOpen: [],
+      blocked: [{
+        place_id: legacyPlaceId, current_ref: legacyLiveRef, attempts: 4,
+        status: "open", blocked_since: null, failure_reason: "spend-restricted",
+        next_attempt_at: "2026-10-01T00:00:00.000Z", // the calendar pin the old bug baked in
+      }],
+      refs: { [legacyPlaceId]: legacyLiveRef },
+      patches,
+      capturedUrls,
+    });
+    try {
+      const result = await runRepair({
+        sbEnv: { url: "https://ledger.test", key: "test-key" },
+        findSamePlace: async () => null,
+        findFree: async () => null,
+        readLedger: async () => ({ used: 968, cap: 2000 }), // the exact 2026-09-09 measured headroom
+      });
+      ok(result.attempted === 1 && result.released === 1,
+        `case 20d: a legacy open+spend-restricted row with a next_attempt_at pinned three weeks out must still release THIS drain once headroom exists, got attempted=${result.attempted} released=${result.released}`);
+      ok(patches.length === 1 && patches[0].body.status === "open",
+        `case 20d: the legacy row's release must flip status to "open", got ${patches[0] && patches[0].body.status}`);
+      const releaseQueryUrl = capturedUrls.find((u) => /or=\(status\.eq\.budget_blocked/.test(u));
+      ok(!!releaseQueryUrl, "case 20d: the release-eligible select must actually have been issued");
+      ok(!!releaseQueryUrl && !/next_attempt_at/.test(releaseQueryUrl),
+        `case 20d: the release-eligible query must NEVER filter on next_attempt_at — that filter is exactly what pinned the original 173 rows three weeks into the future while headroom already existed; got query "${releaseQueryUrl}"`);
+    } finally {
+      globalThis.fetch = savedFetch;
+    }
+  }
+}
+
+// ── case 21 — a budget_blocked row never pays attempts, across six drains ──
+//
+// A mutable fixture: the stub's PATCH handler updates the SAME row object,
+// and both GET handlers filter on rowState.status exactly the way real
+// PostgREST filters would — so once the row flips to budget_blocked it stops
+// matching query 1 (status=eq.open) and only ever surfaces through query 2,
+// whose results are discarded while the ledger stays exhausted. That is
+// this lane's whole fix: a row starts ONE BELOW MAX_ATTEMPTS (5), gets
+// blocked on drain 1 WITHOUT incrementing to 6 (the old bug: every drain of
+// a blocked row paid an attempt, so waiting on money alone could push a row
+// past MAX_ATTEMPTS into "unresolved") — then sits completely untouched for
+// drains 2-6, proving the exclusion (not a repeated no-op patch) is what
+// keeps attempts frozen.
+{
+  const placeId = "ChIJSixDrains0003";
+  const liveRef = `places/${placeId}/photos/LIVE`;
+  let rowState = { place_id: placeId, current_ref: liveRef, attempts: MAX_ATTEMPTS - 1, status: "open", blocked_since: null, failure_reason: null };
+  const originalAttempts = rowState.attempts;
+  let patchCount = 0;
+  let blockedSinceSetCount = 0;
+
+  const savedFetch = globalThis.fetch;
+  globalThis.fetch = async (url, init = {}) => {
+    const target = String(url);
+    if (/wf_photo_repair_queue\?status=eq\.open&next_attempt_at/.test(target)) {
+      const matches = rowState.status === "open" ? [{ ...rowState }] : [];
+      return new Response(JSON.stringify(matches), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    if (/wf_photo_repair_queue\?or=\(status\.eq\.budget_blocked/.test(target)) {
+      const eligible = rowState.status === "budget_blocked" || (rowState.status === "open" && rowState.failure_reason === "spend-restricted");
+      return new Response(JSON.stringify(eligible ? [{ ...rowState }] : []), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    if (/wf_inventory\?place_id=eq\./.test(target)) {
+      return new Response(JSON.stringify([{ photo_ref: liveRef }]), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    if (init.method === "PATCH" && /wf_photo_repair_queue\?place_id=eq\./.test(target)) {
+      patchCount++;
+      const body = JSON.parse(init.body);
+      if (rowState.blocked_since == null && body.blocked_since != null) blockedSinceSetCount++;
+      rowState = { ...rowState, ...body };
+      return new Response(null, { status: 204 });
+    }
+    throw new Error("case 21: unexpected endpoint: " + target);
+  };
+  try {
+    for (let drain = 1; drain <= 6; drain++) {
+      const result = await runRepair({
+        sbEnv: { url: "https://ledger.test", key: "test-key" },
+        findSamePlace: async () => null,
+        findFree: async () => null,
+        readLedger: async () => ({ used: 2000, cap: 2000 }), // permanently exhausted
+      });
+      if (drain === 1) {
+        ok(result.attempted === 1 && result.blocked === 1,
+          `case 21 drain 1: the ordinary open row must be classified and blocked on its first due drain, got attempted=${result.attempted} blocked=${result.blocked}`);
+      } else {
+        ok(result.attempted === 0,
+          `case 21 drain ${drain}: once budget_blocked, the row must be excluded entirely while the ledger stays exhausted (never re-fetched into the per-row loop), got attempted=${result.attempted}`);
+      }
+      ok(rowState.attempts === originalAttempts,
+        `case 21 drain ${drain}: attempts must NEVER change while blocked (started at ${originalAttempts}, one below MAX_ATTEMPTS=${MAX_ATTEMPTS}), got ${rowState.attempts}`);
+      ok(rowState.status === "budget_blocked", `case 21 drain ${drain}: status must be "budget_blocked" from drain 1 onward, got "${rowState.status}"`);
+      ok(rowState.status !== "unresolved",
+        `case 21 drain ${drain}: a row waiting on money must never read as "unresolved" no matter how many drains pass, even starting one attempt below the threshold`);
+    }
+    ok(patchCount === 1, `case 21: only drain 1 (the one that actually classified the row) may patch it — drains 2-6 must find nothing to do, got ${patchCount} patch(es)`);
+    ok(blockedSinceSetCount === 1, `case 21: blocked_since must be set EXACTLY once (on the drain that first blocks the row), got ${blockedSinceSetCount}`);
+  } finally {
+    globalThis.fetch = savedFetch;
+  }
+}
+
+// ── case 22 — budget can never hide starvation or stale data, proven with a ─
+// THROWING ledger so "the headroom check never even ran" cannot be confused
+// with "the headroom check ran and happened to agree".
+{
+  const noSourcePlaceId = "ChIJNoSource0004";
+  const stalePlaceId = "ChIJStale0005";
+  const liveRef = `places/${stalePlaceId}/photos/LIVE`;
+  const olderRef = `places/${stalePlaceId}/photos/OLDER`;
+  const patches = [];
+  const savedFetch = globalThis.fetch;
+  globalThis.fetch = makeQueueFetchStub({
+    dueOpen: [
+      { place_id: noSourcePlaceId, current_ref: null, attempts: 0, status: "open", blocked_since: null, failure_reason: null },
+      { place_id: stalePlaceId, current_ref: olderRef, attempts: 0, status: "open", blocked_since: null, failure_reason: null },
+    ],
+    blocked: [],
+    refs: { [stalePlaceId]: liveRef }, // noSourcePlaceId deliberately absent -> null ref
+    patches,
+  });
+  let readLedgerCalls = 0;
+  try {
+    const result = await runRepair({
+      sbEnv: { url: "https://ledger.test", key: "test-key" },
+      findSamePlace: async () => null,
+      findFree: async () => null,
+      readLedger: async () => { readLedgerCalls++; throw new Error("ledger unreachable — must never be consulted for these two rows"); },
+    });
+    ok(result.attempted === 2 && result.failed === 0,
+      `case 22: both rows must classify without error despite a throwing ledger, got attempted=${result.attempted} failed=${result.failed}`);
+    const byId = Object.fromEntries(patches.map((p) => [p.placeId, p.body]));
+    ok(byId[noSourcePlaceId] && byId[noSourcePlaceId].failure_reason === "no-source" && byId[noSourcePlaceId].status === "open",
+      `case 22: a place with no live photo_ref must classify "no-source" and stay "open" — a budget the code never even measured cannot be blamed, got ${JSON.stringify(byId[noSourcePlaceId])}`);
+    ok(byId[stalePlaceId] && byId[stalePlaceId].failure_reason === "stale-reference" && byId[stalePlaceId].status === "open",
+      `case 22: a changed ref must classify "stale-reference" (not budget_blocked) even against a throwing ledger, got ${JSON.stringify(byId[stalePlaceId])}`);
+    ok(readLedgerCalls === 0,
+      `case 22: neither a no-source nor a stale-reference verdict may EVER consult the ledger — the ref/stale checks must run strictly before the headroom question — got ${readLedgerCalls} ledger read(s)`);
+  } finally {
+    globalThis.fetch = savedFetch;
+  }
+}
+
+// ── case 23 — vault recovery is free and attributed; order is preserved ────
+{
+  const placeId = "ChIJVaultFree0006";
+  const liveRef = `places/${placeId}/photos/LIVE`;
+
+  // (a) findFree hits, findSamePlace does not: recovered/owned-free,
+  // attribution carried verbatim, and the ledger is NEVER consulted (a vault
+  // recovery costs nothing and asks nothing about money).
+  {
+    const patches = [];
+    const savedFetch = globalThis.fetch;
+    globalThis.fetch = makeQueueFetchStub({
+      dueOpen: [{ place_id: placeId, current_ref: liveRef, attempts: 0, status: "open", blocked_since: null, failure_reason: null }],
+      blocked: [],
+      refs: { [placeId]: liveRef },
+      patches,
+    });
+    let readLedgerCalls = 0;
+    const vaultRow = { source: "wikimedia-commons", license: "CC-BY-SA-4.0", attributionText: "Photo by Jane Doe", attributionUrl: "https://commons.wikimedia.org/wiki/File:Example.jpg" };
+    try {
+      const result = await runRepair({
+        sbEnv: { url: "https://ledger.test", key: "test-key" },
+        findSamePlace: async () => null,
+        findFree: async () => vaultRow,
+        readLedger: async () => { readLedgerCalls++; throw new Error("must never be called for a vault hit"); },
+      });
+      ok(result.recovered === 1, `case 23a: a vault hit must recover, got recovered=${result.recovered}`);
+      ok(readLedgerCalls === 0, `case 23a: a vault-resolved row must trigger ZERO ledger reads, got ${readLedgerCalls}`);
+      const body = patches[0] && patches[0].body;
+      ok(!!body && body.recovery_source === "owned-free", `case 23a: recovery_source must be "owned-free", got ${body && body.recovery_source}`);
+      ok(!!body && body.attribution && body.attribution.source === vaultRow.source && body.attribution.license === vaultRow.license
+        && body.attribution.attribution_text === vaultRow.attributionText && body.attribution.attribution_url === vaultRow.attributionUrl,
+        `case 23a: attribution must be carried VERBATIM from the vault row, got ${JSON.stringify(body && body.attribution)}`);
+    } finally {
+      globalThis.fetch = savedFetch;
+    }
+  }
+
+  // (b) findFree returns null but findSamePlace hits: same-place-cache,
+  // never owned-free — order (cache before vault) preserved even when the
+  // vault is checked (it is only checked because cache missed here).
+  {
+    const patches = [];
+    const savedFetch = globalThis.fetch;
+    globalThis.fetch = makeQueueFetchStub({
+      dueOpen: [{ place_id: placeId, current_ref: liveRef, attempts: 0, status: "open", blocked_since: null, failure_reason: null }],
+      blocked: [],
+      refs: { [placeId]: liveRef },
+      patches,
+    });
+    let findFreeCalls = 0;
+    try {
+      const result = await runRepair({
+        sbEnv: { url: "https://ledger.test", key: "test-key" },
+        findSamePlace: async () => ({ ref: "places/" + placeId + "/photos/OLDER", uri: "https://lh3.googleusercontent.com/p/older", expMs: Date.now() + 86400000 }),
+        findFree: async () => { findFreeCalls++; return { source: "wikimedia-commons", license: "CC0", attributionText: "x", attributionUrl: "https://example.test" }; },
+      });
+      ok(result.recovered === 1, `case 23b: a same-place cache hit must recover, got recovered=${result.recovered}`);
+      ok(findFreeCalls === 0, `case 23b: a cache hit must short-circuit BEFORE the vault is ever consulted, got ${findFreeCalls} vault call(s)`);
+      const body = patches[0] && patches[0].body;
+      ok(!!body && body.recovery_source === "same-place-cache", `case 23b: recovery_source must be "same-place-cache", not "owned-free" — order preserved, got ${body && body.recovery_source}`);
+    } finally {
+      globalThis.fetch = savedFetch;
+    }
+  }
+
+  // (c) the REAL findFreePhoto, against a stub fetch: every call must go
+  // only to wf_place_photo, never wf_spend_ledger — the half an injected
+  // fake cannot prove (same shape as case 10's real-findSamePlace control).
+  {
+    let sawLedgerCall = false;
+    let sawVaultCall = false;
+    const stubFetch = async (u) => {
+      const target = String(u);
+      if (target.includes("wf_spend_ledger")) sawLedgerCall = true;
+      if (target.includes("wf_place_photo")) sawVaultCall = true;
+      return { ok: true, json: async () => [] };
+    };
+    await findFreePhoto({ placeId: "ChIJRealFree0007", width: 640 }, { fetchImpl: stubFetch, env: { SUPABASE_URL: "https://stub.supabase.test", SUPABASE_SERVICE_ROLE_KEY: "stub-key" }, vaultPublicUrl: null });
+    ok(sawVaultCall === true, "case 23c: the real findFreePhoto must query wf_place_photo");
+    ok(sawLedgerCall === false, "case 23c: the real findFreePhoto must NEVER query wf_spend_ledger — the free vault has no concept of budget");
+  }
+}
+
+// ── case 24 — structural: no file in this lane may WRITE "spend-restricted" ─
+// again. The migration's CHECK constraint (history only) and
+// lib/photoRepair.js's own legacy-row COMPATIBILITY READS (an out-of-order
+// deploy — this worker landing before the data-fix migration — must not
+// strand a row the old shape already trapped once, see the header comment
+// and wasBudgetBlocked()) are the two deliberate, required exceptions.
+// Everything else in this lane must carry ZERO occurrences outside a
+// comment; lib/photoRepair.js must carry EXACTLY its two known reads and
+// must never WRITE the value as a failure_reason or status.
+{
+  const stripComments = (src) => src.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
+  const RETIRED_LITERAL = /spend-restricted/;
+
+  for (const rel of [
+    "lib/photoCoverage.js",
+    "scripts/photo-monitor.mjs",
+    "scripts/photo-repair-worker.mjs",
+    "app/api/cron/photo-repair/route.js",
+    "app/api/health/photos/route.js",
+    "scripts/os-state.mjs",
+  ]) {
+    const raw = readFileSync(new URL("../" + rel, import.meta.url), "utf8");
+    ok(!RETIRED_LITERAL.test(stripComments(raw)), `case 24: ${rel} must never reference the retired literal "spend-restricted" outside a comment — it is retired to status budget_blocked; a live occurrence means the old calendar-blocked classification path came back`);
+  }
+
+  const repairRaw = readFileSync(new URL("../lib/photoRepair.js", import.meta.url), "utf8");
+  const repairStripped = stripComments(repairRaw);
+  const occurrences = repairStripped.match(new RegExp(RETIRED_LITERAL.source, "g")) || [];
+  // Exactly 2, not "some": the legacy OR-filter's query condition and
+  // wasBudgetBlocked()'s comparison — both READS against a row's EXISTING
+  // field, matching data an old deploy might already carry. A count that
+  // drifted UP would mean a third, unaccounted-for reference crept in; a
+  // count of 0 would mean comment-stripping ate real code (case 5's
+  // self-tests already prove the stripper itself is sound).
+  ok(occurrences.length === 2, `case 24: lib/photoRepair.js must contain the retired literal exactly TWICE outside comments (the legacy read-filter + wasBudgetBlocked's comparison) — got ${occurrences.length}`);
+  ok(/failure_reason\.eq\.spend-restricted/.test(repairStripped),
+    "case 24: one occurrence must be the legacy-row OR-filter's query condition (failure_reason.eq.spend-restricted) — a READ against old data, not a value this file writes");
+  ok(/failure_reason\s*===\s*["']spend-restricted["']/.test(repairStripped),
+    "case 24: the other occurrence must be wasBudgetBlocked()'s equality comparison against a row's EXISTING failure_reason — also a read, never an assignment");
+  ok(!/failure_reason\s*:\s*["']spend-restricted["']/.test(repairStripped) && !/status\s*:\s*["']spend-restricted["']/.test(repairStripped),
+    "case 24: this file must never WRITE spend-restricted as a failure_reason or status value in any patch body — decideRowOutcome/runRepair only ever produce \"source-unavailable\" now");
 }
 
 if (fail.length) {

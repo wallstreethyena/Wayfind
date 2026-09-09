@@ -477,9 +477,18 @@ async function lastPhotoMonitorPulses(s, limit = 6) {
   }
 }
 
+// "open" here means "still actively waiting on this lane" — 2026-09-09
+// widened from status=eq.open alone to open+budget_blocked. A budget-blocked
+// row is still an unresolved placeholder from a reader's perspective; it
+// just moved from a next_attempt_at-scheduled row to a ledger-gated one
+// (see the same date's migration + lib/photoRepair.js). Counting it out of
+// this breadcrumb would make the 2026-09-09 status split read as a 42%
+// drop in the backlog that never actually happened, and would blind
+// openGrowthRatio to a real re-block later (a row released today and
+// re-blocked next week must still show up as growth here).
 async function currentOpenCount(s) {
   try {
-    const r = await fetch(`${s.url}/rest/v1/wf_photo_repair_queue?select=place_id&status=eq.open`, {
+    const r = await fetch(`${s.url}/rest/v1/wf_photo_repair_queue?select=place_id&status=in.(open,budget_blocked)`, {
       headers: { apikey: s.key, Authorization: "Bearer " + s.key, Prefer: "count=exact", Range: "0-0" },
       cache: "no-store",
     });

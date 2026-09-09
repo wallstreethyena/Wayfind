@@ -48,16 +48,31 @@ export async function GET(req) {
   }
   if (!result.ok) return jobCannotRun("photo-repair", result.reason || "worker could not run");
 
+  // 2026-09-09 — the note now names every drain outcome by its own field
+  // (recovered / classified / blocked / released / failed), plus the
+  // allowance measurement the run actually used, so an operator can tell
+  // "the queue is stuck on money" from "the queue is stuck on data" without
+  // opening wf_photo_repair_queue. `allowance` is the DRAIN's own measured
+  // value (null when nothing this run needed to check the ledger at all —
+  // see lib/photoRepair.js's lazy, once-per-run read) — never fabricated.
+  const allowanceNote = !result.allowance
+    ? "unread"
+    : result.allowance.phase === "unknown"
+      ? "unreadable"
+      : `${result.allowance.used}/${result.allowance.cap}`;
   const note = result.queueUnavailable
     ? `photos: queue unavailable (${result.queueStatus != null ? result.queueStatus : "error"})`
-    : `photos: ${result.recovered} recovered, ${result.classified} classified, ${result.failed} failed`;
+    : `photos: recovered=${result.recovered} classified=${result.classified} blocked=${result.blocked} released=${result.released} failed=${result.failed} allowance=${allowanceNote}`;
   if (!result.queueUnavailable && result.attempted > 0 && result.failed === result.attempted) {
     return jobFailed("photo-repair", note, { attempted: result.attempted, succeeded: 0 });
   }
 
   await recordPulse("photo-repair", {
+    // A row the worker correctly parked in budget_blocked is the worker
+    // doing its job, not a failure — same treatment "classified" already
+    // got before blocked split out of it as its own status.
     attempted: result.attempted,
-    succeeded: result.recovered + result.classified,
+    succeeded: result.recovered + result.classified + result.blocked,
     note,
   });
 
@@ -66,7 +81,10 @@ export async function GET(req) {
     attempted: result.attempted,
     recovered: result.recovered,
     classified: result.classified,
+    blocked: result.blocked,
+    released: result.released,
     failed: result.failed,
+    allowance: result.allowance,
     queueUnavailable: !!result.queueUnavailable,
   });
 }

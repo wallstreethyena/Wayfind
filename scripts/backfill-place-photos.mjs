@@ -24,7 +24,7 @@
 // registry by construction, same as scripts/photo-repair-worker.mjs — it
 // touches the network and a live database and must never be able to block a
 // code merge.
-import { runBackfill } from "../lib/placePhotoBackfill.js";
+import { runBackfill, describeAtRisk } from "../lib/placePhotoBackfill.js";
 import { recordPulse } from "../lib/jobPulse.js";
 
 const DEFAULT_LIMIT = 25;
@@ -57,7 +57,7 @@ async function main() {
     ? `place-photos: table unavailable (${result.tableStatus != null ? result.tableStatus : "error"})`
     : result.note
       ? `place-photos: ${result.note}`
-      : `place-photos: ${result.active} active (${result.vaulted || 0} vaulted), ${result.rejected} rejected, ${result.failed} failed (at-risk ${result.atRiskTaken || 0}/${result.atRiskScanned || 0}, general scanned ${result.scanned}, ${result.alreadyCovered} already covered)${result.dryRun ? " (dry-run)" : ""}`;
+      : `place-photos: ${result.active} active (${result.vaulted || 0} vaulted), ${result.rejected} rejected, ${result.failed} failed, ${result.deferred || 0} deferred (${describeAtRisk({ ...result, source: args.source })}, general scanned ${result.scanned}, ${result.alreadyCovered} already covered)${result.dryRun ? " (dry-run)" : ""}`;
 
   await recordPulse("place-photos", { attempted: result.attempted, succeeded: result.active, note });
 
@@ -67,7 +67,7 @@ async function main() {
     console.log(`backfill-place-photos: table: unavailable (${result.tableStatus != null ? result.tableStatus : "error"})`);
   } else {
     console.log(
-      `backfill-place-photos: source=${args.source || "at-risk-then-all"} atRisk=${result.atRiskTaken || 0}/${result.atRiskScanned || 0} scanned=${result.scanned} attempted=${result.attempted} active=${result.active} vaulted=${result.vaulted || 0} rejected=${result.rejected} failed=${result.failed}${result.dryRun ? " [dry-run]" : ""}`
+      `backfill-place-photos: source=${args.source || "at-risk-then-all"} atRisk=${result.atRiskTaken || 0}/${result.atRiskScanned || 0} scanned=${result.scanned} attempted=${result.attempted} active=${result.active} vaulted=${result.vaulted || 0} rejected=${result.rejected} failed=${result.failed} deferred=${result.deferred || 0} skipped=${result.skipped || 0}${result.dryRun ? " [dry-run]" : ""}`
     );
   }
 

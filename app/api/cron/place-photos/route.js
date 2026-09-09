@@ -46,7 +46,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-import { runBackfill } from "../../../../lib/placePhotoBackfill";
+import { runBackfill, describeAtRisk } from "../../../../lib/placePhotoBackfill";
 import { recordPulse } from "../../../../lib/jobPulse";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail";
 
@@ -77,7 +77,7 @@ export async function GET(req) {
     ? `place-photos: table unavailable (${result.tableStatus != null ? result.tableStatus : "error"})`
     : result.note
       ? `place-photos: ${result.note}`
-      : `place-photos: ${result.active} active (${result.vaulted || 0} vaulted), ${result.rejected} rejected, ${result.failed} failed (at-risk ${result.atRiskTaken || 0}/${result.atRiskScanned || 0}, general scanned ${result.scanned}, ${result.alreadyCovered} already covered)`;
+      : `place-photos: ${result.active} active (${result.vaulted || 0} vaulted), ${result.rejected} rejected, ${result.failed} failed, ${result.deferred || 0} deferred (${describeAtRisk({ ...result, source })}, general scanned ${result.scanned}, ${result.alreadyCovered} already covered)`;
 
   if (!result.tableUnavailable && result.attempted > 0 && result.failed === result.attempted) {
     return jobFailed("place-photos", note, { attempted: result.attempted, succeeded: 0 });

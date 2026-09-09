@@ -40,9 +40,14 @@
 //      guard → F1 (401 without CRON_SECRET) goes red.
 //   8. app/api/cron/place-photos/route.js: drop the empty-path recordPulse
 //      call → F2 (empty run still pulses honestly) goes red.
+//   9. lib/placePhotoBackfill.js: make describeAtRisk return the old
+//      `at-risk ${taken}/${scanned}` unconditionally → H3/H5/H6 go red.
+//  10. vercel.json: put the at-risk drain back on `50 4 * * *` → H9
+//      (capacity) goes red while every other assertion stays green.
 import { readFileSync } from "node:fs";
 import { findFreePhoto } from "../lib/freePhoto.js";
-import { runBackfill } from "../lib/placePhotoBackfill.js";
+import { runBackfill, describeAtRisk } from "../lib/placePhotoBackfill.js";
+import { installWikimediaFetchPolicy } from "../lib/wikimediaFetchPolicy.js";
 
 let failures = 0;
 const ok = (condition, message) => {
@@ -574,10 +579,375 @@ const PHOTO = (id) => ({
   console.log("test-photo-vault-wiring: Section G OK — the inventory scan pages past the server row cap with a strictly advancing keyset cursor");
 }
 
+// ── SECTION H — THE DRAIN MUST BE FAST ENOUGH TO BEAT THE CLIFF, AND A LOST
+//    WORKLIST MUST NOT READ LIKE AN IDLE ONE ────────────────────────────────
+//
+//   MEASURED AGAINST PRODUCTION, 2026-09-09: wf_photo_at_risk holds 4,967
+//   places with a live Google photo cache row and no active vault row; 4,448
+//   of them have never been decided at all. The earliest cached-photo expiry
+//   is 2026-09-25 — sixteen days out. The cron was ONE run a day at limit=25,
+//   which is 25 decisions a day, which is 178 days to work through 4,448
+//   places. Every place the drain does not reach before its cache row expires
+//   falls back to the compass on a card that had a real photo the day before.
+//   A backfill that cannot finish before the thing it is backfilling expires
+//   is not a slow backfill, it is a decorative one.
+//
+//   H1-H3 pin lib/placePhotoBackfill.js#describeAtRisk (pure). H4-H6 prove the
+//   cron route's pulse note actually goes through it, so the three states stay
+//   distinguishable to an operator reading wf_job_pulse. H7-H10 pin the
+//   SCHEDULE CAPACITY in vercel.json as arithmetic — runs-per-day x the
+//   entry's own limit= — not as a literal schedule string, so any future
+//   schedule that still clears the bar is free to land.
+{
+  // H1-H3 — the three states that used to render byte-identically.
+  {
+    eq(
+      describeAtRisk({ atRiskUnavailable: false, atRiskTaken: 3, atRiskScanned: 1000, source: undefined }),
+      "at-risk 3/1000",
+      "H1: an ordinary combined run reports taken/scanned"
+    );
+    eq(
+      describeAtRisk({ atRiskUnavailable: false, atRiskTaken: 0, atRiskScanned: 0, source: "all" }),
+      "at-risk skipped (source=all)",
+      "H2: a general-only run says it SKIPPED the worklist — it did not find it empty"
+    );
+    const lost = describeAtRisk({ atRiskUnavailable: true, atRiskTaken: 0, atRiskScanned: 0, source: undefined });
+    ok(lost.includes("UNAVAILABLE"), `H3 (THE HEADLINE INVARIANT): a worklist read that FAILED says so out loud (got ${JSON.stringify(lost)})`);
+    ok(lost.includes("wf_photo_at_risk"), "H3: and names the view that could not be read, so the operator knows where to look");
+    ok(
+      describeAtRisk({ atRiskUnavailable: true, atRiskTaken: 0, atRiskScanned: 0, source: "all" }).includes("UNAVAILABLE"),
+      "H3: a failed read OUTRANKS source= — an outage is the more urgent fact even when the caller asked for something narrower"
+    );
+  }
+
+  // H4-H6 — the route's pulse note is built through describeAtRisk, proven by
+  // executing the real route source with doubles (same technique as Section F).
+  {
+    const raw = readFileSync(new URL("../app/api/cron/place-photos/route.js", import.meta.url), "utf8");
+    const stripped = raw.replace(/^import[^;]+;\n/gm, "");
+    const prelude = `
+      const runBackfill = (...a) => globalThis.__wfDrainNoteTest.runBackfill(...a);
+      const describeAtRisk = (...a) => globalThis.__wfDrainNoteTest.describeAtRisk(...a);
+      const recordPulse = (...a) => globalThis.__wfDrainNoteTest.recordPulse(...a);
+      const jobCannotRun = (...a) => { throw new Error("jobCannotRun must not be called: " + a[1]); };
+      const jobFailed = (...a) => { throw new Error("jobFailed must not be called: " + a[1]); };
+    `;
+    const route = await import("data:text/javascript," + encodeURIComponent(prelude + "\n" + stripped));
+
+    const pulses = [];
+    const describeCalls = [];
+    const result = {
+      ok: true, attempted: 3, active: 1, rejected: 2, failed: 0, vaulted: 1, vaultSkipped: 0,
+      scanned: 900, atRiskScanned: 1000, atRiskTaken: 3, atRiskUnavailable: false, atRiskStatus: null,
+      alreadyCovered: 12,
+    };
+    globalThis.__wfDrainNoteTest = {
+      runBackfill: async () => result,
+      // The REAL pure function, not a stub — H1-H3 already pin its behaviour,
+      // so wrapping it here proves the ROUTE calls it (and with what), without
+      // re-encoding its output as a fixture that could drift from the source.
+      describeAtRisk: (arg) => {
+        describeCalls.push(arg);
+        return describeAtRisk(arg);
+      },
+      recordPulse: async (job, stats) => { pulses.push({ job, stats }); return true; },
+    };
+
+    const savedSecret = process.env.CRON_SECRET;
+    const savedUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const savedSvc = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    process.env.CRON_SECRET = "drain-note-secret";
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://drain-note.test.invalid";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "test-key";
+    const hit = (qs) =>
+      route.GET(new Request("https://x/api/cron/place-photos" + qs, { headers: { authorization: "Bearer drain-note-secret" } }));
+
+    // H4 — the ordinary case still reads exactly as it always did. This is
+    // ALSO the positive control for H6's absence assertion: it proves this
+    // note-building path CAN emit an `at-risk <n>/<n>` string at all, so H6's
+    // "must not contain at-risk 0/0" cannot pass merely because the note went
+    // blank or the pulse stopped being filed.
+    await hit("");
+    eq(pulses.length, 1, "H4: the run files exactly one pulse");
+    const okNote = String((pulses[0].stats || {}).note || "");
+    ok(okNote.includes("at-risk 3/1000"), `H4 (positive control): an ordinary run's note carries the taken/scanned pair (got ${JSON.stringify(okNote)})`);
+    eq(describeCalls.length, 1, "H4: the route asked describeAtRisk once — the note is not hand-rolled alongside it");
+    eq(describeCalls[0] && describeCalls[0].atRiskScanned, 1000, "H4: and handed it the worker's real counters");
+
+    // H5 — source=all is reported as a SKIP, not as an empty worklist.
+    pulses.length = 0;
+    describeCalls.length = 0;
+    result.atRiskScanned = 0;
+    result.atRiskTaken = 0;
+    await hit("?source=all");
+    eq(describeCalls[0] && describeCalls[0].source, "all", "H5: the route passes the REQUEST's source= into the note, not the worker's echo of it");
+    ok(String((pulses[0].stats || {}).note || "").includes("skipped (source=all)"), "H5: a general-only run's pulse says the worklist was skipped on purpose");
+
+    // H6 (THE HEADLINE INVARIANT) — a worklist read that failed can no longer
+    // hide behind the same `at-risk 0/0` text an idle or skipped run emits.
+    pulses.length = 0;
+    result.atRiskUnavailable = true;
+    result.atRiskStatus = null;
+    await hit("");
+    const lostNote = String((pulses[0].stats || {}).note || "");
+    ok(lostNote.includes("UNAVAILABLE"), `H6: a lost worklist is named in the pulse an operator actually reads (got ${JSON.stringify(lostNote)})`);
+    ok(!lostNote.includes("at-risk 0/0"), `H6: and is NOT rendered as the idle-run text (got ${JSON.stringify(lostNote)})`);
+    result.atRiskUnavailable = false;
+
+    process.env.CRON_SECRET = savedSecret;
+    process.env.NEXT_PUBLIC_SUPABASE_URL = savedUrl;
+    process.env.SUPABASE_SERVICE_ROLE_KEY = savedSvc;
+    delete globalThis.__wfDrainNoteTest;
+  }
+
+  // H7-H10 — schedule capacity, as arithmetic.
+  {
+    // Deliberately narrow: only the plain "every day" cron shapes this repo
+    // actually uses are understood, and anything else returns null and FAILS
+    // the assertion loudly rather than being silently scored as fast enough.
+    const runsPerDay = (schedule) => {
+      const parts = String(schedule || "").trim().split(/\s+/);
+      if (parts.length !== 5) return null;
+      const [minute, hour, dom, month, dow] = parts;
+      if (dom !== "*" || month !== "*" || dow !== "*") return null;
+      const count = (field, max) => {
+        if (field === "*") return max;
+        const step = /^\*\/(\d+)$/.exec(field);
+        if (step) return Number(step[1]) > 0 ? Math.ceil(max / Number(step[1])) : null;
+        if (/^\d+(,\d+)*$/.test(field)) return field.split(",").length;
+        return null;
+      };
+      const m = count(minute, 60);
+      const h = count(hour, 24);
+      return m == null || h == null ? null : m * h;
+    };
+    eq(runsPerDay("50 4 * * *"), 1, "H7 (self-test): a once-daily schedule is 1 run/day");
+    eq(runsPerDay("35 * * * *"), 24, "H7 (self-test): an hourly schedule is 24 runs/day");
+    eq(runsPerDay("0 */4 * * *"), 6, "H7 (self-test): every-4-hours is 6 runs/day");
+    eq(runsPerDay("30 3 * * 1"), null, "H7 (self-test): a weekday-restricted schedule is refused, never guessed");
+
+    const vercel = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
+    const crons = Array.isArray(vercel.crons) ? vercel.crons : [];
+    const photoCrons = crons.filter((c) => String((c && c.path) || "").startsWith("/api/cron/place-photos"));
+    ok(photoCrons.length >= 2, `H8: vercel.json schedules BOTH place-photos worklists (found ${photoCrons.length})`);
+
+    const atRisk = photoCrons.filter((c) => /[?&]source=at-risk(?:&|$)/.test(c.path));
+    eq(atRisk.length, 1, "H8: exactly one at-risk drain entry — two would double-spend the same worklist against Wikimedia");
+    ok(
+      photoCrons.some((c) => /[?&]source=all(?:&|$)/.test(c.path)),
+      "H8: the general beach/attractions fill is still scheduled — the at-risk drain did not replace it"
+    );
+
+    // THE ARITHMETIC. 4,448 undecided at-risk places on 2026-09-09 against a
+    // 2026-09-25 first expiry: 4448/16 = 278 decisions a day just to break
+    // even, before any new place ever caches a photo. 500 is that with room.
+    const MIN_DECISIONS_PER_DAY = 500;
+    const entry = atRisk[0] || { path: "", schedule: "" };
+    const perRun = Number((/[?&]limit=(\d+)/.exec(entry.path) || [])[1] || 25);
+    const rpd = runsPerDay(entry.schedule);
+    ok(rpd != null, `H9: the at-risk schedule ${JSON.stringify(entry.schedule)} is a shape this guard can score — an unscoreable schedule is not assumed adequate`);
+    const capacity = (rpd || 0) * perRun;
+    ok(
+      capacity >= MIN_DECISIONS_PER_DAY,
+      `H9 (THE HEADLINE INVARIANT): the at-risk drain must clear at least ${MIN_DECISIONS_PER_DAY} decisions/day to finish 4,448 places before the 2026-09-25 cache cliff — ${JSON.stringify(entry.schedule)} x limit=${perRun} is only ${capacity}/day`
+    );
+    ok(perRun <= 100, `H10: and stays inside the route's own limit cap of 100 (got ${perRun}) — a larger number would be silently clamped and quietly halve the capacity this guard just scored`);
+  }
+
+  console.log("test-photo-vault-wiring: Section H OK — a lost at-risk worklist is named in the pulse instead of hiding as `at-risk 0/0`, and the drain is scheduled fast enough to finish before the cache cliff");
+}
+
+// ── SECTION I — A REQUEST THAT NEVER LANDED MUST NOT BECOME A PERMANENT
+//    VERDICT ───────────────────────────────────────────────────────────────
+//
+//   This file's own header for lib/placePhotoBackfill.js says: "EVERY WRITE IS
+//   EFFECTIVELY ONE-SHOT ... this worker never re-decides a place it has
+//   already decided." That is a fine property for a decision and a terrible
+//   one for a guess. Before 2026-09-09 a Wikimedia 429 resolved to the same
+//   null as a real miss, so the worker wrote a permanent `status:"rejected"`
+//   row for a question it never got to ask — and lib/wikimediaFetchPolicy.js
+//   answers a SYNTHETIC 429 to everything queued during a Retry-After window,
+//   so one real 429 could cascade through a whole run.
+//
+//   v8.56.14 raised this lane from 25 decisions/day to 600, multiplying both
+//   the Wikimedia traffic and this failure mode by the same 24x. Hence:
+//   an `unavailable_*` outcome writes NO ROW and counts as `deferred`, which
+//   is deliberately NOT `failed` (the route pages the owner on
+//   `failed === attempted`, and a Retry-After window is normal operation);
+//   and a candidate whose turn arrives while the backoff window is already
+//   open is never STARTED, so it does not enter `attempted` at all.
+{
+  const PID_A = "deferredplace1234567A";
+  const PID_B = "rejectedplace1234567B";
+
+  // I1 (THE HEADLINE INVARIANT) + I1b (its positive control), run as a pair
+  // against the SAME harness so neither can pass by the worker simply having
+  // stopped writing rows at all.
+  {
+    const db = makeDb({ atRisk: [{ place_id: PID_A, name: "Deferred Place", category: "beach" }] });
+    const result = await runBackfill({
+      limit: 5,
+      sbEnv: SB,
+      resolvePhoto: async (_place, deps) => {
+        // Exactly what lib/commonsPhotos.js now reports when a request did
+        // not succeed: no photo, and a reason isUnavailableReason() accepts.
+        deps.onReject("unavailable_opensearch");
+        return null;
+      },
+      storePhoto: null,
+      dryRun: false,
+    });
+    db.restore();
+
+    eq(db.upsertCalls.length, 0, "I1 (THE HEADLINE INVARIANT): an unavailable outcome writes ZERO rows — proven by call count on the db double, not by reading a counter");
+    eq(result.deferred, 1, "I1: it is counted as deferred");
+    eq(result.rejected, 0, "I1: and NOT as a rejection — a rejection is permanent and this place was never actually asked about");
+    eq(result.failed, 0, "I1: and NOT as a failure — the worker did its job; Wikimedia was unavailable");
+    eq(result.attempted, 1, "I1: the place WAS attempted (the request was started), unlike a skip");
+    const d = (result.details || []).find((x) => x.placeId === PID_A);
+    eq(d && d.outcome, "deferred", "I1: the detail entry names the outcome honestly");
+    eq(d && d.reason, "unavailable_opensearch", "I1: and carries the reason forward for the operator");
+  }
+
+  {
+    const db = makeDb({ atRisk: [{ place_id: PID_B, name: "Rejected Place", category: "beach" }] });
+    const result = await runBackfill({
+      limit: 5,
+      sbEnv: SB,
+      resolvePhoto: async (_place, deps) => {
+        deps.onReject("no_lead_image");
+        return null;
+      },
+      storePhoto: null,
+      dryRun: false,
+    });
+    db.restore();
+
+    eq(db.upsertCalls.length, 1, "I1b (POSITIVE CONTROL): a DEFINITIVE miss still writes exactly one permanent row — so I1's zero means 'this outcome specifically', not 'writes are broken'");
+    ok(String(db.upsertCalls[0].source_ref || "").startsWith("rejected:"), "I1b: and it is written as a rejection, carrying its reason in source_ref");
+    eq(db.upsertCalls[0].status, "rejected", "I1b: with status='rejected'");
+    eq(result.rejected, 1, "I1b: counted as a rejection");
+    eq(result.deferred, 0, "I1b: and not deferred");
+  }
+
+  // I2 — a candidate whose turn comes during an ALREADY-OPEN Retry-After
+  // window is never started. Driven through the REAL controller
+  // lib/placePhotoBackfill.js reads, not a stub of it: the install symbol is
+  // swapped out and back so this section cannot leak an armed backoff into
+  // any other section.
+  {
+    const KEY = Symbol.for("wayfind.wikimedia-fetch-policy.v1");
+    const savedController = globalThis[KEY];
+    const savedFetch = globalThis.fetch;
+    delete globalThis[KEY];
+    globalThis.fetch = async () => ({
+      ok: false,
+      status: 429,
+      headers: { get: (h) => (String(h).toLowerCase() === "retry-after" ? "60" : null) },
+      json: async () => ({}),
+    });
+    const policy = installWikimediaFetchPolicy();
+    await policy.fetch("https://en.wikipedia.org/w/api.php?action=opensearch&search=x");
+    ok(!policy.canRequest(), "I2 (setup): the real Retry-After window is open");
+
+    let resolveCalls = 0;
+    const db = makeDb({
+      atRisk: [
+        { place_id: PID_A, name: "A", category: "beach" },
+        { place_id: PID_B, name: "B", category: "beach" },
+      ],
+    });
+    const result = await runBackfill({
+      limit: 5,
+      sbEnv: SB,
+      resolvePhoto: async () => {
+        resolveCalls++;
+        return null;
+      },
+      storePhoto: null,
+      dryRun: false,
+    });
+    db.restore();
+    globalThis[KEY] = savedController;
+    globalThis.fetch = savedFetch;
+
+    eq(resolveCalls, 0, "I2 (THE HEADLINE INVARIANT): with the backoff window open, ZERO candidates are started — proven by call count on the resolver, which is what stops one 429 cascading into a run of wrong rejections");
+    eq(db.upsertCalls.length, 0, "I2: and zero rows are written");
+    eq(result.skipped, 2, "I2: both candidates are counted as skipped");
+    eq(result.attempted, 0, "I2: `attempted` excludes them — a place we never looked at was not attempted");
+    eq(result.rejected, 0, "I2: nothing is rejected");
+    eq(result.deferred, 0, "I2: and a never-started place is not 'deferred' either — deferred means started and unobservable");
+  }
+
+  // I3 — `deferred` must not be able to page the owner. The route fires
+  // jobFailed on `failed === attempted`; a whole run of deferrals must leave
+  // that condition false, while a whole run of real failures must still
+  // leave it true (the positive control).
+  {
+    const raw = readFileSync(new URL("../app/api/cron/place-photos/route.js", import.meta.url), "utf8");
+    const stripped = raw.replace(/^import[^;]+;\n/gm, "");
+    const prelude = `
+      const runBackfill = (...a) => globalThis.__wfDeferTest.runBackfill(...a);
+      const describeAtRisk = (...a) => globalThis.__wfDeferTest.describeAtRisk(...a);
+      const recordPulse = (...a) => globalThis.__wfDeferTest.recordPulse(...a);
+      const jobCannotRun = (...a) => globalThis.__wfDeferTest.jobCannotRun(...a);
+      const jobFailed = (...a) => globalThis.__wfDeferTest.jobFailed(...a);
+    `;
+    const route = await import("data:text/javascript," + encodeURIComponent(prelude + "\n" + stripped));
+
+    const pulses = [];
+    let pagedNote = null;
+    const base = {
+      ok: true, active: 0, vaulted: 0, vaultSkipped: 0, scanned: 0,
+      atRiskScanned: 1000, atRiskTaken: 3, atRiskUnavailable: false, alreadyCovered: 0,
+    };
+    let result = base;
+    globalThis.__wfDeferTest = {
+      runBackfill: async () => result,
+      describeAtRisk,
+      recordPulse: async (job, stats) => { pulses.push({ job, stats }); return true; },
+      jobCannotRun: async (job, reason) => { throw new Error("jobCannotRun must not fire here: " + reason); },
+      jobFailed: async (_job, note) => { pagedNote = note; return new Response("{}", { status: 200 }); },
+    };
+
+    const savedSecret = process.env.CRON_SECRET;
+    const savedUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const savedSvc = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    process.env.CRON_SECRET = "defer-test-secret";
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://defer.test.invalid";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "test-key";
+    const hit = () => route.GET(new Request("https://x/api/cron/place-photos", { headers: { authorization: "Bearer defer-test-secret" } }));
+
+    // Every place deferred: normal operation during a Wikimedia backoff.
+    result = { ...base, attempted: 3, rejected: 0, failed: 0, deferred: 3 };
+    pulses.length = 0;
+    pagedNote = null;
+    await hit();
+    eq(pagedNote, null, "I3 (THE HEADLINE INVARIANT): a run where every place was DEFERRED does not page the owner — a Retry-After window is normal operation, and paging on normal operation is how a monitor stops being read");
+    eq(pulses.length, 1, "I3: it still files a pulse, so the deferral is visible");
+    ok(String((pulses[0].stats || {}).note || "").includes("3 deferred"), `I3: and the note says how many were deferred (got ${JSON.stringify((pulses[0].stats || {}).note)})`);
+
+    // Every place a real failure: the pre-existing page still fires.
+    result = { ...base, attempted: 3, rejected: 0, failed: 3, deferred: 0 };
+    pulses.length = 0;
+    pagedNote = null;
+    await hit();
+    ok(pagedNote !== null, "I3 (POSITIVE CONTROL): a run where every place genuinely ERRORED still pages — so I3's silence above is about deferrals specifically, not a broken alarm");
+    eq(pulses.length, 0, "I3: and a paged run does not also file a success pulse");
+
+    process.env.CRON_SECRET = savedSecret;
+    process.env.NEXT_PUBLIC_SUPABASE_URL = savedUrl;
+    process.env.SUPABASE_SERVICE_ROLE_KEY = savedSvc;
+    delete globalThis.__wfDeferTest;
+  }
+
+  console.log("test-photo-vault-wiring: Section I OK — an unobservable Wikimedia answer is deferred, never written as a permanent rejection; an open backoff window starts no candidates at all; and deferrals do not page the owner while real failures still do");
+}
+
 if (failures) {
   console.error(`test-photo-vault-wiring: FAIL — ${failures} assertion(s) failed`);
   process.exit(1);
 }
 console.log(
-  "test-photo-vault-wiring: OK — lib/freePhoto.js prefers the vault URL once storage_path is set; lib/placePhotoBackfill.js upserts THEN vaults, records a licence refusal honestly with zero uploads, never re-fetches an already-vaulted place, drains wf_photo_at_risk before the general scan, and app/api/cron/place-photos stays fail-closed and honest on an empty run"
+  "test-photo-vault-wiring: OK — lib/freePhoto.js prefers the vault URL once storage_path is set; lib/placePhotoBackfill.js upserts THEN vaults, records a licence refusal honestly with zero uploads, never re-fetches an already-vaulted place, drains wf_photo_at_risk before the general scan, app/api/cron/place-photos stays fail-closed and honest on an empty run, a LOST at-risk worklist is named in the pulse instead of hiding as `at-risk 0/0`, vercel.json schedules enough drain capacity to beat the cache cliff, and an unobservable Wikimedia answer is deferred rather than written as a permanent rejection"
 );
