@@ -50,8 +50,9 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
     ok(o.shape instanceof RegExp, `${o.key} declares a shape to validate against`);
     ok(o.shape.test(o.fallback), `${o.key}'s own fallback passes its shape — a validator that rejects the default is wrong`);
   }
-  ok(VALUE_OVERRIDES.length >= 3,
-    `the sweep's findings are declared, not just ATLAS_MODEL (got ${VALUE_OVERRIDES.length})`);
+  const sender = VALUE_OVERRIDES.find((o) => o.key === "WF_ALERT_FROM");
+  ok(VALUE_OVERRIDES.length >= 3 && sender?.fallback === "Wayfind Alerts <alerts@gowayfind.com>" && !/resend\.dev/i.test(sender.fallback),
+    `the sweep's findings are declared and WF_ALERT_FROM falls back only to the verified Wayfind domain (got ${sender?.fallback || "missing"})`);
 }
 
 // All four statuses, including the healthy quiet one. A classifier that only

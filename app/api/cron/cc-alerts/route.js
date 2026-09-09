@@ -18,6 +18,7 @@ export const maxDuration = 60;
 import { gatherAlerts } from "../../../../lib/commandCenter/alertsRun.js";
 import { sbAdmin } from "../../../../lib/commandCenter/supabaseAdmin.js";
 import { SITE_URL } from "../../../../lib/site.js";
+import { resolveOverride } from "../../../../lib/envAudit.js";
 
 const COOLDOWN_MS = { critical: 2 * 3600000, warn: 6 * 3600000 };
 
@@ -91,7 +92,7 @@ export async function GET(req) {
   if (!secret || auth !== "Bearer " + secret) return new Response("unauthorized", { status: 401 });
 
   const resendKey = String(process.env.RESEND_API_KEY || "").trim();
-  const to = String(process.env.DIGEST_EMAIL || "").trim();
+  const to = resolveOverride("DIGEST_EMAIL").value;
   if (!resendKey || !to) return Response.json({ idle: true, reason: "RESEND_API_KEY or DIGEST_EMAIL not set" });
 
   const now = new Date();
@@ -120,7 +121,7 @@ export async function GET(req) {
   });
   if (!due.length) return Response.json({ ok: true, alerts: actionable.length, sent: false, reason: "all in cooldown" });
 
-  const from = String(process.env.WF_ALERT_FROM || "Wayfind Alerts <onboarding@resend.dev>").trim();
+  const from = resolveOverride("WF_ALERT_FROM").value;
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST",
     cache: "no-store",
