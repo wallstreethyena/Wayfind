@@ -64,8 +64,23 @@
 -- streak CTEs, the lookback window, the output shape — is UNCHANGED; this
 -- migration touches ONLY the `dead` boolean.
 --
--- NOT APPLIED TO PRODUCTION BY THIS COMMIT. Written and verified locally;
--- deploy is a separate, owner-gated step per CLAUDE.md's "How to ship a fix".
+-- APPLIED TO PRODUCTION 2026-09-09T20:50Z, ahead of this commit shipping, on
+-- purpose: this migration is INERT until the code half deploys (no pulse note
+-- in the database carries any of the three prefixes today -- verified by
+-- reading all 21 rows of wf_job_health(48) immediately before the apply), so
+-- there is no window in which it can change behaviour, and applying it now is
+-- how this lane avoids repeating docs/../INCIDENT-the-migration-I-forgot.
+--
+-- VERIFIED AGAINST THE DEPLOYED FUNCTION, not by reading it -- two pulses
+-- inserted inside a transaction that was then ROLLED BACK (leftover rows
+-- re-counted afterwards: 0):
+--
+--   attempted=0, note='unavailable: ...'   -> consecutive_zero = 1  (pages)
+--   attempted=0, note='nothing to do'      -> consecutive_zero = 0  (idle)
+--
+-- The second row is the half that matters as much as the first: a genuinely
+-- idle run must STILL read as idle, or this alert trains everyone to ignore
+-- it and takes its real catches with it.
 --
 -- Copied verbatim from 20260907141934_wf_job_health_failed_preflight.sql (the
 -- function currently live in production) and changed ONLY the `dead` line.
