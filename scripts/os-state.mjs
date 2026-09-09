@@ -113,6 +113,50 @@ export async function collect() {
       out.rows.push([`Google free tier · ${row.sku}`, `${fmt(row.used)}/${fmt(row.cap)} (${pct}%)`, `\`wf_spend_ledger\` ${row.month}${flag}`]);
     }
   } catch (e) { out.warnings.push(`wf_spend_ledger: ${e.message}`); }
+  // 2026-09-08 — the `photos` ledger exhausted 950/950 on 2026-09-01 and
+  // nothing measured what readers actually saw. These rows are that
+  // measurement: live counts + the last photo-monitor pulse, computed
+  // through the SAME lib/photoCoverage.js computePhotoCoverage() math
+  // app/api/health/photos and scripts/photo-monitor.mjs use, so this doc can
+  // never disagree with either about how the percentage is derived.
+  try {
+    const { computePhotoCoverage } = await import("../lib/photoCoverage.js");
+    const activeWithRef = await count(s, "wf_inventory?select=place_id&status=eq.OPERATIONAL&or=(excluded.is.null,excluded.is.false)&photo_ref=not.is.null");
+    const openRows = await count(s, "wf_photo_repair_queue?select=place_id&status=eq.open");
+    const unresolvedRows = await count(s, "wf_photo_repair_queue?select=place_id&status=eq.unresolved");
+    const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+    const recoveries7d = await count(s, `wf_photo_repair_queue?select=place_id&status=eq.recovered&updated_at=gte.${encodeURIComponent(sevenDaysAgo)}`);
+    const coverage = computePhotoCoverage({ activeWithRef, openRows, unresolvedRows, recoveries7d });
+
+    const pulseR = await fetch(`${s.url}/rest/v1/wf_job_pulse?job=eq.photo-monitor&select=note,ran_at&order=ran_at.desc&limit=1`,
+      { headers: { apikey: s.key, Authorization: `Bearer ${s.key}` }, cache: "no-store" });
+    const pulseRows = pulseR.ok ? await pulseR.json() : [];
+    const pulseRow = pulseRows[0];
+    const pctMatch = pulseRow && /placeholder-rate\s+(\d+)%\s+of\s+(\d+)\s+probes/.exec(String(pulseRow.note || ""));
+    // COVERAGE IS REPORTED FROM THE SAMPLE, NOT FABRICATED FROM ABSENT INPUTS
+    // (2026-09-08, Astra review). The exact-fresh / same-place-fresh counts a
+    // true coverage percentage needs are a wf_places_cache × wf_inventory
+    // cross-reference this generator does not run, so computePhotoCoverage
+    // returns `measured:false` and a null percentage rather than 0 — printing
+    // that 0 would have published "0.0% (0 of 19,852 …)" as a live, generated,
+    // timestamped fact, which is exactly the confident lie check-os-state
+    // exists to stop. The monitor's probe sample IS a real measurement of the
+    // same quantity, so that is what this row says, labelled as sampled.
+    out.rows.push([
+      "Real-photo coverage (sampled)",
+      pctMatch ? `${100 - Number(pctMatch[1])}% of ${pctMatch[2]} probed card surfaces served a real photo` : "not measured yet — no photo-monitor pulse",
+      "`wf_job_pulse` latest `photo-monitor` note (probe sample, not a full census)",
+    ]);
+    out.rows.push([
+      "Placeholder rate (last monitor run)",
+      pctMatch ? `${pctMatch[1]}% of ${pctMatch[2]} probes` : "no photo-monitor pulse yet",
+      "`wf_job_pulse` latest `photo-monitor` note",
+    ]);
+    out.rows.push(["Active refs in scope", `${fmt(coverage.activeWithRef)} active rows carry a \`photo_ref\``, "`wf_inventory` live count"]);
+
+    out.rows.push(["Photo repair queue", `${fmt(openRows)} open · ${fmt(unresolvedRows)} unresolved`, "`wf_photo_repair_queue` live count"]);
+    out.rows.push(["Photo recoveries (7d)", fmt(recoveries7d), "`wf_photo_repair_queue` `status=recovered&updated_at=gte.<7d>`"]);
+  } catch (e) { out.warnings.push(`wf_photo_repair_queue / photo coverage: ${e.message}`); }
   return out;
 }
 
