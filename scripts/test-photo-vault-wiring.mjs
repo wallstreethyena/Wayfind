@@ -44,10 +44,32 @@
 //      `at-risk ${taken}/${scanned}` unconditionally → H3/H5/H6 go red.
 //  10. vercel.json: put the at-risk drain back on `50 4 * * *` → H9
 //      (capacity) goes red while every other assertion stays green.
+//  11. app/api/cron/place-photos/route.js: re-wrap a deterministic-prefixed
+//      note in "place-photos: " (undo the isDeterministicFailureNote check
+//      in the note ternary) → H3b's "begins with unavailable:" assertion
+//      goes red, and so does its classifyHealth-reads-it-as-incident
+//      assertion, because the re-wrapped note no longer matches
+//      DETERMINISTIC_NOTE_PREFIX at column 0.
+//  12. lib/placePhotoBackfill.js: revert the source==="at-risk" &&
+//      atRiskUnavailable early return's note to the old
+//      `${AT_RISK_VIEW} unavailable` (no "unavailable:" prefix, no status) →
+//      H3c's "begins with unavailable:" and "carries the real HTTP status"
+//      assertions go red. (H3b alone does NOT catch this mutation — H3b
+//      hand-copies the early-return's shape as a fixture precisely so it can
+//      isolate the ROUTE's behaviour; H3c is what proves runBackfill itself
+//      still produces that shape.)
 import { readFileSync } from "node:fs";
 import { findFreePhoto } from "../lib/freePhoto.js";
 import { runBackfill, describeAtRisk } from "../lib/placePhotoBackfill.js";
 import { installWikimediaFetchPolicy } from "../lib/wikimediaFetchPolicy.js";
+import { classifyHealth, isDeterministicFailureNote } from "../lib/jobPulse.js";
+
+// Exposed for the several route.js sources below that are read, import-
+// stripped and re-executed via a `data:text/javascript,` URL (same technique
+// as the rest of this file) — that eval'd module cannot see this file's own
+// import bindings, only globalThis, so this is how the REAL function (not a
+// second, re-derived regex) reaches the route code under test.
+globalThis.__wfIsDeterministicFailureNote = isDeterministicFailureNote;
 
 let failures = 0;
 const ok = (condition, message) => {
@@ -403,6 +425,7 @@ const PHOTO = (id) => ({
     const recordPulse = (...a) => globalThis.__wfVaultRouteTest.recordPulse(...a);
     const jobCannotRun = (...a) => globalThis.__wfVaultRouteTest.jobCannotRun(...a);
     const jobFailed = (...a) => globalThis.__wfVaultRouteTest.jobFailed(...a);
+    const isDeterministicFailureNote = (...a) => globalThis.__wfIsDeterministicFailureNote(...a);
   `;
   const route = await import("data:text/javascript," + encodeURIComponent(prelude + "\n" + stripped));
 
@@ -592,12 +615,19 @@ const PHOTO = (id) => ({
 //   A backfill that cannot finish before the thing it is backfilling expires
 //   is not a slow backfill, it is a decorative one.
 //
-//   H1-H3 pin lib/placePhotoBackfill.js#describeAtRisk (pure). H4-H6 prove the
-//   cron route's pulse note actually goes through it, so the three states stay
-//   distinguishable to an operator reading wf_job_pulse. H7-H10 pin the
-//   SCHEDULE CAPACITY in vercel.json as arithmetic — runs-per-day x the
-//   entry's own limit= — not as a literal schedule string, so any future
-//   schedule that still clears the bar is free to land.
+//   H1-H3 pin lib/placePhotoBackfill.js#describeAtRisk (pure). H3b (2026-09-09)
+//   proves a lost `?source=at-risk` read PAGES: the route's FINAL filed note
+//   begins with "unavailable:", and lib/jobPulse.js#classifyHealth (called,
+//   not regex'd) reads it as an incident — this is the production defect that
+//   let that job stay dead forever behind an "idle" label. H3c proves the
+//   REAL runBackfill (not H3b's hand-copied fixture) actually produces that
+//   note shape when its wf_photo_at_risk fetch genuinely fails. H4-H6 prove the
+//   cron route's pulse note actually goes through describeAtRisk on the OTHER
+//   (non-source=at-risk) paths, so the three states stay distinguishable to
+//   an operator reading wf_job_pulse. H7-H10 pin the SCHEDULE CAPACITY in
+//   vercel.json as arithmetic — runs-per-day x the entry's own limit= — not
+//   as a literal schedule string, so any future schedule that still clears
+//   the bar is free to land.
 {
   // H1-H3 — the three states that used to render byte-identically.
   {
@@ -618,6 +648,118 @@ const PHOTO = (id) => ({
       describeAtRisk({ atRiskUnavailable: true, atRiskTaken: 0, atRiskScanned: 0, source: "all" }).includes("UNAVAILABLE"),
       "H3: a failed read OUTRANKS source= — an outage is the more urgent fact even when the caller asked for something narrower"
     );
+  }
+
+  // H3b (THE HEADLINE INVARIANT, 2026-09-09) — a lost at-risk worklist must
+  // PAGE, not file as idle. H1-H3 above pin describeAtRisk's pure text; this
+  // proves two things H1-H3 cannot: (1) the FINAL pulse note the ROUTE files
+  // for `?source=at-risk` on a lost read begins with "unavailable:" at
+  // column 0 — proven by executing the real route source (same
+  // read-strip-eval technique as H4-H6 below) with the EXACT shape
+  // lib/placePhotoBackfill.js#runBackfill's `source === "at-risk" &&
+  // atRiskUnavailable` early return produces; and (2) lib/jobPulse.js's
+  // classifyHealth — IMPORTED AND CALLED here, never regex'd a second time —
+  // reads that filed note as an INCIDENT, never idle. Both matter: (1)
+  // without (2) proves the note LOOKS right; (2) without (1) proves the
+  // classifier works on a hand-typed string that the route might not
+  // actually produce. This is the exact production row
+  // (attempted=0 succeeded=0 consecutive_zero=0) that used to be filed as
+  // idle and could stay dead forever.
+  {
+    const raw = readFileSync(new URL("../app/api/cron/place-photos/route.js", import.meta.url), "utf8");
+    const stripped = raw.replace(/^import[^;]+;\n/gm, "");
+    const prelude = `
+      const runBackfill = (...a) => globalThis.__wfUnavailablePageTest.runBackfill(...a);
+      const recordPulse = (...a) => globalThis.__wfUnavailablePageTest.recordPulse(...a);
+      const jobCannotRun = (...a) => { throw new Error("jobCannotRun must not fire: " + a[1]); };
+      const jobFailed = (...a) => { throw new Error("jobFailed must not fire: " + a[1]); };
+      const isDeterministicFailureNote = (...a) => globalThis.__wfIsDeterministicFailureNote(...a);
+    `;
+    const route = await import("data:text/javascript," + encodeURIComponent(prelude + "\n" + stripped));
+
+    const pulses = [];
+    globalThis.__wfUnavailablePageTest = {
+      // Copied field-for-field from lib/placePhotoBackfill.js's
+      // `source === "at-risk" && atRiskUnavailable` early return — not
+      // re-imagined here, so a change to that return shape that breaks the
+      // route is what this catches.
+      runBackfill: async () => ({
+        ok: true, attempted: 0, active: 0, rejected: 0, failed: 0,
+        atRiskUnavailable: true, atRiskStatus: 500,
+        note: "unavailable: place-photos wf_photo_at_risk read failed (HTTP 500)",
+      }),
+      recordPulse: async (job, stats) => { pulses.push({ job, stats }); return true; },
+    };
+
+    const savedSecret = process.env.CRON_SECRET;
+    const savedUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const savedSvc = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    process.env.CRON_SECRET = "unavailable-page-secret";
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://unavailable-page.test.invalid";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "test-key";
+
+    const res = await route.GET(
+      new Request("https://x/api/cron/place-photos?source=at-risk", { headers: { authorization: "Bearer unavailable-page-secret" } })
+    );
+    eq(res.status, 200, "H3b: a lost at-risk worklist still answers 200 — it is reported, not thrown");
+    eq(pulses.length, 1, "H3b: the route files exactly one pulse for the lost read");
+    const filedNote = String((pulses[0].stats || {}).note || "");
+    ok(
+      filedNote.startsWith("unavailable:"),
+      `H3b (THE HEADLINE INVARIANT): the FINAL pulse note the route files begins with "unavailable:" at column 0 (got ${JSON.stringify(filedNote)}) — route.js must not re-wrap a note that already carries a deterministic prefix in "place-photos: ", or the anchor breaks and this never pages`
+    );
+    eq(pulses[0].stats.attempted, 0, "H3b: attempted=0 — exactly the production shape that used to hide as idle");
+    eq(pulses[0].stats.succeeded, 0, "H3b: succeeded=0 — exactly the production shape that used to hide as idle");
+
+    // classifyHealth is IMPORTED AND CALLED with the note the route ACTUALLY
+    // filed above — not re-derived, not matched by a second regex here — and
+    // must read it as an incident. This is the assertion that closes the
+    // loop: it is not enough for the note to look right, the classifier that
+    // decides whether to page has to agree.
+    const { incidents, idle } = classifyHealth([
+      { job: "place-photos", attempted: pulses[0].stats.attempted, succeeded: pulses[0].stats.succeeded, consecutive_zero: 0, last_note: filedNote },
+    ]);
+    eq(
+      incidents.length,
+      1,
+      `H3b (THE OTHER HEADLINE INVARIANT): classifyHealth, called with the note the route actually filed, reports it as an INCIDENT (got ${incidents.length} incidents, ${idle.length} idle) — this is the exact production row that used to be filed as idle and never page`
+    );
+    eq(idle.length, 0, "H3b: …and it must not ALSO land in idle");
+
+    process.env.CRON_SECRET = savedSecret;
+    process.env.NEXT_PUBLIC_SUPABASE_URL = savedUrl;
+    process.env.SUPABASE_SERVICE_ROLE_KEY = savedSvc;
+    delete globalThis.__wfUnavailablePageTest;
+  }
+
+  // H3c — the REAL runBackfill (not a hand-copied fixture) produces the note
+  // shape H3b assumes, when its wf_photo_at_risk fetch genuinely fails. H3b
+  // proves the ROUTE composes a note it is HANDED correctly; this proves
+  // lib/placePhotoBackfill.js is the one actually HANDING it that shape —
+  // without this, a change to the real early-return's note text could drift
+  // away from H3b's fixture and nothing here would notice.
+  {
+    const savedFetch = globalThis.fetch;
+    globalThis.fetch = async (url) => {
+      const u = String(url);
+      if (u.startsWith(SB.url + "/rest/v1/wf_photo_at_risk")) return { ok: false, status: 500, json: async () => ({}) };
+      throw new Error("UNEXPECTED NETWORK CALL: " + u);
+    };
+    let result;
+    try {
+      result = await runBackfill({ limit: 5, source: "at-risk", sbEnv: SB, resolvePhoto: async () => null });
+    } finally {
+      globalThis.fetch = savedFetch;
+    }
+    ok(result.ok, "H3c: a lost at-risk read is still an ok:true result — reported, not thrown");
+    eq(result.attempted, 0, "H3c: attempted=0 — a failed read never gets to attempt anything");
+    eq(result.atRiskUnavailable, true, "H3c: atRiskUnavailable is set on the real result");
+    eq(result.atRiskStatus, 500, "H3c: the real HTTP status is carried through to atRiskStatus");
+    ok(
+      typeof result.note === "string" && result.note.startsWith("unavailable:"),
+      `H3c (THE HEADLINE INVARIANT): the REAL runBackfill's note begins with "unavailable:" at column 0 (got ${JSON.stringify(result.note)}) — this is exactly what the route in H3b is handed and must not re-wrap`
+    );
+    ok(result.note.includes("500"), `H3c: …and carries the real HTTP status inline (got ${JSON.stringify(result.note)})`);
   }
 
   // H4-H6 — the route's pulse note is built through describeAtRisk, proven by
@@ -754,7 +896,7 @@ const PHOTO = (id) => ({
     ok(perRun <= 100, `H10: and stays inside the route's own limit cap of 100 (got ${perRun}) — a larger number would be silently clamped and quietly halve the capacity this guard just scored`);
   }
 
-  console.log("test-photo-vault-wiring: Section H OK — a lost at-risk worklist is named in the pulse instead of hiding as `at-risk 0/0`, and the drain is scheduled fast enough to finish before the cache cliff");
+  console.log("test-photo-vault-wiring: Section H OK — a lost at-risk worklist is named in the pulse instead of hiding as `at-risk 0/0`, the final filed note for a lost source=at-risk read begins with `unavailable:` and classifyHealth reads it as an incident, and the drain is scheduled fast enough to finish before the cache cliff");
 }
 
 // ── SECTION I — A REQUEST THAT NEVER LANDED MUST NOT BECOME A PERMANENT
