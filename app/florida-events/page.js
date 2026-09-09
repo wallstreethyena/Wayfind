@@ -27,12 +27,12 @@ const fetchHubEvents = unstable_cache(
 
 const TITLE = "Florida Events 2026: What's Actually Worth Going To";
 const DESC = "Verified dates for Florida's best festivals and events — Halloween Horror Nights, Fantasy Fest, Hulaween, EDC Orlando, Gasparilla and more. Checked against official sources, never rolled forward from last year.";
-const _og = SITE_URL + "/api/og?t=" + encodeURIComponent("Florida events, with dates we actually checked");
+const _og = SITE_URL + "/og/florida-events-2026-worth-leaving-home-v2.jpg";
 
 export const metadata = {
   title: TITLE + " | Wayfind",
   description: DESC,
-  openGraph: { title: TITLE, description: DESC, url: SITE_URL + "/florida-events", siteName: "Wayfind", images: [{ url: _og, width: 1200, height: 630 }] },
+  openGraph: { title: TITLE, description: DESC, url: SITE_URL + "/florida-events", siteName: "Wayfind", images: [{ url: _og, width: 1200, height: 630, alt: "Florida events worth leaving home for. Dates actually checked. See the list." }] },
   twitter: { card: "summary_large_image", title: TITLE, images: [_og] },
   alternates: { canonical: SITE_URL + "/florida-events" },
 };
