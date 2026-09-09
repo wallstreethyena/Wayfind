@@ -240,6 +240,15 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
     "lib/photoRepair.js",
     "app/api/cron/photo-repair/route.js",
     "app/api/health/photos/route.js",
+    // 2026-09-09: both unattended daily lanes (backfill CLI/cron + its
+    // Commons resolver) previously self-declared "never calls Google" only
+    // in a comment — no structural guard covered either file
+    // (check-promote-spend-gate.mjs only scans app/api/cron/**/route.js;
+    // test-commons-photos.mjs and test-photo-vault-wiring.mjs carry no
+    // no-spend scan at all). Red-proved: importing lib/spendGate.js into
+    // either file turns this case red.
+    "lib/placePhotoBackfill.js",
+    "lib/commonsPhotos.js",
   ]) {
     const raw = readFileSync(new URL("../" + rel, import.meta.url), "utf8");
     ok(!NO_SPEND_RX.test(stripComments(raw)), `case 5: ${rel} must never import lib/spendGate.js or contain the literal string "places.googleapis.com" outside a comment — this is a structural check, not proof the file cannot spend, but a match here is an immediate, certain fail`);
