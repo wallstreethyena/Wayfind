@@ -41,7 +41,10 @@ import { gzipSync } from "node:zlib";
 // the route chunk) and lib/trendTaxonomy.js reaching the client through the
 // Exploding rail.
 const ROUTE_CHUNK_BUDGET_KB = 175; // static/chunks/app/page-*.js, gzipped. RATCHET: lower only.
-const TOTAL_BUDGET_KB = 498;       // every JS asset for route "/", gzipped.  RATCHET: lower only.
+// 2026-09-09: lazy Supabase left the homepage eager graph. Exact Vercel preview on
+// current main c722d56f measured 435.7KB gz. 445 banks 53KB of the reduction
+// while retaining 9.3KB measured headroom for gzip drift and emergency fixes.
+const TOTAL_BUDGET_KB = 445;       // every JS asset for route "/", gzipped.  RATCHET: lower only.
 const WARN_HEADROOM_KB = 2;        // print a loud warning below this. See below.
 // ─── WHY 500, AND WHY THIS GATE STARTED BLOCKING EVERYTHING (2026-08-26) ────
 // #950 set 496 from a LOCAL measurement of 495.2 — 0.8KB of headroom, which
