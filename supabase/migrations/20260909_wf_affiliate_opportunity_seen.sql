@@ -95,8 +95,8 @@ returns table (
 )
 language sql
 volatile
-security definer
-set search_path = public, pg_catalog
+security invoker
+set search_path = pg_catalog
 as $$
   with incoming as (
     select
@@ -158,13 +158,14 @@ as $$
 $$;
 
 -- Server-only. This function writes a revenue worklist and must never be
--- reachable by a browser key. Spelled out explicitly rather than relying on the
--- ALTER DEFAULT PRIVILEGES in 20260825_security_hardening_v5.sql — this repo's
--- convention is to say so rather than let a default silently do the right thing,
--- and scripts/lib/privilegedRpcContract.mjs fails the build for any
--- security-definer wf_* function anon or authenticated can execute.
+-- reachable by a browser key. The only intended caller is service_role, which
+-- already has SELECT/INSERT/UPDATE on this table and BYPASSRLS in production,
+-- so SECURITY INVOKER is sufficient and avoids unnecessary creator privilege.
+-- The search path is pinned to pg_catalog and every relation is schema-qualified.
+-- Execute is still revoked explicitly from PUBLIC/anon/authenticated rather than
+-- relying on project-wide defaults, because this is an exposed-schema RPC.
 revoke all on function public.wf_affiliate_opportunity_seen(jsonb) from public, anon, authenticated;
 grant execute on function public.wf_affiliate_opportunity_seen(jsonb) to service_role;
 
 comment on function public.wf_affiliate_opportunity_seen(jsonb) is
-  'Atomically record affiliate-opportunity sightings: insert a new place, or increment hits / refresh last_seen_at / clear resolved_at for one already queued, preserving first_seen_at. Replaces a PostgREST resolution=ignore-duplicates write that silently discarded every re-sighting (63 rows frozen at hits=1 since 2026-08-21). Returns per-effect counts so callers report what happened, not what was attempted. Called from lib/affiliateOpportunity.js. Service role only.';
+  'Atomically record affiliate-opportunity sightings: insert a new place, or increment hits / refresh last_seen_at / clear resolved_at for one already queued, preserving first_seen_at. Replaces a PostgREST resolution=ignore-duplicates write that silently discarded every re-sighting (63 rows frozen at hits=1 since 2026-08-21). Returns per-effect counts so callers report what happened, not what was attempted. SECURITY INVOKER; service role only. Called from lib/affiliateOpportunity.js.';
