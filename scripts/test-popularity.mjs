@@ -4,7 +4,7 @@
 // category, the TripAdvisor budget cap, service-only batch fn, cron auth.
 import { readFileSync } from "fs";
 import { nameSim, matchConfidence, bestMatch, sourcesFor, categoriesForSource, SOURCE_CAPS, CONFIDENCE_FLOOR } from "../lib/popularity.js";
-import { popularityAvailability, FETCHERS, primaryTypesForSource, minReviewsForSource } from "../lib/popularity.js";
+import { popularityAvailability, FETCHERS, primaryTypesForSource, minReviewsForSource, FOURSQUARE_PARKED_REASON } from "../lib/popularity.js";
 import {
   createWikimediaFetchPolicy,
   retryAfterMs,
@@ -22,6 +22,78 @@ ok(popularityAvailability('yelp', {YELP_API_KEY:'a'.repeat(128)}).ready === true
 ok(popularityAvailability('yelp', {}).reason === 'no_key', 'absent optional key stays explicit');
 ok(popularityAvailability('foursquare', {}).ready === false, 'unconfigured Foursquare does not select work');
 ok(popularityAvailability('wikipedia', {}).ready === true, 'keyless Wikimedia stays enabled');
+
+// ── FOURSQUARE PARKED 2026-09-09 — asserted BY CALL, not by reading source ───
+// Foursquare never produced a wf_place_popularity row: `popularity` is a
+// Premium attribute and the Places endpoints return Pro fields, so the ~360
+// calls/day (12 runs x SOURCE_CAPS.foursquare) bought nothing but 429s past the
+// 500/month free allowance. Parked, deliberately NOT deleted.
+ok(popularityAvailability('foursquare', { FOURSQUARE_API_KEY: 'x'.repeat(40) }).ready === false,
+  'PARKED: a CONFIGURED Foursquare key still does not select work — the plan is what is missing, not the credential');
+ok(popularityAvailability('foursquare', { FOURSQUARE_API_KEY: 'x'.repeat(40) }).failure === false,
+  'PARKED: an intentionally parked provider is NOT a failed preflight (job-watch must stay quiet)');
+ok(popularityAvailability('foursquare', {}).reason === FOURSQUARE_PARKED_REASON,
+  'PARKED: the reason names the park, so an operator reading a pulse is not told "no_key" about a key that exists');
+// The reason string is load-bearing: lib/jobPulse.classifyHealth escalates a
+// billing:/quota: prefix to an incident on the FIRST dead run. Parking must not
+// page. This asserts the ROLE (does the real classifier escalate it?), not the
+// spelling — a renamed-but-still-safe reason keeps passing, a renamed-and-unsafe
+// one goes red.
+{
+  const { classifyHealth } = await import("../lib/jobPulse.js");
+  // (a) the shape the park actually produces: zeros across the board -> idle.
+  const parkedRow = { job: 'popularity:foursquare', attempted: 0, succeeded: 0, consecutive_zero: 0, last_note: FOURSQUARE_PARKED_REASON };
+  const c = classifyHealth([parkedRow]);
+  ok(c.incidents.length === 0 && c.idle.length === 1,
+    `PARKED: the REAL classifier files a parked pulse as idle, never an incident (got ${c.incidents.length} incident(s))`);
+  // (b) THE REASON STRING ITSELF. At consecutive_zero 0 no note can escalate
+  // (the rule is `zero >= (deterministic ? 1 : threshold)`), so (a) alone says
+  // nothing about the WORDS we chose — proven: a red-prove renaming the reason
+  // to "quota: parked" left (a) green. The prefix only decides anything on a row
+  // counted dead, so assert it there, where a wrong prefix pages on run one.
+  const oneDeadRun = { job: 'popularity:foursquare', attempted: 0, succeeded: 0, consecutive_zero: 1, last_note: FOURSQUARE_PARKED_REASON };
+  ok(classifyHealth([oneDeadRun]).incidents.length === 0,
+    `PARKED: the chosen reason does NOT carry the immediate-escalation prefix — one dead run must not page (reason: ${FOURSQUARE_PARKED_REASON})`);
+  // Positive control: the same row WITH a quota: prefix must escalate, or the
+  // assertion above would pass for any string at all, including a broken one.
+  ok(classifyHealth([{ ...oneDeadRun, last_note: 'quota: breaker_open' }]).incidents.length === 1,
+    'positive control: a quota:-prefixed note on the SAME row DOES escalate, so the assertion above is a real property of the reason string');
+}
+// The fetcher refuses BEFORE any network call, for every caller — not only the
+// cron. Proven by executing it against a fetch stub that would record a call.
+{
+  const savedFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async (...a) => { calls++; return { ok: true, status: 200, json: async () => ({ results: [] }) }; };
+  // A KEY IS REQUIRED FOR THIS TEST TO MEAN ANYTHING. Without one the fetcher
+  // returns null at its `no_key` line, BEFORE the network, so `calls === 0`
+  // would be true whether or not the park exists. Red-prove caught exactly
+  // that: deleting the park guard left this block green. Set explicitly and
+  // deleted below — never read from the ambient shell (check-guard-hermeticity).
+  process.env.FOURSQUARE_API_KEY = "fixture-key-not-real-parked-provider-test";
+  try {
+    const r = await FETCHERS.foursquare({ name: 'Anna Maria Oyster Bar', lat: 27.34, lng: -82.53 });
+    ok(r === null, 'PARKED: fetchFoursquare returns null when called directly');
+    ok(calls === 0, `PARKED: ...and issued ZERO network calls (got ${calls}) — parking cannot be bypassed by calling the fetcher directly`);
+    // Positive control — the stub is wired and DOES count a real fetcher's call,
+    // so "0 calls" above is the park working, not the stub being dead.
+    await FETCHERS.wikipedia({ name: 'Siesta Beach', lat: 27.2675, lng: -82.5497 });
+    ok(calls > 0, `positive control: the same stub records calls from a LIVE fetcher (got ${calls}) — the zero above is real`);
+  } finally { globalThis.fetch = savedFetch; delete process.env.FOURSQUARE_API_KEY; }
+}
+// DORMANT, NOT DELETED. Re-enabling must stay a one-line change, so the working
+// Foursquare surfaces and the breaker wiring have to survive this park.
+{
+  const src = readFileSync(new URL("../lib/popularity.js", import.meta.url), "utf8");
+  const body = src.slice(src.indexOf("export async function fetchFoursquare"));
+  const end = body.indexOf("\nexport async function fetchTripadvisor");
+  const fn = end > 0 ? body.slice(0, end) : body;
+  ok(/places-api\.foursquare\.com|fsqAttemptChain|fsqRequest/.test(fn),
+    'DORMANT: fetchFoursquare still contains its real request path — it was parked, not gutted');
+  ok(/FSQ_BREAKER/.test(src), 'DORMANT: the quota breaker wiring survives the park');
+  ok(readFileSync(new URL("../app/api/fsq/search/route.js", import.meta.url), "utf8").length > 0,
+    'DORMANT: /api/fsq/search (a separate, working Foursquare surface) is untouched by the popularity park');
+}
 
 // matching
 ok(nameSim("Anna Maria Oyster Bar", "Anna Maria Oyster Bar Ellenton") > 0.7, "near-identical names score high");
@@ -149,11 +221,22 @@ ok(route.includes("wf_popularity_stale_batch"), "batch = the stalest places, not
     return {calls,pulses,result};
   };
   const configured = await run({YELP_API_KEY:'a'.repeat(128), FOURSQUARE_API_KEY:'fixture'}, null);
-  ok(configured.calls.length === 3 && new Set(configured.calls.map(c=>c.args.p_source)).size === 3, 'each of the three active sources gets its OWN batch');
+  // Two active sources since the 2026-09-09 Foursquare park (was three).
+  // Counted, not `includes`-ed: a count cannot tell 1 from 2, and the whole
+  // point of the park is that a specific source stopped selecting work.
+  ok(configured.calls.length === 2 && new Set(configured.calls.map(c=>c.args.p_source)).size === 2, `each ACTIVE source gets its OWN batch (expected 2 after the Foursquare park, got ${configured.calls.length})`);
+  ok(new Set(configured.calls.map(c=>c.args.p_source)).has('yelp') && new Set(configured.calls.map(c=>c.args.p_source)).has('wikipedia'), 'the two active sources are yelp and wikipedia');
+  // THE PARK, ASSERTED ON THE REAL CRON BODY: a fully CONFIGURED Foursquare key
+  // still selects no work and still records a non-failing pulse. This is the
+  // assertion that goes red the day someone un-parks it by accident.
+  ok(!configured.calls.some(c=>c.args.p_source === 'foursquare'), 'PARKED: Foursquare selects NO batch even with a configured key');
+  const fsqPulse = configured.pulses.find(p=>p.job==='popularity:foursquare');
+  ok(fsqPulse && fsqPulse.attempted === 0 && fsqPulse.failed === 0 && fsqPulse.note === FOURSQUARE_PARKED_REASON, `PARKED: the cron records an idle, non-failing pulse naming the park (got ${JSON.stringify(fsqPulse)})`);
   ok(configured.calls.every(c=>c.fn === 'wf_popularity_stale_batch'), 'each selected batch calls the real stale-batch RPC');
   const unavailable = await run({YELP_API_KEY:'a'.repeat(127), FOURSQUARE_API_KEY:'fixture'}, {kind:'quota'});
   ok(unavailable.calls.length === 1 && unavailable.calls[0].args.p_source === 'wikipedia', 'malformed, retired and quota-held sources select no place work');
   ok(unavailable.pulses.length === 3 && unavailable.pulses.every(p=>p.attempted === 0), 'unavailable sources record no invented provider attempts');
+  ok(unavailable.pulses.find(p=>p.job==='popularity:foursquare').failed === 0, 'PARKED: even with the quota breaker HELD, the park answers first and stays a non-failing idle state — a parked provider never pages');
   ok(unavailable.pulses.find(p=>p.job==='popularity:yelp').failed === 1, 'malformed key remains a visible preflight failure');
   ok(unavailable.pulses.find(p=>p.job==='popularity:tripadvisor').failed === 0, 'retirement is explicit idle state');
 }
