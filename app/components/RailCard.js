@@ -256,6 +256,12 @@ export function RailDots({ railId, count }) {
  * @param {object}   p
  * @param {string}   p.photo       image URL; a monogram tile stands in when absent
  * @param {string}   p.photoFallback second src tried once if `photo` fails to load
+ * @param {string}   p.photoAttr   photo credit line (e.g. a Wikimedia Commons
+ *   author, "NPS", "Recreation.gov") — renders a small corner badge on the
+ *   photo. Omit for a photo that needs no credit (the common case: Wayfind's
+ *   own Google Places photos).
+ * @param {string}   p.photoAttrHref link for that credit (the license / source
+ *   page); the badge is a plain label instead of a link when omitted
  * @param {string}   p.title       place / event name (clamped to 2 lines by CSS)
  * @param {string}   p.eyebrow     the small category line ("Sports", "Fine dining")
  * @param {func}     p.onEyebrow   makes the eyebrow a real control; omit for a plain label
@@ -272,7 +278,7 @@ export function RailDots({ railId, count }) {
  * @param {string}   p.href        when the card body is a link rather than a handler
  */
 export default function RailCard({
-  photo, photoFallback, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, badge, cta, ctaNode, take,
+  photo, photoFallback, photoAttr, photoAttrHref, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, badge, cta, ctaNode, take,
   onOpen, href, external, ariaLabel, className,
   // v8.70 — see the IconicPlaceCard note: inside .wf8-pcrail (the rail's
   // tap-expanded horizontal scroller) `loading="lazy"` never resolves, so a
@@ -413,6 +419,25 @@ export default function RailCard({
               />
             : <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
+          {/* v8.56.13 (#1188) — CC-license credit for the free permanent photo
+              lane (lib/freePhoto.js, wf_place_photo). Not decoration: Wikimedia
+              licenses REQUIRE a visible author + license credit. Bottom-right —
+              rank owns top-left, score owns the card's top-right corner
+              (outside this box entirely). Renders only when a caller actually
+              passes photoAttr; every existing call site is unaffected. */}
+          {photoAttr
+            ? (photoAttrHref
+                ? <a
+                    className="wf-place-card-photo-attr"
+                    href={photoAttrHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={"Photo: " + photoAttr}
+                    aria-label={"Photo credit: " + photoAttr}
+                    onClick={(e) => e.stopPropagation()}
+                  >©</a>
+                : <span className="wf-place-card-photo-attr" title={"Photo: " + photoAttr} aria-label={"Photo credit: " + photoAttr}>©</span>)
+            : null}
         </div>
         <div className="wf-place-card-content" style={{ position: "relative" }}>
           <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start" }}>

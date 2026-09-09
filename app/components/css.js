@@ -212,6 +212,39 @@ export const WF_PLACE_CARD_CSS = `
   font-size:12px!important;
   box-shadow:0 8px 20px rgba(0,0,0,.28);
   backdrop-filter:blur(10px);
+}` +
+// #1188 — the free permanent photo lane's (lib/freePhoto.js) CC-license
+// credit. Bottom-right, opposite the rank chip: rank owns top-left, the score
+// badge (.wf-place-card-score) owns the card's top-right corner and sits
+// outside this media box entirely, so bottom-right is the one corner free on
+// every card. Small on purpose — the media column this sits in is only
+// 88-108px wide (see .wf-place-card-layout's --wf-place-card-media), nowhere
+// near SponsoredPlaceCard's full 16:9 hero band, so a full text credit does
+// not fit. The chip's own translucent, blurred background is the legibility
+// scrim; the full "Photo: <credit>" line rides the title/aria-label instead
+// of being spelled out in 18px, and a tap follows through to the license page
+// when photoAttrHref is given.
+`.wf-place-card-photo-attr{
+  position:absolute!important;
+  z-index:4;
+  bottom:8px;
+  right:8px;
+  display:flex!important;
+  width:18px!important;
+  height:18px!important;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(255,255,255,.24);
+  border-radius:999px!important;
+  background:rgba(4,8,15,.72)!important;
+  color:#FFF!important;
+  font-size:10px!important;
+  font-weight:700!important;
+  line-height:1;
+  text-decoration:none;
+  box-shadow:0 4px 12px rgba(0,0,0,.24);
+  backdrop-filter:blur(6px);
+  cursor:pointer;
 }
 .wf-place-card.is-curator-pick{
   border-color:rgba(238,190,75,.48)!important;

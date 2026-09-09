@@ -16,10 +16,13 @@ if (!route.includes("REF_RX") || !route.includes("placeIdFromRef") || !recovery.
 // BEFORE spendAllow so a cache hit cannot consume a Google grant.
 // 2026-09-09: the authorizer is per-SKU (one grant per outbound Google request)
 // and photos go through spendAllowPhotos(); recovery still runs first.
+// 2026-09-09 (#1188): the free-permanent-photo lookup (lib/freePhoto.js) is
+// awaited in the SAME Promise.all as recovery and also refuses a `photos`
+// grant on a hit — scripts/test-free-photo-serving.mjs executes this path.
 {
-  const auth = route.match(/authorizeSpend:\s*\(sku\s*=\s*"photos"\)\s*=>\s*getRecovery\(\)\.then\(\(hit\)\s*=>\s*\{([\s\S]*?)\}\),/);
+  const auth = route.match(/authorizeSpend:\s*\(sku\s*=\s*"photos"\)\s*=>\s*Promise\.all\(\[getRecovery\(\),\s*getFreePhoto\(\)\]\)\.then\(\(\[hit,\s*free\]\)\s*=>\s*\{([\s\S]*?)\}\),/);
   const body = auth ? auth[1] : "";
-  if (!route.includes("GOOGLE_MAPS_SERVER_KEY") || !auth || !/if \(hit \|\| shut\) return false;/.test(body) || !/spendAllowPhotos\(\)/.test(body)) fail("same-place recovery must run at the lazy photo spend boundary before Google authorization");
+  if (!route.includes("GOOGLE_MAPS_SERVER_KEY") || !auth || !/if \(hit \|\| shut\) return false;/.test(body) || !/if \(sku === "photos" && free\) return false;/.test(body) || !/spendAllowPhotos\(\)/.test(body)) fail("same-place recovery and the free-photo lookup must both run at the lazy photo spend boundary before Google authorization");
 }
 
 // Newly fetched media may get 30d, but a recovered old ref must inherit only
