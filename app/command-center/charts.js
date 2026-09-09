@@ -117,8 +117,9 @@ export function DefTip({ text }) {
 export function SourceBadge({ source }) {
   if (!source) return null;
   const ok = source.connected;
-  const col = ok ? C.green : source.reason === "error" ? STATUS.serious : C.muted;
-  const label = ok ? source.name : `${source.name}: ${source.reason === "error" ? "error" : "not connected"}`;
+  const limited = source.stale || source.reason === "commission_fields_unavailable";
+  const col = ok ? (limited ? "#f59e0b" : C.green) : source.reason === "error" ? STATUS.serious : C.muted;
+  const label = ok ? `${source.name}${source.stale ? ": saved result, refresh failed" : limited ? ": partial data" : ""}` : `${source.name}: ${source.reason === "error" ? "error" : "not connected"}`;
   const t = source.fetchedAt ? new Date(source.fetchedAt) : null;
   const time = t ? t.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : null;
   const text = `${label}${time ? ` · ${time}` : ""}${source.confidence && source.confidence !== "measured" ? ` · ${source.confidence}` : ""}`;
