@@ -442,6 +442,10 @@ node scripts/check-guide-cta-honesty.mjs
 # THE CALL (guidePrimaryCta + paintGuideCta + GuideConversion RENDER).
 node scripts/test-guide-search-as-book.mjs
 node scripts/check-guide-product-resolution.mjs
+# 2026-09-08 — a guide may name an event's OWN ticket (eventTicket); prove it
+# resolves to the pinned event-ticket row through /api/commerce/go and that the
+# roundup hands off to /florida-events pages instead of duplicating Event schema.
+node scripts/test-guide-event-ticket-cta.mjs
 node scripts/check-map-controls.mjs
 node scripts/check-map-filter-panel.mjs
 node scripts/check-native-no-ad-tracking.mjs
