@@ -38,6 +38,7 @@ import {
 } from "../lib/photoCoverage.js";
 import { queueCandidates, sampleCells, upsertQueueRows } from "./photo-monitor.mjs";
 import { decideRowOutcome, runRepair, statusFor } from "../lib/photoRepair.js";
+import { findSamePlaceCachedPhoto } from "../lib/photoCacheRecovery.js";
 
 let pass = 0;
 const fail = [];
@@ -386,16 +387,51 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
   try {
     const result = await runRepair({
       sbEnv: { url: "https://ledger.test", key: "test-key" },
-      findSamePlace: async (pid, w) => {
+      findSamePlace: async (args) => {
         findSamePlaceCalls++;
-        ok(pid === placeId, `case 10: findSamePlace must be called with the due row's place_id, got "${pid}"`);
-        ok(w === 640, `case 10: findSamePlace must be called with width 640 (the card default), got ${w}`);
+        // THE FAKE MUST SPEAK THE REAL FUNCTION'S LANGUAGE. An earlier fake
+        // took (pid, w) positionally, which made a call the real
+        // findSamePlaceCachedPhoto answers `null` to — without querying —
+        // look correct here. A guard whose stub accepts the wrong shape
+        // encodes the bug as correct (CLAUDE.md); the real-signature check
+        // below is the half that cannot be faked.
+        const pid = args && args.placeId;
+        const w = args && args.width;
+        ok(args !== null && typeof args === "object", `case 10: findSamePlace must be called with an OPTIONS OBJECT (findSamePlaceCachedPhoto's real signature), got ${typeof args}`);
+        ok(pid === placeId, `case 10: findSamePlace must be called with { placeId: <due row's place_id> }, got "${pid}"`);
+        ok(w === 640, `case 10: findSamePlace must be called with { width: 640 } (the card default), got ${w}`);
         return { ref: liveRef, uri: "https://lh3.googleusercontent.com/p/live", expMs: freshExpMs };
       },
     });
     ok(result.ok === true && result.attempted === 1 && result.recovered === 1,
       `case 10: runRepair must recover the one due row via the injected findSamePlace, got ok=${result.ok} attempted=${result.attempted} recovered=${result.recovered}`);
     ok(findSamePlaceCalls === 1, `case 10: runRepair must call the injected findSamePlace exactly once for the one due row, got ${findSamePlaceCalls}x`);
+
+    // THE HALF A FAKE CANNOT PROVE: the DEFAULT dep is lib/photoCacheRecovery's
+    // real findSamePlaceCachedPhoto, and an injected stub can happily accept a
+    // shape the real function rejects. So call the REAL function the way
+    // lib/photoRepair.js calls it, against a stub fetch, and assert it
+    // actually issues its query. Positionally — findSamePlaceCachedPhoto(id,
+    // 640) — it destructures placeId off a string, gets undefined, fails its
+    // own PLACE_ID_RX and returns null having queried NOTHING, so the worker
+    // would recover nothing forever while every test stayed green.
+    const realEnv = { SUPABASE_URL: "https://stub.supabase.test", SUPABASE_SERVICE_ROLE_KEY: "stub-key-not-real" };
+    let realQueries = 0;
+    const stubFetch = async (u) => {
+      realQueries++;
+      ok(String(u).includes("wf_places_cache"), `case 10: the real recovery lookup must query wf_places_cache, got ${String(u).slice(0, 80)}`);
+      return { ok: true, json: async () => [] };
+    };
+    await findSamePlaceCachedPhoto({ placeId, width: 640, fetchImpl: stubFetch, env: realEnv });
+    ok(realQueries === 1, `case 10: called with an options object (the shape lib/photoRepair.js uses), the REAL findSamePlaceCachedPhoto must issue exactly 1 lookup, got ${realQueries}`);
+
+    realQueries = 0;
+    await findSamePlaceCachedPhoto(placeId, 640);
+    ok(realQueries === 0, "case 10 (negative control): a POSITIONAL call issues no query at all — which is why the worker must pass an options object, and why this control exists");
+
+    const repairSrc = readFileSync(new URL("../lib/photoRepair.js", import.meta.url), "utf8");
+    ok(/findSamePlace\(\s*\{\s*placeId:/.test(repairSrc),
+      "case 10: lib/photoRepair.js must call findSamePlace with an options object literal — a positional call silently recovers nothing");
     ok(!!patchedBody && patchedBody.recovery_source === "exact-ref-cache" && patchedBody.status === "recovered",
       "case 10: runRepair must patch the queue row as recovered with the exact-ref-cache source");
   } finally {
