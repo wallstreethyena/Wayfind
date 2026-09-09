@@ -234,7 +234,72 @@ function parseRpcCall(src, openIdx) {
   return { fn, argNames: new Set(entries.map((e) => e.name)) };
 }
 
-function findRpcCallSites(src) {
+// COMMENTS ARE NOT CALL SITES (2026-09-09).
+//
+// This scanner read RAW source, so any file whose PROSE mentioned `db.rpc(`
+// was treated as if it called it. lib/affiliateOpportunity.js (#1191) has a
+// header explaining that it deliberately uses `db.rpc()` with a literal name
+// so that THIS guard can see it — and those three sentences were parsed as
+// three malformed call sites:
+//
+//   FAIL — lib/affiliateOpportunity.js:22 ... rpc() called with no arguments
+//   FAIL — lib/affiliateOpportunity.js:26 ... unbalanced parentheses
+//   FAIL — lib/affiliateOpportunity.js:26 ... unbalanced parentheses
+//
+// The canary's "RPC + migration contract vs production" job went red on every
+// scheduled run from that merge onward, on prose, while the production checks
+// underneath it were passing. A monitor that cries wolf is a monitor people
+// stop reading — and this is the monitor that exists because #1153 shipped a
+// 5-argument caller against a 3-argument production function.
+//
+// This is the exact prose-vs-code trap CLAUDE.md documents, and it bit the
+// guard rather than the code. Fixed by masking comments before scanning.
+//
+// Masking, not deleting: every comment character becomes a space and every
+// newline is preserved, so reported LINE NUMBERS stay correct. A hand-rolled
+// state machine rather than a regex because a regex cannot tell the `//` in
+// `"https://example.com"` from the start of a comment — and getting that
+// wrong would blank out real code and hide a real call site, which is a far
+// worse failure than the one being fixed.
+export function maskComments(src) {
+  const s = String(src);
+  let out = "";
+  let i = 0;
+  const n = s.length;
+  // "code" | "line" | "block" | "sq" | "dq" | "tpl"
+  let state = "code";
+  while (i < n) {
+    const c = s[i];
+    const c2 = s[i + 1];
+    if (state === "code") {
+      if (c === "/" && c2 === "/") { state = "line"; out += "  "; i += 2; continue; }
+      if (c === "/" && c2 === "*") { state = "block"; out += "  "; i += 2; continue; }
+      if (c === "'") { state = "sq"; out += c; i++; continue; }
+      if (c === '"') { state = "dq"; out += c; i++; continue; }
+      if (c === "`") { state = "tpl"; out += c; i++; continue; }
+      out += c; i++; continue;
+    }
+    if (state === "line") {
+      if (c === "\n") { state = "code"; out += c; i++; continue; }
+      out += " "; i++; continue;
+    }
+    if (state === "block") {
+      if (c === "*" && c2 === "/") { state = "code"; out += "  "; i += 2; continue; }
+      out += c === "\n" ? "\n" : " "; i++; continue;
+    }
+    // inside a string or template: copy verbatim, honour escapes, and never
+    // treat anything within as a comment.
+    if (c === "\\") { out += c + (c2 === undefined ? "" : c2); i += 2; continue; }
+    if ((state === "sq" && c === "'") || (state === "dq" && c === '"') || (state === "tpl" && c === "`")) {
+      state = "code"; out += c; i++; continue;
+    }
+    out += c; i++; continue;
+  }
+  return out;
+}
+
+function findRpcCallSites(rawSrc) {
+  const src = maskComments(rawSrc);
   const sites = [];
   const re = /\b(?:db|supabase)\.rpc\s*\(/g;
   let m;
@@ -280,10 +345,22 @@ function walk(dir, out) {
     [`db.rpc("wf_dyn2", { ...base, p_extra: 1 });`, { dynamic: true }],
     [`db.rpc("wf_dyn3", { [computedKey]: 1 });`, { dynamic: true }],
     [`db.rpc(fnName, { p_x: 1 });`, { dynamic: true }],
+    // PROSE IS NOT A CALL SITE (2026-09-09). Each of these is a comment that
+    // NAMES the call. Before maskComments they were scanned as real call
+    // sites and reported as malformed, turning the canary red on every
+    // scheduled run for a file that had done nothing wrong. Expressed as
+    // ZERO-site cases so the count check above catches a regression.
+    [`// this file uses db.rpc() rather than a raw fetch\nconst x = 1;`, { none: true }],
+    [`// discovered by matching \`db.rpc(\` / \`supabase.rpc(\` under app/\nconst y = 2;`, { none: true }],
+    [`/* block prose mentioning db.rpc("wf_thing", { p_a }) */\nconst z = 3;`, { none: true }],
   ];
   let selfTestFails = 0;
   for (const [src, expect] of cases) {
     const sites = findRpcCallSites(src);
+    if (expect.none) {
+      if (sites.length !== 0) { selfTestFails++; console.error(`self-test FAIL — a COMMENT was scanned as ${sites.length} call site(s): ${src.slice(0, 60)}`); }
+      continue;
+    }
     if (sites.length !== 1) { selfTestFails++; console.error(`self-test FAIL (site count) for: ${src.slice(0, 50)}`); continue; }
     const s = sites[0];
     if (expect.dynamic) {
@@ -295,6 +372,47 @@ function walk(dir, out) {
     const want = [...expect.names].sort().join(",");
     if (s.fn !== expect.fn || got !== want) { selfTestFails++; console.error(`self-test FAIL — ${expect.fn}: want [${want}] got fn=${s.fn} [${got}]`); }
   }
+  // maskComments, directly: the properties the scanner now depends on.
+  // Deleting comments outright would have been simpler and wrong — the line
+  // numbers in every FAIL message below are what an operator uses to find the
+  // call, so masking must be line-preserving.
+  {
+    const mc = maskComments;
+    const cases2 = [
+      // [input, predicate, description]
+      [`const a = 1; // db.rpc("x")\nconst b = 2;`, (o) => !/rpc\(/.test(o), "a line comment naming rpc( is masked"],
+      [`const a = 1; // c\nconst b = 2;\nconst c = 3;`, (o) => o.split("\n").length === 3, "line count is preserved (FAIL messages carry line numbers)"],
+      [`/* a\nb\nc */\nconst d = 1;`, (o) => o.split("\n").length === 4, "a block comment preserves its newlines"],
+      [`const u = "https://example.com/a";`, (o) => o.includes("https://example.com/a"), "the // inside a STRING is not a comment — masking it would blank real code"],
+      [`const u = 'https://example.com';`, (o) => o.includes("https://example.com"), "…the same inside single quotes"],
+      ["const u = `https://example.com/x`;", (o) => o.includes("https://example.com/"), "the // inside a TEMPLATE literal is not a comment either"],
+      [`const s = "not /* a comment */ here";`, (o) => o.includes("not /* a comment */ here"), "a block-comment opener inside a string is left alone"],
+      [`const s = "he said \\"hi // there\\"";`, (o) => o.includes("hi // there"), "an escaped quote does not end the string early"],
+      [`db.rpc("wf_real", { p_a: 1 });`, (o) => /db\.rpc\("wf_real"/.test(o), "REAL code passes through untouched (the mask is not eating call sites)"],
+    ];
+    for (const [input, pred, desc] of cases2) {
+      let outMasked;
+      try { outMasked = mc(input); } catch (e) { selfTestFails++; console.error(`maskComments self-test THREW (${desc}): ${e && e.message}`); continue; }
+      if (!pred(outMasked)) { selfTestFails++; console.error(`maskComments self-test FAIL — ${desc}; got: ${JSON.stringify(outMasked).slice(0, 120)}`); }
+    }
+    // The regression itself, end to end: the exact prose from
+    // lib/affiliateOpportunity.js's header must yield ZERO call sites, and a
+    // real call in the SAME file must still be found on its true line.
+    const mixed = [
+      "// WHY THIS LIVES IN lib/ AND USES db.rpc() RATHER THAN A RAW fetch.",
+      "// ...discovers call sites by matching `db.rpc(` / `supabase.rpc(` under app/",
+      "const r = await db.rpc(\"wf_affiliate_opportunity_seen\", { p_rows: rows });",
+    ].join("\n");
+    const mixedSites = findRpcCallSites(mixed);
+    if (mixedSites.length !== 1) {
+      selfTestFails++;
+      console.error(`self-test FAIL — the #1191 regression fixture must yield exactly ONE call site (the real one), got ${mixedSites.length}`);
+    } else if (mixedSites[0].line !== 3 || mixedSites[0].fn !== "wf_affiliate_opportunity_seen") {
+      selfTestFails++;
+      console.error(`self-test FAIL — the real call must be found on line 3 as wf_affiliate_opportunity_seen, got line ${mixedSites[0].line} fn ${mixedSites[0].fn}`);
+    }
+  }
+
   if (selfTestFails) {
     console.error(`check-rpc-schema-contract: FAIL — ${selfTestFails} scanner self-test(s) failed; the scanner itself is broken, its verdicts below cannot be trusted`);
     process.exit(1);
