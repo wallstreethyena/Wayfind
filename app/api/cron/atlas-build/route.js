@@ -333,9 +333,34 @@ async function pool(items, limit, fn) {
 // back is publishable.
 
 export async function GET(req) {
-  // The owned Atlas is permanent. Free mode serves that library and must not
-  // schedule paid Details + model calls to buy the same records again.
-  if (gateShut() || gateFree()) return Response.json({ skipped: "gate " + (gateShut() ? "shut" : "free: atlas re-buy is disabled") });
+  // ORDER IS THE POINT OF THIS BLOCK. It used to be: cost gate, then mode, then
+  // auth. Two defects fell out of that, and both were measured on production
+  // 2026-09-09.
+  //
+  // 1. AN INTENTIONALLY PARKED JOB WAS INDISTINGUISHABLE FROM A DEAD ONE.
+  //    The gate returned at the first line — before `pulse` was even DEFINED —
+  //    so with WAYFIND_GATE=free all three Atlas crons answered HTTP 200 and
+  //    wrote nothing. No pulse row, no failure, no trace. Measured: atlas-build,
+  //    atlas-retry and atlas-refresh last pulsed 2026-09-04, six runs in
+  //    fourteen days against ~336 scheduled, while promote-index (2,824 runs),
+  //    cuisine-classify and scout ran normally minutes earlier. The Vercel env
+  //    entry had last changed 2026-08-25 — the exact day the pulses stopped.
+  //    /api/cron/job-watch cannot report a dormant job that leaves nothing to
+  //    read, so a whole pipeline was switched off and no monitor could say so.
+  //    This is the same shape as the five-day atlas-build outage and the
+  //    three-day dead-key silence: a job answering 200 while doing nothing.
+  //    Both of those were fixed INSIDE code that pulses; this path skipped
+  //    before the pulse existed, so neither fix reached it.
+  //
+  // 2. THE COST GATE ANSWERED AN UNAUTHENTICATED CALLER. The gate returned
+  //    before CRON_SECRET was checked, so anyone could GET this route and be
+  //    told, 200, which spend mode production is in — in a file whose own
+  //    comments call the route fail-closed. Authentication now comes first and
+  //    an unauthenticated request learns nothing but 401.
+  //
+  // So: mode selection, then AUTH, then the cost gate — which now reports
+  // itself. WAYFIND_GATE is untouched by this change; parking Atlas is a spend
+  // decision and it stays exactly as the owner set it.
   const url = new URL(req.url);
   const retryMode = url.searchParams.get("retry") === "1";
   const refreshMode = !retryMode && url.searchParams.get("refresh") === "1";
@@ -348,6 +373,27 @@ export async function GET(req) {
   const auth = req.headers.get("authorization") || "";
   if (!secret || (auth !== "Bearer " + secret && url.searchParams.get("key") !== secret)) {
     return Response.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  // The owned Atlas is permanent. Free mode serves that library and must not
+  // schedule paid Details + model calls to buy the same records again. Nothing
+  // below this point spends: the return happens before Google or Anthropic is
+  // touched, exactly as before. The only change is that the skip now SAYS SO.
+  //
+  // attempted:0 / succeeded:0 / failed:0 is deliberate and is what keeps this
+  // honest in both directions. lib/jobPulse's classifyHealth treats a
+  // zero-attempt run as IDLE, not as dead work, so a parked Atlas records its
+  // parking without paging anyone — while job-watch, the Command Center and the
+  // daily briefing can finally say "Atlas is safely parked because free mode is
+  // on" instead of showing a job that has not been heard from in two weeks.
+  //
+  // The note must NOT begin with "billing:" or "quota:" — classifyHealth
+  // anchors its escalation match to the START of the note, and this is a
+  // deliberate configuration, not a provider failure.
+  if (gateShut() || gateFree()) {
+    const mode = gateShut() ? "shut" : "free";
+    await pulse({ attempted: 0, succeeded: 0, failed: 0, note: `intentional skip: gate=${mode}; paid Atlas re-buy disabled` });
+    return Response.json({ ok: true, skipped: `gate ${mode}: atlas re-buy is disabled`, gate: mode, ranWork: false });
   }
   const s = sbEnv();
   const gkey = GKEY();
