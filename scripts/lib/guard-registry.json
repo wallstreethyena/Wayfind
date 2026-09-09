@@ -12045,14 +12045,19 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 149,
+      "assertionCount": 166,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": []
+        "githubWorkflows": [
+          {
+            "file": ".github/workflows/photo-monitor.yml",
+            "blocking": false
+          }
+        ]
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
