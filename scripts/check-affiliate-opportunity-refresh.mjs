@@ -243,7 +243,7 @@ const client = (result) => ({ rpc: async (name, args) => { calls.push({ name, ar
   const r = await recordAffiliateOpportunities([{ place_id: "a" }], { client: client({ data: null, error: { message: "permission denied" } }) });
   ok(r.ok === false && r.seen === 0 && /permission denied/.test(r.reason || ""), `an RPC error was not reported as a failure with its reason (${JSON.stringify(r)}).`);
 }
-for (const body of [null, undefined, "nope", 42, [], [null]]) {
+for (const body of [null, undefined, "nope", 42, [], [null], {}, [{}], [{inserted:-1,incremented:0,reopened:0}], [{inserted:0,incremented:0,reopened:1}]]) {
   const r = await recordAffiliateOpportunities([{ place_id: "a" }], { client: client({ data: body, error: null }) });
   ok(r.ok === false && r.seen === 0, `a malformed RPC body (${JSON.stringify(body)}) was accepted as a successful write of 0 — "we could not tell" and "nothing happened" are different facts, and conflating them is the defect this file exists for.`);
 }
