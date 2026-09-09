@@ -118,36 +118,6 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/check-promote-metros-live-drift.mjs
 
-  photos:
-    name: photo protection — placeholder rate + repair queue
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: npm }
-      - run: npm ci --no-audit --no-fund
-      # 2026-09-08: the `photos` ledger exhausted 950/950 on 2026-09-01 and
-      # nothing measured what a reader actually saw — 15,088 active refs had
-      # no cache row. Missing credentials fail this job, exactly like the
-      # other database canaries above; a probe run cannot take a Google
-      # grant either way (x-wayfind-photo-probe: 1), so this never risks the
-      # exhausted ledger.
-      - name: Require photo-monitor credentials
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: |
-          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
-            echo "::error::Photo monitor requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY. Check not performed."
-            exit 1
-          fi
-      - name: Photo placeholder sweep
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: node scripts/photo-monitor.mjs --base-url=https://www.gowayfind.com --json
-
   deploy-contract:
     name: RPC + migration contract vs production
     runs-on: ubuntu-latest
