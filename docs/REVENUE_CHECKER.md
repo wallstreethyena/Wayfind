@@ -23,7 +23,7 @@ uv run --locked wayfind-audit revenue-report --input private/revenue.json --out 
 
 Collection uses WAYFIND_AUDIT_DATABASE_URL and one repeatable-read, read-only
 transaction. The role needs complete SELECT visibility on wf_inventory, wf_events,
-wf_experiences, wf_deals, wf_affiliate_coverage, wf_affiliate_opportunities.
+wf_experiences, wf_deals, wf_revenue_coverage, wf_affiliate_opportunities.
 No credentials are created or changed. Fixed keyset queries use 1,000-row pages,
 independent counts, unique IDs, terminal-page proof, timeouts and a row ceiling.
 No dynamic place-product join or affiliate request runs. A failed census never

@@ -36,7 +36,7 @@ TABLES = {
         "active=true",
     ),
     "coverage": (
-        "wf_affiliate_coverage",
+        "wf_revenue_coverage",
         "id",
         "id,entity_type,entity_id,provider,offer_id,offer_url,status,confidence,evidence,reason,expires_at",
         "true",
