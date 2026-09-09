@@ -1,0 +1,73 @@
+name: apply current desktop cls arrow fix
+on:
+  push:
+    branches:
+      - fix/desktop-cls-disabled-arrow-current-2026-09-09
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/desktop-cls-disabled-arrow-current-2026-09-09
+          fetch-depth: 0
+      - name: Add regression, prove red, apply selector fix, prove green
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          test = Path('scripts/test-layout-shift.mjs')
+          src = test.read_text()
+          marker = 'console.log(`test-layout-shift: OK — ${passed} assertions (responsive layout is CSS-driven at the 900px breakpoint; isDesktop never sets geometry; the affiliate rail cannot idle-jump)`);'
+          assert src.count(marker) == 1, 'layout-shift guard closeout marker drifted'
+          block = r'''
+          // ─── 8. DISABLED IS A STATE, NEVER A SIDE (2026-09-09) ────────────────────
+          // Production desktop CLS probe: the right rail arrow starts disabled. A shared
+          // `[disabled]` selector assigned left:0, then .r assigned only right:0; when the
+          // arrow enabled it lost the disabled match and travelled across the viewport.
+          // Disabled may change interactivity/opacity, never horizontal geometry.
+          const railMenuCssSrc = readFileSync(new URL("../app/components/railMenuCss.js", import.meta.url), "utf8");
+          ok(!/\.wf8-nav\[disabled\][^{]*\{[^}]*left\s*:\s*0/.test(railMenuCssSrc),
+            "disabled rail navigation must never choose the left edge — state cannot determine horizontal geometry");
+          ok(/\.wf8-nav\.l,\.wf8-pnav\.l\{left:0;/.test(railMenuCssSrc),
+            "left rail navigation classes must still own left:0 after the disabled-state fix");
+          ok(/\.wf8-nav\.r,\.wf8-pnav\.r\{right:0;/.test(railMenuCssSrc),
+            "right rail navigation classes must still own right:0 after the disabled-state fix");
+
+          '''
+          block = '\n'.join(line[10:] if line.startswith('          ') else line for line in block.splitlines()) + '\n'
+          test.write_text(src.replace(marker, block + marker))
+          PY
+
+          if node scripts/test-layout-shift.mjs; then
+            echo '::error::red proof failed: guard stayed green with the shipped disabled-left selector'
+            exit 1
+          else
+            echo 'RED PROOF OK: the guard rejects the shipped selector'
+          fi
+
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('app/components/railMenuCss.js')
+          src = p.read_text()
+          old = '.wf8-nav[disabled],.wf8-nav.l,.wf8-pnav.l{left:0;border-radius:0 10px 10px 0}'
+          new = '.wf8-nav.l,.wf8-pnav.l{left:0;border-radius:0 10px 10px 0}'
+          assert src.count(old) == 1, f'expected exactly one bad selector, found {src.count(old)}'
+          p.write_text(src.replace(old, new))
+          PY
+
+          node scripts/test-layout-shift.mjs
+          node scripts/lib/build-guard-registry.mjs
+          node scripts/check-guard-registry.mjs
+      - name: Remove helper and commit repair
+        shell: bash
+        run: |
+          rm .github/workflows/apply-current-desktop-cls-arrow-fix.yml
+          git config user.name 'codex (Wayfind lane)'
+          git config user.email 'codex@openai.com'
+          git add app/components/railMenuCss.js scripts/test-layout-shift.mjs scripts/lib/guard-registry.json .github/workflows/apply-current-desktop-cls-arrow-fix.yml
+          git commit -m 'fix(cls): keep disabled right rail arrow on the right'
+          git push origin HEAD:fix/desktop-cls-disabled-arrow-current-2026-09-09
