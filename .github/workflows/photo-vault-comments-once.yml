@@ -1,0 +1,100 @@
+name: photo-vault-comments-once
+on:
+  push:
+    branches:
+      - fix/photo-vault-drain-capacity-2026-09-09
+permissions:
+  contents: write
+  actions: write
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/photo-vault-drain-capacity-2026-09-09
+          fetch-depth: 0
+      - name: Reconcile comments with shipped scheduling semantics
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          BRANCH="fix/photo-vault-drain-capacity-2026-09-09"
+          SELF=".github/workflows/photo-vault-comments-once.yml"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("lib/placePhotoBackfill.js")
+          s = p.read_text()
+
+          replacements = [
+            (
+          '''// view deliberately still lists a place with a REJECTED (non-active) row
+          // (its own comment: "rejected means no free-licensed substitute exists yet,
+          // not that the place stopped being at risk"), so a page sized to exactly
+          // `limit` could come back mostly/entirely already-decided after this
+          // worker's own existing-row exclusion runs, starving the at-risk portion of
+          // the budget for no reason — scan wide, like the general inventory scan
+          // already does with `scanLimit`, then filter and slice to `limit` below.''',
+          '''// view deliberately still lists a place with a REJECTED (non-active) row
+          // (its own comment: "rejected means no free-licensed substitute exists yet,
+          // not that the place stopped being at risk"). `fetchLimit` is therefore a
+          // PAGE size, not a total scan ceiling: fetchUndecidedAtRiskWorklist() walks
+          // successive ordered pages until it has `limit` genuinely undecided rows,
+          // so a decided/rejected prefix can never starve later places.'''
+            ),
+            (
+          ''' * `source`: "at-risk" drains ONLY wf_photo_at_risk; "all" drains ONLY the
+           * general beach/attractions inventory scan (byte-identical to this
+           * function's pre-vault behaviour); unset (the default, and what the cron
+           * fires with on schedule) drains wf_photo_at_risk FIRST, earliest expiry
+           * first, then fills whatever of `limit` is left from the general scan. See
+           * the header comment for why.''',
+          ''' * `source`: "at-risk" drains ONLY wf_photo_at_risk; "all" drains ONLY the
+           * general beach/attractions inventory scan (byte-identical to this
+           * function's pre-vault behaviour); unset is the combined/manual mode and
+           * drains wf_photo_at_risk FIRST, earliest expiry first, then fills whatever
+           * of `limit` is left from the general scan. Production scheduling is split
+           * intentionally: source=at-risk hourly for the expiry cliff, source=all
+           * once daily for low-pressure general coverage.'''
+            ),
+            (
+          '''  // ── STEP 2: the general beach/attractions inventory scan. Always fetched
+            //      when wanted (at-risk-only mode never reaches here) — how MANY
+            //      at-risk rows survive this worker's own existing-row exclusion is
+            //      not known until after that filter runs below (the view can return
+            //      mostly already-rejected rows on purpose, see fetchAtRiskWorklist's
+            //      comment), so skipping this fetch on a raw pre-filter row count
+            //      would risk under-filling `limit` for no real saving — it is one
+            //      more cheap REST call, not a second network round-trip per row. ──''',
+          '''  // ── STEP 2: the general beach/attractions inventory scan. Scheduled
+            //      source=at-risk runs skip this block entirely, so urgent capacity is
+            //      never spent on general fill. source=all runs only this block. The
+            //      unset combined/manual mode preserves the original eager general
+            //      read, then uses at-risk rows first when building candidates. ──'''
+            ),
+          ]
+          for old, new in replacements:
+              if s.count(old) != 1:
+                  raise SystemExit(f"comment shape drifted; expected exactly one match, found {s.count(old)}")
+              s = s.replace(old, new, 1)
+          p.write_text(s)
+          PY
+
+          git diff --check
+          git rm "$SELF"
+          git add -A
+          git commit -m "docs(photos): align vault drain comments with split schedule"
+          git push origin "HEAD:$BRANCH"
+
+          printf '{"ref":"%s"}\n' "$BRANCH" > /tmp/dispatch.json
+          curl --fail-with-body -sS -L -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/guards.yml/dispatches" \
+            --data-binary @/tmp/dispatch.json
