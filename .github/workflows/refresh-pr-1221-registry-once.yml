@@ -1,0 +1,70 @@
+name: refresh-pr-1221-registry-once
+
+on:
+  push:
+    branches:
+      - fix/atlas-gate-skip-visibility-2026-09-09
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  refresh:
+    if: github.repository == 'wallstreethyena/Wayfind'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: Merge latest main and rebuild registry after removing this workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+
+          set +e
+          git merge --no-commit --no-ff origin/main
+          merge_rc=$?
+          set -e
+
+          if [ "$merge_rc" -ne 0 ]; then
+            conflicts="$(git diff --name-only --diff-filter=U)"
+            if [ "$conflicts" != "scripts/lib/guard-registry.json" ]; then
+              echo "Unexpected merge conflicts; refusing to guess:"
+              printf '%s\n' "$conflicts"
+              exit 1
+            fi
+            git checkout --ours scripts/lib/guard-registry.json
+            git add scripts/lib/guard-registry.json
+          fi
+
+          rm .github/workflows/refresh-pr-1221-registry-once.yml
+          git add .github/workflows/refresh-pr-1221-registry-once.yml
+
+          node scripts/lib/build-guard-registry.mjs
+          git add scripts/lib/guard-registry.json
+
+          node scripts/check-guard-registry.mjs
+          node scripts/test-atlas-build.mjs
+          node scripts/check-owned-library-no-rebuy.mjs
+
+          git add -A
+          git commit -m "merge latest main into #1221 and rebuild registry cleanly"
+          git push origin HEAD:fix/atlas-gate-skip-visibility-2026-09-09
+
+      - name: Dispatch canonical guards on exact refreshed head
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run guards.yml --ref fix/atlas-gate-skip-visibility-2026-09-09
