@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 585,
-    "totalRegistryEntries": 586,
-    "guardsTxtLineCount": 583,
-    "guardsTxtReachedFileCount": 578,
+    "totalOnDiskGuardFiles": 586,
+    "totalRegistryEntries": 587,
+    "guardsTxtLineCount": 584,
+    "guardsTxtReachedFileCount": 579,
     "criticalCount": 69,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 394,
+      "CALL": 395,
       "RENDER": 47,
       "STRUCTURAL": 144,
       "OTHER": 1
@@ -3327,6 +3327,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 143,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-home-eager-supabase.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 11,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
@@ -9151,7 +9173,7 @@
       "npmScript": null,
       "class": "STRUCTURAL",
       "hasStructuralOnlyTag": true,
-      "assertionCount": 9,
+      "assertionCount": 10,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
