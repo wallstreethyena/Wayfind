@@ -12,7 +12,8 @@ import { gateShut, spendAllow } from "../../../lib/spendGate";
 // them at the CDN for 30 days — the Google ToS maximum for cached place
 // content. No key ever reaches the browser, and images load reliably.
 import { NextResponse } from "next/server";
-import { FALLBACK_PATH, PHOTO_REF_RX, resolvePlacePhoto } from "../../../lib/placePhotoServe";
+import { FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, resolvePlacePhoto } from "../../../lib/placePhotoServe";
+import { findSamePlaceCachedPhoto } from "../../../lib/photoCacheRecovery";
 
 export const dynamic = "force-dynamic";
 
@@ -37,9 +38,9 @@ export async function GET(req) {
   // branded is allowed ONLY when that placeId has no photo. Another place's
   // photo is not. A shared stock pool is not.
   //
-  // Order: cache → inventory photo_url → spendAllow("photos") → Google.
-  // Cache / inventory hits never spend. shut: never pay. The branded SVG
-  // is no-store so it cannot poison the 30-day photo cache.
+  // Order: exact cache → inventory → fresh SAME-PLACE older cache → ledger →
+  // Google. Every recovery read is free, read-only, identity-scoped, and keeps
+  // the source row's remaining expiry instead of minting a fresh 30-day clock.
   const { searchParams } = new URL(req.url);
   const ref = searchParams.get("ref") || "";
   const place = searchParams.get("place") || "";
@@ -52,16 +53,27 @@ export async function GET(req) {
   }
 
   const shut = gateShut();
+  const recoveryPlaceId = placeIdFromRef(ref) || (PLACE_RX.test(place) ? place : "");
+  let recoveryPromise = null;
+  const getRecovery = () => {
+    if (!recoveryPlaceId) return Promise.resolve(null);
+    if (!recoveryPromise) {
+      recoveryPromise = findSamePlaceCachedPhoto({ placeId: recoveryPlaceId, width: w });
+    }
+    return recoveryPromise;
+  };
+
   const result = await resolvePlacePhoto({
     ref,
     place,
     w,
     gateShut: shut,
-    // Ask the ledger only after resolvePlacePhoto has missed both the shared
-    // photo cache and the inventory-owned URL. An earlier merge moved this
-    // call above the resolver, so every cached <img> unnecessarily took a
-    // grant and any denied cold request collapsed to the fallback SVG.
-    authorizeSpend: () => !shut && spendAllow("photos"),
+    // Ask the ledger only after resolvePlacePhoto has missed both the exact
+    // shared cache and inventory. Immediately before a real spend, give the
+    // existing cache one identity-scoped chance to reuse an older ref for this
+    // same venue. The promise is memoized so the post-result path never scans
+    // twice. Returning false here prevents the Google grant when recovery hits.
+    authorizeSpend: () => getRecovery().then((hit) => hit ? false : (!shut && spendAllow("photos"))),
     serverKey: process.env.GOOGLE_MAPS_SERVER_KEY || "",
   });
 
@@ -76,6 +88,23 @@ export async function GET(req) {
         "x-wayfind-photo-result": result.reason || "redirect",
       },
     });
+  }
+
+  // `gate-shut` and `unconfigured` stop before authorizeSpend runs. A budget
+  // denial with a recovery hit returns `spend-denied` because the wrapper above
+  // deliberately refused the grant. In all three cases, serve only a fresh
+  // same-place cached photo if one exists. This never writes or calls Google.
+  if (result.type === "miss" && ["spend-denied", "gate-shut", "unconfigured"].includes(result.reason)) {
+    const recovery = await getRecovery();
+    if (recovery && recovery.uri) {
+      return NextResponse.redirect(recovery.uri, {
+        status: 302,
+        headers: {
+          "Cache-Control": recovery.cacheControl,
+          "x-wayfind-photo-result": "same-place-cache",
+        },
+      });
+    }
   }
 
   if (result.type === "empty") {
