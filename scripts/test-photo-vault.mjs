@@ -106,7 +106,7 @@ function makeFetch({ existingRow = null, download = imageResponse(), rowReadOk =
       return uploadOk ? jsonResponse(200, { Key: u }) : jsonResponse(500, {});
     }
     if (u === SOURCE_URL || u === GOOGLE_HOSTED_URL) {
-      calls.push({ kind: "download", url: u });
+      calls.push({ kind: "download", url: u, headers: init.headers });
       return download;
     }
     throw new Error("test-photo-vault: unfixtured fetch call: " + u);
@@ -322,6 +322,27 @@ async function run() {
   );
   eq(vaultPublicUrl("", "https://x.supabase.co"), "", "G2: an empty storagePath yields an empty url, never a malformed one");
   eq(vaultPublicUrl("abc.jpg", ""), "", "G3: an empty supabaseUrl yields an empty url");
+  // ── THE DOWNLOAD MUST IDENTIFY ITSELF ──────────────────────────────────
+  //      Wikimedia's User-Agent policy refuses anonymous bulk traffic on
+  //      upload.wikimedia.org. This download sent NO User-Agent, so the host
+  //      429'd it and the vault reported "download_failed" — a reason that
+  //      reads like a network blip and was actually us being told to say who
+  //      we are. Measured live 2026-09-09 against the identical URL: 429
+  //      with no UA, 200 with one. 12 of 46 resolved photos sat un-vaulted on
+  //      exactly this, serving the origin hotlink instead of a copy Wayfind
+  //      owns, which is the entire point of the vault.
+  {
+    const { fetchImpl, calls } = makeFetch({ existingRow: { place_id: PLACE_ID, storage_path: null, bytes: null, content_type: null } });
+    await storePhotoPermanently({ placeId: PLACE_ID, sourceUrl: SOURCE_URL, source: "wikimedia", license: "cc-by-sa-4.0" }, { fetch: fetchImpl, env: ENV });
+    const dl = calls.find((c) => c.kind === "download");
+    ok(dl, "UA: the download happened");
+    const hdrs = (dl && dl.headers) || {};
+    const uaKey = Object.keys(hdrs).find((k) => k.toLowerCase() === "user-agent");
+    ok(uaKey, "UA: the image download sends a User-Agent — Wikimedia 429s anonymous bulk traffic (headers seen: " + JSON.stringify(Object.keys(hdrs)) + ")");
+    const ua = uaKey ? String(hdrs[uaKey]) : "";
+    ok(/gowayfind\.com/i.test(ua), "UA: it identifies Wayfind with a contact URL, per Wikimedia's policy (got " + JSON.stringify(ua) + ")");
+  }
+
 }
 
 await run();
