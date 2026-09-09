@@ -27,6 +27,19 @@
 // given environment. A missing table fails the queue write only — it is
 // logged, counted, and the run still files its pulse and exits 0.
 //
+// RATE LIMITING (2026-09-09). The first live run against production (509
+// probes, concurrency 6, no pacing) drew 62 HTTP 429s: `lib/apiGuard.js`
+// rate-limits 120 requests per 60s per IP, best-effort, per instance — and
+// this monitor is itself just another same-origin caller of that limit.
+// RATE_PER_MINUTE paces requests well under that wall (not at it — headroom
+// for ordinary jitter and any other same-IP traffic), CONCURRENCY is capped
+// low so the pacer, not raw parallelism, sets the pace, and a 429 gets one
+// retry (Retry-After if present, else 3s) before being counted. A run whose
+// 429 rate stays high despite that is reported as "rate-limited", counted
+// separately, and never allowed to inflate — or hide behind — a "real"
+// placeholder-rate finding (see isSampleDegraded/computeBreach in
+// lib/photoCoverage.js).
+//
 // USAGE
 //   node scripts/photo-monitor.mjs --base-url=https://www.gowayfind.com
 //     [--per-cell=2] [--epoch=2026-09-08T18] [--json] [--no-queue] [--pages]
@@ -37,16 +50,73 @@
 // queue rows — never a crash. A red canary here always means the instrument
 // failed, never that the world looked bad (spec §4, risk 13).
 import { recordPulse } from "../lib/jobPulse.js";
-import { classifyProbe, mergeQueueUpsert, openGrowthRatio, parseOpenTotal, pulseVerdict } from "../lib/photoCoverage.js";
+import { classifyProbe, computeBreach, isSampleDegraded, mergeQueueUpsert, openGrowthRatio, parseOpenTotal, pulseVerdict } from "../lib/photoCoverage.js";
 
 const DEFAULT_BASE_URL = "https://www.gowayfind.com";
-const CONCURRENCY = 6;
+// RL_LIMIT in lib/apiGuard.js is 120 requests / 60s per IP, best-effort, per
+// instance. 90 is deliberately under that wall, not at it. Low concurrency
+// (not the pacer alone) is what keeps bursts from a Promise.all batch from
+// briefly exceeding the per-minute rate even though the AVERAGE stays paced.
+const RATE_PER_MINUTE = 90;
+const CONCURRENCY = 2;
 const TIMEOUT_MS = 10000;
 const USER_AGENT = "WayfindPhotoMonitor/1.0 (+https://www.gowayfind.com)";
 const PROBE_HEADER = { "x-wayfind-photo-probe": "1", "user-agent": USER_AGENT };
-const PROBE_CAP = 600; // amendment A4 — rotate cells by epoch when the full sweep would exceed this
+const RETRY_AFTER_DEFAULT_MS = 3000;
+// amendment A4 — rotate cells by epoch when the full sweep would exceed this.
+// Lowered 600 -> 500 alongside RATE_PER_MINUTE=90: 509 probes at 90/min is
+// ~5.7 minutes even with zero 429 retries, which keeps the canary workflow's
+// 10-minute timeout realistic once retry waits (up to Retry-After, or 3s
+// default) are factored in; a run that would need more than 500 probes now
+// rotates cells instead of pushing the sweep length toward the timeout.
+const PROBE_CAP = 500;
 const PLACEHOLDER_RATE_THRESHOLD = 0.35; // measured baseline today is ~0.75 (15,088/19,852 uncached); this is a ratchet, not a description of today
 const OPEN_GROWTH_THRESHOLD = 0.2;
+const SAMPLE_DEGRADED_WARNING =
+  "photo-monitor: WARNING — sample degraded: too many probes were rate-limited by our own per-IP limit; this run's placeholder rate is not reliable and will not breach on it alone.";
+
+// Token-bucket pacing: RATE_PER_MINUTE requests spread evenly across each
+// minute. Pure scheduling math with an injectable clock/sleep so it is
+// testable without ever actually waiting — a real caller gets the real
+// Date.now()/setTimeout, a test supplies a virtual clock and asserts the
+// computed delays directly.
+export function createPacer({ ratePerMinute = RATE_PER_MINUTE, now = () => Date.now(), sleep = (ms) => new Promise((r) => setTimeout(r, ms)) } = {}) {
+  const intervalMs = 60000 / Math.max(1, ratePerMinute);
+  let nextAt = 0;
+  return {
+    // Returns the delay (ms) this call actually waited, so a test can assert
+    // on the pacing math directly instead of on wall-clock side effects.
+    async wait() {
+      const t = now();
+      const start = Math.max(t, nextAt);
+      nextAt = start + intervalMs;
+      const delay = start - t;
+      if (delay > 0) await sleep(delay);
+      return delay;
+    },
+  };
+}
+
+const pacer = createPacer({ ratePerMinute: RATE_PER_MINUTE });
+
+// One HTTP attempt, paced. Exported (with fetchImpl/sleep injectable) so the
+// retry-once-on-429 contract can be proven by calling the real function
+// against a scripted fetch, not by regexing this file.
+export async function fetchWithRetry(url, { fetchImpl, sleep = (ms) => new Promise((r) => setTimeout(r, ms)), pace = () => pacer.wait() } = {}) {
+  const attempt = fetchImpl || defaultFetchOnce;
+  await pace();
+  const first = await attempt(url);
+  if (first.status !== 429) return first;
+  const retryAfterSec = Number(first.retryAfter);
+  const waitMs = Number.isFinite(retryAfterSec) && retryAfterSec > 0 ? retryAfterSec * 1000 : RETRY_AFTER_DEFAULT_MS;
+  await sleep(waitMs);
+  await pace();
+  // Whatever the second attempt returns is the final answer — even a second
+  // 429 is returned as-is, and classifyProbe's status-429 branch is what
+  // then reads it as "rate-limited". This function's job is only "retry
+  // once", never to decide what a repeated 429 means.
+  return attempt(url);
+}
 
 // ── FNV-1a — deterministic, never Math.random() (case 8's whole point: two
 // runs at the same epoch must sample the SAME places) ──────────────────────
@@ -67,7 +137,7 @@ function defaultEpoch() {
 // category) cells and takes up to `perCell` rows per cell, chosen by
 // ascending FNV-1a(place_id + "|" + epoch) — a different epoch rotates the
 // selection, the same epoch always reproduces it exactly. EVERY cell present
-// in the input appears in the output (the 600-probe cap in main() is a
+// in the input appears in the output (the PROBE_CAP in main() is a
 // SEPARATE, later step over which CELLS get probed this run — this function
 // always reports full coverage of the input).
 export function sampleCells(rows, { perCell = 2, epoch } = {}) {
@@ -93,7 +163,7 @@ export function sampleCells(rows, { perCell = 2, epoch } = {}) {
   return cells;
 }
 
-async function fetchOne(url) {
+async function defaultFetchOnce(url) {
   try {
     const r = await fetch(url, {
       redirect: "manual",
@@ -101,10 +171,19 @@ async function fetchOne(url) {
       headers: PROBE_HEADER,
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
-    return { status: r.status, location: r.headers.get("location"), resultHeader: r.headers.get("x-wayfind-photo-result") };
+    return {
+      status: r.status,
+      location: r.headers.get("location"),
+      resultHeader: r.headers.get("x-wayfind-photo-result"),
+      retryAfter: r.headers.get("retry-after"),
+    };
   } catch (e) {
-    return { status: 0, location: null, resultHeader: null, error: String((e && e.message) || e) };
+    return { status: 0, location: null, resultHeader: null, retryAfter: null, error: String((e && e.message) || e) };
   }
+}
+
+async function fetchOne(url) {
+  return fetchWithRetry(url);
 }
 
 // One row, both card shapes. `?ref=` (poster/hero — IconicPlaceCard.photoUrl,
@@ -140,8 +219,15 @@ export async function probeUrl(baseUrl, row, w) {
 // Aggregates an array of probeUrl() results. Pure — every field it reads was
 // already computed by probeUrl's classifyProbe call, so this never has to
 // re-classify a raw response.
+// classifyProbe's verdict strings are lowercase-hyphenated ("rate-limited");
+// byResult's keys stay camelCase JSON identifiers ("rateLimited") — this is
+// the one place that translates between them.
+function resultBucket(verdict) {
+  return verdict === "rate-limited" ? "rateLimited" : verdict;
+}
+
 export function summarize(probeResults) {
-  const byResult = { real: 0, compass: 0, miss: 0, error: 0 };
+  const byResult = { real: 0, compass: 0, miss: 0, rateLimited: 0, error: 0 };
   const byReason = {};
   const byMetro = {};
   const byCategory = {};
@@ -150,7 +236,7 @@ export function summarize(probeResults) {
   let sampled = 0;
 
   const bump = (bucket, dict, key) => {
-    if (!dict[key]) dict[key] = { real: 0, compass: 0, miss: 0, error: 0 };
+    if (!dict[key]) dict[key] = { real: 0, compass: 0, miss: 0, rateLimited: 0, error: 0 };
     dict[key][bucket] = (dict[key][bucket] || 0) + 1;
   };
 
@@ -161,7 +247,7 @@ export function summarize(probeResults) {
     categories.add(category);
     for (const s of (pr && pr.surfaces) || []) {
       sampled++;
-      const bucket = s.verdict;
+      const bucket = resultBucket(s.verdict);
       byResult[bucket] = (byResult[bucket] || 0) + 1;
       const reason = s.resultHeader || s.verdict;
       byReason[reason] = (byReason[reason] || 0) + 1;
@@ -173,8 +259,10 @@ export function summarize(probeResults) {
   // placeholderRate = (compass + miss) / probes — a "compass" (302 to the
   // shared SVG) and a "miss" (404, per-title monogram) are both a reader NOT
   // seeing that place's own photo; "real" is the only non-placeholder
-  // outcome and "error" is excluded (an operational finding, not a coverage
-  // verdict).
+  // outcome. "error" and "rateLimited" are both excluded from the numerator
+  // (neither is evidence the READER saw a placeholder — "rateLimited" means
+  // the PROBE learned nothing about this place at all, throttled by our own
+  // per-IP limit) but both still count toward `sampled`, same as before.
   const placeholderRate = sampled > 0 ? (byResult.compass + byResult.miss) / sampled : 0;
   return {
     sampled,
@@ -506,7 +594,23 @@ async function main() {
   const previousOpenTotal = parseOpenTotal(recentPulses[0] && recentPulses[0].note);
   const openGrowth = openGrowthRatio(previousOpenTotal, openTotal);
 
-  const breach = summary.placeholderRate > PLACEHOLDER_RATE_THRESHOLD || openGrowth >= OPEN_GROWTH_THRESHOLD;
+  // A run whose own probe traffic got rate-limited by lib/apiGuard.js's
+  // per-IP limit has not measured the placeholder rate reliably — it has
+  // measured how much of ITS OWN traffic got throttled. Such a run must
+  // never page on placeholder rate (an under-sampled run must not page);
+  // it can still page on open-growth, which comes from the queue's own
+  // accumulated state, not from this run's reliability.
+  const rateLimitedCount = summary.byResult.rateLimited || 0;
+  const sampleDegraded = isSampleDegraded(rateLimitedCount, summary.sampled);
+  if (sampleDegraded) console.error(SAMPLE_DEGRADED_WARNING + ` (${rateLimitedCount}/${summary.sampled} rate-limited)`);
+
+  const breach = computeBreach({
+    placeholderRate: summary.placeholderRate,
+    placeholderThreshold: PLACEHOLDER_RATE_THRESHOLD,
+    openGrowth,
+    openGrowthThreshold: OPEN_GROWTH_THRESHOLD,
+    sampleDegraded,
+  });
   const primaryReason = Object.entries(summary.byReason).sort((a, b) => b[1] - a[1])[0];
   const dayKey = generatedAt.slice(0, 10);
   const incidentKey = `photos:${(primaryReason && primaryReason[0]) || "unknown"}:${dayKey}`;
@@ -520,6 +624,8 @@ async function main() {
   if (openTotal != null) noteBits.push(`open=${openTotal} (+${candidates.length} this run)`);
   if (queueUnavailable) noteBits.push("queue unavailable");
   if (configOutages > 0) noteBits.push(`config-outage=${configOutages}`);
+  if (rateLimitedCount > 0) noteBits.push(`rate-limited=${rateLimitedCount}`);
+  if (sampleDegraded) noteBits.push("sample-degraded");
   noteBits.push(`key=${incidentKey}`);
   const note = (verdict.suppressed ? "photos: ongoing " : "photos: ") + noteBits.join(" | ");
 
@@ -537,6 +643,8 @@ async function main() {
     byReason: summary.byReason,
     placeholderRate: summary.placeholderRate,
     configOutages,
+    rateLimited: rateLimitedCount,
+    sampleDegraded,
     renderedPlaceholderRate: renderCheck && renderCheck.checked ? renderCheck.rate : null,
     renderCheck,
     byMetro: summary.byMetro,
@@ -556,8 +664,8 @@ async function main() {
   if (args.json) console.log(JSON.stringify(out, null, 2));
   else {
     console.log(`photo-monitor: sampled ${out.sampled} probes across ${out.sampledFrom.cells}/${out.sampledFrom.cellsTotal} cells`);
-    console.log(`  real=${summary.byResult.real} compass=${summary.byResult.compass} miss=${summary.byResult.miss} error=${summary.byResult.error}`);
-    console.log(`  placeholderRate=${(summary.placeholderRate * 100).toFixed(1)}% queueWrites=${queueWrites} configOutages=${configOutages} breach=${breach}`);
+    console.log(`  real=${summary.byResult.real} compass=${summary.byResult.compass} miss=${summary.byResult.miss} rateLimited=${summary.byResult.rateLimited} error=${summary.byResult.error}`);
+    console.log(`  placeholderRate=${(summary.placeholderRate * 100).toFixed(1)}% queueWrites=${queueWrites} configOutages=${configOutages} sampleDegraded=${sampleDegraded} breach=${breach}`);
     if (queueUnavailable) console.log(`  queue: unavailable (${queueErrorMessage})`);
   }
 

@@ -27,8 +27,10 @@ import { resolvePlacePhoto } from "../lib/placePhotoServe.js";
 import {
   backoffMs,
   classifyProbe,
+  computeBreach,
   computePhotoCoverage,
   firstOfNextMonthUTC,
+  isSampleDegraded,
   MAX_ATTEMPTS,
   mergeQueueUpsert,
   nextAttemptAt,
@@ -36,7 +38,7 @@ import {
   parseOpenTotal,
   pulseVerdict,
 } from "../lib/photoCoverage.js";
-import { queueCandidates, sampleCells, upsertQueueRows } from "./photo-monitor.mjs";
+import { createPacer, fetchWithRetry, queueCandidates, sampleCells, summarize, upsertQueueRows } from "./photo-monitor.mjs";
 import { decideRowOutcome, runRepair, statusFor } from "../lib/photoRepair.js";
 import { findSamePlaceCachedPhoto } from "../lib/photoCacheRecovery.js";
 
@@ -521,6 +523,155 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
 
   const monitorSrc = readFileSync(new URL("./photo-monitor.mjs", import.meta.url), "utf8");
   ok(/configOutages/.test(monitorSrc), "case 12: the monitor must count unconfigured occurrences separately (configOutages) even though they are never queued");
+}
+
+// ── case 13 — 2026-09-09: a 429 classifies as "rate-limited", never miss/error ─
+//
+// The first live run against production (509 probes, concurrency 6, no
+// pacing) drew 62 HTTP 429s from lib/apiGuard.js's own per-IP rate limit —
+// the monitor throttling itself. A 429 must be its own verdict, distinct
+// from both "the reader saw a placeholder" (compass/miss) and "the probe
+// could not classify the response" (error): it means the PROBE learned
+// nothing about this place, throttled by our own limit.
+{
+  ok(classifyProbe({ status: 429 }) === "rate-limited", `case 13: a bare 429 must classify as "rate-limited", got "${classifyProbe({ status: 429 })}"`);
+  ok(classifyProbe({ status: 429, resultHeader: "spend-denied" }) === "rate-limited",
+    `case 13: a 429 must classify as "rate-limited" regardless of any x-wayfind-photo-result header (a rate-limiting proxy would not even reach the route), got "${classifyProbe({ status: 429, resultHeader: "spend-denied" })}"`);
+  ok(classifyProbe({ status: 429 }) !== "miss", "case 13: a 429 must never be counted as a miss (it is not a claim about the place)");
+  ok(classifyProbe({ status: 429 }) !== "error", "case 13: a 429 must never be counted as error (it is not \"could not classify\" — it is specifically identified as rate-limited)");
+
+  // summarize() must bucket the camelCase "rateLimited" key (JSON output
+  // contract: byResult.rateLimited), translated from classifyProbe's
+  // hyphenated "rate-limited" verdict string.
+  const probeResults = [
+    { placeId: "P1", metro: "tampa", category: "food", photoRef: null, surfaces: [{ verdict: "rate-limited", status: 429 }] },
+    { placeId: "P2", metro: "tampa", category: "food", photoRef: null, surfaces: [{ verdict: "compass", status: 302, resultHeader: "no-photo" }] },
+  ];
+  const summary = summarize(probeResults);
+  ok(summary.byResult.rateLimited === 1, `case 13: summarize() must bucket a rate-limited verdict as byResult.rateLimited, got ${JSON.stringify(summary.byResult)}`);
+  ok(summary.sampled === 2, `case 13: a rate-limited surface must still count toward sampled, got ${summary.sampled}`);
+  // Excluded from placeholderRate's numerator like "error" — only the one
+  // real compass surface should count, out of both sampled probes.
+  ok(Math.abs(summary.placeholderRate - 0.5) < 1e-9, `case 13: placeholderRate must exclude rateLimited from its numerator (1 compass / 2 sampled = 0.5), got ${summary.placeholderRate}`);
+}
+
+// ── case 14 — 429 retry-once: the real fetchWithRetry, a scripted fetch ────
+//
+// Executed against the REAL fetchWithRetry with an injected fetchImpl/sleep
+// (never real network, never a real wait) — proving the retry-once contract
+// by calling the function, not by regexing this file (CLAUDE.md: "assert on
+// the call, not the string").
+{
+  // A clean 200 on the first attempt: no retry, no sleep.
+  let calls = 0, sleeps = 0;
+  const clean = await fetchWithRetry("https://example.test/api/photo", {
+    fetchImpl: async () => { calls++; return { status: 200, location: null, resultHeader: null, retryAfter: null }; },
+    sleep: async (ms) => { sleeps++; },
+    pace: async () => {},
+  });
+  ok(calls === 1, `case 14: a clean 200 must be attempted exactly once, got ${calls}x`);
+  ok(sleeps === 0, `case 14: a clean 200 must never sleep/retry, got ${sleeps} sleep(s)`);
+  ok(clean.status === 200, "case 14: a clean 200 must be returned as-is");
+
+  // First attempt 429 with a Retry-After header, second attempt succeeds:
+  // exactly one retry, sleeping for the Retry-After duration, not the
+  // default.
+  let attempt = 0;
+  let sleptMs = null;
+  const retried = await fetchWithRetry("https://example.test/api/photo", {
+    fetchImpl: async () => {
+      attempt++;
+      if (attempt === 1) return { status: 429, location: null, resultHeader: null, retryAfter: "7" };
+      return { status: 302, location: "https://lh3.googleusercontent.com/p/x", resultHeader: "google", retryAfter: null };
+    },
+    sleep: async (ms) => { sleptMs = ms; },
+    pace: async () => {},
+  });
+  ok(attempt === 2, `case 14: a first-attempt 429 must be retried exactly once (2 total attempts), got ${attempt}`);
+  ok(sleptMs === 7000, `case 14: a Retry-After: 7 header must be honoured as a 7000ms wait, got ${sleptMs}`);
+  ok(retried.status === 302, "case 14: a successful retry must return the retry's own result");
+
+  // First attempt 429 with NO Retry-After header: default 3s wait.
+  let attempt2 = 0, sleptMs2 = null;
+  await fetchWithRetry("https://example.test/api/photo", {
+    fetchImpl: async () => { attempt2++; return attempt2 === 1 ? { status: 429, location: null, resultHeader: null, retryAfter: null } : { status: 200, location: null, resultHeader: null, retryAfter: null }; },
+    sleep: async (ms) => { sleptMs2 = ms; },
+    pace: async () => {},
+  });
+  ok(sleptMs2 === 3000, `case 14: a 429 with no Retry-After header must default to a 3000ms wait, got ${sleptMs2}`);
+
+  // Second attempt ALSO 429: fetchWithRetry returns it as-is (never a third
+  // attempt) — classifyProbe's status-429 branch is what then reads the
+  // final result as "rate-limited".
+  let attempt3 = 0;
+  const stillLimited = await fetchWithRetry("https://example.test/api/photo", {
+    fetchImpl: async () => { attempt3++; return { status: 429, location: null, resultHeader: null, retryAfter: null }; },
+    sleep: async () => {},
+    pace: async () => {},
+  });
+  ok(attempt3 === 2, `case 14: a second consecutive 429 must not trigger a third attempt (exactly 2 total), got ${attempt3}`);
+  ok(stillLimited.status === 429, "case 14: a second 429 must be returned as the final result, unmodified");
+  ok(classifyProbe(stillLimited) === "rate-limited", `case 14: the caller's classifyProbe(finalResult) must read a doubly-429'd probe as "rate-limited", got "${classifyProbe(stillLimited)}"`);
+}
+
+// ── case 15 — the token-bucket pacer's schedule, with a virtual clock ──────
+{
+  let virtualNow = 0;
+  const sleeps = [];
+  const pacer = createPacer({
+    ratePerMinute: 60, // 1 request/sec exactly, for clean arithmetic
+    now: () => virtualNow,
+    sleep: async (ms) => { sleeps.push(ms); virtualNow += ms; },
+  });
+  const d1 = await pacer.wait();
+  ok(d1 === 0, `case 15: the very first call must never wait, got ${d1}ms`);
+  ok(sleeps.length === 0, "case 15: the very first call must not sleep at all");
+
+  virtualNow += 100; // caller took 100ms of "real work" before the next request
+  const d2 = await pacer.wait();
+  ok(d2 === 900, `case 15: the second call, 100ms after the first at a 1000ms interval, must wait 900ms, got ${d2}`);
+  ok(sleeps[0] === 900, `case 15: the pacer must actually call the injected sleep with the computed delay, got ${sleeps[0]}`);
+
+  const d3 = await pacer.wait();
+  ok(d3 === 1000, `case 15: a third call arriving immediately after the second must wait the FULL interval again (schedule is cumulative, not reset by the sleep), got ${d3}`);
+
+  // If the caller is naturally slower than the rate (a real network round
+  // trip, say), the pacer must never impose an ADDITIONAL wait beyond the
+  // schedule already caught up.
+  virtualNow += 5000;
+  const d4 = await pacer.wait();
+  ok(d4 === 0, `case 15: a call arriving well after the schedule caught up must not wait, got ${d4}`);
+}
+
+// ── case 16 — degraded-run rule: an under-sampled run must not page on rate ─
+//
+// "if rateLimited > 10% of probes, the monitor prints a warning and does NOT
+// breach on placeholder rate" — both isSampleDegraded and computeBreach are
+// pure functions so this is provable without a live network sweep.
+{
+  ok(isSampleDegraded(0, 0) === false, "case 16: zero sampled must never be reported degraded (no division by zero, no false alarm)");
+  ok(isSampleDegraded(5, 100) === false, `case 16: 5% rate-limited must not be degraded, got ${isSampleDegraded(5, 100)}`);
+  ok(isSampleDegraded(10, 100) === false, `case 16: exactly 10% rate-limited must NOT be degraded (the rule is >10%, not >=10%), got ${isSampleDegraded(10, 100)}`);
+  ok(isSampleDegraded(11, 100) === true, `case 16: 11% rate-limited must be reported degraded, got ${isSampleDegraded(11, 100)}`);
+  ok(isSampleDegraded(62, 509) === true, `case 16: the live incident's own numbers (62/509 ≈ 12.2%) must classify as degraded, got ${isSampleDegraded(62, 509)}`);
+
+  // computeBreach: a degraded sample suppresses ONLY the placeholder-rate
+  // term. A genuinely growing queue backlog still breaches even when this
+  // run's own placeholder reading cannot be trusted.
+  const highPlaceholder = { placeholderRate: 0.9, placeholderThreshold: 0.35 };
+  ok(computeBreach({ ...highPlaceholder, openGrowth: 0, openGrowthThreshold: 0.2, sampleDegraded: false }) === true,
+    "case 16 (control): a high placeholder rate on a NON-degraded run must breach");
+  ok(computeBreach({ ...highPlaceholder, openGrowth: 0, openGrowthThreshold: 0.2, sampleDegraded: true }) === false,
+    "case 16: a high placeholder rate on a DEGRADED run must NOT breach — an under-sampled run must not page");
+  ok(computeBreach({ ...highPlaceholder, openGrowth: 0.25, openGrowthThreshold: 0.2, sampleDegraded: true }) === true,
+    "case 16: open-growth must still breach on a degraded run — growth comes from the queue's own state, not this run's probe reliability");
+  ok(computeBreach({ placeholderRate: 0.1, placeholderThreshold: 0.35, openGrowth: 0, openGrowthThreshold: 0.2, sampleDegraded: false }) === false,
+    "case 16 (control): a low placeholder rate and no growth must never breach");
+
+  const monitorSrc = readFileSync(new URL("./photo-monitor.mjs", import.meta.url), "utf8");
+  ok(/isSampleDegraded\(/.test(monitorSrc), "case 16: the monitor must actually call isSampleDegraded, not reimplement the threshold inline");
+  ok(/computeBreach\(/.test(monitorSrc), "case 16: the monitor must actually call computeBreach, not reimplement the breach decision inline");
+  ok(/sample-degraded/.test(monitorSrc), "case 16: the monitor must record the sample-degraded finding in its own pulse note");
 }
 
 if (fail.length) {
