@@ -613,6 +613,7 @@ node scripts/check-trend-section-honesty.mjs
 node scripts/check-location-fail-open.mjs
 node scripts/check-location-honesty.mjs
 node scripts/test-rails-failed-is-not-covered.mjs
+node scripts/test-location-pairing-integrity.mjs
 # The rail tile headline is PIXELS. Renaming a rail in code changes nothing
 # the reader sees until the art is redrawn — pin copy and art together.
 node scripts/check-rail-art-matches-copy.mjs
