@@ -23,6 +23,10 @@ import { resolveOverride } from "../../../../lib/envAudit.js";
 const COOLDOWN_MS = { critical: 2 * 3600000, warn: 6 * 3600000 };
 
 async function settingsGet(s, key) {
+  // v6.71: an unguarded network exception here (fetch rejecting outright, not
+  // just resolving !ok) used to bubble past the "fail-open" comment's intent
+  // and crash the whole cron with an unlabeled 500 instead of falling back to
+  // {} like a missing row does.
   let r;
   try {
     r = await fetch(`${s.url}/rest/v1/wf_cc_settings?k=eq.${encodeURIComponent(key)}&select=v`, {
@@ -48,6 +52,11 @@ async function settingsPut(s, key, value) {
     headers: { apikey: s.key, Authorization: `Bearer ${s.key}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" },
     body: JSON.stringify({ k: key, v: value }),
   }).catch((e) => { try { console.error(JSON.stringify({ tag: "cc_alerts_cron", ok: false, stage: "settings_put_exception", key, error: String(e && e.message || e).slice(0, 200) })); } catch (e2) {} return null; });
+  // v6.71: this fetch had no failure visibility -- a rejected write here means
+  // the next run re-sends alerts that already went out (cooldown state never
+  // persisted), which looked like "duplicate emails" from the outside with
+  // nothing in the logs to explain why. Log non-ok responses same as the
+  // exception path above.
   if (r && !r.ok) {
     let body = ""; try { body = (await r.text()).slice(0, 500); } catch (e) {}
     try { console.error(JSON.stringify({ tag: "cc_alerts_cron", ok: false, stage: "settings_put", key, status: r.status, body })); } catch (e) {}
@@ -77,6 +86,7 @@ function emailHtml(alerts, now) {
 }
 
 export async function GET(req) {
+  // Fail-closed cron auth (same as /api/cron/cwv).
   const secret = process.env.CRON_SECRET;
   const auth = req.headers.get("authorization") || "";
   if (!secret || auth !== "Bearer " + secret) return new Response("unauthorized", { status: 401 });
@@ -86,6 +96,11 @@ export async function GET(req) {
   if (!resendKey || !to) return Response.json({ idle: true, reason: "RESEND_API_KEY or DIGEST_EMAIL not set" });
 
   const now = new Date();
+  // v6.71: gatherAlerts() ran unguarded -- any exception inside the rule
+  // engine or one of its upstream panel fetches bubbled up as a bare 500 with
+  // no context, indistinguishable in Vercel's logs from every other route
+  // crash. Same structured-tag convention as /api/cron/cwv so a broken source
+  // shows up as "cc_alerts_cron" instead of vanishing.
   let alerts;
   try {
     ({ alerts } = await gatherAlerts(now));
@@ -96,6 +111,7 @@ export async function GET(req) {
   const actionable = alerts.filter((a) => a.severity === "critical" || a.severity === "warn");
   if (!actionable.length) return Response.json({ ok: true, alerts: 0, sent: false });
 
+  // Cooldown bookkeeping (fail-open: if settings are unreachable we still send).
   const s = sbAdmin();
   let sent = {};
   if (s) sent = (await settingsGet(s, "cc_alerts_sent")) || {};
@@ -122,6 +138,11 @@ export async function GET(req) {
 
   const ok = !!(r && r.ok);
   if (!ok) {
+    // v6.71: a non-network Resend failure (bad key, suspended domain, 4xx
+    // payload issue) previously fell through silently -- `ok` just came back
+    // false with no body captured anywhere. Log the actual response so a
+    // revoked/expired RESEND_API_KEY shows up instead of alerts quietly never
+    // arriving.
     let body = "";
     if (r) { try { body = (await r.text()).slice(0, 500); } catch (e) {} }
     try { console.error(JSON.stringify({ tag: "cc_alerts_cron", ok: false, stage: "resend_send", status: r ? r.status : "network_error", body, dueCount: due.length })); } catch (e) {}
@@ -130,6 +151,7 @@ export async function GET(req) {
   }
   if (ok && s) {
     for (const a of due) sent[a.id] = now.toISOString();
+    // prune entries older than 7 days so the blob stays tiny
     for (const [id, ts] of Object.entries(sent)) { if (now.getTime() - Date.parse(ts) > 7 * 86400000) delete sent[id]; }
     await settingsPut(s, "cc_alerts_sent", sent);
   }
