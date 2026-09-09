@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 590,
-    "totalRegistryEntries": 591,
-    "guardsTxtLineCount": 588,
-    "guardsTxtReachedFileCount": 583,
+    "totalOnDiskGuardFiles": 591,
+    "totalRegistryEntries": 592,
+    "guardsTxtLineCount": 589,
+    "guardsTxtReachedFileCount": 584,
     "criticalCount": 71,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 399,
+      "CALL": 400,
       "RENDER": 47,
       "STRUCTURAL": 144,
       "OTHER": 1
@@ -9089,6 +9089,28 @@
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
       ],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-commons-photos.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 36,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,

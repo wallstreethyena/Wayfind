@@ -124,6 +124,10 @@
     {
       "path": "/api/cron/photo-repair",
       "schedule": "20 4 * * *"
+    },
+    {
+      "path": "/api/cron/place-photos",
+      "schedule": "50 4 * * *"
     }
   ]
 }

@@ -1328,3 +1328,17 @@ node scripts/test-command-center-briefing.mjs
 # Command Center panel requests cancel superseded work and ignore responses
 # that arrive out of order.
 node scripts/test-command-center-requests.mjs
+
+# 2026-09-09 free permanent-photo lane: lib/commonsPhotos.js is what makes it
+# safe to store a Wikimedia Commons photo PERMANENTLY (Google's photo terms
+# forbid storing a Places photo past 30 days, and September's photos ledger
+# is already exhausted at 950/950 while 10,028 cached photo URIs expire
+# 2026-09-25..2026-10-04 -- supabase/migrations/20260909_wf_place_photo.sql).
+# Proves identity verification (reused from lib/popularity.js
+# verifyWikiIdentity, never a second looser matcher) gates every photo
+# attach, a non-free Commons license is rejected rather than guessed free,
+# attribution is always populated on a returned photo, commons.wikimedia.org
+# and upload.wikimedia.org are covered by lib/wikimediaFetchPolicy.js's
+# concurrency/backoff policy, and a failed lookup returns null and never
+# throws.
+node scripts/test-commons-photos.mjs
