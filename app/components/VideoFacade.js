@@ -12,8 +12,9 @@ import { useState } from "react";
 import { PLATFORM } from "../../lib/creatorVideos";
 import { embedSrc } from "../../lib/videoEmbed";
 
-export default function VideoFacade({ platform, url, label }) {
+export default function VideoFacade({ platform, url, label, poster = null }) {
   const [play, setPlay] = useState(false);
+  const [failedPoster, setFailedPoster] = useState(null);
   const p = PLATFORM[platform] || { label: platform, color: "#CBD5E1" };
   const src = embedSrc(platform, url);
   if (!src) return null; // non-embeddable -> the card renders a plain external link
@@ -29,9 +30,11 @@ export default function VideoFacade({ platform, url, label }) {
   }
   return (
     <button type="button" onClick={() => setPlay(true)} aria-label={`Play ${label}`} style={{ ...frame, cursor: "pointer", padding: 0 }}>
+      {poster && failedPoster !== poster ? <img src={poster} alt="" loading="lazy" decoding="async" onError={() => setFailedPoster(poster)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} /> : null}
+      <span aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(0,0,0,.15),transparent 35%,rgba(0,0,0,.8))" }} />
       <span style={{ position: "absolute", top: 10, left: 12, fontSize: 11, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: "#fff", textShadow: "0 1px 4px rgba(0,0,0,.6)" }}>{p.label}</span>
       <span aria-hidden="true" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 56, height: 56, borderRadius: "50%", background: "rgba(13,17,23,.6)", border: "2px solid rgba(255,255,255,.92)", color: "#fff", fontSize: 22, display: "flex", alignItems: "center", justifyContent: "center", paddingLeft: 4 }}>▶</span>
-      <span style={{ position: "absolute", bottom: 10, left: 12, right: 12, fontSize: 12.5, fontWeight: 700, color: "#fff", textShadow: "0 1px 5px rgba(0,0,0,.75)", lineHeight: 1.3 }}>Tap to watch on {p.label}</span>
+      <span style={{ position: "absolute", bottom: 10, left: 12, right: 12, fontSize: 12.5, fontWeight: 700, color: "#fff", textShadow: "0 1px 5px rgba(0,0,0,.75)", lineHeight: 1.3 }}>{label}</span>
     </button>
   );
 }
