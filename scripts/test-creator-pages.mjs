@@ -188,6 +188,8 @@ ok(!claimsAffiliation(index), "the index makes no affiliation claim either");
 const meta = creatorMetadata(FEATURED_CREATOR);
 ok(meta.alternates && typeof meta.alternates.canonical === "string" && meta.alternates.canonical.includes("/creators/"),
    "the page self-canonicals");
+ok(meta.openGraph.images[0].url.includes("/api/og/rail?id=cindy&creator=1&v=23"), "Cindy shares her portrait card rather than the generic homepage image");
+ok(html.includes("← Back to Wayfind"), "Cindy page has a prominent return to the main page");
 ok(meta.title.includes(FEATURED_CREATOR), "the title names the creator");
 ok(creatorMetadata("someone-with-no-page").robots.index === false, "a handle with no page is noindex, never a soft-404 200");
 

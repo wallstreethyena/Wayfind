@@ -73,7 +73,7 @@ const PAIRS = {
   augtober: { copy: "e7191fc07c1f6cd9", art: "a967d61a38691881" },
   beach: { copy: "bc2e671d898c25b0", art: "10af9b34c86feb0b" },
   // Owner portrait, September 9: no baked text; DaypartRail overlays the live title and CTA.
-  cindy: { copy: "30d97235cfc066b7", art: "fe3b84712e304f67" },
+  cindy: { copy: "30d97235cfc066b7", art: "a5712afd8afe9338" },
   // v8.16 (owner, 2026-08-19: "when I give you a card for the amazon rail use
   // it EXACTLY as I provided it"): the v8.15 tiles were REDRAWN flat mocks of
   // the owner's posters. Replaced with the owner's own artwork, byte-derived
@@ -187,7 +187,7 @@ const PAIRS = {
   // live music, shows, dining & experiences — ranked near you. / Tonight,
   // actually sorted. The metadata carries those same three promises and the
   // drop now renders the ten exclusive intent rails behind them.
-  tonight: { copy: "8559e889f59e2896", art: "c784dab2f3b0f30f" },
+  tonight: { copy: "8559e889f59e2896", art: "7fdd2d758290fd44" },
 };
 
 const railRow = (id) => (rails.match(new RegExp(`\\{ id: "${id}",[\\s\\S]*?\\},`)) || [""])[0];
