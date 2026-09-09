@@ -67,13 +67,30 @@ ok(/const rich = await cget\(kRich, \{ staleMs: STALE_MAX_MS \}\);/.test(search)
   "the rich v1 cache (fresh or stale within the ToS cap) is read BEFORE the ledger is consulted — zero-spend answers come first");
 
 // ── 4. Scheduled re-buys stay OFF in free mode, on purpose ───────────────
+// 2026-09-09: this used to require the gate to precede the handler's FIRST
+// `await fetch(` of any kind. That proxy was wrong in two directions once
+// atlas-build started RECORDING its own parking. A pulse write to
+// wf_job_pulse is not a re-buy — it is how a deliberately parked job stays
+// visible to job-watch, which it previously was not (all three Atlas crons
+// answered 200 and wrote nothing for two weeks, and no monitor could say so).
+// Meanwhile the old form would have gone GREEN on a route that returned
+// before any fetch and then bought from Google on a later line.
+//
+// The invariant is not "no fetch". It is "no PAID provider call": nothing may
+// reach Google Places or Anthropic before the gate has decided. So the check
+// is now on the paid call sites by name, and the gate must precede every one
+// of them. A Supabase write is explicitly allowed through, because spending
+// nothing and reporting nothing are different things.
+const PAID_CALL = /\b(?:places\.googleapis\.com|maps\.googleapis\.com|api\.anthropic\.com|spendAllow\s*\(|placeDetails\s*\(|fetchPlaceDetail\s*\()/;
 for (const p of REBUY_PATHS_OFF_IN_FREE_MODE) {
   const src = strip(read(p));
   const handler = src.indexOf("export async function GET");
   const gate = src.indexOf("gateFree()", handler);
-  const firstFetch = src.indexOf("await fetch(", handler);
-  ok(handler >= 0 && gate > handler && (firstFetch < 0 || gate < firstFetch) && /if \(gateShut\(\) \|\| gateFree\(\)\) return/.test(src.slice(handler)),
-    `${p}: the handler short-circuits on gateFree() before any fetch — a scheduled re-buy cannot happen in free mode`);
+  const body = handler >= 0 ? src.slice(handler) : "";
+  const firstPaidRel = body.search(PAID_CALL);
+  const firstPaid = firstPaidRel < 0 ? -1 : handler + firstPaidRel;
+  ok(handler >= 0 && gate > handler && (firstPaid < 0 || gate < firstPaid) && /if \(gateShut\(\) \|\| gateFree\(\)\) \{?/.test(body),
+    `${p}: the handler must consult gateFree() before ANY paid provider call (Google Places / Anthropic / a spendAllow ledger take) — a scheduled re-buy cannot happen in free mode`);
 }
 ok(REBUY_PATHS_OFF_IN_FREE_MODE.length === 3, "the law names exactly the three re-buy paths (refresh-ahead worker, inventory-refresh, atlas-build)");
 
