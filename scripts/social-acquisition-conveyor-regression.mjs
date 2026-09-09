@@ -145,7 +145,34 @@ assert.equal(routeCalls.filter((call) => call.endsWith("/search.json")).length, 
 const noAcquisitionCall = (calls) => calls.every((call) => !/wf_social_(discoveries|candidates)|wf_source_evidence|wf_inventory/.test(call));
 assert.equal(noAcquisitionCall(routeCalls), true, "authenticated proof returns before acquisition access");
 assert.equal(noAcquisitionCall([...routeCalls, "https://supabase.test/rest/v1/wf_social_discoveries"]), false, "positive control detects an acquisition write");
+
+// PARKED, NOT AN INCIDENT (2026-09-09): a SerpAPI account that is no longer on
+// the free plan must not record a dead run (attempted>0/failed>0, succeeded=0)
+// — that is exactly what paged job-watch once a day forever for a query that
+// was never going to run without the owner choosing to pay. It must record
+// attempted=0/succeeded=0/failed=0 with a note carrying no billing:/quota:
+// prefix (see lib/jobPulse.classifyHealth), and the route itself must answer
+// 200/ok/idle, not 503, so it never reads as a function error either.
+let parkedPulse = null;
+globalThis.fetch = async (input, init) => {
+  const url = new URL(String(input));
+  if (url.pathname === "/account.json") return response({ account_status: "Active", plan_monthly_price: 50, total_searches_left: 8 });
+  if (url.pathname === "/rest/v1/wf_job_pulse") { parkedPulse = JSON.parse(init.body); return response({}, 201); }
+  throw new Error(`unexpected route for a parked social-discovery run: ${url.pathname}`);
+};
+const parkedResponse = await socialDiscoveryGET(new Request("https://wayfind.test/api/cron/social-discovery", { headers: { authorization: "Bearer source-proof-test-secret" } }));
+assert.equal(parkedResponse.status, 200, "a permanently parked provider must not read as a function error");
+const parkedBody = await parkedResponse.json();
+assert.equal(parkedBody.ok, true);
+assert.equal(parkedBody.idle, true);
+assert.equal(parkedBody.reason, "not_zero_cost_plan");
+assert.ok(parkedPulse, "recordPulse must still run on the parked path");
+assert.deepEqual([parkedPulse.attempted, parkedPulse.succeeded, parkedPulse.failed], [0, 0, 0],
+  "a permanently parked provider must not accumulate a dead-run streak in wf_job_health");
+assert.equal(parkedPulse.note, "parked_not_zero_cost_plan");
+assert.doesNotMatch(parkedPulse.note, /^(billing|quota):/i, "a parked note must not carry the prefix that escalates on the first run");
 globalThis.fetch = savedFetch;
+
 for (const [key, value] of [["CRON_SECRET", savedCronSecret], ["NEXT_PUBLIC_SUPABASE_URL", savedSupabaseUrl], ["SUPABASE_SERVICE_ROLE_KEY", savedServiceKey], ["SERPAPI_KEY", savedSerpKey]]) {
   if (value === undefined) delete process.env[key]; else process.env[key] = value;
 }
