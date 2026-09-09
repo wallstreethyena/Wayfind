@@ -124,7 +124,10 @@ ok(/\["food", "nightlife", "attractions"\]/.test(retrieval) && /Promise\.allSett
 {
   const { fetchNightOutPool } = await import("../lib/nightOutPool.js");
   const env = { url: "https://example.invalid", key: "k" };
-  const page = (rows) => ({ ok: true, json: async () => rows });
+  // Fresh objects per response, as res.json() gives in production: the reader
+  // hydrates photo_ref onto the rows it was handed, and a shared fixture would
+  // carry one run's reference into the next and hide a hydration that never ran.
+  const page = (rows) => ({ ok: true, json: async () => rows.map((r) => ({ ...r })) });
   const okRow = { place_id: "cc1", name: "Comedy Cellar", lat: 27.60, lng: -82.43, primary_type: "comedy_club", google_types: [], status: "OPERATIONAL", signals: { rating: 4.7, reviews: 900 } };
   let calls = 0;
   const urls = [];
@@ -132,6 +135,10 @@ ok(/\["food", "nightlife", "attractions"\]/.test(retrieval) && /Promise\.allSett
     calls++;
     urls.push(url);
     if (/category\.eq\.attractions|secondary_categories\.cs\.\{attractions\}/.test(url)) throw new Error("attractions timed out");
+    // The post-admission photo lookup (place_id=in.(…)) answers with the
+    // reference for the one admitted row, so the served card can be checked
+    // for it below.
+    if (/place_id=in\./.test(url)) return page([{ place_id: "cc1", photo_ref: "places/cc1/photos/p1" }]);
     return page(/nightlife/.test(url) ? [okRow] : []);
   };
   let served = null;
@@ -154,12 +161,48 @@ ok(/\["food", "nightlife", "attractions"\]/.test(retrieval) && /Promise\.allSett
   // a string, because the string is what a well-meaning payload optimisation
   // edits. (Added after a mutation that removed `editorial` left this suite
   // green.)
-  ok(urls.length > 0 && urls.every((u) => /select=[^&]*\beditorial\b/.test(u)),
+  // The POOL pages are the exhaustive category reads; the photo lookup that
+  // follows admission is a different request with a different job, so each is
+  // asserted on its own shape rather than on "every URL".
+  const poolReads = urls.filter((u) => /category\.eq\.|secondary_categories\.cs\./.test(u));
+  const photoReads = urls.filter((u) => /place_id=in\./.test(u));
+  ok(poolReads.length > 0 && poolReads.every((u) => /select=[^&]*\beditorial\b/.test(u)),
     "the Night Out read no longer selects `editorial` — the predicates read editorial text, so trimming it starves the evidence instead of the candidates");
-  ok(urls.every((u) => /order=place_id\.asc/.test(u)),
+  ok(poolReads.every((u) => /order=place_id\.asc/.test(u)),
     "the Night Out read is no longer ordered — an unordered paged read returns an arbitrary heap slice, which is the upstream half of the starvation bug");
-  ok(urls.some((u) => /secondary_categories\.cs\.\{/.test(u)),
+  ok(poolReads.some((u) => /secondary_categories\.cs\.\{/.test(u)),
     "the issued query dropped secondary-category membership");
+
+  // BYTES AFTER IDENTITY (2026-09-09). photo_ref was 59% of every pool page
+  // (469 KB of 970 KB, Parrish food page 0) and nothing in admission reads it;
+  // that payload is what pushed thirty concurrent pages past their deadline on
+  // the 2026-09-09 deploy and served ten 503s. So the exhaustive read must NOT
+  // select it, the reference must arrive by a separate lookup for the ADMITTED
+  // rows only, and the served card must still carry it — a "payload
+  // optimisation" that quietly drops the thumbnail is the failure this guards.
+  ok(poolReads.every((u) => !/select=[^&]*\bphoto_ref\b/.test(u)),
+    "the exhaustive Night Out pool read selects photo_ref again — that column was 59% of every page and no predicate reads it; hydrate it after admission instead");
+  ok(photoReads.length === 1 && /select=place_id,photo_ref/.test(photoReads[0]) && /cc1/.test(decodeURIComponent(photoReads[0])),
+    "photo_ref is not hydrated by ONE place_id=in.(…) lookup scoped to the admitted rows");
+  ok(served && served.places.find((p) => p.id === "cc1")?.photoRef === "places/cc1/photos/p1",
+    "the served Night Out place lost its photoRef — the post-admission hydration must land on the card");
+  ok(served && served.stats && served.stats.photoRefs && served.stats.photoRefs.hydrated === 1 && served.stats.photoRefs.failed === 0,
+    "the pool stats do not report the photo hydration funnel (requested/hydrated/failed)");
+
+  // A missing thumbnail is not a 503. When the photo lookup itself fails the
+  // rails are still served (the card falls back to its monogram), and the
+  // answer says it is degraded so completeAnswersOnly() keeps it out of the
+  // hour-long cache instead of pinning photo-less rails on every reader.
+  const photosDie = async (url) => {
+    if (/place_id=in\./.test(url)) throw new Error("photo lookup timed out");
+    return page(/nightlife/.test(url) ? [okRow] : []);
+  };
+  let photoless = null;
+  try { photoless = await fetchNightOutPool(27.5949, -82.4265, { env, fetchImpl: photosDie }); } catch (e) { photoless = { error: String(e.message) }; }
+  ok(photoless && Array.isArray(photoless.places) && photoless.places.some((p) => p.id === "cc1" && p.photoRef == null),
+    `a failed photo lookup blanked the Night Out pool — the rails must still serve without the thumbnail (${photoless && photoless.error ? photoless.error : "no places"})`);
+  ok(photoless && photoless.stats && photoless.stats.degraded === true && photoless.stats.photoRefs.failed === 1,
+    "a pool whose photo lookup failed reports degraded:false — it would be cached for an hour without thumbnails");
 }
 ok(/secondary_categories\.cs\.\{/.test(retrieval), "Night Out no longer includes secondary-category membership — clubs, cabarets and dinner shows are commonly stored under their venue's primary type");
 ok(/nightOutEditorialEvidence/.test(route) && /editorialOverride/.test(retrieval),
