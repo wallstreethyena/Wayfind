@@ -1,9 +1,9 @@
 // app/api/cron/deals-health/route.js — keeps the wf_deals coupon feed honest:
 // (A) expiry sweep — flip active=false on any deal past ends_at, and
-// (B) link-health — for every deal that needs checking, verify the CJ affiliate
-//     link actually FORWARDS the user (not the tracking pixel) and the UT
-//     destination still exists, REPAIR the dead ?url= pixel form to the working
-//     raw-path form in place, and set link_ok/http_status/fail_count so the
+// (B) link-health — validate CJ link structure offline and request only the UT
+//     merchant destination. Blocked responses stay unknown. REPAIR the dead
+//     ?url= pixel form to the known raw-path form without clicking it;
+//     set link_ok/http_status/fail_count so the
 //     wf_deals_live view drops anything broken within one cycle.
 //
 // CRON_SECRET-gated like the other crons. Writes with the service role at

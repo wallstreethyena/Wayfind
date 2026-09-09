@@ -1,6 +1,6 @@
 // scripts/test-deals.mjs — locks the wf_deals link-health logic (lib/deals.js)
 // and the deals-health cron contract: #1 the working raw-path CJ form (never the
-// ?url= pixel), #2 auto-repair of the dead pixel form, #3 Cloudflare 403 = alive,
+// ?url= pixel), #2 auto-repair of the dead pixel form, #3 Cloudflare 403 = unknown,
 // #4 the affiliate link must truly FORWARD, #5 every stored link carries our PID.
 import { readFileSync } from "fs";
 import {
