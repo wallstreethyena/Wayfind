@@ -56,6 +56,12 @@ jobs:
         run: uv run --locked --no-dev wayfind-audit collect --out private/snapshot.json
       - name: Analyze snapshot
         run: uv run --locked --no-dev wayfind-audit report --input private/snapshot.json --out reports/live
+      - name: Collect paginated revenue census without affiliate clicks
+        env:
+          WAYFIND_AUDIT_DATABASE_URL: ${{ secrets.WAYFIND_AUDIT_DATABASE_URL }}
+        run: uv run --locked --no-dev wayfind-audit revenue-collect --out private/revenue.json
+      - name: Analyze commerce evidence
+        run: uv run --locked --no-dev wayfind-audit revenue-report --input private/revenue.json --out reports/live/revenue
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: wayfind-python-audit-${{ github.run_id }}
@@ -64,4 +70,4 @@ jobs:
           retention-days: 7
       - name: Remove raw snapshot
         if: always()
-        run: python -c "from pathlib import Path; Path('private/snapshot.json').unlink(missing_ok=True)"
+        run: python -c "from pathlib import Path; Path('private/snapshot.json').unlink(missing_ok=True); Path('private/revenue.json').unlink(missing_ok=True)"

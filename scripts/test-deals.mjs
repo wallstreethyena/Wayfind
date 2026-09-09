@@ -35,9 +35,9 @@ ok(hasCjPid(rep.url), "the repaired link still carries the PID");
 
 // #3 Cloudflare-aware dest liveness (the bug the spec's 'must be 200' would hit)
 ok(destIsAlive(200) === true, "dest 200 is alive");
-ok(destIsAlive(403) === true, "dest 403 (Cloudflare 'Just a moment') is ALIVE — page exists, don't pull it");
-ok(destIsAlive(301) === true && destIsAlive(302) === true, "dest 3xx is alive");
-ok(destIsAlive(404) === false && destIsAlive(410) === false && destIsAlive(500) === false, "404/410/5xx are dead");
+ok(destIsAlive(403) === null && destIsAlive(429) === null, "blocked is unknown");
+ok(destIsAlive(301) === null && destIsAlive(302) === null, "unresolved redirect is unknown");
+ok(destIsAlive(404) === false && destIsAlive(410) === false && destIsAlive(500) === null, "not-found is dead; server error is unknown");
 
 // #4 affiliate must forward (3xx to a CJ host), not pixel (200 from anrdoezrs)
 ok(affiliateForwards(302, "https://cj.dotomi.com/links-t/...") === true, "302 → cj.dotomi.com forwards");
@@ -45,18 +45,31 @@ ok(affiliateForwards(200, "") === false, "200 with no redirect = pixel = does NO
 ok(affiliateForwards(302, "https://evil.example/x") === false, "3xx to a non-CJ host does not count");
 
 // #5 full verdict
-ok(judgeLink({ affFirstHop: 302, affLocation: "https://cj.dotomi.com/x", destStatus: 403 }).pass === true, "forwards + Cloudflare dest → PASS");
+ok(judgeLink({ affFirstHop: 302, affLocation: "https://cj.dotomi.com/x", destStatus: 403 }).pass === false, "blocked destination cannot pass");
 ok(judgeLink({ affFirstHop: 200, affLocation: "", destStatus: 200 }).pass === false, "pixel affiliate → FAIL even if dest is 200");
 ok(judgeLink({ affFirstHop: 302, affLocation: "https://cj.dotomi.com/x", destStatus: 404 }).pass === false, "dead dest → FAIL even if affiliate forwards");
 
 // cron contract
 const cron = read("app/api/cron/deals-health/route.js");
 ok(/CRON_SECRET/.test(cron) && /status:\s*401/.test(cron), "cron is fail-CLOSED on CRON_SECRET");
-ok(/from\("wf_deals"\)/.test(cron) && /link_ok !== true/.test(cron), "cron reads the base table and INCLUDES quarantined rows (link_ok != true), so it can repair them — the needs_check view omits fail_count and excludes quarantined rows");
+ok(/from\("wf_deals"\)/.test(cron) && /STALE_MS/.test(cron) && !/\.eq\("link_ok", true\)/.test(cron), "cron includes quarantined rows and bounds retries by staleness");
 ok(/repairAffiliateUrl/.test(cron) && /hasCjPid/.test(cron), "cron repairs the link form and refuses untracked links");
 ok(/active:\s*false/.test(cron) && /ends_at/.test(cron), "cron runs the expiry sweep");
 ok(/FAIL_THRESHOLD\s*=\s*2/.test(cron), "requires 2 consecutive fails before pulling a deal");
 ok(read("vercel.json").includes("/api/cron/deals-health"), "cron registered in vercel.json");
 
+const { probeMerchant, healthPatch, trackedDeal } = await import('../lib/dealHealth.js');
+ok(healthPatch({link_ok:true,fail_count:0},403).link_ok === null, '403 clears false healthy');
+ok(healthPatch({link_ok:false,fail_count:2},429).link_ok === false, 'challenge cannot lift quarantine');
+ok(healthPatch({link_ok:true,fail_count:1},404).link_ok === false, 'second definite failure quarantines');
+ok(healthPatch({link_ok:false,fail_count:2},200).link_ok === true, 'positive control recovers');
+ok(trackedDeal(RAW, DEST) && !trackedDeal(RAW + 'evil', DEST), 'exact configured tracking and destination');
+let calls = 0;
+const fetchStub = async () => { calls++; return new Response(null,{status:302,headers:{location:'https://www.anrdoezrs.net/click-test'}}); };
+ok((await probeMerchant(DEST, fetchStub)).status === 0 && calls === 1, 'affiliate redirect is never followed');
+calls = 0;
+ok((await probeMerchant(RAW, fetchStub)).status === 0 && calls === 0, 'affiliate input causes zero requests');
+ok((await probeMerchant(DEST, async()=>new Response(null,{status:403}))).status === 403, 'blocked evidence preserved');
+ok(!/probe\(affUrl|fetch\(affUrl/.test(cron) && /probeMerchant\(row.dest_url\)/.test(cron), 'cron probes merchant only');
 console.log(`test-deals: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);

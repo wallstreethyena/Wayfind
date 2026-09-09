@@ -8,6 +8,7 @@ from pathlib import Path
 from . import __version__
 from .analyze import audit
 from .collect import collect
+from .revenue import audit_revenue, collect_revenue
 from .snapshot import AuditError, read_snapshot, write_json
 
 
@@ -132,9 +133,50 @@ def main(argv=None):
     export.add_argument("--out", type=Path, required=True)
     export.add_argument("--days", type=int, default=7)
     export.add_argument("--max-rows", type=int, default=100_000)
+    money = sub.add_parser(
+        "revenue-collect", help="Paginated read-only commerce census; no partner requests"
+    )
+    money.add_argument("--out", type=Path, required=True)
+    money.add_argument("--max-rows", type=int, default=100_000)
+    money_report = sub.add_parser(
+        "revenue-report", help="Analyze a complete commerce census offline"
+    )
+    money_report.add_argument("--input", type=Path, required=True)
+    money_report.add_argument("--out", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
-        if args.command == "collect":
+        if args.command == "revenue-collect":
+            if args.out.exists():
+                raise AuditError("Output already exists")
+            write_json(args.out, collect_revenue(args.max_rows))
+            print("Complete read-only revenue census written; eligibility and payout not verified.")
+        elif args.command == "revenue-report":
+            if args.out.exists() or args.input.stat().st_size > 100_000_000:
+                raise AuditError("Output exists or input exceeds 100 MB")
+            result = audit_revenue(json.loads(args.input.read_text()))
+            args.out.mkdir(parents=True, exist_ok=False)
+            write_json(args.out / "report.json", result)
+            lines = [
+                f"# Wayfind revenue audit: {result['source_kind']}",
+                "",
+                f"Captured: {cell(result['captured_at'])}",
+                "",
+                "Inventory counts: " + cell(result["counts"]),
+                "",
+                "Health evidence: " + cell(result["health_counts"]),
+                "",
+                f"Candidate rows: {len(result['candidates'])}. Eligible coverage incomplete.",
+                "",
+                "Pending, approved and paid commission, human clicks and measured cost: unknown.",
+                "",
+                *["- " + cell(x) for x in result["limitations"]],
+                "",
+            ]
+            (args.out / "report.md").write_text("\n".join(lines))
+            print(
+                "Revenue report written; eligible coverage and payment verification remain incomplete."
+            )
+        elif args.command == "collect":
             if args.out.exists():
                 raise AuditError("Output already exists")
             write_json(args.out, collect(args.days, args.max_rows))
