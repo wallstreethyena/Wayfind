@@ -3047,12 +3047,7 @@
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": [
-          {
-            "file": ".github/workflows/refresh-pr-1221-once.yml",
-            "blocking": true
-          }
-        ]
+        "githubWorkflows": []
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
@@ -5245,12 +5240,7 @@
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": [
-          {
-            "file": ".github/workflows/refresh-pr-1221-once.yml",
-            "blocking": true
-          }
-        ]
+        "githubWorkflows": []
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
@@ -7835,12 +7825,7 @@
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": [
-          {
-            "file": ".github/workflows/refresh-pr-1221-once.yml",
-            "blocking": true
-          }
-        ]
+        "githubWorkflows": []
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
@@ -11028,7 +11013,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 44,
+      "assertionCount": 52,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
