@@ -1493,7 +1493,7 @@ export default function DaypartRail({
             <div className="wf8-track" ref={trackRef}>
               {order.filter((id) => {
                 const r = railById.get(id);
-                return r && !r.artStale && !r.retiredInto;
+                return r && !r.posterHidden && !r.artStale && !r.retiredInto;
               }).map((id, i) => {
                 const r = railById.get(id);
                 if (!r) return null;
@@ -1512,6 +1512,7 @@ export default function DaypartRail({
                 const tileClass = `wf8-tile${selected === id ? " is-sel" : ""}${artReady[id] ? " is-art-ready" : ""}`;
                 const artBox = railArtSize(id);
                 const art = (
+                    <>
                     <picture>
                       <source type="image/avif" srcSet={railArtSrcSet(base, "avif")} sizes={RAIL_ART_SIZES} />
                       <source type="image/webp" srcSet={railArtSrcSet(base, "webp")} sizes={RAIL_ART_SIZES} />
@@ -1529,6 +1530,7 @@ export default function DaypartRail({
                         onError={() => markArtReady(id)}
                       />
                     </picture>
+                    </>
                 );
                 const label = `${r.title} — ${r.short}`;
                 // THE TILE IS THE BOX; THE LINK INSIDE IT IS THE DESTINATION.

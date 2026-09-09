@@ -297,7 +297,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.56.11";
+const BUILD_ID = "v8.56.15";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -10767,7 +10767,34 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               </>
             )}
             <div style={{ position: "absolute", bottom: "max(20px, calc(env(safe-area-inset-bottom) + 12px))", left: 0, right: 0, textAlign: "center", pointerEvents: "none" }}>
-              {(() => { const by = lightboxIndex >= 0 && detail && Array.isArray(detail.photoAttrs) ? (detail.photoAttrs[lightboxIndex] || "") : ""; return <div style={{ color: "rgba(255,255,255,.85)", fontSize: 11.5, fontWeight: 600, marginBottom: 3 }}>{by === "Wayfind" ? "Photo: Wayfind" : by ? "Photo: " + by + " · via Google" : "Photo via Google"}</div>; })()}
+              {(() => {
+                // #1188 — SOURCE-AWARE, not hardcoded. The old version said
+                // "· via Google" for every photo whose per-photo author string
+                // was empty — correct for an actual Google photo with no named
+                // author, but ALSO exactly the shape a NON-Google single-photo
+                // source leaves behind: app/api/outdoors/route.js sets a
+                // place-level detail.photoAttr ("NPS", "Recreation.gov") but
+                // never a per-photo detail.photoAttrs[] entry, so those cards'
+                // lightbox falsely credited Google. A free Wikimedia photo
+                // (lib/freePhoto.js) would leave the identical shape. The tell
+                // is the ARRAY itself, not one entry in it: Google's own
+                // normalize (lib/google.js) always populates photoAttrs with
+                // one slot per photo (even a "" slot for an unnamed Google
+                // author); a source that never populated the array at all is
+                // never Google, so this only claims Google when there is
+                // actual per-photo evidence for it.
+                // Kept as the literal `detail.photoAttrs[lightboxIndex]` shape
+                // (test-lightbox-paging.mjs asserts on exactly this text) —
+                // the per-photo lookup that keeps a paging viewer's credit on
+                // the photo actually on screen.
+                const by = lightboxIndex >= 0 && detail && Array.isArray(detail.photoAttrs) ? (detail.photoAttrs[lightboxIndex] || "") : "";
+                const singleSourceAttr = detail && Array.isArray(detail.photoAttrs) && detail.photoAttrs.length === 0 ? (detail.photoAttr || "") : "";
+                const label = by === "Wayfind" ? "Photo: Wayfind"
+                  : by ? "Photo: " + by + " · via Google"
+                  : singleSourceAttr ? "Photo: " + singleSourceAttr
+                  : "Photo via Google";
+                return <div style={{ color: "rgba(255,255,255,.85)", fontSize: 11.5, fontWeight: 600, marginBottom: 3 }}>{label}</div>;
+              })()}
               {canPage && <div aria-live="polite" style={{ color: "rgba(255,255,255,.92)", fontSize: 12.5, fontWeight: 700, marginBottom: 3 }}>{lightboxIndex + 1} / {total}</div>}
               <div style={{ color: "rgba(255,255,255,.6)", fontSize: 12 }}>{canPage ? "Swipe to browse · tap to close" : "Tap anywhere to close"}</div>
             </div>

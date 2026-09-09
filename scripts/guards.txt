@@ -998,6 +998,13 @@ node scripts/check-no-imageless-card.mjs
 # STRING resolves; this proves the render reacts when that src's request
 # actually fails.
 node scripts/check-card-photo-error-fallback.mjs
+# 2026-09-08 / v8.56.12: the photos ledger exhausted on Sep 1 and 15,088 active
+# refs had no cache row, so every uncached card served the compass (or, after
+# #1182/#1184, a per-title miss / a free same-place recovery). This executes
+# the probe short-circuit, the classifier, the queue, and the worker with
+# injected deps — no network, no lib/spendGate.js import anywhere in this
+# lane, no occurrence of "places.googleapis.com".
+node scripts/test-photo-protection.mjs
 node scripts/test-today-discovery-rails.mjs
 # 2026-09-02 — Night Out pool starvation (owner screenshot, Parrish): an
 # intent rail composed client-side from shown.places alone never sees real
@@ -1264,6 +1271,12 @@ node scripts/test-auth-admin-tombstones.mjs
 # boundaries with fetch traps and positive controls.
 node scripts/test-spend-bypass-regression.mjs
 
+# 2026-09-09 photo-only paid allowance: WAYFIND_PHOTOS_PAID + GOOGLE_PHOTOS_MONTH_CAP
+# may raise the `photos` ledger ceiling ONLY; every other Google SKU asks the
+# ledger for the same numbers with the switch on. One grant == one outbound
+# Google request across the whole media/Details/self-heal fan-out.
+node scripts/test-photos-paid-cap.mjs
+
 # 2026-09-07 security audit: public event aggregation fanned out to provider
 # APIs before cache and without finite per-request budgets.
 node scripts/test-events-spend.mjs
@@ -1296,3 +1309,96 @@ node scripts/check-reverse-migration-reconciliation.mjs
 # breakfast, coffee and bakery-cafe cards remain reachable), including rows
 # whose provider omitted primaryType.
 node scripts/test-morning-identity.mjs
+# 2026-09-09 (owner's affiliate deep-link audit): the only writer of
+# wf_affiliate_opportunities used PostgREST `resolution=ignore-duplicates`, which
+# SKIPS an existing row rather than updating it — so a place already in the queue
+# could never increment `hits`, refresh `last_seen_at`, or clear `resolved_at`.
+# Measured on production: 63 rows, every one at hits=1 and frozen at
+# first_seen_at = last_seen_at = 2026-08-21, with the 21-day Atlas cycle about to
+# start re-seeing that cohort around 09-11. The worklist orders by `hits DESC`, so
+# the ranking signal was structurally stuck at 1. The route also reported
+# `opps = oppRows.length` — rows SENT — which stayed truthful-looking while the
+# database accepted none of them. Replaced by an atomic server-only RPC.
+node scripts/check-affiliate-opportunity-refresh.mjs
+
+# Shared owner briefing contract: email and Command Center expose the same
+# plain-English evidence and exactly three actionable improvements.
+node scripts/test-command-center-briefing.mjs
+
+# Command Center panel requests cancel superseded work and ignore responses
+# that arrive out of order.
+node scripts/test-command-center-requests.mjs
+
+# 2026-09-09 free permanent-photo lane: lib/commonsPhotos.js is what makes it
+# safe to store a Wikimedia Commons photo PERMANENTLY (Google's photo terms
+# forbid storing a Places photo past 30 days, and September's photos ledger
+# is already exhausted at 950/950 while 10,028 cached photo URIs expire
+# 2026-09-25..2026-10-04 -- supabase/migrations/20260909_wf_place_photo.sql).
+# Proves identity verification (reused from lib/popularity.js
+# verifyWikiIdentity, never a second looser matcher) gates every photo
+# attach, a non-free Commons license is rejected rather than guessed free,
+# attribution is always populated on a returned photo, commons.wikimedia.org
+# and upload.wikimedia.org are covered by lib/wikimediaFetchPolicy.js's
+# concurrency/backoff policy, and a failed lookup returns null and never
+# throws.
+node scripts/test-commons-photos.mjs
+
+# 2026-09-09 (#1188) the SERVING half of the free permanent-photo lane:
+# lib/freePhoto.js (reads wf_place_photo, attribution-gated, fail-soft) and
+# its wiring into app/api/photo/route.js. Proves, by executing the real
+# route and the real lib/spendGate.js with only the ledger fetch
+# intercepted: a free photo prevents the photos ledger grant from EVER being
+# taken (call count, not a reason string); same-place Google recovery still
+# wins over a free substitute; a probe takes no grant; owned-free carries
+# attribution text and href; details_ids_only is untouched by a free
+# photo's existence; a broken free-photo lookup fails closed to pre-#1188
+# behaviour instead of crashing the route.
+node scripts/test-free-photo-serving.mjs
+
+# 2026-09-09 the permanent photo VAULT's core: lib/photoLicense.js (the
+# licence gate -- refuses Google BY NAME, by any spelling, and by
+# googleusercontent URL host even when mislabelled; fails closed on an
+# unknown source or an unknown/non-free licence, reusing
+# lib/commonsPhotos.js's classifyLicense rather than a second classifier)
+# and lib/photoVault.js (downloads a licence-cleared photo's bytes exactly
+# once and stores them in the `place-photos` bucket, idempotently). Every
+# refusal is proven by CALL COUNT on the injected fetch -- zero network
+# requests happen before the gate clears -- never by reading a reason
+# string. Also proves: a free Wikimedia CC photo stores with attribution
+# untouched (the row-write patches only the four storage columns); a
+# second store for an already-vaulted place performs zero downloads and
+# zero uploads; a non-image content-type and an oversized body are both
+# refused before any upload; the vault never throws. See
+# supabase/migrations/20260909_wf_place_photo_vault.sql for the incident
+# (10,028 cached Google photo URIs expiring 2026-09-25..2026-10-04 against
+# an exhausted 950/950 September photos ledger) this exists to make safe.
+node scripts/test-photo-vault.mjs
+
+# 2026-09-09 the permanent photo VAULT's WIRING (separate from the vault
+# CORE above, which has its own guard): lib/freePhoto.js prefers the VAULT
+# url once wf_place_photo.storage_path is set and falls back to the origin
+# image_url otherwise; lib/placePhotoBackfill.js upserts a resolved photo's
+# row BEFORE calling storePhotoPermanently (which requires the row to
+# pre-exist), threads the exact resolved sbEnv through rather than letting
+# the vault default to process.env, and never writes storage_path/stored_at/
+# bytes/content_type on its own upsert -- those four columns belong
+# exclusively to storePhotoPermanently's own PATCH. A licence-gate refusal
+# is still recorded with the origin url and a reason, proven to take zero
+# uploads by call count on an injected storage double. Re-running over an
+# already-vaulted place takes zero resolvePhoto/storePhoto calls. The
+# wf_photo_at_risk worklist (earliest-expiring places first, every category)
+# is proven to be FULLY DRAINED before any general beach/attractions-scan id
+# is processed, by the actual call order -- never by reading the view's SQL
+# text -- and app/api/cron/place-photos's `?source=at-risk|all` switch is
+# proven to thread through to runBackfill and to fall back to the combined
+# default on an unrecognised value. The route's CRON_SECRET fail-closed
+# check and its honest empty-run pulse (attempted=0/succeeded=0/failed=0, no
+# billing:/quota: prefix) are proven by executing the real route with only
+# runBackfill/recordPulse/jobCannotRun/jobFailed swapped for doubles.
+node scripts/test-photo-vault-wiring.mjs
+
+node scripts/test-beach-alert-recovery.mjs
+
+node scripts/test-editorial-retry-content.mjs
+
+node scripts/test-photo-queue-batch.mjs

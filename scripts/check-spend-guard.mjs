@@ -137,7 +137,29 @@ if (!refreshMask || !/places\.primaryType/.test(refreshMask[1])) die("refresh Te
 if (!/place:\s*"[^"]*primaryType/.test(read("app/api/places/details/route.js"))) die("Place Details dropped primaryType - selected cards can change category.");
 if (!/spendAllow\("text_pro"\)/.test(search)) die("search route can pay Google without a text_pro ledger grant.");
 if (!/spendAllow\("details_enterprise"\)/.test(read("lib/placeDetails.js"))) die("placeDetails can pay Google without a details_enterprise ledger grant.");
-if (!/spendAllow\("photos"\)/.test(read("app/api/photo/route.js"))) die("photo route can pay Google without a photos ledger grant.");
+// 2026-09-09 — the photo route's grant is spendAllowPhotos(): the SAME
+// `photos` ledger row, free tier 950 unless the owner's photo-only paid switch
+// (WAYFIND_PHOTOS_PAID=1 + GOOGLE_PHOTOS_MONTH_CAP) is set. It must be the
+// literal call, not a comment, and spendGate must route it through
+// takeFromLedger("photos", …) — a bigger cap is still a counted-down ceiling.
+{
+  const photoRoute = read("app/api/photo/route.js").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  if (!/spendAllowPhotos\(\)/.test(photoRoute)) die("photo route can pay Google without a photos ledger grant (spendAllowPhotos).");
+  if (/spendAllow\("photos"\)/.test(photoRoute)) die("photo route bypasses the photo ceiling by calling the bare free-tier spendAllow(\"photos\") — use spendAllowPhotos().");
+  if (!/spendAllow\(sku\)/.test(photoRoute)) die("photo route's authorizer no longer meters non-photo SKUs (the expired-ref Details lookup would run ungated).");
+  const gateCode = gate.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  if (!/export async function spendAllowPhotos\(\)[\s\S]{0,400}takeFromLedger\("photos",\s*cap\)/.test(gateCode)) die("spendAllowPhotos no longer takes an atomic photos ledger grant.");
+  if (!/GOOGLE_PHOTOS_MONTH_CAP/.test(gateCode) || !/WAYFIND_PHOTOS_PAID/.test(gateCode)) die("the photo-only paid path lost its explicit enable switch or its finite ceiling.");
+  if (!/if \(gateMode\(\) === "shut"\) return false;[\s\S]{0,200}WAYFIND_PHOTOS_PAID/.test(gateCode)) die("photosPaidEnabled must refuse when WAYFIND_GATE is shut.");
+  // One grant, one outbound request: the resolver must consult the authorizer
+  // before every further Google call, not once per decision.
+  const serve = read("lib/placePhotoServe.js").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  const fetchFn = serve.slice(serve.indexOf("async function defaultFetchOwnedUri"), serve.indexOf("export async function resolvePlacePhoto"));
+  const mediaCalls = (fetchFn.match(/await fetch\(/g) || []).length;
+  const grants = (fetchFn.match(/await grant\(/g) || []).length;
+  if (mediaCalls < 3 || grants < mediaCalls) die(`placePhotoServe: ${mediaCalls} outbound Google calls but only ${grants} ledger grants in defaultFetchOwnedUri — one grant must precede every request.`);
+  if (!/grant\("details_ids_only"\)/.test(fetchFn)) die("the expired-ref Place Details lookup runs without a details_ids_only grant.");
+}
 
 // 5 - FREE MODE serving invariants (live empty-results incident, 2026-08-25):
 // the rich v1 cache must be consulted before any paid decision, and lean

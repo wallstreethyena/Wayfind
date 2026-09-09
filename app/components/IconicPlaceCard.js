@@ -251,7 +251,10 @@ const ThumbIcon = ({ down = false }) => (
   </svg>
 );
 
-function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfind", aiSummary, badge, rankingNote, onShare, saved, liked, disliked, inTrip, onSave, onItinerary, onLike, onDislike, onOpen, onBadge, cardActionsReadOnly = false, surface = "place_card", eagerMedia = false, mediaPriority = null, memoKey = null }) {
+function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfind", aiSummary, badge, rankingNote, onShare, saved, liked, disliked, inTrip, onSave, onItinerary, onLike, onDislike, onOpen, onBadge, cardActionsReadOnly = false, surface = "place_card", eagerMedia = false, mediaPriority = null, memoKey = null,
+  // #1188 — the free permanent photo lane's CC credit. Same prop names as
+  // RailCard.js; see its JSDoc. Omit for a photo that needs no credit.
+  photoAttr = null, photoAttrHref = null }) {
   // v8.29 — the shared like/dislike/save store, read ONLY when this card has an
   // action its caller did not wire. A fully wired card (the home shell's, which
   // owns its own state) subscribes to nothing and re-renders for nothing.
@@ -492,6 +495,21 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
             )
             : <div className="wf-place-card-monogram" aria-hidden="true">{initials}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
+          {/* v8.56.13 (#1188) — same CC credit badge as RailCard.js, same
+              reasoning: see its comment above the equivalent block. */}
+          {photoAttr
+            ? (photoAttrHref
+                ? <a
+                    className="wf-place-card-photo-attr"
+                    href={photoAttrHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={"Photo: " + photoAttr}
+                    aria-label={"Photo credit: " + photoAttr}
+                    onClick={(e) => e.stopPropagation()}
+                  >©</a>
+                : <span className="wf-place-card-photo-attr" title={"Photo: " + photoAttr} aria-label={"Photo credit: " + photoAttr}>©</span>)
+            : null}
         </div>
         <div className="wf-place-card-content" style={{ position: "relative" }}>
           <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start" }}>

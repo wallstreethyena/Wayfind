@@ -1,0 +1,85 @@
+# .github/workflows/photo-monitor.yml — THE PHOTO ALARM, ON A CLOCK.
+#
+# WHY THIS FILE EXISTS. On 2026-09-01 19:43:23Z the `photos` ledger hit its
+# free tier (950/950) and every uncached card on gowayfind.com began serving a
+# placeholder instead of a photograph. That lasted EIGHT DAYS. Nothing was
+# broken in the code, nothing failed a guard, and no deploy went out — the
+# world simply changed underneath a healthy build.
+#
+# scripts/photo-monitor.mjs is the instrument that measures exactly this: it
+# probes the LIVE /api/photo for a rotating sample of active inventory and
+# reports the placeholder rate. It existed on 2026-09-08 and it was correct.
+# It was scheduled NOWHERE. vercel.json crons the REPAIR worker
+# ("20 4 * * * /api/cron/photo-repair") — the thing that fixes what the
+# monitor finds — while the monitor that finds it ran only when a human
+# remembered to type the command.
+#
+# That is the same failure mode ops/canary.workflow.yml already cost this
+# project once: a real check, authored, reviewed, believed to be running, and
+# never once executed on a schedule (see .github/workflows/synthetic-monitor.yml's
+# header). scripts/test-photo-protection.mjs case 17 asserts THIS file exists
+# at THIS path with a real cron and actually invokes the monitor, so the gap
+# cannot silently reopen.
+#
+# WHY GITHUB ACTIONS AND NOT A VERCEL CRON. The monitor paces itself at
+# RATE_PER_MINUTE = 90 with CONCURRENCY = 2 (deliberately under production's
+# rate wall, with headroom) and probes up to PROBE_CAP = 500 requests, so a
+# full sweep takes roughly 5.6 minutes. That does not fit inside a serverless
+# function's execution ceiling. A runner has no such ceiling, already holds
+# the Supabase service credentials the other scheduled canaries use, and
+# leaves a readable log per run.
+#
+# WHY HOURLY, AT :50. photo-monitor.mjs's defaultEpoch() is
+# `new Date().toISOString().slice(0, 13)` — an HOUR bucket — and amendment A4
+# rotates which (metro, category) cells are probed by hashing that epoch. Two
+# runs inside one hour would re-probe the identical cells and waste the
+# rotation; one run per hour is what the sampler was designed for. :50 keeps
+# it clear of the :00/:30 canaries and of the 04:20 photo-repair worker, whose
+# queue rows this monitor writes.
+#
+# THE EXIT CODE IS NOT THE FINDING. Per scripts/photo-monitor.mjs's own
+# contract (lines 47-51), a non-zero exit means the INSTRUMENT could not run.
+# A high placeholder rate is a FINDING: it is filed as a wf_job_pulse row and
+# wf_photo_repair_queue rows, and the pulse is what job-watch escalates. So a
+# red job here always means "the camera broke", never "the world looks bad" —
+# which is precisely why this workflow must not swallow the exit code.
+name: photo-monitor
+on:
+  schedule:
+    - cron: "50 * * * *"   # hourly at :50, UTC — matches defaultEpoch()'s hour bucket
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: photo-monitor
+  cancel-in-progress: false   # a sweep is ~5.6 min; let an in-flight run finish rather than losing its pulse
+
+jobs:
+  monitor:
+    name: live photo placeholder rate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15   # ~5.6 min of paced probes plus retries and checkout headroom
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      # Missing credentials must FAIL the job. A monitor that quietly skips
+      # itself is worse than no monitor: it reports green while measuring
+      # nothing, which is the exact state this workflow exists to end.
+      - name: Require monitor credentials
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::error::photo-monitor requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY. Check not performed."
+            exit 1
+          fi
+      # Probes carry x-wayfind-photo-probe: 1, so the resolver never calls
+      # authorizeSpend at all — this sweep cannot take a `photos` grant and
+      # cannot cost money, by call count rather than by intention.
+      - name: Sample live /api/photo against production
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/photo-monitor.mjs --base-url=https://www.gowayfind.com

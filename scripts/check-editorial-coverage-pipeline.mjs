@@ -77,6 +77,7 @@
  * current file and must pass.
  */
 import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
@@ -148,47 +149,97 @@ const { classifyProviderFailure, tripBreaker, breakerOpen, resetBreaker, BREAKER
   }
 }
 
-// ── CLAUSE C — the breaker's latched state is observable and resettable ────
-// A dedicated fixture key, never "anthropic" — this guard must not be able
-// to touch real production breaker state even if it somehow ran with live
-// Supabase credentials in scope (it should not: check-guard-hermeticity).
+// -- CLAUSE C -- the breaker's latched state is observable and resettable ----
+// RUN IN A CHILD PROCESS WITH AN EXPLICIT, MINIMAL ENV (2026-09-09).
+//
+// This used to trip a breaker named by the FIXED string
+// "guard-fixture-provider" in THIS process. lib/serverCache's cget/cset fall
+// through to the shared wf_places_cache whenever Supabase credentials are in
+// scope -- which they are inside a Vercel build -- so the fixture was not a
+// fixture at all: it was one production row that every process running the
+// suite shared. Two builds at once, ordinary on a busy afternoon, raced it,
+// and whichever reached the precondition while the other held the breaker
+// open failed with "the fixture provider must start closed". Every preview
+// deployment in the repo went red for it, on changes that touched none of
+// this. Measured after the fact: six concurrent runs of the old code failed
+// four times; six of the new code passed six times.
+//
+// The header of this file already CLAIMED this could not happen ("this guard
+// must not be able to touch real production breaker state even if it somehow
+// ran with live Supabase credentials in scope"). It now enforces it, the way
+// scripts/check-dead-provider-parked.mjs already does: an explicit
+// `env: { NODE_ENV: "test" }` means no Supabase credentials reach the child,
+// serverCache stays on its in-memory tier, and nothing shared is touched.
+// That also avoids the leak a unique-key-only fix would have introduced --
+// a new row per build, and nothing prunes wf_places_cache.
+//
+// The child imports and calls the REAL helpers; only the environment is
+// controlled. check-guard-hermeticity requires exactly this shape: no
+// process.env read in the parent decides any verdict here.
 {
-  const PROVIDER = "guard-fixture-provider";
-  const closedBefore = await breakerOpen(PROVIDER);
-  ok(closedBefore === null, "CLAUSE C precondition: the fixture provider must start closed, or this round-trip proves nothing");
+  const probe = `
+import { breakerOpen, tripBreaker, resetBreaker } from "${path.join(REPO, "lib/providerHealth.js")}";
+const PROVIDER = "guard-fixture-provider";
+const out = {};
+out.closedBefore = await breakerOpen(PROVIDER);
+out.tripped = await tripBreaker(PROVIDER, "billing", "guard fixture: simulated credit exhaustion");
+out.openState = await breakerOpen(PROVIDER);
+out.resetResult = await resetBreaker(PROVIDER);
+out.closedAfter = await breakerOpen(PROVIDER);
+out.noopReset = await resetBreaker(PROVIDER);
+console.log(JSON.stringify(out));
+`;
+  let R = {};
+  try {
+    const stdout = execFileSync(process.execPath, ["--input-type=module", "-e", probe], {
+      env: { NODE_ENV: "test" }, encoding: "utf8", timeout: 30000,
+    });
+    R = JSON.parse(String(stdout).trim().split("\n").pop());
+  } catch (e) {
+    ok(false, `CLAUSE C: the breaker probe must run at all -- ${String((e && e.message) || e).slice(0, 200)}`);
+  }
 
-  const tripped = await tripBreaker(PROVIDER, "billing", "guard fixture: simulated credit exhaustion");
-  ok(tripped === true, "CLAUSE C: tripBreaker must report success — a breaker that cannot be tripped cannot be tested as latched");
+  ok(R.closedBefore === null, "CLAUSE C precondition: the fixture provider starts closed in a process with no Supabase env, or this round-trip proves nothing");
+  ok(R.tripped === true, "CLAUSE C: tripBreaker must report success -- a breaker that cannot be tripped cannot be tested as latched");
+  ok(!!R.openState && R.openState.kind === "billing", `CLAUSE C: a tripped breaker must be OBSERVABLE by call -- breakerOpen returned ${JSON.stringify(R.openState)}`);
+  ok(typeof (R.openState || {}).reason === "string" && R.openState.reason.includes("guard fixture"),
+    "CLAUSE C: the latched reason must be readable, not just the fact of latching -- an operator deciding whether to reset needs to know why it tripped");
+  ok((R.resetResult || {}).ok === true, `CLAUSE C: resetBreaker must report success -- got ${JSON.stringify(R.resetResult)}`);
+  ok((R.resetResult || {}).wasOpen === true, "CLAUSE C: resetBreaker must report what it found BEFORE clearing (wasOpen:true) -- a reset that cannot say whether it did anything is not auditable");
+  ok((R.resetResult || {}).before && R.resetResult.before.kind === "billing", "CLAUSE C: resetBreaker's `before` must carry the state that was cleared, for the audit trail");
+  ok(R.closedAfter === null, `CLAUSE C: a breaker must be RESETTABLE by call -- breakerOpen after resetBreaker() returned ${JSON.stringify(R.closedAfter)}, expected null (closed)`);
+  ok((R.noopReset || {}).ok === true && (R.noopReset || {}).wasOpen === false,
+    "CLAUSE C negative control: resetting an already-closed breaker must report wasOpen:false, not a false positive 'cleared'");
 
-  const openState = await breakerOpen(PROVIDER);
-  ok(!!openState && openState.kind === "billing", `CLAUSE C: a tripped breaker must be OBSERVABLE by call — breakerOpen returned ${JSON.stringify(openState)}`);
-  ok(typeof openState.reason === "string" && openState.reason.includes("guard fixture"),
-    "CLAUSE C: the latched reason must be readable, not just the fact of latching — an operator deciding whether to reset needs to know why it tripped");
+  // The probe must be ISOLATED, not merely conventional. Read the code that
+  // is actually handed to the child: an env object naming any Supabase
+  // credential would put the shared cache back in reach and quietly restore
+  // the 2026-09-09 race.
+  {
+    // Comments stripped first: the paragraph above quotes this very literal,
+    // and a check satisfied by its own prose is decoration (CLAUDE.md's
+    // prose-vs-code trap).
+    const selfCode = readFileSync(fileURLToPath(import.meta.url), "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, " ")
+      .replace(/^\s*\/\/.*$/gm, " ");
+    const envLiteral = /env:\s*\{\s*NODE_ENV:\s*"test"\s*\}/;
+    ok(envLiteral.test(selfCode),
+      "CLAUSE C: the probe child is spawned with an explicit minimal env in CODE -- inheriting this process's env is what made the fixture a shared production row");
+    ok(!/env:\s*process\.env/.test(selfCode),
+      "CLAUSE C: the probe child never inherits process.env -- that is the exact regression this clause exists to prevent");
+    ok(!envLiteral.test("// env: { NODE_ENV: \"test\" } named only in a comment".replace(/^\s*\/\/.*$/gm, " ")),
+      "CLAUSE C self-test: the literal named only in a comment does NOT satisfy the check");
+  }
 
-  const resetResult = await resetBreaker(PROVIDER);
-  ok(resetResult.ok === true, `CLAUSE C: resetBreaker must report success — got ${JSON.stringify(resetResult)}`);
-  ok(resetResult.wasOpen === true, "CLAUSE C: resetBreaker must report what it found BEFORE clearing (wasOpen:true) — a reset that cannot say whether it did anything is not auditable");
-  ok(resetResult.before && resetResult.before.kind === "billing", "CLAUSE C: resetBreaker's `before` must carry the state that was cleared, for the audit trail");
-
-  const closedAfter = await breakerOpen(PROVIDER);
-  ok(closedAfter === null, `CLAUSE C: a breaker must be RESETTABLE by call — breakerOpen after resetBreaker() returned ${JSON.stringify(closedAfter)}, expected null (closed)`);
-
-  // negative control: resetting an already-closed breaker must say so, not
-  // claim it cleared something that was never latched.
-  const noopReset = await resetBreaker(PROVIDER);
-  ok(noopReset.ok === true && noopReset.wasOpen === false, "CLAUSE C negative control: resetting an already-closed breaker must report wasOpen:false, not a false positive 'cleared'");
-
+  // Pure functions, safe in-process: no cache, no env, no shared state.
   ok(typeof BREAKER_COOLDOWN_MS === "number" && BREAKER_COOLDOWN_MS > 0 && BREAKER_COOLDOWN_MS <= 60 * 60 * 1000,
-    "CLAUSE C: the self-clearing cooldown must be a bounded positive duration (currently expected <=1h) — this is what a stuck breaker degrades to if the reset route above is ever removed without a replacement");
-
-  // classifyProviderFailure: positive AND negative, since this is what
-  // decides whether an ordinary transient error can ever reach the breaker.
+    "CLAUSE C: the self-clearing cooldown must be a bounded positive duration (currently expected <=1h) -- this is what a stuck breaker degrades to if the reset route above is ever removed without a replacement");
   ok(classifyProviderFailure(402, "") === "billing", "CLAUSE C: classifyProviderFailure must classify HTTP 402 as billing");
   ok(classifyProviderFailure(400, "Your credit balance is too low, please purchase credits") === "billing",
     "CLAUSE C: classifyProviderFailure must classify the exact 400 message the 579-call incident shipped as billing");
   ok(classifyProviderFailure(429, "You have exceeded your monthly usage limit") === "quota", "CLAUSE C: classifyProviderFailure must classify a hard quota 429 as quota");
-  ok(classifyProviderFailure(429, "rate limited, please slow down") === null, "CLAUSE C negative control: a PLAIN rate-limit 429 must NOT classify as quota — that would trip the breaker on a transient blip, not a deterministic refusal");
-  ok(classifyProviderFailure(500, "internal server error") === null, "CLAUSE C negative control: a generic 500 must NOT trip the breaker — retrying a transient failure is correct");
+  ok(classifyProviderFailure(429, "rate limited, please slow down") === null, "CLAUSE C negative control: a PLAIN rate-limit 429 must NOT classify as quota -- that would trip the breaker on a transient blip, not a deterministic refusal");
+  ok(classifyProviderFailure(500, "internal server error") === null, "CLAUSE C negative control: a generic 500 must NOT trip the breaker -- retrying a transient failure is correct");
 }
 
 // ── CLAUSE D — the serving path renders nothing rather than filler ─────────

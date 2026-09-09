@@ -120,6 +120,18 @@
     {
       "path": "/api/cron/revenue-heartbeat",
       "schedule": "5 */3 * * *"
+    },
+    {
+      "path": "/api/cron/photo-repair",
+      "schedule": "20 4 * * *"
+    },
+    {
+      "path": "/api/cron/place-photos?source=at-risk&limit=25",
+      "schedule": "35 * * * *"
+    },
+    {
+      "path": "/api/cron/place-photos?source=all&limit=25",
+      "schedule": "50 4 * * *"
     }
   ]
 }

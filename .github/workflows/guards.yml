@@ -15,6 +15,10 @@
 # rules, just nowhere left to skip them.
 name: guards
 on:
+  # Recovery path when the normal pull_request event cannot produce a runnable
+  # check (for example a bot-written head commit or a previously blocked run).
+  # This executes the exact same `guards` job below; it is not a bypass.
+  workflow_dispatch:
   pull_request:
   push:
     branches: [main]
