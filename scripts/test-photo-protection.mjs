@@ -617,16 +617,27 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
   ok(/queueUnavailable/.test(workerSrc), "case 11: scripts/photo-repair-worker.mjs's CLI must handle runRepair's fail-soft queueUnavailable result and still file a pulse");
 }
 
-// ── case 12 — queue mapping: unconfigured is counted, never queued ─────────
+// ── case 12 — queue mapping: unconfigured is counted, never queued; a cold ──
+// cache (real headroom) is counted, never queued either ────────────────────
 //
-// A probe never asks the ledger, so the monitor has no evidence the ledger is
-// exhausted and must never claim it is — probe-no-spend and spend-denied both
-// map to "source-unavailable", never "spend-restricted" (only
-// lib/photoRepair.js's worker, which actually reads wf_spend_ledger, may
-// conclude that). unconfigured is a config outage, not a place defect, and
-// must never be queued at all — filing 19,852 places because a key rotated
-// would bury genuinely broken places under a false alarm. gate-shut is a
-// global switch and is likewise never queued.
+// A probe never asks the ledger, so the monitor has no evidence on its own
+// whether the ledger is exhausted — probe-no-spend and spend-denied both map
+// to "source-unavailable" (only lib/photoRepair.js's worker, which actually
+// reads wf_spend_ledger, may conclude "spend-restricted"/budget_blocked).
+//
+// 2026-09-09, measured in production: opened_24h=549 against recovered_24h=5,
+// the queue growing 233 -> 544 in five hours toward an eventual ~15,000 —
+// because a probe-no-spend/spend-denied miss was queued unconditionally. But
+// a probe takes no ledger grant BY DESIGN: with real headroom, a REAL reader
+// hitting that same ref gets a real Google photo — the row records "the
+// cache is cold here", not "a reader cannot get a photo", and must not be
+// filed as a defect. unconfigured is a config outage, not a place defect,
+// and must never be queued at all. gate-shut is a global switch and is
+// likewise never queued. no-source/owned-miss are ALWAYS queued regardless
+// of headroom — those are defects, not coldness. An UNREADABLE ledger
+// (headroom: null, allowanceFromLedger's phase:"unknown") must queue
+// everything, same as headroom===0 — fail TOWARD recording the defect,
+// never toward silently dropping it (AGENTS.md §5's corollary).
 {
   const missSurface = (resultHeader) => ({ verdict: "miss", resultHeader });
   const probeResults = [
@@ -638,21 +649,64 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
     { placeId: "P5", photoRef: "places/P5/photos/D", surfaces: [missSurface("gate-shut")] },
     { placeId: "P6", photoRef: "places/P6/photos/E", surfaces: [missSurface("unconfigured")] },
   ];
-  const candidates = queueCandidates(probeResults);
-  const byId = Object.fromEntries(candidates.map((c) => [c.placeId, c]));
 
-  ok(byId.P1 && byId.P1.failureReason === "source-unavailable", `case 12: a probe-no-spend miss must queue as "source-unavailable", NEVER "spend-restricted" — got "${byId.P1 && byId.P1.failureReason}"`);
-  ok(byId.P1b && byId.P1b.failureReason === "source-unavailable", `case 12: a spend-denied miss must queue as "source-unavailable", NEVER "spend-restricted" — got "${byId.P1b && byId.P1b.failureReason}"`);
-  ok(byId.P2 && byId.P2.failureReason === "no-source", `case 12: a no-photo compass -> "no-source", got "${byId.P2 && byId.P2.failureReason}"`);
-  ok(byId.P3 && byId.P3.failureReason === "no-source", `case 12: EVERY no-photo compass -> "no-source" regardless of whether a ref existed, got "${byId.P3 && byId.P3.failureReason}"`);
-  ok(byId.P4 && byId.P4.failureReason === "owned-miss", `case 12: an owned-miss verdict -> "owned-miss", got "${byId.P4 && byId.P4.failureReason}"`);
-  ok(!byId.P5, "case 12: gate-shut must never be queued — it is a global switch, not a per-place defect");
-  ok(!byId.P6, "case 12: unconfigured must never be queued — it is a config outage, not a place defect");
-  ok(candidates.every((c) => c.failureReason !== "spend-restricted"),
-    "case 12: queueCandidates must NEVER emit \"spend-restricted\" itself — only lib/photoRepair.js's worker, which actually reads wf_spend_ledger, may conclude that");
+  // (a) headroom EXHAUSTED (measured 0): every finding still queues, exactly
+  // today's behaviour — the control this whole case used to be.
+  {
+    const { candidates, cold } = queueCandidates(probeResults, { headroom: 0 });
+    const byId = Object.fromEntries(candidates.map((c) => [c.placeId, c]));
+    ok(byId.P1 && byId.P1.failureReason === "source-unavailable", `case 12a: headroom=0 must still queue a probe-no-spend miss as "source-unavailable", got "${byId.P1 && byId.P1.failureReason}"`);
+    ok(byId.P1b && byId.P1b.failureReason === "source-unavailable", `case 12a: headroom=0 must still queue a spend-denied miss as "source-unavailable", got "${byId.P1b && byId.P1b.failureReason}"`);
+    ok(byId.P2 && byId.P2.failureReason === "no-source", `case 12a: a no-photo compass -> "no-source", got "${byId.P2 && byId.P2.failureReason}"`);
+    ok(byId.P3 && byId.P3.failureReason === "no-source", "case 12a: EVERY no-photo compass -> \"no-source\" regardless of whether a ref existed");
+    ok(byId.P4 && byId.P4.failureReason === "owned-miss", `case 12a: an owned-miss verdict -> "owned-miss", got "${byId.P4 && byId.P4.failureReason}"`);
+    ok(!byId.P5, "case 12a: gate-shut must never be queued — it is a global switch, not a per-place defect");
+    ok(!byId.P6, "case 12a: unconfigured must never be queued — it is a config outage, not a place defect");
+    ok(cold === 0, `case 12a: headroom=0 must count zero cold probes, got ${cold}`);
+    ok(candidates.every((c) => c.failureReason !== "spend-restricted"),
+      "case 12a: queueCandidates must NEVER emit \"spend-restricted\" itself — only lib/photoRepair.js's worker, which actually reads wf_spend_ledger, may conclude that");
+  }
+
+  // (b) headroom PRESENT (measured >0): the probe-no-spend/spend-denied pair
+  // is COLD, not a defect — must not queue, but must be counted. Every
+  // other verdict is unaffected by headroom.
+  {
+    const { candidates, cold } = queueCandidates(probeResults, { headroom: 1032 });
+    const byId = Object.fromEntries(candidates.map((c) => [c.placeId, c]));
+    ok(!byId.P1, "case 12b: a probe-no-spend miss with real headroom must NOT be queued — a real reader on this ref gets a real photo");
+    ok(!byId.P1b, "case 12b: a spend-denied miss with real headroom must NOT be queued");
+    ok(cold === 2, `case 12b: both cold misses must be counted, got ${cold}`);
+    ok(byId.P2 && byId.P2.failureReason === "no-source", "case 12b: no-source is queued regardless of headroom — it is a defect, not coldness");
+    ok(byId.P4 && byId.P4.failureReason === "owned-miss", "case 12b: owned-miss is queued regardless of headroom — it is a defect, not coldness");
+    ok(!byId.P5 && !byId.P6, "case 12b: gate-shut/unconfigured stay unqueued regardless of headroom");
+    ok(candidates.length === 3, `case 12b: only the 3 non-cold, non-config/gate findings queue (P2, P3, P4), got ${candidates.length}`);
+  }
+
+  // (c) headroom UNKNOWN (an unreadable ledger, allowanceFromLedger's
+  // phase:"unknown" -> headroom: null): must behave exactly like
+  // headroom=0 — fail toward recording the defect, never toward silently
+  // dropping it because the ledger could not be read.
+  {
+    const { candidates, cold } = queueCandidates(probeResults, { headroom: null });
+    const byId = Object.fromEntries(candidates.map((c) => [c.placeId, c]));
+    ok(byId.P1 && byId.P1.failureReason === "source-unavailable", "case 12c: an UNKNOWN ledger must still queue a probe-no-spend miss — never silently drop a defect because the ledger could not be read");
+    ok(byId.P1b && byId.P1b.failureReason === "source-unavailable", "case 12c: an UNKNOWN ledger must still queue a spend-denied miss");
+    ok(cold === 0, `case 12c: an unknown ledger must count zero cold probes (nothing was withheld), got ${cold}`);
+  }
+
+  // (d) no headroom option passed at all (the historic call shape): defaults
+  // to the same fail-toward-recording behaviour as unknown/0 — a caller that
+  // forgets to pass headroom must never silently start dropping defects.
+  {
+    const { candidates } = queueCandidates(probeResults);
+    const byId = Object.fromEntries(candidates.map((c) => [c.placeId, c]));
+    ok(byId.P1 && byId.P1.failureReason === "source-unavailable", "case 12d: queueCandidates called with no options must still queue a probe-no-spend miss (fail toward recording)");
+  }
 
   const monitorSrc = readFileSync(new URL("./photo-monitor.mjs", import.meta.url), "utf8");
   ok(/configOutages/.test(monitorSrc), "case 12: the monitor must count unconfigured occurrences separately (configOutages) even though they are never queued");
+  ok(/allowanceFromLedger/.test(monitorSrc), "case 12: the monitor must classify its ledger read through allowanceFromLedger — the same phase/headroom contract lib/photoRepair.js's runRepair() already uses");
+  ok(/headroom:\s*allowance\.headroom/.test(monitorSrc), "case 12: the monitor must thread the measured headroom into queueCandidates — dropping this check is exactly what re-files cold cache as a defect");
 }
 
 // ── case 13 — 2026-09-09: a 429 classifies as "rate-limited", never miss/error ─
@@ -1439,6 +1493,106 @@ function makeQueueFetchStub({ dueOpen = [], blocked = [], refs = {}, patches = [
     "case 24: the other occurrence must be wasBudgetBlocked()'s equality comparison against a row's EXISTING failure_reason — also a read, never an assignment");
   ok(!/failure_reason\s*:\s*["']spend-restricted["']/.test(repairStripped) && !/status\s*:\s*["']spend-restricted["']/.test(repairStripped),
     "case 24: this file must never WRITE spend-restricted as a failure_reason or status value in any patch body — decideRowOutcome/runRepair only ever produce \"source-unavailable\" now");
+}
+
+// ── case 25 — ONE shared budget across BOTH selects, never two (2026-09-09) ─
+//
+// Production measured: a `--limit=25` run reported attempted=50 (the
+// status=open select and the budget_blocked-eligible select each
+// independently fetched up to `limit` rows and the results were unioned),
+// and one pulse note showed attempted=423. A `?limit=500` cron against this
+// route's 60s ceiling could attempt 1,000 rows, time out mid-batch, and file
+// NO pulse — job-watch then reads a dead run as silence, not failure.
+// budget_blocked fills FIRST (oldest blocked_since — the longest-waiting
+// rows release first), dueOpen tops up whatever budget remains, and the
+// combined total must NEVER exceed `limit` regardless of how many rows
+// either underlying select actually returns.
+{
+  const LIMIT = 10;
+  // 4 budget_blocked rows on the wire — fewer than LIMIT, so there must be
+  // budget left over to top up from open.
+  const blockedRows = Array.from({ length: 4 }, (_, i) => ({
+    place_id: `ChIJBlocked${i}`, current_ref: `places/ChIJBlocked${i}/photos/LIVE`, attempts: 2,
+    status: "budget_blocked", blocked_since: `2026-09-0${i + 1}T00:00:00.000Z`, failure_reason: "source-unavailable",
+  }));
+  // 20 open rows on the wire — more than LIMIT alone, and far more than the
+  // budget actually remaining once 4 of it are spent on blocked rows.
+  const openRows = Array.from({ length: 20 }, (_, i) => ({
+    place_id: `ChIJOpen${i}`, current_ref: `places/ChIJOpen${i}/photos/LIVE`, attempts: 0,
+    status: "open", blocked_since: null, failure_reason: null,
+  }));
+  const refs = {};
+  for (const r of blockedRows) refs[r.place_id] = r.current_ref;
+  for (const r of openRows) refs[r.place_id] = r.current_ref;
+
+  const capturedUrls = [];
+  const savedFetch = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    const target = String(url);
+    capturedUrls.push(target);
+    if (/wf_photo_repair_queue\?status=eq\.open&next_attempt_at/.test(target)) {
+      return new Response(JSON.stringify(openRows), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    if (/wf_photo_repair_queue\?or=\(status\.eq\.budget_blocked/.test(target)) {
+      return new Response(JSON.stringify(blockedRows), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    const invMatch = /wf_inventory\?place_id=eq\.([^&]+)/.exec(target);
+    if (invMatch) {
+      const pid = decodeURIComponent(invMatch[1]);
+      return new Response(JSON.stringify(refs[pid] ? [{ photo_ref: refs[pid] }] : []), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    return new Response(null, { status: 204 }); // every PATCH in this case is a no-op ack
+  };
+  try {
+    const result = await runRepair({
+      limit: LIMIT,
+      sbEnv: { url: "https://ledger.test", key: "test-key" },
+      findSamePlace: async () => null,
+      findFree: async () => null,
+      readLedger: async () => ({ used: 968, cap: 2000 }), // real measured headroom
+    });
+    ok(result.attempted <= LIMIT, `case 25: total attempted must NEVER exceed limit=${LIMIT} across both selects, got ${result.attempted}`);
+    ok(result.attempted === LIMIT, `case 25: with 4 blocked + 20 open on the wire and a shared budget of ${LIMIT}, the drain must fill the whole budget, got ${result.attempted}`);
+    const blockedDetails = result.details.filter((d) => d.placeId.startsWith("ChIJBlocked"));
+    const openDetails = result.details.filter((d) => d.placeId.startsWith("ChIJOpen"));
+    ok(blockedDetails.length === 4, `case 25: all 4 budget_blocked rows must be included — they fill FIRST, got ${blockedDetails.length}`);
+    ok(openDetails.length === 6, `case 25: the remaining budget (10 - 4 = 6) must top up from the open select, got ${openDetails.length}`);
+
+    const openUrl = capturedUrls.find((u) => /status=eq\.open&next_attempt_at/.test(u));
+    const blockedUrl = capturedUrls.find((u) => /or=\(status\.eq\.budget_blocked/.test(u));
+    ok(!!openUrl && !!blockedUrl, "case 25: both selects must actually have been issued");
+    ok(!!openUrl && new RegExp(`limit=${LIMIT}\\b`).test(openUrl), `case 25: the open select must still ask the server for at most limit=${LIMIT} rows, got "${openUrl}"`);
+    ok(!!blockedUrl && new RegExp(`limit=${LIMIT}\\b`).test(blockedUrl), `case 25: the budget_blocked select must still ask the server for at most limit=${LIMIT} rows, got "${blockedUrl}"`);
+  } finally {
+    globalThis.fetch = savedFetch;
+  }
+
+  // A run with NO blocked candidates is unaffected — dueOpen alone, already
+  // bounded to `limit` by its own query, is the answer (case 20/22/23 exercise
+  // this path directly; this is a narrow sanity check that case 25's own
+  // fixture agrees).
+  {
+    const patches = [];
+    const savedFetch2 = globalThis.fetch;
+    globalThis.fetch = makeQueueFetchStub({
+      dueOpen: openRows.slice(0, LIMIT),
+      blocked: [],
+      refs,
+      patches,
+    });
+    try {
+      const result = await runRepair({
+        limit: LIMIT,
+        sbEnv: { url: "https://ledger.test", key: "test-key" },
+        findSamePlace: async () => null,
+        findFree: async () => null,
+        readLedger: async () => { throw new Error("must never be consulted — no blocked candidates means nothing to gate"); },
+      });
+      ok(result.attempted === LIMIT, `case 25 (control): with no blocked candidates, the drain must still process exactly limit=${LIMIT} open rows, got ${result.attempted}`);
+    } finally {
+      globalThis.fetch = savedFetch2;
+    }
+  }
 }
 
 if (fail.length) {
