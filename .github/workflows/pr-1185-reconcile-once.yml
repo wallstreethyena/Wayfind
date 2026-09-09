@@ -76,23 +76,27 @@ jobs:
                 exit 1
               fi
               git checkout --ours app/home.js
+              git add app/home.js
             fi
 
             if grep -qx "scripts/guards.txt" <<< "$CONFLICTS"; then
               # Main owns the accumulated guard list; #1185 contributes one new
               # guard and nothing else to this file.
               git checkout --theirs scripts/guards.txt
+              git add scripts/guards.txt
             fi
 
             if grep -qx "scripts/lib/guard-registry.json" <<< "$CONFLICTS"; then
               # Generated file: start from main, then regenerate from the merged
               # checkout below. Never hand-merge registry counts.
               git checkout --theirs scripts/lib/guard-registry.json
+              git add scripts/lib/guard-registry.json
             fi
 
             if grep -qx ".github/workflows/guards.yml" <<< "$CONFLICTS"; then
               # #1204 is the canonical recovery trigger now on main.
               git checkout --theirs .github/workflows/guards.yml
+              git add .github/workflows/guards.yml
             fi
           fi
 
