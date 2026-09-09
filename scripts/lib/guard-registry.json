@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 589,
-    "totalRegistryEntries": 590,
-    "guardsTxtLineCount": 587,
-    "guardsTxtReachedFileCount": 582,
-    "criticalCount": 70,
+    "totalOnDiskGuardFiles": 590,
+    "totalRegistryEntries": 591,
+    "guardsTxtLineCount": 588,
+    "guardsTxtReachedFileCount": 583,
+    "criticalCount": 71,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 398,
+      "CALL": 399,
       "RENDER": 47,
       "STRUCTURAL": 144,
       "OTHER": 1
@@ -5395,7 +5395,7 @@
       "npmScript": null,
       "class": "STRUCTURAL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 7,
+      "assertionCount": 6,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
@@ -10692,7 +10692,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 49,
+      "assertionCount": 50,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
@@ -12063,6 +12063,33 @@
       "owner": null
     },
     {
+      "file": "scripts/test-photos-paid-cap.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 86,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-import:../lib/spendGate.js"
+      ],
+      "protects": "The photo-only paid switch (WAYFIND_PHOTOS_PAID + GOOGLE_PHOTOS_MONTH_CAP) raises the photos ledger ceiling alone, fails closed on shut or garbage config, and every Place Photo media or Details request inside the resolver's self-heal fan-out takes its own atomic ledger grant.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "A regression could let the photo allowance widen other Google SKUs, or let one 2,000-event budget become several thousand billable media requests because the ledger metered decisions instead of requests."
+      },
+      "owner": "Revenue QA"
+    },
+    {
       "file": "scripts/test-place-card-hook.mjs",
       "npmScript": null,
       "class": "RENDER",
@@ -13228,7 +13255,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 57,
+      "assertionCount": 59,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

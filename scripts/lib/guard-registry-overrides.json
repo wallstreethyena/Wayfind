@@ -520,6 +520,14 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/test-photos-paid-cap.mjs": {
+    "protects": "The photo-only paid switch (WAYFIND_PHOTOS_PAID + GOOGLE_PHOTOS_MONTH_CAP) raises the photos ledger ceiling alone, fails closed on shut or garbage config, and every Place Photo media or Details request inside the resolver's self-heal fan-out takes its own atomic ledger grant.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A regression could let the photo allowance widen other Google SKUs, or let one 2,000-event budget become several thousand billable media requests because the ledger metered decisions instead of requests."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/test-spend-bypass-regression.mjs": {
     "protects": "Every client-reachable Google spend path fails closed on missing or denied configuration, and no cache or inventory fallback can bypass the atomic ledger.",
     "blastRadius": {

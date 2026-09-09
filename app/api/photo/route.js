@@ -1,4 +1,4 @@
-import { gateShut, spendAllow } from "../../../lib/spendGate";
+import { gateShut, spendAllow, spendAllowPhotos } from "../../../lib/spendGate";
 // v6.18 — server-side Google Places photo proxy.
 //
 // Why this exists: the browser was loading place photos directly from
@@ -38,10 +38,11 @@ export async function GET(req) {
   // branded is allowed ONLY when that placeId has no photo. Another place's
   // photo is not. A shared stock pool is not.
   //
-  // Order: exact cache → inventory → fresh SAME-PLACE older cache → ledger →
-  // Google. Every recovery read is free, read-only, identity-scoped, and keeps
-  // the source row's remaining expiry instead of minting a fresh 30-day clock
-  // (lib/photoCacheRecovery.js, #1184).
+  // Order: exact cache → inventory → fresh SAME-PLACE older cache → ledger
+  // (spendAllowPhotos for `photos`, spendAllow(sku) for everything else) →
+  // Google. Every recovery read is free, read-only, identity-scoped, and
+  // keeps the source row's remaining expiry instead of minting a fresh
+  // 30-day clock (lib/photoCacheRecovery.js, #1184).
   //
   // x-wayfind-photo-result values: cache | inventory | inventory-ref-cache |
   // google | same-place-cache (redirect, 302) | spend-denied | gate-shut |
@@ -97,7 +98,18 @@ export async function GET(req) {
     // existing cache one identity-scoped chance to reuse an older ref for this
     // same venue. The promise is memoized so the post-result path never scans
     // twice. Returning false here prevents the Google grant when recovery hits.
-    authorizeSpend: () => getRecovery().then((hit) => hit ? false : (!shut && spendAllow("photos"))),
+    //
+    // Per-SKU, per-request (2026-09-09): the resolver asks once per OUTBOUND
+    // Google call, not once per decision. `photos` goes through
+    // spendAllowPhotos — the free tier (950) unless the owner's photo-only
+    // paid switch and GOOGLE_PHOTOS_MONTH_CAP are set; it never enables any
+    // other SKU. The expired-ref self-heal's Place Details lookup takes a
+    // metered `details_ids_only` grant through the ordinary ledger path, so no
+    // path to Google runs without a counter in front of it.
+    authorizeSpend: (sku = "photos") => getRecovery().then((hit) => {
+      if (hit || shut) return false;
+      return sku === "photos" ? spendAllowPhotos() : spendAllow(sku);
+    }),
     serverKey: process.env.GOOGLE_MAPS_SERVER_KEY || "",
   });
 

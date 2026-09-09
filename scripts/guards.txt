@@ -1271,6 +1271,12 @@ node scripts/test-auth-admin-tombstones.mjs
 # boundaries with fetch traps and positive controls.
 node scripts/test-spend-bypass-regression.mjs
 
+# 2026-09-09 photo-only paid allowance: WAYFIND_PHOTOS_PAID + GOOGLE_PHOTOS_MONTH_CAP
+# may raise the `photos` ledger ceiling ONLY; every other Google SKU asks the
+# ledger for the same numbers with the switch on. One grant == one outbound
+# Google request across the whole media/Details/self-heal fan-out.
+node scripts/test-photos-paid-cap.mjs
+
 # 2026-09-07 security audit: public event aggregation fanned out to provider
 # APIs before cache and without finite per-request budgets.
 node scripts/test-events-spend.mjs

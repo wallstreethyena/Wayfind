@@ -112,8 +112,12 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
   ok(rDenied.reason === "spend-denied", `case 1 (control): a real denied request must report "spend-denied", got "${rDenied.reason}"`);
 
   const route = readFileSync(new URL("../app/api/photo/route.js", import.meta.url), "utf8");
-  ok(/authorizeSpend:\s*\(\)\s*=>\s*getRecovery\(\)\.then/.test(route),
-    "case 1: app/api/photo/route.js must keep #1184's authorizeSpend: () => getRecovery().then(...) shape — check-photos.mjs and test-spend-bypass-regression.mjs also assert this");
+  // #1186 (2026-09-09) widened #1184's zero-arg closure to a per-SKU one —
+  // `photos` still goes through spendAllowPhotos() via the default param, and
+  // getRecovery().then(...) still gates every grant on the same free same-place
+  // read. check-photos.mjs and check-spend-guard.mjs assert this same shape.
+  ok(/authorizeSpend:\s*\(sku\s*=\s*"photos"\)\s*=>\s*getRecovery\(\)\.then/.test(route),
+    "case 1: app/api/photo/route.js must keep the getRecovery().then(...)-gated authorizeSpend(sku) shape — check-photos.mjs and check-spend-guard.mjs also assert this");
   ok(/probe-no-spend/.test(route) && /"spend-denied",\s*"gate-shut",\s*"unconfigured",\s*"probe-no-spend"/.test(route.replace(/\s+/g, " ")),
     "case 1: the route's recovery-eligible reasons list must include \"probe-no-spend\" alongside #1184's spend-denied/gate-shut/unconfigured, so a probe still sees a free same-place recovery");
   const probeHeaderRead = /req\.headers\.get\("x-wayfind-photo-probe"\)\s*===\s*"1"/.test(route);
