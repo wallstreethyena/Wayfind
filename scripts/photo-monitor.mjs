@@ -411,18 +411,26 @@ export async function upsertQueueRows(s, candidates) {
   const existing = await fetchExistingQueueRows(s, candidates.map((c) => c.placeId));
   const body = mergeQueueUpsert(existing, candidates, nowIso);
   if (!body.length) return 0;
-  const r = await fetch(`${s.url}/rest/v1/wf_photo_repair_queue`, {
-    method: "POST",
-    cache: "no-store",
-    headers: {
-      apikey: s.key,
-      Authorization: "Bearer " + s.key,
-      "content-type": "application/json",
-      Prefer: "resolution=merge-duplicates,return=minimal",
-    },
-    body: JSON.stringify(body),
-  });
-  if (!r.ok) throw queueError(r.status, `wf_photo_repair_queue upsert failed: HTTP ${r.status}`);
+  // PostgREST bulk JSON requires identical keys in every object. New and
+  // recovered rows include status=open; existing rows deliberately omit it
+  // so retired/unresolved decisions survive. Sending both shapes together
+  // rejects the whole batch (PGRST102), leaving the repair queue unfed.
+  const batches = [body.filter(r => Object.hasOwn(r, "status")), body.filter(r => !Object.hasOwn(r, "status"))];
+  for (const batch of batches) {
+    if (!batch.length) continue;
+    const r = await fetch(`${s.url}/rest/v1/wf_photo_repair_queue`, {
+      method: "POST",
+      cache: "no-store",
+      headers: {
+        apikey: s.key,
+        Authorization: "Bearer " + s.key,
+        "content-type": "application/json",
+        Prefer: "resolution=merge-duplicates,return=minimal",
+      },
+      body: JSON.stringify(batch),
+    });
+    if (!r.ok) throw queueError(r.status, `wf_photo_repair_queue upsert failed: HTTP ${r.status}`);
+  }
   return body.length;
 }
 

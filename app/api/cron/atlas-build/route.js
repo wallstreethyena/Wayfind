@@ -107,6 +107,7 @@ import { classifyProviderFailure, breakerOpen, tripBreaker } from "../../../../l
 //                   which hardcoded verified:false and left 169 clean rows
 //                   invisible to users.
 import { pageText, verifyAtlasEditorial, corpusOf } from "../../../../lib/atlasVerify";
+import { persistEditorialRetry } from "../../../../lib/editorialRetry";
 import { editorialRow } from "../../../../lib/atlasEditorial";
 import { extractModelJson } from "../../../../lib/atlasExtract";
 import { hostOfUrl, isDeniedHost } from "../../../../lib/nightlifeRail";
@@ -546,7 +547,7 @@ export async function GET(req) {
   });
 
   // Upsert — ON CONFLICT (place_id) DO NOTHING keeps the 373 existing rows safe.
-  let written = 0, upErr = null;
+  let written = 0, upErr = null, persistedPublished = 0;
   if (rows.length) {
     if (retryMode) {
       // These rows ALREADY EXIST, so the insert path (resolution=ignore-duplicates)
@@ -557,12 +558,11 @@ export async function GET(req) {
       let okCount = 0;
       for (const row of rows) {
         try {
-          const rr = await fetch(`${s.url}/rest/v1/rpc/wf_editorial_record_attempt`, {
-            method: "POST", headers: { ...svcH, "content-type": "application/json" },
-            body: JSON.stringify({ p_place_id: row.place_id, p_issues: row.issues && row.issues.length ? row.issues : null }),
-            cache: "no-store",
+          const result = await persistEditorialRetry({
+            endpoint: `${s.url}/rest/v1/rpc/wf_editorial_record_attempt_content`, headers: svcH, row,
           });
-          if (rr.ok) okCount++; else upErr = `retry update http ${rr.status}`;
+          if (result.ok) { okCount += result.updated; persistedPublished += result.published; }
+          else upErr = result.error;
         } catch (e) { upErr = `retry update threw ${String(e && e.message).slice(0, 100)}`; }
       }
       written = okCount;
@@ -570,13 +570,13 @@ export async function GET(req) {
       // Refresh rows are all verified (failure paths above do not enqueue a
       // row). Merge replaces a 21-day-old card only after its replacement has
       // cleared the same sourcing and verification gates as the original.
-      const h = { ...svcH, Prefer: "resolution=merge-duplicates,return=minimal" };
+      const h = { ...svcH, Prefer: "resolution=merge-duplicates,return=representation" };
       const r = await fetch(`${s.url}/rest/v1/wf_editorial?on_conflict=place_id`, { method: "POST", headers: h, body: JSON.stringify(rows), cache: "no-store" });
-      if (r.ok) written = rows.length; else upErr = `refresh upsert http ${r.status}: ${(await r.text()).slice(0, 160)}`;
+      if (r.ok) { const saved = await r.json(); written = saved.length; persistedPublished = saved.filter(r => r.verified).length; } else upErr = `refresh upsert http ${r.status}: ${(await r.text()).slice(0, 160)}`;
     } else {
-      const h = { ...svcH, Prefer: "resolution=ignore-duplicates,return=minimal" };
+      const h = { ...svcH, Prefer: "resolution=ignore-duplicates,return=representation" };
       const r = await fetch(`${s.url}/rest/v1/wf_editorial?on_conflict=place_id`, { method: "POST", headers: h, body: JSON.stringify(rows), cache: "no-store" });
-      if (r.ok) written = rows.length; else upErr = `upsert http ${r.status}: ${(await r.text()).slice(0, 160)}`;
+      if (r.ok) { const saved = await r.json(); written = saved.length; persistedPublished = saved.filter(r => r.verified).length; } else upErr = `upsert http ${r.status}: ${(await r.text()).slice(0, 160)}`;
     }
   }
 
@@ -622,7 +622,7 @@ export async function GET(req) {
   // published, and every layer that was watching counted the writes. Recorded on
   // every path including failures; a job that only pulses when it succeeds is
   // exactly as blind as one that never pulses.
-  const publishedCount = rows.filter((r) => r.verified).length;
+  const publishedCount = persistedPublished;
   // HONESTY FIX (2026-09-04, WO-C). `places.length > 0` is guaranteed here —
   // the `!category || !places.length` branch above already returned for a
   // genuinely empty queue, with its own note. So reaching this point with
@@ -675,7 +675,7 @@ export async function GET(req) {
     // bar and a user will see it". They used to be the same number by
     // assumption; a gap between them is the run telling you the model is
     // producing thin cards, which is worth knowing before 2,900 of them exist.
-    published: rows.filter((r) => r.verified).length,
+    published: persistedPublished,
     // From #383, kept: these count VERIFICATION outcomes, which is a different
     // question from either timing or publishability. `unverified` is how many
     // the honesty gate rejected for inventing facts; `with_page` is how many had
