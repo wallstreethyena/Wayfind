@@ -1,0 +1,57 @@
+name: lazy-supabase-current-codemod
+on:
+  push:
+    branches: [perf/lazy-home-supabase-current-2026-09-08]
+permissions:
+  contents: write
+jobs:
+  apply:
+    if: ${{ !contains(github.event.head_commit.message, '[lazy-supabase-current-applied]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: perf/lazy-home-supabase-current-2026-09-08
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Confirm saved-items source did not drift since reviewed base
+        run: |
+          git diff --quiet 8fd0f339763fb39a95e88e530f3e9f72ea346386 HEAD -- lib/savedItems.js || {
+            echo "lib/savedItems.js changed since the reviewed 8fd0f339 base; refusing stale replacement" >&2
+            exit 1
+          }
+      - name: Restore reviewed small extraction files
+        run: |
+          git fetch origin perf/lazy-home-supabase-2026-09-08 --depth=1
+          git show FETCH_HEAD:lib/lazySupabase.js > lib/lazySupabase.js
+          git show FETCH_HEAD:lib/savedItems.js > lib/savedItems.js
+          git show FETCH_HEAD:scripts/check-home-eager-supabase.mjs > scripts/check-home-eager-supabase.mjs
+      - name: Apply reviewed current-main codemod
+        run: node scripts/apply-current-lazy-supabase.mjs
+      - name: Prove focused contracts
+        run: |
+          node scripts/check-home-eager-supabase.mjs
+          node scripts/check-trend-integrity.mjs
+          node scripts/test-city-gate.mjs
+      - name: Remove one-shot machinery before deriving registry
+        run: |
+          rm -f scripts/apply-current-lazy-supabase.mjs
+          rm -f .github/workflows/lazy-supabase-current-codemod.yml
+      - name: Regenerate and verify guard registry
+        run: |
+          node scripts/lib/build-guard-registry.mjs
+          node scripts/check-guard-registry.mjs
+      - name: Source sanity
+        run: git diff --check
+      - name: Commit transformed current-main tree
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "perf: lazy-load homepage Supabase on current main [lazy-supabase-current-applied]"
+          git push origin HEAD:perf/lazy-home-supabase-current-2026-09-08
