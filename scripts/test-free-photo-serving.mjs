@@ -299,6 +299,47 @@ function req({ probe = false, ref = REF } = {}) {
   return new Request("https://www.gowayfind.com/api/photo?ref=" + encodeURIComponent(ref) + "&w=640", { headers });
 }
 
+// A double for a genuinely FREE redirect that never touched authorizeSpend at
+// all — the "cache"/"inventory" shape (lib/placePhotoServe.js redirects with
+// these reasons before ever asking the ledger). Section B8 needs this as a
+// distinct control from standardResolve()'s "google": both are
+// `type:"redirect"`, and the spend-attribution log must fire on exactly one
+// of them.
+function cacheHitResolve() {
+  return async () => ({
+    type: "redirect",
+    location: "https://lh3.googleusercontent.com/p/cached-photo",
+    cacheControl: "public, max-age=2592000, s-maxage=2592000, immutable",
+    reason: "cache",
+  });
+}
+
+// Same request builder as req(), with explicit user-agent / x-forwarded-for
+// values so Section B8 can assert the logged line actually carries THESE
+// exact values (not merely "logs something").
+const TEST_UA = "TestCrawler/1.0 (+https://example.test/bot)";
+const TEST_XFF = "203.0.113.77";
+function reqWithHeaders({ probe = false, ref = REF } = {}) {
+  const headers = { "user-agent": TEST_UA, "x-forwarded-for": TEST_XFF };
+  if (probe) headers["x-wayfind-photo-probe"] = "1";
+  return new Request("https://www.gowayfind.com/api/photo?ref=" + encodeURIComponent(ref) + "&w=640", { headers });
+}
+
+// Captures every console.log call made during `fn()`, then restores the real
+// console.log unconditionally (a thrown fn must not leave console.log
+// swapped for the rest of the suite).
+async function withCapturedLogs(fn) {
+  const calls = [];
+  const original = console.log;
+  console.log = (...args) => { calls.push(args); };
+  try {
+    const result = await fn();
+    return { result, calls };
+  } finally {
+    console.log = original;
+  }
+}
+
 async function run() {
   const routeSource = loadRouteSource();
   const route = await sourceRoute(routeSource);
@@ -494,6 +535,82 @@ async function run() {
     eq(ledgerCalls.length, 0, "B7 (owned-miss): still no photos grant taken");
   }
 
+  // ── B8 — SPEND ATTRIBUTION LOG: fires exactly once on a real Google grant,
+  //      never otherwise. 2026-09-09: Vercel's runtime logs carried no UA, no
+  //      IP, and not this route's own x-wayfind-photo-result header, so a
+  //      93-grant burst at 18:30 UTC (111 grants total, ~$0.78) had to be
+  //      reconstructed from request TIMING instead of looked up directly.
+  //      Proven by CAPTURING console output, not by reading the source — a
+  //      structural regex cannot tell "logs only on google" from "logs on
+  //      every redirect": both contain the string logGoogleGrant. ──
+  {
+    // (a) POSITIVE CONTROL — a real Google grant is the ONLY path that may log.
+    ledgerCalls = []; ledgerAnswer = true;
+    globalThis.__wfFreePhotoTest.resolvePlacePhoto = standardResolve();
+    globalThis.__wfFreePhotoTest.findSamePlaceCachedPhoto = NO_RECOVERY;
+    globalThis.__wfFreePhotoTest.findFreePhoto = NO_FREE;
+    const { result: googleRes, calls: googleLogs } = await withCapturedLogs(() => route.GET(reqWithHeaders()));
+    eq(googleRes.headers.get("x-wayfind-photo-result"), "google", "B8a: control is a real Google grant");
+    eq(googleLogs.length, 1, `B8a: a real Google grant must log EXACTLY ONCE, got ${googleLogs.length}`);
+    const loggedText = JSON.stringify(googleLogs[0]);
+    ok(loggedText.includes(TEST_UA), "B8a: the logged line carries the request's user-agent");
+    ok(loggedText.includes(TEST_XFF), "B8a: the logged line carries the request's x-forwarded-for value");
+    ok(loggedText.includes("google"), "B8a: the logged line carries the result reason");
+    ok(!loggedText.includes(REF), "B8a: the logged line must NEVER contain the photo ref");
+    ok(!loggedText.includes("ref=") && !/[?&]w=/.test(loggedText), "B8a: the logged line must NEVER contain the request's query string");
+    ok(!loggedText.includes("test-google-server-key"), "B8a: the logged line must NEVER contain GOOGLE_MAPS_SERVER_KEY's value");
+    ok(!loggedText.includes("test-service-role-key"), "B8a: the logged line must NEVER contain SUPABASE_SERVICE_ROLE_KEY's value");
+    ok(!loggedText.includes(SUPABASE_URL_FIXTURE), "B8a: the logged line must NEVER contain the Supabase URL");
+
+    // (b) a genuinely free cache hit — took no grant. Must log ZERO times.
+    ledgerCalls = [];
+    globalThis.__wfFreePhotoTest.resolvePlacePhoto = cacheHitResolve();
+    const { result: cacheRes, calls: cacheLogs } = await withCapturedLogs(() => route.GET(reqWithHeaders()));
+    eq(cacheRes.headers.get("x-wayfind-photo-result"), "cache", "B8b: control is a free cache hit");
+    eq(cacheLogs.length, 0, `B8b: a cache-hit redirect must log ZERO times, got ${cacheLogs.length}`);
+
+    // (c) owned-free (the free PERMANENT lane) — must log ZERO times.
+    ledgerCalls = []; ledgerAnswer = true;
+    globalThis.__wfFreePhotoTest.resolvePlacePhoto = standardResolve();
+    globalThis.__wfFreePhotoTest.findSamePlaceCachedPhoto = NO_RECOVERY;
+    globalThis.__wfFreePhotoTest.findFreePhoto = HAS_FREE;
+    const { result: freeRes, calls: freeLogs } = await withCapturedLogs(() => route.GET(reqWithHeaders()));
+    eq(freeRes.headers.get("x-wayfind-photo-result"), "owned-free", "B8c: control is the free-permanent lane");
+    eq(freeLogs.length, 0, `B8c: an owned-free redirect must log ZERO times, got ${freeLogs.length}`);
+
+    // (d) same-place-cache recovery — must log ZERO times.
+    globalThis.__wfFreePhotoTest.findSamePlaceCachedPhoto = HAS_RECOVERY;
+    const { result: recRes, calls: recLogs } = await withCapturedLogs(() => route.GET(reqWithHeaders()));
+    eq(recRes.headers.get("x-wayfind-photo-result"), "same-place-cache", "B8d: control is a same-place recovery");
+    eq(recLogs.length, 0, `B8d: a same-place-cache redirect must log ZERO times, got ${recLogs.length}`);
+
+    // (e) a probe — even one that WOULD reach a real Google grant if it were
+    //     not probing — must log ZERO times.
+    ledgerCalls = []; ledgerAnswer = true;
+    globalThis.__wfFreePhotoTest.resolvePlacePhoto = standardResolve();
+    globalThis.__wfFreePhotoTest.findSamePlaceCachedPhoto = NO_RECOVERY;
+    globalThis.__wfFreePhotoTest.findFreePhoto = NO_FREE;
+    const { result: probeRes, calls: probeLogs } = await withCapturedLogs(() => route.GET(reqWithHeaders({ probe: true })));
+    eq(probeRes.headers.get("x-wayfind-photo-probe"), "1", "B8e: control really is a probe request");
+    eq(probeLogs.length, 0, `B8e: a probe must log ZERO times even on a path that would otherwise log, got ${probeLogs.length}`);
+
+    // MUTATION RED, applied to a TEMP COPY of the route source TEXT (the real
+    // file on disk is never touched) — drop the reason/probe gate so
+    // logGoogleGrant fires on EVERY redirect. Proves B8b/c/d are real checks,
+    // not vacuous ones: with the gate removed, the same cache-hit scenario
+    // that logged 0 times above now logs 1.
+    const GATE_LINE = 'if (result.reason === "google" && !probe) logGoogleGrant(req, result.reason);';
+    ok(routeSource.includes(GATE_LINE), "B8 MUTATION PRECONDITION: the exact reason/probe gate line exists in the real source — the mutation below has something to remove");
+    const mutatedSource = routeSource.replace(GATE_LINE, "logGoogleGrant(req, result.reason);");
+    ok(mutatedSource !== routeSource, "B8 MUTATION: the sabotage actually landed (mutated source differs from the real source)");
+    const mutatedRoute = await sourceRoute(mutatedSource);
+    globalThis.__wfFreePhotoTest.resolvePlacePhoto = cacheHitResolve();
+    globalThis.__wfFreePhotoTest.findSamePlaceCachedPhoto = NO_RECOVERY;
+    globalThis.__wfFreePhotoTest.findFreePhoto = NO_FREE;
+    const { calls: mutatedCacheLogs } = await withCapturedLogs(() => mutatedRoute.GET(reqWithHeaders()));
+    eq(mutatedCacheLogs.length, 1, `B8 MUTATION RED: with the reason/probe gate removed, a cache-hit redirect that logged 0 times under the real code now logs 1 — proves B8b was not vacuous. Got ${mutatedCacheLogs.length}`);
+  }
+
   restoreEnv();
   globalThis.fetch = savedFetch;
   delete globalThis.__wfFreePhotoTest;
@@ -505,4 +622,4 @@ if (failures) {
   console.error(`test-free-photo-serving: FAIL — ${failures} assertion(s) failed`);
   process.exit(1);
 }
-console.log("test-free-photo-serving: OK — a free photo prevents the photos ledger grant entirely (by call count); same-place recovery still wins; a probe takes no grant; owned-free carries attribution; a broken free lookup fails closed to pre-#1188 behaviour; details_ids_only is untouched");
+console.log("test-free-photo-serving: OK — a free photo prevents the photos ledger grant entirely (by call count); same-place recovery still wins; a probe takes no grant; owned-free carries attribution; a broken free lookup fails closed to pre-#1188 behaviour; details_ids_only is untouched; the spend-attribution log fires exactly once on a real Google grant and never on cache/owned-free/recovery/probe, red-proved by console capture");
