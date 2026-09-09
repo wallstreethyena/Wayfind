@@ -154,7 +154,7 @@ export function Frame({ title, def, source, columns, rows, children, right }) {
       style={{
         background: mode === m ? C.adim : "none", color: mode === m ? C.light : C.muted,
         border: `1px solid ${mode === m ? C.light : C.border}`, borderRadius: 8, fontSize: 10.5, fontWeight: 800,
-        padding: "3px 8px", cursor: "pointer", transition: `all ${MOTION.fast} ${MOTION.ease}`,
+        padding: "8px 12px", minHeight: 44, cursor: "pointer", transition: `all ${MOTION.fast} ${MOTION.ease}`,
       }}>{label}</button>
   );
   return (
@@ -205,7 +205,7 @@ export function StatTile({ label, value, sub, deltas, def, source, spark, goodWh
         <span style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: "0.2px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</span>
         <DefTip text={def} />
       </div>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 8, margin: "4px 0 2px", minWidth: 0 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: 8, margin: "4px 0 2px", minWidth: 0 }}>
         <span style={{ fontSize: hero ? 34 : 24, fontWeight: 800, color: C.text, letterSpacing: "-0.5px", lineHeight: 1.05, flexShrink: 0 }}>{value}</span>
         {sub ? <span title={typeof sub === "string" ? sub : undefined} style={{ fontSize: 11.5, color: C.muted, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>{sub}</span> : null}
       </div>
@@ -441,9 +441,9 @@ export function HBarList({ items, color = CAT[0], valueFmt = fmtNum, maxRows = 1
     <div role="list">
       {rows.map((r, i) => (
         <div role="listitem" key={i} title={`${r.label}: ${valueFmt(r.value)}`}
-          style={{ display: "grid", gridTemplateColumns: "minmax(90px, 1.4fr) 2fr auto", gap: 8, alignItems: "center", padding: "4px 0", minHeight: 24 }}>
-          <span style={{ fontSize: 12, color: C.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.label}</span>
-          <span aria-hidden="true" style={{ height: 10, background: GRID, borderRadius: 5, overflow: "hidden", position: "relative" }}>
+          style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", gap: "7px 12px", alignItems: "center", padding: "10px 0", minHeight: 44 }}>
+          <span style={{ fontSize: 13, lineHeight: 1.45, color: C.text, overflowWrap: "anywhere" }}>{r.label}</span>
+          <span aria-hidden="true" style={{ gridColumn: "1 / -1", gridRow: 2, height: 6, background: GRID, borderRadius: 5, overflow: "hidden", position: "relative" }}>
             <span style={{ position: "absolute", inset: 0, width: `${Math.max(2, ((Number(r.value) || 0) / max) * 100)}%`, background: color, borderRadius: "0 5px 5px 0", transition: `width ${MOTION.slow} ${MOTION.ease}` }} />
           </span>
           <span style={{ fontSize: 12, fontWeight: 800, color: C.light, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>

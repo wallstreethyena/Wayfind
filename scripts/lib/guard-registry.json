@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 587,
-    "totalRegistryEntries": 588,
-    "guardsTxtLineCount": 585,
-    "guardsTxtReachedFileCount": 580,
+    "totalOnDiskGuardFiles": 589,
+    "totalRegistryEntries": 590,
+    "guardsTxtLineCount": 587,
+    "guardsTxtReachedFileCount": 582,
     "criticalCount": 70,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 396,
+      "CALL": 398,
       "RENDER": 47,
       "STRUCTURAL": 144,
       "OTHER": 1
@@ -8999,6 +8999,50 @@
       "honestyViolations": [
         "1 absence assertion(s) with no positive control in the same file (e.g. \"!/Hours vary/.test(src), '\")"
       ],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-command-center-briefing.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 29,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-command-center-requests.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 13,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,

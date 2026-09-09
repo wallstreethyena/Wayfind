@@ -32,6 +32,7 @@ import { sentryIssues } from "../../../../lib/commandCenter/sources/sentry.js";
 import { selfCheck, integrationsStatus, labCWV } from "../../../../lib/commandCenter/sources/synthetic.js";
 import { dailyTrendIntelligence } from "../../../../lib/dailyTrendReport.js";
 import dailyTrendReport from "../../../../data/trend-reports/latest.json";
+import { gatherOwnerBriefing } from "../../../../lib/commandCenter/briefing.js";
 
 function parseRange(searchParams, now) {
   const key = String(searchParams.get("range") || "today");
@@ -288,6 +289,10 @@ function intelligence(now) {
   };
 }
 
+async function briefing(now) {
+  return gatherOwnerBriefing(now, { timeoutMs: 9000 });
+}
+
 export async function GET(req, ctx) {
   const auth = await requireOwner(req);
   if (!auth.ok) return jsonNoStore(auth.body, auth.status);
@@ -311,6 +316,7 @@ export async function GET(req, ctx) {
       case "ops": data = await ops(); break;
       case "alerts": data = await alertsPanel(now); break;
       case "intelligence": data = intelligence(now); break;
+      case "briefing": data = await briefing(now); break;
       case "meta": data = { eventMap: EVENT_MAP, definitions: KPI_DEFS, authMode: auth.mode }; break;
       default: return jsonNoStore({ ok: false, reason: "unknown_panel" }, 404);
     }
