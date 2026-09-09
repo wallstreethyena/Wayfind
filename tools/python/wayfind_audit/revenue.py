@@ -4,7 +4,8 @@ import json
 import os
 from collections import Counter
 from datetime import datetime, timezone
-from urllib.parse import parse_qs, urlsplit
+from urllib.parse import parse_qs, urlencode, urlsplit
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from .snapshot import AuditError, timestamp
 
@@ -146,6 +147,91 @@ def collect_revenue(max_rows=100_000):
     except Exception as exc:
         raise AuditError(
             "Revenue collection failed; check SELECT access, connectivity and schema"
+        ) from exc
+    return validate(data)
+
+
+class NoRedirect(HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+def collect_revenue_rest(max_rows=100_000, opener=None):
+    """Use existing canary secrets; GET only, fixed project and table allowlist."""
+    origin = os.environ.get("SUPABASE_URL", "").rstrip("/")
+    opener = opener or build_opener(NoRedirect()).open
+    secret = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "").strip()
+    if origin != "https://gbhtoehdxkzjsmmkisgu.supabase.co" or not secret:
+        raise AuditError("Expected Wayfind SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY")
+    if type(max_rows) is not int or not 1 <= max_rows <= 100_000:
+        raise AuditError("max_rows must be 1..100000")
+    data = {
+        "schema_version": "revenue-1",
+        "source_kind": "production",
+        "captured_at": datetime.now(timezone.utc).isoformat(),
+        "consistency": "multi_request",
+        "datasets": {},
+        "expected_counts": {},
+        "pages": {},
+    }
+    try:
+        for name, (table, key, columns, _) in TABLES.items():
+            rows, pages, last, expected = [], [], None, None
+            while True:
+                params = {"select": columns, "order": key + ".asc", "limit": "1000"}
+                if name == "places":
+                    params.update(
+                        status="eq.OPERATIONAL", excluded="eq.false", needs_review="eq.false"
+                    )
+                if name == "deals":
+                    params["active"] = "eq.true"
+                if last is not None:
+                    params[key] = "gt." + str(last)
+                request = Request(
+                    origin + "/rest/v1/" + table + "?" + urlencode(params),
+                    headers={
+                        "apikey": secret,
+                        "Authorization": "Bearer " + secret,
+                        "Prefer": "count=exact",
+                    },
+                    method="GET",
+                )
+                with opener(request, timeout=30) as response:
+                    if response.geturl() != request.full_url:
+                        raise AuditError("Unexpected database redirect")
+                    count = response.headers.get("Content-Range", "").rsplit("/", 1)[-1]
+                    if not count.isdigit():
+                        raise AuditError(f"{name}: missing exact count")
+                    if expected is None:
+                        expected = int(count)
+                    if expected > max_rows:
+                        raise AuditError(f"{name}: row ceiling reached")
+                    raw = response.read(10_000_001)
+                    if len(raw) > 10_000_000:
+                        raise AuditError(f"{name}: page size ceiling reached")
+                    batch = json.loads(raw)
+                if not isinstance(batch, list) or len(batch) > 1000:
+                    raise AuditError(f"{name}: invalid page")
+                pages.append(len(batch))
+                rows.extend(batch)
+                if len(rows) > max_rows:
+                    raise AuditError(f"{name}: row ceiling reached")
+                if len(batch) < 1000:
+                    break
+                next_key = batch[-1][key]
+                if next_key == last:
+                    raise AuditError(f"{name}: cursor did not advance")
+                last = next_key
+            data["datasets"][name], data["pages"][name], data["expected_counts"][name] = (
+                rows,
+                pages,
+                expected,
+            )
+    except AuditError:
+        raise
+    except Exception as exc:
+        raise AuditError(
+            "Revenue REST collection failed; verify existing canary credentials and SELECT access"
         ) from exc
     return validate(data)
 

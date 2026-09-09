@@ -8,7 +8,7 @@ from pathlib import Path
 from . import __version__
 from .analyze import audit
 from .collect import collect
-from .revenue import audit_revenue, collect_revenue
+from .revenue import audit_revenue, collect_revenue, collect_revenue_rest
 from .snapshot import AuditError, read_snapshot, write_json
 
 
@@ -138,6 +138,7 @@ def main(argv=None):
     )
     money.add_argument("--out", type=Path, required=True)
     money.add_argument("--max-rows", type=int, default=100_000)
+    money.add_argument("--transport", choices=("database", "rest"), default="database")
     money_report = sub.add_parser(
         "revenue-report", help="Analyze a complete commerce census offline"
     )
@@ -148,7 +149,8 @@ def main(argv=None):
         if args.command == "revenue-collect":
             if args.out.exists():
                 raise AuditError("Output already exists")
-            write_json(args.out, collect_revenue(args.max_rows))
+            collector = collect_revenue_rest if args.transport == "rest" else collect_revenue
+            write_json(args.out, collector(args.max_rows))
             print("Complete read-only revenue census written; eligibility and payout not verified.")
         elif args.command == "revenue-report":
             if args.out.exists() or args.input.stat().st_size > 100_000_000:

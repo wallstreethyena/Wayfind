@@ -1,9 +1,18 @@
 import copy
+import json
 from datetime import datetime, timezone
 
 import pytest
 
-from wayfind_audit.revenue import TABLES, audit_revenue, link_health, tracking, validate
+from wayfind_audit.revenue import (
+    TABLES,
+    NoRedirect,
+    audit_revenue,
+    collect_revenue_rest,
+    link_health,
+    tracking,
+    validate,
+)
 from wayfind_audit.snapshot import AuditError
 
 
@@ -88,3 +97,41 @@ def test_free_place_without_offer_is_unknown_not_leak():
     r = audit_revenue(d)
     assert r["entities"][0]["classification"] == "unknown"
     assert r["paid_commission"] is None
+
+
+def test_rest_collection_exact_counts_and_failures(monkeypatch):
+    monkeypatch.setenv("SUPABASE_URL", "https://gbhtoehdxkzjsmmkisgu.supabase.co")
+    monkeypatch.setenv("SUPABASE_SERVICE_ROLE_KEY", "test-not-real")
+    calls = []
+
+    class Reply:
+        def __init__(self, request, count):
+            self.request = request
+            self.headers = {"Content-Range": "*/" + count}
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            pass
+
+        def geturl(self):
+            return self.request.full_url
+
+        def read(self, limit):
+            return json.dumps([]).encode()
+
+    def opener(request, timeout):
+        assert request.get_method() == "GET"
+        assert timeout == 30
+        calls.append(request.full_url)
+        return Reply(request, "0")
+
+    result = collect_revenue_rest(opener=opener)
+    assert len(calls) == 6
+    assert result["consistency"] == "multi_request"
+    with pytest.raises(AuditError, match="exact count"):
+        collect_revenue_rest(opener=lambda r, timeout: Reply(r, "*"))
+    with pytest.raises(AuditError, match="incomplete census"):
+        collect_revenue_rest(opener=lambda r, timeout: Reply(r, "1"))
+    assert NoRedirect().redirect_request(None, None, 302, "", {}, "https://evil.test") is None

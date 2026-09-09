@@ -29,10 +29,14 @@ independent counts, unique IDs, terminal-page proof, timeouts and a row ceiling.
 No dynamic place-product join or affiliate request runs. A failed census never
 writes a successful partial snapshot.
 
-The existing Python workflow collects and reports revenue after its general
-audit. Existing activation and database credentials remain prerequisites. A
-skipped or unconfigured job is not a successful audit. Artifact retention remains
-seven days. Reports distinguish complete inventory enumeration from incomplete
+The existing Python workflow now runs an independent revenue job on its daily
+schedule, manual dispatch and relevant main pushes. It reuses the canary's
+SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY with `--transport rest`: GET-only,
+fixed project/table allowlist, redirects refused before credentials can leave the
+database origin, exact response counts and keyset pages. This is multi-request
+consistency and fails if observed counts drift. No new credentials are created.
+Missing credentials fail loudly, without silently skipping the money check.
+Revenue artifact retention is fourteen days. Reports distinguish complete inventory enumeration from incomplete
 rendered-card eligibility, preserve all candidate evidence, and report unavailable
 traffic, pending/approved/paid commission and actual costs as unknown.
 
