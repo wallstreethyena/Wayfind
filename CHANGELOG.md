@@ -1,3 +1,17 @@
+## v8.56.17 - The drain stopped being killed, and then idled a whole hour on a cold query plan
+
+v8.56.16 made the hourly at-risk run survivable: it no longer 504s, and it always files a pulse. The 2026-09-09 19:35Z run proved both — and what the pulse said was `place-photos: wf_photo_at_risk unavailable`, attempted 0, succeeded 0. A full hour of the drain, spent on nothing. Undecided at-risk places did not move: 4,494 before, 4,494 after.
+
+The cause is the view's query plan, not an outage. `wf_photo_at_risk` joins ~10k live `photo|places/%` cache rows against `wf_inventory` through `split_part()` with no supporting index. `EXPLAIN (ANALYZE, BUFFERS)`: **4,705 ms warm, 44,674 shared buffers**, of which 41,829 come from re-probing heap pages the `k ~~ 'photo|places/%'` filter then discards (35,702 rows removed). Cold, it exceeds PostgREST's statement timeout — a direct read returned `{"code":"57014"}` after 12.4s, then succeeded in **0.9s** on the very next try, and again in 0.9s after that. The canceled statement is itself what warms the pages the retry reads.
+
+- **Exactly one retry**, on `57014` or a 5xx. Not a loop: two timeouts mean the query is genuinely too expensive right now, and a third attempt spends more of the run's budget to learn the same thing. A **4xx is never retried** — a missing relation or a malformed request answers identically however many times it is asked.
+- **The note now names the status and the SQLSTATE**, and says whether the retry was already spent: `at-risk UNAVAILABLE (wf_photo_at_risk read failed — HTTP 500/57014, retried once — general scan only)`. "Unavailable" alone sent an operator looking for an outage when the answer was a cold query plan. A recovered run reports `at-risk 3/1000 (retried)` — the marker rides alongside the counts, never instead of them.
+- **This is insurance, not the fix.** The fix is a partial functional index on `wf_places_cache` whose predicate matches the view's WHERE verbatim (`~~` has no btree opfamily, so implication between two different LIKE patterns is unprovable and a near-miss predicate would silently never be used). That migration is blocked on `SUPABASE_ACCESS_TOKEN`, which is absent from `.env.local`; `scripts/apply-migration.mjs` refuses without it.
+
+Guarded by Section K in `scripts/test-photo-vault-wiring.mjs`, all by call count on a scripted fetch double: a timeout then a good answer recovers in-run with exactly 2 calls (K1); a second timeout stops at exactly 2, never 3 (K2); a 404 is asked once and claims no retry (K3); a healthy read is asked once and renders the note byte-identically to before this change (K4, the positive control). The double **throws** past its script rather than repeating its last answer — a repeat would let an unbounded retry spin until Node dies of memory exhaustion, which names nothing and reads like a crashed runner instead of a broken invariant.
+
+Red-proved: the retry removed (9 red), the retry made a loop (K2 reports 3 calls where 2 are allowed), a 4xx retried too (4 red).
+
 ## v8.56.16 - The first real hourly drain returned 504 and wrote nothing at all
 
 v8.56.14 moved the at-risk photo drain to hourly and called it 600 decisions a day. The first scheduled run under that schedule, 2026-09-09 18:35Z, returned **504** and wrote **nothing** — no pulse, no decisions, no trace but a Vercel status code. The real rate was zero an hour, invisibly, while the schedule looked healthy.
