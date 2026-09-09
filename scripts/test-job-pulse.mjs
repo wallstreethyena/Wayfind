@@ -175,6 +175,42 @@ ok(classifyHealth([]).incidents.length === 0 && classifyHealth(null).incidents.l
       `pulseFor: "${bad}" must beat as a FAILURE — anything that is not an unambiguous pass means the check did not happen`);
   }
   ok(pulseFor("SUCCESS").succeeded === 1, "pulseFor: the outcome comparison is case-insensitive");
+
+  // ── A TIMED-OUT WRITE IS NOT A REFUSED WRITE ─────────────────────────────
+  // 2026-09-09, observed live. A heartbeat printed "NOT RECORDED" and the row
+  // was already in the table (wf_job_pulse id 8788). recordPulse returns a
+  // bare boolean, and that boolean collapsed three states into one: written,
+  // refused, and never-completed. The abort is CLIENT-side — the server may
+  // have committed — so reporting it as "not recorded" is the instrument
+  // lying about itself, which is the defect class this whole lane exists to
+  // catch. recordPulseDetailed keeps the three states apart; recordPulse
+  // still returns the same boolean for every existing caller.
+  {
+    const src = read("lib/jobPulse.js");
+    const code = src.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
+    ok(/export async function recordPulseDetailed/.test(code),
+      "lib/jobPulse.js exports recordPulseDetailed — anything that REPORTS on a pulse write needs the outcome, not a boolean");
+    ok(/indeterminate/.test(code),
+      "recordPulseDetailed distinguishes an INDETERMINATE write (timeout / socket death, row may exist) from a refusal");
+    ok(/const r = await recordPulseDetailed\(job, opts\);\s*return r\.ok;/.test(code.replace(/\s+/g, " ").replace(/ /g, " ")) || /return r\.ok/.test(code),
+      "recordPulse delegates to recordPulseDetailed and still returns a plain boolean — no existing caller changes behaviour");
+    ok(/AbortSignal\.timeout\(15000\)/.test(code),
+      "the write timeout is 15s, not 10s — a cold process pays DNS + TLS first (measured 3.8s on an ordinary connection) and an abort here reports a committed row as lost");
+    // Self-test: the comment stripper must not let the prose above satisfy
+    // these checks on its own.
+    ok(!/recordPulseDetailed/.test(("// recordPulseDetailed named only in a comment\nconst x=1;").replace(/^\s*\/\/.*$/gm, " ")),
+      "self-test: the identifier named only in a comment does NOT satisfy the check");
+
+    // The reporting CLI must use the detailed form, or the distinction is
+    // academic — this is where the false "NOT RECORDED" was printed.
+    const cli = read("scripts/record-workflow-pulse.mjs").replace(/^\s*\/\/.*$/gm, " ");
+    ok(/recordPulseDetailed/.test(cli),
+      "scripts/record-workflow-pulse.mjs uses recordPulseDetailed — the caller that PRINTS the outcome must know it");
+    ok(/WRITE OUTCOME UNKNOWN/.test(cli),
+      "…and says the outcome is UNKNOWN on an indeterminate write rather than claiming the beat was lost");
+    ok(/NOT RECORDED \(/.test(cli),
+      "…and reserves NOT RECORDED for a definite refusal, with the status alongside it");
+  }
   // And the beat has to be classifiable by the machinery above, or it is inert.
   ok(classifyHealth([{ job: "canary", attempted: 1, succeeded: 0, consecutive_zero: DEAD_RUN_THRESHOLD, last_note: "jobs not green: routes=failure" }]).incidents.length === 1,
     "a repeated failure beat is classified as an INCIDENT by the existing watcher — the heartbeat reaches the alert path already proven in #1183/#1195");
