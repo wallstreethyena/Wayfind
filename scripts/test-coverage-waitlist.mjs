@@ -86,7 +86,8 @@ ok(!!comp && comp.length > 400, `extracted CoverageWaitlist body is a real compo
 
 const body = comp || "";
 ok(/Wayfind isn/.test(body), "the honest coming-soon state renders, INSIDE CoverageWaitlist (not merely somewhere in home.js)");
-ok(body.includes('supabase.from("wf_waitlist").insert'), "email capture writes to the waitlist, INSIDE CoverageWaitlist");
+ok(body.includes('await getSupabase()') && body.includes('supabase.from("wf_waitlist").insert'), "email capture awaits the lazy client and writes to the waitlist, INSIDE CoverageWaitlist");
+ok(/if \(!supabase\) throw/.test(body) && body.indexOf('setState("done")') > body.indexOf('supabase.from("wf_waitlist").insert'), "waitlist cannot report success when storage is unavailable or before the insert is attempted");
 // Role-scoped AND word-boundary anchored — not a bare substring of an 11k-line
 // file, and "won" alone can no longer be satisfied by an unrelated word.
 ok(/\bwon(?:['’]|&apos;|&#0?39;)?t\b[\s\S]{0,80}another city/i.test(body),
