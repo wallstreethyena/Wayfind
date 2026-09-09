@@ -93,8 +93,6 @@ export async function GET(req) {
   const now = Date.now();
   const decision = jobWatchNotificationDecision(incidents, previousState, now);
 
-  // Still evaluate and log incidents every run even when notification is
-  // suppressed. Deduping the human channel must never dedupe detection.
   for (const r of incidents) {
     try { console.error(`[job-watch] INCIDENT ${incidentLine(r)}`); } catch {}
   }
@@ -114,7 +112,7 @@ export async function GET(req) {
     return Response.json({
       ok: true,
       incidents: incidents.length,
-      sent: false,
+      notified: false,
       notification: decision.kind,
       healthy: healthy.length,
       idle: idle.length,
@@ -163,11 +161,12 @@ export async function GET(req) {
     ? { status: "clear", fingerprint: "", lastSentAt: now }
     : { status: "open", fingerprint: decision.fingerprint, lastSentAt: now };
   const delivered = Math.max(1, incidents.length);
+  const stateNote = encodeJobWatchState(nextState);
   await recordPulse("job-watch", {
     attempted: delivered,
     succeeded: delivered,
     failed: 0,
-    note: encodeJobWatchState(nextState),
+    note: `${stateNote}:delivered ${decision.kind}`,
   });
 
   return Response.json({
