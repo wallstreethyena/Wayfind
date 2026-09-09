@@ -198,7 +198,9 @@ ok(creatorMetadata("someone-with-no-page").robots.index === false, "a handle wit
   ok(html.includes('aria-label="Bradenton videos"'), "city videos render in a labeled horizontal rail");
   ok(html.includes('/api/photo?place='), "video covers request the actual place photo");
   ok(/aria-pressed="true"[^>]*><span>All places/.test(html), "All places is selected on initial render");
-  const { createCreatorAppleMap } = await import("../lib/creatorAppleMap.js");
+  const { createCreatorAppleMap, creatorMapGlyph } = await import("../lib/creatorAppleMap.js");
+  ok(html.includes("Cindy Selects · Video guide"), "creator portrait fallback identifies itself as a video guide, never a venue photo");
+  ok(creatorMapGlyph({ primary_type: "unknown", category: "food" }) !== "•", "an unknown food subtype uses a food symbol, not a generic dot");
   let drawn = [], fitted = [], listener, destroyed = false;
   const mapkit = {
     Map: class { addAnnotations(a) { drawn = a; } showItems(a) { fitted = a; } addEventListener(t, fn) { listener = fn; } removeEventListener() {} destroy() { destroyed = true; } },
