@@ -89,12 +89,11 @@ ok(!noId.ok && noId.status === 502 && noId.reason === "email_confirmation_missin
 const conflict = await sendOwnerBriefingEmail({ briefing: report, apiKey: "test", from: "a@example.com", to: "b@example.com", fetchImpl: async () => ({ ok: false, status: 409, json: async () => ({ message: "payload differs" }) }) });
 ok(!conflict.ok && conflict.conflict && conflict.reason === "idempotency_conflict", "same-date changed-payload conflict is explicit and never success");
 
-const savedSecret = process.env.CRON_SECRET;
+// This standalone guard owns its process; explicitly remove ambient auth.
 delete process.env.CRON_SECRET;
 const { GET: cronGet } = await import("../app/api/cron/route.js");
 const unauthorized = await cronGet(new Request("https://example.test/api/cron"));
 ok(unauthorized.status === 401, "daily cron fails closed before collection when auth is absent");
-if (savedSecret === undefined) delete process.env.CRON_SECRET; else process.env.CRON_SECRET = savedSecret;
 
 if (failures) process.exit(1);
 console.log("test-command-center-briefing: OK — complete ET window, honest nulls/sources/earnings, bounded collection, exact actions, safe email and fail-closed cron");
