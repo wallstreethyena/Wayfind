@@ -12,7 +12,12 @@
 // This backfill is keyless and free by construction (Wikimedia only).
 //
 // USAGE
-//   node scripts/backfill-place-photos.mjs [--limit=25] [--scan=1000] [--dry-run] [--json]
+//   node scripts/backfill-place-photos.mjs [--limit=25] [--scan=1000] [--dry-run] [--json] [--source=at-risk|all]
+//
+// --source (2026-09-09, "beat the cliff"): unset drains wf_photo_at_risk
+// (earliest-expiring places first) then fills the rest of --limit from the
+// general beach/attractions scan — see lib/placePhotoBackfill.js's header.
+// --source=at-risk / --source=all drive one worklist exclusively, by hand.
 //
 // NOT GUARD-SHAPED (a `backfill-` prefix), so it sits outside
 // scripts/check-guard-manifest.mjs / check-guard-hermeticity / the guard
@@ -26,19 +31,23 @@ const DEFAULT_LIMIT = 25;
 const DEFAULT_SCAN_LIMIT = 1000;
 
 function parseArgs(argv) {
-  const out = { limit: DEFAULT_LIMIT, scanLimit: DEFAULT_SCAN_LIMIT, dryRun: false, json: false };
+  const out = { limit: DEFAULT_LIMIT, scanLimit: DEFAULT_SCAN_LIMIT, dryRun: false, json: false, source: undefined };
   for (const a of argv) {
     if (a.startsWith("--limit=")) out.limit = Math.max(1, parseInt(a.slice(8), 10) || DEFAULT_LIMIT);
     else if (a.startsWith("--scan=")) out.scanLimit = Math.max(1, parseInt(a.slice(7), 10) || DEFAULT_SCAN_LIMIT);
     else if (a === "--dry-run") out.dryRun = true;
     else if (a === "--json") out.json = true;
+    else if (a.startsWith("--source=")) {
+      const v = a.slice(9);
+      out.source = v === "at-risk" || v === "all" ? v : undefined;
+    }
   }
   return out;
 }
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
-  const result = await runBackfill({ limit: args.limit, scanLimit: args.scanLimit, dryRun: args.dryRun });
+  const result = await runBackfill({ limit: args.limit, scanLimit: args.scanLimit, dryRun: args.dryRun, source: args.source });
   if (!result.ok) {
     console.error(`backfill-place-photos: FAIL — ${result.reason}`);
     process.exit(1);
@@ -48,7 +57,7 @@ async function main() {
     ? `place-photos: table unavailable (${result.tableStatus != null ? result.tableStatus : "error"})`
     : result.note
       ? `place-photos: ${result.note}`
-      : `place-photos: ${result.active} active, ${result.rejected} rejected, ${result.failed} failed (scanned ${result.scanned}, ${result.alreadyCovered} already covered)${result.dryRun ? " (dry-run)" : ""}`;
+      : `place-photos: ${result.active} active (${result.vaulted || 0} vaulted), ${result.rejected} rejected, ${result.failed} failed (at-risk ${result.atRiskTaken || 0}/${result.atRiskScanned || 0}, general scanned ${result.scanned}, ${result.alreadyCovered} already covered)${result.dryRun ? " (dry-run)" : ""}`;
 
   await recordPulse("place-photos", { attempted: result.attempted, succeeded: result.active, note });
 
@@ -58,7 +67,7 @@ async function main() {
     console.log(`backfill-place-photos: table: unavailable (${result.tableStatus != null ? result.tableStatus : "error"})`);
   } else {
     console.log(
-      `backfill-place-photos: scanned=${result.scanned} attempted=${result.attempted} active=${result.active} rejected=${result.rejected} failed=${result.failed}${result.dryRun ? " [dry-run]" : ""}`
+      `backfill-place-photos: source=${args.source || "at-risk-then-all"} atRisk=${result.atRiskTaken || 0}/${result.atRiskScanned || 0} scanned=${result.scanned} attempted=${result.attempted} active=${result.active} vaulted=${result.vaulted || 0} rejected=${result.rejected} failed=${result.failed}${result.dryRun ? " [dry-run]" : ""}`
     );
   }
 

@@ -24,6 +24,17 @@
 // note to an immediate page (deterministic provider failure), and an idle
 // day for a keyless, un-metered backfill is exactly the opposite of that.
 //
+// ?source=at-risk|all (2026-09-09, "beat the cliff"). Unset is the smart
+// default lib/placePhotoBackfill.js's runBackfill already applies: drain
+// wf_photo_at_risk (earliest-expiring places first) THEN fall back to the
+// general beach/attractions scan with whatever `limit` budget is left — see
+// that file's header for the full incident this exists to answer (5,238
+// places' cached Google photos expire 2026-09-25..2026-10-04). The explicit
+// values let an operator drive ONE worklist by hand: `at-risk` to work only
+// the cliff, `all` to reproduce this route's pre-vault behaviour exactly (the
+// general beach/attractions scan alone). Any other value is ignored, same as
+// unset.
+//
 // NEVER CALLS GOOGLE. No import of lib/spendGate.js, no reference to the
 // Places media host (googleapis dot com/v1/.../media) anywhere in this file,
 // in lib/placePhotoBackfill.js, or in lib/commonsPhotos.js — this lane is
@@ -51,10 +62,12 @@ export async function GET(req) {
   const u = new URL(req.url);
   const limit = Math.max(1, Math.min(100, Number(u.searchParams.get("limit")) || 25));
   const scanLimit = Math.max(1, Math.min(5000, Number(u.searchParams.get("scan")) || 1000));
+  const sourceParam = u.searchParams.get("source");
+  const source = sourceParam === "at-risk" || sourceParam === "all" ? sourceParam : undefined;
 
   let result;
   try {
-    result = await runBackfill({ limit, scanLimit, sbEnv: { url: /^https?:\/\//i.test(url) ? url : "https://" + url, key: svc } });
+    result = await runBackfill({ limit, scanLimit, source, sbEnv: { url: /^https?:\/\//i.test(url) ? url : "https://" + url, key: svc } });
   } catch (e) {
     return jobFailed("place-photos", "worker threw: " + (e && e.message ? e.message : String(e)));
   }
@@ -64,7 +77,7 @@ export async function GET(req) {
     ? `place-photos: table unavailable (${result.tableStatus != null ? result.tableStatus : "error"})`
     : result.note
       ? `place-photos: ${result.note}`
-      : `place-photos: ${result.active} active, ${result.rejected} rejected, ${result.failed} failed (scanned ${result.scanned}, ${result.alreadyCovered} already covered)`;
+      : `place-photos: ${result.active} active (${result.vaulted || 0} vaulted), ${result.rejected} rejected, ${result.failed} failed (at-risk ${result.atRiskTaken || 0}/${result.atRiskScanned || 0}, general scanned ${result.scanned}, ${result.alreadyCovered} already covered)`;
 
   if (!result.tableUnavailable && result.attempted > 0 && result.failed === result.attempted) {
     return jobFailed("place-photos", note, { attempted: result.attempted, succeeded: 0 });
@@ -78,11 +91,17 @@ export async function GET(req) {
 
   return Response.json({
     ok: true,
+    source: source || "at-risk-then-all",
     attempted: result.attempted,
     active: result.active,
     rejected: result.rejected,
     failed: result.failed,
+    vaulted: result.vaulted || 0,
+    vaultSkipped: result.vaultSkipped || 0,
     scanned: result.scanned || 0,
+    atRiskScanned: result.atRiskScanned || 0,
+    atRiskTaken: result.atRiskTaken || 0,
+    atRiskUnavailable: !!result.atRiskUnavailable,
     alreadyCovered: result.alreadyCovered || 0,
     tableUnavailable: !!result.tableUnavailable,
   });

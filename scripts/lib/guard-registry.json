@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 592,
-    "totalRegistryEntries": 593,
-    "guardsTxtLineCount": 590,
-    "guardsTxtReachedFileCount": 585,
+    "totalOnDiskGuardFiles": 594,
+    "totalRegistryEntries": 595,
+    "guardsTxtLineCount": 592,
+    "guardsTxtReachedFileCount": 587,
     "criticalCount": 72,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 401,
+      "CALL": 403,
       "RENDER": 47,
       "STRUCTURAL": 144,
       "OTHER": 1
@@ -12107,6 +12107,50 @@
             "blocking": false
           }
         ]
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-photo-vault-wiring.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 60,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-photo-vault.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 51,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
