@@ -678,6 +678,102 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
   ok(/sample-degraded/.test(monitorSrc), "case 16: the monitor must record the sample-degraded finding in its own pulse note");
 }
 
+// ── case 17 — THE ALARM IS ON A CLOCK, AND THE CLOCK IS AT ITS REAL PATH ───
+// 2026-09-09. Everything above proves the monitor DECIDES correctly. None of
+// it proves the monitor ever RUNS. It did not: the `photos` ledger exhausted
+// on 2026-09-01 19:43:23Z, every uncached card served a placeholder for eight
+// days, and scripts/photo-monitor.mjs — written, reviewed, correct — was
+// scheduled nowhere. vercel.json cronned the REPAIR worker
+// ("20 4 * * * /api/cron/photo-repair") while the detector that feeds it ran
+// only when a human typed the command.
+//
+// This is the ops/canary.workflow.yml failure class, which this project has
+// now paid for twice: a check parked at a path no scheduler reads is
+// indistinguishable from a check that does not exist, and it fails SILENT —
+// the absence of alerts reads as "healthy". So the schedule itself is an
+// invariant with a guard, exactly as .github/workflows/synthetic-monitor.yml
+// has one in check-synthetic-monitor-hermetic.mjs.
+//
+// Structural by necessity: a hermetic guard cannot observe GitHub's
+// scheduler. What it CAN do is refuse the two states that made the eight-day
+// outage possible — the file missing from .github/workflows/, and the file
+// present with its cron removed.
+{
+  const WORKFLOW_REL = ".github/workflows/photo-monitor.yml";
+  let workflowSrc = "";
+  try { workflowSrc = readFileSync(new URL("../" + WORKFLOW_REL, import.meta.url), "utf8"); } catch { workflowSrc = ""; }
+  // Expressed as ONE conditional assertion rather than ok(true) in a try and
+  // ok(false) in the catch: check-guards-can-fail.mjs rejects an
+  // unconditionally-green assertion, and it is right to — a guard whose
+  // success branch cannot fail is not a guard.
+  ok(workflowSrc.length > 0,
+    `case 17: ${WORKFLOW_REL} must exist at that exact path — a workflow authored anywhere else never runs (ops/canary.workflow.yml, 2026-09-04). The photo monitor scheduled nowhere is why the 2026-09-01 ledger exhaustion went unseen for eight days.`);
+
+  if (workflowSrc) {
+    // Read the workflow as YAML-ish text, but strip full-line "#" comments
+    // first: this file's own header NAMES the cron it replaced and names the
+    // monitor script, so a raw grep would pass on the prose alone even if the
+    // schedule were deleted. Same trap CLAUDE.md documents for guards.txt.
+    const code = workflowSrc.split("\n").filter((l) => !/^\s*#/.test(l)).join("\n");
+
+    ok(/^\s*schedule:\s*$/m.test(code),
+      "case 17: the workflow declares an on.schedule: trigger in its CODE, not merely in a comment");
+    const cronMatch = code.match(/-\s*cron:\s*["']([^"']+)["']/);
+    ok(!!cronMatch, "case 17: the workflow's schedule carries a real quoted cron expression");
+    if (cronMatch) {
+      const fields = cronMatch[1].trim().split(/\s+/);
+      ok(fields.length === 5, `case 17: the cron expression has five fields — got ${fields.length} ("${cronMatch[1]}")`);
+      // Hourly-or-finer. photo-monitor.mjs's defaultEpoch() buckets by HOUR
+      // and amendment A4 rotates cells by hashing that epoch, so a schedule
+      // coarser than hourly leaves whole cells unvisited for days.
+      ok(fields[1] === "*" || /^\*\//.test(fields[1]),
+        `case 17: the monitor must run at least hourly — defaultEpoch() is an hour bucket and A4 rotates cells by it. Hour field was "${fields[1]}".`);
+    }
+    ok(/photo-monitor\.mjs/.test(code),
+      "case 17: the workflow actually invokes scripts/photo-monitor.mjs in a run: step, not just in its header prose");
+    ok(/SUPABASE_SERVICE_ROLE_KEY/.test(code),
+      "case 17: the workflow passes SUPABASE_SERVICE_ROLE_KEY — without it the monitor exits 1 having measured nothing");
+    // A monitor that skips itself on missing credentials reports green while
+    // measuring nothing. The job must fail loudly instead.
+    ok(/::error::/.test(code),
+      "case 17: the workflow fails loudly on missing credentials rather than skipping the sweep");
+    // The exit code must reach the runner. photo-monitor.mjs exits non-zero
+    // ONLY when the instrument itself could not run (its lines 47-51); a high
+    // placeholder rate is filed as a pulse, never as a crash. Swallowing the
+    // exit code would hide a broken camera.
+    ok(!/photo-monitor\.mjs[^\n]*\|\|\s*true/.test(code) && !/continue-on-error:\s*true/.test(code),
+      "case 17: the monitor's exit code is never swallowed — a non-zero exit means the INSTRUMENT failed and must go red");
+
+    // Self-tests: prove the comment-stripping cannot hide a deleted schedule,
+    // and that these predicates have teeth on a plausibly-broken file.
+    const commentOnly = "# schedule:\n#   - cron: \"50 * * * *\"\n#   run: node scripts/photo-monitor.mjs\nname: x\n";
+    const strippedCommentOnly = commentOnly.split("\n").filter((l) => !/^\s*#/.test(l)).join("\n");
+    ok(!/^\s*schedule:\s*$/m.test(strippedCommentOnly),
+      "case 17 self-test: a workflow whose schedule exists ONLY in comments is correctly rejected");
+    ok(!/photo-monitor\.mjs/.test(strippedCommentOnly),
+      "case 17 self-test: a workflow that only NAMES the monitor in a comment is correctly rejected");
+    ok(/^\s*schedule:\s*$/m.test("on:\n  schedule:\n    - cron: \"50 * * * *\"\n"),
+      "case 17 self-test: a real schedule block is still detected after stripping (the check is not vacuously false)");
+    ok("50 * * * *".trim().split(/\s+/).length === 5,
+      "case 17 self-test: the five-field counter agrees with a known-good cron expression");
+    ok(!("0 4 * * *".trim().split(/\s+/)[1] === "*"),
+      "case 17 self-test: a DAILY cron ('0 4 * * *') is correctly judged coarser than hourly — the check can fail");
+  }
+
+  // The monitor is a live-network instrument. Like run-synthetic-monitor.mjs
+  // it must stay OUT of the hermetic guard suite, and (unlike it) its
+  // filename does not match the check|test-*.mjs sweep — confirm that by
+  // construction rather than trusting it.
+  ok(!/^(check|test)-/.test("photo-monitor.mjs"),
+    "case 17: scripts/photo-monitor.mjs's filename does not match check-guard-manifest.mjs's check|test-*.mjs sweep — it stays a live smoke test by construction");
+  const guardsTxt = readFileSync(new URL("./guards.txt", import.meta.url), "utf8");
+  const guardCommandLines = guardsTxt.split("\n").filter((l) => l.trim() && !l.trim().startsWith("#"));
+  ok(!guardCommandLines.some((l) => /photo-monitor\.mjs/.test(l)),
+    "case 17: scripts/guards.txt has no COMMAND line invoking the network-touching monitor — a flaky CDN must never block a merge");
+  ok(guardCommandLines.some((l) => /test-photo-protection\.mjs/.test(l)),
+    "case 17: scripts/guards.txt has a COMMAND line wiring in THIS hermetic guard");
+}
+
 if (fail.length) {
   console.error(`test-photo-protection: ${pass} passed, ${fail.length} FAILED`);
   for (const f of fail) console.error("  ✗ " + f);
