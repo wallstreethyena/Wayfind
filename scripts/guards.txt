@@ -1396,3 +1396,9 @@ node scripts/test-photo-vault.mjs
 # billing:/quota: prefix) are proven by executing the real route with only
 # runBackfill/recordPulse/jobCannotRun/jobFailed swapped for doubles.
 node scripts/test-photo-vault-wiring.mjs
+
+node scripts/test-beach-alert-recovery.mjs
+
+node scripts/test-editorial-retry-content.mjs
+
+node scripts/test-photo-queue-batch.mjs

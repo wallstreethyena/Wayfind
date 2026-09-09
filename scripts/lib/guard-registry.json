@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 594,
-    "totalRegistryEntries": 595,
-    "guardsTxtLineCount": 592,
-    "guardsTxtReachedFileCount": 587,
+    "totalOnDiskGuardFiles": 597,
+    "totalRegistryEntries": 598,
+    "guardsTxtLineCount": 595,
+    "guardsTxtReachedFileCount": 590,
     "criticalCount": 72,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 403,
+      "CALL": 406,
       "RENDER": 47,
       "STRUCTURAL": 144,
       "OTHER": 1
@@ -8089,6 +8089,28 @@
       "owner": "Revenue QA"
     },
     {
+      "file": "scripts/test-beach-alert-recovery.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 11,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-beach-decision.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -9933,6 +9955,28 @@
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
       "assertionCount": 28,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-editorial-retry-content.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 6,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -12107,6 +12151,28 @@
             "blocking": false
           }
         ]
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-photo-queue-batch.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 6,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,

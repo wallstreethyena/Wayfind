@@ -1,13 +1,14 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { BEACH_PILOT, BEACH_SOURCES } from '../../lib/beachPlanning';
+import { BEACH_PILOT, BEACH_SOURCES, localBeachSources } from '../../lib/beachPlanning';
 const stamp = value => value ? new Date(value).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }) : 'Unavailable';
 function Source({ href, title, source, children }) {
   return <section className="evidence"><h3>{title}</h3>{children}<p className="source"><a href={href} target="_blank" rel="noreferrer">Official source ↗</a><br />Retrieved: {stamp(source?.retrievedAt)}</p></section>;
 }
 export default function Conditions({ initialSlug = 'coquina' }) {
   const [slug, setSlug] = useState(initialSlug);
-  const [data, setData] = useState(null);
+  const [response, setData] = useState(null);
+  const data = response?.beach?.slug === slug ? response : null;
   const [error, setError] = useState(false);
   useEffect(() => {
     let stopped = false, controller;
@@ -27,15 +28,21 @@ export default function Conditions({ initialSlug = 'coquina' }) {
     return () => { stopped = true; controller?.abort(); clearInterval(timer); };
   }, [slug]);
   const beach = BEACH_PILOT.find(b => b.slug === slug);
+  const local = localBeachSources(beach);
   const forecastUrl = `https://forecast.weather.gov/MapClick.php?lat=${beach.lat}&lon=${beach.lng}`;
   return <>
     <label className="beach-label" htmlFor="pilot-beach">Choose a beach</label>
     <select id="pilot-beach" value={slug} onChange={e => setSlug(e.target.value)}>{BEACH_PILOT.map(b => <option key={b.slug} value={b.slug}>{b.name}</option>)}</select>
     <div className="notice"><strong>Look, listen, and follow lifeguard instructions.</strong><p>If you hear thunder, get into a substantial building or enclosed vehicle. Remain sheltered for at least 30 minutes after the last thunder. An expired warning does not start that clock. <a href={BEACH_SOURCES.lightning}>NWS guidance ↗</a></p></div>
+    <section className="evidence local-conditions"><h2>Local flags & closures</h2>
+      <p className="unknown">Current flag: Unknown · Closure status: Unknown.</p>
+      <p>{local.instructions}</p>
+      <p>Live local flags are not connected to Wayfind yet. Open the local report before you travel.</p>
+      <div className="local-links"><a href={local.conditionsUrl} target="_blank" rel="noreferrer">Check local beach report ↗</a><a href={local.url} target="_blank" rel="noreferrer">{local.title} ↗</a></div>
+    </section>
     {!data ? <p role="status">{error ? 'Conditions unavailable. Check the official sources and local beach signs before you go.' : 'Loading official beach evidence…'}</p> : <>
       <div aria-live="polite">
         {data.hazards.length > 0 && <section className="hazards"><h2>Before you go</h2><ul>{data.hazards.map((h,i) => <li key={i}>{h}</li>)}</ul></section>}
-        <p className="unknown">Closures: Unknown · Local flags: Unavailable. Check posted signs and lifeguards.</p>
       </div>
       <div className="evidence-grid">
         <Source title="Weather outlook" href={forecastUrl} source={data.sources.weather}>
