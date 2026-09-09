@@ -89,6 +89,21 @@ ok(/maxDuration = 60/.test(r), "60s function ceiling");
 ok(/spendAllow\("details_enterprise"\)/.test(r), "every Atlas Details call is admitted by the shared free-tier ledger");
 
 // Affiliate opportunities flagged (the get-paid follow-up), fail-soft.
-ok(/wf_affiliate_opportunities/.test(r) && /suggested_partner/.test(r), "bookable-but-unlinked places flagged into wf_affiliate_opportunities");
+//
+// 2026-09-09: this used to read the ROUTE for the literal strings
+// `wf_affiliate_opportunities` and `suggested_partner`. The write then moved into
+// lib/affiliateOpportunity.js (so the RPC call site would be visible to
+// check-rpc-schema-contract.mjs) and this went red. Following the code rather
+// than deleting the assertion, per CLAUDE.md: what matters is that the route
+// still FLAGS bookable-but-unlinked places and that the flag still reaches the
+// queue — not which file the table name is spelled in. The dangerous half is the
+// inverse: the old form would have gone GREEN if the write had moved away and
+// been dropped entirely.
+ok(/toOpportunityRow\s*\(/.test(r) && /recordAffiliateOpportunities\s*\(/.test(r),
+  "bookable-but-unlinked places are still shaped and recorded as affiliate opportunities");
+ok(/suggested_partner|suggestedPartner/.test(r), "each flagged place still carries a suggested partner");
+const oppLib = src("../lib/affiliateOpportunity.js");
+ok(/wf_affiliate_opportunity_seen/.test(oppLib) && /suggested_partner/.test(oppLib),
+  "the recorded opportunity reaches wf_affiliate_opportunities through the atomic RPC, carrying its suggested partner");
 
 console.log(`test-atlas-build: OK — ${pass} assertions (fail-closed, resumable, non-destructive, never-fabricates, bounded)`);
