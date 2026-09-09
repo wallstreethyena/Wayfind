@@ -405,25 +405,62 @@ async function fetchExistingQueueRows(s, placeIds) {
   return out;
 }
 
+// ONE REQUEST PER KEY SIGNATURE (2026-09-09). PostgREST refuses a
+// `resolution=merge-duplicates` POST whose objects do not all carry the same
+// keys:
+//
+//     400 PGRST102 — "All object keys must match"
+//
+// mergeQueueUpsert deliberately OMITS `status` for a row whose operator
+// verdict must not be touched (retired, unresolved, already-open — case 8),
+// so its output is heterogeneous by design the moment the queue holds
+// anything. The first run wrote 233 rows because every row was new and
+// therefore carried `status`; every run after it 400'd the whole batch. The
+// monitor is fail-soft about the queue (case 11), so this was SILENT: the
+// instrument kept measuring while its findings reached nobody and the 04:20
+// repair worker chewed a frozen snapshot.
+//
+// The fix belongs HERE, in the transport, not in mergeQueueUpsert: the
+// payload semantics are correct and case 8 pins them. Group by key signature
+// and send each homogeneous group. Two groups in practice ("with status" and
+// "without"), so this is one extra request, not N.
+export function groupByKeySignature(rows) {
+  const groups = new Map();
+  for (const row of Array.isArray(rows) ? rows : []) {
+    if (!row || typeof row !== "object") continue;
+    const sig = Object.keys(row).sort().join(",");
+    if (!groups.has(sig)) groups.set(sig, []);
+    groups.get(sig).push(row);
+  }
+  return [...groups.values()];
+}
+
 export async function upsertQueueRows(s, candidates) {
   if (!candidates.length) return 0;
   const nowIso = new Date().toISOString();
   const existing = await fetchExistingQueueRows(s, candidates.map((c) => c.placeId));
   const body = mergeQueueUpsert(existing, candidates, nowIso);
   if (!body.length) return 0;
-  const r = await fetch(`${s.url}/rest/v1/wf_photo_repair_queue`, {
-    method: "POST",
-    cache: "no-store",
-    headers: {
-      apikey: s.key,
-      Authorization: "Bearer " + s.key,
-      "content-type": "application/json",
-      Prefer: "resolution=merge-duplicates,return=minimal",
-    },
-    body: JSON.stringify(body),
-  });
-  if (!r.ok) throw queueError(r.status, `wf_photo_repair_queue upsert failed: HTTP ${r.status}`);
-  return body.length;
+  let written = 0;
+  for (const group of groupByKeySignature(body)) {
+    const r = await fetch(`${s.url}/rest/v1/wf_photo_repair_queue`, {
+      method: "POST",
+      cache: "no-store",
+      headers: {
+        apikey: s.key,
+        Authorization: "Bearer " + s.key,
+        "content-type": "application/json",
+        Prefer: "resolution=merge-duplicates,return=minimal",
+      },
+      body: JSON.stringify(group),
+    });
+    // Still throws on the first bad group. A partial write is honest — the
+    // rows already accepted are real findings — and the caller reports the
+    // queue as unavailable for the run either way.
+    if (!r.ok) throw queueError(r.status, `wf_photo_repair_queue upsert failed: HTTP ${r.status} (${group.length} row(s), keys: ${Object.keys(group[0] || {}).sort().join(",")})`);
+    written += group.length;
+  }
+  return written;
 }
 
 async function lastPhotoMonitorPulses(s, limit = 6) {
