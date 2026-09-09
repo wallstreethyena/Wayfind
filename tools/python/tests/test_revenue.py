@@ -135,3 +135,45 @@ def test_rest_collection_exact_counts_and_failures(monkeypatch):
     with pytest.raises(AuditError, match="incomplete census"):
         collect_revenue_rest(opener=lambda r, timeout: Reply(r, "1"))
     assert NoRedirect().redirect_request(None, None, 302, "", {}, "https://evil.test") is None
+
+
+def test_rest_keyset_crosses_page_boundary(monkeypatch):
+    from urllib.parse import parse_qs, urlsplit
+
+    monkeypatch.setenv("SUPABASE_URL", "https://gbhtoehdxkzjsmmkisgu.supabase.co")
+    monkeypatch.setenv("SUPABASE_SERVICE_ROLE_KEY", "test-not-real")
+    all_places = [
+        {"place_id": f"p{i:04d}", "name": "Park", "category": "parks", "metro": "Tampa"}
+        for i in range(1001)
+    ]
+    seen_cursors = []
+
+    class Page:
+        def __init__(self, request):
+            self.url = request.full_url
+            q = parse_qs(urlsplit(self.url).query)
+            if "/wf_inventory?" in self.url:
+                cursor = q.get("place_id", [None])[0]
+                seen_cursors.append(cursor)
+                self.rows = all_places[:1000] if cursor is None else all_places[1000:]
+                self.headers = {"Content-Range": "0-999/1001" if cursor is None else "0-0/1"}
+            else:
+                self.rows = []
+                self.headers = {"Content-Range": "*/0"}
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            pass
+
+        def geturl(self):
+            return self.url
+
+        def read(self, limit):
+            return json.dumps(self.rows).encode()
+
+    result = collect_revenue_rest(opener=lambda request, timeout: Page(request))
+    assert result["pages"]["places"] == [1000, 1]
+    assert result["expected_counts"]["places"] == 1001
+    assert seen_cursors == [None, "gt.p0999"]
