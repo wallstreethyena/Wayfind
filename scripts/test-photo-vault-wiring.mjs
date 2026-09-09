@@ -1152,10 +1152,139 @@ const PHOTO = (id) => ({
   console.log("test-photo-vault-wiring: Section J OK — the run stops on its own budget inside the platform ceiling, finishes what it started, writes those rows, always pulses, reports PARTIAL honestly, and the next run picks up exactly what was left");
 }
 
+// ── SECTION K — A COLD QUERY PLAN IS NOT AN OUTAGE ──────────────────────────
+//
+//   MEASURED IN PRODUCTION, 2026-09-09. The 19:35Z hourly run did not 504 and
+//   did file its pulse (Section J's work), and what that pulse said was
+//   `place-photos: wf_photo_at_risk unavailable` — ZERO decisions, for the
+//   whole hour. The view joins ~10k live `photo|places/%` cache rows against
+//   wf_inventory through split_part() with no supporting index: EXPLAIN reports
+//   4,705 ms warm and 44,674 shared buffers, 41,829 of them re-probing heap
+//   pages that the `k ~~ 'photo|places/%'` filter then discards (35,702 rows
+//   removed). Cold, it exceeds PostgREST's statement timeout — a direct read
+//   returned {"code":"57014"} after 12.4s, then succeeded in 0.9s on the very
+//   next try, and again in 0.9s after that.
+//
+//   The failure is cache temperature, and the canceled statement is itself what
+//   warms the pages the retry reads. ONE retry, never a loop: two timeouts mean
+//   the query is genuinely too expensive right now, and a third attempt spends
+//   more of the run's budget to learn the same thing. A 4xx is never retried —
+//   a missing relation answers identically however many times it is asked.
+//
+//   THIS IS INSURANCE, NOT THE FIX. The fix is the partial functional index.
+//   These assertions exist so the insurance cannot quietly become a hot loop,
+//   and cannot quietly stop existing.
+{
+  const AT_RISK_URL = SB.url + "/rest/v1/wf_photo_at_risk";
+  const ROWS = [{ place_id: "kretry0001xxxxxxxxxxx", name: "Retry Place", category: "beach", earliest_expiry: "2026-09-25T05:09:18.298+00:00" }];
+
+  // A double whose at-risk answers are scripted per call, so "how many times
+  // was it asked" is a COUNT, not an inference from the outcome.
+  const scripted = (answers) => {
+    const calls = [];
+    const saved = globalThis.fetch;
+    globalThis.fetch = async (url, init) => {
+      const u = String(url);
+      const method = (init && init.method) || "GET";
+      if (u.startsWith(AT_RISK_URL)) {
+        // THROWS past the script instead of repeating the last answer. A
+        // repeat would let an unbounded retry spin until Node dies of memory
+        // exhaustion — a "failure" that names nothing and reads like a crashed
+        // runner rather than a broken invariant. Throwing lands in
+        // runBackfill's own catch, the run ends, and K2's call-count assertion
+        // reports the real fault in one line.
+        if (calls.length >= answers.length) {
+          calls.push(u);
+          throw new Error("at-risk view asked " + calls.length + " times; the script provides " + answers.length);
+        }
+        const a = answers[calls.length];
+        calls.push(u);
+        if (a.status === 200) return { ok: true, status: 200, json: async () => a.rows || [] };
+        return { ok: false, status: a.status, json: async () => (a.code ? { code: a.code } : {}) };
+      }
+      if (u.startsWith(SB.url + "/rest/v1/wf_inventory")) return { ok: true, json: async () => [] };
+      if (u.startsWith(SB.url + "/rest/v1/wf_place_photo") && method === "GET") return { ok: true, json: async () => [] };
+      if (u.startsWith(SB.url + "/rest/v1/wf_place_photo") && method === "POST") return { ok: true, json: async () => [] };
+      throw new Error("UNEXPECTED NETWORK CALL: " + method + " " + u);
+    };
+    return { calls, restore: () => { globalThis.fetch = saved; } };
+  };
+
+  // K1 (THE HEADLINE INVARIANT) — a 500/57014 followed by a good answer
+  // recovers inside the same run, and says it recovered.
+  {
+    const d = scripted([{ status: 500, code: "57014" }, { status: 200, rows: ROWS }]);
+    const result = await runBackfill({
+      limit: 5, sbEnv: SB, source: "at-risk",
+      resolvePhoto: async (_p, deps) => { deps.onReject("no_lead_image"); return null; },
+      storePhoto: null, dryRun: false,
+    });
+    d.restore();
+    eq(d.calls.length, 2, "K1 (THE HEADLINE INVARIANT): a statement timeout is retried EXACTLY once — proven by call count on the view, not inferred from the outcome");
+    eq(result.atRiskUnavailable, false, "K1: and the run recovers — the worklist is not reported unavailable");
+    eq(result.atRiskScanned, 1, "K1: the retry's rows are the ones actually used");
+    eq(result.atRiskRetried, true, "K1: the recovery is recorded, not hidden — an hour that needed a retry is not the same as one that did not");
+    ok(describeAtRisk(result).includes("(retried)"), "K1: and the note says so ALONGSIDE the counts, never instead of them (got " + JSON.stringify(describeAtRisk(result)) + ")");
+    ok(describeAtRisk(result).startsWith("at-risk 1/1"), "K1: the counts still lead the note");
+  }
+
+  // K2 — two timeouts stop. This keeps the insurance from becoming a hot loop
+  // that eats the run's whole time budget re-asking a question the database
+  // has already refused twice.
+  {
+    const d = scripted([{ status: 500, code: "57014" }, { status: 500, code: "57014" }]);
+    const result = await runBackfill({
+      limit: 5, sbEnv: SB, source: "at-risk",
+      resolvePhoto: async () => null, storePhoto: null, dryRun: false,
+    });
+    d.restore();
+    eq(d.calls.length, 2, "K2 (THE HEADLINE INVARIANT): after a second timeout the run STOPS asking — exactly 2 calls, never 3");
+    eq(result.atRiskUnavailable, true, "K2: and reports the worklist unavailable");
+    const note = String(result.note || "");
+    ok(note.includes("57014"), "K2: naming the SQLSTATE, so an operator can tell a cold query plan from an outage (got " + JSON.stringify(note) + ")");
+    ok(note.includes("retried once"), "K2: and saying the retry was already spent, so nobody re-runs it by hand expecting a different answer");
+  }
+
+  // K3 — a 4xx is not retried. A missing relation or a malformed request
+  // answers identically however many times it is asked; retrying it only
+  // spends budget and muddies the diagnosis.
+  {
+    const d = scripted([{ status: 404, code: "PGRST205" }]);
+    const result = await runBackfill({
+      limit: 5, sbEnv: SB, source: "at-risk",
+      resolvePhoto: async () => null, storePhoto: null, dryRun: false,
+    });
+    d.restore();
+    eq(d.calls.length, 1, "K3 (THE HEADLINE INVARIANT): a 404 is asked ONCE — proven by call count");
+    eq(result.atRiskUnavailable, true, "K3: and is still reported unavailable");
+    eq(result.atRiskRetried, false, "K3: with no retry claimed");
+    ok(String(result.note || "").includes("404"), "K3: the note names the status");
+    ok(!String(result.note || "").includes("retried once"), "K3: and does not claim a retry that never happened");
+  }
+
+  // K4 (POSITIVE CONTROL) — a healthy read is asked once and renders EXACTLY
+  // the note it rendered before this change. Without this, K1's "(retried)"
+  // could be passing because every run now claims a retry.
+  {
+    const d = scripted([{ status: 200, rows: ROWS }]);
+    const result = await runBackfill({
+      limit: 5, sbEnv: SB, source: "at-risk",
+      resolvePhoto: async (_p, deps) => { deps.onReject("no_lead_image"); return null; },
+      storePhoto: null, dryRun: false,
+    });
+    d.restore();
+    eq(d.calls.length, 1, "K4 (positive control): a healthy read is asked exactly once — no speculative second call");
+    eq(result.atRiskRetried, false, "K4: and claims no retry");
+    eq(describeAtRisk(result), "at-risk 1/1", "K4: rendering the note byte-identically to before this change (H2/H4's strings are unmoved)");
+  }
+
+  console.log("test-photo-vault-wiring: Section K OK — a cold-plan statement timeout is retried exactly once and recovers in-run; a second timeout stops; a 4xx is never retried; and a healthy read is unchanged");
+}
+
 if (failures) {
   console.error(`test-photo-vault-wiring: FAIL — ${failures} assertion(s) failed`);
   process.exit(1);
 }
 console.log(
-  "test-photo-vault-wiring: OK — lib/freePhoto.js prefers the vault URL once storage_path is set; lib/placePhotoBackfill.js upserts THEN vaults, records a licence refusal honestly with zero uploads, never re-fetches an already-vaulted place, drains wf_photo_at_risk before the general scan, app/api/cron/place-photos stays fail-closed and honest on an empty run, a LOST at-risk worklist is named in the pulse instead of hiding as `at-risk 0/0`, vercel.json schedules enough drain capacity to beat the cache cliff, an unobservable Wikimedia answer is deferred rather than written as a permanent rejection, and the cron run stops on its own budget inside the platform ceiling instead of being killed at 504 with nothing written"
+  "test-photo-vault-wiring: OK — lib/freePhoto.js prefers the vault URL once storage_path is set; lib/placePhotoBackfill.js upserts THEN vaults, records a licence refusal honestly with zero uploads, never re-fetches an already-vaulted place, drains wf_photo_at_risk before the general scan, app/api/cron/place-photos stays fail-closed and honest on an empty run, a LOST at-risk worklist is named in the pulse instead of hiding as `at-risk 0/0`, vercel.json schedules enough drain capacity to beat the cache cliff, an unobservable Wikimedia answer is deferred rather than written as a permanent rejection, and the cron run stops on its own budget inside the platform ceiling instead of being killed at 504 with nothing written, and a cold-plan statement timeout on the worklist is retried exactly once rather than idling the whole hour"
 );
