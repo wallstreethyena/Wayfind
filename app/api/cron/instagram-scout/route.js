@@ -24,7 +24,7 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 import { createClient } from "@supabase/supabase-js";
-import { igConfigured, igToken, hashtagIdUrl, hashtagMediaUrl, businessDiscoveryUrl, toCandidate, rankCandidates } from "../../../../lib/instagramGraph.js";
+import { igConfigured, igToken, hashtagIdUrl, hashtagMediaUrl, businessDiscoveryUrl, toCandidate, rankCandidates, IG_UNCONFIGURED_REASON } from "../../../../lib/instagramGraph.js";
 import { IG_HANDLES, hashtagsForWeek } from "../../../../lib/instagramSources.js";
 import { qualifySocialPost, observedCount, sourceRetryDue, safeSocialJson } from "../../../../lib/socialQualification.js";
 import { recordPulse } from "../../../../lib/jobPulse.js";
@@ -71,8 +71,16 @@ export async function GET(request) {
     return json({ error: "unauthorized" }, 401);
   }
   if (!igConfigured()) {
-    await recordPulse("instagram-scout", { attempted: 1, succeeded: 0, note: "configuration: missing Instagram credentials" });
-    return json({ configured: false, ok: false, reason: "IG_GRAPH_TOKEN / IG_BUSINESS_ACCOUNT_ID not set — see docs/INSTAGRAM_SETUP.md" }, 503);
+    // SHIPS DARK, ON PURPOSE (see the header comment). Until 2026-09-09 this
+    // recorded attempted=1/succeeded=0, which wf_job_health reads as a DEAD run
+    // and job-watch paged the owner every hour for a scout that was never
+    // switched on. A deliberately unconfigured job is IDLE, not an incident:
+    // attempted=0/succeeded=0/failed=0, and a note with no billing:/quota:
+    // prefix (lib/jobPulse.classifyHealth escalates that prefix on the first
+    // dead run). The one-time setup that lights it up is unchanged and is
+    // documented in docs/INSTAGRAM_SETUP.md.
+    await recordPulse("instagram-scout", { attempted: 0, succeeded: 0, failed: 0, note: IG_UNCONFIGURED_REASON });
+    return json({ configured: false, ok: true, idle: true, reason: "IG_GRAPH_TOKEN / IG_BUSINESS_ACCOUNT_ID not set — see docs/INSTAGRAM_SETUP.md" }, 200);
   }
   const db = admin();
   if (!db) return json({ configured: true, ok: false, reason: "no service role" }, 503);
