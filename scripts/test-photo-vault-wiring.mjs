@@ -130,13 +130,18 @@ const SB = { url: "https://vault-wiring.test.invalid", key: "test-key" };
 function makeDb({ atRisk = [], inventory = [], existingRows = [] } = {}) {
   const table = new Map(existingRows.map((r) => [r.place_id, r]));
   const upsertCalls = [];
+  const atRiskFetches = [];
   const savedFetch = globalThis.fetch;
   globalThis.fetch = async (url, init) => {
     const u = String(url);
     const method = (init && init.method) || "GET";
     if (u.startsWith(SB.url + "/rest/v1/wf_photo_at_risk")) {
       ok(!u.includes("SELECT ") && !u.includes("select%20"), "PROBE: at-risk fetch is a PostgREST GET, never raw SQL text");
-      return { ok: true, json: async () => atRisk };
+      const parsed = new URL(u);
+      const limit = Math.max(1, Number(parsed.searchParams.get("limit")) || atRisk.length || 1);
+      const offset = Math.max(0, Number(parsed.searchParams.get("offset")) || 0);
+      atRiskFetches.push({ limit, offset });
+      return { ok: true, json: async () => atRisk.slice(offset, offset + limit) };
     }
     if (u.startsWith(SB.url + "/rest/v1/wf_inventory")) {
       return { ok: true, json: async () => inventory };
@@ -156,6 +161,7 @@ function makeDb({ atRisk = [], inventory = [], existingRows = [] } = {}) {
   return {
     table,
     upsertCalls,
+    atRiskFetches,
     restore() {
       globalThis.fetch = savedFetch;
     },
@@ -374,7 +380,47 @@ const PHOTO = (id) => ({
     eq(JSON.stringify(order3), JSON.stringify(["onlyatrisk00001234AB"]), "E6: source:\"at-risk\" drains ONLY the at-risk worklist");
   }
 
-  console.log("test-photo-vault-wiring: Section E OK — the at-risk worklist is fully drained before the general scan; source=at-risk|all each drive one worklist exclusively");
+  // E7 — HISTORICAL FAILURE CLASS: the reporting view intentionally keeps
+  // rejected rows. Once the first 1,000 rows are all decided/rejected,
+  // a one-page worker must NOT conclude there is no at-risk work. The
+  // next undecided row lives beyond that prefix and must be reached by
+  // an actual second PostgREST page.
+  {
+    const decided = Array.from({ length: 1000 }, (_, i) => ({
+      place_id: `decided-${String(i).padStart(4, "0")}`,
+      name: `Decided ${i}`,
+      category: "food",
+    }));
+    const tail = Array.from({ length: 5 }, (_, i) => ({
+      place_id: `tail-undecided-${i}`,
+      name: `Tail ${i}`,
+      category: "hotels",
+    }));
+    const db4 = makeDb({
+      atRisk: [...decided, ...tail],
+      existingRows: decided.map((r) => ({ place_id: r.place_id, status: "rejected" })),
+    });
+    const order4 = [];
+    const result4 = await runBackfill({
+      limit: 3,
+      scanLimit: 1000,
+      sbEnv: SB,
+      source: "at-risk",
+      resolvePhoto: async (p) => {
+        order4.push(p.place_id);
+        return null;
+      },
+      dryRun: true,
+    });
+    db4.restore();
+    ok(db4.atRiskFetches.length >= 2, `E7: a fully-decided first 1,000-row page must force a second at-risk page, got ${db4.atRiskFetches.length} fetch(es)`);
+    eq(db4.atRiskFetches[0] && db4.atRiskFetches[0].offset, 0, "E7: first at-risk page starts at offset 0");
+    eq(db4.atRiskFetches[1] && db4.atRiskFetches[1].offset, 1000, "E7: second at-risk page advances to offset 1000");
+    eq(JSON.stringify(order4), JSON.stringify(tail.slice(0, 3).map((r) => r.place_id)), "E7 (THE STARVATION LOCK): undecided rows beyond 1,000 decided/rejected rows are still processed");
+    eq(result4.atRiskTaken, 3, "E7: the run spends all three requested decisions on the reachable tail rows");
+  }
+
+  console.log("test-photo-vault-wiring: Section E OK — the at-risk worklist is fully drained before the general scan and pagination prevents a decided/rejected prefix from starving later places; source=at-risk|all each drive one worklist exclusively");
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -516,10 +562,32 @@ const PHOTO = (id) => ({
   console.log("test-photo-vault-wiring: Section F OK — the cron route still 401s without CRON_SECRET and still pulses honestly on an empty run; ?source= is threaded through correctly");
 }
 
+// ─────────────────────────────────────────────────────────────────────────
+// SECTION G — the urgent vault worklist must have enough CLOCK CAPACITY
+// to beat the measured 2026-09-25 expiry cliff. The worker's safe
+// per-run default is 25; hourly therefore yields 600 decisions/day.
+// A separate daily source=all job preserves the low-pressure general
+// beach/attractions fill without stealing urgent capacity.
+// ─────────────────────────────────────────────────────────────────────────
+{
+  const vercel = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
+  const crons = Array.isArray(vercel.crons) ? vercel.crons : [];
+  const urgent = crons.find((c) => String(c.path || "").startsWith("/api/cron/place-photos?") && String(c.path).includes("source=at-risk"));
+  const general = crons.find((c) => String(c.path || "").startsWith("/api/cron/place-photos?") && String(c.path).includes("source=all"));
+  ok(!!urgent, "G1: vercel.json must schedule a dedicated source=at-risk place-photo drain");
+  eq(urgent && urgent.schedule, "50 * * * *", "G1 (THE CAPACITY LOCK): the urgent at-risk drain runs hourly, not once per day");
+  const urgentUrl = new URL("https://wayfind.test" + ((urgent && urgent.path) || "/"));
+  eq(urgentUrl.searchParams.get("limit"), "25", "G2: the hourly drain keeps the worker's tested 25-place per-run budget");
+  eq(25 * 24, 600, "G2: the configured urgent cadence provides 600 decision slots/day (5,000 places ≈ 8.34 days before retries)");
+  ok(!!general, "G3: a separate source=all general-fill schedule remains present");
+  eq(general && general.schedule, "10 5 * * *", "G3: general fill remains once daily so it cannot steal the urgent hourly budget");
+  console.log("test-photo-vault-wiring: Section G OK — urgent at-risk drain is hourly at 25/run (600/day) and general fill remains separately daily");
+}
+
 if (failures) {
   console.error(`test-photo-vault-wiring: FAIL — ${failures} assertion(s) failed`);
   process.exit(1);
 }
 console.log(
-  "test-photo-vault-wiring: OK — lib/freePhoto.js prefers the vault URL once storage_path is set; lib/placePhotoBackfill.js upserts THEN vaults, records a licence refusal honestly with zero uploads, never re-fetches an already-vaulted place, drains wf_photo_at_risk before the general scan, and app/api/cron/place-photos stays fail-closed and honest on an empty run"
+  "test-photo-vault-wiring: OK — lib/freePhoto.js prefers the vault URL once storage_path is set; lib/placePhotoBackfill.js upserts THEN vaults, records a licence refusal honestly with zero uploads, never re-fetches an already-vaulted place, drains wf_photo_at_risk before the general scan without prefix starvation, keeps enough hourly capacity to beat the expiry cliff, and app/api/cron/place-photos stays fail-closed and honest on an empty run"
 );

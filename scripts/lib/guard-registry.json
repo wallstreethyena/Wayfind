@@ -3047,7 +3047,12 @@
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": []
+        "githubWorkflows": [
+          {
+            "file": ".github/workflows/photo-vault-drain-capacity-once.yml",
+            "blocking": true
+          }
+        ]
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
@@ -12121,14 +12126,19 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 60,
+      "assertionCount": 71,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": []
+        "githubWorkflows": [
+          {
+            "file": ".github/workflows/photo-vault-drain-capacity-once.yml",
+            "blocking": true
+          }
+        ]
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
