@@ -3019,12 +3019,7 @@
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": [
-          {
-            "file": ".github/workflows/regenerate-guide-registry-once.yml",
-            "blocking": true
-          }
-        ]
+        "githubWorkflows": []
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
