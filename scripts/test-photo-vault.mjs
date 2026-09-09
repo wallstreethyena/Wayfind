@@ -144,6 +144,28 @@ async function run() {
   eq(mayStorePermanently({ source: "wikimedia", license: "cc-by-sa-4.0" }), { allowed: true, reason: "ok" }, "A7: wikimedia + a free CC licence is allowed");
   eq(mayStorePermanently({ source: "owner", license: "cc0" }), { allowed: true, reason: "ok" }, "A7b: owner + cc0 is allowed (positive control on the other two storable sources)");
 
+  // ── A8 — RIGHTS-HELD SOURCES, IN THE SHAPE THEY ACTUALLY ARRIVE IN.
+  //      A7b passed for the wrong reason and hid a real defect for the whole
+  //      first cut of this lane: it labelled an OWNER photo "cc0", which
+  //      matches Commons' CC regex, so it exercised the third-party licence
+  //      path and never the owner path. A real owner row does not carry a CC
+  //      code — it carries a rights statement like "Wayfind owned". Measured
+  //      by CALLING the gate: every owner and creator photo was refused
+  //      `non_free_license`, i.e. the most permanently-ours content in the
+  //      vault was the one thing that could never enter it. Exactly backwards
+  //      from the rule this vault exists to implement.
+  //      This is CLAUDE.md's "a test whose setup never reaches the code path
+  //      under test passes for a reason unrelated to the property asserted."
+  //      Both halves are locked below: the allow, and the fail-closed. ──
+  eq(mayStorePermanently({ source: "owner", license: "Wayfind owned" }), { allowed: true, reason: "ok" }, "A8: owner + a plain rights statement (NOT a CC code) is allowed — this is the shape an owned photo really arrives in");
+  eq(mayStorePermanently({ source: "creator", license: "creator, consent on record" }), { allowed: true, reason: "ok" }, "A8: creator + a consent-on-record rights statement is allowed");
+  for (const blank of ["", "   ", null, undefined]) {
+    eq(mayStorePermanently({ source: "owner", license: blank }), { allowed: false, reason: "unknown_license" }, `A8: owner + ${JSON.stringify(blank)} rights still FAILS CLOSED — provenance is a different question from a CC code, not a weaker one`);
+  }
+  // The rights-held branch must not become a hole big enough to drive Google through.
+  eq(mayStorePermanently({ source: "google", license: "Wayfind owned" }), { allowed: false, reason: "google_places_terms_no_photo_caching" }, "A8: a Google photo relabelled with an owner-style rights statement is STILL refused by name");
+  eq(mayStorePermanently({ source: "getty", license: "Wayfind owned" }), { allowed: false, reason: "unknown_source" }, "A8: an unlisted source is not rescued by a rights statement either");
+
   ok(isGooglePhotoUrl(GOOGLE_HOSTED_URL) === true, "A8: a googleusercontent.com URL is recognised as Google-hosted regardless of any source label");
   ok(isGooglePhotoUrl(SOURCE_URL) === false, "A8b (negative control): an upload.wikimedia.org URL is NOT flagged as Google-hosted");
   ok(isGooglePhotoUrl("not a url") === false, "A8c: a malformed URL fails closed to false, never throws");
