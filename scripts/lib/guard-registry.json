@@ -3021,7 +3021,7 @@
         "npmScripts": [],
         "githubWorkflows": [
           {
-            "file": ".github/workflows/apply-orlando-guide-once.yml",
+            "file": ".github/workflows/regenerate-guide-registry-once.yml",
             "blocking": true
           }
         ]
@@ -3116,12 +3116,7 @@
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": [
-          {
-            "file": ".github/workflows/apply-orlando-guide-once.yml",
-            "blocking": true
-          }
-        ]
+        "githubWorkflows": []
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
@@ -3171,12 +3166,7 @@
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": [
-          {
-            "file": ".github/workflows/apply-orlando-guide-once.yml",
-            "blocking": true
-          }
-        ]
+        "githubWorkflows": []
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
@@ -3254,12 +3244,7 @@
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": [
-          {
-            "file": ".github/workflows/apply-orlando-guide-once.yml",
-            "blocking": true
-          }
-        ]
+        "githubWorkflows": []
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
@@ -3281,12 +3266,7 @@
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": [
-          {
-            "file": ".github/workflows/apply-orlando-guide-once.yml",
-            "blocking": true
-          }
-        ]
+        "githubWorkflows": []
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
@@ -10463,12 +10443,7 @@
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": [
-          {
-            "file": ".github/workflows/apply-orlando-guide-once.yml",
-            "blocking": true
-          }
-        ]
+        "githubWorkflows": []
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
@@ -13053,12 +13028,7 @@
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
-        "githubWorkflows": [
-          {
-            "file": ".github/workflows/apply-orlando-guide-once.yml",
-            "blocking": true
-          }
-        ]
+        "githubWorkflows": []
       },
       "gating": "blocks-ci-and-deploy",
       "excludedReason": null,
