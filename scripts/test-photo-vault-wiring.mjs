@@ -47,6 +47,7 @@
 import { readFileSync } from "node:fs";
 import { findFreePhoto } from "../lib/freePhoto.js";
 import { runBackfill, describeAtRisk } from "../lib/placePhotoBackfill.js";
+import { installWikimediaFetchPolicy } from "../lib/wikimediaFetchPolicy.js";
 
 let failures = 0;
 const ok = (condition, message) => {
@@ -756,10 +757,197 @@ const PHOTO = (id) => ({
   console.log("test-photo-vault-wiring: Section H OK — a lost at-risk worklist is named in the pulse instead of hiding as `at-risk 0/0`, and the drain is scheduled fast enough to finish before the cache cliff");
 }
 
+// ── SECTION I — A REQUEST THAT NEVER LANDED MUST NOT BECOME A PERMANENT
+//    VERDICT ───────────────────────────────────────────────────────────────
+//
+//   This file's own header for lib/placePhotoBackfill.js says: "EVERY WRITE IS
+//   EFFECTIVELY ONE-SHOT ... this worker never re-decides a place it has
+//   already decided." That is a fine property for a decision and a terrible
+//   one for a guess. Before 2026-09-09 a Wikimedia 429 resolved to the same
+//   null as a real miss, so the worker wrote a permanent `status:"rejected"`
+//   row for a question it never got to ask — and lib/wikimediaFetchPolicy.js
+//   answers a SYNTHETIC 429 to everything queued during a Retry-After window,
+//   so one real 429 could cascade through a whole run.
+//
+//   v8.56.14 raised this lane from 25 decisions/day to 600, multiplying both
+//   the Wikimedia traffic and this failure mode by the same 24x. Hence:
+//   an `unavailable_*` outcome writes NO ROW and counts as `deferred`, which
+//   is deliberately NOT `failed` (the route pages the owner on
+//   `failed === attempted`, and a Retry-After window is normal operation);
+//   and a candidate whose turn arrives while the backoff window is already
+//   open is never STARTED, so it does not enter `attempted` at all.
+{
+  const PID_A = "deferredplace1234567A";
+  const PID_B = "rejectedplace1234567B";
+
+  // I1 (THE HEADLINE INVARIANT) + I1b (its positive control), run as a pair
+  // against the SAME harness so neither can pass by the worker simply having
+  // stopped writing rows at all.
+  {
+    const db = makeDb({ atRisk: [{ place_id: PID_A, name: "Deferred Place", category: "beach" }] });
+    const result = await runBackfill({
+      limit: 5,
+      sbEnv: SB,
+      resolvePhoto: async (_place, deps) => {
+        // Exactly what lib/commonsPhotos.js now reports when a request did
+        // not succeed: no photo, and a reason isUnavailableReason() accepts.
+        deps.onReject("unavailable_opensearch");
+        return null;
+      },
+      storePhoto: null,
+      dryRun: false,
+    });
+    db.restore();
+
+    eq(db.upsertCalls.length, 0, "I1 (THE HEADLINE INVARIANT): an unavailable outcome writes ZERO rows — proven by call count on the db double, not by reading a counter");
+    eq(result.deferred, 1, "I1: it is counted as deferred");
+    eq(result.rejected, 0, "I1: and NOT as a rejection — a rejection is permanent and this place was never actually asked about");
+    eq(result.failed, 0, "I1: and NOT as a failure — the worker did its job; Wikimedia was unavailable");
+    eq(result.attempted, 1, "I1: the place WAS attempted (the request was started), unlike a skip");
+    const d = (result.details || []).find((x) => x.placeId === PID_A);
+    eq(d && d.outcome, "deferred", "I1: the detail entry names the outcome honestly");
+    eq(d && d.reason, "unavailable_opensearch", "I1: and carries the reason forward for the operator");
+  }
+
+  {
+    const db = makeDb({ atRisk: [{ place_id: PID_B, name: "Rejected Place", category: "beach" }] });
+    const result = await runBackfill({
+      limit: 5,
+      sbEnv: SB,
+      resolvePhoto: async (_place, deps) => {
+        deps.onReject("no_lead_image");
+        return null;
+      },
+      storePhoto: null,
+      dryRun: false,
+    });
+    db.restore();
+
+    eq(db.upsertCalls.length, 1, "I1b (POSITIVE CONTROL): a DEFINITIVE miss still writes exactly one permanent row — so I1's zero means 'this outcome specifically', not 'writes are broken'");
+    ok(String(db.upsertCalls[0].source_ref || "").startsWith("rejected:"), "I1b: and it is written as a rejection, carrying its reason in source_ref");
+    eq(db.upsertCalls[0].status, "rejected", "I1b: with status='rejected'");
+    eq(result.rejected, 1, "I1b: counted as a rejection");
+    eq(result.deferred, 0, "I1b: and not deferred");
+  }
+
+  // I2 — a candidate whose turn comes during an ALREADY-OPEN Retry-After
+  // window is never started. Driven through the REAL controller
+  // lib/placePhotoBackfill.js reads, not a stub of it: the install symbol is
+  // swapped out and back so this section cannot leak an armed backoff into
+  // any other section.
+  {
+    const KEY = Symbol.for("wayfind.wikimedia-fetch-policy.v1");
+    const savedController = globalThis[KEY];
+    const savedFetch = globalThis.fetch;
+    delete globalThis[KEY];
+    globalThis.fetch = async () => ({
+      ok: false,
+      status: 429,
+      headers: { get: (h) => (String(h).toLowerCase() === "retry-after" ? "60" : null) },
+      json: async () => ({}),
+    });
+    const policy = installWikimediaFetchPolicy();
+    await policy.fetch("https://en.wikipedia.org/w/api.php?action=opensearch&search=x");
+    ok(!policy.canRequest(), "I2 (setup): the real Retry-After window is open");
+
+    let resolveCalls = 0;
+    const db = makeDb({
+      atRisk: [
+        { place_id: PID_A, name: "A", category: "beach" },
+        { place_id: PID_B, name: "B", category: "beach" },
+      ],
+    });
+    const result = await runBackfill({
+      limit: 5,
+      sbEnv: SB,
+      resolvePhoto: async () => {
+        resolveCalls++;
+        return null;
+      },
+      storePhoto: null,
+      dryRun: false,
+    });
+    db.restore();
+    globalThis[KEY] = savedController;
+    globalThis.fetch = savedFetch;
+
+    eq(resolveCalls, 0, "I2 (THE HEADLINE INVARIANT): with the backoff window open, ZERO candidates are started — proven by call count on the resolver, which is what stops one 429 cascading into a run of wrong rejections");
+    eq(db.upsertCalls.length, 0, "I2: and zero rows are written");
+    eq(result.skipped, 2, "I2: both candidates are counted as skipped");
+    eq(result.attempted, 0, "I2: `attempted` excludes them — a place we never looked at was not attempted");
+    eq(result.rejected, 0, "I2: nothing is rejected");
+    eq(result.deferred, 0, "I2: and a never-started place is not 'deferred' either — deferred means started and unobservable");
+  }
+
+  // I3 — `deferred` must not be able to page the owner. The route fires
+  // jobFailed on `failed === attempted`; a whole run of deferrals must leave
+  // that condition false, while a whole run of real failures must still
+  // leave it true (the positive control).
+  {
+    const raw = readFileSync(new URL("../app/api/cron/place-photos/route.js", import.meta.url), "utf8");
+    const stripped = raw.replace(/^import[^;]+;\n/gm, "");
+    const prelude = `
+      const runBackfill = (...a) => globalThis.__wfDeferTest.runBackfill(...a);
+      const describeAtRisk = (...a) => globalThis.__wfDeferTest.describeAtRisk(...a);
+      const recordPulse = (...a) => globalThis.__wfDeferTest.recordPulse(...a);
+      const jobCannotRun = (...a) => globalThis.__wfDeferTest.jobCannotRun(...a);
+      const jobFailed = (...a) => globalThis.__wfDeferTest.jobFailed(...a);
+    `;
+    const route = await import("data:text/javascript," + encodeURIComponent(prelude + "\n" + stripped));
+
+    const pulses = [];
+    let pagedNote = null;
+    const base = {
+      ok: true, active: 0, vaulted: 0, vaultSkipped: 0, scanned: 0,
+      atRiskScanned: 1000, atRiskTaken: 3, atRiskUnavailable: false, alreadyCovered: 0,
+    };
+    let result = base;
+    globalThis.__wfDeferTest = {
+      runBackfill: async () => result,
+      describeAtRisk,
+      recordPulse: async (job, stats) => { pulses.push({ job, stats }); return true; },
+      jobCannotRun: async (job, reason) => { throw new Error("jobCannotRun must not fire here: " + reason); },
+      jobFailed: async (_job, note) => { pagedNote = note; return new Response("{}", { status: 200 }); },
+    };
+
+    const savedSecret = process.env.CRON_SECRET;
+    const savedUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const savedSvc = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    process.env.CRON_SECRET = "defer-test-secret";
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://defer.test.invalid";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "test-key";
+    const hit = () => route.GET(new Request("https://x/api/cron/place-photos", { headers: { authorization: "Bearer defer-test-secret" } }));
+
+    // Every place deferred: normal operation during a Wikimedia backoff.
+    result = { ...base, attempted: 3, rejected: 0, failed: 0, deferred: 3 };
+    pulses.length = 0;
+    pagedNote = null;
+    await hit();
+    eq(pagedNote, null, "I3 (THE HEADLINE INVARIANT): a run where every place was DEFERRED does not page the owner — a Retry-After window is normal operation, and paging on normal operation is how a monitor stops being read");
+    eq(pulses.length, 1, "I3: it still files a pulse, so the deferral is visible");
+    ok(String((pulses[0].stats || {}).note || "").includes("3 deferred"), `I3: and the note says how many were deferred (got ${JSON.stringify((pulses[0].stats || {}).note)})`);
+
+    // Every place a real failure: the pre-existing page still fires.
+    result = { ...base, attempted: 3, rejected: 0, failed: 3, deferred: 0 };
+    pulses.length = 0;
+    pagedNote = null;
+    await hit();
+    ok(pagedNote !== null, "I3 (POSITIVE CONTROL): a run where every place genuinely ERRORED still pages — so I3's silence above is about deferrals specifically, not a broken alarm");
+    eq(pulses.length, 0, "I3: and a paged run does not also file a success pulse");
+
+    process.env.CRON_SECRET = savedSecret;
+    process.env.NEXT_PUBLIC_SUPABASE_URL = savedUrl;
+    process.env.SUPABASE_SERVICE_ROLE_KEY = savedSvc;
+    delete globalThis.__wfDeferTest;
+  }
+
+  console.log("test-photo-vault-wiring: Section I OK — an unobservable Wikimedia answer is deferred, never written as a permanent rejection; an open backoff window starts no candidates at all; and deferrals do not page the owner while real failures still do");
+}
+
 if (failures) {
   console.error(`test-photo-vault-wiring: FAIL — ${failures} assertion(s) failed`);
   process.exit(1);
 }
 console.log(
-  "test-photo-vault-wiring: OK — lib/freePhoto.js prefers the vault URL once storage_path is set; lib/placePhotoBackfill.js upserts THEN vaults, records a licence refusal honestly with zero uploads, never re-fetches an already-vaulted place, drains wf_photo_at_risk before the general scan, app/api/cron/place-photos stays fail-closed and honest on an empty run, a LOST at-risk worklist is named in the pulse instead of hiding as `at-risk 0/0`, and vercel.json schedules enough drain capacity to beat the cache cliff"
+  "test-photo-vault-wiring: OK — lib/freePhoto.js prefers the vault URL once storage_path is set; lib/placePhotoBackfill.js upserts THEN vaults, records a licence refusal honestly with zero uploads, never re-fetches an already-vaulted place, drains wf_photo_at_risk before the general scan, app/api/cron/place-photos stays fail-closed and honest on an empty run, a LOST at-risk worklist is named in the pulse instead of hiding as `at-risk 0/0`, vercel.json schedules enough drain capacity to beat the cache cliff, and an unobservable Wikimedia answer is deferred rather than written as a permanent rejection"
 );

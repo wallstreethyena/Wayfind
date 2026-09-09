@@ -19,7 +19,7 @@
 // SAME wikiOpensearch/wikiPageInfo lib/popularity.js uses — see that file's
 // 2026-09-09 note on jf()'s fetchImpl param). No real network call, no real
 // database. Run standalone: `node scripts/test-commons-photos.mjs`.
-import { stripTrackingParams, findCommonsPhoto, classifyLicense, buildAttributionText } from "../lib/commonsPhotos.js";
+import { stripTrackingParams, findCommonsPhoto, classifyLicense, buildAttributionText, isUnavailableReason } from "../lib/commonsPhotos.js";
 import { createWikimediaFetchPolicy } from "../lib/wikimediaFetchPolicy.js";
 
 let failures = 0;
@@ -123,21 +123,25 @@ function makeFetch(overrides = {}) {
     if (String(url).includes("action=opensearch")) {
       const v = pick("opensearch", OPENSEARCH_HIT);
       if (v === "throw") throw new Error("simulated opensearch network failure");
+      if (v && v.__status) return jsonResponse(v.__status, v.body || {});
       return jsonResponse(200, v);
     }
     if (String(url).includes("commons.wikimedia.org")) {
       const v = pick("commons", COMMONS_INFO_FREE);
       if (v === "throw") throw new Error("simulated commons network failure");
+      if (v && v.__status) return jsonResponse(v.__status, v.body || {});
       return jsonResponse(200, v);
     }
     if (String(url).includes("prop=pageimages")) {
       const v = pick("pageImages", PAGE_IMAGES_HIT);
       if (v === "throw") throw new Error("simulated pageimages network failure");
+      if (v && v.__status) return jsonResponse(v.__status, v.body || {});
       return jsonResponse(200, v);
     }
     if (String(url).includes("prop=pageprops")) {
       const v = pick("pageInfo", PAGE_INFO_MATCH);
       if (v === "throw") throw new Error("simulated pageinfo network failure");
+      if (v && v.__status) return jsonResponse(v.__status, v.body || {});
       return jsonResponse(200, v);
     }
     return jsonResponse(404, {});
@@ -344,11 +348,111 @@ async function main() {
     eqStrip("not a url", "", "STRIP: an unparseable url becomes empty so the caller's falsy check catches it");
   }
 
+  // ── SECTION C — "THE REQUEST FAILED" MUST NOT BE FILED AS "THE ANSWER WAS
+  //    NO" ────────────────────────────────────────────────────────────────
+  //
+  //   lib/placePhotoBackfill.js writes a PERMANENT `status:"rejected"` row for
+  //   every null this resolver returns, and its own header states the rule:
+  //   "EVERY WRITE IS EFFECTIVELY ONE-SHOT ... this worker never re-decides a
+  //   place it has already decided." Before 2026-09-09 every failure mode in
+  //   this file collapsed into the same null with the same honest-sounding
+  //   reason, so a Wikimedia 429 at step 1 was recorded forever as "Wikipedia
+  //   has no article for this place" — indistinguishable afterwards from a
+  //   real miss, and unrecoverable.
+  //
+  //   That was survivable at 25 decisions/day. At the 600/day this lane runs
+  //   as of v8.56.14 it is not, and lib/wikimediaFetchPolicy.js makes it
+  //   worse on purpose: it answers a SYNTHETIC 429 to everything queued
+  //   during a Retry-After window, so ONE real 429 can cascade into a whole
+  //   run of permanent wrong rejections.
+  //
+  //   The rule under test: an outcome is DEFINITIVE only when a response
+  //   arrived, was 2xx, parsed, and the answer was empty. Everything else is
+  //   `unavailable_*`, which the worker leaves undecided and retries.
+  {
+    const STEPS = [
+      { key: "opensearch", reason: "unavailable_opensearch", empty: [PLACE.name, [], [], []], emptyReason: "no_wiki_candidate" },
+      { key: "pageInfo", reason: "unavailable_pageinfo", empty: { query: { pages: {} } }, emptyReason: null },
+      { key: "pageImages", reason: "unavailable_lead_image", empty: { query: { pages: { 1: {} } } }, emptyReason: "no_lead_image" },
+      { key: "commons", reason: "unavailable_imageinfo", empty: { query: { pages: { 1: {} } } }, emptyReason: "no_commons_imageinfo" },
+    ];
+
+    // C1 (THE HEADLINE INVARIANT) — a 429, a 500, and a thrown fetch at each
+    // of the four steps all report `unavailable_*`, never a `no_*` verdict.
+    for (const step of STEPS) {
+      for (const [label, injected] of [
+        ["429", { __status: 429, body: {} }],
+        ["500", { __status: 500, body: {} }],
+        ["throw", "throw"],
+      ]) {
+        const { photo, reason } = await resolve({ [step.key]: injected });
+        ok(!photo, `C1 ${step.key}/${label}: no photo is returned`);
+        ok(
+          reason === step.reason,
+          `C1 ${step.key}/${label}: a request that did not succeed reports ${step.reason}, never a definitive miss (got ${JSON.stringify(reason)})`
+        );
+        ok(
+          isUnavailableReason(reason),
+          `C1 ${step.key}/${label}: and isUnavailableReason() — the SAME predicate lib/placePhotoBackfill.js branches on — agrees it is not a decision`
+        );
+      }
+    }
+
+    // C2 (POSITIVE CONTROL) — the definitive path must still work, or C1
+    // could pass merely because every outcome became `unavailable_*`. A 2xx
+    // carrying an empty answer keeps its original `no_*` / `identity_*`
+    // reason and IS a decision the worker may record permanently.
+    for (const step of STEPS) {
+      const { photo, reason } = await resolve({ [step.key]: step.empty });
+      ok(!photo, `C2 ${step.key}: an empty 2xx answer still yields no photo`);
+      ok(
+        reason && !isUnavailableReason(reason),
+        `C2 ${step.key} (positive control): a 2xx that genuinely answered "nothing here" stays a DEFINITIVE rejection the worker may record (got ${JSON.stringify(reason)})`
+      );
+      if (step.emptyReason) {
+        ok(reason === step.emptyReason, `C2 ${step.key}: and keeps its pre-existing reason ${step.emptyReason} (got ${JSON.stringify(reason)})`);
+      } else {
+        ok(String(reason).startsWith("identity_"), `C2 ${step.key}: an article that answered but did not verify stays an identity_* rejection (got ${JSON.stringify(reason)})`);
+      }
+    }
+
+    // C3 — the policy's SYNTHETIC 429. This is the cascade path: the response
+    // never left the process, so treating it as evidence about Commons would
+    // be inventing a fact. Driven through the REAL controller, not a stub.
+    {
+      let real = 0;
+      const upstream = async (url) => {
+        real++;
+        // First call is a genuine 429 carrying Retry-After; that arms the
+        // window, and everything after it is answered synthetically.
+        return { ok: false, status: 429, headers: { get: (h) => (h.toLowerCase() === "retry-after" ? "30" : null) }, json: async () => ({}) };
+      };
+      const policy = createWikimediaFetchPolicy(upstream);
+      let reason = null;
+      const photo = await findCommonsPhoto(PLACE, { fetch: policy.fetch, onReject: (r) => { reason = r; } });
+      ok(!photo, "C3: a throttled resolve returns no photo");
+      ok(reason === "unavailable_opensearch", `C3: a 429 answered by the Wikimedia fetch policy reports unavailable_opensearch (got ${JSON.stringify(reason)})`);
+      ok(policy.remainingBackoffMs() > 0, "C3: and the real policy did arm its Retry-After window, which is what makes the next candidates synthetic");
+      ok(!policy.canRequest(), "C3: canRequest() is false during that window — the signal lib/placePhotoBackfill.js uses to stop starting candidates at all");
+      ok(real >= 1, "C3 (sanity): the upstream fetch was actually reached at least once");
+    }
+
+    // C4 — the predicate itself, pinned. The worker's whole branch hangs on
+    // it, so a silent widening (e.g. matching every reason) must fail here.
+    ok(isUnavailableReason("unavailable_opensearch"), "C4: unavailable_* is not a decision");
+    ok(isUnavailableReason("error:boom"), "C4: an unexpected exception is not evidence Commons lacks a photo");
+    ok(!isUnavailableReason("no_wiki_candidate"), "C4: an observed empty search IS a decision");
+    ok(!isUnavailableReason("no_lead_image"), "C4: an observed article with no lead image IS a decision");
+    ok(!isUnavailableReason("license_non_free_license"), "C4: an observed non-free licence IS a decision");
+    ok(!isUnavailableReason("identity_disambiguation"), "C4: an observed identity mismatch IS a decision");
+    ok(!isUnavailableReason(null) && !isUnavailableReason(undefined) && !isUnavailableReason(42), "C4: a missing or non-string reason is not silently treated as unavailable");
+  }
+
   if (failures) {
     console.error(`test-commons-photos: ${failures} FAILED`);
     process.exit(1);
   }
-  console.log("test-commons-photos: OK — identity gate, license gate, attribution population, Commons/upload fetch-policy coverage, and the never-throws contract all verified");
+  console.log("test-commons-photos: OK — identity gate, license gate, attribution population, Commons/upload fetch-policy coverage, the never-throws contract, and the rule that a request which did not succeed is reported as unavailable_* rather than filed as a permanent rejection");
 }
 
 main().catch((e) => {
