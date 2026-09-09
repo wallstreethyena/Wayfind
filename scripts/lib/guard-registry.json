@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 591,
-    "totalRegistryEntries": 592,
-    "guardsTxtLineCount": 589,
-    "guardsTxtReachedFileCount": 584,
-    "criticalCount": 71,
+    "totalOnDiskGuardFiles": 592,
+    "totalRegistryEntries": 593,
+    "guardsTxtLineCount": 590,
+    "guardsTxtReachedFileCount": 585,
+    "criticalCount": 72,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 400,
+      "CALL": 401,
       "RENDER": 47,
       "STRUCTURAL": 144,
       "OTHER": 1
@@ -10499,6 +10499,33 @@
       "owner": null
     },
     {
+      "file": "scripts/test-free-photo-serving.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 61,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-import:../lib/spendGate.js"
+      ],
+      "protects": "A free, permanently-licensed photo in wf_place_photo prevents the photos ledger grant from ever being taken (app/api/photo/route.js's authorizeSpend), while same-place Google recovery still wins, details_ids_only stays unaffected, and a broken free-photo lookup fails closed instead of spending or crashing the route.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "The photos ledger is already exhausted at 950/950 for September with 10,028 cached photo URIs expiring 2026-09-25..2026-10-04; if the free-photo check in authorizeSpend regressed to a no-op, every one of those places would silently fall back to spending (or being denied) a paid Google grant instead of serving the photo Wayfind already owns for free, undetectable from the served image alone."
+      },
+      "owner": "Revenue QA"
+    },
+    {
       "file": "scripts/test-front-events.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -12067,7 +12094,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 166,
+      "assertionCount": 169,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -13282,7 +13309,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 59,
+      "assertionCount": 60,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

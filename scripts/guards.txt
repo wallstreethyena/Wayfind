@@ -1342,3 +1342,15 @@ node scripts/test-command-center-requests.mjs
 # concurrency/backoff policy, and a failed lookup returns null and never
 # throws.
 node scripts/test-commons-photos.mjs
+
+# 2026-09-09 (#1188) the SERVING half of the free permanent-photo lane:
+# lib/freePhoto.js (reads wf_place_photo, attribution-gated, fail-soft) and
+# its wiring into app/api/photo/route.js. Proves, by executing the real
+# route and the real lib/spendGate.js with only the ledger fetch
+# intercepted: a free photo prevents the photos ledger grant from EVER being
+# taken (call count, not a reason string); same-place Google recovery still
+# wins over a free substitute; a probe takes no grant; owned-free carries
+# attribution text and href; details_ids_only is untouched by a free
+# photo's existence; a broken free-photo lookup fails closed to pre-#1188
+# behaviour instead of crashing the route.
+node scripts/test-free-photo-serving.mjs

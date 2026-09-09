@@ -484,7 +484,12 @@ async function renderedPlaceholderRate(baseUrl) {
           Array.from(document.querySelectorAll(".wf-place-card img, .wf8-tile img")).map((img) => img.currentSrc || img.src)
         );
         for (const src of srcs) {
-          if (/googleusercontent\.com/i.test(src)) real++;
+          // #1188: upload.wikimedia.org is the free PERMANENT photo lane
+          // (lib/freePhoto.js) — a real photo, same as a googleusercontent.com
+          // one, just not rented from Google. See lib/photoCoverage.js's
+          // REAL_HOST_RX, which classifies the synthetic /api/photo probe the
+          // same way.
+          if (/googleusercontent\.com/i.test(src) || /upload\.wikimedia\.org/i.test(src)) real++;
           else if (/wf-photo-fallback\.svg/i.test(src)) placeholder++;
         }
       } finally {
