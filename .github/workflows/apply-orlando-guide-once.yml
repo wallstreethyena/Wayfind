@@ -1,0 +1,107 @@
+name: Apply Orlando guide once
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.head_ref == 'feat/fall-events-orlando-2026-guide' && github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Reconstruct supplied files
+        run: |
+          cat .github/orlando-guide/guide-*.b64 | base64 -d > lib/guidesFallOrlando2026.js
+          cat .github/orlando-guide/test-*.b64 | base64 -d > scripts/test-guide-event-ticket-cta.mjs
+      - name: Apply supplied patch to current main-era files
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          function edit(path, fn) {
+            const before = fs.readFileSync(path, 'utf8');
+            const after = fn(before);
+            if (after === before) throw new Error(path + ': transform made no change');
+            fs.writeFileSync(path, after);
+          }
+          function once(src, oldText, newText, label) {
+            const n = src.split(oldText).length - 1;
+            if (n !== 1) throw new Error(label + ': expected exactly one match, got ' + n);
+            return src.replace(oldText, newText);
+          }
+
+          edit('lib/guides.js', (s) => {
+            s = once(s,
+              'import { HALLOWEEN_2026_GUIDES } from "./guidesHalloween2026.js";\n',
+              'import { HALLOWEEN_2026_GUIDES } from "./guidesHalloween2026.js";\n// ⏳ SEASONAL (sunset 2026-12-01): the Orlando fall-events roundup.\nimport { FALL_ORLANDO_2026_GUIDES } from "./guidesFallOrlando2026.js";\n',
+              'guides import');
+            s = once(s,
+              '  ...HALLOWEEN_2026_GUIDES,\n};',
+              '  ...HALLOWEEN_2026_GUIDES,\n  // ⏳ SEASONAL — remove with lib/guidesFallOrlando2026.js on 2026-12-01.\n  ...FALL_ORLANDO_2026_GUIDES,\n};',
+              'guides spread');
+            return s;
+          });
+
+          edit('lib/guideCta.js', (s) => {
+            s = once(s,
+              'import { isSearchAsBookHref } from "./viatorDenylist.js";\n',
+              'import { isSearchAsBookHref } from "./viatorDenylist.js";\nimport { eventTicketCta } from "./eventTicketDeals.js";\n',
+              'guideCta import');
+            const block = `  // v9.0 — AN EVENT'S OWN TICKET. A guide ABOUT an event (the fall-events\n  // roundup) names the wf_events id whose ticket is sold through the pinned\n  // Undercover Tourist row in lib/eventTicketDeals.js. Same registry every\n  // event card and /florida-events page reads, same /api/commerce/go redirect\n  // (partner URL never in the DOM, crawlers refused, click attributable), same\n  // product-integrity rule: a separately-ticketed night can only resolve to\n  // an "event-ticket" row, so a day pass can never wear a haunt's name here.\n  // Returned as kind "deal" so GuideConversion attributes the click to the\n  // deal provider path rather than defaulting to viator. An unmapped id\n  // resolves to nothing and the rungs below take over — never a dead link.\n  if (g && g.eventTicket) {\n    const t = eventTicketCta(g.eventTicket, { surface: "guide" });\n    if (t && t.href) {\n      // \`eventTicketPlace\` is the venue-shaped name the button may carry\n      // ("Halloween Horror Nights"); a guide that omits it gets the registry's\n      // own label, never a heading turned into a button (the #606 defect).\n      const name = String(g.eventTicketPlace || "").trim() || null;\n      return {\n        kind: "deal", href: t.href, sponsored: true, monetized: true, exact: true,\n        place: name, deal: null,\n        label: name ? \`${'${name}'} tickets\` : t.label.replace(/\\s*↗\\s*$/, ""),\n      };\n    }\n  }\n\n`;
+            return once(s, '  if (intent === "hotel") {\n', block + '  if (intent === "hotel") {\n', 'event ticket rung');
+          });
+
+          edit('app/guides/[slug]/page.js', (s) => {
+            const ld = `  const guideUrl = SITE_URL + "/guides/" + params.slug;\n  const itemListLd = Array.isArray(g.picks) && g.picks.length >= 3 ? {\n    "@context": "https://schema.org",\n    "@type": "ItemList",\n    name: g.title,\n    numberOfItems: g.picks.length,\n    itemListOrder: "https://schema.org/ItemListOrderAscending",\n    itemListElement: Array.from(g.picks, (pick, i) => ({\n      "@type": "ListItem",\n      position: i + 1,\n      name: pick.name,\n      url: pick.eventSlug ? SITE_URL + "/florida-events/" + encodeURIComponent(pick.eventSlug) : guideUrl + "#pick-" + (i + 1),\n    })),\n  } : null;\n`;
+            s = once(s, '  const faqLd = g.faq && g.faq.length ? {\n', ld + '  const faqLd = g.faq && g.faq.length ? {\n', 'ItemList data');
+            s = once(s,
+              '      {faqLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} /> : null}\n',
+              '      {faqLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} /> : null}\n      {itemListLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }} /> : null}\n',
+              'ItemList render');
+            s = once(s, '<section key={i} className="wf-guide-pick">', '<section key={i} id={"pick-" + (i + 1)} className="wf-guide-pick">', 'pick anchor');
+            s = once(s,
+              '                {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name)} style={{ ...S.btnGhost, marginLeft: 0 }}>Open in Wayfind</a> : null}\n',
+              '                {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name)} style={{ ...S.btnGhost, marginLeft: 0 }}>Open in Wayfind</a> : null}\n                {pick.eventSlug ? <a href={"/florida-events/" + encodeURIComponent(pick.eventSlug)} style={{ ...S.btnGhost, marginLeft: 0 }}>Dates, tickets &amp; verdict</a> : null}\n',
+              'event handoff');
+            return s;
+          });
+
+          edit('scripts/guards.txt', (s) => once(s,
+            'node scripts/check-guide-product-resolution.mjs\n',
+            'node scripts/check-guide-product-resolution.mjs\n# 2026-09-08 — a guide may name an event\'s OWN ticket (eventTicket); prove it\n# resolves to the pinned event-ticket row through /api/commerce/go and that the\n# roundup hands off to /florida-events pages instead of duplicating Event schema.\nnode scripts/test-guide-event-ticket-cta.mjs\n',
+            'guard wiring'));
+          NODE
+      - name: Regenerate guard registry
+        run: node scripts/lib/build-guard-registry.mjs
+      - name: Targeted guide verification
+        run: |
+          node scripts/test-guide-event-ticket-cta.mjs
+          node scripts/check-guide-teasers.mjs
+          node scripts/check-guides.mjs
+          node scripts/check-guide-cta-honesty.mjs
+          node scripts/test-shell-key-guide-deeplinks.mjs
+          node scripts/check-guard-registry.mjs
+      - name: Full production build and guards
+        run: npm run build
+      - name: Commit the supplied implementation
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add lib/guidesFallOrlando2026.js lib/guides.js lib/guideCta.js 'app/guides/[slug]/page.js' scripts/test-guide-event-ticket-cta.mjs scripts/guards.txt scripts/lib/guard-registry.json
+          git diff --cached --check
+          git commit -m "feat(guides): Orlando fall events 2026 guide + event-ticket CTA rung + event-page handoff"
+          git push origin HEAD:${{ github.head_ref }}
