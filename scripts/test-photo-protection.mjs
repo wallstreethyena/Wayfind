@@ -116,8 +116,12 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
   // `photos` still goes through spendAllowPhotos() via the default param, and
   // getRecovery().then(...) still gates every grant on the same free same-place
   // read. check-photos.mjs and check-spend-guard.mjs assert this same shape.
-  ok(/authorizeSpend:\s*\(sku\s*=\s*"photos"\)\s*=>\s*getRecovery\(\)\.then/.test(route),
-    "case 1: app/api/photo/route.js must keep the getRecovery().then(...)-gated authorizeSpend(sku) shape — check-photos.mjs and check-spend-guard.mjs also assert this");
+  // #1188 (2026-09-09) awaits the free-permanent-photo lookup (getFreePhoto())
+  // in the SAME Promise.all as recovery — still gating every grant, same free
+  // read-only shape, one more source. scripts/test-free-photo-serving.mjs
+  // executes this path instead of pattern-matching it.
+  ok(/authorizeSpend:\s*\(sku\s*=\s*"photos"\)\s*=>\s*Promise\.all\(\[getRecovery\(\),\s*getFreePhoto\(\)\]\)\.then/.test(route),
+    "case 1: app/api/photo/route.js must keep the Promise.all([getRecovery(),getFreePhoto()]).then(...)-gated authorizeSpend(sku) shape — check-photos.mjs and check-spend-guard.mjs also assert this");
   ok(/probe-no-spend/.test(route) && /"spend-denied",\s*"gate-shut",\s*"unconfigured",\s*"probe-no-spend"/.test(route.replace(/\s+/g, " ")),
     "case 1: the route's recovery-eligible reasons list must include \"probe-no-spend\" alongside #1184's spend-denied/gate-shut/unconfigured, so a probe still sees a free same-place recovery");
   const probeHeaderRead = /req\.headers\.get\("x-wayfind-photo-probe"\)\s*===\s*"1"/.test(route);
@@ -127,7 +131,13 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
 // ── case 2 — classifyProbe: real / compass / miss / error ──────────────────
 {
   ok(classifyProbe({ status: 302, location: "https://lh3.googleusercontent.com/p/x" }) === "real", "case 2 (positive control): a 302 to a googleusercontent.com host must classify as real");
-  ok(classifyProbe({ status: 302, location: "https://evil.example.com/p/x" }) !== "real", "case 2: a 302 to a non-googleusercontent host must never classify as real");
+  // #1188: the free PERMANENT photo lane (lib/freePhoto.js) redirects to
+  // upload.wikimedia.org, not Google — it must classify as "real" too, or a
+  // monitor probe would page the owner over a photo that loaded correctly.
+  ok(classifyProbe({ status: 302, location: "https://upload.wikimedia.org/wikipedia/commons/a/ab/Example.jpg" }) === "real", "case 2 (positive control, #1188): a 302 to upload.wikimedia.org must classify as real — the free permanent photo lane");
+  ok(classifyProbe({ status: 302, location: "https://evil.example.com/p/x" }) !== "real", "case 2: a 302 to a non-googleusercontent, non-wikimedia host must never classify as real");
+  ok(classifyProbe({ status: 302, location: "https://notupload.wikimedia.org.evil.example.com/p/x" }) !== "real", "case 2: a host that merely CONTAINS upload.wikimedia.org must never classify as real — only an exact (sub)domain match");
+  ok(classifyProbe({ status: 302, location: "https://upload.wikimedia.org.evil.example.com/p/x" }) !== "real", "case 2: a lookalike host with upload.wikimedia.org as a PREFIX (not a suffix) must never classify as real");
   ok(classifyProbe({ status: 302, location: "/wf-photo-fallback.svg" }) === "compass", "case 2: a 302 to the fallback SVG must classify as compass");
   ok(classifyProbe({ status: 200, location: null, resultHeader: null }) !== "real", "case 2: a bare 200 must never classify as real");
 

@@ -164,9 +164,15 @@ async function sourceModule(path, prelude) {
   // 2026-09-09: the authorizer is per-SKU so the resolver's self-heal fan-out can
   // take one grant per outbound request; `photos` goes through spendAllowPhotos
   // (free tier, or the owner's photo-only cap), every other SKU through spendAllow.
-  const authorizer = route.match(/authorizeSpend:\s*\(sku\s*=\s*"photos"\)\s*=>\s*getRecovery\(\)\.then\(\(hit\)\s*=>\s*\{([\s\S]*?)\}\),/);
-  ok(!!authorizer, "photo route injects lazy per-SKU ledger authorization (recovery first) into the resolver");
+  // 2026-09-09 (#1188): recovery and the free-permanent-photo lookup are now
+  // awaited TOGETHER (Promise.all) before either decision — see
+  // scripts/test-free-photo-serving.mjs for the executed (not merely
+  // pattern-matched) proof that a free photo refuses a `photos` grant while
+  // leaving `details_ids_only` untouched.
+  const authorizer = route.match(/authorizeSpend:\s*\(sku\s*=\s*"photos"\)\s*=>\s*Promise\.all\(\[getRecovery\(\),\s*getFreePhoto\(\)\]\)\.then\(\(\[hit,\s*free\]\)\s*=>\s*\{([\s\S]*?)\}\),/);
+  ok(!!authorizer, "photo route injects lazy per-SKU ledger authorization (recovery + free-photo lookup, awaited together) into the resolver");
   ok(!!authorizer && /if \(hit \|\| shut\) return false;/.test(authorizer[1]), "photo route's authorizer refuses on a same-place recovery hit and on a shut gate");
+  ok(!!authorizer && /if \(sku === "photos" && free\) return false;/.test(authorizer[1]), "photo route's authorizer refuses a `photos` grant outright when a free permanent photo exists for this place, and ONLY for `photos`");
   ok(!!authorizer && /return sku === "photos" \? spendAllowPhotos\(\) : spendAllow\(sku\);/.test(authorizer[1]), "photo route's authorizer routes photos through spendAllowPhotos and every other SKU through spendAllow");
   ok(!/const\s+spendAllowed\s*=\s*!shut\s*&&\s*\(await\s+spendAllow\("photos"\)\)/.test(route), "photo route cannot consume a grant before cache and inventory are checked");
 }
