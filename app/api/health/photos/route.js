@@ -58,7 +58,15 @@ export async function GET(req) {
   try {
     [activeWithRef, openRows, unresolvedRows, recoveries7d, lastPulse] = await Promise.all([
       count(s, "wf_inventory?select=place_id&status=eq.OPERATIONAL&or=(excluded.is.null,excluded.is.false)&photo_ref=not.is.null"),
-      count(s, "wf_photo_repair_queue?select=place_id&status=eq.open"),
+      // 2026-09-09: open+budget_blocked, not open alone — a budget_blocked
+      // row is still an unresolved placeholder from a reader's perspective
+      // (it moved from a next_attempt_at-scheduled row to a ledger-gated
+      // one, see that date's migration + lib/photoRepair.js). status=eq.open
+      // alone would undercount the backlog by exactly the population this
+      // migration moved out of "open" — the same false-improvement trap
+      // scripts/photo-monitor.mjs's currentOpenCount was fixed against the
+      // same day.
+      count(s, "wf_photo_repair_queue?select=place_id&status=in.(open,budget_blocked)"),
       count(s, "wf_photo_repair_queue?select=place_id&status=eq.unresolved"),
       count(s, `wf_photo_repair_queue?select=place_id&status=eq.recovered&updated_at=gte.${encodeURIComponent(sevenDaysAgo)}`),
       fetch(`${s.url}/rest/v1/wf_job_pulse?job=eq.photo-monitor&select=note,ran_at&order=ran_at.desc&limit=1`, {

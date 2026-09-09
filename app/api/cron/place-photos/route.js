@@ -77,7 +77,7 @@ export async function GET(req) {
     ? `place-photos: table unavailable (${result.tableStatus != null ? result.tableStatus : "error"})`
     : result.note
       ? `place-photos: ${result.note}`
-      : `place-photos: ${result.active} active (${result.vaulted || 0} vaulted), ${result.rejected} rejected, ${result.failed} failed (${describeAtRisk({ ...result, source })}, general scanned ${result.scanned}, ${result.alreadyCovered} already covered)`;
+      : `place-photos: ${result.active} active (${result.vaulted || 0} vaulted), ${result.rejected} rejected, ${result.failed} failed, ${result.deferred || 0} deferred (${describeAtRisk({ ...result, source })}, general scanned ${result.scanned}, ${result.alreadyCovered} already covered)`;
 
   if (!result.tableUnavailable && result.attempted > 0 && result.failed === result.attempted) {
     return jobFailed("place-photos", note, { attempted: result.attempted, succeeded: 0 });
