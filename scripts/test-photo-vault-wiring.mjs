@@ -58,7 +58,7 @@
 //      hand-copies the early-return's shape as a fixture precisely so it can
 //      isolate the ROUTE's behaviour; H3c is what proves runBackfill itself
 //      still produces that shape.)
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { findFreePhoto } from "../lib/freePhoto.js";
 import { runBackfill, describeAtRisk } from "../lib/placePhotoBackfill.js";
 import { installWikimediaFetchPolicy } from "../lib/wikimediaFetchPolicy.js";
@@ -760,6 +760,159 @@ const PHOTO = (id) => ({
       `H3c (THE HEADLINE INVARIANT): the REAL runBackfill's note begins with "unavailable:" at column 0 (got ${JSON.stringify(result.note)}) — this is exactly what the route in H3b is handed and must not re-wrap`
     );
     ok(result.note.includes("500"), `H3c: …and carries the real HTTP status inline (got ${JSON.stringify(result.note)})`);
+  }
+
+  // H3d (2026-09-09, "grep for its siblings" — CLAUDE.md's 2026-08-25 lesson
+  // 4) — scripts/backfill-place-photos.mjs is the manual-CLI TWIN of this
+  // route: same job name ("place-photos"), same runBackfill import, and
+  // until this fix, its OWN un-patched copy of the exact bug H3b/H3c guard —
+  // wrapping every result.note in "place-photos: " unconditionally, which
+  // would have silenced a manual run hitting the same lost-worklist failure
+  // just as surely as the route's did.
+  //
+  // Two parts, because the CLI's `main()` is not exported and calls
+  // process.exit/touches the real network by default — CLAUDE.md: "assert on
+  // the call where you can; if a call is genuinely not executable from a
+  // guard, say so in the assertion message":
+  //
+  //   H3d-i  STRUCTURAL, but not a name-appears-anywhere grep: it discovers
+  //          the CLOSED SET of files that import `runBackfill` from
+  //          lib/placePhotoBackfill.js (so a third twin added later is
+  //          AUTOMATICALLY included, not silently skipped), asserts that set
+  //          is exactly today's two known files (named, counted — not
+  //          `includes`), and for each one counts EXACTLY ONE structural
+  //          `isDeterministicFailureNote(result.note) ? result.note : ...`
+  //          note-composition site (comments stripped first, per the
+  //          2026-07-30 "raw source fails on its own comment" trap).
+  //   H3d-ii EXECUTABLE: the CLI's `main` is genuinely callable — it is a
+  //          real function reachable from the eval'd module's own scope, its
+  //          auto-run gate (`if (import.meta.url === ...)`) is FALSE inside
+  //          a `data:` module and therefore never fires on its own — so this
+  //          exposes it via `globalThis` and CALLS it with the same
+  //          atRiskUnavailable double H3b used, proving the CLI's FILED note
+  //          begins with "unavailable:", not just that the source looks right.
+  {
+    // H3d-i — the closed set of runBackfill importers, and each one's parity.
+    const IMPORTERS = ["app/api/cron/place-photos/route.js", "scripts/backfill-place-photos.mjs"];
+    const stripComments = (src) => src.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
+    const repoRoot = new URL("../", import.meta.url);
+    // Every source file in the three directories runBackfill could plausibly
+    // be imported from — app/, lib/, scripts/ — whose own import statements
+    // name lib/placePhotoBackfill(.js) AND a bare `runBackfill` binding.
+    // Excludes this test file itself (which legitimately imports the real
+    // function to drive H1-H3/H3c) and anything under a `test-`/`check-`
+    // prefix (guards and tests reference the name in fixtures/comments, not
+    // as a production consumer).
+    const IMPORT_RE = /import\s*\{[^}]*\brunBackfill\b[^}]*\}\s*from\s*["'][^"']*placePhotoBackfill(?:\.js)?["']/;
+    const candidateGlobs = ["app", "lib", "scripts"];
+    const found = [];
+    for (const dir of candidateGlobs) {
+      const walk = (relDir) => {
+        const absDir = new URL(relDir + "/", repoRoot);
+        let entries;
+        try {
+          entries = readdirSync(absDir, { withFileTypes: true });
+        } catch {
+          return;
+        }
+        for (const ent of entries) {
+          const rel = relDir + "/" + ent.name;
+          if (ent.isDirectory()) {
+            if (ent.name === "node_modules" || ent.name === ".next") continue;
+            walk(rel);
+          } else if (/\.(js|mjs)$/.test(ent.name)) {
+            const base = ent.name;
+            if (base.startsWith("test-") || base.startsWith("check-")) continue;
+            if (rel === "lib/placePhotoBackfill.js") continue; // the definition, not a consumer
+            const src = readFileSync(new URL(rel, repoRoot), "utf8");
+            if (IMPORT_RE.test(stripComments(src))) found.push(rel);
+          }
+        }
+      };
+      walk(dir);
+    }
+    found.sort();
+    const expected = [...IMPORTERS].sort();
+    eq(
+      JSON.stringify(found),
+      JSON.stringify(expected),
+      `H3d-i (THE HEADLINE INVARIANT): the discovered set of production runBackfill importers is exactly today's two known files, named — a THIRD file added later that imports runBackfill is picked up here automatically (got ${JSON.stringify(found)})`
+    );
+
+    // Each importer: EXACTLY ONE structural note-composition site routing a
+    // truthy lib note through isDeterministicFailureNote before falling back
+    // to the job-name prefix. Position-anchored (`? result.note :` inside the
+    // same ternary as the predicate call), not a bare substring — a file that
+    // merely IMPORTS isDeterministicFailureNote without using it in the note
+    // ternary must not satisfy this.
+    const SITE_RE = /isDeterministicFailureNote\(result\.note\)\s*\?\s*result\.note\s*:/g;
+    for (const rel of IMPORTERS) {
+      const code = stripComments(readFileSync(new URL(rel, repoRoot), "utf8"));
+      const hits = (code.match(SITE_RE) || []).length;
+      eq(hits, 1, `H3d-i: ${rel} routes its note composition through isDeterministicFailureNote exactly once (got ${hits}) — this is the parity check that closes CLAUDE.md's "grep for its siblings" lesson for this bug`);
+    }
+
+    // Self-test: the structural regex is not vacuously true — it must NOT
+    // match a file that imports the predicate but never calls it in the
+    // ternary shape (the exact bug this file had before today's fix).
+    ok(
+      !SITE_RE.test(stripComments('const x = result.note ? `place-photos: ${result.note}` : "y";')),
+      "H3d-i self-test: the OLD, unpatched wrap (no isDeterministicFailureNote call) does not satisfy the site regex"
+    );
+  }
+
+  // H3d-ii — the CLI's main(), genuinely executed with doubles, files a note
+  // beginning "unavailable:" for the same lost-worklist scenario H3b proves
+  // for the route.
+  {
+    const raw = readFileSync(new URL("../scripts/backfill-place-photos.mjs", import.meta.url), "utf8");
+    ok(/^async function main\(\)/m.test(raw), "H3d-ii PROBE: main() is a real top-level function in the source before any stripping");
+    const stripped = raw
+      .replace(/^#!.*\n/, "") // the CLI's shebang line is not valid inside a data: module
+      .replace(/^import[^;]+;\n/gm, "")
+      // Expose the real `main` after its declaration — its own auto-run gate
+      // (`if (import.meta.url === \`file://${process.argv[1]}\`)`) is left
+      // completely intact and untouched: inside a `data:` module
+      // `import.meta.url` is the data: URL itself, which can never equal
+      // `file://<this test's own argv[1]>`, so that gate stays FALSE on its
+      // own and main() is never auto-invoked — this line is the ONLY way the
+      // test can reach it.
+      + "\nglobalThis.__wfCliTest.mainRef = main;\n";
+    const prelude = `
+      const runBackfill = (...a) => globalThis.__wfCliTest.runBackfill(...a);
+      const describeAtRisk = (...a) => globalThis.__wfCliTest.describeAtRisk(...a);
+      const recordPulse = (...a) => globalThis.__wfCliTest.recordPulse(...a);
+      const isDeterministicFailureNote = (...a) => globalThis.__wfIsDeterministicFailureNote(...a);
+    `;
+    const pulses = [];
+    globalThis.__wfCliTest = {
+      runBackfill: async () => ({
+        ok: true, attempted: 0, active: 0, rejected: 0, failed: 0,
+        atRiskUnavailable: true, atRiskStatus: 500,
+        note: "unavailable: place-photos wf_photo_at_risk read failed (HTTP 500)",
+      }),
+      describeAtRisk,
+      recordPulse: async (job, stats) => { pulses.push({ job, stats }); return true; },
+      mainRef: null,
+    };
+    await import("data:text/javascript," + encodeURIComponent(prelude + "\n" + stripped));
+    ok(typeof globalThis.__wfCliTest.mainRef === "function", "H3d-ii PROBE: main was reached and exposed — the eval genuinely executed the file's top level");
+
+    const savedArgv = process.argv;
+    process.argv = [savedArgv[0], savedArgv[1], "--source=at-risk"];
+    try {
+      await globalThis.__wfCliTest.mainRef();
+    } finally {
+      process.argv = savedArgv;
+    }
+
+    eq(pulses.length, 1, "H3d-ii: the CLI files exactly one pulse for the lost read");
+    const filedNote = String((pulses[0].stats || {}).note || "");
+    ok(
+      filedNote.startsWith("unavailable:"),
+      `H3d-ii (THE HEADLINE INVARIANT): the CLI's ACTUALLY-EXECUTED main() files a note beginning "unavailable:" at column 0 (got ${JSON.stringify(filedNote)}) — a manual run hitting the same failure now pages exactly like the cron does`
+    );
+    delete globalThis.__wfCliTest;
   }
 
   // H4-H6 — the route's pulse note is built through describeAtRisk, proven by
