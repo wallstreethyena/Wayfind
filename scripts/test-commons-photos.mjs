@@ -19,12 +19,13 @@
 // SAME wikiOpensearch/wikiPageInfo lib/popularity.js uses — see that file's
 // 2026-09-09 note on jf()'s fetchImpl param). No real network call, no real
 // database. Run standalone: `node scripts/test-commons-photos.mjs`.
-import { findCommonsPhoto, classifyLicense, buildAttributionText } from "../lib/commonsPhotos.js";
+import { stripTrackingParams, findCommonsPhoto, classifyLicense, buildAttributionText } from "../lib/commonsPhotos.js";
 import { createWikimediaFetchPolicy } from "../lib/wikimediaFetchPolicy.js";
 
 let failures = 0;
 const fail = (m) => { console.error("test-commons-photos: FAIL — " + m); failures++; };
 const ok = (c, m) => { if (!c) fail(m); };
+const eqStrip = (input, expected, m) => { const got = stripTrackingParams(input); ok(got === expected, m + " (got " + JSON.stringify(got) + ")"); };
 
 // ── fixtures ─────────────────────────────────────────────────────────────
 // A plausible, fully-resolvable place: Wikipedia carries coordinates for the
@@ -71,6 +72,14 @@ const PAGE_IMAGES_HIT = {
   query: { pages: { 111: { pageimage: "TestMuseum.jpg", original: { source: "https://upload.wikimedia.org/wikipedia/commons/a/aa/TestMuseum.jpg", width: 1024, height: 768 } } } },
 };
 const PAGE_IMAGES_NONE = { query: { pages: { 111: { title: "Test Museum" } } } };
+// The REAL shape en.wikipedia.org returns for piprop=original ALONE: an
+// `original` object and NO `pageimage` key. Measured live 2026-09-09 against
+// "Siesta Key, Florida". PAGE_IMAGES_HIT hand-writes a `pageimage` key beside
+// `original`, which only comes back when piprop also asks for `name` — so the
+// fixture was greener than production and hid the defect below.
+const PAGE_IMAGES_ORIGINAL_ONLY = {
+  query: { pages: { 111: { title: "Test Museum", original: { source: "https://upload.wikimedia.org/wikipedia/commons/a/aa/TestMuseum.jpg", width: 1024, height: 768 } } } },
+};
 
 function commonsInfo(extmetadata) {
   return {
@@ -273,6 +282,66 @@ async function main() {
       threw = true;
     }
     ok(!threw, "findCommonsPhoto must not throw even when the caller's own onReject hook throws");
+  }
+
+  // ── THE PRODUCTION SHAPE: NO INJECTED FETCH ────────────────────────────
+  //      Every other assertion in this file passes deps.fetch. Production
+  //      never does — lib/placePhotoBackfill.js calls findCommonsPhoto(place)
+  //      with no fetch at all. `doFetch` defaulted to `undefined`, and
+  //      lib/popularity.js's wikiOpensearch/wikiPageInfo tolerate that (their
+  //      jf() falls back to the global) so steps 1-2 passed, while timedFetch
+  //      invokes doFetch(url, ...) DIRECTLY and threw TypeError into its bare
+  //      catch — surfacing as the honest-looking reject "no_lead_image".
+  //      Measured 2026-09-09: EVERY place resolved no_lead_image in
+  //      production and the pageimages request was never sent at all. The
+  //      whole lane was a guaranteed no-op with a fully green guard suite.
+  //      This is the only assertion here that exercises the real code path.
+  {
+    const { fetchImpl, calls } = makeFetch({});
+    const saved = globalThis.fetch;
+    globalThis.fetch = fetchImpl;
+    let out = null;
+    let why = null;
+    try {
+      out = await findCommonsPhoto(PLACE, { onReject: (r) => { why = r; } });
+    } finally {
+      globalThis.fetch = saved;
+    }
+    ok(out && out.image_url, "NO-INJECTED-FETCH: findCommonsPhoto resolves a photo with deps.fetch ABSENT — the shape lib/placePhotoBackfill.js actually calls (got reject: " + why + ")");
+    ok(calls.some((u) => String(u).includes("prop=pageimages")), "NO-INJECTED-FETCH: the pageimages request is actually SENT — proven by call list, not by a reason string");
+  }
+
+  // ── THE REQUEST MUST ASK FOR THE FIELD IT THEN REQUIRES ─────────────────
+  //      fetchLeadImageFilename requires page.pageimage. piprop=original does
+  //      NOT return pageimage; only a piprop including `name` does. Asserting
+  //      the OUTGOING URL, because a fixture can always be written to return a
+  //      field the real endpoint would not.
+  {
+    const { fetchImpl, calls } = makeFetch({});
+    await findCommonsPhoto(PLACE, { fetch: fetchImpl });
+    const pi = calls.map(String).find((u) => u.includes("prop=pageimages")) || "";
+    ok(pi, "PIPROP: a pageimages request was made");
+    const piprop = decodeURIComponent((pi.match(/piprop=([^&]*)/) || [])[1] || "");
+    ok(piprop.split("|").includes("name"), "PIPROP: piprop must include `name`, or the API returns no pageimage and every lead-image lookup fails (got piprop=" + piprop + ")");
+  }
+
+  // ── THE FIXTURE MUST NOT BE GREENER THAN THE REAL API ───────────────────
+  //      Fed the real piprop=original-only shape, the resolver must fall out
+  //      as no_lead_image. That keeps PAGE_IMAGES_HIT honest: it is only a
+  //      valid fixture BECAUSE the request now asks for `name`.
+  {
+    let why = null;
+    const { fetchImpl } = makeFetch({ pageImages: PAGE_IMAGES_ORIGINAL_ONLY });
+    const out = await findCommonsPhoto(PLACE, { fetch: fetchImpl, onReject: (r) => { why = r; } });
+    ok(!out && why === "no_lead_image", "REAL-SHAPE: an `original`-only pageimages response (no pageimage key) rejects as no_lead_image rather than inventing a filename (got " + why + ")");
+  }
+
+  // ── TRACKING PARAMS NEVER ENTER A PERMANENT LIBRARY ─────────────────────
+  {
+    eqStrip("https://upload.wikimedia.org/x.jpg?utm_source=en.wikipedia.org&utm_campaign=api", "https://upload.wikimedia.org/x.jpg", "STRIP: utm_* params are removed");
+    eqStrip("https://upload.wikimedia.org/x.jpg?width=800&utm_source=api", "https://upload.wikimedia.org/x.jpg?width=800", "STRIP: non-utm params survive");
+    eqStrip("https://upload.wikimedia.org/x.jpg", "https://upload.wikimedia.org/x.jpg", "STRIP: a clean url is unchanged");
+    eqStrip("not a url", "", "STRIP: an unparseable url becomes empty so the caller's falsy check catches it");
   }
 
   if (failures) {
