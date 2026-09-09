@@ -1,148 +1,70 @@
-// Daily dispatcher cron. One Vercel cron slot fires this every morning; the
-// handler routes by date. Every day: build and send the digest (health
-// canaries + activity counts). Date-routed notes: Nov 1 giveaway draw
-// reminder; quarterly awards-refresh reminders (the automated compile ships
-// post-launch). Every external dependency is optional and degrades
-// gracefully: no Resend key -> findings returned as JSON (visible in Vercel
-// logs); no service-role key -> events counts are skipped (the events table
-// is insert-only under RLS by design).
+// Daily owner briefing plus the existing OSM cache warm and dated reminders.
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 60; // v5.04: the OSM warm below fans out over 16 markets
+export const maxDuration = 60;
 
 import { resolveOverride } from "../../../lib/envAudit.js";
+import { gatherOwnerBriefing, sendOwnerBriefingEmail, withBriefingOperations } from "../../../lib/commandCenter/briefing.js";
+import { dayStr } from "../../../lib/commandCenter/time.js";
 
-// v5.35: health canaries hit the canonical domain — the old deployment URL
-// only tested the redirect, not the site (caught by the widened check-canon).
 const CANON = "https://www.gowayfind.com";
-const SITE = CANON;
 
-async function check(name, url) {
+async function warmOsm() {
   try {
-    const r = await fetch(url, { cache: "no-store" });
-    return { name, ok: r.ok, status: r.status };
-  } catch (e) {
-    return { name, ok: false, status: 0 };
-  }
+    const { LANDING_CITIES } = await import("../../../lib/landingCities.js");
+    const cities = Object.values(LANDING_CITIES);
+    let live = 0, cached = 0, missed = 0;
+    for (let index = 0; index < cities.length; index += 4) {
+      const batch = await Promise.all(cities.slice(index, index + 4).map(async (city) => {
+        try {
+          const response = await fetch(`${CANON}/api/outdoors?lat=${city.lat.toFixed(4)}&lng=${city.lng.toFixed(4)}&radius=27359`, { cache: "no-store", signal: AbortSignal.timeout(5500) });
+          if (!response.ok) return "miss";
+          const data = await response.json();
+          return data.counts && data.counts.osm !== "unavailable" ? (data.counts.osmFrom === "cached" ? "cached" : "live") : "miss";
+        } catch { return "miss"; }
+      }));
+      for (const result of batch) result === "live" ? live++ : result === "cached" ? cached++ : missed++;
+    }
+    return { live, cached, missed, total: cities.length };
+  } catch { return null; }
 }
 
-async function sbCount(table, sinceIso, key) {
-  const base = String(process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/^http:\/\//i, "https://").replace(/\/+$/, ""); // v4.13: http-> https, see places route note
-  const apikey = key || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!base || !apikey) return null;
-  try {
-    const u = base + "/rest/v1/" + table + "?select=id" + (sinceIso ? "&created_at=gte." + encodeURIComponent(sinceIso) : "") + "&limit=1";
-    const r = await fetch(u, { headers: { apikey, Authorization: "Bearer " + apikey, Prefer: "count=exact" }, cache: "no-store" });
-    if (!r.ok) return null;
-    const cr = r.headers.get("content-range") || "";
-    const total = cr.includes("/") ? parseInt(cr.split("/")[1], 10) : null;
-    return Number.isFinite(total) ? total : null;
-  } catch (e) {
-    return null;
-  }
-}
-
-async function userStats(svc) {
-  const base = String(process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/^http:\/\//i, "https://").replace(/\/+$/, ""); // v4.13: http-> https, see places route note
-  if (!base || !svc) return null;
-  try {
-    const r = await fetch(base + "/rest/v1/rpc/user_stats", { method: "POST", headers: { apikey: svc, Authorization: "Bearer " + svc, "Content-Type": "application/json" }, body: "{}", cache: "no-store" });
-    if (!r.ok) return null;
-    return await r.json();
-  } catch (e) {
-    return null;
-  }
+function reminders(dateKey) {
+  const monthDay = dateKey.slice(5);
+  const notes = [];
+  if (monthDay === "11-01") notes.push("Giveaway draw day: run supabase/giveaway-draw.sql and announce the winner.");
+  if (["01-15", "04-15", "07-15", "10-15"].includes(monthDay)) notes.push("Quarterly awards refresh: verify Michelin, Beard, and local award lists, then update lib/gems.js.");
+  return notes;
 }
 
 export async function GET(req) {
-  // v5.43 (RLS review M4): fail CLOSED. The old guard only ran when
-  // CRON_SECRET was set — an unset env var made this route public, leaking
-  // signup stats and letting anyone trigger the fan-out work on demand.
   const secret = process.env.CRON_SECRET;
-  const auth = req.headers.get("authorization") || "";
-  if (!secret || auth !== "Bearer " + secret) return new Response("unauthorized", { status: 401 });
+  const authorization = req.headers.get("authorization") || "";
+  if (!secret || authorization !== `Bearer ${secret}`) return new Response("unauthorized", { status: 401 });
 
   const now = new Date();
-  const since = new Date(now.getTime() - 24 * 3600 * 1000).toISOString();
-  const dateKey = now.toISOString().slice(0, 10);
-
-  const checks = await Promise.all([
-    check("homepage", SITE + "/"),
-    check("og card", SITE + "/api/og?kind=list"),
-    check("weather", SITE + "/api/weather?lat=28.54&lng=-81.38"),
+  const [baseBriefing, osmWarm] = await Promise.all([
+    gatherOwnerBriefing(now, { timeoutMs: 9000 }),
+    warmOsm(),
   ]);
+  const notes = reminders(dayStr(now));
+  const briefing = withBriefingOperations(baseBriefing, { osmWarm, notes });
+  const recipient = resolveOverride("DIGEST_EMAIL");
+  const sender = resolveOverride("WF_ALERT_FROM");
+  const apiKey = String(process.env.RESEND_API_KEY || "").trim();
+  const invalidAddress = recipient.status === "malformed" || sender.status === "malformed";
+  const delivery = invalidAddress
+    ? { ok: false, status: 503, reason: "email_address_malformed", id: null }
+    : await sendOwnerBriefingEmail({ briefing, apiKey, from: sender.value, to: recipient.value, timeoutMs: 10000 });
 
-  const svc = process.env.SUPABASE_SERVICE_ROLE_KEY || null;
-  const [comments24, shares24, events24, users] = await Promise.all([
-    sbCount("comments", since),
-    sbCount("shared_lists", since),
-    svc ? sbCount("events", since, svc) : Promise.resolve(null),
-    svc ? userStats(svc) : Promise.resolve(null),
-  ]);
-
-  // v5.04 — daily OSM warm for the home markets. Overpass throttles cloud
-  // IPs, so live requests miss most of the time; one polite early-morning
-  // sweep per market refreshes the 7-day durable cache in /api/outdoors
-  // (which persists every live success to Supabase). Batches of 4 keep the
-  // burst small; each call is already wall-capped at ~4.5s inside the route.
-  let osmWarm = null;
-  try {
-    const { LANDING_CITIES } = await import("../../../lib/landing");
-    const cities = Object.values(LANDING_CITIES);
-    let live = 0, cached = 0, missed = 0;
-    for (let i = 0; i < cities.length; i += 4) {
-      const batch = await Promise.all(cities.slice(i, i + 4).map(async (c) => {
-        try {
-          const r = await fetch(`${CANON}/api/outdoors?lat=${c.lat.toFixed(4)}&lng=${c.lng.toFixed(4)}&radius=27359`, { cache: "no-store" });
-          if (!r.ok) return "miss";
-          const d = await r.json();
-          if (d.counts && d.counts.osm !== "unavailable") return d.counts.osmFrom === "cached" ? "cached" : "live";
-          return "miss";
-        } catch { return "miss"; }
-      }));
-      for (const b of batch) { if (b === "live") live++; else if (b === "cached") cached++; else missed++; }
-    }
-    osmWarm = { live, cached, missed, total: cities.length };
-  } catch (e) { osmWarm = null; }
-
-  const notes = [];
-  const md = dateKey.slice(5);
-  if (md === "11-01") notes.push("Giveaway draw day: run supabase/giveaway-draw.sql and announce the winner.");
-  if (["01-15", "04-15", "07-15", "10-15"].includes(md)) notes.push("Quarterly awards refresh: verify Michelin/Beard/local award lists and update lib/gems.js (compile pipeline ships post-launch).");
-
-  const failing = checks.filter((c) => !c.ok);
-  const lines = [
-    "Wayfind daily digest — " + dateKey,
-    "",
-    "Health: " + (failing.length ? "ISSUES — " + failing.map((c) => c.name + " (" + c.status + ")").join(", ") : "all checks passing (" + checks.map((c) => c.name).join(", ") + ")"),
-    "Signups: " + (users ? users.confirmed + " confirmed of " + users.total + " total (+" + users.new_24h + " in 24h)" : "needs user_stats SQL function + service key"),
-    "Last 24h: " + [
-      comments24 != null ? comments24 + " community takes" : "takes n/a",
-      shares24 != null ? shares24 + " shared lists" : "shared lists n/a",
-      events24 != null ? events24 + " events (shares/saves)" : "events count needs SUPABASE_SERVICE_ROLE_KEY",
-    ].join(" · "),
-    "Traffic: PostHog dashboard — https://us.posthog.com (subscription email covers visitor counts)",
-    ...(osmWarm ? ["OSM warm: " + osmWarm.live + " live / " + osmWarm.cached + " cached / " + osmWarm.missed + " missed of " + osmWarm.total + " markets"] : []),
-  ];
-  if (notes.length) lines.push("", "Today: " + notes.join(" | "));
-  const body = lines.join("\n");
-
-  let emailed = false;
-  const rk = process.env.RESEND_API_KEY;
-  if (rk) {
-    try {
-      const to = resolveOverride("DIGEST_EMAIL").value;
-      const from = resolveOverride("WF_ALERT_FROM").value;
-      const r = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        cache: "no-store",
-        headers: { Authorization: "Bearer " + rk, "Content-Type": "application/json" },
-        body: JSON.stringify({ from, to: [to], subject: "Wayfind digest — " + dateKey + (failing.length ? " ⚠️" : " ✓"), text: body }),
-      });
-      emailed = r.ok;
-    } catch (e) {}
-  }
-
-  return Response.json({ ok: failing.length === 0, emailed, checks, users, comments24, shares24, events24, notes, osmWarm });
+  return Response.json({
+    ok: delivery.ok,
+    emailed: delivery.ok,
+    emailId: delivery.id,
+    emailError: delivery.ok ? null : { reason: delivery.reason, note: delivery.note || null, conflict: !!delivery.conflict },
+    briefing,
+    notes,
+    osmWarm,
+  }, { status: delivery.ok ? 200 : delivery.status || 502 });
 }

@@ -1314,3 +1314,11 @@ node scripts/test-morning-identity.mjs
 # `opps = oppRows.length` — rows SENT — which stayed truthful-looking while the
 # database accepted none of them. Replaced by an atomic server-only RPC.
 node scripts/check-affiliate-opportunity-refresh.mjs
+
+# Shared owner briefing contract: email and Command Center expose the same
+# plain-English evidence and exactly three actionable improvements.
+node scripts/test-command-center-briefing.mjs
+
+# Command Center panel requests cancel superseded work and ignore responses
+# that arrive out of order.
+node scripts/test-command-center-requests.mjs

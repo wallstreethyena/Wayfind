@@ -1,0 +1,100 @@
+// Behavioral lock for the report shared by Command Center and the daily mail.
+import {
+  buildOwnerBriefing, gatherOwnerBriefing, briefingText, briefingHtml, sendOwnerBriefingEmail,
+} from "../lib/commandCenter/briefing.js";
+
+let failures = 0;
+const ok = (value, message) => { if (!value) { console.error(`test-command-center-briefing: FAIL — ${message}`); failures++; } };
+const source = (name, connected = true) => connected
+  ? { name, connected: true, fetchedAt: "2026-09-09T12:00:00.000Z", confidence: "measured" }
+  : { name, connected: false, reason: "error", note: "offline", confidence: "unavailable" };
+const normalResults = () => ({
+  kpis: { source: source("First party"), data: { active_devices: 120, sessions: 150, detail_opens: 42, saves: 8, shares: 5, directions: 4, out_clicks: 3 } },
+  signups: { source: source("Signups"), data: [{ day: "2026-09-08", signups: 6 }] },
+  health: { source: source("Automatic checks"), data: { checks: [{ key: "home", label: "Homepage", ok: true, status: 200, ms: 80 }] } },
+  affiliate: { source: source("Travelpayouts"), data: { confirmed_bookings: 2, revenue_paid_usd: 14.5, revenue_pending_usd: 3, fields_used: ["action_id", "state", "paid_profit_usd"] } },
+});
+const now = new Date("2026-09-09T16:00:00.000Z");
+
+const report = buildOwnerBriefing({ now, results: normalResults() });
+ok(report.generatedAt === now.toISOString(), "report carries generatedAt");
+ok(report.period.label === "Yesterday" && report.period.complete === true && report.dateKey === "2026-09-08", "business window is the complete previous ET day");
+ok(report.title.startsWith("Yesterday") && /health checked now/.test(report.title), "title distinguishes yesterday results from current health");
+ok(report.cards.length === 3 && new Set(report.cards.map((card) => card.id)).size === 3, "exactly three distinct actions");
+ok(report.cards.every((card) => card.status === "routine"), "healthy routine reviews are labeled routine");
+ok(report.metrics.affiliate.confirmedBookings === 2 && report.metrics.affiliate.paidEarningsUsd === 14.5, "provider-confirmed bookings and paid earnings are reported");
+ok(report.workingWell.some((line) => /browsers and devices/.test(line)) && report.workingWell.some((line) => /paid earnings/.test(line)), "positive measured results appear in Working well");
+
+const nullResults = normalResults();
+nullResults.kpis.data.active_devices = null;
+nullResults.kpis.data.shares = null;
+nullResults.signups.data[0].signups = null;
+const nullReport = buildOwnerBriefing({ now, results: nullResults });
+ok(nullReport.metrics.traffic.deviceCount === null && nullReport.metrics.signups.count === null, "null numeric values remain unknown instead of becoming zero");
+ok(nullReport.needsChanges.some((card) => card.id === "missing-traffic" && card.status === "unknown"), "missing traffic is an unknown action");
+ok(nullReport.needsChanges.some((card) => card.id === "missing-engagement"), "one missing engagement field makes the engagement summary unavailable");
+
+const disconnected = normalResults();
+disconnected.kpis.source = source("First party", false);
+const disconnectedReport = buildOwnerBriefing({ now, results: disconnected });
+ok(disconnectedReport.metrics.traffic.deviceCount === null, "data attached to a failed source is never trusted");
+
+const unpaidField = normalResults();
+unpaidField.affiliate.data.fields_used = ["action_id", "state"];
+const unpaidReport = buildOwnerBriefing({ now, results: unpaidField });
+ok(unpaidReport.metrics.affiliate.paidEarningsUsd === null && unpaidReport.needsChanges.some((card) => card.id === "missing-affiliate"), "earnings stay unknown when the provider dropped its paid field");
+
+const failing = normalResults();
+failing.health.data.checks = [{ key: "home", label: "Homepage", ok: false, status: 503, ms: 100 }];
+const failingReport = buildOwnerBriefing({ now, results: failing });
+ok(failingReport.summary.status === "attention" && failingReport.cards[0].id === "health-home" && failingReport.cards[0].status === "needs_change", "true health failure is the first action");
+
+const calls = { kpis: 0, signups: 0, health: 0, affiliate: 0 };
+let kpiWindow;
+let affiliateWindow;
+const gathered = await gatherOwnerBriefing(now, { timeoutMs: 100, collectors: {
+  kpis: (from, to) => { calls.kpis++; kpiWindow = [from, to]; return normalResults().kpis; },
+  signups: () => { calls.signups++; return normalResults().signups; },
+  health: () => { calls.health++; return normalResults().health; },
+  affiliate: (from, to) => { calls.affiliate++; affiliateWindow = [from, to]; return normalResults().affiliate; },
+} });
+ok(Object.values(calls).every((count) => count === 1), "shared collector calls each source exactly once");
+ok(gathered.dateKey === "2026-09-08" && kpiWindow[0].toISOString() === "2026-09-08T04:00:00.000Z" && kpiWindow[1].toISOString() === "2026-09-09T04:00:00.000Z", "first-party sources receive exact ET boundaries");
+ok(affiliateWindow[0].toISOString() === "2026-09-08T00:00:00.000Z" && affiliateWindow[1].toISOString() === "2026-09-08T23:59:59.999Z", "affiliate source receives one provider calendar date, excluding today");
+
+const started = Date.now();
+const timed = await gatherOwnerBriefing(now, { timeoutMs: 20, collectors: {
+  kpis: () => new Promise(() => {}), signups: () => normalResults().signups,
+  health: () => Promise.reject(new Error("check broke")), affiliate: () => normalResults().affiliate,
+} });
+ok(Date.now() - started < 250 && timed.sources.firstParty.reason === "error" && timed.sources.health.reason === "error", "collector bounds hung sources and labels rejected sources");
+
+const escapedResults = normalResults();
+escapedResults.health.data.checks = [{ key: "x", label: "<script>alert('x')</script>", ok: false, status: 500 }];
+const escapedReport = buildOwnerBriefing({ now, results: escapedResults });
+const plain = briefingText(escapedReport);
+const html = briefingHtml(escapedReport);
+ok(plain.includes("Working well") && plain.includes("Needs changes") && plain.includes("Three next actions") && plain.includes("Open Command Center") === false, "plain report contains all three report sections");
+ok(html.includes("&lt;script&gt;") && !html.includes("<script>alert") && html.includes("https://www.gowayfind.com/command-center"), "HTML escapes source text and links to Command Center");
+ok(html.includes("#0f0d0b") && html.includes("#ff8a3d") && html.includes("max-width:600px"), "HTML uses the dark orange 600px layout");
+
+let sentBody;
+const sent = await sendOwnerBriefingEmail({ briefing: report, apiKey: "test", from: "a@example.com", to: "b@example.com", fetchImpl: async (_url, init) => {
+  sentBody = JSON.parse(init.body);
+  return { ok: true, status: 200, json: async () => ({ id: "email_123" }) };
+} });
+ok(sent.ok && sent.id === "email_123" && sentBody.text.includes("$14.50") && sentBody.html.includes("$14.50"), "send requires and returns provider id; text and HTML carry the same earnings");
+const noId = await sendOwnerBriefingEmail({ briefing: report, apiKey: "test", from: "a@example.com", to: "b@example.com", fetchImpl: async () => ({ ok: true, status: 200, json: async () => ({}) }) });
+ok(!noId.ok && noId.status === 502 && noId.reason === "email_confirmation_missing", "HTTP 200 without provider id is a delivery failure");
+const conflict = await sendOwnerBriefingEmail({ briefing: report, apiKey: "test", from: "a@example.com", to: "b@example.com", fetchImpl: async () => ({ ok: false, status: 409, json: async () => ({ message: "payload differs" }) }) });
+ok(!conflict.ok && conflict.conflict && conflict.reason === "idempotency_conflict", "same-date changed-payload conflict is explicit and never success");
+
+const savedSecret = process.env.CRON_SECRET;
+delete process.env.CRON_SECRET;
+const { GET: cronGet } = await import("../app/api/cron/route.js");
+const unauthorized = await cronGet(new Request("https://example.test/api/cron"));
+ok(unauthorized.status === 401, "daily cron fails closed before collection when auth is absent");
+if (savedSecret === undefined) delete process.env.CRON_SECRET; else process.env.CRON_SECRET = savedSecret;
+
+if (failures) process.exit(1);
+console.log("test-command-center-briefing: OK — complete ET window, honest nulls/sources/earnings, bounded collection, exact actions, safe email and fail-closed cron");
