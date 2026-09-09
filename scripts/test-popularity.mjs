@@ -4,7 +4,7 @@
 // category, the TripAdvisor budget cap, service-only batch fn, cron auth.
 import { readFileSync } from "fs";
 import { nameSim, matchConfidence, bestMatch, sourcesFor, categoriesForSource, SOURCE_CAPS, CONFIDENCE_FLOOR } from "../lib/popularity.js";
-import { popularityAvailability, FETCHERS, primaryTypesForSource, minReviewsForSource, FOURSQUARE_PARKED_REASON } from "../lib/popularity.js";
+import { popularityAvailability, FETCHERS, primaryTypesForSource, minReviewsForSource, FOURSQUARE_PARKED_REASON, YELP_PARKED_REASON } from "../lib/popularity.js";
 import {
   createWikimediaFetchPolicy,
   retryAfterMs,
@@ -17,9 +17,17 @@ let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
 ok(popularityAvailability('tripadvisor', {}).ready === false, 'retired provider does not select candidate work');
 ok(popularityAvailability('tripadvisor', {}).failure === false, 'explicit retirement is disclosed, not a fake failed request');
-ok(popularityAvailability('yelp', {YELP_API_KEY:'a'.repeat(127)}).failure === true, 'malformed key is a failed preflight');
-ok(popularityAvailability('yelp', {YELP_API_KEY:'a'.repeat(128)}).ready === true, 'valid-shaped key reaches the provider');
-ok(popularityAvailability('yelp', {}).reason === 'no_key', 'absent optional key stays explicit');
+// ── YELP PARKED 2026-09-09 — the Fusion trial ended; a paid plan is required ──
+// The Yelp developer console reads "Your free trial ended. Start a paid
+// subscription to continue your access." A well-formed key, a malformed key
+// and no key at all must ALL land in the same idle, non-paging state, because
+// the plan is what is missing. (The 127-char key in Vercel was a symptom.)
+ok(popularityAvailability('yelp', {YELP_API_KEY:'a'.repeat(128)}).ready === false,
+  'PARKED: a valid-shaped Yelp key still does not select work — the plan is what is missing, not the credential');
+ok(popularityAvailability('yelp', {YELP_API_KEY:'a'.repeat(127)}).failure === false,
+  'PARKED: a malformed key is no longer a failed preflight while parked — it must not page as bad_key_format');
+ok(popularityAvailability('yelp', {}).reason === YELP_PARKED_REASON,
+  'PARKED: the reason names the park, not "no_key"');
 ok(popularityAvailability('foursquare', {}).ready === false, 'unconfigured Foursquare does not select work');
 ok(popularityAvailability('wikipedia', {}).ready === true, 'keyless Wikimedia stays enabled');
 
@@ -58,6 +66,31 @@ ok(popularityAvailability('foursquare', {}).reason === FOURSQUARE_PARKED_REASON,
   // assertion above would pass for any string at all, including a broken one.
   ok(classifyHealth([{ ...oneDeadRun, last_note: 'quota: breaker_open' }]).incidents.length === 1,
     'positive control: a quota:-prefixed note on the SAME row DOES escalate, so the assertion above is a real property of the reason string');
+  // Yelp, parked the same way the same week: same role, same proof.
+  const yelpParked = { job: 'popularity:yelp', attempted: 0, succeeded: 0, consecutive_zero: 0, last_note: YELP_PARKED_REASON };
+  const cy = classifyHealth([yelpParked]);
+  ok(cy.incidents.length === 0 && cy.idle.length === 1,
+    `PARKED (yelp): the REAL classifier files the Yelp park as idle, never an incident (got ${cy.incidents.length})`);
+  ok(classifyHealth([{ ...yelpParked, consecutive_zero: 1 }]).incidents.length === 0,
+    `PARKED (yelp): the reason does NOT carry the immediate-escalation prefix (reason: ${YELP_PARKED_REASON})`);
+}
+// fetchYelp refuses BEFORE any network call, for every caller, with a key set —
+// the same red-proved shape as the Foursquare block below.
+{
+  const savedFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => { calls++; return { ok: true, status: 200, json: async () => ({ businesses: [] }) }; };
+  process.env.YELP_API_KEY = 'a'.repeat(128);
+  try {
+    const r = await FETCHERS.yelp({ name: 'Anna Maria Oyster Bar', lat: 27.34, lng: -82.53 });
+    ok(r === null, 'PARKED (yelp): fetchYelp returns null when called directly');
+    ok(calls === 0, `PARKED (yelp): ...and issued ZERO network calls with a valid-shaped key set (got ${calls})`);
+  } finally { globalThis.fetch = savedFetch; delete process.env.YELP_API_KEY; }
+  const src = readFileSync(new URL("../lib/popularity.js", import.meta.url), "utf8");
+  const body = src.slice(src.indexOf("export async function fetchYelp"));
+  const fn = body.slice(0, body.indexOf("\nexport async function fetchFoursquare"));
+  ok(/api\.yelp\.com\/v3\/businesses\/search/.test(fn) && /YELP_KEY_RE\.test\(key\)/.test(fn),
+    'DORMANT (yelp): fetchYelp still contains its real request path and key check — parked, not gutted');
 }
 // The fetcher refuses BEFORE any network call, for every caller — not only the
 // cron. Proven by executing it against a fetch stub that would record a call.
@@ -221,11 +254,13 @@ ok(route.includes("wf_popularity_stale_batch"), "batch = the stalest places, not
     return {calls,pulses,result};
   };
   const configured = await run({YELP_API_KEY:'a'.repeat(128), FOURSQUARE_API_KEY:'fixture'}, null);
-  // Two active sources since the 2026-09-09 Foursquare park (was three).
+  // ONE active source since the 2026-09-09 Foursquare AND Yelp parks (was three).
   // Counted, not `includes`-ed: a count cannot tell 1 from 2, and the whole
-  // point of the park is that a specific source stopped selecting work.
-  ok(configured.calls.length === 2 && new Set(configured.calls.map(c=>c.args.p_source)).size === 2, `each ACTIVE source gets its OWN batch (expected 2 after the Foursquare park, got ${configured.calls.length})`);
-  ok(new Set(configured.calls.map(c=>c.args.p_source)).has('yelp') && new Set(configured.calls.map(c=>c.args.p_source)).has('wikipedia'), 'the two active sources are yelp and wikipedia');
+  // point of a park is that a specific source stopped selecting work.
+  ok(configured.calls.length === 1 && new Set(configured.calls.map(c=>c.args.p_source)).size === 1, `each ACTIVE source gets its OWN batch (expected 1 after the Foursquare + Yelp parks, got ${configured.calls.length})`);
+  ok(configured.calls[0] && configured.calls[0].args.p_source === 'wikipedia', 'the one active source is wikipedia — Yelp selects no batch even with a valid-shaped key');
+  const yelpPulse = configured.pulses.find(p=>p.job==='popularity:yelp');
+  ok(yelpPulse && yelpPulse.attempted === 0 && yelpPulse.failed === 0 && yelpPulse.note === YELP_PARKED_REASON, `PARKED (yelp): the cron records an idle, non-failing pulse naming the park (got ${JSON.stringify(yelpPulse)})`);
   // THE PARK, ASSERTED ON THE REAL CRON BODY: a fully CONFIGURED Foursquare key
   // still selects no work and still records a non-failing pulse. This is the
   // assertion that goes red the day someone un-parks it by accident.
@@ -237,7 +272,7 @@ ok(route.includes("wf_popularity_stale_batch"), "batch = the stalest places, not
   ok(unavailable.calls.length === 1 && unavailable.calls[0].args.p_source === 'wikipedia', 'malformed, retired and quota-held sources select no place work');
   ok(unavailable.pulses.length === 3 && unavailable.pulses.every(p=>p.attempted === 0), 'unavailable sources record no invented provider attempts');
   ok(unavailable.pulses.find(p=>p.job==='popularity:foursquare').failed === 0, 'PARKED: even with the quota breaker HELD, the park answers first and stays a non-failing idle state — a parked provider never pages');
-  ok(unavailable.pulses.find(p=>p.job==='popularity:yelp').failed === 1, 'malformed key remains a visible preflight failure');
+  ok(unavailable.pulses.find(p=>p.job==='popularity:yelp').failed === 0, 'PARKED (yelp): a malformed key no longer pages while the provider is parked');
   ok(unavailable.pulses.find(p=>p.job==='popularity:tripadvisor').failed === 0, 'retirement is explicit idle state');
 }
 
