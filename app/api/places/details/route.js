@@ -66,6 +66,12 @@ export async function POST(req) {
   const kind = FIELDS[body.kind] ? body.kind : "place";
   const sessionToken = typeof body.sessionToken === "string" ? body.sessionToken.slice(0, 100) : undefined;
   if (!PLACE_ID_RX.test(placeId)) return NextResponse.json({ error: "bad request" }, { status: 400 });
+  // Card navigation needs identity, not paid enrichment. Open owned places
+  // before the spending gate so a closed budget cannot strand /p links.
+  if (kind === "place") {
+    const owned = await inventoryPlace(placeId);
+    if (owned) return NextResponse.json({ place: owned, source: "inventory" });
+  }
   if (!serverKey) {
     const fallback = await inventoryPlace(placeId);
     return fallback
