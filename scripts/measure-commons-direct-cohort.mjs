@@ -70,19 +70,25 @@ const KNOWN = {
   "ChIJVcqB2MUQw4gRbN_T0WF8QEw": { lat: 27.5233, lng: -82.6432, city: "Bradenton" },
 };
 
+// Honest wiki-path baseline for THIS cohort (live 2026-09-10, identity-correct):
+// Asolo, Blue Ridge Park, Ca' d'Zan, CoolToday Park, De Soto. Do not cite
+// Camp Gladiator / Benderson as a sixth — that is a wrong-entity match.
 const WIKI_ACCEPT_IDS = new Set([
-  "ChIJlXJqE9k_w4gRySJ2BPEXcR0", // Asolo — has a Wikipedia article
+  "ChIJlXJqE9k_w4gRySJ2BPEXcR0", // Asolo Repertory Theatre
+  "ChIJPSh7g6-s3IgROUqupmIgQ8M", // Blue Ridge Park
   "ChIJpXGK53VC24gRWMneFVtK6hY", // Ca' d'Zan
-  "ChIJ7-I5X4tHw4gRAK6g4JEha7M", // Celery Fields
+  "ChIJw39QsBpXw4gRt1QugbY5miM", // CoolToday Park
   "ChIJVcqB2MUQw4gRbN_T0WF8QEw", // De Soto National Memorial
-  "ChIJE0_XXFVJw4gRroRqJ-TSTXg", // Canopy Walk / Myakka
 ]);
 
+// Additional Commons-direct accepts the identity gate would take when a
+// free licensed exact-place file exists. These two are real Commons hits
+// (Celery Fields bird photo; Myakka Canopy Walk oak) that the wiki path
+// does not produce. Synthetic park names are not in this set — do not
+// cite them as live yield.
 const COMMONS_DIRECT_ACCEPT_IDS = new Set([
-  "ChIJNxf8h55Hw4gRSaBE_mEdfxo", // Big Cat Habitat
-  "ChIJ08zZpRpBw4gRiDJBlBXfAHw", // Bee Ridge Park
-  "ChIJD7cZSFBDw4gRsEpfMoip9BE", // Blackburn Point Park
-  "ChIJn79uD1s6w4gR2VbHR5rFDGU", // Bob Gardner Community Park
+  "ChIJ7-I5X4tHw4gRAK6g4JEha7M", // Celery Fields
+  "ChIJE0_XXFVJw4gRroRqJ-TSTXg", // Canopy Walk
 ]);
 
 const BENDERSON_ID = "ChIJc-m14Rc5w4gRrnsNnZ8pRJY";
@@ -173,10 +179,13 @@ async function liveResolve(place, { wikiOnly } = {}) {
   };
 }
 
-function tally(rows, results) {
+function tally(rows, results, wikiOnlyResults) {
   const byReason = {};
   const byCategory = {};
   let accepts = 0;
+  let wikiAccepts = 0;
+  let extraDirect = 0;
+  let deferred = 0;
   let falsePositives = 0;
   const accepted = [];
   for (let i = 0; i < rows.length; i++) {
@@ -188,19 +197,29 @@ function tally(rows, results) {
     if (r.photo) {
       accepts++;
       byCategory[cat].accepts++;
-      accepted.push(place.name);
+      const viaWiki = !!(wikiOnlyResults && wikiOnlyResults[i] && wikiOnlyResults[i].photo);
+      if (viaWiki) wikiAccepts++;
+      else extraDirect++;
+      accepted.push(`${place.name}${viaWiki ? " [wiki]" : " [commons-direct]"}`);
       if (place.place_id === BENDERSON_ID) falsePositives++;
     } else {
       const why = r.reason || "unknown";
       byReason[why] = (byReason[why] || 0) + 1;
+      if (String(why).startsWith("unavailable_") || String(why).startsWith("error:")) deferred++;
     }
   }
-  return { accepts, falsePositives, byReason, byCategory, accepted };
+  return { accepts, wikiAccepts, extraDirect, deferred, falsePositives, byReason, byCategory, accepted };
 }
 
 function printReport(label, stats, n) {
-  console.log(`\n${label}: ${stats.accepts}/${n} identity-verified + license-safe accepts`);
+  console.log(`\n${label}: ${stats.accepts}/${n} identity-verified + license-safe accepts (${((stats.accepts / n) * 100).toFixed(1)}%)`);
+  if (stats.wikiAccepts != null) {
+    console.log(`  Wikipedia-path valid hits: ${stats.wikiAccepts}`);
+    console.log(`  additional direct-Commons valid hits: ${stats.extraDirect}`);
+    console.log(`  deferred / network failures: ${stats.deferred}`);
+  }
   console.log(`  false positives (Benderson/Camp Gladiator attached): ${stats.falsePositives}`);
+  console.log(`  vaultable (source=wikimedia + free license, dry-run): ${stats.accepts}`);
   console.log("  accepted:");
   for (const name of stats.accepted) console.log("    - " + name);
   console.log("  rejects by reason:");
@@ -234,8 +253,8 @@ async function main() {
     after.push(await resolve(place, { wikiOnly: false }));
   }
 
-  const beforeStats = tally(rows, before);
-  const afterStats = tally(rows, after);
+  const beforeStats = tally(rows, before, before);
+  const afterStats = tally(rows, after, before);
 
   if (verbose) {
     console.log("per-place:");
@@ -260,8 +279,8 @@ async function main() {
     if (beforeStats.accepts !== 5) {
       throw new Error(`hermetic baseline must be 5/40, got ${beforeStats.accepts}/${rows.length}`);
     }
-    if (afterStats.accepts <= beforeStats.accepts) {
-      throw new Error(`hermetic AFTER must beat the 5/40 baseline, got ${afterStats.accepts}`);
+    if (afterStats.accepts !== 7 || afterStats.extraDirect !== 2) {
+      throw new Error(`hermetic AFTER must be 7/40 (5 wiki + 2 real Commons-direct), got ${afterStats.accepts} accepts / ${afterStats.extraDirect} extra`);
     }
     if (afterStats.falsePositives !== 0 || beforeStats.falsePositives !== 0) {
       throw new Error("Benderson/Camp Gladiator attached — false positive");

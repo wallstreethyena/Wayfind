@@ -19,8 +19,13 @@
 // SAME wikiOpensearch/wikiPageInfo lib/popularity.js uses — see that file's
 // 2026-09-09 note on jf()'s fetchImpl param). No real network call, no real
 // database. Run standalone: `node scripts/test-commons-photos.mjs`.
-import { stripTrackingParams, findCommonsPhoto, classifyLicense, buildAttributionText, isUnavailableReason, verifyCommonsFileIdentity, splitPlacePrimaryName, commonsSearchQueries, distinctivePlaceTokens, inferPlaceCity, NO_DIRECT_COMMONS_REASON } from "../lib/commonsPhotos.js";
+import { readFileSync, writeFileSync, unlinkSync, mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { pathToFileURL, fileURLToPath } from "node:url";
+import { stripTrackingParams, findCommonsPhoto, classifyLicense, buildAttributionText, isUnavailableReason, verifyCommonsFileIdentity, splitPlacePrimaryName, commonsSearchQueries, distinctivePlaceTokens, inferPlaceCity, titleDepictsPlace, isCommonsImageTitle, rankCommonsTitles, NO_DIRECT_COMMONS_REASON, WIKI_FALLTHROUGH_REASONS } from "../lib/commonsPhotos.js";
 import { createWikimediaFetchPolicy } from "../lib/wikimediaFetchPolicy.js";
+import { mayStorePermanently } from "../lib/photoLicense.js";
 import { nameSim } from "../lib/popularity.js";
 
 let failures = 0;
@@ -192,9 +197,13 @@ async function main() {
   // ── 2. a non-free license is rejected ───────────────────────────────────
   {
     const { photo, reason, calls } = await resolve({ commons: COMMONS_INFO_NONFREE });
-    ok(photo === null, "a non-free-licensed Commons file (Free Art License, not in the recognised CC/public-domain set) must not resolve to a photo");
-    ok(reason === "license_non_free_license", `rejection reason must be license_non_free_license, got: ${reason}`);
+    ok(photo === null, "a non-free-licensed Commons lead image (Free Art License, not in the recognised CC/public-domain set) must not resolve to a photo");
+    ok(
+      reason === NO_DIRECT_COMMONS_REASON,
+      `a wiki-path license miss is a legitimate no-result and falls through to Commons-direct; empty Commons search stays ${NO_DIRECT_COMMONS_REASON} (got ${reason})`
+    );
     ok(calls.some((u) => u.includes("commons.wikimedia.org")), "the license rejection must happen AFTER the Commons file was actually inspected, not as a shortcut before it");
+    ok(calls.some((u) => String(u).includes("list=search")), "a definitive wiki-path license miss MUST fall through to Commons-direct search");
   }
   ok(classifyLicense({ License: { value: "cc-by-sa-4.0" } }).free === true, "classifyLicense: cc-by-sa-4.0 must be free");
   ok(classifyLicense({ License: { value: "cc0" } }).free === true, "classifyLicense: cc0 must be free");
@@ -345,7 +354,7 @@ async function main() {
     let why = null;
     const { fetchImpl } = makeFetch({ pageImages: PAGE_IMAGES_ORIGINAL_ONLY });
     const out = await findCommonsPhoto(PLACE, { fetch: fetchImpl, onReject: (r) => { why = r; } });
-    ok(!out && why === "no_lead_image", "REAL-SHAPE: an `original`-only pageimages response (no pageimage key) rejects as no_lead_image rather than inventing a filename (got " + why + ")");
+    ok(!out && why === NO_DIRECT_COMMONS_REASON, "REAL-SHAPE: an `original`-only pageimages response (no pageimage key) is a legitimate no-lead-image and falls through to empty Commons-direct (got " + why + ")");
   }
 
   // ── TRACKING PARAMS NEVER ENTER A PERMANENT LIBRARY ─────────────────────
@@ -381,8 +390,8 @@ async function main() {
     const STEPS = [
       { key: "opensearch", reason: "unavailable_opensearch", empty: [PLACE.name, [], [], []], emptyReason: NO_DIRECT_COMMONS_REASON },
       { key: "pageInfo", reason: "unavailable_pageinfo", empty: { query: { pages: {} } }, emptyReason: null },
-      { key: "pageImages", reason: "unavailable_lead_image", empty: { query: { pages: { 1: {} } } }, emptyReason: "no_lead_image" },
-      { key: "commons", reason: "unavailable_imageinfo", empty: { query: { pages: { 1: {} } } }, emptyReason: "no_commons_imageinfo" },
+      { key: "pageImages", reason: "unavailable_lead_image", empty: { query: { pages: { 1: {} } } }, emptyReason: NO_DIRECT_COMMONS_REASON },
+      { key: "commons", reason: "unavailable_imageinfo", empty: { query: { pages: { 1: {} } } }, emptyReason: NO_DIRECT_COMMONS_REASON },
     ];
 
     // C1 (THE HEADLINE INVARIANT) — a 429, a 500, and a thrown fetch at each
@@ -395,10 +404,10 @@ async function main() {
       ]) {
         const { photo, reason, calls } = await resolve({ [step.key]: injected });
         ok(!photo, `C1 ${step.key}/${label}: no photo is returned`);
-        if (step.key === "opensearch") {
+        if (step.key === "opensearch" || step.key === "pageImages" || step.key === "commons") {
           ok(
             !calls.some((u) => String(u).includes("list=search") || String(u).includes("srsearch=")),
-            `C1 opensearch/${label}: a wiki TRANSPORT failure must NOT fall through to Commons-direct search`
+            `C1 ${step.key}/${label}: a wiki TRANSPORT failure must NOT fall through to Commons-direct search`
           );
         }
         ok(
@@ -461,6 +470,8 @@ async function main() {
     ok(!isUnavailableReason("license_non_free_license"), "C4: an observed non-free licence IS a decision");
     ok(!isUnavailableReason("identity_disambiguation"), "C4: an observed identity mismatch IS a decision");
     ok(!isUnavailableReason(null) && !isUnavailableReason(undefined) && !isUnavailableReason(42), "C4: a missing or non-string reason is not silently treated as unavailable");
+    ok(WIKI_FALLTHROUGH_REASONS.includes("no_wiki_candidate") && WIKI_FALLTHROUGH_REASONS.includes("no_lead_image"), "C4: legitimate wiki-path empties are in the fall-through set");
+    ok(!WIKI_FALLTHROUGH_REASONS.includes("identity_disambiguation") && !WIKI_FALLTHROUGH_REASONS.includes("unavailable_opensearch"), "C4: identity_* and unavailable_* are NEVER fall-through reasons");
   }
 
   // ── D — COMMONS-DIRECT FALLBACK (after definitive no_wiki_candidate) ──
@@ -506,10 +517,15 @@ async function main() {
     );
     const bendersonIdent = verifyCommonsFileIdentity(BENDERSON, WALLENDA_FILE);
     ok(!bendersonIdent.ok, "D1 (THE HEADLINE INVARIANT): a Nik Wallenda / Benderson Park crowd photo must NOT verify as Camp Gladiator");
-    ok(bendersonIdent.reason === "identity_name_mismatch", `D1: reject reason is identity_name_mismatch (got ${JSON.stringify(bendersonIdent.reason)})`);
+    ok(
+      bendersonIdent.reason === "identity_title_mismatch" || bendersonIdent.reason === "identity_name_mismatch",
+      `D1: reject reason is identity_title_mismatch (title has no Gladiator tokens) or identity_name_mismatch (got ${JSON.stringify(bendersonIdent.reason)})`
+    );
+    ok(!titleDepictsPlace(BENDERSON, WALLENDA_FILE), "D1: Wallenda/Benderson title does not depict the Camp Gladiator entity");
 
     const asoloIdent = verifyCommonsFileIdentity(ASOLO, ASOLO_FILE);
     ok(asoloIdent.ok, `D2: File:Sarasota FL Asolo Rep Theatre01.jpg must verify as Asolo Repertory Theatre (got ${JSON.stringify(asoloIdent)})`);
+    ok(titleDepictsPlace(ASOLO, ASOLO_FILE), "D2: Asolo distinctive tokens appear in the file TITLE, not only a caption");
 
     const geoMismatch = verifyCommonsFileIdentity(ASOLO, { ...ASOLO_FILE, lat: 40.71, lng: -74.01 });
     ok(!geoMismatch.ok && geoMismatch.reason === "identity_geo_mismatch", "D2b: the same Asolo filename with NYC coordinates is a geo mismatch — name is not enough");
@@ -527,6 +543,8 @@ async function main() {
       queries.some((q) => q.includes(inferred)),
       `D3: inferred city is included in a search query (inferred=${JSON.stringify(inferred)} queries=${JSON.stringify(queries)})`
     );
+    const celeryQ = commonsSearchQueries({ name: "Celery Fields", city: "Sarasota" });
+    ok(celeryQ[0] === '"Celery Fields" Sarasota', `D3: city-qualified search is FIRST so PDFs from the bare name cannot starve the inspect budget (got ${JSON.stringify(celeryQ)})`);
 
     function commonsSearchHit(title) {
       return { query: { search: [{ ns: 6, title }] } };
@@ -581,7 +599,10 @@ async function main() {
       let reason = null;
       const photo = await findCommonsPhoto(BENDERSON, { fetch: fetchImpl, onReject: (r) => { reason = r; } });
       ok(photo === null, "D4 (END-TO-END NEGATIVE): Camp Gladiator + Wallenda Commons hit must not resolve a photo");
-      ok(reason === "commons_identity_name_mismatch", `D4: terminal reason is commons_identity_name_mismatch (got ${JSON.stringify(reason)})`);
+      ok(
+        reason === "commons_identity_title_mismatch" || reason === "commons_identity_name_mismatch",
+        `D4: terminal reason is commons_identity_title_mismatch (got ${JSON.stringify(reason)})`
+      );
       ok(calls.some((u) => String(u).includes("list=search")), "D4: the Commons-direct search actually ran (wiki was empty)");
       ok(!isUnavailableReason(reason), "D4: a wrong-entity hit is a DECISION, not a deferral — replay must not loop it");
     }
@@ -644,13 +665,225 @@ async function main() {
       ok(!photo && reason === NO_DIRECT_COMMONS_REASON, `D8: empty Commons-direct search is the new terminal miss (got ${reason})`);
       ok(!isUnavailableReason(reason), "D8: and it IS a decision the worker may file");
     }
+
+    const CAZAN = {
+      name: "Ca' d'Zan",
+      lat: 27.3847,
+      lng: -82.5603,
+      city: "Sarasota",
+      place_id: "ChIJpXGK53VC24gRWMneFVtK6hY",
+    };
+    const CAZAN_META = {
+      Artist: { value: "A photographer" },
+      License: { value: "cc-by-sa-4.0" },
+      LicenseShortName: { value: "CC BY-SA 4.0" },
+      ImageDescription: { value: "Front view of Ca' d'Zan, The Ringling, Sarasota" },
+      ObjectName: { value: "Front view of Ca' d'Zan" },
+    };
+    const CELERY = {
+      name: "Celery Fields",
+      lat: 27.32537,
+      lng: -82.4336,
+      city: "Sarasota",
+      place_id: "ChIJ7-I5X4tHw4gRAK6g4JEha7M",
+    };
+    const CELERY_FILE = {
+      title: "File:Painted bunting at Celery Fields in Sarasota, Florida.jpg",
+      filename: "Painted bunting at Celery Fields in Sarasota, Florida.jpg",
+      description: "Painted bunting at Celery Fields, Sarasota",
+      objectName: "Painted bunting at Celery Fields",
+      categories: ["Category:Celery Fields", "Category:Sarasota, Florida"],
+      lat: 27.32537,
+      lng: -82.4336,
+    };
+
+    ok(!isCommonsImageTitle("File:Celery Fields trail map.pdf"), "D9: a Commons PDF is not an inspectable photo");
+    ok(isCommonsImageTitle("File:Painted bunting at Celery Fields in Sarasota, Florida.jpg"), "D9: a Commons JPEG is an inspectable photo");
+    const ranked = rankCommonsTitles(CELERY, [
+      "File:Celery Fields trail map.pdf",
+      "File:Random park.pdf",
+      "File:Painted bunting at Celery Fields in Sarasota, Florida.jpg",
+    ]);
+    ok(ranked.length === 1 && ranked[0].includes("Painted bunting"), "D9: rankCommonsTitles drops PDFs and keeps the identity-bearing JPEG");
+    ok(verifyCommonsFileIdentity(CELERY, CELERY_FILE).ok, `D9: Celery Fields JPEG verifies (got ${JSON.stringify(verifyCommonsFileIdentity(CELERY, CELERY_FILE))})`);
+
+    const bayFile = {
+      title: "File:Sarasota Bay.JPG",
+      filename: "Sarasota Bay.JPG",
+      description: "View toward Ca' d'Zan from Sarasota Bay",
+      categories: ["Category:Ca' d'Zan", "Category:Sarasota, Florida"],
+      lat: 27.3847,
+      lng: -82.5603,
+    };
+    const bayIdent = verifyCommonsFileIdentity(CAZAN, bayFile);
+    ok(!bayIdent.ok && bayIdent.reason === "identity_title_mismatch", `D10: a generic Sarasota Bay city photo must not attach to Ca' d'Zan even when the caption names the mansion (got ${JSON.stringify(bayIdent)})`);
+
+    const sameName = verifyCommonsFileIdentity(
+      { name: "Centennial Park", lat: 27.498, lng: -82.573, city: "Bradenton" },
+      {
+        title: "File:Centennial Park Atlanta.jpg",
+        description: "Centennial Olympic Park in Atlanta",
+        categories: ["Category:Parks in Atlanta"],
+        lat: 33.76,
+        lng: -84.39,
+      }
+    );
+    ok(!sameName.ok && sameName.reason === "identity_geo_mismatch", `D11: ambiguous same-name place in another city is a geo reject (got ${JSON.stringify(sameName)})`);
+
+    const wrongCity = verifyCommonsFileIdentity(
+      { name: "Asolo Repertory Theatre", city: "Sarasota" },
+      { title: "File:Asolo Rep Theatre Tampa.jpg", description: "Asolo touring production in Tampa", categories: ["Category:Tampa, Florida"] }
+    );
+    ok(!wrongCity.ok && wrongCity.reason === "identity_city_mismatch", `D12: correct name, wrong city, no file GPS → identity_city_mismatch (got ${JSON.stringify(wrongCity)})`);
+
+    {
+      const { fetchImpl } = makeFetch({
+        opensearch: OPENSEARCH_EMPTY,
+        commonsSearch: commonsSearchHit("File:Sarasota FL Asolo Rep Theatre01.jpg"),
+        commons: commonsFileInfo({
+          title: "File:Sarasota FL Asolo Rep Theatre01.jpg",
+          filename: "Sarasota_FL_Asolo_Rep_Theatre01.jpg",
+          extmetadata: {
+            Artist: { value: "Ebyabe" },
+            License: { value: "fal" },
+            LicenseShortName: { value: "Free Art License" },
+            ImageDescription: { value: "Asolo Repertory Theatre in Sarasota, Florida" },
+          },
+          lat: 27.3865,
+          lon: -82.5608,
+        }),
+      });
+      let reason = null;
+      const photo = await findCommonsPhoto(ASOLO, { fetch: fetchImpl, onReject: (r) => { reason = r; } });
+      ok(photo === null && reason === "license_non_free_license", `D13: a verified-identity Commons file with a non-free license is rejected (got ${reason})`);
+    }
+
+    {
+      const { fetchImpl, calls } = makeFetch({
+        opensearch: OPENSEARCH_EMPTY,
+        commonsSearch: commonsSearchHit("File:Front view of Ca' d'Zan.jpg"),
+        commons: commonsFileInfo({
+          title: "File:Front view of Ca' d'Zan.jpg",
+          filename: "Front_view_of_Ca_dZan.jpg",
+          extmetadata: CAZAN_META,
+          lat: 27.3847,
+          lon: -82.5603,
+        }),
+      });
+      let reason = null;
+      const photo = await findCommonsPhoto(CAZAN, { fetch: fetchImpl, onReject: (r) => { reason = r; } });
+      ok(!!photo, `D14 (SECOND LIVE-SHAPED POSITIVE): Ca' d'Zan + File:Front view of Ca' d'Zan.jpg must resolve via Commons-direct (reason: ${reason})`);
+      if (photo) {
+        const vault = mayStorePermanently({ source: "wikimedia", license: photo.license });
+        ok(vault.allowed, `D14: accepted Commons-direct photo is vaultable through mayStorePermanently (got ${JSON.stringify(vault)})`);
+        ok(/^https:\/\//.test(photo.image_url) && !/googleusercontent/i.test(photo.image_url), "D14: image_url is Wikimedia, never Google Places bytes");
+        ok(photo.attribution_text.length > 0 && photo.attribution_url.length > 0, "D14: provenance/attribution preserved");
+      }
+      ok(calls.some((u) => String(u).includes("list=search")), "D14: Commons-direct search ran because wiki was empty");
+    }
+
+    {
+      const { fetchImpl, calls } = makeFetch({
+        opensearch: ["Asolo Repertory Theatre", ["Asolo Repertory Theatre"], [""], ["https://en.wikipedia.org/wiki/Asolo_Repertory_Theatre"]],
+        pageInfo: {
+          query: {
+            pages: {
+              111: {
+                title: "Asolo Repertory Theatre",
+                pageprops: {},
+                coordinates: [{ lat: 27.3865, lon: -82.5608 }],
+                categories: [{ title: "Category:Theatres in Florida" }],
+                extract: "Asolo Repertory Theatre is a professional theatre in Sarasota, Florida.",
+              },
+            },
+          },
+        },
+        pageImages: PAGE_IMAGES_NONE,
+        commonsSearch: commonsSearchHit("File:Sarasota FL Asolo Rep Theatre01.jpg"),
+        commons: commonsFileInfo({
+          title: "File:Sarasota FL Asolo Rep Theatre01.jpg",
+          filename: "Sarasota_FL_Asolo_Rep_Theatre01.jpg",
+          extmetadata: ASOLO_META,
+          lat: 27.3865,
+          lon: -82.5608,
+        }),
+      });
+      let reason = null;
+      const photo = await findCommonsPhoto(ASOLO, { fetch: fetchImpl, onReject: (r) => { reason = r; } });
+      ok(!!photo, `D15: a verified wiki article with no lead image falls through to Commons-direct and accepts the real Asolo file (reason: ${reason})`);
+      ok(calls.some((u) => String(u).includes("prop=pageimages")), "D15: the wiki lead-image lookup actually ran");
+      ok(calls.some((u) => String(u).includes("list=search")), "D15: Commons-direct actually ran after no_lead_image");
+    }
+
+    {
+      // D5 already accepted Asolo via Commons-direct. Pin vaultability on that shape too.
+      const { fetchImpl } = makeFetch({
+        opensearch: OPENSEARCH_EMPTY,
+        commonsSearch: commonsSearchHit("File:Sarasota FL Asolo Rep Theatre01.jpg"),
+        commons: commonsFileInfo({
+          title: "File:Sarasota FL Asolo Rep Theatre01.jpg",
+          filename: "Sarasota_FL_Asolo_Rep_Theatre01.jpg",
+          extmetadata: ASOLO_META,
+          lat: 27.3865,
+          lon: -82.5608,
+        }),
+      });
+      const photo = await findCommonsPhoto(ASOLO, { fetch: fetchImpl });
+      const vault = photo ? mayStorePermanently({ source: "wikimedia", license: photo.license }) : { allowed: false };
+      ok(!!photo && vault.allowed, "D16: Asolo Commons-direct accept is active-and-vaultable (source=wikimedia + free license)");
+      ok(!mayStorePermanently({ source: "google", license: "cc-by-sa-4.0" }).allowed, "D16: Google Places bytes stay un-vaultable even with a free-looking license string");
+    }
+
+    {
+      // MUTATION RED-PROVE. If identity continue is deleted, the Wallenda
+      // file is assigned to Camp Gladiator. This block watches the mutation
+      // land, then proves that assignment happens — which is the red D4
+      // exists to catch. A no-op replace must fail THIS block, not look like
+      // a passing guard.
+      const srcPath = fileURLToPath(new URL("../lib/commonsPhotos.js", import.meta.url));
+      const src = readFileSync(srcPath, "utf8");
+      const ANCHOR = "    const ident = verifyCommonsFileIdentity(place, rec);\n    if (!ident.ok) {\n      lastIdentityReason = ident.reason || \"unverified\";\n      continue;\n    }";
+      ok(src.includes(ANCHOR), "D17 MUTATION ANCHOR: the identity-continue in resolveDirectCommons is present so the red-prove can actually land");
+      const mutated = src.replace(
+        ANCHOR,
+        "    const ident = verifyCommonsFileIdentity(place, rec);\n    if (!ident.ok) {\n      lastIdentityReason = ident.reason || \"unverified\";\n    }"
+      );
+      ok(mutated !== src && !mutated.includes(ANCHOR), "D17: watched mutation applied — identity continue was removed (a silent no-op replace must not pass)");
+      const rewritten = mutated.replace(
+        /from "\.\/popularity\.js"/,
+        `from ${JSON.stringify(new URL("../lib/popularity.js", import.meta.url).href)}`
+      );
+      const tmp = join(mkdtempSync(join(tmpdir(), "wf-commons-mut-")), "commonsPhotos.mjs");
+      writeFileSync(tmp, rewritten);
+      try {
+        const M = await import(pathToFileURL(tmp).href + `?t=${Date.now()}`);
+        const { fetchImpl } = makeFetch({
+          opensearch: OPENSEARCH_EMPTY,
+          commonsSearch: commonsSearchHit("File:Nik Wallenda walking over Nathan Benderson Park.jpg"),
+          commons: commonsFileInfo({
+            title: "File:Nik Wallenda walking over Nathan Benderson Park.jpg",
+            filename: "Nik_Wallenda_Benderson.jpg",
+            extmetadata: WALLENDA_META,
+            lat: 27.37424,
+            lon: -82.45009,
+          }),
+        });
+        const forced = await M.findCommonsPhoto(BENDERSON, { fetch: fetchImpl });
+        ok(!!forced, "D17 MUTATION RED: forcing the identity continue off assigns the Wallenda/Benderson photo to Camp Gladiator — this is the red the D4 guard exists to catch");
+        if (forced) {
+          ok(/Wallenda|Benderson/i.test(forced.source_ref || ""), `D17: the forced assignment is specifically the Wallenda/Benderson file (got ${forced.source_ref})`);
+        }
+      } finally {
+        try { unlinkSync(tmp); } catch { /* tmp cleanup */ }
+      }
+    }
   }
 
   if (failures) {
     console.error(`test-commons-photos: ${failures} FAILED`);
     process.exit(1);
   }
-  console.log("test-commons-photos: OK — wiki identity + license gates, Commons-direct fallback after no_wiki_candidate, Benderson/Camp Gladiator negative, Asolo positive, and unavailable_* still never becoming a permanent rejection");
+  console.log("test-commons-photos: OK — wiki identity + license gates, Commons-direct after legitimate wiki empties, title-level identity, Benderson/Camp Gladiator negative + mutation-red, Asolo and Ca'd'Zan positives, vaultable, and unavailable_* still never becoming a permanent rejection");
 }
 
 main().catch((e) => {
