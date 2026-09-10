@@ -26,6 +26,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 import { computePhotoCoverage, computePhotoRunway } from "../../../../lib/photoCoverage";
+import { describePhotoRunway, photosPaidConfigured } from "../../../../lib/photoRunwayTruth";
 
 function sbEnvHere() {
   const raw = String(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "").trim().replace(/\/+$/, "");
@@ -54,9 +55,10 @@ export async function GET(req) {
   if (!s) return Response.json({ error: "unconfigured" }, { status: 503, headers: { "cache-control": "no-store" } });
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
-  let activeWithRef, openRows, unresolvedRows, recoveries7d, lastPulse, lastRepairPulses;
+  const month = new Date().toISOString().slice(0, 7);
+  let activeWithRef, openRows, unresolvedRows, recoveries7d, lastPulse, lastRepairPulses, photoAllowanceRows;
   try {
-    [activeWithRef, openRows, unresolvedRows, recoveries7d, lastPulse, lastRepairPulses] = await Promise.all([
+    [activeWithRef, openRows, unresolvedRows, recoveries7d, lastPulse, lastRepairPulses, photoAllowanceRows] = await Promise.all([
       count(s, "wf_inventory?select=place_id&status=eq.OPERATIONAL&or=(excluded.is.null,excluded.is.false)&photo_ref=not.is.null"),
       // 2026-09-09: open+budget_blocked, not open alone — a budget_blocked
       // row is still an unresolved placeholder from a reader's perspective
@@ -82,6 +84,13 @@ export async function GET(req) {
         headers: { apikey: s.key, Authorization: "Bearer " + s.key },
         cache: "no-store",
       }).then((r) => (r.ok ? r.json() : [])).catch(() => []),
+      // The ledger is historical consumption + ceiling. It is NOT proof that
+      // paid photo fetching is currently armed, so paidEnabled is derived
+      // independently below from the explicit runtime switches.
+      fetch(`${s.url}/rest/v1/wf_spend_ledger?sku=eq.photos&month=eq.${month}&select=used,cap&limit=1`, {
+        headers: { apikey: s.key, Authorization: "Bearer " + s.key },
+        cache: "no-store",
+      }).then((r) => (r.ok ? r.json() : [])).catch(() => []),
     ]);
   } catch (e) {
     return Response.json({ error: "read_failed", detail: String((e && e.message) || e) }, { status: 503, headers: { "cache-control": "no-store" } });
@@ -89,9 +98,16 @@ export async function GET(req) {
 
   const pulseRow = Array.isArray(lastPulse) && lastPulse[0];
   const pctMatch = pulseRow && /placeholder-rate\s+(\d+)%/.exec(String(pulseRow.note || ""));
-  const runway = computePhotoRunway(
-    (Array.isArray(lastRepairPulses) ? lastRepairPulses : []).map((r) => ({ note: r.note, ranAt: r.ran_at }))
-  );
+  const repairNotes = (Array.isArray(lastRepairPulses) ? lastRepairPulses : []).map((r) => ({ note: r.note, ranAt: r.ran_at }));
+  const runway = computePhotoRunway(repairNotes);
+  const paidEnabled = photosPaidConfigured({
+    gate: process.env.WAYFIND_GATE,
+    paid: process.env.WAYFIND_PHOTOS_PAID,
+    cap: process.env.GOOGLE_PHOTOS_MONTH_CAP,
+  });
+  const allowance = Array.isArray(photoAllowanceRows) && photoAllowanceRows[0] ? photoAllowanceRows[0] : null;
+  const runwayTruth = describePhotoRunway({ runway, allowance, paidEnabled });
+
   // exactFresh / samePlaceFresh (the two inputs computePhotoCoverage needs
   // for a live real-photo-coverage percentage) require a slow cross-reference
   // between wf_places_cache and wf_inventory — this surface stays fast and
@@ -119,8 +135,12 @@ export async function GET(req) {
       recoveries7d: coverage.recoveries7d,
       placeholderRatePctLastRun: pctMatch ? Number(pctMatch[1]) : null,
       lastMonitorRunAt: pulseRow ? pulseRow.ran_at : null,
-      burn24h: runway.burn24h,
-      runwayDays: runway.runwayDays,
+      paidPhotosEnabled: runwayTruth.paidEnabled,
+      allowanceUsed: runwayTruth.allowanceUsed,
+      allowanceCap: runwayTruth.allowanceCap,
+      burn24h: runwayTruth.burn24h,
+      runwayDays: runwayTruth.runwayDays,
+      runway: runwayTruth.text,
       checkedAt: new Date().toISOString(),
     },
     { status: 200, headers: { "cache-control": "no-store" } }
