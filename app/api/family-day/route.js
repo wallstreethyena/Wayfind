@@ -12,6 +12,9 @@ export async function GET(req) {
   const lng = Number.parseFloat(q.get("lng"));
   const radiusMi = q.has("radiusMi") ? Number(q.get("radiusMi")) : 25;
   const rail = q.get("rail");
+  const page = q.get("page");
+  const size = q.get("size");
+  const indoorOnly = q.get("indoorOnly") === "1";
   if (!validFamilyOrigin(lat, lng) || ![10, 25, 50].includes(radiusMi) || !FAMILY_DAY_RAILS.some((r) => r.id === rail)) {
     return Response.json({ error: "Choose a Florida location, a family rail, and a supported distance." }, { status: 400, headers });
   }
@@ -25,10 +28,11 @@ export async function GET(req) {
     return Response.json({ error: "Invalid family filters." }, { status: 400, headers });
   }
   try {
-    const options = { lat, lng, radiusMi, rail, filters };
+    const options = { lat, lng, radiusMi, rail, filters, page, size, indoorOnly };
     // Events and places read concurrently; an event outage must not erase the
     // healthy permanent cultural places, nor masquerade as zero family events.
-    const events = rail === "culture" ? getFamilyDayEvents(options).then((value) => ({
+    const eventOptions = indoorOnly ? { ...options, filters: { ...filters, weather: "indoor" } } : options;
+    const events = rail === "culture" ? getFamilyDayEvents(eventOptions).then((value) => ({
       events: value.events, eventMatched: value.matched, eventsTruncated: value.more,
     })).catch(() => ({ eventsFailed: true, eventsError: "Family events are temporarily unavailable." })) : Promise.resolve({});
     const [answer, eventAnswer] = await Promise.all([familyDayAnswer(options), events]);
