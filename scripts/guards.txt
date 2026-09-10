@@ -787,6 +787,7 @@ node scripts/check-hook-order.mjs
 # starved. This guard EXECUTES the chain — map, destination, proximity, rank,
 # render — rather than matching text on it.
 node scripts/check-curated-events-surface.mjs
+node scripts/test-event-scene-disclosure.mjs
 # 2026-09-07 — isTrusted/isEligible check status, tier, confidence, hook and
 # city but never geography. This EXECUTES isFloridaEvent and the two surfaces
 # it gates (the hub model, the single-event page) so a Chicago or a UK row
@@ -1354,6 +1355,7 @@ node scripts/test-command-center-requests.mjs
 # concurrency/backoff policy, and a failed lookup returns null and never
 # throws.
 node scripts/test-commons-photos.mjs
+node scripts/test-wiki-prefix-recovery.mjs
 
 # 2026-09-09 (#1188) the SERVING half of the free permanent-photo lane:
 # lib/freePhoto.js (reads wf_place_photo, attribution-gated, fail-soft) and

@@ -7,6 +7,7 @@ import { C, TARGET } from "../kit";
 import * as Culture from "../../../lib/culture";
 import { eventCategoryArt } from "../../../lib/eventCategoryArt";
 import { rankExperiences } from "../../../lib/experiencesData";
+import { eventSceneChip } from "../../../lib/eventImageDisclosure.js";
 import RailCard, { RailDots, RailNav } from "../RailCard";
 // Events pipeline integrity, Phase 2 (EVENTS_PIPELINE_DIAGNOSIS.md): the
 // title, image, and body are ONE semantic link to the event's resolved
@@ -30,7 +31,9 @@ function EventCard({ e, onVenue, ctx }) {
   const actionExternal = Boolean(externalTickets || !internal);
   const actionLabel = e.ticketVia ? "Tickets · " + e.ticketVia : e.ticketed ? "Get tickets" : (internal ? "Explore event" : "Official details");
   const categoryImage = eventCategoryArt(ctx.eventBucket(e), e);
-  const image = (ctx.eventUseImage(e) ? (e.thumb || e.image) : "") || categoryImage;
+  const providerImage = ctx.eventUseImage(e) ? (e.thumb || e.image) : "";
+  const image = providerImage || categoryImage;
+  const sceneChip = eventSceneChip(e, providerImage);
   return <RailCard
     photo={image}
     photoFallback={categoryImage}
@@ -38,7 +41,7 @@ function EventCard({ e, onVenue, ctx }) {
     eyebrow={seg.short}
     when={{ label: (rec || f.wd || f.mo || "Event").toUpperCase(), value: f.time || `${f.mo} ${f.day}`, tone: "later" }}
     facts={[venue || null, e.price || null, e.source ? `via ${e.source}` : null].filter(Boolean)}
-    chips={venue && onVenue ? [{ key: "venue", icon: "📍", label: venue, onClick: onVenue }] : []}
+    chips={[sceneChip, venue && onVenue ? { key: "venue", icon: "📍", label: venue, onClick: onVenue } : null].filter(Boolean)}
     href={href}
     external={!internal}
     actionItem={{ id: e.id, type: "event", title: e.name, image, url: href, provider: e.source || null }}
