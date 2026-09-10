@@ -117,7 +117,16 @@ ok(/\.wf-rail-top40 \.wf-place-card-highlights\{flex-wrap:wrap/.test(readFileSyn
   "…and the tag row is allowed to wrap, so a full tag set is shown rather than clipped to one line");
 
 // ── 4. VERIFIED OFFERS ONLY ─────────────────────────────────────────────────
-ok(/const partner = placePartnerPick\(p\)/.test(code), "the ticket CTA is gated on a resolved partner pick");
+// 2026-09-10: this pinned the literal `placePartnerPick(p)` and went red the
+// moment the call gained its live-quarantine argument — a guard that fires on
+// CORRECT code. Re-pointed to the invariant it was written for, and tightened
+// while we are here: the CTA must be gated on a resolved pick AND that pick
+// must be resolved against the live verdict, or this rail keeps painting a Book
+// button for a product that died until somebody ships a retirement.
+ok(/const partner = placePartnerPick\(\s*p\s*,\s*\w+\s*\)/.test(code),
+  "the ticket CTA is gated on a partner pick resolved WITH the live quarantine verdict");
+ok(/usePinQuarantine\s*\(\s*\)/.test(code),
+  "…and this file subscribes to that verdict itself rather than trusting a caller to have done it");
 ok(/cta=\{partner \?/.test(code), "…and renders nothing when there is no verified offer for that venue");
 ok(/commerceHref\(\{ provider: partner\.provider/.test(code), "the CTA href is built by commerceHref — our own tracked path, never a partner domain");
 ok(/emitCommerce\("commerce_cta_clicked"/.test(code), "the CTA is instrumented, so it cannot become an uninstrumented money surface");

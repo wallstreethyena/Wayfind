@@ -31,6 +31,7 @@ import IntentRailBody from "./IntentRail";
 import { applyCollapsedAttr, DEFAULT_COLLAPSED_RAILS, isCollapsed, markRailsReady, nextCollapsed, readCollapsed, writeCollapsed } from "../../lib/railCollapse";
 import { toDisplayScore } from "../../lib/score.js";
 import { placePartnerPick } from "../../lib/placePartnerPicks.js";
+import { usePinQuarantine } from "../../lib/pinQuarantine.js";
 import { nowSubline } from "../../lib/intentPages.js";
 import { LOAD_FAILED, LOAD_PENDING, canClaim, isFailed, settleLoad } from "../../lib/loadState.js";
 import { couponForPlace } from "../../lib/coupons.js";
@@ -415,6 +416,15 @@ export default function BestNearby({
   // them. `toggle` still closes it, so the accordion is not being deleted —
   // its default is being inverted.
   const [open, setOpen] = useState(DEFAULT_SECTION);
+  // LIVE QUARANTINE (2026-09-10). A pinned product that dies in the
+  // catalogue must stop painting a Book button without waiting for a
+  // deploy. The snapshot is always a usable catalog and quarantines
+  // nothing until the server has named a specific code dead, so passing
+  // it is unconditionally safe. See lib/pinQuarantine.js.
+  // Declared here, ABOVE every early return: it is a hook, and an exit
+  // above it would move React's hook count between renders — the exact
+  // failure scripts/check-hook-order.mjs exists for.
+  const pinQ = usePinQuarantine();
   // v7.05: `open` no longer means "the only section that is open" — the
   // collapsed set below decides that. It is now the section the reader last
   // acted on, which is what the headline describes and what the mount fetch
@@ -1040,7 +1050,7 @@ export default function BestNearby({
                 // is an exact normalized-name match against nine curated rows,
                 // so this is null on almost every card and never a guessed
                 // ticket link for a venue we have not confirmed sells one.
-                const partner = placePartnerPick(p);
+                const partner = placePartnerPick(p, pinQ);
                 const coupon = couponForPlace(p);
                 // The SAME facts row the food cards carry (owner, 2026-08-09:
                 // "we don't have much information like the ones from the

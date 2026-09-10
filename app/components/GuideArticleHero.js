@@ -1,5 +1,6 @@
 import styles from "./GuideArticleHero.module.css";
 import { activeSeasonalMark, NORMAL_MARK } from "../../lib/seasonalBrand";
+import GuidePhoto from "./GuidePhoto";
 
 function imageDetails(image) {
   if (!image) return null;
@@ -103,7 +104,7 @@ export default function GuideArticleHero({
         {media ? (
           <figure className={styles.figure}>
             <div className={styles.photo}>
-              <img
+              <GuidePhoto
                 src={media.src}
                 alt={media.alt || ""}
                 width={imageWidth}
@@ -112,6 +113,7 @@ export default function GuideArticleHero({
                 loading="eager"
                 fetchpriority="high"
                 decoding="async"
+                fallbackClassName={styles.photoFallback}
                 style={media.position ? { objectPosition: media.position } : undefined}
               />
             </div>

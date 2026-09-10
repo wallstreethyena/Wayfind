@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 604,
-    "totalRegistryEntries": 605,
-    "guardsTxtLineCount": 602,
-    "guardsTxtReachedFileCount": 597,
+    "totalOnDiskGuardFiles": 605,
+    "totalRegistryEntries": 606,
+    "guardsTxtLineCount": 603,
+    "guardsTxtReachedFileCount": 598,
     "criticalCount": 73,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 412,
-      "RENDER": 48,
+      "RENDER": 49,
       "STRUCTURAL": 144,
       "OTHER": 1
     }
@@ -3204,7 +3204,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 46,
+      "assertionCount": 63,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -3568,7 +3568,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 63,
+      "assertionCount": 66,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
@@ -5484,6 +5484,31 @@
       "owner": null
     },
     {
+      "file": "scripts/check-pin-quarantine-live.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 44,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": "A pinned partner product that dies in the catalogue loses its Book CTA WITHOUT a deploy — and no way of failing to check (403, 500, network, truncated page, feed unreachable) is ever mistaken for the product being dead.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "Renders IconicPlaceCard only. The other pin surfaces (IntentRail, BestNearby, the Detail sheet, BookingCTA, PlacePageBookLink) are covered by the call-site sweep in section 6 — which proves they PASS the live verdict, not that their markup changes when it fires. A surface that passes the catalogue and then ignores the null it gets back would pass this guard."
+      },
+      "owner": "Revenue QA"
+    },
+    {
       "file": "scripts/check-pinned-offer-serveable.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -5506,7 +5531,7 @@
       "protects": "A founder-pinned partner product cannot paint a Book CTA unless the catalogue still carries it and has not proven it dead — with UNKNOWN (never probed, 403, timeout) explicitly NOT counted as dead.",
       "blastRadius": {
         "category": "revenue",
-        "detail": "Hermetic by design and therefore blind to the live catalogue: the shipped client render path has no catalogue in scope, so this guard enforces the RECORDED verdict (RETIRED_VIATOR_PINS). A pin that dies in wf_experiences after today is caught by check-inventory-integrity's credentialed sweep, not here. If that sweep is removed or stops running with credentials, this file degrades into checking a cache nobody invalidates."
+        "detail": "Hermetic, and scoped to the RECORDED verdict (RETIRED_VIATOR_PINS): it proves that ledger is a real lock, not that the ledger is current. A product that dies after today is detected by check-inventory-integrity's credentialed sweep and contained by check-pin-quarantine-live's feed. If either of those is removed, this file degrades into checking a cache nobody invalidates."
       },
       "owner": "Revenue QA"
     },
@@ -7096,7 +7121,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 48,
+      "assertionCount": 49,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -11826,7 +11851,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 65,
+      "assertionCount": 69,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

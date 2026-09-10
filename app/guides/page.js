@@ -7,6 +7,7 @@ import styles from "./guides.module.css";
 import { SITE_URL } from "../../lib/site";
 import { experienceGoUrl } from "../../lib/affiliates";
 import HubConversion from "../components/HubConversion";
+import GuidePhoto from "../components/GuidePhoto";
 
 const _ogGuides = SITE_URL + "/api/og?t=" + encodeURIComponent("Florida travel guides, written by a local");
 export const metadata = {
@@ -56,8 +57,10 @@ export default function GuidesHub() {
           <div className={styles.grid}>
           {guides.map((g) => {
             const art = guideHero(g.slug);
-            return <article key={g.slug} className={styles.card} data-guide-card={g.slug}><a href={"/guides/" + g.slug} className={styles.cardLink}>
-              {art?.src ? <div className={styles.image}><img src={art.src} alt={art.alt || ""} width={art.width || 1600} height={art.height || 1000} loading="lazy" decoding="async" style={{ objectPosition: art.position || "center" }} /></div> : null}
+            const hasImage = Boolean(art?.src);
+            const imageCaption = art?.cardCaption || art?.caption || null;
+            return <article key={g.slug} className={`${styles.card} ${hasImage ? "" : styles.cardWithoutMedia}`} data-guide-card={g.slug}><a href={"/guides/" + g.slug} className={styles.cardLink}>
+              {hasImage ? <div className={styles.image}><GuidePhoto src={art.src} alt={art.alt || ""} width={art.width || 1600} height={art.height || 1000} loading="lazy" decoding="async" fallbackClassName={styles.imageFallback} style={{ objectPosition: art.position || "center" }} /></div> : null}
               <div className={styles.cardBody}>
                 <p className={styles.cardRegion}>{region}</p>
                 <h3>{g.title}</h3>
@@ -65,11 +68,14 @@ export default function GuidesHub() {
                 <span className={styles.read}>Explore the guide <span aria-hidden="true">↗</span></span>
               </div>
             </a>
-              {art?.credit || art?.license ? <p className={styles.credit}>
-                {art.credit ? <a href={art.source}>Image: {art.credit}</a> : null}
-                {art.credit && art.license ? " · " : ""}
-                {art.license ? <a href={art.licenseUrl || art.source}>{art.license}</a> : null}
-              </p> : null}
+              {imageCaption || art?.credit || art?.license ? <div className={styles.imageNote}>
+                {imageCaption ? <p className={styles.cardCaption}>{imageCaption}{art.modificationNotice ? " Resized; display crop. Source license retained." : ""}</p> : null}
+                {art?.credit || art?.license ? <p className={styles.credit}>
+                  {art.credit ? <a href={art.source}>Image: {art.credit}</a> : null}
+                  {art.credit && art.license ? " · " : ""}
+                  {art.license ? <a href={art.licenseUrl || art.source}>{art.license}</a> : null}
+                </p> : null}
+              </div> : null}
             </article>;
           })}
           </div>

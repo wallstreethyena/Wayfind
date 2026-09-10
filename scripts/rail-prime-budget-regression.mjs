@@ -4,6 +4,9 @@
 // per-city reads must get the remaining request budget rather than waiting the
 // normal DB ceiling. This guard calls the real prime function and captures the
 // deadline handed to its read transport; it does not infer behavior from text.
+import { readFileSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { primeConsolidatedInventoryReads, PRIME_DEADLINE_MS } from "../lib/inventoryBoxBatch.js";
 import { DB_DEADLINE_MS } from "../lib/fetchDeadline.js";
 import { makeReadCache } from "../lib/inventoryReadCache.js";
@@ -37,7 +40,23 @@ await primeConsolidatedInventoryReads(
 );
 ok(seen.length === 1, `CONTROL: expected one overlapping restaurant union read, saw ${seen.length}`);
 ok(seen[0] === PRIME_DEADLINE_MS, `real prime transport received ${seen[0]}ms, expected exported PRIME_DEADLINE_MS=${PRIME_DEADLINE_MS}`);
-ok(cache.size() === 0, "an empty/failed accelerator read leaves the authoritative cache unprimed rather than inventing a result");
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const railsSource = readFileSync(join(ROOT, "lib/railsData.js"), "utf8");
+const loadStart = railsSource.indexOf("export async function loadPools");
+const loadEnd = railsSource.indexOf("async function buildIdentityPool", loadStart);
+const loadBody = loadStart >= 0 && loadEnd > loadStart ? railsSource.slice(loadStart, loadEnd) : "";
+const primePos = loadBody.indexOf("primeConsolidatedInventoryReads(");
+const rankedMark = loadBody.indexOf('opts?.onStage?.("ranked")');
+const rankedWave = loadBody.indexOf("const results = await Promise.all(jobs.map");
+const nearbyMark = loadBody.indexOf('opts?.onStage?.("nearby")');
+const nearbyWave = loadBody.indexOf("buildNearbyPool(readerOrigin");
+const stageOrderSafe = loadBody.length > 1000
+  && primePos >= 0 && primePos < rankedMark && rankedMark < rankedWave
+  && rankedWave < nearbyMark && nearbyMark < nearbyWave
+  && (loadBody.match(/opts\?\.onStage\?\.\("ranked"\)/g) || []).length === 1
+  && (loadBody.match(/opts\?\.onStage\?\.\("nearby"\)/g) || []).length === 1;
+ok(cache.size() === 0 && stageOrderSafe,
+  "empty/failed prime stays fail-soft AND loadPools records exactly one ranked and nearby boundary in causal order");
 
 if (fails) {
   console.error(`rail-prime-budget-regression: ${fails} failure(s)`);

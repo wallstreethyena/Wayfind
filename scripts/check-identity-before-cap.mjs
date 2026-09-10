@@ -98,6 +98,46 @@ const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$
     "OWNED_POOL_FIELDS lost a column the predicates read (editorial / google_types / cuisines)");
 }
 
+// ── fallback requests must use the remaining whole-read budget ─────────────
+{
+  const box = { minLat: 27, maxLat: 28, minLng: -83, maxLng: -82 };
+  const deadlines = [];
+  const originalNow = Date.now;
+  let now = 0;
+  Date.now = () => now;
+  try {
+    const fetchImpl = async (url, init, deadlineMs) => {
+      deadlines.push({ url, deadlineMs });
+      if (deadlines.length === 1) {
+        now = 800;
+        return { ok: false, status: 400, json: async () => ({}) };
+      }
+      return { ok: true, json: async () => [{ place_id: "fallback", name: "Fallback", lat: 27.6, lng: -82.43, status: "OPERATIONAL", signals: { rating: 4.5, reviews: 100 } }] };
+    };
+    const out = await readOwnedCategory({ url: "https://example.invalid", key: "k" }, "food", box, {
+      fetchImpl, deadlineMs: 1000, deadlineAt: 1000,
+    });
+    ok(out.rows.length === 1, "the secondary-category fallback did not return its valid page");
+    ok(deadlines.length === 2 && deadlines[1].deadlineMs <= 200,
+      `fallback reused the stale full budget (${deadlines[1]?.deadlineMs}ms) after the primary consumed 800ms`);
+
+    deadlines.length = 0;
+    now = 0;
+    const exhaustedFetch = async (url, init, deadlineMs) => {
+      deadlines.push({ url, deadlineMs });
+      now = 1200;
+      return { ok: false, status: 400, json: async () => ({}) };
+    };
+    let exhausted = false;
+    try { await readOwnedCategory({ url: "https://example.invalid", key: "k" }, "food", box, { fetchImpl: exhaustedFetch, deadlineMs: 1000, deadlineAt: 1000 }); }
+    catch (error) { exhausted = true; }
+    ok(exhausted && deadlines.length === 1,
+      "an exhausted total budget still attempted the secondary fallback transport");
+  } finally {
+    Date.now = originalNow;
+  }
+}
+
 // ── 2. admission before the cost bound, red-proved in-process ──────────────
 {
   const ORIGIN = { lat: 27.5949, lng: -82.4265 };
