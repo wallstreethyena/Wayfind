@@ -37,6 +37,7 @@ import {
   reconcileRenderedCards,
   exactRenderedIdSet,
 } from "./menuPosterIntegrity.mjs";
+import { appleMapsTokenContract } from "../../../lib/appleMapsToken.js";
 import { splitBreakfastRails } from "../../../lib/breakfastRails.js";
 import { composeWorthEatingRails } from "../../../lib/worthEatingRails.js";
 
@@ -613,16 +614,22 @@ export const SCENARIOS = [
     id: "event-apple-maps",
     flow: "event-apple-maps",
     name: "Apple Maps renders on a real event page and its token is not dying",
-    description: "/api/health/apple-maps must report a configured, unexpired MapKit token with real runway (or no expiry at all), AND a real /florida-events page with venue coordinates must paint an actual Apple MapKit map (.mk-map-view) — not the 'map preview is unavailable' fallback. 2026-09-08: #1144 shipped on a 7-day portal token nothing could see expiring; this is the alarm that fires a fortnight early and on the day, on a clock.",
+    description: "/api/health/apple-maps must report a configured, unexpired, NON-EXPIRING, domain-restricted MapKit token, AND a real /florida-events page with venue coordinates must paint an actual Apple MapKit map (.mk-map-view) — not the 'map preview is unavailable' fallback. 2026-09-08: #1144 shipped on a 7-day portal token nothing could see expiring; the permanent token replaced it the same day and this scenario is what keeps it permanent.",
     async run(ctx) {
       // 1. the token's own clock, from the server that ships it
       const health = await ctx.fetchJson("/api/health/apple-maps");
       const h = health.json || {};
       ctx.ok("the Apple Maps health endpoint answered", health.status === 200 || health.status === 503, "200|503", health.status);
-      ctx.ok("a MapKit token is configured on production", h.configured === true, true, h.configured);
-      ctx.ok("the token is not expired", h.expired === false, false, h.expired);
-      ctx.ok("the token is not inside its warning window (install a non-expiring, domain-restricted token)", h.ok === true && h.warning !== true, "ok, no warning", `ok=${h.ok} warning=${h.warning} reason=${h.reason || ""} daysLeft=${h.daysLeft} expiresAt=${h.expiresAt || "none"}`);
-      ctx.note(`token: format=${h.format} nonExpiring=${h.nonExpiring} originRestricted=${h.originRestricted} expiresAt=${h.expiresAt || "none"} daysLeft=${h.daysLeft}`);
+      // 2026-09-10. Every token invariant comes from ONE place —
+      // lib/appleMapsToken.js appleMapsTokenContract() — so the guard suite
+      // red-proves the same code this monitor runs, instead of a hand-copied
+      // second opinion that can drift. Production has held the PERMANENT
+      // token since 2026-09-08 (no `exp`, origin www.gowayfind.com), so
+      // "permanent" and "domain-locked" are asserted steady state now:
+      // swapping a testing token back in is red within the half hour, not
+      // green until its last fortnight.
+      for (const c of appleMapsTokenContract(h)) ctx.ok(c.label, c.pass, c.expected, c.actual);
+      ctx.note(`token: format=${h.format} nonExpiring=${h.nonExpiring} temporary=${h.temporary} originRestricted=${h.originRestricted} origins=${JSON.stringify(h.origins || [])} expiresAt=${h.expiresAt || "none"} daysLeft=${h.daysLeft}`);
 
       // 2. a real reader's map: a curated Florida event with coordinates
       const page = await ctx.openPage({ viewport: { width: 1280, height: 900 } });

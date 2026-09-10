@@ -2060,7 +2060,15 @@ function AreaInsight({ metro, cat, town, center, onFind, onLog = NOLOG }) {
         <div style={{ padding: "19px 20px 21px", borderTop: "1px solid rgba(255,255,255,.07)" }}>
           <div style={{ marginBottom: 11, color: "#7F8C9B", fontSize: 9.5, fontWeight: 900, letterSpacing: ".17em", textTransform: "uppercase" }}>What locals know</div>
           {visibleItems.map((x, i) => {
-            const book = x.viatorUrl ? Aff.viatorDirectUrl(x.viatorUrl) : null;
+            // 2026-09-10 (affiliate deep-link audit, owner P0): this was
+            // Aff.viatorDirectUrl(), which renders a LIVE monetized viator.com
+            // href straight into crawlable DOM — every click bypassed
+            // /api/viator/go, so there was no provider_redirect_started, no
+            // server record, and any JS-rendering crawler "clicked" it. Same
+            // destination and same attribution (the route re-applies
+            // withViatorTracking), but the handoff is ours and can fail closed.
+            // /culture/[metro] and /guides/[slug] already do exactly this.
+            const book = x.viatorUrl ? Aff.viatorProductGoUrl(x.viatorUrl, cTitle, "culture", "culture_local_guide") : null;
             const body = book ? <>{x.story} <a href={book} target="_blank" rel="noreferrer" onClick={(e) => { e.stopPropagation(); e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || book; try { onLog("culture_book", null, { metro, q: x.name }); } catch (er) {} openExternal(_live); }} style={{ color: "#59DDBB", fontWeight: 850, textDecoration: "none" }}>Book ↗</a></> : x.story;
             return featureRow(String(i + 1).padStart(2, "0"), x.name, body, "#FF9B4B", (e) => { e.stopPropagation(); try { onLog("insight_find", null, { metro, q: x.name }); } catch (er) {} onFind && onFind(x.query || x.name); }, "item-" + i);
           })}
@@ -11015,8 +11023,10 @@ function SwipeRow({ children, onDelete }) {
 // /api/experiences — a DB read, so the distance rungs reach 90/120mi with NO
 // per-mile Google Places cost (unlike the place-search radius, which stays 60mi
 // to protect against the Places bill). Ships DARK (renders null) until the
-// migration + cron populate the table. Every card href is pid-wrapped through
-// lib/affiliates.viatorDirectUrl, and the section carries the FTC commission
+// migration + cron populate the table. Every card href goes through our own
+// /api/viator/go via lib/affiliates.viatorProductGoUrl (2026-09-10 — it used to
+// be viatorDirectUrl, i.e. a live partner href in crawlable DOM), and the
+// section carries the FTC commission
 // disclosure proximate to the earning cards — test-experiences-v3 locks both.
 // Default 30mi = the user's home market only (honest "near you"); the rungs
 // widen EXPLICITLY (60→90→120 reaches Orlando from Sarasota). Every card also
@@ -11095,7 +11105,12 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 10 }}>
           {st.items.map((t) => {
-            const href = Aff.viatorDirectUrl(t.url);
+            // 2026-09-10 (affiliate deep-link audit, owner P0): was
+            // Aff.viatorDirectUrl(t.url) — a raw monetized partner href in the
+            // DOM. Routed through our own redirect for the same reasons as the
+            // culture rail above. Null still means UNATTRIBUTABLE, so the row
+            // suppression immediately below is unchanged.
+            const href = Aff.viatorProductGoUrl(t.url, t.city, cat, "exp_rail");
             // v6.79 (AGENTS.md §6b): null means UNATTRIBUTABLE, so suppress the row entirely. Rendering <a> with href={null} would be a dead link that looks clickable — worse than the untracked one it replaced.
             if (!href) return null;
             return (
@@ -11129,7 +11144,8 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
 // v6.56 (owner): the PERMANENT bookable-experiences rail on Things to do —
 // "All" shows top trending; each sub-menu shows experiences themed to it
 // (lib/experiencesData catalog keys). Every href is affiliate-wrapped via
-// viatorDirectUrl (the ONE tracking builder). Fails soft to no rail.
+// viatorProductGoUrl — our own /api/viator/go, which re-applies the ONE
+// tracking builder server-side. Fails soft to no rail.
 // 2026-08-02 — the chip -> inventory decision moved OUT of this file into
 // lib/browseCommerceMap.js, so a guard can import and CALL it instead of
 // regexing a literal out of a 9,500-line client component. See that file for

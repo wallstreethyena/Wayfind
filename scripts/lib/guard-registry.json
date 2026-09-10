@@ -27,16 +27,16 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 602,
-    "totalRegistryEntries": 603,
-    "guardsTxtLineCount": 600,
-    "guardsTxtReachedFileCount": 595,
-    "criticalCount": 72,
+    "totalOnDiskGuardFiles": 603,
+    "totalRegistryEntries": 604,
+    "guardsTxtLineCount": 601,
+    "guardsTxtReachedFileCount": 596,
+    "criticalCount": 73,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 410,
+      "CALL": 412,
       "RENDER": 47,
-      "STRUCTURAL": 145,
+      "STRUCTURAL": 144,
       "OTHER": 1
     }
   },
@@ -2567,10 +2567,10 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 62,
+      "assertionCount": 81,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
-      "selfDocumentsRedProve": false,
+      "selfDocumentsRedProve": true,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
@@ -3731,7 +3731,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 121,
+      "assertionCount": 123,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -3824,13 +3824,11 @@
     {
       "file": "scripts/check-inventory-integrity.mjs",
       "npmScript": null,
-      "class": "STRUCTURAL",
+      "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 5,
+      "assertionCount": 11,
       "unprovenAbsenceCount": 0,
-      "honestyViolations": [
-        "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
-      ],
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": false,
@@ -5417,7 +5415,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 18,
+      "assertionCount": 19,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -5484,6 +5482,33 @@
       "protects": null,
       "blastRadius": null,
       "owner": null
+    },
+    {
+      "file": "scripts/check-pinned-offer-serveable.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 27,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-import:../lib/commerce.js,../lib/commerceProviders.js"
+      ],
+      "protects": "A founder-pinned partner product cannot paint a Book CTA unless the catalogue still carries it and has not proven it dead — with UNKNOWN (never probed, 403, timeout) explicitly NOT counted as dead.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "Hermetic by design and therefore blind to the live catalogue: the shipped client render path has no catalogue in scope, so this guard enforces the RECORDED verdict (RETIRED_VIATOR_PINS). A pin that dies in wf_experiences after today is caught by check-inventory-integrity's credentialed sweep, not here. If that sweep is removed or stops running with credentials, this file degrades into checking a cache nobody invalidates."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/check-place-card-css-contract.mjs",
@@ -8791,7 +8816,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 52,
+      "assertionCount": 62,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -8818,7 +8843,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 80,
+      "assertionCount": 90,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -8845,7 +8870,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 35,
+      "assertionCount": 34,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -14062,7 +14087,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 69,
+      "assertionCount": 73,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
