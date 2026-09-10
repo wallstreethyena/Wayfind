@@ -1,0 +1,98 @@
+name: apply wiki photo prefix recovery
+on:
+  push:
+    branches:
+      - fix/wiki-photo-prefix-event-scene-2026-09-10
+permissions:
+  contents: write
+jobs:
+  apply-and-prove:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/wiki-photo-prefix-event-scene-2026-09-10
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Apply source patch
+        run: |
+          python3 -m py_compile scripts/apply-wiki-photo-prefix-event-scene.py
+          python3 scripts/apply-wiki-photo-prefix-event-scene.py
+      - name: Regenerate guard registry
+        run: node scripts/lib/build-guard-registry.mjs
+      - name: Focused green proof
+        run: |
+          node scripts/test-wiki-prefix-recovery.mjs
+          node scripts/test-event-scene-disclosure.mjs
+          node scripts/test-commons-photos.mjs
+          node scripts/test-popularity.mjs
+          node scripts/check-wikipedia-identity-verification.mjs
+          node scripts/check-curated-events-surface.mjs
+          npm run check:jsx
+          node scripts/check-guard-registry.mjs
+      - name: Red prove historical prefix miss
+        shell: bash
+        run: |
+          cp lib/popularity.js /tmp/popularity.js
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('lib/popularity.js'); s=p.read_text()
+          old='found = await search(genericBase, qualifier || original, "generic_suffix", true);'
+          new='found = null; // sabotage: historical generic suffix retry removed'
+          if s.count(old) != 1: raise SystemExit('prefix mutation did not apply exactly once')
+          p.write_text(s.replace(old,new,1))
+          PY
+          if node scripts/test-wiki-prefix-recovery.mjs; then echo 'ERROR: historical prefix defect stayed green'; exit 1; else echo 'RED-PROOF OK: removing generic retry fails'; fi
+          mv /tmp/popularity.js lib/popularity.js
+          node scripts/test-wiki-prefix-recovery.mjs
+      - name: Red prove wrong-entity safety gate
+        shell: bash
+        run: |
+          cp lib/popularity.js /tmp/popularity.js
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('lib/popularity.js'); s=p.read_text()
+          old='if (requireTypedTitle && !wikiPlaceTypeEvidence(candidate.title)) return null;'
+          new='if (false && requireTypedTitle && !wikiPlaceTypeEvidence(candidate.title)) return null;'
+          if s.count(old) != 1: raise SystemExit('safety mutation did not apply exactly once')
+          p.write_text(s.replace(old,new,1))
+          PY
+          if node scripts/test-wiki-prefix-recovery.mjs; then echo 'ERROR: wrong-entity safety mutation stayed green'; exit 1; else echo 'RED-PROOF OK: removing title evidence gate fails'; fi
+          mv /tmp/popularity.js lib/popularity.js
+          node scripts/test-wiki-prefix-recovery.mjs
+      - name: Red prove event scene disclosure
+        shell: bash
+        run: |
+          cp lib/eventImageDisclosure.js /tmp/eventImageDisclosure.js
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('lib/eventImageDisclosure.js'); s=p.read_text()
+          old='export const EVENT_SCENE_LABEL = "Scene photo";'
+          new='export const EVENT_SCENE_LABEL = "";'
+          if s.count(old) != 1: raise SystemExit('scene mutation did not apply exactly once')
+          p.write_text(s.replace(old,new,1))
+          PY
+          if node scripts/test-event-scene-disclosure.mjs; then echo 'ERROR: missing scene disclosure stayed green'; exit 1; else echo 'RED-PROOF OK: removing label fails'; fi
+          mv /tmp/eventImageDisclosure.js lib/eventImageDisclosure.js
+          node scripts/test-event-scene-disclosure.mjs
+      - name: Remove temporary applicator and workflow
+        run: |
+          rm scripts/apply-wiki-photo-prefix-event-scene.py
+          rm .github/workflows/apply-wiki-photo-prefix-event-scene-2026-09-10.yml
+          node scripts/lib/build-guard-registry.mjs
+          node scripts/check-guard-registry.mjs
+      - name: Commit verified branch
+        shell: bash
+        run: |
+          git config user.name 'codex (Wayfind problem solver)'
+          git config user.email 'codex@openai.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'fix(photos): recover safe Wikipedia prefix misses and label event scenes' -m 'MediaWiki opensearch is prefix-oriented. Popularity and Commons now share one candidate-search ladder: raw name, existing qualifier strip, then one generic trailing place noun using the existing Wikipedia place-type vocabulary. The new rung remains identity-safe by scoring against the pre-strip name and requiring place-type evidence in the returned title; existing page/geo/license verification is untouched. Curated Pexels fallback imagery now renders a visible Scene photo disclosure only when that stock image is actually the selected card image.'
+          git push origin HEAD:fix/wiki-photo-prefix-event-scene-2026-09-10
