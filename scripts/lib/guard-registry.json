@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 602,
-    "totalRegistryEntries": 603,
-    "guardsTxtLineCount": 600,
-    "guardsTxtReachedFileCount": 595,
+    "totalOnDiskGuardFiles": 604,
+    "totalRegistryEntries": 605,
+    "guardsTxtLineCount": 602,
+    "guardsTxtReachedFileCount": 597,
     "criticalCount": 73,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 411,
+      "CALL": 413,
       "RENDER": 47,
       "STRUCTURAL": 144,
       "OTHER": 1
@@ -10219,6 +10219,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-event-scene-disclosure.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 8,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-events-contract.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -14125,6 +14147,28 @@
       "honestyViolations": [
         "1 absence assertion(s) with no positive control in the same file (e.g. \"!code.includes(banned),\n    `\")"
       ],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-wiki-prefix-recovery.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 32,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
