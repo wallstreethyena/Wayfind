@@ -17,8 +17,20 @@
  * remote-tracking ref, plus a lane commit touching AGENTS.md. It proves the shipped guard
  * fails there under GITHUB_ACTIONS, proves the pre-fix source passed there (the red
  * proof), and proves the four ordinary answers are unchanged.
+ *
+ * WHY THE PRE-FIX SOURCE IS A COMMITTED FIXTURE AND NOT `git show <sha>`.
+ * The first version of this file read it with
+ * `git show 195ba627:scripts/check-doc-ownership.mjs`. That object is absent from
+ * both the hosted merge gate's shallow checkout and Vercel's, so the read failed,
+ * the RED proof skipped itself, and the test still printed OK with a smaller count.
+ * That is the same fail-open this file exists to punish, on the same run. The
+ * defective source is therefore committed at
+ * scripts/fixtures/check-doc-ownership-at-195ba627.mjs.txt and pinned by its git
+ * blob SHA-1, which is content-derived and so verifiable with no history and no
+ * network. There is no path here that can skip the RED proof.
  */
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { mkdtempSync, writeFileSync, mkdirSync, rmSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -28,9 +40,17 @@ const OWNER = { GIT_AUTHOR_NAME: "Gabriel Pereira", GIT_AUTHOR_EMAIL: "owner@exa
 const LANE = { GIT_AUTHOR_NAME: "WAYFIND LLC", GIT_AUTHOR_EMAIL: "lane@example.com", GIT_COMMITTER_NAME: "WAYFIND LLC", GIT_COMMITTER_EMAIL: "lane@example.com" };
 
 const PRE_FIX_SHA = "195ba627";
+const PRE_FIX_FIXTURE = join(process.cwd(), "scripts", "fixtures", "check-doc-ownership-at-195ba627.mjs.txt");
+// git blob SHA-1 of scripts/check-doc-ownership.mjs as of 195ba627. Content
+// addressed, so this pin is checkable without the object being present.
+const PRE_FIX_BLOB = "3c83f3dd9e683fec26bbe974faf6718055a421ba";
+const gitBlobSha1 = (buf) => createHash("sha1").update(`blob ${buf.length}\0`).update(buf).digest("hex");
+
 let passed = 0;
-let redProofSkipped = false;
+let bailed = null;
 const failures = [];
+// A proof that cannot run is not a proof that passed.
+const bail = (msg) => { const e = new Error(msg); e.guardBail = true; throw e; };
 const check = (name, cond, detail) => { if (cond) passed += 1; else failures.push(`${name}: ${detail}`); };
 
 const git = (cwd, args, env = {}) =>
@@ -116,20 +136,25 @@ try {
   check("shallow off the merge gate still skips", r6.code === 0 && /SKIP/.test(r6.out), `code ${r6.code}: ${r6.out.trim()}`);
 
   // ---- red proof: the pre-fix source passes the incident shape ----
-  // Vercel's own clone is shallow and will not contain this object. A missing pre-fix
-  // source is a skipped proof, never a failure, or this test would break every deploy.
-  let oldSource = null;
-  try {
-    oldSource = execFileSync("git", ["show", `${PRE_FIX_SHA}:scripts/check-doc-ownership.mjs`], { cwd: process.cwd(), encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
-  } catch { oldSource = null; }
-  if (oldSource) {
+  // Read from the committed fixture, never from git history, so this runs
+  // identically on a full clone, the shallow merge gate, and Vercel.
+  let preFixBuf = null;
+  try { preFixBuf = readFileSync(PRE_FIX_FIXTURE); } catch { preFixBuf = null; }
+  check("the pre-fix fixture is present", preFixBuf !== null,
+    `${PRE_FIX_FIXTURE} is missing — the RED proof has nothing to run against`);
+  if (preFixBuf === null) bail(`the pre-fix fixture ${PRE_FIX_FIXTURE} is missing, so the RED proof cannot run at all. Restore it from ${PRE_FIX_SHA}:scripts/check-doc-ownership.mjs.`);
+
+  const fixtureBlob = gitBlobSha1(preFixBuf);
+  check(`the fixture is byte-identical to the source at ${PRE_FIX_SHA}`, fixtureBlob === PRE_FIX_BLOB,
+    `blob ${fixtureBlob} != pinned ${PRE_FIX_BLOB} — an edited fixture proves nothing about what shipped`);
+  if (fixtureBlob !== PRE_FIX_BLOB) bail(`the pre-fix fixture no longer matches the source at ${PRE_FIX_SHA} (blob ${fixtureBlob}, pinned ${PRE_FIX_BLOB}).`);
+
+  {
     const shallowOld = mk("shallow-old");
     const oldGuard = join(shallowOld, "old-guard.mjs");
-    writeFileSync(oldGuard, oldSource);
+    writeFileSync(oldGuard, preFixBuf);
     const r7 = runGuard(shallowOld, oldGuard, { GITHUB_ACTIONS: "true" });
     check("red proof: the pre-fix guard passed the incident shape", r7.code === 0 && /SKIP/.test(r7.out), `pre-fix guard did not reproduce the miss — code ${r7.code}: ${r7.out.trim()}`);
-  } else {
-    redProofSkipped = true;
   }
 
   // ---- structural: every shallow escape is gated, so neither can rot back open ----
@@ -141,8 +166,18 @@ try {
     check(`shallow escape ${i + 1} is gated by the merge-gate check`, /IS_MERGE_GATE/.test(body), `branch ${i + 1} can still exit 0 on the merge gate`);
   }
   check("the merge gate is GitHub Actions", /GITHUB_ACTIONS\s*===\s*"true"/.test(shipped), "IS_MERGE_GATE is not bound to GITHUB_ACTIONS");
+} catch (e) {
+  if (!e || !e.guardBail) throw e;
+  bailed = e.message;
 } finally {
   rmSync(root, { recursive: true, force: true });
+}
+
+if (bailed) {
+  console.error("test-doc-ownership-shallow: FAIL — the red proof could not run.");
+  console.error(`  ${bailed}`);
+  for (const f of failures) console.error(`  ${f}`);
+  process.exit(1);
 }
 
 if (failures.length) {
@@ -150,7 +185,12 @@ if (failures.length) {
   for (const f of failures) console.error(`  ${f}`);
   process.exit(1);
 }
-const redProof = redProofSkipped
-  ? `pre-fix source at ${PRE_FIX_SHA} unreachable in this checkout, red proof skipped`
-  : "pre-fix source red-proved";
-console.log(`test-doc-ownership-shallow: OK — ${passed} assertions (incident shape reproduced from a real shallow clone, ${redProof}, Vercel skip preserved, four ordinary answers unchanged)`);
+// A count floor, so this file can never again report OK with its central proof
+// quietly absent. If assertions are added, raise this deliberately.
+const EXPECTED = 16;
+if (passed !== EXPECTED) {
+  console.error(`test-doc-ownership-shallow: FAIL — ran ${passed} assertions, expected exactly ${EXPECTED}.`);
+  console.error("  A different count means a proof was skipped or added without review. Neither may pass silently.");
+  process.exit(1);
+}
+console.log(`test-doc-ownership-shallow: OK — ${passed} assertions (incident shape reproduced from a real shallow clone, pre-fix source pinned at blob ${PRE_FIX_BLOB.slice(0, 12)} and read from a committed fixture so it runs on shallow checkouts too, red-proved, Vercel skip preserved, four ordinary answers unchanged)`);
