@@ -1017,6 +1017,7 @@ node scripts/check-card-photo-error-fallback.mjs
 # injected deps — no network, no lib/spendGate.js import anywhere in this
 # lane, no occurrence of "places.googleapis.com".
 node scripts/test-photo-protection.mjs
+node scripts/test-photo-repair-deadline.mjs
 node scripts/test-today-discovery-rails.mjs
 # 2026-09-02 — Night Out pool starvation (owner screenshot, Parrish): an
 # intent rail composed client-side from shown.places alone never sees real

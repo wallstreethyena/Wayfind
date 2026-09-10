@@ -67,6 +67,8 @@ function photoRepairBudgetHealthy(src) {
     && /recordPulse\(\s*["']photo-repair["']/.test(src);
 }
 
+let photoRepairJudged = false;
+
 for (const { job, file } of routes) {
   const raw = readFileSync(file, "utf8");
   // Comments stripped: several routes explain incidents in prose and quote
@@ -74,12 +76,22 @@ for (const { job, file } of routes) {
   // deletes.
   const src = raw.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
   const silentOk = SILENT_OK.test(src);
+  if (job === "photo-repair") photoRepairJudged = true;
   const badPhotoRepairBudget = job === "photo-repair" && !photoRepairBudgetHealthy(src);
   ok(!SILENT_OK.test(src) && !badPhotoRepairBudget,
     silentOk
       ? `${job} returns a failure body with a 2xx status — use jobCannotRun()/jobFailed() from lib/jobFail.js.`
       : `${job} lost the owned deadline contract: photo-repair must keep >=60s platform headroom, batch at <=50 rows, stop starting batches at its own deadline, and still reach recordPulse().`);
 }
+
+// POSITIVE CONTROL for the deadline contract (CLAUDE.md / AGENTS.md §4d: an
+// absence must first prove the probe finds a known positive). Every budget
+// assertion above is gated on `job === "photo-repair"`. If that route is ever
+// renamed, moved, or dropped from the scan, the gate is simply never true, the
+// whole contract evaporates, and this guard still prints OK — the loudest kind
+// of false green. So assert the route was actually judged.
+ok(photoRepairJudged,
+  "PROBE: a cron route named photo-repair was found and judged — without it every deadline assertion above is vacuous, and the 2026-09-10 kill would be unguarded while this guard reported OK");
 
 // The helpers must keep answering non-2xx. If someone "fixes" a noisy alert by
 // softening these, every route above silently reverts at once.
