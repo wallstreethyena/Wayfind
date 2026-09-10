@@ -68,6 +68,8 @@ ok(nightOutPlaceRail(place({ name: "University Walk", primaryType: "tourist_attr
 ok(nightOutPlaceRail(place({ name: "L’Opera Bakery Bistro", primaryType: "bakery", category: "food", types: ["bakery", "food_store", "food", "store"] })) == null, "L’Opera Bakery Bistro cannot enter Shows from a word in its retail name");
 ok(nightOutPlaceRail(place({ name: "G.T. Bray Park", primaryType: "park", category: "attractions", types: ["park", "sports_complex"], editorial: "Large recreational park offering sports fields & an amphitheater." })) == null, "a generic daytime park cannot enter Live Music from an amphitheater mention");
 ok(nightOutPlaceRail(place({ name: "Riverwalk Splash Park", primaryType: "water_park", category: "attractions", types: ["water_park", "amusement_park"] })) == null, "Riverwalk Splash Park cannot enter Waterfront from its name");
+ok(nightOutPlaceRails(place({ name: "Kids Empire Bradenton", primaryType: "indoor_playground", types: ["indoor_playground", "playground", "amusement_center"] })).length === 0, "a children's indoor playground cannot enter Night Out through its amusement-center secondary type");
+ok(nightOutPlaceRail(place({ name: "Arcade Monsters", primaryType: "video_arcade", types: ["video_arcade", "bar", "amusement_center"] })) === "social-play", "the playground veto preserves a real arcade bar");
 ok(!nightOutPlaceRails(place({ name: "Mattison's Riverwalk", primaryType: "american_restaurant", types: ["american_restaurant", "bar", "live_music_venue"], editorial: "Sprawling gastropub with bar classics." })).includes("waterfront"), "a restaurant named Riverwalk needs actual waterfront-night evidence for the Waterfront rail");
 
 // Genuine rows from the same complete Sarasota/Bradenton corpus. Tightening
