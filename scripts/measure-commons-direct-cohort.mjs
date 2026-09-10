@@ -2,12 +2,13 @@
 // scripts/measure-commons-direct-cohort.mjs — before/after hit-rate on a
 // FIXED 40-place atlas cohort for the Commons-direct fallback (2026-09-10).
 //
-// Default is HERMETIC (no network): a fixture resolver that encodes the
-// honest wiki-path baseline of 5/40 plus the Commons-direct accepts the
-// identity gate would take when a free licensed exact-place file exists,
-// and the required Benderson/Camp Gladiator false-positive reject.
+// Default is HERMETIC (no network): every one of the 40 places is resolved
+// through the PRODUCTION findCommonsPhoto() against a deterministic
+// MediaWiki fetch router. Accepts are whatever the resolver returns — not
+// a set-membership shortcut. --live is the separate real-network
+// measurement and is not what CI runs.
 //
-// Live Wikimedia (optional, not CI):
+//   node scripts/measure-commons-direct-cohort.mjs
 //   node scripts/measure-commons-direct-cohort.mjs --live
 //
 // Counts ONLY identity-verified + license-safe accepts. Candidate volume
@@ -26,7 +27,7 @@ const COHORT_SIZE = 40;
 
 // Known coordinates for the required controls and the wiki-baseline five.
 // Others inherit a Sarasota-metro centroid so a live run can still geo-gate
-// when Commons returns GPS; hermetic mode does not use these for accept.
+// when Commons returns GPS; hermetic fixtures use these same coords.
 const KNOWN = {
   "ChIJY3qV_tYXw4gRoy-jOe1OAo4": { lat: 27.4989, lng: -82.5748, city: "Bradenton" },
   "ChIJlXJqE9k_w4gRySJ2BPEXcR0": { lat: 27.3865, lng: -82.5608, city: "Sarasota" },
@@ -70,10 +71,9 @@ const KNOWN = {
   "ChIJVcqB2MUQw4gRbN_T0WF8QEw": { lat: 27.5233, lng: -82.6432, city: "Bradenton" },
 };
 
-// Honest wiki-path baseline for THIS cohort (live 2026-09-10, identity-correct):
-// Asolo, Blue Ridge Park, Ca' d'Zan, CoolToday Park, De Soto. Do not cite
-// Camp Gladiator / Benderson as a sixth — that is a wrong-entity match.
-const WIKI_ACCEPT_IDS = new Set([
+// Expected AFTER outcomes — asserted on the resolver's return, never used
+// as a short-circuit that skips findCommonsPhoto.
+const EXPECTED_WIKI_ACCEPT_IDS = new Set([
   "ChIJlXJqE9k_w4gRySJ2BPEXcR0", // Asolo Repertory Theatre
   "ChIJPSh7g6-s3IgROUqupmIgQ8M", // Blue Ridge Park
   "ChIJpXGK53VC24gRWMneFVtK6hY", // Ca' d'Zan
@@ -81,18 +81,201 @@ const WIKI_ACCEPT_IDS = new Set([
   "ChIJVcqB2MUQw4gRbN_T0WF8QEw", // De Soto National Memorial
 ]);
 
-// Additional Commons-direct accepts the identity gate would take when a
-// free licensed exact-place file exists. These two are real Commons hits
-// (Celery Fields bird photo; Myakka Canopy Walk oak) that the wiki path
-// does not produce. Synthetic park names are not in this set — do not
-// cite them as live yield.
-const COMMONS_DIRECT_ACCEPT_IDS = new Set([
+const EXPECTED_COMMONS_DIRECT_ACCEPT_IDS = new Set([
   "ChIJY3qV_tYXw4gRoy-jOe1OAo4", // ArtSLAM — File:Realize Bradenton ArtSlam 2011 Winner.jpg
   "ChIJ7-I5X4tHw4gRAK6g4JEha7M", // Celery Fields
   "ChIJE0_XXFVJw4gRroRqJ-TSTXg", // Canopy Walk
 ]);
 
 const BENDERSON_ID = "ChIJc-m14Rc5w4gRrnsNnZ8pRJY";
+
+const WIKI_FILE = {
+  "ChIJlXJqE9k_w4gRySJ2BPEXcR0": "Sarasota_FL_Asolo_Rep_Theatre01.jpg",
+  "ChIJPSh7g6-s3IgROUqupmIgQ8M": "Blue_Ridge_Park_Sarasota.jpg",
+  "ChIJpXGK53VC24gRWMneFVtK6hY": "Front_view_of_Ca_dZan.jpg",
+  "ChIJw39QsBpXw4gRt1QugbY5miM": "CoolToday_Park_North_Port.jpg",
+  "ChIJVcqB2MUQw4gRbN_T0WF8QEw": "De_Soto_National_Memorial.jpg",
+};
+
+const COMMONS_DIRECT_FILES = {
+  "ChIJY3qV_tYXw4gRoy-jOe1OAo4": {
+    title: "File:Realize Bradenton ArtSlam 2011 Winner.jpg",
+    filename: "Realize Bradenton ArtSlam 2011 Winner.jpg",
+    description: "Realize Bradenton ArtSlam 2011 winner",
+    objectName: "Realize Bradenton ArtSlam 2011 Winner",
+  },
+  "ChIJ7-I5X4tHw4gRAK6g4JEha7M": {
+    title: "File:Painted bunting at Celery Fields, Sarasota, Florida. (53458749069).jpg",
+    filename: "Painted bunting at Celery Fields, Sarasota, Florida. (53458749069).jpg",
+    description: "Painted bunting at Celery Fields, Sarasota, Florida",
+    objectName: "Painted bunting at Celery Fields",
+  },
+  "ChIJE0_XXFVJw4gRroRqJ-TSTXg": {
+    title: "File:Canopy Walk Oak (39671632922).jpg",
+    filename: "Canopy Walk Oak (39671632922).jpg",
+    description: "Canopy Walk oak at Myakka River State Park",
+    objectName: "Canopy Walk Oak",
+  },
+};
+
+const WALLENDA_FILE = {
+  title: "File:Nik Wallenda walking over Nathan Benderson Park.jpg",
+  filename: "Nik Wallenda walking over Nathan Benderson Park.jpg",
+  description: "Nik Wallenda tightrope walk at Nathan Benderson Park",
+  objectName: "Nik Wallenda at Nathan Benderson Park",
+};
+
+function jsonResponse(status, body) {
+  return { ok: status >= 200 && status < 300, status, json: async () => body };
+}
+
+function freeMeta(description, objectName) {
+  return {
+    Artist: { value: "Fixture Photographer" },
+    License: { value: "cc-by-sa-4.0" },
+    LicenseShortName: { value: "CC BY-SA 4.0" },
+    ImageDescription: { value: description },
+    ObjectName: { value: objectName || description },
+  };
+}
+
+function decodeParam(url, key) {
+  const m = String(url).match(new RegExp(`[?&]${key}=([^&]+)`));
+  return m ? decodeURIComponent(m[1].replace(/\+/g, " ")) : "";
+}
+
+function fileRecord(spec, place) {
+  const filename = spec.filename;
+  const title = spec.title || ("File:" + filename);
+  return {
+    query: {
+      pages: {
+        1: {
+          title,
+          coordinates: [{ lat: place.lat, lon: place.lng }],
+          categories: [{ title: "Category:Buildings in Florida" }],
+          imageinfo: [
+            {
+              url: `https://upload.wikimedia.org/wikipedia/commons/a/aa/${encodeURIComponent(filename)}`,
+              width: 1200,
+              height: 800,
+              descriptionurl: `https://commons.wikimedia.org/wiki/${encodeURIComponent(title)}`,
+              extmetadata: freeMeta(spec.description, spec.objectName),
+            },
+          ],
+        },
+      },
+    },
+  };
+}
+
+function wikiPageInfo(place) {
+  return {
+    query: {
+      pages: {
+        111: {
+          title: place.name,
+          pageprops: {},
+          coordinates: [{ lat: place.lat, lon: place.lng }],
+          categories: [{ title: "Category:Parks in Florida" }, { title: "Category:Museums in Florida" }],
+          extract: `${place.name} is a place in ${place.city || "Florida"}.`,
+        },
+      },
+    },
+  };
+}
+
+function wikiPageImages(filename) {
+  return {
+    query: {
+      pages: {
+        111: {
+          pageimage: filename,
+          original: {
+            source: `https://upload.wikimedia.org/wikipedia/commons/a/aa/${filename}`,
+            width: 1024,
+            height: 768,
+          },
+        },
+      },
+    },
+  };
+}
+
+function wikiCommonsInfo(filename) {
+  return {
+    query: {
+      pages: {
+        "-1": {
+          title: "File:" + filename,
+          imageinfo: [
+            {
+              url: `https://upload.wikimedia.org/wikipedia/commons/a/aa/${filename}`,
+              width: 1024,
+              height: 768,
+              descriptionurl: `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(filename)}`,
+              extmetadata: freeMeta(filename.replace(/_/g, " "), filename.replace(/_/g, " ")),
+            },
+          ],
+        },
+      },
+    },
+  };
+}
+
+/**
+ * Deterministic MediaWiki router keyed by the PLACE under resolution.
+ * Every URL shape findCommonsPhoto actually sends is answered. Empty
+ * 200s (never 404) for misses so transport failure is not confused
+ * with "no article / no file".
+ */
+function makeCohortFetch(place, stats) {
+  return async (url) => {
+    stats.placesFetched.add(place.place_id);
+    stats.fetchCalls++;
+    const u = String(url);
+    if (u.includes("action=opensearch")) {
+      if (EXPECTED_WIKI_ACCEPT_IDS.has(place.place_id)) {
+        return jsonResponse(200, [place.name, [place.name], [""], [`https://en.wikipedia.org/wiki/${encodeURIComponent(place.name)}`]]);
+      }
+      return jsonResponse(200, [place.name, [], [], []]);
+    }
+    if (u.includes("prop=pageimages")) {
+      const filename = WIKI_FILE[place.place_id];
+      if (filename) return jsonResponse(200, wikiPageImages(filename));
+      return jsonResponse(200, { query: { pages: { 111: { title: place.name } } } });
+    }
+    if (u.includes("prop=pageprops")) {
+      if (EXPECTED_WIKI_ACCEPT_IDS.has(place.place_id)) return jsonResponse(200, wikiPageInfo(place));
+      return jsonResponse(200, { query: { pages: { 111: { missing: "" } } } });
+    }
+    if (u.includes("commons.wikimedia.org") && (u.includes("list=search") || u.includes("srsearch="))) {
+      if (EXPECTED_COMMONS_DIRECT_ACCEPT_IDS.has(place.place_id)) {
+        return jsonResponse(200, { query: { search: [{ ns: 6, title: COMMONS_DIRECT_FILES[place.place_id].title }] } });
+      }
+      if (place.place_id === BENDERSON_ID) {
+        return jsonResponse(200, { query: { search: [{ ns: 6, title: WALLENDA_FILE.title }] } });
+      }
+      return jsonResponse(200, { query: { search: [] } });
+    }
+    if (u.includes("commons.wikimedia.org") && u.includes("titles=")) {
+      const titles = decodeParam(u, "titles");
+      const wikiFile = WIKI_FILE[place.place_id];
+      if (wikiFile && titles.replace(/^File:/i, "") === wikiFile) {
+        return jsonResponse(200, wikiCommonsInfo(wikiFile));
+      }
+      const direct = COMMONS_DIRECT_FILES[place.place_id];
+      if (direct && titles.replace(/^File:/i, "").toLowerCase() === direct.filename.toLowerCase()) {
+        return jsonResponse(200, fileRecord(direct, place));
+      }
+      if (place.place_id === BENDERSON_ID && /Wallenda|Benderson/i.test(titles)) {
+        return jsonResponse(200, fileRecord(WALLENDA_FILE, place));
+      }
+      return jsonResponse(200, { query: { pages: { "-1": { missing: "" } } } });
+    }
+    return jsonResponse(200, {});
+  };
+}
 
 function loadCohort() {
   if (!existsSync(TSV)) {
@@ -123,46 +306,6 @@ function loadCohort() {
     throw new Error(`cohort must be exactly ${COHORT_SIZE} rows, got ${rows.length}`);
   }
   return rows;
-}
-
-function fixtureResolve(place, { wikiOnly } = {}) {
-  if (WIKI_ACCEPT_IDS.has(place.place_id)) {
-    return {
-      path: "wiki",
-      photo: {
-        image_url: "https://upload.wikimedia.org/wikipedia/commons/fixture-wiki.jpg",
-        license: "cc-by-sa-4.0",
-        attribution_text: "fixture",
-        attribution_url: "https://commons.wikimedia.org/wiki/File:fixture",
-        source_ref: "File:fixture-wiki.jpg",
-        match_confidence: 0.9,
-      },
-      reason: null,
-    };
-  }
-  if (place.place_id === BENDERSON_ID) {
-    if (wikiOnly) return { path: "wiki", photo: null, reason: "no_wiki_candidate" };
-    return { path: "commons-direct", photo: null, reason: "commons_identity_name_mismatch" };
-  }
-  if (!wikiOnly && COMMONS_DIRECT_ACCEPT_IDS.has(place.place_id)) {
-    return {
-      path: "commons-direct",
-      photo: {
-        image_url: "https://upload.wikimedia.org/wikipedia/commons/fixture-direct.jpg",
-        license: "cc-by-sa-3.0",
-        attribution_text: "fixture",
-        attribution_url: "https://commons.wikimedia.org/wiki/File:fixture-direct",
-        source_ref: "File:fixture-direct.jpg",
-        match_confidence: 0.85,
-      },
-      reason: null,
-    };
-  }
-  return {
-    path: wikiOnly ? "wiki" : "commons-direct",
-    photo: null,
-    reason: wikiOnly ? "no_wiki_candidate" : "no_direct_commons_candidate",
-  };
 }
 
 async function liveResolve(place, { wikiOnly } = {}) {
@@ -245,7 +388,35 @@ async function main() {
     throw new Error("Asolo Repertory Theatre is not in the first 40 atlas rows — the required positive control would be missing");
   }
 
-  const resolve = live ? liveResolve : async (p, opts) => fixtureResolve(p, opts);
+  const src = readFileSync(fileURLToPath(import.meta.url), "utf8");
+  if (!live) {
+    if (/\bfunction fixtureResolve\b/.test(src)) {
+      throw new Error("hermetic mode must not contain fixtureResolve — that is the ceremonial set-membership shortcut this lock exists to retire");
+    }
+    if (!/\bfindCommonsPhoto\s*\(/.test(src)) {
+      throw new Error("hermetic mode must call findCommonsPhoto — the production resolver");
+    }
+  }
+
+  const stats = { fetchCalls: 0, placesFetched: new Set(), resolverCalls: 0 };
+  const resolve = live
+    ? liveResolve
+    : async (place, opts) => {
+        stats.resolverCalls++;
+        let reason = null;
+        const photo = await findCommonsPhoto(place, {
+          fetch: makeCohortFetch(place, stats),
+          wikiOnly: !!(opts && opts.wikiOnly),
+          onReject: (r) => {
+            reason = r;
+          },
+        });
+        return {
+          path: photo ? (opts && opts.wikiOnly ? "wiki" : "unknown") : opts && opts.wikiOnly ? "wiki" : "commons-direct",
+          photo,
+          reason,
+        };
+      };
 
   const before = [];
   const after = [];
@@ -267,25 +438,50 @@ async function main() {
     }
   }
 
-  console.log(`commons-direct cohort (${live ? "LIVE Wikimedia" : "HERMETIC fixtures"}): first ${COHORT_SIZE} rows of data/atlas/atlas-590.tsv`);
+  console.log(`commons-direct cohort (${live ? "LIVE Wikimedia" : "HERMETIC MediaWiki fixtures via findCommonsPhoto"}): first ${COHORT_SIZE} rows of data/atlas/atlas-590.tsv`);
   printReport("BEFORE (Wikipedia lead-image only)", beforeStats, rows.length);
   printReport("AFTER  (wiki path, then Commons-direct fallback)", afterStats, rows.length);
   console.log(`\nReplay note: every BEFORE miss of no_wiki_candidate is the production backlog this PR replays.`);
-  console.log(`  fixture wiki-only misses that become a later decision: ${before.filter((r) => r.reason === "no_wiki_candidate").length}`);
+  console.log(`  wiki-only misses that become a later decision: ${before.filter((r) => r.reason === "no_wiki_candidate").length}`);
   console.log(`  of those, AFTER accepts: ${before.filter((r, i) => r.reason === "no_wiki_candidate" && after[i].photo).length}`);
   console.log(`  of those, AFTER terminal miss: ${before.filter((r, i) => r.reason === "no_wiki_candidate" && !after[i].photo && after[i].reason && !String(after[i].reason).startsWith("unavailable_")).length}`);
   console.log("Headline is verified accepts, not raw Commons candidate volume.");
 
   if (!live) {
+    if (stats.resolverCalls !== COHORT_SIZE * 2) {
+      throw new Error(`hermetic cohort must invoke findCommonsPhoto ${COHORT_SIZE * 2} times (wikiOnly + full × 40), got ${stats.resolverCalls}`);
+    }
+    if (stats.placesFetched.size !== COHORT_SIZE) {
+      throw new Error(`hermetic MediaWiki fetch must run for every cohort place, got ${stats.placesFetched.size}/${COHORT_SIZE}`);
+    }
+    if (stats.fetchCalls < COHORT_SIZE) {
+      throw new Error(`hermetic MediaWiki fetch ran ${stats.fetchCalls} times — a set-membership shortcut would run 0`);
+    }
     if (beforeStats.accepts !== 5) {
       throw new Error(`hermetic baseline must be 5/40, got ${beforeStats.accepts}/${rows.length}`);
     }
     if (afterStats.accepts !== 8 || afterStats.extraDirect !== 3) {
       throw new Error(`hermetic AFTER must be 8/40 (5 wiki + 3 live-proven Commons-direct), got ${afterStats.accepts} accepts / ${afterStats.extraDirect} extra`);
     }
+    const afterAcceptedIds = rows.filter((_, i) => after[i].photo).map((r) => r.place_id);
+    for (const id of EXPECTED_WIKI_ACCEPT_IDS) {
+      if (!afterAcceptedIds.includes(id)) throw new Error(`expected wiki accept missing after resolver run: ${id}`);
+    }
+    for (const id of EXPECTED_COMMONS_DIRECT_ACCEPT_IDS) {
+      if (!afterAcceptedIds.includes(id)) throw new Error(`expected Commons-direct accept missing after resolver run: ${id}`);
+    }
     if (afterStats.falsePositives !== 0 || beforeStats.falsePositives !== 0) {
       throw new Error("Benderson/Camp Gladiator attached — false positive");
     }
+    const bendersonAfter = after[rows.findIndex((r) => r.place_id === BENDERSON_ID)];
+    if (!bendersonAfter || bendersonAfter.photo) {
+      throw new Error("Camp Gladiator / Benderson must remain a reject after the resolver inspects the Wallenda file");
+    }
+    if (!String(bendersonAfter.reason || "").includes("identity")) {
+      throw new Error(`Camp Gladiator reject must be an identity decision (got ${JSON.stringify(bendersonAfter.reason)})`);
+    }
+    console.log(`  resolver invocations: ${stats.resolverCalls} (findCommonsPhoto × ${COHORT_SIZE} places × 2 passes)`);
+    console.log(`  MediaWiki fixture fetches: ${stats.fetchCalls} across ${stats.placesFetched.size} places`);
   }
 }
 

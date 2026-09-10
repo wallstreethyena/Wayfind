@@ -21,8 +21,10 @@
 // HERMETIC: every DB talk is an in-memory table over intercepted fetch.
 // No real network, no real Supabase, no secrets.
 
-import { runBackfill, isReplayEligible, selectReplaySlice, REPLAY_SOURCE_REF } from "../lib/placePhotoBackfill.js";
+import { readFileSync } from "node:fs";
+import { runBackfill, isReplayEligible, selectReplaySlice, describeReplay, REPLAY_SOURCE_REF } from "../lib/placePhotoBackfill.js";
 import { isUnavailableReason } from "../lib/commonsPhotos.js";
+import { isDeterministicFailureNote } from "../lib/jobPulse.js";
 
 let failures = 0;
 const fail = (m) => { console.error("test-place-photo-replay: FAIL — " + m); failures++; };
@@ -31,7 +33,7 @@ const eq = (a, b, m) => { if (a !== b) fail(m + ` (got ${JSON.stringify(a)}, exp
 
 const SB = { url: "https://replay-test.invalid", key: "test-key" };
 
-function makeDb({ atRisk = [], inventory = [], existingRows = [] } = {}) {
+function makeDb({ atRisk = [], inventory = [], existingRows = [], replayFailStatus = null } = {}) {
   const table = new Map(existingRows.map((r) => [r.place_id, { ...r }]));
   const upsertCalls = [];
   const gets = [];
@@ -56,6 +58,9 @@ function makeDb({ atRisk = [], inventory = [], existingRows = [] } = {}) {
     }
     if (u.startsWith(SB.url + "/rest/v1/wf_place_photo") && method === "GET") {
       gets.push(u);
+      if (u.includes("source_ref=eq.") && replayFailStatus != null) {
+        return { ok: false, status: replayFailStatus, json: async () => ({}) };
+      }
       const rows = [...table.values()];
       if (u.includes("source_ref=eq.")) {
         return { ok: true, json: async () => rows.filter(isReplayEligible) };
@@ -130,6 +135,31 @@ function inv(place_id, name) {
   ok(a.every((id) => !b.includes(id)), "U2 (STARVATION-PROOF): the next hour's window is a DISJOINT later batch — proven by id set, not by reading the formula");
   const again = selectReplaySlice(rows, { limit: 5, now: 0 }).map((r) => r.place_id);
   eq(JSON.stringify(again), JSON.stringify(a), "U2: the rotation is deterministic for a given `now`");
+}
+
+{
+  eq(describeReplay({ replayUnavailable: false, replayTaken: 0, replayBacklog: 0 }), "replay 0/0", "U3: an observed-empty backlog is idle 0/0");
+  eq(describeReplay({ replayUnavailable: false, replayTaken: 3, replayBacklog: 25 }), "replay 3/25", "U3: a readable backlog reports taken/sliced");
+  const lost = describeReplay({ replayUnavailable: true, replayTaken: 0, replayBacklog: 0 });
+  ok(lost.includes("UNAVAILABLE"), `U3: an unreadable backlog is named UNAVAILABLE (got ${JSON.stringify(lost)})`);
+  ok(!lost.includes("replay 0/0"), `U3: and is NOT rendered as the idle-empty text (got ${JSON.stringify(lost)})`);
+  eq(describeReplay({ replayUnavailable: false, source: "at-risk" }), "replay skipped (source=at-risk)", "U3: source=at-risk is a skip, not an empty worklist");
+}
+
+{
+  const rows = [];
+  for (let i = 0; i < 1000; i++) {
+    rows.push({ place_id: `big${String(i).padStart(4, "0")}XXXXXXXX`, verified_at: "2026-09-01T00:00:00.000Z" });
+  }
+  const aScan = selectReplaySlice(rows, { limit: 1000, now: 0 }).map((r) => r.place_id);
+  const bScan = selectReplaySlice(rows, { limit: 1000, now: 3_600_000 }).map((r) => r.place_id);
+  eq(aScan.length, 1000, "U4: slicing 1000 rows at limit=1000 returns the whole fetch");
+  eq(JSON.stringify(aScan), JSON.stringify(bScan), "U4: hour rotation is a no-op when limit === length — that is why the worker must slice by the RUN budget, not scanLimit");
+  const aRun = selectReplaySlice(rows, { limit: 25, now: 0 }).map((r) => r.place_id);
+  const bRun = selectReplaySlice(rows, { limit: 25, now: 3_600_000 }).map((r) => r.place_id);
+  eq(aRun.length, 25, "U4: the run-budget window is 25");
+  eq(bRun.length, 25, "U4: hour-1 at limit=25 is also 25");
+  ok(aRun.every((id) => !bRun.includes(id)), "U4: hour-1 at the RUN budget is a DISJOINT later batch — proven by id set");
 }
 
 {
@@ -349,8 +379,160 @@ function inv(place_id, name) {
   ok(detail && detail.replay === true && detail.vaulted === true, "R7: details mark the recovery as replay+vaulted");
 }
 
+{
+  // R8 — THE REAL SKIP PATH. R6 proves a started-then-unavailable defer
+  // advances verified_at. Production more often never starts: Wikimedia
+  // backoff makes canRequest() false BEFORE resolvePhoto, and the old
+  // code returned without the fairness touch. Two same-hour runs then
+  // restuck on the first slice forever.
+  const ids = [];
+  const existingRows = [];
+  const inventory = [];
+  for (let i = 0; i < 20; i++) {
+    const id = `backoff${String(i).padStart(2, "0")}XXXXXXXX`;
+    ids.push(id);
+    existingRows.push(replayRow(id, { verified_at: "2026-09-01T00:00:00.000Z" }));
+    inventory.push(inv(id, "Backoff " + i));
+  }
+  const db = makeDb({ inventory, existingRows });
+  const seen1 = [];
+  const run1 = await runBackfill({
+    limit: 5,
+    scanLimit: 1000,
+    source: "all",
+    sbEnv: SB,
+    now: 0,
+    wikimedia: { canRequest: () => false },
+    resolvePhoto: async (place) => {
+      fail("R8: resolvePhoto must not run when canRequest() is false — that is the skip path, not a started defer");
+      return PHOTO(place.place_id);
+    },
+    dryRun: false,
+  });
+  const fairness1 = db.upsertCalls.filter((r) => r.source_ref === REPLAY_SOURCE_REF);
+  eq(run1.skipped, 5, "R8a: the first backoff-closed run skipped its slice (never attempted)");
+  eq(run1.attempted, 0, "R8a: attempted stays 0 — a place we never looked at was not attempted");
+  eq(fairness1.length, 5, "R8a: each skip still wrote the fairness verified_at bump");
+  ok(
+    fairness1.every((r) => r.status === "rejected" && r.source_ref === REPLAY_SOURCE_REF),
+    "R8a: the bump is NOT a new verdict — source_ref stays rejected:no_wiki_candidate"
+  );
+  seen1.push(...(run1.details || []).filter((d) => d.outcome === "skipped").map((d) => d.placeId));
+  eq(seen1.length, 5, "R8a: five replay ids were marked skipped");
+
+  const run2 = await runBackfill({
+    limit: 5,
+    scanLimit: 1000,
+    source: "all",
+    sbEnv: SB,
+    now: 0, // SAME hour — advancement must come from the skip-path bump
+    wikimedia: { canRequest: () => false },
+    resolvePhoto: async () => {
+      fail("R8b: second run must also skip, not resolve");
+      return null;
+    },
+    dryRun: false,
+  });
+  db.restore();
+  const seen2 = (run2.details || []).filter((d) => d.outcome === "skipped").map((d) => d.placeId);
+  ok(seen2.length > 0, "R8b: second backoff-closed run still selected replay rows");
+  ok(
+    seen2.every((id) => !seen1.includes(id)),
+    `R8b (STARVATION-PROOF, canRequest=false): the later batch is DISJOINT from the first skipped batch (run1=${JSON.stringify(seen1)} run2=${JSON.stringify(seen2)})`
+  );
+  eq(run2.skipped, seen2.length, "R8b: the later batch was also skipped, not silently rejected");
+}
+
+{
+  // R9 — empty backlog vs couldn't-read backlog. Catching HTTP 500 and
+  // continuing with [] made 1,636 rows vanish behind replay 0/0.
+  const lostDb = makeDb({ replayFailStatus: 500, inventory: [], atRisk: [] });
+  const lost = await runBackfill({
+    limit: 5,
+    source: "all",
+    sbEnv: SB,
+    resolvePhoto: async () => PHOTO("should-not-run"),
+    dryRun: false,
+  });
+  lostDb.restore();
+  ok(lost.replayUnavailable === true, "R9a: a 500 on the replay GET is replayUnavailable, not an empty list");
+  eq(lost.replayStatus, 500, "R9a: the HTTP status is carried");
+  eq(lost.replayTaken, 0, "R9a: taken is 0 because we could not read");
+  ok(
+    typeof lost.note === "string" && lost.note.startsWith("unavailable:"),
+    `R9a (THE HEADLINE INVARIANT): the worker note begins unavailable: so classifyHealth pages (got ${JSON.stringify(lost.note)})`
+  );
+  ok(isDeterministicFailureNote(lost.note), "R9a: the note is a deterministic failure prefix, not idle prose");
+  ok(!String(lost.note).includes("replay 0/0"), `R9a: the lost read is not worded as an empty backlog (got ${JSON.stringify(lost.note)})`);
+
+  const emptyDb = makeDb({ inventory: [], atRisk: [], existingRows: [] });
+  const empty = await runBackfill({
+    limit: 5,
+    source: "all",
+    sbEnv: SB,
+    resolvePhoto: async () => PHOTO("should-not-run"),
+    dryRun: false,
+  });
+  emptyDb.restore();
+  ok(empty.replayUnavailable !== true, "R9b: an observed-empty 200 is NOT unavailable");
+  eq(empty.replayBacklog, 0, "R9b: backlog is 0 because we observed zero rows");
+  ok(
+    !empty.note || !String(empty.note).startsWith("unavailable:"),
+    `R9b: an idle empty worklist must not page (got ${JSON.stringify(empty.note)})`
+  );
+  ok(
+    describeReplay(empty) === "replay 0/0" || describeReplay({ ...empty, source: "all" }) === "replay 0/0",
+    `R9b: describeReplay on the empty result is the idle pair (got ${JSON.stringify(describeReplay(empty))})`
+  );
+
+  // Route pulse + JSON surface the same distinction — proven by executing
+  // the real route source, not by reading it.
+  {
+    const raw = readFileSync(new URL("../app/api/cron/place-photos/route.js", import.meta.url), "utf8");
+    const stripped = raw.replace(/^import[^;]+;\n/gm, "");
+    const prelude = `
+      const runBackfill = (...a) => globalThis.__wfReplayPulse.runBackfill(...a);
+      const describeAtRisk = (...a) => globalThis.__wfReplayPulse.describeAtRisk(...a);
+      const describeReplay = (...a) => globalThis.__wfReplayPulse.describeReplay(...a);
+      const recordPulse = (...a) => globalThis.__wfReplayPulse.recordPulse(...a);
+      const isDeterministicFailureNote = (...a) => globalThis.__wfReplayPulse.isDeterministicFailureNote(...a);
+      const jobCannotRun = (...a) => { throw new Error("jobCannotRun must not fire: " + a[1]); };
+      const jobFailed = (...a) => { throw new Error("jobFailed must not fire: " + a[1]); };
+    `;
+    const route = await import("data:text/javascript," + encodeURIComponent(prelude + "\n" + stripped));
+    const pulses = [];
+    globalThis.__wfReplayPulse = {
+      runBackfill: async () => lost,
+      describeAtRisk: () => "at-risk skipped (source=all)",
+      describeReplay,
+      recordPulse: async (job, stats) => { pulses.push({ job, stats }); return true; },
+      isDeterministicFailureNote,
+    };
+    const savedSecret = process.env.CRON_SECRET;
+    const savedUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const savedSvc = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    process.env.CRON_SECRET = "replay-pulse-secret";
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://replay-pulse.test.invalid";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "test-key";
+    let res;
+    try {
+      res = await route.GET(new Request("https://x/api/cron/place-photos?source=all", { headers: { authorization: "Bearer replay-pulse-secret" } }));
+    } finally {
+      process.env.CRON_SECRET = savedSecret;
+      process.env.NEXT_PUBLIC_SUPABASE_URL = savedUrl;
+      process.env.SUPABASE_SERVICE_ROLE_KEY = savedSvc;
+      delete globalThis.__wfReplayPulse;
+    }
+    const body = await res.json();
+    eq(body.replayUnavailable, true, "R9c: cron JSON carries replayUnavailable — empty and unreadable are distinguishable to an operator");
+    eq(body.replayStatus, 500, "R9c: cron JSON carries the HTTP status");
+    const filed = String((pulses[0] && pulses[0].stats && pulses[0].stats.note) || "");
+    ok(filed.startsWith("unavailable:"), `R9c: the pulse note begins unavailable: at column 0 (got ${JSON.stringify(filed)})`);
+  }
+}
+
 if (failures) {
   console.error(`test-place-photo-replay: ${failures} FAILED`);
   process.exit(1);
 }
-console.log("test-place-photo-replay: OK — exact-ref replay, identity/license rejects untouched, one-shot terminal miss, fresh defer writes nothing, starvation-proof later batch, successful replay vaults through the existing worker");
+console.log("test-place-photo-replay: OK — exact-ref replay, identity/license rejects untouched, one-shot terminal miss, fresh defer writes nothing, starvation-proof later batch (including canRequest=false), replay-read failure visible, successful replay vaults through the existing worker");

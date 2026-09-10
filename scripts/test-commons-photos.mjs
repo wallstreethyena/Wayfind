@@ -23,7 +23,7 @@ import { readFileSync, writeFileSync, unlinkSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL, fileURLToPath } from "node:url";
-import { stripTrackingParams, findCommonsPhoto, classifyLicense, buildAttributionText, isUnavailableReason, verifyCommonsFileIdentity, splitPlacePrimaryName, commonsSearchQueries, distinctivePlaceTokens, inferPlaceCity, titleDepictsPlace, isCommonsImageTitle, rankCommonsTitles, NO_DIRECT_COMMONS_REASON, WIKI_FALLTHROUGH_REASONS } from "../lib/commonsPhotos.js";
+import { stripTrackingParams, findCommonsPhoto, classifyLicense, buildAttributionText, isUnavailableReason, verifyCommonsFileIdentity, splitPlacePrimaryName, commonsSearchQueries, distinctivePlaceTokens, inferPlaceCity, titleDepictsPlace, isCommonsImageTitle, rankCommonsTitles, placeBranchTokens, COMMONS_BRANCH_GEO_MI, NO_DIRECT_COMMONS_REASON, WIKI_FALLTHROUGH_REASONS } from "../lib/commonsPhotos.js";
 import { createWikimediaFetchPolicy } from "../lib/wikimediaFetchPolicy.js";
 import { mayStorePermanently } from "../lib/photoLicense.js";
 import { nameSim } from "../lib/popularity.js";
@@ -734,7 +734,10 @@ async function main() {
       { name: "Asolo Repertory Theatre", city: "Sarasota" },
       { title: "File:Asolo Rep Theatre Tampa.jpg", description: "Asolo touring production in Tampa", categories: ["Category:Tampa, Florida"] }
     );
-    ok(!wrongCity.ok && wrongCity.reason === "identity_city_mismatch", `D12: correct name, wrong city, no file GPS → identity_city_mismatch (got ${JSON.stringify(wrongCity)})`);
+    ok(
+      !wrongCity.ok && (wrongCity.reason === "identity_city_mismatch" || wrongCity.reason === "identity_branch_mismatch"),
+      `D12: correct name, wrong city, no file GPS is refused (city or branch proof — got ${JSON.stringify(wrongCity)})`
+    );
 
     {
       const { fetchImpl } = makeFetch({
@@ -855,6 +858,112 @@ async function main() {
     }
 
     {
+      // D19 — BRANCH IDENTITY. Production has real multi-branch rows
+      // (Sky Zone, Club Pilates, PopStroke) ~8–10 miles apart. GPS ≤ 15mi
+      // is metro, not "this branch." A generic brand title plus a
+      // coordinate 10 miles away must not attach.
+      const LWR = { name: "Sky Zone - Lakewood Ranch", lat: 27.429, lng: -82.428, city: "Lakewood Ranch" };
+      const SRQ = { name: "Sky Zone - Sarasota", lat: 27.336, lng: -82.468, city: "Sarasota" };
+      ok(placeBranchTokens(LWR).includes("lakewood"), `D19: Lakewood Ranch suffix tokens include lakewood (got ${JSON.stringify(placeBranchTokens(LWR))})`);
+      ok(placeBranchTokens(SRQ).includes("sarasota"), `D19: Sarasota suffix tokens include sarasota (got ${JSON.stringify(placeBranchTokens(SRQ))})`);
+      const genericSky = {
+        title: "File:Sky Zone trampoline park.jpg",
+        filename: "Sky Zone trampoline park.jpg",
+        description: "A Sky Zone trampoline park",
+        objectName: "Sky Zone trampoline park",
+        categories: ["Category:Trampoline parks"],
+        lat: 27.429,
+        lng: -82.428,
+      };
+      const genericLwr = verifyCommonsFileIdentity(LWR, genericSky);
+      const genericSrq = verifyCommonsFileIdentity(SRQ, genericSky);
+      ok(!genericLwr.ok && genericLwr.reason === "identity_branch_mismatch", `D19: generic Sky Zone title + GPS at Lakewood Ranch must NOT attach to Sky Zone - Lakewood Ranch (got ${JSON.stringify(genericLwr)})`);
+      ok(!genericSrq.ok && genericSrq.reason === "identity_branch_mismatch", `D19: the same generic file must NOT attach to Sky Zone - Sarasota either (got ${JSON.stringify(genericSrq)})`);
+      const lwrFile = {
+        title: "File:Sky Zone Lakewood Ranch.jpg",
+        filename: "Sky Zone Lakewood Ranch.jpg",
+        description: "Sky Zone in Lakewood Ranch, Florida",
+        objectName: "Sky Zone Lakewood Ranch",
+        categories: ["Category:Lakewood Ranch, Florida"],
+        lat: 27.429,
+        lng: -82.428,
+      };
+      const lwrOnLwr = verifyCommonsFileIdentity(LWR, lwrFile);
+      const lwrOnSrq = verifyCommonsFileIdentity(SRQ, lwrFile);
+      ok(lwrOnLwr.ok, `D19: File:Sky Zone Lakewood Ranch.jpg verifies the Lakewood Ranch branch (got ${JSON.stringify(lwrOnLwr)})`);
+      ok(!lwrOnSrq.ok && lwrOnSrq.reason === "identity_branch_mismatch", `D19 (CROSS-ATTACH LOCK): the Lakewood Ranch file must not verify as Sky Zone - Sarasota ~8mi away (got ${JSON.stringify(lwrOnSrq)})`);
+      ok(lwrOnSrq.dist == null || lwrOnSrq.dist <= 15, "D19: the reject is branch identity, not the 15mi metro geo gate — GPS success must not skip needing the suffix");
+
+      const pilatesA = { name: "Club Pilates", lat: 27.336, lng: -82.53, city: "Sarasota" };
+      const pilatesB = { name: "Club Pilates", lat: 27.429, lng: -82.428, city: "Lakewood Ranch" };
+      eq(placeBranchTokens(pilatesA).length, 0, "D19: a suffix-less Club Pilates display name has no branch tokens");
+      const pilatesGeneric = {
+        title: "File:Club Pilates studio.jpg",
+        filename: "Club Pilates studio.jpg",
+        description: "A Club Pilates studio",
+        objectName: "Club Pilates studio",
+        categories: ["Category:Pilates"],
+        lat: 27.336,
+        lng: -82.53,
+      };
+      const pilatesNear = verifyCommonsFileIdentity(pilatesA, pilatesGeneric);
+      const pilatesFar = verifyCommonsFileIdentity(pilatesB, pilatesGeneric);
+      ok(pilatesNear.ok, `D19: suffix-less short brand + campus-tight GPS (≤ ${COMMONS_BRANCH_GEO_MI}mi) may accept (got ${JSON.stringify(pilatesNear)})`);
+      ok(!pilatesFar.ok && pilatesFar.reason === "identity_branch_mismatch", `D19: the same generic Club Pilates file ~8mi away must NOT attach to the other branch (got ${JSON.stringify(pilatesFar)})`);
+      ok(pilatesFar.dist != null && pilatesFar.dist > COMMONS_BRANCH_GEO_MI && pilatesFar.dist < 15, `D19: the far Club Pilates reject sits inside the old 15mi gate and outside the branch gate (dist=${pilatesFar.dist})`);
+
+      {
+        const { fetchImpl } = makeFetch({
+          opensearch: OPENSEARCH_EMPTY,
+          commonsSearch: commonsSearchHit("File:Sky Zone trampoline park.jpg"),
+          commons: commonsFileInfo({
+            title: "File:Sky Zone trampoline park.jpg",
+            filename: "Sky_Zone_trampoline_park.jpg",
+            extmetadata: {
+              Artist: { value: "A photographer" },
+              License: { value: "cc-by-sa-4.0" },
+              LicenseShortName: { value: "CC BY-SA 4.0" },
+              ImageDescription: { value: "A Sky Zone trampoline park" },
+              ObjectName: { value: "Sky Zone trampoline park" },
+            },
+            lat: 27.429,
+            lon: -82.428,
+          }),
+        });
+        let reasonLwr = null;
+        let reasonSrq = null;
+        const photoLwr = await findCommonsPhoto(LWR, { fetch: fetchImpl, onReject: (r) => { reasonLwr = r; } });
+        const photoSrq = await findCommonsPhoto(SRQ, { fetch: fetchImpl, onReject: (r) => { reasonSrq = r; } });
+        ok(photoLwr === null && reasonLwr === "commons_identity_branch_mismatch", `D19e: end-to-end, generic Sky Zone file must not resolve for Lakewood Ranch (got ${reasonLwr})`);
+        ok(photoSrq === null && reasonSrq === "commons_identity_branch_mismatch", `D19e: end-to-end, generic Sky Zone file must not resolve for Sarasota (got ${reasonSrq})`);
+      }
+      {
+        const { fetchImpl } = makeFetch({
+          opensearch: OPENSEARCH_EMPTY,
+          commonsSearch: commonsSearchHit("File:Sky Zone Lakewood Ranch.jpg"),
+          commons: commonsFileInfo({
+            title: "File:Sky Zone Lakewood Ranch.jpg",
+            filename: "Sky_Zone_Lakewood_Ranch.jpg",
+            extmetadata: {
+              Artist: { value: "A photographer" },
+              License: { value: "cc-by-sa-4.0" },
+              LicenseShortName: { value: "CC BY-SA 4.0" },
+              ImageDescription: { value: "Sky Zone in Lakewood Ranch, Florida" },
+              ObjectName: { value: "Sky Zone Lakewood Ranch" },
+            },
+            lat: 27.429,
+            lon: -82.428,
+          }),
+        });
+        let reasonSrq = null;
+        const photoLwr = await findCommonsPhoto(LWR, { fetch: fetchImpl });
+        const photoSrq = await findCommonsPhoto(SRQ, { fetch: fetchImpl, onReject: (r) => { reasonSrq = r; } });
+        ok(!!photoLwr, `D19e: branch-specific Lakewood Ranch file resolves for that branch (reason if any: missing)`);
+        ok(photoSrq === null && reasonSrq === "commons_identity_branch_mismatch", `D19e (CROSS-ATTACH LOCK): that same file must not resolve for Sky Zone - Sarasota (got ${reasonSrq})`);
+      }
+    }
+
+    {
       // MUTATION RED-PROVE. If identity continue is deleted, the Wallenda
       // file is assigned to Camp Gladiator. This block watches the mutation
       // land, then proves that assignment happens — which is the red D4
@@ -903,7 +1012,7 @@ async function main() {
     console.error(`test-commons-photos: ${failures} FAILED`);
     process.exit(1);
   }
-  console.log("test-commons-photos: OK — wiki identity + license gates, Commons-direct after legitimate wiki empties, title-level identity, Benderson/Camp Gladiator negative + mutation-red, Asolo and Ca'd'Zan positives, vaultable, and unavailable_* still never becoming a permanent rejection");
+  console.log("test-commons-photos: OK — wiki identity + license gates, Commons-direct after legitimate wiki empties, title-level identity, Benderson/Camp Gladiator negative + mutation-red, same-brand branches cannot cross-attach, Asolo and Ca'd'Zan positives, vaultable, and unavailable_* still never becoming a permanent rejection");
 }
 
 main().catch((e) => {
