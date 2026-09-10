@@ -1446,6 +1446,7 @@ node scripts/check-guide-editorial.mjs
 # the 12-card cap, real /florida-events routes, and the no-place-score contract.
 node scripts/test-family-day-data.mjs
 node scripts/test-family-day-events.mjs
+node scripts/test-family-day-presentation.mjs
 node scripts/test-family-day-taxonomy.mjs
 node scripts/check-guide-seo-audit.mjs
 
