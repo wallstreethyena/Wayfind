@@ -8,13 +8,13 @@
 // This replaces the old "Load every ranked option" whole-blob button.
 import { useEffect, useMemo, useRef, useState } from "react";
 import RailCard, { RailDots, RailNav } from "./RailCard";
-import { directionsUrl } from "./kit";
+import { directionsUrl, RailDevError, RailMascotBusy } from "./kit.js";
 import { toHookLine } from "../../lib/editorialHook";
 import { priceLabel } from "../../lib/price.js";
 import { toDisplayScore } from "../../lib/score.js";
 import { topPickAward } from "../../lib/topPickAward.js";
 import { wayfindScore } from "../../lib/wayfindScore.js";
-import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
+import { emitRailDegraded, fetchRailJson, isRailCancelled, railDeveloperFailure } from "../../lib/railFailure.js";
 import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
 import { usePagedRail } from "./usePagedRail.js";
 
@@ -121,7 +121,7 @@ export default function BirthdayRails({
   onShare = undefined,
 }) {
   const [payload, setPayload] = useState(null);
-  const [failed, setFailed] = useState(false);
+  const [failure, setFailure] = useState(null);
   const [retry, setRetry] = useState(0);
   const asked = useRef("");
   const lat = center && Number.isFinite(center.lat) ? center.lat : null;
@@ -140,27 +140,29 @@ export default function BirthdayRails({
     if (!key || asked.current === requestKey) return;
     asked.current = requestKey;
     setPayload(null);
-    setFailed(false);
+    setFailure(null);
     let dead = false;
+    const controller = new AbortController();
     const [queryLat, queryLng] = key.split("|");
     const query = new URLSearchParams({ lat: queryLat, lng: queryLng, v: "2" });
-    fetchJsonWithDeadline("/api/birthday?" + query.toString(), { retries: 1 })
+    fetchRailJson("/api/birthday?" + query.toString(), { timeoutMs: 10000, signal: controller.signal })
       .then((result) => {
         if (dead) return;
-        if (!result || !Array.isArray(result.rails)) { setFailed(true); return; }
+        if (!result || !Array.isArray(result.rails)) {
+          setFailure(railDeveloperFailure("invalid_payload", { route: "/api/birthday" }));
+          return;
+        }
         setPayload(result);
         if (onTrack) {
-          try {
-            onTrack("birthday_intent_open", {
-              city,
-              rails: result.rails.map((rail) => rail.id).join(","),
-              places: result.rails.reduce((sum, rail) => sum + rail.places.length, 0),
-            });
-          } catch (error) {}
+          try { onTrack("birthday_intent_open", { city, rails: result.rails.map((rail) => rail.id).join(","), places: result.rails.reduce((sum, rail) => sum + rail.places.length, 0) }); } catch {}
         }
       })
-      .catch(() => { if (!dead) setFailed(true); });
-    return () => { dead = true; asked.current = ""; };
+      .catch((error) => {
+        if (dead || isRailCancelled(error)) return;
+        if (error?.kind === "developer") console.error("[BirthdayRails] request contract failure", error);
+        setFailure(error);
+      });
+    return () => { dead = true; controller.abort(); asked.current = ""; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, retry]);
 
@@ -168,7 +170,7 @@ export default function BirthdayRails({
   if (!key) {
     return <p style={{ color: COLORS.muted, fontSize: 13 }}>Share your location to build the seven Birthday rails near you.</p>;
   }
-  if (!payload && !failed) {
+  if (!payload && !failure) {
     return (
       <div role="status" aria-busy="true" aria-label="Building birthday plans">
         {[0, 1, 2].map((index) => (
@@ -177,13 +179,10 @@ export default function BirthdayRails({
       </div>
     );
   }
-  if (failed) {
-    return (
-      <div>
-        <p style={{ color: COLORS.muted, fontSize: 13 }}>We could not reach Wayfind&apos;s Birthday inventory. That is a service miss, not an empty town.</p>
-        <button type="button" onClick={() => setRetry((value) => value + 1)} style={{ border: "1px solid #4B5563", borderRadius: 999, background: "#111827", color: COLORS.text, padding: "7px 12px", fontWeight: 800 }}>Try again</button>
-      </div>
-    );
+  if (failure) {
+    return failure.kind === "developer"
+      ? <RailDevError />
+      : <RailMascotBusy rail="birthday" failure={failure} onRetry={() => setRetry((value) => value + 1)} onVisible={() => { void emitRailDegraded(failure, { rail: "birthday" }); }} />;
   }
 
   return (

@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import RankedExperiencePage from "../components/RankedExperiencePage";
 import SummerPicksRails from "../components/SummerPicksRails";
-import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
+import { RailDevError, RailMascotBusy } from "../components/kit.js";
+import { emitRailDegraded, fetchRailJson, isRailCancelled, railDeveloperFailure } from "../../lib/railFailure.js";
 import { originForCity } from "../../lib/locationHonesty.js";
 import { homeAffiliateActivities } from "../../lib/homeAffiliateActivities.js";
 import { composeSummerPickRails } from "../../lib/summerPicks.js";
@@ -20,7 +21,7 @@ export default function SummerPicksClient() {
   const initial = Number.isFinite(queryLat) && Number.isFinite(queryLng) ? { lat: queryLat, lng: queryLng } : cityOrigin;
   const [center, setCenter] = useState(initial || null);
   const [rails, setRails] = useState(null);
-  const [failed, setFailed] = useState(false);
+  const [failure, setFailure] = useState(null);
   const [retry, setRetry] = useState(0);
 
   useEffect(() => {
@@ -35,29 +36,38 @@ export default function SummerPicksClient() {
   useEffect(() => {
     if (!key || !center) return;
     let cancelled = false;
-    setFailed(false);
+    const controller = new AbortController();
+    setFailure(null);
     setRails(null);
     const location = { lat: center.lat.toFixed(2), lng: center.lng.toFixed(2) };
     const summerQ = new URLSearchParams(location);
     const tourQ = new URLSearchParams({ ...location, mi: "120", cat: "all", limit: "100", page: "0" });
     Promise.allSettled([
-      fetchJsonWithDeadline(`/api/summer/places?${summerQ}`, { timeoutMs: LOAD_TIMEOUT_MS }),
-      fetchJsonWithDeadline(`/api/experiences?${tourQ}`, { timeoutMs: LOAD_TIMEOUT_MS }),
+      fetchRailJson("/api/summer/places?" + summerQ.toString(), { timeoutMs: LOAD_TIMEOUT_MS, signal: controller.signal }),
+      fetchRailJson("/api/experiences?" + tourQ.toString(), { timeoutMs: LOAD_TIMEOUT_MS, signal: controller.signal }),
     ]).then((results) => {
       if (cancelled) return;
       const summer = results[0].status === "fulfilled" ? results[0].value : null;
       const experiences = results[1].status === "fulfilled" ? results[1].value : null;
+      const problems = [];
+      if (results[0].status === "rejected" && !isRailCancelled(results[0].reason)) problems.push(results[0].reason);
+      if (results[1].status === "rejected" && !isRailCancelled(results[1].reason)) problems.push(results[1].reason);
+      if (results[0].status === "fulfilled" && !Array.isArray(summer?.places)) problems.push(railDeveloperFailure("invalid_payload", { route: "/api/summer/places" }));
+      if (results[1].status === "fulfilled" && !Array.isArray(experiences?.items)) problems.push(railDeveloperFailure("invalid_payload", { route: "/api/experiences" }));
+      for (const problem of problems) if (problem?.kind === "developer") console.error("[SummerPicksClient] request contract failure", problem);
       const placeMap = new Map();
       for (const place of Array.isArray(summer?.places) ? summer.places : []) placeMap.set(place.id, place);
-      const tours = homeAffiliateActivities(experiences?.items, 100);
-      // Render as soon as the APIs settle. RailCard owns per-image fallbacks;
-      // preloading every photo here made one slow image hold the entire page.
+      const tours = homeAffiliateActivities(Array.isArray(experiences?.items) ? experiences.items : [], 100);
       const composed = composeSummerPickRails([...placeMap.values()], tours);
-      const usable = composed.some((rail) => rail.cards.length > 0);
-      if (!usable) setFailed(true);
-      else setRails(composed);
+      if (composed.some((rail) => rail.cards.length > 0)) { setRails(composed); return; }
+      if (!problems.length) { setRails([]); return; }
+      setFailure(problems.find((problem) => problem?.kind === "developer") || problems[0]);
+    }).catch((error) => {
+      if (cancelled || isRailCancelled(error)) return;
+      console.error("[SummerPicksClient] aggregation failure", error);
+      setFailure(railDeveloperFailure("aggregation_failure", { route: "/summer-picks", cause: error }));
     });
-    return () => { cancelled = true; };
+    return () => { cancelled = true; controller.abort(); };
   }, [key]);
 
   const headingCity = city || "Florida";
@@ -75,8 +85,9 @@ export default function SummerPicksClient() {
     topLeft={<a href="/" style={{ color: "#F97316", textDecoration: "none", fontWeight: 800 }}>← Wayfind</a>}
   >
     {!center ? <div style={{ padding: "18px", border: "1px solid rgba(255,255,255,.1)", borderRadius: 16, color: "#A8B0BE" }}>Open Summer Picks from the Wayfind homepage so your location can rank the rails.</div> : null}
-    {center && !rails && !failed ? <div role="status" aria-busy="true" aria-label="Ranking Florida summer picks">{[0, 1, 2].map((n) => <div key={n} className="wf-sk" style={{ height: 120, borderRadius: 16, marginBottom: 12 }} />)}</div> : null}
-    {failed ? <div style={{ color: "#A8B0BE" }}><p>Wayfind could not reach enough photo-verified summer inventory. This is a loading failure, not an empty Florida.</p><button type="button" onClick={() => setRetry((value) => value + 1)} style={{ border: "1px solid #F97316", borderRadius: 999, background: "#111827", color: "#F8FAFC", padding: "9px 14px", fontWeight: 800 }}>Try again</button></div> : null}
-    {rails ? <SummerPicksRails rails={rails} city={headingCity} /> : null}
+    {center && !rails && !failure ? <div role="status" aria-busy="true" aria-label="Ranking Florida summer picks">{[0, 1, 2].map((n) => <div key={n} className="wf-sk" style={{ height: 120, borderRadius: 16, marginBottom: 12 }} />)}</div> : null}
+    {failure ? (failure.kind === "developer" ? <RailDevError /> : <RailMascotBusy rail="summer-picks" failure={failure} onRetry={() => setRetry((value) => value + 1)} onVisible={() => { void emitRailDegraded(failure, { rail: "summer-picks" }); }} />) : null}
+    {Array.isArray(rails) && rails.length === 0 ? <div style={{ color: "#A8B0BE" }}>No summer picks are available yet for this area. Try another location or come back soon.</div> : null}
+    {Array.isArray(rails) && rails.length > 0 ? <SummerPicksRails rails={rails} city={headingCity} /> : null}
   </RankedExperiencePage>;
 }

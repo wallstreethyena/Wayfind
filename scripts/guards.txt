@@ -1133,6 +1133,7 @@ node scripts/check-book-cta-needs-a-seller.mjs
 node scripts/check-rail-deck-copy.mjs
 
 node scripts/test-poster-recovery.mjs
+node scripts/test-rail-failure.mjs
 # 2026-09-04 WO-D-atlas-cache-batch: prompt caching must be REAL, not
 # decorative — a cache_control block below the active model's documented
 # minimum is legal JSON that silently does nothing. Table-driven minimum
@@ -1420,3 +1421,4 @@ node scripts/test-beach-local-conditions.mjs
 
 # Reviewed source-backed prose fills only verified empty editorial slots.
 node scripts/test-owned-editorial-review.mjs
+node scripts/check-guide-editorial.mjs

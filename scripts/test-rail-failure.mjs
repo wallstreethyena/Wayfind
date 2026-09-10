@@ -121,6 +121,29 @@ await assert.rejects(backingOff, (error) => isRailCancelled(error));
 checks++;
 ok(calls === 1, "navigation during backoff cancels before the second network call");
 
+// Headers and bodies must settle even if an upstream ignores its AbortSignal.
+for (const stalledBody of [false, true]) {
+  let attempts = 0;
+  const bounded = fetchRailJson("/api/fixture", {
+    timeoutMs: 250,
+    sleepImpl: async () => {},
+    fetchImpl: async () => {
+      attempts++;
+      const never = new Promise(() => {});
+      return stalledBody ? { ok: true, json: () => never } : never;
+    },
+  });
+  let watchdog;
+  try {
+    await assert.rejects(Promise.race([
+      bounded,
+      new Promise((_, reject) => { watchdog = setTimeout(() => reject(new Error("guard watchdog: request never settled")), 1500); }),
+    ]), (error) => error?.kind === "degraded" && error?.reason === "timeout");
+    checks++;
+    ok(attempts === 1, "a stall consuming the whole deadline cannot start another attempt");
+  } finally { clearTimeout(watchdog); }
+}
+
 const dev = railDeveloperFailure("invalid_payload", { route: "/api/night-out", requestId: "req-dev" });
 ok(dev.kind === RAIL_FAILURE_KIND.DEVELOPER && dev.reason === "invalid_payload", "malformed payloads are explicit developer failures");
 

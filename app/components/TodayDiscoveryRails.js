@@ -6,14 +6,14 @@
 // pattern and lib/railPage.js for the shared server contract.
 import { useEffect, useMemo, useRef, useState } from "react";
 import RailCard, { RailDots, RailNav } from "./RailCard";
-import { directionsUrl } from "./kit";
+import { directionsUrl, RailDevError, RailMascotBusy } from "./kit.js";
 import { toHookLine } from "../../lib/editorialHook";
 import { priceLabel } from "../../lib/price.js";
 import { toDisplayScore } from "../../lib/score.js";
 import { topPickAward } from "../../lib/topPickAward.js";
 import { wayfindScore } from "../../lib/wayfindScore.js";
 import { beachDecisionReason, beachWaterBand } from "../../lib/beachDecision.js";
-import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
+import { emitRailDegraded, fetchRailJson, isRailCancelled, railDeveloperFailure } from "../../lib/railFailure.js";
 import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
 import { usePagedRail } from "./usePagedRail.js";
 
@@ -71,7 +71,7 @@ export default function TodayDiscoveryRails({
   isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare,
 }) {
   const [payload, setPayload] = useState(null);
-  const [failed, setFailed] = useState(false);
+  const [failure, setFailure] = useState(null);
   const [retry, setRetry] = useState(0);
   const asked = useRef("");
   const lat = center && Number.isFinite(center.lat) ? center.lat : null;
@@ -79,35 +79,38 @@ export default function TodayDiscoveryRails({
   const key = useMemo(() => active && lat != null && lng != null ? `${lat.toFixed(2)}|${lng.toFixed(2)}` : "", [active, lat, lng]);
 
   useEffect(() => {
-    const requestKey = `${key}|${city}|${retry}`;
+    const requestKey = key + "|" + city + "|" + retry;
     if (!key || asked.current === requestKey) return;
     asked.current = requestKey;
     setPayload(null);
-    setFailed(false);
+    setFailure(null);
     let dead = false;
+    const controller = new AbortController();
     const [queryLat, queryLng] = key.split("|");
     const query = new URLSearchParams({ lat: queryLat, lng: queryLng, city, v: "1" });
-    fetchJsonWithDeadline("/api/today-discovery?" + query.toString(), { retries: 1 })
+    fetchRailJson("/api/today-discovery?" + query.toString(), { timeoutMs: 10000, signal: controller.signal })
       .then((result) => {
         if (dead) return;
-        if (!result || !Array.isArray(result.rails)) { setFailed(true); return; }
+        if (!result || !Array.isArray(result.rails)) {
+          setFailure(railDeveloperFailure("invalid_payload", { route: "/api/today-discovery" }));
+          return;
+        }
         setPayload(result);
         try { onTrack?.("today_discovery_open", { city, rails: result.rails.map((rail) => rail.id).join(","), places: result.rails.reduce((sum, rail) => sum + rail.places.length, 0) }); } catch {}
       })
-      .catch(() => { if (!dead) setFailed(true); });
-    return () => { dead = true; asked.current = ""; };
-    // The parent's onTrack prop is an inline analytics callback, not request
-    // identity. Including it here lets an ordinary parent render run this
-    // cleanup (`dead = true`) while the request is in flight; asked.current
-    // then refuses the replacement effect as a duplicate, leaving Today on a
-    // permanent skeleton even after the response succeeds.
+      .catch((error) => {
+        if (dead || isRailCancelled(error)) return;
+        if (error?.kind === "developer") console.error("[TodayDiscoveryRails] request contract failure", error);
+        setFailure(error);
+      });
+    return () => { dead = true; controller.abort(); asked.current = ""; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, city, retry]);
 
   if (!active) return null;
   if (!key) return <p style={{ color: COLORS.muted, fontSize: 13 }}>Share your location to rank today&apos;s best discoveries near you.</p>;
-  if (!payload && !failed) return <div role="status" aria-busy="true" aria-label="Ranking today's best discoveries">{[0, 1, 2].map((index) => <div key={index} className="wf-sk" style={{ height: 88, borderRadius: 14, marginBottom: 12, background: "#0B0E15" }} />)}</div>;
-  if (failed) return <div><p style={{ color: COLORS.muted, fontSize: 13 }}>We could not reach Wayfind&apos;s discovery inventory. That is a service miss, not an empty town.</p><button type="button" onClick={() => setRetry((value) => value + 1)} style={{ border: "1px solid #4B5563", borderRadius: 999, background: "#111827", color: COLORS.text, padding: "7px 12px", fontWeight: 800 }}>Try again</button></div>;
+  if (!payload && !failure) return <div role="status" aria-busy="true" aria-label="Ranking today's best discoveries">{[0, 1, 2].map((index) => <div key={index} className="wf-sk" style={{ height: 88, borderRadius: 14, marginBottom: 12, background: "#0B0E15" }} />)}</div>;
+  if (failure) return failure.kind === "developer" ? <RailDevError /> : <RailMascotBusy rail="today" failure={failure} onRetry={() => setRetry((value) => value + 1)} onVisible={() => { void emitRailDegraded(failure, { rail: "today" }); }} />;
 
   return <>{payload.rails.map((rail) => (
     <TodayRailSection key={rail.id} rail={rail} lat={lat} lng={lng} city={city} onOpenPlace={onOpenPlace}

@@ -10,6 +10,7 @@ export default function PremiumIntentHero({ eyebrow, location, title, descriptio
   // share control here). A node rather than a set of props, because the caller
   // owns what it is: /culture passes nothing and renders exactly as before.
   actions = null,
+  caption = null,
 }) {
   // Seasonal wordmark (lib/seasonalBrand.js) — this component is server-
   // rendered (no "use client"), so `now` defaults to the render instant on
@@ -76,7 +77,7 @@ export default function PremiumIntentHero({ eyebrow, location, title, descriptio
       <header className="wf-intent-hero">
         <div className="wf-intent-photo">
           <img src={image} alt="" />
-          <div className="wf-intent-caption">A better decision<br />is closer than you think.</div>
+          <div className="wf-intent-caption">{caption || <>A better decision<br />is closer than you think.</>}</div>
         </div>
         <div className="wf-intent-panel">
           <div className="wf-intent-top">

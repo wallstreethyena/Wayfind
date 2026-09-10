@@ -111,6 +111,54 @@ export const TRENDING_POPULARITY_THRESHOLD = 0.75;
 // 44×44px minimum interactive target (design standard, stricter than WCAG).
 export const TARGET = 44;
 
+// Reader-facing degraded state. This does not resolve the upstream outage; it
+// keeps a transient service miss from looking like an empty town or an endless
+// skeleton. This is the same tiny Critter already used by Wayfind's loader.
+function RailCritter({ size = 70 }) {
+  return (
+    <svg width={size} height={Math.round((size * 38) / 40)} viewBox="28 22 40 38" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: "block" }} aria-hidden="true">
+      <rect x="31" y="32" width="34" height="18" rx="3" fill="#F97316" />
+      <rect x="41" y="26" width="14" height="7" rx="2" fill="#F97316" />
+      <rect x="36.5" y="37.5" width="7" height="8" rx="1.5" fill="#0D1117" />
+      <rect x="52.5" y="37.5" width="7" height="8" rx="1.5" fill="#0D1117" />
+      <rect x="34" y="50" width="6" height="6" rx="1.5" fill="#F97316" />
+      <rect x="45" y="50" width="6" height="6" rx="1.5" fill="#F97316" />
+      <rect x="56" y="50" width="6" height="6" rx="1.5" fill="#F97316" />
+    </svg>
+  );
+}
+
+export function RailMascotBusy({ failure = null, rail = "", onRetry = null, onVisible = null }) {
+  const seen = useRef("");
+  const eventKey = failure?.requestId ? rail + "|" + failure.requestId : "";
+  useEffect(() => {
+    if (!eventKey || seen.current === eventKey) return;
+    seen.current = eventKey;
+    try { onVisible?.(); } catch {}
+  }, [eventKey, onVisible]);
+  return (
+    <div role="status" aria-live="polite" style={{ display: "flex", alignItems: "center", gap: 14, padding: "16px 18px", border: "1px solid " + C.border, borderRadius: 16, background: "linear-gradient(145deg,rgba(22,27,34,.98),rgba(9,13,20,.98))" }}>
+      <div style={{ flex: "0 0 auto" }}><RailCritter /></div>
+      <div style={{ minWidth: 0 }}>
+        <div style={{ ...TYPE.title, color: C.text, marginBottom: 4 }}>Wayfind hit a snag</div>
+        <p style={{ ...TYPE.meta, color: C.light, margin: 0 }}>We couldn’t load these picks right now. Please come back in a little bit.</p>
+        {onRetry ? <button type="button" onClick={onRetry} style={{ marginTop: 10, minHeight: TARGET, padding: "0 13px", borderRadius: 999, border: "1px solid " + C.accent, background: "transparent", color: C.text, fontWeight: 700, cursor: "pointer" }}>Try again</button> : null}
+      </div>
+    </div>
+  );
+}
+
+// A 4xx/malformed contract is our bug, not an upstream outage. Do not put the
+// mascot on it and do not imply that retrying the provider is the answer.
+export function RailDevError() {
+  return (
+    <div role="status" aria-live="polite" style={{ padding: "13px 15px", border: "1px solid " + C.border, borderRadius: 14, background: C.panel }}>
+      <div style={{ ...TYPE.title, color: C.text, marginBottom: 4 }}>This rail isn’t available right now.</div>
+      <p style={{ ...TYPE.meta, color: C.muted, margin: 0 }}>Wayfind needs to fix this one. Please come back later.</p>
+    </div>
+  );
+}
+
 // ─── Line icons (premium redesign, v5.55) ───────────────────────────────────
 // ONE icon language for UI chrome: 24-viewbox stroke icons matching the
 // bottom nav's existing style (stroke 2, round caps). Emoji remain only as

@@ -143,4 +143,18 @@ ok(!/minHeight|fit-content|height:\s*["']?auto/.test(affiliateComponent),
 }
 
 
+
+// ─── 8. DISABLED IS A STATE, NEVER A SIDE (2026-09-09) ────────────────────
+// Production desktop CLS probe: the right rail arrow starts disabled. A shared
+// `[disabled]` selector assigned left:0, then .r assigned only right:0; when the
+// arrow enabled it lost the disabled match and travelled across the viewport.
+// Disabled may change interactivity/opacity, never horizontal geometry.
+const railMenuCssSrc = readFileSync(new URL("../app/components/railMenuCss.js", import.meta.url), "utf8");
+ok(!/\.wf8-nav\[disabled\][^{]*\{[^}]*left\s*:\s*0/.test(railMenuCssSrc),
+  "disabled rail navigation must never choose the left edge — state cannot determine horizontal geometry");
+ok(/\.wf8-nav\.l,\.wf8-pnav\.l\{left:0;/.test(railMenuCssSrc),
+  "left rail navigation classes must still own left:0 after the disabled-state fix");
+ok(/\.wf8-nav\.r,\.wf8-pnav\.r\{right:0;/.test(railMenuCssSrc),
+  "right rail navigation classes must still own right:0 after the disabled-state fix");
+
 console.log(`test-layout-shift: OK — ${passed} assertions (responsive layout is CSS-driven at the 900px breakpoint; isDesktop never sets geometry; the affiliate rail cannot idle-jump)`);

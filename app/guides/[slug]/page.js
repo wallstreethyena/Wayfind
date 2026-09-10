@@ -16,6 +16,7 @@ import { resolveGuideProduct, productCtaLabel } from "../../../lib/guideProductR
 import { bookingTargets } from "../../../lib/bookingResolve";
 import { guidePrimaryCta, guideContinue, guideIntent, paintGuideCta } from "../../../lib/guideCta";
 import GuideConversion from "./GuideConversion";
+import { GuideReadingNav, guidePickImage, GUIDE_EDITORIAL_CSS } from "./GuideEditorial";
 import GuideDealCards from "./GuideDealCards";
 // v8.23 — the share control every guide was missing, and the resolver that
 // finally connects 39 guides to a 69-row deal registry they were never wired
@@ -111,7 +112,7 @@ async function inventorySocial(placeName) {
 // a named place is the trust bug from the audit, so a pick we cannot resolve
 // gets no card rather than a stock photo. Same >=15 review floor as the social
 // path — below that a rating is noise.
-async function inventoryPlaceByStem(stem, near) {
+async function inventoryPlaceByStem(stem, near, exactNames = null) {
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
   const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
   // 2026-09-06 (v8.99) — was `if (isSsgBuild()) return null`, the same
@@ -141,6 +142,9 @@ async function inventoryPlaceByStem(stem, near) {
     const rows = await r.json();
     if (!Array.isArray(rows)) return null;
     for (const row of rows) {
+      // Editorial aliases require a whole-name match, never a hotel containing a beach name.
+      const normalize = (name) => String(name || "").toLowerCase().replace(/[’‘]/g, "'").replace(/\s+/g, " ").trim();
+      if (exactNames && !exactNames.some((name) => normalize(name) === normalize(row.name))) continue;
       const rating = Number(row && row.signals && row.signals.rating);
       const reviews = Number(row && row.signals && row.signals.reviews);
       if (!(rating > 0 && reviews >= 15)) continue;
@@ -184,7 +188,14 @@ async function inventoryPlaceByStem(stem, near) {
 // inventory row's name does not contain. First confirmed match wins; nothing
 // resolving still means no card — never a stock photo under a named place.
 async function inventoryPlace(pick, near) {
-  if (!pick) return null;
+  if (!pick || pick.appQuery === null) return null;
+  if (Array.isArray(pick.exactNames) && pick.exactNames.length) {
+    for (const name of pick.exactNames) {
+      const hit = await inventoryPlaceByStem(name, near, pick.exactNames);
+      if (hit) return hit;
+    }
+    return null;
+  }
   // v8.17 — a pick that CARRIES a placeId (the Gulf Coast guides embed real
   // ids) resolves on it directly: exact, no ilike ambiguity, no geo gate
   // needed (the id IS the identity). The name path below stays the fallback
@@ -318,7 +329,8 @@ import { placeCardHook } from "../../../lib/rankingWhy";
 // scripts/check-place-card-css-contract.mjs.
 import { WF_PLACE_CARD_CSS } from "../../components/css";
 import DiscoveryPaths from "../../components/DiscoveryPaths";
-import PremiumIntentHero from "../../components/PremiumIntentHero";
+import GuideArticleHero from "../../components/GuideArticleHero";
+import { guideHero } from "../../../lib/guideHero";
 // The floating pill stays (it catches people who DO read to the end). This adds
 // the above-the-fold handoff under a 50/50 experiment — measured dwell on these
 // pages is 0-25s, so almost nobody reaches the pill. Control renders nothing.
@@ -370,54 +382,6 @@ const S = {
   footerLink: { color: "#F97316", textDecoration: "none", fontWeight: 700 },
   pick: { margin: "0 0 16px", padding: "22px", borderRadius: 20, background: "linear-gradient(145deg,#101C2B,#0A1421)", border: "1px solid #2D3748", boxShadow: "0 18px 45px rgba(0,0,0,.2)" },
 };
-
-// v7.29 PERF — the WebP derivative, not the 473KB original. This is the LCP
-// element on this route too, and it is full-bleed, so the 1600px candidate is
-// the same pixels the JPEG delivered at 31%% of the bytes (473KB -> 144.8KB).
-// WebP and not AVIF because this is a bare <img src> with no <picture> to fall
-// back from, and WebP is the format every browser we support can decode.
-// Built by scripts/build-brand-derivatives.mjs.
-const NEUTRAL_HERO = "/brand/opt/hero-1600.webp";
-
-// v8.29.3 — PER-GUIDE ART, OWNED BY SLUG (owner, 2026-08-20, six times in one
-// afternoon: "for this blog image 1 we should use image 2"). guideHero() below
-// matches on KEYWORDS, which is exactly why one photograph covers a dozen
-// guides — a brunch guide and an Orlando magical-dining guide open on the same
-// laid table because both match /dining|brunch|date/. A keyword rule cannot
-// express "this guide, this picture", so the owner's choices live here, are
-// consulted FIRST, and the keyword branches stay as the fallback for guides
-// with no art of their own.
-//
-// SELF-HOSTED under /public/guides/<slug>.jpg, never hotlinked: the bytes are
-// ours, the licence is recorded next to them in public/guides/CREDITS.md, and
-// nothing on a guide page depends on a third party staying up.
-const GUIDE_HERO_ART = {
-  "things-to-do-in-sarasota-florida": "/guides/things-to-do-in-sarasota-florida.jpg",
-  "gulf-coast-brunch-and-date-night": "/guides/gulf-coast-brunch-and-date-night.jpg",
-  "orlando-halloween-food-2026": "/guides/orlando-halloween-food-2026/hero.webp",
-};
-
-function guideHero(g, slug) {
-  const chosen = slug && GUIDE_HERO_ART[slug];
-  if (chosen) return chosen;
-  const haystack = `${g.title} ${g.keyword || ""}`.toLowerCase();
-  // v8.24 (owner, on the Gulf Coast Brunch & Date Night hero: "I never want
-  // to see this image ever again"). Two changes: the AI neon-concert
-  // composite (night-out.jpg) is BANNED site-wide and deleted from the repo
-  // (locked by scripts/check-banned-art.mjs), and brunch/date-night guides
-  // now match the DINING branch — a food guide was falling through to
-  // nightlife art because "brunch" appeared in no branch.
-  if (/restaurant|food|cuban|pie|brunch|dining|date/.test(haystack)) return "/cards/date-night-dining-hero.jpg";
-  if (/beach|siesta|lido/.test(haystack)) return "/cards/beach-adobestock-216195684.jpeg";
-  if (/night|bar|cocktail/.test(haystack)) return "/cards/tonight-alfonso-scarpa-unsplash.jpg";
-  if (/boat|kayak|spring|airboat/.test(haystack)) return "/brand/orlando-paddleboard-portrait.jpg";
-  // The keyword branches above assign art that MATCHES the guide. This last
-  // line is what a guide gets when none matched, so it must assert no
-  // category — it used to hand out the hidden-gems photo, which is why the
-  // Ybor City, Tampa Riverwalk, Myakka River and De Soto guides all opened
-  // on an image claiming they were hidden gems.
-  return g.region === "Orlando" ? "/brand/orlando-night-wheel-portrait.jpg" : NEUTRAL_HERO;
-}
 
 export default async function GuidePage({ params }) {
   const g = GUIDES[params.slug];
@@ -518,6 +482,7 @@ export default async function GuidePage({ params }) {
   let liveIndoor = [];
 
   const today = siteTodayStr();
+  const isSummerEdition = params.slug.endsWith("-summer-2026") && today > "2026-08-30";
   // The canonical guide URL, built server-side from SITE_URL — the same string
   // generateMetadata canonicalises to, so what gets shared and what gets
   // indexed can never disagree.
@@ -654,7 +619,7 @@ export default async function GuidePage({ params }) {
   }
 
   return (
-    <main style={S.page}>
+    <div style={S.page} className="wf-guide-editorial">
       {/* v8.22 — same rule as the /guides hub: every guide page carries a
           visible way back into the app. */}
       <nav aria-label="Breadcrumb" style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 18 }}>
@@ -723,12 +688,13 @@ export default async function GuidePage({ params }) {
           .wf-guide-card-slot{margin-left:-46px!important}
         }
         ${WF_PLACE_CARD_CSS}
+        ${GUIDE_EDITORIAL_CSS}
       ` }} />
       {faqLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} /> : null}
       {itemListLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }} /> : null}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: g.title, description: g.description, datePublished: g.updated || "2026-06-01", dateModified: g.updated || "2026-06-01", author: { "@type": "Person", name: "Gabriel Pereira", url: SITE_URL + "/about" }, publisher: { "@type": "Organization", name: "WAYFIND LLC", logo: { "@type": "ImageObject", url: SITE_URL + "/icon-512.png" } }, mainEntityOfPage: SITE_URL + "/guides/" + params.slug }) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: g.title, description: g.description, ...(g.published ? { datePublished: g.published } : {}), ...(g.updated ? { dateModified: g.updated } : {}), author: { "@type": "Person", name: "Gabriel Pereira", url: SITE_URL + "/about" }, publisher: { "@type": "Organization", name: "WAYFIND LLC", logo: { "@type": "ImageObject", url: SITE_URL + "/icon-512.png" } }, mainEntityOfPage: SITE_URL + "/guides/" + params.slug }) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL }, { "@type": "ListItem", position: 2, name: "Guides", item: SITE_URL + "/guides" }, { "@type": "ListItem", position: 3, name: g.title, item: SITE_URL + "/guides/" + params.slug }] }) }} />
-      <PremiumIntentHero
+      <GuideArticleHero
         // v8.23 — ONE destination each. "All guides" used to appear twice on
         // every guide page: here, and again in the breadcrumb above. The
         // breadcrumb keeps "‹ Back to Wayfind" (check-guides pins that anchor);
@@ -736,11 +702,11 @@ export default async function GuidePage({ params }) {
         // prop). Neither guard was wrong — the page was just carrying both.
         backHref="/guides"
         backLabel="All guides"
-        eyebrow="Your local decision concierge"
-        location={g.region || "Orlando"}
+        category="Wayfind guide"
+        region={g.region || "Florida"}
         title={g.title}
-        description={`${g.title}—distilled into the few choices actually worth your time, with the context a map result leaves out.`}
-        image={guideHero(g, params.slug)}
+        description={g.description}
+        image={guideHero(params.slug)}
         // v8.23 — "Personalize these picks" is GONE, on the owner's call: "this
         // button makes no sense, a user clicked on it and it went back to the
         // main page — lets get rid of these buttons that dont serve a purpose on
@@ -756,8 +722,8 @@ export default async function GuidePage({ params }) {
         //
         // What is left is what actually works: the guide itself, one tap down.
         // The money CTA is unchanged and still lives once, in GuideConversion.
-        secondaryHref="#guide"
-        secondaryLabel="Read the local edit"
+        jumpHref="#guide"
+        jumpLabel={params.slug === "fall-events-orlando-2026" ? "Explore the events" : "Explore the guide"}
         // v8.23 (owner: "why is it that none of these blog has a share button
         // ... i want a share button on all of them"). Third action, quiet tone:
         // it must not out-shout the CTA that earns. The URL is resolved on the
@@ -766,14 +732,18 @@ export default async function GuidePage({ params }) {
         actions={<ShareButton
           url={shareUrl}
           title={g.title}
-          text={g.title + " — found this on Wayfind."}
-          tone="hero"
+          text={g.title + ". Found this on Wayfind."}
+          tone="dark"
           event="guide_share"
           meta={{ slug: params.slug, region: g.region || null, placement: "hero" }}
         />}
       />
       <article id="guide" className="wf-guide-article">
-      <div style={S.meta}>Written by the Wayfind team, led by <a href="/about" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>Gabriel Pereira</a> · Last verified {g.updated} · <a href="/how-wayfind-ranks" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>How we rank ›</a></div>
+      {isSummerEdition ? <aside aria-label="Seasonal edition" style={{ margin: "0 0 24px", padding: "16px 18px", border: "1px solid #594332", borderRadius: 12, color: "#D6C8BA", fontSize: 15 }}>
+        <strong style={{ color: "#F4DECB" }}>Summer 2026 edition</strong>
+        <p style={{ margin: "6px 0 0" }}>This guide includes summer schedules and offers that may have ended. Check each venue before planning a visit, or <a href="/florida-events" style={{ color: "#FDBA74" }}>explore upcoming Florida events</a>.</p>
+      </aside> : null}
+      <div style={S.meta}>By <a href="/about" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>Gabriel Pereira</a> · Updated {g.updated} · <a href="/how-wayfind-ranks" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>How we rank ›</a></div>
       {/* §2 OPEN LOOP, above the fold. One honest line the body resolves — a
           reader who wants the answer scrolls. Every teaser is derived from that
           guide's own tips (lib/guides.js) and check-guide-teasers.mjs proves the
@@ -785,6 +755,7 @@ export default async function GuidePage({ params }) {
         </p>
       ) : null}
       <p className="wf-guide-intro" style={S.p}>{g.intro}</p>
+      <GuideReadingNav guide={g} />
       <ExploreBridge city={bridgeCity} picks={bridgePicks} entryPage={"/guides/" + params.slug} pageType="guide" />
       {/* AUDIT F2 (2026-08-02) — guides took ~276 of the 685 visitors across
           the top 25 pages (40%, and a floor, since that list truncates at 25)
@@ -872,16 +843,17 @@ export default async function GuidePage({ params }) {
       ) : null}
       {g.picks.map((pick, i) => {
         const resolved = pickPlaces[i];
+        const pickImage = guidePickImage(params.slug, pick);
         return (
           <section key={i} id={"pick-" + (i + 1)} className="wf-guide-pick">
             <div className="wf-guide-number">{String(i + 1).padStart(2, "0")}</div>
             <div>
               <div style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: "1.7px", textTransform: "uppercase", color: "#F97316" }}>{pick.eyebrow || (i === 0 ? "The essential" : "The local edit")}</div>
               <h2 style={{ ...S.h2, marginTop: 5, fontFamily: "var(--wf-display)", fontSize: 28 }}>{pick.placeId ? <a href={"/places/" + encodeURIComponent(pick.placeId)} style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 4 }}>{pick.name}</a> : pick.name}</h2>
-              {pick.image ? (
+              {pickImage ? (
                 <figure style={{ margin: "12px 0 18px" }}>
                   <img
-                    src={pick.image}
+                    src={pickImage}
                     alt={pick.imageAlt || pick.name}
                     width="1200"
                     height="1500"
@@ -918,7 +890,7 @@ export default async function GuidePage({ params }) {
       {Array.isArray(g.sources) && g.sources.length ? (
         <section aria-label="Sources" style={{ marginTop: 30, paddingTop: 18, borderTop: "1px solid #21262D" }}>
           <h2 style={S.h2}>Sources and verification</h2>
-          <p style={S.p}>Seasonal menus can change. These links were checked on the date shown above; confirm the live menu before making a special trip.</p>
+          <p style={S.p}>{params.slug === "fall-events-orlando-2026" ? "Event schedules, prices and availability can change. Confirm current details with the organizer before making a special trip." : "Details can change. Confirm current information with the source before making a special trip."}</p>
           <ul style={{ color: "#CBD5E1", paddingLeft: 20 }}>
             {g.sources.map((source, i) => (
               <li key={i} style={{ marginBottom: 7 }}><a href={source.url} rel="nofollow noopener" style={S.footerLink}>{source.label}</a></li>
@@ -930,7 +902,7 @@ export default async function GuidePage({ params }) {
         <GuideDealCards slug={params.slug} region={g.region || "Orlando"} deals={dealCards} />
       ) : null}
       {g.faq && g.faq.length ? (
-        <section>
+        <section className="wf-guide-faq">
           <h2 style={S.h2}>Good to know</h2>
           {g.faq.map((f, i) => (<div key={i}><p style={S.faqQ}>{f.q}</p><p style={S.faqA}>{f.a}</p></div>))}
         </section>
@@ -974,7 +946,7 @@ export default async function GuidePage({ params }) {
         <ShareButton
           url={shareUrl}
           title={g.title}
-          text={g.title + " — found this on Wayfind."}
+          text={g.title + ". Found this on Wayfind."}
           label="Share this guide"
           tone="solid"
           event="guide_share"
@@ -986,6 +958,6 @@ export default async function GuidePage({ params }) {
         Planning the rest of your trip? <a href="/" style={S.footerLink}>Wayfind</a> ranks every restaurant, attraction, and hotel near you with live hours and honest scores, and our <a href={"/culture/" + (g.region === "Tampa" ? "tampa" : g.region === "Sarasota" ? "sarasota" : "orlando")} style={S.footerLink}>{g.region || "Orlando"} culture guide</a> covers what to eat, say, and never skip.
       </p>
       </article>
-    </main>
+    </div>
   );
 }

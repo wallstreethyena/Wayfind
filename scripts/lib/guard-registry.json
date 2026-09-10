@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 602,
-    "totalRegistryEntries": 603,
-    "guardsTxtLineCount": 600,
-    "guardsTxtReachedFileCount": 595,
+    "totalOnDiskGuardFiles": 604,
+    "totalRegistryEntries": 605,
+    "guardsTxtLineCount": 602,
+    "guardsTxtReachedFileCount": 597,
     "criticalCount": 73,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 411,
-      "RENDER": 47,
+      "CALL": 412,
+      "RENDER": 48,
       "STRUCTURAL": 144,
       "OTHER": 1
     }
@@ -3200,6 +3200,28 @@
       "owner": null
     },
     {
+      "file": "scripts/check-guide-editorial.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 46,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-guide-product-resolution.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -3260,7 +3282,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 21,
+      "assertionCount": 27,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
@@ -11286,7 +11308,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 27,
+      "assertionCount": 30,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -12827,6 +12849,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-rail-failure.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 40,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-rail-like-stays.mjs",
       "npmScript": null,
       "class": "RENDER",
@@ -13412,10 +13456,10 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 29,
-      "unprovenAbsenceCount": 1,
+      "assertionCount": 31,
+      "unprovenAbsenceCount": 2,
       "honestyViolations": [
-        "1 absence assertion(s) with no positive control in the same file (e.g. \"crystal.length >= 1 && !crystal.includes(ST_PETE) && !crystal.includes(TAMPA),\")"
+        "2 absence assertion(s) with no positive control in the same file (e.g. \"/const regions = guideRegions\\(GUIDES\\)/.test(hub) && /regions\\.map\\(/.test(hub)\")"
       ],
       "selfDocumentsRedProve": false,
       "wiring": {
