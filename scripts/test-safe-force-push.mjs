@@ -19,19 +19,42 @@
  *
  * `--no-merges` was a second, narrower hole: a merge commit present only on the
  * remote counted as zero loss. Scenario 3 covers it.
+ *
+ * WHY THE PRE-FIX SOURCE IS A COMMITTED FIXTURE AND NOT `git show <sha>`.
+ * 2026-09-10: the first version of this test read the defective source with
+ * `git show aba55a29:scripts/safe-force-push.sh`. On the hosted merge gate that
+ * object is not in the shallow checkout, so the read failed, the RED proof
+ * skipped itself, and the test still printed OK — at 19 assertions instead of
+ * 21. That is the same fail-open class this file exists to punish: the one run
+ * that decides a merge is exactly the run where the central proof evaporated.
+ * The defective source is therefore committed at
+ * scripts/fixtures/safe-force-push-at-aba55a29.sh and pinned by its git blob
+ * SHA-1, which is derived from content alone and so is verifiable with no
+ * history, no network, and no remote. There is no code path in this file that
+ * can skip the RED proof; a missing or altered fixture is a FAILURE.
  */
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, writeFileSync, mkdirSync, rmSync, chmodSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { mkdtempSync, writeFileSync, readFileSync, mkdirSync, rmSync, chmodSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const SHIPPED = join(process.cwd(), "scripts", "safe-force-push.sh");
 const PRE_FIX_SHA = "aba55a29";
+const PRE_FIX_FIXTURE = join(process.cwd(), "scripts", "fixtures", "safe-force-push-at-aba55a29.sh");
+// git blob SHA-1 of scripts/safe-force-push.sh as merged at aba55a29. Content
+// addressed, so this pin is checkable without the object being present.
+const PRE_FIX_BLOB = "e3d0e68e48e5b9f37c7a5c95d7f6723c8ba20a2a";
+const gitBlobSha1 = (buf) =>
+  createHash("sha1").update(`blob ${buf.length}\0`).update(buf).digest("hex");
 const ENV = { GIT_AUTHOR_NAME: "t", GIT_AUTHOR_EMAIL: "t@e.com", GIT_COMMITTER_NAME: "t", GIT_COMMITTER_EMAIL: "t@e.com" };
 
 let passed = 0;
-let redProofSkipped = false;
+let bailed = null;
 const failures = [];
+// A proof that cannot run is not a proof that passed. bail() stops the file
+// rather than letting the remaining scenarios accumulate a healthy-looking count.
+const bail = (msg) => { const e = new Error(msg); e.guardBail = true; throw e; };
 const check = (n, c, d) => { if (c) passed += 1; else failures.push(`${n}: ${d}`); };
 
 const git = (cwd, args, { allowFail = false } = {}) => {
@@ -94,10 +117,22 @@ try {
   };
 
   // ---- 1. RED PROOF against the pre-fix source ----
-  let preFix = null;
-  try { preFix = execFileSync("git", ["show", `${PRE_FIX_SHA}:scripts/safe-force-push.sh`], { cwd: process.cwd(), encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }); }
-  catch { preFix = null; }
-  if (preFix) {
+  // Read from the committed fixture, never from git history: this must run
+  // identically on a full clone, a shallow merge-gate checkout, and Vercel.
+  let preFixBuf = null;
+  try { preFixBuf = readFileSync(PRE_FIX_FIXTURE); } catch (e) { preFixBuf = null; }
+  check("the pre-fix fixture is present", preFixBuf !== null,
+    `${PRE_FIX_FIXTURE} is missing — the RED proof has nothing to run against, and a red proof that cannot run is not a passing test`);
+  if (preFixBuf === null) bail(`the pre-fix fixture ${PRE_FIX_FIXTURE} is missing, so the RED proof cannot run at all. Restore it from ${PRE_FIX_SHA}:scripts/safe-force-push.sh.`);
+
+  const fixtureBlob = gitBlobSha1(preFixBuf);
+  check("the fixture is byte-identical to the source merged at " + PRE_FIX_SHA,
+    fixtureBlob === PRE_FIX_BLOB,
+    `blob ${fixtureBlob} != pinned ${PRE_FIX_BLOB} — the fixture was edited, so it no longer proves anything about what shipped`);
+  if (fixtureBlob !== PRE_FIX_BLOB) bail(`the pre-fix fixture no longer matches the source merged at ${PRE_FIX_SHA} (blob ${fixtureBlob}, pinned ${PRE_FIX_BLOB}). An edited fixture proves nothing about what shipped.`);
+
+  const preFix = preFixBuf.toString("utf8");
+  {
     const f = join(root, "prefix.sh"); writeFileSync(f, preFix);
     const w = world(f);
     w.laneARewrites();
@@ -105,7 +140,7 @@ try {
     const r = runScript(w.a, w.scriptPath, ["shared"], { breakFetch: true });
     check("RED: the pre-fix script reported success", r.code === 0 && /safe-force-push: OK/.test(r.out), `exit ${r.code}: ${r.out.trim().slice(-300)}`);
     check("RED: and destroyed lane B's commit", w.remoteNow() !== bSha, "lane B survived — the fail-open no longer reproduces, so this proof is stale");
-  } else { redProofSkipped = true; }
+  }
 
   // ---- 2. the shipped script refuses the same scenario ----
   {
@@ -178,10 +213,7 @@ try {
   // MATCH, before it is asserted to be absent from the shipped script.
   {
     const shipped = execFileSync("cat", [SHIPPED], { encoding: "utf8" });
-    const BAD = preFix || [
-      'git fetch --no-tags origin "+refs/heads/$BRANCH:refs/remotes/origin/$BRANCH" >/dev/null 2>&1 || true',
-      'LOST="$(git rev-list --no-merges "$LOCAL_HEAD..$REMOTE_HEAD" 2>/dev/null || echo "")"',
-    ].join("\n");
+    const BAD = preFix;
 
     check("POSITIVE CONTROL: the swallowed-fetch probe matches the real defect",
       /git fetch[^\n]*\|\|\s*true/.test('git fetch --no-tags origin "+refs/heads/$B:refs/remotes/origin/$B" >/dev/null 2>&1 || true'),
@@ -203,12 +235,29 @@ try {
     check("the shipped script counts merge commits as loss",
       !/rev-list --no-merges/.test(shipped), "`--no-merges` is back in the loss count");
   }
+} catch (e) {
+  if (!e || !e.guardBail) throw e;
+  bailed = e.message;
 } finally { rmSync(root, { recursive: true, force: true }); }
+
+if (bailed) {
+  console.error("test-safe-force-push: FAIL — the red proof could not run.");
+  console.error(`  ${bailed}`);
+  for (const f of failures) console.error(`  ${f}`);
+  process.exit(1);
+}
 
 if (failures.length) {
   console.error("test-safe-force-push: FAIL");
   for (const f of failures) console.error(`  ${f}`);
   process.exit(1);
 }
-const red = redProofSkipped ? `pre-fix source at ${PRE_FIX_SHA} unreachable here, red proof skipped` : "pre-fix source red-proved destroying a lane's commit while reporting OK";
-console.log(`test-safe-force-push: OK — ${passed} assertions (${red}; failed fetch, unreadable history and remote-only merge commits all now fail closed; clean rewrite, reviewed --accept-loss, and the main refusal all still hold)`);
+// A count floor, so this file can never again report OK with its central proof
+// quietly absent. If assertions are added, raise this deliberately.
+const EXPECTED = 23;
+if (passed !== EXPECTED) {
+  console.error(`test-safe-force-push: FAIL — ran ${passed} assertions, expected exactly ${EXPECTED}.`);
+  console.error("  A different count means a proof was skipped or added without review. Neither may pass silently.");
+  process.exit(1);
+}
+console.log(`test-safe-force-push: OK — ${passed} assertions (pre-fix source, pinned at blob ${PRE_FIX_BLOB.slice(0, 12)} and read from a committed fixture so it runs on shallow checkouts too, red-proved destroying a lane's commit while reporting OK; failed fetch, unreadable history and remote-only merge commits all now fail closed; clean rewrite, reviewed --accept-loss, and the main refusal all still hold)`);
