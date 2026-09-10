@@ -192,6 +192,22 @@
   object-fit: cover;
 }
 
+.photoFallback {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: #b9c3ce;
+  font-family: var(--wf-display), Georgia, serif;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  text-align: center;
+  background:
+    radial-gradient(circle at 78% 18%, rgba(246, 163, 108, 0.12), transparent 34%),
+    linear-gradient(145deg, #151d27, #0c121a);
+}
+
 .caption {
   display: flex;
   flex-wrap: wrap;
@@ -201,6 +217,10 @@
   color: #8793a4;
   font-size: 10.5px;
   line-height: 1.45;
+}
+
+.figure:has([data-guide-photo-fallback]) .caption {
+  display: none;
 }
 
 .credit {
