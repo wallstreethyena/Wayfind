@@ -583,5 +583,13 @@
       "detail": "The photos ledger is already exhausted at 950/950 for September with 10,028 cached photo URIs expiring 2026-09-25..2026-10-04; if the free-photo check in authorizeSpend regressed to a no-op, every one of those places would silently fall back to spending (or being denied) a paid Google grant instead of serving the photo Wayfind already owns for free, undetectable from the served image alone."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/check-pinned-offer-serveable.mjs": {
+    "protects": "A founder-pinned partner product cannot paint a Book CTA unless the catalogue still carries it and has not proven it dead \u2014 with UNKNOWN (never probed, 403, timeout) explicitly NOT counted as dead.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "Hermetic by design and therefore blind to the live catalogue: the shipped client render path has no catalogue in scope, so this guard enforces the RECORDED verdict (RETIRED_VIATOR_PINS). A pin that dies in wf_experiences after today is caught by check-inventory-integrity's credentialed sweep, not here. If that sweep is removed or stops running with credentials, this file degrades into checking a cache nobody invalidates."
+    },
+    "owner": "Revenue QA"
   }
 }

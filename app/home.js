@@ -5,6 +5,7 @@ import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks";
 import { fallCardClass, fallShareLine } from "../lib/fallSkin.js";
 import { siteTodayStr } from "../lib/siteTime";
+import { activeSeasonalMark } from "../lib/seasonalBrand";
 import { lunchRevealCookieValue, lunchRevealCount, lunchRevealLimit } from "../lib/lunchReveal";
 import { intentRadiusMi, intentScopeLabel } from "../lib/momentIntents";
 import { MAP_DEFAULT_CATEGORY } from "../lib/mapExplorer";
@@ -297,7 +298,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.56.15";
+const BUILD_ID = "v8.56.16";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -2054,7 +2055,15 @@ function AreaInsight({ metro, cat, town, center, onFind, onLog = NOLOG }) {
         <div style={{ padding: "19px 20px 21px", borderTop: "1px solid rgba(255,255,255,.07)" }}>
           <div style={{ marginBottom: 11, color: "#7F8C9B", fontSize: 9.5, fontWeight: 900, letterSpacing: ".17em", textTransform: "uppercase" }}>What locals know</div>
           {visibleItems.map((x, i) => {
-            const book = x.viatorUrl ? Aff.viatorDirectUrl(x.viatorUrl) : null;
+            // 2026-09-10 (affiliate deep-link audit, owner P0): this was
+            // Aff.viatorDirectUrl(), which renders a LIVE monetized viator.com
+            // href straight into crawlable DOM — every click bypassed
+            // /api/viator/go, so there was no provider_redirect_started, no
+            // server record, and any JS-rendering crawler "clicked" it. Same
+            // destination and same attribution (the route re-applies
+            // withViatorTracking), but the handoff is ours and can fail closed.
+            // /culture/[metro] and /guides/[slug] already do exactly this.
+            const book = x.viatorUrl ? Aff.viatorProductGoUrl(x.viatorUrl, cTitle, "culture", "culture_local_guide") : null;
             const body = book ? <>{x.story} <a href={book} target="_blank" rel="noreferrer" onClick={(e) => { e.stopPropagation(); e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || book; try { onLog("culture_book", null, { metro, q: x.name }); } catch (er) {} openExternal(_live); }} style={{ color: "#59DDBB", fontWeight: 850, textDecoration: "none" }}>Book ↗</a></> : x.story;
             return featureRow(String(i + 1).padStart(2, "0"), x.name, body, "#FF9B4B", (e) => { e.stopPropagation(); try { onLog("insight_find", null, { metro, q: x.name }); } catch (er) {} onFind && onFind(x.query || x.name); }, "item-" + i);
           })}
@@ -4426,7 +4435,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // built from data already loaded. No new fetching, no new card systems.
   const intentCtx = () => condCtxFromNow(nowContext({ weather }));
   const intentPool = () => dedupePlaces([...(suggested || []), ...(places || []), ...(homeTodo || [])].filter(Boolean), true);
-  const openRainy = () => { const list = Ranking.rankByConditions(intentPool().filter((pp) => { try { return Ranking.venueLean(pp).lean === "indoor"; } catch { return false; } }), intentCtx()).slice(0, 10); setCuisineSheet({ title: "Rainy-day picks", sub: "Indoor spots that hold up, ranked for right now.", label: "rainy day", list }); };
   const [top10Open, setTop10Open] = useState(false);
   const [food10Open, setFood10Open] = useState(false);
   const [debugOn, setDebugOn] = useState(false);
@@ -9403,7 +9411,21 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             {/* THE LOGO (owner, 2026-07-22): the OFFICIAL asset, not a text lookalike.
                 Allowed here because the header background IS the logo's baked
                 #040810 — the one placement the brand rule sanctions in-app. */}
-            <div className="wf-wordmark" role="img" aria-label="wayfind" onClick={openSuggested}>
+            {/* v9 seasonal (lib/seasonalBrand.js): the mark is normally a
+                TWO-SLICE sprite (.wf-wordmark-text + .wf-wordmark-pin, see
+                WF_LAYOUT_CSS) because the normal asset has clean empty columns
+                to cut between the word and the pin. The Halloween asset does
+                NOT — the web physically connects pin to wordmark and the hat
+                spans both — so slicing it would cut the art. `.is-seasonal`
+                (added by app/components/css.js) hides the pin slice and gives
+                the text slice the whole image instead of a crop. Resolved
+                inline, same pattern as siteTodayStr() elsewhere in this file
+                (e.g. fallCardClass(..., siteTodayStr()) a few hundred lines
+                down): a plain function call at render time, not a hook — so
+                server and client agree on the same venue-local (ET) day
+                because both read the same wall-clock instant through
+                Intl/America-New-York, not the runtime's own default zone. */}
+            <div className={`wf-wordmark${activeSeasonalMark() ? " is-seasonal" : ""}`} role="img" aria-label="wayfind" onClick={openSuggested}>
               <span className="wf-wordmark-text" aria-hidden="true" />
               <span className="wf-wordmark-pin" aria-hidden="true" />
             </div>
@@ -9417,6 +9439,15 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                 "Parrish, FL" is a SHORT name — "St. Petersburg, FL" needs 118px.
                 A variable-length city cannot share this row, so it gets its own
                 (see below) where any name fits. Locked by check-home-location. */}
+            {/* WIDTH SAFETY for the seasonal mark (v9, lib/seasonalBrand.js):
+                the fixed 154px above is the NORMAL two-slice sprite's total
+                footprint (117.4px text + 5px gap + 31.65px pin, mobile). The
+                Halloween mark is ONE slice at 147.4px total (see
+                app/components/css.js's `.is-seasonal` rule) — 6.6px NARROWER
+                than the 154px this comment already measured against weather
+                (71px) and Sign in (86px), both flex-shrink:0. So the seasonal
+                mark cannot re-open the clipping this comment describes; it
+                only ever gives the row back space. */}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
             {weather && (weather.feels != null || weather.temp != null) && (
@@ -10165,35 +10196,29 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   opposite direction, which is the same defect
                   scripts/test-first-screen.mjs was written for.
 
-                  What survives is the honest zero-events fallback below: it
-                  was never the deck, and it offers something the rail cannot —
-                  an alternative intent when tonight is empty.
+                  AND THE ZERO-EVENTS FALLBACK IS GONE TOO (owner, 2026-09-09).
+                  It used to live here: a card reading "Nothing strong tonight
+                  nearby" over three intent chips (Date night / Rainy day /
+                  Hidden gems). The owner asked for it off the main page, and
+                  nothing is lost by it — Date night and Hidden gems are two of
+                  the fifteen cards in <DaypartRail> at the top of this column,
+                  and "it's raining (or too hot)" is a vibe chip in the picker
+                  (VIBES, `rainy`, which sets spec.indoorOnly). So the reader
+                  with an empty night still has those doors; what they no longer
+                  get is a card announcing the emptiness above them.
+
+                  scripts/test-first-screen.mjs asserted this block's presence
+                  for two releases and now asserts its ABSENCE, so it cannot
+                  drift back in unnoticed. `openRainy` went with it — that card
+                  was its only caller, and lib/categories.js's
+                  `{ id: "rainy", act: { type: "sheet", sheet: "rainy" } }` is
+                  not wired to anything (no reader of `act.sheet` exists), so
+                  keeping the helper would have left a function nothing could
+                  reach.
 
                   Every legacy *_hero_open event still fires from the rail
                   (lib/dayparts.js LEGACY_HERO_EVENT) for one release, so no
                   dashboard flatlines at cutover. */}
-              {!browseCat && Array.isArray(foryouEvents) && foryouEvents.length === 0 && (
-                <div style={{ marginBottom: 10, boxSizing: "border-box" }}>
-                  {/* v8: no minHeight here any more. EV_SECTION_MIN_H reserved
-                      248px for the promo deck this block used to sit above;
-                      with the deck gone that reserve is 248px of empty column —
-                      the same class of defect (a reserve that does not match
-                      what renders) that scripts/test-first-screen.mjs exists to
-                      catch, just pointing the other way. This block is a card
-                      and three chips, and it reserves itself. */}
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Events near you</div>
-                  </div>
-                  <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "12px 15px" }}>
-                    <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Nothing strong tonight nearby. Try one of these instead.</div>
-                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                      <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Date night", src: "events_empty" }); } catch (e) {} openExperience("romantic"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.adim, border: `1px solid ${C.accent}`, color: C.accent, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Date night</button>
-                      <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Rainy day", src: "events_empty" }); } catch (e) {} openRainy(); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Rainy day</button>
-                      <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Hidden gems", src: "events_empty" }); } catch (e) {} openExperience("gem"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Hidden gems</button>
-                    </div>
-                  </div>
-                </div>
-              )}
                       {!browseCat && <HomeAffiliateActivityRail
                         items={homeAffiliateItems}
                         contentId={cityNow}
@@ -10979,8 +11004,10 @@ function SwipeRow({ children, onDelete }) {
 // /api/experiences — a DB read, so the distance rungs reach 90/120mi with NO
 // per-mile Google Places cost (unlike the place-search radius, which stays 60mi
 // to protect against the Places bill). Ships DARK (renders null) until the
-// migration + cron populate the table. Every card href is pid-wrapped through
-// lib/affiliates.viatorDirectUrl, and the section carries the FTC commission
+// migration + cron populate the table. Every card href goes through our own
+// /api/viator/go via lib/affiliates.viatorProductGoUrl (2026-09-10 — it used to
+// be viatorDirectUrl, i.e. a live partner href in crawlable DOM), and the
+// section carries the FTC commission
 // disclosure proximate to the earning cards — test-experiences-v3 locks both.
 // Default 30mi = the user's home market only (honest "near you"); the rungs
 // widen EXPLICITLY (60→90→120 reaches Orlando from Sarasota). Every card also
@@ -11059,7 +11086,12 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 10 }}>
           {st.items.map((t) => {
-            const href = Aff.viatorDirectUrl(t.url);
+            // 2026-09-10 (affiliate deep-link audit, owner P0): was
+            // Aff.viatorDirectUrl(t.url) — a raw monetized partner href in the
+            // DOM. Routed through our own redirect for the same reasons as the
+            // culture rail above. Null still means UNATTRIBUTABLE, so the row
+            // suppression immediately below is unchanged.
+            const href = Aff.viatorProductGoUrl(t.url, t.city, cat, "exp_rail");
             // v6.79 (AGENTS.md §6b): null means UNATTRIBUTABLE, so suppress the row entirely. Rendering <a> with href={null} would be a dead link that looks clickable — worse than the untracked one it replaced.
             if (!href) return null;
             return (
@@ -11093,7 +11125,8 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
 // v6.56 (owner): the PERMANENT bookable-experiences rail on Things to do —
 // "All" shows top trending; each sub-menu shows experiences themed to it
 // (lib/experiencesData catalog keys). Every href is affiliate-wrapped via
-// viatorDirectUrl (the ONE tracking builder). Fails soft to no rail.
+// viatorProductGoUrl — our own /api/viator/go, which re-applies the ONE
+// tracking builder server-side. Fails soft to no rail.
 // 2026-08-02 — the chip -> inventory decision moved OUT of this file into
 // lib/browseCommerceMap.js, so a guard can import and CALL it instead of
 // regexing a literal out of a 9,500-line client component. See that file for

@@ -166,7 +166,10 @@ ok(!/["'`][^"'`]*\.(png|jpe?g|webp)["'`]/.test(og), "no static file may stand in
   const rep = readFileSync(new URL("../app/components/RankedExperiencePage.js", import.meta.url), "utf8");
   const editorialHero = readFileSync(new URL("../app/components/EditorialLandingHero.js", import.meta.url), "utf8");
   ok(/backControl=\{topLeft\}/.test(rep), "RankedExperiencePage no longer forwards the back control to its editorial hero");
-  ok(editorialHero.includes("backControl || (") && editorialHero.includes("/brand/wayfind-wordmark-transparent-v2.png"), "editorial hero lost the back-control slot or official Wayfind logo");
+  // v9 (lib/seasonalBrand.js): the raw path became a resolver call
+  // (`src={seasonalWordmark.png}`) so the mark can go seasonal; accept either
+  // form as proof the official logo (never a lookalike) still renders here.
+  ok(editorialHero.includes("backControl || (") && (editorialHero.includes("/brand/wayfind-wordmark-transparent-v2.png") || editorialHero.includes("src={seasonalWordmark.png}")), "editorial hero lost the back-control slot or official Wayfind logo");
   const icx = readFileSync(new URL("../app/components/IntentPageClient.js", import.meta.url), "utf8");
   ok(icx.includes('topLeft={<BackControl fallback="/" variant="editorial" />}'), "family/date-night lost their back button");
 }

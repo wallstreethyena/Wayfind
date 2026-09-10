@@ -88,6 +88,42 @@ Five rules, each bought with a real outage or leak that day. Do not relearn them
   `git status` shows **only your own files** before you commit.
 - Leave the other session's branches/worktrees alone.
 
+### Force-pushing a shared branch is a compare-and-swap, or it is data loss (2026-09-09)
+
+**`git push --force-with-lease` with no explicit value does NOT protect you.** The bare
+lease compares against your own remote-tracking ref, so the moment you `git fetch` — which
+every careful lane does before rebasing — the lease silently absorbs the other lane's
+commits and the force push deletes them without a warning.
+
+That is not theory. On 2026-09-09 a lane force-pushed PR #1221 exactly this way and
+destroyed `be96edfc`, four housekeeping commits another lane had pushed to the same branch
+minutes earlier. Recovered to `rescue/1221-be96edfc` only because someone went looking; git
+reported nothing but `(forced update)`. Reproduced mechanically since: fetch, bare lease,
+push — the other lane's commit is simply gone from the remote.
+
+**Owner's rule, verbatim:** *"No agent may force-push a shared PR branch unless it has
+fetched that exact remote branch immediately beforehand and the push is conditional on the
+exact SHA it just observed."*
+
+So the lease is always pinned to a SHA you read seconds ago, never left implicit:
+
+```
+REMOTE_HEAD="$(git ls-remote origin refs/heads/<branch> | awk '{print $1}')"
+git push --force-with-lease=refs/heads/<branch>:$REMOTE_HEAD origin HEAD:<branch>
+```
+
+Use **`scripts/safe-force-push.sh <branch>`** rather than retyping it. It fetches that one
+branch, pins the lease to what it just observed, lists anything the push would destroy, and
+**refuses** when that list is non-empty unless you pass `--accept-loss <the exact SHA it
+just showed you>` — so discarding another lane's work becomes a deliberate act naming the
+thing being discarded, not a side effect. It also refuses `main` outright.
+
+**And the rule that makes force-pushing rare: ONE LANE OWNS ONE REMOTE BRANCH.** Two lanes
+pushing one branch is the condition that turns a routine rebase into a race. If you need to
+build on another lane's branch, branch off it — a second branch costs nothing and a lost
+commit costs an audit cycle. Keep a `rescue/<branch>-<sha8>` branch alive until the PR it
+came from is settled.
+
 ### Every lane sets its own git identity (2026-07-30, owner directive)
 
 **Authorship questions get answered by `git log --format='%an'`, never from memory.**

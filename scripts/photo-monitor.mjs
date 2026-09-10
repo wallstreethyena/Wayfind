@@ -50,7 +50,7 @@
 // queue rows — never a crash. A red canary here always means the instrument
 // failed, never that the world looked bad (spec §4, risk 13).
 import { recordPulse } from "../lib/jobPulse.js";
-import { classifyProbe, computeBreach, isSampleDegraded, mergeQueueUpsert, openGrowthRatio, parseOpenTotal, pulseVerdict } from "../lib/photoCoverage.js";
+import { allowanceFromLedger, classifyProbe, computeBreach, isSampleDegraded, mergeQueueUpsert, openGrowthRatio, parseOpenTotal, pulseVerdict } from "../lib/photoCoverage.js";
 
 const DEFAULT_BASE_URL = "https://www.gowayfind.com";
 // RL_LIMIT in lib/apiGuard.js is 120 requests / 60s per IP, best-effort, per
@@ -296,8 +296,28 @@ export function summarize(probeResults) {
 // (spend-restricted vs source-unavailable) — it never consults the queue
 // row's existing failure_reason, so this initial label is corrected within
 // one drain cycle regardless of which of the two it starts as.
-export function queueCandidates(probeResults) {
+//
+// COLD CACHE vs A DEFECT (2026-09-09). Production measured opened_24h=549
+// against recovered_24h=5, the queue growing 233 -> 544 in five hours toward
+// an eventual ~15,000 — because every probe-no-spend miss was queued
+// unconditionally. But a probe takes no ledger grant BY DESIGN: with the
+// ledger showing headroom, a real reader hitting the same ref gets a real
+// Google photo, so that row records "the cache is cold here", not "a reader
+// cannot get a photo". `headroom` (from allowanceFromLedger, read once per
+// run — see readPhotosAllowance) decides only the probe-no-spend/spend-denied
+// pair:
+//   - headroom > 0 (measured)  -> COLD. Not a defect. Counted, not queued.
+//   - headroom === 0 (measured, exhausted) -> queued, exactly as before.
+//   - headroom === null (phase "unknown" — an unreadable ledger) -> queued.
+//     Fail TOWARD recording the defect, never toward silently dropping it
+//     (AGENTS.md §5's corollary) — an unmeasured ledger must never be read
+//     as "must be fine".
+// no-source, owned-miss (and stale-reference, which only the repair worker
+// ever classifies) are ALWAYS queued regardless of headroom — those are
+// defects about the place, not about whether this probe declined to spend.
+export function queueCandidates(probeResults, { headroom = null } = {}) {
   const out = [];
+  let cold = 0;
   for (const pr of Array.isArray(probeResults) ? probeResults : []) {
     for (const s of (pr && pr.surfaces) || []) {
       const reason = s.resultHeader || s.verdict;
@@ -306,11 +326,15 @@ export function queueCandidates(probeResults) {
       else if (s.verdict === "miss" && (reason === "probe-no-spend" || reason === "spend-denied")) failureReason = "source-unavailable";
       else if (s.verdict === "miss" && reason === "owned-miss") failureReason = "owned-miss";
       if (!failureReason) continue;
+      if (failureReason === "source-unavailable" && typeof headroom === "number" && headroom > 0) {
+        cold++;
+        break; // cold, not queued — but still one verdict per place per run
+      }
       out.push({ placeId: pr.placeId, currentRef: pr.photoRef, failureReason });
       break; // one queue row per place per run, whichever surface found the problem first
     }
   }
-  return out;
+  return { candidates: out, cold };
 }
 
 async function pool(items, limit, worker) {
@@ -345,6 +369,59 @@ function sbEnvHere() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!raw || !key) return null;
   return { url: /^https?:\/\//i.test(raw) ? raw.replace(/^http:\/\//i, "https://") : "https://" + raw, key };
+}
+
+// COLD CACHE IS NOT A DEFECT (2026-09-09). A probe deliberately takes no
+// ledger grant (that is the entire safety property this file's header
+// describes) — so a probe-no-spend/spend-denied miss says only "this probe
+// declined to spend", never "a reader cannot get a photo". When the photos
+// ledger has real headroom, a REAL reader hitting that same ref gets a real
+// Google photo; queuing that row as source-unavailable files a cold cache as
+// a defect. Read the ledger via a PLAIN PostgREST fetch — the exact shape
+// lib/photoRepair.js's own readPhotosAllowanceRaw already uses — ONCE per
+// run, and translate it through allowanceFromLedger for the same
+// phase/headroom contract runRepair() already relies on. This function must
+// NEVER import lib/spendGate.js and must NEVER contain the literal string
+// "places.googleapis.com" — case 5 of scripts/test-photo-protection.mjs
+// greps this whole file for both, and a live network call here would be a
+// spend path this monitor is built to never have.
+//
+// THE OCTOBER 1ST FIX (2026-09-09). wf_spend_take creates the month's
+// wf_spend_ledger row lazily, on the FIRST GRANT of that month — so right
+// after a monthly rollover (measured: 00:50 UTC on the 1st) a PostgREST 200
+// with a genuinely EMPTY `rows` array is the correct read of "nothing spent
+// yet", not a failed read. That used to collapse into the SAME
+// allowanceFromLedger({}) call as a thrown fetch or a non-2xx response,
+// which made it phase:"unknown" — and this file's own queueCandidates()
+// treats unknown as "queue everything", which filed ~460 healthy cold-cache
+// probes as source-unavailable defects in one run and paged the owner over
+// a healthy site. The three cases are now kept apart explicitly:
+//   - r.ok with rows.length === 0  -> allowanceFromLedger({ rowPresent:
+//     false }) — a real "free" reading, used=0 against the operating cap.
+//   - !r.ok, a malformed (non-array) body, or a thrown fetch/parse -> the
+//     original allowanceFromLedger({}) — genuinely unreadable, phase
+//     "unknown", exactly as before.
+export async function readPhotosAllowance(s) {
+  const month = new Date().toISOString().slice(0, 7);
+  try {
+    const r = await fetch(
+      `${s.url}/rest/v1/wf_spend_ledger?month=eq.${encodeURIComponent(month)}&sku=eq.photos&select=used,cap`,
+      { headers: { apikey: s.key, Authorization: "Bearer " + s.key }, cache: "no-store" }
+    );
+    if (!r.ok) return allowanceFromLedger({});
+    const rows = await r.json();
+    if (!Array.isArray(rows)) return allowanceFromLedger({}); // malformed body — unreadable, not absent
+    if (rows.length === 0) return allowanceFromLedger({ rowPresent: false }); // 2xx, no row yet this month
+    const row = rows[0];
+    return allowanceFromLedger({ used: row && row.used, cap: row && row.cap });
+  } catch {
+    // A thrown fetch or a JSON parse failure is genuinely unreadable — the
+    // same allowanceFromLedger phase:"unknown" contract as a non-2xx
+    // response, never the same as a confirmed-empty row array above. See
+    // queueCandidates' headroom handling below: unknown must never
+    // manufacture a "cold" verdict, only a measured headroom>0 can.
+    return allowanceFromLedger({});
+  }
 }
 
 // One paged read of the active inventory this monitor is allowed to sample
@@ -612,7 +689,12 @@ async function main() {
   });
 
   const summary = summarize(probeResults);
-  const candidates = queueCandidates(probeResults);
+  // Read ONCE per run — a plain PostgREST fetch, never lib/spendGate.js, never
+  // a call to Google (see readPhotosAllowance's own header) — and thread the
+  // measured headroom into queueCandidates so a cold cache (real headroom,
+  // this probe simply declined to spend) is counted, not filed as a defect.
+  const allowance = await readPhotosAllowance(s);
+  const { candidates, cold } = queueCandidates(probeResults, { headroom: allowance.headroom });
   // "unconfigured" is a config outage, not a place defect — never queued
   // (see queueCandidates' header), but still worth surfacing on its own.
   const configOutages = summary.byReason.unconfigured || 0;
@@ -634,12 +716,16 @@ async function main() {
   let renderCheck = null;
   if (args.pages) renderCheck = await renderedPlaceholderRate(args.baseUrl);
 
-  // RUN-OVER-RUN, NOT RUN-VERSUS-TOTAL. The previous run's open TOTAL comes
-  // from its own pulse note (`open=<n>`), read back here — the queue itself
-  // only ever knows "now", so without that breadcrumb there is no baseline to
-  // compare against and the growth condition can only ever be a guess. Both
-  // reads happen BEFORE the verdict so the same `recentPulses` serves both.
-  // Both reads are fail-soft (empty/null) if the queue is unavailable.
+  // RUN-OVER-RUN, NOT RUN-VERSUS-TOTAL, AND OVER THE QUEUED SET ONLY. The
+  // previous run's open TOTAL comes from its own pulse note (`open=<n>`),
+  // read back here — the queue itself only ever knows "now", so without that
+  // breadcrumb there is no baseline to compare against and the growth
+  // condition can only ever be a guess. Both reads happen BEFORE the verdict
+  // so the same `recentPulses` serves both. Both reads are fail-soft
+  // (empty/null) if the queue is unavailable. currentOpenCount reads
+  // wf_photo_repair_queue itself, which a cold probe (see queueCandidates
+  // above) never writes to — so this growth ratio already reflects only
+  // genuine defects, never coldness, with no separate filtering needed here.
   const recentPulses = await lastPhotoMonitorPulses(s, 6);
   const openTotal = await currentOpenCount(s);
   const previousOpenTotal = parseOpenTotal(recentPulses[0] && recentPulses[0].note);
@@ -671,8 +757,10 @@ async function main() {
   const pct = Math.round(summary.placeholderRate * 100);
   const noteBits = [`placeholder-rate ${pct}% of ${summary.sampled} probes`];
   // `open=<total>` is the breadcrumb the NEXT run parses for its baseline —
-  // keep the literal shape parseOpenTotal reads.
+  // keep the literal shape parseOpenTotal reads. Its "+N this run" is the
+  // QUEUED count only (candidates.length), never cold probes.
   if (openTotal != null) noteBits.push(`open=${openTotal} (+${candidates.length} this run)`);
+  if (cold > 0) noteBits.push(`cold=${cold}`);
   if (queueUnavailable) noteBits.push("queue unavailable");
   if (configOutages > 0) noteBits.push(`config-outage=${configOutages}`);
   if (rateLimitedCount > 0) noteBits.push(`rate-limited=${rateLimitedCount}`);
@@ -694,6 +782,9 @@ async function main() {
     byReason: summary.byReason,
     placeholderRate: summary.placeholderRate,
     configOutages,
+    cold,
+    ledgerPhase: allowance.phase,
+    ledgerHeadroom: allowance.headroom,
     rateLimited: rateLimitedCount,
     sampleDegraded,
     renderedPlaceholderRate: renderCheck && renderCheck.checked ? renderCheck.rate : null,
@@ -716,7 +807,7 @@ async function main() {
   else {
     console.log(`photo-monitor: sampled ${out.sampled} probes across ${out.sampledFrom.cells}/${out.sampledFrom.cellsTotal} cells`);
     console.log(`  real=${summary.byResult.real} compass=${summary.byResult.compass} miss=${summary.byResult.miss} rateLimited=${summary.byResult.rateLimited} error=${summary.byResult.error}`);
-    console.log(`  placeholderRate=${(summary.placeholderRate * 100).toFixed(1)}% queueWrites=${queueWrites} configOutages=${configOutages} sampleDegraded=${sampleDegraded} breach=${breach}`);
+    console.log(`  placeholderRate=${(summary.placeholderRate * 100).toFixed(1)}% queueWrites=${queueWrites} cold=${cold} ledgerPhase=${allowance.phase} configOutages=${configOutages} sampleDegraded=${sampleDegraded} breach=${breach}`);
     if (queueUnavailable) console.log(`  queue: unavailable (${queueErrorMessage})`);
   }
 

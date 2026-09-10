@@ -334,7 +334,7 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
     ["The 30-Minute Break", "Half the break dies deciding. The best quick, counter-serve food near you — already ranked."],
     ["What Should We Do Today?", "Ends the 'I don't know, you pick' spiral: real plans, ranked for right now."],
     ["Places You'd Never Find", "Loved by the few who've found them, missed by the big lists — and near you."],
-    ["Locals Know", "Not a listicle: creators who actually went, matched to places near you."],
+    ["Creators Pick", "Not a listicle: creators who actually went, matched to places near you."],
     ["Tonight's Move", "Plans that fit tonight's hours — not somebody's reheated weekend list."],
     ["Worth the Drive", "An hour in the car has to earn itself. These are the ones that do."],
     ["Events Near You", "Stop finding out the day after: concerts, shows and one-nighters near you."],

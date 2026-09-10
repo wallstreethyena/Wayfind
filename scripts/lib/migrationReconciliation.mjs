@@ -1,3 +1,5 @@
+import crypto from "node:crypto";
+
 const APPLIED_WITHOUT_LEDGER_ENTRY = {
   "20260729_wf_job_pulse.sql": {
     reason: "Ledger entry is named \"wf_job_pulse_spend_watch\" (20260729192501), not this filename.",
@@ -46,13 +48,44 @@ export function parseFileName(f) {
   return m ? { version: m[1], name: m[2] } : null;
 }
 
-// Pure comparator — reconciles one file against a ledger name-set and an
-// object-existence set. Exported shape so the self-test below exercises the
-// EXACT function the real run uses, not a re-implementation of it.
-export function reconcile(file, ledgerNames, objectSet) {
+export function canonicalFileStem(file) {
+  return typeof file === "string" && file.endsWith(".sql") ? file.slice(0, -4) : null;
+}
+
+// wf_migration_ledger_hashes() hashes PostgreSQL to_json(text[])::text. For a
+// Management-API migration sent as one whole SQL file, that is byte-for-byte
+// equivalent to JSON.stringify([sql]) in Node. Keep this helper pure so both
+// the live guard and hermetic red-proofs use the exact same transformation.
+export function migrationStatementArrayHash(statements) {
+  if (!Array.isArray(statements)) return null;
+  return crypto.createHash("sha256").update(JSON.stringify(statements), "utf8").digest("hex");
+}
+
+export function canonicalSingleStatementHash(sql) {
+  return typeof sql === "string" ? migrationStatementArrayHash([sql]) : null;
+}
+
+// Pure comparator — reconciles one file against the actual production ledger
+// and object-existence set. A normal logical-name ledger row keeps the old
+// behavior. A Supabase apply that recorded the WHOLE FILE STEM as `name` is
+// accepted only when its statement-array hash exactly matches this file.
+export function reconcile(file, ledgerRows, objectSet, canonicalHash = null) {
   const parsed = parseFileName(file);
   if (!parsed) return { status: "fail", detail: `filename does not match the <version>_<name>.sql convention — cannot even attempt to reconcile it` };
-  if (ledgerNames.has(parsed.name)) return { status: "ok", via: "ledger" };
+  if (!Array.isArray(ledgerRows)) return { status: "fail", detail: "production ledger is not an array" };
+
+  const logicalRows = ledgerRows.filter((row) => row?.name === parsed.name);
+  if (logicalRows.length) return { status: "ok", via: "ledger" };
+
+  const stem = canonicalFileStem(file);
+  const stemRows = ledgerRows.filter((row) => row?.name === stem);
+  if (stemRows.length) {
+    if (stemRows.length !== 1) return { status: "fail", detail: `filename-stem ledger alias ${stem} appears ${stemRows.length} times — one canonical file cannot prove multiple applies` };
+    if (!/^[a-f0-9]{64}$/.test(canonicalHash || "")) return { status: "fail", detail: `filename-stem ledger alias ${stem} cannot be verified because the canonical statement hash is missing` };
+    if (stemRows[0].statements_sha256 !== canonicalHash) return { status: "fail", detail: `filename-stem ledger alias ${stem} exists but its statement hash does not match the committed migration file` };
+    return { status: "ok", via: "ledger-filename-stem-hash" };
+  }
+
   const allow = APPLIED_WITHOUT_LEDGER_ENTRY[file];
   if (allow) {
     const missing = allow.probes.filter((p) => !objectSet.has(`${p.kind}:${p.name}`));
@@ -62,19 +95,25 @@ export function reconcile(file, ledgerNames, objectSet) {
   return { status: "unresolved" }; // every unresolved file fails
 }
 
-
-// Supabase assigns versions at apply time; canonical files match unique names.
-// Historical exceptions pin the exact version, name and statement-array hash.
-export function reconcileProduction(files, ledger, exceptions) {
-  const errors = [], canonical = new Map(), pins = new Map(), seen = new Set(), names = new Map();
+// Supabase assigns versions at apply time; canonical files normally match
+// unique logical names. Some Management-API callers have historically stored
+// the whole canonical filename stem as `name`; that spelling is accepted only
+// with exact statement-array hash proof. Historical exceptions remain exact
+// version/name/hash pins.
+export function reconcileProduction(files, ledger, exceptions, canonicalHashes = new Map()) {
+  const errors = [], canonical = new Map(), stems = new Map(), pins = new Map(), seen = new Set(), names = new Map(), claimedFiles = new Map();
   for (const file of files) {
     const parsed = parseFileName(file);
     if (!parsed) { errors.push(`invalid migration filename: ${file}`); continue; }
     if (canonical.has(parsed.name)) errors.push(`ambiguous canonical migration: ${parsed.name}`);
     canonical.set(parsed.name, file);
+    const stem = canonicalFileStem(file);
+    if (stems.has(stem)) errors.push(`ambiguous canonical filename stem: ${stem}`);
+    stems.set(stem, file);
   }
   if (!Array.isArray(ledger) || !ledger.length) return {errors: [...errors, 'empty or invalid production ledger']};
   if (!Array.isArray(exceptions)) return {errors: [...errors, 'invalid historical exception manifest']};
+  if (!(canonicalHashes instanceof Map)) return {errors: [...errors, 'invalid canonical migration hash map']};
   for (const pin of exceptions) {
     if (!pin || typeof pin.version !== 'string' || !/^\d{8,14}$/.test(pin.version) || typeof pin.name !== 'string' || !pin.name ||
         !/^[a-f0-9]{64}$/.test(pin.statements_sha256) || typeof pin.reason !== 'string' || !pin.reason.trim() || typeof pin.reviewed_by !== 'string' || !pin.reviewed_by.trim()) {
@@ -84,6 +123,13 @@ export function reconcileProduction(files, ledger, exceptions) {
     pins.set(pin.version, pin);
   }
   for (const row of ledger) names.set(row?.name, (names.get(row?.name) || 0) + 1);
+
+  function claimCanonical(file, row) {
+    const prior = claimedFiles.get(file);
+    if (prior) errors.push(`multiple production migrations map to canonical file ${file}: ${prior} and ${row.version}`);
+    else claimedFiles.set(file, row.version);
+  }
+
   for (const row of ledger) {
     if (!row || typeof row.version !== 'string' || typeof row.name !== 'string' || !/^[a-f0-9]{64}$/.test(row.statements_sha256)) {
       errors.push('invalid production ledger row or missing statement hash'); continue;
@@ -99,7 +145,29 @@ export function reconcileProduction(files, ledger, exceptions) {
       } else if (canonical.has(row.name)) {
         errors.push(`historical exception now has a canonical file: ${row.name}; review and map the exact file`);
       }
-    } else if (!canonical.has(row.name) || names.get(row.name) !== 1) errors.push(`unreviewed production migration: ${row.version} / ${row.name}`);
+      continue;
+    }
+
+    const logicalFile = canonical.get(row.name);
+    if (logicalFile && names.get(row.name) === 1) {
+      claimCanonical(logicalFile, row);
+      continue;
+    }
+
+    const stemFile = stems.get(row.name);
+    if (stemFile && names.get(row.name) === 1) {
+      const expectedHash = canonicalHashes.get(stemFile);
+      if (!/^[a-f0-9]{64}$/.test(expectedHash || "")) {
+        errors.push(`cannot verify filename-stem migration alias: missing canonical statement hash for ${stemFile}`);
+      } else if (expectedHash !== row.statements_sha256) {
+        errors.push(`filename-stem migration alias hash mismatch: ${row.version} / ${row.name}`);
+      } else {
+        claimCanonical(stemFile, row);
+      }
+      continue;
+    }
+
+    errors.push(`unreviewed production migration: ${row.version} / ${row.name}`);
   }
   for (const version of pins.keys()) if (!seen.has(version)) errors.push(`historical exception absent from production: ${version}`);
   return { errors };

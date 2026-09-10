@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs";
 import { isAwinLive } from "../lib/awin.js";
 import { allIntentPartnerPicks, intentPartnerPick, intentPartnerPicks, inventoryPartnerPick, localPartnerQuery, mergePartnerInventory, normalizePartnerCity, partnerInventoryRequest, partnerRailInventory, resolvedIntentPartnerPick, resolvedIntentPartnerPicks } from "../lib/intentPartnerPicks.js";
 import { PARTNER_OFFER_REGISTRY } from "../lib/partnerOfferRegistry.js";
-import { PLACE_PARTNER_PICKS, placePartnerPick } from "../lib/placePartnerPicks.js";
+import { PLACE_PARTNER_PICKS, RETIRED_VIATOR_PINS, pinServeability, placePartnerPick } from "../lib/placePartnerPicks.js";
 import { PARTNER_DEAL_COUPONS } from "../lib/partnerDeals.js";
 import { UT_PLACE_DEAL_IDS } from "../lib/deals.js";
 import { PROVIDERS, resolveOffer } from "../lib/commerceProviders.js";
@@ -180,7 +180,18 @@ ok(/partner\/products\/\$\{encodeURIComponent\(code\)\}/.test(curatedRouteSrc) &
 const placeClientSrc = readFileSync("lib/placePartnerPicks.js", "utf8") + readFileSync("app/components/IconicPlaceCard.js", "utf8");
 ok(!/https?:\/\//.test(placeClientSrc), "landmark hooks contain no raw destination URLs");
 ok(placePartnerPick({ name: "The Dalí Museum" })?.offerId === "tampa-date-dali-museum", "a cultural place resolves to its exact verified product");
-ok(placePartnerPick({ name: "Tampa Riverwalk" })?.offerId === "236733P1", "Tampa Riverwalk resolves to the live mini-boat product that names the Riverwalk");
+// 2026-09-10 CONTAINMENT. 236733P1 (the mini-boat product that named the
+// Riverwalk) is absent from wf_experiences, so this line used to assert that a
+// dead product still painted a Book button — and clicking it resolved
+// offer-not-found and 302'd the customer back to our homepage. The property
+// this assertion has always defended is that the Riverwalk never wears a
+// product which does not name it; null defends that strictly harder than any
+// code could. Re-pointed, not deleted, and paired with the REASON so a row
+// quietly disappearing from PLACE_PARTNER_PICKS cannot pass as containment.
+ok(placePartnerPick({ name: "Tampa Riverwalk" }) === null,
+  "Tampa Riverwalk paints no Book CTA — a missing button beats one that sends the customer home");
+ok(pinServeability({ provider: "viator", offerId: "236733P1" }).reason === "retired-absent-from-catalogue",
+  "…and 236733P1 is refused for the recorded catalogue reason, not by accidental deletion");
 ok(placePartnerPick({ name: "Florida Aquarium Bar" }) === null, "place matching is exact, not a revenue-seeking substring match");
 // v8.22 (owner reversal, 2026-08-19: "it doesn't have to have so many letters
 // — be more concise"): the VISIBLE label is now the short "🎟️ Tickets ·
@@ -199,6 +210,18 @@ ok(/aria-label=\{`Partner tickets for \$\{place\.name\} via \$\{partner\.merchan
   && /Wayfind may earn a commission; rankings never change\./.test(placeClientSrc)
   && /rel="sponsored noopener"/.test(placeClientSrc),
   "global place cards disclose exact partner ticket links: visible label names the merchant + full aria/title disclosure + sponsored rel");
+// This table is the record of what was CONTENT-verified in wf_experiences, so a
+// code the 2026-09-09 audit proved absent must not still read as "live-verified"
+// here — otherwise re-pinning a dead SKU would sail through the assertion below.
+// Derived from RETIRED_VIATOR_PINS rather than retyped, so retiring another pin
+// updates this automatically instead of waiting for someone to remember.
+let retiredDropped = 0;
+for (const r of RETIRED_VIATOR_PINS) {
+  if (VIATOR_PLACE_PRODUCT_CODES[r.offerId] !== undefined) { delete VIATOR_PLACE_PRODUCT_CODES[r.offerId]; retiredDropped++; }
+}
+ok(retiredDropped === RETIRED_VIATOR_PINS.length,
+  `every retired pin was present in the verified-code table and has been dropped from it (${retiredDropped}/${RETIRED_VIATOR_PINS.length}) — a mismatch means the two records have drifted`);
+
 for (const row of PLACE_PARTNER_PICKS) {
   if (row.provider === "undercover_tourist") {
     // UT hooks resolve against wf_deals (table-backed provider, cron

@@ -30,17 +30,19 @@ import {
   classifyProbe,
   computeBreach,
   computePhotoCoverage,
+  computePhotoRunway,
   firstOfNextMonthUTC,
   isSampleDegraded,
   MAX_ATTEMPTS,
   mergeQueueUpsert,
   nextAttemptAt,
   openGrowthRatio,
+  parseAllowanceNote,
   parseOpenTotal,
   pulseVerdict,
 } from "../lib/photoCoverage.js";
-import { createPacer, fetchWithRetry, groupByKeySignature, queueCandidates, sampleCells, summarize, upsertQueueRows } from "./photo-monitor.mjs";
-import { decideRowOutcome, runRepair, statusFor } from "../lib/photoRepair.js";
+import { createPacer, fetchWithRetry, groupByKeySignature, queueCandidates, readPhotosAllowance, sampleCells, summarize, upsertQueueRows } from "./photo-monitor.mjs";
+import { decideRowOutcome, readPhotosAllowanceRaw, runRepair, statusFor } from "../lib/photoRepair.js";
 import { findSamePlaceCachedPhoto } from "../lib/photoCacheRecovery.js";
 import { findFreePhoto } from "../lib/freePhoto.js";
 
@@ -240,6 +242,15 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
     "lib/photoRepair.js",
     "app/api/cron/photo-repair/route.js",
     "app/api/health/photos/route.js",
+    // 2026-09-09: both unattended daily lanes (backfill CLI/cron + its
+    // Commons resolver) previously self-declared "never calls Google" only
+    // in a comment — no structural guard covered either file
+    // (check-promote-spend-gate.mjs only scans app/api/cron/**/route.js;
+    // test-commons-photos.mjs and test-photo-vault-wiring.mjs carry no
+    // no-spend scan at all). Red-proved: importing lib/spendGate.js into
+    // either file turns this case red.
+    "lib/placePhotoBackfill.js",
+    "lib/commonsPhotos.js",
   ]) {
     const raw = readFileSync(new URL("../" + rel, import.meta.url), "utf8");
     ok(!NO_SPEND_RX.test(stripComments(raw)), `case 5: ${rel} must never import lib/spendGate.js or contain the literal string "places.googleapis.com" outside a comment — this is a structural check, not proof the file cannot spend, but a match here is an immediate, certain fail`);
@@ -608,16 +619,27 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
   ok(/queueUnavailable/.test(workerSrc), "case 11: scripts/photo-repair-worker.mjs's CLI must handle runRepair's fail-soft queueUnavailable result and still file a pulse");
 }
 
-// ── case 12 — queue mapping: unconfigured is counted, never queued ─────────
+// ── case 12 — queue mapping: unconfigured is counted, never queued; a cold ──
+// cache (real headroom) is counted, never queued either ────────────────────
 //
-// A probe never asks the ledger, so the monitor has no evidence the ledger is
-// exhausted and must never claim it is — probe-no-spend and spend-denied both
-// map to "source-unavailable", never "spend-restricted" (only
-// lib/photoRepair.js's worker, which actually reads wf_spend_ledger, may
-// conclude that). unconfigured is a config outage, not a place defect, and
-// must never be queued at all — filing 19,852 places because a key rotated
-// would bury genuinely broken places under a false alarm. gate-shut is a
-// global switch and is likewise never queued.
+// A probe never asks the ledger, so the monitor has no evidence on its own
+// whether the ledger is exhausted — probe-no-spend and spend-denied both map
+// to "source-unavailable" (only lib/photoRepair.js's worker, which actually
+// reads wf_spend_ledger, may conclude "spend-restricted"/budget_blocked).
+//
+// 2026-09-09, measured in production: opened_24h=549 against recovered_24h=5,
+// the queue growing 233 -> 544 in five hours toward an eventual ~15,000 —
+// because a probe-no-spend/spend-denied miss was queued unconditionally. But
+// a probe takes no ledger grant BY DESIGN: with real headroom, a REAL reader
+// hitting that same ref gets a real Google photo — the row records "the
+// cache is cold here", not "a reader cannot get a photo", and must not be
+// filed as a defect. unconfigured is a config outage, not a place defect,
+// and must never be queued at all. gate-shut is a global switch and is
+// likewise never queued. no-source/owned-miss are ALWAYS queued regardless
+// of headroom — those are defects, not coldness. An UNREADABLE ledger
+// (headroom: null, allowanceFromLedger's phase:"unknown") must queue
+// everything, same as headroom===0 — fail TOWARD recording the defect,
+// never toward silently dropping it (AGENTS.md §5's corollary).
 {
   const missSurface = (resultHeader) => ({ verdict: "miss", resultHeader });
   const probeResults = [
@@ -629,21 +651,64 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
     { placeId: "P5", photoRef: "places/P5/photos/D", surfaces: [missSurface("gate-shut")] },
     { placeId: "P6", photoRef: "places/P6/photos/E", surfaces: [missSurface("unconfigured")] },
   ];
-  const candidates = queueCandidates(probeResults);
-  const byId = Object.fromEntries(candidates.map((c) => [c.placeId, c]));
 
-  ok(byId.P1 && byId.P1.failureReason === "source-unavailable", `case 12: a probe-no-spend miss must queue as "source-unavailable", NEVER "spend-restricted" — got "${byId.P1 && byId.P1.failureReason}"`);
-  ok(byId.P1b && byId.P1b.failureReason === "source-unavailable", `case 12: a spend-denied miss must queue as "source-unavailable", NEVER "spend-restricted" — got "${byId.P1b && byId.P1b.failureReason}"`);
-  ok(byId.P2 && byId.P2.failureReason === "no-source", `case 12: a no-photo compass -> "no-source", got "${byId.P2 && byId.P2.failureReason}"`);
-  ok(byId.P3 && byId.P3.failureReason === "no-source", `case 12: EVERY no-photo compass -> "no-source" regardless of whether a ref existed, got "${byId.P3 && byId.P3.failureReason}"`);
-  ok(byId.P4 && byId.P4.failureReason === "owned-miss", `case 12: an owned-miss verdict -> "owned-miss", got "${byId.P4 && byId.P4.failureReason}"`);
-  ok(!byId.P5, "case 12: gate-shut must never be queued — it is a global switch, not a per-place defect");
-  ok(!byId.P6, "case 12: unconfigured must never be queued — it is a config outage, not a place defect");
-  ok(candidates.every((c) => c.failureReason !== "spend-restricted"),
-    "case 12: queueCandidates must NEVER emit \"spend-restricted\" itself — only lib/photoRepair.js's worker, which actually reads wf_spend_ledger, may conclude that");
+  // (a) headroom EXHAUSTED (measured 0): every finding still queues, exactly
+  // today's behaviour — the control this whole case used to be.
+  {
+    const { candidates, cold } = queueCandidates(probeResults, { headroom: 0 });
+    const byId = Object.fromEntries(candidates.map((c) => [c.placeId, c]));
+    ok(byId.P1 && byId.P1.failureReason === "source-unavailable", `case 12a: headroom=0 must still queue a probe-no-spend miss as "source-unavailable", got "${byId.P1 && byId.P1.failureReason}"`);
+    ok(byId.P1b && byId.P1b.failureReason === "source-unavailable", `case 12a: headroom=0 must still queue a spend-denied miss as "source-unavailable", got "${byId.P1b && byId.P1b.failureReason}"`);
+    ok(byId.P2 && byId.P2.failureReason === "no-source", `case 12a: a no-photo compass -> "no-source", got "${byId.P2 && byId.P2.failureReason}"`);
+    ok(byId.P3 && byId.P3.failureReason === "no-source", "case 12a: EVERY no-photo compass -> \"no-source\" regardless of whether a ref existed");
+    ok(byId.P4 && byId.P4.failureReason === "owned-miss", `case 12a: an owned-miss verdict -> "owned-miss", got "${byId.P4 && byId.P4.failureReason}"`);
+    ok(!byId.P5, "case 12a: gate-shut must never be queued — it is a global switch, not a per-place defect");
+    ok(!byId.P6, "case 12a: unconfigured must never be queued — it is a config outage, not a place defect");
+    ok(cold === 0, `case 12a: headroom=0 must count zero cold probes, got ${cold}`);
+    ok(candidates.every((c) => c.failureReason !== "spend-restricted"),
+      "case 12a: queueCandidates must NEVER emit \"spend-restricted\" itself — only lib/photoRepair.js's worker, which actually reads wf_spend_ledger, may conclude that");
+  }
+
+  // (b) headroom PRESENT (measured >0): the probe-no-spend/spend-denied pair
+  // is COLD, not a defect — must not queue, but must be counted. Every
+  // other verdict is unaffected by headroom.
+  {
+    const { candidates, cold } = queueCandidates(probeResults, { headroom: 1032 });
+    const byId = Object.fromEntries(candidates.map((c) => [c.placeId, c]));
+    ok(!byId.P1, "case 12b: a probe-no-spend miss with real headroom must NOT be queued — a real reader on this ref gets a real photo");
+    ok(!byId.P1b, "case 12b: a spend-denied miss with real headroom must NOT be queued");
+    ok(cold === 2, `case 12b: both cold misses must be counted, got ${cold}`);
+    ok(byId.P2 && byId.P2.failureReason === "no-source", "case 12b: no-source is queued regardless of headroom — it is a defect, not coldness");
+    ok(byId.P4 && byId.P4.failureReason === "owned-miss", "case 12b: owned-miss is queued regardless of headroom — it is a defect, not coldness");
+    ok(!byId.P5 && !byId.P6, "case 12b: gate-shut/unconfigured stay unqueued regardless of headroom");
+    ok(candidates.length === 3, `case 12b: only the 3 non-cold, non-config/gate findings queue (P2, P3, P4), got ${candidates.length}`);
+  }
+
+  // (c) headroom UNKNOWN (an unreadable ledger, allowanceFromLedger's
+  // phase:"unknown" -> headroom: null): must behave exactly like
+  // headroom=0 — fail toward recording the defect, never toward silently
+  // dropping it because the ledger could not be read.
+  {
+    const { candidates, cold } = queueCandidates(probeResults, { headroom: null });
+    const byId = Object.fromEntries(candidates.map((c) => [c.placeId, c]));
+    ok(byId.P1 && byId.P1.failureReason === "source-unavailable", "case 12c: an UNKNOWN ledger must still queue a probe-no-spend miss — never silently drop a defect because the ledger could not be read");
+    ok(byId.P1b && byId.P1b.failureReason === "source-unavailable", "case 12c: an UNKNOWN ledger must still queue a spend-denied miss");
+    ok(cold === 0, `case 12c: an unknown ledger must count zero cold probes (nothing was withheld), got ${cold}`);
+  }
+
+  // (d) no headroom option passed at all (the historic call shape): defaults
+  // to the same fail-toward-recording behaviour as unknown/0 — a caller that
+  // forgets to pass headroom must never silently start dropping defects.
+  {
+    const { candidates } = queueCandidates(probeResults);
+    const byId = Object.fromEntries(candidates.map((c) => [c.placeId, c]));
+    ok(byId.P1 && byId.P1.failureReason === "source-unavailable", "case 12d: queueCandidates called with no options must still queue a probe-no-spend miss (fail toward recording)");
+  }
 
   const monitorSrc = readFileSync(new URL("./photo-monitor.mjs", import.meta.url), "utf8");
   ok(/configOutages/.test(monitorSrc), "case 12: the monitor must count unconfigured occurrences separately (configOutages) even though they are never queued");
+  ok(/allowanceFromLedger/.test(monitorSrc), "case 12: the monitor must classify its ledger read through allowanceFromLedger — the same phase/headroom contract lib/photoRepair.js's runRepair() already uses");
+  ok(/headroom:\s*allowance\.headroom/.test(monitorSrc), "case 12: the monitor must thread the measured headroom into queueCandidates — dropping this check is exactly what re-files cold cache as a defect");
 }
 
 // ── case 13 — 2026-09-09: a 429 classifies as "rate-limited", never miss/error ─
@@ -976,7 +1041,15 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
 // the inventory lookup, the PATCH) so every case checks against the actual
 // query strings lib/photoRepair.js issues, not a hand-rolled approximation
 // that could drift from them independently.
-function makeQueueFetchStub({ dueOpen = [], blocked = [], refs = {}, patches = [], capturedUrls = [] } = {}) {
+// `ledgerRows` (default: undefined) lets a caller ALSO stub the
+// wf_spend_ledger endpoint, so a test can leave runRepair's readLedger at
+// its REAL default (readPhotosAllowanceRaw) and prove the whole chain —
+// fetch response -> readPhotosAllowanceRaw -> allowanceFromLedger ->
+// release — rather than injecting a fake readLedger that only proves the
+// LATER half of that chain. Every existing caller that omits it (i.e. every
+// caller before case 26) always injects its own `readLedger`, which never
+// reaches fetch at all — so adding this branch changes nothing for them.
+function makeQueueFetchStub({ dueOpen = [], blocked = [], refs = {}, patches = [], capturedUrls = [], ledgerRows } = {}) {
   return async (url, init = {}) => {
     const target = String(url);
     capturedUrls.push(target);
@@ -985,6 +1058,9 @@ function makeQueueFetchStub({ dueOpen = [], blocked = [], refs = {}, patches = [
     }
     if (/wf_photo_repair_queue\?or=\(status\.eq\.budget_blocked/.test(target)) {
       return new Response(JSON.stringify(blocked), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    if (ledgerRows !== undefined && /wf_spend_ledger\?/.test(target)) {
+      return new Response(JSON.stringify(ledgerRows), { status: 200, headers: { "content-type": "application/json" } });
     }
     const invMatch = /wf_inventory\?place_id=eq\.([^&]+)/.exec(target);
     if (invMatch) {
@@ -1430,6 +1506,305 @@ function makeQueueFetchStub({ dueOpen = [], blocked = [], refs = {}, patches = [
     "case 24: the other occurrence must be wasBudgetBlocked()'s equality comparison against a row's EXISTING failure_reason — also a read, never an assignment");
   ok(!/failure_reason\s*:\s*["']spend-restricted["']/.test(repairStripped) && !/status\s*:\s*["']spend-restricted["']/.test(repairStripped),
     "case 24: this file must never WRITE spend-restricted as a failure_reason or status value in any patch body — decideRowOutcome/runRepair only ever produce \"source-unavailable\" now");
+}
+
+// ── case 25 — ONE shared budget across BOTH selects, never two (2026-09-09) ─
+//
+// Production measured: a `--limit=25` run reported attempted=50 (the
+// status=open select and the budget_blocked-eligible select each
+// independently fetched up to `limit` rows and the results were unioned),
+// and one pulse note showed attempted=423. A `?limit=500` cron against this
+// route's 60s ceiling could attempt 1,000 rows, time out mid-batch, and file
+// NO pulse — job-watch then reads a dead run as silence, not failure.
+// budget_blocked fills FIRST (oldest blocked_since — the longest-waiting
+// rows release first), dueOpen tops up whatever budget remains, and the
+// combined total must NEVER exceed `limit` regardless of how many rows
+// either underlying select actually returns.
+{
+  const LIMIT = 10;
+  // 4 budget_blocked rows on the wire — fewer than LIMIT, so there must be
+  // budget left over to top up from open.
+  const blockedRows = Array.from({ length: 4 }, (_, i) => ({
+    place_id: `ChIJBlocked${i}`, current_ref: `places/ChIJBlocked${i}/photos/LIVE`, attempts: 2,
+    status: "budget_blocked", blocked_since: `2026-09-0${i + 1}T00:00:00.000Z`, failure_reason: "source-unavailable",
+  }));
+  // 20 open rows on the wire — more than LIMIT alone, and far more than the
+  // budget actually remaining once 4 of it are spent on blocked rows.
+  const openRows = Array.from({ length: 20 }, (_, i) => ({
+    place_id: `ChIJOpen${i}`, current_ref: `places/ChIJOpen${i}/photos/LIVE`, attempts: 0,
+    status: "open", blocked_since: null, failure_reason: null,
+  }));
+  const refs = {};
+  for (const r of blockedRows) refs[r.place_id] = r.current_ref;
+  for (const r of openRows) refs[r.place_id] = r.current_ref;
+
+  const capturedUrls = [];
+  const savedFetch = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    const target = String(url);
+    capturedUrls.push(target);
+    if (/wf_photo_repair_queue\?status=eq\.open&next_attempt_at/.test(target)) {
+      return new Response(JSON.stringify(openRows), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    if (/wf_photo_repair_queue\?or=\(status\.eq\.budget_blocked/.test(target)) {
+      return new Response(JSON.stringify(blockedRows), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    const invMatch = /wf_inventory\?place_id=eq\.([^&]+)/.exec(target);
+    if (invMatch) {
+      const pid = decodeURIComponent(invMatch[1]);
+      return new Response(JSON.stringify(refs[pid] ? [{ photo_ref: refs[pid] }] : []), { status: 200, headers: { "content-type": "application/json" } });
+    }
+    return new Response(null, { status: 204 }); // every PATCH in this case is a no-op ack
+  };
+  try {
+    const result = await runRepair({
+      limit: LIMIT,
+      sbEnv: { url: "https://ledger.test", key: "test-key" },
+      findSamePlace: async () => null,
+      findFree: async () => null,
+      readLedger: async () => ({ used: 968, cap: 2000 }), // real measured headroom
+    });
+    ok(result.attempted <= LIMIT, `case 25: total attempted must NEVER exceed limit=${LIMIT} across both selects, got ${result.attempted}`);
+    ok(result.attempted === LIMIT, `case 25: with 4 blocked + 20 open on the wire and a shared budget of ${LIMIT}, the drain must fill the whole budget, got ${result.attempted}`);
+    const blockedDetails = result.details.filter((d) => d.placeId.startsWith("ChIJBlocked"));
+    const openDetails = result.details.filter((d) => d.placeId.startsWith("ChIJOpen"));
+    ok(blockedDetails.length === 4, `case 25: all 4 budget_blocked rows must be included — they fill FIRST, got ${blockedDetails.length}`);
+    ok(openDetails.length === 6, `case 25: the remaining budget (10 - 4 = 6) must top up from the open select, got ${openDetails.length}`);
+
+    const openUrl = capturedUrls.find((u) => /status=eq\.open&next_attempt_at/.test(u));
+    const blockedUrl = capturedUrls.find((u) => /or=\(status\.eq\.budget_blocked/.test(u));
+    ok(!!openUrl && !!blockedUrl, "case 25: both selects must actually have been issued");
+    ok(!!openUrl && new RegExp(`limit=${LIMIT}\\b`).test(openUrl), `case 25: the open select must still ask the server for at most limit=${LIMIT} rows, got "${openUrl}"`);
+    ok(!!blockedUrl && new RegExp(`limit=${LIMIT}\\b`).test(blockedUrl), `case 25: the budget_blocked select must still ask the server for at most limit=${LIMIT} rows, got "${blockedUrl}"`);
+  } finally {
+    globalThis.fetch = savedFetch;
+  }
+
+  // A run with NO blocked candidates is unaffected — dueOpen alone, already
+  // bounded to `limit` by its own query, is the answer (case 20/22/23 exercise
+  // this path directly; this is a narrow sanity check that case 25's own
+  // fixture agrees).
+  {
+    const patches = [];
+    const savedFetch2 = globalThis.fetch;
+    globalThis.fetch = makeQueueFetchStub({
+      dueOpen: openRows.slice(0, LIMIT),
+      blocked: [],
+      refs,
+      patches,
+    });
+    try {
+      const result = await runRepair({
+        limit: LIMIT,
+        sbEnv: { url: "https://ledger.test", key: "test-key" },
+        findSamePlace: async () => null,
+        findFree: async () => null,
+        readLedger: async () => { throw new Error("must never be consulted — no blocked candidates means nothing to gate"); },
+      });
+      ok(result.attempted === LIMIT, `case 25 (control): with no blocked candidates, the drain must still process exactly limit=${LIMIT} open rows, got ${result.attempted}`);
+    } finally {
+      globalThis.fetch = savedFetch2;
+    }
+  }
+}
+
+// ── case 26 — THE OCTOBER 1ST FIX: HTTP 2xx + zero rows is an absent, ─────
+// MEASURED "nothing spent" reading, never the same "unknown" bucket as a
+// genuinely unreadable ledger. wf_spend_take creates the month's row lazily
+// on the FIRST GRANT, so right after a monthly rollover a clean 200 with []
+// is the correct, honest shape — and before this fix that collapsed into
+// phase:"unknown", which queueCandidates queues everything on, which paged
+// the owner over a healthy site (scratchpad facts, 2026-09-09).
+{
+  // (a) allowanceFromLedger: rowPresent:false is a REAL free reading.
+  const absent = allowanceFromLedger({ rowPresent: false });
+  ok(absent.phase === "free", `case 26a: allowanceFromLedger({rowPresent:false}) must be phase "free" (HTTP 2xx, zero rows = nothing spent this month), got "${absent.phase}"`);
+  ok(absent.used === 0, `case 26a: an absent-row reading must carry used=0 (a real measurement, not null), got ${absent.used}`);
+  ok(absent.cap === 950 && absent.headroom === 950,
+    `case 26a: an absent row has no cap column to read, so it reads against PHOTOS_OPERATING_FREE_CAP with full headroom — got cap=${absent.cap} headroom=${absent.headroom}`);
+  ok(absent.nearPaid === false, `case 26a: used=0 is nowhere near the paid line — nearPaid must be false, got ${absent.nearPaid}`);
+
+  // (b) lib/photoRepair.js's readPhotosAllowanceRaw — the call site tells
+  // "2xx, zero rows" apart from every genuinely unreadable shape.
+  {
+    const savedFetch = globalThis.fetch;
+    try {
+      globalThis.fetch = async () => new Response(JSON.stringify([]), { status: 200, headers: { "content-type": "application/json" } });
+      const raw = await readPhotosAllowanceRaw({ url: "https://ledger.test", key: "k" });
+      ok(raw && raw.rowPresent === false, `case 26b: readPhotosAllowanceRaw on HTTP 200 + [] must return {rowPresent:false}, got ${JSON.stringify(raw)}`);
+      ok(allowanceFromLedger(raw).phase === "free", 'case 26b: that raw shape must translate to phase "free" through allowanceFromLedger, never "unknown"');
+
+      globalThis.fetch = async () => new Response("server error", { status: 503 });
+      let threw = false;
+      try { await readPhotosAllowanceRaw({ url: "https://ledger.test", key: "k" }); } catch { threw = true; }
+      ok(threw, "case 26b: readPhotosAllowanceRaw must THROW on a non-2xx response, never collapse it into {rowPresent:false}");
+
+      globalThis.fetch = async () => new Response(JSON.stringify({ not: "an array" }), { status: 200, headers: { "content-type": "application/json" } });
+      threw = false;
+      try { await readPhotosAllowanceRaw({ url: "https://ledger.test", key: "k" }); } catch { threw = true; }
+      ok(threw, "case 26b: readPhotosAllowanceRaw must THROW on a malformed (non-array) body, never silently read it as absent");
+
+      globalThis.fetch = async () => { throw new Error("network down"); };
+      threw = false;
+      try { await readPhotosAllowanceRaw({ url: "https://ledger.test", key: "k" }); } catch { threw = true; }
+      ok(threw, "case 26b: readPhotosAllowanceRaw must propagate a thrown fetch, never collapse it into {rowPresent:false}");
+    } finally {
+      globalThis.fetch = savedFetch;
+    }
+  }
+
+  // (c) scripts/photo-monitor.mjs's readPhotosAllowance — same four shapes;
+  // this function never throws (it already catches internally), so the
+  // assertion is on the RETURNED phase, not on whether it threw.
+  {
+    const savedFetch = globalThis.fetch;
+    try {
+      globalThis.fetch = async () => new Response(JSON.stringify([]), { status: 200, headers: { "content-type": "application/json" } });
+      let a = await readPhotosAllowance({ url: "https://ledger.test", key: "k" });
+      ok(a.phase === "free" && a.used === 0 && a.headroom === 950,
+        `case 26c: HTTP 200 + [] must read phase "free", used 0, headroom 950 — got phase=${a.phase} used=${a.used} headroom=${a.headroom}`);
+
+      globalThis.fetch = async () => new Response("server error", { status: 503 });
+      a = await readPhotosAllowance({ url: "https://ledger.test", key: "k" });
+      ok(a.phase === "unknown" && a.used === null && a.cap === null && a.headroom === null,
+        `case 26c: a non-2xx response must read phase "unknown" with every numeric field null — got phase=${a.phase} used=${a.used} cap=${a.cap} headroom=${a.headroom}`);
+
+      globalThis.fetch = async () => { throw new Error("network down"); };
+      a = await readPhotosAllowance({ url: "https://ledger.test", key: "k" });
+      ok(a.phase === "unknown", `case 26c: a thrown fetch must read phase "unknown", got "${a.phase}"`);
+
+      globalThis.fetch = async () => new Response(JSON.stringify({ not: "an array" }), { status: 200, headers: { "content-type": "application/json" } });
+      a = await readPhotosAllowance({ url: "https://ledger.test", key: "k" });
+      ok(a.phase === "unknown", `case 26c: a malformed (non-array) body must read phase "unknown", got "${a.phase}"`);
+    } finally {
+      globalThis.fetch = savedFetch;
+    }
+  }
+
+  // (d) THE ACTUAL SCENARIO — the assertion that would have caught the page.
+  // An absent-row reading must be treated as COLD, never queued, by the
+  // exact function the monitor calls to decide what to file. Before this
+  // fix an absent row read as phase:"unknown" -> headroom:null, and
+  // queueCandidates queues EVERYTHING on an unknown ledger (correct for a
+  // truly unreadable one — fail toward recording a defect it cannot rule
+  // out) — which was wrong here, because the ledger was perfectly readable
+  // and said "nothing spent yet".
+  {
+    const missSurface = (resultHeader) => ({ verdict: "miss", resultHeader });
+    const probeResults = [
+      { placeId: "OCT1_P1", photoRef: "places/OCT1_P1/photos/A", surfaces: [missSurface("probe-no-spend")] },
+      { placeId: "OCT1_P2", photoRef: "places/OCT1_P2/photos/B", surfaces: [missSurface("spend-denied")] },
+    ];
+    const octoberFirstAllowance = allowanceFromLedger({ rowPresent: false });
+    const { candidates, cold } = queueCandidates(probeResults, { headroom: octoberFirstAllowance.headroom });
+    ok(candidates.length === 0, `case 26d: an absent-row reading (Oct 1, 00:50 UTC, nothing spent yet) must queue ZERO source-unavailable probes, got ${candidates.length}`);
+    ok(cold === 2, `case 26d: both probes must be counted "cold" (a real reader hitting the same ref gets a real photo), got cold=${cold}`);
+  }
+
+  // (e) a budget_blocked row RELEASES on an absent-row reading — a month
+  // reset (or any HTTP-2xx-zero-rows read) must free the queue exactly like
+  // a positive numeric headroom does. Drives runRepair with its REAL
+  // default readLedger (readPhotosAllowanceRaw — NOT injected) against a
+  // fetch stub whose wf_spend_ledger endpoint literally returns an empty
+  // array, the actual production shape, so this proves the whole chain
+  // rather than just the half after readLedger.
+  {
+    const placeId = "ChIJOct1Reset0001";
+    const liveRef = `places/${placeId}/photos/LIVE`;
+    const patches = [];
+    const savedFetch = globalThis.fetch;
+    globalThis.fetch = makeQueueFetchStub({
+      dueOpen: [],
+      blocked: [{ place_id: placeId, current_ref: liveRef, attempts: 3, status: "budget_blocked", blocked_since: "2026-09-01T00:00:00.000Z", failure_reason: "source-unavailable" }],
+      refs: { [placeId]: liveRef },
+      patches,
+      ledgerRows: [], // the actual October 1st shape: HTTP 200, zero rows
+    });
+    try {
+      const result = await runRepair({
+        sbEnv: { url: "https://ledger.test", key: "test-key" },
+        findSamePlace: async () => null,
+        findFree: async () => null,
+        // readLedger intentionally OMITTED — exercises the real default
+        // (readPhotosAllowanceRaw) against the stubbed fetch above.
+      });
+      ok(result.attempted === 1 && result.released === 1,
+        `case 26e: a month reset (empty ledger response) must release the one budget_blocked candidate THIS drain, got attempted=${result.attempted} released=${result.released}`);
+      ok(patches.length === 1 && patches[0].body.status === "open",
+        `case 26e: the released row's patch must flip status to "open", got ${patches[0] && patches[0].body.status}`);
+      ok(patches[0].body.attempts === 3, `case 26e: a release must NOT touch attempts (still 3), got ${patches[0].body.attempts}`);
+      ok(result.allowance && result.allowance.phase === "free",
+        `case 26e: the drain's own reported allowance must be phase "free" (a measured absent-row reading), never "unknown" — got ${result.allowance && result.allowance.phase}`);
+    } finally {
+      globalThis.fetch = savedFetch;
+    }
+  }
+}
+
+// ── case 27 — computePhotoRunway: burn24h/runwayDays from the last two ────
+// photo-repair pulse notes' `allowance=<used>/<cap>` tag (#1222). Pure, no
+// I/O — the caller (scripts/os-state.mjs, app/api/health/photos/route.js)
+// fetches the pulse rows; this function only does the arithmetic, once, so
+// the two surfaces can never disagree.
+{
+  // (a) parseAllowanceNote reads the EXACT literal
+  // app/api/cron/photo-repair/route.js's allowanceNote writes.
+  const realNote = "photos: recovered=1 classified=2 blocked=0 released=0 failed=0 allowance=968/2000";
+  ok(JSON.stringify(parseAllowanceNote(realNote)) === JSON.stringify({ used: 968, cap: 2000 }),
+    `case 27a: parseAllowanceNote must read allowance=<used>/<cap> out of a real photo-repair note, got ${JSON.stringify(parseAllowanceNote(realNote))}`);
+  ok(parseAllowanceNote("photos: recovered=0 classified=0 blocked=0 released=0 failed=0 allowance=unread") === null,
+    'case 27a: allowance=unread (the drain never consulted the ledger) must not parse as a number pair');
+  ok(parseAllowanceNote("photos: recovered=0 classified=0 blocked=0 released=0 failed=0 allowance=unreadable") === null,
+    'case 27a: allowance=unreadable (phase "unknown") must not parse as a number pair');
+  ok(parseAllowanceNote("") === null && parseAllowanceNote(null) === null && parseAllowanceNote(undefined) === null,
+    "case 27a: an empty/absent note must not parse");
+
+  // (b) two synthetic notes 24h apart -> correct burn24h and runwayDays.
+  const older = { note: "photos: recovered=0 classified=1 blocked=0 released=0 failed=0 allowance=100/2000", ranAt: "2026-09-08T12:00:00.000Z" };
+  const newer = { note: "photos: recovered=0 classified=1 blocked=0 released=0 failed=0 allowance=148/2000", ranAt: "2026-09-09T12:00:00.000Z" };
+  const runway = computePhotoRunway([newer, older]); // NEWEST FIRST, as documented
+  ok(runway.burn24h === 48, `case 27b: used 100->148 across exactly 24h must be burn24h===48, got ${runway.burn24h}`);
+  const expectedRunwayDays = (2000 - 148) / 48;
+  ok(Math.abs(runway.runwayDays - expectedRunwayDays) < 1e-9,
+    `case 27b: runwayDays must be headroom(2000-148=1852)/burn24h(48)=${expectedRunwayDays}, got ${runway.runwayDays}`);
+
+  // (c) fewer than two notes -> null/null, never 0, never a fabricated date.
+  ok(JSON.stringify(computePhotoRunway([newer])) === JSON.stringify({ burn24h: null, runwayDays: null }),
+    "case 27c: exactly one note must return {burn24h:null, runwayDays:null}");
+  ok(JSON.stringify(computePhotoRunway([])) === JSON.stringify({ burn24h: null, runwayDays: null }),
+    "case 27c: zero notes must return {burn24h:null, runwayDays:null}");
+
+  // (d) unparseable notes -> null/null, same treatment as too few.
+  const unreadable1 = { note: "photos: queue unavailable (503)", ranAt: "2026-09-09T12:00:00.000Z" };
+  const unreadable2 = { note: "photos: recovered=0 classified=0 blocked=0 released=0 failed=0 allowance=unread", ranAt: "2026-09-08T12:00:00.000Z" };
+  ok(JSON.stringify(computePhotoRunway([unreadable1, unreadable2])) === JSON.stringify({ burn24h: null, runwayDays: null }),
+    "case 27d: two notes with no parseable allowance=<used>/<cap> tag must return null/null, never a fabricated 0 or date");
+  ok(JSON.stringify(computePhotoRunway([newer, unreadable1])) === JSON.stringify({ burn24h: null, runwayDays: null }),
+    "case 27d: one parseable note plus one unparseable note is still fewer than two usable readings -> null/null");
+
+  // (e) a non-increasing window must never fabricate a rate.
+  ok(computePhotoRunway([older, newer]).burn24h === null,
+    "case 27e: notes passed OLDEST-FIRST (reversed from the documented newest-first order) must not fabricate a negative-duration rate");
+  const wentDown = { note: "photos: recovered=0 classified=1 blocked=0 released=0 failed=0 allowance=50/2000", ranAt: "2026-09-09T12:00:00.000Z" };
+  ok(computePhotoRunway([wentDown, older]).burn24h === null,
+    "case 27e: `used` going DOWN between the two readings (a mid-month reset/correction) must return null, never a negative burn");
+
+  // (f) zero burn is a REAL measurement — runwayDays is null (not a
+  // fabricated infinity), but burn24h itself is a genuine 0, not null.
+  const flat = { note: "photos: recovered=0 classified=1 blocked=0 released=0 failed=0 allowance=100/2000", ranAt: "2026-09-09T12:00:00.000Z" };
+  const flatRunway = computePhotoRunway([flat, older]);
+  ok(flatRunway.burn24h === 0, `case 27f: unchanged \`used\` across the window is a real 0 burn, got ${flatRunway.burn24h}`);
+  ok(flatRunway.runwayDays === null, "case 27f: zero burn must not fabricate an infinite runwayDays — null instead");
+
+  // (g) wiring: both callers must actually invoke computePhotoRunway, not
+  // just have it available to import — a guard against the helper being
+  // added but never wired in, or wired into only one of the two surfaces.
+  const osStateSrc = readFileSync(new URL("./os-state.mjs", import.meta.url), "utf8");
+  ok(/computePhotoRunway/.test(osStateSrc),
+    "case 27g: scripts/os-state.mjs must call computePhotoRunway so the generated LIVE STATE block carries the runway the owner's weekly loop reads");
+  const healthRouteSrc = readFileSync(new URL("../app/api/health/photos/route.js", import.meta.url), "utf8");
+  ok(/computePhotoRunway/.test(healthRouteSrc),
+    "case 27g: app/api/health/photos/route.js must call computePhotoRunway — the SAME helper os-state.mjs uses, so the two surfaces can never disagree");
 }
 
 if (fail.length) {

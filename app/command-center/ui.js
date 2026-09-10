@@ -17,6 +17,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase, hasSupabase } from "../../lib/supabase";
+import { activeSeasonalMark, NORMAL_MARK } from "../../lib/seasonalBrand";
 import { C, TYPE, RADII, MOTION } from "../components/kit";
 import styles from "./command-center.module.css";
 import {
@@ -1154,12 +1155,17 @@ export default function CommandCenter() {
   }
 
   const group = GROUPS.find((item) => item.id === activeGroup) || GROUPS[0];
+  // Seasonal wordmark (lib/seasonalBrand.js). This branch only ever renders
+  // client-side — useAuthState() above starts at status:"loading" on every
+  // server render and only reaches "ready" inside a useEffect — so there is
+  // no SSR HTML for this <img> to disagree with at hydration.
+  const seasonalWordmark = activeSeasonalMark() || NORMAL_MARK;
   return (
     <div className={styles.root}>
       <header className={styles.header}>
         <div className={styles.headerMain}>
           <a href="#today" onClick={() => setActiveGroup("today")} className={styles.brand} aria-label="Wayfind Command Center home">
-            <img className={styles.brandLogo} src="/brand/wayfind-wordmark-transparent-v2.png" width="1707" height="441" alt="" aria-hidden="true" />
+            <img className={styles.brandLogo} src={seasonalWordmark.png} width={seasonalWordmark.width} height={seasonalWordmark.height} alt="" aria-hidden="true" />
             <b>Command Center</b>
           </a>
           <span className={styles.ownerBadge}>Owner</span>

@@ -2,6 +2,7 @@
 // from search. It borrows the visual language of /go/orlando without behaving
 // like a modal: destination photography on the left, a warm editorial panel on
 // the right, an immediate product promise, and a single route into Wayfind.
+import { activeSeasonalMark, NORMAL_MARK } from "../../lib/seasonalBrand";
 export default function PremiumIntentHero({ eyebrow, location, title, description, image, primaryHref = null, primaryLabel = "Build my shortlist", secondaryHref = "#shortlist", secondaryLabel = "See the expert picks",
   // A page that cannot be left is a dead end; default out to the app root.
   backHref = null, backLabel = "Wayfind",
@@ -10,6 +11,11 @@ export default function PremiumIntentHero({ eyebrow, location, title, descriptio
   // owns what it is: /culture passes nothing and renders exactly as before.
   actions = null,
 }) {
+  // Seasonal wordmark (lib/seasonalBrand.js) — this component is server-
+  // rendered (no "use client"), so `now` defaults to the render instant on
+  // whichever machine renders it; see that module's header for why a
+  // month/day window needs no year and can't drift.
+  const seasonalWordmark = activeSeasonalMark() || NORMAL_MARK;
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
@@ -64,7 +70,7 @@ export default function PremiumIntentHero({ eyebrow, location, title, descriptio
           </a>
         ) : <span />}
         <a href="/" aria-label="Wayfind home">
-          <img className="wf-intent-brand" src="/brand/wayfind-wordmark-transparent-v2.png" alt="Wayfind" />
+          <img className="wf-intent-brand" src={seasonalWordmark.png} alt="Wayfind" />
         </a>
       </div>
       <header className="wf-intent-hero">

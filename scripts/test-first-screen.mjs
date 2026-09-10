@@ -277,12 +277,31 @@ passed++;
   ok(/key: "more"/.test(slot),
     "…with a tail rail for everything outside them — a civic event nobody bucketed is still on tonight, so it is never dropped");
 }
-// The honest zero-events fallback in the feed — a card and three alternative
-// intents — must survive. It is the one thing in that position that was never
-// the promo deck, and it is what a visitor sees when tonight is genuinely empty.
-ok(/Array\.isArray\(foryouEvents\) && foryouEvents\.length === 0/.test(code),
-  "the zero-events fallback is gone — a visitor with nothing on tonight now gets silence instead of an alternative");
-ok(/Nothing strong tonight nearby/.test(code), "…and it must still say so in words, not just render an empty box");
+// THE ZERO-EVENTS FALLBACK IS GONE, BY OWNER DECISION (2026-09-09), and this
+// assertion is now the INVERSE of what it was for two releases.
+//
+// It used to be a card reading "Nothing strong tonight nearby" over three
+// intent chips, and the two assertions here demanded it survive. The owner
+// asked for it off the main page. Reversing a guard is the dangerous direction
+// — the old rule existed so a visitor with an empty night was never met with
+// silence — so the reasoning is recorded rather than the assertion just
+// deleted: the three destinations still have doors. Date night and Hidden gems
+// are two of the fifteen cards in <DaypartRail> at the top of the same column,
+// and "It's raining (or too hot)" is a vibe chip (VIBES `rainy`, which sets
+// spec.indoorOnly). What went away is the card ANNOUNCING the emptiness, not
+// the alternatives themselves.
+//
+// Asserted as an absence, so the block cannot drift back in unnoticed — and
+// per AGENTS.md §4d an absence probe has to prove it can find a known positive
+// first, or it passes on a file it failed to read.
+ok(/const \[foryouEvents, setForyouEvents\]/.test(code),
+  "positive control: home.js was really read and still declares foryouEvents — if THIS fails the absence checks below prove nothing");
+ok(!/Nothing strong tonight nearby/.test(code),
+  "the zero-events card is back on the main page — the owner removed it on 2026-09-09; put it behind a decision, not a re-add");
+ok(!/foryouEvents\.length === 0 &&/.test(code),
+  "…and so is the branch that rendered it");
+ok(!/src: "events_empty"/.test(code),
+  "…the events_empty intent chips are back; they were removed with the card");
 
 // 4. Geometry is reserved from SHARED constants, so skeleton and live rail
 //    cannot drift apart and the swap stays shift-free.

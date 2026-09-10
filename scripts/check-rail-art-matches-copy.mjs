@@ -121,7 +121,27 @@ const PAIRS = {
   // the promise and destination agree without asserting an unsupported deal.
   birthday: { copy: "e30656dbabf938e6", art: "bc6e72ccb1f16676" },
   breakfast: { copy: "357ed5dfa8609429", art: "502233352f9fc2aa" },
-  blog: { copy: "390c7f9cbf645d12", art: "3af2ada7cdef7446" },
+  // 2026-09-10 — A DELIBERATE MISMATCH, PINNED WITH THE OWNER'S EYES OPEN.
+  // His replacement poster reads "BEST BLOGS" over a typewriter. The rail is
+  // called "Local Guides", its button says "Read the guides", and it opens
+  // /guides. So the tile says BLOGS and everything behind it says GUIDES.
+  // This guard flagged exactly that and it was RIGHT to; the owner was shown
+  // the conflict (art retitled to GUIDES / copy switched to BLOGS / ship the
+  // art as-is) and chose to ship his art untouched, which is consistent with
+  // his standing v8.16 rule that his posters are used exactly as provided.
+  //
+  // DO NOT "FIX" THIS BY EDITING EITHER SIDE. If a future reader thinks the
+  // pair disagrees, they are correct and it is intentional. Changing it is an
+  // owner decision, not a tidy-up. What the pin still guarantees is that
+  // NEITHER side can drift again without a human looking: swap the art or
+  // reword the rail and this goes red on the next run.
+  //
+  // The one thing that would make this a real defect rather than a wording
+  // preference: the poster promises reading, and the rail delivers reading —
+  // "Written by someone who went / The catch, the parking, the hour" opening
+  // the guides library. A reader who taps BEST BLOGS gets written guides.
+  // The promise is kept; only the noun differs.
+  blog: { copy: "390c7f9cbf645d12", art: "94833b5a99b8c187" },
   break: { copy: "8da3d9103f225a40", art: "23219929258396e1" },
   // 2026-09-01 re-pin, CONFIRMED BY READING BOTH. The owner's true 9:16 pink
   // LOVE poster replaces the earlier 941×1672 frame and is regenerated at
@@ -153,8 +173,34 @@ const PAIRS = {
   // events. Real experiences." art, which was off-brand and made no promise
   // about what was actually behind it.
   events: { copy: "12d73e13f0973f31", art: "70e5f6df7ebd983a" },
-  family: { copy: "947a8d48e13dac62", art: "9e64f507ce5c39e6" },
-  locals: { copy: "24b845b1d9114368", art: "78ea67914dee5c7b" },
+  // 2026-09-10 — RE-PINNED AFTER READING THE NEW POSTER AT 760px. The owner's
+  // replacement art reads "FAMILY DAY, SOLVED." over a family of four facing
+  // the water, arms up. Both hashes moved in the same commit and that is the
+  // point: the rail title, the /family page <title> and the intent card line
+  // all became "solved" so the baked word and every word around it agree.
+  // The rail promises "Nobody melts down at 3pm / Kid-approved, pet-friendly,
+  // shade checked" and opens the family intent collection — the poster makes
+  // no claim beyond that, and asserts no deal, price or Score.
+  // Note for a future reader: this art is a BEACH scene and "Beach Day" is its
+  // own rail one tile away. They are distinguished by their baked words, not
+  // their photography — if the beach poster is ever redrawn, check the pair
+  // still reads as two different promises.
+  family: { copy: "d2077983a0b43b62", art: "212f64504077e60e" },
+  // 2026-09-10 — RE-PINNED AFTER READING THE NEW POSTER AT 760px. The owner's
+  // art reads "Creators Pick" in script over a creator holding an iced coffee
+  // outside a café. Both hashes moved together: the rail title became
+  // "Creators Pick" and app/components/BestNearby.js's section label moved
+  // with it, because that section renders the SAME creator pool and one pool
+  // must not wear two names.
+  //
+  // WHAT THE POSTER DOES NOT CHANGE: the rail's axis is still "a real person
+  // went and posted it", and the cards behind the tile still come only from
+  // the creator library, each carrying the name of the creator who posted it.
+  // The poster renames the shelf; it makes no claim about any specific place,
+  // asserts no Score, and the person in it is not presented as the source of
+  // any recommendation — the sourcing rule is enforced in lib/railsData.js,
+  // not by the picture, and it is unchanged.
+  locals: { copy: "a798d7ec0bef995b", art: "a0b6fa45c0572421" },
   // 2026-09-03 — RE-PINNED AFTER PIXEL REVIEW AT 760px. The owner-supplied
   // poster reads “wayfind / BEST SUMMER EVER” over the pool-and-watermelon
   // photograph. The rail names Summer Picks, repeats “Best summer ever,” and
