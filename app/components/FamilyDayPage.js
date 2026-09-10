@@ -388,8 +388,7 @@ export default function FamilyDayPage({ embedded = false, center = null, city = 
         @keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}
         @media(prefers-reduced-motion:reduce){.wf-family-critter{animation:none}}
       ` }} />
-      {embedded ? <h2 className="wf-family-embedded-title">Ten ways to plan the day<span>{loc.city ? `Family picks around ${loc.city}` : "Family picks around you"}</span></h2> : null}
-      <FamilyFilters filters={filters} onChange={changeFilter} radiusMi={radiusMi} onRadius={setRadiusMi} />
+      {!embedded ? <FamilyFilters filters={filters} onChange={changeFilter} radiusMi={radiusMi} onRadius={setRadiusMi} /> : null}
       {outdoorGateClosed ? <p className="wf-family-weather">Outdoor picks are paused because {moment.gateWhy || "current weather is not a safe fit"}. {weatherPaused ? "Your weather choice is preserved; choose Indoors or clear it to continue." : "The rails are using verified indoor evidence."}</p> : null}
       {!hasPoint ? <div className="wf-family-message"><p>This page needs a location before it can rank nearby family picks. Open the Family Day poster after choosing a location.</p></div> : (
         <>
