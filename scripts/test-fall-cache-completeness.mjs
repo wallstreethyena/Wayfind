@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import ts from "typescript";
+import * as eventSocial from "../lib/eventSocial.js";
 import { windowRailAnswer } from "../lib/railResponse.js";
 
 let checks = 0;
@@ -27,6 +28,7 @@ async function routeHarness({ dealError = null, cachedValue } = {}) {
     return builder;
   };
   const imports = {
+    "../../../../lib/eventSocial.js": eventSocial,
     "../../../../lib/curatedEvents.js": {
       fetchCuratedEvents: async () => [], isTrusted: () => false, eventOutboundUrl: () => null,
     },
