@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 603,
-    "totalRegistryEntries": 604,
-    "guardsTxtLineCount": 601,
-    "guardsTxtReachedFileCount": 596,
+    "totalOnDiskGuardFiles": 604,
+    "totalRegistryEntries": 605,
+    "guardsTxtLineCount": 602,
+    "guardsTxtReachedFileCount": 597,
     "criticalCount": 73,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 411,
+      "CALL": 412,
       "RENDER": 48,
       "STRUCTURAL": 144,
       "OTHER": 1
@@ -1476,11 +1476,11 @@
       "npmScript": null,
       "class": "STRUCTURAL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 10,
+      "assertionCount": 11,
       "unprovenAbsenceCount": 4,
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines",
-        "4 absence assertion(s) with no positive control in the same file (e.g. \"!SILENT_OK.test(src),\n    `\")"
+        "4 absence assertion(s) with no positive control in the same file (e.g. \"!SILENT_OK.test(src) && !badPhotoRepairBudget,\n    silentOk\n      ? `\")"
       ],
       "selfDocumentsRedProve": false,
       "wiring": {
@@ -12304,6 +12304,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 6,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-photo-repair-deadline.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 22,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
