@@ -121,9 +121,10 @@ const missingToken = await verifySupabaseAccessToken({ env: { SUPABASE_URL: toke
 assert.equal(missingToken.status, 'unknown');
 assert.equal(missingTokenFetches, 0, 'missing credentials never trigger a network request');
 
-// Managed pg_cron contract. Missing jobs may be created. Existing exact jobs
-// are left alone. Existing drift must RAISE rather than being silently replaced.
-const managedCron = readFileSync(join(HERE, '../supabase/migrations/20260910144000_wf_managed_cron_contract.sql'), 'utf8');
+// Managed pg_cron contract. The live heartbeat watcher is created if missing;
+// the retired affiliate writer may be absent or disabled, but can never be
+// silently re-enabled or rewritten.
+const managedCron = readFileSync(join(HERE, '../supabase/migrations/20260910145500_wf_managed_monitor_cron_contract.sql'), 'utf8');
 for (const expected of [
   "'wf-affiliate-link-integrity'::text",
   "'13 */3 * * *'::text",
@@ -132,9 +133,12 @@ for (const expected of [
   "'*/15 * * * *'::text",
   "'select public.wf_heartbeat_watch()'::text",
 ]) assert.ok(managedCron.includes(expected), `managed cron migration pins ${expected}`);
-assert.match(managedCron, /if job_count = 0 then\s+perform cron\.schedule\(/, 'a missing managed cron is created through pg_cron');
+assert.match(managedCron, /'wf-affiliate-link-integrity'[\s\S]*false[\s\S]*'wf-heartbeat-watch'[\s\S]*true/, 'affiliate writer is retired while heartbeat watcher stays active');
+assert.match(managedCron, /if job_count = 0 then\s+if expected\.must_be_active then\s+perform cron\.schedule\(/, 'a missing active monitor is created through pg_cron');
+assert.match(managedCron, /else\s+[\s\S]*continue;/, 'a missing retired writer is not recreated');
 assert.match(managedCron, /elsif job_count > 1 then\s+raise exception/, 'duplicate named jobs fail loudly');
-assert.match(managedCron, /actual\.schedule is distinct from expected\.schedule[\s\S]*raise exception/, 'an existing schedule drift fails instead of being overwritten');
+assert.match(managedCron, /actual\.schedule is distinct from expected\.schedule[\s\S]*actual\.active is distinct from expected\.must_be_active[\s\S]*raise exception/, 'existing schedule or active-state drift fails instead of being overwritten');
 assert.doesNotMatch(managedCron, /cron\.unschedule\s*\(/, 'the reconciliation migration never deletes a live cron to force its preferred value');
+assert.doesNotMatch(managedCron, /cron\.alter_job\s*\(/, 'the contract verifies existing jobs rather than silently mutating them');
 
 console.log('test-job-watch-delivery: OK — delivery, cross-clock watcher silence, read-only token preflight, cron drift policy, dedupe, reminder, and recovery checked');
