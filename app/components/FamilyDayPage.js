@@ -113,19 +113,27 @@ async function fetchFamilyRail({ lat, lng, radiusMi, railId, filters, indoorOnly
 }
 
 function FamilyEventCard({ event }) {
+  const [imageFailed, setImageFailed] = useState(false);
   const href = event.href || event.dest;
   const distance = Number.isFinite(Number(event.distMi ?? event.distanceMi))
     ? `${Number(event.distMi ?? event.distanceMi) < 10 ? Number(event.distMi ?? event.distanceMi).toFixed(1) : Math.round(Number(event.distMi ?? event.distanceMi))} mi`
     : null;
-  const facts = [event.whenFact, event.venue, distance].filter(Boolean);
+  const facts = [event.venue, distance].filter(Boolean);
+  const image = event.image && !imageFailed;
   return (
     <li className="wf-family-event-card">
-      {event.image ? <img src={event.image} alt="" loading="lazy" /> : <span className="wf-family-event-monogram" aria-hidden="true">{String(event.name || "Event").slice(0, 1)}</span>}
-      <div>
+      <div className="wf-family-event-media">
+        {image ? <img src={event.image} alt={event.imageAlt || ""} loading="lazy" onError={() => setImageFailed(true)} /> : <span className="wf-family-event-placeholder">Photo unavailable</span>}
         <span className="wf-family-event-kicker">Family event</span>
-        <h3>{href ? <a href={href}>{event.name}</a> : event.name}</h3>
+      </div>
+      <div className="wf-family-event-body">
+        <h4>{href ? <a href={href}>{event.name}</a> : event.name}</h4>
+        {event.whenFact ? <p className="wf-family-event-date">{event.whenFact}</p> : null}
         {facts.length ? <p>{facts.join(" · ")}</p> : null}
-        {href ? <a className="wf-family-event-link" href={href}>Event details <span aria-hidden="true">›</span></a> : null}
+        <div className="wf-family-event-footer">
+          {event.price ? <span>{event.price}</span> : null}
+          {href ? <a className="wf-family-event-link" href={href}>Event details <span aria-hidden="true">›</span></a> : null}
+        </div>
       </div>
     </li>
   );
@@ -197,7 +205,7 @@ function FamilyRail({ rail, loc, radiusMi, filters, weatherSettled, weatherPause
       <div className="wf-family-rail-heading">
         <div>
           <h2 id={`family-${rail.id}-title`}>{rail.title}</h2>
-          <p>{rail.description}</p>
+          <p>{rail.description} <span className="wf-family-radius">Within {radiusMi} miles.</span></p>
         </div>
         {ready && cards.length ? <span>{state.more && !state.truncated ? `${cards.length} of ${state.matched}` : `${cards.length} ${cards.length === 1 ? "pick" : "picks"}`}</span> : null}
       </div>
@@ -383,7 +391,14 @@ export default function FamilyDayPage({ embedded = false, center = null, city = 
         .wf-family-weather{margin:16px 0 0;padding:12px 14px;border-left:3px solid #F59E0B;border-radius:8px;background:rgba(245,158,11,.09);color:#FDE68A;font-size:12.5px;line-height:1.5}
         .wf-family-section{min-height:170px;margin-top:30px;scroll-margin-top:20px}.wf-family-rail-heading{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;margin-bottom:11px}.wf-family-rail-heading h2{margin:0;color:${COLORS.text};font-family:Georgia,'Times New Roman',serif;font-size:25px;font-weight:500;letter-spacing:-.025em}.wf-family-rail-heading p{max-width:620px;margin:5px 0 0;color:#AEB8C6;font-size:13px;line-height:1.45}.wf-family-rail-heading>span{flex:none;color:#86EFAC;font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.06em}
         .wf-family-card-rail,.wf-family-event-rail{display:grid;grid-auto-flow:column;grid-auto-columns:min(82vw,360px);gap:13px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0;padding:2px 2px 9px;list-style:none}.wf-family-card-rail::-webkit-scrollbar,.wf-family-event-rail::-webkit-scrollbar{display:none}.wf-family-card-rail>.wf-place-card,.wf-family-event-card{scroll-snap-align:start;margin:0!important}.wf-family-fact{display:inline-flex!important;align-items:center;gap:7px;max-width:100%;overflow:hidden;color:#D1FAE5!important;background:rgba(34,197,94,.1)!important;border:1px solid rgba(74,222,128,.25)!important}.wf-family-fact>a{flex:none;color:#86EFAC;text-decoration:none;font-weight:850}.wf-family-loading{display:flex;min-height:116px;align-items:center;justify-content:center;gap:11px;border:1px solid rgba(255,255,255,.07);border-radius:16px;background:#0A0F18;color:${COLORS.muted};font-size:13px}.wf-family-critter{display:flex;animation:wfbob 1.1s ease-in-out infinite}.wf-family-critter img{display:block;object-fit:contain}.wf-family-message,.wf-family-empty{margin:0;padding:16px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:#0A0F18;color:${COLORS.muted};font-size:13px;line-height:1.55}.wf-family-message p{margin:0 0 11px}
-        .wf-family-events{margin-top:18px}.wf-family-events>h3{margin:0 0 10px;color:${COLORS.text};font-size:15px}.wf-family-event-card{display:grid;grid-template-columns:104px minmax(0,1fr);min-height:150px;overflow:hidden;border:1px solid rgba(159,177,203,.25);border-radius:17px;background:#111824}.wf-family-event-card>img,.wf-family-event-monogram{width:104px;height:100%;min-height:150px;object-fit:cover}.wf-family-event-monogram{display:grid;place-items:center;color:#FFC08F;background:linear-gradient(155deg,#192230,#0D131E);font-size:24px;font-weight:900}.wf-family-event-card>div{padding:15px}.wf-family-event-kicker{color:#86EFAC;font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.wf-family-event-card h3{margin:6px 0 0;font-size:16px;line-height:1.2}.wf-family-event-card h3 a{color:${COLORS.text};text-decoration:none}.wf-family-event-card p{margin:7px 0;color:${COLORS.muted};font-size:11.5px;line-height:1.4}.wf-family-event-link{color:#86EFAC;font-size:11.5px;font-weight:800;text-decoration:none}
+        .wf-family-radius{white-space:nowrap;color:${COLORS.muted}}
+        .wf-family-events{margin-top:18px}.wf-family-events>h3{margin:0 0 8px;color:${COLORS.muted};font:800 12px/1.4 system-ui,sans-serif;text-transform:uppercase;letter-spacing:.4px}
+        .wf-family-event-rail{display:flex;gap:10px;padding-bottom:4px;scroll-snap-type:x proximity}
+        .wf-family-event-card{flex:0 0 200px;display:flex;flex-direction:column;scroll-snap-align:start;overflow:hidden;border:1px solid rgba(159,177,203,.25);border-radius:14px;background:#1C2433}
+        .wf-family-event-media{position:relative;height:86px;flex:none;overflow:hidden;border-bottom:1px solid rgba(159,177,203,.25);background:#111A27}.wf-family-event-media>img{display:block;width:100%;height:100%;object-fit:cover}.wf-family-event-placeholder{display:grid;place-items:center;height:100%;color:${COLORS.muted};font:500 10px system-ui,sans-serif}
+        .wf-family-event-kicker{position:absolute;top:7px;right:7px;padding:3px 7px;border-radius:999px;background:rgba(7,12,20,.82);border:1px solid rgba(255,255,255,.24);color:#fff;font:800 8.5px system-ui,sans-serif}
+        .wf-family-event-body{display:flex;flex:1;flex-direction:column;padding:8px 10px}.wf-family-event-card h4{margin:0;color:${COLORS.text};font:750 12.5px/1.35 system-ui,sans-serif;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.wf-family-event-card h4 a{color:inherit;text-decoration:none}.wf-family-event-card p{margin:5px 0 0;color:${COLORS.muted};font:500 10px/1.4 system-ui,sans-serif}.wf-family-event-card .wf-family-event-date{color:#D8E0EB}.wf-family-event-footer{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px;margin-top:auto;padding-top:8px;color:#7DD3A8;font:800 11px/1.4 system-ui,sans-serif}.wf-family-event-link{color:#7DD3A8;text-decoration:none}.wf-family-event-link:focus-visible,.wf-family-event-card h4 a:focus-visible{outline:2px solid #7DD3A8;outline-offset:2px}
+
         @media(max-width:720px){.wf-family-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wf-family-distance{align-items:flex-start;flex-direction:column}.wf-family-section{margin-top:26px}.wf-family-rail-heading h2{font-size:22px}}
         @keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}
         @media(prefers-reduced-motion:reduce){.wf-family-critter{animation:none}}
@@ -392,7 +407,7 @@ export default function FamilyDayPage({ embedded = false, center = null, city = 
       {outdoorGateClosed ? <p className="wf-family-weather">Outdoor picks are paused because {moment.gateWhy || "current weather is not a safe fit"}. {weatherPaused ? "Your weather choice is preserved; choose Indoors or clear it to continue." : "The rails are using verified indoor evidence."}</p> : null}
       {!hasPoint ? <div className="wf-family-message"><p>This page needs a location before it can rank nearby family picks. Open the Family Day poster after choosing a location.</p></div> : (
         <>
-          {FAMILY_DAY_RAILS.map((rail) => <FamilyRail key={rail.id} rail={rail} loc={loc} radiusMi={radiusMi} filters={filters} indoorOnly={indoorOnly} weatherSettled={weatherSettled && !!moment} weatherPaused={weatherPaused} retryAll={retryAll} onOpenPlace={onOpenPlace} cardActions={cardActions} />)}
+          {FAMILY_DAY_RAILS.map((rail) => <FamilyRail key={rail.id} rail={rail} loc={loc} radiusMi={embedded && ["water", "animals"].includes(rail.id) ? 50 : radiusMi} filters={filters} indoorOnly={indoorOnly} weatherSettled={weatherSettled && !!moment} weatherPaused={weatherPaused} retryAll={retryAll} onOpenPlace={onOpenPlace} cardActions={cardActions} />)}
           <button type="button" className="wf-family-clear" onClick={() => setRetryAll((value) => value + 1)}>Refresh loaded rails</button>
         </>
       )}
@@ -404,7 +419,7 @@ export default function FamilyDayPage({ embedded = false, center = null, city = 
       topLeft={<BackControl fallback="/" variant="editorial" />}
       eyebrow="Memories for life"
       titleTop="Family day, solved"
-      subtitle={loc.city ? `Ten ways to plan a family day around ${loc.city}, ranked from real place evidence.` : "Ten ways to plan a family day, ranked from real place evidence."}
+      subtitle={loc.city ? `${FAMILY_DAY_RAILS.length} ways to plan a family day around ${loc.city}, ranked from real place evidence.` : `${FAMILY_DAY_RAILS.length} ways to plan a family day, ranked from real place evidence.`}
       heroImg="/cards/family-day-solved-v2.webp"
       location={loc.city || undefined}
       imageKicker="THE WAYFIND FAMILY EDITION"

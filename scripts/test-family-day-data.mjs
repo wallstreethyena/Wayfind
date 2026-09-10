@@ -18,6 +18,11 @@ assert.equal(composeFamilyRail([high], { ...origin, filters: { ages: "baby" } })
 const indoor = row("indoor", { category: "attractions", name: "Kids Arcade", primary_type: "video_arcade", google_types: ["video_arcade"] });
 assert.deepEqual(composeFamilyRail([high, indoor], { ...origin, rail: "indoor", indoorOnly: true }).map((p) => p.id), ["indoor"],
   "automatic weather safety uses narrow owned primary identity without weakening explicit evidence filters");
+const science = row("ChIJo2bql5B654gR_ITN9PGhBbU", { category: "attractions", name: "Orlando Science Center", primary_type: "museum", google_types: ["museum"] });
+assert.deepEqual(composeFamilyRail([indoor, science, science], { ...origin, rail: "indoor" }).map((p) => p.id).sort(), ["ChIJo2bql5B654gR_ITN9PGhBbU", "indoor"],
+  "the merged rail unions indoor and space evidence and deduplicates an overlapping reviewed venue");
+assert.deepEqual(composeFamilyRail([indoor, science], { ...origin, rail: "space" }).map((p) => p.id).sort(), ["ChIJo2bql5B654gR_ITN9PGhBbU", "indoor"],
+  "the legacy space rail returns the same merged inventory");
 const twentyFive = Array.from({ length: 25 }, (_, index) => ({ id: `p${index}` }));
 assert.deepEqual(pageFamilyRail(twentyFive), { places: twentyFive.slice(0, 10), total: 25, page: 0, size: 10, hasMore: true });
 assert.deepEqual(pageFamilyRail(twentyFive, { page: 2, size: 10 }), { places: twentyFive.slice(20), total: 25, page: 2, size: 10, hasMore: false },
@@ -34,6 +39,10 @@ delete process.env.SUPABASE_SERVICE_ROLE_KEY;
   const missing = await GET(new Request("https://example.com/api/family-day?lat=27.3&lng=-82.5&rail=beach"));
   assert.equal(missing.status, 503, "missing source is failure, never normal empty");
   assert.equal(missing.headers.get("cache-control"), "no-store");
+}
+{
+  const legacySpace = await GET(new Request("https://example.com/api/family-day?lat=27.3&lng=-82.5&rail=space"));
+  assert.equal(legacySpace.status, 503, "the legacy space endpoint clears validation and reaches the configured data source");
 }
 const family = RAILS.find((r) => r.id === "family");
 assert.equal(family.opensPage, undefined, "plain tap opens the homepage drop");
