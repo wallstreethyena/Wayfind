@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import Module, { createRequire } from "node:module";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { splitBreakfastRails } from "../lib/breakfastRails.js";
 import { composeLunchBreakRails, LUNCH_BREAK_RAILS } from "../lib/lunchBreakRails.js";
@@ -60,8 +62,10 @@ assert.deepEqual(
 // user-visible output. This exercises the component boundary rather than
 // inferring behavior from source text.
 const defaultJsLoader = Module._extensions[".js"];
+const repoRoot = fileURLToPath(new URL("../", import.meta.url));
 Module._extensions[".js"] = (module, filename) => {
-  if (!filename.includes("/Wayfind/")) return defaultJsLoader(module, filename);
+  const relative = path.relative(repoRoot, filename);
+  if (relative.startsWith("..") || path.isAbsolute(relative) || relative.split(path.sep).includes("node_modules")) return defaultJsLoader(module, filename);
   const transformed = transformSync(fs.readFileSync(filename, "utf8"), {
     filename,
     jsc: {
