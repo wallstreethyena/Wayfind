@@ -58,7 +58,7 @@ export const maxDuration = 300;
 const WORK_BUDGET_MS = 255_000;
 
 import { runBackfill, describeAtRisk } from "../../../../lib/placePhotoBackfill";
-import { recordPulse } from "../../../../lib/jobPulse";
+import { recordPulse, isDeterministicFailureNote } from "../../../../lib/jobPulse";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail";
 
 export async function GET(req) {
@@ -85,10 +85,20 @@ export async function GET(req) {
   }
   if (!result.ok) return jobCannotRun("place-photos", result.reason || "worker could not run");
 
+  // NEVER RE-WRAP A NOTE THAT ALREADY CARRIES A DETERMINISTIC PREFIX
+  // (lib/jobPulse.js's `unavailable:`/`billing:`/`quota:` — 2026-09-09). The
+  // `^` anchor in DETERMINISTIC_NOTE_PREFIX only matches at column 0, so
+  // prepending "place-photos: " in front of runBackfill's
+  // "unavailable: place-photos wf_photo_at_risk read failed (HTTP 500)"
+  // would push the prefix off column 0 and silence the very page this exists
+  // to cause — exactly the bug this route shipped with in production. Every
+  // OTHER note (idle, tableUnavailable, the ordinary summary) still gets the
+  // "place-photos: " job label, because those notes carry no anchor to
+  // protect.
   const note = result.tableUnavailable
     ? `place-photos: table unavailable (${result.tableStatus != null ? result.tableStatus : "error"})`
     : result.note
-      ? `place-photos: ${result.note}`
+      ? (isDeterministicFailureNote(result.note) ? result.note : `place-photos: ${result.note}`)
       : `place-photos: ${result.active} active (${result.vaulted || 0} vaulted), ${result.rejected} rejected, ${result.failed} failed, ${result.deferred || 0} deferred${result.partial ? ` — PARTIAL: stopped on its own ${Math.round(WORK_BUDGET_MS / 1000)}s budget with ${result.deadlineStopped} candidate(s) unstarted` : ""} (${describeAtRisk({ ...result, source })}, general scanned ${result.scanned}, ${result.alreadyCovered} already covered)`;
 
   if (!result.tableUnavailable && result.attempted > 0 && result.failed === result.attempted) {

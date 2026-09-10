@@ -385,7 +385,23 @@ function sbEnvHere() {
 // "places.googleapis.com" — case 5 of scripts/test-photo-protection.mjs
 // greps this whole file for both, and a live network call here would be a
 // spend path this monitor is built to never have.
-async function readPhotosAllowance(s) {
+//
+// THE OCTOBER 1ST FIX (2026-09-09). wf_spend_take creates the month's
+// wf_spend_ledger row lazily, on the FIRST GRANT of that month — so right
+// after a monthly rollover (measured: 00:50 UTC on the 1st) a PostgREST 200
+// with a genuinely EMPTY `rows` array is the correct read of "nothing spent
+// yet", not a failed read. That used to collapse into the SAME
+// allowanceFromLedger({}) call as a thrown fetch or a non-2xx response,
+// which made it phase:"unknown" — and this file's own queueCandidates()
+// treats unknown as "queue everything", which filed ~460 healthy cold-cache
+// probes as source-unavailable defects in one run and paged the owner over
+// a healthy site. The three cases are now kept apart explicitly:
+//   - r.ok with rows.length === 0  -> allowanceFromLedger({ rowPresent:
+//     false }) — a real "free" reading, used=0 against the operating cap.
+//   - !r.ok, a malformed (non-array) body, or a thrown fetch/parse -> the
+//     original allowanceFromLedger({}) — genuinely unreadable, phase
+//     "unknown", exactly as before.
+export async function readPhotosAllowance(s) {
   const month = new Date().toISOString().slice(0, 7);
   try {
     const r = await fetch(
@@ -394,12 +410,16 @@ async function readPhotosAllowance(s) {
     );
     if (!r.ok) return allowanceFromLedger({});
     const rows = await r.json();
-    const row = Array.isArray(rows) && rows[0];
-    return allowanceFromLedger(row ? { used: row.used, cap: row.cap } : {});
+    if (!Array.isArray(rows)) return allowanceFromLedger({}); // malformed body — unreadable, not absent
+    if (rows.length === 0) return allowanceFromLedger({ rowPresent: false }); // 2xx, no row yet this month
+    const row = rows[0];
+    return allowanceFromLedger({ used: row && row.used, cap: row && row.cap });
   } catch {
-    // An unreadable ledger is exactly allowanceFromLedger's phase:"unknown"
-    // contract — see queueCandidates' headroom handling below: unknown must
-    // never manufacture a "cold" verdict, only a measured headroom>0 can.
+    // A thrown fetch or a JSON parse failure is genuinely unreadable — the
+    // same allowanceFromLedger phase:"unknown" contract as a non-2xx
+    // response, never the same as a confirmed-empty row array above. See
+    // queueCandidates' headroom handling below: unknown must never
+    // manufacture a "cold" verdict, only a measured headroom>0 can.
     return allowanceFromLedger({});
   }
 }
