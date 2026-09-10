@@ -6,6 +6,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 import { jobHealth, classifyHealth, incidentLine, recordPulse, DEAD_RUN_THRESHOLD } from "../../../../lib/jobPulse";
+import { heartbeatWatchSilenceIncident, readHeartbeatWatchPulse } from "../../../../lib/heartbeatWatch";
 import { resolveOverride } from "../../../../lib/envAudit";
 import { sbEnv } from "../../../../lib/serverCache";
 import {
@@ -73,13 +74,21 @@ async function sendAlert({ resendKey, from, to, subject, html }) {
   }
 }
 
+function removeJobFromBucket(bucket, job) {
+  const i = bucket.findIndex((r) => r?.job === job);
+  if (i >= 0) bucket.splice(i, 1);
+}
+
 export async function GET(req) {
   const secret = process.env.CRON_SECRET;
   const auth = req.headers.get("authorization") || "";
   if (!secret || auth !== "Bearer " + secret) return new Response("unauthorized", { status: 401 });
 
   const rows = await jobHealth(LOOKBACK_HOURS);
-  const { incidents, healthy, idle } = classifyHealth(rows);
+  const classified = classifyHealth(rows);
+  const incidents = [...classified.incidents];
+  const healthy = [...classified.healthy];
+  const idle = [...classified.idle];
 
   if (!rows.length) {
     const reason = "no pulse rows in window — health feed unavailable or nothing is reporting";
@@ -89,6 +98,26 @@ export async function GET(req) {
   }
 
   const s = sbEnv();
+
+  // Different-infrastructure liveness check. heartbeat-watch is driven by
+  // Supabase pg_cron every 15 minutes; this route is driven by Vercel hourly.
+  // wf_job_health can only classify rows that still exist in its lookback, so
+  // direct freshness is what turns total watcher silence into an incident.
+  try {
+    const heartbeat = await readHeartbeatWatchPulse({ url: s?.url, key: s?.key, now: Date.now() });
+    if (heartbeat.failure && !incidents.some((r) => r?.job === "heartbeat-watch")) {
+      incidents.push(heartbeatWatchSilenceIncident(heartbeat.failure));
+      removeJobFromBucket(healthy, "heartbeat-watch");
+      removeJobFromBucket(idle, "heartbeat-watch");
+    }
+  } catch (error) {
+    if (!incidents.some((r) => r?.job === "heartbeat-watch")) {
+      incidents.push(heartbeatWatchSilenceIncident(String(error?.message || error)));
+      removeJobFromBucket(healthy, "heartbeat-watch");
+      removeJobFromBucket(idle, "heartbeat-watch");
+    }
+  }
+
   const previousState = await readJobWatchAlertState({ url: s?.url, key: s?.key });
   const now = Date.now();
   const decision = jobWatchNotificationDecision(incidents, previousState, now);
