@@ -33,6 +33,7 @@ import { withClickId, isEarningGoHref } from "../../../lib/hubConversion";
 import { funnelProps } from "../../../lib/funnel";
 import { useCommerceImpression } from "../useCommerceImpression";
 import { nearbyTourListAllowed, placePartnerPick } from "../../../lib/placePartnerPicks";
+import { usePinQuarantine } from "../../../lib/pinQuarantine";
 import { pairsWellWith } from "../../../lib/pairsWellWith";
 import { askShareIntent } from "../shareIntentSheet";
 import { placeKinds } from "../../../lib/dateInvite";
@@ -480,7 +481,14 @@ export default function DetailSheet({ ctx }) {
 
   // v6.72 — detail-sheet CTA ladder (Kimi revenue lane). One primary action,
   // place-type-aware, with a live "go now / wait" verdict above it.
-  const primaryCta = resolveDetailCta({ detail, kind: placeKind(detail), viaTours, locName, offers, openState });
+  // LIVE QUARANTINE (2026-09-10). A pinned product that dies in the
+  // catalogue must stop painting a Book button without waiting for a
+  // deploy. The snapshot is always a usable catalog and quarantines
+  // nothing until the server has named a specific code dead, so passing
+  // it is unconditionally safe. Declared with the other top-level hooks,
+  // above every early return. See lib/pinQuarantine.js.
+  const pinQ = usePinQuarantine();
+  const primaryCta = resolveDetailCta({ detail, kind: placeKind(detail), viaTours, locName, offers, openState, catalog: pinQ });
   const verdict = detailVerdict({ detail, weather, openState });
   const ctaCategory = Dining.cuisineLabel(detail) || primaryCategory(detail) || placeKind(detail) || "";
   const ctaCity = locName ? locName.split(",")[0] : "";
@@ -1053,7 +1061,7 @@ export default function DetailSheet({ ctx }) {
               {!detail._event && (() => {
                 const nextPool = dedupePlaces([...(suggested || []), ...places]).filter((p) => p && p.id !== detail.id);
                 const picks = pairsWellWith(detail, nextPool, { max: 3, radiusMi: 8 })
-                  .map((pick) => ({ ...pick, partner: placePartnerPick(pick.p) }));
+                  .map((pick) => ({ ...pick, partner: placePartnerPick(pick.p, pinQ) }));
                 if (!picks.length) return null;
                 return (
                   <div style={{ marginBottom: 16 }} data-where-to-go-next>
@@ -1134,7 +1142,7 @@ export default function DetailSheet({ ctx }) {
                 </div>
               ); })()}
               <div style={{ marginBottom: 16 }}>
-              {!detail._event && nearbyTourListAllowed(detail) && ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"].includes(placeKind(detail)) && (() => {
+              {!detail._event && nearbyTourListAllowed(detail, pinQ) && ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"].includes(placeKind(detail)) && (() => {
                 const _hasNoteUrl = (() => { const _n = wayfindNotes(detail.name); return !!(_n && _n.some((x) => x && typeof x === "object" && x.url)); })();
                 return <BookingCTA variant="list" detail={detail} kind={placeKind(detail)} viaTours={viaTours} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} locName={locName} suppressFallback={_hasNoteUrl} placeId={detail.id} city={ctaCity} />;
               })()}

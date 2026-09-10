@@ -435,6 +435,10 @@ node scripts/check-intent-partner-picks.mjs
 # pinned Viator codes had no wf_experiences row; each painted a CTA that 302'd
 # the customer home. Feeds a fabricated code through a real copy of the module.
 node scripts/check-pinned-offer-serveable.mjs
+# 2026-09-10 — and the button must go away on its OWN, without a deploy. Drives
+# the real chain (pinHealth -> the route -> pinQuarantine -> the gate -> a
+# RENDERED card) and proves five ways of not knowing quarantine nothing.
+node scripts/check-pin-quarantine-live.mjs
 node scripts/check-unified-commerce-rail.mjs
 node scripts/test-event-rail-images.mjs
 node scripts/test-experience-now-rank.mjs
