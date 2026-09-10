@@ -138,11 +138,11 @@ const ok = (c, m) => { if (c) pass++; else fails.push(m); };
       "self-test: ORDER is not a difference — the contract is a set, and the menu's order is DaypartRail's business");
   }
 
-  // The three excluded records, named, so a future reader does not have to
-  // re-derive why 19 records yield 16 tiles.
+  // The four excluded records, named, so a future reader does not have to
+  // re-derive why the record count and the tile count differ.
   const excluded = RAILS.filter((r) => r && (r.posterHidden || r.artStale || r.retiredInto)).map((r) => r.id).sort();
-  ok(excluded.join(",") === "drive,events,lunchcity",
-    `exactly three RAILS records stay off the homepage menu — events (retiredInto Night Out), lunchcity and drive (posterHidden by #1196). Got: [${excluded.join(", ")}]. If this list changed, say so deliberately here and in menuPosterIntegrity's header.`);
+  ok(excluded.join(",") === "chef,drive,events,lunchcity",
+    `exactly four RAILS records stay off the homepage menu — events (retiredInto Night Out), lunchcity and drive (posterHidden by #1196), and chef (posterHidden by the owner on 2026-09-10; the record and Ron's seven picks stay, only the tile comes off the track). Got: [${excluded.join(", ")}]. If this list changed, say so deliberately here and in menuPosterIntegrity's header.`);
 }
 
 ok(Array.isArray(SCENARIOS) && SCENARIOS.length > 0, "SCENARIOS is a non-empty array");

@@ -153,7 +153,19 @@ const PAIRS = {
   // events. Real experiences." art, which was off-brand and made no promise
   // about what was actually behind it.
   events: { copy: "12d73e13f0973f31", art: "70e5f6df7ebd983a" },
-  family: { copy: "947a8d48e13dac62", art: "9e64f507ce5c39e6" },
+  // 2026-09-10 — RE-PINNED AFTER READING THE NEW POSTER AT 760px. The owner's
+  // replacement art reads "FAMILY DAY, SOLVED." over a family of four facing
+  // the water, arms up. Both hashes moved in the same commit and that is the
+  // point: the rail title, the /family page <title> and the intent card line
+  // all became "solved" so the baked word and every word around it agree.
+  // The rail promises "Nobody melts down at 3pm / Kid-approved, pet-friendly,
+  // shade checked" and opens the family intent collection — the poster makes
+  // no claim beyond that, and asserts no deal, price or Score.
+  // Note for a future reader: this art is a BEACH scene and "Beach Day" is its
+  // own rail one tile away. They are distinguished by their baked words, not
+  // their photography — if the beach poster is ever redrawn, check the pair
+  // still reads as two different promises.
+  family: { copy: "d2077983a0b43b62", art: "212f64504077e60e" },
   locals: { copy: "24b845b1d9114368", art: "78ea67914dee5c7b" },
   // 2026-09-03 — RE-PINNED AFTER PIXEL REVIEW AT 760px. The owner-supplied
   // poster reads “wayfind / BEST SUMMER EVER” over the pool-and-watermelon
