@@ -398,7 +398,7 @@ ok(/uniqueRecommendations\(top40, (?:\[\]|[A-Za-z_$][\w$]*), TOP40_MAX\)/.test(h
   /uniqueRecommendations\(rows\.eat, eatClaimedBefore, 10\)/.test(home) &&
   /excludePlaceIds=\{excludeBySection\[sdef\.id\] \|\| \[\]\}/.test(home),
   "the homepage still wires the answer → later menus as one ordered venue-claim chain, whatever sits at its head");
-for (const copy of ["The Best Around You", "Actually Worth Eating", "What Should We Do Today?", "Places You'd Never Find", "Locals Know", "Events Near You", "Tonight's Move", "Worth the Drive"]) {
+for (const copy of ["The Best Around You", "Actually Worth Eating", "What Should We Do Today?", "Places You'd Never Find", "Creators Pick", "Events Near You", "Tonight's Move", "Worth the Drive"]) {
   ok(home.includes(copy), `the renamed hierarchy includes ${copy}`);
 }
 const collapse = read("lib/railCollapse.js");
