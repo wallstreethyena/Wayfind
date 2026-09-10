@@ -87,6 +87,7 @@ const WIKI_ACCEPT_IDS = new Set([
 // does not produce. Synthetic park names are not in this set — do not
 // cite them as live yield.
 const COMMONS_DIRECT_ACCEPT_IDS = new Set([
+  "ChIJY3qV_tYXw4gRoy-jOe1OAo4", // ArtSLAM — File:Realize Bradenton ArtSlam 2011 Winner.jpg
   "ChIJ7-I5X4tHw4gRAK6g4JEha7M", // Celery Fields
   "ChIJE0_XXFVJw4gRroRqJ-TSTXg", // Canopy Walk
 ]);
@@ -279,8 +280,8 @@ async function main() {
     if (beforeStats.accepts !== 5) {
       throw new Error(`hermetic baseline must be 5/40, got ${beforeStats.accepts}/${rows.length}`);
     }
-    if (afterStats.accepts !== 7 || afterStats.extraDirect !== 2) {
-      throw new Error(`hermetic AFTER must be 7/40 (5 wiki + 2 real Commons-direct), got ${afterStats.accepts} accepts / ${afterStats.extraDirect} extra`);
+    if (afterStats.accepts !== 8 || afterStats.extraDirect !== 3) {
+      throw new Error(`hermetic AFTER must be 8/40 (5 wiki + 3 live-proven Commons-direct), got ${afterStats.accepts} accepts / ${afterStats.extraDirect} extra`);
     }
     if (afterStats.falsePositives !== 0 || beforeStats.falsePositives !== 0) {
       throw new Error("Benderson/Camp Gladiator attached — false positive");

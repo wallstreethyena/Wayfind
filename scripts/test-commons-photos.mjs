@@ -835,6 +835,26 @@ async function main() {
     }
 
     {
+      const ARTSLAM = { name: "ArtSLAM at Bradenton Riverwalk", lat: 27.4989, lng: -82.5748, city: "Bradenton" };
+      const slamIdent = verifyCommonsFileIdentity(ARTSLAM, {
+        title: "File:Realize Bradenton ArtSlam 2011 Winner.jpg",
+        description: "Realize Bradenton ArtSlam 2011 winner",
+        categories: ["Category:Bradenton, Florida"],
+        lat: 27.4989,
+        lng: -82.5748,
+      });
+      ok(slamIdent.ok, `D18: File:Realize Bradenton ArtSlam 2011 Winner.jpg verifies as ArtSLAM (got ${JSON.stringify(slamIdent)})`);
+      const riverwalkOnly = verifyCommonsFileIdentity(ARTSLAM, {
+        title: "File:Bradenton Riverwalk.jpg",
+        description: "ArtSLAM event at Bradenton Riverwalk",
+        categories: ["Category:ArtSLAM", "Category:Bradenton, Florida"],
+        lat: 27.4989,
+        lng: -82.5748,
+      });
+      ok(!riverwalkOnly.ok && riverwalkOnly.reason === "identity_title_mismatch", `D18: a generic Riverwalk neighborhood photo must not attach to ArtSLAM even when the caption names the org (got ${JSON.stringify(riverwalkOnly)})`);
+    }
+
+    {
       // MUTATION RED-PROVE. If identity continue is deleted, the Wallenda
       // file is assigned to Camp Gladiator. This block watches the mutation
       // land, then proves that assignment happens — which is the red D4
