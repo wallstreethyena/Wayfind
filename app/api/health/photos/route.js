@@ -25,7 +25,7 @@
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-import { computePhotoCoverage } from "../../../../lib/photoCoverage";
+import { computePhotoCoverage, computePhotoRunway } from "../../../../lib/photoCoverage";
 
 function sbEnvHere() {
   const raw = String(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "").trim().replace(/\/+$/, "");
@@ -54,9 +54,9 @@ export async function GET(req) {
   if (!s) return Response.json({ error: "unconfigured" }, { status: 503, headers: { "cache-control": "no-store" } });
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
-  let activeWithRef, openRows, unresolvedRows, recoveries7d, lastPulse;
+  let activeWithRef, openRows, unresolvedRows, recoveries7d, lastPulse, lastRepairPulses;
   try {
-    [activeWithRef, openRows, unresolvedRows, recoveries7d, lastPulse] = await Promise.all([
+    [activeWithRef, openRows, unresolvedRows, recoveries7d, lastPulse, lastRepairPulses] = await Promise.all([
       count(s, "wf_inventory?select=place_id&status=eq.OPERATIONAL&or=(excluded.is.null,excluded.is.false)&photo_ref=not.is.null"),
       // 2026-09-09: open+budget_blocked, not open alone — a budget_blocked
       // row is still an unresolved placeholder from a reader's perspective
@@ -73,6 +73,15 @@ export async function GET(req) {
         headers: { apikey: s.key, Authorization: "Bearer " + s.key },
         cache: "no-store",
       }).then((r) => (r.ok ? r.json() : [])).catch(() => []),
+      // Last two photo-repair pulses (2026-09-09) — burn24h/runwayDays are
+      // computed from these via lib/photoCoverage.js's computePhotoRunway,
+      // the SAME helper scripts/os-state.mjs reads, so this endpoint and the
+      // generated OS doc can never print a different runway for the same
+      // moment.
+      fetch(`${s.url}/rest/v1/wf_job_pulse?job=eq.photo-repair&select=note,ran_at&order=ran_at.desc&limit=2`, {
+        headers: { apikey: s.key, Authorization: "Bearer " + s.key },
+        cache: "no-store",
+      }).then((r) => (r.ok ? r.json() : [])).catch(() => []),
     ]);
   } catch (e) {
     return Response.json({ error: "read_failed", detail: String((e && e.message) || e) }, { status: 503, headers: { "cache-control": "no-store" } });
@@ -80,6 +89,9 @@ export async function GET(req) {
 
   const pulseRow = Array.isArray(lastPulse) && lastPulse[0];
   const pctMatch = pulseRow && /placeholder-rate\s+(\d+)%/.exec(String(pulseRow.note || ""));
+  const runway = computePhotoRunway(
+    (Array.isArray(lastRepairPulses) ? lastRepairPulses : []).map((r) => ({ note: r.note, ranAt: r.ran_at }))
+  );
   // exactFresh / samePlaceFresh (the two inputs computePhotoCoverage needs
   // for a live real-photo-coverage percentage) require a slow cross-reference
   // between wf_places_cache and wf_inventory — this surface stays fast and
@@ -107,6 +119,8 @@ export async function GET(req) {
       recoveries7d: coverage.recoveries7d,
       placeholderRatePctLastRun: pctMatch ? Number(pctMatch[1]) : null,
       lastMonitorRunAt: pulseRow ? pulseRow.ran_at : null,
+      burn24h: runway.burn24h,
+      runwayDays: runway.runwayDays,
       checkedAt: new Date().toISOString(),
     },
     { status: 200, headers: { "cache-control": "no-store" } }

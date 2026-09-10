@@ -346,6 +346,7 @@ node scripts/check-editorial-coverage-pipeline.mjs
 node scripts/test-atlas-reclassify.mjs
 node scripts/check-art-assets.mjs
 node scripts/check-brand-derivatives.mjs
+node scripts/test-seasonal-brand.mjs
 node scripts/check-coupon-place-match.mjs
 node scripts/check-no-stuck-loading.mjs
 node scripts/check-promo-location-honesty.mjs
@@ -760,6 +761,13 @@ node scripts/check-sub-contracts.mjs
 # the job hid from job-watch, the monitor built to catch a job succeeding at
 # nothing. Red-and-green proven against the real bug.
 node scripts/check-job-pulse-contract.mjs
+# 2026-09-09 — verify-offers returned { ok: true, checked: 0 } forever with no
+# wf_job_pulse row at all: its persistence table was never applied to
+# production and lib/verifiedOfferStore.js degrades every failure to a no-op
+# by design, so job-watch could not see a job that never reported. Makes an
+# unmonitored scheduled job structurally impossible going forward, on every
+# cron reachable from vercel.json's schedule.
+node scripts/check-cron-pulse-coverage.mjs
 # v8.29 — every route that renders the app shell must hand it the shell's
 # server data. /p/<id> shipped without railMenu, which is why liking a card
 # landed the owner on a homepage with no rails and no way back to one.
@@ -1404,3 +1412,9 @@ node scripts/test-beach-alert-recovery.mjs
 node scripts/test-editorial-retry-content.mjs
 
 node scripts/test-photo-queue-batch.mjs
+
+# Dated local flags must match the beach and remain fresh at request time.
+node scripts/test-beach-local-conditions.mjs
+
+# Reviewed source-backed prose fills only verified empty editorial slots.
+node scripts/test-owned-editorial-review.mjs

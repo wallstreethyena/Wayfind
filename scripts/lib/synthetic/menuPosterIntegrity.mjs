@@ -2,10 +2,12 @@
 // homepage poster menu synthetic.  Keep this free of browser/network code so
 // the hermetic monitor guard can red-prove its decisions.
 
-// RAILS currently declares 19 records.  Three never reach the homepage menu:
-// `events` is retired into Night Out (`retiredInto`), and `lunchcity` /
-// `drive` were deliberately un-promoted by #1196 (`posterHidden: true`).
-// These are the 16 tiles a reader must be able to choose.  This explicit
+// RAILS currently declares 19 records.  FOUR never reach the homepage menu:
+// `events` is retired into Night Out (`retiredInto`), `lunchcity` / `drive`
+// were deliberately un-promoted by #1196 (`posterHidden: true`), and `chef`
+// was hidden by the owner on 2026-09-10 (`posterHidden: true` — the record,
+// the id, and Ron Duprat's seven picks all stay; only the tile comes off the
+// track).  These are the 15 tiles a reader must be able to choose.  This explicit
 // product contract catches both a disappeared tile and a quietly-added tile
 // that has no monitored owner.
 //
@@ -27,7 +29,7 @@
 export const EXPECTED_VISIBLE_POSTER_IDS = Object.freeze([
   "season", "today", "trending", "eat", "beach", "family",
   "locals", "cindy", "tonight", "datenight", "break",
-  "breakfast", "birthday", "blog", "chef", "augtober",
+  "breakfast", "birthday", "blog", "augtober",
 ]);
 
 const asId = (value) => value == null ? "" : String(value);

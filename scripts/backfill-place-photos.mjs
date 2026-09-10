@@ -25,7 +25,7 @@
 // touches the network and a live database and must never be able to block a
 // code merge.
 import { runBackfill, describeAtRisk } from "../lib/placePhotoBackfill.js";
-import { recordPulse } from "../lib/jobPulse.js";
+import { recordPulse, isDeterministicFailureNote } from "../lib/jobPulse.js";
 
 const DEFAULT_LIMIT = 25;
 const DEFAULT_SCAN_LIMIT = 1000;
@@ -53,10 +53,19 @@ async function main() {
     process.exit(1);
   }
 
+  // NEVER RE-WRAP A NOTE THAT ALREADY CARRIES A DETERMINISTIC PREFIX
+  // (lib/jobPulse.js's `unavailable:`/`billing:`/`quota:` — 2026-09-09). This
+  // CLI is the manual twin of app/api/cron/place-photos/route.js and files
+  // pulses under the SAME "place-photos" job name — it shares the exact same
+  // note-composition bug the route shipped with: prepending "place-photos: "
+  // in front of runBackfill's "unavailable: place-photos wf_photo_at_risk
+  // read failed (HTTP 500)" would push the prefix off column 0 and silence a
+  // manual-run page just as surely as the route's did. See
+  // app/api/cron/place-photos/route.js's identical comment.
   const note = result.tableUnavailable
     ? `place-photos: table unavailable (${result.tableStatus != null ? result.tableStatus : "error"})`
     : result.note
-      ? `place-photos: ${result.note}`
+      ? (isDeterministicFailureNote(result.note) ? result.note : `place-photos: ${result.note}`)
       : `place-photos: ${result.active} active (${result.vaulted || 0} vaulted), ${result.rejected} rejected, ${result.failed} failed, ${result.deferred || 0} deferred (${describeAtRisk({ ...result, source: args.source })}, general scanned ${result.scanned}, ${result.alreadyCovered} already covered)${result.dryRun ? " (dry-run)" : ""}`;
 
   await recordPulse("place-photos", { attempted: result.attempted, succeeded: result.active, note });

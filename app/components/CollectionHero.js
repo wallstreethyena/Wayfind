@@ -17,6 +17,8 @@
 // app/components/screens/Experience.js (a shell file) now renders its header
 // through here, and an unregistered file silently drops out of every content
 // guardrail's grep set.
+import { activeSeasonalMark, NORMAL_MARK } from "../../lib/seasonalBrand";
+
 const C = { text: "#F1F5F9", gold: "#E8C97A" };
 
 // `wordmark` defaults ON because that is what the standalone share pages need.
@@ -34,6 +36,12 @@ const C = { text: "#F1F5F9", gold: "#E8C97A" };
 // against content nobody bounded.
 // Defaults keep every existing caller byte-identical: 34px and no clamp.
 export default function CollectionHero({ eyebrow, titleTop, titleBottom, subtitle, heroImg, accent, topLeft, topRight, cta, height = 300, radius = 0, bleed = null, maxWidth = 680, wordmarkHref = "/", wordmark = true, titleSize = 34, titleLines = 0 }) {
+  // Seasonal wordmark (lib/seasonalBrand.js). Named `seasonalWordmark`, not
+  // `wordmark` — that identifier is already the show/hide boolean prop above.
+  // The fixed 118x47 box + objectFit:"contain" below already tolerates any
+  // source aspect ratio (it letterboxes, never crops/stretches), so the
+  // Halloween mark's different ratio needs no extra sizing logic here.
+  const seasonalWordmark = activeSeasonalMark() || NORMAL_MARK;
   return (
     <header style={{ position: "relative", height, overflow: "hidden", ...(radius ? { borderRadius: radius } : null), ...(bleed ? { margin: bleed } : null) }}>
       {heroImg && <img src={heroImg} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
@@ -42,7 +50,7 @@ export default function CollectionHero({ eyebrow, titleTop, titleBottom, subtitl
       {topRight || null}
       {wordmark ? (
         <a href={wordmarkHref} aria-label="Wayfind home" style={{ position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", display: "block", width: 118, height: 47, textDecoration: "none" }}>
-          <img src="/brand/wayfind-wordmark-transparent-v2.png" alt="Wayfind" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
+          <img src={seasonalWordmark.png} alt="Wayfind" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
         </a>
       ) : null}
       <div style={{ position: "absolute", left: 0, right: 0, bottom: 18 }}>

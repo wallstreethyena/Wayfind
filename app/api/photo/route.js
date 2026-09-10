@@ -35,6 +35,31 @@ const ONE_YEAR = 60 * 60 * 24 * 365;
 // the same cached call the self-heal below already makes.
 const PLACE_RX = /^[A-Za-z0-9_-]{10,}$/;
 
+// SPEND ATTRIBUTION (2026-09-09). Vercel's runtime logs carry no UA, no IP,
+// and not this route's own x-wayfind-photo-result header — which is exactly
+// why a 93-grant burst at 18:30 UTC (111 grants total, ~$0.78) had to be
+// reconstructed from request TIMING instead of looked up. Called ONLY where
+// the caller actually READS "google" off `result.reason` below — a request
+// that took a real ledger grant and fetched from Google, never a
+// cache/inventory/recovery/owned-free/probe hit, so this stays silent at
+// normal volume. Exactly three fields, nothing else: user-agent,
+// x-forwarded-for, and the result reason itself — NEVER the photo ref, the
+// query string, any key, or any env value (scripts/test-secret-output-guard.mjs
+// and scripts/test-client-paid-boundary.mjs both read this area of the repo).
+// Wrapped so a logging failure can never turn a working photo redirect into
+// an error response.
+function logGoogleGrant(req, reason) {
+  try {
+    console.log("photo-spend", {
+      ua: req.headers.get("user-agent") || null,
+      xff: req.headers.get("x-forwarded-for") || null,
+      reason,
+    });
+  } catch {
+    // A logging failure must never break the response path.
+  }
+}
+
 export async function GET(req) {
   // COST GUARD (2026-08-25 / 2026-08-26): photo media is metered. #956
   // deleted the category+metro Pexels pool (one manatee on three Family
@@ -166,6 +191,13 @@ export async function GET(req) {
   });
 
   if (result.type === "redirect" && result.location) {
+    // "google" is the ONLY redirect reason that means a real ledger grant was
+    // just taken (lib/placePhotoServe.js's other redirect reasons — cache,
+    // inventory, inventory-ref-cache — are free reads). `!probe` is stated
+    // explicitly, defence-in-depth style: a probe can never reach "google"
+    // today (the resolver's own probe short-circuit runs BEFORE any Google
+    // fetch), but this line does not want to depend on that staying true.
+    if (result.reason === "google" && !probe) logGoogleGrant(req, result.reason);
     const dest = /^https?:\/\//i.test(result.location)
       ? result.location
       : new URL(result.location, req.url);

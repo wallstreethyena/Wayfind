@@ -44,10 +44,32 @@
 //      `at-risk ${taken}/${scanned}` unconditionally → H3/H5/H6 go red.
 //  10. vercel.json: put the at-risk drain back on `50 4 * * *` → H9
 //      (capacity) goes red while every other assertion stays green.
-import { readFileSync } from "node:fs";
+//  11. app/api/cron/place-photos/route.js: re-wrap a deterministic-prefixed
+//      note in "place-photos: " (undo the isDeterministicFailureNote check
+//      in the note ternary) → H3b's "begins with unavailable:" assertion
+//      goes red, and so does its classifyHealth-reads-it-as-incident
+//      assertion, because the re-wrapped note no longer matches
+//      DETERMINISTIC_NOTE_PREFIX at column 0.
+//  12. lib/placePhotoBackfill.js: revert the source==="at-risk" &&
+//      atRiskUnavailable early return's note to the old
+//      `${AT_RISK_VIEW} unavailable` (no "unavailable:" prefix, no status) →
+//      H3c's "begins with unavailable:" and "carries the real HTTP status"
+//      assertions go red. (H3b alone does NOT catch this mutation — H3b
+//      hand-copies the early-return's shape as a fixture precisely so it can
+//      isolate the ROUTE's behaviour; H3c is what proves runBackfill itself
+//      still produces that shape.)
+import { readFileSync, readdirSync } from "node:fs";
 import { findFreePhoto } from "../lib/freePhoto.js";
 import { runBackfill, describeAtRisk } from "../lib/placePhotoBackfill.js";
 import { installWikimediaFetchPolicy } from "../lib/wikimediaFetchPolicy.js";
+import { classifyHealth, isDeterministicFailureNote } from "../lib/jobPulse.js";
+
+// Exposed for the several route.js sources below that are read, import-
+// stripped and re-executed via a `data:text/javascript,` URL (same technique
+// as the rest of this file) — that eval'd module cannot see this file's own
+// import bindings, only globalThis, so this is how the REAL function (not a
+// second, re-derived regex) reaches the route code under test.
+globalThis.__wfIsDeterministicFailureNote = isDeterministicFailureNote;
 
 let failures = 0;
 const ok = (condition, message) => {
@@ -403,6 +425,7 @@ const PHOTO = (id) => ({
     const recordPulse = (...a) => globalThis.__wfVaultRouteTest.recordPulse(...a);
     const jobCannotRun = (...a) => globalThis.__wfVaultRouteTest.jobCannotRun(...a);
     const jobFailed = (...a) => globalThis.__wfVaultRouteTest.jobFailed(...a);
+    const isDeterministicFailureNote = (...a) => globalThis.__wfIsDeterministicFailureNote(...a);
   `;
   const route = await import("data:text/javascript," + encodeURIComponent(prelude + "\n" + stripped));
 
@@ -592,12 +615,19 @@ const PHOTO = (id) => ({
 //   A backfill that cannot finish before the thing it is backfilling expires
 //   is not a slow backfill, it is a decorative one.
 //
-//   H1-H3 pin lib/placePhotoBackfill.js#describeAtRisk (pure). H4-H6 prove the
-//   cron route's pulse note actually goes through it, so the three states stay
-//   distinguishable to an operator reading wf_job_pulse. H7-H10 pin the
-//   SCHEDULE CAPACITY in vercel.json as arithmetic — runs-per-day x the
-//   entry's own limit= — not as a literal schedule string, so any future
-//   schedule that still clears the bar is free to land.
+//   H1-H3 pin lib/placePhotoBackfill.js#describeAtRisk (pure). H3b (2026-09-09)
+//   proves a lost `?source=at-risk` read PAGES: the route's FINAL filed note
+//   begins with "unavailable:", and lib/jobPulse.js#classifyHealth (called,
+//   not regex'd) reads it as an incident — this is the production defect that
+//   let that job stay dead forever behind an "idle" label. H3c proves the
+//   REAL runBackfill (not H3b's hand-copied fixture) actually produces that
+//   note shape when its wf_photo_at_risk fetch genuinely fails. H4-H6 prove the
+//   cron route's pulse note actually goes through describeAtRisk on the OTHER
+//   (non-source=at-risk) paths, so the three states stay distinguishable to
+//   an operator reading wf_job_pulse. H7-H10 pin the SCHEDULE CAPACITY in
+//   vercel.json as arithmetic — runs-per-day x the entry's own limit= — not
+//   as a literal schedule string, so any future schedule that still clears
+//   the bar is free to land.
 {
   // H1-H3 — the three states that used to render byte-identically.
   {
@@ -618,6 +648,271 @@ const PHOTO = (id) => ({
       describeAtRisk({ atRiskUnavailable: true, atRiskTaken: 0, atRiskScanned: 0, source: "all" }).includes("UNAVAILABLE"),
       "H3: a failed read OUTRANKS source= — an outage is the more urgent fact even when the caller asked for something narrower"
     );
+  }
+
+  // H3b (THE HEADLINE INVARIANT, 2026-09-09) — a lost at-risk worklist must
+  // PAGE, not file as idle. H1-H3 above pin describeAtRisk's pure text; this
+  // proves two things H1-H3 cannot: (1) the FINAL pulse note the ROUTE files
+  // for `?source=at-risk` on a lost read begins with "unavailable:" at
+  // column 0 — proven by executing the real route source (same
+  // read-strip-eval technique as H4-H6 below) with the EXACT shape
+  // lib/placePhotoBackfill.js#runBackfill's `source === "at-risk" &&
+  // atRiskUnavailable` early return produces; and (2) lib/jobPulse.js's
+  // classifyHealth — IMPORTED AND CALLED here, never regex'd a second time —
+  // reads that filed note as an INCIDENT, never idle. Both matter: (1)
+  // without (2) proves the note LOOKS right; (2) without (1) proves the
+  // classifier works on a hand-typed string that the route might not
+  // actually produce. This is the exact production row
+  // (attempted=0 succeeded=0 consecutive_zero=0) that used to be filed as
+  // idle and could stay dead forever.
+  {
+    const raw = readFileSync(new URL("../app/api/cron/place-photos/route.js", import.meta.url), "utf8");
+    const stripped = raw.replace(/^import[^;]+;\n/gm, "");
+    const prelude = `
+      const runBackfill = (...a) => globalThis.__wfUnavailablePageTest.runBackfill(...a);
+      const recordPulse = (...a) => globalThis.__wfUnavailablePageTest.recordPulse(...a);
+      const jobCannotRun = (...a) => { throw new Error("jobCannotRun must not fire: " + a[1]); };
+      const jobFailed = (...a) => { throw new Error("jobFailed must not fire: " + a[1]); };
+      const isDeterministicFailureNote = (...a) => globalThis.__wfIsDeterministicFailureNote(...a);
+    `;
+    const route = await import("data:text/javascript," + encodeURIComponent(prelude + "\n" + stripped));
+
+    const pulses = [];
+    globalThis.__wfUnavailablePageTest = {
+      // Copied field-for-field from lib/placePhotoBackfill.js's
+      // `source === "at-risk" && atRiskUnavailable` early return — not
+      // re-imagined here, so a change to that return shape that breaks the
+      // route is what this catches.
+      runBackfill: async () => ({
+        ok: true, attempted: 0, active: 0, rejected: 0, failed: 0,
+        atRiskUnavailable: true, atRiskStatus: 500,
+        note: "unavailable: place-photos wf_photo_at_risk read failed (HTTP 500)",
+      }),
+      recordPulse: async (job, stats) => { pulses.push({ job, stats }); return true; },
+    };
+
+    const savedSecret = process.env.CRON_SECRET;
+    const savedUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const savedSvc = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    process.env.CRON_SECRET = "unavailable-page-secret";
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://unavailable-page.test.invalid";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "test-key";
+
+    const res = await route.GET(
+      new Request("https://x/api/cron/place-photos?source=at-risk", { headers: { authorization: "Bearer unavailable-page-secret" } })
+    );
+    eq(res.status, 200, "H3b: a lost at-risk worklist still answers 200 — it is reported, not thrown");
+    eq(pulses.length, 1, "H3b: the route files exactly one pulse for the lost read");
+    const filedNote = String((pulses[0].stats || {}).note || "");
+    ok(
+      filedNote.startsWith("unavailable:"),
+      `H3b (THE HEADLINE INVARIANT): the FINAL pulse note the route files begins with "unavailable:" at column 0 (got ${JSON.stringify(filedNote)}) — route.js must not re-wrap a note that already carries a deterministic prefix in "place-photos: ", or the anchor breaks and this never pages`
+    );
+    eq(pulses[0].stats.attempted, 0, "H3b: attempted=0 — exactly the production shape that used to hide as idle");
+    eq(pulses[0].stats.succeeded, 0, "H3b: succeeded=0 — exactly the production shape that used to hide as idle");
+
+    // classifyHealth is IMPORTED AND CALLED with the note the route ACTUALLY
+    // filed above — not re-derived, not matched by a second regex here — and
+    // must read it as an incident. This is the assertion that closes the
+    // loop: it is not enough for the note to look right, the classifier that
+    // decides whether to page has to agree.
+    const { incidents, idle } = classifyHealth([
+      { job: "place-photos", attempted: pulses[0].stats.attempted, succeeded: pulses[0].stats.succeeded, consecutive_zero: 0, last_note: filedNote },
+    ]);
+    eq(
+      incidents.length,
+      1,
+      `H3b (THE OTHER HEADLINE INVARIANT): classifyHealth, called with the note the route actually filed, reports it as an INCIDENT (got ${incidents.length} incidents, ${idle.length} idle) — this is the exact production row that used to be filed as idle and never page`
+    );
+    eq(idle.length, 0, "H3b: …and it must not ALSO land in idle");
+
+    process.env.CRON_SECRET = savedSecret;
+    process.env.NEXT_PUBLIC_SUPABASE_URL = savedUrl;
+    process.env.SUPABASE_SERVICE_ROLE_KEY = savedSvc;
+    delete globalThis.__wfUnavailablePageTest;
+  }
+
+  // H3c — the REAL runBackfill (not a hand-copied fixture) produces the note
+  // shape H3b assumes, when its wf_photo_at_risk fetch genuinely fails. H3b
+  // proves the ROUTE composes a note it is HANDED correctly; this proves
+  // lib/placePhotoBackfill.js is the one actually HANDING it that shape —
+  // without this, a change to the real early-return's note text could drift
+  // away from H3b's fixture and nothing here would notice.
+  {
+    const savedFetch = globalThis.fetch;
+    globalThis.fetch = async (url) => {
+      const u = String(url);
+      if (u.startsWith(SB.url + "/rest/v1/wf_photo_at_risk")) return { ok: false, status: 500, json: async () => ({}) };
+      throw new Error("UNEXPECTED NETWORK CALL: " + u);
+    };
+    let result;
+    try {
+      result = await runBackfill({ limit: 5, source: "at-risk", sbEnv: SB, resolvePhoto: async () => null });
+    } finally {
+      globalThis.fetch = savedFetch;
+    }
+    ok(result.ok, "H3c: a lost at-risk read is still an ok:true result — reported, not thrown");
+    eq(result.attempted, 0, "H3c: attempted=0 — a failed read never gets to attempt anything");
+    eq(result.atRiskUnavailable, true, "H3c: atRiskUnavailable is set on the real result");
+    eq(result.atRiskStatus, 500, "H3c: the real HTTP status is carried through to atRiskStatus");
+    ok(
+      typeof result.note === "string" && result.note.startsWith("unavailable:"),
+      `H3c (THE HEADLINE INVARIANT): the REAL runBackfill's note begins with "unavailable:" at column 0 (got ${JSON.stringify(result.note)}) — this is exactly what the route in H3b is handed and must not re-wrap`
+    );
+    ok(result.note.includes("500"), `H3c: …and carries the real HTTP status inline (got ${JSON.stringify(result.note)})`);
+  }
+
+  // H3d (2026-09-09, "grep for its siblings" — CLAUDE.md's 2026-08-25 lesson
+  // 4) — scripts/backfill-place-photos.mjs is the manual-CLI TWIN of this
+  // route: same job name ("place-photos"), same runBackfill import, and
+  // until this fix, its OWN un-patched copy of the exact bug H3b/H3c guard —
+  // wrapping every result.note in "place-photos: " unconditionally, which
+  // would have silenced a manual run hitting the same lost-worklist failure
+  // just as surely as the route's did.
+  //
+  // Two parts, because the CLI's `main()` is not exported and calls
+  // process.exit/touches the real network by default — CLAUDE.md: "assert on
+  // the call where you can; if a call is genuinely not executable from a
+  // guard, say so in the assertion message":
+  //
+  //   H3d-i  STRUCTURAL, but not a name-appears-anywhere grep: it discovers
+  //          the CLOSED SET of files that import `runBackfill` from
+  //          lib/placePhotoBackfill.js (so a third twin added later is
+  //          AUTOMATICALLY included, not silently skipped), asserts that set
+  //          is exactly today's two known files (named, counted — not
+  //          `includes`), and for each one counts EXACTLY ONE structural
+  //          `isDeterministicFailureNote(result.note) ? result.note : ...`
+  //          note-composition site (comments stripped first, per the
+  //          2026-07-30 "raw source fails on its own comment" trap).
+  //   H3d-ii EXECUTABLE: the CLI's `main` is genuinely callable — it is a
+  //          real function reachable from the eval'd module's own scope, its
+  //          auto-run gate (`if (import.meta.url === ...)`) is FALSE inside
+  //          a `data:` module and therefore never fires on its own — so this
+  //          exposes it via `globalThis` and CALLS it with the same
+  //          atRiskUnavailable double H3b used, proving the CLI's FILED note
+  //          begins with "unavailable:", not just that the source looks right.
+  {
+    // H3d-i — the closed set of runBackfill importers, and each one's parity.
+    const IMPORTERS = ["app/api/cron/place-photos/route.js", "scripts/backfill-place-photos.mjs"];
+    const stripComments = (src) => src.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
+    const repoRoot = new URL("../", import.meta.url);
+    // Every source file in the three directories runBackfill could plausibly
+    // be imported from — app/, lib/, scripts/ — whose own import statements
+    // name lib/placePhotoBackfill(.js) AND a bare `runBackfill` binding.
+    // Excludes this test file itself (which legitimately imports the real
+    // function to drive H1-H3/H3c) and anything under a `test-`/`check-`
+    // prefix (guards and tests reference the name in fixtures/comments, not
+    // as a production consumer).
+    const IMPORT_RE = /import\s*\{[^}]*\brunBackfill\b[^}]*\}\s*from\s*["'][^"']*placePhotoBackfill(?:\.js)?["']/;
+    const candidateGlobs = ["app", "lib", "scripts"];
+    const found = [];
+    for (const dir of candidateGlobs) {
+      const walk = (relDir) => {
+        const absDir = new URL(relDir + "/", repoRoot);
+        let entries;
+        try {
+          entries = readdirSync(absDir, { withFileTypes: true });
+        } catch {
+          return;
+        }
+        for (const ent of entries) {
+          const rel = relDir + "/" + ent.name;
+          if (ent.isDirectory()) {
+            if (ent.name === "node_modules" || ent.name === ".next") continue;
+            walk(rel);
+          } else if (/\.(js|mjs)$/.test(ent.name)) {
+            const base = ent.name;
+            if (base.startsWith("test-") || base.startsWith("check-")) continue;
+            if (rel === "lib/placePhotoBackfill.js") continue; // the definition, not a consumer
+            const src = readFileSync(new URL(rel, repoRoot), "utf8");
+            if (IMPORT_RE.test(stripComments(src))) found.push(rel);
+          }
+        }
+      };
+      walk(dir);
+    }
+    found.sort();
+    const expected = [...IMPORTERS].sort();
+    eq(
+      JSON.stringify(found),
+      JSON.stringify(expected),
+      `H3d-i (THE HEADLINE INVARIANT): the discovered set of production runBackfill importers is exactly today's two known files, named — a THIRD file added later that imports runBackfill is picked up here automatically (got ${JSON.stringify(found)})`
+    );
+
+    // Each importer: EXACTLY ONE structural note-composition site routing a
+    // truthy lib note through isDeterministicFailureNote before falling back
+    // to the job-name prefix. Position-anchored (`? result.note :` inside the
+    // same ternary as the predicate call), not a bare substring — a file that
+    // merely IMPORTS isDeterministicFailureNote without using it in the note
+    // ternary must not satisfy this.
+    const SITE_RE = /isDeterministicFailureNote\(result\.note\)\s*\?\s*result\.note\s*:/g;
+    for (const rel of IMPORTERS) {
+      const code = stripComments(readFileSync(new URL(rel, repoRoot), "utf8"));
+      const hits = (code.match(SITE_RE) || []).length;
+      eq(hits, 1, `H3d-i: ${rel} routes its note composition through isDeterministicFailureNote exactly once (got ${hits}) — this is the parity check that closes CLAUDE.md's "grep for its siblings" lesson for this bug`);
+    }
+
+    // Self-test: the structural regex is not vacuously true — it must NOT
+    // match a file that imports the predicate but never calls it in the
+    // ternary shape (the exact bug this file had before today's fix).
+    ok(
+      !SITE_RE.test(stripComments('const x = result.note ? `place-photos: ${result.note}` : "y";')),
+      "H3d-i self-test: the OLD, unpatched wrap (no isDeterministicFailureNote call) does not satisfy the site regex"
+    );
+  }
+
+  // H3d-ii — the CLI's main(), genuinely executed with doubles, files a note
+  // beginning "unavailable:" for the same lost-worklist scenario H3b proves
+  // for the route.
+  {
+    const raw = readFileSync(new URL("../scripts/backfill-place-photos.mjs", import.meta.url), "utf8");
+    ok(/^async function main\(\)/m.test(raw), "H3d-ii PROBE: main() is a real top-level function in the source before any stripping");
+    const stripped = raw
+      .replace(/^#!.*\n/, "") // the CLI's shebang line is not valid inside a data: module
+      .replace(/^import[^;]+;\n/gm, "")
+      // Expose the real `main` after its declaration — its own auto-run gate
+      // (`if (import.meta.url === \`file://${process.argv[1]}\`)`) is left
+      // completely intact and untouched: inside a `data:` module
+      // `import.meta.url` is the data: URL itself, which can never equal
+      // `file://<this test's own argv[1]>`, so that gate stays FALSE on its
+      // own and main() is never auto-invoked — this line is the ONLY way the
+      // test can reach it.
+      + "\nglobalThis.__wfCliTest.mainRef = main;\n";
+    const prelude = `
+      const runBackfill = (...a) => globalThis.__wfCliTest.runBackfill(...a);
+      const describeAtRisk = (...a) => globalThis.__wfCliTest.describeAtRisk(...a);
+      const recordPulse = (...a) => globalThis.__wfCliTest.recordPulse(...a);
+      const isDeterministicFailureNote = (...a) => globalThis.__wfIsDeterministicFailureNote(...a);
+    `;
+    const pulses = [];
+    globalThis.__wfCliTest = {
+      runBackfill: async () => ({
+        ok: true, attempted: 0, active: 0, rejected: 0, failed: 0,
+        atRiskUnavailable: true, atRiskStatus: 500,
+        note: "unavailable: place-photos wf_photo_at_risk read failed (HTTP 500)",
+      }),
+      describeAtRisk,
+      recordPulse: async (job, stats) => { pulses.push({ job, stats }); return true; },
+      mainRef: null,
+    };
+    await import("data:text/javascript," + encodeURIComponent(prelude + "\n" + stripped));
+    ok(typeof globalThis.__wfCliTest.mainRef === "function", "H3d-ii PROBE: main was reached and exposed — the eval genuinely executed the file's top level");
+
+    const savedArgv = process.argv;
+    process.argv = [savedArgv[0], savedArgv[1], "--source=at-risk"];
+    try {
+      await globalThis.__wfCliTest.mainRef();
+    } finally {
+      process.argv = savedArgv;
+    }
+
+    eq(pulses.length, 1, "H3d-ii: the CLI files exactly one pulse for the lost read");
+    const filedNote = String((pulses[0].stats || {}).note || "");
+    ok(
+      filedNote.startsWith("unavailable:"),
+      `H3d-ii (THE HEADLINE INVARIANT): the CLI's ACTUALLY-EXECUTED main() files a note beginning "unavailable:" at column 0 (got ${JSON.stringify(filedNote)}) — a manual run hitting the same failure now pages exactly like the cron does`
+    );
+    delete globalThis.__wfCliTest;
   }
 
   // H4-H6 — the route's pulse note is built through describeAtRisk, proven by
@@ -754,7 +1049,7 @@ const PHOTO = (id) => ({
     ok(perRun <= 100, `H10: and stays inside the route's own limit cap of 100 (got ${perRun}) — a larger number would be silently clamped and quietly halve the capacity this guard just scored`);
   }
 
-  console.log("test-photo-vault-wiring: Section H OK — a lost at-risk worklist is named in the pulse instead of hiding as `at-risk 0/0`, and the drain is scheduled fast enough to finish before the cache cliff");
+  console.log("test-photo-vault-wiring: Section H OK — a lost at-risk worklist is named in the pulse instead of hiding as `at-risk 0/0`, the final filed note for a lost source=at-risk read begins with `unavailable:` and classifyHealth reads it as an incident, and the drain is scheduled fast enough to finish before the cache cliff");
 }
 
 // ── SECTION I — A REQUEST THAT NEVER LANDED MUST NOT BECOME A PERMANENT
@@ -944,10 +1239,218 @@ const PHOTO = (id) => ({
   console.log("test-photo-vault-wiring: Section I OK — an unobservable Wikimedia answer is deferred, never written as a permanent rejection; an open backoff window starts no candidates at all; and deferrals do not page the owner while real failures still do");
 }
 
+// ── SECTION J — THE RUN MUST END BY CHOOSING TO STOP, NEVER BY BEING KILLED ──
+//
+//   MEASURED IN PRODUCTION, 2026-09-09. The first scheduled hourly run after
+//   v8.56.14 returned **504** and wrote NOTHING — no pulse, no decisions, no
+//   trace but a Vercel status code. `maxDuration` was 60s; 25 candidates, each
+//   up to four Wikimedia calls at POOL_SIZE 2 plus a full-resolution Commons
+//   download and upload per hit, on top of an at-risk view read measured at
+//   4.7s warm / 12.4s cold, does not fit. The platform killed the function
+//   mid-flight, and because the route does not pulse until runBackfill
+//   RETURNS, the job could not report that it had been killed. The capacity
+//   fix was delivering 0 decisions an hour, invisibly, while every dashboard
+//   showed a healthy schedule.
+//
+//   Raising maxDuration alone buys the same silent failure a bigger clock.
+//   What is pinned here is the PAIR: a platform ceiling, and a budget the
+//   worker owns strictly inside it, so the run always ends on its own terms
+//   and always gets to say what it finished.
+{
+  const mkPlaces = (n, prefix) =>
+    Array.from({ length: n }, (_, i) => ({ place_id: `${prefix}${String(i).padStart(4, "0")}xxxxxxxxxx`, name: `P${i}`, category: "beach" }));
+
+  // J1 — a budget that has ALREADY expired starts nothing and says so.
+  {
+    const places = mkPlaces(5, "jdead");
+    const db = makeDb({ atRisk: places });
+    let started = 0;
+    const result = await runBackfill({
+      limit: 25,
+      sbEnv: SB,
+      deadlineAt: Date.now() - 1,
+      resolvePhoto: async () => { started++; return null; },
+      storePhoto: null,
+      dryRun: false,
+    });
+    db.restore();
+    eq(started, 0, "J1 (THE HEADLINE INVARIANT): with the budget already spent, ZERO candidates are started — proven by call count on the resolver");
+    eq(db.upsertCalls.length, 0, "J1: and zero rows are written");
+    eq(result.deadlineStopped, 5, "J1: every candidate is recorded as unstarted-on-deadline");
+    eq(result.attempted, 0, "J1: `attempted` excludes them — a place we never looked at was not attempted");
+    eq(result.partial, true, "J1: and the run reports itself PARTIAL, so no caller can read it as a complete drain");
+    eq(result.skipped, 0, "J1: a deadline stop is not misreported as a Wikimedia backoff skip — the operator's next move differs for each");
+    ok((result.details || []).every((d) => d.outcome !== "unstarted" || d.reason === "deadline"), "J1: each unstarted entry names the deadline as its reason");
+  }
+
+  // J2 — a budget that expires PART WAY THROUGH keeps everything already
+  // finished and leaves the rest untouched. This is the resumability
+  // precondition: unstarted places get no row, so they stay in the worklist.
+  {
+    const places = mkPlaces(8, "jpart");
+    const db = makeDb({ atRisk: places });
+    const started = [];
+    const result = await runBackfill({
+      limit: 25,
+      sbEnv: SB,
+      deadlineAt: Date.now() + 60,
+      resolvePhoto: async (place, deps) => {
+        started.push(place.place_id);
+        await new Promise((r) => setTimeout(r, 45));
+        deps.onReject("no_lead_image"); // a DEFINITIVE miss: writes a real row
+        return null;
+      },
+      storePhoto: null,
+      dryRun: false,
+    });
+    db.restore();
+
+    ok(started.length > 0, `J2: work did begin before the budget expired (started ${started.length})`);
+    ok(result.deadlineStopped > 0, `J2: and the budget did expire mid-run (stopped ${result.deadlineStopped})`);
+    eq(started.length + result.deadlineStopped, places.length, "J2: every candidate is accounted for — started or explicitly unstarted, never silently dropped");
+    eq(db.upsertCalls.length, started.length, "J2 (THE HEADLINE INVARIANT): every candidate that STARTED still had its row written — an in-flight candidate is allowed to finish, not aborted");
+    eq(result.rejected, started.length, "J2: and its decision is counted");
+    eq(result.attempted, started.length, "J2: `attempted` equals the work actually done");
+    eq(result.partial, true, "J2: the run is PARTIAL");
+    const unstartedIds = (result.details || []).filter((d) => d.outcome === "unstarted").map((d) => d.placeId);
+    ok(unstartedIds.every((id) => !db.upsertCalls.some((r) => r.place_id === id)), "J2: NO row exists for any unstarted place — which is precisely what leaves it in the worklist for the next run");
+  }
+
+  // J3 — resumability, proven by running twice. The second run sees the first
+  // run's rows as already-decided and works on exactly what was left.
+  {
+    const places = mkPlaces(6, "jresu");
+    const db1 = makeDb({ atRisk: places });
+    const run1 = await runBackfill({
+      limit: 25,
+      sbEnv: SB,
+      deadlineAt: Date.now() + 55,
+      resolvePhoto: async (_p, deps) => { await new Promise((r) => setTimeout(r, 40)); deps.onReject("no_lead_image"); return null; },
+      storePhoto: null,
+      dryRun: false,
+    });
+    const decidedInRun1 = db1.upsertCalls.map((r) => r.place_id);
+    db1.restore();
+    ok(run1.deadlineStopped > 0, "J3 (setup): run 1 genuinely stopped short");
+
+    // Run 2: same worklist, but the db now holds run 1's decisions.
+    const db2 = makeDb({ atRisk: places, existingRows: decidedInRun1.map((place_id) => ({ place_id })) });
+    const started2 = [];
+    const run2 = await runBackfill({
+      limit: 25,
+      sbEnv: SB,
+      resolvePhoto: async (place, deps) => { started2.push(place.place_id); deps.onReject("no_lead_image"); return null; },
+      storePhoto: null,
+      dryRun: false,
+    });
+    db2.restore();
+
+    eq(started2.length, places.length - decidedInRun1.length, "J3 (THE HEADLINE INVARIANT): run 2 picks up exactly the candidates run 1 never started — no work is lost and none is redone");
+    ok(started2.every((id) => !decidedInRun1.includes(id)), "J3: and it re-decides none of run 1's places (the one-shot-write invariant still holds across a partial run)");
+    eq(run2.partial, false, "J3: run 2, given no budget, reports a complete pass");
+    eq(run2.deadlineStopped, 0, "J3: with nothing left unstarted");
+  }
+
+  // J4 — the route: it must DECLARE a platform ceiling, HOLD the worker to a
+  // strictly smaller budget, actually pass that budget down (asserted on the
+  // CALL, not on the source text), and still pulse on a partial run.
+  {
+    const raw = readFileSync(new URL("../app/api/cron/place-photos/route.js", import.meta.url), "utf8");
+    const maxMatch = /export const maxDuration = (\d+);/.exec(raw);
+    const budgetMatch = /const WORK_BUDGET_MS = ([\d_]+);/.exec(raw);
+    ok(!!maxMatch, "J4: the route declares an explicit maxDuration");
+    ok(!!budgetMatch, "J4: and an explicit WORK_BUDGET_MS the worker is held to");
+    const maxMs = Number(maxMatch ? maxMatch[1] : 0) * 1000;
+    const budgetMs = Number((budgetMatch ? budgetMatch[1] : "0").replace(/_/g, ""));
+    ok(
+      budgetMs > 0 && budgetMs < maxMs,
+      `J4 (THE HEADLINE INVARIANT): the worker's budget (${budgetMs}ms) must sit strictly INSIDE the platform ceiling (${maxMs}ms) — a ceiling without a budget is just a longer silence`
+    );
+    ok(
+      maxMs - budgetMs >= 30_000,
+      `J4: with at least 30s of headroom for in-flight candidates, their writes and the pulse (got ${maxMs - budgetMs}ms)`
+    );
+
+    const stripped = raw.replace(/^import[^;]+;\n/gm, "");
+    const prelude = `
+      const runBackfill = (...a) => globalThis.__wfDeadlineTest.runBackfill(...a);
+      const describeAtRisk = (...a) => globalThis.__wfDeadlineTest.describeAtRisk(...a);
+      const recordPulse = (...a) => globalThis.__wfDeadlineTest.recordPulse(...a);
+      const jobCannotRun = (...a) => { throw new Error("jobCannotRun must not fire: " + a[1]); };
+      const jobFailed = (...a) => { throw new Error("jobFailed must not fire: " + a[1]); };
+    `;
+    const route = await import("data:text/javascript," + encodeURIComponent(prelude + "\n" + stripped));
+    const pulses = [];
+    let seenArgs = null;
+    globalThis.__wfDeadlineTest = {
+      runBackfill: async (args) => {
+        seenArgs = args;
+        return {
+          ok: true, attempted: 4, active: 0, rejected: 4, failed: 0, deferred: 0, vaulted: 0,
+          vaultSkipped: 0, scanned: 0, atRiskScanned: 1000, atRiskTaken: 4, atRiskUnavailable: false,
+          alreadyCovered: 0, deadlineStopped: 21, partial: true,
+        };
+      },
+      describeAtRisk,
+      recordPulse: async (job, stats) => { pulses.push({ job, stats }); return true; },
+    };
+    const savedSecret = process.env.CRON_SECRET;
+    const savedUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const savedSvc = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    process.env.CRON_SECRET = "deadline-test-secret";
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://deadline.test.invalid";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "test-key";
+
+    const before = Date.now();
+    const res = await route.GET(new Request("https://x/api/cron/place-photos?source=at-risk", { headers: { authorization: "Bearer deadline-test-secret" } }));
+    const after = Date.now();
+
+    eq(res.status, 200, "J4: a partial run still answers 200 — it is a short run, not a failure");
+    ok(seenArgs && typeof seenArgs.deadlineAt === "number", "J4: the route PASSES deadlineAt down to the worker (asserted on the call, not on the source text)");
+    ok(
+      seenArgs.deadlineAt >= before + budgetMs - 1000 && seenArgs.deadlineAt <= after + budgetMs,
+      `J4: and it is WORK_BUDGET_MS from the request's own start, not a constant or a far-future value (got ${seenArgs && seenArgs.deadlineAt}, expected ~${before + budgetMs})`
+    );
+    eq(pulses.length, 1, "J4 (THE OTHER HEADLINE INVARIANT): a partial run STILL files its pulse — the 504 wrote nothing at all, which is what made it invisible");
+    const note = String((pulses[0].stats || {}).note || "");
+    ok(note.includes("PARTIAL"), `J4: and the note says so out loud (got ${JSON.stringify(note)})`);
+    ok(note.includes("21"), "J4: naming how many candidates were left unstarted");
+    eq(pulses[0].stats.attempted, 4, "J4: the pulse reports the work actually done, not the batch it was handed");
+
+    process.env.CRON_SECRET = savedSecret;
+    process.env.NEXT_PUBLIC_SUPABASE_URL = savedUrl;
+    process.env.SUPABASE_SERVICE_ROLE_KEY = savedSvc;
+    delete globalThis.__wfDeadlineTest;
+  }
+
+  // J5 (POSITIVE CONTROL) — with no budget given, nothing changes. The CLI
+  // runs this way on purpose (no platform ceiling to sit inside), so a bug
+  // that made every run look partial would be caught here rather than in
+  // production.
+  {
+    const places = mkPlaces(3, "jnobu");
+    const db = makeDb({ atRisk: places });
+    const result = await runBackfill({
+      limit: 25,
+      sbEnv: SB,
+      resolvePhoto: async (_p, deps) => { deps.onReject("no_lead_image"); return null; },
+      storePhoto: null,
+      dryRun: false,
+    });
+    db.restore();
+    eq(result.deadlineStopped, 0, "J5 (positive control): with no deadlineAt, nothing is stopped");
+    eq(result.partial, false, "J5: and the run is not reported partial");
+    eq(result.attempted, 3, "J5: every candidate is attempted");
+    eq(db.upsertCalls.length, 3, "J5: and every decision is written");
+  }
+
+  console.log("test-photo-vault-wiring: Section J OK — the run stops on its own budget inside the platform ceiling, finishes what it started, writes those rows, always pulses, reports PARTIAL honestly, and the next run picks up exactly what was left");
+}
+
 if (failures) {
   console.error(`test-photo-vault-wiring: FAIL — ${failures} assertion(s) failed`);
   process.exit(1);
 }
 console.log(
-  "test-photo-vault-wiring: OK — lib/freePhoto.js prefers the vault URL once storage_path is set; lib/placePhotoBackfill.js upserts THEN vaults, records a licence refusal honestly with zero uploads, never re-fetches an already-vaulted place, drains wf_photo_at_risk before the general scan, app/api/cron/place-photos stays fail-closed and honest on an empty run, a LOST at-risk worklist is named in the pulse instead of hiding as `at-risk 0/0`, vercel.json schedules enough drain capacity to beat the cache cliff, and an unobservable Wikimedia answer is deferred rather than written as a permanent rejection"
+  "test-photo-vault-wiring: OK — lib/freePhoto.js prefers the vault URL once storage_path is set; lib/placePhotoBackfill.js upserts THEN vaults, records a licence refusal honestly with zero uploads, never re-fetches an already-vaulted place, drains wf_photo_at_risk before the general scan, app/api/cron/place-photos stays fail-closed and honest on an empty run, a LOST at-risk worklist is named in the pulse instead of hiding as `at-risk 0/0`, vercel.json schedules enough drain capacity to beat the cache cliff, an unobservable Wikimedia answer is deferred rather than written as a permanent rejection, and the cron run stops on its own budget inside the platform ceiling instead of being killed at 504 with nothing written"
 );
