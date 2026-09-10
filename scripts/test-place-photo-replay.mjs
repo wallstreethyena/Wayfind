@@ -508,9 +508,11 @@ function inv(place_id, name) {
       recordPulse: async (job, stats) => { pulses.push({ job, stats }); return true; },
       isDeterministicFailureNote,
     };
-    const savedSecret = process.env.CRON_SECRET;
-    const savedUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const savedSvc = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    // WRITE + DELETE only — never READ ambient process.env. A save/restore
+    // of CRON_SECRET / NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY
+    // is what check-guard-hermeticity forbids (the verdict would then
+    // depend on the operator's shell). The route under test still reads
+    // those names; this file only states the fixture values it chose.
     process.env.CRON_SECRET = "replay-pulse-secret";
     process.env.NEXT_PUBLIC_SUPABASE_URL = "https://replay-pulse.test.invalid";
     process.env.SUPABASE_SERVICE_ROLE_KEY = "test-key";
@@ -518,9 +520,9 @@ function inv(place_id, name) {
     try {
       res = await route.GET(new Request("https://x/api/cron/place-photos?source=all", { headers: { authorization: "Bearer replay-pulse-secret" } }));
     } finally {
-      process.env.CRON_SECRET = savedSecret;
-      process.env.NEXT_PUBLIC_SUPABASE_URL = savedUrl;
-      process.env.SUPABASE_SERVICE_ROLE_KEY = savedSvc;
+      delete process.env.CRON_SECRET;
+      delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+      delete process.env.SUPABASE_SERVICE_ROLE_KEY;
       delete globalThis.__wfReplayPulse;
     }
     const body = await res.json();
