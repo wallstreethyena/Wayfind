@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import {
   FALL_INTENT_RAIL_DEFS, FALL_MIN_RESULTS, FALL_NEAR_MI, FALL_RAIL_RADIUS_MI, fallEventRail, fallPhase,
   fallRailOrder, composeFallIntentRails,
@@ -26,6 +27,43 @@ const event = (over = {}) => ({
 });
 
 const expected = ["food", "farms", "theme-parks", "haunts", "family", "oktoberfest", "date-night", "festivals", "photos", "day-trips"];
+const publication = JSON.parse(readFileSync(new URL("./fixtures/fall-sarasota-publication-2026-09-10.json", import.meta.url), "utf8"));
+const publicationIds = new Set([...publication.rows, ...publication.patches].map((row) => row.event_id));
+const publishedRows = [
+  ...publication.rows,
+  ...publication.patches.map((patch) => ({ event_id: patch.event_id, ...patch.set })),
+];
+const publishedById = new Map(publishedRows.map((row) => [row.event_id, row]));
+const selectedCurated = publication.selected.filter((row) => row.action !== "KEEP PROVIDER");
+ok(publication.rows.length === 4 && publication.patches.length === 25 && publication.provider_records.length === 1, "Sarasota publication reconciles four additions, 25 corrections and one retained provider");
+ok(publicationIds.size === 29 && new Set(publication.selected.map((row) => row.event_id)).size === 30, "the 30 selections have unique canonical identities");
+ok(!publicationIds.has(publication.provider_records[0].event_id), "the Vampire Circus provider event is not duplicated in curated storage");
+ok(selectedCurated.every((row) => fallEventRail(publishedById.get(row.event_id)) === row.primary_rail), "every curated publication executes into its reviewed primary taxonomy rail");
+ok(publication.rows.every((row) => row.event_status === "scheduled" && row.source_tier === 1 && row.verification_confidence === "high"), "every added event passes the canonical trust threshold");
+ok(publication.patches.every((row) => !Object.keys(row.set).some((field) => ["slug", "event_id", "link_ok", "link_verdict", "link_checked_at", "link_final_url"].includes(field))), "corrections preserve canonical identity and independently maintained link health");
+ok(publication.rail_photo_holds.every((id) => publishedById.get(id)?.hero_image === null && fallEventCardImageSrc(publishedById.get(id)) === null), "unproven photos stay off rails without borrowing a nearby place identity");
+const photoReady = publishedRows.filter((row) => row.hero_image);
+ok(photoReady.length === 24 && photoReady.every((row) => {
+  const proof = publication.venue_proof.find((place) => place.place_id === row.place_id);
+  return proof?.has_photo && proof.status === "OPERATIONAL" && !proof.excluded
+    && FALL_EVENT_VENUE_PLACE_IDS[row.event_id] === row.place_id
+    && row.hero_image === `/api/photo?place=${row.place_id}&w=${proof.live_photo_width}`;
+}), "every one of the 24 photo-ready cards has the exact operational owned venue and its own image URL");
+const composedPublication = composeFallIntentRails(photoReady, [], { lat: 27.3364, lng: -82.5307, today: "2026-09-10", now: new Date("2026-09-10T16:00:00Z") });
+const renderedPublication = composedPublication.rails.flatMap((rail) => rail.cards.map((row) => row.event_id || row.id));
+ok(renderedPublication.slice().sort().join("|") === photoReady.map((row) => row.event_id).sort().join("|"), "Sarasota renders the exact 24 photo-ready curated selections once, without filling from held candidates");
+const runaway = publishedById.get("runaway-pumpkin-5k-family-fest-2026");
+const nearbyRunaway = (lat, lng) => composeFallIntentRails([runaway], [], { lat, lng, today: "2026-09-10", now: new Date("2026-09-10T16:00:00Z") }).rails.flatMap((rail) => rail.cards);
+ok(nearbyRunaway(27.3364, -82.5307).length === 0 && nearbyRunaway(27.04, -82.217).length === 1, "Runaway remains outside Sarasota's 27-mile family cap but eligible from North Port when its photo is resolved");
+ok(publishedById.get("sarasota-medieval-fair-2026").end_date === "2026-12-06", "the full Medieval Fair series retains its verified December closing date");
+ok(publishedById.get("wellen-park-spooktacular-2026").end_time === "19:00:00" && publishedById.get("wellen-park-spooktacular-2026").is_free === null, "Wellen follows the organizer's 7pm close without inventing free admission");
+ok(fallEventRail(publishedById.get("freedom-factory-halloween-destruction-2026")) === "festivals", "loud Halloween demolition racing remains a festival rather than a gentle family Halloween recommendation");
+const oldGulfSeed = new URL("./seed-gulf-coast-fall-2026.mjs", import.meta.url).pathname;
+const legacyDry = spawnSync(process.execPath, [oldGulfSeed, "--dry"], { encoding: "utf8" });
+ok(legacyDry.status === 0 && /INSERT gallaghers-pumpkins-2026/.test(legacyDry.stdout)
+  && ![...publicationIds].some((id) => new RegExp(`(?:INSERT|PATCH)\\s+${id}(?:\\s|:)`).test(legacyDry.stdout)), "the executable older Gulf seed retains unrelated rows and cannot replay any superseded Sarasota record");
+const staleOnly = spawnSync(process.execPath, [oldGulfSeed, "--dry", "--only=utc-night-market-tailgate-2026-09-17"], { encoding: "utf8" });
+ok(staleOnly.status !== 0 && /Superseded/.test(staleOnly.stderr), "an explicit stale UTC seed request fails before any database write");
 const sarasotaAudit = JSON.parse(readFileSync(new URL("./fixtures/fall-sarasota-audit-2026-09-08.json", import.meta.url), "utf8"));
 ok(FALL_INTENT_RAIL_DEFS.length === 10, "the collection has exactly ten rails");
 ok(FALL_INTENT_RAIL_DEFS.map((rail) => rail.id).join("|") === expected.join("|"), "the ten approved base intents are present in order");
@@ -146,7 +184,7 @@ ok((auditDisposition.already_represented || []).every((row) => (row.canonical_ev
 ok(auditSelected.every((audit) => {
   const row = gulfById.get(audit.id);
   return row
-    && FALL_DISCOVERY_RAIL[audit.id] === audit.rail
+    && FALL_DISCOVERY_RAIL[audit.id] === (publication.selected.find((row) => row.event_id === audit.id)?.primary_rail || audit.rail)
     && FALL_EVENT_VENUE_PLACE_IDS[audit.id] === audit.place_id
     && row.place_id === audit.place_id
     && audit.source_urls.some((url) => [row.source_url, row.official_event_url, row.official_ticket_url].includes(url));
@@ -162,17 +200,16 @@ const sarasotaSelected = composeFallIntentRails(
 );
 const sarasotaSelectedByRail = Object.fromEntries(sarasotaSelected.rails.map((rail) => [rail.id, rail.cards.map((card) => card.event_id || card.id).sort()]));
 ok(sarasotaSelectedByRail["date-night"].join("|") === "ghostbusters-in-concert-van-wezel-2026", "Sarasota composition places only the spooky Ghostbusters concert in date night");
-ok(sarasotaSelectedByRail.family.join("|") === "trick-or-treat-on-the-lake-benderson-2026", "Sarasota composition places only Benderson trick-or-treat in family");
+ok(sarasotaSelectedByRail.family.join("|") === "trick-or-treat-on-the-lake-benderson-2026|venice-night-market-halloween-2026", "Sarasota composition places Benderson trick-or-treat and the verified Venice Halloween market in family");
 ok(sarasotaSelectedByRail.festivals.join("|") === [
   "night-of-wonder-ringling-2026",
   "sun-fiesta-venice-2026",
   "uf-ifas-edfest-plant-sale-2026",
   "utc-night-market-tailgate-2026-09-17",
-  "venice-night-market-halloween-2026",
   "wellen-park-wine-festival-2026",
-].sort().join("|"), "Sarasota composition returns the exact six audited outdoor-night and festival cards");
+].sort().join("|"), "Sarasota composition returns the exact five remaining audited outdoor-night and festival cards");
 ok(sarasotaSelected.rails.flatMap((rail) => rail.cards).map((card) => card.event_id || card.id).sort().join("|") === auditSelectedIds.slice().sort().join("|"), "Sarasota composition renders every selected audit card exactly once");
-ok(Object.keys(FALL_DISCOVERY_RAIL).every((id) => discoveryIds.includes(id) || seededIds.has(id) || gulfCoastIds.has(id)), "every explicit rail pin names canonical discovery source data");
+ok(Object.keys(FALL_DISCOVERY_RAIL).every((id) => discoveryIds.includes(id) || seededIds.has(id) || gulfCoastIds.has(id) || publicationIds.has(id)), "every explicit rail pin names canonical discovery source data");
 ok([...gulfCoastIds].every((id) => id in FALL_DISCOVERY_RAIL), "every reviewed Gulf Coast event has one explicit primary intent");
 ok([...seededIds].filter((id) => !(id in FALL_DISCOVERY_RAIL)).length === 0 && seededIds.size >= 22, `every seeded row (${seededIds.size}) is pinned to one shelf`);
 ok(Object.values(FALL_DISCOVERY_RAIL).every((rail) => expected.includes(rail)), "every explicit pin targets an approved rail");
@@ -236,7 +273,7 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(/fall-intents:v11:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key (v11: publishes the audited Sarasota inventory immediately)");
+ok(/fall-intents:v12:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key (v12: publishes the September 10 Sarasota inventory immediately)");
 ok(/hasImageProof[\s\S]{0,220}inventory\?\.photo_ref/.test(route)
   && /filter\(\(p\) => !!p\.photo_ref\)/.test(route),
   "Fall events and places require stored image proof before a card can ship");
