@@ -52,7 +52,7 @@ function numberLiteral(src, re) {
 // Narrow, deliberate contract for the cron that actually hit Vercel's hard
 // wall in production. This is structural because the route requires real
 // Supabase credentials to execute end-to-end in CI, so it checks the actual
-// controller wiring and then self-red-proves the predicate below.
+// controller wiring and then exercises the predicate against bad/good fixtures.
 function photoRepairBudgetHealthy(src) {
   const maxSeconds = numberLiteral(src, /export\s+const\s+maxDuration\s*=\s*([\d_]+)/);
   const workBudgetMs = numberLiteral(src, /const\s+WORK_BUDGET_MS\s*=\s*([\d_]+)/);
@@ -75,7 +75,7 @@ for (const { job, file } of routes) {
   const src = raw.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
   const silentOk = SILENT_OK.test(src);
   const badPhotoRepairBudget = job === "photo-repair" && !photoRepairBudgetHealthy(src);
-  ok(!silentOk && !badPhotoRepairBudget,
+  ok(!SILENT_OK.test(src) && !badPhotoRepairBudget,
     silentOk
       ? `${job} returns a failure body with a 2xx status — use jobCannotRun()/jobFailed() from lib/jobFail.js.`
       : `${job} lost the owned deadline contract: photo-repair must keep >=60s platform headroom, batch at <=50 rows, stop starting batches at its own deadline, and still reach recordPulse().`);
@@ -121,7 +121,7 @@ for (const { job, file } of routes) {
     await recordPulse("photo-repair", {});
   `;
   ok(!SILENT_OK.test(realSuccess) && !photoRepairBudgetHealthy(killedRepair) && photoRepairBudgetHealthy(boundedRepair),
-    "self-test: a genuine 200 success stays allowed, the shipped 60s/unbounded photo-repair shape is RED, and the bounded 300s/225s/25-row shape is GREEN");
+    "self-test: genuine success stays allowed, the shipped 60s/unbounded photo-repair shape is rejected, and the bounded 300s/225s/25-row shape is accepted");
 }
 
 if (fail.length) {
