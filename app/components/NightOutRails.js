@@ -42,7 +42,7 @@ function NightOutRailSection({
   const seedTotal = Number.isFinite(rail.total) ? rail.total : (rail.places || []).length;
   const params = useMemo(() => ({ lat: lat.toFixed(2), lng: lng.toFixed(2), rail: rail.id }), [lat, lng, rail.id]);
   const { items, total, sentinelIndex, sentinelRef, loadingMore } = usePagedRail(
-    "/api/night-out", params, { seedItems, seedTotal, itemsKey: "places" },
+    "/api/night-out", params, { seedItems, seedTotal, itemsKey: "places", timeoutMs: 22000 },
   );
   const count = eventCards.length + (Number.isFinite(total) ? total : items.length);
   const railId = "night-out-" + rail.id;
@@ -174,7 +174,8 @@ export default function NightOutRails({
     setFailed(false);
     const [queryLat, queryLng] = key.split("|");
     const query = new URLSearchParams({ lat: queryLat, lng: queryLng });
-    fetchJsonWithDeadline("/api/night-out?" + query.toString(), { retries: 1 })
+    // Allow the bounded server pool plus hydration path to finish.
+    fetchJsonWithDeadline("/api/night-out?" + query.toString(), { timeoutMs: 22000, retries: 1 })
       .then((value) => {
         if (dead) return;
         if (!Array.isArray(value?.rails)) { setFailed(true); return; }
