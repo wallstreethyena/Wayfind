@@ -5,7 +5,9 @@ import {
   FALL_INTENT_RAIL_DEFS, FALL_MIN_RESULTS, FALL_NEAR_MI, FALL_RAIL_RADIUS_MI, fallEventRail, fallPhase,
   fallRailOrder, composeFallIntentRails,
 } from "../lib/fallIntentRails.js";
-import { FALL_PLACE_IDS, FALL_PLACE_RAIL } from "../lib/fallPool.js";
+import { FALL_OFFERING_SOURCES, FALL_PLACE_IDS, FALL_PLACE_RAIL } from "../lib/fallPool.js";
+import { fallCardClass } from "../lib/fallSkin.js";
+import { hasStoredPlacePhoto } from "../lib/placePhoto.js";
 import { FALL_DISCOVERIES_2026, FALL_DISCOVERY_RAIL, FALL_SEASONAL_PLACE_IDS } from "../lib/fallDiscoveries2026.js";
 import { GULF_COAST_FALL_2026_ROWS } from "../lib/gulfCoastFall2026.js";
 import { railScrollNeedsMore, windowRailAnswer } from "../lib/railResponse.js";
@@ -132,6 +134,15 @@ ok(!farmCards.some((card) => card.id === "farm-unknown"), "unknown distance is r
 
 ok(Object.keys(FALL_PLACE_IDS).sort().join("|") === Object.keys(FALL_PLACE_RAIL).sort().join("|"), "every vetted fall place has exactly one primary intent assignment");
 ok(Object.values(FALL_PLACE_RAIL).every((rail) => expected.includes(rail)), "every fall place assignment targets an approved rail");
+const solId = "ChIJ9ZpMS-7jwogRWChZqTQG66g";
+const fallPlaceIds = Object.keys(FALL_PLACE_IDS);
+ok(fallPlaceIds.includes(solId) && FALL_PLACE_RAIL[solId] === "food",
+  "Sōl St Pete's documented pumpkin curry appears once, under Fall Drinks & Seasonal Bites");
+ok(FALL_OFFERING_SOURCES[solId]?.source === "https://solstpete.com/st-petersburg-warehouse-arts-district-sol-st-pete-bistro-food-menu"
+  && FALL_OFFERING_SOURCES[solId]?.verified === "2026-09-10"
+  && /Golden Pumpkin Curry Di Mare/.test(FALL_OFFERING_SOURCES[solId]?.offering || ""),
+  "Sōl's fall eligibility is pinned to its official current menu and named dish");
+ok(fallCardClass(solId, "2026-09-10") === " wf-fall-card", "Sōl wears the fall card during the annual fall window");
 ok(FALL_PHOTO_PLACE_IDS.length >= 6, "the photo rail has a useful researched Gulf Coast starting set");
 ok(Object.values(FALL_PHOTO_SPOTS).every((spot) => spot.shotLocation && spot.visualProof && spot.fallReason && spot.bestTime && spot.accessNote && /^https:\/\//.test(spot.sourceUrl)), "every photo spot carries the exact shot, visible asset, fall reason, timing, access and proof source");
 
@@ -273,10 +284,23 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(/fall-intents:v12:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key (v12: publishes the September 10 Sarasota inventory immediately)");
+ok(/fall-intents:v13:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key (v13: preserves the Sarasota publication and adds Sōl immediately)");
+const imageProofId = "ChIJB-QyVtEXw4gRk5F8bn3YV28";
+ok(hasStoredPlacePhoto({ place_id: imageProofId, signals: { photo_url: "https://cdn.example.test/owned.jpg" } }),
+  "an owned signals.photo_url is stored image proof");
+ok(!hasStoredPlacePhoto({ place_id: imageProofId, signals: { photo_url: "https://images.pexels.com/not-owned.jpg" } })
+  && !hasStoredPlacePhoto({ place_id: imageProofId, signals: { photo_url: "not a URL" } }),
+  "stock and malformed signals.photo_url values are not stored image proof");
 ok(/hasImageProof[\s\S]{0,220}inventory\?\.photo_ref/.test(route)
-  && /filter\(\(p\) => !!p\.photo_ref\)/.test(route),
-  "Fall events and places require stored image proof before a card can ship");
+  && /filter\(\(p\) => hasStoredPlacePhoto\(p\)\)/.test(route)
+  && /cardImageSrc\(\{ place_id: p\.place_id, photo_ref: p\.photo_ref, signals: p\.signals \}/.test(route),
+  "Fall places require validated image proof and preserve an owned signals.photo_url without a Google photo call");
+ok(/hasStoredPlacePhoto/.test(route) && !/filter\(\(p\) => !!p\.photo_ref \|\| !!p\.signals\?\.photo_url/.test(route),
+  "a truthy stock or malformed signals.photo_url cannot admit a fall place card");
+ok(/FALL_PLACE_IDS\[p\.place_id\] \|\| \(typeof p\.signals\?\.rating/.test(route)
+  && /rating: typeof p\.signals\?\.rating === "number" \? p\.signals\.rating : null/.test(route)
+  && /wfScore: typeof p\.signals\?\.rating === "number"/.test(route),
+  "a vetted fall place may ship without an invented rating or Wayfind Score");
 // 2026-09-03 — the partner URL never reaches the DOM. The route's ticket is
 // built by eventTicketCta (an /api/commerce/go href), and the raw affiliate_url
 // column is read only to GATE (active/link_ok/PID), never to render.
