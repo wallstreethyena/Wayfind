@@ -6,6 +6,7 @@ import {
 } from "../lib/nightOutIntent.js";
 import { windowRailAnswer } from "../lib/railResponse.js";
 import { NIGHT_OUT_EDITORIAL_EVIDENCE, nightOutEditorialEvidence } from "../lib/nightOutEvidence.js";
+import { fetchJsonWithDeadline } from "../lib/clientJson.js";
 
 let pass = 0;
 const failures = [];
@@ -84,6 +85,7 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/NightOutRails.js", import.meta.url), "utf8");
 const route = readFileSync(new URL("../app/api/night-out/route.js", import.meta.url), "utf8");
 const clientJson = readFileSync(new URL("../lib/clientJson.js", import.meta.url), "utf8");
+const pagedRail = readFileSync(new URL("../app/components/usePagedRail.js", import.meta.url), "utf8");
 ok(/id: "events"[\s\S]{0,420}retiredInto: "tonight"/.test(rails), "the standalone Events poster is retired into Night Out without deleting its metadata");
 ok(/!r\.retiredInto/.test(daypart), "retired posters are hidden from the tile track");
 ok(/requested\.retiredInto \|\| id/.test(daypart), "legacy Events deep links resolve to Night Out");
@@ -207,8 +209,47 @@ ok(/\["food", "nightlife", "attractions"\]/.test(retrieval) && /Promise\.allSett
 ok(/secondary_categories\.cs\.\{/.test(retrieval), "Night Out no longer includes secondary-category membership — clubs, cabarets and dinner shows are commonly stored under their venue's primary type");
 ok(/nightOutEditorialEvidence/.test(route) && /editorialOverride/.test(retrieval),
   "the governed dinner-show evidence override is no longer handed to the reader — a place whose only night-evidence is curated would be refused at admission");
-ok(/fetchJsonWithDeadline\("\/api\/night-out/.test(component), "Night Out has a bounded, retryable reader request");
+ok(/fetchJsonWithDeadline\("\/api\/night-out[\s\S]{0,180}timeoutMs: 22000/.test(component), "Night Out must allow its bounded server pool plus hydration path to finish before the client deadline");
+ok(/usePagedRail\([\s\S]{0,180}timeoutMs: 22000/.test(component) && /timeoutMs \? \{ timeoutMs \} : undefined/.test(pagedRail), "Night Out paging must use the same extended client deadline while shared rails retain their default");
 ok(/CLIENT_RAIL_DEADLINE_MS = 10000/.test(clientJson) && /AbortController/.test(clientJson), "reader-facing place rails cannot remain on a permanent skeleton");
+
+// Execute the real client helper with the timeout options extracted from the
+// Night Out call. A virtual clock models a 15s server response: the old 10s
+// default aborts, while Night Out's 22s override completes.
+{
+  const timeoutMatch = component.match(/fetchJsonWithDeadline\("\/api\/night-out[^\n]*\n?\s*\{\s*timeoutMs:\s*(\d+),\s*retries:\s*1\s*\}/);
+  const nightOutTimeout = Number(timeoutMatch?.[1]);
+  const run = async (timeoutMs) => {
+    const realSetTimeout = globalThis.setTimeout;
+    const realClearTimeout = globalThis.clearTimeout;
+    const realFetch = globalThis.fetch;
+    let clock = 0;
+    let next = 1;
+    const timers = new Map();
+    globalThis.setTimeout = (fn, ms) => { const id = next++; timers.set(id, { at: clock + ms, fn }); return id; };
+    globalThis.clearTimeout = (id) => { timers.delete(id); };
+    try {
+      globalThis.fetch = (url, init) => new Promise((resolve, reject) => {
+        init.signal.addEventListener("abort", () => reject(init.signal.reason || new Error("aborted")), { once: true });
+        const id = globalThis.setTimeout(() => resolve({ ok: true, json: async () => ({ rails: ["server"] }) }), 15000);
+        init.signal.addEventListener("abort", () => globalThis.clearTimeout(id), { once: true });
+      });
+      const pending = fetchJsonWithDeadline("/api/night-out?fixture=1", { timeoutMs, retries: 1 });
+      while (timers.size) {
+        const [id, timer] = [...timers.entries()].sort((a, b) => a[1].at - b[1].at)[0];
+        timers.delete(id); clock = timer.at; timer.fn();
+        await Promise.resolve();
+      }
+      return await pending;
+    } catch (error) { return { error }; }
+    finally { globalThis.setTimeout = realSetTimeout; globalThis.clearTimeout = realClearTimeout; globalThis.fetch = realFetch; }
+  };
+  const old = await run(10000);
+  const current = await run(nightOutTimeout);
+  ok(nightOutTimeout === 22000, `Night Out timeout option was not extracted as 22000ms (${nightOutTimeout})`);
+  ok(old.error, "the old 10s client deadline did not abort a simulated 15s server response");
+  ok(current?.rails?.[0] === "server", "the current Night Out client deadline did not allow a simulated 15s server response");
+}
 
 if (failures.length) {
   console.error("test-night-out-intent: FAIL");
