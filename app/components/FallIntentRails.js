@@ -7,11 +7,11 @@
 // lib/railPage.js for the shared contract every poster/rail endpoint speaks.
 import { useEffect, useMemo, useRef, useState } from "react";
 import RailCard, { RailDots, RailNav } from "./RailCard";
-import { directionsUrl } from "./kit";
+import { directionsUrl, RailDevError, RailMascotBusy } from "./kit.js";
 import { toDisplayScore } from "../../lib/score.js";
 import { fallSkinLive } from "../../lib/fallSkin.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
-import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
+import { emitRailDegraded, fetchRailJson, isRailCancelled, railDeveloperFailure } from "../../lib/railFailure.js";
 import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
 import { usePagedRail } from "./usePagedRail.js";
 
@@ -121,7 +121,7 @@ export default function FallIntentRails({
   isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare,
 }) {
   const [payload, setPayload] = useState(null);
-  const [failed, setFailed] = useState(false);
+  const [failure, setFailure] = useState(null);
   const [retry, setRetry] = useState(0);
   const asked = useRef("");
   const lat = center && Number.isFinite(center.lat) ? center.lat : null;
@@ -130,35 +130,39 @@ export default function FallIntentRails({
   const fallSkin = fallSkinLive(siteTodayStr());
 
   useEffect(() => {
-    const requestKey = `${key}|${retry}`;
+    const requestKey = key + "|" + retry;
     if (!key || asked.current === requestKey) return;
     asked.current = requestKey;
     setPayload(null);
-    setFailed(false);
+    setFailure(null);
     let cancelled = false;
+    const controller = new AbortController();
     const [queryLat, queryLng] = key.split("|");
     const query = new URLSearchParams({ lat: queryLat, lng: queryLng, v: "2" });
-    fetchJsonWithDeadline("/api/events/fall?" + query.toString(), { timeoutMs: FALL_LOAD_TIMEOUT_MS })
+    fetchRailJson("/api/events/fall?" + query.toString(), { timeoutMs: FALL_LOAD_TIMEOUT_MS, signal: controller.signal })
       .then((result) => {
         if (cancelled) return;
-        if (!result || !Array.isArray(result.rails) || result.rails.length !== 10) { setFailed(true); return; }
+        if (!result || !Array.isArray(result.rails) || result.rails.length !== 10) {
+          setFailure(railDeveloperFailure("invalid_payload", { route: "/api/events/fall" }));
+          return;
+        }
         setPayload(result);
         try { onTrack?.("fall_intent_collection_open", { city, phase: result.phase, rails: result.rails.map((rail) => rail.id).join(","), cards: result.rails.reduce((sum, rail) => sum + rail.cards.length, 0) }); } catch {}
       })
-      .catch(() => { if (!cancelled) setFailed(true); });
-    return () => { cancelled = true; asked.current = ""; };
-    // `onTrack` is intentionally not a dependency. The parent supplies an
-    // inline telemetry callback and can re-render while this request is in
-    // flight; treating that callback identity as data aborts the request, then
-    // the duplicate-request guard refuses to restart it, leaving a permanent
-    // skeleton. Location and an explicit retry are the request identity.
+      .catch((error) => {
+        if (cancelled || isRailCancelled(error)) return;
+        if (error?.kind === "developer") console.error("[FallIntentRails] request contract failure", error);
+        setFailure(error);
+      });
+    return () => { cancelled = true; controller.abort(); asked.current = ""; };
+    // The parent's inline telemetry callback is not request identity.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, retry]);
 
   if (!active) return null;
   if (!key) return <p style={{ color: COLORS.muted, fontSize: 13 }}>Share your location to rank Florida&apos;s fall options for you.</p>;
-  if (!payload && !failed) return <div role="status" aria-busy="true" aria-label="Ranking Florida fall experiences">{[0, 1, 2].map((index) => <div key={index} className="wf-sk" style={{ height: 88, borderRadius: 14, marginBottom: 12, background: "#140C12" }} />)}</div>;
-  if (failed) return <div><p style={{ color: COLORS.muted, fontSize: 13 }}>We could not reach Wayfind&apos;s verified fall inventory. That is a service miss, not an empty city.</p><button type="button" onClick={() => setRetry((value) => value + 1)} style={{ border: "1px solid #7C2D12", borderRadius: 999, background: "#1C1014", color: COLORS.text, padding: "7px 12px", fontWeight: 800 }}>Try again</button></div>;
+  if (!payload && !failure) return <div role="status" aria-busy="true" aria-label="Ranking Florida fall experiences">{[0, 1, 2].map((index) => <div key={index} className="wf-sk" style={{ height: 88, borderRadius: 14, marginBottom: 12, background: "#140C12" }} />)}</div>;
+  if (failure) return failure.kind === "developer" ? <RailDevError /> : <RailMascotBusy rail="fall" failure={failure} onRetry={() => setRetry((value) => value + 1)} onVisible={() => { void emitRailDegraded(failure, { rail: "fall" }); }} />;
 
   return <>{payload.rails.map((rail) => (
     <FallRailSection key={rail.id} rail={rail} lat={lat} lng={lng} onOpenPlace={onOpenPlace} onTrack={onTrack} city={city} fallSkin={fallSkin}

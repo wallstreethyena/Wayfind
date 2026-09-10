@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 603,
-    "totalRegistryEntries": 604,
-    "guardsTxtLineCount": 601,
-    "guardsTxtReachedFileCount": 596,
+    "totalOnDiskGuardFiles": 604,
+    "totalRegistryEntries": 605,
+    "guardsTxtLineCount": 602,
+    "guardsTxtReachedFileCount": 597,
     "criticalCount": 73,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 411,
+      "CALL": 412,
       "RENDER": 48,
       "STRUCTURAL": 144,
       "OTHER": 1
@@ -12832,6 +12832,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 27,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-rail-failure.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 40,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

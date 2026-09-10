@@ -112,6 +112,13 @@ function componentHarness(name) {
   const imports = {
     react,
     '../../lib/clientJson.js':{fetchJsonWithDeadline:(_url,opts)=>new Promise((resolve,reject)=>pending.push({resolve,reject,opts}))},
+    '../../lib/railFailure.js':{
+      fetchRailJson:(_url,opts)=>new Promise((resolve,reject)=>pending.push({resolve,reject,opts})),
+      railDeveloperFailure:(reason,meta={})=>Object.assign(new Error(reason),{kind:'developer',reason,requestId:'fixture-dev',route:meta.route||'/fixture',retryAttempts:0}),
+      isRailCancelled:error=>error?.kind==='cancelled', emitRailDegraded:()=>true,
+    },
+    './kit':{directionsUrl:()=>null,RailDevError:'RailDevError',RailMascotBusy:'RailMascotBusy'},
+    './kit.js':{directionsUrl:()=>null,RailDevError:'RailDevError',RailMascotBusy:'RailMascotBusy'},
     '../../lib/nightOutIntent.js':{composeNightOutRails:()=>({rails:[]})},
     '../../lib/seasons.js':{fallSkinLive:()=>true},
     '../../lib/homeAffiliateActivities.js':{homeAffiliateActivities:items=>items || []},
@@ -124,7 +131,7 @@ function componentHarness(name) {
 const p={center:{lat:27.58,lng:-82.43},city:'Parrish'};
 const n=componentHarness('NightOutRails');
 n.render(p);
-ok(n.pending.length === 1 && n.pending[0].opts.retries === 1, 'Night Out opts into bounded read recovery');
+ok(n.pending.length === 1 && n.pending[0].opts.signal instanceof AbortSignal, 'Night Out uses cancellable bounded rail recovery');
 n.render({...p,center:{lat:27.581,lng:-82.431}});
 ok(n.pending.length === 1, 'same-cell coordinate jitter does not cancel and strand an in-flight request');
 n.pending[0].resolve({rails:[{id:'cocktails',places:[{id:'parrish-card'}]}]}); await n.flush();
@@ -132,7 +139,7 @@ ok(JSON.stringify(n.render(p)).includes('parrish-card'), 'the original request p
 const other={center:{lat:25.76,lng:-80.19},city:'Miami'};
 ok(!JSON.stringify(n.render(other)).includes('parrish-card'), 'a new city hides old cards immediately, before effects settle');
 n.pending[1].resolve({bad:'malformed'}); await n.flush();
-ok(JSON.stringify(n.render(other)).includes('Try again'), 'malformed Night Out success reaches a recoverable error instead of eternal loading');
+ok(n.render(other).type === 'RailDevError', 'malformed Night Out success is a developer state, not a mascot or eternal loading');
 const missing=componentHarness('NightOutRails');
 ok(JSON.stringify(missing.render({})).includes('Choose a location') && missing.pending.length === 0, 'missing coordinates never become a request for zero-zero');
 for (const name of ['NightOutRails','BirthdayRails','DateNightRails','TodayDiscoveryRails','FallIntentRails','SummerIntentRails']) {
@@ -145,6 +152,6 @@ const summerEmpty=componentHarness('SummerIntentRails');
 summerEmpty.render(p); summerEmpty.pending[0].resolve({places:[]}); summerEmpty.pending[1].resolve({items:[]}); await summerEmpty.flush();
 ok(JSON.stringify(summerEmpty.render(p)).includes('No nearby summer options'), 'healthy empty Summer responses do not claim the service is broken');
 const summerDown=componentHarness('SummerIntentRails');
-summerDown.render(p); summerDown.pending[0].reject(new Error('db down')); summerDown.pending[1].resolve({items:[]}); await summerDown.flush();
-ok(JSON.stringify(summerDown.render(p)).includes('Try again'), 'an unavailable Summer source remains a recoverable service failure');
+summerDown.render(p); summerDown.pending[0].reject(Object.assign(new Error('db down'),{kind:'degraded',reason:'network',requestId:'fixture-down',route:'/api/summer/places',retryAttempts:1})); summerDown.pending[1].resolve({items:[]}); await summerDown.flush();
+ok(JSON.stringify(summerDown.render(p)).includes('RailMascotBusy'), 'an unavailable Summer source remains a recoverable service failure');
 console.log(`test-poster-recovery: ${checks} behavioural assertions passed`);

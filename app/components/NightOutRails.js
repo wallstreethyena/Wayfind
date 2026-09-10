@@ -16,14 +16,14 @@
 // rail in one blob the instant a reader tapped it.
 import { useEffect, useMemo, useState } from "react";
 import RailCard, { RailDots, RailNav } from "./RailCard";
-import { directionsUrl } from "./kit";
+import { directionsUrl, RailDevError, RailMascotBusy } from "./kit.js";
 import { toHookLine } from "../../lib/editorialHook";
 import { composeNightOutRails } from "../../lib/nightOutIntent.js";
 import { cardImageSrc } from "../../lib/placePhoto.js";
 import { priceLabel } from "../../lib/price.js";
 import { toDisplayScore } from "../../lib/score.js";
 import { wayfindScore } from "../../lib/wayfindScore.js";
-import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
+import { emitRailDegraded, fetchRailJson, isRailCancelled, railDeveloperFailure } from "../../lib/railFailure.js";
 import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
 import { usePagedRail } from "./usePagedRail.js";
 
@@ -157,7 +157,7 @@ export default function NightOutRails({
 }) {
   const fallback = useMemo(() => composeNightOutRails([], places, center || {}), [places, center]);
   const [remoteResult, setRemote] = useState(null);
-  const [failed, setFailed] = useState(false);
+  const [failure, setFailure] = useState(null);
   const [retry, setRetry] = useState(0);
   const lat = center && Number.isFinite(center.lat) ? center.lat : null;
   const lng = center && Number.isFinite(center.lng) ? center.lng : null;
@@ -170,18 +170,26 @@ export default function NightOutRails({
   useEffect(() => {
     if (!key) return;
     let dead = false;
+    const controller = new AbortController();
     setRemote(null);
-    setFailed(false);
+    setFailure(null);
     const [queryLat, queryLng] = key.split("|");
     const query = new URLSearchParams({ lat: queryLat, lng: queryLng });
-    fetchJsonWithDeadline("/api/night-out?" + query.toString(), { retries: 1 })
+    fetchRailJson("/api/night-out?" + query.toString(), { timeoutMs: 10000, signal: controller.signal })
       .then((value) => {
         if (dead) return;
-        if (!Array.isArray(value?.rails)) { setFailed(true); return; }
+        if (!Array.isArray(value?.rails)) {
+          setFailure(railDeveloperFailure("invalid_payload", { route: "/api/night-out" }));
+          return;
+        }
         setRemote({ key, value });
       })
-      .catch(() => { if (!dead) setFailed(true); });
-    return () => { dead = true; };
+      .catch((error) => {
+        if (dead || isRailCancelled(error)) return;
+        if (error?.kind === "developer") console.error("[NightOutRails] request contract failure", error);
+        setFailure(error);
+      });
+    return () => { dead = true; controller.abort(); };
   }, [key]);
   const remote = remoteResult?.key === key ? remoteResult.value : null;
   const payload = remote || fallback;
@@ -190,12 +198,12 @@ export default function NightOutRails({
   if (!active) return null;
   if (!key) return <p style={{ color: C.muted, fontSize: 13 }}>Choose a location to see Night Out places near you.</p>;
 
-  if (!remote && !failed && !payload.rails.some((rail) => rail.places.length)) {
+  if (!remote && !failure && !payload.rails.some((rail) => rail.places.length)) {
     return <div role="status" aria-busy="true" aria-label="Building Night Out">{[0, 1, 2].map((index) => <div key={index} className="wf-sk" style={{ height: 88, borderRadius: 14, marginBottom: 12, background: "#0B0E15" }} />)}</div>;
   }
 
-  if (failed && !payload.rails.some((rail) => rail.places.length)) {
-    return <div><p style={{ color: C.muted, fontSize: 13 }}>We could not reach Wayfind&apos;s Night Out inventory. That is a service miss, not an empty town.</p><button type="button" onClick={() => setRetry((value) => value + 1)} style={{ border: "1px solid #4B5563", borderRadius: 999, background: "#111827", color: C.text, padding: "7px 12px", fontWeight: 800 }}>Try again</button></div>;
+  if (failure && !payload.rails.some((rail) => rail.places.length)) {
+    return failure.kind === "developer" ? <RailDevError /> : <RailMascotBusy rail="night-out" failure={failure} onRetry={() => setRetry((value) => value + 1)} onVisible={() => { void emitRailDegraded(failure, { rail: "night-out" }); }} />;
   }
 
   return <>{payload.rails.map((rail) => {

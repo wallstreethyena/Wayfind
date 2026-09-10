@@ -8,7 +8,7 @@ let pass = 0;
 const fail = [];
 const ok = (condition, message) => condition ? pass++ : fail.push(message);
 
-ok(/fetchJsonWithDeadline\("\/api\/night-out\?"/.test(component),
+ok(/fetchRailJson\("\/api\/night-out\?"/.test(component),
   "NightOutRails must fetch the dedicated bounded Night Out endpoint");
 // v8.97b — FOLLOWED TO THE INVARIANT. These three read the ROUTE for strings
 // that belonged to the retrieval, and the retrieval moved into

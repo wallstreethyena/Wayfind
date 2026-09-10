@@ -134,13 +134,13 @@ const fallComponent = strip(readFileSync(path.join(ROOT, "app/components/FallInt
 const fallIntent = strip(readFileSync(path.join(ROOT, "lib/fallIntentRails.js"), "utf8"));
 const sharedCard = strip(readFileSync(path.join(ROOT, "app/components/RailCard.js"), "utf8"));
 ok(/FallIntentRails = dynamic/.test(rail) && /selRail\.id === "augtober"/.test(rail), "the drop lazy-loads its owned ten-rail answer only when Augtober opens");
-ok(/fetchJsonWithDeadline\("\/api\/events\/fall\?"/.test(fallComponent), "…and it reads /api/events/fall through the shared deadline helper");
+ok(/fetchRailJson\("\/api\/events\/fall\?"/.test(fallComponent), "…and it reads /api/events/fall through the shared deadline helper");
 ok(/timeoutMs: FALL_LOAD_TIMEOUT_MS/.test(fallComponent),
   "the fall pool's first-paint fetch carries its own browser deadline");
 // WO11 (2026-09-02): "expand on demand" is no longer a scroll-triggered
 // whole-blob `full=1` refetch of every rail at once — that mechanism is
 // gone. Every rail now pages independently through usePagedRail, whose own
-// page fetches go through fetchJsonWithDeadline too (lib/clientJson.js),
+// page fetches retain fetchJsonWithDeadline (lib/clientJson.js),
 // so the deadline guarantee holds for EVERY page, not only the first.
 const pagedRailHook = strip(readFileSync(path.join(ROOT, "app/components/usePagedRail.js"), "utf8"));
 ok(/usePagedRail\(/.test(fallComponent), "fall's rails expand on demand through the shared usePagedRail hook, not a whole-blob refetch");
