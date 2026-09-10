@@ -1,0 +1,180 @@
+name: apply graceful outage state
+on:
+  push:
+    branches:
+      - feat/graceful-outage-state-2026-09-10
+permissions:
+  contents: write
+jobs:
+  apply-and-prove:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/graceful-outage-state-2026-09-10
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Apply current-main transformation
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('scripts/apply-graceful-outage-state.py')
+          s = p.read_text()
+          s = s.replace('HELER if False else HELPER_IMPORT', 'HELPER_IMPORT')
+          p.write_text(s)
+          PY
+          python3 -m py_compile scripts/apply-graceful-outage-state.py
+          python3 scripts/apply-graceful-outage-state.py
+          rm scripts/apply-graceful-outage-state.mjs scripts/apply-graceful-outage-state.py
+          rm .github/workflows/apply-graceful-outage-state-2026-09-10.yml
+      - name: Strengthen component and timeout controls
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('scripts/test-poster-recovery.mjs')
+          s = p.read_text()
+          old = "RailDevError:()=>react.createElement('p',null,'This rail isn’t available right now.'),RailMascotBusy:()=>react.createElement('p',null,'Wayfind hit a snag Try again')"
+          new = "RailDevError:'This rail isn’t available right now.',RailMascotBusy:'Wayfind hit a snag Try again'"
+          count = s.count(old)
+          if count != 2:
+            raise SystemExit(f'expected two kit harness mocks, found {count}')
+          s = s.replace(old, new)
+          needle = "const missing=componentHarness('NightOutRails');"
+          insert = """const nightDown=componentHarness('NightOutRails');
+          nightDown.render(p);
+          nightDown.pending[0].reject(Object.assign(new Error('service down'),{kind:'degraded',reason:'http_503',requestId:'fixture-night-down',route:'/api/night-out',retryAttempts:1})); await nightDown.flush();
+          ok(JSON.stringify(nightDown.render(p)).includes('Wayfind hit a snag'), 'persistent Night Out service trouble enters the branded mascot state');
+          """
+          if s.count(needle) != 1:
+            raise SystemExit('Night Out insertion marker missing')
+          s = s.replace(needle, insert + needle, 1)
+          p.write_text(s)
+
+          p = Path('scripts/test-rail-failure.mjs')
+          s = p.read_text()
+          needle = "const dev = railDeveloperFailure(\"invalid_payload\", { route: \"/api/night-out\", requestId: \"req-dev\" });"
+          timeout = """// A timeout is not merely classified as retryable: the first timed attempt
+          // leaves room inside the shared deadline for one real second attempt.
+          calls = 0;
+          const timeoutStarted = Date.now();
+          result = await fetchRailJson(\"/api/timeout-fixture\", {
+            timeoutMs: 600,
+            random: () => 0,
+            fetchImpl: async (_url, { signal }) => {
+              calls++;
+              if (calls > 1) return Response.json({ rails: [] });
+              return new Promise((_resolve, reject) => signal.addEventListener(\"abort\", () => reject(signal.reason || new Error(\"deadline\")), { once: true }));
+            },
+          });
+          ok(calls === 2 && Array.isArray(result.rails), \"a timed-out first attempt gets exactly one second chance\");
+          ok(Date.now() - timeoutStarted < 900, \"timeout recovery remains bounded by the shared window\");
+
+          """
+          if s.count(needle) != 1:
+            raise SystemExit('timeout insertion marker missing')
+          s = s.replace(needle, timeout + needle, 1)
+          old = '  ok(src.includes("RailMascotBusy"), `${path}: transient failure has branded degraded UI`);'
+          new = '  ok(src.includes("RailMascotBusy") && src.includes("<RailMascotBusy rail="), `${path}: transient failure actually renders branded degraded UI`);'
+          if s.count(old) != 1:
+            raise SystemExit('mascot source assertion marker missing')
+          s = s.replace(old, new, 1)
+          marker = 'ok(mascotStart >= 0 && mascotRegion.includes("RailCritter"), "degraded state uses the existing Wayfind Critter");'
+          extra = marker + '\nok(mascotRegion.includes("seen.current === eventKey") && mascotRegion.includes("onVisible?.()"), "mascot entry telemetry is deduped by rail and request id");'
+          if s.count(marker) != 1:
+            raise SystemExit('mascot dedupe insertion marker missing')
+          s = s.replace(marker, extra, 1)
+          p.write_text(s)
+          PY
+      - name: Regenerate guard registry
+        run: |
+          node scripts/lib/build-guard-registry.mjs
+          node scripts/check-guard-registry.mjs
+      - name: Focused guard green
+        run: |
+          node scripts/test-rail-failure.mjs
+          node scripts/test-poster-recovery.mjs
+      - name: Red prove telemetry name
+        shell: bash
+        run: |
+          cp lib/railFailure.js /tmp/railFailure.js
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('lib/railFailure.js'); s=p.read_text(); old='name: "discovery_rail_degraded"'; new='name: "discovery_rail_hidden"'
+          if s.count(old) != 1: raise SystemExit('telemetry mutation did not match exactly once')
+          p.write_text(s.replace(old,new,1))
+          PY
+          if node scripts/test-rail-failure.mjs; then echo 'ERROR: telemetry mutation stayed green'; exit 1; else echo 'RED-PROOF OK: telemetry mutation failed'; fi
+          mv /tmp/railFailure.js lib/railFailure.js
+          node scripts/test-rail-failure.mjs
+      - name: Red prove failure classification
+        shell: bash
+        run: |
+          cp lib/railFailure.js /tmp/railFailure.js
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('lib/railFailure.js'); s=p.read_text(); old='code === 408 || code === 429 || code >= 500'; new='code === 408 || code === 429 || code === 503'
+          if s.count(old) != 1: raise SystemExit('classification mutation did not match exactly once')
+          p.write_text(s.replace(old,new,1))
+          PY
+          if node scripts/test-rail-failure.mjs; then echo 'ERROR: classification mutation stayed green'; exit 1; else echo 'RED-PROOF OK: classification mutation failed'; fi
+          mv /tmp/railFailure.js lib/railFailure.js
+          node scripts/test-rail-failure.mjs
+      - name: Red prove developer UI split
+        shell: bash
+        run: |
+          cp app/components/kit.js /tmp/kit.js
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('app/components/kit.js'); s=p.read_text(); old='This rail isn’t available right now.'; new='This rail is available right now.'
+          if s.count(old) != 1: raise SystemExit('developer UI mutation did not match exactly once')
+          p.write_text(s.replace(old,new,1))
+          PY
+          if node scripts/test-rail-failure.mjs; then echo 'ERROR: developer UI mutation stayed green'; exit 1; else echo 'RED-PROOF OK: developer UI mutation failed'; fi
+          mv /tmp/kit.js app/components/kit.js
+          node scripts/test-rail-failure.mjs
+      - name: Red prove mascot wiring
+        shell: bash
+        run: |
+          cp app/components/FallIntentRails.js /tmp/FallIntentRails.js
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('app/components/FallIntentRails.js'); s=p.read_text(); old='<RailMascotBusy rail="fall"'; new='<RailDevError data-rail="fall"'
+          if s.count(old) != 1: raise SystemExit('mascot wiring mutation did not match exactly once')
+          p.write_text(s.replace(old,new,1))
+          PY
+          if node scripts/test-rail-failure.mjs; then echo 'ERROR: mascot wiring mutation stayed green'; exit 1; else echo 'RED-PROOF OK: mascot wiring mutation failed'; fi
+          mv /tmp/FallIntentRails.js app/components/FallIntentRails.js
+          node scripts/test-rail-failure.mjs
+      - name: Full guards and type sanity
+        run: |
+          node scripts/run-guards.mjs
+          npm run check:jsx
+      - name: Production build and bundle ratchet
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+        run: npm run build
+      - name: Final registry and clean-tree proof
+        run: |
+          node scripts/lib/build-guard-registry.mjs
+          node scripts/check-guard-registry.mjs
+          node scripts/test-rail-failure.mjs
+          test ! -e scripts/apply-graceful-outage-state.mjs
+          test ! -e scripts/apply-graceful-outage-state.py
+          test ! -e .github/workflows/apply-graceful-outage-state-2026-09-10.yml
+      - name: Commit verified final tree
+        shell: bash
+        run: |
+          git config user.name 'codex (Wayfind problem solver)'
+          git config user.email 'codex@openai.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'feat(rails): show honest graceful outage states' -m 'This does not resolve upstream Supabase failures. It is a branded degraded-state UX improvement for transient discovery-rail outages. Retryable transport failures get one bounded retry; caller/contract bugs never get the mascot; healthy empty responses stay honest; navigation aborts obsolete work; mascot entry emits attributable telemetry.'
+          git push origin HEAD:feat/graceful-outage-state-2026-09-10
