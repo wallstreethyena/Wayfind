@@ -17,12 +17,17 @@ canonical routes and separate rejected/held candidate ledger are in
 | Add with photo hold | Runaway Pumpkin 5K & Family Fest | Canonical event page; no fall rail card until a verified image is available |
 | Correct existing | 25 records named in the fixture | Preserve event IDs, slugs, provider identities and mutable link health |
 | Retain provider | The Vampire Circus | Keep `/events/sarasota/the-vampire-circus--tm_Z7r9jZ1A7PbaS`; no curated duplicate |
-| Photo holds | Runaway Pumpkin, BayFest, Hunsader Pumpkin Festival, Candlelight Halloween | Publish event facts; keep off the fall rails because no exact owned or rights-cleared image was established |
+| Photo holds | Runaway Pumpkin, BayFest, Hunsader Pumpkin Festival, Candlelight Halloween, Sun Fiesta | Publish event facts; keep off the fall rails because no exact owned or rights-cleared image was established |
 
 Runaway is 28.11 miles from the Sarasota reference point. Its family rail cap
 remains 27 miles, so resolving its photo makes it eligible from North Port and
 other closer origins, not from central Sarasota. The research radius remains
-30 miles. Ranking, rail radii and paid-provider controls are unchanged.
+30 miles. Ranking, rail radii and paid-provider controls are unchanged. Venue heroes use
+verified existing 640-pixel photos, with the working 800-pixel entries retained
+for Fruitville Grove and Downtown Wellen Park. Sun Fiesta has no fresh cached
+photo at any width and its permanent-photo candidate was rejected for identity
+disambiguation, so its page keeps the named fallback and its rail card is held.
+No new paid image requests are needed.
 
 Freedom Factory remains in festivals: child tickets do not make loud demolition
 racing a gentle family Halloween recommendation. Venice Night Market follows the new verified family Halloween classification.
@@ -57,7 +62,7 @@ Sarasota and Gulf Coast seed executables skip superseded IDs, and the Gulf
 Coast seed rejects an explicit `--only` request for one of them.
 
 The existing fall intent regression guard executes all 29 curated taxonomy
-decisions, composes the exact 25 photo-ready Sarasota cards, proves the
+decisions, composes the exact 24 photo-ready Sarasota cards, proves the
 Runaway distance boundary, and checks identity, image-hold and health-field
 preservation. The cache moves to v12 so the corrected rail composition is
 served immediately after deployment.

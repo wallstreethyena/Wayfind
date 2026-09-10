@@ -41,17 +41,17 @@ ok(!publicationIds.has(publication.provider_records[0].event_id), "the Vampire C
 ok(selectedCurated.every((row) => fallEventRail(publishedById.get(row.event_id)) === row.primary_rail), "every curated publication executes into its reviewed primary taxonomy rail");
 ok(publication.rows.every((row) => row.event_status === "scheduled" && row.source_tier === 1 && row.verification_confidence === "high"), "every added event passes the canonical trust threshold");
 ok(publication.patches.every((row) => !Object.keys(row.set).some((field) => ["slug", "event_id", "link_ok", "link_verdict", "link_checked_at", "link_final_url"].includes(field))), "corrections preserve canonical identity and independently maintained link health");
-ok(publication.rail_photo_holds.every((id) => publishedById.get(id)?.hero_image === null && !FALL_EVENT_VENUE_PLACE_IDS[id]), "unproven photos stay off rails without borrowing a nearby place identity");
+ok(publication.rail_photo_holds.every((id) => publishedById.get(id)?.hero_image === null && fallEventCardImageSrc(publishedById.get(id)) === null), "unproven photos stay off rails without borrowing a nearby place identity");
 const photoReady = publishedRows.filter((row) => row.hero_image);
-ok(photoReady.length === 25 && photoReady.every((row) => {
+ok(photoReady.length === 24 && photoReady.every((row) => {
   const proof = publication.venue_proof.find((place) => place.place_id === row.place_id);
   return proof?.has_photo && proof.status === "OPERATIONAL" && !proof.excluded
     && FALL_EVENT_VENUE_PLACE_IDS[row.event_id] === row.place_id
-    && row.hero_image === `/api/photo?place=${row.place_id}&w=800`;
-}), "every one of the 25 photo-ready cards has the exact operational owned venue and its own image URL");
+    && row.hero_image === `/api/photo?place=${row.place_id}&w=${proof.live_photo_width}`;
+}), "every one of the 24 photo-ready cards has the exact operational owned venue and its own image URL");
 const composedPublication = composeFallIntentRails(photoReady, [], { lat: 27.3364, lng: -82.5307, today: "2026-09-10", now: new Date("2026-09-10T16:00:00Z") });
 const renderedPublication = composedPublication.rails.flatMap((rail) => rail.cards.map((row) => row.event_id || row.id));
-ok(renderedPublication.slice().sort().join("|") === photoReady.map((row) => row.event_id).sort().join("|"), "Sarasota renders the exact 25 photo-ready curated selections once, without filling from held candidates");
+ok(renderedPublication.slice().sort().join("|") === photoReady.map((row) => row.event_id).sort().join("|"), "Sarasota renders the exact 24 photo-ready curated selections once, without filling from held candidates");
 const runaway = publishedById.get("runaway-pumpkin-5k-family-fest-2026");
 const nearbyRunaway = (lat, lng) => composeFallIntentRails([runaway], [], { lat, lng, today: "2026-09-10", now: new Date("2026-09-10T16:00:00Z") }).rails.flatMap((rail) => rail.cards);
 ok(nearbyRunaway(27.3364, -82.5307).length === 0 && nearbyRunaway(27.04, -82.217).length === 1, "Runaway remains outside Sarasota's 27-mile family cap but eligible from North Port when its photo is resolved");

@@ -59,7 +59,7 @@
         "halloween",
         "family"
       ],
-      "hero_image": "/api/photo?place=ChIJSZdWvAlqw4gRo53EHrAL5gU&w=800",
+      "hero_image": "/api/photo?place=ChIJSZdWvAlqw4gRo53EHrAL5gU&w=640",
       "image_alt": "Siesta Key storefronts — confirmed Blasé/Pi Pizza stop; venue photo"
     },
     {
@@ -112,7 +112,7 @@
         "halloween",
         "family"
       ],
-      "hero_image": "/api/photo?place=ChIJTRfRfgpBw4gR-u488ol_SOw&w=800",
+      "hero_image": "/api/photo?place=ChIJTRfRfgpBw4gR-u488ol_SOw&w=640",
       "image_alt": "Riverview Performing Arts Center; venue photo",
       "editorial_summary": "Public ticketed Halloween concert at Riverview Performing Arts Center, with courtyard trick-or-treating after the performance.",
       "insider_tip": "Public tickets are available. Complimentary tickets apply only to named participating charity families."
@@ -297,7 +297,7 @@
           "free",
           "fall-market"
         ],
-        "hero_image": "/api/photo?place=ChIJHcu6u2BHw4gRDKuRC9sow20&w=800",
+        "hero_image": "/api/photo?place=ChIJHcu6u2BHw4gRDKuRC9sow20&w=640",
         "image_alt": "The Green at University Town Center; venue photo",
         "is_free": true,
         "price_min": 0,
@@ -368,7 +368,7 @@
           "fall",
           "fall-festival"
         ],
-        "hero_image": "/api/photo?place=ChIJ6_YRRRJAw4gRE5XF42pZOxo&w=800",
+        "hero_image": "/api/photo?place=ChIJ6_YRRRJAw4gRE5XF42pZOxo&w=640",
         "image_alt": "Sarasota Opera House; venue photo"
       }
     },
@@ -440,7 +440,7 @@
           "spooky-date"
         ],
         "select_nights": true,
-        "hero_image": "/api/photo?place=ChIJNwQxUnFDw4gRlEruVgcCmu0&w=800",
+        "hero_image": "/api/photo?place=ChIJNwQxUnFDw4gRlEruVgcCmu0&w=640",
         "image_alt": "Selby Gardens Historic Spanish Point; venue photo",
         "insider_tip": "Choose an available timed ticket; the event is closed October 13. Daytime garden admission does not include this event."
       }
@@ -654,7 +654,7 @@
           "farm-festival",
           "fall-festival"
         ],
-        "hero_image": "/api/photo?place=ChIJB_GKfW81w4gRsCQHi5hjasA&w=800",
+        "hero_image": "/api/photo?place=ChIJB_GKfW81w4gRsCQHi5hjasA&w=640",
         "image_alt": "Dakin Dairy Farms; venue photo"
       }
     },
@@ -807,7 +807,7 @@
           "local",
           "beer-garden"
         ],
-        "hero_image": "/api/photo?place=ChIJczkDFL04w4gRwfowcSv8Tro&w=800",
+        "hero_image": "/api/photo?place=ChIJczkDFL04w4gRwfowcSv8Tro&w=640",
         "image_alt": "Nathan Benderson Park; venue photo"
       }
     },
@@ -877,7 +877,7 @@
           "free",
           "fall-market"
         ],
-        "hero_image": "/api/photo?place=ChIJ8SekLo9Gw4gR81Gftma1QvU&w=800",
+        "hero_image": "/api/photo?place=ChIJ8SekLo9Gw4gR81Gftma1QvU&w=640",
         "image_alt": "UF/IFAS Extension, Twin Lakes Park; venue photo"
       }
     },
@@ -953,7 +953,7 @@
           "spooky-date"
         ],
         "select_nights": true,
-        "hero_image": "/api/photo?place=ChIJB-QyVtEXw4gRk5F8bn3YV28&w=800",
+        "hero_image": "/api/photo?place=ChIJB-QyVtEXw4gRk5F8bn3YV28&w=640",
         "image_alt": "Manatee Performing Arts Center; venue photo",
         "minimum_age": null,
         "editorial_summary": "A horror musical at Manatee Performing Arts Center on selected dates from October 15 through November 1. Check your ticket for the room and curtain time.",
@@ -1025,7 +1025,7 @@
           "family-halloween",
           "costume-event"
         ],
-        "hero_image": "/api/photo?place=ChIJhW6JF_MWw4gRUxIRevnpN4k&w=800",
+        "hero_image": "/api/photo?place=ChIJhW6JF_MWw4gRUxIRevnpN4k&w=640",
         "image_alt": "G.T. Bray Park; venue photo"
       }
     },
@@ -1093,7 +1093,7 @@
           "nightlife",
           "fall-festival"
         ],
-        "hero_image": "/api/photo?place=ChIJ6y2dx9g_w4gRWoZIRhLk-JI&w=800",
+        "hero_image": "/api/photo?place=ChIJ6y2dx9g_w4gRWoZIRhLk-JI&w=640",
         "image_alt": "The Ringling Museum, Museum of Art Courtyard; venue photo"
       }
     },
@@ -1161,8 +1161,8 @@
           "free",
           "fall-festival"
         ],
-        "hero_image": "/api/photo?place=ChIJu73by6Rbw4gR857K3YRfLQo&w=800",
-        "image_alt": "Centennial Park; venue photo"
+        "hero_image": null,
+        "image_alt": null
       }
     },
     {
@@ -1299,7 +1299,7 @@
           "family-halloween",
           "costume-event"
         ],
-        "hero_image": "/api/photo?place=ChIJLZ2vzRxBw4gRMOtW0ArhBhw&w=800",
+        "hero_image": "/api/photo?place=ChIJLZ2vzRxBw4gRMOtW0ArhBhw&w=640",
         "image_alt": "Common Ground at The Bay Park; venue photo"
       }
     },
@@ -1369,7 +1369,7 @@
           "oktoberfest",
           "beer-garden"
         ],
-        "hero_image": "/api/photo?place=ChIJRyOEfAo5w4gR664aD_YYBLU&w=800",
+        "hero_image": "/api/photo?place=ChIJRyOEfAo5w4gR664aD_YYBLU&w=640",
         "image_alt": "Mote Science Education Aquarium; venue photo",
         "minimum_age": 21
       }
@@ -1442,7 +1442,7 @@
           "fall-market",
           "costume-event"
         ],
-        "hero_image": "/api/photo?place=ChIJg1HuP9xbw4gRs9PHCFmC4VU&w=800",
+        "hero_image": "/api/photo?place=ChIJg1HuP9xbw4gRs9PHCFmC4VU&w=640",
         "image_alt": "Maxine Barritt Park; venue photo"
       }
     },
@@ -1591,7 +1591,7 @@
           "local",
           "family-halloween"
         ],
-        "hero_image": "/api/photo?place=ChIJPTvxtmpAw4gReToYD5mTNwE&w=800",
+        "hero_image": "/api/photo?place=ChIJPTvxtmpAw4gReToYD5mTNwE&w=640",
         "image_alt": "Marie Selby Botanical Gardens; venue photo",
         "insider_tip": "Included with Downtown Sarasota garden admission; members are free. Lights at Spooky Point is a separate ticketed event."
       }
@@ -1661,7 +1661,7 @@
           "family-halloween",
           "costume-event"
         ],
-        "hero_image": "/api/photo?place=ChIJczkDFL04w4gRwfowcSv8Tro&w=800",
+        "hero_image": "/api/photo?place=ChIJczkDFL04w4gRwfowcSv8Tro&w=640",
         "image_alt": "Regatta Island, Nathan Benderson Park; venue photo"
       }
     },
@@ -1729,7 +1729,7 @@
           "date-night",
           "spooky-date"
         ],
-        "hero_image": "/api/photo?place=ChIJew4bcA9Aw4gR3bU-SA7qAgU&w=800",
+        "hero_image": "/api/photo?place=ChIJew4bcA9Aw4gR3bU-SA7qAgU&w=640",
         "image_alt": "Van Wezel Performing Arts Hall; venue photo"
       }
     },
@@ -1801,7 +1801,7 @@
           "local",
           "fall-festival"
         ],
-        "hero_image": "/api/photo?place=ChIJdSO-6RIxw4gR8mqEBQELC84&w=800",
+        "hero_image": "/api/photo?place=ChIJdSO-6RIxw4gR8mqEBQELC84&w=640",
         "image_alt": "Freedom Factory; venue photo",
         "price_min": 10,
         "price_max": 35,
@@ -1875,7 +1875,7 @@
           "halloween-nightlife",
           "costume-event"
         ],
-        "hero_image": "/api/photo?place=ChIJzcd5L6hBw4gRAON6hbly9cE&w=800",
+        "hero_image": "/api/photo?place=ChIJzcd5L6hBw4gRAON6hbly9cE&w=640",
         "image_alt": "Raffurty's Bar & Grill; venue photo",
         "minimum_age": 21
       }
@@ -1946,7 +1946,7 @@
           "fall-festival"
         ],
         "select_nights": true,
-        "hero_image": "/api/photo?place=ChIJS2qQ6sw1w4gRUJfWmSdAvXE&w=800",
+        "hero_image": "/api/photo?place=ChIJS2qQ6sw1w4gRUJfWmSdAvXE&w=640",
         "image_alt": "Woods of Mallaranny — Sarasota Medieval Fair; venue photo"
       }
     },
@@ -2591,7 +2591,8 @@
       "rail_cap_miles": 45,
       "rail_distance_note": "Within existing rail cap from Sarasota reference point",
       "row_id": "SRQ-14",
-      "research_lineage": "festivals/sun-fiesta-venice-2026"
+      "research_lineage": "festivals/sun-fiesta-venice-2026",
+      "rail_publication_status": "Event page published; fall rail held because no fresh exact-venue cached photo or accepted licensed photo was available."
     },
     {
       "event_id": "ami-bayfest-2026",
@@ -3729,7 +3730,10 @@
       "name": "Sarasota Opera House",
       "needs_review": false,
       "place_id": "ChIJ6_YRRRJAw4gRE5XF42pZOxo",
-      "status": "OPERATIONAL"
+      "status": "OPERATIONAL",
+      "live_photo_width": 640,
+      "live_photo_verified_at": "2026-09-10",
+      "live_photo_probe": "No-spend exact-venue image HTTP200"
     },
     {
       "excluded": false,
@@ -3739,7 +3743,10 @@
       "name": "The John and Mable Ringling Museum of Art",
       "needs_review": false,
       "place_id": "ChIJ6y2dx9g_w4gRWoZIRhLk-JI",
-      "status": "OPERATIONAL"
+      "status": "OPERATIONAL",
+      "live_photo_width": 640,
+      "live_photo_verified_at": "2026-09-10",
+      "live_photo_probe": "No-spend exact-venue image HTTP200"
     },
     {
       "excluded": false,
@@ -3749,7 +3756,10 @@
       "name": "Twin Lakes Park",
       "needs_review": false,
       "place_id": "ChIJ8SekLo9Gw4gR81Gftma1QvU",
-      "status": "OPERATIONAL"
+      "status": "OPERATIONAL",
+      "live_photo_width": 640,
+      "live_photo_verified_at": "2026-09-10",
+      "live_photo_probe": "No-spend exact-venue image HTTP200"
     },
     {
       "excluded": false,
@@ -3759,7 +3769,10 @@
       "name": "Dakin Dairy Farm Market & Cafe",
       "needs_review": false,
       "place_id": "ChIJB_GKfW81w4gRsCQHi5hjasA",
-      "status": "OPERATIONAL"
+      "status": "OPERATIONAL",
+      "live_photo_width": 640,
+      "live_photo_verified_at": "2026-09-10",
+      "live_photo_probe": "No-spend exact-venue image HTTP200"
     },
     {
       "excluded": false,
@@ -3769,7 +3782,10 @@
       "name": "Manatee Performing Arts Center",
       "needs_review": false,
       "place_id": "ChIJB-QyVtEXw4gRk5F8bn3YV28",
-      "status": "OPERATIONAL"
+      "status": "OPERATIONAL",
+      "live_photo_width": 640,
+      "live_photo_verified_at": "2026-09-10",
+      "live_photo_probe": "No-spend exact-venue image HTTP200"
     },
     {
       "excluded": false,
@@ -3779,7 +3795,10 @@
       "name": "Nathan Benderson Park",
       "needs_review": false,
       "place_id": "ChIJczkDFL04w4gRwfowcSv8Tro",
-      "status": "OPERATIONAL"
+      "status": "OPERATIONAL",
+      "live_photo_width": 640,
+      "live_photo_verified_at": "2026-09-10",
+      "live_photo_probe": "No-spend exact-venue image HTTP200"
     },
     {
       "excluded": false,
@@ -3789,7 +3808,10 @@
       "name": "Freedom Factory",
       "needs_review": false,
       "place_id": "ChIJdSO-6RIxw4gR8mqEBQELC84",
-      "status": "OPERATIONAL"
+      "status": "OPERATIONAL",
+      "live_photo_width": 640,
+      "live_photo_verified_at": "2026-09-10",
+      "live_photo_probe": "No-spend exact-venue image HTTP200"
     },
     {
       "excluded": false,
@@ -3799,7 +3821,10 @@
       "name": "Van Wezel Performing Arts Hall",
       "needs_review": false,
       "place_id": "ChIJew4bcA9Aw4gR3bU-SA7qAgU",
-      "status": "OPERATIONAL"
+      "status": "OPERATIONAL",
+      "live_photo_width": 640,
+      "live_photo_verified_at": "2026-09-10",
+      "live_photo_probe": "No-spend exact-venue image HTTP200"
     },
     {
       "excluded": false,
@@ -3809,7 +3834,10 @@
       "name": "Maxine Barritt Park",
       "needs_review": false,
       "place_id": "ChIJg1HuP9xbw4gRs9PHCFmC4VU",
-      "status": "OPERATIONAL"
+      "status": "OPERATIONAL",
+      "live_photo_width": 640,
+      "live_photo_verified_at": "2026-09-10",
+      "live_photo_probe": "No-spend exact-venue image HTTP200"
     },
     {
       "excluded": false,
@@ -3819,7 +3847,10 @@
       "name": "University Town Center",
       "needs_review": false,
       "place_id": "ChIJHcu6u2BHw4gRDKuRC9sow20",
-      "status": "OPERATIONAL"
+      "status": "OPERATIONAL",
+      "live_photo_width": 640,
+      "live_photo_verified_at": "2026-09-10",
+      "live_photo_probe": "No-spend exact-venue image HTTP200"
     },
     {
       "excluded": false,
@@ -3829,7 +3860,10 @@
       "name": "G.T. Bray Park",
       "needs_review": false,
       "place_id": "ChIJhW6JF_MWw4gRUxIRevnpN4k",
-      "status": "OPERATIONAL"
+      "status": "OPERATIONAL",
+      "live_photo_width": 640,
+      "live_photo_verified_at": "2026-09-10",
+      "live_photo_probe": "No-spend exact-venue image HTTP200"
     },
     {
       "excluded": false,
@@ -3839,7 +3873,10 @@
       "name": "Fruitville Grove",
       "needs_review": false,
       "place_id": "ChIJhWqZvoVHw4gRehUSFsbZARo",
-      "status": "OPERATIONAL"
+      "status": "OPERATIONAL",
+      "live_photo_width": 800,
+      "live_photo_verified_at": "2026-09-10",
+      "live_photo_probe": "No-spend exact-venue image HTTP200"
     },
     {
       "excluded": false,
@@ -3849,7 +3886,10 @@
       "name": "Downtown Wellen Park",
       "needs_review": false,
       "place_id": "ChIJJQVMQuJXw4gRhD0CpEOETGo",
-      "status": "OPERATIONAL"
+      "status": "OPERATIONAL",
+      "live_photo_width": 800,
+      "live_photo_verified_at": "2026-09-10",
+      "live_photo_probe": "No-spend exact-venue image HTTP200"
     },
     {
       "excluded": false,
@@ -3859,7 +3899,10 @@
       "name": "The Bay Park",
       "needs_review": false,
       "place_id": "ChIJLZ2vzRxBw4gRMOtW0ArhBhw",
-      "status": "OPERATIONAL"
+      "status": "OPERATIONAL",
+      "live_photo_width": 640,
+      "live_photo_verified_at": "2026-09-10",
+      "live_photo_probe": "No-spend exact-venue image HTTP200"
     },
     {
       "excluded": false,
@@ -3869,7 +3912,10 @@
       "name": "Historic Spanish Point",
       "needs_review": false,
       "place_id": "ChIJNwQxUnFDw4gRlEruVgcCmu0",
-      "status": "OPERATIONAL"
+      "status": "OPERATIONAL",
+      "live_photo_width": 640,
+      "live_photo_verified_at": "2026-09-10",
+      "live_photo_probe": "No-spend exact-venue image HTTP200"
     },
     {
       "excluded": false,
@@ -3879,7 +3925,10 @@
       "name": "Marie Selby Botanical Gardens Downtown Sarasota",
       "needs_review": false,
       "place_id": "ChIJPTvxtmpAw4gReToYD5mTNwE",
-      "status": "OPERATIONAL"
+      "status": "OPERATIONAL",
+      "live_photo_width": 640,
+      "live_photo_verified_at": "2026-09-10",
+      "live_photo_probe": "No-spend exact-venue image HTTP200"
     },
     {
       "excluded": false,
@@ -3889,7 +3938,10 @@
       "name": "Mote Science Education Aquarium (SEA)",
       "needs_review": false,
       "place_id": "ChIJRyOEfAo5w4gR664aD_YYBLU",
-      "status": "OPERATIONAL"
+      "status": "OPERATIONAL",
+      "live_photo_width": 640,
+      "live_photo_verified_at": "2026-09-10",
+      "live_photo_probe": "No-spend exact-venue image HTTP200"
     },
     {
       "excluded": false,
@@ -3899,7 +3951,10 @@
       "name": "Sarasota Medieval Fair",
       "needs_review": false,
       "place_id": "ChIJS2qQ6sw1w4gRUJfWmSdAvXE",
-      "status": "OPERATIONAL"
+      "status": "OPERATIONAL",
+      "live_photo_width": 640,
+      "live_photo_verified_at": "2026-09-10",
+      "live_photo_probe": "No-spend exact-venue image HTTP200"
     },
     {
       "excluded": false,
@@ -3909,7 +3964,10 @@
       "name": "The Blasé Martini Bar & 3.14 Pi Pizza",
       "needs_review": false,
       "place_id": "ChIJSZdWvAlqw4gRo53EHrAL5gU",
-      "status": "OPERATIONAL"
+      "status": "OPERATIONAL",
+      "live_photo_width": 640,
+      "live_photo_verified_at": "2026-09-10",
+      "live_photo_probe": "No-spend exact-venue image HTTP200"
     },
     {
       "excluded": false,
@@ -3919,7 +3977,10 @@
       "name": "Riverview Performing Arts Center",
       "needs_review": false,
       "place_id": "ChIJTRfRfgpBw4gR-u488ol_SOw",
-      "status": "OPERATIONAL"
+      "status": "OPERATIONAL",
+      "live_photo_width": 640,
+      "live_photo_verified_at": "2026-09-10",
+      "live_photo_probe": "No-spend exact-venue image HTTP200"
     },
     {
       "excluded": false,
@@ -3929,7 +3990,10 @@
       "name": "Centennial Park",
       "needs_review": false,
       "place_id": "ChIJu73by6Rbw4gR857K3YRfLQo",
-      "status": "OPERATIONAL"
+      "status": "OPERATIONAL",
+      "live_photo_width": null,
+      "live_photo_verified_at": "2026-09-10",
+      "live_photo_probe": "No image at 640 or 800; no fresh same-place cache at any width; permanent photo rejected for identity disambiguation."
     },
     {
       "excluded": false,
@@ -3939,13 +4003,17 @@
       "name": "Raffurty's Bar and Grill",
       "needs_review": false,
       "place_id": "ChIJzcd5L6hBw4gRAON6hbly9cE",
-      "status": "OPERATIONAL"
+      "status": "OPERATIONAL",
+      "live_photo_width": 640,
+      "live_photo_verified_at": "2026-09-10",
+      "live_photo_probe": "No-spend exact-venue image HTTP200"
     }
   ],
   "rail_photo_holds": [
     "hunsader-pumpkin-2026",
     "ami-bayfest-2026",
     "candlelight-halloween-siesta-key-2026",
-    "runaway-pumpkin-5k-family-fest-2026"
+    "runaway-pumpkin-5k-family-fest-2026",
+    "sun-fiesta-venice-2026"
   ]
 }
