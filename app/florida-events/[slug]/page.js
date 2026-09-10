@@ -20,6 +20,7 @@ import EventWhere from "../../components/EventWhere";
 import { eventPairings, pairingHref } from "../../../lib/eventPairings";
 import { eventTicketCta } from "../../../lib/eventTicketDeals.js";
 import { clockLabel } from "../../../lib/fallPool.js";
+import { eventSocialPosts } from "../../../lib/eventSocial.js";
 
 // Same two-letter monogram convention as RailCard/IconicPlaceCard's card
 // fallback (app/components/css.js .wf-place-card-monogram) — the letters an
@@ -144,6 +145,8 @@ const S = {
   },
   shot: { width: "100%", height: "100%", objectFit: "cover", display: "block" },
   credit: { fontSize: 12.5, color: "#8B949E", margin: "0 0 22px" },
+  social: { margin: "22px 0", padding: "16px", border: "1px solid #26303B", borderRadius: 14, background: "#111821" },
+  socialLink: { display: "block", color: "#E879F9", fontSize: 14, fontWeight: 800, textDecoration: "none", padding: "8px 0" },
   // v8.88 — the way back. Byte-identical to the pill on /guides and
   // /guides/[slug] (check-guides pins that anchor) because a reader who has
   // seen it once should not have to learn a second control: this page simply
@@ -231,6 +234,7 @@ export default async function CuratedEventPage({ params }) {
   // 2026-09-06: "does not have the address nor the website for the place".
   const site = eventWebsiteUrl(e) || null;
   const ticket = eventTicketCta(e.event_id, { surface: "florida_event_page" });
+  const socialPosts = eventSocialPosts(e.event_id) || [];
   // Real nearby places worth an outing, ranked by Wayfind — [] (and no section)
   // where there is nothing honestly nearby, so a page never shows a thin shelf.
   // They render inside <EventWhere> (numbered cards + the same numbers as pins).
@@ -312,7 +316,7 @@ export default async function CuratedEventPage({ params }) {
             <EventWhere> already renders below with a clean, host-only
             caption. One official-site affordance, not two, and never a raw
             path as visible text. */}
-        <div style={S.row}><span style={S.k}>Cost</span><span style={S.v}>{e.is_free ? "Free" : (e.price_band || "Ticketed — see the organiser")}</span></div>
+        <div style={S.row}><span style={S.k}>Cost</span><span style={S.v}>{e.is_free ? "Free" : (e.price_band || (e.is_free === false ? "Ticketed — see the organiser" : "See the organiser for admission details"))}</span></div>
         {e.minimum_age ? <div style={S.row}><span style={S.k}>Age</span><span style={S.v}>{e.minimum_age}+</span></div> : null}
         {e.duration_recommendation ? <div style={S.row}><span style={S.k}>Time needed</span><span style={S.v}>{e.duration_recommendation}</span></div> : null}
         {e.crowd_level ? <div style={S.row}><span style={S.k}>Crowds</span><span style={S.v}>{e.crowd_level}</span></div> : null}
@@ -387,6 +391,18 @@ export default async function CuratedEventPage({ params }) {
       <div className="wf-event-content">
       {e.schedule_note ? <p style={S.note}>{e.schedule_note}</p> : null}
       {e.editorial_summary ? <p style={S.p}>{e.editorial_summary}</p> : null}
+
+      {socialPosts.length ? (
+        <section style={S.social} aria-label="Creator posts about this event">
+          <h2 style={{ ...S.h2, marginTop: 0 }}>Seen from local creators</h2>
+          {socialPosts.map((post) => (
+            <a key={post.url} href={post.url} target="_blank" rel="noopener" style={S.socialLink}
+              aria-label={`See @${post.creator}'s Instagram post about ${e.event_name} (opens in a new tab)`}>
+              See @{post.creator}&rsquo;s post on Instagram ↗
+            </a>
+          ))}
+        </section>
+      ) : null}
 
       {e.why_go ? (<><h2 style={S.h2}>Why it&rsquo;s worth going</h2><p style={S.p}>{e.why_go}</p></>) : null}
 

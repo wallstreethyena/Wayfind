@@ -1,0 +1,3338 @@
+{
+  "audit_date": "2026-09-10",
+  "scope": "All current Wayfind /guides/[slug] entries on the audited source branch.",
+  "status_vocabulary": [
+    "pass",
+    "fail",
+    "unknown"
+  ],
+  "interpretation": "Pass means the cited source contract was verified. Unknown is never a pass. This artifact does not certify indexing, rankings, Discover eligibility, production uptime, or factual freshness beyond the recorded evidence.",
+  "baseline": {
+    "search_console": "unknown",
+    "production_http": "unknown",
+    "organic_analytics": "unknown"
+  },
+  "pages": [
+    {
+      "slug": "swim-with-manatees-crystal-river",
+      "url": "https://www.gowayfind.com/guides/swim-with-manatees-crystal-river",
+      "primary_query": "swim with manatees crystal river",
+      "geography": "Crystal River",
+      "decision": "How and when to swim with wild manatees in Crystal River: Kings Bay and Three Sisters Springs, tours for swimmers and non-swimmers, the land boardwalk, and what to do in summer.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/activity-swim-with-manatees-crystal-river.webp; 1024x686; David Hinkel / U.S. Fish and Wildlife Service; CC BY 2.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "unknown",
+          "evidence": "Delivered image is 1024x686; it is not claimed as a 1200px-wide Discover candidate."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): florida-scalloping-crystal-river-homosassa, weeki-wachee-kayak-mermaids-guide."
+        },
+        "comparison_shortcut": {
+          "status": "pass",
+          "evidence": "3 choices point to existing article sections."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "bioluminescence-kayak-tour-space-coast",
+      "url": "https://www.gowayfind.com/guides/bioluminescence-kayak-tour-space-coast",
+      "primary_query": "florida bioluminescence kayak tour",
+      "geography": "Cocoa Beach",
+      "decision": "When and where to paddle Florida's glowing water on the Space Coast: summer dinoflagellates, winter comb jellies, clear kayaks on the Indian River Lagoon, and why a moonless night matters.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring omits an image rather than substituting unrelated art; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the branded text-card fallback; no unrelated photograph is used."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "Explicitly unavailable: The previous photograph does not match this guide. A suitable licensed replacement has not yet passed review."
+        },
+        "representative_image": {
+          "status": "unknown",
+          "evidence": "No reviewed representative image is currently available."
+        },
+        "large_image_candidate": {
+          "status": "unknown",
+          "evidence": "No representative image is available."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): weeki-wachee-kayak-mermaids-guide, swim-with-manatees-crystal-river."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "florida-scalloping-crystal-river-homosassa",
+      "url": "https://www.gowayfind.com/guides/florida-scalloping-crystal-river-homosassa",
+      "primary_query": "florida scalloping crystal river",
+      "geography": "Crystal River",
+      "decision": "Summer bay scalloping in Crystal River, Homosassa and the Nature Coast: the season, the license, the bag limits, and how to snorkel the grass flats for your own dinner.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring omits an image rather than substituting unrelated art; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the branded text-card fallback; no unrelated photograph is used."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "Explicitly unavailable: The previous photograph does not match this guide. A suitable licensed replacement has not yet passed review."
+        },
+        "representative_image": {
+          "status": "unknown",
+          "evidence": "No reviewed representative image is currently available."
+        },
+        "large_image_candidate": {
+          "status": "unknown",
+          "evidence": "No representative image is available."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): swim-with-manatees-crystal-river, weeki-wachee-kayak-mermaids-guide."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "weeki-wachee-kayak-mermaids-guide",
+      "url": "https://www.gowayfind.com/guides/weeki-wachee-kayak-mermaids-guide",
+      "primary_query": "weeki wachee kayak",
+      "geography": "Weeki Wachee",
+      "decision": "How to do Weeki Wachee Springs State Park: the reservation-only kayak paddle down a crystal river, the live mermaid show, Buccaneer Bay, and when the manatees appear.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/nature-weeki-wachee-river.webp; 1600x1200; Gzuraski; CC BY-SA 3.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1600x1200; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): swim-with-manatees-crystal-river, florida-scalloping-crystal-river-homosassa."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "winter-park-scenic-boat-tour",
+      "url": "https://www.gowayfind.com/guides/winter-park-scenic-boat-tour",
+      "primary_query": "winter park scenic boat tour",
+      "geography": "Orlando",
+      "decision": "Everything to know before the Winter Park Scenic Boat Tour: what you'll see, tickets, parking, the cash-only catch, and whether it earns your hour.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/activity-winter-park-scenic-boat-tour.webp; 1200x1600; Thomsonmg2000; CC0 1.0 Universal."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1200x1600; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): things-to-do-orlando-not-theme-parks, orlando-in-the-rain."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "siesta-key-drum-circle",
+      "url": "https://www.gowayfind.com/guides/siesta-key-drum-circle",
+      "primary_query": "siesta key drum circle",
+      "geography": "Sarasota",
+      "decision": "The complete guide to Sarasota's Sunday sunset ritual: when the drum circle starts, where to park, what it's like, and the etiquette locals wish you knew.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring omits an image rather than substituting unrelated art; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the branded text-card fallback; no unrelated photograph is used."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "Explicitly unavailable: The previous photograph does not match this guide. A suitable licensed replacement has not yet passed review."
+        },
+        "representative_image": {
+          "status": "unknown",
+          "evidence": "No reviewed representative image is currently available."
+        },
+        "large_image_candidate": {
+          "status": "unknown",
+          "evidence": "No representative image is available."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): siesta-key-vs-lido-key, things-to-do-in-sarasota-florida."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "pinecraft-sarasota-amish-village",
+      "url": "https://www.gowayfind.com/guides/pinecraft-sarasota-amish-village",
+      "primary_query": "pinecraft sarasota",
+      "geography": "Sarasota",
+      "decision": "Florida's most unexpected neighborhood: how Pinecraft became the Amish winter capital, what to eat at Yoder's and Der Dutchman, and how to visit respectfully.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/unsplash/pie-kyrie-isaac.webp; 800x1200; Kyrie Isaac; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "unknown",
+          "evidence": "Delivered image is 800x1200; it is not claimed as a 1200px-wide Discover candidate."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): things-to-do-in-sarasota-florida, gulf-coast-brunch-and-date-night."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "siesta-key-vs-lido-key",
+      "url": "https://www.gowayfind.com/guides/siesta-key-vs-lido-key",
+      "primary_query": "siesta key vs lido key",
+      "geography": "Sarasota",
+      "decision": "The honest comparison locals give visitors: sand, crowds, parking, food, and which key fits your kind of beach day.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/sarasota-lido-key-beach.webp; 1600x894; Fred Hsu; CC BY-SA 3.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1600x894; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): anna-maria-island-day-trip, things-to-do-in-sarasota-florida."
+        },
+        "comparison_shortcut": {
+          "status": "pass",
+          "evidence": "3 choices point to existing article sections."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "things-to-do-sarasota",
+      "url": "https://www.gowayfind.com/guides/things-to-do-sarasota",
+      "primary_query": "things to do in sarasota",
+      "geography": "Sarasota",
+      "decision": "The Ringling, Pinecraft's Amish village, kayaking with manatees: what fills a Sarasota trip when you're sandy enough.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/sarasota-ca-dzan-ringling-estate.webp; 1600x1200; HMSyume; CC BY-SA 4.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1600x1200; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): myakka-river-state-park-guide, siesta-key-vs-lido-key."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "best-cuban-sandwich-tampa",
+      "url": "https://www.gowayfind.com/guides/best-cuban-sandwich-tampa",
+      "primary_query": "best cuban sandwich tampa",
+      "geography": "Tampa",
+      "decision": "Tampa invented the Cuban sandwich in Ybor City's cigar factories. Here's where to eat the real one, salami and all.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/food-best-cuban-sandwich-tampa.webp; 1200x1600; Coco Shooting; Pexels License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1200x1600; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): ybor-city-tampa-guide, things-to-do-in-tampa-florida."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "st-armands-circle-restaurants",
+      "url": "https://www.gowayfind.com/guides/st-armands-circle-restaurants",
+      "primary_query": "st armands circle restaurants",
+      "geography": "Sarasota",
+      "decision": "Where to actually eat on the Circle: the waterfront splurge, the locals' bistro, and the ice cream line worth joining.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/food-st-armands-meal.webp; 1067x1600; Keith Tanner; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "unknown",
+          "evidence": "Delivered image is 1067x1600; it is not claimed as a 1200px-wide Discover candidate."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): gulf-coast-brunch-and-date-night, sarasota-half-price-dining."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "best-restaurants-disney-springs",
+      "url": "https://www.gowayfind.com/guides/best-restaurants-disney-springs",
+      "primary_query": "best restaurants disney springs",
+      "geography": "Orlando",
+      "decision": "Where to actually eat at Disney Springs: the seven restaurants worth your reservation, what to order, and which tourist traps to skip.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/food-best-restaurants-disney-springs.webp; 1067x1600; Alfonso Betancourt; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "unknown",
+          "evidence": "Delivered image is 1067x1600; it is not claimed as a 1200px-wide Discover candidate."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): magical-dining-orlando-2026, orlando-halloween-food-2026."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "best-hotels-near-magic-kingdom",
+      "url": "https://www.gowayfind.com/guides/best-hotels-near-magic-kingdom",
+      "primary_query": "best hotels near magic kingdom",
+      "geography": "Orlando",
+      "decision": "The hotels that actually shorten your Magic Kingdom mornings: monorail access, early entry, and the value plays most families miss.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/unsplash/orlando-resort-juan-burgos.webp; 960x1200; Juan Burgos; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "unknown",
+          "evidence": "Delivered image is 960x1200; it is not claimed as a 1200px-wide Discover candidate."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): things-to-do-orlando-not-theme-parks, orlando-in-the-rain."
+        },
+        "comparison_shortcut": {
+          "status": "pass",
+          "evidence": "3 choices point to existing article sections."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "gatorland-vs-wild-florida",
+      "url": "https://www.gowayfind.com/guides/gatorland-vs-wild-florida",
+      "primary_query": "gatorland vs wild florida",
+      "geography": "Orlando",
+      "decision": "A straight comparison of Orlando's two gator attractions: shows, airboats, price, drive time, and which one fits your day.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/activity-gatorland-vs-wild-florida.webp; 1600x1200; LittleT889; CC BY 4.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1600x1200; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): things-to-do-orlando-not-theme-parks, orlando-in-the-rain."
+        },
+        "comparison_shortcut": {
+          "status": "pass",
+          "evidence": "3 choices point to existing article sections."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "things-to-do-orlando-not-theme-parks",
+      "url": "https://www.gowayfind.com/guides/things-to-do-orlando-not-theme-parks",
+      "primary_query": "things to do in orlando besides theme parks",
+      "geography": "Orlando",
+      "decision": "Airboats, springs, Winter Park, rocket launches: what locals actually do in Orlando when nobody's buying park tickets.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/unsplash/orlando-skyline-mick-haupt.webp; 1600x1067; Mick Haupt; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1600x1067; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): orlando-in-the-rain, winter-park-scenic-boat-tour."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "sarasota-half-price-dining",
+      "url": "https://www.gowayfind.com/guides/sarasota-half-price-dining",
+      "primary_query": "half price dining sarasota",
+      "geography": "Sarasota",
+      "decision": "Half-price dining certificates in Sarasota, and the free offers that need no certificate at all. What each one covers, and who should skip it.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/food-sarasota-half-price-dining.webp; 1067x1600; An Nhien; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "unknown",
+          "evidence": "Delivered image is 1067x1600; it is not claimed as a 1200px-wide Discover candidate."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): st-armands-circle-restaurants, gulf-coast-brunch-and-date-night."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "orlando-in-the-rain",
+      "url": "https://www.gowayfind.com/guides/orlando-in-the-rain",
+      "primary_query": "indoor things to do in orlando when it rains",
+      "geography": "Orlando",
+      "decision": "An afternoon storm just ate your plans. Nine Orlando places that are fully indoor, open in the rain, and don't need a park ticket.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/unsplash/museum-gallery-mat.webp; 800x1200; Mat; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "unknown",
+          "evidence": "Delivered image is 800x1200; it is not claimed as a 1200px-wide Discover candidate."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): things-to-do-orlando-not-theme-parks, winter-park-scenic-boat-tour."
+        },
+        "comparison_shortcut": {
+          "status": "pass",
+          "evidence": "3 choices point to existing article sections."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "birthday-freebies-bradenton-sarasota",
+      "url": "https://www.gowayfind.com/guides/birthday-freebies-bradenton-sarasota",
+      "primary_query": "birthday freebies bradenton sarasota",
+      "geography": "Bradenton",
+      "decision": "The birthday rewards that are actually free near Bradenton and Sarasota — verified against each brand's own terms or received in person: Starbucks, Sephora, AMC popcorn, a free Bundtlet, Chick-fil-A tiers, a $15 Cooper's Hawk reward, Toast app credits at local restaurants, and what to skip.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/unsplash/birthday-cake-david-trinks.webp; 1600x1139; David Trinks; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1600x1139; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): sarasota-half-price-dining, gulf-coast-brunch-and-date-night."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "anna-maria-island-day-trip",
+      "url": "https://www.gowayfind.com/guides/anna-maria-island-day-trip",
+      "primary_query": "anna maria island day trip",
+      "geography": "Bradenton",
+      "decision": "How to do Anna Maria Island in a day: Bean Point at golden hour, Pine Avenue, the free trolley trick, and why there isn't a high-rise in sight.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/nature-anna-maria-coquina-beach.webp; 1600x900; RayRR; CC BY-SA 4.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1600x900; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): siesta-key-vs-lido-key, robinson-preserve-bradenton."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "myakka-river-state-park-guide",
+      "url": "https://www.gowayfind.com/guides/myakka-river-state-park-guide",
+      "primary_query": "myakka river state park",
+      "geography": "Sarasota",
+      "decision": "A local's plan for Myakka River State Park: the canopy walkway, the deepest gator hole in Florida, airboat cruises, and when to go.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/sarasota-myakka-canopy-walkway.webp; 1600x1064; Shockblaster; CC BY-SA 4.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1600x1064; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): things-to-do-in-sarasota-florida, robinson-preserve-bradenton."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "ybor-city-tampa-guide",
+      "url": "https://www.gowayfind.com/guides/ybor-city-tampa-guide",
+      "primary_query": "ybor city tampa",
+      "geography": "Tampa",
+      "decision": "How to do Ybor City right: the cigar history that built Tampa, the 1905 Columbia Restaurant, the free streetcar, and yes — the wild roosters are protected.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/unsplash/ybor-city-ikuna.webp; 796x1200; Ikuna; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "unknown",
+          "evidence": "Delivered image is 796x1200; it is not claimed as a 1200px-wide Discover candidate."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): best-cuban-sandwich-tampa, things-to-do-in-tampa-florida."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "tampa-riverwalk-guide",
+      "url": "https://www.gowayfind.com/guides/tampa-riverwalk-guide",
+      "primary_query": "tampa riverwalk",
+      "geography": "Tampa",
+      "decision": "How to walk the Tampa Riverwalk like a local: Armature Works to Sparkman Wharf, the museums along the way, and the water taxi shortcut.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/unsplash/tampa-riverfront-paws-and-prints.webp; 1600x1066; paws and prints; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1600x1066; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): things-to-do-in-tampa-florida, ybor-city-tampa-guide."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "de-soto-national-memorial-bradenton",
+      "url": "https://www.gowayfind.com/guides/de-soto-national-memorial-bradenton",
+      "primary_query": "de soto national memorial",
+      "geography": "Bradenton",
+      "decision": "The small national memorial where Hernando de Soto's 1539 expedition landed: mangrove trails, winter living-history camp, and a kayak-friendly shoreline — free.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/nature-de-soto-boardwalk.webp; 1600x1200; Fredlyfish4; CC BY-SA 4.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1600x1200; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): robinson-preserve-bradenton, anna-maria-island-day-trip."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "robinson-preserve-bradenton",
+      "url": "https://www.gowayfind.com/guides/robinson-preserve-bradenton",
+      "primary_query": "robinson preserve bradenton",
+      "geography": "Bradenton",
+      "decision": "How to do Robinson Preserve: the observation tower views, mangrove kayak trails, flat miles for bikes and strollers, and the best times to go — all free.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/nature-robinson-preserve-tower-view.webp; 1600x1068; Gregory Urbano; CC BY 2.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1600x1068; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): de-soto-national-memorial-bradenton, anna-maria-island-day-trip."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "magical-dining-orlando-2026",
+      "url": "https://www.gowayfind.com/guides/magical-dining-orlando-2026",
+      "primary_query": "magical dining orlando 2026",
+      "geography": "Orlando",
+      "decision": "Visit Orlando Magical Dining runs Friday August 14 through Wednesday September 30, 2026. Two independent tables — ÔMO by Jônt in Winter Park and Kaya in Mills 50 — then a short rail of other sourced rooms. Not a 187-restaurant directory.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/food-st-armands-meal.webp; 1067x1600; Keith Tanner; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "unknown",
+          "evidence": "Delivered image is 1067x1600; it is not claimed as a 1200px-wide Discover candidate."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): best-restaurants-disney-springs, orlando-halloween-food-2026."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "things-to-do-orlando-summer-2026",
+      "url": "https://www.gowayfind.com/guides/things-to-do-orlando-summer-2026",
+      "primary_query": "things to do in orlando this summer",
+      "geography": "Orlando",
+      "decision": "Epic Universe's new nighttime show, the Muppets coaster, glow-in-the-dark water park nights, and where locals actually eat: Orlando's summer 2026, ranked.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/unsplash/orlando-skyline-mick-haupt.webp; 1600x1067; Mick Haupt; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1600x1067; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): things-to-do-orlando-not-theme-parks, orlando-in-the-rain."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "things-to-do-miami-summer-2026",
+      "url": "https://www.gowayfind.com/guides/things-to-do-miami-summer-2026",
+      "primary_query": "things to do in miami this summer",
+      "geography": "Miami",
+      "decision": "Miami Spice's prix fixe month, the Balloon Museum in Wynwood, the Venetian Pool, and the World Cup afterglow: Miami's summer 2026, honestly ranked.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/unsplash/miami-beach-kian-lem.webp; 1600x1067; Kian Lem; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1600x1067; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "things-to-do-tampa-summer-2026",
+      "url": "https://www.gowayfind.com/guides/things-to-do-tampa-summer-2026",
+      "primary_query": "things to do in tampa this summer",
+      "geography": "Tampa",
+      "decision": "ZooTampa's new manatee rescue center, the Busch Gardens lion habitat, soft-serve margaritas, and the Riverwalk done right: Tampa's summer 2026, ranked.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/unsplash/tampa-riverfront-paws-and-prints.webp; 1600x1066; paws and prints; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1600x1066; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): things-to-do-in-tampa-florida, tampa-riverwalk-guide."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "things-to-do-fort-lauderdale-summer-2026",
+      "url": "https://www.gowayfind.com/guides/things-to-do-fort-lauderdale-summer-2026",
+      "primary_query": "things to do in fort lauderdale this summer",
+      "geography": "Fort Lauderdale",
+      "decision": "Pier Sixty-Six's rotating rooftop, the world's first pickleball stadium, the Las Olas restaurant wave, and the water taxi: Fort Lauderdale's summer 2026.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/unsplash/fort-lauderdale-brandon-bliss.webp; 800x1200; Brandon Bliss; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "unknown",
+          "evidence": "Delivered image is 800x1200; it is not claimed as a 1200px-wide Discover candidate."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "things-to-do-key-west-summer-2026",
+      "url": "https://www.gowayfind.com/guides/things-to-do-key-west-summer-2026",
+      "primary_query": "things to do in key west this summer",
+      "geography": "Key West",
+      "decision": "Mallory Square sunsets, reef snorkeling, the new Reserve with its carousel bar and vault speakeasy, and August's back-to-back festivals: Key West summer 2026.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/unsplash/key-west-beach-lisa-davidson.webp; 1600x1067; Lisa Davidson; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1600x1067; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "things-to-do-st-augustine-summer-2026",
+      "url": "https://www.gowayfind.com/guides/things-to-do-st-augustine-summer-2026",
+      "primary_query": "things to do in st augustine this summer",
+      "geography": "St. Augustine",
+      "decision": "Castillo de San Marcos, the amphitheater ranked first in the country, ghost tours after dark, and the America 250 season: St. Augustine's summer 2026.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/unsplash/st-augustine-mr-great-heart.webp; 1600x921; Mr. Great Heart; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1600x921; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "things-to-do-daytona-beach-summer-2026",
+      "url": "https://www.gowayfind.com/guides/things-to-do-daytona-beach-summer-2026",
+      "primary_query": "things to do in daytona beach this summer",
+      "geography": "Daytona Beach",
+      "decision": "Driving on the World's Most Famous Beach, the new dog beach, the Coke Zero Sugar 400 night race, and the boardwalk at night: Daytona's summer 2026.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/unsplash/daytona-beach-will-forrester.webp; 1600x1200; Will Forrester; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1600x1200; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "things-to-do-panama-city-beach-summer-2026",
+      "url": "https://www.gowayfind.com/guides/things-to-do-panama-city-beach-summer-2026",
+      "primary_query": "things to do in panama city beach this summer",
+      "geography": "Panama City Beach",
+      "decision": "Shell Island by boat, 27 miles of sugar-white sand, Pirates Voyage, Topgolf and the new Pier Park City Center: Panama City Beach's summer 2026, ranked.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/unsplash/panama-city-beach-jerrod-termini.webp; 800x1200; Jerrod Termini; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "unknown",
+          "evidence": "Delivered image is 800x1200; it is not claimed as a 1200px-wide Discover candidate."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "things-to-do-st-petersburg-clearwater-summer-2026",
+      "url": "https://www.gowayfind.com/guides/things-to-do-st-petersburg-clearwater-summer-2026",
+      "primary_query": "things to do in st petersburg clearwater this summer",
+      "geography": "St. Petersburg",
+      "decision": "Clearwater Beach and Pier 60, the Dalí Museum, Caladesi Island's roadless sand, Shell Key Preserve's undeveloped kayak island, the new Central Park food hall, and shuffleboard Fridays: summer 2026 ranked.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/unsplash/clearwater-jonah-hochstadt.webp; 1600x900; Jonah Hochstadt; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1600x900; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): things-to-do-in-tampa-florida, tampa-riverwalk-guide."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "things-to-do-naples-summer-2026",
+      "url": "https://www.gowayfind.com/guides/things-to-do-naples-summer-2026",
+      "primary_query": "things to do in naples florida this summer",
+      "geography": "Naples",
+      "decision": "Sunsets without the pier, Keewaydin Island by boat, ghost orchid season in the swamps, the Perry Hotel's rooftop, and summer dining deals: Naples 2026.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/unsplash/naples-boardwalk-joseph-biscocho.webp; 1600x1067; Joseph Biscocho; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1600x1067; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "things-to-do-in-parrish-florida",
+      "url": "https://www.gowayfind.com/guides/things-to-do-in-parrish-florida",
+      "primary_query": "things to do in parrish florida",
+      "geography": "Parrish",
+      "decision": "Historic train rides, a 76-acre riverside park, an organic farm market, Manatee River sunsets and easy Gulf beach day trips. The best things to do in Parrish, Florida, verified August 2026.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/nature-parrish-railroad-museum.webp; 1600x1200; Ebyabe; CC BY-SA 3.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1600x1200; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): robinson-preserve-bradenton, de-soto-national-memorial-bradenton."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "things-to-do-in-sarasota-florida",
+      "url": "https://www.gowayfind.com/guides/things-to-do-in-sarasota-florida",
+      "primary_query": "things to do in sarasota florida",
+      "geography": "Sarasota",
+      "decision": "Siesta Key, The Ringling, mangrove kayaking, Myakka's canopy walkway, an Amish neighbourhood with legendary pie, and the day trips worth leaving town for. Verified August 2026.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/unsplash/sarasota-sunset-nathan-mullet.webp; 872x1200; Nathan Mullet; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "unknown",
+          "evidence": "Delivered image is 872x1200; it is not claimed as a 1200px-wide Discover candidate."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): myakka-river-state-park-guide, siesta-key-vs-lido-key."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "things-to-do-in-tampa-florida",
+      "url": "https://www.gowayfind.com/guides/things-to-do-in-tampa-florida",
+      "primary_query": "things to do in tampa florida",
+      "geography": "Tampa",
+      "decision": "Busch Gardens, Ybor City, the last working cigar factory in Cigar City, Cuban sandwiches with salami, the Riverwalk, manatee rescue and a Gulf kayak day trip to Shell Key Preserve. Verified August 2026.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/unsplash/tampa-waterfront-kody-cheyne.webp; 1600x1067; Kody Cheyne; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1600x1067; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): ybor-city-tampa-guide, tampa-riverwalk-guide."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "gulf-coast-brunch-and-date-night",
+      "url": "https://www.gowayfind.com/guides/gulf-coast-brunch-and-date-night",
+      "primary_query": "gulf coast brunch date night",
+      "geography": "Sarasota",
+      "decision": "One brunch table and one date-night room on Florida's Gulf Coast, drawn only from existing Atlas cards: Original Word of Mouth in Venice, Ophelia's on the Bay on Siesta Key, and a short rail of alternatives.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/food-gulf-coast-brunch-and-date-night.webp; 1600x1068; Gabriel Gurrola; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1600x1068; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): st-armands-circle-restaurants, sarasota-half-price-dining."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "orlando-halloween-food-2026",
+      "url": "https://www.gowayfind.com/guides/orlando-halloween-food-2026",
+      "primary_query": "Orlando Halloween food 2026",
+      "geography": "Orlando",
+      "decision": "A verified 2026 guide to Orlando Halloween food at Universal Orlando's Halloween Horror Nights 35 and Raglan Road at Disney Springs, with locations, access rules, drinks and fall desserts.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/activity-orlando-halloween-food-2026.webp; 1600x1067; Personal Creations; CC BY 2.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Delivered image is 1600x1067; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): fall-events-orlando-2026, best-restaurants-disney-springs."
+        },
+        "comparison_shortcut": {
+          "status": "pass",
+          "evidence": "3 choices point to existing article sections."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "fall-events-orlando-2026",
+      "url": "https://www.gowayfind.com/guides/fall-events-orlando-2026",
+      "primary_query": "fall events in orlando 2026",
+      "geography": "Orlando",
+      "decision": "Every major Orlando fall event for 2026 with real dates, prices and who each one is for: Halloween Horror Nights, Howl-O-Scream, Not-So-Scary, EPCOT Food & Wine, EDC, Pride, FusionFest and the free ones.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image and truthful modified date; publication date remains omitted because none is recorded."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the reviewed article image with its actual dimensions."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/unsplash/orlando-halloween-nik-goodner.webp; 800x1200; Nik Goodner; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "unknown",
+          "evidence": "Delivered image is 800x1200; it is not claimed as a 1200px-wide Discover candidate."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): orlando-halloween-food-2026, things-to-do-orlando-not-theme-parks."
+        },
+        "comparison_shortcut": {
+          "status": "pass",
+          "evidence": "3 choices point to existing article sections."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    }
+  ]
+}

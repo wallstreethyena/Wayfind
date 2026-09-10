@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 606,
-    "totalRegistryEntries": 607,
-    "guardsTxtLineCount": 605,
-    "guardsTxtReachedFileCount": 600,
+    "totalOnDiskGuardFiles": 607,
+    "totalRegistryEntries": 608,
+    "guardsTxtLineCount": 606,
+    "guardsTxtReachedFileCount": 601,
     "criticalCount": 73,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 413,
+      "CALL": 414,
       "RENDER": 49,
       "STRUCTURAL": 144,
       "OTHER": 1
@@ -3247,6 +3247,28 @@
         "detail": "2026-08-05: all nine tour-intent guides resolved to a generic Viator search; 20 readers saw the CTA and zero clicked — the same 'promised tickets, got a search page' defect check-guide-cta-honesty.mjs locks from the label side."
       },
       "owner": "Revenue QA"
+    },
+    {
+      "file": "scripts/check-guide-seo-audit.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 22,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
     },
     {
       "file": "scripts/check-guide-share.mjs",
@@ -10479,10 +10501,10 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 57,
+      "assertionCount": 58,
       "unprovenAbsenceCount": 1,
       "honestyViolations": [
-        "1 absence assertion(s) with no positive control in the same file (e.g. \"!/robots:/.test(guide) && !/robots:/.test(culture), \"\")"
+        "1 absence assertion(s) with no positive control in the same file (e.g. \"!/index:\\s*false|follow:\\s*false/.test(guideMetadata) && !/robots:/.test(culture\")"
       ],
       "selfDocumentsRedProve": false,
       "wiring": {

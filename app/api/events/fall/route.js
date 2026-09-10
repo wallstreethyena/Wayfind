@@ -18,7 +18,7 @@ import { eventTicketCta } from "../../../../lib/eventTicketDeals.js";
 import { hasCjPid } from "../../../../lib/deals.js";
 import { supabase } from "../../../../lib/supabase.js";
 import { wayfindScore } from "../../../../lib/wayfindScore.js";
-import { cardImageSrc } from "../../../../lib/placePhoto.js";
+import { cardImageSrc, hasStoredPlacePhoto } from "../../../../lib/placePhoto.js";
 import { fastCachedRail, geoCell } from "../../../../lib/railFastCache.js";
 import { composeFallIntentRails } from "../../../../lib/fallIntentRails.js";
 import { pageOneRail } from "../../../../lib/railPage.js";
@@ -59,7 +59,10 @@ export async function GET(request) {
     // hold a de-dated event plus none of that day's 21 new ones. The rail cache
     // keeps a good answer for an hour, so without this bump the owner's own
     // Parrish cell would have served the wrong set until it aged out.
-    const key = `fall-intents:v11:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v12 published the September 10 Sarasota additions and verified
+    // corrections. v13 adds Sōl St Pete's verified seasonal offering without
+    // reusing a cache written before that registry entry existed.
+    const key = `fall-intents:v13:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     const cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
@@ -218,20 +221,24 @@ export async function GET(request) {
       const seasonalPlaceIds = new Set(seasonalPlaces.map((place) => place.id));
       const places = [...seasonalPlaces, ...(placeResult.error ? [] : (placeResult.data || []))
         .filter((p) => !seasonalPlaceIds.has(p.place_id))
-        .filter((p) => !!p.photo_ref)
-        .filter((p) => (!p.status || p.status === "OPERATIONAL") && p.signals && typeof p.signals.rating === "number" && p.signals.rating > 0)
+        .filter((p) => hasStoredPlacePhoto(p))
+        .filter((p) => (!p.status || p.status === "OPERATIONAL")
+          && (FALL_PLACE_IDS[p.place_id] || (typeof p.signals?.rating === "number" && p.signals.rating > 0)))
         .map((p) => ({
           kind: "place",
           id: p.place_id,
           title: p.name, name: p.name,
           lat: p.lat, lng: p.lng, metro: p.metro, category: p.category,
-          rating: p.signals.rating, reviews: p.signals.reviews || 0,
-          wfScore: wayfindScore(p.signals.rating, p.signals.reviews || 0),
+          rating: typeof p.signals?.rating === "number" ? p.signals.rating : null,
+          reviews: p.signals?.reviews || 0,
+          wfScore: typeof p.signals?.rating === "number" && p.signals.rating > 0
+            ? wayfindScore(p.signals.rating, p.signals.reviews || 0)
+            : null,
           // This place is here because of its verified seasonal offering. The
           // generic inventory summary may still be useful elsewhere, but it
           // must never hide the evidence that earned this fall recommendation.
           take: FALL_PLACE_IDS[p.place_id] || FALL_PHOTO_SPOTS[p.place_id]?.visualProof || p.editorial || null,
-          image: cardImageSrc({ place_id: p.place_id, photo_ref: p.photo_ref }, 640),
+          image: cardImageSrc({ place_id: p.place_id, photo_ref: p.photo_ref, signals: p.signals }, 640),
           fallRail: FALL_PLACE_RAIL[p.place_id] || (FALL_PHOTO_SPOTS[p.place_id] ? "photos" : null),
           ...(FALL_PHOTO_SPOTS[p.place_id] || {}),
         }))]

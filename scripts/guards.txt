@@ -1440,3 +1440,4 @@ node scripts/test-beach-local-conditions.mjs
 # Reviewed source-backed prose fills only verified empty editorial slots.
 node scripts/test-owned-editorial-review.mjs
 node scripts/check-guide-editorial.mjs
+node scripts/check-guide-seo-audit.mjs
