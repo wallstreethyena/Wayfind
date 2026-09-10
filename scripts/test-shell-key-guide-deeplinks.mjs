@@ -14,6 +14,7 @@
 
 import { readFileSync } from "node:fs";
 import { GUIDES } from "../lib/guides.js";
+import { guideRegions } from "../lib/guideIndex.js";
 import { TOWN_PROFILES, TOWN_ALIASES } from "../lib/culture.js";
 import { CULTURE } from "../lib/cultureCorpus.js";
 import { SUMMER_UNIVERSE } from "../lib/summerUniverse.js";
@@ -102,8 +103,14 @@ ok(/t\[ck\]\.items\.map[\s\S]{0,220}x\.placeId[\s\S]{0,160}\/places\//.test(cult
   "culture town Don't-miss items with placeId render /places/{id}");
 
 const hub = strip(readFileSync(new URL("../app/guides/page.js", import.meta.url), "utf8"));
-ok(/const order = \[[^\]]*["']St\. Petersburg["']/.test(hub),
-  "guides hub order includes St. Petersburg so the summer guide is a listed, indexable hop");
+const hubGroups = guideRegions(GUIDES);
+const reachesStPete = (groups) => groups.some(({ guides }) => guides.some(({ slug }) => slug === ST_PETE));
+ok(reachesStPete(hubGroups),
+  "guides hub grouping includes the St. Petersburg summer guide as an indexable hop");
+ok(!reachesStPete(hubGroups.map(group => ({ ...group, guides: group.guides.filter(g => g.slug !== ST_PETE) }))),
+  "negative control: removing the St. Petersburg article loses its discovery path");
+ok(/const regions = guideRegions\(GUIDES\)/.test(hub) && /regions\.map\(/.test(hub) && /href=\{\"\/guides\/\" \+ g\.slug\}/.test(hub),
+  "the hub renders grouped guide URLs rather than keeping the complete grouping unused");
 
 // ── 6. Fail-closed integrity on the files we edited ───────────────────────
 const summerGuides = strip(readFileSync(new URL("../lib/guidesSummer2026.js", import.meta.url), "utf8"));

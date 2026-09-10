@@ -1422,3 +1422,4 @@ node scripts/test-beach-local-conditions.mjs
 node scripts/test-owned-editorial-review.mjs
 
 node scripts/test-beach-build-deadline.mjs
+node scripts/check-guide-editorial.mjs
