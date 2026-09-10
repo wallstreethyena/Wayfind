@@ -11,7 +11,7 @@ import { directionsUrl } from "./kit";
 import { toDisplayScore } from "../../lib/score.js";
 import { fallSkinLive } from "../../lib/fallSkin.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
-import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
+import { fetchPosterJson as fetchJsonWithDeadline } from "../../lib/posterJson.js";
 import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
 import { usePagedRail } from "./usePagedRail.js";
 

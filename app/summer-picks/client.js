@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import RankedExperiencePage from "../components/RankedExperiencePage";
 import SummerPicksRails from "../components/SummerPicksRails";
-import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
+import { fetchPosterJson as fetchJsonWithDeadline } from "../../lib/posterJson.js";
 import { originForCity } from "../../lib/locationHonesty.js";
 import { homeAffiliateActivities } from "../../lib/homeAffiliateActivities.js";
 import { composeSummerPickRails } from "../../lib/summerPicks.js";

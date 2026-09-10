@@ -111,7 +111,7 @@ function componentHarness(name) {
   };
   const imports = {
     react,
-    '../../lib/clientJson.js':{fetchJsonWithDeadline:(_url,opts)=>new Promise((resolve,reject)=>pending.push({resolve,reject,opts}))},
+    '../../lib/posterJson.js':{fetchPosterJson:(_url,opts)=>new Promise((resolve,reject)=>pending.push({resolve,reject,opts}))},
     '../../lib/nightOutIntent.js':{composeNightOutRails:()=>({rails:[]})},
     '../../lib/seasons.js':{fallSkinLive:()=>true},
     '../../lib/homeAffiliateActivities.js':{homeAffiliateActivities:items=>items || []},

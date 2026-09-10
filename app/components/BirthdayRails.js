@@ -14,7 +14,7 @@ import { priceLabel } from "../../lib/price.js";
 import { toDisplayScore } from "../../lib/score.js";
 import { topPickAward } from "../../lib/topPickAward.js";
 import { wayfindScore } from "../../lib/wayfindScore.js";
-import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
+import { fetchPosterJson as fetchJsonWithDeadline } from "../../lib/posterJson.js";
 import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
 import { usePagedRail } from "./usePagedRail.js";
 

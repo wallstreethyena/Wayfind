@@ -45,18 +45,20 @@ const railsSource = readFileSync(join(ROOT, "lib/railsData.js"), "utf8");
 const loadStart = railsSource.indexOf("export async function loadPools");
 const loadEnd = railsSource.indexOf("async function buildIdentityPool", loadStart);
 const loadBody = loadStart >= 0 && loadEnd > loadStart ? railsSource.slice(loadStart, loadEnd) : "";
-const primePos = loadBody.indexOf("primeConsolidatedInventoryReads(");
-const rankedMark = loadBody.indexOf('opts?.onStage?.("ranked")');
-const rankedWave = loadBody.indexOf("const results = await Promise.all(jobs.map");
-const nearbyMark = loadBody.indexOf('opts?.onStage?.("nearby")');
-const nearbyWave = loadBody.indexOf("buildNearbyPool(readerOrigin");
+const primeDefault = loadBody.indexOf("const primeReads =");
+const primeSeam = loadBody.indexOf("|| primeConsolidatedInventoryReads;");
+const primeCall = loadBody.indexOf("await primeReads(");
+const jointMark = loadBody.indexOf('opts?.onStage?.(readerOrigin ? "ranked-nearby" : "ranked")');
+const nearbyWave = loadBody.indexOf("...nearbyCats.map");
+const rankedWave = loadBody.indexOf("...jobs.map", nearbyWave);
+const jointWave = loadBody.indexOf("const taskResults = await runPoolReadTasks(tasks);");
 const stageOrderSafe = loadBody.length > 1000
-  && primePos >= 0 && primePos < rankedMark && rankedMark < rankedWave
-  && rankedWave < nearbyMark && nearbyMark < nearbyWave
-  && (loadBody.match(/opts\?\.onStage\?\.\("ranked"\)/g) || []).length === 1
-  && (loadBody.match(/opts\?\.onStage\?\.\("nearby"\)/g) || []).length === 1;
+  && primeDefault >= 0 && primeSeam > primeDefault && primeCall > primeSeam
+  && primeCall < jointMark && jointMark < nearbyWave && nearbyWave < rankedWave && rankedWave < jointWave
+  && (loadBody.match(/"ranked-nearby"/g) || []).length === 1
+  && !loadBody.includes('opts?.onStage?.("nearby")');
 ok(cache.size() === 0 && stageOrderSafe,
-  "empty/failed prime stays fail-soft AND loadPools records exactly one ranked and nearby boundary in causal order");
+  "empty/failed prime stays fail-soft AND loadPools starts one bounded ranked+nearby wave after the prime with one honest joint stage");
 
 if (fails) {
   console.error(`rail-prime-budget-regression: ${fails} failure(s)`);

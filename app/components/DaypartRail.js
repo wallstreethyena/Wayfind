@@ -81,6 +81,25 @@ const TodayDiscoveryRails = dynamic(() => import("./TodayDiscoveryRails"), { ssr
 const FallIntentRails = dynamic(() => import("./FallIntentRails"), { ssr: false });
 const SummerIntentRails = dynamic(() => import("./SummerIntentRails"), { ssr: false });
 const NightOutRails = dynamic(() => import("./NightOutRails"), { ssr: false });
+// Warm only the poster the reader points to or focuses. Keep all other lazy
+// chunks off the critical path and leave public inventory reads to the opener.
+const POSTER_MODULES = {
+  trending: () => import("./ExplodingNearby"),
+  datenight: () => import("./DateNightRails"),
+  birthday: () => import("./BirthdayRails"),
+  breakfast: () => import("./BreakfastRails"),
+  eat: () => import("./WorthEatingRails"),
+  break: () => import("./LunchBreakRails"),
+  today: () => import("./TodayDiscoveryRails"),
+  augtober: () => import("./FallIntentRails"),
+  season: () => import("./SummerIntentRails"),
+  tonight: () => import("./NightOutRails"),
+};
+function preparePoster(id) {
+  const load = POSTER_MODULES[id];
+  if (load) load().catch(() => {});
+}
+
 import { DAYPARTS, partForHour, orderFor, railHref, dateNightIntentHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES, railArtSize } from "../../lib/rails.js";
@@ -93,7 +112,21 @@ import { servableRows, isNowRail } from "../../lib/daylight.js";
 // name. The import is the LAW (never "you", never "your area"); the prop is a
 // string the caller handed down.
 import { emptyRailLive, liveFromRailsResponse, mergeRailPage, isFailedRailsResponse, cityLabel as honestCityLabel } from "../../lib/locationHonesty.js";
-import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
+// Paging and Lunch Break need this only after a poster opens. Keep the reuse
+// machinery outside the homepage's eager graph and its fixed bundle budget.
+const fetchJsonWithDeadline = (url, options = {}) => {
+  let expired = false;
+  return settleLoad(async () => {
+    const { fetchPosterJson } = await import("../../lib/posterJson.js");
+    if (expired) throw new Error("poster module deadline");
+    return fetchPosterJson(url, options);
+  }, { timeoutMs: options.timeoutMs || RAILS_LOAD_TIMEOUT_MS }).then((result) => {
+    expired = true;
+    if (!result.ok) throw new Error(result.reason || "poster request failed");
+    return result.data;
+  });
+};
+import { observePosterPerformance } from "../../lib/posterPerformance.js";
 import { railScrollNeedsMore, railUsesSharedPaging, railHasNextPage, railPageScope, isCurrentRailPageScope, settleRailPageStateForScope, SHARED_POOL_COMPOSER_RAILS } from "../../lib/railResponse.js";
 import { posterImgIsReady, bindPosterArtReady, posterImgInTile } from "../../lib/posterArtReady.js";
 // v8.46 — THE GREY BOX, AGAIN. lib/loadState.js was written on 2026-08-12 for
@@ -496,6 +529,7 @@ export default function DaypartRail({
   const trackRef = useRef(null);
   const pcRef = useRef(null);
   const menuRef = useRef(null);
+  const posterOpenedAt = useRef(null);
   // v8.46 — THE SERVER PROPS ARE AN ANSWER AGAIN. dd783d8 ("leftover Sarasota
   // after Tampa") replaced `{ places, thin, … }` with `{ places: {}, thin: [] }`
   // to stop a Tampa reader inheriting the flagship's places. It over-corrected:
@@ -868,6 +902,7 @@ export default function DaypartRail({
     const targetId = requested.retiredInto || id;
     const rail = railById.get(targetId);
     if (!rail) return;
+    posterOpenedAt.current = typeof performance !== "undefined" ? performance.now() : null;
     setSelected(targetId);
     logEvent("rail_open", {
       rail_id: targetId, rail_title: rail.title, daypart, region: shown.region, city: shown.citySlug,
@@ -888,6 +923,21 @@ export default function DaypartRail({
   }, [railById, daypart, shown, order, locName]);
 
   const close = useCallback(() => setSelected(null), []);
+
+  useEffect(() => {
+    if (!selected || !menuRef.current || posterOpenedAt.current == null) return undefined;
+    const startedAt = posterOpenedAt.current;
+    posterOpenedAt.current = null;
+    return observePosterPerformance(menuRef.current, {
+      startedAt,
+      report: (timing) => logEvent("poster_visible_timing", {
+        rail_id: selected, city: shown.citySlug, daypart, ...timing,
+      }),
+    });
+    // A new location cancels the old observation. It is not a new poster tap.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected, center && center.lat, center && center.lng, daypart]);
+
 
   // Which tile is currently saying "Link copied". One at a time, cleared on a
   // timer that matches the wf8Said animation — a toast that outlives its own
@@ -1335,8 +1385,7 @@ export default function DaypartRail({
     if (selected !== "break" || !center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) return undefined;
     let cancelled = false;
     const q = new URLSearchParams({ lat: center.lat.toFixed(2), lng: center.lng.toFixed(2) });
-    fetch("/api/lunch-break?" + q.toString())
-      .then((response) => response.ok ? response.json() : null)
+    fetchJsonWithDeadline("/api/lunch-break?" + q.toString())
       .then((body) => { if (!cancelled && Array.isArray(body?.places) && body.places.length) setLunchBreakLive(body.places); }, () => {});
     return () => { cancelled = true; };
   }, [selected, center && center.lat, center && center.lng]);
@@ -1555,6 +1604,9 @@ export default function DaypartRail({
                     key={id}
                     className={tileClass}
                     data-id={id}
+                    onPointerEnter={() => preparePoster(id)}
+                    onPointerDown={() => preparePoster(id)}
+                    onFocus={() => preparePoster(id)}
                     style={{ background: railTint(id) }}
                   >
                     {/* Poster tiles already ship <img class="wf8-tim"> — Tonight's

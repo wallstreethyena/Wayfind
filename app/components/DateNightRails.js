@@ -48,7 +48,7 @@ import { directionsUrl } from "./kit";
 import { toHookLine } from "../../lib/editorialHook";
 import { toDisplayScore } from "../../lib/score.js";
 import { wayfindScore } from "../../lib/wayfindScore.js";
-import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
+import { fetchPosterJson as fetchJsonWithDeadline } from "../../lib/posterJson.js";
 import { topPickAward } from "../../lib/topPickAward.js";
 import { coarseCat } from "../../lib/ranking.js";
 import { priceLabel } from "../../lib/price.js";

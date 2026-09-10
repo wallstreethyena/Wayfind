@@ -264,16 +264,19 @@ export async function GET(request) {
       return { today, ...composed, sourceCount: events.length + places.length, sourceFailures };
     }, {
       name: "fall-intent-rails",
-      usable: (value) => value?.rails?.length === 10 && Number(value?.sourceCount || 0) > 0,
+      usable: (value) => value?.sourceFailures === 0
+        && value?.rails?.length === 10 && Number(value?.sourceCount || 0) > 0,
     });
+    const complete = cached.value?.sourceFailures === 0;
     const headers = {
-      "cache-control": "public, s-maxage=900, stale-while-revalidate=86400",
+      "cache-control": complete ? "public, s-maxage=900, stale-while-revalidate=86400" : "no-store",
       "x-wayfind-fast-cache": cached.state,
     };
     if (railId) {
       const paged = pageOneRail(cached.value.rails, railId, { page, size });
       if (!paged) return Response.json({ error: "unknown rail" }, { status: 404, headers: { "cache-control": "no-store" } });
-      return Response.json({ rail: railId, today: cached.value.today, phase: cached.value.phase, ...paged }, { headers });
+      return Response.json({ rail: railId, today: cached.value.today, phase: cached.value.phase,
+        sourceFailures: cached.value.sourceFailures, ...paged }, { headers });
     }
     return Response.json(windowRailAnswer(cached.value, full), { headers });
   } catch (error) {
