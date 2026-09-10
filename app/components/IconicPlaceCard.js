@@ -11,6 +11,7 @@ import { wayfindScore } from "../../lib/google";
 import { priceLabel } from "../../lib/price";
 import { commerceHref, emitCommerce, mintClickId } from "../../lib/commerce";
 import { placePartnerPick } from "../../lib/placePartnerPicks";
+import { usePinQuarantine } from "../../lib/pinQuarantine";
 import { fallCardClass } from "../../lib/fallSkin.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import { cuisineLabel } from "../../lib/dining";
@@ -266,6 +267,15 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // most correctly wired. Three of four is not wired.
   const needsFallback = !cardActionsReadOnly && !(onSave && onLike && onDislike && onShare);
   const fb = useCardActions(needsFallback);
+  // LIVE QUARANTINE (2026-09-10). A pinned product that dies in the
+  // catalogue must stop painting a Book button without waiting for a
+  // deploy. The snapshot is always a usable catalog and quarantines
+  // nothing until the server has named a specific code dead, so passing
+  // it is unconditionally safe. See lib/pinQuarantine.js.
+  // Declared here, ABOVE every early return: it is a hook, and an exit
+  // above it would move React's hook count between renders — the exact
+  // failure scripts/check-hook-order.mjs exists for.
+  const pinQ = usePinQuarantine();
   const content = useContentCardActions(cardActionsReadOnly && place ? {
     id: place.id,
     type: "experience",
@@ -428,7 +438,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // What the bridge replays into. Assigned during render, read only from the
   // layout effect, so a queued tap always meets the CURRENT handlers.
   handlersRef.current = { like: doLike, dislike: doDislike, save: doSave, place };
-  const partner = placePartnerPick(place);
+  const partner = placePartnerPick(place, pinQ);
   const partnerHref = partner ? commerceHref({
     provider: partner.provider,
     offerId: partner.offerId,

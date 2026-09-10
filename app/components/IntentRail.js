@@ -47,6 +47,7 @@ import { coarseCat } from "../../lib/ranking";
 import { priceLabel } from "../../lib/price";
 import { businessStatus } from "../../lib/businessStatus";
 import { placePartnerPick } from "../../lib/placePartnerPicks";
+import { usePinQuarantine } from "../../lib/pinQuarantine";
 import { commerceHref, emitCommerce, mintClickId } from "../../lib/commerce";
 import { couponForPlace } from "../../lib/coupons";
 import { recommendationIds, uniqueRecommendations } from "../../lib/recommendationDedupe.js";
@@ -145,6 +146,15 @@ export default function IntentRailBody({
   isSaved, liked, disliked, onSave, onLike, onDislike, onShare,
 }) {
   const def = INTENT_PAGES[intent];
+  // LIVE QUARANTINE (2026-09-10). A pinned product that dies in the
+  // catalogue must stop painting a Book button without waiting for a
+  // deploy. The snapshot is always a usable catalog and quarantines
+  // nothing until the server has named a specific code dead, so passing
+  // it is unconditionally safe. See lib/pinQuarantine.js.
+  // ABOVE EVERY EARLY RETURN — this is a hook, and `if (!def) return null`
+  // below it would otherwise move React's hook count between renders
+  // (the failure scripts/check-hook-order.mjs was written for).
+  const pinQ = usePinQuarantine();
   // null = never asked for. "loading" = in flight. Array = the answer, which
   // may legitimately be short or empty.
   const [rows, setRows] = useState(null);
@@ -478,7 +488,7 @@ export default function IntentRailBody({
   }, [visibleIdKey]);
   if (!def) return null;
   const thin = Array.isArray(rows) && list.length < MIN_ROWS;
-  const hasPartner = list.some((r) => placePartnerPick(r));
+  const hasPartner = list.some((r) => placePartnerPick(r, pinQ));
 
   return (
     <div ref={rootRef} style={{ minHeight: rows === null || rows === "loading" ? INTENT_RAIL_CARD_H : undefined }}>
@@ -503,7 +513,7 @@ export default function IntentRailBody({
           <div className={"wf-rail wf-rail-" + intent} data-rail={intent} tabIndex={0} role="region" aria-label={label || unit} style={{ minHeight: INTENT_RAIL_CARD_H }}>
             {list.map((r, i) => {
               const st = rowStatus(r);
-              const partner = placePartnerPick(r);
+              const partner = placePartnerPick(r, pinQ);
               const coupon = couponForPlace(r);
               const facts = [
                 r.reviews ? compactReviews(r.reviews) + " reviews" : null,
