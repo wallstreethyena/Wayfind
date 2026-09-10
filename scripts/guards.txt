@@ -346,6 +346,7 @@ node scripts/check-editorial-coverage-pipeline.mjs
 node scripts/test-atlas-reclassify.mjs
 node scripts/check-art-assets.mjs
 node scripts/check-brand-derivatives.mjs
+node scripts/test-seasonal-brand.mjs
 node scripts/check-coupon-place-match.mjs
 node scripts/check-no-stuck-loading.mjs
 node scripts/check-promo-location-honesty.mjs
