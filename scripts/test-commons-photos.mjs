@@ -19,13 +19,14 @@
 // SAME wikiOpensearch/wikiPageInfo lib/popularity.js uses — see that file's
 // 2026-09-09 note on jf()'s fetchImpl param). No real network call, no real
 // database. Run standalone: `node scripts/test-commons-photos.mjs`.
-import { stripTrackingParams, findCommonsPhoto, classifyLicense, buildAttributionText, isUnavailableReason, verifyCommonsFileIdentity, splitPlacePrimaryName, commonsSearchQueries, distinctivePlaceTokens, NO_DIRECT_COMMONS_REASON } from "../lib/commonsPhotos.js";
+import { stripTrackingParams, findCommonsPhoto, classifyLicense, buildAttributionText, isUnavailableReason, verifyCommonsFileIdentity, splitPlacePrimaryName, commonsSearchQueries, distinctivePlaceTokens, inferPlaceCity, NO_DIRECT_COMMONS_REASON } from "../lib/commonsPhotos.js";
 import { createWikimediaFetchPolicy } from "../lib/wikimediaFetchPolicy.js";
 import { nameSim } from "../lib/popularity.js";
 
 let failures = 0;
 const fail = (m) => { console.error("test-commons-photos: FAIL — " + m); failures++; };
 const ok = (c, m) => { if (!c) fail(m); };
+const eq = (a, b, m) => { if (a !== b) fail(m + ` (got ${JSON.stringify(a)}, expected ${JSON.stringify(b)})`); };
 const eqStrip = (input, expected, m) => { const got = stripTrackingParams(input); ok(got === expected, m + " (got " + JSON.stringify(got) + ")"); };
 
 // ── fixtures ─────────────────────────────────────────────────────────────
@@ -516,9 +517,16 @@ async function main() {
     const nameOnly = verifyCommonsFileIdentity({ name: ASOLO.name }, { title: ASOLO_FILE.title, description: ASOLO_FILE.description, categories: ASOLO_FILE.categories });
     ok(!nameOnly.ok && nameOnly.reason === "identity_no_geo_or_city", "D2c: name overlap with neither file geo nor city is refused");
 
-    const queries = commonsSearchQueries(BENDERSON);
+    eq(inferPlaceCity(BENDERSON), "Sarasota", "D3: an explicit city wins over coords inference");
+    const inferred = inferPlaceCity({ lat: BENDERSON.lat, lng: BENDERSON.lng });
+    ok(inferred.length > 0, `D3: coords-only inventory still infers a city (got ${JSON.stringify(inferred)})`);
+    const queries = commonsSearchQueries({ name: BENDERSON.name, lat: BENDERSON.lat, lng: BENDERSON.lng });
     ok(queries.every((q) => !/^"?Nathan Benderson Park"?$/.test(q)), "D3: Commons search never queries the location suffix alone");
     ok(queries.some((q) => q.includes("Camp Gladiator")), "D3: Commons search does query the primary entity");
+    ok(
+      queries.some((q) => q.includes(inferred)),
+      `D3: inferred city is included in a search query (inferred=${JSON.stringify(inferred)} queries=${JSON.stringify(queries)})`
+    );
 
     function commonsSearchHit(title) {
       return { query: { search: [{ ns: 6, title }] } };
