@@ -147,7 +147,7 @@ const S = {
   shot: { width: "100%", height: "100%", objectFit: "cover", display: "block" },
   credit: { fontSize: 12.5, color: "#8B949E", margin: "0 0 22px" },
   social: { margin: "22px 0", padding: "16px", border: "1px solid #26303B", borderRadius: 14, background: "#111821" },
-  socialRail: { display: "flex", gap: 14, overflowX: "auto", padding: "4px 2px 10px", scrollSnapType: "x proximity" },
+  socialRail: { display: "flex", gap: 14, overflowX: "auto", overscrollBehaviorX: "contain", padding: "4px 2px 10px", scrollSnapType: "x proximity" },
   socialPost: { flex: "0 0 min(78vw, 300px)", maxWidth: 300, scrollSnapAlign: "start" },
   socialLink: { display: "block", color: "#E879F9", fontSize: 14, fontWeight: 800, textDecoration: "none", padding: "10px 2px 2px" },
   // v8.88 — the way back. Byte-identical to the pill on /guides and
