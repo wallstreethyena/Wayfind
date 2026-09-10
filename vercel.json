@@ -122,6 +122,10 @@
       "schedule": "5 */3 * * *"
     },
     {
+      "path": "/api/cron/travelpayouts-attribution",
+      "schedule": "20 7 * * *"
+    },
+    {
       "path": "/api/cron/photo-repair",
       "schedule": "20 4 * * *"
     },

@@ -60,7 +60,7 @@
 //      still produces that shape.)
 import { readFileSync, readdirSync } from "node:fs";
 import { findFreePhoto } from "../lib/freePhoto.js";
-import { runBackfill, describeAtRisk } from "../lib/placePhotoBackfill.js";
+import { runBackfill, describeAtRisk, describeReplay } from "../lib/placePhotoBackfill.js";
 import { installWikimediaFetchPolicy } from "../lib/wikimediaFetchPolicy.js";
 import { classifyHealth, isDeterministicFailureNote } from "../lib/jobPulse.js";
 
@@ -881,6 +881,7 @@ const PHOTO = (id) => ({
     const prelude = `
       const runBackfill = (...a) => globalThis.__wfCliTest.runBackfill(...a);
       const describeAtRisk = (...a) => globalThis.__wfCliTest.describeAtRisk(...a);
+      const describeReplay = (...a) => globalThis.__wfCliTest.describeReplay(...a);
       const recordPulse = (...a) => globalThis.__wfCliTest.recordPulse(...a);
       const isDeterministicFailureNote = (...a) => globalThis.__wfIsDeterministicFailureNote(...a);
     `;
@@ -892,6 +893,7 @@ const PHOTO = (id) => ({
         note: "unavailable: place-photos wf_photo_at_risk read failed (HTTP 500)",
       }),
       describeAtRisk,
+      describeReplay,
       recordPulse: async (job, stats) => { pulses.push({ job, stats }); return true; },
       mainRef: null,
     };
@@ -923,6 +925,7 @@ const PHOTO = (id) => ({
     const prelude = `
       const runBackfill = (...a) => globalThis.__wfDrainNoteTest.runBackfill(...a);
       const describeAtRisk = (...a) => globalThis.__wfDrainNoteTest.describeAtRisk(...a);
+      const describeReplay = (...a) => globalThis.__wfDrainNoteTest.describeReplay(...a);
       const recordPulse = (...a) => globalThis.__wfDrainNoteTest.recordPulse(...a);
       const jobCannotRun = (...a) => { throw new Error("jobCannotRun must not be called: " + a[1]); };
       const jobFailed = (...a) => { throw new Error("jobFailed must not be called: " + a[1]); };
@@ -945,6 +948,7 @@ const PHOTO = (id) => ({
         describeCalls.push(arg);
         return describeAtRisk(arg);
       },
+      describeReplay,
       recordPulse: async (job, stats) => { pulses.push({ job, stats }); return true; },
     };
 
@@ -1184,6 +1188,7 @@ const PHOTO = (id) => ({
     const prelude = `
       const runBackfill = (...a) => globalThis.__wfDeferTest.runBackfill(...a);
       const describeAtRisk = (...a) => globalThis.__wfDeferTest.describeAtRisk(...a);
+      const describeReplay = (...a) => globalThis.__wfDeferTest.describeReplay(...a);
       const recordPulse = (...a) => globalThis.__wfDeferTest.recordPulse(...a);
       const jobCannotRun = (...a) => globalThis.__wfDeferTest.jobCannotRun(...a);
       const jobFailed = (...a) => globalThis.__wfDeferTest.jobFailed(...a);
@@ -1200,6 +1205,7 @@ const PHOTO = (id) => ({
     globalThis.__wfDeferTest = {
       runBackfill: async () => result,
       describeAtRisk,
+      describeReplay,
       recordPulse: async (job, stats) => { pulses.push({ job, stats }); return true; },
       jobCannotRun: async (job, reason) => { throw new Error("jobCannotRun must not fire here: " + reason); },
       jobFailed: async (_job, note) => { pagedNote = note; return new Response("{}", { status: 200 }); },
@@ -1375,6 +1381,7 @@ const PHOTO = (id) => ({
     const prelude = `
       const runBackfill = (...a) => globalThis.__wfDeadlineTest.runBackfill(...a);
       const describeAtRisk = (...a) => globalThis.__wfDeadlineTest.describeAtRisk(...a);
+      const describeReplay = (...a) => globalThis.__wfDeadlineTest.describeReplay(...a);
       const recordPulse = (...a) => globalThis.__wfDeadlineTest.recordPulse(...a);
       const jobCannotRun = (...a) => { throw new Error("jobCannotRun must not fire: " + a[1]); };
       const jobFailed = (...a) => { throw new Error("jobFailed must not fire: " + a[1]); };
@@ -1392,6 +1399,7 @@ const PHOTO = (id) => ({
         };
       },
       describeAtRisk,
+      describeReplay,
       recordPulse: async (job, stats) => { pulses.push({ job, stats }); return true; },
     };
     const savedSecret = process.env.CRON_SECRET;

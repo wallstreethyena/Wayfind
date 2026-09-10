@@ -22,14 +22,14 @@
 // data we already control, defending against a poisoned row rather than a
 // crafted request.
 //
-// NO sub_id ON THE OUTBOUND LINK (owner, 2026-07-29). The click_id is minted and
-// recorded on OUR side only. lib/travelpayouts.js documents why an unverified
-// extra param is how silent mis-attribution starts; this route keeps that
-// discipline while still making every click attributable in PostHog.
+// Travelpayouts sub_id is allowed only on a verified tp.st mapping, after the
+// exact opaque token is durably stored. Other providers preserve their existing
+// tracking rules. If attribution storage fails, the validated classic affiliate
+// URL remains usable and no unjoinable provider token leaves Wayfind.
 //
-// FAIL-SOFT. Any failure emits provider_redirect_failed with a reason AND the
-// fallback taken, then sends the user somewhere real on our own site. A user who
-// clicked "book" never lands on an error page.
+// FAIL-SOFT. Destination failures emit provider_redirect_failed and return to
+// Wayfind. A Travelpayouts measurement-only failure uses the already validated
+// classic affiliate link and records the degraded resolver path.
 export const runtime = "nodejs";
 
 import { randomUUID } from "node:crypto";
@@ -41,6 +41,9 @@ import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEven
 import { commercePayload, rankBucket, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { PROVIDERS, FALLBACK, resolveOffer } from "../../../../lib/commerceProviders.js";
 import { isCrawler } from "../../../../lib/crawler.js";
+import { attributedTravelpayoutsDestination } from "../../../../lib/travelpayoutsAttribution.js";
+
+const ATTRIBUTED_TP = new Set(["tiqets", "klook", "gocity"]);
 
 export async function GET(req) {
   const sp = new URL(req.url).searchParams;
@@ -101,14 +104,42 @@ export async function GET(req) {
   // emit — never the destination, never the host allowlist — and
   // cityPassTrackedUrl re-sanitises it to [\w.:-]{0,40} before it reaches a
   // URL, so a crafted surface cannot shape the outbound link.
-  const { dest, error } = await resolveOffer(provider, offerId, { subId: surface });
+  const { dest, sourceUrl, error } = await resolveOffer(provider, offerId, { subId: surface });
   if (error || !dest) return fail(error || "unresolved");
 
-  try { emit("provider_redirect_started"); } catch {}
+  let finalDest = dest;
+  let resolverPath = null;
+  if (ATTRIBUTED_TP.has(provider)) {
+    let attributed;
+    try {
+      attributed = await attributedTravelpayoutsDestination({
+        provider, offerId, destinationUrl: sourceUrl, surface, contentId,
+        clientClickId: clickId,
+      });
+    } catch {
+      attributed = { error: "attribution-exception" };
+    }
+    if (attributed.dest) {
+      finalDest = attributed.dest;
+      resolverPath = "travelpayouts-attributed";
+    } else {
+      resolverPath = attributed.error === "mapping-missing"
+        ? "travelpayouts-unattributed-mapping-missing"
+        : "travelpayouts-unattributed-error";
+      try {
+        console.warn(JSON.stringify({
+          tag: "travelpayouts_attribution_failed", provider, offerId,
+          reason: attributed.error || "unknown",
+        }));
+      } catch {}
+    }
+  }
+
+  try { emit("provider_redirect_started", resolverPath ? { resolver_path: resolverPath } : undefined); } catch {}
   return new Response(null, {
     status: 302,
     headers: {
-      Location: dest,
+      Location: finalDest,
       // A redirect that carries a click_id must never be cached — a cached 302
       // would hand every later user the FIRST user's click_id and collapse
       // attribution to one person.

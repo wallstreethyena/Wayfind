@@ -75,7 +75,7 @@ ok(FALL_NEAR_MI === 27, "the nearby ring ends at 27 miles");
 ok(FALL_MIN_RESULTS === 8, "eight remains the target depth, never a reason to violate the radius");
 ok(["food", "family", "date-night"].every((id) => FALL_RAIL_RADIUS_MI[id] === 27), "food, family and spooky date night stay local at 27 miles");
 ok(["farms", "haunts", "oktoberfest", "festivals", "photos"].every((id) => FALL_RAIL_RADIUS_MI[id] === 45), "seasonal destinations widen only to 45 miles");
-ok(["theme-parks", "day-trips"].every((id) => FALL_RAIL_RADIUS_MI[id] === 60), "only theme parks and day trips reach the 60-mile ring");
+ok(FALL_RAIL_RADIUS_MI["theme-parks"] === 150 && FALL_RAIL_RADIUS_MI["day-trips"] === 60, "the owner-approved 150-mile exception applies only to Halloween theme parks; day trips stay at 60 miles");
 
 ok(fallPhase("2026-09-01") === "early", "September opens in the early fall phase");
 ok(fallPhase("2026-09-30") === "opening", "late September promotes farms and Oktoberfest");
@@ -132,6 +132,29 @@ const farmCards = distanceLaw.rails.find((rail) => rail.id === "farms").cards;
 ok(farmCards.map((card) => card.id).join("|") === "farm-near", "a farm beyond its 45-mile rail radius is rejected");
 ok(!farmCards.some((card) => card.id === "farm-unknown"), "unknown distance is rejected rather than guessed nearby");
 
+// Reproduce the owner's Bradenton screenshot: Orlando was cut off at 60 mi.
+// Real park coordinates also cover Sarasota; boundary controls protect the
+// hard cap and prove the exception does not leak into another seasonal rail.
+const park = (id, title, lat, lng) => event({ id, event_id: id, event_name: title, title, lat, lng, tags: ["fall", "halloween", "theme-park"] });
+const orlandoParks = [
+  park("park-universal", "Halloween Horror Nights", 28.4749, -81.4664),
+  park("park-magic-kingdom", "Mickey's Not-So-Scary Halloween Party", 28.4177, -81.5812),
+  park("park-seaworld", "SeaWorld Spooktacular", 28.4110418, -81.4612275),
+];
+for (const origin of [{ city: "Bradenton", lat: 27.4989, lng: -82.5748 }, { city: "Sarasota", lat: 27.3364, lng: -82.5307 }]) {
+  const answer = composeFallIntentRails(orlandoParks, [], { ...origin, today: "2026-09-10", now });
+  const cards = answer.rails.find((rail) => rail.id === "theme-parks").cards;
+  ok(cards.length === 3 && cards.every((card) => card.distMi > 60 && card.distMi <= 150), `${origin.city} can see three distinct verified Orlando Halloween park trips beyond the old 60-mile cap`);
+}
+const capOrigin = { lat: 27.4989, lng: -82.5748, today: "2026-09-10", now };
+const capPlaces = [
+  { id: "park-inside", name: "Inside Halloween Park", lat: 29.66, lng: -82.5748, fallRail: "theme-parks" },
+  { id: "park-outside", name: "Outside Halloween Park", lat: 29.69, lng: -82.5748, fallRail: "theme-parks" },
+  ...expected.filter((id) => id !== "theme-parks").map((id) => ({ id: `${id}-orlando`, name: `${id} Orlando`, lat: 28.4749, lng: -81.4664, fallRail: id })),
+];
+const capAnswer = composeFallIntentRails([], capPlaces, capOrigin);
+ok(capAnswer.rails.flatMap((rail) => rail.cards.map((card) => card.id)).join("|") === "park-inside", "a park just inside 150 miles qualifies; a park beyond 150 miles and every other distant seasonal intent remain excluded");
+
 ok(Object.keys(FALL_PLACE_IDS).sort().join("|") === Object.keys(FALL_PLACE_RAIL).sort().join("|"), "every vetted fall place has exactly one primary intent assignment");
 ok(Object.values(FALL_PLACE_RAIL).every((rail) => expected.includes(rail)), "every fall place assignment targets an approved rail");
 const solId = "ChIJ9ZpMS-7jwogRWChZqTQG66g";
@@ -143,6 +166,20 @@ ok(FALL_OFFERING_SOURCES[solId]?.source === "https://solstpete.com/st-petersburg
   && /Golden Pumpkin Curry Di Mare/.test(FALL_OFFERING_SOURCES[solId]?.offering || ""),
   "Sōl's fall eligibility is pinned to its official current menu and named dish");
 ok(fallCardClass(solId, "2026-09-10") === " wf-fall-card", "Sōl wears the fall card during the annual fall window");
+const localMenus = [
+  { id: "ChIJ1U_vFp0Xw4gRGKl6mJGJ9UI", name: "Joy Coffee", lat: 27.4597729, lng: -82.5757174 },
+  { id: "ChIJA-QkamE7w4gRfdzcxEHyPls", name: "ATRIA Cafe", lat: 27.4648662, lng: -82.4325881 },
+  { id: "ChIJY5LPSxJAw4gRMhj-bOy9MKU", name: "Buddy Brew Coffee", lat: 27.3364, lng: -82.544416 },
+];
+ok(localMenus.every(({ id }) => FALL_PLACE_IDS[id] && FALL_PLACE_RAIL[id] === "food"
+  && FALL_OFFERING_SOURCES[id]?.verified === "2026-09-10"
+  && /pumpkin/i.test(FALL_OFFERING_SOURCES[id]?.offering || "")
+  && fallCardClass(id, "2026-09-10") === " wf-fall-card"), "three exact local venues have named pumpkin menu proof, one food assignment and seasonal styling");
+for (const origin of [{ lat: 27.4989, lng: -82.5748 }, { lat: 27.3364, lng: -82.5307 }]) {
+  const answer = composeFallIntentRails([], localMenus.map((p) => ({ ...p, fallRail: FALL_PLACE_RAIL[p.id] })), { ...origin, today: "2026-09-10", now });
+  ok(answer.rails.find((rail) => rail.id === "food").cards.length === 3, "all three verified menu additions qualify from the Gulf Coast without widening food beyond 27 miles");
+}
+ok(!FALL_PLACE_IDS["ChIJHRtA_2MXw4gR8krgF386Zso"], "First Watch Bradenton is excluded because the official fall menu announcement excludes the Tampa Bay area");
 ok(FALL_PHOTO_PLACE_IDS.length >= 6, "the photo rail has a useful researched Gulf Coast starting set");
 ok(Object.values(FALL_PHOTO_SPOTS).every((spot) => spot.shotLocation && spot.visualProof && spot.fallReason && spot.bestTime && spot.accessNote && /^https:\/\//.test(spot.sourceUrl)), "every photo spot carries the exact shot, visible asset, fall reason, timing, access and proof source");
 
@@ -284,7 +321,7 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 const card = readFileSync(new URL("../app/components/RailCard.js", import.meta.url), "utf8");
-ok(/fall-intents:v13:/.test(route) && /fastCachedRail/.test(route), "the API uses a versioned shared FastCache key (v13: preserves the Sarasota publication and adds Sōl immediately)");
+ok(/fall-intents:v14:/.test(route) && /fastCachedRail/.test(route), "the API uses a new shared FastCache key for playable social posts and the wider Halloween park radius");
 const imageProofId = "ChIJB-QyVtEXw4gRk5F8bn3YV28";
 ok(hasStoredPlacePhoto({ place_id: imageProofId, signals: { photo_url: "https://cdn.example.test/owned.jpg" } }),
   "an owned signals.photo_url is stored image proof");
@@ -305,7 +342,7 @@ ok(/FALL_PLACE_IDS\[p\.place_id\] \|\| \(typeof p\.signals\?\.rating/.test(route
 // built by eventTicketCta (an /api/commerce/go href), and the raw affiliate_url
 // column is read only to GATE (active/link_ok/PID), never to render.
 ok(/eventTicketCta\(e\.event_id/.test(route) && !/href:\s*deal\.affiliate_url/.test(route), "the fall ticket CTA is the commerce redirect, not the raw CJ link");
-ok(/schedule:\s*fallScheduleChip\(e\)/.test(route) && /detailHref:\s*e\.slug && pageSlugs\.has\(e\.slug\) \? "\/florida-events\/"/.test(route), "every fall event card ships its schedule chip and its own event page");
+ok(/schedule:\s*fallScheduleChip\(e\)/.test(route) && /const detailHref = e\.slug && pageSlugs\.has\(e\.slug\) \? "\/florida-events\/"/.test(route) && /\n\s*detailHref,/.test(route), "every fall event card ships its schedule chip and its own confirmed event page");
 ok(/key:\s*"schedule"/.test(component) && /card\.schedule\?\.label/.test(component), "the schedule chip is the first chip on an event card");
 ok(/href=\{eventBodyHref\}/.test(component) && /card\.detailHref/.test(component), "the card body opens the event page when the row has one");ok(/FALL_DISCOVERIES_2026/.test(route) && /eventRows/.test(route), "publish-ready fall discoveries are served even when their database seed lags");
 ok(/take: FALL_PLACE_IDS\[p\.place_id\] \|\| FALL_PHOTO_SPOTS\[p\.place_id\]\?\.visualProof \|\| p\.editorial/.test(route), "verified seasonal or visual evidence wins over a generic inventory summary");

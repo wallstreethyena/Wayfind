@@ -339,6 +339,7 @@ import IntentPartnerPick from "../../components/IntentPartnerPick";
 import { guideRailIntent } from "../../../lib/railPlacement";
 import { LANDING_CITIES } from "../../../lib/landing";
 import { isSsgBuild, guideFetch } from "../../../lib/landingInventory";
+import { guideArticleImage, guideContextLinks, guideImageMetadata, guideQuickChoices } from "../../../lib/guideSeo";
 
 // 15 minutes. Long enough that the weather fetch is nearly free, short enough
 // that "97° right now" is never a lie. A guide whose live block is stale is
@@ -355,14 +356,19 @@ export function generateMetadata({ params }) {
   const url = `${SITE_URL}/guides/${params.slug}`;
   // THE SHARE-CARD RULE (owner, 2026-07-22): every page shares a card that is
   // unique to that page — never the generic homepage art.
-  const ogImg = `${SITE_URL}/api/og?t=${encodeURIComponent(g.title)}`;
+  const art = guideHero(params.slug);
+  const reviewedImage = guideImageMetadata(art);
+  // Use the image reviewed for this exact article. The three guides with an
+  // explicit source gap keep the honest branded text card.
+  const socialImage = reviewedImage || { url: `${SITE_URL}/api/og?t=${encodeURIComponent(g.title)}`, width: 1200, height: 630, alt: `${g.title} on Wayfind` };
   return {
     title: `${g.title} | Wayfind`,
     description: g.description,
     keywords: g.relatedKeywords || (g.keyword ? [g.keyword] : undefined),
     alternates: { canonical: url },
-    openGraph: { title: g.title, description: g.description, url, siteName: "Wayfind", type: "article", images: [{ url: ogImg, width: 1200, height: 630 }] },
-    twitter: { card: "summary_large_image", title: g.title, description: g.description, images: [ogImg] },
+    robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
+    openGraph: { title: g.title, description: g.description, url, siteName: "Wayfind", type: "article", images: [socialImage] },
+    twitter: { card: "summary_large_image", title: g.title, description: g.description, images: [socialImage] },
   };
 }
 
@@ -403,6 +409,9 @@ export default async function GuidePage({ params }) {
   // ── the ONE primary CTA, resolved once, server-side ─────────────────────
   let primaryCta = guidePrimaryCta(g);
   const continueTo = guideContinue(g, params.slug, GUIDES);
+  const contextLinks = guideContextLinks(params.slug, GUIDES);
+  const quickChoices = guideQuickChoices(params.slug);
+  const articleImage = guideArticleImage(guideHero(params.slug));
 
   // ── UPGRADE A bookQuery PICK INTO A PRODUCT, at render time ──────────────
   // Search-as-Book is not Book. guidePrimaryCta no longer paints a search dest
@@ -667,7 +676,18 @@ export default async function GuidePage({ params }) {
         .wf-gd-disc{font-size:11px;color:#94A3B8;line-height:1.45;margin:12px 2px 0}
         .wf-guide-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
         .wf-guide-actions a{border-radius:4px!important}
+        .wf-guide-quick,.wf-guide-related{margin:18px 0 22px;padding:16px;border:1px solid #263548;border-radius:14px;background:#0b121d}
+        .wf-guide-quick h2,.wf-guide-related h2{margin:0 0 10px;font-size:15px;color:#f1f5f9}
+        .wf-guide-quick>div,.wf-guide-related>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+        .wf-guide-quick a,.wf-guide-related a{display:flex;flex-direction:column;gap:2px;min-height:44px;padding:10px 11px;border:1px solid #2d4058;border-radius:10px;color:#e7edf5;text-decoration:none;background:#101a28}
+        .wf-guide-quick a:hover,.wf-guide-related a:hover{border-color:#f97316}
+        .wf-guide-quick a:focus-visible,.wf-guide-related a:focus-visible{outline:3px solid #fb923c;outline-offset:2px}
+        .wf-guide-quick span{font-size:11px;color:#94a3b8}
+        .wf-guide-quick strong{font-size:13px;line-height:1.35}
+        .wf-guide-related>div{grid-template-columns:repeat(2,minmax(0,1fr))}
+        .wf-guide-related a{font-size:13px;line-height:1.4;justify-content:center}
         @media(max-width:760px){
+          .wf-guide-quick>div,.wf-guide-related>div{grid-template-columns:1fr}
           .wf-guide-article{padding-top:2px}
           .wf-guide-intro{font-size:17px!important;line-height:1.5!important;margin:14px 2px 16px!important}
           .wf-guide-disclosure{margin:10px 2px 16px!important;padding:0 0 10px!important;font-size:10.5px!important;line-height:1.4!important}
@@ -692,7 +712,7 @@ export default async function GuidePage({ params }) {
       ` }} />
       {faqLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} /> : null}
       {itemListLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }} /> : null}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: g.title, description: g.description, ...(g.published ? { datePublished: g.published } : {}), ...(g.updated ? { dateModified: g.updated } : {}), author: { "@type": "Person", name: "Gabriel Pereira", url: SITE_URL + "/about" }, publisher: { "@type": "Organization", name: "WAYFIND LLC", logo: { "@type": "ImageObject", url: SITE_URL + "/icon-512.png" } }, mainEntityOfPage: SITE_URL + "/guides/" + params.slug }) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: g.title, description: g.description, ...(g.published ? { datePublished: g.published } : {}), ...(g.updated ? { dateModified: g.updated } : {}), ...(articleImage ? { image: articleImage } : {}), author: { "@type": "Person", name: "Gabriel Pereira", url: SITE_URL + "/about" }, publisher: { "@type": "Organization", name: "WAYFIND LLC", logo: { "@type": "ImageObject", url: SITE_URL + "/icon-512.png" } }, mainEntityOfPage: SITE_URL + "/guides/" + params.slug }) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL }, { "@type": "ListItem", position: 2, name: "Guides", item: SITE_URL + "/guides" }, { "@type": "ListItem", position: 3, name: g.title, item: SITE_URL + "/guides/" + params.slug }] }) }} />
       <GuideArticleHero
         // v8.23 — ONE destination each. "All guides" used to appear twice on
@@ -755,6 +775,14 @@ export default async function GuidePage({ params }) {
         </p>
       ) : null}
       <p className="wf-guide-intro" style={S.p}>{g.intro}</p>
+      {quickChoices.length ? (
+        <section className="wf-guide-quick" aria-labelledby="guide-quick-title">
+          <h2 id="guide-quick-title">Choose quickly</h2>
+          <div>{quickChoices.map((choice) => (
+            <a key={choice.href} href={choice.href}><span>{choice.need}</span><strong>{choice.label}</strong></a>
+          ))}</div>
+        </section>
+      ) : null}
       <GuideReadingNav guide={g} />
       <ExploreBridge city={bridgeCity} picks={bridgePicks} entryPage={"/guides/" + params.slug} pageType="guide" />
       {/* AUDIT F2 (2026-08-02) — guides took ~276 of the 685 visitors across
@@ -906,6 +934,12 @@ export default async function GuidePage({ params }) {
           <h2 style={S.h2}>Good to know</h2>
           {g.faq.map((f, i) => (<div key={i}><p style={S.faqQ}>{f.q}</p><p style={S.faqA}>{f.a}</p></div>))}
         </section>
+      ) : null}
+      {contextLinks.length ? (
+        <aside className="wf-guide-related" aria-labelledby="guide-related-title">
+          <h2 id="guide-related-title">Compare another plan</h2>
+          <div>{contextLinks.map((link) => <a key={link.slug} href={`/guides/${link.slug}`}>{link.note ? <span>{link.note}</span> : null}<strong>{link.title}</strong></a>)}</div>
+        </aside>
       ) : null}
       {/* ONE monetized CTA + ONE continue card + the save prompt. The old
           four-link "More Wayfind guides" list was itself a choice wall; the

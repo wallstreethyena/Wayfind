@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 608,
-    "totalRegistryEntries": 609,
-    "guardsTxtLineCount": 606,
-    "guardsTxtReachedFileCount": 601,
-    "criticalCount": 73,
+    "totalOnDiskGuardFiles": 612,
+    "totalRegistryEntries": 613,
+    "guardsTxtLineCount": 611,
+    "guardsTxtReachedFileCount": 606,
+    "criticalCount": 74,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 415,
+      "CALL": 419,
       "RENDER": 49,
       "STRUCTURAL": 144,
       "OTHER": 1
@@ -3247,6 +3247,28 @@
         "detail": "2026-08-05: all nine tour-intent guides resolved to a generic Viator search; 20 readers saw the CTA and zero clicked — the same 'promised tickets, got a search page' defect check-guide-cta-honesty.mjs locks from the label side."
       },
       "owner": "Revenue QA"
+    },
+    {
+      "file": "scripts/check-guide-seo-audit.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 22,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
     },
     {
       "file": "scripts/check-guide-share.mjs",
@@ -9246,10 +9268,10 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 61,
+      "assertionCount": 141,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
-      "selfDocumentsRedProve": false,
+      "selfDocumentsRedProve": true,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
@@ -9810,7 +9832,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 39,
+      "assertionCount": 42,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -10479,10 +10501,10 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 57,
+      "assertionCount": 58,
       "unprovenAbsenceCount": 1,
       "honestyViolations": [
-        "1 absence assertion(s) with no positive control in the same file (e.g. \"!/robots:/.test(guide) && !/robots:/.test(culture), \"\")"
+        "1 absence assertion(s) with no positive control in the same file (e.g. \"!/index:\\s*false|follow:\\s*false/.test(guideMetadata) && !/robots:/.test(culture\")"
       ],
       "selfDocumentsRedProve": false,
       "wiring": {
@@ -10945,7 +10967,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 14,
+      "assertionCount": 22,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -12552,6 +12574,28 @@
       "owner": "Revenue QA"
     },
     {
+      "file": "scripts/test-place-photo-replay.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 74,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-place-products.mjs",
       "npmScript": null,
       "class": "STRUCTURAL",
@@ -13959,6 +14003,58 @@
       "protects": null,
       "blastRadius": null,
       "owner": null
+    },
+    {
+      "file": "scripts/test-travelpayouts-attribution.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 40,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-import:../lib/commerceProviders.js"
+      ],
+      "protects": "Travelpayouts click tokens are stored before redirect, account and campaign identities match, and provider bookings reconcile idempotently with monotonic status and nullable money.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "A regression can misattribute bookings, issue unrecorded tokens, duplicate sales or overwrite newer provider truth."
+      },
+      "owner": "Revenue QA"
+    },
+    {
+      "file": "scripts/test-travelpayouts-provisioning.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 28,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": "Travelpayouts short links are provisioned in bounded batches using exact provider response account and destination identity.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "Wrong-account or poisoned short links can send buyers to an incorrect program or make conversion attribution unverifiable."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/test-travelpayouts.mjs",

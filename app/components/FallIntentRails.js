@@ -93,6 +93,7 @@ function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin,
           const eventBodyExternal = isEvent && !card.detailHref;
           return <RailCard key={card.id} className="wf-exploding-primary" domRef={index === sentinelIndex ? sentinelRef : undefined}
             photo={card.image || null} place={place}
+            creatorVideos={isEvent ? card.creatorReels : undefined}
             title={card.title || card.name} eyebrow={rail.title} rank={rank}
             score={isEvent ? null : toDisplayScore(card.wfScore)} when={isEvent ? card.when : null}
             facts={facts} chips={isEvent ? eventChips(card, { onOpenVenue: card.detailHref ? openEventVenue : null }) : placeChips}
