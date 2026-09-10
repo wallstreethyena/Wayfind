@@ -129,8 +129,14 @@ const E = await import("../lib/experiment.js");
   ok(guide.indexOf("<ExploreBridge") > 0 && guide.indexOf('pageType="guide"') > 0, "guide pages mount the bridge");
   ok(culture.indexOf("<ExploreBridge") > 0 && culture.indexOf('pageType="culture"') > 0, "culture pages mount the bridge");
   ok(guide.indexOf("<ExploreBridge") < guide.indexOf("g.picks.map"), "the bridge renders ABOVE the guide's long-form body");
-  // SEO must be untouched: no canonical/robots change on either page.
-  ok(!/robots:/.test(guide) && !/robots:/.test(culture), "no robots directive added to either content page");
+  // The experiment must not make either surface unindexable. Guide SEO now
+  // carries an explicit index/follow directive so large image previews can be
+  // enabled without leaving crawlability implicit; culture remains unchanged.
+  const guideMetadata = guide.slice(guide.indexOf("export function generateMetadata"), guide.indexOf("export default async function"));
+  ok(!/index:\s*false|follow:\s*false/.test(guideMetadata) && !/robots:/.test(culture),
+    "the experiment adds no noindex/nofollow directive to either content page");
+  ok(/robots:\s*\{\s*index:\s*true,\s*follow:\s*true/.test(guide) && /"max-image-preview":\s*"large"/.test(guide),
+    "guide metadata keeps explicit index/follow and permits large image previews");
 }
 
 
