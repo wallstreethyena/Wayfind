@@ -32,6 +32,11 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          # 2026-09-09: the default depth 1 made origin/main unreadable, and
+          # check-doc-ownership answered SKIP on the one run that gates merge.
+          # PR #1197 merged an AGENTS.md edit by a lane through that gap.
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22

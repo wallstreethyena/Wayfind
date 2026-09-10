@@ -422,6 +422,7 @@ node scripts/check-provider-redirects.mjs
 node scripts/test-redirect-integrity.mjs
 node scripts/check-direct-affiliate-urls.mjs
 node scripts/check-doc-ownership.mjs
+node scripts/test-doc-ownership-shallow.mjs
 node scripts/check-locks.mjs
 node scripts/check-guide-deal-cards.mjs
 node scripts/check-intro-instrumentation.mjs
