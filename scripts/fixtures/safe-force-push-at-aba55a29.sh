@@ -55,28 +55,10 @@ esac
 # 1. Fetch THIS branch, now. Not --all, not a cached ref: the whole failure was
 #    trusting a remote-tracking ref that had not been updated.
 echo "safe-force-push: fetching origin/$BRANCH …"
-# 2026-09-10: this fetch used to end in `|| true`, and REMOTE_HEAD came from a
-# SEPARATE ls-remote. When the fetch failed, ls-remote still returned the right
-# SHA, so the lease was correct and the push succeeded — but the object was not
-# local, the loss inspection below could not run, its failure was swallowed into
-# "nothing will be lost", and the script printed OK while deleting another lane's
-# commit. Red-proved in test-safe-force-push.mjs. One successful fetch now
-# establishes the ONE authoritative SHA that is inspected and pinned, or we stop.
-FETCH_ERR="$(git fetch --no-tags origin "+refs/heads/$BRANCH:refs/remotes/origin/$BRANCH" 2>&1)" || {
-  echo "safe-force-push: FAIL — could not fetch origin/$BRANCH, so the remote's true head is unknown." >&2
-  echo "  git said: ${FETCH_ERR:-（no output）}" >&2
-  echo "  Refusing to rewrite a branch this script cannot read. Fix connectivity and re-run." >&2
-  exit 1
-}
+git fetch --no-tags origin "+refs/heads/$BRANCH:refs/remotes/origin/$BRANCH" >/dev/null 2>&1 || true
+REMOTE_HEAD="$(git ls-remote origin "refs/heads/$BRANCH" | awk '{print $1}')"
 
 LOCAL_HEAD="$(git rev-parse HEAD)"
-
-# Prefer the ref that fetch just wrote: it is the one SHA we know we hold the
-# object for. A second network read could disagree with what we inspected.
-REMOTE_HEAD="$(git rev-parse --verify --quiet "refs/remotes/origin/$BRANCH^{commit}" || true)"
-if [ -z "$REMOTE_HEAD" ]; then
-  REMOTE_HEAD="$(git ls-remote origin "refs/heads/$BRANCH" | awk '{print $1}')"
-fi
 
 if [ -z "$REMOTE_HEAD" ]; then
   # No remote branch yet: this is a create, not a force. Nothing can be lost.
@@ -96,27 +78,13 @@ fi
 
 # 2. What would this push destroy? Anything reachable from the remote head that
 #    is NOT reachable from ours. Zero is the normal, safe answer.
-# The object must be present locally or we cannot know what we are about to
-# delete. `--no-merges` used to hide a merge commit that existed only on the
-# remote, so a real loss could count as zero. Both are gone.
-if ! git cat-file -e "$REMOTE_HEAD^{commit}" 2>/dev/null; then
-  echo "safe-force-push: FAIL — $REMOTE_HEAD is not in this checkout, so what the push would destroy cannot be read." >&2
-  echo "  Never treat an unreadable history as an empty one. Fetch it, then re-run." >&2
-  exit 1
-fi
-
-if ! LOST="$(git rev-list "$LOCAL_HEAD..$REMOTE_HEAD" 2>&1)"; then
-  echo "safe-force-push: FAIL — could not list what origin/$BRANCH holds that your HEAD does not." >&2
-  echo "  git said: ${LOST:-（no output）}" >&2
-  echo "  An inspection that did not run is not a clean inspection." >&2
-  exit 1
-fi
+LOST="$(git rev-list --no-merges "$LOCAL_HEAD..$REMOTE_HEAD" 2>/dev/null || echo "")"
 LOST_N=0
 [ -n "$LOST" ] && LOST_N="$(printf '%s\n' "$LOST" | wc -l | tr -d ' ')"
 
 if [ "$LOST_N" -ne 0 ]; then
   echo "safe-force-push: origin/$BRANCH holds $LOST_N commit(s) your HEAD does not contain:" >&2
-  git --no-pager log --oneline "$LOCAL_HEAD..$REMOTE_HEAD" >&2 || true
+  git --no-pager log --oneline --no-merges "$LOCAL_HEAD..$REMOTE_HEAD" >&2 || true
   if [ "$ACCEPT" != "$REMOTE_HEAD" ]; then
     cat >&2 <<MSG
 
