@@ -43,7 +43,13 @@ const BEACH_SHELL = ["../app/best-beaches/[metro]/page.js", "../app/components/E
 for (const [files, label] of [[RANKED_SHELL, "ranked shell"], [BEACH_SHELL, "beaches page"]]) {
   const s = files.map((f) => readFileSync(new URL(f, import.meta.url), "utf8")).join("\n");
   ok(!/wayfind<span[^>]*>\.<\/span>/.test(s), label + " uses the banned period-after-d wordmark");
-  ok(s.includes("/brand/wayfind-wordmark-transparent-v2.png"), label + " lost the transparent official wordmark");
+  // v9 (lib/seasonalBrand.js): CollectionHero/EditorialLandingHero now render
+  // the mark through the seasonal resolver (`src={seasonalWordmark.png}`)
+  // instead of a hardcoded path, so the mark can go seasonal (Halloween live
+  // now, reverting Nov 1) and still always be the official asset, never a
+  // lookalike. Accept either form so a future template that legitimately
+  // hardcodes the transparent PNG is not penalized.
+  ok(s.includes("/brand/wayfind-wordmark-transparent-v2.png") || s.includes("src={seasonalWordmark.png}"), label + " lost the transparent official wordmark (neither the raw path nor the seasonal resolver's `.png` field renders it)");
 }
 
 // Raster logo only in OG routes (their dark #040810 band = the baked bg).
