@@ -312,7 +312,7 @@ export default async function CuratedEventPage({ params }) {
             <EventWhere> already renders below with a clean, host-only
             caption. One official-site affordance, not two, and never a raw
             path as visible text. */}
-        <div style={S.row}><span style={S.k}>Cost</span><span style={S.v}>{e.is_free ? "Free" : (e.price_band || "Ticketed — see the organiser")}</span></div>
+        <div style={S.row}><span style={S.k}>Cost</span><span style={S.v}>{e.is_free ? "Free" : (e.price_band || (e.is_free === false ? "Ticketed — see the organiser" : "See the organiser for admission details"))}</span></div>
         {e.minimum_age ? <div style={S.row}><span style={S.k}>Age</span><span style={S.v}>{e.minimum_age}+</span></div> : null}
         {e.duration_recommendation ? <div style={S.row}><span style={S.k}>Time needed</span><span style={S.v}>{e.duration_recommendation}</span></div> : null}
         {e.crowd_level ? <div style={S.row}><span style={S.k}>Crowds</span><span style={S.v}>{e.crowd_level}</span></div> : null}
