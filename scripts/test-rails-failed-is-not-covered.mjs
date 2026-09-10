@@ -29,8 +29,8 @@
  *      ("couldn't reach the ranking service", Try again), NOT on "uncovered"
  *      ("Wayfind isn't live here yet"); and the two composers fed by
  *      /api/rails (breakfast, eat) render nothing of their own until the rails
- *      request has actually landed, so "No nearby place clearly qualifies"
- *      can only ever be said about a payload that was ranked.
+ *      request has actually landed. A ranked healthy zero then produces no
+ *      rail shell, while a service failure remains in DaypartRail's retry UI.
  *
  * Red-proved on 2026-09-07 by (a) restoring the old `covered: true` return on
  * the degraded path, (b) deleting the isFailedRailsResponse read in apply(),
@@ -41,6 +41,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { emptyRailLive, liveFromRailsResponse, isFailedRailsResponse } from "../lib/locationHonesty.js";
+import { railRenderState, RAIL_RENDER_STATE } from "../lib/railVisibility.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(path.join(ROOT, p), "utf8");
@@ -103,9 +104,13 @@ const chainSites = (RAIL.match(/selRail && \x28!railOwnsItsOwnAnswer \|\| compos
 ok(chainSites === 3, `the shared load chain (skeleton / thin / terminal) speaks for a waiting composer at all 3 sites (found ${chainSites})`);
 ok(!/selRail && !railOwnsItsOwnAnswer && isPending\x28railLoad\x29/.test(RAIL), "no leftover chain site that still excludes composers from the skeleton");
 
-/* ── 4. The composer's own copy is a claim, so its input must be ranked ──── */
+/* ── 4. Healthy empty is hidden; outages remain explicit ───────────────── */
 const BK = read("app/components/BreakfastRails.js");
-ok(/No nearby place clearly qualifies for this rail yet\./.test(BK), "positive control: BreakfastRails still carries the empty-rail sentence this guard exists to gate");
+ok(/visibleRails/.test(BK)
+  && railRenderState([]) === RAIL_RENDER_STATE.HIDDEN
+  && railRenderState([], { loading: true }) === RAIL_RENDER_STATE.LOADING
+  && railRenderState([], { error: true }) === RAIL_RENDER_STATE.ERROR,
+"Breakfast hides a healthy empty render plan while the shared policy keeps loading and outage states distinct");
 
 /* ── 5. "Use my current location" means NOW ─────────────────────────────── */
 // Same morning, same tap: PostHog recorded recenter_to_me hadFix:true, i.e.

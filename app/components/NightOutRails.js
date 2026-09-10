@@ -1,5 +1,7 @@
 "use client";
 
+import { selectPosterEvents } from "../../lib/posterEvents.js";
+
 // One Night Out answer: ten evidence-gated rails over venue inventory and the
 // dated event cards owned by home.js. Events lead each shelf because a dated
 // happening is not interchangeable with the building where one might occur.
@@ -26,6 +28,8 @@ import { wayfindScore } from "../../lib/wayfindScore.js";
 import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
 import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
 import { usePagedRail } from "./usePagedRail.js";
+import { nightTourCacheCovers, nightTourProducts } from "../../lib/nightTourProducts.js";
+import NightTourProductCards from "./NightTourProductCards.js";
 
 const C = { text: "#F1F5F9", muted: "#8B93A1" };
 const compact = (n) => Number(n) >= 1000 ? Math.round(Number(n) / 100) / 10 + "k" : String(Number(n) || 0);
@@ -36,6 +40,7 @@ const prettyType = (value) => {
 
 function NightOutRailSection({
   rail, lat, lng, eventCards, eventsPending, onOpenPlace, city,
+  tourProducts = [], toursPending = false, toursFailed = false, onRetryTours = null,
   isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare,
 }) {
   const seedItems = useMemo(() => (rail.places || []).slice(0, RAIL_PAGE_SIZE), [rail]);
@@ -44,17 +49,26 @@ function NightOutRailSection({
   const { items, total, sentinelIndex, sentinelRef, loadingMore } = usePagedRail(
     "/api/night-out", params, { seedItems, seedTotal, itemsKey: "places", timeoutMs: 22000 },
   );
-  const count = eventCards.length + (Number.isFinite(total) ? total : items.length);
+  const count = eventCards.length + tourProducts.length + (Number.isFinite(total) ? total : items.length);
   const railId = "night-out-" + rail.id;
-  if (!count) return (
+  if (!count && (eventsPending || toursPending)) return (
     <section aria-label={rail.title} style={{ marginTop: 22 }}>
       <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 850, color: C.text }}>{rail.title}</h2>
       <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>{rail.deck}</p>
-      {eventsPending
-        ? <div className="wf-sk" role="status" aria-busy="true" aria-label={`Finding ${rail.title}`} style={{ height: 88, borderRadius: 14, background: "#0B0E15" }} />
-        : <p style={{ margin: "8px 0 0", fontSize: 13, color: C.muted }}>No verified event or venue within 27 miles clears this intent yet. Wayfind will not fill it with a look-alike.</p>}
+      <div className="wf-sk" role="status" aria-busy="true" aria-label={`Finding ${rail.title}`} style={{ height: 88, borderRadius: 14, background: "#0B0E15" }} />
     </section>
   );
+  if (!count && toursFailed) return (
+    <section aria-label={rail.title} style={{ marginTop: 22 }}>
+      <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 850, color: C.text }}>{rail.title}</h2>
+      <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>{rail.deck}</p>
+      <p style={{ margin: "8px 0 0", fontSize: 13, color: C.muted }}>Wayfind could not reach its cached night-tour inventory.</p>
+      {onRetryTours ? <button type="button" onClick={onRetryTours} style={{ marginTop: 8, border: "1px solid #4B5563", borderRadius: 999, background: "#111827", color: C.text, padding: "7px 12px", fontWeight: 800 }}>Try again</button> : null}
+    </section>
+  );
+  // A successful empty answer is a real product state, so it has no shelf.
+  // Pending and failed reads remain visible above and cannot masquerade as it.
+  if (!count) return null;
   // ONE VERIFIED OPTION IS NOT A SHELF (v8.97c).
   //
   // A horizontal rail with a single card promises a choice and delivers one,
@@ -68,7 +82,19 @@ function NightOutRailSection({
   // second card — it says what it is: the one place that clears this intent.
   // A rail whose thinness is a RETRIEVAL bug must be fixed upstream; this
   // branch is only ever reached when the full owned pool really did yield one.
-  const soloItem = count === 1 && eventCards.length === 0 && items.length === 1 ? items[0] : null;
+  const soloItem = count === 1 && eventCards.length === 0 && tourProducts.length === 0 && items.length === 1 ? items[0] : null;
+  const soloProduct = count === 1 && eventCards.length === 0 && tourProducts.length === 1 && items.length === 0 ? tourProducts[0] : null;
+  if (soloProduct) return (
+    <section aria-label={rail.title} style={{ marginTop: 22 }} data-rail-solo={rail.id}>
+      <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 850, color: C.text }}>{rail.title}</h2>
+      <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>{rail.deck}</p>
+      <p style={{ margin: "6px 0 10px", fontSize: 12.5, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase", color: "#FB923C" }}>
+        Best match tonight — the only verified guided night activity in this market
+      </p>
+      <NightTourProductCards items={[soloProduct]} city={city} />
+      <p style={{ margin: "9px 0 0", fontSize: 10.5, color: C.muted, lineHeight: 1.45 }}>Wayfind may earn a commission when you book through this Viator link, at no extra cost to you. It never changes our rankings.</p>
+    </section>
+  );
   if (soloItem) {
     const type = prettyType(soloItem.primaryType || soloItem.primary_type || soloItem.category);
     const href = directionsUrl(soloItem);
@@ -107,14 +133,18 @@ function NightOutRailSection({
     <section aria-label={rail.title} style={{ marginTop: 22 }}>
       <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 850, color: C.text }}>{rail.title}</h2>
       <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>{rail.deck}</p>
+      {toursFailed ? <p role="status" style={{ margin: "7px 0", fontSize: 12, color: C.muted }}>
+        Cached night-tour products are temporarily unavailable. {onRetryTours ? <button type="button" onClick={onRetryTours} style={{ border: 0, padding: 0, background: "transparent", color: "#FB923C", font: "inherit", fontWeight: 800, cursor: "pointer" }}>Try again</button> : null}
+      </p> : null}
       {/* Page 0's `total` (from the seed) is the count RailNav shows, never
           the merely-loaded length — the reader sees "130 ranked options" on
           first paint, not "10". */}
       <RailNav railId={railId} count={count} total={count} unit={count === 1 ? "verified option" : "verified options"} />
       <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>
         {eventCards}
+        <NightTourProductCards items={tourProducts} city={city} rankOffset={eventCards.length} />
         {items.map((place, index) => {
-          const rank = eventCards.length + index + 1;
+          const rank = eventCards.length + tourProducts.length + index + 1;
           const type = prettyType(place.primaryType || place.primary_type || place.category);
           const facts = [
             place.reviews ? compact(place.reviews) + " reviews" : null,
@@ -145,7 +175,8 @@ function NightOutRailSection({
         {loadingMore ? <div className="wf-rail-card wf-exploding-primary" aria-busy="true" aria-label={`Loading more ${rail.title}`}
           style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 88, color: C.muted, fontSize: 12.5 }}>Loading more…</div> : null}
       </div>
-      {eventCards.length + items.length > 1 ? <RailDots railId={railId} count={eventCards.length + items.length} /> : null}
+      {tourProducts.length ? <p style={{ margin: "9px 0 0", fontSize: 10.5, color: C.muted, lineHeight: 1.45 }}>Wayfind may earn a commission when you book through these Viator links, at no extra cost to you. It never changes our rankings.</p> : null}
+      {eventCards.length + tourProducts.length + items.length > 1 ? <RailDots railId={railId} count={eventCards.length + tourProducts.length + items.length} /> : null}
     </section>
   );
 }
@@ -159,6 +190,9 @@ export default function NightOutRails({
   const [remoteResult, setRemote] = useState(null);
   const [failed, setFailed] = useState(false);
   const [retry, setRetry] = useState(0);
+  const [tourResult, setTourResult] = useState(null);
+  const [toursFailed, setToursFailed] = useState(false);
+  const [tourRetry, setTourRetry] = useState(0);
   const lat = center && Number.isFinite(center.lat) ? center.lat : null;
   const lng = center && Number.isFinite(center.lng) ? center.lng : null;
   // The bulk request still runs, unchanged: it hydrates the fail-soft
@@ -184,25 +218,61 @@ export default function NightOutRails({
       .catch(() => { if (!dead) setFailed(true); });
     return () => { dead = true; };
   }, [key]);
+  useEffect(() => {
+    if (!key) return;
+    let dead = false;
+    setTourResult(null);
+    setToursFailed(false);
+    const [queryLat, queryLng] = key.split("|");
+    if (!nightTourCacheCovers({ lat: Number(queryLat), lng: Number(queryLng) }, 27)) {
+      setTourResult({ key, items: [] });
+      return;
+    }
+    const query = new URLSearchParams({
+      lat: queryLat, lng: queryLng, mi: "27", cat: "concept:night-tours", limit: "100", page: "0",
+    });
+    // Owned cache only. `/api/experiences` reads wf_experiences and never
+    // spends a provider call when this market has no matching inventory.
+    fetchJsonWithDeadline("/api/experiences?" + query.toString(), { timeoutMs: 10000 })
+      .then((value) => {
+        if (dead) return;
+        // `reason: empty` is the cache route's healthy zero-row result for the
+        // selected market. Configuration/table/read failures use other reasons
+        // and stay visibly distinct from that legitimate empty state.
+        if (!Array.isArray(value?.items) || (value?.dark && value?.reason !== "empty")) { setToursFailed(true); return; }
+        setTourResult({ key, items: nightTourProducts(value.items) });
+      })
+      .catch(() => { if (!dead) setToursFailed(true); });
+    return () => { dead = true; };
+  }, [key, tourRetry]);
   const remote = remoteResult?.key === key ? remoteResult.value : null;
+  const scopedTours = tourResult?.key === key ? tourResult.items : null;
   const payload = remote || fallback;
-  const eventSurface = active && eventsSlot ? eventsSlot("night-out") : null;
+  const eventSurface = active && eventsSlot ? eventsSlot("night-out", selectPosterEvents) : null;
+  const hasPlaces = payload.rails.some((rail) => rail.places.length);
+  const hasContent = hasPlaces || !!scopedTours?.length
+    || Object.values(eventSurface?.byRail || {}).some((cards) => Array.isArray(cards) && cards.length);
 
   if (!active) return null;
   if (!key) return <p style={{ color: C.muted, fontSize: 13 }}>Choose a location to see Night Out places near you.</p>;
 
-  if (!remote && !failed && !payload.rails.some((rail) => rail.places.length)) {
+  if (!remote && !failed && !hasContent) {
     return <div role="status" aria-busy="true" aria-label="Building Night Out">{[0, 1, 2].map((index) => <div key={index} className="wf-sk" style={{ height: 88, borderRadius: 14, marginBottom: 12, background: "#0B0E15" }} />)}</div>;
   }
 
-  if (failed && !payload.rails.some((rail) => rail.places.length)) {
+  if (failed && !hasContent) {
     return <div><p style={{ color: C.muted, fontSize: 13 }}>We could not reach Wayfind&apos;s Night Out inventory. That is a service miss, not an empty town.</p><button type="button" onClick={() => setRetry((value) => value + 1)} style={{ border: "1px solid #4B5563", borderRadius: 999, background: "#111827", color: C.text, padding: "7px 12px", fontWeight: 800 }}>Try again</button></div>;
   }
 
-  return <>{payload.rails.map((rail) => {
+  return <>{failed ? <p role="status" style={{ margin: "8px 0 0", fontSize: 13, color: C.muted }}>Some venue results are unavailable. Available events and tours are shown below.</p> : null}{eventSurface?.failed ? <p role="status" style={{ margin: "8px 0 0", fontSize: 13, color: C.muted }}>Wayfind could not reach current event inventory. Venue and cached tour results are still available.</p> : null}{payload.rails.map((rail) => {
     const eventCards = Array.isArray(eventSurface?.byRail?.[rail.id]) ? eventSurface.byRail[rail.id] : [];
+    const isNightTourRail = rail.id === "night-tours";
     return <NightOutRailSection key={rail.id} rail={rail} lat={Number.isFinite(lat) ? lat : 0} lng={Number.isFinite(lng) ? lng : 0}
       eventCards={eventCards} eventsPending={!!eventSurface?.pending} onOpenPlace={onOpenPlace} city={city}
+      tourProducts={isNightTourRail ? (scopedTours || []) : []}
+      toursPending={isNightTourRail && !scopedTours && !toursFailed}
+      toursFailed={isNightTourRail && toursFailed}
+      onRetryTours={isNightTourRail ? () => setTourRetry((value) => value + 1) : null}
       isSaved={isSaved} liked={liked} disliked={disliked} isLiked={isLiked} isDisliked={isDisliked}
       onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />;
   })}</>;

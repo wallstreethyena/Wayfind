@@ -1452,3 +1452,10 @@ node scripts/check-guide-seo-audit.mjs
 node scripts/test-travelpayouts-attribution.mjs
 
 node scripts/test-travelpayouts-provisioning.mjs
+
+# Poster identity, event coverage, honest popularity, and empty rail rendering.
+node scripts/test-poster-events.mjs
+node scripts/test-event-popularity.mjs
+node scripts/test-empty-rail-visibility.mjs
+node scripts/test-night-tour-products.mjs
+node scripts/test-creator-picks-rails.mjs

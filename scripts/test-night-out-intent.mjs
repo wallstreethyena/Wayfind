@@ -2,10 +2,14 @@
 import { readFileSync } from "node:fs";
 import {
   NIGHT_OUT_MAX_MI, NIGHT_OUT_NEAR_MI, NIGHT_OUT_RAIL_DEFS,
-  composeNightOutRails, nightOutDistanceMi, nightOutEventRail, nightOutPlaceRail,
+  composeNightOutRails, isNightOutEligiblePlace, nightOutDistanceMi,
+  nightOutEventRail, nightOutEventRails, nightOutPlaceRail, nightOutPlaceRails,
 } from "../lib/nightOutIntent.js";
 import { windowRailAnswer } from "../lib/railResponse.js";
-import { NIGHT_OUT_EDITORIAL_EVIDENCE, nightOutEditorialEvidence } from "../lib/nightOutEvidence.js";
+import {
+  NIGHT_OUT_DISTRICT_EVIDENCE, NIGHT_OUT_DISTRICT_IDS,
+  NIGHT_OUT_EDITORIAL_EVIDENCE, nightOutEditorialEvidence,
+} from "../lib/nightOutEvidence.js";
 import { fetchJsonWithDeadline } from "../lib/clientJson.js";
 
 let pass = 0;
@@ -24,22 +28,64 @@ ok(nightOutPlaceRail(place({ primaryType: "night_club", description: "A real nig
 ok(nightOutPlaceRail(place({ primaryType: "bar", editorial: "A lively room with a cozy dance floor and DJs" })) === "clubs", "a bar with direct dance-floor evidence enters Clubs");
 ok(nightOutPlaceRail(place({ primaryType: "bar", editorial: "A neighborhood bar with music" })) !== "clubs", "a generic bar does not become a dance club");
 ok(NIGHT_OUT_EDITORIAL_EVIDENCE.ChIJrYGdKBJAw4gRafewzUWWYnk?.source.startsWith("https://") && /dinner theatre/.test(nightOutEditorialEvidence("ChIJrYGdKBJAw4gRafewzUWWYnk")), "Dinner + Entertainment evidence is source-backed and addressable by inventory ID");
+ok(NIGHT_OUT_DISTRICT_IDS.length === 3 && NIGHT_OUT_DISTRICT_IDS.every((id) => NIGHT_OUT_DISTRICT_EVIDENCE[id]?.verifiedAt === "2026-07-18" && NIGHT_OUT_DISTRICT_EVIDENCE[id].sources.every((url) => url.startsWith("https://"))), "the three governed district IDs carry dated source evidence");
 ok(nightOutPlaceRail(place({ primaryType: "bar", description: "A friendly neighborhood bar" })) === "cocktails", "a real bar enters the broad Bars and Cocktails rail without being relabelled as a rooftop");
 ok(nightOutPlaceRail(place({ primaryType: "cocktail_bar", description: "Craft cocktails" })) === "cocktails", "a cocktail room enters Bars and Cocktails");
 ok(nightOutPlaceRail(place({ primaryType: "bar", description: "Patio drinks with city views" })) === "cocktails", "a patio remains a bar and is never used as rooftop evidence");
 ok(nightOutPlaceRail(place({ primaryType: "bar", description: "Explicit rooftop bar and skyline" })) === "cocktails", "explicit rooftop evidence enters the cocktail rail");
 ok(nightOutPlaceRail(place({ primaryType: "live_music_venue", name: "The Jazz Room" })) === "live-music", "a live-music venue enters Live Music");
+ok(nightOutPlaceRails(place({ primaryType: "live_music_venue", name: "The Jazz Room" })).join("|") === "live-music|shows|dinner-entertainment", "live music keeps its canonical rail and also enters Shows and Dinner + Entertainment");
+ok(nightOutPlaceRails(place({ primaryType: "performing_arts_theater", name: "Mahaffey Theater", editorial: "Touring concerts and theater" })).includes("live-music"), "a theater with direct concert evidence enters Live Music & Concerts");
 ok(nightOutPlaceRail(place({ primaryType: "restaurant", name: "Mystery Dinner Theater" })) === "dinner-entertainment", "a dinner show enters Dinner + Entertainment");
 ok(nightOutPlaceRail(place({ primaryType: "fine_dining_restaurant", name: "Candlelit Omakase", description: "Romantic tasting menu" })) === "date-dining", "occasion-level dining enters Date-Night Dining");
 ok(nightOutPlaceRail(place({ primaryType: "restaurant", name: "Ordinary Grill" })) == null, "an ordinary restaurant cannot become Date-Night Dining");
 ok(nightOutPlaceRail(place({ primaryType: "comedy_club", name: "Laugh House Comedy Club" })) === "shows", "a comedy club enters Shows rather than Clubs");
+ok(nightOutPlaceRails(place({ primaryType: "comedy_club", name: "Laugh House Comedy Club" })).includes("shows"), "comedy remains admitted to Shows");
 ok(nightOutPlaceRail(place({ primaryType: "tourist_attraction", name: "Disney Springs Entertainment District" })) === "districts", "an explicit after-dark district enters Districts");
+ok(nightOutPlaceRail(place({ primaryType: "shopping_mall", name: "Generic Shopping Center" })) == null, "a generic shopping center cannot fill a thin Districts rail");
+ok(nightOutPlaceRail(place({ id: "invented", primaryType: "shopping_mall", name: "Invented District", _nightOutAttributes: { district: true } })) == null, "an arbitrary caller attribute cannot self-admit an ungoverned district ID");
+ok(nightOutPlaceRail(place({ id: "ChIJ3VLBF5Jqw4gRkT1TfU3ULd8", primaryType: "shopping_mall", name: "St. Armands Circle", _nightOutAttributes: { district: true } })) === "districts", "a source-backed exact district overlay can admit its governed shopping-and-dining center");
 ok(nightOutPlaceRail(place({ primaryType: "tour_operator", name: "Moonlight Harbor Cruise" })) === "waterfront", "a night cruise enters Waterfront");
 ok(nightOutPlaceRail(place({ primaryType: "tour_operator", name: "Downtown Ghost Night Tour" })) === "night-tours", "a ghost walk enters Night Tours");
 ok(nightOutPlaceRail(place({ primaryType: "bar", name: "Player One Arcade Bar" })) === "social-play", "an arcade bar stays exclusively in Social Play");
+ok(nightOutPlaceRails(place({ primaryType: "bar", name: "Player One Karaoke Bar" })).join("|") === "social-play|dinner-entertainment", "karaoke can serve Social Play and Dinner + Entertainment without changing its first rail");
+ok(nightOutPlaceRails(place({ primaryType: "cocktail_bar", name: "The Hidden Room Speakeasy", editorial: "A genuine speakeasy cocktail bar" })).join("|") === "cocktails|dinner-entertainment", "a speakeasy from the nightlife menu also enters Dinner + Entertainment");
+ok(nightOutPlaceRails(place({ primaryType: "cocktail_bar", name: "Sky Bar", editorial: "An explicit rooftop bar overlooking downtown" })).join("|") === "cocktails|dinner-entertainment", "an evidenced rooftop from the nightlife menu also enters Dinner + Entertainment");
+
+// Exact identities from the 2026-09-10 Sarasota production response. These
+// reached rails before scoring because unrelated words were treated as venue
+// evidence; the identity floor now refuses them before rankRailPlaces runs.
+const publixUniversityWalk = place({
+  id: "ChIJT2tT7QM_w4gRuD7XeYf3wJE", name: "Publix Super Market at University Walk",
+  primaryType: "supermarket", category: "food",
+  wfScore: 1000,
+  types: ["supermarket", "florist", "grocery_store", "deli", "market", "bakery", "food_store", "store", "food"],
+  editorial: "Supermarket chain with a wide selection of groceries, plus deli & bakery departments.",
+});
+ok(!isNightOutEligiblePlace(publixUniversityWalk) && nightOutPlaceRails(publixUniversityWalk).length === 0, "Publix University Walk is rejected globally rather than pairing food and walk into a Night Tour");
+ok(nightOutPlaceRail({ ...publixUniversityWalk, primaryType: null }) == null, "a missing primary cannot let supermarket secondary types bypass the identity veto");
+ok(nightOutPlaceRail(place({ name: "University Walk", primaryType: "tourist_attraction", editorial: "A food market near campus" })) == null, "tour words in one field and food words in another cannot combine into false evidence");
+ok(nightOutPlaceRail(place({ name: "L’Opera Bakery Bistro", primaryType: "bakery", category: "food", types: ["bakery", "food_store", "food", "store"] })) == null, "L’Opera Bakery Bistro cannot enter Shows from a word in its retail name");
+ok(nightOutPlaceRail(place({ name: "G.T. Bray Park", primaryType: "park", category: "attractions", types: ["park", "sports_complex"], editorial: "Large recreational park offering sports fields & an amphitheater." })) == null, "a generic daytime park cannot enter Live Music from an amphitheater mention");
+ok(nightOutPlaceRail(place({ name: "Riverwalk Splash Park", primaryType: "water_park", category: "attractions", types: ["water_park", "amusement_park"] })) == null, "Riverwalk Splash Park cannot enter Waterfront from its name");
+ok(!nightOutPlaceRails(place({ name: "Mattison's Riverwalk", primaryType: "american_restaurant", types: ["american_restaurant", "bar", "live_music_venue"], editorial: "Sprawling gastropub with bar classics." })).includes("waterfront"), "a restaurant named Riverwalk needs actual waterfront-night evidence for the Waterfront rail");
+
+// Genuine rows from the same complete Sarasota/Bradenton corpus. Tightening
+// false positives must retain provider spelling variants and real venue hosts.
+for (const liveVenue of [
+  place({ id: "ChIJ5TCV780Xw4gR9tilZdFHw24", name: "McCabe's Irish Pub", primaryType: "irish_pub", types: ["irish_pub", "pub", "live_music_venue"], editorial: "Brick-walled neighborhood pub with Bloody Marys & live music." }),
+  place({ id: "ChIJV1EQn5wRw4gRL9F20zVGaG4", name: "The Bridge Tender Inn Dockside & Tiki Bar", primaryType: "bar_and_grill", types: ["bar_and_grill", "seafood_restaurant", "bar"], editorial: "Lively American bar & eatery with a dockside bar & occasional live music." }),
+  place({ id: "ChIJJe-UU1sRw4gRnDNft0Vfbl0", name: "Cortez Clam Factory", primaryType: "bar_and_grill", types: ["bar_and_grill", "seafood_restaurant", "bar"], editorial: "Laid-back local eatery offering seafood, beers & live music." }),
+  place({ id: "ChIJvbSu0gtqw4gRlCerUAMFIkM", name: "The Hub Baja Grill", primaryType: "bar_and_grill", types: ["bar_and_grill", "bar", "restaurant"], editorial: "Festive, tropical-themed eatery with live music." }),
+]) ok(nightOutPlaceRail(liveVenue) === "live-music", `${liveVenue.name} retains genuine live-music admission`);
+ok(nightOutPlaceRail(place({ id: "ChIJK_DWONEXw4gR3jEk9vxm5L4", name: "Mosaic Riverwalk Amphitheater", primaryType: "amphitheatre", types: ["amphitheatre", "performing_arts_theater", "event_venue"] })) === "live-music", "the provider's amphitheatre spelling is a first-class concert venue identity");
+ok(nightOutPlaceRail(place({ id: "ChIJY3qV_tYXw4gRoy-jOe1OAo4", name: "Riverwalk", primaryType: "park", types: ["park", "tourist_attraction"], editorial: "Picturesque riverside park for strolling." })) === "waterfront", "the exact governed Bradenton Riverwalk park retains Waterfront admission");
+ok(nightOutPlaceRail(place({ id: "ChIJdyBKQzM9w4gRrAVyE50uvX8", name: "Riverwalk East", primaryType: "park", types: ["park"] })) === "waterfront", "the exact governed Riverwalk East park retains Waterfront admission");
+ok(nightOutPlaceRail(place({ id: "invented-riverwalk", name: "Riverwalk", primaryType: "park", types: ["park"] })) == null, "a name-only generic Riverwalk park cannot bypass the exact waterfront identity gate");
 
 ok(nightOutEventRail({ id: "concert", name: "The National in Concert", segment: "Music", date: "2026-09-02" }) === "live-music", "a dated concert enters Live Music");
 ok(nightOutEventRail({ id: "comedy", name: "Kevin Nealon Comedy", segment: "Arts & Theatre", date: "2026-09-02" }) === "shows", "a dated comedy show enters Shows");
+ok(nightOutEventRails({ id: "concert-theater", name: "Live at the Theater", segment: "Concerts", genre: "Rock", date: "2026-09-02" }).includes("live-music"), "a dated theater concert enters Live Music & Concerts from its event taxonomy");
 ok(nightOutEventRail({ id: "venue", name: "Downtown Event Venue", category: "event_venue" }) == null, "a generic event venue cannot impersonate a happening");
 ok(nightOutEventRail({ id: "sports", name: "Baseball Game", segment: "Sports", date: "2026-09-02" }) == null, "an unrelated event is not forced into the ten rails");
 
@@ -58,6 +104,7 @@ const fixtures = [
   place({ id: "cruise", name: "Sunset Dinner Cruise", primaryType: "tour_operator" }),
   place({ id: "tour", name: "Historic Ghost Night Tour", primaryType: "tour_operator" }),
   place({ id: "arcade", name: "Arcade Bar", primaryType: "bar" }),
+  publixUniversityWalk,
   place({ id: "far", name: "Far Cocktail Room", primaryType: "cocktail_bar", distMi: 27.1 }),
   { id: "unknown", name: "Unknown Cocktail Room", primaryType: "cocktail_bar" },
 ];
@@ -71,7 +118,10 @@ ok(composed.rails.every((rail) => expected.includes(rail.id)), "composition retu
 ok(composed.rails.find((rail) => rail.id === "clubs").places.map((row) => row.id).join("|") === "club|club-near", "the higher-scoring club leads even though it is in the wider ring — score first, distance only a tie-break");
 ok(!composed.rails.flatMap((rail) => rail.places).some((row) => row.id === "far"), "anything beyond 27 miles is rejected");
 ok(!composed.rails.flatMap((rail) => rail.places).some((row) => row.id === "unknown"), "unknown-distance places are rejected");
-ok(composed.rails.flatMap((rail) => rail.places).length === new Set(composed.rails.flatMap((rail) => rail.places.map((row) => row.id))).size, "each venue belongs to at most one Night Out rail");
+ok(composed.rails.find((rail) => rail.id === "live-music").places.some((row) => row.id === "music")
+  && composed.rails.find((rail) => rail.id === "dinner-entertainment").places.some((row) => row.id === "music"),
+"explicitly requested venue identities can belong to more than one Night Out rail");
+ok(!composed.rails.flatMap((rail) => rail.places).some((row) => row.id === publixUniversityWalk.id), "ineligible identities never reach a ranked bucket");
 
 const longAnswer = { rails: [{ id: "cocktails", places: Array.from({ length: 20 }, (_, id) => ({ id })) }] };
 const firstWindow = windowRailAnswer(longAnswer);
@@ -82,6 +132,7 @@ ok(windowRailAnswer(longAnswer, true).rails[0].places.length === 20, "the full c
 const rails = readFileSync(new URL("../lib/rails.js", import.meta.url), "utf8");
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
+const posterEvents = readFileSync(new URL("../lib/posterEvents.js", import.meta.url), "utf8");
 const component = readFileSync(new URL("../app/components/NightOutRails.js", import.meta.url), "utf8");
 const route = readFileSync(new URL("../app/api/night-out/route.js", import.meta.url), "utf8");
 const clientJson = readFileSync(new URL("../lib/clientJson.js", import.meta.url), "utf8");
@@ -90,11 +141,15 @@ ok(/id: "events"[\s\S]{0,420}retiredInto: "tonight"/.test(rails), "the standalon
 ok(/!r\.retiredInto/.test(daypart), "retired posters are hidden from the tile track");
 ok(/requested\.retiredInto \|\| id/.test(daypart), "legacy Events deep links resolve to Night Out");
 ok(/NightOutRails = dynamic/.test(daypart) && /<NightOutRails/.test(daypart), "the ten-rail Night Out component is lazy and mounted behind its tile");
-ok(/eventsSlot=\{eventsSlot\}/.test(daypart) && /eventsSlot\("night-out"\)/.test(component), "Night Out consumes the existing dated event inventory");
-ok(/mode === "night-out"/.test(home) && /nightOutEventRail\(event\)/.test(home), "home subdivides real EventRailCards through the same Night Out taxonomy");
+ok(/eventsSlot=\{eventsSlot\}/.test(daypart) && /eventsSlot\("night-out", selectPosterEvents\)/.test(component), "Night Out consumes the existing dated event inventory");
+ok(/import \{ selectPosterEvents \} from "\.\.\/\.\.\/lib\/posterEvents\.js"/.test(component)
+  && /mode = "events", selectPosterEvents = null/.test(home)
+  && /selectPosterEvents\(fp\.usable\.filter[\s\S]{0,240}\{ mode, center/.test(home)
+  && /mode === "night-out"/.test(posterEvents) && /nightOutEventRails\(event\)/.test(posterEvents),
+"home reaches the shared poster selector, which subdivides real EventRailCards through the plural Night Out taxonomy");
 ok(!/selRail\.id === "events" && eventsSlot/.test(daypart), "the obsolete standalone Events drop is gone");
 ok(/selRail\.id === "augtober" \|\| selRail\.id === "tonight"/.test(daypart), "Night Out owns its complete answer and cannot fall through to generic places");
-ok(/No verified event or venue within 27 miles/.test(component), "an empty intent tells the truth instead of using a look-alike");
+ok(/if \(!count\) return null/.test(component), "a healthy empty intent hides its shelf instead of using a look-alike");
 // v8.97b — FOLLOWED, NOT LOOSENED. Both assertions below used to read the ROUTE
 // for strings the retrieval happened to contain. The retrieval moved into
 // lib/nightOutPool.js (identity before the cost bound), so a path-pinned check
@@ -140,7 +195,8 @@ ok(/\["food", "nightlife", "attractions"\]/.test(retrieval) && /Promise\.allSett
     // The post-admission photo lookup (place_id=in.(…)) answers with the
     // reference for the one admitted row, so the served card can be checked
     // for it below.
-    if (/place_id=in\./.test(url)) return page([{ place_id: "cc1", photo_ref: "places/cc1/photos/p1" }]);
+    if (/select=place_id,photo_ref/.test(url)) return page([{ place_id: "cc1", photo_ref: "places/cc1/photos/p1" }]);
+    if (/place_id=in\./.test(url)) return page([]);
     return page(/nightlife/.test(url) ? [okRow] : []);
   };
   let served = null;
@@ -167,7 +223,7 @@ ok(/\["food", "nightlife", "attractions"\]/.test(retrieval) && /Promise\.allSett
   // follows admission is a different request with a different job, so each is
   // asserted on its own shape rather than on "every URL".
   const poolReads = urls.filter((u) => /category\.eq\.|secondary_categories\.cs\./.test(u));
-  const photoReads = urls.filter((u) => /place_id=in\./.test(u));
+  const photoReads = urls.filter((u) => /select=place_id,photo_ref/.test(u));
   ok(poolReads.length > 0 && poolReads.every((u) => /select=[^&]*\beditorial\b/.test(u)),
     "the Night Out read no longer selects `editorial` — the predicates read editorial text, so trimming it starves the evidence instead of the candidates");
   ok(poolReads.every((u) => /order=place_id\.asc/.test(u)),
@@ -196,7 +252,8 @@ ok(/\["food", "nightlife", "attractions"\]/.test(retrieval) && /Promise\.allSett
   // answer says it is degraded so completeAnswersOnly() keeps it out of the
   // hour-long cache instead of pinning photo-less rails on every reader.
   const photosDie = async (url) => {
-    if (/place_id=in\./.test(url)) throw new Error("photo lookup timed out");
+    if (/select=place_id,photo_ref/.test(url)) throw new Error("photo lookup timed out");
+    if (/place_id=in\./.test(url)) return page([]);
     return page(/nightlife/.test(url) ? [okRow] : []);
   };
   let photoless = null;
@@ -205,6 +262,41 @@ ok(/\["food", "nightlife", "attractions"\]/.test(retrieval) && /Promise\.allSett
     `a failed photo lookup blanked the Night Out pool — the rails must still serve without the thumbnail (${photoless && photoless.error ? photoless.error : "no places"})`);
   ok(photoless && photoless.stats && photoless.stats.degraded === true && photoless.stats.photoRefs.failed === 1,
     "a pool whose photo lookup failed reports degraded:false — it would be cached for an hour without thumbnails");
+
+  const districtRow = {
+    place_id: "ChIJ3VLBF5Jqw4gRkT1TfU3ULd8", name: "St. Armands Circle",
+    lat: 27.319, lng: -82.577, primary_type: "shopping_mall", category: "shopping",
+    google_types: ["shopping_mall"], status: "OPERATIONAL", excluded: false,
+    signals: { rating: 4.7, reviews: 4000 },
+  };
+  const districtUrls = [];
+  const districtsOnly = async (url) => {
+    districtUrls.push(url);
+    if (/select=place_id,photo_ref/.test(url)) return page([{ place_id: districtRow.place_id, photo_ref: "places/district/photos/p1" }]);
+    if (/place_id=in\./.test(url)) return page([districtRow]);
+    return page([]);
+  };
+  const districtAnswer = await fetchNightOutPool(27.34, -82.54, { env, fetchImpl: districtsOnly });
+  const governedDistrict = districtAnswer.places.find((p) => p.id === districtRow.place_id);
+  ok(governedDistrict && nightOutPlaceRail(governedDistrict) === "districts" && governedDistrict.photoRef === "places/district/photos/p1",
+    "the exact-ID district read shares normal serviceability, geo admission, taxonomy, and post-admission photo hydration");
+  const exactRead = districtUrls.find((url) => /select=place_id,name/.test(url) && /place_id=in\./.test(url));
+  ok(exactRead && NIGHT_OUT_DISTRICT_IDS.every((id) => decodeURIComponent(exactRead).includes(id)) && !/category\.eq\.shopping/.test(exactRead),
+    "district retrieval is one bounded exact-ID read, never a broad shopping-category scan");
+  const absentDistricts = await fetchNightOutPool(27.34, -82.54, { env, fetchImpl: async () => page([]) });
+  ok(absentDistricts.places.length === 0 && absentDistricts.stats.governedDistrictRows === 0
+    && absentDistricts.stats.degraded === false,
+  "healthy missing governed IDs stay an honest empty result rather than an error or fabricated card");
+
+  const districtDies = async (url) => {
+    if (/select=place_id,photo_ref/.test(url)) return page([]);
+    if (/place_id=in\./.test(url)) throw new Error("district lookup timed out");
+    return page(/nightlife/.test(url) ? [okRow] : []);
+  };
+  const degradedDistricts = await fetchNightOutPool(27.5949, -82.4265, { env, fetchImpl: districtDies });
+  ok(degradedDistricts.places.some((p) => p.id === "cc1") && degradedDistricts.stats.degraded === true
+    && degradedDistricts.stats.districtSourceFailures === 1,
+  "a failed governed-district lookup preserves surviving rails and marks the answer degraded");
 }
 ok(/secondary_categories\.cs\.\{/.test(retrieval), "Night Out no longer includes secondary-category membership — clubs, cabarets and dinner shows are commonly stored under their venue's primary type");
 ok(/nightOutEditorialEvidence/.test(route) && /editorialOverride/.test(retrieval),
