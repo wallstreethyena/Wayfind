@@ -11,7 +11,7 @@ import { resolveVerified } from "../lib/bookingResolver.js";
 import { bookingTargets, placeEvidence } from "../lib/bookingResolve.js";
 import { isTicketyPlace } from "../lib/affiliates.js";
 import { resolveOffer } from "../lib/commerceProviders.js";
-import { PLACE_PARTNER_PICKS, placePartnerPick } from "../lib/placePartnerPicks.js";
+import { PLACE_PARTNER_PICKS, pinServeability, placePartnerPick } from "../lib/placePartnerPicks.js";
 import { buildVerifiedOffer, isLiveEligible } from "../lib/verifiedOffers.js";
 import {
   chooseViatorGoLocation,
@@ -356,13 +356,37 @@ ok(Object.prototype.hasOwnProperty.call(VIATOR_SKU_DENYLIST, HOLD)
     "placePartnerPicks must not import viatorIntegrity (inspect stays off the homepage chunk)");
   ok(!/from\s*["']\.\/viatorDenylist\.js["']/.test(picksSrc),
     "placePartnerPicks inlines HOLD codes — a denylist import re-bloats the homepage chunk");
-  ok(/id !== "236862P2" && id !== "22211P1"/.test(picksSrc),
-    "inlined pin check names both HOLD SKUs in the comparison");
+  // POSITIVE CONTROL for the two absence probes above (AGENTS.md §4d). An
+  // absence assertion that has never been shown to fire is indistinguishable
+  // from a broken regex — and lib/viatorIntegrity.js DOES import the denylist,
+  // so it is a real file that must trip both probes.
+  {
+    const known = readFileSync(join(ROOT, "lib", "viatorIntegrity.js"), "utf8");
+    ok(/from\s*["']\.\/viatorDenylist\.js["']/.test(known),
+      "positive control: the denylist-import probe FIRES on lib/viatorIntegrity.js, which really does import it");
+    ok(/from\s*["']\.\/viatorIntegrity\.js["']/.test('import { x } from "./viatorIntegrity.js";'),
+      "positive control: the viatorIntegrity-import probe FIRES on a source that carries that exact import");
+  }
+  // 2026-09-10: this used to pin the literal `id !== "236862P2" && id !== "22211P1"`
+  // comparison, which is the "assert the string, not the call" trap CLAUDE.md
+  // names — it passed while the gate around it knew nothing about the catalogue,
+  // and it would have gone red for a gate that refused those codes correctly by
+  // some other route. The property that matters is that the inlined copy cannot
+  // DRIFT from the denylist, so it is asserted by CALLING the inlined gate with
+  // every denylist code and requiring the HOLD reason specifically. Silent on
+  // correct code, red the moment a HOLD code stops being refused there.
   for (const code of Object.keys(VIATOR_SKU_DENYLIST)) {
     ok(isDeniedViatorSku(code) === true, `denylist CALL refuses ${code}`);
     ok(placePickIsLive({ provider: "viator", offerId: code }) === false,
       `integrity placePickIsLive CALL refuses ${code}`);
+    const v = pinServeability({ provider: "viator", offerId: code, aliases: [] });
+    ok(v.serveable === false && v.reason === "hold-denylisted",
+      `placePartnerPicks' inlined gate CALL refuses ${code} as a HOLD code (got ${v.reason}) — the inlined copy has not drifted from the denylist`);
+    ok(placePartnerPick({ name: `Guard Fixture ${code}` }) === null,
+      `no card name resolves to HOLD code ${code}`);
   }
+  ok(Object.keys(VIATOR_SKU_DENYLIST).length >= 2,
+    "positive control: the loop above ran over both HOLD codes, not an empty denylist");
 }
 
 console.log(`test-viator-integrity-lock: OK — ${pass} assertions (isLiveEligible + placePickIsLive + resolveOffer + inspect + chooseViatorGoLocation + detailCta CALLED; HOLD/dead/search never Book; beach exclusion intact)`);
