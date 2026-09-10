@@ -1,4 +1,5 @@
 import styles from "./GuideArticleHero.module.css";
+import { activeSeasonalMark, NORMAL_MARK } from "../../lib/seasonalBrand";
 
 function imageDetails(image) {
   if (!image) return null;
@@ -56,6 +57,7 @@ export default function GuideArticleHero({
   const license = compactLicense(media?.license);
   const licenseHref = media?.licenseUrl || media?.licenseURL || media?.license?.url || media?.source || null;
   const hasCaption = Boolean(media?.caption || media?.credit || license);
+  const seasonalWordmark = activeSeasonalMark() || NORMAL_MARK;
 
   return (
     <header className={`${styles.header} ${media ? "" : styles.withoutMedia}`} data-guide-hero data-guide-hero-src={media?.src || undefined}>
@@ -69,10 +71,10 @@ export default function GuideArticleHero({
         <a className={styles.home} href="/" aria-label="Wayfind home">
           <img
             className={styles.wordmark}
-            src="/brand/wayfind-wordmark-transparent-v2.png"
+            src={seasonalWordmark.png}
             alt="Wayfind"
-            width="1707"
-            height="441"
+            width={seasonalWordmark.width}
+            height={seasonalWordmark.height}
           />
         </a>
       </div>

@@ -85,7 +85,11 @@ const src = fs.readFileSync(filename, 'utf8');
 const compiled = ts.transpileModule(src, { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2020, esModuleInterop: true } }).outputText;
 const mod = { exports: {} };
 const css = new Proxy({}, { get: (_target, name) => String(name) });
-vm.runInNewContext(compiled, { module: mod, exports: mod.exports, require: (name) => name.endsWith('.css') ? { __esModule: true, default: css } : require(name) }, { filename });
+vm.runInNewContext(compiled, { module: mod, exports: mod.exports, require: (name) => {
+  if (name.endsWith('.css')) return { __esModule: true, default: css };
+  if (name.includes('seasonalBrand')) return { activeSeasonalMark: () => null, NORMAL_MARK: { png: '/brand/wayfind-wordmark-transparent-v2.png', width: 1707, height: 441 } };
+  return require(name);
+} }, { filename });
 const Hero = mod.exports.default;
 function renderedImageSources(html) {
   return [...html.matchAll(/<img\b[^>]*\bsrc="([^"]+)"/g)].map((match) => match[1]);
