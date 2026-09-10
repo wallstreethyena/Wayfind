@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 608,
-    "totalRegistryEntries": 609,
-    "guardsTxtLineCount": 606,
-    "guardsTxtReachedFileCount": 601,
+    "totalOnDiskGuardFiles": 609,
+    "totalRegistryEntries": 610,
+    "guardsTxtLineCount": 608,
+    "guardsTxtReachedFileCount": 603,
     "criticalCount": 74,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 415,
+      "CALL": 416,
       "RENDER": 49,
       "STRUCTURAL": 144,
       "OTHER": 1
@@ -9268,10 +9268,10 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 61,
+      "assertionCount": 141,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
-      "selfDocumentsRedProve": false,
+      "selfDocumentsRedProve": true,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],
@@ -12506,6 +12506,28 @@
         "detail": "2026-08-25 (#947, dfeba86): the painted /places href for the Shell Key kayak product (SKU 173028P1) carried the wrong click_id, breaking the attribution linkage between the click and the correct product."
       },
       "owner": "Revenue QA"
+    },
+    {
+      "file": "scripts/test-place-photo-replay.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 74,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
     },
     {
       "file": "scripts/test-place-products.mjs",

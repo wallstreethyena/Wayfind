@@ -1360,6 +1360,20 @@ node scripts/test-command-center-requests.mjs
 # throws.
 node scripts/test-commons-photos.mjs
 
+# 2026-09-10 Commons-direct fallback: the 1,636 rejected:no_wiki_candidate
+# rows are re-admitted EXACTLY once through the existing place-photos
+# worker (no second cron/queue/table). Proves identity/license rejects
+# stay closed, a terminal no_direct_commons_candidate is not looped, a
+# fresh transport failure still writes zero rows, a deferred replay batch
+# yields a DISJOINT later batch on the next run (starvation-proof), and a
+# successful replay vaults through the existing storePhoto path.
+node scripts/test-place-photo-replay.mjs
+
+# Hermetic 40-place atlas cohort for Commons-direct: wiki-only baseline
+# 5/40, after is higher, Benderson/Camp Gladiator false-positive count
+# stays 0. Live Wikimedia is opt-in (`--live`), never this guard.
+node scripts/measure-commons-direct-cohort.mjs
+
 # 2026-09-09 (#1188) the SERVING half of the free permanent-photo lane:
 # lib/freePhoto.js (reads wf_place_photo, attribution-gated, fail-soft) and
 # its wiring into app/api/photo/route.js. Proves, by executing the real

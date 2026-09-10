@@ -24,7 +24,7 @@
 // registry by construction, same as scripts/photo-repair-worker.mjs — it
 // touches the network and a live database and must never be able to block a
 // code merge.
-import { runBackfill, describeAtRisk } from "../lib/placePhotoBackfill.js";
+import { runBackfill, describeAtRisk, describeReplay } from "../lib/placePhotoBackfill.js";
 import { recordPulse, isDeterministicFailureNote } from "../lib/jobPulse.js";
 
 const DEFAULT_LIMIT = 25;
@@ -66,7 +66,7 @@ async function main() {
     ? `place-photos: table unavailable (${result.tableStatus != null ? result.tableStatus : "error"})`
     : result.note
       ? (isDeterministicFailureNote(result.note) ? result.note : `place-photos: ${result.note}`)
-      : `place-photos: ${result.active} active (${result.vaulted || 0} vaulted), ${result.rejected} rejected, ${result.failed} failed, ${result.deferred || 0} deferred (${describeAtRisk({ ...result, source: args.source })}, general scanned ${result.scanned}, ${result.alreadyCovered} already covered)${result.dryRun ? " (dry-run)" : ""}`;
+      : `place-photos: ${result.active} active (${result.vaulted || 0} vaulted), ${result.rejected} rejected, ${result.failed} failed, ${result.deferred || 0} deferred (${describeAtRisk({ ...result, source: args.source })}, ${describeReplay({ ...result, source: args.source })}, general scanned ${result.scanned}, ${result.alreadyCovered} already covered)${result.dryRun ? " (dry-run)" : ""}`;
 
   await recordPulse("place-photos", { attempted: result.attempted, succeeded: result.active, note });
 

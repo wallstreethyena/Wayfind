@@ -57,7 +57,7 @@ export const maxDuration = 300;
 // possibly mid-Commons-download, plus their upserts and the pulse write.
 const WORK_BUDGET_MS = 255_000;
 
-import { runBackfill, describeAtRisk } from "../../../../lib/placePhotoBackfill";
+import { runBackfill, describeAtRisk, describeReplay } from "../../../../lib/placePhotoBackfill";
 import { recordPulse, isDeterministicFailureNote } from "../../../../lib/jobPulse";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail";
 
@@ -99,7 +99,7 @@ export async function GET(req) {
     ? `place-photos: table unavailable (${result.tableStatus != null ? result.tableStatus : "error"})`
     : result.note
       ? (isDeterministicFailureNote(result.note) ? result.note : `place-photos: ${result.note}`)
-      : `place-photos: ${result.active} active (${result.vaulted || 0} vaulted), ${result.rejected} rejected, ${result.failed} failed, ${result.deferred || 0} deferred${result.partial ? ` — PARTIAL: stopped on its own ${Math.round(WORK_BUDGET_MS / 1000)}s budget with ${result.deadlineStopped} candidate(s) unstarted` : ""} (${describeAtRisk({ ...result, source })}, general scanned ${result.scanned}, ${result.alreadyCovered} already covered)`;
+      : `place-photos: ${result.active} active (${result.vaulted || 0} vaulted), ${result.rejected} rejected, ${result.failed} failed, ${result.deferred || 0} deferred${result.partial ? ` — PARTIAL: stopped on its own ${Math.round(WORK_BUDGET_MS / 1000)}s budget with ${result.deadlineStopped} candidate(s) unstarted` : ""} (${describeAtRisk({ ...result, source })}, ${describeReplay({ ...result, source })}, general scanned ${result.scanned}, ${result.alreadyCovered} already covered)`;
 
   if (!result.tableUnavailable && result.attempted > 0 && result.failed === result.attempted) {
     return jobFailed("place-photos", note, { attempted: result.attempted, succeeded: 0 });
@@ -124,6 +124,10 @@ export async function GET(req) {
     atRiskScanned: result.atRiskScanned || 0,
     atRiskTaken: result.atRiskTaken || 0,
     atRiskUnavailable: !!result.atRiskUnavailable,
+    replayTaken: result.replayTaken || 0,
+    replayBacklog: result.replayBacklog || 0,
+    replayUnavailable: !!result.replayUnavailable,
+    replayStatus: result.replayStatus != null ? result.replayStatus : null,
     alreadyCovered: result.alreadyCovered || 0,
     tableUnavailable: !!result.tableUnavailable,
   });
