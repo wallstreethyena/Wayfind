@@ -9282,6 +9282,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // it clears wf_center and re-asks the device.
         locName={locName}
         onRecenter={recenterToMe}
+        onBrowseCreators={() => setSocialFind({ library: true })}
         // Coconut Grove sponsor tile — geo-gated (sponsorRailNear returns null
         // outside the 20mi gate), pinned to the front of the amazon rail, opens
         // the curated partner sheet on tap. Only when location has resolved.

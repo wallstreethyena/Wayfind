@@ -964,7 +964,15 @@ export default function DetailSheet({ ctx }) {
                     {cvs.map((v, i) => {
                       const p = PLATFORM[v.platform] || PLATFORM.tiktok;
                       const handle = v.creator ? "@" + v.creator : null;
-                      const headline = handle ? `Watch ${handle}'s visit to ${detail.name}` : `See ${detail.name} on ${p.label}`;
+                      // Instagram's /p/ URLs may be stills or carousels, so a
+                      // video-only label can promise media the native post does
+                      // not contain. Keep every Instagram association accurate;
+                      // reel URLs still open the same native post.
+                      const instagramPost = v.platform === "instagram";
+                      const headline = instagramPost
+                        ? (handle ? `View ${handle}'s post about ${detail.name}` : `View ${detail.name} on Instagram`)
+                        : (handle ? `Watch ${handle}'s visit to ${detail.name}` : `See ${detail.name} on ${p.label}`);
+                      const actionLabel = instagramPost ? "View on Instagram ↗" : "Watch Video ↗";
                       // v6.91 (owner): "add a glowing light to the back of those
                       // that matched the color of the box, make it a global
                       // rule so we don't have to keep adjusting manually." The
@@ -996,7 +1004,7 @@ export default function DetailSheet({ ctx }) {
                             <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, lineHeight: 1.25 }}>{headline}</div>
                             {captionFor(v) && <div style={{ fontSize: 12, color: C.muted, marginTop: 4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", lineHeight: 1.35 }}>{captionFor(v)}</div>}
                             <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 7 }}>
-                              <span style={{ fontSize: 12.5, fontWeight: 800, color: p.color }}>Watch Video ↗</span>
+                              <span style={{ fontSize: 12.5, fontWeight: 800, color: p.color }}>{actionLabel}</span>
                               {handle && <span style={{ fontSize: 11.5, color: C.muted }}>· by {handle}</span>}
                             </div>
                           </div>
