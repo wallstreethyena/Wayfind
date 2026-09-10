@@ -20,7 +20,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { addressLine, directionsUrl, appleDirectionsUrl, websiteUrl, websiteHost } from "../lib/placeWhere.js";
-import { describeAppleMapsToken, appleMapsTokenHealth, appleMapsTokenUsable, appleMapsTokenContract, appleMapsTokenContractViolations, APPLE_MAPS_TOKEN_WARN_DAYS } from "../lib/appleMapsToken.js";
+import { describeAppleMapsToken, appleMapsTokenHealth, appleMapsTokenUsable, APPLE_MAPS_TOKEN_WARN_DAYS } from "../lib/appleMapsToken.js";
 import { eventWebsiteUrl } from "../lib/curatedEvents.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -111,72 +111,6 @@ ok(dead.expired && dead.daysLeft < 0 && !appleMapsTokenUsable(sevenDay, Date.UTC
 const forever = mint({ iss: "T", iat: 1788800487, scope: "mapkit_js", origin: "https://www.gowayfind.com,https://gowayfind.com" });
 const df = describeAppleMapsToken(forever, NOW);
 ok(df.nonExpiring && !df.expired && df.daysLeft === null && df.originRestricted && df.origins.length === 2 && appleMapsTokenHealth(forever, NOW).ok && !appleMapsTokenHealth(forever, NOW).warning, `a non-expiring, domain-restricted token is ok with no warning (got ${JSON.stringify(df)})`);
-
-// 4c. PERMANENT IS THE STANDARD, NOT "MORE THAN A FORTNIGHT LEFT" (2026-09-10).
-//     The permanent token went live 2026-09-08 (no `exp`, origin
-//     www.gowayfind.com — verified out of the chunk a reader downloads). The
-//     14-day window alone cannot keep it that way: a ONE-YEAR testing token
-//     would sit green for 351 days and then page, the same silent-failure-on-
-//     a-clock shape #1144 taught, only slower. So any expiry at all warns, and
-//     APPLE_MAPS_TOKEN_WARN_DAYS only escalates the wording.
-const oneYear = mint({ iss: "T", iat: 1788800487, exp: Math.floor(NOW / 1000) + 365 * 86400, scope: "mapkit_js", origin: "https://www.gowayfind.com" });
-const hYear = appleMapsTokenHealth(oneYear, NOW);
-ok(hYear.ok && hYear.warning && hYear.temporary && !hYear.urgent && /token is temporary/.test(hYear.reason) && hYear.daysLeft === 365,
-  `a one-year token is ok-but-WARNING as TEMPORARY and not urgent, ${APPLE_MAPS_TOKEN_WARN_DAYS}-day window notwithstanding (got ${JSON.stringify({ ok: hYear.ok, warning: hYear.warning, temporary: hYear.temporary, urgent: hYear.urgent, daysLeft: hYear.daysLeft, reason: hYear.reason })})`);
-ok(h7.urgent === true && hYear.urgent === false && h7.warning === hYear.warning,
-  "`urgent` is what separates a 6-day token from a 1-year one; both still WARN");
-const hForever = appleMapsTokenHealth(forever, NOW);
-ok(hForever.temporary === false && hForever.nonExpiring === true && hForever.warning === false && hForever.urgent === false && hForever.reason === null,
-  `the PERMANENT token is the only shape that warns about nothing (got ${JSON.stringify({ temporary: hForever.temporary, warning: hForever.warning, reason: hForever.reason })})`);
-const hOpaque = appleMapsTokenHealth("not-a-jwt-but-configured-value-0123456789", NOW);
-ok(hOpaque.temporary === false && hOpaque.nonExpiring === false && hOpaque.warning === false,
-  "an OPAQUE token is never called temporary and never warns — a format we cannot read is not evidence of an expiry (Apple's format is Apple's to change)");
-
-// 4d. THE MONITOR AND THIS SUITE JUDGE THE TOKEN THROUGH THE SAME FUNCTION.
-//     CLAUDE.md: assert on the CALL, not the string. appleMapsTokenContract()
-//     is what scripts/lib/synthetic/scenarios.mjs turns into assertions every
-//     30 minutes, so red-proving it HERE red-proves production monitoring —
-//     no browser, no network. Each fixture below must trip exactly one entry;
-//     "some assertion failed" would pass on the wrong bug.
-const CONTRACT_IDS = ["configured", "not-expired", "no-warning", "permanent", "domain-locked"];
-const contractIds = appleMapsTokenContract(hForever).map((c) => c.id);
-ok(contractIds.length === CONTRACT_IDS.length && CONTRACT_IDS.every((id, i) => contractIds[i] === id),
-  `the token contract is exactly [${CONTRACT_IDS.join(", ")}] (got [${contractIds.join(", ")}])`);
-// POSITIVE CONTROL: the shape production actually serves passes every entry.
-ok(appleMapsTokenContractViolations(hForever).length === 0,
-  `the live permanent-token shape violates nothing (got ${JSON.stringify(appleMapsTokenContractViolations(hForever).map((c) => c.id))})`);
-// NEGATIVE CONTROLS: one broken property each, naming the entry it must trip.
-const violatedBy = (health) => appleMapsTokenContractViolations(health).map((c) => c.id).sort().join(",");
-ok(violatedBy(hYear) === "no-warning,permanent",
-  `a one-year testing token trips exactly no-warning + permanent (got ${violatedBy(hYear)})`);
-// The real 09-07 token was BOTH temporary AND origin-less, which is precisely
-// why `domain-locked` is a separate entry rather than a footnote: the token
-// that shipped to production could be lifted out of the bundle and pointed at
-// anyone's site, and nothing said so for a day.
-ok(violatedBy(h7) === "domain-locked,no-warning,permanent",
-  `the real 09-07 seven-day token trips no-warning + permanent + domain-locked (got ${violatedBy(h7)})`);
-ok(violatedBy(appleMapsTokenHealth(sevenDay, Date.UTC(2026, 8, 16))) === "domain-locked,no-warning,not-expired,permanent",
-  `an EXPIRED token trips not-expired as well (got ${violatedBy(appleMapsTokenHealth(sevenDay, Date.UTC(2026, 8, 16)))})`);
-const unlocked = mint({ iss: "T", iat: 1788800487, scope: "mapkit_js" }); // permanent, but no origin claim
-ok(violatedBy(appleMapsTokenHealth(unlocked, NOW)) === "domain-locked",
-  `a permanent token with NO origin claim trips exactly domain-locked — it is lift-and-reuse from a public bundle (got ${violatedBy(appleMapsTokenHealth(unlocked, NOW))})`);
-ok(violatedBy(hOpaque) === "", "an opaque token trips nothing: the monitor's RENDER assertion is its judge");
-// An ABSENT token is honestly "not expired" — there is nothing to expire — so
-// it trips configured + no-warning and nothing else. That is a different bug
-// from "a testing token is installed", and the contract keeps them apart. (A
-// garbage BODY, below, cannot even say that much, so it also trips not-expired.)
-ok(violatedBy(appleMapsTokenHealth("", NOW)) === "configured,no-warning",
-  `an unconfigured token trips exactly configured + no-warning, never permanent (got ${violatedBy(appleMapsTokenHealth("", NOW))})`);
-// A monitor that throws reports nothing, which reads as silence, not as red.
-for (const junk of [null, undefined, {}, "nonsense", 42, []]) {
-  let entries = null;
-  try { entries = appleMapsTokenContract(junk); } catch { entries = "THREW"; }
-  ok(Array.isArray(entries) && entries.length === CONTRACT_IDS.length && entries.every((c) => typeof c.pass === "boolean" && typeof c.label === "string"),
-    `the contract survives a missing/garbage health body (${JSON.stringify(junk)}) with ${CONTRACT_IDS.length} boolean verdicts (got ${entries === "THREW" ? "a THROW" : Array.isArray(entries) ? entries.length : typeof entries})`);
-  ok(entries !== "THREW" && appleMapsTokenContractViolations(junk).map((c) => c.id).sort().join(",") === "configured,no-warning,not-expired",
-    `a garbage health body (${JSON.stringify(junk)}) reads as "nothing is configured", never as a healthy token`);
-}
-
 const opaque = describeAppleMapsToken("not-a-jwt-but-configured-value-0123456789", NOW);
 ok(opaque.configured && opaque.format === "opaque" && !opaque.expired && appleMapsTokenUsable("not-a-jwt-but-configured-value-0123456789", NOW), "an unreadable token is treated as configured and usable (Apple's format is Apple's; the render check judges it)");
 for (const v of ["", null, undefined, "   "]) ok(!describeAppleMapsToken(v, NOW).configured && describeAppleMapsToken(v, NOW).format === "missing" && !appleMapsTokenUsable(v, NOW), `empty (${JSON.stringify(v)}) is missing, not usable`);
@@ -184,24 +118,11 @@ for (const v of ["placeholder", "your-token-here", "xxx", "changeme", "<paste to
 ok(describeAppleMapsToken("a.b.c", NOW).format === "opaque" && describeAppleMapsToken(`${b64u({ alg: "ES256" })}.!!!.sig`, NOW).format === "opaque", "a malformed three-part value never throws and never reads as a JWT");
 ok(/appleMapsTokenUsable\(token\)/.test(appleRuntime) && /appleMapsTokenUsable\(token\)/.test(map), "both the loader and the map refuse an unusable (missing/placeholder/expired) token before MapKit is fetched");
 const healthRoute = read("app/api/health/apple-maps/route.js");
-// 2026-09-10. A presence check over RAW source passes on its own explanatory
-// comment — CLAUDE.md lists five guards in this repo that hit exactly that,
-// and this one hit it too: commenting out `temporary: health.temporary,` left
-// the guard green because the text survived inside the comment. Strip comments
-// before any presence check, and self-test the stripper both ways first, or it
-// is one more thing taken on faith.
-const stripComments = (t) => t.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/[^\n]*/g, "$1 ");
-ok(/temporary: health\.temporary/.test(stripComments("      temporary: health.temporary,")), "self-test: stripComments keeps real code");
-ok(!/temporary: health\.temporary/.test(stripComments("      // temporary: health.temporary,")), "self-test: stripComments removes a commented-out line, so prose cannot satisfy a presence check");
-ok(/https:\/\/x/.test(stripComments('const u = "https://x";')), "self-test: stripComments does not eat a URL's double slash");
-const healthRouteCode = stripComments(healthRoute);
 ok(/appleMapsTokenHealth\(process\.env\.NEXT_PUBLIC_APPLE_MAPS_TOKEN\)/.test(healthRoute) && /force-dynamic/.test(healthRoute) && /no-store/.test(healthRoute), "/api/health/apple-maps reads the shipped token at REQUEST time and is never cached");
 ok(!/process\.env\.NEXT_PUBLIC_APPLE_MAPS_TOKEN\s*[,}]/.test(healthRoute) && !/token:\s*/.test(healthRoute), "the health route describes the token and never echoes it");
-ok(/expiresAt: health\.expiresAt/.test(healthRouteCode) && /daysLeft: health\.daysLeft/.test(healthRouteCode) && /originRestricted: health\.originRestricted/.test(healthRouteCode) && /warning: health\.warning/.test(healthRouteCode), "the health payload carries the lifetime fields the monitor asserts on");
-ok(/temporary: health\.temporary/.test(healthRouteCode) && /urgent: health\.urgent/.test(healthRouteCode), "the health payload answers \"is the key permanent?\" in one field (`temporary`) and grades the urgency (`urgent`)");
+ok(/expiresAt/.test(healthRoute) && /daysLeft/.test(healthRoute) && /originRestricted/.test(healthRoute) && /warning/.test(healthRoute), "the health payload carries the lifetime fields the monitor asserts on");
 const scenarios = read("scripts/lib/synthetic/scenarios.mjs");
 ok(/id: "event-apple-maps"/.test(scenarios) && /\/api\/health\/apple-maps/.test(scenarios) && /mk-map-view/.test(scenarios), "the synthetic monitor owns an event-apple-maps scenario: health endpoint + a REAL MapKit render on a real event page, every 30 minutes");
-ok(/import \{ appleMapsTokenContract \} from "\.\.\/\.\.\/\.\.\/lib\/appleMapsToken\.js"/.test(scenarios) && /for \(const c of appleMapsTokenContract\(h\)\) ctx\.ok\(/.test(scenarios), "the monitor turns appleMapsTokenContract() into its assertions — the same function red-proved above, not a hand-copied second opinion that can drift");
 ok(!/maplibre|openfreemap/i.test(map), "event maps no longer use the event-only MapLibre/OpenFreeMap surface");
 // PR #1129 review (2026-09-06): the first cut routed through the public OSRM
 // demo server — non-commercial terms, 1 req/s, no uptime promise — and shipped

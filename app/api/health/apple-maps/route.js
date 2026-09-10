@@ -34,11 +34,6 @@ export async function GET() {
       provider: "apple-mapkit-js",
       ok: health.ok,
       warning: health.warning,
-      // 2026-09-10: `temporary` is the field that answers the owner's actual
-      // question ("is the key permanent?") in one word. `urgent` separates
-      // "replace this soon" from "replace this within APPLE_MAPS_TOKEN_WARN_DAYS".
-      temporary: health.temporary,
-      urgent: health.urgent,
       reason: health.reason,
       configured: health.configured,
       format: health.format,
