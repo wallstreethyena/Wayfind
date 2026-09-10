@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 648,
-    "totalRegistryEntries": 649,
-    "guardsTxtLineCount": 647,
-    "guardsTxtReachedFileCount": 642,
+    "totalOnDiskGuardFiles": 649,
+    "totalRegistryEntries": 650,
+    "guardsTxtLineCount": 648,
+    "guardsTxtReachedFileCount": 643,
     "criticalCount": 81,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 436,
+      "CALL": 437,
       "RENDER": 72,
       "STRUCTURAL": 140,
       "OTHER": 1
@@ -14001,6 +14001,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 30,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-safe-force-push.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 50,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
