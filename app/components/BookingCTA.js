@@ -34,6 +34,7 @@ function clickIdFor(mapRef, key) {
 
 import { bookingTargets, hasBookingCTA, hasVerifiedTours, placeEvidence } from "../../lib/bookingResolve";
 import { nearbyTourListAllowed, placePartnerPick } from "../../lib/placePartnerPicks";
+import { usePinQuarantine } from "../../lib/pinQuarantine";
 export { hasBookingCTA };
 
 // What `targets` is when there is no place yet. Every consumer below reads
@@ -55,6 +56,13 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => { setHydrated(true); }, []);
 
+  // LIVE QUARANTINE (2026-09-10). A pinned product that dies in the catalogue
+  // must stop painting a Book button without waiting for a deploy. Declared up
+  // here with the other hooks for the reason stated immediately below, and
+  // because the snapshot is always a usable catalog there is no condition that
+  // could make this call conditional.
+  const pinQ = usePinQuarantine();
+
   // NOTHING EXITS ABOVE A HOOK. `detail` is null between sheet opens and
   // `variant` selects a different branch per call site; two hooks used to sit
   // behind both, so React's hook count moved and the tree unmounted instead of
@@ -64,7 +72,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
   // Founder pin wins the card. Nearby / wf_experiences inventory (the Shell
   // Key ferry, 237533P2) must not paint a second Book or steal the primary
   // offer id from topItem.code.
-  const pin = detail ? placePartnerPick(detail) : null;
+  const pin = detail ? placePartnerPick(detail, pinQ) : null;
   const hasTours = detail ? hasVerifiedTours(viaTours, placeId) : false;
   const rankedTourItems = hasTours ? rankExperiences(viaTours[placeId].items) : [];
   const topItem = rankedTourItems[0] || null;
@@ -229,7 +237,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
   if (variant === "list") {
     // One offer per card. The founder pin is the Book; nearby inventory
     // (Shell Key Ferry 237533P2 on the Preserve card) must not also paint.
-    if (!nearbyTourListAllowed(detail)) return null;
+    if (!nearbyTourListAllowed(detail, pinQ)) return null;
     const listPlaceId = placeIdProp || placeId || detailId || "unknown";
     if (hasTours) {
       const items = rankedTourItems;

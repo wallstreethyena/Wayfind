@@ -33,13 +33,17 @@
 // Each rule is red-proved below by MUTATING an out-of-repo copy of the module
 // and asserting the mutation applied before asserting the rule flips.
 //
-// WHAT THIS GUARD CANNOT SEE, stated plainly because a reader will assume more:
-// place cards render on the client, synchronously, with no catalogue in scope,
-// so the shipped render path gets the RECORDED verdict (RETIRED_VIATOR_PINS),
-// not a live lookup. Keeping that record true is the job of the credentialed
-// half in scripts/check-inventory-integrity.mjs, which reads production and
-// fails when a pinned code has no catalogue row. Delete that and this file
-// degrades into checking a cache nobody invalidates.
+// WHAT THIS GUARD COVERS AND WHAT IT DOES NOT, stated plainly because a reader
+// will assume more. It proves the RECORDED verdict (RETIRED_VIATOR_PINS) is a
+// real lock. It says nothing about a product that dies AFTER today's ship —
+// two other files own that:
+//   - scripts/check-inventory-integrity.mjs reads production with credentials
+//     and FAILS when a pinned code loses its catalogue row (detection);
+//   - scripts/check-pin-quarantine-live.mjs proves the live feed pulls that
+//     product's Book button without a deploy (containment).
+// Detection is not containment and containment is not a ledger; all three are
+// load-bearing. Delete the sweep and this list becomes a cache with no
+// invalidation; delete the quarantine and a new death waits on a human.
 
 import { copyFileSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -234,4 +238,4 @@ if (fail.length) {
   for (const m of fail) console.error("  - " + m);
   process.exit(1);
 }
-console.log(`check-pinned-offer-serveable: OK — ${pass} assertions (gate CALLED against a real module copy; ${viatorPins.length} live pins serve, ${RETIRED_VIATOR_PINS.length} retired codes refused by call AND source; unknown != dead; 3 rules red-proved by watched mutation. Blind spot, by design: the client render path has no catalogue — check-inventory-integrity's credentialed sweep is what keeps the ledger true.)`);
+console.log(`check-pinned-offer-serveable: OK — ${pass} assertions (gate CALLED against a real module copy; ${viatorPins.length} live pins serve, ${RETIRED_VIATOR_PINS.length} retired codes refused by call AND source; unknown != dead; 3 rules red-proved by watched mutation. Scope: the RECORDED ledger only — check-inventory-integrity detects a NEW death and check-pin-quarantine-live proves it loses its button without a deploy.)`);
