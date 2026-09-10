@@ -74,6 +74,9 @@ const DateNightRails = dynamic(() => import("./DateNightRails"), { ssr: false })
 // Birthday uses the same lazy multi-rail contract: the seven evidence-gated
 // rails are absent from the homepage bundle until its postcard is opened.
 const BirthdayRails = dynamic(() => import("./BirthdayRails"), { ssr: false });
+// Family Day uses the same in-place poster drop as Date Night and Birthday.
+// Its ten rails stay out of the first-load bundle and mount only after a tap.
+const FamilyDayPage = dynamic(() => import("./FamilyDayPage"), { ssr: false });
 const BreakfastRails = dynamic(() => import("./BreakfastRails"), { ssr: false });
 const WorthEatingRails = dynamic(() => import("./WorthEatingRails"), { ssr: false });
 const LunchBreakRails = dynamic(() => import("./LunchBreakRails"), { ssr: false });
@@ -1103,7 +1106,7 @@ export default function DaypartRail({
   // Neither may fall through to the generic place pool: doing so made the
   // Events drop begin with real happenings and end with buildings where an
   // event might happen on some other date.
-  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "season" || selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "breakfast" || selRail.id === "break" || selRail.id === "eat" || selRail.id === "today" || selRail.id === "augtober" || selRail.id === "tonight" || selRail.id === "locals"));
+  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "season" || selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "family" || selRail.id === "breakfast" || selRail.id === "break" || selRail.id === "eat" || selRail.id === "today" || selRail.id === "augtober" || selRail.id === "tonight" || selRail.id === "locals"));
   // A COMPOSER FED BY /api/rails HAS NO ANSWER UNTIL /api/rails DOES (v9.0).
   // Breakfast and Actually Worth Eating do not fetch anything of their own:
   // they split `shown.places` into identity rails. So while the rails request
@@ -1670,6 +1673,27 @@ export default function DaypartRail({
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
               city={shown.cityLabel || ""}
               onTrack={(name, props) => logEvent(name, props)}
+              onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
+              isSaved={isSaved || undefined}
+              liked={liked || undefined}
+              disliked={disliked || undefined}
+              isLiked={isLiked || undefined}
+              isDisliked={isDisliked || undefined}
+              onSave={onSave || undefined}
+              onLike={onLike || undefined}
+              onDislike={onDislike || undefined}
+              onShare={onShare || undefined}
+            />
+          ) : null}
+
+          {/* Family Day is ten location-aware rails inside this postcard's
+              homepage drop. The standalone route remains for sharing and
+              modified clicks, while a normal tap stays in the home shell. */}
+          {selRail && selRail.id === "family" ? (
+            <FamilyDayPage
+              embedded
+              center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
+              city={shown.cityLabel || cityLabel || ""}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
               liked={liked || undefined}

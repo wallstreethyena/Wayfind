@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import RankedExperiencePage from "./RankedExperiencePage";
 import IconicPlaceCard from "./IconicPlaceCard";
+import { usePagedRail } from "./usePagedRail";
 import { BackControl } from "../best-beaches/[metro]/parts";
 import { ScoreDisclosure } from "./ExperienceBlocks";
 import { FAMILY_DAY_RAILS, matchesFamilyFilters } from "../../lib/familyDayTaxonomy";
@@ -96,10 +97,11 @@ function PlanningFacts({ place }) {
   );
 }
 
-async function fetchFamilyRail({ lat, lng, radiusMi, railId, filters, signal }) {
+async function fetchFamilyRail({ lat, lng, radiusMi, railId, filters, indoorOnly, signal }) {
   const query = new URLSearchParams({
     lat: String(lat), lng: String(lng), radiusMi: String(radiusMi), rail: railId,
   });
+  if (indoorOnly) query.set("indoorOnly", "1");
   if (Object.keys(filters).length) query.set("filters", JSON.stringify(filters));
   const response = await fetch("/api/family-day?" + query.toString(), { signal });
   let body = null;
@@ -129,8 +131,9 @@ function FamilyEventCard({ event }) {
   );
 }
 
-function FamilyRail({ rail, loc, radiusMi, filters, weatherSettled, weatherPaused, retryAll }) {
+function FamilyRail({ rail, loc, radiusMi, filters, weatherSettled, weatherPaused, retryAll, onOpenPlace, cardActions, indoorOnly }) {
   const sectionRef = useRef(null);
+  const cardRailRef = useRef(null);
   const [visible, setVisible] = useState(false);
   const [state, setState] = useState({ status: "idle", places: [], truncated: false, more: false, matched: 0 });
   const [retry, setRetry] = useState(0);
@@ -153,7 +156,7 @@ function FamilyRail({ rail, loc, radiusMi, filters, weatherSettled, weatherPause
     const timer = setTimeout(() => controller.abort(new Error("family rail deadline")), 12000);
     let live = true;
     setState({ status: "loading", places: [], truncated: false, more: false, matched: 0 });
-    fetchFamilyRail({ lat: loc.lat, lng: loc.lng, radiusMi, railId: rail.id, filters, signal: controller.signal })
+    fetchFamilyRail({ lat: loc.lat, lng: loc.lng, radiusMi, railId: rail.id, filters, indoorOnly, signal: controller.signal })
       .then((payload) => {
         if (!live) return;
         const places = payload.places.filter((place) => matchesFamilyFilters(place, filters));
@@ -171,10 +174,24 @@ function FamilyRail({ rail, loc, radiusMi, filters, weatherSettled, weatherPause
       })
       .finally(() => clearTimeout(timer));
     return () => { live = false; clearTimeout(timer); controller.abort(); };
-  }, [visible, weatherPaused, loc.lat, loc.lng, radiusMi, rail.id, filterKey, retry, retryAll]);
+  }, [visible, weatherPaused, loc.lat, loc.lng, radiusMi, rail.id, filterKey, indoorOnly, retry, retryAll]);
 
-  const cards = state.places || [];
+  const pageParams = useMemo(() => ({ lat: loc.lat, lng: loc.lng, radiusMi, rail: rail.id,
+    filters: filterKey, indoorOnly: indoorOnly ? "1" : null }), [loc.lat, loc.lng, radiusMi, rail.id, filterKey, indoorOnly]);
+  const paging = usePagedRail("/api/family-day", pageParams, {
+    enabled: visible && !weatherPaused && state.status === "ready" && state.places.length > 0,
+    seedItems: state.places, seedTotal: state.matched, itemsKey: "places", timeoutMs: 12000,
+  });
+  const cards = paging.items;
   const ready = !weatherPaused && weatherSettled && state.status === "ready";
+  useEffect(() => {
+    paging.sentinelRef(ready ? cardRailRef.current?.children[paging.sentinelIndex] : null);
+    return () => paging.sentinelRef(null);
+  }, [ready, cards.length, paging.sentinelIndex, paging.sentinelRef]);
+  // Match the shared poster rule: a completed empty search is not a shelf.
+  // Keep failed or incomplete reads visible so they can be retried.
+  if (ready && state.places.length === 0 && !state.truncated
+      && (rail.id !== "culture" || (state.eventsAvailable === true && !state.events.length && !state.eventsTruncated))) return null;
   return (
     <section ref={sectionRef} className="wf-family-section" aria-labelledby={`family-${rail.id}-title`}>
       <div className="wf-family-rail-heading">
@@ -197,7 +214,7 @@ function FamilyRail({ rail, loc, radiusMi, filters, weatherSettled, weatherPause
       ) : null}
       {ready && cards.length ? (
         <>
-          <ol className="wf-family-card-rail" tabIndex="0" aria-label={`${rail.title}, horizontal list`}>
+          <ol ref={cardRailRef} className="wf-family-card-rail" tabIndex="0" aria-label={`${rail.title}, horizontal list`}>
             {cards.map((place, index) => (
               <IconicPlaceCard
                 key={place.id}
@@ -207,11 +224,21 @@ function FamilyRail({ rail, loc, radiusMi, filters, weatherSettled, weatherPause
                 editorial={place.editorial || null}
                 rankingNote={place.rankingNote || place.ranking_note || null}
                 badge={<PlanningFacts place={place} />}
+                onOpen={onOpenPlace ? () => onOpenPlace(place) : undefined}
+                saved={cardActions.isSaved ? !!cardActions.isSaved(place.id) : undefined}
+                liked={cardActions.isLiked ? !!cardActions.isLiked(place.id) : cardActions.liked ? !!cardActions.liked[place.id] : undefined}
+                disliked={cardActions.isDisliked ? !!cardActions.isDisliked(place.id) : cardActions.disliked ? !!cardActions.disliked[place.id] : undefined}
+                onSave={cardActions.onSave ? (event) => cardActions.onSave(event, place) : undefined}
+                onLike={cardActions.onLike ? (event) => cardActions.onLike(event, place) : undefined}
+                onDislike={cardActions.onDislike ? (event) => cardActions.onDislike(event, place) : undefined}
+                onShare={cardActions.onShare ? () => cardActions.onShare(place, { city: loc.city }) : undefined}
                 surface={`family_day_${rail.id}`}
                 eagerMedia={rail.id === "beach" && index < 2}
               />
             ))}
           </ol>
+          {paging.loadingMore ? <p role="status" className="wf-family-note">Loading more picks…</p> : null}
+          {paging.error ? <button type="button" className="wf-family-clear" onClick={paging.fetchMore}>Try loading more picks</button> : null}
           {state.truncated ? <p className="wf-family-note">Some places have not been checked in this area yet. Try a smaller distance.</p> : null}
         </>
       ) : null}
@@ -258,13 +285,18 @@ function FamilyFilters({ filters, onChange, radiusMi, onRadius }) {
   );
 }
 
-export default function FamilyDayPage() {
+export default function FamilyDayPage({ embedded = false, center = null, city = "", onOpenPlace = null, ...cardActions } = {}) {
   const searchParams = useSearchParams();
   const urlCity = (searchParams.get("city") || "").slice(0, 40);
   const urlLat = parseFloat(searchParams.get("lat"));
   const urlLng = parseFloat(searchParams.get("lng"));
   const requestedRadius = Number(searchParams.get("radiusMi"));
-  const [loc, setLoc] = useState(() => familyLocation({ urlCity, urlLat, urlLng }));
+  const providedLat = center?.lat == null ? NaN : Number(center.lat);
+  const providedLng = center?.lng == null ? NaN : Number(center.lng);
+  const hasProvidedPoint = Number.isFinite(providedLat) && Number.isFinite(providedLng);
+  const [loc, setLoc] = useState(() => hasProvidedPoint
+    ? { lat: providedLat, lng: providedLng, city: String(city || "").slice(0, 40) }
+    : familyLocation({ urlCity, urlLat, urlLng }));
   const [radiusMi, setRadiusMi] = useState(DISTANCES.includes(requestedRadius) ? requestedRadius : 25);
   const [filters, setFilters] = useState({});
   const [weather, setWeather] = useState(null);
@@ -274,6 +306,10 @@ export default function FamilyDayPage() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
+    if (hasProvidedPoint) {
+      setLoc({ lat: providedLat, lng: providedLng, city: String(city || "").slice(0, 40) });
+      return;
+    }
     let stored = null;
     try {
       const value = JSON.parse(localStorage.getItem("wf_center") || "null");
@@ -282,7 +318,7 @@ export default function FamilyDayPage() {
       }
     } catch (error) {}
     setLoc(familyLocation({ urlCity, urlLat, urlLng, stored }));
-  }, [urlCity, urlLat, urlLng]);
+  }, [urlCity, urlLat, urlLng, hasProvidedPoint, providedLat, providedLng, city]);
 
   useEffect(() => {
     if (DISTANCES.includes(requestedRadius)) setRadiusMi(requestedRadius);
@@ -311,10 +347,9 @@ export default function FamilyDayPage() {
 
   const outdoorGateClosed = !!(weatherSettled && moment && !moment.outdoorOK);
   const weatherPaused = outdoorGateClosed && !!filters.weather && filters.weather !== "indoor";
-  const effectiveFilters = useMemo(() => {
-    if (!outdoorGateClosed || weatherPaused) return filters;
-    return { ...filters, weather: "indoor" };
-  }, [filters, outdoorGateClosed, weatherPaused]);
+  // Current-weather suppression uses owned indoor identity; user-selected
+  // planning filters still require published evidence for that exact place.
+  const indoorOnly = outdoorGateClosed && !weatherPaused;
 
   const changeFilter = useCallback((key, value) => {
     if (!key) { setFilters({}); return; }
@@ -332,21 +367,12 @@ export default function FamilyDayPage() {
   };
 
   const hasPoint = Number.isFinite(loc.lat) && Number.isFinite(loc.lng);
-  return (
-    <RankedExperiencePage
-      topLeft={<BackControl fallback="/" variant="editorial" />}
-      eyebrow="Memories for life"
-      titleTop="Family day, solved"
-      subtitle={loc.city ? `Ten ways to plan a family day around ${loc.city}, ranked from real place evidence.` : "Ten ways to plan a family day, ranked from real place evidence."}
-      heroImg="/cards/family-day-solved-v2.webp"
-      location={loc.city || undefined}
-      imageKicker="THE WAYFIND FAMILY EDITION"
-      imageTitle="A day everyone wants to repeat."
-      dekLead="Start with what works for your family."
-      actionSlot={<button type="button" onClick={share} className="wf-family-share">{copied ? "Link copied" : "Share this list"} <span aria-hidden="true">↗</span></button>}
-      footerSlot={<ScoreDisclosure />}
-    >
+  const content = (
+    <>
       <style dangerouslySetInnerHTML={{ __html: `
+        .wf-family-embedded{padding:4px 0 18px}
+        .wf-family-embedded-title{margin:2px 0 14px;color:${COLORS.text};font:500 27px/1.1 Georgia,'Times New Roman',serif;letter-spacing:-.025em}
+        .wf-family-embedded-title span{display:block;margin-top:6px;color:${COLORS.muted};font:500 12.5px/1.45 system-ui,sans-serif;letter-spacing:0}
         .wf-intent-editorial-hero .wf-intent-editorial-media>img{object-fit:contain}
         .wf-intent-editorial-hero .wf-intent-editorial-media{background:#075cb4}
         .wf-intent-editorial-hero .wf-intent-editorial-media:after,.wf-intent-editorial-hero .wf-intent-editorial-image-copy{display:none}
@@ -362,14 +388,31 @@ export default function FamilyDayPage() {
         @keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}
         @media(prefers-reduced-motion:reduce){.wf-family-critter{animation:none}}
       ` }} />
+      {embedded ? <h2 className="wf-family-embedded-title">Ten ways to plan the day<span>{loc.city ? `Family picks around ${loc.city}` : "Family picks around you"}</span></h2> : null}
       <FamilyFilters filters={filters} onChange={changeFilter} radiusMi={radiusMi} onRadius={setRadiusMi} />
       {outdoorGateClosed ? <p className="wf-family-weather">Outdoor picks are paused because {moment.gateWhy || "current weather is not a safe fit"}. {weatherPaused ? "Your weather choice is preserved; choose Indoors or clear it to continue." : "The rails are using verified indoor evidence."}</p> : null}
       {!hasPoint ? <div className="wf-family-message"><p>This page needs a location before it can rank nearby family picks. Open the Family Day poster after choosing a location.</p></div> : (
         <>
-          {FAMILY_DAY_RAILS.map((rail) => <FamilyRail key={rail.id} rail={rail} loc={loc} radiusMi={radiusMi} filters={effectiveFilters} weatherSettled={weatherSettled && !!moment} weatherPaused={weatherPaused} retryAll={retryAll} />)}
+          {FAMILY_DAY_RAILS.map((rail) => <FamilyRail key={rail.id} rail={rail} loc={loc} radiusMi={radiusMi} filters={filters} indoorOnly={indoorOnly} weatherSettled={weatherSettled && !!moment} weatherPaused={weatherPaused} retryAll={retryAll} onOpenPlace={onOpenPlace} cardActions={cardActions} />)}
           <button type="button" className="wf-family-clear" onClick={() => setRetryAll((value) => value + 1)}>Refresh loaded rails</button>
         </>
       )}
-    </RankedExperiencePage>
+    </>
+  );
+  if (embedded) return <div className="wf-family-embedded" aria-label="Family Day, Solved picks">{content}</div>;
+  return (
+    <RankedExperiencePage
+      topLeft={<BackControl fallback="/" variant="editorial" />}
+      eyebrow="Memories for life"
+      titleTop="Family day, solved"
+      subtitle={loc.city ? `Ten ways to plan a family day around ${loc.city}, ranked from real place evidence.` : "Ten ways to plan a family day, ranked from real place evidence."}
+      heroImg="/cards/family-day-solved-v2.webp"
+      location={loc.city || undefined}
+      imageKicker="THE WAYFIND FAMILY EDITION"
+      imageTitle="A day everyone wants to repeat."
+      dekLead="Start with what works for your family."
+      actionSlot={<button type="button" onClick={share} className="wf-family-share">{copied ? "Link copied" : "Share this list"} <span aria-hidden="true">↗</span></button>}
+      footerSlot={<ScoreDisclosure />}
+    >{content}</RankedExperiencePage>
   );
 }

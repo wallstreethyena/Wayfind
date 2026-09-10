@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { mock } from "node:test";
-import { FAMILY_DAY_RAILS, familyRailMatches, matchesFamilyFilters } from "../lib/familyDayTaxonomy.js";
+import { FAMILY_DAY_RAILS, familyRailMatches, familyWeatherSafe, matchesFamilyFilters } from "../lib/familyDayTaxonomy.js";
 
 // Exercise the reviewed evidence window without depending on the wall clock.
 mock.method(Date, "now", () => Date.parse("2026-09-10T12:00:00Z"));
@@ -30,9 +30,18 @@ assert.equal(familyRailMatches(p("Saturday Market", "farmers_market"), "food"), 
 assert.equal(familyRailMatches(p("Sweet Stop", "ice_cream_shop"), "food"), true);
 assert.equal(familyRailMatches(p("Sky Zone Trampoline Park", "amusement_park"), "active"), true,
   "a strongly named active venue specializes a broad amusement primary");
+assert.equal(familyRailMatches(p("The Great Escape Room", "amusement_center", ["amusement_park"]), "active"), true,
+  "an escape room is active play rather than a major attraction");
+assert.equal(familyRailMatches(p("The Great Escape Room", "amusement_center", ["amusement_park"]), "attractions"), false);
+assert.equal(familyRailMatches(p("The Bishop Museum of Science and Nature", "museum"), "space"), true,
+  "museum-of-science wording enters big learning");
+assert.equal(familyRailMatches(p("Unconditional Surrender", "tourist_attraction", ["tourist_attraction", "park"]), "outdoors"), false,
+  "an incidental park secondary type cannot turn a statue into an outdoors destination");
 for (const adult of [
   p("Haulover Nude Beach", "beach"),
   p("Lake Baldwin Dog Park", "dog_park", ["park"]),
+  p("Pass A Grille Dog Beach", "beach"),
+  p("Fort De Soto Boat Ramp", "park", ["dog_park", "park"]),
   p("Axe Habits - Axe Throwing", "amusement_center"),
   p("Bananas' Axe Cabana", "amusement_center"),
 ]) assert.equal(FAMILY_DAY_RAILS.some((rail) => familyRailMatches(adult, rail.id)), false,
@@ -50,5 +59,11 @@ assert.equal(matchesFamilyFilters(wonderWorks, { duration: "quick" }), false);
 assert.equal(matchesFamilyFilters({ id: "unknown" }, {}), true, "no filters need no planning evidence");
 assert.equal(matchesFamilyFilters({ id: "unknown" }, { ages: "kid" }), false,
   "a venue type or name never invents an age fact");
+assert.equal(familyWeatherSafe(p("Indoor Play", "indoor_playground")), true);
+assert.equal(familyWeatherSafe(p("Art Museum", "art_museum")), true);
+assert.equal(familyWeatherSafe(p("The Bishop Museum of Science and Nature", "museum")), true,
+  "explicit museum-of-science identity is safe during automatic indoor suppression");
+assert.equal(familyWeatherSafe(p("Open Air Museum", "museum")), false, "a generic museum primary stays weather-unknown");
+assert.equal(familyWeatherSafe(p("Aquarium", "aquarium")), false, "a non-indoor primary needs reviewed indoor evidence");
 
 console.log("test-family-day-taxonomy: OK");

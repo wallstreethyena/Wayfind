@@ -123,8 +123,8 @@ const railMeta = stripComments(readFileSync(join(ROOT, "lib/rails.js"), "utf8"))
     "the standalone Events poster is retired into Night Out and hidden without deleting its inventory metadata");
   ok(!/if \(id === "events"/.test(rail) && !/selRail\.id === "events" && eventsSlot/.test(rail),
     "the obsolete Events tile branch and standalone drop are both gone");
-  ok(/selRail\.id === "datenight" \|\| selRail\.id === "birthday" \|\| selRail\.id === "breakfast" \|\| selRail\.id === "break" \|\| selRail\.id === "eat" \|\| selRail\.id === "today" \|\| selRail\.id === "augtober" \|\| selRail\.id === "tonight"/.test(rail),
-    "Date Night, Birthday, Breakfast, Lunch Break, Actually Worth Eating, Today's Best Options, Augtober, and Night Out own their answers and cannot fall through into generic venue place cards");
+  ok(/selRail\.id === "datenight" \|\| selRail\.id === "birthday" \|\| selRail\.id === "family" \|\| selRail\.id === "breakfast" \|\| selRail\.id === "break" \|\| selRail\.id === "eat" \|\| selRail\.id === "today" \|\| selRail\.id === "augtober" \|\| selRail\.id === "tonight"/.test(rail),
+    "Date Night, Birthday, Family Day, Breakfast, Lunch Break, Actually Worth Eating, Today's Best Options, Augtober, and Night Out own their answers and cannot fall through into generic venue place cards");
 }
 
 // ── 3. THE RAIL'S PROMISE MATCHES WHAT IS BEHIND IT ─────────────────────────

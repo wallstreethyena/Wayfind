@@ -441,7 +441,7 @@ ok(nightOrder.includes("datenight"), "Date Night still exists in the night order
   // near you clears this bar" underneath six full rails is the v8.82 empty-bar
   // screenshot arriving by a different road.
   const ownedAnswer = src.match(/const railOwnsItsOwnAnswer =[^;]+/)?.[0] || "";
-  ok(["season", "datenight", "birthday", "breakfast", "break", "eat", "today", "augtober", "tonight", "locals"].every((id) => ownedAnswer.includes(`selRail.id === "${id}"`)),
+  ok(["season", "datenight", "birthday", "family", "breakfast", "break", "eat", "today", "augtober", "tonight", "locals"].every((id) => ownedAnswer.includes(`selRail.id === "${id}"`)),
     "the drop knows every composed collection, including Creator Picks, answers for itself");
   const branches = src.match(/\) : selRail && [^?]*\?/g) || [];
   ok(branches.length === 4, `the pool ternary chain is readable (positive control: ${branches.length} branches after the cards)`);
