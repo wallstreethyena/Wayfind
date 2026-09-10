@@ -12,7 +12,7 @@ import {
   parseProductUrl,
   verifyViatorProduct,
 } from "./place-register-factory.mjs";
-import { placePartnerPick } from "../lib/placePartnerPicks.js";
+import { RETIRED_VIATOR_PINS, placePartnerPick } from "../lib/placePartnerPicks.js";
 
 let pass = 0;
 const fail = [];
@@ -29,30 +29,50 @@ ok(shellHooked && shellHooked.offerId === "173028P1",
   `Shell Key stays 173028P1 in inventory (got ${shellHooked && shellHooked.offerId})`);
 ok(!inv.unmatched.some((r) => r.name === "Shell Key Preserve"),
   "Shell Key Preserve is not listed as unmatched — the factory does not ask for a duplicate pin");
-for (const name of [
+// ── 2026-09-10: A RETIRED PIN GOES BACK ON THE WORKLIST ──────────────────
+// This block used to assert that nine named cards were hooked and therefore NOT
+// leftover. Five of those nine were pinned to products the 2026-09-09 audit
+// proved absent from wf_experiences, so "hooked" meant "carries a Book button
+// that 302s the customer home" — the opposite of what this assertion was for.
+//
+// The factory's own contract makes the correction obvious: hooked means "has a
+// pin", unmatched means "needs one". A retired product SHOULD move to
+// unmatched, because that is the replacement worklist. So the retired names are
+// asserted into the leftover table rather than out of it, which is a stronger
+// claim than the original: it proves the containment fed the repair queue
+// instead of quietly dropping the place.
+const RETIRED_NAMES = new Set(RETIRED_VIATOR_PINS.flatMap((r) => r.names));
+const STILL_HOOKED = [
   "Fort De Soto Park",
   "Pier 60",
   "Turtle Beach",
-  "Weeki Wachee Springs State Park",
   "Silver Springs State Park Glass Bottom Boat Tours",
+];
+const NOW_LEFTOVER = [
+  "Weeki Wachee Springs State Park",
   "The Bay Park",
   "Tampa Riverwalk",
   "Blue Spring State Park",
   "Keys Huka Dive",
-]) {
+];
+for (const name of STILL_HOOKED) {
+  ok(!RETIRED_NAMES.has(name),
+    `${name} is not on the retired ledger — this list and RETIRED_VIATOR_PINS must not both claim it`);
   ok(inv.hooked.some((r) => r.name === name),
     `${name} is hooked — an existing card, not an invented one`);
   ok(!inv.unmatched.some((r) => r.name === name),
     `${name} is not leftover after the owner-verified pin`);
 }
-ok(inv.hooked.find((r) => r.name === "The Bay Park")?.offerId === "386845P1",
-  "The Bay Park stays on the Sarasota kayak product that names the park");
-ok(inv.hooked.find((r) => r.name === "Tampa Riverwalk")?.offerId === "236733P1",
-  "Tampa Riverwalk stays on the mini-boat product that names the Riverwalk");
-ok(inv.hooked.find((r) => r.name === "Blue Spring State Park")?.offerId === "431125P5",
-  "Blue Spring stays on the in-park St. Johns River cruise, not a ramp kayak");
-ok(inv.hooked.find((r) => r.name === "Keys Huka Dive")?.offerId === "5608638P1",
-  "Keys Huka Dive stays on the Venice Huka product, not a Keys-reef hop");
+for (const name of NOW_LEFTOVER) {
+  ok(RETIRED_NAMES.has(name),
+    `${name} is on the retired ledger — this list is derived from a real retirement, not hand-maintained drift`);
+  ok(!inv.hooked.some((r) => r.name === name),
+    `${name} is NOT hooked — its product left the catalogue, so it must not read as monetized`);
+  ok(inv.unmatched.some((r) => r.name === name),
+    `${name} is back in leftover — a retired pin becomes replacement work, not a silently dropped card`);
+}
+ok(STILL_HOOKED.length >= 4,
+  `the hooked branch still covers real cards (got ${STILL_HOOKED.length}) — at zero this block would prove nothing`);
 ok(!inv.hooked.some((r) => r.name === "Clearwater Beach"),
   "Clearwater Beach is not hooked — no exact Atlas/summer/curated card, do not invent one");
 ok(!inv.hooked.some((r) => r.name === "TreeUmph! Adventure Course"),
@@ -99,14 +119,18 @@ ok(notProduct.ok === false && notProduct.reason === "url-is-not-a-product-path",
 const leftover = leftoverMarkdown(inv);
 ok(leftover.includes("Shell Key Preserve") === false,
   "leftover markdown does not list Shell Key — a leftover that still asked for this pin would duplicate #858");
-ok(!/\| The Bay Park \|/.test(leftover),
-  "leftover unmatched table does not still list The Bay Park");
-ok(!/\| Tampa Riverwalk \|/.test(leftover),
-  "leftover unmatched table does not still list Tampa Riverwalk");
-ok(!/\| Blue Spring State Park \|/.test(leftover),
-  "leftover unmatched table does not still list Blue Spring — the cruise pin cleared it");
-ok(!/\| Keys Huka Dive \|/.test(leftover),
-  "leftover unmatched table does not still list Keys Huka Dive — the Venice Huka pin cleared it");
+// These four asked the leftover table to be EMPTY of names whose pins have
+// since been retired. Inverted for the same reason as the block above: the
+// leftover markdown is the human worklist the factory prints, and a place whose
+// product died is precisely what belongs on it. Re-pointed rather than deleted,
+// so the file still asserts that the worklist and the pin table agree — only
+// now it agrees with the truth.
+for (const name of NOW_LEFTOVER) {
+  ok(new RegExp(`\\| ${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} \\|`).test(leftover),
+    `leftover markdown asks for a replacement product for ${name} — a retired pin must surface as work, not vanish`);
+}
+ok(NOW_LEFTOVER.every((n) => !/Shell Key/.test(n)),
+  "positive control: the leftover expectations above are about retired cards only, never the live founder pin");
 ok(/\| Kelly Park - Rock Springs \|/.test(leftover),
   "positive control: leftover still records Kelly Park as unmatched (Kings Landing kayak refused)");
 ok(/\| TreeUmph! Adventure Course \|/.test(leftover),
