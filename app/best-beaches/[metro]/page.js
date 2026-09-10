@@ -13,6 +13,7 @@ import EditorialLandingHero, { editorialHeroCss } from "../../components/Editori
 import { SITE_URL } from "../../../lib/site";
 import BeachPageClient, { BackControl } from "./parts";
 import TourStrip from "../../components/TourStrip";
+import { fetchBeachJson } from "../../../lib/beachPageRead";
 
 export const revalidate = 3600;
 
@@ -29,12 +30,10 @@ async function editorialsFor(ids) {
   const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
   if (!url || !anon || !ids.length) return {};
   try {
-    const r = await fetch(url + "/rest/v1/wf_editorial_servable?verified=is.true&place_id=in.(" + ids.map(encodeURIComponent).join(",") + ")", {
+    const rows = await fetchBeachJson(url + "/rest/v1/wf_editorial_servable?verified=is.true&place_id=in.(" + ids.map(encodeURIComponent).join(",") + ")", {
       headers: { apikey: anon, Authorization: "Bearer " + anon },
       next: { revalidate: 3600 },
     });
-    if (!r.ok) return {};
-    const rows = await r.json();
     const out = {};
     for (const row of Array.isArray(rows) ? rows : []) { const m = mapWfEditorial(row); if (m) out[row.place_id] = m; }
     return out;
@@ -45,16 +44,17 @@ async function beachesFor(metro) {
   const c = CENTROID[metro];
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
   const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
-  if (!c || !url || !anon) return [];
+  if (!c || !url || !anon) {
+    console.warn("[beach-page] rankings unavailable: missing metro or Supabase configuration");
+    return null;
+  }
   try {
-    const r = await fetch(url + "/rest/v1/rpc/wf_nearest_beaches", {
+    const rows = await fetchBeachJson(url + "/rest/v1/rpc/wf_nearest_beaches", {
       method: "POST",
       headers: { "Content-Type": "application/json", apikey: anon, Authorization: "Bearer " + anon },
       body: JSON.stringify({ p_lat: c.lat, p_lng: c.lng, p_radius_mi: 60, p_max: 40 }),
       next: { revalidate: 3600 },
     });
-    if (!r.ok) return [];
-    const rows = await r.json();
     return rankBeaches((Array.isArray(rows) ? rows : [])
       .filter((b) => b.metro === metro)
       .map((b) => ({
@@ -63,7 +63,10 @@ async function beachesFor(metro) {
         rating: b.signals && Number(b.signals.rating) > 0 ? Number(b.signals.rating) : null,
         reviews: b.signals && Number(b.signals.reviews) > 0 ? Number(b.signals.reviews) : 0,
       }))).slice(0, 12);
-  } catch (e) { return []; }
+  } catch (e) {
+    console.warn("[beach-page] rankings unavailable:", e.message);
+    return null;
+  }
 }
 
 export function generateStaticParams() {
@@ -83,7 +86,7 @@ export async function generateMetadata({ params }) {
   // notFound() in BOTH generateMetadata and the component: metadata runs first
   // and independently, so returning here alone would still render the page body.
   if (!meta) notFound();
-  const beaches = await beachesFor(params.metro);
+  const beaches = (await beachesFor(params.metro)) || [];
   const top3 = beaches.slice(0, 3).map((b) => b.name).join("|");
   const totalReviews = beaches.reduce((a, b) => a + (b.reviews || 0), 0);
   const og = SITE_URL + "/api/og/beaches?metro=" + encodeURIComponent(params.metro) + "&t=" + encodeURIComponent(top3) + "&n=" + beaches.length + "&rv=" + totalReviews;
@@ -132,7 +135,8 @@ export default async function BeachesPage({ params }) {
   // A styled "No such beach group." body was still an HTTP 200. notFound()
   // makes it a real 404 — see the note in generateMetadata above.
   if (!meta) notFound();
-  const beaches = await beachesFor(params.metro);
+  const beachResult = await beachesFor(params.metro);
+  const beaches = beachResult || [];
   const editorials = await editorialsFor(beaches.map((b) => b.id));
   const heroImg = "/cards/beach-adobestock-216195684.jpeg";
   const quickPicks = beaches.length
@@ -184,6 +188,7 @@ export default async function BeachesPage({ params }) {
 
       <div style={{ maxWidth: 680, margin: "0 auto", padding: "18px 20px 60px" }}>
         {params.metro === "manatee-sarasota" ? <a href="/beach-conditions" style={{ display: "block", padding: 18, border: "1px solid #2dd4bf", borderRadius: 14, color: "#2dd4bf", textDecoration: "none" }}><strong>Beach conditions ↗</strong><br /><span style={{ fontSize: 13 }}>Weather, swimming reports and red tide for five local beaches. See sources and sample dates.</span></a> : null}
+        {beachResult === null ? <p role="status" style={{ color: C.muted, lineHeight: 1.5 }}>Beach rankings are temporarily unavailable. Please check back later.</p> : null}
         <ol style={{ listStyle: "none", margin: "18px 0 0", padding: 0 }}>
           {beaches.map((b, i) => (
             <li key={b.id} style={{ margin: "14px 0 0" }}>
