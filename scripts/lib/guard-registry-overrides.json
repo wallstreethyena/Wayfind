@@ -599,5 +599,21 @@
       "detail": "Renders IconicPlaceCard only. The other pin surfaces (IntentRail, BestNearby, the Detail sheet, BookingCTA, PlacePageBookLink) are covered by the call-site sweep in section 6 \u2014 which proves they PASS the live verdict, not that their markup changes when it fires. A surface that passes the catalogue and then ignores the null it gets back would pass this guard."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/test-travelpayouts-attribution.mjs": {
+    "protects": "Travelpayouts click tokens are stored before redirect, account and campaign identities match, and provider bookings reconcile idempotently with monotonic status and nullable money.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A regression can misattribute bookings, issue unrecorded tokens, duplicate sales or overwrite newer provider truth."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-travelpayouts-provisioning.mjs": {
+    "protects": "Travelpayouts short links are provisioned in bounded batches using exact provider response account and destination identity.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "Wrong-account or poisoned short links can send buyers to an incorrect program or make conversion attribution unverifiable."
+    },
+    "owner": "Revenue QA"
   }
 }
