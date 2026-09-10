@@ -62,7 +62,7 @@ export async function GET(request) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
     return Response.json({ error: "lat and lng are required" }, { status: 400, headers: { "cache-control": "no-store" } });
   }
-  const key = `night-out:v4:${geoCell(lat)}:${geoCell(lng)}`;
+  const key = `night-out:v5:${geoCell(lat)}:${geoCell(lng)}`;
   try {
     const cached = await fastCachedRail(key, async () => {
       const origin = { lat, lng };

@@ -15,6 +15,7 @@ import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../lib/fallPhotoSpots.js
 import { FALL_COLLECTION_POSTER, fallEventCardImageSrc } from "../lib/fallEventImage.js";
 import { FALL_EVENT_VENUE_PLACE_IDS } from "../lib/fallEventImage.js";
 import { DISPLAYABLE_STATUS } from "../lib/curatedEvents.js";
+import { railRenderState, RAIL_RENDER_STATE } from "../lib/railVisibility.js";
 
 let pass = 0;
 const failures = [];
@@ -372,7 +373,11 @@ ok(/domRef=\{\w+ === sentinelIndex \? sentinelRef : undefined\}/.test(component)
 ok(!/Load every verified fall option/.test(component) && !/setFull/.test(component) && !/railScrollNeedsMore/.test(component),
   "the old whole-blob scroll-triggered full=1 loader is fully removed from Fall, not merely unreachable");
 ok(/service miss, not an empty city/.test(component), "a failed service is not misreported as an empty location");
-ok(/seasonal look-alike/.test(component), "thin rails render the approved honest empty state");
+ok(/railRenderState/.test(component)
+  && railRenderState([]) === RAIL_RENDER_STATE.HIDDEN
+  && railRenderState([], { loading: true }) === RAIL_RENDER_STATE.LOADING
+  && railRenderState([], { error: true }) === RAIL_RENDER_STATE.ERROR,
+"thin rails hide only after a healthy zero; loading and service failure stay visibly distinct");
 ok(/actionItem=\{isEvent \? \{[\s\S]{0,220}type: "event"/.test(component), "dated events receive live isolated content actions instead of dead place reactions");
 ok(/sponsored: true/.test(component) && /commerce_cta_clicked/.test(component), "affiliate tickets are disclosed and measured");
 ok(/cta\.sponsored \? "sponsored nofollow noopener"/.test(card), "the shared card emits sponsored rel on paid outbound links");

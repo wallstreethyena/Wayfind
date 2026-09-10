@@ -107,7 +107,9 @@ export async function GET(req) {
     // Pools stay per-metro cached; distances, distance gates and the
     // creators pool re-origin on the visitor. The client snaps coordinates
     // to a coarse grid before asking, so the CDN cache keys stay countable.
-    const key = `menu:${slug}:${geoCell(la)}:${geoCell(ln)}:${band || "all"}`;
+    // Creator provenance is part of the answer schema; an older cached answer
+    // cannot recover it client-side. Version the answer, not the refresh clock.
+    const key = `menu:v2:${slug}:${geoCell(la)}:${geoCell(ln)}:${band || "all"}`;
     const cached = await fastCachedRail(
       key,
       () => railMenuData(slug, { origin, requireOrigin: true, band }),

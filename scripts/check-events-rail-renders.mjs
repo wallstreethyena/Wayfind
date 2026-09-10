@@ -117,7 +117,7 @@ const railMeta = stripComments(readFileSync(join(ROOT, "lib/rails.js"), "utf8"))
   // expression container that actually paints it.
   ok(/^\s*eventsSlot\s*=\s*null,\s*$/m.test(rail),
     "DaypartRail DESTRUCTURES eventsSlot in its props (defaulting to null, so /v8 and an empty feed keep the old behaviour)");
-  ok(/eventsSlot\("night-out"\)/.test(nightOut),
+  ok(/eventsSlot\("night-out", selectPosterEvents\)/.test(nightOut),
     "…and NightOutRails CALLS it in night-out mode — accepting a prop is not showing its dated inventory");
   ok(/retiredInto: "tonight"/.test(railMeta) && /!r\.retiredInto/.test(rail),
     "the standalone Events poster is retired into Night Out and hidden without deleting its inventory metadata");

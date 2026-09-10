@@ -14,6 +14,7 @@ import { siteTodayStr } from "../../lib/siteTime.js";
 import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
 import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
 import { usePagedRail } from "./usePagedRail.js";
+import { railRenderState, RAIL_RENDER_STATE } from "../../lib/railVisibility.js";
 
 const COLORS = { text: "#FFF7ED", muted: "#A99FA8" };
 export const FALL_LOAD_TIMEOUT_MS = 10000;
@@ -62,15 +63,27 @@ function eventCta(card, onTrack) {
 function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
   const seedItems = useMemo(() => (rail.cards || []).slice(0, RAIL_PAGE_SIZE), [rail]);
   const params = useMemo(() => (lat != null && lng != null ? { lat, lng, rail: rail.id } : null), [lat, lng, rail.id]);
-  const { items, total, sentinelIndex, sentinelRef, loadingMore } = usePagedRail(
+  const { items, total, sentinelIndex, sentinelRef, loading, loadingMore, error, fetchMore } = usePagedRail(
     "/api/events/fall", params, { enabled: !!params, seedItems, seedTotal: (rail.cards || []).length, itemsKey: "cards" },
   );
   const cardCount = Number.isFinite(total) ? total : items.length;
   const railId = "fall-intent-" + rail.id;
+  const renderState = railRenderState(items, { loading, error });
+  if (renderState === RAIL_RENDER_STATE.HIDDEN) return null;
+  if (renderState === RAIL_RENDER_STATE.LOADING) return <section aria-label={rail.title} style={{ marginTop: 22 }}>
+    <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 850, color: COLORS.text }}>{rail.title}</h2>
+    <p className="wf-rail-deck" style={{ color: "#C9BFC6" }}>{rail.deck}</p>
+    <div role="status" aria-busy="true" aria-label={`Loading ${rail.title}`} className="wf-sk" style={{ height: 88, borderRadius: 14, background: "#140C12" }} />
+  </section>;
+  if (renderState === RAIL_RENDER_STATE.ERROR) return <section aria-label={rail.title} style={{ marginTop: 22 }}>
+    <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 850, color: COLORS.text }}>{rail.title}</h2>
+    <p style={{ margin: "8px 0", fontSize: 13, color: COLORS.muted }}>We could not reach this rail&apos;s verified inventory.</p>
+    <button type="button" disabled={loadingMore} onClick={fetchMore} style={{ border: "1px solid #7C2D12", borderRadius: 999, background: "#1C1014", color: COLORS.text, padding: "7px 12px", fontWeight: 800 }}>{loadingMore ? "Trying again…" : "Try again"}</button>
+  </section>;
   return <section aria-label={rail.title} style={{ marginTop: 22 }}>
     <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 850, color: COLORS.text }}>{rail.title}</h2>
     <p className="wf-rail-deck" style={{ color: "#C9BFC6" }}>{rail.deck}</p>
-    {!items.length ? <p style={{ margin: "8px 0 0", fontSize: 13, color: COLORS.muted }}>No nearby option has enough current evidence for this rail yet. Wayfind will not fill it with a seasonal look-alike.</p> : <>
+    <>
       <RailNav railId={railId} count={cardCount} total={cardCount} unit={cardCount === 1 ? "ranked option" : "ranked options"} />
       <div className={`wf-rail wf-rail-exploding${fallSkin ? " wf-fall" : ""}`} data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>
         {items.map((card, index) => {
@@ -113,7 +126,7 @@ function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin,
           style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 88, color: COLORS.muted, fontSize: 12.5 }}>Loading more…</div> : null}
       </div>
       {items.length > 1 ? <RailDots railId={railId} count={items.length} /> : null}
-    </>}
+    </>
   </section>;
 }
 

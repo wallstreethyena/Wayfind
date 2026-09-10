@@ -201,7 +201,7 @@ import { sponsorRailNear, partnerCollectionById, hydratePartnerCollection } from
 import { toDisplayScore, pickEligibleByScore, cardComplete, displayableAt } from "../lib/score";
 import { stampOwnerPick } from "../lib/ownerBump.js";
 import { frontPageEvents, bestFirst } from "../lib/frontEvents";
-import { NIGHT_OUT_MAX_MI, NIGHT_OUT_RAIL_DEFS, nightOutDistanceMi, nightOutEventRail } from "../lib/nightOutIntent.js";
+import { settleLoad } from "../lib/loadState.js";
 import { HOME_AFFILIATE_ACTIVITY_FETCH_LIMIT, HOME_AFFILIATE_ACTIVITY_RADIUS_MI, homeAffiliateActivities } from "../lib/homeAffiliateActivities";
 // July 2026 decomposition (wave 1): the homepage's ~520 lines of server-
 // rendered CSS live in their own shell file. They are still concatenated into
@@ -4154,6 +4154,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // instead of the URL being unknown until a client fetch resolves ~11s in.
   // null => no server events (fail-soft) => skeleton, exactly as before.
   const [foryouEvents, setForyouEvents] = useState(initialEvents);
+  const [foryouEventsFailed, setForyouEventsFailed] = useState(false);
   const [libraryEvents, setLibraryEvents] = useState([]); // curated civic/library events for the local-community hero card
   const [shareCopied, setShareCopied] = useState(false);
   const [beachCond, setBeachCond] = useState(null);
@@ -7942,6 +7943,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // hides the strip and never blocks the picks.
   useEffect(() => {
     if (screen !== "suggested" || !center) return;
+    setForyouEventsFailed(false);
+    setForyouEvents(null);
     // #219 primer consume: an inline script in app/layout.js starts this exact
     // fetch BEFORE hydration, using the SAME wf_center -> DEFAULT_CENTER
     // resolution this client uses — so on the common path the response is
@@ -7956,20 +7959,21 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     let cancelled = false;
     (async () => {
       try {
-        const data = _primeOk
+        const settled = await settleLoad(async () => _primeOk
           ? await _prime.p
-          : await fetch("/api/events?lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=25&city=" + encodeURIComponent(locName || "")).then((r) => (r.ok ? r.json() : null)); // GET = CDN-cacheable (2dp — the server cache key's own granularity)
-        if (!data) { if (!cancelled) setForyouEvents([]); return; }
+          : await fetch("/api/events?lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=25&city=" + encodeURIComponent(locName || "")).then((r) => (r.ok ? r.json() : null))); // GET = CDN-cacheable (2dp — the server cache key's own granularity)
+        const data = settled.ok ? settled.data : null;
+        if (!Array.isArray(data?.events)) { if (!cancelled) { setForyouEvents([]); setForyouEventsFailed(true); } return; }
         const evs = ((data && data.events) || []).filter((e) => e && e.dest);
         if (!cancelled) {
           // v6.42 (owner, PERMANENT): the front page NEVER shows civic/community
           // programs — ticketed categories only (lib/frontEvents; locked by
           // scripts/test-front-events.mjs). They still live on the Events tab
-          // under "Local events". Depth 24 so the priority rail has inventory.
-          setForyouEvents(frontPageEvents(evs, eventBucket).usable.slice(0, 24));
+          // under "Local events". Keep the full pool for intent-specific rails.
+          setForyouEvents(frontPageEvents(evs, eventBucket).usable);
           setLibraryEvents(evs.filter((e) => e.civic).slice(0, 6));
         }
-      } catch { if (!cancelled) { setForyouEvents([]); setLibraryEvents([]); } }
+      } catch { if (!cancelled) { setForyouEvents([]); setForyouEventsFailed(true); setLibraryEvents([]); } }
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -9146,9 +9150,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // CONTENT prop under scripts/test-first-screen.mjs's rule rather than a
   // callable read only inside the drop, alongside memberSignalsFor and
   // applyMemberSignal. Nothing here is allocated until the events tile opens.
-  const eventsRailSlot = (mode = "events") => {
+  // Specialty selectors travel with the lazy poster that needs them. Keeping
+  // this dependency out of home's eager imports protects first-load JS.
+  const eventsRailSlot = (mode = "events", selectPosterEvents = null) => {
     if (foryouEvents === null) {
-      if (mode === "night-out") return { pending: true, byRail: {} };
+      if (["night-out", "date-night", "summer-sports", "today-entertainment"].includes(mode)) return { pending: true, byRail: {} };
       return (
         <div className="wf-rail wf-rail-events" aria-hidden="true" role="status" aria-busy="true" style={{ minHeight: EV_RAIL_MIN_H, overflow: "hidden" }}>
           {[0, 1].map((i) => (
@@ -9180,18 +9186,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         onCopied={() => showToast("Event link copied")}
       />
     );
-    if (mode === "night-out") {
-      const rows = Object.fromEntries(NIGHT_OUT_RAIL_DEFS.map((rail) => [rail.id, []]));
-      for (const event of shown) {
-        const railId = nightOutEventRail(event);
-        const distMi = nightOutDistanceMi(event, center || {});
-        if (railId && distMi != null && distMi <= NIGHT_OUT_MAX_MI) rows[railId].push(event);
-      }
+    if (["night-out", "date-night", "summer-sports", "today-entertainment"].includes(mode)) {
+      const rows = selectPosterEvents(fp.usable.filter((event) => eventSignals.disliked[event.id] !== true), { mode, center, bucketOf: eventBucket });
       return {
         pending: false,
-        byRail: Object.fromEntries(NIGHT_OUT_RAIL_DEFS.map((rail) => [
-          rail.id,
-          rows[rail.id].map((event, index) => renderEventCard(event, index + 1)),
+        failed: foryouEventsFailed,
+        byRail: Object.fromEntries(Object.entries(rows).map(([id, events]) => [
+          id, events.map((event, index) => renderEventCard(event, index + 1)),
         ])),
       };
     }

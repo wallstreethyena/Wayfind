@@ -1,23 +1,30 @@
 "use client";
 
+import { selectPosterEvents } from "../../lib/posterEvents.js";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import SummerPicksRails from "./SummerPicksRails";
 import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
 import { homeAffiliateActivities } from "../../lib/homeAffiliateActivities.js";
 import { composeSummerPickRails } from "../../lib/summerPicks.js";
 import { cardImageSrc } from "../../lib/placePhoto.js";
+import { withSummerSportsRail } from "../../lib/summerSports.js";
+import { usePosterEvents } from "./usePosterEvents.js";
 
 export const SUMMER_LOAD_TIMEOUT_MS = 10000;
 
 const photoSrc = (place) => place?.photo || place?.photoUrl || place?.photo_url || cardImageSrc(place, 640);
 
-export default function SummerIntentRails({ active = true, center = null, city = "", onTrack = null, onOpenPlace = null }) {
+export default function SummerIntentRails({ active = true, center = null, city = "", onTrack = null, onOpenPlace = null, eventsSlot = null }) {
   const [rails, setRails] = useState(null);
   const [failed, setFailed] = useState(false);
   const [retry, setRetry] = useState(0);
   const asked = useRef("");
   const lat = center && Number.isFinite(center.lat) ? center.lat : null;
   const lng = center && Number.isFinite(center.lng) ? center.lng : null;
+  const standaloneEvents = usePosterEvents({ active, center, city, mode: "summer-sports", disabled: !!eventsSlot });
+  const slotEvents = active && eventsSlot ? eventsSlot("summer-sports", selectPosterEvents) : null;
+  const eventSurface = slotEvents || standaloneEvents;
   const key = useMemo(() => active && lat != null && lng != null ? `${lat.toFixed(2)}|${lng.toFixed(2)}` : "", [active, lat, lng]);
 
   useEffect(() => {
@@ -64,9 +71,17 @@ export default function SummerIntentRails({ active = true, center = null, city =
   }, [key, retry]);
 
   if (!active) return null;
-  if (!key) return <p style={{ color: "#A8B0BE", fontSize: 13 }}>Share your location to rank the ten summer rails near you.</p>;
-  if (!rails && !failed) return <div role="status" aria-busy="true" aria-label="Ranking summer picks">{[0, 1, 2].map((index) => <div key={index} className="wf-sk" style={{ height: 88, borderRadius: 14, marginBottom: 12 }} />)}</div>;
-  if (failed) return <div><p style={{ color: "#A8B0BE", fontSize: 13 }}>We could not reach Wayfind&apos;s photo-verified summer inventory. That is a service miss, not an empty town.</p><button type="button" onClick={() => setRetry((value) => value + 1)} style={{ border: "1px solid #F97316", borderRadius: 999, background: "#111827", color: "#F8FAFC", padding: "7px 12px", fontWeight: 800 }}>Try again</button></div>;
-  if (!rails.length) return <p style={{ color: "#A8B0BE", fontSize: 13 }}>No nearby summer options have enough verified evidence yet.</p>;
-  return <SummerPicksRails rails={rails} city={city || "Florida"} onOpenPlace={onOpenPlace} />;
+  if (!key) return <p style={{ color: "#A8B0BE", fontSize: 13 }}>Share your location to rank summer plans near you.</p>;
+  const sports = (Array.isArray(eventSurface?.byRail?.sports) ? eventSurface.byRail.sports : []).map((card) =>
+    card?.$$typeof ? { kind: "event-node", node: card } : { ...card, kind: "event" });
+  const eventRailAvailable = sports.length > 0 || !!eventSurface?.pending || !!eventSurface?.failed;
+  if (!rails && !failed && !sports.length) return <div role="status" aria-busy="true" aria-label="Ranking summer picks">{[0, 1, 2].map((index) => <div key={index} className="wf-sk" style={{ height: 88, borderRadius: 14, marginBottom: 12 }} />)}</div>;
+  if (failed && !eventRailAvailable) return <div><p style={{ color: "#A8B0BE", fontSize: 13 }}>We could not reach Wayfind&apos;s photo-verified summer inventory. That is a service miss, not an empty town.</p><button type="button" onClick={() => setRetry((value) => value + 1)} style={{ border: "1px solid #F97316", borderRadius: 999, background: "#111827", color: "#F8FAFC", padding: "7px 12px", fontWeight: 800 }}>Try again</button></div>;
+  const visibleRails = withSummerSportsRail(rails || [], sports, { pending: !!eventSurface?.pending, failed: !!eventSurface?.failed });
+  if (rails && !rails.length && !sports.length && !eventSurface?.pending && !eventSurface?.failed) return <p style={{ color: "#A8B0BE", fontSize: 13 }}>No nearby summer options have enough verified evidence yet.</p>;
+  return <>
+    {!rails && !failed ? <p role="status" aria-busy="true" style={{ color: "#A8B0BE", fontSize: 13 }}>Sports are ready. Still ranking the rest of your summer plans…</p> : null}
+    {failed ? <div><p role="alert" style={{ color: "#A8B0BE", fontSize: 13 }}>{sports.length ? "Sports listings are available, but we could not reach the place and activity collection." : "We could not reach the place and activity collection while the sports rail resolves."}</p><button type="button" onClick={() => setRetry((value) => value + 1)} style={{ border: "1px solid #F97316", borderRadius: 999, background: "#111827", color: "#F8FAFC", padding: "7px 12px", fontWeight: 800 }}>Try again</button></div> : null}
+    <SummerPicksRails rails={visibleRails} city={city || "Florida"} onOpenPlace={onOpenPlace} />
+  </>;
 }

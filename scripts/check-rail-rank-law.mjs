@@ -87,6 +87,7 @@ const COVERED = new Set([
   "lib/lunchBreakRails.js:composeLunchBreakRails",
   "lib/worthEatingRails.js:composeWorthEatingRails",
   "lib/breakfastRails.js:splitBreakfastRails",
+  "lib/creatorPicksRails.js:composeCreatorPicksRails",
 ]);
 
 const uncovered = discovered.filter((d) => !COVERED.has(`${d.relPath}:${d.name}`));
@@ -219,7 +220,20 @@ function assertMonotonic(label, result) {
   assertMonotonic("breakfastRails", composed);
 }
 
-console.log(`check-rail-rank-law: ${failures.length ? "fixtures FAILING, see below" : "all 8 covered composers pass silently — positive control: this guard does not fire on correct code"}`);
+{
+  const { composeCreatorPicksRails } = modules.get("lib/creatorPicksRails.js");
+  const places = OWNER_FIXTURE.map((f) => ({
+    ...f,
+    creatorSources: [{ handle: "verified.creator", platform: "tiktok" }],
+  }));
+  const composed = composeCreatorPicksRails(places);
+  const rail = railsArrayOf(composed).find((r) => r.handle === "verified.creator");
+  ok(!!rail, "creatorPicksRails: explicit verified handles produce their own rail");
+  if (rail) assertLeads("creatorPicksRails (verified.creator)", cardsOf(rail).map((p) => p.id));
+  assertMonotonic("creatorPicksRails", composed);
+}
+
+console.log(`check-rail-rank-law: ${failures.length ? "fixtures FAILING, see below" : "all covered composers pass silently — positive control: this guard does not fire on correct code"}`);
 
 /* --------------------------------------------------------- ban the shape */
 // A distance/ring/boost term may never be evaluated ahead of the score term

@@ -81,6 +81,7 @@ const TodayDiscoveryRails = dynamic(() => import("./TodayDiscoveryRails"), { ssr
 const FallIntentRails = dynamic(() => import("./FallIntentRails"), { ssr: false });
 const SummerIntentRails = dynamic(() => import("./SummerIntentRails"), { ssr: false });
 const NightOutRails = dynamic(() => import("./NightOutRails"), { ssr: false });
+const CreatorPicksRails = dynamic(() => import("./CreatorPicksRails"), { ssr: false });
 import { DAYPARTS, partForHour, orderFor, railHref, dateNightIntentHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES, railArtSize } from "../../lib/rails.js";
@@ -1102,7 +1103,7 @@ export default function DaypartRail({
   // Neither may fall through to the generic place pool: doing so made the
   // Events drop begin with real happenings and end with buildings where an
   // event might happen on some other date.
-  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "season" || selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "breakfast" || selRail.id === "break" || selRail.id === "eat" || selRail.id === "today" || selRail.id === "augtober" || selRail.id === "tonight"));
+  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "season" || selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "breakfast" || selRail.id === "break" || selRail.id === "eat" || selRail.id === "today" || selRail.id === "augtober" || selRail.id === "tonight" || selRail.id === "locals"));
   // A COMPOSER FED BY /api/rails HAS NO ANSWER UNTIL /api/rails DOES (v9.0).
   // Breakfast and Actually Worth Eating do not fetch anything of their own:
   // they split `shown.places` into identity rails. So while the rails request
@@ -1643,6 +1644,7 @@ export default function DaypartRail({
               active
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
               city={shown.cityLabel || ""}
+              eventsSlot={eventsSlot}
               onTrack={(name, props) => logEvent(name, props)}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
@@ -1743,7 +1745,30 @@ export default function DaypartRail({
               active
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
               city={shown.cityLabel || ""}
+              eventsSlot={eventsSlot}
               onTrack={(name, props) => logEvent(name, props)}
+              onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
+              isSaved={isSaved || undefined}
+              liked={liked || undefined}
+              disliked={disliked || undefined}
+              isLiked={isLiked || undefined}
+              isDisliked={isDisliked || undefined}
+              onSave={onSave || undefined}
+              onLike={onLike || undefined}
+              onDislike={onDislike || undefined}
+              onShare={onShare || undefined}
+            />
+          ) : null}
+
+          {selRail && selRail.id === "locals" ? (
+            <CreatorPicksRails
+              places={dropList}
+              city={shown.cityLabel || ""}
+              pageScope={selectedPageScope}
+              hasMore={selectedHasMore}
+              loadingMore={railPageState[selectedPageScope] === "loading"}
+              loadFailed={railPageState[selectedPageScope] === "failed"}
+              onLoadMore={loadSelectedRailPage}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
               liked={liked || undefined}
@@ -1781,6 +1806,7 @@ export default function DaypartRail({
               active
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
               city={shown.cityLabel || ""}
+              eventsSlot={eventsSlot}
               onTrack={(name, props) => logEvent(name, props)}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
             />
@@ -1807,18 +1833,6 @@ export default function DaypartRail({
               onLike={onLike || undefined}
               onDislike={onDislike || undefined}
             />
-          ) : null}
-          {/* v8.93 (owner: "…and the events, which I don't see"). Date Night
-              gets the dated rows too, from the SAME thunk the events tile
-              renders — one definition of "what is on tonight", so the two
-              surfaces cannot drift into disagreeing about it. Called, not
-              tested for truthiness: eventsSlot is always a function and
-              returns null when nothing is on, which is the only honest way to
-              ask (the v8.87 note on the tile above). It sits BELOW the
-              journey rails because a table is the decision and a show is the
-              thing you build around it. */}
-          {selRail && selRail.id === "datenight" && eventsSlot ? (
-            <div style={{ marginTop: 22 }}>{eventsSlot()}</div>
           ) : null}
           {selRail && selRail.guides ? (
             <ul className="wf8-grail" aria-label="Local guides">

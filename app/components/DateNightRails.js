@@ -1,5 +1,7 @@
 "use client";
 
+import { selectPosterEvents } from "../../lib/posterEvents.js";
+
 // app/components/DateNightRails.js — THE DATE NIGHT INTENT RAILS, ONE DEFINITION.
 //
 // v8.92 (owner, 2026-08-30, on the live homepage): "the date night card should
@@ -55,6 +57,9 @@ import { priceLabel } from "../../lib/price.js";
 import { cardImageSrc } from "../../lib/placePhoto.js";
 import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
 import { usePagedRail } from "./usePagedRail.js";
+import PosterEventCard from "./PosterEventCard.js";
+import { usePosterEvents } from "./usePosterEvents.js";
+import { DATE_NIGHT_RAIL_DEFS } from "../../lib/dateNightIntent.js";
 
 const C = { text: "#F1F5F9", muted: "#8b93a1" };
 
@@ -69,15 +74,26 @@ const prettyType = (t) => {
 // 0); scrolling past the 8th card fetches page 1 of THIS rail over the same
 // contract lib/railPage.js defines for every other poster/rail endpoint. This
 // replaces the old "Load every ranked option" button.
-function DateNightRailSection({ rail, lat, lng, city, hour, isFirstNightOut, onOpenPlace, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
+function DateNightRailSection({ rail, lat, lng, city, hour, eventCards = [], eventsPending = false, eventsFailed = false, isFirstNightOut, onOpenPlace, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
   const seedItems = useMemo(() => (rail.places || []).slice(0, RAIL_PAGE_SIZE), [rail]);
   const seedTotal = Number.isFinite(rail.total) ? rail.total : (rail.places || []).length;
   const params = useMemo(() => ({ lat, lng, city, hour: hour == null ? "" : hour, rail: rail.id }), [lat, lng, city, hour, rail.id]);
   const { items, total, sentinelIndex, sentinelRef, loadingMore } = usePagedRail(
     "/api/date-night", params, { seedItems, seedTotal, itemsKey: "places" },
   );
-  const count = Number.isFinite(total) ? total : items.length;
+  const placeCount = Number.isFinite(total) ? total : items.length;
+  const count = eventCards.length + placeCount;
   const railId = "datenight-" + rail.id;
+  if (!count && (eventsPending || eventsFailed)) return (
+    <section aria-label={rail.title} style={{ marginTop: 22 }}>
+      {isFirstNightOut ? <p style={{ margin: "0 0 6px", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: C.muted, textTransform: "uppercase" }}>Night Out</p> : null}
+      <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 800, color: C.text }}>{rail.title}</h2>
+      <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>{rail.deck}</p>
+      {eventsPending
+        ? <div className="wf-sk" role="status" aria-busy="true" aria-label="Finding concerts" style={{ height: 88, borderRadius: 14, background: "#0B0E15" }} />
+        : <p style={{ margin: "8px 0 0", fontSize: 13, color: C.muted }}>We could not reach current concert listings. That is a service miss, not an empty calendar.</p>}
+    </section>
+  );
   return (
     <section aria-label={rail.title} style={{ marginTop: 22 }}>
       {isFirstNightOut ? (
@@ -90,8 +106,11 @@ function DateNightRailSection({ rail, lat, lng, city, hour, isFirstNightOut, onO
       <RailNav railId={railId} count={count} total={count}
         unit={count === 1 ? "place for " + rail.title.toLowerCase() : "places for " + rail.title.toLowerCase()} />
       <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>
+        {eventCards.map((card, index) => card?.$$typeof
+          ? card
+          : <PosterEventCard key={`event:${card.id || index}`} event={card} rank={index + 1} surface="date_night_livemusic" />)}
         {items.map((p, i) => {
-          const rank = i + 1;
+          const rank = eventCards.length + i + 1;
           const type = prettyType(p.primaryType || p.primary_type || p.category);
           const facts = [
             p.reviews ? compact(p.reviews) + " reviews" : null,
@@ -131,7 +150,7 @@ function DateNightRailSection({ rail, lat, lng, city, hour, isFirstNightOut, onO
         {loadingMore ? <div className="wf-rail-card wf-exploding-primary" aria-busy="true" aria-label={`Loading more ${rail.title}`}
           style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 88, color: C.muted, fontSize: 12.5 }}>Loading more…</div> : null}
       </div>
-      {items.length > 1 ? <RailDots railId={railId} count={items.length} /> : null}
+      {eventCards.length + items.length > 1 ? <RailDots railId={railId} count={eventCards.length + items.length} /> : null}
     </section>
   );
 }
@@ -172,6 +191,7 @@ export default function DateNightRails({
   onLike = undefined,
   onDislike = undefined,
   onShare = undefined,
+  eventsSlot = null,
 }) {
   const [payload, setPayload] = useState(null);
   const [failed, setFailed] = useState(false);
@@ -180,6 +200,11 @@ export default function DateNightRails({
 
   const lat = center && Number.isFinite(center.lat) ? center.lat : null;
   const lng = center && Number.isFinite(center.lng) ? center.lng : null;
+  const standaloneEvents = usePosterEvents({
+    active, center, city, mode: "date-night", disabled: !!eventsSlot,
+  });
+  const slotEvents = active && eventsSlot ? eventsSlot("date-night", selectPosterEvents) : null;
+  const eventSurface = slotEvents || standaloneEvents;
 
   // The request key is the request. Re-fetching on every render of a parent
   // that re-renders on scroll is the defect the rail drop has paid for twice
@@ -230,12 +255,21 @@ export default function DateNightRails({
   if (!active) return null;
   if (!key) return <p>Choose a location to build your date night.</p>;
 
-  const rails = (payload && payload.rails) || [];
-  // The first nightlife rail carries the "Night Out" divider — the journey has
-  // two halves (the meal, then the night), and the divider is what says so.
-  const firstNightOutId = (rails.find((r) => r.group === "nightlife") || {}).id;
+  let rails = (payload && payload.rails) || [];
+  const liveMusicEvents = Array.isArray(eventSurface?.byRail?.livemusic) ? eventSurface.byRail.livemusic : [];
+  // The place composer correctly omits healthy-empty rails. Dated concerts are
+  // a second, complete source, so restore Live Music at its declared position
+  // when concerts make that rail nonempty on their own.
+  if ((liveMusicEvents.length || eventSurface?.pending || eventSurface?.failed) && !rails.some((rail) => rail.id === "livemusic")) {
+    const definition = DATE_NIGHT_RAIL_DEFS.find((rail) => rail.id === "livemusic");
+    const order = new Map(DATE_NIGHT_RAIL_DEFS.map((rail, index) => [rail.id, index]));
+    rails = [...rails, { ...definition, places: [], total: 0 }]
+      .sort((a, b) => (order.get(a.id) ?? 999) - (order.get(b.id) ?? 999));
+  }
+  const firstNightOutId = (rails.find((rail) => rail.group === "nightlife") || {}).id;
 
-  if (payload == null && !failed) {
+  const hasLiveMusicAnswer = liveMusicEvents.length > 0;
+  if (payload == null && !failed && !hasLiveMusicAnswer) {
     return (
       <div style={{ marginTop: 4 }} role="status" aria-busy="true" aria-label="Building tonight's date">
         {[0, 1, 2].map((i) => (
@@ -244,7 +278,7 @@ export default function DateNightRails({
       </div>
     );
   }
-  if (failed) {
+  if (failed && !hasLiveMusicAnswer) {
     return (
       <div><p style={{ marginTop: 4, fontSize: 13, color: C.muted }}>
         We could not build tonight&apos;s date from owned inventory. That is a miss on our side, not an empty town.
@@ -266,9 +300,20 @@ export default function DateNightRails({
   // first paint is unchanged.
   return (
     <>
+      {payload == null && !failed ? (
+        <p role="status" style={{ margin: "4px 0 12px", fontSize: 13, color: C.muted }}>
+          Concerts are ready. Still building the rest of tonight&apos;s date…
+        </p>
+      ) : null}
+      {failed ? (
+        <p role="alert" style={{ margin: "4px 0 12px", fontSize: 13, color: C.muted }}>
+          Concerts are ready, but we could not reach the venue collection.
+        </p>
+      ) : null}
       {rails.map((rail) => (
         <DateNightRailSection key={rail.id} rail={rail} lat={lat} lng={lng} city={city} hour={hour}
-          isFirstNightOut={rail.id === firstNightOutId} onOpenPlace={onOpenPlace}
+          eventCards={rail.id === "livemusic" ? liveMusicEvents : []} isFirstNightOut={rail.id === firstNightOutId} onOpenPlace={onOpenPlace}
+          eventsPending={rail.id === "livemusic" && !!eventSurface?.pending} eventsFailed={rail.id === "livemusic" && !!eventSurface?.failed}
           isSaved={isSaved} liked={liked} disliked={disliked} isLiked={isLiked} isDisliked={isDisliked}
           onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />
       ))}

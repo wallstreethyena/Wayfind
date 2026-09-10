@@ -17,6 +17,7 @@ import { wayfindScore } from "../../lib/wayfindScore.js";
 import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
 import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
 import { usePagedRail } from "./usePagedRail.js";
+import { railRenderState, RAIL_RENDER_STATE } from "../../lib/railVisibility.js";
 
 const COLORS = { text: "#F1F5F9", muted: "#8b93a1" };
 const compact = (value) => Number(value) >= 1000
@@ -32,21 +33,32 @@ function BirthdayRailSection({ rail, lat, lng, city, onOpenPlace, isSaved, liked
   const seedItems = useMemo(() => (rail.places || []).slice(0, RAIL_PAGE_SIZE), [rail]);
   const seedTotal = Number.isFinite(rail.total) ? rail.total : (rail.places || []).length;
   const params = useMemo(() => ({ lat, lng, rail: rail.id }), [lat, lng, rail.id]);
-  const { items, total, sentinelIndex, sentinelRef, loadingMore } = usePagedRail(
+  const { items, total, sentinelIndex, sentinelRef, loading, loadingMore, error, fetchMore } = usePagedRail(
     "/api/birthday", params, { seedItems, seedTotal, itemsKey: "places" },
   );
   const count = Number.isFinite(total) ? total : items.length;
   const railId = "birthday-" + rail.id;
+  const renderState = railRenderState(items, { loading, error });
+  if (renderState === RAIL_RENDER_STATE.HIDDEN) return null;
+  if (renderState === RAIL_RENDER_STATE.LOADING) return (
+    <section aria-label={rail.title} style={{ marginTop: 22 }}>
+      <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 800, color: COLORS.text }}>{rail.title}</h2>
+      <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>{rail.deck}</p>
+      <div role="status" aria-busy="true" aria-label={`Loading ${rail.title}`} className="wf-sk" style={{ height: 88, borderRadius: 14, background: "#0B0E15" }} />
+    </section>
+  );
+  if (renderState === RAIL_RENDER_STATE.ERROR) return (
+    <section aria-label={rail.title} style={{ marginTop: 22 }}>
+      <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 800, color: COLORS.text }}>{rail.title}</h2>
+      <p style={{ margin: "8px 0", fontSize: 13, color: COLORS.muted }}>We could not reach this rail&apos;s verified inventory.</p>
+      <button type="button" disabled={loadingMore} onClick={fetchMore} style={{ border: "1px solid #4B5563", borderRadius: 999, background: "#111827", color: COLORS.text, padding: "7px 12px", fontWeight: 800 }}>{loadingMore ? "Trying again…" : "Try again"}</button>
+    </section>
+  );
   return (
     <section aria-label={rail.title} style={{ marginTop: 22 }}>
       <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 800, color: COLORS.text }}>{rail.title}</h2>
       <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>{rail.deck}</p>
-      {!items.length ? (
-        <p style={{ margin: "8px 0 0", fontSize: 13, color: COLORS.muted }}>
-          No nearby place has enough verified evidence for this rail yet. We will not fill it with a look-alike.
-        </p>
-      ) : (
-        <>
+      <>
           <RailNav railId={railId} count={count} total={count} unit={count === 1 ? "verified place" : "verified places"} />
           <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>
             {items.map((place, index) => {
@@ -98,8 +110,7 @@ function BirthdayRailSection({ rail, lat, lng, city, onOpenPlace, isSaved, liked
               style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 88, color: COLORS.muted, fontSize: 12.5 }}>Loading more…</div> : null}
           </div>
           {items.length > 1 ? <RailDots railId={railId} count={items.length} /> : null}
-        </>
-      )}
+      </>
     </section>
   );
 }

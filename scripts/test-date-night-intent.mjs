@@ -440,8 +440,9 @@ ok(nightOrder.includes("datenight"), "Date Night still exists in the night order
   // must not ALSO get the shared pool's. Date Night's drop ending in "nothing
   // near you clears this bar" underneath six full rails is the v8.82 empty-bar
   // screenshot arriving by a different road.
-  ok(/const railOwnsItsOwnAnswer = !!\(selRail && \(selRail\.id === "season" \|\| selRail\.id === "datenight" \|\| selRail\.id === "birthday" \|\| selRail\.id === "breakfast" \|\| selRail\.id === "break" \|\| selRail\.id === "eat" \|\| selRail\.id === "today" \|\| selRail\.id === "augtober" \|\| selRail\.id === "tonight"\)\)/.test(src),
-    "the drop knows Summer, Date Night, Birthday, Breakfast, Lunch Break, Actually Worth Eating, Today's Best Options, Augtober, and Night Out answer for themselves");
+  const ownedAnswer = src.match(/const railOwnsItsOwnAnswer =[^;]+/)?.[0] || "";
+  ok(["season", "datenight", "birthday", "breakfast", "break", "eat", "today", "augtober", "tonight", "locals"].every((id) => ownedAnswer.includes(`selRail.id === "${id}"`)),
+    "the drop knows every composed collection, including Creator Picks, answers for itself");
   const branches = src.match(/\) : selRail && [^?]*\?/g) || [];
   ok(branches.length === 4, `the pool ternary chain is readable (positive control: ${branches.length} branches after the cards)`);
   // The CARDS branch stays open to Date Night on purpose: the pool below the
@@ -462,8 +463,9 @@ ok(nightOrder.includes("datenight"), "Date Night still exists in the night order
   // the events" — and both of those now exist as things that qualify.
   ok(branches.every((b) => /railOwnsItsOwnAnswer/.test(b)),
     "the pool does not speak for Date Night AT ALL — not its cards, not its empty copy");
-  ok(/selRail && selRail\.id === "datenight" && eventsSlot/.test(src),
-    "…and the dated events ride under the journey, from the SAME eventsSlot thunk the events tile renders");
+  const dateNightMount = src.match(/<DateNightRails[\s\S]*?\/>/)?.[0] || "";
+  ok(/eventsSlot=\{eventsSlot\}/.test(dateNightMount),
+    "…and DateNightRails receives the shared eventsSlot so concerts join Live Music instead of a separate generic tail");
 }
 
 // Poster art is not this PR

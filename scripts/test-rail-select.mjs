@@ -676,8 +676,8 @@ const WIDEN_RADIUS_MI = 25;
   // venue read registry-exempt on every rail (Anna Maria Oyster Bar rode 4
   // uncapped, measured live 2026-08-19). All three registry builders must
   // clone before flagging.
-  ok(/\.filter\(Boolean\)\.map\(\(r\) => \(\{ \.\.\.r \}\)\);/.test(dcode),
-    "buildCreatorsPool clones every row before stamping _creatorSourced");
+  ok(/merged = \{ \.\.\.row, _creatorSources: \[\] \}/.test(dcode),
+    "buildCreatorsPool clones every deduplicated row before stamping creator provenance");
   eq((dcode.match(/row = \{ \.\.\.row \};/g) || []).length, 1,
     "summer clones a pool-reused row before stamping its source flag");
   ok(/const clone = \{ \.\.\.row \}/.test(dcode),
