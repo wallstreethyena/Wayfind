@@ -1440,6 +1440,13 @@ node scripts/test-beach-local-conditions.mjs
 # Reviewed source-backed prose fills only verified empty editorial slots.
 node scripts/test-owned-editorial-review.mjs
 node scripts/check-guide-editorial.mjs
+
+# The Family Day culture rail reads only the verified wf_events schedule. This
+# locks family/age/haunt trust, exact 10/25/50-mile circles, fail-closed filters,
+# the 12-card cap, real /florida-events routes, and the no-place-score contract.
+node scripts/test-family-day-data.mjs
+node scripts/test-family-day-events.mjs
+node scripts/test-family-day-taxonomy.mjs
 node scripts/check-guide-seo-audit.mjs
 
 node scripts/test-travelpayouts-attribution.mjs

@@ -1,3 +1,6 @@
 "use client";
-import IntentPageClient from "../components/IntentPageClient";
-export default function C() { return <IntentPageClient intent="family" />; }
+import FamilyDayPage from "../components/FamilyDayPage";
+
+export default function FamilyClient() {
+  return <FamilyDayPage />;
+}

@@ -185,7 +185,9 @@ const PAIRS = {
   // own rail one tile away. They are distinguished by their baked words, not
   // their photography — if the beach poster is ever redrawn, check the pair
   // still reads as two different promises.
-  family: { copy: "d2077983a0b43b62", art: "212f64504077e60e" },
+  // 2026-09-10: refreshed poster viewed at 760px; its only baked headline is
+  // "Family Day, SOLVED." over the beach family, matching this rail's title.
+  family: { copy: "d2077983a0b43b62", art: "a8bf04ed63669cda" },
   // 2026-09-10 — RE-PINNED AFTER READING THE NEW POSTER AT 760px. The owner's
   // art reads "Creators Pick" in script over a creator holding an iced coffee
   // outside a café. Both hashes moved together: the rail title became

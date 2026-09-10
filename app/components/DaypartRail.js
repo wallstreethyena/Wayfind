@@ -1504,9 +1504,9 @@ export default function DaypartRail({
                 if (r.artStale || r.retiredInto) return null;
                 const base = railArt(r, shown.region);
                 const railDest = railHref(r, shown.region, shown.citySlug);
-                const href = id === "datenight" || id === "season"
+                const href = id === "datenight" || id === "season" || id === "family"
                   ? dateNightIntentHref({
-                    href: railDest || (id === "season" ? "/summer-picks" : "/date-night"),
+                    href: railDest || (id === "family" ? "/family" : id === "season" ? "/summer-picks" : "/date-night"),
                     cityLabel: shown.cityLabel || cityLabel,
                     lat: (center && Number.isFinite(center.lat) ? center.lat : lat),
                     lng: (center && Number.isFinite(center.lng) ? center.lng : lng),

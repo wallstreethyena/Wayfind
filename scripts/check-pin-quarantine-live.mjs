@@ -180,7 +180,11 @@ ok(!RETIRED_VIATOR_PINS.some((r) => String(r.offerId).toUpperCase() === VICTIM_C
 // Reading the gate is not enough: the review asked for the RENDERED surface to
 // lose the button, and this repo has shipped a production ReferenceError that
 // every source-text guard passed (#486). So compile and render the real card.
-const Card = (await loadComponent(path.join(ROOT, "app/components/IconicPlaceCard.js"), ROOT)).default;
+// Use this compilation's exact graph, even while another guard is compiling.
+let cardGraph;
+const Card = (await loadComponent(path.join(ROOT, "app/components/IconicPlaceCard.js"), ROOT, {
+  onGraph: (graph) => { cardGraph = graph; },
+})).default;
 // memo()/forwardRef() components are objects, not functions — assert on what
 // React can actually render rather than on `typeof`.
 ok(!!Card && (typeof Card === "function" || typeof Card === "object"),
@@ -194,13 +198,9 @@ ok(!!Card && (typeof Card === "function" || typeof Card === "object"),
 // assertions drive the instance the component actually reads. Same source,
 // compiled; not a mock.
 const cardStore = await (async () => {
-  const dirs = readdirSync(ROOT).filter((d) => d.startsWith(".wf-jsx-"));
-  const hits = [];
-  for (const d of dirs) {
-    for (const f of readdirSync(path.join(ROOT, d))) {
-      if (/^pinQuarantine-\d+\.mjs$/.test(f)) hits.push(path.join(ROOT, d, f));
-    }
-  }
+  const hits = [...(cardGraph || new Map())]
+    .filter(([source]) => path.resolve(source) === path.join(ROOT, "lib/pinQuarantine.js"))
+    .map(([, compiled]) => compiled);
   ok(hits.length === 1, `exactly one compiled copy of lib/pinQuarantine is in the card's module graph (found ${hits.length}) — zero means the card no longer consults the live verdict at all`);
   return hits.length ? import(hits[0]) : null;
 })();
