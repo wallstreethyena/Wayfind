@@ -42,6 +42,7 @@
  *   node scripts/seed-fall-sarasota-2026.mjs
  */
 import { readFileSync } from "node:fs";
+import { supersededSarasotaIds, currentSarasotaSeed } from "./lib/sarasotaPublication.mjs";
 
 const DRY = process.argv.includes("--dry");
 function env() {
@@ -440,6 +441,7 @@ async function resolve(q) {
 if (import.meta.url === `file://${process.argv[1]}`) {
   const out = [];
   for (const row of ROWS) {
+    if (supersededSarasotaIds.has(row.event_id)) { console.log(`SUPERSEDED ${row.event_id}: use ${currentSarasotaSeed}`); continue; }
     // TWO ROWS SHIP WITHOUT A PHOTO, ON PURPOSE (2026-09-03). BayFest's venue
     // is Pine Avenue and Cedar Key's is the downtown — a street and a town,
     // neither of which Google carries as a place with photos. Nearby Search at
@@ -476,6 +478,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 
   let patched = 0;
   for (const [event_id, body] of Object.entries(PATCHES)) {
+    if (supersededSarasotaIds.has(event_id)) { console.log(`SUPERSEDED ${event_id}: use ${currentSarasotaSeed}`); continue; }
     const r = await fetch(`${SUPA}/rest/v1/wf_events?event_id=eq.${encodeURIComponent(event_id)}`, {
       method: "PATCH", headers: { ...H, "Content-Type": "application/json", Prefer: "return=representation" },
       body: JSON.stringify({ ...body, last_verified_at: VERIFIED }),
