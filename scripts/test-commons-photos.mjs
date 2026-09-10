@@ -19,8 +19,9 @@
 // SAME wikiOpensearch/wikiPageInfo lib/popularity.js uses — see that file's
 // 2026-09-09 note on jf()'s fetchImpl param). No real network call, no real
 // database. Run standalone: `node scripts/test-commons-photos.mjs`.
-import { stripTrackingParams, findCommonsPhoto, classifyLicense, buildAttributionText, isUnavailableReason } from "../lib/commonsPhotos.js";
+import { stripTrackingParams, findCommonsPhoto, classifyLicense, buildAttributionText, isUnavailableReason, verifyCommonsFileIdentity, splitPlacePrimaryName, commonsSearchQueries, distinctivePlaceTokens, NO_DIRECT_COMMONS_REASON } from "../lib/commonsPhotos.js";
 import { createWikimediaFetchPolicy } from "../lib/wikimediaFetchPolicy.js";
+import { nameSim } from "../lib/popularity.js";
 
 let failures = 0;
 const fail = (m) => { console.error("test-commons-photos: FAIL — " + m); failures++; };
@@ -127,6 +128,12 @@ function makeFetch(overrides = {}) {
       return jsonResponse(200, v);
     }
     if (String(url).includes("commons.wikimedia.org")) {
+      if (String(url).includes("list=search") || String(url).includes("srsearch=")) {
+        const v = pick("commonsSearch", { query: { search: [] } });
+        if (v === "throw") throw new Error("simulated commons search network failure");
+        if (v && v.__status) return jsonResponse(v.__status, v.body || {});
+        return jsonResponse(200, v);
+      }
       const v = pick("commons", COMMONS_INFO_FREE);
       if (v === "throw") throw new Error("simulated commons network failure");
       if (v && v.__status) return jsonResponse(v.__status, v.body || {});
@@ -371,7 +378,7 @@ async function main() {
   //   `unavailable_*`, which the worker leaves undecided and retries.
   {
     const STEPS = [
-      { key: "opensearch", reason: "unavailable_opensearch", empty: [PLACE.name, [], [], []], emptyReason: "no_wiki_candidate" },
+      { key: "opensearch", reason: "unavailable_opensearch", empty: [PLACE.name, [], [], []], emptyReason: NO_DIRECT_COMMONS_REASON },
       { key: "pageInfo", reason: "unavailable_pageinfo", empty: { query: { pages: {} } }, emptyReason: null },
       { key: "pageImages", reason: "unavailable_lead_image", empty: { query: { pages: { 1: {} } } }, emptyReason: "no_lead_image" },
       { key: "commons", reason: "unavailable_imageinfo", empty: { query: { pages: { 1: {} } } }, emptyReason: "no_commons_imageinfo" },
@@ -385,8 +392,14 @@ async function main() {
         ["500", { __status: 500, body: {} }],
         ["throw", "throw"],
       ]) {
-        const { photo, reason } = await resolve({ [step.key]: injected });
+        const { photo, reason, calls } = await resolve({ [step.key]: injected });
         ok(!photo, `C1 ${step.key}/${label}: no photo is returned`);
+        if (step.key === "opensearch") {
+          ok(
+            !calls.some((u) => String(u).includes("list=search") || String(u).includes("srsearch=")),
+            `C1 opensearch/${label}: a wiki TRANSPORT failure must NOT fall through to Commons-direct search`
+          );
+        }
         ok(
           reason === step.reason,
           `C1 ${step.key}/${label}: a request that did not succeed reports ${step.reason}, never a definitive miss (got ${JSON.stringify(reason)})`
@@ -441,18 +454,195 @@ async function main() {
     // it, so a silent widening (e.g. matching every reason) must fail here.
     ok(isUnavailableReason("unavailable_opensearch"), "C4: unavailable_* is not a decision");
     ok(isUnavailableReason("error:boom"), "C4: an unexpected exception is not evidence Commons lacks a photo");
-    ok(!isUnavailableReason("no_wiki_candidate"), "C4: an observed empty search IS a decision");
+    ok(!isUnavailableReason("no_wiki_candidate"), "C4: an observed empty wiki search IS a decision (wiki-only mode)");
+    ok(!isUnavailableReason(NO_DIRECT_COMMONS_REASON), "C4: an observed empty Commons-direct search IS a decision");
     ok(!isUnavailableReason("no_lead_image"), "C4: an observed article with no lead image IS a decision");
     ok(!isUnavailableReason("license_non_free_license"), "C4: an observed non-free licence IS a decision");
     ok(!isUnavailableReason("identity_disambiguation"), "C4: an observed identity mismatch IS a decision");
     ok(!isUnavailableReason(null) && !isUnavailableReason(undefined) && !isUnavailableReason(42), "C4: a missing or non-string reason is not silently treated as unavailable");
   }
 
+  // ── D — COMMONS-DIRECT FALLBACK (after definitive no_wiki_candidate) ──
+  {
+    const BENDERSON = {
+      name: "Camp Gladiator - Nathan Benderson Park",
+      lat: 27.37424,
+      lng: -82.45009,
+      city: "Sarasota",
+      place_id: "ChIJc-m14Rc5w4gRrnsNnZ8pRJY",
+    };
+    const WALLENDA_FILE = {
+      title: "File:Nik Wallenda walking over Nathan Benderson Park.jpg",
+      filename: "Nik Wallenda walking over Nathan Benderson Park.jpg",
+      description: "Nik Wallenda tightrope walk at Nathan Benderson Park",
+      categories: ["Category:Nathan Benderson Park", "Category:Nik Wallenda"],
+      lat: 27.37424,
+      lng: -82.45009,
+    };
+    const ASOLO = {
+      name: "Asolo Repertory Theatre",
+      lat: 27.3865,
+      lng: -82.5608,
+      city: "Sarasota",
+      place_id: "ChIJlXJqE9k_w4gRySJ2BPEXcR0",
+    };
+    const ASOLO_FILE = {
+      title: "File:Sarasota FL Asolo Rep Theatre01.jpg",
+      filename: "Sarasota FL Asolo Rep Theatre01.jpg",
+      description: "Asolo Repertory Theatre in Sarasota, Florida",
+      categories: ["Category:Theatres in Florida", "Category:Sarasota, Florida"],
+      lat: 27.3865,
+      lng: -82.5608,
+    };
+
+    ok(splitPlacePrimaryName(BENDERSON.name) === "Camp Gladiator", "D0: primary entity of the Camp Gladiator row is the gym, not the park");
+    ok(distinctivePlaceTokens("Camp Gladiator").includes("gladiator"), "D0: 'gladiator' is a distinctive token the Wallenda file cannot satisfy");
+
+    const locSim = nameSim(BENDERSON.name, "Nathan Benderson Park");
+    ok(
+      locSim >= 0.55,
+      `D1 MUTATION CONTROL: nameSim(place.name, "Nathan Benderson Park") is ${locSim.toFixed(2)} (≥ CONFIDENCE_FLOOR 0.55). A matcher that accepted location-suffix overlap would attach the Wallenda/Benderson park photo to the gym. The reject below is what keeps that mutation red.`
+    );
+    const bendersonIdent = verifyCommonsFileIdentity(BENDERSON, WALLENDA_FILE);
+    ok(!bendersonIdent.ok, "D1 (THE HEADLINE INVARIANT): a Nik Wallenda / Benderson Park crowd photo must NOT verify as Camp Gladiator");
+    ok(bendersonIdent.reason === "identity_name_mismatch", `D1: reject reason is identity_name_mismatch (got ${JSON.stringify(bendersonIdent.reason)})`);
+
+    const asoloIdent = verifyCommonsFileIdentity(ASOLO, ASOLO_FILE);
+    ok(asoloIdent.ok, `D2: File:Sarasota FL Asolo Rep Theatre01.jpg must verify as Asolo Repertory Theatre (got ${JSON.stringify(asoloIdent)})`);
+
+    const geoMismatch = verifyCommonsFileIdentity(ASOLO, { ...ASOLO_FILE, lat: 40.71, lng: -74.01 });
+    ok(!geoMismatch.ok && geoMismatch.reason === "identity_geo_mismatch", "D2b: the same Asolo filename with NYC coordinates is a geo mismatch — name is not enough");
+
+    const nameOnly = verifyCommonsFileIdentity({ name: ASOLO.name }, { title: ASOLO_FILE.title, description: ASOLO_FILE.description, categories: ASOLO_FILE.categories });
+    ok(!nameOnly.ok && nameOnly.reason === "identity_no_geo_or_city", "D2c: name overlap with neither file geo nor city is refused");
+
+    const queries = commonsSearchQueries(BENDERSON);
+    ok(queries.every((q) => !/^"?Nathan Benderson Park"?$/.test(q)), "D3: Commons search never queries the location suffix alone");
+    ok(queries.some((q) => q.includes("Camp Gladiator")), "D3: Commons search does query the primary entity");
+
+    function commonsSearchHit(title) {
+      return { query: { search: [{ ns: 6, title }] } };
+    }
+    function commonsFileInfo({ title, filename, extmetadata, lat, lon }) {
+      return {
+        query: {
+          pages: {
+            1: {
+              title,
+              coordinates: lat != null ? [{ lat, lon }] : [],
+              categories: [{ title: "Category:Buildings in Florida" }],
+              imageinfo: [
+                {
+                  url: `https://upload.wikimedia.org/wikipedia/commons/a/aa/${filename}`,
+                  width: 1200,
+                  height: 800,
+                  descriptionurl: `https://commons.wikimedia.org/wiki/${encodeURIComponent(title)}`,
+                  extmetadata,
+                },
+              ],
+            },
+          },
+        },
+      };
+    }
+    const ASOLO_META = {
+      Artist: { value: "Ebyabe" },
+      License: { value: "cc-by-sa-3.0" },
+      LicenseShortName: { value: "CC BY-SA 3.0" },
+      ImageDescription: { value: "Asolo Repertory Theatre in Sarasota, Florida" },
+    };
+    const WALLENDA_META = {
+      Artist: { value: "A photographer" },
+      License: { value: "cc-by-sa-4.0" },
+      LicenseShortName: { value: "CC BY-SA 4.0" },
+      ImageDescription: { value: "Nik Wallenda at Nathan Benderson Park" },
+    };
+
+    {
+      const { fetchImpl, calls } = makeFetch({
+        opensearch: OPENSEARCH_EMPTY,
+        commonsSearch: commonsSearchHit("File:Nik Wallenda walking over Nathan Benderson Park.jpg"),
+        commons: commonsFileInfo({
+          title: "File:Nik Wallenda walking over Nathan Benderson Park.jpg",
+          filename: "Nik_Wallenda_Benderson.jpg",
+          extmetadata: WALLENDA_META,
+          lat: 27.37424,
+          lon: -82.45009,
+        }),
+      });
+      let reason = null;
+      const photo = await findCommonsPhoto(BENDERSON, { fetch: fetchImpl, onReject: (r) => { reason = r; } });
+      ok(photo === null, "D4 (END-TO-END NEGATIVE): Camp Gladiator + Wallenda Commons hit must not resolve a photo");
+      ok(reason === "commons_identity_name_mismatch", `D4: terminal reason is commons_identity_name_mismatch (got ${JSON.stringify(reason)})`);
+      ok(calls.some((u) => String(u).includes("list=search")), "D4: the Commons-direct search actually ran (wiki was empty)");
+      ok(!isUnavailableReason(reason), "D4: a wrong-entity hit is a DECISION, not a deferral — replay must not loop it");
+    }
+
+    {
+      const { fetchImpl, calls } = makeFetch({
+        opensearch: OPENSEARCH_EMPTY,
+        commonsSearch: commonsSearchHit("File:Sarasota FL Asolo Rep Theatre01.jpg"),
+        commons: commonsFileInfo({
+          title: "File:Sarasota FL Asolo Rep Theatre01.jpg",
+          filename: "Sarasota_FL_Asolo_Rep_Theatre01.jpg",
+          extmetadata: ASOLO_META,
+          lat: 27.3865,
+          lon: -82.5608,
+        }),
+      });
+      let reason = null;
+      const photo = await findCommonsPhoto(ASOLO, { fetch: fetchImpl, onReject: (r) => { reason = r; } });
+      ok(!!photo, `D5 (END-TO-END POSITIVE): Asolo + File:Sarasota FL Asolo Rep Theatre01.jpg must resolve (reason: ${reason})`);
+      if (photo) {
+        ok(photo.source_ref === "File:Sarasota_FL_Asolo_Rep_Theatre01.jpg" || photo.source_ref === "File:Sarasota FL Asolo Rep Theatre01.jpg" || /Asolo/i.test(photo.source_ref), `D5: source_ref is the Commons file (got ${photo.source_ref})`);
+        ok(photo.license.toLowerCase().includes("cc"), `D5: license is a recognised CC code (got ${photo.license})`);
+        ok(photo.attribution_text.length > 0, "D5: attribution_text is populated");
+        ok(/^https:\/\//.test(photo.image_url) && !/googleusercontent/i.test(photo.image_url), "D5: image_url is a Wikimedia URL, never Google");
+      }
+      ok(calls.some((u) => String(u).includes("list=search")), "D5: Commons-direct search ran because wiki was empty");
+      ok(!calls.some((u) => /places\.googleapis|googleusercontent/i.test(String(u))), "D5: zero Google media hosts on the Commons-direct path");
+    }
+
+    {
+      const { fetchImpl, calls } = makeFetch({
+        opensearch: OPENSEARCH_EMPTY,
+        commonsSearch: commonsSearchHit("File:Sarasota FL Asolo Rep Theatre01.jpg"),
+        commons: commonsFileInfo({
+          title: "File:Sarasota FL Asolo Rep Theatre01.jpg",
+          filename: "Sarasota_FL_Asolo_Rep_Theatre01.jpg",
+          extmetadata: ASOLO_META,
+          lat: 27.3865,
+          lon: -82.5608,
+        }),
+      });
+      let reason = null;
+      const photo = await findCommonsPhoto(ASOLO, { fetch: fetchImpl, wikiOnly: true, onReject: (r) => { reason = r; } });
+      ok(photo === null && reason === "no_wiki_candidate", `D6: wikiOnly stops at no_wiki_candidate and does not search Commons (got ${reason})`);
+      ok(!calls.some((u) => String(u).includes("list=search")), "D6: wikiOnly must not issue a Commons file search — this is the measurement baseline");
+    }
+
+    {
+      const { photo, reason, calls } = await resolve({
+        opensearch: OPENSEARCH_EMPTY,
+        commonsSearch: { __status: 429, body: {} },
+      });
+      ok(!photo && reason === "unavailable_commons_search", `D7: a 429 on Commons-direct search is unavailable_*, never a terminal miss (got ${reason})`);
+      ok(isUnavailableReason(reason), "D7: the worker must defer, not reject");
+      ok(calls.some((u) => String(u).includes("list=search")), "D7: the search was actually attempted");
+    }
+
+    {
+      const { photo, reason } = await resolve({ opensearch: OPENSEARCH_EMPTY, commonsSearch: { query: { search: [] } } });
+      ok(!photo && reason === NO_DIRECT_COMMONS_REASON, `D8: empty Commons-direct search is the new terminal miss (got ${reason})`);
+      ok(!isUnavailableReason(reason), "D8: and it IS a decision the worker may file");
+    }
+  }
+
   if (failures) {
     console.error(`test-commons-photos: ${failures} FAILED`);
     process.exit(1);
   }
-  console.log("test-commons-photos: OK — identity gate, license gate, attribution population, Commons/upload fetch-policy coverage, the never-throws contract, and the rule that a request which did not succeed is reported as unavailable_* rather than filed as a permanent rejection");
+  console.log("test-commons-photos: OK — wiki identity + license gates, Commons-direct fallback after no_wiki_candidate, Benderson/Camp Gladiator negative, Asolo positive, and unavailable_* still never becoming a permanent rejection");
 }
 
 main().catch((e) => {

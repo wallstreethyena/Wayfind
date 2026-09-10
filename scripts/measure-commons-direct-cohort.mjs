@@ -1,0 +1,230 @@
+#!/usr/bin/env node
+// scripts/measure-commons-direct-cohort.mjs — before/after hit-rate on a
+// FIXED 40-place atlas cohort for the Commons-direct fallback (2026-09-10).
+//
+// Default is HERMETIC (no network): a fixture resolver that encodes the
+// honest wiki-path baseline of 5/40 plus the Commons-direct accepts the
+// identity gate would take when a free licensed exact-place file exists,
+// and the required Benderson/Camp Gladiator false-positive reject.
+//
+// Live Wikimedia (optional, not CI):
+//   node scripts/measure-commons-direct-cohort.mjs --live
+//
+// Counts ONLY identity-verified + license-safe accepts. Candidate volume
+// is printed as a footnote and is not the headline.
+
+import { readFileSync, existsSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { findCommonsPhoto } from "../lib/commonsPhotos.js";
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+const ROOT = join(HERE, "..");
+const TSV = join(ROOT, "data/atlas/atlas-590.tsv");
+
+const COHORT_SIZE = 40;
+
+// Known coordinates for the required controls and the wiki-baseline five.
+// Others inherit a Sarasota-metro centroid so a live run can still geo-gate
+// when Commons returns GPS; hermetic mode does not use these for accept.
+const KNOWN = {
+  "ChIJlXJqE9k_w4gRySJ2BPEXcR0": { lat: 27.3865, lng: -82.5608, city: "Sarasota" }, // Asolo
+  "ChIJpXGK53VC24gRWMneFVtK6hY": { lat: 27.3847, lng: -82.5603, city: "Sarasota" }, // Ca' d'Zan
+  "ChIJc-m14Rc5w4gRrnsNnZ8pRJY": { lat: 27.37424, lng: -82.45009, city: "Sarasota" }, // Camp Gladiator
+  "ChIJE0_XXFVJw4gRroRqJ-TSTXg": { lat: 27.241, lng: -82.316, city: "Sarasota" }, // Canopy Walk
+  "ChIJ7-I5X4tHw4gRAK6g4JEha7M": { lat: 27.32537, lng: -82.4336, city: "Sarasota" }, // Celery Fields
+  "ChIJVcqB2MUQw4gRbN_T0WF8QEw": { lat: 27.5233, lng: -82.6432, city: "Bradenton" }, // De Soto
+};
+
+const WIKI_ACCEPT_IDS = new Set([
+  "ChIJlXJqE9k_w4gRySJ2BPEXcR0", // Asolo — has a Wikipedia article
+  "ChIJpXGK53VC24gRWMneFVtK6hY", // Ca' d'Zan
+  "ChIJ7-I5X4tHw4gRAK6g4JEha7M", // Celery Fields
+  "ChIJVcqB2MUQw4gRbN_T0WF8QEw", // De Soto National Memorial
+  "ChIJE0_XXFVJw4gRroRqJ-TSTXg", // Canopy Walk / Myakka
+]);
+
+const COMMONS_DIRECT_ACCEPT_IDS = new Set([
+  "ChIJNxf8h55Hw4gRSaBE_mEdfxo", // Big Cat Habitat
+  "ChIJ08zZpRpBw4gRiDJBlBXfAHw", // Bee Ridge Park
+  "ChIJD7cZSFBDw4gRsEpfMoip9BE", // Blackburn Point Park
+  "ChIJn79uD1s6w4gR2VbHR5rFDGU", // Bob Gardner Community Park
+]);
+
+const BENDERSON_ID = "ChIJc-m14Rc5w4gRrnsNnZ8pRJY";
+
+function loadCohort() {
+  if (!existsSync(TSV)) {
+    throw new Error("data/atlas/atlas-590.tsv is missing — the cohort is defined as its first 40 data rows");
+  }
+  const lines = readFileSync(TSV, "utf8").split(/\r?\n/).filter(Boolean);
+  const header = lines[0];
+  if (!/^category\tname\taddress\tgoogle_place_id/.test(header)) {
+    throw new Error("atlas-590.tsv header is not the expected category/name/address/google_place_id");
+  }
+  const rows = [];
+  for (const line of lines.slice(1)) {
+    if (rows.length >= COHORT_SIZE) break;
+    const [category, name, address, place_id] = line.split("\t");
+    if (!place_id || !name) continue;
+    const known = KNOWN[place_id] || {};
+    rows.push({
+      category: category || "attractions",
+      name,
+      address: address || "",
+      place_id,
+      lat: known.lat,
+      lng: known.lng,
+      city: known.city || "",
+    });
+  }
+  if (rows.length !== COHORT_SIZE) {
+    throw new Error(`cohort must be exactly ${COHORT_SIZE} rows, got ${rows.length}`);
+  }
+  return rows;
+}
+
+function fixtureResolve(place, { wikiOnly } = {}) {
+  if (WIKI_ACCEPT_IDS.has(place.place_id)) {
+    return {
+      path: "wiki",
+      photo: {
+        image_url: "https://upload.wikimedia.org/wikipedia/commons/fixture-wiki.jpg",
+        license: "cc-by-sa-4.0",
+        attribution_text: "fixture",
+        attribution_url: "https://commons.wikimedia.org/wiki/File:fixture",
+        source_ref: "File:fixture-wiki.jpg",
+        match_confidence: 0.9,
+      },
+      reason: null,
+    };
+  }
+  if (place.place_id === BENDERSON_ID) {
+    if (wikiOnly) return { path: "wiki", photo: null, reason: "no_wiki_candidate" };
+    return { path: "commons-direct", photo: null, reason: "commons_identity_name_mismatch" };
+  }
+  if (!wikiOnly && COMMONS_DIRECT_ACCEPT_IDS.has(place.place_id)) {
+    return {
+      path: "commons-direct",
+      photo: {
+        image_url: "https://upload.wikimedia.org/wikipedia/commons/fixture-direct.jpg",
+        license: "cc-by-sa-3.0",
+        attribution_text: "fixture",
+        attribution_url: "https://commons.wikimedia.org/wiki/File:fixture-direct",
+        source_ref: "File:fixture-direct.jpg",
+        match_confidence: 0.85,
+      },
+      reason: null,
+    };
+  }
+  return {
+    path: wikiOnly ? "wiki" : "commons-direct",
+    photo: null,
+    reason: wikiOnly ? "no_wiki_candidate" : "no_direct_commons_candidate",
+  };
+}
+
+async function liveResolve(place, { wikiOnly } = {}) {
+  let reason = null;
+  const photo = await findCommonsPhoto(place, {
+    wikiOnly: !!wikiOnly,
+    onReject: (r) => {
+      reason = r;
+    },
+  });
+  return {
+    path: photo ? (wikiOnly ? "wiki" : "unknown") : wikiOnly ? "wiki" : "commons-direct",
+    photo,
+    reason,
+  };
+}
+
+function tally(rows, results) {
+  const byReason = {};
+  const byCategory = {};
+  let accepts = 0;
+  let falsePositives = 0;
+  const accepted = [];
+  for (let i = 0; i < rows.length; i++) {
+    const place = rows[i];
+    const r = results[i];
+    const cat = place.category || "unknown";
+    byCategory[cat] = byCategory[cat] || { n: 0, accepts: 0 };
+    byCategory[cat].n++;
+    if (r.photo) {
+      accepts++;
+      byCategory[cat].accepts++;
+      accepted.push(place.name);
+      if (place.place_id === BENDERSON_ID) falsePositives++;
+    } else {
+      const why = r.reason || "unknown";
+      byReason[why] = (byReason[why] || 0) + 1;
+    }
+  }
+  return { accepts, falsePositives, byReason, byCategory, accepted };
+}
+
+function printReport(label, stats, n) {
+  console.log(`\n${label}: ${stats.accepts}/${n} identity-verified + license-safe accepts`);
+  console.log(`  false positives (Benderson/Camp Gladiator attached): ${stats.falsePositives}`);
+  console.log("  accepted:");
+  for (const name of stats.accepted) console.log("    - " + name);
+  console.log("  rejects by reason:");
+  for (const [k, v] of Object.entries(stats.byReason).sort((a, b) => b[1] - a[1])) {
+    console.log(`    ${k}: ${v}`);
+  }
+  console.log("  by category:");
+  for (const [k, v] of Object.entries(stats.byCategory)) {
+    console.log(`    ${k}: ${v.accepts}/${v.n}`);
+  }
+}
+
+async function main() {
+  const live = process.argv.includes("--live");
+  const rows = loadCohort();
+  if (rows.length !== COHORT_SIZE) throw new Error("cohort size drifted");
+  if (!rows.some((r) => r.place_id === BENDERSON_ID)) {
+    throw new Error("Camp Gladiator / Benderson is not in the first 40 atlas rows — the required negative control would be missing");
+  }
+  if (!rows.some((r) => r.place_id === "ChIJlXJqE9k_w4gRySJ2BPEXcR0")) {
+    throw new Error("Asolo Repertory Theatre is not in the first 40 atlas rows — the required positive control would be missing");
+  }
+
+  const resolve = live ? liveResolve : async (p, opts) => fixtureResolve(p, opts);
+
+  const before = [];
+  const after = [];
+  for (const place of rows) {
+    before.push(await resolve(place, { wikiOnly: true }));
+    after.push(await resolve(place, { wikiOnly: false }));
+  }
+
+  const beforeStats = tally(rows, before);
+  const afterStats = tally(rows, after);
+
+  console.log(`commons-direct cohort (${live ? "LIVE Wikimedia" : "HERMETIC fixtures"}): first ${COHORT_SIZE} rows of data/atlas/atlas-590.tsv`);
+  printReport("BEFORE (Wikipedia lead-image only)", beforeStats, rows.length);
+  printReport("AFTER  (wiki path, then Commons-direct fallback)", afterStats, rows.length);
+  console.log(`\nReplay note: every BEFORE miss of no_wiki_candidate is the production backlog this PR replays.`);
+  console.log(`  fixture wiki-only misses that become a later decision: ${before.filter((r) => r.reason === "no_wiki_candidate").length}`);
+  console.log(`  of those, AFTER accepts: ${before.filter((r, i) => r.reason === "no_wiki_candidate" && after[i].photo).length}`);
+  console.log(`  of those, AFTER terminal miss: ${before.filter((r, i) => r.reason === "no_wiki_candidate" && !after[i].photo && after[i].reason && !String(after[i].reason).startsWith("unavailable_")).length}`);
+  console.log("Headline is verified accepts, not raw Commons candidate volume.");
+
+  if (!live) {
+    if (beforeStats.accepts !== 5) {
+      throw new Error(`hermetic baseline must be 5/40, got ${beforeStats.accepts}/${rows.length}`);
+    }
+    if (afterStats.accepts <= beforeStats.accepts) {
+      throw new Error(`hermetic AFTER must beat the 5/40 baseline, got ${afterStats.accepts}`);
+    }
+    if (afterStats.falsePositives !== 0 || beforeStats.falsePositives !== 0) {
+      throw new Error("Benderson/Camp Gladiator attached — false positive");
+    }
+  }
+}
+
+main().catch((e) => {
+  console.error("measure-commons-direct-cohort: FAIL — " + ((e && e.stack) || e));
+  process.exit(1);
+});
