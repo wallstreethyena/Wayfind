@@ -271,6 +271,8 @@ export function RailDots({ railId, count }) {
  * @param {string[]} p.facts       meta row, middot-separated by CSS
  * @param {object}   p.award       { icon, label, tone } tone: 1|2|3|creator
  * @param {object[]} p.chips       [{ key, icon, label, onClick }] — onClick makes it a pill button
+ * @param {object[]} p.creatorVideos compact, pre-verified creator reels for a
+ *   non-place card; place cards continue to resolve their own creator signals
  * @param {node}     p.badge       caller-owned node in the chip row (a flame, a "Selling fast")
  * @param {object}   p.cta         { label, href, external, onClick } the money action
  * @param {node}     p.ctaNode     tracked caller-owned CTA rendered in the same money-action slot
@@ -279,7 +281,7 @@ export function RailDots({ railId, count }) {
  */
 export default function RailCard({
   photo, photoFallback, photoAttr, photoAttrHref, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, badge, cta, ctaNode, take,
-  onOpen, href, external, ariaLabel, className,
+  onOpen, href, external, ariaLabel, className, creatorVideos = null,
   // v8.70 — see the IconicPlaceCard note: inside .wf8-pcrail (the rail's
   // tap-expanded horizontal scroller) `loading="lazy"` never resolves, so a
   // lazy image there is a permanently blank one. Opt-out, default unchanged.
@@ -323,7 +325,11 @@ export default function RailCard({
   // v8.33 — the creator face. Guarded the same way IconicPlaceCard guards it:
   // a rail is the one surface where a single throw takes out a whole row.
   let railCreatorVideos = [];
-  try { railCreatorVideos = place ? (creatorVideosFor(place) || []) : []; } catch (e) { railCreatorVideos = []; }
+  try {
+    railCreatorVideos = Array.isArray(creatorVideos)
+      ? creatorVideos
+      : place ? (creatorVideosFor(place) || []) : [];
+  } catch (e) { railCreatorVideos = []; }
   const fb = useCardActions(canFallback && !(onSave && onLike && onDislike));
   const content = useContentCardActions(contentSubject);
   // GUARD-HONESTY 2026-09-07 — the fallback-less half of the "photo fails to
