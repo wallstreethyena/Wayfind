@@ -1449,6 +1449,11 @@ node scripts/test-family-day-events.mjs
 node scripts/test-family-day-taxonomy.mjs
 node scripts/check-guide-seo-audit.mjs
 
+node scripts/test-poster-cache-timing.mjs
+node scripts/test-poster-json.mjs
+node scripts/test-poster-performance.mjs
+node scripts/test-poster-pool-parallel.mjs
+node scripts/test-fall-cache-completeness.mjs
 node scripts/test-travelpayouts-attribution.mjs
 
 node scripts/test-travelpayouts-provisioning.mjs

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import SummerPicksRails from "./SummerPicksRails";
-import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
+import { fetchPosterJson as fetchJsonWithDeadline } from "../../lib/posterJson.js";
 import { homeAffiliateActivities } from "../../lib/homeAffiliateActivities.js";
 import { composeSummerPickRails } from "../../lib/summerPicks.js";
 import { cardImageSrc } from "../../lib/placePhoto.js";
