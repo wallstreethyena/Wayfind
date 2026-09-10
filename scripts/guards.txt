@@ -1441,3 +1441,7 @@ node scripts/test-beach-local-conditions.mjs
 node scripts/test-owned-editorial-review.mjs
 node scripts/check-guide-editorial.mjs
 node scripts/check-guide-seo-audit.mjs
+
+node scripts/test-travelpayouts-attribution.mjs
+
+node scripts/test-travelpayouts-provisioning.mjs

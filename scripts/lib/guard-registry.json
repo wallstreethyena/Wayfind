@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 607,
-    "totalRegistryEntries": 608,
-    "guardsTxtLineCount": 606,
-    "guardsTxtReachedFileCount": 601,
-    "criticalCount": 73,
+    "totalOnDiskGuardFiles": 609,
+    "totalRegistryEntries": 610,
+    "guardsTxtLineCount": 608,
+    "guardsTxtReachedFileCount": 603,
+    "criticalCount": 74,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 414,
+      "CALL": 416,
       "RENDER": 49,
       "STRUCTURAL": 144,
       "OTHER": 1
@@ -9268,7 +9268,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 126,
+      "assertionCount": 141,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
@@ -12512,7 +12512,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 43,
+      "assertionCount": 74,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -13937,6 +13937,58 @@
       "protects": null,
       "blastRadius": null,
       "owner": null
+    },
+    {
+      "file": "scripts/test-travelpayouts-attribution.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 40,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-import:../lib/commerceProviders.js"
+      ],
+      "protects": "Travelpayouts click tokens are stored before redirect, account and campaign identities match, and provider bookings reconcile idempotently with monotonic status and nullable money.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "A regression can misattribute bookings, issue unrecorded tokens, duplicate sales or overwrite newer provider truth."
+      },
+      "owner": "Revenue QA"
+    },
+    {
+      "file": "scripts/test-travelpayouts-provisioning.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 28,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": "Travelpayouts short links are provisioned in bounded batches using exact provider response account and destination identity.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "Wrong-account or poisoned short links can send buyers to an incorrect program or make conversion attribution unverifiable."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/test-travelpayouts.mjs",
