@@ -322,6 +322,10 @@ export default function DaypartRail({
   // machinery); without it the drop still explains itself, it just cannot
   // offer the fix.
   onRecenter = null,
+  // Opens the existing all-creators library sheet. It lives outside the
+  // result-state branches below so an unlocated or uncovered reader can still
+  // reach every reviewed native post.
+  onBrowseCreators = null,
   // The dated, best-first, ticket-bearing inventory. Night Out requests its
   // ten-way subdivision with eventsSlot("night-out"); Date Night calls the
   // no-argument legacy surface below. Keeping the cards in home.js preserves
@@ -2158,6 +2162,11 @@ export default function DaypartRail({
                 ) : null}
               </div>
             </div>
+          ) : null}
+          {selected === "locals" && onBrowseCreators ? (
+            <button type="button" className="wf8-thinbtn" onClick={onBrowseCreators} style={{ marginTop: 14 }}>
+              Browse all creator finds
+            </button>
           ) : null}
           {/* Lane E — the tail is OUTSIDE the ternary above on purpose: it is
               not one of the drive rail's states (results / pending / thin /
