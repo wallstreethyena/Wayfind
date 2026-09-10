@@ -184,7 +184,7 @@ function extractFunction(src, startMarker) {
 
 const FN = {
   inventorySocial: extractFunction(pageSrc, "async function inventorySocial(placeName) {"),
-  inventoryPlaceByStem: extractFunction(pageSrc, "async function inventoryPlaceByStem(stem, near) {"),
+  inventoryPlaceByStem: extractFunction(pageSrc, "async function inventoryPlaceByStem(stem, near, exactNames = null) {"),
   inventoryPlace: extractFunction(pageSrc, "async function inventoryPlace(pick, near) {"),
   inventoryPlacesForRegion: extractFunction(pageSrc, "async function inventoryPlacesForRegion(region, limit = 80) {"),
 };
@@ -310,6 +310,28 @@ async function run() {
       "inventoryPlacesForRegion() reaches wf_inventory at SSG when credentials are present");
     ok(Array.isArray(r) && r.length === 1 && r[0].id === ROW.place_id,
       "inventoryPlacesForRegion() returns the resolved row at SSG when credentials are present");
+  }
+
+  // Editorial identity: run the real resolver against misleading and correct rows.
+  {
+    const { fn, calls } = mockFetch();
+    globalThis.fetch = fn;
+    ok(await mod.inventoryPlace({ name: "Parking without the meltdown", appQuery: null }, null) === null,
+      "planning advice does not resolve a venue");
+    ok(calls.length === 0, "planning advice performs zero inventory requests");
+    globalThis.fetch = async () => ({ ok: true, json: async () => [
+      { ...ROW, name: "The Residences on Siesta Key Beach", place_id: "wrong-hotel" },
+      { ...ROW, name: "Siesta Beach", place_id: "real-beach" },
+    ] });
+    const pick = { name: "When and exactly where", appQuery: "Siesta Beach", exactNames: ["Siesta Beach", "Siesta Key Beach"] };
+    const hit = await mod.inventoryPlace(pick, null);
+    ok(hit && hit.id === "real-beach", "exact editorial alias selects beach, not the hotel returned first");
+    globalThis.fetch = async () => ({ ok: true, json: async () => [{ ...ROW, name: "Siesta Beach Resort" }] });
+    ok(await mod.inventoryPlace(pick, null) === null, "missing beach does not fall back to a substring resort");
+    const broken = FN.inventoryPlaceByStem.replace('if (exactNames && !exactNames.some((name) => normalize(name) === normalize(row.name))) continue;', '');
+    ok(broken !== FN.inventoryPlaceByStem, "identity mutation removed the actual filter");
+    const mutant = await import(writeHarness(harnessSource({ inventoryPlaceByStem: broken }), "identity-mutant"));
+    ok(await mutant.inventoryPlace(pick, null) !== null, "red proof: removing whole-name matching accepts the wrong resort");
   }
 
   // ── 2. NEGATIVE CONTROL — same build phase, no Supabase env: the

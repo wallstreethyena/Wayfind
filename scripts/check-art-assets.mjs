@@ -48,7 +48,7 @@ const SOURCES = ["lib/intentPages.js", "app/home.js", "app/components/screens/Ex
   // Added 2026-07-29: these two were NOT scanned, and both held art paths —
   // including a fallback that quietly branded 8 pages. An unscanned file with
   // art literals is exactly where the next uncommitted path will hide.
-  "app/culture/[metro]/page.js", "app/guides/[slug]/page.js"];
+  "app/culture/[metro]/page.js", "app/guides/[slug]/page.js", "lib/guideHero.js"];
 
 // A CATEGORY-BRANDED asset must never be the fallback for arbitrary pages.
 // /culture/miami, /keys, /boston, /hawaii and four guides all opened on a photo
@@ -57,7 +57,7 @@ const SOURCES = ["lib/intentPages.js", "app/home.js", "app/components/screens/Ex
 // with every page added. Keyword branches assigning matching art are fine —
 // only the final default is constrained.
 const CATEGORY_BRANDED = /hidden-gems|date-night|night-out|family-|budget-|best-of-|outdoors-hero/;
-const FALLBACK_FILES = ["app/culture/[metro]/page.js", "app/guides/[slug]/page.js"];
+const FALLBACK_FILES = ["app/culture/[metro]/page.js", "lib/guideHero.js"];
 
 // Any string literal assigned to an art/hero slot, plus the bare "/cards/..."
 // and "/brand/..." literals in home.js's heroImage ternary, which is a chain of
