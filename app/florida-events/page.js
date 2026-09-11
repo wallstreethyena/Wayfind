@@ -1,3 +1,4 @@
+import ReturnToWayfind from "../components/ReturnToWayfind";
 // v7.45 — The Florida Events hub. Server-rendered so crawlers read every card
 // and every date without executing JavaScript.
 //
@@ -104,7 +105,7 @@ export default async function FloridaEventsHub() {
   return (
     <main style={S.page}>
       {jsonLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} /> : null}
-      <a style={S.back} href="/">&lsaquo; Back to Wayfind</a>
+      <ReturnToWayfind style={S.back} />
       <div style={S.kicker}>Wayfind Events</div>
       <h1 style={S.h1}>Florida Events</h1>
       <p style={S.sub}>

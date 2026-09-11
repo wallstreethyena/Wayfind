@@ -77,7 +77,7 @@ import { saveItem as saveMonetized, fetchSavedItems } from "../lib/savedItems";
 // v7.08 — the one writer that knows a cache from a preference, and the sweep
 // that reclaims the budget the caches had already taken. See lib/localStore.js.
 import { setLocal, sweepLocal } from "../lib/localStore";
-import { horizontalPositions, restoreBrowsePosition } from "../lib/restoreBrowsePosition";
+import { browsePosition, horizontalPositions, restoreBrowsePosition } from "../lib/restoreBrowsePosition";
 import { placeRouteBackPlan } from "../lib/railReaction";
 import { reconcileIds } from "../lib/syncReconcile";
 // v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
@@ -4425,7 +4425,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       setMenuOrder(orderExploreMenu(new Date(), p ? p.utcOffsetMinutes : null));
     } catch (e) {}
   }, [suggested]);
-  const pickBrowse = (id) => { const nv = browseCat === id ? null : id; setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } };
+  const pickBrowse = (id) => { const nv = browseCat === id ? null : id; if (!nv) { closeBrowse(); return; } captureBrowseReturn(); setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } };
   const openCuisine = (label, fromPlace) => {
     if (!label) return;
     const ctx = condCtxFromNow(nowContext({ weather }));
@@ -4628,6 +4628,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // the reader on a browse block that is not there.
   const openBrowse = (id) => {
     if (!id) return;
+    captureBrowseReturn();
     if (screen !== "suggested") {
       setScreen("suggested");
       try { if (SCREEN_PATH[screen]) window.history.pushState({ wf: "screen" }, "", "/"); } catch (e) {}
@@ -5863,29 +5864,18 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // zero here is the thing that cancelled it — see landingRef above. Stranding
   // is still impossible: a landing always ends (settled, abandoned to the reader,
   // or the 4s ceiling) and every path that does not land still resets.
-  useEffect(() => { try { if (scrollRef.current && !landingRef.current) scrollRef.current.scrollTo({ top: 0 }); } catch (e) {} setMapPreview(null); setEventPreview(null); setMapDrawer(false); }, [cat, sub, vibe, intent, searchRadius, screen, activeBadge]);
+  useEffect(() => { try { if (scrollRef.current && !landingRef.current && !posRestore.current) scrollRef.current.scrollTo({ top: 0 }); } catch (e) {} setMapPreview(null); setEventPreview(null); setMapDrawer(false); }, [cat, sub, vibe, intent, searchRadius, screen, activeBadge]);
   // v6.08 (PR-C): when a place detail closes (back), restore the list scroll
   // position captured on open. The list stays mounted behind the sheet so its
   // items already exist; a double rAF waits for the close re-render. Keyed by
   // the list identity so switching lists never cross-restores.
   useEffect(() => {
     if (detail != null) return;
-    // v8.23.4 — FALL BACK TO THE STORED COPY. v6.08 wrote wf_sc_<key> to
-    // sessionStorage next to this ref and nothing ever read it, so the write was
-    // dead the day it shipped: after any reload the ref is empty and the reader
-    // lost their row. Same key, so it still cannot cross-restore between lists.
     const key = screen + "|" + cat + "|" + sub + "|" + vibe;
-    let s = scrollRestore.current;
-    if ((!s || s.key !== key) && scrollRef.current) {
-      try {
-        const stored = sessionStorage.getItem("wf_sc_" + key);
-        if (stored != null && Number.isFinite(Number(stored))) s = { key, top: Number(stored) };
-      } catch (e) {}
-    }
+    const s = scrollRestore.current;
     if (!s || !scrollRef.current || s.key !== key) return;
-    const top = s.top;
     scrollRestore.current = null;
-    requestAnimationFrame(() => requestAnimationFrame(() => { try { if (scrollRef.current) scrollRef.current.scrollTop = top; } catch (e) {} }));
+    return restoreBrowsePosition(scrollRef.current, s);
   }, [detail]);
   // ══ v8.23.4 — DO NOT LOSE THE READER'S PLACE ═══════════════════════════
   //
@@ -5911,78 +5901,118 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // a fresh visit, and the 30-minute ceiling below is a second belt on that.
   const posRestore = useRef(null);
   const posRead = useRef(false);
+  const browseReturn = useRef(null);
+  const activeEntryKey = useRef(null);
+  const positionWriter = useRef(null);
+  const writingPosition = useRef(false);
+  function captureBrowseReturn() {
+    if (!browseCat && scrollRef.current) browseReturn.current = browsePosition(scrollRef.current);
+  }
+  const [restoreVersion, setRestoreVersion] = useState(0);
+  function positionEntryKey() {
+    const h = window.history;
+    let key = h.state?.__wfPositionKey;
+    if (!key) {
+      key = Date.now().toString(36) + Math.random().toString(36).slice(2);
+      h.replaceState({ ...h.state, __wfPositionKey: key }, "");
+    }
+    activeEntryKey.current = key;
+    return key;
+  }
+  function readPosition() {
+    const key = positionEntryKey();
+    const raw = sessionStorage.getItem("wf_pos_entry_" + key) || (["/", "/v8"].includes(window.location.pathname) && !window.location.search ? sessionStorage.getItem("wf_pos") : null);
+    const p = JSON.parse(raw || "null");
+    if (!p || !p.ts || Date.now() - p.ts > 30 * 60000) {
+      sessionStorage.removeItem("wf_pos");
+      return null;
+    }
+    return p;
+  }
+  function applyPosition(p) {
+    if (!p) return false;
+    // Prepare storage before setters can remount a poster.
+    try {
+      if (p.poster) sessionStorage.setItem("wf_poster_position", JSON.stringify(p.poster));
+      else sessionStorage.removeItem("wf_poster_position");
+    } catch {}
+    posRestore.current = p;
+    browseReturn.current = p.browseReturn || null;
+    if (p.screen) setScreen(p.screen);
+    if (p.cat) setCat(p.cat);
+    if (p.browseCat !== undefined) setBrowseCat(p.browseCat);
+    if (p.sub) setSub(p.sub);
+    if (p.vibe) setVibe(p.vibe);
+    if (p.center && Number.isFinite(p.center.lat) && Number.isFinite(p.center.lng)) {
+      manualRef.current = true;
+      setCenter((prev) => prev?.lat === p.center.lat && prev?.lng === p.center.lng ? prev : p.center);
+      setLocName(p.locName || ""); setLocResolved(true);
+    }
+    if (p.searchMode && Array.isArray(p.searchPlaces)) setPlaces(p.searchPlaces);
+    for (const [key, setter] of Object.entries({ query: setQuery, intent: setIntent, sortBy: setSortBy,
+      searchRadius: setSearchRadius, quickFilter: setQuickFilter, searchMode: setSearchMode,
+      searchLabel: setSearchLabel, visibleCount: setVisibleCount, activeBadge: setActiveBadge,
+      moodPick: setMoodPick, eventCat: setEventCat, eventDate: setEventDate })) {
+      if (p[key] !== undefined) setter(p[key]);
+    }
+    window.dispatchEvent(new CustomEvent("wf:restore-browse", { detail: p }));
+    setRestoreVersion((v) => v + 1);
+    return true;
+  }
   useEffect(() => {
     if (posRead.current || initialPlaceId) return;
     posRead.current = true;
-    try {
-      const raw = sessionStorage.getItem("wf_pos");
-      if (!raw) return;
-      const p = JSON.parse(raw);
-      if (!p || typeof p !== "object" || !p.ts || Date.now() - p.ts > 30 * 60000) {
-        sessionStorage.removeItem("wf_pos");
-        return;
-      }
-      if (p.screen) setScreen(p.screen);
-      if (p.cat) setCat(p.cat);
-      if (p.browseCat !== undefined) setBrowseCat(p.browseCat);
-      if (p.sub) setSub(p.sub);
-      if (p.vibe) setVibe(p.vibe);
-      posRestore.current = { top: Number(p.top) || 0, horizontal: p.horizontal || [], at: Date.now() };
-    } catch (e) {}
+    try { applyPosition(readPosition()); } catch {}
   }, []);
-  // Lazy poster content can arrive long after two animation frames. Keep the
-  // saved position until it has had time to mount, or the reader takes control.
   useEffect(() => {
     const r = posRestore.current;
     if (!r || !scrollRef.current) return undefined;
     return restoreBrowsePosition(scrollRef.current, r, () => {
       if (posRestore.current === r) posRestore.current = null;
     });
-  }, [screen, cat, browseCat, sub, vibe]);
-  // The writer. On every taxonomy change, on a throttled scroll, and — the one
-  // that actually saves the Google Maps round trip — on pagehide, which fires
-  // when the browser is leaving THIS document, including for an outbound link.
-  // ONE scroller is recorded, because there is only one. v8.23.4 also stored a
-  // `win: window.scrollY` alongside it "in case the feed moves back to the
-  // window" — but in this shell window.scrollY is permanently 0 (the feed lives
-  // in div.wf-scrollarea, see v8.26), so that field saved 0 forever and its
-  // restore branch never once ran. A fallback that cannot fire is not
-  // resilience, it is a comment that lies. scripts/check-shell-scroll.mjs now
-  // fails the build on any new window.scroll* in the shell.
+  }, [screen, cat, browseCat, sub, vibe, restoreVersion]);
   useEffect(() => {
     if (initialPlaceId) return undefined;
-    const write = () => {
-      if (posRestore.current) return;
+    const write = (entryOverride) => {
+      if (writingPosition.current || posRestore.current || !scrollRef.current) return;
+      writingPosition.current = true;
       try {
-        sessionStorage.setItem("wf_pos", JSON.stringify({
-          screen, cat, browseCat, sub, vibe,
-          top: scrollRef.current ? scrollRef.current.scrollTop : 0,
-          horizontal: scrollRef.current ? horizontalPositions(scrollRef.current) : [],
-          ts: Date.now(),
-        }));
-      } catch (e) {}
+        const p = { screen, cat, browseCat, sub, vibe, ...browsePosition(scrollRef.current),
+          horizontal: horizontalPositions(scrollRef.current), center, locName, query, intent, sortBy,
+          searchRadius, quickFilter, searchMode, searchLabel, visibleCount, activeBadge, moodPick,
+          eventCat, eventDate, searchPlaces: searchMode ? places : undefined, browseReturn: browseReturn.current,
+          poster: JSON.parse(sessionStorage.getItem("wf_poster_position") || "null"), ts: Date.now() };
+        sessionStorage.setItem("wf_pos", JSON.stringify(p));
+        sessionStorage.setItem("wf_pos_entry_" + (typeof entryOverride === "string" ? entryOverride : positionEntryKey()), JSON.stringify(p));
+      } catch {} finally { writingPosition.current = false; }
     };
-    write();
-    let t = null;
-    const onScroll = () => { if (t) return; t = setTimeout(() => { t = null; write(); }, 400); };
-    const el = scrollRef.current;
-    try { if (el) el.addEventListener("scroll", onScroll, { passive: true }); } catch (e) {}
-    try {
-      window.addEventListener("scroll", onScroll, { passive: true });
-      window.addEventListener("pagehide", write);
-    } catch (e) {}
+    positionWriter.current = write;
+    const frame = requestAnimationFrame(() => write());
+    let timer;
+    const onScroll = () => { clearTimeout(timer); timer = setTimeout(write, 150); };
+    const capture = () => {
+      if (!browseCat && scrollRef.current) browseReturn.current = browsePosition(scrollRef.current);
+      write();
+    };
+    document.addEventListener("click", capture, true);
+    document.addEventListener("scroll", onScroll, { capture: true, passive: true });
+    window.addEventListener("pagehide", write);
     return () => {
-      if (t) clearTimeout(t);
-      try { if (el) el.removeEventListener("scroll", onScroll); } catch (e) {}
-      try {
-        window.removeEventListener("scroll", onScroll);
-        window.removeEventListener("pagehide", write);
-      } catch (e) {}
+      cancelAnimationFrame(frame); clearTimeout(timer);
+      document.removeEventListener("click", capture, true);
+      document.removeEventListener("scroll", onScroll, true);
+      window.removeEventListener("pagehide", write);
     };
-  }, [screen, cat, browseCat, sub, vibe]);
+  }, [screen, cat, browseCat, sub, vibe, center, locName, query, intent, sortBy, searchRadius,
+      quickFilter, searchMode, searchLabel, visibleCount, activeBadge, moodPick, eventCat, eventDate, restoreVersion, places]);
+  function closeBrowse() {
+    posRestore.current = browseReturn.current || { top: 0, horizontal: [] };
+    setBrowseCat(null); setMoodPick(null); setSub("all");
+    setRestoreVersion((v) => v + 1);
+  }
 
   // Reset the explore list back to 5 whenever a new result set loads or search mode flips.
-  useEffect(() => { setVisibleCount(5); }, [places, searchMode]);
+  useEffect(() => { if (!posRestore.current) setVisibleCount(5); }, [places, searchMode]);
   function pickSub(id) { setSub(id); setVibe("all"); try { logEvent("filter_changed", null, { cat, sub: id }); } catch (e) {} }
 
   // Signal functions — record engagement, drive personalised ranking, trigger sign-up.
@@ -6351,7 +6381,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }
     try { const _aud = {}; experienceBadges(p, null, 99, _aud); logEvent("detail_open", p, { identity: _aud.identity || null, blocked: (_aud.blocked || []).length, ctx: typeof context === "string" ? context : null }); } catch (e) {}
     // v6.08 (PR-C): remember where we were in the list so back returns here, not to the top.
-    try { if (scrollRef.current) { const _k = screen + "|" + cat + "|" + sub + "|" + vibe; const _t = scrollRef.current.scrollTop; scrollRestore.current = { key: _k, top: _t }; sessionStorage.setItem("wf_sc_" + _k, String(_t)); } } catch (e) {}
+    try { if (scrollRef.current) { const _k = screen + "|" + cat + "|" + sub + "|" + vibe; const _t = scrollRef.current.scrollTop; scrollRestore.current = { key: _k, ...browsePosition(scrollRef.current) };  } } catch (e) {}
     setDetail(p);
     // /p/{id} and any card that skipped withMemberSignal still show the raw
     // score until this overlay lands. Same function as the list path.
@@ -7429,7 +7459,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // A new screen pushes a history entry; refining the same screen's filter
         // replaces in place (no dead Back step).
         if (window.location.pathname !== SCREEN_PATH[screen]) window.history.pushState({ wf: "screen" }, "", target);
-        else window.history.replaceState({ wf: "screen" }, "", target);
+        else window.history.replaceState({ ...window.history.state, wf: "screen" }, "", target);
       } else if (prev && SCREEN_PATH[prev] && PATH_SCREEN[window.location.pathname]) {
         // Left a standalone screen for the feed/detail -> restore "/".
         window.history.pushState({ wf: "screen" }, "", "/");
@@ -7454,6 +7484,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const onPop = () => {
       try {
         const p = window.location.pathname;
+        if (activeEntryKey.current) positionWriter.current?.(activeEntryKey.current);
+        const key = window.history.state?.__wfPositionKey;
+        activeEntryKey.current = key;
+        if (key) {
+          const saved = JSON.parse(sessionStorage.getItem("wf_pos_entry_" + key) || "null");
+          if (saved && Date.now() - saved.ts <= 30 * 60000 && applyPosition(saved)) return;
+        }
         const scr = PATH_SCREEN[p];
         if (scr === "events") {
           const sp = new URLSearchParams(window.location.search);
@@ -10244,7 +10281,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               {browseCat && (
                 <div ref={browseAnchorRef} style={{ marginBottom: 16, scrollMarginTop: 10 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
-                    <div onClick={() => { setBrowseCat(null); setMoodPick(null); setSub("all"); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
+                    <div onClick={closeBrowse} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
                     {browseCat !== "attractions" && <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : ""} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />}
                   </div>
                   {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <AreaInsight onLog={logEvent} metro={_cm} cat={browseCat} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /> : null; })()}
@@ -11557,7 +11594,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     ? { rank: cardRank, label: "Wayfind curator's pick", curator: true }
     : topPickAward({ category: pcat, rank: cardRank });
   return (
-    <div className={`wf-place-card${fallCardClass(p && p.id, siteTodayStr())}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
+    <div data-wf-position-key={"place-" + p.id} className={`wf-place-card${fallCardClass(p && p.id, siteTodayStr())}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
       <button type="button" className="wf-place-card-open" onClick={onDetail} aria-label={`Open ${p.name}`} style={{ position: "absolute", inset: 0, zIndex: 0, width: "100%", height: "100%", opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
       {/* v8.62 (owner, 2026-08-26, live): "top right hand corner of the card,
           not in front of the image." The score badge is a direct child of the
