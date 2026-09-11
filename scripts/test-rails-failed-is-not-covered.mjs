@@ -41,6 +41,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { emptyRailLive, liveFromRailsResponse, isFailedRailsResponse } from "../lib/locationHonesty.js";
+import { completeAnswersOnly } from "../lib/railFastCache.js";
 import { railRenderState, RAIL_RENDER_STATE } from "../lib/railVisibility.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -134,14 +135,18 @@ const marker = "export async function GET(req) {";
 const routeBody = routeRaw.slice(routeRaw.indexOf(marker) + marker.length).trim().slice(0, -1);
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 const invokeGet = new AsyncFunction("deps", "req",
-  "const { NextResponse, LANDING_CITIES, DAYPART_IDS, nearestCity, geoCell, fastCachedRail, railMenuData, dedupeWire, windowRailData } = deps;\n" + routeBody);
-async function routeCase(value, throws = false, covered = true) {
+  "const { NextResponse, LANDING_CITIES, DAYPART_IDS, nearestCity, geoCell, completeAnswersOnly, fastCachedRail, railMenuData, dedupeWire, windowRailData } = deps;\n" + routeBody);
+let routeBuilds = 0;
+async function routeCase(value, throws = false, covered = true, cachedValue) {
   return invokeGet({
     NextResponse: { json: (body, options) => Response.json(body, options) },
     LANDING_CITIES: {}, DAYPART_IDS: ["morning"], nearestCity: () => covered ? "sarasota" : null,
     geoCell: (n) => n.toFixed(2),
-    railMenuData: async () => { if (throws) throw new Error("fixture database timeout"); return value; },
-    fastCachedRail: async (_key, loader) => ({ value: await loader(), state: "miss" }),
+    completeAnswersOnly,
+    railMenuData: async () => { routeBuilds++; if (throws) throw new Error("fixture database timeout"); return value; },
+    fastCachedRail: async (_key, loader, options) => cachedValue !== undefined && options.usable(cachedValue)
+      ? { value: cachedValue, state: "hit" }
+      : { value: await loader(), state: "miss" },
     dedupeWire: (v) => v, windowRailData: (v) => v,
   }, { nextUrl: new URL("https://fixture.invalid/api/rails?lat=27.34&lng=-82.53&band=morning") });
 }
@@ -152,8 +157,17 @@ for (const [value, throws] of [[null, false], [{ failed: true }, false], [null, 
   ok(body.failed === true && body.covered === false && body.data === null, "executed GET: outage has no invented coverage or inventory");
   ok(response.headers.get("cache-control") === "no-store", "executed GET: outage cannot enter CDN cache");
 }
-const successful = await routeCase({ failed: false, places: { breakfast: [{ id: "real" }] } });
+const healthyAnswer = { failed: false, degraded: false, complete: true, places: { breakfast: [{ id: "real" }] } };
+const successful = await routeCase(healthyAnswer);
 ok(successful.status === 200 && (await successful.json()).covered === true, "executed GET: completed inventory remains HTTP 200 and covered");
+routeBuilds = 0;
+const legacyCachedAnswer = { failed: false, places: { breakfast: [{ id: "legacy" }] } };
+const rebuilt = await routeCase(healthyAnswer, false, true, legacyCachedAnswer);
+const rebuiltBody = await rebuilt.json();
+ok(routeBuilds === 1 && rebuilt.headers.get("x-wayfind-fast-cache") === "miss",
+  "executed GET: a legacy seven-day entry without explicit complete/degraded status is rejected and rebuilt");
+ok(rebuiltBody.data?.places?.breakfast?.[0]?.id === "real",
+  "executed GET: the rejected legacy payload cannot leak into the delivered answer");
 const uncovered = await routeCase(null, false, false);
 ok(uncovered.status === 200 && !(await uncovered.json()).failed, "executed GET: a genuinely uncovered location stays distinct from an outage");
 

@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 629,
-    "totalRegistryEntries": 630,
-    "guardsTxtLineCount": 628,
-    "guardsTxtReachedFileCount": 623,
+    "totalOnDiskGuardFiles": 631,
+    "totalRegistryEntries": 632,
+    "guardsTxtLineCount": 630,
+    "guardsTxtReachedFileCount": 625,
     "criticalCount": 74,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 427,
-      "RENDER": 59,
+      "CALL": 428,
+      "RENDER": 60,
       "STRUCTURAL": 143,
       "OTHER": 1
     }
@@ -3824,7 +3824,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 9,
+      "assertionCount": 17,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -4899,7 +4899,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 42,
+      "assertionCount": 47,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -6279,7 +6279,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 33,
+      "assertionCount": 35,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -8289,6 +8289,28 @@
         "detail": "A regression could bypass finite autocomplete budgets or disguise a denied provider as successful empty search suggestions."
       },
       "owner": "Revenue QA"
+    },
+    {
+      "file": "scripts/test-batch-completeness.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 8,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
     },
     {
       "file": "scripts/test-beach-alert-recovery.mjs",
@@ -11407,7 +11429,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 9,
+      "assertionCount": 55,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -12129,6 +12151,28 @@
         "detail": "#294's query-param approach is retired — a regression back to it silently loses Ticketmaster attribution while looking like a normal link."
       },
       "owner": "Revenue QA"
+    },
+    {
+      "file": "scripts/test-morning-candidate-integrity.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 13,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
     },
     {
       "file": "scripts/test-morning-identity.mjs",
@@ -13426,7 +13470,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 37,
+      "assertionCount": 39,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,

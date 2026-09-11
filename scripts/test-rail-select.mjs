@@ -641,13 +641,13 @@ const WIDEN_RADIUS_MI = 25;
   // empty rail this block exists to prevent, and would have passed a check that
   // only looked for the call.
   const dcode = data.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
-  ok(/buildIdentityPool\(pools, origin, isBreakfastPlace, BREAKFAST_NEAR_MI/.test(dcode),
+  ok(/buildMorningIdentityPools\(pools, origin\)/.test(dcode),
     "railsData builds the breakfast identity pool from owned inventory (the pool-cap cure)");
-  ok(/pools\.breakfast = breakfast;/.test(dcode),
+  ok(/pools\.breakfast = morning\.breakfast;/.test(dcode),
     "…and ASSIGNS it to pools.breakfast — a pool computed inside a wave and never attached is the same empty rail, wearing a longer request");
-  ok(/buildIdentityPool\(pools, origin, isQuickService, 8/.test(dcode),
+  ok(/isStrongQuickService\(place\)/.test(dcode),
     "railsData builds the quickeats identity pool for the 30-minute break");
-  ok(/pools\.quickeats = quickeats;/.test(dcode),
+  ok(/pools\.quickeats = morning\.quickeats;/.test(dcode),
     "…and ASSIGNS it to pools.quickeats — a pool computed inside a wave and never attached is the same empty rail, wearing a longer request");
   // v8.22 — the drive pool is BUILT (the exact call, on the pools object, from
   // the pooled-cities list) and bounded by the same band the selector reads.

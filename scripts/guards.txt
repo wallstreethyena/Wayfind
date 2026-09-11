@@ -1466,6 +1466,7 @@ node scripts/test-rail-visual-standard.mjs
 node scripts/test-event-stays.mjs
 node scripts/test-event-driving-route.mjs
 
+node scripts/test-morning-candidate-integrity.mjs
 # Shared event navigation, map cards, and explicit sharing choices.
 node scripts/test-event-section-nav.mjs
 node scripts/test-event-nearby-cards.mjs
@@ -1477,3 +1478,4 @@ node scripts/test-trip-connections.mjs
 # Six canonical Florida attraction identities supplement Family/Activities from
 # owned inventory, then keep the ordinary chip, exact-radius and score ordering.
 node scripts/test-attraction-discovery.mjs
+node scripts/test-batch-completeness.mjs
