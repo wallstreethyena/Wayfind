@@ -23,6 +23,11 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { eventPairings, pairingHref } from "../lib/eventPairings.js";
+import {
+  createCachedEventPairings,
+  EVENT_PAIRINGS_CACHE_KEY,
+  EVENT_PAIRINGS_REVALIDATE_SECONDS,
+} from "../lib/eventPairingsCache.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 let pass = 0;
@@ -84,9 +89,62 @@ ok(/e\.hero_image/.test(hub) && /<img/.test(hub), "the hub renders the event's h
 ok(/dateRangeLabel\(e\)/.test(hub), "the hub card badge is the DATE (dateRangeLabel)");
 ok(!/PlaceScoreChip|wayfindScore\s*\(/.test(hub), "the hub never renders a Wayfind Score on an event card — an event is dated, not quality-ranked");
 
-// 7. SOURCE — the event page wires the nearby module and only renders it when non-empty.
+// 7. CACHE CONTRACT. The curated page is ISR, but the exhaustive inventory
+// reader below eventPairings deliberately uses cache: "no-store". Execute the
+// real wrapper against a cache double: the loader must run inside the boundary,
+// identical identities must coalesce, and every input that can change the
+// answer must produce its own cache entry.
+{
+  const stored = new Map();
+  const configs = [];
+  const loads = [];
+  let insideBoundary = false;
+  let escapedBoundary = false;
+  const cache = (fn, keyParts, options) => {
+    configs.push({ keyParts, options });
+    return async (...args) => {
+      const key = JSON.stringify([...keyParts, ...args]);
+      if (stored.has(key)) return stored.get(key);
+      insideBoundary = true;
+      try {
+        const value = await fn(...args);
+        stored.set(key, value);
+        return value;
+      } finally {
+        insideBoundary = false;
+      }
+    };
+  };
+  const cached = createCachedEventPairings({
+    cache,
+    load: async (event) => {
+      if (!insideBoundary) escapedBoundary = true;
+      loads.push(event);
+      return [{ id: `${event.lat}:${event.lng}:${event.city}:${event.place_id}` }];
+    },
+  });
+  const base = { lat: 28.05, lng: -82.42, city: "Tampa", place_id: "busch-gardens" };
+  await cached(base);
+  await cached({ ...base });
+  await cached({ ...base, event_name: "A field pairings do not read" });
+  await cached({ ...base, lat: 28.06 });
+  await cached({ ...base, lng: -82.41 });
+  await cached({ ...base, city: "Temple Terrace" });
+  await cached({ ...base, place_id: "another-venue" });
+  await cached({ ...base, place_id: undefined, placeId: "busch-gardens" });
+
+  ok(configs.length === 1 && configs[0].keyParts[0] === EVENT_PAIRINGS_CACHE_KEY, "event pairings use one versioned Data Cache namespace");
+  ok(configs[0].options.revalidate === EVENT_PAIRINGS_REVALIDATE_SECONDS && EVENT_PAIRINGS_REVALIDATE_SECONDS === 3600, "the pairing cache and parent ISR page share a one-hour lifetime");
+  ok(!escapedBoundary, "every exhaustive pairing load executes inside the Data Cache boundary");
+  ok(loads.length === 5, `identical inputs coalesce while lat, lng, city, and venue identity split the cache (got ${loads.length} loads)`);
+  ok(loads.every((event) => Object.hasOwn(event, "lat") && Object.hasOwn(event, "lng") && Object.hasOwn(event, "city") && Object.hasOwn(event, "place_id")), "the cached loader receives every field eventPairings reads");
+}
+
+// 8. SOURCE — the ISR event page uses the cache boundary and only renders
+// nearby places when non-empty.
 const slug = readFileSync(path.join(ROOT, "app/florida-events/[slug]/page.js"), "utf8");
-ok(/eventPairings\(/.test(slug) && /pairingHref\(/.test(slug), "the event page fetches pairings and links them");
+ok(/cachedEventPairings\(e\)/.test(slug) && /pairingHref\(/.test(slug), "the ISR event page fetches pairings through the cache boundary and links them");
+ok(!/import\s*\{[^}]*\beventPairings\b[^}]*\}\s*from/.test(slug), "the ISR event page cannot bypass the cached pairing entrypoint");
 // v8.99 — the nearby cards render INSIDE the shared <EventWhere> block (with
 // the map pins), so the never-a-thin-shelf gate lives there now: the page must
 // hand its pairings to EventWhere, and EventWhere must render the shelf only

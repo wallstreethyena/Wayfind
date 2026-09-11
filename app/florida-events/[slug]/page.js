@@ -21,12 +21,14 @@ import ShareButton from "../../components/ShareButton";
 import SaveEventButton from "./SaveEventButton.js";
 import EventWhere from "../../components/EventWhere";
 import ReturnToWayfind from "../../components/ReturnToWayfind.js";
-import { eventPairings, pairingHref } from "../../../lib/eventPairings";
+import { pairingHref } from "../../../lib/eventPairings";
+import { cachedEventPairings } from "../../../lib/eventPairingsCache";
 import { eventTicketCta } from "../../../lib/eventTicketDeals.js";
 import { clockLabel } from "../../../lib/fallPool.js";
 import { eventSocialPosts } from "../../../lib/eventSocial.js";
 import VideoFacade from "../../components/VideoFacade.js";
 import CreatorPlaybackDetails from "../../components/CreatorPlaybackDetails.js";
+import CreatorVideoRail from "../../components/CreatorVideoRail.js";
 import { isEmbeddable } from "../../../lib/videoEmbed";
 
 // Same two-letter monogram convention as RailCard/IconicPlaceCard's card
@@ -104,7 +106,6 @@ const S = {
   heroFallbackMark: { fontSize: 28, fontWeight: 900, letterSpacing: ".06em", color: "#FFC08F" },
   credit: { fontSize: 12.5, color: "#8B949E", margin: "0 0 22px" },
   social: { margin: "22px 0", padding: "16px", border: "1px solid #26303B", borderRadius: 14, background: "#111821" },
-  socialRail: { display: "flex", gap: 14, overflowX: "auto", overscrollBehaviorX: "contain", padding: "4px 2px 10px", scrollSnapType: "x proximity" },
   socialPost: { flex: "0 0 min(78vw, 300px)", maxWidth: 300, scrollSnapAlign: "start", borderRadius: 20, overflow: "hidden", border: "1px solid #65443d", background: "linear-gradient(180deg,#302021,#191415)" },
   socialLink: { display: "block", color: "#efd0a6", fontSize: 14, fontWeight: 800, textDecoration: "none", padding: "0 16px 18px" },
   // v8.88 — the way back. Byte-identical to the pill on /guides and
@@ -213,7 +214,7 @@ export default async function CuratedEventPage({ params }) {
   // Real nearby places worth an outing, ranked by Wayfind — [] (and no section)
   // where there is nothing honestly nearby, so a page never shows a thin shelf.
   // They render inside <EventWhere> (numbered cards + the same numbers as pins).
-  const pairings = (await eventPairings(e, {})).map((p) => ({ ...p, href: pairingHref(p) }));
+  const pairings = (await cachedEventPairings(e)).map((p) => ({ ...p, href: pairingHref(p) }));
   const ld = eventJsonLd(e, { siteUrl: SITE_URL });
   const crumbs = {
     "@context": "https://schema.org", "@type": "BreadcrumbList",
@@ -337,7 +338,7 @@ export default async function CuratedEventPage({ params }) {
       {socialPosts.length ? (
         <section id="event-creators" data-event-section="Creator posts" tabIndex={-1} style={{ ...S.social, maxWidth: 820, margin: "0 auto 40px" }} aria-label="Creator posts about this event">
           <h2 style={{ ...S.h2, marginTop: 0 }}>Seen from local creators</h2>
-          <div style={S.socialRail}>
+          <CreatorVideoRail label={`creator posts about ${e.event_name}`} hint="Swipe to see every creator post">
             {socialPosts.map((post) => (
               <article key={post.url} style={S.socialPost}>
                 {/* The facade paints only Wayfind UI until the reader taps it;
@@ -359,7 +360,7 @@ export default async function CuratedEventPage({ params }) {
                 </CreatorPlaybackDetails> : socialDetails(post)}
               </article>
             ))}
-          </div>
+          </CreatorVideoRail>
         </section>
       ) : null}
 
