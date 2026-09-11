@@ -7,7 +7,7 @@ import EventStayCards from "./EventStayCards";
 // cannot switch the parent ISR event page to dynamic rendering at runtime.
 const cachedEventStays = unstable_cache(
   async (lat, lng) => eventStays({ lat, lng }),
-  ["event-stays-v1"],
+  ["event-stays-v2"],
   { revalidate: 3600 },
 );
 

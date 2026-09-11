@@ -28,4 +28,9 @@ const merged = await eventStays(origin, { readOwned: async () => [hotel("wfh-rea
 assert.equal(merged.places.length, 1);
 assert.equal(merged.places[0].wfScore, 99);
 assert.equal(merged.places[0].blurb, "Owned editorial");
+const serviceRows = await eventStays(origin, { readOwned: async () => [], readInventory: async () => [
+  { id: "massage", displayName: { text: "LeVisa Massage Spa & Wellness" }, primaryType: "massage", types: ["hotel", "spa", "massage", "lodging"], location: { latitude: 28.48, longitude: -81.47 }, rating: 5, userRatingCount: 1000 },
+  { id: "spa-hotel", displayName: { text: "Test Spa Resort" }, primaryType: "spa", types: ["hotel", "spa", "lodging"], location: { latitude: 28.48, longitude: -81.47 }, rating: 4.8, userRatingCount: 1000 },
+] });
+if (serviceRows.places.length !== 1 || serviceRows.places[0].id !== "spa-hotel") throw new Error("Event Stays must reject standalone massage businesses while retaining spa resorts");
 console.log("event-stays PASS: venue geography, lodging identity, score order, dedupe, invalid origins, empty/error distinction, partial availability, inventory mapping");
