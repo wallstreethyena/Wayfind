@@ -23,8 +23,10 @@ import { PLATFORM, PLATFORM_RGB, creatorStats, allCreators, hasCreatorPage, crea
 import { captionFor } from "../../../lib/creatorCaptions";
 import CreatorAvatar from "../CreatorAvatar";
 import VideoFacade from "../VideoFacade";
+import CreatorPlaybackDetails from "../CreatorPlaybackDetails";
 import { creatorLabel, AFFILIATION_DISCLOSURE, REMOVAL_PROMPT, REMOVAL_CONTACT } from "../../../lib/creatorRights";
 import { summaryFor } from "../../../lib/creatorArchetypes";
+import { isEmbeddable } from "../../../lib/videoEmbed";
 
 // Mirrors app/home.js's own module-scope promOf() — a one-line fallback
 // (wfProm, else wfScore, else 0), duplicated here rather than imported
@@ -228,6 +230,32 @@ export default function SocialFindSheet({ ctx }) {
   const stats = creatorStats(handle);
   const otherSpots = stats.spots.filter((s) => s.name !== place.name);
   const others = curatedSpot ? [] : (videoHeroPlaces || []).filter((v) => v.place && v.place.id !== place.id).slice(0, 8);
+  const creatorAttribution = <>
+    <a
+      href={video.url}
+      target="_blank"
+      rel="noopener"
+      onClick={() => { try { logEvent("creator_video", place, { platform: video.platform, creator: handle || "", src: "social_find_sheet" }); } catch (e) {} }}
+      aria-label={instagramPost
+        ? `View ${handle ? "@" + handle : "this creator"}'s Instagram post (opens in a new tab)`
+        : `Watch ${handle ? "@" + handle : "this creator"}'s video (opens in a new tab)`}
+      className="wf-social-glow"
+      style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", background: `linear-gradient(160deg, ${plat.color}1f 0%, ${C.card} 60%)`, border: `1.5px solid ${plat.color}`, borderRadius: 14, padding: 14, marginBottom: 16, "--glow-rgb": glowRgb }}
+    >
+      <CreatorAvatar handle={handle} platform={video.platform} size={52} color={plat.color} />
+      <div style={{ minWidth: 0, flex: 1 }}>
+        <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>{handle ? "@" + handle : plat.label + " creator"}</div>
+        <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{stats.count > 0 ? `Featured at ${stats.count} spot${stats.count === 1 ? "" : "s"} on Wayfind` : `On ${plat.label}`}</div>
+        <div style={{ fontSize: 12.5, fontWeight: 800, color: plat.color, marginTop: 6 }}>{instagramPost ? "View on Instagram ↗" : `Watch on ${plat.label} ↗`}</div>
+      </div>
+    </a>
+    {captionFor(video) && <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.55, marginBottom: 18 }}>{captionFor(video)}</div>}
+  </>;
+  const curatedDetails = <div style={{ paddingTop: 12 }}>
+    {(place.address || place.city) && <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, marginBottom: 12 }}>{place.address || place.city}</div>}
+    {curatedSpot && curatedSpot.key === "little-leopard-coffee-tottington" && <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.5, marginBottom: 12 }}>Mobile coffee caravan · published contact address; check the creator's post for current service locations.</div>}
+    {creatorAttribution}
+  </div>;
 
   return (
     <div style={sheetBg} onClick={close}>
@@ -251,33 +279,14 @@ export default function SocialFindSheet({ ctx }) {
         <div style={{ padding: "16px 18px 26px" }}>
           {curatedSpot && (
             <div style={{ marginBottom: 16 }}>
-              {(place.address || place.city) && <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, marginBottom: 12 }}>{place.address || place.city}</div>}
-              {curatedSpot.key === "little-leopard-coffee-tottington" && <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.5, marginBottom: 12 }}>Mobile coffee caravan · published contact address; check the creator's post for current service locations.</div>}
               <div style={{ display: "flex", justifyContent: "center" }}>
-                <VideoFacade platform={video.platform} url={video.url} label={`${handle ? "@" + handle : plat.label + " creator"} post about ${place.name}`} />
+                {isEmbeddable(video.platform, video.url) ? <CreatorPlaybackDetails style={{ width: "100%", maxWidth: 300 }} details={curatedDetails}>
+                  <VideoFacade platform={video.platform} url={video.url} label={`${handle ? "@" + handle : plat.label + " creator"} post about ${place.name}`} />
+                </CreatorPlaybackDetails> : curatedDetails}
               </div>
             </div>
           )}
-          <a
-            href={video.url}
-            target="_blank"
-            rel="noopener"
-            onClick={() => { try { logEvent("creator_video", place, { platform: video.platform, creator: handle || "", src: "social_find_sheet" }); } catch (e) {} }}
-            aria-label={instagramPost
-              ? `View ${handle ? "@" + handle : "this creator"}'s Instagram post (opens in a new tab)`
-              : `Watch ${handle ? "@" + handle : "this creator"}'s video (opens in a new tab)`}
-            className="wf-social-glow"
-            style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", background: `linear-gradient(160deg, ${plat.color}1f 0%, ${C.card} 60%)`, border: `1.5px solid ${plat.color}`, borderRadius: 14, padding: 14, marginBottom: 16, "--glow-rgb": glowRgb }}
-          >
-            <CreatorAvatar handle={handle} platform={video.platform} size={52} color={plat.color} />
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>{handle ? "@" + handle : plat.label + " creator"}</div>
-              <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{stats.count > 0 ? `Featured at ${stats.count} spot${stats.count === 1 ? "" : "s"} on Wayfind` : `On ${plat.label}`}</div>
-              <div style={{ fontSize: 12.5, fontWeight: 800, color: plat.color, marginTop: 6 }}>{instagramPost ? "View on Instagram ↗" : `Watch on ${plat.label} ↗`}</div>
-            </div>
-          </a>
-
-          {captionFor(video) && <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.55, marginBottom: 18 }}>{captionFor(video)}</div>}
+          {!curatedSpot && creatorAttribution}
 
           {!curatedSpot && (
             <button onClick={() => { setSocialFind(null); openDetail(place, "social_find_sheet"); }} style={{ width: "100%", padding: "12px 0", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13.5, fontWeight: 800, cursor: "pointer", marginBottom: 22 }}>
