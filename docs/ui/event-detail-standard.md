@@ -14,8 +14,8 @@ Route files supply verified event content and the existing action components.
 4. A separate action section with a border, positive spacing, booking disclosure,
    and Save and Share controls.
 5. Exact-event creator videos, then the shared venue map with the standard iconic
-   nearby place-card rail inside its panel. Nearby places are clearly not the venue.
-6. Nearby stays and available planning information.
+   nearby and stays place-card rails inside its panel. The venue remains distinct.
+6. Available planning information.
 
 ## Shared layout rules
 
@@ -30,8 +30,12 @@ Route files supply verified event content and the existing action components.
   behind `eventPhotos`, retain credit, and do not repeat the hero in the rail.
 - `EventPlacePhoto` preserves the frame when an image fails. Missing photos
   show an honest monogram instead of another venue's image.
-- Nearby place recommendations also remain in a horizontal rail on desktop
-  and mobile, separate from the event's own photos and venue information.
+- Nearby places and stays use `EventPlaceRail`, the shared homepage heading,
+  arrow controls and paging dots. Each rail has its own target. Both sit inside
+  the Where it is card, separate from the event's own photo gallery.
+- The stays caption is one short sentence: “Top stays within 12 miles.”
+  Streaming stays publish the exact displayed identities to the map context;
+  the map does not independently choose a different hotel pool.
 - Empty optional facts stay absent. Do not invent prices, dates, reasons,
   photography, creator associations or available tickets to fill the shell.
 
@@ -53,3 +57,13 @@ acceptance must inspect 320, 390, 430, 800, 801 and 1440 pixel viewports, includ
 long verdicts, saved/copied button labels and image failure. Confirm achieved
 viewport widths, action/text separation, horizontal rail scrolling and absence
 of page overflow. Static render assertions alone do not prove these behaviors.
+
+## Sharing and source identity
+
+Share opens the native share sheet first, or immediate Text/Email/Copy options.
+An early place-card tap is retained until hydration. Copy success is shown only
+after the clipboard write succeeds. Test the actual card action path.
+
+Only verified exact-event media belongs in the event video rail. General city
+roundups and venue-only media cannot be relabeled as event footage. Keep
+unresolved reported links in the audit with their missing evidence visible.

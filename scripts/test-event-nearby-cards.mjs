@@ -30,7 +30,7 @@ Module._extensions[".js"] = (module, filename) => {
 Module._load = function load(request, parent, isMain) {
   let resolved = "";
   try { resolved = Module._resolveFilename(request, parent, isMain); } catch {}
-  if (resolved === staysPath) return { __esModule: true, default: () => null };
+  if (resolved === staysPath) return { __esModule: true, default: () => createElement("section", { id: "event-stays" }, "Fixture stays") };
   if (request === "next/dynamic") return { __esModule: true, default: () => () => null };
   return defaultModuleLoad.call(this, request, parent, isMain);
 };
@@ -103,6 +103,22 @@ for (const item of valid) assert.match(whereHtml, new RegExp(item.name), `${item
 for (const item of invalid) assert.doesNotMatch(whereHtml, new RegExp(item.name), `${item.name} cannot render as a mismatched pin/card`);
 assert.ok(whereHtml.indexOf('id="event-location"') < whereHtml.indexOf('id="event-nearby"'), "the nearby region is housed inside the outer map section");
 assert.match(whereHtml, /Open in Apple Maps/, "the Apple Maps route remains available");
+// Inspect rendered ancestry, not source position: both rails belong to the same card.
+function ancestorTagsForId(html, id) {
+  const stack = [];
+  for (const match of html.matchAll(/<\/?([a-z][a-z0-9]*)([^>]*)>/gi)) {
+    const [tag, name, attributes] = match;
+    if (tag.startsWith("</")) { if (stack.at(-1)?.name === name) stack.pop(); continue; }
+    if (attributes.includes(`id="${id}"`)) return stack;
+    if (!/^(area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)$/i.test(name) && !tag.endsWith("/>")) stack.push({ name, attributes });
+  }
+  return [];
+}
+for (const id of ["event-nearby", "event-stays"]) {
+  assert.ok(ancestorTagsForId(whereHtml, id).some(({ attributes }) => attributes.includes('class="wfw-card"')), `${id} is inside the Where it is card`);
+}
+
+
 
 const noPointHtml = renderToStaticMarkup(createElement(EventWhere, {
   venue: "Address-only Hall",
@@ -113,9 +129,25 @@ const noPointHtml = renderToStaticMarkup(createElement(EventWhere, {
   picks: valid,
 }));
 assert.doesNotMatch(noPointHtml, /id="event-nearby"|data-iconic-place-card/, "address-only events do not claim nearby map results");
+assert.doesNotMatch(noPointHtml, /id="event-stays"/, "address-only events do not render an ungrounded hotel rail");
 assert.match(noPointHtml, /Get directions/, "address-only events retain the Apple Maps fallback");
 
-console.log("test-event-nearby-cards: OK — 28 assertions across the real EventWhere, EventNearbyCards, and IconicPlaceCard render chain; positive rail/actions and negative pin-card admission verified");
+// Shared poster controls must target their own rail when Nearby and Stays coexist.
+const EventPlaceRail = require("../app/components/EventPlaceRail.js").default;
+const pairedRails = renderToStaticMarkup(createElement("div", null,
+  createElement(EventPlaceRail, { title: "Nearby places", description: "Nearby picks by Wayfind Score.", label: "Nearby", count: 3 }, createElement("li", null, "Nearby fixture")),
+  createElement(EventPlaceRail, { title: "Stay near this event", label: "Stays", count: 2 }, createElement("li", null, "Stay fixture")),
+));
+const railIds = [...pairedRails.matchAll(/data-rail="([^"]+)"/g)].map(m => m[1]);
+assert.equal(railIds.length, 2, "both rails expose control targets");
+assert.equal(new Set(railIds).size, 2, "multiple rails cannot share a paging target");
+assert.equal((pairedRails.match(/class="wf-rail-heading"/g) || []).length, 2, "both use the home poster heading");
+assert.equal((pairedRails.match(/aria-label="Next places"/g) || []).length, 2, "both offer shared forward paging");
+assert.match(railHtml, /Nearby picks by Wayfind Score/, "compact copy retains the map relationship");
+assert.doesNotMatch(whereHtml, /Worth a stop near|Separate places, not part/, "verbose duplicate heading does not return");
+assert.equal(renderToStaticMarkup(createElement(EventPlaceRail, { title: "Empty", count: 0 })), "", "empty rails are hidden");
+
+console.log("test-event-nearby-cards: OK — 38 assertions across the real EventWhere, EventNearbyCards, and IconicPlaceCard render chain; positive rail/actions and negative pin-card admission verified");
 
 Module._extensions[".js"] = defaultJsLoader;
 Module._load = defaultModuleLoad;
