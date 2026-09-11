@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 624,
-    "totalRegistryEntries": 625,
-    "guardsTxtLineCount": 623,
-    "guardsTxtReachedFileCount": 618,
+    "totalOnDiskGuardFiles": 625,
+    "totalRegistryEntries": 626,
+    "guardsTxtLineCount": 624,
+    "guardsTxtReachedFileCount": 619,
     "criticalCount": 74,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 423,
+      "CALL": 424,
       "RENDER": 58,
       "STRUCTURAL": 143,
       "OTHER": 1
@@ -3222,6 +3222,28 @@
       "owner": null
     },
     {
+      "file": "scripts/check-guide-place-identities.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 9,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-guide-product-resolution.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -3304,7 +3326,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 27,
+      "assertionCount": 29,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
