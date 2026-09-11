@@ -1879,17 +1879,82 @@ function confidenceOf(reviews) {
 // This helper fills that column — pass `wf-place-card-photo`, never a 96×96
 // inline size (that was Image-1 compact chrome). Leave dimensions to css.js.
 function FallbackImg({ src, fallbackSrc, alt, style, className, icon, onClick }) {
-  const [bad, setBad] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-  const [usingFallback, setUsingFallback] = useState(false);
-  useEffect(() => { setBad(false); setLoaded(false); setUsingFallback(false); }, [src, fallbackSrc]);
-  const activeSrc = usingFallback ? fallbackSrc : src;
-  const state = imageDisplayState({ src: activeSrc, errored: bad, loaded });
+  // An unrelated fallback update must not hide an already decoded primary.
+  // Keep outcomes attached to the URL that actually emitted the event.
+  const [outcomes, setOutcomes] = useState(() => new Map());
+  const imgRef = useRef(null);
+  const activeSrc = (!src || outcomes.get(src) === "error") && fallbackSrc && fallbackSrc !== src ? fallbackSrc : src;
+  const outcome = outcomes.get(activeSrc);
+  const state = imageDisplayState({ src: activeSrc, errored: outcome === "error", loaded: outcome === "loaded" });
+  const markOutcome = (url, value) => setOutcomes((previous) => {
+    if (previous.get(url) === value) return previous;
+    const next = new Map(previous);
+    next.set(url, value);
+    return next;
+  });
+  useEffect(() => {
+    const el = imgRef.current;
+    if (!el || state !== "skeleton") return;
+    let disposed = false;
+    let timer = null;
+    let wasVisible = false;
+    const settleCompleted = () => {
+      if (!el.complete) return false;
+      markOutcome(activeSrc, el.naturalWidth > 0 ? "loaded" : "error");
+      return true;
+    };
+    // Cached / prerendered images can finish before React hears their event.
+    if (settleCompleted()) return;
+    const clearDeadline = () => {
+      if (timer !== null) clearTimeout(timer);
+      timer = null;
+    };
+    const setVisible = (visible) => {
+      if (disposed || visible === wasVisible) return;
+      wasVisible = visible;
+      clearDeadline();
+      if (!visible) return;
+      // Wake a native lazy request stalled inside a newly revealed menu.
+      // Only this visible image is promoted; offscreen cards stay lazy.
+      el.loading = "eager";
+      timer = setTimeout(() => {
+        timer = null;
+        if (!disposed && !settleCompleted()) markOutcome(activeSrc, "error");
+      }, 15000);
+    };
+    // Lazy images have no deadline until visible; hide the skeleton if a
+    // visible request never delivers either load or error.
+    let observer = null;
+    const checkVisible = () => {
+      const rect = el.getBoundingClientRect();
+      setVisible(rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.right > 0 && rect.top < window.innerHeight && rect.left < window.innerWidth);
+    };
+    if (typeof IntersectionObserver !== "undefined") {
+      observer = new IntersectionObserver((entries) => {
+        const entry = entries.find((item) => item.target === el);
+        if (entry) setVisible(entry.isIntersecting && entry.intersectionRatio > 0);
+      });
+      observer.observe(el);
+    } else {
+      checkVisible();
+      window.addEventListener("scroll", checkVisible, true);
+      window.addEventListener("resize", checkVisible);
+    }
+    return () => {
+      disposed = true;
+      clearDeadline();
+      if (observer) observer.disconnect();
+      else {
+        window.removeEventListener("scroll", checkVisible, true);
+        window.removeEventListener("resize", checkVisible);
+      }
+    };
+  }, [activeSrc, state]);
   if (state === "fallback") return <BrandedImageFallback className={className} style={style} />;
   return (
     <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}>
       {state === "skeleton" && <div className="wf-skeleton" style={{ position: "absolute", inset: 0 }} aria-hidden="true" />}
-      <img decoding="async" src={activeSrc} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => setLoaded(true)} onError={() => { if (!usingFallback && fallbackSrc && fallbackSrc !== src) { setUsingFallback(true); setLoaded(false); } else setBad(true); }} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />
+      <img key={activeSrc} ref={imgRef} decoding="async" src={activeSrc} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => markOutcome(activeSrc, "loaded")} onError={() => markOutcome(activeSrc, "error")} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />
     </div>
   );
 }

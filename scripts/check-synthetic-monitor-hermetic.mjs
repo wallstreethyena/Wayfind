@@ -58,6 +58,9 @@ import {
   reconcileRenderedCards,
   continuationUiSettled,
   exactRenderedIdSet,
+  railRequestScope,
+  sameRailRequestScope,
+  railRequestTargetsLocation,
 } from "./lib/synthetic/menuPosterIntegrity.mjs";
 import {
   redactUrl,
@@ -304,6 +307,21 @@ for (const s of SCENARIOS) {
     "menu-poster delayed-render positive control: the final exact DOM set includes a thirteenth card");
   ok(!exactRenderedIdSet(["p1", "p2", "p13"], ["p1", "p2"]),
     "menu-poster MUTATION RED: a final DOM snapshot missing card 13 fails exact-set readiness");
+
+  const sarasotaInitial = "https://www.gowayfind.com/api/rails?lat=27.34&lng=-82.53&band=morning&v=2&city=sarasota";
+  const sarasotaPage = sarasotaInitial + "&rail=breakfast&offset=12&limit=24";
+  const parrishSeedPage = "https://www.gowayfind.com/api/rails?lat=27.57&lng=-82.44&band=morning&v=2&city=parrish&rail=breakfast&offset=12&limit=24";
+  const sarasotaLunchPage = "https://www.gowayfind.com/api/rails?lat=27.34&lng=-82.53&band=lunch&v=2&city=sarasota&rail=breakfast&offset=12&limit=24";
+  ok(!!railRequestScope(sarasotaInitial)
+      && railRequestTargetsLocation(sarasotaInitial, { lat: 27.3364, lng: -82.5307 }, "sarasota")
+      && sameRailRequestScope(sarasotaInitial, sarasotaPage),
+    "menu-poster source identity positive control: page zero and its continuation share the permission-granted Sarasota answer");
+  ok(!railRequestTargetsLocation(parrishSeedPage, { lat: 27.3364, lng: -82.5307 }, "sarasota")
+      && !sameRailRequestScope(sarasotaInitial, parrishSeedPage)
+      && !sameRailRequestScope(sarasotaInitial, sarasotaLunchPage),
+    "menu-poster MUTATION RED: a different location or daypart generation cannot be merged into the located answer");
+  ok(!railRequestScope("https://www.gowayfind.com/api/rails?v=2&band=morning&city=sarasota"),
+    "menu-poster negative control: an incomplete request identity cannot be accepted as a ranked answer scope");
 }
 
 // Negative control: prove the structural checks above can actually fail, not

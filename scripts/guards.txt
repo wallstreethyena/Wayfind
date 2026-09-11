@@ -344,6 +344,7 @@ node scripts/test-job-watch-fallback.mjs
 node scripts/test-job-watch-delivery.mjs
 node scripts/check-editorial-retry-state.mjs
 node scripts/check-editorial-coverage-pipeline.mjs
+node scripts/test-report-editorial-coverage.mjs
 node scripts/test-atlas-reclassify.mjs
 node scripts/check-art-assets.mjs
 node scripts/check-brand-derivatives.mjs
@@ -1430,6 +1431,12 @@ node scripts/test-photo-vault.mjs
 # runBackfill/recordPulse/jobCannotRun/jobFailed swapped for doubles.
 node scripts/test-photo-vault-wiring.mjs
 
+# The at-risk photo drain keyset-pages on (earliest_expiry, place_id),
+# confirms existing photo decisions per page, and keeps paging until it finds
+# fresh work. This prevents wf_photo_at_risk's retained rejected prefix from
+# starving later undecided places; deadline and read truncation stay visible.
+node scripts/test-photo-at-risk-pagination.mjs
+
 node scripts/test-beach-alert-recovery.mjs
 
 node scripts/test-editorial-retry-content.mjs
@@ -1466,6 +1473,9 @@ node scripts/test-rail-visual-standard.mjs
 node scripts/test-event-stays.mjs
 node scripts/test-event-driving-route.mjs
 
+node scripts/test-shared-photo-lifecycle.mjs
+
+node scripts/test-best-photo-selection.mjs
 node scripts/test-morning-candidate-integrity.mjs
 # Shared event navigation, map cards, and explicit sharing choices.
 node scripts/test-event-section-nav.mjs
