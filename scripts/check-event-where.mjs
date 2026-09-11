@@ -145,7 +145,7 @@ for (const f of [...appFiles, "lib/placeWhere.js", "lib/eventPairings.js", "next
 ok(!/\/route\/v1\/|geometries=geojson|router\.project-osrm/.test(map), "the map does not invent or call a public routing endpoint");
 ok(!/getCurrentPosition/.test(map), "nearby map never asks for location automatically");
 const driving = read("app/components/EventDrivingRoute.js");
-ok(/onClick=\{showLocation\}/.test(driving) && /Use my location/.test(driving) && /searchAndRoute/.test(driving), "Apple driving preview requires an explicit location or typed starting point action");
+ok(/requestCurrentLocationRoute/.test(driving) && /\[mapController, venue\.lat, venue\.lng\]/.test(driving) && /onClick=\{showLocation\}/.test(driving) && /Use my location/.test(driving) && /searchAndRoute/.test(driving), "Apple driving preview requests current location after its controller is ready and keeps location retry plus typed fallback actions");
 ok(/event-route/.test(driving) && /distanceLabel/.test(driving) && /etaLabel/.test(driving), "route controls expose a stable in-page target and Apple distance/ETA summary");
 ok(/starting point is shared with Apple/.test(driving), "route controls disclose sharing the opted-in starting point with Apple");
 ok(/prefers-reduced-motion/.test(read("app/components/EventRouteJump.js")), "in-page route jump respects reduced-motion preference");

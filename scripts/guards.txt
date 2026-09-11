@@ -1461,3 +1461,4 @@ node scripts/test-night-tour-products.mjs
 node scripts/test-creator-picks-rails.mjs
 
 node scripts/test-event-stays.mjs
+node scripts/test-event-driving-route.mjs

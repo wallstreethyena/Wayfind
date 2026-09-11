@@ -44,6 +44,8 @@ export function checkSocialAttachments(repo) {
   const eventPage = readFileSync(path.join(repo, "app/florida-events/[slug]/page.js"), "utf8");
   ensure(/eventSocialPosts\(e\.event_id\)/.test(eventPage) && /<VideoFacade/.test(eventPage), "event pages must render reviewed creator posts through the click-to-load facade");
   ensure(/View @\{post\.creator\}&rsquo;s post on Instagram/.test(eventPage) && /href=\{post\.url\}/.test(eventPage), "event pages must keep visible, attributed native-link fallbacks");
+  ensure(eventPage.indexOf('aria-label="Creator posts about this event"') < eventPage.indexOf("\n      <EventWhere\n"), "event creator posts must appear before the map and nearby recommendations");
+  ensure(/poster=\{socialPoster\}/.test(eventPage) && /fallbackPoster=\{socialPosterFallback\}/.test(eventPage), "event creator facades must open with the event's available hero cover");
 
   const facade = readFileSync(path.join(repo, "app/components/VideoFacade.js"), "utf8");
   ensure(/from "\.\.\/\.\.\/lib\/creatorPlatforms"/.test(facade) && !/from "\.\.\/\.\.\/lib\/creatorVideos"/.test(facade), "the facade must not pull the full creator registry into an event-page chunk");
