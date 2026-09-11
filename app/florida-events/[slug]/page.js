@@ -172,7 +172,7 @@ const S = {
   // finds it before anything else. Directions is deliberately the SECONDARY
   // action, one level down inside EventWhere — the hierarchy the owner asked
   // for. scripts/check-event-hero-and-directions.mjs proves the count of one.
-  ticketWrap: { margin: "-8px 0 24px" },
+  ticketWrap: { margin: "16px 0 24px" },
   tix: {
     display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
     width: "100%", boxSizing: "border-box", maxWidth: "100%", textAlign: "center", overflowWrap: "anywhere", padding: "16px 20px", borderRadius: 14,
