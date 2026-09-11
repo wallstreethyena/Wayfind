@@ -2,6 +2,8 @@
 
 import { Fragment } from "react";
 import RailCard, { RailDots, RailNav } from "./RailCard";
+import RailHeading from "./RailHeading";
+import RailLoading from "./RailLoading";
 import ViatorCommerceLink from "./ViatorCommerceLink";
 import PosterEventCard from "./PosterEventCard.js";
 import { directionsUrl } from "./kit";
@@ -20,14 +22,16 @@ export default function SummerPicksRails({ rails, city, onOpenPlace = null }) {
     const railId = `summer-picks-${rail.id}`;
     const total = Number.isFinite(rail.total) ? rail.total : (rail.cards || []).length;
     return <section key={rail.id} aria-labelledby={`${railId}-title`} style={{ marginTop: 28 }}>
-      <h2 id={`${railId}-title`} style={{ margin: "0 0 4px", color: "#F8FAFC", fontSize: 20, fontWeight: 850 }}>{rail.title}</h2>
-      <p className="wf-rail-deck" style={{ color: "#A8B0BE" }}>{rail.deck}</p>
+      <RailHeading title={rail.title} description={rail.deck} id={`${railId}-title`}>
+        {rail.cards?.length || (!rail.pending && !rail.failed)
+          ? <RailNav railId={railId} count={total} total={total} unit={total === 1 ? "ranked option" : "ranked options"} />
+          : null}
+      </RailHeading>
       {rail.pending && !rail.cards?.length ? (
-        <div role="status" aria-busy="true" aria-label={`Loading ${rail.title}`} className="wf-sk" style={{ height: 88, borderRadius: 14, background: "#0B0E15" }} />
+        <RailLoading label={`Loading ${rail.title}`} />
       ) : rail.failed && !rail.cards?.length ? (
         <p role="alert" style={{ margin: "8px 0 0", color: "#8B93A1", fontSize: 13 }}>We could not reach this rail&apos;s verified event inventory.</p>
       ) : <>
-        <RailNav railId={railId} count={total} total={total} unit={total === 1 ? "ranked option" : "ranked options"} />
         <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>
           {rail.cards.map((card, index) => {
             const rank = index + 1;

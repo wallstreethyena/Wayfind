@@ -1,6 +1,7 @@
 "use client";
 
 import ViatorCommerceLink from "./ViatorCommerceLink";
+import RailHeading from "./RailHeading";
 import RailCard, { RailDots, RailNav } from "./RailCard";
 import { experienceWayfindScore } from "../../lib/experiencesData";
 import { toDisplayScore } from "../../lib/score";
@@ -12,15 +13,9 @@ export default function HomeAffiliateActivityRail({ items, contentId, onLog }) {
   if (!rows.length) return null;
   return (
     <section aria-labelledby="home-affiliate-activities-title" style={{ marginBottom: 18 }}>
-      <div style={{ marginBottom: 7 }}>
-        <h2 id="home-affiliate-activities-title" style={{ margin: 0, color: "#F8FAFC", fontSize: 18, fontWeight: 850, lineHeight: 1.2 }}>
-          Best bookable activities
-        </h2>
-        <p style={{ margin: "4px 0 0", color: "#94A3B8", fontSize: 11.5, lineHeight: 1.4 }}>
-          Wayfind&apos;s highest-ranked tours and experiences within 120 miles.
-        </p>
-      </div>
-      <RailNav railId={RAIL_ID} count={rows.length} unit="ranked options" total={rows.length} />
+      <RailHeading id="home-affiliate-activities-title" title="Best bookable activities" description="Wayfind's highest-ranked tours and experiences within 120 miles.">
+        <RailNav railId={RAIL_ID} count={rows.length} unit="ranked options" total={rows.length} />
+      </RailHeading>
       <div className="wf-rail" data-rail={RAIL_ID} aria-label="Best bookable activities">
         {rows.map((item, index) => {
           const rank = index + 1;

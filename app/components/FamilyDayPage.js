@@ -3,6 +3,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import RankedExperiencePage from "./RankedExperiencePage";
+import RailLoading from "./RailLoading";
+import RailHeading from "./RailHeading";
+import { RailNav, RailDots } from "./RailCard";
 import IconicPlaceCard from "./IconicPlaceCard";
 import { usePagedRail } from "./usePagedRail";
 import { BackControl } from "../best-beaches/[metro]/parts";
@@ -53,14 +56,6 @@ function familyLocation({ urlCity = "", urlLat = NaN, urlLng = NaN, stored = nul
   return { lat: ctx.lat, lng: ctx.lng, city: ctx.city || "" };
 }
 
-function RailLoading({ title }) {
-  return (
-    <div className="wf-family-loading" role="status" aria-busy="true" aria-label={`Loading ${title}`}>
-      <span className="wf-family-critter"><img src="/pin.png" alt="" width="30" height="30" /></span>
-      <span>Finding verified family picks…</span>
-    </div>
-  );
-}
 
 const FACT_LABELS = {
   indoor: "Indoors", outdoor: "Outdoors", shaded: "Shade", "heat-friendly": "Heat friendly",
@@ -194,15 +189,13 @@ function FamilyRail({ rail, loc, radiusMi, filters, weatherSettled, weatherPause
       && (rail.id !== "culture" || (state.eventsAvailable === true && !state.events.length && !state.eventsTruncated))) return null;
   return (
     <section ref={sectionRef} className="wf-family-section" aria-labelledby={`family-${rail.id}-title`}>
-      <div className="wf-family-rail-heading">
-        <div>
-          <h2 id={`family-${rail.id}-title`}>{rail.title}</h2>
-          <p>{rail.description}</p>
-        </div>
-        {ready && cards.length ? <span>{state.more && !state.truncated ? `${cards.length} of ${state.matched}` : `${cards.length} ${cards.length === 1 ? "pick" : "picks"}`}</span> : null}
-      </div>
+      <RailHeading id={`family-${rail.id}-title`} title={rail.title} description={rail.description}>
+        {ready && cards.length ? <RailNav railId={`family-${rail.id}`} loaded={cards.length}
+          count={state.more && !state.truncated ? state.matched : cards.length}
+          total={state.more && !state.truncated ? state.matched : cards.length} unit="picks" /> : null}
+      </RailHeading>
       {weatherPaused ? <p className="wf-family-empty">Outdoor matches are paused because current weather is not a safe fit. Choose Indoors or clear the weather filter to see verified indoor options.</p> : null}
-      {!weatherPaused && (!visible || !weatherSettled || state.status === "idle" || state.status === "loading") ? <RailLoading title={rail.title} /> : null}
+      {!weatherPaused && (!visible || !weatherSettled || state.status === "idle" || state.status === "loading") ? <RailLoading label={`Loading ${rail.title}`} /> : null}
       {!weatherPaused && state.status === "failed" ? (
         <div className="wf-family-message" role="alert">
           <p>These picks are taking longer than usual. Try again or come back shortly.</p>
@@ -214,7 +207,7 @@ function FamilyRail({ rail, loc, radiusMi, filters, weatherSettled, weatherPause
       ) : null}
       {ready && cards.length ? (
         <>
-          <ol ref={cardRailRef} className="wf-family-card-rail" tabIndex="0" aria-label={`${rail.title}, horizontal list`}>
+          <ol ref={cardRailRef} data-rail={`family-${rail.id}`} className="wf-family-card-rail wf-rail wf-rail-exploding" tabIndex="0" aria-label={`${rail.title}, horizontal list`}>
             {cards.map((place, index) => (
               <IconicPlaceCard
                 key={place.id}
@@ -237,6 +230,7 @@ function FamilyRail({ rail, loc, radiusMi, filters, weatherSettled, weatherPause
               />
             ))}
           </ol>
+          <RailDots railId={`family-${rail.id}`} count={cards.length} />
           {paging.loadingMore ? <p role="status" className="wf-family-note">Loading more picks…</p> : null}
           {paging.error ? <button type="button" className="wf-family-clear" onClick={paging.fetchMore}>Try loading more picks</button> : null}
           {state.truncated ? <p className="wf-family-note">Some places have not been checked in this area yet. Try a smaller distance.</p> : null}
@@ -381,12 +375,11 @@ export default function FamilyDayPage({ embedded = false, center = null, city = 
         .wf-family-distance{display:flex;align-items:center;justify-content:space-between;gap:12px}.wf-family-distance strong{font-size:13px}.wf-family-distance div{display:flex;gap:6px}.wf-family-distance button,.wf-family-message button,.wf-family-clear{border:1px solid rgba(255,255,255,.16);border-radius:999px;background:#131D2B;color:${COLORS.text};padding:7px 11px;font:inherit;font-size:12px;font-weight:800;cursor:pointer}.wf-family-distance button.is-on{background:${COLORS.accent};border-color:${COLORS.accent};color:#07130B}
         .wf-family-filter-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-top:14px}.wf-family-filter-grid label span{display:block;margin:0 0 5px;color:#BEC8D6;font-size:10px;font-weight:850;letter-spacing:.07em;text-transform:uppercase}.wf-family-filter-grid select{width:100%;min-height:39px;border:1px solid rgba(255,255,255,.14);border-radius:10px;background:#111A27;color:${COLORS.text};padding:7px;font:inherit;font-size:12px}.wf-family-filters>p,.wf-family-note{margin:10px 0 0;color:${COLORS.muted};font-size:11.5px;line-height:1.45}.wf-family-clear{margin-top:11px;color:#BBF7D0}
         .wf-family-weather{margin:16px 0 0;padding:12px 14px;border-left:3px solid #F59E0B;border-radius:8px;background:rgba(245,158,11,.09);color:#FDE68A;font-size:12.5px;line-height:1.5}
-        .wf-family-section{min-height:170px;margin-top:30px;scroll-margin-top:20px}.wf-family-rail-heading{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;margin-bottom:11px}.wf-family-rail-heading h2{margin:0;color:${COLORS.text};font-family:Georgia,'Times New Roman',serif;font-size:25px;font-weight:500;letter-spacing:-.025em}.wf-family-rail-heading p{max-width:620px;margin:5px 0 0;color:#AEB8C6;font-size:13px;line-height:1.45}.wf-family-rail-heading>span{flex:none;color:#86EFAC;font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.06em}
-        .wf-family-card-rail,.wf-family-event-rail{display:grid;grid-auto-flow:column;grid-auto-columns:min(82vw,360px);gap:13px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0;padding:2px 2px 9px;list-style:none}.wf-family-card-rail::-webkit-scrollbar,.wf-family-event-rail::-webkit-scrollbar{display:none}.wf-family-card-rail>.wf-place-card,.wf-family-event-card{scroll-snap-align:start;margin:0!important}.wf-family-fact{display:inline-flex!important;align-items:center;gap:7px;max-width:100%;overflow:hidden;color:#D1FAE5!important;background:rgba(34,197,94,.1)!important;border:1px solid rgba(74,222,128,.25)!important}.wf-family-fact>a{flex:none;color:#86EFAC;text-decoration:none;font-weight:850}.wf-family-loading{display:flex;min-height:116px;align-items:center;justify-content:center;gap:11px;border:1px solid rgba(255,255,255,.07);border-radius:16px;background:#0A0F18;color:${COLORS.muted};font-size:13px}.wf-family-critter{display:flex;animation:wfbob 1.1s ease-in-out infinite}.wf-family-critter img{display:block;object-fit:contain}.wf-family-message,.wf-family-empty{margin:0;padding:16px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:#0A0F18;color:${COLORS.muted};font-size:13px;line-height:1.55}.wf-family-message p{margin:0 0 11px}
+        .wf-family-section{min-height:170px;margin-top:30px;scroll-margin-top:20px}
+        .wf-family-event-rail{display:grid;grid-auto-flow:column;grid-auto-columns:min(82vw,360px);gap:13px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0;padding:2px 2px 9px;list-style:none}.wf-family-event-rail::-webkit-scrollbar{display:none}.wf-family-card-rail>.wf-place-card,.wf-family-event-card{scroll-snap-align:start;margin:0!important}.wf-family-fact{display:inline-flex!important;align-items:center;gap:7px;max-width:100%;overflow:hidden;color:#D1FAE5!important;background:rgba(34,197,94,.1)!important;border:1px solid rgba(74,222,128,.25)!important}.wf-family-fact>a{flex:none;color:#86EFAC;text-decoration:none;font-weight:850}.wf-family-message,.wf-family-empty{margin:0;padding:16px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:#0A0F18;color:${COLORS.muted};font-size:13px;line-height:1.55}.wf-family-message p{margin:0 0 11px}
         .wf-family-events{margin-top:18px}.wf-family-events>h3{margin:0 0 10px;color:${COLORS.text};font-size:15px}.wf-family-event-card{display:grid;grid-template-columns:104px minmax(0,1fr);min-height:150px;overflow:hidden;border:1px solid rgba(159,177,203,.25);border-radius:17px;background:#111824}.wf-family-event-card>img,.wf-family-event-monogram{width:104px;height:100%;min-height:150px;object-fit:cover}.wf-family-event-monogram{display:grid;place-items:center;color:#FFC08F;background:linear-gradient(155deg,#192230,#0D131E);font-size:24px;font-weight:900}.wf-family-event-card>div{padding:15px}.wf-family-event-kicker{color:#86EFAC;font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.wf-family-event-card h3{margin:6px 0 0;font-size:16px;line-height:1.2}.wf-family-event-card h3 a{color:${COLORS.text};text-decoration:none}.wf-family-event-card p{margin:7px 0;color:${COLORS.muted};font-size:11.5px;line-height:1.4}.wf-family-event-link{color:#86EFAC;font-size:11.5px;font-weight:800;text-decoration:none}
-        @media(max-width:720px){.wf-family-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wf-family-distance{align-items:flex-start;flex-direction:column}.wf-family-section{margin-top:26px}.wf-family-rail-heading h2{font-size:22px}}
-        @keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}
-        @media(prefers-reduced-motion:reduce){.wf-family-critter{animation:none}}
+        @media(max-width:720px){.wf-family-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wf-family-distance{align-items:flex-start;flex-direction:column}.wf-family-section{margin-top:26px}}
+
       ` }} />
       {!embedded ? <FamilyFilters filters={filters} onChange={changeFilter} radiusMi={radiusMi} onRadius={setRadiusMi} /> : null}
       {outdoorGateClosed ? <p className="wf-family-weather">Outdoor picks are paused because {moment.gateWhy || "current weather is not a safe fit"}. {weatherPaused ? "Your weather choice is preserved; choose Indoors or clear it to continue." : "The rails are using verified indoor evidence."}</p> : null}

@@ -685,7 +685,7 @@ export default function IntentPageClient({ intent }) {
 
       {rows === null ? (
         <div style={{ marginTop: 18 }}>
-          {[0, 1, 2, 3].map((i) => <div key={i} className="wf-skeleton" style={{ height: 88, borderRadius: 14, marginBottom: 12, background: "#0B0E15" }} />)}
+          {[0, 1, 2, 3].map((i) => <div key={i} className="wf-sk" style={{ height: 88, borderRadius: 14, marginBottom: 12, background: "#0B0E15" }} />)}
         </div>
       ) : rows.length ? (
         <>

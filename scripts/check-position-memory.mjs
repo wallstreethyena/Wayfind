@@ -86,7 +86,8 @@ ok(/removeEventListener\("pagehide"/.test(code), "the pagehide listener is never
 {
   ok(/requestAnimationFrame\(\(\) => \{\s*b = requestAnimationFrame/.test(code)
      || /requestAnimationFrame\([\s\S]{0,120}requestAnimationFrame/.test(code)
-     || code.includes("return restoreBrowsePosition(scrollRef.current, r"),
+     || (code.includes("const cancel = restoreBrowsePosition(scrollRef.current, r")
+       && /\}, \[screen, cat, browseCat, sub, vibe, restoreVersion\]\)/.test(code)),
      "the position is applied without waiting a frame — the scroll-reset effect on the taxonomy change would undo it");
   ok(/posRestore/.test(code), "no restore handle, so nothing can survive the reset");
 }
@@ -170,6 +171,49 @@ ok(/removeEventListener\("pagehide"/.test(code), "the pagehide listener is never
   } catch (error) {
     ok(false, "DaypartRail render failed: " + error.message);
   }
+}
+
+// ── 6. THE WORDMARK IS A FRESH-HOME ACTION, NOT BACK ─────────────────────
+// Clicking the fixed header from the footer used window.scrollTo(), but the
+// document never scrolls in this shell. It must stop a pending Back restore,
+// steer the real scroller, collapse an open poster, and update only the current
+// position snapshot. Historical Back entries remain owned by navigation.
+{
+  const poster = readFileSync(path.join(REPO, "app/components/DaypartRail.js"), "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  const violations = (home, rail) => {
+    const out = [];
+    const start = home.indexOf("const returnHomeTop =");
+    const end = home.indexOf("const eventsRailSlot", start);
+    const handler = start >= 0 && end > start ? home.slice(start, end) : "";
+    if (!handler) out.push("dedicated returnHomeTop handler is missing");
+    if (!handler.includes("cancelLanding()")) out.push("logo does not cancel an in-flight results landing");
+    if (!handler.includes("cancelPositionRestore.current?.()") || !handler.includes("posRestore.current = null")) out.push("logo does not cancel an in-flight Back restoration");
+    if (!/scrollRef\.current\.scrollTo\(\{\s*top:\s*0/.test(handler)) out.push("logo does not scroll the shell scroller to top");
+    if (/window\.scrollTo/.test(handler)) out.push("logo uses window scrolling, which is a no-op in the shell");
+    if (!handler.includes('dispatchEvent(new Event("wf:home"))')) out.push("logo does not notify the private poster state");
+    if (!handler.includes('sessionStorage.setItem("wf_pos"') || !/top:\s*0/.test(handler)) out.push("logo leaves the current stored snapshot at the footer");
+    if (!/anchor:\s*null/.test(handler) || !/browseReturn:\s*null/.test(handler)) out.push("logo leaves stale anchor or nested-browse restoration in the fresh-home snapshot");
+    if (!handler.includes('sessionStorage.setItem("wf_pos_entry_" + entryKey')) out.push("logo does not update the current history entry snapshot");
+    if (/removeItem\("wf_pos"|removeItem\("wf_pos_entry_/.test(handler)) out.push("logo deletes Back history instead of updating the current position");
+    if (!/<button\s+type="button"[^>]*aria-label="Wayfind home"[^>]*onClick=\{returnHomeTop\}/.test(home)) out.push("wordmark is not a keyboard-accessible button wired to the fresh-home handler");
+    if (!rail.includes('addEventListener("wf:home"') || !rail.includes('removeEventListener("wf:home"')) out.push("poster does not install and clean up the home listener");
+    const railHome = rail.slice(rail.indexOf('addEventListener("wf:home"') - 500, rail.indexOf('addEventListener("wf:home"') + 300);
+    if (!railHome.includes("setSelected(null)") || !railHome.includes('removeItem("wf_poster_position")')) out.push("home listener does not collapse and forget the open poster");
+    if (!railHome.includes("cancelPosterRestore.current?.()") || !railHome.includes("cancelPosterRestore.current = null")) out.push("home listener does not cancel an in-flight poster restoration");
+    return out;
+  };
+  for (const failure of violations(code, poster)) ok(false, failure);
+  ok(violations(code, poster).length === 0, "logo fresh-home contract is complete");
+
+  // Mutation control: the guard must reject the original window-scroll defect.
+  const mutantStart = code.indexOf("const returnHomeTop =");
+  const mutantEnd = code.indexOf("const eventsRailSlot", mutantStart);
+  const mutantHandler = code.slice(mutantStart, mutantEnd).replace(/scrollRef\.current\.scrollTo\(\{\s*top:\s*0,\s*left:\s*0,\s*behavior:\s*"auto"\s*\}\)/,
+    "window.scrollTo(0, 0)");
+  const mutant = code.slice(0, mutantStart) + mutantHandler + code.slice(mutantEnd);
+  ok(mutant !== code && violations(mutant, poster).some((f) => f.includes("window scrolling")),
+    "mutation control did not reject the original window.scrollTo logo defect");
 }
 
 if (fails.length) {

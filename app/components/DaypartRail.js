@@ -947,6 +947,22 @@ export default function DaypartRail({
     if (root) cancelPosterRestore.current = restoreBrowsePosition(root, posterReturn.current || { top: 0 });
   }, []);
 
+  // The app wordmark means "fresh home", distinct from browser Back. Back may
+  // restore this open poster; the logo must collapse it and show the poster
+  // shelf at the top. A window event keeps that shell action independent of
+  // this component's private selected state.
+  useEffect(() => {
+    const returnHome = () => {
+      resumePoster.current = false;
+      setSelected(null);
+      cancelPosterRestore.current?.();
+      cancelPosterRestore.current = null;
+      try { sessionStorage.removeItem("wf_poster_position"); } catch {}
+    };
+    window.addEventListener("wf:home", returnHome);
+    return () => window.removeEventListener("wf:home", returnHome);
+  }, []);
+
   // Which tile is currently saying "Link copied". One at a time, cleared on a
   // timer that matches the wf8Said animation — a toast that outlives its own
   // fade is a toast that looks stuck.
