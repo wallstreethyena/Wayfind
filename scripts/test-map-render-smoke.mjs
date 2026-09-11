@@ -13,6 +13,7 @@
  * any of those states is a red suite, not a production screenshot.
  */
 import { fileURLToPath } from "node:url";
+import { readFileSync, writeFileSync } from "node:fs";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
@@ -22,12 +23,32 @@ const fail = [];
 const ok = (c, m) => { if (c) pass++; else fail.push(m); };
 
 const REPO = fileURLToPath(new URL("..", import.meta.url));
-const mod = await loadComponent(fileURLToPath(new URL("../app/components/screens/Map.js", import.meta.url)), REPO);
+const entry = fileURLToPath(new URL("../app/components/screens/Map.js", import.meta.url));
+// Apple map data now lives in component state, not ctx.view. Seed only the
+// emitted test module's state initializers to represent a completed area fetch;
+// the real selectMapPlaces, drawer, card and score rendering still execute.
+// Product source is untouched, and exact initializer counts prevent an empty
+// injection from turning a loaded-drawer assertion into an empty-screen test.
+const mod = await loadComponent(entry, REPO, { onGraph(graph) {
+  const compiled = graph.get(entry);
+  if (!compiled) throw new Error("MapScreen was not emitted");
+  let source = readFileSync(compiled, "utf8");
+  const seeds = [
+    [/const \[areaPlaces, setAreaPlaces\] = useState\(\[\]\);/g, 'const [areaPlaces, setAreaPlaces] = useState(ctx.__mapSmokePlaces);'],
+    [/const \[areaStatus, setAreaStatus\] = useState\("loading"\);/g, 'const [areaStatus, setAreaStatus] = useState(ctx.__mapSmokeStatus);'],
+  ];
+  for (const [pattern, replacement] of seeds) {
+    const matches = [...source.matchAll(pattern)];
+    if (matches.length !== 1) throw new Error(`Expected one map state initializer, found ${matches.length}: ${pattern}`);
+    source = source.replace(pattern, replacement);
+  }
+  writeFileSync(compiled, source);
+} });
 const MapScreen = mod.default;
 ok(typeof MapScreen === "function", "MapScreen has a default export");
 
 const noop = () => {};
-const P = (o) => ({ id: "ChIJsmoke", name: "Smoke Cafe", lat: 27.5, lng: -82.5, photo: null, cuisine: "Cafe", type: "cafe", distMi: 1.2, price: "$$", wfScore: 92, trending: false, ...o });
+const P = (o) => ({ id: "ChIJsmoke", name: "Smoke Cafe", lat: 27.5, lng: -82.5, photo: null, cuisine: "Cafe", type: "cafe", distMi: 1.2, price: "$$", wfScore: 92, governed_score: 92, category: "food", trending: false, ...o });
 const EV = { id: "ev1", name: "Smoke Show", venue: "Smoke Hall", lat: 27.5, lng: -82.5, date: "2026-08-12", time: "8 PM", image: null, dest: "https://tickets.example/e", destKind: "external" };
 
 function ctxFor(over = {}) {
@@ -39,7 +60,7 @@ function ctxFor(over = {}) {
     events: [], eventsLoading: false, eventsUnavailable: false, mapDate: "all", setMapDate: noop,
     mapPreview: null, setMapPreview: noop, mapDrawer: false, setMapDrawer: noop, eventPreview: null, setEventPreview: noop,
     suggested: [], places: [], liked: {}, disliked: {}, view: [P()], featuredBoost: () => 0,
-    MapView: () => null, CategoryMenu: () => null, FallbackImg: (p) => createElement("span", null),
+    FallbackImg: (p) => createElement("span", null),
     iconForPlace: () => "📍", liveOpen: () => true, logEvent: noop, loadEvents: noop,
     openDetail: noop, openVenue: noop, ticketUrl: (u) => u, Hol: { worldCup: () => false, fitFor: () => 0 },
     recenterToMe: noop, isBeach: () => false, beachSignals: {},
@@ -47,6 +68,7 @@ function ctxFor(over = {}) {
     toggleLike: noop, toggleDislike: noop, quickSaveFavorite: noop, addShared: noop, giveawayMark: noop,
     blurbs: {}, openExperience: noop, openCuisine: noop, cityNow: "Sarasota",
     mapDefaultAppliedRef: { current: true },
+    __mapSmokePlaces: [P()], __mapSmokeStatus: "ready",
     ...over,
   };
 }
@@ -58,10 +80,13 @@ const STATES = [
   // the real WayfindScoreBadge; no score renders NO badge (the shared card
   // derives only from wfScore/rating, and this fixture carries neither).
   ["pin tapped: preview card with a real score", { mapPreview: P() }, (h) => h.includes("data-iconic-place-card") && h.includes("9.2") && h.includes("wayfind-score-badge")],
-  ["preview card, place with NO score (score law: badge absent, no fabrication)", { mapPreview: P({ wfScore: null }) }, (h) => !h.includes("wayfind-score-badge") && h.includes("data-iconic-place-card")],
+  ["preview card, place with NO score (score law: badge absent, no fabrication)", { mapPreview: P({ wfScore: null, governed_score: null }) }, (h) => !h.includes("wayfind-score-badge") && h.includes("data-iconic-place-card")],
   ["preview card, sparse place (no price/photo/distance)", { mapPreview: P({ price: null, distMi: null, cuisine: null }) }, (h) => h.includes("data-iconic-place-card")],
-  ["collapsed list strip", {}, (h) => h.includes("ranked by fit")],
+  ["collapsed list strip", {}, (h) => h.includes("Wayfind Score 9.2+") && h.includes("Browse list")],
   ["open drawer renders the real PlaceCard seam", { mapDrawer: true }, (h) => h.includes("place-card")],
+  ["loaded empty area stays honest", { __mapSmokePlaces: [], mapDrawer: true }, (h) => h.includes("No 9.2+") && !h.includes("place-card")],
+  ["below-floor rows are filtered before the drawer", { __mapSmokePlaces: [P({ wfScore: 91, governed_score: 91 })], mapDrawer: true }, (h) => h.includes("No 9.2+") && !h.includes("place-card")],
+  ["partial area failure is explicitly labelled", { __mapSmokeStatus: "error", mapDrawer: true }, (h) => h.includes("could not finish loading") && h.includes("partial results") && h.includes("place-card")],
   ["events mode with an event preview", { mapMode: "events", eventPreview: EV, events: [EV] }, (h) => h.includes("Smoke Show")],
 ];
 

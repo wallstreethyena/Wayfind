@@ -98,8 +98,11 @@ ok(/if \(browseCat !== id\) \{ setMoodPick\(id\); setBrowseCat\(id\); setCat\(id
   ok(/openBrowse\(/.test(navOpen),
     "selecting a home category tab goes through openBrowse, which is where those setters now live");
 }
-ok(/setMapBrowse\(true\); setCat\(id\); setSub\("all"\); setVibe\("all"\)/.test(MAP),
-  "map category tap still writes the same cat/sub/vibe the home path writes");
+// 2026-09-10: the Apple map intentionally owns all-category area discovery.
+// Its pins and drawer must share the exact qualified array; home filters stay independent.
+ok(/setMapCategory\(item.id\)/.test(MAP) && /selectMapPlaces\(areaPlaces, mapCategory, viewport\)/.test(MAP)
+  && /places=\{mapMode === "events" \? \[\] : view\}/.test(MAP) && /view\.map\(\(p, i\)/.test(MAP),
+  "map filters, annotations and drawer share one complete area result set");
 
 /* ── empty organic is not papered over with an unrelated affiliate ──────── */
 ok(/browseCat === "hotels" && center && view\.length > 0 && <UnifiedBrowseCommerceRail cat="hotels"/.test(HOME),
