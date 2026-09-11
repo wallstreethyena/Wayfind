@@ -214,7 +214,8 @@ export default async function CuratedEventPage({ params }) {
   // Real nearby places worth an outing, ranked by Wayfind — [] (and no section)
   // where there is nothing honestly nearby, so a page never shows a thin shelf.
   // They render inside <EventWhere> (numbered cards + the same numbers as pins).
-  const pairings = (await cachedEventPairings(e)).map((p) => ({ ...p, href: pairingHref(p) }));
+  const pairingResult = await cachedEventPairings(e);
+  const pairings = pairingResult.places.map((p) => ({ ...p, href: pairingHref(p) }));
   const ld = eventJsonLd(e, { siteUrl: SITE_URL });
   const crumbs = {
     "@context": "https://schema.org", "@type": "BreadcrumbList",
@@ -377,6 +378,11 @@ export default async function CuratedEventPage({ params }) {
         lng={e.lng == null || e.lng === "" ? NaN : Number(e.lng)}
         picks={pairings}
       />
+      {pairingResult.unavailable ? (
+        <p role="status" style={{ ...S.p, maxWidth: 820, margin: "12px auto 24px", color: "#aab4c2" }}>
+          Nearby picks are temporarily unavailable.
+        </p>
+      ) : null}
 
       <div className="wf-event-content" id="event-planning" data-event-section={e.skip_if || e.insider_tip || e.parking_tip || e.fun_fact || e.pairing ? "Planning tips" : undefined} tabIndex={-1}>
       {e.skip_if ? (<><h2 style={S.h2}>Who should skip it</h2><p style={S.p}>{e.skip_if}</p></>) : null}

@@ -1479,3 +1479,7 @@ node scripts/test-trip-connections.mjs
 # owned inventory, then keep the ordinary chip, exact-radius and score ordering.
 node scripts/test-attraction-discovery.mjs
 node scripts/test-batch-completeness.mjs
+
+# Bookable rails select up to 50 exact menu/submenu matches from complete local inventory.
+node scripts/test-browse-bookable-match.mjs
+node scripts/test-bookable-near-50.mjs
