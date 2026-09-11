@@ -11,9 +11,10 @@
 import { NextResponse } from "next/server";
 import { gateFree, gateShut, spendAllow, spendAllowCapped, textEnterpriseCap } from "../../../../lib/spendGate";
 import { cget, cset, upsertPlaceIds, cacheConfigured, lastWrite, memSize, DAY } from "../../../../lib/serverCache";
-import { serveFromInventory } from "../../../../lib/inventoryServe";
+import { serveFromInventory, serveInventoryByPlaceIds } from "../../../../lib/inventoryServe";
 import { hasScoreSignal } from "../../../../lib/score";
 import { mergeOwnedSignals, ownedLookupIds } from "../../../../lib/ownedLibrary";
+import { attractionDiscoveryPlaceIds, loadAttractionDiscovery } from "../../../../lib/attractionDiscovery";
 
 export const dynamic = "force-dynamic";
 
@@ -182,8 +183,24 @@ async function handleSearch(params, origin) {
     // merchandising ceiling. The old 50 was how a filled café identity still
     // shipped 40 cards and called the library done.
     const invN = Math.min(Math.max(Number(params.n) || 40, 1), 400);
-    const inv = await serveFromInventory(String(params.cat || ""), lat, lng, radius, invN, params.sub);
-    return NextResponse.json({ places: inv, cached: false, source: "inventory-direct" }, { headers: EDGE_HEADERS });
+    // Owned inventory is not subject to Google's 50km location-bias ceiling.
+    // Preserve the browse ladder's requested circle (up to its 60mi maximum)
+    // so a 45mi-owned candidate is not lost before the exact-radius gate below.
+    const discoveryIds = attractionDiscoveryPlaceIds(params.cat, params.sub);
+    if (!discoveryIds.length) {
+      const inv = await serveFromInventory(String(params.cat || ""), lat, lng, radius, invN, params.sub);
+      return NextResponse.json({ places: inv, cached: false, source: "inventory-direct" }, { headers: EDGE_HEADERS });
+    }
+    const discoveryRadius = Math.min(Math.max(Number(params.radius) || 24000, 500), 96560);
+    // Exact IDs only repair candidate coverage. The same chip identity and the
+    // caller's exact requested circle still decide membership, and the merged
+    // pool is score-ordered rather than registry-ordered or partner-ordered.
+    const discoveryRequest = { cat: params.cat, sub: params.sub, lat, lng, radiusM: discoveryRadius, n: invN };
+    const merged = await loadAttractionDiscovery(discoveryRequest, {
+      readCategory: (request) => serveFromInventory(String(request.cat || ""), lat, lng, request.radiusM, request.n, request.sub),
+      readIds: (ids, request) => serveInventoryByPlaceIds(ids, lat, lng, request.radiusM),
+    });
+    return NextResponse.json({ places: merged, cached: false, source: "inventory-direct" }, { headers: EDGE_HEADERS });
   }
 
   // Round the bias point to ~1km so nearby users share cache entries.

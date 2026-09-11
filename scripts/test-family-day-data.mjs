@@ -42,4 +42,28 @@ const href = new URL(dateNightIntentHref({ href: family.href, cityLabel: "Saraso
 assert.equal(href.pathname, "/family");
 assert.equal(href.searchParams.get("lat"), "27.3");
 assert.equal(href.searchParams.get("lng"), "-82.5");
+// Real identity shapes from the owned inventory audit, September 11. Ticket
+// evidence must keep qualifying cards discoverable on the Family poster.
+const parks = [
+  ["ChIJvRBCrN9-54gRGZuuaCLGrQE", "Universal Orlando Resort", 4.7],
+  ["ChIJdd8VlMN-54gRoaU0d_zYhfk", "Universal Studios Florida", 4.7],
+  ["ChIJvRBCrN9-54gR84ltVW4FZBM", "Universal Islands of Adventure", 4.7],
+  ["ChIJa7bjTAB_54gR-M-m-KIOCP0", "Universal Epic Universe", 3.9],
+].map(([id, name, rating]) => row(id, { name, category: "attractions", lat: 28.47, lng: -81.47,
+  primary_type: "amusement_center", google_types: ["amusement_center", "amusement_park"], signals: { rating, reviews: 10000 } }));
+const parkRequest = { lat: 28.47, lng: -81.47, radiusMi: 25, rail: "attractions", filters: { cost: "ticketed" } };
+assert.deepEqual(new Set(composeFamilyRail(parks, parkRequest).map((p) => p.id)), new Set(parks.slice(0, 3).map((p) => p.place_id)),
+  "ticketed Family poster keeps three qualifying Universal cards; Epic cannot bypass the floor");
+assert.equal(composeFamilyRail(parks, { ...parkRequest, filters: { cost: "free" } }).length, 0, "paid parks are not free matches");
+assert.equal(composeFamilyRail(parks, { ...parkRequest, indoorOnly: true }).length, 0, "tickets do not prove weather safety");
+const aquarium = row("ChIJCXAq5_DEwogRjTPE2xlsZtE", { name: "The Florida Aquarium", category: "attractions", primary_type: "aquarium", google_types: ["aquarium"], lat: 27.944, lng: -82.445 });
+assert.equal(composeFamilyRail([aquarium], { lat: 27.95, lng: -82.46, radiusMi: 25, rail: "animals", filters: { cost: "ticketed" } }).length, 1,
+  "Tampa animal rail retains its verified ticketed Aquarium");
+assert.equal(composeFamilyRail([aquarium], { ...parkRequest, rail: "animals" }).length, 0, "Orlando does not inherit Tampa's Aquarium");
+const kennedy = row("ChIJiTHKxDOu4IgRgAU6btoqIsU", { name: "Kennedy Space Center Visitor Complex", category: "attractions",
+  primary_type: "visitor_center", google_types: ["visitor_center", "historical_landmark", "amusement_park"], lat: 28.522, lng: -80.682 });
+assert.equal(composeFamilyRail([kennedy], { ...parkRequest, radiusMi: 50, rail: "space" }).length, 1,
+  "the 50-mile Space poster query includes exact KSC with its published ticket evidence");
+assert.equal(composeFamilyRail([kennedy], { ...parkRequest, rail: "space" }).length, 0,
+  "default 25-mile Family search does not relabel KSC as near Universal");
 console.log("test-family-day-data: PASS (identity, floor, geography, order, dedupe, unknown facts, invalid requests, missing configuration, homepage drop)");
