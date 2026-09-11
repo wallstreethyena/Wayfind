@@ -141,7 +141,10 @@ for (const [label, props] of RAIL_CASES) {
 // iframe appears after a reader action, which renderToStaticMarkup cannot fire.
 // Instagram /p/ is post-neutral because it may be a still or carousel; a known
 // /reel/ remains explicitly playable.
-const VideoFacade = (await load("app/components/VideoFacade.js")).default;
+const videoFacadeModule = await load("app/components/VideoFacade.js");
+const VideoFacade = videoFacadeModule.default;
+const playbackDetailsModule = await load("app/components/CreatorPlaybackDetails.js");
+const CreatorPlaybackDetails = playbackDetailsModule.default;
 {
   const reel = renderToStaticMarkup(createElement(VideoFacade, {
     platform: "instagram", url: "https://www.instagram.com/reel/Dc2WqU-xuCD/",
@@ -159,6 +162,31 @@ const VideoFacade = (await load("app/components/VideoFacade.js")).default;
     "an Instagram /p/ initially renders View with no video-only play mark");
   ok(!post.includes("<iframe") && !post.includes("instagram.com/p/Dc_KiM5xqhv/embed"),
     "a /p/ facade makes no Instagram iframe request before the reader clicks");
+
+  const grouped = renderToStaticMarkup(createElement(CreatorPlaybackDetails, {
+    details: createElement("a", { href: "https://www.instagram.com/reel/example/" }, "Creator's original post"),
+  }, createElement(VideoFacade, {
+    platform: "instagram", url: "https://www.instagram.com/reel/Dc2WqU-xuCD/",
+    label: "creator post", coverTitle: "A premium cover", coverCity: "Sarasota",
+  })));
+  ok(grouped.includes("data-creator-playback-details") && grouped.includes('aria-expanded="true"') && grouped.includes("Creator&#x27;s original post"),
+    "playback Details starts expanded in server markup with its attribution link");
+  ok(!grouped.includes("<iframe") && grouped.includes("aspect-ratio:3 / 4"),
+    "a premium poster keeps its 3:4 cover before interaction and still creates no eager iframe");
+
+  let open = true;
+  let playing = false;
+  videoFacadeModule.startCreatorPlayback(
+    (value) => { playing = value; },
+    () => { open = playbackDetailsModule.playbackDetailsReducer(open, "play"); },
+  );
+  ok(playing === true && open === false, "the real facade Play handler starts playback and collapses Details");
+  open = playbackDetailsModule.playbackDetailsReducer(open, "toggle");
+  ok(open === true, "the executed Details transition reopens the supporting content");
+
+  const facadeSource = readFileSync(path.join(REPO, "app/components/VideoFacade.js"), "utf8");
+  ok(/if \(play\)[\s\S]*?aspectRatio: "9 \/ 16"[\s\S]*?<iframe/.test(facadeSource),
+    "the active player branch is locked to a full 9:16 frame");
 }
 
 // v7.05 — THE FOUR INTENT RAILS. IntentRailBody is the newest member of the

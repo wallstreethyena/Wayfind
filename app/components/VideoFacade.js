@@ -14,9 +14,16 @@ import { useState } from "react";
 // uses this facade, including individual event pages.
 import { PLATFORM } from "../../lib/creatorPlatforms";
 import { embedSrc } from "../../lib/videoEmbed";
+import { usePlaybackDetails } from "./CreatorPlaybackDetails";
+
+export function startCreatorPlayback(setPlay, collapseDetails) {
+  setPlay(true);
+  if (collapseDetails) collapseDetails();
+}
 
 export default function VideoFacade({ platform, url, label, poster = null, fallbackPoster = null, coverTitle = null, coverCity = null, coverEyebrow = null, fallbackLabel = "Cindy Selects · Video guide" }) {
   const [play, setPlay] = useState(false);
+  const collapseDetails = usePlaybackDetails();
   const [failedPoster, setFailedPoster] = useState(null);
   const [loadedPoster, setLoadedPoster] = useState(null);
   const [failedFallback, setFailedFallback] = useState(null);
@@ -30,17 +37,17 @@ export default function VideoFacade({ platform, url, label, poster = null, fallb
   const viewOnlyPost = platform === "instagram" && /\/p\/[\w-]+\/?(?:[?#].*)?$/.test(String(url || ""));
 
   const premium = Boolean(coverTitle);
-  const frame = { position: "relative", width: "100%", maxWidth: 300, aspectRatio: premium ? "3 / 4" : "9 / 16", borderRadius: premium ? 0 : 14, overflow: "hidden", background: premium ? "linear-gradient(145deg,#70453e,#291719)" : `linear-gradient(150deg, ${p.color} 0%, #0D1117 120%)`, border: premium ? "none" : `1px solid ${p.color}55` };
+  const frame = { position: "relative", width: "100%", maxWidth: 300, borderRadius: premium ? 0 : 14, overflow: "hidden", background: premium ? "linear-gradient(145deg,#70453e,#291719)" : `linear-gradient(150deg, ${p.color} 0%, #0D1117 120%)`, border: premium ? "none" : `1px solid ${p.color}55` };
 
   if (play) {
     return (
-      <div style={{ ...frame, background: "#000" }}>
+      <div style={{ ...frame, aspectRatio: "9 / 16", background: "#000" }}>
         <iframe src={src} title={label} allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowFullScreen loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} />
       </div>
     );
   }
   return (
-    <button type="button" onClick={() => setPlay(true)} aria-label={`${viewOnlyPost ? "View" : "Play"} ${label}`} style={{ ...frame, cursor: "pointer", padding: 0 }}>
+    <button type="button" onClick={() => startCreatorPlayback(setPlay, collapseDetails)} aria-label={`${viewOnlyPost ? "View" : "Play"} ${label}`} style={{ ...frame, aspectRatio: premium ? "3 / 4" : "9 / 16", cursor: "pointer", padding: 0 }}>
       {fallbackPoster && failedFallback !== fallbackPoster ? <img src={fallbackPoster} alt="" loading="lazy" decoding="async" onError={() => setFailedFallback(fallbackPoster)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 32%" }} /> : null}
       {poster && failedPoster !== poster ? <img src={poster} alt="" loading="lazy" decoding="async" onLoad={() => setLoadedPoster(poster)} onError={() => setFailedPoster(poster)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 1 }} /> : null}
       <span aria-hidden="true" style={{ position: "absolute", inset: 0, background: premium ? "linear-gradient(180deg,rgba(35,16,20,.38),transparent 30%,rgba(35,16,20,.95))" : "linear-gradient(180deg,rgba(0,0,0,.15),transparent 35%,rgba(0,0,0,.8))" }} />

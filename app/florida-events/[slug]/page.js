@@ -23,6 +23,8 @@ import { eventTicketCta } from "../../../lib/eventTicketDeals.js";
 import { clockLabel } from "../../../lib/fallPool.js";
 import { eventSocialPosts } from "../../../lib/eventSocial.js";
 import VideoFacade from "../../components/VideoFacade.js";
+import CreatorPlaybackDetails from "../../components/CreatorPlaybackDetails.js";
+import { isEmbeddable } from "../../../lib/videoEmbed";
 
 // Same two-letter monogram convention as RailCard/IconicPlaceCard's card
 // fallback (app/components/css.js .wf-place-card-monogram) — the letters an
@@ -244,6 +246,17 @@ export default async function CuratedEventPage({ params }) {
   // visible before Instagram's third-party iframe is requested.
   const socialPoster = shots && shots.hero ? shots.hero.src : (e.hero_image || null);
   const socialPosterFallback = shots && shots.hero ? (e.hero_image || null) : null;
+  const socialDetails = (post) => <>
+    <div style={{ padding: "18px 16px 14px" }}>
+      <h3 style={{ margin: "0 0 6px", color: "#fff", fontFamily: "Georgia,serif", fontSize: 22, lineHeight: 1.25 }}>{e.event_name}</h3>
+      <p style={{ margin: "0 0 10px", color: "#aaa3a0", fontSize: 13 }}>{[e.venue, e.city].filter(Boolean).join(" · ")}</p>
+      <p style={{ margin: 0, color: "#cbbab2", fontSize: 13, lineHeight: 1.5 }}>Seen by @{post.creator}. {socialPoster ? "Event cover shown." : "Open the creator’s post to see more."}</p>
+    </div>
+    <a href={post.url} target="_blank" rel="noopener" style={S.socialLink}
+      aria-label={`View @${post.creator}'s Instagram post about ${e.event_name} (opens in a new tab)`}>
+      View @{post.creator}&rsquo;s post on Instagram ↗
+    </a>
+  </>;
   // Real nearby places worth an outing, ranked by Wayfind — [] (and no section)
   // where there is nothing honestly nearby, so a page never shows a thin shelf.
   // They render inside <EventWhere> (numbered cards + the same numbers as pins).
@@ -398,26 +411,19 @@ export default async function CuratedEventPage({ params }) {
                     Instagram's official iframe and third-party request are
                     created after that click. The native link below remains a
                     visible fallback when an embed is blocked or removed. */}
-                <VideoFacade
-                  platform={post.platform}
-                  url={post.url}
-                  label={`@${post.creator}'s post about ${e.event_name}`}
-                  poster={socialPoster}
-                  fallbackPoster={socialPosterFallback}
-                  coverTitle={e.event_name}
-                  coverCity={e.city}
-                  coverEyebrow={`THE @${post.creator} EDIT`}
-                  fallbackLabel="Event cover shown"
-                />
-                <div style={{ padding: "18px 16px 14px" }}>
-                  <h3 style={{ margin: "0 0 6px", color: "#fff", fontFamily: "Georgia,serif", fontSize: 22, lineHeight: 1.25 }}>{e.event_name}</h3>
-                  <p style={{ margin: "0 0 10px", color: "#aaa3a0", fontSize: 13 }}>{[e.venue, e.city].filter(Boolean).join(" · ")}</p>
-                  <p style={{ margin: 0, color: "#cbbab2", fontSize: 13, lineHeight: 1.5 }}>Seen by @{post.creator}. {socialPoster ? "Event cover shown." : "Open the creator’s post to see more."}</p>
-                </div>
-                <a href={post.url} target="_blank" rel="noopener" style={S.socialLink}
-                  aria-label={`View @${post.creator}'s Instagram post about ${e.event_name} (opens in a new tab)`}>
-                  View @{post.creator}&rsquo;s post on Instagram ↗
-                </a>
+                {isEmbeddable(post.platform, post.url) ? <CreatorPlaybackDetails buttonStyle={{ color: "#efd0a6" }} details={socialDetails(post)}>
+                  <VideoFacade
+                    platform={post.platform}
+                    url={post.url}
+                    label={`@${post.creator}'s post about ${e.event_name}`}
+                    poster={socialPoster}
+                    fallbackPoster={socialPosterFallback}
+                    coverTitle={e.event_name}
+                    coverCity={e.city}
+                    coverEyebrow={`THE @${post.creator} EDIT`}
+                    fallbackLabel="Event cover shown"
+                  />
+                </CreatorPlaybackDetails> : socialDetails(post)}
               </article>
             ))}
           </div>
