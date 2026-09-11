@@ -5,6 +5,8 @@
 // shows real, current data; an id that no longer resolves 404s via
 // notFound() — never a silent redirect to the homepage. This implements
 // the /events/[city]/[event-slug] leg of the audit prompt's URL scheme.
+import EventPlacePhoto from "../../../components/EventPlacePhoto.js";
+import EventDetailShell from "../../../components/EventDetailShell.js";
 import EventExperienceStyles from "../../../components/EventExperienceStyles.js";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
@@ -242,20 +244,20 @@ export default async function EventPage({ params }) {
           <a href="/" aria-label="Wayfind home" style={{ display: "inline-flex", alignItems: "center" }}><img src="/brand/wayfind-official-white.png" alt="Wayfind" width="132" height="38" style={{ width: 132, height: "auto", display: "block" }} /></a>
           <a href="/events" style={{ color: "#FDBA74", fontWeight: 850, textDecoration: "none", fontSize: 13.5 }}>‹ All events</a>
         </nav>
-        <div className={"wf-event-hero" + (e.image ? "" : " wf-event-hero--no-photo")}>
-          {e.image ? <div className="wf-event-photo"><img src={e.image} alt={e.name} /></div> : null}
-          <aside className="wf-event-booking" aria-label="Event details and booking">
-          <div className="wf-event-eyebrow">Your next good plan</div>
-        {cancelled && (
+        <EventDetailShell
+          title={e.name}
+          status={cancelled ? (
           <div style={{ marginTop: 14, background: "rgba(239,68,68,.12)", border: "1px solid rgba(239,68,68,.5)", borderRadius: 12, padding: "11px 14px", color: "#FCA5A5", fontWeight: 800, fontSize: 13.5 }}>
             This event has been {/postponed/i.test(e.status) ? "postponed" : "cancelled"} by the organizer. Check the official listing before making plans.
           </div>
-        )}
-        <h1>{e.name}</h1>
-        <p className="wf-event-date">{fmtDate(e.date, e.time)}</p>
-        <p className="wf-event-booking-note">{where}</p>
-        <EventActions event={{ ...e, url: `${CANON}/events/${params.city}/${params.slug}` }} />
-        {e.price && <div className="wf-event-price">{e.price}</div>}
+        ) : null}
+          facts={[
+            { label: "When", value: fmtDate(e.date, e.time) },
+            { label: "Where", value: (where || streetLine) ? <>{where ? <div>{where}</div> : null}{streetLine && streetLine !== where ? <div>{streetLine}</div> : null}</> : null },
+            { label: "Cost", value: e.price || "See the organiser for admission details" },
+          ]}
+          story={<EventStory eventId={e.id} initialStory={initialStory} />}
+          actions={<>
         {!cancelled && external && (
           <TicketButton
             url={external}
@@ -264,9 +266,11 @@ export default async function EventPage({ params }) {
             provider={isTicketmasterFamily(external) ? "ticketmaster" : "event_official"}
           />
         )}
-        <p className="wf-event-booking-note">{e.ticketed ? "Confirm availability and booking terms with the ticket provider before paying." : "Confirm dates and availability on the official listing."}</p>
-        </aside></div>
-        <EventStory eventId={e.id} initialStory={initialStory} />
+            <EventActions event={{ ...e, url: `${CANON}/events/${params.city}/${params.slug}` }} />
+          </>}
+          note={e.ticketed ? "Confirm availability and booking terms with the ticket provider before paying." : "Confirm dates and availability on the official listing."}
+          media={e.image ? <div className="wf-event-photo"><EventPlacePhoto src={e.image} name={e.name} /></div> : <div className="wf-event-photo wf-event-photo-fallback" role="img" aria-label={`${e.name}: no photo available yet`}><span>{String(e.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map(word => word[0]).join("").toUpperCase()}</span><small>Photo unavailable</small></div>}
+        />
         {/* v8.99 — the shared WHERE block (address, official site, map with
             your route, nearby picks). Same component as /florida-events. */}
         {where && (
