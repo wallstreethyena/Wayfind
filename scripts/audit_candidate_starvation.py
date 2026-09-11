@@ -50,6 +50,7 @@ from __future__ import annotations
 import argparse
 import datetime as _dt
 import json
+import math
 import os
 import re
 import subprocess
@@ -68,6 +69,130 @@ METROS = {
     "orlando": (28.5383, -81.3792),
     "miami": (25.7617, -80.1918),
 }
+
+
+def parse_metros(raw: str) -> list[str]:
+    """Parse once, reject ambiguity, and preserve the caller's order."""
+    parts = [part.strip() for part in str(raw or "").split(",")]
+    if not parts or any(not part for part in parts):
+        raise ValueError("--metros must contain one or more non-empty metro ids")
+    unknown = sorted({part for part in parts if part not in METROS})
+    if unknown:
+        raise ValueError("unknown metro(s): " + ", ".join(unknown))
+    return list(dict.fromkeys(parts))
+
+
+def _count(value) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool) and value >= 0
+
+
+def validate_measurement(result: object, surface: dict, lat: float, lng: float) -> list[str]:
+    """Validate the Node bridge contract before its numbers enter a report."""
+    errors: list[str] = []
+    if not isinstance(result, dict):
+        return ["measurement is not an object"]
+    if result.get("measurementVersion") != 1:
+        errors.append("measurementVersion is not 1")
+    if result.get("surface") != surface.get("id"):
+        errors.append(f"surface identity mismatch: {result.get('surface')!r}")
+    if result.get("route") != surface.get("route"):
+        errors.append(f"route identity mismatch: {result.get('route')!r}")
+    if result.get("categories") != surface.get("categories"):
+        errors.append("category identity mismatch")
+    for key, expected in (("lat", lat), ("lng", lng)):
+        value = result.get(key)
+        if not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(value) or abs(value - expected) > 1e-9:
+            errors.append(f"{key} mismatch: {value!r}")
+
+    old = result.get("old")
+    nxt = result.get("next")
+    rails = result.get("rails")
+    evidence = result.get("readEvidence")
+    if not isinstance(old, dict): errors.append("old result is missing")
+    if not isinstance(nxt, dict): errors.append("next result is missing")
+    if not isinstance(rails, list): errors.append("rails result is missing")
+    if not isinstance(evidence, dict): errors.append("readEvidence is missing")
+    if errors:
+        return errors
+
+    for label, value in (
+        ("old.reachedClassifier", old.get("reachedClassifier")),
+        ("old.qualified", old.get("qualified")),
+        ("next.rows", nxt.get("rows")),
+        ("next.servable", nxt.get("servable")),
+        ("next.withinRadius", nxt.get("withinRadius")),
+        ("next.qualified", nxt.get("qualified")),
+        ("next.sourceFailures", nxt.get("sourceFailures")),
+        ("next.unknownFailures", nxt.get("unknownFailures")),
+        ("recovered", result.get("recovered")),
+    ):
+        if not _count(value): errors.append(f"{label} is not a non-negative integer")
+    if all(_count(nxt.get(k)) for k in ("rows", "servable", "withinRadius", "qualified")):
+        if not (nxt["qualified"] <= nxt["withinRadius"] <= nxt["servable"] <= nxt["rows"]):
+            errors.append("next admission counts are inconsistent")
+    if _count(old.get("qualified")) and _count(old.get("reachedClassifier")):
+        if old["qualified"] > old["reachedClassifier"]:
+            errors.append("old admission counts are inconsistent")
+
+    expected_categories = set(surface.get("categories") or [])
+    per_category = evidence.get("perCategory")
+    if not isinstance(per_category, dict) or set(per_category) != expected_categories:
+        errors.append("per-category evidence does not exactly cover requested categories")
+        per_category = {}
+    source_failures = unknown_failures = 0
+    truncations = []
+    for category, item in per_category.items():
+        if not isinstance(item, dict) or item.get("status") not in ("fulfilled", "rejected", "unknown"):
+            errors.append(f"{category} has invalid read evidence")
+            unknown_failures += 1
+            continue
+        if item["status"] == "fulfilled":
+            if not _count(item.get("rows")) or not isinstance(item.get("truncated"), bool):
+                errors.append(f"{category} fulfilled without rows/truncation evidence")
+            else:
+                truncations.append(item["truncated"])
+            if item.get("error") is not None:
+                errors.append(f"{category} fulfilled with an error")
+        else:
+            source_failures += 1
+            unknown_failures += 1
+            if item.get("rows") is not None or item.get("truncated") is not None or not item.get("error"):
+                errors.append(f"{category} failure was presented as measured")
+
+    extra_unknown = max(0, len(evidence.get("failures") or []) - source_failures)
+    unknown_failures += extra_unknown
+    actual_truncated = True if any(truncations) else (None if unknown_failures else False)
+    if evidence.get("sourceFailures") != source_failures:
+        errors.append("source failure count disagrees with per-category evidence")
+    if evidence.get("unknownFailures") != unknown_failures:
+        errors.append("unknown failure count disagrees with read evidence")
+    if evidence.get("actualTruncated") is not actual_truncated:
+        errors.append("actual truncation disagrees with per-category evidence")
+    complete = bool(expected_categories) and not source_failures and not unknown_failures and actual_truncated is False
+    if evidence.get("complete") is not complete:
+        errors.append("read completeness disagrees with evidence")
+    if nxt.get("sourceFailures") != source_failures or nxt.get("unknownFailures") != unknown_failures:
+        errors.append("next failure counts disagree with read evidence")
+    if nxt.get("truncated") is not actual_truncated or nxt.get("complete") is not complete:
+        errors.append("next completeness disagrees with read evidence")
+    rows_read = nxt.get("rowsRead")
+    if not isinstance(rows_read, dict) or set(rows_read) != expected_categories:
+        errors.append("rowsRead does not exactly cover requested categories")
+    else:
+        for category, item in per_category.items():
+            if rows_read.get(category) != item.get("rows"):
+                errors.append(f"rowsRead disagrees for {category}")
+
+    expected_rails = set(surface.get("rails") or []) - set((surface.get("railsNotMeasured") or {}).keys())
+    if isinstance(rails, list):
+        ids = [row.get("id") for row in rails if isinstance(row, dict)]
+        if len(ids) != len(rails) or len(ids) != len(set(ids)) or set(ids) != expected_rails:
+            errors.append("rail identity does not exactly cover the measured surface")
+        for row in rails:
+            if not isinstance(row, dict): continue
+            if not _count(row.get("old")) or not _count(row.get("next")):
+                errors.append(f"rail {row.get('id')!r} has invalid counts")
+    return errors
 
 # ---------------------------------------------------------------------------
 # STATIC DISCOVERY
@@ -258,7 +383,7 @@ def surfaces() -> list[dict]:
          "m.SURFACES.map(s=>({id:s.id,title:s.title,route:s.route,reader:s.reader,status:s.status,"
          "categories:s.categories,radiusMi:s.radiusMi,rails:s.rails,oldN:s.oldN,"
          "vulnerableRails:s.vulnerableRails||null,overlappingRails:!!s.overlappingRails,shippedIn:s.shippedIn||null,"
-         "broadByDesign:s.broadByDesign||null})))))"],
+         "broadByDesign:s.broadByDesign||null,railsNotMeasured:s.railsNotMeasured||null})))))"],
         cwd=ROOT, capture_output=True, text=True,
     )
     if proc.returncode != 0:
@@ -445,6 +570,19 @@ def write_markdown(report: dict, path: Path) -> None:
         a(f"- historical cut: {w['cut']}")
         a(f"- historical impact: {w['impact']}")
         a("")
+    a("## Historical source-shape probes")
+    a("")
+    a("These source-only probes preserve the original hypotheses without upgrading them into evidence.")
+    a("The executable legacy audit above decides whether each repaired invariant still holds.")
+    a("")
+    for w in report.get("sourceWatchlist", []):
+        a(f"**`{w['file']}`**")
+        a("")
+        a(f"- classification: `{w['classification']}` · source shape: `{w['sourceStatus']}` ({w['sourceEvidence']})")
+        a(f"- the cut: {w['cut']}")
+        a(f"- what it costs: {w['impact']}")
+        a(f"- why it was left: {w['why_deferred']}")
+        a("")
     a("## Raw reads with no `order=`")
     a("")
     a("An unordered `limit=` read returns an arbitrary slice in Postgres heap order, which any UPDATE "
@@ -476,39 +614,88 @@ LEGACY_WATCHLIST = [
         "id": "generic-intent-feed",
         "file": "app/api/intent-candidates/route.js:70",
         "cut": "per-category top-400, then a GLOBAL `places.slice(0, limit)` (400, max 600) by raw Wayfind Score before any rail identity runs",
+        "why_deferred": "its consumers apply their own identity downstream, and its largest consumer — Night Out — now has its own identity-first route, so this is the client's fail-soft fallback rather than the shipped answer",
         "impact": "a niche venue that did not crack the global top-400 by score is invisible to every rail that would have wanted it",
     },
     {
         "id": "inventory-box-batch",
         "file": "lib/inventoryBoxBatch.js:93",
         "cut": "a consolidated union read across a metro cluster's WIDE boxes with `limit = min(1000 * cities, 20000)` and NO `order=`",
+        "why_deferred": "it is a hot path feeding the landing pools, where the sub is always 'all' and no narrow identity follows — the damage is nondeterminism rather than starvation, and it deserves its own change with its own measurement",
         "impact": "a cluster whose union exceeds the limit is ranked over an arbitrary heap slice, so the same query returns a different top list after any UPDATE",
     },
     {
         "id": "morning-identity-pools",
         "file": "lib/railsData.js:993-994",
         "cut": "buildIdentityPool for breakfast and quickeats passes no `typeOv`, so its tier-2 read has no category or type filter at all: every row in the box, ordered by review count, top 300, and only then isBreakfastPlace / isQuickService",
+        "why_deferred": "ordered (so deterministic) and on a small radius, and it sits inside the rail-menu compute where a change needs its own latency measurement",
         "impact": "a genuine breakfast cafe with modest review count, in a dense box holding 300 more-reviewed rows of any category, never reaches the predicate",
     },
     {
         "id": "nearby-complete-rings",
         "file": "lib/nearbyPool.js:258",
         "cut": "`limit=400` per ring ordered by review count, with identity applied after the read but before any further cut",
+        "why_deferred": "identity already runs before every count-based cut, and the ring ladder widens when the identity-passed count is short — the mildest form of the shape",
         "impact": "a long-tail identity match outside the 400 most-reviewed rows of a dense ring is still excluded",
     },
     {
         "id": "date-night-shopping",
         "file": "app/api/date-night/route.js",
         "cut": "not a retrieval bug — the `shopping` rail is declared in DATE_NIGHT_RAIL_DEFS but no `shopping` category is ever read, so it can never populate",
+        "why_deferred": "found by this audit, fixed separately: adding a read is a product change, not a retrieval fix",
         "impact": "one Date Night rail is permanently empty everywhere",
     },
     {
         "id": "today-instagram-exact-ids",
         "file": "app/api/today-discovery/route.js",
         "cut": "not a retrieval bug — the Instagram rail's evidence is a curated creator-video set, and the places carrying it are still reached only through the broad food/nightlife/hotels/shopping reads",
+        "why_deferred": "the honest fix is an exact place-id read for the curated set, like Birthday's rewards, which is a small change with its own proof",
         "impact": "an Instagram-corroborated place outside the top 400 of its category is invisible to the rail built for it",
     },
 ]
+
+# Upstream's source-only view uses the same six historical hypotheses without
+# inheriting the executable verdict. Keeping one metadata list prevents a
+# description change from silently drifting between the two report sections.
+WATCHLIST = [
+    {key: item[key] for key in ("file", "cut", "why_deferred", "impact")}
+    for item in LEGACY_WATCHLIST
+]
+
+# These probes verify only that the source shape behind each hypothesis still
+# exists. They do not upgrade a source observation into production evidence.
+WATCHLIST_PROBES = {
+    "app/api/intent-candidates/route.js:70": ("present", r"serveFromInventory\([^)]*PER_CAT_N\)[\s\S]*places\.slice\(0,\s*limit\)"),
+    "lib/inventoryBoxBatch.js:93": ("present", r"limit\s*=\s*Math\.min\(1000\s*\*\s*cluster\.cities\.length,\s*20000\)"),
+    "lib/railsData.js:993-994": ("present", r"buildIdentityPool\([\s\S]{0,500}isBreakfastPlace[\s\S]{0,500}\{\s*readCache\s*\}"),
+    "lib/nearbyPool.js:258": ("present", r"order=signals->reviews\.desc\.nullslast&limit=400"),
+    "app/api/date-night/route.js": ("absent", r"(?:categories\s*:\s*\[\s*[\"']shopping[\"']|serveFromInventory\(\s*[\"']shopping[\"'])"),
+    "app/api/today-discovery/route.js": ("present", r"broadCategories\s*=\s*\[[^\]]*[\"']shopping[\"'][^\]]*\]"),
+}
+
+
+def evaluate_watchlist(root: Path = ROOT) -> list[dict]:
+    evaluated = []
+    for item in WATCHLIST:
+        mode, pattern = WATCHLIST_PROBES[item["file"]]
+        rel = item["file"].split(":", 1)[0]
+        path = root / rel
+        if not path.is_file():
+            state = "RETIRED"
+            evidence = f"{rel} no longer exists"
+        else:
+            source = strip_comments(path.read_text(encoding="utf8", errors="replace"))
+            matched = bool(re.search(pattern, source, re.S))
+            shape_holds = matched if mode == "present" else not matched
+            state = "MATCHED" if shape_holds else "CHANGED"
+            evidence = "source probe still matches" if shape_holds else "source probe no longer matches"
+        evaluated.append({
+            **item,
+            "classification": "SOURCE_HYPOTHESIS",
+            "sourceStatus": state,
+            "sourceEvidence": evidence,
+        })
+    return evaluated
 
 
 def _source(root: Path, rel: str) -> str | None:
@@ -839,7 +1026,14 @@ def main() -> int:
     if args.mode in ("controls", "production-readonly"):
         controls = node_json("scripts/audit-starvation-controls.mjs")
 
-    metros = [m.strip() for m in args.metros.split(",") if m.strip() in METROS]
+    try:
+        metros = parse_metros(args.metros)
+    except ValueError as exc:
+        print(f"audit_candidate_starvation: {exc}", file=sys.stderr)
+        return 2
+    production_errors: list[dict] = []
+    requested_measurements = len(regs) * len(metros) if args.mode == "production-readonly" else 0
+    completed_measurements = 0
     out_surfaces = []
     for s in regs:
         measurements: dict = {}
@@ -847,17 +1041,30 @@ def main() -> int:
             for metro in metros:
                 lat, lng = METROS[metro]
                 try:
-                    measurements[metro] = node_json(
+                    measured = node_json(
                         "scripts/audit-starvation-measure.mjs",
                         f"--surface={s['id']}", f"--lat={lat}", f"--lng={lng}")
+                    invalid = validate_measurement(measured, s, lat, lng)
+                    if invalid:
+                        raise RuntimeError("invalid measurement: " + "; ".join(invalid))
+                    measurements[metro] = measured
+                    if measured["readEvidence"]["complete"]:
+                        completed_measurements += 1
+                    else:
+                        production_errors.append({
+                            "surface": s["id"], "metro": metro,
+                            "error": "owned read was incomplete, failed, or truncated",
+                        })
                 except Exception as exc:  # a metro that cannot be read is reported, never silently dropped
-                    measurements[metro] = f"MEASUREMENT FAILED: {exc}"
-        first = next((m for m in measurements.values() if isinstance(m, dict)), None)
+                    measurements[metro] = {"status": "ERROR", "error": str(exc)}
+                    production_errors.append({"surface": s["id"], "metro": metro, "error": str(exc)})
+        first = next((m for m in measurements.values() if isinstance(m, dict) and "old" in m), None)
         verdict = classify(s, static_hits, first)
         out_surfaces.append({**s, **verdict, "measurements": measurements})
 
     watchlist_audit = audit_legacy_watchlist()
     unresolved_watchlist = [item for item in watchlist_audit if item["verdict"] != "FIXED"]
+    source_watchlist = evaluate_watchlist()
     report = {
         "date": _dt.date.today().isoformat(),
         "mode": args.mode,
@@ -875,6 +1082,8 @@ def main() -> int:
         "controls": controls,
         "watchlistAudit": watchlist_audit,
         "watchlist": unresolved_watchlist,
+        "unresolvedWatchlist": unresolved_watchlist,
+        "sourceWatchlist": source_watchlist,
         "resolvedWatchlist": [item for item in watchlist_audit if item["verdict"] == "FIXED"],
         "surfaces": out_surfaces,
     }
@@ -898,14 +1107,24 @@ def main() -> int:
                 slots_shipped += m.get("recovered", 0)
             else:
                 slots_pending += m.get("recovered", 0)
+    production_complete = (args.mode == "production-readonly"
+                           and requested_measurements > 0
+                           and completed_measurements == requested_measurements
+                           and not production_errors)
+    report["production"] = {
+        "complete": production_complete if args.mode == "production-readonly" else None,
+        "requestedMeasurements": requested_measurements,
+        "completedMeasurements": completed_measurements,
+        "errors": production_errors,
+    }
     report["summary"] = {
         "vulnerable": [k for k, v in verdicts.items() if v == "VULNERABLE"],
         "fixed": [k for k, v in verdicts.items() if v == "FIXED"],
         "safe": [k for k, v in verdicts.items() if v == "SAFE"],
-        "distinctPlacesRecoveredPending": len(pending),
-        "distinctPlacesRecoveredAlreadyShipped": len(shipped - pending),
-        "railSlotsPending": slots_pending,
-        "railSlotsAlreadyShipped": slots_shipped,
+        "distinctPlacesRecoveredPending": len(pending) if production_complete else None,
+        "distinctPlacesRecoveredAlreadyShipped": len(shipped - pending) if production_complete else None,
+        "railSlotsPending": slots_pending if production_complete else None,
+        "railSlotsAlreadyShipped": slots_shipped if production_complete else None,
         "watchlistFixed": [item["id"] for item in watchlist_audit if item["verdict"] == "FIXED"],
         "watchlistVulnerable": [item["id"] for item in unresolved_watchlist],
     }
@@ -938,10 +1157,12 @@ def main() -> int:
 
     # Registered VULNERABLE surfaces remain report findings. The six legacy
     # items are different: they are repaired invariants now, so every mode must
-    # fail if one regresses. The JSON is still written first for diagnosis.
+    # fail if one regresses. Production mode also fails when any requested
+    # measurement is missing, rejected, or truncated. JSON is written first.
     controls_ok = controls is None or controls["ok"]
     legacy_ok = not unresolved_watchlist
-    return 0 if controls_ok and legacy_ok else 1
+    production_ok = args.mode != "production-readonly" or production_complete
+    return 0 if controls_ok and legacy_ok and production_ok else 1
 
 
 if __name__ == "__main__":

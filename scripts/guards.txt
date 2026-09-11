@@ -1471,6 +1471,8 @@ node scripts/test-morning-candidate-integrity.mjs
 node scripts/test-event-section-nav.mjs
 node scripts/test-event-nearby-cards.mjs
 node scripts/test-share-out-chooser.mjs
+node scripts/check-home-eager-supabase.mjs
+node scripts/test-audit-candidate-starvation.mjs
 node scripts/test-trip-connections.mjs
 
 # Six canonical Florida attraction identities supplement Family/Activities from

@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 629,
-    "totalRegistryEntries": 630,
-    "guardsTxtLineCount": 628,
-    "guardsTxtReachedFileCount": 623,
+    "totalOnDiskGuardFiles": 631,
+    "totalRegistryEntries": 632,
+    "guardsTxtLineCount": 630,
+    "guardsTxtReachedFileCount": 625,
     "criticalCount": 74,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 426,
+      "CALL": 428,
       "RENDER": 60,
       "STRUCTURAL": 143,
       "OTHER": 1
@@ -260,7 +260,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 26,
+      "assertionCount": 27,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -3460,6 +3460,28 @@
       "owner": null
     },
     {
+      "file": "scripts/check-home-eager-supabase.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": true,
+      "assertionCount": 11,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-home-location.mjs",
       "npmScript": null,
       "class": "STRUCTURAL",
@@ -6235,7 +6257,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 32,
+      "assertionCount": 38,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
@@ -8181,6 +8203,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 45,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-audit-candidate-starvation.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 15,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
