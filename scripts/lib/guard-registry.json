@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 631,
-    "totalRegistryEntries": 632,
-    "guardsTxtLineCount": 630,
-    "guardsTxtReachedFileCount": 625,
-    "criticalCount": 74,
+    "totalOnDiskGuardFiles": 633,
+    "totalRegistryEntries": 634,
+    "guardsTxtLineCount": 632,
+    "guardsTxtReachedFileCount": 627,
+    "criticalCount": 76,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 428,
-      "RENDER": 60,
+      "CALL": 429,
+      "RENDER": 61,
       "STRUCTURAL": 143,
       "OTHER": 1
     }
@@ -7345,7 +7345,7 @@
       "npmScript": null,
       "class": "STRUCTURAL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 7,
+      "assertionCount": 8,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
@@ -7393,7 +7393,7 @@
       "npmScript": null,
       "class": "STRUCTURAL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 20,
+      "assertionCount": 23,
       "unprovenAbsenceCount": 1,
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines",
@@ -8612,6 +8612,33 @@
       "owner": "Revenue QA"
     },
     {
+      "file": "scripts/test-bookable-near-50.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 17,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:bookable"
+      ],
+      "protects": "The real browse rail renders up to 50 relevant local affiliate cards in descending visible score order with no duplicate or dead offers.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "Wrong or duplicate affiliate cards can send users to unrelated products or hide the best local bookable options."
+      },
+      "owner": "Revenue QA"
+    },
+    {
       "file": "scripts/test-booking-audit.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -8752,6 +8779,33 @@
       "protects": null,
       "blastRadius": null,
       "owner": null
+    },
+    {
+      "file": "scripts/test-browse-bookable-match.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 76,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:bookable"
+      ],
+      "protects": "Exact browse intent and complete local candidate reads are applied before ranking and limiting bookable offers.",
+      "blastRadius": {
+        "category": "trust",
+        "detail": "Truncated inventory or broad category leakage can hide relevant offers or show unsuitable family activities."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/test-browse-library.mjs",
@@ -13492,10 +13546,10 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 9,
+      "assertionCount": 11,
       "unprovenAbsenceCount": 2,
       "honestyViolations": [
-        "2 absence assertion(s) with no positive control in the same file (e.g. \"(home.match(/rankExperiences\\(/g) || []).length >= 5, \"\")"
+        "2 absence assertion(s) with no positive control in the same file (e.g. \"/nextDynamic\\(\\(\\) => import\\(\"\\.\\/components\\/UnifiedBrowseCommerceRail\"\\)/.tes\")"
       ],
       "selfDocumentsRedProve": false,
       "wiring": {

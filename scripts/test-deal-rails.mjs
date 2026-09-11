@@ -67,9 +67,10 @@ const route = read("app/api/deals/route.js");
 ok(/serveDeals/.test(route) && /runtime = "nodejs"/.test(route), "route delegates to serveDeals, nodejs runtime");
 ok(read("middleware.js").includes('"/api/deals"'), "/api/deals is same-origin guarded in middleware");
 
-// ── render (home.js) ──
+// ── render (home mount + extracted component) ──
 const home = read("app/home.js");
-ok(/function UnifiedBrowseCommerceRail/.test(home), "the mixed-provider browse rail exists");
+const browseRail = read("app/components/UnifiedBrowseCommerceRail.js");
+ok(/function UnifiedBrowseCommerceRail/.test(browseRail), "the mixed-provider browse rail implementation exists in its extracted module");
 ok(/browseCat === "attractions" && center && <UnifiedBrowseCommerceRail[^>]*categories=\{\["attractions",\s*"more"\]\}/.test(home), "Things-to-do renders one geo-scoped mixed-provider rail");
 // RE-POINTED v8.13.1 (2026-08-18). #790 (owner-account merge) changed the
 // Stays mount on purpose, and shipped scripts/test-session-map-parity.mjs to
@@ -89,8 +90,8 @@ ok(/browseCat === "hotels" && center && view\.length > 0 && <UnifiedBrowseCommer
 // nofollow — which is what was missing when crawlers were following it.
 ok(/href={d\.href}/.test(home) && /rel="sponsored nofollow noopener"/.test(home),
   "rail links render our href with rel=\"sponsored nofollow\" — sponsored alone shipped, and non-Google crawlers ignore it entirely");
-ok(/kind: "unified_browse_rail"/.test(home), "outbound clicks are logged as unified browse-rail commerce");
-ok(/via \{card\.merchant\}/.test(home), "each mixed-provider card names its merchant discreetly on the image");
+ok(/kind: "unified_browse_rail"/.test(browseRail), "outbound clicks are logged as unified browse-rail commerce");
+ok(/via \{card\.merchant\}/.test(browseRail), "each mixed-provider card names its merchant discreetly on the image");
 
 // ── the chip itself ──
 const chip = read("app/components/AffiliateChip.js");
