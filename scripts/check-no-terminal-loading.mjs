@@ -49,7 +49,7 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
 
 // Anything that renders as "we are working on it". Kept deliberately broad —
 // a future spinner with a new name is the same promise to the reader.
-const LOADING_MARK = /aria-busy=\{?["']?true|<PlaceCardSkeleton|<Skeleton|className="[^"]*\bwf-skel\b/;
+const LOADING_MARK = /aria-busy=\{?["']?true|<PlaceCardSkeleton|<RailLoading|<Skeleton|className="[^"]*\bwf-skel\b/;
 
 const SKIP_DIRS = new Set(["node_modules", ".next", ".git", "_to_delete", "_agent-export", "_incoming",
   "design-baseline", "design-after-p3", "design-after-final", "public", "ios", "resources", "tmp"]);

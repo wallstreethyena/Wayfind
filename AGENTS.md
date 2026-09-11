@@ -326,3 +326,10 @@ When a requested task overlaps an existing, merged or reportedly deployed change
 6. Report what was verified, the exact revision, remaining defects or verification gaps,
    and the next concrete action. “Already merged” is a starting point for this audit,
    never a substitute for it.
+
+## 14. One discovery rail presentation
+
+New and changed discovery rails must follow `docs/ui/rail-standard.md`.
+Use `RailHeading`, `RailNav`, and `RailLoading` with the shared place card
+geometry. Do not introduce rail-specific fonts, pin loaders, or card entrance
+animations. Keep counts honest and preserve ranking, paging, and location rules.

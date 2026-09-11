@@ -18,6 +18,8 @@ import { selectPosterEvents } from "../../lib/posterEvents.js";
 // rail in one blob the instant a reader tapped it.
 import { useEffect, useMemo, useState } from "react";
 import RailCard, { RailDots, RailNav } from "./RailCard";
+import RailHeading from "./RailHeading";
+import RailLoading from "./RailLoading";
 import { directionsUrl } from "./kit";
 import { toHookLine } from "../../lib/editorialHook";
 import { composeNightOutRails } from "../../lib/nightOutIntent.js";
@@ -53,15 +55,13 @@ function NightOutRailSection({
   const railId = "night-out-" + rail.id;
   if (!count && (eventsPending || toursPending)) return (
     <section aria-label={rail.title} style={{ marginTop: 22 }}>
-      <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 850, color: C.text }}>{rail.title}</h2>
-      <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>{rail.deck}</p>
-      <div className="wf-sk" role="status" aria-busy="true" aria-label={`Finding ${rail.title}`} style={{ height: 88, borderRadius: 14, background: "#0B0E15" }} />
+      <RailHeading title={rail.title} description={rail.deck} />
+      <RailLoading label={`Finding ${rail.title}`} />
     </section>
   );
   if (!count && toursFailed) return (
     <section aria-label={rail.title} style={{ marginTop: 22 }}>
-      <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 850, color: C.text }}>{rail.title}</h2>
-      <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>{rail.deck}</p>
+      <RailHeading title={rail.title} description={rail.deck} />
       <p style={{ margin: "8px 0 0", fontSize: 13, color: C.muted }}>Wayfind could not reach its cached night-tour inventory.</p>
       {onRetryTours ? <button type="button" onClick={onRetryTours} style={{ marginTop: 8, border: "1px solid #4B5563", borderRadius: 999, background: "#111827", color: C.text, padding: "7px 12px", fontWeight: 800 }}>Try again</button> : null}
     </section>
@@ -86,8 +86,7 @@ function NightOutRailSection({
   const soloProduct = count === 1 && eventCards.length === 0 && tourProducts.length === 1 && items.length === 0 ? tourProducts[0] : null;
   if (soloProduct) return (
     <section aria-label={rail.title} style={{ marginTop: 22 }} data-rail-solo={rail.id}>
-      <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 850, color: C.text }}>{rail.title}</h2>
-      <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>{rail.deck}</p>
+      <RailHeading title={rail.title} description={rail.deck} />
       <p style={{ margin: "6px 0 10px", fontSize: 12.5, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase", color: "#FB923C" }}>
         Best match tonight — the only verified guided night activity in this market
       </p>
@@ -100,8 +99,7 @@ function NightOutRailSection({
     const href = directionsUrl(soloItem);
     return (
       <section aria-label={rail.title} style={{ marginTop: 22 }} data-rail-solo={rail.id}>
-        <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 850, color: C.text }}>{rail.title}</h2>
-        <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>{rail.deck}</p>
+        <RailHeading title={rail.title} description={rail.deck} />
         <p style={{ margin: "6px 0 10px", fontSize: 12.5, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase", color: "#FB923C" }}>
           Best match tonight — the only place within 27 miles that clears this
         </p>
@@ -131,15 +129,15 @@ function NightOutRailSection({
 
   return (
     <section aria-label={rail.title} style={{ marginTop: 22 }}>
-      <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 850, color: C.text }}>{rail.title}</h2>
-      <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>{rail.deck}</p>
+      <RailHeading title={rail.title} description={rail.deck}>
+        <RailNav railId={railId} count={count} total={count} loaded={eventCards.length + tourProducts.length + items.length} unit={count === 1 ? "verified option" : "verified options"} />
+      </RailHeading>
       {toursFailed ? <p role="status" style={{ margin: "7px 0", fontSize: 12, color: C.muted }}>
         Cached night-tour products are temporarily unavailable. {onRetryTours ? <button type="button" onClick={onRetryTours} style={{ border: 0, padding: 0, background: "transparent", color: "#FB923C", font: "inherit", fontWeight: 800, cursor: "pointer" }}>Try again</button> : null}
       </p> : null}
       {/* Page 0's `total` (from the seed) is the count RailNav shows, never
           the merely-loaded length — the reader sees "130 ranked options" on
           first paint, not "10". */}
-      <RailNav railId={railId} count={count} total={count} unit={count === 1 ? "verified option" : "verified options"} />
       <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>
         {eventCards}
         <NightTourProductCards items={tourProducts} city={city} rankOffset={eventCards.length} />
@@ -172,7 +170,7 @@ function NightOutRailSection({
         {/* Never a whole-rail skeleton for page ≥1 — a small end-of-rail
             spinner card in place instead, so the reader keeps scrolling
             through what has already loaded while the next ten arrive. */}
-        {loadingMore ? <div className="wf-rail-card wf-exploding-primary" aria-busy="true" aria-label={`Loading more ${rail.title}`}
+        {loadingMore ? <div className="wf-rail-card wf-exploding-primary wf-sk" role="status" aria-busy="true" aria-label={`Loading more ${rail.title}`}
           style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 88, color: C.muted, fontSize: 12.5 }}>Loading more…</div> : null}
       </div>
       {tourProducts.length ? <p style={{ margin: "9px 0 0", fontSize: 10.5, color: C.muted, lineHeight: 1.45 }}>Wayfind may earn a commission when you book through these Viator links, at no extra cost to you. It never changes our rankings.</p> : null}
@@ -257,7 +255,7 @@ export default function NightOutRails({
   if (!key) return <p style={{ color: C.muted, fontSize: 13 }}>Choose a location to see Night Out places near you.</p>;
 
   if (!remote && !failed && !hasContent) {
-    return <div role="status" aria-busy="true" aria-label="Building Night Out">{[0, 1, 2].map((index) => <div key={index} className="wf-sk" style={{ height: 88, borderRadius: 14, marginBottom: 12, background: "#0B0E15" }} />)}</div>;
+    return <RailLoading label="Building Night Out" />;
   }
 
   if (failed && !hasContent) {

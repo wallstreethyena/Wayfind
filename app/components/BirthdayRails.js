@@ -8,6 +8,8 @@
 // This replaces the old "Load every ranked option" whole-blob button.
 import { useEffect, useMemo, useRef, useState } from "react";
 import RailCard, { RailDots, RailNav } from "./RailCard";
+import RailHeading from "./RailHeading";
+import RailLoading from "./RailLoading";
 import { directionsUrl } from "./kit";
 import { toHookLine } from "../../lib/editorialHook";
 import { priceLabel } from "../../lib/price.js";
@@ -42,24 +44,23 @@ function BirthdayRailSection({ rail, lat, lng, city, onOpenPlace, isSaved, liked
   if (renderState === RAIL_RENDER_STATE.HIDDEN) return null;
   if (renderState === RAIL_RENDER_STATE.LOADING) return (
     <section aria-label={rail.title} style={{ marginTop: 22 }}>
-      <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 800, color: COLORS.text }}>{rail.title}</h2>
-      <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>{rail.deck}</p>
-      <div role="status" aria-busy="true" aria-label={`Loading ${rail.title}`} className="wf-sk" style={{ height: 88, borderRadius: 14, background: "#0B0E15" }} />
+      <RailHeading title={rail.title} description={rail.deck} />
+      <RailLoading label={`Loading ${rail.title}`} />
     </section>
   );
   if (renderState === RAIL_RENDER_STATE.ERROR) return (
     <section aria-label={rail.title} style={{ marginTop: 22 }}>
-      <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 800, color: COLORS.text }}>{rail.title}</h2>
+      <RailHeading title={rail.title} description={rail.deck} />
       <p style={{ margin: "8px 0", fontSize: 13, color: COLORS.muted }}>We could not reach this rail&apos;s verified inventory.</p>
       <button type="button" disabled={loadingMore} onClick={fetchMore} style={{ border: "1px solid #4B5563", borderRadius: 999, background: "#111827", color: COLORS.text, padding: "7px 12px", fontWeight: 800 }}>{loadingMore ? "Trying again…" : "Try again"}</button>
     </section>
   );
   return (
     <section aria-label={rail.title} style={{ marginTop: 22 }}>
-      <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 800, color: COLORS.text }}>{rail.title}</h2>
-      <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>{rail.deck}</p>
+      <RailHeading title={rail.title} description={rail.deck}>
+        <RailNav railId={railId} count={count} total={count} loaded={items.length} unit={count === 1 ? "verified place" : "verified places"} />
+      </RailHeading>
       <>
-          <RailNav railId={railId} count={count} total={count} unit={count === 1 ? "verified place" : "verified places"} />
           <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>
             {items.map((place, index) => {
               const rank = index + 1;
@@ -106,7 +107,7 @@ function BirthdayRailSection({ rail, lat, lng, city, onOpenPlace, isSaved, liked
                 />
               );
             })}
-            {loadingMore ? <div className="wf-rail-card wf-exploding-primary" aria-busy="true" aria-label={`Loading more ${rail.title}`}
+            {loadingMore ? <div className="wf-rail-card wf-exploding-primary wf-sk" role="status" aria-busy="true" aria-label={`Loading more ${rail.title}`}
               style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 88, color: COLORS.muted, fontSize: 12.5 }}>Loading more…</div> : null}
           </div>
           {items.length > 1 ? <RailDots railId={railId} count={items.length} /> : null}
@@ -181,11 +182,7 @@ export default function BirthdayRails({
   }
   if (!payload && !failed) {
     return (
-      <div role="status" aria-busy="true" aria-label="Building birthday plans">
-        {[0, 1, 2].map((index) => (
-          <div key={index} className="wf-sk" style={{ height: 88, borderRadius: 14, marginBottom: 12, background: "#0B0E15" }} />
-        ))}
-      </div>
+      <RailLoading label="Building birthday plans" />
     );
   }
   if (failed) {
