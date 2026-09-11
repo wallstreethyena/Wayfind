@@ -82,6 +82,41 @@ test("the creator page renders its own content, with or without a map", async ({
   }
 });
 
+test("playing a creator poster folds Details without replacing the player", async ({ page }) => {
+  await page.goto(PATH);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(`@${HANDLE}`, { timeout: 20_000 });
+
+  const playAction = page.getByRole("button", { name: /^Play / });
+  const card = page.locator("[data-creator-playback-details]").filter({ has: playAction }).first();
+  await card.scrollIntoViewIfNeeded();
+  const details = card.locator("[data-creator-playback-content]");
+  const toggle = card.getByRole("button", { name: "Details" });
+  const poster = card.getByRole("button", { name: /^Play / });
+  await expect(details).toBeVisible();
+  await expect(toggle).toHaveAttribute("aria-expanded", "true");
+  await expect(card.locator("iframe")).toHaveCount(0);
+  const posterBox = await poster.boundingBox();
+  expect(posterBox, "the creator poster has no layout box").toBeTruthy();
+  expect(Math.abs(posterBox.width / posterBox.height - 3 / 4), "premium poster lost its 3:4 cover crop").toBeLessThan(0.02);
+
+  await poster.click();
+  const iframe = card.locator("iframe");
+  await expect(iframe).toHaveCount(1);
+  await expect(details).toBeHidden();
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  const playerBox = await iframe.boundingBox();
+  expect(playerBox, "the active creator player has no layout box").toBeTruthy();
+  expect(Math.abs(playerBox.width / playerBox.height - 9 / 16), "active creator playback is not a full 9:16 frame").toBeLessThan(0.02);
+
+  await iframe.evaluate((node) => { node.dataset.playbackGuard = "mounted"; });
+  await toggle.click();
+  await expect(details).toBeVisible();
+  await expect(iframe).toHaveAttribute("data-playback-guard", "mounted");
+  await toggle.click();
+  await expect(details).toBeHidden();
+  await expect(iframe).toHaveAttribute("data-playback-guard", "mounted");
+});
+
 test("a pin on the creator's map opens a legitimate Wayfind place", async ({ page }) => {
   await page.goto(PATH);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(`@${HANDLE}`, { timeout: 20_000 });

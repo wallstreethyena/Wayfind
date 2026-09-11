@@ -273,9 +273,9 @@ export default async function EventPage({ params }) {
         />
         {/* v8.99 — the shared WHERE block (address, official site, map with
             your route, nearby picks). Same component as /florida-events. */}
-        {where && (
+        {(where || (Number.isFinite(lat) && Number.isFinite(lng))) && (
           <EventWhere
-            venue={e.venue || e.city}
+            venue={e.venue || e.city || "Event venue"}
             address={streetLine}
             directionsHref={mapsUrl}
             website={site}
