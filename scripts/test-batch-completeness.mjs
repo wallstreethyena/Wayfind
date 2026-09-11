@@ -50,8 +50,8 @@ const cappedRows = Array.from({ length: 1000 }, (_, i) => row(i));
 const cappedFixture = prepareScenario({ rows: cappedRows, contentRange: "0-999/1500" });
 const cappedPending = primeConsolidatedInventoryReads(jobs, cappedFixture.readCache, { config: cappedFixture.config });
 const capped = await cappedPending.then(cappedFixture.result).finally(cappedFixture.restore);
-assert.equal(new URL(capped.calls[0].url).searchParams.get("limit"), "2000",
-  "control: the two-city union requests more rows than the server cap");
+assert.equal(capped.calls[0].init.headers.Range, "0-2000",
+  "control: the two-city union requests its 2,000-row ceiling plus one through an item Range");
 assert.equal(capped.calls[0].init.headers.Prefer, "count=exact",
   "the real union transport requests a trustworthy total");
 assert.equal(capped.cached.size, 0,

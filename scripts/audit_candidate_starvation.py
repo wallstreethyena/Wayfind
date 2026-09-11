@@ -567,6 +567,7 @@ def write_markdown(report: dict, path: Path) -> None:
         a("")
         for evidence in w["evidence"]:
             a(f"- {evidence}")
+        a(f"- classification: `{w['classification']}` · source shape: `{w['sourceStatus']}`")
         a(f"- historical cut: {w['cut']}")
         a(f"- historical impact: {w['impact']}")
         a("")
@@ -676,7 +677,7 @@ WATCHLIST_PROBES = {
 
 def evaluate_watchlist(root: Path = ROOT) -> list[dict]:
     evaluated = []
-    for item in WATCHLIST:
+    for item in LEGACY_WATCHLIST:
         mode, pattern = WATCHLIST_PROBES[item["file"]]
         rel = item["file"].split(":", 1)[0]
         path = root / rel
@@ -778,7 +779,10 @@ def _result(meta: dict, checks: list[tuple[bool, str, str]]) -> dict:
     evidence.extend(f"FAILED: {failure}" for failure in failures)
     return {
         **meta,
-        "verdict": "FIXED" if not failures else "VULNERABLE",
+        # This is executable source evidence, not a production measurement.
+        # `sourceContractHeld` is blocking; the classification stays honest.
+        "classification": "SOURCE_HYPOTHESIS",
+        "sourceContractHeld": not failures,
         "evidence": evidence,
         "failures": failures,
     }
@@ -840,29 +844,48 @@ def audit_legacy_watchlist(root: Path = ROOT) -> list[dict]:
     batch = _source(root, "lib/inventoryBoxBatch.js")
     union = _function(batch, "fetchUnionBox")
     prime = _function(batch, "primeConsolidatedInventoryReads")
-    rejects_full = bool(union and re.search(
-        r"if\s*\(\s*!Array\.isArray\(rows\)\s*\|\|\s*rows\.length\s*>=\s*limit\s*\)\s*return\s*\[\]", union))
+    range_paging = bool(
+        union and '"Range-Unit": "items"' in union
+        and re.search(r"const\s+from\s*=\s*rows\.length", union)
+        and re.search(r"Range:\s*`\$\{from\}-\$\{limit\}`", union)
+        and "rows.push(...page)" in union
+    )
+    exact_or_terminal = bool(
+        union and 'Prefer: "count=exact"' in union
+        and _function(batch, "contentRange")
+        and "range.total !== exactTotal" in union
+        and "rows.length === exactTotal" in union
+        and re.search(r"else\s*\{[\s\S]{0,300}return\s*\{\s*rows,\s*complete:\s*true\s*\}", union)
+        and re.search(r"rows\.length\s*>\s*limit", union)
+        and re.search(r"exactTotal\s*>\s*limit", union)
+    )
+    fallback = _function(batch, "isMissingSecondaryColumn")
+    restricted_fallback = bool(
+        fallback and "response?.status !== 400" in fallback
+        and re.search(r"body\?\.code\s*===\s*[\"']42703[\"']", fallback)
+        and "secondary_categories" in fallback
+        and union and "from === 0" in union and "url === withSecondary" in union
+        and "isMissingSecondaryColumn(response, deadlineAt)" in union
+    )
     out.append(_result(by_id["inventory-box-batch"], [
         (union is not None and prime is not None,
          "the union reader and cache-prime caller both exist",
          "fetchUnionBox or primeConsolidatedInventoryReads is missing"),
-        (bool(union and "order=place_id.asc" in union),
-         "the union read has stable place_id order",
-         "union read is not ordered by place_id.asc"),
-        (bool(union and '"count=exact"' in union
-              and "contentRangeTotal(r.headers)" in union
-              and "total === null || total !== rows.length" in union
-              and len(_calls(union, "fetchDeadline")) == 1
-              and _function(batch, "contentRangeTotal")),
-         "exact server count proves completeness and failure cannot narrow the union",
-         "union lacks exact count proof or retries a narrowed universe"),
-        (rejects_full,
-         "a non-array or full-limit response is refused as ambiguous",
-         "union reader does not refuse rows.length >= limit"),
-        (bool(prime and re.search(r"if\s*\(\s*!rows\.length\s*\)\s*return", prime)
-              and "deps.readUnion || fetchUnionBox" in prime),
-         "an empty/refused accelerator result leaves the authoritative reads unprimed",
-         "the prime path can cache a refused result or no longer uses fetchUnionBox"),
+        (bool(union and "order=place_id.asc" in union and range_paging),
+         "the union read uses stable place_id order and advances Range pages by actual rows",
+         "union read lacks deterministic actual-length Range paging"),
+        (exact_or_terminal,
+         "exact counts or an empty terminal probe prove the complete union within its ceiling",
+         "union lacks exact-count and terminal-page completeness proof"),
+        (restricted_fallback,
+         "only first-page SQL 42703 naming secondary_categories permits primary-only fallback",
+         "primary-only fallback is broader than first-page secondary_categories SQL 42703"),
+        (bool(prime and "deps.readUnion || fetchUnionBox" in prime
+              and "answer.complete !== true" in prime
+              and "!Array.isArray(answer.rows)" in prime
+              and "!answer.rows.length" in prime),
+         "only an explicit complete, non-empty union may prime the optional cache",
+         "the prime path can cache an incomplete/refused union"),
     ]))
 
     # 3. Breakfast and Quick Eats share one complete owned-food read. Require
@@ -993,6 +1016,14 @@ def audit_legacy_watchlist(root: Path = ROOT) -> list[dict]:
          "creatorExact is missing from composition or is admitted after broad shelves"),
     ]))
 
+    for item in out:
+        rel = item["file"].split(":", 1)[0]
+        item["sourceStatus"] = (
+            "RETIRED" if not (root / rel).is_file()
+            else "MATCHED" if item["sourceContractHeld"]
+            else "CHANGED"
+        )
+        item["verdict"] = "SOURCE_HYPOTHESIS"
     return out
 
 
@@ -1063,7 +1094,7 @@ def main() -> int:
         out_surfaces.append({**s, **verdict, "measurements": measurements})
 
     watchlist_audit = audit_legacy_watchlist()
-    unresolved_watchlist = [item for item in watchlist_audit if item["verdict"] != "FIXED"]
+    unresolved_watchlist = [item for item in watchlist_audit if not item["sourceContractHeld"]]
     source_watchlist = evaluate_watchlist()
     report = {
         "date": _dt.date.today().isoformat(),
@@ -1084,7 +1115,7 @@ def main() -> int:
         "watchlist": unresolved_watchlist,
         "unresolvedWatchlist": unresolved_watchlist,
         "sourceWatchlist": source_watchlist,
-        "resolvedWatchlist": [item for item in watchlist_audit if item["verdict"] == "FIXED"],
+        "resolvedWatchlist": [item for item in watchlist_audit if item["sourceContractHeld"]],
         "surfaces": out_surfaces,
     }
     verdicts = {s["id"]: s["verdict"] for s in out_surfaces}
@@ -1125,8 +1156,8 @@ def main() -> int:
         "distinctPlacesRecoveredAlreadyShipped": len(shipped - pending) if production_complete else None,
         "railSlotsPending": slots_pending if production_complete else None,
         "railSlotsAlreadyShipped": slots_shipped if production_complete else None,
-        "watchlistFixed": [item["id"] for item in watchlist_audit if item["verdict"] == "FIXED"],
-        "watchlistVulnerable": [item["id"] for item in unresolved_watchlist],
+        "watchlistSourceMatched": [item["id"] for item in watchlist_audit if item["sourceContractHeld"]],
+        "watchlistSourceChanged": [item["id"] for item in unresolved_watchlist],
     }
 
     (ROOT / "artifacts").mkdir(exist_ok=True)
@@ -1156,9 +1187,8 @@ def main() -> int:
         print(f"  artifacts/candidate-starvation-audit.json written")
 
     # Registered VULNERABLE surfaces remain report findings. The six legacy
-    # items are different: they are repaired invariants now, so every mode must
-    # fail if one regresses. Production mode also fails when any requested
-    # measurement is missing, rejected, or truncated. JSON is written first.
+    # source contracts are blocking, while production-readonly also requires a
+    # complete measurement for every requested metro and surface.
     controls_ok = controls is None or controls["ok"]
     legacy_ok = not unresolved_watchlist
     production_ok = args.mode != "production-readonly" or production_complete

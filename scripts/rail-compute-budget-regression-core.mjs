@@ -45,8 +45,21 @@ const ok = (c, m) => { if (!c) { console.error("  FAIL: " + m); fails++; } };
 const r = await runComputeHarness();
 ok(r.ok, "the harness completed (loadRailPlaces did not throw)");
 ok(r.restCallCount > 0, "CONTROL: the run actually made wf_inventory/wf_beach_water_geo calls — a 0 here would make every assertion below vacuous");
-ok(r.restCalls.some((c) => c.table === "wf_inventory" && c.rangeSize > 0 && c.rows > 0),
-  "CONTROL: a Range-paged wf_inventory read returned fixture rows — otherwise readOwnedCategory can silently exercise an empty mock and thin the identity rails while the compute budgets pass");
+const rangedReads = r.restCalls.filter((call) => call.range);
+ok(rangedReads.length > 0 && rangedReads.every((call) => /^\d+-\d+$/.test(call.range)),
+  "CONTROL: Range-paged owned reads are recorded with valid item ranges");
+ok(rangedReads.some((call) => call.rows > 0),
+  "CONTROL: at least one Range-paged wf_inventory read returned fixture rows — otherwise owned identity reads can silently exercise an empty mock while the budgets pass");
+const rangesByUrl = new Map();
+for (const call of rangedReads) {
+  const key = call.url;
+  const from = Number(call.range.split("-", 1)[0]);
+  if (!rangesByUrl.has(key)) rangesByUrl.set(key, []);
+  rangesByUrl.get(key).push(from);
+}
+const repeatedRanges = [...rangesByUrl.values()].filter((offsets) => offsets.length > 1);
+ok(repeatedRanges.every((offsets) => offsets.every((from, index) => index === 0 || from > offsets[index - 1])),
+  "CONTROL: repeated reads for one deterministic query advance their Range offsets; a terminal empty proof remains valid");
 
 ok(r.restCallCount <= MAX_CALLS,
   `${r.restCallCount} wf_inventory/wf_beach_water_geo calls for one cold compute, budget is ${MAX_CALLS} (measured-after-state x 1.2 headroom). A rise here means a pool builder started re-reading a box it (or another builder) already read this compute, or a new un-batched fan-out was added — see lib/inventoryReadCache.js and lib/inventoryBoxBatch.js.`);

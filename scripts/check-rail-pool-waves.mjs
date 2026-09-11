@@ -180,7 +180,8 @@ const DR = strip(readFileSync(join(ROOT, "app/components/DaypartRail.js"), "utf8
     "…and the load is BOUNDED, not merely caught — a hang is not a rejection, and an unbounded await is what actually reached the reader (scripts/check-fetch-deadlines.mjs pins the deadline and its ordering against the client budget)");
   ok(/covered: !failed,/.test(RD),
     "…and reports covered:false when it did — `covered:true` with zero places tells the reader \"nothing near you clears this bar\", which is a claim about their town made on the strength of our own crash");
-  ok(/\bfailed,\s*(?:\n|region:)/.test(RD), "…and carries the fact out, so a caller can tell the two apart");
+  ok(/covered:\s*!failed,\s*failed,\s*degraded:\s*failed,\s*complete:\s*!failed/.test(RD),
+    "…and carries explicit failed/degraded/complete status out, so cache admission can distinguish a complete answer from a legacy or partial one");
 }
 
 /* ── 5. THE PIPELINE ACTUALLY RUNS ─────────────────────────────────────────

@@ -5,6 +5,7 @@ const route = readFileSync(new URL("../app/api/night-out/route.js", import.meta.
 const daypart = readFileSync(new URL("../app/components/DaypartRail.js", import.meta.url), "utf8");
 const nearby = readFileSync(new URL("../lib/nearbyPool.js", import.meta.url), "utf8");
 const batch = readFileSync(new URL("../lib/inventoryBoxBatch.js", import.meta.url), "utf8");
+const batchCode = batch.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
 const railsData = readFileSync(new URL("../lib/railsData.js", import.meta.url), "utf8");
 const dateNight = readFileSync(new URL("../app/api/date-night/route.js", import.meta.url), "utf8");
 const today = readFileSync(new URL("../app/api/today-discovery/route.js", import.meta.url), "utf8");
@@ -54,11 +55,11 @@ ok(/<NightOutRails[\s\S]{0,400}?places=\{nightOutPlaces\}/.test(daypart),
 ok(!existsSync(obsoleteIntentRoute) && !existsSync(obsoleteIntentHook),
   "the retired cap-first generic intent feed or client hook returned");
 
-ok(/order=place_id\.asc/.test(batch)
-  && /rows\.length >= limit/.test(batch)
-  && /count=exact/.test(batch)
-  && /total === null \|\| total !== rows\.length/.test(batch),
-  "inventoryBoxBatch must be deterministic and refuse an ambiguous full-limit prime");
+ok(/order=place_id\.asc/.test(batchCode)
+  && /Prefer:\s*"count=exact"/.test(batchCode)
+  && /Range:\s*`\$\{from\}-\$\{limit\}`/.test(batchCode)
+  && /if \(rows\.length > limit\) return \{ rows: \[\], complete: false \}/.test(batchCode),
+  "inventoryBoxBatch must page deterministic item Ranges and refuse a union beyond its ceiling");
 
 ok(!/order=signals->reviews\.desc\.nullslast&limit=400/.test(nearby)
   && /readOwnedCategory/.test(nearby)

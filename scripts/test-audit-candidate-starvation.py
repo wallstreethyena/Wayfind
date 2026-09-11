@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import importlib.util
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -121,6 +122,29 @@ class WatchlistTests(unittest.TestCase):
             self.assertEqual(AUDIT.evaluate_watchlist(root)[0]["sourceStatus"], "CHANGED")
             target.unlink()
             self.assertEqual(AUDIT.evaluate_watchlist(root)[0]["sourceStatus"], "RETIRED")
+
+    def test_six_source_contracts_are_hypotheses_and_can_fail(self):
+        rows = AUDIT.audit_legacy_watchlist(AUDIT.ROOT)
+        self.assertEqual(len(rows), 6)
+        self.assertTrue(all(row["classification"] == "SOURCE_HYPOTHESIS" for row in rows))
+        self.assertTrue(all(row["sourceContractHeld"] for row in rows))
+        retired = next(row for row in rows if row["id"] == "generic-intent-feed")
+        self.assertEqual(retired["sourceStatus"], "RETIRED")
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            target = root / "lib/inventoryBoxBatch.js"
+            target.parent.mkdir(parents=True)
+            shutil.copy2(AUDIT.ROOT / "lib/inventoryBoxBatch.js", target)
+            original = AUDIT.audit_legacy_watchlist(root)
+            batch = next(row for row in original if row["id"] == "inventory-box-batch")
+            self.assertTrue(batch["sourceContractHeld"])
+            source = target.read_text(encoding="utf8")
+            target.write_text(source.replace('Prefer: "count=exact"', 'Prefer: "count=planned"'), encoding="utf8")
+            mutated = AUDIT.audit_legacy_watchlist(root)
+            batch = next(row for row in mutated if row["id"] == "inventory-box-batch")
+            self.assertFalse(batch["sourceContractHeld"])
+            self.assertEqual(batch["sourceStatus"], "CHANGED")
 
 
 if __name__ == "__main__":
