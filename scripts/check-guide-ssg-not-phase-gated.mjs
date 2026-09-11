@@ -207,7 +207,7 @@ function harnessSource(overrides = {}) {
   const u = (rel) => JSON.stringify(pathToFileURL(path.join(ROOT, rel)).href);
   return [
     `import { isSsgBuild, guideFetch } from ${u("lib/landingInventory.js")};`,
-    `import { existingTypeSignals } from ${u("lib/placeCategory.js")};`,
+    `import { CATEGORY_SECTION, existingTypeSignals } from ${u("lib/placeCategory.js")};`,
     `import { wayfindScore } from ${u("lib/wayfindScore.js")};`,
     `import { regionCoords } from ${u("lib/guideNow.js")};`,
     "",
@@ -236,8 +236,11 @@ const ROW = Object.freeze({
   name: "Legacy Trail",
   lat: 27.34,
   lng: -82.53,
-  primary_type: "park",
-  google_types: ["park"],
+  category: "attractions",
+  primary_type: "campground",
+  // Real guide-card failure shape: unordered secondary signals can include
+  // lodging/retail even though Wayfind's adjudicated category is Activities.
+  google_types: ["lodging", "store", "park"],
   signals: { rating: 4.7, reviews: 812 },
   photo_ref: "places/fixture/photos/1",
   editorial: null,
@@ -292,7 +295,8 @@ async function run() {
     const r = await mod.inventoryPlaceByStem("Legacy Trail", null);
     ok(calls.length === 1 && /wf_inventory/.test(calls[0]),
       "inventoryPlaceByStem() reaches wf_inventory at SSG when Supabase credentials are present");
-    ok(r && r.id === ROW.place_id, "inventoryPlaceByStem() resolves the row at SSG when credentials are present");
+    ok(r && r.id === ROW.place_id && r.category === "attractions" && r.cardCategory === "Activities",
+      "inventoryPlaceByStem() resolves the row and maps its stored category to the guide card display vocabulary at SSG");
   }
   {
     const { fn, calls } = mockFetch();
@@ -300,7 +304,8 @@ async function run() {
     const r = await mod.inventoryPlace({ placeId: ROW.place_id, name: "Legacy Trail", appQuery: "Legacy Trail", exactNames: ["Legacy Trail"] }, null);
     ok(calls.length === 1 && calls[0].includes(`place_id=eq.${ROW.place_id}`),
       "inventoryPlace()'s placeId fast path reaches wf_inventory at SSG when credentials are present (was: gated on pick.placeId && !isSsgBuild())");
-    ok(r && r.id === ROW.place_id, "inventoryPlace() resolves a placeId pick at SSG when credentials are present");
+    ok(r && r.id === ROW.place_id && r.category === "attractions" && r.cardCategory === "Activities",
+      "inventoryPlace() resolves a placeId pick and keeps noisy lodging/store secondary types from relabeling it at SSG");
     ok(!calls[0].includes("name=ilike"), "inventoryPlace() prefers a verified placeId over exact-name aliases");
   }
   {
@@ -309,8 +314,8 @@ async function run() {
     const r = await mod.inventoryPlacesForRegion("Sarasota", 80);
     ok(calls.length === 1 && /wf_inventory/.test(calls[0]),
       "inventoryPlacesForRegion() reaches wf_inventory at SSG when credentials are present");
-    ok(Array.isArray(r) && r.length === 1 && r[0].id === ROW.place_id,
-      "inventoryPlacesForRegion() returns the resolved row at SSG when credentials are present");
+    ok(Array.isArray(r) && r.length === 1 && r[0].id === ROW.place_id && r[0].category === "attractions" && r[0].cardCategory === "Activities",
+      "inventoryPlacesForRegion() returns the resolved row with its stored guide card category at SSG");
   }
 
   // Editorial identity: run the real resolver against misleading and correct rows.

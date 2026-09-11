@@ -36,7 +36,7 @@ import { siteTodayStr } from "../../../lib/siteTime";
 // The moat was invisible to search and absent from the pages search can see.
 import { nowContext } from "../../../lib/nowContext";
 import { guidePicksForNow, guideNowHeadline, guideNowExplainer, guideWeather, indoorSiblingFor, indoorFromInventory, regionCity, regionCoords } from "../../../lib/guideNow";
-import { existingTypeSignals } from "../../../lib/placeCategory";
+import { CATEGORY_SECTION, existingTypeSignals } from "../../../lib/placeCategory";
 import { wayfindScore } from "../../../lib/wayfindScore";
 
 /**
@@ -141,7 +141,7 @@ async function inventoryPlaceByStem(stem, near, exactNames = null) {
   const pattern = wildcard + String(stem).replace(/['\u2018\u2019\u02BC\u00B4`]/g, "_") + wildcard;
   try {
     const r = await guideFetch(
-      `${url}/rest/v1/wf_inventory?select=place_id,name,lat,lng,primary_type,google_types,signals,photo_ref,editorial&status=eq.OPERATIONAL&name=ilike.${encodeURIComponent(pattern)}&limit=5`,
+      `${url}/rest/v1/wf_inventory?select=place_id,name,lat,lng,category,primary_type,google_types,signals,photo_ref,editorial&status=eq.OPERATIONAL&name=ilike.${encodeURIComponent(pattern)}&limit=5`,
       { headers: { apikey: anon, Authorization: "Bearer " + anon }, next: { revalidate: 3600 } }
     );
     if (!r.ok) return null;
@@ -175,6 +175,8 @@ async function inventoryPlaceByStem(stem, near, exactNames = null) {
         lng: row.lng,
         photoRef: row.photo_ref || null,
         types: existingTypeSignals(row),
+        category: row.category || null,
+        cardCategory: CATEGORY_SECTION[String(row.category || "").toLowerCase()] || null,
         primary_type: row.primary_type || null,
       };
     }
@@ -211,7 +213,7 @@ async function inventoryPlace(pick, near) {
     if (url && anon) {
       try {
         const r = await guideFetch(
-          `${url}/rest/v1/wf_inventory?select=place_id,name,lat,lng,primary_type,google_types,signals,photo_ref,editorial&status=eq.OPERATIONAL&place_id=eq.${encodeURIComponent(pick.placeId)}&limit=1`,
+          `${url}/rest/v1/wf_inventory?select=place_id,name,lat,lng,category,primary_type,google_types,signals,photo_ref,editorial&status=eq.OPERATIONAL&place_id=eq.${encodeURIComponent(pick.placeId)}&limit=1`,
           { headers: { apikey: anon, Authorization: "Bearer " + anon }, next: { revalidate: 3600 } }
         );
         if (r.ok) {
@@ -225,6 +227,8 @@ async function inventoryPlace(pick, near) {
                 id: row.place_id, name: row.name, rating, reviews,
                 lat: row.lat, lng: row.lng, photoRef: row.photo_ref || null,
                 types: existingTypeSignals(row),
+                category: row.category || null,
+                cardCategory: CATEGORY_SECTION[String(row.category || "").toLowerCase()] || null,
                 primary_type: row.primary_type || null,
               };
             }
@@ -306,7 +310,7 @@ async function inventoryPlacesForRegion(region, limit = 80) {
   const query = `lat=gte.${(center.lat - pad).toFixed(4)}&lat=lte.${(center.lat + pad).toFixed(4)}&lng=gte.${(center.lng - pad).toFixed(4)}&lng=lte.${(center.lng + pad).toFixed(4)}`;
   try {
     const response = await guideFetch(
-      `${url}/rest/v1/wf_inventory?select=place_id,name,lat,lng,primary_type,google_types,signals,photo_ref,editorial&status=eq.OPERATIONAL&${query}&limit=${Math.max(1, Math.min(120, limit))}`,
+      `${url}/rest/v1/wf_inventory?select=place_id,name,lat,lng,category,primary_type,google_types,signals,photo_ref,editorial&status=eq.OPERATIONAL&${query}&limit=${Math.max(1, Math.min(120, limit))}`,
       { headers: { apikey: anon, Authorization: "Bearer " + anon }, next: { revalidate: 3600 } },
     );
     if (!response.ok) return [];
@@ -319,7 +323,9 @@ async function inventoryPlacesForRegion(region, limit = 80) {
       return {
         id: row.place_id, name: row.name, rating, reviews,
         lat: row.lat, lng: row.lng, photoRef: row.photo_ref || null,
-        types: existingTypeSignals(row), primary_type: row.primary_type || null,
+        types: existingTypeSignals(row), category: row.category || null,
+        cardCategory: CATEGORY_SECTION[String(row.category || "").toLowerCase()] || null,
+        primary_type: row.primary_type || null,
         editorial: row.editorial || null, governed_score: score, wfScore: score,
       };
     }).filter(Boolean).sort((a, b) => (b.governed_score - a.governed_score) || (b.reviews - a.reviews));
