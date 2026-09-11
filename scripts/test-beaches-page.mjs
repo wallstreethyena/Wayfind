@@ -54,8 +54,8 @@ const pageSrc2 = readFileSync(new URL("../app/best-beaches/[metro]/page.js", imp
 ok(!pageSrc2.includes("<BeachLiveChips"), "v6.60: live water chips are OFF the list — the beach photo sells, chips live in the detail sheet");
 {
   const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
-  ok(/setBeachCond\(null\);\s*setBeachCondLoading\(true\);/.test(home) && /loadBeachConditions\(detail\)/.test(home) && /\[detail\]/.test(home.slice(home.indexOf("loadBeachConditions(detail)") - 400, home.indexOf("loadBeachConditions(detail)") + 400)),
-    "chips render per beach's OWN values — the detail sheet resets to null and refetches loadBeachConditions(detail) on every [detail] change, so it can never show the #1 beach's values on another");
+  ok(/setBeachCond\(null\);\s*setBeachCondLoading\(true\);/.test(home) && /loadBeachConditions\(detail\)/.test(home) && /\[detail, supabaseReady\]/.test(home.slice(home.indexOf("loadBeachConditions(detail)") - 400, home.indexOf("loadBeachConditions(detail)") + 400)),
+    "chips render per beach's OWN values — the detail sheet resets and refetches on every detail change and once lazy Supabase is ready, so a fast-opened beach cannot permanently miss its DB-backed water/popularity values");
 }
 // THE RULE: verified editorial replaces the metric sentence (core law)
 ok(pageSrc2.includes("editorialsFor(") && pageSrc2.includes("ed.why"), "verified wf_editorial rows replace the metric prose");

@@ -59,7 +59,6 @@ function parseIntent(url) {
   const sp = u.searchParams;
   const select = sp.get("select") || "";
   const limit = Number(sp.get("limit")) || 0;
-  const latGte = Number(sp.get("lat")?.replace(/^gte\./, "")) || null;
   // URLSearchParams.get("lat") only returns the FIRST lat= — this endpoint
   // sends both lat=gte.X and lat=lte.Y, so read the raw query string instead.
   const raw = u.search;
@@ -70,7 +69,7 @@ function parseIntent(url) {
   const maxLng = num(/lng=lte\.(-?[\d.]+)/);
   const catMatch = raw.match(/category(?:\.eq\.|=eq\.)([a-z]+)/) || raw.match(/or=\(category\.eq\.([a-z]+)/);
   const category = catMatch ? catMatch[1] : null;
-  return { select, limit, minLat, maxLat, minLng, maxLng, category };
+  return { select, limit, order: sp.get("order") || "", minLat, maxLat, minLng, maxLng, category };
 }
 
 // WO8b (2026-09-02) — A FIXED, POSITION-ADDRESSABLE WORLD, not a per-call
@@ -135,16 +134,25 @@ function buildWorld() {
 }
 const WORLD = buildWorld();
 
-function fixtureRows(intent) {
-  const n = Math.max(0, intent.limit || 0);
+function fixturePage(intent, init) {
+  const range = String(init?.headers?.Range || init?.headers?.range || "").match(/^(\d+)-(\d+)$/);
+  const from = range ? Number(range[1]) : 0;
+  const n = range ? Number(range[2]) - from + 1 : Math.max(0, intent.limit || 0);
   const cat = intent.category && CATS.includes(intent.category) ? intent.category : "food";
   const wantsEditorial = /(^|,)editorial(,|$)/.test(intent.select);
   const hasBox = [intent.minLat, intent.maxLat, intent.minLng, intent.maxLng].every((v) => Number.isFinite(v));
   const pts = WORLD[cat] || [];
-  const matches = hasBox
+  let matches = hasBox
     ? pts.filter((p) => p.lat >= intent.minLat && p.lat <= intent.maxLat && p.lng >= intent.minLng && p.lng <= intent.maxLng)
     : pts;
-  return matches.slice(0, n).map((p) => {
+  if (intent.order === "place_id.asc") {
+    matches = matches.slice().sort((a, b) => {
+      const ai = `fixture_${cat}_${a.idx}`;
+      const bi = `fixture_${cat}_${b.idx}`;
+      return ai < bi ? -1 : ai > bi ? 1 : 0;
+    });
+  }
+  const rows = matches.slice(from, from + n).map((p) => {
     const row = {
       place_id: `fixture_${cat}_${p.idx}`,
       name: `Fixture ${cat[0].toUpperCase()}${cat.slice(1)} Spot ${p.idx}`,
@@ -162,6 +170,7 @@ function fixtureRows(intent) {
     if (wantsEditorial) row.editorial = FIXTURE_EDITORIAL;
     return row;
   });
+  return { rows, total: matches.length, from };
 }
 
 function fixtureBeachWater(n) {
@@ -172,11 +181,12 @@ function fixtureBeachWater(n) {
   return rows;
 }
 
-function jsonResponse(body, ok = true) {
+function jsonResponse(body, ok = true, responseHeaders = {}) {
   const text = JSON.stringify(body);
   return {
     ok,
     status: ok ? 200 : 500,
+    headers: new Headers(responseHeaders),
     json: async () => body,
     text: async () => text,
     __bytes: Buffer.byteLength(text, "utf8"),
@@ -214,9 +224,15 @@ export async function runComputeHarness({ beachRows = 6, unknownAsEmpty = true, 
     const url = typeof input === "string" ? input : input.url;
     if (url.includes("/rest/v1/wf_inventory")) {
       const intent = parseIntent(url);
-      const rows = fixtureRows(intent);
-      const resp = jsonResponse(rows);
-      calls.push({ url, table: "wf_inventory", rows: rows.length, bytes: resp.__bytes, editorial: /(^|,)editorial(,|$)/.test(intent.select) });
+      const { rows, total, from } = fixturePage(intent, init);
+      const contentRange = rows.length ? `${from}-${from + rows.length - 1}/${total}` : `*/${total}`;
+      const resp = jsonResponse(rows, true, { "Content-Range": contentRange });
+      calls.push({
+        url, table: "wf_inventory", rows: rows.length, bytes: resp.__bytes,
+        editorial: /(^|,)editorial(,|$)/.test(intent.select),
+        range: init?.headers?.Range || init?.headers?.range || null,
+        contentRange: resp.headers.get("content-range"),
+      });
       return resp;
     }
     if (url.includes("/rest/v1/wf_beach_water_geo")) {

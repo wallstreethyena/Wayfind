@@ -186,6 +186,9 @@ process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "";
 eq(await buildNearbyPool(SARASOTA, "restaurants"), [], "with no credentials the pool is EMPTY, never guessed");
 eq(await buildNearbyPool(null, "restaurants"), [], "with no reader point the pool is empty — this is a near-ME pool or it is nothing");
 eq(await buildNearbyPool(SARASOTA, "hotels"), [], "an unmapped category returns empty rather than a wrong table");
+const unconfigured = await buildNearbyPool(SARASOTA, "restaurants", { includeStatus: true });
+ok(unconfigured.degraded === true && unconfigured.rows.length === 0,
+  "a configured near-me read cannot disappear into an ordinary empty when credentials are absent");
 
 // ── 7. the ladder and the read, executed against a stub ─────────────────────
 // No network: a fetch stub that answers the tight ring thinly and the wide one
@@ -220,6 +223,52 @@ eq(await buildNearbyPool(SARASOTA, "hotels"), [], "an unmapped category returns 
   ok(scored, "every row carries the ONE stamp, and _s is that same number — shown == sorted");
   const ordered = out.every((r, i) => i === 0 || (out[i - 1].governed_score >= r.governed_score));
   ok(ordered, "the pool ships in governed-score order, highest first");
+}
+
+// Failed and truncated exhaustive reads keep the legacy array fallback for
+// existing callers, but expose that the answer is incomplete to loadPools.
+{
+  const failed = await buildNearbyPool(SARASOTA, "restaurants", {
+    env: { url: "https://stub.invalid", key: "stub" },
+    rings: [6], includeStatus: true,
+    fetchImpl: async () => ({ ok: false, status: 500, json: async () => ({}) }),
+  });
+  ok(failed.degraded === true && failed.rows.length === 0,
+    "a failed exhaustive read is explicitly degraded rather than a complete empty");
+
+  let fallbackCalls = 0;
+  const incompleteFallback = await buildNearbyPool(SARASOTA, "restaurants", {
+    env: { url: "https://stub.invalid", key: "stub" },
+    rings: [6, 10, 17], includeStatus: true,
+    fetchImpl: async () => {
+      fallbackCalls++;
+      if (fallbackCalls === 1) return { ok: true, status: 200, json: async () => [row()] };
+      return { ok: false, status: 503, json: async () => ({}) };
+    },
+  });
+  ok(fallbackCalls === 3 && incompleteFallback.degraded === true && incompleteFallback.rows.length === 1,
+    "a thin completed ring remains a flagged fallback when every necessary widening read fails");
+
+  let truncatedCalls = 0;
+  const fullPage = Array.from({ length: 1000 }, (_, i) => ({ place_id: `ChIJtruncated${i}` }));
+  const truncated = await buildNearbyPool(SARASOTA, "restaurants", {
+    env: { url: "https://stub.invalid", key: "stub" },
+    rings: [6], includeStatus: true,
+    fetchImpl: async () => {
+      truncatedCalls++;
+      return { ok: true, status: 206, json: async () => fullPage };
+    },
+  });
+  ok(truncatedCalls === 6 && truncated.degraded === true && truncated.rows.length === 0,
+    "six full 1,000-row pages hit the read bound and report truncation instead of completeness");
+
+  const healthyEmpty = await buildNearbyPool(SARASOTA, "restaurants", {
+    env: { url: "https://stub.invalid", key: "stub" },
+    rings: [6], includeStatus: true,
+    fetchImpl: async () => ({ ok: true, status: 200, json: async () => [] }),
+  });
+  ok(healthyEmpty.degraded === false && healthyEmpty.rows.length === 0,
+    "a complete empty ring remains a healthy product fact, distinct from a failed read");
 }
 
 // ── 8. a failed read is LOUD ────────────────────────────────────────────────

@@ -21,7 +21,8 @@ ok(destsWithin(null, 60).length === 5, "no location → all markets (unchanged)"
 
 // ── the rail fetches live for the user's city when the pre-pull is dark ──
 const home = read("app/home.js");
-ok(/function UnifiedBrowseCommerceRail\(\{ cat: browseCat = "attractions", sub,[^)]*city, region \}\)/.test(home), "the unified rail takes its CATEGORY plus the user's city + region");
+const browseRail = read("app/components/UnifiedBrowseCommerceRail.js");
+ok(/function UnifiedBrowseCommerceRail\(\{ cat: browseCat = "attractions", sub,[^)]*city, region \}\)/.test(browseRail), "the extracted unified rail takes its CATEGORY plus the user's city + region");
 // 2026-08-02 — these two used to pin the fallback's exact SYNTAX: the literal
 // `if (!rows.length && city)` and the template `${city} ${cat}`. Both went red
 // when the fallback was extracted into liveSearch() and the search text became
@@ -33,14 +34,14 @@ ok(/function UnifiedBrowseCommerceRail\(\{ cat: browseCat = "attractions", sub,[
 // survived. So they now assert the three things that actually matter.
 //
 // 1. There IS a live fallback, and it runs only when the local read is empty.
-ok(/if \(!rows\.length\) rows = await liveSearch\(\);/.test(home), "when local inventory is dark, the rail falls back to a LIVE tours search");
+ok(/shouldLiveSearchFallback\(\{[^}]*initialExperiences,[^}]*cachedCount: cachedRows\.length[^}]*\}\)\) rows = await liveSearch\(\)/.test(browseRail), "when local inventory is dark and this rail owns the live lane, it falls back to a LIVE tours search without duplicating a parent-owned call");
 // 2. That fallback is gated on a known city, which is what stops an
 //    out-of-region visitor being served Florida inventory.
-ok(/const liveSearch = async \(\) => \{[\s\S]{0,600}?if \(!city\) return \[\];/.test(home), "the live search refuses to run without a known city — the out-of-region guard");
-ok(/never fall back to Florida markets for an out-of-region visitor/.test(home), "the intent is documented at the fallback");
+ok(/const liveSearch = async \(\) => \{[\s\S]{0,800}?if \(!city\) return \[\];/.test(browseRail), "the live search refuses to run without a known city — the out-of-region guard");
+ok(/const searchText = chipSearchQuery\(browseCat, sub \|\| "all", city\)/.test(browseRail), "the fallback resolves its search from the active category, submenu and known city");
 // 3. The query is city-scoped and is HUMAN text, proven by CALLING the
 //    resolver rather than by matching the template that builds it.
-ok(/encodeURIComponent\(searchText\)/.test(home) && /const searchText = chipSearchQuery\(browseCat, sub \|\| "all", city\)/.test(home), "the live search asks for the chip's own query text, scoped to its CATEGORY and the user's city");
+ok(/encodeURIComponent\(searchText\)/.test(browseRail) && /const searchText = chipSearchQuery\(browseCat, sub \|\| "all", city\)/.test(browseRail), "the live search asks for the chip's own query text, scoped to its CATEGORY and the user's city");
 // 2026-08-04 — chips are keyed by CATEGORY:SUB now, because sub ids collide
 // across the seven browse categories ("all" exists in every one). Passing a
 // bare sub silently resolved to the attractions fallback. The food cases are
@@ -60,7 +61,7 @@ for (const chip of ["all", "breakfast", "dinner", "dessert"]) {
   ok(/food|tasting|chocolate|brunch|crawl|coffee/i.test(chipSearchQuery("food", chip, "Tampa")),
      `the food:${chip} live search asks for something food-shaped (got "${chipSearchQuery("food", chip, "Tampa")}")`);
 }
-ok(/&region=" \+ encodeURIComponent\(region \|\| city\)/.test(home), "the live search passes the REGION (state) — required, or the anti-foreign filter returns 0 tours");
+ok(/&region=" \+ encodeURIComponent\(region \|\| city\)/.test(browseRail), "the live search passes the REGION (state) — required, or the anti-foreign filter returns 0 tours");
 ok(/<UnifiedBrowseCommerceRail[^>]*city=\{locName \? locName\.split\(","\)\[0\] : ""\}/.test(home), "the rail is passed the current location's city");
 
 console.log(`test-experiences-location: ${n - failn}/${n} passed`);

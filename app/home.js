@@ -90,7 +90,8 @@ import * as Meals from "../lib/meals";
 import * as Radius from "../lib/radius";
 import { isTrueLodging } from "../lib/lodging";
 import * as Fam from "../lib/family";
-import { supabase } from "../lib/supabase";
+import { getSupabase } from "../lib/lazySupabase";
+let supabase = null;
 import { usePlaceProduct } from "../lib/placeProduct";
 // v8: heroRefFromPlaces went with the date-night and hidden-gem hero photo
 // effects — the rail uses owned artwork and the place cards carry their own
@@ -141,6 +142,8 @@ const loadIntro = () => import("./components/sheets/Intro");
 // below, so the chunk is already warm by the time a tap needs it.
 const loadThingsToDo = () => import("./components/ThingsToDoList");
 const ThingsToDoList = nextDynamic(loadThingsToDo, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
+const UnifiedBrowseCommerceRail = nextDynamic(() => import("./components/UnifiedBrowseCommerceRail"), { ssr: false });
+const TripConnections = nextDynamic(() => import("./components/TripConnections"), { ssr: false });
 const SHEET_LOADERS = [loadHookDetail, loadAccount, loadMenu, loadAuth, loadDetail, loadIntro, loadSocialFind];
 const SCREEN_LOADERS = [loadSurprise, loadCoupons, loadSaved, loadItinerary, loadShared, loadEventsScreen, loadMap, loadExperience, loadThingsToDo, ...SHEET_LOADERS];
 const SurpriseScreen = nextDynamic(loadSurprise, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
@@ -184,10 +187,7 @@ import * as Culture from "../lib/culture";
 import * as WCC from "../lib/wc";
 import * as Gems from "../lib/gems";
 import * as Aff from "../lib/affiliates";
-import { DISPLAY_CHIPS, rankExperiences, experienceWayfindScore } from "../lib/experiencesData";
-import { chipCommerce, chipSearchQuery } from "../lib/browseCommerceMap";
-import { chipAffinityBonus } from "../lib/experienceConcepts";
-import { discountDepthBonus, timeOfDayBonus } from "../lib/experienceNowRank";
+import { DISPLAY_CHIPS, rankExperiences } from "../lib/experiencesData";
 import { safeUrl, openExternal as safeOpenExternal } from "../lib/links";
 import * as Hol from "../lib/holidays";
 import { locationPromoAllowed } from "../lib/promoLocation.js";
@@ -3730,6 +3730,25 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
 // reveals the live community tally.
 
 function PageInner({ initialEvents = null, localEditGuides = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null }) {
+  const [supabaseReady, setSupabaseReady] = useState(false);
+  // PERF 2026-09-08: Supabase is not part of the homepage eager graph. Load it
+  // after hydration, then rerun only effects whose dependency lists were
+  // mechanically amended below because their callbacks actually read it.
+  useEffect(() => {
+    let active = true;
+    let retryTimer = null;
+    const loadSupabase = () => {
+      getSupabase().then((client) => {
+        if (!active) return;
+        supabase = client;
+        if (client) setSupabaseReady(true);
+      }).catch(() => {
+        if (active) retryTimer = setTimeout(loadSupabase, 1200);
+      });
+    };
+    loadSupabase();
+    return () => { active = false; if (retryTimer) clearTimeout(retryTimer); };
+  }, []);
   const [screen, setScreen] = useState("suggested");
   const [cat, setCat] = useState(MAP_DEFAULT_CATEGORY);
   const [wxOpen, setWxOpen] = useState(false); // header weather forecast wheel
@@ -4456,7 +4475,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       if (live && Array.isArray(data)) setPlacePosts(data);
     } catch (e) {} })();
     return () => { live = false; };
-  }, [detail && detail.id]);
+  }, [detail && detail.id, supabaseReady]);
   const [hookDetail, setHookDetail] = useState(null);
   const [viaTours, setViaTours] = useState({});
   // Sheet-local filter: the browse-style SortControl inside every themed list.
@@ -4650,7 +4669,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const onVis = () => { try { if (document.visibilityState === "visible") supabase.auth.getSession(); } catch (e) {} };
     document.addEventListener("visibilitychange", onVis);
     return () => document.removeEventListener("visibilitychange", onVis);
-  }, []);
+  }, [supabaseReady]);
   useEffect(() => {
     try {
       if (!detail || detail._wfPhotosAdded || !detail.name) return;
@@ -4679,7 +4698,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // v6.55: same single-flight scan as loadOffers (fetchOffersOnce already
     // returns normalizeOfferRow-mapped, redeemable rows — the v6.17 shape).
     fetchOffersOnce().then((rows) => setCpnOffers(rows || []), () => {});
-  }, [screen]);
+  }, [screen, supabaseReady]);
   function clipCoupon(c) {
     if (!c || !c.id) return;
     const entry = { c, ts: Date.now() };
@@ -4895,7 +4914,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     })();
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, tasteVer]);
+  }, [user, tasteVer, supabaseReady]);
   function setConsent(v) { setPersonalize(v); try { setLocal("wf_personalize", v); } catch (e) {} if (v === "on") setTasteVer((n) => n + 1); }
   // v6.55: `val` may now be a single raw value OR an array of raw values —
   // the taste panel merges multiple raw Google tags onto one clean chip (see
@@ -4993,7 +5012,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     window.addEventListener("visibilitychange", revalidate);
     window.addEventListener("focus", revalidate);
     return () => { active = false; if (retryTimer) clearTimeout(retryTimer); window.removeEventListener("visibilitychange", revalidate); window.removeEventListener("focus", revalidate); if (sub && sub.subscription) sub.subscription.unsubscribe(); };
-  }, []);
+  }, [supabaseReady]);
 
   // v5.49: the single sign-in gate for every favorite-like persistence action
   // (save, like, dislike, hook-save, share-to-list, coupon-save, custom
@@ -5287,7 +5306,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       } catch {}
     })();
     return () => { cancelled = true; };
-  }, [user]);
+  }, [user, supabaseReady]);
 
   // "Worth the Drive?" feature
   const [detailContext, setDetailContext] = useState(null); // theme that opened the detail ("drive", "gem", etc.)
@@ -5348,7 +5367,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       if (!c || !c.id) return;
       svFolderUpsert("Coupons", { id: "coupon:" + c.id, name: (c.business ? c.business + " — " : "") + c.title, address: c.details || "", types: ["coupon"], rating: null, reviews: 0, lat: null, lng: null, _coupon: c });
     });
-  }, [user, savedCoupons]);
+  }, [user, savedCoupons, supabaseReady]);
   const [communityVotes, setCommunityVotes] = useState({});
   const [searchMode, setSearchMode] = useState(false);
   const [searchLabel, setSearchLabel] = useState("");
@@ -6787,7 +6806,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       })();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [supabaseReady]);
 
   // Part 4 measurement: count one "session" per tab (share_rate denominator) and
   // fire "share_return" if a shared-card visitor is back within 7 days. Both are
@@ -7074,7 +7093,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }, 300);
     return () => { cancelled = true; clearTimeout(_debTimer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cat, sub, vibe, center, searchRadius, searchMode, feedRetry]);
+  }, [cat, sub, vibe, center, searchRadius, searchMode, feedRetry, supabaseReady]);
 
   // Load events when on the Events screen or when the location changes.
   useEffect(() => {
@@ -7206,7 +7225,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // adoption (location refined < 3 km) can revive the very same run.
     return () => { _tok.dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, activeBadge, center]);
+  }, [screen, activeBadge, center, supabaseReady]);
 
   // v4.84 Viator as a real activity source. The freetext endpoint is queried
   // with the resolved METRO name (small towns like Parrish are not Viator
@@ -7256,8 +7275,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // v4.84: bookable activities on the Things to do browse too — Viator is a
   // source, not just a booking-link decorator. v6.34 (owner ask): the Family
   // browse gets the same rail.
+  const browseTourKey = [browseCat, locName, center?.lat, center?.lng].join("|");
   useEffect(() => {
-    if ((browseCat !== "attractions" && browseCat !== "family") || !center) { setBrowseTours(null); return; }
+    // Only All owns this broad city prefetch. A narrower submenu must let the
+    // rail issue its one chip-specific fallback when the cache is empty;
+    // treating the broad parent lane as owned there would suppress that call.
+    if ((browseCat !== "attractions" && browseCat !== "family") || (sub && sub !== "all") || !center) { setBrowseTours(null); return; }
     let cancelled = false;
     (async () => {
       try {
@@ -7267,13 +7290,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=20" + _viatorCityParams(cityQ, center));
         const d = await r.json();
         const items = rankExperiences((d && Array.isArray(d.items) ? d.items : [])
-          .filter((t) => t.rating != null && t.rating >= 4.5)).slice(0, 8);
-        if (!cancelled) setBrowseTours(items);
+          .filter((t) => t.rating != null && t.rating >= 4.5));
+        if (!cancelled) setBrowseTours({ key: browseTourKey, items });
       } catch (e) { if (!cancelled) setBrowseTours(null); }
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [browseCat, locName, center && center.lat]);
+  }, [browseCat, sub, locName, center && center.lat, center && center.lng]);
 
   // v6.14 — bookable Viator experiences for the Events tab's "Tours" chip
   // (the tab's default view). City-based, same verified-product source as
@@ -8042,7 +8065,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail]);
+  }, [detail, supabaseReady]);
 
   function onQueryChange(v) {
     setQuery(v);
@@ -8337,7 +8360,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       .then(({ data }) => { if (!dead) setGateStatus(typeof data === "string" ? data : null); }, () => { if (!dead) setGateStatus(null); });
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center, user, gateBump]);
+  }, [screen, center, user, gateBump, supabaseReady]);
 
   // Auto-fill coverage for ANY uncovered location (owner: works for the user's
   // searched OR default location — no tap, signed in or not). When the gate says
@@ -8958,7 +8981,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     })();
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [_beachIds.join(",")]);
+  }, [_beachIds.join(","), supabaseReady]);
 
 
   const exploreList = (
@@ -10336,9 +10359,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                       list (wf_things_to_do) — the stacked Viator rail + Bookable
                       Experiences chips are gone from this page; tours interleave and
                       earn their rank. Family keeps its bookable rail. */}
-                  {browseCat === "family" && center && <UnifiedBrowseCommerceRail cat="family" sub="all" initialExperiences={browseTours} categories={["attractions"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
-                  {browseCat === "attractions" && center && <UnifiedBrowseCommerceRail cat="attractions" sub={sub} includeExperiences={!!(sub && sub !== "all")} categories={["attractions", "more"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
-                  {browseCat === "hotels" && center && view.length > 0 && <UnifiedBrowseCommerceRail cat="hotels" sub="all" categories={["stays"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
+                  {browseCat === "family" && center && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="family" sub={sub} initialExperiences={!sub || sub === "all" ? (browseTours?.key === browseTourKey ? browseTours.items : null) : undefined} categories={["attractions"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
+                  {browseCat === "attractions" && center && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="attractions" sub={sub} initialExperiences={!sub || sub === "all" ? (browseTours?.key === browseTourKey ? browseTours.items : null) : undefined} categories={["attractions", "more"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
+                  {browseCat === "hotels" && center && view.length > 0 && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="hotels" sub={sub} categories={["stays"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
+                  {browseCat === "hotels" && center && view.length > 0 && <TripConnections center={center} mode="attractions" onOpenPlace={openDetail} />}
                   {/* 2026-08-04 (owner: "I want every single Viator deeplink option showing up
                       on my sheets... if it's for food give me food tours... I want this done
                       everywhere") wired Food to the derived `food` concept in
@@ -10355,10 +10379,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                       copy of it. Nightlife/Shopping/Beach are unaffected: only Food declares
                       NO_TOUR_COMMERCE. Ranking is unchanged for every category that still
                       sells experiences: rankExperiences, highest score first. */}
-                  {browseCat === "food" && center && <UnifiedBrowseCommerceRail cat="food" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
-                  {browseCat === "nightlife" && center && <UnifiedBrowseCommerceRail cat="nightlife" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
-                  {browseCat === "shopping" && center && view.length > 0 && <UnifiedBrowseCommerceRail cat="shopping" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
-                  {browseCat === "beach" && center && <UnifiedBrowseCommerceRail cat="beach" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
+                  {browseCat === "food" && center && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="food" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
+                  {browseCat === "nightlife" && center && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="nightlife" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
+                  {browseCat === "shopping" && center && view.length > 0 && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="shopping" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
+                  {browseCat === "beach" && center && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="beach" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {/* The two NATIONAL categories. They had no render path at all, so both
                       rows sat dark since 2026-07-22 despite being live attributed CJ links —
                       built, working, and earning nothing for want of a mount. Placed beside
@@ -11221,204 +11245,7 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
 // One commerce rail per browse surface. It combines verified Viator inventory
 // and network deals before rendering, so provider boundaries never become
 // separate visual sections. Cards without real artwork fail closed.
-function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includeExperiences = true, initialExperiences, categories = [], lat, lng, onSave, onLog = NOLOG, city, region }) {
-  const plan = chipCommerce(browseCat, sub || "all");
-  const cat = plan.catalogParam;
-  const [experiences, setExperiences] = useState(() => Array.isArray(initialExperiences) ? initialExperiences : null);
-  const [deals, setDeals] = useState(null);
 
-  useEffect(() => {
-    if (Array.isArray(initialExperiences)) { setExperiences(initialExperiences); return; }
-    // 2026-09-07 — THE EAT-INTENT BOUNDARY (owner: wine tours and Riverwalk
-    // walking tours were rendering ABOVE the restaurant results under Food ->
-    // Dinner). `plan.noExperiences` (lib/browseCommerceMap.js NO_TOUR_COMMERCE)
-    // is checked BEFORE `cat`, not folded into it, because a null `cat` alone
-    // still falls through to the live Viator search below — the exact second
-    // path that can hand a thin market a generic tour just as easily as the
-    // table did. Food declares noExperiences, so this return fires before
-    // either the table read or the live search ever runs, for every sub-chip
-    // (Breakfast/Cafés/Lunch/Dinner/Quick bites included, not a two-item
-    // blocklist). See lib/browseCommerceMap.js for the measured repro and
-    // where the restaurant-specific-commerce line actually sits.
-    if (!includeExperiences || plan.noExperiences || !Number.isFinite(lat) || !Number.isFinite(lng)) { setExperiences([]); return; }
-    let dead = false;
-    const searchText = chipSearchQuery(browseCat, sub || "all", city);
-    const liveSearch = async () => {
-      // GATED ON `city`, deliberately. With no known city this must
-      // never fall back to Florida markets for an out-of-region visitor —
-      // that is the regression test-experiences-location exists to hold.
-      // `region` rides along for the same reason: the anti-foreign filter in
-      // /api/viator/tours returns 0 tours without it.
-      if (!city) return [];
-      try {
-        const live = await fetch("/api/viator/tours?q=" + encodeURIComponent(searchText) + "&region=" + encodeURIComponent(region || city) + "&lat=" + encodeURIComponent(lat) + "&lng=" + encodeURIComponent(lng) + "&intent=" + encodeURIComponent(sub || "all")).then((r) => (r.ok ? r.json() : null));
-        return rankExperiences(live && Array.isArray(live.items) ? live.items : []).slice(0, 12);
-      } catch (e) { return []; }
-    };
-    // cat === null means NOTHING in wf_experiences belongs under this chip.
-    // Going straight to search is the honest path; hitting the table would only
-    // ask a question whose only correct answer is "none".
-    if (cat === null) {
-      liveSearch().then((rows) => { if (!dead) setExperiences(rows); });
-      return () => { dead = true; };
-    }
-    const q = new URLSearchParams({ lat: String(lat), lng: String(lng), mi: "60", cat, limit: "12", page: "0" });
-    fetch("/api/experiences?" + q.toString()).then((r) => (r.ok ? r.json() : null), () => null).then(async (res) => {
-      if (dead) return;
-      let rows = rankExperiences(res && Array.isArray(res.items) ? res.items : []).slice(0, 12);
-      if (!rows.length) rows = await liveSearch();
-      setExperiences(rows);
-    });
-    return () => { dead = true; };
-  }, [initialExperiences, includeExperiences, cat, browseCat, sub, lat, lng, city, region]);
-
-  useEffect(() => {
-    // The deals lane never consulted `plan`. `categories` is a literal and `sub`
-    // was not even in the dep array, so every Activities chip fetched the same
-    // theme-park tickets and painted them under a heading naming that chip:
-    // "SPA & WELLNESS - BOOKABLE NEAR PARRISH" over LEGOLAND and Busch Gardens,
-    // on a live screenshot. The heading comment below already called this exact
-    // shape "a bug you can SEE". A chip that declares no bookable catalog now
-    // sells nothing here rather than the wrong thing under its own name.
-    const chipSellsNothing = !!(sub && sub !== "all" && plan.catalogParam === null);
-    // plan.noExperiences (Food, 2026-09-07) belt-and-suspenders: Food already
-    // passes categories=[] above, which alone short-circuits this effect, but
-    // a future call site that adds a `categories` prop for Food must not
-    // silently regain the deals lane on a category declared to sell nothing.
-    if (chipSellsNothing || plan.noExperiences || !categories.length || !Number.isFinite(lat) || !Number.isFinite(lng)) { setDeals([]); return; }
-    let dead = false;
-    const geo = "&lat=" + lat.toFixed(3) + "&lng=" + lng.toFixed(3);
-    Promise.all(categories.map((category) => fetch("/api/deals?category=" + encodeURIComponent(category) + geo).then((r) => (r.ok ? r.json() : null), () => null))).then((payloads) => {
-      if (dead) return;
-      const rows = [];
-      for (const payload of payloads) for (const rail of (payload && Array.isArray(payload.rails) ? payload.rails : [])) for (const deal of (Array.isArray(rail.items) ? rail.items : [])) rows.push(deal);
-      setDeals(rows);
-    });
-    return () => { dead = true; };
-  }, [categories.join("|"), lat, lng, sub, plan.catalogParam]);
-
-  // v6.90 — owner: "make sure they are displayed by rating and discount,
-  // point based on the activity time of today." Same small, capped, order-
-  // only bonuses as IntentPartnerPick.js's evidenceScore, kept in sync so the
-  // two mixed-provider rails behave consistently — see
-  // lib/experienceNowRank.js. Rating/quality10 stays the base term; unrated
-  // deals keep the exact -1 sentinel (sorts last, untouched by any bonus).
-  const nowHour = siteHourFloat();
-  const cards = useMemo(() => {
-    const rows = [];
-    for (const t of (Array.isArray(experiences) ? experiences : [])) {
-      if (!t?.image || !(t.code || t.product_code)) continue;
-      const offerId = t.code || t.product_code;
-      // THE WAYFIND SCORE, not a second opinion (owner: "they are not being
-      // displayed by highest to lowest score", 2026-08-05).
-      //
-      // rankExperiences() had already ordered these correctly — by
-      // experienceWayfindScore, the Bayesian blend that weights review DEPTH.
-      // This line then re-sorted them by `rating * 2 + log10(reviews)`, where
-      // reviews contribute at most 0.4, so rating dominates and the correct
-      // order was destroyed immediately after being computed. Measured:
-      //
-      //   4.7 with 2000 reviews  ->  Score 94, railBase 9.73  (shown 3rd)
-      //   5.0 with 3 reviews     ->  Score 79, railBase 10.06 (shown 1st)
-      //
-      // A 5.0 from three people outranked a 4.7 from two thousand. Divided by
-      // 10 so the 0-100 Score shares the 0-10 scale the deal rows and the
-      // capped bonuses already use — the bonuses stay proportionally what they
-      // were, and merit still decides the order.
-      const base = experienceWayfindScore(t) / 10;
-      // chipAffinityBonus is ORDER-ONLY and capped at 0.5 on the same ~0-10
-      // scale as `base`. It exists because every Food sub-chip draws from one
-      // pool of food tours — Viator sells no "dessert catalogue" — so Dessert
-      // used to render the identical list as Food/All. This lets a chocolate
-      // tour edge past an EQUALLY-rated generic food tour under Dessert without
-      // ever leapfrogging a clearly better one, which is what keeps the owner's
-      // "ranked from highest score" true.
-      rows.push({ key: `viator:${offerId}`, provider: "viator", merchant: "Viator", offerId, title: t.title, image: t.image, rating: Number(t.rating || 0), reviews: Number(t.reviews || 0), price: t.fromPrice ? `from $${Math.round(t.fromPrice)}` : "", duration: t.duration || "", score: base + timeOfDayBonus(String(t.title || ""), nowHour) + chipAffinityBonus(browseCat, sub || "all", t.title), kind: "experience" });
-    }
-    for (const d of (Array.isArray(deals) ? deals : [])) {
-      const image = d.image || (d.photoRef ? "/api/photo?ref=" + encodeURIComponent(d.photoRef) + "&w=600" : "");
-      if (!image || !d.id) continue;
-      const dBase = Number(d.quality10 || 0);
-      const discountText = d.discount || d.badge || "";
-      const dScore = dBase > 0 ? dBase + discountDepthBonus(discountText) + timeOfDayBonus(String(d.title || "") + " " + discountText, nowHour) : -1;
-      // ATTRIBUTION, not cosmetics. lib/dealsData.js shapes every row with
-      // surface:"deal_rail" baked into the href, because that is where deals
-      // were first served. Rendering that href here reported every browse-rail
-      // deal click as an intent-rail click, so the two surfaces could not be
-      // told apart in any revenue comparison. Same provider, same offer id,
-      // same redirect — only the surface tag differs, and it is now the tag of
-      // the rail that actually rendered it. Falls back to the server's href if
-      // the row somehow lacks a provider, so a re-tag can never lose the link.
-      const dealHref = commerceHref({ provider: d.provider, offerId: d.id, surface: "browse_partner_rail", contentId: sub || "all" }) || d.href;
-      // v8.22 (owner: "some of them have no wayfind score"): a deal matched to
-      // a scored place (quality10, the SAME number its rank already uses)
-      // now SHOWS that score; a national deal with no place keeps no chip —
-      // we never invent a score — and still sorts last.
-      rows.push({ key: `${d.provider || "deal"}:${d.id}`, provider: d.provider, merchant: d.providerLabel || "Verified partner", offerId: d.id, title: d.title, image, discount: discountText, score: dScore, quality10: dBase > 0 ? dBase : null, href: dealHref, kind: "deal" });
-    }
-    const seen = new Set();
-    return rows.filter((row) => { const name = String(row.title || "").toLowerCase(); if (seen.has(name)) return false; seen.add(name); return true; }).sort((a, b) => b.score - a.score);
-  }, [experiences, deals, nowHour, sub, browseCat]);
-
-  // v8.22 (owner, live screenshots: "the rail starts mid-way … starting at the
-  // cards with no score on all of the submenus"). ROOT CAUSE: the scroller
-  // <div> is the same DOM node across chip/submenu switches — React re-renders
-  // its children but never touches scrollLeft, so one right-swipe in any
-  // submenu leaves EVERY later submenu's rail opened mid-track. That reads as
-  // "unranked first" because unscored deals sort last (rightward). The rail
-  // must open at its own #1 whenever its content identity changes. GLOBAL
-  // RULE for horizontal rails whose content swaps under a persistent node;
-  // locked by scripts/check-rail-scroll-reset.mjs.
-  const laneRef = useRef(null);
-  const laneSig = (cards.length && cards[0].key) || "";
-  useEffect(() => { const el = laneRef.current; if (el) el.scrollLeft = 0; }, [browseCat, sub, laneSig]);
-
-  if (!cards.length) return null;
-  // The heading NAMES THE FILTER. It used to read "Bookable highlights near
-  // {city}" — byte-identical to IntentPartnerPick's heading on the intent
-  // pages, so two rails with different inventory, different ranking and
-  // different providers were indistinguishable to a user and to anyone reading
-  // a screenshot. Naming the active chip also makes a mismatch self-evident:
-  // "Spa & wellness — bookable near Sarasota" over a dolphin cruise is a bug
-  // you can SEE, where the old generic heading hid exactly that.
-  const chipLabel = (() => {
-    if (!sub || sub === "all") return null;
-    const hit = ((SUBFILTERS[browseCat] || SUBFILTERS.attractions) || []).find((x) => x && x.id === sub);
-    return hit ? hit.label : null;
-  })();
-  return (
-    <aside data-unified-browse-commerce-rail style={{ margin: "2px 0 14px" }}>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
-        <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>{chipLabel ? `${chipLabel} — bookable near ${city || "you"}` : `Bookable near ${city || "you"}`}</span>
-        <span style={{ fontSize: 9.5, color: C.muted }}>Verified partners</span>
-      </div>
-      <div ref={laneRef} style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 4, scrollSnapType: "x proximity" }}>
-        {cards.map((card) => {
-          const href = card.kind === "experience" ? commerceHref({ provider: "viator", offerId: card.offerId, surface: "browse_partner_rail", contentId: sub || "all" }) : card.href;
-          if (!href) return null;
-          return (
-            <a key={card.key} href={href} target="_blank" rel="sponsored nofollow noopener" onClick={(e) => { e.preventDefault(); const live = (e.currentTarget && e.currentTarget.href) || href; try { onLog("tickets_out", null, { kind: "unified_browse_rail", provider: card.provider, id: card.offerId }); } catch (er) {} openExternal(live); }} style={{ flex: "0 0 200px", scrollSnapAlign: "start", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", color: "inherit" }}>
-              <div style={{ position: "relative", height: 86, overflow: "hidden", borderBottom: `1px solid ${C.border}` }}>
-                <img src={card.image} alt="" loading="lazy" onError={(e) => { const root = e.currentTarget.closest("a"); if (root) root.style.display = "none"; }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                <span style={{ position: "absolute", top: 7, right: 7, padding: "3px 7px", borderRadius: 999, background: "rgba(7,12,20,.82)", border: "1px solid rgba(255,255,255,.24)", color: "#fff", fontSize: 8.5, fontWeight: 800 }}>via {card.merchant}</span>
-              </div>
-              <div style={{ padding: "8px 10px" }}>
-                <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{card.title}</div>
-                <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 4, flexWrap: "wrap" }}>
-                  {card.rating > 0 && card.reviews > 0 ? <PlaceScoreChip p={{ rating: card.rating, reviews: card.reviews }} size={12} />
-                    : card.quality10 != null ? <PlaceScoreChip p={{ governed_score: Math.round(card.quality10 * 10) }} size={12} /> : null}
-                  <span style={{ fontSize: 11, fontWeight: card.discount ? 800 : 500, color: card.discount ? "#7DD3A8" : C.muted }}>{card.discount || card.price}{card.duration ? ` · ${card.duration}` : ""}</span>
-                  <button aria-label={"Save " + card.title} onClick={(e) => { e.preventDefault(); e.stopPropagation(); try { onSave && onSave({ item_type: card.kind, item_id: card.offerId, item_title: card.title, item_image: card.image, item_url: href, provider: card.provider }); } catch (er) {} }} style={{ marginLeft: "auto", border: `1px solid ${C.border}`, background: "transparent", borderRadius: 999, color: C.light, fontSize: 12, padding: "3px 8px", cursor: "pointer" }}>♡</button>
-                </div>
-              </div>
-            </a>
-          );
-        })}
-      </div>
-      <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through these links, at no extra cost to you. It never changes our scores or rankings.</div>
-    </aside>
-  );
-}
 
 
 // Undercover Tourist discount-ticket / theme-park-hotel deal rail (CJ, PID

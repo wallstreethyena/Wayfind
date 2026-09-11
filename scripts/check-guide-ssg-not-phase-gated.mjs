@@ -207,7 +207,7 @@ function harnessSource(overrides = {}) {
   const u = (rel) => JSON.stringify(pathToFileURL(path.join(ROOT, rel)).href);
   return [
     `import { isSsgBuild, guideFetch } from ${u("lib/landingInventory.js")};`,
-    `import { existingTypeSignals } from ${u("lib/placeCategory.js")};`,
+    `import { CATEGORY_SECTION, existingTypeSignals } from ${u("lib/placeCategory.js")};`,
     `import { wayfindScore } from ${u("lib/wayfindScore.js")};`,
     `import { regionCoords } from ${u("lib/guideNow.js")};`,
     "",
@@ -236,8 +236,11 @@ const ROW = Object.freeze({
   name: "Legacy Trail",
   lat: 27.34,
   lng: -82.53,
-  primary_type: "park",
-  google_types: ["park"],
+  category: "attractions",
+  primary_type: "campground",
+  // Real guide-card failure shape: unordered secondary signals can include
+  // lodging/retail even though Wayfind's adjudicated category is Activities.
+  google_types: ["lodging", "store", "park"],
   signals: { rating: 4.7, reviews: 812 },
   photo_ref: "places/fixture/photos/1",
   editorial: null,
@@ -292,15 +295,18 @@ async function run() {
     const r = await mod.inventoryPlaceByStem("Legacy Trail", null);
     ok(calls.length === 1 && /wf_inventory/.test(calls[0]),
       "inventoryPlaceByStem() reaches wf_inventory at SSG when Supabase credentials are present");
-    ok(r && r.id === ROW.place_id, "inventoryPlaceByStem() resolves the row at SSG when credentials are present");
+    ok(r && r.id === ROW.place_id && r.category === "attractions" && r.cardCategory === "Activities",
+      "inventoryPlaceByStem() resolves the row and maps its stored category to the guide card display vocabulary at SSG");
   }
   {
     const { fn, calls } = mockFetch();
     globalThis.fetch = fn;
-    const r = await mod.inventoryPlace({ placeId: ROW.place_id, name: "Legacy Trail", appQuery: "Legacy Trail" }, null);
-    ok(calls.length >= 1 && calls.some((u) => u.includes(`place_id=eq.${ROW.place_id}`)),
+    const r = await mod.inventoryPlace({ placeId: ROW.place_id, name: "Legacy Trail", appQuery: "Legacy Trail", exactNames: ["Legacy Trail"] }, null);
+    ok(calls.length === 1 && calls[0].includes(`place_id=eq.${ROW.place_id}`),
       "inventoryPlace()'s placeId fast path reaches wf_inventory at SSG when credentials are present (was: gated on pick.placeId && !isSsgBuild())");
-    ok(r && r.id === ROW.place_id, "inventoryPlace() resolves a placeId pick at SSG when credentials are present");
+    ok(r && r.id === ROW.place_id && r.category === "attractions" && r.cardCategory === "Activities",
+      "inventoryPlace() resolves a placeId pick and keeps noisy lodging/store secondary types from relabeling it at SSG");
+    ok(!calls[0].includes("name=ilike"), "inventoryPlace() prefers a verified placeId over exact-name aliases");
   }
   {
     const { fn, calls } = mockFetch();
@@ -308,8 +314,8 @@ async function run() {
     const r = await mod.inventoryPlacesForRegion("Sarasota", 80);
     ok(calls.length === 1 && /wf_inventory/.test(calls[0]),
       "inventoryPlacesForRegion() reaches wf_inventory at SSG when credentials are present");
-    ok(Array.isArray(r) && r.length === 1 && r[0].id === ROW.place_id,
-      "inventoryPlacesForRegion() returns the resolved row at SSG when credentials are present");
+    ok(Array.isArray(r) && r.length === 1 && r[0].id === ROW.place_id && r[0].category === "attractions" && r[0].cardCategory === "Activities",
+      "inventoryPlacesForRegion() returns the resolved row with its stored guide card category at SSG");
   }
 
   // Editorial identity: run the real resolver against misleading and correct rows.
@@ -319,13 +325,15 @@ async function run() {
     ok(await mod.inventoryPlace({ name: "Parking without the meltdown", appQuery: null }, null) === null,
       "planning advice does not resolve a venue");
     ok(calls.length === 0, "planning advice performs zero inventory requests");
-    globalThis.fetch = async () => ({ ok: true, json: async () => [
+    globalThis.fetch = async (url) => { calls.push(String(url)); return ({ ok: true, json: async () => [
       { ...ROW, name: "The Residences on Siesta Key Beach", place_id: "wrong-hotel" },
       { ...ROW, name: "Siesta Beach", place_id: "real-beach" },
-    ] });
+    ] }); };
     const pick = { name: "When and exactly where", appQuery: "Siesta Beach", exactNames: ["Siesta Beach", "Siesta Key Beach"] };
     const hit = await mod.inventoryPlace(pick, null);
     ok(hit && hit.id === "real-beach", "exact editorial alias selects beach, not the hotel returned first");
+    ok(!decodeURIComponent(calls[0] || "").includes("name=ilike.%Siesta Beach%"),
+      "exact editorial aliases are queried as whole names rather than broad substrings");
     globalThis.fetch = async () => ({ ok: true, json: async () => [{ ...ROW, name: "Siesta Beach Resort" }] });
     ok(await mod.inventoryPlace(pick, null) === null, "missing beach does not fall back to a substring resort");
     const broken = FN.inventoryPlaceByStem.replace('if (exactNames && !exactNames.some((name) => normalize(name) === normalize(row.name))) continue;', '');

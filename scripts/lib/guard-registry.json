@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 624,
-    "totalRegistryEntries": 625,
-    "guardsTxtLineCount": 623,
-    "guardsTxtReachedFileCount": 618,
-    "criticalCount": 74,
+    "totalOnDiskGuardFiles": 633,
+    "totalRegistryEntries": 634,
+    "guardsTxtLineCount": 632,
+    "guardsTxtReachedFileCount": 627,
+    "criticalCount": 76,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 423,
-      "RENDER": 58,
+      "CALL": 429,
+      "RENDER": 61,
       "STRUCTURAL": 143,
       "OTHER": 1
     }
@@ -260,7 +260,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 26,
+      "assertionCount": 27,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -3222,6 +3222,28 @@
       "owner": null
     },
     {
+      "file": "scripts/check-guide-place-identities.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 9,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/check-guide-product-resolution.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -3304,7 +3326,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 27,
+      "assertionCount": 29,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
@@ -3421,6 +3443,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 143,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/check-home-eager-supabase.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": true,
+      "assertionCount": 11,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
@@ -3780,7 +3824,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 9,
+      "assertionCount": 17,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -4855,7 +4899,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 42,
+      "assertionCount": 47,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -6213,7 +6257,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 32,
+      "assertionCount": 38,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
@@ -6235,7 +6279,7 @@
       "npmScript": null,
       "class": "RENDER",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 33,
+      "assertionCount": 35,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -7301,7 +7345,7 @@
       "npmScript": null,
       "class": "STRUCTURAL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 7,
+      "assertionCount": 8,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
@@ -7349,7 +7393,7 @@
       "npmScript": null,
       "class": "STRUCTURAL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 20,
+      "assertionCount": 23,
       "unprovenAbsenceCount": 1,
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines",
@@ -8154,6 +8198,50 @@
       "owner": null
     },
     {
+      "file": "scripts/test-attraction-discovery.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 45,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-audit-candidate-starvation.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 15,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-auth-admin-tombstones.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -8201,6 +8289,28 @@
         "detail": "A regression could bypass finite autocomplete budgets or disguise a denied provider as successful empty search suggestions."
       },
       "owner": "Revenue QA"
+    },
+    {
+      "file": "scripts/test-batch-completeness.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 8,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
     },
     {
       "file": "scripts/test-beach-alert-recovery.mjs",
@@ -8502,6 +8612,33 @@
       "owner": "Revenue QA"
     },
     {
+      "file": "scripts/test-bookable-near-50.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 17,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:bookable"
+      ],
+      "protects": "The real browse rail renders up to 50 relevant local affiliate cards in descending visible score order with no duplicate or dead offers.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "Wrong or duplicate affiliate cards can send users to unrelated products or hide the best local bookable options."
+      },
+      "owner": "Revenue QA"
+    },
+    {
       "file": "scripts/test-booking-audit.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -8642,6 +8779,33 @@
       "protects": null,
       "blastRadius": null,
       "owner": null
+    },
+    {
+      "file": "scripts/test-browse-bookable-match.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 76,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:bookable"
+      ],
+      "protects": "Exact browse intent and complete local candidate reads are applied before ranking and limiting bookable offers.",
+      "blastRadius": {
+        "category": "trust",
+        "detail": "Truncated inventory or broad category leakage can hide relevant offers or show unsuitable family activities."
+      },
+      "owner": "Revenue QA"
     },
     {
       "file": "scripts/test-browse-library.mjs",
@@ -10791,7 +10955,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 29,
+      "assertionCount": 39,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -11319,7 +11483,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 9,
+      "assertionCount": 55,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -12041,6 +12205,28 @@
         "detail": "#294's query-param approach is retired — a regression back to it silently loses Ticketmaster attribution while looking like a normal link."
       },
       "owner": "Revenue QA"
+    },
+    {
+      "file": "scripts/test-morning-candidate-integrity.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 13,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
     },
     {
       "file": "scripts/test-morning-identity.mjs",
@@ -13338,7 +13524,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 37,
+      "assertionCount": 39,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": true,
@@ -13360,10 +13546,10 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 9,
+      "assertionCount": 11,
       "unprovenAbsenceCount": 2,
       "honestyViolations": [
-        "2 absence assertion(s) with no positive control in the same file (e.g. \"(home.match(/rankExperiences\\(/g) || []).length >= 5, \"\")"
+        "2 absence assertion(s) with no positive control in the same file (e.g. \"/nextDynamic\\(\\(\\) => import\\(\"\\.\\/components\\/UnifiedBrowseCommerceRail\"\\)/.tes\")"
       ],
       "selfDocumentsRedProve": false,
       "wiring": {
@@ -14508,6 +14694,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 20,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-trip-connections.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 61,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

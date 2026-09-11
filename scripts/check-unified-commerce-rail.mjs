@@ -2,11 +2,12 @@
 // commerce rail, one compact card language, real art, and one disclosure.
 import { readFileSync } from "node:fs";
 
-const [intentPagePath = "app/components/IntentPageClient.js", partnerPath = "app/components/IntentPartnerPick.js", homePath = "app/home.js"] = process.argv.slice(2);
+const [intentPagePath = "app/components/IntentPageClient.js", partnerPath = "app/components/IntentPartnerPick.js", homePath = "app/home.js", browseRailPath = "app/components/UnifiedBrowseCommerceRail.js"] = process.argv.slice(2);
 const read = (file) => readFileSync(file, "utf8");
 const intentPage = read(intentPagePath);
 const partner = read(partnerPath);
 const home = read(homePath);
+const browseRail = read(browseRailPath);
 let passed = 0;
 const ok = (condition, message) => {
   if (!condition) {
@@ -15,6 +16,9 @@ const ok = (condition, message) => {
   }
   passed++;
 };
+
+ok(/nextDynamic\(\(\) => import\("\.\/components\/UnifiedBrowseCommerceRail"\), \{ ssr: false \}\)/.test(home),
+  "home lazily imports the exact extracted browse rail module, keeping it out of the eager route bundle");
 
 ok((intentPage.match(/<IntentPartnerPick\b/g) || []).length === 1, "intent sheets must mount exactly one commerce rail");
 ok(!/<CouponStrip\b|<ViatorRail\b/.test(intentPage), "legacy coupon and provider rails must not sit beside the mixed rail");
@@ -51,20 +55,24 @@ ok(mountLines.length >= 3, `the unified rail is actually mounted (got ${mountLin
 const seenCat = new Set();
 for (const line of mountLines) {
   const guard = (line.match(/browseCat === "([a-z]+)"/) || [])[1];
-  const prop = (line.match(/<UnifiedBrowseCommerceRail\s+cat="([a-z]+)"/) || [])[1];
+  const prop = (line.match(/<UnifiedBrowseCommerceRail[^>]*\bcat="([a-z]+)"/) || [])[1];
   ok(!!prop, `the ${guard} rail declares its category as a cat= prop (the chip map is keyed category:sub, and sub ids collide across categories)`);
   ok(guard === prop, `the ${guard} rail's cat= prop matches the category it is guarded on (got cat="${prop}")`);
   ok(!seenCat.has(guard), `browse category "${guard}" mounts the unified rail exactly once — a second mount would double the rail`);
+  ok(/\bsub=\{sub\}/.test(line), `browse category "${guard}" passes the active submenu instead of freezing every chip to All`);
+  ok(/\bkey=\{\[browseCat, sub, center\.lat, center\.lng\]\.join\(":"\)\}/.test(line),
+    `browse category "${guard}" remounts the rail for category, submenu and both coordinates so prior inventory cannot paint stale`);
   seenCat.add(guard);
 }
-// The owner ask ("I want this done everywhere"): the money categories are covered.
-for (const c of ["attractions", "food", "nightlife"]) {
-  ok(seenCat.has(c), `browse category "${c}" has a bookable rail — food especially, which had none while 35 food tours sat in wf_experiences`);
+// The owner ask ("all menus/submenus"): every browse category is wired. A
+// category with no strictly matching inventory still renders honestly empty.
+for (const c of ["food", "nightlife", "attractions", "beach", "family", "hotels", "shopping"]) {
+  ok(seenCat.has(c), `browse category "${c}" has exactly one Bookable-near rail mount`);
 }
-ok(!/<UTDealsRail\b|<BookableExpRail\b/.test(home.slice(home.indexOf("browseCat === \"family\""), home.indexOf("function UnifiedBrowseCommerceRail"))), "browse rendering must not mount legacy provider-specific rails");
-ok(/\/api\/experiences\?/.test(home) && /\/api\/deals\?category=/.test(home), "the browse rail must combine experiences and network deals");
-ok(/if \(!image \|\| !d\.id\) continue/.test(home), "browse deal cards must require real artwork");
-ok(/sort\(\(a, b\) => b\.score - a\.score\)/.test(home), "the mixed browse list must be strongest-first");
-ok(/via \{card\.merchant\}/.test(home), "browse cards must identify their provider on the image");
+ok(!/<UTDealsRail\b|<BookableExpRail\b/.test(home), "browse rendering must not mount legacy provider-specific rails");
+ok(/\/api\/experiences\?/.test(browseRail) && /\/api\/deals\?category=/.test(browseRail), "the extracted browse rail must combine experiences and network deals");
+ok(/if \(!image \|\| !d\.id\) continue/.test(browseRail), "browse deal cards must require real artwork");
+ok(/sort\(\(a, b\) => b\.score - a\.score \|\| \(b\.rankBonus \|\| 0\) - \(a\.rankBonus \|\| 0\)\)/.test(browseRail), "the mixed browse list must be strongest-first, using bounded relevance bonuses only as the tie-break");
+ok(/via \{card\.merchant\}/.test(browseRail), "browse cards must identify their provider on the image");
 
 console.log(`check-unified-commerce-rail: OK — ${passed} assertions`);

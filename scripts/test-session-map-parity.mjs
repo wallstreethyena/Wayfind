@@ -102,9 +102,9 @@ ok(/setMapBrowse\(true\); setCat\(id\); setSub\("all"\); setVibe\("all"\)/.test(
   "map category tap still writes the same cat/sub/vibe the home path writes");
 
 /* ── empty organic is not papered over with an unrelated affiliate ──────── */
-ok(/browseCat === "hotels" && center && view\.length > 0 && <UnifiedBrowseCommerceRail cat="hotels"/.test(HOME),
+ok(/browseCat === "hotels" && center && view\.length > 0 && <UnifiedBrowseCommerceRail[^>]*\bcat="hotels"/.test(HOME),
   "Stays commerce rail mounts only when organic results exist");
-ok(/browseCat === "shopping" && center && view\.length > 0 && <UnifiedBrowseCommerceRail cat="shopping"/.test(HOME),
+ok(/browseCat === "shopping" && center && view\.length > 0 && <UnifiedBrowseCommerceRail[^>]*\bcat="shopping"/.test(HOME),
   "Shopping commerce rail mounts only when organic results exist");
 ok(/categories=\{\["stays"\]\}/.test(HOME) && !/categories=\{\["stays", "travel"\]\}/.test(HOME),
   "Stays no longer attaches the national car-rental (travel) rail as a stand-in for empty hotels");

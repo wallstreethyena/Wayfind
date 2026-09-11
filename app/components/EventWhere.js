@@ -50,13 +50,11 @@ const CSS = `
 .wfw-official{flex-direction:column;gap:1px}
 .wfw-official small{display:block;max-width:100%;font-weight:700;color:#94A3B8;font-size:12px;line-height:1.35;overflow-wrap:anywhere}
 .wfw-map{padding:0 10px 10px}
-.wfw-nearcard{margin:14px 10px 10px;border-radius:18px;border:1px solid rgba(46,201,166,.26);background:linear-gradient(180deg,rgba(46,201,166,.06),rgba(13,19,28,.95));box-shadow:0 18px 44px rgba(0,0,0,.32);overflow:hidden}
-.wfw-near{padding:22px 18px 18px}
-.wfw-near-k{font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:${PICK};margin:0 0 6px}
+.wfw-nearcard{margin:4px 10px 10px;border-radius:18px;border:1px solid rgba(46,201,166,.26);background:linear-gradient(180deg,rgba(46,201,166,.06),rgba(13,19,28,.95));box-shadow:0 18px 44px rgba(0,0,0,.32);overflow:hidden}
+.wfw-near{padding:14px}
 .wfw-near h3{margin:0 0 4px;font-size:17px;font-weight:850;color:#F8FAFC;letter-spacing:-.2px}
-.wfw-near p{margin:0 0 16px;font-size:13.5px;line-height:1.5;color:#94A3B8}
 .wf-event-nearby-rail{margin:0;padding-block:4px 12px}
-.wfw-foot{padding:0 18px 16px;font-size:11.5px;color:#64748B}
+.wfw-foot{display:flex;gap:16px;align-items:center;padding:0 18px 8px;font-size:12px;line-height:1.4;color:#94A3B8}.wfw-foot span{display:inline-flex;align-items:center;gap:6px}.wfw-key-venue{color:${ACCENT}}.wfw-key-nearby{color:${PICK}}
 @media (max-width:560px){.wfw-head{align-items:stretch;padding:16px 14px 12px}.wfw-acts{width:100%;flex:1 1 100%;display:grid;grid-template-columns:minmax(0,1fr)}.wfw-btn{width:100%}.wfw-map{padding:0 6px 6px}.wfw-near{padding:14px 14px 14px}}
 `;
 
@@ -133,19 +131,16 @@ export default function EventWhere({ venue, address, directionsHref, website, la
             <EventVenueMapLoader venue={{ name: venue || address, lat, lng }} picks={pins} directionsHref={directionsHref} />
           </div>
         ) : null}
-        {hasPoint ? <div className="wfw-foot">The orange pin marks the event venue. Numbered teal pins match the nearby places below.</div> : null}
+        {hasPoint ? <div className="wfw-foot" aria-label="Map key"><span><b className="wfw-key-venue" aria-hidden="true">★</b> Event</span>{pins.length > 0 ? <span><b className="wfw-key-nearby" aria-hidden="true">1</b> Nearby</span> : null}</div> : null}
         {/* v9.01 (owner, 2026-09-11): map results belong inside the map
             panel as the standard horizontal IconicPlaceCard rail. They remain
             unmistakably separate from the ticketed venue through the teal
-            pin color, border, label, heading, and explicit "not the venue"
-            copy. The prior portrait-photo grid and its second standalone
+            pin key, border, heading, and explicit accessible region label. The prior portrait-photo grid and its second standalone
             panel are gone. */}
         {pins.length > 0 ? (
           <section id="event-nearby" data-event-section="Nearby places" tabIndex={-1} className="wfw-nearcard" aria-label={"Other places near " + (venue || "the venue") + " — not the venue itself"}>
             <div className="wfw-near">
-              <p className="wfw-near-k">Nearby — not the venue</p>
-              <h3>Worth a stop near {venue || "here"}</h3>
-              <p>Separate places, not part of {venue || "the event"} — ranked by Wayfind. The numbers match the pins on the map above.</p>
+              <h3>Nearby places</h3>
               <EventNearbyCards places={pins} />
             </div>
           </section>
