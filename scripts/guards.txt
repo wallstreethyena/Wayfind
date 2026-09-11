@@ -270,6 +270,7 @@ node scripts/test-eat-ssg-failsoft.mjs
 # real production-build phase with/without credentials, plus a red-prove
 # mutation, so this cannot silently return.
 node scripts/check-guide-ssg-not-phase-gated.mjs
+node scripts/check-guide-place-identities.mjs
 node scripts/test-activation.mjs
 node scripts/test-containment.mjs
 node scripts/test-experiment.mjs
@@ -343,6 +344,7 @@ node scripts/test-job-watch-fallback.mjs
 node scripts/test-job-watch-delivery.mjs
 node scripts/check-editorial-retry-state.mjs
 node scripts/check-editorial-coverage-pipeline.mjs
+node scripts/test-report-editorial-coverage.mjs
 node scripts/test-atlas-reclassify.mjs
 node scripts/check-art-assets.mjs
 node scripts/check-brand-derivatives.mjs
@@ -723,6 +725,7 @@ node scripts/check-mobile-poster-fit.mjs
 # taxonomy and not just a scroll offset, and it must be written on pagehide —
 # an outbound tap runs no React cleanup.
 node scripts/check-position-memory.mjs
+node scripts/test-document-position.mjs
 # v8.26 — the shell scrolls .wf-scrollarea, not the document, so window.scrollTo
 # is a silent no-op inside it. This is the rule that broke "take me to the picks"
 # three times: the rail drop must land with scrollIntoView, and the existing
@@ -1428,6 +1431,12 @@ node scripts/test-photo-vault.mjs
 # runBackfill/recordPulse/jobCannotRun/jobFailed swapped for doubles.
 node scripts/test-photo-vault-wiring.mjs
 
+# The at-risk photo drain keyset-pages on (earliest_expiry, place_id),
+# confirms existing photo decisions per page, and keeps paging until it finds
+# fresh work. This prevents wf_photo_at_risk's retained rejected prefix from
+# starving later undecided places; deadline and read truncation stay visible.
+node scripts/test-photo-at-risk-pagination.mjs
+
 node scripts/test-beach-alert-recovery.mjs
 
 node scripts/test-editorial-retry-content.mjs
@@ -1459,6 +1468,7 @@ node scripts/test-event-popularity.mjs
 node scripts/test-empty-rail-visibility.mjs
 node scripts/test-night-tour-products.mjs
 node scripts/test-creator-picks-rails.mjs
+node scripts/test-rail-visual-standard.mjs
 
 node scripts/test-event-stays.mjs
 node scripts/test-event-driving-route.mjs
@@ -1466,3 +1476,16 @@ node scripts/test-event-driving-route.mjs
 node scripts/test-shared-photo-lifecycle.mjs
 
 node scripts/test-best-photo-selection.mjs
+node scripts/test-morning-candidate-integrity.mjs
+# Shared event navigation, map cards, and explicit sharing choices.
+node scripts/test-event-section-nav.mjs
+node scripts/test-event-nearby-cards.mjs
+node scripts/test-share-out-chooser.mjs
+node scripts/check-home-eager-supabase.mjs
+node scripts/test-audit-candidate-starvation.mjs
+node scripts/test-trip-connections.mjs
+
+# Six canonical Florida attraction identities supplement Family/Activities from
+# owned inventory, then keep the ordinary chip, exact-radius and score ordering.
+node scripts/test-attraction-discovery.mjs
+node scripts/test-batch-completeness.mjs

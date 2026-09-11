@@ -4,6 +4,7 @@ import { selectPosterEvents } from "../../lib/posterEvents.js";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import SummerPicksRails from "./SummerPicksRails";
+import RailLoading from "./RailLoading";
 import { fetchJsonWithDeadline } from "../../lib/clientJson.js";
 import { homeAffiliateActivities } from "../../lib/homeAffiliateActivities.js";
 import { composeSummerPickRails } from "../../lib/summerPicks.js";
@@ -75,7 +76,7 @@ export default function SummerIntentRails({ active = true, center = null, city =
   const sports = (Array.isArray(eventSurface?.byRail?.sports) ? eventSurface.byRail.sports : []).map((card) =>
     card?.$$typeof ? { kind: "event-node", node: card } : { ...card, kind: "event" });
   const eventRailAvailable = sports.length > 0 || !!eventSurface?.pending || !!eventSurface?.failed;
-  if (!rails && !failed && !sports.length) return <div role="status" aria-busy="true" aria-label="Ranking summer picks">{[0, 1, 2].map((index) => <div key={index} className="wf-sk" style={{ height: 88, borderRadius: 14, marginBottom: 12 }} />)}</div>;
+  if (!rails && !failed && !sports.length) return <RailLoading label="Ranking summer picks" />;
   if (failed && !eventRailAvailable) return <div><p style={{ color: "#A8B0BE", fontSize: 13 }}>We could not reach Wayfind&apos;s photo-verified summer inventory. That is a service miss, not an empty town.</p><button type="button" onClick={() => setRetry((value) => value + 1)} style={{ border: "1px solid #F97316", borderRadius: 999, background: "#111827", color: "#F8FAFC", padding: "7px 12px", fontWeight: 800 }}>Try again</button></div>;
   const visibleRails = withSummerSportsRail(rails || [], sports, { pending: !!eventSurface?.pending, failed: !!eventSurface?.failed });
   if (rails && !rails.length && !sports.length && !eventSurface?.pending && !eventSurface?.failed) return <p style={{ color: "#A8B0BE", fontSize: 13 }}>No nearby summer options have enough verified evidence yet.</p>;

@@ -1,10 +1,11 @@
 "use client";
+import { canReturnToWayfind } from "../../lib/documentPosition";
 
 export default function ReturnToWayfind({ style }) {
   const back = (event) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     try {
-      if (document.referrer && new URL(document.referrer).origin === window.location.origin && window.history.length > 1) {
+      if (canReturnToWayfind(window)) {
         event.preventDefault();
         window.history.back();
       }

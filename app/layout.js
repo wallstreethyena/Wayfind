@@ -1,4 +1,5 @@
 import Script from "next/script";
+import DocumentPosition from "./components/DocumentPosition";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { fontVariables } from "./fonts";
 import { SITE_URL } from "../lib/site";
@@ -286,6 +287,7 @@ export default function RootLayout({ children }) {
             v6.44: 100dvh, not 100vh — see the note on <body> above. On "/" this
             wrapper holds the 100dvh app shell, so any extra height here is pure
             document scroll that drags the app under the browser chrome. */}
+        <DocumentPosition />
         <main id="wf-main" style={{ minHeight: "100dvh" }}>{children}</main>
         {/* v4.55 PROTECTED (check-seo.mjs): server-rendered SEO layer. A real
             H1, description, and crawlable links to guides, cities, and legal

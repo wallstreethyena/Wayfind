@@ -226,7 +226,7 @@ ok(pinServeability({ provider: "viator", offerId: "GUARDALIVE1" }, CAT).serveabl
 
 // (c) Drop the retired ledger from the gate. Rule 3 must go red.
 const ledgerIgnored = await loadMutant("ignore-ledger", (s) =>
-  s.replace('if (RETIRED_CODES.has(code)) return { serveable: false, reason: "retired-absent-from-catalogue" };', "")
+  s.replace('if (RETIRED_CODES.has(code)) return { serveable: false, reason: RETIRED_CODES.get(code) };', "")
 );
 withMutant(ledgerIgnored, "ignore-ledger", (M) => {
   ok(M.pinServeability({ provider: "viator", offerId: RETIRED_ONE.offerId }).serveable === true,

@@ -125,8 +125,9 @@ for (const row of BATCH) {
   const pick = placePartnerPick({ name: row.name });
   if (row.retired) {
     // CONTAINMENT. A dead product must reach the customer as no button at all.
-    ok(pick === null, `${row.name}: no pin — ${row.sku} is absent from the catalogue and must not paint a Book button`);
-    ok(pinServeability({ provider: "viator", offerId: row.sku }).reason === "retired-absent-from-catalogue",
+    ok(pick === null, `${row.name}: no pin — ${row.sku} is retired and must not paint a Book button`);
+    const reason = row.sku === "343215P2" ? "retired-catalogue-link-dead" : "retired-absent-from-catalogue";
+    ok(pinServeability({ provider: "viator", offerId: row.sku }).reason === reason,
       `${row.name}: ${row.sku} is refused for the recorded catalogue reason, not by silent deletion`);
     ok(placePartnerPick({ name: row.name.toLowerCase() }) === null,
       `${row.name}: containment is case-insensitive, exactly as the match is`);
@@ -250,7 +251,7 @@ ok(/placePick\("173028P1"/.test(placeSrc) && /placePick\("412732P1"/.test(placeS
 // again. It may still appear in the retired ledger — that is the record, not a CTA.
 for (const r of RETIRED_VIATOR_PINS) {
   ok(!new RegExp(`placePick\\(\\s*"${r.offerId}"`).test(placeSrc),
-    `${r.offerId} is not re-declared as a placePick(...) pin — it is catalogue-absent`);
+    `${r.offerId} is not re-declared as a placePick(...) pin — its retirement is recorded`);
 }
 ok(!PLACE_PARTNER_PICKS.some((r) => String(r.offerId).toUpperCase() === HOLD_SKU),
   "the scallop HOLD-SKU is not a placePick offer id");

@@ -100,7 +100,8 @@ try {
   }));
   assert.match(pendingMarkup, /Sports Events/, "a pending rail keeps its heading while inventory loads");
   assert.match(pendingMarkup, /role="status"/, "a pending rail renders an accessible loading status");
-  assert.doesNotMatch(pendingMarkup, /wf-rail-exploding/, "a pending rail does not render an empty carousel");
+  assert.match(pendingMarkup, /class="wf-place-card wf-place-card-sk" aria-hidden="true"/, "a pending rail reserves the shared card geometry with decorative skeletons");
+  assert.doesNotMatch(pendingMarkup, /data-rail=|class="wf-rail-nav"|role="region"/, "a pending rail does not expose an empty content carousel or paging controls");
 
   const failedMarkup = renderToStaticMarkup(React.createElement(SummerPicksRails, {
     city: "Test City",

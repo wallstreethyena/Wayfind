@@ -77,7 +77,7 @@ import { saveItem as saveMonetized, fetchSavedItems } from "../lib/savedItems";
 // v7.08 — the one writer that knows a cache from a preference, and the sweep
 // that reclaims the budget the caches had already taken. See lib/localStore.js.
 import { setLocal, sweepLocal } from "../lib/localStore";
-import { horizontalPositions, restoreBrowsePosition } from "../lib/restoreBrowsePosition";
+import { browsePosition, horizontalPositions, restoreBrowsePosition } from "../lib/restoreBrowsePosition";
 import { placeRouteBackPlan } from "../lib/railReaction";
 import { reconcileIds } from "../lib/syncReconcile";
 // v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
@@ -90,7 +90,8 @@ import * as Meals from "../lib/meals";
 import * as Radius from "../lib/radius";
 import { isTrueLodging } from "../lib/lodging";
 import * as Fam from "../lib/family";
-import { supabase } from "../lib/supabase";
+import { getSupabase } from "../lib/lazySupabase";
+let supabase = null;
 import { usePlaceProduct } from "../lib/placeProduct";
 // v8: heroRefFromPlaces went with the date-night and hidden-gem hero photo
 // effects — the rail uses owned artwork and the place cards carry their own
@@ -141,6 +142,7 @@ const loadIntro = () => import("./components/sheets/Intro");
 // below, so the chunk is already warm by the time a tap needs it.
 const loadThingsToDo = () => import("./components/ThingsToDoList");
 const ThingsToDoList = nextDynamic(loadThingsToDo, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
+const TripConnections = nextDynamic(() => import("./components/TripConnections"), { ssr: false });
 const SHEET_LOADERS = [loadHookDetail, loadAccount, loadMenu, loadAuth, loadDetail, loadIntro, loadSocialFind];
 const SCREEN_LOADERS = [loadSurprise, loadCoupons, loadSaved, loadItinerary, loadShared, loadEventsScreen, loadMap, loadExperience, loadThingsToDo, ...SHEET_LOADERS];
 const SurpriseScreen = nextDynamic(loadSurprise, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
@@ -2202,11 +2204,13 @@ function AuthWall({ label, onSignIn }) {
   );
 }
 
-// Branded loading indicator: the Wayfind pin, gently pulsing.
+// Shared loading indicator. Keep it neutral: a loading state is structure, not
+// a second brand impression competing with the header wordmark.
 function Loader({ label, size, pad, sub }) {
+  const blockSize = size || 26;
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: pad || "10px 2px", color: C.muted, fontSize: 13 }}>
-      <div style={{ animation: "wfbob 1.1s ease-in-out infinite", display: "flex" }}><Critter size={size || 26} /></div>
+    <div role="status" aria-busy="true" style={{ display: "flex", alignItems: "center", gap: 10, padding: pad || "10px 2px", color: C.muted, fontSize: 13 }}>
+      <div className="wf-sk" aria-hidden="true" style={{ width: blockSize, height: blockSize, borderRadius: 7, flex: "0 0 auto" }} />
       {(label || sub) && (
         <span>
           {label}
@@ -3793,6 +3797,25 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
 // reveals the live community tally.
 
 function PageInner({ initialEvents = null, localEditGuides = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null }) {
+  const [supabaseReady, setSupabaseReady] = useState(false);
+  // PERF 2026-09-08: Supabase is not part of the homepage eager graph. Load it
+  // after hydration, then rerun only effects whose dependency lists were
+  // mechanically amended below because their callbacks actually read it.
+  useEffect(() => {
+    let active = true;
+    let retryTimer = null;
+    const loadSupabase = () => {
+      getSupabase().then((client) => {
+        if (!active) return;
+        supabase = client;
+        if (client) setSupabaseReady(true);
+      }).catch(() => {
+        if (active) retryTimer = setTimeout(loadSupabase, 1200);
+      });
+    };
+    loadSupabase();
+    return () => { active = false; if (retryTimer) clearTimeout(retryTimer); };
+  }, []);
   const [screen, setScreen] = useState("suggested");
   const [cat, setCat] = useState(MAP_DEFAULT_CATEGORY);
   const [wxOpen, setWxOpen] = useState(false); // header weather forecast wheel
@@ -4490,7 +4513,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       setMenuOrder(orderExploreMenu(new Date(), p ? p.utcOffsetMinutes : null));
     } catch (e) {}
   }, [suggested]);
-  const pickBrowse = (id) => { const nv = browseCat === id ? null : id; setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } };
+  const pickBrowse = (id) => { const nv = browseCat === id ? null : id; if (!nv) { closeBrowse(); return; } captureBrowseReturn(); setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } };
   const openCuisine = (label, fromPlace) => {
     if (!label) return;
     const ctx = condCtxFromNow(nowContext({ weather }));
@@ -4519,7 +4542,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       if (live && Array.isArray(data)) setPlacePosts(data);
     } catch (e) {} })();
     return () => { live = false; };
-  }, [detail && detail.id]);
+  }, [detail && detail.id, supabaseReady]);
   const [hookDetail, setHookDetail] = useState(null);
   const [viaTours, setViaTours] = useState({});
   // Sheet-local filter: the browse-style SortControl inside every themed list.
@@ -4693,6 +4716,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // the reader on a browse block that is not there.
   const openBrowse = (id) => {
     if (!id) return;
+    captureBrowseReturn();
     if (screen !== "suggested") {
       setScreen("suggested");
       try { if (SCREEN_PATH[screen]) window.history.pushState({ wf: "screen" }, "", "/"); } catch (e) {}
@@ -4712,7 +4736,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const onVis = () => { try { if (document.visibilityState === "visible") supabase.auth.getSession(); } catch (e) {} };
     document.addEventListener("visibilitychange", onVis);
     return () => document.removeEventListener("visibilitychange", onVis);
-  }, []);
+  }, [supabaseReady]);
   useEffect(() => {
     try {
       if (!detail || detail._wfPhotosAdded || !detail.name) return;
@@ -4741,7 +4765,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // v6.55: same single-flight scan as loadOffers (fetchOffersOnce already
     // returns normalizeOfferRow-mapped, redeemable rows — the v6.17 shape).
     fetchOffersOnce().then((rows) => setCpnOffers(rows || []), () => {});
-  }, [screen]);
+  }, [screen, supabaseReady]);
   function clipCoupon(c) {
     if (!c || !c.id) return;
     const entry = { c, ts: Date.now() };
@@ -4957,7 +4981,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     })();
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, tasteVer]);
+  }, [user, tasteVer, supabaseReady]);
   function setConsent(v) { setPersonalize(v); try { setLocal("wf_personalize", v); } catch (e) {} if (v === "on") setTasteVer((n) => n + 1); }
   // v6.55: `val` may now be a single raw value OR an array of raw values —
   // the taste panel merges multiple raw Google tags onto one clean chip (see
@@ -5055,7 +5079,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     window.addEventListener("visibilitychange", revalidate);
     window.addEventListener("focus", revalidate);
     return () => { active = false; if (retryTimer) clearTimeout(retryTimer); window.removeEventListener("visibilitychange", revalidate); window.removeEventListener("focus", revalidate); if (sub && sub.subscription) sub.subscription.unsubscribe(); };
-  }, []);
+  }, [supabaseReady]);
 
   // v5.49: the single sign-in gate for every favorite-like persistence action
   // (save, like, dislike, hook-save, share-to-list, coupon-save, custom
@@ -5349,7 +5373,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       } catch {}
     })();
     return () => { cancelled = true; };
-  }, [user]);
+  }, [user, supabaseReady]);
 
   // "Worth the Drive?" feature
   const [detailContext, setDetailContext] = useState(null); // theme that opened the detail ("drive", "gem", etc.)
@@ -5410,7 +5434,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       if (!c || !c.id) return;
       svFolderUpsert("Coupons", { id: "coupon:" + c.id, name: (c.business ? c.business + " — " : "") + c.title, address: c.details || "", types: ["coupon"], rating: null, reviews: 0, lat: null, lng: null, _coupon: c });
     });
-  }, [user, savedCoupons]);
+  }, [user, savedCoupons, supabaseReady]);
   const [communityVotes, setCommunityVotes] = useState({});
   const [searchMode, setSearchMode] = useState(false);
   const [searchLabel, setSearchLabel] = useState("");
@@ -5928,29 +5952,18 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // zero here is the thing that cancelled it — see landingRef above. Stranding
   // is still impossible: a landing always ends (settled, abandoned to the reader,
   // or the 4s ceiling) and every path that does not land still resets.
-  useEffect(() => { try { if (scrollRef.current && !landingRef.current) scrollRef.current.scrollTo({ top: 0 }); } catch (e) {} setMapPreview(null); setEventPreview(null); setMapDrawer(false); }, [cat, sub, vibe, intent, searchRadius, screen, activeBadge]);
+  useEffect(() => { try { if (scrollRef.current && !landingRef.current && !posRestore.current) scrollRef.current.scrollTo({ top: 0 }); } catch (e) {} setMapPreview(null); setEventPreview(null); setMapDrawer(false); }, [cat, sub, vibe, intent, searchRadius, screen, activeBadge]);
   // v6.08 (PR-C): when a place detail closes (back), restore the list scroll
   // position captured on open. The list stays mounted behind the sheet so its
   // items already exist; a double rAF waits for the close re-render. Keyed by
   // the list identity so switching lists never cross-restores.
   useEffect(() => {
     if (detail != null) return;
-    // v8.23.4 — FALL BACK TO THE STORED COPY. v6.08 wrote wf_sc_<key> to
-    // sessionStorage next to this ref and nothing ever read it, so the write was
-    // dead the day it shipped: after any reload the ref is empty and the reader
-    // lost their row. Same key, so it still cannot cross-restore between lists.
     const key = screen + "|" + cat + "|" + sub + "|" + vibe;
-    let s = scrollRestore.current;
-    if ((!s || s.key !== key) && scrollRef.current) {
-      try {
-        const stored = sessionStorage.getItem("wf_sc_" + key);
-        if (stored != null && Number.isFinite(Number(stored))) s = { key, top: Number(stored) };
-      } catch (e) {}
-    }
+    const s = scrollRestore.current;
     if (!s || !scrollRef.current || s.key !== key) return;
-    const top = s.top;
     scrollRestore.current = null;
-    requestAnimationFrame(() => requestAnimationFrame(() => { try { if (scrollRef.current) scrollRef.current.scrollTop = top; } catch (e) {} }));
+    return restoreBrowsePosition(scrollRef.current, s);
   }, [detail]);
   // ══ v8.23.4 — DO NOT LOSE THE READER'S PLACE ═══════════════════════════
   //
@@ -5975,35 +5988,84 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // ago", not a preference. It must not resurrect a three-day-old tab state on
   // a fresh visit, and the 30-minute ceiling below is a second belt on that.
   const posRestore = useRef(null);
+  const cancelPositionRestore = useRef(null);
   const posRead = useRef(false);
+  const browseReturn = useRef(null);
+  const activeEntryKey = useRef(null);
+  const positionWriter = useRef(null);
+  const writingPosition = useRef(false);
+  function captureBrowseReturn() {
+    if (!browseCat && scrollRef.current) browseReturn.current = browsePosition(scrollRef.current);
+  }
+  const [restoreVersion, setRestoreVersion] = useState(0);
+  function positionEntryKey() {
+    const h = window.history;
+    let key = h.state?.__wfPositionKey;
+    if (!key) {
+      key = Date.now().toString(36) + Math.random().toString(36).slice(2);
+      h.replaceState({ ...h.state, __wfPositionKey: key }, "");
+    }
+    activeEntryKey.current = key;
+    return key;
+  }
+  function readPosition() {
+    const key = positionEntryKey();
+    const raw = sessionStorage.getItem("wf_pos_entry_" + key) || (["/", "/v8"].includes(window.location.pathname) && !window.location.search ? sessionStorage.getItem("wf_pos") : null);
+    const p = JSON.parse(raw || "null");
+    if (!p || !p.ts || Date.now() - p.ts > 30 * 60000) {
+      sessionStorage.removeItem("wf_pos");
+      return null;
+    }
+    return p;
+  }
+  function applyPosition(p) {
+    if (!p) return false;
+    // Prepare storage before setters can remount a poster.
+    try {
+      if (p.poster) sessionStorage.setItem("wf_poster_position", JSON.stringify(p.poster));
+      else sessionStorage.removeItem("wf_poster_position");
+    } catch {}
+    posRestore.current = p;
+    browseReturn.current = p.browseReturn || null;
+    if (p.screen) setScreen(p.screen);
+    if (p.cat) setCat(p.cat);
+    if (p.browseCat !== undefined) setBrowseCat(p.browseCat);
+    if (p.sub) setSub(p.sub);
+    if (p.vibe) setVibe(p.vibe);
+    if (p.center && Number.isFinite(p.center.lat) && Number.isFinite(p.center.lng)) {
+      manualRef.current = true;
+      setCenter((prev) => prev?.lat === p.center.lat && prev?.lng === p.center.lng ? prev : p.center);
+      setLocName(p.locName || ""); setLocResolved(true);
+    }
+    if (p.searchMode && Array.isArray(p.searchPlaces)) setPlaces(p.searchPlaces);
+    for (const [key, setter] of Object.entries({ query: setQuery, intent: setIntent, sortBy: setSortBy,
+      searchRadius: setSearchRadius, quickFilter: setQuickFilter, searchMode: setSearchMode,
+      searchLabel: setSearchLabel, visibleCount: setVisibleCount, activeBadge: setActiveBadge,
+      moodPick: setMoodPick, eventCat: setEventCat, eventDate: setEventDate })) {
+      if (p[key] !== undefined) setter(p[key]);
+    }
+    window.dispatchEvent(new CustomEvent("wf:restore-browse", { detail: p }));
+    setRestoreVersion((v) => v + 1);
+    return true;
+  }
   useEffect(() => {
     if (posRead.current || initialPlaceId) return;
     posRead.current = true;
-    try {
-      const raw = sessionStorage.getItem("wf_pos");
-      if (!raw) return;
-      const p = JSON.parse(raw);
-      if (!p || typeof p !== "object" || !p.ts || Date.now() - p.ts > 30 * 60000) {
-        sessionStorage.removeItem("wf_pos");
-        return;
-      }
-      if (p.screen) setScreen(p.screen);
-      if (p.cat) setCat(p.cat);
-      if (p.browseCat !== undefined) setBrowseCat(p.browseCat);
-      if (p.sub) setSub(p.sub);
-      if (p.vibe) setVibe(p.vibe);
-      posRestore.current = { top: Number(p.top) || 0, horizontal: p.horizontal || [], at: Date.now() };
-    } catch (e) {}
+    try { applyPosition(readPosition()); } catch {}
   }, []);
-  // Lazy poster content can arrive long after two animation frames. Keep the
-  // saved position until it has had time to mount, or the reader takes control.
   useEffect(() => {
     const r = posRestore.current;
     if (!r || !scrollRef.current) return undefined;
-    return restoreBrowsePosition(scrollRef.current, r, () => {
+    cancelPositionRestore.current?.();
+    const cancel = restoreBrowsePosition(scrollRef.current, r, () => {
       if (posRestore.current === r) posRestore.current = null;
     });
-  }, [screen, cat, browseCat, sub, vibe]);
+    cancelPositionRestore.current = cancel;
+    return () => {
+      cancel();
+      if (cancelPositionRestore.current === cancel) cancelPositionRestore.current = null;
+    };
+  }, [screen, cat, browseCat, sub, vibe, restoreVersion]);
   // The writer. On every taxonomy change, on a throttled scroll, and — the one
   // that actually saves the Google Maps round trip — on pagehide, which fires
   // when the browser is leaving THIS document, including for an outbound link.
@@ -6016,38 +6078,46 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // fails the build on any new window.scroll* in the shell.
   useEffect(() => {
     if (initialPlaceId) return undefined;
-    const write = () => {
-      if (posRestore.current) return;
+    const write = (entryOverride) => {
+      if (writingPosition.current || posRestore.current || !scrollRef.current) return;
+      writingPosition.current = true;
       try {
-        sessionStorage.setItem("wf_pos", JSON.stringify({
-          screen, cat, browseCat, sub, vibe,
-          top: scrollRef.current ? scrollRef.current.scrollTop : 0,
-          horizontal: scrollRef.current ? horizontalPositions(scrollRef.current) : [],
-          ts: Date.now(),
-        }));
-      } catch (e) {}
+        const p = { screen, cat, browseCat, sub, vibe, ...browsePosition(scrollRef.current),
+          horizontal: horizontalPositions(scrollRef.current), center, locName, query, intent, sortBy,
+          searchRadius, quickFilter, searchMode, searchLabel, visibleCount, activeBadge, moodPick,
+          eventCat, eventDate, searchPlaces: searchMode ? places : undefined, browseReturn: browseReturn.current,
+          poster: JSON.parse(sessionStorage.getItem("wf_poster_position") || "null"), ts: Date.now() };
+        sessionStorage.setItem("wf_pos", JSON.stringify(p));
+        sessionStorage.setItem("wf_pos_entry_" + (typeof entryOverride === "string" ? entryOverride : positionEntryKey()), JSON.stringify(p));
+      } catch {} finally { writingPosition.current = false; }
     };
-    write();
-    let t = null;
-    const onScroll = () => { if (t) return; t = setTimeout(() => { t = null; write(); }, 400); };
-    const el = scrollRef.current;
-    try { if (el) el.addEventListener("scroll", onScroll, { passive: true }); } catch (e) {}
-    try {
-      window.addEventListener("scroll", onScroll, { passive: true });
-      window.addEventListener("pagehide", write);
-    } catch (e) {}
+    positionWriter.current = write;
+    const frame = requestAnimationFrame(() => write());
+    let timer;
+    const onScroll = () => { clearTimeout(timer); timer = setTimeout(write, 150); };
+    const capture = () => {
+      if (!browseCat && scrollRef.current) browseReturn.current = browsePosition(scrollRef.current);
+      write();
+    };
+    document.addEventListener("click", capture, true);
+    document.addEventListener("scroll", onScroll, { capture: true, passive: true });
+    window.addEventListener("pagehide", write);
     return () => {
-      if (t) clearTimeout(t);
-      try { if (el) el.removeEventListener("scroll", onScroll); } catch (e) {}
-      try {
-        window.removeEventListener("scroll", onScroll);
-        window.removeEventListener("pagehide", write);
-      } catch (e) {}
+      cancelAnimationFrame(frame); clearTimeout(timer);
+      document.removeEventListener("click", capture, true);
+      document.removeEventListener("scroll", onScroll, true);
+      window.removeEventListener("pagehide", write);
     };
-  }, [screen, cat, browseCat, sub, vibe]);
+  }, [screen, cat, browseCat, sub, vibe, center, locName, query, intent, sortBy, searchRadius,
+      quickFilter, searchMode, searchLabel, visibleCount, activeBadge, moodPick, eventCat, eventDate, restoreVersion, places]);
+  function closeBrowse() {
+    posRestore.current = browseReturn.current || { top: 0, horizontal: [] };
+    setBrowseCat(null); setMoodPick(null); setSub("all");
+    setRestoreVersion((v) => v + 1);
+  }
 
   // Reset the explore list back to 5 whenever a new result set loads or search mode flips.
-  useEffect(() => { setVisibleCount(5); }, [places, searchMode]);
+  useEffect(() => { if (!posRestore.current) setVisibleCount(5); }, [places, searchMode]);
   function pickSub(id) { setSub(id); setVibe("all"); try { logEvent("filter_changed", null, { cat, sub: id }); } catch (e) {} }
 
   // Signal functions — record engagement, drive personalised ranking, trigger sign-up.
@@ -6416,7 +6486,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }
     try { const _aud = {}; experienceBadges(p, null, 99, _aud); logEvent("detail_open", p, { identity: _aud.identity || null, blocked: (_aud.blocked || []).length, ctx: typeof context === "string" ? context : null }); } catch (e) {}
     // v6.08 (PR-C): remember where we were in the list so back returns here, not to the top.
-    try { if (scrollRef.current) { const _k = screen + "|" + cat + "|" + sub + "|" + vibe; const _t = scrollRef.current.scrollTop; scrollRestore.current = { key: _k, top: _t }; sessionStorage.setItem("wf_sc_" + _k, String(_t)); } } catch (e) {}
+    try { if (scrollRef.current) { const _k = screen + "|" + cat + "|" + sub + "|" + vibe; const _t = scrollRef.current.scrollTop; scrollRestore.current = { key: _k, ...browsePosition(scrollRef.current) };  } } catch (e) {}
     setDetail(p);
     // /p/{id} and any card that skipped withMemberSignal still show the raw
     // score until this overlay lands. Same function as the list path.
@@ -6803,7 +6873,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       })();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [supabaseReady]);
 
   // Part 4 measurement: count one "session" per tab (share_rate denominator) and
   // fire "share_return" if a shared-card visitor is back within 7 days. Both are
@@ -7090,7 +7160,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }, 300);
     return () => { cancelled = true; clearTimeout(_debTimer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cat, sub, vibe, center, searchRadius, searchMode, feedRetry]);
+  }, [cat, sub, vibe, center, searchRadius, searchMode, feedRetry, supabaseReady]);
 
   // Load events when on the Events screen or when the location changes.
   useEffect(() => {
@@ -7222,7 +7292,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // adoption (location refined < 3 km) can revive the very same run.
     return () => { _tok.dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, activeBadge, center]);
+  }, [screen, activeBadge, center, supabaseReady]);
 
   // v4.84 Viator as a real activity source. The freetext endpoint is queried
   // with the resolved METRO name (small towns like Parrish are not Viator
@@ -7494,7 +7564,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // A new screen pushes a history entry; refining the same screen's filter
         // replaces in place (no dead Back step).
         if (window.location.pathname !== SCREEN_PATH[screen]) window.history.pushState({ wf: "screen" }, "", target);
-        else window.history.replaceState({ wf: "screen" }, "", target);
+        else window.history.replaceState({ ...window.history.state, wf: "screen" }, "", target);
       } else if (prev && SCREEN_PATH[prev] && PATH_SCREEN[window.location.pathname]) {
         // Left a standalone screen for the feed/detail -> restore "/".
         window.history.pushState({ wf: "screen" }, "", "/");
@@ -7519,6 +7589,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const onPop = () => {
       try {
         const p = window.location.pathname;
+        if (activeEntryKey.current) positionWriter.current?.(activeEntryKey.current);
+        const key = window.history.state?.__wfPositionKey;
+        activeEntryKey.current = key;
+        if (key) {
+          const saved = JSON.parse(sessionStorage.getItem("wf_pos_entry_" + key) || "null");
+          if (saved && Date.now() - saved.ts <= 30 * 60000 && applyPosition(saved)) return;
+        }
         const scr = PATH_SCREEN[p];
         if (scr === "events") {
           const sp = new URLSearchParams(window.location.search);
@@ -8051,7 +8128,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail]);
+  }, [detail, supabaseReady]);
 
   function onQueryChange(v) {
     setQuery(v);
@@ -8346,7 +8423,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       .then(({ data }) => { if (!dead) setGateStatus(typeof data === "string" ? data : null); }, () => { if (!dead) setGateStatus(null); });
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center, user, gateBump]);
+  }, [screen, center, user, gateBump, supabaseReady]);
 
   // Auto-fill coverage for ANY uncovered location (owner: works for the user's
   // searched OR default location — no tap, signed in or not). When the gate says
@@ -8967,7 +9044,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     })();
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [_beachIds.join(",")]);
+  }, [_beachIds.join(","), supabaseReady]);
 
 
   const exploreList = (
@@ -9153,6 +9230,34 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     setNavShortcuts(false);
     if (id === "home") { openSuggested(); } else { setScreen(id); }
     try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); window.scrollTo(0, 0); } catch (e) {}
+  };
+
+  // The wordmark is a deliberate fresh-home action. Back/Forward restores a
+  // reader's place; tapping the brand returns to the top-level poster shelf.
+  // Keep those contracts separate so position memory never turns the logo into
+  // a no-op at the footer or reopens a poster the reader meant to leave.
+  const returnHomeTop = () => {
+    cancelLanding();
+    cancelPositionRestore.current?.();
+    cancelPositionRestore.current = null;
+    posRestore.current = null;
+    browseReturn.current = null;
+    setActiveList(null); setSysFolder(null); setListMenu(null); setRenamingList(null);
+    setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); setMapListOverride(null);
+    setNavShortcuts(false);
+    try {
+      sessionStorage.removeItem("wf_poster_position");
+      const entryKey = positionEntryKey();
+      const saved = JSON.parse(sessionStorage.getItem("wf_pos_entry_" + entryKey) || sessionStorage.getItem("wf_pos") || "null");
+      if (saved && typeof saved === "object") {
+        const home = { ...saved, screen: "suggested", cat: "food", browseCat: null, browseReturn: null, sub: "all", vibe: "all", top: 0, anchor: null, horizontal: [], poster: null, ts: Date.now() };
+        sessionStorage.setItem("wf_pos", JSON.stringify(home));
+        sessionStorage.setItem("wf_pos_entry_" + entryKey, JSON.stringify(home));
+      }
+    } catch {}
+    try { window.dispatchEvent(new Event("wf:home")); } catch {}
+    openSuggested();
+    try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0, left: 0, behavior: "auto" }); } catch {}
   };
 
   // v8.2 — THE RAIL BAND, as one named expression, because it no longer renders
@@ -9484,10 +9589,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                 server and client agree on the same venue-local (ET) day
                 because both read the same wall-clock instant through
                 Intl/America-New-York, not the runtime's own default zone. */}
-            <div className={`wf-wordmark${activeSeasonalMark() ? " is-seasonal" : ""}`} role="img" aria-label="wayfind" onClick={openSuggested}>
+            <button type="button" className={`wf-wordmark${activeSeasonalMark() ? " is-seasonal" : ""}`} aria-label="Wayfind home" onClick={returnHomeTop} style={{ padding: 0, border: 0, background: "transparent", color: "inherit", font: "inherit" }}>
               <span className="wf-wordmark-text" aria-hidden="true" />
               <span className="wf-wordmark-pin" aria-hidden="true" />
-            </div>
+            </button>
             {/* The location used to sit HERE, and could not fit. Measured on
                 production at 390px: the row is 362px, the wordmark sprite is a
                 fixed 154px, and the weather (71px) and Sign in (86px) are both
@@ -10309,7 +10414,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               {browseCat && (
                 <div ref={browseAnchorRef} style={{ marginBottom: 16, scrollMarginTop: 10 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
-                    <div onClick={() => { setBrowseCat(null); setMoodPick(null); setSub("all"); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
+                    <div onClick={closeBrowse} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
                     {browseCat !== "attractions" && <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : ""} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />}
                   </div>
                   {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <AreaInsight onLog={logEvent} metro={_cm} cat={browseCat} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /> : null; })()}
@@ -10320,6 +10425,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   {browseCat === "family" && center && <UnifiedBrowseCommerceRail cat="family" sub="all" initialExperiences={browseTours} categories={["attractions"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {browseCat === "attractions" && center && <UnifiedBrowseCommerceRail cat="attractions" sub={sub} includeExperiences={!!(sub && sub !== "all")} categories={["attractions", "more"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {browseCat === "hotels" && center && view.length > 0 && <UnifiedBrowseCommerceRail cat="hotels" sub="all" categories={["stays"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
+                  {browseCat === "hotels" && center && view.length > 0 && <TripConnections center={center} mode="attractions" onOpenPlace={openDetail} />}
                   {/* 2026-08-04 (owner: "I want every single Viator deeplink option showing up
                       on my sheets... if it's for food give me food tours... I want this done
                       everywhere") wired Food to the derived `food` concept in
@@ -11137,7 +11243,7 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
       {busy && !st.items.length ? (
         <div aria-busy="true" style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain" }}>
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="wf-skeleton" style={{ flex: "0 0 200px", height: 150, borderRadius: 12 }} aria-hidden="true" />
+            <div key={i} className="wf-sk" style={{ flex: "0 0 200px", height: 150, borderRadius: 12 }} aria-hidden="true" />
           ))}
         </div>
       ) : st.items.length === 0 ? (
@@ -11622,7 +11728,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     ? { rank: cardRank, label: "Wayfind curator's pick", curator: true }
     : topPickAward({ category: pcat, rank: cardRank });
   return (
-    <div className={`wf-place-card${fallCardClass(p && p.id, siteTodayStr())}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
+    <div data-wf-position-key={"place-" + p.id} className={`wf-place-card${fallCardClass(p && p.id, siteTodayStr())}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
       <button type="button" className="wf-place-card-open" onClick={onDetail} aria-label={`Open ${p.name}`} style={{ position: "absolute", inset: 0, zIndex: 0, width: "100%", height: "100%", opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
       {/* v8.62 (owner, 2026-08-26, live): "top right hand corner of the card,
           not in front of the image." The score badge is a direct child of the

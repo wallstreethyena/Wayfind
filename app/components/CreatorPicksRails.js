@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
+import RailHeading from "./RailHeading";
 import RailCard, { RailDots, RailNav } from "./RailCard";
 import { directionsUrl } from "./kit";
 import { composeCreatorPicksRails, creatorPageAttemptKey, shouldAutoLoadCreatorPage } from "../../lib/creatorPicksRails.js";
@@ -44,11 +45,9 @@ export default function CreatorPicksRails({
       const platform = PLATFORM[rail.platform] || null;
       const railId = `creator-picks-${rail.id}`;
       return <section key={rail.id} aria-label={`@${rail.handle}'s picks`} style={{ marginTop: 22 }}>
-        <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 800, color: "#F1F5F9" }}>@{rail.handle}&rsquo;s picks</h2>
-        <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>
-          Places @{rail.handle} posted about{city ? ` near ${city}` : ""}.
-        </p>
-        <RailNav railId={railId} count={rail.places.length} unit={rail.places.length === 1 ? "creator pick" : "creator picks"} />
+        <RailHeading title={`@${rail.handle}’s picks`} description={`Places @${rail.handle} posted about${city ? ` near ${city}` : ""}.`}>
+          <RailNav railId={railId} count={rail.places.length} unit={rail.places.length === 1 ? "creator pick" : "creator picks"} />
+        </RailHeading>
         <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={`@${rail.handle}'s picks`}>
           {rail.places.map((place, index) => {
             const rank = index + 1;

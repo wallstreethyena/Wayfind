@@ -12,8 +12,8 @@ const ok = (condition, message) => {
 };
 
 const candidates = tpProvisionCandidates();
-ok(candidates.length === 116, `all 116 eligible registry offers are present (got ${candidates.length})`);
-ok(new Set(candidates.map((row) => row.offer_id)).size === 116, "candidate offer ids are unique");
+ok(candidates.length === 118, `all 118 eligible registry offers are present (got ${candidates.length})`);
+ok(new Set(candidates.map((row) => row.offer_id)).size === 118, "candidate offer ids are unique");
 ok(candidates.every((row) => ["tiqets", "klook", "gocity"].includes(row.provider)), "only approved providers are selected");
 ok(candidates.every((row) => row.marker === "750791" && row.trs === "550160"), "every candidate uses the exact account marker and traffic source");
 
@@ -53,12 +53,13 @@ const fetchImpl = async (url, init = {}) => {
   throw new Error(`unexpected fetch ${url}`);
 };
 
-// This day rotates to the start of the sorted list, where two Klook offers
-// intentionally share one exact Florida Aquarium destination.
-const rotationZero = new Date("2026-07-14T00:00:00Z");
+// This fixture day selects indices 1..10 of the 118-offer registry, including
+// both Aquarium aliases (indices 9 and 10). Keep the actual duplicate in the
+// batch so the provider deduplication assertion below is exercised.
+const rotationZero = new Date("2026-07-17T00:00:00Z");
 const first = await provisionTpLinks({ env, sb, fetchImpl, now: rotationZero });
 ok(first.attempted === 10 && first.succeeded === 10 && first.failed === 0, "one bounded batch provisions ten offers");
-ok(first.remaining === 106, "remaining count reflects successful rows");
+ok(first.remaining === 108, "remaining count reflects successful rows");
 const api = calls.find((call) => call.url.includes("api.travelpayouts.com"));
 const apiBody = JSON.parse(api.init.body);
 ok(api.init.headers["X-Access-Token"] === "test-token", "provider token uses the required private header");

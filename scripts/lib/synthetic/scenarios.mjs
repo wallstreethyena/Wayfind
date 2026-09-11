@@ -36,6 +36,8 @@ import {
   composedRows,
   reconcileRenderedCards,
   exactRenderedIdSet,
+  sameRailRequestScope,
+  railRequestTargetsLocation,
 } from "./menuPosterIntegrity.mjs";
 import { splitBreakfastRails } from "../../../lib/breakfastRails.js";
 import { composeWorthEatingRails } from "../../../lib/worthEatingRails.js";
@@ -130,7 +132,7 @@ async function toggledAfterClick(locator) {
 // visible rails.  This observer keeps the browser response as the source of
 // truth — it makes no second data request and therefore cannot compare a card
 // to a different cache generation.
-async function verifyComposedPoster({ ctx, page, payload, posterId, dataRailId, railPrefix, compose, componentSelectors }) {
+async function verifyComposedPoster({ ctx, page, payload, sourceRequestUrl, posterId, dataRailId, railPrefix, compose, componentSelectors }) {
   const initialWindow = railWindowFromCapturedPayload(payload, dataRailId);
   ctx.ok(`${posterId}: paging metadata is present on the captured /api/rails response`, initialWindow.metadataPresent, "total + hasMore", {
     total: initialWindow.expectedCount, hasMore: initialWindow.hasMore,
@@ -177,7 +179,8 @@ async function verifyComposedPoster({ ctx, page, payload, posterId, dataRailId, 
         return url.pathname === "/api/rails"
           && url.searchParams.get("v") === "2"
           && url.searchParams.get("rail") === dataRailId
-          && Number(url.searchParams.get("offset")) === expectedOffset;
+          && Number(url.searchParams.get("offset")) === expectedOffset
+          && sameRailRequestScope(response.url(), sourceRequestUrl);
       } catch { return false; }
     }, { timeout: 18000 }).catch(() => null);
     // Arm this BEFORE the click. A normal button immediately after
@@ -435,8 +438,8 @@ export const SCENARIOS = [
   {
     id: "menu-poster-integrity",
     flow: "menu-poster-integrity",
-    name: "All 18 homepage posters and their meal-card answers are intact",
-    description: "The live menu exposes exactly its 18 approved poster ids, and Breakfast plus Actually Worth Eating render the exact cards from the same captured /api/rails response with truthful paging metadata.",
+    name: "All 15 homepage posters and their meal-card answers are intact",
+    description: "The live menu exposes exactly its 15 approved poster ids, and Breakfast plus Actually Worth Eating render the exact cards from the same captured /api/rails response with truthful paging metadata.",
     async run(ctx) {
       const page = await ctx.openPage({ viewport: { width: 1280, height: 900 } });
       // Register before navigation: a production cache hit can answer before
@@ -445,7 +448,8 @@ export const SCENARIOS = [
       const railsResponse = page.waitForResponse((response) => {
         try {
           const url = new URL(response.url());
-          return url.pathname === "/api/rails" && url.searchParams.get("v") === "2";
+          return !url.searchParams.has("rail")
+            && railRequestTargetsLocation(response.url(), SARASOTA, "sarasota");
         } catch { return false; }
       }, { timeout: 20000 }).catch(() => null);
 
@@ -461,7 +465,7 @@ export const SCENARIOS = [
         })
         .map((tile) => tile.getAttribute("data-id")));
       const posters = posterMenuDiff(visibleIds);
-      ctx.ok("the homepage renders exactly the 18 approved visible poster ids", posters.missingIds.length === 0 && posters.extraIds.length === 0 && posters.duplicateIds.length === 0 && posters.returned.length === EXPECTED_VISIBLE_POSTER_IDS.length, EXPECTED_VISIBLE_POSTER_IDS, {
+      ctx.ok("the homepage renders exactly the 15 approved visible poster ids", posters.missingIds.length === 0 && posters.extraIds.length === 0 && posters.duplicateIds.length === 0 && posters.returned.length === EXPECTED_VISIBLE_POSTER_IDS.length, EXPECTED_VISIBLE_POSTER_IDS, {
         returned: posters.returned,
         missingIds: posters.missingIds,
         extraIds: posters.extraIds,
@@ -472,7 +476,7 @@ export const SCENARIOS = [
         links: tile.querySelectorAll(".wf8-tlink").length,
         images: tile.querySelectorAll("img.wf8-tim").length,
       })));
-      ctx.ok("every visible poster is an interactive tile with its own poster image", tileShapes.length === EXPECTED_VISIBLE_POSTER_IDS.length && tileShapes.every((tile) => tile.links === 1 && tile.images === 1), "18 interactive tiles each with one image", tileShapes);
+      ctx.ok("every visible poster is an interactive tile with its own poster image", tileShapes.length === EXPECTED_VISIBLE_POSTER_IDS.length && tileShapes.every((tile) => tile.links === 1 && tile.images === 1), "15 interactive tiles each with one image", tileShapes);
       ctx.note(`menu-poster-integrity menu: expected=${EXPECTED_VISIBLE_POSTER_IDS.length}; returned=${posters.returned.length}; rendered=${visibleIds.length}; missingIds=${JSON.stringify(posters.missingIds)}; extraIds=${JSON.stringify(posters.extraIds)}`);
 
       const response = await railsResponse;
@@ -485,13 +489,13 @@ export const SCENARIOS = [
       if (!payload || response.status() !== 200 || payload.covered !== true || !payload.data || payload.failed === true) return;
 
       await verifyComposedPoster({
-        ctx, page, payload,
+        ctx, page, payload, sourceRequestUrl: response.url(),
         posterId: "breakfast", dataRailId: "breakfast", railPrefix: "breakfast-",
         compose: splitBreakfastRails,
         componentSelectors: ['section[aria-label="Best Breakfast"]', 'section[aria-label="Best Cafés"]'],
       });
       await verifyComposedPoster({
-        ctx, page, payload,
+        ctx, page, payload, sourceRequestUrl: response.url(),
         posterId: "eat", dataRailId: "eat", railPrefix: "worth-eating-",
         compose: composeWorthEatingRails,
         componentSelectors: ['section[aria-label="American & Contemporary"]', 'section[aria-label="Mexican & Latin American"]', 'section[aria-label="Italian & Pizza"]'],

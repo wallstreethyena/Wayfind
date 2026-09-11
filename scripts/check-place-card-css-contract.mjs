@@ -58,6 +58,9 @@ const injects = (src) => {
 // injection they mount under. Extending this map is a conscious act: do it
 // only when the component genuinely cannot render outside the named shell.
 const SHELL_MAP = {
+  "app/components/EventNearbyCards.js": "app/components/EventWhere.js",
+  // Stays menu and its detail sheet both mount inside the home CSS shell.
+  "app/components/TripConnections.js": "app/home.js",
   "app/components/EventStayCards.js": "app/components/EventStays.js",
   "app/components/GuidePlaceCard.js": "app/guides/[slug]/page.js",
   "app/components/IntentPageClient.js": "app/components/RankedExperiencePage.js",

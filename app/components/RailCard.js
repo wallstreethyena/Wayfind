@@ -125,7 +125,7 @@ const initialsOf = (name) => String(name || "WF").split(/\s+/).filter(Boolean).s
 // (app/home.js's rail lives in an IIFE inside the render tree). The query is
 // scoped to a data attribute this component owns, so it cannot collide with
 // anything else on the page.
-export function RailNav({ railId, count, unit, total }) {
+export function RailNav({ railId, count, unit, total, loaded }) {
   // v8.39 — `total` is how many CARDS the rail holds; `count` is the number the
   // hint is allowed to claim, which is not always the same thing (the trending
   // rails now carry categorical venues behind their proven ones and say so in
@@ -144,7 +144,9 @@ export function RailNav({ railId, count, unit, total }) {
   };
   return (
     <div className="wf-rail-nav">
-      <span className="wf-rail-nav-hint"><b>{count}</b> {unit} · swipe or tap ›</span>
+      <span className="wf-rail-nav-hint">{Number.isFinite(loaded) && loaded <= cards
+        ? <><b>{loaded}</b> of <b>{cards}</b></>
+        : <><b>{count}</b> {unit}</>}</span>
       <span className="wf-rail-nav-btns">
         <button type="button" className="wf-rail-nav-btn" aria-label={"Previous " + unit} onClick={() => move(-1)}>‹</button>
         <button type="button" className="wf-rail-nav-btn" aria-label={"Next " + unit} onClick={() => move(1)}>›</button>

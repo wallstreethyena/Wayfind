@@ -35,6 +35,53 @@ export const EXPECTED_VISIBLE_POSTER_IDS = Object.freeze([
 const asId = (value) => value == null ? "" : String(value);
 const asName = (value) => String(value == null ? "" : value).trim();
 
+/**
+ * Identify the ranked answer a /api/rails request belongs to. Pagination
+ * fields deliberately do not participate: page zero and its continuations
+ * share one answer only when location, city and daypart all agree.
+ */
+export function railRequestScope(urlLike) {
+  try {
+    const url = new URL(String(urlLike), "https://www.gowayfind.com");
+    if (url.pathname !== "/api/rails" || url.searchParams.get("v") !== "2") return null;
+    const rawLat = url.searchParams.get("lat");
+    const rawLng = url.searchParams.get("lng");
+    const lat = rawLat == null || rawLat === "" ? NaN : Number(rawLat);
+    const lng = rawLng == null || rawLng === "" ? NaN : Number(rawLng);
+    const band = String(url.searchParams.get("band") || "");
+    const city = String(url.searchParams.get("city") || "");
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || !band) return null;
+    return { lat, lng, band, city };
+  } catch {
+    return null;
+  }
+}
+
+/** True when two page requests belong to the same ranked answer. */
+export function sameRailRequestScope(leftUrl, rightUrl) {
+  const left = railRequestScope(leftUrl);
+  const right = railRequestScope(rightUrl);
+  return !!left && !!right
+    && left.lat === right.lat
+    && left.lng === right.lng
+    && left.band === right.band
+    && left.city === right.city;
+}
+
+/**
+ * Match the monitor's permission-granted location after the client's 0.01°
+ * request snap. This excludes the earlier first-paint seed response.
+ */
+export function railRequestTargetsLocation(urlLike, location, city) {
+  const scope = railRequestScope(urlLike);
+  const lat = Number(location?.lat);
+  const lng = Number(location?.lng);
+  if (!scope || !Number.isFinite(lat) || !Number.isFinite(lng)) return false;
+  return scope.lat === Math.round(lat * 100) / 100
+    && scope.lng === Math.round(lng * 100) / 100
+    && scope.city === String(city || "");
+}
+
 /** Compare the visible menu IDs with the one canonical monitored contract. */
 export function posterMenuDiff(visibleIds) {
   const actual = Array.isArray(visibleIds) ? visibleIds.map(asId).filter(Boolean) : [];
