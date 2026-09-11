@@ -292,7 +292,10 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // tree. That is the blank screen the owner photographed. 420 guards were
   // green through it because this repo has no ESLint and nothing read hook
   // order; scripts/check-hook-order.mjs is now that reader.
-  const category = place ? (coarseCat(place) || place.primaryType || place.type || "Local pick") : "";
+  // Guide inventory rows carry the stored Wayfind category as cardCategory.
+  // It is the adjudicated display bucket; unordered Google secondary types
+  // must not relabel an airboat as Shopping or a spring park as Hotels.
+  const category = place ? (place.cardCategory || coarseCat(place) || place.primaryType || place.type || "Local pick") : "";
   // v8.49.1 — house cards do not share a category+city stock scene. A
   // photoless indoor playground and a photoless escape room in the same
   // town used to paint the same beach sunset. Own photo, or the monogram.
