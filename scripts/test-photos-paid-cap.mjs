@@ -124,6 +124,18 @@ try {
   // (geocoding / text_enterprise asks are covered by the parity loop above:
   // their caller-supplied ceilings are identical with the switch on and off.)
 
+  // Owner's 2026-09-11 limit: 5,000 photo requests/month, never dollars.
+  setEnv({ ...base, WAYFIND_PHOTOS_PAID: "1", GOOGLE_PHOTOS_MONTH_CAP: "5000" });
+  eq(photosCeiling(), 5000, "owner cap resolves to 5000 requests");
+  const expanded = await askEverything();
+  eq(expanded.asks[0].cap, 5000, "photo authorizer passes 5000 to atomic ledger");
+  for (let i = 1; i < off.asks.length; i++) {
+    eq(expanded.asks[i].cap, off.asks[i].cap, `5000 photo cap leaves ask #${i} unchanged`);
+  }
+  const deniedAtLimit = ledgerStub(false);
+  eq(await spendAllowPhotos(), false, "ledger refusal at monthly limit is enforced");
+  eq(deniedAtLimit[0].cap, 5000, "denied request retains the finite owner cap");
+
   // "open" respects the same switch; it never means unmetered photos.
   setEnv({ ...base, WAYFIND_GATE: "open" });
   eq(photosCeiling(), FREE_TIER.photos, "open without the switch → free tier");
