@@ -7,6 +7,8 @@
 // lib/railPage.js for the shared contract every poster/rail endpoint speaks.
 import { useEffect, useMemo, useRef, useState } from "react";
 import RailCard, { RailDots, RailNav } from "./RailCard";
+import RailHeading from "./RailHeading";
+import RailLoading from "./RailLoading";
 import { directionsUrl } from "./kit";
 import { toDisplayScore } from "../../lib/score.js";
 import { fallSkinLive } from "../../lib/fallSkin.js";
@@ -71,20 +73,19 @@ function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin,
   const renderState = railRenderState(items, { loading, error });
   if (renderState === RAIL_RENDER_STATE.HIDDEN) return null;
   if (renderState === RAIL_RENDER_STATE.LOADING) return <section aria-label={rail.title} style={{ marginTop: 22 }}>
-    <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 850, color: COLORS.text }}>{rail.title}</h2>
-    <p className="wf-rail-deck" style={{ color: "#C9BFC6" }}>{rail.deck}</p>
-    <div role="status" aria-busy="true" aria-label={`Loading ${rail.title}`} className="wf-sk" style={{ height: 88, borderRadius: 14, background: "#140C12" }} />
+    <RailHeading title={rail.title} description={rail.deck} />
+    <RailLoading label={`Loading ${rail.title}`} />
   </section>;
   if (renderState === RAIL_RENDER_STATE.ERROR) return <section aria-label={rail.title} style={{ marginTop: 22 }}>
-    <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 850, color: COLORS.text }}>{rail.title}</h2>
+    <RailHeading title={rail.title} description={rail.deck} />
     <p style={{ margin: "8px 0", fontSize: 13, color: COLORS.muted }}>We could not reach this rail&apos;s verified inventory.</p>
     <button type="button" disabled={loadingMore} onClick={fetchMore} style={{ border: "1px solid #7C2D12", borderRadius: 999, background: "#1C1014", color: COLORS.text, padding: "7px 12px", fontWeight: 800 }}>{loadingMore ? "Trying again…" : "Try again"}</button>
   </section>;
   return <section aria-label={rail.title} style={{ marginTop: 22 }}>
-    <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 850, color: COLORS.text }}>{rail.title}</h2>
-    <p className="wf-rail-deck" style={{ color: "#C9BFC6" }}>{rail.deck}</p>
+    <RailHeading title={rail.title} description={rail.deck}>
+      <RailNav railId={railId} count={cardCount} total={cardCount} loaded={items.length} unit={cardCount === 1 ? "ranked option" : "ranked options"} />
+    </RailHeading>
     <>
-      <RailNav railId={railId} count={cardCount} total={cardCount} unit={cardCount === 1 ? "ranked option" : "ranked options"} />
       <div className={`wf-rail wf-rail-exploding${fallSkin ? " wf-fall" : ""}`} data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>
         {items.map((card, index) => {
           const rank = index + 1;
@@ -122,7 +123,7 @@ function FallRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, fallSkin,
             onDislike={place && onDislike ? (event) => onDislike(event, place) : undefined}
             onShare={place && onShare ? () => onShare(place, { city }) : undefined} />;
         })}
-        {loadingMore ? <div className="wf-rail-card wf-exploding-primary" aria-busy="true" aria-label={`Loading more ${rail.title}`}
+        {loadingMore ? <div className="wf-rail-card wf-exploding-primary wf-sk" role="status" aria-busy="true" aria-label={`Loading more ${rail.title}`}
           style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 88, color: COLORS.muted, fontSize: 12.5 }}>Loading more…</div> : null}
       </div>
       {items.length > 1 ? <RailDots railId={railId} count={items.length} /> : null}
@@ -171,7 +172,7 @@ export default function FallIntentRails({
 
   if (!active) return null;
   if (!key) return <p style={{ color: COLORS.muted, fontSize: 13 }}>Share your location to rank Florida&apos;s fall options for you.</p>;
-  if (!payload && !failed) return <div role="status" aria-busy="true" aria-label="Ranking Florida fall experiences">{[0, 1, 2].map((index) => <div key={index} className="wf-sk" style={{ height: 88, borderRadius: 14, marginBottom: 12, background: "#140C12" }} />)}</div>;
+  if (!payload && !failed) return <RailLoading label="Ranking Florida fall experiences" />;
   if (failed) return <div><p style={{ color: COLORS.muted, fontSize: 13 }}>We could not reach Wayfind&apos;s verified fall inventory. That is a service miss, not an empty city.</p><button type="button" onClick={() => setRetry((value) => value + 1)} style={{ border: "1px solid #7C2D12", borderRadius: 999, background: "#1C1014", color: COLORS.text, padding: "7px 12px", fontWeight: 800 }}>Try again</button></div>;
 
   return <>{payload.rails.map((rail) => (

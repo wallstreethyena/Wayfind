@@ -2137,11 +2137,13 @@ function AuthWall({ label, onSignIn }) {
   );
 }
 
-// Branded loading indicator: the Wayfind pin, gently pulsing.
+// Shared loading indicator. Keep it neutral: a loading state is structure, not
+// a second brand impression competing with the header wordmark.
 function Loader({ label, size, pad, sub }) {
+  const blockSize = size || 26;
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: pad || "10px 2px", color: C.muted, fontSize: 13 }}>
-      <div style={{ animation: "wfbob 1.1s ease-in-out infinite", display: "flex" }}><Critter size={size || 26} /></div>
+    <div role="status" aria-busy="true" style={{ display: "flex", alignItems: "center", gap: 10, padding: pad || "10px 2px", color: C.muted, fontSize: 13 }}>
+      <div className="wf-sk" aria-hidden="true" style={{ width: blockSize, height: blockSize, borderRadius: 7, flex: "0 0 auto" }} />
       {(label || sub) && (
         <span>
           {label}
@@ -5900,6 +5902,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // ago", not a preference. It must not resurrect a three-day-old tab state on
   // a fresh visit, and the 30-minute ceiling below is a second belt on that.
   const posRestore = useRef(null);
+  const cancelPositionRestore = useRef(null);
   const posRead = useRef(false);
   const browseReturn = useRef(null);
   const activeEntryKey = useRef(null);
@@ -5967,10 +5970,26 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   useEffect(() => {
     const r = posRestore.current;
     if (!r || !scrollRef.current) return undefined;
-    return restoreBrowsePosition(scrollRef.current, r, () => {
+    cancelPositionRestore.current?.();
+    const cancel = restoreBrowsePosition(scrollRef.current, r, () => {
       if (posRestore.current === r) posRestore.current = null;
     });
+    cancelPositionRestore.current = cancel;
+    return () => {
+      cancel();
+      if (cancelPositionRestore.current === cancel) cancelPositionRestore.current = null;
+    };
   }, [screen, cat, browseCat, sub, vibe, restoreVersion]);
+  // The writer. On every taxonomy change, on a throttled scroll, and — the one
+  // that actually saves the Google Maps round trip — on pagehide, which fires
+  // when the browser is leaving THIS document, including for an outbound link.
+  // ONE scroller is recorded, because there is only one. v8.23.4 also stored a
+  // `win: window.scrollY` alongside it "in case the feed moves back to the
+  // window" — but in this shell window.scrollY is permanently 0 (the feed lives
+  // in div.wf-scrollarea, see v8.26), so that field saved 0 forever and its
+  // restore branch never once ran. A fallback that cannot fire is not
+  // resilience, it is a comment that lies. scripts/check-shell-scroll.mjs now
+  // fails the build on any new window.scroll* in the shell.
   useEffect(() => {
     if (initialPlaceId) return undefined;
     const write = (entryOverride) => {
@@ -9127,6 +9146,34 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); window.scrollTo(0, 0); } catch (e) {}
   };
 
+  // The wordmark is a deliberate fresh-home action. Back/Forward restores a
+  // reader's place; tapping the brand returns to the top-level poster shelf.
+  // Keep those contracts separate so position memory never turns the logo into
+  // a no-op at the footer or reopens a poster the reader meant to leave.
+  const returnHomeTop = () => {
+    cancelLanding();
+    cancelPositionRestore.current?.();
+    cancelPositionRestore.current = null;
+    posRestore.current = null;
+    browseReturn.current = null;
+    setActiveList(null); setSysFolder(null); setListMenu(null); setRenamingList(null);
+    setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); setMapListOverride(null);
+    setNavShortcuts(false);
+    try {
+      sessionStorage.removeItem("wf_poster_position");
+      const entryKey = positionEntryKey();
+      const saved = JSON.parse(sessionStorage.getItem("wf_pos_entry_" + entryKey) || sessionStorage.getItem("wf_pos") || "null");
+      if (saved && typeof saved === "object") {
+        const home = { ...saved, screen: "suggested", cat: "food", browseCat: null, browseReturn: null, sub: "all", vibe: "all", top: 0, anchor: null, horizontal: [], poster: null, ts: Date.now() };
+        sessionStorage.setItem("wf_pos", JSON.stringify(home));
+        sessionStorage.setItem("wf_pos_entry_" + entryKey, JSON.stringify(home));
+      }
+    } catch {}
+    try { window.dispatchEvent(new Event("wf:home")); } catch {}
+    openSuggested();
+    try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0, left: 0, behavior: "auto" }); } catch {}
+  };
+
   // v8.2 — THE RAIL BAND, as one named expression, because it no longer renders
   // inside .wf-col-main and a band that spans the page should not be indented
   // three levels into a column it has left. Every prop is unchanged and every
@@ -9456,10 +9503,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                 server and client agree on the same venue-local (ET) day
                 because both read the same wall-clock instant through
                 Intl/America-New-York, not the runtime's own default zone. */}
-            <div className={`wf-wordmark${activeSeasonalMark() ? " is-seasonal" : ""}`} role="img" aria-label="wayfind" onClick={openSuggested}>
+            <button type="button" className={`wf-wordmark${activeSeasonalMark() ? " is-seasonal" : ""}`} aria-label="Wayfind home" onClick={returnHomeTop} style={{ padding: 0, border: 0, background: "transparent", color: "inherit", font: "inherit" }}>
               <span className="wf-wordmark-text" aria-hidden="true" />
               <span className="wf-wordmark-pin" aria-hidden="true" />
-            </div>
+            </button>
             {/* The location used to sit HERE, and could not fit. Measured on
                 production at 390px: the row is 362px, the wordmark sprite is a
                 fixed 154px, and the weather (71px) and Sign in (86px) are both
@@ -11109,7 +11156,7 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
       {busy && !st.items.length ? (
         <div aria-busy="true" style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain" }}>
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="wf-skeleton" style={{ flex: "0 0 200px", height: 150, borderRadius: 12 }} aria-hidden="true" />
+            <div key={i} className="wf-sk" style={{ flex: "0 0 200px", height: 150, borderRadius: 12 }} aria-hidden="true" />
           ))}
         </div>
       ) : st.items.length === 0 ? (

@@ -10,6 +10,10 @@
  */
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { loadComponent } from "./lib/jsxLoad.mjs";
 // The law itself lives in lib/railDeckCopy.js so this guard CALLS shared code
 // rather than re-encoding the rules it is supposed to be checking.
 import { deckProblems, deckWordCount } from "../lib/railDeckCopy.js";
@@ -34,6 +38,7 @@ function sourceFiles(root) {
 const allFiles = [...sourceFiles("app"), ...sourceFiles("lib")];
 const files = allFiles.filter((file) => /\bdeck\s*:/.test(readFileSync(file, "utf8")));
 const wordCount = deckWordCount;
+const ROOT = fileURLToPath(new URL("../", import.meta.url));
 
 // ── CONTROLS: prove the rules discriminate BEFORE trusting them on real files ──
 const GOOD = "Late tables with room to talk.";
@@ -51,6 +56,16 @@ for (const [bad, expect, why] of [
   `NEGATIVE CONTROL: ${why} is caught as ${expect} (got ${JSON.stringify(deckProblems(bad, "Night out"))})`);
 ok(deckProblems("A".repeat(70) + " b c d e.", "x").some((x) => x.startsWith("length-chars")),
   "NEGATIVE CONTROL: an over-58-character deck is caught");
+
+// The shared component owns visible title/deck markup. Execute it so the copy
+// law follows the rendered contract instead of a former direct <p> shape.
+const RailHeading = (await loadComponent(join(ROOT, "app/components/RailHeading.js"), ROOT)).default;
+const renderedDeck = renderToStaticMarkup(createElement(RailHeading, { title: "Night Out", description: GOOD }));
+const renderedNoDeck = renderToStaticMarkup(createElement(RailHeading, { title: "Night Out" }));
+ok(/<header class="wf-rail-heading">[\s\S]*<h2>Night Out<\/h2>[\s\S]*<p class="wf-rail-deck">Late tables with room to talk\.<\/p>[\s\S]*<\/header>/.test(renderedDeck),
+  "the real shared heading renders compliant title and deck copy together");
+ok(!/wf-rail-deck/.test(renderedNoDeck),
+  "the real shared heading omits the deck element when no description exists");
 
 let decks = 0;
 
@@ -74,16 +89,31 @@ for (const file of files) {
 ok(decks >= 70, `only ${decks} literal rail decks found; the governed surface unexpectedly shrank`);
 
 const components = sourceFiles("app").filter((file) => /\{(?:rail\.)?deck\}/.test(readFileSync(file, "utf8")));
+const sharedDeckLine = /<RailHeading\b[^>]*description=\{(?:rail\.)?deck\}/;
+ok(sharedDeckLine.test('<RailHeading title={rail.title} description={rail.deck}>'),
+  "POSITIVE CONTROL: the shared-deck adoption probe recognizes known-good JSX");
 for (const file of components) {
   const source = readFileSync(file, "utf8");
   for (const line of source.split(/\r?\n/).filter((value) => /\{(?:rail\.)?deck\}/.test(value))) {
-    ok(/className="wf-rail-deck"/.test(line), `${file}: visible rail deck is missing the one-line wf-rail-deck contract`);
+    if (/<RailHeading\b/.test(line)) {
+      ok(sharedDeckLine.test(line), `${file}: RailHeading must receive visible deck copy through its description prop`);
+      ok(/import RailHeading from ["']\.\/RailHeading["'];/.test(source), `${file}: shared deck markup must use the real RailHeading import`);
+    } else {
+      ok(/className="wf-rail-deck"/.test(line), `${file}: visible rail deck outside a shared rail heading is missing the wf-rail-deck contract`);
+    }
   }
 }
 
 const css = readFileSync("app/components/css.js", "utf8");
-ok(/\.wf-rail-deck\{[^}]*white-space:nowrap[^}]*overflow:hidden[^}]*text-overflow:ellipsis[^}]*\}/s.test(css),
-  "wf-rail-deck must stay one visual line with a safe narrow-screen fallback");
+const deckCss = css.match(/\.wf-rail-deck\{([^}]*)\}/s)?.[1] || "";
+const headingCss = css.match(/\.wf-rail-heading\{([^}]*)\}/s)?.[1] || "";
+const titleCss = css.match(/\.wf-rail-heading h2\{([^}]*)\}/s)?.[1] || "";
+ok(/overflow-wrap:anywhere/.test(deckCss) && /flex-wrap:wrap/.test(headingCss),
+  "shared rail decks and their title/control row wrap safely on narrow screens");
+ok(!/white-space:nowrap|overflow:hidden|text-overflow:ellipsis/.test(deckCss),
+  "wf-rail-deck stays readable instead of clipping or ellipsizing copy");
+ok(/font-weight:850/.test(titleCss),
+  "the shared rail title keeps the compact bold visual standard");
 
 if (failures.length) {
   console.error(`check-rail-deck-copy: FAIL (${failures.length})`);

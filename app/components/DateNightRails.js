@@ -46,6 +46,8 @@ import { selectPosterEvents } from "../../lib/posterEvents.js";
 // with an onClick that calls preventDefault has always done on this rail.
 import { useEffect, useMemo, useRef, useState } from "react";
 import RailCard, { RailNav, RailDots } from "./RailCard";
+import RailHeading from "./RailHeading";
+import RailLoading from "./RailLoading";
 import { directionsUrl } from "./kit";
 import { toHookLine } from "../../lib/editorialHook";
 import { toDisplayScore } from "../../lib/score.js";
@@ -87,10 +89,9 @@ function DateNightRailSection({ rail, lat, lng, city, hour, eventCards = [], eve
   if (!count && (eventsPending || eventsFailed)) return (
     <section aria-label={rail.title} style={{ marginTop: 22 }}>
       {isFirstNightOut ? <p style={{ margin: "0 0 6px", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: C.muted, textTransform: "uppercase" }}>Night Out</p> : null}
-      <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 800, color: C.text }}>{rail.title}</h2>
-      <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>{rail.deck}</p>
+      <RailHeading title={rail.title} description={rail.deck} />
       {eventsPending
-        ? <div className="wf-sk" role="status" aria-busy="true" aria-label="Finding concerts" style={{ height: 88, borderRadius: 14, background: "#0B0E15" }} />
+        ? <RailLoading label="Finding concerts" />
         : <p style={{ margin: "8px 0 0", fontSize: 13, color: C.muted }}>We could not reach current concert listings. That is a service miss, not an empty calendar.</p>}
     </section>
   );
@@ -99,12 +100,10 @@ function DateNightRailSection({ rail, lat, lng, city, hour, eventCards = [], eve
       {isFirstNightOut ? (
         <p style={{ margin: "0 0 6px", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: C.muted, textTransform: "uppercase" }}>Night Out</p>
       ) : null}
-      <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 800, color: C.text }}>{rail.title}</h2>
-      {rail.deck ? (
-        <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>{rail.deck}</p>
-      ) : null}
-      <RailNav railId={railId} count={count} total={count}
-        unit={count === 1 ? "place for " + rail.title.toLowerCase() : "places for " + rail.title.toLowerCase()} />
+      <RailHeading title={rail.title} description={rail.deck}>
+        <RailNav railId={railId} count={count} total={count} loaded={eventCards.length + items.length}
+          unit={count === 1 ? "place for " + rail.title.toLowerCase() : "places for " + rail.title.toLowerCase()} />
+      </RailHeading>
       <div className="wf-rail wf-rail-exploding" data-rail={railId} tabIndex={0} role="region" aria-label={rail.title}>
         {eventCards.map((card, index) => card?.$$typeof
           ? card
@@ -147,7 +146,7 @@ function DateNightRailSection({ rail, lat, lng, city, hour, eventCards = [], eve
             />
           );
         })}
-        {loadingMore ? <div className="wf-rail-card wf-exploding-primary" aria-busy="true" aria-label={`Loading more ${rail.title}`}
+        {loadingMore ? <div className="wf-rail-card wf-exploding-primary wf-sk" role="status" aria-busy="true" aria-label={`Loading more ${rail.title}`}
           style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 88, color: C.muted, fontSize: 12.5 }}>Loading more…</div> : null}
       </div>
       {eventCards.length + items.length > 1 ? <RailDots railId={railId} count={eventCards.length + items.length} /> : null}
@@ -271,11 +270,7 @@ export default function DateNightRails({
   const hasLiveMusicAnswer = liveMusicEvents.length > 0;
   if (payload == null && !failed && !hasLiveMusicAnswer) {
     return (
-      <div style={{ marginTop: 4 }} role="status" aria-busy="true" aria-label="Building tonight's date">
-        {[0, 1, 2].map((i) => (
-          <div key={i} className="wf-sk" style={{ height: 88, borderRadius: 14, marginBottom: 12, background: "#0B0E15" }} />
-        ))}
-      </div>
+      <div style={{ marginTop: 4 }}><RailLoading label="Building tonight's date" /></div>
     );
   }
   if (failed && !hasLiveMusicAnswer) {

@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import RailCard, { RailDots, RailNav } from "./RailCard";
+import RailHeading from "./RailHeading";
 import { directionsUrl } from "./kit";
 import { composeLunchBreakRails } from "../../lib/lunchBreakRails.js";
 import { toHookLine } from "../../lib/editorialHook";
@@ -18,10 +19,10 @@ export default function LunchBreakRails({ places = [], city = "", onOpenPlace, i
   return <>
     {rails.map((rail) => (
       <section key={rail.id} aria-label={rail.title} style={{ marginTop: 22 }}>
-        <h2 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 800, color: "#F1F5F9" }}>{rail.title}</h2>
-        <p className="wf-rail-deck" style={{ color: "#AEB8C6" }}>{rail.deck}</p>
-        <>
+        <RailHeading title={rail.title} description={rail.deck}>
           <RailNav railId={"lunch-break-" + rail.id} count={rail.places.length} unit={rail.places.length === 1 ? "ranked place" : "ranked places"} />
+        </RailHeading>
+        <>
           <div className="wf-rail wf-rail-exploding" data-rail={"lunch-break-" + rail.id} tabIndex={0} role="region" aria-label={rail.title}>
             {rail.places.map((place, index) => {
               const cardRank = index + 1;

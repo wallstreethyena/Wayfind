@@ -29,6 +29,8 @@
 // the `suggested` prohibition — is untouched, and every assertion about it
 // below is the original.
 import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { loadComponent } from "./lib/jsxLoad.mjs";
 import { shellSrc } from "./lib/shellSrc.mjs";
 import { railArtSize } from "../lib/rails.js";
 
@@ -413,7 +415,9 @@ ok(/Events near you/.test(skel), "the events rail must show its real heading —
 // 6. Motion respects the reduced-motion preference (repo-wide rule).
 // WF_LAYOUT_CSS moved to app/components/css.js (decomposition wave 1) — still
 // the same shell, still the same inline <style> tag, so read the shell.
-const cssM = shellSrc().match(/const WF_LAYOUT_CSS = `([^`]*)`/);
+// Inspect the actual composed stylesheet, including shared skeleton styles.
+const { WF_LAYOUT_CSS } = await loadComponent(fileURLToPath(new URL("../app/components/css.js", import.meta.url)), fileURLToPath(new URL("..", import.meta.url)));
+const cssM = WF_LAYOUT_CSS ? [null, WF_LAYOUT_CSS] : null;
 ok(!!cssM, "WF_LAYOUT_CSS missing");
 ok(/\.wf-sk\{/.test(cssM[1]), "the .wf-sk shimmer style is missing");
 ok(/prefers-reduced-motion:reduce\)\{\.wf-sk\{animation:none\}/.test(cssM[1].replace(/\s/g, "")),
