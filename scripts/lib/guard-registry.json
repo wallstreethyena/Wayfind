@@ -8251,11 +8251,9 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 7,
+      "assertionCount": 8,
       "unprovenAbsenceCount": 0,
-      "honestyViolations": [
-        "has a real import/render/exec capability but zero assertions whose subject is a value RETURNED by code — every check reads source text only"
-      ],
+      "honestyViolations": [],
       "selfDocumentsRedProve": false,
       "wiring": {
         "guardsTxt": true,
