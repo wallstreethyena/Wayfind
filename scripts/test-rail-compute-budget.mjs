@@ -59,7 +59,6 @@ function parseIntent(url) {
   const sp = u.searchParams;
   const select = sp.get("select") || "";
   const limit = Number(sp.get("limit")) || 0;
-  const latGte = Number(sp.get("lat")?.replace(/^gte\./, "")) || null;
   // URLSearchParams.get("lat") only returns the FIRST lat= — this endpoint
   // sends both lat=gte.X and lat=lte.Y, so read the raw query string instead.
   const raw = u.search;
@@ -70,7 +69,7 @@ function parseIntent(url) {
   const maxLng = num(/lng=lte\.(-?[\d.]+)/);
   const catMatch = raw.match(/category(?:\.eq\.|=eq\.)([a-z]+)/) || raw.match(/or=\(category\.eq\.([a-z]+)/);
   const category = catMatch ? catMatch[1] : null;
-  return { select, limit, minLat, maxLat, minLng, maxLng, category };
+  return { select, limit, order: sp.get("order") || "", minLat, maxLat, minLng, maxLng, category };
 }
 
 // WO8b (2026-09-02) — A FIXED, POSITION-ADDRESSABLE WORLD, not a per-call
@@ -143,9 +142,16 @@ function fixturePage(intent, init) {
   const wantsEditorial = /(^|,)editorial(,|$)/.test(intent.select);
   const hasBox = [intent.minLat, intent.maxLat, intent.minLng, intent.maxLng].every((v) => Number.isFinite(v));
   const pts = WORLD[cat] || [];
-  const matches = hasBox
+  let matches = hasBox
     ? pts.filter((p) => p.lat >= intent.minLat && p.lat <= intent.maxLat && p.lng >= intent.minLng && p.lng <= intent.maxLng)
     : pts;
+  if (intent.order === "place_id.asc") {
+    matches = matches.slice().sort((a, b) => {
+      const ai = `fixture_${cat}_${a.idx}`;
+      const bi = `fixture_${cat}_${b.idx}`;
+      return ai < bi ? -1 : ai > bi ? 1 : 0;
+    });
+  }
   const rows = matches.slice(from, from + n).map((p) => {
     const row = {
       place_id: `fixture_${cat}_${p.idx}`,

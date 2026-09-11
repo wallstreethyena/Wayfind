@@ -8,7 +8,7 @@ const allJobs = ["restaurants", "nightlife", "beaches", "things-to-do"]
   .flatMap((catSlug) => jobsFor(catSlug));
 const row = (place_id, category = "food") => ({
   place_id, name: place_id, lat: 27.34, lng: -82.55,
-  rating: 4.8, user_ratings_total: 100, category,
+  signals: { rating: 4.8, reviews: 100 }, category,
 });
 function cacheHarness() {
   const stored = new Map();
@@ -108,9 +108,15 @@ function pagedFixture(source, cap, count = true) {
 // Offsets advance by actual returned length and the first request is large.
 for (const cap of [1000, 137]) {
   const source = Array.from({ length: 1503 }, (_, i) => row(`ChIJ${String(i).padStart(5, "0")}`));
+  source.at(-1).signals = { rating: 5, reviews: 10_000 };
   const fixture = pagedFixture(source, cap);
   const stored = await runDefault(fixture.fetch);
   assert.equal(stored.size, 4, `cap ${cap} primes all four keys`);
+  for (const cached of stored.values()) {
+    assert.equal(cached.length, 80, `cap ${cap} preserves the ranked candidate count`);
+    assert.ok(cached.some((candidate) => candidate.id === source.at(-1).place_id),
+      `cap ${cap} preserves a candidate from the final page`);
+  }
   assert.equal(fixture.calls[0].init.headers.Range, "0-2000");
   assert.equal(fixture.calls[0].init.headers.Prefer, "count=exact");
   assert.equal(fixture.calls[0].init.headers["Range-Unit"], "items");
