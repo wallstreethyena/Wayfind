@@ -22,6 +22,7 @@ import { fileURLToPath } from "node:url";
 import { addressLine, directionsUrl, appleDirectionsUrl, websiteUrl, websiteHost } from "../lib/placeWhere.js";
 import { describeAppleMapsToken, appleMapsTokenHealth, appleMapsTokenUsable, APPLE_MAPS_TOKEN_WARN_DAYS } from "../lib/appleMapsToken.js";
 import { eventWebsiteUrl } from "../lib/curatedEvents.js";
+import { EVENT_MAP_FAMILY } from "../lib/eventMapPlaces.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(path.join(ROOT, p), "utf8");
@@ -150,8 +151,11 @@ ok(/event-route/.test(driving) && /distanceLabel/.test(driving) && /etaLabel/.te
 ok(/starting point is shared with Apple/.test(driving), "route controls disclose sharing the opted-in starting point with Apple");
 ok(/prefers-reduced-motion/.test(read("app/components/EventRouteJump.js")), "in-page route jump respects reduced-motion preference");
 ok(/The map preview is unavailable right now/.test(map) && !/The .*token/i.test(map), "reader-facing map fallback does not expose configuration jargon");
-ok(/aria-label="Map key"/.test(where) && /wfw-key-venue" aria-hidden="true">★<\/b> Event/.test(where) && /wfw-key-nearby" aria-hidden="true">1<\/b> Nearby/.test(where), "compact map key distinguishes the event star from numbered nearby pins");
-ok(/glyphText: "★"/.test(read("lib/appleMapsRuntime.js")) && /glyphText: String\(i \+ 1\)/.test(read("lib/appleMapsRuntime.js")), "venue star and numbered nearby pins remain distinct");
+ok(/aria-label="Map key"/.test(where) && /wfw-key-venue" aria-hidden="true">★<\/b> Event/.test(where) && /wfw-key-nearby" aria-hidden="true">●<\/b> Places/.test(where), "compact map key distinguishes the event star from category place pins");
+ok(/className="wfev-card" role="region" aria-label=\{selected\.name\}/.test(map) && !/className="wfev-card" role="dialog"/.test(map), "a selected map callout is a labelled region, never a modal dialog without dialog focus behavior");
+ok(/glyphText: "★"/.test(appleRuntime) && /glyphText: eventMapGlyph\(p\)/.test(appleRuntime) && /glyphColor: "#FFFFFF"/.test(appleRuntime), "venue star stays distinct from white category pictograms inside native Apple pins");
+ok(EVENT_MAP_FAMILY.food.color === "#F97316" && EVENT_MAP_FAMILY.cafe.color === "#B45309" && EVENT_MAP_FAMILY.stay.color === "#0284C7" && EVENT_MAP_FAMILY.stay.icon.startsWith("🛏"), "event pin families preserve orange food, brown coffee and blue bed-stay reference semantics");
+ok(/aria-label="Map categories"/.test(map) && /<span>All places<\/span><b>\{pins\.length\}<\/b>/.test(map) && /groups\.map/.test(map) && /aria-pressed=\{active === group\.family\}/.test(map), "the event map has one horizontal category strip whose counts and filtered pins come from the same rows");
 ok(/createAppleMapController/.test(map) && /destroy\(\)/.test(read("lib/appleMapsRuntime.js")), "the MapKit session is torn down on unmount");
 ok(/routeSummary/.test(read("lib/appleMapsRuntime.js")) && /polyline/.test(read("lib/appleMapsRuntime.js")), "Apple route responses require real polyline geometry");
 const csp = read("next.config.js");

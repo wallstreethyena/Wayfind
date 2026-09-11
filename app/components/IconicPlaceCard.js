@@ -343,7 +343,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // visible ~6s before React can hear them on a normal phone connection; the
   // inline bridge in app/layout.js catches those taps and this replays them
   // into the same handlers a live tap uses. See lib/cardActions.js.
-  const actionsLive = cardActionsReadOnly ? content.hydrated : (fb.hydrated || !!(onSave && onLike && onDislike));
+  const actionsLive = cardActionsReadOnly ? content.hydrated : (fb.hydrated || !!(onSave && onLike && onDislike && onShare));
   const handlersRef = useRef(null);
   const cardRef = useActionBridge(place && place.id, (action) => {
     const h = handlersRef.current;
@@ -352,6 +352,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
     if (action === "like" && h.like) h.like(ev, h.place);
     else if (action === "dislike" && h.dislike) h.dislike(ev, h.place);
     else if (action === "save" && h.save) h.save(ev, h.place);
+    else if (action === "share" && h.share) h.share(h.place);
   }, actionsLive);
   if (!place) return null;
   const expTags = experienceTags(place, 3);
@@ -440,7 +441,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   const isDislikedNow = onDislike ? !!disliked : cardActionsReadOnly ? content.disliked : fb.hydrated ? !!fb.disliked[place.id] : !!disliked;
   // What the bridge replays into. Assigned during render, read only from the
   // layout effect, so a queued tap always meets the CURRENT handlers.
-  handlersRef.current = { like: doLike, dislike: doDislike, save: doSave, place };
+  handlersRef.current = { like: doLike, dislike: doDislike, save: doSave, share: doShare, place };
   const partner = placePartnerPick(place, pinQ);
   const partnerHref = partner ? commerceHref({
     provider: partner.provider,
@@ -742,7 +743,9 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
               title={isDislikedNow ? "Remove dislike" : "Not for me"}
               onClick={(e) => stayOnRailReaction(e, doDislike, place)}
             ><ThumbIcon down /></button>
-            <button className="wf-place-card-share" type="button" aria-label={"Share " + place.name} onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (doShare) doShare(place); }}>↗ Share</button>
+            <button className="wf-place-card-share" type="button"
+              {...{ [ACTION_ATTR]: "share", [PLACE_ATTR]: place.id }}
+              aria-label={"Share " + place.name} onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (doShare) doShare(place); }}>↗ Share</button>
           </div>
         </div>
       </div>

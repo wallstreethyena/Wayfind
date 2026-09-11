@@ -42,8 +42,20 @@ export function checkSocialAttachments(repo) {
     ids.add(eventId);
     venueContextLinks.set(url, ids);
   }
+  const unresolved = audit.retrievable_unresolved_sources || [];
   ensure(audit.records.length === 45, `expected 45 audited sources, got ${audit.records.length}`);
   ensure(new Set(audit.records.map((row) => row.shortcode)).size === 45, "shortcodes must be unique");
+  ensure(unresolved.length === 4, `expected 4 retrievable unresolved sources, got ${unresolved.length}`);
+  ensure(new Set([...audit.records, ...unresolved].map((row) => row.shortcode)).size === audit.records.length + unresolved.length, "mapped and unresolved shortcodes must be unique");
+  for (const row of unresolved) {
+    ensure(row.status === "unresolved_identity", `${row.shortcode} must explain why it cannot be attached`);
+    ensure(row.native_path_kind === (row.native_url.includes("/p/") ? "p" : "reel"), `${row.shortcode} changed native route kind`);
+    ensure(!placeLinks.has(row.native_url), `${row.shortcode} is marked unresolved but is attached to a place`);
+    ensure(!eventLinks.has(row.native_url), `${row.shortcode} is marked unresolved but is attached to an exact event`);
+    ensure(!roundupLinks.has(row.native_url), `${row.shortcode} is marked unresolved but is attached as a roundup mention`);
+    ensure(!venueContextLinks.has(row.native_url), `${row.shortcode} is marked unresolved but is attached as venue context`);
+    ensure(row.evidence && row.evidence_needed, `${row.shortcode} must record checked evidence and the evidence still needed`);
+  }
   const reviewedRoundups = new Set(audit.roundup_reviews.map((row) => row.shortcode));
   for (const row of audit.records) {
     ensure(row.place_associations.length + row.event_associations.length + (row.roundup_event_mentions || []).length + (row.venue_context_associations || []).length > 0, `${row.shortcode} has no association`);
@@ -84,7 +96,10 @@ export function checkSocialAttachments(repo) {
     const row = audit.records.find((candidate) => candidate.native_url === url);
     ensure(row?.venue_context_associations?.some((event) => event.event_id === eventId && event.association_kind === "venue_context"), `${eventId} venue-context post ${url} has no matching audit record`);
   }
-  ensure(audit.summary.sources_with_any_association === 45 && audit.summary.remaining_unmapped_sources === 0, "summary coverage drifted");
+  ensure(audit.summary.sources_with_any_association === 45, "mapped source coverage drifted");
+  ensure(audit.summary.retrievable_reported_source_total === audit.records.length + unresolved.length, "retrievable intake total drifted");
+  ensure(audit.summary.retrievable_reported_sources_mapped === audit.records.length, "retrievable mapped-source total drifted");
+  ensure(audit.summary.remaining_unmapped_sources === unresolved.length, "retrievable unresolved-source total drifted");
   ensure(audit.summary.place_association_count === audit.records.reduce((count, row) => count + row.place_associations.length, 0), "place-association count drifted");
   ensure(audit.summary.unique_place_association_count === new Set(audit.records.flatMap((row) => row.place_associations.map((place) => place.curated_key))).size, "unique place-association count drifted");
   ensure(audit.summary.sources_with_event_association === audit.records.filter((row) => row.event_associations.length > 0).length, "exact-event source count drifted");
@@ -112,7 +127,7 @@ export function checkSocialAttachments(repo) {
   ensure(/!curatedSpot && \(/.test(social) && /<VideoFacade platform=\{video\.platform\}/.test(social), "registry previews must embed the native post without a full-place CTA");
 
   const eventPage = readFileSync(path.join(repo, "app/florida-events/[slug]/page.js"), "utf8");
-  ensure(/eventSocialPosts\(e\.event_id\)/.test(eventPage) && /<VideoFacade/.test(eventPage), "event pages must render reviewed creator posts through the click-to-load facade");
+  ensure(/eventSocialPosts\(e\.event_id\)/.test(eventPage) && /<CreatorVideoRail/.test(eventPage) && /<VideoFacade/.test(eventPage), "event pages must render reviewed creator posts through the shared premium rail and click-to-load facade");
   ensure(/View @\{post\.creator\}&rsquo;s post on Instagram/.test(eventPage) && /href=\{post\.url\}/.test(eventPage), "event pages must keep visible, attributed native-link fallbacks");
   ensure(eventPage.indexOf('aria-label="Creator posts about this event"') < eventPage.indexOf("\n      <EventWhere\n"), "event creator posts must appear before the map and nearby recommendations");
   ensure(/poster=\{socialPoster\}/.test(eventPage) && /fallbackPoster=\{socialPosterFallback\}/.test(eventPage), "event creator facades must open with the event's available hero cover");
