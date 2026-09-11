@@ -1462,3 +1462,7 @@ node scripts/test-creator-picks-rails.mjs
 
 node scripts/test-event-stays.mjs
 node scripts/test-event-driving-route.mjs
+
+node scripts/test-shared-photo-lifecycle.mjs
+
+node scripts/test-best-photo-selection.mjs

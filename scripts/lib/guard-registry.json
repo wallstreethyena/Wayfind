@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 619,
-    "totalRegistryEntries": 620,
-    "guardsTxtLineCount": 618,
-    "guardsTxtReachedFileCount": 613,
+    "totalOnDiskGuardFiles": 621,
+    "totalRegistryEntries": 622,
+    "guardsTxtLineCount": 620,
+    "guardsTxtReachedFileCount": 615,
     "criticalCount": 74,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 424,
+      "CALL": 426,
       "RENDER": 51,
       "STRUCTURAL": 144,
       "OTHER": 1
@@ -8359,6 +8359,28 @@
       "owner": null
     },
     {
+      "file": "scripts/test-best-photo-selection.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 50,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
       "file": "scripts/test-birthday-intent.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -11165,7 +11187,7 @@
       "npmScript": null,
       "class": "STRUCTURAL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 23,
+      "assertionCount": 24,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
@@ -12611,7 +12633,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 86,
+      "assertionCount": 91,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -13666,6 +13688,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 19,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-shared-photo-lifecycle.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 20,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

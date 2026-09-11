@@ -43,10 +43,13 @@ ok(/misses\.slice\(0, MAX_SCORE_PER_BATCH\)/.test(rt),
    "the cap is APPLIED to the miss list, not merely declared");
 ok(/cgetMany\(/.test(rt),
    "cached verdicts are read in ONE query — 85 single-row reads is the server half of the same bug");
-// An absent score must never be persisted as the neutral default, or a card is
-// pinned forever to a photo nothing ever rated.
-ok(/waiters\[i\]\.forEach\(\(fn\) => fn\(\{ people: false, aesthetic: 0\.5 \}\)\)/.test(bp),
-   "a missing verdict resolves neutral for this render WITHOUT being cached — the ref must stay scoreable later");
+// Missing scores are unknown, never evidence of a clean, attractive photo.
+// Executable selection coverage also proves a worse candidate cannot replace
+// the primary, unknowns remain retryable, and effect replay resumes selection.
+ok(bp.includes("waiters[i].forEach((fn) => fn(null))"),
+   "a missing verdict resolves unknown without being cached");
+ok(bp.includes("pv.people || x.aesthetic > pv.aesthetic"),
+   "a clean primary can only be replaced by a higher-scored clean alternative");
 ok(/mem\.has\(ref\)/.test(bp), "in-session cache so a photo is fetched once per session too");
 
 // ── PlaceCard integration ──
