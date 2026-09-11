@@ -1,5 +1,6 @@
 // Render both real event page functions with deterministic provider fixtures.
-// Leaf integrations are stubbed; this tests layout/data/CTA gating, not payments or map WebGL.
+// The shared shell, story, and action controls are real. Provider, payment,
+// storage, analytics, and map leaves are stubbed so this stays deterministic.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
@@ -10,8 +11,15 @@ import { renderToStaticMarkup } from 'react-dom/server';
 let event, curated, photographs, social = [];
 const reviewDir = process.argv.includes("--write-review") ? "public/design" : null;
 const leaf = () => null;
+const modules = new Map();
+
+const contentActions = {
+ saved: false, liked: false, disliked: false,
+ toggleSave() {}, toggleLike() {}, toggleDislike() {}, share() {},
+};
 
 function page(file) {
+ if(modules.has(file)) return modules.get(file);
  const src=fs.readFileSync(file,'utf8');
  const code=ts.transpileModule(src,{compilerOptions:{jsx:ts.JsxEmit.React,module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
  const exports={};
@@ -29,13 +37,20 @@ function page(file) {
   isEmbeddable:()=>true,
   embedSrc:()=>"https://www.instagram.com/reel/fixture/embed/", PLATFORM:{instagram:{label:"Instagram",color:"#E1306C"}},
   eventTicketCta:()=>curated?.is_free?null:{href:'/api/commerce/go?offer=test',label:'Get tickets ↗'},
-  isTicketmasterFamily:()=>true,eventStoryEvidence:x=>x,eventStoryFallback:()=>({whyGo:'Fixture story'}),
+  isTicketmasterFamily:()=>true,eventStoryEvidence:x=>x,eventStoryFallback:()=>({whyGo:longReason,bestFor:'People making a real plan together',expect:'A busy entrance and a full evening'}),
+  useContentCardActions:()=>contentActions,addPlaceToTrips:(trips)=>trips,
+  shareOut:()=> 'clipboard',track:()=>{},
  };
  const require=(spec)=>{
   if(spec==='react')return React;
   if(spec.includes('CreatorPlaybackDetails'))return {default:p=>React.createElement(React.Fragment,null,p.children,React.createElement('button',null,'Details'),React.createElement('div',null,p.details)),usePlaybackDetails:()=>null};
   if(spec.includes('VideoFacade'))return {default:page('app/components/VideoFacade.js')};
+  if(spec.includes('EventDetailShell'))return {default:page('app/components/EventDetailShell.js')};
   if(spec.includes('EventExperienceStyles'))return {default:page('app/components/EventExperienceStyles.js')};
+  if(spec.includes('/EventStory') || spec.endsWith('./EventStory.js'))return {default:page('app/events/[city]/[slug]/EventStory.js')};
+  if(spec.includes('/EventActions') || spec.endsWith('./EventActions.js'))return {default:page('app/events/[city]/[slug]/EventActions.js')};
+  if(spec.includes('SaveEventButton'))return {default:page('app/florida-events/[slug]/SaveEventButton.js')};
+  if(spec.includes('ShareButton'))return {default:page('app/components/ShareButton.js')};
   if(spec.includes('EventPlacePhoto'))return {default:page('app/components/EventPlacePhoto.js')};
   if(spec.includes('EventVenueMapLoader'))return {default:()=>React.createElement('div',{style:{height:420,display:'grid',placeItems:'center',background:'#17202b'}},'Map area · layout fixture')};
   if(spec.includes('TicketButton'))return {default:p=>React.createElement('a',{'data-ticket':p.provider,href:p.url},p.label)};
@@ -44,32 +59,53 @@ function page(file) {
   return new Proxy({...stubs,default:leaf},{get:(o,k)=>k in o?o[k]:leaf});
  };
  vm.runInNewContext(code,{exports,require,React,console,URL,Date,Number,String,JSON},{filename:file});
+ modules.set(file,exports.default);
  return exports.default;
 }
 const live=page('app/events/[city]/[slug]/page.js');
 const local=page('app/florida-events/[slug]/page.js');
-const fixture={id:'fixture',name:'Real fixture concert',date:'2026-09-18',time:'19:00',venue:'Fixture Hall',city:'Sarasota',lat:27.3,lng:-82.5,image:'/fixture-photo.jpg',url:'https://www.ticketmaster.com/fixture',price:'$45–$70',ticketed:true,source:'Fixture provider'};
+const longReason='A specific reason to go that deliberately wraps across several lines on a narrow phone: arrive early for the opening set, expect a lively crowd, and leave enough time to find the entrance with your group.';
+const longVerdict='Worth traveling for if you like being scared, can handle the crowd, and want a full evening plan whose recommendation wraps without colliding with Save or Share.';
+const fixture={id:'fixture',name:'A deliberately long real fixture concert title for narrow phones',date:'2026-09-18',time:'19:00',venue:'Fixture Hall With A Long Formal Venue Name',city:'Sarasota',lat:27.3,lng:-82.5,image:'/fixture-photo.jpg',url:'https://www.ticketmaster.com/fixture',price:'$45–$70',ticketed:true,source:'Fixture provider'};
+function assertShellOrder(html,label){
+ const facts=html.indexOf('class="wf-event-summary"');
+ const reason=html.indexOf('class="wf-event-reason"');
+ const actions=html.indexOf('class="wf-event-actions"');
+ const media=html.indexOf('class="wf-event-media"');
+ const where=html.indexOf('class="wfw"');
+ assert.ok(facts>=0 && reason>facts && actions>reason && media>actions && where>media,`${label}: facts -> reason -> actions -> media -> EventWhere DOM order`);
+ assert.match(html.slice(facts,reason),/<dt>When<\/dt>/,`${label}: date is present in the facts block before the reason and actions`);
+ assert.doesNotMatch(html,/margin:-\d+px/,`${label}: no negative inline margin can pull actions into the answer`);
+ checks+=3;
+}
+function photoCount(html){return (html.match(/class="wf-event-photo(?: [^"]+)?"/g)||[]).length;}
 let checks=0;
 for(const cancelled of [false,true])for(const hasPhoto of [false,true]){
  event={...fixture,status:cancelled?'cancelled':'scheduled',image:hasPhoto?fixture.image:null};
  const html=renderToStaticMarkup(await live({params:{city:'sarasota',slug:'fixture'}}));
  assert.match(html,/class="wf-event-experience"/);assert.match(html,/class="wf-event-booking"/);
- assert.match(html,/Real fixture concert/);assert.match(html,/\$45/);assert.match(html,/123 Test St/);
+ assert.match(html,/deliberately long real fixture/);assert.match(html,/\$45/);assert.match(html,/123 Test St/);
  assert.equal(html.includes('data-ticket="ticketmaster"'),!cancelled);
  assert.equal(html.includes('src="/fixture-photo.jpg"'),hasPhoto);
+ assert.equal(photoCount(html),1);assert.equal(/class="wf-event-photo wf-event-photo-fallback"/.test(html),!hasPhoto);
+ assert.match(html,/♡ Save event/);assert.match(html,/Share this event/);assert.match(html,/A specific reason to go/);
  assert.ok(!html.includes('$59'));checks+=8;
+ checks+=5;assertShellOrder(html,`live ${cancelled?'cancelled':'scheduled'} ${hasPhoto?'photo':'fallback'}`);
 }
 for(const free of [false,true])for(const hasPhoto of [false,true]){
- curated={event_id:'fixture',event_name:'Fixture local event',year:2026,city:'Sarasota',state:'FL',venue:'Fixture Hall',is_free:free,price_band:'$25',lat:27.3,lng:-82.5,wayfind_verdict:'Worth traveling for if you like being scared and can handle the crowd.'};
- photographs=hasPhoto?{hero:{src:'/owned-photo.jpg',alt:'Owned event photo',w:1200,h:630},photos:[]}:null;
+ curated={event_id:'fixture',event_name:'Fixture local event with a deliberately long title',year:2026,city:'Sarasota',state:'FL',venue:'Fixture Hall',is_free:free,price_band:'$25',lat:27.3,lng:-82.5,card_hook:longReason,why_go:longReason,wayfind_verdict:longVerdict,hero_image:hasPhoto?'/row-photo.jpg':null,image_alt:'Venue exterior'};
+ photographs=hasPhoto?{hero:{src:'/owned-photo.jpg',alt:'Owned event photo',w:1200,h:630},photos:[{src:'/owned-photo.jpg',alt:'Duplicate hero',w:1200,h:630},{src:'/portrait-one.jpg',alt:'Portrait one',w:853,h:1280},{src:'/portrait-two.jpg',alt:'Portrait two',w:853,h:1280}],credit:'Fixture photographer'}:null;
  const html=renderToStaticMarkup(await local({params:{slug:'fixture'}}));
  assert.match(html,/class="wf-event-booking"/);assert.match(html,/Fixture local event/);assert.match(html,/123 Test St/);
  assert.equal(html.includes('/api/commerce/go?offer=test'),!free);
  assert.equal(html.includes('src="/owned-photo.jpg"'),hasPhoto);
+ assert.equal((html.match(/src="\/owned-photo.jpg"/g)||[]).length,hasPhoto?1:0);
+ assert.equal(photoCount(html),hasPhoto?3:1);
+ assert.equal(html.includes('/row-photo.jpg'),false);
  assert.ok(!html.includes('$59'));checks+=6;
- assert.match(html,/Worth traveling for/);
- checks++;
- if(!free) { assert.doesNotMatch(html,/style="margin:-\d+px 0 24px"/);assert.match(html,/style="margin:16px 0 24px"/);checks+=2; }
+ assert.match(html,/Worth traveling for/);assert.match(html,/A specific reason to go/);
+ assert.match(html,/>Save</);assert.match(html,/>Share</);
+ checks+=7;assertShellOrder(html,`curated ${free?'free':'paid'} ${hasPhoto?'owned':'fallback'}`);
  if(reviewDir && !free && hasPhoto){
   fs.mkdirSync(reviewDir,{recursive:true});
   const document='<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Event layout fixture</title></head><body style="margin:0;background:#080b10">'+html.replaceAll('/owned-photo.jpg','/brand/orlando-roller-coaster-portrait.jpg').replaceAll(/src="\/api\/photo[^"]*"/g,'src="/fixture-intentionally-missing.jpg"')+'</body></html>';
@@ -77,7 +113,15 @@ for(const free of [false,true])for(const hasPhoto of [false,true]){
   fs.writeFileSync(path.join(reviewDir,'event-mobile-review.html'),'<!doctype html><html><head><title>Mobile layout review</title></head><body style="margin:0;background:#1b2330;color:white;font-family:Arial"><p>Layout verification fixture. Fictional event; map and booking integrations are stubbed.</p>'+[320,390,430].map(w=>'<iframe title="'+w+'px mobile layout" src="event-fixture.html" style="display:inline-block;vertical-align:top;width:'+w+'px;height:860px;border:1px solid #536070;margin:5px"></iframe>').join('')+'</body></html>');
  }
 }
-console.log(`test-event-experience: OK — ${checks} assertions across 8 real page renders; live/cancelled, paid/free, owned/missing photos. Provider/map internals remain covered separately.`);
+
+// The row-photo rung and the no-photo rung are distinct from the owned-photo cases above.
+curated={...curated,is_free:true,hero_image:'/row-only.jpg',image_alt:'A venue-only row photograph'};photographs=null;
+let html=renderToStaticMarkup(await local({params:{slug:'fixture'}}));
+assert.equal(photoCount(html),1);assert.match(html,/src="\/row-only.jpg"/);assert.doesNotMatch(html,/class="wf-event-photo wf-event-photo-fallback"/);checks+=3;
+curated={...curated,hero_image:null};
+html=renderToStaticMarkup(await local({params:{slug:'fixture'}}));
+assert.equal(photoCount(html),1);assert.match(html,/class="wf-event-photo wf-event-photo-fallback"/);assert.match(html,/role="img"/);checks+=3;
+console.log(`test-event-experience: OK — ${checks} assertions across 10 real page renders; live/cancelled, paid/free, owned/row/missing photos. Provider/map internals remain covered separately.`);
 
 // Render the real event/facade chain: the cover must already be visible before
 // any image load event (including a cached image that precedes hydration).

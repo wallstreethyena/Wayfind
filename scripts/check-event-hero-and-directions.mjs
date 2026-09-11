@@ -167,8 +167,8 @@ ok(!/>\{site\}</.test(pageSrc) && !/\{site\.replace\(/.test(pageSrc),
 
 ok(heroLadderComplete(pageSrc),
   `${PAGE_PATH} hero renders owned photography, then hero_image, then a monogram fallback — never nothing`);
-ok(/heroFallback:\s*\{/.test(pageSrc) && /heroFallbackMark:\s*\{/.test(pageSrc),
-  `${PAGE_PATH} defines the monogram fallback panel style (S.heroFallback / S.heroFallbackMark)`);
+ok(/className="wf-event-photo wf-event-photo-fallback"/.test(pageSrc) && /heroFallbackMark:\s*\{/.test(pageSrc),
+  `${PAGE_PATH} renders the shared portrait fallback panel with the monogram mark`);
 ok(/function heroInitials\(/.test(pageSrc),
   `${PAGE_PATH} derives fallback initials the same way RailCard/IconicPlaceCard do (not a stock image)`);
 
