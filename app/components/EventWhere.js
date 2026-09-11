@@ -22,6 +22,8 @@
 import EventPlacePhoto from "./EventPlacePhoto.js";
 import EventVenueMapLoader from "./EventVenueMapLoader.js";
 import EventRouteJump from "./EventRouteJump.js";
+import { Suspense } from "react";
+import EventStays from "./EventStays.js";
 import { websiteHost } from "../../lib/placeWhere.js";
 
 const ACCENT = "#F97316";
@@ -38,13 +40,14 @@ const CSS = `
 .wfw-addr{margin:6px 0 0;font-size:14.5px;line-height:1.5;color:#CBD5E1}
 .wfw-addr a{color:inherit;text-decoration:none;border-bottom:1px dotted rgba(203,213,225,.45)}
 .wfw-addr a:hover{color:#FDBA74;border-bottom-color:#FDBA74}
-.wfw-acts{min-width:0;max-width:100%;display:flex;flex-wrap:wrap;gap:10px;flex:0 0 auto}
-.wfw-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:13px;font-size:14.5px;font-weight:800;line-height:1;text-decoration:none;max-width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.4;transition:transform .15s ease,box-shadow .15s ease}
+.wfw-acts{min-width:0;max-width:100%;display:flex;flex:1 1 320px;flex-wrap:wrap;justify-content:flex-end;gap:10px}
+.wfw-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:0;padding:12px 18px;border-radius:13px;font-size:14.5px;font-weight:800;text-decoration:none;max-width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.4;transition:transform .15s ease,box-shadow .15s ease}
 .wfw-btn:hover{transform:translateY(-1px)}
 .wfw-dir{background:${ACCENT};border:1px solid ${ACCENT};color:#0D1117;box-shadow:0 10px 26px rgba(249,115,22,.28)}
 .wfw-site{background:rgba(148,163,184,.08);border:1px solid rgba(148,163,184,.3);color:#F1F5F9}
 .wfw-site:hover{border-color:rgba(249,115,22,.6);color:#FDBA74}
-.wfw-site small{font-weight:700;color:#94A3B8;font-size:12px}
+.wfw-official{flex-direction:column;gap:1px}
+.wfw-official small{display:block;max-width:100%;font-weight:700;color:#94A3B8;font-size:12px;line-height:1.35;overflow-wrap:anywhere}
 .wfw-map{padding:0 10px 10px}
 .wfw-nearcard{margin-top:14px;border-radius:22px;border:1px solid rgba(46,201,166,.26);background:linear-gradient(180deg,rgba(46,201,166,.06),rgba(13,19,28,.95));box-shadow:0 18px 44px rgba(0,0,0,.32);overflow:hidden}
 .wfw-near{padding:18px 18px 18px}
@@ -62,7 +65,7 @@ const CSS = `
 .wfw-b small{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:4px;font-size:12.5px;font-weight:700;color:#94A3B8}
 .wfw-b u{text-decoration:none;color:#0D1117;background:${PICK};border-radius:999px;padding:2px 8px;font-size:12px;font-weight:800}
 .wfw-foot{padding:0 18px 16px;font-size:11.5px;color:#64748B}
-@media (max-width:560px){.wfw-head{padding:16px 14px 12px}.wfw-acts{width:100%}.wfw-btn{flex:1}.wfw-map{padding:0 6px 6px}.wfw-near{padding:14px 14px 14px}}
+@media (max-width:560px){.wfw-head{align-items:stretch;padding:16px 14px 12px}.wfw-acts{width:100%;flex:1 1 100%;display:grid;grid-template-columns:minmax(0,1fr)}.wfw-btn{width:100%}.wfw-map{padding:0 6px 6px}.wfw-near{padding:14px 14px 14px}}
 `;
 
 const thumbUrl = (p) => (p.photoRef
@@ -110,8 +113,8 @@ export default function EventWhere({ venue, address, directionsHref, website, la
                 <a className="wfw-btn wfw-site" href={directionsHref} target="_blank" rel="noopener nofollow" aria-label={"Open directions to " + (venue || address) + " in Apple Maps"}>Open in Apple Maps ↗</a>
               ) : null}
               {website ? (
-                <a className="wfw-btn wfw-site" href={website} target="_blank" rel={(sponsoredWebsite ? "sponsored " : "") + "nofollow noopener"} aria-label={"Official site for " + (venue || address)}>
-                  Official site ↗{host ? <small>{host}</small> : null}
+                <a className="wfw-btn wfw-site wfw-official" href={website} target="_blank" rel={(sponsoredWebsite ? "sponsored " : "") + "nofollow noopener"} aria-label={"Official site for " + (venue || address)}>
+                  <span>Official site ↗</span>{host ? <small>{host}</small> : null}
                 </a>
               ) : null}
             </div>
@@ -161,6 +164,7 @@ export default function EventWhere({ venue, address, directionsHref, website, la
           </div>
         </div>
       ) : null}
+      {hasPoint ? <Suspense fallback={null}><EventStays lat={lat} lng={lng} venue={venue} /></Suspense> : null}
     </section>
   );
 }
