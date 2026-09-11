@@ -53,3 +53,11 @@ acceptance must inspect 320, 390, 430, 800, 801 and 1440 pixel viewports, includ
 long verdicts, saved/copied button labels and image failure. Confirm achieved
 viewport widths, action/text separation, horizontal rail scrolling and absence
 of page overflow. Static render assertions alone do not prove these behaviors.
+
+### Homepage rail treatment
+
+Nearby places and nearby stays reuse `EventPlaceRail`, which composes the existing `RailHeading`, `RailNav`, and `RailDots`. Each instance has a unique paging target. Keep one short subtitle and the shared responsive card width; do not restore the nested teal panel or repeat the venue name above the cards. The map key, accessible nearby-region label, and numbered place cards retain venue separation. Hotel booking controls stay attached to their matching card. Empty rails remain hidden.
+
+This local extension integrates PR #1290's existing spacing and map-key changes. It is prepared for that workstream, not a competing implementation PR. Browser rendering remains unverified because the cloud browser refuses the local preview address.
+
+Local validation for the homepage rail extension: all 623 manifest commands completed successfully across two segments, plus the credentialed rerun. The first segment stopped at registry parity; the generated registry was refreshed, then the remaining 64 commands passed. Browser-dependent checks skipped without Chromium. Both attempted production builds exited 0; the final Stays subtitle was also compiled through Next SWC after its copy-only revision. Bundle check passed at 496.6KB gzip against the existing 498KB ceiling, with the existing low-headroom warning. Focused actual-component renders preserve pin order, all shared actions, unique paging targets, venue distinction, empty-state hiding, and stays selection. This is local evidence, not hosted visual verification or a production release.

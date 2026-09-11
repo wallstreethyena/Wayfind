@@ -115,7 +115,22 @@ const noPointHtml = renderToStaticMarkup(createElement(EventWhere, {
 assert.doesNotMatch(noPointHtml, /id="event-nearby"|data-iconic-place-card/, "address-only events do not claim nearby map results");
 assert.match(noPointHtml, /Get directions/, "address-only events retain the Apple Maps fallback");
 
-console.log("test-event-nearby-cards: OK — 28 assertions across the real EventWhere, EventNearbyCards, and IconicPlaceCard render chain; positive rail/actions and negative pin-card admission verified");
+// Shared poster controls must target their own rail when Nearby and Stays coexist.
+const EventPlaceRail = require("../app/components/EventPlaceRail.js").default;
+const pairedRails = renderToStaticMarkup(createElement("div", null,
+  createElement(EventPlaceRail, { title: "Nearby places", description: "Places nearby, numbered on the map.", label: "Nearby", count: 3 }, createElement("li", null, "Nearby fixture")),
+  createElement(EventPlaceRail, { title: "Stay near this event", label: "Stays", count: 2 }, createElement("li", null, "Stay fixture")),
+));
+const railIds = [...pairedRails.matchAll(/data-rail="([^"]+)"/g)].map(m => m[1]);
+assert.equal(railIds.length, 2, "both rails expose control targets");
+assert.equal(new Set(railIds).size, 2, "multiple rails cannot share a paging target");
+assert.equal((pairedRails.match(/class="wf-rail-heading"/g) || []).length, 2, "both use the home poster heading");
+assert.equal((pairedRails.match(/aria-label="Next places"/g) || []).length, 2, "both offer shared forward paging");
+assert.match(railHtml, /Places nearby, numbered on the map/, "compact copy retains the map relationship");
+assert.doesNotMatch(whereHtml, /Worth a stop near|Separate places, not part/, "verbose duplicate heading does not return");
+assert.equal(renderToStaticMarkup(createElement(EventPlaceRail, { title: "Empty", count: 0 })), "", "empty rails are hidden");
+
+console.log("test-event-nearby-cards: OK — 35 assertions across the real EventWhere, EventNearbyCards, and IconicPlaceCard render chain; positive rail/actions and negative pin-card admission verified");
 
 Module._extensions[".js"] = defaultJsLoader;
 Module._load = defaultModuleLoad;

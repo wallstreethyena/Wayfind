@@ -2,16 +2,19 @@
 
 import IconicPlaceCard from "./IconicPlaceCard";
 import BookingCTA from "./BookingCTA";
+import EventPlaceRail from "./EventPlaceRail";
 
 export default function EventStayCards({ places }) {
-  return <div className="wf-event-stays-rail" role="list" aria-label="Hotels near the event" tabIndex={0}>
-    {places.map((place, index) => <div className="wf-event-stay" role="listitem" key={place.id}>
+  return <EventPlaceRail railClassName="wf-event-stays-rail" title="Stay near this event" description="Stay close when the night runs late." label="Hotels near the event" count={places.length}>
+    {places.map((place, index) => <li className="wf-event-stay" key={place.id}>
+      <ul className="wf-event-stay-card">
       <IconicPlaceCard place={place} rank={index + 1} href={place.detailHref}
         editorial={place.blurb || null} editorialTier="known" surface="event_stays"
         rankingNote={`${place.distMi.toFixed(1)} miles from the venue`} />
+      </ul>
       {place.mapsOnly ? <a href={place.detailHref} style={{ display: "inline-block", color: "#aab4c2", marginTop: 10 }}>View in Apple Maps</a> : null}
       <BookingCTA variant="primary" detail={place} kind="hotels" label="Check rates" />
       <BookingCTA variant="disclosure" detail={place} kind="hotels" />
-    </div>)}
-  </div>;
+    </li>)}
+  </EventPlaceRail>;
 }

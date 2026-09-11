@@ -1,6 +1,7 @@
 "use client";
 
 import IconicPlaceCard from "./IconicPlaceCard.js";
+import EventPlaceRail from "./EventPlaceRail.js";
 
 // The map's nearby results use the house place card unchanged. IconicPlaceCard
 // owns the shared Save / Like / Dislike / Share behavior; this wrapper owns
@@ -8,7 +9,7 @@ import IconicPlaceCard from "./IconicPlaceCard.js";
 export default function EventNearbyCards({ places = [] }) {
   if (!places.length) return null;
   return (
-    <ol className="wf-rail wf-event-nearby-rail" aria-label="Nearby places ranked to match the map pins" tabIndex={0}>
+    <EventPlaceRail railClassName="wf-event-nearby-rail" title="Nearby places" description="Places nearby, numbered on the map." label="Nearby places ranked to match the map pins" count={places.length}>
       {places.map((place, index) => (
         <IconicPlaceCard
           key={place.id}
@@ -22,6 +23,6 @@ export default function EventNearbyCards({ places = [] }) {
           rankingNote={`Nearby place — ${Number(place.distMi).toFixed(1)} miles from the event venue`}
         />
       ))}
-    </ol>
+    </EventPlaceRail>
   );
 }
