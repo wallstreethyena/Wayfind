@@ -4,7 +4,7 @@
 // only a local ledger grant.
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { providerMonthlyCap, providerSpendAllow } from "../lib/providerSpend.js";
+import { providerMonthlyCap, providerSpendAllow, providerSpendDecision } from "../lib/providerSpend.js";
 
 const CHILD = "--provider-spend-hermetic";
 if (process.argv[2] !== CHILD) {
@@ -42,12 +42,16 @@ await withEnv({ WAYFIND_GATE: "shut", VIATOR_MONTH_CAP: "12" }, async () => {
   let calls = 0;
   ok(!(await providerSpendAllow("viator", { take: async () => { calls++; return true; } })), "shut gate denies before ledger");
   ok(calls === 0, "shut gate does not attempt a ledger grant");
+  const d = await providerSpendDecision("viator", { take: async () => { calls++; return true; } });
+  ok(d.allow === false && d.reason === "gate_shut", "shut gate names gate_shut without exposing a cap");
 });
 
 await withEnv({ WAYFIND_GATE: "open", VIATOR_MONTH_CAP: undefined }, async () => {
   let calls = 0;
   ok(!(await providerSpendAllow("viator", { take: async () => { calls++; return true; } })), "unset cap denies before ledger");
   ok(calls === 0, "unset cap does not attempt a ledger grant");
+  const d = await providerSpendDecision("viator", { take: async () => { calls++; return true; } });
+  ok(d.allow === false && d.reason === "no_cap", "unset cap names no_cap without a number");
 });
 
 const PROVIDERS = {
@@ -66,6 +70,9 @@ for (const [provider, env] of Object.entries(PROVIDERS)) {
 }
 await withEnv({ WAYFIND_GATE: "open", VIATOR_MONTH_CAP: "37" }, async () => {
   ok(!(await providerSpendAllow("viator", { take: async () => false })), "ledger denial blocks the call");
+  const d = await providerSpendDecision("viator", { take: async () => false });
+  ok(d.allow === false && d.reason === "ledger_denied", "ledger denial names ledger_denied, not a balance");
+  ok(!Object.prototype.hasOwnProperty.call(d, "cap"), "spend decision never echoes the cap number");
 });
 
 console.log(`test-provider-spend-caps: ${checks} checks passed`);

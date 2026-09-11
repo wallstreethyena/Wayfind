@@ -20,13 +20,20 @@ import { getFanoutCount, persistOffer } from "../../../../lib/verifiedOfferStore
 import { offerBelongsToRequestedCity } from "../../../../lib/partnerGeo.js";
 import { isDeniedViatorSku, isViatorSearchOrHomeUrl } from "../../../../lib/viatorIntegrity.js";
 import { credential } from "../../../../lib/envPlaceholder.js";
-import { providerSpendAllow } from "../../../../lib/providerSpend.js";
+import { providerSpendDecision } from "../../../../lib/providerSpend.js";
+import { viatorSearchOutcomeState, viatorProviderLog } from "../../../../lib/viatorProviderState.js";
 
 const getKey = () => credential(process.env["VIATOR_API_KEY"]);
 
-// Warm-instance memory cache: query -> { items, exp }
+// Warm-instance memory cache: query -> { items, provider_state, exp }
 const mem = new Map();
 const TTL = 6 * 3600 * 1000;
+
+function toursJson(items, provider_state, init) {
+  const body = { items: Array.isArray(items) ? items : [], provider_state };
+  try { console.log(JSON.stringify(viatorProviderLog(provider_state, body.items.length))); } catch (e) {}
+  return init ? Response.json(body, init) : Response.json(body);
+}
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
@@ -69,21 +76,22 @@ export async function GET(req) {
     lat: Number.isFinite(destLat) ? destLat : null,
     lng: Number.isFinite(destLng) ? destLng : null,
   };
-  if (!q) return Response.json({ items: [] });
+  if (!q) return toursJson([], "zero_candidates");
 
   const ck = q.toLowerCase() + "|" + name.toLowerCase() + "|" + (kind || "") + "|" + count + "|" + regionTokens.join("+") + "|" + mode + "|" + destId + "|" + (Number.isFinite(destLat) ? destLat : "") + "|" + (Number.isFinite(destLng) ? destLng : "");
   const hit = mem.get(ck);
   if (hit && hit.exp > Date.now()) {
-    return Response.json({ items: hit.items }, { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } });
+    return toursJson(hit.items, hit.provider_state || (hit.items.length ? "success" : "zero_candidates"), { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } });
   }
 
   const KEY = getKey();
-  if (!KEY) return Response.json({ items: [] });
+  if (!KEY) return toursJson([], "no_key");
 
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 5000);
   try {
-    if (!(await providerSpendAllow("viator"))) return Response.json({ items: [] });
+    const spend = await providerSpendDecision("viator");
+    if (!spend.allow) return toursJson([], spend.reason);
     const res = await fetch("https://api.viator.com/partner/search/freetext", {
       method: "POST",
       signal: ctrl.signal,
@@ -105,7 +113,7 @@ export async function GET(req) {
     });
     if (!res.ok) {
       try { console.log(JSON.stringify({ tag: "booking_integrity_diag", q, name, regionTokens, upstreamStatus: res.status, decision: "upstream_error" })); } catch (e) {}
-      return Response.json({ items: [] });
+      return toursJson([], "upstream_error");
     }
     const data = await res.json();
     let results = data && data.products && Array.isArray(data.products.results) ? data.products.results : [];
@@ -116,7 +124,7 @@ export async function GET(req) {
       try {
         // The first page remains a useful result if the second request cannot
         // obtain a new grant; do not discard it just because pagination stops.
-        if (await providerSpendAllow("viator")) {
+        if ((await providerSpendDecision("viator")).allow) {
           const res2 = await fetch("https://api.viator.com/partner/search/freetext", {
             method: "POST",
             signal: ctrl.signal,
@@ -202,11 +210,12 @@ export async function GET(req) {
         decision: items.length > 0 ? "cta_would_render" : "no_cta",
       }));
     } catch (e) {}
-    mem.set(ck, { items, exp: Date.now() + TTL });
-    return Response.json({ items }, { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } });
+    const provider_state = viatorSearchOutcomeState({ candidateCount: candidates.length, verifiedCount: verified.length });
+    mem.set(ck, { items, provider_state, exp: Date.now() + TTL });
+    return toursJson(items, provider_state, { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } });
   } catch (e) {
     try { console.log(JSON.stringify({ tag: "booking_integrity_diag", q, name, regionTokens, decision: "exception", error: String((e && e.message) || e).slice(0, 200) })); } catch (e2) {}
-    return Response.json({ items: [] });
+    return toursJson([], "upstream_error");
   } finally {
     clearTimeout(timer);
   }

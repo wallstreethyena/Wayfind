@@ -32,8 +32,13 @@ ok(/function UnifiedBrowseCommerceRail\(\{ cat: browseCat = "attractions", sub,[
 // that dropped the city from the query entirely, as long as the template
 // survived. So they now assert the three things that actually matter.
 //
-// 1. There IS a live fallback, and it runs only when the local read is empty.
-ok(/if \(!rows\.length\) rows = await liveSearch\(\);/.test(home), "when local inventory is dark, the rail falls back to a LIVE tours search");
+// 1. There IS a live fallback, and it runs only when the local read is empty
+// AND the parent did not already own the live Viator lane. Family passes
+// browseTours=[] when city-mode Viator is empty; that empty array must not
+// skip /api/experiences, and it must not fire a second paid search.
+ok(/if \(!rows\.length && !parentOwnsLive\) rows = await liveSearch\(\);/.test(home), "when local inventory is dark AND this rail owns the live call, it falls back to a LIVE tours search");
+ok(/mergeBrowseExperienceLanes\(liveSeed, cached\)/.test(home), "empty live tours merge with cached /api/experiences instead of replacing them");
+ok(!/if \(Array\.isArray\(initialExperiences\)\) \{ setExperiences\(initialExperiences\); return; \}/.test(home), "an empty browseTours array is no longer treated as finished experience inventory");
 // 2. That fallback is gated on a known city, which is what stops an
 //    out-of-region visitor being served Florida inventory.
 ok(/const liveSearch = async \(\) => \{[\s\S]{0,600}?if \(!city\) return \[\];/.test(home), "the live search refuses to run without a known city — the out-of-region guard");
