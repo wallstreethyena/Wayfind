@@ -133,7 +133,12 @@ async function inventoryPlaceByStem(stem, near, exactNames = null) {
   // without a second round trip. It widens the net by exactly one character;
   // the >=15-review floor and the 80-mile geo gate below are what keep that
   // safe, and both are untouched.
-  const pattern = "%" + String(stem).replace(/['\u2018\u2019\u02BC\u00B4`]/g, "_") + "%";
+  // Explicit editorial aliases are identities, not stems. Query them as whole
+  // names so a five-row substring page cannot be filled by resorts, tours or
+  // similarly named places before the intended venue is considered. The
+  // normalize check below remains the final identity proof.
+  const wildcard = exactNames ? "" : "%";
+  const pattern = wildcard + String(stem).replace(/['\u2018\u2019\u02BC\u00B4`]/g, "_") + wildcard;
   try {
     const r = await guideFetch(
       `${url}/rest/v1/wf_inventory?select=place_id,name,lat,lng,primary_type,google_types,signals,photo_ref,editorial&status=eq.OPERATIONAL&name=ilike.${encodeURIComponent(pattern)}&limit=5`,
@@ -190,13 +195,6 @@ async function inventoryPlaceByStem(stem, near, exactNames = null) {
 // resolving still means no card — never a stock photo under a named place.
 async function inventoryPlace(pick, near) {
   if (!pick || pick.appQuery === null) return null;
-  if (Array.isArray(pick.exactNames) && pick.exactNames.length) {
-    for (const name of pick.exactNames) {
-      const hit = await inventoryPlaceByStem(name, near, pick.exactNames);
-      if (hit) return hit;
-    }
-    return null;
-  }
   // v8.17 — a pick that CARRIES a placeId (the Gulf Coast guides embed real
   // ids) resolves on it directly: exact, no ilike ambiguity, no geo gate
   // needed (the id IS the identity). The name path below stays the fallback
@@ -234,6 +232,16 @@ async function inventoryPlace(pick, near) {
         }
       } catch (e) {}
     }
+  }
+  // A verified place ID is the strongest identity and always runs first.
+  // Whole-name aliases are the safe fallback for older inventory snapshots
+  // where that ID has not landed yet.
+  if (Array.isArray(pick.exactNames) && pick.exactNames.length) {
+    for (const name of pick.exactNames) {
+      const hit = await inventoryPlaceByStem(name, near, pick.exactNames);
+      if (hit) return hit;
+    }
+    return null;
   }
   const seen = new Set();
   const candidates = [];

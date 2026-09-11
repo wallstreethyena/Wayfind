@@ -270,6 +270,7 @@ node scripts/test-eat-ssg-failsoft.mjs
 # real production-build phase with/without credentials, plus a red-prove
 # mutation, so this cannot silently return.
 node scripts/check-guide-ssg-not-phase-gated.mjs
+node scripts/check-guide-place-identities.mjs
 node scripts/test-activation.mjs
 node scripts/test-containment.mjs
 node scripts/test-experiment.mjs
