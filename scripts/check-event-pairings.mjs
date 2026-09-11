@@ -92,7 +92,8 @@ ok(/eventPairings\(/.test(slug) && /pairingHref\(/.test(slug), "the event page f
 // when it has pins.
 ok(/<EventWhere[\s\S]*?picks=\{pairings\}/.test(slug), "the event page hands its pairings to <EventWhere>");
 const whereSrc = readFileSync(path.join(ROOT, "app/components/EventWhere.js"), "utf8");
-ok(/pins\.length\s*>\s*0\s*\?/.test(whereSrc), "EventWhere renders the nearby section only when there are pairings");
+ok(/pins\.length\s*>\s*0\s*\|\|\s*reviewedPosts\.length\s*>\s*0/.test(whereSrc), "EventWhere renders the shared rail for nearby places or reviewed creator posts");
+ok(/pins\.map\(\(p, i\)/.test(whereSrc) && /className="wfw-n"[\s\S]*?\{i \+ 1\}/.test(whereSrc), "only nearby places receive numbers that match map pins");
 
 // ── red-proofs ──────────────────────────────────────────────────────────────
 {
