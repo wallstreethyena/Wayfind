@@ -73,10 +73,11 @@ function assertShellOrder(html,label){
  const actions=html.indexOf('class="wf-event-actions"');
  const media=html.indexOf('class="wf-event-media"');
  const where=html.indexOf('class="wfw"');
- assert.ok(facts>=0 && reason>facts && actions>reason && media>actions && where>media,`${label}: facts -> reason -> actions -> media -> EventWhere DOM order`);
+ assert.ok(facts>=0 && reason>facts && media>=0 && facts>media && actions>reason && where>actions,`${label}: media -> facts -> reason -> actions -> EventWhere DOM order`);
  assert.match(html.slice(facts,reason),/<dt>When<\/dt>/,`${label}: date is present in the facts block before the reason and actions`);
  assert.doesNotMatch(html,/margin:-\d+px/,`${label}: no negative inline margin can pull actions into the answer`);
- checks+=3;
+ assert.doesNotMatch(html,/What it looks like/,`${label}: no duplicate photo heading`);
+ checks+=4;
 }
 function photoCount(html){return (html.match(/class="wf-event-photo(?: [^"]+)?"/g)||[]).length;}
 let checks=0;

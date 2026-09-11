@@ -128,12 +128,14 @@ ok(/shots\.credit/.test(code), `${PAGE} must render the photo credit alongside t
   ok(/display:flex/.test(rail) && /align-items:flex-start/.test(rail) && /overflow-x:auto/.test(rail),
     `${CSS_PATH}: the shared rail must be a horizontal scroller pinned to align-items:flex-start`);
   ok(/flex:0 0 252px/.test(box) && /width:252px/.test(box) && /height:448px/.test(box),
-    `${CSS_PATH}: every desktop photo wrapper has explicit 252x448 portrait geometry`);
+    `${CSS_PATH}: base gallery wrappers have explicit 252x448 portrait geometry`);
+  ok(css.includes(".wf-event-hero .wf-event-photo{height:clamp(240px,42vw,440px)") && css.includes(".wf-event-hero .wf-event-photo:first-child{flex:0 0 100%;width:100%}"),
+    `${CSS_PATH}: the event hero fills its card with bounded height, without changing iconic place-card geometry`);
   ok(/overflow:hidden/.test(box), `${CSS_PATH}: the shared photo wrapper must clip its image`);
   ok(/width:100%/.test(shot) && /height:100%/.test(shot) && /object-fit:cover/.test(shot),
     `${CSS_PATH}: the image fills its wrapper (100%/100% + object-fit:cover)`);
   ok(css.includes(".wf-event-photo{flex-basis:216px;width:216px;height:384px}"),
-    `${CSS_PATH}: mobile photo wrappers have explicit 216x384 portrait geometry`);
+    `${CSS_PATH}: base mobile gallery wrappers have explicit 216x384 portrait geometry`);
   ok(/className="wf-event-photo-rail"/.test(shell) && /\{media\}/.test(shell),
     `${SHELL_PATH}: both event routes place supplied media inside the shared rail`);
   ok(/<img[^>]*width="640"[^>]*height="640"/.test(photo),

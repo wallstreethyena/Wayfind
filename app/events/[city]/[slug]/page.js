@@ -7,6 +7,7 @@
 // the /events/[city]/[event-slug] leg of the audit prompt's URL scheme.
 import EventPlacePhoto from "../../../components/EventPlacePhoto.js";
 import EventDetailShell from "../../../components/EventDetailShell.js";
+import EventSectionNav from "../../../components/EventSectionNav.js";
 import EventExperienceStyles from "../../../components/EventExperienceStyles.js";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
@@ -244,7 +245,8 @@ export default async function EventPage({ params }) {
           <a href="/" aria-label="Wayfind home" style={{ display: "inline-flex", alignItems: "center" }}><img src="/brand/wayfind-official-white.png" alt="Wayfind" width="132" height="38" style={{ width: 132, height: "auto", display: "block" }} /></a>
           <a href="/events" style={{ color: "#FDBA74", fontWeight: 850, textDecoration: "none", fontSize: 13.5 }}>‹ All events</a>
         </nav>
-        <EventDetailShell
+        <EventSectionNav />
+      <EventDetailShell
           title={e.name}
           status={cancelled ? (
           <div style={{ marginTop: 14, background: "rgba(239,68,68,.12)", border: "1px solid rgba(239,68,68,.5)", borderRadius: 12, padding: "11px 14px", color: "#FCA5A5", fontWeight: 800, fontSize: 13.5 }}>
@@ -269,7 +271,7 @@ export default async function EventPage({ params }) {
             <EventActions event={{ ...e, url: `${CANON}/events/${params.city}/${params.slug}` }} />
           </>}
           note={e.ticketed ? "Confirm availability and booking terms with the ticket provider before paying." : "Confirm dates and availability on the official listing."}
-          media={e.image ? <div className="wf-event-photo"><EventPlacePhoto src={e.image} name={e.name} /></div> : <div className="wf-event-photo wf-event-photo-fallback" role="img" aria-label={`${e.name}: no photo available yet`}><span>{String(e.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map(word => word[0]).join("").toUpperCase()}</span><small>Photo unavailable</small></div>}
+          media={e.image ? <div className="wf-event-photo"><EventPlacePhoto priority src={e.image} name={e.name} /></div> : <div className="wf-event-photo wf-event-photo-fallback" role="img" aria-label={`${e.name}: no photo available yet`}><span>{String(e.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map(word => word[0]).join("").toUpperCase()}</span><small>Photo unavailable</small></div>}
         />
         {/* v8.99 — the shared WHERE block (address, official site, map with
             your route, nearby picks). Same component as /florida-events. */}
@@ -285,7 +287,7 @@ export default async function EventPage({ params }) {
           />
         )}
         {e.description && (
-          <details style={{ marginTop: 14, borderTop: "1px solid #263041", paddingTop: 12 }}>
+          <details id="event-notes" data-event-section="Organizer notes" tabIndex={-1} style={{ marginTop: 14, borderTop: "1px solid #263041", paddingTop: 12 }}>
             <summary style={{ color: "#CBD5E1", fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Organizer notes</summary>
             <p style={{ fontSize: 13, lineHeight: 1.6, color: "#94A3B8", margin: "9px 0 0" }}>{String(e.description).slice(0, 600)}</p>
           </details>

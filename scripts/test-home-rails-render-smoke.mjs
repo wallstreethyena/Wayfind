@@ -139,8 +139,8 @@ for (const [label, props] of RAIL_CASES) {
 
 // VideoFacade must start as Wayfind-owned markup only. The official third-party
 // iframe appears after a reader action, which renderToStaticMarkup cannot fire.
-// Instagram /p/ is post-neutral because it may be a still or carousel; a known
-// /reel/ remains explicitly playable.
+// Instagram is post-neutral for both /p/ and /reel/: the official embed can
+// choose to show only a native handoff even when the URL identifies a reel.
 const videoFacadeModule = await load("app/components/VideoFacade.js");
 const VideoFacade = videoFacadeModule.default;
 const playbackDetailsModule = await load("app/components/CreatorPlaybackDetails.js");
@@ -154,11 +154,11 @@ const CreatorPlaybackDetails = playbackDetailsModule.default;
     platform: "instagram", url: "https://www.instagram.com/p/Dc_KiM5xqhv/",
     label: "@flacoffeefestival's post about Florida Coffee Festival",
   }));
-  ok(reel.includes('aria-label="Play @funtampa') && reel.includes("▶"),
-    "an Instagram reel initially renders a truthful Play action");
+  ok(reel.includes('aria-label="View post — @funtampa') && reel.includes("◎") && !reel.includes("▶") && reel.includes("View post"),
+    "an Instagram reel uses post-neutral wording because its official embed may decline inline playback");
   ok(!reel.includes("<iframe") && !reel.includes("instagram.com/reel/Dc2WqU-xuCD/embed"),
     "a reel facade makes no Instagram iframe request before the reader clicks");
-  ok(post.includes('aria-label="View @flacoffeefestival') && post.includes("◎") && !post.includes("▶"),
+  ok(post.includes('aria-label="View post — @flacoffeefestival') && post.includes("◎") && !post.includes("▶"),
     "an Instagram /p/ initially renders View with no video-only play mark");
   ok(!post.includes("<iframe") && !post.includes("instagram.com/p/Dc_KiM5xqhv/embed"),
     "a /p/ facade makes no Instagram iframe request before the reader clicks");

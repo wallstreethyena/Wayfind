@@ -48,6 +48,7 @@ const ORIGIN = { lat: 25.7272, lng: -80.2578, city: "Miami", place_id: "p2" };
   ok(res.length === 4, `five nearby minus the event venue yields four pairings (got ${res.length})`);
   ok(!res.some((p) => p.id === "p2"), "the event's own venue (place_id) is never paired with itself");
   ok(res.every((p) => Number.isFinite(p.wfScore) && p.wfScore > 0), "every pairing carries a real Wayfind Score");
+  ok(res.every((p) => p.wfScore === p.governed_score), "map, detail-link metadata, card badge, and ordering use the same governed score");
   ok(res.every((p) => Number.isFinite(p.distMi)), "every pairing carries a distance");
 }
 
@@ -107,4 +108,4 @@ if (fail.length) {
   console.log(`check-event-pairings: FAIL — ${fail.length} of ${pass + fail.length} assertions`);
   process.exit(1);
 }
-console.log(`check-event-pairings: OK — ${pass} assertions (nearby outing: excludes self, floor holds, genuinely nearby, /p/ links; visual cards stay date-badged and never scored)`);
+console.log(`check-event-pairings: OK — ${pass} assertions (nearby outing: excludes self, floor holds, genuinely nearby, map/card score parity, /p/ links; visual event cards stay date-badged and never scored)`);

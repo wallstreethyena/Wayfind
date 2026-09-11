@@ -1464,3 +1464,8 @@ node scripts/test-rail-visual-standard.mjs
 
 node scripts/test-event-stays.mjs
 node scripts/test-event-driving-route.mjs
+
+# Shared event navigation, map cards, and explicit sharing choices.
+node scripts/test-event-section-nav.mjs
+node scripts/test-event-nearby-cards.mjs
+node scripts/test-share-out-chooser.mjs

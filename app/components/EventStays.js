@@ -15,7 +15,7 @@ export default async function EventStays({ lat, lng, venue }) {
   const { places, unavailable } = await cachedEventStays(lat, lng);
   if (unavailable) return <p style={{ color: "#aab4c2", margin: "28px 0", lineHeight: 1.6 }}>Nearby stays are temporarily unavailable.</p>;
   if (!places.length) return null;
-  return <section className="wf-event-stays" aria-label="Stay near this event">
+  return <section id="event-stays" data-event-section="Nearby stays" tabIndex={-1} className="wf-event-stays" aria-label="Stay near this event">
     <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS + `
       .wf-event-stays{margin:36px 0 12px;min-width:0}
       .wf-event-stays h3{font-size:28px;line-height:1.2;margin:0 0 10px;color:#f5f4ef}
