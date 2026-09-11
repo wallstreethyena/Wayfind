@@ -6,12 +6,14 @@
 // stops being offered within a sweep cycle instead of 302ing users to
 // Viator's "similar experiences" search page (the 2026-08-26 owner report).
 //
-// Fail-CLOSED auth (same contract as cron/experiences). Fail-SOFT everything
-// else: an upstream 429/5xx or a missing key marks nothing dead — see
-// classifyProductProbe. Never throws a 500.
+// Fail-CLOSED auth (same contract as cron/experiences). Provider uncertainty
+// never marks a product dead, but a run that cannot establish any health
+// verdict fails loudly and records a pulse instead of looking successful.
 import { sbEnv } from "../../../../lib/serverCache.js";
 import { classifyProductProbe, nextHealthState } from "../../../../lib/experienceLinkHealth.js";
 import { credential } from "../../../../lib/envPlaceholder.js";
+import { jobCannotRun, jobFailed } from "../../../../lib/jobFail.js";
+import { recordPulse } from "../../../../lib/jobPulse.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,6 +21,7 @@ export const maxDuration = 60;
 
 const KEY = () => credential(process.env["VIATOR_API_KEY"]);
 const VH = () => ({ "exp-api-key": KEY(), "Accept": "application/json;version=2.0", "Accept-Language": "en-US" });
+const JOB = "experiences-link-health";
 
 async function probe(code) {
   const ctrl = new AbortController();
@@ -51,9 +54,9 @@ export async function GET(req) {
   if (!secret || (auth !== "Bearer " + secret && manual !== secret)) {
     return new Response("unauthorized", { status: 401 });
   }
-  if (!KEY()) return Response.json({ ok: false, error: "no VIATOR_API_KEY in runtime" });
+  if (!KEY()) return jobCannotRun(JOB, "VIATOR_API_KEY is missing or unusable");
   const s = sbEnv();
-  if (!s) return Response.json({ ok: false, error: "no supabase service env" });
+  if (!s) return jobCannotRun(JOB, "SUPABASE_SERVICE_ROLE_KEY or SUPABASE_URL is missing");
   const h = { apikey: s.key, Authorization: `Bearer ${s.key}`, "Content-Type": "application/json" };
 
   const limit = Math.min(Math.max(parseInt(sp.get("limit") || "250", 10) || 250, 1), 400);
@@ -64,10 +67,14 @@ export async function GET(req) {
   let rows;
   try {
     const r = await fetch(sel, { headers: h, cache: "no-store" });
-    if (!r.ok) return Response.json({ ok: false, error: `select-${r.status}` });
+    if (!r.ok) return jobFailed(JOB, `unavailable: wf_experiences read failed (HTTP ${r.status})`);
     rows = await r.json();
-  } catch { return Response.json({ ok: false, error: "select-fetch-error" }); }
-  if (!Array.isArray(rows) || !rows.length) return Response.json({ ok: true, checked: 0 });
+  } catch { return jobFailed(JOB, "unavailable: wf_experiences read did not complete"); }
+  if (!Array.isArray(rows)) return jobFailed(JOB, "unavailable: wf_experiences returned a malformed worklist");
+  if (!rows.length) {
+    await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 0, note: "healthy idle: no experiences due for checking" });
+    return Response.json({ ok: true, checked: 0 }, { headers: { "Cache-Control": "no-store" } });
+  }
 
   const verdicts = await pool(rows.map((row) => () => probe(row.product_code)), 8);
 
@@ -77,17 +84,25 @@ export async function GET(req) {
   rows.forEach((row, i) => {
     const next = nextHealthState(row, verdicts[i]);
     if (!next) { buckets.unknown.push(row.product_code); return; }
-    if (next.link_ok === true) buckets.alive.push(row.product_code);
+    // Only an actually-alive verdict belongs in the bulk reset bucket. A
+    // first 404 deliberately keeps link_ok=true but increments fail_count;
+    // bulk-resetting that row to fail_count=0 made the second-strike threshold
+    // unreachable and allowed retired products to serve forever.
+    if (verdicts[i] === "alive") buckets.alive.push(row.product_code);
     else perRow.push({ code: row.product_code, next });
     if (next.link_ok === false) buckets.dead.push(row.product_code);
   });
 
   const inList = (codes) => codes.map((c) => `"${String(c).replace(/["\\]/g, "")}"`).join(",");
   const patch = async (filter, body) => {
-    const r = await fetch(`${s.url}/rest/v1/wf_experiences?${filter}`, {
-      method: "PATCH", headers: { ...h, Prefer: "return=minimal" }, body: JSON.stringify(body), cache: "no-store",
-    });
-    return r.ok ? null : `patch-${r.status}`;
+    try {
+      const r = await fetch(`${s.url}/rest/v1/wf_experiences?${filter}`, {
+        method: "PATCH", headers: { ...h, Prefer: "return=minimal" }, body: JSON.stringify(body), cache: "no-store",
+      });
+      return r.ok ? null : `patch-${r.status}`;
+    } catch {
+      return "patch-fetch-error";
+    }
   };
 
   let err = null;
@@ -97,8 +112,21 @@ export async function GET(req) {
   }
   if (buckets.unknown.length) err = err || await patch(`product_code=in.(${encodeURIComponent(inList(buckets.unknown))})`, { last_checked_at: nowIso });
 
-  return Response.json({
-    ok: !err, error: err, checked: rows.length,
-    alive: buckets.alive.length, newly_or_still_dead: buckets.dead.length, unknown: buckets.unknown.length,
-  }, { headers: { "Cache-Control": "no-store" } });
+  const stats = {
+    checked: rows.length,
+    alive: buckets.alive.length,
+    newly_or_still_dead: buckets.dead.length,
+    unknown: buckets.unknown.length,
+  };
+  const definitive = buckets.alive.length + perRow.length;
+  if (err) return jobFailed(JOB, `health-state persistence failed: ${err}`, { attempted: rows.length, succeeded: 0, ...stats });
+  if (definitive === 0) return jobFailed(JOB, "all provider probes were inconclusive", { attempted: rows.length, succeeded: 0, ...stats });
+
+  await recordPulse(JOB, {
+    attempted: rows.length,
+    succeeded: definitive,
+    failed: buckets.unknown.length,
+    note: buckets.unknown.length ? `${buckets.unknown.length} provider probe(s) inconclusive` : null,
+  });
+  return Response.json({ ok: true, error: null, ...stats }, { headers: { "Cache-Control": "no-store" } });
 }

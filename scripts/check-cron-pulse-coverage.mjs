@@ -238,7 +238,6 @@ function scheduledRouteFiles() {
 const KNOWN_UNPULSED = {
   "app/api/cron/deals-health/route.js": "2026-09-09, verify-offers pulse-visibility fix: same silent-success shape (jobCannotRun/jobFailed cover its error paths, but both success returns — the expiry-only early return and the final link-health return — never call recordPulse). Tracked, not fixed here.",
   "app/api/cron/events-link-health/route.js": "2026-09-09, verify-offers pulse-visibility fix: zero recordPulse/jobFail reference in the whole file — the exact cousin of the pre-fix verify-offers gap (Supabase-backed link-health sweep). Tracked, not fixed here.",
-  "app/api/cron/experiences-link-health/route.js": "2026-09-09, verify-offers pulse-visibility fix: zero recordPulse/jobFail reference in the whole file — same shape as events-link-health. Tracked, not fixed here.",
   "app/api/cron/route.js": "Pre-existing: the daily owner-briefing route never adopted lib/jobPulse.js. Legacy, unrelated to the verify-offers incident.",
   "app/api/cron/atlas-build/route.js": "Pre-existing false positive of THIS scanner, verified by hand: its `pulse(opts)` local helper (route.js:341-344) wraps recordPulse(\"atlas-refresh\"|\"atlas-retry\"|\"atlas-build\", opts) under a name this scanner does not special-case — scripts/test-job-pulse.mjs already locks real pulse coverage for this route by name. A handful of early gate/selector-unreachable returns above that helper are a separate, smaller pre-existing gap.",
   "app/api/cron/audit-feeds/route.js": "Pre-existing: never adopted lib/jobPulse.js. Legacy, unrelated to the verify-offers incident.",
@@ -306,7 +305,7 @@ const KNOWN_UNPULSED = {
 // ── prove the scanner still finds the real, currently-open gaps ───────────
 // (so KNOWN_UNPULSED cannot rot into hiding a checker that stopped working)
 {
-  for (const rel of ["app/api/cron/deals-health/route.js", "app/api/cron/events-link-health/route.js", "app/api/cron/experiences-link-health/route.js"]) {
+  for (const rel of ["app/api/cron/deals-health/route.js", "app/api/cron/events-link-health/route.js"]) {
     const src = readFileSync(path.join(REPO, rel), "utf8");
     const res = analyzeRoute(src);
     ok(!res.error && res.violations.length > 0,
