@@ -508,31 +508,6 @@ export default function DaypartRail({
       }
     } catch { try { sessionStorage.removeItem("wf_poster_position"); } catch {} }
   }, []);
-  useEffect(() => {
-    if (!["/", "/v8"].includes(window.location.pathname)) return undefined;
-    const save = () => {
-      try {
-        if (selected) sessionStorage.setItem("wf_poster_position", JSON.stringify({ id: selected, returnPosition: posterReturn.current, ts: Date.now() }));
-        else sessionStorage.removeItem("wf_poster_position");
-      } catch {}
-    };
-    const restore = (event) => {
-      const saved = event.detail?.poster;
-      resumePoster.current = true;
-      posterReturn.current = saved?.returnPosition || null;
-      setSelected(saved && railById.has(saved.id) ? saved.id : null);
-    };
-    const frame = requestAnimationFrame(save);
-    window.addEventListener("pagehide", save);
-    document.addEventListener("click", save, true);
-    window.addEventListener("wf:restore-browse", restore);
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener("pagehide", save);
-      document.removeEventListener("click", save, true);
-      window.removeEventListener("wf:restore-browse", restore);
-    };
-  }, [selected, railById]);
   useEffect(() => () => cancelPosterRestore.current?.(), []);
   const [railPageState, setRailPageState] = useState({});
   const railPageInFlight = useRef(new Set());
@@ -586,6 +561,31 @@ export default function DaypartRail({
   // one arrives.
   const answered = live != null;
   const railById = useMemo(() => new Map((sponsor ? [sponsor, ...rails] : rails).map((r) => [r.id, r])), [sponsor, rails]);
+  useEffect(() => {
+    if (!["/", "/v8"].includes(window.location.pathname)) return undefined;
+    const save = () => {
+      try {
+        if (selected) sessionStorage.setItem("wf_poster_position", JSON.stringify({ id: selected, returnPosition: posterReturn.current, ts: Date.now() }));
+        else sessionStorage.removeItem("wf_poster_position");
+      } catch {}
+    };
+    const restore = (event) => {
+      const saved = event.detail?.poster;
+      resumePoster.current = true;
+      posterReturn.current = saved?.returnPosition || null;
+      setSelected(saved && railById.has(saved.id) ? saved.id : null);
+    };
+    const frame = requestAnimationFrame(save);
+    window.addEventListener("pagehide", save);
+    document.addEventListener("click", save, true);
+    window.addEventListener("wf:restore-browse", restore);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("pagehide", save);
+      document.removeEventListener("click", save, true);
+      window.removeEventListener("wf:restore-browse", restore);
+    };
+  }, [selected, railById]);
   // NOTE on `artStale`: a rail can be renamed in code while the reader keeps
   // seeing the old claim, because the headline on these tiles is PIXELS.
   // `trending` still reads "EXPLODING TRENDS NEAR YOU" in the artwork, and the

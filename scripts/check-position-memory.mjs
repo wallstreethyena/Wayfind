@@ -156,6 +156,22 @@ ok(/removeEventListener\("pagehide"/.test(code), "the pagehide listener is never
   ok(code.includes('horizontalPositions(scrollRef.current)') && code.includes('restoreBrowsePosition(scrollRef.current, r'), "homepage wires the tested snapshot and restore controller");
 }
 
+// Render the real component: dependency arrays execute during render even
+// though effects themselves do not run on the server. JSX syntax checks cannot
+// catch an effect reading a later const (the railById preview crash).
+{
+  const { createElement } = await import("react");
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const { loadComponent } = await import("./lib/jsxLoad.mjs");
+  try {
+    const { default: DaypartRail } = await loadComponent(path.join(REPO, "app/components/DaypartRail.js"), REPO);
+    const html = renderToStaticMarkup(createElement(DaypartRail, { rails: [], places: {}, thin: [] }));
+    ok(typeof html === "string", "DaypartRail executes its render and hook dependency arrays without a temporal-dead-zone crash");
+  } catch (error) {
+    ok(false, "DaypartRail render failed: " + error.message);
+  }
+}
+
 if (fails.length) {
   console.error(`check-position-memory: FAIL — ${fails.length}/${n}`);
   for (const f of fails) console.error("  · " + f);
