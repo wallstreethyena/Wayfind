@@ -9,6 +9,7 @@
 // The answer box comes FIRST. Nobody wants 500 words before the date.
 import EventPlacePhoto from "../../components/EventPlacePhoto.js";
 import EventDetailShell from "../../components/EventDetailShell.js";
+import EventSectionNav from "../../components/EventSectionNav.js";
 import EventExperienceStyles from "../../components/EventExperienceStyles.js";
 import { notFound } from "next/navigation";
 import { safeUrl } from "../../../lib/links.js";
@@ -245,6 +246,7 @@ export default async function CuratedEventPage({ params }) {
       </div>
 
       </div>
+      <EventSectionNav />
       <EventDetailShell
         title={`${e.event_name} ${e.year}`}
         facts={[
@@ -308,9 +310,9 @@ export default async function CuratedEventPage({ params }) {
         note={e.is_free ? "Confirm dates and availability on the official listing." : "Confirm availability and booking terms with the ticket provider before paying."}
         media={<>
       {shots && shots.hero ? (
-        <div className="wf-event-photo"><EventPlacePhoto src={shots.hero.src} name={shots.hero.alt || e.event_name} /></div>
+        <div className="wf-event-photo"><EventPlacePhoto priority src={shots.hero.src} name={shots.hero.alt || e.event_name} /></div>
       ) : e.hero_image ? (
-        <div className="wf-event-photo"><EventPlacePhoto src={e.hero_image} name={e.image_alt || `${e.event_name} at ${e.venue || e.city}`} /></div>
+        <div className="wf-event-photo"><EventPlacePhoto priority src={e.hero_image} name={e.image_alt || `${e.event_name} at ${e.venue || e.city}`} /></div>
       ) : (
         <div className="wf-event-photo wf-event-photo-fallback" role="img" aria-label={`${e.event_name} — no photo available yet`}>
           <div style={S.heroFallbackRing}><span style={S.heroFallbackMark}>{heroInitials(e.short_title || e.event_name)}</span></div>
@@ -333,7 +335,7 @@ export default async function CuratedEventPage({ params }) {
           tall on mobile; placing the post after it made the card marker look
           unrelated to the detail page. */}
       {socialPosts.length ? (
-        <section style={{ ...S.social, maxWidth: 820, margin: "0 auto 40px" }} aria-label="Creator posts about this event">
+        <section id="event-creators" data-event-section="Creator posts" tabIndex={-1} style={{ ...S.social, maxWidth: 820, margin: "0 auto 40px" }} aria-label="Creator posts about this event">
           <h2 style={{ ...S.h2, marginTop: 0 }}>Seen from local creators</h2>
           <div style={S.socialRail}>
             {socialPosts.map((post) => (
@@ -375,7 +377,7 @@ export default async function CuratedEventPage({ params }) {
         picks={pairings}
       />
 
-      <div className="wf-event-content">
+      <div className="wf-event-content" id="event-planning" data-event-section={e.skip_if || e.insider_tip || e.parking_tip || e.fun_fact || e.pairing ? "Planning tips" : undefined} tabIndex={-1}>
       {e.skip_if ? (<><h2 style={S.h2}>Who should skip it</h2><p style={S.p}>{e.skip_if}</p></>) : null}
       {e.insider_tip ? (<><h2 style={S.h2}>The move</h2><p style={S.p}>{e.insider_tip}</p></>) : null}
       {e.parking_tip ? (<><h2 style={S.h2}>Getting there</h2><p style={S.p}>{e.parking_tip}</p></>) : null}

@@ -85,12 +85,14 @@ const firstCopyCall = (body) => {
 };
 {
   const so = strip(read("lib/shareOut.js"));
+  const chooser = strip(read("lib/shareChooser.js"));
   const body = so.slice(so.indexOf("export function shareOut"));
-  ok(body.indexOf("navigator.share(") > -1 && body.indexOf("clipboard.writeText") > -1, "lib/shareOut.js must have both paths");
-  ok(firstNativeAttempt(body) < firstCopyCall(body),
+  ok(body.indexOf("navigator.share(") > -1 && chooser.indexOf("clipboard.writeText") > -1, "shared sharing must have both native and explicit-copy paths");
+  ok(firstNativeAttempt(body) < body.indexOf("queueShareChooser("),
      "lib/shareOut.js calls the clipboard before attempting the native sheet — on iOS that consumes the tap's activation and the sheet is then refused (v4.07)");
   ok(/AbortError/.test(so), "a user who cancels the sheet has not failed — cancelling must not fall through to a silent copy");
-  ok(/execCommand/.test(so), "no legacy fallback: on an insecure origin navigator.clipboard is simply absent");
+  ok(/execCommand/.test(chooser), "no legacy fallback: on an insecure origin navigator.clipboard is simply absent");
+  ok(/import\("\.\/shareChooser\.js"\)/.test(so) && !/^\s*import\s+.*shareChooser/m.test(so), "the fallback chooser must stay dynamically split from the initial page bundle");
   ok(!/window\.location/.test(so), "shareOut must share the url it is handed, never one it reads off the page");
 }
 {
@@ -116,7 +118,7 @@ ok(canShareNatively() === false, "with no navigator there is no native sheet, an
   let threw = false, out = null;
   try { out = shareOut({ url: "https://www.gowayfind.com/guides/x", title: "x" }); } catch (e) { threw = true; }
   ok(!threw, "shareOut threw in a headless environment — it runs inside a click handler, where that is fatal and silent");
-  ok(out === "copied", 'shareOut returned "' + out + '" with no sheet available — the caller relies on "copied" to know it must say so itself');
+  ok(out === "failed", 'a headless caller without a DOM cannot claim that a link was copied');
 }
 
 // ── 4. THE HERO SLOT IS ADDITIVE ───────────────────────────────────────────

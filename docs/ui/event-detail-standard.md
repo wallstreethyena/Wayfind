@@ -6,16 +6,16 @@ Route files supply verified event content and the existing action components.
 
 ## Reading order
 
-1. Event title and any cancellation or postponement notice.
-2. Event facts, starting with the date and time, then location and admission.
-3. Schedule notes and the reason to go. Curated verdicts, age limits and duration
-   remain visible when available. Provider stories keep their existing evidence.
+1. A horizontal section menu links only to sections that actually render, including
+   stays that arrive after the initial page response.
+2. The event photograph leads one unified overview card, above the title. Other
+   cleared photographs remain swipeable, without a repeated photo section below.
+3. Event title, status, date-first facts, schedule notes and reasons to go.
 4. A separate action section with a border, positive spacing, booking disclosure,
-   and the existing Save and Share behavior.
-5. Event photos in a horizontal portrait rail. Desktop places this beside the
-   overview; mobile retains the same DOM order and puts photos below it.
-6. Available creator posts, followed by the shared venue map, nearby places,
-   stays and additional planning information.
+   and Save and Share controls.
+5. Exact-event creator videos, then the shared venue map with the standard iconic
+   nearby place-card rail inside its panel. Nearby places are clearly not the venue.
+6. Nearby stays and available planning information.
 
 ## Shared layout rules
 
@@ -23,8 +23,9 @@ Route files supply verified event content and the existing action components.
   photo geometry. Do not restore route-specific negative action margins.
 - Facts and reasons grow with their text. Do not set fixed content heights or
   position actions over text. Long labels must wrap inside their container.
-- Photo wrappers are 252 by 448 pixels on desktop and 216 by 384 on mobile.
-  Images fill the wrappers; intrinsic image dimensions cannot enlarge the rail.
+- The overview photo fills the top of the card, with height bounded from 240 to
+  440 pixels. Additional gallery frames remain horizontal. Iconic place cards
+  retain the shared portrait media geometry. Intrinsic photos cannot stretch rails.
 - Use only the event's existing cleared photos. Owned gallery photos stay
   behind `eventPhotos`, retain credit, and do not repeat the hero in the rail.
 - `EventPlacePhoto` preserves the frame when an image fails. Missing photos
