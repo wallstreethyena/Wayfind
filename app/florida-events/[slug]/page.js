@@ -17,6 +17,7 @@ import { addressLine, appleDirectionsUrl } from "../../../lib/placeWhere";
 import ShareButton from "../../components/ShareButton";
 import SaveEventButton from "./SaveEventButton.js";
 import EventWhere from "../../components/EventWhere";
+import ReturnToWayfind from "../../components/ReturnToWayfind.js";
 import { eventPairings, pairingHref } from "../../../lib/eventPairings";
 import { eventTicketCta } from "../../../lib/eventTicketDeals.js";
 import { clockLabel } from "../../../lib/fallPool.js";
@@ -148,8 +149,8 @@ const S = {
   credit: { fontSize: 12.5, color: "#8B949E", margin: "0 0 22px" },
   social: { margin: "22px 0", padding: "16px", border: "1px solid #26303B", borderRadius: 14, background: "#111821" },
   socialRail: { display: "flex", gap: 14, overflowX: "auto", overscrollBehaviorX: "contain", padding: "4px 2px 10px", scrollSnapType: "x proximity" },
-  socialPost: { flex: "0 0 min(78vw, 300px)", maxWidth: 300, scrollSnapAlign: "start" },
-  socialLink: { display: "block", color: "#E879F9", fontSize: 14, fontWeight: 800, textDecoration: "none", padding: "10px 2px 2px" },
+  socialPost: { flex: "0 0 min(78vw, 300px)", maxWidth: 300, scrollSnapAlign: "start", borderRadius: 20, overflow: "hidden", border: "1px solid #65443d", background: "linear-gradient(180deg,#302021,#191415)" },
+  socialLink: { display: "block", color: "#efd0a6", fontSize: 14, fontWeight: 800, textDecoration: "none", padding: "0 16px 18px" },
   // v8.88 — the way back. Byte-identical to the pill on /guides and
   // /guides/[slug] (check-guides pins that anchor) because a reader who has
   // seen it once should not have to learn a second control: this page simply
@@ -178,7 +179,7 @@ const S = {
     width: "100%", boxSizing: "border-box", maxWidth: "100%", textAlign: "center", overflowWrap: "anywhere", padding: "16px 20px", borderRadius: 14,
     background: "linear-gradient(180deg,#FFA35C,#F97316)", border: "1px solid #F97316", color: "#111827",
     fontSize: 16, fontWeight: 850, textDecoration: "none", lineHeight: 1.4,
-    boxShadow: "0 16px 34px rgba(249,115,22,.32)",
+    boxShadow: "0 0 22px rgba(249,115,22,.30), 0 12px 36px rgba(249,115,22,.38), inset 0 1px 0 rgba(255,255,255,.3)",
   },
   disclosure: { margin: "10px 0 0", fontSize: 11.5, color: "#8B949E", textAlign: "center" },
   actionsRow: { display: "flex", gap: 10, flexWrap: "wrap" },
@@ -238,6 +239,11 @@ export default async function CuratedEventPage({ params }) {
   const site = eventWebsiteUrl(e) || null;
   const ticket = eventTicketCta(e.event_id, { surface: "florida_event_page" });
   const socialPosts = eventSocialPosts(e.event_id) || [];
+  // The card's creator mark promises that the post is one tap away. Reuse the
+  // event's already-cleared hero as the click-to-load cover so that promise is
+  // visible before Instagram's third-party iframe is requested.
+  const socialPoster = shots && shots.hero ? shots.hero.src : (e.hero_image || null);
+  const socialPosterFallback = shots && shots.hero ? (e.hero_image || null) : null;
   // Real nearby places worth an outing, ranked by Wayfind — [] (and no section)
   // where there is nothing honestly nearby, so a page never shows a thin shelf.
   // They render inside <EventWhere> (numbered cards + the same numbers as pins).
@@ -269,7 +275,7 @@ export default async function CuratedEventPage({ params }) {
           Two doors, because they answer different questions: the product, and
           the shelf this event sits on. */}
       <div className="wf-event-brand"><a href="/" aria-label="Wayfind home"><img src="/brand/wayfind-official-white.png" alt="Wayfind" width="145" height="42" /></a><div style={S.backRow}>
-        <a style={S.back} href="/">&lsaquo; Back to Wayfind</a>
+        <ReturnToWayfind style={S.back} />
         <a style={S.back} href="/florida-events">&lsaquo; Florida Events</a>
       </div>
 
@@ -377,6 +383,47 @@ export default async function CuratedEventPage({ params }) {
 
       <p className="wf-event-booking-note">{e.is_free ? "Confirm dates and availability on the official listing." : "Confirm availability and booking terms with the ticket provider before paying."}</p>
       </aside></div>
+
+      {/* A Fall card that names a creator must pay that promise off before the
+          map and nearby recommendations. The map can be more than a viewport
+          tall on mobile; placing the post after it made the card marker look
+          unrelated to the detail page. */}
+      {socialPosts.length ? (
+        <section style={{ ...S.social, maxWidth: 820, margin: "0 auto 40px" }} aria-label="Creator posts about this event">
+          <h2 style={{ ...S.h2, marginTop: 0 }}>Seen from local creators</h2>
+          <div style={S.socialRail}>
+            {socialPosts.map((post) => (
+              <article key={post.url} style={S.socialPost}>
+                {/* The facade paints only Wayfind UI until the reader taps it;
+                    Instagram's official iframe and third-party request are
+                    created after that click. The native link below remains a
+                    visible fallback when an embed is blocked or removed. */}
+                <VideoFacade
+                  platform={post.platform}
+                  url={post.url}
+                  label={`@${post.creator}'s post about ${e.event_name}`}
+                  poster={socialPoster}
+                  fallbackPoster={socialPosterFallback}
+                  coverTitle={e.event_name}
+                  coverCity={e.city}
+                  coverEyebrow={`THE @${post.creator} EDIT`}
+                  fallbackLabel="Event cover shown"
+                />
+                <div style={{ padding: "18px 16px 14px" }}>
+                  <h3 style={{ margin: "0 0 6px", color: "#fff", fontFamily: "Georgia,serif", fontSize: 22, lineHeight: 1.25 }}>{e.event_name}</h3>
+                  <p style={{ margin: "0 0 10px", color: "#aaa3a0", fontSize: 13 }}>{[e.venue, e.city].filter(Boolean).join(" · ")}</p>
+                  <p style={{ margin: 0, color: "#cbbab2", fontSize: 13, lineHeight: 1.5 }}>Seen by @{post.creator}. {socialPoster ? "Event cover shown." : "Open the creator’s post to see more."}</p>
+                </div>
+                <a href={post.url} target="_blank" rel="noopener" style={S.socialLink}
+                  aria-label={`View @${post.creator}'s Instagram post about ${e.event_name} (opens in a new tab)`}>
+                  View @{post.creator}&rsquo;s post on Instagram ↗
+                </a>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       {/* v8.99 — WHERE IT IS, ON A MAP, WITH YOUR ROUTE AND WHAT IS NEARBY.
           One shared block (app/components/EventWhere.js) — the rule for every
           event page, curated or live. Sits right under the answer box because
@@ -394,31 +441,6 @@ export default async function CuratedEventPage({ params }) {
       <div className="wf-event-content">
       {e.schedule_note ? <p style={S.note}>{e.schedule_note}</p> : null}
       {e.editorial_summary ? <p style={S.p}>{e.editorial_summary}</p> : null}
-
-      {socialPosts.length ? (
-        <section style={S.social} aria-label="Creator posts about this event">
-          <h2 style={{ ...S.h2, marginTop: 0 }}>Seen from local creators</h2>
-          <div style={S.socialRail}>
-            {socialPosts.map((post) => (
-              <article key={post.url} style={S.socialPost}>
-                {/* The facade paints only Wayfind UI until the reader taps it;
-                    Instagram's official iframe and third-party request are
-                    created after that click. The native link below remains a
-                    visible fallback when an embed is blocked or removed. */}
-                <VideoFacade
-                  platform={post.platform}
-                  url={post.url}
-                  label={`@${post.creator}'s post about ${e.event_name}`}
-                />
-                <a href={post.url} target="_blank" rel="noopener" style={S.socialLink}
-                  aria-label={`View @${post.creator}'s Instagram post about ${e.event_name} (opens in a new tab)`}>
-                  View @{post.creator}&rsquo;s post on Instagram ↗
-                </a>
-              </article>
-            ))}
-          </div>
-        </section>
-      ) : null}
 
       {e.why_go ? (<><h2 style={S.h2}>Why it&rsquo;s worth going</h2><p style={S.p}>{e.why_go}</p></>) : null}
 

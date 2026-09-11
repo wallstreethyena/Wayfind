@@ -7,7 +7,7 @@ import path from 'node:path';
 import ts from 'typescript';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-let event, curated, photographs;
+let event, curated, photographs, social = [];
 const reviewDir = process.argv.includes("--write-review") ? "public/design" : null;
 const leaf = () => null;
 
@@ -25,11 +25,14 @@ function page(file) {
   appleDirectionsUrl:()=> 'https://maps.apple.com/?daddr=27.3,-82.5&dirflg=d',
   websiteUrl:()=> 'https://www.universalorlando.com',websiteHost:()=> 'universalorlando.com',safeUrl:()=>null,SITE_URL:'https://www.gowayfind.com',
   eventPairings:async()=>Array.from({length:6},(_,i)=>({id:'fixture-place-'+i,name:['A long nearby restaurant name that should wrap cleanly','Nearby coffee and breakfast','A nearby dinner spot'][i%3],lat:27.3+i*.01,lng:-82.5,cat:'Restaurant',wfScore:98,distMi:1.2})),pairingHref:()=>'/p/fixture',clockLabel:()=>null,
+  eventSocialPosts:()=>social,
+  embedSrc:()=>"https://www.instagram.com/reel/fixture/embed/", PLATFORM:{instagram:{label:"Instagram",color:"#E1306C"}},
   eventTicketCta:()=>curated?.is_free?null:{href:'/api/commerce/go?offer=test',label:'Get tickets ↗'},
   isTicketmasterFamily:()=>true,eventStoryEvidence:x=>x,eventStoryFallback:()=>({whyGo:'Fixture story'}),
  };
  const require=(spec)=>{
   if(spec==='react')return React;
+  if(spec.includes('VideoFacade'))return {default:page('app/components/VideoFacade.js')};
   if(spec.includes('EventExperienceStyles'))return {default:page('app/components/EventExperienceStyles.js')};
   if(spec.includes('EventPlacePhoto'))return {default:page('app/components/EventPlacePhoto.js')};
   if(spec.includes('EventVenueMapLoader'))return {default:()=>React.createElement('div',{style:{height:420,display:'grid',placeItems:'center',background:'#17202b'}},'Map area · layout fixture')};
@@ -73,3 +76,22 @@ for(const free of [false,true])for(const hasPhoto of [false,true]){
  }
 }
 console.log(`test-event-experience: OK — ${checks} assertions across 8 real page renders; live/cancelled, paid/free, owned/missing photos. Provider/map internals remain covered separately.`);
+
+// Render the real event/facade chain: the cover must already be visible before
+// any image load event (including a cached image that precedes hydration).
+social=[{platform:'instagram',creator:'fixturecreator',url:'https://www.instagram.com/reel/fixture/'}];
+curated={...curated,is_free:false,hero_image:'/venue-cover.jpg'};
+for(const owned of [true,false]) {
+ photographs=owned?{hero:{src:'/event-cover.jpg',alt:'Event cover',w:1200,h:630},photos:[]}:null;
+ const html=renderToStaticMarkup(await local({params:{slug:'fixture'}}));
+ assert.match(html,/THE @fixturecreator EDIT/);
+ assert.doesNotMatch(html,/THE CINDY SELECTS EDIT|Cindy Selects · Video guide/);
+ assert.match(html,/font-family:Georgia,serif/);
+ assert.match(html,/aspect-ratio:3 \/ 4/);
+ assert.match(html,/Event cover shown/);
+ assert.match(html,owned?/src="\/event-cover.jpg"/:/src="\/venue-cover.jpg"/);
+ assert.doesNotMatch(html,/opacity:0/);
+ assert.doesNotMatch(html,/<iframe/);
+ assert.match(html,/0 0 22px rgba\(249,115,22,.30\)/);
+}
+console.log('event creator style: 18 assertions across owned and venue header covers; visible before hydration, real creator credit, click-to-load, glow');

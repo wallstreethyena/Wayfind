@@ -491,6 +491,23 @@ export default function DaypartRail({
   // makes the "Try again" button a real button and not decoration.
   const [retryNonce, setRetryNonce] = useState(0);
   const [selected, setSelected] = useState(null);
+  const resumePoster = useRef(false);
+  useEffect(() => {
+    if (initialRail || !["/", "/v8"].includes(window.location.pathname)) return;
+    try {
+      const saved = JSON.parse(sessionStorage.getItem("wf_poster_position") || "null");
+      if (saved && Date.now() - saved.ts < 30 * 60000 && railById.has(saved.id)) {
+        resumePoster.current = true;
+        setSelected(saved.id);
+      } else {
+        sessionStorage.removeItem("wf_poster_position");
+      }
+    } catch { try { sessionStorage.removeItem("wf_poster_position"); } catch {} }
+  }, []);
+  useEffect(() => {
+    if (!selected || !["/", "/v8"].includes(window.location.pathname)) return;
+    try { sessionStorage.setItem("wf_poster_position", JSON.stringify({ id: selected, ts: Date.now() })); } catch {}
+  }, [selected]);
   const [railPageState, setRailPageState] = useState({});
   const railPageInFlight = useRef(new Set());
   // A page response may outlive a city, daypart, or selected-poster change.
@@ -872,6 +889,7 @@ export default function DaypartRail({
     const targetId = requested.retiredInto || id;
     const rail = railById.get(targetId);
     if (!rail) return;
+    resumePoster.current = false;
     setSelected(targetId);
     logEvent("rail_open", {
       rail_id: targetId, rail_title: rail.title, daypart, region: shown.region, city: shown.citySlug,
@@ -891,7 +909,11 @@ export default function DaypartRail({
     if (legacy) logEvent(legacy, { src: "rail", rail_id: targetId });
   }, [railById, daypart, shown, order, locName]);
 
-  const close = useCallback(() => setSelected(null), []);
+  const close = useCallback(() => {
+    resumePoster.current = false;
+    setSelected(null);
+    try { sessionStorage.removeItem("wf_poster_position"); } catch {}
+  }, []);
 
   // Which tile is currently saying "Link copied". One at a time, cleared on a
   // timer that matches the wf8Said animation — a toast that outlives its own
@@ -1005,7 +1027,7 @@ export default function DaypartRail({
   // left where the reader put it. The nav passes it, because a tab tap must
   // always visibly answer.
   useEffect(() => {
-    if (!selected || typeof window === "undefined") return undefined;
+    if (!selected || resumePoster.current || typeof window === "undefined") return undefined;
     if (!menuRef.current) return undefined;
     const cancel = landOnResults(() => menuRef.current, { probe: () => pcRef.current });
     if (pcRef.current) pcRef.current.scrollLeft = 0;
@@ -1131,7 +1153,7 @@ export default function DaypartRail({
   // selection is never a half-cropped card at the viewport edge (his
   // screenshot). scroll-snap is proximity, so a programmatic center sticks.
   useEffect(() => {
-    if (!selected) return;
+    if (!selected || resumePoster.current) return;
     const track = trackRef.current;
     if (!track) return;
     const tile = track.querySelector(".wf8-tile.is-sel");
@@ -1498,7 +1520,7 @@ export default function DaypartRail({
       <section className="wf8-railsec" aria-label="What to do right now">
         <div className="wf8-in">
           <div className="wf8-railwrap">
-            <div className="wf8-track" ref={trackRef}>
+            <div className="wf8-track" data-wf-scroll-key="poster-track" ref={trackRef}>
               {order.filter((id) => {
                 const r = railById.get(id);
                 return r && !r.posterHidden && !r.artStale && !r.retiredInto;
@@ -1882,7 +1904,7 @@ export default function DaypartRail({
             </ul>
           ) : selRail && !railOwnsItsOwnAnswer && dropList.length ? (
             <div className="wf8-pcwrap">
-              <ul className="wf8-pcrail" ref={pcRef}>
+              <ul className="wf8-pcrail" data-wf-scroll-key={"poster-" + selected} ref={pcRef}>
                 {dropList.slice(0, mounted).map((p, i) => {
                   // v8.69 — the paid card is index 0 of its own rail and is the
                   // ONLY card here that is not a ranked result. Two consequences,
