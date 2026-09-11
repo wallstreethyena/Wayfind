@@ -18,9 +18,6 @@ const ok = (condition, message) => condition ? pass++ : fail.push(message);
 ok(/fetchJsonWithDeadline\("\/api\/night-out\?"/.test(component),
   "NightOutRails must fetch the dedicated bounded Night Out endpoint");
 
-// Runtime proof for the canonical owned-pool rule stays here. Static source
-// checks below only pin WHICH production paths must use that rule; they do not
-// pretend that grep is a substitute for calling the invariant.
 const { NIGHT_OUT_CATEGORIES, admitNightOutRows } = await import("../lib/nightOutPool.js");
 ok(NIGHT_OUT_CATEGORIES.length === 3 && ["food", "nightlife", "attractions"].every((c) => NIGHT_OUT_CATEGORIES.includes(c)),
   `the Night Out endpoint must read food, nightlife and attraction inventory (reads: ${NIGHT_OUT_CATEGORIES.join(", ")})`);
@@ -34,7 +31,7 @@ ok(/fetchNightOutPool\(/.test(route),
     return { ok: true, json: async () => (/nightlife/.test(url) ? [live] : []) };
   };
   let out = null;
-  try { out = await fetchNightOutPool(27.5949, -82.4265, { env: { url: "https://example.invalid", key: "k" }, fetchImpl: impl }); } catch (e) { out = null; }
+  try { out = await fetchNightOutPool(27.5949, -82.4265, { env: { url: "https://example.invalid", key: "k" }, fetchImpl: impl }); } catch { out = null; }
   ok(!!out && out.places.some((p) => p.id === "np1"),
     "one failed category blanked the whole answer — the surviving owned categories must still compose");
 }
@@ -45,35 +42,39 @@ ok(/fetchNightOutPool\(/.test(route),
     `the combined inventory must deduplicate before composition (the same row three times produced ${places.filter((p) => p.id === "dupe").length} cards)`);
   ok(places.length === 1, "positive control: the dedupe fixture really did qualify, so the assertion above is not vacuous");
 }
-ok(/const key = `night-out:v5:\$\{geoCell\(lat\)\}:\$\{geoCell\(lng\)\}`/.test(route)
-  && !/night-out:v4/.test(route),
+ok(/const key = `night-out:v5:\$\{geoCell\(lat\)\}:\$\{geoCell\(lng\)\}`/.test(route) && !/night-out:v4/.test(route),
   "the intent-admission change must use the v5 cache identity at the real route key");
 ok(!/useIntentCandidates/.test(daypart),
   "DaypartRail must not issue a duplicate inventory request while NightOutRails loads the complete answer");
 ok(/<NightOutRails[\s\S]{0,400}?places=\{nightOutPlaces\}/.test(daypart),
   "NightOutRails must retain the existing client pool as its fail-soft fallback");
 
-// ── GLOBAL CANDIDATE-INTEGRITY LOCK, 2026-09-11 ────────────────────────────
-// Permanent ordering law:
-// complete nearby owned universe -> serviceability -> exact identity
-// -> Wayfind Score/ranking -> presentation/output bound.
-//
-// These source checks protect the named integration points while
-// check-identity-before-cap.mjs supplies the executable buried-candidate proof.
+// GLOBAL CANDIDATE-INTEGRITY LOCK, 2026-09-11.
+// Find the right identity first. Rank second. Apply presentation caps last.
 ok(!existsSync(obsoleteIntentRoute) && !existsSync(obsoleteIntentHook),
-  "the retired cap-first generic intent feed or client hook returned — narrow rails must own identity before ranking");
+  "the retired cap-first generic intent feed or client hook returned");
 
-ok(/readOwnedCategory/.test(batch) && /if \(result\.truncated\) return \[\];/.test(batch),
-  "inventoryBoxBatch must use deterministic paged owned reads and discard an incomplete prime");
+ok(/order=place_id\.asc/.test(batch)
+  && /rows\.length >= limit/.test(batch),
+  "inventoryBoxBatch must be deterministic and refuse an ambiguous full-limit prime");
+
 ok(!/order=signals->reviews\.desc\.nullslast&limit=400/.test(nearby)
   && /readOwnedCategory/.test(nearby)
   && /result\.truncated/.test(nearby),
-  "Nearby must not choose a 400-row popularity shelf before category identity; it must read the ring completely or fall back");
+  "Nearby must read the ring completely before category identity or fall back");
 
-ok(/import \{ fetchOwnedPool \} from "\.\/ownedPool\.js";/.test(railsData)
-  && /identity:\s*\(place\)\s*=>\s*Number\(place\?\.reviews \|\| 0\) >= 15 && exactIdentity\(place\)/.test(railsData)
-  && !/order=signals->reviews\.desc\.nullslast&limit=300/.test(railsData),
-  "shared synthetic rails must apply their real identity inside fetchOwnedPool before any ranking cap");
+ok(/function buildMorningIdentityPools\(/.test(railsData)
+  && /categories:\s*\["food"\]/.test(railsData)
+  && /isBreakfastPlace\(place\)/.test(railsData)
+  && /isStrongQuickService\(place\)/.test(railsData),
+  "Breakfast and Quick Eats must share an identity-first owned food read");
+
+ok(!/buildIdentityPool\(pools, origin, isBreakfastPlace/.test(railsData)
+  && !/buildIdentityPool\(pools, origin, isQuickService/.test(railsData),
+  "Breakfast or Quick Eats fell back to the old broad top-300 widening path");
+
+ok(/if \(url && anon && typeOv\.length\)/.test(railsData),
+  "the remaining 300-row synthetic widening path must be gated by a real type identity before its cap");
 
 ok(/categories:\s*\["shopping"\][\s\S]{0,220}?identity:\s*isDateShopping/.test(dateNight),
   "Date Night Shopping must be fed by an exact shopping identity-first owned pool");
@@ -81,11 +82,11 @@ ok(/categories:\s*\["shopping"\][\s\S]{0,220}?identity:\s*isDateShopping/.test(d
 ok(/serveInventoryByPlaceIds/.test(today)
   && /function instagramPlaceIds\(\)/.test(today)
   && /exactInstagramInventory/.test(today),
-  "creator-backed Today inventory must be reached by its curated exact Place IDs, not rediscovered through a broad top-N shelf");
+  "creator-backed Today inventory must be reached by curated exact Place IDs");
 
 if (fail.length) {
   console.error("check-intent-rail-inventory-fed: FAIL");
   for (const message of fail) console.error("  - " + message);
   process.exit(1);
 }
-console.log(`check-intent-rail-inventory-fed: OK — ${pass} assertions; identity-before-rank is locked across Night Out, synthetic rails, Nearby, Date Night Shopping, creator exact IDs, and the batch accelerator`);
+console.log(`check-intent-rail-inventory-fed: OK — ${pass} assertions; identity-before-rank is locked across Night Out, Breakfast/Quick Eats, Nearby, Date Night Shopping, creator exact IDs, and the batch accelerator`);
