@@ -24,6 +24,7 @@ import EventVenueMapLoader from "./EventVenueMapLoader.js";
 import EventRouteJump from "./EventRouteJump.js";
 import { Suspense } from "react";
 import EventStays from "./EventStays.js";
+import EventSocialCard from "./EventSocialCard.js";
 import { websiteHost } from "../../lib/placeWhere.js";
 
 const ACCENT = "#F97316";
@@ -64,7 +65,17 @@ const CSS = `
 .wfw-b b{display:block;font-size:14.5px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wfw-b small{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:4px;font-size:12.5px;font-weight:700;color:#94A3B8}
 .wfw-b u{text-decoration:none;color:#0D1117;background:${PICK};border-radius:999px;padding:2px 8px;font-size:12px;font-weight:800}
+.wfw-social-card{min-width:0;padding:10px;border-radius:14px;background:rgba(225,48,108,.06);border:1px solid rgba(225,48,108,.28);scroll-snap-align:start}
+.wfw-social-card>button,.wfw-social-card>div:first-child{max-width:none!important}
+.wfw-social-cover{margin:9px 2px!important;font-size:11.5px!important;line-height:1.4!important;color:#94A3B8!important}
+.wfw-social-credit{display:flex;align-items:center;gap:9px;margin:8px 2px}
+.wfw-social-credit b,.wfw-social-credit span{display:block;line-height:1.25}
+.wfw-social-credit b{font-size:13.5px;color:#F8FAFC;overflow-wrap:anywhere}
+.wfw-social-credit span{margin-top:2px;font-size:11.5px;color:#94A3B8}
+.wfw-social-link{display:block;margin:8px 2px 1px;color:#F0ABFC;font-size:13px;font-weight:800;text-decoration:none}
+.wfw-social-link:hover{color:#F5D0FE;text-decoration:underline}
 .wfw-foot{padding:0 18px 16px;font-size:11.5px;color:#64748B}
+@media (max-width:800px){.wfw-social-card{flex:0 0 76%;min-width:0}}
 @media (max-width:560px){.wfw-head{align-items:stretch;padding:16px 14px 12px}.wfw-acts{width:100%;flex:1 1 100%;display:grid;grid-template-columns:minmax(0,1fr)}.wfw-btn{width:100%}.wfw-map{padding:0 6px 6px}.wfw-near{padding:14px 14px 14px}}
 `;
 
@@ -81,11 +92,16 @@ const thumbUrl = (p) => (p.photoRef
  *   lat?: number, lng?: number,
  *   picks?: object[],              // lib/eventPairings rows + href
  *   sponsoredWebsite?: boolean,    // rel=sponsored when the link earns
+ *   socialPosts?: object[],        // reviewed creator posts about this event
+ *   socialPoster?: string|null,    // the event/venue cover, never a claimed post thumbnail
+ *   socialPosterLabel?: string,
+ *   eventName?: string,
  * }} props
  */
-export default function EventWhere({ venue, address, directionsHref, website, lat, lng, picks = [], sponsoredWebsite = false }) {
+export default function EventWhere({ venue, address, directionsHref, website, lat, lng, picks = [], sponsoredWebsite = false, socialPosts = [], socialPoster = null, socialPosterLabel = "Venue cover shown", eventName = null }) {
   const hasPoint = Number.isFinite(lat) && Number.isFinite(lng) && !(lat === 0 && lng === 0);
   if (!venue && !address) return null;
+  const reviewedPosts = Array.isArray(socialPosts) ? socialPosts.filter((post) => post?.url && post?.creator) : [];
   const host = website ? websiteHost(website) : "";
   const pins = hasPoint ? picks.filter((p) => p && Number.isFinite(p.lat) && Number.isFinite(p.lng)) : [];
   return (
@@ -138,13 +154,18 @@ export default function EventWhere({ venue, address, directionsHref, website, la
           the numbered pins, never the venue card's orange), its own border
           and background, and a heading that says in words that these are
           not the venue. */}
-      {pins.length > 0 ? (
-        <div className="wfw-nearcard" aria-label={"Other places near " + (venue || "the venue") + " — not the venue itself"}>
+      {pins.length > 0 || reviewedPosts.length > 0 ? (
+        <div className="wfw-nearcard" aria-label={pins.length > 0 ? `Creator posts and other places near ${venue || "the venue"}` : `Creator posts about ${eventName || venue || "this event"}`}>
           <div className="wfw-near">
-            <p className="wfw-near-k">Nearby — not the venue</p>
-            <h3>Worth a stop near {venue || "here"}</h3>
-            <p>Separate places, not part of {venue || "the event"} — ranked by Wayfind. The numbers match the pins on the map above.</p>
+            <p className="wfw-near-k">{reviewedPosts.length > 0 ? "At this event & nearby" : "Nearby — not the venue"}</p>
+            <h3>{reviewedPosts.length > 0 ? "See the event through creator posts" : `Worth a stop near ${venue || "here"}`}</h3>
+            <p>{reviewedPosts.length > 0
+              ? <>Creator posts are about {eventName || venue || "this event"}.{pins.length > 0 ? ` Numbered cards are separate nearby places, ranked by Wayfind, and match the map pins.` : ""}</>
+              : <>Separate places, not part of {venue || "the event"} — ranked by Wayfind. The numbers match the pins on the map above.</>}</p>
             <div className="wfw-grid">
+              {reviewedPosts.map((post) => (
+                <EventSocialCard key={post.url} post={post} eventName={eventName || venue || "this event"} poster={socialPoster} posterLabel={socialPosterLabel} />
+              ))}
               {pins.map((p, i) => (
                 <a key={p.id} className="wfw-p" href={p.href}>
                   <span className="wfw-th">

@@ -21,7 +21,6 @@ import { eventPairings, pairingHref } from "../../../lib/eventPairings";
 import { eventTicketCta } from "../../../lib/eventTicketDeals.js";
 import { clockLabel } from "../../../lib/fallPool.js";
 import { eventSocialPosts } from "../../../lib/eventSocial.js";
-import VideoFacade from "../../components/VideoFacade.js";
 
 // Same two-letter monogram convention as RailCard/IconicPlaceCard's card
 // fallback (app/components/css.js .wf-place-card-monogram) — the letters an
@@ -146,10 +145,6 @@ const S = {
   },
   shot: { width: "100%", height: "100%", objectFit: "cover", display: "block" },
   credit: { fontSize: 12.5, color: "#8B949E", margin: "0 0 22px" },
-  social: { margin: "22px 0", padding: "16px", border: "1px solid #26303B", borderRadius: 14, background: "#111821" },
-  socialRail: { display: "flex", gap: 14, overflowX: "auto", overscrollBehaviorX: "contain", padding: "4px 2px 10px", scrollSnapType: "x proximity" },
-  socialPost: { flex: "0 0 min(78vw, 300px)", maxWidth: 300, scrollSnapAlign: "start" },
-  socialLink: { display: "block", color: "#E879F9", fontSize: 14, fontWeight: 800, textDecoration: "none", padding: "10px 2px 2px" },
   // v8.88 — the way back. Byte-identical to the pill on /guides and
   // /guides/[slug] (check-guides pins that anchor) because a reader who has
   // seen it once should not have to learn a second control: this page simply
@@ -389,36 +384,15 @@ export default async function CuratedEventPage({ params }) {
         lat={e.lat == null || e.lat === "" ? NaN : Number(e.lat)}
         lng={e.lng == null || e.lng === "" ? NaN : Number(e.lng)}
         picks={pairings}
+        socialPosts={socialPosts}
+        socialPoster={shots && shots.hero ? shots.hero.src : (e.hero_image || null)}
+        socialPosterLabel={shots && shots.hero ? "Event cover shown" : "Venue cover shown"}
+        eventName={e.event_name}
       />
 
       <div className="wf-event-content">
       {e.schedule_note ? <p style={S.note}>{e.schedule_note}</p> : null}
       {e.editorial_summary ? <p style={S.p}>{e.editorial_summary}</p> : null}
-
-      {socialPosts.length ? (
-        <section style={S.social} aria-label="Creator posts about this event">
-          <h2 style={{ ...S.h2, marginTop: 0 }}>Seen from local creators</h2>
-          <div style={S.socialRail}>
-            {socialPosts.map((post) => (
-              <article key={post.url} style={S.socialPost}>
-                {/* The facade paints only Wayfind UI until the reader taps it;
-                    Instagram's official iframe and third-party request are
-                    created after that click. The native link below remains a
-                    visible fallback when an embed is blocked or removed. */}
-                <VideoFacade
-                  platform={post.platform}
-                  url={post.url}
-                  label={`@${post.creator}'s post about ${e.event_name}`}
-                />
-                <a href={post.url} target="_blank" rel="noopener" style={S.socialLink}
-                  aria-label={`View @${post.creator}'s Instagram post about ${e.event_name} (opens in a new tab)`}>
-                  View @{post.creator}&rsquo;s post on Instagram ↗
-                </a>
-              </article>
-            ))}
-          </div>
-        </section>
-      ) : null}
 
       {e.why_go ? (<><h2 style={S.h2}>Why it&rsquo;s worth going</h2><p style={S.p}>{e.why_go}</p></>) : null}
 

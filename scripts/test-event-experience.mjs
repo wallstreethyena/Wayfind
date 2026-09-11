@@ -7,7 +7,7 @@ import path from 'node:path';
 import ts from 'typescript';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-let event, curated, photographs;
+let event, curated, photographs, social = [], nearby;
 const reviewDir = process.argv.includes("--write-review") ? "public/design" : null;
 const leaf = () => null;
 
@@ -24,8 +24,11 @@ function page(file) {
   directionsUrl:()=> 'https://www.google.com/maps/dir/?api=1&destination=test',
   appleDirectionsUrl:()=> 'https://maps.apple.com/?daddr=27.3,-82.5&dirflg=d',
   websiteUrl:()=> 'https://www.universalorlando.com',websiteHost:()=> 'universalorlando.com',safeUrl:()=>null,SITE_URL:'https://www.gowayfind.com',
-  eventPairings:async()=>Array.from({length:6},(_,i)=>({id:'fixture-place-'+i,name:['A long nearby restaurant name that should wrap cleanly','Nearby coffee and breakfast','A nearby dinner spot'][i%3],lat:27.3+i*.01,lng:-82.5,cat:'Restaurant',wfScore:98,distMi:1.2})),pairingHref:()=>'/p/fixture',clockLabel:()=>null,
+  eventPairings:async()=>nearby,eventSocialPosts:()=>social,
+  pairingHref:()=>'/p/fixture',clockLabel:()=>null,
   eventTicketCta:()=>curated?.is_free?null:{href:'/api/commerce/go?offer=test',label:'Get tickets ↗'},
+  embedSrc:()=> 'https://www.instagram.com/reel/fixture/embed/',
+  PLATFORM:{instagram:{label:'Instagram',color:'#E1306C'}},mayHostPhoto:()=>false,
   isTicketmasterFamily:()=>true,eventStoryEvidence:x=>x,eventStoryFallback:()=>({whyGo:'Fixture story'}),
  };
  const require=(spec)=>{
@@ -35,6 +38,9 @@ function page(file) {
   if(spec.includes('EventVenueMapLoader'))return {default:()=>React.createElement('div',{style:{height:420,display:'grid',placeItems:'center',background:'#17202b'}},'Map area · layout fixture')};
   if(spec.includes('TicketButton'))return {default:p=>React.createElement('a',{'data-ticket':p.provider,href:p.url},p.label)};
   if(spec.includes('EventWhere'))return {default:page('app/components/EventWhere.js')};
+  if(spec.includes('EventSocialCard'))return {default:page('app/components/EventSocialCard.js')};
+  if(spec.includes('CreatorAvatar'))return {default:page('app/components/CreatorAvatar.js')};
+  if(spec.includes('VideoFacade'))return {default:page('app/components/VideoFacade.js')};
   if(spec.includes('EventRouteJump'))return {default:p=>React.createElement('a',{className:'wfw-btn wfw-dir',href:'#event-route'},p.children)};
   return new Proxy({...stubs,default:leaf},{get:(o,k)=>k in o?o[k]:leaf});
  };
@@ -44,6 +50,8 @@ function page(file) {
 const live=page('app/events/[city]/[slug]/page.js');
 const local=page('app/florida-events/[slug]/page.js');
 const fixture={id:'fixture',name:'Real fixture concert',date:'2026-09-18',time:'19:00',venue:'Fixture Hall',city:'Sarasota',lat:27.3,lng:-82.5,image:'/fixture-photo.jpg',url:'https://www.ticketmaster.com/fixture',price:'$45–$70',ticketed:true,source:'Fixture provider'};
+const fixtureNearby=()=>Array.from({length:6},(_,i)=>({id:'fixture-place-'+i,name:['A long nearby restaurant name that should wrap cleanly','Nearby coffee and breakfast','A nearby dinner spot'][i%3],lat:27.3+i*.01,lng:-82.5,cat:'Restaurant',wfScore:98,distMi:1.2}));
+nearby=fixtureNearby();
 let checks=0;
 for(const cancelled of [false,true])for(const hasPhoto of [false,true]){
  event={...fixture,status:cancelled?'cancelled':'scheduled',image:hasPhoto?fixture.image:null};
@@ -55,6 +63,7 @@ for(const cancelled of [false,true])for(const hasPhoto of [false,true]){
  assert.ok(!html.includes('$59'));checks+=8;
 }
 for(const free of [false,true])for(const hasPhoto of [false,true]){
+ social=[];nearby=fixtureNearby();
  curated={event_id:'fixture',event_name:'Fixture local event',year:2026,city:'Sarasota',state:'FL',venue:'Fixture Hall',is_free:free,price_band:'$25',lat:27.3,lng:-82.5,wayfind_verdict:'Worth traveling for if you like being scared and can handle the crowd.'};
  photographs=hasPhoto?{hero:{src:'/owned-photo.jpg',alt:'Owned event photo',w:1200,h:630},photos:[]}:null;
  const html=renderToStaticMarkup(await local({params:{slug:'fixture'}}));
@@ -72,4 +81,26 @@ for(const free of [false,true])for(const hasPhoto of [false,true]){
   fs.writeFileSync(path.join(reviewDir,'event-mobile-review.html'),'<!doctype html><html><head><title>Mobile layout review</title></head><body style="margin:0;background:#1b2330;color:white;font-family:Arial"><p>Layout verification fixture. Fictional event; map and booking integrations are stubbed.</p>'+[320,390,430].map(w=>'<iframe title="'+w+'px mobile layout" src="event-fixture.html" style="display:inline-block;vertical-align:top;width:'+w+'px;height:860px;border:1px solid #536070;margin:5px"></iframe>').join('')+'</body></html>');
  }
 }
-console.log(`test-event-experience: OK — ${checks} assertions across 8 real page renders; live/cancelled, paid/free, owned/missing photos. Provider/map internals remain covered separately.`);
+
+// The original regression: a reviewed creator post was isolated in its own
+// section and its facade had no poster, leaving a blank gradient. Render the
+// real page/component chain with no nearby places to prove the creator card
+// still appears in the shared rail, uses the exact venue cover, keeps the
+// native fallback separate, and does not gain a numbered map rank.
+social=[{platform:'instagram',creator:'influencetampa',url:'https://www.instagram.com/reel/fixture/'}];
+nearby=[];
+curated={event_id:'fixture',event_name:'Fixture local event',year:2026,city:'Tampa',state:'FL',venue:'Fixture Hall',hero_image:'/venue-cover.jpg',is_free:true,lat:27.3,lng:-82.5};
+photographs=null;
+const creatorOnly=renderToStaticMarkup(await local({params:{slug:'fixture'}}));
+assert.match(creatorOnly,/class="wfw-nearcard"/);assert.match(creatorOnly,/class="wfw-social-card"/);
+assert.match(creatorOnly,/src="\/venue-cover.jpg"/);assert.match(creatorOnly,/Venue cover shown/);
+assert.match(creatorOnly,/@influencetampa/);assert.match(creatorOnly,/View post on Instagram/);
+assert.doesNotMatch(creatorOnly,/class="wfw-n"/);assert.doesNotMatch(creatorOnly,/Seen from local creators/);
+checks+=8;
+
+nearby=fixtureNearby();
+const creatorAndNearby=renderToStaticMarkup(await local({params:{slug:'fixture'}}));
+assert.equal((creatorAndNearby.match(/class="wfw-n"/g)||[]).length,6);
+assert.match(creatorAndNearby,/Numbered cards are separate nearby places/);
+checks+=2;
+console.log(`test-event-experience: OK — ${checks} assertions across 10 real page renders; live/cancelled, paid/free, owned/missing photos, creator-only/creator-plus-nearby. Provider/map internals remain covered separately.`);

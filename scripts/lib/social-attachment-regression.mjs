@@ -42,8 +42,11 @@ export function checkSocialAttachments(repo) {
   ensure(/!curatedSpot && \(/.test(social) && /<VideoFacade platform=\{video\.platform\}/.test(social), "registry previews must embed the native post without a full-place CTA");
 
   const eventPage = readFileSync(path.join(repo, "app/florida-events/[slug]/page.js"), "utf8");
-  ensure(/eventSocialPosts\(e\.event_id\)/.test(eventPage) && /<VideoFacade/.test(eventPage), "event pages must render reviewed creator posts through the click-to-load facade");
-  ensure(/View @\{post\.creator\}&rsquo;s post on Instagram/.test(eventPage) && /href=\{post\.url\}/.test(eventPage), "event pages must keep visible, attributed native-link fallbacks");
+  ensure(/eventSocialPosts\(e\.event_id\)/.test(eventPage) && /socialPosts=\{socialPosts\}/.test(eventPage), "event pages must hand reviewed creator posts to the shared where-and-nearby rail");
+  ensure(!/Seen from local creators/.test(eventPage) && !/<VideoFacade/.test(eventPage), "event pages must not duplicate creator posts in a standalone section");
+  const socialCard = readFileSync(path.join(repo, "app/components/EventSocialCard.js"), "utf8");
+  ensure(/<VideoFacade/.test(socialCard) && /poster=\{poster\}/.test(socialCard), "event creator cards must use the click-to-load facade with an honest event or venue cover");
+  ensure(/<CreatorAvatar/.test(socialCard) && /href=\{post\.url\}/.test(socialCard) && /View post on Instagram/.test(socialCard), "event creator cards must keep real avatar credit and a separate native-link fallback");
 
   const facade = readFileSync(path.join(repo, "app/components/VideoFacade.js"), "utf8");
   ensure(/from "\.\.\/\.\.\/lib\/creatorPlatforms"/.test(facade) && !/from "\.\.\/\.\.\/lib\/creatorVideos"/.test(facade), "the facade must not pull the full creator registry into an event-page chunk");
