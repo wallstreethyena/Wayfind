@@ -32,10 +32,15 @@
 // silently passing it.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { act, createElement } from "react";
-import { createRoot } from "react-dom/client";
-import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
+
+// This guard runs React lifecycle tests, including act(). Vercel invokes guards
+// with NODE_ENV=production, where React deliberately disables that test API.
+// Select the test runtime before loading React, independent of the host shell.
+process.env.NODE_ENV = "test";
+const { act, createElement } = await import("react");
+const { createRoot } = await import("react-dom/client");
+const { renderToStaticMarkup } = await import("react-dom/server");
 
 const REPO = fileURLToPath(new URL("..", import.meta.url));
 let pass = 0;
