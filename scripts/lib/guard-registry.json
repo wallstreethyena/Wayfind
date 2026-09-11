@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 618,
-    "totalRegistryEntries": 619,
-    "guardsTxtLineCount": 617,
-    "guardsTxtReachedFileCount": 612,
+    "totalOnDiskGuardFiles": 619,
+    "totalRegistryEntries": 620,
+    "guardsTxtLineCount": 618,
+    "guardsTxtReachedFileCount": 613,
     "criticalCount": 74,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 424,
-      "RENDER": 50,
+      "RENDER": 51,
       "STRUCTURAL": 144,
       "OTHER": 1
     }
@@ -5678,7 +5678,7 @@
       "npmScript": null,
       "class": "STRUCTURAL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 13,
+      "assertionCount": 22,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [
         "no import of lib/ or app/, no render harness, no child-process exec — and no `// STRUCTURAL-ONLY: <reason>` declaration in the first 20 lines"
@@ -10247,6 +10247,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 6,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-event-driving-route.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 10,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

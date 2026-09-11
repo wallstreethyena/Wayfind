@@ -77,6 +77,7 @@ import { saveItem as saveMonetized, fetchSavedItems } from "../lib/savedItems";
 // v7.08 — the one writer that knows a cache from a preference, and the sweep
 // that reclaims the budget the caches had already taken. See lib/localStore.js.
 import { setLocal, sweepLocal } from "../lib/localStore";
+import { horizontalPositions, restoreBrowsePosition } from "../lib/restoreBrowsePosition";
 import { placeRouteBackPlan } from "../lib/railReaction";
 import { reconcileIds } from "../lib/syncReconcile";
 // v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
@@ -5911,7 +5912,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const posRestore = useRef(null);
   const posRead = useRef(false);
   useEffect(() => {
-    if (posRead.current) return;
+    if (posRead.current || initialPlaceId) return;
     posRead.current = true;
     try {
       const raw = sessionStorage.getItem("wf_pos");
@@ -5926,29 +5927,17 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       if (p.browseCat !== undefined) setBrowseCat(p.browseCat);
       if (p.sub) setSub(p.sub);
       if (p.vibe) setVibe(p.vibe);
-      posRestore.current = { top: Number(p.top) || 0, win: Number(p.win) || 0, at: Date.now() };
+      posRestore.current = { top: Number(p.top) || 0, horizontal: p.horizontal || [], at: Date.now() };
     } catch (e) {}
   }, []);
-  // APPLIED AFTER THE STATE SETTLES, and that ordering is the whole trick: the
-  // effect above this block zeroes the scroll on every [cat, sub, vibe, screen,
-  // ...] change, which includes the ones the restore itself just made. So the
-  // position is re-applied on the render those setters produce, behind a double
-  // rAF, and only within four seconds of the read — long enough for the feed to
-  // mount, short enough that a later filter change is never hijacked.
+  // Lazy poster content can arrive long after two animation frames. Keep the
+  // saved position until it has had time to mount, or the reader takes control.
   useEffect(() => {
     const r = posRestore.current;
-    if (!r) return undefined;
-    if (Date.now() - r.at > 4000) { posRestore.current = null; return undefined; }
-    let a = 0, b = 0;
-    a = requestAnimationFrame(() => {
-      b = requestAnimationFrame(() => {
-        try {
-          if (scrollRef.current && r.top) scrollRef.current.scrollTop = r.top;
-        } catch (e) {}
-        posRestore.current = null;
-      });
+    if (!r || !scrollRef.current) return undefined;
+    return restoreBrowsePosition(scrollRef.current, r, () => {
+      if (posRestore.current === r) posRestore.current = null;
     });
-    return () => { cancelAnimationFrame(a); cancelAnimationFrame(b); };
   }, [screen, cat, browseCat, sub, vibe]);
   // The writer. On every taxonomy change, on a throttled scroll, and — the one
   // that actually saves the Google Maps round trip — on pagehide, which fires
@@ -5961,11 +5950,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // resilience, it is a comment that lies. scripts/check-shell-scroll.mjs now
   // fails the build on any new window.scroll* in the shell.
   useEffect(() => {
+    if (initialPlaceId) return undefined;
     const write = () => {
+      if (posRestore.current) return;
       try {
         sessionStorage.setItem("wf_pos", JSON.stringify({
           screen, cat, browseCat, sub, vibe,
           top: scrollRef.current ? scrollRef.current.scrollTop : 0,
+          horizontal: scrollRef.current ? horizontalPositions(scrollRef.current) : [],
           ts: Date.now(),
         }));
       } catch (e) {}

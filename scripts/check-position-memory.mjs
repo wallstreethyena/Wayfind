@@ -19,6 +19,7 @@
  * read back somewhere, and the leave-the-page hook must exist — because the
  * whole complaint is about a navigation that never fires a React cleanup.
  */
+import vm from "node:vm";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -87,6 +88,53 @@ ok(/removeEventListener\("pagehide"/.test(code), "the pagehide listener is never
      || /requestAnimationFrame\([\s\S]{0,120}requestAnimationFrame/.test(code),
      "the position is applied without waiting a frame — the scroll-reset effect on the taxonomy change would undo it");
   ok(/posRestore/.test(code), "no restore handle, so nothing can survive the reset");
+}
+
+// Execute the restoration controller with a clamping scroller and delayed rails.
+{
+  const source = readFileSync(path.join(REPO, "lib/restoreBrowsePosition.js"), "utf8");
+  let frameId = 0, observerCallback, completed = 0;
+  const frames = new Map(), listeners = new Map();
+  const rail = { scrollLeft: 0, getAttribute: () => "fall-haunts" };
+  let height = 100, top = 0, rails = [];
+  const root = {
+    children: [],
+    ownerDocument: {
+      addEventListener: (event, fn) => listeners.set(event, fn),
+      removeEventListener: (event) => listeners.delete(event),
+    },
+    get scrollTop() { return top; },
+    set scrollTop(value) { top = Math.min(value, height); },
+    querySelectorAll: () => rails,
+    addEventListener: (event, fn) => listeners.set(event, fn),
+    removeEventListener: (event) => listeners.delete(event),
+  };
+  const context = vm.createContext({
+    requestAnimationFrame: (fn) => { frames.set(++frameId, fn); return frameId; },
+    cancelAnimationFrame: (id) => frames.delete(id),
+    setTimeout: () => 1, clearTimeout: () => {},
+    MutationObserver: class { constructor(fn) { observerCallback = fn; } observe() {} disconnect() {} },
+    ResizeObserver: class { observe() {} disconnect() {} },
+  });
+  vm.runInContext(source.replace(/export /g, ""), context);
+  const flush = () => { for (let i = 0; frames.size && i < 5; i++) { const pending = [...frames.values()]; frames.clear(); pending.forEach((fn) => fn()); } };
+  const dispose = context.restoreBrowsePosition(root, { top: 900, horizontal: [{ key: "fall-haunts", left: 430 }] }, () => completed++);
+  flush();
+  ok(top === 100, "loading shell clamps the initial attempt, reproducing the old defect");
+  height = 1800; rails = [rail]; observerCallback(); flush();
+  ok(top === 900 && rail.scrollLeft === 430, "late content restores vertical position and the selected horizontal card");
+  ok(context.horizontalPositions(root)[0].left === 430, "snapshot reads actual horizontal position");
+  listeners.get("wheel")(); top = 200; observerCallback(); flush();
+  ok(top === 200 && completed === 1, "an outside-scroller gesture (including bottom navigation) cancels restoration");
+  dispose();
+  const cleanup = context.restoreBrowsePosition(root, { top: 900 }, () => completed++);
+  cleanup(); flush();
+  ok(completed === 1, "effect cleanup preserves pending state across React state settlement");
+  ok(code.includes("posRead.current || initialPlaceId") && code.includes("if (initialPlaceId) return undefined"), "standalone place pages cannot consume or overwrite homepage position");
+  const poster = readFileSync(path.join(REPO, "app/components/DaypartRail.js"), "utf8");
+  ok(poster.includes('getItem("wf_poster_position")') && poster.includes('setSelected(saved.id)'), "poster state has a working restore path");
+  ok(poster.includes('resumePoster.current || typeof window'), "resuming skips the fresh-open landing that would overwrite position");
+  ok(code.includes('horizontalPositions(scrollRef.current)') && code.includes('restoreBrowsePosition(scrollRef.current, r'), "homepage wires the tested snapshot and restore controller");
 }
 
 if (fails.length) {

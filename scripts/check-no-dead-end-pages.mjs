@@ -157,7 +157,9 @@ for (const rel of EXITS) {
 // the Möbius page had instead of one.
 for (const rel of ["app/florida-events/[slug]/page.js", "app/florida-events/page.js"]) {
   const src = stripComments(readFileSync(join(ROOT, rel), "utf8"));
-  ok(/Back to Wayfind/.test(src) && /href="\/"/.test(src),
+  const backSource = src.includes("<ReturnToWayfind") && src.includes('import ReturnToWayfind from "../../components/ReturnToWayfind.js"')
+    ? stripComments(readFileSync(join(ROOT, "app/components/ReturnToWayfind.js"), "utf8")) : src;
+  ok(/Back to Wayfind/.test(backSource) && /href="\/"/.test(backSource),
     `${rel} carries the shared "Back to Wayfind" pill, the same affordance /guides has had since v6`);
 }
 
