@@ -161,7 +161,8 @@ function fixtureRows(intent) {
       return ai < bi ? -1 : ai > bi ? 1 : 0;
     });
   }
-  return matches.slice(from, from + n).map((p) => {
+  const total = matches.length;
+  const rows = matches.slice(from, from + n).map((p) => {
     const row = {
       place_id: `fixture_${cat}_${p.idx}`,
       name: `Fixture ${cat[0].toUpperCase()}${cat.slice(1)} Spot ${p.idx}`,
@@ -179,6 +180,7 @@ function fixtureRows(intent) {
     if (wantsEditorial) row.editorial = FIXTURE_EDITORIAL;
     return row;
   });
+  return { rows, total };
 }
 
 function fixtureBeachWater(n) {
@@ -189,11 +191,16 @@ function fixtureBeachWater(n) {
   return rows;
 }
 
-function jsonResponse(body, ok = true) {
+function jsonResponse(body, ok = true, total = null) {
   const text = JSON.stringify(body);
   return {
     ok,
     status: ok ? 200 : 500,
+    headers: {
+      get: (name) => String(name).toLowerCase() === "content-range" && Number.isSafeInteger(total)
+        ? `${body.length ? `0-${body.length - 1}` : "*"}/${total}`
+        : null,
+    },
     json: async () => body,
     text: async () => text,
     __bytes: Buffer.byteLength(text, "utf8"),
@@ -231,8 +238,8 @@ export async function runComputeHarness({ beachRows = 6, unknownAsEmpty = true, 
     const url = typeof input === "string" ? input : input.url;
     if (url.includes("/rest/v1/wf_inventory")) {
       const intent = parseIntent(url, init);
-      const rows = fixtureRows(intent);
-      const resp = jsonResponse(rows);
+      const { rows, total } = fixtureRows(intent);
+      const resp = jsonResponse(rows, true, total);
       calls.push({ url, table: "wf_inventory", rows: rows.length, bytes: resp.__bytes, editorial: /(^|,)editorial(,|$)/.test(intent.select), rangeStart: intent.rangeStart, rangeSize: intent.rangeSize });
       return resp;
     }

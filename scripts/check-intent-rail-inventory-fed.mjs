@@ -55,7 +55,9 @@ ok(!existsSync(obsoleteIntentRoute) && !existsSync(obsoleteIntentHook),
   "the retired cap-first generic intent feed or client hook returned");
 
 ok(/order=place_id\.asc/.test(batch)
-  && /rows\.length >= limit/.test(batch),
+  && /rows\.length >= limit/.test(batch)
+  && /count=exact/.test(batch)
+  && /total === null \|\| total !== rows\.length/.test(batch),
   "inventoryBoxBatch must be deterministic and refuse an ambiguous full-limit prime");
 
 ok(!/order=signals->reviews\.desc\.nullslast&limit=400/.test(nearby)

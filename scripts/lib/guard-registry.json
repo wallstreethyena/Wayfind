@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 628,
-    "totalRegistryEntries": 629,
-    "guardsTxtLineCount": 627,
-    "guardsTxtReachedFileCount": 622,
+    "totalOnDiskGuardFiles": 629,
+    "totalRegistryEntries": 630,
+    "guardsTxtLineCount": 628,
+    "guardsTxtReachedFileCount": 623,
     "criticalCount": 74,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 425,
+      "CALL": 426,
       "RENDER": 60,
       "STRUCTURAL": 143,
       "OTHER": 1
@@ -4877,7 +4877,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 42,
+      "assertionCount": 47,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -8245,6 +8245,30 @@
         "detail": "A regression could bypass finite autocomplete budgets or disguise a denied provider as successful empty search suggestions."
       },
       "owner": "Revenue QA"
+    },
+    {
+      "file": "scripts/test-batch-completeness.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 7,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [
+        "has a real import/render/exec capability but zero assertions whose subject is a value RETURNED by code — every check reads source text only"
+      ],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
     },
     {
       "file": "scripts/test-beach-alert-recovery.mjs",

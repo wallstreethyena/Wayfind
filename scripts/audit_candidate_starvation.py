@@ -649,8 +649,7 @@ def audit_legacy_watchlist(root: Path = ROOT) -> list[dict]:
     ]))
 
     # 2. The union reader is an accelerator only. Deterministic order plus a
-    # full-limit refusal means an ambiguous partial universe never reaches the
-    # cache; missing either half restores the old defect.
+    # exact count plus full-limit refusal keeps incomplete universes out of cache.
     batch = _source(root, "lib/inventoryBoxBatch.js")
     union = _function(batch, "fetchUnionBox")
     prime = _function(batch, "primeConsolidatedInventoryReads")
@@ -663,6 +662,13 @@ def audit_legacy_watchlist(root: Path = ROOT) -> list[dict]:
         (bool(union and "order=place_id.asc" in union),
          "the union read has stable place_id order",
          "union read is not ordered by place_id.asc"),
+        (bool(union and '"count=exact"' in union
+              and "contentRangeTotal(r.headers)" in union
+              and "total === null || total !== rows.length" in union
+              and len(_calls(union, "fetchDeadline")) == 1
+              and _function(batch, "contentRangeTotal")),
+         "exact server count proves completeness and failure cannot narrow the union",
+         "union lacks exact count proof or retries a narrowed universe"),
         (rejects_full,
          "a non-array or full-limit response is refused as ambiguous",
          "union reader does not refuse rows.length >= limit"),
@@ -723,6 +729,12 @@ def audit_legacy_watchlist(root: Path = ROOT) -> list[dict]:
         (read_at < trunc_at < rows_at if read_at >= 0 else False,
          "a truncated/incomplete read is refused before rows face selection",
          "result.truncated is missing or checked after candidate iteration"),
+        (bool(nearby_fn and "includeStatus" in nearby_fn and "finish(best, !complete)" in nearby_fn
+              and rails and "includeStatus: true" in rails
+              and "built.some((result) => result.degraded)" in rails
+              and 'throw new Error("Nearby inventory reads incomplete")' in rails),
+         "incomplete Nearby reads reach the rail failure contract",
+         "Nearby can turn an incomplete read into a healthy cached fallback"),
         (identity_at > rows_at >= 0,
          "the category identity runs only over the completed ring",
          "the completed rows do not reach cfg.identity after the truncation check"),

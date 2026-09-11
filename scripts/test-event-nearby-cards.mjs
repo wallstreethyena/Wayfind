@@ -98,7 +98,7 @@ const whereHtml = renderToStaticMarkup(createElement(EventWhere, {
 }));
 assert.match(whereHtml, /id="event-location" data-event-section="Map &amp; directions" tabindex="-1"/, "the real map section exposes a keyboard-focusable navigation target");
 assert.match(whereHtml, /id="event-nearby" data-event-section="Nearby places" tabindex="-1"/, "the real nearby region exposes its own keyboard-focusable navigation target inside the map section");
-assert.match(whereHtml, /Nearby — not the venue/, "nearby businesses are explicitly distinguished from the ticketed venue");
+assert.match(whereHtml, /aria-label="Other places near Fixture Event Hall — not the venue itself"/, "nearby businesses retain their accessible distinction from the ticketed venue");
 for (const item of valid) assert.match(whereHtml, new RegExp(item.name), `${item.name} renders in EventWhere`);
 for (const item of invalid) assert.doesNotMatch(whereHtml, new RegExp(item.name), `${item.name} cannot render as a mismatched pin/card`);
 assert.ok(whereHtml.indexOf('id="event-location"') < whereHtml.indexOf('id="event-nearby"'), "the nearby region is housed inside the outer map section");
