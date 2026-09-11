@@ -13,6 +13,9 @@ export default function EventPlaceRail({ title, description, label, count, railC
     <style dangerouslySetInnerHTML={{ __html: `
       .wf-event-place-rail{min-width:0}
       .wf-event-place-rail>.wf-rail{list-style:none;margin:0;padding:4px 0 8px}
+      .wf-event-place-rail .wf-place-card{height:auto;min-height:var(--wf-card-h)}
+      .wf-event-place-rail .wf-place-card-layout{height:auto;min-height:calc(var(--wf-card-h) - 2px)}
+      .wf-event-place-rail .wf-place-card-content{height:auto}
       .wf-event-place-rail .wf-event-stay{flex:0 0 calc((100% - (var(--wf-rail-vis) - 1) * var(--wf-rail-gap)) / var(--wf-rail-vis));min-width:0;scroll-snap-align:start}
       .wf-event-stay-card{list-style:none;margin:0;padding:0}
       .wf-event-stay-card>.wf-place-card{width:100%;box-sizing:border-box;margin-bottom:0}
