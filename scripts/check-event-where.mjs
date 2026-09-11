@@ -150,7 +150,7 @@ ok(/event-route/.test(driving) && /distanceLabel/.test(driving) && /etaLabel/.te
 ok(/starting point is shared with Apple/.test(driving), "route controls disclose sharing the opted-in starting point with Apple");
 ok(/prefers-reduced-motion/.test(read("app/components/EventRouteJump.js")), "in-page route jump respects reduced-motion preference");
 ok(/The map preview is unavailable right now/.test(map) && !/The .*token/i.test(map), "reader-facing map fallback does not expose configuration jargon");
-ok(/Numbered teal pins/.test(where), "map legend describes the actual nearby pins");
+ok(/aria-label="Map key"/.test(where) && /wfw-key-venue" aria-hidden="true">★<\/b> Event/.test(where) && /wfw-key-nearby" aria-hidden="true">1<\/b> Nearby/.test(where), "compact map key distinguishes the event star from numbered nearby pins");
 ok(/glyphText: "★"/.test(read("lib/appleMapsRuntime.js")) && /glyphText: String\(i \+ 1\)/.test(read("lib/appleMapsRuntime.js")), "venue star and numbered nearby pins remain distinct");
 ok(/createAppleMapController/.test(map) && /destroy\(\)/.test(read("lib/appleMapsRuntime.js")), "the MapKit session is torn down on unmount");
 ok(/routeSummary/.test(read("lib/appleMapsRuntime.js")) && /polyline/.test(read("lib/appleMapsRuntime.js")), "Apple route responses require real polyline geometry");

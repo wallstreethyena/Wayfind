@@ -1470,3 +1470,8 @@ node scripts/test-event-driving-route.mjs
 node scripts/test-event-section-nav.mjs
 node scripts/test-event-nearby-cards.mjs
 node scripts/test-share-out-chooser.mjs
+node scripts/test-trip-connections.mjs
+
+# Six canonical Florida attraction identities supplement Family/Activities from
+# owned inventory, then keep the ordinary chip, exact-radius and score ordering.
+node scripts/test-attraction-discovery.mjs

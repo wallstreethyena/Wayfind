@@ -35,6 +35,11 @@ Route files supply verified event content and the existing action components.
 - Empty optional facts stay absent. Do not invent prices, dates, reasons,
   photography, creator associations or available tickets to fill the shell.
 
+The map-to-cards transition uses one compact Event/Nearby pin key and one
+“Nearby places” heading. Do not repeat the venue name, ranking explanation or
+not-the-venue disclaimer in visible paragraphs above the cards. Preserve the
+explicit accessible region label and use compact padding on mobile and desktop.
+
 ## Verification
 
 `scripts/test-event-experience.mjs` renders both real route functions and the
