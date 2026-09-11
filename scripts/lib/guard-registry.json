@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 633,
-    "totalRegistryEntries": 634,
-    "guardsTxtLineCount": 632,
-    "guardsTxtReachedFileCount": 627,
+    "totalOnDiskGuardFiles": 634,
+    "totalRegistryEntries": 635,
+    "guardsTxtLineCount": 633,
+    "guardsTxtReachedFileCount": 628,
     "criticalCount": 76,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 429,
+      "CALL": 430,
       "RENDER": 61,
       "STRUCTURAL": 143,
       "OTHER": 1
@@ -12725,6 +12725,28 @@
       "class": "CALL",
       "hasStructuralOnlyTag": false,
       "assertionCount": 11,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-photo-cache-width-reuse.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 80,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,

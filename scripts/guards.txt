@@ -1277,6 +1277,12 @@ node scripts/test-known-city-geocode.mjs
 
 node scripts/test-event-mobile-repair.mjs
 
+# 2026-09-11: an 800 card request may reuse a fresh same-ref 640 cache row.
+# Exact 800 still wins. 1200 stays exact-only. 400 never substitutes. No fake
+# 800 write and no extra Google spend. Locks lib/placePhotoServe cacheLookup
+# and lib/photoCacheRecovery candidate widths to the same set.
+node scripts/test-photo-cache-width-reuse.mjs
+
 node scripts/test-inventory-batch-concurrency.mjs
 
 node scripts/test-event-apple-maps.mjs
