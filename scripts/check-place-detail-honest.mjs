@@ -18,7 +18,9 @@ ok(/fetch\("\/api\/places\/details"/.test(body), "detail fetch uses the same-ori
 ok(/kind:\s*"detail"/.test(body), "detail fetch selects the fixed rich-detail tier");
 ok(!/importLibrary\(|fetchFields\(|new Place\(/.test(body), "detail fetch cannot fall back to the browser Places SDK");
 ok(/detail:\s*"editorialSummary,reviews,regularOpeningHours,nationalPhoneNumber,websiteUri,photos"/.test(route), "server route owns a fixed REST field mask");
-ok(/spendAllow\(kind === "area" \? "details_pro" : "details_enterprise"\)/.test(route), "rich detail takes an enterprise ledger grant");
+ok(/const legacySku = kind === "area" \? "details_pro" : "details_enterprise";/.test(route), "detail accounting retains the former SKU debit during migration");
+ok(/const actualSku = sessionToken \|\| kind === "detail" \? "details_enterprise_atmosphere" : legacySku;/.test(route), "rich detail and terminal Autocomplete Details map to the Atmosphere billing class");
+ok(/spendAllowSkuTransition\(legacySku, actualSku\)/.test(route), "Atmosphere detail requires both the legacy and corrected finite ledger grants");
 ok(/console\.error\(\s*"\[wf\] fetchPlaceDetail FAILED"/.test(body), "detail failure is logged");
 ok(/return \{ ok: true/.test(body) && /ok: false/.test(body), "success and failure have distinct shapes");
 

@@ -1,5 +1,13 @@
 {
   "_comment": "Hand-authored fields for CRITICAL guards (scripts/lib/build-guard-registry.mjs computes the critical set mechanically \u2014 top-20-audit citation + money-keyword match \u2014 and refuses to generate the registry if any critical guard is missing an entry here). Keyed by the guard's repo-relative path. protects = one plain sentence naming the invariant. blastRadius.category is one of revenue|trust|correctness|cosmetic. owner follows CLAUDE.md's 'AI Team Structure' (Qwen=Engineering, Llama=Editorial, Revenue QA=affiliate/monetization integrity) or 'owner (Gabriel)' where the call is a business/product decision rather than a technical one.",
+  "scripts/test-google-sku-transition.mjs": {
+    "protects": "Corrected Google billing tiers retain the prior allowance boundary, meter each outbound retry, and stop denied provider requests without removing quality fields.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "Misclassified rich requests and unmetered retry or city-crawl calls can exceed the intended Google allowance; changing SKU labels must not grant fresh headroom."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/check-env.mjs": {
     "protects": "Every revenue- or feature-critical env var (Viator PID, Supabase keys, provider keys) is present and not a placeholder, at build time, with a printed advisory.",
     "blastRadius": {

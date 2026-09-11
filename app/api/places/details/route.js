@@ -15,15 +15,17 @@
 // client-supplied field list — Google's New Places API bills by SKU tier per
 // field group (Basic vs Atmosphere), so accepting a free-form field list would
 // let any caller upgrade every request to the priciest tier. "place" mirrors
-// the old place-kind fetchFields (incl. Atmosphere-tier fields); "area"
-// mirrors the old area-kind fetchFields (Basic-tier only) — same cost shape
-// as before this route existed, just guarded.
+// the old place-kind fetchFields and "area" mirrors the old area-kind fields.
+// When either terminates an Autocomplete session, Google bills the terminal
+// Details request at Atmosphere; the "detail" mask also reaches that tier via
+// editorialSummary/reviews. Accounting below preserves the former ledger debit
+// as a transition ceiling while recording the real billed class.
 //
 // Fail-soft, same contract as /api/places/autocomplete: no
 // GOOGLE_MAPS_SERVER_KEY configured -> 501, client falls back to the direct
 // SDK path (see pickSuggestionDetails's fallback in app/home.js).
 import { NextResponse } from "next/server";
-import { gateShut, spendAllow } from "../../../../lib/spendGate";
+import { gateShut, spendAllow, spendAllowSkuTransition } from "../../../../lib/spendGate";
 import { getInventoryIdentity } from "../../../../lib/inventoryIdentity.js";
 
 export const dynamic = "force-dynamic";
@@ -84,9 +86,15 @@ export async function POST(req) {
     // COST GUARD (2026-09-04): this route reached Google with NO gate and NO
     // ledger. FIELDS.place carries rating/userRatingCount/priceLevel — the
     // ENTERPRISE tier whose editorialSummary sibling cost $1,198 in August.
-    // FIELDS.area is location/address/name only, which bills at Pro.
+    // FIELDS.area is Pro by fields alone. A session-token terminal request is
+    // Atmosphere regardless, as is FIELDS.detail by its field selection.
     if (gateShut()) return NextResponse.json({ error: "gate shut" }, { status: 200 });
-    if (!(await spendAllow(kind === "area" ? "details_pro" : "details_enterprise"))) {
+    const legacySku = kind === "area" ? "details_pro" : "details_enterprise";
+    const actualSku = sessionToken || kind === "detail" ? "details_enterprise_atmosphere" : legacySku;
+    const allowed = actualSku === legacySku
+      ? await spendAllow(legacySku)
+      : await spendAllowSkuTransition(legacySku, actualSku);
+    if (!allowed) {
       return NextResponse.json({ error: "budget" }, { status: 200 });
     }
     const r = await fetch("https://places.googleapis.com/v1/places/" + encodeURIComponent(placeId) + qs, {

@@ -46,7 +46,7 @@ for (const good of ["night_club", "bar", "pub"]) {
       ? { ok: false, status: 400, json: async () => ({ error: { message: "Unsupported types: karaoke_bar." } }) }
       : { ok: true, status: 200, json: async () => ({ places: [] }) };
   };
-  const { usable, rejected } = await preflightTypes([...CENSUS_TYPES, "karaoke_bar"], "k", fakeFetch);
+  const { usable, rejected } = await preflightTypes([...CENSUS_TYPES, "karaoke_bar"], "k", fakeFetch, async () => true);
   ok(!usable.includes("karaoke_bar"), "preflight drops the unsupported type");
   ok(usable.length === CENSUS_TYPES.length, "preflight keeps every usable type");
   ok(rejected.some((r) => r.type === "karaoke_bar" && r.status === 400), "the rejection is REPORTED, not swallowed");
@@ -62,7 +62,7 @@ for (const good of ["night_club", "bar", "pub"]) {
     const places = n <= 2 ? [{ id: "ChIJ" + "a".repeat(20) }, { id: "ChIJ" + String(n).repeat(20) }] : [];
     return { ok: true, status: 200, json: async () => ({ places }) };
   };
-  const { places, stats } = await sweepDistricts(ORLANDO_DISTRICTS.slice(0, 4), CENSUS_TYPES, "k", fakeFetch);
+  const { places, stats } = await sweepDistricts(ORLANDO_DISTRICTS.slice(0, 4), CENSUS_TYPES, "k", fakeFetch, async () => true);
   ok(places.length === 3, `union dedupes by place_id (got ${places.length}, expected 3)`);
   ok(stats.curve.length === 4, "the saturation curve records every district");
   ok(stats.curve[0].added === 3 && stats.curve[2].added === 0, "the curve shows new-ids-per-district falling to 0");
@@ -75,7 +75,7 @@ for (const good of ["night_club", "bar", "pub"]) {
   // A FAILING district must not read as saturation. This is the karaoke_bar
   // failure mode: 0 results because the call died, not because the market is thin.
   const fakeFetch = async () => ({ ok: false, status: 400, json: async () => ({}) });
-  const { places, stats } = await sweepDistricts(ORLANDO_DISTRICTS.slice(0, 3), CENSUS_TYPES, "k", fakeFetch);
+  const { places, stats } = await sweepDistricts(ORLANDO_DISTRICTS.slice(0, 3), CENSUS_TYPES, "k", fakeFetch, async () => true);
   ok(places.length === 0, "a failed sweep returns no places");
   ok(stats.curve.every((c) => c.status === 400), "the curve carries the STATUS CODE, so 0 results is distinguishable from a 400");
 }
@@ -98,7 +98,7 @@ for (const good of ["night_club", "bar", "pub"]) {
   };
   const one = ORLANDO_DISTRICTS.filter((d) => d.label === "I-Drive / ICON");
   ok(one.length === 1, "the I-Drive district exists to subdivide");
-  const { places, stats } = await sweepDistricts(one, ["bar"], "k", fakeFetch);
+  const { places, stats } = await sweepDistricts(one, ["bar"], "k", fakeFetch, async () => true);
   ok(stats.saturated > 0, "a full-to-the-cap response is recorded as SATURATED");
   ok(places.some((p) => p.id === HIDDEN),
     "the venue only visible at a smaller radius IS recovered — this is Tom's Watch Bar");
@@ -109,7 +109,7 @@ for (const good of ["night_club", "bar", "pub"]) {
   // ...and a NON-saturated response must NOT subdivide, or every sweep pays the
   // full subdivision bill whether it needs to or not.
   const fakeFetch = async () => ({ ok: true, status: 200, json: async () => ({ places: [{ id: "ChIJonlyone" }] }) });
-  const { stats } = await sweepDistricts(ORLANDO_DISTRICTS.slice(0, 1), ["bar"], "k", fakeFetch);
+  const { stats } = await sweepDistricts(ORLANDO_DISTRICTS.slice(0, 1), ["bar"], "k", fakeFetch, async () => true);
   ok(stats.saturated === 0, "a response under the cap is not saturated");
   ok(stats.calls === 1, `no subdivision when the cap does not bind (got ${stats.calls} calls)`);
 }
@@ -161,7 +161,7 @@ for (const good of ["night_club", "bar", "pub"]) {
     if (n > 3) return { ok: false, status: 429, json: async () => ({ error: { message: "Quota exceeded" } }) };
     return { ok: true, status: 200, json: async () => ({ places: [{ id: "ChIJok" + n }] }) };
   };
-  const { places, stats } = await sweepDistricts(ORLANDO_DISTRICTS, CENSUS_TYPES, "k", fakeFetch);
+  const { places, stats } = await sweepDistricts(ORLANDO_DISTRICTS, CENSUS_TYPES, "k", fakeFetch, async () => true);
   ok(stats.quotaExhausted === true, "a 429 sets stats.quotaExhausted");
   ok(places.length === 3, `the sweep keeps what it got before the quota died (got ${places.length})`);
   ok(stats.curve.length < ORLANDO_DISTRICTS.length,
@@ -171,7 +171,7 @@ for (const good of ["night_club", "bar", "pub"]) {
 {
   // ...and a clean sweep must NOT set the flag, or the flag means nothing.
   const fakeFetch = async () => ({ ok: true, status: 200, json: async () => ({ places: [{ id: "ChIJfine" }] }) });
-  const { stats } = await sweepDistricts(ORLANDO_DISTRICTS.slice(0, 2), CENSUS_TYPES, "k", fakeFetch);
+  const { stats } = await sweepDistricts(ORLANDO_DISTRICTS.slice(0, 2), CENSUS_TYPES, "k", fakeFetch, async () => true);
   ok(stats.quotaExhausted === false, "a clean sweep leaves quotaExhausted false");
 }
 

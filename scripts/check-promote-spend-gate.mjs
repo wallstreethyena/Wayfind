@@ -81,9 +81,18 @@ for (const rel of ["app/api/cron/promote-index/route.js", "scripts/promote-worke
   ok(/spendAllowCapped\(PROMOTE_SKU,\s*\w+\)/.test(src), `${rel} must gate each Details call with spendAllowCapped(PROMOTE_SKU, <month cap>)`);
   ok(/spendAllowCapped\(RATING_SKU,\s*\w+\)/.test(src), `${rel} must gate the rating buy with spendAllowCapped(RATING_SKU, <month cap>)`);
   ok(/hasIndexRating\(/.test(src), `${rel} must decide the mask per place with hasIndexRating() — the rating buy is the exception, not the default`);
-  ok(/details\([^)]*,\s*mask\)/.test(src), `${rel} must pass the chosen mask into details() — a fixed mask would silently bill every place at Enterprise or leave the rating out`);
+  ok(/details\([^)]*,\s*mask(?:,|\))/.test(src), `${rel} must pass the chosen mask into details() — a fixed mask would silently bill every place at Enterprise or leave the rating out`);
   ok(/wf_promotion_release/.test(src), `${rel} must RELEASE (wf_promotion_release) a place the ledger refused, not complete it as a failure`);
   ok(/month_cap/.test(src), `${rel} must read wf_promote_config.month_cap — the operator's budget dial`);
+}
+// A transient retry is another provider request. The cron's retry loop must
+// therefore take another grant after attempt zero instead of fanning one grant
+// out into as many as three billable calls.
+{
+  const src = read("app/api/cron/promote-index/route.js");
+  const retryBody = src.slice(src.indexOf("async function details("), src.indexOf("async function rpc("));
+  ok(/attempt > 0\s*&&\s*!\(await spendAllowCapped\(sku, monthCap\)\)/.test(retryBody),
+    "promote-index: every Details retry must take its own ledger grant");
 }
 // The ledger grant must happen BEFORE the Details fetch in the per-place path.
 for (const rel of ["app/api/cron/promote-index/route.js", "scripts/promote-worker.mjs"]) {

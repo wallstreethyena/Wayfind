@@ -1,4 +1,4 @@
-import { gateShut, gateFree } from "../../../../lib/spendGate";
+import { gateShut, gateFree, spendAllowSkuTransition, textEnterpriseCap } from "../../../../lib/spendGate";
 // app/api/city/unlock/route.js — the on-demand city fetch (spec STEP 3 #10). A
 // SIGNED-IN user tapped "Unlock {city}" in an uncovered area; this pulls Google
 // Places for that city into wf_inventory. The moment inventory lands near the
@@ -150,9 +150,14 @@ export async function POST(req) {
   // 1) Google Places → wf_inventory (opens the gate). Skipped when already
   //    covered, or when the Google key is absent (Viator can still run below).
   const byId = new Map();
+  let googleBudgetDenied = false;
   if (!covered && gkey) {
     await pool(PULLS, 3, async (pl) => {
       try {
+        if (!(await spendAllowSkuTransition("text_pro", "text_enterprise", textEnterpriseCap()))) {
+          googleBudgetDenied = true;
+          return;
+        }
         const r = await fetch("https://places.googleapis.com/v1/places:searchText", {
           method: "POST",
           headers: { "Content-Type": "application/json", "X-Goog-Api-Key": gkey, "X-Goog-FieldMask": FIELD_MASK },
@@ -178,7 +183,12 @@ export async function POST(req) {
 
   // 2) Insert into wf_inventory via the shared add function (sets refreshed_at=now
   //    → flips the gate to live). Bounded.
-  const rows = [...byId.values()].filter(({ p }) => p.displayName && p.displayName.text && p.location).slice(0, MAX_INSERT);
+  // A partial crawl must not declare a city covered. Keep the previous data
+  // untouched and report the budget state so a later fully-authorized run can
+  // establish coverage honestly.
+  const rows = googleBudgetDenied
+    ? []
+    : [...byId.values()].filter(({ p }) => p.displayName && p.displayName.text && p.location).slice(0, MAX_INSERT);
   let added = 0;
   await pool(rows, 5, async ({ p, cat }) => {
     try {
@@ -246,5 +256,10 @@ export async function POST(req) {
   // 3) Coverage established → mark the request(s) live.
   const live = covered || added > 0;
   await setStatus(s, svcH, lat, lng, live ? "live" : "fetching");
-  return Response.json({ ok: live || exp > 0, status: live ? "live" : "fetching", metro, found: rows.length, added, experiences: exp }, { headers: { "Cache-Control": "no-store" } });
+  return Response.json({
+    ok: live || exp > 0,
+    status: live ? "live" : (googleBudgetDenied ? "budget" : "fetching"),
+    google_spend: covered ? "skipped_covered" : (!gkey ? "skipped_unconfigured" : (googleBudgetDenied ? "denied" : "granted")),
+    metro, found: rows.length, added, experiences: exp,
+  }, { headers: { "Cache-Control": "no-store" } });
 }
