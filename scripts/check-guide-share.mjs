@@ -170,7 +170,8 @@ ok(canShareNatively() === false, "with no navigator there is no native sheet, an
   // data as a second link is how this assertion first failed on a correct page.
   const toIndex = (gp.match(/(?:back)?[Hh]ref="\/guides"/g) || []).length;
   ok(toIndex === 1, 'the guide page links to /guides ' + toIndex + ' times — it must be exactly once, or "All guides" renders twice on every guide');
-  ok(/Back to Wayfind/.test(gp), "the guide must keep its back-to-the-app anchor (check-guides pins the rendered markup)");
+  const backControl = strip(read("app/components/ReturnToWayfind.js"));
+  ok(/import ReturnToWayfind from "\.\.\/\.\.\/components\/ReturnToWayfind"/.test(gp) && /<ReturnToWayfind\b/.test(gp) && /<a\b[^>]*href="\/"[^>]*>‹ Back to Wayfind<\/a>/.test(backControl), "the guide must render the shared back-to-the-app anchor with its visible label and home fallback");
   ok(/backHref="\/guides"/.test(gp), "the hero chrome is where the index link lives");
 }
 

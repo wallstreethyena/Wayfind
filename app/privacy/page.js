@@ -1,3 +1,4 @@
+import ReturnToWayfind from "../components/ReturnToWayfind";
 // Counsel-note placeholders removed. Remaining sentences are only the facts already published on this page. No new legal claims added.
 export const metadata = { alternates: { canonical: "https://www.gowayfind.com/privacy" }, title: "Privacy & Disclosures | Wayfind", description: "What Wayfind collects, how it may be shared or sold, and how affiliate links are disclosed — in plain language." };
 
@@ -72,7 +73,7 @@ export default function Privacy() {
         <h2 style={S.h2}>Contact</h2>
         <p style={S.p}>WAYFIND LLC &middot; <a style={S.a} href="mailto:privacy@gowayfind.com">privacy@gowayfind.com</a></p>
 
-        <p style={{ ...S.p, marginTop: 32 }}><a style={S.a} href="/">&larr; Back to Wayfind</a></p>
+        <p style={{ ...S.p, marginTop: 32 }}><ReturnToWayfind style={S.a} /></p>
       </div>
     </div>
   );

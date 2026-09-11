@@ -1,3 +1,4 @@
+import ReturnToWayfind from "../components/ReturnToWayfind";
 // v4.18 — Guides hub. A browsable index so humans and crawlers reach every
 // guide from one internally linked page, strengthening the authority flow.
 import { GUIDES } from "../../lib/guides";
@@ -40,7 +41,7 @@ export default function GuidesHub() {
           app shell — no nav, no logo — so a reader who landed here from search
           or a card had no visible door home. Same chip language the app's
           standalone screens use. */}
-      <a href="/" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 999, background: "#161B22", border: "1px solid #21262D", color: "#FF8A3D", fontSize: 13.5, fontWeight: 800, textDecoration: "none", marginBottom: 18 }}>‹ Back to Wayfind</a>
+      <ReturnToWayfind style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 999, background: "#161B22", border: "1px solid #21262D", color: "#FF8A3D", fontSize: 13.5, fontWeight: 800, textDecoration: "none", marginBottom: 18 }} />
       <header className={styles.header}>
         <p className={styles.eyebrow}>The Wayfind journal</p>
         <h1>Florida guides.<br />Better days out.</h1>

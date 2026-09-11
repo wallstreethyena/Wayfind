@@ -1,3 +1,4 @@
+import ReturnToWayfind from "../../components/ReturnToWayfind";
 // v4.16 — Server-rendered SEO guide pages. No "use client": these render to
 // HTML at build time so search engines index the full content. Each pick can
 // carry a Viator experience link (bookQuery) or a Booking.com rate link
@@ -632,7 +633,7 @@ export default async function GuidePage({ params }) {
       {/* v8.22 — same rule as the /guides hub: every guide page carries a
           visible way back into the app. */}
       <nav aria-label="Breadcrumb" style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 18 }}>
-        <a href="/" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 999, background: "#161B22", border: "1px solid #21262D", color: "#FF8A3D", fontSize: 13.5, fontWeight: 800, textDecoration: "none" }}>‹ Back to Wayfind</a>
+        <ReturnToWayfind style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 999, background: "#161B22", border: "1px solid #21262D", color: "#FF8A3D", fontSize: 13.5, fontWeight: 800, textDecoration: "none" }} />
       </nav>
       <style dangerouslySetInnerHTML={{ __html: `
         .wf-guide-article{max-width:860px;margin:0 auto}

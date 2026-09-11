@@ -1,3 +1,4 @@
+import ReturnToWayfind from "../components/ReturnToWayfind";
 // v5.29 — E-E-A-T foundation (SEO audit July 2026): a real, named "who is
 // behind this" page. Every claim here must stay true; nothing aspirational.
 //
@@ -50,7 +51,7 @@ const DIFFERENTIATORS = [
 export default function Page() {
   return (
     <article style={S.page}>
-      <a style={S.back} href="/">‹ Back to Wayfind</a>
+      <ReturnToWayfind style={S.back} />
       <div style={S.kicker}>About Wayfind</div>
       <h1 style={S.h1}>Built to answer one question honestly: what&apos;s actually worth your time, right now?</h1>
       <p style={S.lede}>Wayfind is a local discovery engine operated by WAYFIND LLC and founded by <b>Gabriel Pereira</b>, based in the Sarasota–Bradenton area of Florida. It ranks restaurants, beaches, attractions, nightlife, events, and hidden gems near you using live data — real ratings, real review volumes, current hours, distance, and the weather at this moment.</p>

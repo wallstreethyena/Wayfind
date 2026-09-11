@@ -31,6 +31,7 @@
 // rail must lead with tonight, not the afternoon. scripts/check-one-clock.mjs
 // enforces this; scripts/test-dayparts.mjs proves the four bands never
 // contradict nowContext's three.
+import { browsePosition, restoreBrowsePosition } from "../../lib/restoreBrowsePosition";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 
@@ -492,22 +493,22 @@ export default function DaypartRail({
   const [retryNonce, setRetryNonce] = useState(0);
   const [selected, setSelected] = useState(null);
   const resumePoster = useRef(false);
+  const posterReturn = useRef(null);
+  const cancelPosterRestore = useRef(null);
   useEffect(() => {
     if (initialRail || !["/", "/v8"].includes(window.location.pathname)) return;
     try {
       const saved = JSON.parse(sessionStorage.getItem("wf_poster_position") || "null");
       if (saved && Date.now() - saved.ts < 30 * 60000 && railById.has(saved.id)) {
         resumePoster.current = true;
+        posterReturn.current = saved.returnPosition || null;
         setSelected(saved.id);
       } else {
         sessionStorage.removeItem("wf_poster_position");
       }
     } catch { try { sessionStorage.removeItem("wf_poster_position"); } catch {} }
   }, []);
-  useEffect(() => {
-    if (!selected || !["/", "/v8"].includes(window.location.pathname)) return;
-    try { sessionStorage.setItem("wf_poster_position", JSON.stringify({ id: selected, ts: Date.now() })); } catch {}
-  }, [selected]);
+  useEffect(() => () => cancelPosterRestore.current?.(), []);
   const [railPageState, setRailPageState] = useState({});
   const railPageInFlight = useRef(new Set());
   // A page response may outlive a city, daypart, or selected-poster change.
@@ -560,6 +561,31 @@ export default function DaypartRail({
   // one arrives.
   const answered = live != null;
   const railById = useMemo(() => new Map((sponsor ? [sponsor, ...rails] : rails).map((r) => [r.id, r])), [sponsor, rails]);
+  useEffect(() => {
+    if (!["/", "/v8"].includes(window.location.pathname)) return undefined;
+    const save = () => {
+      try {
+        if (selected) sessionStorage.setItem("wf_poster_position", JSON.stringify({ id: selected, returnPosition: posterReturn.current, ts: Date.now() }));
+        else sessionStorage.removeItem("wf_poster_position");
+      } catch {}
+    };
+    const restore = (event) => {
+      const saved = event.detail?.poster;
+      resumePoster.current = true;
+      posterReturn.current = saved?.returnPosition || null;
+      setSelected(saved && railById.has(saved.id) ? saved.id : null);
+    };
+    const frame = requestAnimationFrame(save);
+    window.addEventListener("pagehide", save);
+    document.addEventListener("click", save, true);
+    window.addEventListener("wf:restore-browse", restore);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("pagehide", save);
+      document.removeEventListener("click", save, true);
+      window.removeEventListener("wf:restore-browse", restore);
+    };
+  }, [selected, railById]);
   // NOTE on `artStale`: a rail can be renamed in code while the reader keeps
   // seeing the old claim, because the headline on these tiles is PIXELS.
   // `trending` still reads "EXPLODING TRENDS NEAR YOU" in the artwork, and the
@@ -889,6 +915,9 @@ export default function DaypartRail({
     const targetId = requested.retiredInto || id;
     const rail = railById.get(targetId);
     if (!rail) return;
+    cancelPosterRestore.current?.();
+    const root = document.querySelector(".wf-scrollarea");
+    if (!selected && root) posterReturn.current = browsePosition(root);
     resumePoster.current = false;
     setSelected(targetId);
     logEvent("rail_open", {
@@ -907,12 +936,15 @@ export default function DaypartRail({
     // cutover; delete LEGACY_HERO_EVENT once the new series has history.
     const legacy = LEGACY_HERO_EVENT[targetId];
     if (legacy) logEvent(legacy, { src: "rail", rail_id: targetId });
-  }, [railById, daypart, shown, order, locName]);
+  }, [railById, daypart, shown, order, locName, selected]);
 
   const close = useCallback(() => {
     resumePoster.current = false;
     setSelected(null);
     try { sessionStorage.removeItem("wf_poster_position"); } catch {}
+    cancelPosterRestore.current?.();
+    const root = document.querySelector(".wf-scrollarea");
+    if (root) cancelPosterRestore.current = restoreBrowsePosition(root, posterReturn.current || { top: 0 });
   }, []);
 
   // Which tile is currently saying "Link copied". One at a time, cleared on a

@@ -88,8 +88,8 @@ for (const [slug, guide] of Object.entries(GUIDES)) {
 // rendered anchor (an <a> to "/"), never a bare substring.
 {
   const hub = readFileSync(new URL("../app/guides/page.js", import.meta.url), "utf8");
-  if (!/<a href="\/"[^>]*>‹ Back to Wayfind<\/a>/.test(hub)) fail("guides hub: missing the rendered back-to-home anchor");
-  if (!/<a href="\/"[^>]*>‹ Back to Wayfind<\/a>/.test(g)) fail("guide detail: missing the rendered back-to-home anchor");
+  if (!/<ReturnToWayfind\s/.test(hub)) fail("guides hub: missing the rendered back-to-home anchor");
+  if (!/<ReturnToWayfind\s/.test(g)) fail("guide detail: missing the rendered back-to-home anchor");
   // v8.23 — EITHER FORM COUNTS. The up-link used to be a literal anchor in this
   // file AND a backHref on the hero, which rendered "All guides" twice on every
   // guide page, stacked (owner: "lets get rid of these buttons that dont serve a

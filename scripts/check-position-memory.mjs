@@ -52,8 +52,8 @@ const code = raw.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 {
   ok(/sessionStorage\.setItem\("wf_pos"/.test(code), "nothing records where the reader was");
   ok(/sessionStorage\.getItem\("wf_pos"\)/.test(code), "wf_pos is written and never read — the exact bug this file exists for");
-  const write = code.slice(code.indexOf('sessionStorage.setItem("wf_pos"'), code.indexOf('sessionStorage.setItem("wf_pos"') + 420);
-  for (const field of ["screen", "cat", "browseCat", "sub", "vibe", "top", "ts"]) {
+  const write = code.slice(code.indexOf("const p = { screen, cat"), code.indexOf('sessionStorage.setItem("wf_pos"'));
+  for (const field of ["screen", "cat", "browseCat", "sub", "vibe", "browsePosition", "ts"]) {
     ok(new RegExp("\\b" + field + "\\b").test(write), `wf_pos does not record "${field}" — the taxonomy IS the position, not just the scroll offset`);
   }
   const read = code.slice(code.indexOf('sessionStorage.getItem("wf_pos")'), code.indexOf('sessionStorage.getItem("wf_pos")') + 900);
@@ -85,7 +85,8 @@ ok(/removeEventListener\("pagehide"/.test(code), "the pagehide listener is never
 // would be silently undone.
 {
   ok(/requestAnimationFrame\(\(\) => \{\s*b = requestAnimationFrame/.test(code)
-     || /requestAnimationFrame\([\s\S]{0,120}requestAnimationFrame/.test(code),
+     || /requestAnimationFrame\([\s\S]{0,120}requestAnimationFrame/.test(code)
+     || code.includes("return restoreBrowsePosition(scrollRef.current, r"),
      "the position is applied without waiting a frame — the scroll-reset effect on the taxonomy change would undo it");
   ok(/posRestore/.test(code), "no restore handle, so nothing can survive the reset");
 }
@@ -124,6 +125,24 @@ ok(/removeEventListener\("pagehide"/.test(code), "the pagehide listener is never
   height = 1800; rails = [rail]; observerCallback(); flush();
   ok(top === 900 && rail.scrollLeft === 430, "late content restores vertical position and the selected horizontal card");
   ok(context.horizontalPositions(root)[0].left === 430, "snapshot reads actual horizontal position");
+  rail.scrollLeft = 0;
+  ok(context.horizontalPositions(root)[0].left === 0, "horizontal zero is saved so Back can undo a later rail swipe");
+  const node = (key, y, h = 90) => ({ getAttribute: (attr) => attr === "data-wf-position-key" ? key : null,
+    getBoundingClientRect: () => ({ top: y - top, bottom: y - top + h, height: h }) });
+  root.getBoundingClientRect = () => ({ top: 0, bottom: 500 });
+  const snapshotRoot = { ...root, scrollTop: 900, getBoundingClientRect: root.getBoundingClientRect,
+    querySelectorAll: (selector) => selector.includes('a[href]') ? [node("hidden", 900, 0), node("place-a", 960)] : [] };
+  const snapshot = context.browsePosition(snapshotRoot);
+  ok(snapshot.anchor.key === "place-a" && snapshot.anchor.offset === 60, "snapshot ignores zero-height nodes and saves visible card offset");
+  const anchored = context.restoreBrowsePosition(root, { top: 1500, anchor: snapshot.anchor });
+  rails = []; top = 40; observerCallback(); flush();
+  ok(top === 40, "missing anchor never clamps the loading page to its footer");
+  rails = [node("place-a", 1100)]; observerCallback(); flush();
+  ok(top === 1040, "late anchor restores same card offset after content above changes height");
+  anchored();
+  // Resume original cancellation test with its observer.
+  dispose();
+  context.restoreBrowsePosition(root, { top: 900 }, () => completed++);
   listeners.get("wheel")(); top = 200; observerCallback(); flush();
   ok(top === 200 && completed === 1, "an outside-scroller gesture (including bottom navigation) cancels restoration");
   dispose();
@@ -135,6 +154,22 @@ ok(/removeEventListener\("pagehide"/.test(code), "the pagehide listener is never
   ok(poster.includes('getItem("wf_poster_position")') && poster.includes('setSelected(saved.id)'), "poster state has a working restore path");
   ok(poster.includes('resumePoster.current || typeof window'), "resuming skips the fresh-open landing that would overwrite position");
   ok(code.includes('horizontalPositions(scrollRef.current)') && code.includes('restoreBrowsePosition(scrollRef.current, r'), "homepage wires the tested snapshot and restore controller");
+}
+
+// Render the real component: dependency arrays execute during render even
+// though effects themselves do not run on the server. JSX syntax checks cannot
+// catch an effect reading a later const (the railById preview crash).
+{
+  const { createElement } = await import("react");
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const { loadComponent } = await import("./lib/jsxLoad.mjs");
+  try {
+    const { default: DaypartRail } = await loadComponent(path.join(REPO, "app/components/DaypartRail.js"), REPO);
+    const html = renderToStaticMarkup(createElement(DaypartRail, { rails: [], places: {}, thin: [] }));
+    ok(typeof html === "string", "DaypartRail executes its render and hook dependency arrays without a temporal-dead-zone crash");
+  } catch (error) {
+    ok(false, "DaypartRail render failed: " + error.message);
+  }
 }
 
 if (fails.length) {

@@ -107,7 +107,7 @@ const railOpen = (RAIL.match(/logEvent\x28.rail_open., \{([\s\S]*?)\}\x29;/) || 
 ok(railOpen.length > 0, "DaypartRail: rail_open event found");
 ok(/city: shown\.citySlug/.test(railOpen) && /header_city: honestCityLabel\x28locName\x29 \|\| null/.test(railOpen),
   "rail_open reports BOTH the rail's slug and the header's city, so a disagreement is queryable after the fact");
-ok(/\}, \[railById, daypart, shown, order, locName\]\x29;/.test(RAIL), "…and open() re-binds on locName so the event never reports a stale header");
+ok(/\}, \[railById, daypart, shown, order, locName, selected\]\x29;/.test(RAIL), "…and open() re-binds on locName so the event never reports a stale header");
 
 if (fails) { console.error(`\n${fails} assertion(s) failed`); process.exit(1); }
 console.log("  all green");
