@@ -27,15 +27,15 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 631,
-    "totalRegistryEntries": 632,
-    "guardsTxtLineCount": 630,
-    "guardsTxtReachedFileCount": 625,
+    "totalOnDiskGuardFiles": 632,
+    "totalRegistryEntries": 633,
+    "guardsTxtLineCount": 631,
+    "guardsTxtReachedFileCount": 626,
     "criticalCount": 74,
     "unwiredCriticalCount": 0,
     "classCounts": {
       "CALL": 428,
-      "RENDER": 60,
+      "RENDER": 61,
       "STRUCTURAL": 143,
       "OTHER": 1
     }
@@ -10128,7 +10128,7 @@
       "assertionCount": 19,
       "unprovenAbsenceCount": 5,
       "honestyViolations": [
-        "5 absence assertion(s) with no positive control in the same file (e.g. \"/rankedFor\\(/.test(railsData), \"\")"
+        "5 absence assertion(s) with no positive control in the same file (e.g. \"/const rank = \\(deps && deps\\.rankedFor\\) \\|\\| rankedFor;/.test(railsData)\n  &&\")"
       ],
       "selfDocumentsRedProve": false,
       "wiring": {
@@ -13024,6 +13024,28 @@
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": false,
+      "criticalReasons": [],
+      "protects": null,
+      "blastRadius": null,
+      "owner": null
+    },
+    {
+      "file": "scripts/test-poster-pool-parallel.mjs",
+      "npmScript": null,
+      "class": "RENDER",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 27,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": true,
       "wiring": {
         "guardsTxt": true,
         "npmScripts": [],

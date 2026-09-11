@@ -363,6 +363,7 @@ node scripts/check-promo-location-honesty.mjs
 # codebase: no render chain may end on a loading state.
 node scripts/check-no-terminal-loading.mjs
 node scripts/check-rail-pool-waves.mjs
+node scripts/test-poster-pool-parallel.mjs
 # WO8 (2026-09-02) — production perf regression lock. /api/rails cold compute
 # hit the 20s deadline (owner, Bradenton) doing ~30 wf_inventory reads with
 # `editorial` on every row; check-rail-compute-budget.mjs re-runs the real
