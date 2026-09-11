@@ -615,5 +615,13 @@
       "detail": "Wrong-account or poisoned short links can send buyers to an incorrect program or make conversion attribution unverifiable."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/test-bookable-near-me-empty-rail.mjs": {
+    "protects": "An empty live Viator city pull cannot hide cached /api/experiences Family inventory, cannot double-spend, cannot loosen the 60-mile UT gate, and an empty tours response must name a non-secret provider_state class.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "The Bradenton Family rail collapsed to a single UT card when /api/viator/tours returned items:[]; treating that empty array as finished inventory dropped legitimate imaged link_ok family/theme rows and made every empty live class look the same."
+    },
+    "owner": "Revenue QA"
   }
 }

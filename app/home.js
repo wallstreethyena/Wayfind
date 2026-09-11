@@ -185,6 +185,7 @@ import * as Gems from "../lib/gems";
 import * as Aff from "../lib/affiliates";
 import { DISPLAY_CHIPS, rankExperiences, experienceWayfindScore } from "../lib/experiencesData";
 import { chipCommerce, chipSearchQuery } from "../lib/browseCommerceMap";
+import { mergeBrowseExperienceLanes, parentOwnsLiveLane, liveExperienceSeed } from "../lib/browseExperienceLanes";
 import { chipAffinityBonus } from "../lib/experienceConcepts";
 import { discountDepthBonus, timeOfDayBonus } from "../lib/experienceNowRank";
 import { safeUrl, openExternal as safeOpenExternal } from "../lib/links";
@@ -11148,11 +11149,17 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
 function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includeExperiences = true, initialExperiences, categories = [], lat, lng, onSave, onLog = NOLOG, city, region }) {
   const plan = chipCommerce(browseCat, sub || "all");
   const cat = plan.catalogParam;
-  const [experiences, setExperiences] = useState(() => Array.isArray(initialExperiences) ? initialExperiences : null);
+  // Empty browseTours (`[]`) is "live Viator had nothing", NOT finished
+  // inventory. Only a non-empty seed paints immediately; the effect still
+  // merges the cached `/api/experiences` table so a zero live response cannot
+  // hide legitimate family/theme rows. See lib/browseExperienceLanes.js.
+  const [experiences, setExperiences] = useState(() => {
+    const seed = liveExperienceSeed(initialExperiences);
+    return seed.length ? seed : null;
+  });
   const [deals, setDeals] = useState(null);
 
   useEffect(() => {
-    if (Array.isArray(initialExperiences)) { setExperiences(initialExperiences); return; }
     // 2026-09-07 — THE EAT-INTENT BOUNDARY (owner: wine tours and Riverwalk
     // walking tours were rendering ABOVE the restaurant results under Food ->
     // Dinner). `plan.noExperiences` (lib/browseCommerceMap.js NO_TOUR_COMMERCE)
@@ -11166,6 +11173,8 @@ function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includ
     // where the restaurant-specific-commerce line actually sits.
     if (!includeExperiences || plan.noExperiences || !Number.isFinite(lat) || !Number.isFinite(lng)) { setExperiences([]); return; }
     let dead = false;
+    const parentOwnsLive = parentOwnsLiveLane(initialExperiences);
+    const liveSeed = rankExperiences(liveExperienceSeed(initialExperiences)).slice(0, 12);
     const searchText = chipSearchQuery(browseCat, sub || "all", city);
     const liveSearch = async () => {
       // GATED ON `city`, deliberately. With no known city this must
@@ -11179,19 +11188,26 @@ function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includ
         return rankExperiences(live && Array.isArray(live.items) ? live.items : []).slice(0, 12);
       } catch (e) { return []; }
     };
+    const finish = async (cached) => {
+      let rows = mergeBrowseExperienceLanes(liveSeed, cached);
+      if (!rows.length && !parentOwnsLive) rows = await liveSearch();
+      return rows;
+    };
     // cat === null means NOTHING in wf_experiences belongs under this chip.
     // Going straight to search is the honest path; hitting the table would only
-    // ask a question whose only correct answer is "none".
+    // ask a question whose only correct answer is "none". When the parent
+    // already owns the live lane (Family browseTours), do not fire a second
+    // paid search — merge the live seed (possibly empty) and stop.
     if (cat === null) {
-      liveSearch().then((rows) => { if (!dead) setExperiences(rows); });
+      finish([]).then((rows) => { if (!dead) setExperiences(rows); });
       return () => { dead = true; };
     }
     const q = new URLSearchParams({ lat: String(lat), lng: String(lng), mi: "60", cat, limit: "12", page: "0" });
     fetch("/api/experiences?" + q.toString()).then((r) => (r.ok ? r.json() : null), () => null).then(async (res) => {
       if (dead) return;
-      let rows = rankExperiences(res && Array.isArray(res.items) ? res.items : []).slice(0, 12);
-      if (!rows.length) rows = await liveSearch();
-      setExperiences(rows);
+      const cached = rankExperiences(res && Array.isArray(res.items) ? res.items : []).slice(0, 12);
+      const rows = await finish(cached);
+      if (!dead) setExperiences(rows);
     });
     return () => { dead = true; };
   }, [initialExperiences, includeExperiences, cat, browseCat, sub, lat, lng, city, region]);

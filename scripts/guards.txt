@@ -147,6 +147,7 @@ node scripts/test-booking-integrity.mjs
 node scripts/test-viator-integrity-lock.mjs
 node scripts/test-experiences-v3.mjs
 node scripts/test-experiences-location.mjs
+node scripts/test-bookable-near-me-empty-rail.mjs
 node scripts/test-searched-location.mjs
 node scripts/check-geo-gated-boosts.mjs
 node scripts/test-editorial-card.mjs

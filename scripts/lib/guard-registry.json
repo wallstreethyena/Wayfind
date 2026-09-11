@@ -27,14 +27,14 @@
     "check-editorial-everywhere.mjs"
   ],
   "counts": {
-    "totalOnDiskGuardFiles": 618,
-    "totalRegistryEntries": 619,
-    "guardsTxtLineCount": 617,
-    "guardsTxtReachedFileCount": 612,
-    "criticalCount": 74,
+    "totalOnDiskGuardFiles": 619,
+    "totalRegistryEntries": 620,
+    "guardsTxtLineCount": 618,
+    "guardsTxtReachedFileCount": 613,
+    "criticalCount": 75,
     "unwiredCriticalCount": 0,
     "classCounts": {
-      "CALL": 424,
+      "CALL": 425,
       "RENDER": 50,
       "STRUCTURAL": 144,
       "OTHER": 1
@@ -8504,6 +8504,33 @@
       "owner": "Revenue QA"
     },
     {
+      "file": "scripts/test-bookable-near-me-empty-rail.mjs",
+      "npmScript": null,
+      "class": "CALL",
+      "hasStructuralOnlyTag": false,
+      "assertionCount": 78,
+      "unprovenAbsenceCount": 0,
+      "honestyViolations": [],
+      "selfDocumentsRedProve": false,
+      "wiring": {
+        "guardsTxt": true,
+        "npmScripts": [],
+        "githubWorkflows": []
+      },
+      "gating": "blocks-ci-and-deploy",
+      "excludedReason": null,
+      "critical": true,
+      "criticalReasons": [
+        "money-keyword-in-filename:bookable"
+      ],
+      "protects": "An empty live Viator city pull cannot hide cached /api/experiences Family inventory, cannot double-spend, cannot loosen the 60-mile UT gate, and an empty tours response must name a non-secret provider_state class.",
+      "blastRadius": {
+        "category": "revenue",
+        "detail": "The Bradenton Family rail collapsed to a single UT card when /api/viator/tours returned items:[]; treating that empty array as finished inventory dropped legitimate imaged link_ok family/theme rows and made every empty live class look the same."
+      },
+      "owner": "Revenue QA"
+    },
+    {
       "file": "scripts/test-booking-audit.mjs",
       "npmScript": null,
       "class": "CALL",
@@ -10545,7 +10572,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 17,
+      "assertionCount": 19,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
@@ -13049,7 +13076,7 @@
       "npmScript": null,
       "class": "CALL",
       "hasStructuralOnlyTag": false,
-      "assertionCount": 10,
+      "assertionCount": 14,
       "unprovenAbsenceCount": 0,
       "honestyViolations": [],
       "selfDocumentsRedProve": false,
