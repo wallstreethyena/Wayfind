@@ -12,7 +12,7 @@
  * destroy crash), opens Map, tears it down (navigate away), then renders
  * Events and asserts no throw and a usable page.
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -60,7 +60,21 @@ ok(!/center \|\| \{ lat: 27\.5689/.test(VIEW),
   "MapView no longer fills a missing center with the Parrish/Sarasota seed");
 
 /* ── 3. Open Map (stubbed WebGL failure) → navigate to Events ──────────── */
-const mapMod = await loadComponent(fileURLToPath(new URL("../app/components/screens/Map.js", import.meta.url)), REPO);
+// The map tab now imports AppleExplorerMap directly; ctx.MapView is no longer
+// a seam. Seed the actual compiled Apple component's SDK-failure state so this
+// renders its real fallback, not a fake component that trivially says "failed".
+// Keep the legacy WebGL teardown regression above for remaining MapView users;
+// test-apple-explorer-map executes Apple controller cleanup separately.
+const appleEntry = fileURLToPath(new URL("../app/components/AppleExplorerMap.js", import.meta.url));
+const mapMod = await loadComponent(fileURLToPath(new URL("../app/components/screens/Map.js", import.meta.url)), REPO, { onGraph(graph) {
+  const compiled = graph.get(appleEntry);
+  if (!compiled) throw new Error("The map screen did not import AppleExplorerMap");
+  const source = readFileSync(compiled, "utf8");
+  const failureState = /const \[failed, setFailed\] = useState\(false\);/g;
+  const matches = [...source.matchAll(failureState)];
+  if (matches.length !== 1) throw new Error(`Expected one Apple failure initializer, found ${matches.length}`);
+  writeFileSync(compiled, source.replace(failureState, 'const [failed, setFailed] = useState(true);'));
+} });
 const evMod = await loadComponent(fileURLToPath(new URL("../app/components/screens/Events.js", import.meta.url)), REPO);
 const MapScreen = mapMod.default;
 const EventsScreen = evMod.default;
@@ -68,12 +82,6 @@ ok(typeof MapScreen === "function", "MapScreen loads");
 ok(typeof EventsScreen === "function", "EventsScreen loads");
 
 const noop = () => {};
-const failingMapView = () => {
-  // Constructor "succeeded" with a half-init instance. Unmount must not throw.
-  const map = stubFailedWebGLMap();
-  try { safeRemoveMap(map); } catch (e) { throw e; }
-  return createElement("div", { "data-map-failed": "1" }, "map-stub");
-};
 
 const mapCtx = {
   searchMapArea: noop, mapMode: "places", setMapMode: noop, mapBrowse: true, setMapBrowse: noop,
@@ -83,7 +91,7 @@ const mapCtx = {
   events: [], eventsLoading: false, eventsUnavailable: false, mapDate: "all", setMapDate: noop,
   mapPreview: null, setMapPreview: noop, mapDrawer: false, setMapDrawer: noop, eventPreview: null, setEventPreview: noop,
   suggested: [], places: [], liked: {}, disliked: {}, view: [], featuredBoost: () => 0,
-  MapView: failingMapView, CategoryMenu: () => null, FallbackImg: () => createElement("span"),
+  CategoryMenu: () => null, FallbackImg: () => createElement("span"),
   iconForPlace: () => "📍", liveOpen: () => true, logEvent: noop, loadEvents: noop,
   openDetail: noop, openVenue: noop, ticketUrl: (u) => u, Hol: { worldCup: () => false, fitFor: () => 0 },
   recenterToMe: noop, isBeach: () => false, beachSignals: {},
@@ -96,10 +104,10 @@ const mapCtx = {
 let mapHtml = null, mapErr = null;
 try { mapHtml = renderToStaticMarkup(createElement(MapScreen, { ctx: mapCtx })); }
 catch (e) { mapErr = e; }
-ok(!mapErr, "opening Map with a stubbed WebGL/map failure does not throw" + (mapErr ? " — " + String(mapErr.message).slice(0, 120) : ""));
-ok(!!mapHtml && mapHtml.includes("data-map-failed"), "Map screen rendered the failed-map stub");
+ok(!mapErr, "opening the actual Apple map failure fallback does not throw" + (mapErr ? " — " + String(mapErr.message).slice(0, 120) : ""));
+ok(!!mapHtml && mapHtml.includes("Apple Maps could not load right now.") && mapHtml.includes("Try again"), "Map screen renders the real Apple failure fallback and retry");
 
-// Navigate: teardown already ran inside the stub; run it again as the route change would.
+// Retain the legacy failed-WebGL navigation cleanup control.
 const leftover = stubFailedWebGLMap();
 let navThrew = null;
 try { safeRemoveMap(leftover); } catch (e) { navThrew = e; }
@@ -132,4 +140,4 @@ if (fail.length) {
   for (const f of fail) console.error("  ✗ " + f);
   process.exit(1);
 }
-console.log(`test-map-teardown: OK — ${pass} assertions (WebGL destroy stub, idempotent cleanup, Map → Events usable)`);
+console.log(`test-map-teardown: OK — ${pass} assertions (legacy WebGL destroy regression, actual Apple failure fallback, Map → Events usable)`);

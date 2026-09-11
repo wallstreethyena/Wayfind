@@ -333,15 +333,17 @@ ok(governedWayfindScore(90, { hasCreatorVideo: true, trending: true, distanceMi:
 // ── 2g. MAP + EXPERIENCE POOLS (2026-08-08, patch 5) ────────────────────────
 {
   const mapSrc = readFileSync(path.resolve("app/components/screens/Map.js"), "utf8");
-  ok(/\+ \(q\.trending \? TRENDING_BONUS : 0\)/.test(mapSrc),
-    "the map's pin-selection score carries the disclosed trend term");
+  const mapArea = readFileSync(path.resolve("lib/mapAreaData.js"), "utf8");
+  ok(/p\.governed_score = governedScoreOf\(p, row\.metro\)/.test(mapArea) && /byGovernedScore\(a, b\)/.test(mapArea)
+    && /selectMapPlaces\(areaPlaces, mapCategory, viewport\)/.test(mapSrc),
+    "the Apple map qualifies and orders the shared governed score including disclosed trend, never a separate pin ranking");
   // v7.16: the map's bottom slot renders IconicPlaceCard, whose facts row
   // carries the mandatory 🔥 trend_reason disclosure — assert the card is
   // there and that the shared card still discloses.
   ok(/<IconicPlaceCard/.test(mapSrc), "the map preview renders the shared IconicPlaceCard (which owns the \u{1F525} disclosure)");
   ok(/place\.trending && place\.trend_reason \? "\u{1F525} " \+ place\.trend_reason/u.test(readFileSync(path.resolve("app/components/IconicPlaceCard.js"), "utf8")),
     "IconicPlaceCard's facts row discloses the \u{1F525} reason — the map card inherits it");
-  ok(/p && p\.trending && p\.trend_reason/.test(mapSrc), "the map card chips render the unified flame (beach-only flame folded in)");
+  ok(/place=\{withPhoto\(mp\)\}/.test(mapSrc) && /<PlaceCard key=\{p.id\} p=\{withPhoto\(p\)\}/.test(mapSrc), "selected card and drawer receive the scored place with its shared trend disclosure");
   const HOME_SRC2 = readFileSync(path.resolve("app/home.js"), "utf8");
   ok((HOME_SRC2.match(/await attachTrendSignals\(/g) || []).length >= 3,
     "home decorates ALL its pools: the main pool + both experience fetch effects (count, not grep)");

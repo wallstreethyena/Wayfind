@@ -1523,3 +1523,6 @@ node scripts/test-bookable-near-50.mjs
 # winner, visible-score order, standard cards, and no raw partner destinations.
 node scripts/test-theme-park-core.mjs
 node scripts/test-theme-park-surfaces.mjs
+node scripts/test-map-area-data.mjs
+node scripts/test-apple-explorer-map.mjs
+node scripts/test-map-screen-render.mjs
