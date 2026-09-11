@@ -149,8 +149,8 @@ const S = {
   credit: { fontSize: 12.5, color: "#8B949E", margin: "0 0 22px" },
   social: { margin: "22px 0", padding: "16px", border: "1px solid #26303B", borderRadius: 14, background: "#111821" },
   socialRail: { display: "flex", gap: 14, overflowX: "auto", overscrollBehaviorX: "contain", padding: "4px 2px 10px", scrollSnapType: "x proximity" },
-  socialPost: { flex: "0 0 min(78vw, 300px)", maxWidth: 300, scrollSnapAlign: "start" },
-  socialLink: { display: "block", color: "#E879F9", fontSize: 14, fontWeight: 800, textDecoration: "none", padding: "10px 2px 2px" },
+  socialPost: { flex: "0 0 min(78vw, 300px)", maxWidth: 300, scrollSnapAlign: "start", borderRadius: 20, overflow: "hidden", border: "1px solid #65443d", background: "linear-gradient(180deg,#302021,#191415)" },
+  socialLink: { display: "block", color: "#efd0a6", fontSize: 14, fontWeight: 800, textDecoration: "none", padding: "0 16px 18px" },
   // v8.88 — the way back. Byte-identical to the pill on /guides and
   // /guides/[slug] (check-guides pins that anchor) because a reader who has
   // seen it once should not have to learn a second control: this page simply
@@ -179,7 +179,7 @@ const S = {
     width: "100%", boxSizing: "border-box", maxWidth: "100%", textAlign: "center", overflowWrap: "anywhere", padding: "16px 20px", borderRadius: 14,
     background: "linear-gradient(180deg,#FFA35C,#F97316)", border: "1px solid #F97316", color: "#111827",
     fontSize: 16, fontWeight: 850, textDecoration: "none", lineHeight: 1.4,
-    boxShadow: "0 16px 34px rgba(249,115,22,.32)",
+    boxShadow: "0 0 22px rgba(249,115,22,.30), 0 12px 36px rgba(249,115,22,.38), inset 0 1px 0 rgba(255,255,255,.3)",
   },
   disclosure: { margin: "10px 0 0", fontSize: 11.5, color: "#8B949E", textAlign: "center" },
   actionsRow: { display: "flex", gap: 10, flexWrap: "wrap" },
@@ -404,7 +404,16 @@ export default async function CuratedEventPage({ params }) {
                   label={`@${post.creator}'s post about ${e.event_name}`}
                   poster={socialPoster}
                   fallbackPoster={socialPosterFallback}
+                  coverTitle={e.event_name}
+                  coverCity={e.city}
+                  coverEyebrow={`THE @${post.creator} EDIT`}
+                  fallbackLabel="Event cover shown"
                 />
+                <div style={{ padding: "18px 16px 14px" }}>
+                  <h3 style={{ margin: "0 0 6px", color: "#fff", fontFamily: "Georgia,serif", fontSize: 22, lineHeight: 1.25 }}>{e.event_name}</h3>
+                  <p style={{ margin: "0 0 10px", color: "#aaa3a0", fontSize: 13 }}>{[e.venue, e.city].filter(Boolean).join(" · ")}</p>
+                  <p style={{ margin: 0, color: "#cbbab2", fontSize: 13, lineHeight: 1.5 }}>Seen by @{post.creator}. {socialPoster ? "Event cover shown." : "Open the creator’s post to see more."}</p>
+                </div>
                 <a href={post.url} target="_blank" rel="noopener" style={S.socialLink}
                   aria-label={`View @${post.creator}'s Instagram post about ${e.event_name} (opens in a new tab)`}>
                   View @{post.creator}&rsquo;s post on Instagram ↗
