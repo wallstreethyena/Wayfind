@@ -615,5 +615,21 @@
       "detail": "Wrong-account or poisoned short links can send buyers to an incorrect program or make conversion attribution unverifiable."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/test-bookable-near-50.mjs": {
+    "protects": "The real browse rail renders up to 50 relevant local affiliate cards in descending visible score order with no duplicate or dead offers.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "Wrong or duplicate affiliate cards can send users to unrelated products or hide the best local bookable options."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-browse-bookable-match.mjs": {
+    "protects": "Exact browse intent and complete local candidate reads are applied before ranking and limiting bookable offers.",
+    "blastRadius": {
+      "category": "trust",
+      "detail": "Truncated inventory or broad category leakage can hide relevant offers or show unsuitable family activities."
+    },
+    "owner": "Revenue QA"
   }
 }

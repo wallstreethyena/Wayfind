@@ -109,19 +109,19 @@ ok(wouldLeak.some((r) => r.product_code === "r1"), "the `food` concept still mat
 ok(wouldLeak.some((r) => r.product_code === "r2"), "the `food` concept still matches the Riverwalk walking tour from the live repro");
 ok(!wouldLeak.some((r) => r.product_code === "r3"), "sanity: a restaurant's own name is not itself matched as a `food` tour");
 
-// ── 4. app/home.js: the gate sits ABOVE the network calls, not decoration ──
+// ── 4. extracted browse rail: gate sits ABOVE network calls ──
 // A comment or a dead variable would satisfy nothing a reader could observe.
 // This checks SOURCE ORDER, the same way check-subfilter-experience-coverage
 // checks real behaviour rather than presence: the noExperiences check must
 // appear in the effect BEFORE the fetch calls it is supposed to prevent.
-const homeSrc = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
-const fnStart = homeSrc.indexOf("function UnifiedBrowseCommerceRail(");
-ok(fnStart >= 0, "app/home.js still defines UnifiedBrowseCommerceRail (the fix does not delete the rail — a future restaurant-specific offer needs somewhere to mount)");
+const componentSrc = readFileSync(new URL("../app/components/UnifiedBrowseCommerceRail.js", import.meta.url), "utf8");
+const fnStart = componentSrc.indexOf("function UnifiedBrowseCommerceRail(");
+ok(fnStart >= 0, "the extracted UnifiedBrowseCommerceRail component still defines the implementation (a future restaurant-specific offer needs somewhere to mount)");
 // Bound the search to this one function, not the whole 11k-line file, so a
 // `plan.noExperiences` mention anywhere else in the file cannot pass this by
 // accident. The function is closed by the next top-level `function ` or EOF.
-const nextFnAt = homeSrc.indexOf("\nfunction ", fnStart + 30);
-const fnBody = homeSrc.slice(fnStart, nextFnAt > 0 ? nextFnAt : homeSrc.length);
+const nextFnAt = componentSrc.indexOf("\nfunction ", fnStart + 30);
+const fnBody = componentSrc.slice(fnStart, nextFnAt > 0 ? nextFnAt : componentSrc.length);
 // Find the REAL conditional, not a comment that merely names the identifier —
 // this file's own WHY comments (deliberately) say "plan.noExperiences" in
 // prose right above the code, which a bare indexOf("plan.noExperiences")
@@ -181,4 +181,4 @@ function UnifiedBrowseCommerceRail() {
 ok(findsGateBeforeFetches(POST_FIX_FIXTURE) === true, "self-test positive control: the extraction finds the gate on a known-good fixture");
 ok(findsGateBeforeFetches(PRE_FIX_FIXTURE) === false, "self-test negative control: the extraction reports false on the known pre-fix shape (no gate at all) — proves this guard can actually fail");
 
-console.log(`check-food-no-tour-rail: OK — ${pass} assertions (${FOOD_SUBS.length} Food sub-chips confirmed noExperiences, 8 sibling chips confirmed unaffected, the live-repro trap rows confirmed still real, app/home.js gate order verified, self-tests confirmed the checker itself can fail)`);
+console.log(`check-food-no-tour-rail: OK — ${pass} assertions (${FOOD_SUBS.length} Food sub-chips confirmed noExperiences, 8 sibling chips confirmed unaffected, the live-repro trap rows confirmed still real, extracted component gate order verified, self-tests confirmed the checker itself can fail)`);
