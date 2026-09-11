@@ -88,11 +88,12 @@ const firstCopyCall = (body) => {
   const chooser = strip(read("lib/shareChooser.js"));
   const body = so.slice(so.indexOf("export function shareOut"));
   ok(body.indexOf("navigator.share(") > -1 && chooser.indexOf("clipboard.writeText") > -1, "shared sharing must have both native and explicit-copy paths");
-  ok(firstNativeAttempt(body) < body.indexOf("queueShareChooser("),
+  ok(firstNativeAttempt(body) < body.indexOf("showShareChooser("),
      "lib/shareOut.js calls the clipboard before attempting the native sheet — on iOS that consumes the tap's activation and the sheet is then refused (v4.07)");
   ok(/AbortError/.test(so), "a user who cancels the sheet has not failed — cancelling must not fall through to a silent copy");
   ok(/execCommand/.test(chooser), "no legacy fallback: on an insecure origin navigator.clipboard is simply absent");
-  ok(/import\("\.\/shareChooser\.js"\)/.test(so) && !/^\s*import\s+.*shareChooser/m.test(so), "the fallback chooser must stay dynamically split from the initial page bundle");
+  ok(/^\s*import\s+.*openShareChooser.*shareChooser/m.test(so) && !/import\("\.\/shareChooser\.js"\)/.test(so),
+     "the fallback chooser must ship with shareOut — a lazy chunk can fail or arrive late after shareOut already reported chooser, leaving the original tap silent");
   ok(!/window\.location/.test(so), "shareOut must share the url it is handed, never one it reads off the page");
 }
 {

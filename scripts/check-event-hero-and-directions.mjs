@@ -101,8 +101,8 @@ function heroLadderComplete(page) {
 
 // 4. NEARBY RECOMMENDATIONS LIVE INSIDE THE MAP PANEL BUT REMAIN CLEARLY
 // DISTINCT FROM THE VENUE. The latest owner direction places the standard
-// IconicPlaceCard rail inside .wfw-card. Its own semantic region, teal border,
-// teal pin language, and explicit copy must still prevent a nearby business
+// IconicPlaceCard rail inside .wfw-card. Its own semantic region, map key,
+// and explicit accessible copy must still prevent a nearby business
 // from reading as part of the ticketed venue.
 function nearbySeparatedFromVenue(where) {
   const cardOpen = where.indexOf('<div className="wfw-card">');
@@ -115,11 +115,14 @@ function nearbySeparatedFromVenue(where) {
   const opens = (between.match(/<div\b/g) || []).length;
   const closes = (between.match(/<\/div>/g) || []).length;
   const nestedInMapPanel = opens > closes;
-  const distinctAccent = /\.wfw-nearcard\{[^}]*rgba\(46,201,166/.test(where) // PICK teal
-    && !/\.wfw-nearcard\{[^}]*rgba\(249,115,22/.test(where); // never the venue card's orange (ACCENT)
+  // Owner requested the flat home-poster rail, so venue separation comes
+  // from the map key + semantic region rather than another bordered panel.
+  const flatRail = /\.wfw-nearcard\{[^}]*min-width:0/.test(where)
+    && !/\.wfw-nearcard\{[^}]*(?:border:|background:|box-shadow:)/.test(where);
+  const mapKey = /aria-label="Map key"/.test(where) && /wfw-key-nearby/.test(where);
   const saysNotTheVenue = /not the venue|not part of/i.test(where.slice(nearIdx, nearIdx + 800));
   const standardRail = /<EventNearbyCards places=\{pins\}/.test(where);
-  return nestedInMapPanel && distinctAccent && saysNotTheVenue && standardRail;
+  return nestedInMapPanel && flatRail && mapKey && saysNotTheVenue && standardRail;
 }
 
 /* ── EXECUTE the real functions the JSX above calls, not just their source ─
@@ -170,7 +173,7 @@ ok(/function heroInitials\(/.test(pageSrc),
   `${PAGE_PATH} derives fallback initials the same way RailCard/IconicPlaceCard do (not a stock image)`);
 
 ok(nearbySeparatedFromVenue(whereSrc),
-  `${WHERE_PATH}: the standard nearby place-card rail is inside the map panel and remains a teal semantic region whose copy says it is not the venue`);
+  `${WHERE_PATH}: the standard nearby place-card rail is inside the map panel and uses a flat semantic region with a map key and accessible venue distinction`);
 ok(/pins\.length\s*>\s*0/.test(whereSrc),
   `${WHERE_PATH} still gates the nearby shelf on having real pins (never a thin shelf)`);
 
@@ -228,6 +231,11 @@ const PRE_FIX_WHERE_NEAR = `
 `;
 ok(!nearbySeparatedFromVenue(PRE_FIX_WHERE_NEAR),
   "RED-PROVE: the old bespoke nearby block (no semantic region, teal distinction, or standard IconicPlaceCard rail) fails nearbySeparatedFromVenue");
+
+ok(!nearbySeparatedFromVenue(whereSrc.replace('aria-label="Map key"', 'aria-label="Removed key"')),
+  "RED-PROVE: losing the map key fails the flat-rail contract");
+ok(!nearbySeparatedFromVenue(whereSrc.replace('.wfw-nearcard{', '.wfw-nearcard{border:1px solid teal;')),
+  "RED-PROVE: restoring the nested bordered box fails the flat-rail contract");
 
 // A guard whose positive checks would ALSO pass on the broken fixtures proves
 // nothing — so also prove the real, fixed source is distinguishable from the
