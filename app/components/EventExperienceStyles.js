@@ -51,8 +51,8 @@ export const EVENT_EXPERIENCE_CSS = `
 .wf-event-experience .wfw-map{padding:0 18px 18px}
 .wf-event-experience .wfev-h{height:520px}
 .wf-event-experience .wfw-dir{box-shadow:none;background:#ff782f;color:#171108}
-.wf-event-experience .wfw-near{padding:10px 28px 28px}
-.wf-event-experience .wfw-near h3{font-size:28px;font-weight:600;margin:18px 0 12px}
+.wf-event-experience .wfw-near{padding:14px 16px 8px}
+.wf-event-experience .wfw-near h3{font-size:20px;font-weight:600;margin:0 0 10px}
 
 
 
@@ -61,9 +61,9 @@ export const EVENT_EXPERIENCE_CSS = `
 
 
 
-.wf-event-experience .wfw-foot{font-size:13px;line-height:1.65;color:#aab4c2;padding:0 28px 24px}
+.wf-event-experience .wfw-foot{font-size:12px;line-height:1.4;color:#aab4c2;padding:0 20px 8px}
 .wf-event-experience .wfev-you:before{animation:none}
-@media(max-width:800px){.wf-event-wrap{padding:20px 20px 48px}.wf-event-hero{grid-template-columns:1fr;gap:18px;margin:20px 0 30px}.wf-event-photo{flex-basis:216px;width:216px;height:384px}.wf-event-booking{padding:24px}.wf-event-fact{grid-template-columns:86px minmax(0,1fr);gap:10px;font-size:14px}.wf-event-booking h1{font-size:36px!important}.wf-event-experience .wfw-head{padding:22px}.wf-event-experience .wfw-map{padding:0 8px 8px}.wf-event-experience .wfev-h{height:420px}.wf-event-experience .wfw-near{padding:10px 20px 24px}.wf-event-content{margin-top:30px}.wf-event-experience .wfw-foot{padding:0 20px 24px}.wf-event-brand{flex-wrap:wrap}.wf-event-experience .wfw-btn{white-space:normal;line-height:1.4}}
+@media(max-width:800px){.wf-event-wrap{padding:20px 20px 48px}.wf-event-hero{grid-template-columns:1fr;gap:18px;margin:20px 0 30px}.wf-event-photo{flex-basis:216px;width:216px;height:384px}.wf-event-booking{padding:24px}.wf-event-fact{grid-template-columns:86px minmax(0,1fr);gap:10px;font-size:14px}.wf-event-booking h1{font-size:36px!important}.wf-event-experience .wfw-head{padding:22px}.wf-event-experience .wfw-map{padding:0 8px 8px}.wf-event-experience .wfev-h{height:420px}.wf-event-experience .wfw-near{padding:12px 12px 6px}.wf-event-content{margin-top:30px}.wf-event-experience .wfw-foot{padding:0 14px 8px}.wf-event-brand{flex-wrap:wrap}.wf-event-experience .wfw-btn{white-space:normal;line-height:1.4}}
 @media(max-width:380px){.wf-event-wrap{padding:16px 14px 40px}.wf-event-booking{padding:18px}.wf-event-booking h1{font-size:30px!important}.wf-event-fact{grid-template-columns:1fr;gap:2px}}
 @media(prefers-reduced-motion:reduce){.wf-event-experience *{scroll-behavior:auto!important;transition:none!important}}
 `;
